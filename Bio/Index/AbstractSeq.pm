@@ -155,7 +155,8 @@ sub fetch {
 
     # we essentially assumme that the primary_id for the database
     # is the display_id
-    $seq->primary_id($seq->display_id()) if $seq;
+    $seq->primary_id($seq->display_id()) if( defined $seq && ref($seq) &&
+					     $seq->isa('Bio::PrimarySeqI') );
 
     return $seq;
 }
