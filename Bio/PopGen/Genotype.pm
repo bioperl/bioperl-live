@@ -12,7 +12,7 @@
 
 =head1 NAME
 
-Bio::PopGen::Genotype - An implementation of a genotype which is an allele container
+Bio::PopGen::Genotype - An implementation of GenotypeI which is just an allele container
 
 =head1 SYNOPSIS
 

@@ -147,7 +147,7 @@ sub num_of_results {
  Usage   : $individual->add_Genotype
  Function: add a genotype value
  Returns : count of the number of genotypes associated with this individual
- Args    : @genotypes - Bio::PopGen::GenotypeI object(s) containing 
+ Args    : @genotypes - L<Bio::PopGen::GenotypeI> object(s) containing 
                         alleles plus a marker name
 
 =cut
