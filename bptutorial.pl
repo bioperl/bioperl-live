@@ -831,6 +831,15 @@ current interpretations:
    swiss    swiss|sp
    phd      phd|phred
    fastq    fastq
+   qual
+   abi*
+   alf*
+   ctf*
+   exp*
+   scf*
+   ztr*
+
+* These formats require the bioperl-ext package
 
 For more information see L<Bio::SeqIO>.
 
@@ -2320,7 +2329,7 @@ produce better results for local MSA.
 To use these capabilities, the clustalw and/or tcoffee programs
 themselves need to be installed on the host system.  In addition, the
 environmental variables CLUSTALDIR and TCOFFEEDIR need to be set to
-the directories containg the executables.  See section L<"I.3"> and the
+the directories containg the executables.  See section L<"I.4"> and the
 L<Bio::Tools::Run::Alignment::Clustalw> and
 L<Bio::Tools::Run::Alignment::TCoffee> for information on downloading
 and installing these programs.
@@ -2380,7 +2389,7 @@ protein sequences, not nucleotide.
 The SW algorithm itself is implemented in C and incorporated into
 bioperl using an XS extension. This has significant efficiency
 advantages but means that pSW will B<not> work unless you have
-compiled the bioperl-ext auxilliary library.  If you have compiled the
+compiled the bioperl-ext auxiliary library.  If you have compiled the
 bioperl-ext package, usage is simple, where the method align_and_show
 displays the alignment while pairwise_alignment produces a (reference
 to) a SimpleAlign object.
