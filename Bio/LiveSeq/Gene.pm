@@ -12,10 +12,11 @@
 
 =head1 NAME
 
-  Bio::LiveSeq::Gene - Range abstract class for LiveSeq
+Bio::LiveSeq::Gene - Range abstract class for LiveSeq
 
 =head1 SYNOPSIS
 
+  # documentation needed
 
 =head1 DESCRIPTION
 
