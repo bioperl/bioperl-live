@@ -78,7 +78,7 @@ use strict;
 
 use Bio::Root::Root;
 use Bio::Search::Hit::HitI;
-require Bio::Search::BlastUtils;
+require Bio::Search::SearchUtils;
 
 @ISA = qw(Bio::Root::Root Bio::Search::Hit::HitI );
 
@@ -496,19 +496,7 @@ sub ambiguous_aln {
 
 =head2 overlap
 
- Usage     : $blast_object->overlap( [integer] );
- Purpose   : Gets/Sets the allowable amount overlap between different HSP sequences.
- Example   : $blast_object->overlap(5);
-           : $overlap = $blast_object->overlap;
- Returns   : Integer.
- Argument  : integer.
- Throws    : n/a
- Status    : Experimental
- Comments  : Any two HSPs whose sequences overlap by less than or equal
-           : to the overlap() number of resides will be considered separate HSPs
-           : and will not get tiled by Bio::Search::BlastUtils::_adjust_contigs().
-
-See Also   : L<Bio::Search::BlastUtils::_adjust_contigs()|Bio::Search::BlastUtils>, L<BUGS | BUGS>
+See documentation in L<Bio::Search::SearchUtils::overlap()|Bio::Search::SearchUtils>
 
 =cut
 
@@ -524,7 +512,7 @@ sub overlap {
 =head2 n
 
  Usage     : $hit_object->n();
- Purpose   : Gets the N number for the current Blast hit.
+ Purpose   : Gets the N number for the current hit.
            : This is the number of HSPs in the set which was ascribed
            : the lowest P-value (listed on the description line).
            : This number is not the same as the total number of HSPs.
@@ -586,7 +574,7 @@ sub n {
            : That is, floats are not converted into sci notation before
            : splitting into parts.
 
-See Also   : L<expect()|expect>, L<signif()|signif>, L<Bio::Search::BlastUtils::get_exponent()|Bio::Search::BlastUtils>
+See Also   : L<expect()|expect>, L<signif()|signif>, L<Bio::Search::SearchUtils::get_exponent()|Bio::Search::SearchUtils>
 
 =cut
 
@@ -608,7 +596,7 @@ sub p {
 
     return $val if not $fmt or $fmt =~ /^raw/i;
     ## Special formats: exponent-only or as list.
-    return &Bio::Search::BlastUtils::get_exponent($val) if $fmt =~ /^exp/i;
+    return &Bio::Search::SearchUtils::get_exponent($val) if $fmt =~ /^exp/i;
     return (split (/eE/, $val)) if $fmt =~ /^parts/i;
 
     ## Default: return the raw P-value.
@@ -720,41 +708,45 @@ sub logical_length {
            : If you don't want the tiled data, iterate through each HSP
            : calling length() on each (use hsps() to get all HSPs).
 
-See Also   : L<length()|length>, L<frac_aligned_query()|frac_aligned_query>, L<frac_aligned_hit()|frac_aligned_hit>, L<gaps()|gaps>, L<Bio::Search::BlastUtils::tile_hsps()|Bio::Search::BlastUtils>, L<Bio::Search::HSP::BlastHSP::length()|Bio::Search::HSP::BlastHSP>
+See Also   : L<length()|length>, L<frac_aligned_query()|frac_aligned_query>, L<frac_aligned_hit()|frac_aligned_hit>, L<gaps()|gaps>, L<Bio::Search::SearchUtils::tile_hsps()|Bio::Search::SearchUtils>, L<Bio::Search::HSP::BlastHSP::length()|Bio::Search::HSP::BlastHSP>
 
 =cut
 
 #---------------'
 sub length_aln {
 #---------------
-    my( $self, $seqType ) = @_;
+    my( $self, $seqType, $num ) = @_;
     
     $seqType ||= 'query';
     $seqType = 'sbjct' if $seqType eq 'hit';
 
-    Bio::Search::BlastUtils::tile_hsps($self) if not $self->{'_tile_hsps'};
+    Bio::Search::SearchUtils::tile_hsps($self) if not $self->{'_tiled_hsps'};
+
+    if( defined $num) {
+        return $self->{'_length_aln_'.$seqType} = $num;
+    }
 
     my $data = $self->{'_length_aln_'.$seqType};
     
     ## If we don't have data, figure out what went wrong.
     if(!$data) {
-	$self->throw("Can't get length aln for sequence type \"$seqType\"" . 
+	$self->throw("Can't get length aln for sequence type \"$seqType\". " . 
 		     "Valid types are 'query', 'hit', 'sbjct' ('sbjct' = 'hit')");
     }		
-    $data;
+    return $data;
 }    
 
 =head2 gaps
 
  Usage     : $hit_object->gaps( [seq_type] );
- Purpose   : Get the number of gaps in the aligned query, sbjct, or both sequences.
+ Purpose   : Get the number of gaps in the aligned query, hit, or both sequences.
            : Data is summed across all HSPs.
  Example   : $qgaps = $hit_object->gaps('query');
            : $hgaps = $hit_object->gaps('hit');
            : $tgaps = $hit_object->gaps();    # default = total (query + hit)
  Returns   : scalar context: integer
            : array context without args: two-element list of integers  
-           :    (queryGaps, sbjctGaps)
+           :    (queryGaps, hitGaps)
            : Array context can be forced by providing an argument of 'list' or 'array'.
            :
            : CAUTION: Calling this method within printf or sprintf is arrray context.
@@ -781,20 +773,24 @@ See Also   : L<length_aln()|length_aln>
 #----------
 sub gaps {
 #----------
-    my( $self, $seqType ) = @_;
+    my( $self, $seqType, $num ) = @_;
 
     $seqType ||= (wantarray ? 'list' : 'total');
     $seqType = 'sbjct' if $seqType eq 'hit';
 
-    Bio::Search::BlastUtils::tile_hsps($self) if not $self->{'_tile_hsps'};
+    Bio::Search::SearchUtils::tile_hsps($self) if not $self->{'_tiled_hsps'};
 
     $seqType = lc($seqType);
 
-    if($seqType =~ /list|array/i) {
+    if( defined $num ) {
+        $self->throw("Can't set gaps for seqType '$seqType'. Must be 'query' or 'hit'\n") unless ($seqType eq 'sbjct' or $seqType eq 'query');
+
+        return $self->{'_gaps_'.$seqType} = $num;
+    }
+    elsif($seqType =~ /list|array/i) {
 	return ($self->{'_gaps_query'}, $self->{'_gaps_sbjct'});
     }
-
-    if($seqType eq 'total') {
+    elsif($seqType eq 'total') {
 	return ($self->{'_gaps_query'} + $self->{'_gaps_sbjct'}) || 0;
     } else {
 	return $self->{'_gaps_'.$seqType} || 0;
@@ -802,49 +798,33 @@ sub gaps {
 }    
 
 
-
 =head2 matches
 
- Usage     : $hit_object->matches( [class] );
- Purpose   : Get the total number of identical or conserved matches 
-           : (or both) across all HSPs.
-           : (Note: 'conservative' matches are indicated as 'positives' 
-	   :         in the Blast report.)
- Example   : ($id,$cons) = $hit_object->matches(); # no argument
-           : $id = $hit_object->matches('id');
-           : $cons = $hit_object->matches('cons'); 
- Returns   : Integer or a 2-element array of integers 
- Argument  : class = 'id' | 'cons' OR none. 
-           : If no argument is provided, both identical and conservative 
-           : numbers are returned in a two element list.
-           : (Other terms can be used to refer to the conservative
-           :  matches, e.g., 'positive'. All that is checked is whether or
-           :  not the supplied string starts with 'id'. If not, the 
-           : conservative matches are returned.)
- Throws    : Exception if the requested data cannot be obtained.
- Comments  : If you need data for each HSP, use hsps() and then interate
-           : through the HSP objects.
-           : Does not rely on wantarray to return a list. Only checks for
-           : the presence of an argument (no arg = return list).
-
-See Also   : L<Bio::Search::HSP::BlastHSP::matches()|Bio::Search::HSP::BlastHSP>, L<hsps()|hsps>
+See documentation in L<Bio::Search::Hit::HitI::matches()|Bio::Search::Hit::HitI>
 
 =cut
 
 #---------------
 sub matches {
 #---------------
-    my( $self, $arg) = @_;
+    my( $self, $arg1, $arg2) = @_;
     my(@data,$data);
 
-    if(!$arg) {
+    Bio::Search::SearchUtils::tile_hsps($self) if not $self->{'_tiled_hsps'};
+
+    if(!$arg1) {
 	@data = ($self->{'_totalIdentical'}, $self->{'_totalConserved'});
 
 	return @data if @data;
 
     } else {
 
-	if($arg =~ /^id/i) { 
+        if( defined $arg2 ) {
+	    $self->{'_totalIdentical'} = $arg1;
+	    $self->{'_totalConserved'} = $arg2;
+            return ( $arg1, $arg2 );
+        }
+	elsif($arg1 =~ /^id/i) { 
 	    $data = $self->{'_totalIdentical'};
 	} else {
 	    $data = $self->{'_totalConserved'};
@@ -886,23 +866,28 @@ See Also   : L<end()|end>, L<range()|range>, L<strand()|strand>,
 #----------
 sub start {
 #----------
-    my ($self, $seqType) = @_;
+    my ($self, $seqType, $num) = @_;
 
     $seqType ||= (wantarray ? 'list' : 'query');
     $seqType = 'sbjct' if $seqType eq 'hit';
 
+    if( defined $num ) {
+        $seqType = "_\L$seqType\E";
+        return $self->{$seqType.'Start'} = $num;
+    }
+
     # If there is only one HSP, defer this call to the solitary HSP.
     if($self->num_hsps == 1) {
-	return $self->hsp->start($seqType);
+        return $self->hsp->start($seqType);
     } else {
-	Bio::Search::BlastUtils::tile_hsps($self) if not $self->{'_tile_hsps'};
-	if($seqType =~ /list|array/i) {
-	    return ($self->{'_queryStart'}, $self->{'_sbjctStart'});
-	} else {
-	    ## Sensitive to member name changes.
-	    $seqType = "_\L$seqType\E";
-	    return $self->{$seqType.'Start'};
-	}
+        Bio::Search::SearchUtils::tile_hsps($self) if not $self->{'_tiled_hsps'};
+        if($seqType =~ /list|array/i) {
+            return ($self->{'_queryStart'}, $self->{'_sbjctStart'});
+        } else {
+            ## Sensitive to member name changes.
+            $seqType = "_\L$seqType\E";
+            return $self->{$seqType.'Start'};
+        }
     }
 }
 
@@ -935,16 +920,22 @@ See Also   : L<start()|start>, L<range()|range>, L<strand()|strand>
 #----------
 sub end {
 #----------
-    my ($self, $seqType) = @_;
+    my ($self, $seqType, $num) = @_;
 
     $seqType ||= (wantarray ? 'list' : 'query');
     $seqType = 'sbjct' if $seqType eq 'hit';
+
+
+    if( defined $num ) {
+        $seqType = "_\L$seqType\E";
+        return $self->{$seqType.'Stop'} = $num;
+    }
 
     # If there is only one HSP, defer this call to the solitary HSP.
     if($self->num_hsps == 1) {
 	return $self->hsp->end($seqType);
     } else {
-	Bio::Search::BlastUtils::tile_hsps($self) if not $self->{'_tile_hsps'};
+	Bio::Search::SearchUtils::tile_hsps($self) if not $self->{'_tiled_hsps'};
 	if($seqType =~ /list|array/i) {
 	    return ($self->{'_queryStop'}, $self->{'_sbjctStop'});
 	} else {
@@ -1014,7 +1005,7 @@ sub range {
            : This method requires that all HSPs be tiled. If they have not
            : already been tiled, they will be tiled first automatically.
 
-See Also   : L<frac_conserved()|frac_conserved>, L<frac_aligned_query()|frac_aligned_query>, L<matches()|matches>, L<Bio::Search::BlastUtils::tile_hsps()|Bio::Search::BlastUtils>
+See Also   : L<frac_conserved()|frac_conserved>, L<frac_aligned_query()|frac_aligned_query>, L<matches()|matches>, L<Bio::Search::SearchUtils::tile_hsps()|Bio::Search::SearchUtils>
 
 =cut
 
@@ -1028,7 +1019,7 @@ sub frac_identical {
     ## Sensitive to member name format.
     $seqType = lc($seqType);
 
-    Bio::Search::BlastUtils::tile_hsps($self) if not $self->{'_tile_hsps'};
+    Bio::Search::SearchUtils::tile_hsps($self) if not $self->{'_tiled_hsps'};
 
     my $ident = $self->{'_totalIdentical'};
     my $total = $self->{'_length_aln_'.$seqType};
@@ -1075,7 +1066,7 @@ sub frac_identical {
            : This method requires that all HSPs be tiled. If they have not
            : already been tiled, they will be tiled first automatically.
 
-See Also   : L<frac_identical()|frac_identical>, L<matches()|matches>, L<Bio::Search::BlastUtils::tile_hsps()|Bio::Search::BlastUtils>
+See Also   : L<frac_identical()|frac_identical>, L<matches()|matches>, L<Bio::Search::SearchUtils::tile_hsps()|Bio::Search::SearchUtils>
 
 =cut
 
@@ -1089,7 +1080,7 @@ sub frac_conserved {
     ## Sensitive to member name format.
     $seqType = lc($seqType);
 
-    Bio::Search::BlastUtils::tile_hsps($self) if not $self->{'_tile_hsps'};
+    Bio::Search::SearchUtils::tile_hsps($self) if not $self->{'_tiled_hsps'};
 
     my $consv = $self->{'_totalConserved'};
     my $total = $self->{'_length_aln_'.$seqType};
@@ -1124,7 +1115,7 @@ sub frac_conserved {
            : This method requires that all HSPs be tiled. If they have not
            : already been tiled, they will be tiled first automatically.
 
-See Also   : L<frac_aligned_hit()|frac_aligned_hit>, L<logical_length()|logical_length>, L<length_aln()|length_aln>,  L<Bio::Search::BlastUtils::tile_hsps()|Bio::Search::BlastUtils>
+See Also   : L<frac_aligned_hit()|frac_aligned_hit>, L<logical_length()|logical_length>, L<length_aln()|length_aln>,  L<Bio::Search::SearchUtils::tile_hsps()|Bio::Search::SearchUtils>
 
 =cut
 
@@ -1133,7 +1124,7 @@ sub frac_aligned_query {
 #----------------------
     my $self = shift;
 
-    Bio::Search::BlastUtils::tile_hsps($self) if not $self->{'_tile_hsps'};
+    Bio::Search::SearchUtils::tile_hsps($self) if not $self->{'_tiled_hsps'};
 
     sprintf( "%.2f", $self->{'_length_aln_query'}/ 
 	     $self->logical_length('query'));
@@ -1161,7 +1152,7 @@ sub frac_aligned_query {
            : This method requires that all HSPs be tiled. If they have not
            : already been tiled, they will be tiled first automatically.
 
-See Also   : L<frac_aligned_query()|frac_aligned_query>, L<matches()|matches>, , L<logical_length()|logical_length>, L<length_aln()|length_aln>,  L<Bio::Search::BlastUtils::tile_hsps()|Bio::Search::BlastUtils>
+See Also   : L<frac_aligned_query()|frac_aligned_query>, L<matches()|matches>, , L<logical_length()|logical_length>, L<length_aln()|length_aln>,  L<Bio::Search::SearchUtils::tile_hsps()|Bio::Search::SearchUtils>
 
 =cut
 
@@ -1170,7 +1161,7 @@ sub frac_aligned_hit {
 #--------------------
     my $self = shift;
 
-    Bio::Search::BlastUtils::tile_hsps($self) if not $self->{'_tile_hsps'};
+    Bio::Search::SearchUtils::tile_hsps($self) if not $self->{'_tiled_hsps'};
 
     sprintf( "%.2f", $self->{'_length_aln_sbjct'}/$self->logical_length('sbjct'));
 }
@@ -1216,7 +1207,7 @@ sub num_unaligned_sbjct {  my $self=shift; $self->num_unaligned_hit(@_); }
            : This method requires that all HSPs be tiled. If they have not
            : already been tiled, they will be tiled first automatically..
 
-See Also   : L<num_unaligned_query()|num_unaligned_query>,  L<Bio::Search::BlastUtils::tile_hsps()|Bio::Search::BlastUtils>, L<frac_aligned_hit()|frac_aligned_hit>
+See Also   : L<num_unaligned_query()|num_unaligned_query>,  L<Bio::Search::SearchUtils::tile_hsps()|Bio::Search::SearchUtils>, L<frac_aligned_hit()|frac_aligned_hit>
 
 =cut
 
@@ -1225,7 +1216,7 @@ sub num_unaligned_hit {
 #---------------------
     my $self = shift;
 
-    Bio::Search::BlastUtils::tile_hsps($self) if not $self->{'_tile_hsps'};
+    Bio::Search::SearchUtils::tile_hsps($self) if not $self->{'_tiled_hsps'};
 
     my $num = $self->logical_length('sbjct') - $self->{'_length_aln_sbjct'};
     ($num < 0 ? 0 : $num );
@@ -1248,7 +1239,7 @@ sub num_unaligned_hit {
            : This method requires that all HSPs be tiled. If they have not
            : already been tiled, they will be tiled first automatically..
 
-See Also   : L<num_unaligned_hit()|num_unaligned_hit>, L<frac_aligned_query()|frac_aligned_query>,  L<Bio::Search::BlastUtils::tile_hsps()|Bio::Search::BlastUtils>
+See Also   : L<num_unaligned_hit()|num_unaligned_hit>, L<frac_aligned_query()|frac_aligned_query>,  L<Bio::Search::SearchUtils::tile_hsps()|Bio::Search::SearchUtils>
 
 =cut
 
@@ -1257,7 +1248,7 @@ sub num_unaligned_query {
 #-----------------------
     my $self = shift;
 
-    Bio::Search::BlastUtils::tile_hsps($self) if not $self->{'_tile_hsps'};
+    Bio::Search::SearchUtils::tile_hsps($self) if not $self->{'_tiled_hsps'};
 
     my $num = $self->logical_length('query') - $self->{'_length_aln_query'};
     ($num < 0 ? 0 : $num );
@@ -1313,58 +1304,95 @@ sub seq_inds {
 	@inds = sort {$a <=> $b} keys %tmp;
     }
 
-    $collapse ?  &Bio::Search::BlastUtils::collapse_nums(@inds) : @inds; 
+    $collapse ?  &Bio::Search::SearchUtils::collapse_nums(@inds) : @inds; 
 }
+
 
 =head2 strand
 
- Usage     : $sbjct->strand( [seq_type] );
- Purpose   : Gets the strand(s) for the query, sbjct, or both sequences
-           : in the BlastHit object. 
- Example   : $qstrand = $sbjct->strand('query');
-           : $sstrand = $sbjct->strand('hit');
-           : ($qstrand, $sstrand) = $sbjct->strand();
- Returns   : scalar context: integer '1', '-1', or '-1/1'
-           : if there are HSPs on both strands.
-           : array context without args: list of two strings (queryStrand, sbjctStrand)
-           : Array context can be "induced" by providing an argument of 'list' or 'array'.
- Argument  : In scalar context: seq_type = 'query' or 'hit' or 'sbjct' (default = 'query')
-             ('sbjct' is synonymous with 'hit')
- Throws    : n/a
-
-See Also   : B<Bio::Search::HSP::BlastHSP::strand>()
+See documentation in L<Bio::Search::SearchUtils::strand()|Bio::Search::SearchUtils>
 
 =cut
 
-#----------
+#----------'
 sub strand {
 #----------
-    my ($self, $seqType) = @_;
+    my ($self, $seqType, $strnd) = @_;
+
+    Bio::Search::BlastUtils::tile_hsps($self) if not $self->{'_tiled_hsps'};
 
     $seqType ||= (wantarray ? 'list' : 'query');
     $seqType = 'sbjct' if $seqType eq 'hit';
 
+    $seqType = lc($seqType);
+
+    if( defined $strnd ) {
+        $self->throw("Can't set strand for seqType '$seqType'. Must be 'query' or 'hit'\n") unless ($seqType eq 'sbjct' or $seqType eq 'query');
+
+        return $self->{'_strand_'.$seqType} = $strnd;
+    }
+
+    my ($qstr, $hstr);
     # If there is only one HSP, defer this call to the solitary HSP.
     if($self->num_hsps == 1) {
 	return $self->hsp->strand($seqType);
-    } else {
+    } 
+    elsif( defined $self->{'_strand_query'}) {
+        # Get the data computed during hsp tiling.
+        $qstr = $self->{'_strand_query'};
+        $hstr = $self->{'_strand_sbjct'}
+    }
+    else {
 	# otherwise, iterate through all HSPs collecting strand info.
+        # This will return the string "-1/1" if there are HSPs on different strands.
+        # NOTE: This was the pre-10/21/02 procedure which will no longer be used,
+        # (unless the above elsif{} is commented out).
         my (%qstr, %hstr);
         foreach my $hsp( $self->hsps ) {
             my ( $q, $h ) = $hsp->strand();
             $qstr{ $q }++;
             $hstr{ $h }++;
         }
-        my $qstr = join( '/', sort keys %qstr);
-        my $hstr = join( '/', sort keys %hstr);
-	if($seqType =~ /list|array/i) {
-	    return ($qstr, $hstr);
-	} elsif( $seqType eq 'query' ) {
-	    return $qstr;
-	} else {
-	    return $hstr;
-	}
+        $qstr = join( '/', sort keys %qstr);
+        $hstr = join( '/', sort keys %hstr);
     }
+
+    if($seqType =~ /list|array/i) {
+        return ($qstr, $hstr);
+    } elsif( $seqType eq 'query' ) {
+        return $qstr;
+    } else {
+        return $hstr;
+    }
+}
+
+=head2 frame
+
+See documentation in L<Bio::Search::SearchUtils::frame()|Bio::Search::SearchUtils>
+
+=cut
+
+#----------'
+sub frame { 
+#----------
+    my( $self, $frm ) = @_;
+
+    Bio::Search::SearchUtils::tile_hsps($self) if not $self->{'_tiled_hsps'};
+
+    if( defined $frm ) {
+	return $self->{'_frame'} = $frm;
+    }
+
+    # The check for $self->{'_frame'} is a remnant from the 'query' mode days
+    # in which the sbjct object would collect data from the description line only.
+
+    my ($frame);
+    if(not defined($self->{'_frame'})) {
+	$frame = $self->hsp->frame;
+    } else {
+	$frame = $self->{'_frame'}; 
+    } 
+    return $frame;
 }
 
 =head2 rank
@@ -1459,6 +1487,18 @@ sub each_accession_number {
 	  }
     }  
     return @accnums;
+}
+
+=head2 tiled_hsps
+
+See documentation in L<Bio::Search::SearchUtils::tiled_hsps()|Bio::Search::SearchUtils>
+
+=cut
+
+sub tiled_hsps { 
+    my $self = shift;
+    return $self->{'_tiled_hsps'} = shift if @_;
+    return $self->{'_tiled_hsps'};
 }
 
 1;
