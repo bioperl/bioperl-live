@@ -173,10 +173,10 @@ sub new_from_registry {
     my $self = $class->SUPER::new(
 				  -BASEADDRESS=>$config{'location'}
 				  );
-    $self->db($config{'biodbname'}) if $config{biodbname};
+    $self->db($config{'dbname'}) if $config{dbname};
     return $self;
 }
-    
+
 # from Bio::DB::RandomAccessI
 
 =head2 get_Seq_by_id
