@@ -123,6 +123,25 @@ sub error_string{
     return $self->{'_error_string'} || '';
 }
 
+=head2 arguments
+
+ Title   : arguments
+ Usage   : $obj->arguments($newval)
+ Function: Commandline parameters 
+ Returns : value of arguments
+ Args    : newvalue (optional)
+
+
+=cut
+
+sub arguments {
+  my ($self,$value) = @_;
+  if(defined $value) {
+    $self->{'_arguments'} = $value;
+  }
+  return $self->{'_arguments'} || '';
+}
+
 
 =head2 no_param_checks
 
