@@ -25,7 +25,7 @@ my $EC1 = Bio::Tools::ECnumber->new( -ec_string => " EC  01. 02.03.00022  ",
                                      -comment   => "is 1.2.3.22" );
 
 
-my $EC2 = Bio::Tools::ECnumber->new( -ec_string => "ec1.2.3.-",
+my $EC2 = Bio::Tools::ECnumber->new( -ec_string => "ec:1.2.3.-",
                                      -comment   => "is 1.2.3.-" );
 
 

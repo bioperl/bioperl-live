@@ -157,7 +157,8 @@ use constant FALSE   => 0;
            or                      
            $EC3 = Bio::Tools::ECnumber->new(); # EC3 is now "-.-.-.-"                      
  Function: Creates a new ECnumber object.
-           Parses ECnumber from "x.x.x.x" or "EC x.x.x.x";
+           Parses a EC number from "x.x.x.x", "EC x.x.x.x",
+           "ECx.x.x.x", or "EC:x.x.x.x";
            x being either a positive integer or a "-".
  Returns : A new Ecnumber object.
  Args    : A string representing a EC number, e.g. "4.3.2.1"
@@ -239,8 +240,10 @@ sub copy {
  Usage   : $EC3->EC_string( "1.1.1.-" );
            or
            print $EC3->EC_string();
- Function: Set/get for string representations of EC numbers
-           ("x.x.x.x"; x being either a positive integer or a "-").
+ Function: Set/get for string representations of EC numbers.
+           Parses a EC number from "x.x.x.x", "EC x.x.x.x",
+           "ECx.x.x.x", or "EC:x.x.x.x";
+           x being either a positive integer or a "-".
  Returns : A string representations of a EC number.
  Args    : A string representations of a EC number.
 
@@ -252,6 +255,7 @@ sub EC_string {
     if ( defined $value) {
         $value =~ s/\s+//g; # Removes white space.
         $value =~ s/^EC//i; # Removes "EC".
+        $value =~ s/^://;   # Removes ":".
 
         if ( $value =~ /^([\d-]*)\.([\d-]*)\.([\d-]*)\.([\d-]*)$/ ) {
             $self->enzyme_class( $1 );
