@@ -280,10 +280,9 @@ sub write_aln {
 				$aln->get_seq_by_pos(1)->alphabet, $match, $missing, $gap, $symbols));
 
 	 my $indent = $aln->maxdisplayname_length;
-
+	 $aln->set_displayname_flat();
 	 foreach $seq ( $aln->each_seq() ) {
-	     $name = $aln->displayname($seq->get_nse());
-	     $name =~ s/\/(\S+)//;#\[$1\]/; # to insure PAUP readable files
+	     $name = $aln->displayname($seq->get_nse());	     
 	     $name = sprintf("%-${indent}s", $name); 
 	     $hash{$name} = $seq->seq();
 	     push(@arr,$name);

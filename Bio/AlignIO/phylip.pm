@@ -201,9 +201,12 @@ sub write_aln {
 
 	$length  = $aln->length();
 	$self->_print (sprintf(" %s %s\n", $aln->no_sequences, $aln->length));
+	
+	$aln->set_displayname_flat();
 	foreach $seq ( $aln->each_seq() ) {
-	    $name = $aln->displayname($seq->get_nse());
-	    ($name) = $name =~ /(.{10})/;
+	    $name = $aln->displayname($seq->get_nse());	     
+	    ($name) = substr($name,0,10);
+	    $name = sprintf("%-10s",$name);
 	    $name .= '   ' if( $self->interleaved());
 	    $hash{$name} = $seq->seq();
 	    push(@arr,$name);
