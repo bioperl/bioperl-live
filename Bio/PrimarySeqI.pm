@@ -432,7 +432,7 @@ sub trunc{
    } elsif( !$end ) {
        $self->throw("trunc start,end -- there was no end for $start");
    } elsif( $end < $start ) {
-       my $msg = "start [$start] is greater than end [$end. \n".
+       my $msg = "start [$start] is greater than end [$end]. \n".
 	   "If you want to truncated and reverse complement, \n".
 	       "you must call trunc followed by revcom. Sorry.";
        $self->throw($msg);
