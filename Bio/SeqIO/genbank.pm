@@ -540,7 +540,7 @@ sub next_seq {
       if($builder->want_slot('seq')) {
 	  # the fact that we want a sequence does not necessarily mean that
 	  # there also is a sequence ...
-	  if(defined($_) && s/^ORIGIN//) {
+	  if(defined($_) && s/^ORIGIN\s+//) {
 	      chomp;
 	      if( $annotation && length($_) > 0 ) {
 		  $annotation->add_Annotation('origin',
@@ -816,7 +816,8 @@ sub write_seq {
 	}
 
 	my ($o) = $seq->annotation->get_Annotations('origin');
-	$self->_print(sprintf("%-6s%s\n",'ORIGIN',$o ? $o->value : ''));
+	$self->_print(sprintf("%-12s%s\n",
+			      'ORIGIN', $o ? $o->value : ''));
         # print out the sequence
 	my $nuc = 60;		# Number of nucleotides per line
 	my $whole_pat = 'a10' x 6; # Pattern for unpacking a whole line
