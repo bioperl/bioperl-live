@@ -286,12 +286,13 @@ sub _parse_predictions {
 		    $gene = undef ;
 		}
 		#and make a new one
-		$gene = Bio::Tools::Prediction::Gene->new(
-                                '-primary' => "GenePrediction$prednr",
-				'-source' => $prediction_source);
-
+		$gene = Bio::Tools::Prediction::Gene->new
+		    (
+		     '-primary' => "GenePrediction$prednr",
+		     '-source' => $prediction_source);
+		
 		$current_gene_no = $prednr;
-	    }  
+	    } 
 	    
 	    # Add the exon to the gene
 	    $gene->add_exon($predobj, ($exontag eq "_na_" ?
@@ -309,7 +310,7 @@ sub _parse_predictions {
 	}
 
        #Matrix file for eukaryot version
-       if (/^Matrices file:\s+(\S*)/i)  {
+       if (/^Matrices file:\s+(\S+)?/i)  {
 	    $self->analysis_subject($1);
 	    # since the line after the matrix file is always the date
 	    # (in the output file's I have seen!) extract and store this 
@@ -332,13 +333,13 @@ sub _parse_predictions {
 	     	 $self->analysis_date($_date);
 	     }
 	}
-
-
-	#if(/^Sequence[ file]* name:\s+(.+)\s*$/i) {
-	#    $seqname = $1;
-	#    $self->analysis_subject($seqname);
-	#    next;
-	#}
+	
+	if(/^Sequence[ file]? name:\s+(.+)\s*$/i) {
+	    $seqname = $1;
+	    #    $self->analysis_subject($seqname);
+	    next;
+	}
+	
 
 	/^>/ && do {		
     	    $self->_pushback($_);
@@ -387,6 +388,7 @@ sub _parse_predictions {
 	   $gene->predicted_cds($seqobj);
 	}
     }
+    
     
     $self->_predictions_parsed(1);
 }
