@@ -174,7 +174,7 @@ sub trace {
           $self->throw('You must provide a valid base channel (atgc) to use trace()');
      }
      $base_channel =~ tr/A-Z/a-z/;
-     if ($base_channel !~ /a|t|g|c/) {
+     if ($base_channel !~ /[acgt]/) {
           $self->throw('You must provide a valid base channel (atgc) to use trace()');
      }
      if ($values) {
@@ -800,13 +800,13 @@ sub sub_trace_object {
 sub _synthesize_traces {
      my ($self) = shift;
      $self->peak_indices(qw());
-     my $version = 2;
+#ml     my $version = 2;
           # the user should be warned if traces already exist
           #
           #
-     ( my $sequence = $self->seq() ) =~ tr/a-z/A-Z/;
-     my @quals = @{$self->qual()};
-     my $info;
+#ml     ( my $sequence = $self->seq() ) =~ tr/a-z/A-Z/;
+#ml     my @quals = @{$self->qual()};
+#ml     my $info;
          # build the ramp for the first base.
          # a ramp looks like this "1 4 13 29 51 71 80 71 51 29 13 4 1" times the quality score.
          # REMEMBER: A C G T
@@ -827,10 +827,10 @@ sub _synthesize_traces {
      $self->initialize_traces("0",$total_length+2);
          # now populate them
     my ($current_base,$place_base_at,$peak_quality,$ramp_counter,$current_ramp,$ramp_position);
-    my $sequence_length = $self->length();
+#ml    my $sequence_length = $self->length();
     my $half_ramp = int($ramp_data->{'ramp_width'}/2);
     for ($pos = 0; $pos<$self->length();$pos++) {
-          $current_base = $self->seq_obj()->subseq($pos+1,$pos+1);
+          $current_base = uc $self->seq_obj()->subseq($pos+1,$pos+1);
                # print("Synthesizing the ramp for $current_base\n");
           my $all_bases = "ATGC";
           $peak_quality = $self->qual_obj()->qualat($pos+1);
@@ -851,7 +851,7 @@ sub _synthesize_traces {
           $self->peak_index_at($pos+1,
               $place_base_at+1
           );
-          my $other_bases = $self->_get_other_bases($current_base);
+#ml          my $other_bases = $self->_get_other_bases($current_base);
           # foreach ( split('',$other_bases) ) {
           #          push @{$self->{'text'}->{"v3_base_accuracy"}->{$_}},0;
           #}
