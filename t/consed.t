@@ -12,8 +12,7 @@
 
 use ExtUtils::testlib;
 use strict;
-require 'dumpvar.pl';
-
+use vars qw($TESTCOUNT);
 BEGIN {
     # to handle systems with no installed Test module
     # we include the t dir (where a copy of Test.pm is located)
@@ -23,7 +22,8 @@ BEGIN {
         use lib 't';
     }
     use Test;
-    plan tests => 15;
+    $TESTCOUNT = 15;
+    plan tests => $TESTCOUNT;
 }
 
 use Bio::Root::IO;
@@ -31,6 +31,12 @@ use Bio::Tools::Alignment::Consed;
 use vars qw($DEBUG);
 $DEBUG = $ENV{'BIOPERLDEBUG'} || -1;
 
+if( $^O =~ /mswin/i ) {
+    for ( $Test::ntest..$TESTCOUNT ) {
+	skip("Cannot run consed module on windows",1,1);	
+    }
+    exit(0);
+}
 print("Checking if the Bio::Tools::Alignment::Consed module could be used...\n") if $DEBUG > 0;
 	# test 1
 ok(1);
