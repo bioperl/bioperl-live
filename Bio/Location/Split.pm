@@ -28,14 +28,15 @@ which has multiple locations (start/end points)
     # print the start/end points of the sub locations
     foreach my $location ( sort { $a->start <=> $b->start } 
 			   @sublocs ) {
-	printf "sub feature %d [%d..%d]\n", $location->start,$location->end;
+	printf "sub feature %d [%d..%d]\n", 
+	       $count, $location->start,$location->end, "\n";
         $count++;
     }
 
 =head1 DESCRIPTION
 
 This implementation handles locations which span more than one
-start/end location.
+start/end location, or and/or lie on different sequences.
 
 =head1 FEEDBACK
 
@@ -97,49 +98,73 @@ sub new {
 =head2 sub_Location
 
  Title   : sub_Location
- Usage   : @locations = $feat->sub_Location();
- Function: Returns an array of LocationI objects
- Returns : An array
- Args    : $order => [1] (default) sorted by 
+ Usage   : @sublocs = $splitloc->sub_Location();
+ Function: Returns the array of sublocations making up this compound (split)
+           location. Those sublocations referring to the same sequence as
+           the root split location will be sorted by start position (forward
+           sort) or end position (reverse sort) and come first (before
+           those on other sequences).
+
+           The sort order can be optionally specified or suppressed by the
+           value of the first argument. The default is a forward sort.
+
+ Returns : an array of Bio::LocationI implementing objects
+ Args    : Optionally 1, 0, or -1 for specifying a forward, no, or reverse
+           sort order
 
 =cut
 
 sub sub_Location {
     my ($self, $order) = @_;
 
-    if( !defined $order) { $order = 1;}
-    elsif( $order !~ /^-?\d+$/ ) {
-	$self->warn("value $order passed in to sub_Location is $order, an invalid value");
-	$order = 1;
+    if( defined($order) && ($order !~ /^-?\d+$/) ) {
+	$self->throw("value $order passed in to sub_Location is $order, an invalid value");
     } 
-    elsif( $order < 0 ) { $order = -1; }
-    elsif( $order > 0 ) { $order = 1; }
-    elsif( $order == 0 ) { $order = 0; }
-    else { $self->throw("Unknown parameter in sub_Location ($order)"); } 
-    # reyirm in sorted order, somewhat inefficient
-    return @{$self->{'_sublocations'}} if( $order == 0 );
-    
-    my @locs = sort { return $order * 1  unless  $a->start;
-		      return $order * -1 unless  $b->start;
-		      
-		      $order * $a->start<=> $b->start          ||
-		      $order * $a->min_start <=> $b->min_start ||
-		      $order * $a->max_start <=> $b->max_start ||
-		      $order * $a->end       <=> $b->end       ||
-		      $order * $a->min_end   <=> $b->min_end   ||
-  		      $order * $a->max_end <=> $b->max_end 	  
-		  } @{$self->{'_sublocations'}};
+    $order = 1 if((!defined($order)) || ($order > 1));
+    $order = -1 if($order < -1);
 
+    my @sublocs = @{$self->{'_sublocations'}};
+
+    # return the array if no ordering requested
+    return @sublocs if( ($order == 0) || (! @sublocs) );
+    
+    # sort those locations that are on the sequence as the top (`master')
+    # if the top seq is undefined, we take the first defined in a sublocation
+    my $seqid = $self->seq_id();
+    my $i = 0;
+    while((! defined($seqid)) && ($i <= $#sublocs)) {
+	$seqid = $sublocs[$i++]->seq_id();
+    }
+    if((! $self->seq_id()) && $seqid) {
+	$self->warn("sorted sublocation array requested but ".
+		    "root location doesn't define seq_id ".
+		    "(at least one sublocation does!)");
+    }
+    my @locs = ($seqid ?
+		grep { $_->seq_id() eq $seqid; } @sublocs :
+		@sublocs);
+    if(@locs) {
+	if($order == 1) {
+	    @locs = sort { $a->start() <=> $b->start() } @locs;
+	} else { # $order == -1
+	    @locs = sort { $b->end() <=> $a->end() } @locs;
+	}
+    }
+    # push the rest unsorted
+    if($seqid) {
+	push(@locs, grep { $_->seq_id() ne $seqid; } @sublocs);
+    }
+    # done!
     return @locs;
 }
 
 =head2 add_sub_Location
 
  Title   : add_sub_Location
- Usage   : $feat->add_sub_Location(@locationIobjs);
+ Usage   : $splitloc->add_sub_Location(@locationIobjs);
  Function: add an additional sublocation
  Returns : number of current sub locations
- Args    : list of LocationI object(s) to add
+ Args    : list of Bio::LocationI implementing object(s) to add
 
 =cut
 
@@ -148,7 +173,7 @@ sub add_sub_Location {
     my @locs;    
     foreach my $loc ( @args ) {
 	if( !ref($loc) || ! $loc->isa('Bio::LocationI') ) {
-	    $self->warn("Trying to add $loc as a sub Location but it is not a Bio::LocationI object!");
+	    $self->throw("Trying to add $loc as a sub Location but it doesn't implement Bio::LocationI!");
 	    next;
 	}	
 	push @{$self->{'_sublocations'}}, $loc;
@@ -176,13 +201,45 @@ sub splittype {
     return $self->{'_splittype'};
 }
 
+=head2 is_single_sequence
+
+  Title   : is_single_sequence
+  Usage   : if($splitloc->is_single_sequence()) {
+                print "Location object $splitloc is split ".
+                      "but only across a single sequence\n";
+	    }
+  Function: Determine whether this location is split across a single or
+            multiple sequences.
+
+            This implementation ignores (sub-)locations that do not define
+            seq_id(). The same holds true for the root location.
+
+  Returns : TRUE if all sublocations lie on the same sequence as the root
+            location (feature), and FALSE otherwise.
+  Args    : none
+
+=cut
+
+sub is_single_sequence {
+    my ($self) = @_;
+
+    my $seqid = $self->seq_id();
+    foreach my $loc ($self->sub_Location(0)) {
+	$seqid = $loc->seq_id() if(! $seqid);
+	if(defined($loc->seq_id()) && ($loc->seq_id() ne $seqid)) {
+	    return 0;
+	}
+    }
+    return 1;
+}
+
 =head2 LocationI methods
 
 =head2 start
 
   Title   : start
   Usage   : $start = $location->start();
-  Function: get the starting point of the first (sorted) item 
+  Function: get the starting point of the first (sorted) sublocation
   Returns : integer
   Args    : none
 
@@ -191,17 +248,16 @@ sub splittype {
 sub start {
     my ($self,$value) = @_;    
     if( defined $value ) {
-	$self->warn("Trying to set the starting point of a split location, that is not possible, try manipulating the sub Locations");
+	$self->throw("Trying to set the starting point of a split location, that is not possible, try manipulating the sub Locations");
     }
-    my @locs = $self->sub_Location(1);
-    return ( @locs ) ? $locs[0]->start : undef;
+    return $self->SUPER::start();
 }
 
 =head2 end
 
   Title   : end
   Usage   : $end = $location->end();
-  Function: get the ending point of the last (sorted) item 
+  Function: get the ending point of the last (sorted) sublocation
   Returns : integer
   Args    : none
 
@@ -210,10 +266,9 @@ sub start {
 sub end {
     my ($self,$value) = @_;    
     if( defined $value ) {
-	$self->warn("Trying to set the ending point of a split location, that is not possible, try manipulating the sub Locations");
+	$self->throw("Trying to set the ending point of a split location, that is not possible, try manipulating the sub Locations");
     }
-    my @locs = $self->sub_Location(1);
-    return ( @locs ) ? $locs[-1]->end : undef;
+    return $self->SUPER::end();
 }
 
 =head2 min_start
@@ -228,16 +283,12 @@ sub end {
 
 sub min_start {
     my ($self, $value) = @_;    
-    if( defined $value ) {
-	$self->warn("Trying to set the minimum starting point of a split location, that is not possible, try manipulating the sub Locations");
-    }
 
-    my @locs = $self->sub_Location();
-    if( @locs ) {
-	return ( defined $locs[0]->min_start ? $locs[0]->min_start :
-		 defined $locs[0]->start ? $locs[0]->start : 
-		 $locs[0]->max_start); 
-    } 
+    if( defined $value ) {
+	$self->throw("Trying to set the minimum starting point of a split location, that is not possible, try manipulating the sub Locations");
+    }
+    my @locs = $self->sub_Location(1);
+    return $locs[0]->min_start() if @locs; 
     return undef;
 }
 
@@ -252,13 +303,13 @@ sub min_start {
 =cut
 
 sub max_start {
-    my ($self) = @_;
-    my @locs = $self->sub_Location();
-    if( @locs ) {
-	return ( defined $locs[0]->max_start ? $locs[0]->max_start :
-		 defined $locs[0]->start ? $locs[0]->start : 
-		 $locs[0]->min_start); 
-    } 
+    my ($self,$value) = @_;
+
+    if( defined $value ) {
+	$self->throw("Trying to set the maximum starting point of a split location, that is not possible, try manipulating the sub Locations");
+    }
+    my @locs = $self->sub_Location(1);
+    return $locs[0]->max_start() if @locs; 
     return undef;
 }
 
@@ -274,9 +325,13 @@ sub max_start {
 =cut
 
 sub start_pos_type {
-    my ($self) = @_;
+    my ($self,$value) = @_;
+
+    if( defined $value ) {
+	$self->throw("Trying to set the start_pos_type of a split location, that is not possible, try manipulating the sub Locations");
+    }
     my @locs = $self->sub_Location();
-    return ( @locs ) ? $locs[0]->start_pos_type : undef;    
+    return ( @locs ) ? $locs[0]->start_pos_type() : undef;    
 }
 
 =head2 min_end
@@ -290,16 +345,14 @@ sub start_pos_type {
 =cut
 
 sub min_end {
-    my ($self) = @_;
+    my ($self,$value) = @_;
 
-# reverse sort locations by largest ending to smallest ending
+    if( defined $value ) {
+	$self->throw("Trying to set the minimum end point of a split location, that is not possible, try manipulating the sub Locations");
+    }
+    # reverse sort locations by largest ending to smallest ending
     my @locs = $self->sub_Location(-1);
-
-    if( @locs ) {
-	return ( defined $locs[0]->min_end ? $locs[0]->min_end :
-		 defined $locs[0]->start ? $locs[0]->start : 
-		 $locs[0]->max_end); 
-    } 
+    return $locs[0]->min_end() if @locs; 
     return undef;
 }
 
@@ -314,22 +367,14 @@ sub min_end {
 =cut
 
 sub max_end {
-    my ($self) = @_;
-# reverse sort locations by largest ending to smallest ending
-    my @locs = sort { return -1 unless defined $a->end;
-		      return 1 unless defined $b->end;
-					
-					$b->end<=> $a->end          ||
-					$b->max_end <=> $a->max_end ||
-					$b->min_end <=> $a->max_end ||
-					$b->start       <=> $a->end ||
-					$b->min_end   <=> $a->min_end;
-		  } $self->sub_Location();
-    if( @locs ) {
-	return ( defined $locs[0]->max_end ? $locs[0]->max_end :
-		 defined $locs[0]->end ? $locs[0]->end : 
-		 $locs[0]->min_end); 
-    } 
+    my ($self,$value) = @_;
+
+    if( defined $value ) {
+	$self->throw("Trying to set the maximum end point of a split location, that is not possible, try manipulating the sub Locations");
+    }
+    # reverse sort locations by largest ending to smallest ending
+    my @locs = $self->sub_Location(-1);
+    return $locs[0]->max_end() if @locs; 
     return undef;
 }
 
@@ -345,9 +390,13 @@ sub max_end {
 =cut
 
 sub end_pos_type {
-    my ($self) = @_;
+    my ($self,$value) = @_;
+
+    if( defined $value ) {
+	$self->throw("Trying to set end_pos_type of a split location, that is not possible, try manipulating the sub Locations");
+    }
     my @locs = $self->sub_Location();
-    return ( @locs ) ? $locs[0]->end_pos_type : undef;    
+    return ( @locs ) ? $locs[0]->end_pos_type() : undef;    
 }
 
 =head2 to_FTstring
@@ -369,16 +418,6 @@ sub to_FTstring {
     my $str = sprintf("%s(%s)",$self->splittype, join(",", @strs));
     return $str;
 }
-
-=head2 seq_id
-
-  Title   : seq_id
-  Usage   : my $seqid = $location->seq_id();
-  Function: Get/Set seq_id that location refers to
-  Returns : seq_id
-  Args    : [optional] seq_id value to set
-
-=cut
 
 # we'll probably need to override the RangeI methods since our locations will
 # not be contiguous.
