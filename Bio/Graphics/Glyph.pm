@@ -155,7 +155,7 @@ sub add_group {
 					 -segments=>\@features,
 					 -type => 'group'
 					);
-  push @{$self->{parts}},$self->factory->make_glyph(-1,$f);
+  $self->add_feature($f);
 }
 
 sub top {
