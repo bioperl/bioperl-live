@@ -53,7 +53,7 @@ use Bio::Root::Root;
 use vars qw(@ISA);
 use strict;
 
-@ISA = qw( Bio::Matrix::PSM::IO );
+@ISA = qw( Bio::Matrix::PSM::IO Bio::Matrix::PsmHeader Bio::Root::Root );
 
 # define the order in which amino acids are listed in the psiblast matrix file
 our @ordered_alphabet = qw/A  R  N  D  C  Q  E  G  H  I  L  K  M  F  P  S  T  W  Y  V/;
