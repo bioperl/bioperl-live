@@ -308,8 +308,9 @@ sub _filename{
 
 sub DESTROY {
     my $self = shift;
-
-    $self->_fh->close();
+    if( defined  $self->_fh ) {
+	$self->_fh->close();
+    }
     unlink($self->_filename);
 }
 
