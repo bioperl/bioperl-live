@@ -138,8 +138,11 @@ WriteMakefile(
                       SUFFIX       => '.gz', 
                       DIST_DEFAULT => 'all tardist',
                    },
-
-   'realclean'  => {  FILES        => join(' ',@BACKUP_FILES) }
+    ($] ge '5.005')  ? (
+	'AUTHOR' => 'Bioperl Team (bioperl-l@bioperl.org)',
+	'ABSTRACT' => 'Bioinformatics Toolkit',
+	) : (),
+     'realclean'  => {  FILES        => join(' ',@BACKUP_FILES) }
 );
 
 
