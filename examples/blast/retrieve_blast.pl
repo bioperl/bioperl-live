@@ -1,4 +1,4 @@
-#!/usr/local/bin/perl -w
+#!/usr/bin/perl -w
 
 # Installation: 
 # 1. Move this script into the same location as run_blast_remote.pl.
@@ -32,13 +32,12 @@ use lib "/home/steve/perl/lib";
 #  
 #      This generates a temp file containing HTML data from the NCBI
 #      server. The file is named after the ID of the sequence in
-#      the indicated fasta file. An exception will be generated
-#      stating that the temp file is not a valid BLAST report. 
-#      Ignore this for now. 
-#      The error results from the fact that the NCBI now has a 
-#      queueing system and the file contains information about how 
-#      to retrieve the report from the queue. The Blast object isn't 
-#      yet savvy enough to deal with this new queueing system.
+#      the indicated fasta file. 
+#
+#      This temp file contains information about how 
+#      to retrieve the report from the NCBI queueing system. 
+#      The Blast object isn't yet savvy enough to automatically
+#      retrieve the report and parse it. 
 #
 # 2. retrieve_blast.pl < YEL009C.blastp2.swissprot.temp.html
 #       
