@@ -908,12 +908,12 @@ sub _read_FTHelper_GenBank {
         );
     my @qual = (); # An arrray of lines making up the qualifiers
     
-    if ($$buffer =~ /^     (\S+)\s+(\S+)/) {
+    if ($$buffer =~ /^     (\S+)\s+(.+?)\s*$/o) {
         $key = $1;
         $loc = $2;
         # Read all the lines up to the next feature
         while ( defined($_ = $self->_readline) ) {
-            if (/^(\s+)(.+?)\s*$/) {
+            if (/^(\s+)(.+?)\s*$/o) {
                 # Lines inside features are preceeded by 21 spaces
                 # A new feature is preceeded by 5 spaces
                 if (length($1) > 6) {
