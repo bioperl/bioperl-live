@@ -12,7 +12,7 @@
 
 =head1 NAME
 
-Bio::LocatableSeq - A Sequence object with start/end points on it 
+Bio::LocatableSeq - A Sequence object with start/end points on it
   that can be projected into a MSA or have coordinates relative to another seq.
 
 =head1 SYNOPSIS
@@ -52,7 +52,7 @@ of the Bioperl mailing lists.  Your participation is much appreciated.
   http://bio.perl.org/MailList.html             - About the mailing lists
 
 
-The locatable sequence object was developed mainly because the 
+The locatable sequence object was developed mainly because the
 SimpleAlign object requires this functionality, and in the rewrite
 of the Sequence object we had to decide what to do with this.
 
@@ -95,20 +95,18 @@ use Bio::Location::Fuzzy;
 
 @ISA = qw(Bio::PrimarySeq Bio::RangeI);
 
-# new() is inherited from Bio::Root::Root
-
 sub new {
     my ($class, @args) = @_;
     my $self = $class->SUPER::new(@args);
 
-    my ($start,$end,$strand) = 
+    my ($start,$end,$strand) =
 	$self->_rearrange( [qw(START END STRAND)],
 			   @args);
-    
+
     defined $start && $self->start($start);
     defined $end   && $self->end($end);
     defined $strand && $self->strand($strand);
-    
+
     return $self; # success - we hope!
 }
 
@@ -116,7 +114,7 @@ sub new {
 
  Title   : start
  Usage   : $obj->start($newval)
- Function: 
+ Function:
  Returns : value of start
  Args    : newvalue (optional)
 
@@ -136,7 +134,7 @@ sub start{
 
  Title   : end
  Usage   : $obj->end($newval)
- Function: 
+ Function:
  Returns : value of end
  Args    : newvalue (optional)
 
@@ -152,12 +150,12 @@ sub end {
 	  $string =~ s/[.-]+//g;
 	  my $len = CORE::length $string;
 	  my $new_end = $self->start + $len - 1 ;
-	  my $id = $self->id; 
+	  my $id = $self->id;
 	  $self->warn("In sequence $id residue count gives value $len.
 Overriding value [$value] with value $new_end for Bio::LocatableSeq::end().")
 	      and $value = $new_end if $new_end != $value and $self->verbose > 0;
       }
-      
+
       $self->{'end'} = $value;
     }
     return $self->{'end'};
@@ -168,7 +166,7 @@ Overriding value [$value] with value $new_end for Bio::LocatableSeq::end().")
 
  Title   : strand
  Usage   : $obj->strand($newval)
- Function: 
+ Function:
  Returns : value of strand
  Args    : newvalue (optional)
 
@@ -187,16 +185,16 @@ sub strand{
 
  Title   : get_nse
  Usage   :
- Function: read-only name of form id/start-end 
+ Function: read-only name of form id/start-end
  Example :
- Returns : 
+ Returns :
  Args    :
 
 =cut
 
 sub get_nse{
    my ($self,$char1,$char2) = @_;
-  
+
    $char1 ||= "/";
    $char2 ||= "-";
 
@@ -209,20 +207,20 @@ sub get_nse{
 }
 
 
-=head2 no_gaps
+=head2 no_gap
 
  Title   : no_gaps
  Usage   :$self->no_gaps('.')
- Function: 
+ Function:
 
            Gets number of gaps in the sequence. The count excludes
            leading or trailing gap characters.
 
            Valid bioperl sequence characters are [A-Za-z\-\.\*]. Of
            these, '.' and '-' are counted as gap characters unless an
-           optional argument specifies one of them. 
+           optional argument specifies one of them.
 
- Returns : number of internal gaps in the sequnce. 
+ Returns : number of internal gaps in the sequnce.
  Args    : a gap character (optional)
 
 =cut
@@ -277,7 +275,7 @@ sub no_gaps {
 sub column_from_residue_number {
     my ($self, $resnumber) = @_;
 
-    $self->throw("Residue number has to be a positive integer, not [$resnumber]") 
+    $self->throw("Residue number has to be a positive integer, not [$resnumber]")
 	unless $resnumber =~ /^\d+$/ and $resnumber > 0;
 
     if ($resnumber >= $self->start() and $resnumber <= $self->end()) {
@@ -288,9 +286,10 @@ sub column_from_residue_number {
 	    if ($residues[$i] ne '.' and $residues[$i] ne '-') {
 		$count == $resnumber and last;
 		$count++;
-	    }		    
+	    }
 	}
-	# $i now holds the index of the column. The actual column number is this index + 1
+	# $i now holds the index of the column.
+        # The actual column number is this index + 1
 	
 	return $i+1;
     }
@@ -320,33 +319,32 @@ sub column_from_residue_number {
            location_from_column( Seq1/91-97, 10) position 97^98
            location_from_column( Seq2/1-9, 1 )   position undef
 
-           An exact position returns a Bio::Location::Simple
-           object, a position between bases returns a
-           Bio::Location::Fuzzy object where loc_type() returns
-           'BETWEEN'. Column before the first residue returns
-           undef. Note that if the position is after the last residue
-           in the alignment, that there is no guarantee that the
-           original sequence has residues after that position.
+           An exact position returns a Bio::Location::Simple object
+           where where location_type() returns 'EXACT', if a position
+           is between bases location_type() returns 'IN-BETWEEN'.
+           Column before the first residue returns undef. Note that if
+           the position is after the last residue in the alignment,
+           that there is no guarantee that the original sequence has
+           residues after that position.
 
            An exception is thrown if the column number is not within
            the sequence.
 
- Returns : Bio::Location::Simple or Bio::Location::Fuzzy object or
-           undef
+ Returns : Bio::Location::Simple or undef
  Args    : A column number
  Throws  : If column is not within the sequence
 
-See L<Bio::Location::Simple>, L<Bio::Location::Fuzzy> for more.
+See L<Bio::Location::Simple> for more.
 
 =cut
 
 sub location_from_column {
     my ($self, $column) = @_;
 
-    $self->throw("Column number has to be a positive integer, not [$column]") 
+    $self->throw("Column number has to be a positive integer, not [$column]")
 	unless $column =~ /^\d+$/ and $column > 0;
     $self->throw("Column number [column] is larger than".
-		 " sequence length [". $self->length. "]") 
+		 " sequence length [". $self->length. "]")
 	unless $column <= $self->length;
 
     my ($loc);
@@ -354,18 +352,19 @@ sub location_from_column {
     $s =~ s/\W//g;
     my $pos = CORE::length $s;
 
+    my $start = $self->start || 0 ;
     if ($self->subseq($column, $column) =~ /[a-zA-Z]/ ) {
-	$loc = new Bio::Location::Simple 
-	    (-start => $pos + $self->start - 1,
-	     -end => $pos + $self->start - 1,
+	$loc = new Bio::Location::Simple
+	    (-start => $pos + $start - 1,
+	     -end => $pos + $start - 1,
 	     -strand => 1
 	     );
     }
     elsif ($pos == 0 and $self->start == 1) {
     } else {
-	$loc = new Bio::Location::Simple 
-	    (-start => $pos + $self->start - 1,
-	     -end => $pos +1 + $self->start - 1,
+	$loc = new Bio::Location::Simple
+	    (-start => $pos + $start - 1,
+	     -end => $pos +1 + $start - 1,
 	     -strand => 1,
 	     -location_type => 'IN-BETWEEN'
 	     );
@@ -373,16 +372,55 @@ sub location_from_column {
     return $loc;
 }
 
+=head2 revcom
+
+ Title   : revcom
+ Usage   : $rev = $seq->revcom()
+ Function: Produces a new Bio::LocatableSeq object which
+           has the reversed complement of the sequence. For protein
+           sequences this throws an exception of "Sequence is a
+           protein. Cannot revcom"
+
+ Returns : A new Bio::LocatableSeq object
+ Args    : none
+
+=cut
+
+sub revcom {
+    my ($self) = @_;
+
+    my $new = $self->SUPER::revcom;
+    $new->strand($self->strand * -1);
+    $new->start($self->start) if $self->start;
+    $new->end($self->end) if $self->end;
+    return $new;
+}
+
+
+=head2 trunc
+
+ Title   : trunc
+ Usage   : $subseq = $myseq->trunc(10,100);
+ Function: Provides a truncation of a sequence,
+
+ Example :
+ Returns : a fresh Bio::PrimarySeqI implementing object
+ Args    : Two integers denoting first and last columns of the
+           sequence to be included into sub-sequence.
+
+
+=cut
+
 sub trunc {
 
     my ($self, $start, $end) = @_;
     my $new = $self->SUPER::trunc($start, $end);
 
     $start = $self->location_from_column($start);
-    $start = $start->start if $start;
+    $start ? ($start = $start->start) : ($start = 1);
 
     $end = $self->location_from_column($end);
-    $end = $end->end if $end;
+    $end = $end->start if $end;
 
     $new->strand($self->strand);
     $new->start($start) if $start;

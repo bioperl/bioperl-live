@@ -419,7 +419,8 @@ sub revcom{
 			     '-display_id'  => $self->display_id,
 			     '-accession_number' => $self->accession_number,
 			     '-alphabet' => $self->alphabet,
-			     '-desc' => $self->desc()
+			     '-desc' => $self->desc(),
+                             '-verbose' => $self->verbose
 			     );
    return $out;
 
@@ -468,7 +469,8 @@ sub trunc{
 			     '-display_id'  => $self->display_id,
 			     '-accession_number' => $self->accession_number,
 			     '-alphabet' => $self->alphabet,
-			     '-desc' => $self->desc()
+			     '-desc' => $self->desc(),
+                             '-verbose' => $self->verbose
 			     );
    return $out;
 }
@@ -584,7 +586,8 @@ sub translate {
 			      # is there anything wrong with retaining the
 			      # description?
 			      '-desc' => $self->desc(),
-			      '-alphabet' => 'protein'
+			      '-alphabet' => 'protein',
+                              '-verbose' => $self->verbose
 			      );
     return $out;
 
