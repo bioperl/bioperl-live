@@ -66,9 +66,8 @@ Internal methods are usually preceded with a _
 package Bio::Event::EventGeneratorI;
 use vars qw(@ISA);
 use strict;
-use Bio::Root::RootI;
-
-@ISA = qw(Bio::Root::RootI);
+use Bio::Root::Interface;
+@ISA = qw( Bio::Root::Interface );
 
 =head2 SAX methods
 
@@ -88,7 +87,7 @@ use Bio::Root::RootI;
 
 sub start_document{
    my ($self,@args) = @_;
-   $self->_abstractDeath('start_document');
+   $self->throw_not_implemented;
 }
 
 =head2 end_document
@@ -105,8 +104,7 @@ sub start_document{
 
 sub end_document{
    my ($self,@args) = @_;
-   $self->_abstractDeath('end_document');
-
+   $self->throw_not_implemented;
 }
 
 =head2 start_element
@@ -123,7 +121,7 @@ sub end_document{
 
 sub start_element{
    my ($self,@args) = @_;
-   $self->_abstractDeath('start_element');
+   $self->throw_not_implemented;
 }
 
 =head2 end_element
@@ -140,7 +138,7 @@ sub start_element{
 
 sub end_element{
    my ($self,@args) = @_;
-   $self->_abstractDeath('end_element');
+   $self->throw_not_implemented;
 }
 
 
@@ -158,7 +156,7 @@ sub end_element{
 
 sub in_element{
    my ($self,@args) = @_;
-   $self->_abstractDeath('in_element');
+   $self->throw_not_implemented;
 
 }
 
@@ -176,7 +174,7 @@ sub in_element{
 
 sub within_element{
    my ($self,@args) = @_;
-   $self->_abstractDeath('within_element');
+   $self->throw_not_implemented;
 }
 
 =head2 characters
@@ -193,8 +191,7 @@ sub within_element{
 
 sub characters{
    my ($self,@args) = @_;
-   $self->_abstractDeath('characters');
-
+   $self->throw_not_implemented;
 }
 
 1;
