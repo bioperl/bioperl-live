@@ -282,7 +282,13 @@ sub column_from_residue_number {
 	my @residues = split //, $self->seq;
 	my $count = $self->start();
 	my $i;
-	for ($i=0; $i < @residues; $i++) {
+	my ($start,$end,$inc,$test);
+	# the following bit of "magic" allows the main loop logic to be the
+	# same regardless of the strand of the sequence
+	($start,$end,$inc,$test)= ($self->strand == -1)?
+	(scalar(@residues-1),0,-1,sub{$i >= $end}) : (0,scalar(@residues-1),1,sub{$i <= $end});
+
+	for ($i=$start; $test->(); $i+= $inc) {
 	    if ($residues[$i] ne '.' and $residues[$i] ne '-') {
 		$count == $resnumber and last;
 		$count++;
@@ -353,18 +359,26 @@ sub location_from_column {
     my $pos = CORE::length $s;
 
     my $start = $self->start || 0 ;
+    my $relative_pos = $self->strand() == -1?
+    $self->end - $pos + 1
+    : $pos + $start - 1;
+    my $strand = $self->strand() || 1;
     if ($self->subseq($column, $column) =~ /[a-zA-Z]/ ) {
 	$loc = new Bio::Location::Simple
-	    (-start => $pos + $start - 1,
-	     -end => $pos + $start - 1,
-	     -strand => 1
+	    (-start => $relative_pos,
+	     -end => $relative_pos,
+	     -strand => 1,
 	     );
     }
     elsif ($pos == 0 and $self->start == 1) {
     } else {
+      my ($start,$end) = ($relative_pos, $relative_pos + $strand);
+      if ($strand == -1) {
+	($start,$end) = ($end,$start);
+      }
 	$loc = new Bio::Location::Simple
-	    (-start => $pos + $start - 1,
-	     -end => $pos +1 + $start - 1,
+	    (-start => $start,
+	     -end => $end,
 	     -strand => 1,
 	     -location_type => 'IN-BETWEEN'
 	     );

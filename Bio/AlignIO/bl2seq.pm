@@ -124,7 +124,7 @@ sub new {
 
 sub next_aln {
     my $self = shift;
-    my ($start,$end,$name,$seqname,$seq,$seqchar);
+    my ($start,$end,$name,$seqname,$seq,$seqchar,$strand);
     my $aln =  Bio::SimpleAlign->new(-source => 'bl2seq');
     $self->{'bl2seqobj'} = $self->{'bl2seqobj'} || 
 	Bio::Tools::BPbl2seq->new(-fh => $self->_fh,
@@ -135,14 +135,16 @@ sub next_aln {
     $start = $hsp->query->start;
     $end = $hsp->query->end;
     $seqname = 'Query-sequence';    # Query name not present in bl2seq report
-
-#    unless ($seqchar && $start && $end  && $seqname) {return 0} ;	
+    $strand = $hsp->query->strand;
+    
+    #    unless ($seqchar && $start && $end  && $seqname) {return 0} ;	
     unless ($seqchar && $start && $end ) {return 0} ;	
 
     $seq = new Bio::LocatableSeq('-seq'=>$seqchar,
 				 '-id'=>$seqname,
 				 '-start'=>$start,
 				 '-end'=>$end,
+				 '-strand'=>$strand,
 				 );
 
     $aln->add_seq($seq);
@@ -151,6 +153,7 @@ sub next_aln {
     $start = $hsp->hit->start;
     $end = $hsp->hit->end;
     $seqname = $bl2seqobj->sbjctName;
+    $strand = $hsp->hit->strand;
 
     unless ($seqchar && $start && $end  && $seqname) {return 0} ;	
 
@@ -158,6 +161,7 @@ sub next_aln {
 				 '-id'=>$seqname,
 				 '-start'=>$start,
 				 '-end'=>$end,
+				 '-strand'=>$strand,
 				 );
 
     $aln->add_seq($seq);

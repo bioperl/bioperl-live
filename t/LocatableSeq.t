@@ -2,7 +2,7 @@
 ## Bioperl Test Harness Script for Modules
 ## $Id$
 use strict;
-use constant NUMTESTS => 33;
+use constant NUMTESTS => 43;
 
 BEGIN {
     eval { require Test; };
@@ -85,3 +85,24 @@ ok $seq2->seq, '--tac---cat--';
 ok $seq2->start, $seq->start;
 ok $seq2->end, $seq->end;
 ok $seq2->strand, $seq->strand * -1;
+
+# test column-mapping for -1 strand sequence
+$seq = new Bio::LocatableSeq(
+			     -seq => '--atg---gtaa-',
+			     -start => 1,
+			     -end => 7,
+			     -strand => -1,
+			     -alphabet => 'dna'
+			     );
+ok $seq->column_from_residue_number(5),5;
+ok $seq->column_from_residue_number(4),9;
+ok $loc = $seq->location_from_column(4);
+ok $loc->isa('Bio::Location::Simple');
+ok $loc->to_FTstring, 6;
+ok $loc = $seq->location_from_column(6);
+ok $loc->isa('Bio::Location::Simple');
+ok $loc->start, 4;
+ok $loc->location_type, 'IN-BETWEEN';
+ok $loc->to_FTstring, '4^5';
+
+
