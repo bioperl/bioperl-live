@@ -250,7 +250,6 @@ use Bio::SeqIO;
 
 =cut
 
-my $entry = 0;
 
 sub new {
    my ($class, %param) = @_;
@@ -346,9 +345,5 @@ sub _guess_format {
    return 'xml'     if /\.xml$/i;
 }
 
-sub PRINT {
-  my $self = shift;
-  $self->{'seqio'}->write(@_);
-}
 
 1;
