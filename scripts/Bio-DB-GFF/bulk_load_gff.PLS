@@ -61,6 +61,10 @@ by the \$TMPDIR environment variable), to hold the tables transiently.
 The adaptor used is dbi::mysqlopt.  There is currently no way to
 change this.
 
+About maxbin: the default value is 100,000,000 bases.  If you have
+features that are close to or greater that 100Mb in length, then the
+value of maxbin should be increased to 1,000,000,000.
+                                                                                
 Note that Windows users must use the --create option.
 
 =head1 COMMAND-LINE OPTIONS
@@ -73,6 +77,7 @@ e.g. -d instead of --database.
    --user                Username to log in as
    --fasta               File or directory containing fasta files to load
    --password            Password to use for authentication
+   --maxbin              Set the value of the maximum bin size
 
 =head1 SEE ALSO
 
@@ -109,13 +114,14 @@ if ($^O =~ /MSWin32/i) {
     $bWINDOWS = 1;
 }
 
-my ($DSN,$FORCE,$USER,$PASSWORD,$FASTA);
+my ($DSN,$FORCE,$USER,$PASSWORD,$FASTA,$MAX_BIN);
 
 GetOptions ('database:s'    => \$DSN,
-	    'create'         => \$FORCE,
+	    'create'        => \$FORCE,
 	    'user:s'        => \$USER,
 	    'password:s'    => \$PASSWORD,
 	    'fasta:s'       => \$FASTA,
+            'maxbin:s'      => \$MAX_BIN
 	   ) or (system('pod2text', $0), exit -1);
 
 $DSN ||= 'test';
@@ -147,7 +153,7 @@ if (defined $PASSWORD) {
 my $db = Bio::DB::GFF->new(-adaptor=>'faux',-dsn => $DSN,@auth)
   or die "Can't open database: ",Bio::DB::GFF->error,"\n";
 
-$db->initialize(1);
+$MAX_BIN ? $db->initialize(-erase=>1,-MAX_BIN=>$MAX_BIN) : $db->initialize(1);
 
 foreach (@ARGV) {
   $_ = "gunzip -c $_ |" if /\.gz$/;

@@ -57,6 +57,10 @@ The nature of the bulk load requires that the database be on the local
 machine and have enough room in /usr/tmp (or whatever is specified
 by the \$TMPDIR environment variable) to hold the tables transiently.
 
+About maxbin: the default value is 100,000,000 bases.  If you have
+features that are close to or greater that 100Mb in length, then the
+value of maxbin should be increased to 1,000,000,000.
+
 Note that while this should work on Windows, it has not been tested there;
 Also, Windows users must use the --create option.
 
@@ -70,6 +74,7 @@ e.g. -d instead of --database.
    --user                Username to log in as
    --fasta               File or directory containing fasta files to load
    --password            Password to use for authentication
+   --maxbin              Set the value of the maximum bin size
 
 =head1 SEE ALSO
 
@@ -130,13 +135,14 @@ package main;
 
 my $bWINDOWS = ($^O =~ /MSWin32/i) ? 1 : 0; 
 
-my ($DSN,$FORCE,$USER,$PASSWORD,$FASTA);
+my ($DSN,$FORCE,$USER,$PASSWORD,$FASTA,$MAX_BIN);
 
 GetOptions ('database:s'    => \$DSN,
 	    'create'        => \$FORCE,
 	    'user:s'        => \$USER,
 	    'password:s'    => \$PASSWORD,
-	    'fasta:s'       => \$FASTA
+	    'fasta:s'       => \$FASTA,
+            'maxbin:s'      => \$MAX_BIN
 	   ) or (system('pod2text', $0), exit -1);
 
 $DSN ||= 'test';
@@ -172,7 +178,7 @@ if (defined $PASSWORD) {
 my $db = Bio::DB::GFF->new(-adaptor=>'faux',-dsn => $DSN,@auth)
   or die "Can't open database: ",Bio::DB::GFF->error,"\n";
 
-$db->initialize(1); 
+$MAX_BIN ? $db->initialize(-erase=>1,-MAX_BIN=>$MAX_BIN) : $db->initialize(1);
 
 foreach (@ARGV) {
   $_ = "gunzip -c $_ |" if /\.gz$/;
@@ -182,7 +188,7 @@ foreach (@ARGV) {
 
 my (@gff,@fasta);
 foreach (@ARGV) {
-  if (/\.(fa|fasta|dna|seq|fast)\b/i) {
+  if (/\.(fa|fasta|dna|seq|fast)$/i) {
     push @fasta,$_;
   } else {
     push @gff,$_;
@@ -218,10 +224,21 @@ my %DONE        = ();
 my $FEATURES    = 0;
 
 my $count;
+my $fasta_sequence_id;
+my $gff3;
+
 while (<>) {
   chomp;
   my ($ref,$source,$method,$start,$stop,$score,$strand,$phase,$group);
-  if (/^\#\#\s*sequence-region\s+(\S+)\s+(\d+)\s+(\d+)/i) { # header line
+
+  if (/^>(\S+)/) {
+    $fasta_sequence_id = $1;
+    last;
+
+  } elsif (/^\#\#gff-version\s+3/) {
+    $gff3++;
+
+  } elsif (/^\#\#\s*sequence-region\s+(\S+)\s+(\d+)\s+(\d+)/i) { # header line
     ($ref,$source,$method,$start,$stop,$score,$strand,$phase,$group) = 
       ($1,'reference','Component',$2,$3,'.','.','.',qq(Sequence "$1"));
   } elsif (/^\#/) {
@@ -242,12 +259,12 @@ while (<>) {
   $phase  = '\N' if $phase  eq '.';
 
   # handle group parsing
-  $group =~ s/\\;/$;/g;  # protect embedded semicolons in the group
-  $group =~ s/( \"[^\"]*);([^\"]*\")/$1$;$2/g;
-  my @groups = split(/\s*;\s*/,$group);
-  foreach (@groups) { s/$;/;/g }
+#  $group =~ s/\\;/$;/g;  # protect embedded semicolons in the group
+#  $group =~ s/( \"[^\"]*);([^\"]*\")/$1$;$2/g;
+#  my @groups = split(/\s*;\s*/,$group);
+#  foreach (@groups) { s/$;/;/g }
 
-  my ($group_class,$group_name,$target_start,$target_stop,$attributes) = Bio::DB::GFF->_split_group(@groups);
+  my ($group_class,$group_name,$target_start,$target_stop,$attributes) = Bio::DB::GFF->split_group($group,$gff3);
   $group_class  ||= '\N';
   $group_name   ||= '\N';
   $target_start ||= '\N';
@@ -276,6 +293,17 @@ while (<>) {
     print STDERR -t STDOUT && !$ENV{EMACS} ? "\r" : "\n";
   }
 
+}
+
+if (defined $fasta_sequence_id) {
+  warn "Preparing embedded sequence....\n";
+  $FH{FDNA() }->print("COPY fdna (fref, foffset, fdna) FROM stdin;\n");
+
+  my $old = select($FH{FDNA()});
+  $db->load_sequence('ARGV',$fasta_sequence_id);
+  $FH{FDNA() }->print("\\.\n\n");
+  warn "done....\n";
+  select $old;
 }
 
 for my $file (@fasta) {
