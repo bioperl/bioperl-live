@@ -176,7 +176,7 @@ BEGIN {
     } 
     if( !$ERRORLOADED ) {
         require Carp; import Carp qw( confess );
-    }
+    }    
     $main::DONT_USE_ERROR;  # so that perl -w won't warn "used only once"
 
 }
@@ -271,7 +271,7 @@ sub _cleanup_methods {
            Bio::Root::Root::throw() by defining a scalar named
            $main::DONT_USE_ERROR (define it in your main script
            and you don't need the main:: part) and setting it to 
-           a true value.
+           a true value; you must do this within a BEGIN subroutine.
 
 =cut
 
@@ -304,14 +304,14 @@ sub throw{
            }
        } else {
            $class ||= "Bio::Root::Exception";
-   
-	   my %args;
+
+   	   my %args;
 	   if( @args % 2 == 0 && $args[0] =~ /^-/ ) {
 	       %args = @args;
 	       $args{-text} = $text;
 	       $args{-object} = $self;
 	   }
- 
+
            throw $class ( %args || @args );
        }
    }
