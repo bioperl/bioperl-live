@@ -24,10 +24,10 @@ Bio::TreeIO::pag - Bio::TreeIO driver for Pagel format
   while( my $tree = $in->next_tree ) {
     $out->write_tree($tree);
   }
-  
+
 =head1 DESCRIPTION
 
-Convert a Bio::TreeIO to Pagel format. Currenty  
+Convert a Bio::TreeIO to Pagel format.
 More information here http://sapc34.rdg.ac.uk/meade/Mark/
 
 =head1 FEEDBACK
@@ -86,7 +86,6 @@ $TaxonNameLen = 10;
  Function: Builds a new Bio::TreeIO::pag object 
  Returns : an instance of Bio::TreeIO::pag
  Args    : -file/-fh for filename or filehandles
- 
 
 =cut
 

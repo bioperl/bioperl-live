@@ -160,8 +160,8 @@ options are recognized:
   Option      Description                  Default
   ------      -----------                  -------
 
-  -draw_beak Whether to draw the 'beak'.    1 
-  
+  -draw_beak Whether to draw the 'beak'.        1
+
   -shear    Vertical distance between     	5
 			the main line and the segment
 
@@ -175,7 +175,7 @@ options are recognized:
 
   -size  	Total length of the line and   30 
 			the break, if extend is 0
-	
+
   -omit_left	Whether to omit the left	0
 			half of the main line
 
@@ -220,7 +220,7 @@ L<GD>
 
 =head1 AUTHOR
 
-Vsevolod (Simon) Ilyushchenko E<lt>simonf@cshl.edu<gt>.
+Vsevolod (Simon) Ilyushchenko E<lt>simonf@cshl.eduE<gt>.
 
 Copyright (c) 2004 Cold Spring Harbor Laboratory
 

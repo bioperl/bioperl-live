@@ -391,8 +391,8 @@ from L<http://evolution.genetics.washington.edu/phylip/newicktree.html>
 
 Also note that these objects now support spaces, ();: because we can
 automatically quote the strings if they contain these characters.  The
-L<output_id()> method does this for you so use the id() method to get
-the raw string while L<output_id()> to get the pre-escaped string.
+L<id_output> method does this for you so use the id() method to get
+the raw string while L<id_output> to get the pre-escaped string.
 
 =cut
 

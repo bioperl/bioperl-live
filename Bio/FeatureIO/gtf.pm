@@ -21,7 +21,7 @@ L<Bio::FeatureIO::gff>
 =head1 DESCRIPTION
 
 GTF, is also known as GFF v2.5.  This class is simply a subclass
-of Bio::FeatureIO::gff that initializes with -version => 2.5.
+of Bio::FeatureIO::gff that initializes with -version =E<gt> 2.5.
 
 =head1 FEEDBACK
 

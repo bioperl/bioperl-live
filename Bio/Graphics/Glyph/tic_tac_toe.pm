@@ -70,7 +70,7 @@ options are recognized:
   ------      -----------                  -------
 
   -mode       One of 'x', 'o', or 'xo'.     'x'
-  
+
   -size       Size of either 'x' or 'o'     10
 
 =head1 BUGS
@@ -111,7 +111,7 @@ L<GD>
 
 =head1 AUTHOR
 
-Vsevolod (Simon) Ilyushchenko E<lt>simonf@cshl.edu<gt>.
+Vsevolod (Simon) Ilyushchenko E<lt>simonf@cshl.eduE<gt>.
 
 Copyright (c) 2004 Cold Spring Harbor Laboratory
 

@@ -12,26 +12,26 @@
 
 =head1 NAME
 
-Bio::Map::Contig - A MapI implementation handling a the contigs of a 
+Bio::Map::Contig - A MapI implementation handling a the contigs of a
 Physical Map (such as FPC)
 
 =head1 SYNOPSIS
 
     ## get the contig object of $contig from the Bio::Map::Physical
     my $ctgobj = $physical->get_contigobj($contig);
-    
+
     ## acquire all the markers that lie in this contig
     foreach my $marker ($ctgobj->each_markerid()) {
 	print "   +++$marker\n";
-    }           
-    
+    }
+
     ## find the group of this contig
     print "Group: ",$ctgobj->group(),"\n";
-    
+
     ## find the range of this contig
     print "RANGE: start:",$ctgobj->range()->start(),"\tend: ",
            $ctgobj->range()->end(),"\n";
-    
+
     ## find the position of this contig in $group (chromosome)
     print "Position in Group $group"," = ",$ctgobj->position($group),"\n";
 
@@ -43,7 +43,7 @@ essential storage of name, species, type, and units as well as in
 memory representation of the elements of a map.
 
 Bio::Map::Contig has been tailored to work for FPC physical maps, but
-could probably be used for others as well (with the appropriate MapIO 
+could probably be used for others as well (with the appropriate MapIO
 module).
 
 =cut
@@ -83,7 +83,7 @@ BEGIN { $MAPCOUNT = 1; }
 		       );
 
  Function: Initialize a new Bio::Map::Contig object
-           Most people will not use this directly but get Markers 
+           Most people will not use this directly but get Markers
            through L<Bio::MapIO::fpc>
  Returns : L<Bio::Map::Contig> object
  Args    : ( -name    => name string,
@@ -104,12 +104,12 @@ BEGIN { $MAPCOUNT = 1; }
 sub new {
    my ($class,@args) = @_;
    my $self = $class->SUPER::new(@args);
-   
+
    my ($name,$cremark,$uremark,$tremark,
        $group,$subgroup, $anchor,$markers, $clones,
        $position,$range) = $self->_rearrange([qw(NAME CHR_REMARK USER_REMARK
 						 TRACE_REMARK GROUP SUBGROUP
-						 ANCHOR MARKERS CLONES 
+						 ANCHOR MARKERS CLONES
 						 POSITION RANGE)],@args);
 
    $self->name($name)                  if defined $name;
@@ -136,7 +136,7 @@ These methods let you get and set the member variables
 =head2 Modifier methods
 
 All methods present in L<Bio::Map::SimpleMap> are implemented by this class.
-Most of the methods are inherited from SimpleMap.  The following methods 
+Most of the methods are inherited from SimpleMap.  The following methods
 have been modified to reflect the needs of physical maps.
 
 
@@ -151,9 +151,9 @@ have been modified to reflect the needs of physical maps.
 =cut
 
 sub chr_remark {
-    my ($self) = shift;   
+    my ($self) = shift;
     $self->{'_cremark'} = shift if @_;
-    return defined $self->{'_cremark'} ? $self->{'_cremark'} : ''; 
+    return defined $self->{'_cremark'} ? $self->{'_cremark'} : '';
 }
 
 =head2 user_remark
@@ -167,9 +167,9 @@ sub chr_remark {
 =cut
 
 sub user_remark {
-    my ($self) = shift;   
+    my ($self) = shift;
     $self->{'_uremark'} = shift if @_;
-    return defined $self->{'_uremark'} ? $self->{'_uremark'} : ''; 
+    return defined $self->{'_uremark'} ? $self->{'_uremark'} : '';
 }
 
 
@@ -184,9 +184,9 @@ sub user_remark {
 =cut
 
 sub trace_remark {
-    my ($self) = shift;   
+    my ($self) = shift;
     $self->{'_tremark'} = shift if @_;
-    return defined $self->{'_tremark'} ? $self->{'_tremark'} : ''; 
+    return defined $self->{'_tremark'} ? $self->{'_tremark'} : '';
 }
 
 
@@ -204,7 +204,7 @@ sub trace_remark {
 =cut
 
 sub range {
-    my ($self) = shift;    
+    my ($self) = shift;
     return $self->{'_range'} = shift if @_;
     return $self->{'_range'};
 }
@@ -213,14 +213,14 @@ sub range {
 
  Title   : position
  Usage   : $ctgpos = $contigobj->position();
- Function: get the position of the contig in the group 
+ Function: get the position of the contig in the group
  Returns : scalar representing the position of the contig in the group
  Args    : none
 
 =cut
 
 sub position {
-    my ($self) = shift;    
+    my ($self) = shift;
     $self->{'_position'} = shift if @_;
     return $self->{'_position'} || 0;
 }
@@ -229,7 +229,7 @@ sub position {
 =head2 anchor
 
  Title   : anchor
- Usage   : $ctganchor = $contig->anchor(); 
+ Usage   : $ctganchor = $contig->anchor();
  Function: get the anchor value for this Contig (True | False)
  Returns : scalar representing the anchor (1 | 0) for this contig
  Args    : none
@@ -237,7 +237,7 @@ sub position {
 =cut
 
 sub anchor {
-    my ($self) = shift;    
+    my ($self) = shift;
     return $self->{'_anchor'} = shift if @_;
     return $self->{'_anchor'};
 }
@@ -249,14 +249,14 @@ sub anchor {
  Usage   : $groupno = $contigobj->group();
  Function: get the group number for this contig
            this is a generic term, used for Linkage-Groups
-	   as well as for Chromosomes.	   
+	   as well as for Chromosomes.	
  Returns : scalar representing the group number of this contig
  Args    : none
 
 =cut
 
 sub group {
-    my ($self) = shift;       
+    my ($self) = shift;
     $self->{'_group'} = shift if @_;
     return $self->{'_group'} || 0;
 }
@@ -265,25 +265,25 @@ sub group {
 =head2 subgroup
 
  Title   : subgroup
- Usage   : $subgroup = $contig->subgroup();	   
- Function: get the subgroup for this contig. This is a 
-           generic term: subgroup here could represent subgroup 
+ Usage   : $subgroup = $contig->subgroup();	
+ Function: get the subgroup for this contig. This is a
+           generic term: subgroup here could represent subgroup
 	   of a Chromosome or of a Linkage Group.
 	   the user must take care of which subgroup he/she is querying
-	   for.	   
+	   for.	
  Returns : A scalar representing the subgroup of this contig
  Args    : none
 
 =cut
 
 sub subgroup {
-    my ($self) = @_;    
+    my ($self) = @_;
     return $self->{'_subgroup'} = shift if @_;
     return $self->{'_subgroup'} || 0;
 }
 
 
-=head2 each_I<<element>>id
+=head2 each_I<E<lt>elementE<gt>>id
 
  Title   : each_<element>id
  Usage   : my @clones  = $map->each_cloneid();
@@ -297,7 +297,7 @@ sub subgroup {
 sub each_cloneid{
     my ($self) = @_;
     return $self->_each_element('clones');
-} 
+}
 
 sub each_markerid{
     my ($self) = @_;
@@ -343,7 +343,7 @@ sub set_clones{
 
 sub set_markers{
     my ($self,$markers) = @_;
-    if( defined $markers && ref($markers) =~ /HASH/ ) { 
+    if( defined $markers && ref($markers) =~ /HASH/ ) {
 	$self->{'_markers'} = $markers;
     }
 }
@@ -385,10 +385,10 @@ Dr. Cari Soderlund        cari@genome.arizona.edu
 The project was done in Arizona Genomics Computational Laboratory (AGCoL)
 at University of Arizona.
 
-This work was funded by USDA-IFAFS grant #11180 titled "Web Resources for 
+This work was funded by USDA-IFAFS grant #11180 titled "Web Resources for
 the Computation and Display of Physical Mapping Data".
 
-For more information on this project, please refer: 
+For more information on this project, please refer:
   http://www.genome.arizona.edu
 
 =head1 APPENDIX

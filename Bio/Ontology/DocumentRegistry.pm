@@ -17,18 +17,22 @@ Allows lookups by name.
 
 =head1 SYNOPSIS
 
-my $registry = Bio::Ontology::DocumentRegistry->get_instance();
-my($ont,$def,$fmt) = $registry->documents('Sequence Ontology');
+  my $registry = Bio::Ontology::DocumentRegistry->get_instance();
+  my($ont,$def,$fmt) = $registry->documents('Sequence Ontology');
 
-my $io = Bio::OntologyIO->new(-url => $ont , -defs_url => $def , -format => $fmt);
-my $so = $io->next_ontology();
-#...
+  my $io = Bio::OntologyIO->new(-url => $ont,
+                                -defs_url => $def,
+                                -format => $fmt);
+  my $so = $io->next_ontology();
+  #...
 
 =head1 DESCRIPTION
 
-Don't use this directly, use Bio::Ontology::OntologyStore instead.  Bio::Ontology::OntologyStore
-uses Bio::Ontology::DocumentRegistry to load and cache ontologies as object graphs, you can just
-ask it for what you want by name.  See L<Bio::Ontology::OntologyStore> for details.
+Don't use this directly, use Bio::Ontology::OntologyStore instead.
+Bio::Ontology::OntologyStore uses Bio::Ontology::DocumentRegistry to
+load and cache ontologies as object graphs, you can just ask it for
+what you want by name.  See L<Bio::Ontology::OntologyStore> for
+details.
 
 =head1 FEEDBACK
 

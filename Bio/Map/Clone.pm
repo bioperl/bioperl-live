@@ -96,7 +96,6 @@ use Bio::Map::Position;
 	     -matcha    => array ref,
 	     -matchp    => array ref,
 	     -range     => L<Bio::Range> object,
-				  
 
 =cut
 

@@ -87,10 +87,10 @@ options are recognized:
 
   -line       Whether  to draw a line         0
               instead of a wave (1 or 0)
-              
+
   -circle     Whether to draw a circle        0
               in the left corner (1 or 0)
-              
+
   -radius     The radius of the circle        5
               if present
 
@@ -132,7 +132,7 @@ L<GD>
 
 =head1 AUTHOR
 
-Vsevolod (Simon) Ilyushchenko E<lt>simonf@cshl.edu<gt>.
+Vsevolod (Simon) Ilyushchenko E<lt>simonf@cshl.eduE<gt>.
 
 Copyright (c) 2004 Cold Spring Harbor Laboratory
 

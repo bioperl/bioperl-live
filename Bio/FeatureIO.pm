@@ -41,7 +41,7 @@ Bio::FeatureIO - Handler for FeatureIO
 
 =head1 DESCRIPTION
 
-FIXME
+
 
 =head1 SUPPORTED FORMATS
 
@@ -51,32 +51,32 @@ FIXME
  GFF                       gff.pm
  GTF                       gtf.pm
 
-#Bio::SeqIO is a handler module for the formats in the SeqIO set (eg,
-#Bio::SeqIO::fasta). It is the officially sanctioned way of getting at
-#the format objects, which most people should use.
-#
-#The Bio::SeqIO system can be thought of like biological file handles.
-#They are attached to filehandles with smart formatting rules (eg,
-#genbank format, or EMBL format, or binary trace file format) and 
-#can either read or write sequence objects (Bio::Seq objects, or
-#more correctly, Bio::SeqI implementing objects, of which Bio::Seq is
-#one such object). If you want to know what to do with a Bio::Seq
-#object, read L<Bio::Seq>.
-#
-#The idea is that you request a stream object for a particular format.
-#All the stream objects have a notion of an internal file that is read
-#from or written to. A particular SeqIO object instance is configured
-#for either input or output. A specific example of a stream object is
-#the Bio::SeqIO::fasta object.
-#
-#Each stream object has functions
-#
-#   $stream->next_feature();
-#
-#and
-#
-#   $stream->write_feature($feature);
-#
+  #Bio::SeqIO is a handler module for the formats in the SeqIO set (eg,
+  #Bio::SeqIO::fasta). It is the officially sanctioned way of getting at
+  #the format objects, which most people should use.
+  #
+  #The Bio::SeqIO system can be thought of like biological file handles.
+  #They are attached to filehandles with smart formatting rules (eg,
+  #genbank format, or EMBL format, or binary trace file format) and 
+  #can either read or write sequence objects (Bio::Seq objects, or
+  #more correctly, Bio::SeqI implementing objects, of which Bio::Seq is
+  #one such object). If you want to know what to do with a Bio::Seq
+  #object, read L<Bio::Seq>.
+  #
+  #The idea is that you request a stream object for a particular format.
+  #All the stream objects have a notion of an internal file that is read
+  #from or written to. A particular SeqIO object instance is configured
+  #for either input or output. A specific example of a stream object is
+  #the Bio::SeqIO::fasta object.
+  #
+  #Each stream object has functions
+  #
+  #   $stream->next_feature();
+  #
+  #and
+  #
+  #   $stream->write_feature($feature);
+  #
 
 =head1 CONSTRUCTORS
 

@@ -78,9 +78,6 @@ the web:
   Hilmar Lapp E<lt>hlapp@gmx.netE<gt>
   Allen Day E<lt>allenday@ucla.eduE<gt>
 
-=head1 CONTRIBUTORS
-
-
 =head1 APPENDIX
 
 The rest of the documentation details each of the object methods.

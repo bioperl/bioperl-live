@@ -156,35 +156,36 @@ Bio::Root::AccessorMaker -- making the accessors directly in symbol table.
 
 =head1 DESCRIPTION
 
-This module is to save the developers to type the same code of accessor 
-day in and day out.
+This module is to save the developers to type the same code of
+accessor day in and day out.
 
-There are two non-exclusive ways to generate the accessors for a module.
+There are two non-exclusive ways to generate the accessors for a
+module.
 
 =over 2
 
-=item 1 using import method
+=item 1 Import method
 
-'import' method is special for Perl module. 
-It is called when the module get used, like Exporter. 
-And the arguments listed behind the module name are passed into import method.
+'import' method is special for Perl module. It is called when the
+module get used, like Exporter. And the arguments listed behind the
+module name are passed into import method.
 
-This import method requests a hash with limited keys as '$', '@'. 
-The values in the argument hash are the array reference.
+This import method requests a hash with limited keys as '$', '@'. The
+values in the argument hash are the array reference.
 
-=item 2 using class method, make_scalar_accessor and make_array_accessor
+=item 2 Class method, make_scalar_accessor and make_array_accessor
 
     Bio::Root::AccessorMaker->make_scalar_accessor('name');
 
 =back
 
-For scalar accessor, there is just one method for it. Say the accessor presents
-a name, so the method is simple called 'name'.
+For scalar accessor, there is just one method for it. Say the accessor
+presents a name, so the method is simple called 'name'.
 
-For array accessor, for instance, alias that a person may have more than one, 
-there will be three methods for it, e.g. 
-add_alias (singular), get_aliases (plural), and remove_aliases (plural).
-For those which plural is irregular, you need to explicitly specify it,
+For array accessor, for instance, alias that a person may have more
+than one, there will be three methods for it, e.g. add_alias
+(singular), get_aliases (plural), and remove_aliases (plural).  For
+those which plural is irregular, you need to explicitly specify it,
 such as in the example of child/children.
 
 =head1 AUTHOR

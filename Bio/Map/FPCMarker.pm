@@ -23,20 +23,20 @@ Bio::Map::FPCMarker - An central map object representing a marker
    foreach my $clone ($markerobj->each_cloneid()) {
        print "   +++$clone\n";
    }
-   
+
    ## find the position of this marker in $contig
    print "Position in contig $contig"," = ",$markerobj->position($contig),
          "\n";
-   
+
    ## find the group of the marker
-   print "Group : ",$markerobj->group();           
+   print "Group : ",$markerobj->group();
 
 
 See L<Bio::Map::Position> and L<Bio::Map::PositionI> for more information.
 
 =head1 DESCRIPTION
 
-This object handles the notion of a marker. 
+This object handles the notion of a marker.
 
 This object is intended to be used by a map parser like fpc.pm.
 
@@ -80,7 +80,7 @@ use Time::Local;
 		       );
 
  Function: Initialize a new Bio::Map::FPCMarker object
-           Most people will not use this directly but get Markers 
+           Most people will not use this directly but get Markers
            through L<Bio::MapIO::fpc>
  Returns : L<Bio::Map::FPCMarker> object
  Args    :    -name => marker name string,
@@ -93,14 +93,13 @@ use Time::Local;
 	      -clones  => all the clone elements in map (hashref),
 	      -contigs => all the contig elements (hasref),
 	      -position => mapping of marker names to map position (hasref),
-	     		  
 
 =cut
 
 sub new {
    my ($class,@args) = @_;
    my $self= $class->SUPER::new(@args);
-   
+
    my ($name,$type,$global,$frame,$group,
        $subgroup, $anchor, $clones,$contigs,
        $positions) = $self->_rearrange([qw(NAME TYPE FRAME
@@ -136,7 +135,7 @@ These methods let you get and set the member variables
 =cut
 
 sub name {
-    my ($self) = shift;  
+    my ($self) = shift;
     return $self->{'_name'} = shift if @_;
     return $self->{'_name'};
 }
@@ -152,7 +151,7 @@ sub name {
 =cut
 
 sub type {
-    my ($self) = shift;    
+    my ($self) = shift;
     return $self->{'_type'} = shift if @_;
     return $self->{'_type'};
 }
@@ -170,7 +169,7 @@ sub type {
 
 
 sub global {
-    my ($self) = shift;   
+    my ($self) = shift;
     return $self->{'_global'} = shift if @_;
     return $self->{'_global'};
 }
@@ -197,14 +196,14 @@ sub anchor {
  Title   : framework
  Usage   : $frame = $markerobj->framework();
  Function: indicate if the Marker is framework or placement (1 | 0)
- Returns : scalar representing if the marker is framework 
+ Returns : scalar representing if the marker is framework
            (1 if framework, 0 if placement)
  Args    : none
 
 =cut
 
 sub framework {
-    my ($self) = shift;   
+    my ($self) = shift;
     return $self->{'_frame'} = shift if @_;
     return $self->{'_frame'};
 }
@@ -214,7 +213,7 @@ sub framework {
 
  Title   : group
  Usage   : $grpno = $markerobj->group();
- Function: get the group number for this marker. This is a 
+ Function: get the group number for this marker. This is a
            generic term, used for Linkage-Groups as well as
 	   for Chromosomes.
  Returns : scalar representing the group number of this marker
@@ -232,12 +231,12 @@ sub group {
 =head2 subgroup
 
  Title   : subgroup
- Usage   : $subgroup = $marker->subgroup();	   
- Function: get the subgroup for this marker. This is a 
-           generic term: subgroup here could represent subgroup 
+ Usage   : $subgroup = $marker->subgroup();	
+ Function: get the subgroup for this marker. This is a
+           generic term: subgroup here could represent subgroup
 	   of a Chromosome or of a Linkage Group
-	   The user must take care of which subgroup he/she is 
-           querying for.	   
+	   The user must take care of which subgroup he/she is
+           querying for.	
  Returns : scalar representing the subgroup of this marker
  Args    : none
 
@@ -255,24 +254,24 @@ sub subgroup {
 
  Title   : position
  Usage   : $markerpos = $markerobj->position($ctg);
- Function: get the position of the marker in the contig 
- Returns : scalar representing the position of the markernumber of 
+ Function: get the position of the marker in the contig
+ Returns : scalar representing the position of the markernumber of
            the contig
  Args    : $ctg is necessary to look for the position of the marker
-           in that contig. 
+           in that contig.
 
 =cut
 
 sub position {
-    my ($self,$ctg) = @_;    
+    my ($self,$ctg) = @_;
     return 0 unless defined $ctg;
-    
-    return 0 unless( defined defined $self->{'_position'} && 
+
+    return 0 unless( defined defined $self->{'_position'} &&
 		     defined $self->{'_position'}{$ctg});
     return $self->{'_position'}{$ctg};
 }
 
-=head2 each_I<<element>>id
+=head2 each_I<E<lt>elementE<gt>>id
 
  Title   : each_<element>id
  Usage   : my @clones  = $markerobj->each_cloneid();
@@ -295,10 +294,10 @@ sub each_contigid{
 
 sub _each_element{
     my ($self, $type) = @_;
-    
+
     $type = 'clones' unless defined $type;
     $type = lc("_$type");
-    
+
     return keys %{$self->{$type} || {}};
 }
 
@@ -356,7 +355,7 @@ sub set_positions{
    }
 }
 
-1; 
+1;
 
 
 =head1 FEEDBACK
@@ -394,10 +393,10 @@ Dr. Cari Soderlund        cari@genome.arizona.edu
 The project was done in Arizona Genomics Computational Laboratory (AGCoL)
 at University of Arizona.
 
-This work was funded by USDA-IFAFS grant #11180 titled "Web Resources for 
+This work was funded by USDA-IFAFS grant #11180 titled "Web Resources for
 the Computation and Display of Physical Mapping Data".
 
-For more information on this project, please refer: 
+For more information on this project, please refer:
   http://www.genome.arizona.edu
 
 =head1 APPENDIX

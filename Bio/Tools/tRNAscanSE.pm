@@ -17,15 +17,15 @@ Bio::Tools::tRNAscanSE - A parser for tRNAscan-SE output
 =head1 SYNOPSIS
 
    use Bio::Tools::tRNAscanSE;
-   
+
    my $parser = Bio::Tools::tRNAscanSE->new(-file => 'result.tRNAscanSE');
-      
+
    # parse the results
    while( my $gene = $parser->next_prediction ) {
 
        @exon_arr = $gene->exons();
 
-   } 
+   }
 
 =head1 DESCRIPTION
 

@@ -46,7 +46,7 @@ record.
 
 =item 'NAME'
 
-$seq->display_id
+ $seq->display_id
 
 =item 'DEFINITION'
 

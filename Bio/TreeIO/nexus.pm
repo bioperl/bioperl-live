@@ -83,6 +83,7 @@ use IO::String;
                          print/do not print #NEXUS header
            -translate => boolean default is true
                          print/do not print Node Id translation to a number
+
 =cut
 
 sub _initialize { 

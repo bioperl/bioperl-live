@@ -73,6 +73,7 @@ use vars qw(@ISA);
  Arguments  : hash nodes            => array reference of 2 nodes
                    id               => edge id
                    weight(optional) => weight score.
+
 =cut
 
 sub new {
@@ -84,11 +85,7 @@ sub new {
 	my $self    = [];
 	bless ($self, $class);
 
-	my ($weight, $id, $nodes) = $self->_rearrange([qw(
-													 WEIGHT 
-													 ID
-													 NODES)],
-												 @args);
+	my ($weight, $id, $nodes) = $self->_rearrange([qw( WEIGHT ID NODES)], @args);
 	$self->[0] = $nodes->[0];
 	$self->[1] = $nodes->[1];
 	$self->[2] = defined($weight)?$weight:undef; 
@@ -98,6 +95,7 @@ sub new {
 }
 
 =head2 weight
+
  Name      : weight
  Purpose   : get/setter for weight score
  Usage     : my $weight = $edge->weight();
@@ -113,6 +111,7 @@ sub weight {
 }
 
 =head2 object_id
+
  Name      : object_id
  Purpose   : get/setter for object_id
  Usage     : my $id = $edge->object_id();

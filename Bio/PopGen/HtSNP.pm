@@ -89,6 +89,181 @@ where  $hap, $snp and $pop are in the format:
 
     See Below for more detailed summaries.
 
+
+=head1 DETAILS
+
+=head2 How the process is working with one example
+
+Let's begin with one general example of the code.
+
+Input haplotype:
+
+  acgtcca-t
+  cggtagtgc
+  cccccgtgc
+  cgctcgtgc
+
+The first thing to to is to B<split the haplotype> into characters.
+
+  a       c       g       t       c       c       a       -       t
+  c       g       g       t       a       g       t       g       c
+  c       c       c       c       c       g       t       g       c
+  c       g       c       t       c       g       t       g       c
+
+Now we have to B<convert> the haplotype to B<Upercase>. This
+will produce the same SNP if we have input a or A.
+
+  A       C       G       T       C       C       A       -       T
+  C       G       G       T       A       G       T       G       C
+  C       C       C       C       C       G       T       G       C
+  C       G       C       T       C       G       T       G       C
+
+The program admit as values any combination of ACTG and - (deletions).
+The haplotype is B<converted to number>, considering the first variation
+as zero and the alternate value as 1 (see expanded description below).
+
+  0       0       0       0       0       0       0       0       0
+  1       1       0       0       1       1       1       1       1
+  1       0       1       1       0       1       1       1       1
+  1       1       1       0       0       1       1       1       1
+
+Once we have the haplotype converted to numbers we have to generate the
+snp type information for the haplotype.
+
+
+B<SNP code = SUM ( value * multiplicity ^ position );>
+
+    where:
+      SUM is the sum of the values for the SNP
+      value is the SNP number code (0 [generally for the mayor allele],
+                                    1 [for the minor allele].
+      position is the position on the block.
+
+For this example the code is:
+
+  0       0       0       0       0       0       0       0       0
+  1       1       0       0       1       1       1       1       1
+  1       0       1       1       0       1       1       1       1
+  1       1       1       0       0       1       1       1       1
+ ------------------------------------------------------------------
+  14      10      12      4       2       14      14      14      14
+
+  14 = 0*2^0 + 1*2^1 + 1*2^2 + 1*2^3
+  12 = 0*2^0 + 1*2^1 + 0*2^2 + 1*2^3
+  ....
+
+Once we have the families classify. We will B<take> just the SNP's B<not
+redundant>.
+
+  14      10      12      4       2
+
+This information will be B<passed to the tag module> is you want to tag
+the htSNP.
+
+Whatever it happens to one SNPs of a class will happen to a SNP of
+the same class. Therefore you don't need to scan redundancies
+
+=head2 Working with fuzzy data.
+
+This module is designed to work with fuzzy data. As the source of the
+haplotype is diverse. The program assume that some haplotypes can be
+generated using different values. If there is any indetermination (? or n)
+or any other degenerated value or invalid. The program will take away
+This SNP and will leave that for a further analysis.
+
+On a complex situation:
+
+  a       c       g       t       ?       c       a       c       t
+  a       c       g       t       ?       c       a       -       t
+  c       g       ?       t       a       g       ?       g       c
+  c       a       c       t       c       g       t       g       c
+  c       g       c       t       c       g       t       g       c
+  c       g       g       t       a       g       ?       g       c
+  a       c       ?       t       ?       c       a       c       t
+
+On this haplotype everything is happening. We have a multialelic variance.
+We have indeterminations. We have deletions and we have even one SNP
+which is not a real SNP.
+
+The buiding process will be the same on this situation.
+
+Convert the haplotype to uppercase.
+
+  A       C       G       T       ?       C       A       C       T
+  A       C       G       T       ?       C       A       -       T
+  C       G       ?       T       A       G       ?       G       C
+  C       A       C       T       C       G       T       G       C
+  C       G       C       T       C       G       T       G       C
+  C       G       G       T       A       G       ?       G       C
+  A       C       ?       T       ?       C       A       C       T
+
+All columns that present indeterminations will be removed from the analysis
+on this Step.
+
+hapotype after remove columns:
+
+  A       C       T       C       C       T
+  A       C       T       C       -       T
+  C       G       T       G       G       C
+  C       A       T       G       G       C
+  C       G       T       G       G       C
+  C       G       T       G       G       C
+  A       C       T       C       C       T
+
+All changes made on the haplotype matrix, will be also made on the SNP list.
+
+  snp_id_1 snp_id_2 snp_id_4 snp_id_6 snp_id_8 snp_id_9
+
+now the SNP that is not one SNP will be removed from the analysis.
+SNP with Id snp_id_4 (the one with all T's).
+
+
+because of the removing. Some of the families will become the same and will
+be clustered. A posteriori analysis will diference these families.
+but because of the indetermination can not be distinguish.
+
+  A       C       C       C       T
+  A       C       C       -       T
+  C       G       G       G       C
+  C       A       G       G       C
+  C       G       G       G       C
+  C       G       G       G       C
+  A       C       C       C       T
+
+The result of the mergering will go like:
+
+  A       C       C       C       T
+  A       C       C       -       T
+  C       G       G       G       C
+  C       A       G       G       C
+
+Once again the changes made on the families and we merge the frequency (I<to be
+implemented>)
+
+Before to convert the haplotype into numbers we consider how many variations
+we have on the set. On this case the variations are 3.
+
+The control code will use on this situation base three as mutiplicity
+
+  0       0       0       0       0
+  0       0       0       1       0
+  1       1       1       2       1
+  1       2       1       2       1
+ -----------------------------------
+  36      63      36      75      36
+
+And the minimal set for this combination is
+
+  0       0       0
+  0       0       1
+  1       1       2
+  1       2       2
+
+B<NOTE:> this second example is a remote example an on normal conditions. This
+conditions makes no sense, but as the haplotypes, can come from many sources
+we have to be ready for all kind of combinations.
+
+
 =head1 FEEDBACK
 
 =head2 Mailing Lists
@@ -112,9 +287,11 @@ the web:
 
 Email pgf18872-at-gsk-dot-com
 
+
 =head1 APPENDIX
 
-See at the end of the POD.
+The rest of the documentation details each of the object methods.
+Internal methods are usually preceded with a _
 
 =cut
 
@@ -1511,181 +1688,6 @@ sub _snp_and_code_summary{
     }
 }
 
-=head1 APPENDIX
-
-=head2 How the process is working with one example
-
-Let's begin with one general example of the code.
-
-Input haplotype:
-
-  acgtcca-t
-  cggtagtgc
-  cccccgtgc
-  cgctcgtgc
-
-The first thing to to is to B<split the haplotype> into characters.
-
-  a       c       g       t       c       c       a       -       t
-  c       g       g       t       a       g       t       g       c
-  c       c       c       c       c       g       t       g       c
-  c       g       c       t       c       g       t       g       c
-
-Now we have to B<convert> the haplotype to B<Upercase>. This
-will produce the same SNP if we have input a or A.
-
-  A       C       G       T       C       C       A       -       T
-  C       G       G       T       A       G       T       G       C
-  C       C       C       C       C       G       T       G       C
-  C       G       C       T       C       G       T       G       C
-
-The program admit as values any combination of ACTG and - (deletions).
-The haplotype is B<converted to number>, considering the first variation
-as zero and the alternate value as 1 (see expanded description below).
-
-  0       0       0       0       0       0       0       0       0
-  1       1       0       0       1       1       1       1       1
-  1       0       1       1       0       1       1       1       1
-  1       1       1       0       0       1       1       1       1
-
-Once we have the haplotype converted to numbers we have to generate the
-snp type information for the haplotype.
-
-
-B<SNP code = SUM ( value * multiplicity ^ position );>
-
-    where:
-      SUM is the sum of the values for the SNP
-      value is the SNP number code (0 [generally for the mayor allele],
-                                    1 [for the minor allele].
-      position is the position on the block.
-
-For this example the code is:
-
-  0       0       0       0       0       0       0       0       0
-  1       1       0       0       1       1       1       1       1
-  1       0       1       1       0       1       1       1       1
-  1       1       1       0       0       1       1       1       1
- ------------------------------------------------------------------
-  14      10      12      4       2       14      14      14      14
-
-  14 = 0*2^0 + 1*2^1 + 1*2^2 + 1*2^3
-  12 = 0*2^0 + 1*2^1 + 0*2^2 + 1*2^3
-  ....
-
-Once we have the families classify. We will B<take> just the SNP's B<not
-redundant>.
-
-  14      10      12      4       2
-
-This information will be B<passed to the tag module> is you want to tag
-the htSNP.
-
-Whatever it happens to one SNPs of a class will happen to a SNP of
-the same class. Therefore you don't need to scan redundancies
-
-=head2 Working with fuzzy data.
-
-This module is designed to work with fuzzy data. As the source of the
-haplotype is diverse. The program assume that some haplotypes can be
-generated using different values. If there is any indetermination (? or n)
-or any other degenerated value or invalid. The program will take away
-This SNP and will leave that for a further analysis.
-
-On a complex situation:
-
-  a       c       g       t       ?       c       a       c       t
-  a       c       g       t       ?       c       a       -       t
-  c       g       ?       t       a       g       ?       g       c
-  c       a       c       t       c       g       t       g       c
-  c       g       c       t       c       g       t       g       c
-  c       g       g       t       a       g       ?       g       c
-  a       c       ?       t       ?       c       a       c       t
-
-On this haplotype everything is happening. We have a multialelic variance.
-We have indeterminations. We have deletions and we have even one SNP
-which is not a real SNP.
-
-The buiding process will be the same on this situation.
-
-Convert the haplotype to uppercase.
-
-  A       C       G       T       ?       C       A       C       T
-  A       C       G       T       ?       C       A       -       T
-  C       G       ?       T       A       G       ?       G       C
-  C       A       C       T       C       G       T       G       C
-  C       G       C       T       C       G       T       G       C
-  C       G       G       T       A       G       ?       G       C
-  A       C       ?       T       ?       C       A       C       T
-
-All columns that present indeterminations will be removed from the analysis
-on this Step.
-
-hapotype after remove columns:
-
-  A       C       T       C       C       T
-  A       C       T       C       -       T
-  C       G       T       G       G       C
-  C       A       T       G       G       C
-  C       G       T       G       G       C
-  C       G       T       G       G       C
-  A       C       T       C       C       T
-
-All changes made on the haplotype matrix, will be also made on the SNP list.
-
-  snp_id_1 snp_id_2 snp_id_4 snp_id_6 snp_id_8 snp_id_9
-
-now the SNP that is not one SNP will be removed from the analysis.
-SNP with Id snp_id_4 (the one with all T's).
-
-
-because of the removing. Some of the families will become the same and will
-be clustered. A posteriori analysis will diference these families.
-but because of the indetermination can not be distinguish.
-
-  A       C       C       C       T
-  A       C       C       -       T
-  C       G       G       G       C
-  C       A       G       G       C
-  C       G       G       G       C
-  C       G       G       G       C
-  A       C       C       C       T
-
-The result of the mergering will go like:
-
-  A       C       C       C       T
-  A       C       C       -       T
-  C       G       G       G       C
-  C       A       G       G       C
-
-Once again the changes made on the families and we merge the frequency (I<to be
-implemented>)
-
-Before to convert the haplotype into numbers we consider how many variations
-we have on the set. On this case the variations are 3.
-
-The control code will use on this situation base three as mutiplicity
-
-  0       0       0       0       0
-  0       0       0       1       0
-  1       1       1       2       1
-  1       2       1       2       1
- -----------------------------------
-  36      63      36      75      36
-
-And the minimal set for this combination is
-
-  0       0       0
-  0       0       1
-  1       1       2
-  1       2       2
-
-B<NOTE:> this second example is a remote example an on normal conditions. This
-conditions makes no sense, but as the haplotypes, can come from many sources
-we have to be ready for all kind of combinations.
-
-
-=cut
 
 1;
 

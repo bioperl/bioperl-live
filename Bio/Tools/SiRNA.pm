@@ -20,7 +20,6 @@ SiRNA - Perl object for designing small inhibitory RNAs.
 
   my $sirna_designer = Bio::Tools::SiRNA->new( -target => $bio_seq,
                                                -rules  => 'saigo'
-    
     );
   my @pairs = $sirna_designer->design;
 
@@ -56,15 +55,25 @@ implemented. For consistency, the Tuschl rules are implemented by default.
 In addition, this module provides three 'extra' rules which can be added
 above and beyond any ruleset.
 
-1. SiRNAs that overlap known SNPs (identified as SeqFeatures with 
+=over 3
+
+=item 1.
+
+SiRNAs that overlap known SNPs (identified as SeqFeatures with 
 primary tag = variation) can be avoided.
 
-2. Other regions (with primary tag = 'Excluded') can also be skipped.  
-I use this with Bio::Tools::Run::Mdust to avoid low-complexity 
-regions (must be run separately), but other programs could also be used.
+=item 2.
 
-3. SiRNAs may also be selected in the 3 prime UTR of a gene
-by setting $sirna_designer->include_3pr() to true.
+Other regions (with primary tag = 'Excluded') can also be skipped.  I
+use this with Bio::Tools::Run::Mdust to avoid low-complexity regions
+(must be run separately), but other programs could also be used.
+
+=item 3.
+
+SiRNAs may also be selected in the 3 prime UTR of a gene by setting
+$sirna_designer-E<gt>include_3pr() to true.
+
+=back
 
 =head2 EXPORT
 

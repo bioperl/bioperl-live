@@ -960,7 +960,6 @@ sub _gff25_string {
   Returns : A GFF3-formatted string representation of the SeqFeature
   Args    : A Bio::SeqFeatureI implementing object to be GFF3-stringified
 
-    
 =cut
 
 sub _gff3_string {
@@ -1088,7 +1087,6 @@ sub _gff3_string {
   Returns : The GFF version this parser will accept and emit.
   Args    : none
 
-    
 =cut
 
 sub gff_version {
@@ -1216,12 +1214,12 @@ sub features_attached_to_seqs{
  Example : 
  Returns : value of ignore_sequence (a boolean)
  Args    : on set, new value (a boolean, optional)
- 
+
 =cut
 
 sub ignore_sequence{
     my $self = shift;
-    
+
     return $self->{'_ignore_sequence'} = shift if @_;
     return $self->{'_ignore_sequence'};
 }

@@ -330,7 +330,7 @@ options are recognized:
   -end_shape  One of 'square', 'diamond',         square
               'tree', 'clover', 'star',
               'bubble', 'arrow', 'wave'
-              
+
   -bubble_text The text to show in the bubble     Text
                 if the bubble option is chosen
                 above (shape_size is then ignored)
@@ -341,7 +341,7 @@ options are recognized:
   -arc        Whether the shapes are               0
               connected by an arc
               (a straight line is the default).
-  
+
 =head1 BUGS
 
 Please report them.
@@ -380,7 +380,7 @@ L<GD>
 
 =head1 AUTHOR
 
-Vsevolod (Simon) Ilyushchenko E<lt>simonf@cshl.edu<gt>.
+Vsevolod (Simon) Ilyushchenko E<lt>simonf@cshl.eduE<gt>.
 
 Copyright (c) 2004 Cold Spring Harbor Laboratory
 

@@ -119,7 +119,7 @@ L<GD>
 
 =head1 AUTHOR
 
-Vsevolod (Simon) Ilyushchenko E<lt>simonf@cshl.edu<gt>.
+Vsevolod (Simon) Ilyushchenko E<lt>simonf@cshl.eduE<gt>.
 
 Copyright (c) 2004 Cold Spring Harbor Laboratory
 

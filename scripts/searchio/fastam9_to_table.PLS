@@ -22,27 +22,28 @@ Not technically a SearchIO script as this doesn't use any Bioperl
 components but is a useful and fast.  The output is tabular output
 with the standard NCBI -m9 columns.
 
-queryname
-hit name
-percent identity
-alignment length
-number mismatches 
-number gaps
-query start  (if on rev-strand start > end)
-query end 
-hit start (if on rev-strand start > end)
-hit end 
-evalue
-bit score
+  queryname
+  hit name
+  percent identity
+  alignment length
+  number mismatches 
+  number gaps
+  query start  (if on rev-strand start > end)
+  query end 
+  hit start (if on rev-strand start > end)
+  hit end 
+  evalue
+  bit score
 
 Additionally 3 more columns are provided
-fasta score
-sw-score
-percent similar
-query length
-hit length
-query gaps
-hit gaps
+
+  fasta score
+  sw-score
+  percent similar
+  query length
+  hit length
+  query gaps
+  hit gaps
 
 =head1 AUTHOR - Jason Stajich
 

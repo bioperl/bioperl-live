@@ -42,7 +42,7 @@ options are recognized:
   -width      Width of one tooth            10
 
   -interval   Interval between teeth        10
-  
+
 =head1 BUGS
 
 Please report them.
@@ -81,7 +81,7 @@ L<GD>
 
 =head1 AUTHOR
 
-Vsevolod (Simon) Ilyushchenko E<lt>simonf@cshl.edu<gt>.
+Vsevolod (Simon) Ilyushchenko E<lt>simonf@cshl.eduE<gt>.
 
 Copyright (c) 2004 Cold Spring Harbor Laboratory
 

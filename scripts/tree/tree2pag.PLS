@@ -9,18 +9,18 @@ nexus2nh - convert Bio::TreeIO parseable format trees to pagel format
  tree2pag -if nexus -i file.nexus > file.pag
 
  # OR pipe in through STDIN, and use newick format instead
- 
+
  cat file.newick | tree2pag -if newick > file.nh
 
  # OR specify an output and input
 
- tree2pag -o file.pag -i file.newick 
+ tree2pag -o file.pag -i file.newick
 
 =head1 DESCRIPTION
 
 Convert TreeIO parseable files into Pagel format tree files.  Be
 warned that pagel format only really supports a single tree per file
-so.  Also Pagel parsing is not yet available in bioperl. 
+so.  Also Pagel parsing is not yet available in bioperl.
 
 =cut
 

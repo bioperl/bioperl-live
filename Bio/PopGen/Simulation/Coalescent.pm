@@ -19,12 +19,12 @@ Bio::PopGen::Simulation::Coalescent - A Coalescent simulation factory
     use Bio::PopGen::Simulation::Coalescent;
     my @taxonnames = qw(SpeciesA SpeciesB SpeciesC SpeciesD);
     my $sim1 = Bio::PopGen::Simulation::Coalescent->new(-samples => \@taxonnames);
-    
+
     my $tree = $sim1->next_tree;
-    
+
     # add 20 mutations randomly to the tree
     $sim1->add_Mutations($tree,20);
-    
+
     # or for anonymous samples
 
     my $sim2 = Bio::PopGen::Simulation::Coalescent->new( -sample_size => 6,

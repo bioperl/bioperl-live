@@ -499,7 +499,7 @@ sub location {
 This is a convenience function used by the generic genome browser. It
 returns the location of the feature and its subfeatures in the compact
 form "start1..end1,start2..end2,...".  Use
-$seqfeature->location()->toFTString() to obtain a standard
+$seqfeature-E<gt>location()-E<gt>toFTString() to obtain a standard
 GenBank/EMBL location representation.
 
 =cut

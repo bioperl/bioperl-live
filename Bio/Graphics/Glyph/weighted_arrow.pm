@@ -110,7 +110,7 @@ options are recognized:
               Size of the square            8
 
   -length     Length of the arrow           20
-  
+
   -left_alignment
               Whether the glyph is drawn    1
               on the left or on the right
@@ -157,7 +157,7 @@ L<GD>
 
 =head1 AUTHOR
 
-Vsevolod (Simon) Ilyushchenko E<lt>simonf@cshl.edu<gt>.
+Vsevolod (Simon) Ilyushchenko E<lt>simonf@cshl.eduE<gt>.
 
 Copyright (c) 2004 Cold Spring Harbor Laboratory
 

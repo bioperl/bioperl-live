@@ -273,6 +273,8 @@ sub _index_file {
 
 =head2 Bio::Index::Abstract methods
 
+=cut
+
 =head2 filename
 
  Title   : filename

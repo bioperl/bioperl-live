@@ -22,7 +22,7 @@ Bio::Search::BlastStatistics - An object for Blast statistics
      my $kappa  = $bs->get_statistic("kappa");
           # or specifically, like this:
      my $kappa2 = $bs->get_kappa();
-     
+
 
 =head1 DESCRIPTION
 
@@ -51,9 +51,6 @@ email or the web:
 =head1 AUTHOR - Chad Matsalla
 
 Email bioinformatics1 at dieselwurks dot com
-
-=head1 CONTRIBUTORS
-
 
 =head1 APPENDIX
 

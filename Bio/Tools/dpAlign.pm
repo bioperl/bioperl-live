@@ -12,143 +12,149 @@
 
 =head1 NAME
 
-	Bio::Tools::dpAlign - Perl extension to do pairwise dynamic programming sequence alignment
+Bio::Tools::dpAlign - Perl extension to do pairwise dynamic programming sequence alignment
 
 =head1 SYNOPSIS
 
-        use Bio::Tools::dpAlign;
-        use Bio::SeqIO;
-        use Bio::SimpleAlign;
-        use Bio::AlignIO;
-        use Bio::Matrix::IO;
+  use Bio::Tools::dpAlign;
+  use Bio::SeqIO;
+  use Bio::SimpleAlign;
+  use Bio::AlignIO;
+  use Bio::Matrix::IO;
 
-        $seq1 = new Bio::SeqIO(-file => $ARGV[0], -format => 'fasta');
-        $seq2 = new Bio::SeqIO(-file => $ARGV[1], -format => 'fasta');
+  $seq1 = new Bio::SeqIO(-file => $ARGV[0], -format => 'fasta');
+  $seq2 = new Bio::SeqIO(-file => $ARGV[1], -format => 'fasta');
 
-        # create a dpAlign object
-	# to do global alignment, specify DPALIGN_GLOBAL_MILLER_MYERS
-        $factory = new dpAlign(-match => 3,
-                           -mismatch => -1,
-                           -gap => 3,
-                           -ext => 1,
-                           -alg => dpAlign::DPALIGN_LOCAL_MILLER_MYERS);
+  # create a dpAlign object
+  # to do global alignment, specify DPALIGN_GLOBAL_MILLER_MYERS
+  $factory = new dpAlign(-match => 3,
+                     -mismatch => -1,
+                     -gap => 3,
+                     -ext => 1,
+                     -alg => dpAlign::DPALIGN_LOCAL_MILLER_MYERS);
 
-        # actually do the alignment
-        $out = $factory->pairwise_alignment($seq1->next_seq, $seq2->next_seq);
-        $alnout = new Bio::AlignIO(-format => 'pfam', -fh => \*STDOUT);
-        $alnout->write_aln($out);
+  # actually do the alignment
+  $out = $factory->pairwise_alignment($seq1->next_seq, $seq2->next_seq);
+  $alnout = new Bio::AlignIO(-format => 'pfam', -fh => \*STDOUT);
+  $alnout->write_aln($out);
 
-        # To do protein alignment, set the sequence type to protein
-        # By default all protein alignments are using BLOSUM62 matrix
-        # the gap opening cost is 7 and gap extension is 1. These
-        # values are from ssearch. To use your own custom substitution 
-        # matrix, you can create a Bio::Matrix::MatrixI object.
+  # To do protein alignment, set the sequence type to protein
+  # By default all protein alignments are using BLOSUM62 matrix
+  # the gap opening cost is 7 and gap extension is 1. These
+  # values are from ssearch. To use your own custom substitution 
+  # matrix, you can create a Bio::Matrix::MatrixI object.
 
-	$parser = new Bio::Matrix::IO(-format => 'scoring', -file => 'blosum50.mat');
-	$matrix = $parser->next_matrix;
-	$factory = new Bio::Tools::dpAlign(-matrix => $matrix, -alg => Bio::Tools::DPALIGN_LOCAL_MILLERMYERS);
-        $seq1->alphabet('protein');
-        $seq2->alphabet('protein');
-        $out = $factory->pairwise_alignment($seq1->next_seq, $seq2->next_seq);
-        $alnout->write_aln($out);
+  $parser = new Bio::Matrix::IO(-format => 'scoring', -file => 'blosum50.mat');
+  $matrix = $parser->next_matrix;
+  $factory = new Bio::Tools::dpAlign(-matrix => $matrix, -alg => Bio::Tools::DPALIGN_LOCAL_MILLERMYERS);
+  $seq1->alphabet('protein');
+  $seq2->alphabet('protein');
+  $out = $factory->pairwise_alignment($seq1->next_seq, $seq2->next_seq);
+  $alnout->write_aln($out);
 
-	# use the factory to make some output
+  # use the factory to make some output
 
-	$factory->align_and_show($seq1, $seq2, STDOUT);
+  $factory->align_and_show($seq1, $seq2, STDOUT);
 
-	# use Phil Green's algorithm to calculate the optimal local
-	# alignment score between two sequences quickly. It is very
-	# useful when you are searching a query sequence in a database
-	# of sequences. Since finding a alignment is more costly 
-	# than just calculating scores, you can save time if you only 
-	# align sequences that have a high alignment score.
+  # use Phil Green's algorithm to calculate the optimal local
+  # alignment score between two sequences quickly. It is very
+  # useful when you are searching a query sequence in a database
+  # of sequences. Since finding a alignment is more costly 
+  # than just calculating scores, you can save time if you only 
+  # align sequences that have a high alignment score.
 
-	# To use this feature, first you call the sequence_profile function
-	# to obtain the profile of the query sequence.
-	$profile = $factory->sequence_profile($query);
+  # To use this feature, first you call the sequence_profile function
+  # to obtain the profile of the query sequence.
+  $profile = $factory->sequence_profile($query);
 
-	%scores = ();
-	# Then use a loop to run a database of sequences against the
-	# profile to obtain a table of alignment scores
-	$dbseq = Bio::SeqIO(-file => 'dbseq.fa', -format => 'fasta');
-	while (defined($seq = $dbseq->next_seq)) {
-	    $scores{$seq->id} = $factory->pairwise_alignment_score($profile, $seq);
-	}
+  %scores = ();
+  # Then use a loop to run a database of sequences against the
+  # profile to obtain a table of alignment scores
+  $dbseq = Bio::SeqIO(-file => 'dbseq.fa', -format => 'fasta');
+  while (defined($seq = $dbseq->next_seq)) {
+      $scores{$seq->id} = $factory->pairwise_alignment_score($profile, $seq);
+  }
 
 =head1 DESCRIPTION
 
-        Dynamic Programming approach is considered to be the most
-        sensitive way to align two biological sequences. There are
-        currently three major types of dynamic programming algorithms:
-        Global Alignment, Local Alignment and Ends-free Alignment.
+Dynamic Programming approach is considered to be the most sensitive
+way to align two biological sequences. There are currently three major
+types of dynamic programming algorithms: Global Alignment, Local
+Alignment and Ends-free Alignment.
 
-        Global Alignment compares two sequences in their entirety.
-        By inserting gaps in the two sequences, it aligns two
-        sequences to minimize the edit distance as defined by the
-        gap cost function and the substitution matrix. Global Alignment
-        is generally applied to two sequences that are very similar
-        in length and content.
+Global Alignment compares two sequences in their entirety.  By
+inserting gaps in the two sequences, it aligns two sequences to
+minimize the edit distance as defined by the gap cost function and the
+substitution matrix. Global Alignment is generally applied to two
+sequences that are very similar in length and content.
 
-        Local Alignment instead attempts to find out the subsequences
-        that has the minimal edit distance among all possible subsequences.
-        It is good for sequences that has a stretch of subsequences
-        that are similar to each other.
+Local Alignment instead attempts to find out the subsequences that has
+the minimal edit distance among all possible subsequences.  It is good
+for sequences that has a stretch of subsequences that are similar to
+each other.
 
-        Ends-free Alignment is a special case of Global Alignment. There
-        are no gap penalty imposed for the gaps that extended from
-        the end points of two sequences. Therefore it will be a good
-        application when you think one sequence is contained by the
-        other or when you think two sequences overlap each other.
+Ends-free Alignment is a special case of Global Alignment. There are
+no gap penalty imposed for the gaps that extended from the end points
+of two sequences. Therefore it will be a good application when you
+think one sequence is contained by the other or when you think two
+sequences overlap each other.
 
-        Dynamic Programming was first introduced by Needleman-Wunsch (1970)
-        to globally align two sequences. The idea of local alignment
-        was later introduced by Smith-Waterman (1981). Gotoh (1982)
-        improved both algorithms by introducing auxillary arrays that
-        reduced the time complexity of the algorithms to O(m*n).
-        Miller-Myers (1988) exploits the divide-and-conquer idea
-        introduced by Hirschberg (1975) to solve the affine gap cost
-        dynamic programming using only linear space. At the time of
-        this writing, it is accepted that Miller-Myers is the fastest
-        single CPU implementation and using the least memory that is
-        truly equivalent to original algorithm introduced by
-        Needleman-Wunsch. According to Aaron Mackey, Phil Green's SWAT
-        implemention introduced a heuristic that does not consider
-        paths throught the matrix where the score would be less than
-        the gap opening penalty, yielding a 1.5-2X speedup on most
-        comparisons. to skip the calculation of some cells. However,
-        his approach is only good for calculating the minimum edit
-        distance and find out the corresponding subsequences (aka
-        search phase). Bill Pearson's popular dynamic programming
-        alignment program SSEARCH uses Phil Green's algorithm to
-        find the subsequences and then Miller-Myers's algorithm to
-        find the actual alignment. (aka alignment phase)
+Dynamic Programming was first introduced by Needleman-Wunsch (1970) to
+globally align two sequences. The idea of local alignment was later
+introduced by Smith-Waterman (1981). Gotoh (1982) improved both
+algorithms by introducing auxillary arrays that reduced the time
+complexity of the algorithms to O(m*n).  Miller-Myers (1988) exploits
+the divide-and-conquer idea introduced by Hirschberg (1975) to solve
+the affine gap cost dynamic programming using only linear space. At
+the time of this writing, it is accepted that Miller-Myers is the
+fastest single CPU implementation and using the least memory that is
+truly equivalent to original algorithm introduced by
+Needleman-Wunsch. According to Aaron Mackey, Phil Green's SWAT
+implemention introduced a heuristic that does not consider paths
+throught the matrix where the score would be less than the gap opening
+penalty, yielding a 1.5-2X speedup on most comparisons. to skip the
+calculation of some cells. However, his approach is only good for
+calculating the minimum edit distance and find out the corresponding
+subsequences (aka search phase). Bill Pearson's popular dynamic
+programming alignment program SSEARCH uses Phil Green's algorithm to
+find the subsequences and then Miller-Myers's algorithm to find the
+actual alignment. (aka alignment phase)
 
-        The current implementation supports local alignment of
-        either DNA sequences or protein sequences. It allows you
-        to specify either the Miller-Myers Global Alignment 
-	(DPALIGN_GLOBAL_MILLER_MYERS) or Miller-Myers Local 
-        Alignment (DPALIGN_LOCAL_MILLER_MYERS). For DNA
-        alignment, you can specify the scores for match, mismatch,
-        gap opening cost and gap extension cost. For protein
-        alignment, it is using BLOSUM62 by default. Currently the
-        substitution matrix is not configurable.
+The current implementation supports local alignment of either DNA
+sequences or protein sequences. It allows you to specify either the
+Miller-Myers Global Alignment (DPALIGN_GLOBAL_MILLER_MYERS) or
+Miller-Myers Local Alignment (DPALIGN_LOCAL_MILLER_MYERS). For DNA
+alignment, you can specify the scores for match, mismatch, gap opening
+cost and gap extension cost. For protein alignment, it is using
+BLOSUM62 by default. Currently the substitution matrix is not
+configurable.
 
 =head1 DEPENDENCIES
 
-	This package comes with the main bioperl distribution. You
-	also need to install the lastest bioperl-ext package which
-	contains the XS code that implements the algorithms. This 
-	package won't work if you haven't compiled the bioperl-ext
-	package.
-	
+This package comes with the main bioperl distribution. You also need
+to install the lastest bioperl-ext package which contains the XS code
+that implements the algorithms. This package won't work if you haven't
+compiled the bioperl-ext package.
+
 =head1 TO-DO
 
-        1) Support Ends-free Alignment.
 
-        2) Support IUPAC code for DNA sequence
+=over 3
 
-        3) Allow custom substitution matrix for DNA. Note that
-	for proteins, you can now use your own subsitution matirx.
+=item 1.
+
+Support Ends-free Alignment.
+
+=item 2.
+
+Support IUPAC code for DNA sequence
+
+=item 3.
+
+Allow custom substitution matrix for DNA. Note that for proteins, you
+can now use your own subsitution matirx.
+
+=back
 
 =head1 FEEDBACK
 

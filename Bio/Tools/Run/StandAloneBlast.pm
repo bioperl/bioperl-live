@@ -142,7 +142,7 @@ In addition, sequence input may be in the form of either a Bio::Seq
  $blast_report = $factory->blastall($input);
 
 For blastall and non-psiblast blastpgp runs, report object is either a
-L,Bio::Tools::BPlite> or L<Bio::SearchIO> object, selected by the user with the
+L<Bio::Tools::BPlite> or L<Bio::SearchIO> object, selected by the user with the
 parameter _READMETHOD.  (The leading underscore is needed to
 distinguish this option from options which are passed to the BLAST
 executable.) The default parser is Bio::SearchIO::blast.  If BPlite

@@ -12,17 +12,18 @@
 
 =head1 NAME
 
-saigo - Perl object implementing the Saigo group's rules for designing small inhibitory RNAs
+Bio::Tools::SiRNA::Ruleset::saigo - Perl object implementing the Saigo
+group's rules for designing small inhibitory RNAs
 
 =head1 SYNOPSIS
 
-Do not use this module directly.  Instead, use Bio::Tools::SiRNA and specify the saigo ruleset:
-    
+Do not use this module directly.  Instead, use Bio::Tools::SiRNA and
+specify the saigo ruleset:
+
   use Bio::Tools::SiRNA;
 
   my $sirna_designer = Bio::Tools::SiRNA->new( -target => $bio_seq,
                                                -rules  => 'saigo'
-    
     );
   my @pairs = $sirna_designer->design;
 
@@ -36,22 +37,39 @@ Do not use this module directly.  Instead, use Bio::Tools::SiRNA and specify the
   }
 
 =head1 DESCRIPTION
-    
-This package implements the rules for designing siRNA reagents published by Ui-Tei
-et al (2004).  The rules are:
 
-  1. The first base in the sense strand of the duplex must be a G or C
+This package implements the rules for designing siRNA reagents
+published by Ui-Tei et al (2004).  The rules are:
 
-  2. The first base in the antisense strand of the duplex must be an A or U
+=over 5
 
-  3. The first 7 nucleotides in the antisense strand of the duplex must be A or U
+=item 1.
 
-  4. There cannot be more than 9 consecutive G or C nucleotides
+The first base in the sense strand of the duplex must be a G or C
 
-  5. The first 12 nucleotides in the sense strand of the duplex should have 33-66% GC
+=item 2.
 
-The module inherits from Bio::Tools::SiRNA.  See the documentation for that module for 
-information on how to specify the target and recover the SiRNA duplex information.
+The first base in the antisense strand of the duplex must be an A or U
+
+=item 3.
+
+The first 7 nucleotides in the antisense strand of the duplex must be
+A or U
+
+=item 4.
+
+There cannot be more than 9 consecutive G or C nucleotides
+
+=item 5.
+
+The first 12 nucleotides in the sense strand of the duplex should have
+33-66% GC
+
+=back
+
+The module inherits from Bio::Tools::SiRNA.  See the documentation for
+that module for information on how to specify the target and recover
+the SiRNA duplex information.
 
 =head2 EXPORT
 
@@ -108,10 +126,10 @@ our @ISA = qw(Bio::Tools::SiRNA);
 
 =head2 new
 
-Title	: new
-Usage	: Do not call directly - use Bio::Tools::SiRNA->new instead.
-Returns : Bio::Tools::SiRNA::Ruleset::saigo object
-Args	: none
+  Title	: new
+  Usage	: Do not call directly - use Bio::Tools::SiRNA->new instead.
+  Returns : Bio::Tools::SiRNA::Ruleset::saigo object
+  Args	: none
 
 =cut
 

@@ -351,7 +351,7 @@ sub print_tree_count{
            in the branch length (Molphy-like; I'm sure there is a
            better name for this but am not sure where to go for some
            sort of format documentation)
-            
+
            If no branch lengths are requested then no bootstraps are usually
            written (unless someone REALLY wants this functionality...)
 

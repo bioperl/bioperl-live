@@ -468,7 +468,7 @@ sub has_tag{
     shift->throw_not_implemented();
 }
 
- 
+
 =head2 Helper Functions
 
 

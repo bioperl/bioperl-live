@@ -123,7 +123,7 @@ options are recognized:
   -text_pad_x Number of pixels between        0
               the left edge of the glyph
               and the start of text
-              
+
   -text_pad_x Number of pixels between        3
               the pentagram
               and the text
@@ -166,7 +166,7 @@ L<GD>
 
 =head1 AUTHOR
 
-Vsevolod (Simon) Ilyushchenko E<lt>simonf@cshl.edu<gt>.
+Vsevolod (Simon) Ilyushchenko E<lt>simonf@cshl.eduE<gt>.
 
 Copyright (c) 2004 Cold Spring Harbor Laboratory
 

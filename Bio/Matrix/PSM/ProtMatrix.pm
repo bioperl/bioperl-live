@@ -205,6 +205,7 @@ use strict;
             position-specific scoring info, e-value (optional), information
             content (optional), id (optional), model for background distribution
             of proteins (optional).
+
 =cut
 
 sub new {
@@ -825,6 +826,7 @@ sub _to_IUPAC {
  Args    : real numbers for A,C,G,T (positional)
 
 =cut
+
 sub _to_cons {
    return _to_IUPAC( @_ );
 }

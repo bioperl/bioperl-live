@@ -136,7 +136,7 @@ sub annotation{
 The methods below allow mapping of the old "get_tag_values()"-style
 annotation access to Bio::AnnotationCollectionI.  These need not be
 implemented in a Bio::AnnotationCollectionI compliant class, as they
-are built on top of the methods (see above L</ACCESSOR METHODS>).
+are built on top of the methods.
 
  B<DEPRECATED>: DO NOT USE THESE FOR FUTURE DEVELOPMENT.
 

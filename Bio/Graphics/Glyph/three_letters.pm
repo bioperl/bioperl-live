@@ -71,12 +71,12 @@ options are recognized:
   Option      Description                  Default
   ------      -----------                  -------
   -text       The three letters to show     "CAG"
-  
+
   -width      Width of one letter group     20
 
   -interval   Interval between              10
               letter groups
-  
+
 =head1 BUGS
 
 Please report them.
@@ -115,7 +115,7 @@ L<GD>
 
 =head1 AUTHOR
 
-Vsevolod (Simon) Ilyushchenko E<lt>simonf@cshl.edu<gt>.
+Vsevolod (Simon) Ilyushchenko E<lt>simonf@cshl.eduE<gt>.
 
 Copyright (c) 2004 Cold Spring Harbor Laboratory
 

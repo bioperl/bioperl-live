@@ -32,11 +32,6 @@ B<CURRENTLY WRITE ONLY>
 ChaosXML is an XML mapping of the chado relational database; for more
 information, see http://www.fruitfly.org/chaos-xml
 
-=head1 DESCRIPTION
-
-This object can transform Bio::Seq objects to and from Chaos XML
-representations
-
 Chaos can have other syntaxes than XML (eg S-Expressions, Indented text)
 
 See L<Bio::SeqIO::chaos> for a full description
@@ -61,8 +56,8 @@ Your participation is much appreciated.
 =head2 Reporting Bugs
 
 Report bugs to the Bioperl bug tracking system to help us keep track
- the bugs and their resolution.
- Bug reports can be submitted via email or the web:
+the bugs and their resolution.  Bug reports can be submitted via email
+or the web:
 
   bioperl-bugs@bio.perl.org
   http://bio.perl.org/bioperl-bugs/

@@ -25,7 +25,7 @@ Bio::AlignIO::stockholm - stockholm sequence input/output stream
 
   use Bio::AlignIO;
   use strict;
-  
+
   my $in = Bio::AlignIO->new(-format => 'stockholm',
                              -file   => 't/data/testaln.stockholm');
   while( my $aln = $in->next_aln ) {

@@ -75,7 +75,7 @@ options are recognized:
   -text       Text to draw next to the flag  ori
 
   -width      Width of the flag               20
-              
+
 =head1 BUGS
 
 Please report them.
@@ -114,7 +114,7 @@ L<GD>
 
 =head1 AUTHOR
 
-Vsevolod (Simon) Ilyushchenko E<lt>simonf@cshl.edu<gt>.
+Vsevolod (Simon) Ilyushchenko E<lt>simonf@cshl.eduE<gt>.
 
 Copyright (c) 2004 Cold Spring Harbor Laboratory
 

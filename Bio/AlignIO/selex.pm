@@ -25,7 +25,7 @@ Bio::AlignIO::selex - selex sequence input/output stream
 
   use Bio::AlignIO;
   use strict;
-  
+
   my $in = Bio::AlignIO->new(-format => 'selex',
                              -file   => 't/data/testaln.selex');
   while( my $aln = $in->next_aln ) {

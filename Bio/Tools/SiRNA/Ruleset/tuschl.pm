@@ -1,6 +1,6 @@
 #
 #
-# BioPerl module for Bio::Tools::SiRNA::Ruleset::saigo
+# BioPerl module for Bio::Tools::SiRNA::Ruleset::tuschl
 #
 # Cared for by Donald Jackson, donald.jackson@bms.com
 #
@@ -12,17 +12,18 @@
 
 =head1 NAME
 
-tuschl - Perl object implementing the tuschl group's rules for designing small inhibitory RNAs
+Bio::Tools::SiRNA::Ruleset::tuschl - Perl object implementing the
+tuschl group's rules for designing small inhibitory RNAs
 
 =head1 SYNOPSIS
 
-Do not use this module directly.  Instead, use Bio::Tools::SiRNA and specify the saigo ruleset:
-    
+Do not use this module directly.  Instead, use Bio::Tools::SiRNA and
+specify the tuschl ruleset:
+
   use Bio::Tools::SiRNA;
 
   my $sirna_designer = Bio::Tools::SiRNA->new( -target => $bio_seq,
-                                               -rules  => 'taigo'
-    
+                                               -rules  => 'tuschl'
     );
   my @pairs = $sirna_designer->design;
 
@@ -37,14 +38,17 @@ Do not use this module directly.  Instead, use Bio::Tools::SiRNA and specify the
 
 =head1 DESCRIPTION
 
-This package implements the rules for designing siRNA reagents developed by Tuschl and colleagues (see http://www.rockefeller.edu/labheads/tuschl/sirna.html). 
-It looks for oligos that match the following patterns in the target sequence:
+This package implements the rules for designing siRNA reagents
+developed by Tuschl and colleagues (see
+http://www.rockefeller.edu/labheads/tuschl/sirna.html). It looks for
+oligos that match the following patterns in the target sequence:
 
   1. AA(N19)TT (rank 1)
   2. AA(N21) (rank 2)
   3. NA(N21) (rank 3)
 
-The package also supports selection of siRNA seqences that can be transcribed by pol3:
+The package also supports selection of siRNA seqences that can be
+transcribed by pol3:
 
     A[A,G]N17[C,T]
 
@@ -109,10 +113,10 @@ our $DEFAULT_CUTOFF = 2;
 
 =head2 new
 
-Title	: new
-Usage	: Do not call directly - use Bio::Tools::SiRNA->new instead.
-Returns : Bio::Tools::SiRNA::Ruleset::saigo object
-Args	: none
+  Title	: new
+  Usage	: Do not call directly - use Bio::Tools::SiRNA->new instead.
+  Returns : Bio::Tools::SiRNA::Ruleset::saigo object
+  Args	: none
 
 =cut
 

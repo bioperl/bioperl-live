@@ -48,7 +48,7 @@ events via the L<Data::Stag> module. If you only care about the final
 end-product xml, use L<Bio::SeqIO::chaosxml>
 
 You can treat the resulting chaos-xml stream as stag XML objects;
-  
+
     $outstream = Bio::SeqIO->new(-file => $filename, -format => 'chaos');
 
     while ( my $seq = $instream->next_seq() ) {

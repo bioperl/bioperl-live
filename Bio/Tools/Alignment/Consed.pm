@@ -302,7 +302,7 @@ sub get_class {
  Args    : The keyname of a contig. Note: This is a keyname. The key would
 	   normally come from get_contigs.
 
-Returns an array, not a reference. Is this a bug? <thinking> No.
+Returns an array, not a reference. Is this a bug? I<thinking> No.
 Well, maybe.  Why was this developed like this? I was using FreezeThaw
 for object persistence, and when it froze out these arrays it took a
 long time to thaw it. Much better as a scalar.
@@ -664,7 +664,7 @@ sub _read_file {
 	   to see that it was set properly.
  Args    : An arbitrary string.
 
-May be useful only to me. <shrug>
+May be useful only to me. I<shrug>
 
 =cut
 
@@ -686,7 +686,7 @@ sub set_reverse_designator {
 	   to see that it was set properly.
  Args    : An arbitrary string.
 
-May be useful only to me. <shrug>
+May be useful only to me. I<shrug>
 
 =cut
 
@@ -1708,7 +1708,7 @@ sub reverse_recurse($$) {
  Args    : None.
 
 Acts on doublets only. Really very somewhat quite ugly. A disgusting
-kludge. <insert pride here> It was written stepwise with no real plan
+kludge. I<insert pride here> It was written stepwise with no real plan
 because it was not really evident why consed (phrap?)  was doing this.
 
 =cut

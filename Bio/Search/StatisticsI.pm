@@ -50,9 +50,6 @@ email or the web:
 
 Email bioinformatics1 at dieselwurks dot com
 
-=head1 CONTRIBUTORS
-
-
 =head1 APPENDIX
 
 The rest of the documentation details each of the object methods.

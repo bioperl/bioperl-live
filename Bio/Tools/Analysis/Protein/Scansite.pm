@@ -58,35 +58,52 @@ sites isn't supported, all predicted sites are returned.
 
 The Sansite results can be obtained in several formats
 
-1. By calling my $res = $tool->result('');
-   $res holds a string of the predicted sites in tabular format.
+=over 3
 
-2. By calling my $data_ref = $tool->result('value')
-   $data_ref is a reference to an array of hashes. Each element in 
-   the array represents a predicted phosphorylation site. The hash 
-   keys are the names of the data fields, 
+=item 1.
 
-         i.e., 
-          'motif'      => 'Casn_Kin1'       # name of kinase
-          'percentile' => 0.155             # see Scansite docs
-          'position'   => 9                 # position in protein
-          'protein'    => 'A1'              # protein id
-          'score'      => 0.3696            # see Scansite docs
-          'sequence'   => 'ASYFDTASYFSADAT' # sequence surrounding site
-          'site'       => 'S9'              # phosphorylated residue
-          'zscore'     => '-3.110'          # see Scansite docs
+By calling
 
-3. By calling  my @fts = $tool->Result('Bio::SeqFeatureI');
-       which returns an array of Bio::SeqFeatureI compliant objects
-       with primary tag value 'Site' and tag names of
-              'motif', 'score', 'sequence', 'zscore' as above.
+  my $res = $tool->result('');
 
+$res holds a string of the predicted sites in tabular format.
+
+=item 2.
+
+By calling 
+
+  my $data_ref = $tool->result('value')
+
+$data_ref is a reference to an array of hashes. Each element in the
+array represents a predicted phosphorylation site. The hash keys are
+the names of the data fields,i.e.,
+
+    'motif'      => 'Casn_Kin1'       # name of kinase
+    'percentile' => 0.155             # see Scansite docs
+    'position'   => 9                 # position in protein
+    'protein'    => 'A1'              # protein id
+    'score'      => 0.3696            # see Scansite docs
+    'sequence'   => 'ASYFDTASYFSADAT' # sequence surrounding site
+    'site'       => 'S9'              # phosphorylated residue
+    'zscore'     => '-3.110'          # see Scansite docs
+
+=item 3.
+
+By calling
+
+  my @fts = $tool->Result('Bio::SeqFeatureI');
+
+which returns an array of Bio::SeqFeatureI compliant objects with
+primary tag value 'Site' and tag names of 'motif', 'score',
+'sequence', 'zscore' as above.
+
+=back
 
 See L<http://www.scansite.mit.edu/>.
 
-This inherits Bio::SimpleAnalysisI which hopefully
- makes it easier to write wrappers on various services. This class
-uses a web resource and therefore inherits from Bio::WebAgent.
+This inherits Bio::SimpleAnalysisI which hopefully makes it easier to
+write wrappers on various services. This class uses a web resource and
+therefore inherits from Bio::WebAgent.
 
 =head1 SEE ALSO
 

@@ -1,12 +1,12 @@
 #!/usr/bin/perl -w
 
-#$Id: genbank2gff3.PLS,v 1.1 2004-10-05 01:44:53 smckay Exp $;
+#$Id: genbank2gff3.PLS,v 1.2 2004-12-07 13:03:48 heikki Exp $;
 
 =pod
 
 =head1 NAME 
 
-bp_genbank2gff3.pl -- Genbank->gbrowse-friendly GFF3
+bp_genbank2gff3.pl -- Genbank-E<gt>gbrowse-friendly GFF3
 
 =head1 SYNOPSIS
 
@@ -39,38 +39,37 @@ bp_genbank2gff3.pl -- Genbank->gbrowse-friendly GFF3
 =head1 DESCRIPTION
 
 This script uses Bio::SeqFeature::Tools::Unflattener and
-Bio::Tools::GFF to convert GenBank flatfiles to GFF3 with
-gene containment hierarchies mapped for optimal display in
-gbrowse.
+Bio::Tools::GFF to convert GenBank flatfiles to GFF3 with gene
+containment hierarchies mapped for optimal display in gbrowse.
 
-The input files are assumed to be gzipped GenBank flatfiles
-for refseq contigs.  The files may contain multiple GenBank records.
-Either a single file or an entire directory can be processed.  
-By default, the DNA sequence is embedded in the GFF but it can be saved 
-into seperate fasta file with the --split(-y) option.
+The input files are assumed to be gzipped GenBank flatfiles for refseq
+contigs.  The files may contain multiple GenBank records.  Either a
+single file or an entire directory can be processed.  By default, the
+DNA sequence is embedded in the GFF but it can be saved into seperate
+fasta file with the --split(-y) option.
 
-If an input file contains multiple records, the default behaviour is 
-to dump all GFF and sequence to a file of the same name (with .gff appended).
-Using the 'nolump' option will create a seperate file for each 
-genbank record.  Using the 'split' option will create seperate 
-GFF and Fasta files for each genbank record.  
+If an input file contains multiple records, the default behaviour is
+to dump all GFF and sequence to a file of the same name (with .gff
+appended).  Using the 'nolump' option will create a seperate file for
+each genbank record.  Using the 'split' option will create seperate
+GFF and Fasta files for each genbank record.
 
+
+=head2 Notes
 
 =head3 Note1:
 
-In cases where the input files contain many GenBank records
-(for example, the chromosome files for the mouse genome build), 
-a very large number of output files will be produced 
-if the 'split' or 'nolump' options are selected.  
-If you do have lists of files > 6000, use the --long_list option
-in bp_bulk_load_gff.pl or bp_fast_load_gff.pl to load the gff and/
-or fasta files.
+In cases where the input files contain many GenBank records (for
+example, the chromosome files for the mouse genome build), a very
+large number of output files will be produced if the 'split' or
+'nolump' options are selected.  If you do have lists of files E<gt> 6000,
+use the --long_list option in bp_bulk_load_gff.pl or
+bp_fast_load_gff.pl to load the gff and/ or fasta files.
 
-=head3 Note2: 
+=head3 Note2:
 
-This script is designed for refseq genomic sequence entries.  
-It may work for third party annotations but this has not 
-been tested.
+This script is designed for refseq genomic sequence entries.  It may
+work for third party annotations but this has not been tested.
 
 =head1 AUTHOR 
 

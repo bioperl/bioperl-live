@@ -41,11 +41,11 @@ BEGIN{
 
 =head2        next_network
 
-name        : next_network
-purpose     : parses a graph file and returns a Bio::Graph::ProteinGraph object
-usage       : my $g = $graph_io->next_network();
-arguments   : none
-returns     : a a Bio::Graph::ProteinGraph object
+  name        : next_network
+  purpose     : parses a graph file and returns a Bio::Graph::ProteinGraph object
+  usage       : my $g = $graph_io->next_network();
+  arguments   : none
+  returns     : a a Bio::Graph::ProteinGraph object
 
 =cut
 

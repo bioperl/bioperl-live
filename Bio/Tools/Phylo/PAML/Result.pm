@@ -34,7 +34,7 @@ Bio::Tools::Phylo::PAML::Result - A PAML result set object
   # for AAML runs
   my $AAmatrix   = $result->get_AADistMatrix;
   my $AAMLmatrix   = $result->get_AAMLDistMatrix;
-  
+
 =head1 DESCRIPTION
 
 This is a container object for PAML Results.
@@ -835,6 +835,8 @@ sub get_CodonFreqs{
 
 
 =head2 BASEML Relavent values
+
+=cut
 
 =head2 get_KappaMatrix
 
