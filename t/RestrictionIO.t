@@ -5,7 +5,9 @@
 # written by Rob Edwards
 
 use strict;
-use constant NUMTESTS => 14;
+
+my $NUMTESTS;
+my $error;
 
 BEGIN {
     eval { require Test; };
@@ -13,14 +15,33 @@ BEGIN {
         use lib 't','..';
     }
     use Test;
+    $NUMTESTS = 14;
+    $error  = 0;
 
-    plan tests => NUMTESTS;
+    plan tests => $NUMTESTS;
+
+
+    eval { require Storeable; 
+       };
+    if( $@ ) {
+	print STDERR "Storeable not available, skipping\n";
+	for( 1..$NUMTESTS ) {
+	    skip("Storeable not available",1);
+	}
+       $error = 1; 
+    }
+
+
 }
 
-use Bio::Restriction::IO;
+if( $error ==  1 ) {
+    exit(0);
+}
+
+require Bio::Restriction::IO;
 
 use Bio::Root::IO;
-use Bio::Restriction::EnzymeCollection;
+require Bio::Restriction::EnzymeCollection;
 
 use Data::Dumper;
 ok(1);

@@ -22,10 +22,29 @@ BEGIN {
 	use lib 't';
     }
     use Test;
-
     $NUMTESTS = 26;
+
     plan tests => $NUMTESTS;
 
+    eval { require IO::String; 
+	   require LWP::UserAgent;
+	   require HTTP::Request::Common;
+       };
+    if( $@ ) {
+	print STDERR "IO::String or LWP::UserAgent or HTTP::Request not installed. This means the MeSH modules are not usable. Skipping tests.\n";
+	for( 1..$NUMTESTS ) {
+	    skip("IO::String, LWP::UserAgent,or HTTP::Request not installed",1);
+	}
+       $error = 1; 
+    }
+
+
+
+
+}
+
+if( $error ==  1 ) {
+    exit(0);
 }
 
 END {
@@ -36,9 +55,9 @@ END {
 
 
 use Data::Dumper;
-use Bio::Phenotype::MeSH::Term;
-use Bio::Phenotype::MeSH::Twig;
-use Bio::DB::MeSH;
+require Bio::Phenotype::MeSH::Term;
+require Bio::Phenotype::MeSH::Twig;
+require Bio::DB::MeSH;
 ok 1;
 
 my $verbose = 0;

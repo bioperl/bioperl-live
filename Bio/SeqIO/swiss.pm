@@ -176,9 +176,11 @@ sub next_seq {
    
    # fixed to allow _DIVISION to be optional for bug #946
    # see bug report for more information
-   $line =~ /^ID\s+([^\s_]+)(_([^\s_]+))?\s+([^\s;]+);\s+([^\s;]+);/ 
-     || $self->throw("swissprot stream with no ID. Not swissprot in my book");
-   
+   if( !($line =~ /^ID\s+([^\s_]+)(_([^\s_]+))?\s+([^\s;]+);\s+([^\s;]+);/)
+       && !($line =~ /^ID\s+([^\s_]+)(_([^\s_]+))?/ ) )  {
+       $self->throw("swissprot stream with no ID. Not swissprot in my book");
+   }
+
    if( $3 ) {
        $name = "$1$2";
        $params{'-division'} = $3;

@@ -10,7 +10,7 @@
 
 use strict;
 use vars qw($NUMTESTS);
-my $skipdbtests = 0;
+my $skipdbtests ;
 BEGIN { 
     # to handle systems with no installed Test module
     # we include the t dir (where a copy of Test.pm is located)
@@ -23,13 +23,17 @@ BEGIN {
     $NUMTESTS = 74;
     plan tests => $NUMTESTS;
 
-    eval { require IO::String; 
-	   require LWP::UserAgent;
-	   require HTTP::Request::Common;
-	   require Bio::DB::GenBank;
+    eval { 
+	require IO::String; 
+	require LWP::UserAgent;
+	require HTTP::Request::Common;
+	require Bio::DB::GenBank;
        };
     if( $@ ) {
+	print STDERR "skipping DB tests...\n";
 	$skipdbtests = 1;
+    } else {
+	$skipdbtests = 0;
     }
 
 }

@@ -3138,10 +3138,15 @@ $seqstats_and_seqwords = sub {
 #
 
 $restriction_and_sigcleave = sub {
-
-    use Bio::Restriction::EnzymeCollection;
-    use Bio::Restriction::Analysis;
-    use Bio::Tools::Sigcleave;
+    eval {
+      require Bio::Restriction::EnzymeCollection;
+      require Bio::Restriction::Analysis;
+      require  Bio::Tools::Sigcleave;
+    };
+    if( $@ ) {
+      warn "Storeable is not active and so can't run Restriction enzyme tutorial";
+      return 0;
+    }
 
     my ($re1, $re2, $allcutters, $sixcutters, @fragments1,
         @fragments2, $analysis, $seqobj, $dna);
