@@ -74,11 +74,11 @@ Since initial 1.2.0, 3000 separate changes have been made to make this release.
      - needs Bioperl-ext
 
    o new Bio::SearchIO formats
+     - axt and psl:  UCSC formats.
+     - blasttable: NCBI -m 8 or -m 9 format from blastall
 
    o new Bio::SeqIO formats
      - chado, tab, kegg, tigr, game
-     - axt and psl:  UCSC formats.
-     - blasttable: NCBI -m 8 or -m 9 format from blastall
      - important fixes for old modules
 
    o Bio::AlignIO: maf
