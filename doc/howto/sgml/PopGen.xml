@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
-<!DOCTYPE book  PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN" "./docbookx.dtd"
+<!DOCTYPE article
+  PUBLIC "-//OASIS//DTD DocBook XML V4.2//EN" "./docbookx.dtd"
   [ <!ENTITY % global.entities SYSTEM "./global.xml">
     %global.entities;
 
     <!ENTITY % entities SYSTEM "./entities.xml">
-    %entities; 
- ]
+    %entities; ]
 >
+
   <article lang="en"> 
 	 <articleinfo>
 		<title>Population Genetics in BioPerl HOWTO</title>
@@ -17,8 +18,10 @@
 			 <para>Bioperl Core Developer</para>
 		  </authorblurb>
        <affiliation>
-			 <orgname>Dept Molecular Genetics and Microbiology, Duke
-				University</orgname>
+			 <orgname>
+				Dept Molecular Genetics and Microbiology, Duke
+				University
+			 </orgname>
 			 <address><email>jason-at-bioperl-dot-org</email></address>
 		  </affiliation>
       </author>
@@ -52,13 +55,8 @@
 		  </para>
 		</legalnotice>
 
-<!--    <releaseinfo role="cvs">
-$Id$
-    </releaseinfo>      
--->
-
 	 </articleinfo>
-	 
+
 	 <section id="intoduction">
 		<title>Introduction</title>
 		<para>
@@ -347,7 +345,10 @@ my $pop = Bio::PopGen::Utilities->aln_to_population(-alignment=>$aln,
 	 </section>
 
 	 <section id="statistics">
-		<title>Summary Statistics with <classname>Bio::PopGen::Statistics</classname></title>
+		<title>
+		  Summary Statistics with
+		  <classname>Bio::PopGen::Statistics</classname>
+		</title>
 		<para>
 		  Pi or average pairwise differences is calculated by taking all
 		  pairs of individuals in a population and computing the average
@@ -419,7 +420,13 @@ __DATA__
 		<para>
 		  Waterson's theta - <function>theta</function> 
 		  <informalequation>
-			 <textobject><phrase>K = Sum ( 1 / a<subscript>n</subscript>) </phrase></textobject>
+			 <mediaobject>
+				<textobject>
+				  <phrase>
+					 K = Sum ( 1 / a<subscript>n</subscript>) 
+				  </phrase>
+				</textobject>
+			 </mediaobject>
 		  </informalequation>
 		</para>
 		<para>
@@ -512,7 +519,10 @@ __DATA__
 	 </section>
 
 	 <section id="popstats">
-		<title>Population Statistics using <classname>Bio::PopGen::PopStats</classname></title>
+		<title>
+		  Population Statistics using
+		  <classname>Bio::PopGen::PopStats</classname>
+		</title>
 		<para>
 		  Wright's <emphasis>F<subscript>st</subscript></emphasis> can be
 		  calculated for populations using the <function>Fst</function>
@@ -590,26 +600,36 @@ for ( 1..50 ) {
 
 	 <bibliography>
 		<biblioentry>
-		  <bibliomset relation="article">
-			 <title>Disentangling the effects of demography and selection in
-				human history</title>
+		  <biblioset relation='article'>
+			 <title>
+				Disentangling the effects of demography and selection in
+				human history
+			 </title>
 			 <authorgroup>
-				<author><firstname>Jason</firstname>
+				<author>
+				  <firstname>Jason</firstname>
 				  <othername role="middle">E</othername>
 				  <surname>Stajich</surname>
 				</author>
-				<author><firstname>Matthew</firstname>
+				<author>
+				  <firstname>Matthew</firstname>
 				  <othername role="middle">W</othername>
 				  <surname>Hahn</surname>
 				</author>
 			 </authorgroup>
 			 <title>Mol Biol Evol</title>
-			 <year>2005 </year><volumenum>22(1):63-73</volumenum>
-		  </bibliomset>
+			 <copyright> <year>2005 </year> </copyright>
+			 <volumenum>22(1):63-73</volumenum>
+		  </biblioset>
 		</biblioentry>
+		  
 		<biblioentry>  
-		  <bibliomset relation="article">
-			 <title>Population genetic and phylogenetic evidence for positive selection on regulatory mutations at the factor VII locus in humans</title>
+		  <biblioset relation='article'>
+			 <title>
+				Population genetic and phylogenetic evidence for positive
+				selection on regulatory mutations at the factor VII locus
+				in humans
+			 </title>
 			 <authorgroup>
 				<author><firstname>Matthew</firstname>
 				  <othername role="middle">W</othername>
@@ -622,7 +642,7 @@ for ( 1..50 ) {
 				<author><firstname>Nicole</firstname>
 				  <surname>Soranzo</surname>
 				</author>
-				<author><firstname>David</firstname>
+				  <author><firstname>David</firstname>
 				  <othername role="middle">B</othername>
 				  <surname>Goldstein</surname>
 				</author>
@@ -632,12 +652,17 @@ for ( 1..50 ) {
 				</author>
 			 </authorgroup>
 			 <title>Genetics</title>
-			 <year>2004 </year> <volumenum>167(2):867-77</volumenum>
-		  </bibliomset>
+			 <copyright>	<year>2004 </year> </copyright>
+			 <volumenum>167(2):867-77</volumenum>
+		  </biblioset>
 		</biblioentry>
+		  
 		<biblioentry>  
-		  <bibliomset relation="article">
-			 <title>Positive selection on a human-specific transcription factor binding site regulating IL4 expression</title>
+		  <biblioset relation='article'>
+			 <title>
+				Positive selection on a human-specific transcription
+				factor binding site regulating IL4 expression
+			 </title>
 			 <authorgroup>
 				<author><firstname>Matthew</firstname>
 				  <othername role="middle">V</othername>
@@ -660,9 +685,14 @@ for ( 1..50 ) {
 				</author>
 			 </authorgroup>
 			 <title>Current Biology</title>
-			 <year>2003 </year> <volumenum>13(23):2118-23</volumenum>
-		  </bibliomset>
+			 <volumenum>13(23):2118-23</volumenum>
+			 <copyright>
+				<year>2003 </year> 
+			 </copyright>
+		  </biblioset>
 		</biblioentry>
+		
 	 </bibliography>
+	 
   </article>
   
