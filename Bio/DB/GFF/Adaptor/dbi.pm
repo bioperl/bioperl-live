@@ -393,14 +393,20 @@ by make_feature().  Internally, it invokes the following abstract procedures:
 
 sub _feature_by_name {
   my $self = shift;
-  my ($class,$name,$callback) = @_;
+  my ($class,$name,$location,$callback) = @_;
   $callback || $self->throw('must provide a callback argument');
 
   my $select         = $self->make_features_select_part;
   my $from           = $self->make_features_from_part;
   my ($where,@args)  = $self->make_features_by_name_where_part($class,$name);
   my $join           = $self->make_features_join_part;
+  my $range          = $self->make_features_by_range_where_part('overlaps',
+								{refseq=>$location->[0],
+								 class =>'',
+								 start=>$location->[1],
+								 stop =>$location->[2]}) if $location;
   my $query  = "SELECT $select FROM $from WHERE $where AND $join";
+  $query    .= " AND $range" if $range;
   my $sth    = $self->dbh->do_query($query,@args);
 
   my $count = 0;

@@ -964,6 +964,14 @@ for features that belong to a group of size one, this method can be
 used to retrieve that group (and is equivalent to the segment()
 method).  Any Alias attributes are also searched for matching names.
 
+An alternative syntax allows you to search for features by name within
+a circumscribed region:
+
+  @f = $db->get_feature_by_name(-class => $class,-name=>$name,
+                                -ref   => $sequence_name,
+                                -start => $start,
+                                -end   => $end);
+
 This method may return zero, one, or several Bio::DB::GFF::Feature
 objects.
 
@@ -977,12 +985,15 @@ are preserved for backward compatibility.
 
 sub get_feature_by_name {
   my $self = shift;
-  my ($gclass,$gname,$automerge);
+  my ($gclass,$gname,$automerge,$ref,$start,$end);
   if (@_ == 1) {
     $gclass = $self->default_class;
     $gname  = shift;
   } else  {
-    ($gclass,$gname,$automerge) = rearrange(['CLASS','NAME','AUTOMERGE'],@_);
+    ($gclass,$gname,$automerge,$ref,$start,$end) = rearrange(['CLASS','NAME','AUTOMERGE',
+							      ['REF','REFSEQ'],
+							      'START',['STOP','END']
+							     ],@_);
     $gclass ||= $self->default_class;
   }
   $automerge = $self->automerge unless defined $automerge;
@@ -998,8 +1009,8 @@ sub get_feature_by_name {
   my %groups;         # cache the groups we create to avoid consuming too much unecessary memory
   my $features = [];
   my $callback = sub { push @$features,$self->make_feature(undef,\%groups,@_) };
-  $self->_feature_by_name($gclass,$gname,$callback);
-  $self->_feature_by_alias($gclass,$gname,$callback) if $self->can('_feature_by_alias');
+  my $location = [$ref,$start,$end] if defined $ref;
+  $self->_feature_by_name($gclass,$gname,$location,$callback);
 
   warn "aggregating...\n" if $self->debug;
   foreach my $a (@aggregators) {  # last aggregator gets first shot
@@ -2341,7 +2352,7 @@ sub get_features{
 =head2 _feature_by_name
 
  Title   : _feature_by_name
- Usage   : $db->_feature_by_name($name,$class,$callback)
+ Usage   : $db->_feature_by_name($class,$name,$location,$callback)
  Function: get a list of features by name and class
  Returns : count of number of features retrieved
  Args    : name of feature, class of feature, and a callback
@@ -2355,7 +2366,7 @@ subclasses.
 
 sub _feature_by_name {
   my $self = shift;
-  my ($class,$name,$callback) = @_;
+  my ($class,$name,$location,$callback) = @_;
   $self->throw("_feature_by_name() must be implemented by an adaptor");
 }
 

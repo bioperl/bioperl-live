@@ -368,7 +368,7 @@ by make_feature().
 
 sub _feature_by_name {
   my $self = shift;
-  my ($class,$name,$callback) = @_;
+  my ($class,$name,$location,$callback) = @_;
   $callback || $self->throw('must provide a callback argument');
   my $count = 0;
   my $id    = -1;
@@ -386,6 +386,11 @@ sub _feature_by_name {
     $id++;
     next unless ($regexp && $feature->{gname} =~ /$name/i) || $feature->{gname}  eq $name;
     next unless $feature->{gclass} eq $class;
+    if ($location) {
+      next if $location->[0] ne $feature->{ref};
+      next if $location->[1] && $location->[1] > $feature->{stop};
+      next if $location->[2] && $location->[2] < $feature->{start};
+    }
     $count++;
     $callback->(@{$feature}{qw(
 			       ref
