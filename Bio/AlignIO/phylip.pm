@@ -77,7 +77,7 @@ methods. Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::AlignIO::phylip;
-use vars qw(@ISA);
+use vars qw(@ISA $DEFAULTIDLENGTH);
 use strict;
 
 use Bio::SimpleAlign;
@@ -85,17 +85,34 @@ use Bio::AlignIO;
 
 @ISA = qw(Bio::AlignIO);
 
+BEGIN { 
+    $DEFAULTIDLENGTH = 10;
+}
+
+=head2 new
+
+ Title   : new
+ Usage   : my $alignio = new Bio::AlignIO(-format => 'phylip'
+					  -file   => '>file',
+					  -idlength => 10);
+ Function: Initialize a new L<Bio::AlignIO::phylip> reader or writer
+ Returns : L<Bio::AlignIO> object
+ Args    : [specific for writing of phylip format files]
+           -idlength => integer - length of the id (will pad w/ 
+						    spaces if needed) 
+           -interleaved => boolean - whether or not write as interleaved 
+                                     or sequential format
+           -linelength  => ineteger how sequence lines should be in 
+=cut
 
 sub _initialize {
   my($self,@args) = @_;
   $self->SUPER::_initialize(@args);
 
-  my ($interleave,$idlength) = $self->_rearrange([qw(INTERLEAVED IDLENGTH)],@args);
-  if( ! defined $interleave ) { $interleave = 1 }  # this is the default
-  $self->interleaved(1) if( $interleave);
-  if (!defined $idlength) {$idlength = 10}
-  $self->idlength($idlength);
-
+  my ($interleave,$idlength) = $self->_rearrange([qw(INTERLEAVED 
+						     IDLENGTH)],@args);
+  $self->interleaved(1) if( $interleave || ! defined $interleave);
+  $self->idlength($idlength || $DEFAULTIDLENGTH);
 
   1;
 }
@@ -124,9 +141,10 @@ sub next_aln {
     return 0 unless $seqcount and $residuecount;
     
     # first alignment section
+    my $idlen = $self->idlength;
     while( $entry = $self->_readline) {
 	$entry =~ /^\s$/ and last;
-	$entry =~ /^(.{10})\s+(.*)\s$/ && do {
+	$entry =~ /^(.{$idlen})\s+(.*)\s$/ && do {
 	    $name = $1;
 	    $str = $2;
 	    $name =~ s/[\s\/]/_/g;
@@ -203,7 +221,8 @@ sub write_aln {
     my $count = 0;
     my $wrapped = 0;
     my $maxname;
-    my ($length,$date,$name,$seq,$miss,$pad,%hash,@arr,$tempcount,$index,$idlength);
+    my ($length,$date,$name,$seq,$miss,$pad,
+	%hash,@arr,$tempcount,$index,$idlength);
     
     foreach my $aln (@aln) {
 	if( ! $aln || ! $aln->isa('Bio::Align::AlignI')  ) { 
@@ -237,16 +256,19 @@ sub write_aln {
 		    $self->_print (sprintf("%".($idlength+3)."s",$dispname));
 		    $tempcount = $count;
 		    $index = 0;
-		    while( ($tempcount + 10 < $length) && ($index < 5)  ) {
-			$self->_print (sprintf("%s ",substr($hash{$name},$tempcount,10)));
-			$tempcount += 10;
+		    while( ($tempcount + $idlength < $length) && ($index < 5)  ) {
+			$self->_print (sprintf("%s ",substr($hash{$name},
+							    $tempcount,
+							    $idlength)));
+			$tempcount += $idlength;
 			$index++;
 		    }
 		    # last
 		    if( $index < 5) {
 			# space to print!
-			$self->_print (sprintf("%s ",substr($hash{$name},$tempcount)));
-			$tempcount += 10;
+			$self->_print (sprintf("%s ",substr($hash{$name},
+							    $tempcount)));
+			$tempcount += $idlength;
 		    }
 		    $self->_print ("\n");
 		}
