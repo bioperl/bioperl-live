@@ -121,9 +121,9 @@ sub _generic_seqfeature {
 	$loc =~ s/^$combotype\((\S+)\)/$1/;	
 	foreach my $next_loc ( split(/\s*,\s*/, $loc) ) {
 	    my $seqid = $annseq->id;
-	    if ( $next_loc =~ s/^.*\(\s*(\S+:)// ) {
+	    if ( $next_loc =~ s/\(?\s*([A-Za-z\d]+(\.\d+)?):// ) {
 		$seqid = $1;
-		$seqid =~ s/://;
+		print "seqid is $seqid\n";
 	    }
 	    if( my $location = $fth->_parse_loc($sf,$next_loc)) {
 		print STDERR "I got ", join(",", ($location->start(), 

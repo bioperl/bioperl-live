@@ -8,7 +8,7 @@ BEGIN {
 	use lib 't';
     }
     use Test;
-    plan tests => 51 }
+    plan tests => 56 }
 
 use Bio::Seq;
 use Bio::SeqIO;
@@ -268,3 +268,19 @@ ok($str);
 ok ( $seq = $str->next_seq());
 ok(length($seq->seq) > 0 );
 print "Sequence 1 of 1 from GCG stream:\n", $seq->seq, "\n" if( $DEBUG);
+
+
+$str  = new Bio::SeqIO(-format => 'genbank',
+			    -file   => Bio::Root::IO->catfile("t","AF165282.gb"),
+			    -verbose => $verbosity);
+
+$seq = $str->next_seq;
+my @features = $seq->all_SeqFeatures();
+ok(@features, 5);
+ok($features[0]->start, 1);
+ok($features[0]->end, 226);
+my $location = $features[1]->location;
+ok($location->isa('Bio::Location::SplitLocationI'));
+my @sublocs = $location->sub_Location();
+ok(@sublocs, 29);
+ 
