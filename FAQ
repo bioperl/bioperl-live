@@ -35,6 +35,8 @@ Contents
    Q1.9: What are the license terms for Bioperl?
   Q1.10: I want to help, where do I start?
   Q1.11: I've got an idea for a module how do I contribute it?
+  Q1.12: Why can't I easily get a list of all the methods a object can
+	 call?
 
 2. Sequences
 
@@ -132,12 +134,12 @@ Contents
 	 repository consist of the core of the functionality of bioperl.
 	 Additionally auxiliary modules for creating graphical interfaces
 	 (bioperl-gui), persistent storage in RDMBS (bioperl-db), running
-	 and parsing the results from hundreds of
-	 bioinformatics applications (bioperl-run), software to automate
-	 bioinformatic analyses (bioperl-pipeline), and CORBA bridges to
-	 the BioCORBA (http://www.biocorba.org) specification
-	 (bioperl-corba-server and bioperl-corba-client) are all available
-	 as CVS modules in our repository.
+	 and parsing the results from hundreds of bioinformatics
+	 applications (bioperl-run), software to automate bioinformatic
+	 analyses (bioperl-pipeline), and CORBA bridges to the BioCORBA
+	 (http://www.biocorba.org) specification (bioperl-corba-server and
+	 bioperl-corba-client) are all available as CVS modules in our
+	 repository.
 
 
    Q1.2: Where do I go to get the latest release?
@@ -178,19 +180,26 @@ Contents
 	 http://bio.perl.org/Core/Latest/modules.html. Read the embedded
 	 perl documentation (Plain Old Documentation - POD) that is part of
 	 every modules.  Do:
-		     
+
+	 
 		      % perldoc MODULE
-		     Careful - spelling and case counts!The bioperl
-	 tutorial - bptutorial.pl - provided in the root directory of the
-	 bioperl release will also provide a good introduction.  You may
-	 also find useful documentation in the form of a HOWTO in the
-	 bioperl package or at http://www.bioperl.org/HOWTOs. There are
-	 links to tutorials off the bioperl website that may provide some
-	 additional help.There are also many scripts in the examples/ and
-	 scripts/ directories that could be useful - see bioperl.pod for a
-	 brief description of all of them.Additionally we have written many
-	 tests for our modules, you can see test data and example usage of
-	 the modules in these tests - look in the test dir (called 't').
+
+	 Careful - spelling and case counts!
+
+	 The bioperl tutorial - bptutorial.pl - provided in the root
+	 directory of the bioperl release will also provide a good
+	 introduction.	You may also find useful documentation in the form
+	 of a HOWTO in the bioperl package or at
+	 http://www.bioperl.org/HOWTOs. There are links to tutorials off
+	 the bioperl website that may provide some additional help.
+
+	 There are also many scripts in the examples/ and scripts/
+	 directories that could be useful - see bioperl.pod for a brief
+	 description of all of them.
+
+	 Additionally we have written many tests for our modules, you can
+	 see test data and example usage of the modules in these tests -
+	 look in the test dir (called 't').
 
 
    Q1.6: I'm interested in the bleeding edge version of the code, where can
@@ -206,9 +215,8 @@ Contents
 
 	 Enter 'cvs' for the password
 
-	 
-	   % cvs -d :pserver:cvs@cvs.bioperl.org:/home/repository/bioperl
-	 co bioperl_all
+	 % cvs -d :pserver:cvs@cvs.bioperl.org:/home/repository/bioperl co
+	 bioperl_all
 
 
    Q1.7: Who uses this toolkit?
@@ -274,6 +282,26 @@ Contents
 	 not just an implementation (see the biodesign.pod for more info)
 	 and make sure there will be a set of tests that will be in the t/
 	 directory to insure that your module is tested.
+
+
+  Q1.12: Why can't I easily get a list of all the methods a object can
+	 call?
+
+      A: This a problem with perl, not only with bioperl. To list all the
+	 methods, you have to walk the inheritance tree and standard perl
+	 is not able to do it. As usual, help can be found in the CPAN.
+	 Install the CPAN module Class::Inspector and put the following
+	 script 'perlmethods' into your path and run it, e.g, perlmethods
+	 Bio::Seq.
+
+	 
+	 #!/usr/bin/perl -w
+	 use Class::Inspector;
+	 $class = shift || die "Usage: methods perl_class_name\n";
+	 eval "require $class";
+	 print join ("\n", sort
+	 @{Class::Inspector->methods($class,'full','public')}),
+		     "\n";
 
 
 ---------------------------------------------------------------------------
