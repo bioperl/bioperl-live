@@ -4,14 +4,14 @@
 #
 
 use strict;
-use constant NUMTESTS => 8;
+use constant NUMTESTS => 10;
 BEGIN { 
     eval { require Test; };
     if( $@ ) {
 	use lib 't';
     }
     use Test;
-    plan tests => 10; 
+    plan tests => NUMTESTS; 
 }
 
 END { 
