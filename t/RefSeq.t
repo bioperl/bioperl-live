@@ -85,8 +85,7 @@ if ($@) {
     if( $DEBUG ) {
 	print STDERR "Warning: Couldn't connect to RefSeq with Bio::DB::RefSeq.pm!\n" . $@;
     }
-    foreach ( $Test::ntest..$NUMTESTS) { 
-	 skip('could not connect to embl',1);}
+    exit(0);
 }
 
 
@@ -106,8 +105,6 @@ if ($@) {
     if( $DEBUG ) {
 	print STDERR "Warning: Couldn't connect to RefSeq with Bio::DB::RefSeq.pm!\n" . $@;
     }
-    foreach ( $Test::ntest..$NUMTESTS) { 
-	skip('could not connect to embl',1);
-    }
+    exit(0);
 }
 
