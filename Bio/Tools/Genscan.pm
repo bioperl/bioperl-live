@@ -261,7 +261,9 @@ sub next_prediction {
 	    # record the number of prepended Ns as an indication of the
 	    # initial offset
 	    my $frm_adjust = "";
-	    $seq =~ /^(n+)/ && $frm_adjust = $1;
+	    if($seq =~ /^(n+)/) {
+		$frm_adjust = $1;
+	    }
 	    $gene->frame(length($frm_adjust));
 	    $seqobj = Bio::PrimarySeq->new('-seq' => $seq,
 					   '-display_id' => $id,
