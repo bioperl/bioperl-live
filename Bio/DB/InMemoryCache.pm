@@ -51,13 +51,15 @@ methods. Internal methods are usually preceded with a _
 
 package Bio::DB::InMemoryCache;
 
-use Bio::DB::RandomAccessI;
+use Bio::DB::SeqI;
 
 use vars qw(@ISA);
 use strict;
 
 use Bio::Root::Root;
-@ISA = qw(Bio::Root::Root Bio::DB::RandomAccessI);
+use Bio::Seq;
+
+@ISA = qw(Bio::Root::Root Bio::DB::SeqI);
 
 
 sub new {
@@ -66,7 +68,7 @@ sub new {
     my $self = Bio::Root::Root->new();
     bless $self,$class;
 
-    my ($seqdb,$number) = $self->_rearrange([qw(SEQDB NUMBER)],@args);
+    my ($seqdb,$number,$agr) = $self->_rearrange([qw(SEQDB NUMBER AGRESSION)],@args);
 
     if( !defined $seqdb || !ref $seqdb || !$seqdb->isa('Bio::DB::RandomAccessI') ) {
        $self->throw("Must be a randomaccess database not a [$seqdb]");
@@ -74,10 +76,11 @@ sub new {
     if( !defined $number ) {
         $number = 1000;
     }
-
+    
     $self->seqdb($seqdb);
     $self->number($number);
-    
+    $self->agr($agr);
+
     # we consider acc as the primary id here
     $self->{'_cache_number_hash'} = {};
     $self->{'_cache_id_hash'}     = {};
@@ -107,7 +110,7 @@ sub get_Seq_by_id{
    if( defined $self->{'_cache_id_hash'}->{$id} ) {
      my $acc = $self->{'_cache_id_hash'}->{$id};
      my $seq = $self->{'_cache_acc_hash'}->{$acc};
-     $self->{'_cache_number_hash'}->{$seq->acc} = $self->{'_cache_number'}++;
+     $self->{'_cache_number_hash'}->{$seq->accession} = $self->{'_cache_number'}++;
      return $seq;
    } else {
      return $self->_load_Seq('id',$id);
@@ -129,10 +132,12 @@ sub get_Seq_by_id{
 sub get_Seq_by_acc{
    my ($self,$acc) = @_;
 
+   #print STDERR "In cache get for $acc\n";
    if( defined $self->{'_cache_acc_hash'}->{$acc} ) {
-     my $seq = $self->{'_cache_acc_hash'}->{$acc};
-     $self->{'_cache_number_hash'}->{$seq->acc} = $self->{'_cache_number'}++;
-     return $seq;
+       #print STDERR "Returning cached $acc\n";
+       my $seq = $self->{'_cache_acc_hash'}->{$acc};
+       $self->{'_cache_number_hash'}->{$seq->accession} = $self->{'_cache_number'}++;
+       return $seq;
    } else {
      return $self->_load_Seq('acc',$acc);
    }
@@ -158,6 +163,15 @@ sub seqdb {
     }
 }
 
+sub agr {
+    my ($self, $agr) = @_;
+    if ($agr) {
+        $self->{'agr'} = $agr;
+    } else {
+        return $self->{'agr'};
+    }
+}
+
 
 sub _load_Seq {
   my ($self,$type,$id) = @_;
@@ -170,6 +184,23 @@ sub _load_Seq {
     $seq = $self->seqdb->get_Seq_by_acc($id);
   } else {
     $self->throw("Bad internal error. Don't understand $type");
+  }
+
+  if( $self->agr() ) {
+      #print STDERR "Pulling out into memory\n";
+      my $newseq = Bio::Seq->new( -display_id => $seq->display_id,
+				  -accession_number  => $seq->accession,
+				  -seq        => $seq->seq,
+				  -desc       => $seq->desc,
+				  );
+      if( $self->agr() == 1 ) {
+	  foreach my $sf ( $seq->top_SeqFeatures() ) {
+	      $newseq->add_SeqFeature($sf);
+	  }
+	  
+	  $newseq->annotation($seq->annotation);
+      }
+      $seq = $newseq;
   }
 
   if( $self->_number_free < 1 ) {

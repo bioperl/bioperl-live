@@ -558,6 +558,11 @@ sub accession_number {
    return $self->primary_seq->accession_number();
 }
 
+sub accession {
+    my ($self,$value) = @_;
+
+    return $self->accession_number($value);
+}
 
 =head2 desc
 
