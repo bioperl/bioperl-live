@@ -66,27 +66,12 @@ methods. Internal methods are usually preceded with a _
 
 
 package Bio::Location::FuzzyLocationI;
-use vars qw(@ISA %FUZZYPOINTENCODE %FUZZYRANGEENCODE);
+use vars qw(@ISA);
 use strict;
 
-use Bio::LocationI;
-use Carp;
+use Bio::LocationI;use Carp;
 
 @ISA = qw(Bio::LocationI);
-
-BEGIN { 
-    %FUZZYPOINTENCODE = ( 
-		     '\>(\d+)' => -2,
-		     '\<(\d+)' => -1,
-		     '(\d+)'  => 0,
-		     '(\d+)\>' => 1,
-		     '(\d+)\<' => 2,
-		     );
-    
-    %FUZZYRANGEENCODE  = ( '.' => -1,
-			   '..' => 0,
-			   '^' => 1 );
-}
 
 # utility method Prints out a method like: 
 # Abstract method stop defined in interface Bio::LocationI not
@@ -105,99 +90,102 @@ sub _abstractDeath {
   }
 }
 
-=head2 fuzzy_start
 
-  Title   : fuzzy_start
-  Usage   : $fuzzystr = $fuzzy->fuzzy_start();
-  Function: get/set if start point as a fuzzystring
-  Returns : fuzzy startpoint string
-  Args    : [optional] fuzzy startpoint string to set
+=head2 min_start
+
+  Title   : min_start
+  Usage   : my $minstart = $location->min_start();
+  Function: Get minimum starting location of feature startpoint   
+  Returns : integer or undef if no maximum starting point.
+  Args    : none
 
 =cut
 
-sub fuzzy_start {
-    my ($self, $value) = @_;
+=head2 max_start
+
+  Title   : max_start
+  Usage   : my $maxstart = $location->max_start();
+  Function: Get maximum starting location of feature startpoint  
+  Returns : integer or undef if no maximum starting point.
+  Args    : none
+
+=cut
+
+=head2 start_pos_type
+
+  Title   : start_pos_type
+  Usage   : my $start_pos_type = $location->start_pos_type();
+  Function: Get start position type (ie <,>, ^) 
+  Returns : type of position coded as text 
+            ('BEFORE', 'AFTER', 'EXACT','WITHIN', 'BETWEEN')
+  Args    : none
+
+=cut
+
+=head2 min_end
+
+  Title   : min_end
+  Usage   : my $minend = $location->min_end();
+  Function: Get minimum ending location of feature endpoint 
+  Returns : integer or undef if no minimum ending point.
+  Args    : none
+
+=cut
+
+=head2 max_end
+
+  Title   : max_end
+  Usage   : my $maxend = $location->max_end();
+  Function: Get maximum ending location of feature endpoint 
+  Returns : integer or undef if no maximum ending point.
+  Args    : none
+
+=cut
+
+=head2 end_pos_type
+
+  Title   : end_pos_type
+  Usage   : my $end_pos_type = $location->end_pos_type();
+  Function: Get end position type (ie <,>, ^) 
+  Returns : type of position coded as text 
+            ('BEFORE', 'AFTER', 'EXACT','WITHIN', 'BETWEEN')
+  Args    : none
+
+=cut
+
+=head2 loc_type
+
+  Title   : loc_type
+  Usage   : my $location_type = $location->loc_type();
+  Function: Get location type encoded as text
+  Returns : string ('EXACT', 'WITHIN', 'BETWEEN')
+  Args    : none
+
+=cut
+
+sub loc_type {
+    my ($self) = @_;
     $self->_abstractDeath();
 }
 
-=head2 fuzzy_end
+=head2 to_FTstring
 
-  Title   : fuzzy_end
-  Usage   : $fuzzystr = $fuzzy->fuzzy_end();
-  Function: get/set fuzzy endpoint
-  Returns : fuzzy endpoint string
-  Args    : [optional] fuzzy endpoint string to set
-
-=cut
-
-sub fuzzy_end {
-    my ($self, $value) = @_;
-    $self->_abstractDeath();
-}
-
-=head2 fuzzy_range
-
-  Title   : fuzzy_range
-  Usage   : $status = $fuzzy->fuzzy_range();
-  Function: get/set if range is fuzzy (ie 10.20 )
-  Returns : true if range is fuzzy, false otherwise
-  Args    : optionaly allows the status to be set
-          : using $fuzzy->fuzzy_range($value)
-=cut
-
-sub fuzzy_range {
-    my ($self, $value) = @_;
-    $self->_abstractDeath();
-}
-
-=head2 _fuzzypointencode
-
-  Title   : _fuzzypointencode
-  Usage   : $fuzzy->_fuzzypointencode('5>');
-  Function: Decode a fuzzy string
-  Returns : A two-element array consisting of a integer code of the fuzzy 
-            encoding being used, and the integer value of the point.
-            A fuzzy code of 0 means 'non-fuzzy', any other code indicates a
-            fuzzy location.
-          : Returns empty array on fail.
-  Args    : fuzzypoint string
+  Title   : to_FTstring
+  Usage   : my $locstr = $location->to_FTstring()
+  Function: returns the FeatureTable string of this location
+  Returns : string
+  Args    : none
 
 =cut
 
-sub _fuzzypointencode {
-    my ($self, $string) = @_;
-    return () if( !defined $string);
-    foreach my $pattern ( keys %FUZZYPOINTENCODE ) {
-	if( $string =~ /^\s*$pattern\s*$/ ) {
-	    return ($FUZZYPOINTENCODE{$pattern}, $1);
-	}
-    }
-    if( $self->verbose > 1 ) {
-	$self->warn("could not find a valid fuzzy encoding for $string");
-    }
-    return ();
-}
+=head2 seq_id
 
-=head2 _fuzzyrangeencode
-
-  Title   : _fuzzyrange
-  Usage   : $fuzzy->_fuzzyrange('.');
-  Function: Return a code identifying the type of fuzziness encoding being
-            used. A value of 0 means no fuzziness, any other value indicates
-            a fuzzy range.
-  Returns : fuzzy range encoding code or undef on fail 
-  Args    : fuzzy range string [ '.', '..', '^' ]
+  Title   : seq_id
+  Usage   : my $seqid = $location->seq_id();
+  Function: Get/Set seq_id that location refers to
+  Returns : seq_id
+  Args    : [optional] seq_id value to set
 
 =cut
-
-sub _fuzzyrange {
-    my ($self, $string) = @_;
-    my $encode = $FUZZYRANGEENCODE{$string};
-    if( !defined $encode ) {
-	$self->warn("could not find a valid fuzzy encoding for $string") if( $self->verbose > 1);
-    }
-    return $encode;
-}
 
 1;
-

@@ -122,36 +122,6 @@ sub add_sub_Location {
     $self->_abstractDeath;
 }
 
-=head2 min_start
-
-  Title   : min_start
-  Usage   : $min_start = $fuzzy->min_start();
-  Function: get the minimum starting point
-  Returns : the minimum starting point from the contained sublocations
-  Args    : none
-
-=cut
-
-sub min_start {
-    my ($self, $value) = @_;
-    $self->_abstractDeath();
-}
-
-=head2 max_start
-
-  Title   : max_end
-  Usage   : $max_end = $fuzzy->max_end();
-  Function: get the maximum ending point
-  Returns : the maximum ending point from the contained sublocations
-  Args    : none
-
-=cut
-
-sub max_end {
-    my ($self, $value) = @_;
-    $self->_abstractDeath();
-}
-
 =head2 splittype
 
   Title   : splittype
@@ -166,6 +136,81 @@ sub splittype {
     my($self,$value) = @_;
     $self->_abstractDeath();
 }
+
+=head2 LocationI methods
+
+=head2 min_start
+
+  Title   : min_start
+  Usage   : my $minstart = $location->min_start();
+  Function: Get minimum starting location of feature startpoint   
+  Returns : integer or undef if no maximum starting point.
+  Args    : none
+
+=cut
+
+=head2 max_start
+
+  Title   : max_start
+  Usage   : my $maxstart = $location->max_start();
+  Function: Get maximum starting location of feature startpoint  
+  Returns : integer or undef if no maximum starting point.
+  Args    : none
+
+=cut
+
+=head2 start_pos_type
+
+  Title   : start_pos_type
+  Usage   : my $start_pos_type = $location->start_pos_type();
+  Function: Get start position type (ie <,>, ^) 
+  Returns : type of position coded as text 
+            ('BEFORE', 'AFTER', 'EXACT','WITHIN', 'BETWEEN')
+  Args    : none
+
+=cut
+
+=head2 min_end
+
+  Title   : min_end
+  Usage   : my $minend = $location->min_end();
+  Function: Get minimum ending location of feature endpoint 
+  Returns : integer or undef if no minimum ending point.
+  Args    : none
+
+=cut
+
+=head2 max_end
+
+  Title   : max_end
+  Usage   : my $maxend = $location->max_end();
+  Function: Get maximum ending location of feature endpoint 
+  Returns : integer or undef if no maximum ending point.
+  Args    : none
+
+=cut
+
+=head2 end_pos_type
+
+  Title   : end_pos_type
+  Usage   : my $end_pos_type = $location->end_pos_type();
+  Function: Get end position type (ie <,>, ^) 
+  Returns : type of position coded as text 
+            ('BEFORE', 'AFTER', 'EXACT','WITHIN', 'BETWEEN')
+  Args    : none
+
+=cut
+
+=head2 seq_id
+
+  Title   : seq_id
+  Usage   : my $seqid = $location->seq_id();
+  Function: Get/Set seq_id that location refers to
+  Returns : seq_id
+  Args    : [optional] seq_id value to set
+
+=cut
+
 # we'll need to override the RangeI methods since our locations will
 # not be contiguous.
 

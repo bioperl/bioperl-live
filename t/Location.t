@@ -15,7 +15,7 @@ BEGIN {
 	use lib 't';
     }
     use Test;
-    plan tests => 33; 
+    plan tests => 29; 
 }
 
 use Bio::Location::Simple;
@@ -68,46 +68,29 @@ my $splitlocation = new Bio::Location::Split;
 $splitlocation->add_sub_Location(new Bio::Location::Simple('-start'=>1,
 							   '-end'=>30,
 							   '-strand'=>1));
-$splitlocation->add_sub_Location(new Bio::Location::Simple('-start'=>50,
-							   '-end'=>61,
-							   '-strand'=>1));
+my $f = new Bio::Location::Fuzzy('-start'=>"<50",
+				 '-end'=>61,
+				 '-strand'=>1);
+ok($f->start, undef);
+ok($f->min_start, 50);
+ok($f->max_start,undef);
+$splitlocation->add_sub_Location($f);
 
 ok($splitlocation->max_end, 61);
 ok($splitlocation->min_start, 1);
 
 ok($splitlocation->sub_Location(),2);
 
-my $fuzzy = new Bio::Location::Fuzzy('-start'=>'<10', '-end' => 20, 
+my $fuzzy = new Bio::Location::Fuzzy('-start' =>'<10', '-end' => 20, 
 				     -strand=>1);
 				     
-ok($fuzzy->start, 10);
+ok($fuzzy->strand, 1);
+ok($fuzzy->start, undef);
 ok($fuzzy->end,20);
-ok($fuzzy->fuzzy_start, '<10');
-ok($fuzzy->fuzzy_end, 20);
-ok($fuzzy->fuzzy_range, '..');
-
-my ($encode,$pt) = $fuzzy->_fuzzypointencode('>5');
-ok($encode, -2);
-ok($pt, 5);
-
-($encode,$pt) = $fuzzy->_fuzzypointencode('<5');
-ok($encode, -1);
-ok($pt, 5);
-
-($encode,$pt) = $fuzzy->_fuzzypointencode('5>');
-ok($encode, 1);
-ok($pt, 5);
-
-($encode,$pt) = $fuzzy->_fuzzypointencode('5<');
-ok($encode, 2);
-ok($pt, 5);
-
-($encode,$pt) = $fuzzy->_fuzzypointencode('5');
-ok($encode, 0);
-ok($pt, 5);
-
-$fuzzy->verbose(-1);
-($encode,$pt) = $fuzzy->_fuzzypointencode('badstr');
-ok($encode, undef);
-ok($pt, undef);
-$fuzzy->verbose(0);
+ok($fuzzy->min_start, 10);
+ok($fuzzy->max_start, undef);
+ok($fuzzy->min_end, undef);
+ok($fuzzy->max_end, undef);
+ok($fuzzy->loc_type, 'EXACT');
+ok($fuzzy->start_pos_type, 'BEFORE');
+ok($fuzzy->end_pos_type, 'EXACT');

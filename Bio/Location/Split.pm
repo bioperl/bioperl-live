@@ -82,12 +82,12 @@ use Bio::Location::Simple;
 sub new {
     my ($class, @args) = @_;
     my $self = $class->SUPER::new(@args);
+    # initialize
+    $self->{'_sublocations'} = [];
     my ( $type, $locations ) = $self->_rearrange([qw(SPLITTYPE 
 						     LOCATIONS)], @args);
     if( defined $locations && ref($locations) =~ /array/i ) {
-	$self->{'_sublocations'} = $locations;
-    } else { 
-	$self->{'_sublocations'} = [];
+	$self->add_subLocation(@$locations);
     }
     $type = lc ($type);    
     $self->splittype($type || 'join');
@@ -114,68 +114,33 @@ sub sub_Location {
  Title   : add_sub_Location
  Usage   : $feat->add_sub_Location(@locationIobjs);
  Function: add an additional sublocation
- Returns : # of current sub locations
+ Returns : number of current sub locations
  Args    : list of LocationI object(s) to add
 
 =cut
 
 sub add_sub_Location {
     my ($self,@args) = @_;
-    my @locs;
-    foreach my $l ( @args ) {
-	if( ref($l) && $l->isa('Bio::LocationI')) {
-	    push @locs, $l;
-	} else {
-	    $self->warn("($l) was not a valid Bio::LocationI object to add as a subLocation");
+    my @locs;    
+    foreach my $loc ( @args ) {
+	if( !ref($loc) || ! $loc->isa('Bio::LocationI') ) {
+	    $self->warn("Trying to add $loc as a sub Location but it is not a Bio::LocationI object!");
+	    next;
 	}
+	push @locs, $loc;
     }
-    push @{$self->{'_sublocations'}}, @locs;
-}
-
-
-=head2 min_start
-
-  Title   : min_start
-  Usage   : $min_start = $fuzzy->min_start();
-  Function: get the minimum starting point
-  Returns : the minimum starting point from the contained sublocations
-  Args    : none
-
-=cut
-
-sub min_start {
-    my ($self, $value) = @_;
-    my @locations = $self->sub_Location();
-    foreach my $begin ( @locations ) {
-	if( $begin->isa('Bio::Location::Simple') ) {
-	    return $begin->start;
-	    last;
-	}
-    }
-    return 0;
-}
-
-=head2 max_end
-
-  Title   : max_end
-  Usage   : $max_end = $fuzzy->max_end();
-  Function: get the maximum ending point
-  Returns : the maximum ending point from the contained sublocations
-  Args    : none
-
-=cut
-
-sub max_end {
-    my ($self, $value) = @_;
-    my @locations = $self->sub_Location();
-    for(my $i=$#locations; $i >= 0; $i--) {
-	my $loc = $locations[$i];
-	if( $loc->isa('Bio::Location::Simple') ) {
-	    return $loc->end;
-	    last;
-	}
-    }
-    return 0;
+    # insert in sorted order, somewhat inefficient
+    $self->{'_sublocations'} = [ sort { return 1 unless defined $a->start;
+					return -1 unless defined $b->start;
+					
+					$a->start<=> $b->start          ||
+					$a->min_start <=> $b->min_start ||
+					$a->max_start <=> $b->max_start ||
+					$a->end       <=> $b->end       ||
+					$a->min_end   <=> $b->min_end;
+				      } 
+				 (@locs, @{$self->{'_sublocations'}}) ];
+    return scalar @{$self->{'_sublocations'}};
 }
 
 =head2 splittype
@@ -190,14 +155,164 @@ sub max_end {
 
 sub splittype {
     my ($self, $value) = @_;
-    if( defined $value ) {
-	$self->{'_splittype'} = $value;
+    if( defined $value || ! defined $self->{'_splittype'} ) {
+	$value = 'join' unless( defined $value );
+	$self->{'_splittype'} = lc ($value);
     }
     return $self->{'_splittype'};
 }
+
+=head2 LocationI methods
+
+=head2 min_start
+
+  Title   : min_start
+  Usage   : $min_start = $fuzzy->min_start();
+  Function: get the minimum starting point
+  Returns : the minimum starting point from the contained sublocations
+  Args    : none
+
+=cut
+
+sub min_start {
+    my ($self, $value) = @_;    
+    my @locs = $self->sub_Location();
+    if( @locs ) {
+	return ( defined $locs[0]->min_start ? $locs[0]->min_start :
+		 defined $locs[0]->start ? $locs[0]->start : 
+		 $locs[0]->max_start); 
+    } 
+    return undef;
+}
+
+=head2 max_start
+
+  Title   : max_start
+  Usage   : my $maxstart = $location->max_start();
+  Function: Get maximum starting location of feature startpoint  
+  Returns : integer or undef if no maximum starting point.
+  Args    : none
+
+=cut
+
+sub max_start {
+    my ($self) = @_;
+    my @locs = $self->sub_Location();
+    if( @locs ) {
+	return ( defined $locs[0]->max_start ? $locs[0]->max_start :
+		 defined $locs[0]->start ? $locs[0]->start : 
+		 $locs[0]->min_start); 
+    } 
+    return undef;
+}
+
+=head2 start_pos_type
+
+  Title   : start_pos_type
+  Usage   : my $start_pos_type = $location->start_pos_type();
+  Function: Get start position type (ie <,>, ^) 
+  Returns : type of position coded as text 
+            ('BEFORE', 'AFTER', 'EXACT','WITHIN', 'BETWEEN')
+  Args    : none
+
+=cut
+
+sub start_pos_type {
+    my ($self) = @_;
+    my @locs = $self->sub_Location();
+    return ( @locs ) ? $locs[0]->start_pos_type : undef;    
+}
+
+=head2 min_end
+
+  Title   : min_end
+  Usage   : my $minend = $location->min_end();
+  Function: Get minimum ending location of feature endpoint 
+  Returns : integer or undef if no minimum ending point.
+  Args    : none
+
+=cut
+
+sub min_end {
+    my ($self) = @_;
+    my @locs = $self->sub_Location();
+    if( @locs ) {
+	return ( defined $locs[-1]->min_end ? $locs[-1]->min_end :
+		 defined $locs[-1]->start ? $locs[-1]->start : 
+		 $locs[-1]->max_end); 
+    } 
+    return undef;
+}
+
+=head2 max_end
+
+  Title   : max_end
+  Usage   : my $maxend = $location->max_end();
+  Function: Get maximum ending location of feature endpoint 
+  Returns : integer or undef if no maximum ending point.
+  Args    : none
+
+=cut
+
+sub max_end {
+    my ($self) = @_;
+    my @locs = $self->sub_Location();
+    if( @locs ) {
+	return ( defined $locs[-1]->max_end ? $locs[-1]->max_end :
+		 defined $locs[-1]->end ? $locs[-1]->end : 
+		 $locs[-1]->min_end); 
+    } 
+    return undef;
+}
+
+=head2 end_pos_type
+
+  Title   : end_pos_type
+  Usage   : my $end_pos_type = $location->end_pos_type();
+  Function: Get end position type (ie <,>, ^) 
+  Returns : type of position coded as text 
+            ('BEFORE', 'AFTER', 'EXACT','WITHIN', 'BETWEEN')
+  Args    : none
+
+=cut
+
+sub end_pos_type {
+    my ($self) = @_;
+    my @locs = $self->sub_Location();
+    return ( @locs ) ? $locs[0]->end_pos_type : undef;    
+}
+
+=head2 to_FTstring
+
+  Title   : to_FTstring
+  Usage   : my $locstr = $location->to_FTstring()
+  Function: Get/Set seq_id that location refers to
+  Returns : seq_id
+  Args    : [optional] seq_id value to set
+
+=cut
+
+sub to_FTstring {
+    my ($self) = @_;
+    my @strs;
+    foreach my $loc ( $self->sub_Location() ) {
+	push @strs, $loc->to_FTstring();
+    }
+    my $str = sprintf("%s(%s)",$self->splittype, join(",", @strs));
+    return $str;
+}
+
+=head2 seq_id
+
+  Title   : seq_id
+  Usage   : my $seqid = $location->seq_id();
+  Function: Get/Set seq_id that location refers to
+  Returns : seq_id
+  Args    : [optional] seq_id value to set
+
+=cut
 
 # we'll probably need to override the RangeI methods since our locations will
 # not be contiguous.
 
 1;
-
