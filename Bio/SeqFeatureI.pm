@@ -193,8 +193,8 @@ sub source_tag{
 
  Title   : has_tag
  Usage   : $value = $self->has_tag('some_tag')
- Function: Returns the value of the tag (undef if 
-           none)
+ Function: TRUE if the SeqFeature has the tag,
+           and FALSE otherwise.
  Returns : 
  Args    :
 
@@ -206,6 +206,23 @@ sub has_tag{
 
    $self->_abstractDeath();
 
+}
+
+=head2 each_tag_value
+
+ Title   : each_tag_value
+ Usage   : @values = $self->each_tag_value('some_tag')
+ Function: 
+ Returns : An array comprising the values of the specified tag.
+ Args    :
+
+
+=cut
+
+sub each_tag_value {
+   my ($self,@args) = @_;
+
+   $self->_abstractDeath();
 }
 
 =head2 all_tags
