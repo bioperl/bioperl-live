@@ -2603,7 +2603,7 @@ sub infer_mRNA_from_CDS{
 	   my @mrnas = ();
 	   foreach my $cds (@cdsl) {
 	       
-               if ($self->verbose) {
+               if ($self->verbose > 0) {
                    print "    Inferring mRNA from CDS $cds\n";
                }
 	       my $ok;
