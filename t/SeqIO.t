@@ -9,7 +9,7 @@ BEGIN {
 	use lib 't';
     }
     use Test;
-    $TESTCOUNT = 161;
+    $TESTCOUNT = 162;
     plan tests => $TESTCOUNT;
 }
 
@@ -76,7 +76,6 @@ $str->verbose($verbosity);
 ok ( $seq = $str->next_seq() );
 print "Sequence 1 of 1 from GenBank stream:\n", $seq->seq, "\n" if( $DEBUG);
 
-
 my $strout = Bio::SeqIO->new('-file'=> ">".Bio::Root::IO->catfile("t","data","genbank.out"), 
 			     '-format' => 'GenBank');
 while( $seq ) {
@@ -113,6 +112,7 @@ $ast->verbose($verbosity);
 $as = $ast->next_seq();
 ok $as->molecule, 'mRNA';
 ok $as->alphabet, 'dna';
+ok($as->primary_id, 3598416);
 
 $mf = Bio::SeqIO::MultiFile->new( '-format' => 'Fasta' , 
 				  '-files' => 
