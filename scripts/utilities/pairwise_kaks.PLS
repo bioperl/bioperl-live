@@ -1,5 +1,5 @@
 #!perl -w
-# $Id: pairwise_kaks.PLS,v 1.5 2003-03-03 11:44:32 jason Exp $
+# $Id: pairwise_kaks.PLS,v 1.6 2003-05-20 13:33:26 jason Exp $
 use strict;
 # Author Jason Stajich <jason@bioperl.org>
 
@@ -140,7 +140,7 @@ while( my $seq = $seqin->next_seq ) {
     my $pseq = $protein->seq();
     if( $pseq =~ /\*/ && 
 	$pseq !~ /\*$/ ) {
-	warn("provided a cDNA sequence with a stop codon, PAML will choke!");
+	warn("provided a cDNA (".$seq->display_id.") sequence with a stop codon, PAML will choke!");
 	exit(0);
     }
     # Tcoffee can't handle '*'
