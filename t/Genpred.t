@@ -15,10 +15,11 @@ BEGIN {
 	use lib 't';
     }
     use Test;
-    plan tests => 17;
+    plan tests => 22;
 }
 
 use Bio::Tools::Genscan;
+use Bio::Tools::Genemark;
 use Bio::Tools::MZEF;  # THIS IS STILL TODO!
 use Bio::SeqIO;
 use Bio::Root::IO;
@@ -85,3 +86,19 @@ my $exon_num = 0;
 my $gene = $mzef->next_prediction();
 
 ok($gene->exons, 23);
+
+# Genemark testing:
+my $genemark = Bio::Tools::Genemark->new('-file' => 't/genemark.out');
+ok $genemark;
+
+my $gmgene = $genemark->next_prediction();
+ok $gmgene;
+
+my @gmexons = $gmgene->exons();
+ok @gmexons;
+
+my $gmstart = $gmexons[0]->start();
+ok $gmstart;
+
+my $gmend = $gmexons[0]->end();
+ok $gmend;
