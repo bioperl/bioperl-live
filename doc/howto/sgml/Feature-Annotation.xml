@@ -288,7 +288,7 @@ FEATURES             Location/Qualifiers
 	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqFeature/Generic.html"><citetitle>Bio::SeqFeature::Generic</citetitle></ulink>
       object. Think of it as the default SeqFeature object. Now,
       should you care what kind of object is being made? For the most 
-      part, no, you can write lots of useful and powerful Bioperl code
+      part no, you can write lots of useful and powerful Bioperl code
       without ever knowing these specific details.
     </para>
     <tip>
@@ -487,7 +487,8 @@ FEATURES             Location/Qualifiers
     <para>
       It's not unusual for a Genbank file to have multiple CDS or gene
       features (and recall that 'CDS' and 'gene' are common primary tags
-      in Genbank format), each with a number of tags, like 'note', 'protein_id',
+      in Genbank format), each with a number of tags, like 'note', 
+		'protein_id',
       or 'product'. How can we get, say, the nucleotide sequences and gene
       names from all these CDS features? By putting all of this together we
       arrive at something like:
@@ -693,11 +694,15 @@ SOURCE      human.
   <section id="anno_from_genbank">
     <title>Annotations from Genbank</title>
     <para>
-      There's still quite a bit of data left our Genbank files that's
-      not in SeqFeature objects, and much of it is parsed into Annotation objects. 
+      There's still quite a bit of data left in our Genbank files that's
+      not in SeqFeature objects, and much of it is parsed into 
+		Annotation objects. Annotations, if you recall, are those values
+		that are assigned to a sequence that have no specific location
+		on that sequence.
       In order to get access to these objects we can get an
       AnnotationCollection object, which is exactly what it sounds like:
     </para>
+	 <para></para>
     <para>
       <programlisting>
 	my $io = Bio::SeqIO->new(-file => $file, -format => "genbank" );
@@ -705,10 +710,12 @@ SOURCE      human.
 	my $anno_collection = $seq_obj->annotation;
       </programlisting>
     </para>
+	 <para></para>
     <para>
       Now we can access each Annotation in the AnnotationCollection
       object. The Annotation objects can be retrieved in arrays: 
     </para>
+	 <para></para>
     <para>
       <programlisting>
 	for my $key ( $anno_collection->get_all_annotation_keys ) {
@@ -721,6 +728,7 @@ SOURCE      human.
 	}
       </programlisting>
     </para>
+	 <para></para>
     <para>
       It turns out the value of <varname>$key</varname>, above, and 
       $value->tagname are the same. The code will print something like:
@@ -737,6 +745,7 @@ tagname : date_changed
   annotation value: Value: 31-OCT-2000
       </programlisting>
     </para>
+	 <para></para>
     <para>
       If you only wanted a specific annotation, like COMMENT, you
       could do:
@@ -761,39 +770,43 @@ tagname : date_changed
     </para>
     <para>
       <table>
-	<title>Genbank Annotations</title>
-	<tgroup cols="4">
-	  <thead>
-	    <row><entry>Genbank Text</entry><entry>Key</entry><entry>Object Type</entry><entry>Note</entry></row>  
-	  </thead>
-	  <tbody>
-	    <row>
-	      <entry>COMMENT</entry><entry>comment</entry><entry>Comment</entry><entry></entry>
-	    </row>
-	    <row>
-	      <entry>SEGMENT</entry><entry>segment</entry><entry>SimpleValue</entry><entry>e.g.
-		"1 of 2"</entry>
-	    </row>
-	    <row>
-	      <entry>ORIGIN</entry><entry>origin</entry><entry>SimpleValue</entry><entry>e.g.
-		"X Chromosome."</entry>
-	    </row>
-	    <row>
-	      <entry>REFERENCE</entry><entry>reference</entry><entry>Reference</entry><entry></entry>
-	    </row>
-	    <row>
-	      <entry>INV</entry><entry>date_changed</entry><entry>SimpleValue</entry><entry>e.g.
-		"08-JUL-1994"</entry>
-	    </row>
-	    <row>
-	      <entry>KEYWORDS</entry><entry>keyword</entry><entry>SimpleValue</entry><entry></entry>
-	    </row>
-	    <row>
-	      <entry>ACCESSION</entry><entry>secondary_accession</entry><entry>SimpleValue</entry><entry>2nd
-		of 2 accessions</entry>
-	    </row>
-	  </tbody>
-	</tgroup>
+		  <title>Genbank Annotations</title>
+		  <tgroup cols="4">
+			 <thead>
+				<row><entry>Genbank Text</entry><entry>Key</entry><entry>Object Type</entry><entry>Note</entry></row>  
+			 </thead>
+			 <tbody>
+				<row>
+				  <entry>COMMENT</entry><entry>comment</entry><entry><ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/Comment.html"><citetitle>Comment</citetitle></ulink></entry><entry></entry>
+				</row>
+				<row>
+				  <entry>SEGMENT</entry><entry>segment</entry><entry><ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/SimpleValue.html"><citetitle>SimpleValue</citetitle></ulink></entry><entry>e.g.
+					 "1 of 2"</entry>
+				</row>
+				<row>
+				  <entry>ORIGIN</entry><entry>origin</entry><entry><ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/SimpleValue.html"><citetitle>SimpleValue</citetitle></ulink></entry><entry>e.g.
+					 "X Chromosome."</entry>
+				</row>
+				<row>
+				  <entry>REFERENCE</entry><entry>reference</entry><entry><ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/Reference.html"><citetitle>Reference</citetitle></ulink></entry><entry></entry>
+				</row>
+				<row>
+				  <entry>INV</entry><entry>date_changed</entry><entry><ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/SimpleValue.html"><citetitle>SimpleValue</citetitle></ulink></entry><entry>e.g.
+					 "08-JUL-1994"</entry>
+				</row>
+				<row>
+				  <entry>KEYWORDS</entry><entry>keyword</entry><entry><ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/SimpleValue.html"><citetitle>SimpleValue</citetitle></ulink></entry><entry></entry>
+				</row>
+				<row>
+				  <entry>ACCESSION</entry><entry>secondary_accession</entry><entry><ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/SimpleValue.html"><citetitle>SimpleValue</citetitle></ulink></entry><entry>2nd
+					 of 2 accessions</entry>
+				</row>
+				<row>
+				  <entry>DBSOURCE</entry><entry>dblink</entry><entry><ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/DBLink.html"><citetitle>DBLink</citetitle></ulink></entry><entry>Link
+				  to entry in a database</entry>
+				</row>
+			 </tbody>
+		  </tgroup>
       </table>
     </para>
     <para>
