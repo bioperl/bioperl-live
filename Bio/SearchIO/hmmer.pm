@@ -131,6 +131,7 @@ BEGIN {
                  'HMMER_querydesc' => 'RESULT-query_description',
                  'HMMER_hmm'       => 'RESULT-hmm_name',                 
                  'HMMER_seqfile'   => 'RESULT-sequence_file',
+		 'HMMER_db'        => 'RESULT-database_name',
                  );
 }
 
@@ -214,8 +215,13 @@ sub next_result{
                            'Data' => $_});
        } elsif( s/^Sequence\s+(file|database):\s+//o ) {
            $self->{'_hmmseqline'} = $lineorig;
-           $self->element({'Name' => 'HMMER_seqfile',
-                           'Data' => $_});
+	   if( $1 eq 'database' ) {	   
+	       $self->element({'Name' => 'HMMER_db',
+			       'Data' => $_});
+	   } else { 
+	       $self->element({'Name' => 'HMMER_seqfile',
+			       'Data' => $_});
+	   }
        } elsif( s/^Query(\s+(sequence|HMM))?:\s+//o) {
            if( ! $seentop ) {               
                # we're in a multi-query report
