@@ -11,7 +11,7 @@ BEGIN {
 use lib 't';
     }
     use Test;
-    $TESTCOUNT = 239;
+    $TESTCOUNT = 244;
     plan tests => $TESTCOUNT;
 }
 
@@ -213,8 +213,6 @@ ok(scalar $as->annotation->get_Annotations('reference'), 11);
 ($ent, $seq, $out,$as) = undef;
 
 
-
-
 #ace
 {
     my $t_file = Bio::Root::IO->catfile("t","data","test.ace");
@@ -370,7 +368,10 @@ ok($seq->display_id, 'MA32_HUMAN');
 ok($seq->length, 282);
 ok($seq->division, 'HUMAN');
 ok($seq->alphabet, 'protein');
-ok(scalar $seq->all_SeqFeatures(), 2);
+my @f = $seq->all_SeqFeatures();
+ok(@f, 2);
+ok($f[1]->primary_tag, 'CHAIN');
+ok(($f[1]->get_tag_values('description'))[0], 'COMPLEMENT COMPONENT 1, Q SUBCOMPONENT BINDING PROTEIN');
 
 my @genenames = qw(GC1QBP HABP1 SF2P32 C1QBP);
 my ($ann) = $seq->annotation->get_Annotations('gene_name');
@@ -626,4 +627,15 @@ eval {
 };
 
 ok(! $@ );
+
+
+# test swissprot multiple RP lines
+
+$str = Bio::SeqIO->new(-verbose => $verbosity,
+    -file    => Bio::Root::IO->catfile(qw(t data P33897) ));
+
+ok($seq = $str->next_seq);
+my @refs = $seq->annotation->get_Annotations('reference');
+ok( @refs, 23);
+ok($refs[20]->rp, 'VARIANTS X-ALD LEU-98; ASP-99; GLU-217; GLN-518; ASP-608; ILE-633 AND PRO-660, AND VARIANT THR-13.');
 
