@@ -20,16 +20,6 @@ BEGIN {
     use Test;
     plan tests => 23; 
 
-#    eval { require XML::Parser::PerlSAX; };
-#    if( $@ ) {
-#	print STDERR "XML::Parser::PerlSAX not loaded. This means TreeIO::phyloxml test cannot be executed. Skipping\n";
-#	foreach ( 1..43 ) {
-#	    skip(1,1);
-#	}
-#       $error = 1;
-#	
-#    } 
-
 }
 
 if( $error == 1 ) {
@@ -44,21 +34,20 @@ END { unlink $FILE1; }
 use Bio::MapIO;
 use Bio::Root::IO;
 my $verbose = $ENV{'BIOPERLDEBUG'};
-ok(1);
+ok 1;
 
-my $mapio = new Bio::MapIO('-verbose' => $verbose,
-			    '-format' => 'mapmaker',
-			    '-file'   => Bio::Root::IO->catfile('t','data', 
-			    'mapmaker.out'));
+ok my $mapio = new Bio::MapIO('-verbose' => $verbose,
+			      '-format' => 'mapmaker',
+			      '-file'   => Bio::Root::IO->catfile('t','data', 
+								  'mapmaker.out'));
 
-ok($mapio);
 my $map = $mapio->next_map;
 
 ok(ref($map) && $map->isa('Bio::Map::MapI'));
 
-ok($map->units, 'cM');
-ok($map->type, 'Genetic');
-ok($map->name('test map'), 'test map'); # map name is unset for this data type
+ok $map->units, 'cM';
+ok $map->type, 'Genetic';
+ok $map->name('test map'), 'test map'; # map name is unset for this data type
 
 my $count = 1;
 foreach my $marker ( $map->each_element ) {

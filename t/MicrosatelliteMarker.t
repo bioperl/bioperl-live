@@ -29,7 +29,9 @@ ok(1);
 
 my $map = new Bio::Map::SimpleMap(-units => 'MB',
 				  -type  => 'oo-121');
-my $position = new Bio::Map::Position(-positions => [ [$map, 20] ] );
+my $position = new Bio::Map::Position(-map => $map,
+				      -value => 20
+				      );
 
 my $o_usat = new Bio::Map::Microsatellite
     (-name=>'Chad Super Marker 2',

@@ -80,7 +80,7 @@ use strict;
 
 use Bio::MapIO;
 use Bio::Map::SimpleMap;
-use Bio::Map::OrderedPosition;
+use Bio::Map::LinkagePosition;
 use Bio::Map::Marker;
 
 @ISA = qw(Bio::MapIO );
@@ -108,18 +108,27 @@ sub next_map{
        } else { next }
 
        last if ( /-{5,}/); # map terminator is ------- 
-       s/^\s+//;
+       s/ +/\t/;
        my ($number,$name,$distance) = split;
        $runningDistance += $distance;
-       my $pos = new Bio::Map::OrderedPosition
-	   (-order => $number,
-	    -positions => [ [ $map, $runningDistance] ]
-	    );
-       $map->add_element(new Bio::Map::Marker('-name'=> $name,
-					      '-position' => $pos,
-					      ));   
+       $runningDistance = '0.0' if $runningDistance == 0;
+#       print "$_|$number-$name-$distance---------";
+       my $pos = new Bio::Map::LinkagePosition (-order => $number,
+						-map => $map,
+						-value => $runningDistance
+						);
+       my $marker = new Bio::Map::Marker(-name=> $name,
+					 -position => $pos,
+					 );
+       $marker->position($pos);
+#       use Data::Dumper; print Dumper($marker); exit;
+#       print $marker->position->value, "\n";
+#       use Data::Dumper; print Dumper($pos);
+#	 $map->add_element(new Bio::Map::Marker('-name'=> $name,
+#						'-position' => $pos,
+#						));   
    }
-   return undef if( ! $ready );
+#   return undef if( ! $ready );
    return $map;
 }
 
