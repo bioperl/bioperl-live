@@ -70,6 +70,16 @@ sub id       {
   return "$self->{class}:$self->{name}";
 }
 
+sub new_from_segment {
+  my $package   = shift;
+  $package      = ref $package if ref $package;
+  my $segment   = shift;
+  my $new = {};
+  @{$new}{qw(factory sourceseq start stop strand class ref refstart refstrand)}
+    = @{$segment}{qw(factory sourceseq start stop strand class ref refstart refstrand)};
+  return bless $new,__PACKAGE__;
+}
+
 =head1 BUGS
 
 This module is still under development.

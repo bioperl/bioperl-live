@@ -5,6 +5,9 @@ use Bio::Graphics::Glyph;
 use vars '@ISA';
 @ISA = 'Bio::Graphics::Glyph';
 
+my %complement = (g=>'c',a=>'t',t=>'a',c=>'g',
+		  G=>'C',A=>'T',T=>'A',C=>'G');
+
 # new options are 'label'       -- short label to print over glyph
 #                 'description'  -- long label to print under glyph
 # label and description can be flags or coderefs.
@@ -132,6 +135,16 @@ sub draw_description {
 	      $self->font2color);
 }
 
+sub dna_fits {
+  my $self = shift;
+
+  my $pixels_per_base = $self->scale;
+  my $font            = $self->font;
+  my $font_width      = $font->width;
+
+  return $pixels_per_base >= $font_width;
+}
+
 sub arrowhead {
   my $self = shift;
   my $gd   = shift;
@@ -173,6 +186,11 @@ sub arrow {
   $gd->line($x1,$y,$x2,$y,$fg);
   $self->arrowhead($gd,$x2,$y,$height,+1) if $x1 < $x2;
   $self->arrowhead($gd,$x2,$y,$height,-1) if $x2 < $x1;
+}
+
+sub reversec {
+  $_[1]=~tr/gatcGATC/ctagCTAG/;
+  return scalar reverse $_[1];
 }
 
 1;

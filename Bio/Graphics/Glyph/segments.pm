@@ -10,6 +10,8 @@ use vars '@ISA','$VERSION';
 	   Bio::Graphics::Glyph::generic
 	 );
 $VERSION = '1.00';
+my %complement = (g=>'c',a=>'t',t=>'a',c=>'g',n=>'n',
+		  G=>'C',A=>'T',T=>'A',C=>'G',N=>'N');
 
 # group sets connector to 'solid'
 sub connector {
@@ -17,11 +19,87 @@ sub connector {
   return $self->SUPER::connector(@_) if $self->all_callbacks;
   return ($self->SUPER::connector(@_) || 'solid');
 }
+
+
 # never allow our components to bump
 sub bump {
   my $self = shift;
   return $self->SUPER::bump(@_) if $self->all_callbacks;
   return 0;
+}
+
+sub draw_component {
+  my $self = shift;
+  my ($draw_dna,$draw_target) = ($self->option('draw_dna'),$self->option('draw_target'));
+  return $self->SUPER::draw_component(@_)
+    unless $draw_dna || $draw_target;
+  return $self->SUPER::draw_component(@_) unless $self->dna_fits;
+
+
+  my $dna = $draw_target ? eval {$self->feature->target->seq}
+                         : eval {$self->feature->seq};
+  my $show_mismatch = $draw_target && $self->option('show_mismatch');
+  my $genomic = eval {$self->feature->seq} if $show_mismatch;
+
+
+  my $gd = shift;
+  my ($x1,$y1,$x2,$y2) = $self->bounds(@_);
+
+
+  # adjust for nonaligned left end (for ESTs...)  The size given here is roughly sufficient
+  # to show a polyA end or a c. elegans trans-spliced leader.
+  my $offset = 0;
+  eval {  # protect against data structures that don't implement the target() method.
+#    warn "start = ",$self->feature->target->start;
+    if ($draw_target && $self->option('ragged_start') && $self->feature->target->start < 25) {
+      $offset = $self->feature->target->start - 1;
+      if ($offset > 0) {
+#	warn "subseq = (1-$offset,0)";
+	$dna       = $self->feature->target->subseq(1-$offset,0)->seq . $dna;
+	$genomic   = $self->feature->subseq(1-$offset,0)->seq         . $genomic;
+#	warn "dna = $dna\n";
+#	warn "gen = $genomic\n";
+	$x1        -= $offset * $self->scale;
+      }
+    }
+  };
+
+
+  $self->draw_dna($gd,$offset,$dna,$genomic,$x1,$y1,$x2,$y2);
+}
+
+sub draw_dna {
+  my $self = shift;
+
+  my ($gd,$start_offset,$dna,$genomic,$x1,$y1,$x2,$y2) = @_;
+  my $pixels_per_base = $self->scale;
+  my $complement      = $self->feature->strand < 0;
+
+  my @bases   = split '',$dna;
+  my @genomic = split '',$genomic;
+  my $color = $self->fgcolor;
+  my $font  = $self->font;
+  my $lineheight = $font->height;
+  my $fontwidth  = $font->width;
+  $y1 -= $lineheight/2 - 3;
+  my $pink = $self->factory->translate_color('lightpink');
+
+  my $start  = $self->map_no_trunc($self->feature->start-$start_offset);
+  my $offset = int(($x1-$start-1)/$pixels_per_base);
+#  warn "offset = $offset";
+#  warn "@bases\n";
+#  warn "@genomic\n";
+
+  for (my $i=$offset;$i<@bases;$i++) {
+    my $x = $start + $i * $pixels_per_base;
+    next if $x+1 < $x1;
+    last if $x > $x2;
+    if ($genomic[$i] && lc($bases[$i]) ne lc($complement ? $complement{$genomic[@genomic - $i - 1]} : $genomic[$i])) {
+      $self->filled_box($gd,$x-1,$y1+1,$x+$fontwidth,$y1+$lineheight,$pink,$pink);
+    }
+    $gd->char($font,$x,$y1,$complement ? $complement{$bases[$i]} || $bases[$i] : $bases[$i],$color);
+  }
+
 }
 
 # Override _subseq() method to make it appear that a top-level feature that

@@ -4,11 +4,10 @@ use strict;
 use Bio::Graphics::Glyph::generic;
 use vars '@ISA','$VERSION';
 @ISA = qw(Bio::Graphics::Glyph::generic);
-$VERSION = '1.00';
+$VERSION = '1.01';
 
-my %complement = (g=>'c',a=>'t',t=>'a',c=>'g',
-		  G=>'C',A=>'T',T=>'A',C=>'G');
-
+my %complement = (g=>'c',a=>'t',t=>'a',c=>'g',n=>'n',
+		  G=>'C',A=>'T',T=>'A',C=>'G',N=>'N');
 
 # turn off description
 sub description { 0 }
@@ -22,26 +21,6 @@ sub height {
   return $self->dna_fits ? 2*$font->height
        : $self->do_gc    ? $self->SUPER::height
        : 0;
-}
-
-sub pixels_per_base {
-  my $self = shift;
-  return $self->scale;
-
-#  my $width           = $self->width;
-#  my $length          = $self->feature->length;
-
-#  return $width/($self->feature->length-1);
-}
-
-sub dna_fits {
-  my $self = shift;
-
-  my $pixels_per_base = $self->pixels_per_base;
-  my $font            = $self->font;
-  my $font_width      = $font->width;
-
-  return $pixels_per_base >= $font_width;
 }
 
 sub do_gc {
@@ -70,13 +49,14 @@ sub draw_dna {
   my $self = shift;
 
   my ($gd,$dna,$x1,$y1,$x2,$y2) = @_;
-  my $pixels_per_base = $self->pixels_per_base;
+  my $pixels_per_base = $self->scale;
 
   my $feature = $self->feature;
-  my @bases = split '',$feature->strand >= 0 ? $dna : reversec($dna);
+  my @bases = split '',$feature->strand >= 0 ? $dna : $self->reversec($dna);
   my $color = $self->fgcolor;
   my $font  = $self->font;
   my $lineheight = $font->height;
+  $y1 -= $lineheight/2 - 3;
   my $strands = $self->option('strand') || 'auto';
 
   my ($forward,$reverse);
@@ -99,14 +79,9 @@ sub draw_dna {
     next if $x+1 < $x1;
     last if $x > $x2;
     $gd->char($font,$x,$y1,$bases[$i],$color)                                      if $forward;
-    $gd->char($font,$x,$y1+$lineheight,$complement{$bases[$i]}||$bases[$i],$color) if $reverse;
+    $gd->char($font,$x,$y1+($forward ? $lineheight:0),$complement{$bases[$i]}||$bases[$i],$color) if $reverse;
   }
 
-}
-
-sub reversec {
-  $_[0]=~tr/gatcGATC/ctagCTAG/;
-  return scalar reverse $_[0];
 }
 
 sub draw_gc_content {
