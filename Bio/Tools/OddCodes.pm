@@ -3,22 +3,22 @@
 # PACKAGE    : OddCodes.pm
 # PURPOSE    : To write amino acid sequences in alternative alphabets
 # AUTHOR     : Derek Gatherer (D.Gatherer@organon.nhe.akzonobel.nl)
-# SOURCE     : 
+# SOURCE     :
 # CREATED    : 8th July 2000
-# MODIFIED   : 
-# DISCLAIMER : I am employed in the pharmaceutical industry but my 
+# MODIFIED   :
+# DISCLAIMER : I am employed in the pharmaceutical industry but my
 #            : employers do not endorse or sponsor this module
 #            : in any way whatsoever.  The above email address is
 #            : given purely for the purpose of easy communication
 #            : with the author, and does not imply any connection
 #	     : between my employers and anything written below.
-# LICENCE    : You may distribute this module under the same terms 
+# LICENCE    : You may distribute this module under the same terms
 #	     : as the rest of BioPerl.
 #----------------------------------------------------------------------------
 
 =head1 NAME
 
-Bio::Tools::OddCodes - Object holding alternative alphabet coding for 
+Bio::Tools::OddCodes - Object holding alternative alphabet coding for
 one protein sequence
 
 =head1 SYNOPSIS
@@ -32,7 +32,7 @@ abbreviated alphabets range in size from 2 to 8.
 
 Creating the OddCodes object, eg:
 
-	my $inputstream = Bio::SeqIO->new( '-file' => "seqfile", 
+	my $inputstream = Bio::SeqIO->new( '-file' => "seqfile",
                                            '-format' => 'Fasta');
 	my $seqobj = $inputstream->next_seq();
 	my $oddcode_obj = Bio::Tools::Oddcodes->new(-seq => $seqobj);
@@ -40,8 +40,8 @@ Creating the OddCodes object, eg:
 or:
 
 	my $seqobj = Bio::PrimarySeq->new
-              (-seq=>'[cut and paste a sequence here]', 
-               -alphabet = 'protein', 
+              (-seq=>'[cut and paste a sequence here]',
+               -alphabet = 'protein',
                -id = 'test');
 	my $oddcode_obj  =  Bio::Tools::OddCodes->new(-seq => $seqobj);
 
@@ -72,6 +72,10 @@ sequences since they can partially avoid the combinatorial explosion
 produced by the full 20-letter alphabet (eg. 400 dimers, 8000 trimers
 etc.)
 
+The objects will print out a warning if the input sequence is not a
+protein. If you know what you are doing, you can silence the warning
+by setting verbose() to a negetive value.
+
 See Synopsis above for object creation code.
 
 =head1 FEEDBACK
@@ -101,7 +105,7 @@ Derek Gatherer
 
 =head1 APPENDIX
 
-The rest of the documentation details each of the object methods. 
+The rest of the documentation details each of the object methods.
 Internal methods are usually preceded with a _
 
 =cut
@@ -117,7 +121,7 @@ use Bio::Root::Root;
 @ISA = qw(Bio::Root::Root);
 
 
-sub new 
+sub new
 {
     my($class,@args) = @_;
 
@@ -128,7 +132,7 @@ sub new
 	# parameter not passed as named parameter?
 	$seqobj = $args[0];
     }
-    unless  ($seqobj->isa("Bio::PrimarySeqI")) 
+    unless  ($seqobj->isa("Bio::PrimarySeqI"))
     {
 	die("die in _init, OddCodes works only on PrimarySeqI
 objects\n");
@@ -142,7 +146,7 @@ objects\n");
 =head2 structural
 
  Title   : structural
- Usage   : $output = $oddcode_obj->structural(); 
+ Usage   : $output = $oddcode_obj->structural();
  Function: turns amino acid sequence into 3-letter structural alphabet
 	 : A (ambivalent), E (external), I (internal)
  Example : a sequence ACDEFGH will become AAEEIAE
@@ -173,10 +177,10 @@ sub structural()
 =head2 functional
 
  Title   : functional
- Usage   : $output = $oddcode_obj->functional(); 
+ Usage   : $output = $oddcode_obj->functional();
  Function: turns amino acid sequence into 4-letter functional alphabet
 	 : A (acidic), C (basic), H (hydrophobic), P (polar)
- Example : a sequence ACDEFGH will become HPAAHHC 
+ Example : a sequence ACDEFGH will become HPAAHHC
  Returns : Reference to the new sequence string
  Args    : none
 
@@ -206,7 +210,7 @@ sub functional()
 =head2 hydrophobic
 
  Title   : hydrophobic
- Usage   : $output = $oddcode_obj->hydrophobic(); 
+ Usage   : $output = $oddcode_obj->hydrophobic();
  Function: turns amino acid sequence into 2-letter hydrophobicity alphabet
 	 : O (hydrophobic), I (hydrophilic)
  Example : a sequence ACDEFGH will become OIIIOII
@@ -235,9 +239,9 @@ sub hydrophobic()
 =head2 Dayhoff
 
  Title   : Dayhoff
- Usage   : $output = $oddcode_obj->Dayhoff(); 
+ Usage   : $output = $oddcode_obj->Dayhoff();
  Function: turns amino acid sequence into 6-letter Dayhoff alphabet
- Example : a sequence ACDEFGH will become CADDGCE 
+ Example : a sequence ACDEFGH will become CADDGCE
  Returns : Reference to the new sequence string
  Args    : none
 
@@ -271,7 +275,7 @@ sub Dayhoff()
 =head2 Sneath
 
  Title   : Sneath
- Usage   : $output = $oddcode_obj->Sneath(); 
+ Usage   : $output = $oddcode_obj->Sneath();
  Function: turns amino acid sequence into 7-letter Sneath alphabet
  Example : a sequence ACDEFGH will become CEFFHCF
  Returns : Reference to the new sequence string
@@ -309,7 +313,7 @@ sub Sneath()
 =head2 Stanfel
 
  Title   : Stanfel
- Usage   : $output = $oddcode_obj->Stanfel(); 
+ Usage   : $output = $oddcode_obj->Stanfel();
  Function: turns amino acid sequence into 4-letter Stanfel alphabet
  Example : a sequence ACDEFGH will become AACCDAE
  Returns : Reference to the new sequence string
@@ -341,11 +345,11 @@ sub Stanfel()
 =head2 chemical()
 
  Title   : chemical
- Usage   : $output = $oddcode_obj->chemical(); 
+ Usage   : $output = $oddcode_obj->chemical();
  Function: turns amino acid sequence into 8-letter chemical alphabet
 	 : A (acidic), L (aliphatic), M (amide), R (aromatic)
 	 : C (basic), H (hydroxyl), I (imino), S (sulphur)
- Example : a sequence ACDEFGH will become LSAARAC 
+ Example : a sequence ACDEFGH will become LSAARAC
  Returns : Reference to the new sequence string
  Args    : none
 
@@ -383,9 +387,9 @@ sub chemical()
 =head2 charge
 
  Title   : charge
- Usage   : $output = $oddcode_obj->charge(); 
+ Usage   : $output = $oddcode_obj->charge();
  Function: turns amino acid sequence into 3-letter charge alphabet
- Example : a sequence ACDEFGH will become NNAANNC 
+ Example : a sequence ACDEFGH will become NNAANNC
  Returns : Reference to the new sequence string
  Args    : none
 
@@ -419,10 +423,13 @@ sub _pullseq
 
 	my $seqobj =  $self->{'_seqref'};
 	
-	unless  ($seqobj->isa("Bio::PrimarySeqI")) 
+	unless  ($seqobj->isa("Bio::PrimarySeqI"))
 	{
 		die("die, OddCodes works only on PrimarySeqI objects\n");
     	}
+        $self->warn("\tAll OddCode alphabets need a protein sequence,\n".
+                    "\tbut BioPerl thinks this is not: [". $seqobj->id. "]")
+            unless $seqobj->alphabet eq 'protein' or $self->verbose < 0;;
 
 	my $seqstring = uc $seqobj->seq();
 
