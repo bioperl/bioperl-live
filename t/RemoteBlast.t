@@ -80,7 +80,7 @@ if( $actually_submit == 0 ) {
 		ok(1);
 		$remote_blast->remove_rid($rid);
 		my $result = $rc->next_result;
-		ok($result->database_name, qr/E. coli/);
+		ok($result->database_name, qr/(ecoli|E\. coli)/);
 		my $count = 0;
 		while( my $hit = $result->next_hit ) {		
 		    $count++;
