@@ -28,16 +28,17 @@ use vars qw( $USAGE %VALIDFORMATS);
 		  'jpeg' => 1,
 		  'gd2'  => 1,
 		  'gd'   => 1,
+		  'gif'	 => 1,
 		  'wbmp' => 1 );
 
-$USAGE = "usage:\tchaos_plot.pl -f/--file=INPUTFILE -if/--format=INPUTFORMAT \n".
+$USAGE = "usage:\tchaos_plot.pl -i/--i=INPUTFILE -f/--format=SEQFORMAT \n".
     "\t-o/--output=OUTPUTFILE -g/--graphics=GRAPHIC TYPE\n";
 
 $USAGE .= "\tvalid graphics formats: (" . join(",", ( keys %VALIDFORMATS )) .")\n";
 
 my ($format,$graph ,$seqfile,$output) = ('fasta', 'png');
-GetOptions( "f|file:s"            => \$seqfile,
-	    "if|format:s"         => \$format,
+GetOptions( "i|input:s"           => \$seqfile,
+	    "f|format:s"          => \$format,
 	    "o|output:s"          => \$output,
 	    "g|graph|graphics:s"  => \$graph,
 	    );
@@ -88,16 +89,6 @@ for( my $i = 1; $i <= $len; $i++ ) {
 }
 open(OUT, ">$output");
 binmode OUT;
+$graph =~ s/jpg/jpeg/;
 
-if( $graph =~ /png/ ) {    
-    print OUT $img->png;
-} elsif( $graph =~ /jpe?g/ ) {
-    print OUT $img->jpeg;
-} elsif( $graph =~ /gd2/  ) {
-    print OUT $img->gd2;
-} elsif( $graph =~ /gd/ ) {
-    print OUT $img->gd;
-} elsif( $graph =~ /wbmp/ ) {
-    print OUT $img->wbmp;
-}
-    
+print OUT $img->$graph();
