@@ -206,7 +206,7 @@ sub result {
                     (-start   => $_->[0],
                      -end     => $_->[0] ,
                      -source  => 'NetPhos',
-                     -primary => 'NetPhos_p',
+                     -primary => 'Site',
                      -tag     => {
                                score   => $_->[1],
                                residue => $_->[2] });

@@ -339,8 +339,8 @@ sub result {
                     push  @fts,   Bio::SeqFeature::Generic->new
                         (-start   => $loc->{'start'},
                          -end     => $loc->{'end'},
-                         -source  => 'Conc',
-                         -primary => '2ary',
+                         -source  => 'Sopma',
+                         -primary => 'Domain',
                          -tag => $tag_hash,
                                  );
                 }               #end of array of strucs of type

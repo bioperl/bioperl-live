@@ -302,6 +302,7 @@ sub result {
 						-start       => $st,
 						-end         => $end,
 						-primary_tag => 'Domain',
+						-source      => 'ELM',
 						-tag   => {
 							method    => 'ELM',
 							motif     => $motif,

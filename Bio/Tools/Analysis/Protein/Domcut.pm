@@ -281,7 +281,8 @@ sub result {
                     	push @fts, Bio::SeqFeature::Generic->new (
                          	-start   => $st,
                             -end     => $i +1, #current position
-                         	-primary => 'Domcut',
+                         	-primary => 'Linker',
+							-source  => 'Domcut',
                          	-tag => {
                                   score   => $min_score,
                                   rank    => $rank,

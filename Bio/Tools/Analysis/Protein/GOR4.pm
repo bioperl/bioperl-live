@@ -240,8 +240,8 @@ sub result {
                     push @fts, Bio::SeqFeature::Generic->new
                         (-start => $loc->{'start'},
                          -end => $loc->{'end'},
-                         -source => 'Conc',
-                         -primary => '2ary',
+                         -source => 'GOR4',
+                         -primary => 'Region',
                          -tag => {
                                   type => $type,
                                   method => $self->analysis_name,
