@@ -297,7 +297,7 @@ sub start_hit{
 =cut
 
 sub end_hit{
-   my ($self,$type,$data) = @_;
+   my ($self,$type,$data) = @_;   
     my $hit = new Bio::Search::Hit::GenericHit
 	( '-algorithm' => $type,
 	  '-name'        => $data->{'hitname'}, 
@@ -305,6 +305,7 @@ sub end_hit{
 	  '-accession'   => $data->{'hitacc'},
 	  '-description' => $data->{'hitdesc'},
 	  '-significance'=> $data->{'hitsignif'},
+	  '-score'       => $data->{'hitscore'},
 	  '-hsps'        => $self->{'_hsps'});
    push @{$self->{'_hits'}}, $hit;
    $self->{'_hsps'} = [];

@@ -114,6 +114,7 @@ BEGIN {
 		 'Hit_accession' => 'hitacc',
 		 'Hit_def'       => 'hitdesc',
 		 'Hit_signif'    => 'hitsignif',
+		 'Hit_score'     => 'hitscore',
 		 
 		 'FastaOutput_program'  => 'programname',
 		 'FastaOutput_version'  => 'programver',
@@ -262,7 +263,8 @@ sub next_result{
 	   while( defined ($_ = $self->_readline() ) && 
 		  ! /^\s+$/ ) {	       
 	       my @line = split;
-	       push @hit_signifs, pop @line;
+	       # 0 is signif, 1 is raw score
+	       push @hit_signifs, [ pop @line, pop @line];
 	   }
 	   
        } elsif( /^\s*([T]?FAST[XYAF]).+,\s*(\S+)\s*matrix.+ktup:\s*(\d+)/ ) {
@@ -295,9 +297,14 @@ sub next_result{
 			    'Data' => $2});  
 	   my ($id,$desc) = split(/\s+/,$1,2);
 	   $self->element({ 'Name' => 'Hit_id',
-			    'Data' => $id}); 
-	   $self->element({'Name' => 'Hit_signif',
-			  'Data' => shift @hit_signifs});
+			    'Data' => $id}); 	   
+	   my $v = shift @hit_signifs;
+	   if( defined $v ) {
+	       $self->element({'Name' => 'Hit_signif',
+			       'Data' => $v->[0]});
+	       $self->element({'Name' => 'Hit_score',
+			       'Data' => $v->[1]});
+	   }
 	   my @pieces = split(/\|/,$id);
 	   my $acc = pop @pieces;
 	   $acc =~ s/\.\d+$//;

@@ -113,7 +113,7 @@ sub new {
   defined $length && $self->length($length);
   defined $algo   && $self->algorithm($algo);
   defined $signif && $self->significance($signif);
-  
+  defined $score  && $self->raw_score($score);
   
   $self->{'_iterator'} = 0;
   $self->{'_hsps'} = [];

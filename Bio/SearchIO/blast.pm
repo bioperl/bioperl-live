@@ -119,6 +119,8 @@ BEGIN {
 		 'Hit_len'       => 'hitlen',
 		 'Hit_accession' => 'hitacc',
 		 'Hit_def'       => 'hitdesc',
+		 'Hit_signif'    => 'hitsignif',
+		 'Hit_score'     => 'hitscore',
 		 
 		 'BlastOutput_program'  => 'programname',
 		 'BlastOutput_version'  => 'programver',
@@ -197,6 +199,7 @@ sub next_result{
    my $seentop = 0;
    my $reporttype;
    $self->start_document();
+   my @hit_signifs;
    while( defined ($_ = $self->_readline )) {
        next if( /^\s+$/); # skip empty lines
        if( /^([T]?BLAST[NPX])\s*(\S+)/i ) {
@@ -239,6 +242,24 @@ sub next_result{
 	   my $acc = pop @pieces;
 	   $self->element({ 'Name' =>  'BlastOutput_query-acc',
 			    'Data'  => $acc});	   
+       } elsif( /Sequences producing significant alignments:/ ) {
+	   # skip the next whitespace line
+	   $_ = $self->_readline();
+	   while( defined ($_ = $self->_readline() ) && 
+		  ! /^\s+$/ ) {	       
+	       my @line = split;
+	       push @hit_signifs, [ pop @line, pop @line];
+	   }
+       } elsif( /Sequences producing High-scoring Segment Pairs:/ ) {
+	   # skip the next line
+	   $_ = $self->_readline();
+	   
+	    while( defined ($_ = $self->_readline() ) && 
+		  ! /^\s+$/ ) {	
+	       my @line = split;
+	       pop @line; # throw away first number which is for 'N'col
+	       push @hit_signifs, [ pop @line, pop @line];
+	   }
        } elsif ( /^Database:\s*(.+)$/ ) {
 	   my $db = $1;
 
@@ -276,6 +297,14 @@ sub next_result{
 			    'Data'  => $acc});	   
 	   $self->element({ 'Name' => 'Hit_def',
 			    'Data' => $2});
+	   my $v = shift @hit_signifs;
+	   if( defined $v ) {
+	       $self->element({'Name' => 'Hit_signif',
+			       'Data' => $v->[0]});
+	       $self->element({'Name' => 'Hit_score',
+			       'Data' => $v->[1]});
+	   }
+
       } elsif( /\s+(Plus|Minus) Strand HSPs:/i ) {
 	   next;
        } elsif(  /Length\s*=\s*([\d,]+)/ ) {
