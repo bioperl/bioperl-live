@@ -40,7 +40,7 @@ ok(1);
 #
 ok my $in  = Bio::Restriction::IO->new();
 ok my $renzs = $in->read;
-ok $renzs->each_enzyme, 530;
+ok $renzs->each_enzyme, 532;
 
 ok my $e = $renzs->get_enzyme('AccI');
 ok $e->name, 'AccI';
@@ -60,7 +60,7 @@ ok $in  = Bio::Restriction::IO->new
     (-format=> 31, -verbose => 0,
      -file => Bio::Root::IO->catfile("t","data","rebase.withrefm"));
 ok $renzs = $in->read;
-ok $renzs->each_enzyme, 17;
+ok $renzs->each_enzyme, 11;
 
 
 
@@ -75,7 +75,7 @@ ok $in  = Bio::Restriction::IO->new
      -file => Bio::Root::IO->catfile("t","data","rebase.itype2"));
 
 ok $renzs = $in->read;
-ok $renzs->each_enzyme, 19;
+ok $renzs->each_enzyme, 16;
 
 ok  $out  = Bio::Restriction::IO->new(-format=>'base');
 #$out->write($renzs);
