@@ -210,6 +210,10 @@ The group field is also used to store information about the target of
 sequence similarity hits, and miscellaneous notes.  See the next
 section for a description of how to describe similarity targets.
 
+The format of the group fields is "Class:ID" with a ":" separating the
+class from the ID. It is VERY IMPORTANT to follow this format, or
+grouping will not work properly.
+
 =back
 
 The sequences used to establish the coordinate system for annotations
