@@ -348,9 +348,9 @@ skip(sprintf("%.5f",Bio::PopGen::Statistics->fu_and_li_F($ingroup,
 
 # Test composite LD
 
-my $io = new Bio::PopGen::IO(-format => 'prettybase',
-			     -file   => Bio::Root::IO->catfile
-			     (qw(t data compLD_test.prettybase)));
+$io = new Bio::PopGen::IO(-format => 'prettybase',
+			  -file   => Bio::Root::IO->catfile
+			  (qw(t data compLD_test.prettybase)));
 
 my $pop = $io->next_population;
 
