@@ -26,11 +26,15 @@ BEGIN {
 
     $NUMTESTS = 78;
     plan tests => $NUMTESTS;
-    eval { require IO::String };
+    
+    eval { require IO::String; 
+	   require LWP::UserAgent;
+	   require HTTP::Request::Common;
+       };
     if( $@ ) {
-	print STDERR "IO::String not installed. This means the Bio::DB::* modules are not usable. Skipping tests.\n";
+	print STDERR "IO::String or LWP::UserAgent or HTTP::Request not installed. This means the Bio::DB::* modules are not usable. Skipping tests.\n";
 	for( 1..$NUMTESTS ) {
-	    skip("IO::String not installed",1);
+	    skip("IO::String, LWP::UserAgent,or HTTP::Request not installed",1);
 	}
        $error = 1; 
     }
@@ -42,9 +46,11 @@ END {
     }
 }
 
+
 if( $error ==  1 ) {
     exit(0);
 }
+
 
 require Bio::DB::GenBank;
 require Bio::DB::GenPept;
