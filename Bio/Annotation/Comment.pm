@@ -124,11 +124,13 @@ sub hash_tree{
  Usage   : $obj->tagname($newval)
  Function: Get/set the tagname for this annotation value.
 
-           Setting this is optional. If set, it obviates the need to provide
-           a tag to Bio::AnnotationCollectionI when adding this object. When
-           obtaining an AnnotationI object from the collection, the collection
-           will set the value to the tag under which it was stored unless the
-           object has a tag stored already.
+           Setting this is optional. If set, it obviates the need to
+           provide a tag to Bio::AnnotationCollectionI when adding
+           this object. When obtaining an AnnotationI object from the
+           collection, the collection will set the value to the tag
+           under which it was stored unless the object has a tag
+           stored already.
+
  Example : 
  Returns : value of tagname (a scalar)
  Args    : new value (a scalar, optional)
