@@ -1,4 +1,4 @@
-
+# $Id$
 #
 # BioPerl module for Bio::SeqFeature::FeaturePair
 #
@@ -33,11 +33,12 @@ Bio::SeqFeature::FeaturePair - hold pair feature information e.g. blast hits
 
 =head1 DESCRIPTION
 
-A sequence feature object where the feature is itself a feature on another 
-sequence - e.g. a blast hit where residues 1-40 of a  protein sequence SW:HBA_HUMAN  
-has hit to bases 100 - 220 on a genomic sequence HS120G22.  The genomic sequence 
-coordinates are used to create one sequence feature $f1 and the protein coordinates
-are used to create feature $f2.  A FeaturePair object can then be made
+A sequence feature object where the feature is itself a feature on
+another sequence - e.g. a blast hit where residues 1-40 of a protein
+sequence SW:HBA_HUMAN has hit to bases 100 - 220 on a genomic sequence
+HS120G22.  The genomic sequence coordinates are used to create one
+sequence feature $f1 and the protein coordinates are used to create
+feature $f2.  A FeaturePair object can then be made
 
     my $fp = new Bio::SeqFeature::FeaturePair(-feature1 => $f1,   # genomic
 					      -feature2 => $f2,   # protein
@@ -66,8 +67,8 @@ so...
     $feat->start # etc. returns data in $feature2 object
 
 
-No sub_SeqFeatures or tags can be stored in this object directly.
-Any features or tags are expected to be stored in the contained objects
+No sub_SeqFeatures or tags can be stored in this object directly.  Any
+features or tags are expected to be stored in the contained objects
 feature1, and feature2.
 
 =head1 CONTACT
@@ -78,7 +79,8 @@ Ewan Birney <birney@sanger.ac.uk>
 
 =head1 APPENDIX
 
-The rest of the documentation details each of the object methods. Internal methods are usually preceded with a _
+The rest of the documentation details each of the object
+methods. Internal methods are usually preceded with a _
 
 =cut
 
@@ -90,17 +92,17 @@ package Bio::SeqFeature::FeaturePair;
 use vars qw(@ISA);
 use strict;
 
-# Object preamble - inheriets from Bio::Root::Object
-
-use Bio::Root::Object;
 use Bio::SeqFeatureI;
 use Bio::SeqFeature::Generic;
 
-
 @ISA = qw(Bio::SeqFeature::Generic);
-# new() is inherited from Bio::Root::Object
 
-# _initialize is where the heavy stuff will happen when new is called
+sub new {
+    my ($class, @args) = @_;
+    my $self = bless {}, ref($class) || $class;
+    $self->_initialize(@args);
+    return $self;
+}
 
 sub _initialize {
   my($self,@args) = @_;

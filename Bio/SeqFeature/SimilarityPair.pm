@@ -1,4 +1,4 @@
-
+# $Id$
 #
 # BioPerl module for Bio::SeqFeature::SimilarityPair
 #
@@ -79,21 +79,22 @@ package Bio::SeqFeature::SimilarityPair;
 use vars qw(@ISA);
 use strict;
 
-# Object preamble - inherits from Bio::Root::Object
-
 use Bio::SeqFeature::FeaturePair;
 use Bio::SeqFeature::Similarity;
 use Bio::Tools::Blast::Sbjct;
 
-
 @ISA = qw(Bio::SeqFeature::FeaturePair);
-# new() is inherited from Bio::Root::Object
 
-# _initialize is where the heavy stuff will happen when new is called
+sub new {
+    my ($class, @args) = @_;
+    my $self = bless {} , ref($class) || $class;
+    $self->_initialize(@args);
+    return $self;
+}
 
 sub _initialize {
     my($self,@args) = @_;
-    
+        
     my ($sbjct, $query, $fea1, $source) =
 	$self->_rearrange([qw(SUBJECT
 			      QUERY
@@ -271,7 +272,7 @@ sub _from_BlastObj {
 
 =cut
 
-sub query {
+sub query{
     my ($self, @args) = @_;
 
     if((! defined($self->feature1())) && (! @args)) {

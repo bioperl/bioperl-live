@@ -1,4 +1,4 @@
-
+# $Id$
 #
 # BioPerl module for Bio::SeqFeature::GeneStructure
 #
@@ -70,9 +70,13 @@ use Bio::SeqFeature::Generic;
 
 
 @ISA = qw(Bio::SeqFeature::Generic);
-# new() is inherited from Bio::Root::Object
 
-# _initialize is where the heavy stuff will happen when new is called
+sub new {
+    my ($class, @args) = @_;
+    my $self = bless {}, ref($class) || $class;
+    $self->_initialize(@args);
+    return $self;
+}
 
 sub _initialize {
     my($self,@args) = @_;

@@ -116,14 +116,20 @@ package Bio::SeqFeature::Generic;
 use vars qw(@ISA);
 use strict;
 
-# Object preamble - inheriets from Bio::Root::Object
-
 use Bio::Root::RootI;
 use Bio::SeqFeatureI;
 use Bio::Annotation;
 
 
 @ISA = qw(Bio::Root::RootI Bio::SeqFeatureI);
+
+
+sub new {
+    my ( $class, @args) = @_;
+    my $self = bless {}, ref($class) || $class;
+    $self->_initialize(@args);
+    return $self;
+}
 
 sub _initialize {
   my ($self, @args) = @_;
