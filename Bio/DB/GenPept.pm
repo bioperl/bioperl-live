@@ -76,6 +76,7 @@ use vars qw(@ISA);
 use Bio::DB::RandomAccessI;
 use Bio::SeqIO;
 use IO::Socket;
+use IO::File;
 
 @ISA = qw(Bio::Root::Object Bio::DB::RandomAccessI);
 
@@ -190,7 +191,7 @@ sub get_Stream_by_acc {
   Example :
   Returns : a Bio::SeqIO stream object
   Args    : $ref : either an array reference, a filename, or a filehandle
-            from which to get the list of unique id's/accession numbers.
+            from which to get the list of unique ids/accession numbers.
 
 
 =cut
@@ -209,11 +210,15 @@ sub get_Stream_by_batch {
        seek $fh, 0, 0;
        $filename = "tempfile.txt";
    } elsif ( $which eq '') { # $ref is a filename
-       $fh = new IO::File $ref, "r";
+       $fh = IO::File->new($ref, "r") || 
+	   $self->throw("file $ref does not exist or is not readable");
+
        $filename = $ref;
    } elsif ( $which eq 'GLOB' or $which eq 'IO::File') { # $ref is assumed to be a filehandle
        $fh = $ref;
        $filename = "tempfile.txt";
+   } else {
+       $self->throw("tream by batch did not get a valid argument\n");
    }
 
    my $wwwbuf = "DB=n&REQUEST_TYPE=LIST_OF_GIS&FORMAT=1&HTML=FALSE&SAVETO=FALSE&NOHEADER=TRUE&UID=" . join(',', grep { chomp; } <$fh> );
