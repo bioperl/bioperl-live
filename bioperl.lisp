@@ -17,7 +17,7 @@
 (defun bioperl-object-start (perl-object-name perl-caretaker-name caretaker-email)
   "Places standard bioperl object notation headers and footers"
   (interactive "sName of Object: \nsName of caretaker: \nsEmail: ")
-  (insert "# $Id: bioperl.lisp,v 1.12 2001-10-02 15:06:33 jason Exp $\n#\n# BioPerl module for " perl-object-name "\n#\n# Cared for by " perl-caretaker-name " <" caretaker-email ">\n#\n# Copyright " perl-caretaker-name "\n#\n# You may distribute this module under the same terms as perl itself\n\n")
+  (insert "# $Id: bioperl.lisp,v 1.13 2001-10-15 14:33:02 jason Exp $\n#\n# BioPerl module for " perl-object-name "\n#\n# Cared for by " perl-caretaker-name " <" caretaker-email ">\n#\n# Copyright " perl-caretaker-name "\n#\n# You may distribute this module under the same terms as perl itself\n\n")
   (insert "# POD documentation - main docs before the code\n\n")
   (insert "=head1 NAME\n\n" perl-object-name " - DESCRIPTION of Object\n\n")
   (insert "=head1 SYNOPSIS\n\nGive standard usage here\n\n")
@@ -42,7 +42,36 @@
 	  perl-object-name " object \n Returns : "
 	  perl-object-name "\n Args    :\n\n\n=cut\n\n")
   (insert "sub new {\n  my($class,@args) = @_;\n\n  my $self = $class->SUPER::new(@args);\n\n}\n")
+  (insert "\n\n1;")
   )
+
+(defun bioperl-interface-start (perl-object-name perl-caretaker-name
+						 caretaker-email)
+  "Places standard bioperl object notation headers and footers"
+  (interactive "sName of Object: \nsName of caretaker: \nsEmail: ")
+  (insert "# $Id: bioperl.lisp,v 1.13 2001-10-15 14:33:02 jason Exp $\n#\n# BioPerl module for " perl-object-name "\n#\n# Cared for by " perl-caretaker-name " <" caretaker-email ">\n#\n# Copyright " perl-caretaker-name "\n#\n# You may distribute this module under the same terms as perl itself\n\n")
+  (insert "# POD documentation - main docs before the code\n\n")
+  (insert "=head1 NAME\n\n" perl-object-name " - DESCRIPTION of Interface\n\n")
+  (insert "=head1 SYNOPSIS\n\nGive standard usage here\n\n")
+  (insert "=head1 DESCRIPTION\n\nDescribe the interface here\n\n")
+  (insert "=head1 FEEDBACK\n\n=head2 Mailing Lists\n\n")
+  (insert "User feedback is an integral part of the evolution of this and other\nBioperl modules. Send your comments and suggestions preferably to\nthe Bioperl mailing list.  Your participation is much appreciated.\n\n")
+  (insert "  bioperl-l@bioperl.org              - General discussion\n  http://bioperl.org/MailList.shtml  - About the mailing lists\n\n")
+  (insert "=head2 Reporting Bugs\n\nReport bugs to the Bioperl bug tracking system to help us keep track\nof the bugs and their resolution. Bug reports can be submitted via\nemail or the web:\n\n")
+  (insert "  bioperl-bugs@bioperl.org\n  http://bioperl.org/bioperl-bugs/\n\n")
+  (insert "=head1 AUTHOR - " perl-caretaker-name "\n\nEmail " caretaker-email "\n\nDescribe contact details here\n\n")
+  (insert "=head1 CONTRIBUTORS\n\nAdditional contributors names and emails here\n\n")
+  (insert "=head1 APPENDIX\n\nThe rest of the documentation details each of the object methods.\nInternal methods are usually preceded with a _\n\n=cut\n\n")
+  (insert "\n# Let the code begin...\n\n")
+  (insert "\npackage " perl-object-name ";\n")
+  (insert "use vars qw(@ISA);\n")
+  (insert "use strict;\nuse Carp;")
+  (insert "sub _abstractDeath {\n  my $self = shift;\n  my $package = ref $self;\n  my $caller = (caller)[1];\n")
+  (insert "  confess \"Abstract method '$caller' defined in interface" 
+	  perl-object-name " not implemented by pacakge $package. Not your fault - author of $package should be blamed!\";\n}")
+  (insert "\n\n 1;")
+  )
+
 
 (defun bioperl-method (method-name)
   "puts in a bioperl method complete with pod boiler-plate"
@@ -73,10 +102,12 @@
   )
 
 
+
 (setq perl-mode-hook 
       '(lambda ()
 	 (define-key perl-mode-map "\C-c\C-h" 'perl-insert-start)
 	 (define-key perl-mode-map "\C-c\C-b" 'bioperl-object-start)
+	 (define-key perl-mode-map "\C-c\C-i" 'bioperl-interface-start)
 	 (define-key perl-mode-map "\C-c\C-v" 'bioperl-getset)
 	 (define-key perl-mode-map "\C-c\C-b" 'bioperl-method)
 	 (define-key perl-mode-map "\C-c\C-z" 'compile)
@@ -87,8 +118,12 @@
 	   '("Insert script template" . perl-script-start))
 	 (define-key perl-mode-map [menu-bar p bioperl-object-start]
 	   '("bioperl object template" . bioperl-object-start))
+	 (define-key perl-mode-map [menu-bar p bioperl-interface-start]
+	   '("bioperl interface template" . bioperl-interface-start))
+
 	 (define-key perl-mode-map [menu-bar p bioperl-getset]
 	   '("bioperl field func" . bioperl-getset))
 	 (define-key perl-mode-map [menu-bar p bioperl-method]
 	   '("bioperl method" . bioperl-method))
 	 ))
+
