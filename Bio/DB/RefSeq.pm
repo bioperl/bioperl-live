@@ -118,7 +118,8 @@ BEGIN {
 		       }
 	       }
 	      );
-    %FORMATMAP = ( 'genbank' => 'genbank',
+    %FORMATMAP = ( 'embl'    => 'embl',
+		   'genbank' => 'genbank',
 		   'fasta' => 'fasta'
 		   );
     $DEFAULTFORMAT = 'genbank';
