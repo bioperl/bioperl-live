@@ -540,7 +540,7 @@ sub labelchange {
   my ($self,$newseq,$label,$length)=@_;
   unless ($self->valid($label)) {
     if ($self->{'seq'}->valid($label)) {
-      carp "Label \'$label\' not valid for executing a LiveSeq change for the object asked but it's ok for DNAlevel change, reverting to that";
+       #carp "Label \'$label\' not valid for executing a LiveSeq change for the object asked but it's ok for DNAlevel change, reverting to that";
       shift @_;
       return($self->{'seq'}->labelchange(@_));
     } else {
