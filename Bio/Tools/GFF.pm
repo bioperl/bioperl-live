@@ -19,7 +19,7 @@ Bio::Tools::GFF - A Bio::SeqAnalysisParserI compliant GFF format parser
     use Bio::Tool::GFF;
 
     # specify input via -fh or -file
-    my $gffio = Bio::Tools::GFF(-fh => \*STDIN, -gff_version => 2);
+    my $gffio = Bio::Tools::GFF->new(-fh => \*STDIN, -gff_version => 2);
     my $feature;
     # loop over the input stream
     while($feature = $gffio->next_feature()) {
@@ -194,8 +194,8 @@ sub from_gff_string {
 
 sub _from_gff1_string {
    my ($gff, $feat, $string) = @_;
-
-   my ($seqname, $source, $primary, $start, $end, $score, $strand, $frame, @group) = split(/\s+/, $string);
+   chomp $string;
+   my ($seqname, $source, $primary, $start, $end, $score, $strand, $frame, @group) = split(/\t/, $string);
 
    if ( !defined $frame ) {
        $feat->throw("[$string] does not look like GFF to me");
