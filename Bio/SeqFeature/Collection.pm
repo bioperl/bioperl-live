@@ -433,7 +433,9 @@ sub feature_count{
    return scalar ( grep {defined $_} @{ $self->{'_features'} });
 }
 
-sub _compare{ $_[0] <=> $_[1]}
+sub _compare{ if( defined $_[0] && ! defined $_[1] ) { return -1 }
+	      elsif ( defined $_[1] && ! defined $_[0] ) { return 1}
+	      $_[0] <=> $_[1]}
 
 sub _comparepack { unpack("d", $_[0]) <=> unpack("d", $_[1]) ;}
 
