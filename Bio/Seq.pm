@@ -3626,6 +3626,7 @@ sub version {
  
  descffmt      file-format of the description string
 
+=cut
 
 1;
 
