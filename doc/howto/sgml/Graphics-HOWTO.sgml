@@ -715,7 +715,10 @@ PRES1		127	310	700
       table of a GenBank or EMBL file quite easily.  The trick is to use
       <classname>Bio::SeqIO</classname> to generate a set of
       <classname>Bio::SeqFeatureI</classname> objects, and to use those
-      features to populate tracks. For simplicity's sake, we will sort each
+      features to populate tracks (see the <ulink
+	url="http://bioperl.org/HOWTOs/Feature-Annotation/index.html">Feature-Annotation
+	HOWTO</ulink> for more information on features). The documentation for
+      each of  the individual. For simplicity's sake, we will sort each
       feature by its primary tag (such as "exon") and create a new track for
       each tag type.
     </para>
