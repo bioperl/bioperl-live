@@ -69,13 +69,15 @@ Internal methods are usually preceded with a _
 
 
 package Bio::TreeIO::newick;
-use vars qw(@ISA);
+use vars qw(@ISA $DefaultBootstrapStyle);
 use strict;
 
 use Bio::TreeIO;
 use Bio::Event::EventGeneratorI;
 
+#initialize some package variables, could use 'our' but fails in perl < 5.6
 
+$DefaultBootstrapStyle = 'traditional';
 @ISA = qw(Bio::TreeIO );
 
 
@@ -89,9 +91,12 @@ use Bio::Event::EventGeneratorI;
 sub _initialize { 
     my $self = shift;
     $self->SUPER::_initialize(@_);
-    my ($print_count) = $self->_rearrange([qw(PRINT_COUNT)],
-					      @_);
+    my ($print_count,$style) = $self->_rearrange([qw(PRINT_COUNT 
+						   BOOTSTRAP_STYLE)],
+					  @_);
     $self->print_tree_count($print_count || 0);
+    $self->bootstrap_style($style || $DefaultBootstrapStyle);
+    return;
 }
 
 
@@ -130,7 +135,7 @@ sub next_tree{
    my ($prev_event,$lastevent,$id) = ('','','');
    foreach my $ch ( split(//,$_) ) {
        if( $ch eq ';' ) {
-	   return $self->_eventHandler->end_document;
+	   return $self->_eventHandler->end_document($chars);
        } elsif( $ch eq '(' ) {
 	   $chars = '';
 	   $self->_eventHandler->start_element( {'Name' => 'tree'} );
@@ -142,7 +147,7 @@ sub next_tree{
 		   $self->_eventHandler->end_element( {'Name' => 'branch_length'});
 		   $lastevent = $prev_event;
 	       } else { 
-		   $self->debug("id with no branchlength is $chars\n");
+		   $self->debug("internal node, id with no branchlength is $chars\n");
 		   $self->_eventHandler->start_element( { 'Name' => 'node' } );
 		   $self->_eventHandler->start_element( { 'Name' => 'id' } );
 		   $self->_eventHandler->characters($chars);
@@ -162,7 +167,7 @@ sub next_tree{
 	       $self->_eventHandler->start_element( {'Name' => 'node'} );
 	   }
 
-	   $self->_eventHandler->end_element( {'Name' => 'node'} );
+ 	   $self->_eventHandler->end_element( {'Name' => 'node'} );
 	   $self->_eventHandler->end_element( {'Name' => 'tree'} );
 	   $chars = '';
        } elsif ( $ch eq ',' ) {
@@ -174,7 +179,7 @@ sub next_tree{
 		   $lastevent = $prev_event;
 		   $chars = '';		   
 	       } else { 
-		   $self->debug("id with no branchlength is $chars\n");
+		   $self->debug("leaf id with no branchlength is $chars\n");
 		   $self->_eventHandler->start_element( { 'Name' => 'node' } );
 		   $self->_eventHandler->start_element( { 'Name' => 'id' } );
 		   $self->_eventHandler->characters($chars);
@@ -228,11 +233,12 @@ sub write_tree{
        $self->_print(sprintf(" %d\n",scalar @trees));
    }
    foreach my $tree( @trees ) {
-       my @data = _write_tree_Helper($tree->get_root_node);
-       if($data[-1] !~ /\)$/ ) {
-	   $data[0] = "(".$data[0];
-	   $data[-1] .= ")";
-       }
+       my @data = _write_tree_Helper($tree->get_root_node,
+				     $self->bootstrap_style);
+       #if($data[-1] !~ /\)$/ ) {
+	#   $data[0] = "(".$data[0];
+	#   $data[-1] .= ")";
+       #}
        $self->_print(join(',', @data), ";\n");   
    }
    $self->flush if $self->_flush_on_write && defined $self->_fh;
@@ -240,40 +246,81 @@ sub write_tree{
 }
 
 sub _write_tree_Helper {
-    my ($node) = @_;
+    my ($node,$style) = @_;
+    $style = '' unless defined $style;
     return () if (!defined $node);
 
     my @data;
     
     foreach my $n ( $node->each_Descendent() ) {
-	push @data, _write_tree_Helper($n);
+	push @data, _write_tree_Helper($n,$style);
     }
     
-    if( @data > 1 ) {
+    # let's explicitly write out the bootstrap if we've got it
+    my $id = $node->id_output;
+    my $bs = $node->bootstrap; # bs better not have any spaces?
+    $bs =~ s/\s+//g if defined $bs;
+    my $bl = $node->branch_length;
+    if( @data ) {
 	$data[0] = "(" . $data[0];
 	$data[-1] .= ")";
-	# let's explicitly write out the bootstrap if we've got it
-	my $b;
-	if( defined ($b = $node->bootstrap) ) {
-	    $data[-1] .= $b;
-	} elsif( defined ($b = $node->id) ) {
-	    $data[-1] .= $b;
-	}
 
-	my $bl = $node->branch_length;
-	if( ! defined $bl ) {
-	} elsif($bl =~ /\#/ ) { 
-	 $data[-1] .= $bl;
+	if( $node->is_Leaf ) { 
+	    $node->debug("node is a leaf!  This is unexpected...");
+
+	    $id ||= '';
+	    if( ! defined $bl || ! length($bl) ||
+		($style && $style =~ /nobranchlength/i) ) {
+		$data[-1] .= $id;
+	    } elsif( defined $bl && length($bl) ) { 
+		$data[-1] .= "$id:$bl";
+	    } else { 
+		$data[-1] .= $id;
+	    }
 	} else { 
-	 $data[-1] .= ":$bl";
-	}	
-    } else {
-	if( defined $node->id || defined $node->branch_length ) { 
-	    push @data, sprintf("%s%s",
-				defined $node->id ? $node->id : '', 
-				defined $node->branch_length ? ":" .
-				$node->branch_length : '');
+	    if( ! defined $bl || ! length($bl) ||
+		($style && $style =~ /nobranchlength/i) ) {
+		
+		if( defined $id || defined $bs ) {
+		    $data[-1] .= defined $bs ? $bs : $id;
+		}
+	    } elsif( $style =~ /molphy/i ) {
+		if( defined $id ) {
+		    $data[-1] .= $id;
+		}
+		if( $bl =~ /\#/) {
+		    $data[-1] .= $bl;
+		} else { 
+		    $data[-1] .= ":$bl";
+		}
+		if( defined $bs ) { 
+		    $data[-1] .= "[$bs]";
+		}
+	    } else {
+		# traditional style of 
+		# ((A:1,B:2)81:3);   where 3 is internal node branch length
+		#                    and 81 is bootstrap/node label
+		if( defined $bs || defined $id ) {
+		    $data[-1] .= defined $bs ? "$bs:$bl" : "$id:$bl";
+		} elsif( $bl =~ /\#/ ) {
+		    $data[-1] .= $bl;
+		} else { 
+		    $data[-1] .= ":$bl"; 
+		}
+	    }
 	}
+    } elsif( defined $id || defined $bl ) {
+	my $str;
+	$id ||= '';
+	if( ! defined $bl || ! length($bl) ||
+	    ($style && $style =~ /nobranchlength/i) ) {
+	    $str = $id;
+	} elsif( defined $bl && length($bl) ) { 
+	    $str = "$id:$bl";
+	} else { 
+	    $str = $id;
+	}
+	push @data, $str;
     }
     return @data;
 }
@@ -295,6 +342,46 @@ sub print_tree_count{
     return $self->{'_print_tree_count'} || 0;
 }
 
+=head2 bootstrap_style
+
+ Title   : bootstrap_style
+ Usage   : $obj->bootstrap_style($newval)
+ Function: A description of how bootstraps and branch lengths are
+           written, as the ID part of the internal node or else in []
+           in the branch length (Molphy-like; I'm sure there is a
+           better name for this but am not sure where to go for some
+           sort of format documentation)
+            
+           If no branch lengths are requested then no bootstraps are usually
+           written (unless someone REALLY wants this functionality...)
+
+           Can take on strings which contain the possible values of
+           'nobranchlength'   --> don't draw any branch lengths - this
+                                  is helpful if you don't want to have to 
+                                  go through and delete branch len on all nodes
+           'molphy' --> draw bootstraps (100) like
+                                  (A:0.11,B:0.22):0.33[100];
+           'traditional' --> draw bootstraps (100) like
+                                  (A:0.11,B:0.22)100:0.33;
+ Returns : value of bootstrap_style (a scalar)
+ Args    : on set, new value (a scalar or undef, optional)
+
+
+=cut
+
+sub bootstrap_style{
+    my $self = shift;
+    my $val = shift;
+    if( defined $val ) {
+
+	if( $val !~ /^nobranchlength|molphy|traditional/i ) {
+	    $self->warn("requested an unknown bootstrap style $val, expect one of nobranchlength,molphy,traditional, not updating value.  Default is $DefaultBootstrapStyle\n");
+	} else { 
+	    $self->{'_bootstrap_style'} = $val;
+	}
+    }
+    return $self->{'_bootstrap_style'} || $DefaultBootstrapStyle;
+}
 
 
 1;
