@@ -434,3 +434,4 @@ ok($seq->seq_version, 2);
 my @accs = $seq->get_secondary_accessions();
 ok($accs[0], 'J01597');
 ok($accs[-1], 'X56742');
+

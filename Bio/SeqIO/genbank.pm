@@ -256,7 +256,13 @@ sub next_seq {
 	  }
 	  # accession number (there can be multiple accessions)
 	  if( /^ACCESSION\s+(\S.*\S)/ ) {
-	      push(@acc, split(' ',$1));
+	      push(@acc, split(/\s+/,$1));
+	      while( defined($_ = $self->_readline) ) { 
+		  /^\s+(.*)/ && do { push (@acc, split(/\s+/,$1)); next };
+		  last;
+	      }
+	      $buffer = $_;
+	      next;
 	  }
 	  # PID
 	  elsif( /^PID\s+(\S+)/ ) {
@@ -275,10 +281,18 @@ sub next_seq {
 	  }
 	  #Keywords
 	  elsif( /^KEYWORDS\s+(.*)/ ) {
-	      my $keywords = $1;
-	      $keywords =~ s/\;//g;
+	      my @kw = ($1);
+	      while( defined($_ = $self->_readline) ) { 
+		  chomp;
+		  /^\s+(.*)/ && do { push (@kw,$1); next };
+		  last;
+	      }
+	      
+	      my $keywords = join(" ", @kw);
 	      $keywords =~ s/\.$//; # remove possibly trailing dot
 	      $params{'-keywords'} = $keywords;
+	      $buffer = $_;
+	      next;
 	  }
 	  # Organism name and phylogenetic information
 	  elsif (/^SOURCE/) {
