@@ -1,5 +1,11 @@
 Revision history for Bioperl core modules
 
+0.04.4  -
+        - Changed Bio::Root::Utilities::get_newline_char() to get_newline()
+          since it could return more than one char.
+        - Added $NEWLINE global to Bio::Root::Global.
+
+
 0.04.3  Thu Feb  4 07:48:53 1999
         - Bio::Root::Object.pm and Global.pm now detect when
           script is run as a CGI and suppress output that is only
