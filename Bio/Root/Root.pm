@@ -275,14 +275,15 @@ sub _cleanup_methods {
 
 sub throw{
    my ($self,@args) = @_;
-   my %params = @args;
+   
+   my %params;
+   if( @args % 2 == 0 ) {
+       %params = @args;
+   }
 
    if( $ERRORLOADED and exists $params{'-text'} || $params{'-TEXT'}) {
 #       print STDERR "  Calling Error::throw\n\n";
 
-       if( @args % 2 != 0 ) { 
-           unshift @args, '-text';
-       }
        my ( $text, $class ) = $self->_rearrange( [qw(TEXT CLASS)], @args);
        if( defined($class)) {
            if( not $class->isa('Error')) {
