@@ -348,20 +348,31 @@ sub union {
 	}
 	my @common_nodes;
 	my %detected_common_nodes;
+    my %seen_ids; # holds ids of nodes  already known to be common. 
 
 	## for each node see if Ids are in common between the 2 graphs
-	## just get1 common id per sequence
+	## just get1 common id per sequence.
+
+    ##Produces too many common nodesm we only need 1 common id between nodes.
 	for my $id (sort keys %{$self->{'_id_map'}}) {
-		if (exists($other->{'_id_map'}{$id}) &&
-			 !exists($detected_common_nodes{$self->{'_id_map'}{$id}})) {
-			push @common_nodes, $id;
-			$detected_common_nodes{$self->{'_id_map'}{$id}} = undef;
+		if (exists($other->{'_id_map'}{$id}) ) { 
+            ## check  if this node has a commonlink kown lready:
+            my $node = $self->nodes_by_id($id);
+            my $acc = $node->accession_number;
+			if (!exists($detected_common_nodes{$acc})) {
+			   push @common_nodes, $id; ## we store the common id
+			   $detected_common_nodes{$acc} = undef; ## this means we won't store >1 common identifier
+               }
 		}
 	}
 
 	## now cyle through common nodes..
+	print STDERR "there are ", scalar @common_nodes, " common nodes\n";
+	my $i = 0;
 	for my $common (@common_nodes) {
-
+		if ($i++ % 10 ==0 ) {
+			print STDERR ".";
+		}
 		## get neighbours of common node for self and other
 		my @self_ns   = $self->neighbors($self->nodes_by_id($common));
 		my @other_ns  = $other->neighbors($other->nodes_by_id($common));
@@ -375,7 +386,7 @@ sub union {
 
 			## case (1) in description
 			## do any ids in other graph exist in self ?
-			#if yes,  @int_match is defined, interaction does not invlove a new node
+			#if yes,  @int_match is defined, interaction does not involve a new node
 			my @int_match = grep{exists($self->{'_id_map'}{$_}) } keys %other_n_ids;
 			if (@int_match){
 				my $i = 0;
@@ -394,8 +405,8 @@ sub union {
 					## copy it
 					my $edge = Bio::Graph::Edge->new(
 										 -weight=> $other_edge->weight(),
-										-id    => $other_edge->object_id(),
-										-nodes =>[$self->nodes_by_id($common),
+										 -id    => $other_edge->object_id(),
+										 -nodes =>[$self->nodes_by_id($common),
 													 $self->nodes_by_id($int_match[$i])
 													]);
 					## add it to self graph.
@@ -407,10 +418,10 @@ sub union {
 				}
 			} #end if
 			## but if other neighbour is entirely new, clone it and 
-         ## make connection.
+            ## make connection.
 			else  {
 				my $other_edge = $other->edge($other->nodes_by_id($other_n->object_id()),
-														$other->nodes_by_id($common));
+											  $other->nodes_by_id($common));
 				my $new = clone($other_n);
 				$self->add_edge(Bio::Graph::Edge->new(
 									-weight => $other_edge->weight(),
@@ -485,9 +496,9 @@ sub neighbor_count{
 
  Name     : _get_ids_by_db
  Purpose  : gets all ids for a node, assuming its Bio::Seq object
- Arguments: A Bio::PrimarySeqI object
- Returns  : A hash: Keys are sequence ids, values are undef
- Usage    : my %ids = _get_ids_by_db($seqobj);
+ Arguments: A Bio::SeqI object
+ Returns  : A hash: Keys are db ids, values are accessions
+ Usage    : my %ids = $gr->_get_ids_by_db($seqobj);
 
 =cut
 
@@ -495,18 +506,14 @@ sub _get_ids_by_db {
 	my %ids;
 	my $dummy_self = shift;
 	while (my $n = shift @_ ){  #ref to node, assume is a Bio::Seq
-		if (!$n->isa('Bio::PrimarySeqI')) {
+		if (!$n->isa('Bio::SeqI')) {
 			$n->throw("I need a Bio::Seq object, not a [" .ref($n) ."]");
 		}
-		## get ids
-		#map{$ids{$_} = undef}($n->accession_number, $n->primary_id);
 
 		##if BioSeq getdbxref ids as well.
-		if ($n->can('annotation')) {
-			my $ac = $n->annotation();	
-			for my $an($ac->get_Annotations('dblink')) {
-				$ids{$an->database()} = $an->primary_id();
-			}
+		my $ac = $n->annotation();	
+		for my $an($ac->get_Annotations('dblink')) {
+			$ids{$an->database()} = $an->primary_id();
 		}
 	}
 	return %ids;
@@ -927,10 +934,18 @@ sub unconnected_nodes {
 sub articulation_points {
 
  my $self      = shift;
+ ## see if results are cahced already
+ $self->{'_artic_points'} ||= '';
+ return $self->{'_artic_points'} if $self->{'_artic_points'};
+
+## else calculate...
  my @subgraphs = $self->components();
+ 
  my %rts;
+
  for my $sg (@subgraphs) {
      my $all_nodes = $sg->_nodes;
+
 
      ##ignore isolated vertices
      next if scalar keys %$all_nodes <= 2;
@@ -991,8 +1006,34 @@ sub articulation_points {
 
      }#next node
  }#next sg
+## cache results and return
+$self->{'_artic_points'} =   [values %rts]; ## 
+return $self->{'_artic_points'}; 
+}
 
-return  values %rts; ## 
+=head2 is_articulation_point
+
+ Name      : is_articulation_point
+ Purpose   : to determine if a given node is an articulation point or not. 
+ Usage     : if ($gr->is_articulation_point($node)) {.... 
+ Arguments : a text identifier for the protein or the node itself
+ Returns   : 1 if node is an articulation point, 0 if it isn't 
+
+=cut
+
+sub is_articulation_point {
+ my ($self, $val) = @_;
+ my $node = $self->_check_args($val);
+ 
+ ## this uses a cached value so doesn't have to recalculate each time..
+ my $artic_pt_ref = $self->articulation_points();
+ my $acc = $node->accession_number;
+ if (grep{$_->accession_number eq $acc} @$artic_pt_ref ){
+    return 1;
+   }
+ else {
+   return 0;
+   }
 }
 
 sub _ids {
