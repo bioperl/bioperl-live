@@ -187,7 +187,12 @@ sub next_seq {
    $line =~ /^ID\s+\S+/ || $self->throw("EMBL stream with no ID. Not embl in my book");
    $line =~ /^ID\s+(\S+)\s+\S+\; (.+)\; (\S+)/;
    $name = $1;
-   
+   if(! $name) {
+       $name = "unknown id";
+   }
+    # this is important to have the id for display in e.g. FTHelper, otherwise
+    # you won't know which entry caused an error
+   $seq->display_id($name);
    $mol= $2;
    $mol =~ s/\;//;
    if ($mol) {
@@ -634,7 +639,7 @@ sub _print_EMBL_FTHelper {
    }
 
 }
-
+#'
 =head2 _read_EMBL_References
 
  Title   : _read_EMBL_References
@@ -715,12 +720,7 @@ sub _read_EMBL_Species {
         
         if (/^OS\s+(\S+)(?:\s+([^\(]\S*))?(?:\s+([^\(]\S*))?(?:\s+\((.*)\))?/) {
             $genus   = $1;
-	    if ($2) {
-		$species = $2
-		}
-	    else {
-		$species = "sp.";
-	    }
+	    $species = $2; # this is always defined if the pattern matches
 	    $sub_species = $3 if $3;
             $common      = $4 if $4;
         }
