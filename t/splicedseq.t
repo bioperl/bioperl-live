@@ -10,9 +10,9 @@ BEGIN {
 	use lib 't';
     }
     use Test;
-    $TESTCOUNT = 3;
+    $TESTCOUNT = 9;
     plan tests => $TESTCOUNT;
-
+    $error = 0;
 };
 
 if( $error ==  1 ) {
