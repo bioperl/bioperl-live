@@ -176,8 +176,8 @@ FEATURES             Location/Qualifiers
                      /db_xref="taxon:9606"
                      /clone="RP11-10K20"
      variation       244
-                     /allele="T"
-                     /allele="A"
+                     /replace="T"
+                     /replace="A"
                      /db_xref="dbSNP:140670"
 ORIGIN      
         1 gtgacagttg gctgtcagac atacaatgat tgtttagaag aggagaagat tgatccggag
