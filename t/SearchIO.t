@@ -5,7 +5,7 @@
 # Before `make install' is performed this script should be runnable with
 # `make test'. After `make install' it should work as `perl test.t'
 
-my $error;
+my $error = 0;
 
 use strict;
 BEGIN {     
@@ -52,6 +52,11 @@ ok($report->query_name,'gi|1786182|gb|AAC73112.1| (AE000111) thr operon leader p
 ok($report->query_size, 21);
 ok($report->program_name, 'blastp');
 ok($report->program_version, 'blastp 2.1.3 [Apr-1-2001]');
+
+ok($report->available_parameters, 8);
+ok($report->get_parameter('gapext'), 1);
+ok($report->available_statistics, 7);
+ok($report->get_statistic('lambda'), 0.267);
 
 # this report actually has a hit
 $report = $searchio->next_report;
