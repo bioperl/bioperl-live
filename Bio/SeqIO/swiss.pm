@@ -781,23 +781,47 @@ sub _print_swissprot_FTHelper {
        $fth->warn("$fth is not a FTHelper class. ".
 		  "Attempting to print, but there could be tears!");
    }
+   my $desc = "";
 
-   if( $fth->loc =~ /(\?|\d+|\>\d+|<\d+)?\.\.(\?|\d+|<\d+|>\d+)?/ ) {
+   for my $tag ( qw(description gene note product) ) {
+       if( exists $fth->field->{$tag} ) {
+	   $desc = @{$fth->field->{$tag}}[0].".";
+	   last;
+       }
+   }
+   $desc =~ s/\.$//;
+   
+   my $key =substr($fth->key,0,8);
+   my $loc = $fth->loc;
+   if( $loc =~ /(\?|\d+|\>\d+|<\d+)?\.\.(\?|\d+|<\d+|>\d+)?/ ) {
        $start = $1 if defined $1;
        $end = $2 if defined $2;
 
        # to_FTString only returns one value when start == end, #JB955
        # so if no match is found, assume it is both start and end #JB955
+   } elsif ( $loc =~ /join\((\d+)((?:,\d+)+)?\)/) {
+       my @y = ($1);
+       if( defined( my $m = $2) ) {
+	   $m =~ s/^\,//;
+	   push @y, split(/,/,$m);
+       }
+       for my $x ( @y ) {
+	   $self->_write_line_swissprot_regex(
+	       sprintf("FT   %-8s %6s %6s       ",
+		       $key,
+		       $x ,$x),
+	       "FT                                ",
+	       $desc.'.','\s+|$',80);
+       }
+       return;
+       
    } else {
        $start = $end = $fth->loc; 
    }
    
-   my $desc = "";
-   $desc = @{$fth->field->{"description"}}[0]."." 
-       if exists $fth->field->{"description"};
    $self->_write_line_swissprot_regex(sprintf("FT   %-8s %6s %6s       ",
-					      substr($fth->key,0,8),
-					      $start,$end),
+					      $key,
+					      $start ,$end),
 				      "FT                                ",
 				      $desc.'.','\s+|$',80);
 }
@@ -1107,7 +1131,7 @@ sub _read_FTHelper_swissprot {
 sub _write_line_swissprot{
    my ($self,$pre1,$pre2,$line,$length) = @_;
 
-   $length || die "Miscalled write_line_swissprot without length. Programming error!";
+   $length || $self->throw( "Miscalled write_line_swissprot without length. Programming error!");
    my $subl = $length - length $pre2;
    my $linel = length $line;
    my $i;
@@ -1144,11 +1168,11 @@ sub _write_line_swissprot_regex {
    
    #print STDOUT "Going to print with $line!\n";
 
-   $length || die "Miscalled write_line_swissprot without length. Programming error!";
+   $length || $self->throw( "Miscalled write_line_swissprot without length. Programming error!");
 
    if( length $pre1 != length $pre2 ) {
-       print STDERR "len 1 is ", length $pre1, " len 2 is ", length $pre2, "\n";
-       die "Programming error - cannot called write_line_swissprot_regex with different length \npre1 ($pre1) and \npre2 ($pre2) tags!";
+       $self->warn( "len 1 is ". length ($pre1) . " len 2 is ". length ($pre2) . "\n");
+       $self->throw( "Programming error - cannot called write_line_swissprot_regex with different length \npre1 ($pre1) and \npre2 ($pre2) tags!");
    }
 
    my $subl = $length - (length $pre1) -1 ;
