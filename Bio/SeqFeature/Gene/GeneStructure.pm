@@ -64,7 +64,7 @@ The rest of the documentation details each of the object methods. Internal metho
 # Let the code begin...
 
 
-package Bio::SeqFeature::GeneStructure;
+package Bio::SeqFeature::Gene::GeneStructure;
 use vars qw(@ISA);
 use strict;
 
