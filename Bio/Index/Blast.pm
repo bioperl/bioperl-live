@@ -144,7 +144,8 @@ sub new {
 sub fetch_report{
     my ($self,$id) = @_;
     my $fh = $self->get_stream($id);
-    my $report = new Bio::Tools::BPlite(-fh => $fh);
+    my $report = new Bio::Tools::BPlite(-fh      => $fh,
+					-noclose => 1);
     return $report;
 }
 
@@ -269,7 +270,8 @@ sub _process_report {
     my $id_parser = $self->id_parser;
 
     my $datal = new IO::String($data);
-    my $report = new Bio::Tools::BPlite(-fh => $datal);
+    my $report = new Bio::Tools::BPlite(-fh      => $datal,
+					-noclose => 1);
     
     my $query = $report->query;		
     foreach my $id (&$id_parser($query)) {
