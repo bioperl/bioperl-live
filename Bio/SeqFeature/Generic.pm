@@ -128,8 +128,6 @@ sub new {
     my ( $caller, @args) = @_;   
     my ($self) = $caller->SUPER::new(@args); 
 
-    $self->{'_gsf_tag_hash'} = {};
-    $self->{'_gsf_sub_array'} = [];
     $self->{'_parse_h'} = {};
     my ($start, $end, $strand, $primary, $source, $frame, 
 	$score, $tag, $gff_string, $gff1_string, $seqname, $annot, $location) =
@@ -183,21 +181,20 @@ sub new {
 =cut
 
 sub location {
-   my ($self,$value) = @_;  
+    my($self, $value ) = @_;  
 
-   # guarantees a real location object is returned every time
-   if( defined($value) || !exists($self->{'_location'}) ) {
-       if(defined($value)) {
-	   if(! $value->isa('Bio::LocationI')) {
-	       $self->throw("object $value pretends to be a location but ".
-			    "does not implement Bio::LocationI");
-	   }
-       } else {
-	   $value = Bio::Location::Simple->new();
-       }
-       $self->{'_location'} = $value;
-   }
-   return $self->{'_location'};
+    if (defined($value)) {
+        unless (ref($value) and $value->isa('Bio::LocationI')) {
+	    $self->throw("object $value pretends to be a location but ".
+			 "does not implement Bio::LocationI");
+        }
+        $self->{'_location'} = $value;
+    }
+    elsif (! $self->{'_location'}) {
+        # guarantees a real location object is returned every time
+        $self->{'_location'} = Bio::Location::Simple->new();
+    }
+    return $self->{'_location'};
 }
 
 
@@ -331,8 +328,13 @@ sub frame {
 =cut
 
 sub sub_SeqFeature {
-   my ($self) = @_;   
-   return @{$self->{'_gsf_sub_array'}};
+    my ($self) = @_;
+
+    if ($self->{'_gsf_sub_array'}) {
+        return @{$self->{'_gsf_sub_array'}};
+    } else {
+        return;
+    }
 }
 
 =head2 add_sub_SeqFeature
@@ -356,21 +358,22 @@ sub sub_SeqFeature {
 
 #'
 sub add_sub_SeqFeature{
-   my ($self,$feat,$expand) = @_;
+    my ($self,$feat,$expand) = @_;
 
-   if ( !$feat->isa('Bio::SeqFeatureI') ) {
-       $self->warn("$feat does not implement Bio::SeqFeatureI. Will add it anyway, but beware...");
-   }
+    if ( !$feat->isa('Bio::SeqFeatureI') ) {
+        $self->warn("$feat does not implement Bio::SeqFeatureI. Will add it anyway, but beware...");
+    }
 
-   if($expand && ($expand eq 'EXPAND')) {
-       $self->_expand_region($feat);
-   } else {
-       if ( !$self->contains($feat) ) {
-	   $self->throw("$feat is not contained within parent feature, and expansion is not valid");
-       }
-   }
+    if($expand && ($expand eq 'EXPAND')) {
+        $self->_expand_region($feat);
+    } else {
+        if ( !$self->contains($feat) ) {
+	    $self->throw("$feat is not contained within parent feature, and expansion is not valid");
+        }
+    }
 
-   push(@{$self->{'_gsf_sub_array'}},$feat);
+    $self->{'_gsf_sub_array'} ||= [];
+    push(@{$self->{'_gsf_sub_array'}},$feat);
 
 }
 
@@ -452,8 +455,8 @@ sub source_tag {
 =cut
 
 sub has_tag {
-   my ($self, $tag) = (shift, shift);
-   return exists $self->{'_gsf_tag_hash'}->{$tag};
+    my ($self, $tag) = @_;
+    return exists $self->{'_gsf_tag_hash'}->{$tag};
 }
 
 =head2 add_tag_value
@@ -467,13 +470,11 @@ sub has_tag {
 =cut
 
 sub add_tag_value {
-   my ($self, $tag, $value) = @_;
+    my ($self, $tag, $value) = @_;
 
-   if ( !defined $self->{'_gsf_tag_hash'}->{$tag} ) {
-       $self->{'_gsf_tag_hash'}->{$tag} = [];
-   }
+    $self->{'_gsf_tag_hash'}->{$tag} ||= [];
 
-   push(@{$self->{'_gsf_tag_hash'}->{$tag}},$value);
+    push(@{$self->{'_gsf_tag_hash'}->{$tag}},$value);
 }
 
 
