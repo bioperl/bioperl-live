@@ -6,7 +6,7 @@ my $exit;
 BEGIN {
    eval { require Test; };
    use vars qw($NUMTESTS);
-   $NUMTESTS = 35;
+   $NUMTESTS = 41;
    if ( $@ ) {
       use lib 't';
    }
