@@ -233,7 +233,9 @@ sub new {
 =cut
 
 sub seq {
-   my ($obj,$value) = @_;
+   my ($obj,@args) = @_;
+
+   my ($value, $alphabet) = $obj->_rearrange([qw(SEQ ALPHABET)], @args);
 
    if( defined $value) {
        if(! $obj->validate_seq($value)) {
@@ -244,9 +246,12 @@ sub seq {
        # mol.type, otherwise we skip guessing if mol.type is already set
        my $is_changed_seq = exists($obj->{'seq'});
        $obj->{'seq'} = $value;
-       if(($is_changed_seq && (CORE::length($value) > 0)) ||
-	  (! defined($obj->alphabet()))) {
+       if(!$alphabet &&
+	  (($is_changed_seq && (CORE::length($value) > 0)) ||
+	   (! defined($obj->alphabet())))) {
 	   $obj->_guess_alphabet();
+       } elsif ($alphabet) {
+	   $obj->alphabet($alphabet);
        }
     }
    return $obj->{'seq'};
