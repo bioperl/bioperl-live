@@ -27,7 +27,7 @@ Bio::Tools::SeqStats - Object holding statistics for one particular sequence
       # (ie amino or nucleic acid)
 	
          $hash_ref = $seq_stats->count_monomers();  # eg for DNA sequence
-         foreach $base ( sort keys $$hash_ref) {
+         foreach $base ( sort keys %$hash_ref) {
 	    print "Number of bases of type ",$base "= ",%$hash_ref{$base}"\n";
 	  }
     # or obtain the count directly without creating a new statistics object

@@ -102,15 +102,19 @@ This makes the simplest ever reformatter
 
 AlignIO.pm is patterned on the module SeqIO.pm and shares most the
 SeqIO.pm features.  One significant difference currently is that
-AlignIO.pm only handles IO for a single alignment at a time (SeqIO.pm
+AlignIO.pm usually handles IO for only a single alignment at a time (SeqIO.pm
 handles IO for multiple sequences in a single stream.)  The principal
 reason for this is that whereas simultaneously handling multiple
 sequences is a common requirement, simultaneous handling of multiple
-alignments is not. Capability for IO for more than one multiple
-alignment (which may be of use for certain applications such as IO for
+alignments is not. The only current exception is format "bl2seq" which parses
+results of the Blast bl2seq program and which may produce several alignment pairs.
+This set of alignment pairs can be read using multiple calls to next_aln.
+
+Capability for IO for more than one multiple alignment - other than for bl2seq
+format -(which may be of use for certain applications such as IO for
 Pfam libraries) may be included in the future.  For this reason we
 keep the name "next_aln()" for the alignment input routine, even
-though currently only one alignment is read (or written) at a time and
+though in most cases only one alignment is read (or written) at a time and
 the name "read_aln()" might be more appropriate.
 
 =head1 CONSTRUCTORS

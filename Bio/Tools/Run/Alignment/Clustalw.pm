@@ -326,16 +326,12 @@ use Bio::Root::IO;
 BEGIN {
 
 # You will need to enable Clustalw to find the clustalw program. This
-# can be done in (at least) three ways:
-
-# 1. Modify your $PATH variable to include your clustalw directory as
-# in (for Linux):
-# export PATH=$PATH:/home/peter/clustalw1.8
+# can be done in (at least) two ways:
 #
-# 2. define an environmental variable CLUSTALDIR:
+# 1. define an environmental variable CLUSTALDIR:
 # export CLUSTALDIR=/home/peter/clustalw1.8
 #
-# 3. include a definition of an environmental variable CLUSTALDIR in
+# 2. include a definition of an environmental variable CLUSTALDIR in
 # every script that will use Clustal.pm.
 # $ENV{CLUSTALDIR} = '/home/peter/clustalw1.8/';
 

@@ -16,27 +16,29 @@ BEGIN {
 }
 
 use Bio::Tools::BPbl2seq;
+#use Bio::Tools::BPlite;
 use Bio::Root::IO;
 ok(1);
 
 my $report = new Bio::Tools::BPbl2seq(-file => Bio::Root::IO->catfile("t","data","bl2seq.out"));
 $report->verbose(2);
 ok $report->isa('Bio::Tools::BPbl2seq');# " no report";
-ok defined($report->query),1, " no query";
-ok $report->score, 481, "wrong score";
-ok $report->bits, 191, "wrong score in bits ";
-ok $report->percent, 35.1, "wrong match percent";
-ok $report->P == 2e-53;# "wrong expectation value ";
-ok $report->match, 111, "wrong number of matches ";
-ok $report->positive, 167, "wrong number of positives";
-ok $report->start, 28, 'wrong starting position';
-ok $report->end, 343, 'wrong ending position';
-ok $report->length, 316, "wrong length";
-ok $report->querySeq =~ /QFL/; #"bad query sequence";
-ok $report->sbjctSeq =~ /RFAR/;#"bad hit sequence";
-ok $report->homologySeq =~ /PVKN/;# , "bad homology sequence";
-ok $report->query->start, 28, "wrong query start";
-ok $report->query->end, 343, "wrong query end";
-ok $report->subject->start, 60, "wrong hit start ";
-ok $report->subject->end, 360, "wrong hit end";
-ok $report->subject->seqname =~ /ALEU_HORVU/;# "wrong hit name";
+ok defined($report->sbjctName),1, " no hit";
+my $hsp = $report->next_feature;
+ok $hsp->score, 481, "wrong score";
+ok $hsp->bits, 191, "wrong score in bits ";
+ok $hsp->percent, 35.1, "wrong match percent";
+ok $hsp->P == 2e-53;# "wrong expectation value ";
+ok $hsp->match, 111, "wrong number of matches ";
+ok $hsp->positive, 167, "wrong number of positives";
+ok $hsp->start, 28, 'wrong starting position';
+ok $hsp->end, 343, 'wrong ending position';
+ok $hsp->length, 316, "wrong length";
+ok $hsp->querySeq =~ /QFL/; #"bad query sequence";
+ok $hsp->sbjctSeq =~ /RFAR/;#"bad hit sequence";
+ok $hsp->homologySeq =~ /PVKN/;# , "bad homology sequence";
+ok $hsp->query->start, 28, "wrong query start";
+ok $hsp->query->end, 343, "wrong query end";
+ok $hsp->subject->start, 60, "wrong hit start ";
+ok $hsp->subject->end, 360, "wrong hit end";
+ok $report->sbjctName =~ /ALEU_HORVU/;# "wrong hit name";

@@ -273,12 +273,10 @@ BEGIN {
      { $OK_FIELD{$attr}++; }
 
 # You will need to enable Blast to find the Blast program. This can be done
-# in (at least) three ways:
-#  1. Modify your $PATH variable to include your Blast directory as in (for Linux):
-#	export PATH=$PATH:/home/peter/blast   or
-#  2. define an environmental variable blastDIR:
+# in (at least) two different ways:
+#  1. define an environmental variable blastDIR:
 #	export BLASTDIR=/home/peter/blast   or
-#  3. include a definition of an environmental variable BLASTDIR in every script that will
+#  2. include a definition of an environmental variable BLASTDIR in every script that will
 #     use StandAloneBlast.pm.
 #	BEGIN {$ENV{BLASTDIR} = '/home/peter/blast/'; }
      $BLASTDIR = $ENV{'BLASTDIR'} || '';

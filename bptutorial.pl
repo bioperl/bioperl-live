@@ -928,7 +928,7 @@ local blast "factory object" is created.
 
   @params = ('program' => 'blastn',
              'database' => 'ecoli.nt');
-  $factory = Bio::Tools::StandAloneBlast->new(@params);
+  $factory = Bio::Tools::Run::StandAloneBlast->new(@params);
 
 Any parameters not explicitly set will remain as the BLAST defaults.
 Once the factory has been created and the appropriate parameters set,
@@ -991,7 +991,7 @@ large array of options and output formats.  Typical syntax for parsing
 a blast report with Blast.pm is:
 
   use Bio::Tools::Blast;
-  $blast = Bio::Tools::Blast->new(-file   =>'t/blast.report',
+  $blast = Bio::Tools::Blast->new(-file   =>'t/data/blast.report',
   				  -signif => 1e-5,
   				  -parse  => 1,
   				  -stats  => 1,
@@ -1094,7 +1094,7 @@ BLAST bl2seq is a program for comparing and aligning two sequences
 using BLAST.  Although the report format is similar to that of a
 conventional BLAST, there are a few differences.  Consequently, the
 standard bioperl parsers Blast.pm and BPlite are unable to read bl2seq
-reports directly.  From the user's perspective, the main difference
+reports directly.  From the user's perspective, one difference
 between bl2seq and other blast reports is that the bl2seq report does
 not print out the name of the first of the two aligned sequences.
 Consequently, BPbl2seq has no way of identifying the name of one of
@@ -1102,8 +1102,13 @@ the initial sequence unless it is explicitly passed to constructor as
 a second argument as in:
 
   use Bio::Tools::BPbl2seq;
-  $report = Bio::Tools::BPbl2seq->new(-file => "t/bl2seq.out", -queryname => "ALEU_HORVU");
-  $matches = $report->match;
+  $report = Bio::Tools::BPbl2seq->new(-file => "t/data/dblseq.out", -queryname => "ALEU_HORVU");
+  $hsp = $report->next_feature
+  $answer=$hsp->score;
+
+In addition, since there will only be (at most) one "subject" (hit) in a
+bl2seq report one should use the method $report->next_feature,
+rather than $report->nextSbjct->nextHSP to obtain the next high scoring pair.
 
 =head2 III.4.5 Parsing HMM reports (HMMER::Results)
 
@@ -1177,7 +1182,7 @@ object.  To get an alignment - in the form of a SimpleAlign object -
 using bl2seq, you need to parse the bl2seq report with the AlignIO
 file format reader as follows:
 
-  $factory = Bio::Tools::StandAloneBlast->new('outfile' => 'bl2seq.out');
+  $factory = Bio::Tools::Run::StandAloneBlast->new('outfile' => 'bl2seq.out');
   $bl2seq_report = $factory->bl2seq($seq1, $seq2);
   # Use AlignIO.pm to create a SimpleAlign object from the bl2seq report
   $str = Bio::AlignIO->new('-file '=>' bl2seq.out',
@@ -1259,7 +1264,7 @@ sequences, consensus_string will return a "?" at that
 location. Typical usage is:
 
   use Bio::SimpleAlign;
-  $aln = Bio::SimpleAlign->new('t/alnfile.fasta');
+  $aln = Bio::SimpleAlign->new('t/data/alnfile.fasta');
   $threshold_percent = 60;
   $str = $aln->consensus_string($threshold_percent)
 
@@ -1270,7 +1275,7 @@ extracting consensus sequences with specified thresholds for the
 entire alignment or a sub-alignment.  Typical usage is:
 
   use Bio::UnivAln;
-  $aln = Bio::UnivAln->new('t/alnfile.fasta');
+  $aln = Bio::UnivAln->new('t/data/alnfile.fasta');
   $resSlice1 = $aln->remove_gaps(); # original sequences without gaps
   $resSlice2 = $aln->revcom([1,3]); # reverse complement, rows 1+3 only
   $resSlice3 = $aln->consensus(0.6, [1,3]);
@@ -1308,7 +1313,7 @@ documentation in the Bio::Tools directory.
   $genscan->close();
 
   use Bio::Tools::Sim4::Results;
-  $sim4 = new Bio::Tools::Sim4::Results(-file=> 't/sim4.rev', -estisfirst=>0);
+  $sim4 = new Bio::Tools::Sim4::Results(-file=> 't/data/sim4.rev', -estisfirst=>0);
   # $exonset is-a Bio::SeqFeature::Generic with Bio::Tools::Sim4::Exons
   # as sub features
   $exonset = $sim4->next_exonset;
@@ -1405,7 +1410,7 @@ must remember to only read in small chunks of the sequence at one
 time.  These differences are illustrated in the following code:
 
   $seqio = new Bio::SeqIO('-format'=>'largefasta',
-  			  '-file'  =>'t/genomic-seq.fasta');
+  			  '-file'  =>'t/data/genomic-seq.fasta');
   $pseq = $seqio->next_seq();
   $plength = $pseq->length();
   $last_4 = $pseq->subseq($plength-3,$plength);  # this is OK
@@ -1439,7 +1444,7 @@ called LiveSeq::IO::Bioperl needs to be used to actually load the
 data, eg:
 
   $loader=Bio::LiveSeq::IO::BioPerl->load('-db'=>"EMBL",
-                                          '-file'=>"t/factor7.embl");
+                                          '-file'=>"t/data/factor7.embl");
   $gene=$loader->gene2liveseq('-gene_name' => "factor7");
   $id = $gene->get_DNA->display_id ;
   $maxstart = $gene->maxtranscript->start;
@@ -1514,7 +1519,7 @@ using bioxml in this manner - since in its current implementation,
 bioxml does not support all the annotation information available in
 Seq objects.
 
-  $str = Bio::SeqIO->new('-file'=> 't/test.game',
+  $str = Bio::SeqIO->new('-file'=> 't/data/test.game',
   			 '-format' => 'game');
   $seq = $str->next_primary_seq();
   $id = $seq->id;
@@ -2091,15 +2096,15 @@ my ($access_remote_db, $index_local_db, $fetch_local_db,
 
 # global variable file names.  Edit these if you want to try
 #out a tutorial script on a different file
-my $dna_seq_file = 't/dna1.fa';      # used in $sequence_manipulations
-my $amino_seq_file = 't/cysprot1.fa';  # used in $other_seq_utilities
+my $dna_seq_file = 't/data/dna1.fa';      # used in $sequence_manipulations
+my $amino_seq_file = 't/data/cysprot1.fa';  # used in $other_seq_utilities
                                        #and $sequence_annotation
-my $blast_report_file = 't/blast.report';    # used in $blast_parser
-my $bp_parse_file1 = 't/blast.report';       # used in $bplite_parsing
-my $bp_parse_file2 = 't/psiblastreport.out'; # used in $bplite_parsing
-my $bp_parse_file3 = 't/bl2seq.out';         # used in $bplite_parsing
-my $unaligned_amino_file = 't/cysprot1a.fa'; # used in $run_clustalw_tcoffee
-my $aligned_amino_file = 't/testaln.msf';    # used in $simplealign_univaln
+my $blast_report_file = 't/data/blast.report';    # used in $blast_parser
+my $bp_parse_file1 = 't/data/blast.report';       # used in $bplite_parsing
+my $bp_parse_file2 = 't/data/psiblastreport.out'; # used in $bplite_parsing
+my $bp_parse_file3 = 't/data/bl2seq.out';         # used in $bplite_parsing
+my $unaligned_amino_file = 't/data/cysprot1a.fa'; # used in $run_clustalw_tcoffee
+my $aligned_amino_file = 't/data/testaln.msf';    # used in $simplealign_univaln
 
 # other global variables
 my (@runlist, $n );
@@ -2222,8 +2227,8 @@ $index_local_db = sub {
     $inx1 = Bio::Index::Fasta->new
 	('-FILENAME' => "$dir/$Index_File_Name",
 	 '-write_flag' => 1);
-    $inx1->make_index("$dir/t/multifa.seq");
-    $inx1->make_index("$dir/t/seqs.fas");
+    $inx1->make_index("$dir/t/data/multifa.seq");
+    $inx1->make_index("$dir/t/data/seqs.fas");
     print "Finished indexing local_db example... \n";
 
     return 1;
@@ -2467,7 +2472,7 @@ $restriction_and_sigcleave = sub {
     my ( $sigcleave_object, %raw_results , $location,
 	 $formatted_output, $protein, $in, $seqobj2);
 
-    $in  = Bio::SeqIO->new('-file' => 't/cysprot1.fa' ,
+    $in  = Bio::SeqIO->new('-file' => 't/data/cysprot1.fa' ,
 			   '-format' => 'Fasta');
     $seqobj2 = $in->next_seq();
 
@@ -2523,7 +2528,7 @@ $run_standaloneblast = sub {
     @params = ('program' => 'blastn', 'database' => $database);
     $factory = Bio::Tools::Run::StandAloneBlast->new(@params);
 
-    $str = Bio::SeqIO->new('-file'=>'t/dna2.fa' ,
+    $str = Bio::SeqIO->new('-file'=>'t/data/dna2.fa' ,
 			   '-format' => 'Fasta', );
     $seq1 = $str->next_seq();
 
@@ -2589,7 +2594,7 @@ $bplite_parsing = sub {
 
     ($file1, $file2, $file3) = ($bp_parse_file1,
 				$bp_parse_file2 ,$bp_parse_file3 );
-    #open FH, "t/blast.report";
+    #open FH, "t/data/blast.report";
     $report = Bio::Tools::BPlite->new('-file'=>$file1);
     $sbjct = $report->nextSbjct;
 
@@ -2613,8 +2618,9 @@ $bplite_parsing = sub {
     use Bio::Tools::BPbl2seq;
     $report3 = Bio::Tools::BPbl2seq->new('-file'  => $file3,
 					 '-queryname' => "ALEU_HORVU");
-    $matches = $report3->match;
-    print " Number of Blast2seq matches is $matches \n";	
+    $hsp = $report3->next_feature;
+    $matches = $hsp->match;
+    print " Number of Blast2seq matches for first hsp equals $matches \n";	
     #
 
     return 1;
@@ -2636,7 +2642,7 @@ $hmmer_parsing = sub {
     use Bio::Tools::HMMER::Results;
 
     my ($res, @seq, @domain);
-    $res = new Bio::Tools::HMMER::Results('-file' => 't/hmmsearch.out',
+    $res = new Bio::Tools::HMMER::Results('-file' => 't/data/hmmsearch.out',
 					  '-type' => 'hmmsearch');
 
     @seq = $res->each_Set;
@@ -2749,7 +2755,7 @@ $simplealign_univaln = sub {
 
     print "\nBeginning univaln example... \n";
     #$aln = Bio::UnivAln->new('-file'=>'test.tmp',
-    $aln = Bio::UnivAln->new('-file'=>'t/alnfile.fasta',
+    $aln = Bio::UnivAln->new('-file'=>'t/data/alnfile.fasta',
 			     '-desc'=>'Sample alignment',
 			     '-type'=>'amino',
 			     '-ffmt'=>'fasta'
@@ -2787,7 +2793,7 @@ $run_psw_bl2seq = sub {
     my ($factory, $aln, $out1, $out2, $str, $seq1, $seq2, @params);
 
     # Get protein sequences from file
-    $str = Bio::SeqIO->new('-file'=>'t/amino.fa' ,
+    $str = Bio::SeqIO->new('-file'=>'t/data/amino.fa' ,
 			   '-format' => 'Fasta', );
     $seq1 = $str->next_seq();
     $seq2 = $str->next_seq();
@@ -2841,7 +2847,7 @@ $gene_prediction_parsing = sub {
     # on genomic DNA (Genscan, ESTScan, MZEF)
 
     use Bio::Tools::Genscan;
-    $genscan = Bio::Tools::Genscan->new('-file' => 't/genomic-seq.genscan');
+    $genscan = Bio::Tools::Genscan->new('-file' => 't/data/genomic-seq.genscan');
     # $gene is an instance of Bio::Tools::Prediction::Gene
     # $gene->exons() returns an array of Bio::Tools::Prediction::Exon objects
     while($gene = $genscan->next_prediction()) {
@@ -2858,7 +2864,7 @@ $gene_prediction_parsing = sub {
     print "\nBeginning Sim4_result_parsing example... \n";
     my ($sim4,$exonset, @exons, $exon, $homol);
 
-   $sim4 = new Bio::Tools::Sim4::Results(-file=> 't/sim4.rev', -estisfirst=>0);
+   $sim4 = new Bio::Tools::Sim4::Results(-file=> 't/data/sim4.rev', -estisfirst=>0);
    $exonset = $sim4->next_exonset;
    @exons = $exonset->sub_SeqFeature();
    $exon = $exons[1];
@@ -2962,9 +2968,9 @@ $largeseqs = sub {
     # III.8.2 Representing and large sequences
     my ( $tmpfile, $seqio, $pseq, $plength, $last_4);
 
-    $tmpfile = 't/largefastatest.out';
+    $tmpfile = 't/data/largefastatest.out';
     $seqio = new Bio::SeqIO('-format'=>'largefasta',
-			    '-file'  =>'t/genomic-seq.fasta');
+			    '-file'  =>'t/data/genomic-seq.fasta');
     $pseq = $seqio->next_seq();
     $plength = $pseq->length();
 
@@ -2994,7 +3000,7 @@ $liveseqs = sub {
     # III.8.2 Representing changing sequences (LiveSeq)
 
     $loader=Bio::LiveSeq::IO::BioPerl->load('-db'=>"EMBL",
-					    '-file'=>"t/factor7.embl");
+					    '-file'=>"t/data/factor7.embl");
     $gene=$loader->gene2liveseq('-gene_name' => "factor7");
     $id = $gene->get_DNA->display_id ;
     print " The id of the gene is $id , \n";
@@ -3068,7 +3074,7 @@ $demo_xml = sub {
     # III.8.4 Sequence XML representations
     # - generation and parsing (SeqIO::game)
 
-    $str = Bio::SeqIO->new('-file'=> 't/test.game',
+    $str = Bio::SeqIO->new('-file'=> 't/data/test.game',
 			   '-format' => 'game');
     $seqobj = $str->next_seq();
     # $seq = $str->next_primary_seq();

@@ -76,8 +76,8 @@ sub nextFeaturePair {shift->nextHSP}; # just another name
 
 sub nextHSP {
   my ($self) = @_;
-  return undef if ($self->{'HSP_ALL_PARSED'});
-
+  return undef if $self->{'HSP_ALL_PARSED'};
+  
   ############################
   # get and parse scorelines #
   ############################
@@ -118,7 +118,8 @@ sub nextHSP {
     elsif ($_ =~ /Strand HSP/)    {next} # WU-BLAST non-data
     elsif ($_ =~ /^\s*Strand/)    {next} # NCBI-BLAST non-data
     elsif ($_ =~ /^\s*Score/)     {$self->{'LASTLINE'} = $_; last}
-    elsif ($_ =~ /^>|^Parameters|^\s+Database:|^CPU\stime/)   {
+    elsif ($_ =~ /^>|^Parameters|^\s+Database:|^CPU\stime|^\s*Lambda/)   {    #ps 5/28/01
+#    elsif ($_ =~ /^>|^Parameters|^\s+Database:|^CPU\stime/)   {
       $self->{'LASTLINE'} = $_;
       $self->{'PARENT'}->{'LASTLINE'} = $_;
       $self->{'HSP_ALL_PARSED'} = 1;
@@ -166,6 +167,13 @@ sub nextHSP {
   $ql = join("", @QL);
   $sl = join("", @SL);
   $as = join("", @AS);
+# Query name and length are not in the report for a bl2seq report so {'PARENT'}->query and
+# {'PARENT'}->qlength will not be available.
+  my ($qname, $qlength) = ('unknown','unknown');
+  if ($self->{'PARENT'}->can('query')) {
+	$qname = $self->{'PARENT'}->query;
+	$qlength = $self->{'PARENT'}->qlength;
+  }	
   my $hsp = new Bio::Tools::BPlite::HSP('-score'=>$score, 
 					'-bits'=>$bits, 
 					'-match'=>$match,
@@ -178,9 +186,11 @@ sub nextHSP {
 					'-querySeq'=>$ql, 
 					'-sbjctSeq'=>$sl,
 					'-homologySeq'=>$as, 
-					'-queryName'=>$self->{'PARENT'}->query,
+					'-queryName'=>$qname,
+#					'-queryName'=>$self->{'PARENT'}->query,
 					'-sbjctName'=>$self->{'NAME'},
-					'-queryLength'=>$self->{'PARENT'}->qlength,
+					'-queryLength'=>$qlength,
+#					'-queryLength'=>$self->{'PARENT'}->qlength,
 					'-sbjctLength'=>$self->{'LENGTH'},
 					'-frame'   => $frame);
   return $hsp;

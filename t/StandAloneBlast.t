@@ -98,7 +98,8 @@ my $seq3 = $str->next_seq();
 my $seq4 = $str->next_seq();
 
 my $bl2seq_report = $factory->bl2seq($seq3, $seq4);
-ok $bl2seq_report->subject->start, 167, " failed creating or parsing bl2seq report object";
+$hsp = $bl2seq_report->next_feature;
+ok $hsp->subject->start, 167, " failed creating or parsing bl2seq report object";
 
 
 @params = ('database' => $amino_database);

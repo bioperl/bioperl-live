@@ -261,14 +261,14 @@ sub pairwise_alignment{
 
     $tstr = join('',@ostr1);
     $tid = $seq1->id();
-    $out->addSeq(Bio::LocatableSeq->new( -seq=> $tstr,
+    $out->add_seq(Bio::LocatableSeq->new( -seq=> $tstr,
 					 -start => $start1,
 					 -end   => $end1,
 					 -id=>$tid ));
 
     $tstr = join('',@ostr2);
     $tid = $seq2->id();
-    $out->addSeq(Bio::LocatableSeq->new( -seq=> $tstr,
+    $out->add_seq(Bio::LocatableSeq->new( -seq=> $tstr,
 					 -start => $start2,
 					 -end => $end2,
 					 -id=> $tid ));

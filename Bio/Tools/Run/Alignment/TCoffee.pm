@@ -509,12 +509,10 @@ use Bio::Root::IO;
 
 BEGIN {
 # You will need to enable TCoffee to find the tcoffee program. This can be done
-# in (at least) three ways:
-#  1. Modify your $PATH variable to include your tcoffee directory as in (for Linux):
-#	export PATH=$PATH:/home/progs/tcoffee  or
-#  2. define an environmental variable TCOFFEE:
+# in (at least) twp ways:
+#  1. define an environmental variable TCOFFEE:
 #	export TCOFFEEDIR=/home/progs/tcoffee   or
-#  3. include a definition of an environmental variable TCOFFEEDIR in every script that will
+#  2. include a definition of an environmental variable TCOFFEEDIR in every script that will
 #     use Bio::Tools::Run::Alignment::TCoffee.pm.
 #	BEGIN {$ENV{TCOFFEEDIR} = '/home/progs/tcoffee'; }
 
