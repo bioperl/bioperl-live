@@ -17,95 +17,83 @@
 ## etc. etc. etc. (continue on for each tested function in the .t file)
 #-----------------------------------------------------------------------
 
+use strict;
+use Test;
 
-## We start with some black magic to print on failure.
-BEGIN { $| = 1; print "1..21\n"; 
-	use vars qw($loaded); }
-END {print "not ok 1\n" unless $loaded;}
+BEGIN { plan tests => 39}
 
-#use lib '../';
 use Bio::Variation::SeqDiff;
 use Bio::Variation::DNAMutation;
+ok 1;
+my ($obj, $mm, $aa, $dna, $m);
 
-$loaded = 1;
-print "ok 1\n";    # 1st test passes.
+ok $obj = Bio::Variation::SeqDiff -> new;
 
+ok $obj->id('id');           
+ok $obj->id, 'id';
 
-## End of black magic.
-##
-## Insert additional test code below but remember to change
-## the print "1..x\n" in the BEGIN block to reflect the
-## total number of tests that will be run. 
+ok $obj->sysname('sysname'); 
+ok $obj->sysname, 'sysname';
 
-sub test ($$;$) {
-    my($num, $true,$msg) = @_;
-    print($true ? "ok $num\n" : "not ok $num $msg\n");
-}
+$obj->trivname('trivname'); 
+ok $obj->trivname eq 'trivname';
 
-$obj = Bio::Variation::SeqDiff -> new;
+ok $obj->chromosome('chr');  
+ok $obj->chromosome, 'chr';
 
-test 2, 1;
+ok $obj->description('desc');
+ok $obj->description, 'desc';
 
-$obj->id('id');           
-test 3, ($obj->id eq 'id' );
+ok $obj->numbering('numbering');
+ok $obj->numbering, 'numbering';
 
+ok $obj->offset(100);   
+ok $obj->offset, 100;
 
-$obj->sysname('sysname'); 
-test 4, ($obj->sysname eq 'sysname' );
+ok $obj->dna_ori('gctgctgatcgatcgtagctagctag'); 
+ok $obj->dna_ori, 'gctgctgatcgatcgtagctagctag';
 
-$obj->trivname('trivname');
+ok $obj->dna_mut('gctgctgatcggtcgtagctagctag'); 
+ok $obj->dna_mut, 'gctgctgatcggtcgtagctagctag';
 
-test 5, ($obj->trivname eq 'trivname' );
+ok $obj->rna_ori('gctgctgatcgatcgtagctagctag'); 
+ok $obj->rna_ori, 'gctgctgatcgatcgtagctagctag';
 
-$obj->chromosome('chr');  
+$obj->rna_mut('gctgctgatcgatcgtagctagctag'); 
+ok $obj->rna_mut, 'gctgctgatcgatcgtagctagctag';
 
-test 6, ($obj->chromosome eq 'chr' );
+ok $obj->aa_ori('MHYTRD'); 
+ok $obj->aa_ori, 'MHYTRD';
 
-$obj->description('desc');
-test 7, ($obj->description eq 'desc' );
+ok $obj->aa_mut('MHGTRD'); 
+ok $obj->aa_mut, 'MHGTRD';
 
-$obj->numbering('numbering');
-test 8, ($obj->numbering eq 'numbering' );
-
-$obj->offset(100);   
-test 9, ($obj->offset == 100 );
-
-$obj->dna_ori('dna_ori'); 
-test 10, ($obj->dna_ori eq 'dna_ori' );
-
-$obj->dna_mut('dna_mut'); 
-test 11, ($obj->dna_mut eq 'dna_mut' );
-
-$obj->rna_ori('rna_ori'); 
-test 12, ($obj->rna_ori eq 'rna_ori' );
-
-$obj->rna_mut('rna_mut'); 
-test 13, ($obj->rna_mut eq 'rna_mut' );
-
-$obj->aa_ori('aa_ori'); 
-test 14, ($obj->aa_ori eq 'aa_ori' );
-
-$obj->aa_mut('aa_mut'); 
-test 15, ($obj->aa_mut eq 'aa_mut' );
-
-$m = Bio::Variation::DNAMutation->new;
-
-test 16, 1;
-
-$obj->add_Variant($m);
-test 17, 1;
+ok $m = Bio::Variation::DNAMutation->new;
+ok $obj->add_Variant($m);
 
 foreach $mm ( $obj->each_Variant ) {
     $mm->primary_tag('a');    
+    ok $mm->isa('Bio::Variation::VariantI');
 }
-test 18, 1;
 
-$obj->gene_symbol('fos');
-test 19, ($obj->gene_symbol eq 'fos' );
 
-$obj->rna_offset(10);   
-test 20, ($obj->rna_offset == 10 );
+ok $obj->gene_symbol('fos');
+ok $obj->gene_symbol, 'fos';
 
-$obj->rna_id('transcript#3');   
-test 21, ($obj->rna_id eq 'transcript#3' );
+ok $obj->rna_offset(10);   
+ok $obj->rna_offset == 10;
 
+ok $obj->rna_id('transcript#3');   
+ok $obj->rna_id, 'transcript#3';
+
+ok $dna = $obj->seqobj('dna_ori');
+ok $dna->isa('Bio::PrimarySeq');
+
+$obj->aa_mut(''); 
+$aa = $obj->seqobj('aa_mut');
+ok not defined $aa;
+
+eval {
+    $dna = $obj->seqobj('dna_ri');
+};
+ok $@;

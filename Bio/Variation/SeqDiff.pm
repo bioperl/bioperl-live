@@ -98,6 +98,7 @@ use strict;
 use vars qw($VERSION @ISA);
 use Bio::Root::RootI;
 use Bio::Tools::CodonTable;
+use Bio::PrimarySeq;
 
 @ISA = qw( Bio::Root::RootI );
 
@@ -854,6 +855,42 @@ sub aa_mut {
   }
 }
 
+
+=head2 seqobj
+
+ Title   : seqobj
+ Usage   : $dnaobj = $obj->seqobj('dna_mut');
+ Function: 
+
+	    Returns the any original or mutated sequences as a
+	    L<Bio::PrimarySeq> object. 
+
+ Example : 
+ Returns : L<Bio::PrimarySeq> object for the requested sequence
+ Args    : string, method name for the sequence requested
+
+=cut
+
+sub seqobj {
+  my ($self,$value) = @_;
+  my $out;
+  my %valid_obj = 
+      map {$_, 1} qw(dna_ori rna_ori aa_ori dna_mut rna_mut aa_mut);
+  $valid_obj{$value} ||
+      $self->throw("Sequence type '$value' is not a valid type (".
+                  join(',', map "'$_'", sort keys %valid_obj) .") lowercase");
+  my ($moltype) = $value =~ /([^_]+)/;
+  my $id =  $self->id;
+  $id =  $self->rna_id if $self->rna_id;
+  $moltype = 'protein' if $moltype eq 'aa';
+  $out = Bio::PrimarySeq->new
+      ( '-seq' => $self->$value,
+	'-display_id'  => $id,
+	'-accession_number' => $self->id,
+	'-moltype' => $moltype
+	) if   $self->$value ;
+  return $out;
+}
 
 =head2 alignment
 
