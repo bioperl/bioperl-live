@@ -75,8 +75,9 @@ sub parse_ncbi_id {
 	my (@elements) = split(/\|/, $val);
 	while ( @elements ) {
 	    my $id = shift @elements;
-	    if( $id =~ /(gb|emb|ref|dbj|sp|pir|gi)/ ) {
+	    if( $id =~ /(gb|emb|ref|dbj|sp|pir|gi|tpg|pdb|prf)/ ) {
 		my $next = shift @elements;
+	        unless ( $next ) { $next = shift @elements } # handle pir
 		push @retvals, ($next, "$id|$next");
 		next;
 	    }
