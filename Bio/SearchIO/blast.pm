@@ -311,7 +311,7 @@ sub next_result{
 	   /^(RPS-BLAST)\s*(.+)$/i ||
 	   /^(MEGABLAST)\s*(.+)$/i 
            ) {
-           if( $self->{'_seentop'} ) {
+	   if( $self->{'_seentop'} ) {
                # This handles multi-result input streams
                $self->_pushback($_);
                $self->in_element('hsp') && 
@@ -334,7 +334,7 @@ sub next_result{
            $self->element({ 'Name' => 'BlastOutput_inclusion-threshold',
                             'Data' => $incl_threshold});
        } elsif ( /^Searching/ ) {
-           #print STDERR "blast.pm: Searching found...\n";
+           # print STDERR "blast.pm: Searching found...\n";
 
            $self->in_element('hsp') && 
                $self->end_element({ 'Name' => 'Hsp'});
@@ -350,13 +350,21 @@ sub next_result{
            }
            $seeniteration = 1;
        } elsif ( /^Query=\s*(.+)$/ ) {
-           #print STDERR "blast.pm: Query= found...\n";
+           # print STDERR "blast.pm: Query= found...$_\n";
            my $q = $1;
            my $size = 0;
+	   
            if( defined $seenquery ) { 
-              $self->_pushback($reportline);
+	       $self->_pushback($reportline);
                $self->_pushback($_);
-               $self->end_element({'Name' => 'BlastOutput'});
+	       $self->in_element('hsp') &&
+		   $self->end_element({'Name'=> 'Hsp'});
+	       $self->in_element('hit') &&
+		   $self->end_element({'Name'=> 'Hit'});
+	       $self->within_element('iteration') &&
+		   $self->end_element({'Name'=> 'Iteration'});
+	       
+	       $self->end_element({'Name' => 'BlastOutput'});
                return $self->end_document();
            } else { 
                if( ! defined $reporttype ) {
@@ -406,7 +414,7 @@ sub next_result{
            if (! $self->in_element('iteration')) {
                $self->_start_iteration;
            }
-
+	   
          descline:
            while( defined ($_ = $self->_readline() )) {
                if( /(\d+)\s+([\d\.\-eE]+)\s*$/) {
@@ -461,7 +469,6 @@ sub next_result{
 
            $self->in_element('hsp') && $self->end_element({ 'Name' => 'Hsp'});
            $self->in_element('hit') && $self->end_element({ 'Name' => 'Hit'});
-           
            $self->start_element({ 'Name' => 'Hit'});
            my $id = $1;          
            my $restofline = $2;
@@ -473,21 +480,21 @@ sub next_result{
            } elsif ($id =~ /(pir|prf|pat|gnl)\|(.*)\|(.*)/) {
            ($acc, $version) = split /\./, $3;  
            } else {
-                   #punt, not matching the db's at ftp://ftp.ncbi.nih.gov/blast/db/README
-                   #Database Name                     Identifier Syntax
-        #============================      ========================
-        #GenBank                           gb|accession|locus
-        #EMBL Data Library                 emb|accession|locus
-        #DDBJ, DNA Database of Japan       dbj|accession|locus
-        #NBRF PIR                          pir||entry
-        #Protein Research Foundation       prf||name
-        #SWISS-PROT                        sp|accession|entry name
-        #Brookhaven Protein Data Bank      pdb|entry|chain
-        #Patents                           pat|country|number 
-        #GenInfo Backbone Id               bbs|number 
-        #General database identifier           gnl|database|identifier
-        #NCBI Reference Sequence           ref|accession|locus
-        #Local Sequence identifier         lcl|identifier
+	       #punt, not matching the db's at ftp://ftp.ncbi.nih.gov/blast/db/README
+	       #Database Name                     Identifier Syntax
+	       #============================      ========================
+	       #GenBank                           gb|accession|locus
+	       #EMBL Data Library                 emb|accession|locus
+	       #DDBJ, DNA Database of Japan       dbj|accession|locus
+	       #NBRF PIR                          pir||entry
+	       #Protein Research Foundation       prf||name
+	       #SWISS-PROT                        sp|accession|entry name
+	       #Brookhaven Protein Data Bank      pdb|entry|chain
+	       #Patents                           pat|country|number 
+	       #GenInfo Backbone Id               bbs|number 
+	       #General database identifier           gnl|database|identifier
+	       #NCBI Reference Sequence           ref|accession|locus
+	       #Local Sequence identifier         lcl|identifier
                    $acc=$id;
            }
            $self->element({ 'Name' =>  'Hit_accession',
@@ -552,7 +559,7 @@ sub next_result{
                 /ox) { # parse NCBI blast HSP
            $self->in_element('hsp') && $self->end_element({ 'Name' => 'Hsp'});
            
-         #  print STDERR "Got ncbi HSP score=$3\n";
+	   # print STDERR "Got ncbi HSP score=$3\n";
 
            # Some data clean-up so e-value will appear numeric to perl
            my ($score, $bits, $evalue) = ($3, $1, $5);
@@ -945,9 +952,9 @@ sub end_element {
             my $func = sprintf("end_%s",lc $type);
             $rc = $handler->$func($self->{'_reporttype'},
                                   $self->{'_values'});
-        }
+	} 
         shift @{$self->{'_elements'}};
-
+	
     } elsif( $MAPPING{$nm} ) {         
         
         if ( ref($MAPPING{$nm}) =~ /hash/i ) {
@@ -964,8 +971,7 @@ sub end_element {
     $self->{'_last_data'} = ''; # remove read data if we are at 
                                 # end of an element
     $self->{'_result'} = $rc if( defined $type && $type eq 'result' );
-    return $rc;
-
+    return $rc;    
 }
 
 =head2 element
