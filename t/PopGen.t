@@ -138,13 +138,14 @@ my $envpop = new Bio::PopGen::Population(-name        => 'NC',
 
 my $stats = new Bio::PopGen::PopStats(-haploid => 1);
 my $fst = $stats->Fst([$mrsapop,$mssapop],[qw(AFLP1 )]);
-ok(sprintf("%.3f",$fst),0.077,'mrsa,mssa aflp1'); # We're going to check the values against other programs first
+# We're going to check the values against other programs first
+ok(sprintf("%.3f",$fst),0.077,'mrsa,mssa aflp1'); 
+  
 $fst = $stats->Fst([$envpop,$mssapop,$mrsapop],[qw(AFLP1 )]);
-ok(sprintf("%.3f",$fst),0.035,'all pops, aflp1'); # We're going to check the values against other programs first
+ok(sprintf("%.3f",$fst),0.035,'all pops, aflp1'); 
 
 $fst = $stats->Fst([$mrsapop,$envpop],[qw(AFLP1 AFLP2)]);
-ok(sprintf("%.3f",$fst),0.046,'mrsa,envpop aflp1,aflp2'); # We're going to check the values against other programs first
-
+ok(sprintf("%.3f",$fst),0.046,'mrsa,envpop aflp1,aflp2');
 
 # Read in data from a file
 $io = new Bio::PopGen::IO(-format => 'csv',
@@ -228,3 +229,5 @@ $poptst2->set_Allele_Frequency(-name      => 'marker1',
 
 #$fst = $stats->Fst([$poptst1,$poptst2],[qw(marker1 marker2) ]);
 skip('Fst not calculated yet',1,'marker1 test'); # 
+
+
