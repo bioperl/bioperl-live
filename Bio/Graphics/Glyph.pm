@@ -952,6 +952,8 @@ sub oval {
   }
 }
 
+sub flip { shift->{flip} }
+
 sub filled_arrow {
   my $self = shift;
   my $gd  = shift;

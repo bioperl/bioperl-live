@@ -2304,21 +2304,26 @@ sub do_load_gff {
 	$strand = '+';
       }
     }
-    $self->load_gff_line({ref    => $ref,
-			  class  => $class,
-			  source => $source,
-			  method => $method,
-			  start  => $start,
-			  stop   => $stop,
-			  score  => $score,
-			  strand => $strand,
-			  phase  => $phase,
-			  gclass => $gclass,
-			  gname  => $gname,
-			  tstart => $tstart,
-			  tstop  => $tstop,
-			  attributes  => $attributes}
-			);
+    # GFF2/3 transition stuff
+    $gclass = [$gclass] unless ref $gclass;
+    $gname  = [$gname]  unless ref $gname;
+    for (my $i=0; $i<@$gname;$i++) {
+      $self->load_gff_line({ref    => $ref,
+			    class  => $class,
+			    source => $source,
+			    method => $method,
+			    start  => $start,
+			    stop   => $stop,
+			    score  => $score,
+			    strand => $strand,
+			    phase  => $phase,
+			    gclass => $gclass->[$i],
+			    gname  => $gname->[$i],
+			    tstart => $tstart,
+			    tstop  => $tstop,
+			    attributes  => $attributes}
+			  );
+    }
   }
 
   my $result = $self->finish_load();
@@ -3387,7 +3392,16 @@ sub _split_gff3_group {
     # GFF2 traditionally did not distinguish between a feature's name
     # and the group it belonged to.  This code is a transition between
     # gff2 and the new parent/ID dichotomy in gff3.
-    if ($tag eq 'Parent' or $tag eq 'ID') {
+    if ($tag eq 'Parent') {
+      my (@names,@classes);
+      for (@values) {
+	my ($name,$class) = _gff3_name_munging($_,$dc);
+	push @names,$name;
+	push @classes,$class;
+      }
+      $id{$tag} = @names > 1 ? [\@names,\@classes] : [$names[0],$classes[0]];
+    }
+    elsif ($tag eq 'ID') {
       $id{$tag} = [_gff3_name_munging(shift(@values),$dc)];
     }
     elsif ($tag eq 'Target') {

@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# $Id: bulk_load_gff.PLS,v 1.26 2005-03-09 19:06:42 faga Exp $
+# $Id: bulk_load_gff.PLS,v 1.27 2005-03-21 15:06:18 lstein Exp $
 
 
 use strict;
@@ -455,52 +455,59 @@ while (<>) {
   $phase  = '\N' if $phase  eq '.';
 
   my ($group_class,$group_name,$target_start,$target_stop,$attributes) = $db->split_group($group,$gff3);
-  $group_class  ||= '\N';
-  $group_name   ||= '\N';
-  $target_start ||= '\N';
-  $target_stop  ||= '\N';
-  $method       ||= '\N';
-  $source       ||= '\N';
 
-  my $fid     = $FID++;
-  my $gid     = $GROUPID{$group_class,$group_name} ||= $GID++;
-  my $ftypeid = $FTYPEID{$source,$method}          ||= $FTYPEID++;
+  # GFF2/3 transition
+  $group_class = [$group_class] unless ref $group_class;
+  $group_name  = [$group_name]  unless ref $group_name;
 
-  my $bin = bin($start,$stop,$db->min_bin);
-  $FH{ FDATA()  }->print(    join("\t",$fid,$ref,$start,$stop,$bin,$ftypeid,$score,$strand,$phase,$gid,$target_start,$target_stop),"\n"   );
-  if ($use_mysqlcmap){
-    my $feature_id    = next_number(
-      db         => $cmap_db,
-      table_name => 'cmap_feature',
-      id_field   => 'feature_id',
-    )
-    or die 'No feature id';
-    my $direction = $strand eq '-' ? -1:1;
-    $FH{ FGROUP() }->print(    
-      join("\t",$feature_id,$feature_id,'NULL',0, $group_name,0,0,'NULL',1,$direction, $group_class,)
-      ,"\n"
-    ) unless $DONE{"G$gid"}++;
+  for (my $i=0; $i < @$group_name; $i++) {
+    $group_class->[$i]  ||= '\N';
+    $group_name->[$i]   ||= '\N';
+    $target_start ||= '\N';
+    $target_stop  ||= '\N';
+    $method       ||= '\N';
+    $source       ||= '\N';
+
+    my $fid     = $FID++;
+    my $gid     = $GROUPID{$group_class->[$i],$group_name->[$i]}      ||= $GID++;
+    my $ftypeid = $FTYPEID{$source,$method}          ||= $FTYPEID++;
+
+    my $bin = bin($start,$stop,$db->min_bin);
+    $FH{ FDATA()  }->print(    join("\t",$fid,$ref,$start,$stop,$bin,$ftypeid,$score,$strand,$phase,$gid,$target_start,$target_stop),"\n"   );
+    if ($use_mysqlcmap){
+      my $feature_id    = next_number(
+				      db         => $cmap_db,
+				      table_name => 'cmap_feature',
+				      id_field   => 'feature_id',
+				     )
+	or die 'No feature id';
+      my $direction = $strand eq '-' ? -1:1;
+      $FH{ FGROUP() }->print(    
+			     join("\t",$feature_id,$feature_id,'NULL',0, $group_name->[$i],0,0,'NULL',1,$direction, $group_class->[$i],)
+			     ,"\n"
+			    ) unless $DONE{"G$gid"}++;
+    }
+    else {
+      $FH{ FGROUP() }->print(    join("\t",$gid,$group_class->[$i],$group_name->[$i]),"\n"              )    unless $DONE{"G$gid"}++;
+    }
+    $FH{ FTYPE()  }->print(    join("\t",$ftypeid,$method,$source),"\n"                   ) unless $DONE{"T$ftypeid"}++;
+
+    foreach (@$attributes) {
+      my ($key,$value) = @$_;
+      my $attributeid = $ATTRIBUTEID{$key}   ||= $ATTRIBUTEID++;
+      $FH{ FATTRIBUTE() }->print( join("\t",$attributeid,$key),"\n"                       ) unless $DONE{"A$attributeid"}++;
+      $FH{ FATTRIBUTE_TO_FEATURE() }->print( join("\t",$fid,$attributeid,$value),"\n");
+    }
+
+    if ( $fid % 1000 == 0) {
+      my $now    = Time::HiRes::time() if $timer;
+      my $elapsed = $timer ? sprintf(" in %5.2fs",$now - $last) : '';
+      $last = $now;
+      print STDERR "$fid features parsed$elapsed...";
+      print STDERR -t STDOUT && !$ENV{EMACS} ? "\r" : "\n";
+    }
+
   }
-  else {
-    $FH{ FGROUP() }->print(    join("\t",$gid,$group_class,$group_name),"\n"              ) unless $DONE{"G$gid"}++;
-  }
-  $FH{ FTYPE()  }->print(    join("\t",$ftypeid,$method,$source),"\n"                   ) unless $DONE{"T$ftypeid"}++;
-
-  foreach (@$attributes) {
-    my ($key,$value) = @$_;
-    my $attributeid = $ATTRIBUTEID{$key}   ||= $ATTRIBUTEID++;
-    $FH{ FATTRIBUTE() }->print( join("\t",$attributeid,$key),"\n"                       ) unless $DONE{"A$attributeid"}++;
-    $FH{ FATTRIBUTE_TO_FEATURE() }->print( join("\t",$fid,$attributeid,$value),"\n");
-  }
-
-  if ( $fid % 1000 == 0) {
-    my $now    = Time::HiRes::time() if $timer;
-    my $elapsed = $timer ? sprintf(" in %5.2fs",$now - $last) : '';
-    $last = $now;
-    print STDERR "$fid features parsed$elapsed...";
-    print STDERR -t STDOUT && !$ENV{EMACS} ? "\r" : "\n";
-  }
-
 }
 
 for my $file (@fasta) {

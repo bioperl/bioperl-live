@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# $Id: fast_load_gff.PLS,v 1.17 2004-10-02 15:11:04 smckay Exp $
+# $Id: fast_load_gff.PLS,v 1.18 2005-03-21 15:06:18 lstein Exp $
 
 use strict;
 # use lib './blib/lib';
@@ -323,36 +323,44 @@ while (<>) {
   $strand = '\N' if $strand eq '.';
   $phase  = '\N' if $phase  eq '.';
 
-  my ($group_class,$group_name,$target_start,$target_stop,$attributes) = $db->split_group($group,$gff3);
-  $group_class  ||= '\N';
-  $group_name   ||= '\N';
-  $target_start ||= '\N';
-  $target_stop  ||= '\N';
-  $method       ||= '\N';
-  $source       ||= '\N';
+  my ($gclass,$gname,$target_start,$target_stop,$attributes) = $db->split_group($group,$gff3);
+  # GFF2/3 transition
+  $gclass = [$gclass] unless ref $gclass;
+  $gname  = [$gname]  unless ref $gname;
 
-  my $fid     = $FID++;
-  my $gid     = $GROUPID{$group_class,$group_name} ||= $GID++;
-  my $ftypeid = $FTYPEID{$source,$method}          ||= $FTYPEID++;
+  for (my $i=0; $i < @$gname; $i++) {
+    my $group_class = $gclass->[$i];
+    my $group_name  = $gname->[$i];
+    $group_class  ||= '\N';
+    $group_name   ||= '\N';
+    $target_start ||= '\N';
+    $target_stop  ||= '\N';
+    $method       ||= '\N';
+    $source       ||= '\N';
 
-  my $bin = bin($start,$stop,$db->min_bin);
-  $FH{ FDATA()  }->print(    join("\t",$fid,$ref,$start,$stop,$bin,$ftypeid,$score,$strand,$phase,$gid,$target_start,$target_stop),"\n"   );
-  $FH{ FGROUP() }->print(    join("\t",$gid,$group_class,$group_name),"\n"              ) unless $DONE{"fgroup$;$gid"}++;
-  $FH{ FTYPE()  }->print(    join("\t",$ftypeid,$method,$source),"\n"                   ) unless $DONE{"ftype$;$ftypeid"}++;
+    my $fid     = $FID++;
+    my $gid     = $GROUPID{$group_class,$group_name} ||= $GID++;
+    my $ftypeid = $FTYPEID{$source,$method}          ||= $FTYPEID++;
 
-  foreach (@$attributes) {
-    my ($key,$value) = @$_;
-    my $attributeid = $ATTRIBUTEID{$key}   ||= $ATTRIBUTEID++;
-    $FH{ FATTRIBUTE() }->print( join("\t",$attributeid,$key),"\n"                       ) unless $DONE{"fattribute$;$attributeid"}++;
-    $FH{ FATTRIBUTE_TO_FEATURE() }->print( join("\t",$fid,$attributeid,$value),"\n");
-  }
+    my $bin = bin($start,$stop,$db->min_bin);
+    $FH{ FDATA()  }->print(    join("\t",$fid,$ref,$start,$stop,$bin,$ftypeid,$score,$strand,$phase,$gid,$target_start,$target_stop),"\n"   );
+    $FH{ FGROUP() }->print(    join("\t",$gid,$group_class,$group_name),"\n"              ) unless $DONE{"fgroup$;$gid"}++;
+    $FH{ FTYPE()  }->print(    join("\t",$ftypeid,$method,$source),"\n"                   ) unless $DONE{"ftype$;$ftypeid"}++;
+    
+    foreach (@$attributes) {
+      my ($key,$value) = @$_;
+      my $attributeid = $ATTRIBUTEID{$key}   ||= $ATTRIBUTEID++;
+      $FH{ FATTRIBUTE() }->print( join("\t",$attributeid,$key),"\n"                       ) unless $DONE{"fattribute$;$attributeid"}++;
+      $FH{ FATTRIBUTE_TO_FEATURE() }->print( join("\t",$fid,$attributeid,$value),"\n");
+    }
 
-  if ( $FEATURES % 1000 == 0) {
-    my $now    = Time::HiRes::time() if $timer;
-    my $elapsed = $timer ? sprintf(" in %5.2fs",$now - $last) : '';
-    $last = $now;
-    print STDERR "$fid features parsed$elapsed...";
-    print STDERR -t STDOUT && !$ENV{EMACS} ? "\r" : "\n";
+    if ( $FEATURES % 1000 == 0) {
+      my $now    = Time::HiRes::time() if $timer;
+      my $elapsed = $timer ? sprintf(" in %5.2fs",$now - $last) : '';
+      $last = $now;
+      print STDERR "$fid features parsed$elapsed...";
+      print STDERR -t STDOUT && !$ENV{EMACS} ? "\r" : "\n";
+    }
   }
 }
 
