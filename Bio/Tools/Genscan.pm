@@ -96,127 +96,56 @@ use Symbol;
 # Object preamble - inherits from Bio::Root::Object
 
 use Bio::Root::Object;
-use Bio::SeqAnalysisParserI;
+use Bio::Tools::AnalysisResult;
 use Bio::Tools::Prediction::Gene;
 use Bio::Tools::Prediction::Exon;
 
-@ISA = qw(Bio::Root::Object Bio::SeqAnalysisParserI);
+@ISA = qw(Bio::Tools::AnalysisResult);
 # new() is inherited from Bio::Root::Object
 
 # _initialize is where the heavy stuff will happen when new is called
 
-sub _initialize {
-  my($self,@args) = @_;
+#There's nothing special to do for us here, so just rely on the inherited
+#version.
+#  sub _initialize {
+#    my($self,@args) = @_;
+#
+#    my $make = $self->SUPER::_initialize(@args);
+#
+#    return $make; # success - we hope!
+#  }
 
-  my $make = $self->SUPER::_initialize(@args);
-
-  $self->_initialize_me(@args);
-  return $make; # success - we hope!
-}
-
-sub _initialize_me {
+sub _initialize_state {
     my ($self,@args) = @_;
-    my ($fh,$file) =
-	$self->_rearrange([qw(FH
-			      FILE
-			      )],
-			  @args);
 
-    $self->{'readbuffer'} = "";
-    if( defined $fh && defined $file ) {
-	$self->throw("You have defined both a filehandle and file to read from. Not good news!");
-    }
-    if((defined $file) && ($file ne '')) {
-	$fh = Symbol::gensym();
-	open ($fh,$file)
-	    || $self->throw("Could not open $file for Fasta stream reading $!");
-    }
-    if((! defined($fh)) && ($file eq "")) {
-	$fh = \*STDIN;
-    }
-    $self->_filehandle($fh) if defined $fh;
-    
-    # private state variables
+    # first call the inherited method!
+    $self->SUPER::_initialize_state(@args);
+
+    # our private state variables
     $self->{'_preds_parsed'} = 0;
     $self->{'_has_cds'} = 0;
     # array of pre-parsed predictions
     $self->{'_preds'} = [];
 }
 
-=head2 close
+=head2 analysis_method
 
- Title   : close
- Usage   : $genscan->close()
- Function: Closes the file handle associated with this result file
- Example :
- Returns :
- Args    :
+ Usage     : $genscan->analysis_method();
+ Purpose   : Inherited method. Overridden to ensure that the name matches
+             /genscan/i.
+ Returns   : String
+ Argument  : n/a
 
 =cut
 
-sub close {
-   my ($self, @args) = @_;
-
-   $self->{'_filehandle'} = undef;
-}
-
-=head2 parse
-
- Title   : parse
- Usage   : $obj->parse(-input=>$inputobj, [ -params=>[@params] ],
-		       [ -method => $method ] )
- Function: Sets up parsing for feature retrieval from an analysis file, 
-           or object
-
-           This method is required for all classes implementing the
-           SeqAnalysisParserI interface.
-
-           The implementation provided here does not use the -params and
-           -method parameters. If -method is given, it must be 'Genscan'.
- Example :
- Returns : void
- Args    : B<input>  - object/file where analysis are coming from
-	   B<params> - parameter to use when parsing/running analysis
-                       (optional, not used)
-	   B<method> - method of analysis (optional, not used)
-    
-=cut
-
-sub parse {
-    my ($self, @args) = @_;
-    my $input_type;
-
-    my ($input, $params, $method) = 
-	$self->_rearrange([qw(INPUT
-			      PARAMS
-			      METHOD
-			      )],
-			  @args);
-
-    # if a method is given, it must be Genscan
-    if($method && (lc($method) ne "genscan")) {
+#-------------
+sub analysis_method { 
+#-------------
+    my ($self, $method) = @_;  
+    if($method && ($method !~ /genscan/i)) {
 	$self->throw("method $method not supported in " . ref($self));
     }
-    # determine whether the input is a file(name) or a stream
-    if(ref(\$input) eq "SCALAR") {
-	# we assume that a scalar is a filename
-	$input_type = "-file";
-    } elsif(ref($input) eq "GLOB") {
-	# input is a stream
-	$input_type = "-fh";
-    } else {
-	# let's be strict for now
-	$self->throw("unable to determine type of input $input: ".
-		     "not string and not GLOB");
-    }
-    # close possibly existing input
-    $self->close();
-    # initialize with new input
-    if($params) {
-	$self->_initialize_me($input_type => $input, @$params);
-    } else {
-	$self->_initialize_me($input_type => $input);
-    }
+    return $self->SUPER::analysis_method($method);
 }
 
 =head2 next_feature
@@ -514,76 +443,6 @@ sub _read_fasta_seq {
     }
     $seq =~ s/\s//g; # Remove whitespace
     return ($id, $seq);
-}
-
-=head2 _pushback
-
- Title   : _pushback
- Usage   : $obj->_pushback($newvalue)
- Function: puts a line previously read with _readline back into a buffer
- Example :
- Returns :
- Args    : newvalue
-
-=cut
-
-sub _pushback {
-  my ($obj, $value) = @_;
-  $obj->{'readbuffer'} .= $value;
-}
-
-
-=head2 _filehandle
-
- Title   : _filehandle
- Usage   : $obj->_filehandle($newval)
- Function:
- Example :
- Returns : value of _filehandle
- Args    : newvalue (optional)
-
-
-=cut
-
-sub _filehandle {
-    my ($obj, $value) = @_;
-    if(defined $value) {
-	$obj->{'_filehandle'} = $value;
-    }
-    return $obj->{'_filehandle'};
-}
-
-
-=head2 _readline
-
- Title   : _readline
- Usage   : $obj->_readline
- Function:
- Example :
- Returns : reads a line of input
-
-=cut
-
-sub _readline {
-  my $self = shift;
-  my $fh = $self->_filehandle();
-  my $line;
-
-  # if the buffer been filled by _pushback then return the buffer
-  # contents, rather than read from the filehandle
-  if ( defined $self->{'readbuffer'} ) {
-      $line = $self->{'readbuffer'};
-      undef $self->{'readbuffer'};
-  } else {
-      $line = defined($fh) ? <$fh> : <>;
-  }
-  return $line;
-}
-
-sub DESTROY {
-    my $self = shift;
-
-    $self->close();
 }
 
 1;
