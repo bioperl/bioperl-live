@@ -117,7 +117,7 @@ BEGIN {
      'Asn' => 'N', 'Pro' => 'P', 'Gln' => 'Q', 'Arg' => 'R',
      'Ser' => 'S', 'Thr' => 'T', 'Val' => 'V', 'Trp' => 'W',
      'Xaa' => 'X', 'Tyr' => 'Y', 'Glx' => 'Z', 'Ter' => '*',
-     'Sel' => 'U'
+     'Sec' => 'U'
      );
 
     %THREECODE =
@@ -127,7 +127,7 @@ BEGIN {
      'N' => 'Asn', 'P' => 'Pro', 'Q' => 'Gln', 'R' => 'Arg',
      'S' => 'Ser', 'T' => 'Thr', 'V' => 'Val', 'W' => 'Trp',
      'Y' => 'Tyr', 'Z' => 'Glx', 'X' => 'Xaa', '*' => 'Ter',
-     'U' => 'Sel'
+     'U' => 'Sec'
      );
 }
 
@@ -142,7 +142,7 @@ BEGIN {
            'protein'. Output follows the IUPAC standard plus 'Ter' for
            terminator. Any unknown character, including the default
            unknown character 'X', is changed into 'Xaa'. A noncoded
-           aminoacid selenocystein is recognized (Sel, U).
+           aminoacid selenocystein is recognized (Sec, U).
 
  Returns : A scalar
  Args    : character used for stop in the protein sequence optional,
