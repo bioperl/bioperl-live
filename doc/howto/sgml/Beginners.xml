@@ -486,14 +486,13 @@ Internet, point your browser at http://www.perl.com/, the Perl Home Page.
 		</programlisting> 
 	 </para> 
 	 <para>
-		Note that <emphasis>&gt;<emphasis> character in the -file argument.
-			 This indicates that we're going to
-			 <emphasis>write</emphasis> to the file named
-			 "sequence.fasta", the same character we'd use if we were using Perl's
-			 <function>open()</function> function to write to a file.
+	   Note that <emphasis>&gt;</emphasis> character in the -file argument.
+	       This indicates that we're going to
+	       <emphasis>write</emphasis> to the file named
+	       "sequence.fasta", the same character we'd use if we were using Perl's
+	       <function>open()</function> function to write to a file.
     </para>
-    <para>
-    </para>
+    <para/>
   </section>
 
   <section id="retrieving_gb">
@@ -667,7 +666,7 @@ while( my $seq = $seq_in->next_seq() ) {
   </section> 
 
   <section id="objects">
-	 <title>Appendix II: The Basics of Perl Objects<title>
+	 <title>Appendix II: The Basics of Perl Objects</title>
 		  <para>
 			 Object-oriented programming (OOP) is software engineering
 			 technique for modularizing code. The difference between
@@ -683,9 +682,10 @@ while( my $seq = $seq_in->next_seq() ) {
 			 procedural Perl technique of using a subroutine to operate on
 			 this scalar data:
 		  </para>
+		  <para>
 		  Example 1: 
 		  <programlisting>
-			 my $reverse_complement = &rev_com( $sequence );
+			 my $reverse_complement = &amp;rev_com( $sequence );
 		  </programlisting>
 		</para>
 		  
