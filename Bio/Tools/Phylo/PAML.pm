@@ -12,7 +12,8 @@
 
 =head1 NAME
 
-Bio::Tools::Phylo::PAML - Parses output from the PAML programs codeml,baseml,aaml and their batch equivalents codemlsites, etc. 
+Bio::Tools::Phylo::PAML - Parses output from the PAML programs codeml,
+baseml, basemlg, codemlsites and yn00
 
 =head1 SYNOPSIS
 
@@ -28,7 +29,8 @@ Bio::Tools::Phylo::PAML - Parses output from the PAML programs codeml,baseml,aam
   my $parser = new Bio::Tools::Phylo::PAML
     (-file => "./results/mlc", -dir => "./results/");
 
-  # get the first/next result; a Bio::Tools::Phylo::PAML::Result object
+  # get the first/next result; a Bio::Tools::Phylo::PAML::Result object,
+  # which isa Bio::SeqAnalysisResultI object.
   my $result = $parser->next_result();
 
   # get the sequences used in the analysis; returns Bio::PrimarySeq
@@ -39,8 +41,7 @@ Bio::Tools::Phylo::PAML - Parses output from the PAML programs codeml,baseml,aam
   # hashref of counts for each codon } for each sequence and the
   # overall sum ], and positional nucleotide distribution [ arrayref
   # of { hashref of frequencies for each nucleotide } for each
-  # sequence and overall frequencies ].
-
+  # sequence and overall frequencies ]:
   my ($codonusage, $ntdist) = $result->get_codon_summary();
 
   # example manipulations of $codonusage and $ntdist:
@@ -62,12 +63,7 @@ Bio::Tools::Phylo::PAML - Parses output from the PAML programs codeml,baseml,aam
   # triangle" 2D-matrices, which means that the diagonal and
   # everything above it is undefined.  Each of the defined cells is a
   # hashref of estimates for "dN", "dS", "omega" (dN/dS ratio), "t",
-  # "S" and "N".  If a ML matrix, "lnL" will also be defined.  Any
-  # additional ML parameters estimated by the model will be in an
-  # array ref under "params"; it's up to the user to know which
-  # position corresponds to which parameter (since PAML doesn't label
-  # them, and we can't guess very well yet (a TODO I guess).
-
+  # "S" and "N".  If a ML matrix, "lnL" will also be defined.
   printf "The omega ratio for sequences %s vs %s was: %g\n",
     $otus[0]->id, $otus[1]->id, $MLmatrix->[0]->[1]->{omega};
 
@@ -93,9 +89,9 @@ Bio::Tools::Phylo::PAML - Parses output from the PAML programs codeml,baseml,aam
   my $params = $result->get_model_params();
   printf "M1 params: p0 = %g\tp1 = %g\n", $params->{p0}, $params->{p1};
 
-  # for NSsites models, obtain posterior probabilities for membership
-  # in each class for every position; probabilities correspond to
-  # classes w0, w1, ... etc.
+  # for NSsites models, obtain arrayrefs of posterior probabilities
+  # for membership in each class for every position; probabilities
+  # correspond to classes w0, w1, ... etc.
   my @probs = $result->get_posteriors();
 
   # find, say, positively selected sites!
@@ -111,10 +107,10 @@ Bio::Tools::Phylo::PAML - Parses output from the PAML programs codeml,baseml,aam
 
 =head1 DESCRIPTION
 
-This module is used to parse the output from the PAML programs
-codeml,baseml,aaml and their associated batch methods.  You can use
-the Bio::Tools::Run::Phylo::PAML::Codeml module to actually run
-'codeml' this module is only useful to parse the output.
+This module is used to parse the output from the PAML programs codeml,
+baseml, basemlg, codemlsites and yn00.  You can use the
+Bio::Tools::Run::Phylo::PAML::* modules to actually run some of the
+PAML programs, but this module is only useful to parse the output.
 
 =head1 FEEDBACK
 
@@ -143,8 +139,7 @@ Email amackey@virginia.edu
 
 =head1 TODO
 
-This module should also be able to handle "codemlsites" batch
-output...
+check output from pre 1.12
 
 =head1 APPENDIX
 
@@ -164,32 +159,39 @@ use strict;
 # Object preamble - inherits from Bio::Root::Root
 
 use Bio::Root::Root;
+use Bio::SeqAnalysisParserI;
 use Bio::Root::IO;
+@ISA = qw(Bio::Root::Root Bio::Root::IO Bio::AnalysisParserI);
+
+# other objects used:
+
 use Bio::TreeIO;
 use IO::String;
-use Bio::AnalysisParserI;
-
-@ISA = qw(Bio::Root::Root Bio::AnalysisParserI);
+use Bio::Tools::Phylo::PAML::Result;
 
 =head2 new
 
  Title   : new
- Usage   : my $obj = new Bio::Tools::Phylo::PAML();
- Function: Builds a new Bio::Tools::Phylo::PAML object 
+ Usage   : my $obj = new Bio::Tools::Phylo::PAML(%args);
+ Function: Builds a new Bio::Tools::Phylo::PAML object
  Returns : Bio::Tools::Phylo::PAML
- Args    :
-
+ Args    : Hash of options: -file, -fh, -dir
+           -file (or -fh) should contain the contents of the PAML
+           outfile; -dir is the (optional) name of the directory in
+           which the PAML program was run (and includes other
+           PAML-generated files from which we can try to gather data)
 
 =cut
 
 sub new {
-  my($class,@args) = @_;
+
+  my ($class, @args) = @_;
 
   my $self = $class->SUPER::new(@args);
-  my ($file,$dir) = $self->_rearrange([qw(FILE DIR)],@args);
 
-  # ... store those values and prime the parser
-  
+  my ($dir) = $self->_rearrange([qw(DIR)], @args);
+  $self->{_dir} = $dir if defined $dir;
+
   return $self;
 }
 
@@ -204,20 +206,197 @@ sub new {
  Function: Returns the next result available from the input, or
            undef if there are no more results.
  Example :
- Returns : Bio::Tools::Phylo::PAML::Result object
+ Returns : a Bio::Tools::Phylo::PAML::Result object
  Args    : none
 
 =cut
 
 sub next_result {
-    my ($self);
-    # Aaron puts some code here to build a new Bio::Tools::Phylo::PAML::Result object
+
+    my ($self) = @_;
+
+    my %data;
+
+    # get the various codon and other sequence summary data, if necessary:
+    $self->_parse_summary
+	unless ($self->{_summary} && !$self->{_summary}->{multidata});
+
+
+    # OK, depending on seqtype and runmode now, one of a few things can happen:
+    my $seqtype = $self->{_summary}->{seqtype};
+    if ($seqtype eq 'CODONML' || $seqtype eq 'AAML') {
+	while ($_ = $self->_readline) {
+
+	    if ($seqtype eq 'CODONML' && m/^pairwise comparison, codon frequencies:/o) {
+
+		# runmode = -2, CODONML
+		$self->_pushback($_);
+		%data = $self->_parse_PairwiseCodon;
+		last;
+
+	    } elsif ($seqtype eq 'AAML' && m/^ML distances of aa seqs\.$/o) {
+
+		# runmode = -2, AAML
+		$self->throw( -class => 'Bio::Root::NotYetImplemented',
+			      -text  => "Pairwise AA not yet implemented!"
+			    );
+
+		# $self->_pushback($_);
+		# %data = $self->_parse_PairwiseAA;
+		# last;
+
+	    } elsif (m/^Model \d+: /o) {
+
+		# NSSitesBatch
+		$self->throw( -class => 'Bio::Root::NotYetImplemented',
+			      -text  => "NSsitesBatch not yet implemented!"
+			    );
+
+		# $self->_pushback($_);
+		# %data = $self->_parse_NSsitesBatch;
+		# last;
+
+	    } elsif (m/TREE \d+/) {
+
+		# runmode = 0
+		$self->_pushback($_);
+		%data = $self->_parse_Forestry;
+
+	    } elsif (m/Heuristic tree search by stepwise addition$/o) {
+
+		# runmode = 3
+		$self->throw( -class => 'Bio::Root::NotYetImplemented',
+			      -text  => "StepwiseAddition not yet implemented!"
+			    );
+
+		# $self->_pushback($_);
+		# %data = $self->_parse_StepwiseAddition;
+
+	    } elsif (m/Heuristic tree search by NNI perturbation$/o) {
+
+		# runmode = 4
+		$self->throw( -class => 'Bio::Root::NotYetImplemented',
+			      -text  => "NNI Perturbation not yet implemented!"
+			    );
+
+		# $self->_pushback($_);
+		# %data = $self->_parse_Perturbation;
+
+	    } elsif (m/^stage 0:/o) {
+
+		# runmode = (1 or 2)
+		$self->throw( -class => 'Bio::Root::NotYetImplemented',
+			      -text  => "StarDecomposition not yet implemented!"
+			    );
+
+		# $self->_pushback($_);
+		# %data = $self->_parse_StarDecomposition;
+
+	    }
+	}
+    } elsif ($seqtype eq 'BASEML') {
+    } elsif ($seqtype eq 'YN00') {
+    }
+
+
+    if (%data) {
+	return new Bio::Tools::Phylo::PAML::Result %data;
+    } else {
+	return undef;
+    }
+}
+
+
+sub _parse_summary {
+
+    my ($self) = @_;
+
+    # Depending on whether verbose > 0 or not, and whether the result
+    # set comes from a multi-data run, the first few lines could be
+    # various things; we're going to throw away any sequence data
+    # here, since we'll get it later anyways
+
+    # multidata ? : \n\nData set 1\n
+    # verbose ? : cleandata ? : \nBefore deleting alignment gaps. \d sites\n
+    #                           [ sequence printout ]
+    #                           \nAfter deleting gaps. \d sites\n"
+    #           : [ sequence printout ]
+    # CODONML (in paml 3.12 February 2002)  <<-- what we want to see!
+
+    my $SEQTYPES = qr( (?: (?: CODON | AA | BASE | CODON2AA ) ML ) | YN00 )x;
+    while ($_ = $self->_readline) {
+	if ( m/^($SEQTYPES) \s+                      # seqtype: CODONML, AAML, BASEML, CODON2AAML, YN00, etc
+	       (?: \(in \s+ ([^\)]+?) \s* \) \s* )?  # version: "paml 3.12 February 2002"; not present < 3.1 or YN00
+	       (\S+) \s*                             # tree filename
+	       (?: (.+?) )?                          # model description (not there in YN00)
+	       \s* $                                 # trim any trailing space
+	       /ox
+	   ) {
+
+	    @{$self->{_summary}}{qw(seqtype version treefile model)} = ($1, $2, $3, $4);
+	    last;
+
+	} elsif (m/^Data set \d$/o) {
+	    $self->{_summary} = {};
+	    $self->{_summary}->{multidata}++;
+	}
+    }
+
+    unless (defined $self->{_summary}->{seqtype}) {
+	$self->throw( -class => 'Bio::Root::NotImplemented',
+		      -text => 'Unknown format of PAML output');
+    }
+
+
+    my $seqtype = $self->{_summary}->{seqtype};
+
+    if ($seqtype == "CODEML") {
+
+	$self->_parse_inputparams(); # settings from the .ctl file that get printed
+	$self->_parse_patterns();    # codon patterns - not very interesting
+	$self->_parse_seqs();        # the sequences data used for analysis
+	$self->_parse_codoncts();    # counts and distributions of codon/nt usage
+	$self->_parse_distmat();     # NG distance matrices
+
+    } elsif ($seqtype == "AAML") {
+	$self->throw( -class => 'Bio::Root::NotImplemented',
+		      -text => 'AAML parsing not yet implemented!');
+    } elsif ($seqtype == "CODON2AAML") {
+	$self->throw( -class => 'Bio::Root::NotImplemented',
+		      -text => 'CODON2AAML parsing not yet implemented!');
+    } elsif ($seqtype == "BASEML") {
+	$self->throw( -class => 'Bio::Root::NotImplemented',
+		      -text => 'BASEML parsing not yet implemented!');
+    } elsif ($seqtype == "YN00") {
+	$self->throw( -class => 'Bio::Root::NotImplemented',
+		      -text => 'YN00 parsing not yet implemented!');
+    } else {
+	$self->throw( -class => 'Bio::Root::NotImplemented',
+		      -text => 'Unknown seqtype, not yet implemented!',
+		      -value => $seqtype
+		    );
+    }
 
 }
 
 
+sub _parse_inputparams { }
+sub _parse_patterns { }
+sub _parse_seqs { }
+sub _parse_codoncts { }
+sub _parse_distmat { }
 
-# parse the mlc file 
+
+sub _parse_Forestry {
+
+    my ($self) = @_;
+    my %data;
+
+
+    return %data
+};
+
+# parse the mlc file
 
 sub _parse_mlc {
     my ($self) = @_;
@@ -226,11 +405,9 @@ sub _parse_mlc {
 	print;
 	# Aaron this is where the parsing should begin
 
-	# I'll do the Tree objects if you like - 
-	# I'd do it by building an IO::String for the
-	# the tree data 
-	# or does it make more sense to parse this out of a collection of 
-	# files?
+	# I'll do the Tree objects if you like - I'd do it by building
+	# an IO::String for the the tree data or does it make more
+	# sense to parse this out of a collection of files?
 	if( /^TREE/ ) {
 	    # ...
 	    while( defined($_ = $self->_readline) ) {

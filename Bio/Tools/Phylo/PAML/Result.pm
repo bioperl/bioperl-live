@@ -70,15 +70,14 @@ use strict;
 
 
 use Bio::Root::Root;
-use Bio::Factory::TreeFactoryI;
-
-@ISA = qw(Bio::Root::Root Bio::Factory::TreeFactoryI);
+use Bio::AnalysisResultI;
+@ISA = qw(Bio::Root::Root Bio::AnalysisResultI);
 
 =head2 new
 
  Title   : new
- Usage   : my $obj = new Bio::Tools::Phylo::PAML::Result();
- Function: Builds a new Bio::Tools::Phylo::PAML::Result object 
+ Usage   : my $obj = new Bio::Tools::Phylo::PAML::Result(%data);
+ Function: Builds a new Bio::Tools::Phylo::PAML::Result object
  Returns : Bio::Tools::Phylo::PAML::Result
  Args    : -trees => array reference of L<Bio::Tree::TreeI> objects
            -MLmatrix => ML matrix
@@ -92,7 +91,7 @@ sub new {
   my $self = $class->SUPER::new(@args);
 
   my ($trees) = $self->_rearrange([qw(TREES)],@args);
-  
+
   if( defined $trees ) {
       if(ref($trees) !~ /ARRAY/i ) { 
 	  $self->warn("Must have provided a valid array reference to initialize trees");
