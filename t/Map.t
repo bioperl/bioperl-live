@@ -109,7 +109,7 @@ ok $marker3->position->value, 500;
 # Next, what do markers know about Maps?
 #
 
-ok $marker3->known_maps, qw ( 1 ); 
+ok (scalar ($marker3->known_maps), 1); 
 ok $marker3->in_map(1);
 ok ! $marker3->in_map(2);
 
