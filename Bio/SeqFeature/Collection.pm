@@ -209,7 +209,7 @@ sub add_features{
    }
    my $count = 0;
    foreach my $f ( @$feats ) { 
-       if( ! $f->isa('Bio::RangeI') ) {
+       if( ! $f || ! ref($f) || ! $f->isa('Bio::RangeI') ) {
 	   $self->warn("Must provide valid Bio::RangeI objects to add_features, skipping object '$f'\n");
 	   next;
        }
@@ -307,7 +307,14 @@ sub features_in_range{
 	       last if( $k > $tier_stop || $k < $tier_start);
 	       push @vals, $v;
 	   }
-	   push @bins, map { $self->{'_features'}->[$_] } @vals;
+	   foreach my $v ( @vals ) {
+	       if( defined $self->{'_features'}->[$v] ) {
+		   push @bins, $self->{'_features'}->[$v] ;
+	       } else { 
+		   
+	       } 
+	       
+	   }
        }
        $tier /= 10;
    }   
@@ -345,6 +352,7 @@ sub remove_features{
 	   # eventually this array will become sparse...	   
 	   if( $self->{'_features'}->[$v] == $f ) {
 	       $self->{'_features'}->[$v] = undef;
+	       $self->{'_btree'}->del_dup($bin,$v);
 	       $vcount--;
 	   }
        } 
@@ -352,7 +360,6 @@ sub remove_features{
 	   $self->{'_btree'}->del($bin);
        }
    }
-
 }
 
 =head2 get_all_features
