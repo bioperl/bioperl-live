@@ -270,12 +270,19 @@ THE TEST SYSTEM
  detects that the network is not present and thus should skip, not
  fail, any tests that require a network connection.
 
-DEPENDANCIES
+DEPENDENCIES
 
 The following packages are used by Bioperl.  Not all are required for
 Bioperl to operate properly, however, some functionality will be
-missing without them.  You can easily install all of these via the
-Bundle::BioPerl CPAN bundle.
+missing without them.  You can easily install all of these, except
+srsperl.pm, using the Bundle::BioPerl CPAN bundle. A command-line
+example:
+
+>perl -e shell -MCPAN
+cpan>install Bundle::BioPerl
+<<<installation details>>>
+cpan>quit
+
 
 Module			 Where it is Used
 ------------------------------------------------------------------
