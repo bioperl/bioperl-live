@@ -185,9 +185,9 @@ $GAP_SYMBOL    = '-';          # Need a more general way to handle gap symbols.
            :      -RANK         => integer (1..n).
            :      -PROGRAM      => string ('TBLASTN', 'BLASTP', etc.).
            :      -QUERY_NAME   => string, id of query sequence
-           :      -HIT_NAME     => string, id of hit (subject) sequence
+           :      -HIT_NAME     => string, id of hit sequence
            :      -QUERY_LENGTH => integer, length of query sequence
-           :      -HIT_LENGTH   => integer, length of hit (subject) sequence
+           :      -HIT_LENGTH   => integer, length of hit sequence
            :
  Comments  : Having the raw data allows this object to do lazy parsing of 
            : the raw HSP data (i.e., not parsed until needed).
@@ -236,22 +236,22 @@ sub new {
 						    -strand=>$qs, 
 						    -source=>$self->{'_prog'} ));
 
-    $self->subject( Bio::SeqFeature::Similarity->new (-start=>$hb, 
-						      -end=>$he, 
-						      -strand=>$hs, 
-						      -source=>$self->{'_prog'} ));
+    $self->hit( Bio::SeqFeature::Similarity->new (-start=>$hb, 
+						  -end=>$he, 
+						  -strand=>$hs, 
+						  -source=>$self->{'_prog'} ));
 
 
     # name the sequences
     $self->query->seqname($qname); # query
-    $self->subject->seqname($hname); # subject
+    $self->hit->seqname($hname); # subject
 
     # set lengths
     $self->query->seqlength($qlen); # query
-    $self->subject->seqlength($hlen); # subject
+    $self->hit->seqlength($hlen); # subject
 
     $self->query->frac_identical($self->frac_identical('query'));
-    $self->subject->frac_identical($self->frac_identical('hit'));
+    $self->hit->frac_identical($self->frac_identical('hit'));
 
     return $self;
 }
