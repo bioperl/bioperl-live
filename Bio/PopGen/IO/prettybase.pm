@@ -73,7 +73,7 @@ package Bio::PopGen::IO::prettybase;
 use vars qw(@ISA $FieldDelim $Header);
 use strict;
 
-($FieldDelim,$Header) =( '\t', '\s+',0);
+($FieldDelim,$Header) =( '\t',0);
 
 use Bio::PopGen::IO;
 
@@ -89,21 +89,30 @@ use Bio::PopGen::Genotype;
  Usage   : my $obj = new Bio::PopGen::IO::prettybase();
  Function: Builds a new Bio::PopGen::IO::prettybase object 
  Returns : an instance of Bio::PopGen::IO::prettybase
- Args    :
-
+ Args    : -field_delimiter      => a field delimiter character or regexp (default is /\t/ ) 
+           -header               => boolean if the file will have a header and parser should
+                                    skip first line in the file (default is false)
+           -convert_indel_states => convert alleles which are longer than one character
+                                    to an 'I' meaning insert state, and alleles which are
+                                    '-' to a delete state.
+                                    (default is false)
 
 =cut
 
 sub _initialize {
     my($self, @args) = @_;
-    my ($fieldsep,$header) = $self->_rearrange([qw(FIELD_DELIMITER
-						   HEADER)],@args);
+    my ($fieldsep,
+	$conv_indels,
+	$header) = $self->_rearrange([qw(FIELD_DELIMITER
+					 CONVERT_INDEL_STATES
+					 HEADER)],@args);
 
     $self->flag('header', defined $header ? $header : $Header);
     $self->flag('field_delimiter',defined $fieldsep ? $fieldsep : $FieldDelim);
     $self->{'_header'} = undef;
     $self->{'_parsed_individiuals'} = [];
     $self->{'_parsed'} = 0;
+    $self->flag('convert_indel',$conv_indels || 0);
     return 1;
 }
 
@@ -179,14 +188,23 @@ sub next_population{
 sub _parse_prettybase {
     my $self = shift;
     my %inds;
+    my $convert_indels = $self->flag('convert_indel');
     while( defined( $_ = $self->_readline) ) {
 	next if( /^\s*\#/ || /^\s+$/ || ! length($_) );
 
 	my ($site,$sample,@alleles) = split($self->flag('field_delimiter'),$_);
-	
 	for my $allele ( @alleles ) {
 	    $allele =~ s/^\s+//;
 	    $allele =~ s/\s+$//;
+	    if( $convert_indels ) {
+		if( length($allele) > 1 ) {
+		    # we have an insert state
+		    $allele = 'I';
+		} elsif( $allele eq '-' ) {
+		    # have a delete state
+		    $allele = 'D';
+		}
+	    }
 	}
 	
 	my $g = new Bio::PopGen::Genotype(-alleles      => \@alleles,
