@@ -45,17 +45,22 @@ ok($phylo_node->id, 'ADH_BOV');
 ok($phylo_node->bootstrap, 0.25);
 ok($phylo_node->description, 'Taxon 1');
 
-my $allele_node = new Bio::Tree::AlleleNode(-alleles => { 'm1' => [ 0 ],
-							  'm2' => [ 1 ],
-							  'm3' => [ 0,4] });
+my $allele_node = new Bio::Tree::AlleleNode();
+$allele_node->add_Genotype(new Bio::PopGen::Genotype(-marker_name => 'm1',
+						     -alleles=>  [ 0 ]));
+$allele_node->add_Genotype(new Bio::PopGen::Genotype(-marker_name => 'm3',
+						     -alleles=>  [ 1,1 ]));
+$allele_node->add_Genotype(new Bio::PopGen::Genotype(-marker_name => 'm4',
+						     -alleles=>  [ 0,4 ]));
 ok($allele_node);
 my @mkrs = $allele_node->get_marker_names;
 
 ok(@mkrs, 3);
-ok($allele_node->get_alleles('m3'), 2);
-my ($a1) = $allele_node->get_alleles('m1');
+my ($m3) = $allele_node->get_Genotypes(-marker => 'm3');
+ok($m3->get_Alleles, 2);
+my ($a1) = $allele_node->get_Genotypes(-marker => 'm1')->get_Alleles;
 ok($a1, 0);
 
-my ($a2,$a3) = $allele_node->get_alleles('m3');
+my ($a2,$a3) = $allele_node->get_Genotypes(-marker => 'm4')->get_Alleles;
 ok($a2, 0);
 ok($a3, 4);
