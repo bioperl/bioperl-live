@@ -196,13 +196,11 @@ sub _add_hsps {
 
 #		print STDERR "\nBlastHit: setting HSP #$hspCount \n@hspData\n";
 		my $hspObj =  Bio::Search::HSP::BlastHSP->new
-				      (-RAW_DATA => \@hspData, 
-				       -RANK     => $hspCount,
-				       -PROGRAM  => $prog,
-				       -QNAME    => $qname,
-				       -HNAME    => $hname,
-				       -QLENGTH  => $qlen,
-				       -HLENGTH  => $hlen,
+				      (-RAW_DATA   => \@hspData, 
+				       -RANK       => $hspCount,
+				       -PROGRAM    => $prog,
+				       -QUERY_NAME => $qname,
+				       -HIT_NAME   => $hname,
 				      ); 
 		push @hspList, $hspObj;
 		@hspData = ();
@@ -220,13 +218,11 @@ sub _add_hsps {
 #	       print STDERR "\nBlastHit: setting HSP #$hspCount \n@hspData"; 
 
 	       my $hspObj = Bio::Search::HSP::BlastHSP->new
-				     (-RAW_DATA => \@hspData, 
-				      -RANK     => $hspCount,
-				      -PROGRAM  => $prog,
-				      -QNAME    => $qname,
-				      -HNAME    => $hname,
-				      -QLENGTH  => $qlen,
-				      -HLENGTH  => $hlen,
+				     (-RAW_DATA   => \@hspData, 
+				      -RANK       => $hspCount,
+				      -PROGRAM    => $prog,
+				      -QUERY_NAME => $qname,
+				      -HIT_NAME   => $hname,
 				     );
 	       push @hspList, $hspObj;
 	   } else {
