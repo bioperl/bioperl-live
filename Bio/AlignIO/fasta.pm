@@ -177,7 +177,7 @@ sub next_aln {
 
 sub write_aln {
     my ($self,@aln) = @_;
-    my ($seq,$rseq,$name,$count,$length,$seqsub);
+    my ($seq,$desc,$rseq,$name,$count,$length,$seqsub);
 
     foreach my $aln (@aln) {
 	if( ! $aln || ! $aln->isa('Bio::Align::AlignI')  ) { 
@@ -186,8 +186,9 @@ sub write_aln {
 	}
 	foreach $rseq ( $aln->each_seq() ) {
 	    $name = $aln->displayname($rseq->get_nse());
-	    $seq  = $rseq->seq();	
-	    $self->_print (">$name\n") or return ;	
+	    $seq  = $rseq->seq();
+	    $desc = $rseq->description || '';
+	    $self->_print (">$name $desc\n") or return ;	
 	    $count =0;
 	    $length = length($seq);
 	    while( ($count * 60 ) < $length ) {
