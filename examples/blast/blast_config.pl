@@ -6,7 +6,7 @@ BEGIN {
         ###         to the directory right above Bio/ in order
         ###         for perl to be able to locate the .pm files. 
 
-	$INSTALL_PATH = "/home/steve/perl/bioperl";
+	$INSTALL_PATH = "/home/steve/perl/lib";
 
         ###
         ####
@@ -135,12 +135,13 @@ $opt_table  = undef;
 # Booleans:
 $opt_check_all = 0;   # check all hits for significance 
                       # (default = false, stops parsing after first non-signif hit).
+
+$opt_noaligns  = 0;   # if true, don't parse alignment sections.
 $opt_stats     = 1;
 $opt_best      = 0;
 $opt_log       = 0;
 $opt_err       = 0;  # deprecated (same as opt_log)
 $opt_html      = 0;
-$opt_stream    = 0;
 $opt_share     = 1;
 $opt_desc      = 0;  # do not include sbjct descriptions in table output.
 $opt_wait      = undef;  # Amount of time to wait during read() before timing out.
@@ -301,7 +302,7 @@ print &_list_dbs();
 
 }
 
-#--------------
+#--------------'
 sub _list_dbs {
 #--------------
     my $dbn = join(', ', $Blast->db_remote('n'));
@@ -347,6 +348,7 @@ sub blast_parse_params {
                (e.g., matrix, filters, Karlin-Altschul parameters)
  -noshare    : Do not share stats across a set of reports when parsing a
                Blast stream (default = share stats).
+ -noaligns   : Don't parse alignment sections (for faster parsing).
  -table <int>: Prints data from Blast report in a tab-delimited line(s).
                Table type is specified by <int> = 1,2,3. Type 1 = list HSP
                separately, type 2 = sum over all HSPs (tiling).
@@ -363,7 +365,7 @@ QQ_PARSE_QQ
 }
 
 
-#----------------
+#----------------'
 sub init_blast {
 #----------------
     ($usage_fref, @opts) = @_;
@@ -377,7 +379,7 @@ sub init_blast {
 		'compress!', 'eg!', 'rem!', 'loc!', 'check_all!', 'min_len=s',
 		'filt_func=s', 'exponent!', 'params!', 'wait=s',
 		'org=s', 'org_custom=s', 'aln_view=s', 'cutoff=s', 
-		'in_type=s', 'strnd=s', 'hist=s', 'proxy=s',
+		'in_type=s', 'strnd=s', 'hist=s', 'proxy=s', 'noaligns!',
 		@opts);
     
 
@@ -401,7 +403,7 @@ sub init_blast {
 
     if($MONITOR) {
 	print STDERR "$ID, v$VERSION (blast_config.pl: v$BLAST_CONFIG_VERSION)\n",'-'x50,"\n";
-	print STDERR "Started: ", `date` if $opt_stream;
+	print STDERR "Started: ", `date`;
     }
 
     if($opt_filt_func) {
@@ -482,6 +484,7 @@ sub set_blast_params {
 		-run        => '',
 		-file       => '',
 		-parse      => $opt_parse,
+		-no_aligns  => $opt_noaligns,
 		-signif     => $opt_signif, 
 		-filt_func  => $filt_func, 
 		-min_len    => $opt_min_len, 
@@ -489,7 +492,6 @@ sub set_blast_params {
 		-strict     => $opt_strict,
 		-stats      => $opt_stats,
 		-best       => $opt_best,
-#		-stream     => $opt_stream,   # No longer used.
 		-share      => $opt_share,
 		-signif_fmt => $opt_exponent,
 		-exec_func  => '',
@@ -539,7 +541,7 @@ sub create_blast {
       print STDERR "\nBlast program and/or database not defined.\n";
       my $msg = '';
       if(not $opt_prog)  {
-	$msg = sprintf "Please defined a -prog parameter of\n".
+	$msg = sprintf "Please define a -prog parameter of\n".
 	   "  blastp | blastn | tblastn | blastx | tblastx\n\n";
       }
       if(not $opt_db) {
@@ -584,9 +586,9 @@ sub print_table {
 #            the Blast object.
 
     my $bo   = shift || die "blast_config::print_table(): No Blast object was supplied at line ".__LINE__."\n";
-    local $_ = shift || $opt_table || 1;
 
     if($bo->is_signif) {
+        local $_ = shift || $opt_table || 1;
 	SWITCH: {
 	    /1/ && do{ print $bo->table_labels($opt_desc) if not $_printed_labels; 
 		       print $bo->table($opt_desc); last SWITCH;};
@@ -600,7 +602,7 @@ sub print_table {
     }
     $_printed_labels = 1;
 
-    $bo->destroy if $opt_stream;  # important when crunching lots of reports.
+    $bo->destroy;
     
 }
 
@@ -661,10 +663,12 @@ sub show_results {
     ## You need a wide screen to see this properly.
     $bo->display(); 
 
-    $MONITOR && do{ print STDERR "\nHit <RETURN> to see hits."; <STDIN>; };
-    $bo->display(-show=>'hits');
-    
-    &display_hit_info($bo);
+    if(!$opt_noaligns) {
+        $MONITOR  && do{ print STDERR "\nHit <RETURN> to see hits."; <STDIN>; };
+        $bo->display(-show=>'hits');
+        
+        &display_hit_info($bo);
+    }
 }
 
 

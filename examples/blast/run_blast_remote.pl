@@ -18,10 +18,14 @@
 # This is basically identical to the parse.pl script 
 # with additional options added for running a Blast report.
 #
+# Please see the helper script retrieve_blast.pl for retrieving the
+# report based on the output of run_blast_remote.pl
+#
 # This demo script does not exercise all of the functionality of the Blast object.
 # See the POD for the Bio::Tools::Blast.pm, accessible from the above URL.
 #
 # MODIFIED:
+#  sac, 22 Mar 2000: Added usage note about using retrieve_blast.pl
 #  sac, 16 Jun 1998: Added installation comment, require statement comments.
 #                    Minor example change.
 #---------------------------------------------------------------------------
@@ -39,7 +43,7 @@ use vars qw($ID $VERSION $DESC $MONITOR %runParam %blastParam
 	    $opt_dna $opt_table $opt_compress);
 
 $ID      = 'run_blast_remote.pl';
-$VERSION = 0.2;
+$VERSION = 0.3;
 $DESC    = "Demonstrates running a single Blast report using Bio::Tools::Blast.pm";
 
 #--------------
@@ -53,6 +57,10 @@ Usage: run_blast_remote.pl [ parameters ] seq.file
 run_blast_remote.pl obtains the query sequence to be Blasted from a 
 file specified on the command line. 
 For running multiple sequences, see blast_seqs.pl.
+
+NOTE: After using run_blast_remote.pl, use the helper script 
+      retrieve_blast.pl to get the actual Blast report from NCBI. 
+      See documentation in that script for usage details.
 
 QQ_USAGE_QQ
 
@@ -71,6 +79,10 @@ sub examples {
   ./$ID seq/ymr284w.fasta -prog blastp -nogap -db yeast > out.nogap2
   ./$ID seq/acc1.dna.fasta -prog blastx -db ecoli -vers 1 -signif 1e-20 -nomon > out1
   ./$ID -html -noparse -prog blastp -db nr seq/yel009c.fasta 
+
+NOTE: After using run_blast_remote.pl, use the helper script 
+      retrieve_blast.pl to get the actual Blast report from NCBI. 
+      See documentation in that script for usage details.
 
 QQ_EG_QQ
 }
