@@ -109,7 +109,12 @@ sub new {
 
 	    # note: the sequence string may be empty
 
-    $self->qual($qual);
+	if ($qual) {
+	    $self->qual($qual);
+	}
+	else {
+		$self->qual([]);
+	}
 	# if defined($qual);
     $id      && $self->display_id($id);
     $acc     && $self->accession_number($acc);
@@ -376,7 +381,6 @@ sub length {
 	my $self = shift;
 	if (ref($self->{qual}) ne "ARRAY") {
 		$self->warn("{qual} is not an array here. Why? It appears to be ".ref($self->{qual})."(".$self->{qual}."). Good thing this can _never_ happen.");
-		::dumpValue($self);
 	}
 	return scalar(@{$self->{qual}});
 }

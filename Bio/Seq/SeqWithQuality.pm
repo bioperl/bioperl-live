@@ -552,7 +552,10 @@ sub id {
 
 sub seq {
 	my ($self,$value) = @_;
-	if( defined $value) { $self->{seq_ref}->seq($value); }
+	if( defined $value) {
+		$self->{seq_ref}->seq($value);
+		$self->length();
+	}
 	return $self->{seq_ref}->seq();
 }
 
@@ -581,6 +584,8 @@ sub qual {
 
 	if( defined $value) {
 		$self->{qual_ref}->qual($value);
+			# update the lengths
+		$self->length();
 	}
 	return $self->{qual_ref}->qual();
 }
@@ -608,7 +613,7 @@ sub length {
 	}
 	my $seql = $self->{seq_ref}->length();
 	if ($seql != $self->{qual_ref}->length()) {
-		
+		$self->warn("Sequence length (".$seql.") is different from quality length (".$self->{qual_ref}->length().") in the SeqWithQuality object. This can only lead to problems later.");		
 		$self->{length} = "DIFFERENT";
 	}
 	else {

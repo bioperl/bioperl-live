@@ -71,10 +71,10 @@ use Bio::Seq::SeqWithQuality;
 
 @ISA = qw(Bio::SeqIO);
 
-=head2 next_phd()
+=head2 next_seq()
 
- Title   : next_phd()
- Usage   : $seq = $stream->next_phd()
+ Title   : next_seq()
+ Usage   : $swq = $stream->next_seq()
  Function: returns the next phred sequence in the stream
  Returns : Bio::Seq::SeqWithQuality object
  Args    : NONE
@@ -84,17 +84,29 @@ use Bio::Seq::SeqWithQuality;
 
 =cut
 
-sub next_phd {
-    # print("CSM next_phd\n");
-    # print("CSM Invoking next_primary_phd with $_[0] and 1\n");
-    # ::dumpValue($_[0]);
-    # print("\n");
+sub next_seq {
+	my ($self,@args) = @_;
+	my $messenger = $self->_next_phd(@_);
+	return $messenger;
+
+}
+
+
+=head2 _next_phd()
+
+ Title   : _next_phd()
+ Usage   : $seq = $stream->_next_phd() (but don't do this. use next_seq()
+	instead.)
+ Function: returns the next phred sequence in the stream
+ Returns : Bio::Seq::SeqWithQuality object
+ Args    : NONE
+ Notes   : An internal method. Use next_seq.
+
+=cut
+
+sub _next_phd {
     my $something = next_primary_phd( $_[0], 1 );
-    # print("CSM The result is:\n");
-    # ::dumpValue($something);
-    # print("\n");
     return $something;    
-    # return next_primary_phd( $_[0], 1 );
 }
 
 =head2 next_primary_phd()

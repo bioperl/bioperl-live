@@ -25,6 +25,7 @@ END {
 }
 
 
+require 'dumpvar.pl';
 
 print("Checking if the Bio::SeqIO::csmscf module could be used, even though it shouldn't be directly use'd...\n") if( $DEBUG);
         # test 1
@@ -38,7 +39,7 @@ my $in_scf = Bio::SeqIO->new('-file' => Bio::Root::IO->catfile("t","data","chad1
 			     '-verbose' => $DEBUG || 0);
 ok(1);
 
-my $swq = $in_scf->next_scf();
+my $swq = $in_scf->next_seq();
 
 print("Checking to see that SeqIO::scf returned the right kind of object (SeqWithQuality)...\n") if( $DEBUG);
 ok (ref($swq) eq "Bio::Seq::SeqWithQuality");

@@ -71,27 +71,38 @@ require 'dumpvar.pl';
 
 @ISA = qw(Bio::SeqIO);
 
-=head2 next_qual
+=head2 next_seq()
 
- Title   : next_qual
- Usage   : $seq = $stream->next_qual()
- Function: returns the next sequence in the stream
+ Title   : next_seq()
+ Usage   : $scf = $stream->next_seq()
+ Function: returns the next scf sequence in the stream
  Returns : Bio::Seq::PrimaryQual object
- Args    : NONE
+ Notes   : Get the next quality sequence from the stream.
 
 =cut
 
-sub next_qual {
-		# print("CSM next_qual\n");
-		# print("CSM Invoking next_primary_qual with $_[0] and 1\n");
-		# ::dumpValue($_[0]);
-		# print("\n");
-	my $something = next_primary_qual( $_[0], 1 );
-		# print("CSM The result is:\n");
-		# ::dumpValue($something);
-		# print("\n");
-	return $something;    
-		# return next_primary_qual( $_[0], 1 );
+sub next_seq {
+        my ($self,@args) = @_;
+        my $qual = $self->_next_qual(@args);
+        return $qual;
+}
+
+=head2 _next_qual
+
+ Title   : _next_qual
+ Usage   : $seq = $stream->_next_qual() (but don't do
+	that. Use $stream->next_seq() instead)
+ Function: returns the next quality in the stream
+ Returns : Bio::Seq::PrimaryQual object
+ Args    : NONE
+ Notes	 : An internal method. Gets the next quality in
+	the stream.
+
+=cut
+
+sub _next_qual {
+	my $qual = next_primary_qual( $_[0], 1 );
+	return $qual;    
 }
 
 =head2 next_primary_qual()

@@ -40,7 +40,7 @@ ok(1);
 my @quals;
 print("I saw these in qualfile.qual:\n") if $DEBUG;
 my $first = 1;
-while ( my $qual = $in_qual->next_qual() ) {
+while ( my $qual = $in_qual->next_seq() ) {
 		# ::dumpValue($qual);
 
     ok(1);

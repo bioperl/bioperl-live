@@ -70,18 +70,19 @@ use Bio::SeqIO;
 use Bio::Seq::PrimaryQual;
 use Bio::PrimarySeq;
 use Bio::Seq::SeqWithQuality;
-
+require 'dumpvar.pl';
 
 @ISA = qw(Bio::SeqIO);
 
-=head2 next_scf()
+=head2 next_seq()
 
- Title   : next_scf()
- Usage   : $scf = $stream->next_scf()
+ Title   : next_seq()
+ Usage   : $scf = $stream->next_seq()
  Function: returns the next scf sequence in the stream
  Returns : Bio::Seq::SeqWithQuality object
  Args    : NONE (huh?)
- Notes   : The SCF specification does not provide for having more then
+ Notes   : Fills the interface specification for SeqIO.
+	   The SCF specification does not provide for having more then
            one sequence in a given scf. So once the filehandle has been open
            and passed to SeqIO don\'t expect to run this function more then
            once on a given scf unless you embraced and extended the SCF
@@ -89,7 +90,25 @@ use Bio::Seq::SeqWithQuality;
 
 =cut
 
-sub next_scf {
+sub next_seq {
+	my ($self,@args) = @_;
+	my $swq = $self->_next_scf(@args);
+	return $swq;
+}
+
+=head2 _next_scf()
+
+ Title   : _next_scf()
+ Usage   : $scf = $stream->_next_scf() (but don't do this. use
+	next_seq() instead.)
+ Function: returns the next scf sequence in the stream
+ Returns : Bio::Seq::SeqWithQuality object
+ Args    : NONE (huh?)
+ Notes   : An internal method. See next_seq for proper usage.
+
+=cut
+
+sub _next_scf {
     my( $self, @args ) = @_;
     my ($seq, $seqc, $fh, $buffer, $offset, 
 	$length, $read_bytes, @read, %names);
@@ -321,7 +340,7 @@ sub _split_traces {
 sub get_trace {
 	my ($self,$base_channel) = @_;
 	$base_channel =~ tr/a-z/A-Z/;
-	$self->warn("get_trace: you asked for the colour channel for $base_channel\n") if( $self->verbose > 0 );
+		# $self->warn("get_trace: you asked for the colour channel for $base_channel\n") if( $self->verbose > 0 );
 	if ($base_channel !~ /A|T|G|C/) {
 		$self->throw("You tried to ask for a base channel that wasn't A,T,G, or C. Ask for one of those next time.");
 	}
@@ -381,6 +400,11 @@ sub write_scf {
     unless (ref($swq) eq "Bio::Seq::SeqWithQuality") {
 	$self->throw("You must pass a Bio::Seq::SeqWithQuality object to write_scf as a parameter named \"SeqWithQuality\"");
     }
+	# verify that there is some sequence or some qualities
+	$self->_fill_missing_data($swq);
+
+
+
     # print("write_scf!!! Woowoo. Received a swq object. It is $swq\n");
     # print("Here are the args:\n");
     # all of the rest of the arguments are comments, at the moment
@@ -549,17 +573,20 @@ sub _give_tracesbases_binary {
 	    }
 				# print(($pos+12)."\t0\t0\t".$peak_quality."\t0\t".$current_base."\t0\t0\t0\n");
 	    push @{$samples->{'arrays'}->{'all_bases'}},($place_base_at+1,0,0,$peak_quality,0,$current_base,0,0,0);
-	}elsif ($current_base eq "T") {
+	}
+	elsif ($current_base eq "N") {
 	    $ramp_position = $place_base_at - $half_ramp;
 	    for ($current_ramp = 0; 
 		 $current_ramp < $samples->{'ramp_width'}; 
 		 $current_ramp++) {
-		$samples->{'arrays'}->{'sam_t'}[$ramp_position+$current_ramp] = $peak_quality * $samples->{'ramp'}[$current_ramp];
+		$samples->{'arrays'}->{'sam_a'}[$ramp_position+$current_ramp] = $peak_quality * $samples->{'ramp'}[$current_ramp];
 	    }
 				# print(($pos+12)."\t0\t0\t0\t".$peak_quality."\t".$current_base."\t0\t0\t0\n");
 	    push @{$samples->{'arrays'}->{'all_bases'}},($place_base_at+1,0,0,0,$peak_quality,$current_base,0,0,0);
-	} else {
-	    print("The current base is not a base. Hmmm.\n");
+	}
+	else {
+		# don't print this.
+	    # print("The current base is not a base. Hmmm.\n");
 	}
     }
     # dumpValue($samples);
@@ -662,6 +689,34 @@ sub _give_comments_binary {
     my $binary .= pack "A$length",$comments_string;
     return $binary;
 }
+
+=head2 _fill_missing_data
+
+ Title   : _fill_missing_data($swq)
+ Usage   : $self->_fill_missing_data($swq);
+ Function: If the $swq with quality has no qualities, set all qualities to 0.
+	If the $swq has no sequence, set the sequence to N's.
+ Returns : Nothing. Modifies the SeqWithQuality that was passed as an argument.
+ Args    : A reference to a Bio::Seq::SeqWithQuality
+ Notes   : None.
+
+=cut
+
+sub _fill_missing_data {
+	my ($self,$swq) = @_;
+	my $qual_obj = $swq->qual_obj();
+	my $seq_obj = $swq->seq_obj();
+	if ($qual_obj->length() == 0 && $seq_obj->length() != 0) {
+		my $fake_qualities = ("10 ")x$seq_obj->length();
+		$swq->qual($fake_qualities);
+	}
+	if ($seq_obj->length() == 0 && $qual_obj->length != 0) {
+		my $sequence = ("N")x$qual_obj->length();
+		$swq->seq($sequence);
+	}
+}
+
+
 
 1;
 __END__

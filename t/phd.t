@@ -37,7 +37,7 @@ ok(1);
 
 my @phreds;
 print("I saw these in qualfile.qual:\n") if($DEBUG);
-my $phd = $in_phd->next_phd();
+my $phd = $in_phd->next_seq();
 print("Checking to see if this is the right reference...\n") if( $DEBUG);
 ok(ref($phd) eq "Bio::Seq::SeqWithQuality");
 
