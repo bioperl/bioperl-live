@@ -1,4 +1,4 @@
-## $Id: MANIFEST,v 1.23 2000-12-12 20:23:02 jason Exp $
+## $Id: MANIFEST,v 1.24 2000-12-14 15:50:49 jason Exp $
 ##
 ## This is the file listing for everything that
 ## comes with the bioperl distribution. The perl
@@ -52,7 +52,6 @@ Bio/Index/Fasta.pm
 Bio/Index/GenBank.pm
 Bio/Index/SwissPfam.pm
 Bio/Index/Swissprot.pm
-Bio/LiveSeq/Analyser.pm
 Bio/LiveSeq/AARange.pm
 Bio/LiveSeq/Mutation.pm
 Bio/LiveSeq/Chain.pm
