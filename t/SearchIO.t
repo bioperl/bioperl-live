@@ -148,7 +148,7 @@ ok($result->get_statistic('lambda'), 0.267);
 ok($result->get_statistic('entropy') == 0.14);
 ok($result->get_statistic('dbletters'), 1358990);
 ok($result->get_statistic('dbentries'), 4289);
-ok($result->get_statistic('hsplength'), 47);
+ok($result->get_statistic('effective_hsplength'), 47);
 ok($result->get_statistic('effectivespace'), 894675611);
 ok($result->get_parameter('matrix'), 'BLOSUM62');
 ok($result->get_parameter('gapopen'), 11);
