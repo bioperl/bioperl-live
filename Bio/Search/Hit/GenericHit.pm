@@ -340,4 +340,36 @@ sub rewind{
    $self->{'_iterator'} = 0;
 }
 
+=head2 hsps
+
+ Usage     : $hit_object->hsps();
+ Purpose   : Get a list containing all HSP objects.
+           : Get the numbers of HSPs for the current hit.
+ Example   : @hsps = $hit_object->hsps();
+           : $num  = $hit_object->hsps();  # alternatively, use num_hsps()
+ Returns   : Array context : list of Bio::Search::HSP::BlastHSP.pm objects.
+           : Scalar context: integer (number of HSPs).
+           :                 (Equivalent to num_hsps()).
+ Argument  : n/a. Relies on wantarray
+ Throws    : Exception if the HSPs have not been collected.
+
+See Also   : L<hsp()|hsp>, L<num_hsps()|num_hsps>
+
+=cut
+
+#---------
+sub hsps {
+#---------
+    my $self = shift;
+
+    if (not ref $self->{'_hsps'}) {
+	$self->throw("Can't get HSPs: data not collected.");
+    }
+
+    return wantarray 
+        #  returning list containing all HSPs.
+	? @{$self->{'_hsps'}}
+        #  returning number of HSPs.
+        : scalar(@{$self->{'_hsps'}});
+}
 1;

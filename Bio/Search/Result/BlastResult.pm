@@ -362,15 +362,25 @@ sub database_name {
     return $dbname;
 }
 
-#---------------
-sub hits {
-#---------------
-    my $self = shift;
-    my @hits = ();
-    if( ref $self->{'_hits'}) {
-        @hits = @{$self->{'_hits'}};
-    }
-    return @hits;
+
+=head2 hits
+
+ Title   : hits
+ Usage   : my @hits = $result->hits
+ Function: Returns the available hits for this Result
+ Returns : Array of L<Bio::Search::Hit::HitI> objects
+ Args    : none
+
+
+=cut
+
+sub hits{
+   my ($self) = shift;
+   my @hits = ();
+   if( ref $self->{'_hits'}) {
+       @hits = @{$self->{'_hits'}};
+   }
+    return @hits;   
 }
 
 =head2 add_hit
@@ -599,6 +609,101 @@ sub psiblast {
         $self->{'_psiblast'} = 1;
     }
     return $self->{'_psiblast'};
+}
+
+
+=head2 database_entries
+
+ Title   : database_entries
+ Usage   : $num_entries = $result->database_entries()
+ Function: Used to obtain the number of entries contained in the database.
+ Returns : a scalar integer representing the number of entities in the database
+           or undef if the information was not available.
+ Args    : [optional] new integer for the number of sequence entries in the db
+
+
+=cut
+
+sub database_entries {
+    return $_[0]->analysis_subject->entries() || 0;
+}
+
+
+=head2 database_letters
+
+ Title   : database_letters
+ Usage   : $size = $result->database_letters()
+ Function: Used to obtain the size of database that was searched against.
+ Returns : a scalar integer (units specific to algorithm, but probably the
+           total number of residues in the database, if available) or undef if
+           the information was not available to the Processor object.
+ Args    : [optional] new scalar integer for number of letters in db 
+
+
+=cut
+
+sub database_letters {
+    return $_[0]->analysis_subject->letters() || 0;
+}
+
+
+=head2 available_parameters
+
+ Title   : available_parameters
+ Usage   : my @params = $report->available_paramters
+ Function: Returns the names of the available parameters
+ Returns : Return list of available parameters used for this report
+ Args    : none
+
+=cut
+
+sub available_parameters{
+    return ();
+}
+
+
+=head2 get_parameter
+
+ Title   : get_parameter
+ Usage   : my $gap_ext = $report->get_parameter('gapext')
+ Function: Returns the value for a specific parameter used
+           when running this report
+ Returns : string
+ Args    : name of parameter (string)
+
+=cut
+
+sub get_parameter{
+    return '';
+}
+
+=head2 get_statistic
+
+ Title   : get_statistic
+ Usage   : my $gap_ext = $report->get_statistic('kappa')
+ Function: Returns the value for a specific statistic available 
+           from this report
+ Returns : string
+ Args    : name of statistic (string)
+
+=cut
+
+sub get_statistic{
+    return '';
+}
+
+=head2 available_statistics
+
+ Title   : available_statistics
+ Usage   : my @statnames = $report->available_statistics
+ Function: Returns the names of the available statistics
+ Returns : Return list of available statistics used for this report
+ Args    : none
+
+=cut
+
+sub available_statistics{
+    return ();
 }
 
 

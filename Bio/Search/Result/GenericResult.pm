@@ -478,9 +478,9 @@ sub available_statistics{
    return keys %{$self->{'_statistics'}};
 }
 
-=head2 Bio::Search::Report 
+=head2 Bio::Search::Result::GenericResult specific methods
 
-Bio::Search::Result::GenericResult specific methods
+=cut
 
 =head2 add_hit
 
@@ -567,6 +567,18 @@ sub add_statistic {
    my ($self,$key,$value) = @_;
    $self->{'_statistics'}->{$key} = $value;
    return;
+}
+
+
+#---------------
+sub hits {
+#---------------
+    my $self = shift;
+    my @hits = ();
+    if( ref $self->{'_hits'}) {
+        @hits = @{$self->{'_hits'}};
+    }
+    return @hits;
 }
 
 1;

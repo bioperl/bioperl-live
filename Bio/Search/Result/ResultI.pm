@@ -311,6 +311,34 @@ sub available_statistics{
    $self->throw_not_implemented();
 }
 
+=head2 algorithm
+
+ Title   : algorithm
+ Usage   : my $r_type = $hsp->algorithm
+ Function: Obtain the name of the algorithm used to obtain the Result
+ Returns : string (e.g., BLASTP)
+ Args    : [optional] scalar string to set value
+
+=cut
+
+sub algorithm{
+    return '';
+}
+
+=head2 algorithm_version
+
+ Title   : algorithm_version
+ Usage   : my $r_version = $hsp->algorithm_version
+ Function: Obtain the version of the algorithm used to obtain the Result
+ Returns : string (e.g., 2.1.2)
+ Args    : [optional] scalar string to set algorithm version value
+
+=cut
+
+sub algorithm_version{
+    return '';
+}
+
 1;
 
 

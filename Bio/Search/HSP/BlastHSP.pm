@@ -430,7 +430,7 @@ sub gaps {
     }
 
     if($seqType eq 'total') {
-	return ($self->{'_queryGaps'} + $self->{'_sbjctGaps'}) || 0;
+	return (($self->{'_queryGaps'} || 0) + ($self->{'_sbjctGaps'} || 0)) || 0;
     } else {
 	## Sensitive to member name format.
 	$seqType = "_\L$seqType\E";
