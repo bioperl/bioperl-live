@@ -183,9 +183,9 @@ sub new {
 =head2 disaggregate
 
  Title   : disaggregate
- Usage   : $arrayref = $a->disaggregate($types,$factory)
+ Usage   : $a->disaggregate($types,$factory)
  Function: disaggregate type list into components
- Returns : an array reference
+ Returns : nothing
  Args    : see below
  Status  : Public
 
@@ -194,7 +194,7 @@ low-level features to be retrieved from the GFF database.  The list of
 types is passed as an array reference containing a series of
 [method,source] pairs.  This method synthesizes a new set of
 [method,source] pairs, and appends them to the list of requested
-types, return the new list as an array reference.
+types, changing the list in situ.
 
 Arguments:
 
@@ -245,11 +245,10 @@ sub disaggregate {
  Status  : Public
 
 This method is called to aggregate a list of raw GFF features into the
-set of composite features.  The method is called an array reference to 
+set of composite features.  The method is called an array reference to
 a set of Bio::DB::GFF::Feature objects.  It runs through the list,
-creating new composite features when appropriate, and appending them to 
-the list.  The method result is a new array reference containing all
-the raw features plus the new composite ones.
+creating new composite features when appropriate.  The method result
+is an array reference containing the composite features.
 
 Arguments:
 
@@ -312,6 +311,90 @@ sub aggregate {
 }
 
 
+=head2 method
+
+ Title   : method
+ Usage   : $string = $a->method
+ Function: get the method type for the composite feature
+ Returns : a string
+ Args    : none
+ Status  : Protected
+
+This method is called to get the method to be assigned to the
+composite feature once it is aggregated.  It is called if the user did
+not explicitly supply a -method argument when the aggregator was
+created.
+
+This is the method that should be overridden in aggregator subclasses.
+
+=cut
+
+# no default method
+sub method {
+  return;
+}
+
+=head2 main_name
+
+ Title   : main_name
+ Usage   : $string = $a->main_name
+ Function: get the method type for the "main" component of the feature
+ Returns : a string
+ Args    : none
+ Status  : Protected
+
+This method is called to get the method of the "main component" of the
+composite feature.  It is called if the user did not explicitly supply
+a -main-method argument when the aggregator was created.
+
+This is the method that should be overridden in aggregator subclasses.
+
+=cut
+
+# no default main method
+sub main_name {
+  return;
+}
+
+=head2 part_names
+
+ Title   : part_names
+ Usage   : @methods = $a->part_names
+ Function: get the methods for the non-main various components of the feature
+ Returns : a list of strings
+ Args    : none
+ Status  : Protected
+
+This method is called to get the list of methods of the "main component" of the
+composite feature.  It is called if the user did not explicitly supply
+a -main-method argument when the aggregator was created.
+
+This is the method that should be overridden in aggregator subclasses.
+
+=cut
+
+# no default part names
+sub part_names {
+  my $self = shift;
+  return;
+}
+
+=head2 match_sub
+
+ Title   : match_sub
+ Usage   : $coderef = $a->match_sub($factory)
+ Function: generate a code reference that will match desired features
+ Returns : a code reference
+ Args    : see below
+ Status  : Internal
+
+This method is used internally to generate a code sub that will
+quickly filter out the raw features that we're interested in
+aggregating.  The returned sub accepts a Feature and returns true if
+we should aggregate it, false otherwise.
+
+=cut
+
 sub match_sub {
   my $self    = shift;
   my $factory = shift;
@@ -321,6 +404,26 @@ sub match_sub {
   return $factory->make_match_sub($types_to_aggregate);
 }
 
+=head2 components
+
+ Title   : components
+ Usage   : @array= $a->components([$components])
+ Function: get/set stored list of parsed raw feature types
+ Returns : an array in list context, an array ref in scalar context
+ Args    : new arrayref of feature types
+ Status  : Internal
+
+This method is used internally to remember the parsed list of raw
+features that we will aggregate.  The need for this subroutine is
+seen when a user requests a composite feature of type
+"clone:cosmid".  This generates a list of components in which the
+source is appended to the method, like "clone_left_end:cosmid" and
+"clone_right_end:cosmid".  components() stores this information for
+later use.
+
+=cut
+
+
 sub components {
   my $self = shift;
   my $d = $self->{components};
@@ -328,6 +431,23 @@ sub components {
   return unless ref $d;
   return wantarray ? @$d : $d;
 }
+
+=head2 get_part_names
+
+ Title   : get_part_names
+ Usage   : @array = $a->get_part_names
+ Function: get list of sub-parts for this type of feature
+ Returns : an array
+ Args    : none
+ Status  : Internal
+
+This method is used internally to fetch the list of feature types that
+form the components of the composite feature.  Type names in the
+format "method:source" are recognized, as are "method" and
+Bio::DB::GFF::Typename objects as well.  It checks instance variables
+first, and if not defined calls the part_names() method.
+
+=cut
 
 sub get_part_names {
   my $self = shift;
@@ -338,11 +458,40 @@ sub get_part_names {
   }
 }
 
+=head2 get_main_name
+
+ Title   : get_main_name
+ Usage   : $string = $a->get_main_name
+ Function: get the "main" method type for this feature
+ Returns : a string
+ Args    : none
+ Status  : Internal
+
+This method is used internally to fetch the type of the "main part" of
+the feature.  It checks instance variables first, and if not defined
+calls the main_name() method.
+
+=cut
+
 sub get_main_name {
   my $self = shift;
   return $self->{main_method} if defined $self->{main_method};
   return $self->main_name;
 }
+
+=head2 get_method
+
+ Title   : get_method
+ Usage   : $string = $a->get_method
+ Function: get the method type for the composite feature
+ Returns : a string
+ Args    : none
+ Status  : Internal
+
+This method is used internally to fetch the type of the method that
+will be assigned to the composite feature once it is synthesized.
+
+=cut
 
 sub get_method {
   my $self = shift;
@@ -350,21 +499,24 @@ sub get_method {
   return $self->method;
 }
 
-
-# no default method
-sub method {
-  return;
-}
-
-# no default main method
-sub main_name {
-  return;
-}
-
-# no default part names
-sub part_names {
-  my $self = shift;
-  return;
-}
-
 1;
+
+=head1 BUGS
+
+None known yet.
+
+=head1 SEE ALSO
+
+L<Bio::DB::GFF>
+
+=head1 AUTHOR
+
+Lincoln Stein E<lt>lstein@cshl.orgE<gt>.
+
+Copyright (c) 2001 Cold Spring Harbor Laboratory.
+
+This library is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself.
+
+=cut
+

@@ -70,7 +70,7 @@ sub get_dna {
     return;   # zero length == empty string
   }
 
-  my $sth = $self->make_dna_query($name,$start,$stop,$class);
+  my $sth = $self->make_dna_query($name,$class,$start,$stop);
   my @row = $sth->fetchrow_array;
   $sth->finish;
 
@@ -141,7 +141,7 @@ sub get_features_iterator {
 
 sub get_types {
   my $self = shift;
-  my ($srcseq,$src_class,$start,$stop,$want_count) = @_;
+  my ($srcseq,$start,$stop,$want_count) = @_;
   my $straight      = $self->do_straight_join($srcseq,$start,$stop,[]) ? 'straight_join' : '';
   my ($select,@args1) = $self->make_types_select_part($srcseq,$start,$stop,$want_count);
   my ($from,@args2)   = $self->make_types_from_part($srcseq,$start,$stop,$want_count);

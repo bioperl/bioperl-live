@@ -24,7 +24,9 @@ END
 
 sub make_dna_query {
   my $self = shift;
-  $self->do_query('SELECT substring(fdna.fdna,?,?) FROM fdna WHERE fref=?',@_);
+  my ($name,$start,$stop,$class) = @_;
+  # simply ignore class for now
+  $self->do_query('SELECT substring(fdna.fdna,?,?) FROM fdna WHERE fref=?',$name,$start,$stop);
 }
 
 # given sequence name, return (reference,start,stop,strand)
