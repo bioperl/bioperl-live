@@ -589,7 +589,7 @@ S1: 32 (17.6 bits)
 	    <entry>HSP</entry>
 	    <entry>frame</entry>
 	    <entry>0</entry>
-	    <entry>frame, GFF convention</entry>
+	    <entry>$hsp->query->frame,$hsp->hit->frame</entry>
 	  </row>
 	  <row>
 	    <entry>HSP</entry>
