@@ -150,7 +150,7 @@ sub write_seq {
    foreach my $seq (@seq) {
      my $str = $seq->seq;
      my $top = $seq->id();
-     if (my $desc = $seq->desc()) {
+     if ($seq->can('desc') and my $desc = $seq->desc()) {
 	 $desc =~ s/\n//g;
         $top .= " $desc";
      }
