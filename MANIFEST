@@ -1,5 +1,5 @@
 # Bioperl Manifest List
-# $Id: MANIFEST,v 1.9 1999-03-12 18:45:11 amackey Exp $
+# $Id: MANIFEST,v 1.10 1999-04-05 14:33:18 birney Exp $
 #
 MANIFEST
 Makefile.PL
@@ -33,6 +33,9 @@ Bio/Tools/WWW.pm
 Bio/Tools/pSW.pm
 Bio/Tools/Sigcleave.pm
 Bio/Tools/RestrictionEnzyme.pm
+Bio/Index/Abstract.pm
+Bio/Index/Fasta.pm
+Bio/Index/Embl.pm
 Bio/DB/BioSeqI.pm
 Bio/DB/GenBank.pm
 Bio/DB/GenPept.pm
@@ -57,6 +60,7 @@ t/Sbjct.t
 t/SimpleAlign.t
 t/SeqIO.t
 t/DB.t
+t/Index.t
 t/test.fasta
 t/test.raw
 t/test.gcg
@@ -88,16 +92,8 @@ Compile/SW/libs/basematrix.c
 Compile/SW/libs/basematrix.h
 Compile/SW/libs/btcanvas.c
 Compile/SW/libs/btcanvas.h
-Compile/SW/libs/cdna.c
-Compile/SW/libs/cdna.h
-Compile/SW/libs/cdnadb.c
-Compile/SW/libs/cdnadb.h
 Compile/SW/libs/codon.c
 Compile/SW/libs/codon.h
-Compile/SW/libs/codonmapper.c
-Compile/SW/libs/codonmapper.h
-Compile/SW/libs/codonmatrix.c
-Compile/SW/libs/codonmatrix.h
 Compile/SW/libs/commandline.c
 Compile/SW/libs/commandline.h
 Compile/SW/libs/complexconsensi.c
@@ -118,16 +114,6 @@ Compile/SW/libs/dpenvelope.h
 Compile/SW/libs/dyna.h
 Compile/SW/libs/dynlibcross.c
 Compile/SW/libs/dynlibcross.h
-Compile/SW/libs/embl.c
-Compile/SW/libs/embl.h
-Compile/SW/libs/gene.c
-Compile/SW/libs/gene.h
-Compile/SW/libs/genomic.c
-Compile/SW/libs/genomic.h
-Compile/SW/libs/genomicdb.c
-Compile/SW/libs/genomicdb.h
-Compile/SW/libs/genomicregion.c
-Compile/SW/libs/genomicregion.h
 Compile/SW/libs/histogram.c
 Compile/SW/libs/histogram.h
 Compile/SW/libs/hscore.c
@@ -154,10 +140,6 @@ Compile/SW/libs/sequencedb.h
 Compile/SW/libs/sw.h
 Compile/SW/libs/sw_wrap.c
 Compile/SW/libs/sw_wrap.h
-Compile/SW/libs/transcript.c
-Compile/SW/libs/transcript.h
-Compile/SW/libs/translation.c
-Compile/SW/libs/translation.h
 Compile/SW/libs/wisebase.h
 Compile/SW/libs/wiseconfig.c
 Compile/SW/libs/wiseconfig.h
