@@ -481,7 +481,7 @@ sub refseq_db{
 	return $self->{'refseq_db'} = shift;
     } elsif( ! defined $self->{'refseq_db'} ) {
 	$self->{'refseq_db'} = Bio::DB::RefSeq->new
-	    (-retrieval_type => $self->retrievaltype,
+	    (-retrievaltype => $self->retrieval_type,
 	     -verbose        => $self->verbose);
     }
     return $self->{'refseq_db'};
