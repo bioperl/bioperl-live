@@ -15,14 +15,13 @@ BEGIN {
         use lib 't';
     }
     use Test;
-    plan test => 1;
+    plan test => 15;
 }
 
 use Bio::Seq;
 use Bio::Tools::GFF;
 use Bio::SeqFeatureI;
 use Bio::SeqFeature::Generic;
-
 my $feat = new Bio::SeqFeature::Generic( -start => 10, -end => 100,
 				-strand => -1, -primary => 'repeat',
 				-source => 'repeatmasker',
@@ -31,15 +30,37 @@ my $feat = new Bio::SeqFeature::Generic( -start => 10, -end => 100,
 				    new => 1,
 				    author => 'someone',
 				    sillytag => 'this is silly!' } );
-
-my $gff1out = Bio::Tools::GFF->new(-gff_version => 1);
-my $gff2out = Bio::Tools::GFF->new(-gff_version => 2);
+ok($feat);
+my $gff1out = Bio::Tools::GFF->new(-gff_version => 1, -file => ">out1.gff");
+ok($gff1out);
+my $gff2out = Bio::Tools::GFF->new(-gff_version => 2, -file => ">out2.gff");
+ok($gff2out);
 
 $gff1out->write_feature($feat);
 $gff2out->write_feature($feat);
 
-my $gff1in = Bio::Tools::GFF->new(-gff_version => 1);
-my $gff2in = Bio::Tools::GFF->new(-gff_version => 2);
+$gff1out->close();
+$gff2out->close();
+
+my $gff1in = Bio::Tools::GFF->new(-gff_version => 1,  -file => "out1.gff");
+ok($gff1in);
+my $gff2in = Bio::Tools::GFF->new(-gff_version => 2, -file => "out2.gff");
+ok($gff2in);
 
 my $feat1 = $gff1in->next_feature();
+ok($feat1);
+ok($feat1->start, $feat->start);
+ok($feat1->end, $feat->end);
+ok($feat1->primary_tag, $feat->primary_tag);
+ok($feat1->score, $feat->score);
+
 my $feat2 = $gff2in->next_feature();
+ok($feat2);
+ok($feat2->start, $feat->start);
+ok($feat2->end, $feat->end);
+ok($feat2->primary_tag, $feat->primary_tag);
+ok($feat2->score, $feat->score);
+
+END {
+    unlink("out1.gff", "out2.gff");
+}

@@ -2,6 +2,7 @@ package Bio::Tools::GFF;
 
 use vars qw(@ISA);
 use strict;
+use Bio::SeqAnalysisParserI;
 
 @ISA = qw(Bio::Root::RootI Bio::SeqAnalysisParserI);
 
@@ -9,7 +10,8 @@ sub new {
   my ($class, @args) = @_;
   my $self = $class->SUPER::new(@args);
   
-  my ($file, $fh, $gff_version) = $self->_rearrange([qw(FILE FH GFF_VERSION)],@args);
+  my ($file, $fh, $gff_version) = $self->_rearrange([qw(FILE FH 
+							GFF_VERSION)],@args);
   
   if( defined $file && defined $fh ) {
       $self->throw("Cannot define both a file and fh for input");
@@ -155,7 +157,6 @@ sub _from_gff2_string {
 
 sub write_feature {
   my ($self, $feature) = @_;
-  
   if($self->gff_version() == 1) {
     $self->_print($self->_gff_string($feature)."\n");
   } else {
@@ -316,4 +317,20 @@ sub _readLine {
   my $line = <$fh>;
   
   return $line;
+}
+
+=head2 close
+
+ Title   : close
+ Usage   : $seqio->close()
+ Function: Closes the file handle
+ Example :
+ Returns :
+ Args    :
+
+=cut
+
+sub close {
+   my ($self, @args) = @_;
+   $self->{'FH'} = undef;
 }
