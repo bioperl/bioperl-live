@@ -8,10 +8,10 @@ BEGIN {
 	use lib 't';
     }
     use Test;
-    $TESTCOUNT = 10;
+    $TESTCOUNT = 3;
     plan tests => $TESTCOUNT;
 
-    eval { require IO::String; require Bio::DB::GenBank; };
+    eval {  };
     if( $@ ) {
 	print STDERR "Bio::DB::GenBank unable to be loaded. This means the Bio::DB::* modules are not usable. so can't test remote locations.\n";
 	for( 1..$TESTCOUNT ) {
@@ -44,12 +44,12 @@ foreach my $ft ( $seq->top_SeqFeatures ) {
 
 ok(1);
 
-my $db = Bio::DB::GenBank->new();
-
-foreach my $ft ( $seq->top_SeqFeatures ) {
-	my $t = $ft->spliced_seq();
-	print "Got ",$t->seq,"\n";
-}
+#my $db = Bio::DB::GenBank->new();
+#
+#foreach my $ft ( $seq->top_SeqFeatures ) {
+#	my $t = $ft->spliced_seq();
+#	print "Got ",$t->seq,"\n";
+#}
 
 
 
