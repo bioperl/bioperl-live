@@ -399,13 +399,15 @@ sub write_seq {
     
     # Organism lines
     if (my $spec = $seq->species) {
-        my($species, $genus, @class) = $spec->classification();
+        my ($species, $genus, @class) = $spec->classification();
         my $OS = "$genus $species";
         if (my $ssp = $spec->sub_species) {
             $OS .= " $ssp";
         }
 	$self->_print("SOURCE      $OS.\n");
-	$self->_print("  ORGANISM  $OS\n");
+	$self->_print("  ORGANISM  ",
+		      ($spec->organelle() ? $spec->organelle()." " : ""),
+		      $OS, "\n");
         my $OC = join('; ', (reverse(@class), $genus)) .'.';
         $self->_write_line_GenBank_regex("            ","            ",
 					 $OC,"\\s\+\|\$",80);
@@ -643,7 +645,7 @@ sub _read_GenBank_References{
 	   # create the new reference object
 	   $ref = Bio::Annotation::Reference->new();
 	   # check whether start and end base is given
-	   if (/^REFERENCE\s+\d+\s+\(bases (\d+) to (\d+)/){
+	   if (/^REFERENCE\s+\d+\s+\([a-z]+ (\d+) to (\d+)/){
 	       $ref->start($1);
 	       $ref->end($2);
 	   }
@@ -704,27 +706,37 @@ sub _add_ref_to_array {
 
 sub _read_GenBank_Species {
     my( $self,$buffer) = @_;
-    
+    my @organell_names = ("chloroplast", "mitochondr"); 
+             # only those carrying DNA, apart from the nucleus
+
     $_ = $$buffer;
     
-    my( $sub_species, $species, $genus, $common, @class );
+    my( $sub_species, $species, $genus, $common, $organelle, @class );
     # upon first entering the loop, we must not read a new line -- the SOURCE
     # line is already in the buffer (HL 05/10/2000)
     while (defined($_) || defined($_ = $self->_readline())) {
+	# de-HTMLify (links that may be encountered here don't contain
+	# escaped '>', so a simple-minded approach suffices)
+        s/<[^>]+>//g;
 	if (/^SOURCE\s+(.*)/) {
 	    # FIXME this is probably mostly wrong (e.g., it yields things like
 	    # Homo sapiens adult placenta cDNA to mRNA
 	    # which is certainly not what you want)
 	    $common = $1;
-	    $common =~ s/\.$//;
-	} elsif (/^\s+ORGANISM\s+(\S+)(?:\s+(\S+))?(?:\s+(\S+))?/) {
-            $genus = $1;
-	    if ($2) {
-		$species = $2;
+	    $common =~ s/\.$//; # remove trailing dot
+	} elsif (/^\s+ORGANISM/) {
+	    my @spflds = split(' ', $_);
+	    shift(@spflds); # ORGANISM
+	    if(grep { $_ =~ /^$spflds[0]/i; } @organell_names) {
+		$organelle = shift(@spflds);
+	    }
+            $genus = shift(@spflds);
+	    if(@spflds) {
+		$species = shift(@spflds);
 	    } else {
 		$species = "sp.";
 	    }
-	    $sub_species = $3 if $3;
+	    $sub_species = shift(@spflds) if(@spflds);
         } elsif (/^\s+(.+)/) {
             push(@class, split /[;\s\.]+/, $1);
         } else {
@@ -751,6 +763,7 @@ sub _read_GenBank_Species {
     $make->classification( @class );
     $make->common_name( $common      ) if $common;
     $make->sub_species( $sub_species ) if $sub_species;
+    $make->organelle($organelle) if $organelle;
     return $make;
 }
 
