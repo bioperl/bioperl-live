@@ -84,7 +84,7 @@ Some note on the terminology/notation of method names:
 # Let the code begin...
 
 package Bio::LiveSeq::SeqI;
-$VERSION=3.2;
+$VERSION=3.3;
 # Version history:
 # Thu Mar 16 18:11:18 GMT 2000 v.1.0 Started implementation, interface/inheritance from ChainI.pm
 # Thu Mar 16 20:05:51 GMT 2000 v 1.2 implemented up to splice_out
@@ -120,9 +120,9 @@ $VERSION=3.2;
 # Thu Jun 29 16:38:45 BST 2000 v 3.0 labelchange() now calls itself again for the DNAobj if the label for the change is not valid for the object requested but valid for the DNAobj
 # Tue Jan 30 14:16:22 EST 2001 v 3.1 delete_Obj added, to flush circular references
 # Wed Mar 28 15:16:38 BST 2001 v 3.2 functions warn, verbose, throw, stack_trace, stack_trace_dump added
+# Wed Apr  4 13:34:29 BST 2001 v 3.3 moved from carp to warn
 
 use strict;
-use Carp qw(cluck croak carp);
 use vars qw($VERSION @ISA);
 use Bio::LiveSeq::ChainI 1.9; # to inherit from it
 use Bio::Tools::CodonTable; # for the translate() function
@@ -226,7 +226,7 @@ sub labelsubseq {
   } else {
     if ($start) {
       unless ($self->{'seq'}->valid($start)) {
-	carp "Start label not valid"; return (-1);
+	$self->warn("Start label not valid"); return (-1);
       }
     }
     if ($end) {
@@ -235,10 +235,10 @@ sub labelsubseq {
 	undef $end;
       } else {
 	unless ($self->{'seq'}->valid($end)) {
-	  carp "End label not valid"; return (-1);
+	  $self->warn("End label not valid"); return (-1);
 	}
 	unless ($self->follows($start,$end) == 1) {
-	  carp "End label does not follow Start label!"; return (-1);
+	  $self->warn("End label does not follow Start label!"); return (-1);
 	}
 	undef $length;
       }
@@ -304,7 +304,7 @@ sub subseq {
   my ($str,$startlabel,$endlabel);
   if (defined ($length)) {
     if ($length < 1) {
-      carp "No sense asking for a subseq of length < 1";
+      $self->warn("No sense asking for a subseq of length < 1");
       return (-1);
     }
   }
@@ -313,20 +313,20 @@ sub subseq {
     $startlabel=$self->start;
   } else {
     if ($pos1 == 0) {  # if position = 0 complain
-      carp "Position cannot be 0!"; return (-1);
+      $self->warn("Position cannot be 0!"); return (-1);
     }
     ##if ($strand == 1) { # CHECK THIS!
       if ((defined ($pos2))&&($pos1>$pos2)) {
-	carp "1st position($pos1) cannot be > 2nd position($pos2)!"; return (-1);
+	$self->warn("1st position($pos1) cannot be > 2nd position($pos2)!"); return (-1);
       }
     ##} else { # CHECK THIS!
     ##  if ((defined ($pos2))&&($pos1<$pos2)) {
-##	carp "1st position($pos1) cannot be < 2nd position($pos2) on reverse strand!"; return (-1);
+##	$self->warn("1st position($pos1) cannot be < 2nd position($pos2) on reverse strand!)"; return (-1);
     ##  }
     ##}
     $startlabel=$self->label($pos1);
     if ($startlabel < 1) {
-      carp "position $pos1 not valid as start of subseq!"; return (-1);
+      $self->warn("position $pos1 not valid as start of subseq!"); return (-1);
     }
   }
   unless (defined ($pos2)) {
@@ -336,21 +336,21 @@ sub subseq {
     }
   } else {
     if ($pos2 == 0) {  # if position = 0 complain
-      carp "Position cannot be 0!"; return (-1);
+      $self->warn("Position cannot be 0!"); return (-1);
     }
     undef $length;
     ##if ($strand == 1) { # CHECK THIS!
       if ((defined ($pos1))&&($pos1>$pos2)) {
-	carp "1st position($pos1) cannot be > 2nd position($pos2)!"; return (-1);
+	$self->warn("1st position($pos1) cannot be > 2nd position($pos2)!"); return (-1);
       }
     ##} else { # CHECK THIS!
     ##  if ((defined ($pos1))&&($pos1<$pos2)) {
-##	carp "1st position($pos1) cannot be < 2nd position($pos2) on reverse strand!"; return (-1);
+##	$self->warn("1st position($pos1) cannot be < 2nd position($pos2) on reverse strand!"); return (-1);
     ##  }
     ##}
     $endlabel=$self->label($pos2);
     if ($endlabel < 1) {
-      carp "position $pos2 not valid as end of subseq!"; return (-1);
+      $self->warn("position $pos2 not valid as end of subseq!"); return (-1);
     }
   }
   #print "\n    ####DEBUG: start $startlabel end $endlabel length $length strand $strand\n";
@@ -512,12 +512,12 @@ sub change {
 sub positionchange {
   my ($self,$newseq,$position,$length)=@_;
   unless ($position) {
-    carp "Position not given or position 0";
+    $self->warn("Position not given or position 0");
     return (-1);
   }
   my $label=$self->label($position);
   unless ($label > 0) { # label not found or error
-    carp "No valid label found at that position!";
+    $self->warn("No valid label found at that position!");
     return (-1);
   }
   return ($self->labelchange($newseq,$label,$length));
@@ -542,22 +542,22 @@ sub labelchange {
   my ($self,$newseq,$label,$length)=@_;
   unless ($self->valid($label)) {
     if ($self->{'seq'}->valid($label)) {
-       #carp "Label \'$label\' not valid for executing a LiveSeq change for the object asked but it's ok for DNAlevel change, reverting to that";
+       #$self->warn("Label \'$label\' not valid for executing a LiveSeq change for the object asked but it's ok for DNAlevel change, reverting to that");
       shift @_;
       return($self->{'seq'}->labelchange(@_));
     } else {
-      carp "Label \'$label\' not valid for executing a LiveSeq change";
+      $self->warn("Label \'$label\' not valid for executing a LiveSeq change");
       return (-1);
     }
   }
   unless ($newseq) { # it means this is a simple deletion
     if (defined($length)) {
       unless ($length >= 0) {
-	carp "No sense having length < 0 in a deletion";
+	$self->warn("No sense having length < 0 in a deletion");
 	return (-1);
       }
     } else {
-      carp "Length not defined for deletion!";
+      $self->warn("Length not defined for deletion!");
       return (-1);
     }
     return $self->_delete($label,$length);
@@ -565,7 +565,7 @@ sub labelchange {
   my $newseqlength=CORE::length($newseq);
   if (defined($length)) {
     unless ($length >= 0) {
-      carp "No sense having length < 0 in a change()";
+      $self->warn("No sense having length < 0 in a change()");
       return (-1);
     }
   } else {
@@ -586,7 +586,7 @@ sub labelchange {
   my $strand=$self->strand();
   my $afterendlabel=$self->label($length+1,$label,$strand); # get the label at $length+1 positions after $label
   unless ($afterendlabel > 0) { # label not found or error
-    carp "No valid afterendlabel found for executing the complex mutation!";
+    $self->warn("No valid afterendlabel found for executing the complex mutation!");
     return (-1);
   }
   my $deleted=$self->_delete($label,$length); # first delete length nucs
@@ -619,7 +619,7 @@ sub _praeinsert {
     ($insertend,$insertbegin)=($self->{'seq'}->postinsert_string($newseq,$label));
   }
   if (($insertbegin==0)||($insertend==0)) {
-    carp "Some error occurred while inserting!";
+    $self->warn("Some error occurred while inserting!");
     return (-1);
   } else {
     return ($insertbegin,$insertend);
@@ -634,7 +634,7 @@ sub _delete {
   my $strand=$self->strand();
   my $endlabel=$self->label($length,$label,$strand); # get the label at $length positions after $label
   unless ($endlabel > 0) { # label not found or error
-    carp "No valid endlabel found for executing the deletion!";
+    $self->warn("No valid endlabel found for executing the deletion!");
     return (-1);
   }
   # this is important in Transcript to fix exon structure
@@ -668,7 +668,7 @@ sub _mutate {
   } else {
     my $endlabel=$self->label($length,$label,$strand); # get the label at $length positions after $label
     unless ($endlabel > 0) { # label not found or error
-      carp "No valid endlabel found for executing the mutation!";
+      $self->warn("No valid endlabel found for executing the mutation!");
       return (-1);
     }
     if ($length == 2) { # another special case
@@ -683,7 +683,7 @@ sub _mutate {
       #}
       #@labels=@{$labelsarrayref};
       #if ($length != scalar(@labels)) { # not enough labels returned
-	#carp "Not enough valid labels found for executing the mutation!";
+	#$self->warn("Not enough valid labels found for executing the mutation!");
 	#return (-1);
       #}
 
@@ -706,7 +706,7 @@ sub _mutate {
     $i++;
   }
   if ($errorcheck != $length) {
-    carp "Some error occurred while mutating!";
+    $self->warn("Some error occurred while mutating!");
     return (-1);
   } else {
     return (1);
@@ -783,7 +783,7 @@ sub strand {
   my ($self,$strand) = @_;
   if ($strand) {
     if (($strand != 1)&&($strand != -1)) {
-      carp "strand information not changed because strand identifier not valid";
+      $self->warn("strand information not changed because strand identifier not valid");
     } else {
       $self->{'strand'} = $strand;
     }
@@ -807,15 +807,15 @@ sub strand {
 
 sub moltype {
   my %valid_type = map {$_, 1} qw( dna rna protein );
-  my ($obj,$value) = @_;
+  my ($self,$value) = @_;
   if (defined $value) {
     $value =~ s/circular dna/dna/;
     unless ( $valid_type{$value} ) {
-      carp "Molecular type '$value' is not a valid type";
+      $self->warn("Molecular type '$value' is not a valid type");
     }
-    $obj->{'moltype'} = $value;
+    $self->{'moltype'} = $value;
   }
-  return $obj->{'moltype'};
+  return $self->{'moltype'};
 }
 
 =head1 coordinate_start
@@ -841,7 +841,7 @@ sub coordinate_start {
     if ($self->valid($label)) {
       $self->{'coordinate_start'} = $label;
     } else {
-      carp "The label you are trying to set as coordinate_start is not valid for this object";
+      $self->warn("The label you are trying to set as coordinate_start is not valid for this object");
     }
   }
   my $coord_start = $self->{'coordinate_start'};
@@ -881,7 +881,7 @@ sub label {
     $firstlabel=$self->coordinate_start;
   }
   unless ($position) {  # if position = 0 complain ?
-    carp "Position not given or position 0";
+    $self->warn("Position not given or position 0");
     return (-1);
   }
   unless (defined ($strand)) { # if optional [strand] argument not given
@@ -931,7 +931,7 @@ sub position {
     $firstlabel=$self->coordinate_start;
   }
   unless ($self->valid($label)) {
-    carp "label not valid";
+    $self->warn("label not valid");
     return (0);
   }
   if ($firstlabel == $label) {
@@ -1042,11 +1042,12 @@ sub translate_string {
   unless(defined($tableid) and $tableid ne '')    { $tableid = 1; }
 
   ##Error if monomer is "Amino"
-  carp "Can't translate an amino acid sequence." if (defined $self->moltype &&
-						     $self->moltype eq 'protein');
+  $self->warn("Can't translate an amino acid sequence.") 
+      if (defined $self->moltype && $self->moltype eq 'protein');
 
   ##Error if frame is not 0, 1 or 2
-  carp "Valid values for frame are 0, 1, 2, not [$frame]." unless ($frame == 0 or $frame == 1 or $frame == 2);
+  $self->warn("Valid values for frame are 0, 1, 2, not [$frame].")
+      unless ($frame == 0 or $frame == 1 or $frame == 2);
 
   #thows a warning if ID is invalid 
   my $codonTable = Bio::Tools::CodonTable->new( -id => $tableid);
@@ -1298,7 +1299,7 @@ sub verbose {
  
 =cut
 
-
+#'
 sub warn{
   my ($self,$string,$ignorable) = @_;
 
@@ -1407,26 +1408,3 @@ sub stack_trace{ # taken from BioPerl's RootI
 }
 
 1;
-
-# internal function!!!!
-# to be used ONLY if sure of the start and end labels, expecially if they follow each other in the correct order!!!!
-#sub _unsecure_labelsubseq {
-#  my ($self,$start,$length,$end)=@_;
-#  unless ($start) {
-#    $start=$self->start;
-#  }
-#  if ($end) {
-#    undef $length;
-#  } else {
-#    unless ($length) {
-#      $end=$self->end;
-#    }
-#  }
-#  if ($self->strand() == 1) {
-#    return $self->{'seq'}->down_chain2string($start,$length,$end);
-#  } else { # reverse strand
-#    my $str = $self->{'seq'}->up_chain2string($start,$length,$end);
-#    $str =~ tr/acgtrymkswhbvdnxACGTRYMKSWHBVDNX/tgcayrkmswdvbhnxTGCAYRKMSWDVBHNX/;
-#    return $str;
-#  }
-#}
