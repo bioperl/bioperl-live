@@ -1127,23 +1127,24 @@ sub range {
 =head1 Brief introduction on cigar string
 
 NOTE: the concept is originally from EnsEMBL docs at 
-http://www.ensensembl.org/Docs/ensembl9. Please append it if you got a better definition.
+http://www.ensembl.org/Docs/wiki/html/EnsemblDocs/CigarFormat.html. 
+Please append to these docs if you have a better definition.
 
-Sequence alignment hits were previously stored within the core database as 
-ungapped alignments. This imposed 2 major constraints on alignments:
+Sequence alignment hits can be stored in a database as ungapped alignments. 
+This imposes 2 major constraints on alignments:
 
-a) alignments for a single hit record would require multiple rows in the 
-database, and
-b) it was not possible to accurately retrieve the exact original alignment.
+a) alignments for a single hit record require multiple rows in the database,
+and
+b) it is not possible to accurately retrieve the exact original alignment.
 
-Therefore, in the new branch sequence alignments are now stored as ungapped 
-alignments in the cigar line format (where CIGAR stands for Concise 
-Idiosyncratic Gapped Alignment Report).
+Alternatively, sequence alignments can be stored as gapped alignments using 
+the CIGAR line format (where CIGAR stands for Concise Idiosyncratic Gapped 
+Alignment Report).
 
-In the cigar line format alignments are sotred as follows:
+In the cigar line format alignments are stored as follows:
 
 M: Match
-D: Deletino
+D: Deletion
 I: Insertion
 
 An example of an alignment for a hypthetical protein match is shown below: 
