@@ -513,7 +513,7 @@ BEGIN {
 #  1. Modify your $PATH variable to include your tcoffee directory as in (for Linux):
 #	export PATH=$PATH:/home/progs/tcoffee  or
 #  2. define an environmental variable TCOFFEE:
-#	export TCOFEEDIR=/home/progs/tcoffee   or
+#	export TCOFFEEDIR=/home/progs/tcoffee   or
 #  3. include a definition of an environmental variable TCOFFEEDIR in every script that will
 #     use Bio::Tools::Run::Alignment::TCoffee.pm.
 #	BEGIN {$ENV{TCOFFEEDIR} = '/home/progs/tcoffee'; }
