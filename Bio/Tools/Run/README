@@ -1,0 +1,9 @@
+
+ This directory is now mainly in bioperl-run package
+which you should install alongside Bioperl to get over
+50 different runnable options. We might decide to merge
+the two packages again, but the feeling is that bioperl
+"core" is getting a little too big.
+
+ Bioperl-run follows the same release tagging schedule
+as Bioperl. Pick it up from www.bioperl.org and/or CPAN
