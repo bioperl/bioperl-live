@@ -3311,7 +3311,7 @@ sub make_feature {
       $score,$strand,$phase,
       $group_class,$group_name,
       $tstart,$tstop,
-      $db_id,$group_id) = @_;
+      $db_id,$group_id, %more ) = @_;
 
   return unless $srcseq;            # return undef if called with no arguments.  This behavior is used for
                                     # on-the-fly aggregation.
@@ -3328,20 +3328,27 @@ sub make_feature {
     }
   }
 
+  my $feature;
   if (ref $parent) { # note that the src sequence is ignored
-    return Bio::DB::GFF::Feature->new_from_parent($parent,$start,$stop,
+    $feature = Bio::DB::GFF::Feature->new_from_parent($parent,$start,$stop,
 						  $method,$source,
 						  $score,$strand,$phase,
 						  $group,$db_id,$group_id,
 						  $tstart,$tstop);
   } else {
-    return Bio::DB::GFF::Feature->new($self,$srcseq,
+    $feature = Bio::DB::GFF::Feature->new($self,$srcseq,
 				      $start,$stop,
 				      $method,$source,
 				      $score,$strand,$phase,
 				      $group,$db_id,$group_id,
 				      $tstart,$tstop);
   }
+  if( %more ) {
+    foreach my $key ( keys %more ) {
+      $feature->add_tag_value( $key, $more{ $key } );
+    }
+  }
+  return $feature;
 }
 
 sub make_aggregated_feature {
