@@ -132,7 +132,7 @@ ID           M20132:(362)c.+101insGGGCCC; I34ins+2
 Feature      DNA; 1
 Feature        /label: insertion
 Feature        /proof: computed
-Feature        /location: 101^101
+Feature        /location: 100^101
 Feature        /upflank: ctgttccagagcgtgcgcgaagtga
 Feature        /change: >gggccc
 Feature        /dnflank: tccagaacccgggccccaggcaccc
@@ -142,7 +142,7 @@ Feature 	+SduI
 Feature      RNA; 1
 Feature        /label: inframe, insertion
 Feature        /proof: experimental
-Feature        /location: 101^101 (M20132::463^463)
+Feature        /location: 100^101 (M20132::462^463)
 Feature        /upflank: ctgttccagagcgtgcgcgaagtga
 Feature        /change: >gggccc
 Feature        /dnflank: tccagaacccgggccccaggcaccc
@@ -162,7 +162,7 @@ ID           M20132:(362)c.+100insG; I34ins81X
 Feature      DNA; 1
 Feature        /label: insertion
 Feature        /proof: computed
-Feature        /location: 100^100
+Feature        /location: 99^100
 Feature        /upflank: tctgttccagagcgtgcgcgaagtg
 Feature        /change: >g
 Feature        /dnflank: atccagaacccgggccccaggcacc
@@ -170,7 +170,7 @@ Feature        /re_site: +BamHI, +BinI, +NlaIV, +XhoII
 Feature      RNA; 1
 Feature        /label: frameshift, insertion
 Feature        /proof: experimental
-Feature        /location: 100^100 (M20132::462^462)
+Feature        /location: 99^100 (M20132::461^462)
 Feature        /upflank: tctgttccagagcgtgcgcgaagtg
 Feature        /change: >g
 Feature        /dnflank: atccagaacccgggccccaggcacc
