@@ -328,6 +328,26 @@ sub iupac_rev_iub{
    return %REV_IUB;
 }
 
+=head2 count
+
+ Title   : count
+ Usage   : my $total = $iupac->count();
+ Function: Calculates the number of unique, unambiguous sequences that
+           this ambiguous sequence could generate
+ Return  : int
+ Args    : none
+
+=cut
+
+sub count {
+    my ($self) = @_;
+
+    my $count = 1;
+    $count *= scalar(@$_) for (@{$self->{'_alpha'}});
+    return $count;
+}
+
+
 sub AUTOLOAD {
 
     my $self = shift @_;
