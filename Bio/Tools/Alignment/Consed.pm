@@ -781,7 +781,6 @@ sub set_trim_points_doublets {
 			 "Consed::set_trim_points_doublets: there are ".length($self->{'contigs'}->{$_}->{consensus})." bases in $_\n");
 	    # my ($self,$sequence,$quality,$name,$class) = @_;
           my @quals = split(' ',$self->{'contigs'}->{$_}->{'quality'});
-          print("in set_trim_points_doublets Consed, there are this many qualities: ".scalar(@quals)."\n");
           
 	    (@points) = $self->{o_trim}->trim_doublet($self->{'contigs'}->{$_}->{'consensus'},$self->{'contigs'}->{$_}->{'quality'},$self->{'contigs'}->{$_}->{name},$self->{'contigs'}->{$_}->{'class'});
 	    $self->{'contigs'}->{$_}->{'start_point'} = $points[0];

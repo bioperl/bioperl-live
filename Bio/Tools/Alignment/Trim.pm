@@ -258,7 +258,8 @@ sub trim_singlet {
     my $start_base = &_get_start($r_windows,5,20);
 
      my (@new_points,$trimmed_sequence);
-    if ($start_base > ($sequence_length - 100)) {
+    if ($start_base > ($sequence_length - 100) && 1==2) {
+          print("The start base starts with less then 100 bases to go. Bummer!\n");
 	     $new_points[0] = ("FAILED");
 	     $new_points[1] = ("FAILED");
      	     # return @points;
@@ -275,7 +276,11 @@ sub trim_singlet {
             @new_points = $self->chop_sequence($name,$class,$sequence,@points);
             $trimmed_sequence = pop(@new_points);
      }
-    return \@new_points,$trimmed_sequence;
+     if (!$trimmed_sequence) { $trimmed_sequence = "FAILED"; }
+     my @return_array;
+     push(@return_array,@new_points,$trimmed_sequence);
+     print("returning @return_array\n");
+     return \@return_array;
 }
 
 =head2 trim_doublet($sequence,$quality,$name,$class)
