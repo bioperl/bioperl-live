@@ -17,7 +17,7 @@ BEGIN {
         use lib 't';
     }
     use Test;
-    plan tests => 14;
+    plan tests => 16;
 }
 
 END {
@@ -89,7 +89,10 @@ my $v3 = $in_scf_v3->next_seq();
      # print("The peak indices for a v3 scf were there: @indices\n");
 ok (scalar(@indices) == 1106);
 
-
+print("Now getting the header from a scf to determine how many sample points there were (an example application)...\n");
+my %header = %{$in_scf_v3->get_header()};
+ok (%header->{bases} == 1106);
+ok (%header->{samples} == 14107);
 
 
 	# everything ok? <deep breath> ok, now we test the writing components

@@ -170,7 +170,7 @@ sub _next_scf {
 				}
 			}
 			$transformed_read = $self->_delta(\@read,"backward");
-			$self->{'traces'}->{$_} = $transformed_read;
+			$self->{'traces'}->{$_} = join(' ',@{$transformed_read});
 		}
 			# now go and get the peak index information
 		$offset = $self->{bases_offset};
@@ -336,6 +336,7 @@ sub _set_header {
      $self->{'code_set'},
      @{$self->{'header_spare'}} ) = unpack "a4 NNNNNNNN a4 NN N20", $buffer;
     return;
+
 }
 
 =head2 _set_v2_bases($buffer)
@@ -451,7 +452,7 @@ sub get_trace {
 =head2 get_peak_indices()
 
  Title   : get_peak_indices()
- Usage   : @a_trace = @{$obj->get_peak_indices("A")};
+ Usage   : @a_trace = @{$obj->get_peak_indices()};
  Function: Return the peak indices for this scf.
  Returns : A reference to an array containing the peak indices for this scf. 
  Args    : None.
@@ -465,6 +466,28 @@ sub get_peak_indices {
      return \@temp;
 }
 
+
+=head2 get_header()
+
+ Title   : get_header()
+ Usage   : %header = %{$obj->get_header()};
+ Function: Return the header for this scf.
+ Returns : A reference to a hash containing the header for this scf. 
+ Args    : None.
+ Notes   :
+
+=cut
+
+sub get_header {
+    my ($self) = shift;
+     my %header;
+     foreach (qw(scf samples sample_offset bases bases_left_clip 
+          bases_right_clip bases_offset comment_size comments_offset 
+          version sample_size code_set peak_indices)) {
+          %header->{"$_"} = $self->{"$_"};
+     }
+     return \%header;
+}
 
 =head2 _dump_traces_incoming($transformed)
 
@@ -485,10 +508,14 @@ sub get_peak_indices {
 sub _dump_traces_incoming {
 	my ($self) = @_;
 	my (@sA,@sT,@sG,@sC);
-		@sA = @{$self->{'traces'}->{'A'}};
-		@sC = @{$self->{'traces'}->{'C'}};
-		@sG = @{$self->{'traces'}->{'G'}};
-		@sT = @{$self->{'traces'}->{'T'}};
+		# @sA = @{$self->{'traces'}->{'A'}};
+		# @sC = @{$self->{'traces'}->{'C'}};
+		# @sG = @{$self->{'traces'}->{'G'}};
+		# @sT = @{$self->{'traces'}->{'T'}};
+		@sA = @{$self->get_trace('A')};
+		@sC = @{$self->get_trace('C')};
+		@sG = @{$self->get_trace('G')};
+		@sT = @{$self->get_trace('t')};
 	print ("Count\ta\tc\tg\tt\n");
 	for (my $curr=0; $curr < scalar(@sG); $curr++) {
 		print("$curr\t$sA[$curr]\t$sC[$curr]\t$sG[$curr]\t$sT[$curr]\n");
