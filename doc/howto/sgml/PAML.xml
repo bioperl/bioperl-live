@@ -29,19 +29,7 @@
       <affiliation>
 	<orgname><ulink url="http://www.duke.edu"><citetitle>Duke
 	    University</citetitle></ulink></orgname>
-	<orgdiv>
-	  <ulink url="http://upg.duke.edu"><citetitle>University Program in
-	  Genetics</citetitle></ulink>
-	</orgdiv>
-	<orgdiv><ulink url="http://cgt.genetics.duke.edu"><citetitle>Center for
-	    Genome Technology</citetitle></ulink></orgdiv>
 	<address>
-	  Duke University Medical Center
-	  <pob>Box 3568</pob>
-	  <city>Durham, </city>
-	  <state>North Carolina</state> 
-	  <postcode>27710-3568</postcode> 
-	  <country>USA</country>
 	  <email>jason-at-bioperl.org</email>
         </address>
       </affiliation>
@@ -62,13 +50,21 @@
 	<authorinitials>jes</authorinitials>
 	<revremark>Added pairwise Ka,Ks example code and running code</revremark>
       </revision>
+      <revision>
+	<revnumber>0.3</revnumber>
+	<date>2005-03-15</date>
+	<authorinitials>jes</authorinitials>
+	<revremark>Added branch-specific paramater parsing (NSsites
+	and per-branch rates)</revremark>
+      </revision>
+
     </revhistory>
 
     <legalnotice>
       <para>
-	This document is copyright Aaron Mackey, 2002.  For
-	reproduction other than personal use please contact me at
-	amackey@virginia.edu
+	This document is copyright Aaron Mackey, Jason Stajich, 2002-2005.  For
+	reproduction other than personal use please contact us at
+	amackey@virginia.edu or jason@bioperl.org.
       </para>
     </legalnotice>
 
@@ -342,5 +338,126 @@ for( my $i = 0; $i &lt; (scalar @otus -1) ; $i++) {
     </para>
     <para>
     </para>
+  </section>
+  <section id="nssites">
+    <title>Parsing branch-specific rates and NSSites results</title>
+    <para>
+<emphasis>PAML</emphasis> allows for several models of molecular
+evolution.  Given a tree topology one can test whether or not
+contraints of evolutionary rates on different parts of the topology
+better explain the observe data than a null model where an overall
+rate is assumed.  To do this a tree topology must be provided and
+typically marked to specify which branches to test the alternative
+hypotheses of differing rates.
+    </para>
+    <para>
+To get access to this branch specific data we store it in the <classname>Bio::Tree::Tree</classname> object which is
+      parsed for each result.  The nodes in the tree will contain
+      additional tagged values for capturing the branch specific
+      evolutionary rates.  In cases where there are several
+      different models of evolution tested (i.e. M0, M1, etc) we
+      create
+      a <classname>Bio::Tools::Phylo::PAML::ModelResult</classname>
+      to store each of the model results separately.  A separate
+      Tree object will be associated with each one of these models.
+    </para>
+    <para>
+      <emphasis>Please note that the models underlting PAML 3.14 have
+	changed some from PAML 3.13 and earlier.  NSsites 1 and 2 mean
+	slightly different things than they did in previous versions.
+	</emphasis>
+    </para>
+    <para>Accessing Tree data</para>
+    <para> First we'll just descibe how to access data for a
+	topology for a single model or where NSsites=0. In this case
+	we'll just want to get the tree(s) associated with a give
+	result.  In this code we loop through all
+	the <classname>Bio::Tree::Tree</classname> associated with the <classname>Bio::Tools::Phylo::PAML::Result</classname>.
+      </para>
+      <programlisting>
+use Bio::Tools::Phylo::PAML;
+
+my $outcodeml = shift(@ARGV);
+my $paml_parser = new Bio::Tools::Phylo::PAML(-file => $outcodeml, 
+                                              -dir => "./");
+if( my $result = $paml_parser->next_result() ) {
+ while ( my $tree = $result->next_tree ) {
+  for my $node ( $tree->get_nodes ) {
+   my $id;
+   # first we do some work to figure out what the ID should be.
+   # for a leaf or tip node this is just the taxon label
+   if( $node->is_Leaf() ) {
+    $id = $node->id;
+   } else {
+   # for the internal nodes it is just the name of all the sub-nodes
+   # put together, much like how Sanderson represents internal nodes
+   # in r8s 
+    $id = "(".join(",", map { $_->id } grep { $_->is_Leaf } 
+                              $node->get_all_Descendents) .")";
+   }
+   if( ! $node->ancestor || ! $node->has_tag('t') ) {
+     # skip when no values have been associated with this node
+     # (like the root node)
+     next; 
+   }
+   printf "%s\tt=%.3f\tS=%.1f\tN=%.1f\tdN/dS=%.4f\tdN=%.4f\t".
+           "dS=%.4f\tS*dS=%.1f\tN*dN=%.1f\n",
+    $id,map { ($node->get_tag_values($_))[0] } 
+    qw(t S N dN/dS dN dS), 'S*dS', 'N*dN';
+  }
+ }
+}
+      </programlisting>
+      <para>Accessing NSsites data</para>
+      <para>
+	In cases where nssites=1 or nssites=2 is provided the data for
+	the results is accessible through
+	the <classname>Bio::Tools::Phylo::PAML::ModelResult</classname>.
+	The function <function>get_NSSite_results</function> on
+	the <classname>Bio::Tool::Phylo::PAML::Result</classname>
+	object.  In this way multiple model results can be folded into
+	a single <classname>PAML::Result</classname> object.  The
+	code shown below is nearly identical to that in the previous
+	example, there is just an additional loop to process the
+	NSsite Result objects.
+      </para>
+      <programlisting>
+use Bio::Tools::Phylo::PAML;
+
+my $outcodeml = shift(@ARGV);
+my $paml_parser = new Bio::Tools::Phylo::PAML(-file => $outcodeml, 
+                                              -dir => "./");
+if( my $result = $paml_parser->next_result() ) {
+  for my $ns_result ( $result->get_NSSite_results ) {
+    print "model ", $ns_result->model_num, " ", 
+          $ns_result->model_description, "\n";
+  while ( my $tree = $ns_result->next_tree ) {
+   for my $node ( $tree->get_nodes ) {
+    my $id;
+    # first we do some work to figure out what the ID should be.
+    # for a leaf or tip node this is just the taxon label
+    if( $node->is_Leaf() ) {
+     $id = $node->id;
+    } else {
+    # for the internal nodes it is just the name of all the sub-nodes
+    # put together, much like how Sanderson represents internal nodes
+    # in r8s 
+     $id = "(".join(",", map { $_->id } grep { $_->is_Leaf } 
+                              $node->get_all_Descendents) .")";
+    }
+    if( ! $node->ancestor || ! $node->has_tag('t') ) {
+     # skip when no values have been associated with this node
+     # (like the root node)
+     next; 
+    }
+    printf "%s\tt=%.3f\tS=%.1f\tN=%.1f\tdN/dS=%.4f\tdN=%.4f\t".
+           "dS=%.4f\tS*dS=%.1f\tN*dN=%.1f\n",
+    $id,map { ($node->get_tag_values($_))[0] } 
+    qw(t S N dN/dS dN dS), 'S*dS', 'N*dN';
+   }
+  }
+ }
+}
+      </programlisting>
   </section>
 </article>
