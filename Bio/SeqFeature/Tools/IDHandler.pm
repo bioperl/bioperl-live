@@ -238,18 +238,27 @@ do, it is considered a seperate entity
 sub generate_unique_persistent_id{
    my ($self,$sf,@args) = @_;
 
+   my $id;
    if (!$sf->isa("Bio::SeqFeatureI")) {
        $sf->throw("not a Bio::SeqFeatureI");
    }
    my $seq_id = $sf->seq_id || $sf->throw("seq_id must be set");
    #my $seq_id = $sf->seq_id || 'unknown_seq';
-   my $source = $sf->source_tag || $sf->throw("source tag must be set");
-   #my $source = $sf->source_tag || 'unknown_source';
-   my $start = $sf->start || $sf->throw("start must be set");
-   my $end = $sf->end || $sf->throw("end must be set");
-   my $type = $sf->primary_tag || $sf->throw("primary_tag must be set");
+   if ($sf->has_tag('transcript_id')) {
+       ($id) = $sf->get_tag_values('transcript_id');
+   }
+   elsif ($sf->has_tag('protein_id')) {
+       ($id) = $sf->get_tag_values('protein_id');
+   }
+   else {
+       my $source = $sf->source_tag || $sf->throw("source tag must be set");
+       #my $source = $sf->source_tag || 'unknown_source';
+       my $start = $sf->start || $sf->throw("start must be set");
+       my $end = $sf->end || $sf->throw("end must be set");
+       my $type = $sf->primary_tag || $sf->throw("primary_tag must be set");
 
-   my $id = "$type:$source:$seq_id:$start:$end";
+       $id = "$type:$source:$seq_id:$start:$end";
+   }
    $sf->primary_id($id);
    return $id;
 }
