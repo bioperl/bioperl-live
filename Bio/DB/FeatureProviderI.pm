@@ -1,4 +1,4 @@
-package Bio::DB::FeatureProviderI.pm
+package Bio::DB::FeatureProviderI;
 
 # $Id $
 # A Bio::SeqFeature::CollectionProviderI with additional methods
