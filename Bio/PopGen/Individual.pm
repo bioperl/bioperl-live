@@ -157,7 +157,8 @@ sub num_of_results {
 sub add_Genotype {
    my ($self,@genotypes) = @_;
    foreach my $g ( @genotypes ) {
-       if( ! defined $g || ! $g->isa('Bio::PopGen::GenotypeI') ) {
+       if( ! defined $g || ! ref($g) || 
+	   ! $g->isa('Bio::PopGen::GenotypeI') ) {
 	   $self->warn("cannot add genotype, it is not a Bio::PopGen::GenotypeI object");
 	   next;
        } elsif( ! length($g->marker_name) ) {
