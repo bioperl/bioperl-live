@@ -101,7 +101,7 @@ The rest of the documentation details each of the object methods. Internal metho
 package Bio::SeqIO::embl;
 use vars qw(@ISA);
 use strict;
-use Bio::Seq;
+use Bio::Seq::RichSeq;
 use Bio::SeqIO::FTHelper;
 use Bio::SeqFeature::Generic;
 use Bio::Species;
@@ -133,7 +133,7 @@ sub next_seq {
    my ($self,@args) = @_;
    my ($pseq,$c,$line,$name,$desc,$acc,$seqc,$mol,$div, 
        $date, $comment, @date_arr);
-   my $seq = Bio::Seq->new(-verbose =>$self->verbose());
+   my $seq = Bio::Seq::RichSeq->new(-verbose =>$self->verbose());
 
 
    $line = $self->_readline;   # This needs to be before the first eof() test
@@ -195,7 +195,7 @@ sub next_seq {
        if( /^SV\s+(\S+);?/ ) {
 	   my $sv = $1;
 	   $sv =~ s/\;//;
-	   $seq->sv($sv);
+	   $seq->seq_version($sv);
        }
 
        #date (NOTE: takes last date line)
@@ -356,8 +356,8 @@ sub write_seq {
         my( $sv );
         if (my $func = $self->_sv_generation_func) {
             $sv = &{$func}($seq);
-        } elsif( $seq->can('sv')) {
-            $sv = $seq->sv;
+        } elsif( $seq->can('seq_version')) {
+            $sv = $seq->seq_version;
         }
         if (defined $sv) {
             $self->_print( "SV   $sv\n",
@@ -367,8 +367,8 @@ sub write_seq {
 
     # Date lines
     my $switch=0;
-    if( $seq->can('each_date') ) {
-	foreach my $dt ( $seq->each_date() ) {
+    if( $seq->can('get_dates') ) {
+	foreach my $dt ( $seq->get_dates() ) {
 	    $self->_write_line_EMBL_regex("DT   ","DT   ",$dt,'\s+|$',80);
             $switch=1;
         }

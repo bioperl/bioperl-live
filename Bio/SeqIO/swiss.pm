@@ -99,7 +99,7 @@ The rest of the documentation details each of the object methods. Internal metho
 package Bio::SeqIO::swiss;
 use vars qw(@ISA);
 use strict;
-use Bio::Seq;
+use Bio::Seq::RichSeq;
 use Bio::SeqIO;
 use Bio::SeqIO::FTHelper;
 use Bio::SeqFeature::Generic;
@@ -134,7 +134,7 @@ sub next_seq {
    my ($pseq,$c,$line,$name,$desc,$acc,$seqc,$mol,$div,
        $date,$comment,@date_arr, @sec);
    my ($keywords,$acc_string);
-   my $seq = Bio::Seq->new(-verbose =>$self->verbose());
+   my $seq = Bio::Seq::RichSeq->new(-verbose =>$self->verbose());
    $line = $self->_readline;
 
    if( !defined $line) {
@@ -378,8 +378,8 @@ sub write_seq {
    } else {
        if ($seq->can('accession_number') ) {
 	   $self->_print("AC   ",$seq->accession_number,";");
-	   if ($seq->can('each_secondary_accession') ) {
-	     foreach my $sacc ($seq->each_secondary_accession) {
+	   if ($seq->can('get_secondary_accessions') ) {
+	     foreach my $sacc ($seq->get_secondary_accessions) {
 	       $self->_print(" ",$sacc,";");
 	     }
 	     $self->_print("\n");
@@ -392,7 +392,7 @@ sub write_seq {
    } 
 
    #Date lines
-   foreach my $dt ( $seq->each_date() ) {
+   foreach my $dt ( $seq->get_dates() ) {
        $self->_write_line_swissprot_regex("DT   ","DT   ",$dt,"\\s\+\|\$",80);
    }
    

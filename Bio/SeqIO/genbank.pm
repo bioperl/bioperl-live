@@ -99,7 +99,7 @@ package Bio::SeqIO::genbank;
 use vars qw(@ISA);
 use strict;
 
-use Bio::Seq;
+use Bio::Seq::RichSeq;
 use Bio::SeqIO;
 use Bio::SeqIO::FTHelper;
 use Bio::SeqFeature::Generic;
@@ -131,7 +131,7 @@ sub _initialize {
 sub next_seq{
     my ($self,@args) = @_;
     my ($pseq,$c,$line,$name,$desc,$acc,$seqc,$mol,$div,$date);
-    my $seq = Bio::Seq->new(-verbose =>$self->verbose());
+    my $seq = Bio::Seq::RichSeq->new(-verbose =>$self->verbose());
 
     $line = $self->_readline;
     
@@ -202,7 +202,7 @@ sub next_seq{
 	    #Version number
 	    if( /^VERSION\s+(\S+)/ ) {
 		my $sv = $1;
-		$seq->sv($sv);
+		$seq->seq_version($sv);
 	    }
 
 	    #Keywords
@@ -339,7 +339,7 @@ sub write_seq {
     if( $self->_id_generation_func ) {
 	$temp_line = &{$self->_id_generation_func}($seq);
     } else {
-	my @dates = $seq->each_date();
+	my @dates = $seq->get_dates();
 	my $date = shift @dates;
 	$temp_line = sprintf ("%-12s%-10s%10s bp%8s%5s %3s ", 'LOCUS',$seq->id(),$len,$mol,$div,$date);
     } 
@@ -367,8 +367,8 @@ sub write_seq {
 	    $self->_print("VERSION     $temp_line\n");   
 	}
     } else {
-	if( $seq->can('sv') ) {
-	    $self->_print("VERSION     ",$seq->sv,"\n");
+	if( $seq->can('seq_version') ) {
+	    $self->_print("VERSION     ",$seq->seq_version,"\n");
        }
     } 
     
