@@ -173,6 +173,9 @@ Specify the format of the file.  Supported formats include:
    GCG         GCG format
    raw         Raw format (one sequence per line, no ID)
    ace         ACeDB sequence format
+   game        GAME XML format
+   phd         
+   qual        Quality values (get a sequence of quality scores)
 
 If no format is specified and a filename is given, then the module
 will attempt to deduce it from the filename.  If this is unsuccessful,
@@ -255,7 +258,7 @@ methods. Internal methods are usually preceded with a _
 package Bio::SeqIO;
 
 use strict;
-use vars '@ISA';
+use vars qw(@ISA);
 
 use Bio::Root::RootI;
 use Bio::Root::IO;
@@ -378,7 +381,7 @@ sub _initialize {
            errors into exceptions by calling $stream->verbose(2) (see
            Bio::RootI POD page).
  Returns : a Bio::Seq sequence object
- Args    :
+ Args    : none
 
 =cut
 

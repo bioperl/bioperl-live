@@ -34,7 +34,7 @@ Bio::SeqI - Abstract Interface of Sequence (with features)
 =head1 DESCRIPTION
 
 SeqI is the abstract interface of annotated Sequence. These methods
-are those which you can be guarenteed to get for any annseq. There aren't
+are those which you can be guarenteed to get for any annseq. There aren\'t
 many here, because too many complicated functions here prevent implementations
 which are just wrappers around a database or similar delayed mechanisms.
 
@@ -74,7 +74,8 @@ Email birney@sanger.ac.uk
 
 =head1 APPENDIX
 
-The rest of the documentation details each of the object methods. Internal methods are usually preceded with a _
+The rest of the documentation details each of the object
+methods. Internal methods are usually preceded with a _
 
 =cut
 
@@ -83,9 +84,10 @@ The rest of the documentation details each of the object methods. Internal metho
 
 
 package Bio::SeqI;
+use strict;
+
 use vars qw(@ISA);
 use Bio::PrimarySeqI;
-use strict;
 use Carp;
 
 # Object preamble - inheriets from Bio::Root::Object
