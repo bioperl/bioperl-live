@@ -1,12 +1,6 @@
-From blast@ncbi.nlm.nih.govThu Apr 16 16:15:59 1998
-Date: Thu, 16 Apr 1998 18:56:18 -0400
-From: BLAST E-Mail Server <blast@ncbi.nlm.nih.gov>
-To: sac@bioperl.org
-Subject: BLAST E-mail: "1401126"
+TBLASTN 2.0.4 [Feb-24-1998]
 
-<b>TBLASTN 2.0.4 [Feb-24-1998]</b>
-
-<b>Reference:</b> Altschul, Stephen F., Thomas L. Madden, Alejandro A.
+Reference: Altschul, Stephen F., Thomas L. Madden, Alejandro A.
 Sch&auml;ffer, Jinghui Zhang, Zheng Zhang, Webb Miller, and David J. Lipman
 (1997), "Gapped BLAST and PSI-BLAST: a new generation of protein database search
  programs", Nucleic Acids Res. 25:3389-3402.
