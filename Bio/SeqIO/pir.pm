@@ -91,7 +91,7 @@ sub next_seq{
 
    chomp($desc = $self->_readline);
    local $/ = "";
-   my $junk = $self->_readline;  # throw away everything to first empty line
+   #my $junk = $self->_readline;  # throw away everything to first empty line
    $seq = $self->_readline;   # everything else is the sequence
    $seq =~ s/\s+//g;
    $seq = Bio::Seq->new(-seq => $seq,
@@ -120,7 +120,6 @@ sub write_seq {
      $str =~ s/(.{66})/$1\n/g;
      return unless $self->_print(">P1;", $seq->id(), 
 				 "\n", $seq->desc(), "\n", 
-				 ">P1;", $seq->id(),"\n", 
 				 "\n",$str, "\n");
    }
    return 1;

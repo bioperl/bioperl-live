@@ -19,7 +19,7 @@
 
 
 ## We start with some black magic to print on failure.
-BEGIN { $| = 1; print "1..20\n"; 
+BEGIN { $| = 1; print "1..21\n"; 
 	use vars qw($loaded); }
 
 END {print "not ok 1\n" unless $loaded;}
@@ -220,5 +220,16 @@ while( my $as = $ast->next_seq() ) {
    }
 }
 
+
+$ast = Bio::SeqIO->new( '-format' => 'pir' , -file => 't/test.pir');
+
+while( my $as = $ast->next_seq() ) {
+   if( ! defined $as->seq || $as->id ne 'CCHU' ) {
+	print "not ok 21\n";
+	print STDERR "id is ".$as->id."\n";
+   } else {
+     print "ok 21\n";
+   }
+}
 
 

@@ -161,6 +161,11 @@ sub start {
        if ( $value !~ /^\-?\d+/ ) {
 	   $self->throw("$value is not a valid start");
        }
+
+       if( defined $self->entire_seq && $value > $self->entire_seq->length ) {
+	   $self->throw("Cannot set start ($value) greater than sequence length");
+       }
+
        $self->{'_gsf_start'} = $value
    }
 
@@ -187,6 +192,11 @@ sub end {
        if ( $value !~ /^\-?\d+/ ) {
 	   $self->throw("$value is not a valid end");
        }
+
+       if( defined $self->entire_seq && $value > $self->entire_seq->length ) {
+	   $self->throw("Cannot set end ($value) greater than sequence length");
+       }
+
        $self->{'_gsf_end'} = $value
    }
 
