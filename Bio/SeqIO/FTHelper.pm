@@ -321,8 +321,8 @@ sub from_SeqFeature {
     $fth->key($key);
     $fth->field->{'note'} = [];
     #$sf->source_tag && do { push(@{$fth->field->{'note'}},"source=" . $sf->source_tag ); };
-    $sf->score && do { push(@{$fth->field->{'note'}},"score=" . $sf->score ); };
-    $sf->frame && do { push(@{$fth->field->{'note'}},"frame=" . $sf->frame ); };
+    ($sf->can('score') && $sf->score) && do { push(@{$fth->field->{'note'}},"score=" . $sf->score ); };
+    ($sf->can('frame') && $sf->frame) && do { push(@{$fth->field->{'note'}},"frame=" . $sf->frame ); };
     #$sf->strand && do { push(@{$fth->field->{'note'}},"strand=" . $sf->strand ); };
 
     foreach my $tag ( $sf->all_tags ) {
