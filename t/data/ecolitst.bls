@@ -22,14 +22,6 @@ gb|AAC73113.1| (AE000111) aspartokinase I, homoserine dehydrogen...  1567  0.0
 gb|AAC76922.1| (AE000468) aspartokinase II and homoserine dehydr...   332  1e-91
 gb|AAC76994.1| (AE000475) aspartokinase III, lysine sensitive [E...   184  3e-47
 gb|AAC73282.1| (AE000126) uridylate kinase [Escherichia coli]          42  3e-04
-gb|AAC73346.1| (AE000132) gamma-glutamate kinase [Escherichia coli]    33  0.074
-gb|AAC76244.1| (AE000400) glutamate synthase, large subunit [Esc...    32  0.21
-gb|AAC73608.1| (AE000156) putative regulator [Escherichia coli]        28  2.4
-gb|AAC75822.1| (AE000361) CTP synthetase [Escherichia coli]            27  6.9
-gb|AAC73227.1| (AE000121) lipoamide dehydrogenase (NADH); compon...    27  6.9
-gb|AAC75485.1| (AE000330) orf, hypothetical protein [Escherichia...    27  9.0
-gb|AAC75454.1| (AE000327) orf, hypothetical protein [Escherichia...    27  9.0
-gb|AAC74416.1| (AE000231) transcriptional regulation of aerobic,...    27  9.0
 
 >gb|AAC73113.1| (AE000111) aspartokinase I, homoserine dehydrogenase I [Escherichia
            coli]
@@ -213,121 +205,6 @@ Query: 254 AMELSYFGAKVLHPRTITPIAQFQIPCLIKNTGNPQA 290
 Sbjct: 192 VLEKE---LKVMDLAAFTLARDHKLPIRVFNMNKPGA 225
 
 
->gb|AAC73346.1| (AE000132) gamma-glutamate kinase [Escherichia coli]
-          Length = 367
-
- Score = 33.5 bits (75), Expect = 0.074
- Identities = 17/43 (39%), Positives = 24/43 (55%)
-
-Query: 207 SDYSAAVLAACLRADCCEIWTDVDGVYTCDPRQVPDARLLKSM 249
-           +D  +A+ A    AD   + TD  G+YT DPR  P A L+K +
-Sbjct: 149 NDNLSALAAILAGADKLLLLTDQKGLYTADPRSNPQAELIKDV 191
-
-
->gb|AAC76244.1| (AE000400) glutamate synthase, large subunit [Escherichia coli]
-          Length = 1517
-
- Score = 32.0 bits (71), Expect = 0.21
- Identities = 17/67 (25%), Positives = 35/67 (51%), Gaps = 9/67 (13%)
-
-Query: 510 LTNVHGLNLENWQEELAQ-------AKEPFNLGRLIRLVK--EYHLLNPVIVDCTSSQAV 560
-           ++ + G + E++Q++L         A++P + G L++ V   EYH  NP +V        
-Sbjct: 780 VSRIGGASFEDFQQDLLNLSKRAWLARKPISQGGLLKYVHGGEYHAYNPDVVRTLQQAVQ 839
-
-Query: 561 ADQYADF 567
-           + +Y+D+
-Sbjct: 840 SGEYSDY 846
-
-
->gb|AAC73608.1| (AE000156) putative regulator [Escherichia coli]
-          Length = 271
-
- Score = 28.5 bits (62), Expect = 2.4
- Identities = 23/96 (23%), Positives = 40/96 (40%), Gaps = 7/96 (7%)
-
-Query: 308 GISNLNNMAMFSVSGPGMKGMVGMAARVFAAMSRARISVVLITQSSSEYSISFCVPQSDC 367
-           G + ++N  + SV+GP M+ ++ ++        R     VLI Q   +  +  C P    
-Sbjct: 89  GAAYIHNRDVLSVAGPFMRRLMLLSGETVNVAIRNGNEAVLIGQLECKSMVRMCAPLGSR 148
-
-Query: 368 VRAERAMQEEFYLELKEGLLEPLAVTERLAIISVVG 403
-           +    +          + LL PLA  E ++II   G
-Sbjct: 149 LPLHAS-------GAGKALLYPLAEEELMSIILQTG 177
-
-
->gb|AAC75822.1| (AE000361) CTP synthetase [Escherichia coli]
-          Length = 545
-
- Score = 26.9 bits (58), Expect = 6.9
- Identities = 13/27 (48%), Positives = 20/27 (73%), Gaps = 2/27 (7%)
-
-Query: 126 GEKMSIAIMAGVLEARGHNVTV--IDP 150
-           G+ ++ A +A +LEARG NVT+  +DP
-Sbjct: 17  GKGIAAASLAAILEARGLNVTIMKLDP 43
-
-
->gb|AAC73227.1| (AE000121) lipoamide dehydrogenase (NADH); component of
-           2-oxodehydrogenase and pyruvate complexes; L-protein of
-           glycine cleavage complex [Escherichia coli]
-          Length = 474
-
- Score = 26.9 bits (58), Expect = 6.9
- Identities = 39/152 (25%), Positives = 60/152 (38%), Gaps = 15/152 (9%)
-
-Query: 196 KGELVVLGRNGSDYSAAVLAACLRAD--CCEIWTDVDGV---YTCDPRQVPDARLLKSMS 250
-           K ++VVLG   + YSAA   A L  +    E +  + GV     C P +   A L  +  
-Sbjct: 6   KTQVVVLGAGPAGYSAAFRCADLGLETVIVERYNTLGGVCLNVGCIPSK---ALLHVAKV 62
-
-Query: 251 YQEAMELSYFGAKVLHPRT-ITPIAQFQIPCLIKNTGNPQAPGTLIGASRDEDELPVKGI 309
-            +EA  L+  G     P+T I  I  ++   + + TG       L G ++      V G+
-Sbjct: 63  IEEAKALAEHGIVFGEPKTDIDKIRTWKEKVINQLTGG------LAGMAKGRKVKVVNGL 116
-
-Query: 310 SNLNNMAMFSVSGPGMKGMVGMAARVFAAMSR 341
-                     V G   K ++     + AA SR
-Sbjct: 117 GKFTGANTLEVEGENGKTVINFDNAIIAAGSR 148
-
-
->gb|AAC75485.1| (AE000330) orf, hypothetical protein [Escherichia coli]
-          Length = 191
-
- Score = 26.6 bits (57), Expect = 9.0
- Identities = 14/50 (28%), Positives = 25/50 (50%)
-
-Query: 405 GMRTLRGISAKFFAALARANINIVAIAQGSSERSISVVVNNDDATTGVRV 454
-           GM+T  G   +FF  +   N+ +V      +   I V+ ++  A TGV++
-Sbjct: 73  GMKTANGNVVRFFEVMKGDNVAMVINGDQGTISRIDVLDSDIPADTGVKI 122
-
-
->gb|AAC75454.1| (AE000327) orf, hypothetical protein [Escherichia coli]
-          Length = 768
-
- Score = 26.6 bits (57), Expect = 9.0
- Identities = 13/29 (44%), Positives = 19/29 (64%), Gaps = 1/29 (3%)
-
-Query: 535 GRLIRLVKEYHLL-NPVIVDCTSSQAVAD 562
-           GR+IRL K YH+    VI++ T  QA ++
-Sbjct: 630 GRIIRLFKRYHISPQAVILEITEEQAFSN 658
-
-
->gb|AAC74416.1| (AE000231) transcriptional regulation of aerobic, anaerobic
-           respiration, osmotic balance [Escherichia coli]
-          Length = 250
-
- Score = 26.6 bits (57), Expect = 9.0
- Identities = 37/131 (28%), Positives = 54/131 (40%), Gaps = 25/131 (19%)
-
-Query: 616 IENLQNLLNAGDELMKFSGILSGSL-SYI--------------------FGKLDEGMSFS 654
-           I+  Q L  AGDEL     I SG++ SY                     F  +  G   S
-Sbjct: 52  IQKGQTLFKAGDELKSLYAIRSGTIKSYTITEQGDEQITGFHLAGDLVGFDAIGSGHHPS 111
-
-Query: 655 EATTLAREMGYTEP-DPRDDLSGMDVARKLLILARETGRELELADIEIEPVLPAEFNAEG 713
-            A  L   M    P +  DDLSG     +  ++   +G   E+   +   +L ++ NAE 
-Sbjct: 112 FAQALETSMVCEIPFETLDDLSGKMPNLRQQMMRLMSG---EIKGDQDMILLLSKKNAEE 168
-
-Query: 714 DVAAFMANLSQ 724
-            +AAF+ NLS+
-Sbjct: 169 RLAAFIYNLSR 179
-
-
   Database: ecoli.aa
     Posted date:  Dec 6, 2001  1:58 PM
   Number of letters in database: 1,358,990
@@ -347,11 +224,11 @@ Number of Hits to DB: 2022122
 Number of Sequences: 4289
 Number of extensions: 82424
 Number of successful extensions: 256
-Number of sequences better than 10.0: 12
-Number of HSP's better than 10.0 without gapping: 8
-Number of HSP's successfully gapped in prelim test: 4
-Number of HSP's that attempted gapping in prelim test: 236
-Number of HSP's gapped (non-prelim): 13
+Number of sequences better than 1.0e-03: 4
+Number of HSP's better than  0.0 without gapping: 3
+Number of HSP's successfully gapped in prelim test: 1
+Number of HSP's that attempted gapping in prelim test: 243
+Number of HSP's gapped (non-prelim): 4
 length of query: 820
 length of database: 1,358,990
 effective HSP length: 47
@@ -365,4 +242,4 @@ X1: 16 ( 7.4 bits)
 X2: 38 (14.6 bits)
 X3: 64 (24.7 bits)
 S1: 41 (21.8 bits)
-S2: 57 (26.6 bits)
+S2: 92 (40.0 bits)
