@@ -36,7 +36,8 @@ my $verbose = 0;
 my $serror = 0; my $serror2 = 0;
 my $ferror = 0; my $ferror2 = 0;
 my $xerror = 0;
-my $format = '%-25s';
+
+my $format = ($ENV{'TEST_DETAILS'} ? '%-25s' : '');
 
 unless (eval "require SOAP::Lite; 1;") {
     print STDERR "SOAP::Lite not installed. Skipping some tests.\n";
@@ -101,7 +102,11 @@ print sprintf ($format, "    citation 3 "); skip ($ferror || $xerror, eval { $io
 print "Getting citations using callback...\n";
 my (@ids) = ('Text1', 'Text248', 'Text495');
 my $callback_used = 'no';
-unless ($ferror || $xerror) {
+if ($ferror || $xerror) {
+    foreach my $i (1..3) {
+	print sprintf ($format, "    citation $i "); skip (1,1);
+    }
+} else {
     $io = new Bio::Biblio::IO ('-format'   => 'medlinexml',
 			       '-file'     => $testfile,
 #			       '-result'   => 'medline2ref',  # this is default

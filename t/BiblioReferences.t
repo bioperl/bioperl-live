@@ -6,17 +6,24 @@
 # `make test'. After `make install' it should work as `perl test.t'
 
 use strict;
+use vars qw($NUMTESTS);
+
+my $error;
+
 BEGIN {
     # to handle systems with no installed Test module
     # we include the t dir (where a copy of Test.pm is located)
     # as a fallback
     eval { require Test; };
+    $error = 0;
     if( $@ ) {
 	use lib 't';
     }
     use Test;
 
-    plan tests => 537 }
+    $NUMTESTS = 537;
+    plan tests => $NUMTESTS;
+}
 
 ## End of black magic.
 ##
@@ -25,9 +32,9 @@ BEGIN {
 ## total number of tests that will be run. 
 
 my ($biblio, $count, $str, @args);
-my ($citation, $provider, $me, $you);
+my ($citation, $provider);
 
-my $format = "\t%-45s";
+my $format = ($ENV{'TEST_DETAILS'} ? "\t%-45s" : '');
 
 print "Testing 'use Bio::Biblio:: ...'\n";
 
@@ -122,7 +129,6 @@ print $@ if $@;
 eval { require Bio::Biblio::PubmedJournalArticle };
 print sprintf ($format, "use Bio::Biblio::PubmedJournalArticle"); ok (%Bio::Biblio::PubmedJournalArticle::);
 print $@ if $@;
-
 
 print "Testing 'new Bio::Biblio:: ...'\n";
 foreach my $object (
@@ -292,13 +298,6 @@ my @other_methods_for_medlinebook =
     qw(
      );
 
-my @scalar_methods_for_medlinebookarticle =
-    qw(
-     );
-my @other_methods_for_medlinebookarticle =
-    qw(
-     book
-     );
 
 
 my @scalar_methods_for_pubmedarticle =

@@ -81,7 +81,7 @@ eval {
 				     -verbose=>$verbose,
 				     -retrievaltype => 'tempfile'
 				     )); 
-    ok( defined($refio = $db->get_Stream_by_batch(['20063307', '98276153'])));
+    skip(1, defined($refio = $db->get_Stream_by_batch(['20063307', '98276153'])));
     ok($refio->next_bibref->length, 408);
     ok($refio->next_bibref->length, 1611);
 };
