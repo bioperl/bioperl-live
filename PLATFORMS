@@ -1,17 +1,19 @@
-# $Id: PLATFORMS,v 1.7 2001-03-02 10:35:04 lapp Exp $
+# $Id: PLATFORMS,v 1.8 2001-03-02 18:24:58 jason Exp $
 
 Perl general comments:
 
 	o Perl 5.00404 and lower often have problems with GDB.t
 
-	o Perl on Digital Unix has been reported to have problems
-	with GDB.t. This maybe something to do with the LWP version
+	o Perl on Digital Unix, WindowsNT, and MacOS has been reported
+          to have problems with the Bio::DB::GDB on module (and
+          consequently the test GDB.t). This is due to different
+          versions of HTML::Parser.
 
-	o DB.t has intermittent time-out failures (which will
-	most likely cause tests 3 and/or 27 to fail)
+	o DB.t has intermittent time-out failures (which will most
+	  likely cause tests 3 and/or 27 to fail)
 
 	o Index.t will fail if you have an out-of-date DBM file
-	installation
+	  installation
 
 
 Tested systems & OS Specific Comments or Warnings
@@ -25,12 +27,30 @@ Comments: none
 Machine : Digital Unix
 Compiler: cc
 Perl    : 5.004
-Comments: Failure on GDB.t, possibly due to LWP issues
+Comments: Failure on GDB.t, possibly due to LWP cissues
 
 Machine : OpenBSD 2.8 i386
 Compiler: cc
 Perl    : 5.6.0
 Comments: none
+
+Machine : Solaris 2.8 UltraSparc
+Compiler: gcc
+Perl    : 5.6.0
+Comments: none
+
+Machine : FreeBSD 4.2 i386
+Compiler: gcc
+Perl    : 5.005_03
+Comments: none
+
+Machine : IRIX64 6.5 SGI
+Compiler: cc
+Perl    : 5.004_04
+Comments: Some warnings about <HANDLE> which can be safely
+	  ignored. Bio::DB::GenBank/GenPept cannot be used because
+	  IO::String cannot be installed on 5.004.  Bio::DB::GDB will
+	  not work on pre 5.005 versions of perl.
 
 Machine : Win32, WinNT i386
 Compiler: --
@@ -43,15 +63,6 @@ Compiler: --
 Perl    : MacPerl
 Comments: Issues and possible ways to fix them summarized by Todd Richmond
           on the bioperl.org Wiki.
-
-
-
-
-
-
-
-
-
 
 
 
