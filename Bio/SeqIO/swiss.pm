@@ -209,7 +209,7 @@ sub next_seq {
        #accession number
        elsif( /^AC\s+(.+)/) {
 	   my( $acc, @sec ) = split /[\s;]+/, $1;
-	   $seq->accession_number($acc);
+	   $seq->accession($acc);
            foreach my $s (@sec) {
 	      $seq->add_secondary_accession($s);
            }
@@ -374,7 +374,16 @@ sub write_seq {
    if( $self->_id_generation_func ) {
        $temp_line = &{$self->_id_generation_func}($seq);
    } else {
-       $temp_line = sprintf ("%s_$div    STANDARD;       $mol;   %d AA.",$seq->id(),$len);
+       #$temp_line = sprintf ("%10s     STANDARD;      %3s;   %d AA.",
+       #		     $seq->primary_id()."_".$div,$mol,$len);
+       # Reconstructing the ID relies heavily upon the input source having
+       # been in a format that is parsed as this routine expects it -- that is,
+       # by this module itself. This is bad, I think, and immediately breaks
+       # if e.g. the Bio::DB::GenPept module is used as input.
+       # Hence, switch to display_id(); _every_ sequence is supposed to have
+       # this. HL 2000/09/03
+       $temp_line = sprintf ("%10s     STANDARD;      %3s;   %d AA.",
+			     $seq->display_id()."_".$div,$mol,$len);
    } 
 
    $self->_print( "ID   $temp_line\n");   
@@ -386,8 +395,8 @@ sub write_seq {
        $temp_line = &{$self->_ac_generation_func}($seq);
        $self->_print( "AC   $temp_line\n");   
    } else {
-       if ($seq->can('accession_number') ) {
-	   $self->_print("AC   ",$seq->accession_number,";");
+       if ($seq->can('accession') ) {
+	   $self->_print("AC   ",$seq->accession,";");
 	   if ($seq->can('each_secondary_accession') ) {
 	       $self->_print(" ",$seq->each_secondary_accession,";\n");
 	   }
