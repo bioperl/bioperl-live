@@ -102,7 +102,7 @@ eval {
 };
 	# this should fail without a moltype
 ok($@);
-dumpValue($wswq1);
+	# dumpValue($wswq1);
 
 
 

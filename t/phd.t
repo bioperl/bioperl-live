@@ -26,7 +26,7 @@ use Bio::SeqIO::phd;
 ok(1);
 
 print("Checking to see if SeqWithQuality objects can be created from a file...\n");
-my $in_phd  = Bio::SeqIO->new(-file => "<t/phredfile.phd" , '-format' => 'phd');
+my $in_phd  = Bio::SeqIO->new(-file => "<t/data/phredfile.phd" , '-format' => 'phd');
 ok(1);
 
 my @phreds;
