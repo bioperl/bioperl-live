@@ -20,6 +20,7 @@
         use Bio::SeqIO;
         use Bio::SimpleAlign;
         use Bio::AlignIO;
+        use Bio::Matrix::IO;
 
         $seq1 = new Bio::SeqIO(-file => $ARGV[0], -format => 'fasta');
         $seq2 = new Bio::SeqIO(-file => $ARGV[1], -format => 'fasta');
@@ -30,7 +31,7 @@
                            -mismatch => -1,
                            -gap => 3,
                            -ext => 1,
-                           -alg => Bio::Ext::dpAlign::DPALIGN_LOCAL_MILLER_MYERS);
+                           -alg => dpAlign::DPALIGN_LOCAL_MILLER_MYERS);
 
         # actually do the alignment
         $out = $factory->pairwise_alignment($seq1->next_seq, $seq2->next_seq);
@@ -38,10 +39,14 @@
         $alnout->write_aln($out);
 
         # To do protein alignment, set the sequence type to protein
-        # currently all protein alignments are using BLOSUM62 matrix
-        # the gap opening cost is 10 and gap extension is 2. These
-        # values are from ssearch. They won't be changed even though
-        # you set other values for now. 
+        # By default all protein alignments are using BLOSUM62 matrix
+        # the gap opening cost is 7 and gap extension is 1. These
+        # values are from ssearch. To use your own custom substitution 
+        # matrix, you can create a Bio::Matrix::MatrixI object.
+
+	$parser = new Bio::Matrix::IO(-format => 'scoring', -file => 'blosum50.mat');
+	$matrix = $parser->next_matrix;
+	$factory = new Bio::Tools::dpAlign(-matrix => $matrix, -alg => Bio::Tools::DPALIGN_LOCAL_MILLERMYERS);
         $seq1->alphabet('protein');
         $seq2->alphabet('protein');
         $out = $factory->pairwise_alignment($seq1->next_seq, $seq2->next_seq);
@@ -138,11 +143,12 @@
 	
 =head1 TO-DO
 
-        1) Allow custom substitution matrix.
+        1) Support Ends-free Alignment.
 
-        2) Support Ends-free Alignment.
+        2) Support IUPAC code for DNA sequence
 
-        3) Support IUPAC code for DNA sequence
+        3) Allow custom substitution matrix for DNA. Note that
+	for proteins, you can now use your own subsitution matirx.
 
 =head1 FEEDBACK
 
@@ -213,24 +219,25 @@ BEGIN {
 }
 
 sub new {
-    my ($class, @args) = @_;
+   my ($class, @args) = @_;
 
-    my $self = $class->SUPER::new(@args);
+   my $self = $class->SUPER::new(@args);
 
-    my ($match, $mismatch, $gap, $ext, $alg) = $self->_rearrange([qw(MATCH
-							       MISMATCH
-							       GAP
-							       EXT
-							       ALG	
+   my ($match, $mismatch, $gap, $ext, $alg, $matrix) = $self->_rearrange([qw(MATCH
+								MISMATCH
+								GAP
+								EXT
+								ALG
+								MATRIX	
 							)], @args);
 
-    $self->match(3) unless defined $match;
-    $self->mismatch(-1) unless defined $mismatch;
-    $self->gap(3) unless defined $gap;
-    $self->ext(1) unless defined $ext;
-    $self->alg(DPALIGN_LOCAL_MILLER_MYERS) unless defined $alg;
+   $self->match(3) unless defined $match;
+   $self->mismatch(-1) unless defined $mismatch;
+   $self->gap(3) unless defined $gap;
+   $self->ext(1) unless defined $ext;
+   $self->alg(DPALIGN_LOCAL_MILLER_MYERS) unless defined $alg;
 
-    if (defined $match) {
+   if (defined $match) {
 	if ($match =~ /^\d+$/) {
 	    $self->match($match);
 	}
@@ -274,6 +281,19 @@ sub new {
 	    $self->throw("Algorithm must be either 1 or 2");
 	}
     }
+
+    if (defined $matrix and $matrix->isa('Bio::Matrix::MatrixI')) {
+        $self->{'matrix'} = Align::ScoringMatrix->new(join("", $matrix->row_names), $self->gap, $self->ext);
+        foreach $rowname ($matrix->row_names) {
+            foreach $colname ($matrix->column_names) {
+                Align::ScoringMatrix->set_entry($self->{'matrix'}, $rowname, $colname, $matrix->entry($rowname, $colname));
+            }
+        }
+    }
+    else {
+        $self->{'matrix'} = 0;
+    }
+
     return $self;
 }
 
@@ -308,7 +328,7 @@ sub sequence_profile {
 	return Bio::Ext::Align::SequenceProfile->dna_new($seq1->seq, $self->{'match'}, $self->{'mismatch'}, $self->{'gap'}, $self->{'ext'});
     }
     elsif ($seq1->alphabet eq 'protein') {
-	return Bio::Ext::Align::SequenceProfile->protein_new($seq1->seq, 'blosum62');
+	return Bio::Ext::Align::SequenceProfile->protein_new($seq1->seq, $self->{'matrix'}); 
     }
     else {
 	croak("There is currently no support for the types of sequences you want to align!\n");
@@ -350,10 +370,10 @@ sub pairwise_alignment_score {
     $seq2->display_id('seq2') unless ( defined $seq2->id() );
 
     if ($prof->alphabet eq 'dna' and $seq2->alphabet eq 'dna') {
-	return Bio::Ext::Align::Score_DNA_Sequences($prof, $seq2->seq);
+	return Bio::Ext::Score_DNA_Sequences($prof, $seq2->seq);
     }
     elsif ($prof->alphabet eq 'protein' and $seq2->alphabet eq 'protein') {
-	return Bio::Ext::Align::Score_Protein_Sequences($prof, $seq2->seq);
+	return Bio::Ext::Score_Protein_Sequences($prof, $seq2->seq);
     }
     else {
 	croak("There is currently no support for the types of sequences you want to align!\n");
@@ -397,7 +417,7 @@ sub pairwise_alignment {
 	$aln = Bio::Ext::Align::Align_DNA_Sequences($seq1->seq, $seq2->seq, $self->{'match'}, $self->{'mismatch'}, $self->{'gap'}, $self->{'ext'}, $self->{'alg'});
     }
     elsif ($seq1->alphabet eq 'protein' and $seq2->alphabet eq 'protein') {
-	$aln = Bio::Ext::Align::Align_Protein_Sequences($seq1->seq, $seq2->seq, 'blosum62', $self->{'alg'});
+	$aln = Bio::Ext::Align::Align_Protein_Sequences($seq1->seq, $seq2->seq, $self->{'matrix'}, $self->{'alg'});
     }
     else {
 	croak("There is currently no support for the types of sequences you want to align!\n");
@@ -457,7 +477,7 @@ sub align_and_show {
 	$aln = Bio::Ext::Align::Align_DNA_Sequences($seq1->seq, $seq2->seq, $self->{'match'}, $self->{'mismatch'}, $self->{'gap'}, $self->{'ext'}, $self->{'alg'});
     }
     elsif ($seq1->alphabet eq 'protein' and $seq2->alphabet eq 'protein') {
-	$aln = Bio::Ext::Align::Align_Protein_Sequences($seq1->seq, $seq2->seq, 'blosum62', $self->{'alg'});
+	$aln = Bio::Ext::Align::Align_Protein_Sequences($seq1->seq, $seq2->seq, $self->{'matrix'}, $self->{'alg'});
     }
     else {
 	croak("There is currently no support for the types of sequences you want to align!\n");
@@ -521,7 +541,7 @@ sub align_and_show {
     Bio::Ext::Align::AlnColumn::add_alu($col, $alu2);
     Bio::Ext::Align::AlnColumn::set_next($last_col, $col);
 
-    &Bio::Ext::Align::write_pretty_str_align($out,$seq1->id,$seq1->seq,$seq2->id,$seq2->seq,12,50,$fh);
+    &Align::write_pretty_str_align($out,$seq1->id,$seq1->seq,$seq2->id,$seq2->seq,12,50,$fh);
 }
 
 =head2 match
