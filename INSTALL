@@ -20,11 +20,18 @@ o System requirements
    this process even easier.  Simply install the bundle in your CPAN
    shell and all necessary modules will be installed.
 
+ - A problem with ExtUtils::MakeMaker and the large number of modules
+   in the Bioperl distribution was preventing installation on IRIX and
+   other OSes where the MAX_ARGS is small.  See the PLATFORMS file
+   for workarounds.
+
  - Bioperl on ActiveState for Windows - An ActiveState PPM distribution is
    available for bioperl.  Issue the following command in your PPM
    shell to install the Bioperl PPD.
-   PPM> set repository Bioperl http://bioperl.org/DIST/
-   PPM> install bioperl
+   PPM> set repository bioperl http://bioperl.org/DIST/
+   PPM> search bioperl             (this will show you what are the available
+				    bioperl versions)
+   PPM> install bioperl		   (will install the default version
 
  - Additional information using Bioperl with MacOS can be 
    found at http://bioperl.org/Core/mac-bioperl.html

@@ -1,4 +1,4 @@
-# $Id: PLATFORMS,v 1.13.2.4 2002-06-05 22:36:38 dag Exp $
+# $Id: PLATFORMS,v 1.13.2.5 2002-07-15 19:39:30 jason Exp $
 
 Perl general comments:
 
@@ -21,7 +21,13 @@ Perl general comments:
 	  ExtUtils::MakeMaker module.  The best course of action is to
 	  installed the latest ExtUtils::MakeMaker.  You will likely
 	  still see a problem with make test, but you should still be
-	  able to issue a make install.
+	  able to issue a make install.  UPDATE (1.0.2):
+	  ExtUtils::MakeMaker 6.00 and should work for most IRIX
+	  installs.  Try installing this module first before doing the
+	  Bioperl installation procedure.  You can also always still
+	  use Bioperl by setting your PERL5LIB directory to the
+	  downloaded distribution directory.
+
 
 
 Tested systems & OS Specific Comments or Warnings
@@ -41,7 +47,7 @@ Comments: none
 Machine : Digital Unix
 Compiler: cc
 Perl    : 5.004
-Comments: Failure on GDB.t, possibly due to LWP cissues
+Comments: Failure on GDB.t, possibly due to LWP issues
 
 Machine : OpenBSD 2.8 i386
 Compiler: cc
@@ -53,7 +59,8 @@ Compiler: gcc
 Perl    : 5.6.0
 Comments: The t/flat.t test may report errors being unable to remove 
 	  a temp directory, these can be safely ignored although an 
-	  uncessary directory t/tmp may get created as result of this test.
+	  uncessary directory t/tmp may get created as result of this
+	  test.  This has since been fixed (Bioperl 1.0.2+).
 
 Machine : FreeBSD 4.2 i386
 Compiler: gcc
@@ -69,7 +76,8 @@ Comments: Some warnings about <HANDLE> which can be safely
 	  not work on pre 5.005 versions of perl.
 
           See notes at the top about problem with makefiles generated
-          and limited buffer size on typical IRIX boxes.
+          and limited buffer size on typical IRIX boxes.  Upgrading
+          ExtUtils::MakeMaker should work on most systems.
   
 Machine : Win32, WinNT i386
 Compiler: --
