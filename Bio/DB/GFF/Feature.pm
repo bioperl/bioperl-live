@@ -1166,12 +1166,7 @@ sub gff3_string {
 
   my ($class,$name) = ('','');
   my @group;
-  if (my $t = $self->target) {
-    $strand = '-' if $t->stop < $t->start;
-    push @group, $self->flatten_target($t,3);
-  }
-
-  elsif (my $g = $self->group) {
+  if (my $g = $self->group) {
     $class = $g->class || '';
     $name  = $g->name  || '';
     $name  = "$class:$name" if defined $class;
@@ -1179,6 +1174,11 @@ sub gff3_string {
   }
 
   push @group,[Parent => $parent] if defined $parent && $parent ne '';
+
+  if (my $t = $self->target) {
+    $strand = '-' if $t->stop < $t->start;
+    push @group, $self->flatten_target($t,3);
+  }
 
   my @attributes = $self->attributes;
   while (@attributes) {
