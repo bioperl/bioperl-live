@@ -1,4 +1,4 @@
-# $Id$
+# Result.pm,v 1.3 2002/06/20 18:50:39 amackey Exp
 #
 # BioPerl module for Bio::Tools::Phylo::PAML::Result
 #
@@ -90,8 +90,11 @@ sub new {
 
   my $self = $class->SUPER::new(@args);
 
-  my ($trees) = $self->_rearrange([qw(TREES)], @args);
-
+  my ($trees,$mlmat,$seqs,$ngmatrix,
+      $codonpos,$codonfreq) = $self->_rearrange([qw(TREES MLMATRIX 
+						    SEQS NGMATRIX
+						    CODONPOS CODONFREQ)], @args);
+  $self->reset_seqs;
   if( $trees ) {
       if(ref($trees) !~ /ARRAY/i ) { 
 	  $self->warn("Must have provided a valid array reference to initialize trees");
@@ -102,6 +105,43 @@ sub new {
       }
   }
   $self->{'_treeiterator'} = 0;
+
+  if( $mlmat ) {
+      if( ref($mlmat) !~ /ARRAY/i ) {
+	  $self->warn("Must have provided a valid array reference to initialize MLmatrix");
+      } else { 
+	  $self->set_MLmatrix($mlmat);
+      }
+  } 
+  if( $seqs ) { 
+      if( ref($seqs) !~ /ARRAY/i ) {
+	  $self->warn("Must have provided a valid array reference to initialize seqs");
+      } else {
+	  foreach my $s ( @$seqs ) {
+	      $self->add_seq($s);
+	  }
+      }
+  }
+  if( $ngmatrix ) {
+      if( ref($ngmatrix) !~ /ARRAY/i ) {
+	  $self->warn("Must have provided a valid array reference to initialize NGmatrix");
+      } else { 
+	  $self->set_NGmatrix($ngmatrix);
+      }
+  } 
+  
+  if( $codonfreq ) {
+      
+  
+  }
+
+  if( $codonpos ) {
+      if( ref($codonpos) !~ /ARRAY/i ) {
+	  $self->warn("Must have provided a valid array reference to initialize codonpos");
+      } else { 
+	  $self->set_codon_pos_basefreq(@$codonpos);
+      }
+  }
 
   return $self;
 }
@@ -152,6 +192,185 @@ sub add_tree{
        push @{$self->{'_trees'}},$tree;
    }
    return scalar @{$self->{'_trees'}};
+}
+
+
+=head2 set_MLmatrix
+
+ Title   : set_MLmatrix
+ Usage   : $result->set_MLmatrix($mat)
+ Function: Set the ML Matrix
+ Returns : none
+ Args    : Arrayref to MLmatrix (must be arrayref to 2D matrix whic is 
+	   lower triangle pairwise)
+
+
+=cut
+
+sub set_MLmatrix{
+   my ($self,$mat) = @_;
+   return unless ( defined $mat );
+   if( ref($mat) !~ /ARRAY/i ) {
+       $self->warn("Did not provide a valid 2D Array reference for set_MLmatrix");
+       return;
+   }
+   $self->{'_mlmatrix'} = $mat;
+}
+
+=head2 get_MLmatrix
+
+ Title   : get_MLmatrix
+ Usage   : my $mat = $result->get_MLmatrix()
+ Function: Get the ML matrix
+ Returns : 2D Array reference
+ Args    : none
+
+
+=cut
+
+sub get_MLmatrix{
+   my ($self,@args) = @_;
+   return $self->{'_mlmatrix'};
+}
+
+=head2 set_NGmatrix
+
+ Title   : set_NGmatrix
+ Usage   : $result->set_NGmatrix($mat)
+ Function: Set the Nei & Gojobori Matrix
+ Returns : none
+ Args    : Arrayref to NGmatrix (must be arrayref to 2D matrix whic is 
+	   lower triangle pairwise)
+
+
+=cut
+
+sub set_NGmatrix{
+   my ($self,$mat) = @_;
+   return unless ( defined $mat );
+   if( ref($mat) !~ /ARRAY/i ) {
+       $self->warn("Did not provide a valid 2D Array reference for set_NGmatrix");
+       return;
+   }
+   $self->{'_ngmatrix'} = $mat;
+}
+
+=head2 get_NGmatrix
+
+ Title   : get_NGmatrix
+ Usage   : my $mat = $result->get_NGmatrix()
+ Function: Get the Nei & Gojobori matrix
+ Returns : 2D Array reference
+ Args    : none
+
+
+=cut
+
+sub get_NGmatrix{
+   my ($self,@args) = @_;
+   return $self->{'_ngmatrix'};
+}
+
+
+=head2 add_seq
+
+ Title   : add_seq
+ Usage   : $obj->add_seq($seq)
+ Function: Add a Bio::PrimarySeq to the Result
+ Returns : none
+ Args    : Bio::PrimarySeqI
+See also : L<Bio::PrimarySeqI>
+
+=cut
+
+sub add_seq{
+   my ($self,$seq) = @_;
+   if( $seq ) { 
+       unless( $seq->isa("Bio::PrimarySeqI") ) {
+	   $self->warn("Must provide a valid Bio::PrimarySeqI to add_seq");
+	   return;
+       }
+       push @{$self->{'_seqs'}},$seq;
+   }
+
+}
+
+=head2 reset_seqs
+
+ Title   : reset_seqs
+ Usage   : $result->reset_seqs
+ Function: Reset the OTU seqs stored
+ Returns : none
+ Args    : none
+
+
+=cut
+
+sub reset_seqs{
+   my ($self) = @_;
+   $self->{'_seqs'} = [];
+}
+
+=head2 get_seqs
+
+ Title   : get_seqs
+ Usage   : my @otus = $result->get_seqs
+ Function: Get the seqs Bio::PrimarySeq (OTU = Operational Taxonomic Unit)
+ Returns : Array of Bio::PrimarySeq
+ Args    : None
+See also : L<Bio::PrimarySeq>
+
+=cut
+
+sub get_seqs{
+   my ($self) = @_;
+   return @{$self->{'_seqs'}};
+}
+
+=head2 set_codon_pos_basefreq
+
+ Title   : set_codon_pos_basefreq
+ Usage   : $result->set_codon_pos_basefreq(@freqs)
+ Function: Set the codon position base frequencies
+ Returns : none
+ Args    : Array of length 3 where each slot has a hashref 
+           keyed on DNA base
+
+
+=cut
+
+sub set_codon_pos_basefreq {
+    my ($self,@codonpos) = @_;
+    if( scalar @codonpos != 3 ) { 
+	$self->warn("invalid array to set_codon_pos_basefreq, must be an array of length 3");
+	return;
+    }
+    foreach my $pos ( @codonpos ) { 
+	if( ref($pos) !~ /HASH/i ||
+	    ! exists $pos->{'A'} ) { 
+	    $self->warn("invalid array to set_codon_pos_basefreq, must be an array with hashreferences keyed on DNA bases, C,A,G,T");
+	}
+    }
+    $self->{'_codonposbasefreq'} = [@codonpos];
+}
+
+=head2 get_codon_pos_basefreq
+
+ Title   : get_codon_pos_basefreq
+ Usage   : my @basepos = $result->get_codon_pos_basefreq;
+ Function: Get the codon position base frequencies
+ Returns : Array of length 3 (each codon position), each 
+           slot is a hashref keyed on DNA bases, the values are
+           the frequency of the base at that position for all sequences
+ Args    : none
+ Note    : The array starts at 0 so position '1' is in position '0' 
+           of the array
+
+=cut
+
+sub get_codon_pos_basefreq{
+   my ($self) = @_;
+   return @{$self->{'_codonposbasefreq'}};
 }
 
 1;

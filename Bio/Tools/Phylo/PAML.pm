@@ -168,6 +168,7 @@ use Bio::Root::IO;
 use Bio::TreeIO;
 use IO::String;
 use Bio::Tools::Phylo::PAML::Result;
+use Bio::PrimarySeq;
 
 =head2 new
 
@@ -220,14 +221,12 @@ sub next_result {
 
     # get the various codon and other sequence summary data, if necessary:
     $self->_parse_summary
-	unless ($self->{_summary} && !$self->{_summary}->{multidata});
-
+	unless ($self->{'_summary'} && !$self->{'_summary'}->{'multidata'});
 
     # OK, depending on seqtype and runmode now, one of a few things can happen:
-    my $seqtype = $self->{_summary}->{seqtype};
+    my $seqtype = $self->{'_summary'}->{'seqtype'};
     if ($seqtype eq 'CODONML' || $seqtype eq 'AAML') {
 	while ($_ = $self->_readline) {
-
 	    if ($seqtype eq 'CODONML' && m/^pairwise comparison, codon frequencies:/o) {
 
 		# runmode = -2, CODONML
@@ -305,6 +304,11 @@ sub next_result {
 
 
     if (%data) {
+	$data{'-seqs'} = $self->{'_summary'}->{'seqs'};
+	$data{'-patterns'} = $self->{'_summary'}->{'patterns'};
+	$data{'-ngmatrix'} = $self->{'_summary'}->{'ngmatrix'};
+	$data{'-codonpos'} = $self->{'_summary'}->{'codonposition'};
+	$data{'-codonfreq'} = $self->{'_summary'}->{'codonfreqs'};
 	return new Bio::Tools::Phylo::PAML::Result %data;
     } else {
 	return undef;
@@ -342,37 +346,39 @@ sub _parse_summary {
 	    last;
 
 	} elsif (m/^Data set \d$/o) {
-	    $self->{_summary} = {};
-	    $self->{_summary}->{multidata}++;
+	    $self->{'_summary'} = {};
+	    $self->{'_summary'}->{'multidata'}++;
 	}
     }
 
-    unless (defined $self->{_summary}->{seqtype}) {
+    unless (defined $self->{'_summary'}->{'seqtype'}) {
 	$self->throw( -class => 'Bio::Root::NotImplemented',
 		      -text => 'Unknown format of PAML output');
     }
 
 
-    my $seqtype = $self->{_summary}->{seqtype};
-
-    if ($seqtype == "CODEML") {
+    my $seqtype = $self->{'_summary'}->{'seqtype'};
+    $self->debug( "seqtype is $seqtype\n");
+    if ($seqtype eq "CODONML") {
 
 	$self->_parse_inputparams(); # settings from the .ctl file that get printed
-	$self->_parse_patterns();    # codon patterns - not very interesting
-	$self->_parse_seqs();        # the sequences data used for analysis
+	$self->_parse_patterns();  # codon patterns - not very interesting	        
+	$self->_parse_seqs();  # the sequences data used for analysis
 	$self->_parse_codoncts();    # counts and distributions of codon/nt usage
-	$self->_parse_distmat();     # NG distance matrices
+	$self->_parse_codon_freqs(); # codon frequencies
+	$self->_parse_distmat(); # NG distance matrices
+	
 
-    } elsif ($seqtype == "AAML") {
+    } elsif ($seqtype eq "AAML") {
 	$self->throw( -class => 'Bio::Root::NotImplemented',
 		      -text => 'AAML parsing not yet implemented!');
-    } elsif ($seqtype == "CODON2AAML") {
+    } elsif ($seqtype eq "CODON2AAML") {
 	$self->throw( -class => 'Bio::Root::NotImplemented',
 		      -text => 'CODON2AAML parsing not yet implemented!');
-    } elsif ($seqtype == "BASEML") {
+    } elsif ($seqtype eq "BASEML") {
 	$self->throw( -class => 'Bio::Root::NotImplemented',
 		      -text => 'BASEML parsing not yet implemented!');
-    } elsif ($seqtype == "YN00") {
+    } elsif ($seqtype eq "YN00") {
 	$self->throw( -class => 'Bio::Root::NotImplemented',
 		      -text => 'YN00 parsing not yet implemented!');
     } else {
@@ -385,12 +391,166 @@ sub _parse_summary {
 }
 
 
-sub _parse_inputparams { }
-sub _parse_patterns { }
-sub _parse_seqs { }
-sub _parse_codoncts { }
-sub _parse_distmat { }
+sub _parse_inputparams { 
+    my ($self) = @_;
+    
+}
 
+sub _parse_codon_freqs {
+    my ($self) = @_;
+    my ($okay,$done) = (0,0);
+    while( defined($_ = $self->_readline ) ) {
+	if( /^Nei/ ) { $self->_pushback($_); last }
+	last if( $done);
+	next if ( /^\s+/);
+	next unless($okay || /^Codon position x base \(3x4\) table\, overall/ );
+	$okay = 1;
+	if( s/^position\s+(\d+):\s+// ) {
+	    my $pos = $1;
+	    s/\s+$//;
+	    my @bases = split;
+	    foreach my $str ( @bases ) {
+		my ( $base,$freq) = split(/:/,$str,2);
+		$self->{'_summary'}->{'codonposition'}->[$pos-1]->{$base} = $freq;
+	    }
+	    $done = 1 if $pos == 3;
+	}
+    }
+    $done = 0;
+    while( defined( $_ = $self->_readline) ) {
+	if( /^Nei\s\&\sGojobori/ ) { $self->_pushback($_); last }
+	last if ( $done );
+	if( /^Codon frequencies under model, for use in evolver:/ ){
+	    while( defined( $_ = $self->_readline) ) {
+		last if( /^\s+$/ );
+		s/^\s+//;
+		s/\s+$//;
+		push @{$self->{'_summary'}->{'codonfreqs'}},[split];
+	    }
+	    $done = 1;
+	}
+    }
+}
+
+sub _parse_patterns { 
+    my ($self) = @_;
+    my ($patternct,@patterns,$ns,$ls);
+    while( defined($_ = $self->_readline) ) {
+	if( $patternct ) { 
+#	    last unless ( @patterns == $patternct );
+	    last if( /^\s+$/ );
+	    s/^\s+//;
+	    push @patterns, split;
+	} elsif( /^ns\s+\=\s*(\d+)\s+ls\s+\=\s*(\d+)/ ) {
+	    ($ns,$ls) = ($1,$2);
+	} elsif( /^\# site patterns \=\s*(\d+)/ ) {
+	    $patternct = $1;
+	} else { 
+#	    $self->debug("Unknown line: $_");
+	}
+    }
+    $self->{'_summary'}->{'patterns'} = { -patterns => \@patterns,
+					  -ns       => $ns,
+					  -ls       => $ls};
+}
+
+sub _parse_seqs { 
+
+    # this should in fact be packed into a Bio::SimpleAlign object instead of
+    # an array but we'll stay with this for now 
+    my ($self) = @_;
+    my (@firstseq,@seqs);
+    while( defined ($_ = $self->_readline) ) {
+
+	last if( m/^\s+$/);
+	next if( /^\d+\s+$/ );
+
+	my ($name,$seqstr) = split(/\s+/,$_,2);
+	$seqstr =~ s/\s+//g; # remove whitespace 
+	unless( @firstseq) {
+	    @firstseq = split(//,$seqstr);
+	    push @seqs, new Bio::PrimarySeq(-id  => $name,
+					    -seq => $seqstr);
+	} else { 
+
+	    my $i = 0;
+	    my $v;
+	    while(($v = index($seqstr,'.',$i)) >= $i ) {
+		# replace the '.' with the correct seq from the
+		substr($seqstr,$v,1,$firstseq[$v]);
+		$i = $v;
+	    }
+	    $self->debug( "adding seq $seqstr\n");
+	    push @seqs, new Bio::PrimarySeq(-id  => $name,
+					    -seq => $seqstr);
+	}
+    }
+    $self->{'_summary'}->{'seqs'} = \@seqs;
+}
+
+sub _parse_codoncts { }
+
+sub _parse_distmat { 
+    my ($self) = @_;
+    my @results;
+    while( defined ($_ = $self->_readline) ) {
+	next if/^\s+$/;
+	last;
+    }
+    return unless (/^Nei\s*\&\s*Gojobori/);
+    # skip the next 3 lines
+    $self->_readline;
+    $self->_readline;
+    $self->_readline;
+    my $seqct = 0;
+    while( defined ($_ = $self->_readline ) ) {
+	last if( /^\s+$/);
+	chomp;
+	my ($seq,$rest) = split(/\s+/,$_,2);
+	my $j = 0;
+	while( /(\-?\d+(\.\d+)?)\s+\((\d+(\.\d+)?)\s+(\d+(\.\d+))\)/og ) {
+	    $self->{'_summary'}->{'ngmatrix'}->[$j++]->[$seqct] = { 'omega' => $1,
+								    'dN'    => $3,
+								    'dS'    => $5 };
+	}
+	$seqct++;
+    }
+}
+
+sub _parse_PairwiseCodon {
+    my ($self) = @_;
+    my @result;
+    my ($a,$b,$log,$model);
+    while( defined( $_ = $self->_readline) ) {
+	if( /^pairwise comparison, codon frequencies\:\s*(\S+)\./) {
+	    $model = $1;
+	} elsif( /^(\d+)\s+\((\S+)\)\s+\.\.\.\s+(\d+)\s+\((\S+)\)/ ) {
+	    ($a,$b) = ($1,$3);
+	} elsif( /^lnL\s+\=\s*(\-?\d+(\.\d+)?)/ ) {
+	    $log = $1;
+	} elsif( m/^t\=\s*(\d+(\.\d+)?)\s+
+		 S\=\s*(\d+(\.\d+)?)\s+
+		 N\=\s*(\d+(\.\d+)?)\s+
+		 dN\/dS\=\s*(\d+(\.\d+)?)\s+
+		 dN\=\s*(\d+(\.\d+)?)\s+
+		 dS\=\s*(\d+(\.\d+)?)/ox ) {
+	    $result[$b-1]->[$a-1] = { 
+		'lnL' => $log,
+		't' => $1,
+		'S' => $3,
+		'N' => $5,
+		'omega' => $7,
+		'dN' => $9,
+		'dS' => $11 };
+	} elsif( /^\s+$/ ) { 
+	    next; 
+	} elsif( /^\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)/ ) {
+	} else { 
+	    $self->debug( "unknown line: $_");
+	}
+    }
+    return ( -mlmatrix => \@result);
+}
 
 sub _parse_Forestry {
 
@@ -407,7 +567,7 @@ sub _parse_mlc {
     my ($self) = @_;
     my %data;
     while( defined( $_ = $self->_readline) ) {
-	print;
+	$self->debug( "mlc parse: $_");
 	# Aaron this is where the parsing should begin
 
 	# I'll do the Tree objects if you like - I'd do it by building
