@@ -481,6 +481,20 @@ sub flatten_target {
     }
 }
 
+# override parent a smidgeon so that setting the ref for top-level feature
+# sets ref for all subfeatures
+sub refseq {
+  my $self   = shift;
+  my $result = $self->SUPER::refseq(@_);
+  if (@_) {
+    my $newref = $self->SUPER::refseq;
+    for my $sub ($self->get_SeqFeatures) {
+      $sub->refseq(@_);
+    }
+  }
+  $result;
+}
+
 
 =head2 hit
 
