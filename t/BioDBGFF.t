@@ -28,7 +28,7 @@ BEGIN {
 sub bail ($;$);
 sub user_prompt ($;$);
 sub fail ($);
-use lib '..','./blib/lib';
+use lib '.','..','./blib/lib';
 use lib "$ENV{HOME}/cvswork/bioperl-live/";
 use Bio::DB::GFF;
 use Bio::SeqIO;

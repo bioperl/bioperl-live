@@ -784,7 +784,7 @@ sub get_table_id {
 sub insertid {
   my $self = shift;
   my $s = shift ;
-  $s->{sth}{mysql_insertid};
+  $s->{mysql_insertid};
 }
 
 
