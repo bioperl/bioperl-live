@@ -79,7 +79,7 @@ catch Bio::Root::Exception with {
 
 # Try to call a subroutine that doesn't exist. But because it occurs within a try block,
 # the Error module will create a Error::Simple to capture it. Handy eh?
-if( $^V ge 5.6.1 ) {
+if( $^V ne 5.6.0 ) {
     try {
 	$test->foobar();
     }
