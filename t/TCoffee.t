@@ -131,12 +131,3 @@ my $seq = $str2->next_seq();
 $aln = $factory->profile_align($aln1,$seq);
 
 test 9, $aln->{order}->{'1'} eq 'CATH_RAT-1-333', "failed adding new sequence to alignment ". $aln->{order}->{'1'};
-
-END {
-opendir(CDIR, ".");
-foreach my $file  ( readdir(CDIR)) {
-  if( $file =~ /\.dnd$/ ) {
-	unlink($file);
-  }
-}
-}
