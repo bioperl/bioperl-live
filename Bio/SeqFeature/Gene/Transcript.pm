@@ -324,10 +324,10 @@ sub introns {
     return @introns;
 }
 
-=head2 Poly_A_site
+=head2 poly_A_site
 
- Title   : Poly_A_site()
- Usage   : $PolyAsite = $transcript->Poly_A_site();
+ Title   : poly_A_site()
+ Usage   : $polyAsite = $transcript->poly_A_site();
  Function: Get/set the poly-adenylation feature/site of this transcript.
  Returns : A Bio::SeqFeatureI implementing object representing the
            poly-adenylation region.
@@ -337,10 +337,10 @@ sub introns {
 
 =cut
 
-sub Poly_A_site {
+sub poly_A_site {
     my ($self, $fea) = @_;
     if ($fea) {
-	$self->_add($fea,'Bio::SeqFeature::Gene::Poly_A_site');
+	$self->_add($fea,'Bio::SeqFeature::Gene::poly_A_site');
     }
     return ($self->get_feature_type('Bio::SeqFeature::Gene::Poly_A_site'))[0];
 }
@@ -447,7 +447,7 @@ sub sub_SeqFeature {
    # add the features we have in addition
    push(@feas, $self->exons()); # this includes UTR features
    push(@feas, $self->promoters());
-   push(@feas, $self->Poly_A_site()) if($self->Poly_A_site());
+   push(@feas, $self->poly_A_site()) if($self->poly_A_site());
    return @feas;
 }
 
@@ -480,7 +480,7 @@ sub flush_sub_SeqFeature {
        $self->flush_promoters();
        $self->flush_exons();
        $self->flush_utrs();
-       $self->Poly_A_site(0);
+       $self->poly_A_site(0);
    }
 }
 
@@ -595,8 +595,8 @@ sub mrna {
 	$mrna .= $elem->seq()->seq();
     }
     $seq->seq($seq->seq() . $mrna);
-    if($self->Poly_A_site()) {
-	$seq->seq($seq->() . $self->Poly_A_site()->seq()->seq());
+    if($self->poly_A_site()) {
+	$seq->seq($seq->() . $self->poly_A_site()->seq()->seq());
     }
     return undef if($seq->length() == 0);
     return $seq;
