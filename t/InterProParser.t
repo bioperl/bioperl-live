@@ -12,34 +12,35 @@ use vars qw($NUMTESTS $DEBUG);
 $DEBUG = $ENV{'BIOPERLDEBUG'} || 0;
 
 BEGIN {
-    # to handle systems with no installed Test module
-    # we include the t dir (where a copy of Test.pm is located)
-    # as a fallback
-    eval { require Test; };
-    $error = 0;
-    if( $@ ) {
-        use lib 't';
-    }
-    use Test; 
-    $NUMTESTS = 47;
-    plan tests => $NUMTESTS;
-    eval { 
-	require XML::Parser;	
-    };
-    if( $@ ) { 	
-	print STDERR "XML::Parser not installed. This means that InterPro Ontology Parsing module is not usable. Skipping tests.\n";	
-	$error = 1;
-    }   
+   # to handle systems with no installed Test module
+   # we include the t dir (where a copy of Test.pm is located)
+   # as a fallback
+   eval { require Test; };
+   $error = 0;
+   if( $@ ) {
+      use lib 't';
+   }
+   use Test; 
+   $NUMTESTS = 47;
+   plan tests => $NUMTESTS;
+   eval { 
+      require XML::Parser::PerlSAX;
+   };
+   if( $@ ) {
+      print STDERR "XML::Parser::PerlSAX not installed. This means that InterPro Ontology Parsing module is not usable. Skipping tests.\n";
+      $error = 1;
+   }
+   eval {
+      require XML::Parser;
+   };
+   if( $@ ) {
+      print STDERR "XML::Parser not installed. This means that InterPro Ontology Parsing module is not usable. Skipping tests.\n";
+      $error = 1;
+   }
 }
 
-END { 
-    foreach ( $Test::ntest..$NUMTESTS) {
-	skip('Unable to run all of the InterProParser tests (missing XML::Parser)',1);
-    }
-}
-
-if( $error == 1 ) { 
-    exit(0); 
+if ( $error ) {
+    exit(0);
 }
 
 require Bio::OntologyIO;
