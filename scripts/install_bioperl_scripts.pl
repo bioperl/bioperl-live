@@ -1,5 +1,15 @@
 #!/usr/bin/perl -w
 
+=head1 NAME
+
+install_bioperl_scripts.pl - install scripts in scripts/ at install time
+
+=head1 DESCRIPTION
+
+  Run automatically on 'make' from directory above scripts/.
+
+=cut
+
 use strict;
 use Config;
 use File::Copy;
@@ -20,12 +30,11 @@ usage:
   perl install_bioperl_scripts.pl  install_dir  prompt_mode
 
 prompt_mode = 'a' (all) | 'i' (interactive) | 'n' (none)
-Note:  this script must be run from the parent directory of /scripts
+Note:  this script must be run from the parent directory of /scripts.
 
 ";
 
 die $usage unless $install_dir;
-
 
 $prompt_mode = 'all'  if $prompt_mode =~ /^a/i;
 $prompt_mode = 'none' if $prompt_mode =~ /^n/i;
@@ -64,24 +73,27 @@ sub install_contents {
   opendir (D,$dir) or die "Can't open $dir: $!\n";
   while (my $script = readdir(D)) {
     next unless $script =~ /\.PLS$/;
-    my $in  = IO::File->new("$dir/$script")    or die "Can't open $dir/$script: $!";
+    my $in  = IO::File->new("$dir/$script")
+		or die "Can't open $dir/$script: $!";
     $script =~ s/\.PLS$/\.pl/;                   # change from .PLS to .pl
     $script =~ s/^/bp_/ unless $script =~ /^bp/; # add the "bp" prefix
     print "\tInstalling $script....\n";
     unlink "$dest/$script" if -e "$dest/$script";
-    my $out = IO::File->new(">$dest/$script")  or die "Can't open $dest/$script: $!";
+    my $out = IO::File->new(">$dest/$script")
+		or die "Can't open $dest/$script: $!";
     my $doneit;
     while (<$in>) {
       next if $doneit;
       if (s/^\#\!\S+/$bangline/) {
-	$doneit++;
+			$doneit++;
       }
     } continue {
-      print $out $_;
+		 print $out $_;
     }
     close $in;
     close $out;
-    chmod MODE,"$dest/$script" or die "Can't change mode of $script to ",MODE,": $!";
+    chmod MODE,"$dest/$script" 
+		or die "Can't change mode of $script to ",MODE,": $!";
   }
   closedir D;
 }
@@ -89,4 +101,3 @@ sub install_contents {
 1;
 
 __END__
-
