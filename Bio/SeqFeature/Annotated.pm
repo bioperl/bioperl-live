@@ -678,14 +678,6 @@ sub _no_tags {
   #$self->throw_not_implemented();
 }
 
-sub primary_tag {
-  return shift->_no_tags();
-}
-
-sub source_tag {
-  return shift->_no_tags();
-}
-
 sub has_tag {
   return shift->_no_tags();
 }
