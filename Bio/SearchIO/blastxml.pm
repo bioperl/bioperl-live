@@ -12,11 +12,11 @@
 
 =head1 NAME
 
-Bio::SearchIO::blastxml - DESCRIPTION of Object
+Bio::SearchIO::blastxml - A SearchIO implementation of NCBI Blast XML parsing. 
 
 =head1 SYNOPSIS
 
-Give standard usage here
+    # do not use this object directly.  See Bio::SearchIO documentation
 
 =head1 DESCRIPTION
 
@@ -59,9 +59,7 @@ Internal methods are usually preceded with a _
 
 =cut
 
-
 # Let the code begin...
-
 
 package Bio::SearchIO::blastxml;
 use vars qw(@ISA $DTD %MAPPING %MODEMAP);
@@ -80,7 +78,8 @@ BEGIN {
     # mapping of NCBI Blast terms to Bioperl hash keys
     %MODEMAP = ('BlastOutput' => 'report',
 		'Hit'         => 'subject',
-		'Hsp'         => 'hsp');
+		'Hsp'         => 'hsp'
+		);
 
     # This should really be done more intelligently, like with
     # XSLT
@@ -113,10 +112,26 @@ BEGIN {
 		 'BlastOutput_query-def'=> 'queryname',
 		 'BlastOutput_query-len'=> 'querylen',
 		 'BlastOutput_db'       => 'dbname',
+		 'Iteration_iter-num'   => 'iternum',
+		 'Parameters_matrix'    => { 'param' => 'matrix'},
+		 'Parameters_expect'    => { 'param' => 'expect'},
+		 'Parameters_include'   => { 'param' => 'include'},
+		 'Parameters_sc-match'  => { 'param' => 'match'},
+		 'Parameters_sc-mismatch' => { 'param' => 'mismatch'},
+		 'Parameters_gap-open'  => { 'param' => 'gapopen'},
+		 'Parameters_gap-extend'=> { 'param' => 'gapext'},
+		 'Parameters_filter'    => {'param' => 'filter'},
+		 'Statistics_db-num'    => { 'stat' => 'dbnum'},
+		 'Statistics_db-len'    => { 'stat' => 'dblength'},
+		 'Statistics_hsp-len'   => { 'stat' => 'hsplength'},
+		 'Statistics_eff-space' => { 'stat' => 'effectivespace'},
+		 'Statistics_kappa'     => { 'stat' => 'kappa' },
+		 'Statistics_lambda'    => { 'stat' => 'lambda' },
+		 'Statistics_entropy'   => { 'stat' => 'entropy'},
 		 );
 }
 
-@ISA = qw(Bio::SearchIO Bio::SearchIO::EventGeneratorI XML::Handler::Subs);
+@ISA = qw(Bio::SearchIO );
 
 =head2 _initialize
 
@@ -190,6 +205,7 @@ sub start_document{
     $self->{'_lasttype'} = '';
     $self->{'_values'} = {};
     $self->{'_report'}= undef;
+    $self->{'_mode'} = '';
 }
 
 =head2 end_document
@@ -224,13 +240,20 @@ sub end_document{
 sub start_element{
     my ($self,$data) = @_;
     # we currently don't care about attributes
-    my $nm = $data->{'Name'};
-
+    my $nm = $data->{'Name'};    
     if( my $type = $MODEMAP{$nm} ) {
+	$self->_mode($type);
 	if( $self->_eventHandler->will_handle($type) ) {
 	    my $func = sprintf("start_%s",lc $type);
 	    $self->_eventHandler->$func($data->{'Attributes'});
 	}						 
+    
+    }
+
+    if($nm eq 'BlastOutput') {
+	$self->{'_values'} = {};
+	$self->{'_report'}= undef;
+	$self->{'_mode'} = '';
     }
 }
 
@@ -255,7 +278,7 @@ sub end_element{
        $self->{'_last_data'} =~ /(t?blast[npx])/i ) {
 	    $self->{'_reporttype'} = uc $1; 
     }
-
+    
     if( my $type = $MODEMAP{$nm} ) {
 	if( $self->_eventHandler->will_handle($type) ) {
 	    my $func = sprintf("end_%s",lc $type);
@@ -263,8 +286,16 @@ sub end_element{
 					      $self->{'_values'});
 	}
     } elsif( $MAPPING{$nm} ) { 
-	$self->{'_values'}->{$MAPPING{$nm}} = $self->{'_last_data'};
+	if ( ref($MAPPING{$nm}) =~ /hash/i ) {
+	    my $key = (keys %{$MAPPING{$nm}})[0];
+	    $self->{'_values'}->{$key}->{$MAPPING{$nm}->{$key}} = $self->{'_last_data'};
+	} else {
+	    $self->{'_values'}->{$MAPPING{$nm}} = $self->{'_last_data'};
+	}
+    } else { 
     }
+    $self->{'_last_data'} = ''; # remove read data if we are at 
+                                # end of an element
     $self->{'_report'} = $rc if( $nm eq 'BlastOutput' );
     return $rc;
 }
@@ -284,9 +315,30 @@ sub end_element{
 sub characters{
    my ($self,$data) = @_;   
    
-   if( $data->{'Data'} && $data->{'Data'} !~ /^\s+$/ ) { 
-       $self->{'_last_data'} = $data->{'Data'}; 
-   }
+   return unless ( defined $data->{'Data'} && $data->{'Data'} !~ /^\s+$/ );
+   
+   $self->{'_last_data'} = $data->{'Data'}; 
 }
 
+
+=head2 _mode
+
+ Title   : _mode
+ Usage   : $obj->_mode($newval)
+ Function: 
+ Example : 
+ Returns : value of _mode
+ Args    : newvalue (optional)
+
+
+=cut
+
+sub _mode{
+   my ($self,$value) = @_;
+   if( defined $value) {
+      $self->{'_mode'} = $value;
+    }
+    return $self->{'_mode'};
+
+}
 1;
