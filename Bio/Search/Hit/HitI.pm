@@ -145,6 +145,21 @@ sub accession {
     $self->throw_not_implemented;
 }
 
+=head2 locus
+
+ Title   : locus
+ Usage   : $acc = $hit->locus();
+ Function: Retrieve the locus(if available) for the hit
+ Returns : a scalar string (empty string if not set)
+ Args    : none
+
+=cut
+
+sub locus {
+    my ($self,@args) = @_;
+    $self->throw_not_implemented;
+}
+
 =head2 length
 
  Title   : length
@@ -549,6 +564,24 @@ sub logical_length { shift->throw_not_implemented() }
 =cut
 
 sub rank{
+   my ($self,$value) = @_;
+   $self->throw_not_implemented();
+}
+
+=head2 each_accession_number
+
+ Title   : each_accession_number
+ Usage   : $obj->each_accession_number
+ Function: Get each accession number listed in the description of the hit.
+           If there are no alternatives, then only the primary accession will 
+           be given
+ Returns : list of all accession numbers in the description
+ Args    : none
+
+
+=cut
+
+sub each_accession_number{
    my ($self,$value) = @_;
    $self->throw_not_implemented();
 }
