@@ -6,17 +6,30 @@
 
 use strict;
 my $NUMTESTS;
+my $error;
 
 BEGIN {
-    eval { require Test; };
-    if( $@ ) {
-        use lib 't','..';
-    }
-    use Test;
-    $NUMTESTS = 46;
-    plan tests => $NUMTESTS;
-
+   eval { require Test; };
+   if( $@ ) {
+      use lib 't','..';
+   }
+   use Test;
+   $NUMTESTS = 45;
+   plan tests => $NUMTESTS;
+   $error = 0;
+   # SeqIO::game needs XML::Writer
+   eval {require XML::Writer};
+   if ($@) {
+      print STDERR "XML::Writer not found, skipping game test\n";
+      $NUMTESTS = 44;
+      $error = 1;
+   }
 }
+
+my @seqformats = qw{ ace embl fasta gcg genbank mase
+                        pfam pir raw swiss tab };
+
+push @seqformats,"game" if ($error == 0);
 
 use Bio::SeqIO;
 use Bio::AlignIO;
@@ -31,9 +44,7 @@ my $verbose =1;
 # Seqio formats
 #
 
-#not tested:  waba 
-my @seqformats = qw{ ace embl fasta game gcg 
-                     genbank mase  pfam pir raw swiss tab };
+#not tested:  waba
 
 my %no_seqio_module = map {$_=>1} qw {gcgblast gcgfasta mase pfam};
 
@@ -91,7 +102,6 @@ foreach my $ext (@seqformats) {
         ok my $seq = $input->next_aln();
     };
     ok 0, 1, $@ if $@;
-
 }
 
 
