@@ -90,6 +90,7 @@ use Bio::SeqFeature::SegmentI;
 
 use Bio::DB::GFF::Util::Rearrange; # for 'rearrange'
 use Bio::SeqFeature::PositionProxy;
+use Bio::SeqFeature::SegmentPositionProxy;
 
 use vars '$VERSION';
 $VERSION = '1.00';
@@ -1116,7 +1117,7 @@ sub _create_segment {
     ## TODO: Put back
     #my $abs_baserange = $baserange->abs_seq_id();
     ## TODO: REMOVE.  Testing.
-    my $abs_baserange = eval{ $baserange->abs_range() } || $baserange;
+    my $abs_baserange = $baserange->abs_range();
     if( $abs_baserange && ( $baserange eq $abs_baserange ) ) {
       ## TODO: REMOVE
       #warn "baserange $baserange is absolute already.";
@@ -1180,9 +1181,8 @@ sub _relativize_feature {
       return $feature; # It's already ready.
     }
     my $abs_seq_id = $feature->abs_seq_id();
-    unless( !defined( $abs_baserange ) ||
-            ( $abs_seq_id eq $abs_baserange ) ) { ## Assertion
-      $self->throw( "Internal error: a SeqFeatureI object that was to be returned by the features() method of a SimpleSegment ($self) is defined over the wrong sequence ($feature is on '$abs_seq_id' -- we expected it to be on '$abs_baserange', like the given baserange $baserange).  This is not your fault unless you are the programmer of SimpleSegment or a class on which it is dependent." );
+    unless( $abs_seq_id eq $abs_baserange ) { ## Assertion
+      $self->throw( "Internal error: a SeqFeatureI object that was to be returned by the features() method of a SimpleSegment is defined over the wrong sequence (it's on '$abs_seq_id' -- we expected it to be on '$abs_baserange').  This is not your fault unless you are the programmer of SimpleSegment or a class on which it is dependent." );
     }
     if( $feature->seq_id() eq $abs_seq_id ) {
       # The feature is already in absolute coords.
@@ -1252,17 +1252,27 @@ sub _relativize_feature {
 # range values will be interpreted in relative mode.  In the future
 # this will be accomplished easily (when the new SeqFeature model is
 # ready) by creating a new feature will the same attribute collection
-# but a different location.  For now we use a PositionProxy.
+# but a different location.  For now we use a PositionProxy for SeqFeatureIs and a SegmentPositionProxy for regular ole SegmentI objects (that aren't also SeqFeatureIs ).
 sub _create_feature_view {
   my $self = shift;
   my $copy_from = shift;
 
-  return
-    Bio::SeqFeature::PositionProxy->new(
-      '-peer' => $copy_from,
-      '-absolute' => $copy_from->absolute(),
-      @_
-    );
+  if( $copy_from->isa( 'Bio::SeqFeatureI' ) ) {
+    return
+      Bio::SeqFeature::PositionProxy->new(
+        '-peer' => $copy_from,
+        '-absolute' => $copy_from->absolute(),
+        @_
+      );
+  } else {
+   return
+      Bio::SeqFeature::SegmentPositionProxy->new(
+        '-peer' => $copy_from,
+        '-absolute' => $copy_from->absolute(),
+        @_
+      );
+  	
+  }
 } # _create_feature_view(..)
 
 # Given a range and a callback sub, return a sub that will make sure that all
