@@ -358,7 +358,7 @@ sub poly_A_site {
            the following types are recognized: utr5prime utr3prime for UTR on the
            5' and 3' end of the CDS, respectively.
 
- Returns : An array of Bio::SeqFeature::Gene::utr objects
+ Returns : An array of Bio::SeqFeature::Gene::UTR objects
            representing the UTR regions or sites.
  Args    : Optionally, either utr3prime, or utr5prime for the the type of UTR
            feature.
@@ -368,14 +368,14 @@ sub poly_A_site {
 
 sub utrs {
     my ($self, $type) = @_;
-    return $self->get_feature_type('Bio::SeqFeature::Gene::utr',$type);
+    return $self->get_feature_type('Bio::SeqFeature::Gene::UTR',$type);
 
 }
 
 =head2 add_utr
 
  Title   : add_utr()
- Usage   : $transcript->add_utr($utrobj, '3prime');
+ Usage   : $transcript->add_utr($utrobj, 'utr3prime');
            $transcript->add_utr($utrobj);
  Function: Add a UTR feature/site to this transcript.
 
@@ -392,14 +392,14 @@ sub utrs {
            Otherwise cds() and friends will become confused.
 
  Returns : 
- Args    : A Bio::SeqFeature::Gene::utr implementing object.
+ Args    : A Bio::SeqFeature::Gene::UTR implementing object.
 
 
 =cut
 
 sub add_utr {
     my ($self, $fea, $type) = @_;
-    $self->_add($fea,'Bio::SeqFeature::Gene::utr',$type);
+    $self->_add($fea,'Bio::SeqFeature::Gene::UTR',$type);
     return;
 }
 
@@ -420,7 +420,7 @@ sub add_utr {
 
 sub flush_utrs {
     my ($self, $type) = @_;
-    return $self->_flush('Bio::SeqFeature::Gene::utr',$type);
+    return $self->_flush('Bio::SeqFeature::Gene::UTR',$type);
 }
 
 =head2 sub_SeqFeature
@@ -596,7 +596,7 @@ sub mrna {
     }
     $seq->seq($seq->seq() . $mrna);
     if($self->poly_A_site()) {
-	$seq->seq($seq->() . $self->poly_A_site()->seq()->seq());
+	$seq->seq($seq->seq() . $self->poly_A_site()->seq()->seq());
     }
     return undef if($seq->length() == 0);
     return $seq;

@@ -1,6 +1,6 @@
 # $Id$
 #
-# BioPerl module for Bio::SeqFeature::Gene::utr
+# BioPerl module for Bio::SeqFeature::Gene::UTR
 #
 # Cared for by David Block <dblock@gene.pbi.nrc.ca>
 #
@@ -12,7 +12,7 @@
 
 =head1 NAME
 
-Bio::SeqFeature::Gene::utr - A feature representing an untranslated region
+Bio::SeqFeature::Gene::UTR - A feature representing an untranslated region
           that is part of a transcription unit
 
 =head1 SYNOPSIS
@@ -21,8 +21,8 @@ See documentation of methods
 
 =head1 DESCRIPTION
 
-A UTR is a Bio::SeqFeature::Gene::ExonI compliant object that is non-coding, and
-can be either 5' or 3' in a transcript.
+A UTR is a Bio::SeqFeature::Gene::ExonI compliant object that is
+non-coding, and can be either 5' or 3' in a transcript.
 
 =head1 FEEDBACK
 
@@ -64,7 +64,7 @@ Internal methods are usually preceded with a _
 # Let the code begin...
 
 
-package Bio::SeqFeature::Gene::utr;
+package Bio::SeqFeature::Gene::UTR;
 use vars qw(@ISA);
 use strict;
 
@@ -78,7 +78,6 @@ sub new {
   my($class,@args) = @_;
 
   my $self = $class->SUPER::new(@args);
-
 }
 
 1;
