@@ -182,7 +182,7 @@ sub to_string {
 
     my ($qtype,$dbtype,$dbseqtype,$type);
     my $alg = $result->algorithm;
-    if(  $alg =~ /T(FAST|BLAST)(XY)/i ) {
+    if(  $alg =~ /T(FAST|BLAST)([XY])/i ) {
 	$qtype      = $dbtype = 'translated';
 	$dbseqtype = $type       = 'PROTEIN';
     } elsif( $alg =~ /T(FAST|BLAST)N/i ) {
