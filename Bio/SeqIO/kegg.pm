@@ -191,9 +191,14 @@ sub next_seq {
 	$FIELDS{$key} = $chunk;
   }
 
-  my($entry_id,$entry_seqtype,$entry_species) = $FIELDS{ENTRY} =~ /^ENTRY\s+(\d+)\s+(\S+)\s+(\S+)\s*$/;
+#   my($entry_id,$entry_seqtype,$entry_species) = $FIELDS{ENTRY} =~ /^ENTRY\s+(\d+)\s+(\S+)\s+(\S+)\s*$/;
+  # changing to split method to get entry_ids that include sequence version like Whatever.1
+  my(undef,$entry_id,$entry_seqtype,$entry_species) = split(' ',$FIELDS{ENTRY});
 
-  my($name) = $FIELDS{NAME} =~ /^NAME\s+(.+)$/;
+  my($name);
+  if ($FIELDS{NAME}) {
+      ($name) = $FIELDS{NAME} =~ /^NAME\s+(.+)$/;
+  }
 
   my($definition) = $FIELDS{DEFINITION} =~ /^DEFINITION\s+(.+)$/s;
   $definition =~ s/\s+/ /gs;
@@ -206,26 +211,33 @@ sub next_seq {
   $annotation = Bio::Annotation::Collection->new();
   $annotation->add_Annotation('description',Bio::Annotation::Comment->new(-text => $definition));
 
-  my($ortholog_db,$ortholog_id,$ortholog_desc) = $FIELDS{ORTHOLOG} =~ /^ORTHOLOG\s+(\S+):\s+(\S+)\s+(\S*)\s*$/;
-  $annotation->add_Annotation('dblink',Bio::Annotation::DBLink->new(-database => $ortholog_db,
-                                                                    -primary_id => $ortholog_id,
-								    -comment => $ortholog_desc)
-                             );
-
-  $FIELDS{CLASS} =~ s/^CLASS\s+//;
-  $FIELDS{'CLASS'} =~ s/\n//g;
-  while($FIELDS{CLASS} =~ /(.*?)\[(\S+):(\S+)\]/g){
-      my ($pathway,$db,$id) = ($1,$2,$3);
-      $pathway =~ s/\s+/ /g;
-      $pathway =~ s/\s$//g;
-      $pathway =~ s/^\s+//;
-      $annotation->add_Annotation('pathway', Bio::Annotation::Comment->new(-text => $pathway));
-      $annotation->add_Annotation('dblink',Bio::Annotation::DBLink->new(-database => $db, -primary_id => $id));
+  my($ortholog_db,$ortholog_id,$ortholog_desc);
+  if ($FIELDS{ORTHOLOG}) {
+      ($ortholog_db,$ortholog_id,$ortholog_desc) = $FIELDS{ORTHOLOG} =~ /^ORTHOLOG\s+(\S+):\s+(\S+)\s+(\S*)\s*$/;
+      $annotation->add_Annotation('dblink',Bio::Annotation::DBLink->new(-database => $ortholog_db,
+                                                                        -primary_id => $ortholog_id,
+                                                                        -comment => $ortholog_desc)
+                                 );
+  }
+  if ($FIELDS{CLASS}) {
+      $FIELDS{CLASS} =~ s/^CLASS\s+//;
+      $FIELDS{'CLASS'} =~ s/\n//g;
+      while($FIELDS{CLASS} =~ /(.*?)\[(\S+):(\S+)\]/g){
+          my ($pathway,$db,$id) = ($1,$2,$3);
+          $pathway =~ s/\s+/ /g;
+          $pathway =~ s/\s$//g;
+          $pathway =~ s/^\s+//;
+          $annotation->add_Annotation('pathway', Bio::Annotation::Comment->new(-text => $pathway));
+          $annotation->add_Annotation('dblink',Bio::Annotation::DBLink->new(-database => $db, -primary_id => $id));
+      }
   }
 
-  $FIELDS{DBLINKS} =~ s/^DBLINKS/       /;
-  while($FIELDS{DBLINKS} =~ /\s+(\S+):\s+(\S+)\n/gs){
-	$annotation->add_Annotation('dblink',Bio::Annotation::DBLink->new(-database => $1, -primary_id => $2));
+
+  if($FIELDS{DBLINKS}) {
+      $FIELDS{DBLINKS} =~ s/^DBLINKS/       /;
+      while($FIELDS{DBLINKS} =~ /\s+(\S+):\s+(\S+)\n/gs){
+	  $annotation->add_Annotation('dblink',Bio::Annotation::DBLink->new(-database => $1, -primary_id => $2));
+      }
   }
 
   $params{'-alphabet'}         = 'dna';
