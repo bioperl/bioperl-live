@@ -449,14 +449,15 @@ sub strand {
     $val = 'query' unless defined $val;
     $val =~ s/^\s+//;
 
-    if( $val =~ /^q/i ) { 
+    if( $val =~ /^q/i ) {
 	return $self->query->strand(shift);
-    } elsif( $val =~ /^(hi|s)/i ) {
+    } elsif( $val =~ /^hi|s/i ) {
 	return $self->hit->strand(shift);
-    } elsif ( $val =~ m/^(list|array)/) {
-	return ($self->query->strand(shift), $self->hit->strand(shift));
+    } elsif (  $val =~ /^list|array/i ) {	
+	return ($self->query->strand(shift), 
+		$self->hit->strand(shift) );
     } else { 
-	$self->warn("unrecognized component $val requested\n");
+	$self->warn("unrecognized component '$val' requested\n");
     }
     return 0;
 }
@@ -482,8 +483,11 @@ sub start {
 	return $self->query->start(shift);
     } elsif( $val =~ /^(hi|s)/i ) {
 	return $self->hit->start(shift);
+    } elsif (  $val =~ /^list|array/i ) {	
+	return ($self->query->start(shift), 
+		$self->hit->start(shift) );
     } else { 
-	$self->warn("unrecognized component $val requested\n");
+	$self->warn("unrecognized component '$val' requested\n");
     }
     return 0;
 }
@@ -509,8 +513,11 @@ sub end {
 	return $self->query->end(shift);
     } elsif( $val =~ /^(hi|s)/i ) {
 	return $self->hit->end(shift);
-    } else { 
-	$self->warn("unrecognized component $val requested\n");
+    } elsif (  $val =~ /^list|array/i ) {	
+	return ($self->query->end(shift), 
+		$self->hit->end(shift) );
+    } else {
+	$self->warn("unrecognized end component '$val' requested\n");
     }
     return 0;
 }
@@ -578,8 +585,8 @@ sub seq_str {
     my $type = shift || 'query';
 
     if( $type =~ /^q/i ) { return $self->query_string(shift) }
-    elsif( $type =~ /^(s|hi)/i ) { return $self->hit_string(shift)}
-    elsif ( $type =~ /^(ho|ma)/i  ) { return $self->homology_string(shift) }
+    elsif( $type =~ /^(s)|(hi)/i ) { return $self->hit_string(shift)}
+    elsif ( $type =~ /^(ho)|(ma)/i  ) { return $self->homology_string(shift) }
     else { 
 	$self->warn("unknown sequence type $type");
     }
