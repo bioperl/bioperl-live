@@ -9,7 +9,7 @@
 	This document is copyright Lincoln Stein, 2002.  It can
         be copied and distributed under the terms of the Perl
         Artistic License.
-</p></div></div><div><p class="pubdate">2002-09-01</p></div><div><div class="revhistory"><table border="1" width="100%" summary="Revision history"><tr><th align="left" valign="top" colspan="3"><b>Revision History</b></th></tr><tr><td align="left">Revision 0.2</td><td align="left">2003-05-15</td><td align="left">lds</td></tr><tr><td align="left" colspan="3">Current as of BioPerl 1.2.2</td></tr></table></div></div><div><div class="abstract"><p class="title"><b>Abstract</b></p><p>
+</p></div></div><div><p class="pubdate">2002-09-01</p></div><div><div class="revhistory"><table border="1" width="100%" summary="Revision history"><tr><th align="left" valign="top" colspan="3"><b>Revision History</b></th></tr><tr><td align="left">Revision 0.2</td><td align="left">2003-05-15</td><td align="left">lds</td></tr><tr><td align="left" colspan="3">Current as of BioPerl 1.2.2</td></tr></table></div></div><div><div class="revhistory"><table border="1" width="100%" summary="Revision history"><tr><th align="left" valign="top" colspan="3"><b>Revision History</b></th></tr><tr><td align="left">Revision 0.3</td><td align="left">2003-09-17</td><td align="left">BIO</td></tr><tr><td align="left" colspan="3">Current as of BioPerl 1.2.3</td></tr></table></div></div><div><div class="abstract"><p class="title"><b>Abstract</b></p><p>
 This HOWTO describes how to render sequence data graphically in a
 horizontal map.  It applies to a variety of situations ranging from
 rendering the feature table of a GenBank entry, to graphing the
@@ -85,6 +85,9 @@ version 2.0.1 or higher.
 You will also need to install the Text::Shellwords module, which is
 available from CPAN.
 </p></div><div class="section"><div class="titlepage"><div><h2 class="title" style="clear: both"><a id="gettingStarted"/>3. Getting Started</h2></div></div><p>
+All the code examples and BLAST input files we'll use are available in
+the doc/howto/examples/graphics directory in the BioPerl package. 
+</p><p>
 Our first example will be rendering a table of BLAST hits on a
 sequence that is exactly 1000 residues long. For now, we're ignoring
 finicky little details like HSPs, and assume that each hit is a single
@@ -93,7 +96,7 @@ than P or E value.  Later on, we'll switch to using real BLAST output
 parsed by the Bio::SearchIO module, but for now, our table looks like
 this:
 </p><p>
-<div class="figure"><a id="d3e51"/><pre class="programlisting">
+<div class="figure"><a id="d3e58"/><pre class="programlisting">
 # hit		score	start	end
 hsHOX3		381	2	200
 scHOX3		210	2	210
@@ -107,7 +110,7 @@ PRES1		127	310	700
 </p><p>
 Our first attempt to parse and render this file looks like this:
 </p><p>
-<div class="example"><a id="code1"/><p class="title"><b>Example 1. Rendering the simple blast hit file (render1.pl)</b></p><pre class="programlisting">
+<div class="example"><a id="code1"/><p class="title"><b>Example 1. Rendering the simple blast hit file (render_blast1.pl)</b></p><pre class="programlisting">
   0  #!/usr/bin/perl
 
   1  # This is code example 1 in the Graphics-HOWTO
@@ -172,8 +175,8 @@ final print statement, put the statement "binmode(STDOUT)".
 This advice also applies to certain versions of RedHat, which ship
 with a patched (and possibly broken) version of Perl.
 </p><p>
-<div class="figure"><a id="d3e67"/><pre class="programlisting">
-% render1.pl data1.txt | display -
+<div class="figure"><a id="d3e74"/><pre class="programlisting">
+% render_blast1.pl data1.txt | display -
 </pre><div class="mediaobject"><img src="../figs/graphics/fig1.png"/></div><p class="title"><b>Figure 2. Rendering BLAST hits</b></p></div>
 </p><p>
 Users of operating systems that don't support pipes can simply
@@ -228,7 +231,7 @@ There are several changes to look at.  The first is minor.  We'd like
 to put a boundary around the left and right edges of the image so that
 the features don't bump up against the margin, so we specify a 10
 pixel leeway with the <i><tt>-pad_left</tt></i> and
-<i><tt>-pad_right</tt></i> arguments in line 5.
+<i><tt>-pad_right</tt></i> arguments in lines 8 and 9.
 </p><p>
 The next change is more subtle.  We want to draw a scale all the way
 across the image.  To do this, we create a track to contain the scale,
@@ -247,7 +250,7 @@ contain tick marks, and that both major and minor ticks should be
 shown (tick type of "2").  We set the foreground color to black, and
 request that arrows should be placed at both ends (-double =&gt;1).
 </p><p>
-<sup>[<a id="d3e92" href="#ftn.d3e92">1</a>]</sup>
+<sup>[<a id="d3e99" href="#ftn.d3e99">1</a>]</sup>
 </p><p>
 In lines 18-22, we get a bit fancier with the blast hit track.  Now,
 instead of creating a generic glyph, we use the "graded_segments"
@@ -261,7 +264,7 @@ program is the same.
 </p><p>
 When we run the modified script, we get this image.
 </p><p>
-<div class="figure"><a id="d3e97"/><div class="mediaobject"><img src="../figs/graphics/fig2.png"/></div><p class="title"><b>Figure 3. The improved image</b></p></div>
+<div class="figure"><a id="d3e104"/><div class="mediaobject"><img src="../figs/graphics/fig2.png"/></div><p class="title"><b>Figure 3. The improved image</b></p></div>
 </p><p>
 IMPORTANT NOTE: Remember that if you are on a Windows platform, you need to put
 STDOUT into binary mode so that the PNG file does not go through
@@ -352,7 +355,7 @@ Another minor change is the use of
 sets the color used for the description strings.  Figure 3 shows the
 effect of these changes.
 </p><p>
-<div class="figure"><a id="d3e126"/><div class="mediaobject"><img src="../figs/graphics/fig3.png"/></div><p class="title"><b>Figure 4. The image with descriptions and sorted hits</b></p></div>
+<div class="figure"><a id="d3e133"/><div class="mediaobject"><img src="../figs/graphics/fig3.png"/></div><p class="title"><b>Figure 4. The image with descriptions and sorted hits</b></p></div>
 </p></div><div class="section"><div class="titlepage"><div><h2 class="title" style="clear: both"><a id="parsing-blast"/>6. Parsing Real BLAST Output</h2></div></div><p>
 From here it's just a small step to writing a general purpose utility
 that will read a BLAST file, parse its output, and output a picture.
@@ -371,10 +374,10 @@ Code example 4 shows the new utility.
   4  use Bio::Graphics;
   5  use Bio::SearchIO;
 
-  6  my $file = shift or die "Usage: render4.pl &lt;blast file&gt;\n";
+  6  my $file = shift or die "Usage: render_blast4.pl &lt;blast file&gt;\n";
 
   7  my $searchio = Bio::SearchIO-&gt;new(-file   =&gt; $file,
-  8                                    -format =&gt; 'blast') or die "parse failed";
+  8                                       -format =&gt; 'blast') or die "parse failed";
 
 
   9  my $result = $searchio-&gt;next_result() or die "no result";
@@ -427,7 +430,7 @@ Code example 4 shows the new utility.
  50  print $panel-&gt;png;
 </pre></div>
 </p><p>
-In lines 6-7 we read the name of the file that contains the BLAST
+In lines 6-8 we read the name of the file that contains the BLAST
 results from the command line, and pass it to
 <tt>Bio::SearchIO-&gt;new()</tt>, returning a
 <tt>Bio::SearchIO</tt> object.  We read a single result
@@ -472,7 +475,7 @@ the track as before using the track's
 </p><p>
 Figure 4 shows the output from a sample BLAST hit file.
 </p><p>
-<div class="figure"><a id="d3e158"/><div class="mediaobject"><img src="../figs/graphics/fig4.png"/></div><p class="title"><b>Figure 5. Output from the BLAST parsing and rendering script</b></p></div>
+<div class="figure"><a id="d3e165"/><div class="mediaobject"><img src="../figs/graphics/fig4.png"/></div><p class="title"><b>Figure 5. Output from the BLAST parsing and rendering script</b></p></div>
 </p><p>
 The next section will demonstrate how to parse and display feature
 tables from GenBank and EMBL.
@@ -565,7 +568,7 @@ The way this script works is simple.  After the library load preamble,
 the script reads the name of the GenBank or EMBL file from the command
 line (line 8).  It passes the filename to
 <tt>Bio::SeqIO</tt>'s <tt>new()</tt> method,
-and reads the first sequence object from it (lines 9-10).  If anything
+and reads the first sequence object from it (lines 9-11).  If anything
 goes wrong, the script dies with an error message.
 </p><p>
 The returned object is a Bio::SeqI object, which has a length but no
@@ -592,7 +595,7 @@ the track immediately.
 </p><p>
 We are now ready to create a track for each feature type.  In order to
 distinguish the tracks by color, we initialize an array of 9 color
-names and simply cycle through them (lines 38-54).  For each feature
+names and simply cycle through them (lines 39-54).  For each feature
 tag, we retrieve the corresponding list of features from
 <tt>%sorted_features</tt> (line 42) and create a track for
 it using the "generic" glyph and the next color in the list (lines
@@ -609,7 +612,7 @@ avoid Windows textmode carriage return/linefeed transformations.
 </p><p>
 Figure 5 shows an example of the output of this script.
 </p><p>
-<div class="figure"><a id="d3e197"/><div class="mediaobject"><img src="../figs/graphics/fig5.png"/></div><p class="title"><b>Figure 6. The embl2picture.pl script</b></p></div>
+<div class="figure"><a id="d3e204"/><div class="mediaobject"><img src="../figs/graphics/fig5.png"/></div><p class="title"><b>Figure 6. The embl2picture.pl script</b></p></div>
 </p></div><div class="section"><div class="titlepage"><div><h2 class="title" style="clear: both"><a id="rendering-features-better"/>8. A Better Version of the Feature Renderer</h2></div></div><p>
 The previous example's rendering has numerous deficiencies.  For one
 thing, there are no lines connecting the various CDS rectangles in the
@@ -826,7 +829,7 @@ print to STDOUT.
 </p><p>
 Figure 6 shows an example of the output of this script.
 </p><p>
-<div class="figure"><a id="d3e231"/><div class="mediaobject"><img src="../figs/graphics/fig6.png"/></div><p class="title"><b>Figure 7. The embl2picture.pl script</b></p></div>
+<div class="figure"><a id="d3e238"/><div class="mediaobject"><img src="../figs/graphics/fig6.png"/></div><p class="title"><b>Figure 7. The embl2picture.pl script</b></p></div>
 </p></div><div class="section"><div class="titlepage"><div><h2 class="title" style="clear: both"><a id="summary"/>9. Summary</h2></div></div><p>
 In summary, we have seen how to use the
 <tt>Bio::Graphics</tt> module to generate
@@ -856,9 +859,10 @@ Finally, if you find yourself constantly tweaking the graphic options,
 you might be interested in
 <tt>Bio::Graphics::FeatureFile</tt>, a utility module
 for interpreting and rendering a simple tab-delimited format for
-sequence features.  feature_draw.pl is a Perl script built on top of
-this module, which you can find in the Bioperl distribution.
-</p></div><div class="footnotes"><br/><hr width="100" align="left"/><div class="footnote"><p><sup>[<a id="ftn.d3e92" href="#d3e92">1</a>] </sup>Obtain the list of glyphs by running perldoc on
+sequence features.  feature_draw.PLS is a Perl script built on top of
+this module, which you can find in the scripts/graphics directory in
+the Bioperl distribution.
+</p></div><div class="footnotes"><br/><hr width="100" align="left"/><div class="footnote"><p><sup>[<a id="ftn.d3e99" href="#d3e99">1</a>] </sup>Obtain the list of glyphs by running perldoc on
 Bio::Graphics::Glyph.  Obtain a description of the glyph options by
 running perldoc on individual glyphs, for example "perldoc Bio::Graphics::Glyph::arrow."
 </p></div></div></div></body></html>

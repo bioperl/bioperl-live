@@ -288,7 +288,7 @@ with a patched (and possibly broken) version of Perl.
 <figure>
 <title>Rendering BLAST hits</title>
 <programlisting>
-% render1.pl data1.txt | display -
+% render_blast1.pl data1.txt | display -
 </programlisting>
 
 <mediaobject>
