@@ -4,7 +4,7 @@ use Bio::SeqFeatureI;
 use Bio::LocationI;
 
 use vars '$VERSION','@ISA';
-$VERSION = '1.31';
+$VERSION = '1.40';
 @ISA  = qw(Bio::SeqFeatureI Bio::LocationI);
 
 *stop        = \&end;
@@ -12,7 +12,7 @@ $VERSION = '1.31';
 *seqname     = \&name;
 *type        = \&primary_tag;
 *exons       = *sub_SeqFeature = *merged_segments = \&segments;
-*class       = *method = \&type;
+*method      = \&type;
 *source      = \&source_tag;
 
 # usage:
@@ -32,16 +32,17 @@ sub new {
   my $self = bless {},$class;
 
   $arg{-strand} ||= 0;
-  $self->{strand}  = $arg{-strand} >= 0 ? +1 : -1;
+  $self->{strand}  = $arg{-strand} ? ($arg{-strand} >= 0 ? +1 : -1) : 0;
   $self->{name}    = $arg{-name};
   $self->{type}    = $arg{-type}   || 'feature';
   $self->{subtype} = $arg{-subtype} if exists $arg{-subtype};
   $self->{source}  = $arg{-source} || $arg{-source_tag} || '';
-  $self->{score}   = $arg{-score}  || 0;
+  $self->{score}   = $arg{-score}   if exists $arg{-score};
   $self->{start}   = $arg{-start};
   $self->{stop}    = $arg{-end} || $arg{-stop};
   $self->{ref}     = $arg{-ref};
-  $self->{url}     = $arg{-url} if $arg{-url};
+  $self->{class}   = $arg{-class} if exists $arg{-class};
+  $self->{url}     = $arg{-url}   if exists $arg{-url};
 
   # fix start, stop
   if (defined $self->{stop} && defined $self->{start}
@@ -74,10 +75,10 @@ sub add_segment {
 	($start,$stop) = ($stop,$start);
 	$strand *= -1;
       }
-      push @segments,$self->new(-start=>$start,
-				-stop=>$stop,
-				-strand=>$strand,
-				-type  => $type);
+      push @segments,$self->new(-start  => $start,
+				-stop   => $stop,
+				-strand => $strand,
+				-type   => $type);
     } else {
       push @segments,$seg;
     }
@@ -101,7 +102,12 @@ sub score    {
   $d;
 }
 sub primary_tag     { shift->{type}        }
-sub name            { shift->{name}        }
+sub name            {
+  my $self = shift;
+  my $d    = $self->{name};
+  $self->{name} = shift if @_;
+  $d;
+}
 sub seq_id          { shift->ref()         }
 sub ref {
   my $self = shift;
@@ -121,7 +127,7 @@ sub end    {
   $self->{stop} = shift if @_;
   $d;
 }
-sub strand { 
+sub strand {
   my $self = shift;
   my $d = $self->{strand};
   $self->{strand} = shift if @_;
@@ -190,6 +196,34 @@ sub to_FTstring {
   my $low  = $self->min_start;
   my $high = $self->max_end;
   return "$low..$high";
+}
+sub phase { undef }
+sub class {
+  my $self = shift;
+  my $d = $self->{class};
+  $self->{class} = shift if @_;
+  return defined($d) ? $d : ucfirst $self->method;
+}
+
+sub gff_string {
+  my $self = shift;
+  my $name  = $self->name;
+  my $class = $self->class;
+  my $group = "$class $name" if $name;
+  my $string;
+  $string .= join("\t",$self->ref,$self->source||'.',$self->method||'.',
+                       $self->start,$self->stop,
+                       $self->score||'.',$self->strand||'.',$self->phase||'.',
+                       $group);
+  $string .= "\n";
+  foreach ($self->sub_SeqFeature) {
+    # add missing data if we need it
+    $_->ref($self->ref)     unless defined $_->ref;
+    $_->name($self->name);
+    $_->class($self->class);
+    $string .= $_->gff_string;
+  }
+  $string;
 }
 
 
@@ -325,11 +359,11 @@ to new().  The feature endpoints are automatically adjusted.
 
 =item segments()
 
-An alias for sub_SeqFeatures().
+An alias for sub_SeqFeature().
 
 =item merged_segments()
 
-Another alias for sub_SeqFeatures().
+Another alias for sub_SeqFeature().
 
 =item stop()
 
@@ -341,7 +375,7 @@ An alias for seqname().
 
 =item exons()
 
-An alias for sub_SeqFeatures() (you don't want to know why!)
+An alias for sub_SeqFeature() (you don't want to know why!)
 
 =back
 

@@ -513,7 +513,12 @@ sub _stat {
   $self->{stat} = [stat($fh)];
 }
 
-sub mtime { shift->{stat}->[9];  }
+sub mtime {
+  my $self = shift;
+  my $d = $self->{m_time} || $self->{stat}->[9];
+  $self->{m_time} = shift if @_;
+  $d;
+}
 sub atime { shift->{stat}->[8];  }
 sub ctime { shift->{stat}->[10]; }
 sub size  { shift->{stat}->[7];  }
