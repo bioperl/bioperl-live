@@ -1,5 +1,3 @@
-
-
 #
 # BioPerl module for Bio::SeqIO::swiss
 #
@@ -263,10 +261,8 @@ sub next_seq {
 	       }
 	   }
 	   my $commobj = Bio::Annotation::Comment->new();
-	   # i think we shouldn't replace the following because it marks 
-	   # special comments. LP 07/30/2000
-	   #$comment =~ s/-\!- //g;
-	   #$comment =~ s/    //g;
+	   # note: don't try to process comments here -- they may contain
+           # structure. LP 07/30/2000
 	   $commobj->text($comment);
 	   $seq->annotation->add_Comment($commobj);
 	   $comment = "";
@@ -329,9 +325,8 @@ sub next_seq {
        s/[^A-Za-z]//g;
        $seqc .= $_;
    }
-   $pseq = Bio::PrimarySeq->new(-seq => $seqc , -id => $name, -desc => $desc, 
-				-accession_number => $seq->accession_number);
-   $seq->primary_seq($pseq);
+   $seq->seq($seqc);
+   $seq->desc($desc);
    $seq->keywords($keywords);
    $acc_string =~ s/\;\s*/ /g;
    ( $acc, @sec ) = split " ",$acc_string;
