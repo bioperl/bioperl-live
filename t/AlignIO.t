@@ -120,7 +120,8 @@ ok $status, 1, "  failed filehandle output test";
 
 # BL2SEQ
 $str = Bio::AlignIO->new('-file'   => Bio::Root::IO->catfile("t","data","bl2seq.out"),
-			   '-format' => 'bl2seq');
+			 '-format' => 'bl2seq',
+			 '-report_type' => 'blastp');
 $aln = $str->next_aln();
 ok $aln->get_seq_by_pos(2)->get_nse, 'ALEU_HORVU/60-360', 
     "failed BLAST bl2seq format test";
@@ -233,3 +234,12 @@ ok($aln->get_seq_by_pos(1)->seq(), 'MEDVTLHHFRWRKPVENKNGEIVYKTSETQTAEISRKDVECVAN
 ok($aln->is_flush());
 ok($aln->get_seq_by_pos(1)->get_nse,'gf.s71.44/1-448');
 ok($aln->get_seq_by_pos(2)->get_nse,'Y50C1A.2/1-406');
+
+
+# Let's parse Phylip non-interleaved
+$strout = Bio::AlignIO->new('-file'  =>
+			    Bio::Root::IO->catfile("t","data",
+						   "noninterleaved.phy"),
+			    '-format' => 'phylip');
+$aln = $strout->next_aln($aln);
+ok($aln->get_seq_by_pos(2)->seq(), 'CCTCAGATCACTCTTTGGCAACGACCCCTCGTCACAATAAAGGTAGGGGGGCAACTAAAGGAAGCTCTATTAGATACAGGAGCAGATGATACAGTATTAGAAGACATGAATTTGCCAGGAAGATGGAAACCAAAAATGATAGGGGGAATTGGAGGGTTTATCAAAGTAAGACAGTATGATCAGATACCCATAGAGATCTGTGGACATAAAGCTATAGGTACAGTATTAGTAGGACCCACACCTGTCAATATAATTGGAAGAAATCTGTTGACTCAGATTGGTTGCACTTTAAATTTT' );
