@@ -110,7 +110,7 @@ sub next_seq {
     my ($self) = @_;
     my ($seq, $seqc, $fh, $buffer, $offset, $length, $read_bytes, @read,
 	%names);
-    # set up a filehandle to read in the scf
+    # set up a filehandle to read in the scf    
     $fh = $self->_filehandle();
     unless ($fh) {		# simulate the <> function
 	if ( !fileno(ARGV) or eof(ARGV) ) {
@@ -127,68 +127,74 @@ sub next_seq {
     $self->_set_header($buffer);
     # the rest of the the information is different between the
     # the different versions of scf.
-    my $byte = "n";
     if ($self->{'version'} lt "3.00") {
-	# first gather the trace information
-	$length = $self->{'samples'}*$self->{sample_size}*4;
-	$buffer = $self->read_from_buffer($fh,$buffer,$length);
-	if ($self->{sample_size} == 1) {
-	    $byte = "c";
-	}
-	@read = unpack "${byte}${length}",$buffer;
-	# these traces need to be split
-	$self->_set_v2_traces(\@read);
-	# now go and get the base information
-	$offset = $self->{bases_offset};
-	$length = ($self->{bases} * 12);
-	seek $fh,$offset,0;
-	$buffer = $self->read_from_buffer($fh,$buffer,$length);
-	# now distill the information into its fractions.
-	$self->_set_v2_bases($buffer);
-    } else {
-	my $transformed_read;
-	foreach (qw(A C G T)) {
-	    $length = $self->{'samples'}*$self->{sample_size};
+	    # first gather the trace information
+	    $length = $self->{'samples'}*$self->{sample_size}*4;
 	    $buffer = $self->read_from_buffer($fh,$buffer,$length);
-            if ($self->{sample_size} == 1) {
-                $byte = "c";
-            }
-	    @read = unpack "${byte}${length}",$buffer;
-	    # this little spurt of nonsense is because
-	    # the trace values are given in the binary
-	    # file as unsigned shorts but they really
-	    # are signed. 30000 is an arbitrary number
-	    # (will there be any traces with a given
-	    # point greater then 30000? I hope not.
-	    # once the read is read, it must be changed
-	    # from relative
-	    for (my $element=0; $element < scalar(@read); $element++) {
-		if ($read[$element] > 30000) {
-		    $read[$element] = $read[$element] - 65536;
-		}
+	    @read = unpack "n$length",$buffer;
+	    # these traces need to be split
+	    $self->_set_v2_traces(\@read);
+	    # now go and get the base information
+	    $offset = $self->{bases_offset};
+	    $length = ($self->{bases} * 12);
+	    seek $fh,$offset,0;
+	    $buffer = $self->read_from_buffer($fh,$buffer,$length);
+	    # now distill the information into its fractions.
+	    $self->_set_v2_bases($buffer);
+    } else {
+	    my $transformed_read;
+	    foreach (qw(A C G T)) {
+	        $length = $self->{'samples'}*$self->{sample_size};
+	        $buffer = $self->read_from_buffer($fh,$buffer,$length);
+                my $byte = "n";
+                if ($self->{sample_size} == 1){
+                    $byte = "c";
+                }
+	        @read = unpack "${byte}${length}",$buffer;
+
+		# this little spurt of nonsense is because
+		# the trace values are given in the binary
+		# file as unsigned shorts but they really
+		# are signed deltas. 30000 is an arbitrary number
+		# (will there be any traces with a given
+		# point greater then 30000? I hope not.
+		# once the read is read, it must be changed
+		# from relative
+                foreach (@read) {
+		    if ($_ > 30000) {
+		        $_ -= 65536;
+		    }
+	        }
+	        $transformed_read = $self->_delta(\@read,"backward");
+                # For 8-bit data we need to emulate a signed/unsigned
+                # cast that is implicit in the C implementations.....
+                if($self->{sample_size} == 1){
+                    foreach (@{$transformed_read}) {
+                        $_ += 256 if ($_ < 0);
+                    }
+                }
+                $self->{'traces'}->{$_} = join(' ',@{$transformed_read});
 	    }
-	    $transformed_read = $self->_delta(\@read,"backward");
-	    $self->{'traces'}->{$_} = join(' ',@{$transformed_read});
-	}
-	# now go and get the peak index information
-	$offset = $self->{bases_offset};
-	$length = ($self->{bases} * 4);
-	seek $fh,$offset,0;
-	$buffer = $self->read_from_buffer($fh,$buffer,$length);
-	$self->_set_v3_peak_indices($buffer);
-	# now go and get the accuracy information
-	$buffer = $self->read_from_buffer($fh,$buffer,$length);
-	$self->_set_v3_base_accuracies($buffer);
-	# OK, now go and get the base information.
-	$length = $self->{bases};
-	$buffer = $self->read_from_buffer($fh,$buffer,$length);
-	$self->{'parsed'}->{'sequence'} = unpack("a$length",$buffer);
-	# now, finally, extract the calls from the accuracy information.
-	$self->_set_v3_quality($self);
+
+	    # now go and get the peak index information
+	    $offset = $self->{bases_offset};
+	    $length = ($self->{bases} * 4);
+	    seek $fh,$offset,0;
+	    $buffer = $self->read_from_buffer($fh,$buffer,$length);
+	    $self->_set_v3_peak_indices($buffer);
+	    # now go and get the accuracy information
+	    $buffer = $self->read_from_buffer($fh,$buffer,$length);
+	    $self->_set_v3_base_accuracies($buffer);
+	    # OK, now go and get the base information.
+	    $length = $self->{bases};
+	    $buffer = $self->read_from_buffer($fh,$buffer,$length);
+	    $self->{'parsed'}->{'sequence'} = unpack("a$length",$buffer);
+	    # now, finally, extract the calls from the accuracy information.
+	    $self->_set_v3_quality($self);
     }
     # now go and get the comment information
-    $offset = $self->{comments_offset};
-    seek $fh,$offset,0;
+	$offset = $self->{comments_offset};
+	seek $fh,$offset,0;
     $length = $self->{comment_size};
     $buffer = $self->read_from_buffer($fh,$buffer,$length);
     $self->_set_comments($buffer);
