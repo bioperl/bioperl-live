@@ -22,6 +22,10 @@ other packages. biodesign focuses on a number of areas.
 
 This was written by Ewan Birney in a variety of airports across the US.
 
+Additions added by:
+Brian Osborne
+Jason Stajich
+ 
 =head1 Reusing code and working in collaborative projects
 
 The biggest problem often in reusing a code base like Bioperl is that
@@ -108,43 +112,58 @@ So - I am always looking forward to people posting on the guts list
 with their feedback/questions/proposals. As well as the long standing fun we
 have making new releases.
 
-=head1 Bioperl Root Object
+=head1 Bioperl Bio::Root::Root Object
 
 All objects in Bioperl (but for interfaces - see L<Bioperl Interface design>)
-inherit from the Root Object. The Bioperl root object allows a number of
+inherit from the Bio::Root::Root. The Bioperl root object allows a number of
 very useful concepts to be provided. In particular.
 
 =over 3
 
-=item exceptions
+=item exceptions, warning, and debugging
 
-Bioperl root object allow exceptions to be throw on the object with very
-nice debugging output
+  The Bioperl Root object allows exceptions to be throw on the object
+with very nice debugging output.  These are throw by calling the
+method throw() and passing in the message string.  This will cause the
+execution of the script to die with a stack trace.
+  
+   Similarly the warn() method can be called which will produce a
+warning message - use this instead of print for warning messages to
+the user because if the verbose flag is set to -1 warnings will be
+skipped.  Additionally setting the verbose flag to 1 will print a
+stack trace for every warning in addition to the message and setting
+verbose to 2 will convert warnings into thrown exceptions.
 
-=item context
-
-Bioperl root object have a context which allows, in particular, exceptions
-that are thrown to say which object as throwing the exception.
+   Finally, the the debug() method prints messages to STDERR when the
+verbose flag is set to 1.
 
 =item rearrange
 
-Bioperl root object have some helper methods, in particular rearrange() to
-help functions which take hash inputs.
+Bioperl root object have some helper methods, in particular
+rearrange() to help functions which take hash inputs.  This allows one
+to specify named arguments as a hash and map them to the expected
+input parameters specified by an array.
 
 =back
 
-You can go to L<Bio::Root::Object> for more information.
+You can go to L<Bio::Root::Root> for more information.
 
 
 =head2 Using the root object
 
 To use the root object, the object has to inherit from it. This means
-the @ISA array should have (Bio::Roo::Object) in it and that the
-module goes "use Bio::Root::Object". The root object provides the
--E<gt>new function. This new function builds a hash, sets some root object
-management issues and then calls the _initialize function. It is this
-function which your object needs to implement.  The full code is given
-below.
+the @ISA array should have (Bio::Root::Root) in it and that the module
+has a "use Bio::Root::Root". (If you are an emacs user, consider using
+the boilerplate methods in the bioperl.lisp to lay out your module
+initially for you).  The root object provides a top level -E<gt>new
+function.  You should inherit from this new method by calling the new
+method of the superclass which is accessible by using SUPER.  This is
+called chaining the constructors and allows a child class to utilize
+the initialization procedure of the superclass in addition to
+executing its own.  This is a very powerful technique and allows Bioperl 
+to behave in an Object Oriented manner.
+
+The full code is given below for a basic skeleton object that uses bioperl.
 
    # convention is that if you are using the Bio::Root object you
    # should put it inside the Bio namespace
@@ -153,22 +172,22 @@ below.
    use vars qw(@ISA);
    use strict;
 
-   use Bio::Root::Object;
-   @ISA = qw(Bio::Root::Object);
+   use Bio::Root::Root;
+   @ISA = qw(Bio::Root::Root);
 
-   # new() is inherited from Bio::Root::Object
-   # _initialize is where the heavy stuff will happen when new is called
 
-  sub _initialize {
-     my($self,@args) = @_;
+  sub new {
+     my($class,@args) = @_;
      # call superclasses initialize
-
-     my $make = $self->SUPER::_initialize(@args);
+     my $self = $class->SUPER::new(@args);
 
      # do your own argument processing here
-     # set default attributes etc...
 
-     return $make; # success - we hope!
+     my ($arg1) = $self->_rearrange([qw(NAMEDARGUMENT1)], @args);
+     
+     # set default attributes etc...
+	
+     return $self;
   }
 
 =head2 Throwing Exceptions
@@ -177,21 +196,17 @@ Exceptions are die functions, in which the $@ variable (a scalar) is
 used to indicate how it died. The exceptions can be caught using the
 eval {} system. The Bioperl root object has a method called "-E<gt>throw"
 which calls die but also provides a full stack trace of where this
-throw happened on (and also which object the exception was thrown -
-see the L<Object Context> section). So an exception like
+throw happened on. So an exception like
 
   $obj->throw("I am throwing an exception");
 
 Provides the following output on STDERR if is not caught.
 
-  -------------------- EXCEPTION --------------------
-  MSG: I am throwing an exception
-  CONTEXT: Error in object Bio::Root::Object "anonymous Bio::Root::Object"
-  SCRIPT: myscript.pl
-  STACK:
-  main::my_subroutine(7)
-  main::(3)
-  ---------------------------------------------------
+------------- EXCEPTION: Bio::Root::Exception -------------
+MSG: I am throwing an exception
+STACK: Error::throw
+STACK: Bio::Root::Root::throw /home/jason/bioperl/core/Bio/Root/Root.pm:313
+-----------------------------------------------------------
 
 indicating that this exception was thrown at line 7 of subroutine
 my_subroutine, in myscript.pl
@@ -217,38 +232,6 @@ Notice that the eval block can have multiple statements in it, and
 also that if you want to use variables outside of the eval block, they
 must be declared with my outside of the eval block (you are planning
 to "use strict" in your scripts, aren't you!).
-
-
-=head2 Object Context
-
-Each Bioperl object has a context, which is given by the name
-attribute (name is a method defined in the Bio::Root::Object
-package). This context is displayed when the exception is made, so
-that the following script:
-
-  use Bio::Root::Object;
-  $obj = Bio::Root::Object->new;
-
-  $obj->name("Context-A");
-  &my_subroutine($obj);
-
-  sub my_subroutine {
-        $self = shift;
-        $self->throw("I am throwing an exception");
-  }
-
-Produces the following exception
-
-  -------------------- EXCEPTION --------------------
-  MSG: I am throwing an exception
-  CONTEXT: Error in object Bio::Root::Object "Context-A"
-  SCRIPT: test2.pl
-  STACK:
-  main::my_subroutine(10)
-  main::test2.pl(6)
-  ---------------------------------------------------
-
-Notice that the Object nows says that it is Context-A.
 
 This context is particularly useful when objects are produced from a
 database. This is because some exceptions are really due to problems
@@ -408,6 +391,18 @@ independent functions with the interface definition, and I (Ewan) used
 this in other interfaces since then. The documentation has to be clear
 about what is going on, but I think in general it is.
 
+=head1 A Note on performance
+
+Since Object Oriented programming in perl is not as elegant as
+intentionally object oriented programming languages we incur
+some overhead when calling the chained new constructors.  For most
+cases this is perfectly okay as the object creation is not a
+significant portion of many of the procedures.  However in certain
+cases - reading in a large number of sequences with features requires
+the creation of many objects and can perform poorly.  One can work
+around this by creating the hashes directly and NOT chaining the new
+calls.  An example of this is implemented in the Bio::SeqIO::FTHelper
+objects in the treatment of Location objects for features.
 
 =head1 Getting Started
 
@@ -415,4 +410,3 @@ The Bioperl effort has managed to strike that balance between creating
 reliable and powerful software and providing outlets for individual 
 creativity and imagination. In this spirit of open-mindedness we invite
 you to share your ideas with us at bioperl-l@bioperl.org.
-
