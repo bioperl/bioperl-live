@@ -214,13 +214,13 @@ sub parse_next_gene {
 	       (-query => $query,
 		-hit   => $hit,
 		-source => $self->analysis_method);
-       } elsif( /^([\-\+])(Intron)/) {
+       } elsif( /^([\-\+\?])(Intro)/) {
 	   my ($name,$len,$score,$qstart,$qend,$qseqname) = split;
 	   push @features, new Bio::SeqFeature::Generic(-primary => $2,
 							-source => $self->analysis_method,
 							-start => $qstart,
 							-end   => $qend,
-							-strand => $1,
+							-strand => $qstrand,
 							-score  => $score,
 							-seq_id => $qseqname,
 							-tag => { 
@@ -233,6 +233,7 @@ sub parse_next_gene {
 	   $self->warn( "unknown line $_\n");
        }
    }
+   return undef unless( @features );
    return wantarray ? @features : \@features;
 }
 
@@ -251,7 +252,7 @@ sub parse_next_gene {
 
 sub next_feature {
     my ($self) = shift;
-    $self->throw("We haven't really done this right, yet, use parse_next_alignment");
+    $self->throw("We haven't really done this right, yet, use parse_next_gene");
 }
 
 
