@@ -12,15 +12,16 @@
 
 =head1 NAME
 
-Bio::Tree::AlleleNode - DESCRIPTION of Object
+Bio::Tree::AlleleNode - A Node with Alleles attached
 
 =head1 SYNOPSIS
 
-Give standard usage here
+  use Bio::Tree::AlleleNode;
 
 =head1 DESCRIPTION
 
-Describe the object here
+AlleleNodes are basic Bio::Tree::Nodes with the added ability to add
+alleles.  Alelles are defined as a marker name with a set.
 
 =head1 FEEDBACK
 
@@ -88,7 +89,7 @@ sub new {
   my $self = $class->SUPER::new(@args);
 
   my ($alleles) = $self->_rearrange([qw(ALLELES)], @args);
-  $self->{'_data'} = {};
+  $self->{'_markerdata'} = {};
   if( defined $alleles ) { 
       if( ref($alleles) !~ /HASH/i ) {
 	  $self->warn("Must specify a valid HASH reference for the -alleles value...Ignoring initializing input");
@@ -122,13 +123,13 @@ sub add_alleles{
        $self->warn("must specify a valid marker name for add_alleles");
        return;
    } 
-   if( $self->{'_data'}->{$marker} ) { 
+   if( $self->{'_markerdata'}->{$marker} ) { 
        $self->warn("Overwriting value of $marker");
    }
-   $self->{'_data'}->{$marker} = []; # reset the array ref
+   $self->{'_markerdata'}->{$marker} = []; # reset the array ref
    foreach my $a ( sort @alleles ) { 
        next if ! defined $a; # skip undef alleles 
-       push @{$self->{'_data'}->{$marker}},$a;
+       push @{$self->{'_markerdata'}->{$marker}},$a;
    }
 }
 
@@ -144,11 +145,28 @@ sub add_alleles{
 
 sub get_alleles{
    my ($self,$marker) = @_;
-   if( defined $self->{'_data'}->{$marker} ) { 
-       return @{$self->{'_data'}->{$marker}};
+   if( defined $self->{'_markerdata'}->{$marker} ) { 
+       return @{ $self->{'_markerdata'}->{$marker} };
    }
    return ();
 }
+
+=head2 has_marker
+
+ Title   : has_marker
+ Usage   : if( $node->has_marker($marker) ) {}
+ Function: Test if a marker exists for this node
+ Returns : boolean
+ Args    : $markername
+
+
+=cut
+
+sub has_marker{
+   my ($self,$marker) = @_;
+   return defined $self->{'_markerdata'}->{$marker};
+}
+
 
 =head2 get_marker_names
 
@@ -162,7 +180,7 @@ sub get_alleles{
 
 sub get_marker_names{
    my ($self) = @_;
-   return keys %{$self->{'_data'}};
+   return keys %{$self->{'_markerdata'}};
 }
 
 =head2 purge_markers
@@ -178,7 +196,7 @@ sub get_marker_names{
 
 sub purge_markers{
    my ($self) = @_;
-   $self->{'_data'} = {};
+   $self->{'_markerdata'} = {};
    return;
 }
 
