@@ -545,15 +545,17 @@ sub cds {
     if(! $self->entire_seq()) {
 	$self->throw("CDS requested, but no sequence object attached");
     }
-    if($#exons > 0) {
+    if($#exons >= 0) {
 	# determine order
-	if((($exons[0]->strand() == -1) &&
-	    ($exons[0]->end() < $exons[1]->start())) ||
-	   (($exons[0]->strand() == 1) &&
-	    ($exons[0]->start() > $exons[1]->end()))) {
-	    # normal order, but minus strand, or reverse order, but plus
-	    # strand: we need to reverse the order in either case
-	    @exons = CORE::reverse(@exons);
+	if($#exons > 0) {
+	    if((($exons[0]->strand() == -1) &&
+		($exons[0]->end() < $exons[1]->start())) ||
+	       (($exons[0]->strand() == 1) &&
+		($exons[0]->start() > $exons[1]->end()))) {
+		# normal order, but minus strand, or reverse order, but plus
+		# strand: we need to reverse the order in either case
+		@exons = CORE::reverse(@exons);
+	    }
 	}
 	foreach my $exon (@exons) {
 	    $cds .= $exon->seq()->seq();
