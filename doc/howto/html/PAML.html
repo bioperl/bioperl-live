@@ -113,8 +113,10 @@ while(my $result = $parser-&gt;next_result) {
     # do something with the results from this dataset ...
 }
 	</pre></div>
-      In this example, we've created a new top-level <span class="emphasis"><em>paml</em></span> parser,
-      specifying <span class="emphasis"><em>paml</em></span>'s primary output file, the directory in which
+      In this example, we've created a new top-level 
+      <span class="emphasis"><em>paml</em></span> parser,
+      specifying <span class="emphasis"><em>paml</em></span>'s primary output file, 
+      the directory in which
       any other accessory files may be found, and the control file.
       We then trigger the parser to begin parsing the data,
       returning a new PAML::Result object for each dataset found in
@@ -136,11 +138,13 @@ while(my $result = $parser-&gt;next_result) {
       accompanying tree topology), or statistical comparisons of
       multiple tree topologies.
     </p></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="running"></a>3.&nbsp;Running PAML from within Bioperl</h2></div></div><div></div></div><p>
-      Bioperl also has facilities for running <span class="emphasis"><em>paml</em></span> from within a
+      Bioperl also has facilities for running
+      <span class="emphasis"><em>paml</em></span> from within a
       Perl script.  This allows you to compute Ka and Ks estimations
       from within an analysis pipeline.  The following section will
       describe the process of getting data into Bioperl, running the
-      alignment process, and setting up a <span class="emphasis"><em>paml</em></span> process.  This code
+      alignment process, and setting up a <span class="emphasis"><em>paml</em></span> 
+      process.  This code
       is focusing on estimations of all the pairwise Ka and Ks values
       however it can be used to easily compute more sophisticated
       questions about variable rates, etc.         
@@ -154,7 +158,8 @@ while(my $result = $parser-&gt;next_result) {
       rates are applied when calculating the MSA.  The protein
       alignment is them projected back into cDNA coordinates using a
       method called aa_to_dna_aln.  Finally the cDNA alignment is
-      provided to a <span class="emphasis"><em>paml</em></span> executing module which sets up the running
+      provided to a <span class="emphasis"><em>paml</em></span> executing module which 
+      sets up the running
       parameters and converts the alignment to the appropriate format.
       <pre class="programlisting">
 use Bio::Tools::Run::Phylo::PAML::Codeml;
@@ -171,12 +176,12 @@ my $aln_factory = new Bio::Tools::Run::Alignment::Clustalw();
 
 my $seqdata = 'cdna.fa';
 
-my $seqIO = new Bio::SeqIO(-file   =&gt; $seqdata,
+my $seqio = new Bio::SeqIO(-file   =&gt; $seqdata,
                            -format =&gt; 'fasta');
 my %seqs;
 my @prots;
 # process each sequence
-while( my $seq = $seqin-&gt;next_seq ) {
+while ( my $seq = $seqio-&gt;next_seq ) {
     $seqs{$seq-&gt;display_id} = $seq;
     # translate them into protein
     my $protein = $seq-&gt;translate();

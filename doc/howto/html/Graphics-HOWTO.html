@@ -484,7 +484,9 @@ PRES1		127	310	700
       table of a GenBank or EMBL file quite easily.  The trick is to use
       <tt class="classname">Bio::SeqIO</tt> to generate a set of
       <tt class="classname">Bio::SeqFeatureI</tt> objects, and to use those
-      features to populate tracks. For simplicity's sake, we will sort each
+      features to populate tracks (see the <a href="http://bioperl.org/HOWTOs/Feature-Annotation/index.html" target="_top">Feature-Annotation
+	HOWTO</a> for more information on features). The documentation for
+      each of  the individual. For simplicity's sake, we will sort each
       feature by its primary tag (such as "exon") and create a new track for
       each tag type.
     </p><p>
@@ -607,7 +609,7 @@ PRES1		127	310	700
     </p><p>
       Figure 5 shows an example of the output of this script.
     </p><p>
-      <div class="figure"><a id="d3e200"></a><div class="mediaobject"><img src="../figs/graphics/fig5.png" alt="The embl2picture.pl script"></div><p class="title"><b>Figure&nbsp;6.&nbsp;The embl2picture.pl script</b></p></div>
+      <div class="figure"><a id="d3e201"></a><div class="mediaobject"><img src="../figs/graphics/fig5.png" alt="The embl2picture.pl script"></div><p class="title"><b>Figure&nbsp;6.&nbsp;The embl2picture.pl script</b></p></div>
     </p></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="rendering-features-better"></a>8.&nbsp;A Better Version of the Feature Renderer</h2></div></div><div></div></div><p>
       The previous example's rendering has numerous deficiencies.  For one
       thing, there are no lines connecting the various CDS rectangles in the
@@ -824,7 +826,7 @@ PRES1		127	310	700
     </p><p>
       Figure 6 shows an example of the output of this script.
     </p><p>
-      <div class="figure"><a id="d3e234"></a><div class="mediaobject"><img src="../figs/graphics/fig6.png" alt="The embl2picture.pl script"></div><p class="title"><b>Figure&nbsp;7.&nbsp;The embl2picture.pl script</b></p></div>
+      <div class="figure"><a id="d3e235"></a><div class="mediaobject"><img src="../figs/graphics/fig6.png" alt="The embl2picture.pl script"></div><p class="title"><b>Figure&nbsp;7.&nbsp;The embl2picture.pl script</b></p></div>
     </p></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="summary"></a>9.&nbsp;Summary</h2></div></div><div></div></div><p>
       In summary, we have seen how to use the
       <tt class="classname">Bio::Graphics</tt> module to generate
