@@ -36,7 +36,7 @@ backend, for example:
 
 =over 2
 
-=item scripts/bpfetch.pl 
+=item scripts/bpfetch.pl
 
 Fetches sequences from a Database
 
@@ -166,8 +166,11 @@ bpfetch.pl also has other options to connect to Genbank across the network.
 or any other directory
 
    setenv BIOPERL_INDEX /nfs/datadisk/bioperlindex/
+   setenv BIOPERL_INDEX_TYPE DB_File
 
-in .cshrc or .tcshrc (or B<set> and B<export> in bash and its .bashrc)
+in .cshrc or .tcshrc (or B<set> and B<export> in bash and its .bashrc).
+Another BIOPERL_INDEX_TYPE is SDBM_File, this one should come with a
+standard Perl package.
 
 go 
 
