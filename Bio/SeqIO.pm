@@ -574,6 +574,7 @@ sub _guess_format {
    return 'raw'     if /\.(txt)$/i;
    return 'gcg'     if /\.gcg$/i;
    return 'ace'     if /\.ace$/i;
+   return 'bsml'    if /\.(bsm|bsml)$/i;
 }
 
 sub DESTROY {
