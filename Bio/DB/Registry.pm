@@ -54,9 +54,9 @@ use Bio::Root::Root;
 @ISA = qw(Bio::Root::Root);
 
 my %implement = (
-		 'bsane-corba'      => 'Bio::CorbaClient::SeqDB',
+		 'biocorba'      => 'Bio::CorbaClient::SeqDB',
 		 'index-berkeleydb' => 'XYZ',
-		 'bioperldb' => 'Bio::DB::SQL::BioSeqDatabaseFetcher');
+		 'biosql' => 'Bio::DB::SQL::BioSeqDatabaseFetcher');
 
 sub new {
     my ($class) = shift;
@@ -83,6 +83,8 @@ sub _load_registry {
 	open(F,"$home/.bioinformatics/seqdatabase.ini");
     } else {
 	# waiting for information
+	$self->warn("No conf file found in ~/.bioinformatics/ or in /etc/.bioinformatics/ using web to get database\n");
+	#raw sockets connection to get ini file from the web
 	$self->throw("Oooops. We haven't implemented web fall back position yet");
     }
 
@@ -143,7 +145,6 @@ sub get_database {
 	$self->throw("Registry does not support protocol ".$config->{'protocol'});
     }
     eval "require $class";
-    $config->{'biodbname'}=$dbname;
     my $db = $class->new(%$config);
 
     $self->{$db}->{'active'} = $db;
