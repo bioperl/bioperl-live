@@ -11,6 +11,11 @@ Releases co-ordinated and submitted by bioperl core devs.
 * Jason Stajich <jason at bioperl.org>
 * Lincoln Stein <stein at cshl.org>
 
+Previous Bioperl Coordinators:
+Steven Brenner <brenner at compbio.berkely.edu>
+Georg Fuellen <fuellen at alum.mit.edu>
+Steve Chervitz <sac at bioperl.org>
+
 Major Contributors
 (Feel free to add descriptions of which modules you are responsible
 for if you see fit)
@@ -21,7 +26,7 @@ Brad Chapman <chapmanb at arches.uga.edu>
 Steve Chervitz <sac at bioperl.org>
 Michele Clamp <michele at sanger.ac.uk>
 Tony Cox <avc at sanger.ac.uk>
-Jame Cuff <james at sanger.ac.uk>
+James Cuff <james at sanger.ac.uk>
 Andrew Dalke <dalke at acm.org>
 Allen Day <allenday at ucla.edu>
 James Diggans <JDiggans at genelogic.com>
@@ -41,8 +46,10 @@ Brad Marshall <bradmars at yahoo.com>
 Chad Matsalla <bioinformatics1 at dieselwurks.com>
 Chris Mungall <cjm at fruitfly.bdgp.berkeley.edu>
 Brian Osborne <brian_osborne at cognia.com>
+Jong Park
 Matthew Pockock <mrp at sanger.ac.uk>
 Lorenz Pollack <lorenz at ist.org> -- BPlite porting
+Richard Resnick -- original Bio::Seq
 Todd Richmond <todd at andrew2.stanford.edu>
 Peter Schattner <schattner at alum.mit.edu>
 Martin Senger <senger at ebi.ac.uk> -- Biblio
@@ -56,4 +63,5 @@ Kai Wang <tumorimmunology at yahoo.com>
 Mark Wilkinson <mwilkinson at gene.pbi.nrc.ca>
 Helge Weissig <helgew at sdsc.edu>
 Alex Zelensky <alex_zelensky at mac.com> - Bioperl-DB 
+
 
