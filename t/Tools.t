@@ -1,63 +1,41 @@
 # -*-Perl-*-
 ## Bioperl Test Harness Script for Modules
 ##
-
+# $Id$
 
 # Before `make install' is performed this script should be runnable with
 # `make test'. After `make install' it should work as `perl test.t'
 
-#-----------------------------------------------------------------------
-## perl test harness expects the following output syntax only!
-## 1..3
-## ok 1  [not ok 1 (if test fails)]
-## 2..3
-## ok 2  [not ok 2 (if test fails)]
-## 3..3
-## ok 3  [not ok 3 (if test fails)]
-##
-## etc. etc. etc. (continue on for each tested function in the .t file)
-#-----------------------------------------------------------------------
+use Test;
+use strict;
 
-
-## We start with some black magic to print on failure.
-BEGIN { $| = 1; print "1..6\n"; 
-	use vars qw($loaded); }
-
-END {print "not ok 1\n" unless $loaded;}
+BEGIN { plan tests => 8 }
 
 use Bio::SeqIO;
 use Bio::Tools::SeqWords;
 use Bio::Tools::SeqStats;
 
-$loaded = 1;
-print "ok 1\n";    # 1st test passes.
+ok(1);
+my $str = Bio::SeqIO->new(-file=> 't/multifa.seq', '-format' => 'Fasta');
+my $seqobj= $str->next_seq();
+ok $seqobj;
 
-sub test ($$;$) {
-    my($num, $true,$msg) = @_;
-    print($true ? "ok $num\n" : "not ok $num $msg\n");
-}
+my $words = Bio::Tools::SeqWords->new($seqobj);
+my $hash = $words->count_words(6);
+ok ($words);
+ok ($hash);
 
+my $seq_stats  =  Bio::Tools::SeqStats->new($seqobj);
 
-$str = Bio::SeqIO->new(-file=> 't/multifa.seq', '-format' => 'Fasta');
-$seqobj= $str->next_seq();
+ok $seq_stats;
 
-$words = Bio::Tools::SeqWords->new($seqobj);
-$hash = $words->count_words(6);
-$hash = undef; # shut warn up
-test 2,1;
+my $hash_ref = $seq_stats->count_monomers();  # eg for DNA sequence
 
-$seq_stats  =  Bio::Tools::SeqStats->new($seqobj);
-
-test 3,1;
-
-$hash_ref = $seq_stats->count_monomers();  # eg for DNA sequence
-
-test 4, ( $hash_ref->{'A'} == 80 );
+ok ( $hash_ref->{'A'}, 80 );
 
 $hash_ref = $seq_stats-> count_codons();  
 
-test 5, 1;
+ok $hash_ref;
 
-$weight = $seq_stats->get_mol_wt();
-$weight = 0; # shut warn up
-test 6, 1;
+my $weight = $seq_stats->get_mol_wt();
+ok $weight;

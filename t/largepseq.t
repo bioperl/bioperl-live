@@ -5,41 +5,24 @@
 # Before `make install' is performed this script should be runnable with
 # `make test'. After `make install' it should work as `perl test.t'
 
-#-----------------------------------------------------------------------
-## perl test harness expects the following output syntax only!
-## 1..3
-## ok 1  [not ok 1 (if test fails)]
-## 2..3
-## ok 2  [not ok 2 (if test fails)]
-## 3..3
-## ok 3  [not ok 3 (if test fails)]
-##
-## etc. etc. etc. (continue on for each tested function in the .t file)
-#-----------------------------------------------------------------------
-
-
-## We start with some black magic to print on failure.
-BEGIN { $| = 1; print "1..6\n"; 
-	use vars qw($loaded); }
-END {print "not ok 1\n" unless $loaded;}
-$loaded = 1;
-print "ok 1\n";
-use lib '../';
-
+use Test;
+use strict;
+BEGIN { plan tests => 7 }
 use Bio::Seq::LargePrimarySeq;
 
-sub test ($$;$) {
-    my($num, $true,$msg) = @_;
-    print($true ? "ok $num\n" : "not ok $num $msg\n");
-}
-test 2, defined ($pseq = Bio::Seq::LargePrimarySeq->new());
-
+my $pseq = Bio::Seq::LargePrimarySeq->new();
+ok $pseq;
 $pseq->add_sequence_as_string('ATGGGGTGGGGTGAAACCCTTTGGGGGTGGGGTAAAT');
 $pseq->add_sequence_as_string('GTTTGGGGTTAAACCCCTTTGGGGGGT');
 
-test 3, $pseq->display_id('hello') && $pseq->display_id eq 'hello';
+ok $pseq->display_id('hello'), 'hello';
 
-test 4, ( $pseq->seq eq 'ATGGGGTGGGGTGAAACCCTTTGGGGGTGGGGTAAATGTTTGGGGTTAAACCCCTTTGGGGGGT' ), "Sequence is " . $pseq->seq;
+ok $pseq->seq, 'ATGGGGTGGGGTGAAACCCTTTGGGGGTGGGGTAAATGTTTGGGGTTAAACCCCTTTGGGGGGT' , "Sequence is " . $pseq->seq;
 
-test 5, ( $pseq->subseq(3,7) eq 'GGGGT' ), "Subseq is ".$pseq->subseq(3,7);
-test 6, ( $pseq->trunc(8,15)->seq eq 'GGGGTGAA' ), 'trunc seq was ' . $pseq->trunc(8,15)->seq;
+ok $pseq->subseq(3,7), 'GGGGT', "Subseq is ".$pseq->subseq(3,7);
+ok ($pseq->trunc(8,15)->seq, 'GGGGTGAA', 
+    'trunc seq was ' . $pseq->trunc(8,15)->seq);
+
+
+ok $pseq->moltype('dna'), 'dna'; # so translate will not complain
+ok $pseq->translate()->seq, 'MGWGETLWGWGKCLGLNPFGG';
