@@ -11,7 +11,7 @@ BEGIN {
 use lib 't';
     }
     use Test;
-    $TESTCOUNT = 258;
+    $TESTCOUNT = 262;
     plan tests => $TESTCOUNT;
 }
 
@@ -656,3 +656,14 @@ my @refs = $seq->annotation->get_Annotations('reference');
 ok( @refs, 23);
 ok($refs[20]->rp, 'VARIANTS X-ALD LEU-98; ASP-99; GLU-217; GLN-518; ASP-608; ILE-633 AND PRO-660, AND VARIANT THR-13.');
 
+
+# test bug #1673 , RDB-II genbank files
+
+$str = Bio::SeqIO->new(-format => 'genbank', 
+                       -file => Bio::Root::IO->catfile(qw(t data Mcjanrna_rdbII.gbk) )
+		      );
+ok($seq = $str->next_seq);
+@refs = $seq->annotation->get_Annotations('reference');
+ok(@refs, 1);
+ok($seq->display_id,'Mc.janrrnA');
+ok($seq->molecule ,'RNA');
