@@ -197,6 +197,7 @@ sub low {
   my ($start,$stop) = ($self->start,$self->stop);
   return $start < $stop ? $start : $stop;
 }
+*abs_low = \&low;
 
 =head2 high
 
@@ -216,6 +217,7 @@ sub high {
   my ($start,$stop) = ($self->start,$self->stop);
   return $start > $stop ? $start : $stop;
 }
+*abs_high = \&high;
 
 =head2 sourceseq
 
@@ -570,7 +572,7 @@ sub intersection {
 }
 sub union {
   my $self  = shift;
-  my($other,$so) = @_;
+  my($other) = @_;
   if ($other->isa('Bio::DB::GFF::RelSegment')) {
     return if $self->abs_ref ne $other->abs_ref;
   }

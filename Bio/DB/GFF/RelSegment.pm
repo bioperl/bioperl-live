@@ -322,7 +322,7 @@ sub new {
     push @object_results,$self;
   }
 
-  @object_results;
+  return wantarray ? @object_results : $object_results[0];
 }
 
 # overridden methods
@@ -408,6 +408,48 @@ sub refseq {
   }
   return $self->absolute ? $self->sourceseq : $g;
 }
+
+
+=head2 abs_low
+
+ Title   : abs_low
+ Usage   : $s->abs_low
+ Function: the absolute lowest coordinate of the segment
+ Returns : an integer
+ Args    : none
+ Status  : Public
+
+This is for GadFly compatibility, and returns the low coordinate in
+absolute coordinates;
+
+=cut
+
+sub abs_low {
+  my $self = shift;
+  my ($a,$b) = ($self->abs_start,$self->abs_stop);
+  return ($a<$b) ? $a : $b;
+}
+
+=head2 abs_high
+
+ Title   : abs_high
+ Usage   : $s->abs_high
+ Function: the absolute highest coordinate of the segment
+ Returns : an integer
+ Args    : none
+ Status  : Public
+
+This is for GadFly compatibility, and returns the high coordinate in
+absolute coordinates;
+
+=cut
+
+sub abs_high {
+  my $self = shift;
+  my ($a,$b) = ($self->abs_start,$self->abs_stop);
+  return ($a>$b) ? $a : $b;
+}
+
 
 =head2 asString
 
@@ -920,6 +962,58 @@ sub _to_strand {
 }
 
 sub primary_tag { "Segment" }
+
+=head2 Bio::RangeI Methods
+
+The following Bio::RangeI methods are supported:
+
+overlaps(), contains(), equals(),intersection(),union(),overlap_extent()
+
+=cut
+
+sub intersection {
+  my $self     = shift;
+  my (@ranges) = @_;
+  unshift @ranges,$self if ref $self;
+  $ranges[0]->isa('Bio::DB::GFF::RelSegment')
+    or return $self->SUPER::intersection(@_);
+
+  my $ref = $ranges[0]->abs_ref;
+  my ($low,$high);
+  foreach (@ranges) {
+    return unless $_->can('abs_ref');
+    $ref eq $_->abs_ref or return;
+    $low  = $_->abs_low   if !defined($low)  or $low  < $_->abs_low;
+    $high = $_->abs_high  if !defined($high) or $high > $_->abs_high;
+  }
+  return unless $low < $high;
+  $self->new(-factory=> $self->factory,
+	     -seq    => $ref,
+	     -start  => $low,
+	     -stop   => $high);
+}
+
+sub union {
+  my $self     = shift;
+  my (@ranges) = @_;
+  unshift @ranges,$self if ref $self;
+  $ranges[0]->isa('Bio::DB::GFF::RelSegment')
+    or return $self->SUPER::union(@_);
+
+  my $ref = $ranges[0]->abs_ref;
+  my ($low,$high);
+  foreach (@ranges) {
+    return unless $_->can('abs_ref');
+    $ref eq $_->abs_ref or return;
+    $low  = $_->abs_low  if !defined($low)  or $low  > $_->abs_low;
+    $high = $_->abs_high if !defined($high) or $high < $_->abs_high;
+  }
+  $self->new(-factory=> $self->factory,
+	     -seq    => $ref,
+	     -start  => $low,
+	     -stop   => $high);
+}
+
 
 1;
 
