@@ -411,7 +411,7 @@ sub write_seq {
 	    # Hence, switch to display_id(); _every_ sequence is supposed to have
 	    # this. HL 2000/09/03
 	    $mol =~ s/protein/PRT/;
-	    $temp_line = sprintf ("%10s     STANDARD;      %3s;   %d AA.",
+	    $temp_line = sprintf ("%-10s     STANDARD;      %3s;   %d AA.",
 				  $seq->display_id(), $mol, $len);
 	}
 
@@ -468,16 +468,21 @@ sub write_seq {
 	    my($species, @class) = $spec->classification();
 	    my $genus = $class[0];
 	    my $OS = "$genus $species";
-	    if ($class[$#class] =~ /viruses/i) {
-		# different OS / OC syntax for viruses LP 09/16/2000
-		shift @class;
-	    }
-	    if (my $ssp = $spec->sub_species) {
-		$OS .= " $ssp";
-	    }
-	    foreach (($spec->variant, $spec->common_name)) {
-		$OS .= " ($_)" if $_;
-	    }
+            if ($class[-1] eq 'Viruses') {
+                $OS = $species;
+                $OS .=  " ". $spec->sub_species if $spec->sub_species;
+            } else {
+                if ($class[$#class] =~ /viruses/i) {
+                    # different OS / OC syntax for viruses LP 09/16/2000
+                    shift @class;
+                }
+                if (my $ssp = $spec->sub_species) {
+                    $OS .= " $ssp";
+                }
+                foreach (($spec->variant, $spec->common_name)) {
+                    $OS .= " ($_)" if $_;
+                }
+            }
 	    $self->_print( "OS   $OS.\n");
 	    my $OC = join('; ', reverse(@class)) .'.';
 	    $self->_write_line_swissprot_regex("OC   ","OC   ",$OC,"\; \|\$",80);
@@ -932,7 +937,7 @@ sub _read_swissprot_Species {
 		my @virusnames = split(/\s+/, $binomial);
 		$species = (@virusnames > 1) ? pop(@virusnames) : '';
 		$genus = join(" ", @virusnames);
-		$subspecies = undef;
+		$subspecies = $descr;
 	    }
         }
 	elsif (/^OG\s+(.*)/) {
