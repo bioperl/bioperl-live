@@ -79,11 +79,15 @@ catch Bio::Root::Exception with {
 
 # Try to call a subroutine that doesn't exist. But because it occurs within a try block,
 # the Error module will create a Error::Simple to capture it. Handy eh?
-try {
-    $test->foobar();
+if( $^V ge 5.6.1 ) {
+    try {
+	$test->foobar();
+    }
+    otherwise {
+	my $err = shift;
+	ok(ref $err, 'Error::Simple');
+    }; 
+} else { 
+    skip("Can't run this test on perl < 5.6.1",1);
 }
-otherwise {
-    my $err = shift;
-    ok(ref $err, 'Error::Simple');
-}; 
 
