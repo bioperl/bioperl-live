@@ -42,6 +42,7 @@ BioPerlTutorial - a tutorial for bioperl
     I.2.2 For complete installation
   I.3 Installation procedures
   I.4 Additional comments for non-unix users
+  I.5 Places to look for additional documentation
 
   II. Brief overview to bioperl's objects
   II.1 Sequence objects:
@@ -102,7 +103,7 @@ IV.  Auxilliary Bioperl Libraries (Bioperl-run, Bioperl-db, etc.)
      IV.2.2 Aligning 2 sequences with Blast using  bl2seq and AlignIO
      IV.2.3 Aligning multiple sequences (Clustalw.pm, TCoffee.pm)
      IV.2.4 Aligning 2 sequences with Smith-Waterman (pSW)
-     IV.2.5 Sequence manipulation using the Bioperl EMBOSS interface
+     IV.2.5 Sequence manipulation using the Bioperl EMBOSS and PISE interfaces
    IV.3 Bioperl-db
    IV.4 Other Bioperl auxilliary libraries
 
@@ -187,32 +188,10 @@ place from which to cut-and-paste code for your scripts (rather than
 using the code snippets in this tutorial). Most of the scripts in the
 tutorial script should work on your machine - and if they don't it would
 probably be a good idea to find out why, before getting too involved
-with bioperl!
-
-This tutorial does not intend to be a comprehensive description of all
-the objects and methods available in bioperl.  For that the reader is
-directed to the documentation included with each of the modules. A
-very useful interface for finding one's way within all the module
-documentation can be found at http://doc.bioperl.org/bioperl-live/.
-This interface lists all bioperl modules and descriptions of all
-of their methods.
-
-One potential problem in locating the correct documentation is that
-multiple methods in different modules may all share the same name.
-Moreover, because of perl's complex method of "inheritance",
-it is not often clear which of the identically named methods is being
-called by a given object. One way to resolve this question is by using
-the software described in Appendix V.1.
-
-For those who prefer more visual descriptions,
-http://bioperl.org/Core/Latest/modules.html also offers links to
-PDF files which contain schematics that describe how many of the bioperl
-objects related to one another.
-
-In addition, a bioperl online course is available on the web at
-http://www.pasteur.fr/recherche/unites/sis/formation/bioperl. The
-user is also referred to numerous bioperl scripts in the scripts/
-directory (see bioscripts.pod for a description of these scripts).
+with bioperl! (Some of the demos require optional modules from the
+bioperl auxilliary libraries and/or external programs.  These demos
+should be skipped if the demos are run and the required auxilliary
+programs are not found.)
 
 =head2 I.2 Software requirements
 
@@ -391,6 +370,36 @@ is designed to simply report that the desired capability is not
 available.  However, since the testing of bioperl in these
 environments has been limited, the script may well crash in a less
 "graceful" manner.
+
+=head2 I.5 Places to look for additional documentation
+
+This tutorial does not intend to be a comprehensive description of all
+the objects and methods available in bioperl.  For that the reader is
+directed to the documentation included with each of the modules. A
+very useful interface for finding one's way within all the module
+documentation can be found at http://doc.bioperl.org/bioperl-live/.
+This interface lists all bioperl modules and descriptions of all
+of their methods. In addition, beginner questions can often be
+answered by looking at the FAQ, INSTALL and README files in the
+top-level directory of the bioperl distribution.
+
+One potential problem in locating the correct documentation is that
+multiple methods in different modules may all share the same name.
+Moreover, because of perl's complex method of "inheritance",
+it is not often clear which of the identically named methods is being
+called by a given object. One way to resolve this question is by using
+the software described in Appendix V.1.
+
+For those who prefer more visual descriptions,
+http://bioperl.org/Core/Latest/modules.html also offers links to
+PDF files which contain schematics that describe how many of the bioperl
+objects related to one another.
+
+In addition, a bioperl online course is available on the web at
+http://www.pasteur.fr/recherche/unites/sis/formation/bioperl. The
+user is also referred to numerous bioperl scripts in the scripts/
+directory (see bioscripts.pod for a description of these scripts).
+
 
 =head1 II. Brief introduction to bioperl's objects
 
@@ -780,7 +789,7 @@ following formats:
    bl2seq
    clustalw (.aln)
    msf (GCG)
-   water (used by EMBOSS, see L<"IV.2.3">)
+   water (used by EMBOSS, see L<"IV.2.5">)
    phylip (interleaved)
    stockholm
    nexus
@@ -812,8 +821,8 @@ information.
 
 Bioperl contains many modules with functions for sequence analysis. And
 if you cannot find the function you want in bioperl you may be able to
-find it in EMBOSS, which is accessible through the bioperl-run
-auxilliary library (see L<"IV.3">).
+find it in EMBOSS or PISE , which are accessible through the bioperl-run
+auxilliary library (see L<"IV.2.5">). 
 
 =cut
 
@@ -1104,9 +1113,7 @@ More detail can be found in L<Bio::Tools::SeqPattern>.
 
 =for html <A NAME ="iii.3.6"></A>
 
-=head2  III.3.6 Sequence manipulation using the Bioperl EMBOSS interface (Tools::Run::EMBOSSApplication)
-
-=head2 III.3.7 Sequence manipulation without creating Bioperl "objects" (Perl.pm)
+=head2 III.3.6 Sequence manipulation without creating Bioperl "objects" (Perl.pm)
 
 Using the Bio::Perl.pm module, it is possible to manipulate sequence
 data in Bioperl without explicitly creating Seq or SeqIO objects.
@@ -1336,12 +1343,12 @@ Blast.pm
 
 The Bio::Tools::Blast parser has been removed from Bioperl as of version
 1.1. Consequently, the BPlite parser (described in the
-section L<"III.4.4">) or the Search/SearchIO parsers (section L<"III.4.3">)
+section L<"III.4.3">) or the Search/SearchIO parsers (section L<"III.4.2">)
 should be used for BLAST parsing within bioperl (SearchIO is the preferred
 approach and will be formally supported in subsequent releases).
 
 
-=head2 III.4.5 Parsing HMM reports (HMMER::Results, SearchIO)
+=head2 III.4.4 Parsing HMM reports (HMMER::Results, SearchIO)
 
 Blast is not the only sequence-similarity-searching program supported
 by bioperl. HMMER is a Hidden Markov Model (HMM) program that
@@ -1625,17 +1632,17 @@ address these two situations.
 
 LargeSeq
 
-A LargeSeq object is a SeqI compliant object that stores
-a sequence as a series of files in a temporary directory (see sect L<"II.1">
-or L<Bio::SeqI> for a definition of SeqI objects). The aim is to enable
-storing very large sequences (eg, E<gt> 100MBases) without running out of
-memory and, at the same time, preserving the familiar bioperl Seq object
-interface. As a result, from the users perspective, using a LargeSeq
-object is almost identical to using a Seq object. The principal
-difference is in the format used in the SeqIO calls. Another difference
-is that the user must remember to only read in small chunks of the
-sequence at one time.  These differences are illustrated in the following
-code:
+A LargeSeq object is a SeqI compliant object that stores a sequence as
+a series of files in a temporary directory (see sect L<"II.1"> or
+L<Bio::SeqI> for a definition of SeqI objects). The aim is to enable
+storing very large sequences (eg, E<gt> 100MBases) without running out
+of memory and, at the same time, preserving the familiar bioperl Seq
+object interface. As a result, from the users perspective, using a
+LargeSeq object is almost identical to using a Seq object. The
+principal difference is in the format used in the SeqIO calls. Another
+difference is that the user must remember to only read in small chunks
+of the sequence at one time.  These differences are illustrated in the
+following code:
 
   $seqio = new Bio::SeqIO('-format'=>'largefasta',
   			  '-file'  =>'t/data/genomic-seq.fasta');
@@ -2238,12 +2245,13 @@ computation of SW alignments via the pSW object with the auxilliary
 bioperl-ext library. Note that pSW only supports the alignment of
 protein sequences, not nucleotide.
 
-The SW algorithm itself is implemented in C and incorporated into bioperl using
-an XS extension. This has significant efficiency advantages but means that
-pSW will B<not> work unless you have compiled the bioperl-ext auxilliary
-library.  If you have compiled the bioperl-ext package, usage is
-simple, where the method align_and_show displays the alignment while
-pairwise_alignment produces a (reference to) a SimpleAlign object.
+The SW algorithm itself is implemented in C and incorporated into
+bioperl using an XS extension. This has significant efficiency
+advantages but means that pSW will B<not> work unless you have
+compiled the bioperl-ext auxilliary library.  If you have compiled the
+bioperl-ext package, usage is simple, where the method align_and_show
+displays the alignment while pairwise_alignment produces a (reference
+to) a SimpleAlign object.
 
   use Bio::Tools::pSW;
   $factory = new Bio::Tools::pSW( '-matrix' => 'blosum62.bla',
@@ -2255,11 +2263,11 @@ pairwise_alignment produces a (reference to) a SimpleAlign object.
 SW matrix, gap and extension parameters can be adjusted as shown.
 Bioperl comes standard with blosum62 and gonnet250 matrices.  Others
 can be added by the user.  For additional information on accessing the
-SW algorithm via pSW see the script psw.pl in the scripts/tools directory and
-the documentation in L<Bio::Tools::pSW>.
+SW algorithm via pSW see the script psw.pl in the scripts/tools
+directory and the documentation in L<Bio::Tools::pSW>.
 
 
-=head2 IV.2.5 Sequence manipulation using the Bioperl EMBOSS interface
+=head2 IV.2.5 Sequence manipulation using the Bioperl EMBOSS and PISE interfaces
 
 EMBOSS (European Molecular Biology Open Source Software) is an extensive
 collection of sequence analysis programs written in the C
@@ -2281,7 +2289,7 @@ generating standard EMBOSS reports.  This functionality is
 being initially implemented with the EMBOSS sequence alignment
 programs, so that they will return SimpleAlign objects in a manner
 similar to the way the Bioperl-run modules TCoffee.pm and Clustalw.pm
-work (see section L<"III.5.2"> for a discussion of SimpleAlign).
+work (see section L<"III.5"> for a discussion of SimpleAlign).
 
 An example of the Bioperl EMBOSS wrapper where a file is returned
 would be:
@@ -2309,7 +2317,20 @@ bioperl can read in with the AlignIO system
   use Bio::AlignIO;
   my $in = new Bio::AlignIO(-format => 'emboss', -file => 'filename');
   my $aln = $in->next_aln();
-
+ 
+The Pise interface is another approach to extending Bioperl\'s
+sequence manipulation capabilities by using standard bioinformatics
+programs.  To use EMBOSS programs within Bioperl you need to
+have EMBOSS locally installed (in addition to having the auxiliary
+bioperl-run library installed). In contrast, with Pise you only need 
+install bioperl-run, since  you run the actual analysis programs over 
+the internet at the Pise site. Advantages of Pise include not having
+to load additional programs locally and having access to a wider
+library of programs (Pise includes EMBOSS and many other programs as
+well.) Howerver Pise has the disadvantages of needing an internet
+connection, lower performance, decreased security, etc. stemming form
+running programs over the net.  For more information on the Bioperl
+Pise interface see:  http://www-alt.pasteur.fr/~letondal/Pise/.
 
 =for html <A NAME ="iv.3"></A>
 
@@ -2417,13 +2438,14 @@ example, to run the basic sequence manipulation demo, do:
 
  > perl -w  bptutorial.pl 1
 
-Some of the later demos require that you have an internet connection and/or 
-that you have an auxilliary bioperl library and/or external cpan
-module and/or external program installed.  They may also fail if you are 
-not running under Linux or Unix.  In all of these cases, the script should 
-fail "gracefully" simply saying the demo is being skipped.  However if 
-the script "crashes", simply run the other demos individually (and 
-perhaps send an email to bioperl-l@bioperl.org detailing the problem :-).
+Some of the later demos require that you have an internet connection
+and/or that you have an auxilliary bioperl library and/or external
+cpan module and/or external program installed.  They may also fail if
+you are not running under Linux or Unix.  In all of these cases, the
+script should fail "gracefully" simply saying the demo is being
+skipped.  However if the script "crashes", simply run the other demos
+individually (and perhaps send an email to bioperl-l@bioperl.org
+detailing the problem :-).
 
 =cut
 
