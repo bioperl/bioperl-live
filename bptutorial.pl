@@ -57,7 +57,7 @@ BioPerlTutorial - a tutorial for bioperl
   III.1 Accessing sequence data from local and remote databases
      III.1.1 Accessing remote databases (Bio::DB::GenBank, etc)
      III.1.2 Indexing and accessing local databases 
-             (Bio::Index::*,  bpindex.pl, bpfetch.pl)
+             (Bio::Index::*,  bp_index.pl, bp_fetch.pl)
   III.2 Transforming formats of database/ file records
      III.2.1 Transforming sequence files (SeqIO)
      III.2.2 Transforming alignment files (AlignIO)
@@ -762,7 +762,7 @@ as objects or streams (SeqIO objects), or as "tempfiles". See
 L<Bio::DB::BioFetch> for the details.
 
 
-=head2  III.1.2 Indexing and accessing local databases (Bio::Index::*, bpindex.pl, bpfetch.pl, Bio::DB::*)
+=head2  III.1.2 Indexing and accessing local databases (Bio::Index::*, bp_index.pl, bp_fetch.pl, Bio::DB::*)
 
 Alternately, bioperl permits indexing local sequence data files by
 means of the Bio::Index or Bio::DB::Fasta objects.  The following sequence
@@ -796,7 +796,7 @@ retrieve one file, one could write scripts like:
 
 To facilitate the creation and use of more complex or flexible
 indexing systems, the bioperl distribution includes two sample scripts
-in the scripts/index directory, bpindex.PLS and bpfetch.PLS.  These scripts
+in the scripts/index directory, bp_index.PLS and bp_fetch.PLS.  These scripts
 can be used as templates to develop customized local data-file indexing
 systems.
 
@@ -2909,7 +2909,7 @@ $index_local_db = sub {
 
 
     # III.2.2 Indexing and accessing local databases
-    # (Bio::Index::*,  bpindex.pl,  bpfetch.pl)
+    # (Bio::Index::*,  bp_index.pl,  bp_fetch.pl)
 
     # first create the index
     $Index_File_Name = 'bptutorial.indx';
