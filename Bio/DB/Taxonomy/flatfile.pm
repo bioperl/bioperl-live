@@ -293,6 +293,7 @@ sub _build_index {
 	    $btree->put($parent,$taxid);
 	}
 	close(NODES);
+	$nh = $btree = undef;
 	untie @nodes ;
 	untie %parent2children;
     }
@@ -328,6 +329,7 @@ sub _build_index {
 	    }
 	}
 	close(NAMES);
+	$idh = $nameh = undef;
 	untie( %name2id);
 	untie( @id2name);
     }
