@@ -116,22 +116,22 @@ sub from_align {
    # this works only for pairs, so split the MSA
    # take the ref
    #foreach remaining seq in aln, do:
-
+   $aln->map_chars('\.','-');
    my $cs = $aln->gap_line;
+   $aln->map_chars('\-','.');
    my $seq1 = $aln->get_seq_by_pos(1);
    my $seq2 = $aln->get_seq_by_pos(2);   
-   
    while ( $cs =~ /([^\-]+)/g) {
        # alignment coordinates
        my $lenmatch = length($1);
        my $start = pos($cs) - $lenmatch +1;
        my $end   = $start + $lenmatch -1;
-
        my $match1 = Bio::Location::Simple->new
 	   (-seq_id => $seq1->id,
 	    -start  => $seq1->location_from_column($start)->start,
 	    -end    => $seq1->location_from_column($end)->start,
 	    -strand => $seq1->strand );
+
        my $match2 = Bio::Location::Simple->new
 	   (-seq_id => $seq2->id,
 	    -start  => $seq2->location_from_column($start)->start,
