@@ -276,7 +276,7 @@ sub primary_id{
 
 =cut
 
-sub primary_id{
+sub optional_id{
    my ($self, $val) = @_;
 
    return $self->pubmed($val);
