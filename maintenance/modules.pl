@@ -8,7 +8,7 @@ modules.pl - information about modules in BioPerl core
 
 B<modules.pl> [B<-V|--verbose>] [B<-c|--count>] | [B<-l|--list>] |
   [B<-u|--untested>] | [B<-i|--info> class] | [B<-i|--inherit> |
-  [B<-v|--version> | [B<-?|-h|--help>]
+  [B<-d|--dir> path ] | [B<-v|--version> | [B<-?|-h|--help>]
 
 =head1 DESCRIPTION
 
@@ -292,6 +292,11 @@ Set this option if you want to see more verbose output. Often that
 will mean seeing warnings normally going into STDERR.
 
 =cut
+
+=item B<-d | --dir> path
+
+Overides the default directories to check by one directory 'path' and
+all its subdirectories.
 
 =item B<-c | --count>
 
