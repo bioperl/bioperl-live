@@ -437,6 +437,13 @@ sub accession_number {
     return $acc;
 }
 
+sub accession {
+    my ($self,$value) = @_;
+
+    $self->warn(ref($self)."::accession is deprecated, ".
+		"use accession_number() instead");
+    return $self->accession_number($value);
+}
 
 =head2 primary_id
 

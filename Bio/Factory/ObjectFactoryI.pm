@@ -92,4 +92,23 @@ sub create{
    $self->throw_not_implemented();
 }
 
+=head2 create_object
+
+ Title   : create_object
+ Usage   : $obj = $factory->create_object(%args)
+ Function: Create a new object.
+
+           This is supposed to supercede create(). Right now it only delegates
+           to create().
+ Returns : a new object
+ Args    : hash of initialization parameters
+
+
+=cut
+
+sub create_object{
+   my ($self,@args) = @_;
+   return $self->create(@args);
+}
+
 1;

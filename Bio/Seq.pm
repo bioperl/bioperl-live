@@ -659,6 +659,8 @@ sub accession_number {
 sub accession {
     my ($self,$value) = @_;
 
+    $self->warn(ref($self)."::accession is deprecated, ".
+		"use accession_number() instead");
     return $self->accession_number($value);
 }
 
