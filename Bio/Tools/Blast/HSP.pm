@@ -1509,7 +1509,7 @@ sub display {
 #-----------
     my( $self, %param ) = @_;
     
-    my $sbjctName = $self->parent->name();
+     my $sbjctName = $self->parent->name();
     my $queryName = $self->parent->parent->name();
     my $layout = $self->parent->parent->_layout();
     
@@ -1528,11 +1528,13 @@ sub display {
     } else {
 	printf( $OUT "%-15s: %.1e\n", "EXPECT", $self->{'_expect'} );
     }
-    my $seqType = 'query'; # query or sbjct shouldn't matter for the length
+
+    my $queryLength = $self->length('query'); 
+
     printf( $OUT "%-15s: %d (%0.0f%%)\n", "IDENTICAL", $self->{'_numIdentical'}, 
-	   $self->{'_numIdentical'}/$self->{$seqType.'Length'}*100 );
+	   $self->{'_numIdentical'}/$queryLength * 100 );
     printf( $OUT "%-15s: %d (%0.0f%%)  %s \n", "CONSERVED", $self->{'_numConserved'}, 
-	   $self->{'_numConserved'}/$self->{$seqType.'Length'}*100,
+	   $self->{'_numConserved'}/$queryLength * 100,
 	   "includes identical" );
     
     $self->_display_seq('query', $queryName, $OUT);
