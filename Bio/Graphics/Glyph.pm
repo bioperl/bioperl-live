@@ -698,6 +698,8 @@ sub draw_connectors {
   my ($dx,$dy) = @_;
   my @parts = sort { $a->left <=> $b->left } $self->parts;
   for (my $i = 0; $i < @parts-1; $i++) {
+    # don't connectors double-back on themselves
+    next if ($parts[$i]->bounds)[2] > ($parts[$i+1]->bounds)[0];
     $self->_connector($gd,$dx,$dy,$parts[$i]->bounds,$parts[$i+1]->bounds);
   }
 

@@ -68,8 +68,7 @@ sub draw_component {
                          : eval {$self->feature->seq};
   return $self->SUPER::draw_component(@_) unless length $dna > 0;  # safety
 
-  my $show_mismatch = $draw_target && $self->option('show_mismatch');
-  my $genomic       = eval {$self->feature->seq} if $show_mismatch;
+  my $genomic       = eval {$self->feature->seq} if $draw_target; #if $show_mismatch;
 
   my $gd = shift;
   my ($x1,$y1,$x2,$y2) = $self->bounds(@_);
@@ -155,14 +154,20 @@ sub draw_dna {
   my $lineheight = $font->height;
   my $fontwidth  = $font->width;
   $y1 -= $lineheight/2 - 3;
-  my $pink = $self->factory->translate_color('lightpink');
+  my $pink      = $self->factory->translate_color('lightpink');
   my $panel_end = $self->panel->right;
 
-  my $start       = $self->map_no_trunc($self->feature->start- $start_offset);
-  my $end         = $self->map_no_trunc($self->feature->end  - $start_offset);
-  my $true_target = $self->option('true_target');
+  my $start         = $self->map_no_trunc($self->feature->start- $start_offset);
+  my $end           = $self->map_no_trunc($self->feature->end  - $start_offset);
+  my $true_target   = $self->option('true_target');
+  my $show_mismatch = $self->option('show_mismatch');
   my $show_complement  = $true_target && $feature->strand < 0;
 
+  # adjust start ever so slightly so as to be in register with genomic sequence
+  # (which may or may not be shown)
+  my $panel_start   = $self->map_no_trunc($self->panel->start);
+  my $fudge         = ($start-$panel_start) % $pixels_per_base;
+  $start -= $fudge;
 
   my ($last,$tlast);
   for my $seg (@segs) {
@@ -190,19 +195,23 @@ sub draw_dna {
 	my $x = $self->{flip} ? int($offset + ($i+1)*$pixels_per_target + 0.5)
                               : int($offset + ($i+1)*$pixels_per_target + 0.5);
 
-	$self->filled_box($gd,$x,$y1+3,$x+$fontwidth,$y1+$lineheight-3,$pink,$pink) unless $gaps;
+	$self->filled_box($gd,$x,$y1+3,$x+$fontwidth,$y1+$lineheight-3,$pink,$pink) if $show_mismatch && !$gaps;
 	$gd->char($font,$x,$y1,$show_complement ? $complement{$fill_in[$i]} : $fill_in[$i],$color);
       }
     }
 
     my @genomic = split '',substr($genomic,$seg->[0],$seg->[1]-$seg->[0]+1);
     my @bases   = split '',substr($dna,    $seg->[2],$seg->[3]-$seg->[2]+1);
+
+    warn join('',@bases),"\n",join('',@genomic) if DEBUG;
+
     for (my $i = 0; $i<@bases; $i++) {
-      my $x = $self->{flip} ? int($end   + ($seg->[0] + $i - 1)*$pixels_per_base + 0.5)
-                            : int($start + ($seg->[0] + $i)    *$pixels_per_base + 0.5);
+      my $x = $self->{flip} ? 2 + $end   + int(($seg->[0] + $i - 1)*$pixels_per_base + 0.5)
+                            : 2 + $start + int(($seg->[0] + $i)    *$pixels_per_base + 0.5);
       next if $x+1 < $x1;
       last if $x+1 > $x2;
-      if ($genomic[$i] && lc($bases[$i]) ne lc($complement ? $complement{$genomic[@genomic - $i - 1]} : $genomic[$i])) {
+      if ($show_mismatch &&
+	  $genomic[$i] && lc($bases[$i]) ne lc($complement ? $complement{$genomic[@genomic - $i - 1]} : $genomic[$i])) {
 	$self->filled_box($gd,$x,$y1+3,$x+$fontwidth,$y1+$lineheight-3,$pink,$pink);
       }
       $gd->char($font,$x,$y1,$show_complement ? $complement{$bases[$i]} || $bases[$i] : $bases[$i],$color);
