@@ -2226,8 +2226,7 @@ L<Bio::Structure::Entry>, L<Bio::Structure::Model>,
 L<Bio::Structure::Chain>, L<Bio::Structure::Residue>, and
 L<Bio::Structure::Atom> for more information.
 
-=head2  III.9.2 Tree objects and phylogenetic trees (Tree::Tree,
-TreeIO, PAML)
+=head2  III.9.2 Tree objects and phylogenetic trees (Tree::Tree, TreeIO, PAML)
 
 Bioperl Tree objects can store data for all kinds of computer trees
 and are intended especially for phylogenetic trees.  Nodes and
@@ -2235,7 +2234,7 @@ branches of trees can be individually manipulated.  The TreeIO object
 is used for stream I/O of tree objects.  Currently only phylip/newick
 tree format is supported.  Sample code might be:
 
-  $treeio = new Bio::TreeIO( -format => 'newick', -file   => $treefile);
+  $treeio = new Bio::TreeIO( -format => 'newick', -file => $treefile);
   $tree = $treeio->next_tree;   # get the tree
   @nodes = $tree->get_nodes;    # get all the nodes
   $tree->get_root_node->each_Descendent;  # get descendents of root node
@@ -2246,8 +2245,7 @@ Using the Bio::Tools::Phylo::PAML module one can also parse the
 results of the PAML tree-building programs codeml, baseml, basemlg,
 codemlsites and yn00. See L<Bio::Tools::Phylo::PAML> for details.
 
-=head2 III.9.3 Map objects for manipulating genetic maps (Map::MapI,
-MapIO)
+=head2 III.9.3 Map objects for manipulating genetic maps (Map::MapI, MapIO)
 
 Bioperl map objects can be used to describe any type of biological map
 data including genetic maps, STS maps etc.  Map I/O is performed with
@@ -2292,10 +2290,10 @@ given the SeqFeatures (Section L<"III.7.1">) contained within a Seq object.
 
 These modules contain numerous methods to dictate the sizes, colors,
 labels, and line formats within the image. For information see the
-excellent Graphics-HOWTO at www.bioperl.org/HOWTOs/ or in the docs/howto 
-subdirectory. Additional documentation can be found at L<Bio::Graphics>, 
-L<Bio::Graphics::Panel>, and in the examples/graphics/render_sequence.pl 
-script.
+excellent Graphics-HOWTO (http://bioperl.org/HOWTOs/html/Graphics-HOWTO.html)
+or in the docs/howto subdirectory. Additional documentation can be found in
+L<Bio::Graphics>, L<Bio::Graphics::Panel>, and in the scripts in the
+examples/biographics/ and scripts/graphics directories in the Bioperl package.
 
 =head2 III.10 Bioperl alphabets
 
