@@ -2073,20 +2073,28 @@ sub unflatten_group{
    foreach my $sf (@sfs) {
        my $container_sf = $container{$sf};
        if ($container_sf) {
-           eval {
-	       # make $sf nested inside $container_sf
-	       #
-	       # this will throw an exception if $sf is
-	       # not spatially within $container_sf
+           # make $sf nested inside $container_sf
+
+           # first check if the container spatially contains the containee
+           if ($container_sf->contains($sf)) {
+               # add containee
 	       $container_sf->add_SeqFeature($sf);
-	   };
-	   if ($@) {
-	       # probably a spatial containment problem
-	       $self->problem(2,
-			      "bioperl add_SeqFeature says:$@",
+           }
+           else {
+               # weird case - the container does NOT spatially
+               # contain the containee;
+               # we expand and throw a warning
+               #
+               # for an example of this see ZFP91-CNTF dicistronic gene
+               # in NCBI chrom 11 build 34.3
+	       $self->problem(1,
+			      "Container feature does not spatially contain ".
+                              "subfeature. Perhaps this is a dicistronic gene? ".
+                              "I am expanding the parent feature",
 			      $container_sf,
 			      $sf);
-	   }
+	       $container_sf->add_SeqFeature($sf, 'EXPAND');
+           }
        }
        else {
            push(@top, $sf);
@@ -2441,6 +2449,8 @@ sub feature_from_splitloc{
        #----
 
        $sf->location(Bio::Location::Simple->new());
+
+       # we allow the exons to define the boundaries of the transcript
        $sf->add_SeqFeature($_, 'EXPAND') foreach @subsfs;
 
 
@@ -2568,7 +2578,11 @@ sub infer_mRNA_from_CDS{
 	       if (!$ok) {
 		   $self->throw("inconsistent order");
 	       }
+
+               # make the mRNA hold the CDS; no EXPAND option,
+               # the CDS cannot be wider than the mRNA
 	       $mrna->add_SeqFeature($cds);
+
 	       # mRNA steals children of CDS
 	       foreach my $subsf ($cds->get_SeqFeatures) {
 		   $mrna->add_SeqFeature($subsf);
