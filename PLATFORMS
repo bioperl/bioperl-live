@@ -1,4 +1,4 @@
-# $Id: PLATFORMS,v 1.13.2.1 2002-03-14 16:30:10 jason Exp $
+# $Id: PLATFORMS,v 1.13.2.2 2002-03-18 16:30:38 jason Exp $
 
 Perl general comments:
 
@@ -43,7 +43,7 @@ Comments: none
 Machine : Solaris 2.8 UltraSparc
 Compiler: gcc
 Perl    : 5.6.0
-Comments: none
+Comments: The t/flat.t test may report errors being unable to remove a temp directory, these can be safely ignored although an uncessary directory t/tmp may get created as result of this test.
 
 Machine : FreeBSD 4.2 i386
 Compiler: gcc
