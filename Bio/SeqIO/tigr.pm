@@ -675,7 +675,7 @@ sub _process_header
 		$self->throw("Required <SEQ_GROUP> missing");
 	}
 
-	while($line =~ /<KEYWORDS>[^<]<\/KEYWORDS>/o) {
+	while($line =~ /<KEYWORDS>[^<]*<\/KEYWORDS>/o) {
 		push(@{$header->{'KEYWORDS'}}, $1);
 		$line = $self->_readtag();
 	}
@@ -814,6 +814,21 @@ sub _process_repeat_list
 	}
 }
 
+sub _process_tiling_path
+{
+	my($self) = @_;
+	my $line = 4self->_readine();
+
+
+	if($line =~ /<TILING_PATH>/o) {
+		while($line !~ /<\/TILING_PATH>/o) {
+			$line = $self->_readline();
+		}
+	} else {
+		$self->throw("Bio::SeqIO::tigr::_process_repeat_list called ",
+		             "but no <MISC_INFO> in the stream");
+	}
+}
 
 sub _process_scaffold
 {
