@@ -256,7 +256,7 @@ sub next_result{
 		       ($querydef, $querylen, $querytype) = ($1, $2, $3);
 		       last;
 		   }
-	       }
+	       } 
 	       $last = $_;
 	   }
 	   
@@ -280,8 +280,8 @@ sub next_result{
 	   } else {
 	       $self->warn("unable to find and set query length");
 	   }
-
-	   if( $last =~ /^\s*vs\s+(\S+)/ ||	       	       
+	   if( $last =~ /^\s*vs\s+(\S+)/ || 
+	       ( $last =~ /^searching\s+(\S+)\s+library/ ) ||
 	       (defined $_ && /^\s*vs\s+(\S+)/) ||
 	       (defined ($_ = $self->_readline()) && /^\s*vs\s+(\S+)/)
 	     ) {
