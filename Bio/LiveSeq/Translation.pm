@@ -51,7 +51,8 @@ use strict;
 use vars qw(@ISA);
 use Bio::LiveSeq::SeqI; # uses SeqI, inherits from it
 use Bio::PrimarySeq;
-@ISA=qw(Bio::LiveSeq::Transcript ); 
+use Bio::LiveSeq::Transcript;
+@ISA = qw(Bio::LiveSeq::Transcript);
 
 
 =head2 new
