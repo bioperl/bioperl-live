@@ -247,15 +247,21 @@ sub seq {
        }
        # if a sequence was already set we make sure that we re-adjust the
        # mol.type, otherwise we skip guessing if mol.type is already set
-       my $is_changed_seq = exists($obj->{'seq'});
+       # note: if the new seq is empty or undef, we don't consider that a
+       # change (we wouldn't have anything to guess on anyway)
+       my $is_changed_seq = exists($obj->{'seq'}) & (CORE::length($value) > 0);
        $obj->{'seq'} = $value;
-       if(!$alphabet &&
-	  (($is_changed_seq && (CORE::length($value) > 0)) &&
-	   (! defined($obj->alphabet())))) {
-	   $obj->_guess_alphabet();
-       } elsif ($alphabet) {
+       # new alphabet overridden by arguments?
+       if($alphabet) {
+	   # yes, set it no matter what
 	   $obj->alphabet($alphabet);
-       }
+       } elsif( # if we changed a previous sequence to a new one
+		$is_changed_seq ||
+		# or if there is no alphabet yet at all
+		(! defined($obj->alphabet()))) {
+	   # we need to guess the (possibly new) alphabet
+	   $obj->_guess_alphabet();
+       } # else (seq not changed and alphabet was defined) do nothing
     }
    return $obj->{'seq'};
 }
