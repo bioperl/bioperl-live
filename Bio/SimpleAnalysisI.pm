@@ -145,6 +145,31 @@ sub input_spec { shift->throw_not_implemented(); }
 
 # -----------------------------------------------------------------------------
 
+=head2 result_spec
+
+ Usage   : $tool->result_spec;
+ Returns : a hash reference with result names as keys
+           and result types as values
+ Args    : none
+
+An analysis can produce several results, or the same result in several
+different formats. All such results are named and can be retrieved
+using their names by metod C<result>.
+
+Here is an example of the result specification:
+
+  $result_spec = {
+          'outseq' => 'String',
+          'report' => 'String',
+          'detailed_status' => 'String'
+        };
+
+=cut
+
+sub result_spec { shift->throw_not_implemented(); }
+
+# -----------------------------------------------------------------------------
+
 =head2 run
 
  Usage   : $tool->run ( ['sequence=@my.seq', 'osformat=embl'] )
