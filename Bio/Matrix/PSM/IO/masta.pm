@@ -27,7 +27,7 @@ See Bio::Matrix::PSM::IO for detailed documentation on how to use masta parser
 
 =head1 DESCRIPTION
 
-Parser for simple fasta-like PFM/PWM/gapless sequence alignment formats.
+Parser for meme.
 
 =head1 FEEDBACK
 
@@ -55,6 +55,10 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 Email skirov@utk.edu
 
 =head1 APPENDIX
+
+=head1 TO DO
+
+Add SEQ to the write formats...
 
 =cut
 
@@ -157,7 +161,7 @@ sub next_matrix {
       $line=~s/[a-zA-Z]//g;  #Well we may wanna do a hash and auto check for letter order if there is a really boring talk...
       $line=~s/^[\s\t]+//;
       $line=~s/[\s\t]+/\t/g;
-      my @data=split(/\t/,$line);
+      my @data=split(/[\s\t]+/,$line);
       if ($#data==3) {
          $self->throw("Mixing between types is not allowed or a parsing error occured\n") if (($self->{_mtype} !=1) &&($mtype)) ;
          $self->{_mtype}=1;
@@ -177,7 +181,10 @@ sub next_matrix {
 
 sub _make_matrix {
 my ($mdata,$type,$id,$desc)=@_;
-$mdata=_rearrange_matrix($mdata) if ($type==1);
+if ($type==1) {
+	my @rearr=_rearrange_matrix($mdata); 
+	$mdata=\@rearr;
+}
 #Auto recognition for what type is this entry (PFM, PWM or simple count)
 #A bit dangerous, I hate too much auto stuff, but I want to be able to mix different
 #types in a single file
@@ -197,10 +204,10 @@ $mformat='pwm' if ($l!=0);
 my (@fa,@fc,@fg,@ft,%mparam);
 if ($mformat eq 'pwm') {
   foreach my $i (0..$#{$a}) {
-    my $ca=$a->[$i] if ($a->[$i]>0);
-    my $cc=$c->[$i] if ($c->[$i]>0);
-    my $cg=$g->[$i] if ($g->[$i]>0);
-    my $ct=$t->[$i] if ($t->[$i]>0);
+    my $ca=exp $a->[$i];
+    my $cc=exp $c->[$i];
+    my $cg=exp $g->[$i];
+    my $ct=exp $t->[$i];
     my $all=$ca+$cc+$cg+$ct;
     push @fa,($ca/$all)*100;
     push @fc,($cc/$all)*100;
@@ -226,7 +233,7 @@ my (@a,@c,@g,@t);
 foreach my $entry (@{$mdata}) {
     my ($a,$c,$g,$t)=@$entry;
     push @a,$a;
-    push @t,$t;
+    push @c,$c;
     push @g,$g;
     push @t,$t;
 }
