@@ -1,11 +1,11 @@
-# $Id: BUGS,v 1.4 2002-12-31 13:09:05 birney Exp $
+# $Id: BUGS,v 1.5 2004-01-01 22:17:38 bosborne Exp $
 
 Known Bugs 
 
 Bioperl 1.2
 ===========
 
- * The searchio.t test is failing on cygwin installations (and
+ * The StandAloneBlast.t test is failing on cygwin installations (and
    nowhere else). We need a developer who works with cygwin to
    help us out here. We suspect something to do with temporary file
    opening.

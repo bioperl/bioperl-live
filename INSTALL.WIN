@@ -189,7 +189,7 @@ The consed module cannot be run under Windows.
 =====================
 
 Cygwin is a Unix emulator and shell environment available free at
-www.cygwin.com. BioPerl v. 1.* runs perfectly well within Cygwin. 
+www.cygwin.com. BioPerl v. 1.* runs well within Cygwin. 
 Some users claim that installation of Bioperl is easier within 
 Cygwin than within Windows, but these may be users with Unix 
 backgrounds.
@@ -204,27 +204,25 @@ in the upper right of the installer enables you to see details on the
 various packages. Then follow the BioPerl installation instructions
 for Unix in BioPerl's INSTALL file.
 
-If you want use BLAST we recommend that the Windows binary be obtained 
-from NCBI (ftp://ftp.ncbi.nih.gov/blast/executables/LATEST-BLAST - the 
-file will be named something like blast-2.2.6-ia32-win32.exe). 
-Then follow the Windows instructions in README.bls. 
-
 Note that expat comes with Cygwin (it's used by the module XML::Parser).
 
-The only known problem is that DBD::mysql can be tricky to install in
+One known issue is that DBD::mysql can be tricky to install in
 Cygwin and this module is required for the bioperl-db, biosql, and 
 bioperl-pipeline external packages. Fortunately there's some good 
 instructions online:
 http://search.cpan.org/src/JWIED/DBD-mysql-2.1025/INSTALL.html#windows/cygwin.
 
+One known bug is that Bio::Tools::Run::StandAloneBlast seems not to
+work, it seems that files are not created in the /tmp directory.
+
 3.1 Cygwin tips
 ===============
 
-The easiest way to install Mysql itself is to use the Windows binaries 
+The easiest way to install Mysql is to use the Windows binaries 
 available at www.mysql.com. Note that Windows does not have
-sockets, so you need to force Mysql connections to use TCP/IP
-instead. One way to do this, if the database is installed is to use 
-the "-h" option from the command-line. Or, alias the mysql command in your 
+sockets, so you need to force the Mysql connections to use TCP/IP
+instead. One way to do this is to use the "-h" option from the
+command-line. Or, alias the mysql command in your 
 .tcshrc, .cshrc, or .bashrc so it uses a host. For example, if your
 databases are installed locally:
 
@@ -239,14 +237,19 @@ but the external resource may want 'E:/cygwin/home/jacky'. So your
 depending.
 
 If you can, install Cygwin on a drive or partition that's
-NTFS-formatted, not FAT32. When Cygwin is installed on a FAT32
-partition you will not be able to set permissions and ownership. 
-In most situations this probably won't make any difference but there 
-may be occasions where this is an important detail.
+NTFS-formatted, not FAT32-formatted. When Cygwin you install on a FAT32
+partition you will not be able to set permissions and ownership
+correctly. In most situations this probably won't make any difference 
+but there may be occasions where this is a problem.
+
+If you want use BLAST we recommend that the Windows binary be obtained 
+from NCBI (ftp://ftp.ncbi.nih.gov/blast/executables/LATEST-BLAST - the 
+file will be named something like blast-2.2.6-ia32-win32.exe). 
+Then follow the Windows instructions in README.bls. 
 
 Although we've recommended using the BLAST and Mysql binaries you
 should be able to compile just about everything else from source 
-code easily, using gcc. You'll notice when you're installing Cygwin
+code using Cygwin's gcc. You'll notice when you're installing Cygwin
 that many different libraries are also available (gd, jpeg, etc.).
 
 =========================================================================
