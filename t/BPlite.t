@@ -15,7 +15,7 @@ BEGIN {
 	use lib 't';
     }
     use Test;
-    plan tests => 45;
+    plan tests => 76;
 }
 
 use Bio::Tools::BPlite;
@@ -91,4 +91,14 @@ $parser = new Bio::Tools::BPlite(-file => Bio::Root::IO->catfile("t","data","cys
 while( $parser->next_feature ) {
     ok(1);
 }
+
+$parser = new Bio::Tools::BPlite(-file => Bio::Root::IO->catfile("t",
+								 "data",
+								 "short.blx"));
+ok($parser);
+my $count = 0;
+while( $parser->next_feature ) {
+    ok(1);    
+}
+
 
