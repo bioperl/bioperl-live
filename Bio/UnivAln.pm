@@ -1141,7 +1141,7 @@ sub _initialize {
   $self->{descffmt} = $UnivAlnForm{"unknown"};
   $self->{inplace} = 0;
 
-  if (!defined(@p) || scalar(@p) == 0) {
+  if ( ! @p ) {
     return undef;
   }
     # some operations will not work on ``empty'' placeholder objects
