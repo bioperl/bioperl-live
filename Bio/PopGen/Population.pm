@@ -424,8 +424,12 @@ sub get_Frequency_Heterozygotes{
    my ($self,$marker,$allelename) = @_;
    my ($heterozygote_count) = 0;
    return 0 if ! defined $marker || ! defined $allelename;
-   $marker = $marker->name if( defined $marker && 
+   $marker = $marker->name if( defined $marker && ref($marker) &&
 			       $marker->isa('Bio::PopGen::MarkerI'));
+   if( ref($marker) ) {
+       $self->warn("Passed in a ".ref($marker). " to has_Marker, expecting either a string or a Bio::PopGen::MarkerI");
+       return 0;
+   }
    my $total = $self->get_number_individuals($marker);
 
    foreach my $genotype ( $self->get_Genotypes($marker) ) {

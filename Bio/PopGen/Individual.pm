@@ -209,7 +209,12 @@ sub get_Genotypes{
 sub has_Marker{
    my ($self,$name) = @_;
    return 0 if ! defined $name;
-   $name = $name->name if $name->isa('Bio::PopGen::MarkerI');
+
+   $name = $name->name if ref($name) && $name->isa('Bio::PopGen::MarkerI');
+   if( ref($name) ) { 
+       $self->warn("Passed in a ".ref($name). " to has_Marker, expecting either a string or a Bio::PopGen::MarkerI");
+       return 0;
+   }
    return defined $self->{'_genotypes'}->{$name};
 }
 
