@@ -799,6 +799,11 @@ sub png {
   $gd->png;
 }
 
+sub svg {
+  my $gd = shift->gd;
+  $gd->svg;
+}
+
 sub read_colors {
   my $class = shift;
   while (<DATA>) {
