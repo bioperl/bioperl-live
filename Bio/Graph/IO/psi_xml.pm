@@ -1,4 +1,19 @@
-#!/bin/perl -w
+# $Id$
+#
+# BioPerl module for Bio::Graph::IO::psi_xml
+#
+# You may distribute this module under the same terms as perl itself
+# POD documentation - main docs before the code
+
+=head1 NAME
+
+Bio::Graph::IO::psi_xml
+
+=head1 SYNOPSIS
+
+
+=cut
+
 package Bio::Graph::IO::psi_xml;
 use strict;
 use XML::Twig;
@@ -18,14 +33,13 @@ BEGIN{
 						);
          $g = Bio::Graph::ProteinGraph->new();
 }
+
 #parsing done by XML::Twig, not by RootIO, therefore override usual new
 sub new {
-
-my ($class,@args) = @_;
-my $self = bless {}, $class;
-$self->_initialize(@args);
-return $self;
-
+	my ($class,@args) = @_;
+	my $self = bless {}, $class;
+	$self->_initialize(@args);
+	return $self;
 }
 
 sub _initialize  {
@@ -54,9 +68,7 @@ sub next_network {
 								 	 interaction         => \&_addEdge
 									});
  $t->parsefile($self->file);
- return $g;	 
-
-
+ return $g;
 }
 
 =head2   _proteinInteractor
@@ -76,7 +88,7 @@ sub _proteinInteractor {
 
 	my $org =  $pi->first_child('organism');
 	$taxid  = $org->att('ncbiTaxId');
-	
+
 	## just make new species object if doesn't already exist ##
 	if (!exists($species{$taxid})) {
 		my $full       =  $org->first_child('names')->first_child('fullName')->text;
@@ -85,21 +97,21 @@ sub _proteinInteractor {
 									       -classification => [$sp, $gen],
 									      );
 		$species{$taxid} = $sp_obj;
-		} 
-	
+		}
+
 	## next extract sequence id info ##
 	my @ids          = $pi->first_child('xref')->children();
 	my %ids          = map{$_->att('db'), $_->att('id')} @ids;
 	 $ids{'psixml'}  = $pi->att('id');
-	
-	
+
 	$prim_id = defined ($ids{'GI'})?  $ids{'GI'}:'';
 	$acc        = $ids{'RefSeq'} || $ids{'SWP'} || $ids{'PIR'} || $ids{'GI'};
-	
+
 	## get description line
 	$desc    = $pi->first_child('names')->first_child('fullName')->text;
 
-	## use ids that aren't accession_no or primary_tag to build dbxref Annotations
+	# use ids that aren't accession_no or primary_tag to build 
+   # dbxref Annotations
 	my $ac = Bio::Annotation::Collection->new();	
 	for my $db (keys %ids) {
 		next if $ids{$db} eq $acc or $ids{$db} eq $prim_id;
@@ -117,7 +129,7 @@ sub _proteinInteractor {
 						-primary_id       => $prim_id,
 						-species          => $species{$taxid},
 						-annotation       => $ac);
-	
+
 	## now fill hash with keys = ids and vals = node refs to have lookup
 	## hash for nodes by any id.	
 	$g->{'_id_map'}{$ids{'psixml'}}          = $node;
@@ -136,13 +148,13 @@ sub _proteinInteractor {
 	$twig->purge();
 }
 
-=head2      add_edge
+=head2 add_edge
 
  name     : add_edge
  purpose  : adds a new edge to a graph
  usage    : do not call, called by next_network
  returns  : void
- 
+
 =cut
 
 sub _addEdge {
@@ -157,5 +169,5 @@ sub _addEdge {
 					-id    => $edge_id));
 	$twig->purge();
 }
-1;
 
+1;
