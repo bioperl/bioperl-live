@@ -19,7 +19,7 @@
 
 
 ## We start with some black magic to print on failure.
-BEGIN { $| = 1; print "1..15\n";
+BEGIN { $| = 1; print "1..16\n";
 	use vars qw($loaded); }
 
 END {print "not ok 1\n" unless $loaded;}
@@ -120,4 +120,14 @@ while ( $aln = <$in>) {
 	$status = print $out $aln;
 }
 test 15, $status, "  failed filehandle output test";
+
+## Now we test Bio::AlignIO::bl2seq input
+$str = Bio::AlignIO->new(-file=> 't/bl2seq.out','-format' => 'bl2seq');
+$aln = $str->next_aln();
+
+if( $aln->{order}->{'1'} eq 'ALEU_HORVU -60-360' ) {
+    print "ok 16\n";
+} else {
+    print "not ok 16 , failed BLAST bl2seq format test \n";	
+}
 

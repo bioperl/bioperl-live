@@ -103,14 +103,12 @@ Ewan moved it from Bio::SeqStats to Bio::Tools::SeqStats
 
 =head2 Mailing Lists
 
-User feedback is an integral part of the evolution of this
-and other Bioperl modules. Send your comments and suggestions preferably
- to one of the Bioperl mailing lists.
-Your participation is much appreciated.
+User feedback is an integral part of the evolution of this and other
+Bioperl modules. Send your comments and suggestions preferably to one
+of the Bioperl mailing lists.  Your participation is much appreciated.
 
-  vsns-bcd-perl@lists.uni-bielefeld.de          - General discussion
-  vsns-bcd-perl-guts@lists.uni-bielefeld.de     - Technically-oriented discussion
-  http://bio.perl.org/MailList.html             - About the mailing lists
+  bioperl-l@bioperl.org               - General discussion
+  http://bio.perl.org/MailList.html   - About the mailing lists
 
 =head2 Reporting Bugs
 
@@ -127,7 +125,8 @@ Email schattner@alum.mit.edu
 
 =head1 APPENDIX
 
-The rest of the documentation details each of the object methods. Internal methods are usually preceded with a _
+The rest of the documentation details each of the object methods. Internal methods are
+usually preceded with a _
 
 =cut
 
