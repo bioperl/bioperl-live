@@ -19,7 +19,7 @@ BEGIN {
 	use lib 't';
     }
     use vars qw($NTESTS);
-    $NTESTS = 41;
+    $NTESTS = 45;
     $error = 0;
 
     use Test;
@@ -42,32 +42,35 @@ $searchio = new Bio::SearchIO(-file =>
 			      Bio::Root::IO->catfile(qw(t data 
 							testdat.exonerate)),
 			      -format => 'exonerate');
-my @data = ( [qw(ln27 Contig124 
-		 292 417 -1 
-		 1 125 1 
+my @data = ( [qw(ln27 416 Contig124 939
+		 293 416 -1 
+		 1   124 1 
 		 
-		 106 293 -1 
-		 178 364 1 
+		 107 292 -1 
+		 178 363 1 
 		 
-		 66 107 -1
-		 899 940 1
+		 66 106 -1
+		 899 939 1
 		 )],
-	     [qw(ln74 Contig275 
-		 600 645 -1
-		 901 945 1
+	     [qw(ln74 644 Contig275 1296 
+		 601 644 -1
+		 901 944 1
 		 
-		 435 601 -1
-		 998 1163 1
+		 436 600 -1
+		 998 1162    1
+
+		 386 435 -1
+		 1247 1296 1
 		 
-		 386 436 -1
-		 1247 1297 1
 		 )] );
 
 while( my $r = $searchio->next_result ) {
     my $d = shift @data;
     ok($r->query_name, shift @$d);
+    ok($r->query_length, shift @$d);
     my $h = $r->next_hit;
     ok($h->name, shift @$d);
+    ok($h->length, shift @$d);
     while( my $hsp = $h->next_hsp ) {
 	ok($hsp->query->start, shift @$d);
 	ok($hsp->query->end, shift @$d);
