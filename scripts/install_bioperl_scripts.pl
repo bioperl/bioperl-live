@@ -39,7 +39,7 @@ sub prompt_to_install {
     print while <$g>;
   }
   return 1 if $prompt_mode eq 'all';
-  my $result = prompt("Install scripts in $f? y/n",'y');
+  my $result = prompt("Install scripts in $f? y/n",'n');
   return $result =~ /^[yY]/;
 }
 
