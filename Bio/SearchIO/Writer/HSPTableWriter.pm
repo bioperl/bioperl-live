@@ -74,36 +74,42 @@ Here are the columns that can be specified in the C<-columns>
 parameter when creating a HSPTableWriter object.  If a C<-columns> parameter
 is not specified, this list, in this order, will be used as the default.
 
-    query_name
-    query_length
-    hit_name
-    hit_length
-    round
+    query_name             # Sequence identifier of the query.
+    query_length           # Full length of the query sequence
+    hit_name               # Sequence identifier of the hit
+    hit_length             # Full length of the hit sequence
+    round                  # Round number for hit (PSI-BLAST)
     rank
-    expect
-    score
-    bits
-    frac_identical_query
-    frac_identical_hit
-    frac_conserved_query
-    frac_conserved_hit
-    length_aln_query
-    length_aln_hit
-    gaps_query
-    gaps_hit
-    gaps_total
-    start_query
-    end_query
-    start_hit
-    end_hit
-    strand_query
-    strand_hit
-    frame
-    hit_description
-    query_description
+    expect                 # Expect value for the alignment
+    score                  # Score for the alignment (e.g., BLAST score)
+    bits                   # Bit score for the alignment
+    frac_identical_query   # fraction of identical substitutions in query
+    frac_identical_hit     # fraction of identical substitutions in hit
+    frac_conserved_query   # fraction of conserved substitutions in query
+    frac_conserved_hit     # fraction of conserved substitutions in hit
+    length_aln_query       # Length of the aligned portion of the query sequence
+    length_aln_hit         # Length of the aligned portion of the hit sequence
+    gaps_query             # Number of gaps in the aligned query sequence
+    gaps_hit               # Number of gaps in the aligned hit sequence
+    gaps_total             # Number of gaps in the aligned query and hit sequences
+    start_query            # Starting coordinate of the aligned portion of the query sequence
+    end_query              # Ending coordinate of the aligned portion of the query sequence
+    start_hit              # Starting coordinate of the aligned portion of the hit sequence
+    end_hit                # Ending coordinate of the aligned portion of the hit sequence
+    strand_query           # Strand of the aligned query sequence
+    strand_hit             # Strand of the aligned hit sequence
+    frame                  # Reading frame of the aligned query sequence 
+    hit_description        # Full description of the hit sequence
+    query_description      # Full description of the query sequence
 
 For more details about these columns, see the documentation for the
 corresponding method in Bio::Search::HSP::HSPI.
+
+=head1 TODO
+
+Figure out the best way to incorporate algorithm-specific score columns.
+The best route is probably to have algorith-specific subclasses 
+(e.g., BlastHSPTableWriter, FastaHSPTableWriter).
 
 =head1 FEEDBACK
 
@@ -131,6 +137,17 @@ Steve Chervitz E<lt>sac@bioperl.orgE<gt>
 
 See L<the FEEDBACK section | FEEDBACK> for where to send bug reports
 and comments.
+
+=head1 COPYRIGHT
+
+Copyright (c) 2001 Steve Chervitz. All Rights Reserved.
+
+This library is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself.
+
+=head1 DISCLAIMER
+
+This software is provided "as is" without warranty of any kind.
 
 =head1 SEE ALSO
 

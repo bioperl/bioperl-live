@@ -107,6 +107,17 @@ Steve Chervitz E<lt>sac@bioperl.orgE<gt>
 See L<the FEEDBACK section | FEEDBACK> for where to send bug reports
 and comments.
 
+=head1 COPYRIGHT
+
+Copyright (c) 2001 Steve Chervitz. All Rights Reserved.
+
+This library is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself.
+
+=head1 DISCLAIMER
+
+This software is provided "as is" without warranty of any kind.
+
 =head1 SEE ALSO
 
 L<Bio::SearchIO::Writer::HitTableWriter>,

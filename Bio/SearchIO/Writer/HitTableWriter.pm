@@ -79,35 +79,35 @@ Here are the columns that can be specified in the C<-columns>
 parameter when creating a HitTableWriter object.  If a C<-columns> parameter
 is not specified, this list, in this order, will be used as the default.
 
-    query_name                 # Sequence identifier of the query.
-    query_length               # Full length of the query sequence.
-    hit_name                   # Sequence identifier of the hit
-    hit_length                 # Full length of the hit sequence
-    round                      # Round number for hit (PSI-BLAST).
-    expect                     # Expect value for the alignment.
-    score                      # Score for the alignment.
-    bits
-    num_hsps
-    frac_identical_query*
-    frac_identical_hit*
-    frac_conserved_query*
-    frac_conserved_hit*
-    frac_aligned_query*
-    frac_aligned_hit*
-    length_aln_query*
-    length_aln_hit*
-    gaps_query*
-    gaps_hit*
-    gaps_total*
-    start_query*
-    end_query*
-    start_hit*
-    end_hit*
-    strand_query
-    strand_hit
-    ambiguous_aln
-    hit_description
-    query_description
+    query_name             # Sequence identifier of the query.
+    query_length           # Full length of the query sequence
+    hit_name               # Sequence identifier of the hit
+    hit_length             # Full length of the hit sequence
+    round                  # Round number for hit (PSI-BLAST)
+    expect                 # Expect value for the alignment
+    score                  # Score for the alignment (e.g., BLAST score)
+    bits                   # Bit score for the alignment
+    num_hsps               # Number of HSPs (not the "N" value)
+    frac_identical_query*  # fraction of identical substitutions in query
+    frac_identical_hit*    # fraction of identical substitutions in hit
+    frac_conserved_query*  # fraction of conserved substitutions in query
+    frac_conserved_hit*    # fraction of conserved substitutions in hit
+    frac_aligned_query*    # fraction of the query sequence that is aligned
+    frac_aligned_hit*      # fraction of the hit sequence that is aligned
+    length_aln_query*      # Length of the aligned portion of the query sequence
+    length_aln_hit*        # Length of the aligned portion of the hit sequence
+    gaps_query*            # Number of gaps in the aligned query sequence
+    gaps_hit*              # Number of gaps in the aligned hit sequence
+    gaps_total*            # Number of gaps in the aligned query and hit sequences
+    start_query*           # Starting coordinate of the aligned portion of the query sequence
+    end_query*             # Ending coordinate of the aligned portion of the query sequence
+    start_hit*             # Starting coordinate of the aligned portion of the hit sequence
+    end_hit*               # Ending coordinate of the aligned portion of the hit sequence
+    strand_query           # Strand of the aligned query sequence
+    strand_hit             # Strand of the aligned hit sequence
+    ambiguous_aln          # Ambiguous alignment indicator ('qs', 'q', 's')
+    hit_description        # Full description of the hit sequence
+    query_description      # Full description of the query sequence
 
 Items marked with a C<*> report data summed across all HSPs
 after tiling them to avoid counting data from overlapping regions
@@ -115,6 +115,12 @@ multiple times.
 
 For more details about these columns, see the documentation for the
 corresponding method in Bio::Search::Result::BlastHit.
+
+=head1 TODO
+
+Figure out the best way to incorporate algorithm-specific score columns.
+The best route is probably to have algorith-specific subclasses 
+(e.g., BlastHitTableWriter, FastaHitTableWriter).
 
 =head1 FEEDBACK
 
@@ -142,6 +148,17 @@ Steve Chervitz E<lt>sac@bioperl.orgE<gt>
 
 See L<the FEEDBACK section | FEEDBACK> for where to send bug reports
 and comments.
+
+=head1 COPYRIGHT
+
+Copyright (c) 2001 Steve Chervitz. All Rights Reserved.
+
+This library is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself.
+
+=head1 DISCLAIMER
+
+This software is provided "as is" without warranty of any kind.
 
 =head1 SEE ALSO
 
@@ -242,41 +259,3 @@ sub to_string {
 
 
 1;
-__END__
-
-  TODO: Integrate the column descriptions into the POD
-
-           : Left-to-Right order of fields is customizable (see new()).
-           : Here is the default order:
-           :
-           : 1 QUERY_NAME           # Sequence identifier of the query.
-           : 2 QUERY_LENGTH         # Full length of the query sequence.
-           : 3 HIT_NAME             # Sequence identifier of the hit
-           : 4 HIT_LENGTH           # Full length of the hit sequence.
-           : 5 ROUND                # Round number for hit (PSI-BLAST).
-           : 6 EXPECT               # Expect value for the alignment.
-           : 7 SCORE                # Result score for the alignment.
-           : 8 BITS                 # Bit score for the alignment.
-           : 9 NUM_HSPS             # Number of HSPs (not the "N" value).
-           : 10 FRAC_IDENTICAL_QUERY*      # fraction of identical substitutions in query.
-           : 11 FRAC_IDENTICAL_HIT*      # fraction of identical substitutions in query.
-           : 12 FRAC_CONSERVED_QUERY*     # fraction of conserved ("positive") substitutions in query.
-           : 13 FRAC_CONSERVED_HIT*     # fraction of conserved ("positive") substitutions in hit.
-           : 14 FRAC_ALN_QUERY*     # fraction of the query sequence that is aligned.
-           : 15 FRAC_ALN_HIT*       # fraction of the hit sequence that is aligned.
-           : 16 LENGTH_ALN_QUERY*   # Length of the aligned portion of the query sequence.
-           : 17 LENGTH_ALN_HIT*     # Length of the aligned portion of the hit sequence.
-           : 18 GAPS_QUERY*         # Number of gaps in the aligned query sequence.
-           : 19 GAPS_HIT*           # Number of gaps in the aligned hit sequence.
-           : 20 GAPS_TOTAL*         # Total number of gaps in the aligned query and hit sequences.
-           : 21 START_QUERY*        # Starting coordinate of the query sequence.
-           : 22 END_QUERY*          # Ending coordinate of the query sequence.
-           : 23 START_HIT*          # Starting coordinate of the hit sequence.
-           : 24 END_HIT*            # Ending coordinate of the hit sequence.
-           : 25 AMBIGUOUS_ALN       # Ambiguous alignment indicator ('qs', 'q', 's').
-           : 26 DESC_HIT            # Full description of the hit sequence.
-           : 27 DESC_QUERY          # Full description of the query sequence.
-           :
-           : * Items marked with a "*" report data summed across all HSPs
-           :   after tiling them to avoid counting data from overlapping regions
-           :   multiple times.
