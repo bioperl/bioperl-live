@@ -103,6 +103,7 @@ use Bio::LiveSeq::Prim_Transcript 1.0;
 use Bio::LiveSeq::Repeat_Region 1.0;
 use Bio::LiveSeq::Repeat_Unit 1.0;
 use Bio::LiveSeq::AARange 1.4;
+use Bio::Tools::CodonTable;
 
 #@ISA=qw(Bio::LiveSeq::); # not useful now
 
@@ -408,7 +409,7 @@ sub hash2gene {
     my $exoncount = 0;
     foreach $range (@exons) {
       ($start,$end,$strand)=@{$range};
-      $object=Bio::LiveSeq::Exon->new(-seq=>$dna,-start=>$start,-end=>$end,-strand=>$strand);
+      $object = Bio::LiveSeq::Exon->new(-seq=>$dna,-start=>$start,-end=>$end,-strand=>$strand);
       if ($object != -1) {
 	$object->description($exondescs[$exoncount]) if defined $exondescs[$exoncount];
 	$exoncount++;
@@ -967,7 +968,7 @@ sub _common_novelaasequence2gene {
     $codon_usage_value{$codon_usage_label[$i]}=$species_codon_usage[$i];
   }
 
-  my $CodonTable  = Bio::Tools::CodonTable -> new ( -id => $ttabid );
+  my $CodonTable  = Bio::Tools::CodonTable->new ( -id => $ttabid );
   my @aminoacids = split(//,uc($aasequence));
   my @alt_codons; my ($relativeusage,$dnasequence,$chosen_codon,$dice,$partial,$thiscodon);
   for $i (@aminoacids) {
