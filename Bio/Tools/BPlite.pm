@@ -27,6 +27,7 @@ Bio::Tools::BPlite - Lightweight BLAST parser
 	    $hsp->bits;
 	    $hsp->percent;
 	    $hsp->P;
+            $hsp->EXP;
 	    $hsp->match;
 	    $hsp->positive;
 	    $hsp->length;
@@ -93,11 +94,11 @@ have one attribute (name) and one method (nextHSP).
      # canonical form is again a while loop
  }
 
-An HSP is a high scoring pair, or simply an alignment. 
-HSP objects inherit all the useful methods from RangeI/SeqFeatureI/FeaturePair,
-but provide an additional set of attributes (score, bits, percent, P, match, 
-positive, length, querySeq, sbjctSeq, homologySeq) that should be familiar to
-anyone who has seen a blast report. 
+An HSP is a high scoring pair, or simply an alignment.  HSP objects
+inherit all the useful methods from RangeI/SeqFeatureI/FeaturePair,
+but provide an additional set of attributes (score, bits, percent, P,
+match, EXP, positive, length, querySeq, sbjctSeq, homologySeq) that
+should be familiar to anyone who has seen a blast report.
 
 For lazy/efficient coders, two-letter abbreviations are available for the 
 attributes with long names (qs, ss, hs). Ranges of the aligned sequences in
@@ -327,7 +328,7 @@ sub nextSbjct {
     if    ($_ !~ /\w/)            {next}
     elsif ($_ =~ /Strand HSP/)    {next} # WU-BLAST non-data
     elsif ($_ =~ /^\s{0,2}Score/) {$self->_pushback($_); last}
-    elsif ($_ =~ /^Parameters|^\s+Database:|^\s+Posted date:/) {
+    elsif ($_ =~ /^Searching|^Parameters|^\s+Database:|^\s+Posted date:/) {
 	$self->_pushback($_); 
 	last;
     }
@@ -399,6 +400,12 @@ sub _parseHeader {
 	  $self->{'BLAST_TYPE'} = $2; 
 	  $self->{'BLAST_VERSION'} = $3;
       }				# BLAST report type - not a valid header element # JB949
+      
+      # Support Paracel BTK output
+      elsif ( $_ =~ /(^[A-Z0-9_]+)\s+BTK\s+/ ) { 
+	  $self->{'BLAST_TYPE'} = $1;
+	  $self->{'BTK'} = 1;
+     } 
       elsif ($_ =~ /^Database:\s+(.+)/) {$header_flag = 1;$self->{'DATABASE'} = $1} # valid header element found
       elsif ($_ =~ /^\s*pattern\s+(\S+).*position\s+(\d+)\D/) {   
 	  # For PHIBLAST reports
@@ -425,14 +432,16 @@ sub _fastForward {
     my ($self) = @_;
     return 0 if $self->{'REPORT_DONE'}; # empty report
     while(defined( $_ = $self->_readline() ) ) {
-	if ($_ =~ /^Parameters|^\s+Database:|^\s+Posted date:/) {
+	if ($_ =~ /^Searching|^Parameters|^\s+Database:|^\s+Posted date:/) {
 	    return 0;
 	} elsif( $_ =~ /^>/ ) {
 	    $self->_pushback($_);	
 	    return 1;
 	}
     }
-    $self->warn("Possible error (1) while parsing BLAST report!");
+    unless( $self->{'BTK'} ) { # Paracel BTK reports have no footer
+	$self->warn("Possible error (1) while parsing BLAST report!");
+    }
 }
 
 1;
