@@ -279,8 +279,8 @@ sub validate_species_name {
 sub validate_name {
     my( $self, $string ) = @_;
 
-    return 1 if $string =~ /^[A-Z][\sa-z]+$/;
-    $self->throw("Invalid name '$string' (Wrong case?)");
+    return 1 if $string =~ /^\w+$/ or
+        $self->throw("Invalid name '$string'");
 }
 
 =head2 ncbi_taxid
