@@ -34,7 +34,7 @@ my $amino_database = 'swissprot';
 
 use Getopt::Long;
 use Bio::SimpleAlign;
-use Bio::Tools::StandAloneBlast;
+use Bio::Tools::Run::StandAloneBlast;
 use Bio::Tools::BPlite::Sbjct;
 use Bio::AlignIO;
 use Bio::SeqIO;
@@ -84,7 +84,7 @@ foreach my $argv (@argv) {
 	unless ($argv =~ /^(.*)=>(.*)$/) { next;}
 	push (@params, $1 => $2);
 }
-my  $factory = Bio::Tools::StandAloneBlast->new(@params);
+my  $factory = Bio::Tools::Run::StandAloneBlast->new(@params);
 	
 # If "do" variable not set, do all four examples
 if ( ! $do_only)  {

@@ -1,4 +1,4 @@
-## $Id: MANIFEST,v 1.24 2000-12-14 15:50:49 jason Exp $
+## $Id: MANIFEST,v 1.25 2000-12-17 21:10:41 jason Exp $
 ##
 ## This is the file listing for everything that
 ## comes with the bioperl distribution. The perl
@@ -30,6 +30,7 @@ Bio/AlignIO/selex.pm
 Bio/SeqAnalysisParserI.pm
 Bio/SeqFeatureI.pm
 Bio/SeqFeatureProducerI.pm
+Bio/SeqFeatureProducer
 Bio/SeqIO.pm
 Bio/SimpleAlign.pm
 Bio/Species.pm
@@ -124,14 +125,14 @@ Bio/Tools/Genscan.pm
 Bio/Tools/IUPAC.pm
 Bio/Tools/MZEF.pm
 Bio/Tools/OddCodes.pm
+Bio/Tools/Run/StandAloneBlast.pm
+Bio/Tools/Run/Alignment/Clustalw.pm
+Bio/Tools/Run/Alignment/TCoffee.pm
 Bio/Tools/SeqPattern.pm
 Bio/Tools/SeqAnal.pm
-Bio/Tools/StandAloneBlast.pm
 Bio/Tools/SeqStats.pm
 Bio/Tools/SeqWords.pm
 Bio/Tools/Sigcleave.pm
-Bio/Tools/Alignment/Clustalw.pm
-Bio/Tools/Alignment/TCoffee.pm
 Bio/Tools/WWW.pm
 Bio/Tools/pSW.pm
 Bio/Tools/BPlite/Sbjct.pm

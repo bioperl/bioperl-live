@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 
 # PROGRAM  : clustalw.pl
-# PURPOSE  : Demonstrate possible uses of Bio::Tools::Alignment::Clustalw.pm
+# PURPOSE  : Demonstrate possible uses of Bio::Tools::Run::Alignment::Clustalw.pm
 # AUTHOR   : Peter Schattner schattner@alum.mit.edu
 # CREATED  : Oct 06 2000
 # REVISION : $Id$
@@ -36,7 +36,7 @@ BEGIN {
 }
 
 use Getopt::Long;
-use Bio::Tools::Alignment::Clustalw;
+use Bio::Tools::Run::Alignment::Clustalw;
 use Bio::SimpleAlign;
 use Bio::AlignIO;
 use Bio::SeqIO;
@@ -74,7 +74,7 @@ foreach my $argv (@argv) {
 	unless ($argv =~ /^(.*)=>(.*)$/) { next;}
 	push (@params, $1 => $2);
 }
-my  $factory = Bio::Tools::Alignment::Clustalw->new(@params);
+my  $factory = Bio::Tools::Run::Alignment::Clustalw->new(@params);
 	
 
 # put unaligned sequences in a Bio::Seq array
