@@ -114,11 +114,16 @@ sub next_matrix{
    my $entry;
    while ($entry=$self->_readline) {
        if($#names >=0 && $entry =~/^\s+\d+$/){
-           last;
+	   last;
+       } elsif($entry=~/^\s+\d+\n$/){	   
+	   next;
+       } elsif( $entry =~ s/^\s+(\d+\.\d+)/$1/ ) {
+	   my (@line) = split( /\s+/,$entry);
+	   push @{$values[-1]}, @line;
+	   next;
        }
-       elsif($entry=~/^\s+\d+\n$/){
-           next;
-       }
+       
+
        my ($n,@line) = split( /\s+/,$entry);
        push @names, $n;
        push @values, [@line];
