@@ -105,7 +105,7 @@ use Bio::Annotation;
 
 sub _initialize {
   my ($self, @args) = @_;
-  my $make = $self->SUPER::_initialize;
+  my $make = $self->SUPER::_initialize(@args);
 
   $self->{'_gsf_tag_hash'} = {};
   $self->{'_gsf_sub_array'} = [];
