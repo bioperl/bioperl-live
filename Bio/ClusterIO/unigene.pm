@@ -74,7 +74,7 @@ use Bio::Cluster::ClusterFactory;
 @ISA = qw(Bio::ClusterIO);
 
 my %line_is = (
-		ID			=> 	q/ID\s+(\w\w\.\d+)/,
+		ID			=> 	q/ID\s+(\w{2,3}\.\d+)/,
 		TITLE			=>	q/TITLE\s+(\S.*)/,
 		GENE			=>	q/GENE\s+(\S.*)/,
 		CYTOBAND		=>	q/CYTOBAND\s+(\S.*)/,
