@@ -883,7 +883,9 @@ sub _read_swissprot_References{
  Usage   :
  Function: Reads the swissprot Organism species and classification
            lines.
- Example :
+		   Able to deal with unconventional species names.
+ Example : OS Unknown prokaryotic organism
+ 		   $genus = undef ; $species = Unknown prokaryotic organism
  Returns : A Bio::Species object
  Args    :
 
@@ -895,9 +897,14 @@ sub _read_swissprot_Species {
 
     $_ = $$buffer;
     my( $subspecies, $species, $genus, $common, $variant, $ncbi_taxid, $ns_name );
-    my @class;
+    my (@class,@spflds);
     my ($binomial, $descr);
     my $osline = "";
+
+	my @unkn_names=("other", 'unidentified','unknown organism', 'not specified', 'not shown', 'Unspecified', 'Unknown', 'None', 'unclassified', 'unidentified organism', 'not supplied');
+	#dictionary of synonyms for taxid 32644
+	my @unkn_genus=('unknown','unclassified','uncultured','unidentified');
+	#all above can be part of valid species name
 
     while (defined( $_ ||= $self->_readline )) {
 	last unless /^O[SCGX]/;
@@ -908,10 +915,27 @@ sub _read_swissprot_Species {
 	    $osline .= $1;
 	    if($osline =~ s/(,|, and|\.)$//) {
 		($binomial, $descr) = $osline =~ /(\S[^\(]+)(.*)/;
-                ($ns_name) = $binomial;
+		        ($ns_name) = $binomial;
                 $ns_name =~ s/\s+$//; #####
-		($genus, $species, $subspecies) = split(/\s+/, $binomial);
-		$species = "sp." unless $species;
+	
+		#binomial could contain more than a three words. 		
+		@spflds=split(' ',$binomial);
+		
+		#if first term a conventional uppercase genus?
+		unless ((grep {$_=~/^$spflds[0]/i;} @unkn_genus) || ($spflds[0]=~m/^[^A-Z]/))	{
+			$genus=shift @spflds;
+		}
+		else	{ undef $genus; }
+		
+		if (@spflds)	{
+				while (my $fld = shift @spflds)	{
+				$species.="$fld ";
+				last if ($fld =~ m/(sp\.|var\.)/);
+			}
+			chop $species;	#last space
+			$subspecies = join ' ',@spflds if(@spflds);
+		}
+		else { $species = 'sp.'; }
 		while($descr =~ /\(([^\)]+)\)/g) {
 		    my $item = $1;
 		    # strain etc may not necessarily come first (yes, swissprot
@@ -965,10 +989,12 @@ sub _read_swissprot_Species {
     
     $$buffer = $_;
     
-    # Don't make a species object if it is "Unknown" or "None"
-    return if $genus =~ /^(Unknown|None)$/i;
-
-    if ($class[0] eq 'Viruses') {
+	#if the organism belongs to taxid 32644 then no Bio::Species object.
+	my $unkn = grep { $_ =~ /^$binomial$/; } @unkn_names;
+	return unless $unkn==0;
+		
+	
+	if ($class[0] eq 'Viruses') {
         push( @class, $ns_name );
     }
     elsif ($class[0] eq 'Viruses') {
