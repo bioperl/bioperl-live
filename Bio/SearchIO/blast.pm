@@ -774,7 +774,7 @@ sub next_result{
 	   }
            next;
        } elsif( $self->in_element('hsp') &&
-		/Links\s*=\s*(((\d+)\-)*\(\s*(\d+)\s*\))/ox ) {
+		/Links\s*=\s*(\S+)/ox ) {
 	   $self->element({'Name' => 'Hsp_links',
 			   'Data' => $1});
        } elsif( $self->in_element('hsp') &&
