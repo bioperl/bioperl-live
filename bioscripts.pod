@@ -373,10 +373,6 @@ directory and save them in the same directory.
 
 Scripts that demonstrate uses of the Bio::Root modules.
 
-=head2 examples/root_object/vector/vector.pl
-
-Script to test Bio::Root::Vector.
-
 =head2 examples/searchio/blast_example.pl
 
 Print out all parsed values from a BLAST report.
