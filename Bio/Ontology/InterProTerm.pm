@@ -549,30 +549,30 @@ sub to_string {
     $s .= $self->is_obsolete()."\n";
     $s .= "-- Comment:\n";
     $s .= $self->comment()."\n"; 
-    if (defined $self->references) {
+    if (defined $self->get_references) {
       $s .= "-- References:\n";
-      foreach my $ref ( @{$self->references} ) {
+      foreach my $ref ( $self->get_references ) {
 	$s .= $ref->authors."\n".$ref->title."\n".$ref->location."\n\n";
       };
       $s .= "\n";
     }
-    if (defined $self->member_list) {
+    if (defined $self->get_members) {
       $s .= "-- Member List:\n";
-      foreach my $ref ( @{$self->member_list} ) {
+      foreach my $ref ( $self->get_members ) {
 	$s .= $ref->database."\t".$ref->primary_id."\n";
       };
       $s .= "\n";
     }
-    if (defined $self->external_doc_list) {
+    if (defined $self->get_external_documents) {
       $s .= "-- External Document List:\n";
-      foreach my $ref ( @{$self->external_doc_list} ) {
+      foreach my $ref ( $self->get_external_documents ) {
 	$s .= $ref->database."\t".$ref->primary_id."\n";
       };
       $s .= "\n";
     }
-    if (defined $self->examples) {
+    if (defined $self->get_examples) {
       $s .= "-- Examples:\n";
-      foreach my $ref ( @{$self->examples} ) {
+      foreach my $ref ( $self->get_examples ) {
 	$s .= $ref->database."\t".$ref->primary_id."\t".$ref->comment."\n";
       };
       $s .= "\n";
