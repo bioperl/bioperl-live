@@ -53,13 +53,18 @@ email or the web:
 
 =head1 AUTHOR - Jason Stajich, Aaron Mackey, Justin Reese
 
-Email jason@bioperl.org
-Email amackey@virginia.edu
-Email jtr4v@virginia.edu
+Email jason-at-bioperl-dot-org
+Email amackey-at-virginia.edu
+Email jtr4v-at-virginia.edu
 
 =head1 CONTRIBUTORS
 
 Additional contributors names and emails here
+
+Rerooting code was worked on by
+
+  Daniel Barker d.barker-at-reading.ac.uk
+  Ramiro Barrantes Ramiro.Barrantes-at-uvm.edu
 
 =head1 APPENDIX
 
@@ -433,83 +438,47 @@ sub is_paraphyletic{
  Usage   : $tree->reroot($node);
  Function: Reroots a tree either making a new node the root
  Returns : 1 on success, 0 on failure
- Args    : Bio::Tree::NodeI that is in the tree
+ Args    : Bio::Tree::NodeI that is in the tree, but is not the current root
  
 
 =cut
 
-# From  Ramiro Barrantes-Reynolds <ramiro@sbb.uvm.edu>
-# Algorithm:
-#    get start_node
-#    if start_node is root return error
-#    startnode_ancestor = ancestor of start_node
-#    Node new_root = single node between startnode_ancestor and start_node
-#    Put labels of root to labels of new root
-#    make node = new_root
-#    ancestor = ancestor of node
-#
-#    while node is not root
-#         if ancestor is not old_root
-#            tmp = ancestor of ancestor
-#            reverse direction of edge between node and ancestor
-#         if ancestor is old_root and has only one descendent
-#            eliminate the ancestor and makes its descendent descend directly
-#            from node.
-#         elseif ancestor is not old_root
-#            node = ancestor
-#            ancestor = tmp
-#    endwhile
-
 sub reroot {
-    my ($self,$startnode) = @_;
-    unless (defined $startnode && $startnode->isa("Bio::Tree::NodeI")) {
+    my ($self,$new_root) = @_;
+    unless (defined $new_root && $new_root->isa("Bio::Tree::NodeI")) {
 	$self->warn("Must provide a valid Bio::Tree::NodeI when rerooting");
 	return 0;
     }
-    # Still need to validate that $node is actually in the tree....
-    if( $startnode->is_Leaf() ) {
+    if( $new_root->is_Leaf() ) {
 	$self->warn("Asking to root with a leaf, will use the leaf's ancestor");
-	$startnode = $startnode->ancestor;
-    }    
-    my $old_root = $self->get_root_node;
-    
+	$new_root = $new_root->ancestor;
+    }
 
-    if( $startnode == $old_root ) {
+    my $old_root = $self->get_root_node;
+    if( $new_root == $old_root ) {
 	$self->warn("Node requested for reroot is already the root node!");
 	return 0;
     }
-    my $startnode_ancestor = $startnode->ancestor;
-    
-    my $newroot = new Bio::Tree::Node();
-    delete_edge($startnode_ancestor,$startnode);
-    $startnode_ancestor->add_Descendent($newroot);
-    $newroot->add_Descendent($startnode);
-                                                                               
-    $self->set_root_node($newroot);
-                                                                               
-    my $node = $newroot;
-    my $ancestor = $startnode_ancestor;
-    while ($node != $old_root) {
-        my $tmp;
-        if ($ancestor != $old_root) {
-            $tmp = $ancestor->ancestor;
-        }
-        reverse_edge($ancestor,$node);
-        if ($ancestor == $old_root) {
-            my @desc = $ancestor->each_Descendent;
-            if (scalar (@desc) == 1) {
-                $old_root->remove_Descendent($desc[0]);
-                $node->add_Descendent($desc[0]);
-                if (defined $old_root->id ) {   #update labels in new root, ifwe need to remove it
-                    $newroot->id($old_root->id);
-                }
-            }
-            return;
-        } else {
-            $node = $ancestor;
-            $ancestor = $tmp;
-        }
+
+    my @path = ();	# along tree, from newroot to oldroot
+    my $node = $new_root;
+    while ($node) {
+	push @path, $node;
+	$node = $node->ancestor;
     }
+
+    my @path_from_oldroot = reverse @path;
+    for (my $i = 0; $i < @path_from_oldroot - 1; $i++) {
+	my $current = $path_from_oldroot[$i];
+	my $next = $path_from_oldroot[$i + 1];
+	$current->remove_Descendent($next);
+	$current->branch_length($next->branch_length);
+	$next->add_Descendent($current);
+	
+    }
+    $new_root->branch_length(undef);
+    $self->set_root_node($new_root);
+
     return 1;
 }
 
