@@ -30,6 +30,19 @@ o About Bioperl
  modules, scripts, and web links for developers of Perl-based software
  for life science research.
 
+o Survey
+
+ We'd like to hear your feedback.  If you are using this toolkit for
+ the first time or you are bioperl guru or somewhere in between,
+ please consider filling out the survey to help us generate user
+ statistics.  We will post the tabulated results on the website as
+ soon as we are able to process them and recieve enough responses.
+ All individual responses including comments and optional email name
+ and organization will be keep confidential for use only by the Open
+ Bioinformatics Foundation.  You responses will greatly assist the
+ bioperl project and its ability to expand towards new problems in
+ bioinformatics and computational biology.  
+
 o Contact info
 
  Bioperl developers: bioperl-l@bioperl.org
@@ -111,10 +124,12 @@ o System requirements
 		assumed to be present in this dir as well where the
 		blastable databases are located as well as 
 		substitution matricies.
-   o BLASTDB - (optional) if one does not want to locate the data dir
+
+   o BLASTDATADIR or 
+     BLASTDB - (either is optional) if one does not want to locate the data dir
 	       within the same dir as where the BLASTDIR variable
-	       points, a BLASTDB variable can be set to point to a dir
-	       where BLAST database indexes are located.
+	       points, a BLASTDATADIR or BLASTDB variable can be set to 
+	       point to a dir where BLAST database indexes are located.
    Bio::Tools::Run::Alignment::Clustalw
    o CLUSTALDIR - points to the directory where the clustalw
                   executable is located.
@@ -203,4 +218,3 @@ o Releases
 
  All odd numbered point releases will be developer releases and
  even point releases are stable releases.
-
