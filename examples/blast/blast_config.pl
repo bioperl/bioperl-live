@@ -79,6 +79,9 @@ BEGIN {
 # for other ways to work with hit objects.
 #
 # MODIFICATIONS:
+#
+#   For all further modifications, refer to the cvs log.
+#
 #   25 Apr 1999, sac:
 #      * Added additional parameters for running Blasts to synch up with
 #        the new version of Webblast.pm.
@@ -555,7 +558,13 @@ sub create_blast {
 	$blast_obj = new Bio::Tools::Blast (%blastParam);
     };
     if($@) {
-	croak "\n*** Trouble creating Blast object:\n$@\n\n";
+        if($@ =~ /temp\.html is incomplete:/) {
+            print "Blast analysis submitted to queue.\n".
+                "Use retrieve_blast.pl to fetch report.\n";
+        }
+        else {
+            croak "\n*** Trouble creating Blast object:\n$@\n\n";
+        }
     }
     return $blast_obj;
 }
