@@ -215,7 +215,7 @@ sub to_string {
         # unfortunately (or not??), HitI objects do not implement SeqFeatureI, so we can't just call ->gff_string
         # as a result, this module is quite brittle to changes in the GFF format since we are hard-coding the GFF output here :-(
         if (scalar(@plus_hsps)){
-	    my %tags ( 'ID' => "match_sequence$ID");
+	    my %tags = ( 'ID' => "match_sequence$ID");
 
 	    if ($format==2.5) {
 		$tags{'Target'} = "EST:$seqname";
@@ -243,7 +243,7 @@ sub to_string {
             $GFF .= $feat->gff_string($formatter)."\n";
         }
         if (scalar(@minus_hsps)){
-	    my %tags ( 'ID' => "match_sequence$ID");
+	    my %tags  = ( 'ID' => "match_sequence$ID");
 
             if ($format==2.5) {
                 $tags{'Target'} = "EST:$seqname";
@@ -279,8 +279,8 @@ sub to_string {
             my $send   = $hsp->end('subject');
             my $score  = $hsp->score;
 
-	    my %tags ( 'ID'     => "match_hsp$hspID",
-		       'Parent' => "match_sequence$ID" );
+	    my %tags  = ( 'ID'     => "match_hsp$hspID",
+		          'Parent' => "match_sequence$ID" );
 
             if ($format==2.5) {
                 $tags{'Target'} = "EST:$seqname";
@@ -300,7 +300,7 @@ sub to_string {
                 -score       => $score,
                 -strand      => '+',
                 -frame       => '.',
-                -tag         => \%id 
+                -tag         => \%tags 
             );
 
             my $formatter = Bio::Tools::GFF->new(-gff_version => $format);
@@ -315,8 +315,8 @@ sub to_string {
             my $send = $hsp->end('subject');
             my $score = $hsp->score;
 
-            my %tags ( 'ID'     => "match_hsp$hspID",
-                       'Parent' => "match_sequence$ID" );
+            my %tags  = ( 'ID'     => "match_hsp$hspID",
+                          'Parent' => "match_sequence$ID" );
 
             if ($format==2.5) {
                 $tags{'Target'} = "EST:$seqname";
