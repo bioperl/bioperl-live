@@ -852,7 +852,7 @@ sub _setparams {
 	$param_string .= " -outfile=$TMPOUTFILE" ;
     }
 
-    if ($self->quiet()) { $param_string .= ' -quiet';}
+    if ($self->quiet() || $self->verbose < 0) { $param_string .= ' -quiet';}
     return $param_string;
 }
 

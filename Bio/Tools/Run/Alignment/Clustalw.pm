@@ -670,7 +670,9 @@ sub _setparams {
 	$param_string .= " -outfile=$TMPOUTFILE" ;
     }
 
-    if ($self->quiet()) { $param_string .= '  >/dev/null';}
+    if ($self->quiet() || $self->verbose() < 0) { 
+	$param_string .= '  >/dev/null';
+    }
 
     return $param_string;
 }
