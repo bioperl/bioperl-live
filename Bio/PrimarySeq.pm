@@ -26,7 +26,8 @@ Bio::PrimarySeq - Bioperl lightweight Sequence Object
   $seqobj = Bio::PrimarySeq->new ( -seq => 'ATGGGGTGGGCGGTGGGTGGTTTG',
 			    -id  => 'GeneFragment-12',
 			    -accession_number => 'X78121',
-			    -moltype => 'dna'
+			    -moltype => 'dna',
+			    -is_circular => 1
 			    );
   print "Sequence ", $seqobj->id(), " with accession ", $seqobj->accession_number, "\n";
 
@@ -200,7 +201,7 @@ sub new {
     my ($class, @args) = @_;
     my $self = $class->SUPER::new(@args);
 
-    my($seq,$id,$acc,$pid,$desc,$moltype,$given_id) =
+    my($seq,$id,$acc,$pid,$desc,$moltype,$given_id,$is_circular) =
 	$self->_rearrange([qw(SEQ
 			      DISPLAY_ID
 			      ACCESSION_NUMBER
@@ -208,6 +209,7 @@ sub new {
 			      DESC
 			      MOLTYPE
 			      ID
+			      IS_CIRCULAR
 			      )],
 			  @args);
 
@@ -228,6 +230,7 @@ sub new {
     $acc     && $self->accession_number($acc);
     $pid     && $self->primary_id($pid);
     $desc    && $self->desc($desc);
+    $is_circular && $self->is_circular($is_circular);
 
     return $self;
 }
