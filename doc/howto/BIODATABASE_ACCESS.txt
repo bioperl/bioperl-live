@@ -1,11 +1,12 @@
 $Id$
 
-USING THE BIODIRECTORY REGISTRY SYSTEM TO ACCESS SEQUENCE DATABASES
+USING THE OBDA BIODIRECTORY REGISTRY SYSTEM TO ACCESS SEQUENCE DATABASES
 
-The BioDirectory Registry is a system for specifying how BioPerl
-programs find sequence databases.  It uses a site-wide configuration
-file, known as the registry, which defines one or more databases and
-the access methods to use to access them.  
+The Open Biological Database Access (OBDA) BioDirectory Registry is a
+platform-independent system for specifying how BioPerl programs find
+sequence databases.  It uses a site-wide configuration file, known as
+the registry, which defines one or more databases and the access
+methods to use to access them.
 
 For instance, you might start out by accessing sequence data over the
 web, and later decide to install a locally mirrored copy of GenBank.
@@ -193,3 +194,5 @@ object's seq() method to fetch and print out the DNA or protein
 string.
 
 $Log$
+Revision 1.1  2003/02/20 02:45:14  lstein
+added some OBDA documentation plus flat file index load script
