@@ -44,6 +44,30 @@ This object encapsulated the necessary methods for generating events
 suitable for building Bio::Search objects from a BLAST report file. 
 Read the L<Bio::SearchIO> for more information about how to use this.
 
+This driver can parse:
+- NCBI produced plain text BLAST reports from blastall, this also includes
+  PSIBLAST, PSITBLASTN, RPSBLAST, and bl2seq reports.  
+  NCBI XML BLAST output is parsed with 
+  the blastxml SearchIO driver
+- WU-BLAST all reports
+- Jim Kent's BLAST-like output from his programs (BLASTZ, BLAT)
+- BLAST-like output from Paracel BTK output
+
+=head2 bl2seq parsing 
+
+Since I cannot differentiate between BLASTX and TBLASTN since bl2seq
+doesn't report the algorithm used - I assume it is BLASTX by default -
+you can supply the program type with -report_type in the SearchIO
+constructor i.e.  
+ my $parser = new Bio::SearchIO(-format => 'blast',
+                                -file => 'bl2seq.tblastn.report', 
+                                -report_type => 'tblastn');
+
+This only really affects where the frame and strand information are
+put - they will always be on the $hsp->query instead of on the
+$hsp->hit part of the feature pair for blastx and tblastn bl2seq
+produced reports.  Hope that's clear...
+
 =head1 FEEDBACK
 
 =head2 Mailing Lists
@@ -66,7 +90,7 @@ email or the web:
 
 =head1 AUTHOR - Jason Stajich
 
-Email jason@bioperl.org
+Email Jason Stajich jason-at-bioperl.org
 
 =head1 CONTRIBUTORS
 
@@ -674,7 +698,7 @@ sub next_result{
            $self->element({'Name' => 'Hsp_hit-frame',
                            'Data' => $hitframe});
        } elsif(  /^Parameters:/ || /^\s+Database:\s+?/ || 
-		 /^\s+Subset/ || /^\s*Lambda/ ||
+		 /^\s+Subset/ || /^\s*Lambda/ || /^\s*Histogram/ ||
                  ( $self->in_element('hsp') && (/WARNING/ || /NOTE/ )) ) {
 
            # Note: Lambda check was necessary to parse 
