@@ -41,7 +41,7 @@ ok $count->{'TCA'}, 1;
 
 $seqobj = Bio::PrimarySeq->new(-seq=>'ACTACTTCA', -moltype=>'dna', 
 			       -id=>'test');
-$seqobj_stats  =  Bio::Tools::SeqStats->new($seqobj);
+$seqobj_stats  =  Bio::Tools::SeqStats->new('-seq' => $seqobj);
 $wt = $seqobj_stats->get_mol_wt();  # for DNA sequence
 ok $$wt[0], 2738 ;
 
@@ -61,7 +61,7 @@ ok $count->{'G'}, 5;
 ok $count->{'T'}, 4;
 
 $seqobj = Bio::PrimarySeq->new(-seq=>'MQSERGITIDISLWKFETSKYYVT', -moltype=>'protein', -id=>'test');
-$seqobj_stats  =  Bio::Tools::SeqStats->new($seqobj);
+$seqobj_stats  =  Bio::Tools::SeqStats->new('-seq' => $seqobj);
 $count = $seqobj_stats->count_monomers();  # for amino sequence
 ok $$count{'M'}, 1;
 ok $$count{'I'}, 3; 
