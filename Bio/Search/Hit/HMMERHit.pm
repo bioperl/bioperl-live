@@ -23,8 +23,8 @@ Bio::Search::Hit::HMMERHit - A Hit module for HMMER hits
 =head1 DESCRIPTION
 
 This is a specialization of L<Bio::Search::Hit::GenericHit>.  There
-are a few news methods L<next_domain()> and L<domains()>.  Note that
-L<bits()> and L<iteration()> make no sense for this object and will
+are a few news methods L<next_domain> and L<domains>.  Note that
+L<bits> and L<iteration> make no sense for this object and will
 return 0.
 
 =head1 FEEDBACK
@@ -84,7 +84,7 @@ use Bio::Search::Hit::GenericHit;
  Returns : Bio::Search::Hit::HMMERHit
  Args    : 
 
-Plus the Bio::Search::Hit::GenericHit inherited params
+ Plus the Bio::Search::Hit::GenericHit inherited params
            -name         => Name of Hit (required)
            -description  => Description (optional)
            -accession    => Accession number (optional)

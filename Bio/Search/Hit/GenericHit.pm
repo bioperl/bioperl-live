@@ -91,7 +91,7 @@ use Bio::Search::Hit::HitI;
            -algorithm    => Algorithm used (BLASTP, FASTX, etc...)
            -hsps         => Array ref of HSPs for this Hit. 
            -iteration    => integer for the PSI-Blast iteration number
-        
+
 =cut
 
 sub new {

@@ -33,7 +33,8 @@ Bio::Search::Result::HMMERResult - A Result object for HMMER results
 =head1 DESCRIPTION
 
 This is a specialization of L<Bio::Search::Result::GenericResult>.
-There are a few extra methods, specifically L<sequence_file()>, L<hmm_name()>, L<next_models()>, and L<models()>.
+There are a few extra methods, specifically L<sequence_file>,
+L<hmm_name>, L<next_models>, and L<models>.
 
 =head1 FEEDBACK
 

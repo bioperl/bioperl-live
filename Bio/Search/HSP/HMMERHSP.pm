@@ -22,7 +22,7 @@ Bio::Search::HSP::HMMERHSP - A HSP object for HMMER results
 =head1 DESCRIPTION
 
 This object is a specialization of L<Bio::Search::HSP::GenericHSP>.
- 
+
 =head1 FEEDBACK
 
 =head2 Mailing Lists
