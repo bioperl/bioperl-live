@@ -1,0 +1,433 @@
+<!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook V4.1//EN">
+<article>
+
+<articleinfo>
+
+<title>Bio::Graphics HOWTO</title>
+<author>
+	<firstname>Lincoln</firstname>
+	<surname>Stein</surname>
+	<affiliation>
+		<orgname>
+			<ulink url="http://www.cshl.org">Cold Spring Harbor Laboratory</ulink>
+		</orgname>
+		<address>
+			<email>lstein@cshl.org</email>
+		</address>
+	</affiliation>
+</author>
+
+<pubdate>2002-09-01</pubdate>
+ 
+<revhistory>
+	<revision>
+		<revnumber>0.1</revnumber>
+		<date>2002-09-01</date>
+		<authorinitials>lds</authorinitials>
+		<revremark>first draft</revremark>
+	</revision>
+</revhistory>
+
+<legalnotice>
+<para>
+	This document is copyright Lincoln Stein, 2002.  It can
+        be copied and distributed under the terms of the Perl
+        Artistic License.
+</para>
+</legalnotice>
+
+<abstract>
+<para>
+This HOWTO describes how to render sequence data graphically in a
+horizontal map.  It applies to a variety of situations ranging from
+rendering the feature table of a GenBank entry, to graphing the
+positions and scores of a BLAST search, to rendering a clone map.  It
+describes the programmatic interface to the Bio::Graphics module, and
+discusses how to create dynamic web pages using Bio::DB::GFF and the
+gbrowse package.
+</para>
+</abstract>
+
+</articleinfo>
+
+<section id="intro">
+<title>Introduction</title>
+<para>
+This HOWTO describes the Bio::Graphics module, and some of the
+applications that were built on top of it.  Bio::Graphics was designed
+to solve the following common problems:
+</para>
+
+<itemizedlist>
+
+<listitem>
+<para>
+You have a list of BLAST hits on a sequence and you want to
+generate a picture that shows where the hits go and what their score
+is.
+</para>
+</listitem>
+
+<listitem>
+<para>
+You have a big GenBank file with a complex feature table, and
+you want to render the positions of the genes, repeats, promoters 
+and other features.
+</para>
+</listitem>
+
+<listitem>
+<para>
+You have a list of ESTs that you've mapped to a genome, and you want
+to show how they align.
+</para>
+</listitem>
+
+<listitem>
+<para>
+You have created a clone fingerprint map, and you want to display it.
+</para>
+</listitem>
+</itemizedlist>
+
+
+<para>
+The Bio::Graphics module was designed to solve these problems.  In
+addition, using the Bio::DB::GFF module (part of BioPerl) and the
+gbrowse program (available from http://www.gmod.org) you can create
+interactive web pages to explore your data.
+</para>
+
+<para>
+This document takes you through a few common applications of
+Bio::Graphics in a cookbook fashion.
+</para>
+</section>
+
+<section id="prelim">
+<title>Preliminaries</title>
+<para>
+Bio::Graphics is dependent on GD, a Perl module for generating
+bitmapped graphics written by the author.  GD in turn is dependent on
+libgd, a C library written by Thomas Boutell, formerly also of Cold
+Spring Harbor Laboratory.  To use Bio::Graphics, you must have both
+these software libraries installed.
+</para>
+
+<para>
+If you are on a Linux system, you might already have GD installed.  To
+verify, run the following command:
+</para>
+
+<para>
+<programlisting>
+ % perl -MGD -e 'print $GD::VERSION';
+</programlisting>
+</para>
+
+<para>
+If the program prints out a version number, you are in luck.
+Otherwise, if you get a "Can't locate GD.pm" error, you'll have to
+install the module.  For users of ActiveState Perl this is very easy.
+Just start up the PPM program and issue the command "install GD".  For
+users of other versions of Perl, you should go to www.cpan.org,
+download a recent version of the GD module, unpack it, and follow the
+installation directions.  You may also need to upgrade to a recent
+version of the libgd C library.
+</para>
+
+<para>
+If the program prints out a version number, you are in luck.
+Otherwise, if you get a "Can't locate GD.pm" error, you'll have to
+install the module.  For users of ActiveState Perl this is very easy.
+Just start up the PPM program and issue the command "install GD".  For
+users of other versions of Perl, you should go to www.cpan.org,
+download a recent version of the GD module, unpack it, and follow the
+installation directions.
+
+</para>
+
+<para>
+You may need to upgrade to a recent version of the libgd C library.
+At the time this was written, there were two versions of libgd.  libgd
+version 1.8.4 is the stable version, and corresponds to GD version
+1.43.  libgd version 2.0.1 is the beta version; although it has many
+cool features, it also has a few known bugs (which Bio::Graphics works
+around).  If you use libgd 2.0.1 or higher, be sure to use GD version
+2.0.1 or higher.
+</para>
+
+
+</section>
+
+<section id="gettingStarted">
+<title>Getting Started</title>
+
+<para>
+Our first example will be rendering a table of BLAST hits on a
+sequence that is exactly 1000 residues long. For now, we're ignoring
+finicky little details like HSPs, and assume that each hit is a single
+span from start to end.  Also, we'll be using the BLAST score rather
+than P or E value.  Later on, we'll switch to using real BLAST output
+parsed by the Bio::SearchIO module, but for now, our table looks like
+this:
+</para>
+
+<para>
+<figure>
+<title>Simple blast hit file (data1.txt)</title>
+<programlisting>
+# hit		score	start	end
+hsHOX3		381	2	200
+scHOX3		210	2	210
+xlHOX3		800	2	200
+hsHOX2		1000	380	921
+scHOX2		812	402	972
+xlHOX2		1200	400	970
+BUM		400	300	620
+PRES1		127	310	700
+</programlisting>
+</figure>
+</para>
+
+<para>
+Our first attempt to parse and render this file looks like this:
+</para>
+
+<para>
+<example id="code1">
+<title>Rendering the simple blast hit file (render1.pl)</title>
+<programlisting>
+  0  #!/usr/bin/perl
+
+  1  # This is code example 1 in the Graphics-HOWTO
+  2  use strict;
+  3  use Bio::Graphics;
+
+  4  my $panel = Bio::Graphics::Panel->new(-length => 1000,-width  => 800);
+  5  my $track = $panel->add_track(-glyph => 'generic',-label  => 1);
+
+  6  while (&lt;&gt;) { # read blast file
+  7    chomp;
+  8    next if /^\#/;  # ignore comments
+  9    my($name,$score,$start,$end) = split /\t+/;
+ 10    my $feature = Bio::Graphics::Feature->new(-name=>$name,  -score=>$score,
+ 11                                              -start=>$start,-end=>$end);
+ 12    $track->add_feature($feature);
+ 13  }
+
+ 14  print $panel->png;
+</programlisting>
+</example>
+</para>
+
+<para>
+The script begins by loading the Bio::Graphics module (line 3), which
+in turn brings in a number of other modules that we'll use later. We
+then create a Bio::Graphics::Panel object by calling its new() method,
+specifying that the panel is to correspond to a sequence that is 1000
+residues long, and has a physical width of 800 bp (line 4).  The Panel
+can contain multiple horizontal tracks, each of which has its own way
+of rendering features (called a "glyph"), color, labeling convention,
+and so forth.  In this simple example, we create a single track by
+calling the panel object's add_track() method (line 5), specify
+a glyph type of "generic", and ask that the objects in the track be
+labeled by providing a true value to the -label argument.  This gives
+us a track object that we can add our hits to.
+</para>
+
+<para>
+We're now ready to render the blast hit file.  We loop through it
+(line 6-13), stripping off the comments, and parsing out the name,
+score and range (line 9).  We now need a Bio::SeqI object to place in
+the track.  The easiest way to do this is to create a
+Bio::Graphics::Feature object, which is similar to Bio::PrimarySeq,
+except that it provides a way of attaching start and end positions to
+the sequence, as well as such nebulous but useful attributes as the
+"score" and "method".  The Bio::Graphics::Feature->new() method,
+invoked in line 10, takes arguments corresponding to the name of each
+hit, its start and end coordinates, and its score.
+</para>
+
+<para>
+After creating the feature object, we add it to the track by calling
+the track's add_feature() method (line 12).
+</para>
+
+<para>
+After processing all the hits, we call the panel's png() method to
+render them and convert it into a Portable Network Graphics file, the
+contents of which are printed to standard output.  We can now view the
+result by piping it to our favorite image display program.
+</para>
+
+<para>
+<figure>
+<title></title>
+<programlisting>
+% render1.pl data1.txt | xv -
+</programlisting>
+
+<mediaobject>
+<imageobject>
+<imagedata fileref="graphics/figs/fig1.png" format="PNG">
+</imageobject>
+</mediaobject>
+</figure>
+</para>
+
+<para>
+Users of operating systems that don't support pipes can simply
+redirect the output to a file and view it in their favorite image
+program.
+</para>
+
+</section>
+
+<section id="addingscale">
+<title>Adding a Scale to the Image</title>
+<para>
+This is all very nice, but it's missing two essential components:
+</para>
+
+<itemizedlist>
+<listitem><para>It doesn't have a scale.</para></listitem>
+<listitem><para>It doesn't distinguish between hits with different
+scores.
+</para></listitem>
+</itemizedlist>
+
+<para>Example 2 fixes these problems</para>
+
+<para>
+<example id="code2">
+<title>Rendering the blast hit file with scores and scale</title>
+<programlisting>
+  0  #!/usr/bin/perl
+
+  1  # This is code example 2 in the Graphics-HOWTO
+  2  use strict;
+  3  use lib '/home/lstein/projects/bioperl-live';
+  4  use Bio::Graphics;
+
+  5  my $panel = Bio::Graphics::Panel->new(-length => 1000,
+  6                                        -width  => 800,
+  7                                        -pad_left => 10,
+  8                                        -pad_right => 10,
+  9                                       );
+ 10  my $full_length = Bio::Graphics::Feature->new(-start=>1,-end=>1000);
+ 11  $panel->add_track($full_length,
+ 12                    -glyph   => 'arrow',
+ 13                    -tick    => 2,
+ 14                    -fgcolor => 'black',
+ 15                    -double  => 1,
+ 16                   );
+
+ 17  my $track = $panel->add_track(-glyph => 'graded_segments',
+ 18                                -label  => 1,
+ 19                                -bgcolor => 'blue',
+ 20                                -min_score => 0,
+ 21                                -max_score => 1000);
+
+ 22  while (&lt;&gt;) { # read blast file
+ 23    chomp;
+ 24    next if /^\#/;  # ignore comments
+ 25    my($name,$score,$start,$end) = split /\t+/;
+ 26    my $feature = Bio::Graphics::Feature->new(-name=>$name,-score=>$score,
+ 27                                              -start=>$start,-end=>$end);
+ 28    $track->add_feature($feature);
+ 29  }
+
+ 30  print $panel->png;
+</programlisting>
+</example>
+</para>
+
+<para>
+There are several changes to look at.  The first is minor.  We'd
+like to put a boundary around the left and right edges of the image so
+that the features don't bump up against the margin, so we specify a 10
+pixel leeway with the -pad_left and -pad_right arguments in line 5.
+</para>
+
+<para>
+The next change is more subtle.  We want to draw a scale all the way
+across the image.  To do this, we create a track to contain the scale,
+and a feature that spans the track from the start to the end.  Line 10
+creates the feature, giving its start and end coordinates.  Lines
+11-16 create a new track containing this feature.  Unlike the previous
+example, in which we created the track first and then added features
+one at a time with add_feature(), we show here how to add feature(s)
+directly in the call to add_track().  If the first argument to
+add_track is either a single feature or a feature array ref, then
+add_track() will automatically incorporate the feature(s) into the
+track in a single efficient step.  The remainder of the arguments
+configure the track as before.  The -glyph argument says to use the
+"arrow" glyph.  The -tick argument indicates that the arrow should
+contain tick marks, and that both major and minor ticks should be
+shown (tick type of "2").  We set the foreground color to black, and
+request that arrows should be placed at both ends (-double =>1).
+<footnote>
+<para>Obtain the list of glyphs by running perldoc on
+Bio::Graphics::Glyph.  Obtain a description of the glyph options by
+running perldoc on individual glyphs, for example "perldoc Bio::Graphics::Glyph::arrow."
+</footnote>
+</para>
+
+<para>
+In lines 17-21, we get a bit fancier with the blast hit track.  Now,
+instead of creating a generic glyph, we use the "graded_segments"
+glyph.  This glyph takes the specified background color for the
+feature, and either darkens or lightens it according to its score.  We
+specify the base background color (-bgcolor => 'blue'), and the
+minimum and maximum scores to scale to (-min_score and -max_score).
+(You may need to experiment with the min and max scores in order to get
+the glyph to scale the colors the way you want.)  The remainder of the
+program is the same.
+</para>
+
+<para>
+When we run the modified script, we get this image.
+</para>
+
+<para>
+<figure>
+<title>The improved image</title>
+<mediaobject>
+<imageobject>
+<imagedata fileref="graphics/figs/fig2.png" format="PNG">
+</imageobject>
+</mediaobject>
+</figure>
+</para>
+
+
+</section>
+
+<!--
+
+<informaltable frame="none">
+<tgroup cols="2">
+<tbody>
+<row>
+   <entry>hi</entry>
+   <entry>there</entry>
+</row>
+<row>
+   <entry>briefly</entry>
+   <entry>yours</entry>
+</tbody>
+</tgroup>
+</informaltable>
+
+</section>
+
+<section id="new">
+<title>New Section Title</title>
+<para>
+	Text here.
+</para>
+
+-->
+
+</article>

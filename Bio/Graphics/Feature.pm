@@ -55,6 +55,9 @@ Arguments are as follows:
   -segments    a list of subfeatures (see below)
   -subtype     the type to use when creating subfeatures
   -strand      the strand of the feature (one of -1, 0 or +1)
+  -id          an alias for -name
+  -primary_id  an alias for -name
+  -display_id  an alias for -name
 
 The subfeatures passed in -segments may be an array of
 Bio::Graphics::Feature objects, or an array of [$start,$stop]
@@ -137,7 +140,7 @@ sub new {
 
   $arg{-strand} ||= 0;
   $self->{strand}  = $arg{-strand} ? ($arg{-strand} >= 0 ? +1 : -1) : 0;
-  $self->{name}    = $arg{-name};
+  $self->{name}    = $arg{-name}   || $arg{-display_id} || $arg{-id} || $arg{-primary_id};
   $self->{type}    = $arg{-type}   || 'feature';
   $self->{subtype} = $arg{-subtype} if exists $arg{-subtype};
   $self->{source}  = $arg{-source} || $arg{-source_tag} || '';

@@ -14,7 +14,7 @@ sub draw {
   # handle both das-style and Bio::SeqFeatureI style,
   # which use different names for subparts.
   my @parts = $self->parts;
-  @parts = $self unless @parts;
+  @parts    = $self unless @parts;
   return $self->SUPER::draw(@_) unless @parts;
 
   # figure out the colors
@@ -116,13 +116,15 @@ sub bump {
 # turn off labels
 sub label {
   my $self = shift;
-  return unless (my @a = $self->feature->sub_SeqFeature) > 0;
+#  return unless (my @a = $self->feature->sub_SeqFeature) > 0;
+  return unless $self->{level} == 0;
   $self->SUPER::label(@_);
 }
 # turn off and descriptions
 sub description {
   my $self = shift;
-  return unless (my @a = $self->feature->sub_SeqFeature) > 0;
+  return unless $self->{level} == 0;
+#  return unless (my @a = $self->feature->sub_SeqFeature) > 0;
   $self->SUPER::description(@_);
 }
 
