@@ -41,13 +41,13 @@ So, in summary:
 
 =head1 SYNOPSIS
 
-  $range = new Bio::Range(-start=>10, -stop=>30, -strand=>+1);
-  $r2 = new Bio::Range(-start=>15, -stop=>200, -strand=>+1);
+  $range = new Bio::Range(-start=>10, -end=>30, -strand=>+1);
+  $r2 = new Bio::Range(-start=>15, -end=>200, -strand=>+1);
 
   print join(', ', $range->union($r2), "\n";
   print join(', ', $range->intersection($r2), "\n";
   print $range->overlaps($r2), "\n";
-  print $range->contains($r2), "
+  print $range->contains($r2), "\n";
 
 =head1 FEEDBACK
 
@@ -96,10 +96,10 @@ use vars qw(@ISA);
 =head2 new
 
   Title   : new
-  Usage   : $range = Bio::Range->new(-start => 100, -stop=> 200, -strand = +1);
+  Usage   : $range = Bio::Range->new(-start => 100, -end=> 200, -strand = +1);
   Function: generates a new Bio::Range
   Returns : a new range
-  Args    : two of (-start, -stop, '-length') - the third is calculated
+  Args    : two of (-start, -end, '-length') - the third is calculated
           : -strand (defaults to 0)
 
 =cut
@@ -112,24 +112,25 @@ sub new {
   my %args = @_;
   $self->strand($args{-strand} || 0);
   
-  if($args{-start} && $args{-end} && $args{'-length'}) {
-    confess $usageMessage;
+  if(exists($args{'-start'}) && exists($args{'-end'}) &&
+     exists($args{'-length'})) {
+      confess $usageMessage;
   }
   
-  if($args{-start}) {
-    $self->start($args{-start});
-    if($args{-end}) {
-      $self->end($args{-end});
-    } elsif($args{'-length'}) {
-      $self->end($self->start()+$args{'-length'}-1);
-    } else {
-      confess $usageMessage;
-    }
-  } elsif($args{-end} && $args{'-length'}) {
-    $self->end($args{-end});
-    $self->start($self->end() - $args{'-length'} + 1);
+  if(exists($args{'-start'})) {
+      $self->start($args{'-start'});
+      if(exists($args{'-end'})) {
+	  $self->end($args{'-end'});
+      } elsif($args{'-length'}) {
+	  $self->end($self->start()+$args{'-length'}-1);
+      } else {
+	  confess $usageMessage;
+      }
+  } elsif(exists($args{'-end'}) && exists($args{'-length'})) {
+      $self->end($args{'-end'});
+      $self->start($self->end() - $args{'-length'} + 1);
   } else {
-    confess $usageMessage;
+      confess $usageMessage;
   }
   return $self;
 }
@@ -266,7 +267,7 @@ These methods return true or false.
 =head1 Geometrical methods
 
 These methods do things to the geometry of ranges, and return
-triplets (start, stop, strand) from which new ranges could be built.
+triplets (start, end, strand) from which new ranges could be built.
 
 =head2
 
