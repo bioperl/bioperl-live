@@ -84,6 +84,12 @@
 	<authorinitials>JES</authorinitials>
 	<revremark>Made document redistributable under Perl Artistic.</revremark>
       </revision>
+      <revision>
+	<revnumber>0.7</revnumber>
+	<date>2004-12-02</date>
+	<authorinitials>JES and BIO</authorinitials>
+	<revremark>Section on lightweight objects</revremark>
+      </revision>
     </revhistory>
     <legalnotice>
       <para>This document is copyright Jason Stajich, Brian Osborne,
@@ -985,7 +991,7 @@ S1: 32 (17.6 bits)
     <para>
       Often people want to write back out a BLAST report for users who are
       most comfortable with that output or if you want to visualize the
-      context of a weakly aligned region to use human intuition to score
+      context of a weakly aligned region and use human intuition to score
       the confidence of a putative homologue. The
       Bio::SearchIO::Writer modules are for creating output using the
       information.
@@ -1004,7 +1010,7 @@ S1: 32 (17.6 bits)
       <programlisting>
    my $writerhtml = new Bio::SearchIO::Writer::HTMLResultWriter();
    my $outhtml = new Bio::SearchIO(-writer => $writerhtml,
-				                       -file   => ">searchio.html");
+			-file   => ">searchio.html");
    # get a result from Bio::SearchIO parsing or build it up in memory
    $outhtml->write_result($result);
       </programlisting>
@@ -1150,7 +1156,7 @@ $searchio->_eventHandler->register_factory('hit', $hitfact);
 		The approaches described above will create a lot of objects, one for 
 		each of the components of a report. When you have 2000 hits in a
 		BLASTX result there will be quite a few objects built, and a lot of 
-		memory consumed. It may be that you will need to use an approach 
+		memory consumed. It's possible that you'll want to use an approach 
 		that's less memory-intensive if your result sets are large. One 
 		option is to use the tabular output from BLAST when dealing with 
 		large datasets.
@@ -1159,13 +1165,13 @@ $searchio->_eventHandler->register_factory('hit', $hitfact);
 		There are other workarounds depending on what kind of data you 
 		want. We designed SearchIO to be a modular system which separates 
 		parsing the data from instantiating objects by throwing events (like 
-		SAX) and having a listener build objects from these events.  One can 
+		SAX) and having a listener build objects from these events.  So one can 
 		instantiate a different listener which builds simpler objects
 		and throws away the data you don't want.
 	 </para>
 	 <para>
-		Here is an example of how you can use an existing, lightweight
-		listener - FastHitEventBuilder - which just throws away the HSPs 
+		Here is an example of such a lightweight
+		listener - FastHitEventBuilder - it just throws away the HSPs 
 		and only builds Result and Hit objects.
 	 </para>
 	 <para>
