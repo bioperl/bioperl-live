@@ -16,7 +16,7 @@ Bio::AlignIO::psi - Read/Write PSI-BLAST profile alignment files
 
 =head1 SYNOPSIS
 
-Give standard usage here
+This module will parse PSI-BLAST output of the format seqid XXXX  
 
 =head1 DESCRIPTION
 
@@ -156,7 +156,7 @@ sub write_aln {
 	$self->_print("\n");
 	$len += $BlockLen+1;
     }
-    
+    $self->_fh->flush if $self->_flush_on_write && defined $self->_fh;
     return 1;
 }
 

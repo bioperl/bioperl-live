@@ -189,6 +189,7 @@ sub write_tree{
        $data[-1] .= ")";
    }
    $self->_print(join(',', @data), ";\n");   
+   $self->_fh->flush if $self->_flush_on_write && defined $self->_fh;
    return;
 }
 

@@ -226,7 +226,7 @@ sub write_seq {
 	$self->_print (join(' ',@slice), " \n");
     }
 
-    $self->_fh->flush if $self->{_flush_on_write};
+    $self->_fh->flush if $self->_flush_on_write && defined $self->_fh;
     return 1;
 }
 

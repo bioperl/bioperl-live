@@ -153,16 +153,17 @@ sub write_aln {
     my ($self,@aln) = @_;
     my ($namestr,$seq,$add);
     my ($maxn);
-  foreach my $aln (@aln) {
-    $maxn = $aln->maxdisplayname_length();
-      foreach $seq ( $aln->each_seq() ) {
-	$namestr = $aln->displayname($seq->get_nse());
-	$add = $maxn - length($namestr) + 2;
-	$namestr .= " " x $add;
-	$self->_print (sprintf("%s  %s\n",$namestr,$seq->seq())) or return;
-      }
-   }
-   return 1;
+    foreach my $aln (@aln) {
+	$maxn = $aln->maxdisplayname_length();
+	foreach $seq ( $aln->each_seq() ) {
+	    $namestr = $aln->displayname($seq->get_nse());
+	    $add = $maxn - length($namestr) + 2;
+	    $namestr .= " " x $add;
+	    $self->_print (sprintf("%s  %s\n",$namestr,$seq->seq())) or return;
+	}
+    }
+    $self->_fh->flush if $self->_flush_on_write && defined $self->_fh;
+    return 1;
 }
 
 1;

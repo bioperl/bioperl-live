@@ -216,7 +216,7 @@ sub write_seq {
 	return unless $self->_print(@out);
     }
 
-    $self->_fh->flush if $self->{_flush_on_write};
+    $self->_fh->flush if $self->_flush_on_write && defined $self->_fh;
     return 1;
 }
 

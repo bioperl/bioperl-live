@@ -17,7 +17,7 @@
 
 =head1 NAME
 
-Bio::AlignIO::fasta - fasta sequence input/output stream
+Bio::AlignIO::fasta - FastA MSA Sequence input/output stream
 
 =head1 SYNOPSIS
 
@@ -25,8 +25,10 @@ Do not use this module directly.  Use it via the L<Bio::AlignIO> class.
 
 =head1 DESCRIPTION
 
-This object can transform L<Bio::SimpleAlign> objects to and from fasta flat
-file databases.
+This object can transform L<Bio::SimpleAlign> objects to and from
+fasta flat file databases.  This is for the fasta sequence format NOT
+FastA analysis program.  To process the pairwise alignments from a
+FastA (FastX, FastN, FastP, tFastA, etc) use the Bio::SearchIO module.
 
 =head1 FEEDBACK
 
@@ -184,6 +186,7 @@ sub write_aln {
 	    }
 	}
     }
+    $self->_fh->flush if $self->_flush_on_write && defined $self->_fh;
     return 1;
 }
 

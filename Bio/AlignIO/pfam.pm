@@ -131,23 +131,24 @@ sub next_aln {
 
 sub write_aln {
    my ($self,@aln) = @_;
-   foreach my $aln (@aln) {
-       if( ! $aln || ! $aln->isa('Bio::Align::AlignI')  ) { 
-	   $self->warn("Must provide a Bio::Align::AlignI object when calling write_aln");
-	   next;
-       }
-      my ($namestr,$seq,$add);
-      my ($maxn);
-      $maxn = $aln->maxdisplayname_length();
-
-      foreach $seq ( $aln->each_seq() ) {
-	  $namestr = $aln->displayname($seq->get_nse());
-	  $add = $maxn - length($namestr) + 2;
-	  $namestr .= " " x $add;
+   if( @aln > 1 ) { $self->warn("Only the 1st pfam alignment will be output since the format does not support multiple alignments in the same file"); }
+   my $aln = shift @aln;
+   if( ! $aln || ! $aln->isa('Bio::Align::AlignI')  ) { 
+       $self->warn("Must provide a Bio::Align::AlignI object when calling write_aln");
+       next;
+   }
+   my ($namestr,$seq,$add);
+   my ($maxn);
+   $maxn = $aln->maxdisplayname_length();
+   
+   foreach $seq ( $aln->each_seq() ) {
+       $namestr = $aln->displayname($seq->get_nse());
+       $add = $maxn - length($namestr) + 2;
+       $namestr .= " " x $add;
 	  $self->_print (sprintf("%s  %s\n",$namestr,$seq->seq())) or return;
-      }
+   }
+   $self->_fh->flush if $self->_flush_on_write && defined $self->_fh;
    return 1;
-  }
 }
 
 1;

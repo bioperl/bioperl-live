@@ -209,6 +209,23 @@ sequence objects into an array like this:
 Other operations, such as read(), sysread(), write(), close(), and printf() 
 are not supported.
 
+=item -flush
+
+By default, all files (or filehandles) opened for writing alignments
+will be flushed after each write_aln() (making the file immediately
+usable).  If you don't need this facility and would like to marginally
+improve the efficiency of writing multiple sequences to the same file
+(or filehandle), pass the -flush option '0' or any other value that
+evaluates as defined but false:
+
+  my $clustal = new Bio::AlignIO -file   => "<prot.aln",
+                          -format => "clustalw";
+  my $msf = new Bio::AlignIO -file   => ">prot.msf",
+                          -format => "msf",
+                          -flush  => 0; # go as fast as we can!
+  while($seq = $clustal->next_aln) { $msf->write_aln($seq) }
+
+
 =head1 OBJECT METHODS
 
 See below for more detailed summaries.  The main methods are:

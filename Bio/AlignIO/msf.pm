@@ -235,6 +235,7 @@ sub write_aln {
 	    $count = $tempcount;
     	}     			
     }
+    $self->_fh->flush if $self->_flush_on_write && defined $self->_fh;
     return 1;
 }
 
