@@ -22,6 +22,7 @@ Bio::Seq::RichSeqI - RichSeq interface, mainly for database orientated sequences
     @dates       = $richseq->get_dates; 
     $seq_version = $richseq->seq_version;  
     $pid         = $richseq->pid;
+    $keywords    = $richseq->keywords;
 
 =head1 DESCRIPTION
 
@@ -197,6 +198,22 @@ sub seq_version{
 
    $self->throw("hit seq_version in interface definition - error");
 
+}
+
+=head2 keywords
+
+ Title   : keywords
+ Usage   : $obj->keywords($newval)
+ Function: 
+ Returns : value of keywords (a string)
+ Args    : newvalue (optional) (a string)
+
+
+=cut
+
+sub keywords {
+   my ($self) = @_;
+   $self->throw("hit keywords in interface definition - error");
 }
 
 1;
