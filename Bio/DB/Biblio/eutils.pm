@@ -181,6 +181,8 @@ sub _initialize {
 
            genome, nucleotide, protein, popset, snp, sequence, taxonomy
 
+           pubmed is default.
+
  Returns : value of db (a scalar)
  Args    : on set, new value (a scalar or undef, optional)
 
