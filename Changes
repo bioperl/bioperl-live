@@ -15,7 +15,7 @@ Revision history for Bioperl core modules
       modules.
 
     o Bio::Structure added (since 0.9.1) for Protein structure objects 
-      and PDB parser to retrieve these structures from data files. 
+      and PDB parser to retrieve and write these structures from data files. 
 
 0.9.2 Developer's release
 
