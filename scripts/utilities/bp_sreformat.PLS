@@ -37,7 +37,7 @@ my $USAGE = "bpsreformat -if INFORMAT -of OUTFORMAT -i FILENAME -o output.FORMAT
 my ($input,$output,$informat,$outformat,$msa,$special);
 
 GetOptions(
-	   'h|help'          => sub { die($USAGE) },
+	   'h|help'          => sub { print STDERR ($USAGE); exit(0) },
 	   'i|input:s'         => \$input,
 	   'o|output:s'        => \$output,
 	   'if|informat:s'     => \$informat,
