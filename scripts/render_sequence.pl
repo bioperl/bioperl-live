@@ -16,7 +16,7 @@ Usage: $0 <accession> [start] [stop]
    To view, pipe to a viewer program as shown below.
 
 Example to try:
-   render_entry CEF58D5 | display -
+   render_sequence.pl CEF58D5 | display -
 
 By default, will look for accession in the "embl" namespace.  To
 choose other namespaces, use these formats:
