@@ -236,8 +236,12 @@ sub next_seq {
        }
        # References
        elsif (/^R/) {
-	   my @refs = $self->_read_swissprot_References(\$buffer);
-	   $seq->annotation->add_Reference(@refs);
+	   my $refs = $self->_read_swissprot_References(\$buffer);
+	   #my $r;
+	   #foreach $r (@$refs)
+	   #{
+	     $seq->annotation->add_Reference(@$refs);
+	   #}
 	   # now we are one line ahead -- so continue without reading the next
 	   # line   HL 05/11/2000
 	   next;
@@ -582,7 +586,7 @@ sub _read_swissprot_References{
    }
    while( defined ($_ = $self->_readline) ) {
        #/^CC/ && last;
-       #/^RN/ && last;
+       /^RN/ && last; # separator between references ! LP 07/25/2000
        #/^SQ/ && last; # there may be sequences without CC lines! HL 05/11/2000
        /^[^R]/ && last; # may be the safest exit point HL 05/11/2000
        /^RX   MEDLINE;\s+(\d+)/ && do {$med=$1};
@@ -609,7 +613,7 @@ sub _read_swissprot_References{
 
    push(@refs,$ref);
    $$buffer = $_;
-   return @refs;
+   return \@refs;
 }
 
 
