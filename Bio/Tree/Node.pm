@@ -116,7 +116,7 @@ sub new {
       if( ref($children) !~ /ARRAY/i ) { 
 	  $self->warn("Must specify a valid ARRAY reference to initialize a Node's Descendents");
       }
-      foreach my $c ( @$children ) { 
+      foreach my $c ( @$children ) { 	  
 	  $self->add_Descendent($c);
       }
   }
@@ -141,6 +141,7 @@ sub add_Descendent{
        return -1;
    }
    # do we care about order?
+   $node->ancestor($self);
    $self->{'_descendents'}->{$node} = $node;
    return scalar keys %{$self->{'_descendents'}};
 }
