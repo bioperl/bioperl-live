@@ -159,7 +159,7 @@ sub sub_Location {
     while((! defined($seqid)) && ($i <= $#sublocs)) {
 	$seqid = $sublocs[$i++]->seq_id();
     }
-    if((! $self->seq_id()) && $seqid) {
+    if(! $self->seq_id && $seqid) {
 	$self->warn("sorted sublocation array requested but ".
 		    "root location doesn't define seq_id ".
 		    "(at least one sublocation does!)");
