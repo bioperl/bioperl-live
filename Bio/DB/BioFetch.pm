@@ -103,22 +103,19 @@ BEGIN {
 
     %FORMATMAP = ( 
 		   'embl' => {
-		       module => 'embl',  # SeqIO module name
-		       default => 'embl', # default BioFetch format
-		       embl => 1,         # alternative BioFetch format 
-		       fasta => 1         # alternative BioFetch format 
+		       default => 'embl', # default BioFetch format/SeqIOmodule pair
+		       embl => 'embl',    # alternative BioFetch format/module pair 
+		       fasta => 'fasta'   # alternative BioFetch format/module pair 
 		       },
 		   'swall' => {
-		       module => 'swiss',
-		       default => 'swissprot',
-		       swissprot => 1,
-		       fasta => 1
+		       default => 'swiss',
+		       swissprot => 'swiss',
+		       fasta => 'fasta'
 		       },
 		   'refseq' => {
-		       module => 'genbank',
-		       default => 'genbanknk',
-		       genbank => 1,
-		       fasta => 1
+		       default => 'genbank',
+		       genbank => 'genbank',
+		       fasta => 'fasta'
 		       }
 		   );
 }
@@ -430,14 +427,71 @@ sub request_format {
     if ( defined $value ) { 
 	my $db = $self->db; 
 	my $format = lc $value;
-	#print "format:", $format, " module:", $FORMATMAP{$db}->{'module'}, " ($db)\n";	
+	print "format:", $format, " module:", $FORMATMAP{$db}->{$format}, " ($db)\n" 
+	    if $self->verbose > 0; 
 	$self->throw("Invalid format [$format], must be one of [".
 		     join(' ',keys %{$FORMATMAP{$db}}). "]")
 	    unless  $format eq 'default' || $FORMATMAP{$db}->{$format};
 
-	$self->{'_format'} = [ $format, $FORMATMAP{$db}->{'module'}];
+	$self->{'_format'} = [ $format, $FORMATMAP{$db}->{$format}];
     }
     return @{$self->{'_format'}};
+}
+
+
+=head2 Bio::DB::WebDBSeqI methods
+
+Overriding WebDBSeqI method to help newbies to retrieve sequences.
+EMBL database is all too often passed RefSeq accessions. This
+redirects those calls. See L<Bio::DB::RefSeq>.
+
+
+=head2 get_Stream_by_acc
+
+  Title   : get_Stream_by_acc
+  Usage   : $seq = $db->get_Seq_by_acc([$acc1, $acc2]);
+  Function: Gets a series of Seq objects by accession numbers
+  Returns : a Bio::SeqIO stream object
+  Args    : $ref : a reference to an array of accession numbers for
+                   the desired sequence entries
+
+=cut
+
+sub get_Stream_by_acc {
+    my ($self, $ids ) = @_;
+    $self->_check_id($ids);
+    return $self->get_seq_stream('-uids' => $ids, '-mode' => 'single');
+}
+
+
+=head2 _check_id
+
+  Title   : _check_id
+  Usage   : 
+  Function: Throw on whole chromosome NCBI sequences not in sequence databases
+            and redirect RefSeq accession requests sent to EMBL.
+  Returns : 
+  Args    : $id(s), $string
+  Throws  : if accessionn number indicates whole chromosome NCBI sequence
+
+=cut
+
+sub _check_id {
+    my ($self, $id) = @_;
+
+    # NT contigs can not be retrieved
+    $self->throw("NT_ contigs are whole chromosome files which are not part of regular".
+		 "database distributions. Go to ftp://ftp.ncbi.nih.gov/genomes/.") 
+	if $id =~ /NT_/;
+
+    # Asking for a RefSeq from EMBL/GenBank
+
+    if ($id =~ /N._/ &&  $self->db ne 'refseq') {
+	$self->warn("[$id] is not a normal sequence database but a RefSeq entry.".
+		   " Redirecting the request.\n")
+	    if $self->verbose >= 0;
+	$self->db('RefSeq');
+    }
 }
 
 1;

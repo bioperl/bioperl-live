@@ -23,7 +23,7 @@ BEGIN {
     }
     use Test;
 
-    $NUMTESTS = 9;
+    $NUMTESTS = 26;
     plan tests => $NUMTESTS;
 
     unless( eval "use IO::String; 1;" ) {
@@ -90,7 +90,7 @@ if ($@) {
     print STDERR "Warning: Couldn't connect to EMBL with Bio::DB::EMBL.pm!\n" . $@;
 
     foreach ( $Test::ntest..$NUMTESTS) { 
-	 skip('could not connect to embl',1);}
+	  skip('could not connect to embl',1);}
 
 }
 
@@ -99,9 +99,9 @@ $seq = $seqio = undef;
 
 eval {
     $db = new Bio::DB::BioFetch(-retrievaltype => 'tempfile',
-				-format => 'fasta',
-				-verbose => $verbose
-			       );
+				 -format => 'fasta',
+				 -verbose => $verbose
+				);
     ok( defined($seqio = $db->get_Stream_by_batch(['J00522 AF303112 J02231'])));
     ok($seqio->next_seq->length, 408);
     ok($seqio->next_seq->length, 1611);
@@ -113,3 +113,22 @@ if ($@) {
     foreach ( $Test::ntest..$NUMTESTS ) { skip('no network access',1); }
 }
 
+$verbose = -1;
+ok $db = new Bio::DB::BioFetch(-db => 'EMBL',
+			       -verbose => $verbose);
+eval {
+    $seq = $db->get_Seq_by_acc('NT_006732');
+};
+ok $@;
+
+eval {
+    ok $seq = $db->get_Seq_by_acc('NM_006732');
+    ok($seq && $seq->length eq 3775);
+};
+
+if ($@) {
+    print STDERR "Warning: Couldn't connect to BioFetch server with Bio::DB::BioFetch.pm!\n" . $@;
+
+    foreach ( 1..4) { 
+	 skip('could not connect to embl',1);}
+}
