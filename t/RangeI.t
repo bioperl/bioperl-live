@@ -18,7 +18,7 @@ BEGIN {
     use Test;
     @funcs = qw(start end length strand overlaps contains 
 		equals intersection union overlap_extent);
-    plan tests => 19;
+    plan tests => 18;
 }
 
 use Bio::RangeI;
@@ -30,10 +30,13 @@ while ($func = shift @funcs) {
   if(exists $Bio::RangeI::{$func}) {
     ok(1);
     next if $func eq 'union';
+    ## Added by Paul, to reflect the change to RangeI.pm that an undef
+    ## $other returns 0 from equals instead of throwing an exception.
+    next if $func eq 'equals';
     eval {
       $Bio::RangeI::{$func}->();
     };
-    ok( $@ );
+     ok( $@ );
   } else {
     ok(0);
   }
