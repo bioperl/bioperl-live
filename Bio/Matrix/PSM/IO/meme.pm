@@ -182,11 +182,11 @@ sub next_psm {
     return undef if ($self->{end});
     my ($endm,$line,$instances,$tr,$width,$motif_id,$sites,$e_val,$id,$ic,$lA,$lC,$lG,$lT);
     while (defined( $line = $self->_readline) ) {
+#Check if revcom is enabled, not very original check....
+  $self->{_strand}=1 if (($line=~/^Sequence name/) && ($line=~/Strand/));
 	if ($line=~ m/\sSite\s/) {
 	    $instances= $self->_parseInstance;
 	}
-#Check if revcom is enabled, not very original check....
-  $self->{_strand}=1 if (($line=~/^Sequence name/) && ($line=~/Strand/));
 	#Here starts the next motif
 	if ( ($line=~/width/) && ($line=~/sites/)) {
 	    chomp($line);
