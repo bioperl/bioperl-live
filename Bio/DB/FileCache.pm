@@ -79,6 +79,8 @@ use Bio::Location::Split;
 use Bio::Location::Fuzzy;
 use Bio::Seq;
 use Bio::SeqFeature::Generic;
+use Bio::Species;
+use Bio::Annotation::Collection;
 
 =head2 new
 
