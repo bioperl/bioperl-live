@@ -431,7 +431,7 @@ sub AUTOLOAD {
 
 sub executable {
    my ($self, $exename, $exe,$warn) = @_;
-   $exename = 'blastall' unless (defined $exename || $BLASTTYPE ne'ncbi');
+   $exename = 'blastall' unless (defined $exename || $BLASTTYPE ne 'ncbi');
 
    if( defined $exe && -x $exe ) {
      $self->{'_pathtoexe'}->{$exename} = $exe;
