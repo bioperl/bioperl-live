@@ -278,7 +278,8 @@ sub validate_seq {
     my ($self,$seqstr) = @_;
     if( ! defined $seqstr ){ $seqstr = $self->seq(); }
     return 0 unless( defined $seqstr); 
-   if((CORE::length($seqstr) > 0) && ($seqstr !~ /^[A-Za-z\-\.\*\?]+$/)) {
+   if((CORE::length($seqstr) > 0) && ($seqstr !~ /^([A-Za-z\-\.\*\?]+)$/)) {
+       print "mismatch is ", ($seqstr =~ /([^A-Za-z\-\.\*\?]+)/g), "\n";
        return 0;
    }
    return 1;
