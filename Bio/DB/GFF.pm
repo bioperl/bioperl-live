@@ -3339,28 +3339,20 @@ sub _split_gff2_group {
   }
 
   # group assignment
+  if (@attributes && !($gclass && $gname) ) {
 
-  if ( @attributes && !($gclass && $gname) ) {
     my @preferred = $self->preferred_groups if ref($self);
-
-    # give acedb-style GFF first crack at group assignment
-    unshift @preferred, qw/Sequence Transcript/;
+    unshift @preferred,qw/Sequence Transcript/;
 
     # Look for a preferred group (in order)
-    unless ($gclass && $gname) {
-      for my $pgrp ( @preferred ) {
-        my ($grp) = grep { $_->[0] =~ /^$pgrp$/i } @attributes;
-	if ( $grp ) {
-	  ($gclass, $gname) = @$grp;
-	  @attributes = grep { $_ ne $grp } @attributes;
-	  last;
-	}
+    for my $pgrp (@preferred ) {
+      my ($grp) = grep { lc($_->[0]) eq lc($pgrp) } @attributes;
+      if ($grp) {
+	($gclass, $gname) = @$grp;
+	@attributes = grep { lc($_->[0]) ne lc($grp) } @attributes;
+	last;
       }
 
-      # Backward compatibility for acedb-style GFF
-      elsif ( $k =~ /Sequence|Transcript/ && !$gclass) {
-        ($gclass, $gname) = ($k, $v);
-      }
     }
 
     # Otherwise, use the first attribute
