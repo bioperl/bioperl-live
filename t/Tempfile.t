@@ -16,12 +16,12 @@ BEGIN {
 	use lib 't';
     }
     use Test;    
-    plan tests => 6;
+    plan tests => 9;
 }
 
 use Bio::Root::IO;
 
-my $obj = new Bio::Root::IO();
+my $obj = new Bio::Root::IO(-verbose => 0);
 
 ok defined($obj) && $obj->isa('Bio::Root::IO');
 
@@ -56,6 +56,21 @@ eval {
 
 if( $@ ) { ok(0); } 
 else { ok( ! -e $tfile ); }
+
+eval {
+    $obj = new Bio::Root::IO(-verbose => 0);
+    ($tfh, $tfile) = $obj->tempfile(UNLINK => 0);
+    close $tfh;
+    ok( -e $tfile );
+    ok( -d $tdir );
+    undef $obj;    
+};
+
+if( $@ ) { ok(0) }
+else { ok( -e $tfile) }
+
+unlink( $tfile);
+
 
 1;
 

@@ -458,19 +458,32 @@ sub tempfile {
     my %params = @args;
 
     # map between naming with and without dash
-    foreach my $key (grep { $_ =~ /^-/; } keys(%params)) {
-	$params{substr($key,1)} = $params{$key};
-	delete $params{$key};
+    foreach my $key (keys(%params)) {
+	if( $key =~ /^-/  ) {
+	    my $v = $params{$key};
+	    delete $params{$key};
+	    $params{uc(substr($key,1))} = $v;
+	} else { 
+	    # this is to upper case
+	    my $v = $params{$key};
+	    delete $params{$key};	    
+	    $params{uc($key)} = $v;
+	}
     }
-
     $params{'DIR'} = $TEMPDIR if(! exists($params{'DIR'}));
+    unless (exists $params{'UNLINK'} && 
+	    defined $params{'UNLINK'} &&
+	    ! $params{'UNLINK'} ) {
+	$params{'UNLINK'} = 1;
+    } else { $params{'UNLINK'} = 0 }
+	    
     if($FILETEMPLOADED) {
 	if(exists($params{'TEMPLATE'})) {
 	    my $template = $params{'TEMPLATE'};
 	    delete $params{'TEMPLATE'};
 	    ($tfh, $file) = File::Temp::tempfile($template, %params);
 	} else {
-	    ($tfh, $file) = File::Temp::tempfile(@args);
+	    ($tfh, $file) = File::Temp::tempfile(%params);
 	}
     } else {
 	my $dir = $params{'DIR'};
@@ -500,12 +513,11 @@ sub tempfile {
 	    $self->throw("Could not open tempfile $file: $!\n");
 	}
     }
-    unless (!exists $params{UNLINK} || !$params{UNLINK}) {
-      warn $params{UNLINK};
-      push @{$self->{'_rootio_tempfiles'}}, $file;
-    }
 
-    return ($tfh,$file);
+    if(  $params{'UNLINK'} ) {
+	push @{$self->{'_rootio_tempfiles'}}, $file;
+    } 
+    return wantarray ? ($tfh,$file) : $tfh;
 }
 
 =head2  tempdir
