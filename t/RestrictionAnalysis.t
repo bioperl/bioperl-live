@@ -15,22 +15,10 @@ BEGIN {
         use lib 't','..';
     }
     use Test;
-    $NUMTESTS = 101;
+    $NUMTESTS = 107;
     $error  = 0;
 
     plan tests => $NUMTESTS;
-
-    eval { require Storeable; 
-       };
-    if( $@ ) {
-	print STDERR "Storeable not available, skipping\n";
-	for( 1..$NUMTESTS ) {
-	    skip("Storeable not available",1);
-	}
-       $error = 1; 
-    }
-
-
 
 }
 
@@ -123,7 +111,7 @@ ok $re->cutter, 5;
 ok my $re2 = $re->clone;
 ok $re ne $re2;
 ok $re->name eq $re2->name;
-
+#print Dumper $re, $re2;exit;
 
 #
 # Bio::Restriction::Enzyme::MultiSite
@@ -145,6 +133,11 @@ ok $re2->others($re);
 
 ok $re->others, 1;
 
+ok my $re3 = $re->clone;
+ok $re ne $re3;
+ok $re->name eq $re3->name;
+#print Dumper $re, $re3;exit;
+
 #
 # Bio::Restriction::Enzyme::MultiCut
 #
@@ -164,6 +157,11 @@ ok $re->isa('Bio::Restriction::EnzymeI');
 ok $re->others($re2);
 ok $re2->others($re);
 
+
+ok $re3 = $re->clone;
+ok $re ne $re3;
+ok $re->name eq $re3->name;
+#print Dumper $re, $re3;exit;
 
 #
 # Bio::Restriction::EnzymeCollection
