@@ -14,17 +14,17 @@ Bio::Tools::StateMachine::IOStateMachine - IO-based implementation of AbstractSt
 
 =head1 SYNOPSIS
 
-    use Bio::Tools::IOStateMachine;
+    use Bio::Tools::StateMachine::IOStateMachine;
 
     # A state machine that reads input from a file
-    my $sm = Bio::Tools::IOStateMachine->new( -file => 'data.txt' );
+    my $sm = Bio::Tools::StateMachine::IOStateMachine->new( -file => 'data.txt' );
 
     # A state machine that reads input from a STDIN
-    my $sm = Bio::Tools::IOStateMachine->new();
+    my $sm = Bio::Tools::StateMachine::IOStateMachine->new();
 
     # A state machine that reads input from a STDIN
     # and times out if input doesn't arrive within 30 seconds.
-    my $sm = Bio::Tools::IOStateMachine->new( -timeout_sec => 30 );
+    my $sm = Bio::Tools::StateMachine::IOStateMachine->new( -timeout_sec => 30 );
 
 
 =head1 DESCRIPTION
