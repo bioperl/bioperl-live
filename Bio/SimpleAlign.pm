@@ -47,7 +47,7 @@ SimpleAlign - Multiple alignments held as a set of sequences
 =head1 DESCRIPTION
 
 SimpleAlign handles multiple alignments of sequences. It is very
-permissive of types (it won't insist on things being all same length
+permissive of types (it won\'t insist on things being all same length
 etc): really it is a SequenceSet explicitly held in memory with a
 whole series of built in manipulations and especially file format
 systems for read/writing alignments.
@@ -67,13 +67,13 @@ with a start and end positions in the parent reference sequence.
 Tricky concepts. SimpleAlign expects name,start,end to be 'unique' in
 the alignment, and this is the key for the internal hashes.
 (name,start,end is abbreviated nse in the code). However, in many
-cases people don't want the name/start-end to be displayed: either
+cases people don\'t want the name/start-end to be displayed: either
 multiple names in an alignment or names specific to the alignment
 (ROA1_HUMAN_1, ROA1_HUMAN_2 etc). These names are called
 'displayname', and generally is what is used to print out the
 alignment. They default to name/start-end.
 
-The SimpleAlign Module came from Ewan Birney's Align module.
+The SimpleAlign Module came from Ewan Birney\'s Align module.
 
 =head1 PROGRESS 
 
@@ -143,11 +143,11 @@ sub new {
 
   # we need to set up internal hashs first!
 
-  $self->{'seq'} = {};
-  $self->{'order'} = {};
-  $self->{'start_end_lists'} = {};
-  $self->{'dis_name'} = {};
-  $self->{'id'} = 'NoName';
+  $self->{'_seq'} = {};
+  $self->{'_order'} = {};
+  $self->{'_start_end_lists'} = {};
+  $self->{'_dis_name'} = {};
+  $self->{'_id'} = 'NoName';
 
   # maybe we should automatically read in from args. Hmmm...
 
@@ -187,27 +187,27 @@ sub add_seq {
     $end  = $seq->end(); 
 
     if( !defined $order ) {
-	$order = keys %{$self->{'seq'}};
+	$order = keys %{$self->{'_seq'}};
     }
 
     $name = sprintf("%s/%d-%d",$id,$start,$end);
 
-    if( $self->{'seq'}->{$name} ) {
+    if( $self->{'_seq'}->{$name} ) {
 	$self->warn("Replacing one sequence [$name]\n");
 
     }
     else {
 	#print STDERR "Assigning $name to $order\n";
 
-	$self->{'order'}->{$order} = $name;
+	$self->{'_order'}->{$order} = $name;
 
-	if (not exists( $self->{'start_end_lists'}->{$id})) {
-	    $self->{'start_end_lists'}->{$id} = [];
+	if (not exists( $self->{'_start_end_lists'}->{$id})) {
+	    $self->{'_start_end_lists'}->{$id} = [];
 	}
-	push @{$self->{'start_end_lists'}->{$id}}, $seq;
+	push @{$self->{'_start_end_lists'}->{$id}}, $seq;
     }
 
-    $self->{'seq'}->{$name} = $seq;
+    $self->{'_seq'}->{$name} = $seq;
 
 }
 
@@ -249,7 +249,7 @@ sub add_seq {
 sub column_from_residue_number {
     my ($self, $name, $resnumber) = @_;
 
-    $self->throw("No sequence with name [$name]") unless $self->{'start_end_lists'}->{$name};
+    $self->throw("No sequence with name [$name]") unless $self->{'_start_end_lists'}->{$name};
     $self->throw("Second argument residue number missing") unless $resnumber;
 
     foreach my $seq ($self->each_seq_with_id($name)) {
@@ -405,9 +405,9 @@ sub each_seq {
     my $self = shift;
     my (@arr,$order);
 
-    foreach $order ( sort { $a <=> $b } keys %{$self->{'order'}} ) {
-	if( exists $self->{'seq'}->{$self->{'order'}->{$order}} ) {
-	    push(@arr,$self->{'seq'}->{$self->{'order'}->{$order}});
+    foreach $order ( sort { $a <=> $b } keys %{$self->{'_order'}} ) {
+	if( exists $self->{'_seq'}->{$self->{'_order'}->{$order}} ) {
+	    push(@arr,$self->{'_seq'}->{$self->{'_order'}->{$order}});
 	}
     }
 
@@ -445,8 +445,8 @@ sub each_seq_with_id {
 
     my (@arr, $seq);
 
-    if (exists($self->{'start_end_lists'}->{$id})) {
-	@arr = @{$self->{'start_end_lists'}->{$id}};
+    if (exists($self->{'_start_end_lists'}->{$id})) {
+	@arr = @{$self->{'_start_end_lists'}->{$id}};
     }
     return @arr;
 }
@@ -465,10 +465,10 @@ sub id {
     my ($self, $name) = @_;
 
     if (defined( $name )) {
-	$self->{'id'} = $name;
+	$self->{'_id'} = $name;
     }
     
-    return $self->{'id'};
+    return $self->{'_id'};
 }
 
 =head2 is_flush
@@ -690,10 +690,8 @@ sub percentage_identity{
 	   $countHashes[$index]->{$letter} = 0;
        }
    }
-
    foreach my $seq (@seqs)  {
        my @seqChars = split //, $seq->seq(); 
-
        for( my $column=0; $column < @seqChars; $column++ ) {
 	   my $char = uc($seqChars[$column]);
 	   if (exists $countHashes[$column]->{$char}) {
@@ -821,26 +819,26 @@ sub remove_seq {
     $end  = $seq->end(); 
     $name = sprintf("%s/%d-%d",$id,$start,$end);
 
-    if( !exists $self->{'seq'}->{$name} ) {
+    if( !exists $self->{'_seq'}->{$name} ) {
 	$self->throw("Sequence $name does not exist in the alignment to remove!");
     }
     
-    delete $self->{'seq'}->{$name};
+    delete $self->{'_seq'}->{$name};
     
     # we need to remove this seq from the start_end_lists hash
 
-    if (exists $self->{'start_end_lists'}->{$id}) {
+    if (exists $self->{'_start_end_lists'}->{$id}) {
 	# we need to find the sequence in the array.
 	
 	my ($i, $found);;
-	for ($i=0; $i < @{$self->{'start_end_lists'}->{$id}}; $i++) {
-	    if (${$self->{'start_end_lists'}->{$id}}[$i] eq $seq) {
+	for ($i=0; $i < @{$self->{'_start_end_lists'}->{$id}}; $i++) {
+	    if (${$self->{'_start_end_lists'}->{$id}}[$i] eq $seq) {
 		$found = 1;
 		last;
 	    }
 	}
 	if ($found) {
-	    splice @{$self->{'start_end_lists'}->{$id}}, $i, 1;
+	    splice @{$self->{'_start_end_lists'}->{$id}}, $i, 1;
 	}
 	else {
 	    $self->throw("Could not find the sequence to remoce from the start-end list");
@@ -882,14 +880,14 @@ sub set_displayname {
 sub displayname {
     my ($self, $name, $disname) = @_;
 
-    $self->throw("No sequence with name [$name]") unless $self->{'seq'}->{$name};
+    $self->throw("No sequence with name [$name]") unless $self->{'_seq'}->{$name};
 
     if(  $disname and  $name) {
-	$self->{'dis_name'}->{$name} = $disname;
+	$self->{'_dis_name'}->{$name} = $disname;
 	return $disname;
     }
-    elsif( defined $self->{'dis_name'}->{$name} ) {
-	return  $self->{'dis_name'}->{$name};
+    elsif( defined $self->{'_dis_name'}->{$name} ) {
+	return  $self->{'_dis_name'}->{$name};
     } else {
 	return $name;
     }
@@ -1003,10 +1001,10 @@ sub sort_alphabetically {
 
     $count = 0;
 
-    %{$self->{'order'}} = (); # reset the hash;
+    %{$self->{'_order'}} = (); # reset the hash;
 
     foreach $nse ( sort _alpha_startend keys %hash) {
-	$self->{'order'}->{$count} = $nse;
+	$self->{'_order'}->{$count} = $nse;
 
 	$count++;
     }
@@ -1168,8 +1166,8 @@ sub get_seq_by_pos {
     $self->throw("No sequence at position [$pos]") 
 	unless $pos <= $self->no_sequences ;
 
-    my $nse = $self->{'order'}->{--$pos};
-    return $self->{'seq'}->{$nse};
+    my $nse = $self->{'_order'}->{--$pos};
+    return $self->{'_seq'}->{$nse};
 }
 
 =head2 dot
