@@ -1,8 +1,10 @@
-#!/usr/local/bin/perl -w
+#!/usr/bin/perl -w
 
 # This program is originally from www.webtechs.com  --Alex Dong Li
 #
 # MODIFICATIONS BY STEVE A. CHERVITZ MARKED 'SAC:'
+#
+# REVISION: $Id$
 
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 #
