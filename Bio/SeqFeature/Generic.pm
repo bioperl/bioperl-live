@@ -756,7 +756,10 @@ sub get_SeqFeatures {
 #'
 sub add_SeqFeature{
     my ($self,$feat,$expand) = @_;
-
+    unless( defined $feat ) {
+	$self->warn("Called add_SeqFeature with no feature, ignoring");
+	return;
+    }
     if ( !$feat->isa('Bio::SeqFeatureI') ) {
         $self->warn("$feat does not implement Bio::SeqFeatureI. Will add it anyway, but beware...");
     }
