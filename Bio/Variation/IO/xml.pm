@@ -330,7 +330,7 @@ sub write {
         $self->throw("Attempting to write with no information!");
     }
     my $str;
-    my $output = new IO::String($str);     
+    my $output = IO::String->new($str);     
     my $w = new XML::Writer(OUTPUT => $output, DATA_MODE => 1, DATA_INDENT => 4 ); 
 
     foreach my $h (@h) {
