@@ -245,6 +245,8 @@ sub fetch {
                               -DESC => $desc,
 			      -SEQ  => uc(join('', @record)) );
 	$out->names()->{'acc'} = $acc if $acc;
+
+	return $out;
     } else {
 	$self->throw("Unable to find a record for $id in EMBL flat file index");
     }
