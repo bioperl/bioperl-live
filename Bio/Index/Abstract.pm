@@ -3,8 +3,7 @@
 # BioPerl module for Bio::Index::Abstract
 #
 # Cared for by Ewan Birney <birney@sanger.ac.uk>
-#
-# Copyright Ewan Birney
+#          and James Gilbert <jgrg@sanger.ac.uk>
 #
 # You may distribute this module under the same terms as perl itself
 
@@ -64,16 +63,18 @@ methods are usually preceded with an "_" (underscore).
 
 # Let the code begin...
 
-
 package Bio::Index::Abstract;
-use vars qw($TYPE_AND_VERSION_KEY $AUTOLOAD @ISA @EXPORT_OK);
+
 use strict;
+use Fcntl qw( O_RDWR O_CREAT O_RDONLY );
+use vars qw( $TYPE_AND_VERSION_KEY $AUTOLOAD
+             @ISA @EXPORT_OK $USE_BSD_DB $DB_HASH );
+
+$USE_BSD_DB = 0; # Wether to use Berkley DB
 
 # Object preamble - inheriets from Bio::Root::Object
 
 use Bio::Root::Object;
-
-
 
 @ISA = qw(Bio::Root::Object Exporter);
 @EXPORT_OK = qw();
@@ -154,6 +155,49 @@ sub _file_record {
     
 }
 
+sub _open_dbm {
+    my( $self, $write_flag ) = @_;
+    my( $db_type );
+    
+    my $index_file = $self->filename();
+
+    my $db = $self->db();
+    
+    # Do we use the Berkley DB for improved speed and
+    # cross platform compatability?
+    if ($USE_BSD_DB) {
+    
+        require DB_File;
+        DB_File->import( qw($DB_HASH) );
+    
+        # Only give write access if specifically asked for
+        if (defined($write_flag) and $write_flag eq 'WRITE') {
+            tie %$db, 'DB_File', $index_file, O_RDWR()|O_CREAT(), 0644, $DB_HASH
+                or $self->throw("Can't open DB_File : $index_file");
+        } else {
+            tie %$db, 'DB_File', $index_file, O_RDONLY(),         0644, $DB_HASH
+                or $self->throw("Can't open DB_File : $index_file");
+        }
+    }
+    
+    # No, we use SDBM which is guaranteed to come with Perl
+    # and produces smaller files
+    else {
+    
+        require SDBM_File;
+    
+        # Only give write access if specifically asked for
+        if (defined($write_flag) and $write_flag eq 'WRITE') {
+            tie %$db, 'SDBM_File', $index_file, O_RDWR()|O_CREAT(), 0644
+                or $self->throw("Can't open SDBM_File : $index_file");
+        } else {
+            tie %$db, 'SDBM_File', $index_file, O_RDONLY(),         0644
+                or $self->throw("Can't open SDBM_File : $index_file");
+        }
+    
+    }
+}
+
 
 =head2 id_parser
 
@@ -168,7 +212,6 @@ sub _file_record {
   Args    : CODE
 
 =cut
-
 
 sub id_parser {
     my( $self, $code ) = @_;
@@ -285,7 +328,7 @@ sub pack_record {
 
 sub unpack_record {
     my( $self, @args ) = @_;
-    return split /\034/, $args[0], 3;
+    return split /\034/, $args[0];
 }
 
 =head2 empty
@@ -303,7 +346,33 @@ sub unpack_record {
 
 =cut
 
-# Empty the database
+# Returns the name of the index file
+sub filename {
+    return $_[0]->{'_filename'};
+}
+
+# Returns ref to the tied anonymous DB
+sub db {
+    return $_[0]->{'_DB'};
+}
+
+# Returns an open filehandle for the index given
+sub _file_handle {
+    my( $self, $i ) = @_;
+    
+    if (my $fh = $self->{'_filehandle'}[$i]) {
+        return $fh; # Return cached filehandle
+    } else {
+        my @rec = $self->unpack_record($self->db->{"__FILE_$i"})
+            or $self->throw("Can't get filename for index : $i");
+        my $file = $rec[0];
+        open F, $file or $self->throw("Can't open file for read : $file");
+        $self->{'_filehandle'}[$i] = \*F; # Cache filehandle
+        return \*F;
+    }
+}
+
+# Empty the database - doesn't seem to work as I expect
 sub empty {
     my $self = shift;
     %{$self->db} = ();
@@ -349,5 +418,30 @@ sub _type_stamp {
     
     $self->throw("In Bio::Index::Abstract, no _type_stamp method in sub class");
 }
+
+
+=head2 DESTROY
+
+ Title   : DESTROY
+ Usage   : Called automatically when index goes out of scope
+ Function: Closes connection to database and handles to
+           sequence files
+ Returns : NEVER
+ Args    : NONE
+
+
+=cut
+
+sub DESTROY {
+    my $self = shift;
+    
+    foreach my $fh (@{$self->{'_filehandle'}}) {
+        close $fh;
+    }
+    
+    untie %{$self->db};
+}
+
+
 
 1;
