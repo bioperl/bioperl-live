@@ -71,7 +71,7 @@ use Bio::AlignIO;
 use Bio::LocatableSeq;
 
 BEGIN { 
-    $LINELENGTH = 50;
+    $LINELENGTH = 60;
 }
 
 @ISA = qw(Bio::AlignIO);
@@ -187,7 +187,7 @@ sub write_aln {
 
 	    $self->_print (sprintf("%-22s %s\n", '', $linesubstr));
 	    $self->_print (sprintf("\n\n")) or return;
-	    $count += 50;
+	    $count += $LINELENGTH;
 	}
     }
     return 1;
