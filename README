@@ -1,5 +1,4 @@
-This is the README file for the Bioperl central distribution,
-Version 1.0.0
+This is the README file for the Bioperl central distribution.
 
 # $Id$
 
@@ -12,7 +11,8 @@ o Getting Started
  information on databases and Bioperl see biodatabases.pod. To look at
  example code browse the examples/ and scripts/ directories, and look at
  bioperl.pod for a descriptions of all these scripts. The bioperl.pod file
- also gives a overview of the history and purpose of Bioperl.
+ also gives a overview of the history and purpose of Bioperl. The FAQ
+ may also be useful if you have a particular question.
 
  For a discussion of issues in design and development please see
  biodesign.pod, recommended for those who want to contribute code. And for
@@ -85,6 +85,7 @@ o About the directory structure
 		       integrated into bioperl.  Please see the README
 		       in this directory.
  examples/ - Example code snippets
+ doc/ - "How To" files and the FAQ as XML
 
 o Documentation
 
