@@ -394,6 +394,7 @@ sub is_paraphyletic{
    }
    if( ref($nodes) !~ /ARRAY/i ) { 
        $self->warn("Must provide a valid array reference for -nodes");
+       return undef;
    }
 
    # Algorithm
@@ -409,6 +410,10 @@ sub is_paraphyletic{
 						    shift @$nodes)] );
    }
    my $clade_root = $self->get_lca(-nodes => $nodes );
+   unless( defined $clade_root ) { 
+       $self->warn("could not find clade root via lca");
+       return undef;
+   }
    my $og_ancestor = $outgroup->ancestor;
 
    # Is this necessary/correct for paraphyly test?
