@@ -2,8 +2,36 @@ $Id$
 
 Revision history for Bioperl core modules
 
+Main trunk changes (not necessarily part of 1.4 branch)
 
+  o Bio::PopGen
+   - Populations can be now made artificially haploid so that various
+     stats like Tajima's D can operate, See Bio::PopGen::Population haploid_population
+     function
+   - Bio::PopGen::Utilities added for support of misc functionality.  Noteworthy
+     is the aln_to_population which will allow creation of Populations from sequence 
+     alignments by making each column a site (Marker), options to include/exclude
+     monomorphic sites.  Future work will include subselecting sites by categories like
+     silent/non-synonymous, etc.
+   
 1.4 branch
+
+1.4.1 
+
+  o Improvements to Bio::AlignIO::nexus for parsing TreeBase nexus files
+  
+  o Bio::Graphics will work with gd1 or gd2
+   
+  o Bio::SearchIO
+   - hmmer.pm Better hmmpfam parsing, fix bug for small number of alignment outputs
+     (RF lines alone)
+   - blast.pm Parse multi-line query fields properly
+   - small speed improvements to blasttable.pm and others
+
+  o Bio::DB::Taxonomy has better support for hierarchy traversal so that
+    Bio::Taxonomy::Node can be as simple as Bio::Species object while still
+    supporting more complex queries
+
 
 1.4. Stable major release
 
