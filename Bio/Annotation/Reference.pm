@@ -60,6 +60,46 @@ sub _initialize {
  return $make; # success - we hope!
 }
 
+=head2 bases1
+
+ Title   : bases1
+ Usage   : $self->bases1($newval)
+ Function: Gives the reference start base
+ Example : 
+ Returns : value of bases1
+ Args    : newvalue (optional)
+
+
+=cut
+
+sub bases1{
+   my ($self,$value) = @_;
+   if( defined $value) {
+      $self->{'bases1'} = $value;
+    }
+    return $self->{'bases1'};
+
+}
+=head2 bases2
+
+ Title   : bases2
+ Usage   : $self->bases2($newval)
+ Function: Gives the reference end base
+ Example : 
+ Returns : value of bases2
+ Args    : newvalue (optional)
+
+
+=cut
+
+sub bases2{
+   my ($self,$value) = @_;
+   if( defined $value) {
+      $self->{'bases2'} = $value;
+    }
+    return $self->{'bases2'};
+
+}
 
 =head2 authors
 

@@ -436,6 +436,8 @@ sub write_annseq {
    my $t = 1;
    foreach my $ref ( $annseq->annotation->each_Reference() ) {
        print $fh "RN   [$t]\n";
+       $temp_line = sprintf ("RX   %d-%d",$ref->bases1,$ref->bases2);
+       print $fh "$temp_line\n";
        &_write_line_EMBL_regex($fh,"RA   ","RA   ",$ref->authors,"\\s\+\|\$",80);       
        &_write_line_EMBL_regex($fh,"RT   ","RT   ",$ref->title,"\\s\+\|\$",80);       
        &_write_line_EMBL_regex($fh,"RL   ","RL   ",$ref->location,"\\s\+\|\$",80);
@@ -586,11 +588,14 @@ sub _read_EMBL_References{
    if( $$buffer !~ /^RN/ ) {
        warn("Not parsing line '$$buffer' which maybe important");
    }
+   my $b1;
+   my $b2;
    my $title;
    my $loc;
    my $au;
    while( <$fh> ) {
        /^R/ || last;
+       /^RP   (\d+)-(\d+)/ && do {$b1=$1;$b2=$2;};
        /^RA   (.*)/ && do { $au .= $1;   next;};
        /^RT   (.*)/ && do { $title .= $1; next;};
        /^RL   (.*)/ && do { $loc .= $1; next;};
@@ -600,6 +605,8 @@ sub _read_EMBL_References{
    $au =~ s/;\s*$//g;
    $title =~ s/;\s*$//g;
 
+   $ref->bases1($b1);
+   $ref->bases2($b2);
    $ref->authors($au);
    $ref->title($title);
    $ref->location($loc);

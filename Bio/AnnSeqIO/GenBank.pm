@@ -176,7 +176,7 @@ sub next_annseq{
     if( !defined $line ) {
 	return undef; # end of file
     }
-    $line =~ /^LOCUS\s+\S+/; #|| $self->throw("GenBank stream with no LOCUS. Not GenBank in my book. ");
+    $line =~ /^LOCUS\s+\S+/ || $self->throw("GenBank stream with no LOCUS. Not GenBank in my book. ");
     $line =~ /^LOCUS\s+(\S+)\s+\S+\s+bp\s+(\S+)\s+(\S+)\s+(\S+)/;
 
     $name = $1;
@@ -407,7 +407,8 @@ sub write_annseq {
     # Reference lines
     my $count = 1;
     foreach my $ref ( $annseq->annotation->each_Reference() ) {
-	print $fh "REFERENCE   $count\n";
+	$temp_line = sprintf ("REFERENCE    $count  (bases %d to %d)",$ref->bases1,$ref->bases2);
+	print $fh "$temp_line\n";
 	&_write_line_GenBank_regex($fh,"  AUTHORS   ","            ",$ref->authors,"\\s\+\|\$",80);
 	&_write_line_GenBank_regex($fh,"  TITLE     ","            ",$ref->title,"\\s\+\|\$",80);
 	&_write_line_GenBank_regex($fh,"  JOURNAL   ","            ",$ref->location,"\\s\+\|\$",80);
@@ -562,6 +563,12 @@ sub _read_GenBank_References{
    my $title;
    my $loc;
    my $au;
+   my $b1;
+   my $b2;
+   if ($$buffer =~ /^REFERENCE\s+\d+\s+\(bases (\d+) to (\d+)/){
+       $b1=$1;
+       $b2=$2;
+   }
    while( <$fh> ) {
        if (/^  AUTHORS\s+(.*)/) { 
 	   $au .= $1;   
@@ -589,7 +596,8 @@ sub _read_GenBank_References{
 	   my $ref = new Bio::Annotation::Reference;
 	   $au =~ s/;\s*$//g;
 	   $title =~ s/;\s*$//g;
-
+	   $ref->bases1($b1);
+	   $ref->bases2($b2);
 	   $ref->authors($au);
 	   $ref->title($title);
 	   $ref->location($loc);
@@ -611,6 +619,8 @@ sub _read_GenBank_References{
    $au =~ s/;\s*$//g;
    $title =~ s/;\s*$//g;
 
+   $ref->bases1($b1);
+   $ref->bases2($b2);
    $ref->authors($au);
    $ref->title($title);
    $ref->location($loc);
