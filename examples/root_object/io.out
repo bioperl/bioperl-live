@@ -1,0 +1,29 @@
+
+I/O demo for Bio::Root::Objects.
+-----------------------------------
+
+-------------------------------------------------------------
+Redirecting STDOUT to: >./io.out
+-------------------------------------------------------------
+
+NAME           : foo1
+MAKE           : default
+ERRORS         : 0
+ERR STATE      : OKAY
+DATA           : 150
+COLOR          : red
+
+STATS FOR Bar "BAR_150"
+------------------------------------------------------------
+NAME           : BAR_150
+MAKE           : default
+PARENT         : Object Foo "foo1"
+ERRORS         : 0
+ERR STATE      : OKAY
+DATA           : 250
+FLAVOR         : lemon-lime
+
+
+
+Done.
+

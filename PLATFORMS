@@ -1,0 +1,49 @@
+# $Id: PLATFORMS,v 1.1.1.1 1998-12-11 15:24:21 birney Exp $
+
+
+Tested systems & OS Specific Comments or Warnings
+==================================================
+
+Machine : AlphaServer 4100 & 2100/A - Digital Unix 4.0D
+Compiler: cc
+Perl    : 5.004
+Comments: none.
+
+Machine : AlphaServer 8400 - Digital Unix 4.0D
+Compiler: cc
+Perl    : 5.005_02
+Comments: none.
+
+Machine : SGI 02 workstation - Irix 6.3
+Compiler: cc
+Perl    : 5.004
+Comments: none.
+
+Machine : i486 - Redhat Linux 5.1 / kernel 2.0.35
+Compiler: cc
+Perl    : 5.004_04
+Comments: none.
+
+Machine : AlphaServer - Digital Unix 4.0B
+Compiler: gcc
+Perl    : 5.003, 5.004
+Comments: RestrictionEnzyme.t and Seq.t tests all fail under
+          Perl 5.003 for as of yet unknown reasons.
+
+Machine : Sparc station  - SunOS 5.6 / Solaris 2.6
+Compiler: cc
+Perl    : 5.003, 5.004
+Comments: RestrictionEnzyme.t and Seq.t tests all fail under
+          Perl 5.003 for as of yet unknown reasons.
+
+
+
+
+
+
+
+
+
+
+
+
