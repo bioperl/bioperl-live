@@ -78,7 +78,7 @@ use vars qw($VERSION @ISA $AUTOLOAD);
 @ISA = qw(Bio::DB::GFF::RelSegment Bio::SeqFeatureI 
 	  Bio::Root::Root);
 
-$VERSION = '0.61';
+$VERSION = '0.62';
 #' 
 
 *segments = \&sub_SeqFeature;
@@ -704,9 +704,9 @@ sub merged_segments {
   for my $s (@segs) {
     my $previous = $merged[-1] if @merged;
     my ($pscore,$score) = (eval{$previous->score}||0,eval{$s->score}||0);
-    if (defined($previous) 
+    if (defined($previous)
 	&& $previous->stop+1 >= $s->start
-	&& $previous->score == $s->score
+	&& $previous->score  == $s->score
        ) {
       if ($self->absolute && $self->strand < 0) {
 	$previous->{start} = $s->{start};
@@ -719,8 +719,8 @@ sub merged_segments {
 	my $cg = $s->{group};
 	$g->{stop} = $cg->{stop};
       }
-    } elsif (defined($previous) 
-	     && $previous->start == $s->start 
+    } elsif (defined($previous)
+	     && $previous->start == $s->start
 	     && $previous->stop == $s->stop) {
       next;
     } else {

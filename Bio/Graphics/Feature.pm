@@ -62,6 +62,8 @@ Arguments are as follows:
   -display_name an alias for -name  (do you get the idea the API has changed?)
   -attributes  a hashref of tag value attributes, in which the key is the tag
                and the value is an array reference of values
+  -factory     a reference to a feature factory, used for compatibility with
+               more obscure parts of Bio::DB::GFF
 
 The subfeatures passed in -segments may be an array of
 Bio::Graphics::Feature objects, or an array of [$start,$stop]
@@ -162,6 +164,7 @@ sub new {
   $self->{phase}   = $arg{-phase} if exists $arg{-phase};
   $self->{desc}    = $arg{-desc}  if exists $arg{-desc};
   $self->{attrib}  = $arg{-attributes} if exists $arg{-attributes};
+  $self->{factory} = $arg{-factory} if exists $arg{-factory};
 
   # fix start, stop
   if (defined $self->{stop} && defined $self->{start}
@@ -266,6 +269,24 @@ sub seq {
   return $dna;
 }
 *dna = \&seq;
+
+=head2 factory
+
+ Title   : factory
+ Usage   : $factory = $obj->factory([$new_factory])
+ Function: Returns the feature factory from which this feature was generated.
+           Mostly for compatibility with weird dependencies in gbrowse.
+ Returns : A feature factory
+ Args    : None
+
+=cut
+
+sub factory {
+  my $self = shift;
+  my $d = $self->{factory};
+  $self->{factory} = shift if @_;
+  $d;
+}
 
 =head2 display_name
 
