@@ -56,7 +56,7 @@ FEATURES             Location/Qualifiers
                      /note="Fuzzy location13"
      misc_feature    5.10
                      /note="Fuzzy location14"
-     misc_feature    J00194:(100..202),1..245,300..422
+     misc_feature    join(J00194:(100..202),1..245,300..422)
                      /note="Location partly in another entry"
      misc_feature    complement(join(1..30,30.40,4^8,40.30..90))
 	             /note="complement of join"
@@ -66,6 +66,7 @@ FEATURES             Location/Qualifiers
 		     /note="location uses order in another sequence"
      misc_feature    order(AF183172.1:<1..30, 31..>342)
 		     /note="uses order and fuzzy locs in another sequence"
+     mRNA            complement(join(complement(83202..83329),84248..84996))
 BASE COUNT      118 a     46 c     67 g     79 t
 ORIGIN      
         1 gtgacagttg gctgtcagac atacaatgat tgtttagaag aggagaagat tgatccggag
