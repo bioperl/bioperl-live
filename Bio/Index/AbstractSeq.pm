@@ -271,16 +271,16 @@ sub get_all_primary_ids {
    # accession number and name. 
 
    # We could take two options
-   # here - loop over the database, returnin g only one copy of each
+   # here - loop over the database, returning only one copy of each
    # id that points to the same byte position, or we rely on semantics
    # of accession numbers.
 
    # someone is going to index a database with no accession numbers.
    # doh!. We have to uniquify the index...
 
-    my( %bytepos );
+   my( %bytepos );
    while (my($id, $rec) = each %$db) {
-       my ($file, $begin, $end) = $self->unpack_record( $rec );
+       my ($file, $begin) = $self->unpack_record( $rec );
        $bytepos{"$file:$begin"} = $id;
    }
 
