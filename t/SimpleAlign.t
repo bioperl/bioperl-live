@@ -83,7 +83,7 @@ ok (($aln->gap_char(), '-') and  ($aln->gap_char('.'), '.')) ;
 eval { require 'IO/String.pm' };
 if( $@ ) {
     print STDERR "IO::String not installed.  Skipping tests.\n";
-    for( 32..NUMTESTS ) {
+    for( $Test::ntest..NUMTESTS ) {
 	skip(1,"IO::String not installed. Skipping tests");
     }
     exit;
