@@ -149,7 +149,7 @@ sub new {
     my ($caller,@args) = @_;
     my $class = ref($caller) || $caller;
     my $self = $class->SUPER::new(@args);
-    ($self->{instances})=$self->_rearrange(['instances'], @args);
+    ($self->{instances})=$self->_rearrange(['INSTANCES'], @args);
     return $self;
 }
 

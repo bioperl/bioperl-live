@@ -77,6 +77,8 @@ sub new {
     my($class, @args)=@_;
     my $self = $class->SUPER::new(@args);
     my (%instances,@header);
+    my ($file)=$self->_rearrange(['FILE'], @args);
+    $self->{file} = $file;
     $self->_initialize_io(@args) || warn "Did you intend to use STDIN?"; #Read only for now
     $self->{_end}=0;
     undef $self->{hid};

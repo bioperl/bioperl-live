@@ -69,8 +69,8 @@ sub new {
     my ($class,@args)=@_;
     my $line;
     my $self = $class->SUPER::new(@args);
-    my ($file)=$self->_rearrange(['file'], @args);
-    $self->_initialize_io("<$file") || warn "Did you intend to use STDIN?"; #Read only for now
+    my ($file)=$self->_rearrange(['FILE'], @args);
+    $self->_initialize_io(@args) || warn "Did you intend to use STDIN?"; #Read only for now
     #Remove header
     do {
 	$line=$self->_readline;

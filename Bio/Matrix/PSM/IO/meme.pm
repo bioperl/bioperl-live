@@ -74,7 +74,7 @@ use strict;
 sub new {
     my($class, @args)=@_;
     my $self = $class->SUPER::new(@args);
-    my ($file)=$self->_rearrange(['file'], @args);
+    my ($file)=$self->_rearrange(['FILE'], @args);
     my ($query,$tr1)=split(/\./,$file,2);
     $self->{file} = $file;
     $self->{query}= $query;
