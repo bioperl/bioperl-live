@@ -270,6 +270,7 @@ sub remove_all_Descendents{
 
 # implemented in the interface 
 
+
 =head2 ancestor
 
  Title   : ancestor
@@ -281,10 +282,8 @@ sub remove_all_Descendents{
 =cut
 
 sub ancestor{
-   my ($self, $value) = @_;
-   if (defined $value) {
-       $self->{'_ancestor'} = $value;
-   }
+   my $self = shift;
+   $self->{'_ancestor'} = shift @_ if @_;
    return $self->{'_ancestor'};
 }
 
@@ -301,11 +300,9 @@ sub ancestor{
 =cut
 
 sub branch_length{
-    my ($self,$value) = @_;
-    if( defined $value) {
-	$self->{'branch_length'} = $value;
-    }
-    return $self->{'branch_length'};
+    my $self = shift;
+    $self->{'_branch_length'} = shift @_ if @_;
+    return $self->{'_branch_length'};
 }
 
 =head2 bootstrap
@@ -321,10 +318,8 @@ sub branch_length{
 =cut
 
 sub bootstrap{
-    my ($self,$value) = @_;
-    if( defined $value ) {
-       $self->{'_bootstrap'} = $value;
-    }
+    my $self = shift;
+    $self->{'_bootstrap'} = shift @_ if @_;
     return $self->{'_bootstrap'};
 }
 
@@ -341,11 +336,9 @@ sub bootstrap{
 =cut
 
 sub description{
-   my ($self,$value) = @_;
-   if( defined $value  ) {
-       $self->{'_desc'} = $value;
-   }
-   return $self->{'_desc'};
+    my $self = shift;
+    $self->{'_description'} = shift @_ if @_;
+    return $self->{'_description'};
 }
 
 =head2 id
@@ -361,14 +354,10 @@ sub description{
 =cut
 
 sub id{
-   my ($self,$value) = @_;
-   if( defined $value ) {
-       $self->{'_id'} = $value;
-   }
-   return $self->{'_id'};
+    my $self = shift;
+    $self->{'_id'} = shift @_ if @_;
+    return $self->{'_id'};
 }
-
-
 
 sub DESTROY {
     my ($self) = @_;
@@ -469,7 +458,7 @@ sub height {
     
     if( $self->is_Leaf ) { 
        if( !defined $self->branch_length ) { 
-	   $self->debug(sprintf("Trying to calculate height of a node when a Node (%s) has an undefined branch_length",$self->id || '?' ));
+	   $self->debug(sprintf("Trying to calculate height of a node when a Node (%s) has an undefined branch_length\n",$self->id || '?' ));
 	   return 0;
        }
        return $self->branch_length;
