@@ -136,9 +136,10 @@ sub _initialize {
 
 sub next_seq{
    my ($self,@args) = @_;
-   my ($seq,$fh,$c,$line,$name,$desc,$sfs, $seqc, $fulldesc);
+   my ($seq,$fh,$c,$line,$name,$desc,$sfs, $seqc, $fulldesc, $sfsep);
 
    $fh = $self->_filehandle();
+   $sfsep = $self->_superfamily();
 
    if( eof $fh ) {
        return undef; # no throws - end of file
@@ -149,7 +150,7 @@ sub next_seq{
    $line = $self->_popbuffer(); # may be '>' character or undef.
    $line .= <$fh>;
 
-   if( $line !~ /^>\s*(\S+)\s*(\|[^\|]*\|\s*)?(.*?)\s*$/ ) {
+   if( $line !~ /^>\s*(\S+)\s*(\Q$sfsep\E[^\Q$sfsep\E]*\Q$sfsep\E\s*)?(.*?)\s*$/ ) {
        $self->throw("Fasta stream read attempted with no '>' as first character[ $line ]");
    }
    $name = $1;
@@ -178,7 +179,7 @@ sub next_seq{
        $seq = Bio::Seq->new(-seq => $seqc,
 			    -id => $name,
 			    -desc => $desc,
-			    -names => length $sfs ? { 'sfnum' => [ split(/\s+/, substr($sfs, 1, length($sfs) - 3) ) ] } : undef
+			    -names => length $sfs ? { 'sfnum' => [ grep { ! m/^\s*$/ } split(/\s+/, substr($sfs, 1, length($sfs) - 3) ) ] } : undef
 		       );
    } else {
        $seq = Bio::Seq->new(-seq => $seqc,
@@ -214,7 +215,7 @@ sub write_seq {
 #  }
    $str = join("\n", grep { length } split(/(.{60})/, $str)); # how's that? -AJM
 
-   print $fh ">", $seq->id(), " ", (%{$seq->names()}->{'sfnum'} ? "|" . join(' ', @{%{$seq->names()}->{'sfnum'}}) . ' | ' : '' ), $seq->desc(), "\n", $str, "\n";
+   print $fh ">", $seq->id(), " ", (%{$seq->names()}->{'sfnum'} ? ($self->_superfamily() . ' ' || '| ') . join(' ', @{%{$seq->names()}->{'sfnum'}}) . (' ' . $self->_superfamily() . ' ' || ' | ') : '' ), $seq->desc(), "\n", $str, "\n";
    return 1;
 }
 
