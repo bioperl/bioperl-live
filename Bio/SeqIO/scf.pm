@@ -127,6 +127,7 @@ sub next_seq {
     $self->_set_header($buffer);
     # the rest of the the information is different between the
     # the different versions of scf.
+    my $byte = "n";
     if ($self->{'version'} lt "3.00") {
 	# first gather the trace information
 	$length = $self->{'samples'}*$self->{sample_size}*4;
@@ -134,7 +135,7 @@ sub next_seq {
 	if ($self->{sample_size} == 1) {
 	    $byte = "c";
 	}
-	@read = unpack "n$length",$buffer;
+	@read = unpack "${byte}${length}",$buffer;
 	# these traces need to be split
 	$self->_set_v2_traces(\@read);
 	# now go and get the base information
@@ -149,7 +150,6 @@ sub next_seq {
 	foreach (qw(A C G T)) {
 	    $length = $self->{'samples'}*$self->{sample_size};
 	    $buffer = $self->read_from_buffer($fh,$buffer,$length);
-            my $byte = "n";
             if ($self->{sample_size} == 1) {
                 $byte = "c";
             }
