@@ -77,7 +77,7 @@ methods. Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::AlignIO::phylip;
-use vars qw(@ISA $DEFAULTIDLENGTH);
+use vars qw(@ISA $DEFAULTIDLENGTH $DEFAULTLINELEN);
 use strict;
 
 use Bio::SimpleAlign;
@@ -87,6 +87,7 @@ use Bio::AlignIO;
 
 BEGIN { 
     $DEFAULTIDLENGTH = 10;
+    $DEFAULTLINELEN = 60;
 }
 
 =head2 new
@@ -102,18 +103,24 @@ BEGIN {
 						    spaces if needed) 
            -interleaved => boolean - whether or not write as interleaved 
                                      or sequential format
-           -linelength  => ineteger how sequence lines should be in 
+           -linelength  => integer of how long a sequence lines should be 
+           -idlinebreak => insert a line break after the sequence id
+                           so that sequence starts on the next line 
 =cut
 
 sub _initialize {
   my($self,@args) = @_;
   $self->SUPER::_initialize(@args);
 
-  my ($interleave,$idlength) = $self->_rearrange([qw(INTERLEAVED 
-						     IDLENGTH)],@args);
+  my ($interleave,$linelen,$idlinebreak,
+      $idlength) = $self->_rearrange([qw(INTERLEAVED 
+					 LINELENGTH
+					 IDLINEBREAK
+					 IDLENGTH)],@args);
   $self->interleaved(1) if( $interleave || ! defined $interleave);
   $self->idlength($idlength || $DEFAULTIDLENGTH);
-
+  $self->id_linebreak(1) if( $idlinebreak );
+  $self->line_length($linelen) if defined $linelen && $linelen > 0;
   1;
 }
 
@@ -240,8 +247,12 @@ sub write_aln {
 	foreach $seq ( $aln->each_seq() ) {
 	    $name = $aln->displayname($seq->get_nse);
 	    $name = substr($name, 0, $idlength) if length($name) > $idlength;
-	    $name = sprintf("%-".$idlength."s",$name);
-	    $name .= '   ' if( $self->interleaved());
+	    $name = sprintf("%-".$idlength."s",$name);	    
+	    if( $self->interleaved() ) {
+		$name .= '   ' ;
+	    } elsif( $self->id_linebreak) { 
+		$name .= "\n"; 
+	    }
 	    $hash{$name} = $seq->seq();
 	    push(@arr,$name);
 	}
@@ -326,4 +337,44 @@ sub idlength {
 	}
 	return $self->{'_idlength'};
 }
+
+=head2 line_length
+
+ Title   : line_length
+ Usage   : $obj->line_length($newval)
+ Function: 
+ Returns : value of line_length
+ Args    : newvalue (optional)
+
+
+=cut
+
+sub line_length{
+   my ($self,$value) = @_;
+   if( defined $value) {
+      $self->{'line_length'} = $value;
+    }
+    return $self->{'line_length'} || $DEFAULTLINELEN;
+
+}
+
+=head2 id_linebreak
+
+ Title   : id_linebreak
+ Usage   : $obj->id_linebreak($newval)
+ Function: 
+ Returns : value of id_linebreak
+ Args    : newvalue (optional)
+
+
+=cut
+
+sub id_linebreak{
+   my ($self,$value) = @_;
+   if( defined $value) {
+      $self->{'_id_linebreak'} = $value;
+    }
+    return $self->{'_id_linebreak'} || 0;
+}
+
 1;
