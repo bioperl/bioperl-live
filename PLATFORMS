@@ -1,57 +1,33 @@
-# $Id: PLATFORMS,v 1.4 1999-04-06 15:52:13 birney Exp $
+# $Id: PLATFORMS,v 1.5 2001-03-01 09:32:45 birney Exp $
+
+Perl general comments:
+
+Perl 5.000404 and lower often have problems with GDB.t
+
+Perl on Digital Unix has been reported to have problems
+with GDB.t. This maybe something to do with the LWP version
+
+DB.t has intermitten time-out failures
+
+Index.t will fail if you have an out-of-date DBM file
+installation
 
 
 Tested systems & OS Specific Comments or Warnings
 ==================================================
 
-Machine : AlphaServer 4100 & 2100/A - Digital Unix 4.0D
+Machine : Linux i386
+Compiler: cc
+Perl    : 5.004-5.6.0
+Comments: none
+
+
+Machine : Digital Unix
 Compiler: cc
 Perl    : 5.004
-Comments: none.
+Comments: Failure on GDB.t, possibly due to LWP issues
 
-Machine : AlphaServer 8400 - Digital Unix 4.0D
-Compiler: cc
-Perl    : 5.005_02
-Comments: none.
 
-Machine : SGI 02 workstation - Irix 6.3
-Compiler: cc
-Perl    : 5.004
-Comments: none.
-
-Machine : i486 - Redhat Linux 5.1 / kernel 2.0.35
-Compiler: cc
-Perl    : 5.004_04
-Comments: none.
-
-Machine : AlphaServer - Digital Unix 4.0B
-Compiler: gcc
-Perl    : 5.003, 5.004
-Comments: RestrictionEnzyme.t and Seq.t tests all fail under
-          Perl 5.003 for as of yet unknown reasons.
-
-Machine : Sparc station  - SunOS 5.6 / Solaris 2.6
-Compiler: cc
-Perl    : 5.003, 5.004
-Comments: RestrictionEnzyme.t and Seq.t tests all fail under
-          Perl 5.003 for as of yet unknown reasons.
-          
-          For Compile/SW add -fPIC to the libs/makefile CFLAGS line
-
-Machine : Apple PowerMac 7600/180 running LinuxPPC
-        : Based on Red Hat Linux release 5.0 (Hurricane)
-        : Kernel 2.1.125 on a PowerPC 604e
-Compiler: cc
-Perl    : 5.004_01
-Comments: BLAST test #29 failed during 'make test' because system was
-          missing the 'diff' utility. Once diff was installed, 'make
-          test' works perfectly. Ewan's XS extensions compile without
-          error and pass 'make test' as well. 
-
-Machine : NetBSD, i386 chip set
-Compiler: cc
-Perl    : 5.003, 5.004
-Comments: For Compile/SW add -fPIC to the libs/makefile CFLAGS line
 
 
 
