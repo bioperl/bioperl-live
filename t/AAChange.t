@@ -1,3 +1,4 @@
+# -*-Perl-*-
 ## Bioperl Test Harness Script for Modules
 ## $Id$
 
@@ -38,154 +39,75 @@ print "ok 1\n";    # 1st test passes.
 ## total number of tests that will be run. 
 
 
+sub test ($$;$) {
+    my($num, $true,$msg) = @_;
+    print($true ? "ok $num\n" : "not ok $num $msg\n");
+}
+
 $obj = Bio::Variation::AAChange -> new;
 
-print "ok 2\n";  
+test 2, defined $obj && ref($obj) =~ /Bio::Variation::AAChange/;
 
 $obj->start(3);           
-if ($obj->start == 3 ) {
-    print "ok 3\n";  
-} else {
-    print "not ok 3\n";
-} 
+test 3, ($obj->start == 3 );
 
 
 $obj->end(3); 
-if ($obj->end == 3 ) {
-    print "ok 4\n";  
-} else {
-    print "not ok 4\n";
-} 
+test 4, ($obj->end == 3 );
 
 $obj->length(3);
 
-if ($obj->length == 3 ) {
-    print "ok 5\n";  
-} else {
-    print "not ok 5\n";
-} 
+test 5, ($obj->length == 3 );
 
 $obj->strand('1');  
-if ($obj->strand eq '1' ) {
-    print "ok 6\n";  
-} else {
-    print "not ok 6\n";
-} 
+test 6, ($obj->strand eq '1' );
 
-if ($obj->primary_tag eq 'Variation' ) {
-    print "ok 7\n";
-} else {
-    print "not ok 7\n";
-} 
+test 7, ($obj->primary_tag eq 'Variation' );
 
 $obj->source_tag('source');
-if ($obj->source_tag eq 'source' ) {
-    print "ok 8\n";  
-} else {
-    print "not ok 8\n";
-} 
+test 8, ($obj->source_tag eq 'source' );
 
 $obj->frame(2);   
-if ($obj->frame ==2 ) {
-    print "ok 9\n";  
-} else {
-    print "not ok 9\n";
-} 
+test 9, ($obj->frame ==2 );
 
 $obj->score(2);   
-if ($obj->score ==2 ) {
-    print "ok 10\n";  
-} else {
-    print "not ok 10\n";
-} 
+test 10, ($obj->score ==2 );
 
 $obj->isMutation(1); 
-if ($obj->isMutation ) {
-    print "ok 11\n";  
-} else {
-    print "not ok 11\n";
-}
+test 11, ($obj->isMutation );
 
 $a1 = Bio::Variation::Allele->new(-seq => 'V');
 $obj->allele_ori($a1);
 
-if ($obj->allele_ori->seq eq 'V' ) {
-    print "ok 12\n";  
-} else {
-    print "not ok 12\n";
-} 
-
+test 12, ($obj->allele_ori->seq eq 'V' );
 
 $a2 = Bio::Variation::Allele->new('-seq' => 'A');
 $obj->add_Allele($a2);
 
-if ($obj->allele_mut->seq eq 'A' ) {
-    print "ok 13\n";  
-} else {
-    print "not ok 13\n";
-}
+test 13, ($obj->allele_mut->seq eq 'A' );
 
 $obj->upStreamSeq('upStreamSeq'); 
-if ($obj->upStreamSeq eq 'upStreamSeq' ) {
-    print "ok 14\n";  
-} else {
-    print "not ok 14\n";
-} 
+test 14, ($obj->upStreamSeq eq 'upStreamSeq' );
 
 $obj->dnStreamSeq('dnStreamSeq'); 
-if ($obj->dnStreamSeq eq 'dnStreamSeq' ) {
-    print "ok 15\n";  
-} else {
-    print "not ok 15\n";
-} 
+test 15, ($obj->dnStreamSeq eq 'dnStreamSeq' );
 
-
-if ($obj->label eq 'substitution' ) {
-    print "ok 16\n";  
-} else {
-    print "not ok 16\n";
-} 
-
+test 16, ($obj->label eq 'substitution' );
 
 $obj->status('proven'); 
-if ($obj->status eq 'proven' ) {
-    print "ok 17\n";  
-} else {
-    print "not ok 17\n";
-} 
-
+test 17, ($obj->status eq 'proven' );
 
 $obj->proof('experimental'); 
-if ($obj->proof eq 'experimental' ) {
-    print "ok 18\n";  
-} else {
-    print "not ok 18\n";
-} 
-
+test 18, ($obj->proof eq 'experimental' );
 
 $obj->region('region'); 
-if ($obj->region eq 'region' ) {
-    print "ok 19\n";  
-} else {
-    print "not ok 19\n";
-} 
-
+test 19, ($obj->region eq 'region' );
 
 $obj->region_value('region_value'); 
-if ($obj->region_value eq 'region_value' ) {
-    print "ok 20\n";  
-} else {
-    print "not ok 20\n";
-} 
-
+test 20, ($obj->region_value eq 'region_value' );
 
 $obj->numbering('coding'); 
-if ($obj->numbering eq 'coding' ) {
-    print "ok 21\n";  
-} else {
-    print "not ok 21\n";
-} 
-
+test 21,  ($obj->numbering eq 'coding' );
 
 $obj2 = Bio::Variation::RNAChange -> new(-start => 7, 
 					  -end => 7,
@@ -197,16 +119,7 @@ $obj2 = Bio::Variation::RNAChange -> new(-start => 7,
 $obj2->label('missense');
 $obj->RNAChange($obj2);
 
-if ( $obj->trivname eq 'V3A' ) {
-    print "ok 22\n";  
-} else {
-    print "Trivial name is !", $obj->trivname, "!\n";
-    print "not ok 22\n";
-} 
+test 22, ( $obj->trivname eq 'V3A' ), "Trivial name is !". $obj->trivname. "!\n";
 
 $obj->mut_number(2);
-if ( $obj->mut_number == 2 ) {
-    print "ok 23\n";  
-} else {
-    print "not ok 23\n";
-} 
+test 23, ( $obj->mut_number == 2 );

@@ -1,3 +1,4 @@
+# -*-Perl-*-
 ## Bioperl Test Harness Script for Modules
 ## $Id$
 
@@ -35,63 +36,47 @@ print "ok 1\n";    # 1st test passes.
 ## total number of tests that will be run. 
 
 
+sub test ($$;$) {
+    my($num, $true,$msg) = @_;
+    $msg = '' if !defined $msg;
+    print($true ? "ok $num\n" : "not ok $num $msg\n");
+}
 
 $link1 = new Bio::Annotation::DBLink(-database => 'TSC',
 				     -primary_id => 'TSC0000030'
 				     );
-print  "ok 2\n";
+test 2, defined $link1 && ref($link1) =~ /Bio::Annotation::DBLink/;
 
-if( $link1->database() eq 'TSC') { 
-    print "ok 3\n";
-} else {
-    print "not ok 3\n";
-}
+test 3, ( $link1->database() eq 'TSC');
 
-if( $link1->primary_id() eq 'TSC0000030') { 
-    print "ok 4\n";
-} else {
-    print "not ok 4\n";
-}
+test 4, ( $link1->primary_id() eq 'TSC0000030');
 
 my $a = Bio::Annotation->new ( '-description'  => 'something');
-print  "ok 5\n";
+test 5, defined $a && ref($a) =~ /Bio::Annotation/;
 
 
 $a->add_DBLink($link1);
-print  "ok 6\n";
+test 6, defined $a;
 
 foreach $link ( $a->each_DBLink ) {
     $link->primary_id;
     $link->database;
 }
-print  "ok 7\n";
+test 7, "passed link";
 
 
-if( $a->description ne 'something' ) {
-    print "not ok 8\n";
-} else {
-    print "ok 8\n";
-}
+test 8, ( $a->description eq 'something' );
 
 
 $comment = Bio::Annotation::Comment->new( '-text' => 'sometext');
 
-if( $comment->text ne 'sometext' ) {
-    print "not ok 9\n";
-} else {
-    print "ok 9\n";
-}
+test 9, ( $comment->text eq 'sometext' );
 
 
 $ref = Bio::Annotation::Reference->new( '-authors' => 'author line',
 					'-title'   => 'title line',
 					'-location' => 'location line');
 
-if( $ref->authors ne 'author line' || 
-    $ref->title   ne 'title line' ||
-    $ref->location ne 'location line' ) {
-    print "not ok 10\n";
-} else {
-    print "ok 10\n";
-}
-
+test 10, ( $ref->authors eq 'author line' && 
+	   $ref->title   eq 'title line' &&
+	   $ref->location eq 'location line' );

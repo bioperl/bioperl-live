@@ -1,3 +1,4 @@
+# -*-Perl-*-
 ## Bioperl Test Harness Script for Modules
 ## $Id$
 
@@ -35,67 +36,47 @@ print "ok 1\n";    # 1st test passes.
 ## the print "1..x\n" in the BEGIN block to reflect the
 ## total number of tests that will be run. 
 
+sub test ($$;$) {
+    my($num, $true,$msg) = @_;
+    print($true ? "ok $num\n" : "not ok $num $msg\n");
+}
 
 my $a = Bio::Variation::Allele->new(-seq=>'ACTGACTGACTG',
 			-display_id => 'new-id',
 			-moltype => 'dna',
 			-accession_number => 'X677667',
                         -desc=>'Sample Bio::Seq object');
-print "ok 2\n";  
+test 2, defined $a && ref($a) =~ /Bio::Variation::Allele/;
 
-$a->accession_number();
-$a->seq();
-$a->display_id();
 
-print "ok 3\n";
+test 3, $a->accession_number() && $a->seq() && $a->display_id();
+
 
 $trunc = $a->trunc(1,4);
 
-print "ok 4\n";
+test 4, defined $trunc;
 
-if( $trunc->seq() ne 'ACTG' ) {
-   print "not ok 5\n";
-   $s = $trunc->seq();
-   print STDERR "Expecting ACTG. Got $s\n";
-} else {
-   print "ok 5\n";
-}
+test 5, ( $trunc->seq() eq 'ACTG' ), "Expecting ACTG. Got ". $trunc->seq();
 
 $rev = $a->revcom();
 
-print "ok 6\n";
+test 6, defined $rev;
 
-if( $rev->seq() ne 'CAGTCAGTCAGT' ) {
-   print "not ok 7\n";
-} else {
-   print "ok 7\n";
-}
+test 7, ( $rev->seq() eq 'CAGTCAGTCAGT' );
 
 $a->is_reference(1);
-print "ok 8\n";
 
-if( $a->is_reference ) {
-    print "ok 9\n";
-} else {
-    print "not ok 9\n";
-}
+test 8, defined $a;
+
+test 9, ( $a->is_reference );
 
 $a->repeat_unit('ACTG');
-print "ok 10\n";
+test 10, defined $a;
 
-if( $a->repeat_unit eq 'ACTG' ) {
-    print "ok 11\n";
-} else {
-    print "not ok 11\n";
-}
-
+test 11, ( $a->repeat_unit eq 'ACTG' );
 
 $a->repeat_count(3);
-print "ok 12\n";
+test 12, defined $a;
 
-if( $a->repeat_count == 3 ) {
-   print "ok 13\n";
-} else {
-   print "not ok 13\n";
-}
+test 13, ( $a->repeat_count == 3 );
 

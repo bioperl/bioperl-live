@@ -20,7 +20,7 @@
 
 ## We start with some black magic to print on failure.
 BEGIN { $| = 1; print "1..13\n"; 
-	use vars qw($loaded); }
+	use vars qw($loaded $DEBUG); }
 END {print "not ok 1\n" unless $loaded;}
 
 #use lib '../';
@@ -36,31 +36,29 @@ print "ok 1\n";    # 1st test passes.
 ## the print "1..x\n" in the BEGIN block to reflect the
 ## total number of tests that will be run. 
 
+## total number of tests that will be run. 
+
+
+sub test ($$;$) {
+    my($num, $true,$msg) = @_;
+    print($true ? "ok $num\n" : "not ok $num $msg\n");
+}
 
 # create a table object by giving an ID
 
 $myCodonTable = Bio::Tools::CodonTable -> new ( -id => 16);
-print "ok 2\n";  
-
+test 2, defined $myCodonTable && ref($myCodonTable) =~ /Bio::Tools::CodonTable/;
 
 # defaults to ID 1 "Standard"
 $myCodonTable = Bio::Tools::CodonTable->new();
-if ( $myCodonTable->id() == 1 ) {
-   print "ok 3\n";
-} else {
-   print "not ok 3\n";
-}
+test 3, ( $myCodonTable->id() == 1 );
 
 
 # change codon table
 $myCodonTable->id(10);
-print "ok 4\n";
+test 4, defined $myCodonTable;
 
-if( $myCodonTable->name() eq  'Euplotid Nuclear' ) {
-   print "ok 5\n";
-} else {
-   print "not ok 5\n";
-}
+test 5, ( $myCodonTable->name() eq  'Euplotid Nuclear' );
 
 # translate codons
 $myCodonTable->id(1);
@@ -71,29 +69,16 @@ $test = 1;
 for $i (0..$#ii) {
     if ($res[$i] ne $myCodonTable->translate($ii[$i]) ) {
 	$test = 0; 
-	print $ii[$i], ": |", $res[$i], "| ne |", $myCodonTable->translate($ii[$i]), "|\n";
+	print $ii[$i], ": |", $res[$i], "| ne |", $myCodonTable->translate($ii[$i]), "|\n" if( $DEBUG);
 	last ;
     }
 }
-if ($test) {
-    print "ok 6\n";
-}
-else {
-    print "not ok 6\n";
-}
+test 6, $test;
 
-
-if ($myCodonTable->translate('ag') eq ''
-    and $myCodonTable->translate('jj') eq ''
-    and $myCodonTable->translate('jjg') eq 'X' 
-    and $myCodonTable->translate('g') eq '') {
-    print "ok 7\n";
-}
-else {
-    print "not ok 7\n";
-}
-
-
+test 7,  ($myCodonTable->translate('ag') eq ''
+	  and $myCodonTable->translate('jj') eq ''
+	  and $myCodonTable->translate('jjg') eq 'X' 
+	  and $myCodonTable->translate('g') eq '');
 
 # a more comprehensive test on ambiguous codes
 $seq = "atgaaraayacmacracwackacyacsacvachacdacbacxagragyatmatwatyathcarcayc".
@@ -113,26 +98,16 @@ for $i (0..$#ii) {
     if ($res[$i] ne $myCodonTable->translate($ii[$i]) ) {
 	$test = 0; 
 	print $ii[$i], ": |", $res[$i], "| ne |", 
-	  $myCodonTable->translate($ii[$i]),  "| @ $i\n";
+	  $myCodonTable->translate($ii[$i]),  "| @ $i\n" if( $DEBUG);
 	last ;
     }
 }
-if ($test) {
-    print "ok 8\n";
-}
-else {
-    print "not ok 8\n";
-}
+test 8, ($test);
 
 # reverse translate amino acids 
 
 @empty = ();
-if ($myCodonTable->revtranslate('J') eq @empty) {
-    print "ok 9\n";
-}
-else {
-    print "not ok 9\n";
-}
+test 9, ($myCodonTable->revtranslate('J') eq @empty);
 
 
 @ii = qw(A l ACN Thr sER ter Glx);
@@ -153,49 +128,29 @@ $testing = 1;
 	 for $j (0..$#codonres) {
 	     if ($codonres[$j] ne $res[$i][$j]) {
 		 $testing = 0;
-		 print $ii[$i], ': ', $codonres[$j], " ne ", $res[$i][$j], "\n";
+		 print $ii[$i], ': ', $codonres[$j], " ne ", $res[$i][$j], "\n" if( $DEBUG);
 		 last TESTING;
 	     }
 	 }
      }
  }
 
-if ($testing) {
-    print "ok 10\n";
-}
-else {
-    print "not ok 10\n";
-}
+test 10, ($testing);
 
 #  boolean tests
 $myCodonTable->id(1);
 
-if ($myCodonTable->is_start_codon('ATG') and 
-    ! ($myCodonTable->is_start_codon('GGH')) and
-    ($myCodonTable->is_start_codon('HTG')) and
-    ! ($myCodonTable->is_start_codon('CCC')) ){
-    print "ok 11\n";
-}
-else {
-    print "not ok 11\n";
-}
+test 11, ($myCodonTable->is_start_codon('ATG') and 
+	  ! ($myCodonTable->is_start_codon('GGH')) and
+	  ($myCodonTable->is_start_codon('HTG')) and
+	  ! ($myCodonTable->is_start_codon('CCC')) );
 
-if ($myCodonTable->is_ter_codon('UAG') and  
-    $myCodonTable->is_ter_codon('TaG') and
-    $myCodonTable->is_ter_codon('TaR') and
-    $myCodonTable->is_ter_codon('tRa') and
-    ! ($myCodonTable->is_ter_codon('ttA'))) {
-    print "ok 12\n";
-}
-else {
-    print "not ok 12\n";
-}
+test 12, ($myCodonTable->is_ter_codon('UAG') and  
+	  $myCodonTable->is_ter_codon('TaG') and
+	  $myCodonTable->is_ter_codon('TaR') and
+	  $myCodonTable->is_ter_codon('tRa') and
+	  ! ($myCodonTable->is_ter_codon('ttA')));
 
-if ($myCodonTable->is_unknown_codon('jAG') and
-    $myCodonTable->is_unknown_codon('jg') and
-    ! ($myCodonTable->is_unknown_codon('UAG')) ) {  
-    print "ok 13\n";
-}
-else {
-    print "not ok 13\n";
-}
+test 13, ($myCodonTable->is_unknown_codon('jAG') and
+	  $myCodonTable->is_unknown_codon('jg') and
+	  ! ($myCodonTable->is_unknown_codon('UAG')) );

@@ -31,7 +31,7 @@ BEGIN {
 
 
     $| = 1; print "1..8\n";
-    use vars qw($loaded); }
+    use vars qw($loaded $DEBUG); }
 
 END {print "not ok 1\n" unless $loaded;}
 
@@ -52,6 +52,7 @@ print "ok 1\n";    # 1st test passes.
 
 sub test ($$;$) {
     my($num, $true,$msg) = @_;
+    $msg = '' if !defined $msg;
     print($true ? "ok $num\n" : "not ok $num $msg\n");
 }
 
@@ -67,7 +68,7 @@ test 5, ($str2);
 
 test 6, ($seq = $str2->next_seq()), 'failed to read game seq from stream'; 
 
-#$str2->write_seq($seq);
+$str2->write_seq($seq) if( $DEBUG);
 
 test 7, ( $seq->id eq 'AE003417' );
 

@@ -1,3 +1,4 @@
+# -*-Perl-*-
 ## Bioperl Test Harness Script for Modules
 
 # Before `make install' is performed this script should be runnable with

@@ -1,3 +1,4 @@
+# -*-Perl-*-
 ## Bioperl Test Harness Script for Modules
 ## $Id$
 
@@ -34,96 +35,50 @@ print "ok 1\n";    # 1st test passes.
 ## the print "1..x\n" in the BEGIN block to reflect the
 ## total number of tests that will be run. 
 
+sub test ($$;$) {
+    my($num, $true,$msg) = @_;
+    print($true ? "ok $num\n" : "not ok $num $msg\n");
+}
+
 $obj = new Bio::Variation::AAReverseMutate
     ('-aa_ori' => 'F', 
      '-aa_mut' => 'S'
      );
-print "ok 2\n";  
+test 2, defined $obj && ref($obj) =~ /Bio::Variation::AAReverseMutate/;
 
 
-if ($obj->aa_ori eq 'F' ) {
-    print "ok 3\n";  
-} else {
-    print "not ok 3\n";
-} 
+test 3, ($obj->aa_ori eq 'F' );
 
-if ($obj->aa_mut eq 'S' ) {
-    print "ok 4\n";  
-} else {
-    print "not ok 4\n";
-}
+test 4, ($obj->aa_mut eq 'S' );
 
 @points = $obj->each_Variant;
 # F>S has two solutions
-if (scalar @points  == 2 ) {
-    print "ok 5\n";
-} else {
-    print "not ok 5\n";
-} 
+test 5, (scalar @points  == 2 );
 
 $obj->codon_ori('ttc');
-print "ok 6\n";
+test 6, defined $obj;
 
 #now there should be only one left
 @points = $obj->each_Variant;
-if (scalar @points  == 1 ) {
-    print "ok 7\n";  
-} else {
-    print "not ok 7\n";
-}
+test 7, (scalar @points  == 1 );
 
 $obj->codon_table(3);
-if( $obj->codon_table == 3) {
-    print "ok 8\n";  
-} else {
-    print "not ok 8\n";
-} 
+test 8, ( $obj->codon_table == 3);
 
 #Check the returned object
 $rna = pop @points;
-if( $rna->isa('Bio::Variation::RNAChange') ) {
-    print "ok 9\n";
-} else {
-    print "not ok 9\n";
-} 
+test 9, ( $rna->isa('Bio::Variation::RNAChange') );
 
-if ($rna->length == 1 ) {
-    print "ok 10\n";  
-} else {
-    print "not ok 10\n";
-} 
-
-if ($rna->allele_ori->seq eq 't' ) {
-    print "ok 11\n";  
-} else {
-    print "not ok 11\n";
-} 
-
-if ($rna->allele_mut->seq eq 'c' ) {
-    print "ok 12\n";  
-} else {
-    print "not ok 12\n";
-} 
+test 10, ($rna->length == 1 );
+test 11, ($rna->allele_ori->seq eq 't' );
+test 12, ($rna->allele_mut->seq eq 'c' );
 
 
-if ($rna->codon_ori eq 'ttc' ) {
-    print "ok 13\n";  
-} else {
-    print "Codon_ori is |", $rna->codon_ori, "|\n";
-    print "not ok 13\n";
-}
+test 13, ($rna->codon_ori eq 'ttc' ), "Codon_ori is |". $rna->codon_ori. "|";
 
-if ($rna->codon_pos == 2 ) {
-    print "ok 14\n";  
-} else {
-    print "not ok 14\n";
-} 
+test 14, ($rna->codon_pos == 2 );
 
 $obj->codon_table(11);
-if( $obj->codon_table == 11) {
-    print "ok 15\n";  
-} else {
-    print "not ok 15\n";
-} 
+test 15, ( $obj->codon_table == 11);
 
 

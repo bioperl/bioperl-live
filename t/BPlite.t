@@ -1,3 +1,4 @@
+# -*-Perl-*-
 ## Bioperl Test Harness Script for Modules
 ## $Id$
 
@@ -96,8 +97,6 @@ my $hsp2 = $sbjct2->nextHSP;
 test 28, $hsp2->subject->end == 343;
 
 close FH;
-
-
 
 test 29, "everything fine";
 
