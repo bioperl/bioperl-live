@@ -96,6 +96,9 @@
 	  The Bioperl Toolkit: Perl modules for the life sciences. 
 	  Genome Research. 2002 Oct;12(10):1611-8.
 	</p>
+	<p>If you use the Bio::PopGen modules, please cite:</p>
+	<p> Stajich JE and Hahn MW "Disentangling the Effects of Demography and Selection in Human History." (2005) Mol Biol Evol 22(1):63-73.
+	  </p>
       </answer>
     </q>
     <q id="9">

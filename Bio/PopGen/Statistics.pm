@@ -97,6 +97,15 @@ from a Population." Genetics 143:557-570.
 Tajima F. (1989) "Statistical method for testing the neutral mutation
 hypothesis by DNA polymorphism." Genetics 123:585-595.
 
+=head2 CITING THIS WORK
+
+Please see this reference for use of this implementation.
+
+Stajich JE and Hahn MW "Disentangling the Effects of Demography and Selection in Human History." (2005) Mol Biol Evol 22(1):63-73. 
+
+If you use these Bio::PopGen modules please cite the Bioperl
+publication (see FAQ) and the above reference.
+
 
 =head1 FEEDBACK
 

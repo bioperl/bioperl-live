@@ -273,6 +273,11 @@ Contents
 	 
 		   Genome Research. 2002 Oct;12(10):1611-8.
 
+	 If you use the Bio::PopGen modules, please cite:
+
+	  Stajich JE and Hahn MW "Disentangling the Effects of Demography
+	 and Selection in Human History." (2005) Mol Biol Evol 22(1):63-73.
+
 
    Q1.9: What are the license terms for Bioperl?
 
