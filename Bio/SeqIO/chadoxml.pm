@@ -343,14 +343,15 @@ Args    : \$seq		: a Bio::Seq object
 	  when \$srcfeature is given, \$srcfeattype becomes mandatory,
 EOUSAGE
 
-my ($self,@args) = @_;
-	
-	my ($seq, $seq_so_type, $srcfeature, $srcfeattype) =
-	    $self->_rearrange([qw(SEQ
-				  SEQ_SO_TYPE
-				  SRC_FEATURE
-				  SRC_FEAT_TYPE
-				  )],
+	my ($self,@args) = @_;
+
+	my ($seq, $seq_so_type, $srcfeature, $srcfeattype, $nounflatten) =
+	   $self->_rearrange([qw(SEQ
+				 SEQ_SO_TYPE
+				 SRC_FEATURE
+				 SRC_FEAT_TYPE
+				 NOUNFLATTEN
+				 )],
 			      @args);
 	#print "$seq_so_type, $srcfeature, $srcfeattype\n";
 	
@@ -862,7 +863,8 @@ my ($self,@args) = @_;
 	}
 
 	#unflatten the seq features in $seq if $seq is a gene or a DNA sequence
-	if ($gb_type eq 'gene' || $gb_type eq 'DNA') {
+	if (($gb_type eq 'gene' || $gb_type eq 'DNA') &&
+	    !$nounflatten) {
 		my $u = Bio::SeqFeature::Tools::Unflattener->new;
 		$u->unflatten_seq(-seq=>$seq, -use_magic=>1);
 	}

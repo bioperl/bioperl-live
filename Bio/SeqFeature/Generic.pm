@@ -464,7 +464,10 @@ sub source_tag {
 
 sub has_tag {
     my ($self, $tag) = @_;
-    return exists $self->{'_gsf_tag_hash'}->{$tag};
+    if (!defined($tag)) {
+	$self->throw("undefined tag passed to has_tag");
+    }
+   return exists $self->{'_gsf_tag_hash'}->{$tag};
 }
 
 =head2 add_tag_value

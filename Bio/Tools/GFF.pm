@@ -134,11 +134,11 @@ sub new {
   my ($class, @args) = @_;
   my $self = $class->SUPER::new(@args);
   
-  my ($gff_version) = $self->_rearrange([qw(GFF_VERSION)],@args);
+  my ($gff_version, $noparse) = $self->_rearrange([qw(GFF_VERSION NOPARSE)],@args);
 
   # initialize IO
   $self->_initialize_io(@args);
-  $self->_parse_header;
+  $self->_parse_header() unless $noparse;
 
   $gff_version ||= 2;
   if( ! $self->gff_version($gff_version) )  {
@@ -942,7 +942,7 @@ sub _gff3_string {
     } else {
         $gff_string = join("\t",
 		$name,
-		$feat->source_tag(),
+		$feat->source_tag() || '',
 		$feat->primary_tag(),
 		$feat->start(),
 		$feat->end(),

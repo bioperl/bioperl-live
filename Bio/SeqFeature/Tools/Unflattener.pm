@@ -2408,6 +2408,7 @@ sub feature_from_splitloc{
                                                        -primary_tag=>'exon');
              ## Provide seq_id to new feature:
              $subsf->seq_id($sf->seq_id) if $sf->seq_id;
+             $subsf->source_tag($sf->source_tag) if $sf->source_tag;
              ## Transfer /locus_tag and /gene tag values to inferred
              ## features.  TODO: Perhaps? this should not be done
              ## indiscriminantly but rather by virtue of the setting
