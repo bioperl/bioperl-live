@@ -1,3 +1,15 @@
+# BioPerl module for Bio::SeqIO::interpro
+#
+# Author: Jared Fox (jaredfox@ucla.edu)
+# Contributor: Allen Day (allenday@ucla.edu)
+# Copyright Jared Fox and Allen Day
+#
+# You may distribute this module under the same terms as perl itself
+#
+# Bio::SeqIO::interpro will parse interpro scan XML (version 1.2) and create 
+# Bio::SeqFeature::Generic objects based on the contents of the XML document. 
+# Bio::SeqIO::Interpro will also attach the annotation given in the XML file to the
+# Bio::SeqFeature::Generic objects that it creates.
 
 package Bio::SeqIO::interpro;
 use vars qw(@ISA);
@@ -49,6 +61,9 @@ sub next_seq {
     my $wherefinger = index($line, $finger);
     my $finishedline = $line;
     my $wingwhere = index($line, $wing);
+
+    #the interpro XML is not fully formed, so we need to convert the extra double quotes
+    #and ampersands into the appropriate XML chracter codes
     if($where > 0){
       my @linearray = split /$zinc/, $line;
       $finishedline = join "&quot;zincins&quot;", $linearray[0], $linearray[2];
