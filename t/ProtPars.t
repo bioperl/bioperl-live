@@ -62,7 +62,7 @@ unless ($protpars_present) {
 
 $tree = $tree_factory->create_tree($inputfilename);
 my @nodes = $tree->get_nodes();
-ok ($nodes[1]->id, 'SINFRUP001', 
+ok ($nodes[1]->id, 'SINFRUP002', 
     "failed creating tree by protpars");
 
 my $inputfilename = Bio::Root::IO->catfile("t","data","cysprot.fa");
