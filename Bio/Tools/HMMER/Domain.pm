@@ -1,4 +1,4 @@
-
+# $Id$
 #
 # BioPerl module for Bio::Tools::HMMER::Domain
 #
@@ -55,8 +55,8 @@ sub new {
 
   $self->{'alignlines'} = [];
 
-  my $hmmf1 = new Bio::SeqFeature::Generic;
-  my $hmmf2 = new Bio::SeqFeature::Generic;
+  my $hmmf1 = Bio::SeqFeature::Generic->new(@args);
+  my $hmmf2 = Bio::SeqFeature::Generic->new(@args);
 
   $self->feature1($hmmf1);
   $self->feature2($hmmf2);
@@ -134,18 +134,17 @@ sub get_nse {
 }
 
 
-=head2 start_seq
+#  =head2 start_seq
 
- Title   : start_seq
- Usage   : Backward compatibility with old HMMER modules.
-           should use $domain->start
- Function:
- Example :
- Returns : 
- Args    :
+#   Title   : start_seq
+#   Usage   : Backward compatibility with old HMMER modules.
+#             should use $domain->start
+#   Function:
+#   Example :
+#   Returns : 
+#   Args    :
 
-
-=cut
+#  =cut
 
 sub start_seq {
     my $self = shift;
@@ -155,18 +154,17 @@ sub start_seq {
     return $self->start($start);
 }
 
-=head2 end_seq
+#  =head2 end_seq
 
- Title   : end_seq
- Usage   : Backward compatibility with old HMMER modules.
-           should use $domain->end
- Function:
- Example :
- Returns : 
- Args    :
+#   Title   : end_seq
+#   Usage   : Backward compatibility with old HMMER modules.
+#             should use $domain->end
+#   Function:
+#   Example :
+#   Returns : 
+#   Args    :
 
-
-=cut
+#  =cut
 
 sub end_seq {
     my $self = shift;
@@ -176,44 +174,42 @@ sub end_seq {
     return $self->end($end);
 }
 
-=head2 start_hmm
+#  =head2 start_hmm
 
- Title   : start_hmm
- Usage   : Backward compatibility with old HMMER modules, and
-           for convience. Equivalent to $self->homol_SeqFeature->start
- Function:
- Example :
- Returns : 
- Args    :
+#   Title   : start_hmm
+#   Usage   : Backward compatibility with old HMMER modules, and
+#             for convience. Equivalent to $self->homol_SeqFeature->start
+#   Function:
+#   Example :
+#   Returns : 
+#   Args    :
 
-
-=cut
-
+#  =cut
 
 sub start_hmm { 
     my $self = shift; 
     my $start = shift; 
+    $self->warn("Using old domain->start_hmm. Should use domain->hstart");
     return $self->hstart($start); 
 }
 
+#  =head2 end_hmm
 
-=head2 end_hmm
+#   Title   : end_hmm
+#   Usage   : Backward compatibility with old HMMER modules, and
+#             for convience. Equivalent to $self->homol_SeqFeature->start
+#   Function:
+#   Example :
+#   Returns : 
+#   Args    :
 
- Title   : end_hmm
- Usage   : Backward compatibility with old HMMER modules, and
-           for convience. Equivalent to $self->homol_SeqFeature->start
- Function:
- Example :
- Returns : 
- Args    :
-
-
-=cut
+#  =cut
 
 sub end_hmm {
     my $self = shift;
     my $end = shift;
 
+    $self->warn("Using old domain->end_hmm. Should use domain->hend");
     return $self->hend($end); 
 }
 
@@ -272,7 +268,6 @@ sub hmmname {
  Returns : 
  Args    :
 
-
 =cut
 
 sub bits{
@@ -289,7 +284,6 @@ sub bits{
  Example :
  Returns : 
  Args    :
-
 
 =cut
 
@@ -312,7 +306,6 @@ sub evalue{
  Returns : 
  Args    :
 
-
 =cut
 
 sub seqbits {
@@ -324,7 +317,6 @@ sub seqbits {
    return shift @vals;
 }
 
-
 =head2 seq_range
 
  Title   : seq_range
@@ -333,7 +325,6 @@ sub seqbits {
  Example :
  Returns : 
  Args    :
-
 
 =cut
 
@@ -360,8 +351,6 @@ sub hmm_range{
 
    $self->throw("You have accessed an old method. Please recode your script to the new bioperl HMMER module");
 }
-
-
 
 1;  # says use was ok
 __END__
