@@ -107,6 +107,7 @@ sub do_initialize {
     $dbh->do($create_table_stmt) ||  warn $dbh->errstr;
   #  $self->create_other_schema_objects(\%{$schema->{$table_name}});
   }
+  1;
 }
 
 sub _create_indexes_etc {
