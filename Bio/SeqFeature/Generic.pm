@@ -230,6 +230,7 @@ sub strand {
 
    if ( @_ ) {
        my $value = shift;
+       $value = 0 unless defined($value);
        if ( $value eq '+' ) { $value = 1; }
        if ( $value eq '-' ) { $value = -1; }
        if ( $value eq '.' ) { $value = 0; }
@@ -285,6 +286,7 @@ sub frame {
 
   if ( @_ ) {
        my $value = shift;
+       $value = 0 unless defined($value);
        if ( $value != 0 && $value != 1 && $value != 2 ) {
 	   $self->throw("'$value' is not a valid frame");
        }
