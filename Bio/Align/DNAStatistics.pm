@@ -101,7 +101,9 @@ ALignment must therefore be a multiple of 3 nucleotides long.
 
 =item 5
 
-All sequences must be the same length (including gaps). This should be the case anyway if the sequences have been automatically aligned using a program like Clustal.
+All sequences must be the same length (including gaps). This should be
+the case anyway if the sequences have been automatically aligned using
+a program like Clustal.
 
 =item 6
 
@@ -110,7 +112,7 @@ Only the standard codon alphabet is supported at present.
 =back
 
 calc_KaKs_pair() calculates a number of statistics for a named pair of
-sequences in the alignment.  
+sequences in the alignment.
 
 calc_all_KaKs_pairs() calculates these statistics for all pairwise
 comparisons in an MSA.  The statistics returned are:
@@ -159,7 +161,8 @@ estimation of variance of S_n.
 
 =item z_value
 
-calculation of z value.Positive value indicates D_n E<gt> D_s, negative value indicates D_s E<gt> D_n.
+calculation of z value.Positive value indicates D_n E<gt> D_s,
+negative value indicates D_s E<gt> D_n.
 
 =back
 
@@ -187,11 +190,18 @@ Estimated variance of Dn from bootstrapped alignments.
 
 =item z_score
 
-calculation of z value. POsitive value indicates D_n >D_s, negative values vice versa.
+calculation of z value. POsitive value indicates D_n E<gt>D_s,
+negative values vice versa.
 
 =back
 
-The design of the code is based around the explanation of the Nei-Gojobori algorithm in the excellent book "Molecular Evolution and Phylogenetics" by Nei and Kumar, published by Oxford University Press. The methods have been tested using the worked example 4.1 in the book, and reproduce those results. If people like having this sort of analysis in BioPerl other methods for estimating Ds and Dn can be provided later.
+The design of the code is based around the explanation of the
+Nei-Gojobori algorithm in the excellent book "Molecular Evolution and
+Phylogenetics" by Nei and Kumar, published by Oxford University
+Press. The methods have been tested using the worked example 4.1 in
+the book, and reproduce those results. If people like having this sort
+of analysis in BioPerl other methods for estimating Ds and Dn can be
+provided later.
 
 
 =head1 FEEDBACK
@@ -237,8 +247,9 @@ Internal methods are usually preceded with a _
 
 
 package Bio::Align::DNAStatistics;
-use vars qw(@ISA %DNAChanges @Nucleotides %NucleotideIndexes 
-	    $GapChars $SeqCount $DefaultGapPenalty %DistanceMethods $CODONS %synchanges $synsites);
+use vars qw(@ISA %DNAChanges @Nucleotides %NucleotideIndexes
+	    $GapChars $SeqCount $DefaultGapPenalty %DistanceMethods
+            $CODONS %synchanges $synsites);
 use strict;
 use Bio::Align::PairwiseStatistics;
 use Bio::Root::Root;

@@ -8,7 +8,7 @@ Bio::Matrix::PSM::InstanceSiteI - InstanceSite interface, holds an instance of a
 
   use Bio::Matrix::PSM::InstanceSite;
   #You can get an InstanceSite object either from a file:
-   my ($instances,$matrix)=$SomePSMFile->parse_next;
+  my ($instances,$matrix)=$SomePSMFile->parse_next;
   #or from memory
   my %params=(seq=>'TATAAT',
               id=>"TATAbox1", accession='ENSG00000122304', mid=>'TB1',
@@ -35,19 +35,18 @@ element to create a really unique combination.
 
 =head2 Mailing Lists
 
-User feedback is an integral part of the evolution of this
-and other Bioperl modules. Send your comments and suggestions preferably
- to one of the Bioperl mailing lists.
-Your participation is much appreciated.
+User feedback is an integral part of the evolution of this and other
+Bioperl modules. Send your comments and suggestions preferably to one
+of the Bioperl mailing lists.  Your participation is much appreciated.
 
   bioperl-l@bioperl.org                 - General discussion
-  http://bio.perl.org/MailList.html             - About the mailing lists
+  http://bio.perl.org/MailList.html     - About the mailing lists
 
 =head2 Reporting Bugs
 
 Report bugs to the Bioperl bug tracking system to help us keep track
- the bugs and their resolution.
- Bug reports can be submitted via email or the web:
+the bugs and their resolution.  Bug reports can be submitted via email
+or the web:
 
   bioperl-bugs@bio.perl.org
   http://bugzilla.bioperl.org/
@@ -56,11 +55,11 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 
 Email skirov@utk.edu
 
-=head1 APPENDIX
-
 =head1 SEE ALSO
 
 L<Bio::Matrix::PSM::SiteMatrix>, L<Bio::Matrix::PSM::Psm>, L<Bio::Matrix::PSM::IO>
+
+=head1 APPENDIX
 
 =cut
 
@@ -85,6 +84,7 @@ use strict;
 
 
 =cut
+
 sub mid {
     my $self = shift;
     $self->throw_not_implemented();
@@ -99,9 +99,9 @@ sub mid {
  Throws  :
  Returns : real number
  Args    : real number
- 
+
 =cut
- 
+
 sub score {
     my $self = shift;
     $self->throw_not_implemented();

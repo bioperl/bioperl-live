@@ -51,15 +51,15 @@ $seq-E<gt>display_id
 
 =item DEFINITION
 
-$seq-E<gt>annotation->get_Annotations('description');
+$seq-E<gt>annotation-E<gt>get_Annotations('description');
 
 =item ORTHOLOG
 
-grep {$_->database eq 'KO'} $seq-E<gt>annotation->get_Annotations('dblink')
+grep {$_-E<gt>database eq 'KO'} $seq-E<gt>annotation-E<gt>get_Annotations('dblink')
 
 =item CLASS
 
-grep {$_->database eq 'PATH'} $seq-E<gt>annotation->get_Annotations('dblink')
+grep {$_-E<gt>database eq 'PATH'} $seq-E<gt>annotation-E<gt>get_Annotations('dblink')
 
 =item POSITION
 
@@ -67,7 +67,7 @@ FIXME, NOT IMPLEMENTED
 
 =item DBLINKS
 
-$seq-E<gt>annotation->get_Annotations('dblink')
+$seq-E<gt>annotation-E<gt>get_Annotations('dblink')
 
 =item CODON_USAGE
 
@@ -75,7 +75,7 @@ FIXME, NOT IMPLEMENTED
 
 =item AASEQ
 
-$seq-E<gt>translate->seq
+$seq-E<gt>translate-E<gt>seq
 
 =item NTSEQ
 

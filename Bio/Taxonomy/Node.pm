@@ -72,7 +72,7 @@ Describe contact details here
 
 =head1 CONTRIBUTORS
 
-Juguang Xiao <juguang@tll.org.sg>
+Juguang Xiao, juguang@tll.org.sg
 
 Additional contributors names and emails here
 
@@ -155,6 +155,7 @@ sub db_handle{
 }
 
 =head2 factory
+
   Title:    factory
   Usage:    $factory->factory($newval);
   Function: Get/Set Bio::Taxonomy::FactoryI implementation

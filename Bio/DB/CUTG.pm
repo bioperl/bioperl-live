@@ -223,6 +223,7 @@ sub get_request {
 	my $reply = $self->request($rq);
 
 	my $content = $reply->content;
+        return 0 unless $content;
 	#####  if no matches, assign defaults - or can throw here?  ######
 	if ($content =~ /not found/i) {
 		$self->warn ("organism not found -selecting human as default");

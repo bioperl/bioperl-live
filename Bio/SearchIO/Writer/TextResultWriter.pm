@@ -12,7 +12,8 @@
 
 =head1 NAME
 
-Bio::SearchIO::Writer::TextResultWriter - Object to implement writing a Bio::Search::ResultI in Text.
+Bio::SearchIO::Writer::TextResultWriter - Object to implement writing
+a Bio::Search::ResultI in Text.
 
 =head1 SYNOPSIS
 
@@ -31,14 +32,15 @@ Bio::SearchIO::Writer::TextResultWriter - Object to implement writing a Bio::Sea
 This object implements the SearchWriterI interface which will produce
 a set of Text for a specific Bio::Search::Report::ReportI interface.
 
-You can also provide the argument -filters => \%hash to filter the at
+You can also provide the argument -filters =E<gt> \%hash to filter the at
 the hsp, hit, or result level.  %hash is an associative array which
 contains any or all of the keys (HSP, HIT, RESULT).  The values
 pointed to by these keys would be references to a subroutine which
 expects to be passed an object - one of Bio::Search::HSP::HSPI,
 Bio::Search::Hit::HitI, and Bio::Search::Result::ResultI respectively.
 Each function needs to return a boolean value as to whether or not the
-passed element should be included in the output report - true if it is to be included, false if it to be omitted.
+passed element should be included in the output report - true if it is
+to be included, false if it to be omitted.
 
 For example to filter on sequences in the database which are too short
 for your criteria you would do the following.
@@ -74,7 +76,7 @@ this module will work fine but you won't have the Query line wrapped.
 You will see a warning about this when you first instantiate a
 TextResultWriter - to avoid these warnings from showing up, simply set
 the verbosity upon initialization to -1 like this: my $writer = new
-Bio::SearchIO::Writer::TextResultWriter(-verbose => -1);
+Bio::SearchIO::Writer::TextResultWriter(-verbose =E<gt> -1);
 
 =head1 FEEDBACK
 

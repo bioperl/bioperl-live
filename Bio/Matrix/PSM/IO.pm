@@ -51,8 +51,8 @@ Bio::Matrix::PSM::PsmHeader methods. Some methods are driver specific
 If called when you parse a different file type you will get undef. For
 example:
 
-my $psmIO= new Bio::Matrix::PSM::IO(file=>$file, format=>'transfac');
-my %seq=$psmIO->seq;
+  my $psmIO= new Bio::Matrix::PSM::IO(file=>$file, format=>'transfac');
+  my %seq=$psmIO->seq;
 
 will return an empty hash. To see all methods and how to use them go
 to Bio::Matrix::PSM::PsmHeaderI.
@@ -60,23 +60,26 @@ to Bio::Matrix::PSM::PsmHeaderI.
 See also Bio::Matrix::PSM::PsmI for details on using and manipulating
 the parsed data.
 
+=head1 See also
+
+Bio::Matrix::PSM::PsmI, Bio::Matrix::PSM::PsmHeaderI
+
 =head1 FEEDBACK
 
 =head2 Mailing Lists
 
-User feedback is an integral part of the evolution of this
-and other Bioperl modules. Send your comments and suggestions preferably
- to one of the Bioperl mailing lists.
-Your participation is much appreciated.
+User feedback is an integral part of the evolution of this and other
+Bioperl modules. Send your comments and suggestions preferably to one
+of the Bioperl mailing lists.  Your participation is much appreciated.
 
   bioperl-l@bioperl.org                 - General discussion
-  http://bio.perl.org/MailList.html             - About the mailing lists
+  http://bio.perl.org/MailList.html     - About the mailing lists
 
 =head2 Reporting Bugs
 
 Report bugs to the Bioperl bug tracking system to help us keep track
- the bugs and their resolution.
- Bug reports can be submitted via email or the web:
+the bugs and their resolution.  Bug reports can be submitted via email
+or the web:
 
   bioperl-bugs@bio.perl.org
   http://bugzilla.bioperl.org/
@@ -87,8 +90,6 @@ Email skirov@utk.edu
 
 =head1 APPENDIX
 
-=head1 See also
-Bio::Matrix::PSM::PsmI, Bio::Matrix::PSM::PsmHeaderI
 =cut
 
 

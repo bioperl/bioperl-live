@@ -26,7 +26,9 @@ rather go through the SeqIO handler system. Go:
 =head1 DESCRIPTION
 
 This object can transform Bio::Seq objects to and from chadoxml flat
-file databases (for chadoxml DTD, see http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/gmod/schema/chado/dat/chado.dtd). CURRENTLY ONLY TO
+file databases (for chadoxml DTD, see
+http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/gmod/schema/chado/dat/chado.dtd).
+ CURRENTLY ONLY TO
 
     $seqio = Bio::SeqIO->new(-file => '>outfile.xml', -format => 'chadoxml');
 
@@ -37,13 +39,27 @@ file databases (for chadoxml DTD, see http://cvs.sourceforge.net/cgi-bin/viewcvs
     #into Bio::SeqIO::chadoxml->write_seq() -- chromosome arm X in the example
     #below.
 
-    $seqio->write_seq(-seq=>$seq, -seq_so_type=>'gene', -src_feature=>'X', -src_feat_type=>'chromosome_arm');
+    $seqio->write_seq(-seq=>$seq, -seq_so_type=>'gene',
+                      -src_feature=>'X', -src_feat_type=>'chromosome_arm');
 
-The chadoxml output of Bio::SeqIO::chadoxml->write_seq() method can be passed to the loader utility in XORT package (http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/gmod/schema/XMLTools/XORT/) to be loaded into chado. 
+The chadoxml output of Bio::SeqIO::chadoxml-E<gt>write_seq() method can be
+passed to the loader utility in XORT package
+(http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/gmod/schema/XMLTools/XORT/)
+to be loaded into chado.
 
-This object is currently implemented to work with sequence and annotation data from whole genome projects deposited in GenBank. It may not be able to handle all different types of data from all different sources.
+This object is currently implemented to work with sequence and
+annotation data from whole genome projects deposited in GenBank. It
+may not be able to handle all different types of data from all
+different sources.
 
-In converting a Bio::Seq object into chadoxml, a top-level feature is created to represent the object and all sequence features inside the Bio::Seq object are treated as subfeatures of the top-level feature. The Bio::SeqIO::chadoxml object calls Bio::SeqFeature::Tools::Unflattener to unflatten the flat feature list contained in the subject Bio::Seq object, to build gene model containment hierarchy conforming to chado central dogma model: gene --> mRNA --> exons and protein.
+In converting a Bio::Seq object into chadoxml, a top-level feature is
+created to represent the object and all sequence features inside the
+Bio::Seq object are treated as subfeatures of the top-level
+feature. The Bio::SeqIO::chadoxml object calls
+Bio::SeqFeature::Tools::Unflattener to unflatten the flat feature list
+contained in the subject Bio::Seq object, to build gene model
+containment hierarchy conforming to chado central dogma model: gene
+--E<gt> mRNA --E<gt> exons and protein.
 
 Destination of data in the subject Bio::Seq object $seq is as following: 
 

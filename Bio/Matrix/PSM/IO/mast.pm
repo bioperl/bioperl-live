@@ -69,7 +69,7 @@ use vars qw(@ISA);
  Returns : psm object, associated with a file with matrix file
  Args    : hash
  return  : "Bio::Matrix::PSM::$format"->new(@args);
- 
+
 =cut
 
 

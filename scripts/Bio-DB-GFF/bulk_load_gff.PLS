@@ -64,7 +64,7 @@ change this.
 About maxbin: the default value is 100,000,000 bases.  If you have
 features that are close to or greater that 100Mb in length, then the
 value of maxbin should be increased to 1,000,000,000.
-                                                                                
+
 Note that Windows users must use the --create option.
 
 =head1 COMMAND-LINE OPTIONS

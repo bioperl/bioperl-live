@@ -18,8 +18,8 @@ Bio::Tools::EMBOSS::Palindrome - parse EMBOSS palindrome output
 
   # a simple script to turn palindrome output into GFF3
   use Bio::Tools::EMBOSS::Palindrome;
-  use Bio::Tools::GFF; 
-   
+  use Bio::Tools::GFF;
+
   my $parser = new Bio::Tools::EMBOSS::Palindrome(-file => $filename);
   my $out    = new Bio::Tools::GFF(-gff_version => 3,
                                    -file => ">$filename.gff");
@@ -27,7 +27,7 @@ Bio::Tools::EMBOSS::Palindrome - parse EMBOSS palindrome output
      for my $feat ( $seq->get_SeqFeatures ) {
         $out->write_feature($feat);
      }
-  } 
+  }
 
 =head1 DESCRIPTION
 

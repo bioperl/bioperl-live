@@ -140,6 +140,7 @@ sub seq {
 
 
 =cut
+
 sub hid {
      my $self = shift;
     $self->throw_not_implemented();

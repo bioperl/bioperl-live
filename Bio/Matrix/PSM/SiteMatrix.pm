@@ -34,11 +34,11 @@ position scoring matrix (or position weight matrix)
   # choosing the highest probability or N if prob is too low
   my $consensus=$site->consensus;
 
- #Getting/using regular expression
- my $regexp=$site->regexp;
- my $count=grep($regexp,$seq);
- my $count=($seq=~ s/$regexp/$1/eg);
- print "Motif $mid is present $count times in this sequence\n";
+  #Getting/using regular expression
+  my $regexp=$site->regexp;
+  my $count=grep($regexp,$seq);
+  my $count=($seq=~ s/$regexp/$1/eg);
+  print "Motif $mid is present $count times in this sequence\n";
 
 =head1 DESCRIPTION
 
@@ -67,35 +67,36 @@ the rest.
 
 Summary of the methods I use most frequently (details bellow):
 
-  iupac- return IUPAC compliant consensus as a string
-  score- Returns the score as a real number
-  IC- information content. Returns a real number
-  id- identifier. Returns a string
-  accession- accession number. Returns a string
-  next_pos- return the sequence probably for each letter, IUPAC symbol, IUPAC probability and simple sequence
+  iupac - return IUPAC compliant consensus as a string
+  score - Returns the score as a real number
+  IC - information content. Returns a real number
+  id - identifier. Returns a string
+  accession - accession number. Returns a string
+  next_pos - return the sequence probably for each letter, IUPAC
+      symbol, IUPAC probability and simple sequence
   consenus letter for this position. Rewind at the end. Returns a hash.
-  pos- current position get/set. Returns an integer.
-  regexp- construct a regular expression based on IUPAC consensus. For example AGWV will be [Aa][Gg][AaTt][AaCcGg]
-  width- site width
-  get_string- gets the probability vector for a single base as a string.
+  pos - current position get/set. Returns an integer.
+  regexp - construct a regular expression based on IUPAC consensus.
+      For example AGWV will be [Aa][Gg][AaTt][AaCcGg]
+  width - site width
+  get_string - gets the probability vector for a single base as a string.
 
 =head1 FEEDBACK
 
 =head2 Mailing Lists
 
-User feedback is an integral part of the evolution of this
-and other Bioperl modules. Send your comments and suggestions preferably
- to one of the Bioperl mailing lists.
-Your participation is much appreciated.
+User feedback is an integral part of the evolution of this and other
+Bioperl modules. Send your comments and suggestions preferably to one
+of the Bioperl mailing lists.  Your participation is much appreciated.
 
   bioperl-l@bioperl.org                 - General discussion
-  http://bio.perl.org/MailList.html             - About the mailing lists
+  http://bio.perl.org/MailList.html     - About the mailing lists
 
 =head2 Reporting Bugs
 
 Report bugs to the Bioperl bug tracking system to help us keep track
- the bugs and their resolution.
- Bug reports can be submitted via email or the web:
+the bugs and their resolution.  Bug reports can be submitted via email
+or the web:
 
   bioperl-bugs@bio.perl.org
   http://bugzilla.bioperl.org/
@@ -341,6 +342,7 @@ sub IC {
  Example :
  Returns : string
  Args    :
+
 =cut
 
 sub consensus {

@@ -1425,7 +1425,7 @@ themselves.  While glyphs implement some, but not all, of the feature
 methods, to be safe call the two glyphs' feature() methods in order to
 convert them into the actual features.
 
-The <-always_sort> option, if true, will sort features even if bumping
+The '-always_sort' option, if true, will sort features even if bumping
 is turned off.  This is useful if you would like overlapping features
 to stack in a particular order.  Features towards the end of the list
 will overlay those towards the beginning of the sort order.

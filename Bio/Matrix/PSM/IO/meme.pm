@@ -54,7 +54,7 @@ use vars qw(@ISA @HEADER);
 use strict;
 
 @ISA=qw(Bio::Matrix::PSM::PsmHeader Bio::Matrix::PSM::IO Bio::Root::Root);
- 
+
 @Bio::Matrix::PSM::IO::meme::HEADER = qw(e_val sites IC width);
 
 =head2 new
@@ -152,6 +152,7 @@ sub _parse_coordinates {
  Args    :  none
  Notes   :  OBSOLETE!
 
+=cut
 
 sub header {
     my $self=shift;
@@ -160,8 +161,7 @@ sub header {
     my @lengths=@{$self->{_inst_coord}};
     return (instances=>\@instances,weights=>\@weights,lengths=>\@lengths);
 }
-=cut
-  
+
 =head2 next_psm
 
  Title   : next_psm
@@ -174,7 +174,7 @@ sub header {
  Args    : none
 
 =cut
-  
+
 sub next_psm {
     #Parses the next prediction and returns a psm objects
     my $self=shift;

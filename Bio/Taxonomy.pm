@@ -14,99 +14,106 @@ Bio::Taxonomy - representing Taxonomy.
 
 =head1 SYNOPSIS
 
-use Bio::Taxonomy;
+  use Bio::Taxonomy;
 
-# CREATION: You can either create an instance by assigning it, 
-# or fetch it through factory.
+  # CREATION: You can either create an instance by assigning it, 
+  # or fetch it through factory.
 
-# Create the nodes first. See Bio::Taxonomy::Node for details.
-my $node_species_sapiens = Bio::Taxonomy::Node->new(
-    -object_id => 9606, # or -ncbi_taxid. Requird tag
-    -names => {
-        'scientific' => ['sapiens'],
-        'common_name' => ['human']
-    },
-    -rank => 'species'  # Required tag
-);
-my $node_genus_Homo = Bio::Taxonomy::Node->new(
-    -object_id => 9605,
-    -names => { 'scientific' => ['Homo'] },
-    -rank => 'genus'
-);
-my $node_class_Mammalia = Bio::Taxonomy::Node->new(
-    -object_id => 40674,
-    -names => {
-        'scientific' => ['Mammalia'],
-        'common' => ['mammals']
-    },
-    -rank => 'class'
-);
-my $taxonomy = Bio::Taxonomy->new;
-$taxonomy->add_node($node_class_Mammalia);
-$taxonomy->add_node($node_species_sapiens);
-$taxonomy->add_node($node_genus_Homo);
+  # Create the nodes first. See Bio::Taxonomy::Node for details.
+  my $node_species_sapiens = Bio::Taxonomy::Node->new(
+      -object_id => 9606, # or -ncbi_taxid. Requird tag
+      -names => {
+          'scientific' => ['sapiens'],
+          'common_name' => ['human']
+      },
+      -rank => 'species'  # Required tag
+  );
+  my $node_genus_Homo = Bio::Taxonomy::Node->new(
+      -object_id => 9605,
+      -names => { 'scientific' => ['Homo'] },
+      -rank => 'genus'
+  );
+  my $node_class_Mammalia = Bio::Taxonomy::Node->new(
+      -object_id => 40674,
+      -names => {
+          'scientific' => ['Mammalia'],
+          'common' => ['mammals']
+      },
+      -rank => 'class'
+  );
+  my $taxonomy = Bio::Taxonomy->new;
+  $taxonomy->add_node($node_class_Mammalia);
+  $taxonomy->add_node($node_species_sapiens);
+  $taxonomy->add_node($node_genus_Homo);
 
-# OR you can fetch it through a factory implementing Bio::Taxonomy::FactoryI
-my $factory;
+  # OR you can fetch it through a factory implementing
+  # Bio::Taxonomy::FactoryI
+  my $factory;
 
-my $taxonomy = $factory->fetch_by_ncbi_taxid(40674);
+  my $taxonomy = $factory->fetch_by_ncbi_taxid(40674);
 
-# USAGE
+  # USAGE
 
-# In this case, binomial returns a defined value.
-my $binomial = $taxonomy->binomial;
+  # In this case, binomial returns a defined value.
+  my $binomial = $taxonomy->binomial;
 
-# 'common_names' refers to the lowest-rank node's common names, in array.
-my @common_names = $taxonomy->common_names;
+  # 'common_names' refers to the lowest-rank node's common names, in
+  # array.
+  my @common_names = $taxonomy->common_names;
 
-# 'get_node', will return undef if the rank is no defined in taxonomy object.
-# It will throw error if the rank string is not defined, say 'species lah'.
-my $node = $taxonomy->get_node('class');
-my @nodes = $taxonomy->get_all_nodes;
+  # 'get_node', will return undef if the rank is no defined in
+  # taxonomy object.  It will throw error if the rank string is not
+  # defined, say 'species lah'.
+  my $node = $taxonomy->get_node('class');
+  my @nodes = $taxonomy->get_all_nodes;
 
-# Also, you can search for parent and children nodes, if taxonomy comes with 
-# factory.
+  # Also, you can search for parent and children nodes, if taxonomy
+  # comes with factory.
 
-my $parent_taxonomy = $taxonomy->get_parent
+  my $parent_taxonomy = $taxonomy->get_parent
 
 =head1 DESCRIPTION
 
-Bio::Taxonomy object represents any rank-level in taxonomy system, rather than
-Bio::Species which is able to represent only species-level.
+Bio::Taxonomy object represents any rank-level in taxonomy system,
+rather than Bio::Species which is able to represent only
+species-level.
 
 There are two ways to create Taxonomy object, e.g.
-1) instantiate an object and assign all nodes on your own code; and 
+1) instantiate an object and assign all nodes on your own code; and
 2) fetch an object by factory.
 
 =head2 Creation by instantiation
 
-The abstraction of Taxonomy is actually a hash in data structure term. The keys
-of the hash are the rank names, such as 'genus' and 'species', and the values
-are the instances of Bio::Taxonomy::Node.
+The abstraction of Taxonomy is actually a hash in data structure
+term. The keys of the hash are the rank names, such as 'genus' and
+'species', and the values are the instances of Bio::Taxonomy::Node.
 
 =head2 Creation by Factory fetching
 
-NCBI Taxonomy system is well accepted as the standard. The Taxonomy Factories 
-in bioperl access this system, through HTTP to NCBI Entrez, dump file, and
-advanced biosql database.
+NCBI Taxonomy system is well accepted as the standard. The Taxonomy
+Factories in bioperl access this system, through HTTP to NCBI Entrez,
+dump file, and advanced biosql database.
 
-Bio::Taxonomy::FactoryI defines all methods that all implementations must obey.
+Bio::Taxonomy::FactoryI defines all methods that all implementations
+must obey.
 
-$factory->fetch is a general method to fetch Taxonomy by either NCBI taxid or 
-any types of names.
+$factory-E<gt>fetch is a general method to fetch Taxonomy by either
+NCBI taxid or any types of names.
 
-$factory->fetch_parent($taxonomy), returns a Taxonomy that is one-step higher
-rank of the taxonomy specified as argument.
+$factory-E<gt>fetch_parent($taxonomy), returns a Taxonomy that is
+one-step higher rank of the taxonomy specified as argument.
 
-$factory->fetch_children($taxonomy), reports an array of Taxonomy those are 
-one-step lower rank of the taxonomy specified as the argument.
+$factory-E<gt>fetch_children($taxonomy), reports an array of Taxonomy
+those are one-step lower rank of the taxonomy specified as the
+argument.
 
 =head2 Usage of Taxonomy object
 
+##
 
 =head1 CONTACT
 
-Juguang Xiao <juguang@tll.org.sg>
+Juguang Xiao, juguang@tll.org.sg
 
 =head1 APPENDIX
 

@@ -51,9 +51,28 @@ sequence matches (instances). This object inherits from
 Bio::Matrix::PSM::SiteMatrix, so you can use the respective
 methods. It may hold also an array of Bio::Matrix::PSM::InstanceSite
 object, but you will have to retrieve these through
-Bio::Matrix::PSM::Psm->instances method (see below). To some extent
+Bio::Matrix::PSM::Psm-E<gt>instances method (see below). To some extent
 this is an expanded SiteMatrix object, holding data from analysis that
 also deal with sequence matches of a particular matrix.
+
+
+=head2 DESIGN ISSUES
+
+This does not make too much sense to me I am mixing PSM with PSM
+sequence matches Though they are very closely related, I am not
+satisfied by the way this is implemented here.  Heikki suggested
+different objects when one has something like meme But does this mean
+we have to write a different objects for mast, meme, transfac,
+theiresias, etc.?  To me the best way is to return SiteMatrix object +
+arrray of InstanceSite objects and then mast will return undef for
+SiteMatrix and transfac will return undef for InstanceSite. Probably I
+cannot see some other design issues that might arise from such
+approach, but it seems more straightforward.  Hilmar does not like
+this beacause it is an exception from the general BioPerl rules Should
+I leave this as an option?  Also the header rightfully belongs the
+driver object, and could be retrieved as hashes.  I do not think it
+can be done any other way, unless we want to create even one more
+object with very unclear content.
 
 =head1 FEEDBACK
 
@@ -80,7 +99,6 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 
 Email skirov@utk.edu
 
-=head1 APPENDIX
 
 =head1 DISCLAIMER
 
@@ -90,25 +108,7 @@ This software is provided "as is" without warranty of any kind.
 
 SiteMatrix, meme, transfac, InstanceSite
 
-
-=head2 DESIGN ISSUES
-
-This does not make too much sense to me I am mixing PSM with PSM
-sequence matches Though they are very closely related, I am not
-satisfied by the way this is implemented here.  Heikki suggested
-different objects when one has something like meme But does this mean
-we have to write a different objects for mast, meme, transfac,
-theiresias, etc.?  To me the best way is to return SiteMatrix object +
-arrray of InstanceSite objects and then mast will return undef for
-SiteMatrix and transfac will return undef for InstanceSite. Probably I
-cannot see some other design issues that might arise from such
-approach, but it seems more straightforward.  Hilmar does not like
-this beacause it is an exception from the general BioPerl rules Should
-I leave this as an option?  Also the header rightfully belongs the
-driver object, and could be retrieved as hashes.  I do not think it
-can be done any other way, unless we want to create even one more
-object with very unclear content.
-
+=head1 APPENDIX
 
 =cut
 

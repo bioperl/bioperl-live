@@ -452,7 +452,6 @@ sub overlap_extent{
 
     Title   : disconnected_ranges
     Usage   : my @disc_ranges = Bio::Range->disconnected_ranges(@ranges);
-              
     Function: finds the minimal set of ranges such that each input range
               is fully contained by at least one output range, and none of
               the output ranges overlap

@@ -45,51 +45,14 @@ Bio::Matrix::PSM::PsmI - abstract interface to handler of site matricies
 
 =head1 DESCRIPTION
 
-Supposed to handle a combination of site
-matrices and/or their corresponding sequence matches (instances). This
-object inherits from Bio::Matrix::PSM::SiteMatrix, so you can use the
-respective methods. It may hold also an array of
-Bio::Matrix::PSM::InstanceSite object, but you will have to retrieve
-these through Bio::Matrix::PSM::Psm->instances method (see below). To
-some extent this is an expanded SiteMatrix object, holding data from
-analysis that also deal with sequence matches of a particular matrix.
-
-=head1 FEEDBACK
-
-=head2 Mailing Lists
-
-User feedback is an integral part of the evolution of this
-and other Bioperl modules. Send your comments and suggestions preferably
- to one of the Bioperl mailing lists.
-Your participation is much appreciated.
-
-  bioperl-l@bioperl.org                 - General discussion
-  http://bio.perl.org/MailList.html             - About the mailing lists
-
-=head2 Reporting Bugs
-
-Report bugs to the Bioperl bug tracking system to help us keep track
- the bugs and their resolution.
- Bug reports can be submitted via email or the web:
-
-  bioperl-bugs@bio.perl.org
-  http://bugzilla.bioperl.org/
-
-=head1 AUTHOR - Stefan Kirov
-
-Email skirov@utk.edu
-
-=head1 APPENDIX
-
-=head1 DISCLAIMER
-
-This software is provided "as is" without warranty of any kind.
-
-=head1 SEE ALSO
-
-L<Bio::Matrix::PSM::SiteMatrix>, L<Bio::Matrix::PSM::IO::meme>, 
-L<Bio::Matrix::PSM::IO::transfac>, L<Bio::Matrix::PSM::InstanceSite>
-
+Supposed to handle a combination of site matrices and/or their
+corresponding sequence matches (instances). This object inherits from
+Bio::Matrix::PSM::SiteMatrix, so you can use the respective
+methods. It may hold also an array of Bio::Matrix::PSM::InstanceSite
+object, but you will have to retrieve these through
+Bio::Matrix::PSM::Psm-E<gt>instances method (see below). To some extent
+this is an expanded SiteMatrix object, holding data from analysis that
+also deal with sequence matches of a particular matrix.
 
 =head2 DESIGN ISSUES
 
@@ -109,6 +72,42 @@ option?  Also the header rightfully belongs the driver object, and
 could be retrieved as hashes.  I do not think it can be done any other
 way, unless we want to create even one more object with very unclear
 content.
+
+=head1 SEE ALSO
+
+L<Bio::Matrix::PSM::SiteMatrix>, L<Bio::Matrix::PSM::IO::meme>, 
+L<Bio::Matrix::PSM::IO::transfac>, L<Bio::Matrix::PSM::InstanceSite>
+
+
+=head1 FEEDBACK
+
+=head2 Mailing Lists
+
+User feedback is an integral part of the evolution of this and other
+Bioperl modules. Send your comments and suggestions preferably to one
+of the Bioperl mailing lists.  Your participation is much appreciated.
+
+  bioperl-l@bioperl.org                 - General discussion
+  http://bio.perl.org/MailList.html     - About the mailing lists
+
+=head2 Reporting Bugs
+
+Report bugs to the Bioperl bug tracking system to help us keep track
+ the bugs and their resolution.
+ Bug reports can be submitted via email or the web:
+
+  bioperl-bugs@bio.perl.org
+  http://bugzilla.bioperl.org/
+
+=head1 AUTHOR - Stefan Kirov
+
+Email skirov@utk.edu
+
+=head1 DISCLAIMER
+
+This software is provided "as is" without warranty of any kind.
+
+=head1 APPENDIX
 
 =cut
 
