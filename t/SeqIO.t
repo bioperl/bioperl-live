@@ -1,14 +1,15 @@
 # -*-Perl-*- mode (to keep my emacs happy)
 
 use strict;
-use vars qw($DEBUG);
+use vars qw($DEBUG $TESTCOUNT);
 BEGIN {     
     eval { require Test; };
     if( $@ ) {
 	use lib 't';
     }
     use Test;
-    plan tests => 104;
+    $TESTCOUNT = 105;
+    plan tests => $TESTCOUNT;
 }
 
 use Bio::Seq;
@@ -363,8 +364,7 @@ my $primaryseq = new Bio::PrimarySeq( -seq => 'AGAGAGAGATA',
 
 my $embl = new Bio::SeqIO(-format => 'embl', 
 			  -verbose => $verbosity -1,
-			  -file => ">".Bio::Root::IO->catfile("t","data","primaryseq.embl")
-			  );
+			  -file => ">primaryseq.embl");
 
 ok($embl->write_seq($primaryseq));
 my $scalar = "test";
@@ -373,4 +373,22 @@ eval {
 };
 ok ($@);
 
-unlink(Bio::Root::IO->catfile("t","data","primaryseq.embl"));
+unlink("primaryseq.embl");
+
+
+# revcomp split location
+my $gb = new Bio::SeqIO(-format => 'genbank',
+    -file   => Bio::Root::IO->catfile(qw(t data revcomp_mrna.gb)));
+
+$seq = $gb->next_seq();
+
+$gb = new Bio::SeqIO(-format => 'genbank',
+    -file   => ">tmp_revcomp_mrna.gb");
+
+$gb->write_seq($seq);
+undef $gb;
+ok(! -z "tmp_revcomp_mrna.gb");
+
+# INSERT DIFFING CODE HERE
+
+unlink("tmp_revcomp_mrna.gb");
