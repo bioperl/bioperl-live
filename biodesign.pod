@@ -25,7 +25,7 @@ This was written by Ewan Birney in a variety of airports across the US.
 Additions added by:
 Brian Osborne
 Jason Stajich
- 
+
 =head1 Reusing code and working in collaborative projects
 
 The biggest problem often in reusing a code base like Bioperl is that
@@ -52,7 +52,9 @@ directory. These diagrams are not guaranteed to include every single class
 but may help you understand the overall layout of Bioperl's modules.
 
 Documentation on Bio::Root can also be found in the form of scripts - check
-the examples/root_object directory for a start.
+the examples/root_object directory for a start. We have also created a 
+"howto" directory that addresses specific design questions, not
+necessarily related to Bio::Root. See doc/howto.
 
 =head2 Respect people's code (in particular if it works)
 
@@ -75,10 +77,10 @@ Providing "I used XXX and it did just what I wanted it to do" feedback
 is also really great. Developers generally only hear about their mistakes.
 To hear about successes gives everyone a warm glow.
 
-One trick I have learnt is that when I download a new project/code or
-use a new module I open up a fresh buffer in emacs and keep a mini diary
-of everything that I did or thought when I started to use the package. After
-I used it I could go back, edit the buffer and then send it to the author
+One trick we have learnt is that when we download a new project/code or
+use a new module we open up a fresh buffer in emacs and keep a mini diary
+of everything that we did or thought when we started to use the package. After
+we used it we could go back, edit the buffer and then send it to the author
 either with "it was great - it did just what I wanted, but I found that
 the documentation here was misleading" to "to get it to install I had
 to incant the following things..."
@@ -89,15 +91,15 @@ When you want to get involved, hopefully it will be because you want to
 extend something or provide better facilities to something. The important
 thing here is not to work in a vacuum. Providing the main list with
 a good proposal before you start about what you are going to do (and listen
-to the responses) is a must. I have been pulled up so many times by other
-people looking at my design that I can't imagine coding stuff now without
+to the responses) is a must. We have been pulled up so many times by other
+people looking at our designs that we can't imagine coding stuff now without
 feedback, first.
 
 =head2 Designing good tests
 
 Sadly, you might think that you have written good code, but you don't know
 that until you manage to test it! The CPAN style perl modules have a wonderful
-test suite system (delve around into the t/ directories) and I have extended
+test suite system (delve around into the t/ directories) and we have extended
 the makefile system so that the test script which you write to test the module
 can be part of the t/ system from the start. Once a test is in the t/ system it
 will be run millions of times worldwide when Bioperl is downloaded, providing
@@ -105,13 +107,13 @@ incredible and continual regression testing of your module (for free!).
 
 =head2 Having fun
 
-The coding process should be enjoyable, and I get very proud of people who tell
-me that they picked up Bioperl and it worked for them, even if they don't use
-a single module that I wrote. There is a brilliant sense of community in
-Bioperl about providing useful, stable code and it should be a pleasure to
-contribute to it.
+The coding process should be enjoyable, and we get very proud of
+people who tell us that they picked up Bioperl and it worked for them,
+even if they don't use a single module that we wrote. There is a
+brilliant sense of community in Bioperl about providing useful, stable
+code and it should be a pleasure to contribute to it.
 
-So - I am always looking forward to people posting on the guts list
+So - we are always looking forward to people posting on the guts list
 with their feedback/questions/proposals. As well as the long standing fun we
 have making new releases.
 
@@ -149,7 +151,8 @@ input parameters specified by an array.
 
 =back
 
-You can go to L<Bio::Root::Root> for more information.
+You can go to L<Bio::Root::Root> for more information. There are also
+a number of useful example scripts in the examples/root_object directory.
 
 
 =head2 Using the root object
@@ -188,7 +191,7 @@ The full code is given below for a basic skeleton object that uses bioperl.
      my ($arg1) = $self->_rearrange([qw(NAMEDARGUMENT1)], @args);
 
      # set default attributes etc...
-	
+
      return $self;
   }
 
@@ -242,11 +245,14 @@ exceptions are better tracked down when you know where the object came
 from, not where in the code the exception is thrown.
 
 One of the drawbacks to this scheme is that the attribute -E<gt>name is
-"special" from Bioperl's perspective. I believe it is best to stay
+"special" from Bioperl's perspective. We believe it is best to stay
 away from using $obj-E<gt>name() to mean anything from the object's
 perspective (for example -E<gt>id() ), leaving it free to be used as a
 context for debugging purposes. You might prefer to overload the name
 attribute to be "useful" for the object.
+
+See examples/root_object/error.pl for demonstration code.
+
 
 =head1 Bioperl Interface design
 
@@ -389,9 +395,9 @@ clearly have two classes, with a composition/delegation method:
 However this is really heavy handed in Perl (and people were
 complaining about having different implementation/interface
 classes). We were quite happy about merging the implementation
-independent functions with the interface definition, and I (Ewan) used
+independent functions with the interface definition, and we have used
 this in other interfaces since then. The documentation has to be clear
-about what is going on, but I think in general it is.
+about what is going on, but we think in general it is.
 
 =head1 A Note on performance
 
