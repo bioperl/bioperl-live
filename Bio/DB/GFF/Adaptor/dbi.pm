@@ -362,6 +362,7 @@ by make_feature().  Internally, it invokes the following abstract procedures:
  make_features_select_part
  make_features_from_part
  make_features_by_name_where_part
+ make_features_by_alias_where_part  (for aliases)
  make_features_join_part
 
 =cut
@@ -380,16 +381,28 @@ sub _feature_by_name {
 								 class =>'',
 								 start=>$location->[1],
 								 stop =>$location->[2]}) if $location;
-  my $query  = "SELECT $select FROM $from WHERE $where AND $join";
-  $query    .= " AND $range" if $range;
-  my $sth    = $self->dbh->do_query($query,@args);
+  # group query
+  my $query1  = "SELECT $select FROM $from WHERE $where AND $join";
+  $query1    .= " AND $range" if $range;
+
+  # alias query
+  $from  = $self->make_features_from_part(undef,{attributes=>1});
+  ($where,@args) = $self->make_features_by_alias_where_part($class,$name);  # potential bug - @args1==@args2?
+
+  my $query2  = "SELECT $select FROM $from WHERE $where AND $join";
+  $query2    .= " AND $range" if $range;
 
   my $count = 0;
-  while (my @row = $sth->fetchrow_array) {
-    $callback->(@row);
-    $count++;
+
+  for my $query ($query1,$query2) {
+    my $sth    = $self->dbh->do_query($query,@args);
+    while (my @row = $sth->fetchrow_array) {
+      $callback->(@row);
+      $count++;
+    }
+    $sth->finish;
   }
-  $sth->finish;
+  
   return $count;
 }
 
@@ -1256,6 +1269,18 @@ sub make_features_by_name_where_part {
   } else {
     return ("fgroup.gclass=? AND fgroup.gname=?",$class,$name);
   }
+}
+
+sub make_features_by_alias_where_part {
+  my $self = shift;
+  my ($class,$name) = @_;
+  if ($name =~ /\*/) {
+    $name =~ tr/*/%/;
+    return ("fgroup.gclass=? AND fattribute_to_feature.fattribute_value LIKE ? AND fgroup.gid=fdata.gid AND fattribute.fattribute_name='Alias' AND fattribute_to_feature.fattribute_id=fattribute.fattribute_id AND fattribute_to_feature.fid=fdata.fid AND ftype.ftypeid=fdata.ftypeid",$class,$name)
+  } else {
+    return ("fgroup.gclass=? AND fattribute_to_feature.fattribute_value=? AND fgroup.gid=fdata.gid AND fattribute.fattribute_name='Alias' AND fattribute_to_feature.fattribute_id=fattribute.fattribute_id AND fattribute_to_feature.fid=fdata.fid AND ftype.ftypeid=fdata.ftypeid",$class,$name);
+  }
+
 }
 
 sub make_features_by_attribute_where_part {
