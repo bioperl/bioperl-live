@@ -26,7 +26,7 @@ Bio::Index::SwissPfam - Interface for indexing swisspfam files
     my $inx = Bio::Index::SwissPfam->new($Index_File_Name);
 
     foreach my $id (@ARGV) {
-        my $seq = $inx->get_stream($id); # Returns stream
+        my $seq = $inx->fetch($id); # Returns stream
 	while( <$seq> ) {
 	    /^>/ && last;
 	    print;
@@ -206,71 +206,10 @@ sub fetch {
         # move to start
         seek($fh, $begin, 0);
 
-
-	#get id from file, and then loop to SQ line
-        while (<$fh>) {
-	    #print STDERR "Got $_";
-	    /^SQ\s/ && last;
-	    /^ID\s+(\S+)/ && do { $id = $1; };
-	    /^DE\s+(.*?)\s+$/ && do { $desc .= $1; }; 
-	    # accession numbers???
-        }
-
-        while (<$fh>) {
-	    /^\/\// && last;
-	    #print STDERR "Got $_";
-	    s/[\W0-9]//g;
-            push(@record, $_);
-            last if tell($fh) > $end;
-	}
-
-        $self->throw("Can't fetch sequence for record : $id")
-            unless @record;
-        
-        # Return a shiny Bio::Seq object
-        return Bio::Seq->new( -ID   => $id,
-                              -DESC => $desc,
-                              -SEQ  => uc(join('', @record)) );
+        return $fh;
     } else {
 	$self->throw("Unable to find a record for $id in EMBL flat file index");
     }
 }
-
-=head2 get_Seq_by_id
-
- Title   : get_Seq_by_id
- Usage   : $seq = $db->get_Seq_by_id()
- Function: retrieves a sequence object, identically to
-           ->fetch, but here behaving as a Bio::DB::BioSeqI
- Returns : new Bio::Seq object
- Args    : string represents the id
-
-
-=cut
-
-sub get_Seq_by_id{
-   my ($self,$id) = @_;
-
-   return $self->fetch($id);
-}
-
-=head2 get_Seq_by_acc
-
- Title   : get_Seq_by_acc
- Usage   : $seq = $db->get_Seq_by_acc()
- Function: retrieves a sequence object, identically to
-           ->fetch, but here behaving as a Bio::DB::BioSeqI
- Returns : new Bio::Seq object
- Args    : string represents the accession number
-
-
-=cut
-
-sub get_Seq_by_acc {
-   my ($self,$id) = @_;
-
-   return $self->fetch($id);
-}
-
 
 1;
