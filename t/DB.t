@@ -62,7 +62,7 @@ eval {
     ok($seq->length, 1611);
 };
 if ($@) {
-    warn "Warning: Couldn't connect to Genbank with Bio::DB::GenBank.pm!\nError: $@ Do you have network access? Skipping all other tests";
+    warn "Warning: Couldn't connect to Genbank with Bio::DB::GenBank.pm!\nError: Do you have network access? Skipping all other tests";
     foreach ( $Test::ntest..$NUMTESTS ) { skip(1,1, 'no network access'); }
     exit(0);
 }
@@ -87,16 +87,17 @@ eval {
     ok defined($gb = new Bio::DB::GenPept(-verbose=>$verbose)); 
     ok( defined($seq = $gb->get_Seq_by_id('195055')));
     ok( $seq->length, 136); 
-    ok( defined($seq = $gb->get_Seq_by_acc('AAC06201')));
+    $seq = $gb->get_Seq_by_acc('AAC06201');
+    ok(defined $seq);
     ok($seq->length, 353);
-    ok( defined($seqio = $gb->get_Stream_by_batch([ qw(AAC06201 195055)])));
+    $seqio = $gb->get_Stream_by_batch([ qw(AAC06201 195055)]);
+    ok( defined $seqio);
     ok( $seqio->next_seq->length(), 353);
     ok( $seqio->next_seq->length(), 136);
 };
 
 if ($@) {
-    warn "Warning: Couldn't connect to Genbank with Bio::DB::GenPept.pm!\n" 
-	. $@;
+    warn "Warning: Couldn't connect to Genbank with Bio::DB::GenPept.pm!\n";
     foreach( $Test::ntest..$NUMTESTS ) { 
 	skip(1,1,1,'could not connect with GenPept'); 
     }
@@ -116,8 +117,7 @@ eval {
 };
 
 if ($@) {
-    print STDERR "Warning: Couldn't connect to SwissProt with Bio::DB::Swiss.pm!\n" . $@;
-
+    print STDERR "Warning: Couldn't connect to SwissProt with Bio::DB::Swiss.pm!\n";
     foreach ( $Test::ntest..$NUMTESTS) { 
 	skip(1,1,1,'could not connect to swissprot');}
 
@@ -127,11 +127,12 @@ $seq = undef;
 # test the temporary file creation and fasta
 eval {
     ok defined ( $gb = new Bio::DB::GenBank(-verbose=>$verbose,
-					      -format => 'fasta',
-					      -retrievaltype => 'tempfile') );
+					    -format => 'fasta',
+					    -retrievaltype => 'tempfile') );
     ok( defined ($seq = $gb->get_Seq_by_id('MUSIGHBA1')));
     ok($seq->length, 408); 
-    ok(defined ($seq = $gb->get_Seq_by_acc('AF303112')));
+    $seq = $gb->get_Seq_by_acc('AF303112');
+    ok( defined $seq);
     ok( $seq->length, 1611);
     # batch mode requires genbank format
     $gb->request_format("genbank");
@@ -147,7 +148,7 @@ eval {
 };
 
 if ($@) {
-    warn "Warning: Couldn't connect to Genbank with Bio::DB::GenBank.pm!\n" . $@;
+    warn "Warning: Couldn't connect to Genbank with Bio::DB::GenBank.pm!\n";
     foreach ( $Test::ntest..$NUMTESTS ) { 
 	skip(1,1,'could not connect to Genbank'); 
     }
