@@ -283,6 +283,7 @@ sub write_aln {
 
 	 foreach $seq ( $aln->each_seq() ) {
 	     $name = $aln->displayname($seq->get_nse());
+	     $name =~ s/\/(\S+)/\[$1\]/; # to insure PAUP readable files
 	     $name = sprintf("%-${indent}s", $name); 
 	     $hash{$name} = $seq->seq();
 	     push(@arr,$name);
