@@ -130,23 +130,15 @@ sub _initialize {
 
 sub next_seq{
     my ($self,@args) = @_;
-    my ($pseq,$c,$line,$name,$desc,$acc,$seqc,$mol,$div,$date);
-    my $seq = Bio::Seq::RichSeq->new(-verbose =>$self->verbose());
-
-    $line = $self->_readline;
+    my ($pseq,$c,$name,$desc,$seqc,$mol,$div,$date);
+    my $line;
+    my @acc = ();
+    my $seq = Bio::Seq::RichSeq->new('-verbose' =>$self->verbose());
     
-    if( !defined $line) {
-	return undef; # no throws - end of file
+    while(defined($line = $self->_readline())) {
+	$line =~ /^\S/ && last;
     }
-    
-    if( $line =~ /^\s+$/ ) {
-	while( defined($line = $self->_readline) ) {
-	    $line =~ /\S/ && last;
-	}
-    }
-    if( !defined $line ) {
-	return undef; # end of file
-    }
+    return undef if( !defined $line ); # end of file
     
     $line =~ /^LOCUS\s+\S+/ ||
 	$self->throw("GenBank stream with no LOCUS. Not GenBank in my book. Got $line");
@@ -182,83 +174,84 @@ sub next_seq{
     if ($date) {
 	$seq->add_date($date);
     }
-    my $buffer = $line;
+    my $buffer = $self->_readline();
         
-    BEFORE_FEATURE_TABLE :
-	until( !defined ( $buffer )  ) {
-	    $_ = $buffer;
-	    
-	    # Exit at start of Feature table
-	    last if /^FEATURES/;
-	    
-	    # Description line(s)
-	    if (/^DEFINITION\s+(\S.*\S)/) {
-		$desc .= $desc ? " $1" : $1;
-		$desc .= " ";
-		while ( defined($_ = $self->_readline) ) { 
-		    /^\s+(.*)/ && do { $desc .= $1; next;};
-		    last;
-		}
-	    }		 
-	    
-	    if( /^ACCESSION\s+(\S+)/ ) {
-		$acc = $1;
-		$seq->accession_number($acc);
-	    }
-	    
-	    #Version number
-	    if( /^VERSION\s+(\S+)/ ) {
-		my $sv = $1;
-		$seq->seq_version($sv);
-	    }
-
-	    #Keywords
-	    if( /^KEYWORDS\s+(.*)/ ) {
-		my $keywords = $1;
-		$keywords =~ s/\;//g;
-		$seq->keywords($keywords);
-	    }
-
-	    # Organism name and phylogenetic information
-	    if (/^SOURCE/) {
-		my $species = $self->_read_GenBank_Species(\$buffer);
-		$seq->species( $species );
-		next;
-	    }
-
-	    #References
-	    if (/^REFERENCE/) {
-		my @refs = $self->_read_GenBank_References(\$buffer);
-		$seq->annotation->add_Reference(@refs);
-		next;
-	    }
-	    
-	    #Comments
-	    if (/^COMMENT\s+(.*)/) {
-		my $comment = $1;
-		while (defined($_ = $self->_readline)) {
-		    if (/^FEATURES/) {
-			$comment =~ s/\n/ /g;
-			$comment =~ s/  +/ /g;
-			my $commobj = Bio::Annotation::Comment->new();
-			$commobj->text($comment);
-			$seq->annotation->add_Comment($commobj);
-			last;
-		    }
-		    $comment .= $_; 
-		}
+    until( !defined ($buffer) ) {
+	$_ = $buffer;
+	
+	# Description line(s)
+	if (/^DEFINITION\s+(\S.*\S)/) {
+	    $desc .= $desc ? " $1" : $1;
+	    $desc .= " ";
+	    while ( defined($_ = $self->_readline) ) { 
+		/^\s+(.*)/ && do { $desc .= $1; next;};
 		last;
 	    }
-	    last if( /^ORIGIN/ );
-	    # Get next line.
-	    $buffer = $self->_readline;
+	}		 
+	
+	# accession number (there can be multiple accessions)
+	if( /^ACCESSION\s+(\S.*\S)/ ) {
+	    push(@acc, split(' ',$1));
 	}
-    $seq->desc($desc);
-    
-    # following block and loop fixed by
-    # HL <hlapp@gmx.net>, 05/05/2000
-    # see comments
+	
+	# PID
+	if( /^PID\s+(\S+)/ ) {
+	    $seq->pid($1);
+	}
+	
+	#Version number
+	if( /^VERSION\s+(\S+)\.(\d+)\s*(GI:\d+)?/ ) {
+	    $seq->seq_version($2);
+	    $seq->primary_id(substr($3, 3)) if($3);
+	}
 
+	#Keywords
+	if( /^KEYWORDS\s+(.*)/ ) {
+	    my $keywords = $1;
+	    $keywords =~ s/\;//g;
+	    $seq->keywords($keywords);
+	}
+	
+	# Organism name and phylogenetic information
+	if (/^SOURCE/) {
+	    my $species = $self->_read_GenBank_Species(\$buffer);
+	    $seq->species( $species );
+	    next;
+	}
+	
+	#References
+	if (/^REFERENCE/) {
+	    my @refs = $self->_read_GenBank_References(\$buffer);
+	    $seq->annotation->add_Reference(@refs);
+	    next;
+	}
+	
+	#Comments
+	if (/^COMMENT\s+(.*)/) {
+	    my $comment = $1;
+	    while (defined($_ = $self->_readline)) {
+		if (/^\S/) {
+		    $comment =~ s/\n/ /g;
+		    $comment =~ s/  +/ /g;
+		    my $commobj = Bio::Annotation::Comment->new();
+		    $commobj->text($comment);
+		    $seq->annotation->add_Comment($commobj);
+		    last;
+		}
+		$comment .= $_; 
+	    }
+	    $buffer = $_;
+	    next;
+	}
+	# Exit at start of Feature table, or start of sequence
+	last if( /^(FEATURES)|(ORIGIN)/ );
+	# Get next line and loop again
+	$buffer = $self->_readline;
+    }
+    $seq->desc($desc); # don't forget!
+    $seq->accession_number(shift(@acc));
+    $seq->add_secondary_accession(@acc);
+    
     # some "minimal" formats may not necessarily have a feature table
     if(/^FEATURES/) {
 	# need to read the first line of the feature table
@@ -287,7 +280,6 @@ sub next_seq{
 	    last if /^ORIGIN/;
 	}
     }
-  ORIGIN:
     while( defined($_ = $self->_readline) ) {
 	/^\/\// && last;
 	$_ = uc($_);
@@ -362,12 +354,20 @@ sub write_seq {
 	$temp_line = &{$self->_ac_generation_func}($seq);
 	$self->_print("ACCESSION   $temp_line\n");   
     } else {
-	if( $seq->can('accession_number') ) {
-	    $self->_print("ACCESSION   ",$seq->accession_number,"\n");
+	my @acc = ();
+	push(@acc, $seq->accession_number());
+	if( $seq->isa('Bio::Seq::RichSeqI') ) {
+	    push(@acc, $seq->get_secondary_accessions());
 	}
+	$self->_print("ACCESSION   ", join(" ", @acc), "\n");
 	# otherwise - cannot print <sigh>
     } 
-    
+
+    # if PID defined, print it
+    if($seq->isa('Bio::Seq::RichSeqI') && $seq->pid()) {
+	$self->_print("PID         ", $seq->pid(), "\n");
+    }
+
     # if there, write the version line
     
     if( defined $self->_sv_generation_func() ) {
@@ -376,8 +376,12 @@ sub write_seq {
 	    $self->_print("VERSION     $temp_line\n");   
 	}
     } else {
-	if( $seq->can('seq_version') ) {
-	    $self->_print("VERSION     ",$seq->seq_version,"\n");
+	if($seq->isa('Bio::Seq::RichSeqI') && defined($seq->seq_version)) {
+	    my $id = $seq->primary_id(); # this may be a GI number
+	    $self->_print("VERSION     ",
+			  $seq->accession_number(), ".", $seq->seq_version,
+			  ($id && ($id =~ /^\d+$/) ? " GI:".$id : ""),
+			  "\n");
        }
     } 
     
@@ -410,7 +414,10 @@ sub write_seq {
     # Reference lines
     my $count = 1;
     foreach my $ref ( $seq->annotation->each_Reference() ) {
-	$temp_line = sprintf ("REFERENCE    $count  (bases %d to %d)",$ref->start,$ref->end);
+	$temp_line = sprintf ("REFERENCE   $count  (%s %d to %d)",
+			      ($seq->moltype() eq "protein" ?
+			       "residues" : "bases"),
+			      $ref->start,$ref->end);
 	$self->_print("$temp_line\n");
 	$self->_write_line_GenBank_regex("  AUTHORS   ","            ",
 					 $ref->authors,"\\s\+\|\$",80);
