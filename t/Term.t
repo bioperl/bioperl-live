@@ -90,7 +90,7 @@ $obj = Bio::Ontology::Term->new(
         Bio::Annotation::DBLink->new(-dbname => 'db1'),
         Bio::Annotation::DBLink->new(-dbname => 'db2')
     ],
-    -references => ['']
+    -references => []
 );  
 
 ok( $obj->identifier(), "0016847" );
@@ -101,7 +101,7 @@ ok( $obj->comment(), "X" );
 ok( $obj->version(), "6.6.6" );
 ok( $obj->ontology()->name(), "cat" );
 ok( scalar($obj->get_dblinks), 2);
-ok( scalar($obj->get_references), 1);
+ok( scalar($obj->get_references), 0);
 
 # test object factory for terms
 my $fact = Bio::Ontology::TermFactory->new();
