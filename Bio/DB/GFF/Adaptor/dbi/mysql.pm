@@ -370,8 +370,8 @@ sub make_abscoord_query {
   my $self = shift;
   my ($name,$class,$refseq) = @_;
   my $query = GETSEQCOORDS;
-  if ($name =~ /\*/) {
-    $name =~ tr/*/%/;
+  if ($name =~ s/(?<!\\)([*?])/$1 eq '*' ? '%' : '_'/ge) {
+    $name =~ tr/\\//d;
     $query =~ s/gname=\?/gname LIKE ?/;
   }
   defined $refseq ? $self->dbh->do_query(GETFORCEDSEQCOORDS,$name,$class,$refseq) 
@@ -384,23 +384,30 @@ sub get_abscoords {
   my ($name,$class,$refseq)  = @_;
 
   my $result = $self->SUPER::get_abscoords(@_);
-  return $result if $result;
 
+  # Return the result if we got a non-empty response
+  # AND no wildcard match was requested.  Otherwise we do
+  # an alias search.
+  return $result if $result && $name !~ /(?<!\\)[*?]/;
+  $result ||= [];
+
+  # handle aliases
   my $sth;
-  if ($name =~ s/\*/%/g) {
+  if ($name =~ s/(?<!\\)([*?])/$1 eq '*' ? '%' : '_'/ge) {
+    $name =~ tr/\\//d;
     $sth = $self->dbh->do_query(GETALIASLIKE,$name,$class);
   } else {
     $sth = $self->dbh->do_query(GETALIASCOORDS,$name,$class);
   }
-  my @result;
-  while (my @row = $sth->fetchrow_array) { push @result,\@row }
+
+  while (my @row = $sth->fetchrow_array) { push @$result,\@row }
   $sth->finish;
 
-  if (@result == 0) {
+  if (@$result == 0) {
     $self->error("$name not found in database");
     return;
   } else {
-    return \@result;
+    return $result;
   }
 
 }
