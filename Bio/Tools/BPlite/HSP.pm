@@ -84,7 +84,7 @@ sub new {
     $self->{'QS'} = $qs;
     $self->{'SS'} = $ss;
     $self->{'HS'} = $hs;
-    $self->{'FRAME'} = defined $frame ? $frame : '0';
+    defined $frame && $self->frame($frame);
     return $self;		# success - we hope!
 }
 
@@ -215,18 +215,5 @@ sub ss              {shift->{'SS'}}
 =cut
 
 sub hs              {shift->{'HS'}}
-
-=head2 frame
-
- Title    : frame
- Usage    : $hsp->frame();
- Function : returns the frame this alignment hits, this is only really valid
-            for TBLASTN reports
- Returns  : (string) Frame (0 is default for no frame information)
- Args     : none
-
-=cut
-
-sub frame              {shift->{'FRAME'}}
 
 1;
