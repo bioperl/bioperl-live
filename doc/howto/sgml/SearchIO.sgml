@@ -886,7 +886,7 @@
    my $outhtml = new Bio::SearchIO(-writer => $writerhtml,
 				   -file   => ">searchio.html");
    # get a result from Bio::SearchIO parsing or build it up in memory
-   $out->write_result($result);
+   $outhtml->write_result($result);
       </programlisting>
     </para>
     <para>
