@@ -1,3 +1,6 @@
+
+# $Id$
+
 ## --Makefile.PL for Bioperl core module distribution--##
 ## ----------------------------------------------------##
 
