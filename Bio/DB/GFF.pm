@@ -7,7 +7,7 @@ Bio::DB::GFF -- Storage and retrieval of sequence annotation data
   use Bio::DB::GFF;
 
   # Open the sequence database
-  my $db      = Bio::DB::GFF->new( -adaptor => 'dbi:mysql',
+  my $db      = Bio::DB::GFF->new( -adaptor => 'dbi::mysql',
                                    -dsn     => 'dbi:mysql:elegans42');
 
   # fetch a 1 megabase segment of sequence starting at landmark "ZK909"
@@ -168,11 +168,11 @@ specified during Bio::DB::GFF construction.  The adaptor encapsulates
 database-specific information such as the schema, user authentication
 and access methods.
 
-Currently there are two adaptors: 'dbi:mysql' and 'dbi:mysqlopt'.  The 
-former is an interface to a simple Mysql schema.  The latter is an
-optimized version of dbi:mysql which uses a binning scheme to
+Currently there are two adaptors: 'dbi::mysql' and 'dbi::mysqlopt'.
+The former is an interface to a simple Mysql schema.  The latter is an
+optimized version of dbi::mysql which uses a binning scheme to
 accelerate range queries and the Bio::DB::Fasta module for rapid
-retrieval of sequences.
+retrieval of sequences.  Note the double-colon between the words.
 
 =item Aggregators
 
@@ -232,7 +232,7 @@ use Bio::Root::RootI;
 use vars qw($VERSION @ISA);
 @ISA = qw(Bio::Root::RootI);
 
-$VERSION = '0.36';
+$VERSION = '0.37';
 my %valid_range_types = (overlaps     => 1,
 			 contains     => 1,
 			 contained_in => 1);
@@ -606,7 +606,7 @@ The argument -end is a synonum for -stop, and -count is a synonym for
 
 sub types {
   my $self = shift;
-  my ($refseq,$refclass,$start,$stop,$enumerate) = rearrange ([
+  my ($refseq,$start,$stop,$enumerate,$refclass) = rearrange ([
 							       [qw(REF REFSEQ)],
 							       qw(START),
 							       [qw(STOP END)],
