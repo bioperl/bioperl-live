@@ -95,13 +95,67 @@ methods. Internal methods are usually preceded with a _
 
 package Bio::Variation::AAChange;
 my $VERSION=1.0;
-use vars qw(@ISA);
+use vars qw(@ISA $MATRIX);
 use strict;
 
 # Object preamble - inheritance
 use Bio::Variation::VariantI;
 
 @ISA = qw( Bio::Variation::VariantI );
+
+BEGIN {
+
+my $matrix = << "__MATRIX__";
+#  Matrix made by matblas from blosum62.iij
+#  * column uses minimum score
+#  BLOSUM Clustered Scoring Matrix in 1/2 Bit Units
+#  Blocks Database = /data/blocks_5.0/blocks.dat
+#  Cluster Percentage: >= 62
+#  Entropy =   0.6979, Expected =  -0.5209
+   A  R  N  D  C  Q  E  G  H  I  L  K  M  F  P  S  T  W  Y  V  B  Z  X  *
+A  4 -1 -2 -2  0 -1 -1  0 -2 -1 -1 -1 -1 -2 -1  1  0 -3 -2  0 -2 -1  0 -4
+R -1  5  0 -2 -3  1  0 -2  0 -3 -2  2 -1 -3 -2 -1 -1 -3 -2 -3 -1  0 -1 -4
+N -2  0  6  1 -3  0  0  0  1 -3 -3  0 -2 -3 -2  1  0 -4 -2 -3  3  0 -1 -4
+D -2 -2  1  6 -3  0  2 -1 -1 -3 -4 -1 -3 -3 -1  0 -1 -4 -3 -3  4  1 -1 -4
+C  0 -3 -3 -3  9 -3 -4 -3 -3 -1 -1 -3 -1 -2 -3 -1 -1 -2 -2 -1 -3 -3 -2 -4
+Q -1  1  0  0 -3  5  2 -2  0 -3 -2  1  0 -3 -1  0 -1 -2 -1 -2  0  3 -1 -4
+E -1  0  0  2 -4  2  5 -2  0 -3 -3  1 -2 -3 -1  0 -1 -3 -2 -2  1  4 -1 -4
+G  0 -2  0 -1 -3 -2 -2  6 -2 -4 -4 -2 -3 -3 -2  0 -2 -2 -3 -3 -1 -2 -1 -4
+H -2  0  1 -1 -3  0  0 -2  8 -3 -3 -1 -2 -1 -2 -1 -2 -2  2 -3  0  0 -1 -4
+I -1 -3 -3 -3 -1 -3 -3 -4 -3  4  2 -3  1  0 -3 -2 -1 -3 -1  3 -3 -3 -1 -4
+L -1 -2 -3 -4 -1 -2 -3 -4 -3  2  4 -2  2  0 -3 -2 -1 -2 -1  1 -4 -3 -1 -4
+K -1  2  0 -1 -3  1  1 -2 -1 -3 -2  5 -1 -3 -1  0 -1 -3 -2 -2  0  1 -1 -4
+M -1 -1 -2 -3 -1  0 -2 -3 -2  1  2 -1  5  0 -2 -1 -1 -1 -1  1 -3 -1 -1 -4
+F -2 -3 -3 -3 -2 -3 -3 -3 -1  0  0 -3  0  6 -4 -2 -2  1  3 -1 -3 -3 -1 -4
+P -1 -2 -2 -1 -3 -1 -1 -2 -2 -3 -3 -1 -2 -4  7 -1 -1 -4 -3 -2 -2 -1 -2 -4
+S  1 -1  1  0 -1  0  0  0 -1 -2 -2  0 -1 -2 -1  4  1 -3 -2 -2  0  0  0 -4
+T  0 -1  0 -1 -1 -1 -1 -2 -2 -1 -1 -1 -1 -2 -1  1  5 -2 -2  0 -1 -1  0 -4
+W -3 -3 -4 -4 -2 -2 -3 -2 -2 -3 -2 -3 -1  1 -4 -3 -2 11  2 -3 -4 -3 -2 -4
+Y -2 -2 -2 -3 -2 -1 -2 -3  2 -1 -1 -2 -1  3 -3 -2 -2  2  7 -1 -3 -2 -1 -4
+V  0 -3 -3 -3 -1 -2 -2 -3 -3  3  1 -2  1 -1 -2 -2  0 -3 -1  4 -3 -2 -1 -4
+B -2 -1  3  4 -3  0  1 -1  0 -3 -4  0 -3 -3 -2  0 -1 -4 -3 -3  4  1 -1 -4
+Z -1  0  0  1 -3  3  4 -2  0 -3 -3  1 -1 -3 -1  0 -1 -3 -2 -2  1  4 -1 -4
+X  0 -1 -1 -1 -2 -1 -1 -1 -1 -1 -1 -1 -1 -1 -2  0  0 -2 -1 -1 -1 -1 -1 -4
+* -4 -4 -4 -4 -4 -4 -4 -4 -4 -4 -4 -4 -4 -4 -4 -4 -4 -4 -4 -4 -4 -4 -4  1
+__MATRIX__
+
+    my %blosum = ();
+    $matrix =~ /^ +(.+)$/m;
+    my @aas = split / +/, $1;
+    foreach my $aa (@aas) {
+	my $tmp = $aa;
+	$tmp = "\\$aa" if $aa eq '*';
+	$matrix =~ /^($tmp) +([-+]?\d.*)$/m;
+	my @scores = split / +/, $2 if defined $2;
+	my $count = 0;
+	foreach my $ak (@aas) {
+	    $blosum{$aa}->{$aas[$count]} = $scores[$count];
+	    $count++;
+	}
+    }
+    sub _matrix;
+    $MATRIX = \%blosum;
+}
 
 sub new {
     my($class,@args) = @_;
@@ -243,11 +297,11 @@ sub label {
 	    $type = 'post-elongation';
 	}
 	elsif ($m and $o eq $m ) {
-	    $type = 'silent';
+	    $type = 'silent, conservative';
 	}
     }
     elsif ($o and $m and $o eq $m) {
-	$type = 'silent';
+	$type = 'silent, conservative';
     }
     elsif ($m and $m eq '*') {
 	$type = 'truncation';
@@ -265,6 +319,11 @@ sub label {
     elsif  ($o and $m and $o ne $m and 
 	    length $o == 1 and  length $m  == 1 ) {
 	$type = 'substitution';
+	my $value = $self->similarity_score;
+	if (defined $value) {
+	    my $cons = ($value < 0) ? 'nonconservative' : 'conservative';
+	    $type .= ", ". $cons;
+	}
     } else {
 	$type = 'out-of-frame translation, truncation';
     }
@@ -272,6 +331,27 @@ sub label {
     return $self->{'label'};
 }
 
+
+=head2 similarity_score
+
+ Title   : similarity_score
+ Usage   : $self->similarity_score
+ Function: Measure for evolutionary conservativeness
+           of single amino substitutions. Uses BLOSUM62.
+           Negative numbers are noncoservative changes.
+ Returns : integer, undef if not single amino acid change
+
+=cut
+
+sub similarity_score {
+    my ($self) = @_;
+    my ($o, $m, $type);
+    $o = $self->allele_ori->seq if $self->allele_ori and $self->allele_ori->seq;
+    $m = $self->allele_mut->seq if $self->allele_mut and $self->allele_mut->seq;
+    return undef unless $o and $m and length $o == 1 and length $m == 1;
+    return undef unless $o =~ /[ARNDCQEGHILKMFPSTWYVBZX*]/i and $m =~ /[ARNDCQEGHILKMFPSTWYVBZX*]/i;
+    return $MATRIX->{"\U$o"}->{"\U$m"};
+}
 
 =head2 trivname
 
