@@ -206,6 +206,10 @@ BLAST, HMMER).
 Convert Nexus trees to New Hampshire format, but maintain long taxon 
 names.
 
+=head2 scripts/tree/tree2pag.PLS
+
+Convert Bio::TreeIO parseable trees to Pagel format.
+
 =head2 scripts/utilities/bp_mrtrans.PLS
 
 Perl implementation of Bill Pearson's mrtrans to project protein 
