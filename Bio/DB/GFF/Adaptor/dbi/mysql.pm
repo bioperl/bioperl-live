@@ -118,7 +118,26 @@ The fdata.fid column joins with fnote.fid.
 
 =back
 
+=head2 The fast_queries() Method
 
+The Perl mysql driver offers a statement handler attribute called
+i<mysql_use_result>.  If this is set to true, then the server will
+keep the result of the query in memory rather than downloading it to
+the client in one go.  This is a big win if you are iterating through
+a very large result set.
+
+The drawback is that while you are iterating through the set, then you
+cannot trigger any other SQL queries.  Doing so will result in a
+"command out of synch" error from the mysql server. For this reason,
+fast queries are turned off by default.
+
+=over 4
+
+=item $flag = $db->fast_queries([$flag])
+
+Get or set the fast_queries flag.
+
+=back
 
 =cut
 
@@ -314,17 +333,34 @@ sub make_types_group_part {
   return 'ftype.ftypeid';
 }
 
+sub fast_queries {
+  my $self = shift;
+  my $d = $self->{fast_queries} || 0;
+  $self->{fast_queries} = shift if @_;
+  $d;
+}
+
 # override this method in order to set the mysql_use_result attribute, which is an obscure
 # but extremely powerful optimization for both performance and memory.
 sub do_query {
   my $self = shift;
   my ($query,@args) = @_;
   warn $self->dbi_quote($query,@args),"\n" if $self->debug;
-  my $sth = $self->{sth}{$query} ||= $self->features_db->prepare($query,{mysql_use_result=>1})
+  my $sth = $self->{sth}{$query} ||= $self->features_db->prepare($query,
+								 {mysql_use_result=>1})
     || $self->throw("Couldn't prepare query $query:\n ".DBI->errstr."\n");
   $sth->execute(@args)
     || $self->throw("Couldn't execute query $query:\n ".DBI->errstr."\n");
   $sth;
+}
+
+sub get_features_iterator {
+  my $self = shift;
+  my ($rangetype,$srcseq,$class,$start,$stop,$types,$callback,$order_by_group) = @_;
+  $callback || $self->throw('must provide a callback argument');
+  my $sth = $self->range_query($rangetype,$srcseq,$class,$start,$stop,$types,$order_by_group) or return;
+  $sth->{mysql_use_result} = $self->fast_queries;
+  return Bio::DB::GFF::Adaptor::dbi::iterator->new($sth,$callback);
 }
 
 ################################ loading and initialization ##################################
