@@ -158,7 +158,7 @@
 			 available Windows machine.
 		  </member>
 		  <member>
-			 There's an administrator taking care of the machine - maybe
+			 There may be an administrator taking care of the machine - maybe
 			 she'll even install Bioperl for you! Ask and see.
 		  </member>
 		</simplelist>
@@ -175,14 +175,14 @@
 			 Your Unix account may be on a server - not too portable!
 		  </member>
 		  <member>
-			 You won't have easy access to all your familiar programs.
+			 You may not have easy access to all your familiar programs.
 		  </member>
 		  <member>
 			 You'll probably have to learn to use a Unix word processor,
 			 like emacs or vi.
 		  </member>
 		  <member>
-			 You won't have control of the machine, the administrator
+			 You may not have control of the machine, the administrator
 			 will. You may not be able to download all of Genbank,
 			 for example!
 		  </member>
@@ -210,19 +210,14 @@
 			 Not all bioinformatics applications run on Windows.
 		  </member>
 		  <member>
-			 It's your computer, you will have to deal with the installation details
-			 yourself.
+			 It's your computer, you will have to deal with the 
+			 installation details yourself.
 		  </member>
 		  <member>
-			 Your computer may not be able to handle serious computation gracefully.
+			 Your computer may not be able to handle serious 
+			 computation gracefully.
 		  </member>
 		</simplelist>
-	 </para>
-    <para>
-		The instructions for Unix and Windows installations are found
-		on the 
-		<ulink url="http://bioperl.org/Core/Latest/index.shtml">
-		  download page</ulink>.
 	 </para>
 	 <tip>
 		<para>
@@ -231,6 +226,58 @@
 		  see more than a few.
 		</para>
 	 </tip>
+    <para>
+		You should also read the instructions for 
+		<ulink url="http://bioperl.org/Core/Latest/INSTALL">Unix installation</ulink> or 
+		<ulink url="http://bioperl.org/Core/Latest/INSTALL.WIN">Windows installation</ulink>. Many of the letters to the the bioperl-l
+		mailing list concern problems with installation, and there is a 
+		set of concerns that come up repeatedly:
+	 </para>
+	 <para>
+		<orderedlist>
+		  <listitem>
+			 <para>
+				On Windows, messages like "Error: Failed to download URL
+				http://bioperl.org/DIST/GD.ppd", or "Not found". The 
+				explanation is that Bioperl does not supply every
+				accessory module that's necessary to run all of Bioperl.
+				You'll need to search other repositories to install
+				all of these accessory modules. See the
+		<ulink
+				url="http://bioperl.org/Core/Latest/INSTALL.WIN">INSTALL.WIN</ulink>
+				file for more information. 
+			 </para>
+		  </listitem>
+		  <listitem>
+			 <para>
+				On Unix, messages like "Can't locate
+				&lt;some-module&gt;.pm in @INC...". This means that Perl
+				could not find a particular module and the explanation
+				usually is that this module is not installed. You can
+				either install Bundle::Bioperl or install that specific
+				module by hand. See 
+<ulink
+				url="http://bioperl.org/Core/Latest/INSTALL.WIN">INSTALL</ulink>
+				for details.
+			 </para>
+		  </listitem>
+		  <listitem>
+			 <para>
+				Seeing messages like "Tests Failed". If you see an 
+				error during installation consider whether
+				this problem is going to affect your use of Bioperl. There
+				are almost 800 modules in Bioperl, and ten times that many
+				tests are run during the installation. If there's a
+				complaint about GD it's only relevant if you want to 
+				use the Bio/Graphics modules, if you see an error about
+				some XML parser it's only going to affect you if 
+				you're reading XML files. Yes, you could try and make
+				each and every test pass, but that may be a lot of work, with much
+				of it fixing modules that aren't in Bioperl itself.
+			 </para>
+		  </listitem>
+		</orderedlist>
+	 </para>
   </section>
   
   <section id="help">
@@ -258,17 +305,21 @@
 			 <para>What you are trying to do.</para>
 		  </listitem>
 		  <listitem>
-		<para>	 The code that gives the error, if you're writing a script.</para>
+			 <para>	 
+				The code that gives the error, if you're writing a script.
+			 </para>
 		  </listitem>
 		  <listitem>
-<para>			 Any error messages you saw.</para>
+			 <para>			 
+				Any error messages you saw.
+			 </para>
 		  </listitem>
 		</orderedlist>
     </para>    
     <para>
 		Every once in a while a message will appear in bioperl-l 
 		coming from someone
-		in distress that goes unanswered. The explanation is simple,
+		in distress that goes unanswered. The explanation is usually that
 		the person neglected to include 1 or more of the details above,
 		usually the script or the error messages. If you give enough 
 		information you will get help.
@@ -404,8 +455,8 @@ Internet, point your browser at http://www.perl.com/, the Perl Home Page.
 	 <para>
 		One way to think about an object in software is that it is a container
 		for data. The typical sequence entry contains
-		differents sorts of data (a sequence, one or more identifiers, etc.)
-		so it will serve as a nice example of what
+		differents sorts of data (a sequence, one or more identifiers, 
+		and so on) so it will serve as a nice example of what
 		an object can be. 
 	 </para>
 	 <para>
@@ -422,9 +473,9 @@ use Bio::Seq;
     </para>
 <para></para>
 	 <para>
-		This line says that there's a module file on your machine called
+		This line tells Perl to "use" a module on your machine called
 		"Bio/Seq.pm".
-		We will "use" this 
+		We will use this 
 		<ulink
 		url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Seq.html">Bio::Seq</ulink>
 		module to create a 
@@ -462,16 +513,18 @@ $seq_obj = Bio::Seq->new(-seq => "aaaatgggggggggggccccgtt");
 		Any time you explicitly create an object, you
 		will use this <function>new()</function> method. The syntax of this
 		line is one you'll see again and again in Bioperl: the name
-		of the object or variable, the module name, the
-		string <emphasis>new</emphasis>, some argument name like
-		<emphasis>-seq</emphasis>, the <emphasis>=></emphasis>, and then
+		of the object or variable, the module name, the 
+		<emphasis>-></emphasis> symbol, the
+		method name <emphasis>new</emphasis>, some argument name like
+		<emphasis>-seq</emphasis>, the <emphasis>=></emphasis>
+		symbol, and then
 		the argument or value itself, like
 		<emphasis>aaaatgggggggggggccccgtt</emphasis>.
 	 </para>
 	 <note>
 		<para>
 		  If you've programmed before you've come across the term
-		  "function". In object-oriented programming the term
+		  "function" or "sub-routine". In object-oriented programming the term
 		  "method" is used instead.			 
 		</para>
 	 </note>
@@ -482,8 +535,8 @@ $seq_obj = Bio::Seq->new(-seq => "aaaatgggggggggggccccgtt");
 		specific methods taken from the module or modules that were used
 		to create it. For example, the 
 <ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Seq.html">Bio::Seq</ulink>
-		module can access a method
-		called <function>seq()</function> that will print out the
+		module can call a method
+		named <function>seq()</function> that will print out the
 		sequence of 
 <ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Seq.html">Bio::Seq</ulink> objects. You could use it like this:
 	 </para>
@@ -508,7 +561,7 @@ print $seq_obj->seq;
 <para></para>
 	 <para>
 		Let's make our example a bit more true-to-life, since a typical
-		sequence needs a name, perhaps a description, in addition to
+		sequence needs an identifier, perhaps a description, in addition to
 		its sequence.
 	 </para>
 	 <para>
@@ -538,7 +591,7 @@ print $seq_obj->seq();
 	 <para>
 		This next example will show how two objects can work together
 		to create a sequence file.
-		We already have a sequence object, <varname>$seq_obj</varname>, 
+		We already have a Sequence object, <varname>$seq_obj</varname>, 
 		and we will create an
 		additional object whose responsibility it is to read from and write
 		to files. This object is the SeqIO object, 
@@ -546,7 +599,7 @@ print $seq_obj->seq();
 		<emphasis>I</emphasis>nput-<emphasis>O</emphasis>utput.
 		By using 
 <ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqIO.html">Bio::SeqIO</ulink> in this manner you will be able to get input
-		and output from all of the sequence file formats supported by Bioperl
+		and make output for all of the sequence file formats supported by Bioperl
 		(the <ulink url="http://bioperl.org/HOWTOs/SeqIO/index.html">
 		  SeqIO HOWTO</ulink> has a complete list of supported formats).
 		The way you create <classname>Bio::SeqIO</classname> objects is 
@@ -600,7 +653,8 @@ $seqio_obj->write_seq($seq_obj);
 		neophytes start to get a bit nervous. What's going on there? In that
 		line we handed or passed the Sequence object to the SeqIO object as an
 		argument to its <function>write_seq</function> method. Another
-		way to think about this is that the SeqIO object understands how
+		way to think about this is that we hand the Sequence object to the SeqIO 
+		object since SeqIO understands how
 		to take information from the Sequence object and write to a file
 		using that information, in this case in fasta format. If you
 		run this script like this:
@@ -733,7 +787,7 @@ while ($seq_obj = $seqio->next_seq){
 		(and a list of the file extensions is in the  
 		<ulink url="http://bioperl.org/HOWTOs/SeqIO/index.html">
 		  SeqIO HOWTO</ulink>). In fact, the suffix "fa" is one that
-		SeqIO understands, so "-format" is unnecessary. Without a known
+		SeqIO understands, so "-format" is unnecessary above. Without a known
 		suffix SeqIO will attempt to guess the format based on the 
 		file's contents but there's no guarantee that it can guess
 		correctly for every single format.
@@ -836,9 +890,11 @@ while ($seq_obj = $stream_obj->next_seq) {
 	 </para>
 <para></para>
 	 <para>
-		That <function>get_Stream_by_query</function> method and its
-		<varname>$stream_obj</varname> may not look familiar. The idea
-		is that you will use a stream whenever you expect to retrieve 
+		That <varname>$stream_obj</varname> and its 
+		<function>get_Stream_by_query</function> method may not 
+		look familiar. The idea
+		is that you will use a <emphasis>stream</emphasis> whenever 
+		you expect to retrieve 
 		a stream or series of sequence objects. Much like <function>
 		  get_Seq_by_id</function>, but built to retrieve one or
 		more objects, not just one object.
@@ -873,7 +929,7 @@ while ($seq_obj = $stream_obj->next_seq) {
 		haven't shown what it's capable of doing. The table below
 		lists the methods available to you if you have a Sequence
 		object in hand. "Returns" means what the object will give
-		you if you use or call the method without an argument. 
+		you when you ask it for data. 
 		Some methods, such as <function>seq()</function>, can be used to 
 		<emphasis>get</emphasis> or <emphasis>set</emphasis> values.
 		You're setting when you assign a value, you're
@@ -1244,18 +1300,20 @@ ORIGIN      15 bp upstream from HhaI site.
       </table>
     </para>
     <para>
-		There's a few comments that need to be made. First, a few of the
+		There's a few comments that need to be made. First,
+		you noticed that there's an awful lot of
+		information missing. All of this missing information is stored in
+		what Bioperl calls Features and Annotations, see the
+		<ulink
+		  url="http://bioperl.org/HOWTOs/Feature-Annotation/index.html">Feature
+		and Annotation HOWTO</ulink> if you'd like to learn more about this.
+		Second, a few of the
 		methods don't return anything, like
 		<classname>namespace</classname> and <classname>authority</classname>.
 		The reason is that though these are good values in principle
 		there are no commonly agreed upon standard names - perhaps someday
 		the authors will be able to rewrite the code when we all agree 
-		what these values should be. Second, you noticed that there's an awful lot of
-		information missing. Almost all of this missing information is stored in
-		what Bioperl calls Features and Annotations, see the
-		<ulink
-		url="http://bioperl.org/HOWTOs/Feature-Annotation/index.html">Feature
-		and Annotation HOWTO</ulink> if you'd like to learn more about this.
+		what these values should be.
 		Finally, you may be wondering why the method names are what they
 		are and why particular fields or identifiers end up associated with
 		particular methods. Again, without having standard names for things
@@ -1506,7 +1564,7 @@ SQ   SEQUENCE   913 AA;  101638 MW;  D0E135DBEC30C28C CRC64;
 	 <para>
 		You have access to a large number of sequence analysis programs 
 		within Bioperl. Typically this means you have a means to run
-		the program, and frequently a means of parsing the resulting 
+		the program and frequently a means of parsing the resulting 
 		output, or report, as well. Certainly the most popular 
 		analytical program is 
 <ulink
@@ -1514,7 +1572,7 @@ SQ   SEQUENCE   913 AA;  101638 MW;  D0E135DBEC30C28C CRC64;
 		so let's use it as an example. First you'll need to get 
 		BLAST, also known as blastall, installed on your machine
 		and running. This example assumes that you used the formatdb 
-		program to index the sequence file "db.fa" as well.
+		program to index the database sequence file "db.fa".
 	 </para>
     <para>
 		As usual, we start by choosing a module to use, in this case
@@ -1536,7 +1594,8 @@ use Bio::Tools::Run::StandAloneBlast;
 <para></para>
 	 <para>
 		As you'd expect, we want to create a Blast object, and we will
-		pass a Sequence object to the Blast object:
+		pass a Sequence object to the Blast object, this Sequence
+		object will be used as the query:
 	 </para>
 	 <para>
 		<programlisting>
@@ -1560,12 +1619,17 @@ print $result_obj->num_hits;
 	 </para>
 <para></para>
 	 <para>
+		By calling the <function>blastall</function> method you're
+		actually running BLAST, creating the report file, and parsing
+		the file's contents. All the data in the report ends up 
+		in the report object, and you can access or print out the
+		data in all sorts of ways.
 		The report object, <varname>$report_obj</varname>, and the
-		result object,<varname>$result_obj</varname>, come from 
+		result object, <varname>$result_obj</varname>, come from 
 		the SearchIO modules. The
 		<ulink url="http://bioperl.org/HOWTOs/SearchIO/index.html">
 		  SearchIO HOWTO</ulink> will tell you all about using these
-		objects to extract useful data from the your BLAST analyses.
+		objects to extract useful data from your BLAST analyses.
 	 </para>
 	 <para>
 		Bioperl enables you to run a wide variety of bioinformatics
@@ -1601,8 +1665,8 @@ print $result_obj->num_hits;
 	 <para>
 		<orderedlist>
 		  <listitem><para>
-			 The <ulink url="http://bioperl.org/Core/Latest/bptutorial.html">
-				bptutorial</ulink>. This gives a good overview of many
+			 The 
+	<ulink url="http://bioperl.org/Core/Latest/bptutorial.html">bptutorial</ulink>. This gives a good overview of many
 			 different topics. Few topics are covered in detail but many
 			 of the most important modules and concepts are covered.
 		  </para></listitem>
@@ -1610,7 +1674,8 @@ print $result_obj->num_hits;
 			 The <ulink url="http://bioperl.org/HOWTOs">
 				HOWTOs</ulink>. Each one covers a topic in some detail, 
 			 but there are certainly some HOWTOs that are missing that
-			 we would like to see written.
+			 we would like to see written. Would you like to become an
+				expert and write one yourself?
 		  </para></listitem>
 		  <listitem><para>
 			 The <ulink
@@ -1628,7 +1693,8 @@ print $result_obj->num_hits;
 			 <ulink url="http://bioperl.org/Core/Latest/modules.html#user">
 			 User-contributed documentation</ulink>. If you look on the
 			 documentation page will you will see this section,
-			 there some very good material here.
+			 there's some very good material here, and it's useful to
+				look at a given topic from different points of view.
 		  </para></listitem>
 		</orderedlist>
 	 </para>
@@ -1676,16 +1742,17 @@ print $result_obj->num_hits;
 		simply illustrated.
 	 </para>
 	 <para>
-		<emphasis>A Simple Example</emphasis>
+		<emphasis>A Simple Procedural Example</emphasis>
 		Assume that we have a DNA sequence stored in the scalar variable
 		<varname>$sequence</varname>. We'd like to generate the 
 		reverse complement of this 
-		sequence and store it in $reverse_complement. Shown below is the
-		procedural Perl technique of using a subroutine to operate on
-		this scalar data:
+		sequence and store it in
+		<varname>$reverse_complement</varname>. 
+		Shown below is the
+		procedural Perl technique of using a function, or sub-routine,
+		to operate on this scalar data:
 	 </para>
 	 <para>
-		Example 1: 
 		<programlisting>
 use Bio::Perl;
 
@@ -1701,22 +1768,23 @@ $reverse_complement = revcom( $sequence );
 	 </para>
 	 
 	 <para>
+		<emphasis>A Simple Object-Oriented Example</emphasis>
 		Shown below is the object-oriented way of generating the reverse 
 		complement of a DNA sequence:
 	 </para>
 
 	 <para>
-		Example 2:
 		<programlisting>
-$reverse_complement = $sequence->revcom;
+$reversed_obj = $seq_obj->revcom;
 		</programlisting>
 	 </para>
 
 	 <para>
 		The main difference between this object-oriented example and the
-		procedural example shown before is that the function for
-		generating the reverse complement (called "revcom") part of
-		$sequence. To put it another way, The object $sequence knows how to calculate
+		procedural example shown before is that the method for
+		generating the reverse complement, <function>revcom</function>,
+		is part of <varname>$seq_obj</varname>. To put it another way, 
+		the object <varname>$seq_obj</varname> knows how to calculate
 		and return its reverse complement. Encapsaluting both data and
 		functions into the same construct is the fundamental idea behind
 		object-oriented programming. 
@@ -1724,8 +1792,8 @@ $reverse_complement = $sequence->revcom;
 
 	 <para>
 		<emphasis>Terminology</emphasis>
-		In the object-oriented example above, $sequence is
-		called an object, and the function "revcom" is called
+		In the object-oriented example above, <varname>$seq_obj</varname> is
+		called an object, and <function>revcom</function> is called
 		a method.  An <emphasis>object</emphasis> is a data
 		structure that has both data and methods associated
 		with it.  Objects are separated into types called
@@ -1733,26 +1801,50 @@ $reverse_complement = $sequence->revcom;
 		object defines both the data that it can hold and the
 		methods that it knows. A specific object that has a
 		defined class is referred to as an
-		<emphasis>instance</emphasis> of that class.
+		<emphasis>instance</emphasis> of that class. In perl
+		you could say that each module is actually a class,
+		but for some reason the author of Perl elected to
+		use the term "module" rather than "class".
 	 </para>
+
+	 <para>
+		That's the sort of explanation you'll get in programming
+		books, but what is an object really? Usually a hash.
+		In Perl the data that the object contains is stored in a 
+		single, complex hash and the object, like 
+		<varname>$seq_obj</varname>,
+		is a reference to this hash. In addition, the methods
+		that the object can use are also stored in this hash as
+		particular kinds of references. You could say that an
+		object in Perl is a special kind of hash reference.
+	 </para>
+
+	 <para>
+		Bioperl uses the object-oriented paradigm, and here are
+		some texts if you want to learn more:
+	 </para>
+	 <para>
+		<orderedlist>
+		  <listitem>
+			 <para>
+				<ulink
+				  url="http://www.manning.com/Conway/">Object Oriented Perl</ulink>
+          </para>
+		  </listitem>
+		  <listitem>
+			 <para>               
+				The <ulink
+				  url="http://bioperl.org/Core/Latest/biodesign.html">Bioperl design documentation</ulink>, for anyone who'd like
+				to write their own modules. 
+			 </para>
+		  </listitem>
+		</orderedlist>	
+	 </para>
+
   </section>
 </article>
 
-<!--	 
-	 <para>
-		<emphasis>Further Reading</emphasis>
-		Bioperl uses the object-oriented paradigm, and readers
-		interested in learning more about object-oriented Perl
-		might find <ulink
-		  url="http://www.manning.com/Conway/">Damian Conway's
-		  book.</ulink>
-                         
-		Anyone who is interested in developing their own
-		modules would do well to read the <ulink
-		  url="http://bioperl.org/Core/Latest/biodesign.html">Bioperl
-		  design documentation</ulink>. 
-	 </para>
--->
+
 
 <!--
   <section id="read_seq"> 
