@@ -187,7 +187,7 @@ sub next_seq {
        elsif( /^SV\s+(\S+);?/ ) {
 	   my $sv = $1;
 	   $sv =~ s/\;//;
-	   $seq->sv($sv);
+	   $seq->seq_version($sv);
        }
        #date
        elsif( /^DT\s+(.*)/ ) {
