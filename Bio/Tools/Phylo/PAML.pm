@@ -1039,7 +1039,7 @@ sub _parse_nt_dists {
 	    last if( $seen );
 	    next;
 	}
-	if( /^Distances:(\S+)\s+\(([^\)]+)\)\s+\(alpha set at (\d+\.\d+)\)/ ) {
+	if( /^Distances:(\S+)\s+\(([^\)]+)\)\s+\(alpha set at (\-?\d+\.\d+)\)/ ) {
 	    $okay = 1;
 	    $type = $1;
 	    next;
@@ -1050,7 +1050,7 @@ sub _parse_nt_dists {
 	    $seen = 1;
 	    my $i = 0;
 	    if( defined $vl ) {
-		while( $vl =~ /(\d+\.\d+)\s*\(\s*(\d+\.\d+)\s*\)\s*/g ) {
+		while( $vl =~ /(\-?\d+\.\d+)\s*\(\s*(\-?\d+\.\d+)\s*\)\s*/g ) {
 		    my ($kappa,$alpha) = ($1,$2);
 		    $matrix{$seqname}{$names[$i]} = 
 			$matrix{$names[$i]}{$seqname} = [$kappa,$alpha];
@@ -1098,4 +1098,39 @@ sub _parse_nt_dists {
 	 );
 }
 
+# BASEML
+sub _parse_rate_parametes {
+    my $self = shift;
+    my (%rate_parameters);
+    while( defined($_ = $self->_readline) ) {
+	if( /^Rate\s+parameters:\s+/ ) {
+	    s/\s+$//;
+	    $rate_parameters{'rate_parameters'} = [split(/\s+/,$_)];
+	} elsif(/^Base\s+frequencies:\s+/) {
+	    s/\s+$//;
+	    $rate_parameters{'base_frequencies'} = [split(/\s+/,$_)];
+	} elsif( m/^Rate\s+matrix\s+Q,\s+Average\s+Ts\/Tv\s+(\([^\)+]+\))?\s*\=\s+
+		 (\-?\d+\.\d+)/x) {
+	    $rate_parameters{'average_TsTv'} = $1;
+	    while( defined ($_ = $self->_readline) ) {
+		# short circuit
+		last if(/^\s+$/);
+		if( /^alpha/ ) { 
+		    $self->_pushback($_);
+		    last;
+		}
+		s/^\s+//;
+		s/\s+$//;
+		push @{$rate_parameters{'rate_matrix_Q'}}, [split];
+	    }
+	} elsif(/^alpha\s+\(gamma,\s+K=\s*(\d+)\s*\)\s*\=\s*(\-?\d+\.\d+)/ ) {
+	    $rate_parameters{'K'} = $1;
+	    $rate_parameters{'alpha'} = $2;
+	} elsif(s/^(r|f):\s+// ) {
+	    my ($p) = $1;
+	    s/\s+$//;
+	    $rate_parameters{$p} = [split];
+	}
+    }
+}
 1;
