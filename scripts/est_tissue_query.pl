@@ -82,6 +82,8 @@ if( ! $remote ) {
 	$remote = new Bio::DB::GenBank;
     } elsif( $remote =~ /embl/i ) {
 	$remote = new Bio::DB::EMBL;
+    } else { 
+	die("remote must be either 'NCBI' or 'EMBL'");
     }
     # would need to add code to set proxy info for those who need it
 }
@@ -113,15 +115,16 @@ SUBJECT: while( my $sbjct = $parser->nextSbjct ) {
     $id = pop @ids;
     my ($tissuetype) = get_tissue($id);
     if( defined $tissuetype ) {
-	push @{$tissues_seen{$tissuetype}}, $id;
+	push @{$tissues_seen{$tissuetype}}, $sbjct->name;
     } else { 
-	print "could not find tissue for $id\n";
+	print STDERR "could not find tissue for $id\n";
     }
 }
 
 print "tissues seen for: ", $parser->query, "\n";
-foreach my $tissue ( keys %tissues_seen ) {
-    print "$tissue\n";
+foreach my $tissue ( sort keys %tissues_seen ) {
+    print "* $tissue\n-----------\n\t", 
+    join("\n\t",@{$tissues_seen{$tissue}}), "\n\n";
 }
 
 sub get_tissue {
@@ -133,6 +136,10 @@ sub get_tissue {
     
     if( $remote ) {
 	my $seq = $remote->get_Seq_by_acc($id);
+	if( ! $seq ) {
+	    print STDERR "unable to find seq for id $id\n";
+	    return '';
+	}
 	foreach my $feature ( $seq->all_SeqFeatures ) {
 	    if( $feature->primary_tag eq 'source' ) {
 		foreach my $tag ( sort { $b cmp $a }
