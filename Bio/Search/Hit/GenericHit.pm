@@ -672,15 +672,23 @@ sub hsp {
  Usage     : $hit_object->logical_length( [seq_type] );
            : (mostly intended for internal use).
  Purpose   : Get the logical length of the hit sequence.
-           : If the Blast is a TBLASTN or TBLASTX, the returned length 
-           : is the length of the would-be amino acid sequence (length/3).
-           : For all other BLAST flavors, this function is the same as length().
+           : This is necessary since the number of identical/conserved residues 
+           : can be in terms of peptide sequence space, yet the query and/or hit
+           : sequence are in nucleotide space.
  Example   : $len    = $hit_object->logical_length();
  Returns   : Integer 
  Argument  : seq_type = 'query' or 'hit' or 'sbjct' (default = 'query')
              ('sbjct' is synonymous with 'hit')
  Throws    : n/a
- Comments  : This is important for functions like frac_aligned_query()
+ Comments  :
+           : In the case of BLAST flavors:
+           : For TBLASTN reports, the length of the aligned portion of the 
+           : nucleotide hit sequence is divided by 3; for BLASTX reports, 
+           : the length of the aligned portion of the nucleotide query 
+           : sequence is divided by 3. For TBLASTX reports, the length of 
+           : both hit and query sequence are converted.
+           :
+           : This is important for functions like frac_aligned_query()
            : which need to operate in amino acid coordinate space when dealing
            : with [T]BLAST[NX] type reports.
 
@@ -695,26 +703,21 @@ sub logical_length {
     my $seqType = shift || 'query';
     $seqType = 'sbjct' if $seqType eq 'hit';
 
-    my $length;
+    my ($length, $logical);
+    my $algo = $self->algorithm;
 
     # For the sbjct, return logical sbjct length
     if( $seqType eq 'sbjct' ) {
         $length = $self->length;
-        # Adjust length based on BLAST flavor.
-        if($self->algorithm =~ /TBLAST[NX]/ ) {
-            $length /= 3;
-        }
     } else {
         # Otherwise, return logical query length
         $length = $self->query_length();
         $self->throw("Must have defined query_len") unless ( $length );
-
-        # Adjust length based on BLAST flavor.
-        if($self->algorithm =~ /T?BLASTX/ ) {
-            $length /= 3;
-        }
     }
-    return int($length);
+
+    $logical = Bio::Search::SearchUtils::logical_length($algo, $seqType, $length);
+
+    return int($logical);
 }
 
 =head2 length_aln
@@ -1049,8 +1052,9 @@ sub range {
  Throws    : n/a
  Comments  :
            : To compute the fraction identical, the logical length of the 
-           : aligned portion of the sequence is used, meaning that for 
-           : TBLASTN reports, the length of the aligned portion of the 
+           : aligned portion of the sequence is used, meaning that
+           : in the case of BLAST flavors, for TBLASTN reports, the length of 
+           : the aligned portion of the 
            : nucleotide hit sequence is divided by 3; for BLASTX reports, 
            : the length of the aligned portion of the nucleotide query 
            : sequence is divided by 3. For TBLASTX reports, the length of 
@@ -1126,8 +1130,9 @@ sub frac_identical {
  Throws    : n/a
  Comments  :
            : To compute the fraction conserved, the logical length of the 
-           : aligned portion of the sequence is used, meaning that for 
-           : TBLASTN reports, the length of the aligned portion of the 
+           : aligned portion of the sequence is used, meaning that
+           : in the case of BLAST flavors, for TBLASTN reports, the length of 
+           : the aligned portion of the 
            : nucleotide hit sequence is divided by 3; for BLASTX reports, 
            : the length of the aligned portion of the nucleotide query 
            : sequence is divided by 3. For TBLASTX reports, the length of 
