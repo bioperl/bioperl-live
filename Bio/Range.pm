@@ -230,7 +230,7 @@ sub length {
 
 sub toString {
   my $self = shift;
-  return  "(" . $self->start() . "," . $self->end() . ")";
+  return  "(${\$self->start}, ${\$self->end}) strand=${\$self->strand}";
 }
 
 =head1 Boolean Methods
