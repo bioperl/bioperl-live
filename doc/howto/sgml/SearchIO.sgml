@@ -766,7 +766,7 @@
       <ulink url="http://doc.bioperl.org">http://doc.bioperl.org</ulink>
       which provides the HTML versions of the Perl POD (Plain Old
       Documentation) that is embedded in every well-written Perl
-      module. Another sources of code are the examples/searchio/
+      module. Other sources of code are the examples/searchio/
       and scripts/searchio directories in the Bioperl package.
     </para>
   </section>
