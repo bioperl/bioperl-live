@@ -372,7 +372,14 @@ sub _parseHeader {
 	  $header_flag = 1;	# valid header element found
 	  my $query = $1;
 	  while( defined($_ = $self->_readline() ) ) {
-	      if( $_ =~ /^Database/ ) { $self->_pushback($_); last; }
+	      # Continue reading query name until encountering either
+	      # a line that starts with "Database" or a blank line.
+	      # The latter condition is needed in order to be able to
+	      # parse megablast output correctly, since Database comes
+	      # before (not after) the query.
+	      if( ($_ =~ /^Database/) || ($_ =~ /^$/) ) {
+		  $self->_pushback($_); last;
+	      }	      
 	      $query .= $_;
 	  }
 	  $query =~ s/\s+/ /g;
