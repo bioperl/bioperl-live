@@ -310,7 +310,9 @@ sub _set_row_data_func {
     my $func = sub {
         my ($result, $hit, $hsp) = @_;
         my @r = eval $code;
-	if( $@ ) { $self->debug($@); }
+        # This should reduce the occurrence of those opaque "all zeros" bugs.
+	if( $@ ) { $self->throw("Trouble in ResultTableWriter::_set_row_data_func() eval: $@\n\n"); 
+               }
 	return @r;
     };
     $self->{'_row_data_func'} = $func;
