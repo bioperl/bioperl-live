@@ -38,7 +38,11 @@ BEGIN {
       $error = 1;
    }
 }
-
+END {
+   foreach ( $Test::ntest..$NUMTESTS) {
+      skip('Unable to run Interpro Tests',1);
+   }
+}
 if ( $error ) {
     exit(0);
 }

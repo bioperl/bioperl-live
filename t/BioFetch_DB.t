@@ -27,19 +27,16 @@ BEGIN {
 
     $NUMTESTS = 27;
     plan tests => $NUMTESTS;
-
-    unless( eval "require IO::String; 1;" ) {
-#      warn $@;
-      for( $Test::ntest..$NUMTESTS ) {
-	skip("IO::String not installed. This means that Bio::DB::BioFetch module is not usable. Skipping tests.",1);
-      }
+    eval { require IO::String; require LWP::UserAgent; 1; };
+   if ( $@ ) {
+      warn("No LWP::UserAgent or IO::String installed\n");
       $error = 1;
     }
 }
 
 END { 
     foreach ( $Test::ntest..$NUMTESTS) {
-	skip('unable to run all of the Biblio/Biofetch tests - probably no network',1);
+	skip('unable to run all of the Biblio/Biofetch tests - probably no network or LWP not installed',1);
     }
 }
 

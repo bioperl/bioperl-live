@@ -25,7 +25,7 @@ BEGIN {
 
     $NUMTESTS = 15;
     plan tests => $NUMTESTS;
-    eval { require 'IO/String.pm' };
+    eval { require IO::String; require HTTP::Request::Common;   };
     if( $@ ) {
 	for( $Test::ntest..$NUMTESTS ) {
 	    skip("IO::String not installed. This means the Bio::DB::* modules are not usable. Skipping tests",1);
