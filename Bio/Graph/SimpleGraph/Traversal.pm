@@ -103,16 +103,6 @@ sub get_all {
   my $graph   = $self->graph;
   my $nodes   = $graph->_nodes;
 
- ##temporary fix for dealing with nodes that are references
- my $is_href = 1;
- for my $n (keys %$nodes) {
-	if( !ref ($nodes->{$n}) || ref($nodes->{$n}) eq  'ARRAY') {
-		$is_href = 0;
-		last;
-		}
- 	 $nodes->{$n}{'_node_id'} = undef;
-	}
-
   my $results =[];
   while (@$future) {
     $present = shift @$future;
@@ -120,7 +110,6 @@ sub get_all {
          $past->{$present} = 1;
 
          push(@$results,$present);
-		 $nodes->{$present}{'_node_id'} = $i if $is_href;
 		 $i++;
          if ($self->order =~ /^d/i) {
 		    unshift(@$future,$graph->neighbors($present,$self->what));
