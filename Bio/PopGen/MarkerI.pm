@@ -22,10 +22,12 @@ Bio::PopGen::MarkerI - A Population Genetic conceptual marker
   my $description = $marker->description(); # description
   my $type = $marker->type();            # coded type of the marker
   my $unique_id = $marker->unique_id;    # optional unique ID
+
   my @alleles = $marker->get_Alleles();  # the known alleles
   my %allele_freqs = $marker->get_Allele_Frequencies(); # keys are marker names
                                          # vals are frequencies
                                          # may change to handle multiple populations
+
 
 =head1 DESCRIPTION
 
@@ -75,8 +77,9 @@ use vars qw(@ISA);
 use strict;
 
 use Bio::Root::RootI;
+use Bio::AnnotatableI;
 
-@ISA = qw( Bio::Root::RootI );
+@ISA = qw( Bio::Root::RootI Bio::AnnotatableI);
 
 
 =head2 name
@@ -143,11 +146,33 @@ sub unique_id{
     $self->throw_not_implemented();
 }
 
+
+=head2 annotation
+
+ Title   : annotation
+ Usage   : $obj->annotation($seq_obj)
+ Function: retrieve the attached annotation object
+ Returns : Bio::AnnotationCollectionI or none;
+
+See L<Bio::AnnotationCollectionI> and L<Bio::Annotation::Collection>
+for more information. This method comes through extension from
+L<Bio::AnnotatableI>.
+
+
+=cut
+
+
+sub annotation{
+   my ($self,@args) = @_;
+
+}
+
+
 =head2 get_Alleles
 
  Title   : get_Alleles
  Usage   : my @alleles = $marker->get_Alleles();
- Function: Get the available marker alleles
+ Function: Get the available marker alleles if they are known and stored
  Returns : Array of strings
  Args    : none
 
@@ -178,6 +203,5 @@ sub get_Allele_Frequencies{
    my ($self) = @_;
     $self->throw_not_implemented();
 }
-
 
 1;

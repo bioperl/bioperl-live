@@ -87,6 +87,21 @@ sub unique_id{
    $self->throw_not_implemented();
 }
 
+
+=head2 num_of_results
+
+ Title   : num_of_results
+ Usage   : my $count = $person->num_results;
+ Function: returns the count of the number of Results for a person
+ Returns : integer
+ Args    : none
+
+=cut
+
+sub num_of_results { 
+    shift->throw_not_implemented;
+}
+
 =head2 get_Genotypes
 
  Title   : get_Genotypes

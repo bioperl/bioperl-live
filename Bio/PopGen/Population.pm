@@ -258,7 +258,7 @@ sub get_Individuals{
    my @inds = @{$self->{'_individuals'}};
    return unless @inds;
    if( @args ) { # save a little time here if @args is empty
-       my ($id,$marker) = $self->_rearrange([qw(UNIQUE_ID
+       my ($id,$name,$marker) = $self->_rearrange([qw(UNIQUE_ID
 						MARKER)], @args);
 
        if( defined $id ) { 

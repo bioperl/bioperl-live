@@ -104,6 +104,8 @@ sub name{
    $self->throw_not_implemented();
 }
 
+
+
 =head2 description
 
  Title   : description
@@ -196,9 +198,27 @@ sub get_Marker{
 
 =cut
 
-sub get_Marker_names{
+sub get_marker_names{
     my ($self) = @_;
     $self->throw_not_implemented();
+}
+
+=head2 get_Markers
+
+ Title   : get_Markers
+ Usage   : my @markers = $pop->get_Markers();
+ Function: Will retrieve a list of instantiated MarkerI objects 
+           for a population.  This is a convience method combining
+           get_marker_names with get_Marker
+ Returns : List of array of Bio::PopGen::MarkerI objects
+ Args    : none
+
+
+=cut
+
+sub get_Markers{
+    my ($self) = shift;
+    return map { $self->get_Marker($_) } $self->get_marker_names();
 }
 
 

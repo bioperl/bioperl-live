@@ -111,7 +111,11 @@ sub new {
   if( ! defined $uid ) {
       $uid = $UniqueCounter++;
   }
-  defined $name && $self->name($name);
+  if( defined $name) {
+      $self->name($name);
+  } else { 
+      $self->throw("Must have provided a name when initializing a Marker");
+  }
   defined $desc && $self->description($desc);
   defined $type && $self->type($type);
   $self->unique_id($uid);
@@ -213,7 +217,7 @@ sub unique_id{
 
 sub get_Alleles{
     my ($self) = @_;
-    return keys %{$self->{'_allele_freqs'}};
+    return sort { $b <=> $a || $b cmp $a } keys %{$self->{'_allele_freqs'}};
 }
 
 

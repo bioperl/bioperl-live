@@ -65,8 +65,9 @@ Internal methods are usually preceded with a _
 
 
 package Bio::PopGen::Individual;
-use vars qw(@ISA);
+use vars qw(@ISA $UIDCOUNTER);
 use strict;
+BEGIN { $UIDCOUNTER = 1 }
 
 # Object preamble - inherits from Bio::Root::Root
 
@@ -94,7 +95,10 @@ sub new {
   $self->{'_genotypes'} = {};
   my ($uid,$genotypes) = $self->_rearrange([qw(UNIQUE_ID
 					       GENOTYPES)],@args);
-  defined $uid && $self->unique_id($uid);
+  unless( defined $uid ) {
+      $uid = $UIDCOUNTER++;
+  } 
+  $self->unique_id($uid);
   if( defined $genotypes ) {
       if( ref($genotypes) =~ /array/i ) {
 	  $self->add_Genotype(@$genotypes);
@@ -121,6 +125,20 @@ sub unique_id{
    my ($self) = shift;
    return $self->{'_unique_id'} = shift if @_;
    return $self->{'_unique_id'};
+}
+
+=head2 num_of_results
+
+ Title   : num_of_results
+ Usage   : my $count = $person->num_results;
+ Function: returns the count of the number of Results for a person
+ Returns : integer
+ Args    : none
+
+=cut
+
+sub num_of_results {
+    return scalar keys %{shift->{'_genotypes'}};
 }
 
 
@@ -153,7 +171,7 @@ sub add_Genotype {
 =head2 reset_Genotypes
 
  Title   : reset_Genotypes
- Usage   : $genoetype->reset_Genotypes;
+ Usage   : $individual->reset_Genotypes;
  Function: Reset the genotypes stored for this individual
  Returns : none
  Args    : none
@@ -162,8 +180,25 @@ sub add_Genotype {
 =cut
 
 sub reset_Genotypes{
-   my ($self,@args) = @_;
-   $self->{'_genotypes'} = {};
+    shift->{'_genotypes'} = {};
+}
+
+=head2 remove_Genotype
+
+ Title   : remove_Genotype
+ Usage   : $individual->remove_Genotype(@names)
+ Function: Removes the genotypes for the requested markers
+ Returns : none
+ Args    : Names of markers 
+
+
+=cut
+
+sub remove_Genotype{
+   my ($self,@mkrs) = @_;
+   foreach my $m ( @mkrs ) {
+       delete($self->{'_genotypes'}->{$m});
+   }
 }
 
 =head2 get_Genotypes
@@ -182,7 +217,7 @@ sub get_Genotypes{
    my ($self,@args) = @_;
    if( @args ) {
        unshift @args, '-marker' if( @args == 1 );  # deal with single args
-
+       
        my ($name) = $self->_rearrange([qw(MARKER)], @args);
        if( ! $name ) {
 	   $self->warn("Only know how to process the -marker field currently");
