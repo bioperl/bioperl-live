@@ -185,6 +185,7 @@ sub add_Individual{
 	}
 	push @{$self->{'_individuals'}}, $i;
     }
+    $self->{'_cached_markernames'} = undef;
     return scalar @{$self->{'_individuals'}};
 }
 
@@ -240,6 +241,30 @@ sub get_Genotypes{
    } 
    $self->warn("You needed to have provided a valid -marker value");
    return ();
+}
+
+
+=head2 get_marker_names
+
+ Title   : get_marker_names
+ Usage   : my @names = $pop->get_marker_names;
+ Function: Get the names of the markers
+ Returns : Array of strings
+ Args    : [optional] boolean flag to ignore internal cache status
+
+
+=cut
+
+sub get_marker_names{
+    my ($self,$force) = @_;
+    return @{$self->{'_cached_markernames'}} 
+      if( ! $force && defined $self->{'_cached_markernames'});
+    my %unique;
+    foreach my $n ( map { $_->get_marker_names } $self->get_Individuals() ) {
+	$unique{$n}++;
+    }
+    $self->{'_cached_markernames'} = [ keys %unique ];
+    return @{$self->{'_cached_markernames'} };
 }
 
 

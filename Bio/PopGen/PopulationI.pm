@@ -185,6 +185,22 @@ sub get_Marker{
     shift->throw_not_implemented();
 }
 
+=head2 get_marker_names
+
+ Title   : get_marker_names
+ Usage   : my @names = $pop->get_marker_names;
+ Function: Get the names of the markers
+ Returns : Array of strings
+ Args    : none
+
+
+=cut
+
+sub get_Marker_names{
+    my ($self) = @_;
+    $self->throw_not_implemented();
+}
+
 
 =head2 number_individuals
 
@@ -192,7 +208,8 @@ sub get_Marker{
  Usage   : my $count = $pop->number_individuals;
  Function: Get the count of the number of individuals
  Returns : integer >= 0
- Args    : none
+ Args    : [optional] marker name, will return a count of the number
+           of individuals which have this marker
 
 
 =cut
