@@ -11,12 +11,40 @@ Bio::AlignIO::phylip - PHYLIP format sequence input/output stream
 
 =head1 SYNOPSIS
 
-Do not use this module directly.  Use it via the Bio::AlignIO class.
+# Do not use this module directly.  Use it via the Bio::AlignIO class.
+
+    use Bio::AlignIO;
+    use Bio::SimpleAlign;
+    my $phylipstream = new Bio::AlignIO(-format => 'phylip',
+					-fh   => \*STDOUT);
+    # convert data from one format to another
+    my $gcgstream     =  new Bio::AlignIO(-format => 'msf',
+					  -file   => 't/data/cysprot1a.msf');    
+
+    while( my $aln = $gcgstream->next_aln ) {
+	$phylipstream->write_aln($aln);
+    }
+    
+    # do it again with phylip sequential format format 
+    $phylipstream->interleaved(0);
+    # can also initialize the object like this
+    $phylipstream = new Bio::AlignIO(-interleaved => 0,
+				     -format => 'phylip',
+				     -fh   => \*STDOUT);
+    $gcgstream     =  new Bio::AlignIO(-format => 'msf',
+				       -file   => 't/data/cysprot1a.msf');    
+
+    while( my $aln = $gcgstream->next_aln ) {
+	$phylipstream->write_aln($aln);
+    }
 
 =head1 DESCRIPTION
 
 This object can transform Bio::SimpleAlign objects to and from PHYLIP
 interleaved format. It will not work with PHYLIP sequencial format.
+
+This module will output PHYLIP sequential format.  By specifying the flag
+-interleaved => 0 in the initialization the module can output data in interleaved format.
 
 =head1 FEEDBACK
 
@@ -29,10 +57,10 @@ Report bugs to the Bioperl bug tracking system to help us keep track
   bioperl-bugs@bio.perl.org
   http://bio.perl.org/bioperl-bugs/
 
-=head1 AUTHORS - Heikki Lehvaslaiho
+=head1 AUTHORS - Heikki Lehvaslaiho and Jason Stajich
 
 Email: heikki@ebi.ac.uk
-
+Email: jason@bioperl.org
 
 =head1 APPENDIX
 
@@ -52,6 +80,14 @@ use Bio::AlignIO;
 @ISA = qw(Bio::AlignIO);
 
 
+sub _initialize {
+  my($self,@args) = @_;
+
+  my ($interleave) = $self->_rearrange([qw(INTERLEAVED)],@args);
+  if( ! defined $interleave ) { $interleave = 1 }  # this is the default
+  $self->interleaved(1) if( $interleave);
+}
+
 =head2 next_aln
 
  Title   : next_aln
@@ -67,7 +103,8 @@ use Bio::AlignIO;
 sub next_aln {
     my $self = shift;
     my $entry;
-    my ($seqcount, $residuecount, %hash, $name,$str,@names,$seqname,$start,$end,$count,$seq);
+    my ($seqcount, $residuecount, %hash, $name,$str,
+	@names,$seqname,$start,$end,$count,$seq);
     
     my $aln =  Bio::SimpleAlign->new();
     $entry = $self->_readline and 
@@ -154,50 +191,77 @@ sub write_aln {
     my $wrapped = 0;
     my $maxname;
     my ($length,$date,$name,$seq,$miss,$pad,%hash,@arr,$tempcount,$index);
-    
+
     foreach my $aln (@aln) {
-	
+
 	$self->throw("All sequences in the alignment must be the same length") 
 	    unless $aln->is_flush ;
 
 	$length  = $aln->length();
 	$self->_print (sprintf(" %s %s\n", $aln->no_sequences, $aln->length));
-
 	foreach $seq ( $aln->each_seq() ) {
 	    $name = $aln->displayname($seq->get_nse());
 	    ($name) = $name =~ /(.{10})/;
-	    $name .= '   ';
+	    $name .= '   ' if( $self->interleaved());
 	    $hash{$name} = $seq->seq();
 	    push(@arr,$name);
 	}
 
-    	while( $count < $length ) {	
-	    # there is another block to go!
+	if( $self->interleaved ) {
+	    while( $count < $length ) {	
+		# there is another block to go!
+		foreach $name ( @arr ) {
+		    my $dispname = $name;
+		    $dispname = '' if $wrapped;
+		    $self->_print (sprintf("%13s  ",$dispname));
+		    $tempcount = $count;
+		    $index = 0;
+		    while( ($tempcount + 10 < $length) && ($index < 5)  ) {
+			$self->_print (sprintf("%s ",substr($hash{$name},$tempcount,10)));
+			$tempcount += 10;
+			$index++;
+		    }
+		    # last
+		    if( $index < 5) {
+			# space to print!
+			$self->_print (sprintf("%s ",substr($hash{$name},$tempcount)));
+			$tempcount += 10;
+		    }
+		    $self->_print ("\n");
+		}
+		$self->_print ("\n\n");
+		$count = $tempcount;
+		$wrapped = 1;
+	    } 			
+	} else {
 	    foreach $name ( @arr ) {
 		my $dispname = $name;
 		$dispname = '' if $wrapped;
-	    	$self->_print (sprintf("%13s  ",$dispname));
-		$tempcount = $count;
-	    	$index = 0;
-	    	while( ($tempcount + 10 < $length) && ($index < 5)  ) {
-		    $self->_print (sprintf("%s ",substr($hash{$name},$tempcount,10)));
-		    $tempcount += 10;
-		    $index++;
-	    	}
-	    	# last
-	    	if( $index < 5) {
-		    # space to print!
-		    $self->_print (sprintf("%s ",substr($hash{$name},$tempcount)));
-		    $tempcount += 10;
-	    	}
-	    	$self->_print ("\n");
-	    }
-	    $self->_print ("\n\n");
-	    $count = $tempcount;
-	    $wrapped = 1;
-    	} 			
+		$self->_print (sprintf("%s%s\n",$dispname,$hash{$name}));
+	    }	
+	}
     }
     return 1;
+}
+
+=head2 interleaved
+
+ Title   : interleaved
+ Usage   : my $interleaved = $obj->interleaved
+ Function: Get/Set Interleaved status
+ Returns : boolean
+ Args    : boolean
+
+
+=cut
+
+sub interleaved{
+   my ($self,$value) = @_;
+   my $previous = $self->{'_interleaved'};
+   if( defined $value ) { 
+       $self->{'_interleaved'} = $value;
+   }
+   return $previous;
 }
 
 1;
