@@ -53,6 +53,9 @@ retrieving the sequence from them. Note: for best results 'use strict'.
 Bio::Index::Fasta supports the Bio::DB::BioSeqI interface, meaning
 it can be used a a Sequence database for other parts of bioperl
 
+Details on configuration and additional example code are available in the
+biodatabases.pod file.
+
 =head1 FEED_BACK
 
 =head2 Mailing Lists

@@ -52,6 +52,10 @@ and provides the basic funtionallity for indexing GenBank files, and
 retrieving the sequence from them. Heavily snaffled from James Gilbert's
 Fasta system. Note: for best results 'use strict'.
 
+Details on configuration and additional example code are available in the
+biodatabases.pod file.
+
+
 =head1 FEED_BACK
 
 =head2 Mailing Lists
