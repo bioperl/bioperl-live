@@ -90,7 +90,8 @@ to read and write sequence objects:
 
     use Bio::SeqIO;
 
-    $stream = Bio::SeqIO->newFh(-format => 'Fasta'); # read from standard input
+    $stream = Bio::SeqIO->newFh(-format => 'Fasta',
+                                -fh => \*ARGV); # read from standard input
 
     while ( $seq = <$stream> ) {
 	# do something with $seq
@@ -102,16 +103,17 @@ and
 
 This makes the simplest ever reformatter
 
-    #!/usr/local/bin/perl
+    #!/usr/bin/perl
 
     $format1 = shift;
     $format2 = shift || die "Usage: reformat format1 format2 < input > output";
 
     use Bio::SeqIO;
 
-    $in  = Bio::SeqIO->newFh(-format => $format1 );
+    $in  = Bio::SeqIO->newFh(-format => $format1, -fh => \*ARGV );
     $out = Bio::SeqIO->newFh(-format => $format2 );
-    #note: you might want to quote -format to keep older perl's from complaining.
+    # Note: you might want to quote -format to keep older perl's 
+    # from complaining.
 
     print $out $_ while <$in>;
 
