@@ -242,8 +242,10 @@ sub get_info {
 					 $text =~ /Seq Max Len/i) ) {
 				   $state = 3;
 			       }  elsif ( $state == 4 ) {
-				   my ($len) = ( $text =~ /\d+\.(\d+)\d/ );
-				   $length = 1000 * $len;
+				   my ($len) = ( $text =~ /(\d+\.\d+)/
+);
+				   $length = $len;
+				   $length *= 1000 if( $len < 1 );
 				   $state = 0;
 			       } elsif( $lasttag eq 'dd' && 
 					$text =~ /(GDB:\d+)/i ) {
