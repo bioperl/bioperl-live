@@ -163,7 +163,7 @@ Genome Research. 2002 Oct;12(10):1161-8.
          <question>I want to parse BLAST, how do I do this?</question>
          <answer>
             <p>Well you might notice that there are a lot of choices.  Sorry about that.  We've been evolving towards a single solution.</p>
-            <p>Currently the best way to parse a report is to use the SearchIO system.  This supports blast and fasta report parsing.  The bptutorial provides an example of how to use this system as well as the documentation in the Bio::SearchIO system.</p>
+            <p>Currently the best way to parse a report is to use the SearchIO system.  This supports blast and fasta report parsing.  The bptutorial provides an example of how to use this system as well as the documentation in the Bio::SearchIO system. There is also a good HOWTO on the subject, see http://www.bioperl.org/HOWTOs/.</p>
          </answer>
       </q>
       <q id="2">
@@ -284,6 +284,10 @@ $hsp-&gt;query-&gt;frame();
    <section>
    <section_name>Running external programs</section_name>
      <q id="1">
+<<<<<<< faq.xml
+     <question>Hey, I want to run blast or clustalw within Bioper, I
+      used Bio::Tools::Run::StandAloneBlast before - where did it go?</question>
+=======
      <question>How do I run Blast from within Bioperl?</question>
      <answer> Use the module Bio::Tools::Run::StandAloneBlast.  It will give you access to many of the search tools in the NCBI blast suite including blastll, bl2seq, blastpgp.  The basic structure is like this.
 
@@ -299,6 +303,7 @@ my $report = $factory->blastall($seq);
      </q>
      <q id="2">
      <question>Hey, I want to run clustalw within Bioperl, I used Bio::Tools::Run::Alignment::Clustalw before - where did it go?</question>
+>>>>>>> 1.14
       <answer>The Bio::Tools::Run directory was moved to a new package to help make the size of the core code smaller and separate out the more specialized nature of application running from the rest of Bioperl.  You can get these modules by installing the bioperl-run package.  This is either available from CVS under the same name or available in the http://bioperl.org/DIST directory and on CPAN.  This changeover began in the bioperl 1.1 developer release.
      </answer>
 
