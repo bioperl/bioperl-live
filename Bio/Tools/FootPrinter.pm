@@ -207,7 +207,6 @@ sub _parse {
    my $word;
     my @words;
     foreach my $c(@char){
-        $c=~/\s/ && next;
         if(!$word){
             $word .= $c;
             $prev = $c;
@@ -218,19 +217,27 @@ sub _parse {
           $prev = $c;
         }
         else {
-            push @words, $word;
+            #remove words with only \s
+            $word=~s/\s+//g;
+            if ($word ne ''){
+              push @words, $word;
+            }
             $word=$c;
-          $prev = $c;
+           $prev = $c;
+           
         }
     }
+    $word=~s/\s+//g;
     if($word ne ''){
       push @words, $word;
     }
     my $last;
     my $feat = new Bio::SeqFeature::Generic(-seq_id=>$name);
+    my $offset;
     foreach my $w(@words){
         if($w !~ /^$/){
-          my $index = index($pattern,$w);
+          my $index = index($pattern,$w,$offset);
+          $offset = $index + length($w);
           my $subfeat = new Bio::SeqFeature::Generic ( -seq_id=>$name,
                                                     -start => $index+1, 
                                                     -end =>$index+length($w),
