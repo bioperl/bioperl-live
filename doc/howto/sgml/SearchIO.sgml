@@ -152,17 +152,34 @@
       A design pattern, called Factory, is utilized in object
       oriented programming to separate the entity which process data
       from objects which will hold the information produced.  In the
-      same manner that the Bio::SeqIO module is used to parse different
-      file formats and produces objects which are Bio::PrimarySeqI
-      compliant, we have written Bio::SearchIO to produce the
+      same manner that the <ulink
+	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqIO.html">
+	Bio::SeqIO</ulink> module is used to parse different
+      file formats and produces objects which are 
+<ulink
+	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/PrimarySeq.html">
+Bio::PrimarySeqI</ulink>
+      compliant, we have written <ulink
+	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SearchIO.html">
+Bio::SearchIO</ulink> to produce the
       Bio::Search objects.  Sequences are a little less complicated so
       there is only one primary object (Bio::PrimarySeqI) which Search
       results need three main components to represent the data
-      processed in a file: Bio::Search::Result::ResultI (top level results),
-      Bio::Search::Hit::HitI (hits) and Bio::Search::HSP::HSPI (HSPs).   
-      The Bio::SearchIO object is then a factory which produces
-      Bio::Search::Result::ResultI objects  and the
-      Bio::Search::Result::ResultI objects contain information about
+      processed in a file: 
+<ulink
+	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/Result/ResultI.html">Bio::Search::Result::ResultI</ulink> (top level results),
+      <ulink
+	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/Hit/HitI.html">Bio::Search::Hit::HitI</ulink> (hits) and 
+<ulink
+	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/HSP/HSPI.html">
+Bio::Search::HSP::HSPI</ulink> (HSPs).   
+      The <ulink
+	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SearchIO.html">
+Bio::SearchIO</ulink> object is then a factory which produces
+      <ulink
+	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/Result/ResultI.html">Bio::Search::Result::ResultI</ulink> objects  and the
+      <ulink
+	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/Result/ResultI.html">Bio::Search::Result::ResultI</ulink> objects contain information about
       the query, the database searched, and the full collection of Hits
       found for the query.
     </para>
@@ -703,7 +720,9 @@ S1: 32 (17.6 bits)
       additional code will probably be needed to get the data of
       interest. For example, if you wanted a printable alignment after
       you'd parsed BLAST output you could use the get_aln() method,
-      retrieve a Bio::SimpleAlign object and use it like this:
+      retrieve a <ulink
+	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SimpleAlign.html">
+Bio::SimpleAlign</ulink> object and use it like this:
       <programlisting>
 	use Bio::AlignIO;
 	# $aln will be a Bio::SimpleAlign object
@@ -725,16 +744,16 @@ S1: 32 (17.6 bits)
       query or hit. The ambiguous_aln() method will return one of
       these 4 values:
       <simplelist type="horiz" columns="2">
-	<member>q</member>
+	<member><emphasis>q</emphasis></member>
 	<member>query sequence contains overlapping sub-sequences
              while hit sequence does not</member>
-	<member>s</member>
+	<member><emphasis>s</emphasis></member>
 	<member>hit sequence contains overlapping sub-sequences
              while query does not</member>
-	<member>qw</member>
+	<member><emphasis>qw</emphasis></member>
 	<member>query and hit sequences contain overlapping sub-sequences
              relative to each other</member>
-	<member>-</member>
+	<member><emphasis>-</emphasis></member>
 	<member>query and hit sequence do not contain multiple domains
              relative to each other OR both contain the same distribution
              of similar domains</member>
@@ -779,7 +798,8 @@ S1: 32 (17.6 bits)
       <ulink url="http://doc.bioperl.org">http://doc.bioperl.org</ulink>
       which provides the HTML versions of the Perl POD (Plain Old
       Documentation) that is embedded in every well-written Perl
-      module. Other sources of code are the examples/searchio/
+      module - there's also a list of modules at the bottom of this
+      HOWTO. Other sources of code are the examples/searchio/
       and scripts/searchio directories in the Bioperl package.
     </para>
   </section>
@@ -861,7 +881,10 @@ S1: 32 (17.6 bits)
       parser one only needs to write a module that produces the
       appropriate start and end events and the existing framework will
       do the work of creating the objects for you.  Here's how we've
-      implemented event-based parsing for Bio::SearchIO.  The
+      implemented event-based parsing for 
+<ulink
+	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SearchIO.html">
+Bio::SearchIO</ulink>.  The
       Bio::SearchIO is just the front-end to this process, in fact the
       processing of these reports is done by different modules in the
       Bio/SearchIO directory.  So if you look at your bioperl
@@ -897,8 +920,12 @@ S1: 32 (17.6 bits)
       we don't have to pass in two values.  It also easy for someone to
       quickly read the list of events and know which ones are related
       to Hits and which ones are related to HSPs.  The listener in our
-      architecture is the Bio::SearchIO::SearchResultEventBuilder.
-      This object is attached as a listener through the Bio::SearchIO
+      architecture is the <ulink
+	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SearchIO/SearchResultEventBuilder.html">Bio::SearchIO::SearchResultEventBuilder</ulink>.
+      This object is attached as a listener through the 
+<ulink
+	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SearchIO.html">
+Bio::SearchIO</ulink>
       method add_EventListener.  In fact you could have multiple event
       listeners and they could do different things.  In our case we
       want to create Bio::Search objects, but an event listener could
@@ -976,7 +1003,9 @@ S1: 32 (17.6 bits)
   <section id="extending">
     <title>Extending SearchIO</title>
     <para>
-      The framework for Bio::SearchIO is just a starting point for parsing
+      The framework for <ulink
+	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SearchIO.html">
+Bio::SearchIO</ulink> is just a starting point for parsing
       these reports and creating objects which represent the information.
       If you would like to create your own set of objects which extend the
       current functionality we have built the system so that it will
@@ -999,9 +1028,14 @@ S1: 32 (17.6 bits)
     </para>
     <para>
       So, you're going to write your new special module, you do need to
-      make sure it inherits from the base Bio::Search::HSP::HSPI object.
+      make sure it inherits from the base 
+<ulink
+	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/HSP/HSPI.html">
+Bio::Search::HSP::HSPI</ulink> object.
       Additionally unless you want to reimplement all the initialization
-      state in the current Bio::Search::HSP::GenericHSP you should just
+      state in the current 
+<ulink
+	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/HSP/GenericHSP.html">Bio::Search::HSP::GenericHSP</ulink> you should just
       plan to extend that object.  You need to follow the chained
       constructor system that we have set up so that the arguments are
       properly processed.  Here is a sample of what your code might look
@@ -1071,6 +1105,127 @@ $searchio->_eventHandler->register_factory('hit', $hitfact);
       to be as efficient in parsing as we would like.  Future work will
       hopefully address speed and memory issues with this parser.
       Volunteers and improvement code are always welcome.
+    </para>
+  </section>
+
+  <section id="links">
+  <title>Useful links</title>
+    <para>
+      <emphasis>SearchIO Modules</emphasis>
+      <simplelist type="horiz" columns="1">
+	<member><ulink
+	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SearchIO.html">
+	    SearchIO.pm</ulink></member>
+	
+<member><ulink
+	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SearchIO/axt.html">SearchIO/axt.pm</ulink></member>
+<member><ulink
+	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SearchIO/blast.html">SearchIO/blast.pm</ulink></member>
+<member><ulink
+	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SearchIO/blasttable.html">SearchIO/blasttable.pm</ulink></member>
+<member><ulink
+	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SearchIO/blastxml.html">SearchIO/blastxml.pm</ulink></member>
+<member><ulink
+	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SearchIO/EventHandlerI.html">SearchIO/EventHandlerI.pm</ulink></member>
+<member><ulink
+	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SearchIO/exonerate.html">SearchIO/exonerate.pm</ulink></member>
+<member><ulink
+	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SearchIO/fasta.html">SearchIO/fasta.pm</ulink></member>
+<member><ulink
+	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SearchIO/FastHitEventBuilder.html">SearchIO/FastHitEventBuilder.pm</ulink></member>
+<member><ulink
+	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SearchIO/hmmer.html">SearchIO/hmmer.pm</ulink></member>
+<member><ulink
+	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SearchIO/IteratedSearchResultEventBuilder.html">SearchIO/IteratedSearchResultEventBuilder.pm</ulink></member>
+<member><ulink
+	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SearchIO/megablast.html">SearchIO/megablast.pm</ulink></member>
+<member><ulink
+	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SearchIO/psl.html">SearchIO/psl.pm</ulink></member>
+<member><ulink
+	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SearchIO/SearchResultEventBuilder.html">SearchIO/SearchResultEventBuilder.pm</ulink></member>
+<member><ulink
+	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SearchIO/SearchWriterI.html">SearchIO/SearchWriterI.pm</ulink></member>
+<member><ulink
+	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SearchIO/sim4.html">SearchIO/sim4.pm</ulink></member>
+<member><ulink
+	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SearchIO/waba.html">SearchIO/waba.pm</ulink></member>
+<member><ulink
+	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SearchIO/wise.html">SearchIO/wise.pm</ulink></member>
+<member><ulink
+	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SearchIO/Writer/BSMLResultWriter.html">SearchIO/Writer/BSMLResultWriter.pm</ulink></member>
+<member><ulink
+	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SearchIO/Writer/GbrowseGFF.html">SearchIO/Writer/GbrowseGFF.pm</ulink></member>
+<member><ulink
+	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SearchIO/Writer/HitTableWriter.html">SearchIO/Writer/HitTableWriter.pm</ulink></member>
+<member><ulink
+	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SearchIO/Writer/HSPTableWriter.html">SearchIO/Writer/HSPTableWriter.pm</ulink></member>
+<member><ulink
+	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SearchIO/Writer/HTMLResultWriter.html">SearchIO/Writer/HTMLResultWriter.pm</ulink></member>
+<member><ulink
+	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SearchIO/Writer/ResultTableWriter.html">SearchIO/Writer/ResultTableWriter.pm</ulink></member>
+<member><ulink
+	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SearchIO/Writer/TextResultWriter.html">SearchIO/Writer/TextResultWriter.pm</ulink></member>
+
+<member><ulink
+	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/BlastUtils.html">Search/BlastUtils.pm</ulink></member>
+<member><ulink
+	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/DatabaseI.html">Search/DatabaseI.pm</ulink></member>
+<member><ulink
+	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/GenericDatabase.html">Search/GenericDatabase.pm</ulink></member>
+<member><ulink
+	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/Hit/BlastHit.html">Search/Hit/BlastHit.pm</ulink></member>
+<member><ulink
+	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/Hit/Fasta.html">Search/Hit/Fasta.pm</ulink></member>
+<member><ulink
+	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/Hit/GenericHit.html">Search/Hit/GenericHit.html">Search/Hit/GenericHit.pm</ulink></member>
+<member><ulink
+	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/Hit/HitFactory.html">Search/Hit/HitFactory.pm</ulink></member>
+<member><ulink
+	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/Hit/HitI.html">Search/Hit/HitI.pm</ulink></member>
+<member><ulink
+	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/Hit/HMMERHit.html">Search/Hit/HMMERHit.pm</ulink></member>
+<member><ulink
+	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/Hit/PsiBlastHit.html">Search/Hit/PsiBlastHit.pm</ulink></member>
+<member><ulink
+	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/HSP/BlastHSP.html">Search/HSP/BlastHSP.pm</ulink></member>
+<member><ulink
+	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/HSP/FastaHSP.html">Search/HSP/FastaHSP.pm</ulink></member>
+<member><ulink
+	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/HSP/GenericHSP.html">Search/HSP/GenericHSP.pm</ulink></member>
+<member><ulink
+	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/HSP/HMMERHSP.html">Search/HSP/HMMERHSP.pm</ulink></member>
+<member><ulink
+	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/HSP/HSPFactory.html">Search/HSP/HSPFactory.pm</ulink></member>
+<member><ulink
+	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/HSP/HSPI.html">Search/HSP/HSPI.pm</ulink></member>
+<member><ulink
+	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/HSP/PsiBlastHSP.html">Search/HSP/PsiBlastHSP.pm</ulink></member>
+<member><ulink
+	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/HSP/PSLHSP.html">Search/HSP/PSLHSP.pm</ulink></member>
+<member><ulink
+	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/HSP/WABAHSP.html">Search/HSP/WABAHSP.pm</ulink></member>
+<member><ulink
+	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/Iteration/GenericIteration.html">Search/Iteration/GenericIteration.pm</ulink></member>
+<member><ulink
+	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/Iteration/IterationI.html">Search/Iteration/IterationI</ulink></member>
+<member><ulink
+	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/Processor.html">Search/Processor.pm</ulink></member>
+<member><ulink
+	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/Result/BlastResult.html">Search/Result/BlastResult.pm</ulink></member>
+<member><ulink
+	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/Result/GenericResult.html">Search/Result/GenericResult.pm</ulink></member>
+<member><ulink
+	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/Result/HMMERResult.html">Search/Result/HMMERResult.pm</ulink></member>
+<member><ulink
+	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/Result/ResultFactory.html">Search/Result/ResultFactory.pm</ulink></member>
+<member><ulink
+	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/Result/ResultI.html">Search/Result/ResultI.pm</ulink></member>
+<member><ulink
+	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/Result/WABAResult.html">Search/Result/WABAResult.pm</ulink></member>
+<member><ulink
+	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/Utils.html">Search/Utils.pm</ulink></member>
+
+      </simplelist>
     </para>
   </section>
 </article>
