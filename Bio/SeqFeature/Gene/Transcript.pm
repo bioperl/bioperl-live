@@ -16,6 +16,7 @@ Bio::SeqFeature::Gene::Transcript - A feature representing a transcript
 
 =head1 SYNOPSIS
 
+See documentation of methods.
 
 =head1 DESCRIPTION
 
@@ -45,7 +46,7 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 
 =head1 AUTHOR - Hilmar Lapp
 
-Email hlapp@gmx.net or hilmar.lapp@pharma.novartis.com
+Email hlapp@gmx.net
 
 Describe contact details here
 
@@ -154,7 +155,7 @@ sub add_promoter {
  Usage   : $transcript->flush_promoters();
  Function: Remove all promoter features/sites from this transcript.
  Returns : 
- Args    :
+ Args    : none
 
 
 =cut
@@ -179,7 +180,7 @@ sub flush_promoters {
            optional. For consistency, use only the following types: 
            initial, internal, terminal, utr, utr5prime, and utr3prime. 
            A special and virtual type is 'coding', which refers to all types
-           except utr.
+           except UTR (utr, utr5prime, utr3prime).
 
  Returns : An array of Bio::SeqFeature::Gene::ExonI implementing objects.
  Args    : An optional string specifying the primary_tag of the feature.
@@ -249,7 +250,7 @@ sub exons {
            If you wish to use other or additional types, you will almost
            certainly have to call exon_type_sortorder() in order to replace
            the default sort order, or mrna(), cds(), protein(), and exons()
-           may deliver unexpected results.
+           may yield unexpected results.
 
  Returns : 
  Args    : A Bio::SeqFeature::Gene::ExonI implementing object.
@@ -488,8 +489,8 @@ sub poly_A_site {
            the following types are recognized: 5prime 3prime for UTR on the
            5' and 3' end of the CDS, respectively.
 
- Returns : An array of Bio::SeqFeatureI implementing objects representing the
-           UTR regions or sites.
+ Returns : An array of Bio::SeqFeature::Gene::ExonI implementing objects
+           representing the UTR regions or sites.
  Args    : Optionally, either 3prime, or 5prime for the the type of UTR
            feature.
 
@@ -513,21 +514,24 @@ sub utrs {
 =head2 add_utr
 
  Title   : add_utr()
- Usage   : $transcript->add_utr($feature, '3prime');
-           $transcript->add_utr($feature);
+ Usage   : $transcript->add_utr($utrobj, '3prime');
+           $transcript->add_utr($utrobj);
  Function: Add a UTR feature/site to this transcript.
 
            The second parameter is optional and denotes the type of the UTR
            feature. Presently recognized types include '5prime' and '3prime'
            for UTR on the 5' and 3' end of a gene, respectively.
 
-           The feature object must at least implement Bio::SeqFeatureI, but
-           for increased consistency you should try to supply an object
-           that implements Bio::SeqFeature::Gene::ExonI. In the future, this
-           may become a requirement.
+           Calling this method is the same as calling 
+           add_exon($utrobj, 'utr'.$type). In this sense a UTR object is a
+           special exon object, which is transcribed, not spliced out, but
+           not translated.
+
+           Note that the object supplied should return FALSE for is_coding().
+           Otherwise cds() and friends will become confused.
+
  Returns : 
- Args    : A Bio::SeqFeatureI or, better yet, a Bio::SeqFeature::Gene::ExonI
-           implementing object.
+ Args    : A Bio::SeqFeature::Gene::ExonI implementing object.
 
 
 =cut
@@ -535,8 +539,8 @@ sub utrs {
 sub add_utr {
     my ($self, $fea, $type) = @_;
 
-    if(! $fea->isa('Bio::SeqFeatureI') ) {
-	$self->throw("$fea does not implement Bio::SeqFeatureI");
+    if(! $fea->isa('Bio::SeqFeature::Gene::ExonI') ) {
+	$self->throw("$fea does not implement Bio::SeqFeature::Gene::ExonI");
     }
     # prefix key
     $type = ($type ? lc($type) : "");
@@ -627,7 +631,7 @@ sub sub_SeqFeature {
  Example :
  Returns : none
  Args    : Optionally, an argument evaluating to TRUE will suppress flushing
-           of all added subfeatures (exons etc.).
+           of all transcript-specific subfeatures (exons etc.).
 
 
 =cut
@@ -734,7 +738,7 @@ sub protein {
 
            The difference to cds() is that the sequence object returned by
            this methods will also include UTR and the poly-adenylation site,
-           but not promoter sequence (TBD);
+           but not promoter sequence (TBD).
 
            HL: do we really need this method?
 
@@ -793,8 +797,10 @@ sub _make_cds {
 	next if((! defined($exon->seq())) || (! $exon->is_coding()));
 	my $phase = length($cds) % 3;
 	# let's check the simple case 
-	if(defined($exon->frame()) && ($phase == $exon->frame())) {
-	    # this one fits exactly
+	if((! defined($exon->frame())) || ($phase == $exon->frame())) {
+	    # this one fits exactly, or frame of the exon is undefined (should
+	    # we warn about that?); we bypass the $exon->cds() here (hmm,
+	    # not very clean style, but I don't see where this screws up)
 	    $cds .= $exon->seq()->seq();
 	} else {
 	    # this one is probably from exon shuffling and needs some work
