@@ -118,6 +118,7 @@ use strict;
 use Bio::Graphics::Feature;
 use Bio::DB::GFF::Util::Rearrange;
 use Carp;
+use Bio::DB::GFF;
 use IO::File;
 use Text::Shellwords;
 
@@ -1070,7 +1071,7 @@ sub split_group {
     while ($group =~ s/( \"[^\"]*);([^\"]*\")/$1$;$2/) { 1 }
     my @groups = split(/\s*;\s*/,$group);
     foreach (@groups) { s/$;/;/g }
-    return Bio::DB::GFF->_split_group(@groups);
+    return Bio::DB::GFF->split_group(@groups);
   }
 }
 
