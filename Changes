@@ -14,7 +14,9 @@ Revision history for Bioperl core modules
 
     o brought the OBDA Registry code Bio::DB::Registry up to latest specs 
 
-    o eutils URL change in Bio::DB::GenBank
+    o Bio::DB::GenBank
+      - eutils URL change
+      - accession number retrieval fixed
 
     o Bio::SearchIO::blast - fix bug #1443 (missing last hits), parse megablast
 
