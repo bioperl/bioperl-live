@@ -140,15 +140,15 @@ sub _write_feature_25 {
     $group = ($feature->get_Annotations('ID'))[0]->value;
   }
 
-  my $seq    = $feature->id      || '.';
+  my $seq    = $feature->seqid->value;
   my $source = $feature->source->value;
   my $type   = $feature->type->name;
   $type = 'EXON' if $type eq 'exon'; #a GTF peculiarity, incosistent with the sequence ontology.
   my $min    = $feature->start   || '.';
   my $max    = $feature->end     || '.';
   my $strand = $feature->strand == 1 ? '+' : $feature->strand == -1 ? '-' : '.';
-  my $score  = $feature->score   || '.';
-  my $phase  = $feature->phase   || '.';
+  my $score  = $feature->score->value;
+  my $phase  = $feature->phase->value;
 
   #these are the only valid types in a GTF document
   if($type eq 'EXON' or $type eq 'CDS' or $type eq 'start_codon' or $type eq 'stop_codon'){
@@ -167,14 +167,14 @@ sub _write_feature_25 {
 sub _write_feature_3 {
   my($self,$feature) = @_;
 
-  my $seq    = $feature->id      || 'SEQ';
+  my $seq    = $feature->seqid->value;
   my $source = $feature->source->value;
   my $type   = $feature->type->name;
   my $min    = $feature->start   || '.';
   my $max    = $feature->end     || '.';
   my $strand = $feature->strand == 1 ? '+' : $feature->strand == -1 ? '-' : '.';
-  my $score  = $feature->score   || '.';
-  my $phase  = $feature->phase   || '.';
+  my $score  = $feature->score->value;
+  my $phase  = $feature->phase->value;
 
   my @attr;
   if(my @v = ($feature->get_Annotations('Name'))){
@@ -361,13 +361,13 @@ sub _handle_feature {
 
   my($seq,$source,$type,$start,$end,$score,$strand,$phase,$attribute_string) = split /\t/, $feature_string;
 
-  $feat->id( uri_unescape($seq) );
-  $feat->source( uri_unescape($source) ) unless $source eq '.';
+  $feat->seqid($seq);
+  $feat->source($source);
   $feat->start($start) unless $start eq '.';
   $feat->end($end) unless $end eq '.';
   $feat->strand($strand eq '+' ? 1 : $strand eq '-' ? -1 : 0);
-  $feat->score($score) unless $score eq '.';
-  $feat->phase($phase) unless $phase eq '.';
+  $feat->score($score);
+  $feat->phase($phase);
 #  $feat->frame($phase); NO!
 
   my $feature_type;

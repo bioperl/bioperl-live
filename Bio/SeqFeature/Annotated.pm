@@ -9,6 +9,8 @@ use Bio::LocatableSeq;
 use Bio::Location::Simple;
 use Bio::Tools::GFF;
 
+use URI::Escape;
+
 ######################################
 #get_SeqFeatures
 #display_name
@@ -101,6 +103,39 @@ sub id {
   return $self->{'id'};
 }
 
+=head2 seqid()
+
+ Usage   : $obj->seqid($newval)
+ Function: holds a string corresponding to the unique
+           seqid of the sequence underlying the feature
+           (e.g. database accession or primary key).
+ Returns : a Bio::Annotation::SimpleValue object representing the seqid.
+ Args    : on set, some string or a Bio::Annotation::SimpleValue object.
+
+=cut
+
+sub seqid {
+  my($self,$val) = @_;
+
+  if (defined($val)) {
+      my $term = undef;
+      if (!ref($val)) {
+	  $term = Bio::Annotation::SimpleValue->new(-value => uri_unescape($val));
+      } elsif (ref($val) && $val->isa('Bio::Annotation::SimpleValue')) {
+	  $term = $val;
+      }
+      if (!defined($term) || ($term->value =~ /^>/)) {
+	  $self->throw('give seqid() a scalar or Bio::Annotation::SimpleValue object, not '.$val);
+      }
+      $self->remove_Annotations('seqid');
+      $self->add_Annotation('seqid', $term);
+  }
+
+  $self->seqid('.') unless ($self->get_Annotations('seqid')); # make sure we always have something
+
+  return $self->get_Annotations('seqid');
+}
+
 =head2 name()
 
  Usage   : $obj->name($newval)
@@ -120,8 +155,8 @@ sub name {
 
  Usage   : $obj->type($newval)
  Function: a SOFA type for the feature.
- Returns : value of type (a scalar)
- Args    : on set, a SOFA name, identifier, or Bio::Annotation::OntologyTerm object
+ Returns : Bio::Annotation::OntologyTerm object representing the type.
+ Args    : on set, a SOFA name, identifier, or Bio::Annotation::OntologyTerm object.
 
 =cut
 
@@ -164,20 +199,25 @@ sub type {
 
  Usage   : $obj->source($newval)
  Function: holds a string corresponding to the source of the feature.
- Returns : value of source (a scalar)
- Args    : on set, new value (a scalar or undef, optional)
+ Returns : a Bio::Annotation::SimpleValue object representing the source.
+ Args    : on set, some scalar or a Bio::Annotation::SimpleValue object.
 
 =cut
 
 sub source {
   my($self,$val) = @_;
 
-  if ($val) {
-    $self->remove_Annotations('source');
-    $self->add_Annotation(Bio::Annotation::SimpleValue->new(-value => $val,
-                                                            -tagname => 'source'
-                                                           )
-                         );
+  if (defined($val)) {
+      my $term;
+      if (!ref($val)) {
+	  $term = Bio::Annotation::SimpleValue->new(-value => uri_unescape($val));
+      } elsif (ref($val) && $val->isa('Bio::Annotation::SimpleValue')) {
+	  $term = $val;
+      } else {
+	  $self->throw('give source() a scalar or Bio::Annotation::SimpleValue object, not '.$val);
+      }
+      $self->remove_Annotations('source');
+      $self->add_Annotation('source', $term);
   }
 
   $self->source('.') unless ($self->get_Annotations('source')); # make sure we always have something
@@ -189,9 +229,9 @@ sub source {
 
  Usage   : $score = $feat->score()
            $feat->score($score)
- Function: get/set on score information
- Returns : float
- Args    : none if get, the new value if set
+ Function: holds a value corresponding to the score of the feature.
+ Returns : a Bio::Annotation::SimpleValue object representing the score.
+ Args    : on set, a scalar or a Bio::Annotation::SimpleValue object.
 
 =cut
 
@@ -200,14 +240,22 @@ sub score {
   my $val = shift;
 
   if(defined($val)){
-    if ($val !~ /^[+-]?\d+\.?\d*(e-\d+)?/) {
-      $self->throw("'$val' is not a valid score");
-    }
-
-    $self->{'score'} = $val;
+      my $term = undef;
+      if (!ref($val)) {
+	  $term = Bio::Annotation::SimpleValue->new(-value => $val);
+      } elsif (ref($val) && $val->isa('Bio::Annotation::SimpleValue')) {
+	  $term = $val;
+      }
+      if (!defined($term) || ($term->value !~ /^[+-]?\d+\.?\d*(e-\d+)?/)) {
+	  $self->throw("'$val' is not a valid score");
+      }
+      $self->remove_Annotations('score');
+      $self->add_Annotation('score', $term);
   }
 
-  return $self->{'score'} || '.';
+  $self->score('.') unless ($self->get_Annotations('score')); # make sure we always have something
+  
+  return $self->get_Annotations('score');
 }
 
 =head2 phase()
@@ -215,8 +263,10 @@ sub score {
  Usage   : $phase = $feat->phase()
            $feat->phase($phase)
  Function: get/set on phase information
- Returns : one of 0,1,2, '.'
- Args    : none if get, the new value if set
+ Returns : a Bio::Annotation::SimpleValue object holdig one of 0,1,2,'.'
+           as its value.
+ Args    : on set, one of 0,1,2,'.' or a Bio::Annotation::SimpleValue
+           object holding one of 0,1,2,'.' as its value.
 
 =cut
 
@@ -225,24 +275,34 @@ sub phase {
   my $val = shift;
 
   if(defined($val)){
-    if($val !~ /^[0-2.]$/) {
-      $self->throw("'$val' is not a valid phase");
-    }
-
-    $self->{'phase'} = $val;
+      my $term = undef;
+      if (!ref($val)) {
+	  $term = Bio::Annotation::SimpleValue->new(-value => $val);
+      } elsif (ref($val) && $val->isa('Bio::Annotation::SimpleValue')) {
+	  $term = $val;
+      }
+      if (!defined($term) || ($term->value !~ /^[0-2.]$/)) {
+	  $self->throw("'$val' is not a valid phase");
+      }
+      $self->remove_Annotations('phase');
+      $self->add_Annotation('phase', $term);
   }
 
-  return $self->{'phase'} || '.';
+  $self->phase('.') unless ($self->get_Annotations('phase')); # make sure we always have something
+  
+  return $self->get_Annotations('phase');
 }
 
 
 =head2 frame()
 
  Usage   : $frame = $feat->frame()
-           $feat->frame($frame)
- Function: get/set on frame information
- Returns : one of 0,1,2, '.'
- Args    : none if get, the new value if set
+           $feat->frame($phase)
+ Function: get/set on phase information
+ Returns : a Bio::Annotation::SimpleValue object holdig one of 0,1,2,'.'
+           as its value.
+ Args    : on set, one of 0,1,2,'.' or a Bio::Annotation::SimpleValue
+           object holding one of 0,1,2,'.' as its value.
 
 =cut
 
@@ -251,14 +311,22 @@ sub frame {
   my $val = shift;
 
   if(defined($val)){
-    if($val !~ /^[0-2.]$/) {
+      my $term = undef;
+      if (!ref($val)) {
+	  $term = Bio::Annotation::SimpleValue->new(-value => $val);
+      } elsif (ref($val) && $val->isa('Bio::Annotation::SimpleValue')) {
+	  $term = $val;
+      }
+      if (!defined($term) || ($term->value !~ /^[0-2.]$/)) {
 	  $self->throw("'$val' is not a valid frame");
-    }
-
-    $self->{'frame'} = $val;
+      }
+      $self->remove_Annotations('frame');
+      $self->add_Annotation('frame', $term);
   }
 
-  return $self->{'frame'};
+  $self->frame('.') unless ($self->get_Annotations('frame')); # make sure we always have something
+  
+  return $self->get_Annotations('frame');
 }
 
 ############################################################
