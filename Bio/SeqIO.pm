@@ -18,25 +18,28 @@ Bio::SeqIO - Handler for SeqIO Formats
 
     use Bio::SeqIO;
 
-    $in  = Bio::SeqIO->new(-file => "inputfilename" , -format => 'Fasta');
-    $out = Bio::SeqIO->new(-file => ">outputfilename" , -format => 'EMBL');
+    $in  = Bio::SeqIO->new(-file => "inputfilename" , '-format' => 'Fasta');
+    $out = Bio::SeqIO->new(-file => ">outputfilename" , '-format' => 'EMBL');
+    # note: we quote -format to keep older perl's from complaining.
 
-    while $seq ( $in->next_seq() ) {
-	$out->write_seq($out);
+    while ( $seq = $in->next_seq() ) {
+	$out->write_seq($seq);
     }
 
 or
 
     use Bio::SeqIO;
 
-    $in  = Bio::SeqIO->new(-file => "inputfilename" , -format => 'Fasta');
-    $out = Bio::SeqIO->new(-file => ">outputfilename" , -format => 'EMBL');
+    $in  = Bio::SeqIO->new(-file => "inputfilename" , '-format' => 'Fasta');
+    $out = Bio::SeqIO->new(-file => ">outputfilename" , '-format' => 'EMBL');
+    # note: we quote -format to keep older perl's from complaining.
 
     tie INPUT, 'Bio::SeqIO::Handler', $in;
     tie OUTPUT, 'Bio::SeqIO::Handler', $out;
 
-    while $seq ( <INPUT> ) {
-	print OUTPUT $seq;
+    # World's shortest Fasta<->EMBL format converter:
+    while ( <INPUT> ) {
+	print OUTPUT;
     }
 
 =head1 DESCRIPTION
@@ -46,7 +49,7 @@ Bio::SeqIO is a handler module for the formats in the SeqIO set
 getting at the format objects, which most people should use.
 
 The SeqIO system replaces the old parse_XXX functions in the Seq
-object. 
+object.
 
 The idea is that you request a stream object for a particular format.
 All the stream objects have a notion of an internal file that is read
@@ -61,21 +64,22 @@ and
 
    $stream->write_seq($seq);
 
-also 
+also
 
    $stream->type() # returns 'INPUT' or 'OUTPUT'
 
 As an added bonus, any stream object can be tied to the SeqIO handler,
 so that you can use it as if it were a perl style file handle, B<except>
-rather than producing (or writing) lines it produces (or writes) 
+rather than producing (or writing) lines it produces (or writes)
 string objects. So - you can do this
 
     use Bio::SeqIO;
 
-    $stream = Bio::SeqIO->new(-file => $filename , -format => 'Fasta');
+    $stream = Bio::SeqIO->new(-file => $filename , '-format' => 'Fasta');
+    # note: we quote -format to keep older perl's from complaining.
     tie *SEQ, 'Bio::SeqIO::Handler' , $stream;
 
-    while $seq ( <SEQ> ) {
+    while ( $seq = <SEQ> ) {
 	# do something with $seq
     }
 
@@ -92,20 +96,21 @@ This makes the simplest ever reformatter
 
     use Bio::SeqIO;
 
-    $in  = Bio::SeqIO->new(-fh => \*STDIN , -format => $format1 );
-    $out = Bio::SeqIO->new(-fh => \*STDOUT , -format => $format2 );
+    $in  = Bio::SeqIO->new(-fh => \*STDIN , '-format' => $format1 );
+    $out = Bio::SeqIO->new(-fh => \*STDOUT , '-format' => $format2 );
+    #note: we quote -format to keep older perl's from complaining.
 
     tie INPUT, 'Bio::SeqIO::Handler', $in;
     tie OUTPUT, 'Bio::SeqIO::Handler', $out;
 
-    while $seq ( <INPUT> ) {
-	print OUTPUT $seq;
+    while ( <INPUT> ) {
+	print OUTPUT;
     }
 
 Notice that the reformatter will only convert information that is held in
 the Seq object, which at the  moment is only the sequence and the id. More
-information will be converted through the expanded or larger object which 
-the bioperl developers are talking about. 
+information will be converted through the expanded or larger object which
+the bioperl developers are talking about.
 
 It is not good for reformatting genbank to embl therefore, but was never
 designed for this task anyway.
