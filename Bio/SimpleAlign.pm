@@ -115,12 +115,12 @@ Ewan Birney, birney@sanger.ac.uk
 
 =head1 CONTRIBUTORS
 
+Richard Adams, Richard.Adams@ed.ac.uk, 
 David J. Evans, David.Evans@vir.gla.ac.uk, 
 Heikki Lehvaslaiho, heikki@ebi.ac.uk, 
 Allen Smith, allens@cpan.org, 
 Jason Stajich, jason@bioperl.org, 
 Xintao Wei & Giri Narasimhan, giri@cs.fiu.edu,
-
 
 =head1 SEE ALSO
 
@@ -149,7 +149,7 @@ BEGIN {
     # These are all the positively scoring groups that occur in the 
     # Gonnet Pam250 matrix. The strong and weak groups are 
     # defined as strong score >0.5 and weak score =<0.5 respectively.
-    
+
     %CONSERVATION_GROUPS = ( 'strong' => [ qw(STA
 						 NEQK
 						 NHQK
@@ -172,8 +172,9 @@ BEGIN {
 					       FVLIM
 					       HFY) ],
 				);
-    
+
 }
+
 @ISA = qw(Bio::Root::Root Bio::Align::AlignI);
 
 =head2 new
@@ -316,7 +317,7 @@ sub remove_seq {
 
     if (exists $self->{'_start_end_lists'}->{$id}) {
 	# we need to find the sequence in the array.
-	
+
 	my ($i, $found);;
 	for ($i=0; $i < @{$self->{'_start_end_lists'}->{$id}}; $i++) {
 	    if (${$self->{'_start_end_lists'}->{$id}}[$i] eq $seq) {
@@ -346,71 +347,68 @@ sub remove_seq {
  Usage   : $aln->purge(0.7);
  Function:
 
-           Removes sequences above whatever %id.
-
+           Removes sequences above given sequence similarity
            This function will grind on large alignments. Beware!
-           (perhaps not ideally implemented)
 
  Example :
  Returns : An array of the removed sequences
- Args    :
-
+ Args    : float, threshold for similarity
 
 =cut
 
-sub purge{
-  my ($self,$perc) = @_;
-  my (@seqs,$seq,%removed,$i,$j,$count,@one,@two,$seq2,$k,$res,$ratio,@ret);
+sub purge {
+    my ($self,$perc) = @_;
+    my (%duplicate, @dups);
 
-  @seqs = $self->each_seq();
+    my @seqs = $self->each_seq();
 
-#  foreach $seq ( @seqs ) {
-#      printf("$seq %s %s\n",$seq->get_nse(),join(' ',$seq->dump()));
-#  }
+    for (my $i=0;$i< @seqs - 1;$i++ ) { #for each seq in alignment
+	my $seq = $seqs[$i];
 
-  for ($i=0;$i< @seqs;$i++ ) {
-      $seq = $seqs[$i];
+	#skip if already in duplicate hash
+	next if exists $duplicate{$seq->display_id} ;
+	my $one = $seq->seq();
 
-      # if it has already been removed, skip
-      if( $removed{$seq->get_nse()} == 1 ) {
-	  next;
-      }
+	my @one = split '', $one;	#split to get 1aa per array element
 
-      @one = $seq->seq();
-      for($j=$i+1;$j < @seqs;$j++) {
-	  $seq2 = $seqs[$j];
-	  if ( $removed{$seq2->get_nse()} == 1 ) {
-	      next;
-	  }
-	  @two = $seq2->seq();
-	  $count = 0;
-	  $res = 0;
-	  for($k=0;$k<@one;$k++) {
-	      if( $one[$k] ne '.' && $one[$k] ne '-' && $one[$k] eq $two[$k]) {
-		  $count++;
-	      }
-	      if( $one[$k] ne '.' && $one[$k] ne '-' && $two[$k] ne '.' && $two[$k] ne '-' ) {
-		  $res++;
-	      }
-	  }
-	  if( $res == 0 ) {
-	      $ratio = 0;
+	for (my $j=$i+1;$j < @seqs;$j++) {
+	    my $seq2 = $seqs[$j];
 
-	  } else {
-	      $ratio = $count/$res;
-	  }
+	    #skip if already in duplicate hash
+	    next if exists $duplicate{$seq2->display_id} ;
 
-	  if( $ratio > $perc ) {
-	      $removed{$seq2->get_nse()} = 1;
-	      $self->remove_seq($seq2);
-	      push(@ret,$seq2);
-	  } else {
-	      # could put a comment here!
-	  }
-      }
-  }
-  
-  return @ret;
+	    my $two = $seq2->seq();
+	    my @two = split '', $two;
+
+	    my $count = 0;
+	    my $res = 0;
+	    for (my $k=0;$k<@one;$k++) {
+		if ( $one[$k] ne '.' && $one[$k] ne '-' && defined($two[$k]) &&
+		     $one[$k] eq $two[$k]) {
+		    $count++;
+		}
+		if ( $one[$k] ne '.' && $one[$k] ne '-' && defined($two[$k]) &&
+		     $two[$k] ne '.' && $two[$k] ne '-' ) {
+		    $res++;
+		}
+	    }
+
+	    my $ratio = 0;
+	    $ratio = $count/$res unless $res == 0;
+
+	    # if above threshold put in duplicate hash and push onto
+	    # duplicate array for returning to get_unique
+	    if ( $ratio > $perc ) {
+		print STDERR "duplicate!", $seq2->display_id, "\n" if $self->verbose > 0;
+		$duplicate{$seq2->display_id} = 1;
+		push @dups, $seq2;
+	    }
+	}
+    }
+    foreach my $seq (@dups) {
+	$self->remove_seq($seq);
+    }
+    return @dups;
 }
 
 =head2 sort_alphabetically
