@@ -78,6 +78,28 @@ sub new {
   my($class,@args) = @_;
 
   my $self = $class->SUPER::new(@args);
+  return $self;
+}
+
+=head2 primary_tag
+
+ Title   : primary_tag
+ Usage   : $tag = $feat->primary_tag()
+ Function: Returns the primary tag for a feature,
+           eg 'utr5prime'.  This method insures that 5prime/3prime information
+           is uniformly stored
+ Returns : a string 
+ Args    : none
+
+
+sub primary_tag{
+   my ($self,$val) = @_;
+   if( defined $val ) {
+       if ($val =~ /(3|5)/ ) { $val = "utr$1prime" }
+       else { $self->warn("tag should contain indication if this is 3 or 5 prime.  Preferred text is 'utr3prime' or 'utr5prime'.  Using user text of '$val'");}
+   }
+   $self->SUPER::primary_tag($val);
+
 }
 
 1;
