@@ -16,7 +16,7 @@ BEGIN {
     }
     use Test;
 
-    plan tests => 72;
+    plan tests => 79;
 }
 
 use Bio::Location::Simple;
@@ -32,7 +32,6 @@ use Data::Dumper;
 use vars qw($DEBUG);
 ok(1);
 
-my ($c, $value);
 
 
 #
@@ -91,7 +90,7 @@ $pos2 = Bio::Location::Simple->new
 
 ok $res = $pair->map($pos2);
 
-skip "fix negatives",$res->match->start, 1;
+ok $res->match->start, 0;
 ok $res->match->end, 2;
 ok $res->match->seq_id, 'peptide';
 ok $res->match->strand, -1;
@@ -146,7 +145,7 @@ $res = $pair->map($pos);
 ok $res->match->start, 38;
 ok $res->match->end, 40;
 ok $res->match->strand, -1;
-#exit;
+
 
 #
 #
@@ -162,7 +161,6 @@ ok my $m = new Bio::Coordinate::GeneMapper(-in => 'propeptide',
 
 ok $m->peptide_offset(5), 5;
 #print Dumper $m;
-#exit;
 
 
 # match within
@@ -175,6 +173,26 @@ ok $res->start, 20;
 ok $res->end, 20;
 ok $res->strand, 1;
 ok $res->seq_id, 'peptide';
+
+
+#
+# nozero
+#
+
+# match within
+$pos = Bio::Location::Simple->new 
+    (-start => 4, -end => 5, -strand=> 1 );
+$res = $m->map($pos);
+ok $res->start, -1;
+ok $res->end, 0;
+
+ok $m->nozero('in&out'), 'in&out';
+$res = $m->map($pos);
+ok $res->start, -2;
+ok $res->end, -1;
+ok $m->nozero(0), 0;
+
+
 
 ok $m->swap;
 $pos = Bio::Location::Simple->new 
@@ -255,13 +273,16 @@ $res = $m->map($pos);
 ok $res->start, 2;
 ok $res->end, 3;
 #print Dumper $res;
-#exit;
-$m->out('negative_introns');
+#$m->verbose(2);
+$m->out('negative_intron');
+#$m->out('exon');
 $pos = Bio::Location::Simple->new 
     (-start => 12, -end => 14, -strand=> 1 );
 $res = $m->map($pos);
-skip "fix negatives", $res->start, -3;
-skip "fix negatives", $res->end, -1;
+skip 'negative_intron', $res->start, -3;
+skip 'negative_intron', $res->end, -1;
+skip $res->seq_id, 'intron1';
+#exit;
 
 # cds
 $m->out('cds');
