@@ -340,7 +340,7 @@ are encouraged to override these methods
 sub revcom{
    my ($self) = @_;
 		# this is the cleanest way
-	my @qualities = @{$self->seq()};	
+	my @qualities = @{$self->qual()};
 	my @reversed_qualities = reverse(@qualities);
    my $seqclass;
    if($self->can_call_new()) {
