@@ -464,7 +464,8 @@ sub gaps        {
     my ($self, $type,$value) = @_;
     $type = lc $type if defined $type;
     $type = 'total' if( ! defined $type ||
-			$type !~ /query|hit|total/);
+			$type !~ /query|hit|subject|sbjct|total/);
+    $type = 'hit' if $type =~ /sbjct|subject/;
     my $previous = $self->{'_gaps'}->{$type};
     if( defined $value || ! defined $previous ) { 
 	$value = $previous = '' unless defined $value;
@@ -900,7 +901,7 @@ sub seq_inds{
    }   
    require Bio::Search::BlastUtils if $collapse;
    
-   return $collapse ? &Bio::Search::BlastUtils::collapse_nums(@ary) : @ary;
+   return $collapse ? &Bio::Search::SearchUtils::collapse_nums(@ary) : @ary;
 }
 
 
