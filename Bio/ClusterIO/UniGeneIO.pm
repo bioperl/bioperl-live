@@ -1,0 +1,282 @@
+# $Id$
+#
+# BioPerl module for Bio::ClusterIO::UniGeneIO.pm
+#
+# Cared for by Andrew Macgregor <andrew@anatomy.otago.ac.nz>
+#
+# Copyright Andrew Macgregor, Jo-Ann Stanton, David Green
+# Molecular Embryology Group, Anatomy & Structural Biology, University of Otago
+# http://anatomy.otago.ac.nz/meg
+#
+# You may distribute this module under the same terms as perl itself
+#
+# _history
+# April 17, 2002 - Initial implementation by Andrew Macgregor
+# POD documentation - main docs before the code
+
+=head1 NAME
+
+Bio::ClusterIO::UniGeneIO - Handler for UniGeneIO Formats
+
+=head1 SYNOPSIS
+
+	use Bio::Cluster::UniGene;
+    use Bio::ClusterIO::UniGeneIO;
+	
+	$stream  = Bio::ClusterIO::UniGeneIO->new('-file' => "Hs.data", '-format' => "unigene");
+    # note: we quote -format to keep older perl's from complaining.
+
+	
+	while ( my $in = $stream->next_unigene() ) {
+		
+		print $in->unigene_id() . "\n";
+
+		while ( my $sequence = $in->next_seq() ) {
+			print $sequence->accession_number() . "\n";
+		}	
+
+	Parsing errors are printed to STDERR.
+
+=head1 DESCRIPTION
+
+The UniGeneIO modules works with the unigene format module to read NCBI UniGene
+*.data files downloaded from ftp://ncbi.nlm.nih.gov/repository/UniGene/.
+
+
+=head1 CONSTRUCTORS
+
+=head2 Bio::ClusterIO::UniGeneIO->new()
+
+   $unigeneIO = Bio::ClusterIO::UniGeneIO->new(-file => 'filename',   -format=>$format);
+
+The new() class method constructs a new Bio::UniGeneIO object.  The
+returned object can be used to retrieve or print UniGene objects. new()
+accepts the following parameters:
+
+=over 4
+
+=item -file
+
+A file path to be opened for reading.
+
+=item -format
+
+Specify the format of the file.  Supported formats include:
+
+   *.data      UniGene build files.
+
+If no format is specified and a filename is given, then the module
+will attempt to deduce it from the filename.  If this is unsuccessful,
+the main UniGene build format is assumed.
+
+The format name is case insensitive.  'UNIGENE', 'UniGene' and 'unigene' are
+all supported.
+
+=back
+
+=head1 OBJECT METHODS
+
+See below for more detailed summaries.  The main methods are:
+
+=head2 $unigene = $unigeneIO->next_unigene()
+
+Fetch the next unigene from the stream.
+
+
+=head2 TIEHANDLE(), READLINE(), PRINT()
+
+These I've left in here because they were in the SeqIO module. Feedback appreciated. There they provide the tie interface.  See L<perltie> for more details.
+
+=head1 FEEDBACK
+
+=head2 Mailing Lists
+
+User feedback is an integral part of the evolution of this
+and other Bioperl modules. Send your comments and suggestions preferably
+ to one of the Bioperl mailing lists.
+Your participation is much appreciated.
+
+  bioperl-l@bioperl.org                  - General discussion
+  http://bioperl.org/MailList.shtml      - About the mailing lists
+
+=head2 Reporting Bugs
+
+Report bugs to the Bioperl bug tracking system to help us keep track
+ the bugs and their resolution.
+ Bug reports can be submitted via email or the web:
+
+  bioperl-bugs@bioperl.org
+  http://bioperl.org/bioperl-bugs/
+
+=head1 AUTHOR - Andrew Macgregor
+
+Email andrew@anatomy.otago.ac.nz
+
+=head1 APPENDIX
+
+The rest of the documentation details each of the object
+methods. Internal methods are usually preceded with a _
+
+=cut
+
+# Let the code begin...
+
+package Bio::ClusterIO::UniGeneIO;
+
+use strict;
+use vars qw(@ISA);
+
+use Bio::Root::Root;
+use Bio::Root::IO;
+
+@ISA = qw(Bio::Root::Root Bio::Root::IO);
+
+
+
+=head2 new
+
+ Title   : new
+ Usage   : Bio::ClusterIO::UniGeneIO->new(-file => $filename, -format => 'format')
+ Function: Returns a new unigene stream
+ Returns : A Bio::ClusterIO::UnigeneIO::Handler initialised with the appropriate format
+ Args    : -file => $filename
+           -format => format
+
+=cut
+
+
+my $entry = 0;
+
+sub new {
+    my ($caller,@args) = @_;
+    my $class = ref($caller) || $caller;
+    
+    # or do we want to call SUPER on an object if $caller is an
+    # object?
+    if( $class =~ /Bio::ClusterIO::UniGeneIO::(\S+)/ ) {
+	my ($self) = $class->SUPER::new(@args);	
+	$self->_initialize(@args);
+	return $self;
+    } else { 
+
+	my %param = @args;
+	@param{ map { lc $_ } keys %param } = values %param; # lowercase keys
+	my $format = $param{'-format'} || 
+	    $class->_guess_format( $param{-file} || $ARGV[0] ) ||
+		'unigene';
+	$format = "\L$format";	# normalize capitalization to lower case
+
+	# normalize capitalization
+	return undef unless( &_load_format_module($format) );
+	return "Bio::ClusterIO::UniGeneIO::$format"->new(@args);
+    }
+}
+
+
+# _initialize is chained for all SeqIO classes
+
+sub _initialize {
+    my($self, @args) = @_;
+    # initialize the IO part
+    $self->_initialize_io(@args);
+}
+
+=head2 next_unigene
+
+ Title   : next_unigene
+ Usage   : $unigene = $stream->next_unigene()
+ Function: Reads the next unigene object from the stream and returns it.
+ Returns : a Bio::Cluster::UniGene object
+ Args    : none
+
+
+=cut
+
+sub next_unigene {
+   my ($self, $seq) = @_;
+   $self->throw("Sorry, you cannot read from a generic Bio::SeqIO object.");
+}
+
+
+
+=head2 _load_format_module
+
+ Title   : _load_format_module
+ Usage   : *INTERNAL UniGeneIO stuff*
+ Function: Loads up (like use) a module at run time on demand
+ Example :
+ Returns :
+ Args    :
+
+=cut
+
+sub _load_format_module {
+  my ($format) = @_;
+  my ($module, $load, $m);
+
+  $module = "_<Bio/ClusterIO/UniGeneIO/$format.pm";
+  $load = "Bio/ClusterIO/UniGeneIO/$format.pm";
+
+  return 1 if $main::{$module};
+  eval {
+    require $load;
+  };
+  if ( $@ ) {
+    print STDERR <<END;
+$load: $format cannot be found - for more details on supported formats please see the UniGeneIO docs
+Exception $@
+END
+  ;
+    return;
+  }
+  return 1;
+}
+
+=head2 _guess_format
+
+ Title   : _guess_format
+ Usage   : $obj->_guess_format($filename)
+ Function: guess format based on file suffix
+ Example :
+ Returns : guessed format of filename (lower case)
+ Args    :
+ Notes   : formats that _filehandle() will guess include fasta,
+           genbank, scf, pir, embl, raw, gcg, ace, bsml, swissprot,
+           and phd/phred
+
+=cut
+
+sub _guess_format {
+   my $class = shift;
+   return unless $_ = shift;
+   return 'unigene'   if /\.(data)$/i;
+}
+
+sub DESTROY {
+    my $self = shift;
+
+    $self->close();
+}
+
+# I need some direction on these!! The module works so I haven't fiddled with them!
+
+sub TIEHANDLE {
+    my ($class,$val) = @_;
+    return bless {'seqio' => $val}, $class;
+}
+
+sub READLINE {
+  my $self = shift;
+  return $self->{'seqio'}->next_seq() unless wantarray;
+  my (@list, $obj);
+  push @list, $obj while $obj = $self->{'seqio'}->next_seq();
+  return @list;
+}
+
+sub PRINT {
+  my $self = shift;
+  $self->{'seqio'}->write_seq(@_);
+}
+
+1;
+
