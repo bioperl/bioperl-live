@@ -109,13 +109,14 @@ $mf = Bio::SeqIO::MultiFile->new( '-format' => 'Fasta' ,
 				  Bio::Root::IO->catfile("t","data","multi_2.fa")]);
 
 ok defined $mf;
-
+my $count = 0;
 eval { 
     while( $seq = $mf->next_seq() ) {
+	$count++;
 	$temp = $seq->display_id;
     }
 };
-ok( ! $@);
+ok( $count ,12);
 $temp = undef;
 $ast = Bio::SeqIO->new( '-verbosity' => $verbosity,
 			'-format' => 'swiss' , 
