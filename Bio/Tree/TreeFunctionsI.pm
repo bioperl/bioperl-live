@@ -21,7 +21,7 @@ Bio::Tree::TreeFunctionsI - Decorated Interface implementing basic Tree explorat
 
   my $tree = $in->next_tree;
 
-  my @nodes = $tree->find_nodes('id1');
+  my @nodes = $tree->find_node('id1');
 
   if( $tree->is_monophyletic(-clade => @nodes, -outgroup => $outnode) ){
 
