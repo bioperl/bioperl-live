@@ -444,17 +444,16 @@ sub write_seq {
 	$mol = "circular $mol" if $seq->is_circular;
 
 	my $temp_line;
+
 	if( $self->_id_generation_func ) {
-	    $temp_line = &{$self->_id_generation_func}($seq);
+		$temp_line = &{$self->_id_generation_func}($seq);
 	} else {
+		$self->warn("No whitespace allowed in EMBL id [". $seq->id. "]")
+		  if $seq->id =~ /\s/;
+		$temp_line = sprintf("%-11.10sstandard; $mol; $div; %d BP.", $seq->id(), $len);
+	}
 
-            $self->warn("No whitespace allowed in EMBL display id [". $seq->display_id. "]")
-                if $seq->display_id =~ /\s/;
-
-	    $temp_line = sprintf("%-11s standard; $mol; $div; %d BP.", $seq->id(), $len);
-	} 
-
-	$self->_print( "ID   $temp_line\n","XX\n") || return;
+	$self->_print( "ID   $temp_line\n","XX\n");
 
 	# Write the accession line if present
 	my( $acc );
