@@ -143,6 +143,7 @@ sub add_Descendent{
    # do we care about order?
    $node->ancestor($self);
    $self->{'_desc'}->{$node} = $node;
+   $self->invalidate_height;
    return scalar keys %{$self->{'_desc'}};
 }
 
@@ -328,6 +329,48 @@ sub is_Leaf {
  Args    : none
 
 =cut
+
+# this implementation differs from the interface because it caches
+
+sub height { 
+    my ($self) = @_;
+
+    return $self->{'_height'} if( defined $self->{'_height'} );
+    
+    if( $self->is_Leaf ) { 
+       if( !defined $self->branch_length ) { 
+	   $self->debug(sprintf("Trying to calculate height of a node when a Node (%s) has an undefined branch_length",$self->id || '?' ));
+	   return 0;
+       }
+       return $self->branch_length;
+   }
+   my $max = 0;
+   foreach my $subnode ( $self->each_Descendent ) { 
+       my $s = $subnode->height;
+       if( $s > $max ) { $max = $s; }
+   }
+   return ($self->{'_height'} = $max + ($self->branch_length || 1));
+}
+
+=head2 invalidate_height
+
+ Title   : invalidate_height
+ Usage   : private helper method
+ Function: Invalidate our cached value of the node'e height in the tree
+ Returns : nothing
+ Args    : none
+
+=cut
+
+
+sub invalidate_height { 
+    my ($self) = @_;
+    
+    $self->{'_height'} = undef;
+    if( $self->ancestor ) {
+	$self->ancestor->invalidate_height;
+    }
+}
 
 1;
 
