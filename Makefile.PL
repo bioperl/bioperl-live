@@ -81,11 +81,11 @@ sub MY::postamble {
            }
 
 #
-# Prompt user for BioGFFDB stuff
+# Prompt user for BioDBGFF stuff
 #
 
 if(  eval { require DBI } && grep {/mysql/} DBI->available_drivers) {
-  my $proceed = prompt("Do you want to run the BioGFFDB tests (requires a mysql database) y/n",'n');
+  my $proceed = prompt("Do you want to run the BioDBGFF tests (requires a mysql database) y/n",'n');
   if( $proceed =~ /^[yY]/) {
     my $cfg = {dbd_driver => 'mysql'};
     GFFQueryDb($cfg,{'prompt'=>1,'verbose'=>1});
