@@ -226,7 +226,7 @@ sub new {
 		   '-bits'     => $bits,
 		   '-end'      => $qe,
 		   '-strand'   => $strand,
-		   '-seqname'  => $query_name,
+		   '-seq_id'   => $query_name,
 		   '-seqlength'=> $query_len,
 		   '-source'   => $algo,
 		   ) );
@@ -253,7 +253,7 @@ sub new {
 		 '-expect'    => $evalue,
 		 '-bits'      => $bits,
 		 '-source'    => $algo,
-		 '-seqname'   => $hit_name,
+		 '-seq_id'    => $hit_name,
 		 '-seqlength' => $hit_len,
 		 '-primary'   => $self->primary_tag ));
     

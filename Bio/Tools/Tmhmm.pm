@@ -1,4 +1,5 @@
-
+# $Id$
+#
 # BioPerl module for Bio::Tools::Tmhmm
 #
 # Copyright Balamurugan Kumarasamy
@@ -125,7 +126,7 @@ sub next_result {
 
                     $id = $1;
                     my ($junk, $values) = split /:/;
-                   $self->seqname($id);
+                   $self->_seqname($id);
                     next;
            }
 
@@ -142,7 +143,7 @@ sub next_result {
 
                     if ($orien eq "TMHELIX") {
                          my (%feature);
-                         $feature{name} = $self->seqname;
+                         $feature{name} = $self->_seqname;
                          $feature{start} = $start;
                          $feature{end} = $end;
                          $feature{source} ='tmhmm';
@@ -173,31 +174,31 @@ sub create_feature {
 
 
        # create feature object
-       my $feature = Bio::SeqFeature::Generic->new(-seqname     => $feat->{name},
-                                                 -start       => $feat->{start},
-                                                 -end         => $feat->{end},
-                                                 -score       => $feat->{score},
-                                                 -source      => $feat->{source},
-                                                 -primary     => $feat->{primary},
+       my $feature = Bio::SeqFeature::Generic->new(-seq_id => $feat->{name},
+                                                 -start    => $feat->{start},
+                                                 -end      => $feat->{end},
+                                                 -score    => $feat->{score},
+                                                 -source   => $feat->{source},
+                                                 -primary  => $feat->{primary},
                                                  -logic_name  => $feat->{logic_name}, 
                                                );
        return $feature;
    }
 
-=head2 seqname
+=head2 _seqname
 
- Title   :   seqname
- Usage   :   obj->seqname($seqname)
+ Title   :   _seqname
+ Usage   :   obj->_seqname($seqname)
  Function:   Internal(not to be used directly)
  Returns :
  Args    :   seqname
 
 =cut
 
-sub seqname{
+sub _seqname{
     my ($self,$seqname)=@_;
 
-    if (defined$seqname){
+    if (defined $seqname){
 
         $self->{'seqname'}=$seqname;
     }

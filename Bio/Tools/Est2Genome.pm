@@ -187,7 +187,7 @@ sub parse_next_gene {
 	   $lasthseqname = $hseqname;
 	   my $query = new Bio::SeqFeature::Similarity(-primary => $name,
 						       -source  => $self->analysis_method,
-						       -seqname => $qseqname, # FIXME WHEN WE REDO THE GENERIC NAME CHANGE
+						       -seq_id => $qseqname, # FIXME WHEN WE REDO THE GENERIC NAME CHANGE
 						       -start   => $qstart,
 						       -end     => $qend,
 						       -strand  => $qstrand,
@@ -199,7 +199,7 @@ sub parse_next_gene {
 						       );
 	   my $hit = new Bio::SeqFeature::Similarity(-primary => 'exon_hit',
 						     -source  => $self->analysis_method,
-						     -seqname => $hseqname,
+						     -seq_id => $hseqname,
 						     -start   => $hstart,
 						     -end     => $hend,
 						     -strand  => $hstrand,
@@ -222,7 +222,7 @@ sub parse_next_gene {
 							-end   => $qend,
 							-strand => $1,
 							-score  => $score,
-							-seqname => $qseqname,
+							-seq_id => $qseqname,
 							-tag => { 
 							    'Sequence' => $lasthseqname});
        } elsif( /^Span/ ) {

@@ -12,7 +12,7 @@
 
 =head1 NAME
 
-Bio::Tools::Eponine - Results of one Eponinerun
+Bio::Tools::Eponine - Results of one Eponine run
 
 =head1 SYNOPSIS
 
@@ -234,7 +234,7 @@ sub create_feature {
      #create and fill Bio::EnsEMBL::Seqfeature object
 
       my $tss = Bio::SeqFeature::Generic->new
-                    (   -seqname => $feat->{'name'},
+                    (   -seq_id  => $feat->{'name'},
                         -start   => $feat->{'start'},
                         -end     => $feat->{'end'},
                         -strand  => $feat->{'strand'},

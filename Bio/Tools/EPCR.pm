@@ -141,10 +141,10 @@ sub next_feature {
 						       '-strand'  => $strand,
 						       '-source'  => 'e-PCR',
 						       '-primary' => 'sts',
-						       '-seqname' => $seqname,
+						       '-seq_id'  => $seqname,
 						       '-tag'     => {
 							   'name'=> $mkrname,
-							   'note' => $rest,
+							   'note'=> $rest,
 						       });
     return $markerfeature;
 }

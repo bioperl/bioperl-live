@@ -1,4 +1,5 @@
-
+# $Id$
+#
 # BioPerl module for Bio::Tools::Seg
 #
 # Copyright Balamurugan Kumarasamy
@@ -167,12 +168,12 @@ sub create_feature {
 
 
        # create feature object
-       my $feature = Bio::SeqFeature::Generic->new(-seqname     => $feat->{name},
-                                                   -start       => $feat->{start},
-                                                   -end         => $feat->{end},
-                                                   -score       => $feat->{score},
-                                                   -source      => $feat->{source},
-                                                   -primary     => $feat->{primary},
+       my $feature = Bio::SeqFeature::Generic->new(-seq_id => $feat->{name},
+                                                   -start  => $feat->{start},
+                                                   -end    => $feat->{end},
+                                                   -score  => $feat->{score},
+                                                   -source => $feat->{source},
+                                                   -primary => $feat->{primary},
                                                    -logic_name  => $feat->{logic_name}, 
                                                );
 

@@ -161,7 +161,7 @@ sub new {
  	 	  -tag            a reference to a tag/value hash
  	 	  -gff_string     GFF v.2 string to initialize from
  	 	  -gff1_string    GFF v.1 string to initialize from
- 	 	  -seqname        the "name" of the sequence
+ 	 	  -seq_id         the display name of the sequence
  	 	  -annotation     the AnnotationCollectionI object
  	 	  -location       the LocationI object
 
@@ -200,9 +200,12 @@ sub set_attributes {
     defined $strand && $self->strand($strand);
     defined $frame  && $self->frame($frame);
     $score          && $self->score($score);
-    $seqid = $seqname unless $seqid;
-    $seqid          && $self->seq_id($seqid);
     $annot          && $self->annotation($annot);
+    if($seqname) {
+	$self->warn("-seqname is deprecated. Please use -seq_id instead.");
+	$seqid = $seqname unless $seqid;
+    }
+    $seqid          && $self->seq_id($seqid);
     $tag            && do {
 	foreach my $t ( keys %$tag ) {
 	    $self->add_tag_value($t,$tag->{$t});

@@ -1,4 +1,6 @@
-#BioPerl module for Bio::Tools::Prints
+# $Id$
+#
+# BioPerl module for Bio::Tools::Prints
 #
 # Cared for by  Balamurugan Kumarasamy
 #
@@ -180,7 +182,7 @@ sub create_feature {
 
        my @f = split (/,/,$feat);
        # create feature object
-        my $feature= Bio::SeqFeature::Generic->new(-seqname    =>$sequenceId,
+        my $feature= Bio::SeqFeature::Generic->new(-seq_id    =>$sequenceId,
                                                    -start=>$f[1],
                                                    -end  => $f[2],
                                                    -score      => $f[4],
@@ -243,5 +245,3 @@ sub seqname{
 }
 
 1;
-
-

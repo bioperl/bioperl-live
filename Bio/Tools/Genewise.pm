@@ -1,3 +1,5 @@
+# $Id$
+#
 # BioPerl module for Bio::Tools::Genewise
 #
 # Copyright Fugu Team 
@@ -52,7 +54,7 @@ or the web:
 
 =head1 AUTHOR - Fugu Team 
 
-Describe contact details here
+ Email: fugui@worf.fugu-sg.org
 
 =head1 APPENDIX
 
@@ -228,7 +230,7 @@ sub next_prediction {
           ($e_start,$e_end,$e_strand) = $self->_get_strand($e_start,$e_end);
           $transcript->strand($e_strand) unless $transcript->strand != 0;
 
-          my $exon = new Bio::SeqFeature::Gene::Exon (-seqname=>"Exon $nbr", -start=>$e_start, -end=>$e_end, -strand=>$e_strand);
+          my $exon = new Bio::SeqFeature::Gene::Exon (-seq_id=>"Exon $nbr", -start=>$e_start, -end=>$e_end, -strand=>$e_strand);
           $nbr++;
           $exon->add_tag_value('phase',$phase);
 
@@ -238,7 +240,7 @@ sub next_prediction {
           ($prot_start,$prot_end,$prot_strand) = $self->_get_strand($prot_start,$prot_end);
           my $pf = new Bio::SeqFeature::Generic( -start   => $prot_start,
                                               -end     => $prot_end,
-                                              -seqname => $self->_prot_id,
+                                              -seq_id  => $self->_prot_id,
                                               -score   => $self->_score,
                                               -strand  => $prot_strand,
                                               -source=> 'genewise',
@@ -248,7 +250,7 @@ sub next_prediction {
           ($geno_start,$geno_end,$geno_strand) = $self->_get_strand($geno_start,$geno_end);
           my $gf = new Bio::SeqFeature::Generic( -start   => $geno_start,
                                               -end     => $geno_end,
-                                              -seqname => $self->_target_id,
+                                              -seq_id  => $self->_target_id,
                                               -score   => $self->_score,
                                               -strand  => $geno_strand,
                                               -source=> 'genewise',
