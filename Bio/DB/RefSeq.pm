@@ -17,7 +17,7 @@ Bio::DB::RefSeq - Database object interface for RefSeq retrieval
 
 =head1 SYNOPSIS
 
-  use Bio::DB::R;
+  use Bio::DB::RefSeq;
 
   $db = new Bio::DB::RefSeq;
 
