@@ -77,6 +77,14 @@ Revision history for Bioperl core modules
       of a file for input.  -url currently only works for GET
       requests, and thus is read-only.
 
+    o Bio::SearchIO::hmmer now returns individual Hit objects for each
+      domain alignment (thus containing only one HSP); previously
+      separate alignments would be merged into one hit if the domain
+      involved in the alignments was the same, but this only worked
+      when the repeated domain occured without interruption by any
+      other domain, leading to a confusing mixture of Hit and HSP
+      objects.
+
     o Bio::Search::Result::ResultI-compliant report objects now
       implement the "get_statistics" method to access
       Bio::Search::StatisticsI objects that encapsulate any
