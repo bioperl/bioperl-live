@@ -113,16 +113,18 @@ use POSIX;
     'Hsp_gaps'       => 'HSP-hsp_gaps',
     'Hsp_hitgaps'    => 'HSP-hit_gaps',
     'Hsp_querygaps'  => 'HSP-query_gaps',
-    
+
     'Hit_id'        => 'HIT-name',
     'Hit_desc'      => 'HIT-description',
+    'Hit_len'       => 'HIT-length',
     'Hit_score'     => 'HIT-score',
-    
-    'ExonerateOutput_program'  => 'RESULT-algorithm_name',
-    'ExonerateOutput_query-def'=> 'RESULT-query_name',
+
+    'ExonerateOutput_program'   => 'RESULT-algorithm_name',
+    'ExonerateOutput_query-def' => 'RESULT-query_name',
     'ExonerateOutput_query-desc'=> 'RESULT-query_description',
-    
+    'ExonerateOutput_query-len' => 'RESULT-query_length',
     );
+
 $DEFAULT_WRITER_CLASS = 'Bio::Search::Writer::HitTableWriter';
 
 $MIN_INTRON=30; # This is the minimum intron size
@@ -141,7 +143,7 @@ $MIN_INTRON=30; # This is the minimum intron size
 sub new {
     my ($class) = shift;
     my $self = $class->SUPER::new(@_);
-    
+
     my ($min_intron) = $self->_rearrange([qw(MIN_INTRON)], @_);
     if( $min_intron ) {
 	$MIN_INTRON = $min_intron;
@@ -166,6 +168,7 @@ sub next_result{
    $self->start_document();
    my @hit_signifs;
    my $seentop;
+   my (@q_ex, @m_ex, @h_ex); ## gc addition
    while( defined($_ = $self->_readline) ) {  
        if( /^Query:\s+(\S+)(\s+(.+))?/ ) {
 	   if( $seentop ) {
@@ -200,28 +203,43 @@ sub next_result{
 		 (\d+)\s+                      # score
 		 //ox ) {
 	   
-	   
+	   ## gc note:
+	   ## $qe and $he are no longer used for calculating the ends,
+	   ## just the $qs and $hs values and the alignment and insert lenghts
 	   my ($qs,$qe,$qstrand) = ($2,$3,$4);
 	   my ($hs,$he,$hstrand) = ($6,$7,$8);
 	   my $score = $9;
+	   $self->element({'Name' => 'ExonerateOutput_query-len',
+			   'Data' => $qe});
+	   $self->element({'Name' => 'Hit_len',
+			   'Data' => $he});
+	   
 	   my @rest = split;	   
 	   if( $qstrand eq '-' ) {
 	       $qstrand = -1;
 	       ($qs,$qe) = ($qe,$qs); # flip-flop if we're on opp strand
+	   		$qs--; $qe++;
 	   } else { $qstrand = 1; }
 	   if( $hstrand eq '-' ) {
 	       $hstrand = -1;
 	       ($hs,$he) = ($he,$hs); # flip-flop if we're on opp strand
+	       $hs--; $he++;
 	   } else { $hstrand = 1; }
 	   # okay let's do this right and generate a set of HSPs 
 	   # from the cigar line
-	   
+
+		## gc note:
+		## add one because these values are zero-based
+		## this calculation was originally done lower in the code,
+		## but it's clearer to do it just once at the start
+	   $qs++;
+	   $hs++;
+
 	   my ($aln_len,$inserts,$deletes) = (0,0,0);
 	   while( @rest >= 2 ) {
 	       my ($state,$len) = (shift @rest, shift @rest);	       
 	       if( $state eq 'I' ) {
 		   $inserts+=$len;
-		   
 	       } elsif( $state eq 'D' ) {
 		   if( $len >= $MIN_INTRON ) {
 		       $self->start_element({'Name' => 'Hsp'});
@@ -236,17 +254,21 @@ sub next_result{
 		       
 		       # HSP ends where the other begins
 		       $self->element({'Name' => 'Hsp_query-from',
-				       'Data' => $qs+1});
+				       'Data' => $qs});
+		       ## gc note:
+		       ## $qs is now the start of the next hsp
+		       ## the end of this hsp is 1 before this position
+		       ## (or 1 after in case of reverse strand)
 		       $qs += $aln_len*$qstrand;
 		       $self->element({'Name' => 'Hsp_query-to',
-				       'Data' => $qs});
+				       'Data' => $qs - ($qstrand*1)});
 		       
-		       $hs += $deletes;
+		       $hs += $deletes*$hstrand;
 		       $self->element({'Name' => 'Hsp_hit-from',
-				       'Data' => $hs+1});
-		       $hs += $aln_len;
+				       'Data' => $hs});
+		       $hs += $aln_len*$hstrand;
 		       $self->element({'Name' => 'Hsp_hit-to',
-				       'Data' => $hs+1});
+				       'Data' => $hs-($hstrand*1)});
 		       
 		       $self->element({'Name' => 'Hsp_align-len',
 				       'Data' => $aln_len + $inserts 
@@ -261,6 +283,18 @@ sub next_result{
 		       $self->element({'Name' => 'Hsp_hitgaps',
 				       'Data' => $deletes});
 		       
+## gc addition start
+		       
+		       $self->element({'Name' => 'Hsp_qseq',
+				       'Data' => shift @q_ex,
+				   });
+		       $self->element({'Name' => 'Hsp_hseq',
+				       'Data' => shift @h_ex,
+				   });
+		       $self->element({'Name' => 'Hsp_midline',
+				       'Data' => shift @m_ex,
+				   });
+## gc addition end
 		       $self->end_element({'Name' => 'Hsp'});
 		       		       
 		       $aln_len = $inserts = $deletes = 0;
@@ -272,19 +306,35 @@ sub next_result{
 	   }
 	   $self->start_element({'Name' => 'Hsp'});
 	   
+## gc addition start
+		       
+		       $self->element({'Name' => 'Hsp_qseq',
+				       'Data' => shift @q_ex,
+				   });
+		       $self->element({'Name' => 'Hsp_hseq',
+				       'Data' => shift @h_ex,
+				   });
+		       $self->element({'Name' => 'Hsp_midline',
+				       'Data' => shift @m_ex,
+				   });
+## gc addition end
+
 	   $self->element({'Name' => 'Hsp_score',
 			   'Data' => $score});
 	   
 	   $self->element({'Name' => 'Hsp_query-from',
-			   'Data' => $qs+1});
-	   $self->element({'Name' => 'Hsp_query-to',
-			   'Data' => $qe+1});
+			   'Data' => $qs});
 
-	   $hs += $deletes;
+	   $qs += $aln_len*$qstrand;
+	   $self->element({'Name' => 'Hsp_query-to',
+				       'Data' => $qs - ($qstrand*1)});
+
+	   $hs += $deletes*$hstrand;
 	   $self->element({'Name' => 'Hsp_hit-from',
-			   'Data' => $hs+1});
+			   'Data' => $hs});
+	   $hs += $aln_len*$hstrand;
 	   $self->element({'Name' => 'Hsp_hit-to',
-			   'Data' => $he+1});	      
+			   'Data' => $hs -($hstrand*1)});	      
 
 	   $self->element({'Name' => 'Hsp_align-len',
 			   'Data' => $aln_len});   
@@ -304,10 +354,10 @@ sub next_result{
 			   'Data' => $score});
 	   $self->end_element({'Name' => 'Hit'});
 	   $self->end_element({'Name' => 'ExonerateOutput'});
+
 	   return $self->end_document();	  
        } else { 
-	   
-       }       
+       }
    }
    return $self->end_document() if( $seentop );
 }
@@ -419,7 +469,7 @@ sub characters{
    my ($self,$data) = @_;   
 
    return unless ( defined $data->{'Data'} && $data->{'Data'} !~ /^\s+$/ );
-   
+
    $self->{'_last_data'} = $data->{'Data'}; 
 }
 
@@ -525,3 +575,4 @@ sub result_count {
 sub report_count { shift->result_count }
 
 1;
+
