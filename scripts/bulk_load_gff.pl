@@ -93,7 +93,7 @@ while (<>) {
   $FH{ FNOTE()  }->print(    join("\t",$fid,$_),"\n"                                    ) foreach (@$notes);
 
   if ( $fid % 1000 == 0) {
-    print STDERR "$fid records parsed...";
+    print STDERR "$fid features parsed...";
     print STDERR -t STDOUT && !$ENV{EMACS} ? "\r" : "\n";
   }
 
