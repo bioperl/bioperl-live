@@ -5,10 +5,11 @@
 use Test;
 use strict;
 
-BEGIN { plan tests => 22}
+BEGIN { plan tests => 24}
 
 use Bio::PrimarySeq;
 use Bio::Tools::SeqStats;
+use vars ('$DEBUG');
 
 my ($seqobj, $count, $seqobj_stats, $wt);
 
@@ -16,6 +17,7 @@ $seqobj = Bio::PrimarySeq->new(-seq=>'ACTGTGGCGTCAACTG', -moltype=>'dna', -id=>'
 $seqobj_stats  =  Bio::Tools::SeqStats->new($seqobj);
 
 ok defined($seqobj_stats) && ref($seqobj_stats) && $seqobj_stats->isa('Bio::Tools::SeqStats');
+
 
 $count = $seqobj_stats->count_monomers();  # for DNA sequence
 ok $count->{'A'}, 3; 
@@ -34,13 +36,14 @@ $seqobj = Bio::PrimarySeq->new(-seq=>'ACTACTTCA', -moltype=>'dna',
 			       -id=>'test');
 $seqobj_stats  =  Bio::Tools::SeqStats->new($seqobj);
 $wt = $seqobj_stats->get_mol_wt();  # for DNA sequence
-ok $wt->[0], 2976;
+ok $$wt[0], 2885 ;
 
 $seqobj = Bio::PrimarySeq->new(-seq=>'ACXACNNCA', 
 			       -moltype=>'dna', -id=>'test');
 $wt = Bio::Tools::SeqStats->get_mol_wt($seqobj);
-ok $wt->[0], 2976; 
-ok $wt->[1], 3099;
+ok $$wt[0], 2840;
+ok $$wt[1], 2960;
+
 
 $seqobj = Bio::PrimarySeq->new(-seq=>'ACTGTGGCGTCAACTG', 
 			       -moltype=>'dna', -id=>'test');
@@ -53,17 +56,16 @@ ok $count->{'T'}, 4;
 $seqobj = Bio::PrimarySeq->new(-seq=>'MQSERGITIDISLWKFETSKYYVT', -moltype=>'protein', -id=>'test');
 $seqobj_stats  =  Bio::Tools::SeqStats->new($seqobj);
 $count = $seqobj_stats->count_monomers();  # for amino sequence
-ok $count->{'M'}, 1;
-ok $count->{'I'}, 3; 
-ok $count->{'Y'}, 2; 
-ok $count->{'T'}, 3;
-
+ok $$count{'M'}, 1;
+ok $$count{'I'}, 3; 
+ok $$count{'Y'}, 2; 
+ok $$count{'T'}, 3;
 $wt = Bio::Tools::SeqStats->get_mol_wt($seqobj);
-ok $wt->[0], 2896;
-ok $wt->[0], 2896;
+ok $$wt[0], 2896;
+ok $$wt[1], 2896;
 
 $seqobj = Bio::PrimarySeq->new(-seq=>'UYXUYNNYU', -moltype=>'rna');
 $wt = Bio::Tools::SeqStats->get_mol_wt($seqobj);
-ok $wt->[0], 3054;
-ok $wt->[0], 3177;
+ok $$wt[0], 2915;
+ok $$wt[1], 3038;
 
