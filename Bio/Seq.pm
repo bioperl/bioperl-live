@@ -245,8 +245,7 @@ Please see L<Bio::Species> for more information on this object.
   $seqobj->annotation();
 
 These annotations typically refer to entire sequences, unlike features.
-See L<Bio::Annotation>, L<Bio::Annotation::Reference>, and
-L<Bio::Annotation::Comment> for details.
+See L<Bio::AnnotationCollectionI>, L<Bio::Annotation::Collection>, L<Bio::Annotation::Reference>, and L<Bio::Annotation::Comment> for details.
 
 It is also important to be able to describe defined portions of a
 sequence. The combination of some description and the corresponding
@@ -1042,10 +1041,10 @@ sub species {
  Usage   : $ann = $seq->annotation or $seq->annotation($annotation)
  Function: Gets or sets the annotation
  Example :
- Returns : Bio::Annotation object
+ Returns : Bio::AnnotationCollectionI object
  Args    : None or Bio::Annotation object
 
-See L<Bio::Annotation> for more information
+See L<Bio::AnnotationCollectionI> and L<Bio::Annotation::Collection> for more information
 
 =cut
 

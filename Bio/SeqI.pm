@@ -97,11 +97,11 @@ use Carp;
 =head2 top_SeqFeatures
 
  Title   : top_SeqFeatures
- Usage   : 
- Function:
- Example :
- Returns : 
- Args    :
+ Usage   : my @features = $seq->top_SeqFeatures();
+ Function: (may be deprecated in the future)
+ Returns : An array of top level sequence features, 
+           features which contain features are NOT flattened
+ Args    : none
 
 
 =cut
@@ -131,12 +131,11 @@ sub all_SeqFeatures{
 =head2 seq
 
  Title   : seq
- Usage   :
- Function:
- Example :
- Returns : 
- Args    :
-
+ Usage   : my $sequence  = $seq->seq();
+ Function: Get/Set the sequence as a string
+ Returns : string
+ Args    : (optional) sequence string to set 
+           (if permitted by the implementation)
 
 =cut
 
@@ -148,11 +147,10 @@ sub seq{
 =head2 write_GFF
 
  Title   : write_GFF
- Usage   :
- Function:
- Example :
- Returns : 
- Args    :
+ Usage   : $seq->write_GFF(\*OUTPUTHANDLE);
+ Function: Utility methods which creates GFF output
+ Returns : none
+ Args    : (optional) filehandle to write to (default is STDOUT)
 
 
 =cut
@@ -165,18 +163,19 @@ sub write_GFF{
    foreach my $sf ( $self->all_SeqFeatures() ) {
        print $fh $sf->gff_string, "\n";
    }
-
 }
 
 =head2 annotation
 
  Title   : annotation
  Usage   : $obj->annotation($seq_obj)
- Function: 
- Example : 
- Returns : value of annotation
- Args    : newvalue (optional)
+ Function: Get/Set Annotation object associated with the sequence.  
+           This is where features with no explicit location are aggregated. 
+ Returns : Bio::AnnotationCollectionI object
+ Args    : None or Bio::Annotation object
 
+See L<Bio::AnnotationCollectionI> and L<Bio::Annotation::Collection>
+for more information
 
 =cut
 
@@ -190,7 +189,6 @@ sub annotation {
  Title   : feature_count
  Usage   : $seq->feature_count()
  Function: Return the number of SeqFeatures attached to a sequence
- Example : 
  Returns : number of SeqFeatures
  Args    : none
 
@@ -205,9 +203,8 @@ sub feature_count {
 =head2 species
 
  Title   : species
- Usage   : 
+ Usage   : $species = $self->species();
  Function: Gets or sets the species
- Example : $species = $self->species();
  Returns : Bio::Species object
  Args    : Bio::Species object or none;
 
@@ -223,11 +220,11 @@ sub species {
 
  Title   : primary_seq
  Usage   : $obj->primary_seq($newval)
- Function: 
- Example : 
+ Function: Get/Set the underlying primary sequence for a SeqI.
+           This cannot always be assumed some implementations
+           may not provide a primary sequence underneath.
  Returns : value of primary_seq
  Args    : newvalue (optional)
-
 
 =cut
 
