@@ -560,7 +560,8 @@ sub throw_not_implemented {
     #      Still, I'd like to know why it wasn't working...
 
     if( $self->can('throw') ) {
-	 $self->throw( $message );
+	 $self->throw( -text  => $message,
+                       -class => 'Bio::Root::NotImplemented');
     }
     else {
 	confess $message ;
