@@ -341,6 +341,8 @@ sub shortest_path {
 
 =cut
 
+#' keep emacs happy
+
 sub dijkstra {
     my ($self,$root) = @_;
 

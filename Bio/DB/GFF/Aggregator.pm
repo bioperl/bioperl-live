@@ -434,6 +434,8 @@ we should aggregate it, false otherwise.
 
 =cut
 
+#' make emacs happy
+
 sub match_sub {
   my $self    = shift;
   my $factory = shift;
