@@ -21,6 +21,12 @@ I<Bio::Biblio> module:
   my $biblio = new Bio::Biblio (-access => 'biofetch');
   my $ref = $biblio->get_by_id('20063307'));
 
+  my $ids = ['20063307', '98276153'];
+  my $refio = $biblio->get_all($ids);
+  while ($ref = $refio->next_bibref) { 
+    print $ref->identifier, "\n";
+  }
+
 =head1 DESCRIPTION
 
 This class uses BioFetch protocol based service to retrieve Medline
@@ -151,6 +157,25 @@ sub get_by_id {
     return $io->next_bibref();
 }
 
+
+=head2 get_all
+
+  Title   : get_all
+  Usage   : $seq = $db->get_all($ref);
+  Function: Retrieves reference objects from the server 'en masse', 
+            rather than one  at a time.  For large numbers of sequences, 
+            this is far superior than get_by_id().
+  Example :
+  Returns : a stream of Bio::Biblio::Medline objects
+  Args    : $ref : either an array reference, a filename, or a filehandle
+            from which to get the list of unique ids/accession numbers.
+
+=cut
+
+sub get_all {
+    my ($self, $ids) = @_;
+    return $self->get_seq_stream('-uids' => $ids, '-mode' => 'single');
+}
 
 =head2 get_seq_stream
 
