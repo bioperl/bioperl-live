@@ -22,6 +22,7 @@ Bio::Range - Pure perl RangeI implementation
 
   print join(', ', $range->union($r2), "\n";
   print join(', ', $range->intersection($r2), "\n";
+
   print $range->overlaps($r2), "\n";
   print $range->contains($r2), "\n";
 
