@@ -154,8 +154,8 @@ use Bio::Annotation::DBLink;
 use Bio::SeqFeature::Tools::Unflattener;
 
 #global variables
-my %finaldatahash = undef; #data from Bio::Seq object stored in a hash
-my %datahash = undef; #data from Bio::Seq object stored in a hash
+undef(my %finaldatahash); #data from Bio::Seq object stored in a hash
+undef(my %datahash); #data from Bio::Seq object stored in a hash
 
 my $chadotables = 'feature featureprop feature_relationship featureloc feature_cvterm cvterm cv feature_pub pub pub_dbxref pub_author author pub_relationship pubprop feature_dbxref dbxref db';
 
@@ -209,12 +209,16 @@ sub _initialize {
     my($self,@args) = @_;
     
     $self->SUPER::_initialize(@args); 
-    $self->{'filename'} = $_[4];
-#    unless( defined $self->sequence_factory ) {
-#        $self->sequence_factory(new Bio::Seq::SeqFactory
-#                                (-verbose => $self->verbose(), 
-#                                 -type => 'Bio::Seq::RichSeq'));
-#    }
+    my ($filename) = 
+	   $self->_rearrange([qw(FILE
+				 )],
+			      @args);
+    $self->{'filename'} = $filename;
+    unless( defined $self->sequence_factory ) {
+        $self->sequence_factory(new Bio::Seq::SeqFactory
+                                (-verbose => $self->verbose(), 
+                                 -type => 'Bio::Seq::RichSeq'));
+    }
 
 }
 
@@ -324,8 +328,8 @@ EOUSAGE
 	undef(my @top_featureprops);
 	my $name = $seq->display_id;
 	undef(my @feature_cvterms);
-	my %sthash = undef;
-	my %dvhash = undef;
+	undef(my %sthash);
+	undef(my %dvhash);
 	undef(my %h1);
 	undef(my %h2);
 	my $temp = undef;
@@ -820,19 +824,19 @@ EOUSAGE
 		}
 	}
 
-	if (defined @top_dbxrefs) {
+	if (@top_dbxrefs) {
 		$datahash{'feature_dbxref'} = \@top_dbxrefs;
 	}
 
-	if (defined @top_featureprops) {
+	if (@top_featureprops) {
 		$datahash{'featureprop'} = \@top_featureprops;
 	}
 
-	if (defined @top_featrels) {
+	if (@top_featrels) {
 		$datahash{'feature_relationship'} = \@top_featrels;
 	}
 
-	if ($ftype eq 'mRNA' && defined %finaldatahash) {
+	if ($ftype eq 'mRNA' && %finaldatahash) {
 		$finaldatahash{'feature_relationship'} = {
 						'subject_id'	=> \%datahash,
 						'type_id'	=> { 'name' => 'partof', 'cv_id' => { 'name' => 'relationship type'}},
@@ -1125,10 +1129,10 @@ sub _subfeat2featrelhash {
 			}
 		}
 	}
-	if (defined @sub_featureprops) {
+	if (@sub_featureprops) {
 		$sfhash{'featureprop'} = \@sub_featureprops;
 	}
-	if (defined @sfdbxrefs) {
+	if (@sfdbxrefs) {
 		$sfhash{'feature_dbxref'} = \@sfdbxrefs;
 	}
 
@@ -1147,7 +1151,7 @@ sub _subfeat2featrelhash {
 		}
 	}
 
-	if (defined @ssfeatrel) {
+	if (@ssfeatrel) {
 		$sfhash{'feature_relationship'} = \@ssfeatrel;
 	}
 
