@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# $Id: fast_load_gff.PLS,v 1.9 2003-10-04 18:08:01 lstein Exp $
+# $Id: fast_load_gff.PLS,v 1.10 2003-10-17 16:47:36 scain Exp $
 
 use strict;
 # use lib './blib/lib';
@@ -65,6 +65,10 @@ If your MySQL is version 3.22.6 and was compiled using the "load local
 file" option, then you may be able to load remote databases with local
 data using the --local option.
 
+About maxbin: the default value is 100,000,000 bases.  If you have
+features that are close to or greater that 100Mb in length, then the
+value of maxbin should be increased to 1,000,000,000.
+
 The adaptor used is dbi::mysqlopt.  There is currently no way to
 change this.
 
@@ -79,6 +83,7 @@ e.g. -d instead of --database.
    --user                Username to log in as
    --fasta               File or directory containing fasta files to load
    --password            Password to use for authentication
+   --maxbin              Set the value of the maximum bin size
 
 =head1 SEE ALSO
 
@@ -110,7 +115,7 @@ sub insert_sequence {
 
 package main;
 
-my ($DSN,$CREATE,$USER,$PASSWORD,$FASTA,$FAILED,$LOCAL,%PID);
+my ($DSN,$CREATE,$USER,$PASSWORD,$FASTA,$FAILED,$LOCAL,%PID,$MAX_BIN);
 
 if ($DO_FAST) {
   $SIG{CHLD} = sub {
@@ -129,6 +134,7 @@ GetOptions ('database:s'    => \$DSN,
             'local'         => \$LOCAL,
 	    'password:s'    => \$PASSWORD,
 	    'fasta:s'       => \$FASTA,
+            'maxbin:s'      => \$MAX_BIN
 	   ) or (system('pod2text',$0), exit -1);
 
 $DSN ||= 'test';
@@ -146,7 +152,9 @@ if (defined $PASSWORD) {
 my $db = Bio::DB::GFF->new(-adaptor=>'faux',-dsn => $DSN,@auth)
   or die "Can't open database: ",Bio::DB::GFF->error,"\n";
 
-$db->initialize(1) if $CREATE;
+if ($CREATE) {
+  $MAX_BIN ? $db->initialize(-erase=>1,-MAX_BIN=>$MAX_BIN) : $db->initialize(1);
+}
 
 foreach (@ARGV) {
   $_ = "gunzip -c $_ |" if /\.gz$/;
