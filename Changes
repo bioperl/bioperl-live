@@ -8,6 +8,8 @@ Revision history for Bioperl core modules
     o Addition from main trunk of Ontology objects, principly to allow
       BioSQL releases against 1.2.1
 
+    o Fixes and cleanup of Bio::Coordinate modules
+
     o Other bug fixes, including bpindex GenBank fix
 
 
