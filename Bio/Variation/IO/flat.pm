@@ -461,26 +461,20 @@ sub write {
 			 if ($mut->length > 1 ) {#	    if ($mut->end - $mut->start ) {
 			     my $l = $mut->start + $mut->length -1;
 			     $text .= '..'.  $l;
-			     
-			     #$tmp2 = $mut->end - $h->offset;
-			     #if ($tmp <= 0) {
-			     #    $tmp -= 1;
-			     #}
-			     
 			 }
 			 elsif ($mut->length == 0) {
 			     $text .= '^'. $mut->end;
 			 }
 			 if ($h->moltype && $h->moltype eq 'dna') {
-			     #$offset = $atgnumber-1;
 			     $tmp = $mut->start + $h->offset;
 			     if ($tmp <= 0) {
 				 $tmp -= 1;
 			     }
-			     
+			     $mut->start < 1 && $tmp++; 
 			     $text.= ' ('. $h->id. '::'. $tmp;
 			     $tmp2 = $mut->end + $h->offset;
 			     if ( $mut->length > 1 ) {
+				 $mut->end < 1 && $tmp2++; 
 				 $text.= "..". $tmp2;
 			     }
 			     elsif ($mut->length == 0) {
@@ -586,29 +580,25 @@ sub write {
 			 }
 			 #location
 			 $text = $tag{FeatureQual}. '/location: '. 
-			     #$mut->id. '; '. $mut->start; 
 			     $mut->start; 
 			 
 			 if ($mut->length > 1 ) {
 			     $text .= '..'. $mut->end;
 			     
 			     $tmp2 = $mut->end + $h->offset;
-			     #if ($tmp <= 0) {
-			     #    $tmp -= 1;
-			     #}
 			 }
 			 elsif ($mut->length == 0) {
 			     $text .= '^'. $mut->end;
 			 }
 			 if ($h->moltype && $h->moltype eq 'rna') {
-			     #$offset = $atgnumber-1;
 			     $tmp = $mut->start + $h->offset;
 			     if ($tmp <= 0) {
 				 $tmp -= 1;
 			     }
-			     
+			     #$mut->start < 1 && $tmp++;			     
 			     $text.= ' ('. $h->id. '::'. $tmp;
 			     $tmp2 = $mut->end + $h->offset;
+			     #$mut->end < 1 && $tmp2++; 
 			     if ( $mut->length > 1 ) {
 				 $text.= "..". $tmp2;
 			     }
