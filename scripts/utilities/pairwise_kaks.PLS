@@ -1,5 +1,5 @@
 #!perl -w
-# $Id: pairwise_kaks.PLS,v 1.6 2003-05-20 13:33:26 jason Exp $
+# $Id: pairwise_kaks.PLS,v 1.7 2004-07-06 13:53:56 jason Exp $
 use strict;
 # Author Jason Stajich <jason@bioperl.org>
 
@@ -169,6 +169,10 @@ my @each = $dna_aln->each_seq();
 $kaks_factory->alignment($dna_aln);
 
 my ($rc,$parser) = $kaks_factory->run();
+if( $rc <= 0 ) { 
+    warn($kaks_factory->error_string,"\n");
+    exit;
+}
 my $result = $parser->next_result;
 my $MLmatrix = $result->get_MLmatrix();
 
