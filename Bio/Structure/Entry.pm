@@ -601,19 +601,45 @@ sub get_atoms {
 =cut
 
 sub conect {
-	my ($self, $source, $serial) = @_;
+	my ($self, $source, $serial, $type) = @_;
 	
 	if ( !defined $source ) {
 		$self->throw("You need to supply at least a source to conect");
 	}
-	if ( defined $serial ) {
+	if ( defined $serial && defined $type ) {
 		if ( !exists(${$self->{'conect'}}{$source}) || ref(${$self->{'conect'}}{$source} !~ /^ARRAY/ ) ) {
 			${$self->{'conect'}}{$source} = [];
 		}
-		push @{ ${$self->{'conect'}}{$source} }, $serial;
+		# we also need to store type, a conect object might be better 
+		my $c = $serial . "_" . $type;
+		push @{ ${$self->{'conect'}}{$source} }, $c;
 	}
 	return @{ ${$self->{'conect'}}{$source} };
 }
+
+=head2 get_all_conect_source()
+
+ Title   : get_all_conect_source
+ Usage   : @sources = $structure->get_all_conect_source;
+ Function: get all the sources for the conect records
+ Returns : a list of serial numbers for atoms connected to source
+ 	(together with $entry->get_atom_by_serial($model, $serial) this should be OK for now)
+ Args    : 
+ Description : This is a bit of a kludge, but it's the best for now. Conect info might need
+ 	to go in a sepearte object
+
+=cut
+
+sub get_all_conect_source {
+	my ($self) = shift;
+	my (@sources);
+
+	for my $source (sort {$a<=>$b} keys %{$self->{'conect'}}) {
+		push @sources, $source;
+	}
+	return @sources;
+}
+
 
 =head2 master()
 
@@ -659,21 +685,15 @@ sub seqres {
 	my $seqres_string = $seqres->as_text;
 $self->debug("seqres : $seqres_string\n");
 	$seqres_string =~ s/^Value: //;
-	my $pos = 0;
-	while ($pos < length $seqres_string) {
-		my $st = substr($seqres_string, $pos, 63);
-		$pos += 63;
-$self->debug("seqres: $st\n");
-		my ($chain,@res) = unpack $s_u, $st;
-		$chain = 'default' if ($chain =~ /^\s*$/);
-		next if ($chain ne $chainid);
-		for my $res (@res) {
-			next if $res =~ /^\s*$/;
-			$seq .= $self->_three_to_one($res);
-		}
-	}
-	my $pseq = Bio::PrimarySeq->new;
-	$pseq->seq($seq);
+	$seqres_string =~ s/\d+//g;		# no numbers needed
+	$seqres_string =~ s/ \s //g;		# single character is Chain identifier
+	$seqres_string =~ s/(\w+)/\u\L$1/g;	# ALA -> Ala  (for SeqUtils)
+	$seqres_string =~ s/\s//g; 		# strip all spaces
+$self->debug("seqres : $seqres_string\n");
+
+	# this will break for non-protein structures (about 10% for now) XXX KB
+	my $pseq = Bio::PrimarySeq->new(-alphabet => 'protein');
+	$pseq = Bio::SeqUtils->seq3in($pseq,$seqres_string);
 	my $id = $self->id . "_" . $chainid;
 	$pseq->id($id);
 	return $pseq;
@@ -953,44 +973,6 @@ sub _print_stats_pc {
 	my $now_time = Time::HiRes::time();
 	$self->debug("pc stats: P_C $pc C_P $cp $now_time\n");
 }
-
-sub _three_to_one {
-	# convert three letter AA codes to one letter, return X if unknown
-	my ($self, $three) = @_;
-	my $one;
-	my %three_to_one = (
-		"ALA" => "A",
-		"ARG" => "R",
-		"ASN" => "N",
-		"ASP" => "D",
-		"CYS" => "C",
-		"GLN" => "Q",
-		"GLU" => "E",
-		"GLY" => "G",
-		"HIS" => "H",
-		"ILE" => "I",
-		"LEU" => "L",
-		"LYS" => "K",
-		"MET" => "M",
-		"PHE" => "F",
-		"PRO" => "P",
-		"SER" => "S",
-		"THR" => "T",
-		"TRP" => "W",
-		"TYR" => "Y",
-		"VAL" => "V"
-	);
-	if(exists $three_to_one{$three}) {
-		$one = $three_to_one{$three};
-	} 
-	else {
-		$one = "X";
-	}
-	return $one;
-}
-
-
-	
 
 
 1;
