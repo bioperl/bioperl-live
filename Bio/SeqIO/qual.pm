@@ -19,6 +19,10 @@ Bio::SeqIO::Qual - .qual file input/output stream
 Do not use this module directly.  Use it via the Bio::SeqIO class
 (see L<Bio::SeqIO> for details).
 
+  my $in_qual = Bio::SeqIO->new(-file    => $qualfile,
+                                -format  => 'qual',
+                                -verbose => $verbose);
+
 =head1 DESCRIPTION
 
 This object can transform .qual (similar to fasta) objects to and from
@@ -74,13 +78,13 @@ my $dumper = new Dumpvalue();
 @ISA = qw(Bio::SeqIO);
 
 sub _initialize {
-  my($self,@args) = @_;
-  $self->SUPER::_initialize(@args);
-  if( ! defined $self->sequence_factory ) {
-	  $self->sequence_factory(new Bio::Seq::SeqFactory
-									  (-verbose => $self->verbose(),
-										-type => 'Bio::Seq::PrimaryQual'));
-  }
+	my($self,@args) = @_;
+	$self->SUPER::_initialize(@args);
+	if( ! defined $self->sequence_factory ) {
+		$self->sequence_factory(new Bio::Seq::SeqFactory
+										(-verbose => $self->verbose(),
+										 -type => 'Bio::Seq::PrimaryQual'));
+	}
 }
 
 =head2 next_seq()
@@ -182,17 +186,17 @@ sub next_primary_qual {
 
 =head2 write_seq
 
- Title   : write_seq(-source => $source, -header => "some information")
- Usage   : $obj->write_seq(	-source => $source,
-				-header => "some information");
- Function: Write out an list of quality values to a fasta-style file.
+ Title   : write_seq
+ Usage   : $obj->write_seq( -source => $source,
+				                -header => "some information");
+ Function: Write out a list of quality values to a fasta-style file.
  Returns : Nothing.
- Args    : Requires: a reference to a SeqWithQuality object or a
+ Args    : Requires a reference to a SeqWithQuality object or a
 	        PrimaryQual object as the -source. Optional: information
 	        for the header.
  Notes   : If no -header is provided, $obj->id() will be used where
 	        $obj is a reference to either a SeqWithQuality object or a
-	        PrimaryQual object. If $source->id() fails, ">unknown" will be
+	        PrimaryQual object. If $source->id() fails, "unknown" will be
 	        the header. If the SeqWithQuality object has $source->length() 
            of "DIFFERENT" (read the pod, luke), write_seq will use the 
            length of the PrimaryQual object within the SeqWithQuality 
@@ -202,14 +206,17 @@ sub next_primary_qual {
 
 sub write_seq {
 	my ($self,@args) = @_;
-	my ($source)  = $self->_rearrange([qw(SOURCE)], @args);
+	my ($source)  = $self->_rearrange([qw(SOURCE HEADER)], @args);
 	$dumper->dumpValue($source);
-	if (!$source || ( !$source->isa('Bio::Seq::SeqWithQuality') && 
+	if (!$source || ( !$source->isa('Bio::Seq::SeqWithQuality') &&
 							!$source->isa('Bio::Seq::PrimaryQual')   )) {
 		$self->throw("You must pass a Bio::Seq::SeqWithQuality or a Bio::Seq::PrimaryQual object to write_seq() as a parameter named \"source\"");
 	}
-	my $header = $source->can("id") ? $source->id :
-	  $source->can("header") ? $source->header : "unknown";
+	my $header = ($source->can("header") && $source->header) ?
+	              $source->header :
+	             ($source->can("id") && $source->id) ?
+		           $source->id :
+					  "unknown";
 	my @quals = $source->qual();
 	# ::dumpValue(\@quals);
 	$self->_print (">$header \n");
@@ -233,4 +240,5 @@ sub write_seq {
 
 
 1;
+
 __END__
