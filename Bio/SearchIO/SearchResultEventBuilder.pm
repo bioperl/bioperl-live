@@ -149,7 +149,8 @@ sub start_result {
 
  Title   : end_result
  Usage   : my @results = $parser->end_result
- Function: Finishes a result handler cycle Returns : A Bio::Search::Result::ResultI
+ Function: Finishes a result handler cycle 
+ Returns : A Bio::Search::Result::ResultI
  Args    : none
 
 =cut
@@ -176,7 +177,8 @@ sub end_result {
     my %args = map { my $v = $data->{$_}; s/RESULT//; ($_ => $v); } 
                grep { /^RESULT/ } keys %{$data};
     
-    $args{'-algorithm'} =  uc( $args{'-algorithm_name'} || $type);
+    $args{'-algorithm'} =  uc( $args{'-algorithm_name'} || 
+			       $data->{'RESULT-algorithm_name'} || $type);
     $args{'-hits'}      =  $self->{'_hits'};
     my $result = $self->factory('result')->create(%args);
     $self->{'_hits'} = [];
@@ -217,7 +219,6 @@ sub end_hsp {
     # from the frame which is a problem for the Search::HSP object
     # which expect to be able to infer strand from the order of 
     # of the begin/end of the query and hit coordinates
-
     if( defined $data->{'HSP-query_frame'} && # this is here to protect from undefs
 	(( $data->{'HSP-query_frame'} < 0 && 
 	   $data->{'HSP-query_start'} < $data->{'HSP-query_end'} ) ||       
@@ -240,7 +241,7 @@ sub end_hsp {
 	# swap
 	($data->{'HSP-hit_start'},
 	 $data->{'HSP-hit_end'}) = ($data->{'HSP-hit_end'},
-			       $data->{'HSP-hit_start'});
+				    $data->{'HSP-hit_start'});
     }
     $data->{'HSP-query_frame'} ||= 0;
     $data->{'HSP-hit_frame'} ||= 0;
@@ -251,7 +252,9 @@ sub end_hsp {
     
     my %args = map { my $v = $data->{$_}; s/HSP//; ($_ => $v) } 
                grep { /^HSP/ } keys %{$data};
-    $args{'-algorithm'} =  uc( $args{'-algorithm_name'} || $type);
+    
+    $args{'-algorithm'} =  uc( $args{'-algorithm_name'} || 
+			       $data->{'RESULT-algorithm_name'} || $type);
     # copy this over from result
     $args{'-query_name'} = $data->{'RESULT-query_name'};
     $args{'-hit_name'} = $data->{'HIT-name'};
@@ -301,8 +304,9 @@ sub end_hit{
     # doesn't play nice and is undergoing mutation -jason
     if( $args{'-name'} =~ /BL_ORD_ID/ ) {
 	($args{'-name'}, $args{'-description'}) = split(/\s+/,$args{'-description'},2);
-    }
-    $args{'-algorithm'} =  uc( $args{'-algorithm_name'} || $type);
+    }    
+    $args{'-algorithm'} =  uc( $args{'-algorithm_name'} || 
+			       $data->{'RESULT-algorithm_name'} || $type);
     $args{'-hsps'}      = $self->{'_hsps'};
     $args{'-query_len'} =  $data->{'RESULT-query_length'};
     my ($hitrank) = scalar @{$self->{'_hits'}} + 1;

@@ -203,7 +203,8 @@ sub new {
     } elsif ($algo eq 'TBLASTX' ||$algo eq 'TFASTX' ||
 	     $algo eq 'TFASTXY' || $algo eq 'TFASTY' || 
 	     $algo eq 'BLASTN' || 
-	     $algo eq 'FASTN' || $algo eq 'WABA' || $algo eq 'EXONERATE')  {
+	     $algo eq 'FASTN' || $algo eq 'WABA' || 
+	     $algo eq 'EXONERATE' || $algo eq 'MEGABLAST')  {	
 	$hitfactor = 1;
 	$queryfactor = 1;
     } elsif( $algo eq 'RPSBLAST' ) {
@@ -307,19 +308,18 @@ sub new {
     
     if( defined $query_gaps ) {
 	$self->gaps('query', $query_gaps);
-    } else {
+    } elsif( defined $query_seq ) {
 	$self->gaps('query', scalar ( $query_seq =~ tr/\-//));
-    } 
+    }
     if( defined $hit_gaps ) {
 	$self->gaps('hit', $hit_gaps);
-    } else {
+    } elsif( defined $hit_seq ) {
 	$self->gaps('hit', scalar ( $hit_seq =~ tr/\-//));
     }
-    if(! defined $gaps ) {
+    if( ! defined $gaps ) {
 	$gaps = $self->gaps("query") + $self->gaps("hit");
-    } 
+    }
     $self->gaps('total', $gaps);
-
     $self->percent_identity($identical / $hsp_len ) if( $hsp_len > 0 );
 
     $rank && $self->rank($rank);
@@ -471,7 +471,7 @@ sub gaps        {
 	$value = $previous = '' unless defined $value;
 	$self->{'_gaps'}->{$type} = $value;
     }
-    return $previous;
+    return $previous || 0;
 }
 
 =head2 query_string

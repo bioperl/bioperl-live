@@ -332,7 +332,7 @@ sub next_result{
 	   while( defined ($_ = $self->_readline() ) && 
 		  ! /^\s+$/ ) {
 	       my @line = split;
-	       
+
 	       if ($line[-1] =~ m/\=/o && $labels[-1] eq 'fs') {
 		   # unlabelled alignment hit;
 		   push @labels, "aln_code";
@@ -416,7 +416,10 @@ sub next_result{
 			    'Data' => $desc});	   
 
 	   $_ = $self->_readline();
-	   my ($score,$bits,$e) = ( /Z-score:\s*(\S+)\s*bits:\s*(\S+)\s+E\(\):\s*(\S+)/ );
+	   my ($score,$bits,$e) = /Z-score: \s* (\S+) \s*
+                               (?: bits: \s* (\S+) \s+ )?
+                               (?: E|expect ) \s* \(\) :? \s*(\S+)/x;
+	   $bits = $score unless defined $bits;
 
 	   my $v = shift @hit_signifs;
 	   if( defined $v ) {
