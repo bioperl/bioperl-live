@@ -34,9 +34,9 @@ use Bio::Root::IO;
 my $io = new Bio::Root::IO; # less typing from now on ...
 my $parser = Bio::OntologyIO::simpleGOparser->new(
 		      -go_defs_file_name => $io->catfile( "t","data",
-							 "GO.defs.test" ),
+                                                  "GO.defs.test" ),
 		      -components_file_name => $io->catfile( "t","data",
-						  "component.ontology.test" ) );
+                                                     "component.ontology.test" ) );
 
 
 my $IS_A    = Bio::Ontology::RelationshipType->get_instance( "IS_A" );
@@ -50,60 +50,70 @@ my $engine = $parser->parse();
 
 my $term = $engine->get_term( "GO:0018897" );
 
-ok( ( $term->each_dblink() )[ 0 ], "MetaCyc:PWY-681" );
-ok( ( $term->each_dblink() )[ 1 ], "UM-BBD_pathwayID:dbt" );
-ok( ( $term->each_synonym() )[ 0 ], "murein sacculus" );
-ok( ( $term->each_synonym() )[ 1 ], "peptidoglycan" );
+my @dblinks = sort ( $term->each_dblink() );
+my @synos = sort ( $term->each_synonym() );
+
+ok( $dblinks[ 0 ], "MetaCyc:PWY-681" );
+ok( $dblinks[ 1 ], "UM-BBD_pathwayID:dbt" );
+ok( $synos[ 0 ], "murein sacculus" );
+ok( $synos[ 1 ], "peptidoglycan" );
 ok( $term->category()->name(), "components ontology" );
 ok( $term->name(), "dibenzothiophene desulfurization" );
 
 
-
-
+@dblinks = ();
+@synos = ();
+$term = "";
 
 $term = $engine->get_term( "GO:0004796" );
 
-ok( ( $term->each_dblink() )[ 0 ], "EC:5.3.99.5" );
-ok( ( $term->each_synonym() )[ 0 ], "cytochrome P450 CYP5" );
-ok( ( $term->each_secondary_GO_id() )[ 0 ], "GO:0008400" );
+@dblinks = sort ( $term->each_dblink() );
+@synos = sort ( $term->each_synonym() );
+my @sec = sort ( $term->each_secondary_GO_id() ); 
+
+ok( $dblinks[ 0 ], "EC:5.3.99.5" );
+ok( $synos[ 0 ], "cytochrome P450 CYP5" );
+ok( $sec[ 0 ], "GO:0008400" );
 ok( $term->category()->name(), "components ontology" );
 ok( $term->name(), "thromboxane-A synthase" );
 
 
 
-
-
-my @parents = sort( $engine->get_parent_terms( $term ) );
+my @parents = sort goid ( $engine->get_parent_terms( $term ) );
 
 ok( @parents == 2 );
 
-ok( $parents[ 0 ]->GO_id(), "GO:0018895" );
-ok( $parents[ 1 ]->GO_id(), "GO:0015034" );
-
-
-@parents = sort( $engine->get_parent_terms( $term, $PART_OF, $IS_A) );
-
-ok( @parents == 2 );
-
-ok( $parents[ 0 ]->GO_id(), "GO:0018895" );
-ok( $parents[ 1 ]->GO_id(), "GO:0015034" );
+ok( $parents[ 0 ]->GO_id(), "GO:0015034" );
+ok( $parents[ 1 ]->GO_id(), "GO:0018895" );
 
 
 
+@parents = ();
 
-
-
-
-
-@parents = sort( $engine->get_parent_terms( "GO:0004796", $IS_A ) );
+@parents = sort goid ( $engine->get_parent_terms( $term, $PART_OF, $IS_A) );
 
 ok( @parents == 2 );
 
-ok( $parents[ 0 ]->GO_id(), "GO:0018895" );
-ok( $parents[ 1 ]->GO_id(), "GO:0015034" );
+ok( $parents[ 0 ]->GO_id(), "GO:0015034" );
+ok( $parents[ 1 ]->GO_id(), "GO:0018895" );
 
 
-@parents = sort( $engine->get_parent_terms( "GO:0004796", $PART_OF ) );
+
+
+@parents = ();
+
+@parents = sort goid ( $engine->get_parent_terms( "GO:0004796", $IS_A ) );
+
+ok( @parents == 2 );
+
+ok( $parents[ 0 ]->GO_id(), "GO:0015034" );
+ok( $parents[ 1 ]->GO_id(), "GO:0018895" );
+
+
+
+@parents = ();
+
+@parents = sort goid ( $engine->get_parent_terms( "GO:0004796", $PART_OF ) );
 
 ok( @parents == 0 );
 
@@ -111,32 +121,33 @@ ok( @parents == 0 );
 
 
 
-my @anc = sort( $engine->get_ancestor_terms( $term ) );
+my @anc = sort goid ( $engine->get_ancestor_terms( $term ) );
 
 ok( @anc == 3 );
 
 ok( $anc[ 0 ]->GO_id(), "GO:0003673" );
-ok( $anc[ 1 ]->GO_id(), "GO:0018895" );
-ok( $anc[ 2 ]->GO_id(), "GO:0015034" );
+ok( $anc[ 1 ]->GO_id(), "GO:0015034" );
+ok( $anc[ 2 ]->GO_id(), "GO:0018895" );
 
 
-@anc = sort( $engine->get_ancestor_terms( "GO:0004796", $IS_A ) );
+@anc = ();
+
+@anc = sort goid ( $engine->get_ancestor_terms( "GO:0004796", $IS_A ) );
 
 ok( @anc == 3 );
 
 ok( $anc[ 0 ]->GO_id(), "GO:0003673" );
-ok( $anc[ 1 ]->GO_id(), "GO:0018895" );
-ok( $anc[ 2 ]->GO_id(), "GO:0015034" );
+ok( $anc[ 1 ]->GO_id(), "GO:0015034" );
+ok( $anc[ 2 ]->GO_id(), "GO:0018895" );
 
 
-
-@anc = sort( $engine->get_ancestor_terms( "GO:0000666" ) );
+@anc = sort goid ( $engine->get_ancestor_terms( "GO:0000666" ) );
 
 ok( @anc == 12 );
 
 
 
-@anc = sort( $engine->get_ancestor_terms( "GO:0000666", $IS_A ) );
+@anc = sort goid ( $engine->get_ancestor_terms( "GO:0000666", $IS_A ) );
 
 ok( @anc == 2 );
 
@@ -147,20 +158,22 @@ ok( $anc[ 1 ]->GO_id(), "GO:0030481" );
 
 
 
-@anc = sort( $engine->get_ancestor_terms( "GO:0000666", $PART_OF ) );
+
+@anc = sort goid ( $engine->get_ancestor_terms( "GO:0000666", $PART_OF ) );
 
 ok( @anc == 6 );
 
 ok( $anc[ 0 ]->GO_id(), "GO:0005623" );
-ok( $anc[ 1 ]->GO_id(), "GO:0005933" );
-ok( $anc[ 2 ]->GO_id(), "GO:0005935" );
-ok( $anc[ 3 ]->GO_id(), "GO:0005938" );
+ok( $anc[ 1 ]->GO_id(), "GO:0005625" );
+ok( $anc[ 2 ]->GO_id(), "GO:0005933" );
+ok( $anc[ 3 ]->GO_id(), "GO:0005935" );
 ok( $anc[ 4 ]->GO_id(), "GO:0005937" );
-ok( $anc[ 5 ]->GO_id(), "GO:0005625" );
+ok( $anc[ 5 ]->GO_id(), "GO:0005938" );
 
 
 
-my @childs = sort( $engine->get_child_terms( "GO:0005625", $PART_OF ) );
+
+my @childs = sort goid ( $engine->get_child_terms( "GO:0005625", $PART_OF ) );
 
 ok( @childs == 2 );
 
@@ -176,42 +189,42 @@ ok( $engine->get_term( "GO:0005625" )->name(), "soluble fraction" );
 
 
 
-@childs = sort( $engine->get_descendant_terms( "GO:0005624", $IS_A ) );
+@childs = sort goid ( $engine->get_descendant_terms( "GO:0005624", $IS_A ) );
 
 
 
 ok( @childs == 6 );
 
-ok( $childs[ 0 ]->GO_id(), "GO:0005792" );
-ok( $childs[ 0 ]->name(), "microsome" );
-ok( $childs[ 1 ]->GO_id(), "GO:0000299" );
-ok( $childs[ 1 ]->name(), "integral membrane protein of membrane fraction" );
-ok( $childs[ 2 ]->GO_id(), "GO:0019718" );
-ok( $childs[ 2 ]->name(), "rough microsome" );
-ok( $childs[ 3 ]->GO_id(), "GO:0019719" );
-ok( $childs[ 3 ]->name(), "smooth microsome" );
-ok( $childs[ 4 ]->GO_id(), "GO:0000300" );
-ok( $childs[ 4 ]->name(), "peripheral membrane protein of membrane fraction" );
-ok( $childs[ 5 ]->GO_id(), "GO:0019717" );
-ok( $childs[ 5 ]->name(), "synaptosome" );
+ok( $childs[ 0 ]->GO_id(), "GO:0000299" );
+ok( $childs[ 0 ]->name(), "integral membrane protein of membrane fraction" );
+ok( $childs[ 1 ]->GO_id(), "GO:0000300" );
+ok( $childs[ 1 ]->name(), "peripheral membrane protein of membrane fraction" );
+ok( $childs[ 2 ]->GO_id(), "GO:0005792" );
+ok( $childs[ 2 ]->name(), "microsome" );
+ok( $childs[ 3 ]->GO_id(), "GO:0019717" );
+ok( $childs[ 3 ]->name(), "synaptosome" );
+ok( $childs[ 4 ]->GO_id(), "GO:0019718" );
+ok( $childs[ 4 ]->name(), "rough microsome" );
+ok( $childs[ 5 ]->GO_id(), "GO:0019719" );
+ok( $childs[ 5 ]->name(), "smooth microsome" );
 
 
 
 
 
-@childs = sort( $engine->get_descendant_terms( "GO:0005625", $IS_A ) );
+@childs = sort goid ( $engine->get_descendant_terms( "GO:0005625", $IS_A ) );
 
 ok( @childs == 0 );
 
 
-@childs = sort( $engine->get_descendant_terms( "GO:0005625", $PART_OF ) );
+@childs = sort goid ( $engine->get_descendant_terms( "GO:0005625", $PART_OF ) );
 
 ok( @childs == 2 );
 
 
 
 
-my @rels = $engine->get_relationships( "GO:0005625" );
+my @rels = sort child_goid ( $engine->get_relationships( "GO:0005625" ) );
 
 ok( @rels == 3 );
 
@@ -259,10 +272,10 @@ ok( @leafs == 19 );
 
 
 $parser = Bio::OntologyIO::simpleGOparser->new(
-		      -go_defs_file_name => $io->catfile( "t","data",
-							 "GO.defs.test2" ),
-		      -components_file_name => $io->catfile("t","data",
-						  "component.ontology.test2" ) );
+		      -go_defs_file_name => $io->catfile( "t", "data",
+                                                  "GO.defs.test2" ),
+		      -components_file_name => $io->catfile( "t", "data",
+                                                     "component.ontology.test2" ) );
 
 
 $engine = $parser->parse();
@@ -277,7 +290,13 @@ ok( @leafs2 == 4 );
 
 
 
+sub goid { num ( $a->GO_id() ) <=> num ( $b->GO_id() ) }
 
+sub child_goid { num ( $a->child_term()->GO_id() ) <=> num ( $b->child_term()->GO_id() ) }
 
-
+sub num {
+    my $x = shift( @_ );
+    $x =~ s/\D+//g;
+    return $x;
+}
 
