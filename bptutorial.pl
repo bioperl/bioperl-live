@@ -985,6 +985,7 @@ current set of suffixes:
    clustalw    aln
    emboss*     water|needle
    fasta       fasta|fast|seq|fa|fsa|nt|aa
+   maf         maf
    mase                                     Seaview
    mega        meg|mega
    meme        meme
