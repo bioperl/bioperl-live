@@ -29,6 +29,10 @@ Bio::DB::GenPept - Database object interface to GenPept
 Allows the dynamic retrieval of Sequence objects (Bio::Seq) from the GenPept
 database at NCBI, via an Entrez query.
 
+WARNING: Please do NOT spam the Entrez web server with multiple requests.
+NCBI offers Batch Entrez for this purpose.  Batch Entrez support will likely
+be supported in a future version of DB::GenPept.
+
 =head1 FEEDBACK
 
 =head2 Mailing Lists
@@ -209,7 +213,7 @@ sub _get_stream {
     last if m/^------/; # Kludgy, but it's how L. Stein does Boulder too
   }
 
-  return Bio::SeqIO->new(-fh => $sock, -format => 'Fasta');
+  return Bio::SeqIO->new('fh' => $sock, 'format' => 'Fasta');
 
 }
 

@@ -29,6 +29,10 @@ Bio::DB::GenBank - Database object interface to GenBank
 Allows the dynamic retrieval of Sequence objects (Bio::Seq) from the GenBank
 database at NCBI, via an Entrez query.
 
+WARNING: Please do NOT spam the Entrez web server with multiple requests.
+NCBI offers Batch Entrez for this purpose.  Batch Entrez support will likely
+be supported in a future version of DB::GenBank.
+
 =head1 FEEDBACK
 
 =head2 Mailing Lists
@@ -103,7 +107,7 @@ sub _initialize {
 sub get_Seq_by_id {
 
   my $self = shift;
-  my $uid = shift or $self-throw("Must supply an identifier!\n");
+  my $uid = shift or $self->throw("Must supply an identifier!\n");
 
   my $entrez = "db=n&form=6&dopt=f&html=no&title=no&uid=$uid";
 
@@ -125,7 +129,7 @@ sub get_Seq_by_id {
 sub get_Seq_by_acc {
 
   my $self = shift;
-  my $acc = shift or $self-throw("Must supply an accesion number!\n");
+  my $acc = shift or $self->throw("Must supply an accesion number!\n");
   
   return $self->get_Seq_by_id($acc);
 }
@@ -163,7 +167,7 @@ sub get_Stream_by_id {
   Returns : a Bio::SeqIO stream object
   Args    : $ref : a reference to an array of accession numbers for
                    the desired sequence entries
-  Note    : For GenPept, this just calls the same code for get_Stream_by_id()
+  Note    : For GenBank, this just calls the same code for get_Stream_by_id()
 
 =cut
 
@@ -209,7 +213,7 @@ sub _get_stream {
     last if m/^------/; # Kludgy, but it's how L. Stein does Boulder too
   }
 
-  return Bio::SeqIO->new(-fh => $sock, -format => 'Fasta');
+  return Bio::SeqIO->new('fh' => $sock, 'format' => 'Fasta');
 
 }
 
