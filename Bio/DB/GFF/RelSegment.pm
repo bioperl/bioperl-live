@@ -576,6 +576,7 @@ Attribute matching is simple string matching, and multiple attributes
 are ANDed together.
 
 =cut
+#'
 
 # return all features that overlap with this segment;
 # optionally modified by a list of types to filter on
@@ -997,7 +998,7 @@ sub intersection {
 sub overlaps {
   my $self = shift;
   my($other,$so) = @_;
-  $self->SUPER::overlaps(@_) unless $other->isa('Bio::DB::GFF::RelSegment');
+  return $self->SUPER::overlaps(@_) unless $other->isa('Bio::DB::GFF::RelSegment');
   return if $self->abs_ref ne $other->abs_ref;
   return if $self->abs_low  > $other->abs_high;
   return if $self->abs_high < $other->abs_low;
@@ -1007,7 +1008,7 @@ sub overlaps {
 sub contains {
   my $self = shift;
   my($other,$so) = @_;
-  $self->SUPER::overlaps(@_) unless $other->isa('Bio::DB::GFF::RelSegment');
+  return $self->SUPER::overlaps(@_) unless $other->isa('Bio::DB::GFF::RelSegment');
   return if $self->abs_ref ne $other->abs_ref;
   return unless $self->abs_low <= $other->abs_low;
   return unless $self->abs_high >= $other->abs_high;
