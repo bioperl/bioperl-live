@@ -107,6 +107,8 @@ sub next_aln {
        };
    }
 
+   return 0 if scalar @names < 1;
+
    # now got this as a name - sequence hash. Lets make some sequences!
 
    foreach $name ( @names ) {
@@ -134,7 +136,7 @@ sub next_aln {
 #  If $end <= 0, we have either reached the end of
 #  file in <> or we have encountered some other error
 #
-   if ($end <= 0) { undef $aln;}
+#   if ($end <= 0) { undef $aln;}
 
 
    }
@@ -195,12 +197,12 @@ sub write_aln {
     }
     	# ok - heavy handed, but there you go.
     	#
-    	$self->_print ("\n//\n");
+    	$self->_print ("\n//\n\n\n");
 
     	while( $count < $length ) {	
 		# there is another block to go!
 	   foreach $name  ( @arr ) {
-	    	$self->_print (sprintf("%20s  ",$name));
+	    	$self->_print (sprintf("%-20s  ",$name));
 	
 	    	$tempcount = $count;
 	    	$index = 0;
@@ -221,6 +223,7 @@ sub write_aln {
 	    	}
 	    	$self->_print ("\n");
   	   }
+	    	$self->_print ("\n\n");
 		$count = $tempcount;
     	}     			
       }
