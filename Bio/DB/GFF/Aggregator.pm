@@ -140,12 +140,15 @@ methods implemented by this module.
 package Bio::DB::GFF::Aggregator;
 
 use strict;
-use Bio::DB::GFF::Util::Rearrange;  # for rearrange()
-use Bio::DB::GFF::Feature;
+use Bio::Root::Root;
+use Bio::SeqFeature::AggregatorI;
 use vars qw($VERSION @ISA);
 
 $VERSION = '1.00';
-@ISA = qw(Bio::Root::Root);
+@ISA = qw(Bio::Root::Root Bio::SeqFeature::AggregatorI);
+
+use Bio::DB::GFF::Util::Rearrange;  # for rearrange()
+use Bio::DB::GFF::Feature;
 
 my $ALWAYS_TRUE   = sub { 1 };
 
@@ -183,10 +186,10 @@ sub new {
 	       },$class;
 }
 
-=head2 disaggregate
+=head2 disaggregate_types
 
- Title   : disaggregate
- Usage   : $a->disaggregate($types,$factory)
+ Title   : disaggregate_types
+ Usage   : $a->disaggregate_types($types,$factory)
  Function: disaggregate type list into components
  Returns : a true value if this aggregator should be called to reaggregate
  Args    : see below
@@ -206,7 +209,7 @@ Arguments:
   $factory         reference to the Adaptor object that is calling
 		   this method
 
-Note that the API allows disaggregate() to remove types from the type
+Note that the API allows disaggregate_types() to remove types from the type
 list.  This feature is probably not desirable and may be deprecated in 
 the future.
 
@@ -214,13 +217,13 @@ the future.
 
 # this is called at the beginning to turn the pseudo-type 
 # into its component feature types
-sub disaggregate {
+sub disaggregate_types {
   my $self  = shift;
   my $types = shift;
-  my $factory = shift;
+  my $factory = shift; # unused
 
-  my $sub_features = $factory->parse_types($self->get_part_names);
-  my $main_feature = $factory->parse_types($self->get_main_name);
+  my $sub_features = $self->parse_types($self->get_part_names);
+  my $main_feature = $self->parse_types($self->get_main_name);
 
   if (@$types) {
     my (@synthetic_types,@unchanged);
@@ -247,15 +250,14 @@ sub disaggregate {
   }
 
   return $self->component_count > 0;
-}
-
+} # disaggregate_types(..)
 
 =head2 aggregate
 
  Title   : aggregate
  Usage   : $features = $a->aggregate($features,$factory)
  Function: aggregate a feature list into composite features
- Returns : an array reference containing modified features
+ Returns : true iff the given feature list was modified
  Args    : see below
  Status  : Public
 
@@ -263,7 +265,7 @@ This method is called to aggregate a list of raw GFF features into the
 set of composite features.  The method is called an array reference to
 a set of Bio::DB::GFF::Feature objects.  It runs through the list,
 creating new composite features when appropriate.  The method result
-is an array reference containing the composite features.
+is true iff the given list was modified by the call.
 
 Arguments:
 
@@ -272,8 +274,8 @@ Arguments:
   $factory         reference to the Adaptor object that is calling
 		   this method
 
-NOTE: The reason that the function result contains the raw features as
-well as the aggregated ones is to allow queries like this one:
+NOTE: The function keeps the given features in the list, and just adds the
+aggregated ones, to allow queries like this one:
 
   @features =  $segment->features('exon','transcript:curated');
 
@@ -281,6 +283,12 @@ Assuming that "transcript" is the name of an aggregated feature and
 that "exon" is one of its components, we do not want the transcript
 aggregator to remove features of type "exon" because the user asked
 for them explicitly.
+
+If you would like some of the aggregated features to be removed from
+the list by this call, you may override the passthru_sub(..) method to
+return a subroutine that takes a feature and returns false for those
+features that should be removed.  This will only be attempted on those
+features that pass the match_sub(..).
 
 =cut
 
@@ -293,7 +301,7 @@ sub aggregate {
   my $matchsub    = $self->match_sub($factory) or return;
   my $passthru    = $self->passthru_sub($factory);
 
-  my (%aggregates,@result);
+  my (%aggregates,@result,$changed);
   for my $feature (@$features) {
     if ($feature->group && $matchsub->($feature)) {
       if ($main_method && lc $feature->method eq lc $main_method) {
@@ -301,8 +309,11 @@ sub aggregate {
       } else {
 	push @{$aggregates{$feature->group,$feature->refseq}{subparts}},$feature;
       }
-      push @result,$feature if $passthru && $passthru->($feature);
-
+      if( $passthru && $passthru->($feature) ) {
+        push @result,$feature;
+      } else {
+        $changed = 1;
+      }
     } else {
       push @result,$feature;
     }
@@ -326,11 +337,39 @@ sub aggregate {
     $base->add_subfeature($_) foreach @{$aggregates{$_}{subparts}};
     $base->adjust_bounds;
     $base->compound(1);  # set the compound flag
+    $changed = 1;
     push @result,$base;
   }
   @$features = @result;
-}
+  return $changed;
+} # aggregate(..)
 
+
+=head2 parse_types
+
+ Title   : parse_types
+ Usage   : $aggregator->parse_types(@args)
+ Function: parses list of types
+ Returns : an array ref containing ['method','source'] pairs
+ Args    : a list of types in 'method:source' form
+ Status  : internal
+
+This method takes an array of type names in the format "method:source"
+and returns an array reference of ['method','source'] pairs.  It will
+also accept a single argument consisting of an array reference with
+the list of type names.
+
+=cut
+
+# turn feature types in the format "method:source" into a list of [method,source] refs
+sub parse_types {
+  my $self  = shift;
+  return [] if !@_ or !defined($_[0]);
+
+  my @types = ref($_[0]) eq 'ARRAY' ? @{$_[0]} : @_;
+  my @type_list = map { [split(':',$_,2)] } @types;
+  return \@type_list;
+}
 
 =head2 method
 
@@ -428,7 +467,7 @@ sub require_whole_object {  0; }
  Status  : Internal
 
 This method is used internally to generate a code sub that will
-quickly filter out the raw features that we're interested in
+quickly filter out the raw features that we\'re interested in
 aggregating.  The returned sub accepts a Feature and returns true if
 we should aggregate it, false otherwise.
 
