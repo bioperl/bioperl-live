@@ -124,10 +124,10 @@ sub to_string {
             if ($hsp->strand('subject') eq "1"){
                 push @plus_hsps, $hsp;
                 if (defined $qpmin){  # set or reset the minimum and maximum extent of the plus-strand hit
-                    $qpmin = $hsp->start if $hsp->start('query') < $qpmin;
-                    $qpmax = $hsp->end if $hsp->end('query') > $qpmax;
-                    $spmin = $hsp->start if $hsp->start('subject') < $spmin;
-                    $spmax = $hsp->end if $hsp->end('subject') > $spmax;                    
+                    $qpmin = $hsp->start('query') if $hsp->start('query') < $qpmin;
+                    $qpmax = $hsp->end('query') if $hsp->end('query') > $qpmax;
+                    $spmin = $hsp->start('subject') if $hsp->start('subject') < $spmin;
+                    $spmax = $hsp->end('subject') if $hsp->end('subject') > $spmax;                    
                 } else {
                     $qpmin = $hsp->start('query');
                     $qpmax = $hsp->end('query');
@@ -138,10 +138,10 @@ sub to_string {
             if ($hsp->strand('subject') eq "-1"){
                 push @minus_hsps, $hsp;
                 if (defined $qmmin){ # set or reset the minimum and maximum extent of the minus-strand hit
-                    $qmmin = $hsp->start if $hsp->start('query') < $qmmin;
-                    $qmmax = $hsp->end if $hsp->end('query') > $qmmax;
-                    $smmin = $hsp->start if $hsp->start('subject') < $smmin;
-                    $smmax = $hsp->end if $hsp->end('subject') > $smmax;                    
+                    $qmmin = $hsp->start('query') if $hsp->start('query') < $qmmin;
+                    $qmmax = $hsp->end('query') if $hsp->end('query') > $qmmax;
+                    $smmin = $hsp->start('subject') if $hsp->start('subject') < $smmin;
+                    $smmax = $hsp->end('subject') if $hsp->end('subject') > $smmax;                    
                 } else {
                     $qmmin = $hsp->start('query');
                     $qmmax = $hsp->end('query');
