@@ -2,7 +2,7 @@
 
 use lib '.';
 
-# $Id: bp_genbank2gff.PLS,v 1.7 2003-08-11 23:46:41 mwilkinson Exp $
+# $Id: bp_genbank2gff.PLS,v 1.8 2003-09-07 23:54:36 lstein Exp $
 use strict;
 use Bio::DB::GFF;
 use Getopt::Long;
@@ -28,17 +28,23 @@ This script currently only uses MySQL, though it is a proof-of-
 principle and could easily be extended to work with other RDMS
 that are supported by GFF through adaptors.
 
+The database must already have been created and the current user must
+have appropriate INSERT and UPDATE privileges.  The --create option
+will initialize a new database with the appropriate schema, deleting
+any tables that were already there.
+
 =head1 COMMAND-LINE OPTIONS
 
 Command-line options can be abbreviated to single-letter options.
 e.g. -d instead of --database.
 
-   --create                  Force creation and initialization of database
+   --create                  Initialize database schema
    --dsn       <dsn>         Data source (default dbi:mysql:test)
    --user      <user>        Username for mysql authentication
    --pass      <password>    Password for mysql authentication
    --stdout                  Write converted GFF file to stdout rather than loading
    --proxy     <proxy>       Proxy server to use for remote access
+   --source    <source>      Specify source field for features ['genbank']
     EITHER --file            Arguments that follow are Genbank/EMBL file names
     OR --accession           Arguments that follow are genbank accession numbers
     OR --acc_file            accession numbers in a file (one per line, no punc.) 
@@ -66,17 +72,6 @@ use Bio::DB::GFF::Util::Rearrange;
 use Bio::DB::GFF::Adaptor::biofetch;
 use vars '@ISA';
 @ISA = 'Bio::DB::GFF::Adaptor::biofetch';
-
-sub new {
-  my $class = shift;
-  my $self  = bless {},$class;
-  my ($proxy) = rearrange(['PROXY'],@_);
-  if ($proxy) {
-    my @args = ref($proxy) ? @$proxy : eval $proxy;
-    $self->{_proxy} = \@args if @args;
-  }
-  $self;
-}
 
 sub load_gff_line {
   my ($self,$options) = @_;
@@ -131,7 +126,6 @@ package main;
 
 my $USAGE = <<USAGE;
 
-
 Usage: $0 [options] [<gff file 1> <gff file 2>] ...
 Load a Bio::DB::GFF database from GFF files.
 
@@ -142,8 +136,9 @@ Load a Bio::DB::GFF database from GFF files.
    --pass      <password>    Password for mysql authentication
    --proxy     <proxy>       Proxy server to use for remote access
    --stdout                  direct output to STDOUT
-   --adaptor   <adaptor>     adaptor to use (e.g. biofetch_oracle or biofetch)
+   --adaptor   <adaptor>     adaptor to use (e.g. dbi::mysql, dbi::pg, dbi::oracle)
    --viral                   the genome you are loading is viral (changes tag choices)
+   --source    <source>      source field for features ['genbank']
     EITHER --file            Arguments that follow are Genbank/EMBL file names
     OR --gb_folder           What follows is a folder full of gb files to process
     OR --accession           Arguments that follow are genbank accession numbers (not gi!)
@@ -164,7 +159,8 @@ that are supported by GFF through adaptors.
 USAGE
 ;
 
-my ($DSN,$ADAPTOR,$CREATE,$USER,$VIRAL,$PASSWORD,$gbFOLDER,$FASTA,$ACC,$accFILE, $accPIPE, $FILE,$PROXY,$STDOUT);
+my ($DSN,$ADAPTOR,$CREATE,$USER,$VIRAL,$PASSWORD,$gbFOLDER,
+    $FASTA,$ACC,$accFILE, $accPIPE, $FILE,$PROXY,$STDOUT,$SOURCE);
 
 
 GetOptions (
@@ -177,6 +173,7 @@ GetOptions (
             'viral'       => \$VIRAL,
             'acc_file'    => \$accFILE,
             'acc_pipe'    => \$accPIPE,
+	    'source:s'    => \$SOURCE,
             'gb_folder=s' => \$gbFOLDER,
             'proxy:s'     => \$PROXY,
             'stdout'      => \$STDOUT,
@@ -187,8 +184,14 @@ die $USAGE unless ($DSN || $STDOUT);  # at a minimum we need to have a place to 
 
 # some local defaults
 $DSN     ||= 'dbi:mysql:test';
-#$ADAPTOR = $STDOUT ? 'biofetch_to_stdout' : 'biofetch';
-$ADAPTOR = $STDOUT ? 'biofetch_to_stdout' : $ADAPTOR;
+$ADAPTOR ||= 'dbi::mysql';
+
+# Ensure that biofetch inherits from the "right" adaptor.
+# This is a horrible hack and should be fixed.
+eval "use Bio::DB::GFF::Adaptor::${ADAPTOR}";
+local @Bio::DB::GFF::Adaptor::biofetch::ISA = "Bio::DB::GFF::Adaptor::${ADAPTOR}";
+
+my $biofetch = $STDOUT ? 'biofetch_to_stdout' : 'biofetch';
 
 my @auth;
 push @auth,(-user=>$USER)     if defined $USER;
@@ -205,9 +208,13 @@ my %preferred_tags = (
 		      standard_name => 80,
                      );
 $preferred_tags{'product'} = 90 if $VIRAL; # added this to the default list for viral genomes
-                                    # since most functions come from post-translational processing, so the defailt labels are crap!
+       # since most functions come from post-translational processing, so the default labels are c**p!
 
-my $db = Bio::DB::GFF->new(-adaptor=>$ADAPTOR,-dsn => $DSN,@auth, -preferred_tags => \%preferred_tags)
+my $db = Bio::DB::GFF->new(-adaptor=>$biofetch,
+			   -dsn => $DSN,
+			   @auth,
+			   -preferred_tags => \%preferred_tags,
+			   -source=> $SOURCE || 'Genbank')
   or die "Can't open database: ",Bio::DB::GFF->error,"\n";
 
 if ($CREATE) {
@@ -218,31 +225,37 @@ die "you must specify either an accession to retrieve from\nembl or a local file
 
 if ($ACC) {
   while ($_ = shift) {
-    print STDERR "Loading $_...";
+    status(loading => $_);
     my $result = $db->load_from_embl(/^NC_/?'refseq':'embl' => $_);
-    print STDERR $result ? "ok\n" : "failed\n";
+    status(done    => $result);
   }
   exit 1;
-} elsif ($FILE) {
+}
+
+elsif ($FILE) {
   while ($_ = shift) {
-    print STDERR "Loading $_...\n";
+    status('loading' => $_);
     my $result = $db->load_from_file($_);
-    print STDERR $result ? "ok\n" : "failed\n";
+    status (done => $result);
   }
   exit 1;
-} elsif ($accFILE){
+}
+
+elsif ($accFILE){
     my $filename = shift;
     die "you must supply a filename after the --accFILE command line flag\n" unless $filename;
     die "file $filename does not exist\n" unless (-e $filename && !(-d $filename));
     open IN, "$filename" || die "Can't open file $filename for reading accession numbers: $!\n";
     while (<IN>){
         chomp;
-        print STDERR "Loading $_...";   
+	status(loading => $_);
         my $result = $db->load_from_embl(/^NC_/?'refseq':'embl' => $_);
-        print STDERR $result ? "ok\n" : "failed\n";
+	status(done => $result);
     }
     exit 1;
-} elsif ($gbFOLDER){
+}
+
+elsif ($gbFOLDER){
     my $dir = $gbFOLDER;
     die "folder $dir does not exist\n" unless (-e $dir && -d $dir);
     opendir DIR, "$dir" || die "can't open directory $dir for reading: $!\n";
@@ -259,19 +272,32 @@ if ($ACC) {
     my @accessions = <STDIN>;
     chomp @accessions;
     foreach (@accessions){
-        print STDERR "Loading $_...";   
-        my $result = $db->load_from_embl(/^NC_/?'refseq':'embl' => $_);
-        print STDERR $result ? "ok\n" : "failed\n";        
+      status(loading => $_);
+      my $result = $db->load_from_embl(/^NC_/?'refseq':'embl' => $_);
+      status(done => $result);
     }
     exit 1;
-} else {
-    my $done;
-    while ($_ = shift) {
-        $done = 1;
-        print STDERR "Loading $_...\n";
-        my $result = $db->load_from_file($_);
-        print STDERR $result ? "ok\n" : "failed\n";
-    }
-    $done || die "\n\nyou didn't provide any source of data you silly sausage!\ndying from boredom...Aaaaaaaaaahhhhhhh\n\n";
-    exit 1;
+}
+
+else {
+  my $done;
+  while ($_ = shift) {
+    $done = 1;
+    status(loading => $_);
+    my $result = $db->load_from_file($_);
+    status(done => $result);
+  }
+
+  $done || die "\n\nno source of data provided\n\n";
+  exit 1;
+}
+
+sub status {
+  my ($state,$msg) = @_;
+  return if $STDOUT;
+  if ($state eq 'loading') {
+    print STDERR "Loading $msg...";
+  } elsif ($state eq 'done') {
+    print STDERR $msg ? "ok\n" : "failed\n";
+  }
 }

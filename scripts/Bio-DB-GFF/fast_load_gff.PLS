@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# $Id: fast_load_gff.PLS,v 1.4 2003-06-29 23:12:57 lstein Exp $
+# $Id: fast_load_gff.PLS,v 1.5 2003-09-07 23:54:36 lstein Exp $
 
 use strict;
 use lib './blib/lib';
@@ -218,16 +218,25 @@ END
 
 print STDERR "Fast loading enabled\n" if $DO_FAST;
 
-my $count;
+my ($count,$fasta_sequence_id);
 while (<>) {
   chomp;
   my ($ref,$source,$method,$start,$stop,$score,$strand,$phase,$group);
-  if (/^\#\#\s*sequence-region\s+(\S+)\s+(\d+)\s+(\d+)/i) { # header line
+  if (/^>(\S+)/) {  # uh oh, sequence coming
+      $fasta_sequence_id = $1;
+      last;
+    }
+
+  elsif (/^\#\#\s*sequence-region\s+(\S+)\s+(\d+)\s+(\d+)/i) { # header line
     ($ref,$source,$method,$start,$stop,$score,$strand,$phase,$group) = 
       ($1,'reference','Component',$2,$3,'.','.','.',qq(Sequence "$1"));
-  } elsif (/^\#/) {
+  }
+
+  elsif (/^\#/) {
     next;
-  } else {
+  }
+
+  else {
     ($ref,$source,$method,$start,$stop,$score,$strand,$phase,$group) = split "\t";
   }
   next unless defined $ref;
@@ -272,6 +281,14 @@ while (<>) {
     print STDERR "$FEATURES features parsed...";
     print STDERR -t STDOUT && !$ENV{EMACS} ? "\r" : "\n";
   }
+}
+
+if (defined $fasta_sequence_id) {
+  warn "Preparing embedded sequence....\n";
+  my $old = select($FH{FDNA()});
+  $db->load_sequence($fasta_sequence_id);
+  warn "done....\n";
+  select $old;
 }
 
 for my $fasta (@fasta) {

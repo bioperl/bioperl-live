@@ -187,15 +187,31 @@ my %DONE        = ();
 my $FEATURES    = 0;
 
 my $count;
+my $fasta_sequence_id;
+my $gff3;
+
 while (<>) {
   chomp;
   my ($ref,$source,$method,$start,$stop,$score,$strand,$phase,$group);
-  if (/^\#\#\s*sequence-region\s+(\S+)\s+(\d+)\s+(\d+)/i) { # header line
+  if (/^>(\S+)/) {  # uh oh, sequence coming
+      $fasta_sequence_id = $1;
+      last;
+    }
+
+  elsif (/^\#\#gff-version\s+3/) {
+    $gff3++;
+  }
+
+  elsif (/^\#\#\s*sequence-region\s+(\S+)\s+(\d+)\s+(\d+)/i) { # header line
     ($ref,$source,$method,$start,$stop,$score,$strand,$phase,$group) = 
       ($1,'reference','Component',$2,$3,'.','.','.',qq(Sequence "$1"));
-  } elsif (/^\#/) {
+  }
+
+  elsif (/^\#/) {
     next;
-  } else {
+  }
+
+  else {
     ($ref,$source,$method,$start,$stop,$score,$strand,$phase,$group) = split "\t";
   }
   next unless defined $ref;
@@ -212,7 +228,9 @@ while (<>) {
   my @groups = split(/\s*;\s*/,$group);
   foreach (@groups) { s/$;/;/g }
 
-  my ($group_class,$group_name,$target_start,$target_stop,$attributes) = Bio::DB::GFF->_split_group(@groups);
+  my ($group_class,$group_name,$target_start,$target_stop,$attributes) = 
+    $gff3 ? Bio::DB::GFF->_split_gff3_group(@groups)
+          : Bio::DB::GFF->_split_group(@groups);
   $group_class  ||= '\N';
   $group_name   ||= '\N';
   $target_start ||= '\N';
@@ -241,6 +259,14 @@ while (<>) {
     print STDERR -t STDOUT && !$ENV{EMACS} ? "\r" : "\n";
   }
 
+}
+
+if (defined $fasta_sequence_id) {
+  warn "Preparing embedded sequence....\n";
+  my $old = select($FH{FDNA()});
+  $db->load_sequence($fasta_sequence_id);
+  warn "done....\n";
+  select $old;
 }
 
 for my $file (@fasta) {

@@ -33,16 +33,11 @@ use Bio::DB::BioFetch;
 use Bio::SeqIO;
 
 use vars qw(@ISA %preferred_tags);
+
+# THIS IS WRONG: biofetch should delegate to an underlying
+# database adaptor, and not inherit from one.
 @ISA = qw(Bio::DB::GFF::Adaptor::dbi::mysql);
 
-
-sub _preferred_tags {
-    my ($self, $tags) = @_;
-    if ($tags && (ref($tags) =~ /HASH/)){
-        $self->{preferred_tags} = $tags;
-    }
-    return $self->{preferred_tags};
-}
 # priority for choosing names of CDS tags, higher is higher priority
 %preferred_tags = (
 		      strain        => 10,
@@ -67,7 +62,7 @@ sub _preferred_tags {
                                (e.g. a feature has both a 'gene' and a 'locus' tag).
                                Common defaults are provided that work well for eukaryotic
                                features (but not well for viral/prokaryotic)
-              see below for additional arguments.                             
+              see below for additional arguments.
  Status  : Public
 
 This is the constructor for the adaptor.  It is called automatically
@@ -85,6 +80,8 @@ all adaptors, the following class-specific arguments are recgonized:
 
   -proxy         [['http','ftp'],'http://proxy:8080']
 
+  -source        source to use for loaded features ('EMBL')
+
 -dsn,-user and -pass indicate the local database to cache results in,
 and as are per Bio::DB::GFF::Adaptor::dbi.  The -proxy argument allows
 you to set the biofetch web proxy, and uses the same syntax described
@@ -95,12 +92,13 @@ argument must be passed as an array reference.
 
 sub new {
   my $class = shift;
-  my $args = shift;
-  my $self  = $class->SUPER::new($args);
-  my ($preferred) = rearrange(['PREFERRED_TAGS'],$args);
-  $self->_preferred_tags($preferred?$preferred:\%preferred_tags);  # if the caller sent their own preferences, then use these, otherwise use defaults.
+  my $self  = $class->SUPER::new(@_);
+  my ($preferred,$proxy,$source) = rearrange(['PREFERRED_TAGS','PROXY','SOURCE'],@_);
 
-  my ($proxy) = rearrange(['PROXY'],$args);
+  # if the caller sent their own preferences, then use these, otherwise use defaults.
+  $self->_preferred_tags($preferred ? $preferred : \%preferred_tags);
+  $self->_source($source || 'EMBL');
+
   if ($proxy) {
     my @args = ref($proxy) ? @$proxy : eval $proxy;
     $self->{_proxy} = \@args if @args;
@@ -133,7 +131,7 @@ sub segment {
 sub refclass {
   my $self = shift;
   my $refname = shift;
-  'Accession';
+  'Sequence';
 }
 
 sub load_from_embl {
@@ -174,6 +172,7 @@ sub _load_embl {
   my $seq  = shift;
   my $refclass = $self->refclass;
   my $locus    = $seq->id;
+  my $source   = $self->_source;
 
   # begin loading
   $self->setup_load();
@@ -188,7 +187,7 @@ sub _load_embl {
 		       {
 			ref    => $acc,
 			class  => $refclass,
-			source => 'EMBL',
+			source => $source,
 			method => 'origin',
 			start  => 1,
 			stop   => $seq->length,
@@ -211,19 +210,23 @@ sub _load_embl {
     my @segments = map {[$_->start,$_->end,$_->seq_id]}
       $location->can('sub_Location') ? $location->sub_Location : $location;
 
-    my $type     =  $feat->primary_tag eq 'CDS' ? 'mRNA'  : $feat->primary_tag;
+    my $type     =  $feat->primary_tag eq 'CDS'  ? 'mRNA' : $feat->primary_tag;
     my $parttype =  $feat->primary_tag eq 'gene' ? 'exon' : $feat->primary_tag;
 
     if ($feat->primary_tag =~ /^(gene|CDS)$/) {
+      my $strand = $feat->strand;
+      my $str    = defined $strand ?
+                                     ($strand > 0 ? '+' : '-')
+				   : '.';
       $self->load_gff_line( {
 			     ref    => $acc,
 			     class  => $refclass,
-			     source => 'EMBL',
+			     source => $source,
 			     method => $type,
 			     start  => $location->start,
 			     stop   => $location->end,
 			     score  => $feat->score || undef,
-			     strand => $feat->strand > 0 ? '+' : ($feat->strand < 0 ? '-' : '.'),
+			     strand => $str,
 			     phase  => $feat->frame || '.',
 			     gclass => $name->[0],
 			     gname  => $name->[1],
@@ -237,15 +240,19 @@ sub _load_embl {
 
     for my $segment (@segments) {
 
+      my $strand = $feat->strand;
+      my $str    = defined $strand ?
+                                     ($strand > 0 ? '+' : '-')
+				   : '.';
       $self->load_gff_line( {
 			     ref    => $segment->[2] eq $locus ? $acc : $segment->[2],
 			     class  => $refclass,
-			     source => 'EMBL',
+			     source => $source,
 			     method => $parttype,
 			     start  => $segment->[0],
 			     stop   => $segment->[1],
 			     score  => $feat->score || undef,
-			     strand => $feat->strand > 0 ? '+' : ($feat->strand < 0 ? '-' : '.'),
+			     strand => $str,
 			     phase  => $feat->frame || '.',
 			     gclass => $name->[0],
 			     gname  => $name->[1],
@@ -293,5 +300,16 @@ sub guess_name {
 }
 
 
+sub _preferred_tags {
+  my $self = shift;
+  $self->{preferred_tags} = shift if @_;
+  return $self->{preferred_tags};
+}
+
+sub _source {
+  my $self = shift;
+  $self->{source} = shift if @_;
+  $self->{source};
+}
 
 1;
