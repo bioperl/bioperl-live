@@ -319,7 +319,7 @@ sub next_seq {
    $acc_string =~ s/\;\s*/ /g;
    ( $acc, @sec ) = split " ",$acc_string;
 
-   my $seq=  $self->sequence_factory->create_sequence
+   my $seq=  $self->sequence_factory->create
        (-verbose  => $self->verbose,
 	%params,
 	-seq      => $seqc,

@@ -149,12 +149,12 @@ sub next_seq {
        if($type eq "P") { $type = "prot";    }
    }
 
-   return $self->sequence_factory->create_sequence(-seq  => $sequence, 
-						   -id   => $id, 
-						   -desc => $desc, 
-						   -type => $type,
-						   -dates => [ $date ]
-						   );
+   return $self->sequence_factory->create(-seq  => $sequence, 
+					  -id   => $id, 
+					  -desc => $desc, 
+					  -type => $type,
+					  -dates => [ $date ]
+					  );
 }
 
 =head2 write_seq

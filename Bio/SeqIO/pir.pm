@@ -119,7 +119,7 @@ sub next_seq {
 
     my ($alphabet) = ('protein');
     # TODO - not processing SFS data
-    return $self->sequence_factory->create_sequence
+    return $self->sequence_factory->create
 	(-seq        => $seq,
 	 -primary_id => $id,
 	 -id         => $type. '1;' . $id,

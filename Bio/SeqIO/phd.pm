@@ -126,7 +126,7 @@ sub next_seq {
 	push(@lines,$entry);
     }
     $self->debug("Creating objects with id = $id\n");
-    my $swq = $self->sequence_factory->create_sequence
+    my $swq = $self->sequence_factory->create
 	(-seq        => join('',@bases),
 	 -qual       => \@qualities,
 	 -id         => $id,

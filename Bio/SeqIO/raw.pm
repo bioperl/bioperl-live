@@ -121,7 +121,7 @@ sub next_seq{
    my $sequence = uc($nextline);
    $sequence =~ s/\W//g;
 
-   return  $self->sequence_factory->create_sequence(-seq => $sequence);
+   return  $self->sequence_factory->create(-seq => $sequence);
 }
 
 =head2 write_seq

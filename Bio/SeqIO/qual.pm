@@ -113,7 +113,7 @@ sub next_seq {
     $id =~ s/^>//;
     # create the seq object
     $sequence =~ s/\n+/ /g;
-    return $self->sequence_factory->create_sequence
+    return $self->sequence_factory->create
 	(-qual        => $sequence,
 	 -id         => $id,
 	 -primary_id => $id,

@@ -322,7 +322,7 @@ sub next_seq {
        s/[^A-Za-z]//g;
        $seqc .= $_;
    }
-   my $seq = $self->sequence_factory->create_sequence
+   my $seq = $self->sequence_factory->create
        (-verbose => $self->verbose(),
 	-division => $div,
 	-seq => $seqc,

@@ -182,10 +182,10 @@ sub next_seq {
     $length = $self->{comment_size};
     $buffer = $self->read_from_buffer($fh,$buffer,$length);
     $self->_set_comments($buffer);
-    return $self->sequence_factory->create_sequence
+    return $self->sequence_factory->create
 	(-seq  =>	$self->{'parsed'}->{'sequence'},
 	 -qual =>	$self->{'parsed'}->{'qualities'},
-	 -id	=>	$self->{'comments'}->{'NAME'}
+	 -id   =>	$self->{'comments'}->{'NAME'}
 	 );
 }
 

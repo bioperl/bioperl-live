@@ -124,7 +124,7 @@ sub start_document            {
 sub end_document     {
     my ($self, $document) = @_;
     delete $self->{'Names'};
-    return  $self->sequence_factory->create_sequence
+    return  $self->sequence_factory->create
 	( -seq => $self->{'residues'},
 	  -alphabet => $self->{'alphabet'},
 	  -id => $self->{'seq'},

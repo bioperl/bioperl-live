@@ -131,12 +131,12 @@ sub _initialize {
 	$id =~ s/\\([\/"%;\t\\])/$1/g;
 #"
 	# Called as next_seq(), so give back a Bio::Seq
-	return $self->sequence_factory->create_sequence(
-						     -seq        => $_,
-						     -primary_id => $id,
-						     -display_id => $id,
-						     -alphabet    => $mol_type,
-						     );        
+	return $self->sequence_factory->create(
+					       -seq        => $_,
+					       -primary_id => $id,
+					       -display_id => $id,
+					       -alphabet    => $mol_type,
+					       );        
     }
 }
 

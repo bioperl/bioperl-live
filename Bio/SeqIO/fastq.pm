@@ -154,14 +154,14 @@ sub next_seq {
   }
 
   # create the SeqWithQuality object
-  $seq = $self->sequence_factory->create_sequence(
-					       -qual         => $qual,
-					       -seq          => $sequence,
-					       -id           => $id,
-					       -primary_id   => $id,
-					       -desc         => $fulldesc,
-					       -alphabet     => $alphabet
-					       );
+  $seq = $self->sequence_factory->create(
+					 -qual         => $qual,
+					 -seq          => $sequence,
+					 -id           => $id,
+					 -primary_id   => $id,
+					 -desc         => $fulldesc,
+					 -alphabet     => $alphabet
+					 );
   
   # if there wasn't one before, set the guessed type
   $self->alphabet($seq->alphabet());

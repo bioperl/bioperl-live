@@ -324,7 +324,7 @@ sub next_seq {
     }
     $self->debug("sequence length is ". length($seqc) ."\n");
     $self->debug("params are " . join(',',keys( %params)) . "\n");
-    my $seq = $self->sequence_factory->create_sequence
+    my $seq = $self->sequence_factory->create
 	('-verbose' =>$self->verbose(), 
 	 %params,
 	 -seq => $seqc,
