@@ -192,12 +192,12 @@ sub promoters {
 =cut
 
 sub exons {
-    my ($self, $type) = @_;
+    my ($self, @args) = @_;
     my @transcripts = $self->transcripts();
     my @feas = ();
 
     foreach my $tr (@transcripts) {
-	push(@feas, $tr->exons($ype));
+	push(@feas, $tr->exons(@args));
     }
     return @feas;
 }
@@ -264,8 +264,8 @@ sub poly_A_sites {
            the following types are recognized: 5prime 3prime for UTR on the
            5' and 3' end of the CDS, respectively.
 
- Returns : An array of Bio::SeqFeatureI implementing objects representing the
-           UTR regions or sites.
+ Returns : An array of Bio::SeqFeature::Gene::ExonI implementing objects
+           representing the UTR regions or sites.
  Args    : Optionally, either 3prime, or 5prime for the the type of UTR
            feature.
 
@@ -273,12 +273,12 @@ sub poly_A_sites {
 =cut
 
 sub utrs {
-    my ($self,$type) = @_;
+    my ($self,@args) = @_;
     my @transcripts = $self->transcripts();
     my @feas = ();
 
     foreach my $tr (@transcripts) {
-	push(@feas, $tr->utrs($type));
+	push(@feas, $tr->utrs(@args));
     }
     return @feas;
 }
