@@ -34,11 +34,10 @@ ok(1);
 
 package TestAbstractStateMachine;
 
-use Bio::Root::RootI;
 use Bio::Tools::StateMachine::AbstractStateMachine qw($INITIAL_STATE $FINAL_STATE);
 use vars qw( @ISA );
 
-@ISA = qw( Bio::Root::RootI
+@ISA = qw( Bio::Root::Root
            Bio::Tools::StateMachine::AbstractStateMachine );
 
 my @state_transitions = (  [ $INITIAL_STATE, 'State1'],
