@@ -130,16 +130,13 @@ use Bio::Root::RootI;
 @ISA = qw(Bio::Root::RootI);
 
 
-
 =head2 get_all_annotation_keys
 
  Title   : get_all_annotation_keys
- Usage   :
- Function:
- Example :
- Returns : 
- Args    :
-
+ Usage   : $ac->get_all_annotation_keys()
+ Function: gives back a list of annotation keys, which are simple text strings
+ Returns : list of strings
+ Args    : none
 
 =cut
 
@@ -152,12 +149,10 @@ sub get_all_annotation_keys{
 =head2 get_Annotations
 
  Title   : get_Annotations
- Usage   :
- Function:
- Example :
- Returns : 
- Args    :
-
+ Usage   : my @annotations = $collection->get_Annotations('key')
+ Function: Retrieves all the Bio::AnnotationI objects for a specific key
+ Returns : list of Bio::AnnotationI - empty if no objects stored for a key
+ Args    : string which is key for annotations
 
 =cut
 
@@ -166,6 +161,22 @@ sub get_Annotations{
 
     $self->throw("Abstract method get_Annotations implementing class did not provide method");
     
+}
+
+=head2 get_num_of_annotations
+
+ Title   : get_num_of_annotations
+ Usage   : my $count = $collection->get_num_of_annotations()
+ Function: Returns the count of all annotations stored in this collection 
+ Returns : integer
+ Args    : none
+
+
+=cut
+
+sub get_num_of_annotations{
+   my ($self) = @_;
+       $self->throw("Abstract method get_num_of_annotations implementing class did not provide method");
 }
 
 1;

@@ -60,11 +60,9 @@ use Bio::Annotation::SimpleValue;
 
  Title   : new
  Usage   : $coll = Bio::Annotation::Collection->new()
- Function: Makes a new Annotation::Colleciton object. 
- Example :
- Returns : 
- Args    :
-
+ Function: Makes a new Annotation::Collection object. 
+ Returns : Bio::Annotation::Collection
+ Args    : none
 
 =cut
 
@@ -82,35 +80,28 @@ sub new{
 
 =head2 Bio::Annotation::CollectionI implementing methods
 
-=cut
-
 =head2 get_all_annotation_keys
 
  Title   : get_all_annotation_keys
  Usage   : $ac->get_all_annotation_keys()
  Function: gives back a list of annotation keys, which are simple text strings
- Example :
- Returns : 
- Args    :
-
+ Returns : list of strings
+ Args    : none
 
 =cut
 
 sub get_all_annotation_keys{
-   my ($self,@args) = @_;
-
+   my ($self) = @_;
    return keys %{$self->{'_annotation'}};
 }
 
 =head2 get_Annotations
 
  Title   : get_Annotations
- Usage   :
- Function:
- Example :
- Returns : 
- Args    :
-
+ Usage   : my @annotations = $collection->get_Annotations('key')
+ Function: Retrieves all the Bio::AnnotationI objects for a specific key
+ Returns : list of Bio::AnnotationI - empty if no objects stored for a key
+ Args    : string which is key for annotations
 
 =cut
 
@@ -124,20 +115,37 @@ sub get_Annotations{
    }
 }
 
-=head2 Implementation specific functions - mainly for adding
+=head2 get_num_of_annotations
+
+ Title   : get_num_of_annotations
+ Usage   : my $count = $collection->get_num_of_annotations()
+ Function: Returns the count of all annotations stored in this collection 
+ Returns : integer
+ Args    : none
+
 
 =cut
+
+sub get_num_of_annotations{
+   my ($self) = @_;
+   my $count = 0;
+   map { $count += scalar @$_ } values %{$self->{'_annotation'}};
+   return $count;
+}
+
+=head2 Implementation specific functions - mainly for adding
 
 =head2 add_Annotation
 
  Title   : add_Annotation
  Usage   : $self->add_Annotation('reference',$object);
            $self->add_Annotation('disease',$object,'Bio::MyInterface::DiseaseI');
- Function:
- Example :
- Returns : 
- Args    :
-
+ Function: Adds an annotation for a specific 
+ Returns : none
+ Args    : annotation key ('disease', 'dblink', ...)
+           object to store (must be Bio::AnnotationI compliant)
+           [optional] object archytype to map future storage of object 
+                      of these types to
 
 =cut
 
