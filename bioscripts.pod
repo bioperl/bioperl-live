@@ -89,6 +89,11 @@ Transform SGD format annotations into GFF format.
 
 Transforms Wormbase's GFF files into correct format. Requires Ace.pm.
 
+=head2 scripts/DB/bioflat_index.pl
+
+Create or update a biological sequence database indexed with the
+Bio::DB::Flat indexing scheme.
+
 =head2 scripts/DB/flanks.PLS
 
 Fetch a sequence, find the sequences flanking a variant or SNP in the
@@ -321,11 +326,6 @@ Bio::Tools::RestrictionEnzyme.
 A set of scripts that accept microarray data as input and perform
 statistical analyses, including t test, U test, Mann-Whitney,
 and Pearson correlation coefficent.
-
-=head2 examples/db/bioflat_index.pl
-
-Create or update a biological sequence database indexed with the
-Bio::DB::Flat indexing scheme.
 
 =head2 examples/db/dbfetch
 
