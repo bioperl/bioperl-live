@@ -1319,7 +1319,7 @@ sub strand {
 #----------
     my ($self, $seqType, $strnd) = @_;
 
-    Bio::Search::BlastUtils::tile_hsps($self) if not $self->{'_tiled_hsps'};
+    Bio::Search::SearchUtils::tile_hsps($self) if not $self->{'_tiled_hsps'};
 
     $seqType ||= (wantarray ? 'list' : 'query');
     $seqType = 'sbjct' if $seqType eq 'hit';
