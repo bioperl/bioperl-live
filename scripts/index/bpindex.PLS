@@ -109,7 +109,6 @@ BEGIN {
 	require Bio::Index::EMBL;
 	require Bio::Index::Swissprot;
 	require Bio::Index::GenBank;
-	require Bio::Index::SwissPfam;
     };
     if ( $@ ) {
 	# one up from here is Bio directory - we hope!
@@ -117,10 +116,7 @@ BEGIN {
 	eval {
 	    require Bio::Index::Fasta;
 	    require Bio::Index::EMBL;
-	    require Bio::Index::Swissprot;
-	    require Bio::Index::GenBank;
-	    require Bio::Index::SwissPfam;
-	 };
+	};
 	if ( $@ ) {
 	    print STDERR ("\nbpindex cannot find Bio::Index::Fasta and Bio::Index::EMBL\nbpindex needs to have bioperl installed for it to run.\nBioperl is very easy to install\nSee http://bio.perl.org for more information\n\n");
 	    exit(1);
@@ -160,24 +156,20 @@ if( $type ) {
 my $index;
 $_ = $fmt;
 SWITCH : {
-    /Fasta/i && do {
+    /Fasta/ && do {
 	$index = Bio::Index::Fasta->new("$dir/$name", 'WRITE');
 	last;
     };
-    /EMBL/i && do {
+    /EMBL/ && do {
 	$index = Bio::Index::EMBL->new("$dir/$name", 'WRITE');
 	last;
     };
-    /swissprot/i && do {
+    /swiss/ && do {
 	$index = Bio::Index::Swissprot->new("$dir/$name", 'WRITE');
 	last;
     };
-    /Genbank/i && do {
+    /GenBank/i && do {
 	$index = Bio::Index::GenBank->new("$dir/$name", 'WRITE');
-	last;
-    };
-    /swisspfam/i && do {
-	$index = Bio::Index::SwissPfam->new("$dir/$name", 'WRITE');
 	last;
     };
     die("No index format called $fmt");
