@@ -90,6 +90,8 @@ L<Bio::Graphics::Glyph> for a full explanation.
 
   -description  Whether to draw a description  0 (false)
 
+  -hilite       Highlight color                undef (no color)
+
 =head1 BUGS
 
 If the feature is wider than a point, then the label and description

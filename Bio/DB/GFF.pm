@@ -1891,7 +1891,12 @@ attribute=E<gt>value pairs.  This lets you do:
 
   %attributes = $db->attributes($id);
 
-Normally, attributes() will be called by the feature:
+If no arguments are provided, attributes() will return the list of
+all attribute names:
+
+  @attribute_names = $db->attributes();
+
+Normally, however, attributes() will be called by the feature:
 
   @notes = $feature->attributes('Note');
 
@@ -1905,7 +1910,7 @@ containing the values.
 sub attributes {
   my $self = shift;
   my ($id,$tag) = @_;
-  my @result = $self->do_attributes($id,$tag) or return;
+  my @result = $self->do_attributes(@_) or return;
   return @result if wantarray;
 
   # what to do in an array context

@@ -247,6 +247,8 @@ L<Bio::Graphics::Glyph> for a full explanation.
   -strand_arrow Whether to indicate            0 (false)
                  strandedness
 
+  -hilite       Highlight color                undef (no color)
+
 -pad_top and -pad_bottom allow you to insert some blank space between
 the glyph's boundary and its contents.  This is useful if you are
 changing the glyph's height dynamically based on its feature's score.

@@ -1457,12 +1457,18 @@ Normally, attributes() will be called by the feature:
 sub do_attributes {
   my $self        = shift;
   my ($id,$tag)   = @_;
-  my $from   = 'fattribute_to_feature,fattribute';
-  my $join   = 'fattribute.fattribute_id=fattribute_to_feature.fattribute_id';
-  my $where1 = 'fid=? AND fattribute_name=?';
-  my $where2 = 'fid=?';
-  my $sth = defined($tag) ? $self->dbh->do_query("SELECT fattribute_value FROM $from WHERE $where1 AND $join",$id,$tag)
-                          : $self->dbh->do_query("SELECT fattribute_name,fattribute_value FROM $from WHERE $where2 AND $join",$id);
+  my $sth;
+  if ($id) {
+    my $from   = 'fattribute_to_feature,fattribute';
+    my $join   = 'fattribute.fattribute_id=fattribute_to_feature.fattribute_id';
+    my $where1 = 'fid=? AND fattribute_name=?';
+    my $where2 = 'fid=?';
+    $sth = defined($tag) ? $self->dbh->do_query("SELECT fattribute_value FROM $from WHERE $where1 AND $join",$id,$tag)
+                         : $self->dbh->do_query("SELECT fattribute_name,fattribute_value FROM $from WHERE $where2 AND $join",$id);
+  }
+  else {
+    $sth = $self->dbh->do_query("SELECT fattribute_name FROM fattribute");
+  }
   my @result;
   while (my @stuff = $sth->fetchrow_array) {
     push @result,@stuff;

@@ -12,6 +12,7 @@ sub draw {
   my $self = shift;
   my $gd   = shift;
   my ($left,$top) = @_;
+
   my ($x1,$y1,$x2,$y2) = $self->calculate_boundaries($left,$top);
 
 #  $self->filled_oval($gd,$x1,$y1,$x2,$y2);

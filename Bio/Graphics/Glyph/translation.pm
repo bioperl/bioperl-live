@@ -293,6 +293,8 @@ L<Bio::Graphics::Glyph> for a full explanation.
 
   -description  Whether to draw a description  0 (false)
 
+  -hilite       Highlight color                undef (no color)
+
 In addition to the common options, the following glyph-specific
 options are recognized:
 

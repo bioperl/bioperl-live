@@ -113,6 +113,8 @@ L<Bio::Graphics::Glyph> for a full explanation.
   -strand_arrow Whether to indicate            undef (false)
                  strandedness
 
+  -hilite       Highlight color                undef (no color)
+
 In addition, the alignment glyph recognizes the following
 glyph-specific options:
 

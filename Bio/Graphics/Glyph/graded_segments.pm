@@ -153,6 +153,8 @@ L<Bio::Graphics::Glyph> for a full explanation.
 
   -description  Whether to draw a description  0 (false)
 
+  -hilite       Highlight color                undef (no color)
+
 In addition, the alignment glyph recognizes the following
 glyph-specific options:
 

@@ -664,6 +664,26 @@ sub draw_connectors {
 
 }
 
+# return true if this feature should be highlited
+sub hilite_color {
+  my $self         = shift;
+  return     if $self->level; # only highlite top level glyphs
+  my $index   = $self->option('hilite') or return;
+  $self->factory->translate_color($index);
+}
+
+sub draw_highlight {
+  my $self              = shift;
+  my ($gd,$left,$top)   = @_;
+  my $color  = $self->hilite_color or return;
+  my @bounds = $self->bounds;
+  $gd->filledRectangle($bounds[0]+$left - 3,
+		       $bounds[1]+$top  - 3,
+		       $bounds[2]+$left + 3,
+		       $bounds[3]+$top  + 3,
+		       $color);
+}
+
 sub _connector {
   my $self = shift;
   my ($gd,
@@ -1315,6 +1335,8 @@ glyph pages for more options.
 
   -bump_limit   Maximum number of levels to bump undef (unlimited)
 
+  -hilite       Highlight color                undef (no color)
+
 For glyphs that consist of multiple segments, the B<-connector> option
 controls what's drawn between the segments.  The default is undef (no
 connector).  Options include:
@@ -1391,10 +1413,17 @@ to sort a set of database search hits by bits (stored in the features'
                      ( $a->start <=> $b->start )
                    }
 
-The -always_sort option, if true, will sort features even if bumping
+The <-always_sort> option, if true, will sort features even if bumping
 is turned off.  This is useful if you would like overlapping features
 to stack in a particular order.  Features towards the end of the list
 will overlay those towards the beginning of the sort order.
+
+The B<-hilite> option draws a colored box behind each feature using the
+indicated color. Typically you will pass it a code ref that returns a
+color name.  For example:
+
+  -hilite => sub { my $name = shift->display_name; 
+                   return 'yellow' if $name =~ /XYZ/ }
 
 =head1 SUBCLASSING Bio::Graphics::Glyph
 

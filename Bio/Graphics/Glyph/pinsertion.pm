@@ -25,6 +25,7 @@ sub draw {
 
   my $gd = shift;
   my ($left,$top) = @_;
+
   my ($x1,$y1,$x2,$y2) = $self->calculate_boundaries(@_);
 
   my $height = $self->height;

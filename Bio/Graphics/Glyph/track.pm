@@ -17,6 +17,7 @@ sub draw {
   my ($gd,$left,$top,$partno,$total_parts) = @_;
   my @parts = $self->parts;
   for (my $i=0; $i<@parts; $i++) {
+    $parts[$i]->draw_highlight($gd,$left,$top);
     $parts[$i]->draw($gd,$left,$top,0,1);
   }
 }

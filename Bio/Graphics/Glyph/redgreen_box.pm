@@ -136,6 +136,8 @@ L<Bio::Graphics::Glyph> for a full explanation.
 
   -description  Whether to draw a description  0 (false)
 
+  -hilite       Highlight color                undef (no color)
+
 The following glyph-specific option is recognized:
 
   -border       Draw a fgcolor border around   0 (false)
