@@ -127,7 +127,7 @@ sub next_seq {
 
        next if($_ eq "\n");       ## skip whitespace lines in formatted seq
        s/[^a-zA-Z]//g;            ## remove anything that is not alphabet char
-       $_ = uc($_);               ## uppercase sequence
+       # $_ = uc($_);               ## uppercase sequence: NO. Keep the case. HL
        $sequence .= $_;
    }
    ##If we parsed out a checksum, we might as well test it
