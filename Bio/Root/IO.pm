@@ -97,6 +97,7 @@ use vars qw(@ISA $FILESPECLOADED $FILETEMPLOADED $FILEPATHLOADED
 use strict;
 
 use Symbol;
+use POSIX qw(dup);
 use IO::Handle;
 use Bio::Root::Root;
 
@@ -263,6 +264,7 @@ sub _initialize_io {
     $self->_fh($fh) if $fh; # if not provided, defaults to STDIN and STDOUT
 
     $self->_flush_on_write(defined $flush ? $flush : 1);
+
     return 1;
 }
 
@@ -274,7 +276,6 @@ sub _initialize_io {
  Example :
  Returns : value of _filehandle
  Args    : newvalue (optional)
-
 
 =cut
 
@@ -298,7 +299,6 @@ sub _fh {
            '?' if mode could not be determined
  Args    : none, readonly function
 
-
 =cut
 
 sub mode {
@@ -306,21 +306,38 @@ sub mode {
     $obj->throw(__PACKAGE__ . "mode() is not settable") if defined $value;
     return $obj->{'_mode'} if defined $obj->{'_mode'};
 
-    my $iotest = new IO::Handle;
-    $iotest->fdopen(fileno($obj->_fh),'r');
-    my $r_error = $iotest->error;
-    $iotest->fdopen(fileno($obj->_fh),'w');
-    my $w_error = $iotest->error;
+    print STDERR "testing mode... " if $obj->verbose;
 
-    if($r_error == 0 and $w_error == -1){
+    # we need to dup() the original filehandle because
+    # doing fdopen() calls on an already open handle causes
+    # the handle to go stale. is this going to work for non-unix
+    # filehandles? -allen
+
+    my $fh = Symbol::gensym();
+
+    my $iotest = new IO::Handle;
+
+    #test for a readable filehandle;
+    $iotest->fdopen( dup(fileno($obj->_fh)) , 'r' );
+    if($iotest->error == 0){
       $obj->{'_mode'} = 'r';
-    } elsif($r_error == -1 and $w_error == 0){
+      print STDERR $obj->{'_mode'} if $obj->verbose;
+      return $obj->{'_mode'};
+    }
+    $iotest->clearerr;
+
+    #test for a writeable filehandle;
+    $iotest->fdopen( dup(fileno($obj->_fh)) , 'w' );
+    if($iotest->error == 0){
       $obj->{'_mode'} = 'w';
-    } else {
-      $obj->{'_mode'} = '?';
+      print STDERR $obj->{'_mode'} if $obj->verbose;
+      return $obj->{'_mode'};
     }
 
-    return$obj->{'_mode'};
+    #wtf type of filehandle is this?
+    $obj->{'_mode'} = '?';
+    print STDERR $obj->{'_mode'} if $obj->verbose;
+    return $obj->{'_mode'};
 }
 
 =head2 file
@@ -396,7 +413,10 @@ sub _readline {
     } else {
 	$line = <$fh>;
     }
+
+    #don't stip line endings if -raw is specified
     $line =~ s/\r\n/\n/g if( (!$param{-raw}) && (defined $line) );
+
     return $line;
 }
 
@@ -461,7 +481,6 @@ sub flush {
   } else {
     $self->{'_filehandle'}->flush();
   }
-
 }
   
 
