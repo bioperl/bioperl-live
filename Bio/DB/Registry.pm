@@ -54,12 +54,13 @@ use strict;
 
 use Bio::Root::Root;
 @ISA = qw(Bio::Root::Root);
-
+use Bio::DB::Failover;
 use Bio::Root::HTTPget;
 
 my %implement = (
 		 'biocorba'      => 'Bio::CorbaClient::SeqDB',
-		 'index-berkeleydb' => 'XYZ',
+		 'index-berkeleydb' => 'Bio::DB::Flat',
+                 'index-flat'       => 'Bio::DB::Flat::OBDAFetch',
 		 'biosql' => 'Bio::DB::SQL::BioDatabaseAdaptor',
 		 'biofetch' => 'Bio::DB::BioFetch'
 		 );
@@ -68,15 +69,15 @@ my $fallbackRegistryURL = 'http://www.open-bio.org/registry/seqdatabase.ini';
 
 
 sub new {
-    my ($class) = shift;
+    my ($class,@args) = shift;
 
     my $self = Bio::Root::Root->new();
     bless $self,$class;
-
+    my ($verbose)= $self->_rearrange([qw(VERBOSE)],@args);
+    
     # open files in order
-
     $self->_load_registry();
-
+    $self->verbose($verbose);
     return $self;
 }
 
@@ -120,19 +121,65 @@ sub _load_registry {
 		/^#/ && next;
 		/^$/ && last;
 		my ($tag,$value) = split('=',$_);
-		$value =~ s/\s//;
+		$value =~ s/\s//g;
+		$tag =~ s/\s//g;
 		$hash->{$tag} = $value;
 	    }
+
 	    if( !exists $self->{$db} ) {
-		$self->{$db} = {};
-		$self->{$db}->{'services'} = [];
+		my $failover = Bio::DB::Failover->new();
+		$self->{$db}=$failover;
 	    }
-	    push(@{$self->{$db}->{'services'}},$hash);
+
+	    my $class;
+	    if (defined $implement{$hash->{'protocol'}}) {
+		$class = $implement{$hash->{'protocol'}};
+	    }
+	    else {
+		$self->warn("Registry does not support protocol ".$hash->{'protocol'});
+		next;
+	    }
+	    eval "require $class";
+	    
+	    if ($@) {
+		$self->verbose && $self->warn("Couldn't load $class");
+		next;
+	    }
+	    
+	    else {
+		eval {
+		    my $randi = $class->new_from_registry(%$hash);
+		    $self->{$db}->add_database($randi);		};
+		if ($@) {
+		    $self->verbose && $self->warn("Couldn't call new_from_registry on [$class]\n$@");
+		}
+	    }
 	    next; # back to main loop
 	}
 
 	$self->warn("Uninterpretable line in registry, $_");
     }
+}
+
+
+=head2 verbose
+
+ Title   : verbose
+ Usage   : 
+ Function: get/set for verbose paramater
+ Returns : integer
+ Args    : none
+
+
+=cut
+
+sub verbose {
+   my ($self,$value) = @_;
+
+   if ( defined $value ) {
+       $self->{'_verbose'} = $value;
+   }
+   return $self->{'_verbose'};
 }
 
 	
@@ -147,51 +194,9 @@ sub get_database {
 	$self->throw("No database in with $dbname in registry");
     }
 
-    if( exists $self->{$dbname}->{'active'} ) {
-	return $self->{$dbname}->{'active'};
-    }
+    return $self->{$dbname};
 
-    if( scalar(@{$self->{$dbname}->{'services'}}) > 1 ) {
-	$self->throw("Sorry ... have not implemented multiple database failbacks yet. Complain to Ewan as he wrote this!");
-    }
-
-    my ($config) = @{$self->{$dbname}->{'services'}};
-    print 
-
-    my $class;
-    unless ($class = $implement{$config->{'protocol'}}) {
-	$self->throw("Registry does not support protocol ".$config->{'protocol'});
-    }
-    eval "require $class";
-    if ($@) {
-	$self->throw("Trying to use protocol ".$config->{'protocol'}." but require $class fails, check that $class is in your PERL5LIB, got error\n$@");
-    }
-    my $db = $class->new_from_registry(%$config);
-
-    $self->{$db}->{'active'} = $db;
-
-
-    return $db;
 }
-
-
-sub services {
-    my $self = shift;
-    my @services;
-
-    # Retrieving all the keys sometimes reveals
-    # internal hashes such as "_root_verbose". Need
-    # to remove entries that begin with '_' before we
-    # return
-
-    foreach(keys %$self) {
-        next if /^_/;
-	push @services, $_;
-    }
-
-    return @services;
-}
-
 
 ## End of Package
 

@@ -66,7 +66,7 @@ sub new {
 
     $self->{'database'} = [];
 
-    return $class;
+    return $self;
 }
 
 
@@ -95,8 +95,9 @@ sub get_Seq_by_id {
 
     foreach my $db ( @{$self->{'database'}} ) {
 	my $seq;
+
 	eval {
-	    $seq = $db->get_Seq_by_id($db);
+	    $seq = $db->get_Seq_by_id($id);
 	};
 	if( defined $seq ) {
 	    return $seq;
