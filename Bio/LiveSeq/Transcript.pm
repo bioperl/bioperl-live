@@ -359,7 +359,7 @@ sub position {
       $out_pos=$self->{'seq'}->position($label,$start,$strand);
       $position=$out_pos-$coord_pos+1;
     } else { # label is in intron (not valid, not after, not before)!
-      carp "Cannot give position of label pointing to intron according to CDS numbering!";
+      #carp "Cannot give position of label pointing to intron according to CDS numbering!";
       return (0);
     }
   }
