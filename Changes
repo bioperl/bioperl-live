@@ -10,6 +10,9 @@ Revision history for Bioperl core modules
 
     o Fixes and cleanup of Bio::Coordinate modules
 
+    o A fix to Bio::Index::EMBL allowing  retrieval of entries using
+      the primary accession number
+ 
     o Other bug fixes, including bpindex GenBank fix
 
 
