@@ -216,21 +216,21 @@ it out in fasta format
   write_sequence(">roa1.fasta",'fasta',$seq_object);
 
 Another example is the ability to blast a sequence using the facilities
-as NCBI. (Please be careful not to abuse the compute that NCBI provides
+as NCBI. Please be careful not to abuse the compute that NCBI provides
 and so use this only for individual searches. If you want to do a large
-number of BLAST searches, please download the blast package locally).
+number of BLAST searches, please download the blast package locally.
 
   use Bio::Perl;
 
   # this script will only work with an internet connection
   # on the computer it is run on
 
-  $seq_object = get_sequence('swissprot',"ROA1_HUMAN");
+  $seq = get_sequence('swissprot',"ROA1_HUMAN");
 
   # uses the default database - nr in this case
   $blast_result = blast_sequence($seq);
 
-  write_blast(">roa1.blast",$blast_report);
+  write_blast(">roa1.blast",$blast_result);
 
 Bio::Perl has a number of other "easy to use" functions, including
 
