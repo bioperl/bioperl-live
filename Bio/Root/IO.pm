@@ -519,7 +519,7 @@ sub flush {
     $self->{'_filehandle'}->flush();
   }
 }
-  
+
 =head2 noclose
 
  Title   : noclose
