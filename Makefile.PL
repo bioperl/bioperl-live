@@ -30,6 +30,7 @@
 	     'GD'                       => '1.3/Graphical Drawing Toolkit/Rendering Sequences and Features/Bio::Graphics',
 	     'Text::Shellwords'           => '0.0/Graphical Drawing Toolkit/Rendering Sequences and Features/Bio::Graphics',
 	     'Storable'                 => '0.0/Persistent object storage and retrieval/Storing sequence objects in local file cache/Bio::DB::FileCache',
+	     'enum'                     => '0.0/C style enumerated types and bitmask flags in Perl/Bio::Microarray::Affymetrix/',
 # rare function let's not scare people
 # 	     'srsperl.pm'               => '0.0/Sequence Retrieval System (SRS) perl API/alternative way of retrieving sequences/Bio::LiveSeq::IO::SRS.pm'
 	     );
