@@ -138,23 +138,6 @@ sub unique_id {
 
 =cut
 
-sub add_Genotype {
-    my ($self) = shift;
-    if( scalar @_ == 1 )  { 
-	return $self->SUPER::add_Genotype(@_);
-    }
-    my ($marker,@alleles) = @_;
-    my $all;
-    if( @alleles && ref($alleles[0]) =~ /ARRAY/ ) {
-	$all = shift @alleles;
-    } else { $all = \@alleles }
-    
-    return $self->SUPER::add_Genotype(Bio::PopGen::Genotype->new
-				      (-marker_name  => $marker,
-				       -individual_id=> $self->internal_id,
-				       -alleles      => $all));
-}
-
 =head2 reset_Genotypes
 
  Title   : reset_Genotypes
