@@ -124,7 +124,7 @@ sub GFFQueryDb {
 
   my $prompt = $options->{'prompt'};
 
-  $driver  = prompt("Which database driver should I use for testing BioDBGFF (mysql,pg,Oracle)?",
+  $driver  = prompt("Which database driver should I use for testing BioDBGFF (mysql,Pg,Oracle)?",
 		    $driver) if $prompt;
 
   my $d = lc $driver;
@@ -165,7 +165,11 @@ sub GFFQueryDb {
   if ($test_host eq 'undef'  ||  $test_host eq 'localhost') {
     $test_host = '';
   }
-  my $test_dsn = "dbi:$driver:database=$test_db";
+  if ($d eq 'pg') {
+    $test_dsn = "dbi:$driver:dbname=$test_db"; 
+  } else {
+    $test_dsn = "dbi:$driver:database=$test_db";
+  }
   $cfg->{test_dsn} = $test_dsn;
   if ($test_host) {
     $cfg->{'test_dsn'} .= ";host=$test_host";
