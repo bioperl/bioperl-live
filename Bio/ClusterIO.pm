@@ -67,14 +67,15 @@ A file path to be opened for reading.
 
 Specify the format of the file.  Supported formats include:
 
-   unigene		*.data      UniGene build files.
+   unigene		*.data	UniGene build files.
+   dbsnp		*.xml	dbSNP XML files
 
 If no format is specified and a filename is given, then the module
 will attempt to deduce it from the filename.  If this is unsuccessful,
 the main UniGene build format is assumed.
 
 The format name is case insensitive.  'UNIGENE', 'UniGene' and
-'unigene' are all supported.
+'unigene' are all supported, as are dbSNP, dbsnp, and DBSNP
 
 =back
 
@@ -256,6 +257,7 @@ sub _guess_format {
    my $class = shift;
    return unless $_ = shift;
    return 'unigene'   if /\.(data)$/i;
+   return 'dbsnp'     if /\.(xml)$/i;
 }
 
 sub DESTROY {
