@@ -904,9 +904,10 @@ sub GCG_checksum {
     my $char;
 
     $seq = $self->seq();
+    $seq =~ s/[\.\-]//g;
     $seq =~ tr/a-z/A-Z/;
 
-    foreach $char ( split(/[\.\-]*/, $seq)) {
+    foreach $char ( split(//, $seq)) {
 	$index++;
 	$checksum += ($index * (unpack("c",$char)));
 	if( $index ==  57 ) {

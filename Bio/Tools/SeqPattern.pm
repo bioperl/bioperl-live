@@ -269,6 +269,8 @@ sub _initialize {
 	$t = 'Amino';
     }
 
+    $seq =~ tr/a-z/A-Z/;
+
     $self->str($seq);
     $self->type($t);
 
