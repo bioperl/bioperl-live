@@ -102,14 +102,14 @@ sub _strong {
     my ($r1, $r2) = @_;
     my ($s1, $s2) = ($r1->strand(), $r2->strand());
     
-    return 1 if $s1 != 0 and $s2 != 0 and  $s1 == $s2;
+    return 1 if $s1 != 0 && $s2 != 0 &&  $s1 == $s2;
 }
 
 # returns true if strands are equal or either is zero
 sub _weak {
     my ($r1, $r2) = @_;
     my ($s1, $s2) = ($r1->strand(), $r2->strand());
-    return 1 if $s1 == 0 or $s2 == 0 or $s1 == $s2;
+    return 1 if $s1 == 0 || $s2 == 0 || $s1 == $s2;
 }
 
 # returns true for any strandedness
