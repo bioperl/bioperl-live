@@ -600,8 +600,7 @@ print $seq_obj->seq();
 		By using 
 <ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqIO.html">Bio::SeqIO</ulink> in this manner you will be able to get input
 		and make output for all of the sequence file formats supported by Bioperl
-		(the <ulink url="http://bioperl.org/HOWTOs/SeqIO/index.html">
-		  SeqIO HOWTO</ulink> has a complete list of supported formats).
+		(the <ulink url="http://bioperl.org/HOWTOs/SeqIO/index.html">SeqIO HOWTO</ulink> has a complete list of supported formats).
 		The way you create <classname>Bio::SeqIO</classname> objects is 
 		very similar to the way we used <function>new()</function> to
 		create a 
@@ -785,8 +784,7 @@ while ($seq_obj = $seqio->next_seq){
 		to do. If you don't give a format then the SeqIO object will 
 		try to determine the format from the file suffix or extension 
 		(and a list of the file extensions is in the  
-		<ulink url="http://bioperl.org/HOWTOs/SeqIO/index.html">
-		  SeqIO HOWTO</ulink>). In fact, the suffix "fa" is one that
+		<ulink url="http://bioperl.org/HOWTOs/SeqIO/index.html">SeqIO HOWTO</ulink>). In fact, the suffix "fa" is one that
 		SeqIO understands, so "-format" is unnecessary above. Without a known
 		suffix SeqIO will attempt to guess the format based on the 
 		file's contents but there's no guarantee that it can guess
@@ -864,9 +862,9 @@ $query_obj = Bio::DB::Query::GenBank->new(-db    => 'nucleotide',
 	 </para>
 <para></para>
 	 <para>
-		That is how we would construct a "query object", but we
+		That is how we would construct a query object, but we
 		haven't retrieved sequences yet. To do so we will have to create
-		a "database object", some object that can get Sequence objects
+		a database object, some object that can get Sequence objects
 		for us, just as we did in the first Genbank example:
 	 </para>
 	  <para>
@@ -1305,8 +1303,7 @@ ORIGIN      15 bp upstream from HhaI site.
 		information missing. All of this missing information is stored in
 		what Bioperl calls Features and Annotations, see the
 		<ulink
-		  url="http://bioperl.org/HOWTOs/Feature-Annotation/index.html">Feature
-		and Annotation HOWTO</ulink> if you'd like to learn more about this.
+		  url="http://bioperl.org/HOWTOs/Feature-Annotation/index.html">Feature and Annotation HOWTO</ulink> if you'd like to learn more about this.
 		Second, a few of the
 		methods don't return anything, like
 		<classname>namespace</classname> and <classname>authority</classname>.
@@ -1554,8 +1551,7 @@ SQ   SEQUENCE   913 AA;  101638 MW;  D0E135DBEC30C28C CRC64;
 		As in the Genbank example there's information that the Sequence
 		object doesn't supply, and it's stored in Annotation objects. See the
 	<ulink
-		url="http://bioperl.org/HOWTOs/Feature-Annotation/index.html">Feature
-		and Annotation HOWTO</ulink> for more.
+		  url="http://bioperl.org/HOWTOs/Feature-Annotation/index.html">Feature and Annotation HOWTO</ulink> for more.
 	 </para>
   </section>
 
@@ -1627,8 +1623,7 @@ print $result_obj->num_hits;
 		The report object, <varname>$report_obj</varname>, and the
 		result object, <varname>$result_obj</varname>, come from 
 		the SearchIO modules. The
-		<ulink url="http://bioperl.org/HOWTOs/SearchIO/index.html">
-		  SearchIO HOWTO</ulink> will tell you all about using these
+		<ulink url="http://bioperl.org/HOWTOs/SearchIO/index.html">SearchIO HOWTO</ulink> will tell you all about using these
 		objects to extract useful data from your BLAST analyses.
 	 </para>
 	 <para>
@@ -1679,8 +1674,7 @@ print $result_obj->num_hits;
 		  </para></listitem>
 		  <listitem><para>
 			 The <ulink
-					 url="http://doc.bioperl.org/releases/bioperl-1.4/">
-				module documentation</ulink>. Each module is documented,
+					 url="http://doc.bioperl.org/releases/bioperl-1.4/">module documentation</ulink>. Each module is documented,
 			 but the quality and quantity varies by module. 
 		  </para></listitem>
 		  <listitem><para>
@@ -1690,8 +1684,7 @@ print $result_obj->num_hits;
 			 scripts that can be installed along with Bioperl. 
 		  </para></listitem>
 		  <listitem><para>
-			 <ulink url="http://bioperl.org/Core/Latest/modules.html#user">
-			 User-contributed documentation</ulink>. If you look on the
+			 <ulink url="http://bioperl.org/Core/Latest/modules.html#user">User-contributed documentation</ulink>. If you look on the
 			 documentation page will you will see this section,
 			 there's some very good material here, and it's useful to
 				look at a given topic from different points of view.
@@ -1827,14 +1820,12 @@ $reversed_obj = $seq_obj->revcom;
 		<orderedlist>
 		  <listitem>
 			 <para>
-				<ulink
-				  url="http://www.manning.com/Conway/">Object Oriented Perl</ulink>
+				<ulink url="http://www.manning.com/Conway/">Object Oriented Perl</ulink>
           </para>
 		  </listitem>
 		  <listitem>
 			 <para>               
-				The <ulink
-				  url="http://bioperl.org/Core/Latest/biodesign.html">Bioperl design documentation</ulink>, for anyone who'd like
+				The <ulink url="http://bioperl.org/Core/Latest/biodesign.html">Bioperl design documentation</ulink>, for anyone who'd like
 				to write their own modules. 
 			 </para>
 		  </listitem>
