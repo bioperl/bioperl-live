@@ -16,7 +16,15 @@ Bio::Search::Result::GenericResult - Generic Implementation of Bio::Search::Resu
 
 =head1 SYNOPSIS
 
-{
+
+    # typically one gets Results from a SearchIO stream
+    use Bio::SearchIO;
+    my $io = new Bio::SearchIO(-format => 'blast',
+ 			       -file   => 't/data/HUMBETGLOA.tblastx');
+    my $result = $io->next_result;
+    while( $hit = $result->next_hits()) {  
+    # insert code here for hit processing
+    }
 
     use Bio::Search::Result::GenericResult;
     my @hits = (); # would be a list of Bio::Search::Hit::HitI objects
@@ -53,16 +61,8 @@ Bio::Search::Result::GenericResult - Generic Implementation of Bio::Search::Resu
 
     my @statnames = $result->available_statistics;
 
-    # typically one gets Results from a SearchIO stream
-    use Bio::SearchIO;
-    my $io = new Bio::SearchIO(-format => 'blast',
- 			       -file   => 't/data/HUMBETGLOA.tblastx');
-    my $result = $io->next_result;
-    while( $hit = $result->next_hits()) {  
-    # insert code here for hit processing
-    }
 
-}
+
 =head1 DESCRIPTION
 
 This object is an implementation of the Bio::Search::Result::ResultI

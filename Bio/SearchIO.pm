@@ -30,7 +30,14 @@ Bio::SearchIO - Driver for parsing Sequence Database Searches (Blast,FASTA,...)
 =head1 DESCRIPTION
 
 This is a driver for instantiating a parser for report files from
-sequence database searches.
+sequence database searches. This object serves as a wrapper for the
+format parsers in Bio::SearchIO::* - you should not need to ever
+use those format parsers directly. (For people used to the SeqIO
+system it, we are deliberately using the same pattern).
+
+Once you get a SearchIO object, calling next_result() gives you back
+a L<Bio::Search::Result::ResultI> compliant object, which is an object that
+represents one Blast/Fasta/HMMER whatever report.
 
 =head1 FEEDBACK
 

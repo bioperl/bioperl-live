@@ -33,7 +33,8 @@ Bio::SearchIO::blast - Event generator for event based parsing of blast reports
 =head1 DESCRIPTION
 
 This object encapsulated the necessary methods for generating events
-suitable for building Bio::Search objects from a BLAST report file.
+suitable for building Bio::Search objects from a BLAST report file. 
+Read the L<Bio::SearchIO> for more information about how to use this.
 
 =head1 FEEDBACK
 
