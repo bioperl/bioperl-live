@@ -258,12 +258,18 @@ $db->preferred_groups(split (/[,\s]+/,$GROUP_TAG)) if defined $GROUP_TAG;
 my $last  = Time::HiRes::time() if $timer;
 my $start = $last;
 
+# avoid hanging on standalone --fasta load
+if (!@ARGV) {
+    $FH{NULL} = IO::File->new(">$tmpdir/null");
+    push @ARGV, "$tmpdir/null";
+}
+
 while (<>) {
   chomp;
   my ($ref,$source,$method,$start,$stop,$score,$strand,$phase,$group);
 
   # close sequence filehandle if required
-  if ( /^\#|\s+|^$/ && defined $FH{FASTA}) {
+  if ( /^\#|\s+|^$|^>/ && defined $FH{FASTA}) {
     $FH{FASTA}->close;
     delete $FH{FASTA};
   }
@@ -277,6 +283,7 @@ while (<>) {
   elsif (/^>(\S+)/) {  # uh oh, sequence coming
     $FH{FASTA} = IO::File->new(">$tmpdir/$1\.fa") or die "FASTA: $!\n";
     $FH{FASTA}->print("$_\n");
+    print STDERR "Preparing embedded sequence $1\n";
     push @fasta, "$tmpdir/$1\.fa";
     next;
   }
