@@ -28,6 +28,7 @@
 	     'HTML::Parser'             => '0.0/HTML parsing of GDB page/Bio::DB::GDB',
 	     'DBD::mysql'               => '0.0/Mysql driver/loading and querying of Mysql-based GFF feature databases/Bio::DB::GFF',
 	     'GD'                       => '1.3/Graphical Drawing Toolkit/Rendering Sequences and Features/Bio::Graphics',
+	     'Storable'                 => '0.0/Persistent object storage and retrieval/Storing sequence objects in local file cache/Bio::DB::FileCache',
 # rare function let's not scare people
 # 	     'srsperl.pm'               => '0.0/Sequence Retrieval System (SRS) perl API/alternative way of retrieving sequences/Bio::LiveSeq::IO::SRS.pm'
 	     );

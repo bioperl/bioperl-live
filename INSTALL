@@ -255,6 +255,9 @@ GD			 GD graphical drawing library
 			 Bio::Graphics
 
 srsperl.pm		 Sequence Retrieval System (SRS) 
-			 perl API/alternative way of retrieving 
-			 sequences/Bio::LiveSeq::IO::SRS.pm
+			 alternative way of retrieving 
+			 sequences
+			 Bio::LiveSeq::IO::SRS.pm
 			 See README in Bio/LiveSeq/IO
+Storable		 Persistent object storage & retrieval 
+			 Bio::DB::FileCache
