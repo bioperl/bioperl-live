@@ -337,16 +337,16 @@ sub _from_gff2_string {
  Usage   : $gffio->write_feature($feature);
  Function: Writes the specified SeqFeatureI object in GFF format to the stream
            associated with this instance.
- Example :
- Returns : 
- Args    : A Bio::SeqFeatureI implementing object to be serialized
+ Returns : none
+ Args    : An array of Bio::SeqFeatureI implementing objects to be serialized
 
 =cut
 
 sub write_feature {
-    my ($self, $feature) = @_;
-    
-    $self->_print($self->gff_string($feature)."\n");
+    my ($self, @features) = @_;
+    foreach my $feature ( @features ) {
+	$self->_print($self->gff_string($feature)."\n");
+    }
 }
 
 =head2 gff_string
