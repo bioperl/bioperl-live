@@ -1,6 +1,7 @@
 <!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.2//EN">
 <article lang="en">
-  <articleinfo>
+
+ <articleinfo>
     <title>Feature and Annotation HOWTO</title>
     <author>
       <firstname>Brian</firstname>
@@ -40,7 +41,8 @@
       </para>
     </abstract>
   </articleinfo>
-  
+ 
+
   <section id="introduction">
     <title>Introduction</title>
     <para>
@@ -71,6 +73,7 @@
       using the objects. 
     </para>
   </section>
+
 
   <section id="basics">
     <title>The Basics</title>
@@ -151,14 +154,16 @@
 	my $seq_object = $seqio_object->next_seq;
       </programlisting>
     </para>
-    <note>
-      This object, <varname>$seq_object</varname>, is actually a
-      <ulink
-	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Seq/RichSeq.html">Bio::Seq::RichSeq</ulink> 
-      object - can a <ulink
-	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/PrimarySeq.html">PrimarySeq</ulink> object, the simple parent of all Sequence objects, 
+
+<note><para>
+      This object, $seq_object, is actually a 
+<ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Seq/RichSeq.html">Bio::Seq::RichSeq</ulink> 
+      object - can a 
+ <ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/PrimarySeq.html">PrimarySeq</ulink> object, the simple parent of all Sequence objects, 
       have a feature or an annotation? No. 
-    </note>
+    </para>
+	</note>
+
     <para>
     </para>
     <para>
@@ -235,14 +240,14 @@ FEATURES             Location/Qualifiers
       part, no, you can write lots of useful and powerful Bioperl code
       without ever knowing these specific details.
     </para>
-      <tip>
+      <tip><para>
 	By the way, how does one know what kind of object one has in hand? Try
 	something like:
 	<programlisting>
 	  print ref($seq_object);
 	  # results in "Bio::Seq::RichSeq"
 	</programlisting>
-      </tip>
+      </para></tip>
     <para>
     </para>
     <para>
@@ -312,11 +317,11 @@ primary tag: CDS
     </para>
     <para>
     </para>
-    <important>
+    <important><para>
       Make sure to include that "if ($feat_object->has_tag("&lt;tag&gt;"))"
       part, otherwise you'll get errors when the feature does not
       have the tag you're requesting.
-    </important>
+    </para></important>
     <para>
     </para>
     <para>
@@ -772,32 +777,38 @@ start: 1
 
   <section id="direct">
     <title>Directly from the Sequence object</title>
-    This is just a reminder that some of the "annotation" data in your sequence
-    files can be accessed directly, without looking at SeqFeatures or
-    Annotations. For example, if the Sequence object in hand is a Seq::RichSeq
-    object then here are some useful methods:
-    <table>
-      <title>RichSeq methods</title>
-      <tgroup cols="2">
-	<thead>
-	  <row><entry>Method</entry><entry>Returns</entry></row>  
-	</thead>
-	<tbody>
-	  <row><entry>get_secondary_accessions</entry><entry>array</entry></row>
-	  <row><entry>keywords</entry><entry>array</entry></row>
-	  <row><entry>get_dates</entry><entry>array</entry></row>
-	  <row><entry>seq_version</entry><entry>string</entry></row>
-	  <row><entry>pid</entry><entry>string</entry></row>
-	  <row><entry>division</entry><entry>string</entry></row>
- 	</tbody>
-      </tgroup>
-    </table>
-    These <ulink
-      url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Seq/RichSeq.html">Bio::Seq::RichSeq</ulink> objects are created 
-    automatically when you use SeqIO to read from EMBL, GenBank, GAME,
-    Chado XML, TIGR XML, Locuslink, BSML, KEGG, and SwissProt sequence
-    files. However, it's not guaranteed that each of these
-    formats will supply data for all of the methods above.
+    <para>
+      This is just a reminder that some of the "annotation" data in your sequence
+      files can be accessed directly, without looking at SeqFeatures or
+      Annotations. For example, if the Sequence object in hand is a Seq::RichSeq
+      object then here are some useful methods:
+    </para>
+    <para>
+      <table>
+	<title>RichSeq methods</title>
+	<tgroup cols="2">
+	  <thead>
+	    <row><entry>Method</entry><entry>Returns</entry></row>  
+	  </thead>
+	  <tbody>
+	    <row><entry>get_secondary_accessions</entry><entry>array</entry></row>
+	    <row><entry>keywords</entry><entry>array</entry></row>
+	    <row><entry>get_dates</entry><entry>array</entry></row>
+	    <row><entry>seq_version</entry><entry>string</entry></row>
+	    <row><entry>pid</entry><entry>string</entry></row>
+	    <row><entry>division</entry><entry>string</entry></row>
+	  </tbody>
+	</tgroup>
+      </table>
+    </para>
+    <para>
+      These <ulink
+	url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Seq/RichSeq.html">Bio::Seq::RichSeq</ulink> objects are created 
+      automatically when you use SeqIO to read from EMBL, GenBank, GAME,
+      Chado XML, TIGR XML, Locuslink, BSML, KEGG, and SwissProt sequence
+      files. However, it's not guaranteed that each of these
+      formats will supply data for all of the methods above.
+    </para>
   </section>  
 
   <section id="other_formats">
@@ -913,48 +924,48 @@ GO: cellular component|integral to plasma membrane|P|GO:0005887|Proteome|8396931
 	  </thead>
 	  <tbody>
 <row><entry>Direct database link to AAA93114 in database GenBank</entry><entry>dblink</entry><entry><ulink
-	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/DBLink.html>Bio::Annotation::DBLink</ulink></entry></row>
+	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/DBLink.html">Bio::Annotation::DBLink</ulink></entry></row>
 <row><entry>Value:
 	    http://www.ncbi.nlm.nih.gov/UniGene/clust.cgi?ORG=Hs&amp;CID=52931</entry><entry>URL</entry><entry>
 <ulink
-	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/SimpleValue.html>Bio::Annotation::SimpleValue</ulink></entry></row>
+	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/SimpleValue.html">Bio::Annotation::SimpleValue</ulink></entry></row>
 <row><entry>Value: 8</entry><entry>CHR</entry><entry><ulink
-	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/SimpleValue.html>Bio::Annotation::SimpleValue</ulink></entry></row>
+	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/SimpleValue.html">Bio::Annotation::SimpleValue</ulink></entry></row>
 <row><entry>Direct database link to NP_000671 in database RefSeq</entry><entry>dblink</entry><entry><ulink
-	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/DBLink.html>Bio::Annotation::DBLink</ulink></entry></row>
+	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/DBLink.html">Bio::Annotation::DBLink</ulink></entry></row>
 <row><entry>Direct database link to SGC35558 in database STS</entry><entry>dblink</entry><entry><ulink
-	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/DBLink.html>Bio::Annotation::DBLink</ulink></entry></row>
+	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/DBLink.html">Bio::Annotation::DBLink</ulink></entry></row>
 <row><entry>Comment: Summary: Alpha-1-ARs are members of the GPCR superfamily</entry><entry>comment</entry><entry><ulink
-	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/Comment.html>Bio::Annotation::Comment</ulink></entry></row>
+	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/Comment.html">Bio::Annotation::Comment</ulink></entry></row>
 <row><entry>Value: adrenergic, alpha-1A-, receptor</entry><entry>OFFICIAL_GENE_NAME</entry><entry><ulink
-	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/SimpleValue.html>Bio::Annotation::SimpleValue</ulink></entry></row>
+	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/SimpleValue.html">Bio::Annotation::SimpleValue</ulink></entry></row>
 <row><entry>Value: ADRA1C</entry><entry>ALIAS_SYMBOL</entry><entry><ulink
-	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/SimpleValue.html>Bio::Annotation::SimpleValue</ulink></entry></row>
+	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/SimpleValue.html">Bio::Annotation::SimpleValue</ulink></entry></row>
 <row><entry>Value: adrenergic, alpha -1A-, receptor</entry><entry>ALIAS_PROT</entry><entry><ulink
-	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/SimpleValue.html>Bio::Annotation::SimpleValue</ulink></entry></row>
+	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/SimpleValue.html">Bio::Annotation::SimpleValue</ulink></entry></row>
 <row><entry>Direct database link to NM_000680 in database RefSeq</entry><entry>dblink</entry><entry><ulink
-	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/DBLink.html>Bio::Annotation::DBLink</ulink></entry></row>
+	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/DBLink.html">Bio::Annotation::DBLink</ulink></entry></row>
 <row><entry>Value: ADRA1A</entry><entry>OFFICIAL_SYMBOL</entry><entry><ulink
-	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/SimpleValue.html>Bio::Annotation::SimpleValue</ulink></entry></row>
+	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/SimpleValue.html">Bio::Annotation::SimpleValue</ulink></entry></row>
 <row><entry>Direct database link to SGC35557 in database STS</entry><entry>dblink</entry><entry><ulink
-	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/DBLink.html>Bio::Annotation::DBLink</ulink></entry></row>
+	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/DBLink.html">Bio::Annotation::DBLink</ulink></entry></row>
 <row><entry>Value: 8p21-p11.2</entry><entry>MAP</entry><entry><ulink
-	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/SimpleValue.html>Bio::Annotation::SimpleValue</ulink></entry></row>
+	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/SimpleValue.html">Bio::Annotation::SimpleValue</ulink></entry></row>
 <row><entry>Direct database link to 104221 in database MIM</entry><entry>dblink</entry><entry><ulink
-	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/DBLink.html>Bio::Annotation::DBLink</ulink></entry></row>
+	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/DBLink.html">Bio::Annotation::DBLink</ulink></entry></row>
 <row><entry>Direct database link to D8S2033 in database STS</entry><entry>dblink</entry><entry><ulink
-	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/DBLink.html>Bio::Annotation::DBLink</ulink></entry></row>
+	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/DBLink.html">Bio::Annotation::DBLink</ulink></entry></row>
 <row><entry>Direct database link to none in database GenBank</entry><entry>dblink</entry><entry><ulink
-	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/DBLink.html>Bio::Annotation::DBLink</ulink></entry></row>
+	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/DBLink.html">Bio::Annotation::DBLink</ulink></entry></row>
 <row><entry>cellular component|integral to plasma membrane|GO:0005887</entry><entry>cellular
  component</entry><entry><ulink
-	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/OntologyTerm.html>Bio::Annotation::OntologyTerm</ulink></entry></row>
+	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/OntologyTerm.html">Bio::Annotation::OntologyTerm</ulink></entry></row>
 <row><entry>Direct database link to Hs.52931 in database UniGene</entry><entry>dblink</entry><entry><ulink
-	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/DBLink.html>Bio::Annotation::DBLink</ulink></entry></row>
+	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/DBLink.html">Bio::Annotation::DBLink</ulink></entry></row>
 <row><entry>Direct database link to M11313 in database GenBank</entry><entry>dblink</entry><entry><ulink
-	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/DBLink.html>Bio::Annotation::DBLink</ulink></entry></row>
+	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/DBLink.html">Bio::Annotation::DBLink</ulink></entry></row>
 <row><entry>Direct database link to P35348 in database GenBank</entry><entry>dblink</entry><entry><ulink
-	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/DBLink.html>Bio::Annotation::DBLink</ulink></entry></row>
+	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/DBLink.html">Bio::Annotation::DBLink</ulink></entry></row>
 	  </tbody>
 	</tgroup>
       </table>
@@ -993,10 +1004,7 @@ GO: cellular component|integral to plasma membrane|P|GO:0005887|Proteome|8396931
   </section>
 
   <section id="annotation">
-    <!-- 
-    gff_format() - Get or set the GFF format interpreter 
-    -->
-    <title>Building your own sequences</title>
+        <title>Building your own sequences</title>
     <para>
       We've taken a look at getting data from SeqFeature and Annotation
       objects, but what about creating these objects when you
@@ -1121,56 +1129,7 @@ ORIGIN
     </para>
   </section>
 
-<!--
-  <section id="feature_variations">
-    <title>The different SeqFeature objects</title>
-    <para>
-      
-    </para>
-  </section>
--->
 
-<!--
-  <section id="annotation_variations">
-    <title>The different Annotation objects</title>
-    <para>
-      There are a number of specialized Annotation objects, each
-      designed to accomodate a particular type of data. Here is a
-      table showing the existing types.
-    </para>
-    <table>
-      <title>The different Annotation objects</title>
-      <tgroup cols="2">
-	<thead>
-	  <row><entry>Description</entry><entry>Object</entry></row>  
-	</thead>
-	<tbody>
-	  <row><entry>comment</entry><entry>Bio::Annotation::Comment</entry></row>
-	  <row><entry>database identifier</entry><entry>Bio::Annotation::DBLink</entry></row>
-	  <row><entry>simple fact</entry><entry>Bio::Annotation::SimpleValue</entry></row>
-	  <row><entry>generic value</entry><entry>Bio::Annotation::SimpleValue</entry></row>
-	  <row><entry>ontology term</entry><entry>Bio::Annotation::OntologyTerm</entry></row>
-	  <row><entry>reference</entry><entry>Bio::Annotation::Reference</entry></row>
- 	</tbody>
-      </tgroup>
-    </table>
-    <para>
-      The best way to find out more about a particular Annotation is
-      in the module's own documentation. You can access the complete
-      module documentation online at 
-      <ulink url="http://doc.bioperl.org/">http://doc.bioperl.org/</ulink>.
-    </para>
-  </section>
--->
-
-<!--
-  <section id="unflattener">
-    <title>Unflattener</title>
-    <para>
-      
-    </para>
-  </section>
--->
 
   <section id="in_addition">
     <title>Additional Information</title>
@@ -1277,11 +1236,10 @@ ORIGIN
 
   <section id="acknowledgements">
     <title>Acknowledgements</title>
-    Thanks to Steven Lembark for comments and neat code discussions.
+    <para>
+      Thanks to Steven Lembark for comments and neat code discussions.
+    </para>
   </section>
-</article>
 
-<!-- 
-<note>, <tip>, <warning>, <important> 
--->
+</article>
 
