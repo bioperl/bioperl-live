@@ -95,6 +95,7 @@ use strict;
 
 use Bio::Root::Object;
 use Bio::SeqFeatureI;
+use Bio::Annotation;
 
 
 @ISA = qw(Bio::Root::Object Bio::SeqFeatureI);
@@ -285,7 +286,7 @@ sub frame {
 
   if ( @_ ) {
        my $value = shift;
-       if ( $value != 1 && $value != 2 && $value != 3 ) {
+       if ( $value != 0 && $value != 1 && $value != 2 ) {
 	   $self->throw("'$value' is not a valid frame");
        }
        $self->{'_gsf_frame'} = $value;
@@ -641,6 +642,33 @@ sub seqname {
       $obj->{'_gsf_seqname'} = $value;
     }
     return $obj->{'_gsf_seqname'};
+
+}
+
+=head2 annotation
+
+ Title   : annotation
+ Usage   : $obj->annotation($annot_obj)
+ Function: 
+ Example : 
+ Returns : A Bio::Annotation object
+ Args    : newvalue (optional)
+
+
+=cut
+
+sub annotation {
+    my ($obj,$value) = @_;
+
+    # we are smart if someone references the object and there hasn't been
+    # one set yet
+    if((! exists($obj->{'annotation'})) && (! defined($value))) {
+	$value = Bio::Annotation->new();
+    }
+    if(defined $value) {
+	$obj->{'annotation'} = $value;
+    }
+    return $obj->{'annotation'};
 
 }
 
