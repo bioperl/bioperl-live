@@ -194,8 +194,10 @@ sub getSbjct {
 	last READLOOP;
      }
   }
+  return undef if ! defined $def;
   $def =~ s/\s+/ /g;
   $def =~ s/\s+$//g;
+  
 
   ####################
   # the Sbjct object #
