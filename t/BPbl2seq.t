@@ -39,8 +39,8 @@ ok $hsp->sbjctSeq =~ /RFAR/;#"bad hit sequence";
 ok $hsp->homologySeq =~ /PVKN/;# , "bad homology sequence";
 ok $hsp->query->start, 28, "wrong query start";
 ok $hsp->query->end, 343, "wrong query end";
-ok $hsp->subject->start, 60, "wrong hit start ";
-ok $hsp->subject->end, 360, "wrong hit end";
+ok $hsp->hit->start, 60, "wrong hit start ";
+ok $hsp->hit->end, 360, "wrong hit end";
 ok $report->sbjctName =~ /ALEU_HORVU/;# "wrong hit name";
 
 $report = new Bio::Tools::BPbl2seq(-file => Bio::Root::IO->catfile("t","data","bl2seq.bug940.out"));
@@ -63,9 +63,9 @@ ok $hsp->sbjctSeq =~ /^MGN/;#"bad hit sequence";
 ok $hsp->homologySeq =~ /^MGN/;# , "bad homology sequence";
 ok $hsp->query->start, 121, "wrong query start";
 ok $hsp->query->end, 469, "wrong query end";
-ok $hsp->subject->start, 1, "wrong hit start ";
-ok $hsp->subject->end, 469, "wrong hit end";
-ok $hsp->subject->seqname =~ /gi|4507985/;# "wrong hit name";
+ok $hsp->hit->start, 1, "wrong hit start ";
+ok $hsp->hit->end, 469, "wrong hit end";
+ok $hsp->hit->seqname =~ /gi|4507985/;# "wrong hit name";
 ok $hsp->gaps, 120;
 
 $hsp = $report->next_feature;
@@ -84,9 +84,9 @@ ok $hsp->sbjctSeq =~ /^EKPY/;#"bad hit sequence";
 ok $hsp->homologySeq =~ /^EKPY/;# , "bad homology sequence";
 ok $hsp->query->start, 6, "wrong query start";
 ok $hsp->query->end, 420, "wrong query end";
-ok $hsp->subject->start, 22, "wrong hit start ";
-ok $hsp->subject->end, 464, "wrong hit end";
-ok $hsp->subject->seqname =~ /gi|4507985/;# "wrong hit name";
+ok $hsp->hit->start, 22, "wrong hit start ";
+ok $hsp->hit->end, 464, "wrong hit end";
+ok $hsp->hit->seqname =~ /gi|4507985/;# "wrong hit name";
 ok $hsp->gaps, 30;
 
 $report = new Bio::Tools::BPbl2seq(-file =>  Bio::Root::IO->catfile("t","data","empty.bl2seq"));

@@ -59,7 +59,7 @@ ok $hsp->query->end, 504;
 ok $hsp->query->seqname, $report->query;
 ok $hsp->query->primary_tag, "similarity";
 ok $hsp->query->source_tag, "BLAST";
-ok $hsp->subject->length, 1512;
+ok $hsp->hit->length, 1512;
 ok $hsp->gaps, 0;
 
 $sbjct = $report->nextSbjct;
@@ -78,9 +78,9 @@ ok $hsp->query->start, 64;
 ok $hsp->query->end, 324;
 ok $hsp->query->length, 261;
 ok $hsp->query->seqname, $report->query;
-ok $hsp->subject->start, 182;
-ok $hsp->subject->end, 844;
-ok $hsp->subject->length, 663;
+ok $hsp->hit->start, 182;
+ok $hsp->hit->end, 844;
+ok $hsp->hit->length, 663;
 ok $hsp->gaps, 2;
 
 close FH;
@@ -95,7 +95,7 @@ ok $report2->query_pattern_location->[1], 120;
 my $sbjct2 = $report2->nextSbjct;
 ok $sbjct2->name =~ /4988/;
 my $hsp2 = $sbjct2->nextHSP;
-ok $hsp2->subject->end, 343;
+ok $hsp2->hit->end, 343;
 
 close FH;
 

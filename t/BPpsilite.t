@@ -56,7 +56,7 @@ my $last_iteration2 = $report2->round($total_iterations);
 my $sbjct2 = $last_iteration2->nextSbjct;
 ok $last_iteration2->newhits->[1] =~ /ARATH/;# " Hit not found in phiblast report";
 my $hsp2 = $sbjct2->nextHSP;
-ok $hsp2->subject->end, 343, " HSP start not found in phiblast report";
+ok $hsp2->hit->end, 343, " HSP start not found in phiblast report";
 $report2->close();
 
 close FH;
