@@ -155,20 +155,24 @@ if (defined $PASSWORD) {
   $AUTH .= " -p$PASSWORD";
 }
 
+$DSN=~s/database=//i;
+$DSN=~s/;host=/:/i; #cater for dsn in the form of "dbi:mysql:database=$dbname;host=$host"
+
 my($DBI,$DBD,$DBNAME,$HOST)=split /:/,$DSN;
 if (defined $HOST) {
   $AUTH .= " -h$HOST";  
 }
+$DBNAME=$DSN unless $DSN=~/:/;
 if (defined $DBNAME) {
   $AUTH .= " -D$DBNAME";
 }
-
 if (defined $LOCAL) {
   $LOCAL='local';
   $AUTH.=' --local-infile=1';
 }else {
   $LOCAL='';
 }
+
 
 my $db = Bio::DB::GFF->new(-adaptor=>'faux',-dsn => $DSN,@auth)
   or die "Can't open database: ",Bio::DB::GFF->error,"\n";
