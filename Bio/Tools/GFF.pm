@@ -87,7 +87,7 @@ use Bio::Root::IO;
 use Bio::SeqAnalysisParserI;
 use Bio::SeqFeature::Generic;
 use Bio::SeqFeature::FeaturePair;
-use Bio::Location;
+use Bio::Location::Simple;
 
 @ISA = qw(Bio::Root::Root Bio::SeqAnalysisParserI Bio::Root::IO);
 
@@ -319,8 +319,6 @@ sub _from_gff1_string {
    $feat->seq_id($seqname);
    $feat->source_tag($source);
    $feat->primary_tag($primary);
-   $feat->start($start);
-   $feat->end($end);
    $feat->frame($frame);
    if ( $score eq '.' ) {
        #$feat->score(undef);
@@ -330,6 +328,10 @@ sub _from_gff1_string {
    if ( $strand eq '-' ) { $feat->strand(-1); }
    if ( $strand eq '+' ) { $feat->strand(1); }
    if ( $strand eq '.' ) { $feat->strand(0); }
+   $feat->start( $start );
+   $feat->end( $end );
+   $feat->ensure_orientation();
+
    foreach my $g ( @group ) {
        if ( $g =~ /(\S+)=(\S+)/ ) {
 	   my $tag = $1;
@@ -368,8 +370,6 @@ sub _from_gff2_string {
    $feat->seq_id($seqname);
    $feat->source_tag($source);
    $feat->primary_tag($primary);
-   $feat->start($start);
-   $feat->end($end);
    $feat->frame($frame);
    if ( $score eq '.' ) {
        #$feat->score(undef);
@@ -379,7 +379,9 @@ sub _from_gff2_string {
    if ( $strand eq '-' ) { $feat->strand(-1); }
    if ( $strand eq '+' ) { $feat->strand(1); }
    if ( $strand eq '.' ) { $feat->strand(0); }
-
+   $feat->start( $start );
+   $feat->end( $end );
+   $feat->ensure_orientation();
 
    #  <Begin Inefficient Code from Mark Wilkinson> 
    # this routine is necessay to allow the presence of semicolons in
@@ -468,61 +470,32 @@ sub _from_gff2_string {
 sub _from_gff3_string {
    my ($gff, $feat, $string) = @_;
    chomp($string);
-<<<<<<< GFF.pm
-   my ($seqname, $source, $type, $start, $end, $score, $strand, $frame, $attribs) = split(/\t+/,$string,9);
-=======
    my ($seqname, $source, $type, $start, $end, $score, $strand, $frame, $attribs) = split(/\t+/,$string,10);
->>>>>>> 1.26.6.4
    $feat->throw("[$string] does not look like GFF3 to me") unless defined $frame;
    $frame = 0 unless $frame =~ /^\d+$/;
    $feat->primary_tag($type);
    $feat->source_tag($source);
-<<<<<<< GFF.pm
-   $feat->location(Bio::Location->new(-seq_id=>$seqname,
-				      -start =>$start,
-				      -end   =>$end,
-				      -strand=>$STRANDS{$strand}||0));
-
-   my @groups;
-=======
    $feat->start($start);
    $feat->end($end);
    $feat->strand($STRANDS{$strand}||0);
+   $feat->ensure_orientation();
 # CJM
 # gff3 does not have groups, only attributes
 #   my @groups     = grep {$_ ne '.'} map {_unescape($_)} split /;\s*/,$groups;
->>>>>>> 1.26.6.4
    my @attributes = split /;\s*/,$attribs if $attribs;
    my @groups = ();
    foreach (@attributes) {
       my ($name,$value) = split /=/,$_,2;
       Bio::Root::Root->throw(qq("$_" is not a valid attribute=value pair)) unless defined $value;
       _unescape($name);
-<<<<<<< GFF.pm
-      my @values = split /,/,$value;
-      _unescape(@values);
-
-=======
       _unescape($value);
       if (!$value) {
 #          $gff->throw("BAD:$_");
           next;
       }
       my @values = split(/\,/, $value);
->>>>>>> 1.26.6.4
       # handle special cases
       if ($name eq 'ID') {
-<<<<<<< GFF.pm
-	# only one unique ID is allowed, and cannot reset the unique
-	# id in the middle of the stream, thank-you-very-much
-	$feat->unique_id($values[0]) unless $feat->unique_id;
-	next;
-      }
-
-      if ($name eq 'Parent') {
-	push @groups,@values;
-	next;
-=======
           if (@values > 1) {
               $gff->throw("You said ID= @values; ID must have cardinality 1");
           }
@@ -532,13 +505,12 @@ sub _from_gff3_string {
       if ($name eq 'Parent') {
           # CJM I added this
           push(@groups, @values);
->>>>>>> 1.26.6.4
       }
 
       if ($name eq 'Target') {  # turn into a location
           my ($target,$tstart,$tend) = $value =~ /^(.+):(\d+)\.\.(\d+)$/ or next;
           my $tstrand = ($start < $end) ? +1 : -1;
-          my $location = Bio::Location->new(
+          my $location = Bio::Location::Simple->new(
 					    -start  => $tstart,
 					    -end    => $tend,
 					    -seq_id => $target,
@@ -550,13 +522,8 @@ sub _from_gff3_string {
 
       $feat->add_tag_value($name => $_) foreach @values;
    }
-<<<<<<< GFF.pm
-
-   return @groups;
-=======
    # CJM reurn groups
    (@groups)
->>>>>>> 1.26.6.4
 }
 
 sub _unescape {
@@ -613,9 +580,11 @@ sub _fixup_coordinates {
       $start = $end - $feat->length + 1;
       $strand *= -1;
     }
-    $feat->strand($strand);
-    $feat->start($start);
-    $feat->end($end);
+    $feat->strand( $strand );
+    $feat->start( $start );
+    $feat->end( $end );
+    $feat->ensure_orientation();
+
     $status = 'REMAPPED';
     last;
   }
