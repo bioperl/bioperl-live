@@ -139,6 +139,7 @@ use strict;
 
 use Bio::Root::Root;
 use Bio::LocatableSeq;         # uses Seq's as list
+use Bio::Align::AlignI;
 
 BEGIN { 
     # This data should probably be in a more centralized module...
@@ -171,7 +172,7 @@ BEGIN {
 				);
     
 }
-@ISA = qw(Bio::Root::Root);
+@ISA = qw(Bio::Root::Root Bio::Align::AlignI);
 
 sub new {
   my($class,@args) = @_;
@@ -237,7 +238,6 @@ sub add_seq {
     if( !defined $order ) {
 	$order = keys %{$self->{'_seq'}};
     }
-
     $name = sprintf("%s/%d-%d",$id,$start,$end);
 
     if( $self->{'_seq'}->{$name} ) {
@@ -866,11 +866,15 @@ sub match {
 
     my $refseq = shift @seqs ;
     my @refseq = split //, $refseq->seq;
+    my $gapchar = $self->gap_char;
+
     foreach my $seq ( @seqs ) {
 	my @varseq = split //, $seq->seq();
 	for ( my $i=0; $i < scalar @varseq; $i++) {
-	    $varseq[$i] = $match if defined $refseq[$i] and 
-		$refseq[$i] =~ /[A-Za-z\*]/ and $refseq[$i] eq $varseq[$i];
+	    $varseq[$i] = $match if defined $refseq[$i] && 
+		( $refseq[$i] =~ /[A-Za-z\*]/ ||
+		  $refseq[$i] =~ /$gapchar/ )
+		      && $refseq[$i] eq $varseq[$i];
 	}
 	$seq->seq(join '', @varseq);
     }
@@ -902,11 +906,14 @@ sub unmatch {
 
     my $refseq = shift @seqs ;
     my @refseq = split //, $refseq->seq;
+    my $gapchar = $self->gap_char;
     foreach my $seq ( @seqs ) {
 	my @varseq = split //, $seq->seq();
 	for ( my $i=0; $i < scalar @varseq; $i++) {
-	    $varseq[$i] = $refseq[$i] if defined $refseq[$i] and 
-		$refseq[$i] =~ /[A-Za-z\*]/ and $varseq[$i] eq $match;
+	    $varseq[$i] = $refseq[$i] if defined $refseq[$i] && 
+		( $refseq[$i] =~ /[A-Za-z\*]/ ||
+		  $refseq[$i] =~ /$gapchar/ ) &&
+		      $varseq[$i] eq $match;
 	}
 	$seq->seq(join '', @varseq);
     }
