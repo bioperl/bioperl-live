@@ -83,7 +83,13 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 
 Email elia@ebi.ac.uk
 
-Describe contact details here
+=head1 CONTRIBUTORS
+
+Ewan Birney birney@ebi.ac.uk
+Jason Stajich jason@bioperl.org
+Chris Mungall cjm@fruitfly.bdgp.berkeley.edu
+Lincoln Stein lstein@cshl.org
+Heikki Lehvaslaiho, heikki@ebi.ac.uk
 
 =head1 APPENDIX
 
@@ -164,7 +170,7 @@ sub next_seq {
 	    $seq->molecule($3);
 	    $seq->is_circular($4);
 	    $seq->division($5);
-	    ($date) = $line =~ /.*(\d\d-\w\w\w-\d\d\d\d)/;
+	    ($date) = ($line =~ /.*(\d\d-\w\w\w-\d\d\d\d)/);
 	} else {
 	    $seq->molecule($3);
 	    $seq->division($4);
@@ -258,7 +264,7 @@ sub next_seq {
     $seq->add_secondary_accession(@acc);
     
     # some "minimal" formats may not necessarily have a feature table
-    if(/^FEATURES/) {
+    if(defined($_) && /^FEATURES/) {
 	# need to read the first line of the feature table
 	$buffer = $self->_readline;
 
@@ -267,7 +273,8 @@ sub next_seq {
 	while( defined($buffer) ) {
 	    # check immediately -- not at the end of the loop
 	    # note: GenPept entries obviously do not have a BASE line
-	    last if(($buffer =~ /^BASE/) || ($buffer =~ /^ORIGIN/));
+	    last if(($buffer =~ /^BASE/) || ($buffer =~ /^ORIGIN/) ||
+		    ($buffer =~ /^CONTIG/) );
 
 	    # slurp in one feature at a time -- at return, the start of
 	    # the next feature will have been read already, so we need
@@ -292,10 +299,17 @@ sub next_seq {
 	}
 	$_ = $buffer;
     }
-    # advance to the section with the sequence
-    if(! /^ORIGIN/) {
+    if( /^CONTIG/ ) {
+	$b = "     $_"; # need 5 spaces to treat it like a feature
+	my $ftunit = $self->_read_FTHelper_GenBank(\$b);
+	if( ! defined $ftunit ) {
+	    $self->warn("unable to parse the CONTIG feature\n");
+	} else { 
+	    $ftunit->_generic_seqfeature($seq);
+	}	
+    } elsif(! /^ORIGIN/) {     # advance to the section with the sequence
 	$seqc = "";	
-	while (defined( $_ = $self->_readline)) {
+	while (defined( $_ = $self->_readline) ) {
 	    last if /^ORIGIN/;
 	}
     }
@@ -438,7 +452,7 @@ sub write_seq {
 		      ($spec->organelle() ? $spec->organelle()." " : ""),
 		      "$genus $species", "\n");
         my $OC = join('; ', (reverse(@class), $genus)) .'.';
-        $self->_write_line_GenBank_regex("            ","            ",
+        $self->_write_line_GenBank_regex(' 'x12,' 'x12,
 					 $OC,"\\s\+\|\$",80);
     }
     
@@ -450,25 +464,24 @@ sub write_seq {
 			       "residues" : "bases"),
 			      $ref->start,$ref->end);
 	$self->_print("$temp_line\n");
-	$self->_write_line_GenBank_regex("  AUTHORS   ","            ",
+	$self->_write_line_GenBank_regex("  AUTHORS   ",' 'x12,
 					 $ref->authors,"\\s\+\|\$",80);
-	$self->_write_line_GenBank_regex("  TITLE     ","            ",
+	$self->_write_line_GenBank_regex("  TITLE     "," "x12,
 					 $ref->title,"\\s\+\|\$",80);
-	$self->_write_line_GenBank_regex("  JOURNAL   ","            ",
+	$self->_write_line_GenBank_regex("  JOURNAL   "," "x12,
 					 $ref->location,"\\s\+\|\$",80);
 	if ($ref->comment) {
-	    $self->_write_line_GenBank_regex("  REMARK    ","            ",
+	    $self->_write_line_GenBank_regex("  REMARK    "," "x12,
 					     $ref->comment,"\\s\+\|\$",80);
 	}
 	if( $ref->medline) {
-	    $self->_write_line_GenBank_regex("  MEDLINE   ","            ",
+	    $self->_write_line_GenBank_regex("  MEDLINE   "," "x12,
 					     $ref->medline, "\\s\+\|\$",80);
 	     # I am assuming that pubmed entries only exist when there
 	     # are also MEDLINE entries due to the indentation
 	     # This could be a wrong assumption
 	     if( $ref->pubmed ) {
-		 $self->_write_line_GenBank_regex("   PUBMED   ",
-						  "            ",
+		 $self->_write_line_GenBank_regex("   PUBMED   "," "x12,
 						  $ref->pubmed, "\\s\+\|\$",
 						  80);
 	     }
@@ -478,11 +491,12 @@ sub write_seq {
     # Comment lines
     
     foreach my $comment ( $seq->annotation->get_Annotations('comment') ) {
-	$self->_write_line_GenBank_regex("COMMENT     ","            ",
+	$self->_write_line_GenBank_regex("COMMENT     "," "x12,
 					 $comment->text,"\\s\+\|\$",80);
     }
     $self->_print("FEATURES             Location/Qualifiers\n");
     
+    my $contig;
     if( defined $self->_post_sort ) {
 	# we need to read things into an array. Process. Sort them. Print 'em
 
@@ -507,14 +521,15 @@ sub write_seq {
 	    foreach my $fth ( @fth ) {
 		if( ! $fth->isa('Bio::SeqIO::FTHelper') ) {
 		    $sf->throw("Cannot process FTHelper... $fth");
-		}
-		
+		}		
 		$self->_print_GenBank_FTHelper($fth);
 	    }
 	}
     }
+    if( $seq->length == 0 ) { $self->_show_dna(0) }
     
     if( $self->_show_dna() == 0 ) {
+	$self->_print("\n//\n");
        return;
    }
     
@@ -591,30 +606,36 @@ sub _print_GenBank_FTHelper {
    my ($self,$fth,$always_quote) = @_;
    
    if( ! ref $fth || ! $fth->isa('Bio::SeqIO::FTHelper') ) {
-       $fth->warn("$fth is not a FTHelper class. Attempting to print, but there could be tears!");
+       $fth->warn("$fth is not a FTHelper class. Attempting to print, but there could be tears!");   
    }
-   $self->_write_line_GenBank_regex(sprintf("     %-16s",$fth->key),
-				    "                     ",
-				    $fth->loc,"\,\|\$",80);
+   if( defined $fth->key && 
+       $fth->key eq 'CONTIG' ) {
+       $self->_write_line_GenBank_regex(sprintf("%-12s",$fth->key),
+					' 'x12,$fth->loc,"\,\|\$",80);
+   } else {
+       $self->_write_line_GenBank_regex(sprintf("     %-16s",$fth->key),
+					" "x21,
+					$fth->loc,"\,\|\$",80);
+   }
 
    if( !defined $always_quote) { $always_quote = 0; }
-
+   
    foreach my $tag ( keys %{$fth->field} ) {
        foreach my $value ( @{$fth->field->{$tag}} ) {
 	   $value =~ s/\"/\"\"/g;
 	   if ($value eq "_no_value") {
-	       $self->_write_line_GenBank_regex("                     ",
-						"                     ",
+	       $self->_write_line_GenBank_regex(" "x21,
+						" "x21,
 						"/$tag","\.\|\$",80);
 	   }
            elsif( $always_quote == 1 || $value !~ /^\d+$/ ) {
               my ($pat) = ($value =~ /\s/ ? '\s|$' : '.|$');	      
-	      $self->_write_line_GenBank_regex("                     ",
-					       "                     ",
+	      $self->_write_line_GenBank_regex(" "x21,
+					       " "x21,
 					       "/$tag=\"$value\"",$pat,80);
            } else {
-              $self->_write_line_GenBank_regex("                     ",
-					       "                     ",
+              $self->_write_line_GenBank_regex(" "x21,
+					       " "x21,
 					       "/$tag=$value","\.\|\$",80);
            }
        }
@@ -898,6 +919,7 @@ sub _read_FTHelper_GenBank {
         }
     } else {
         # No feature key
+	$self->debug("no feature key!\n");
         return;
     } 
     
@@ -905,7 +927,7 @@ sub _read_FTHelper_GenBank {
     $$buffer = $_;
 
     # Make the new FTHelper object
-    my $out = new Bio::SeqIO::FTHelper(-verbose=>$self->verbose());
+    my $out = new Bio::SeqIO::FTHelper('-verbose'=>$self->verbose());
     $out->key($key);
     $out->loc($loc);
 

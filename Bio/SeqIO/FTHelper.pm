@@ -128,10 +128,11 @@ sub _generic_seqfeature {
 		$remote=1;
 	    }
 	    if( my $location = $fth->_parse_loc($sf,$next_loc)) {
-		print STDERR "I got ", join(",", ($location->start(), 
+		$self->debug( "I got remote: ". 
+			      join(",", ($location->start(), 
 					 $location->end(), 
-					 $location->strand())), 
-		" for $next_loc\n" if( $fth->verbose > 0 );
+					 $location->strand()))
+			      . " for $next_loc\n");
 		$location->seq_id($seqid);
 		if ($remote) {
 		    $location->is_remote(1);
