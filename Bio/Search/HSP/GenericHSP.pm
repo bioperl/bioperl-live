@@ -314,7 +314,6 @@ sub new {
 
     $self->percent_identity($identical / $hsp_len ) if( $hsp_len > 0 );
 
-
     return $self;
 }
 
@@ -700,11 +699,18 @@ sub get_aln {
 	if( $self->homology_string() =~ /^(\s+)/ ) {
 	    $start = CORE::length($1);
 	}
-	$hs =~ s![\\\/]!!g;
-	$qs =~ s![\\\/]!!g;
-
 	$hs = substr($hs, $start,$self->length('total'));
 	$qs = substr($qs, $start,$self->length('total'));
+	foreach my $seq ( $qs,$hs)  {
+	    foreach my $f ( '\\', '/') {
+		my $index = index($seq,$f);
+		while( $index >=0 ) {
+		    substr($hs,$index,1) = '';
+		    substr($qs,$index,1) = '';
+		    $index = index($seq,$f,$index+1);
+		}
+	    }
+	}
     }
 
     my $seqonly = $qs;
@@ -993,24 +999,24 @@ sub _calculate_seq_positions {
 	if( $seqString =~ /^(\s+)/ ) {
 	    $start = CORE::length($1);
 	}
-	$qseq =~ s![\\\/]!!g;
-	$sseq =~ s![\\\/]!!g;
+
 	$seqString = substr($seqString, $start,$self->length('total'));
 	$qseq = substr($qseq, $start,$self->length('total'));
 	$sseq = substr($sseq, $start,$self->length('total'));
+
+	$qseq =~ s![\\\/]!!g;
+	$sseq =~ s![\\\/]!!g;
     }
-    if($prog !~ /^BLASTP|^BLASTN/) {
-	if($prog eq 'TBLASTN' || $prog eq 'TFASTN' ) {
-	    $resCount_sbjct /= 3;
-	} elsif($prog eq 'BLASTX' || $prog eq 'FASTX' || $prog eq 'FASTY' || 
-		$prog eq 'FASTXY' ) {
-	    $resCount_query /= 3;
-	} elsif($prog eq 'TBLASTX' ||
-		$prog eq 'TFASTXY' || $prog eq 'TFASTY' || 
-		$prog eq 'TFASTX' ) {
-	    $resCount_query /= 3;
-	    $resCount_sbjct /= 3;
-	}
+    if($prog eq 'TBLASTN' || $prog eq 'TFASTN' ) {
+	$resCount_sbjct /= 3;
+    } elsif($prog eq 'BLASTX' || $prog eq 'FASTX' || $prog eq 'FASTY' || 
+	    $prog eq 'FASTXY' ) {
+	$resCount_query /= 3;
+    } elsif($prog eq 'TBLASTX' ||
+	    $prog eq 'TFASTXY' || $prog eq 'TFASTY' || 
+	    $prog eq 'TFASTX' ) {
+	$resCount_query /= 3;
+	$resCount_sbjct /= 3;
     }    
     while( $mchar = chop($seqString) ) {
 	($qchar, $schar) = (chop($qseq), chop($sseq));
