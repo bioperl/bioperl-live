@@ -231,13 +231,16 @@ sub new {
   Returns : a Bio::SeqIO stream object
   Args    : $ref : either an array reference, a filename, or a filehandle
             from which to get the list of unique ids/accession numbers.
+            
+NOTE: deprecated API.  Use get_Stream_by_id() instead.
 
 =cut
 
-sub get_Stream_by_batch {
-    my ($self, $ids) = @_;
-    return $self->get_Stream_by_id( $ids);
-}
+*get_Stream_by_batch = sub { 
+   my $self = shift;
+   $self->deprecated('get_Stream_by_batch() is deprecated; use get_Stream_by_id() instead');
+   $self->get_Stream_by_id(@_) 
+};
 
 =head2 Implemented Routines from Bio::DB::WebDBSeqI interface
 

@@ -139,7 +139,7 @@ sub fetch {
         my $fh = $seqio->_fh();
 
         # move to start of record
-	$begin-- if( $^O =~ /mswin/i); # workaround for Win DB_File bug
+	#$begin-- if( $^O =~ /mswin/i); # workaround for Win DB_File bug
         seek($fh, $begin, 0);
 	
 	$seq = $seqio->next_seq();

@@ -13,6 +13,14 @@ Bio::AlignIO::nexus - NEXUS format sequence input/output stream
 
 Do not use this module directly.  Use it via the L<Bio::AlignIO> class.
 
+    use Bio::AlignIO;
+
+    my $in = new Bio::AlignIO(-format => 'nexus',
+                              -file   => 'aln.nexus');
+    while( my $aln = $in->next_aln ) {
+        # do something with the alignment
+    }
+
 =head1 DESCRIPTION
 
 This object can transform L<Bio::Align::AlignI> objects to and from NEXUS
@@ -21,7 +29,7 @@ data blocks. See method documentation for supported NEXUS features.
 =head1 ACKNOWLEDGEMENTS
 
 Will Fisher has written an excellent standalone NEXUS format parser in
-perl, readnexus. A number of tricks were adapted from it.
+Perl, readnexus. A number of tricks were adapted from it.
 
 =head1 FEEDBACK
 
@@ -37,7 +45,6 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 =head1 AUTHORS - Heikki Lehvaslaiho
 
 Email: heikki@ebi.ac.uk
-
 
 =head1 APPENDIX
 
@@ -58,14 +65,15 @@ use Bio::AlignIO;
 @ISA = qw(Bio::AlignIO);
 
 BEGIN {
-    %valid_type = map {$_, 1} qw( dna rna protein standard);
+    %valid_type = map {$_, 1} qw( dna rna protein standard );
+    # standard throws error: inherited from Bio::PrimarySeq
 }
 
 =head2 new
 
  Title   : new
- Usage   : $alignio = new Bio::AlignIO(-format => 'nexus', 
-				       -file => 'filename');
+ Usage   : $alignio = new Bio::AlignIO(-format => 'nexus',
+													-file   => 'filename');
  Function: returns a new Bio::AlignIO object to handle clustalw files
  Returns : Bio::AlignIO::clustalw object
  Args    : -verbose => verbosity setting (-1,0,1,2)
@@ -157,16 +165,18 @@ sub next_aln {
 	next if s/\[[^\]]+\]//g; # remove comments
 	if( s/\[[^\]]+$// ) {
 	    $incomment = 1;
-	    next if /^\s*$/; # skip line if it is now empty or contains only whitespace
+		 # skip line if it is now empty or contains only whitespace
+	    next if /^\s*$/;
 	} elsif($incomment) {
 	    if( s/^[^\]]*\]// ) {
-		$incomment = 0;
-	    } else { 
-		next;
+			 $incomment = 0;
+	    } else {
+			 next;
 	    }
 	} elsif( /taxlabels/i ) {
-	    @names = $self->_read_taxlabels;
-	} else { 
+	    # doesn't deal with taxlabels adequately and can mess things up!
+	    # @names = $self->_read_taxlabels;
+	} else {
 
 	    /ntax\s*=\s*(\d+)/i        and $seqcount = $1;
 	    /nchar\s*=\s*(\d+)/i       and $residuecount = $1;
@@ -179,10 +189,14 @@ sub next_aln {
 	    last if /matrix/io;
 	}
     }
-    $self->throw("Not a valid NEXUS sequence file. Datatype not specified")
+    $self->throw("Not a valid NEXUS sequence file. Datatype not specified.")
 	unless $alphabet;
     $self->throw("Not a valid NEXUS sequence file. Datatype should not be [$alphabet]")
 	unless $valid_type{$alphabet};
+    $self->throw("\"$gap\" is not a valid gap character. For compatability, gap char can not be one of: ()[]{}/\,;:=*'`\"<>^")
+	if $gap =~ /[\(\)\[\]\{\}\/\\\,\;\:\=\*\'\`\<\>\^]/;
+    $self->throw("\"$missing\" is not a valid missing character. For compatability, missing char can not be one of: ()[]{}/\,;:=*'`\"<>^")
+	if $missing =~ /[\(\)\[\]\{\}\/\\\,\;\:\=\*\'\`\<\>\^]/;
 
     $aln->gap_char($gap);
     $aln->missing_char($missing);
@@ -204,30 +218,49 @@ sub next_aln {
     # first alignment section
     if (@names == 0) {		# taxa block did not exist
 	while ($entry = $self->_readline) {
-	    local ($_) =  $entry;
-	    if( s/\[[^\]]+\]//g ) { #]  remove comments
-		next if /^\s*$/; # skip line if it is now empty or contains only whitespace
-            }
-	    if ($interleave) {
-		/^\s+$/ and last;
-	    } else {
-		/^\s+$/ and next;
-	    }
-	    /^\s*;\s*$/ and last;
-	    if (/^\s*('([^']*?)'|([^']\S*))\s+(.*)\s$/) { #'
-		$name = ($2 || $3);
-		$str = $4;
-		$name =~ s/ /_/g;
-		push @names, $name;
+		local ($_) =  $entry;
+		if( s/\[[^\]]+\]//g ) { #]  remove comments
+			next if /^\s*$/; 
+			# skip line if it is now empty or contains only whitespace
+		}
+		if ($interleave && defined$count && ($count <= $seqcount)) {
+			/^\s+$/ and last;
+		} else {
+			/^\s+$/ and next;
+		}
+		/^\s*;/ and last;	# stop if colon at end of matrix is on it's own line
+		#/^\s*;\s*$/ and last;
+		if ( /^\s*([\"\'](.+?)[\"\']|(\S+))\s+(.*)\s*$/ ) {	
+			# get single and double quoted names, or all the first 
+         # nonwhite word as the name, and remained is seq
+			#if (/^\s*('([^']*?)'|([^']\S*))\s+(.*)$/) { #'
+			$name = ($2 || $3);
+			if  ($4) {
+				# seq is on same line as name
+				# this is the usual NEXUS format
+				$str = $4;
+			} else {
+				# otherwise get seq from following lines. No comments allowed
+				# a less common matrix format, usually used for very long seqs
+				$str='';
+				while (local ($_) = $self->_readline) {
+					my $str_tmp = $_;
+					$str_tmp =~ s/[\s;]//g;
+					$str .= $str_tmp;
+					last if length$str == $residuecount;
+				}
+			}
+			$name =~ s/ /_/g;
+			push @names, $name;
 
-		$str =~ s/\s//g;
-		$count =  @names;
-		$hash{$count} = $str;
-							};
-	    $self->throw("Not a valid interleaved NEXUS file!
-seqcount [$count] > predeclared [$seqcount] in the first section") if $count > $seqcount;
+			$str =~ s/[\s;]//g;
+			$count =  @names;
+			$hash{$count} = $str;
+		}
+		$self->throw("Not a valid interleaved NEXUS file! seqcount [$count] > predeclared [$seqcount] in the first section") if $count > $seqcount;
+		/;/ and last;	# stop if colon at end of matrix is on the same line as the last seq
 	}
-    }
+}
 
     # interleaved sections
     $count = 0;
@@ -237,17 +270,17 @@ seqcount [$count] > predeclared [$seqcount] in the first section") if $count > $
 	    if( s/\[[^\]]+\]//g ) { #]  remove comments
 		next if /^\s*$/; # skip line if it is now empty or contains only whitespace
 	    }
-	    last if /^\s*;/;
+	    /^\s*;/ and last;		# stop if colon at end of matrix is on it's own line
 	    $count = 0, next if $entry =~ /^\s*$/;
-	    if (/^\s*('([^']*?)'|([^']\S*))\s+(.*)\s$/) { #'
+	    if (/^\s*('([^']*?)'|([^']\S*))\s+(.*)$/) { #'
 		$str = $4;
-		$str =~ s/\s//g;
+		$str =~ s/[\s;]//g;
 		$count++;
 		$hash{$count} .= $str;
 	    };
 	    $self->throw("Not a valid interleaved NEXUS file!
     		seqcount [$count] > predeclared [$seqcount] ") if $count > $seqcount;
-    
+	    /;/ and last;	# stop if colon at end of matrix is on the same line as the last seq
 	}
     }
 

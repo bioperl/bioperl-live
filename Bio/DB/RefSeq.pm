@@ -44,7 +44,7 @@ Bio::DB::RefSeq - Database object interface for RefSeq retrieval
   # and request Fasta sequence
   $db = new Bio::DB::RefSeq(-retrievaltype => 'tempfile' ,
  			       -format => 'fasta');
-  my $seqio = $db->get_Stream_by_batch(['NM_006732', 'NM_005252'] );
+  my $seqio = $db->get_Stream_by_id(['NM_006732', 'NM_005252'] );
   while( my $seq  =  $seqio->next_seq ) {
  	print "seqid is ", $seq->id, "\n";
   }

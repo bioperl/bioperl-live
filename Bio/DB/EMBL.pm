@@ -44,7 +44,7 @@ Bio::DB::EMBL - Database object interface for EMBL entry retrieval
   # and request Fasta sequence
   $embl = new Bio::DB::EMBL(-retrievaltype => 'tempfile' ,
  			    -format => 'fasta');
-  my $seqio = $embl->get_Stream_by_batch(['AC013798', 'AC021953'] );
+  my $seqio = $embl->get_Stream_by_id(['AC013798', 'AC021953'] );
   while( my $clone =  $seqio->next_seq ) {
  	print "cloneid is ", $clone->id, "\n";
   }
