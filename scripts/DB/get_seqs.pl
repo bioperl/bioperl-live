@@ -7,6 +7,7 @@ use Bio::SeqIO;
 
 $USAGE = "get_seqs.pl\t[--db=DBNAME] [--format=FORMAT] \n\t\t[--output=FILENAME] [--proxy=PROXY] accession1, accession2, ...\n Defaults: db=GenBank format=fasta output=STDOUT proxy=none\n See LWP::UserAgent for more information on proxy syntax";
 my %dbs = (
+  'genpept'   => 'Bio::DB::GenPept',
   'genbank'   => 'Bio::DB::GenBank',
   'embl'      => 'Bio::DB::EMBL',
   'swissprot' => 'Bio::DB::SwissProt', 
@@ -25,8 +26,10 @@ my ($db,$format,$file,$proxy,$help) = ( 'genbank', 'fasta' );
 
 if( $help ) { print $USAGE, "\n";exit; }
 
-if( $db =~ /gb|gen|genbank/i ) {
+if( $db =~ /gb|genbank/i ) {
     $db = 'genbank';
+} elsif( $db =~ /gp|genpept/i) {
+    $db = 'genpept';
 } elsif( $db =~ /embl|em|e/i ) {
     $db = 'embl';
 } elsif( $db =~ /swiss|sp/i ) {
