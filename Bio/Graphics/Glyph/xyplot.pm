@@ -3,7 +3,7 @@ package Bio::Graphics::Glyph::xyplot;
 use strict;
 use Bio::Graphics::Glyph::minmax;
 use vars '@ISA';
-use GD 'gdTinyFont';
+#use GD 'gdTinyFont';
 
 @ISA = 'Bio::Graphics::Glyph::minmax';
 
@@ -197,6 +197,8 @@ sub _draw_scale {
 
   my $fg    = $self->fgcolor;
   my $half  = ($y1+$y2)/2;
+  # TH
+  my $font  = $self->font('gdTinyFont');
 
   $gd->line($x1,$y1,$x1,$y2,$fg) if $side eq 'left'  || $side eq 'both';
   $gd->line($x2,$y1,$x2,$y2,$fg) if $side eq 'right' || $side eq 'both';
@@ -205,14 +207,22 @@ sub _draw_scale {
     $gd->line($x1-3,$_->[0],$x1,$_->[0],$fg) if $side eq 'left'  || $side eq 'both';
     $gd->line($x2,$_->[0],$x2+3,$_->[0],$fg) if $side eq 'right' || $side eq 'both';
     if ($side eq 'left' or $side eq 'both') {
-      $gd->string(gdTinyFont,
-		  $x1 - gdTinyFont->width * length($_->[1]) - 3,$_->[0]-(gdTinyFont->height/3),
+      #      $gd->string(gdTinyFont,
+      #		  $x1 - gdTinyFont->width * length($_->[1]) - 3,$_->[0]-(gdTinyFont->height/3),
+      #		  $_->[1],
+      #		  $fg);
+     $gd->string($font,
+		  $x1 - $font->width * length($_->[1]) - 3,$_->[0]-($font->height/3),
 		  $_->[1],
 		  $fg);
     }
     if ($side eq 'right' or $side eq 'both') {
-      $gd->string(gdTinyFont,
-		  $x2 + 4,$_->[0]-(gdTinyFont->height/3),
+#      $gd->string(gdTinyFont,
+#		  $x2 + 4,$_->[0]-(gdTinyFont->height/3),
+#		  $_->[1],
+#		  $fg);
+      $gd->string($font,
+		  $x2 + 4,$_->[0]-($font->height/3),
 		  $_->[1],
 		  $fg);
     }
