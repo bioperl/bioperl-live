@@ -115,10 +115,12 @@ Ewan Birney, birney@sanger.ac.uk
 
 =head1 CONTRIBUTORS
 
-David J. Evans, David.Evans@vir.gla.ac.uk
-Heikki Lehvaslaiho, heikki@ebi.ac.uk
-Jason Stajich, jason@bioperl.org
-Xintao Wei & Giri Narasimhan, giri@cs.fiu.edu
+David J. Evans, David.Evans@vir.gla.ac.uk, 
+Heikki Lehvaslaiho, heikki@ebi.ac.uk, 
+Allen Smith, easmith@beatrice.rutgers.edu
+Jason Stajich, jason@bioperl.org, 
+Xintao Wei & Giri Narasimhan, giri@cs.fiu.edu,
+
 
 =head1 SEE ALSO
 
@@ -1190,7 +1192,7 @@ sub _consensus_aa {
     $count = -1;
     $letter = '?';
 
-    foreach $key ( keys %hash ) {
+    foreach $key ( sort keys %hash ) {
 	# print "Now at $key $hash{$key}\n";
 	if( $hash{$key} > $count && $hash{$key} >= $threshold) {
 	    $letter = $key;

@@ -4,13 +4,13 @@
 use strict;
 use constant NUMTESTS => 53;
 
-BEGIN {     
+BEGIN {
     eval { require Test; };
     if( $@ ) {
 	use lib 't';
     }
     use Test;
-    
+
     plan tests => NUMTESTS;
 }
 
@@ -43,15 +43,15 @@ ok $seqs[0]->no_gaps, 3;
 @seqs = $aln->each_alphabetically();
 ok scalar @seqs, 16;
 
-ok $aln->column_from_residue_number('1433_LYCES', 10), 2; 
+ok $aln->column_from_residue_number('1433_LYCES', 10), 2;
 ok $aln->displayname('1433_LYCES/9-246', 'my_seq'), 'my_seq';
 ok $aln->displayname('1433_LYCES/9-246'), 'my_seq';
-ok substr ($aln->consensus_string(50), 0, 60), 
+ok substr ($aln->consensus_string(50), 0, 60),
     "RE??VY?AKLAEQAERYEEMV??MK?VAE??????ELSVEERNLLSVAYKNVIGARRASW";
-ok substr ($aln->consensus_string(100), 0, 60), 
+ok substr ($aln->consensus_string(100), 0, 60),
     "?????????L????E????M???M????????????L??E?RNL?SV?YKN??G??R??W";
-ok substr ($aln->consensus_string(0), 0, 60), 
-    "REDLVYLAKLAEQAERYEEMVEFMKKVAESGAPAEELSVEERNLLSVAYKNVIGARRASW";
+ok substr ($aln->consensus_string(0), 0, 60),
+    "REDLVYLAKLAEQAERYEEMVEFMKKVAELGAPAEELSVEERNLLSVAYKNVIGARRASW";
 
 ok (@seqs = $aln->each_seq_with_id('143T_HUMAN'));
 ok scalar @seqs, 1;
@@ -74,7 +74,7 @@ ok $aln->displayname('1433_LYCES/9-246'), '1433_LYCES/9-246';
 ok $aln->uppercase;
 ok $aln->map_chars('\.','-');
 @seqs = $aln->each_seq_with_id('143T_HUMAN');
-ok substr($seqs[0]->seq, 0, 60), 
+ok substr($seqs[0]->seq, 0, 60),
     'KTELIQKAKLAEQAERYDDMATCMKAVTEQGA---ELSNEERNLLSVAYKNVVGGRRSAW';
 
 ok($aln->match_line, '       ::*::::*  : *   *:           *: *:***:**.***::*. *::**::**:***      .  .      **  :* :*   .  :: ::   *:  .     :* .*. **:***.** :*.            :  .*  *   :   : **.*:***********:::* : .: *  :** .*::*: .*. : *: **:****************::     ');
@@ -104,13 +104,13 @@ if( $@ ) {
 my $string;
 my $out = IO::String->new($string);
 
-my $s1 = new Bio::LocatableSeq (-id => 'AAA', 
+my $s1 = new Bio::LocatableSeq (-id => 'AAA',
 			    -seq => 'aawtat-tn-',
 			    -start => 1,
 			    -end => 8,
   			    -alphabet => 'dna'
 			    );
-my $s2 = new Bio::LocatableSeq (-id => 'BBB', 
+my $s2 = new Bio::LocatableSeq (-id => 'BBB',
 			    -seq => '-aaaat-tt-',
 			    -start => 1,
 			    -end => 7,
