@@ -230,21 +230,12 @@ Information:
    The installation of these external packages is very simple. You
    can read more about bioperl external dependencies at
 
-   http://bioperl.org/Core/external.shtml
+   http://bioperl.org/Core/Latest/INSTALL
 
    Enjoy the rest of bioperl, which you can use after going 'make install'
 
 QQ_ERROR_QQ
 }
-
-open(CONF,'>bioperl.conf') or die "couldn't open bioperl.conf";
-
-print CONF<<'!NO!GROK!';
-AUTHORS		file://AUTHORS
-!NO!GROK!
-
-close CONF;
-
 
 WriteMakefile(
     NAME	=> $NAME,
@@ -260,12 +251,7 @@ WriteMakefile(
     ) : (),
     'realclean' => {  FILES        => join(' ',@BACKUP_FILES) },
     DIR         => [  ], # directories with other Makefile.PL's in them
-    PL_FILES	=> {
-			'bioperl.PL' => 'bioperl.pod',
-			'biodatabases.PL' => 'biodatabases.pod',
-			'biodesign.PL' => 'biodesign.pod',
-			'bioscripts.PL' => 'bioscripts.pod',
-		   },
+    PL_FILES	=> { 'doc/makedoc.PL' }
 );
 
 
