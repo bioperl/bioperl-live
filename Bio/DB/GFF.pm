@@ -83,6 +83,43 @@ The objects returned by Bio::DB::GFF are compatible with the
 SeqFeatureI interface, allowing their use by the Bio::Graphics and
 Bio::DAS modules.
 
+=head2 Auxiliary Scripts
+
+The bioperl distribution includes several scripts that make it easier
+to work with Bio::DB::GFF databases.  They are located in the scripts
+directory under a subdirectory named Bio::DB::GFF:
+
+=over 4
+
+=item load_gff.pl
+
+This script will load a Bio::DB::GFF database from a flat GFF file of
+sequence annotations.  Only the relational database version of
+Bio::DB::GFF is supported.  It can be used to create the database from
+scratch, as well as to incrementally load new data.
+
+=item bulk_load_gff.pl
+
+This script will populate a Bio::DB::GFF database from a flat GFF file
+of sequence annotations.  Only the MySQL database version of
+Bio::DB::GFF is supported.  It uses the "LOAD DATA INFILE" query in
+order to accelerate loading considerably; however, it can only be used
+for the initial load, and not for updates.
+
+=item gadfly_to_gff.pl
+
+This script will convert the GFF-like format used by the Berkeley
+Drosophila Sequencing project into a format suitable for use with this
+module.
+
+=item sgd_to_gff.pl
+
+This script will convert the tab-delimited feature files used by the
+Saccharomyces Genome Database into a format suitable for use with this
+module.
+
+=back
+
 =head2 GFF Fundamentals
 
 The GFF format is a flat tab-delimited file, each line of which
