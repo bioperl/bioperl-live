@@ -106,7 +106,7 @@ sub next_seq()
 	return undef if !defined($self->{_sequences}) or scalar(@{$self->{_sequences}}) < 1;
 
 	# get the next sequence
-	my $seq = pop(@{ $self->{_sequences} } );
+	my $seq = shift(@{ $self->{_sequences} } );
 
 	# Get the 5' and 3' ends
 	my ($source) = grep { $_->primary_tag() eq 'source' } $seq->get_SeqFeatures();
@@ -542,6 +542,17 @@ sub _process_protein_coding
 		$line = $self->_readline();
 	}
 
+	# Sort the sequences
+	@{$self->{_sequences}} = sort {
+		my($one, $two) = ( $a, $b );
+		($one) = grep { $_->primary_tag() eq 'source' } $one->get_SeqFeatures();
+		($two) = grep { $_->primary_tag() eq 'source' } $two->get_SeqFeatures();
+		return 0 unless defined $one and defined $two;
+		($one) = sort { $a <=> $b } $one->get_tagset_values(qw/end5 end3/);
+		($two) = sort { $a <=> $b } $two->get_tagset_values(qw/end5 end3/);
+		return $one <=> $two;
+	} @{$self->{_sequences}};
+
 	if($line =~ /<\/PROTEIN_CODING>/o) {
 		return;
 	}
@@ -851,28 +862,23 @@ sub _process_gene_info
 	}
 
 	while($line =~ /<GENE_ONTOLOGY>/o) {
-		# TODO: Add GO annotation
-		my( $assignment, $term, $type ) = ( $line =~
-			/<GENE_ONTOLOGY>\s*
-			   <GO_ID\s+ASSIGNMENT\s*=\s*"GO:(\d+)">\s*
-			   <DATE>.*<\/DATE>\s*
-			   <GO_TERM>([^<]+)<\/GO_TERM>\s*
-			   <GO_TYPE>([^<]+)<\/GO_TYPE>\s*
-			   .*
-			   <\/GO_ID>\s*
-			 <\/GENE_ONTOLOGY>\s*
-			/osx
-		);
-		if($type) {
-			# Get the source tag
-			my($source) = grep { $_->primary_tag() eq 'source' } $tu->get_SeqFeatures();
+		# Get the source tag
+		my($source) = grep { $_->primary_tag() eq 'source' } $tu->get_SeqFeatures();
 
-			# Add the GO Annotation
-			$source->add_tag_value(
+		my @ids = ( $line =~ /(<GO_ID.*?<\/GO_ID>)/gso);
+		foreach my $go (@ids) {
+			my($assignment) = ($go =~ /<GO_ID\s+ASSIGNMENT\s+=\s+"GO:(\d+)">/os);
+			my($term)       = ($go =~ /<GO_TERM>([^<]+)<\/GO_TERM>/os);
+			my($type)       = ($go =~ /<GO_TYPE>([^<]+)<\/GO_TYPE>/os);
+			# TODO: Add GO annotation
+			if(defined $type and defined $assignment and defined $term) {
+				# Add the GO Annotation
+				$source->add_tag_value(
 				GO => "ID: $assignment; Type: $type; $term"
-			);
+				);
+			}
 		}
-		$line = $self->_readline();
+		$line = $self->_readtag();
 	}
 	
 	if($line =~ /<\/GENE_INFO/o) {
