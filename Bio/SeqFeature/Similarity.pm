@@ -98,31 +98,6 @@ sub _initialize {
     return $make; # success - we hope!
 }
 
-#
-# Everything else is just inherited from SeqFeature::Generic.
-#
-
-=head2 _tag_value
-
- Title   : _tag_value
- Usage   : 
- Function: 
- Returns : 
- Args    : 
-
-
-=cut
-
-sub _tag_value {
-    my ($self, $tag, $value) = @_;
-
-    if(defined($value) || (! $self->has_tag($tag))) {
-	$self->remove_tag($tag) if($self->has_tag($tag));
-	$self->add_tag_value($tag, $value);
-    }
-    return ($self->each_tag_value($tag))[0];
-}
-
 =head2 significance
 
  Title   : significance
@@ -216,5 +191,9 @@ sub seqdesc {
 
     return $self->annotation()->description();
 }
+
+#
+# Everything else is just inherited from SeqFeature::Generic.
+#
 
 1;
