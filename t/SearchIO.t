@@ -20,7 +20,7 @@ BEGIN {
 	use lib 't';
     }
     use vars qw($NTESTS);
-    $NTESTS = 1014;
+    $NTESTS = 1031;
     $LASTXMLTEST = 54;
     $error = 0;
 
@@ -1461,6 +1461,30 @@ ok($hsp->query->frame,0);
 ok($hsp->hit->frame,0);
 ok($hsp->query->strand,1);
 ok($hsp->hit->strand,1);
+
+
+
+# Let's now test if _guess_format is doing its job correctly
+my %pair = ( 'filename.blast'  => 'blast',
+	     'filename.bls'    => 'blast',
+	     'f.blx'           => 'blast',
+	     'f.tblx'          => 'blast',
+	     'fast.bls'        => 'blast',
+	     'f.fasta'         => 'fasta',
+	     'f.fa'            => 'fasta',
+	     'f.fx'            => 'fasta',
+	     'f.fy'            => 'fasta',
+	     'f.ssearch'       => 'fasta',
+	     'f.SSEARCH.m9'    => 'fasta',
+	     'f.psearch'       => 'fasta',
+	     'f.osearch'       => 'fasta',
+	     'f.exon'          => 'exonerate',
+	     'f.exonerate'     => 'exonerate',
+	     'f.blastxml'      => 'blastxml',
+	     'f.xml'           => 'blastxml');
+while( my ($file,$expformat) = each %pair ) {
+    ok(Bio::SearchIO->_guess_format($file),$expformat, "$expformat for $file");
+}
 
 __END__
 
