@@ -1009,7 +1009,7 @@ sub alignment {
 	    push (@rseqmut, $rseqmutd);
 	    unshift (@rseqmut, $rseqmutu);
 	    
-	
+	    return unless $mut->AAChange;
 	    #translate
 	    my $tr = new Bio::Tools::CodonTable ('-id' => $mut->codon_table);
 	    my $apos =  $mut->AAChange->start;
