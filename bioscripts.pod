@@ -114,6 +114,11 @@ L<Bio::Graphics::FeatureFile> for more information.
 Create a PNG file on the Web using Bio::Graphics - accepts a file
 containing sequence and feature coordinates.
 
+=head2 scripts/graphics/search_overview.PLS
+
+Create a simple overview graphic of the hits, color is based on the hit 
+score much like the NCBI overview graphic in a BLAST report.
+
 =head2 scripts/index/bp_fetch.PLS
 
 Fetch sequences from local indexed database or over the network and
