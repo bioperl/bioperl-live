@@ -16,7 +16,7 @@ Bio::Seq::EncodedSeq - subtype of L<Bio::LocatableSeq|Bio::LocatableSeq> to stor
 
 =head1 SYNOPSIS
 
-  $obj = new Bio::Seq::EncodedSeq(-dnaseq => $dna, 
+  $obj = new Bio::Seq::EncodedSeq(-seq => $dna, 
                                   -encoding => "CCCCCCCIIIIICCCCC",
                                   -start => 1,
                                   -strand => 1,
@@ -151,16 +151,16 @@ use Bio::LocatableSeq;
 =head2 new
 
  Title   : new
- Usage   : $obj = Bio::EncodedSeq->new(-seq      => "AGTACGTGTCATG",
-                                       -encoding => "CCCCCCFCCCCCC",
-                                       -id       => "myseq",
-                                       -start    => 1,
-                                       -end      => 13,
-                                       -strand   => 1
+ Usage   : $obj = Bio::Seq::EncodedSeq->new(-seq      => "AGTACGTGTCATG",
+                                            -encoding => "CCCCCCFCCCCCC",
+                                            -id       => "myseq",
+                                            -start    => 1,
+                                            -end      => 13,
+                                            -strand   => 1
                                       );
- Function: creates a new Bio::EncodedSeq object from a supplied DNA
+ Function: creates a new Bio::Seq::EncodedSeq object from a supplied DNA
            sequence
- Returns : a new Bio::EncodedSeq object
+ Returns : a new Bio::Seq::EncodedSeq object
 
  Args    : seq      - primary nucleotide sequence used to encode the
                       protein; note that any positions involved in a
@@ -465,7 +465,7 @@ sub _recheck_encoding {
            nucleotides that participate in an UTR, forward frameshift
            or intron, and replacing any unknown nucleotide implied by
            a backward frameshift or gap with N's.
- Returns : a Bio::EncodedSeq object, with an encoding consisting only
+ Returns : a Bio::Seq::EncodedSeq object, with an encoding consisting only
            of "CCCC..".
  Args    : nogaps - strip any gap characters (resulting from 'G' or 'B'
            encodings), rather than replacing them with N's.
@@ -507,10 +507,11 @@ sub cds {
 	}
     }
     
-    return ($self->can_call_new ? ref($self) : __PACKAGE__)->new(-seq => join('', grep { defined } @nt[$start..--$end]),
-								 -start => $self->start,
-								 -end => $self->end,
-								 -strand => 1, -alphabet => 'dna');
+    return ($self->can_call_new ? ref($self) : __PACKAGE__)->new
+	(-seq => join('', grep { defined } @nt[$start..--$end]),
+	 -start => $self->start,
+	 -end => $self->end,
+	 -strand => 1, -alphabet => 'dna');
 }
 
 =head2 translate
