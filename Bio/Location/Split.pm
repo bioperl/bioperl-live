@@ -118,7 +118,7 @@ sub new {
 
 sub sub_Location {
     my ($self, $order) = @_;
-
+    $order = 0 unless defined $order;
     if( defined($order) && ($order !~ /^-?\d+$/) ) {
 	$self->throw("value $order passed in to sub_Location is $order, an invalid value");
     } 
