@@ -88,7 +88,7 @@ sub new {
     defined $start  && $self->start($start);
     defined $end    && $self->end($end);
     if( defined $self->start && defined $self->end &&
-	$self->start > $self->end ) {
+	$self->start > $self->end && $self->strand != -1 ) {
 	$self->warn("When building a location start ($start) is expected to be less than end ($end), however it was not was not. Switching start and end and setting strand to -1");
 
 	$self->strand(-1);
