@@ -267,13 +267,13 @@ sub _from_BlastObj {
 =cut
 
 sub query {
-    my ($self, $query) = @_;
+    my ($self, @args) = @_;
 
-    if((! defined($self->feature1())) && (! defined($query))) {
+    if((! defined($self->feature1())) && (! @args)) {
 	my $qu = Bio::SeqFeature::Similarity->new();
 	$self->feature1($qu);
     }
-    return $self->feature1($query);
+    return $self->feature1(@args);
 }
 
 =head2 subject
@@ -289,13 +289,13 @@ sub query {
 =cut
 
 sub subject {
-    my ($self, $sbjct) = @_;
+    my ($self, @args) = @_;
 
-    if((! defined($self->feature2())) && (! defined($sbjct))) {
+    if((! defined($self->feature2())) && (! @args)) {
 	my $fea = Bio::SeqFeature::Similarity->new();
 	$self->feature2($fea);
     }
-    return $self->feature2($sbjct);
+    return $self->feature2(@args);
 }
 
 =head2 source_tag
@@ -311,12 +311,12 @@ sub subject {
 =cut
 
 sub source_tag {
-    my ($self, $value) = @_;
+    my ($self, @args) = @_;
 
-    if(defined($value)) {
-	$self->subject()->source_tag($value);
+    if(@args) {
+	$self->subject()->source_tag(@args);
     }
-    return $self->query()->source_tag($value);
+    return $self->query()->source_tag(@args);
 }
 
 =head2 significance
@@ -332,12 +332,12 @@ sub source_tag {
 =cut
 
 sub significance {
-    my ($self, $value) = @_;
+    my ($self, @args) = @_;
 
-    if(defined($value)) {
-	$self->subject()->significance($value);
+    if(@args) {
+	$self->subject()->significance(@args);
     }
-    return $self->query()->significance($value);
+    return $self->query()->significance(@args);
 }
 
 =head2 score
@@ -353,12 +353,12 @@ sub significance {
 =cut
 
 sub score {
-    my ($self, $value) = @_;
+    my ($self, @args) = @_;
 
-    if(defined($value)) {
-	$self->subject()->score($value);
+    if(@args) {
+	$self->subject()->score(@args);
     }
-    return $self->query()->score($value);
+    return $self->query()->score(@args);
 }
 
 =head2 bits
@@ -374,12 +374,12 @@ sub score {
 =cut
 
 sub bits {
-    my ($self, $value) = @_;
+    my ($self, @args) = @_;
 
-    if(defined($value)) {
-	$self->subject()->bits($value);
+    if(@args) {
+	$self->subject()->bits(@args);
     }
-    return $self->query()->bits($value);
+    return $self->query()->bits(@args);
 }
 
 1;
