@@ -278,20 +278,23 @@ sub get_Stream_by_batch {
 		  UID => join(',', grep { chomp; } <$fh> ),
 		  ];
    my $url = "$HOSTBASE/cgi-bin/Entrez/qserver.cgi";
-   
-   my $resp = $self->ua->request(POST $url,$wwwbuf );
-   my $content = $resp->content;
-   
-   if( ! $resp->is_success || $content =~ m/^ERROR/i ) {
-       $self->warn($resp->error_as_HTML());
-       $self->throw("Entrez Error - check query sequences!\n");
+   my $stream;
+   eval { 
+       my $resp = $self->ua->request(POST $url,$wwwbuf );
+       my $content = $resp->content;
+
+       if( ! $resp->is_success || $content =~ m/^ERROR/i ) {
+	   $self->warn($resp->error_as_HTML());
+	   $self->throw("Entrez Error - check query sequences!\n");
+       }
+       if(! defined($streamfmt)) {
+	   (undef, $streamfmt) = $self->request_format();
+       }
+       $stream = new IO::String($content);
+   };
+   if ( $@ ) {
+       $self->throw($@);
    }
-   if(! defined($streamfmt)) {
-       my $dummy;
-       ($dummy, $streamfmt) = $self->request_format();
-   }
-   my $stream = new IO::String($content);
-   
    return Bio::SeqIO->new('-fh' => $stream, '-format' => $streamfmt);
 }
 
@@ -358,8 +361,7 @@ sub _get_stream {
   }
   $content = join("\n", @data);
   if(! defined($streamfmt)) {
-      my $dummy;
-      ($dummy, $streamfmt) = $self->request_format();
+      (undef, $streamfmt) = $self->request_format();
   }
   my $stream = new IO::String($content);
   return Bio::SeqIO->new('-fh' => $stream, '-format' => $streamfmt);

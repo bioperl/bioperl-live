@@ -71,7 +71,7 @@ The rest of the documentation details each of the object methods. Internal metho
 
 package Bio::DB::GenPept;
 use strict;
-use vars qw(@ISA);
+use vars qw(@ISA $DEFAULTFORMAT);
 
 # Object preamble - inherits from Bio::DB::BioSeqI
 
@@ -79,25 +79,20 @@ use Bio::DB::RandomAccessI;
 use Bio::SeqIO;
 use IO::Socket;
 use IO::File;
+use Bio::Root::RootI;
 
-@ISA = qw(Bio::Root::Object Bio::DB::RandomAccessI);
+@ISA = qw(Bio::Root::RootI Bio::DB::RandomAccessI);
+$DEFAULTFORMAT = 'GenBank';
+# the new way to make modules a little more lightweight
+sub new {
+  my($class,@args) = @_;
 
-# new() is inherited from Bio::DB::SeqI
-
-# _initialize is where the heavy stuff will happen when new is called
-
-sub _initialize {
-  my($self,@args) = @_;
-
-  my $make = $self->SUPER::_initialize(@args);
-
-  my ($format) = $self->_rearrange([qw(FORMAT
-				       )],
+  my $self = bless {}, $class;
+  my ($format) = $self->_rearrange([qw(FORMAT)],
 				   @args);
-  $format = "GenBank" unless $format;
+  $format = $DEFAULTFORMAT unless $format;
   $self->request_format($format);
-# set stuff in self from @args
- return $make; # success - we hope!
+ return $self; # success - we hope!
 }
 
 =head2 get_Seq_by_id
