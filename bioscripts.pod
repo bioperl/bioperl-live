@@ -127,6 +127,10 @@ Indexes local databases, partners with bp_fetch.pl.
 
 Extract the sequence for a specified feature type.
 
+=head2 scripts/popgen/composite_LD.PLS
+
+An easy way to calculate composite linkage disequilibrium (LD).
+
 =head2 scripts/popgen/heterogeneity.PLS
 
 A test for distinguishing between selection and population
