@@ -18,7 +18,7 @@ BEGIN {
     }
 
     use Test;
-    plan tests => 3; 
+    plan tests => 4; 
 
 #    eval { require XML::Parser::PerlSAX; };
 #    if( $@ ) {
@@ -38,10 +38,11 @@ if( $error == 1 ) {
 
 use Bio::TreeIO;
 use Bio::Root::IO;
-
+my $verbose = $ENV{'BIOPERLDEBUG'};
 ok(1);
 
-my $treeio = new Bio::TreeIO(-format => 'newick',
+my $treeio = new Bio::TreeIO(-verbose => $verbose,
+			     -format => 'newick',
 			     -file   => Bio::Root::IO->catfile('t','data', 
 							       'LOAD_Ccd1.dnd'));
 ok($treeio);
@@ -53,9 +54,10 @@ my @nodes = $tree->get_nodes;
 
 foreach my $node ( @nodes ) {
     if( $node->isa('Bio::Tree::PhyloNode') ) {
-	print $node->id, " ", $node->bootstrap, "\n";
+	if( $verbose ) { print "id=", $node->id, 
+			 "; branch_len=", $node->branch_length, "\n"; }
     } else { 
-
+	print "node was $node\n" if( $verbose );
     }
 }
-# ok(@nodes, 5);
+ok(@nodes, 51);
