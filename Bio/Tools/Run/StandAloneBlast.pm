@@ -257,7 +257,7 @@ BEGIN {
      @BLASTALL_PARAMS = qw( p d i e m o F G E X I q r v b f g Q
 			    D a O J M W z K L Y S T l U y Z);
      @BLASTPGP_PARAMS = qw(d i A f e m o y P F G E X N g S H a I h c
-			   j J Z O M v b C R W z K L Y p k T Q B l U R);
+			   j J Z O M v b C R W z K L Y p k T Q B l U );
      @BL2SEQ_PARAMS = qw(i j p g o d a G E X W M q r F e S T m);
      $DEFAULTREADMETHOD = 'BLAST';
      $BLASTTYPE = 'ncbi';
