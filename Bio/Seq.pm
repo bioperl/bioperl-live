@@ -679,4 +679,8 @@ sub species {
     }
 }
 
+# keep AUTOLOAD happy
+sub DESTROY {
+    my ($self) = @_;   
+}
 1;
