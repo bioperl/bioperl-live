@@ -65,7 +65,7 @@ ok ( -e "Wibbl" );
 
     my $stream = $ind->get_PrimarySeq_stream();
     my $ok_4 = 1;
-    while( my $seq2 = $stream->next_primary_seq ) {
+    while( my $seq2 = $stream->next_seq ) {
 	unless ($seq2->isa('Bio::PrimarySeqI')) {
 	    $ok_4 = 0;
 	    last; # no point continuing...
