@@ -182,7 +182,7 @@ sub nextHSP {
        '-match'      => $match,
        '-positive'   => $positive, 
        '-gaps'       => $gaps,
-       '-hsplength'  => $hsplength + $gaps,
+       '-hsplength'  => $hsplength,
        '-p'          => $p,
        '-queryBegin' => $qb, 
        '-queryEnd'   => $qe, 
