@@ -95,7 +95,8 @@ BEGIN {
  Title   : new
  Usage   : my $alignio = new Bio::AlignIO(-format => 'phylip'
 					  -file   => '>file',
-					  -idlength => 10);
+					  -idlength => 10,
+					  -idlinebreak => 1);
  Function: Initialize a new L<Bio::AlignIO::phylip> reader or writer
  Returns : L<Bio::AlignIO> object
  Args    : [specific for writing of phylip format files]

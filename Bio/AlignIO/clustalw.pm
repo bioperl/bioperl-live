@@ -86,7 +86,7 @@ $LINELENGTH = 60;
            -file    => name of file to read in or with ">" - writeout
            -fh      => alternative to -file param - provide a filehandle 
                        to read from/write to 
-           -format  => type of Alignment Format to process
+           -format  => type of Alignment Format to process or produce
            -percentages => (clustalw only) display a percentage of identity
                            in each line of the alignment.
 
