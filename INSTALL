@@ -344,7 +344,8 @@ srsperl.pm		 Sequence Retrieval System (SRS)
 			 sequences
 			 Bio::LiveSeq::IO::SRS.pm
 			 See README in Bio/LiveSeq/IO
+
 Storable		 Persistent object storage & retrieval 
 			 Bio::DB::FileCache
 
-
+Parse::RecDescent        Parsing of Unigene files

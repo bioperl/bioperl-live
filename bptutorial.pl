@@ -174,10 +174,11 @@ which is meant to illustrate the use of a module and its methods.
 Running the bptutorial.pl script while going through this tutorial - or
 better yet, stepping through it with an interactive debugger - is a
 good way of learning bioperl.  The tutorial script is also a good
-place from which to cut-and-paste code for your scripts(rather than
-using the code snippets in this tutorial). The tutorial script should
-work on your machine - and if it doesn\'t it would probably be a good
-idea to find out why, before getting too involved with bioperl!
+place from which to cut-and-paste code for your scripts (rather than
+using the code snippets in this tutorial). Most of the scripts in the
+tutorial script should work on your machine - and if they don't it would
+probably be a good idea to find out why, before getting too involved
+with bioperl!
 
 This tutorial does not intend to be a comprehensive description of all
 the objects and methods available in bioperl.  For that the reader is
@@ -261,11 +262,11 @@ For accessing remote databases you will need:
 
 =item *
 
-File-Temp-0.09
+File-Temp
 
 =item *
 
-IO-String-1.01
+IO-String
 
 =back
 
@@ -275,77 +276,84 @@ For accessing Ace databases you will need:
 
 =item *
 
-AcePerl-1.68.
+AcePerl
 
 =back
 
 For remote blast searches you will need:
 
-=over 7
+=over 6
 
 =item *
 
-libwww-perl-5.48
+libwww-perl
 
 =item *
 
-Digest-MD5-2.12.
+Digest-MD5
 
 =item *
 
-HTML-Parser-3.13
+libnet
 
 =item *
 
-libnet-1.0703
+MIME-Base64
 
 =item *
 
-MIME-Base64-2.11
+URI
 
 =item *
 
-URI-1.09
-
-=item *
-
-IO-stringy-1.216
+IO-stringy
 
 =back
 
 For xml parsing you will need:
 
-=over 5
+=over 7
 
 =item *
 
-libxml-perl-0.07
+libxml-perl
 
 =item *
 
-XML-Parser-2.30
+XML-Parser
 
 =item *
 
-XML-Twig-2.02
+XML-Twig
 
 =item *
 
-XML-Writer-0.4
+XML-Writer
 
 =item *
 
-SOAP-Lite-0.52
+SOAP-Lite
 
 =item *
 
-XML-DOM-1.37
+XML-DOM
 
 =item *
 
-expat-1.95.1 from http://sourceforge.net/projects/expat/
+expat from http://sourceforge.net/projects/expat/
 
 =back
+
+For Unigene parsing you will need:
+
+=over 1
+
+=item *
+
+Parse-RecDescent
+
+=back
+
 
 For more current and additional information on external modules
 required by bioperl, check http://bioperl.org/Core/external.shtml
