@@ -294,12 +294,12 @@ sub new {
 sub start {
   my $self = shift;
   return $self->strand < 0 ? $self->{stop} : $self->{start} if $self->absolute;
-  $self->abs2rel($self->{start});
+  $self->_abs2rel($self->{start});
 }
 sub stop {
   my $self = shift;
   return $self->strand < 0 ? $self->{start} : $self->{stop} if $self->absolute;
-  $self->abs2rel($self->{stop});
+  $self->_abs2rel($self->{stop});
 }
 
 sub length {
@@ -672,20 +672,22 @@ sub new_from_segment {
   return bless $new,__PACKAGE__;
 }
 
-=head2 abs2rel
+=head2 _abs2rel
 
- Title   : abs2rel
- Usage   : @coords = $s->abs2rel(@coords)
+ Title   : _abs2rel
+ Usage   : @coords = $s->_abs2rel(@coords)
  Function: convert absolute coordinates into relative coordinates
  Returns : a list of relative coordinates
  Args    : a list of absolute coordinates
  Status  : Internal
 
-This is used internally to map from absolute to relative coordinates.
+This is used internally to map from absolute to relative
+coordinates. It does not take the offset of the reference sequence
+into account, so please use abs2rel() instead.
 
 =cut
 
-sub abs2rel {
+sub _abs2rel {
   my $self = shift;
   my @result;
   return unless defined $_[0];
@@ -706,15 +708,16 @@ sub abs2rel {
 =head2 rel2abs
 
  Title   : rel2abs
- Usage   : @coords = $s->re2absl(@coords)
+ Usage   : @coords = $s->rel2abs(@coords)
  Function: convert relative coordinates into absolute coordinates
  Returns : a list of absolute coordinates
  Args    : a list of relative coordinates
- Status  : Inernal
+ Status  : Public
 
-This is used internally to map from relative to absolute coordinates.
+This function takes a list of positions in relative coordinates to the
+segment, and converts them into absolute coordinates.
 
-=cut 
+=cut
 
 sub rel2abs {
   my $self = shift;
@@ -723,9 +726,40 @@ sub rel2abs {
   if ($self->absolute) {
     @result = @_;
   } else {
-    my ($refstart,$refstrand) = @{$self}{qw(refstart refstrand)};
-    @result = defined($refstrand) && $refstrand eq '-' ? map { $refstart - $_ + 1 } @_
-                                                       : map { $_ + $refstart + 1 } @_;
+    my ($abs_start,$abs_strand) = ($self->abs_start,$self->abs_strand);
+    @result = $abs_strand < 0 ? map { $abs_start - $_ + 1 } @_
+                              : map { $_ + $abs_start - 1 } @_;
+  }
+  # if called with a single argument, caller will expect a single scalar reply
+  # not the size of the returned array!
+  return $result[0] if @result == 1 and !wantarray;
+  @result;
+}
+
+=head2 abs2rel
+
+ Title   : abs2rel
+ Usage   : @rel_coords = $s-abs2rel(@abs_coords)
+ Function: convert absolute coordinates into relative coordinates
+ Returns : a list of relative coordinates
+ Args    : a list of absolutee coordinates
+ Status  : Public
+
+This function takes a list of positions in absolute coordinates
+and returns a list expressed in relative coordinates.
+
+=cut
+
+sub abs2rel {
+  my $self = shift;
+  my @result;
+
+  if ($self->absolute) {
+    @result = @_;
+  } else {
+    my ($abs_start,$abs_strand) = ($self->abs_start,$self->abs_strand);
+    @result = $abs_strand < 0 ? map { $abs_start - $_ + 1 } @_
+                              : map { $_ - $abs_start + 1 } @_;
   }
   # if called with a single argument, caller will expect a single scalar reply
   # not the size of the returned array!

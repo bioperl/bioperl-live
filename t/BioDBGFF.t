@@ -35,11 +35,15 @@ my %PREFERRED_DRIVERS  = map {$_=>$idx++} @PREFERRED_DRIVERS;
 my $cfg = ChooseDrivers() or bail(TEST_COUNT,'Skipped by user');
 QueryDb($cfg,{'prompt'=>1,'verbose'=>1});
 
-my $db = eval { Bio::DB::GFF->new('-adaptor' => 'dbi::mysqlopt',         # the "mysqlopt" adaptor *might* work with other databases....
-				  '-dsn'     => $cfg->{test_dsn},
-				  '-fasta'   => FASTA_FILES) };
+my @args = ( '-adaptor' => 'dbi::mysqlopt',         # the "mysqlopt" adaptor *might* work with other databases....
+	     '-dsn'     => $cfg->{test_dsn},
+	     '-fasta'   => FASTA_FILES);
+push @args,('-user' => $cfg->{test_user}) if $cfg->{test_user};
+push @args,('-pass' => $cfg->{test_pass}) if $cfg->{test_pass};
+
+my $db = eval { Bio::DB::GFF->new(@args) };
 ok($db);
-bail(TEST_COUNT - 2,"Couldn't open database so can't run other tests") unless $db;
+fail(TEST_COUNT - 2,"Couldn't open database so can't run other tests") unless $db;
 
 # exercise the loader
 ok($db->initialize(1));
@@ -368,9 +372,11 @@ sub QueryDb {
     ("Password for connecting to database $test_db?", $test_pass)
       if $prompt;
   $test_pass = undef if $test_pass eq 'undef';
-  
-  $cfg->{'test_db'} = $test_db;
+
+  $cfg->{'test_db'}   = $test_db;
   $cfg->{'test_host'} = $test_host;
+  $cfg->{'test_user'} = $test_user;
+  $cfg->{'test_pass'} = $test_pass;
   if ($test_host eq 'undef'  ||  $test_host eq 'localhost') {
     $test_host = '';
   }
@@ -396,6 +402,14 @@ sub bail ($;$) {
   my $explanation = shift;
   for (1..$count) {
     skip(1,0,$explanation);
+  }
+  exit 0;
+}
+
+sub fail ($) {
+  my $count = shift;
+  for (1..$count) {
+    ok(0);
   }
   exit 0;
 }
