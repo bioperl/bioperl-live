@@ -34,7 +34,11 @@ Bio::Index::EMBL - Interface for indexing (multiple) EMBL/Swissprot
         my $seq = $inx->fetch($id); # Returns Bio::Seq object
         print $seq->layout('GCG');
     }
-   
+
+    # alternatively
+
+    my $seq1 = $inx->get_Seq_by_id($id);
+    my $seq2 = $inx->get_Seq_by_acc($acc);   
 
 =head1 DESCRIPTION
 
@@ -240,6 +244,42 @@ sub fetch {
     } else {
 	$self->throw("Unable to find a record for $id in EMBL flat file index");
     }
+}
+
+=head2 get_Seq_by_id
+
+ Title   : get_Seq_by_id
+ Usage   : $seq = $db->get_Seq_by_id()
+ Function: retrieves a sequence object, identically to
+           ->fetch, but here behaving as a Bio::DB::BioSeqI
+ Returns : new Bio::Seq object
+ Args    : string represents the id
+
+
+=cut
+
+sub get_Seq_by_id{
+   my ($self,$id) = @_;
+
+   return $self->fetch($id);
+}
+
+=head2 get_Seq_by_acc
+
+ Title   : get_Seq_by_acc
+ Usage   : $seq = $db->get_Seq_by_acc()
+ Function: retrieves a sequence object, identically to
+           ->fetch, but here behaving as a Bio::DB::BioSeqI
+ Returns : new Bio::Seq object
+ Args    : string represents the accession number
+
+
+=cut
+
+sub get_Seq_by_acc {
+   my ($self,$id) = @_;
+
+   return $self->fetch($id);
 }
 
 

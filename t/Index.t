@@ -21,12 +21,13 @@
 
 
 ## We start with some black magic to print on failure.
-BEGIN { $| = 1; print "1..2\n"; 
+BEGIN { $| = 1; print "1..3\n"; 
 	use vars qw($loaded); }
 
 END {print "not ok 1\n" unless $loaded;}
 
 use Bio::Index::Fasta;
+use Bio::Index::SwissPfam;
 
 
 $loaded = 1;
@@ -39,6 +40,11 @@ $ind->make_index("$dir/t/seqs.fas");
 print "ok 2\n";
 $ind = 0;
 
+$ind = Bio::Index::SwissPfam->new('Wibbl2', 'WRITE');
+$ind->make_index("$dir/t/swisspfam.data");
+
+print "ok 3\n";
+$ind = 0;
 
 
 

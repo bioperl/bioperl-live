@@ -41,7 +41,8 @@ print "ok 1\n";    # 1st test passes.
 eval { my $gb = new Bio::DB::GenBank; $gb->get_Seq_by_id('MUSIGHBA1'); };
 
 if ($@) {
-	warn "Warning: Couldn't connect to Genbank with Bio::DB::GenBank.pm!\n$@";
+	warn "Warning: Couldn't connect to Genbank with Bio::DB::GenBank.pm!\n{Probably no network access.\n Skipping Test\n";
+	print "ok 2\n";
 } else {
 	my $gb = new Bio::DB::GenBank;
 	my $seq = $gb->get_Seq_by_id('MUSIGHBA1');
@@ -55,7 +56,8 @@ if ($@) {
 eval { my $gb = new Bio::DB::GenPept; $gb->get_Seq_by_id('195055'); };
 
 if ($@) {
-	warn "Warning: Couldn't connect to Genbank with Bio::DB::GenPept.pm!\n$@";
+	warn "Warning: Couldn't connect to Genbank with Bio::DB::GenPept.pm!\nProbably no network access\n";
+	print "ok 3\n";
 } else {
 	my $gb = new Bio::DB::GenPept;
 	my $seq = $gb->get_Seq_by_id('195055');

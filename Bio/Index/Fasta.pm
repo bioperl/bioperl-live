@@ -33,13 +33,19 @@ Bio::Index::Fasta - Interface for indexing (multiple) fasta files
         my $seq = $inx->fetch($id); # Returns Bio::Seq object
         print $seq->layout('GCG');
     }
-   
+
+    # or, alternatively
+
+    my $seq = $inx->get_Seq_by_id($id); #identical to fetch   
 
 =head1 DESCRIPTION
 
 Inherits functions for managing dbm files from Bio::Index::Abstract.pm,
 and provides the basic funtionallity for indexing fasta files, and
-retrieving the sequence from them.
+retrieving the sequence from them. 
+
+Bio::Index::Fasta supports the Bio::DB::BioSeqI interface, meaning
+it can be used a a Sequence database for other parts of bioperl
 
 =head1 FEED_BACK
 
@@ -287,6 +293,24 @@ sub fetch {
 	$self->throw("Unable to find a record for $id in Fasta index");
 	return;
     }
+}
+
+=head2 get_Seq_by_id
+
+ Title   : get_Seq_by_id
+ Usage   : $seq = $db->get_Seq_by_id()
+ Function: retrieves a sequence object, identically to
+           ->fetch, but here behaving as a Bio::DB::BioSeqI
+ Returns : new Bio::Seq object
+ Args    : string represents the id
+
+
+=cut
+
+sub get_Seq_by_id{
+   my ($self,$id) = @_;
+
+   return $self->fetch($id);
 }
 
 

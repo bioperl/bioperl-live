@@ -112,6 +112,11 @@ sub _initialize {
     # Open database
     $self->_open_dbm($write_flag);
     
+    if( $ISA[0] eq "Bio::Index::Abstract" ) { 
+	my $type = $self->_code_base();
+	bless $self, $type;
+    }
+	
     # Check or set this is the right kind and version of index
     $self->_type_and_version();
     
@@ -262,6 +267,28 @@ sub _type_stamp {
     
     $self->throw("In Bio::Index::Abstract, no _type_stamp method in sub class");
 }
+=head2 _code_base
+
+ Title   : _code_base
+ Usage   : $code = $db->_code_base();
+ Function:
+ Example :
+ Returns : Code package to be used with this 
+ Args    :
+
+
+=cut
+
+sub _code_base{
+   my ($self) = @_;
+   my $code_key    = '__CODE_BASE';
+   my($code,$version) = $self->unpack_record( $self->db->{$code_key} );
+   if( wantarray ) {
+       return ($code,$version);
+   } else {
+       return $code;
+   }
+}
 
 
 =head2 _type_and_version
@@ -281,6 +308,7 @@ sub _type_stamp {
 sub _type_and_version {
     my $self    = shift;
     my $key     = '__TYPE_AND_VERSION';
+    my $key2    = '__CODE_BASE';
     my $version = $self->_version();
     my $type    = $self->_type_stamp();
     
@@ -293,6 +321,8 @@ sub _type_and_version {
             unless $db_type eq $type;
     } else {
         $self->add_record( $key, $type, $version )
+            or $self->throw("Can't add Type and Version record");
+        $self->add_record( $key2, $ISA[0], $version )
             or $self->throw("Can't add Type and Version record");
     }
     return 1;
@@ -492,7 +522,7 @@ sub pack_record {
 
   Title   : unpack_record
   Usage   : $index->unpack_record( STRING )
-  Function: Splits the sting provided into a 3 element array,
+  Function: Splits the sting provided into an array,
             splitting on ASCII 034.
   Example : ( $fileNumber, $begin, $end ) = $index->unpack_record( $self->db->{$id} )
   Returns : A 3 element ARRAY

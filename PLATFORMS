@@ -1,4 +1,4 @@
-# $Id: PLATFORMS,v 1.3 1999-02-27 12:27:37 sac Exp $
+# $Id: PLATFORMS,v 1.4 1999-04-06 15:52:13 birney Exp $
 
 
 Tested systems & OS Specific Comments or Warnings
@@ -35,6 +35,8 @@ Compiler: cc
 Perl    : 5.003, 5.004
 Comments: RestrictionEnzyme.t and Seq.t tests all fail under
           Perl 5.003 for as of yet unknown reasons.
+          
+          For Compile/SW add -fPIC to the libs/makefile CFLAGS line
 
 Machine : Apple PowerMac 7600/180 running LinuxPPC
         : Based on Red Hat Linux release 5.0 (Hurricane)
@@ -46,6 +48,10 @@ Comments: BLAST test #29 failed during 'make test' because system was
           test' works perfectly. Ewan's XS extensions compile without
           error and pass 'make test' as well. 
 
+Machine : NetBSD, i386 chip set
+Compiler: cc
+Perl    : 5.003, 5.004
+Comments: For Compile/SW add -fPIC to the libs/makefile CFLAGS line
 
 
 

@@ -1,5 +1,5 @@
 # Bioperl Manifest List
-# $Id: MANIFEST,v 1.10 1999-04-05 14:33:18 birney Exp $
+# $Id: MANIFEST,v 1.11 1999-04-06 15:52:13 birney Exp $
 #
 MANIFEST
 Makefile.PL
@@ -35,7 +35,7 @@ Bio/Tools/Sigcleave.pm
 Bio/Tools/RestrictionEnzyme.pm
 Bio/Index/Abstract.pm
 Bio/Index/Fasta.pm
-Bio/Index/Embl.pm
+Bio/Index/EMBL.pm
 Bio/DB/BioSeqI.pm
 Bio/DB/GenBank.pm
 Bio/DB/GenPept.pm
