@@ -60,6 +60,10 @@ Arguments are as follows:
   -primary_id  an alias for -name
   -display_id  an alias for -name
   -display_name an alias for -name  (do you get the idea the API has changed?)
+  -url         a URL to link to when rendered with Bio::Graphics
+  -configurator an object (like a Bio::Graphics::FeatureFile) that knows how 
+               to configure the graphical representation of the object based
+               on its type.
   -attributes  a hashref of tag value attributes, in which the key is the tag
                and the value is an array reference of values
   -factory     a reference to a feature factory, used for compatibility with
@@ -79,6 +83,10 @@ A number of new methods are provided for compatibility with
 Ace::Sequence, which has a slightly different API from SeqFeatureI:
 
 =over 4
+
+=item url()
+
+Get/set the URL that the graphical rendering of this feature will link to.
 
 =item add_segment(@segments)
 
@@ -105,6 +113,12 @@ An alias for seqname().
 =item exons()
 
 An alias for sub_SeqFeature() (you don't want to know why!)
+
+=item configurator()
+
+Get/set the configurator that knows how to adjust the graphical
+representation of this feature based on its type.  Currently the only
+configurator that will work is Bio::Graphics::FeatureFile.
 
 =back
 
@@ -157,13 +171,9 @@ sub new {
   $self->{start}   = $arg{-start};
   $self->{stop}    = $arg{-end} || $arg{-stop};
   $self->{ref}     = $arg{-ref};
-  $self->{class}   = $arg{-class} if exists $arg{-class};
-  $self->{url}     = $arg{-url}   if exists $arg{-url};
-  $self->{seq}     = $arg{-seq}   if exists $arg{-seq};
-  $self->{phase}   = $arg{-phase} if exists $arg{-phase};
-  $self->{desc}    = $arg{-desc}  if exists $arg{-desc};
-  $self->{attrib}  = $arg{-attributes} if exists $arg{-attributes};
-  $self->{factory} = $arg{-factory} if exists $arg{-factory};
+  for my $option (qw(class url seq phase desc attrib factory configurator)) {
+    $self->{$option} = $arg{"-$option"} if exists $arg{"-$option"};
+  }
 
   # fix start, stop
   if (defined $self->{stop} && defined $self->{start}
@@ -508,6 +518,7 @@ sub url {
 # make a link
 sub make_link {
   my $self = shift;
+
   if (my $url = $self->url) {
     return $url;
   }
