@@ -16,7 +16,7 @@ BEGIN {
     }
     use Test;
 
-    plan tests => 81;
+    plan tests => 97;
 }
 
 use Bio::Location::Simple;
@@ -440,6 +440,87 @@ ok $res->strand, -1;
 $g2->exons(@exons);
 
 #map_snps($g2, @snp_dump);
+
+
+$match1 = Bio::Location::Simple->new 
+    (-seq_id => 'a', -start => 5, -end => 17, -strand=>1 );
+$match2 = Bio::Location::Simple->new
+    (-seq_id => 'b', -start => 1, -end => 13, -strand=>-1 );
+ok $pair = Bio::Coordinate::Pair->new(-in => $match1,
+					 -out => $match2,
+					);
+
+#
+# split location
+#
+
+ok my $split = new Bio::Location::Split;
+ok $split->add_sub_Location(new Bio::Location::Simple(-start=>6,
+                                                      -end=>8,
+                                                      -strand=>1));
+$split->add_sub_Location(new Bio::Location::Simple(-start=>15,
+                                                   -end=>16,
+                                                   -strand=>1));
+
+$res=$pair->map($split);
+ok my @sublocs = $res->each_Location(1);
+ok @sublocs, 2;
+
+#print Dumper \@sublocs;
+ok $sublocs[0]->start, 2;
+ok $sublocs[0]->end, 3;
+ok $sublocs[1]->start, 10;
+ok $sublocs[1]->end, 12;
+
+# test  cds -> gene/chr which generates a split location from a simple one
+
+# exons in reverse strand!
+#
+#  pept   33222     111
+#  cds    8   4     3 1-1
+#  exon   5   1     5   1
+#  gene  13   9     3 1-2
+#         |---|     |---|
+#-----|-------------------
+# chr 1   5   9    15   19
+#           e1        e2
+
+# gene
+$e1 = Bio::Location::Simple->new
+    (-seq_id => 'gene', -start => 5, -end => 9, -strand=>-1 );
+$e2 = Bio::Location::Simple->new 
+    (-seq_id => 'gene', -start => 15, -end => 19, -strand=>-1 );
+@cexons = ($e1, $e2);
+my $cds= Bio::Location::Simple->new
+    (-seq_id => 'gene', -start => 13, -end => 17, -strand=>-1 );
+
+$m = new Bio::Coordinate::GeneMapper(-in=>'cds', -out=>'chr');
+
+$m->cds($cds); # this has to be set first!?
+ok $m->exons(@cexons), 2;
+
+#print Dumper $m;
+#exit;
+$res = $m->map($res);
+ok @sublocs = $res->each_Location(1);
+ok @sublocs, 2;
+
+#print Dumper \@sublocs;
+ok $sublocs[0]->start, 6;
+ok $sublocs[0]->end, 8;
+ok $sublocs[1]->start, 15;
+ok $sublocs[1]->end, 16;
+
+
+
+
+
+
+
+
+
+
+
 
 
 

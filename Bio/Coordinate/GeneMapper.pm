@@ -52,7 +52,7 @@ between them:
                            cds  (transcript start and end)
                             ^
         negative_introns    | \
-                    ^       |  \  transcript 
+                    ^       |  \  transcript
                      \      |   \
         inex  =  introns  exons  \
                        ^    ^    /
@@ -175,7 +175,7 @@ $DAG = {
 	5  => [6],
 	4  => [7],
 	3  => [],
-	2  => [4, 5, 7],
+	2  => [4, 5],
 	1  => [2]
        };
 
@@ -366,13 +366,13 @@ sub peptide {
 
 
        my $a = $self->_create_pair
-	   ('propeptide', 'peptide', $self->strict, 
+	   ('propeptide', 'peptide', $self->strict,
 	    $self->{'_peptide_offset'}, $self->{'_peptide_length'} );
        my $mapper =  $COORDINATE_SYSTEMS{'propeptide'}. "-".  $COORDINATE_SYSTEMS{'peptide'};
        $self->{'_mappers'}->{$mapper} = $a;
    }
    return  Bio::Location::Simple->new
-       (-seq_id => 'propeptide', 
+       (-seq_id => 'propeptide',
 	-start => $self->{'_peptide_offset'} + 1 ,
 	-end => $self->{'_peptide_length'} + $self->{'_peptide_offset'},
 	-strand => 1
@@ -489,7 +489,7 @@ sub exons {
 
    if(@value) {
        if (ref($value[0]) &&
-	   $value[0]->isa('Bio::SeqFeatureI') and 
+	   $value[0]->isa('Bio::SeqFeatureI') and
 	   $value[0]->location->isa('Bio::Location::SplitLocationI')) {
 	   @value = $value[0]->location->each_Location;
        } else {
@@ -737,11 +737,11 @@ sub map {
    my ($self,$value) = @_;
    my ($res);
 
-   $self->throw("Need to pass me a Bio::Location::Simple or Bio::SeqFeatureI")
-       unless defined $value;
-   $self->throw("Need to pass me a Bio::Location::Simple, not [".
+   $self->throw("Need to pass me a Bio::Location::Simple or ".
+                "Bio::Location::Simple or Bio::SeqFeatureI, not [".
 		ref($value). "]")
-       unless ref($value) && ($value->isa('Bio::Location::Simple') or 
+       unless ref($value) && ($value->isa('Bio::Location::Simple') or
+                              $value->isa('Bio::Location::SplitLocationI') or
 			      $value->isa('Bio::SeqFeatureI'));
    $self->throw("Input coordinate system not set")
        unless $self->{'_in'};
@@ -750,7 +750,7 @@ sub map {
    $self->throw("Do not be silly. Input and output coordinate ".
 		"systems are the same!")
        unless $self->{'_in'} != $self->{'_out'};
-   
+
    $self->_check_direction();
 
    $value = $value->location if $value->isa('Bio::SeqFeatureI');
@@ -759,7 +759,7 @@ sub map {
 
 
    # if nozero coordinate system is used in the input values
-   if ( defined $self->{'_nozero'} && 
+   if ( defined $self->{'_nozero'} &&
 	( $self->{'_nozero'} == 1 || $self->{'_nozero'} == 3 ) ) {
        $value->start($value->start + 1)
 	   if defined $value->start && $value->start < 1;
@@ -791,7 +791,11 @@ sub map {
 	   $value->seq_id($COORDINATE_INTS{$counter});
 	   print STDERR "-   $mapper\n" if $self->verbose > 0;
        } else {
-	   # generic mapping
+
+           #
+	   # the DEFAULT : generic mapping
+           #
+
 	   $value = $self->{'_mappers'}->{$mapper}->map($value);
 	   print STDERR "+  $mapper (", $self->direction, ")\n"
 	       if $self->verbose > 0;
@@ -806,27 +810,40 @@ sub map {
 #	       $value = $res->match if defined $res;
 #	   }
        }
-       if ( $value->isa('Bio::Location::SplitLocationI')) {
-	   return undef unless $value->match;
-	   if ( $value->each_match > 1 ) {
-	       my @matches = $value->each_match;
-	       $value = Bio::Location::Simple->new
-		   (-seq_id => $matches[0]->seq_id,
-		    -start => $matches[0]->start,
-		    -end => $matches[-1]->end,
-		    -strand=>$matches[0]->strand );
-	   }
-       }
+#       if ( $value->isa('Bio::Location::SplitLocationI')) {
+#	   return undef unless $value->match;
+#	   if ( $value->each_match > 1 ) {
+#	       my @matches = $value->each_match;
+#	       $value = Bio::Location::Simple->new
+#		   (-seq_id => $matches[0]->seq_id,
+#		    -start => $matches[0]->start,
+#		    -end => $matches[-1]->end,
+#		    -strand=>$matches[0]->strand );
+#	   }
+#       }
    }
    # if nozero coordinate system is asked to be used in the output values
-   if ( defined $value && defined $self->{'_nozero'} && 
+   if ( defined $value && defined $self->{'_nozero'} &&
 	( $self->{'_nozero'} == 2 || $self->{'_nozero'} == 3 ) ) {
 
        $value->start($value->start - 1)
 	   if defined $value->start && $value->start < 1;
-       $value->end($value->end - 1) 
+       $value->end($value->end - 1)
 	   if defined $value->end && $value->end < 1;
    }
+
+   # handle merging adjacent split locations!
+
+   if ($value->isa("Bio::Location::SplitLocationI")) {
+       my $prevloc;
+       foreach my $loc ( $value->each_Location(1) ) {
+           next unless $prevloc;
+           if ($prevloc->end == ($loc->start - 1) ) {};
+           $prevloc = $loc;
+       }
+   }
+
+
    return $value;
 }
 
@@ -856,7 +873,7 @@ sub direction {
            (input <-> output)
  Example :
  Returns : 1
- Args    : 
+ Args    :
 
 =cut
 
@@ -880,7 +897,7 @@ sub swap {
  Function: Dump the mapping values into human readable format
  Example :
  Returns : string
- Args    : 
+ Args    :
 
 =cut
 
@@ -917,7 +934,7 @@ sub to_string {
 		       $i%2 == 1 ? ($inex = 'exon') : ($inex = 'intron');
 		       printf "%2s :%8s -> %-12s%-6s\n", $i, $pair->in->start, $pair->out->start, "$inex$ex" ;
 		       printf "%2s :%8s -> %-12s\n", '', $pair->in->end, $pair->out->end ;
-		       $i++; 
+		       $i++;
 		       $ex++ if $inex eq 'exon';
 		   }
 
@@ -978,7 +995,7 @@ sub to_string {
 
 
 #	   printf "%12s -> %-12s\n",
-#	       $self->{'_mappers'}->{$mapper}->{'_in'}->start, 
+#	       $self->{'_mappers'}->{$mapper}->{'_in'}->start,
 #		   $self->{'_mappers'}->{$mapper}->{'_out'}->start;
        }
    } continue {
@@ -999,7 +1016,7 @@ sub to_string {
 
  Title   : _create_pair
  Usage   : $mapper = $obj->_create_pair('chr', 'gene', 0, 2555, 10000, -1);
- Function: Internal helper method to create a mapper between 
+ Function: Internal helper method to create a mapper between
            two coordinate systems
  Returns : a Bio::Coordinate::Pair object
  Args    : string, input coordinate system name,
@@ -1013,8 +1030,8 @@ sub to_string {
 
 sub _create_pair {
    my ($self, $in, $out, $strict, $offset, $length, $strand ) = @_;
-   $strict ||=0;
-   $strand ||=1;
+   $strict ||= 0;
+   $strand ||= 1;
    $length ||= 20;
 
    my $match1 = Bio::Location::Simple->new
@@ -1027,11 +1044,11 @@ sub _create_pair {
 	-start => 1,
 	-end => $length, -strand=>$strand );
 
-   my $pair = Bio::Coordinate::ExtrapolatingPair->
-       new(-in => $match1,
-	   -out => $match2,
-	   -strict => $strict
-	  );
+   my $pair = Bio::Coordinate::ExtrapolatingPair->new
+       (-in => $match1,
+        -out => $match2,
+        -strict => $strict
+       );
 
    return $pair;
 
@@ -1041,43 +1058,76 @@ sub _create_pair {
 =head2 _translate
 
  Title   : _translate
- Usage   : $newpos = $obj->_translate(5);
+ Usage   : $newpos = $obj->_translate($loc);
  Function: Translate the location from the CDS coordinate system
            to a new value in the propeptide coordinate system.
  Example :
  Returns : new location
- Args    : a Bio::Location::Simple
+ Args    : a Bio::Location::Simple or Bio::Location::SplitLocationI
 
 =cut
 
 sub _translate {
    my ($self,$value) = @_;
 
-   $self->throw("Need to pass me a Bio::Location::Simple, not [".
-		ref($value). "]")
-       unless defined $value->isa('Bio::Location::Simple');
+   $self->throw("Need to pass me a Bio::Location::Simple or ".
+                "Bio::Location::SplitLocationI, not [". ref($value). "]")
+       unless defined $value &&
+           ($value->isa('Bio::Location::Simple') || $value->isa('Bio::Location::SplitLocationI'));
 
-   my $loc = new Bio::Location::Simple;
-   $loc->start(int($value->start / 3 )+1);
-   $loc->end(int($value->end / 3 )+1);
-   $loc->seq_id('propeptide');
-   $loc->strand(1);
-   return $loc;
+   my $seqid = 'propeptide';
+
+   if ($value->isa("Bio::Location::SplitLocationI")) {
+       my $split = new Bio::Location::Split(-seq_id=>$seqid);
+       foreach my $loc ( $value->each_Location(1) ) {
+
+           my $match = new Bio::Location::Simple(-start => int($loc->start / 3 )+1,
+                                                 -end => int($loc->end / 3 )+1,
+                                                 -seq_id => $seqid,
+                                                 -strand => 1
+                                                );
+           $split->add_sub_Location($match);
+       }
+       return $split;
+
+   } else {
+       return new Bio::Location::Simple(-start => int($value->start / 3 )+1,
+                                        -end => int($value->end / 3 )+1,
+                                        -seq_id => $seqid,
+                                        -strand => 1
+                                       );
+   }
 }
 
 sub _frame {
    my ($self,$value) = @_;
 
-   $self->throw("Need to pass me a Bio::Location::Simple, not [".
-		ref($value). "]")
-       unless defined $value->isa('Bio::Location::Simple');
+   $self->throw("Need to pass me a Bio::Location::Simple or ".
+                "Bio::Location::SplitLocationI, not [". ref($value). "]")
+       unless defined $value &&
+           ($value->isa('Bio::Location::Simple') || $value->isa('Bio::Location::SplitLocationI'));
 
-   my $loc = new Bio::Location::Simple;
-   $loc->start( ($value->start-1) % 3 +1);
-   $loc->end( ($value->end-1) % 3 +1);
-   $loc->seq_id('frame');
-   $loc->strand(1);
-   return $loc;
+   my $seqid = 'propeptide';
+
+   if ($value->isa("Bio::Location::SplitLocationI")) {
+       my $split = new Bio::Location::Split(-seq_id=>$seqid);
+       foreach my $loc ( $value->each_Location(1) ) {
+
+           my $match = new Bio::Location::Simple(-start => ($value->start-1) % 3 +1,
+                                                 -end => ($value->end-1) % 3 +1,
+                                                 -seq_id => 'frame',
+                                                 -strand => 1
+                                       );
+           $split->add_sub_Location($match);
+       }
+       return $split;
+   } else {
+       return new Bio::Location::Simple(-start => ($value->start-1) % 3 +1,
+                                        -end => ($value->end-1) % 3 +1,
+                                        -seq_id => 'frame',
+                                        -strand => 1
+                                       );
+   }
 }
 
 
@@ -1091,24 +1141,41 @@ sub _frame {
            the codon triplet
  Example :
  Returns : new location in the CDS coordinate system
- Args    : a Bio::Location::Simple
+ Args    : a Bio::Location::Simple or Bio::Location::SplitLocationI
 
 =cut
 
 sub _reverse_translate {
    my ($self,$value) = @_;
 
-   $self->throw("Need to pass me a Bio::Location::Simple, not [".
-		ref($value). "]")
-       unless defined $value->isa('Bio::Location::Simple');
 
-   my $loc = new Bio::Location::Simple;
-   $loc->start($value->start * 3 - 2);
-   $loc->end($value->end * 3 );
-   $loc->seq_id('cds');
-   $loc->strand(1);
-   return $loc;
+   $self->throw("Need to pass me a Bio::Location::Simple or ".
+                "Bio::Location::SplitLocationI, not [". ref($value). "]")
+       unless defined $value &&
+           ($value->isa('Bio::Location::Simple') || $value->isa('Bio::Location::SplitLocationI'));
 
+   my $seqid = 'cds';
+
+   if ($value->isa("Bio::Location::SplitLocationI")) {
+       my $split = new Bio::Location::Split(-seq_id=>$seqid);
+       foreach my $loc ( $value->each_Location(1) ) {
+
+           my $match = new Bio::Location::Simple(-start => $value->start * 3 - 2,
+                                               -end => $value->end * 3,
+                                               -seq_id => $seqid,
+                                               -strand => 1
+                                              );
+           $split->add_sub_Location($match);
+       }
+       return $split;
+
+   } else {
+       return new Bio::Location::Simple(-start => $value->start * 3 - 2,
+                                        -end => $value->end * 3,
+                                        -seq_id => $seqid,
+                                        -strand => 1
+                                       );
+   }
 }
 
 
@@ -1145,7 +1212,7 @@ sub _check_direction {
  Usage   : $obj->_get_path('peptide');
  Function: internal method for finding that shortest path between
            input and output coordinate systems.
-           Calcultaions and caching are handled by the graph class.
+           Calculations and caching are handled by the graph class.
            See L<Bio::Coordinate::Graph>.
  Example :
  Returns : array of the mappers

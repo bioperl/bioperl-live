@@ -249,11 +249,11 @@ sub test {
 =head2 map
 
  Title   : map
- Usage   : $newpos = $obj->map(5);
- Function: Map the location from the input coordinate system 
+ Usage   : $newpos = $obj->map($pos);
+ Function: Map the location from the input coordinate system
            to a new value in the output coordinate system.
  Example :
- Returns : new value in the output coordiante system
+ Returns : new value in the output coordinate system
  Args    : integer
 
 =cut
@@ -269,6 +269,43 @@ sub map {
        unless $self->each_mapper;
 
    $self->sort unless $self->_is_sorted;
+
+
+   if ($value->isa("Bio::Location::SplitLocationI")) {
+
+       my $result = new Bio::Coordinate::Result; #use Data::Dumper; print Dumper $self;
+#       my $split = new Bio::Location::Split(-seq_id=>$self->out->seq_id);
+       foreach my $loc ( $value->sub_Location(1) ) {
+
+           my $res = $self->_map($loc);
+           map { $result->add_sub_Location($_) } $res->each_Location;
+
+       }
+       return $result;
+
+   } else {
+       return $self->_map($value);
+   }
+
+
+}
+
+
+=head2 _map
+
+ Title   : _map
+ Usage   : $newpos = $obj->_map($simpleloc);
+ Function: Internal method that does the actual mapping. Called multiple times
+           by map() if the location  to be mapped is a split location
+
+ Example :
+ Returns : new location in the output coordinate system or undef
+ Args    : Bio::Location::Simple
+
+=cut
+
+sub _map {
+   my ($self,$value) = @_;
 
    my $result = Bio::Coordinate::Result->new(-is_remote=>1);
 
@@ -293,17 +330,17 @@ IDMATCH: {
 	   $result->add_result($subres);
        }
    }
-   if ( $self->return_match ) {
-       return undef unless $result->match;
-       if ( $result->each_match > 1 ) {
-	   my @matches = $result->each_match;
-	   return Bio::Location::Simple->new
-	       (-seq_id => $matches[0]->seq_id,
-		-start => $matches[0]->start,
-		-end => $matches[-1]->end,
-		-strand=>$matches[0]->strand );
-       }
-   }
+#   if ( $self->return_match ) {
+#       return undef unless $result->match;
+#       if ( $result->each_match > 1 ) {
+#	   my @matches = $result->each_match;
+#	   return Bio::Location::Simple->new
+#	       (-seq_id => $matches[0]->seq_id,
+#		-start => $matches[0]->start,
+#		-end => $matches[-1]->end,
+#		-strand=>$matches[0]->strand );
+#       }
+#   }
    $result->seq_id($result->match->seq_id) if $result->match;
    unless ($result->each_Location) {
        #build one gap;

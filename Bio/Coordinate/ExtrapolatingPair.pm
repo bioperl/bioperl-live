@@ -72,8 +72,7 @@ use strict;
 # Object preamble - inherits from Bio::Root::Root
 use Bio::Root::Root;
 use Bio::LocationI;
-#use Bio::Coordinate::Result;
-use Bio::Coordinate::Result::Match;
+#use Bio::Coordinate::Result::Match;
 use Bio::Coordinate::Pair;
 
 @ISA = qw(Bio::Coordinate::Pair);
@@ -97,7 +96,7 @@ sub new {
 
  Title   : strict
  Usage   : $obj->strict(1);
- Function: Set and read the strictput coordinate system.
+ Function: Set and read the strictness of the coordinate system.
  Example :
  Returns : value of input system
  Args    : boolean
@@ -116,15 +115,15 @@ sub strict {
 =head2 map
 
  Title   : map
- Usage   : $newpos = $obj->map(5);
- Function: Map the location from the input coordinate system 
+ Usage   : $newpos = $obj->map($loc);
+ Function: Map the location from the input coordinate system
            to a new value in the output coordinate system.
 
            In extrapolating coodinate system there is no location zero.
            Locations are...
  Example :
- Returns : new value in the output coordinate system
- Args    : integer
+ Returns : new location in the output coordinate system or undef
+ Args    : Bio::Location::Simple
 
 =cut
 
@@ -140,9 +139,44 @@ sub map {
    $self->throw("Output coordinate system not set")
        unless $self->out;
 
-#   my $result = new Bio::Coordinate::Result;
+   my $match;
+
+   if ($value->isa("Bio::Location::SplitLocationI")) {
+
+       my $split = new Bio::Location::Split(-seq_id=>$self->out->seq_id);
+       foreach my $loc ( sort { $a->start <=> $b->start }
+                         $value->sub_Location ) {
+
+           $match = $self->_map($loc);
+           $split->add_sub_Location($match) if $match;
+
+       }
+       $split->each_Location ? (return $split) : (return undef) ;
+
+   } else {
+       return $self->_map($value);
+   }
+}
+
+
+=head2 _map
+
+ Title   : _map
+ Usage   : $newpos = $obj->_map($simpleloc);
+ Function: Internal method that does the actual mapping. Called multiple times
+           by map() if the location  to be mapped is a split location
+
+ Example :
+ Returns : new location in the output coordinate system or undef
+ Args    : Bio::Location::Simple
+
+=cut
+
+sub _map {
+   my ($self,$value) = @_;
 
    my ($offset, $start, $end);
+
    if ($self->strand == -1) {
        $offset = $self->in->end + $self->out->start;
        $start = $offset - $value->end;
@@ -170,7 +204,7 @@ sub map {
 	  );
    $match->strand($match->strand * $value->strand) if $value->strand;
    bless $match, 'Bio::Coordinate::Result::Match';
-#   $result->add_Location($match);
+
    return $match;
 }
 

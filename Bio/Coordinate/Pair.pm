@@ -226,11 +226,11 @@ sub test {
 =head2 map
 
  Title   : map
- Usage   : $newpos = $obj->map(5);
- Function: Map the location from the input coordinate system 
+ Usage   : $newpos = $obj->map($pos);
+ Function: Map the location from the input coordinate system
            to a new value in the output coordinate system.
  Example :
- Returns : new Bio::LocationI in the output coordiante system
+ Returns : new Bio::LocationI in the output coordinate system or undef
  Args    : Bio::LocationI object
 
 =cut
@@ -246,6 +246,42 @@ sub map {
        unless $self->in;
    $self->throw("Output coordinate system not set")
        unless $self->out;
+
+
+   if ($value->isa("Bio::Location::SplitLocationI")) {
+
+       my $result = new Bio::Coordinate::Result;
+       my $split = new Bio::Location::Split(-seq_id=>$self->out->seq_id);
+       foreach my $loc ( $value->sub_Location(1) ) {
+
+           my $res = $self->_map($loc);
+           map { $result->add_sub_Location($_) } $res->each_Location;
+
+       }
+       return $result;
+
+   } else {
+       return $self->_map($value);
+   }
+
+}
+
+
+=head2 _map
+
+ Title   : _map
+ Usage   : $newpos = $obj->_map($simpleloc);
+ Function: Internal method that does the actual mapping. Called multiple times
+           by map() if the location  to be mapped is a split location
+
+ Example :
+ Returns : new location in the output coordinate system or undef
+ Args    : Bio::Location::Simple
+
+=cut
+
+sub _map {
+   my ($self,$value) = @_;
 
    my $result = new Bio::Coordinate::Result;
 
@@ -399,5 +435,6 @@ sub map {
    }
    return $result;
 }
+
 
 1;
