@@ -12,29 +12,30 @@
 
 =head1 NAME
 
-Bio::Tools::WebBlat - DESCRIPTION of Class
+Bio::Tools::WebBlat - Run BLAT on UCSC CGI script
 
 =head1 SYNOPSIS
 
-Give standard usage here
+  my $webblat = Bio::Tools::WebBlat->new();
+  my $seq = Bio::Seq->new(display_id => 'foo' , seq => 'aataataat');
+  my $searchio = $webblat->create_searchio($seq);
+
+  while(my $result = $searchio->next_result){
+    #process Bio::SearchIO::ResultI
+  }
 
 =head1 DESCRIPTION
 
-Describe the object here
-
-=head1 FEEDBACK
-
-=head2 Mailing Lists
-
-=head2 Reporting Bugs
+Run BLAT at UCSC.  The useful method in this class after instantiation
+is create_searchio.  This factory method takes a Bio::Seq object as
+input, reformats it as Fasta, and sends it off to a CGI script running
+at www.genome.ucsc.edu.  The resultant PSL embedded in HTML is
+HTML-stripped and used to construct a Bio::SearchIO, which is passed
+back to the user.
 
 =head1 AUTHOR
 
   Allen Day E<lt>allenday@ucla.eduE<gt>
-
-=head1 CONTRIBUTORS
-
-Additional contributors names and emails here
 
 =head1 APPENDIX
 
