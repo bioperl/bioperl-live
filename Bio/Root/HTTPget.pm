@@ -21,7 +21,6 @@ LWP:: is unavailable
  Use Bio::Root::HTTPget;
 
  my $response = get('http://localhost');
-
  $response    = get('http://localhost/images');
 
  $response    = eval { get('http://fred:secret@localhost/ladies_only/') 
@@ -31,7 +30,6 @@ LWP:: is unavailable
                      } or warn $@;
 
  $response    = get('http://localhost/images/navauthors.gif');
-
  $response    = get(-url=>'http://www.google.com',
  		    -proxy=>'http://www.modperl.com');
 
@@ -168,6 +166,79 @@ sub get {
   }
 
   $response;
+}
+
+=head2 getFH
+
+ Title   : getFH
+ Usage   : 
+ Function:
+ Example :
+ Returns : string
+ Args    : 
+
+=cut
+
+sub getFH {
+  my ($url,$proxy,$timeout,$auth_user,$auth_pass) = 
+    __PACKAGE__->_rearrange([qw(URL PROXY TIMEOUT USER PASS)],@_);
+  my $dest  = $proxy || $url;
+
+  my ($host,$port,$path,$user,$pass) 
+    = _http_parse_url($dest) or __PACKAGE__->throw("invalid URL $url");
+  $auth_user ||= $user;
+  $auth_pass ||= $pass;
+  $path = $url if $proxy;
+
+  # set up the connection
+  my $socket = _http_connect($host,$port) or __PACKAGE__->throw("can't connect: $@");
+
+  # the request
+  print $socket "GET $path HTTP/1.0$CRLF";
+  print $socket "User-Agent: Bioperl fallback fetcher/1.0$CRLF";
+  # Support virtual hosts
+  print $socket "HOST: $host$CRLF";
+
+  if ($auth_user && $auth_pass) {  # authentication information
+    my $token = _encode_base64("$auth_user:$auth_pass");
+    print $socket "Authorization: Basic $token$CRLF";
+  }
+  print $socket "$CRLF";
+
+  # read the response
+  my $response;
+  {
+    local $/ = "$CRLF$CRLF";
+    $response = <$socket>;
+  }
+
+  my ($status_line,@other_lines) = split $CRLF,$response;
+  my ($stat_code,$stat_msg) = $status_line =~ m!^HTTP/1\.[01] (\d+) (.+)!
+    or __PACKAGE__->throw("invalid response from web server: got $response");
+
+  my %headers = map {/^(\S+): (.+)/} @other_lines;
+  if ($stat_code == 302 || $stat_code == 301) {  # redirect
+    my $location = $headers{Location} or __PACKAGE__->throw("invalid redirect: no Location header");
+    return get($location,$proxy,$timeout);  # recursive call
+  }
+
+  elsif ($stat_code == 401) { # auth required
+    my $auth_required = $headers{'WWW-Authenticate'};
+    $auth_required =~ /^Basic realm="([^\"]+)"/
+      or __PACKAGE__->throw("server requires unknown type of authentication: $auth_required");
+    __PACKAGE__->throw("request failed: $status_line, realm = $1");
+  }
+
+  elsif ($stat_code != 200) {
+    __PACKAGE__->throw("request failed: $status_line");
+  }
+
+  # Now that we are reasonably sure the socket and request
+  # are OK we pass the socket back as a filehandle so it can
+  # be processed by the caller...
+
+  $socket;
+
 }
 
 

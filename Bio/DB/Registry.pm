@@ -9,7 +9,7 @@ Bio::DB::Registry - Access to the Open Bio Database Access registry scheme
 
 =head1 SYNOPSIS
 
-    $registry = Bio::DB::Registry->new();
+    $registry = new Bio::DB::Registry();
 
     $db = $registry->get_database('embl');
 
@@ -53,12 +53,17 @@ use strict;
 use Bio::Root::Root;
 @ISA = qw(Bio::Root::Root);
 
+use Bio::Root::HTTPget;
+
 my %implement = (
 		 'biocorba'      => 'Bio::CorbaClient::SeqDB',
 		 'index-berkeleydb' => 'XYZ',
 		 'biosql' => 'Bio::DB::SQL::BioDatabaseAdaptor',
 		 'biofetch' => 'Bio::DB::BioFetch'
 		 );
+
+my $fallbackRegistryURL = 'http://www.open-bio.org/registry/seqdatabase.ini';
+
 
 sub new {
     my ($class) = shift;
@@ -78,19 +83,25 @@ sub _load_registry {
     my ($self) = @_;
 
     my $home = (getpwuid($>))[7];
-    
+    my $f;
     if( -e "$home/.bioinformatics/seqdatabase.ini" ) {
 	open(F,"$home/.bioinformatics/seqdatabase.ini");
+	$f = \*F;
     } elsif ( -e "/etc/bioinformatics/seqdatabase.ini" ) {
 	open(F,"$home/.bioinformatics/seqdatabase.ini");
+	$f = \*F;
     } else {
 	# waiting for information
-	$self->warn("No conf file found in ~/.bioinformatics/ or in /etc/.bioinformatics/ using web to get database\n");
-	#raw sockets connection to get ini file from the web
-	$self->throw("Oooops. We haven't implemented web fall back position yet");
+	$self->warn("No conf file found in ~/.bioinformatics/ \nor in /etc/.bioinformatics/ using web to get database registry from \n$fallbackRegistryURL\n");
+
+	# Last gasp. Try to use HTTPget module to retrieve the registry from
+        # the web...
+
+	$f = Bio::Root::HTTPget::getFH($fallbackRegistryURL);
+
     }
 
-    while( <F> ) {
+    while( <$f> ) {
 	if( /^#/ ) {
 	    next;
 	}
@@ -102,7 +113,7 @@ sub _load_registry {
 	    my $db;
 	    $db = $1;
 	    my $hash = {};
-	    while( <F> ) {
+	    while( <$f> ) {
 		chomp();
 		/^#/ && next;
 		/^$/ && last;
@@ -160,7 +171,6 @@ sub get_database {
 
     return $db;
 }
-    
 
 
 ## End of Package
