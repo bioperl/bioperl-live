@@ -161,7 +161,7 @@ sub find { shift->throw_not_implemented; }
 
 # TBD: AFAIK this method is not implemented on the server side.
 #      Let's comment it out for the time being...
-#sub query { shift->_abstractDeath; }
+#sub query { shift->throw_not_implemented(); }
 
 # -----------------------------------------------------------------------------
 
