@@ -8,6 +8,18 @@ Bio::SeqFeature::TypeI - A feature type.
 
 =head1 DESCRIPTION
 
+  A TypeI is the type of a SeqFeature object.  It overloads the
+  stringification operator to behave as a string for backward
+  compatibility.  It is a Bio::Overload::TermI and participates in a
+  directed acyclic graph of ISA relationships (eg. the type 'SINE' isa
+  'transposable element').  Note that these relationships are not
+  (necessarily) reflected in a Perl hierarchy, and that the ISA
+  relationship is not the only possible relationship between types
+  (the HASA relationship may also be represented, for example), but is
+  the relationship implied in the methods referring to parents,
+  children, ancestors, and descendents.  Again: the ISA relating TypeI
+  objects has B<nothing> to do with the @ISA relating Perl classes!
+
 =head1 FEEDBACK
 
 =head2 Mailing Lists
@@ -55,17 +67,21 @@ use strict;
 use vars qw( $VERSION @ISA );
 use overload 
   '""' => 'toString',
-  cmp   => '_cmp';
+  cmp  => '_cmp';
+
+use Bio::Root::RootI;
+use Bio::Ontology::TermI;
+use Bio::LocallyIdentifiableI;
 
 $VERSION = '0.01';
-@ISA = qw( Bio::Root::RootI Bio::Ontology::TermI );
+@ISA = qw( Bio::Root::RootI Bio::Ontology::TermI Bio::LocallyIdentifiableI );
 
 =head2 parents
 
  Title   : parents
  Usage   : @parents = $feature_type->parents()
  Function: retrieves the parents of this feature type (ISA relationship parents)
- Returns : a list of Bio::SeqFeature::TypeI objects, or null if this is a root
+ Returns : a list of Bio::SeqFeature::TypeI objects, or undef if this is a root
  Args    : none
  Status  : Public
 
@@ -81,7 +97,7 @@ sub parents {
  Usage   : @children = $feature_type->children()
  Function: retrieves the children of this feature type
            (ISA relationship children)
- Returns : a list of Bio::SeqFeature::TypeI objects, or null if this is a leaf
+ Returns : a list of Bio::SeqFeature::TypeI objects, or undef if this is a leaf
  Args    : none
  Status  : Public
 
@@ -97,7 +113,7 @@ sub children {
  Usage   : @ancestors = $feature_type->ancestors()
  Function: retrieves the ancestors of this feature type
            (ISA relationship ancestors)
- Returns : a list of Bio::SeqFeature::TypeI objects, or null if this is a root;
+ Returns : a list of Bio::SeqFeature::TypeI objects, or undef if this is a root;
            the list will contain the ancestors in a breadth first traversal
            ordering (no element will appear after its ancestor)
  Args    : none
@@ -115,7 +131,7 @@ sub ancestors {
  Usage   : @descendents = $feature_type->descendents()
  Function: retrieves the descendents of this feature type
            (ISA relationship descendents)
- Returns : a list of Bio::SeqFeature::TypeI objects, or null if this is a leaf;
+ Returns : a list of Bio::SeqFeature::TypeI objects, or undef if this is a leaf;
            the list will contain the descendents in a breadth first traversal
            ordering (no element will appear after its descendent)
  Args    : none
@@ -133,7 +149,7 @@ sub descendents {
  Usage   : if( $feature_type->is_parent( $potential_parent_type ) ) { .. }
  Function: Accesses the relationship between this type and another
  Returns : true iff the given TypeI is a parent of this one
- Args    : a Bio::SeqFeature::TypeI object
+ Args    : a Bio::SeqFeature::TypeI object, or a (string) unique_id value
  Status  : Public
 
 =cut
@@ -148,7 +164,7 @@ sub is_parent {
  Usage   : if( $feature_type->is_ancestor( $potential_ancestor_type ) ) { .. }
  Function: Accesses the relationship between this type and another
  Returns : true iff the given TypeI is an ancestor of this one
- Args    : a Bio::SeqFeature::TypeI object
+ Args    : a Bio::SeqFeature::TypeI object, or a (string) unique_id value
  Status  : Public
 
 =cut
@@ -163,7 +179,7 @@ sub is_ancestor {
  Usage   : if( $feature_type->is_child( $potential_child_type ) ) { .. }
  Function: Accesses the relationship between this type and another
  Returns : true iff the given TypeI is a child of this one
- Args    : a Bio::SeqFeature::TypeI object
+ Args    : a Bio::SeqFeature::TypeI object, or a (string) unique_id value
  Status  : Public
 
 =cut
@@ -178,7 +194,7 @@ sub is_child {
  Usage   : if( $feature_type->is_descendent( $potential_descendent_type ) ) { .. }
  Function: Accesses the relationship between this type and another
  Returns : true iff the given TypeI is a descendent of this one
- Args    : a Bio::SeqFeature::TypeI object
+ Args    : a Bio::SeqFeature::TypeI object, or a (string) unique_id value
  Status  : Public
 
 =cut
@@ -251,13 +267,27 @@ sub toString {
   $self->name() || $self->identifier() || overload::StrVal( $self );
 } # toString()
 
-## method for overload for comparing two TypeI objects.  Uses toString().
+## method for overload for comparing two TypeI objects.
+## Uses unique_id() || toString().
 sub _cmp {
   my $self = shift;
   my ( $b, $reversed ) = @_;
-  my $a = $self->toString();
-  ( $a, $b ) = ( $b, $a ) if $reversed;
-  return ( $a cmp $b );
-}
+  my ( $a_string, $b_string );
+  if( ref( $b ) && $b->isa( 'Bio::SeqFeature::TypeI' ) ) {
+    $a_string = $self->unique_id();
+    $b_string;
+    if( $a_string ) {
+      $b_string = $b->unique_id();
+    } else {
+      $a_string = $self->toString();
+      $b_string = $b->toString();
+    }
+  } else { # $b is not a TypeI.  We'll treat it like a string, then.
+    $a_string = $self->unique_id() || $self->toString();
+    $b_string = $b;
+  }
+  ( $a_string, $b_string ) = ( $b_string, $a_string ) if $reversed;
+  return ( $a_string cmp $b_string );
+} # _cmp(..)
 
 1;
