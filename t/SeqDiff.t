@@ -19,7 +19,7 @@
 
 
 ## We start with some black magic to print on failure.
-BEGIN { $| = 1; print "1..19\n"; 
+BEGIN { $| = 1; print "1..21\n"; 
 	use vars qw($loaded); }
 END {print "not ok 1\n" unless $loaded;}
 
@@ -102,3 +102,10 @@ test 18, 1;
 
 $obj->gene_symbol('fos');
 test 19, ($obj->gene_symbol eq 'fos' );
+
+$obj->rna_offset(10);   
+test 20, ($obj->rna_offset == 10 );
+
+$obj->rna_id('transcript#3');   
+test 21, ($obj->rna_id eq 'transcript#3' );
+
