@@ -106,9 +106,11 @@ sub _initialize {
   }
 
   #need to validate against SOFA, no SO
-  $self->so(
-            Bio::Ontology::OntologyStore->get_ontology('Sequence Ontology Feature Annotation')
-           );
+  if ($self->validate) {
+    $self->so(
+              Bio::Ontology::OntologyStore->get_ontology('Sequence Ontology Feature Annotation')
+              );
+  }
 }
 
 =head2 next_feature()
