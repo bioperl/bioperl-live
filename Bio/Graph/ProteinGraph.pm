@@ -139,8 +139,11 @@ It derives most of its functionality from Nat Goodman's SimpleGraph
 module, but is adapted to be able to use protein identifiers to
 identify the nodes.
 
-This graph uses Bio::Seq objects for the nodes, as this class is
-familiar to most BioPerl users.
+This graph  can use any objects that implement Bio::AnnotatableI and Bio::IdentifiableI
+ interfaces.  Bio::Seq (but not Bio::PrimarySeqI)
+  objects can therefore be used  for the nodes, as this class is
+familiar to most BioPerl users. Any object that supports annotation objects and the object_id()
+ method should work fine. 
 
 At present it is fairly 'lightweight' in that it represents nodes and
 edges but does not contain all the data about experiment ids etc found
@@ -273,7 +276,7 @@ sub has_node {
  Purpose   : get node memory address from an id
  Usage     : my @neighbors= $self->neighbors($self->nodes_by_id('O232322'))
  Returns   : a SimpleGraph node representation ( a text representation
-             of a node needed fro other graph methods e.g.,
+             of a node needed for other graph methods e.g.,
              neighbors(), edges()
  Arguments : a protein identifier., e.g., its accession number.
 
@@ -358,7 +361,7 @@ sub union {
 		if (exists($other->{'_id_map'}{$id}) ) { 
             ## check  if this node has a commonlink kown lready:
             my $node = $self->nodes_by_id($id);
-            my $acc = $node->accession_number;
+            my $acc = $node->object_id;
 			if (!exists($detected_common_nodes{$acc})) {
 			   push @common_nodes, $id; ## we store the common id
 			   $detected_common_nodes{$acc} = undef; ## this means we won't store >1 common identifier
@@ -485,8 +488,8 @@ sub node_count {
 sub neighbor_count{
 
  my ($self, $node) = @_;
- if (!$node->isa('Bio::SeqI')) {
-  $self->throw ("I need a Bio::SeqI object here , not a " . ref($node) . ".");
+ if (!$node->isa('Bio::NodeI')) {
+  $self->throw ("I need a Bio::NodeI implementing object here , not a " . ref($node) . ".");
 	}
  my @nbors = $self->neighbors($node);
  return scalar @nbors;
@@ -506,8 +509,8 @@ sub _get_ids_by_db {
 	my %ids;
 	my $dummy_self = shift;
 	while (my $n = shift @_ ){  #ref to node, assume is a Bio::Seq
-		if (!$n->isa('Bio::SeqI')) {
-			$n->throw("I need a Bio::Seq object, not a [" .ref($n) ."]");
+		if (!$n->isa('Bio::AnnotatableI') || ! $n->isa('Bio::IdentifiableI' )) {
+			$n->throw("I need a Bio::AnnotatableI and Bio::IdentifiableI  implementing object, not a [" .ref($n) ."]");
 		}
 
 		##if BioSeq getdbxref ids as well.
@@ -524,11 +527,11 @@ sub _get_ids {
 	my %ids;
 	my $dummy_self = shift;
 	while (my $n = shift @_ ){  #ref to node, assume is a Bio::Seq
-		if (!$n->isa('Bio::PrimarySeqI')) {
-			$n->throw("I need a Bio::Seq object, not a [" .ref($n) ."]");
+		if (!$n->isa('Bio::AnnotatableI') || ! $n->isa('Bio::IdentifiableI' )) {
+			$n->throw("I need a Bio::AnnotatableI and Bio::IdentifiableI  implementing object, not a [" .ref($n) ."]");
 		}
 		#get ids
-		map{$ids{$_} = undef}($n->accession_number, $n->primary_id);
+		map{$ids{$_} = undef}($n->object_id);
 
 		##if BioSeq getdbxref ids as well.
 		if ($n->can('annotation')) {
@@ -1099,7 +1102,7 @@ sub _check_args {
 	my ($self, $val) = @_;
 	my $n;
 	if (!$val ) {
-		$self->throw( " I need a node that's a sequence object");
+		$self->throw( " I need a node that's a Bio::AnnotatableI and Bio::IdentifiableI");
 		}
 
 	## if param is texttry to get sequence object..
@@ -1109,10 +1112,9 @@ sub _check_args {
 			$self->throw ("Cannnot find node given by the id [$val]");
 			}
 	}
-	# if reference should be a SeqObj
-	elsif(!$val->isa('Bio::SeqI')){
-		$self->throw( " I need a node that's a sequence object".
-                      " not a [". ref($val) . "].");
+	# if reference should be a NodeI implementing object.
+    elsif (!$val->isa('Bio::AnnotatableI') || !$val->isa('Bio::IdentifiableI')) {
+		$self->throw( " I need a node that's a Bio::AnnotatableI and Bio::IdentifiableI ,not a [". ref($val) . "].");
 		}
 
 	## is a seq obj
