@@ -348,8 +348,8 @@ my $seqBegin  = 0;
 my $pVal      = -13; 
 my $nVal      = 2;
 my $nHits     = 0;
-my $seqEnd    = $self->seq_len;
-my $pep       = $self->str;
+my $seqEnd    = $self->length;
+my $pep       = $self->seq;
 my $minWeight = $self->threshold;
 
  ## The weight table is keyed by UPPERCASE letters so we uppercase
@@ -470,9 +470,9 @@ my %results  = $self->signals;
 my @hits     = keys %results;
 my $hitcount = $#hits; $hitcount++;
 my $thresh   = $self->threshold;
-my $seqlen   = $self->seq_len;
+my $seqlen   = $self->length;
 my $name     = $self->id;
-my $pep      = $self->str;
+my $pep      = $self->seq;
    $pep      =~ tr/a-z/A-Z/;
 
 $output = "SIGCLEAVE of $name from: 1 to $seqlen\n\n";

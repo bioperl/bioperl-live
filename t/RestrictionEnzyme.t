@@ -37,6 +37,10 @@ print "ok 1\n";    # 1st test passes.
 
 sub test ($$;$) {
     my($num, $true,$msg) = @_;
+    if( !defined $msg ) {
+	$msg = "No message";
+	}
+	 
     print($true ? "ok $num\n" : "not ok $num $msg\n");
 }
 
@@ -60,7 +64,7 @@ test 9, scalar @fragments == 2;
 
 test 10, ($l1 = length $fragments[0]) == 27;
 test 11, ($l2 = length $fragments[1]) == 43;
-test 12, $l1 + $l2 == $seq->seq_len, "sum of frag lengths != length of original seq\n";
+test 12, $l1 + $l2 == $seq->length, "sum of frag lengths != length of original seq\n";
 
 test 13, @sixcutters = $re->available_list(6), "can't get list of 6-cutters";
 test 14, $re->is_available('HindIII');

@@ -487,6 +487,95 @@ sub trunc{
    return $out;
 }
 
+=head2 translate
+
+ Title   : translate
+ Usage   : $protein_seq_obj = $dna_seq_obj->translate
+ Function: Provides the translation of the DNA sequence
+
+ Returns : A Bio::PrimarySeqI implementing object
+ Args    : character for unknown amino acid (optional),
+           frame (optional)
+
+ EB: this function is badly written and needs an overhaul
+
+=cut
+
+
+sub translate {
+  my($self) = shift;
+  my($stop, $unknown,$frame) = @_;
+  my($i, $len, $output) = (0,0,'');
+  my($codon)   = "";
+
+  my($seq) = $self->seq();
+
+  ## User can pass in symbol for stop and unknown codons
+  unless(defined($stop))    { $stop    = "*"; }
+  unless(defined($unknown)) { $unknown = "X"; }
+
+  ##Error if monomer is "Amino"
+  $self->throw("Can't translate an amino acid sequence.") if($self->moltype eq 'protein');
+
+  # map Tt's to Uu's
+
+  $seq =~ s/[Tt]/U/g;
+  $seq = uc($seq);
+  
+  for $codon ( grep { length == 3 } split(/(.{3})/, $seq) ) {
+
+    if   ($codon =~ /^UC[AUGCN]/)     {$output .= 'S'; }       # Serine
+    elsif($codon =~ /^UU[UC]/) {$output .= 'F'; }       # Phenylalanine
+    elsif($codon =~ /^UU[AG]/) {$output .= 'L'; }       # Leucine
+    elsif($codon =~ /^UA[UC]/) {$output .= 'Y'; }       # Tyrosine
+    elsif($codon =~ /^UA[AG]/) {$output .= $stop; }     # Stop
+    elsif($codon =~ /^UG[UC]/) {$output .= 'C'; }       # Cysteine
+    elsif($codon =~ /^UGA/)    {$output .= $stop; }     # Stop
+    elsif($codon =~ /^UGG/)    {$output .= 'W'; }       # Tryptophan
+    elsif($codon =~ /^CU[AUGCN]/)     {$output .= 'L'; }       # Leucine
+    elsif($codon =~ /^CC[AUGCN]/)     {$output .= 'P'; }       # Proline
+    elsif($codon =~ /^CA[UC]/) {$output .= 'H'; }       # Histidine
+    elsif($codon =~ /^CA[AG]/) {$output .= 'Q'; }       # Glutamine
+    elsif($codon =~ /^CG[AUGCN]/)     {$output .= 'R'; }       # Arginine
+    elsif($codon =~ /^AU[UCA]/){$output .= 'I'; }       # Isoleucine
+    elsif($codon =~ /^AUG/)    {$output .= 'M'; }       # Methionine
+    elsif($codon =~ /^AC[AUGCN]/)     {$output .= 'T'; }       # Threonine
+    elsif($codon =~ /^AA[UC]/) {$output .= 'N'; }       # Asparagine
+    elsif($codon =~ /^AA[AG]/) {$output .= 'K'; }       # Lysine
+    elsif($codon =~ /^AG[UC]/) {$output .= 'S'; }       # Serine
+    elsif($codon =~ /^AG[AG]/) {$output .= 'R'; }       # Arginine
+    elsif($codon =~ /^GU[AUGCN]/)     {$output .= 'V'; }       # Valine
+    elsif($codon =~ /^GC[AUGCN]/)     {$output .= 'A'; }       # Alanine
+    elsif($codon =~ /^GA[UC]/) {$output .= 'D'; }       # Aspartic Acid
+    elsif($codon =~ /^GA[AG]/) {$output .= 'E'; }       # Glutamic Acid
+    elsif($codon =~ /^GG[AUGCN]/)     {$output .= 'G'; }       # Glycine
+    else {$output .= $unknown; }                        # Unknown Codon
+  }
+
+  my($out,$id);
+  $id = $self->id();
+
+   if( $self->can_call_new == 1  ) {
+       $out = $self->new( '-seq' => $output,
+			  '-display_id'  => $self->display_id,
+			  '-accession_number' => $self->accession_number,
+			  '-moltype' => 'protein'
+			  );
+   } else {
+       $self->_attempt_to_load_Seq();
+       $out = Bio::PrimarySeq->new('-seq' => $output,
+			    '-display_id'  => $self->display_id,
+			    '-accession_number' => $self->accession_number,
+			    '-moltype' => 'protein'
+			    );
+   }
+   
+  
+  return $out;
+
+}
+
+
 =head2 id
 
  Title   : id
@@ -606,6 +695,28 @@ sub getseq{
    } else {
        return $self->str(@args);
    }
+}
+
+=head2 setseq
+
+ Title   : setseq
+ Usage   :
+ Function:
+ Example :
+ Returns : 
+ Args    :
+
+
+=cut
+
+sub setseq {
+   my ($self,$seq) = @_;
+
+   # we assumme anyone using this is using vanilla bioperl object
+   my ($p,$f,$l) = caller;
+   $self->warn("$f:$l Seq::setseq - deprecated method. You should use \$obj->seq in preference, followed by your split to an array");
+
+   return $self->seq($seq);
 }
 
 =head2 type

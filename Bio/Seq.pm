@@ -251,6 +251,28 @@ sub accession_number {
 }
 
 
+=head2 desc
+
+ Title   : desc
+ Usage   : $seqobj->desc()
+ Function: Sets/Gets the description of the sequnce
+ Example :
+ Returns : 
+ Args    :
+
+
+=cut
+
+sub desc{
+   my ($self,$value) = @_;
+
+   if( defined $value ) {
+       return $self->primary_seq->desc($value);
+   }
+   return $self->primary_seq->desc();
+}
+
+
 
 
 =head2 primary_id
@@ -599,8 +621,6 @@ sub add_SeqFeature{
 sub top_SeqFeatures{
    my ($self) = @_;
    my ($p,$f,$l) = caller;
-
-   print STDERR "Entering top_SeqFeatures somehow $p $f $l\n";
 
    return @{$self->{'_as_feat'}};
 }

@@ -361,6 +361,7 @@ sub _initialize {
     $self->{'_seq'} = new Bio::Seq(%data, 
 				   -STRICT  =>$self->strict, 
 				   -VERBOSE =>$self->verbose,
+				   -moltype => 'dna',
 				  );
     $make;
 }
@@ -497,7 +498,7 @@ sub site {
 #---------
     my $self = shift;
     my $seq = $self->seq;
-    return $seq->str(1, $self->cuts_after).'^'.$seq->str($self->cuts_after+1, $seq->seq_len); 
+    return $seq->subseq(1, $self->cuts_after).'^'.$seq->subseq($self->cuts_after+1, $seq->length); 
 }
     
 
@@ -538,7 +539,7 @@ See Also   : L<seq>(), L<revcom>()
 =cut
 
 #-----------
-sub string {  my $self = shift; $self->{'_seq'}->str; }
+sub string {  my $self = shift; $self->{'_seq'}->seq; }
 #-----------
 
 
@@ -561,7 +562,7 @@ See Also   : L<seq>(), L<string>()
 =cut
 
 #-----------
-sub revcom {  my $self = shift; $self->{'_seq'}->revcom->str(); }
+sub revcom {  my $self = shift; $self->{'_seq'}->revcom->seq(); }
 #-----------
 
 
@@ -599,19 +600,19 @@ sub cut_seq {
     my $reSeq = $self->seq;
     if($cuts_after == 0) {
 	$site_3prime_seq = '';
-	$site_5prime_seq = $reSeq->str();
-    } elsif($cuts_after == $reSeq->seq_len) {
-	$site_3prime_seq = $reSeq->str();
+	$site_5prime_seq = $reSeq->seq();
+    } elsif($cuts_after == $reSeq->length) {
+	$site_3prime_seq = $reSeq->seq();
 	$site_5prime_seq = '';
     } else {
-	$site_3prime_seq = $reSeq->str(1, $self->{'_cuts_after'});
-	$site_5prime_seq = $reSeq->str($self->{'_cuts_after'}+1, $reSeq->seq_len);
+	$site_3prime_seq = $reSeq->subseq(1, $self->{'_cuts_after'});
+	$site_5prime_seq = $reSeq->subseq($self->{'_cuts_after'}+1, $reSeq->length);
     }
 
 #    print "3' site: $site_3prime_seq\n5' site: $site_5prime_seq";<STDIN>;
 
     my(@re_frags);
-    my $seq = $reSeq->str;
+    my $seq = $reSeq->seq;
     $seq =~ s/N/\./g;
     $seq =~ s/R/\[AG\]/g;
     $seq =~ s/Y/\[CT\]/g;
@@ -628,7 +629,7 @@ sub cut_seq {
     }
 #    printf "$ID: site seq: %s\n\n", $seq;
 #    printf "$ID: splitting %s\n\n",$reSeq->str;
-    @re_frags = split(/$seq/, $seqObj->str);
+    @re_frags = split(/$seq/, $seqObj->seq);
 
 #    print "$ID: cut_seq, ",scalar @re_frags, " fragments.\n";
 

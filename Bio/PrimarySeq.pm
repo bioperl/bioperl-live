@@ -12,7 +12,7 @@
 
 =head1 NAME
 
-Bio::Seq - Bioperl lightweight Sequence Object
+Bio::PrimarySeq - Bioperl lightweight Sequence Object
 
 =head1 SYNOPSIS
 
@@ -23,7 +23,7 @@ Bio::Seq - Bioperl lightweight Sequence Object
   use Bio::DB::GenBank;
 
   #make from memory
-  $seqobj = Bio::Seq->new ( -seq => 'ATGGGGTGGGCGGTGGGTGGTTTG',
+  $seqobj = Bio::PrimaySeq->new ( -seq => 'ATGGGGTGGGCGGTGGGTGGTTTG',
 			    -id  => 'GeneFragment-12',
 			    -accession => 'X78121',
 			    -moltype => 'dna'
@@ -171,17 +171,28 @@ use Bio::PrimarySeqI;
 sub _initialize {
   my($self,@args) = @_;
 
-  my($seq,$id,$acc,$pid,$desc,$moltype) =
+  my($seq,$id,$acc,$pid,$desc,$moltype,$given_id) =
       $self->_rearrange([qw(SEQ
 			    DISPLAY_ID
 			    ACCESSION_NUMBER
 			    PRIMARY_ID
 			    DESC
 			    MOLTYPE
+                            ID
 			    )],
 			@args);
 
+  
+
   my $make = $self->SUPER::_initialize(@args);
+
+  if( defined $id && $given_id ) {
+      if( $id ne $given_id ) {
+	  $self->throw("Provided both id and display_id constructor functions. [$id] [$given_id]");
+      }
+  }
+  if( defined $given_id ) { $id = $given_id; }
+
   $seq && $self->seq($seq);
   $id  && $self->display_id($id);
   $acc && $self->accession_number($acc);
@@ -212,6 +223,7 @@ sub seq{
 	   $obj->throw("Attempting to set the sequence to [$value] which does not look healthy");
        }
        $obj->{'seq'} = $value;
+       $obj->_guess_type();
     }
    my $v = $obj->{'seq'};
    return $obj->{'seq'};
@@ -450,6 +462,59 @@ implemented on Bio::PrimarySeqI
 
 
 =cut
+
+=head1 Internal methods
+
+These are internal methods to PrimarySeq
+
+=cut
+
+=head2 _guess_type
+
+ Title   : _guess_type
+ Usage   :
+ Function:
+ Example :
+ Returns : 
+ Args    :
+
+
+=cut
+
+sub _guess_type {
+   my ($self) = @_;
+   my ($str,$str2,$total,$atgc,$u,$type);
+
+   $str = $self->seq();
+   $str =~ s/\-\.//g;
+
+   $total = CORE::length($str);
+   if( $total == 0 ) {
+       $self->throw("Got a sequence with no letters in - cannot guess type [$str]");
+   }
+
+   $str2 = $str;
+
+   $str2 =~ s/ATGCNatgcn//g;
+   $atgc = $total - CORE::length $str2;
+   $str = $str2;
+   $str2 =~ s/Uu//g;
+   
+   $u = CORE::length($str) - CORE::length($str2);
+
+
+   if( ($atgc / $total) > 0.85 ) {
+       $type = 'dna';
+   } elsif( (($atgc + $u) / $total) > 0.85 ) {
+       $type = 'rna';
+   } else {
+       $type = 'protein';
+   }
+   
+   $self->moltype($type);
+
+}
+
 
 
 1;

@@ -37,14 +37,15 @@ print "ok 1\n";    # 1st test passes.
 
 
 my $seq = Bio::Seq->new(-seq=>'ACTGTGGCGTCAACT',
-                        -desc=>'Sample Bio::Seq object');
+                        -desc=>'Sample Bio::Seq object',
+			-moltype => 'dna' );
 print "ok 2\n"; 
 
 $trunc = $seq->trunc(1,4);
 
 print "ok 3\n";
 
-if( $trunc->str() ne 'ACTG' ) {
+if( $trunc->seq() ne 'ACTG' ) {
    print "not ok 4\n";
 } else {
    print "ok 4\n";
@@ -52,7 +53,7 @@ if( $trunc->str() ne 'ACTG' ) {
 
 $trans = $seq->translate();
 
-if( $trans->str() ne 'TVAST' ) {
+if( $trans->seq() ne 'TVAST' ) {
    print "not ok 5\n";
 } else {
    print "ok 5\n";
@@ -60,7 +61,7 @@ if( $trans->str() ne 'TVAST' ) {
 
 # test ability to get str function
 
-$t = $seq->str();
+$t = $seq->seq();
 if( $t eq 'ACTGTGGCGTCAACT' ) {
   print "ok 6\n";
 }

@@ -133,16 +133,12 @@ sub write_seq {
      my $str         = lc $seq->seq;
      my $comment     = $seq->desc; 
      my $id          = $seq->id;
-     my $type        = $seq->type();
+     my $type        = $seq->moltype();
      my $timestamp   = strftime('%d-%b-%Y',localtime);
      my($sum,$offset,$len,$i,$j,$cnt,@out);
 
      $len = length($str);
-     $offset=0;
-     ## Set the offset if we have any non-standard numbering going on
-     if($seq->start < 0)   { $offset = ( 0 + $seq->start); }
-     if($seq->start >= 1)  { $offset = $seq->start;        }  
-     if($seq->start == 0)  { $offset = -1;                 }
+     $offset=1;
 
      #Output the sequence header info
      my $definition = $seq->desc;
