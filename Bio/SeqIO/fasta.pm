@@ -204,7 +204,7 @@ sub write_seq {
 	   $desc =~ s/\n//g;
 	   $top .= " $desc";
        }
-       if(length($str) > 0) {
+       if(defined $str && length($str) > 0) {
 	   $str =~ s/(.{1,$width})/$1\n/g;
        } else {
 	   $str = "\n";

@@ -884,14 +884,14 @@ sub _gff3_string {
 	# space-separated individual values.
 	my @v;
 	for my $value ( $feat->each_tag_value($tag) ) {	    
-	    $value =~ tr/ /+/;
-	    if ($value =~ /[^a-zA-Z0-9\,\;\=\.:\%\^\*\$\@\!\+\_\?\-]/) {
-		$value =~ s/\t/\\t/g; # substitute tab and newline 
-		# characters
-		$value =~ s/\n/\\n/g; # to their UNIX equivalents
-		$value = '"' . $value . '"';
-	    }
-	    if( defined $value ) { 
+	    if(  defined $value) { 
+		$value =~ tr/ /+/;
+		if ($value =~ /[^a-zA-Z0-9\,\;\=\.:\%\^\*\$\@\!\+\_\?\-]/) {
+		    $value =~ s/\t/\\t/g; # substitute tab and newline 
+		    # characters
+		    $value =~ s/\n/\\n/g; # to their UNIX equivalents
+		    $value = '"' . $value . '"';
+		}
 		$value =~ s/([\t\n\=;,])/sprintf("%%%X",ord($1))/ge;
 	    } else {
 		# if it is completely empty, 
