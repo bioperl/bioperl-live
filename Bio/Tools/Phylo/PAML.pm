@@ -188,6 +188,7 @@ sub new {
   my ($class, @args) = @_;
 
   my $self = $class->SUPER::new(@args);
+  $self->_initialize_io(@args);
 
   my ($dir) = $self->_rearrange([qw(DIR)], @args);
   $self->{_dir} = $dir if defined $dir;
@@ -237,7 +238,7 @@ sub next_result {
 	    } elsif ($seqtype eq 'AAML' && m/^ML distances of aa seqs\.$/o) {
 
 		# runmode = -2, AAML
-		$self->throw( -class => 'Bio::Root::NotYetImplemented',
+		$self->throw( -class => 'Bio::Root::NotImplemented',
 			      -text  => "Pairwise AA not yet implemented!"
 			    );
 
@@ -248,7 +249,7 @@ sub next_result {
 	    } elsif (m/^Model \d+: /o) {
 
 		# NSSitesBatch
-		$self->throw( -class => 'Bio::Root::NotYetImplemented',
+		$self->throw( -class => 'Bio::Root::NotImplemented',
 			      -text  => "NSsitesBatch not yet implemented!"
 			    );
 
@@ -256,41 +257,45 @@ sub next_result {
 		# %data = $self->_parse_NSsitesBatch;
 		# last;
 
-	    } elsif (m/TREE \d+/) {
+	    } elsif (m/^TREE/) {
 
 		# runmode = 0
 		$self->_pushback($_);
 		%data = $self->_parse_Forestry;
+		last;
 
 	    } elsif (m/Heuristic tree search by stepwise addition$/o) {
 
 		# runmode = 3
-		$self->throw( -class => 'Bio::Root::NotYetImplemented',
+		$self->throw( -class => 'Bio::Root::NotImplemented',
 			      -text  => "StepwiseAddition not yet implemented!"
 			    );
 
 		# $self->_pushback($_);
 		# %data = $self->_parse_StepwiseAddition;
+		# last;
 
 	    } elsif (m/Heuristic tree search by NNI perturbation$/o) {
 
 		# runmode = 4
-		$self->throw( -class => 'Bio::Root::NotYetImplemented',
+		$self->throw( -class => 'Bio::Root::NotImplemented',
 			      -text  => "NNI Perturbation not yet implemented!"
 			    );
 
 		# $self->_pushback($_);
 		# %data = $self->_parse_Perturbation;
+		# last;
 
 	    } elsif (m/^stage 0:/o) {
 
 		# runmode = (1 or 2)
-		$self->throw( -class => 'Bio::Root::NotYetImplemented',
+		$self->throw( -class => 'Bio::Root::NotImplemented',
 			      -text  => "StarDecomposition not yet implemented!"
 			    );
 
 		# $self->_pushback($_);
 		# %data = $self->_parse_StarDecomposition;
+		# last;
 
 	    }
 	}
@@ -390,7 +395,7 @@ sub _parse_distmat { }
 sub _parse_Forestry {
 
     my ($self) = @_;
-    my %data;
+    my %data = (-trees => []);
 
 
     return %data

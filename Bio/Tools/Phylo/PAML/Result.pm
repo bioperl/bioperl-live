@@ -90,9 +90,9 @@ sub new {
 
   my $self = $class->SUPER::new(@args);
 
-  my ($trees) = $self->_rearrange([qw(TREES)],@args);
+  my ($trees) = $self->_rearrange([qw(TREES)], @args);
 
-  if( defined $trees ) {
+  if( $trees ) {
       if(ref($trees) !~ /ARRAY/i ) { 
 	  $self->warn("Must have provided a valid array reference to initialize trees");
       } else { 
