@@ -593,8 +593,15 @@ sub revcom {  my $self = shift; $self->{'_seq'}->revcom->seq(); }
            : (Does not yet verify that it is derived from Bio::PrimarySeq.pm.)
  Comments  : Strategy relies on Perl's built-in split() function.
            : Since split removes the recognition pattern, the resulting
-           : fragments must be repaired after split()-ing.
+           : fragments are repaired after split()-ing.
+           : A side-effect of this is that for sites with ambiguous
+           : recognition sequence (i.e., containing N), the fragments
+           : will contain ambiguity characters instead of AGCT.
+           :
            : There is currently no support for partial digestions.
+           : There is currently no support for circular sequences.
+           : (This should just involve merging the first and last frag
+           : if $seqObj->is_circular returns true).
 
 =cut
 
@@ -634,7 +641,7 @@ sub cut_seq {
     }
     $self->debug(sprintf("$ID: site seq: %s\n\n", $seq));
     $self->debug(sprintf("$ID: splitting %s\n\n",$reSeq->seq));
-    @re_frags = split(/$seq/, uc $seqObj->seq);
+    @re_frags = split(/$seq/i, $seqObj->seq);
 
     $self->debug("$ID: cut_seq, ".scalar @re_frags. " fragments.\n");
 
@@ -672,7 +679,7 @@ sub cut_locations {
     my $seq = $seqobj->seq;
     study($seq);
     my @locations;
-    while( $seq =~ /($site)/g ) {
+    while( $seq =~ /($site)/ig ) {
         # $` is preceding string before pattern so length returns position
 	push @locations, length($`); 	
     }
