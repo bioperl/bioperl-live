@@ -172,8 +172,8 @@ $GAP_SYMBOL    = '-';          # Need a more general way to handle gap symbols.
 =head2 new
 
  Usage     : $hsp = Bio::Search::HSP::BlastHSP->new( %named_params );
-           : Bio::Search::HSP::BlastHSP.pm objects are constructed 
-           : automatically by Bio::SearchIO::BlastHitFactory.pm, 
+           : Bio::Search::HSP::BlastHSP objects are constructed 
+           : automatically by Bio::SearchIO::BlastHitFactory, 
            : so there is no need for direct instantiation.
  Purpose   : Constructs a new BlastHSP object and Initializes key variables 
            : for the HSP.
@@ -188,8 +188,6 @@ $GAP_SYMBOL    = '-';          # Need a more general way to handle gap symbols.
            :      -PROGRAM      => string ('TBLASTN', 'BLASTP', etc.).
            :      -QUERY_NAME   => string, id of query sequence
            :      -HIT_NAME     => string, id of hit sequence
-           :      -LINKS        => string or integer representing
-           :                       the links information (from WU-BLAST only)
            :
  Comments  : Having the raw data allows this object to do lazy parsing of 
            : the raw HSP data (i.e., not parsed until needed).
@@ -215,14 +213,13 @@ sub new {
     my ($raw_data, $qname, $hname, $qlen, $hlen);
 
     ($self->{'_prog'}, $self->{'_rank'}, $raw_data,
-     $qname, $hname,$links) = 
-      $self->_rearrange([qw( PROGRAM
-			     RANK
-			     RAW_DATA
-			     QUERY_NAME
-			     HIT_NAME
-			     LINKS
-			   )], @args );
+     $qname, $hname) = 
+	 $self->_rearrange([qw( PROGRAM
+				RANK
+				RAW_DATA
+				QUERY_NAME
+				HIT_NAME
+				)], @args );
     
     # _set_data() does a fair amount of parsing. 
     # This will likely change (see comment above.)
@@ -258,7 +255,6 @@ sub new {
 
     $self->query->frac_identical($self->frac_identical('query'));
     $self->hit->frac_identical($self->frac_identical('hit'));
-    $self->links($links) if defined $links;
     return $self;
 }
 
@@ -276,8 +272,8 @@ sub new {
 sub _id_str {
     my $self = shift;
     if( not defined $self->{'_id_str'}) {
-        my $qname = $self->query->seqname;
-        my $hname = $self->hit->seqname;
+        my $qname = $self->query->seq_id;
+        my $hname = $self->hit->seq_id;
         $self->{'_id_str'} = "QUERY=\"$qname\" HIT=\"$hname\"";
     }
     return $self->{'_id_str'};
@@ -403,14 +399,17 @@ sub length {
 #-----------
 ## Developer note: when using the built-in length function within
 ##                 this module, call it as CORE::length().
-    my( $self, $seqType ) = @_;
+    my( $self, $seqType,$data ) = @_;
     $seqType  ||= 'total';
     $seqType = 'sbjct' if $seqType eq 'hit';
 
     $seqType ne 'total' and $self->_set_seq_data() unless $self->{'_set_seq_data'};
-
+    
     ## Sensitive to member name format.
     $seqType = "_\L$seqType\E";
+    if( defined $data  ) { 
+	$self->{$seqType.'Length'} = $data;
+    }
     $self->{$seqType.'Length'};
 }
 
@@ -960,7 +959,7 @@ sub _set_seq {
 
     if( !(scalar(@sequence) and scalar(@ranges))) {
         my $id_str = $self->_id_str;
-	$self->throw("Can't set sequence: missing data. Possibly unrecognized Blast format. ($id_str)");
+	$self->throw("Can't set sequence: missing data. Possibly unrecognized Blast format. ($id_str) $seqType");
    }
  
     # Sensitive to member name changes.
@@ -1661,24 +1660,6 @@ sub get_aln {
     return $aln;
 }
 
-=head2 links
-
- Title   : links
- Usage   : $obj->links($newval)
- Function: Get/Set the Links value (from WU-BLAST)
-           Indicates the placement of the alignment in the group of HSPs
- Returns : Value of links
- Args    : On set, new value (a scalar or undef, optional)
-
-
-=cut
-
-sub links{
-    my $self = shift;
-
-    return $self->{'links'} = shift if @_;
-    return $self->{'links'};
-}
 
 1;
 __END__

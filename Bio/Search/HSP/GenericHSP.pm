@@ -155,6 +155,7 @@ BEGIN {
            -hit_frame   => hit frame (only if hit is translated protein)
            -query_frame => query frame (only if query is translated protein)
            -rank        => HSP rank
+           -links       => HSP links information (WU-BLAST only)
 
 =cut
 
@@ -168,7 +169,7 @@ sub new {
         $hsp_len, $query_len,$hit_len,
         $hit_name,$query_name,$bits,$score,
         $hs,$he,$qs,$qe,
-        $qframe,$hframe,
+        $qframe,$hframe, $links,
         $rank) = $self->_rearrange([qw(ALGORITHM
                                        EVALUE
                                        PVALUE				       
@@ -194,6 +195,7 @@ sub new {
                                        QUERY_END
                                        QUERY_FRAME
                                        HIT_FRAME
+				       LINKS
                                        RANK
                                        )], @args);
 
@@ -298,8 +300,9 @@ sub new {
 	if( ! defined $percent_id ) {
 	    $self->warn("Did not defined the number of identical matches or overall percent identity in the HSP assuming 0");
 	    $identical = 0;
+	} else { 
+	    $identical = int($percent_id * $hsp_len);
 	}
-	$identical = int($percent_id * $hsp_len);
     } 
     if( ! defined $conserved ) {
 	$self->warn("Did not defined the number of conserved matches in the HSP assuming conserved == identical ($identical)") 
@@ -347,7 +350,8 @@ sub new {
     $self->percent_identity($percent_id || 
 			    $identical / $hsp_len ) if( $hsp_len > 0 );
 
-    $rank && $self->rank($rank);
+    defined $rank && $self->rank($rank);
+    defined $links && $self->links($links);
     return $self;
 }
 
@@ -1125,6 +1129,26 @@ sub range {
         $end = $self->hit->end;
     }
     return ($start, $end);
+}
+
+
+=head2 links
+
+ Title   : links
+ Usage   : $obj->links($newval)
+ Function: Get/Set the Links value (from WU-BLAST)
+           Indicates the placement of the alignment in the group of HSPs
+ Returns : Value of links
+ Args    : On set, new value (a scalar or undef, optional)
+
+
+=cut
+
+sub links{
+    my $self = shift;
+
+    return $self->{'links'} = shift if @_;
+    return $self->{'links'};
 }
 
 # The cigar string code is written by Juguang Xiao <juguang@fugu-sg.org>
