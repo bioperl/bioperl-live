@@ -726,6 +726,7 @@ sub _from_gff_string {
    $self->primary_tag($primary);
    $self->start($start);
    $self->end($end);
+   $self->frame($frame);
    if ( $score eq '.' ) {
        #$self->score(undef);
    } else {
@@ -762,8 +763,8 @@ sub _from_gff2_string {
    # according to the Sanger website, GFF2 should be single-tab separated elements, and the
    # free-text at the end should contain text-translated tab symbols but no "real" tabs,
    # so splitting on \t is safe, and $attribs gets the entire attributes field to be parsed later
-   my ($seqname, $source, $primary, $start, $end, $score, $strand, $frame, $attribs) = split(/\t+/, $string);
-
+   my ($seqname, $source, $primary, $start, $end, $score, $strand, $frame, @attribs) = split(/\t+/, $string);
+   my $attribs = join '', @attribs;  # just in case the rule against tab characters has been broken
    if ( !defined $frame ) {
        $self->throw("[$string] does not look like GFF2 to me");
    }
@@ -772,6 +773,7 @@ sub _from_gff2_string {
    $self->primary_tag($primary);
    $self->start($start);
    $self->end($end);
+   $self->frame($frame);
    if ( $score eq '.' ) {
        #$self->score(undef);
    } else {
@@ -785,7 +787,8 @@ sub _from_gff2_string {
    my @key_vals = split /;/, $attribs;   # attributes are semicolon-delimited
 
    foreach my $pair ( @key_vals ) {
-       my ($key, $values) = split /=/, $pair;	# separate the key from the value based on the = sign
+       my ($blank, $key, $values) = split  /^\s*([\w\d]+)\s/, $pair;	# separate the key from the value based on the = sign
+
        my @values;								
 
        while ($values =~ s/"(.*?)"//){          # free text is quoted, so match each free-text block
