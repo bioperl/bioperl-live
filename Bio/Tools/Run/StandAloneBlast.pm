@@ -964,7 +964,8 @@ sub _setparams {
 	    my @dbs = split(/ /, $value);
 	    for (my $i = 0; $i < scalar(@dbs); $i++) {
 		# moved the test for full path db to work with multiple databases
-		if (! (-e $dbs[$i].".nin" || -e $dbs[$i].".pin")){ 
+		if (! (-e $dbs[$i].".nin" || -e $dbs[$i].".pin") &&
+		    ! (-e $dbs[$i].".nal" || -e $dbs[$i].".pal") ) {
 		    $dbs[$i] = File::Spec->catdir($DATADIR, $dbs[$i]);
 		}
 		$value = '"'.join(" ", @dbs).'"';
