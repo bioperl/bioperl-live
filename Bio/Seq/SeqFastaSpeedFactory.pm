@@ -121,18 +121,16 @@ sub create {
 
     my $sequence = $param{'-seq'}  || $param{'-SEQ'};
     my $fulldesc = $param{'-desc'} || $param{'-DESC'};
-    my $id       = $param{'-id'}   || $param{'-ID'};
+    my $id       = $param{'-id'}   || $param{'-ID'} ||
+	           $param{'-primary_id'}   || $param{'-PRIMARY_ID'};
 
-
-
-    my $seq = {};
-    bless $seq,"Bio::Seq";
-    my $t_pseq = $seq->{'primary_seq'} = {};
-    bless $t_pseq,"Bio::PrimarySeq";
+    my $seq = bless {}, "Bio::Seq";
+    my $t_pseq = $seq->{'primary_seq'} = bless {}, "Bio::PrimarySeq";
     $t_pseq->{'seq'}  = $sequence;
     $t_pseq->{'desc'} = $fulldesc;
     $t_pseq->{'display_id'} = $id;
     $t_pseq->{'primary_id'} = $id;
+    $seq->{'primary_id'} = $id; # currently Bio::Seq does not delegate this
     if( $sequence ) {
 	$t_pseq->_guess_alphabet();
     }
