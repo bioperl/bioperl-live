@@ -676,22 +676,22 @@ Seq object, eg:
                        '-alphabet' => 'dna' );
 
 However, in most cases, it is preferable to access sequence data from
-some online data file or database (Note that in common with
+some online data file or database. Note that in common with
 conventional bioinformatics usage we will sometimes call a "database"
 what might be more appropriately referred to as an "indexed flat
-file".)  
+file".
 
 Bioperl supports accessing remote databases as well as developing 
 indices for setting up local databases.  There are two general approaches 
 to accomplishing this.  If you know what kind of database the sequences 
-is stored in (ie flat file, local relational database or a database 
+is stored in (i.e. flat file, local relational database or a database 
 accessed remotely over the internet), you can write a script that specifically 
 accesses data from that kind of database.  This approach is described 
 in sections III.1.1 and III.1.2 for access from remote databases and 
-local indexed flat files respectively. (To explicitly access sequence 
+local indexed flat files respectively. To explicitly access sequence 
 data from a local relational database requires installing and setting 
 up the modules in the bioperl-db library which is outside the scope 
-of this tutorial.)
+of this tutorial.
 
 The other approach is to use the recently developed OBDA (Open
 Bioinformatics Data Access) Registry system.  Using OBDA, it is
@@ -1002,14 +1002,14 @@ useful:
 
 The following methods return strings
 
-  $seqobj->display_id(); # the human read-able id of the sequence
-  $seqobj->seq();        # string of sequence
-  $seqobj->subseq(5,10); # part of the sequence as a string
+  $seqobj->display_id();       # the human read-able id of the sequence
+  $seqobj->seq();              # string of sequence
+  $seqobj->subseq(5,10);       # part of the sequence as a string
   $seqobj->accession_number(); # when there, the accession number
-  $seqobj->alphabet();   # one of 'dna','rna','protein'
-  $seqobj->primary_id(); # a unique id for this sequence irregardless
-                         # of its display_id or accession number
-  $seqobj->desc();        # a description of the sequence
+  $seqobj->alphabet();         # one of 'dna','rna','protein'
+  $seqobj->primary_id();       # a unique id for this sequence irregardless
+                               # of its display_id or accession number
+  $seqobj->desc();             # a description of the sequence
 
 It is worth mentioning that some of these values correspond to specific
 fields of given formats. For example, the display_id method returns
@@ -1019,24 +1019,26 @@ method will return the DEFINITION line of a Genbank file, the line
 following the display_id in a Fasta file, and the DE field in a SwissProt
 file.
 
-The following methods return an array of Bio::SeqFeature objects
+The following methods return an array of Bio::SeqFeature objects:
 
-   $seqobj->get_SeqFeatures; # The 'top level' sequence features
-   $seqobj->get_all_SeqFeatures; # All sequence features, including sub
-                                 # seq features
+   $seqobj->get_SeqFeatures;      # The 'top level' sequence features
+   $seqobj->get_all_SeqFeatures;  # All sequence features, including sub-
+                                  # seq features
 
 For a comment annotation, you can use:
-  use Bio::Annotation::Comment;
-  $seq->annotation->add_Annotation('comment',
+
+   use Bio::Annotation::Comment;
+   $seq->annotation->add_Annotation('comment',
       Bio::Annotation::Comment->new(-text => 'some description');
 
 For a reference annotation, you can use:
-  use Bio::Annotation::Reference;
-  $seq->annotation->add_Annotation('reference',
+
+   use Bio::Annotation::Reference;
+   $seq->annotation->add_Annotation('reference',
       Bio::Annotation::Reference->new(-authors  => 'author1,author2',
                                       -title    => 'title line',
                                       -location => 'location line',
-                                      -medline  => 998122);
+                                      -medline  => 998122 );
 
 Sequence features will be discussed further in section L<"III.7"> on
 machine-readable sequence annotation. A general description of the
@@ -1137,7 +1139,7 @@ example:
   $codon_ref = $seq_stats->count_codons();  # for nucleic acid sequence
 
 Note: sometimes sequences will contain "ambiguous" codes.  For this
-reason, get_mol_wt() returns (a reference to) a two element array
+reason, get_mol_wt() returns a reference to a two element array
 containing a greatest lower bound and a least upper bound of the
 molecular weight.
 
@@ -1157,7 +1159,7 @@ accessed using the available_list() method. For example to select all
 available enzymes with cutting patterns that are six bases long one
 would write:
 
-  $re  = new Bio::Tools::RestrictionEnzyme('-name'=>'EcoRI');
+  $re = new Bio::Tools::RestrictionEnzyme('-name'=>'EcoRI');
   @sixcutters = $re->available_list(6);
 
 Once an appropriate enzyme has been selected, the sites for that
@@ -1263,11 +1265,11 @@ of a query sequence are required. Typical syntax for using SeqPattern
 is shown below.  For more information, there are several interesting
 examples in the script seq_pattern.pl in the examples/tools directory.
 
-  Use Bio::Tools::SeqPattern;
+  use Bio::Tools::SeqPattern;
   $pattern     = '(CCCCT)N{1,200}(agggg)N{1,200}(agggg)';
   $pattern_obj = new Bio::Tools::SeqPattern('-SEQ'  => $pattern,
                                             '-TYPE' => 'dna');
-  $pattern_obj2  = $pattern_obj->revcom();
+  $pattern_obj2 = $pattern_obj->revcom();
   $pattern_obj->revcom(1); # returns expanded rev complement pattern.
 
 More detail can be found in L<Bio::Tools::SeqPattern>.
@@ -1285,7 +1287,7 @@ trivial it can get fairly tricky when one includes the possibilities of switchin
 to coordinates on negative (ie Crick) strands and/or having a coordinate 
 system "terminate" because you have reached the end of a clone or contig.  
 Bioperl has two different approaches to coordinate-system conversion (based 
-on the modules Bio::Coordinate::Pair and  Bio::DB::GFF::RelSegment, respectively).
+on the modules Bio::Coordinate::Pair and Bio::DB::GFF::RelSegment, respectively).
 
 The Coordinate::Pair approach is somewhat more "low level".  With it, you 
 define an input coordinate system and an output coordinate system, where 
@@ -1297,15 +1299,15 @@ two coordinate systems, one defines a "Coordinate::Pair" to map between
 them.  Then one can map positions between the coordinates systems with 
 code such as this:
 
-$input_coordinates = Bio::Location::Simple->new  
+  $input_coordinates = Bio::Location::Simple->new  
   (-seq_id => 'propeptide', -start => 1000, -end => 2000, -strand=>1 );
-$output_coordinates = Bio::Location::Simple->new  
+  $output_coordinates = Bio::Location::Simple->new  
   (-seq_id => 'peptide', -start => 1100, -end => 2100, -strand=>1 );
-$pair = Bio::Coordinate::Pair->new
-(-in => $input_coordinates ,  -out => $output_coordinates   );
-$pos = Bio::Location::Simple->new (-start => 500, -end => 500 );
-$res = $pair->map($pos);
-$converted_pos  = $res->gap->start;
+  $pair = Bio::Coordinate::Pair->new
+  (-in => $input_coordinates ,  -out => $output_coordinates   );
+  $pos = Bio::Location::Simple->new (-start => 500, -end => 500 );
+  $res = $pair->map($pos);
+  $converted_pos  = $res->gap->start;
 
 See the documentation for Bio::Coordinate::Pair and Bio::Coordinate::GeneMapper 
 for more details.
@@ -1319,18 +1321,18 @@ You can determine the position of a feature relative to some other feature
 simply by redefining the relevant reference feature (ie the "refseq") with 
 code like this:
 
-$db = Bio::DB::GFF->new(-dsn => 'dbi:mysql:elegans',
-                                           -adaptor=>'dbi:mysqlopt');
+  $db = Bio::DB::GFF->new(-dsn => 'dbi:mysql:elegans',
+                        -adaptor =>'dbi:mysqlopt');
 
-$seg = $db->segment('ZK909');
-$relative_start = $seg->start;  # $relative_start  = 1;
+  $seg = $db->segment('ZK909');
+  $relative_start = $seg->start;  # $relative_start = 1;
 
-# Now retrieve the start position of ZK909 relative to feature ZK337
-$seg->refseq('ZK337');
-$relative_start = $seg->start;  
+  # Now retrieve the start position of ZK909 relative to feature ZK337
+  $seg->refseq('ZK337');
+  $relative_start = $seg->start;  
 
-# Now retrieve the start position of ZK909 relative to the entire chromosome
-$absolute_start =  $seg->abs_start;
+  # Now retrieve the start position of ZK909 relative to the entire chromosome
+  $absolute_start =  $seg->abs_start;
 
 This approach is convenient because you don't have to keep track of 
 coordinates directly; you just keep track of the name of a feature 
@@ -1344,11 +1346,11 @@ capabilities) without building a local relational database, this is
 possible by defining the 'database' as having an adaptor called 'memory'; 
 e.g. 
 
-$db = Bio::DB::GFF->new( '-adaptor' => 'memory' );
+  $db = Bio::DB::GFF->new( '-adaptor' => 'memory' );
 
 For more details on coordinate transformations and other GFF-related 
 capabilities in Bioperl see  Bio::DB::GFF::RelSegment.pm, Bio::DB::GFF.pm 
-and the test file  t / BioDBGFF.t.
+and the test file t/BioDBGFF.t.
 
 =head2 III.4 Searching for "similar" sequences
 
