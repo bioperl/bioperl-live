@@ -671,11 +671,9 @@ sub each_target {
   return $self->{'targets'} ? @{ $self->{'targets'} } : ();
 }
 
-
 sub _no_tags {
   my $self = shift;
   $self->throw("tag methods are deprecated. use Bio::Annotation::Collection");
-  #$self->throw_not_implemented();
 }
 
 sub has_tag {

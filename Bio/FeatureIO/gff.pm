@@ -48,7 +48,8 @@ Describe contact details here
 
 =head1 CONTRIBUTORS
 
-Steffen Grossmann, grossman-at-molgen.mpg.de
+ Steffen Grossmann, E<lt>grossman@molgen.mpg.deE<gt>
+ Scott Cain, E<lt>cain@cshl.eduE<gt>
 
 =head1 APPENDIX
 
@@ -130,12 +131,12 @@ sub _write_feature_25 {
 
   #the top-level feature is an aggregate of all subfeatures
   if(!defined($group)){
-    $group = ($feature->annotation->get_Annotations('ID'))[0]->value;
+    $group = ($feature->get_Annotations('ID'))[0]->value;
   }
 
   my $seq    = $feature->seq_id || '.';
   my $source = $feature->source || '.';
-  my $type   = ($feature->annotation->get_Annotations('feature_type'))[0]->name;
+  my $type   = $feature->type->name;
   $type = 'EXON' if $type eq 'exon'; #a GTF peculiarity, incosistent with the sequence ontology.
   my $min    = $feature->start   || '.';
   my $max    = $feature->end     || '.';
@@ -162,7 +163,7 @@ sub _write_feature_3 {
 
   my $seq    = $feature->seq_id || 'SEQ';
   my $source = $feature->source || '.';
-  my $type   = ($feature->annotation->get_Annotations('feature_type'))[0]->name;
+  my $type   = $feature->type->name;
   my $min    = $feature->start   || '.';
   my $max    = $feature->end     || '.';
   my $strand = $feature->strand == 1 ? '+' : $feature->strand == -1 ? '-' : '.';
@@ -170,16 +171,16 @@ sub _write_feature_3 {
   my $phase  = $feature->phase   || '.';
 
   my @attr;
-  if(my @v = ($feature->annotation->get_Annotations('Name'))){
+  if(my @v = ($feature->get_Annotations('Name'))){
     my $vstring = join ',', map {$_->value} @v;
     push @attr, "Name=$vstring";
   }
-  if(my @v = ($feature->annotation->get_Annotations('ID'))){
+  if(my @v = ($feature->get_Annotations('ID'))){
     my $vstring = join ',', map {$_->value} @v;
     push @attr, "ID=$vstring";
     $self->throw('GFF3 features may have at most one ID, feature with these IDs is invalid:\n'.$vstring) if scalar(@v) > 1;
   }
-  if(my @v = ($feature->annotation->get_Annotations('Parent'))){
+  if(my @v = ($feature->get_Annotations('Parent'))){
     my $vstring = join ',', map {$_->value} @v;
     push @attr, "Parent=$vstring";
   }
@@ -279,7 +280,6 @@ sub _handle_feature {
   my($self,$feature_string) = @_;
 
   my $feat = Bio::SeqFeature::Annotated->new();
-  my $ac = $feat->annotation(); #initialize Bio::Annotation::Collection
 
   my($seq,$source,$type,$start,$end,$score,$strand,$phase,$attribute_string) = split /\t/, $feature_string;
 
@@ -306,6 +306,7 @@ sub _handle_feature {
   }
   my $fta = Bio::Annotation::OntologyTerm->new();
   $fta->term($feature_type);
+  $feat->type($fta);
 
   my %attr = ();
   chomp $attribute_string;
@@ -329,7 +330,7 @@ sub _handle_feature {
 
       $a->database($db);
       $a->primary_id($accession);
-      $ac->add_Annotation('Dbxref',$a);
+      $feat->add_Annotation('Dbxref',$a);
     }
   }
 
@@ -342,7 +343,7 @@ sub _handle_feature {
       my($term) = $ont->find_terms(-identifier => $id);
       my $a = Bio::Annotation::OntologyTerm->new();
       $a->term($term);
-      $ac->add_Annotation('Ontology_term',$a);
+      $feat->add_Annotation('Ontology_term',$a);
     }
   }
 
@@ -387,7 +388,7 @@ sub _handle_feature {
 
     my $a = Bio::Annotation::SimpleValue->new();
     $a->value( @{ $attr{ID} }[0] );
-    $ac->add_Annotation('ID',$a);
+    $feat->add_Annotation('ID',$a);
   }
 
   #Handle Name attribute.  May only have one Name, throw error otherwise
@@ -398,7 +399,7 @@ sub _handle_feature {
 
     my $a = Bio::Annotation::SimpleValue->new();
     $a->value( @{ $attr{Name} }[0] );
-    $ac->add_Annotation('Name',$a);
+    $feat->add_Annotation('Name',$a);
   }
 
   foreach my $other_canonical (qw(Alias Parent Note)){
@@ -406,12 +407,10 @@ sub _handle_feature {
       foreach my $value (@{ $attr{$other_canonical} }){
         my $a = Bio::Annotation::SimpleValue->new();
         $a->value($value);
-        $ac->add_Annotation($other_canonical,$a);
+        $feat->add_Annotation($other_canonical,$a);
       }
     }
   }
-
-  $ac->add_Annotation('feature_type',$fta);
 
   my @non_reserved_tags = grep {/^[a-z]/} keys %attr;
   foreach my $non_reserved_tag (@non_reserved_tags) {
@@ -423,12 +422,10 @@ sub _handle_feature {
   return $feat;
 }
 
-=head2 _handle_non_reserved_tag
+=head2 _handle_non_reserved_tag()
 
- Title   : _handle_non_reserved_tag
  Usage   : $self->_handle_non_reserved_tag($feature,$tag,$value)
  Function: Deal with non-reserved word tags in the ninth column
- Example :
  Returns : An updated Bio::SeqFeature::Annotated object
  Args    : A Bio::SeqFeature::Annotated and a tag/value pair
 
@@ -441,8 +438,6 @@ sub _handle_non_reserved_tag {
   my $self = shift;
   my ($feat,$tag,$value) = @_;
 
-  my $ac = $feat->annotation();
-
 # to customize through subclassing and overriding:
 #if ($tag eq 'someTagOfInterest') {
 #  do something different
@@ -451,20 +446,17 @@ sub _handle_non_reserved_tag {
 
   my $a = Bio::Annotation::SimpleValue->new();
   $a->value($value);
-  $ac->add_Annotation($tag,$a);
+  $feat->add_Annotation($tag,$a);
 
   return $feat;
 }
 
-=head2 version
+=head2 version()
 
- Title   : version
  Usage   : $obj->version($newval)
  Function: version of GFF to read/write.  valid values are 1, 2, 2.5, and 3.
- Example : 
  Returns : value of version (a scalar)
  Args    : on set, new value (a scalar or undef, optional)
-
 
 =cut
 
@@ -476,15 +468,12 @@ sub version{
 }
 
 
-=head2 so
+=head2 so()
 
- Title   : so
  Usage   : $obj->so($newval)
  Function: holds a Sequence Ontology instance
- Example : 
  Returns : value of so (a scalar)
  Args    : on set, new value (a scalar or undef, optional)
-
 
 =cut
 
