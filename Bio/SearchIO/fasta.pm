@@ -737,13 +737,16 @@ sub next_result{
 	       chomp;
 	       $self->debug( "$count $_\n");
 	       
-	       if( /residues in \d+\s+query\s+sequences/) {
+	       if( /residues in \d+\s+query\s+sequences/o) {
 		   $self->_pushback($_);
 		   last;
-	       } elsif( /^>>/ ) {
+	       } elsif (/^>>>\*\*\*/o) {
+		   $self->end_element({Name => "Hsp"});
+		   last;
+	       } elsif (/^>>/o) {
 		   $self->_pushback($_);
 		   last;
-	       } elsif (/^\s*\d+\s*>>>/) {
+	       } elsif (/^\s*\d+\s*>>>/o) {
 		   $self->_pushback($_);
 		   last;
 	       }
