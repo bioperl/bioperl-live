@@ -1024,7 +1024,9 @@ sub read_MSF{
    # alignment section
 
    while( <$fh> ) {
-       /^\s+(\S+)\s+(.*)$/ && do {
+       # following regexp changed to not require initial whitespace, according
+       # to a suggestion of Peter Schattner <schattner@alum.mit.edu>
+       /^\s*(\S+)\s+(.*)$/ && do {
 	   $name = $1;
 	   $str = $2;
 	   if( ! exists $hash{$name} ) {
