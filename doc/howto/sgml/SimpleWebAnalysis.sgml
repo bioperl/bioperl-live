@@ -339,7 +339,7 @@
      ## get all secondary structure features
      my @sec_fts = grep{$_->primary_tag eq '2ary'} 
                        $seq->all_SeqFeatures;
-     my @ww11 = grep{($_->each_tag_value('method'))[0]  eq 'Sopma' &&
+     my @ww11 = grep{($_->each_tag_value('method'))[0]  eq 'Sopma' &amp;&amp;
                      ($_->each_tag_value('window_width'))[0] == 11}
                      @sec_fts;
      
@@ -429,16 +429,17 @@
    </section>
 
   <section id="Acknowledgments">
-     <Title> Acknowledgments</Title>
-       <para>
-         These modules depend on several recently developed modules and wouldn't
-         work at all without them. 
-         Bio::Seq::Meta:: modules:
-			Chad Matsalla, Aaron Mackey and Heikki Lehvaslaiho
-         Bio::WebAgent:
-             Heikki Lehvaslaiho
-         Bio::SimpleAnalysisI:
-             Martin Senger  
-       </para>
-</section>
+    <title>Acknowledgments</title>
+    <para>
+      These modules depend on several recently developed modules and wouldn't
+      work at all without them. 
+      Bio::Seq::Meta:: modules:
+      Chad Matsalla, Aaron Mackey and Heikki Lehvaslaiho
+      Bio::WebAgent:
+      Heikki Lehvaslaiho
+      Bio::SimpleAnalysisI:
+      Martin Senger  
+    </para>
+  </section>
+
 </article>
