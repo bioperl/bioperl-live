@@ -24,9 +24,7 @@ BEGIN {
 
     $NUMTESTS = 2;
     plan tests => $NUMTESTS;
-    
-    unless( eval "use SOAP::Lite; 1;" ) {
-	warn $@;
+    unless( eval "require SOAP::Lite; 1;" ) {
 	print STDERR "SOAP::Lite not installed. This means that Bio::Biblio module is not usable. Skipping tests.\n";
 	for( 1..$NUMTESTS ) {
 	    skip (1,"SOAP::Lite not installed. This means that Bio::Biblio module is not usable. Skipping tests.\n");
