@@ -3162,17 +3162,11 @@ $seqstats_and_seqwords = sub {
 #
 
 $restriction_and_sigcleave = sub {
-    eval {
-      require Bio::Restriction::EnzymeCollection;
-      require Bio::Restriction::Analysis;
-      require  Bio::Tools::Sigcleave;
-    };
-    if( $@ ) {
-      warn "Storeable is not active and so can't run Restriction enzyme tutorial";
-      return 0;
-    }
+    require Bio::Restriction::EnzymeCollection;
+    require Bio::Restriction::Analysis;
+    require Bio::Tools::Sigcleave;
 
-    my ($re1, $re2, $allcutters, $sixcutters, @fragments1,
+    my ($re1, $re2, $allcutters, $rarecutters, @fragments1,
         @fragments2, $analysis, $seqobj, $dna);
     print $outputfh "\nBeginning restriction enzyme example... \n";
 
@@ -3184,30 +3178,34 @@ $restriction_and_sigcleave = sub {
     $seqobj = new Bio::Seq(-id  => 'test_seq',
                            -seq => $dna);
 
+    # a numer of methods exist to create custom enzyme lists
     $allcutters  = new Bio::Restriction::EnzymeCollection;
-    $sixcutters = $allcutters->cutters(6);
-    $analysis = Bio::Restriction::Analysis->new(-seq => $seqobj);
-    my @sixcutters = $sixcutters->available_list;
+    $rarecutters = $allcutters->cutters(-start => 6, -end => 8);
 
-    print $outputfh "The following 6-cutters are available\n";
-    print $outputfh join(" ",@sixcutters),"\n";
+    # this analysis object knows only of rare cutters
+    $analysis = Bio::Restriction::Analysis->new(-seq => $seqobj,
+                                                -enzymes => $rarecutters);
+    my @rarecutters = $rarecutters->available_list;
 
-    $re1 = $allcutters->get_enzyme('EcoRI');
+    print $outputfh "The following ".  scalar @rarecutters.
+        " rarely cutting enzymes are available\n";
+    print $outputfh join(" ",@rarecutters),"\n";
+
+    $re1 = 'EcoRI';
     @fragments1 = $analysis->fragments($re1);
     # $re1 is the enzyme cutting the DNA in $seqobj
 
     print $outputfh "\nThe sequence of " . $seqobj->display_id . " is " .
     $seqobj->seq . "\n";
     print $outputfh "When cutting " . $seqobj->display_id() . " with " .
-    $re1->name . " the initial fragment is\n" . $fragments1[0];
+    $re1 . " the initial fragment out of ". scalar @fragments1. " is\n" . $fragments1[0];
 
-    $re2 = Bio::Restriction::Enzyme->new(-name => 'EcoRV',
-                                         -seq  => 'GAT^ATC');
+    $re2 = 'EcoRV';
     @fragments2 = $analysis->fragments($re2);
 
     print $outputfh "\nWhen cutting ", $seqobj->display_id(),
-    " with ", $re2->name;
-    print $outputfh " the second fragment is\n", $fragments2[1], " \n";
+    " with ", $re2;
+    print $outputfh " the second fragment out of ". scalar @fragments2. " is\n", $fragments2[1], " \n";
 
     # III.4.7 Identifying amino acid cleavage sites (Sigcleave)
 
