@@ -16,15 +16,44 @@ Bio::Coordinate::ExtrapolatingPair - Continuous match between two coordinate set
 
 =head1 SYNOPSIS
 
-  # to use
+
+  use Bio::Location::Simple;
   use Bio::Coordinate::ExtrapolatingPair;
 
-  $a  = Bio::Coordinate::ExtrapolatingPair->new();
-  $b  = Bio::Coordinate::ExtrapolatingPair -> new ( -id => 3 );
+
+  $match1 = Bio::Location::Simple->new 
+    (-seq_id => 'propeptide', -start => 21, -end => 40, -strand=>1 );
+  $match2 = Bio::Location::Simple->new
+    (-seq_id => 'peptide', -start => 1, -end => 20, -strand=>1 );
+
+  $pair = Bio::Coordinate::ExtrapolatingPair->
+    new(-in => $match1,
+    	-out => $match2,
+    	-strict => 1
+       );
+
+  $pos = Bio::Location::Simple->new 
+      (-start => 40, -end => 60, -strand=> 1 );
+  $res = $pair->map($pos);
+  $res->start eq 20;
+  $res->end eq 20;
 
 =head1 DESCRIPTION
 
-Class
+This class represents a one continuous match between two coordinate
+systems represented by Bio::Location::Simple objects. The relationship
+is directed and reversible. It implements methods to ensure internal
+consistency, and map continuous and split locations from one
+coordinate system to another.
+
+This class is an elaboration of Bio::Coordoinate::Pair. The map
+function returns only matches which is the mode needed most of
+tehtime. By default the matching regions between coordinate systems
+are boundless, so that you can say e.g. that gene starts from here in
+the chromosomal coordinate system and extends indefinetely in both
+directions. If you want to define the matching regions exactly, you
+can do that and set strict() to true.
+
 
 =head1 FEEDBACK
 
@@ -34,14 +63,14 @@ User feedback is an integral part of the evolution of this and other
 Bioperl modules. Send your comments and suggestions preferably to the
 Bioperl mailing lists  Your participation is much appreciated.
 
-  bioperl-l@bioperl.org                         - General discussion
+  bioperl-l@bioperl.org                        - General discussion
   http://bio.perl.org/MailList.html             - About the mailing lists
 
 =head2 Reporting Bugs
 
 report bugs to the Bioperl bug tracking system to help us keep track
- the bugs and their resolution.  Bug reports can be submitted via
- email or the web:
+the bugs and their resolution.  Bug reports can be submitted via email
+or the web:
 
   bioperl-bugs@bio.perl.org
   http://bugzilla.bioperl.org/
@@ -72,8 +101,6 @@ use strict;
 # Object preamble - inherits from Bio::Root::Root
 use Bio::Root::Root;
 use Bio::LocationI;
-#use Bio::Coordinate::Result;
-use Bio::Coordinate::Result::Match;
 use Bio::Coordinate::Pair;
 
 @ISA = qw(Bio::Coordinate::Pair);
@@ -97,7 +124,7 @@ sub new {
 
  Title   : strict
  Usage   : $obj->strict(1);
- Function: Set and read the strictput coordinate system.
+ Function: Set and read the strictness of the coordinate system.
  Example :
  Returns : value of input system
  Args    : boolean
@@ -116,15 +143,15 @@ sub strict {
 =head2 map
 
  Title   : map
- Usage   : $newpos = $obj->map(5);
- Function: Map the location from the input coordinate system 
+ Usage   : $newpos = $obj->map($loc);
+ Function: Map the location from the input coordinate system
            to a new value in the output coordinate system.
 
            In extrapolating coodinate system there is no location zero.
            Locations are...
  Example :
- Returns : new value in the output coordinate system
- Args    : integer
+ Returns : new location in the output coordinate system or undef
+ Args    : Bio::Location::Simple
 
 =cut
 
@@ -140,12 +167,49 @@ sub map {
    $self->throw("Output coordinate system not set")
        unless $self->out;
 
-#   my $result = new Bio::Coordinate::Result;
+   my $match;
+
+   if ($value->isa("Bio::Location::SplitLocationI")) {
+
+       my $split = Bio::Coordinate::Result->new(-seq_id=>$self->out->seq_id);
+       foreach my $loc ( sort { $a->start <=> $b->start }
+                         $value->sub_Location ) {
+
+           $match = $self->_map($loc);
+           $split->add_sub_Location($match) if $match;
+
+       }
+       $split->each_Location ? (return $split) : (return undef) ;
+
+   } else {
+       return $self->_map($value);
+   }
+}
+
+
+=head2 _map
+
+ Title   : _map
+ Usage   : $newpos = $obj->_map($simpleloc);
+ Function: Internal method that does the actual mapping. Called
+           multiple times by map() if the location to be mapped is a
+           split location
+
+ Example :
+ Returns : new location in the output coordinate system or undef
+ Args    : Bio::Location::Simple
+
+=cut
+
+sub _map {
+   my ($self,$value) = @_;
 
    my ($offset, $start, $end);
+
    if ($self->strand == -1) {
-       $start = -1 * ($value->end - $self->in->end  - 1);
-       $end = -1* ($value->start - $self->in->end  - 1);
+       $offset = $self->in->end + $self->out->start;
+       $start = $offset - $value->end;
+       $end = $offset - $value->start ;
    } else { # undef, 0 or 1
        $offset = $self->in->start - $self->out->start;
        $start = $value->start - $offset;
@@ -169,7 +233,7 @@ sub map {
 	  );
    $match->strand($match->strand * $value->strand) if $value->strand;
    bless $match, 'Bio::Coordinate::Result::Match';
-#   $result->add_Location($match);
+
    return $match;
 }
 

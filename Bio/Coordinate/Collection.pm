@@ -16,7 +16,7 @@ Bio::Coordinate::Collection - Noncontinuous match between two coordinate sets
 
 =head1 SYNOPSIS
 
-  # create Bio::Coordinate::Pairs somehow
+  # create Bio::Coordinate::Pairs or other Bio::Coordinate::MapperIs somehow
   $pair1; $pair2;
 
   # add them into a Collection
@@ -26,9 +26,9 @@ Bio::Coordinate::Collection - Noncontinuous match between two coordinate sets
 
   # create a position and map it
   $pos = Bio::Location::Simple->new (-start => 5, -end => 9 );
-  ok $res = $collection->map($pos);
-  ok $res->match->start, 1;
-  ok $res->match->end, 5;
+  $res = $collection->map($pos);
+  $res->match->start == 1;
+  $res->match-> == 5;
 
   # if mapping is many to one (*>1) or many-to-many (*>*)
   # you have to give seq_id not get unrelevant entries
@@ -40,16 +40,18 @@ Bio::Coordinate::Collection - Noncontinuous match between two coordinate sets
 Generic, context neutral mapper to provide coordinate transforms
 between two B<disjoint> coordinate systems. It brings into Bioperl the
 functionality from Ewan Birney's Bio::EnsEMBL::Mapper ported into
-current bioperl usage.
+current bioperl.
 
 This class is aimed for representing mapping between whole chromosomes
 and contigs, or between contigs and clones, or between sequencing
 reads and assembly. The submaps are automatically sorted, so they can
 be added in any order.
 
-To map coordinates to other direction, you have to swap() the
-collection. Keeping track of teh direction and when to id restricitons
+To map coordinates to the other direction, you have to swap() the
+collection. Keeping track of the direction and ID restrictions
 are left to the calling code.
+
+
 
 =head1 FEEDBACK
 
@@ -213,10 +215,13 @@ sub each_mapper{
 
 sub swap {
    my ($self) = @_;
+   use Data::Dumper;
 
-   #@{$self->{'mappers'}} = 
-   map {$_->swap} @{$self->{'_mappers'}};
-   $self->sort;
+   $self->sort unless $self->_is_sorted;
+   map {$_->swap;} @{$self->{'_mappers'}};
+   ($self->{'_in_ids'}, $self->{'_out_ids'}) =
+       ($self->{'_out_ids'}, $self->{'_in_ids'});
+   1;
 }
 
 =head2 test
@@ -249,11 +254,11 @@ sub test {
 =head2 map
 
  Title   : map
- Usage   : $newpos = $obj->map(5);
- Function: Map the location from the input coordinate system 
+ Usage   : $newpos = $obj->map($pos);
+ Function: Map the location from the input coordinate system
            to a new value in the output coordinate system.
  Example :
- Returns : new value in the output coordiante system
+ Returns : new value in the output coordinate system
  Args    : integer
 
 =cut
@@ -269,6 +274,42 @@ sub map {
        unless $self->each_mapper;
 
    $self->sort unless $self->_is_sorted;
+
+
+   if ($value->isa("Bio::Location::SplitLocationI")) {
+
+       my $result = new Bio::Coordinate::Result;
+       foreach my $loc ( $value->sub_Location(1) ) {
+
+           my $res = $self->_map($loc);
+           map { $result->add_sub_Location($_) } $res->each_Location;
+
+       }
+       return $result;
+
+   } else {
+       return $self->_map($value);
+   }
+
+
+}
+
+
+=head2 _map
+
+ Title   : _map
+ Usage   : $newpos = $obj->_map($simpleloc);
+ Function: Internal method that does the actual mapping. Called multiple times
+           by map() if the location  to be mapped is a split location
+
+ Example :
+ Returns : new location in the output coordinate system or undef
+ Args    : Bio::Location::Simple
+
+=cut
+
+sub _map {
+   my ($self,$value) = @_;
 
    my $result = Bio::Coordinate::Result->new(-is_remote=>1);
 
@@ -293,17 +334,7 @@ IDMATCH: {
 	   $result->add_result($subres);
        }
    }
-   if ( $self->return_match ) {
-       return undef unless $result->match;
-       if ( $result->each_match > 1 ) {
-	   my @matches = $result->each_match;
-	   return Bio::Location::Simple->new
-	       (-seq_id => $matches[0]->seq_id,
-		-start => $matches[0]->start,
-		-end => $matches[-1]->end,
-		-strand=>$matches[0]->strand );
-       }
-   }
+
    $result->seq_id($result->match->seq_id) if $result->match;
    unless ($result->each_Location) {
        #build one gap;

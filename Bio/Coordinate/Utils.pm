@@ -12,7 +12,7 @@
 
 =head1 NAME
 
-Bio::Coordinate::Utils - Additional methods for Bio::Coordinate objects
+Bio::Coordinate::Utils - Additional methods to create Bio::Coordinate objects
 
 =head1 SYNOPSIS
 
@@ -40,7 +40,7 @@ User feedback is an integral part of the evolution of this and other
 Bioperl modules. Send your comments and suggestions preferably to one
 of the Bioperl mailing lists.  Your participation is much appreciated.
 
-  bioperl-l@bioperl.org          - General discussion
+  bioperl-l@bioperl.org                        - General discussion
   http://bio.perl.org/MailList.html             - About the mailing lists
 
 =head2 Reporting Bugs
@@ -78,7 +78,6 @@ use vars qw(@ISA);
 use Bio::Location::Simple;
 use Bio::Coordinate::Pair;
 use Bio::Coordinate::Collection;
-use Data::Dumper;
 
 use strict;
 
@@ -90,7 +89,7 @@ use strict;
  Title   : from_align
  Usage   : $mapper = Bio::Coordinate::Utils->from_align($aln, 1);
  Function:
-           Create a mapper out of an alignement
+           Create a mapper out of an alignment.
            The mapper will return a value only when both ends of
            the input range find a match.
 
@@ -119,13 +118,11 @@ sub from_align {
    #foreach remaining seq in aln, do:
 
    my $cs = $aln->consensus_string(49);
-   #print "........|$cs|.......\n";
    while ( $cs =~ /([^-]+)/g) {
 
        # alignment coordinates
        my $start = pos($cs) - length($1) + 1;
        my $end = $start+length($1)-1;
-       #print ".....$start-$end...|$1|.........\n";
 
        my $seq1 = $aln->get_seq_by_pos(1);
        my $seq2 = $aln->get_seq_by_pos(2);
@@ -150,7 +147,6 @@ sub from_align {
        $collection->add_mapper($pair);
    }
 
-   #print Dumper $collection;
    return @{$collection->each_mapper}[0] if $collection->each_mapper == 1;
    return $collection;
 
