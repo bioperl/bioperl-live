@@ -83,23 +83,30 @@ methods. Internal methods are usually preceded with a _
 
 package Bio::DB::GenPept;
 use strict;
-use vars qw(@ISA $DEFAULTFORMAT %PARAMSTRING );
+use vars qw(@ISA $DEFAULTFORMAT $DEFAULTMODE %PARAMSTRING );
 use Bio::DB::NCBIHelper;
 
 @ISA = qw(Bio::DB::NCBIHelper);
 BEGIN { 
-    $DEFAULTFORMAT = 'genpept';	    
-    %PARAMSTRING = ( 'batch'=>   {  'db'    => 'p',
-				    'form'  => '1',			     
-				    'title' => 'no' },
-		     'single'=>  { 'db'     => 'p',
-				   'form'   => '1',			     
-				   'title'  => 'no'},
-		     'version'=> { 'pg'     => 'hist',
-				   'type'   => 'acc'},
-		     'gi' =>     {  'db'    => 'p',
-				    'form'  => '1',			     
-				    'title' => 'no',}
+    $DEFAULTMODE   = 'single';
+    $DEFAULTFORMAT = 'gp';	    
+    %PARAMSTRING = ( 
+		     'batch' => { 'db'     => 'protein',
+				  'usehistory' => 'n',
+				  'tool'   => 'bioperl',
+				  'retmode' => 'text'},
+		     'gi' => { 'db'     => 'protein',
+			       'usehistory' => 'n',
+			       'tool'   => 'bioperl',
+			       'retmode' => 'text'},
+		     'version' => { 'db'     => 'protein',
+				    'usehistory' => 'n',
+				    'tool'   => 'bioperl',
+				    'retmode' => 'text'},
+		     'single' => { 'db'     => 'protein',
+				   'usehistory' => 'n',
+				   'tool'   => 'bioperl',
+				   'retmode' => 'text'},
 		     );
 }
 
@@ -124,7 +131,7 @@ sub new {
 
 sub get_params {
     my ($self, $mode) = @_;
-    return %{$PARAMSTRING{$mode}};
+    return defined $PARAMSTRING{$mode} ? %{$PARAMSTRING{$mode}} : %{$PARAMSTRING{$DEFAULTMODE}};
 }
 
 =head2 default_format

@@ -142,7 +142,9 @@ sub get_Seq_by_id {
     my ($self,$seqid) = @_;
     my $seqio = $self->get_Stream_by_id([$seqid]);
     $self->throw("id does not exist") if( !defined $seqio ) ;
-    return $seqio->next_seq();
+    my @seqs;
+    while( my $seq = $seqio->next_seq() ) { push @seqs, $seq; }
+   if( wantarray ) { return @seqs } else { return shift @seqs }
 }
 
 =head2 get_Seq_by_acc
@@ -160,8 +162,11 @@ sub get_Seq_by_acc {
    my ($self,$seqid) = @_;
    my $seqio = $self->get_Stream_by_acc($seqid);
    $self->throw("acc does not exist") if( !defined $seqio );
-   return $seqio->next_seq();
+   my @seqs;
+   while( my $seq = $seqio->next_seq() ) { push @seqs, $seq; }
+   if( wantarray ) { return @seqs } else { return shift @seqs }
 }
+
 
 =head2 get_Seq_by_gi
 
@@ -178,7 +183,9 @@ sub get_Seq_by_gi {
    my ($self,$seqid) = @_;
    my $seqio = $self->get_Stream_by_gi($seqid);
    $self->throw("gi does not exist") if( !defined $seqio );
-   return $seqio->next_seq();
+   my @seqs;
+   while( my $seq = $seqio->next_seq() ) { push @seqs, $seq; }
+   if( wantarray ) { return @seqs } else { return shift @seqs }
 }
 
 =head2 get_Seq_by_version
@@ -194,10 +201,12 @@ sub get_Seq_by_gi {
 
 sub get_Seq_by_version {
    my ($self,$seqid) = @_;
-   $self->throw("Implementing class should define this method!"); 
+#   $self->throw("Implementing class should define this method!"); 
    my $seqio = $self->get_Stream_by_version($seqid);
    $self->throw("accession.version does not exist") if( !defined $seqio );
-   return $seqio->next_seq();
+   my @seqs;
+   while( my $seq = $seqio->next_seq() ) { push @seqs, $seq; }
+   if( wantarray ) { return @seqs } else { return shift @seqs }
 }
 
 # implementing class must define these
@@ -286,7 +295,7 @@ sub get_Stream_by_gi {
 
 sub get_Stream_by_version {
     my ($self, $ids ) = @_;
-    $self->throw("Implementing class should define this method!"); 
+#    $self->throw("Implementing class should define this method!"); 
     return $self->get_seq_stream('-uids' => $ids, '-mode' => 'version'); # how it should work
 }
 
@@ -350,7 +359,7 @@ sub get_seq_stream {
     }
     $qualifiers{'-format'} = $rformat if( !$seen);
     ($rformat, $ioformat) = $self->request_format($rformat);
-    
+
     my $request = $self->get_request(%qualifiers);
     $self->debug("request is ". $request->as_string(). "\n");
     my ($stream,$resp);
@@ -378,16 +387,16 @@ sub get_seq_stream {
         my $content = $resp->content_ref;
 	$self->debug( "content is $$content\n");
 	if( ! $resp->is_success() || length(${$resp->content_ref()}) == 0 ) {
-	    $self->throw("WebDBSeqI Error - check query sequences!\n");	
-        }  
-	($rformat,$ioformat) = $self->request_format();
-	$self->postprocess_data('type'=> 'string',
-				'location' => $content);
-        print STDERR "str is $$content\n" if ( $self->verbose > 0);
-	$stream = new Bio::SeqIO('-verbose' => $self->verbose,
-				 '-format' => $ioformat,
-				 '-fh'   => new IO::String($$content));
-    } else { 
+	$self->throw("WebDBSeqI Error - check query sequences!\n");	
+    }  
+    ($rformat,$ioformat) = $self->request_format();
+    $self->postprocess_data('type'=> 'string',
+			    'location' => $content);
+    $self->debug( "str is $$content\n");
+    $stream = new Bio::SeqIO('-verbose' => $self->verbose,
+			     '-format' => $ioformat,
+			     '-fh'   => new IO::String($$content));
+} else { 
 	$self->throw("retrieval type " . $self->retrieval_type . 
 		     " unsupported\n");
     }

@@ -108,43 +108,30 @@ preceded with a _
 
 package Bio::DB::GenBank;
 use strict;
-use vars qw(@ISA %PARAMSTRING);
+use vars qw(@ISA %PARAMSTRING $DEFAULTFORMAT $DEFAULTMODE);
 use Bio::DB::NCBIHelper;
 
 @ISA = qw(Bio::DB::NCBIHelper);
 BEGIN {    
+    $DEFAULTMODE   = 'single';
+    $DEFAULTFORMAT = 'gp';	    
     %PARAMSTRING = ( 
-# new stype batch entrez - but only returns HTML
-#		     'batch'  => { 
-#			 'cmd' => 'Retrieve',
-#			 'db'  => 'nucleotide',
-#		     },
-# old style
-#		     'batch'  => { 
-#			 'db' => 'n',
-#			 'FORMAT'  => 0,
-#			 'REQUEST_TYPE' => 'LIST_OF_GIS',
-#			 'ORGNAME'  => '',
-#			 'LIST_ORG' => '(None)',
-#			 'QUERY'    => "",
-#			 'SAVETO'   => 'YES',
-#			 'NOHEADER' => 'YES',
-#		     },
-		     'batch'=>  { 'db'     => 'n',
-				   'form'   => '1',
-				   'title'  => 'no', 
-			       },
-		     'single'=>  { 'db'     => 'n',
-				   'form'   => '1',
-				   'title'  => 'no', 
-			       },
-		     'version'=> { 'pg'     => 'hist',
-				   'type'   => 'acc',
-			       },
-		     'gi' =>     {  'db'    => 'n',
-				    'form'  => '1',
-				    'title' => 'no',
-				}
+		     'batch' => { 'db'     => 'protein',
+				  'usehistory' => 'n',
+				  'tool'   => 'bioperl',
+				  'retmode' => 'text'},
+		     'gi' => { 'db'     => 'protein',
+			       'usehistory' => 'n',
+			       'tool'   => 'bioperl',
+			       'retmode' => 'text'},
+		     'version' => { 'db'     => 'protein',
+				    'usehistory' => 'n',
+				    'tool'   => 'bioperl',
+				    'retmode' => 'text'},
+		     'single' => { 'db'     => 'protein',
+				   'usehistory' => 'n',
+				   'tool'   => 'bioperl',
+				   'retmode' => 'text'},
 		     );
 }
 
@@ -165,7 +152,7 @@ BEGIN {
 
 sub get_params {
     my ($self, $mode) = @_;
-    return %{$PARAMSTRING{$mode}};
+    return defined $PARAMSTRING{$mode} ? %{$PARAMSTRING{$mode}} : %{$PARAMSTRING{$DEFAULTMODE}};
 }
 
 # from Bio::DB::WebDBSeqI from Bio::DB::RandomAccessI
