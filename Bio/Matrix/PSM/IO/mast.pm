@@ -41,6 +41,9 @@ Email skirov@utk.edu
 
 =head1 APPENDIX
 
+=head1 TO DO
+Section III should be parsed too, otherwise no real sequence is available, so we
+supply 'NNNNN....' as a seq which is not right.
 =cut
 
 
@@ -198,14 +201,18 @@ sub next_psm {
         my $id=$next;
 	my $score= $id=~m/\[/ ? 'strong' : 'weak' ;
 	$id=~s/\D+//g;
+	my @s;
+	my $width=$index{$id};
+	foreach (1..$width) {push @s,'N';} #We don't know the sequence, but we know the length
+	my $seq=join('N',@s); #Future version will have to parse Section tree nad get the real seq
 	my $instance=new Bio::Matrix::PSM::InstanceSite 
 	    ( -id=>"$id\@$sid", 
 	      -mid=>$id, 
-	      -accession=>$sid,
+	      -accession_number=>$sid,
 	      -desc=>"Motif $id occurrance in $sid",
 	      -score=>$score, 
-	      -width=>$index{$id},
-	      -seq=>'ACGT', 
+	      -seq=>$seq,
+		  -alphabet => 'dna', 
 	      -start=>$pos);
 	push @instances,$instance;
 	$pos+=$index{$id};
