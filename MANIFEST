@@ -1,4 +1,4 @@
-## $Id: MANIFEST,v 1.27 2001-02-04 23:38:30 lapp Exp $
+## $Id: MANIFEST,v 1.28 2001-02-19 05:34:07 lapp Exp $
 ##
 ## This is the file listing for everything that
 ## comes with the bioperl distribution. The perl
@@ -90,11 +90,16 @@ Bio/Search/Processor/ProcessorI.pm
 Bio/Search/Processor/Fasta.pm
 Bio/Seq/LargePrimarySeq.pm
 Bio/Seq/LargeSeq.pm
-Bio/SeqFeature/GeneStructure.pm
 Bio/SeqFeature/FeaturePair.pm
 Bio/SeqFeature/Similarity.pm
 Bio/SeqFeature/Generic.pm
 Bio/SeqFeature/SimilarityPair.pm
+Bio/SeqFeature/Gene/Exon.pm
+Bio/SeqFeature/Gene/ExonI.pm
+Bio/SeqFeature/Gene/GeneStructure.pm
+Bio/SeqFeature/Gene/GeneStructureI.pm
+Bio/SeqFeature/Gene/Transcript.pm
+Bio/SeqFeature/Gene/TranscriptI.pm
 Bio/SeqIO/game/featureHandler.pm
 Bio/SeqIO/game/idHandler.pm
 Bio/SeqIO/game/seqHandler.pm
