@@ -1,6 +1,16 @@
 $Id$
 Revision history for Bioperl core modules
 
+1.2.1 Stable release update
+
+    o Inclusion of WrapperBase, a needed component for StandAloneBlast
+
+    o Addition from main trunk of Ontology objects, principly to allow
+      BioSQL releases against 1.2.1
+
+    o Other bug fixes, including bpindex GenBank fix
+
+
 1.2  Stable major release
  
     o More functionality added to Bio::Perl, the newbie module
