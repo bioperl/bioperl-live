@@ -720,10 +720,12 @@ sub uppercase {
 
              Goes through all columns and changes residues that are
              identical to residue in first sequence to match '.'
-             character.
+             character. Sets L<match_char>.
 
              USE WITH CARE: Most MSE formats do not support match
-             characters in sequences, so this is for output only.
+             characters in sequences, so this is mostly for output
+             only. NEXUS format (L<Bio::AlignIO::nexus>) can handle
+             it.
 
  Returns   : 1
  Argument  : a match character, optional, defaults to '.'
@@ -751,6 +753,7 @@ sub match {
 	}
 	$seq->seq(join '', @varseq);
     }
+    $self->match_char($match);
     return 1;
 }
 
@@ -761,7 +764,7 @@ sub match {
  Usage     : $ali->unmatch()
  Function  : 
 
-             Undoes the effect of method L<match>.
+             Undoes the effect of method L<match>. Unsets L<match_char>.
 
  Returns   : 1
  Argument  : a match character, optional, defaults to '.'
@@ -786,6 +789,7 @@ sub unmatch {
 	}
 	$seq->seq(join '', @varseq);
     }
+    $self->match_char('');
     return 1;
 }
 
@@ -793,9 +797,9 @@ sub unmatch {
 
 Methods for setting and reading the MSE attributes. 
 
-Note that the methods defining character semantics depent on user to
-set them sensibly.  They are needed only by certain input/output
-methods. The defaults are used if attributes are unset.
+Note that the methods defining character semantics depend on the user
+to set them sensibly.  They are needed only by certain input/output
+methods. Unset them by setting to an empty string ('').
 
 =head2 id
 
@@ -820,10 +824,11 @@ sub id {
 =head2 missing_char
 
  Title     : missing_char
- Usage     : $myalign->missing_char("_")
+ Usage     : $myalign->missing_char("?")
  Function  : Gets/sets the missing_char attribute of the alignment
- Returns   : An missing_char string, 
-             defaults to 'n' for nucleotides and 'X' for protein. 
+             It is generally recommended to set it to 'n' or 'N' 
+             for nucleotides and to 'X' for protein. 
+ Returns   : An missing_char string,
  Argument  : An missing_char string (optional)
 
 =cut
@@ -831,41 +836,12 @@ sub id {
 sub missing_char {
     my ($self, $char) = @_;
 
-    if (defined( $char )) {
+    if (defined $char ) {
 	$self->throw("Single missing character, not [$char]!") if CORE::length($char) > 1;
 	$self->{'_missing_char'} = $char;
-    } else { # guess
-	$self->throw('Can not quess the missing_char for alignment with no sequences')
-	    if $self->no_sequences == 0;
-	my $mc = 'n';
-	$mc = 'X' if $self->get_seq_by_pos(1)->moltype eq 'protein';
-	$self->{'_missing_char'} = $mc;
     }
     
     return $self->{'_missing_char'};
-}
-
-=head2 unknown_char
-
- Title     : unknown_char
- Usage     : $myalign->unknown_char('?')
- Function  : Gets/sets the unknown_char attribute of the alignment
- Returns   : An unknown_char string, defaults to '?'
- Argument  : An unknown_char string (optional)
-
-=cut
-
-sub unknown_char {
-    my ($self, $char) = @_;
-
-    if (defined( $char )) {
-	$self->throw("Single unknown character not [$char]!") if CORE::length($char) > 1;
-	$self->{'_unknown_char'} = $char;
-    } else {
-	$self->{'_unknown_char'} = '?';
-    }
-    
-    return $self->{'_unknown_char'};
 }
 
 =head2 match_char
@@ -873,7 +849,7 @@ sub unknown_char {
  Title     : match_char
  Usage     : $myalign->match_char('.')
  Function  : Gets/sets the match_char attribute of the alignment
- Returns   : An match_char string, defaults to '.'
+ Returns   : An match_char string,
  Argument  : An match_char string (optional)
 
 =cut
@@ -881,11 +857,9 @@ sub unknown_char {
 sub match_char {
     my ($self, $char) = @_;
 
-    if (defined( $char )) {
+    if (defined $char ) {
 	$self->throw("Single match character, not [$char]!") if CORE::length($char) > 1;
 	$self->{'_match_char'} = $char;
-    } else {
-	$self->{'_match_char'} = '.';
     }
 
     return $self->{'_match_char'};
@@ -904,7 +878,7 @@ sub match_char {
 sub gap_char {
     my ($self, $char) = @_;
     
-    if (defined( $char )) {
+    if (defined $char ) {
 	$self->throw("Single gap character, not [$char]!") if CORE::length($char) > 1;
 	$self->{'_gap_char'} = $char;
     } else {
