@@ -208,6 +208,7 @@ sub AC {
 	my($self,$tag,$datum)=@_;
 	return $self->{ac} || [] unless(defined $tag);
 	my @data = split ';',$datum;
+	s/\s//g foreach @data;
 	push @{$self->{ac}}, @data;
 }
 
@@ -230,6 +231,8 @@ sub GN {
 	my($self,$tag,$datum)=@_;
 	return $self->{gn} || [] unless(defined $tag);
 	my @data = split /AND|OR/ ,$datum;
+	s/\s//g foreach @data;
+	$data[$#data] =~ s/\.$//;
 	push @{$self->{gn}}, @data;
 }
 
@@ -244,6 +247,7 @@ sub organelle { return shift->OG(@_) }
 sub OG {
 	my($self,$tag,$datum)=@_;
 	return $self->{og} || [] unless(defined $tag);
+	$datum =~ s/\.$//;
 	push @{$self->{og}}, $datum;
 }
 
@@ -268,6 +272,8 @@ sub KW {
 	my($self,$tag,$datum)=@_;
 	return $self->{kw} || [] unless(defined $tag);
 	my @data = split ';',$datum;
+	s/\s*(.+)\s*/$1/g foreach @data;
+	$data[$#data] =~ s/\.$//;
 	push @{$self->{kw}}, @data;
 }
 
@@ -276,6 +282,7 @@ sub DR {
 	my($self,$tag,$datum)=@_;
 	return $self->{dr} || [] unless(defined $tag);
 	my @data = split ';',$datum;
+	s/\s//g foreach @data;
 	push @{$self->{dr}}, [@data];
 }
 
@@ -284,7 +291,8 @@ sub FT {
 	my($self,$tag,$datum)=@_;
 	return $self->{ft} || [] unless(defined $tag);
 	my @data = $datum =~ /^(.{8}) (.{6}) (.{6})       (.+)$/;
-	chomp $_ foreach @data;
+	return unless $data[0] =~ /\S/;
+	s/\s*(.+)\s*/$1/ foreach @data;
 	push @{$self->{ft}}, [@data];
 }
 
@@ -309,14 +317,10 @@ sub RR {
 	my($self,$tag,$datum)=@_;
 	$self->{rr} ||= ();
 
-	unless(defined $tag){
-		return wantarray
-			? $self->{rr} || []
-			: $self->prettyRR($self->{rr});
-	}
+	return $self->{rr} || [] unless(defined $tag);
 
 	$self->refcount(1) if $tag eq 'RN';
-	%{$self->{rr}[$self->refcount]}->{$tag} = $datum;
+	%{$self->{rr}[$self->refcount]}->{$tag} .= $datum;
 }
 
 sub comment { return shift->CC(@_) }
@@ -324,11 +328,12 @@ sub CC {
 	my($self,$tag,$datum)=@_;
 	$self->{rr} ||= ();
 
-	unless(defined $tag){
-		return wantarray
-			? $self->{cc} || []
-			: $self->prettyCC($self->{cc});
-	}
+	return $self->{cc} || [] unless(defined $tag);
+#	unless(defined $tag){
+#		return wantarray
+#			? $self->{cc} || []
+#			: $self->prettyCC($self->{cc});
+#	}
 
 
 	if($datum =~ /-\!- (.+?):(.+)/){
