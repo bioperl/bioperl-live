@@ -91,8 +91,8 @@ also implements its interface.
 In Bioperl we have 3 main players that people are going to use frequently
 
   Bio::PrimarySeq  - just the sequence and its names, nothing else.
-  Bio::SeqFeatureI - a location on a sequence, potentially with a sequence
-                     and annotation.
+  Bio::SeqFeatureI - a feature on a sequence, potentially with a sequence
+                     and a location and annotation.
   Bio::Seq         - A sequence and a collection of sequence features
                      (an aggregate) with its own annotation.
 
