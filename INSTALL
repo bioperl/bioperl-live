@@ -435,3 +435,5 @@ o System requirements
 
  Data::Stag::XMLWriter    Structured Tags datastructures
 			  Bio::SeqIO::chadoxml
+ Text::Wrap               (Very optional)
+                          Bio::SearchIO::Writer::TextResultWriter
