@@ -169,7 +169,7 @@ sub new {
                   :$self->indexing_scheme eq 'flat/1'       ? 'Binary'
                   :$self->throw("unknown indexing scheme: " .
 				$self->indexing_scheme);
-  my $format     = $self->file_format;
+  $format        = $self->file_format;
 
   # because Michele and Lincoln did it differently
   # Michele's way is via a standalone concrete class
