@@ -109,7 +109,7 @@ See Also   : L<_adjust_contigs>(), L<Bio::Search::Hit::BlastHit|Bio::Search::Hit
 sub tile_hsps {
 #--------------
     my $sbjct = shift;
-
+    
     $sbjct->{'_tile_hsps'} = 1;
     $sbjct->{'_gaps_query'} = 0;
     $sbjct->{'_gaps_sbjct'} = 0;
@@ -213,7 +213,7 @@ sub tile_hsps {
     }
 
     # Adjust length based on BLAST flavor.
-    my $prog = $sbjct->{'_blast_program'};
+    my $prog = $sbjct->algorithm;
     if($prog eq 'TBLASTN') {
 	$sbjct->{'_length_aln_sbjct'} /= 3;
     } elsif($prog eq 'BLASTX' ) {
