@@ -1,9 +1,9 @@
 #!/bin/perl -w
 package Bio::Graph::IO::dip;
 use vars qw(@ISA $FAC);
-use lib '../';
+
 use Bio::Graph::IO;
-use Bio::Graph::ProteinGraph;
+#use Bio::Graph::ProteinGraph;
 use Bio::Seq::SeqFactory;
 use Bio::Annotation::DBLink;
 use Bio::Annotation::Collection;
@@ -94,9 +94,56 @@ sub next_network {
 	return $graph;
 }
 
-sub write_network{
+=head2      write_network
 
+ name     : write_network
+ purpose  : write graph out in dip format
+ arguments: a Bio::Graph::ProteinGraph object
+ returns  : void
+ usage    : $out->write_network($gr);
+ 
+=cut
+
+sub write_network {
+
+my ($self, $gr) = @_;
+if ($gr || !$gr->isa('Bio::Graph::ProteinGraph')) {
+	$self->throw("I need a Bio::Graph::ProteinGraph, not a [".
+	              ref($gr) . "]");
+	  }
+my @edges = $gr->edges();
+
+#need to have all ids as annotations with database ids as well
+
+#for each edge
+for my $edge (@edges) {
+	my $str  = $edge->object_id(). "\t";             #output string
+	my @nodes = $edge->nodes();
+	
+	# add node ids to string in correct order
+	for my $n (@nodes){
+	    # print out nodes in dip order
+		my %ids = $gr->get_all_ids($n); #need to modify this in graph()
+		for my $db (qw(DIP SWP PIR GI)){
+			if (exists($ids{$db})){
+				$str .= "$db:$ids{$db}\t";
+			}
+		}
+	}
+	
+	# add weights if defined
+	$str =~ s/\t$//;
+	if(defined($edge->weight)) {
+		$str .= "\t" .$edge->weight. "\n";
+		}else {
+		$str .= "\n";
+	}
+	$self->_print($str);# or whatever
+ }# next edge
+		
 }
+
+
 
 sub _add_db_links {
 	my ($self, $acc, $s1, $p1,  $n1) = @_;
