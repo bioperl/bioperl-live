@@ -172,7 +172,7 @@ sub next_report{
 	    $self->_pushback($_);
 	    last;
 	}
-	
+	s/&apos;/\`/g;	
 	$data .= $_;
 	$firstline = 0;
     }
