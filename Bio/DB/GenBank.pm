@@ -119,9 +119,10 @@ sub get_Seq_by_id {
   my $self = shift;
   my $uid = shift or $self->throw("Must supply an identifier!\n");
 
-  my $entrez = "db=n&form=6&dopt=f&html=no&title=no&uid=$uid";
+  my ($fmt, $streamfmt) = $self->request_format();
+  my $entrez = "db=n&form=6&dopt=$fmt&html=no&title=no&uid=$uid";
 
-  my $stream = $self->_get_stream($entrez);
+  my $stream = $self->_get_stream($entrez,$streamfmt);
   my $seq = $stream->next_seq();
   $self->throw("Unable to get seq for id $uid, is it really a genbank id?\n") 
       if ( !defined $seq );
