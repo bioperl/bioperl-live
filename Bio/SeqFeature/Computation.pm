@@ -194,6 +194,10 @@ sub score {
     my ($self, $value) = @_;
     my @v;
     if (defined $value) {
+	if( ref($value) ) {
+	    $self->warn("Do not use score with a hash - you must initialize each item individually");
+	    return;
+	} 
 	@v = $value;
 	$self->add_score_value('default', $value);
     } else {       
