@@ -35,7 +35,7 @@ BEGIN {
 	if( $@ ) {
 	    print STDERR "game.pm not loaded. This means game test cannot be executed. Skipping\n";
 	    foreach ( 1..9 ) {
-		skip('game.pm not loaded',1);
+		skip('game.pm not loaded because XML::Writer not loaded',1);
 	    }
 	    $error = 1;
 	} 
