@@ -763,6 +763,8 @@ sub get_tag_values {
    }
    if( wantarray ) {
      return @{$self->{'_gsf_tag_hash'}->{$tag}};
+   } elsif( my @foo = @{$self->{'_gsf_tag_hash'}->{$tag}} ) {
+     return $foo[ 0 ];
    } else {
      return undef;
    }
