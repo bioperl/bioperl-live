@@ -26,6 +26,7 @@ sub draw {
   my $self = shift;
   my ($gd,$dx,$dy) = @_;
   my ($left,$top,$right,$bottom) = $self->calculate_boundaries($dx,$dy);
+  warn "here I am";
 
   my @parts = $self->parts;
 
@@ -54,7 +55,7 @@ sub draw {
     $_->{_y_position} = $bottom - $position;
   }
 
-  my $type = $self->option('graph_type') || 'boxes';
+  my $type = $self->option('graph_type') || $self->option('graphtype') || 'boxes';
   $self->_draw_histogram($gd,$x,$y)  if $type eq 'histogram';
   $self->_draw_boxes($gd,$x,$y)      if $type eq 'boxes';
   $self->_draw_line ($gd,$x,$y)      if $type eq 'line'
