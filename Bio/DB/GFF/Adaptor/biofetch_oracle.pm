@@ -32,11 +32,11 @@ use Bio::DB::GFF::Adaptor::dbi::oracle;
 use Bio::DB::BioFetch;
 use Bio::SeqIO;
 
-use vars qw(@ISA %preferred_tags);
+use vars qw(@ISA %default_preferred_tags);
 @ISA = qw(Bio::DB::GFF::Adaptor::dbi::oracle);
 
 # priority for choosing names of CDS tags, higher is higher priority
-%preferred_tags = (
+%default_preferred_tags = (
 		      strain        => 10,
 		      organism      => 20,
 		      protein_id    => 40,
@@ -46,13 +46,29 @@ use vars qw(@ISA %preferred_tags);
 		      standard_name => 80,
 		      );
 
+sub _preferred_tags {
+    my ($self, $tags) = @_;
+    if ($tags && (ref($tags) =~ /HASH/)){
+        $self->{preferred_tags} = $tags;
+    }
+    return $self->{preferred_tags};
+}
+
+
 =head2 new
 
  Title   : new
- Usage   : $db = Bio::DB::GFF->new(-adaptor=>'biofetch_oracle',@args)
+ Usage   : $db = Bio::DB::GFF->new(-adaptor=>'biofetch_oracle', -preferred_tags => \%preferred, @args)
  Function: create a new adaptor
  Returns : a Bio::DB::GFF object
- Args    : see below
+ Args    :   -adaptor : required.  Which adaptor to use; biofetch for mysql, biofetch_oracle for Oracle
+             -preferred_tags : optional.  A hash of {classname => weight,...}
+                               used to determine the class and name of the feature
+                               when a choice of possible feature classes is available
+                               (e.g. a feature has both a 'gene' and a 'locus' tag).
+                               Common defaults are provided that work well for eukaryotic
+                               features (but not well for viral/prokaryotic)
+              see beow for additional arguments.                             
  Status  : Public
 
 This is the constructor for the adaptor.  It is called automatically
@@ -82,7 +98,12 @@ argument must be passed as an array reference.
 
 sub new {
   my $class = shift;
+  my %args = @_;
   my $self  = $class->SUPER::new(@_);
+  my $preferred = $args{'-preferred_tags'} if $args{'-preferred_tags'};
+  delete $args{'-preferred_tags'};  # get rid of the argument before passing it on to the rearrange/PROXY calls below
+  $self->preferred_tags($preferred?$preferred:\%default_preferred_tags);  # if the caller sent their own preferences, then use these, otherwise use defaults.
+
   my ($proxy) = rearrange(['PROXY'],@_);
   if ($proxy) {
     my @args = ref($proxy) ? @$proxy : eval $proxy;
@@ -269,7 +290,7 @@ sub guess_name {
   my $attributes = shift;
 # remove this fix when Lincoln fixes it properly
   return ["Misc" => "Misc"] unless ($attributes);  # these are arbitrary, and possibly destructive defaults
-  my @ordered_attributes = sort {($preferred_tags{$a->[0]} || 0) <=> ($preferred_tags{$b->[0]} || 0)} @$attributes;
+  my @ordered_attributes = sort {($self->_preferred_tags->{$a->[0]} || 0) <=> ($self->_preferred_tags->{$b->[0]} || 0)} @$attributes;
   my $best = pop @ordered_attributes;
   @$attributes = @ordered_attributes;
   return $best;
