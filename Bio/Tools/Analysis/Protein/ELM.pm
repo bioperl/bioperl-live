@@ -265,7 +265,7 @@ sub  _run {
 			return;
 			}
 		else {
-			print ".";
+			print "." if $self->verbose > 0;
 			$self->sleep();
 			}
 	}
