@@ -228,26 +228,28 @@ sub next_aln {
 	    $self->throw("Not a valid interleaved NEXUS file!
 seqcount [$count] > predeclared [$seqcount] in the first section") if $count > $seqcount;
 	}
-		     }
+    }
 
     # interleaved sections
     $count = 0;
-    while( $entry = $self->_readline) {
-	local ($_) =  $entry;
-	if( s/\[[^\]]+\]//g ) { #]  remove comments	    
-	    next unless length($_);
+    if ( $interleave || (@names > 0) ) {	# NSH - only read next section if we are using interleaved or there was a taxa block
+	while( $entry = $self->_readline) {
+	    local ($_) =  $entry;
+	    if( s/\[[^\]]+\]//g ) { #]  remove comments	    
+		next unless length($_);
+	    }
+	    last if /^\s*;/;
+	    $count = 0, next if $entry =~ /^\s*$/;
+	    if (/^\s*('([^']*?)'|([^']\S*))\s+(.*)\s$/) { #'
+		$str = $4;
+		$str =~ s/\s//g;
+		$count++;
+		$hash{$count} .= $str;
+	    };
+	    $self->throw("Not a valid interleaved NEXUS file!
+    seqcount [$count] > predeclared [$seqcount] ") if $count > $seqcount;
+    
 	}
-	last if /^\s*;/;
-	$count = 0, next if $entry =~ /^\s*$/;
-        if (/^\s*('([^']*?)'|([^']\S*))\s+(.*)\s$/) { #'
-	    $str = $4;
-	    $str =~ s/\s//g;
-	    $count++;
-	    $hash{$count} .= $str;
-	};
-	$self->throw("Not a valid interleaved NEXUS file!
-seqcount [$count] > predeclared [$seqcount] ") if $count > $seqcount;
-
     }
 
     return 0 if @names < 1;
@@ -354,10 +356,10 @@ sub write_aln {
 	$self->_print (sprintf("format interleave datatype=%s %s %s %s %s;\n\nmatrix\n",
 			       $aln->get_seq_by_pos(1)->alphabet, $match, $missing, $gap, $symbols));
 
-	my $indent = $aln->maxdisplayname_length;
+	my $indent = $aln->maxdisplayname_length + 2;			# NSH - account for additional single quotes
 	$aln->set_displayname_flat();
 	foreach $seq ( $aln->each_seq() ) {
-	    $name = $aln->displayname($seq->get_nse());
+	    $name = "\'" . $aln->displayname($seq->get_nse()) . "\'";	# NSH - put name in single quotes incase it contains any of the following chars: ()[]{}/\,;:=*'"`+-<> that are not allowed in PAUP* and possible other software
 	    $name = sprintf("%-${indent}s", $name);
 	    $hash{$name} = $seq->seq();
 	    push(@arr,$name);
