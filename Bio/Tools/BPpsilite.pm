@@ -152,7 +152,7 @@ sub new {
 
   my ($fh) = $self->_rearrange([qw(FH)],@args);
 
-  if (ref $fh !~ /GLOB/)
+  if (!defined $fh || ref $fh !~ /GLOB/)
     { $self->throw("Expecting a GLOB reference, not $fh!"); }
 
   $self->fh($fh);

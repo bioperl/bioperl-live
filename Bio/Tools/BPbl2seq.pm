@@ -122,8 +122,8 @@ sub new {
     my ($class, $fh,$query,@args) = @_;
     my $self = $class->SUPER::new(@args);
     $query = 'unknown' if( ! defined $query );
-
-    if (ref($fh) !~ /GLOB/) {
+    
+    if (!defined $fh || ref($fh) !~ /GLOB/) {
 	$self->throw("Expecting a GLOB reference, not $fh!");
     } else { 
 	$self->_filehandle($fh);
@@ -174,7 +174,6 @@ sub new {
     $self->{'QS'} = $qs;
     $self->{'SS'} = $ss;
     $self->{'HS'} = $hs;
-
     return $self;
 }
 
@@ -339,7 +338,7 @@ sub _parsebl2seq {
   ############################
   my $nextline;
 
- BLANKS: while ($nextline = <$FH>) {
+ BLANKS: while (defined($nextline = <$FH>)) {
      last BLANKS if ($nextline =~ /\w/) ;
  }
   return undef if not defined $nextline;
