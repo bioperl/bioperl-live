@@ -2040,18 +2040,20 @@ sub insert_sequence {
   $self->throw('insert_sequence(): must be defined in subclass');
 }
 
-# default is to return 'Sequence' as the class of all references
-sub refclass {
-  my $self = shift;
-  my $refname = shift;
-  'Sequence';
-}
-
+# This is the default class for reference points.  Defaults to Sequence.
 sub default_class {
    my $self = shift;
    my $d = exists($self->{default_class}) ? $self->{default_class} : 'Sequence';
    $self->{default_class} = shift if @_;
    $d;
+}
+
+# gets name of the reference sequence, and returns its class
+# currently just calls default_class
+sub refclass {
+  my $self = shift;
+  my $name = shift;
+  return $self->default_class;
 }
 
 =head2 setup_load

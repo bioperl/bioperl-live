@@ -230,7 +230,7 @@ sub new {
     $name  = $name->name;
   }
   # if the class of the landmark is not specified then default to 'Sequence'
-  $class ||= 'Sequence';
+  $class ||= eval{$factory->default_class} || 'Sequence';
 
   # confirm that indicated sequence is actually in the database!
   my @abscoords;
