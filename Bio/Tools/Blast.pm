@@ -228,7 +228,7 @@ information about them, see:
 A variety of different data can be extracted from the Blast report by
 querying the Blast.pm object. Some basic examples are given in the
 L<USAGE | USAGE> section. For some working scripts, see the links provided in
-the L<DEMO SCRIPTS | DEMO SCRIPTS> section.
+the L<the DEMO SCRIPTS section | DEMO> section.
 
 As a part of the incipient Bioperl framework, the Bio::Tools::Blast.pm
 module inherits from B<Bio::Tools::SeqAnal.pm>, which provides some
@@ -386,16 +386,18 @@ C<-exec_func>.  The destroy() call tells Perl to free the memory
 associated with the object, important if you are crunching through
 many reports. This method is inherited from B<Bio::Root::Object.pm>
 (see L<Links to related modules>). See L<parse()|parse> for a full
-description of parameters and L<DEMO SCRIPTS | DEMO SCRIPTS> for additional examples.
+description of parameters and L<the DEMO SCRIPTS section | DEMO> for
+additional examples.
 
 =head2 Running Blasts
 
 To run a Blast, create a new Blast object with a C<-run =E<gt>
 \%runParams> parameter.  Remote Blasts are performed by including a
 C<-method =E<gt> 'remote'> parameter; local Blasts are performed by
-including a C<-method =E<gt> 'local'> parameter.  See 
-L<Running Blast reports> as well as the L<DEMO SCRIPTS | DEMO SCRIPTS> for examples.  
-Note that running local Blasts is not yet supported, see below.
+including a C<-method =E<gt> 'local'> parameter.  See L<Running Blast
+reports> as well as the L<the DEMO SCRIPTS section | DEMO> for
+examples.  Note that running local Blasts is not yet supported, see
+below.
 
 Note that the C<-seqs =E<gt> [ $seqs ]> run parameter must contain a
 reference to an array of B<Bio::Seq.pm> objects 

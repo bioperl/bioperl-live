@@ -17,7 +17,11 @@ Bio::DB::XEMBLService - SOAP service definition for XEMBL
 
 =head1 SYNOPSIS
 
+  #usage
+
 =head1 DESCRIPTION
+
+SOAP service definition for XEMBL.
 
 =head1 FEEDBACK
 
@@ -41,7 +45,7 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 
 =head1 AUTHOR - Lincoln Stein
 
-Email Lincoln Stein <lstein@cshl.org>
+Email lstein@cshl.org
 
 =head1 APPENDIX
 

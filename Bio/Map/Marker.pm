@@ -337,19 +337,18 @@ sub add_position{
 =head2 positions
 
  Title   : positions
- Usage   : $mappable->positions([[$map, 100], [$map, 200]]); 
- Function: Set multiple Bio::Map::PositionI for a mappable element
+ Usage   : $mappable->positions([$pos1, $pos2, $pos3]); 
+ Function: Add multiple Bio::Map::PositionI for a mappable element
            in a Map.
- Returns : Bio::Map::PositionI
+ Returns : boolean
  Args    : array ref of $map/value tuples or array ref of Positions
 
 =cut
 
 sub positions {
-    my ($self, $pos, $secondary_pos) = @_;
+    my ($self, $arrayref) = @_;
     my ($map);
-
-    $self->_abstractDeath('positions');
+   $self->throw_not_implemented();
 }
 
 =head2 each_position

@@ -34,11 +34,11 @@ Bio::Search::Result::GenericResult - Generic Implementation of Bio::Search::Resu
 	  -algorithm         => 'blastp',
            -algorithm_version => '2.1.2',
 	  );
-    
+
     my $id = $result->query_name();
-    
+
     my $desc = $result->query_description();
-    
+
     my $name = $result->database_name();
 
     my $size = $result->database_letters();

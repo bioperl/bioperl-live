@@ -1056,12 +1056,12 @@ Of course, the EMBOSS package must be installed for the Bioperl
 wrapper to function. An example of usage of the Bioperl EMBOSS wrapper
 would be:
 
-$factory = new Bio::Factory::EMBOSS();
-$compseqapp = $factory->program('compseq');
-%input = ( '-word' => 4,
-	      '-sequence' => $input_datafile'),
-	      '-outfile' => $compseqoutfile);
-$compseqapp->run(\%input);
+  $factory = new Bio::Factory::EMBOSS();
+  $compseqapp = $factory->program('compseq');
+  %input = ( '-word' => 4,
+  		'-sequence' => $input_datafile'),
+  		'-outfile' => $compseqoutfile);
+  $compseqapp->run(\%input);
 
 =head2    III.3.7 Sequence manipulation without creating Bioperl "objects" (Perl.pm)
 
@@ -1076,12 +1076,12 @@ simple data format conversion and sequence manipulation could be
 performed as follows - note that no "new" methods are called and that
 no Seq or SeqIO objects are created:
 
-use Bio::Perl qw( get_sequence );
-# get a sequence from a database (assummes internet connection)
-$seq_object = get_sequence('swissprot',"ROA1_HUMAN");
-# $seq_object is Bio::Seq object, so the following methods work
-$seq_id  = $seq_object->display_id;
-$seq_as_string = $seq_object->seq();
+  use Bio::Perl qw( get_sequence );
+  # get a sequence from a database (assummes internet connection)
+  $seq_object = get_sequence('swissprot',"ROA1_HUMAN");
+  # $seq_object is Bio::Seq object, so the following methods work
+  $seq_id  = $seq_object->display_id;
+  $seq_as_string = $seq_object->seq();
 
 For more details see: L<Bio::Perl>
 
@@ -1222,28 +1222,28 @@ reports in a single file, the remainder of the Search/SearchIO parsing
 syntax is very similar to that of the BPlite and Blast.pm objects it
 is intended to replace.  Sample code to read a BLAST report might look like this:
 
-# Get the report
-searchio = new Bio::SearchIO ('-format' => 'blast',
-				  '-file'   => $blast_report);
-$result = $searchio->next_result;
+  # Get the report
+  searchio = new Bio::SearchIO ('-format' => 'blast',
+  				    '-file'   => $blast_report);
+  $result = $searchio->next_result;
 
-# Get info about the entire report
-$result->database_name;
-$algorithm_type =  $result->algorithm;
+  # Get info about the entire report
+  $result->database_name;
+  $algorithm_type =  $result->algorithm;
 
-# get info about the first hit
-$hit = $result->next_hit;
-$hit_name = $hit->name ;
+  # get info about the first hit
+  $hit = $result->next_hit;
+  $hit_name = $hit->name ;
 
-#get info about the first hsp of the first hit
-$hsp = $hit->next_hsp;
-$hsp_start = $hsp->query->start;
+  #get info about the first hsp of the first hit
+  $hsp = $hit->next_hsp;
+  $hsp_start = $hsp->query->start;
 
-For more details on parsing with Search/SearchIO see the next section
- on BPlite and Blast.pm (which uses very similar syntax) as well as
- the Search and SearchIO documentation: L<Bio::SearchIO::blast>
- L<Bio::SearchIO::psiblast> L<Bio::SearchIO::blastxml>
- L<Bio::SearchIO::fasta> L<Bio::SearchIO>
+For more details on parsing with Search/SearchIO see the next section 
+on BPlite and Blast.pm (which uses very similar syntax) as well as 
+the Search and SearchIO documentation: L<Bio::SearchIO::blast> 
+L<Bio::SearchIO::psiblast> L<Bio::SearchIO::blastxml> 
+L<Bio::SearchIO::fasta> L<Bio::SearchIO>
 
 There is also sample code is the searchio subdirectory of the Bio::examples directory which illustrates the use of the Search parser.
 
@@ -1750,13 +1750,6 @@ Sample usage might be:
 
 See the L<Bio::Seq::RichSeqI> documentation for more details.
 
-=head1 DESCRIPTION
-
-This interface extends the Bio::SeqI interface to give additional functionality
-to sequences with richer data sources, in particular from database sequences 
-(EMBL, GenBank and Swissprot).
-
-
 =head2 III.7.2 Representing and large and/or changing sequences (LiveSeq,LargeSeq)
 
 Very large sequences and/or data files with sequences that are
@@ -1877,23 +1870,23 @@ information is important for documenting the reliability of base
 "calls" in newly sequenced or otherwise questionable sequence
 data. Syntax for using SeqWithQuality objects is as follows:
 
-# first, make a PrimarySeq object
-$seqobj = Bio::PrimarySeq->new
-	 ( -seq => 'atcgatcg', -id  => 'GeneFragment-12',
-	    -accession_number => 'X78121', -alphabet => 'dna');
-# now make a PrimaryQual object
-$qualobj = Bio::Seq::PrimaryQual->new
-	 ( -qual => '10 20 30 40 50 50 20 10', -id  => 'GeneFragment-12',
-	   -accession_number => 'X78121', -alphabet => 'dna');
-# now make the SeqWithQuality object
-$swqobj = Bio::Seq::SeqQithQuality->new
-	  ( -seq  => $seqobj, -qual => $qualobj);
-# Now we access the sequence with quality object
-$swqobj->id(); # the id of the SeqWithQuality object
-	       # may not match the the id of the sequence or
-	       # of the quality 
-$swqobj->seq(); # the sequence of the SeqWithQuality object
-$swqobj->qual(); # the quality of the SeqWithQuality object
+  # first, make a PrimarySeq object
+  $seqobj = Bio::PrimarySeq->new
+  	   ( -seq => 'atcgatcg', -id  => 'GeneFragment-12',
+  	      -accession_number => 'X78121', -alphabet => 'dna');
+  # now make a PrimaryQual object
+  $qualobj = Bio::Seq::PrimaryQual->new
+  	   ( -qual => '10 20 30 40 50 50 20 10', -id  => 'GeneFragment-12',
+  	     -accession_number => 'X78121', -alphabet => 'dna');
+  # now make the SeqWithQuality object
+  $swqobj = Bio::Seq::SeqQithQuality->new
+  	    ( -seq  => $seqobj, -qual => $qualobj);
+  # Now we access the sequence with quality object
+  $swqobj->id(); # the id of the SeqWithQuality object
+  		 # may not match the the id of the sequence or
+  		 # of the quality 
+  $swqobj->seq(); # the sequence of the SeqWithQuality object
+  $swqobj->qual(); # the quality of the SeqWithQuality object
 
 
 =head2 III.7.5 Sequence XML representations - generation and parsing (SeqIO::game)
@@ -1965,10 +1958,10 @@ branches of trees can be individually manipulated.  The TreeIO object
 is used for stream I/O of tree objects.  Currently only phylip/newick
 tree format is supported.  Sample code might be:
 
-$treeio = new Bio::TreeIO( -format => 'newick', -file   => $treefile);
-$tree = $treeio->next_tree;   # get the tree
-@nodes = $tree->get_nodes;    # get all the nodes
-$tree->get_root_node()->each_Descendent();  # get the descendents of the root node
+  $treeio = new Bio::TreeIO( -format => 'newick', -file   => $treefile);
+  $tree = $treeio->next_tree;   # get the tree
+  @nodes = $tree->get_nodes;    # get all the nodes
+  $tree->get_root_node()->each_Descendent();  # get the descendents of the root node
 
 =head2 III.8.3 Map objects for manipulating genetic maps (Map::MapI,
 MapIO)
@@ -1981,12 +1974,12 @@ Map I/O with various map data formats can be performed.  However
 currently only "mapmaker" format is supported.  Manipulation of
 genetic map data with Bioperl Map objects might look like this:
 
-$mapio = new Bio::MapIO( '-format' => 'mapmaker', '-file'   => $mapfile);
-$map = $mapio->next_map;  # get a map
-$maptype =  $map->type ;
-foreach  $marker ( $map->each_element ) {
-   $marker_name =  $marker->name ;  # get the name of each map marker
-}
+  $mapio = new Bio::MapIO( '-format' => 'mapmaker', '-file'   => $mapfile);
+  $map = $mapio->next_map;  # get a map
+  $maptype =  $map->type ;
+  foreach  $marker ( $map->each_element ) {
+     $marker_name =  $marker->name ;  # get the name of each map marker
+  }
 
 =head2 III.9 Bioperl alphabets
 

@@ -16,7 +16,7 @@ Bio::Biblio::Proceeding - A type of an author
 
 =head1 SYNOPSIS
 
-
+ # describe usage
 
 =head1 DESCRIPTION
 

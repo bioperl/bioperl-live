@@ -17,7 +17,7 @@ classes
 
 =head1 SYNOPSIS
 
-# not instantiable
+  # not instantiable
 
 =head1 DESCRIPTION
 
@@ -27,10 +27,10 @@ central class of the Bio::Biblio name space.
 The class names and attributes in Martin Senger's java implementation
 of Biblio objects are given in squate brackets in the documentation
 for each method. The openBQS project pages are at
-L<http://industry.ebi.ac.uk/openBQS/>.
+http://industry.ebi.ac.uk/openBQS/.
 
-See Martin's
-L<the UML diagram | http://industry.ebi.ac.uk/openBQS/images/bibobjects_java.jpg>
+See Martin's the UML diagram at 
+http://industry.ebi.ac.uk/openBQS/images/bibobjects_java.jpg
 for an overview.
 
 

@@ -638,7 +638,7 @@ remarks.  "Alias" is considered as a synonym for the feature name.
  @aliases    = $feature->attributes('Alias');
 
 If no name is provided, then attributes() returns a flattened hash, of
-attribute=>value pairs.  This lets you do:
+attribute=E<gt>value pairs.  This lets you do:
 
   %attributes = $db->attributes;
 

@@ -947,7 +947,7 @@ sub fetch_feature_by_name {
  Status  : public
 
 This method can be used to fetch a set of features from the database.
-Attributes are a list of name=>value pairs.  They will be logically
+Attributes are a list of name=E<gt>value pairs.  They will be logically
 ANDED together.
 
 =cut
@@ -1097,6 +1097,8 @@ sub  get_Seq_by_accession {
 }
 
 =head2 get_Stream_by_acc ()
+
+=cut 
 
 =head2 get_Seq_by_acc
 
@@ -1543,7 +1545,7 @@ are treated as attributes.  Two attributes have special meaning:
 remarks.  "Alias" is considered as a synonym for the feature name.
 
 If no name is provided, then attributes() returns a flattened hash, of
-attribute=>value pairs.  This lets you do:
+attribute=E<gt>value pairs.  This lets you do:
 
   %attributes = $db->attributes($id);
 
@@ -2590,7 +2592,7 @@ sub make_object {
 This method is overridden by subclasses in order to return a list of
 attributes.  If called with a tag, returns the value of attributes of
 that tag type.  If called without a tag, returns a flattened array of
-(tag=>value) pairs.  A particular tag can be present multiple times.
+(tag=E<gt>value) pairs.  A particular tag can be present multiple times.
 
 =cut
 

@@ -23,7 +23,7 @@ Bio::AlignIO::mega - Parse and Create MEGA format data files
     while( my $aln = $alignio->next_aln ) {
 	# process each alignment or convert to another format like NEXUS
     }
-    
+
 =head1 DESCRIPTION
 
 This object handles reading and writing data streams in the MEGA

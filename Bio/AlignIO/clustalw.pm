@@ -92,13 +92,13 @@ BEGIN {
            -format  => type of Alignment Format to process
            -percentages => (clustalw only) display a percentage of identity
                            in each line of the alignment.
+
 =cut
 
 sub _initialize {
     my ($self, @args) = @_;
     $self->SUPER::_initialize(@args);
     my ($percentages) = $self->_rearrange([qw(PERCENTAGES)], @args);
-    
     defined $percentages && $self->percentages($percentages);
 
 }

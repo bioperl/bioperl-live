@@ -25,7 +25,7 @@ Bio::SearchIO::blast - Event generator for event based parsing of blast reports
     while( my $result = $searchio->next_result ) {
 	while( my $hit = $result->next_hit ) {
 	    while( my $hsp = $hit->next_hsp ) {
-		
+		# ...
 	    }
 	}
     }

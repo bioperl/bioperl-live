@@ -26,7 +26,7 @@
 
 =head1 NAME
 
- Bio::SeqIO::bsml - BSML sequence input/output stream
+Bio::SeqIO::bsml - BSML sequence input/output stream
 
 =head1 SYNOPSIS
 

@@ -68,21 +68,21 @@ in any module or script.
 
 =over 8
 
-=item Bio::Root::Exception    
+=item Bio::Root::Exception()
 
-=item Bio::Root::NotImplemented
+=item Bio::Root::NotImplemented()
 
-=item Bio::Root::IOException
+=item Bio::Root::IOException()
 
-=item Bio::Root::FileOpenException
+=item Bio::Root::FileOpenException()
 
-=item Bio::Root::SystemException
+=item Bio::Root::SystemException()
 
-=item Bio::Root::BadParameter
+=item Bio::Root::BadParameter()
 
-=item Bio::Root::OutOfRange
+=item Bio::Root::OutOfRange()
 
-=item Bio::Root::NoSuchThing
+=item Bio::Root::NoSuchThing()
 
 =back
 

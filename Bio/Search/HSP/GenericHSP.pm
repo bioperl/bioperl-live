@@ -174,7 +174,7 @@ sub new {
     $self->algorithm($algo);
 
     defined $evalue    && $self->evalue($evalue);
-    
+
     defined $pvalue    && $self->pvalue($pvalue);
     defined $bits      && $self->bits($bits);
     defined $score     && $self->score($score);

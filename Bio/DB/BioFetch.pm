@@ -105,7 +105,7 @@ my %SUPPORTED_DBS     = map {$_=>1} qw(embl genbank swall);
  Args    : see below
  Throws  :
 
-@args are standard -name=>value options as listed in the following
+@args are standard -name=E<gt>value options as listed in the following
 table. If you don't provide any options, the module assumes reasonable
 defaults.
 

@@ -90,25 +90,6 @@ sub name {
     $self->throw_not_implemented();
 }
 
-=head2 position
-
- Title   : position
- Usage   : my position_string = $position->position('mapname');
- Function: Get/Set method for single value positions. 
-           Gives a simplified interface when only one map and 
-           one position per marker is used.
- Returns : a position value
- Args    : optional:
-           Map - Reference to Bio::Map::MapI 
-           String or Numeric coding for a position on a map
-
-=cut
-
-sub position{
-   my ($self,$map, $value) = @_;
-   $self->throw_not_implemented();
-}
-
 =head2 add_position
 
  Title   : add_position
@@ -226,13 +207,25 @@ sub in_map{
 
 =cut
 
+
 =head2 position
 
  Title   : position
- Usage   : my $position = $mappable->position(); 
- Function: Get/Set the Bio::Map::PositionI for a mappable element
- Returns : Bio::Map::PositionI
- Args    : (optional) Bio::Map::PositionI
+ Usage   : my position_string = $position->position('mapname');
+ Function: Get/Set method for single value positions. 
+           Gives a simplified interface when only one map and 
+           one position per marker is used.
+ Returns : a position value
+ Args    : optional:
+           Map - Reference to Bio::Map::MapI 
+           String or Numeric coding for a position on a map
+
+=cut
+
+sub position{
+   my ($self,$map, $value) = @_;
+   $self->throw_not_implemented();
+}
 
 =head2 equals
 

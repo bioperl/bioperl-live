@@ -10,7 +10,7 @@ Bio::DB::Failover - A Bio::DB::RandomAccessI compliant class which wraps a prior
 =head1 SYNOPSIS
 
     $failover = Bio::DB::Failover->new();
-  
+
     $failover->add_database($db);
 
     # fail over Bio::DB::RandomAccessI.pm

@@ -37,7 +37,7 @@ such as clones, gapped alignments and transcripts.
 
 Instances of Bio::DB::GFF::Aggregator have three attributes:
 
-=over 4
+=over 3
 
 =item method
 

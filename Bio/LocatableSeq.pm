@@ -12,8 +12,8 @@
 
 =head1 NAME
 
-Bio::LocatableSeq - A Sequence object with start/end points on it that can be projected into a MSA or have coordinates relative to another seq.
-
+Bio::LocatableSeq - A Sequence object with start/end points on it 
+  that can be projected into a MSA or have coordinates relative to another seq.
 
 =head1 SYNOPSIS
 

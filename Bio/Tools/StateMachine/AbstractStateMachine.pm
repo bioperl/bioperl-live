@@ -142,13 +142,13 @@ If your state machine needs to cache input while processing, you will
 also need to provide implementations of these methods (which are no-op
 in AbstractStateMachine):
 
-=over 4
+=over 3
 
-=item append_input_cache()
+=item append_input_cache
 
-=item get_input_cache()
+=item get_input_cache
 
-=item clear_input_cache()
+=item clear_input_cache
 
 =back
 
