@@ -1,0 +1,53 @@
+Message: Guessed query type [dna]
+Message: Guessed target type [dna]
+Message: Creating analysis with query[dna] target[dna]
+Message: Creating UGAM with query[dna] target[dna]
+Message: Simple DNA:DNA comparison
+C4 Alignment display:
+  Model: est2genome
+  Raw score: 945
+  Aligned positions 574->763 of query
+  Aligned positions 834->1023 of target
+
+Query: Contig124
+Target: ln27 lastmodified=[2002-10-30 16:35:22] project=[H99] length=[1211] sequencecount=[10] longestsequence=[b5f09cn.r1] sequences=[a2h03cn.f1|a2h03cn.r1|b2b05cn.f1|b2b05cn.r1|b5f09cn.r1|b6c08cn.f1|b6c08cn.r1|c9f24h9.f1|c9f24h9.r1|d1i17h9.f1] clone=[a2h03cn|b2b05cn|b5f09cn|b6c08cn|c9f24h9|d1i17h9] clonelibrary=[H99] tissuetype=[H99] organism=[Filobasidiella neoformans] 
+
+  575 : AGGCATTTCGACTCTCCCCATCACTAACTCCCTCGGACGACTCTCTTCTC :  624
+        ||||||||||||||||||||||||||||||||||||||||||||||||||
+  835 : AGGCATTTCGACTCTCCCCATCACTAACTCCCTCGGACGACTCTCTTCTC :  884
+
+  625 : CTTTGTCTTGTAACAGCCCCGTTTTCTTTACCCTTCTACATCTACAATCA :  674
+        ||||||||||||||||||||||||||||||||||||||||||||||||||
+  885 : CTTTGTCTTGTAACAGCCCCGTTTTCTTTACCCTTCTACATCTACAATCA :  934
+
+  675 : CTCTTGGCCCGACACAATACCGCTCAAAATGACTATGATTGATATGGGTA :  724
+        ||||||||||||||||||||||||||||||||||||||||||||||||||
+  935 : CTCTTGGCCCGACACAATACCGCTCAAAATGACTATGATTGATATGGGTA :  984
+
+  725 : TGGATACTGCTTGGTGTTTGGCTTGCTCTAAACAATTGG :  763
+        |||||||||||||||||||||||||||||||||||||||
+  985 : TGGATACTGCTTGGTGTTTGGCTTGCTCTAAACAATTGG : 1023
+
+cigar: Contig124 574 763 - ln27 834 1023 + 945 M 189
+C4 Alignment display:
+  Model: est2genome
+  Raw score: 623
+  Aligned positions 809->939 of query
+  Aligned positions 1016->1146 of target
+
+Query: Contig124
+Target: ln27 lastmodified=[2002-10-30 16:35:22] project=[H99] length=[1211] sequencecount=[10] longestsequence=[b5f09cn.r1] sequences=[a2h03cn.f1|a2h03cn.r1|b2b05cn.f1|b2b05cn.r1|b5f09cn.r1|b6c08cn.f1|b6c08cn.r1|c9f24h9.f1|c9f24h9.r1|d1i17h9.f1] clone=[a2h03cn|b2b05cn|b5f09cn|b6c08cn|c9f24h9|d1i17h9] clonelibrary=[H99] tissuetype=[H99] organism=[Filobasidiella neoformans] 
+
+  810 : CCATAGGACAATCCACGAGACACTTATTGCAGCGATGCCTGTCGCCTTGA :  859
+        | || |||||||||||||||||||||||||||||||||||||||||||||
+ 1017 : CAATTGGACAATCCACGAGACACTTATTGCAGCGATGCCTGTCGCCTTGA : 1066
+
+  860 : AGACTCCCAGCCTAGCGGCAGCATGAACAATCACGTCGATATCACCGCGC :  909
+        ||||||||||||||||||||||||||||||||||||||||||||||||||
+ 1067 : AGACTCCCAGCCTAGCGGCAGCATGAACAATCACGTCGATATCACCGCGC : 1116
+
+  910 : CAGTCCCAGCCGGTTTCTTTCCTACATCAC :  939
+        ||||||||||||| ||||||||||||||||
+ 1117 : CAGTCCCAGCCGGCTTCTTTCCTACATCAC : 1146
+
+cigar: Contig124 809 939 - ln27 1016 1146 + 623 M 130
