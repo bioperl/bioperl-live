@@ -20,12 +20,12 @@ BEGIN {
 }
 use Bio::Structure::Entry;
 use Bio::Structure::IO;
-
+use Bio::Root::IO;
 ok(1);
 
 # testing PDB format
 
-my $pdb_file = "data/pdb1bpt.ent"; # BPTI
+my $pdb_file = Bio::Root::IO->catfile("t","data","pdb1bpt.ent"); # BPTI
 my $structio = Bio::Structure::IO->new(-file => $pdb_file, -format => 'PDB');
 ok(1);
 my $struc = $structio->next_structure;
