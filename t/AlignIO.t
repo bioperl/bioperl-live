@@ -8,7 +8,7 @@ BEGIN {
 	use lib 't';
     }
     use Test;
-    plan tests => 70;
+    plan tests => 71;
 }
 
 use Bio::SimpleAlign;
@@ -28,8 +28,6 @@ END {
 	   Bio::Root::IO->catfile("t","data","testout.nexus"),
 	   Bio::Root::IO->catfile("t","data","testout.mega"),
 	   );
-
-
 }
 my ($str,$aln,$strout,$status);
 
@@ -118,6 +116,9 @@ $str = Bio::AlignIO->new('-file'=> Bio::Root::IO->catfile("t","data","testout.cl
 			   '-format' => 'clustalw');
 $aln = $str->next_aln($aln);
 ok $aln->get_seq_by_pos(1)->get_nse, 'P04777/1-33', "  failed clustalw (.aln) input test";
+my $io = Bio::AlignIO->new(-file => Bio::Root::IO->catfile("t","data","testaln.aln") );
+$aln = $io->next_aln();
+ok $aln->consensus_string, 'MNEGEHQIKLDELFEKLLRARKIFKNKDVLRHSWEPKDLPHRHEQIEALAQILVPVLRGETMKIIFCGHHACELGEDRGTKGFVIDELKDVDEDRNGKVDVIEINCEHMDTHYRVLPNIAKLFDDCTGIGVPMHGGPTDEVTAKLKQVIDMKERFVIIVLDEIDKLVKKSGDEVLYSLTRINTELKRAKVSVIGISNDLKFKEYLDPRVLSSLSEEEVVFPPYDANQLRDILTQRAEEAFYPGVLDEGVIPLCAALAAREHGDARKALDLLRVAGEIAEREGASKVTEKHVWKAQEKIEQDMMEEVIKTLPLQSKVLLYAIVLLDENGDLPANTGDVYAVYRELCEYIDLEPLTQRRISDLINELDMLGIINAKVVSKGRYGRTKEIRLMVTSYKIRNVLRYDYSIQPLLTISLKSEQRRLI', " failed clustalw consensus_string test";
 
 # FASTA
 my $in = Bio::AlignIO->newFh('-file'  => Bio::Root::IO->catfile("t","data","testaln.fasta"), 
