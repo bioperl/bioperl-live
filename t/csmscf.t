@@ -21,7 +21,7 @@ BEGIN {
 }
 
 END {
-    unlink qw(write_scf.scf);
+    unlink qw(write_scf.scf write_scf_no_sequence.scf write_scf_no_qualities.scf);
 }
 
 
