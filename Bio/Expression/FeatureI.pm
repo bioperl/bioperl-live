@@ -55,9 +55,9 @@ methods. Internal methods are usually preceded with a _
 package Bio::Expression::FeatureI;
 
 use strict;
-use Bio::Root::Root;
+use Bio::Root::RootI;
 
-use base qw(Bio::Root::Root Bio::PrimarySeqI);
+use base qw(Bio::Root::RootI Bio::PrimarySeqI);
 use vars qw($DEBUG);
 
 =head2 quantitation()
