@@ -1,5 +1,5 @@
 package Bio::DB::GFF;
-$Id$
+# $Id$
 
 =head1 NAME
 
@@ -789,12 +789,14 @@ on a contiguous physical segment.
 
 sub segment {
   my $self = shift;
+  return $self->abs_segment(@_) if $self->absolute;
   unless ($_[0] =~ /^-/) {
     @_ = (-class=>$_[0],-name=>$_[1]) if @_ == 2;
     @_ = (-name=>$_[0])               if @_ == 1;
   }
-  return $_[0] =~ /^-/ ? Bio::DB::GFF::RelSegment->new(-factory => $self,@_)
-                       : Bio::DB::GFF::RelSegment->new($self,@_);
+  my $segment =  $_[0] =~ /^-/ ? Bio::DB::GFF::RelSegment->new(-factory => $self,@_)
+                               : Bio::DB::GFF::RelSegment->new($self,@_);
+  $segment;
 }
 
 =head2 abs_segment
@@ -820,6 +822,28 @@ sub abs_segment {
   }
   push @_,('-force_absolute'=>1);
   return Bio::DB::GFF::RelSegment->new(-factory => $self,@_);
+}
+
+=head2 absolute
+
+ Title   : absolute
+ Usage   : $abs = $db->absolute([$abs]);
+ Function: gets/sets absolute mode
+ Returns : current setting of absolute mode boolean
+ Args    : new setting for absolute mode boolean
+ Status  : public
+
+$db->absolute(1) will turn on absolute mode for the entire database.
+All segments retrieved will use absolute coordinates, rather than
+relative coordinates, identical in effect to calling abs_segment().
+
+=cut
+
+sub absolute {
+  my $self = shift;
+  my $d = $self->{absolute};
+  $self->{absolute} = shift if @_;
+  $d;
 }
 
 =head2 types
