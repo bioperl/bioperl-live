@@ -162,26 +162,21 @@ sub _initialize {
 
 =cut
 
-sub next_seq{
+sub next_seq {
    my ($self,@args) = @_;
-   my ($pseq,$fh,$c,$line,$name,$desc,$acc,$seqc,$mol,$div, $date, $comment, @date_arr);
+   my ($pseq,$c,$line,$name,$desc,$acc,$seqc,$mol,$div, $date, $comment, @date_arr);
    my $seq = Bio::Seq->new();
+   $line = $self->_readline;
 
-   $fh = $self->_filehandle();
-
-   if( eof $fh ) {
+   if( !defined $line) {
        return undef; # no throws - end of file
    }
-
-   $line = <$fh>;
-
-   if( $line =~ /^\s+$/ ) {
-       while( <$fh> ) {
-   	   /\S/ && last;
-       }
-       $line = $_;
-   }
    
+   if( $line =~ /^\s+$/ ) {
+       while( defined ($line = $self->_readline) ) {
+   	   $line =~ /\S/ && last;
+       }
+   }   
    if( !defined $line ) {
        return undef; # end of file
    }
@@ -192,7 +187,7 @@ sub next_seq{
    my $buffer = $line;
 
    BEFORE_FEATURE_TABLE :
-   until( eof($fh) ) {
+   until( !defined ($buffer) ) {
        $_ = $buffer;
        
        # Exit at start of Feature table
@@ -235,13 +230,13 @@ sub next_seq{
 
        # Organism name and phylogenetic information
        if (/^O[SC]/) {
-           my $species = _read_swissprot_Species(\$buffer, $fh);
+           my $species = $self->_read_swissprot_Species(\$buffer);
            $seq->species( $species );
        }
 
        # References
        if (/^R/) {
-	   my @refs = &_read_swissprot_References(\$buffer,$fh);
+	   my @refs = $self->_read_swissprot_References(\$buffer);
 	   $seq->annotation->add_Reference(@refs);
        }
 
@@ -250,7 +245,7 @@ sub next_seq{
        if (/^CC\s+(.*)/) {
 	   $comment .= $1;
 	   $comment .= " ";
-	   while (<$fh>) {
+	   while (defined ($_ = $self->_readline)) {
 	       if (/^CC\s+(.*)/) {
 		   $comment .= $1;
 		   $comment .= " ";
@@ -284,38 +279,33 @@ sub next_seq{
        }
 
        # Get next line.
-       $buffer = <$fh>;
+       $buffer = $self->_readline;
    }
    
    $buffer = $_;
       
    FEATURE_TABLE :   
-   while (<$fh>) {
-
-       my $ftunit = &_read_FTHelper_swissprot($fh,\$buffer);
+   while (defined ($buffer)) {
+       my $ftunit = $self->_read_FTHelper_swissprot(\$buffer);
        
        # process ftunit
        $ftunit->_generic_seqfeature($seq);
-       
        if( $buffer !~ /^FT/ ) {
 	   last;
        }
    }
-   
    if( $buffer !~ /^SQ/  ) {
-       while( <$fh> ) {
+       while( defined($_ = $self->_readline) ) {
 	   /^SQ/ && last;
        }
    }
-
    $seqc = "";	       
-   while( <$fh> ) {
+   while( defined ($_ = $self->_readline) ) {
        /^\/\// && last;
        $_ = uc($_);
        s/[^A-Za-z]//g;
        $seqc .= $_;
    }
-
    $pseq = Bio::PrimarySeq->new(-seq => $seqc , -id => $name, -desc => $desc);
    $seq->primary_seq($pseq);
    return $seq;
@@ -344,7 +334,6 @@ sub write_seq {
        $self->warn(" $seq is not a SeqI compliant module. Attempting to dump, but may fail!");
    }
 
-   my $fh = $self->_filehandle();
    my $i;
    my $str = $seq->seq;
    
@@ -374,14 +363,14 @@ sub write_seq {
        $temp_line = sprintf ("%s_$div    STANDARD;       $mol;   %d AA.",$seq->id(),$len);
    } 
 
-   print $fh "ID   $temp_line\n";   
+   $self->_print( "ID   $temp_line\n");   
 
    # if there, write the accession line
    local($^W) = 0;   # supressing warnings about uninitialized fields
 
    if( $self->_ac_generation_func ) {
        $temp_line = &{$self->_ac_generation_func}($seq);
-       print $fh "AC   $temp_line\n";   
+       $self->_print( "AC   $temp_line\n");   
    } else {
        if ($seq->can('accession') ) {
 	   print "AC   ",$seq->accession,";";
@@ -397,11 +386,11 @@ sub write_seq {
 
    #Date lines
    foreach my $dt ( $seq->each_date() ) {
-       _write_line_swissprot_regex($fh,"DT   ","DT   ",$dt,"\\s\+\|\$",80);
+       $self->_write_line_swissprot_regex("DT   ","DT   ",$dt,"\\s\+\|\$",80);
    }
    
    #Definition lines
-   _write_line_swissprot_regex($fh,"DE   ","DE   ",$seq->desc(),"\\s\+\|\$",80);
+   $self->_write_line_swissprot_regex("DE   ","DE   ",$seq->desc(),"\\s\+\|\$",80);
 
    #Gene name
    if ($seq->annotation->can('gene_name')) {
@@ -415,32 +404,38 @@ sub write_seq {
        if (my $common = $spec->common_name) {
 	   $OS .= " ($common)";
        }
-       print $fh "OS   $OS\n";
+       $self->_print( "OS   $OS\n");
        my $OC = join('; ', reverse(@class));
        $OC =~ s/\;\s+$//;
        $OC .= ".";
-       _write_line_swissprot_regex($fh,"OC   ","OC   ",$OC,"\; \|\$",80);
+       $self->_write_line_swissprot_regex("OC   ","OC   ",$OC,"\; \|\$",80);
 	if ($spec->organelle) {
-	    _write_line_swissprot_regex($fh,"OG   ","OG   ",$spec->organelle,"\; \|\$",80);
+	    $self->_write_line_swissprot_regex("OG   ","OG   ",$spec->organelle,"\; \|\$",80);
 	}
    }
    
    # Reference lines
    my $t = 1;
    foreach my $ref ( $seq->annotation->each_Reference() ) {
-       print $fh "RN   [$t]\n";
+       $self->_print( "RN   [$t]\n");
        if ($ref->start && $ref->end) {
-	   print "RP   SEQUENCE OF ",$ref->start,"-",$ref->end," FROM N.A.\n";
+	   # changed by jason <jason@chg.mc.duke.edu> on 3/16/00 
+#	   print "RP   SEQUENCE OF ",$ref->start,"-",$ref->end," FROM N.A.\n";
+	   # to
+	   $self->_print("RP   SEQUENCE OF ",$ref->start,"-",$ref->end," FROM N.A.\n");
        }
        elsif ($ref->rp) {
-	   print "RP   ",$ref->rp,"\n";
+	   # changed by jason <jason@chg.mc.duke.edu> on 3/16/00 
+#	   print "RP   ",$ref->rp,"\n";
+	   # to
+	   $self->_print("RP   ",$ref->rp,"\n");
        } 
 
-       &_write_line_swissprot_regex($fh,"RA   ","RA   ",$ref->authors,"\\s\+\|\$",80);       
-       &_write_line_swissprot_regex($fh,"RT   ","RT   ",$ref->title,"\\s\+\|\$",80);       
-       &_write_line_swissprot_regex($fh,"RL   ","RL   ",$ref->location,"\\s\+\|\$",80);
+       $self->_write_line_swissprot_regex("RA   ","RA   ",$ref->authors,"\\s\+\|\$",80);       
+       $self->_write_line_swissprot_regex("RT   ","RT   ",$ref->title,"\\s\+\|\$",80);       
+       $self->_write_line_swissprot_regex("RL   ","RL   ",$ref->location,"\\s\+\|\$",80);
        if ($ref->comment) {
-	   &_write_line_swissprot_regex($fh,"RC   ","RC   ",$ref->comment,"\\s\+\|\$",80); 
+	   $self->_write_line_swissprot_regex("RC   ","RC   ",$ref->comment,"\\s\+\|\$",80); 
        }
        $t++;
    }
@@ -448,11 +443,11 @@ sub write_seq {
    # Comment lines
 
    foreach my $comment ( $seq->annotation->each_Comment() ) {
-       _write_line_swissprot_regex($fh,"CC   ","CC   ",$comment->text,"\\s\+\|\$",80);
+       $self->_write_line_swissprot_regex("CC   ","CC   ",$comment->text,"\\s\+\|\$",80);
    }
 
    foreach my $dblink ( $seq->annotation->each_DBLink() ) {
-       print $fh "DR   ",$dblink->database,"; ",$dblink->primary_id,"; ",$dblink->optional_id,"; ",$dblink->comment,"\n";
+       $self->_print("DR   ",$dblink->database,"; ",$dblink->primary_id,"; ",$dblink->optional_id,"; ",$dblink->comment,"\n");
    }
    
 
@@ -460,10 +455,10 @@ sub write_seq {
    
    if( $self->_kw_generation_func ) {
        $temp_line = &{$self->_kw_generation_func}($seq);
-       print $fh "KW   $temp_line\n";   
+       $self->_print( "KW   $temp_line\n");   
    } else {
        if( $seq->can('keywords') ) {
-	   print $fh "KW   ",$seq->keywords,"\n";
+	   $self->_print( "KW   ",$seq->keywords,"\n");
        }
    } 
    if( defined $self->_post_sort ) {
@@ -479,7 +474,7 @@ sub write_seq {
        @fth = sort { &$post_sort_func($a,$b) } @fth;
        
        foreach my $fth ( @fth ) {
-	   &_print_swissprot_FTHelper($fth,$fh);
+	   $self->_print_swissprot_FTHelper($fth);
        }
    } else {
        # not post sorted. And so we can print as we get them.
@@ -492,7 +487,7 @@ sub write_seq {
 		   $sf->throw("Cannot process FTHelper... $fth");
 	       }
 
-	       &_print_swissprot_FTHelper($fth,$fh);
+	       $self->_print_swissprot_FTHelper($fth);
 	   }
        }
    }
@@ -503,17 +498,17 @@ sub write_seq {
 
    # finished printing features.
 
-   print $fh "SQ   SEQUENCE   $len AA;\n";
-   print $fh "     ";
+   $self->_print( "SQ   SEQUENCE   $len AA;\n");
+   $self->_print( "     ");
    my $linepos;
    for ($i = 0; $i < length($str); $i += 10) {
-       print $fh substr($str,$i,10), " ";
+       $self->_print( substr($str,$i,10), " ");
        $linepos += 11;
        if( ($i+10)%60 == 0 ) {
-	   print $fh "\n     ";
+	   $self->_print( "\n     ");
       }
    }
-   print $fh "\n//\n";
+   $self->_print( "\n//\n");
    return 1;
 }
 
@@ -530,7 +525,7 @@ sub write_seq {
 =cut
 
 sub _print_swissprot_FTHelper {
-   my ($fth,$fh,$always_quote) = @_;
+   my ($self,$fth,$always_quote) = @_;
    
    if( ! ref $fth || ! $fth->isa('Bio::SeqIO::FTHelper') ) {
        $fth->warn("$fth is not a FTHelper class. Attempting to print, but there could be tears!");
@@ -540,20 +535,20 @@ sub _print_swissprot_FTHelper {
    my $loc1 = $1;
    my $loc2 = $2;
 #   my $line = sprintf ("FT   %-12s %-5s %s",$fth->key,$loc1,$loc2);
-#   print $fh "$line";
+#   $self->_print( "$line");
    my $switch=0; 
    foreach my $tag ( keys %{$fth->field} ) {
        foreach my $value ( @{$fth->field->{$tag}} ) {
 	   $value =~ s/\"/\"\"/g;
 	   if ($switch == 0) {
 	       my $line = sprintf ("FT   %-12s %-5s %-10s%s",$fth->key,$loc1,$loc2,$value);
-	       print $fh "$line\n";
+	       $self->_print( "$line\n");
 	   }
            else {
-	       print $fh "FT                                /$tag\n";
+	       $self->_print( "FT                                /$tag\n");
            } 
 	   $switch = 1;
-	  # print $fh "FT                   /", $tag, "=\"", $value, "\"\n";
+	  # $self->_print( "FT                   /", $tag, "=\"", $value, "\"\n");
        }
    }
 
@@ -573,13 +568,14 @@ sub _print_swissprot_FTHelper {
 =cut
 
 sub _read_swissprot_References{
-   my ($buffer,$fh) = @_;
+   my ($self,$buffer) = @_;
    my (@refs);
    my ($b1, $b2, $rp, $title, $loc, $au, $med, $com);
    
    if ($$buffer !~ /^RP/) {
-       $$buffer = <$fh>;
+       $$buffer = $self->_readline;
    }
+   if( !defined $$buffer ) { return undef; }
    if( $$buffer =~ /^RP/ ) {
        if ($$buffer =~ /^RP   SEQUENCE OF (\d+)-(\d+)/) { 
 	   $b1=$1;
@@ -590,7 +586,7 @@ sub _read_swissprot_References{
        }
        
    }
-   while( <$fh> ) {
+   while( defined ($_ = $self->_readline) ) {
        /^CC/ && goto OUT;
        /^RN/ && last;
        /^RX   MEDLINE;\s+(\d+)/ && do {$med=$1};
@@ -634,12 +630,12 @@ sub _read_swissprot_References{
 =cut
 
 sub _read_swissprot_Species {
-    my( $buffer, $fh ) = @_;
+    my( $self,$buffer ) = @_;
     my $org;
 
     $_ = $$buffer;
     my( $sub_species, $species, $genus, $common, @class );
-    while (defined( $_ ||= <$fh> )) {
+    while (defined( $_ ||= $self->_readline )) {
         
         if (/^OS\s+(\S+)\s+(\S+)\s+(\S+)?(?:\s+\((.*)\))?/) {
             $genus   = $1;
@@ -710,7 +706,7 @@ sub _filehandle{
 =head2 _read_FTHelper_swissprot
 
  Title   : _read_FTHelper_swissprot
- Usage   : &_read_FTHelper_swissprot($fh,$buffer)
+ Usage   : _read_FTHelper_swissprot($buffer)
  Function: reads the next FT key line
  Example :
  Returns : Bio::SeqIO::FTHelper object 
@@ -720,8 +716,10 @@ sub _filehandle{
 =cut
 
 sub _read_FTHelper_swissprot {
-   my ($fh,$buffer) = @_;
+   my ($self,$buffer) = @_;
    my ($key,$loc,$out,$value);
+   $out = new Bio::SeqIO::FTHelper();
+
    if ( $$buffer !~ /^FT\s+(\S+)/) {
        $out->throw("Weird location line in swissprot feature table: '$_'");
    }
@@ -734,7 +732,6 @@ sub _read_FTHelper_swissprot {
        $value = $4;
    }
 
-   $out = new Bio::SeqIO::FTHelper();
    $loc =~ s/<//;
    $loc =~ s/>//;
    $out->key($key);
@@ -745,15 +742,14 @@ sub _read_FTHelper_swissprot {
    push (@{$out->field->{$key}},$value);
    
    # Now read in other fields
-   # Loop reads $_ when defined (i.e. only in first loop), then $fh, until end of file
-   while( defined($_ ||= <$fh>) ) {
-       
+   # Loop reads $_ when defined (i.e. only in first loop), then $self->_readline, until end of file
+   $_ = $self->_readline;
+   while( defined($_ ||= $self->_readline) ) {
+
        # Exit loop on non FT lines!
-       /^FT/  || last;
-       
+       /^FT/  || last;       
        # Exit loop on new primary key
        /^FT   \w/ && last;
-       
        # Field on one line
        if (/^FT\s+\/(\S+)=\"(.+)\"/) {
 	   my $key = $1;
@@ -769,7 +765,7 @@ sub _read_FTHelper_swissprot {
        elsif (/^FT\s+\/(\S+)=\"(.*)/) {
 	   my $key = $1;
 	   my $value = $2;
-	   while ( <$fh> ) {
+	   while ( defined($_ = $self->_readline) ) {
 	       s/\"\"/__DOUBLE_QUOTE_STRING__/g;
 	       /FT\s+(.*)\"/ && do { $value .= $1; last; };
 	       /FT\s+(.*)/ && do {$value .= $1; };
@@ -792,10 +788,9 @@ sub _read_FTHelper_swissprot {
 	   push(@{$out->field->{$key}},$value);
        }
        
-       # Empty $_ to trigger read from $fh
+       # Empty $_ to trigger read from $self->_readline
        undef $_;
-   }
-
+   }   
    $$buffer = $_;
    return $out;
 }
@@ -814,7 +809,7 @@ sub _read_FTHelper_swissprot {
 =cut
 
 sub _write_line_swissprot{
-   my ($fh,$pre1,$pre2,$line,$length) = @_;
+   my ($self,$pre1,$pre2,$line,$length) = @_;
 
    $length || die "Miscalled write_line_swissprot without length. Programming error!";
    my $subl = $length - length $pre2;
@@ -823,11 +818,11 @@ sub _write_line_swissprot{
 
    my $sub = substr($line,0,$length - length $pre1);
 
-   print $fh "$pre1$sub\n";
+   $self->_print( "$pre1$sub\n");
    
    for($i= ($length - length $pre1);$i < $linel;) {
        $sub = substr($line,$i,($subl));
-       print $fh "$pre2$sub\n";
+       $self->_print( "$pre2$sub\n");
        $i += $subl;
    }
 
@@ -849,7 +844,7 @@ sub _write_line_swissprot{
 =cut
 
 sub _write_line_swissprot_regex {
-   my ($fh,$pre1,$pre2,$line,$regex,$length) = @_;
+   my ($self,$pre1,$pre2,$line,$regex,$length) = @_;
 
    
    #print STDOUT "Going to print with $line!\n";
@@ -868,9 +863,9 @@ sub _write_line_swissprot_regex {
    }
    
    my $s = shift @lines;
-   print $fh "$pre1$s\n";
+   $self->_print( "$pre1$s\n");
    foreach my $s ( @lines ) {
-       print $fh "$pre2$s\n";
+       $self->_print( "$pre2$s\n");
    }
 }
 

@@ -165,26 +165,24 @@ sub _initialize {
 
 sub next_seq{
     my ($self,@args) = @_;
-    my ($pseq,$fh,$c,$line,$name,$desc,$acc,$seqc,$mol,$div,$date);
+    my ($pseq,$c,$line,$name,$desc,$acc,$seqc,$mol,$div,$date);
     my $seq = Bio::Seq->new();
-    
-    $fh = $self->_filehandle();
 
-    if( eof $fh) {
+    $line = $self->_readline;
+    
+    if( !defined $line) {
 	return undef; # no throws - end of file
     }
     
-    $line = <$fh>;
     if( $line =~ /^\s+$/ ) {
-	while( <$fh> ) {
-	    /\S/ && last;
+	while( defined($line = $self->_readline) ) {
+	    $line =~ /\S/ && last;
 	}
-	$line = $_;
     }
-
     if( !defined $line ) {
 	return undef; # end of file
     }
+    
     $line =~ /^LOCUS\s+\S+/ || $self->throw("GenBank stream with no LOCUS. Not GenBank in my book. Got $line");
     $line =~ /^LOCUS\s+(\S+)\s+\S+\s+bp\s+(\S+)\s+(\S+)\s+(\S+)/;
 
@@ -206,9 +204,9 @@ sub next_seq{
     }
 
     my $buffer = $line;
-    
+        
     BEFORE_FEATURE_TABLE :
-	until( eof($fh) ) {
+	until( !defined ( $buffer )  ) {
 	    $_ = $buffer;
 	    
 	    # Exit at start of Feature table
@@ -218,7 +216,7 @@ sub next_seq{
 	    if (/^DEFINITION\s+(\S.*\S)/) {
 		$desc .= $desc ? " $1" : $1;
 		$desc .= " ";
-		while ( <$fh> ) { 
+		while ( defined($_ = $self->_readline) ) { 
 		    /^\s+(.*)/ && do { $desc .= $1; next;};
 		    last;
 		}
@@ -244,14 +242,14 @@ sub next_seq{
 
 	    # Organism name and phylogenetic information
 	    if (/^SOURCE/) {
-		my $species = _read_GenBank_Species(\$buffer, $fh);
+		my $species = $self->_read_GenBank_Species(\$buffer);
 		$seq->species( $species );
 		next;
 	    }
 
 	    #References
 	    if (/^REFERENCE/) {
-		my @refs = &_read_GenBank_References(\$buffer,$fh);
+		my @refs = $self->_read_GenBank_References(\$buffer);
 		$seq->annotation->add_Reference(@refs);
 		next;
 	    }
@@ -259,7 +257,7 @@ sub next_seq{
 	    #Comments
 	    if (/^COMMENT\s+(.*)/) {
 		my $comment = $1;
-		while (<$fh>) {
+		while (defined($_ = $self->_readline)) {
 		    if (/^FEATURES/) {
 			$comment =~ s/\n/ /g;
 			$comment =~ s/  +/ /g;
@@ -273,28 +271,23 @@ sub next_seq{
 	    }
 	    
 	    # Get next line.
-	    $buffer = <$fh>;
+	    $buffer = $self->_readline;
 	}
 
     # need to read the first line of the feature table
-    $_ = <$fh>;
-
-    $buffer = $_;
-
     FEATURE_TABLE :   
-	until( eof($fh) ) {
-	    
-	    last if /^BASE/;
-	    my $ftunit = &_read_FTHelper_GenBank($fh,\$buffer);
-
+	while( defined ( $buffer = $self->_readline) ) {	    
+	    my $ftunit = $self->_read_FTHelper_GenBank(\$buffer);
 	    # process ftunit
 	    $ftunit->_generic_seqfeature($seq);
+	    last if /^BASE/;
 	}
     $seqc = "";	
-    while (<$fh>) {
+    while (defined( $_ = $self->_readline)) {
 	last if /^ORIGIN/;
     }
-    while( <$fh> ) {
+
+    while( defined($_ = $self->_readline) ) {
 	/^\/\// && last;
 	$_ = uc($_);
 	s/[^A-Za-z]//g;
@@ -328,7 +321,6 @@ sub write_seq {
 	$self->warn(" $seq is not a SeqI compliant module. Attempting to dump, but may fail!");
     }
     
-    my $fh = $self->_filehandle();
     my $i;
     my $str = $seq->seq;
     
@@ -359,17 +351,17 @@ sub write_seq {
 	$temp_line = sprintf ("%-12s%-10s%10s bp%8s%5s %3s ", 'LOCUS',$seq->id(),$len,$mol,$div,$date);
     } 
     
-    print $fh "$temp_line\n";   
-    _write_line_GenBank_regex($fh,"DEFINITION  ","            ",$seq->desc(),"\\s\+\|\$",80);
+    $self->_print("$temp_line\n");   
+    $self->_write_line_GenBank_regex("DEFINITION  ","            ",$seq->desc(),"\\s\+\|\$",80);
     
     # if there, write the accession line
 
     if( $self->_ac_generation_func ) {
 	$temp_line = &{$self->_ac_generation_func}($seq);
-	print $fh "ACCESSION   $temp_line\n";   
+	$self->_print("ACCESSION   $temp_line\n");   
     } else {
 	if( $seq->can('accession') ) {
-	    print $fh "ACCESSION   ",$seq->accession,"\n";
+	    $self->_print("ACCESSION   ",$seq->accession,"\n");
 	}
 	# otherwise - cannot print <sigh>
     } 
@@ -379,11 +371,11 @@ sub write_seq {
     if( defined $self->_sv_generation_func() ) {
 	$temp_line = &{$self->_sv_generation_func}($seq);
 	if( $temp_line ) {
-	    print $fh "VERSION     $temp_line\n";   
+	    $self->_print("VERSION     $temp_line\n");   
 	}
     } else {
 	if( $seq->can('sv') ) {
-	    print $fh "VERSION     ",$seq->sv,"\n";
+	    $self->_print("VERSION     ",$seq->sv,"\n");
        }
     } 
     
@@ -391,10 +383,10 @@ sub write_seq {
     
     if( defined $self->_kw_generation_func() ) {
 	$temp_line = &{$self->_kw_generation_func}($seq);
-	print $fh "KEYWORDS    $temp_line\n";   
+	$self->_print("KEYWORDS    $temp_line\n");   
     } else {
 	if( $seq->can('keywords') ) {
-	    print $fh "KEYWORDS    ",$seq->keywords,"\n";
+	    $self->_print("KEYWORDS    ",$seq->keywords,"\n");
 	}
     } 
     
@@ -406,49 +398,55 @@ sub write_seq {
 	if( !defined $sub_species ) { $sub_species = ""; }
 
         my $OS = "$genus $species $sub_species";
-	print $fh "SOURCE      $OS\n";
-	print $fh "  ORGANISM  $OS\n";
+	$self->_print("SOURCE      $OS\n");
+	$self->_print("  ORGANISM  $OS\n");
         my $OC = join (';', reverse(@class));
 	$OC =~ s/\n//g;
 	$OC =~ s/\;/\; /g;
 	$OC = "$OC; $genus.";
-        _write_line_GenBank_regex($fh,"            ","            ",$OC,"\\s\+\|\$",80);
+        $self->_write_line_GenBank_regex("            ","            ",
+					 $OC,"\\s\+\|\$",80);
     }
     
     # Reference lines
     my $count = 1;
     foreach my $ref ( $seq->annotation->each_Reference() ) {
 	$temp_line = sprintf ("REFERENCE    $count  (bases %d to %d)",$ref->start,$ref->end);
-	print $fh "$temp_line\n";
-	&_write_line_GenBank_regex($fh,"  AUTHORS   ","            ",$ref->authors,"\\s\+\|\$",80);
-	&_write_line_GenBank_regex($fh,"  TITLE     ","            ",$ref->title,"\\s\+\|\$",80);
-	&_write_line_GenBank_regex($fh,"  JOURNAL   ","            ",$ref->location,"\\s\+\|\$",80);
+	$self->_print("$temp_line\n");
+	$self->_write_line_GenBank_regex("  AUTHORS   ","            ",
+					 $ref->authors,"\\s\+\|\$",80);
+	$self->_write_line_GenBank_regex("  TITLE     ","            ",
+					 $ref->title,"\\s\+\|\$",80);
+	$self->_write_line_GenBank_regex("  JOURNAL   ","            ",
+					 $ref->location,"\\s\+\|\$",80);
 	if ($ref->comment) {
-	    &_write_line_GenBank_regex($fh,"  REMARK    ","            ",$ref->comment,"\\s\+\|\$",80);
+	    $self->_write_line_GenBank_regex("  REMARK    ","            ",
+					     $ref->comment,"\\s\+\|\$",80);
 	}
 	    $count++;
     }
     # Comment lines
     
     foreach my $comment ( $seq->annotation->each_Comment() ) {
-	_write_line_GenBank_regex($fh,"COMMENT     ","            ",$comment->text,"\\s\+\|\$",80);
+	$self->_write_line_GenBank_regex("COMMENT     ","            ",
+					 $comment->text,"\\s\+\|\$",80);
     }
-    print $fh "FEATURES             Location/Qualifiers\n";
+    $self->_print("FEATURES             Location/Qualifiers\n");
     
     if( defined $self->_post_sort ) {
 	# we need to read things into an array. Process. Sort them. Print 'em
-	
+
 	my $post_sort_func = $self->_post_sort();
 	my @fth;
-	
+
 	foreach my $sf ( $seq->top_SeqFeatures ) {
 	    push(@fth,Bio::SeqIO::FTHelper::from_SeqFeature($sf,$seq));
 	}
-	
+
 	@fth = sort { &$post_sort_func($a,$b) } @fth;
-	
+
 	foreach my $fth ( @fth ) {
-	    &_print_GenBank_FTHelper($fth,$fh);
+	    $self->_print_GenBank_FTHelper($fth);
 	}
     } else {
 	# not post sorted. And so we can print as we get them.
@@ -461,7 +459,7 @@ sub write_seq {
 		    $sf->throw("Cannot process FTHelper... $fth");
 		}
 		
-		&_print_GenBank_FTHelper($fth,$fh);
+		$self->_print_GenBank_FTHelper($fth);
 	    }
 	}
     }
@@ -484,8 +482,8 @@ sub write_seq {
     if( $olen < 0 ) {
 	$self->warn("Weird. More atgc than bases. Problem!");
     }
-    printf $fh ("BASE COUNT %8s a %6s c %6s g %6s t\n",$alen,$clen,$glen,$tlen); 
-    printf $fh "ORIGIN\n";
+    $self->_print("BASE COUNT %8s a %6s c %6s g %6s t\n",$alen,$clen,$glen,$tlen); 
+    $self->_print("ORIGIN\n");
     my $di;
     for ($i = 0; $i < length($str); $i += 10) {
 	
@@ -493,20 +491,20 @@ sub write_seq {
 
 	#first line
 	if ($i==0) {
-	    print $fh sprintf("%9d ",1);
+	    $self->_print(sprintf("%9d ",1));
 	}
 	#print sequence, spaced by 10
-	print $fh substr($str,$i,10), " ";
+	$self->_print(substr($str,$i,10), " ");
 	
 	#break line and print number at beginning of next line
 	if(($i+10)%60 == 0) {
-	    print $fh "\n";
-	    print $fh sprintf("%9d ",$di);
+	    $self->_print("\n");
+	    $self->_print(sprintf("%9d ",$di));
 	}
     }
     
     
-    print $fh "\n//\n";
+    $self->_print("\n//\n");
     return 1;
 }
 
@@ -523,12 +521,14 @@ sub write_seq {
 =cut
 
 sub _print_GenBank_FTHelper {
-   my ($fth,$fh,$always_quote) = @_;
+   my ($self,$fth,$always_quote) = @_;
    
    if( ! ref $fth || ! $fth->isa('Bio::SeqIO::FTHelper') ) {
        $fth->warn("$fth is not a FTHelper class. Attempting to print, but there could be tears!");
    }
-    &_write_line_GenBank_regex($fh,sprintf("     %-16s",$fth->key),"                     ",$fth->loc,"\,\|\$",80);
+   $self->_write_line_GenBank_regex(sprintf("     %-16s",$fth->key),
+				    "                     ",
+				    $fth->loc,"\,\|\$",80);
 
    if( !defined $always_quote) { $always_quote = 0; }
 
@@ -536,12 +536,18 @@ sub _print_GenBank_FTHelper {
        foreach my $value ( @{$fth->field->{$tag}} ) {
 	   $value =~ s/\"/\"\"/g;
 	   if ($value eq "_no_value") {
-	       &_write_line_GenBank_regex($fh,"                     ","                     ","/$tag","\.\|\$",80);
+	       $self->_write_line_GenBank_regex("                     ",
+						"                     ",
+						"/$tag","\.\|\$",80);
 	   }
            elsif( $always_quote == 1 || $value !~ /^\d+$/ ) {
-	      &_write_line_GenBank_regex($fh,"                     ","                     ","/$tag=\"$value\"","\.\|\$",80);
+	      $self->_write_line_GenBank_regex("                     ",
+					       "                     ",
+					       "/$tag=\"$value\"","\.\|\$",80);
            } else {
-              &_write_line_GenBank_regex($fh,"                     ","                     ","/$tag=$value","\.\|\$",80);
+              $self->_write_line_GenBank_regex("                     ",
+					       "                     ",
+					       "/$tag=$value","\.\|\$",80);
            }
        }
    }
@@ -562,7 +568,7 @@ sub _print_GenBank_FTHelper {
 =cut
 
 sub _read_GenBank_References{
-   my ($buffer,$fh) = @_;
+   my ($self,$buffer) = @_;
    my (@refs);
    my $previous;
    
@@ -582,24 +588,24 @@ sub _read_GenBank_References{
        $b1=$1;
        $b2=$2;
    }
-   while( <$fh> ) {
+   while( defined($_ = $self->_readline) ) {
        if (/^  AUTHORS\s+(.*)/) { 
 	   $au .= $1;   
-	   while ( <$fh> ) {
+	   while ( defined($_ = $self->_readline) ) {
 	       /^  TITLE/ && last; 
 	       /^\s+(.*)/ && do { $au .= $1; $au =~ s/\,(\S)/ $1/g;$au .= " ";next;};
 	   }    
        }
        if (/^  TITLE\s+(.*)/)  { 
 	   $title .= $1;
-	   while ( <$fh> ) {
+	   while ( defined($_ = $self->_readline) ) {
 	       /^  JOURNAL/ && last; 
 	       /^\s+(.*)/ && do { $title .= $1;$title .= " ";next;};
 	   }
        }
        if (/^  JOURNAL\s+(.*)/) { 
 	   $loc .= $1;
-	   while ( <$fh> ) {
+	   while ( defined($_ = $self->_readline) ) {
 	       /^  REMARK/ && last;
 	       /^\s+(.*)/ && do { $loc .= $1;$loc .= " ";next;};
 	       last;
@@ -608,7 +614,7 @@ sub _read_GenBank_References{
 
        if (/^  REMARK\s+(.*)/) { 
 	   $com .= $1;
-	   while ( <$fh> ) {	       
+	   while ( defined($_ = $self->_readline) ) {	       
 	       /^\s+(.*)/ && do { $com .= $1;$com .= " ";next;};
 	       last;
 	   }
@@ -670,12 +676,12 @@ sub _read_GenBank_References{
 =cut
 
 sub _read_GenBank_Species {
-    my( $buffer, $fh ) = @_;
+    my( $self,$buffer) = @_;
     
     $_ = $$buffer;
     
     my( $sub_species, $species, $genus, $common, @class );
-    while (defined( $_ ||= <$fh> )) {
+    while (defined( $_ = $self->_readline )) {
 
         if (/^SOURCE\s+(.*)/) {
 	    $common = $1;
@@ -748,7 +754,7 @@ sub _filehandle{
 =head2 _read_FTHelper_GenBank
 
  Title   : _read_FTHelper_GenBank
- Usage   : &_read_FTHelper_GenBank($fh,$buffer)
+ Usage   : _read_FTHelper_GenBank($buffer)
  Function: reads the next FT key line
  Example :
  Returns : Bio::SeqIO::FTHelper object 
@@ -758,7 +764,7 @@ sub _filehandle{
 =cut
 
 sub _read_FTHelper_GenBank {
-   my ($fh,$buffer) = @_;
+   my ($self,$buffer) = @_;
    my ($key,$loc,$out);
 
    $_ = $$buffer;
@@ -766,7 +772,7 @@ sub _read_FTHelper_GenBank {
        $key = $1;
        $loc = $2;
        if ($$buffer !~ /^\s+\//) {
-	   while ( <$fh> ) {
+	   while ( defined($_ = $self->_readline) ) {
 	       # read location line until feature, qualifier or end of feature table
 	       /^\s+\S+\s+\S+/ && last; # trigger for next feature
 	       /\s+\// && last; # trigger for qualifier
@@ -782,9 +788,8 @@ sub _read_FTHelper_GenBank {
    $out->loc($loc);
 
    # Now read in other fields
-   # Loop reads $_ when defined (i.e. only in first loop), then read $fh, until eof 
-   while ( defined($_ ||= <$fh>) ) {
-
+   # Loop reads $_ when defined (i.e. only in first loop), then read $self->_readline, until eof 
+   while ( defined($_ ||= $self->_readline) ) {
        # Exit loop on new primary key or end of features
        (/^     \S+/||/^BASE/) && last;
        
@@ -803,7 +808,7 @@ sub _read_FTHelper_GenBank {
        elsif (/^\s+\/(\S+)=\"(.*)/) {
 	   my $key = $1;
 	   my $value = $2;
-	   while ( <$fh> ) {
+	   while ( defined($_ = $self->_readline) ) {
 	       # first subs out the ""
 	       s/\"\"/__DOUBLE_QUOTE_STRING__/g;
 	       /\s+(.*)\"/ && do { $value .= $1; last; };
@@ -827,10 +832,9 @@ sub _read_FTHelper_GenBank {
 	   push(@{$out->field->{$key}},$value);
        }
 
-       # Empty $_ to trigger read from $fh
+       # Empty $_ to trigger read from _readline
        undef $_;
-   }
-
+   }   
    $$buffer = $_;
    return $out;
 }
@@ -848,7 +852,7 @@ sub _read_FTHelper_GenBank {
 =cut
 
 sub _write_line_GenBank{
-   my ($fh,$pre1,$pre2,$line,$length) = @_;
+   my ($self,$pre1,$pre2,$line,$length) = @_;
 
    $length || die "Miscalled write_line_GenBank without length. Programming error!";
    my $subl = $length - length $pre2;
@@ -857,11 +861,11 @@ sub _write_line_GenBank{
 
    my $sub = substr($line,0,$length - length $pre1);
 
-   print $fh "$pre1$sub\n";
+   $self->_print("$pre1$sub\n");
    
    for($i= ($length - length $pre1);$i < $linel;) {
        $sub = substr($line,$i,($subl));
-       print $fh "$pre2$sub\n";
+       $self->_print("$pre2$sub\n");
        $i += $subl;
    }
 
@@ -883,8 +887,7 @@ sub _write_line_GenBank{
 =cut
 
 sub _write_line_GenBank_regex {
-   my ($fh,$pre1,$pre2,$line,$regex,$length) = @_;
-
+   my ($self,$pre1,$pre2,$line,$regex,$length) = @_;
    
    #print STDOUT "Going to print with $line!\n";
 
@@ -902,9 +905,9 @@ sub _write_line_GenBank_regex {
    }
    
    my $s = shift @lines;
-   print $fh "$pre1$s\n";
+   $self->_print("$pre1$s\n");
    foreach my $s ( @lines ) {
-       print $fh "$pre2$s\n";
+       $self->_print("$pre2$s\n");
    }
 }
 

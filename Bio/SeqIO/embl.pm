@@ -166,24 +166,21 @@ sub _initialize {
 
 sub next_seq {
    my ($self,@args) = @_;
-   my ($pseq,$fh,$c,$line,$name,$desc,$acc,$seqc,$mol,$div, $date, $comment, @date_arr);
+   my ($pseq,$c,$line,$name,$desc,$acc,$seqc,$mol,$div, $date, $comment, @date_arr);
    my $seq = Bio::Seq->new();
 
-   $fh = $self->_filehandle();
 
-   $line = <$fh>;   # This needs to be before the first eof() test
+   $line = $self->_readline;   # This needs to be before the first eof() test
 
-   if( eof $fh ) {
+   if( !defined $line ) {
        return undef; # no throws - end of file
    }
 
    if( $line =~ /^\s+$/ ) {
-       while( <$fh> ) {
-	   /\S/ && last;
+       while( defined ($line = $self->_readline) ) {
+	   $line =~/\S/ && last;
        }
-       $line = $_;
-   }
-   
+   }   
    if( !defined $line ) {
        return undef; # end of file
    }
@@ -205,13 +202,11 @@ sub next_seq {
    
 #   $self->warn("not parsing upper annotation in EMBL file yet!");
    my $buffer = $line;
-
  
    
    BEFORE_FEATURE_TABLE :
-   until( eof($fh) ) {
+   until( !defined $buffer ) {
        $_ = $buffer;
-
 
        # Exit at start of Feature table
        last if /^FH/;
@@ -250,19 +245,19 @@ sub next_seq {
 
        # Organism name and phylogenetic information
        elsif (/^O[SC]/) {
-           my $species = _read_EMBL_Species(\$buffer, $fh);
+           my $species = $self->_read_EMBL_Species(\$buffer);
            $seq->species( $species );
        }
 
        # References
        elsif (/^R/) {
-	   my @refs = &_read_EMBL_References(\$buffer,$fh);
+	   my @refs = $self->_read_EMBL_References(\$buffer);
 	   $seq->annotation->add_Reference(@refs);
        }
        
        # DB Xrefs
        elsif (/^DR/) {
-	   my @links = &_read_EMBL_DBLink(\$buffer,$fh);
+	   my @links = $self->_read_EMBL_DBLink(\$buffer);
 	   $seq->annotation->add_DBLink(@links);
        }
        
@@ -270,7 +265,7 @@ sub next_seq {
        elsif (/^CC\s+(.*)/) {
 	   $comment .= $1;
 	   $comment .= " ";
-	   while (<$fh>) {
+	   while (defined ($_ = $self->_readline) ) {
 	       if (/^CC\s+(.*)/) {
 		   $comment .= $1;
 		   $comment .= " ";
@@ -286,17 +281,17 @@ sub next_seq {
        }
 
        # Get next line.
-       $buffer = <$fh>;
+       $buffer = $self->_readline;
    }
 
-   while( <$fh> ) {
+   while( defined ($_ = $self->_readline) ) {
        /FT   \w/ && last;
    }
    $buffer = $_;
       
    FEATURE_TABLE :   
-   until( eof($fh) ) {
-       my $ftunit = &_read_FTHelper_EMBL($fh,\$buffer);
+   until( !defined ($buffer) ) {
+       my $ftunit = $self->_read_FTHelper_EMBL(\$buffer);
        # process ftunit
        $ftunit->_generic_seqfeature($seq);
 
@@ -306,13 +301,13 @@ sub next_seq {
    }
 	
    if( $buffer !~ /^SQ/  ) {
-       while( <$fh> ) {
+       while( defined ($_ = $self->_readline) ) {
 	   /^SQ/ && last;
        }
    }
 
    $seqc = "";	       
-   while( <$fh> ) {
+   while( defined ($_ = $self->_readline) ) {
        /^\/\// && last;
        $_ = uc($_);
        s/[^A-Za-z]//g;
@@ -322,7 +317,6 @@ sub next_seq {
    $pseq = Bio::PrimarySeq->new(-seq => $seqc , -id => $name, -desc => $desc);
    $seq->primary_seq($pseq);
    return $seq;
-
 }
 
 =head2 write_seq
@@ -347,7 +341,6 @@ sub write_seq {
         $self->warn(" $seq is not a SeqI compliant module. Attempting to dump, but may fail!");
     }
 
-    my $fh = $self->_filehandle();
     my $str = $seq->seq;
 
     my $mol;
@@ -371,8 +364,8 @@ sub write_seq {
         $temp_line = sprintf("%-11sstandard; $mol; $div; %d BP.", $seq->id(), $len);
     } 
 
-    print $fh "ID   $temp_line\n",
-              "XX\n";
+    $self->_print( "ID   $temp_line\n",
+		   "XX\n");
 
     # Write the accession line if present
     {
@@ -383,8 +376,8 @@ sub write_seq {
             $acc = $seq->accession;
         }
         if (defined $acc) {
-            print $fh "AC   $acc\n",
-                      "XX\n";
+            $self->_print("AC   $acc\n",
+			  "XX\n");
         }
     }
 
@@ -397,24 +390,24 @@ sub write_seq {
             $sv = $seq->sv;
         }
         if (defined $sv) {
-            print $fh "SV   $sv\n",
-                      "XX\n";
+            $self->_print( "SV   $sv\n",
+			   "XX\n");
         }
     }
 
     # Date lines
     my $switch=0;
     foreach my $dt ( $seq->each_date() ) {
-        _write_line_EMBL_regex($fh,"DT   ","DT   ",$dt,'\s+|$',80);
+        $self->_write_line_EMBL_regex("DT   ","DT   ",$dt,'\s+|$',80);
         $switch=1;
     }
     if ($switch == 1) {
-        print $fh "XX\n";
+        $self->_print("XX\n");
     }
 
     # Description lines
-    _write_line_EMBL_regex($fh,"DE   ","DE   ",$seq->desc(),'\s+|$',80);
-    print $fh "XX\n";
+    $self->_write_line_EMBL_regex("DE   ","DE   ",$seq->desc(),'\s+|$',80);
+    $self->_print( "XX\n");
 
     # if there, write the kw line
     {
@@ -425,8 +418,8 @@ sub write_seq {
 	    $kw = $seq->keywords;
         }
         if (defined $kw) {
-            print $fh "KW   $kw\n",
-                      "XX\n";
+            $self->_print( "KW   $kw\n",
+			   "XX\n");
         }
     }
    
@@ -440,50 +433,51 @@ sub write_seq {
         if (my $common = $spec->common_name) {
             $OS .= " ($common)";
         }
-        print $fh "OS   $OS\n";
+        $self->_print( "OS   $OS\n");
         my $OC = join('; ', reverse(@class));
 	$OC =~ s/\;\s+$//;
 	$OC .= ".";
-        _write_line_EMBL_regex($fh,"OC   ","OC   ",$OC,'; |$',80);
+        $self->_write_line_EMBL_regex("OC   ","OC   ",$OC,'; |$',80);
 	if ($spec->organelle) {
-	    _write_line_EMBL_regex($fh,"OG   ","OG   ",$spec->organelle,'; |$',80);
+	    $self->_write_line_EMBL_regex("OG   ","OG   ",$spec->organelle,'; |$',80);
 	}
-        print $fh "XX\n";
+        $self->_print( "XX\n");
     }
    
     # Reference lines
     my $t = 1;
     foreach my $ref ( $seq->annotation->each_Reference() ) {
-        print $fh "RN   [$t]\n";
+        $self->_print( "RN   [$t]\n");
         
         # Having no RP line is legal, but we need both
         # start and end for a valid location.
         my $start = $ref->start;
         my $end   = $ref->end;
         if ($start and $end) {
-            print $fh "RP   $start-$end\n";
+            $self->_print( "RP   $start-$end\n");
         } elsif ($start or $end) {
             $self->throw("Both start and end are needed for a valid RP line.  Got: start='$start' end='$end'");
         }
 
         if (my $med = $ref->medline) {
-            print $fh "RX   MEDLINE; $med\n";
+            $self->_print( "RX   MEDLINE; $med\n");
         }
 
-        &_write_line_EMBL_regex($fh, "RA   ", "RA   ", $ref->authors,  '\s+|$', 80);       
+        $self->_write_line_EMBL_regex("RA   ", "RA   ", 
+				      $ref->authors,  '\s+|$', 80);       
 
         # If there is no title to the reference, it appears
         # as a single semi-colon.  All titles must end in
         # a semi-colon.
         my $ref_title = $ref->title || '';
         $ref_title =~ s/[\s;]*$/;/;
-        &_write_line_EMBL_regex($fh, "RT   ", "RT   ", $ref_title,    '\s+|$', 80);       
+        $self->_write_line_EMBL_regex("RT   ", "RT   ", $ref_title,    '\s+|$', 80);       
 
-        &_write_line_EMBL_regex($fh, "RL   ", "RL   ", $ref->location, '\s+|$', 80);
+        $self->_write_line_EMBL_regex("RL   ", "RL   ", $ref->location, '\s+|$', 80);
         if ($ref->comment) {
-	    &_write_line_EMBL_regex($fh, "RC   ", "RC   ", $ref->comment, '\s+|$', 80); 
+	    $self->_write_line_EMBL_regex("RC   ", "RC   ", $ref->comment, '\s+|$', 80); 
         }
-        print $fh "XX\n";
+        $self->_print("XX\n");
         $t++;
     }
 
@@ -495,22 +489,22 @@ sub write_seq {
             my $opt     = $dr->optional_id || '';
             
             my $line = "$db_name; $prim; $opt.";
-            &_write_line_EMBL_regex($fh, "DR   ", "DR   ", $line, '\s+|$', 80);
+            $self->_write_line_EMBL_regex("DR   ", "DR   ", $line, '\s+|$', 80);
         }
-        print $fh "XX\n";
+        $self->_print("XX\n");
     }
 
     # Comment lines
     foreach my $comment ( $seq->annotation->each_Comment() ) {
-        _write_line_EMBL_regex($fh, "CC   ", "CC   ", $comment->text, '\s+|$', 80);
-        print $fh "XX\n";
+        $self->_write_line_EMBL_regex("CC   ", "CC   ", $comment->text, '\s+|$', 80);
+        $self->_print("XX\n");
     }
     # "\\s\+\|\$"
 
     ## FEATURE TABLE
 
-    print $fh "FH   Key             Location/Qualifiers\n";
-    print $fh "FH\n";
+    $self->_print("FH   Key             Location/Qualifiers\n");
+    $self->_print("FH\n");
 
     if( defined $self->_post_sort ) {
         # we need to read things into an array. Process. Sort them. Print 'em
@@ -525,7 +519,7 @@ sub write_seq {
         @fth = sort { &$post_sort_func($a,$b) } @fth;
 
         foreach my $fth ( @fth ) {
-	    &_print_EMBL_FTHelper($fth,$fh);
+	    $self->_print_EMBL_FTHelper($fth);
         }
     } else {
         # not post sorted. And so we can print as we get them.
@@ -534,12 +528,12 @@ sub write_seq {
         foreach my $sf ( $seq->top_SeqFeatures ) {
 	    my @fth = Bio::SeqIO::FTHelper::from_SeqFeature($sf,$seq);
 	    foreach my $fth ( @fth ) {
-	        &_print_EMBL_FTHelper($fth,$fh);
+	        $self->_print_EMBL_FTHelper($fth);
 	    }
         }
     }
 
-    print $fh "XX\n";
+    $self->_print( "XX\n");
 
     if( $self->_show_dna() == 0 ) {
         return;
@@ -560,7 +554,7 @@ sub write_seq {
         $self->warn("Weird. More atgc than bases. Problem!");
     }
 
-    print $fh "SQ   Sequence $len BP; $alen A; $clen C; $glen G; $tlen T; $olen other;\n";
+    $self->_print("SQ   Sequence $len BP; $alen A; $clen C; $glen G; $tlen T; $olen other;\n");
     
     my $nuc = 60;               # Number of nucleotides per line
     my $whole_pat = 'a10' x 6;  # Pattern for unpacking a whole line
@@ -576,7 +570,7 @@ sub write_seq {
         my $blocks = pack $out_pat,
                      unpack $whole_pat,
                      substr($str, $i, $nuc);
-        printf $fh "     $blocks%9d\n", $i + $nuc;
+        $self->_print( "     $blocks%9d\n", $i + $nuc);
     }
 
     # Print the last line
@@ -585,10 +579,10 @@ sub write_seq {
         my $last_pat = 'a10' x int($last_len / 10) .'a'. $last_len % 10;
         my $blocks = pack $out_pat,
                      unpack($last_pat, $last);
-        printf $fh "     $blocks%9d\n", $length;    # Add the length to the end
+        $self->_print( "     $blocks%9d\n", $length);    # Add the length to the end
     }
 
-    print $fh "//\n";
+    $self->_print( "//\n");
     return 1;
 }
 
@@ -605,7 +599,7 @@ sub write_seq {
 =cut
 
 sub _print_EMBL_FTHelper {
-   my ($fth,$fh,$always_quote) = @_;
+   my ($self,$fth,$always_quote) = @_;
    $always_quote ||= 0;
    
    if( ! ref $fth || ! $fth->isa('Bio::SeqIO::FTHelper') ) {
@@ -613,29 +607,28 @@ sub _print_EMBL_FTHelper {
    }
 
 
-   #print $fh "FH   Key             Location/Qualifiers\n";
-   #print $fh  sprintf("FT   %-15s  %s\n",$fth->key,$fth->loc);
-   &_write_line_EMBL_regex($fh,sprintf("FT   %-15s ",$fth->key),"FT                   ",$fth->loc,'\,|$',80);
+   #$self->_print( "FH   Key             Location/Qualifiers\n");
+   #$self->_print( sprintf("FT   %-15s  %s\n",$fth->key,$fth->loc));
+   $self->_write_line_EMBL_regex(sprintf("FT   %-15s ",$fth->key),"FT                   ",$fth->loc,'\,|$',80);
    foreach my $tag ( keys %{$fth->field} ) {
        if( ! defined $fth->field->{$tag} ) { next; } 
        foreach my $value ( @{$fth->field->{$tag}} ) {
 	   $value =~ s/\"/\"\"/g;
 	   if ($value eq "_no_value") {
-	       &_write_line_EMBL_regex($fh,"FT                   ","FT                   ","/$tag",'.|$',80);
+	       $self->_write_line_EMBL_regex("FT                   ","FT                   ","/$tag",'.|$',80);
 	   }
            elsif( $always_quote == 1 || $value !~ /^\d+$/ ) {
                 my $pat = $value =~ /\s/ ? '\s|$' : '.|$';
-	      &_write_line_EMBL_regex($fh,"FT                   ","FT                   ","/$tag=\"$value\"",$pat,80);
+	      $self->_write_line_EMBL_regex("FT                   ","FT                   ","/$tag=\"$value\"",$pat,80);
            }
            else {
-              &_write_line_EMBL_regex($fh,"FT                   ","FT                   ","/$tag=$value",'.|$',80);
+              $self->_write_line_EMBL_regex("FT                   ","FT                   ","/$tag=$value",'.|$',80);
            }
-	  # print $fh "FT                   /", $tag, "=\"", $value, "\"\n";
+	  # $self->_print( "FT                   /", $tag, "=\"", $value, "\"\n");
        }
    }
 
 }
-
 
 =head2 _read_EMBL_References
 
@@ -650,7 +643,7 @@ sub _print_EMBL_FTHelper {
 =cut
 
 sub _read_EMBL_References {
-   my ($buffer,$fh) = @_;
+   my ($self,$buffer) = @_;
    my (@refs);
    
    # assumme things are starting with RN
@@ -666,7 +659,7 @@ sub _read_EMBL_References {
    my $med;
    my $com;
 
-   while( <$fh> ) {
+   while( defined ($_ = $self->_readline) ) {
        /^R/ || last;
        /^RP   (\d+)-(\d+)/ && do {$b1=$1;$b2=$2;};
        /^RX   MEDLINE;\s+(\d+)/ && do {$med=$1};
@@ -708,12 +701,12 @@ sub _read_EMBL_References {
 =cut
 
 sub _read_EMBL_Species {
-    my( $buffer, $fh ) = @_;
+    my( $self, $buffer ) = @_;
     my $org;
 
     $_ = $$buffer;
     my( $sub_species, $species, $genus, $common, @class );
-    while (defined( $_ ||= <$fh> )) {
+    while (defined( $_ ||= $self->_readline )) {
         
         if (/^OS\s+(\S+)\s+(\S+)\s+(\S+)?(?:\s+\((.*)\))?/) {
             $genus   = $1;
@@ -741,7 +734,7 @@ sub _read_EMBL_Species {
     
     $$buffer = $_;
     
-    # Don't make a species object if it's "Unknown" or "None"
+    # Don't make a species object if it is "Unknown" or "None"
     return if $genus =~ /^(Unknown|None)$/i;
 
     # Bio::Species array needs array in Species -> Kingdom direction
@@ -772,11 +765,11 @@ sub _read_EMBL_Species {
 =cut
 
 sub _read_EMBL_DBLink {
-    my( $buffer, $fh ) = @_;
+    my( $self,$buffer ) = @_;
     my( @db_link );
 
     $_ = $$buffer;
-    while (defined( $_ ||= <$fh> )) {
+    while (defined( $_ ||= $self->_readline )) {
         
         if (my($databse, $prim_id, $sec_id)
                 = /^DR   ([^\s;]+);\s*([^\s;]+);\s*([^\s;]+)?\.$/) {
@@ -822,7 +815,7 @@ sub _filehandle{
 =head2 _read_FTHelper_EMBL
 
  Title   : _read_FTHelper_EMBL
- Usage   : &_read_FTHelper_EMBL($fh,$buffer)
+ Usage   : _read_FTHelper_EMBL($buffer)
  Function: reads the next FT key line
  Example :
  Returns : Bio::SeqIO::FTHelper object 
@@ -832,18 +825,20 @@ sub _filehandle{
 =cut
 
 sub _read_FTHelper_EMBL {
-   my ($fh,$buffer) = @_;
+   my ($self,$buffer) = @_;
    my ($key,$loc,$out);
 
+   $out = new Bio::SeqIO::FTHelper();
+   if ( $$buffer !~ /^FT\s+(\S+)/) {
+       $out->throw("Weird location line in EMBL feature table: '$_'");
+   }
    if( $$buffer =~ /^FT\s+(\S+)\s+(\S+)/ ) {
        $key = $1;
        $loc = $2;
    }
 
-   $out = new Bio::SeqIO::FTHelper();
-
    # Read the rest of the location
-   while( <$fh> ) {
+   while( defined ($_ = $self->_readline) ) {
        # Exit loop on first qualifier - line is left in $_
        last if /^XX/; # sometimes a trailing XX comment left in!
        last if /^FT\s+\//;
@@ -860,8 +855,8 @@ sub _read_FTHelper_EMBL {
    $out->loc($loc);
 
    # Now read in other fields
-   # Loop reads $_ when defined (i.e. only in first loop), then $fh, until end of file
-   while( defined($_ ||= <$fh>) ) {
+   # Loop reads $_ when defined (i.e. only in first loop), then _readline, until end of file
+   while( defined($_ ||= $self->_readline) ) {
       
         # Exit loop on non FT lines!
         /^FT/  || last;
@@ -886,7 +881,7 @@ sub _read_FTHelper_EMBL {
             #    /FT\s+(.*)\"/ && do { $value .= $1; last; };
             #    /FT\s+(.*?)\s*/ && do {$value .= $1; };
 
-            while ( <$fh> ) {
+            while ( defined ($_ = $self->_readline) ) {
                  s/\"\"/__DOUBLE_QUOTE_STRING__/g;
 
                  if (/FT\s+(.*)\"/) {
@@ -923,7 +918,7 @@ sub _read_FTHelper_EMBL {
         $out->field->{$key} ||= [];
         push(@{$out->field->{$key}}, $value);
 
-        # Empty $_ to trigger read from $fh
+        # Empty $_ to trigger read from _readline
         undef $_;
     }
 
@@ -946,7 +941,7 @@ sub _read_FTHelper_EMBL {
 =cut
 
 sub _write_line_EMBL {
-   my ($fh,$pre1,$pre2,$line,$length) = @_;
+   my ($self,$pre1,$pre2,$line,$length) = @_;
 
    $length || die "Miscalled write_line_EMBL without length. Programming error!";
    my $subl = $length - length $pre2;
@@ -955,11 +950,11 @@ sub _write_line_EMBL {
 
    my $sub = substr($line,0,$length - length $pre1);
 
-   print $fh "$pre1$sub\n";
+   $self->_print( "$pre1$sub\n");
    
    for($i= ($length - length $pre1);$i < $linel;) {
        $sub = substr($line,$i,($subl));
-       print $fh "$pre2$sub\n";
+       $self->_print( "$pre2$sub\n");
        $i += $subl;
    }
 
@@ -981,7 +976,7 @@ sub _write_line_EMBL {
 =cut
 
 sub _write_line_EMBL_regex {
-    my ($fh,$pre1,$pre2,$line,$regex,$length) = @_;
+    my ($self,$pre1,$pre2,$line,$regex,$length) = @_;
 
     #print STDOUT "Going to print with $line!\n";
 
@@ -1002,11 +997,11 @@ sub _write_line_EMBL_regex {
     
     # Print first line
     my $s = shift(@lines);
-    print $fh "$pre1$s\n";
+    $self->_print( "$pre1$s\n");
     
     # Print the rest
     foreach my $s ( @lines ) {
-        print $fh "$pre2$s\n";
+        $self->_print( "$pre2$s\n");
     }
 }
 
