@@ -194,6 +194,8 @@ sub write_seq {
                if $seq->display_id =~ /\s/;
 
 	   $top = $seq->display_id();
+	   $self->warn("No whitespace allowed in FASTA ID [". $top. "]")
+	       if defined $top && $top =~ /\s/;
        } elsif($id_type =~ /^pri/i ) {
 	   $top = $seq->primary_id();
        }
