@@ -203,7 +203,8 @@
     <para>
 		The instructions for Unix and Windows installations are found
 		on the 
-		<ulink url="http://bioperl.org/Core/Latest/index.shtml">download page</ulink>.
+		<ulink url="http://bioperl.org/Core/Latest/index.shtml">
+		  download page</ulink>.
 		If you do run into problems then mail bioperl-l@bioperl.org,
 		this is the main mailing list, and installation issues are
 		discussed frequently.
@@ -261,7 +262,7 @@
     <title>Perl Itself</title>
     <para>
 		Here are a few things you might want to look at if you
-		want to learn about Perl itself:
+		want to learn more about Perl:
 	 </para>
     <para>
 		<simplelist type="horiz" columns="2">
@@ -278,17 +279,9 @@
 			 is also good. Not much in the way of examples, but covers
 			 many topics succintly.
 		  </member>
-		  <member>
-		  </member>
 		</simplelist>
     </para>
     <para>
-    </para>
-    <para>
-    </para>
-    <para>
-      <programlisting>
-      </programlisting>
     </para>
   </section>
 
@@ -296,14 +289,13 @@
 	 <title>Starting to write a script on Unix</title>
 	 <para>
 		Sometimes the trickiest part is this step, writing something and
-		getting it to run. Windows and Unix are slightly different, let's
-		address them separately.
+		getting it to run, so this section attempts to address some of 
+		the more common tribulations.
 	 </para>
 	 <para>
 		In Unix when you're ready to work you're usually in the
-		command-line or "shell" environment. People have their own
-		choices as to shell, usually bash or tcsh, sometimes zsh, csh,
-		and so on. First find out Perl's version by typing this command:
+		command-line or "shell" environment. First find out Perl's 
+		version by typing this command:
 	 </para>		
 	 <para>
 		<programlisting>
@@ -375,8 +367,8 @@ Internet, point your browser at http://www.perl.com/, the Perl Home Page.
   <section id="create">
 	 <title>Creating a sequence, and an object</title>
     <para>
-		Our first script will create a sequence. In the process of
-		creating a sequence you will also be creating an "object", since
+		Our first script will create a sequence. Well, not just a sequence,
+		you will be creating a "sequence object", since
 		Bioperl is written in an object-oriented way. Why be
 		object-oriented? Why introduce these novel or intrusive notions into
 		software that should be "biological" or "intuitive"? The reason is 
@@ -391,7 +383,10 @@ Internet, point your browser at http://www.perl.com/, the Perl Home Page.
 		for data. The typical sequence entry contains
 		differents sorts of data (a sequence, one or more identifiers, etc.)
 		so it will serve as a nice example of what
-		an object can be. All objects in Bioperl are created by specific
+		an object can be. 
+		</para>
+	 <para>
+		All objects in Bioperl are created by specific
 		Bioperl modules, so if you want to create an object you're also going
 		to have to tell Perl which module to use. Let's add another line:
     </para>	
@@ -434,12 +429,10 @@ Internet, point your browser at http://www.perl.com/, the Perl Home Page.
 	 </para>
 	 <para>
       <note>
-		  <para>
 			 <ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Seq.html>Bio::Seq</ulink> objects can be created manually, as above, but
 			 they're also create automatically in many operations
-			 in Bioperl, for example when alignment files or
-			 BLAST reports are parsed.
-		  </para>
+			 in Bioperl, for example when alignment files or database
+			 entries or BLAST reports are parsed.
       </note>
 	 </para>
 	 <para>
@@ -463,7 +456,7 @@ Internet, point your browser at http://www.perl.com/, the Perl Home Page.
 	 </para>
 	 <para>
 		The object was described as a data container, but it is more
-		than that. It can also do work, it can call
+		than that. It can also do work, meaning it can call
 		specific methods taken from the module or modules that were used
 		to create it. For example, the 
 <ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Seq.html>Bio::Seq</ulink>
@@ -508,6 +501,7 @@ Internet, point your browser at http://www.perl.com/, the Perl Home Page.
 		</programlisting>
 	 </para>
 	 <para>
+		"desc" is short for "description".
 		"aaaatgggggggggggccccgtt", "#12345", and "example 1" are called
 		"arguments" in programming jargon. You could say that
 		this example shows how to pass arguments to the
@@ -575,8 +569,9 @@ Internet, point your browser at http://www.perl.com/, the Perl Home Page.
 		</programlisting> 
 	 </para> 
 	 <para>
-		Let's consider that last line, since this is where some  
-		neophytes start to get a bit nervous. What does it mean? In that
+		Let's consider that last line, where you see two objects, since 
+		this is where some  
+		neophytes start to get a bit nervous. What's going on there? In that
 		line we handed or passed the Sequence object to the SeqIO object as an
 		argument to its <function>write_seq</function> method. Another
 		way to think about this is that the SeqIO object understands how
@@ -621,7 +616,7 @@ ORIGIN
   <section id="reading">
 	 <title>Retrieving a sequence from a file</title>
 	 <para>
-		A common beginner's mistake is to not use
+		One beginner's mistake is to not use
 		<ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqIO.html">Bio::SeqIO</ulink> when working with sequence
 		files. This is understandable in some respects. You
 		may have read about Perl's <function>open</function>
@@ -733,17 +728,16 @@ ORIGIN
 		</programlisting>
 	 </para>
 	 <para>
-		In this case we've created an object using the 
-		<function>new</function> method but without arguments. 
-		In fact, when creating this sort of database object no arguments or
-		options are possible. Let's ask the object to do something
-		useful:
+		In this case we've created a "database object" using the 
+		<function>new</function> method, but without any arguments. 
+		Let's ask the object to do something useful:
 	 </para>
 	 <para>
 		<programlisting>
 		  use Bio::DB::GenBank;
 
 		  $db_obj = Bio::DB::GenBank->new;
+
 		  $seq_obj = $db_obj->get_Seq_by_id(2); 
 		</programlisting>
 	 </para>
@@ -788,6 +782,7 @@ ORIGIN
 		                                            -query => $query ); 
 
 		  $gb_obj = Bio::DB::GenBank->new;
+
 		  $stream_obj = $gb_obj->get_Stream_by_query($query_obj);
 		  
 		  while ($seq_obj = $stream_obj->next_seq) {
@@ -802,11 +797,11 @@ ORIGIN
 		is that you will use a stream whenever you expect to retrieve 
 		a stream or series of sequence objects. Much like <classname>
 		  get_Seq_by_id</classname>, but built to retrieve one or
-		more objects, not just one.
+		more objects, not just one object.
 	 </para>
 	 <para>
 		Notice how carefully separated the responsibilities of each
-		object are in the code above: an object just to describe the query,
+		object are in the code above: there's an object just to describe the query,
 		an object to execute the query using the query object, an object to 
 		retrieve, and finally the sequence object.
 	 </para>
@@ -814,7 +809,7 @@ ORIGIN
 		<para>
 		  Be careful what you ask for, many of today's nucleotide database
 		  entries are genome-size and you will probably run out of memory
-		  if your query unintentionally tries to retrieve one of these monstrosities.
+		  if your query accidentally tries to retrieve one of these monstrosities.
 		</para>
 	 </warning>
 	 <para>
@@ -823,28 +818,11 @@ ORIGIN
 	 </para>
   </section>
 
-  <section id="blast">
-    <title>BLAST</title>
-    <para>
-      <programlisting>
-my $seq_in  = Bio::SeqIO->new( -format => 'fasta',
-                               -file   => $string);
-
-while( my $seq = $seq_in->next_seq() ) {
-  my $factory = Bio::Tools::Run::StandAloneBlast->new(
-		  outfile => $seq->display_id . ".blastn",
-		  program => 'blastn' );
-  my $bl2seq_report = $factory->bl2seq( 'ketosintaza-dna', $seq);
-}
-      </programlisting>
-    </para>
-  </section>
-
   <section id="seq_obj">
     <title>The Sequence object</title>
     <para>
 		There's been a lot of discussion around the Sequence object, 
-		and we've created this object in a few different ways, but we
+		and this object has been created in a few different ways, but we
 		haven't shown what it's capable of doing. The table below
 		lists the methods available to you if you have a Sequence
 		object in hand. "Returns" means what the object will give
@@ -857,11 +835,11 @@ while( my $seq = $seq_in->next_seq() ) {
     </para>
     <para>
       <programlisting>
-		  print $seq_obj->seq;
+		  $sequence = $seq_obj->seq;
       </programlisting>
 	 </para>
 	 <para>
-		Or <emphasis>set</emphasis> or assign a value:
+		To <emphasis>set</emphasis> or assign a value:
 	 </para>
 	 <para>
 		<programlisting>
@@ -884,7 +862,7 @@ while( my $seq = $seq_in->next_seq() ) {
 				<row>
 				  <entry>new</entry>
 				  <entry>Sequence object</entry>
-				  <entry>$so = Bio::Seq->new(-seq => "at")</entry>
+				  <entry>$so = Bio::Seq->new(-seq => "MP")</entry>
 				  <entry>create a new one</entry>
 				</row>
 				  <entry>seq</entry>
@@ -895,13 +873,7 @@ while( my $seq = $seq_in->next_seq() ) {
 				<row>
 				  <entry>display_id</entry>
 				  <entry>identifier</entry>
-				  <entry>$so->display_id("#12345")</entry>
-				  <entry>get or set an identifier</entry>
-				</row>
-				<row>
-				  <entry>display_name</entry>
-				  <entry>name</entry>
-				  <entry>$so->display_name("Example 1")</entry>
+				  <entry>$so->display_id("NP_123456")</entry>
 				  <entry>get or set an identifier</entry>
 				</row>
 				<row>
@@ -924,7 +896,7 @@ while( my $seq = $seq_in->next_seq() ) {
 				</row>
 				<row>
 				  <entry>length</entry>
-				  <entry>length</entry>
+				  <entry>length, a number</entry>
 				  <entry>$so->length</entry>
 				  <entry></entry>
 				</row>
@@ -937,60 +909,68 @@ while( my $seq = $seq_in->next_seq() ) {
 				<row>
 				  <entry>subseq</entry>
 				  <entry>sequence string</entry>
-				  <entry>$seq_obj->subseq(10,40)</entry>
+				  <entry>$string = $seq_obj->subseq(10,40)</entry>
 				  <entry>Arguments are start and end</entry>
 				</row>
 				<row>
 				  <entry>trunc</entry>
 				  <entry>Sequence object</entry>
 				  <entry>$so2 = $so1->trunc(10,40)</entry>
-				  <entry>truncate, arguments are start and end</entry>
+				  <entry>Truncate, arguments are start and end</entry>
 				</row>
 				<row>
 				  <entry>revcom</entry>
 				  <entry>Sequence object</entry>
 				  <entry>$so2 = $so1->revcom</entry>
-				  <entry>reverse complement</entry>
+				  <entry>Reverse complement</entry>
 				</row>
 				<row>
 				  <entry>translate</entry>
 				  <entry>Sequence object</entry>
-				  <entry></entry>
+				  <entry>$prot_obj = $dna_obj->translate</entry>
+				  <entry>See
+					 <ulink
+						url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/PrimarySeqI.html">Bio::PrimarySeqI></ulink>
+					 for more</entry>
 				</row>
 				<row>
 				  <entry>species</entry>
-				  <entry>Bio::Species object</entry>
-				  <entry>get or set</entry>
+				  <entry>Species object</entry>
+				  <entry>$species_obj = $so->species</entry>
+				  <entry>See
+					 <ulink
+						url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Species.html">Bio::Species></ulink>
+					 for more</entry>
 				</row>
 				<row>
 				  <entry>seq_version</entry>
 				  <entry></entry>
-				  <entry></entry>
+				  <entry>$so->seq_version("1")</entry>
+				  <entry>get or set a version</entry>
 				</row>
 				<row>
 				  <entry>keywords</entry>
-				  <entry></entry>
-				  <entry></entry>
+				  <entry>array of keywords</entry>
+				  <entry>@array = $so->keywords</entry>
+				  <entry>get or set</entry>
 				</row>
 				<row>
 				  <entry>namespace</entry>
 				  <entry></entry>
-				  <entry></entry>
+				  <entry>$so->namespace("Private")</entry>
+				  <entry>get or set the name space</entry>
 				</row>
 				<row>
 				  <entry>authority</entry>
 				  <entry></entry>
-				  <entry></entry>
+				  <entry>$so->authority("FlyBase")</entry>
+				  <entry>get or set the organization</entry>
 				</row>
 				<row>
 				  <entry>is_circular</entry>
-				  <entry></entry>
-				  <entry></entry>
-				</row>
-				<row>
-				  <entry>validate_seq</entry>
-				  <entry></entry>
-				  <entry></entry>
+				  <entry>Boolean</entry>
+				  <entry>if $so->is_circular</entry>
+				  <entry>get or set</entry>
 				</row>
 			 </tbody>
 		  </tgroup>
@@ -1052,40 +1032,299 @@ while( my $seq = $seq_in->next_seq() ) {
 		  </tgroup>
       </table>
     </para>
+  </section>
 
+  <section id="examples">
+    <title>Example Sequence objects</title>
+    <para>
+		Let's use some of the methods above and see what they return
+		when the sequence object is obtained from different sources.
+		In the Genbank example we're assuming we've used Genbank to
+		retrieve or create a Sequence object. So this object could have
+		have been retrieved like this:
+    </para>
+	 <para>
+		<programlisting>
+		  use Bio::DB::GenBank;
+
+		  $db_obj = Bio::DB::GenBank->new;
+		  $seq_obj = $db_obj->get_Seq_by_acc("J01673"); 
+		</programlisting>
+	 </para>
+	 <para>
+		Or it could have been created from a file like this:
+	 </para>
+	 <para>
+		<programlisting>
+		  use Bio::SeqIO;
+
+		  $seqio_obj = Bio::SeqIO->new(-file => "J01673.gb",
+                                     -format => "genbank" );
+		  $seq_obj = $seqio_obj->next_seq;
+		</programlisting>
+	 </para>
+	 <para>
+		Where the Genbank file looks like:
+	 </para>
+    <para>
+      <programlisting>
+LOCUS       ECORHO                  1880 bp    DNA     linear   BCT 26-APR-1993
+DEFINITION  E.coli rho gene coding for transcription termination factor.
+ACCESSION   J01673 J01674
+VERSION     J01673.1  GI:147605
+KEYWORDS    attenuator; leader peptide; rho gene; transcription terminator.
+SOURCE      Escherichia coli
+  ORGANISM  Escherichia coli
+            Bacteria; Proteobacteria; Gammaproteobacteria; Enterobacteriales;
+            Enterobacteriaceae; Escherichia.
+REFERENCE   1  (bases 1 to 1880)
+  AUTHORS   Brown,S., Albrechtsen,B., Pedersen,S. and Klemm,P.
+  TITLE     Localization and regulation of the structural gene for
+            transcription-termination factor rho of Escherichia coli
+  JOURNAL   J. Mol. Biol. 162 (2), 283-298 (1982)
+  MEDLINE   83138788
+   PUBMED   6219230
+REFERENCE   2  (bases 1 to 1880)
+  AUTHORS   Pinkham,J.L. and Platt,T.
+  TITLE     The nucleotide sequence of the rho gene of E. coli K-12
+  JOURNAL   Nucleic Acids Res. 11 (11), 3531-3545 (1983)
+  MEDLINE   83220759
+   PUBMED   6304634
+COMMENT     Original source text: Escherichia coli (strain K-12) DNA.
+            A clean copy of the sequence for [2] was kindly provided by
+            J.L.Pinkham and T.Platt.
+FEATURES             Location/Qualifiers
+     source          1..1880
+                     /organism="Escherichia coli"
+                     /mol_type="genomic DNA"
+                     /strain="K-12"
+                     /db_xref="taxon:562"
+     mRNA            212..>1880
+                     /product="rho mRNA"
+     CDS             282..383
+                     /note="rho operon leader peptide"
+                     /codon_start=1
+                     /transl_table=11
+                     /protein_id="AAA24531.1"
+                     /db_xref="GI:147606"
+                     /translation="MRSEQISGSSLNPSCRFSSAYSPVTRQRKDMSR"
+     gene            468..1727
+                     /gene="rho"
+     CDS             468..1727
+                     /gene="rho"
+                     /note="transcription termination factor"
+                     /codon_start=1
+                     /transl_table=11
+                     /protein_id="AAA24532.1"
+                     /db_xref="GI:147607"
+                     /translation="MNLTELKNTPVSELITLGENMGLENLARMRKQDIIFAILKQHAK
+                     SGEDIFGDGVLEILQDGFGFLRSADSSYLAGPDDIYVSPSQIRRFNLRTGDTISGKIR
+                     PPKEGERYFALLKVNEVNFDKPENARNKILFENLTPLHANSRLRMERGNGSTEDLTAR
+                     VLDLASPIGRGQRGLIVAPPKAGKTMLLQNIAQSIAYNHPDCVLMVLLIDERPEEVTE
+                     MQRLVKGEVVASTFDEPASRHVQVAEMVIEKAKRLVEHKKDVIILLDSITRLARAYNT
+                     VVPASGKVLTGGVDANALHRPKRFFGAARNVEEGGSLTIIATALIDTGSKMDEVIYEE
+                     FKGTGNMELHLSRKIAEKRVFPAIDYNRSGTRKEELLTTQEELQKMWILRKIIHPMGE
+                     IDAMEFLINKLAMTKTNDDFFEMMKRS"
+ORIGIN      15 bp upstream from HhaI site.
+        1 aaccctagca ctgcgccgaa atatggcatc cgtggtatcc cgactctgct gctgttcaaa
+       61 aacggtgaag tggcggcaac caaagtgggt gcactgtcta aaggtcagtt gaaagagttc
+
+                                  <...deleted...>  
+
+     1801 tgggcatgtt aggaaaattc ctggaatttg ctggcatgtt atgcaatttg catatcaaat
+     1861 ggttaatttt tgcacaggac
+//      
+		</programlisting>
+    </para>
+	 <para>
+		Either way, the values returned by various methods are shown below.
+	 </para>
+	 <para>
+		<table>
+		  <title>Values from Genbank</title>
+		  <tgroup cols="2">
+			 <thead>
+				<row>
+				  <entry>Method</entry>
+				  <entry>Returns</entry>
+				</row>
+			 </thead>
+			 <tbody>
+<row>
+<entry>display_id</entry>      <entry>ECORHO</entry>
+</row>
+<row>
+<entry>desc</entry>    <entry>E.coli rho gene coding for transcription termination factor.</entry>
+</row>
+<row>
+<entry>display_name</entry>    <entry>ECORHO</entry>
+</row>
+<row>
+<entry>accession</entry>       <entry>J01673</entry>
+</row>
+<row>
+<entry>primary_id</entry>      <entry>147605</entry>
+</row>
+<row>
+<entry>seq_version</entry>     <entry>1</entry>
+</row>
+<row>
+<entry>keywords</entry> <entry>attenuator; leader peptide; rho gene; transcription terminator</entry>
+</row>
+<row>
+<entry>is_circular</entry> <entry></entry>
+</row>
+<row>
+<entry>namespace</entry>  <entry></entry>
+</row>
+<row>
+<entry>authority</entry> <entry></entry>
+</row>
+<row>
+<entry>length</entry>  <entry>1880</entry>
+</row>
+<row>
+<entry>seq</entry>     <entry>AACCCT...ACAGGAC</entry>
+</row>
+			 </tbody>
+		  </tgroup>
+      </table>
+    </para>
+    <para>
+		There's a few comments that need to be made. First, a few of the
+		methods don't return anything, like
+		<classname>namespace</classname> and <classname>authority</classname>.
+		The reason is that though these are good values in principle
+		there are no commonly agreed upon standard names - perhaps someday
+		the authors will be able to rewrite the code when we all agree 
+		what these values should be. Second, you noticed that there's an awful lot of
+		information missing. All of this missing information is stored in
+		what Bioperl calls Features and Annotations, see the
+		<ulink
+		url="http://bioperl.org/HOWTOs/Feature-Annotation/index.html">Feature
+		and Annotation HOWTO</ulink> if you'd like to learn more about this.
+		Finally, you may be wondering why the method names are what they
+		are and why particular fields or identifiers end up associated with
+		particular methods. Again, without having standard names for things
+		that are agreed upon by the creators of our public databases all
+		we can do is use common sense, and these choices seem to be
+		reasonable ones.
+	 </para>
+	 <para>
+		Next let's take a look at the values returned by the methods
+		used by the Sequence object when a fasta file is used as input.
+		The fasta file entry looks like this, it's clearly much simpler
+		than the corresponding Genbank entry:
+	 </para>
+	 <para>
+      <programlisting>
+>gi|147605|gb|J01673.1|ECORHO E.coli rho gene coding for transcription terminati
+on factor
+AACCCTAGCACTGCGCCGAAATATGGCATCCGTGGTATCCCGACTCTGCTGCTGTTCAAAAACGGTGAAG
+TGGCGGCAACCAAAGTGGGTGCACTGTCTAAAGGTCAGTTGAAAGAGTTCCTCGACGCTAACCTGGCGTA
+
+                           <...deleted...>
+
+ACGTGTTTACGTGGCGTTTTGCTTTTATATCTGTAATCTTAATGCCGCGCTGGGCATGTTAGGAAAATTC
+CTGGAATTTGCTGGCATGTTATGCAATTTGCATATCAAATGGTTAATTTTTGCACAGGAC		  
+		</programlisting>
+    </para>
+    <para>
+		And here are the values:
+    </para>
+    <para>
+		<table>
+		  <title>Values from Genbank</title>
+		  <tgroup cols="2">
+			 <thead>
+				<row>
+				  <entry>Method</entry>
+				  <entry>Returns</entry>
+				</row>
+			 </thead>
+			 <tbody>
+<row>
+<entry>display_id</entry>      <entry>gi|147605|gb|J01673.1|ECORHO</entry>
+</row>
+<row>
+<entry>desc</entry>    <entry>E.coli rho gene coding for transcription termination factor</entry>
+</row>
+<row>
+<entry>display_name</entry>    <entry>gi|147605|gb|J01673.1|ECORHO</entry>
+</row>
+<row>
+<entry>accession</entry>       <entry>unknown</entry>
+</row>
+<row>
+<entry>primary_id</entry>      <entry>gi|147605|gb|J01673.1|ECORHO</entry>
+</row>
+<row>
+<entry>is_circular</entry> <entry></entry>
+</row>
+<row>
+<entry>namespace</entry>  <entry></entry>
+</row>
+<row>
+<entry>authority</entry> <entry></entry>
+</row>
+<row>
+<entry>length</entry>  <entry>1880</entry>
+</row>
+<row>
+<entry>seq</entry>     <entry>AACCCT...ACAGGAC</entry>
+</row>
+			 </tbody>
+		  </tgroup>
+      </table>
+    </para>
+	 <para>
+		If you compare these values to the values taken from the Genbank 
+		entry you'll see that certain values, or methods, are missing,
+		like <function>seq_version</function>. That's because data types
+		likethis aren't usually present in the typical fasta file. 
+	 </para>
+	 <para>
+		Another natural question is why the values returned by methods
+		like <function>display_id</function> are different even though
+		the only thing distinguishing these entries are their respective
+		formats. The reason is that there are no rules governing how 
+		one interconverts formats, meaning how Genbank creates fasta
+		files from Genbank files may be different from how SwissProt
+		performs the same interconversion. Again, until the
+		organizations creating these databases agree on standard sets
+		of names and formats all the Bioperl authors can do is do 
+		make reasonable choices.
+	 </para>
+	 <note>
+		<para>
+		  Yes, Bioperl could follow the
+		  conventions of a single organization like Genbank such that
+		  <function>display_id</function> returns the same value when
+		  using Genbank format or Genbank's fasta format but why?
+		  Does any single organization deserve to become a standard
+		  when, really, what they should be doing is talking to each other?
+		</para>
+	 </note>
+  </section>
+
+  <section id="blast">
+    <title>BLAST</title>
+    <para>
+      <programlisting>
+$seq_in  = Bio::SeqIO->new( -format => 'fasta',
+                               -file   => $string);
+
+while( $seq = $seq_in->next_seq() ) {
+  $factory = Bio::Tools::Run::StandAloneBlast->new(
+		  outfile => $seq->display_id . ".blastn",
+		  program => 'blastn' );
+  $bl2seq_report = $factory->bl2seq( 'ketosintaza-dna', $seq);
+}
+      </programlisting>
+    </para>
   </section>
 
 <!-- secondary ids? -->
-
-  <section id="examples">
-    <title>Example Files</title>
-    <para>
-		Let's use some of the methods above and see what they return
-		when the sequence object is derived from different types of 
-		sequnce files.
-    </para>
-    <para>
-    </para>
-    <para>
-		<emphasis>Fasta file</emphasis>
-      <programlisting>
-      </programlisting>
-    </para>
-    <para>
-    </para>
-    <para>
-		<emphasis>Genbank file</emphasis>
-      <programlisting>
-      </programlisting>
-    </para>
-    <para>
-    </para>
-    <para>
-		<emphasis>Swissprot file</emphasis>
-      <programlisting>
-      </programlisting>
-    </para>
-  </section>
 
   <section id="regexp">
     <title>Regular Expressions</title>
@@ -1189,48 +1428,48 @@ while( my $seq = $seq_in->next_seq() ) {
 
 	 <para>
 		Example 2:
-			 <programlisting>
-				my $reverse_complement = $sequence->revcom;
-			 </programlisting>
-		  </para>
+		<programlisting>
+		  my $reverse_complement = $sequence->revcom;
+		</programlisting>
+	 </para>
 
-		  <para>
-			 The main difference between this object-oriented example and the
-			 procedural example shown before is that the function for
-			 generating the reverse complement (called "revcom") part of
-			 $sequence. To put it another way, $sequence knows how to calculate
-			 and return its reverse complement. Encapsaluting both data and
-			 functions into the same construct is the fundamental idea behind
-			 object-oriented programming. 
-		  </para>
+	 <para>
+		The main difference between this object-oriented example and the
+		procedural example shown before is that the function for
+		generating the reverse complement (called "revcom") part of
+		$sequence. To put it another way, $sequence knows how to calculate
+		and return its reverse complement. Encapsaluting both data and
+		functions into the same construct is the fundamental idea behind
+		object-oriented programming. 
+	 </para>
 
-		  <para>
-			 <emphasis>Terminology</emphasis>
-                         In the object-oriented example above, $sequence is
-                         called an object, and the function "revcom" is called
-                         a method.  An <emphasis>object</emphasis> is a data
-                         structure that has both data and methods associated
-                         with it.  Objects are separated into types called
-                         <emphasis>classes</emphasis>, and the class of an
-                         object defines both the data that it can hold and the
-                         methods that it knows. A specific object that has a
-                         defined class is referred to as an
-                         <emphasis>instance</emphasis> of that class.
-                 </para>
-
-                 <para>
-                         <emphasis>Further Reading</emphasis>
-                         Bioperl uses the object-oriented paradigm, and readers
-                         interested in learning more about object-oriented Perl
-                         might find <ulink
-                         url="http://www.manning.com/Conway/">Damian Conway's
-                         book.</ulink>
+	 <para>
+		<emphasis>Terminology</emphasis>
+		In the object-oriented example above, $sequence is
+		called an object, and the function "revcom" is called
+		a method.  An <emphasis>object</emphasis> is a data
+		structure that has both data and methods associated
+		with it.  Objects are separated into types called
+		<emphasis>classes</emphasis>, and the class of an
+		object defines both the data that it can hold and the
+		methods that it knows. A specific object that has a
+		defined class is referred to as an
+		<emphasis>instance</emphasis> of that class.
+	 </para>
+	 
+	 <para>
+		<emphasis>Further Reading</emphasis>
+		Bioperl uses the object-oriented paradigm, and readers
+		interested in learning more about object-oriented Perl
+		might find <ulink
+		  url="http://www.manning.com/Conway/">Damian Conway's
+		  book.</ulink>
                          
-                         Anyone who is interested in developing their own
-                         modules would do well to read the <ulink
-                         url="http://http://bioperl.org/Core/Latest/biodesign.html">Bioperl
-                         design documentation</ulink>. 
-                </para>
+		Anyone who is interested in developing their own
+		modules would do well to read the <ulink
+		  url="http://http://bioperl.org/Core/Latest/biodesign.html">Bioperl
+		  design documentation</ulink>. 
+	 </para>
   </section>
 </article>
 
