@@ -113,24 +113,14 @@ BEGIN {
     $VERBOSITY = 0;
 }
 
-=head2 new
-
- Purpose   : generic instantiation function can be overridden if 
-             special needs of a module cannot be done in _initialize
-
-=cut
-
 sub new {
-    # local($^W) = 0;
-    my ($caller, %param) = @_;
-
-    my $self = $caller->_create_object(%param);
-
-    my $verbose =  $param{'-VERBOSE'} || $param{'-verbose'};
-
-    ## See "Comments" above regarding use of _rearrange().
-    $self->verbose($verbose);
-    return $self;
+  my $class = shift;
+  my @args = @_;
+  unless ( $ENV{'BIOPERLDEBUG'} ) {
+      carp("Use of new in Bio::Root::RootI is deprecated.  Please use Bio::Root::Root instead");
+  }
+  eval "require Bio::Root::Root";
+  return Bio::Root::Root->new(@args);
 }
 
 # for backwards compatibility
@@ -139,25 +129,6 @@ sub _initialize {
     return 1;
 }
 
-=head2 _create_object
-
- Title   : _create_object()
- Usage   : $obj->create_object(@args)
- Function: Abstract method which actually creates the blessed object reference
- Returns : Blessed object (hashref, arrayref, scalarref)
- Args    : Implementation-specific
-
-=cut
-
-sub _create_object {
-  my $class = shift;
-  my @args = @_;
-  unless ( $ENV{'BIOPERLDEBUG'} ) {
-      carp("Use of Bio::Root::RootI is deprecated.  Please use Bio::Root::Root instead");
-  }
-  eval "require Bio::Root::Root";
-  return Bio::Root::Root->new(@args);
-}
 
 =head2 throw
 
@@ -200,8 +171,13 @@ sub throw{
 
 sub warn{
     my ($self,$string) = @_;
-
-    my $verbose = $self->verbose;
+    
+    my $verbose;
+    if( $self->can('verbose') ) {
+	$verbose = $self->verbose;
+    } else {
+	$verbose = 0;
+    }
 
     if( $verbose == 2 ) {
 	$self->throw($string);
@@ -256,27 +232,6 @@ sub deprecated{
    if( $self->verbose >= 0 ) { 
        print STDERR $msg, "\n", $self->stack_trace_dump;
    }
-}
-
-		     
-=head2 verbose
-
- Title   : verbose
- Usage   : $self->verbose(1)
- Function: Sets verbose level for how ->warn behaves
-           -1 = no warning
-            0 = standard, small warning
-            1 = warning with stack trace
-            2 = warning becomes throw
- Returns : The current verbosity setting (integer between -1 to 2)
- Args    : -1,0,1 or 2
-
-
-=cut
-
-sub verbose{
-   my ($self,$value) = @_;
-   $self->throw_not_implemented();
 }
 
 =head2 stack_trace_dump

@@ -190,7 +190,7 @@ sub new {
     my ($class, @args) = @_;
     my $self = $class->SUPER::new(@args);
 
-    my($seq,$id,$acc,$pid,$desc,$alphabet,$given_id,$is_circular) =
+    my($seq,$id,$acc,$pid,$desc,$alphabet,$given_id,$is_circular,$direct,$ref_to_seq) =
 	$self->_rearrange([qw(SEQ
 			      DISPLAY_ID
 			      ACCESSION_NUMBER
@@ -199,6 +199,8 @@ sub new {
 			      ALPHABET
 			      ID
 			      IS_CIRCULAR
+			      DIRECT
+			      REF_TO_SEQ
 			      )],
 			  @args);
     if( defined $id && defined $given_id ) {
@@ -211,8 +213,17 @@ sub new {
     # if alphabet is provided we set it first, so that it won't be guessed
     # when the sequence is set
     $alphabet && $self->alphabet($alphabet);
-    # note: the sequence string may be empty
-    $self->seq($seq) if defined($seq);
+    
+    # if there is an alphabet, and direct is passed in, assumme the alphabet
+    # and sequence is ok 
+
+    if( $alphabet && $direct && $ref_to_seq) {
+	$self->{'seq'} = $$ref_to_seq;
+    } else {
+	# note: the sequence string may be empty
+	$self->seq($seq) if defined($seq);
+    }
+
     $id      && $self->display_id($id);
     $acc     && $self->accession_number($acc);
     defined $pid     && $self->primary_id($pid);
@@ -221,6 +232,14 @@ sub new {
 
     return $self;
 }
+
+sub direct_seq_set {
+    my ($obj,$seq) = @_;
+
+    $obj->{'seq'} = $seq;
+    return $seq;
+}
+
 
 =head2 seq
 

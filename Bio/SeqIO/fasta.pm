@@ -123,13 +123,16 @@ sub next_seq {
     }
 
     # create the seq object
-    $seq = $self->sequence_factory->create(-seq        => $sequence,
-					   -id         => $id,
-					   -primary_id => $id,
-					   -desc       => $fulldesc,
-					   -alphabet    => $alphabet
+    $seq = $self->sequence_factory->create(
+					   -ref_to_seq  => \$sequence,
+					   -id          => $id,
+					   -primary_id  => $id,
+					   -desc        => $fulldesc,
+					   -alphabet    => $alphabet,
+					   -direct      => 1,
 					   );
     
+
     # if there wasn't one before, set the guessed type
     unless ( defined $alphabet ) {
 	$self->alphabet($seq->alphabet());

@@ -184,24 +184,45 @@ BEGIN {
 
 }
 
-=head2 _create_object()
 
- Title   : _create_object()
- Usage   : $obj->create_object(@args)
- Function: Method which actually creates the blessed  hashref
- Returns : Blessed hashref
- Args    : Ignored
 
-Override this method, the new() method, or _initialize() to make a
-custom constructor.
+=head2 new
+
+ Purpose   : generic instantiation function can be overridden if 
+             special needs of a module cannot be done in _initialize
 
 =cut
 
-sub _create_object {
-  my ($class) = @_;
-  $class = ref($class) if ref($class);
-  return bless {}, $class;
+sub new {
+    my ($class, %param) = @_;
+
+    $class = ref($class) if ref($class);
+
+    my $self = {};
+    bless $self, $class;
+
+    my $verbose =  $param{'-VERBOSE'} || $param{'-verbose'};
+
+    ## See "Comments" above regarding use of _rearrange().
+    $self->verbose($verbose);
+    return $self;
 }
+
+		     
+=head2 verbose
+
+ Title   : verbose
+ Usage   : $self->verbose(1)
+ Function: Sets verbose level for how ->warn behaves
+           -1 = no warning
+            0 = standard, small warning
+            1 = warning with stack trace
+            2 = warning becomes throw
+ Returns : The current verbosity setting (integer between -1 to 2)
+ Args    : -1,0,1 or 2
+
+
+=cut
 
 sub verbose {
    my ($self,$value) = @_;
