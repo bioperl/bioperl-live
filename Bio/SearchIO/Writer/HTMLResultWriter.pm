@@ -310,7 +310,9 @@ sub to_string {
 	    foreach my $hsp (@hsps ) {
 		next if( $hspfilter && ! &{$hspfilter}($hsp) );
 		$hspstr .= sprintf(" Score = %s bits (%s), Expect = %s",
-				   $hsp->bits, $hsp->score, $hsp->evalue);
+				   $hsp->bits || $hsp->score, 
+				   $hsp->score || $hsp->bits, 
+				   $hsp->evalue || '');
 		if( defined $hsp->pvalue ) {
 		    $hspstr .= ", P = ".$hsp->pvalue;
 		}
@@ -464,7 +466,7 @@ sub to_string {
     }
     $str .= "</table><p><h2>Search Statistics</h2><table border=1><tr><th>Statistic</th><th>Value</th></tr>\n";
     foreach my $stat ( sort $result->available_statistics ) {
-	$str .= "<tr><td>$stat</td><td>". $result->get_statistic($stat). "</td></th>\n";
+	$str .= "<tr><td>$stat</td><td>". $result->get_statistic($stat). "</td></tr>\n";
     }
     $str .=  "</table><P>".$self->footer() . "<P>\n";
     return $str;
