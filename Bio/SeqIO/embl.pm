@@ -281,6 +281,7 @@ sub next_seq {
    while( defined ($_ = $self->_readline) ) {
        /^FT   \w/ && last;
        /^SQ / && last;
+       /^CO / && last;
    }
    $buffer = $_;
       
@@ -295,13 +296,28 @@ sub next_seq {
 	 }
      }
    }
+   # skip comments
+   while( defined ($buffer) && $buffer =~ /^XX/ ) { 
+       $buffer = $self->_readline();
+   }
    
+   if( $buffer =~ /^CO/  ) {	   
+       until( !defined ($buffer) ) {
+	   my $ftunit = $self->_read_FTHelper_EMBL(\$buffer);
+	   # process ftunit
+	   $ftunit->_generic_seqfeature($seq);
+	   
+	   if( $buffer !~ /^CO/ ) {
+	       last;
+	   }
+       }       
+   }
    if( $buffer !~ /^SQ/  ) {
        while( defined ($_ = $self->_readline) ) {
 	   /^SQ/ && last;
        }
    }
-
+   
    $seqc = "";	       
    while( defined ($_ = $self->_readline) ) {
        /^\/\// && last;
@@ -552,16 +568,19 @@ sub write_seq {
         foreach my $sf ( $seq->top_SeqFeatures ) {
 	    my @fth = Bio::SeqIO::FTHelper::from_SeqFeature($sf,$seq);
 	    foreach my $fth ( @fth ) {
-	        $self->_print_EMBL_FTHelper($fth);
+	        if( $fth->key eq 'CONTIG') {
+		    $self->_show_dna(0);
+		}
+		$self->_print_EMBL_FTHelper($fth);
 	    }
         }
     }
-
-    $self->_print( "XX\n");
-
+	   
     if( $self->_show_dna() == 0 ) {
+	$self->_print( "//\n");
         return;
     }
+    $self->_print( "XX\n");
 
     # finished printing features.
 
@@ -614,8 +633,7 @@ sub write_seq {
 
  Title   : _print_EMBL_FTHelper
  Usage   :
- Function:
- Example :
+ Function: Internal function
  Returns : 
  Args    :
 
@@ -629,29 +647,44 @@ sub _print_EMBL_FTHelper {
    if( ! ref $fth || ! $fth->isa('Bio::SeqIO::FTHelper') ) {
        $fth->warn("$fth is not a FTHelper class. Attempting to print, but there could be tears!");
    }
-
+   
 
    #$self->_print( "FH   Key             Location/Qualifiers\n");
    #$self->_print( sprintf("FT   %-15s  %s\n",$fth->key,$fth->loc));
-   $self->_write_line_EMBL_regex(sprintf("FT   %-15s ",$fth->key),"FT                   ",$fth->loc,'\,|$',80); #'
+   # let
+   if( $fth->key eq 'CONTIG' ) {
+       $self->_print("XX\n");
+       $self->_write_line_EMBL_regex("CO   ",
+				     "CO   ",$fth->loc,
+				     '\,|$',80); #'
+       return;
+   } 
+   $self->_write_line_EMBL_regex(sprintf("FT   %-15s ",$fth->key),
+				 "FT                   ",$fth->loc,
+				 '\,|$',80); #'
    foreach my $tag ( keys %{$fth->field} ) {
        if( ! defined $fth->field->{$tag} ) { next; } 
        foreach my $value ( @{$fth->field->{$tag}} ) {
 	   $value =~ s/\"/\"\"/g;
 	   if ($value eq "_no_value") {
-	       $self->_write_line_EMBL_regex("FT                   ","FT                   ","/$tag",'.|$',80); #'
+	       $self->_write_line_EMBL_regex("FT                   ",
+					     "FT                   ",
+					     "/$tag",'.|$',80); #'
 	   }
            elsif( $always_quote == 1 || $value !~ /^\d+$/ ) {
               my $pat = $value =~ /\s/ ? '\s|$' : '.|$';
-	      $self->_write_line_EMBL_regex("FT                   ","FT                   ","/$tag=\"$value\"",$pat,80);
+	      $self->_write_line_EMBL_regex("FT                   ",
+					    "FT                   ",
+					    "/$tag=\"$value\"",$pat,80);
            }
            else {
-              $self->_write_line_EMBL_regex("FT                   ","FT                   ","/$tag=$value",'.|$',80); #'
+              $self->_write_line_EMBL_regex("FT                   ",
+					    "FT                   ",
+					    "/$tag=$value",'.|$',80); #'
            }
 	  # $self->_print( "FT                   /", $tag, "=\"", $value, "\"\n");
        }
    }
-
 }
 
 #'
@@ -865,9 +898,9 @@ sub _read_FTHelper_EMBL {
     my ($key,   # The key of the feature
         $loc,   # The location line from the feature
         @qual,  # An arrray of lines making up the qualifiers
-        );
+	);
     
-    if ($$buffer =~ /^FT   (\S+)\s+(\S+)/) {
+    if ($$buffer =~ /^FT\s{3}(\S+)\s+(\S+)/) {
         $key = $1;
         $loc = $2;
         # Read all the lines up to the next feature
@@ -897,10 +930,22 @@ sub _read_FTHelper_EMBL {
                 last;
             }
         }
+    } elsif( $$buffer =~ /^CO\s+(\S+)/) {
+	$key = 'CONTIG';
+	$loc = $1;
+	# Read all the lines up to the next feature
+	while ( defined($_ = $self->_readline) ) {
+	    if (/^CO\s+(\S+)\s*$/) {
+		$loc .= $1;
+	    } else {
+		# We've reached the start of the next feature
+		last;
+	    }
+	}
     } else {
         # No feature key
         return;
-    } 
+    }
     
     # Put the first line of the next feature into the buffer
     $$buffer = $_;
