@@ -2,7 +2,7 @@ ID          Hs.2
 TITLE       N-acetyltransferase 2 (arylamine N-acetyltransferase)
 GENE        NAT2
 CYTOBAND    8p22
-LOCUSLINK   10
+LOCUSLINK   58473;5354
 EXPRESS     ;colon;corresponding non cancerous liver tissue;hepatocellular carcinoma;liver
 GNM_TERMINUS      T
 CHROMOSOME  8
