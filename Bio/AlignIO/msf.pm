@@ -73,7 +73,7 @@ BEGIN {
  Function: returns the next alignment in the stream. Tries to read *all* MSF
            It reads all non whitespace characters in the alignment
            area. For MSFs with weird gaps (eg ~~~) map them by using
-           $al->map_chars('~','-')
+           $aln->map_chars('~','-')
  Returns : Bio::Align::AlignI object
  Args    : NONE
 
@@ -106,18 +106,18 @@ sub next_aln {
 				$self->throw("$name exists as an alignment line but not in the header. Not confident of what is going on!");
 			}
 			$str =~ s/\s//g;
-			$str =~ s/\~/\-/g;
+			$str =~ s/~/-/g;
 			$hash{$name} .= $str;
 		};
    }
 
-   #return 0 if scalar @names < 1;
+   # return 0 if scalar @names < 1;
 	if (scalar(@names) < 1) {
 		undef $aln;
 		return $aln;
 	}
 
-   # now got this as a name - sequence hash. Lets make some sequences!
+   # now got this as a name - sequence hash. Let's make some sequences!
 
    foreach $name ( @names ) {
 		if( $name =~ /(\S+)\/(\d+)-(\d+)/ ) {
@@ -125,19 +125,18 @@ sub next_aln {
 			$start = $2;
 			$end = $3;
 		} else {
-			$seqname=$name;
+			$seqname = $name;
 			$start = 1;
 			$str = $hash{$name};
 			$str =~ s/[^A-Za-z]//g;
 			$end = length($str);
 		}
 
-		$seq = new Bio::LocatableSeq('-seq'=>$hash{$name},
-											  '-id'=>$seqname,
-											  '-start'=>$start,
-											  '-end'=>$end,
+		$seq = new Bio::LocatableSeq(-seq   => $hash{$name},
+											  -id    => $seqname,
+											  -start => $start,
+											  -end   => $end,
 											 );
-
 		$aln->add_seq($seq);
 
 #  If $end <= 0, we have either reached the end of
