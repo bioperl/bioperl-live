@@ -121,7 +121,7 @@ sub diff {
     open FH, $outfile;
     $out .= $_ while (<FH>);
     close FH;
-    print "|$in||$out|" if $DEBUG;
+    print "|$in||$out|\n" if $DEBUG;
     ok $in, $out;
 
 }
