@@ -439,6 +439,7 @@ These methods come from Bio::SeqFeature::SimilarityPair
  Returns : +1 or -1 (0 if unknown)
  Args    : 'hit' or 'subject' or 'sbjct' to retrieve the strand of the subject
            'query' to retrieve the query strand (default)
+           'list' or 'array' to retreive both query and hit together
 
 =cut
 
@@ -452,6 +453,8 @@ sub strand {
 	return $self->query->strand(shift);
     } elsif( $val =~ /^(hi|s)/i ) {
 	return $self->hit->strand(shift);
+    } elsif ( $val =~ m/^(list|array)/) {
+	return ($self->query->strand(shift), $self->hit->strand(shift));
     } else { 
 	$self->warn("unrecognized component $val requested\n");
     }

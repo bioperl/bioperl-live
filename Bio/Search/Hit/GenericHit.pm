@@ -78,6 +78,7 @@ use strict;
 
 use Bio::Root::Root;
 use Bio::Search::Hit::HitI;
+require Bio::Search::BlastUtils;
 
 @ISA = qw(Bio::Root::Root Bio::Search::Hit::HitI );
 
