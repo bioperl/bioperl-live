@@ -170,6 +170,10 @@ email or the web:
 
 Email - michele@sanger.ac.uk
 
+=head1 CONTRIBUTORS
+
+Jason Stajich, jason@bioperl.org
+
 =head1 APPENDIX
 
 The rest of the documentation details each of the object methods. Internal
@@ -242,15 +246,16 @@ sub new {
 
     bless $self, $class;
 
-    my ($index_dir,$dbname,$format,$write_flag,$primary_pattern,$primary_namespace,$start_pattern,$secondary_patterns) =
-	$self->_rearrange([qw(DIRECTORY
-			      DBNAME
-			      FORMAT
-			      WRITE_FLAG
-			      PRIMARY_PATTERN
-			      PRIMARY_NAMESPACE
-			      START_PATTERN
-			      SECONDARY_PATTERNS)], @args);
+    my ($index_dir,$dbname,$format,$write_flag,$primary_pattern,
+	$primary_namespace,$start_pattern,$secondary_patterns) =
+	    $self->_rearrange([qw(DIRECTORY
+				  DBNAME
+				  FORMAT
+				  WRITE_FLAG
+				  PRIMARY_PATTERN
+				  PRIMARY_NAMESPACE
+				  START_PATTERN
+				  SECONDARY_PATTERNS)], @args);
 
     $self->index_directory($index_dir);
     $self->dbname($dbname);
@@ -259,16 +264,15 @@ sub new {
 	
 	my $fh = $self->primary_index_filehandle;
         my $record_width = $self->read_header($fh);
-
         $self->record_size($record_width);
     }
-
 
     $self->format            ($format);
     $self->write_flag        ($write_flag);
 
-    if ($self->write_flag && !$primary_namespace) {
-      ($primary_namespace,$primary_pattern,$start_pattern,$secondary_patterns) =
+    if ($self->write_flag && ! $primary_namespace) {
+      ($primary_namespace,$primary_pattern,
+       $start_pattern,$secondary_patterns) =
 	$self->_guess_patterns($self->format);
     }
 
@@ -287,8 +291,8 @@ sub new_from_registry {
     my $location = $config{'location'};
     
     my $index =  new Bio::DB::Flat::BinarySearch(-dbname    => $dbname,
-					      -index_dir => $location,
-					      );
+						 -index_dir => $location,
+						 );
 }
 
 =head2 get_Seq_by_id
@@ -307,34 +311,30 @@ sub get_Seq_by_id {
 
     my ($fh,$length) = $self->get_stream_by_id($id);
 
-    if (!defined($self->format)) {
+    unless (defined($self->format)) {
 	$self->throw("Can't create sequence - format is not defined");
     }
 
-    if(!$fh){
-      return;
-    }
-    if (!defined($self->{_seqio})) {
+    return unless $fh;
+
+    unless ( defined($self->{_seqio}) ) {
 
 	$self->{_seqio} = new Bio::SeqIO(-fh => $fh,
 					 -format => $self->format);
     } else {
-
 	$self->{_seqio}->fh($fh);
     }
 
     return $self->{_seqio}->next_seq;
-
 }
 
 =head2 get_entry_by_id
 
  Title   : get_entry_by_id
  Usage   : $obj->get_entry_by_id($newval)
- Function: 
- Example : 
- Returns : 
- Args    : 
+ Function: Get a Bio::SeqI object for a unique ID
+ Returns : Bio::SeqI
+ Args    : string
 
 
 =cut
@@ -355,11 +355,10 @@ sub get_entry_by_id {
 =head2 get_stream_by_id
 
  Title   : get_stream_by_id
- Usage   : $obj->get_stream_by_id($newval)
- Function: 
- Example : 
- Returns : value of get_stream_by_id
- Args    : newvalue (optional)
+ Usage   : $obj->get_stream_by_id($id)
+ Function: Gets a Sequence stream for an id
+ Returns : Bio::SeqIO stream
+ Args    : Id to lookup by
 
 
 =cut
@@ -367,13 +366,23 @@ sub get_entry_by_id {
 sub get_stream_by_id {
     my ($self,$id) = @_;
 
+    unless( $self->record_size ) {
+	if ($self->index_directory && $self->read_config_file) {
+	    
+	    my $fh = $self->primary_index_filehandle;
+	    my $record_width = $self->read_header($fh);
+	    $self->record_size($record_width);
+	}
+    }
     my $indexfh = $self->primary_index_filehandle;
-
     sysseek ($indexfh,0,2);
 
     my $filesize = (tell $indexfh);
 
-    my $end = ($filesize-$self->{_start_pos})/$self->record_size;
+    $self->throw("file was not parsed properly, record size is empty") 
+	unless $self->record_size;
+
+    my $end = ($filesize - $self->{_start_pos}) / $self->record_size;
 
     my ($newid,$rest,$fhpos) = $self->find_entry($indexfh,0,$end,$id,$self->record_size);
 
@@ -402,11 +411,10 @@ sub get_stream_by_id {
 =head2 get_Seq_by_acc
 
  Title   : get_Seq_by_acc
- Usage   : $obj->get_Seq_by_acc($newval)
- Function: 
- Example : 
- Returns : value of get_Seq_by_acc
- Args    : newvalue (optional)
+ Usage   : $obj->get_Seq_by_acc($acc)
+ Function: Gets a Bio::SeqI object by accession number
+ Returns : Bio::SeqI object
+ Args    : string representing accession number
 
 
 =cut
@@ -424,11 +432,10 @@ sub get_Seq_by_acc {
 =head2 get_Seq_by_secondary
 
  Title   : get_Seq_by_secondary
- Usage   : $obj->get_Seq_by_secondary($newval)
- Function: 
- Example : 
- Returns : value of get_Seq_by_secondary
- Args    : newvalue (optional)
+ Usage   : $obj->get_Seq_by_secondary($acc)
+ Function: Gets a Bio::SeqI object looking up secondary accessions
+ Returns : Bio::SeqI object
+ Args    : namespace name to check secondary namespace for
 
 
 =cut
@@ -521,11 +528,10 @@ sub get_Seq_by_secondary {
 =head2 read_header
 
  Title   : read_header
- Usage   : $obj->read_header($newval)
- Function: 
- Example : 
- Returns : value of read_header
- Args    : newvalue (optional)
+ Usage   : $obj->read_header($fhl)
+ Function: Reads the header from the db file
+ Returns : width of a record
+ Args    : filehandle
 
 
 =cut
@@ -547,11 +553,10 @@ sub read_header {
 =head2 read_record
 
  Title   : read_record
- Usage   : $obj->read_record($newval)
- Function: 
- Example : 
- Returns : value of read_record
- Args    : newvalue (optional)
+ Usage   : $obj->read_record($fh,$pos,$len)
+ Function: Reads a record from a filehandle
+ Returns : String
+ Args    : filehandle, offset, and length
 
 
 =cut
@@ -575,7 +580,6 @@ sub read_record {
  Usage   : @ids = $seqdb->get_all_primary_ids()
  Function: gives an array of all the primary_ids of the
            sequence objects in the database.
- Example :
  Returns : an array of strings
  Args    : none
 
@@ -603,11 +607,10 @@ sub get_all_primary_ids {
 =head2 find_entry
 
  Title   : find_entry
- Usage   : $obj->find_entry($newval)
- Function: 
- Example : 
- Returns : value of find_entry
- Args    : newvalue (optional)
+ Usage   : $obj->find_entry($fh,$start,$end,$id,$recsize)
+ Function: Extract an entry based on the start,end,id and record size
+ Returns : string
+ Args    : filehandle, start, end, id, recordsize
 
 
 =cut
@@ -658,18 +661,18 @@ sub find_entry {
 =head2 build_index
 
  Title   : build_index
- Usage   : $obj->build_index($newval)
- Function: 
- Example : 
- Returns : value of build_index
- Args    : newvalue (optional)
+ Usage   : $obj->build_index(@files)
+ Function: Build the index based on a set of files
+ Returns : count of the number of entries
+ Args    : List of filenames
 
 
 =cut
 
 sub build_index {
     my ($self,@files) = @_;
-    $self->write_flag or $self->throw('Cannot build index unless -write_flag is true');
+    $self->write_flag or 
+	$self->throw('Cannot build index unless -write_flag is true');
 
     my $rootdir = $self->index_directory;
 
@@ -687,18 +690,18 @@ sub build_index {
       mkdir $dbpath,0777 or $self->throw("Couldn't create $dbpath: $!");
     }
 
-    if (!(@files)) {
+    unless (@files ) {
 	$self->throw("Must enter an array of filenames to index");
     }
 
     foreach my $file (@files) {
-      $file = File::Spec->rel2abs($file)
-	unless File::Spec->file_name_is_absolute($file);
-	if (! -e $file) {
+	$file = File::Spec->rel2abs($file)
+	    unless File::Spec->file_name_is_absolute($file);
+	unless ( -e $file) {
 	    $self->throw("Can't index file [$file] as it doesn't exist");
 	}
     }
-
+    
     if (my $filehash = $self->{_dbfile}) {
       push @files,keys %$filehash;
     }
@@ -864,7 +867,9 @@ sub write_primary_index {
 
     @ids = sort {$a cmp $b} @ids;
 
-    open (INDEX,">" . $self->primary_index_file) || $self->throw("Can't open primary index file [" . $self->primary_index_file . "]");
+    open (INDEX,">" . $self->primary_index_file) || 
+	$self->throw("Can't open primary index file [" . 
+		     $self->primary_index_file . "]");
 
     my $recordlength = $self->{_maxidlength} +
 	               $self->{_maxfileidlength} + 
@@ -1097,7 +1102,6 @@ sub make_config_file {
     open(CON,">$configfile") || $self->throw("Can't create config file [$configfile]");
 
     # First line must be the type of index - in this case flat
-
     print CON "index\tflat/1\n";
 
     # Now the fileids
@@ -1113,7 +1117,7 @@ sub make_config_file {
 	my $fh = new FileHandle("<$file");
 	$self->{_fileid}{$count}   = $fh;
 	$self->{_file}  {$count}   = $file;
-	$self->{_dbfile}{$file} = $count;
+	$self->{_dbfile}{$file}    = $count;
 	$self->{_size}{$count}     = $size; 
 	
 	$count++;
@@ -1140,13 +1144,13 @@ sub make_config_file {
 
     # Now the config format
 
-    if (!defined($self->format)) {
+    unless (defined ($self->format) ) {
 	$self->throw("Format does not exist in module - can't write config file");
     } else {
-      my $format = $self->format;
-      my $alphabet = $self->alphabet;
-      my $alpha    = $alphabet ? "/$alphabet" : '';
-      print CON "format\t" . "URN:LSID:open-bio.org:$format$alpha\n";
+	my $format = $self->format;
+	my $alphabet = $self->alphabet;
+	my $alpha    = $alphabet ? "/$alphabet" : '';
+	print CON "format\t" . "URN:LSID:open-bio.org:$format$alpha\n";
     }
 
     close(CON);
@@ -1231,9 +1235,9 @@ sub read_config_file {
 	  my $format = $1;
 
 	  # handle LSID format
-	  if ($format =~ /^URN:LSID:open-bio\.org:(\w+)(?:\/(\w+))/) {
-	    $self->format($1);
-	    $self->alphabet($2);
+	  if ($format =~ /^URN:LSID:open-bio\.org:(\w+)(?:\/(\w+))?/) {
+	      $self->format($1);
+	      $self->alphabet($2);
 	  } else {  # compatibility with older versions
 	    $self->format($1);
 	  }
@@ -1463,11 +1467,8 @@ sub _config_file {
 =cut
 
 sub record_size {
-    my ($self,$arg) = @_;
-
-    if (defined($arg)) {
-      $self->{_record_size} = $arg;
-    }
+    my $self = shift;
+    $self->{_record_size} = shift if @_;
     return $self->{_record_size};
 }
 
@@ -1483,12 +1484,9 @@ sub record_size {
 =cut
 
 sub primary_namespace {
-  my ($self,$arg) =  @_;
-
-  if (defined($arg)) {
-    $self->{_primary_namespace} =  $arg;
-  }
-  return $self->{_primary_namespace};
+    my $self = shift;
+    $self->{_primary_namespace} =  shift if @_;
+    return $self->{_primary_namespace};
 }
 
 =head2 index_type
@@ -1504,11 +1502,8 @@ sub primary_namespace {
 =cut
 
 sub index_type {
-    my ($self,$arg) = @_;
-
-    if (defined($arg)) {
-	$self->{_index_type} = $arg;
-    }
+    my $self = shift;
+    $self->{_index_type} = shift if @_;
     return $self->{_index_type};
 }
 
@@ -1525,11 +1520,8 @@ sub index_type {
 =cut
 
 sub index_version {
-    my ($self,$arg) = @_;
-
-    if (defined($arg)) {
-	$self->{_index_version} = $arg;
-    }
+    my $self = shift;
+    $self->{_index_version} = shift if @_;
     return $self->{_index_version};
 }
 
@@ -1546,14 +1538,11 @@ sub index_version {
 =cut
 
 sub primary_pattern{
-   my ($obj,$value) = @_;
-   if( defined $value) {
-      $obj->{'primary_pattern'} = $value;
-    }
-
+    my $obj = shift;
+    $obj->{'primary_pattern'} = shift if @_;
     return $obj->{'primary_pattern'};
-
 }
+
 =head2 start_pattern
 
  Title   : start_pattern
@@ -1567,12 +1556,9 @@ sub primary_pattern{
 =cut
 
 sub start_pattern{
-   my ($obj,$value) = @_;
-   if( defined $value) {
-      $obj->{'start_pattern'} = $value;
-    }
+    my $obj = shift;
+    $obj->{'start_pattern'} = shift if @_;
     return $obj->{'start_pattern'};
-
 }
 
 =head2 secondary_patterns
@@ -1614,17 +1600,13 @@ sub secondary_patterns{
 
 =cut
 
-sub secondary_namespaces{
-   my ($obj,@values) = @_;
+sub secondary_namespaces {
+    my ($obj,@values) = @_;
 
-   if (!defined($obj->{secondary_namespaces})) {
-       $obj->{secondary_namespaces} = [];
-   }
-   if (@values) {
-       push(@{$obj->{'secondary_namespaces'}},@values);
+    if (@values) {
+	push(@{$obj->{'secondary_namespaces'}},@values);
     }
-   return @{$obj->{'secondary_namespaces'}};
-
+    return @{$obj->{'secondary_namespaces'} || []};
 }
 
 
@@ -1642,12 +1624,13 @@ sub new_SWISSPROT_index {
     
     $secondary_patterns{"ID"} = $start_pattern;
 
-    my $index =  new Bio::DB::Flat::BinarySearch(-index_dir          => $index_dir,
-					      -format             => 'swiss',
-					      -primary_pattern    => $primary_pattern,
-					      -primary_namespace  => "ACC",
-					      -start_pattern      => $start_pattern,
-					      -secondary_patterns => \%secondary_patterns);
+    my $index =  new Bio::DB::Flat::BinarySearch
+	(-index_dir          => $index_dir,
+	 -format             => 'swissprot',
+	 -primary_pattern    => $primary_pattern,
+	 -primary_namespace  => "ACC",
+	 -start_pattern      => $start_pattern,
+	 -secondary_patterns => \%secondary_patterns);
     
     $index->build_index(@files);
 }
@@ -1663,12 +1646,13 @@ sub new_EMBL_index {
 
    $secondary_patterns{"ID"} = $start_pattern;
 
-   my $index = new Bio::DB::Flat::BinarySearch(-index_dir          => $index_dir,
-					    -format             => 'embl',
-					    -primary_pattern    => $primary_pattern,
-					    -primary_namespace  => "ACC",
-					    -start_pattern      => $start_pattern,
-					    -secondary_patterns => \%secondary_patterns);
+   my $index = new Bio::DB::Flat::BinarySearch
+       (-index_dir          => $index_dir,
+	-format             => 'embl',
+	-primary_pattern    => $primary_pattern,
+	-primary_namespace  => "ACC",
+	-start_pattern      => $start_pattern,
+	-secondary_patterns => \%secondary_patterns);
    
     $index->build_index(@files);
 
@@ -1686,12 +1670,13 @@ sub new_FASTA_index {
 
    $secondary_patterns{"ID"} = "^>\\S+ +(\\S+)";
 
-   my $index =  new Bio::DB::Flat::BinarySearch(-index_dir          => $index_dir,
-					  -format             => 'fasta',
-					  -primary_pattern    => $primary_pattern,
-					  -primary_namespace  => "ACC",
-					  -start_pattern      => $start_pattern,
-					  -secondary_patterns => \%secondary_patterns);
+   my $index =  new Bio::DB::Flat::BinarySearch
+       (-index_dir          => $index_dir,
+	-format             => 'fasta',
+	-primary_pattern    => $primary_pattern,
+	-primary_namespace  => "ACC",
+	-start_pattern      => $start_pattern,
+	-secondary_patterns => \%secondary_patterns);
    
    $index->build_index(@files);
 
@@ -1729,7 +1714,7 @@ sub guess_alphabet {
 sub _guess_patterns {
   my $self = shift;
   my $format = shift;
-  if ($format eq 'swissprot') {
+  if ($format =~ /swiss(prot)?/i) {
     return ('ID',
 	    "^ID   (\\S+)",
 	    "^ID   (\\S+)",
@@ -1738,7 +1723,7 @@ sub _guess_patterns {
 	    });
   }
 
-  if ($format eq 'embl') {
+  if ($format =~ /embl/i) {
     return ('ID',
 	    "^ID   (\\S+)",
 	    "^ID   (\\S+)",
@@ -1748,7 +1733,7 @@ sub _guess_patterns {
 	    });
   }
 
-  if ($format eq 'genbank') {
+  if ($format =~ /genbank/i) {
     return ('ID',
 	    q/^LOCUS\s+(\S+)/,
 	    q/^LOCUS/,
@@ -1758,7 +1743,7 @@ sub _guess_patterns {
 	    });
   }
 
-  if ($format eq 'fasta') {
+  if ($format =~ /fasta/i) {
     return ('ACC',
 	    "^>(\\S+)",
 	    "^>",

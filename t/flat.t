@@ -59,9 +59,10 @@ my $cd = cwd();
 my $tmpdir = Bio::Root::IO->catfile($cd,qw(t tmp));
 &maketmpdir();
 my $db = Bio::DB::Flat->new(-directory  => $tmpdir,
-                            -index => 'bdb',
-			    -format => 'fasta',
-			    -verbose => 1,
+                            -index      => 'bdb',
+			    -dbname     => 'mydb',
+			    -format     => 'fasta',
+			    -verbose    => $verbose,
                  	    -write_flag => 1
                             );
 ok($db);
@@ -77,13 +78,15 @@ undef $db;
 &cleanup();
 &maketmpdir();
 $db = Bio::DB::Flat->new(-directory  => $tmpdir,
-                         -index => 'bdb',
-                         -format => 'embl',
-                         -verbose => 1,
+                         -index      => 'bdb',
+                         -format     => 'embl',
+			 -dbname     => 'myembl',
+                         -verbose    => $verbose,
                          -write_flag => 1
 			 );
 
 $dir= Bio::Root::IO->catfile($cd,qw(t data factor7.embl));
+
 $result = $db->build_index(glob($dir));
 ok($result);
 $seq = $db->get_Seq_by_id('HSCFVII');
@@ -92,18 +95,18 @@ ok($seq->length,12850);
 undef $db;
 &cleanup();
 &maketmpdir();
-
 $db = Bio::DB::Flat->new(-directory  => $tmpdir,
-			 -index => 'binarysearch',
-			 -format => 'swiss',
-			 -verbose => 1,
+			 -index      => 'binarysearch',
+			 -format     => 'swissprot',
+			 -dbname     => 'mybinswiss',
+			 -verbose    => $verbose,
 			 -write_flag => 1
 			 );
 $dir= Bio::Root::IO->catfile($cd,qw(t data swiss.dat));
 $result = $db->build_index($dir);
+
 ok($result);
 $seq = $db->get_Seq_by_id('ACON_CAEEL');
-
 ok($seq);
 
 ok($seq->length,788);
@@ -114,9 +117,10 @@ undef $db;
 
 
 $db = Bio::DB::Flat->new(-directory  => $tmpdir,
-			 -index => 'binarysearch',
-			 -format => 'fasta',
-			 -verbose => 1,
+			 -index      => 'binarysearch',
+			 -format     => 'fasta',
+			 -dbname     => 'mybinfa',
+			 -verbose    => $verbose,
 			 -write_flag => 1
 			 );
 
