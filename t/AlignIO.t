@@ -70,7 +70,7 @@ $str = Bio::AlignIO->new(
 $aln = $str->next_aln();
 ok $aln->get_seq_by_pos(1)->get_nse, 
     'NM_006987/0-5000', " failed maf input test";
-
+ok $aln->get_seq_by_pos(1)->strand, '-';
 
 # MSF
 $str = Bio::AlignIO->new(
