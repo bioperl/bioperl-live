@@ -270,7 +270,6 @@ sub location_type {
     if( defined $value || ! defined $self->{'_location_type'} ) {
 	$value = 'EXACT' unless defined $value;
 	$value = uc $value;
-	print "----------------------------|$value|\n";
 	if (! defined $RANGEDECODE{$value}) {
 	    $value = $RANGEENCODE{$value};
 	}
