@@ -59,11 +59,10 @@ methods. Internal methods are usually preceded with a _
 
 package Bio::Root::RootI;
 use vars qw(@ISA $DEBUG $ID $Revision $VERSION $VERBOSITY 
-	    $TEMPMODLOADED $TEMPDIR $TEMPCOUNTER $OPENFLAGS);
+	    $TEMPMODLOADED $FILESPECLOADED $TEMPDIR $TEMPCOUNTER $OPENFLAGS);
 use strict;
 use Bio::Root::Err;
 # determine tempfile
-
 eval { require 'File/Temp.pm'; $TEMPMODLOADED = 1; };
 if( $@ ) { 
     use Fcntl;
@@ -74,7 +73,10 @@ if( $@ ) {
 	no strict 'refs';
 	$OPENFLAGS |= $bit if eval { $bit = &$func(); 1 };
     }
-    eval { require 'File/Spec.pm'; $TEMPDIR = File::Spec->tmpdir(); };
+    eval { require 'File/Spec.pm'; 
+	   $FILESPECLOADED = 1;
+	   $TEMPDIR = File::Spec->tmpdir(); 
+       };
     if( $@ ) {
 	if (defined $ENV{'TEMPDIR'} && -d $ENV{'TEMPDIR'} ) {
 	    $TEMPDIR = $ENV{'TEMPDIR'};
@@ -439,9 +441,9 @@ sub tempfile {
     my $dir;
     $dir = ( $hash{DIR} ) ? $hash{DIR} : $dir = $TEMPDIR;
 
-    my $tfilename = sprintf("%s/%s-%s-%s", $dir, 
-			    $ENV{USER} || 'unknown', $$, 
-			    $TEMPCOUNTER++);
+    my $tfilename = File::Spec->catfile($dir, sprintf( "%s-%s-%s",  
+					$ENV{USER} || 'unknown', $$) 
+					$TEMPCOUNTER++);
     push @{$self->{'_rooti_tempfiles'}}, $tfilename;
 
     # taken from File::Temp;
@@ -495,9 +497,10 @@ sub tempdir {
     # we are planning to cleanup temp files no matter what
     $self->{'_cleanuptempdir'} = $args{CLEANUP} == 1;
     
-    my $tdir = sprintf("%s/%s-%s-%s", $TEMPDIR, 
-		    "dir_". $ENV{USER} || 'unknown', $$, 
-		    $TEMPCOUNTER++);
+    my $tdir = File::Spec->catdir($TEMPDIR,
+				  sprintf("dir_%s-%s-%s", 
+					  $ENV{USER} || 'unknown', $$), 
+				  $TEMPCOUNTER++);
     mkdir($tdir, 0755);
     push @{$self->{'_rooti_tempdirs'}}, $tdir; 
     return $tdir;

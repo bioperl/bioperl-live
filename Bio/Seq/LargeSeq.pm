@@ -79,14 +79,12 @@ use Bio::Root::RootI;
 use Bio::Seq::LargePrimarySeq;
 use Bio::Seq;
 
-@ISA = qw(Bio::Seq Bio::Root::RootI);
+@ISA = qw(Bio::Seq);
 
 
 sub new {
     my ($class, @args) = @_;
-    my $self = Bio::Seq->new(@args);
-
-    bless $self, ref($class) || $class;
+    my $self = $class->SUPER::new(@args);
     
     my ($pseq) = $self->_rearrange([qw(PRIMARYSEQ)], @args);
 
@@ -113,7 +111,13 @@ sub new {
 
 sub trunc {
     my ($self, $s, $e) = @_;
-    return new Bio::Seq::LargeSeq(-primaryseq => $self->primary_seq->trunc($s,$e));
+    return new Bio::Seq::LargeSeq(
+				  '-display_id' => $self->display_id,
+				  '-accession_number' => $self->accession_number,
+				  '-desc' => $self->desc,
+				  '-moltype' => $self->moltype,
+				  -primaryseq => 
+				  $self->primary_seq->trunc($s,$e));
 
 }
 

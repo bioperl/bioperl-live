@@ -14,7 +14,8 @@
 =head1 NAME
 
 Bio::Seq::LargePrimarySeq - PrimarySeq object that stores sequence as
-files in the tempdir (as found by File::Temp)
+files in the tempdir (as found by File::Temp) or the default method in
+Bio::Root::RootI
 
 =head1 SYNOPSIS
 
@@ -74,172 +75,47 @@ package Bio::Seq::LargePrimarySeq;
 use vars qw($AUTOLOAD @ISA);
 use strict;
 
-# Object preamble - inherits from Bio::Root::Objecttest 8, 
-
-use Bio::Root::RootI;
-use Bio::PrimarySeqI;
+use Bio::PrimarySeq;
 use IO::File;
 
-@ISA = qw(Bio::PrimarySeqI Bio::Root::RootI);
+@ISA = qw(Bio::PrimarySeq);
 
 sub new {
-    my ($class, @args) = @_;
-    my $self = bless {}, $class;
-    $self->_initialize(@args);
-    return $self;
-}
-
-sub _initialize {
-    my ($self, @args) = @_;
-
-    my($seq,$id,$acc,$pid,$desc,$moltype,$given_id) =
-	$self->_rearrange([qw(SEQ
-			      DISPLAY_ID
-			      ACCESSION_NUMBER
-			      PRIMARY_ID
-			      DESC
-			      MOLTYPE
-			      ID
-			      )],
-			  @args);
-
-    my $make = $self->SUPER::_initialize(@args);
-
-    if( defined $id && defined $given_id ) {
-	if( $id ne $given_id ) {
-	    $self->throw("Provided both id and display_id constructor functions. [$id] [$given_id]");
-	}
-    }
-    if( defined $given_id ) { $id = $given_id; }
-    $acc = 'unknown' if( !defined $acc);
-    $pid = 'nopid'   if( !defined $pid );
+    my ($class, %params) = @_;
     
-    $seq     && $self->seq($seq);
-    $id      && $self->display_id($id);
-    $acc     && $self->accession_number($acc);
-    $pid     && $self->primary_id($pid);
-    $desc    && $self->desc($desc);
-    $moltype && $self->moltype($moltype);
+    # don't let PrimarySeq set seq until we have 
+    # opened filehandle
+
+    my $seq = $params{'-seq'} || $params{'-SEQ'};
+    if($seq ) {
+	delete $params{'-seq'};
+	delete $params{'-SEQ'};
+    }
+    my $self = $class->SUPER::new(%params);
 
     my $tempdir = $self->tempdir( CLEANUP => 1);
     my ($tfh,$file) = $self->tempfile( DIR => $tempdir );
-
-    my $fh = IO::File->new($file, O_RDWR);
+    my $fh = IO::File->new($file, O_RDWR);    
+    # hack where IO::File does want to work
+    if( ! $fh ) { $fh = $tfh }
+    else { close ($tfh) }
 
     $fh      && $self->_fh($fh);
-    $file    && $self->_filename($file);
+    $file    && $self->_filename($file);    
     $self->length(0);
+    $seq && $self->seq($seq); 
 
-    return $make;
+    return $self;
 }
 
-=head2 id
 
- Title   : id
- Usage   :
- Function:
- Example :
- Returns : 
- Args    :
-
-
-=cut
-
-sub id{
-   my ($self,@args) = @_;
-
-   return $self->display_id(@args);
-}
-
-=head2 display_id
-
- Title   : display_id
- Usage   : $obj->display_id($newval)
- Function: 
- Example : 
- Returns : value of display_id
- Args    : newvalue (optional)
-
-
-=cut
-
-sub display_id{
-   my ($obj,$value) = @_;
-   if( defined $value) {
-      $obj->{'display_id'} = $value;
-    }
-    return $obj->{'display_id'};
-
-}
-
-=head2 accession_number
-
- Title   : accession_number
- Usage   : $obj->accession_number($newval)
- Function: 
- Example : 
- Returns : value of accession_number
- Args    : newvalue (optional)
-
-
-=cut
-
-sub accession_number{
-   my ($obj,$value) = @_;
-   if( defined $value) {
-      $obj->{'accession_number'} = $value;
-    }
-    return $obj->{'accession_number'};
-
-}
-
-=head2 primary_id
-
- Title   : primary_id
- Usage   : $unique_key = $obj->primary_id;
- Function: Returns the unique id for this object in this
-           implementation. This allows implementations to manage
-           their own object ids in a way the implementaiton can control
-           clients can expect one id to map to one object.
-
-           For sequences with no natural primary id, this method should return
-           a stringified memory location.
- Returns : A string
- Args    : A string (optional, for setting)
-
-=cut
-
-sub primary_id {
-   my ($obj,$value) = @_;
-   if( defined $value) {
-      $obj->{'primary_id'} = $value;
-    }
-   if( ! exists $obj->{'primary_id'} ) {
-       return "$obj";
-   }
-   return $obj->{'primary_id'};
-
-}
-
-=head2 length
-
- Title   : length
- Usage   : $obj->length($newval)
- Function: 
- Example : 
- Returns : value of length
- Args    : newvalue (optional)
-
-
-=cut
-
-sub length{
+sub length {
    my ($obj,$value) = @_;
    if( defined $value) {
       $obj->{'length'} = $value;
     }
-    return $obj->{'length'};
-
+   
+    return (defined $obj->{'length'}) ? $obj->{'length'} : 0;
 }
 
 =head2 seq
@@ -255,9 +131,8 @@ sub length{
 =cut
 
 sub seq {
-   my ($self, $data) = @_;
-
-   if( defined $data  ) {
+   my ($self, $data) = @_;   
+   if( defined $data ) {
        if( $self->length() == 0) {
 	   $self->add_sequence_as_string($data);
        } else { 
@@ -301,64 +176,6 @@ sub subseq{
 
    return $string;
 }
-
-=head2 moltype
-
- Title   : moltype
- Usage   : if( $obj->moltype eq 'dna' ) { /Do Something/ }
- Function: Returns the type of sequence being one of 
-           'dna', 'rna' or 'protein'. This is case sensitive.
-
-           This is not called <type> because this would cause
-           upgrade problems from the 0.5 and earlier Seq objects.
-           
- Returns : a string either 'dna','rna','protein'. NB - the object must
-           make a call of the type - if there is no type specified it
-           has to guess.
- Args    : none
- Status  : Virtual
-
-
-=cut
-
-BEGIN {
-    my %valid_type = map {$_, 1} qw( dna rna protein );
-
-    sub moltype {
-       my ($obj,$value) = @_;
-       if (defined $value) {
-           unless ( $valid_type{$value} ) {
-	       $obj->throw("Molecular type '$value' is not a valid type (".
-                  join(',', map "'$_'", sort keys %valid_type) .") lowercase");
-           }
-           $obj->{'moltype'} = $value;
-       }
-       return $obj->{'moltype'};
-
-    }
-}
-
-=head2 desc
-
- Title   : desc
- Usage   : $obj->desc($newval)
- Function: 
- Example : 
- Returns : value of desc
- Args    : newvalue (optional)
-
-
-=cut
-
-sub desc {
-   my ($obj,$value) = @_;
-   if( defined $value) {
-      $obj->{'desc'} = $value;
-    }
-    return $obj->{'desc'};
-
-}
-
 
 =head2 add_sequence_as_string
 
