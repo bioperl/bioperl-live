@@ -125,7 +125,8 @@ sub draw_dna {
   $top = $bt;
 
   my @s                    = $feature->get_SeqFeatures;
-  @s                       = $feature unless @s;
+#  @s                       = $feature unless @s;
+
   my (@segments,%strands);
   for my $s (@s) {
     my ($src_start,$src_end) = ($s->start,$s->end);
@@ -227,7 +228,6 @@ sub draw_multiple_alignment {
   $top = $bt;
 
   my @s                    = $feature->get_SeqFeatures;
-  @s                       = $feature unless @s;
 
   my $can_realign = $do_realign && eval { require Bio::Graphics::Browser::Realign; 1 };
 
@@ -235,6 +235,8 @@ sub draw_multiple_alignment {
   for my $s (@s) {
     my $target = $s->hit;
     my ($src_start,$src_end) = ($s->start,$s->end);
+    next unless $src_start <= $panel_end && $src_end >= $panel_start;
+
     my ($tgt_start,$tgt_end) = ($target->start,$target->end);
     unless (exists $strands{$target}) {
       my $strand = $feature->strand;
@@ -395,7 +397,6 @@ sub draw_multiple_alignment {
   my ($tgt_last_end,$src_last_end);
   for my $seg (sort {$a->[SRC_START]<=>$b->[SRC_START]} @segments) {
 
-    warn "seg= @$seg; panel_start = $panel_start, panel_end = $panel_end" if DEBUG;
     my $y = $top - $lineheight/4; 
 
     for (my $i=0; $i<$seg->[SRC_END]-$seg->[SRC_START]+1; $i++) {
