@@ -370,7 +370,8 @@ sub throw{
 sub debug{
    my ($self,@msgs) = @_;
    
-   if( $self->verbose > 0 ) { 
+   if( defined $self->verbose &&
+       $self->verbose > 0 ) { 
        print STDERR join("", @msgs);
    }   
 }
