@@ -256,11 +256,17 @@ sub label {
 	   ($o and $m and  length($o) > length($m) and 
 	    substr($m, -1, 1) ne '*')) {
 	$type = 'deletion';
+	if ($o and $m and $o !~ $m and $o !~ $m) {
+	    $type .= ', complex'; 
+	}
     }
     elsif (not $o or 
 	   ($o and $m and length($o) < length($m) and 
 	    substr($m, -1, 1) ne '*' ) ) {
 	$type = 'insertion';	
+	if ($o and $m and $o !~ $m and $o !~ $m) {
+	    $type .= ', complex'; 
+	}
     }
     elsif  ($o and $m and $o ne $m and 
 	    length $o == 1 and  length $m  == 1 ) {

@@ -172,6 +172,7 @@
     </RNA>
     <AA number="1" start="34" end="34" length="1" isMutation="1">
         <label>insertion</label>
+        <label>complex</label>
         <proof>computed</proof>
         <allele_ori>I</allele_ori>
         <allele_mut>RAL</allele_mut>

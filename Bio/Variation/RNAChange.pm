@@ -233,7 +233,7 @@ sub codon_ori {
 		if $self->allele_ori and $self->allele_ori->seq;
 	    $codon_ori .= substr($self->dnStreamSeq, 0, 3-length($codon_ori));
 	}
-	$self->{'codon_ori'} = $codon_ori;
+	$self->{'codon_ori'} = lc $codon_ori;
     }
     return $self->{'codon_ori'};
 }
@@ -286,7 +286,7 @@ sub codon_mut {
 		if $self->allele_mut and $self->allele_mut->seq; 
 	    $codon_mut .= substr($self->dnStreamSeq, 0, 3-length($codon_mut));
 	    
-	    $self->{'codon_mut'} = $codon_mut;
+	    $self->{'codon_mut'} = lc $codon_mut;
 	}
     }
     return $self->{'codon_mut'};
@@ -548,8 +548,9 @@ sub label {
 		#elsif ($self->AAChange->allele_mut and $self->AAChange->allele_mut->seq eq "*") {
 		$type = 'nonsense';
 	    } 
-	    elsif ($o and $m and 
-		   $o eq $m) {
+	    elsif ($o and $m and ($o eq $m or 
+				  $self->AAChange->allele_ori->seq eq 
+				  $self->AAChange->allele_mut->seq)) {
 		$type = 'silent';
 	    } else {
 		$type = 'missense';
@@ -560,7 +561,7 @@ sub label {
     }  else {
 	my $len = 0;
 	$len = CORE::length($o) if $o;
-	$len += CORE::length($m) if $m;
+	$len -= CORE::length($m) if $m;
 	if ($len%3 == 0 ) {
 	    $type = 'inframe';
 	} else {
