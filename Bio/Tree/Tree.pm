@@ -117,12 +117,25 @@ sub new {
 sub get_nodes{
    my ($self, @args) = @_;
    
-   my ($order) = $self->_rearrange([qw(ORDER)],@args);
+   my ($order, $sortby) = $self->_rearrange([qw(ORDER SORTBY)],@args);
+   $order ||= 'depth';
+   $sortby ||= 'height';
 
-   # this is depth-first search I believe
-   my $node = $self->get_root_node;
-   my @children = ($node,$node->get_Descendents);
-   return @children;
+   if ($order =~ m/^b|(breadth)$/oi) {
+       my $node = $self->get_root_node;
+       my @children = ($node);
+       for (@children) {
+	   push @children, $_->each_Descendent($sortby);
+       }
+       return @children;
+   }
+
+   if ($order =~ m/^d|(depth)$/oi) {
+       # this is depth-first search I believe
+       my $node = $self->get_root_node;
+       my @children = ($node,$node->get_Descendents($sortby));
+       return @children;
+   }
 }
 
 =head2 get_root_node

@@ -165,22 +165,35 @@ sub add_Descendent{
 
 =head2 each_Descendent
 
- Title   : each_Descendent
+ Title   : each_Descendent($sortby)
  Usage   : my @nodes = $node->each_Descendent;
  Function: all the descendents for this Node (but not their descendents
 					      i.e. not a recursive fetchall)
  Returns : Array of Bio::Tree::NodeI objects
- Args    : none
+ Args    : $sortby [optional] "height", "creation" or coderef to be used
+           to sort the order of children nodes.
 
 =cut
 
 sub each_Descendent{
-   my ($self) = @_;
+   my ($self, $sortby) = @_;
+
    # order can be based on branch length (and sub branchlength)
 
-   return sort {($a->height <=> $b->height) ||
-		    $a->internal_id <=> $b->internal_id } 
-   values %{$self->{'_desc'}};
+   $sortby ||= 'height';
+
+   if (ref $sortby eq 'CODE') {
+       return sort $sortby values %{$self->{'_desc'}};
+   } else  {
+       if ($sortby eq 'height') {
+	   return sort {($a->height <=> $b->height) ||
+			    $a->internal_id <=> $b->internal_id } 
+	       values %{$self->{'_desc'}};
+       } else {
+	   return sort { $a->internal_id <=> $b->internal_id } 
+	       values %{$self->{'_desc'}};	   
+       }
+   }
 }
 
 =head2 remove_Descendent

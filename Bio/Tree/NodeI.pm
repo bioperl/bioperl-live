@@ -130,20 +130,22 @@ sub each_Descendent{
 
 =head2 get_Descendents
 
- Title   : get_Descendents
+ Title   : get_Descendents($sortby)
  Usage   : my @nodes = $node->get_Descendents;
  Function: Recursively fetch all the nodes and their descendents
            *NOTE* This is different from each_Descendent
  Returns : Array or Bio::Tree::NodeI objects
- Args    : none
+ Args    : $sortby [optional] "height", "creation" or coderef to be used
+           to sort the order of children nodes.
 
 =cut
 
 sub get_Descendents{
-   my ($self) = @_;
+   my ($self, $sortby) = @_;
+   $sortby ||= 'height';
    my @nodes;
-   foreach my $node ( $self->each_Descendent ) {
-       push @nodes, ($node->get_Descendents, $node);
+   foreach my $node ( $self->each_Descendent($sortby) ) {
+       push @nodes, ($node->get_Descendents($sortby), $node);
    }
    return @nodes;
 }
