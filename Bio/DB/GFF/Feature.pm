@@ -1,3 +1,44 @@
+=head1 NAME
+
+Bio::DB::GFF::Feature -- A relative segment identified by a feature type
+
+=head1 SYNOPSIS
+
+See L<Bio::DB::GFF>.
+
+=head1 DESCRIPTION
+
+Bio::DB::GFF::Feature is a stretch of sequence that corresponding to a
+single annotation in a GFF database.  It inherits from
+Bio::DB::GFF::RelSegment, and so has all the support for relative
+addressing of this class and its ancestors.
+
+Bio::DB::GFF::Feature adds new methods to retrieve the annotation's
+type, group, and other GFF attributes.  Annotation types are
+represented by Bio::DB::GFF::Typename objects, a simple class that has 
+two methods called method() and source().  These correspond to the
+method and source fields of a GFF file.  
+
+Annotation groups serve the dual purpose of giving the annotation a
+human-readable name, and providing higher-order groupings of
+subfeatures into features.  The groups returned by this module are
+objects of the Bio::DB::GFF::Featname class.
+
+Bio::DB::GFF::Feature inherits from and implements the abstract
+methods of Bio::SeqFeatureI, allowing it to interoperate with other
+Bioperl modules.
+
+Generally, you will not create or manipulate Bio::DB::GFF::Feature
+objects directly, but use those that are returned by the
+Bio::DB::GFF::RelSegment->features() method.
+
+=head1 API
+
+The remainder of this document describes the public and private
+methods implemented by this module.
+
+=cut
+
 package Bio::DB::GFF::Feature;
 
 use strict;
@@ -7,15 +48,46 @@ use Bio::DB::GFF::RelSegment;
 use Bio::DB::GFF::Featname;
 use Bio::DB::GFF::Typename;
 use Bio::DB::GFF::Homol;
+use Bio::SeqFeatureI;
 use Bio::Root::RootI;
 
 use vars qw($VERSION @ISA $AUTOLOAD);
-@ISA = qw(Bio::DB::GFF::RelSegment Bio::Root::RootI);
+@ISA = qw(Bio::DB::GFF::RelSegment Bio::SeqFeatureI Bio::Root::RootI);
 
 $VERSION = '0.20';
 
 *segments = \&sub_SeqFeature;
 *name     = \&group;
+
+=head2 new_from_parent
+
+ Title   : new_from_parent
+ Usage   : $f = Bio::DB::GFF::Feature->new_from_parent(@args);
+ Function: create a new feature object
+ Returns : new Bio::DB::GFF::Feature object
+ Args    : see below
+ Status  : Internal
+
+This method is called by Bio::DB::GFF to create a new feature using
+information obtained from the GFF database.  It is one of two similar
+constructors.  This one is called when the feature is generated from a
+RelSegment object, and should inherit that object's coordinate system.
+
+The 10 arguments are positional:
+
+  $parent       a Bio::DB::GFF::RelSegment object (or descendent)
+  $start        start of this feature
+  $stop         stop of this feature
+  $method       this feature's GFF method
+  $source       this feature's GFF source
+  $score	this feature's score
+  $fstrand      this feature's strand (relative to the source
+                      sequence, which has its own strandedness!)
+  $phase        this feature's phase
+  $group        this feature's group (a Bio::DB::GFF::Featname object)
+  $db_id        this feature's internal database ID                    
+
+=cut
 
 # this is called for a feature that is attached to a parent sequence,
 # in which case it inherits its coordinate reference system and strandedness
@@ -46,6 +118,39 @@ sub new_from_parent {
   $self;
 }
 
+
+=head2 new
+
+ Title   : new
+ Usage   : $f = Bio::DB::GFF::Feature->new(@args);
+ Function: create a new feature object
+ Returns : new Bio::DB::GFF::Feature object
+ Args    : see below
+ Status  : Internal
+
+This method is called by Bio::DB::GFF to create a new feature using
+information obtained from the GFF database.  It is one of two similar
+constructors.  This one is called when the feature is generated
+without reference to a RelSegment object, and should therefore use its
+default coordinate system (relative to itself).
+
+The 11 arguments are positional:
+
+  $factory      a Bio::DB::GFF adaptor object (or descendent)
+  $srcseq       the source sequence
+  $start        start of this feature
+  $stop         stop of this feature
+  $method       this feature's GFF method
+  $source       this feature's GFF source
+  $score	this feature's score
+  $fstrand      this feature's strand (relative to the source
+                      sequence, which has its own strandedness!)
+  $phase        this feature's phase
+  $group        this feature's group
+  $db_id        this feature's internal database ID                    
+
+=cut
+
 # This is called when creating a feature from scratch.  It does not have
 # an inherited coordinate system.
 sub new {
@@ -75,40 +180,196 @@ sub new {
   $self;
 }
 
+=head2 type
+
+ Title   : type
+ Usage   : $type = $f->type([$newtype])
+ Function: get or set the feature type
+ Returns : a Bio::DB::GFF::Typename object
+ Args    : a new Typename object (optional)
+ Status  : Public
+
+This method gets or sets the type of the feature.  The type is a
+Bio::DB::GFF::Typename object, which encapsulates the feature method
+and source.  
+
+The method() and source() methods described next provide shortcuts to
+the individual fields of the type.
+
+=cut
+
+sub type   {
+  my $self = shift;
+  my $d = $self->{type};
+  $self->{type} = shift if @_;
+  $d;
+}
+
+=head2 method
+
+ Title   : method
+ Usage   : $method = $f->method([$newmethod])
+ Function: get or set the feature method
+ Returns : a string
+ Args    : a new method (optional)
+ Status  : Public
+
+This method gets or sets the feature method.  It is a convenience
+feature that delegates the task to the feature's type object.
+
+=cut
+
 sub method {
   my $self = shift;
   my $d = $self->{type}->method;
   $self->{type}->method(shift) if @_;
   $d;
 }
+
+=head2 source
+
+ Title   : source
+ Usage   : $source = $f->source([$newsource])
+ Function: get or set the feature source
+ Returns : a string
+ Args    : a new source (optional)
+ Status  : Public
+
+This method gets or sets the feature source.  It is a convenience
+feature that delegates the task to the feature's type object.
+
+=cut
+
 sub source {
   my $self = shift;
   my $d = $self->{type}->source;
   $self->{type}->source(shift) if @_;
   $d;
 }
+
+=head2 score
+
+ Title   : score
+ Usage   : $score = $f->score([$newscore])
+ Function: get or set the feature score
+ Returns : a string
+ Args    : a new score (optional)
+ Status  : Public
+
+This method gets or sets the feature score.
+
+=cut
+
 sub score  {
   my $self = shift;
   my $d    = $self->{score};
   $self->{score} = shift if @_;
   $d;
 }
+
+
+=head2 phase
+
+ Title   : phase
+ Usage   : $phase = $f->phasee([$phase])
+ Function: get or set the feature phase
+ Returns : a string
+ Args    : a new phase (optional)
+ Status  : Public
+
+This method gets or sets the feature phase.
+
+=cut
+
 sub phase  {
   my $self = shift;
   my $d    = $self->{phase};
   $self->{phase} = shift if @_;
   $d;
 }
+
+=head2 group
+
+ Title   : group
+ Usage   : $group = $f->group([$new_group])
+ Function: get or set the feature group
+ Returns : a Bio::DB::GFF::Featname object
+ Args    : a new group (optional)
+ Status  : Public
+
+This method gets or sets the feature group.  The group is a
+Bio::DB::GFF::Featname object, which has an ID and a class.
+
+=cut
+
 sub group  {
   my $self = shift;
   my $d    = $self->{group};
   $self->{group} = shift if @_;
   $d;
 }
-sub info   { shift->group(@_) }
-sub target { shift->group(@_) }
+
+=head2 info
+
+ Title   : info
+ Usage   : $info = $f->info([$new_info])
+ Function: get or set the feature group
+ Returns : a Bio::DB::GFF::Featname object
+ Args    : a new group (optional)
+ Status  : Public
+
+This method is an alias for group().  It is provided for AcePerl
+compatibility.
+
+=cut
+
+*info   = \&group;
+
+=head2 target
+
+ Title   : target
+ Usage   : $target = $f->target([$new_target])
+ Function: get or set the feature target
+ Returns : a Bio::DB::GFF::Featname object
+ Args    : a new group (optional)
+ Status  : Public
+
+This method is an alias for group().  It is provided for AcePerl
+compatibility.  In the case of "similarity" features, the group
+typically contains the ID of the target sequence, hence the alias.
+
+=cut
+
+*target = \&group;
+
+=head2 id
+
+ Title   : id
+ Usage   : $id = $f->id
+ Function: get the feature ID
+ Returns : a database identifier
+ Args    : none
+ Status  : Public
+
+This method retrieves the database identifier for the feature.  It
+cannot be changed.
+
+=cut
 
 sub id     { shift->{db_id}   }
+
+=head2 clone
+
+ Title   : clone
+ Usage   : $feature = $f->clone
+ Function: make a copy of the feature
+ Returns : a new Bio::DB::GFF::Feature object
+ Args    : none
+ Status  : Public
+
+This method returns a copy of the feature.
+
+=cut
 
 sub clone {
   my $self = shift;
@@ -127,13 +388,49 @@ sub clone {
   $clone;
 }
 
+=head2 sub_SeqFeature
 
-sub type   {
+ Title   : sub_SeqFeature
+ Usage   : @feat = $feature->sub_SeqFeature([$method])
+ Function: get merged subfeatures
+ Returns : a list of Bio::DB::GFF::Feature objects
+ Args    : a feature method (optional)
+ Status  : Public
+
+This method acts like sub_SeqFeature, except that it merges
+overlapping segments of the same time into contiguous features.  For
+those features that contain heterogeneous subfeatures, you can
+retrieve a subset of the subfeatures by providing a method name to
+filter on.
+
+=cut
+
+sub sub_SeqFeature {
   my $self = shift;
-  my $d = $self->{type};
-  $self->{type} = shift if @_;
-  $d;
+  my $type = shift;
+  my $subfeat = $self->{subfeatures} or return;
+  $self->sort_features;
+  if ($type) {
+    my $features = $subfeat->{lc $type} or return;
+    return @{$features};
+  } else {
+    return map {@{$_}} values %{$subfeat};
+  }
 }
+
+=head2 add_subfeature
+
+ Title   : add_subfeature
+ Usage   : $feature->add_subfeature($feature)
+ Function: add a subfeature to the feature
+ Returns : nothing
+ Args    : a Bio::DB::GFF::Feature object
+ Status  : Public
+
+This method adds a new subfeature to the object.  It is used
+internally by aggregators, but is available for public use as well.
+
+=cut
 
 sub add_subfeature {
   my $self    = shift;
@@ -142,6 +439,21 @@ sub add_subfeature {
   my $subfeat = $self->{subfeatures}{lc $type} ||= [];
   push @{$subfeat},$feature;
 }
+
+=head2 adjust_bounds
+
+ Title   : adjust_bounds
+ Usage   : $feature->adjust_bounds
+ Function: adjust the bounds of a feature
+ Returns : ($start,$stop,$strand)
+ Args    : none
+ Status  : Public
+
+This method adjusts the boundaries of the feature to enclose all its
+subfeatures.  It returns the new start, stop and strand of the
+enclosing feature.
+
+=cut
 
 # adjust a feature so that its boundaries are synched with its subparts' boundaries.
 # this works recursively, so subfeatures can contain other features
@@ -183,6 +495,24 @@ sub adjust_bounds {
   ($self->{start},$self->{stop},$self->strand);
 }
 
+
+=head2 merged_segments
+
+ Title   : merged_segments
+ Usage   : @segs = $feature->merged_segments([$method])
+ Function: get merged subfeatures
+ Returns : a list of Bio::DB::GFF::Feature objects
+ Args    : a feature method (optional)
+ Status  : Public
+
+This method acts like sub_SeqFeature, except that it merges
+overlapping segments of the same time into contiguous features.  For
+those features that contain heterogeneous subfeatures, you can
+retrieve a subset of the subfeatures by providing a method name to
+filter on.
+
+=cut
+
 sub merged_segments {
   my $self = shift;
   my $type = shift;
@@ -218,19 +548,6 @@ sub sub_types {
   return keys %$subfeat;
 }
 
-sub sub_SeqFeature {
-  my $self = shift;
-  my $type = shift;
-  my $subfeat = $self->{subfeatures} or return;
-  $self->sort_features;
-  if ($type) {
-    my $features = $subfeat->{lc $type} or return;
-    return @{$features};
-  } else {
-    return map {@{$_}} values %{$subfeat};
-  }
-}
-
 sub strand {
   my $self = shift;
   return 0 unless $self->{fstrand};
@@ -252,9 +569,13 @@ sub sort_features {
 
 sub asString {
   my $self = shift;
-  my $type = $self->method;
-  my $id   = $self->group || 'unidentified';
-  return join '/',$id,$type,$self->SUPER::asString;
+  my $type = $self->type;
+  my $name = $self->group;
+  return "$type($name)" if $name;
+  return $type;
+#  my $type = $self->method;
+#  my $id   = $self->group || 'unidentified';
+#  return join '/',$id,$type,$self->SUPER::asString;
 }
 
 sub AUTOLOAD {

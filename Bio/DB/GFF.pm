@@ -466,7 +466,7 @@ When making the segment() call, you specify the ID of a sequence
 landmark (e.g. an accession number, a clone or contig), and a
 positional range relative to the landmark.  If no range is specified,
 then the entire extent of the landmark is used to generate the
-segment.  
+segment.
 
 You may also provide the ID of a "reference" sequence, which will set
 the coordinate system and orientation used for all features contained
@@ -509,6 +509,42 @@ Arguments:
  -off,-len     Aliases for -offset and -length
 
  -seqclass     Alias for -class
+
+Here's an example to explain how this works:
+
+  my $db = Bio::DB::GFF->new(-dsn => 'dbi:mysql:human',-adaptor=>'dbi:mysql');
+
+If successful, $db will now hold the database accessor object.  We now
+try to fetch the fragment of sequence whose ID is A0000182 and class
+is "Accession."
+
+  my $segment = $db->segment(-name=>'A0000182',-class=>'Accession');
+
+If successful, $segment now holds the entire segment corresponding to
+this accession number.  By default, the sequence is used as its own
+reference sequence, so its first base will be 1 and its last base will
+be the length of the accession.
+
+Assuming that this sequence belongs to a longer stretch of DNA, say a
+contig, we can fetch this information like so:
+
+  my $sourceseq = $segment->sourceseq;
+
+and find the start and stop on the source like this:
+
+  my $start = $segment->abs_start;
+  my $stop = $segment->abs_stop;
+
+If we had another segment, say $s2, which is on the same contiguous
+piece of DNA, we can pass that to the refseq() method in order to
+establish it as the coordinat reference point:
+
+  $segment->refseq($s2);
+
+Now calling start() will return the start of the segment relative to
+the beginning of $s2, accounting for differences in strandedness:
+
+  my $rel_start = $segment->start;
 
 =cut
 
@@ -1453,9 +1489,11 @@ sub _split_group {
 
 1;
 
+__END__
+
 =head1 BUGS
 
-Not completely Bio::SeqFeatureI compliant yet.
+Not really Bio::SeqFeatureI compliant yet.
 
 Schemas need some work.
 
@@ -1465,13 +1503,12 @@ L<bioperl>
 
 =head1 AUTHOR
 
-Lincoln Stein E<lt>lstein@cshl.orgE<gt>.  
+Lincoln Stein E<lt>lstein@cshl.orgE<gt>.
 
 Copyright (c) 2001 Cold Spring Harbor Laboratory.
 
 This library is free software; you can redistribute it and/or modify
-it under the same terms as Perl itself.  See DISCLAIMER.txt for
-disclaimers of warranty.
+it under the same terms as Perl itself.
 
 =cut
 

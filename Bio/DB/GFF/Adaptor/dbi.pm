@@ -70,7 +70,7 @@ sub get_dna {
     return;   # zero length == empty string
   }
 
-  my $sth = $self->dna_query($name,$start,$stop,$class);
+  my $sth = $self->make_dna_query($name,$start,$stop,$class);
   my @row = $sth->fetchrow_array;
   $sth->finish;
 
@@ -82,7 +82,7 @@ sub get_dna {
   $dna;
 }
 
-sub dna_query {
+sub make_dna_query {
   shift->throw("make_dna_query(): must be implemented by a subclass");
 }
 
