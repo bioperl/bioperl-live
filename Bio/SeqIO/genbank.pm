@@ -567,6 +567,9 @@ sub write_seq {
 	} else {
 	    if( $seq->can('keywords') ) {
 		my $kw = $seq->keywords;
+		if( ref($kw) =~ /ARRAY/i ) {
+		    $kw = join("; ", @$kw);
+		}
 		$kw .= '.' if( $kw !~ /\.$/ );
 		$self->_print("KEYWORDS    $kw\n");
 	    }
