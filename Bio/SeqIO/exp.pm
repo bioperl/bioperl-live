@@ -97,7 +97,6 @@ sub _initialize {
 sub next_seq {
 
     my ($self) = @_;
-    my $seq;
 
     my ($seq, $id, $desc, $qual) = $self->read_trace($self->_fh, 'exp');
 
