@@ -74,11 +74,11 @@ use strict;
 # Object preamble - inherits from Bio::DB::BioSeqI
 
 use Bio::DB::RandomAccessDBI;
-
+use Bio::DB::BioSeqI;
 use Bio::SeqIO;
 use IO::Socket;
 
-@ISA = qw(Bio::DB::RandomAccessDBI);
+@ISA = qw(Bio::DB::RandomAccessDBI Bio::DB::BioSeqI);
 
 # new() is inherited from Bio::DB::BioSeqI
 

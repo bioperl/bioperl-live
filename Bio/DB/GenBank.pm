@@ -74,14 +74,14 @@ use strict;
 # Object preamble - inherits from Bio::DB::Abstract
 
 use Bio::DB::RandomAccessDBI;
-
+use Bio::DB::BioSeqI;
 use Bio::SeqIO;
 use IO::Socket;
 use IO::File;
 
-@ISA = qw(Bio::DB::RandomAccessDBI);
+@ISA = qw(Bio::DB::RandomAccessDBI Bio::DB::BioSeqI);
 
-
+# new() is inherited from Bio::DB::BioSeqI
 
 # _initialize is where the heavy stuff will happen when new is called
 
@@ -89,9 +89,9 @@ sub _initialize {
   my($self,@args) = @_;
 
   my $make = $self->SUPER::_initialize;
-
-# set stuff in self from @args
- return $make; # success - we hope!
+  
+# set stuff in self from @args  
+  return $make; # success - we hope!
 }
 
 =head2 get_Seq_by_id
@@ -190,7 +190,7 @@ sub get_Stream_by_acc {
   Returns : a Bio::SeqIO stream object
   Args    : $ref : either an array reference, a filename, or a filehandle
             from which to get the list of unique id's/accession numbers.
-
+#'
 
 =cut
 
@@ -275,18 +275,18 @@ sub _get_stream {
 
 sub _get_sock {
     my $self = shift;
-  my $sock = IO::Socket::INET->new(PeerAddr => 'www.ncbi.nlm.nih.gov',
-				   PeerPort => 80,
-				   Proto    => 'tcp',
-				   Timeout  => 60
-				  );
-  unless ($sock) {
-    $@ =~ s/^.*?: //;
-    $self->throw("Can't connect to GenBank ($@)\n");
-  }
-  $sock->autoflush(); # just for safety's sake if they have old IO::Socket
+    my $sock = IO::Socket::INET->new(PeerAddr => 'www.ncbi.nlm.nih.gov',
+				     PeerPort => 80,
+				     Proto    => 'tcp',
+				     Timeout  => 60
+				     );
+    unless ($sock) {
+	$@ =~ s/^.*?: //;
+	$self->throw("Can't connect to GenBank ($@)\n");
+    }
+    $sock->autoflush();		# just for safety's sake if they have old IO::Socket
 
-  return $sock;
+    return $sock;
 }
 
 
