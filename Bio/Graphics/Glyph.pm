@@ -180,7 +180,7 @@ sub set_feature_collection {
   my @features = $collection->features();
 
   ## TODO: REMOVE
-  warn "Glyph::set_feature_collection(..): features are ( " . join( ', ', @features ) . " )" if Bio::Graphics::Browser::DEBUG;
+  #warn "Glyph::set_feature_collection(..): features are ( " . join( ', ', @features ) . " )" if Bio::Graphics::Browser::DEBUG;
 
   $self->add_feature( @features );
 } # set_feature_collection(..)
@@ -195,7 +195,7 @@ sub add_feature {
       $self->add_group(@$feature);
     } else {
       ## TODO: REMOVE
-      warn "Glyph::add_feature(..): Adding a glyph for $feature" if Bio::Graphics::Browser::DEBUG;
+      #warn "Glyph::add_feature(..): Adding a glyph for $feature" if Bio::Graphics::Browser::DEBUG;
 
       ## TODO: ERE I AM.  Interestingly, when we remove this first
       ## bit, so it just uses a dumb parts array, we get closer to the
@@ -221,7 +221,7 @@ sub add_group {
 					 -type => 'group'
 					);
   ## TODO: REMOVE
-  warn "Glyph::add_group(..): Adding a glyph for $f" if Bio::Graphics::Browser::DEBUG;
+  #warn "Glyph::add_group(..): Adding a glyph for $f" if Bio::Graphics::Browser::DEBUG;
   $self->add_feature($f);
 }
 
@@ -282,6 +282,10 @@ sub bounds {
 
 sub box {
   my $self = shift;
+  ## TODO: REMOVE
+  #if( $self->level != -1 ) {
+  #  warn "For glyph with feature ".$self->feature().", box() is returning ( ".$self->left.', '.$self->top.', '.$self->right.', '.$self->bottom." )";
+  #}
   return ($self->left,$self->top,$self->right,$self->bottom);
 }
 
