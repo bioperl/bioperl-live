@@ -192,7 +192,8 @@ sub create_hierarchy_from_ParentIDs{
      grep {
          my @parents = $_->get_tagset_values('Parent');
          foreach my $parent (@parents) {
-             $parent->add_SeqFeature($_);
+             $sf_by_ID{$parent}->add_SeqFeature($_)
+		 if exists $sf_by_ID{$parent};
          }
          !@parents;
      } @sfs;
