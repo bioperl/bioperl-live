@@ -265,6 +265,8 @@ sub get_attributes {
 sub guess_name {
   my $self = shift;
   my $attributes = shift;
+# remove this fix when Lincoln fixes it properly
+  return ["Misc" => "Misc"] unless ($attributes);  # these are arbitrary, and possibly destructive defaults
   my @ordered_attributes = sort {($preferred_tags{$a->[0]} || 0) <=> ($preferred_tags{$b->[0]} || 0)} @$attributes;
   my $best = pop @ordered_attributes;
   @$attributes = @ordered_attributes;
