@@ -301,7 +301,7 @@ sub _parse_logs {
  Title   : _parseInstance
  Usage   :
  Function:  Parses the next sites instances from the meme file
- Throws  :
+ Throws  :  If the parser cannot find the correct number of columns
  Example :  Internal stuff
  Returns :  Bio::Matrix::PSM::InstanceSite object
  Args    :  none
@@ -316,17 +316,24 @@ sub _parseInstance {
     while (defined($line=$self->_readline) ) {
 	last if ($line =~ /\-{5}/ );
 	chomp($line);
-	my $seq = $line;
-	$seq  =~ s/[^AGCTXN-]//g;
-	$line =~ s/\s[AGCTXN-]+\s[AGCTXN-]+\s[AGCTXN-]+//g;
-	$line=~s/[\s\+]+/,/g;
-	my ($id,$start,$score)=split(/,/,$line);
+my @comp=split(/\s+/,$line);
+my ($id,$start,$score,$strand,$s1,$s2,$s3);
+if ($#comp==6) {#Revcomp enabled
+  ($id,$start,$score,$strand,$s1,$s2,$s3)=@comp;
+}
+elsif ($#comp==5) {
+  ($id,$start,$score,$s1,$s2,$s3)=@comp;
+  $strand=1;
+}
+else {my $col=$#comp; $self->throw("Cannot parse this matrix instances, probably a format issue: $col columns\n"); }#Throw if incorrect column number
+my $seq=$s1.$s2.$s3;
 	my $sid = $self->{id} . '@' . $id;
 	$instance[$i] = new Bio::Matrix::PSM::InstanceSite
 	    (-mid   => $self->{id}, 
 	     -start => $start, 
 	     -score => $score,
 	     -seq   => $seq, 
+      -strand=>$strand,
 	     -accession_number => $id, 
 	     -primary_id => $sid, 
 	     -desc => 'Bioperl MEME parser object' );
