@@ -1,5 +1,5 @@
 #!/usr/bin/perl -w
-# $Id: search2gff.PLS,v 1.4 2003-05-19 17:27:09 jason Exp $
+# $Id: search2gff.PLS,v 1.5 2003-06-04 21:12:11 jason Exp $
 
 # Author:      Jason Stajich <jason@bioperl.org>
 # Description: Turn SearchIO parseable report(s) into a GFF report
@@ -71,9 +71,15 @@ if( defined $output ) {
 } else { 
     $out = new Bio::Tools::GFF(); # STDOUT
 }
+my %seen;
 while( my $result = $parser->next_result ) {
+    my $qname = $result->query_name;
     while( my $hit = $result->next_hit ) {
 	next if( defined $cutoff && $hit->significance > $cutoff);
+	my $acc = $qname;
+	if( $seen{$qname."-".$hit->name}++ ) {
+	    $acc = $qname."-".$seen{$qname.'-'.$hit->name};
+	}
 	while( my $hsp = $hit->next_hsp ) {
 	    my $feature = new Bio::SeqFeature::Generic;
 	    my $proxyfor;
@@ -90,7 +96,7 @@ while( my $result = $parser->next_result ) {
 	    } else {
 		$proxyfor = $hsp->hit;
 		$feature->add_tag_value('Target', 'Sequence:'.
-					$result->query_name);
+					$acc);
 		$proxyfor->score($hit->bits) unless( $proxyfor->score );
 
 		if( $hsp->query->strand < 0 ) {
