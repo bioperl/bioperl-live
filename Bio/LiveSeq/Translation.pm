@@ -324,3 +324,5 @@ sub offset {
   my $self=shift;
   return ($self->{offset});
 }
+
+1;

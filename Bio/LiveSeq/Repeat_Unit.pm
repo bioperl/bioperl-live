@@ -68,3 +68,4 @@ use Bio::LiveSeq::Repeat_Region 1.0; # uses Repeat_Region, inherits from it
 
 =cut
 
+1;

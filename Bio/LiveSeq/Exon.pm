@@ -103,3 +103,5 @@ sub gene {
     return $self->{'gene'};
   }
 }
+
+1;

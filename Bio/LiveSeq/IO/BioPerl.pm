@@ -30,17 +30,17 @@
 
 =head1 DESCRIPTION
 
-This package uses BioPerl (SeqIO) to fetch a sequence
-database entry, analyse it and create LiveSeq objects out of it.
+This package uses BioPerl (SeqIO) to fetch a sequence database entry,
+analyse it and create LiveSeq objects out of it.
 
-An filename has to be passed to this package which will return references
-to all translation objects created from the EMBL entry.
-Transcription, DNA and Exon objects' references can all be retrieved departing
-from these.
+An filename has to be passed to this package which will return
+references to all translation objects created from the EMBL
+entry. References to Transcription, DNA and Exon objects can all be
+retrieved departing from these.
 
-Alternatively, a specific "gene" name can be specified, together with the
-embl-acc ID. This will create a LiveSeq::Gene object with all relevant gene
-features attached/created.
+Alternatively, a specific "gene" name can be specified, together with
+the embl-acc ID. This will create a LiveSeq::Gene object with all
+relevant gene features attached/created.
 
 =head1 AUTHOR - Joseph A.L. Insana
 
@@ -339,7 +339,15 @@ sub novelaasequence2gene {
     $ttabid=1;
   }
   unless ($cusg_data) {
-    @species_codon_usage=(68664,118404,126679,51100,125600,123646,75667,210903,435317,139009,79303,135218,128429,192616,49456,161556,211962,131222,162837,213626,69346,140780,182506,219428,76684,189374,173010,310626,82647,202329,180955,250410,180001,118798,76398,160764,317359,119013,262630,359627,218376,186915,130857,377006,162826,113684,317703,441298,287040,245435,174805,133427,134523,108740,225633,185619,78463,240138,174021,244236,142435,8187,5913,14381); # updated 21Jul2000
+    @species_codon_usage=
+	qw(68664 118404 126679 51100 125600 123646 75667 210903 435317
+	139009 79303 135218 128429 192616 49456 161556 211962 131222
+	162837 213626 69346 140780 182506 219428 76684 189374 173010
+	310626 82647 202329 180955 250410 180001 118798 76398 160764
+	317359 119013 262630 359627 218376 186915 130857 377006 162826
+	113684 317703 441298 287040 245435 174805 133427 134523 108740
+	225633 185619 78463 240138 174021 244236 142435 8187 5913
+	14381); # updated 21Jul2000
   } else {
     @species_codon_usage=split(/ /,$cusg_data);
   }
@@ -348,4 +356,4 @@ sub novelaasequence2gene {
   return ($gene);
 }
 
- 
+1;

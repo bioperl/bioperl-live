@@ -67,7 +67,7 @@ Address:
 The rest of the documentation details each of the object
 methods. Internal methods are usually preceded with a _
 
-Some note on the terminology/notation of methods' names:
+Some note on the terminology/notation of method names:
  label: a unique pointer to a single nucleotide
  position: the position of a nucleotide according to a particular coordinate
            system (e.g. counting downstream from a particular label taken as
@@ -280,8 +280,8 @@ sub labelsubseq {
            end,    integer, '' or undef, defaults to end of the sequence
            length, integer, '' or undef
            an optional strand (1 or -1) 4th argument 
-            if strand argument is not given, it will default to the object's
-            one. This argument is useful when a call is issued from a child
+            if strand argument is not given, it will default to the object
+            argment. This argument is useful when a call is issued from a child
             of a parent object containing the subseq method
 
 =cut
@@ -864,8 +864,8 @@ sub coordinate_start {
   Args    : a position, 
             an optional reference $firstlabel that is to be used as position 1
             an optional strand (1 or -1) argument 
-             if strand argument is not given, it will default to the object's
-             one. This argument is useful when a call is issued from a child
+             if strand argument is not given, it will default to the object
+             argument. This argument is useful when a call is issued from a child
              of a parent object containing the subseq method
 
 =cut
@@ -912,8 +912,8 @@ sub label {
   Args    : a label pointing to a certain nucleotide (e.g. start of exon)
             an optional "firstlabel" as reference to count from
             an optional strand (1 or -1) argument 
-             if strand argument is not given, it will default to the object's
-             one. This argument is useful when a call is issued from a child
+             if strand argument is not given, it will default to the object
+             argument. This argument is useful when a call is issued from a child
              of a parent object containing the subseq method
 
 =cut
@@ -962,8 +962,8 @@ sub position {
   Errorcode -1
   Args    : two labels
             an optional strand (1 or -1) argument 
-             if strand argument is not given, it will default to the object's
-             one. This argument is useful when a call is issued from a child
+             if strand argument is not given, it will default to the object
+             argument. This argument is useful when a call is issued from a child
              of a parent object containing the subseq method
 
 =cut
@@ -1188,6 +1188,8 @@ sub source {
     return $self->{'source'};
   }
 }
+
+1;
 
 # internal function!!!!
 # to be used ONLY if sure of the start and end labels, expecially if they follow each other in the correct order!!!!

@@ -949,7 +949,12 @@ sub _get_alignment {
 sub _common_novelaasequence2gene {
   my ($species_codon_usage,$ttabid,$aasequence,$gene_name)=@_;
   my @species_codon_usage=@{$species_codon_usage};
-  my @codon_usage_label= qw (cga cgc cgg cgt aga agg cta ctc ctg ctt tta ttg tca tcc tcg tct agc agt aca acc acg act cca ccc ccg cct gca gcc gcg gct gga ggc ggg ggt gta gtc gtg gtt aaa aag aac aat caa cag cac cat gaa gag gac gat tac tat tgc tgt ttc ttt ata atc att atg tgg taa tag tga);
+  my @codon_usage_label= 
+      qw (cga cgc cgg cgt aga agg cta ctc ctg ctt tta ttg tca tcc tcg
+      tct agc agt aca acc acg act cca ccc ccg cct gca gcc gcg gct gga
+      ggc ggg ggt gta gtc gtg gtt aaa aag aac aat caa cag cac cat gaa
+      gag gac gat tac tat tgc tgt ttc ttt ata atc att atg tgg taa tag
+      tga);
   my ($i,$j);
   my %codon_usage_value;
   my $aa_codon_total;
@@ -1020,3 +1025,5 @@ sub _common_novelaasequence2gene {
   }
   return $gene;
 }
+
+1;

@@ -524,11 +524,11 @@ sub change_gene {
     if ($self->numbering =~ /(coding)( )?(\d+)?/ ) {
 	$self->numbering($1);
 	my $transnumber = $3;
-	$transnumber-- if $3 ne ''; # 1 -> 0, 2 -> 1
-	if ($transnumber >= 0 && $transnumber <= $#transcripts) {
+	$transnumber-- if $3; # 1 -> 0, 2 -> 1
+	if ($transnumber && $transnumber >= 0 && $transnumber <= $#transcripts) {
 	    $refseq=$transcripts[$transnumber];
 	} else {
-	    carp "The alternative transcript number", $transnumber+1,
+	    $transnumber && carp "The alternative transcript number", $transnumber+1,
 	    "- does not exist. Reverting to the 1st transcript\n";
 	    $refseq=$transcripts[0];
 	}
@@ -919,8 +919,7 @@ sub _set_effects {
     # removed for now.... (bad fix)
     #my $RNApostlabel=$self->RNA->label(2,$label); # to fix fac7g65 bug
     $dnstreamseq=$self->RNA->labelsubseq($self->mutation->postlabel, $flanklen);
-    if ($dnstreamseq =~ /^-?\d+/ 
-	&& $dnstreamseq == -1) { # if out of transcript was requested
+    if ($dnstreamseq eq '-1') { # if out of transcript was requested
 	 my $lastexon=$exons[-1];
 	 my $lastexonlength=$lastexon->length;
 	 $dnstreamseq=$self->RNA->labelsubseq($self->mutation->postlabel); # retrieves till RNAend

@@ -68,3 +68,4 @@ use Bio::LiveSeq::Range 1.2; # uses Range, inherits from it
 
 =cut
 
+1;

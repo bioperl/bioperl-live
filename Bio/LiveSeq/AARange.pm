@@ -20,37 +20,39 @@
 =head1 DESCRIPTION
 
 This is used as possible parent for aminoacid range object classes.
-Or it can be used straight away to define aminoacid ranges.
-The idea is that the ranges defined are attached to a Translation object and
-they refer to its coordinate-system when they are first created (via the new()
-method).
-When they are created they are anyway linked to the underlying DNA LiveSeq
-by way of the LiveSeq labels. This allows to preserve the ranges even if
-the numbering changes in the Translation due to deletions or insertions.
+Or it can be used straight away to define aminoacid ranges.  The idea
+is that the ranges defined are attached to a Translation object and
+they refer to its coordinate-system when they are first created (via
+the new() method).  When they are created they are anyway linked to
+the underlying DNA LiveSeq by way of the LiveSeq labels. This allows
+to preserve the ranges even if the numbering changes in the
+Translation due to deletions or insertions.
 
-The protein sequence associated with the AARange can be accessed via the usual
-seq() or subseq() methods.
+The protein sequence associated with the AARange can be accessed via
+the usual seq() or subseq() methods.
 
-The start and end of the AARange in protein's coordinate system can be
-fetched with aa_start() and aa_end() methods. Note: the behaviour of these
-methods would be influenced by the coordinate_start set in the corresponding
-Translation object. This can be desirable but can also lead to confusion if
-the coordinate_start had been changed and the original position of the AARange
-was to be retrieved.
+The start and end of the AARange in protein coordinate system can be
+fetched with aa_start() and aa_end() methods. Note: the behaviour of
+these methods would be influenced by the coordinate_start set in the
+corresponding Translation object. This can be desirable but can also
+lead to confusion if the coordinate_start had been changed and the
+original position of the AARange was to be retrieved.
 
-start() and end() methods of the AARange will point to the labels identifying
-the first nucleotide of the first and last triplet coding for the start and
-end of the AminoAcidRange.
+start() and end() methods of the AARange will point to the labels
+identifying the first nucleotide of the first and last triplet coding
+for the start and end of the AminoAcidRange.
 
-The underlying nucleotide sequence of the AARange can be retrieved with
-the labelsubseq() method. This would retrieve the whole DNA sequence, including
-possible introns. This is called "DNA_sequence".
+The underlying nucleotide sequence of the AARange can be retrieved
+with the labelsubseq() method. This would retrieve the whole DNA
+sequence, including possible introns. This is called "DNA_sequence".
 
-To fetch the nucleotide sequence of the Transcript, without introns, the
-labelsubseq() of the attached Transcript (the Transcript the Translation comes
-from) has to be accessed. This is called "cDNA_sequence".
+To fetch the nucleotide sequence of the Transcript, without introns,
+the labelsubseq() of the attached Transcript (the Transcript the
+Translation comes from) has to be accessed. This is called
+"cDNA_sequence".
 
-Here are the operations to retrieve these latter two kinds of sequences:
+Here are the operations to retrieve these latter two kinds of
+sequences:
 
    $startlabel=$AARange->start;
    $endtripletlabel=$AARange->end;
@@ -60,11 +62,11 @@ Here are the operations to retrieve these latter two kinds of sequences:
 
    $cdnaseq=$AARange->get_Transcript->labelsubseq($startlabel,undef,$endlabel);
 
-To simplify, these operations have been included in two additional methods:
-dna_seq() and cdna_seq().
+To simplify, these operations have been included in two additional
+methods: dna_seq() and cdna_seq().
 
-These would return the whole sequence, as in the examples above.
-But the above general scheme can be used by specifying different labels,
+These would return the whole sequence, as in the examples above.  But
+the above general scheme can be used by specifying different labels,
 to retrieve hypothetical subsequences of interest.
 
 =head1 AUTHOR - Joseph A.L. Insana
@@ -322,7 +324,7 @@ sub position {
 
   Title   : aa_start
   Usage   : $end = $aarange->aa_start()
-  Returns : integer (position, according to Translation's coordinate system) of
+  Returns : integer (position, according to Translation coordinate system) of
             the start of an AminoAcidRange object
   Args    : none
 
@@ -337,7 +339,7 @@ sub aa_start {
 
   Title   : aa_end
   Usage   : $end = $aarange->aa_end()
-  Returns : integer (position, according to Translation's coordinate system) of
+  Returns : integer (position, according to Translation coordinate system) of
             the end of an AminoAcidRange object
   Args    : none
 
@@ -401,3 +403,5 @@ sub gene {
     return $self->{'gene'};
   }
 }
+
+1;

@@ -845,3 +845,5 @@ sub frame {
   }
   return (-1); # label not found amid Transcript labels
 }
+
+1;

@@ -58,8 +58,10 @@ use Bio::LiveSeq::Range 1.2; # uses Range, inherits from it
 
   Title   : new
   Usage   : $intron1=Bio::LiveSeq::Prim_Transcript->new(-seq => $objref,
-					      -start => $startlabel,
-					      -end => $endlabel, -strand => 1);
+							-start => $startlabel,
+							-end => $endlabel, 
+							-strand => 1
+							);
 
   Function: generates a new Bio::LiveSeq::Prim_Transcript
   Returns : reference to a new object of class Prim_Transcript
@@ -68,3 +70,4 @@ use Bio::LiveSeq::Range 1.2; # uses Range, inherits from it
 
 =cut
 
+1;

@@ -36,7 +36,7 @@ database entry, analyse it and create LiveSeq objects out of it.
 
 An embl-acc ID has to be passed to this package which will return references
 to all translation objects created from the EMBL entry.
-Transcription, DNA and Exon objects' references can all be retrieved departing
+References to Transcription, DNA and Exon objects can all be retrieved departing
 from these.
 
 Alternatively, a specific "gene" name can be specified, together with the
@@ -519,7 +519,7 @@ sub swissprot2hash {
             using codon usage database to choose codons according to
             relative frequencies.
             If a genome latin name is not specified, the default is to use
-            the Homo sapiens' one (taxonomy ID 9606).
+            'Homo sapiens' (taxonomy ID 9606).
   Returns : reference to a Gene object containing references to LiveSeq objects
   Errorcode 0
   Args    : string containing an amino acid sequence
@@ -608,4 +608,4 @@ sub novelaasequence2gene {
   return ($gene);
 }
 
- 
+1;

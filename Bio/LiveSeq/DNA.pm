@@ -67,7 +67,7 @@ use Bio::LiveSeq::SeqI 2.22; # uses SeqI, inherits from it
   Errorcode -1
   Args    : a string
         AND an optional offset to create nucleotide labels (default is 1, i.e.
-            starting the count of labels from "1") -> don't bother using it ->
+            starting the count of labels from "1") -> do not bother using it ->
             it could be used by alternative loaders !EMBL format
   NOTE    : strand of DNA is set to 1 by default
 
@@ -110,3 +110,5 @@ sub valid {
   my $self=shift(@_);
   return $self->label_exists(@_);
 }
+
+1;

@@ -366,3 +366,5 @@ sub maxtranscript {
   my $self=shift;
   return ($self->{maxtranscript});
 }
+
+1;

@@ -301,7 +301,7 @@ sub end {
  Usage   : $check = Bio::LiveSeq::Chain::label_exists($chain,$label)
  Function: It checks if a label is defined, i.e. if an element is there or
            is not there anymore
- Returns : 1 if the label exists, 0 if it's not there, -1 error
+ Returns : 1 if the label exists, 0 if it is not there, -1 error
  Errorcode: -1
  Args    : reference to the chain, integer
 
@@ -872,7 +872,7 @@ sub is_upstream {
  Returns : array of 4 warn codes, each can be 1 (all ok) or 0 (something wrong)
  Errorcode: 0
  Args    : none
- Note    : this is slow and through. It is not really needed. It's mostly
+ Note    : this is slow and through. It is not really needed. It is mostly
            a code-developer tool.
 
 =cut
@@ -1375,4 +1375,4 @@ sub array2chain {
   return (\%hash);
 }
 
-1 # returns 1
+1; # returns 1
