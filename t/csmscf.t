@@ -121,4 +121,3 @@ $out_scf->write_seq(	-SeqWithQuality	=>	$swq,
 			-DATN		=>	'a22c.alf',
 			-CONV		=>	'Bioperl-scf.pm');
 
-# dumpValue($in_scf);

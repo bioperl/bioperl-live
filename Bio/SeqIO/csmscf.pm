@@ -442,20 +442,20 @@ sub write_seq {
     my $b_header = $self->_give_header_binary();
 	
     # this is unnecssary. delete it. csm.
-    $self->debug(join('', ("Lengths:\n",
-			   "Header  : ".length($b_header)."\n",
-			   "Traces  : ".length($b_traces)."\n",
-			   "Bases   : ".length($b_bases)."\n",
-			   "Comments: ".length($b_comments)."\n"))
-		 );
+    # $self->debug(join('', ("Lengths:\n",
+	#			   "Header  : ".length($b_header)."\n",
+	#		   "Traces  : ".length($b_traces)."\n",
+	#		   "Bases   : ".length($b_bases)."\n",
+	#		   "Comments: ".length($b_comments)."\n"))
+	#	 );
 
     # should something better be done rather then returning after
     # writing? I don't do any exception trapping here
 
-    $self->_print ($b_header) or return;
-    $self->_print ($b_traces) or return;
-    $self->_print ($b_bases) or return;
-    $self->_print ($b_comments) or return;
+    # $self->_print ($b_header) or return;
+    # $self->_print ($b_traces) or return;
+    # $self->_print ($b_bases) or return;
+    # $self->_print ($b_comments) or return;
 }
 
 =head2 _give_header_binary
@@ -621,12 +621,12 @@ sub _give_tracesbases_binary {
 	$samples->{'binaries'}->{'bases'} .= pack "N C C C C a C3",@pack_array;
     }
 	# this is unnecessary. delete it. csm
-    $self->warn("binary bases string has length ".length($samples->{'binaries'}->{'bases'})."\n") if( $self->verbose > 0 );
+	# $self->warn("binary bases string has length ".length($samples->{'binaries'}->{'bases'})."\n") if( $self->verbose > 0 );
     my $trace_pack_length = $samples->{'strings'}->{'trace_string'}->{'length'} * 4 * $self->{'header'}->{'sample_size'};
-    $self->warn("\$length of trace pack is ".$trace_pack_length."\n") if($self->verbose > 0 );
+    	# $self->warn("\$length of trace pack is ".$trace_pack_length."\n") if($self->verbose > 0 );
     $samples->{'binaries'}->{'traces'} .= pack "n$trace_pack_length",@{$samples->{'arrays'}->{'all_traces'}};
 	# this is unnecessary. delete it. csm
-    $self->warn("Length of binary bases is ".length($samples->{'binaries'}->{'bases'})."\n") if( $self->verbose > 0 );
+    	# $self->warn("Length of binary bases is ".length($samples->{'binaries'}->{'bases'})."\n") if( $self->verbose > 0 );
     return ($samples->{'binaries'}->{'traces'},
 	    $samples->{'binaries'}->{'bases'},
 	    $samples->{'strings'}->{'trace_string'}->{'length'});
