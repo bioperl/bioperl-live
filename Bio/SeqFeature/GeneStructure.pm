@@ -108,7 +108,7 @@ sub _initialize {
 sub promotors {
     my ($self) = @_;
 
-    return undef unless exists($self->{'_promotors'});
+    return () unless exists($self->{'_promotors'});
     return @{$self->{'_promotors'}};
 }
 
@@ -180,7 +180,7 @@ sub exons {
     my ($self, $type) = @_;
     my @exons = ();
 
-    return undef unless exists($self->{'_exons'});
+    return () unless exists($self->{'_exons'});
     return @{$self->{'_exons'}} unless defined($type);
     foreach my $exon (@{$self->{'_exons'}}) {
 	push(@exons, $exon) if($exon->primary_tag() =~ /^$type/);
@@ -256,7 +256,6 @@ sub introns {
     my @introns = ();
     my @exons = $self->exons();
 
-    return undef unless @exons;
     for(my $i = 0; $i < $#exons; $i++) {
 	my ($start, $end);
 	my $intron;
@@ -298,7 +297,7 @@ sub introns {
 sub poly_A_sites {
     my ($self) = @_;
 
-    return undef unless exists($self->{'_poly_A_sites'});
+    return () unless exists($self->{'_poly_A_sites'});
     return @{$self->{'_poly_A_sites'}};
 }
 
@@ -360,7 +359,7 @@ sub flush_poly_A_sites {
 sub utrs {
     my ($self) = @_;
 
-    return undef unless exists($self->{'_utrs'});
+    return () unless exists($self->{'_utrs'});
     return @{$self->{'_utrs'}};
 }
 
@@ -508,6 +507,7 @@ sub attach_seq {
 
  Title   : cds
  Usage   : $cds_dna = $gene->cds();
+           $cds_dna = $gene->cds($correct_for_phase);
  Function: Returns the CDS (coding sequence) as defined by this gene structure
            and the attached sequence.
 
@@ -518,28 +518,29 @@ sub attach_seq {
            and that exons do not overlap. Hence, it is merely a convenience
            method, but this may be changed by overriding classes/methods.
 
-           Note also that you cannot set the CDS via this method. It will
-           throw an exception on an attempt to do so. Set a single CDS
-           feature as an exon, or derive your own class if you want to
+           If the first parameter is TRUE the returned string may have leading
+           Ns (in lower-case) in order to correct the frame.
+
+           Note also that you cannot set the CDS via this method. Set a single
+           CDS feature as an exon, or derive your own class if you want to
            store a predicted CDS.
 
  Example :
  Returns : A string holding the DNA sequence defined as coding by the regions
            of the exons.
- Args    :
+ Args    : TRUE or FALSE (the default) depending on whether or not to try
+           to adjust the phase such that the resulting sequence will 
+           contain at most a trailing stop codon.
 
 =cut
 
 sub cds {
-    my ($self, @args) = @_;
+    my ($self, $corr_phase) = @_;
     my @exons = $self->exons();
     my $cds = "";
 
     if(! $self->entire_seq()) {
 	$self->throw("CDS requested, but no sequence object attached");
-    }
-    if(@args) {
-	$self->throw("Unexpected argument. You cannot set the CDS via this method");
     }
     if($#exons > 0) {
 	# determine order
@@ -552,11 +553,101 @@ sub cds {
 	    @exons = CORE::reverse(@exons);
 	}
 	foreach my $exon (@exons) {
-	    $cds .= $exon->seq();
+	    $cds .= $exon->seq()->seq();
+	}
+	if($corr_phase) {
+	    $cds = $self->correct_phase($cds);
 	}
     }
     return $cds;
 }
+
+
+=head2 correct_phase
+
+ Title   : correct_phase
+ Usage   : $cds_dna = $self->correct_phase($dna_seq);
+           $cds_dna = $self->correct_phase($dna_seq, 1);
+ Function: Tries to correct the phase or frame of the given DNA sequence by
+           trying to find the frame yielding no intervening stop codons.
+
+           Correction is done by prepending Ns to the sequence.
+
+           Note that there is no guarantee that the returned sequence is
+           frame-corrected. If none of the 3 frames yields a sequence without
+           intervening termination codons, the unchanged sequence is returned.
+
+           May also be called as class method.
+
+ Example :
+ Returns : A string holding the possibly frame-corrected DNA sequence.
+ Args    : A string holding the DNA sequence to be corrected.
+           The id of the codon table to use (see Bio::Tools::CodonTable)
+           (optional, default = 0).
+
+=cut
+
+sub correct_phase {
+    my ($self, $seq, $tableid) = @_;
+    my $frame = 0;
+    my $corr_seq;
+    my @codons;
+    my @stops;
+    my $transtable; 
+
+    return unless $seq;
+
+    # The CDS may not necessarily begin with base 1 of a codon. We try
+    # to correct the phase by checking which one gives a translation
+    # without intervening stops.
+    my $phase = CORE::length($seq) % 3;
+    $tableid = 0 unless defined($tableid);
+    $transtable = Bio::Tools::CodonTable->new('-id' => $tableid);
+    # first, we chop off the end in order to get phase 0 (this does not
+    # change the frame!)
+    if($phase > 0) {
+	$corr_seq = substr($seq, 0, -$phase);
+    } else {
+	$corr_seq = $seq;
+    }
+    @codons = split(/(.{3})/, $corr_seq);
+    # the last one is allowed to be a terminator, so pop it off
+    pop(@codons);
+    # get the stops
+    @stops = grep { $transtable->is_ter_codon($_); } @codons;
+    if($#stops < 0) {
+	# we're done, nothing to correct
+	return $seq;
+    }
+    # Now there are two options: try restoring phase 0 by prepending Ns, or
+    # try the two other frames. The first should in principle give immediately
+    # the correct result for complete sequences, but not necessarily for those
+    # that are not required to be phase 0 (like a single exon). So, we try the
+    # frame suggested by the phase first, and then the other.
+    for(;;) {
+	if($frame == 0) {
+	    $frame = ($phase == 1) ? 2 : 1;
+	} else {
+	    $frame = ($phase == 0) ? 2 : $phase;
+	}
+	# prepend with Ns
+	$corr_seq = "n" x $frame . $seq;
+	@codons = split(/(.{3})/, $corr_seq);
+	# the last one is allowed to be a terminator, so pop it off
+	pop(@codons);
+	# get the stops
+	@stops = grep { $transtable->is_ter_codon($_); } @codons;
+	last if($#stops < 0);
+	last if(($frame == $phase) || (($phase == 0) && ($frame == 2)));
+    }
+    if($#stops < 0) {
+	return $corr_seq;
+    } else {
+	# should we better warn or even throw an exception?
+	return $seq;
+    }
+}
+
 
 sub _tag_value {
     my ($self, $tag, $value) = @_;
