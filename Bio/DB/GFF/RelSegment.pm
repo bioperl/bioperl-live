@@ -1001,8 +1001,6 @@ sub _to_strand {
   return 0;
 }
 
-sub primary_tag { "Segment" }
-
 =head2 Bio::RangeI Methods
 
 The following Bio::RangeI methods are supported:

@@ -884,7 +884,8 @@ sub keyglyph {
   my $self = shift;
   my $feature = $self->make_key_feature;
   my $factory = $self->factory->clone;
-  $factory->set_option(label => 1);
+  $factory->set_option(label       => 1);
+  $factory->set_option(description => 0);
   $factory->set_option(bump  => 0);
   $factory->set_option(connector  => 'solid');
   return $factory->make_glyph(0,$feature);

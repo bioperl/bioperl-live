@@ -100,11 +100,12 @@ methods. Internal methods are usually preceded with a _
 package Bio::Das::SegmentI;
 use strict;
 
-use vars qw(@ISA);
+use vars qw(@ISA $VERSION);
 use Bio::Root::RootI;
 
 # Object preamble - inherits from Bio::Root::RootI;
 @ISA = qw(Bio::Root::RootI);
+$VERSION = 1.00;
 
 =head2 seq_id
 
@@ -169,6 +170,21 @@ Returns the length of the segment.  Always a positive number.
 
 sub length { shift->throw_not_implemented; }
 
+=head2 seq
+
+ Title   : seq
+ Usage   : $s->seq
+ Function: get the sequence string for this segment
+ Returns : a string
+ Args    : none
+ Status  : Public
+
+Returns the sequence for this segment as a simple string.
+
+=cut
+
+sub seq {shift->throw_not_implemented}
+
 =head2 ref
 
  Title   : ref
@@ -230,7 +246,7 @@ The returned list can be limited to certain types, attributes or
 range intersection modes.  Types of range intersection are one of:
 
    "overlaps"      the default
-   "contained"     return features completely contained within the segment
+   "contains"      return features completely contained within the segment
    "contained_in"  return features that completely contain the segment
 
 Two types of argument lists are accepted.  In the positional argument
@@ -246,7 +262,7 @@ pairs.
 
   -attributes A hashref containing a set of attributes to match
 
-  -rangetype  One of "overlaps", "contained", or "contained_in".
+  -rangetype  One of "overlaps", "contains", or "contained_in".
 
   -iterator   Return an iterator across the features.
 
@@ -362,11 +378,14 @@ sub contained_in {
 This method is identical to features() except that it always generates
 an iterator.
 
+NOTE: This is defined in the interface in terms of features().  You do not
+have to implement it.
+
 =cut
 
 sub get_feature_stream {
   my $self = shift;
-  my @args = $_[0] !~ /^-/ ? (@_,         -iterator=>1)
+  my @args = $_[0] =~ /^-/ ? (@_,         -iterator=>1)
                            : (-types=>\@_,-iterator=>1);
   $self->features(@args);
 }
@@ -376,26 +395,59 @@ sub get_feature_stream {
  Title   : factory
  Usage   : $factory = $s->factory
  Function: return the segment factory
- Returns : an object that implements a refclass() method
+ Returns : a Bio::DasI object
  Args    : see below
  Status  : Public
 
-This method is provided for compatibility with Bio::DB::GFF, which has
-separate concepts of landmark classes (e.g. namespaces) as well as
-feature types.  Don't mess with it.
+This method returns a Bio::DasI object that can be used to fetch
+more segments.  This is typically the Bio::DasI object from which
+the segment was originally generated.
 
 =cut
 
 #'
 
-sub factory { return Bio::DasSegment::Factory->new }
+sub factory {shift->throw_not_implemented}
 
-package Bio::DasSegment::Factory;
+=head2 primary_tag
 
-sub new {
-  my $b;
-  return bless \$b,shift;
-}
-sub refclass { 'Sequence' }
+ Title   : primary_tag
+ Usage   : $tag = $s->primary_tag
+ Function: identifies the segment as type "DasSegment"
+ Returns : a string named "DasSegment"
+ Args    : none
+ Status  : Public, but see below
+
+This method provides Bio::Das::Segment objects with a primary_tag()
+field that identifies them as being of type "DasSegment".  This allows
+the Bio::Graphics engine to render segments just like a feature in order
+nis way useful.
+
+This does not need to be implemented.  It is defined by the interface.
+
+=cut
+
+#'
+
+sub primary_tag {"DasSegment"}
+
+=head2 strand
+
+ Title   : strand
+ Usage   : $strand = $s->strand
+ Function: identifies the segment strand as 0
+ Returns : the number 0
+ Args    : none
+ Status  : Public, but see below
+
+This method provides Bio::Das::Segment objects with a strand() field
+that identifies it as being strandless.  This allows the Bio::Graphics
+engine to render segments just like a feature in order nis way useful.
+
+This does not need to be implemented.  It is defined by the interface.
+
+=cut
+
+sub strand      { 0 }
 
 1;

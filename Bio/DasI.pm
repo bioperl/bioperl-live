@@ -373,9 +373,9 @@ sub search_notes { return }
 =head2 get_seq_stream
 
  Title   : get_seq_stream
- Usage   : my $seqio = $self->get_seq_sream(@args)
+ Usage   : $seqio = $db->get_seq_stream(@args)
  Function: Performs a query and returns an iterator over it
- Returns : a Bio::SeqIO stream capable of returning Bio::Das::SegmentI objects
+ Returns : a Bio::SeqIO stream capable of returning Bio::SeqFeatureI objects
  Args    : As in features()
  Status  : public
 
@@ -394,5 +394,22 @@ as the name is more descriptive.
 
 sub get_seq_stream { shift->throw_not_implemented }
 sub get_feature_stream {shift->get_seq_stream(@_) }
+
+=head2 refclass
+
+ Title   : refclass
+ Usage   : $class = $db->refclass
+ Function: returns the default class to use for segment() calls
+ Returns : a string
+ Args    : none
+ Status  : public
+
+For data sources which use namespaces to distinguish reference
+sequence accessions, this returns the default namespace (or "class")
+to use.  This interface defines a default of "Accession".
+
+=cut
+
+sub refclass { "Accession" }
 
 1;

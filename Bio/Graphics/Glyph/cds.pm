@@ -7,7 +7,7 @@ use Bio::Tools::CodonTable;
 use Bio::Graphics::Glyph::translation;
 use vars '@ISA','$VERSION';
 @ISA = qw(Bio::Graphics::Glyph::segmented_keyglyph Bio::Graphics::Glyph::translation);
-$VERSION = '1.01';
+$VERSION = '1.02';
 
 sub connector   { 0 };
 sub description {
@@ -165,6 +165,13 @@ sub make_key_feature {
 						    -strand=> +1,
 						   ));
   $feature;
+}
+
+# never allow our components to bump
+sub bump {
+  my $self = shift;
+  return $self->SUPER::bump(@_) if $self->all_callbacks;
+  return 0;
 }
 
 1;

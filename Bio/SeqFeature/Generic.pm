@@ -722,6 +722,20 @@ sub seqname {
     return $obj->{'_gsf_seqname'};
 }
 
+=head2 display_id
+
+ Title   : display_id
+ Usage   : $obj->display_id
+ Function: Implements the display_id() method, which is a human-readable
+           name.  This is the same value as returned by seqname().
+ Returns : value of display_id
+ Args    :
+
+=cut
+
+sub display_id {shift->seqname}
+
+
 =head2 annotation
 
  Title   : annotation

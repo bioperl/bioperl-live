@@ -487,6 +487,9 @@ sub make_link {
   }
 }
 
+sub each_tag_value { return }
+sub all_tags { return }
+
 sub DESTROY { }
 
 1;

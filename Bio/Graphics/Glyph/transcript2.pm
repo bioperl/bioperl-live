@@ -13,7 +13,7 @@ use constant MIN_WIDTH_FOR_ARROW => 8;
 sub pad_left  {
   my $self = shift;
   my $pad = $self->Bio::Graphics::Glyph::generic::pad_left;
-  return $pad unless $self->feature->strand < 0;
+  return $pad unless ($self->feature->strand||0) < 0;  #uninitialized var warning
   my $first = ($self->parts)[0] || $self;
   my @rect  = $first->bounds();
   my $width = abs($rect[2] - $rect[0]);
