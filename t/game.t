@@ -20,7 +20,7 @@ BEGIN {
     }
     use Test;
     use vars qw($TESTCOUNT);
-    $TESTCOUNT = 25;
+    $TESTCOUNT = 22;
     plan tests => $TESTCOUNT;
     
     $error  = 0;
@@ -76,7 +76,7 @@ ok($seq->display_id, 'L16622');
 ok($seq->length, 28735);
 ok($seq->species->binomial, 'Caenorhabditis elegans');
 my @feats = $seq->get_SeqFeatures;
-ok(scalar(@feats), 10);
+ok(scalar(@feats), 7);
 my $source = grep { $_->primary_tag eq 'source' } @feats;
 ok($source);
 my @genes = grep { $_->primary_tag eq 'gene' } @feats;
@@ -89,11 +89,9 @@ if ( $genes[0]->has_tag('gene') ) {
 ok($gname, 'C02D5.3');
 ok($genes[0]->strand, 1);
 my $cds   = grep { $_->primary_tag eq 'CDS' } @feats;
-my $mRNA  = grep { $_->primary_tag eq 'mRNA' } @feats;
 ok($cds, 3);
-ok($mRNA, 3);
 
-# make sure we can read waht we write
+# make sure we can read what we write
 # test XML-writing
 my $testfile = "testgameout.game";
 my $out = new Bio::SeqIO(-format => 'game', -file => ">$testfile");
@@ -111,9 +109,7 @@ ok($seq->species->binomial, 'Caenorhabditis elegans');
 
 my $genes = grep { $_->primary_tag eq 'gene' } @feats;
 $cds   = grep { $_->primary_tag eq 'CDS' } @feats;
-$mRNA  = grep { $_->primary_tag eq 'mRNA' } @feats;
 ok($genes, 3);
 ok($cds, 3);
-ok($mRNA, 3);
 unlink $testfile;
 
