@@ -1,4 +1,4 @@
-# $Id Exp $
+# $Id$
 #
 # BioPerl module for Bio::Ontology::RelationshipType  
 #
