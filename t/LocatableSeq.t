@@ -2,7 +2,7 @@
 ## Bioperl Test Harness Script for Modules
 ## $Id$
 use strict;
-use constant NUMTESTS => 21;
+use constant NUMTESTS => 22;
 
 BEGIN {     
     eval { require Test; };
@@ -25,9 +25,10 @@ ok $seq = new Bio::LocatableSeq(
 			     -seq => '--atg---gta--',
 			     -start => 1,
 			     -end => 6,
-			     -strand => 1
+			     -strand => 1,
+			     -moltype => 'dna'
 			     );
-
+ok $seq->moltype, 'dna';
 ok $seq->start, 1;
 ok $seq->end, 6;
 ok $seq->strand, 1;
