@@ -83,7 +83,7 @@ use ExtUtils::MakeMaker;
 $do_autoload_finesse = 0;
 $NAME     = 'Bio';
 $DISTNAME = "bioperl";
-$VERSION  = "0.90";
+$VERSION  = "0.91";
 
 if( $do_autoload_finesse == 1 ) {
     fatal("Autoload finessing does not work at the moment!");
