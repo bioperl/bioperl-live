@@ -829,12 +829,12 @@ sub element{
 
 sub characters{
    my ($self,$data) = @_;   
+   return unless ( defined $data->{'Data'} && $data->{'Data'} !~ /^\s+$/ );   
 
    if( $self->in_element('hsp') && 
        $data->{'Name'} =~ /Hsp\_(qseq|hseq|midline)/ ) {
        $self->{'_last_hspdata'}->{$data->{'Name'}} .= $data->{'Data'};
-   }  
-   return unless ( defined $data->{'Data'} && $data->{'Data'} !~ /^\s+$/ );
+   }   
    $self->{'_last_data'} = $data->{'Data'}; 
 }
 
