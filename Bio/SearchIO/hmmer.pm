@@ -288,7 +288,7 @@ sub next_result{
 			       $self->end_element({'Name' => 'Hit'});
 			   }
 			   $self->start_element({'Name' => 'Hit'});
-			   my $info = [@{$hitinfo[$hitinfo{$name}]}];
+			   my $info = [@{$hitinfo[$hitinfo{$name}] || $self->throw("Could not find hit info for $name: Insure that your database contains only unique sequence names")}];
 			   if( $info->[0] ne $name ) { 
 			       $self->throw("Somehow the Model table order does not match the order in the domains (got ".$info->[0].", expected $name)"); 
 			   }
@@ -346,8 +346,9 @@ sub next_result{
 					   'Data' => $2});
 			   $width = CORE::length($2);
 			   $count = 0;
-		       } elsif( CORE::length($_) == 0 || /^\s+$/o ||
-				/^\s+\-?\*\s*$/ ) { 
+		       } elsif( ($count != 1 && /^\s+$/o) ||
+				 CORE::length($_) == 0 ||
+				/^\s+\-?\*\s*$/ ) {
 			   next;
 		       } elsif( $count == 0 ) {
 			   $prelength -= 3 unless ($second_tier++);
@@ -360,16 +361,20 @@ sub next_result{
 		       } elsif( $count == 1) { 
 			   if( ! defined $prelength ) { 
 			       $self->warn("prelength not set"); 
-			   }			       
+			   }
 			   if( $width ) {
 			       $self->element({'Name' => 'Hsp_midline',
-					       'Data' => substr($_,$prelength,$width)});
+					       'Data' => substr($_,
+								$prelength,
+								$width)});
 			   } else { 
+			       $self->debug( "midline is $_\n") if( CORE::length($_) <= $prelength && $self->verbose > 0);
 			       $self->element({'Name' => 'Hsp_midline',
-					       'Data' => substr($_,$prelength)});
+					       'Data' => substr($_,
+								$prelength)});
 			   }
 		       } elsif( $count == 2) {
-			   if( /^\s+(\S+)\s+(\d+|\-)\s+(\S+)\s+(\d+|\-)/o ) {
+			   if( /^\s+(\S+)\s+(\d+|\-)\s+(\S*)\s+(\d+|\-)/o ) {
 			       $self->element({'Name' => 'Hsp_hseq',
 					       'Data'  => $3});
 			   } else {
