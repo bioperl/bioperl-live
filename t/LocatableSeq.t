@@ -2,7 +2,7 @@
 ## Bioperl Test Harness Script for Modules
 ## $Id$
 use strict;
-use constant NUMTESTS => 43;
+use constant NUMTESTS => 76;
 
 BEGIN {
     eval { require Test; };
@@ -23,8 +23,6 @@ my ($str, $aln, $seq, $loc);
 
 ok $seq = new Bio::LocatableSeq(
 			     -seq => '--atg---gta--',
-			     -start => 1,
-			     -end => 6,
 			     -strand => 1,
 			     -alphabet => 'dna'
 			     );
@@ -62,8 +60,6 @@ ok $seq->id, '1433_LYCES';
 
 $seq = new Bio::LocatableSeq(
 			     -seq => '--atg---gta--',
-			     -start => 1,
-			     -end => 6,
 			     -strand => 1,
 			     -alphabet => 'dna'
 			     );
@@ -79,7 +75,17 @@ ok $seq2->seq, 'atg---';
 ok $seq2->start, 1;
 ok $seq2->end, 3;
 
-
+ok $seq->strand(-1), -1;
+ok $seq->start, 1;
+ok $seq->end, 6;
+$seq2 = $seq->trunc(3,8);
+ok $seq2->seq, 'atg---';
+ok $seq2->start, 4;
+ok $seq2->end, 6;
+#use Data::Dumper;
+#print Dumper $seq;
+#print Dumper $seq2;
+#exit;
 $seq2 = $seq->revcom();
 ok $seq2->seq, '--tac---cat--';
 ok $seq2->start, $seq->start;
@@ -89,8 +95,6 @@ ok $seq2->strand, $seq->strand * -1;
 # test column-mapping for -1 strand sequence
 $seq = new Bio::LocatableSeq(
 			     -seq => '--atg---gtaa-',
-			     -start => 1,
-			     -end => 7,
 			     -strand => -1,
 			     -alphabet => 'dna'
 			     );
@@ -105,4 +109,48 @@ ok $loc->start, 4;
 ok $loc->location_type, 'IN-BETWEEN';
 ok $loc->to_FTstring, '4^5';
 
+
+# more tests for trunc() with strand -1
+
+
+ok $seq = new Bio::LocatableSeq(
+			     -seq => '--atg---gta--',
+			     -strand => -1,
+			     -alphabet => 'dna'
+			     );
+ok $seq->alphabet, 'dna';
+ok $seq->start, 1;
+ok $seq->end, 6;
+ok $seq->strand, -1;
+ok $seq->no_gaps, 1;
+ok $seq->column_from_residue_number(4), 5;
+
+
+ok $seq2 = $seq->trunc(1,9);
+ok $seq2->seq, '--atg---g';
+ok $seq2->start, 3;
+ok $seq2->end, 6;
+ok $seq2->strand, $seq->strand;
+
+ok $seq->location_from_column(3)->start, 6;
+ok $seq->location_from_column(11)->start, 1;
+ok $seq->location_from_column(9)->start, 3;
+
+
+
+ok $seq2 = $seq->trunc(7,12);
+ok $seq2->seq, '--gta-';
+ok $seq2->start, 1;
+ok $seq2->end, 3;
+
+
+ok $seq2 = $seq->trunc(2,6);
+ok $seq2->seq, '-atg-';
+ok $seq2->start, 4;
+ok $seq2->end, 6;
+
+ok $seq2 = $seq->trunc(4,7);
+ok $seq2->seq, 'tg--';
+ok $seq2->start, 4;
+ok $seq2->end, 5;
 
