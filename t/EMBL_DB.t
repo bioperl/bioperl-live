@@ -92,9 +92,15 @@ eval {
 			    -format => 'fasta'
 			    ); 
     ok( defined($seqio = $db->get_Stream_by_acc(['J00522 AF303112 J02231'])));
-    ok($seqio->next_seq->length, 408);
-    ok($seqio->next_seq->length, 1611);
-    ok($seqio->next_seq->length, 200);
+    my %seqs;
+    # don't assume anything about the order of the sequences
+    while ( my $s = $seqio->next_seq ) {
+	my ($type,$x,$name) = split(/\|/,$s->display_id);
+	$seqs{$x} = $s->length;
+    }
+    ok($seqs{'J00522'},408);
+    ok($seqs{'AF303112'},1611);
+    ok($seqs{'J02231'},200);
 };
 
 if ($@) {
