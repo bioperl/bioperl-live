@@ -192,7 +192,7 @@ sub new {
     my ($class, @args) = @_;
     my $self = $class->SUPER::new(@args);
 
-    my($seq,$id,$acc,$pid,$ns,$auth,
+    my($seq,$id,$acc,$pid,$ns,$auth,$v,$oid,
        $desc,$alphabet,$given_id,$is_circular,$direct,$ref_to_seq,$len) =
 	$self->_rearrange([qw(SEQ
 			      DISPLAY_ID
@@ -200,6 +200,8 @@ sub new {
 			      PRIMARY_ID
 			      NAMESPACE
 			      AUTHORITY
+			      VERSION
+			      OBJECT_ID
 			      DESC
 			      ALPHABET
 			      ID
@@ -245,6 +247,8 @@ sub new {
     $is_circular && $self->is_circular($is_circular);
     $ns          && $self->namespace($ns);
     $auth        && $self->authority($auth);
+    defined($v)  && $self->version($v);
+    defined($oid) && $self->object_id($oid);
 
     return $self;
 }

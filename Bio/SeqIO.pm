@@ -674,6 +674,22 @@ sub sequence_factory{
    $self->{'_seqio_seqfactory'};
 }
 
+=head2 object_factory
+
+ Title   : object_factory
+ Usage   : $obj->object_factory($newval)
+ Function: This is an alias to sequence_factory with a more generic name.
+ Example : 
+ Returns : value of object_factory (a scalar)
+ Args    : on set, new value (a scalar or undef, optional)
+
+
+=cut
+
+sub object_factory{
+    return shift->sequence_factory(@_);
+}
+
 =head2 sequence_builder
 
  Title   : sequence_builder

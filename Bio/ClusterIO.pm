@@ -223,6 +223,23 @@ sub cluster_factory{
     return $self->{'cluster_factory'};
 }
 
+=head2 object_factory
+
+ Title   : object_factory
+ Usage   : $obj->object_factory($newval)
+ Function: This is an alias to cluster_factory with a more generic name.
+ Example : 
+ Returns : a L<Bio::Factory::ObjectFactoryI> compliant object
+ Args    : on set, new value (a L<Bio::Factory::ObjectFactoryI> 
+           compliant object or undef, optional)
+
+
+=cut
+
+sub object_factory{
+    return shift->cluster_factory(@_);
+}
+
 =head2 _load_format_module
 
  Title   : _load_format_module

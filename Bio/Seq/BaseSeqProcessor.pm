@@ -233,7 +233,42 @@ sub sequence_factory{
     return $self->{'sequence_factory'};
 }
 
-=head1 Implementation specific methods
+=head2 object_factory
+
+ Title   : object_factory
+ Usage   : $obj->object_factory($newval)
+ Function: This is an alias to sequence_factory with a more generic name.
+ Example : 
+ Returns : a L<Bio::Factory::ObjectFactoryI> compliant object
+ Args    : on set, new value (a L<Bio::Factory::ObjectFactoryI> 
+           compliant object or undef, optional)
+
+
+=cut
+
+sub object_factory{
+    return shift->sequence_factory(@_);
+}
+
+=head2 close
+
+ Title   : close
+ Usage   :
+ Function: Closes the stream. We override this here in order to cascade
+           to the source stream.
+ Example :
+ Returns : 
+ Args    : none
+
+
+=cut
+
+sub close{
+    my $self = shift;
+    return $self->source_stream() ? $self->source_stream->close(@_) : 1;
+}
+
+=head1 To be overridden by a derived class
 
 =cut
 
