@@ -106,8 +106,8 @@ sub the_old_way {
         $subtraces->{qualities} = join(' ',$trace->subqual($start2,$end2));
         $subtraces->{indices} = $trace->sub_trace_index($start2,$end2);
         my @temp = @{$subtraces->{indices}};
-        $subtraces->{trace_start} = @temp->[0];
-        $subtraces->{trace_end} = @temp->[$#temp];
+        $subtraces->{trace_start} = $temp[0];
+        $subtraces->{trace_end} = $temp[$#temp];
         foreach (qw(a t g c)) {
              $subtraces->{traces}->{$_} = $trace->sub_trace($_,$subtraces->{trace_start},$subtraces->{trace_end});
         }
