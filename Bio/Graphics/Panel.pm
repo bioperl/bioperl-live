@@ -1469,6 +1469,13 @@ Typical usage is:
 unshift_track() works like add_track(), except that the new track is
 added to the top of the image rather than the bottom.
 
+=item $track = $panel-E<gt>insert_track($position,$glyph,$features,@options)
+
+This works like add_track(), but the track is inserted into the
+indicated position.  The track will be inserted B<before> the
+indicated position; thus specify a track of 0 to insert the new track
+at the beginning.
+
 =item $gd = $panel-E<gt>gd([$gd])
 
 The gd() method lays out the image and returns a GD::Image object
