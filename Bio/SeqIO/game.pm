@@ -14,7 +14,7 @@
 
 =head1 NAME
 
-Bio::SeqIO::Bioxml - Parses game 0.1 and higher into and out of Bio::Seq objects.  
+Bio::SeqIO::game - Parses GAME XML 0.1 and higher into and out of Bio::Seq objects.  
 
 =head1 SYNOPSIS
 
