@@ -1175,8 +1175,67 @@ sub link_pattern {
   for my $label ($self->feature2label($feature)) {
     my $linkrule     = $self->setting($label,'link');
     $linkrule        = $self->setting(general=>'link') unless defined $linkrule;
-    return $panel->make_link($linkrule,$feature);
+    return $self->make_link($linkrule,$feature,$panel);
   }
+}
+
+sub make_link {
+  my $self = shift;
+  my ($linkrule,$feature,$panel) = @_;
+
+  if (ref($linkrule) && ref($linkrule) eq 'CODE') {
+    my $val = eval {$linkrule->($feature,$panel)};
+    warn $@ if $@;
+    return $val;
+  }
+
+  require CGI unless defined &CGI::escape;
+  my $n;
+  $linkrule =~ s/\$(\w+)/
+    CGI::escape(
+		$1 eq 'ref'              ? ($n = $feature->location->seq_id) && "$n"
+		: $1 eq 'name'         ? ($n = $feature->display_name) && "$n"  # workaround broken CGI.pm
+		: $1 eq 'class'        ? eval {$feature->class}  || ''
+		: $1 eq 'type'         ? eval {$feature->method} || $feature->primary_tag
+		: $1 eq 'method'       ? eval {$feature->method} || $feature->primary_tag
+		: $1 eq 'source'       ? eval {$feature->source} || $feature->source_tag
+		: $1 eq 'start'        ? $feature->start
+		: $1 eq 'end'          ? $feature->end
+		: $1 eq 'stop'         ? $feature->end
+		: $1 eq 'segstart'     ? $panel->start
+		: $1 eq 'segend'       ? $panel->end
+		: $1 eq 'description'  ? eval {join '',$feature->notes} || ''
+		: $1 eq 'id'           ? $feature->feature_id
+		: $1
+	       )
+	/exg;
+  return $linkrule;
+}
+
+sub make_title {
+  my $self = shift;
+  my $feature = shift;
+  my $method  = $feature->method;
+  my $seqid   = $feature->can('seq_id')      ? $feature->seq_id : $feature->location->seq_id;
+  my $title = eval {
+    if ($feature->can('target') && (my $target = $feature->target)) {
+      join (' ',
+	    $method,
+	    (defined $seqid ? "$seqid:" : '').
+	    $feature->start."..".$feature->end,
+	    $feature->target.':'.
+	    $feature->target->start."..".$feature->target->end);
+    } else {
+      join(' ',
+	   $method,
+	   $feature->can('display_name') ? $feature->display_name : $feature->info,
+	   (defined $seqid ? "$seqid:" : '').
+	   ($feature->start||'?')."..".($feature->end||'?')
+	  );
+    }
+  };
+  warn $@ if $@;
+  $title;
 }
 
 # given a feature type, return its label(s)
