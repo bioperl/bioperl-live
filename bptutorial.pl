@@ -203,12 +203,12 @@ programs are not found.)
 For newcomers and people who want to quickly evaluate whether this package
 is worth using in the first place, we have a very simple module which allows
 easy access to a small number of Bioperl's functionality in an easy to use 
-manner. The Bio::Perl module provides some simple access functions,
+manner. The L<Bio::Perl> module provides some simple access functions,
 for example, this script will retrieve a swissprot sequence and write
 it out in fasta format
 
   use Bio::Perl;
-  
+
   # this script will only work with an internet connection
   # on the computer it is run on
   $seq_object = get_sequence('swissprot',"ROA1_HUMAN");
@@ -221,7 +221,7 @@ and so use this only for individual searches. If you want to do a large
 number of BLAST searches, please download the blast package locally).
 
   use Bio::Perl;
-  
+
   # this script will only work with an internet connection
   # on the computer it is run on
 
@@ -231,8 +231,8 @@ number of BLAST searches, please download the blast package locally).
   $blast_result = blast_sequence($seq);
 
   write_blast(">roa1.blast",$blast_report);
-  
-Bio::Perl has a number of other "easy to use" functions, including
+
+L<Bio::Perl> has a number of other "easy to use" functions, including
 
   get_sequence        - gets a sequence from standard, internet accessible
                         databases
@@ -247,15 +247,14 @@ Bio::Perl has a number of other "easy to use" functions, including
                         NCBI
   write_blast         - writes a blast report out to a file
 
-Look at the documentation for Bio::Perl by going perldoc Bio::Perl to
-learn more about these functions. In all these cases, Bio::Perl
+Look at the documentation for L<Bio::Perl> by going 'perldoc Bio::Perl' to
+learn more about these functions. In all these cases, L<Bio::Perl>
 accesses a subset of the underlying Bioperl functions (for example,
 translation in Bioperl can handle many different translation tables
 and provides different options for stop codon processing) - in most
 cases, most users will migrate to using the underlying bioperl objects
-as their sophistication level increases, but Bio::Perl provides an
+as their sophistication level increases, but L<Bio::Perl> provides an
 easy on-ramp for newcomers and lazy programmers.
-
 
 =head2 I.3 Software requirements
 
@@ -380,6 +379,8 @@ above may not apply. A disadvantage of the "bundle" approach is that
 if there's a problem installing any individual module it may be a bit
 more difficult to isolate.
 
+See the package's INSTALL file for more details.
+
 =back
 
 For the external programs (clustal, Tcoffee, ncbi-blast), there is an
@@ -402,7 +403,7 @@ L<Bio::Tools::Run::StandAloneBlast>)
 The only likely complication (at least on unix systems) that may occur
 is if you are unable to obtain system level writing privileges.  For
 instructions on modifying the installation in this case and for more
-details on the overall installation procedure, see the README file in
+details on the overall installation procedure, see the INSTALL file in
 the bioperl distribution as well as the README files in the external
 programs you want to use (eg bioperl-ext, clustalw, TCoffee,
 NCBI-blast).
@@ -423,7 +424,8 @@ The bioperl core has also been tested and should work under most
 versions of Microsoft Windows.  For many windows users the perl and
 bioperl distributions from Active State, at http://www.activestate.com
 has been quite helpful.  Other windows users have had success running
-bioperl under Cygwin (http://www.cygwin.com).
+bioperl under Cygwin (http://www.cygwin.com). See the package's 
+INSTALL.WIN file for more details.
 
 Many bioperl features require the use of CPAN modules, compiled
 extensions or external programs.  These features probably will
@@ -1940,7 +1942,7 @@ Further information can be found at L<Bio::Tools::GFF>. Also see the
 scripts/tools/gff2ps.pl and scripts/tools/gb_to_gff.pl scripts.
 (Note: this module shouldn\'t be confused with the module Bio::DB::GFF
 which is for implementing relational databases when using bioperl-db.)
- 
+
 =head2  III.8 Manipulating clusters of sequences (Cluster, ClusterIO)
 
 Sequence alignments are not the only examples in which one might want
@@ -2017,8 +2019,8 @@ tree format is supported.  Sample code might be:
 See L<Bio::TreeIO> and L<Bio::Tree::Tree> for details.
 
 Using the Bio::Tools::Phylo::PAML module one can also parse the
-results of the PAML tree-building programs codeml,baseml, basemlg,
-codemlsites and yn00.  See L< Bio::Tools::Phylo::PAML> for details.
+results of the PAML tree-building programs codeml, baseml, basemlg,
+codemlsites and yn00. See L<Bio::Tools::Phylo::PAML> for details.
 
 =head2 III.9.3 Map objects for manipulating genetic maps (Map::MapI,
 MapIO)
@@ -2272,7 +2274,7 @@ bioperl can read in with the AlignIO system
   use Bio::AlignIO;
   my $in = new Bio::AlignIO(-format => 'emboss', -file => 'filename');
   my $aln = $in->next_aln();
- 
+
 The Pise interface is another approach to extending Bioperl's
 sequence manipulation capabilities by using standard bioinformatics
 programs.  To use EMBOSS programs within Bioperl you need to
