@@ -6,8 +6,7 @@ BEGIN {
         ###         to the directory right above Bio/ in order
         ###         for perl to be able to locate the .pm files. 
 
-#	$INSTALL_PATH = "/home/users/sac/perl/lib";
-	$INSTALL_PATH = "/home/steve/projects/bioperl/bioperl-0.04-bug/bioperl-live";
+	$INSTALL_PATH = "/home/steve/perl/bioperl";
 
         ###
         ####
@@ -66,7 +65,10 @@ BEGIN {
 # "Close on unopened file <GEN0> at /usr/local/bin/perl/lib/FileHandle.pm line 255"
 #
 # MODIFIED:
-#  sac --- Tue Nov 24 10:55:46 1998
+#  sac --- Thu Feb  4 06:48:42 1999
+#      * Added the -wait command-line option to prevent read() timeouts when
+#        using seqtools.pl in conjunction with blast_seq.pl.
+#  sac -- Tue Nov 24 10:55:46 1998
 #      * Usage text added for -incl/-excl options.
 #  0.21, sac,  7 Sep 1998: 
 #      * Added the -tag command-line option.
@@ -125,6 +127,8 @@ $opt_err        = undef;
 $opt_tag        = undef;  # Optional tag string to be prepended to all descrptions.
 $opt_write_files = undef; # Hold directory name for where to write individual files 
                           # for each input sequence. 
+$opt_wait       = undef;  # Amount of time to wait during read() before timing out. 
+                          # Only necessary to use in the context of blast_seq.pl.
 
 # General parameters
 $opt_h      = 0;
@@ -218,7 +222,10 @@ sub seq_params {
  -write_files <dir> 
                : Directory for writing individual files for input sequences.
  -strict       : Create sequence objects in strict mode (default = nostrict).
- 
+ -wait <int>   : Amount of seconds to wait before timing out when reading in sequence
+                 data. Only an issue when using seqtools.pl within an second script 
+                 such as in blast_seq.pl. (Set it to 60 or more; default = 3sec).
+
 QQ_PARAMS_QQ
 }
 
@@ -244,7 +251,7 @@ sub init_seq {
 #---------------
     ($usage_fref, @opts) = @_;
 
-    &GetOptions('last!', 'mon!', 'h!', 'debug!', 'incl=s', 'excl=s', 
+    &GetOptions('last!', 'mon!', 'h!', 'debug!', 'incl=s', 'excl=s', 'wait=s', 
 		'seq=s', 'nucl!', 'prot!', 'strict!', 'out=s', 'eid!', 'eseq!', 
 		'exact!', 'outfmt=s', 'err=s', 'eg!', 'write_files=s', 'tag=s',
 		@opts);
@@ -450,6 +457,7 @@ sub get_seq_objs {
 	       -FILT_FUNC  => ($opt_incl or $opt_excl) ? \&seq_filter : undef,
 	       -EXEC_FUNC  => $func_ref || undef,
 	       -SAVE_ARRAY => \@seqs,
+	       -WAIT       => $opt_wait,
 	       );
     
     _parse_seqs();

@@ -6,8 +6,7 @@ BEGIN {
         ###         to the directory right above Bio/ in order
         ###         for perl to be able to locate the .pm files. 
 
-#	$INSTALL_PATH = "/home/users/sac/perl/lib";
-	$INSTALL_PATH = "/home/steve/projects/bioperl/bioperl-0.04-bug/bioperl-live";
+	$INSTALL_PATH = "/home/steve/perl/bioperl";
 
         ###
         ####
@@ -84,6 +83,7 @@ BEGIN {
 #      * Removed default values for the -prog and -db command-line parameters.
 #        These are no longer optional when running Blasts. Removed the -dna option
 #        which was just a convenience for setting a default $opt_prog.
+#
 #   4 Sep  4 1998, sac:
 #      * Fixed support for the -filt_func option for supplying a custom
 #        filtering function via the command-line that is eval-ed to screen 
@@ -140,6 +140,8 @@ $opt_html      = 0;
 $opt_stream    = 0;
 $opt_share     = 1;
 $opt_desc      = 0;  # do not include sbjct descriptions in table output.
+$opt_wait      = undef;  # Amount of time to wait during read() before timing out.
+                         # (you should need to alter this, but it's here just in case.)
 
 # Run blast opts:
 $opt_prog   = '';    # Blast flavor: blastp, blastn, tblastn, blastx, or tblastx
@@ -272,28 +274,26 @@ sub blast_run_params {
 
 QQ_RUN_QQ
 
-&_print_dbs();
+print &_list_dbs();
 
 }
 
 #--------------
-sub _print_dbs {
+sub _list_dbs {
 #--------------
     my $dbn = join(', ', $Blast->db_remote('n'));
     my $dbp = join(', ', $Blast->db_remote('p'));
 
-print STDERR << "BLASTDB";
-  Available Remote Databases (Peptide)
------------------------------------
-$dbp
-
-Available Remote Databases (Nucleotide)
---------------------------------------
-$dbn
-
-BLASTDB
-
-}
+    sprintf "%s\n%s\n%s\n\n%s\n%s\n",
+    '  Available Remote Databases (Peptide)',
+    '-----------------------------------',
+    $dbp,
+    
+    'Available Remote Databases (Nucleotide)',
+    '--------------------------------------',
+    $dbn;
+      
+  }
 
 
 #--------------------
@@ -330,6 +330,9 @@ sub blast_parse_params {
                Type 3 demonstrates a custom table.
  -desc       : Include sbjct descriptions in table output (default: do not include).
  -best       : Only process the best hit for each Blast report.
+ -wait <int> : Amount of seconds to wait before timing out when reading in Blast
+               reports. Shouldn't have to worry about this but it's provided
+               just in case (default = 3sec).
 
 
 QQ_PARSE_QQ
@@ -349,7 +352,7 @@ sub init_blast {
 		'gap!', 'word=s', 'mat=s', 'filt=s', 'email=s', 'expect=s',
 		'share!', 'stream!', 'tile_hsps!', 'residues!', 'desc!',
 		'compress!', 'eg!', 'rem!', 'loc!', 'check_all!', 'min_len=s',
-		'filt_func=s', 'exponent!', 'params!',
+		'filt_func=s', 'exponent!', 'params!', 'wait=s',
 		@opts);
     
 
@@ -458,6 +461,7 @@ sub set_blast_params {
 		-exec_func  => '',
 		-save_array => '',   # Not used if exec_func is defined
                                      # (experimental).
+  	        -wait       => $opt_wait,
 	       );
 
     &print_blast_params if $opt_params;
@@ -499,14 +503,15 @@ sub create_blast {
 
     if(scalar $blastParam{'-run'} and not ($opt_prog and $opt_db)) {
       print STDERR "\nBlast program and/or database not defined.\n";
+      my $msg = '';
       if(not $opt_prog)  {
-	print STDERR "Please defined a -prog parameter ".
+	$msg = sprintf "Please defined a -prog parameter ".
 	   "of blastp|blastn|tblastn|blastx|tblastx\n\n";
       }
       if(not $opt_db) {
-	&_print_dbs();
+	$msg .= &_list_dbs();
       }
-      exit (1);
+      die $msg;
     }
 
     eval { 
