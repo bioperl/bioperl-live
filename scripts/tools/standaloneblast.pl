@@ -20,8 +20,7 @@
 #
 #
 #  We also need to select the database to be used
-#my $amino_database = 'swissprot';
-my $amino_database = "$ENV{BLASTDIR}/data/swissprot";
+my $amino_database = "$ENV{BLASTDIR}data/swissprot";
 
 # 
 #  We are going to demonstrate 3 possible applications of StandAloneBlast.pm:
