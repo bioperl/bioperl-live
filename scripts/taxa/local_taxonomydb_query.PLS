@@ -7,10 +7,11 @@ use Getopt::Long;
 my $verbose = 0;
 my $plain   = 0;
 my ($nodesfile,$namesfile);
-
+my $idx_dir = '/tmp/idx';
 GetOptions('v|verbose' => \$verbose,
 	   'nodes:s'   => \$nodesfile,
 	   'names:s'   => \$namesfile,
+	   'idx:s'     => \$idx_dir,
 	   'h|help'    => sub{ exec('perldoc',$0);
 				exit(0)
 				} );
@@ -19,13 +20,19 @@ unless( @ARGV || $nodesfile || $namesfile ) {
     exec('perldoc',$0);
     exit(0);
 }
+mkdir($idx_dir) unless -d $idx_dir;
+
 my $db = new Bio::DB::Taxonomy(-source    => 'flatfile',
 			       -nodesfile => $nodesfile,
 			       -namesfile => $namesfile,
-			       -directory => '/tmp/idx');
+			       -directory => $idx_dir);
 foreach my $sp ( @ARGV ) {
-    my $id = $db->get_taxonid($sp);
-    print "id is $id for $sp\n";
+    my $node = $db->get_Taxonomy_Node(-name => $sp);
+    if( defined $node ) {
+	print "classification is ", join(" ", $node->classification),"\n"; 
+    } else {
+	warn("no node found for query $sp");
+    }
 }
 
 =head1 NAME
