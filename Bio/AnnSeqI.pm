@@ -38,6 +38,8 @@ Bio::AnnSeqI - Abstract Interface of Annotated Sequence
 
     $seq      = $annseq->seq(); # actual sequence
 
+    $ann      = $annseq->annotation(); # annotation object
+
 =head1 DESCRIPTION
 
 AnnSeqI is the abstract interface of annotated Sequence. These methods

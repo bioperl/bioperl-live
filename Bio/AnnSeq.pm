@@ -16,7 +16,7 @@ Bio::AnnSeq - Annotated Sequence
 
 =head1 SYNOPSIS
 
-    $stream = Bio::AnnSeqIO->new(-file 'my.embl',-fmt => 'EMBL')
+    $stream = Bio::AnnSeqIO->new(-file 'my.embl',-format => 'EMBL')
 
     foreach $annseq ( $stream->next_annseq() ) {
 	foreach $feat ( $annseq->all_SeqFeatures() ) {
@@ -73,20 +73,181 @@ use strict;
 # Object preamble - inheriets from Bio::Root::Object
 
 use Bio::Root::Object;
+use Bio::Annotation;
+use Bio::Seq;
 
-
-use AutoLoader;
 @ISA = qw(Bio::Root::Object Exporter);
-@EXPORT_OK = qw();
 # new() is inherited from Bio::Root::Object
 
 # _initialize is where the heavy stuff will happen when new is called
 
 sub _initialize {
   my($self,@args) = @_;
-
+  my($ann);
   my $make = $self->SUPER::_initialize;
+  $self->{'_as_feat'} = [];
+  $ann = new Bio::Annotation;
+  $self->annotation($ann);
 
 # set stuff in self from @args
  return $make; # success - we hope!
 }
+
+=head2 seq
+
+ Title   : seq
+ Usage   : $obj->seq($newval)
+ Function: 
+ Example : 
+ Returns : value of seq
+ Args    : newvalue (optional)
+
+
+=cut
+
+sub seq{
+   my ($obj,$value) = @_;
+   if( defined $value) {
+      $obj->{'seq'} = $value;
+    }
+    return $obj->{'seq'};
+
+}
+
+=head2 annotation
+
+ Title   : annotation
+ Usage   : $obj->annotation($newval)
+ Function: 
+ Example : 
+ Returns : value of annotation
+ Args    : newvalue (optional)
+
+
+=cut
+
+sub annotation{
+   my ($obj,$value) = @_;
+   if( defined $value) {
+      $obj->{'annotation'} = $value;
+    }
+    return $obj->{'annotation'};
+
+}
+
+=head2 add_SeqFeature
+
+ Title   : add_SeqFeature
+ Usage   : $annseq->add_SeqFeature($feat);
+ Function: Adds t
+ Example :
+ Returns : 
+ Args    :
+
+
+=cut
+
+sub add_SeqFeature{
+   my ($self,$feat) = @_;
+   my ($fseq,$aseq);
+
+   if( !$feat->isa("Bio::SeqFeatureI") ) {
+       $self->warn("$feat is not a SeqFeatureI and that's what we expect...");
+   }
+
+   if( $feat->can("seq") ) {
+       $fseq = $feat->seq;
+       $aseq = $self->seq;
+
+       if( defined $aseq ) {
+	   if( defined $fseq ) {
+	       if( $aseq ne $fseq ) {
+		   $self->warn("$feat has an attached sequence which is not in this annseq. I worry about this");
+	       }
+	   } else {
+	       if( $feat->can("attach_seq") ) {
+		   # attach it 
+		   $fseq->attach_seq($aseq);
+	       }
+	   }
+       } # end of if aseq
+   } # end of if the feat can seq
+
+   push(@{$self->{'_as_feat'}},$feat);
+       
+}
+
+=head2 top_SeqFeatures
+
+ Title   : top_SeqFeatures
+ Usage   :
+ Function:
+ Example :
+ Returns : 
+ Args    :
+
+
+=cut
+
+sub top_SeqFeatures{
+   my ($self) = @_;
+
+   return @{$self->{'_as_feat'}};
+}
+
+=head2 all_SeqFeatures
+
+ Title   : all_SeqFeatures
+ Usage   :
+ Function:
+ Example :
+ Returns : 
+ Args    :
+
+
+=cut
+
+sub all_SeqFeatures{
+   my ($self) = @_;
+   my (@array);
+   foreach my $feat ( $self->top_SeqFeatures() ){
+       push(@array,$feat);
+       &_retrieve_subSeqFeature(\@array,$feat);
+   }
+
+   return @array;
+}
+
+
+sub _retrieve_subSeqFeature {
+    my ($arrayref,$feat) = @_;
+
+    foreach my $sub ( $feat->sub_SeqFeature() ) {
+	push(@$arrayref,$sub);
+	&_retrieve_subSeqFeature($arrayref,$sub);
+    }
+
+}
+=head2 fetch_SeqFeatures
+
+ Title   : fetch_SeqFeatures
+ Usage   :
+ Function:
+ Example :
+ Returns : 
+ Args    :
+
+
+=cut
+
+sub fetch_SeqFeatures{
+   my ($self,@args) = @_;
+
+   $self->throw("Not implemented yet");
+}
+
+
+
+
+
+

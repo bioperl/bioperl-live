@@ -106,7 +106,7 @@ sub _strong {
 
 # returns true if strands are equal or either is zero
 sub _weak {
-  my ($r1, $f2) = @_;
+  my ($r1, $r2) = @_;
   my ($s1, $s2) = ($r1->strand(), $r2->strand());
 
   return $s1 == 0 or $s2 == 0 or
@@ -327,6 +327,10 @@ sub union {
                    map( { $_->end()   } @ranges);
 
   my $start = shift @start;
+  if( !defined $start ) {
+      $start = shift @start;
+  }
+
   my $end = pop @end;
   
   return ($start, $end, 0);
