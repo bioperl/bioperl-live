@@ -68,20 +68,24 @@ if( $informat =~ /nexus|phylip|clustal|maf|stockholm|bl2seq|msf/ ||
 
 if( $msa ) {
     eval {
-	$in = new Bio::AlignIO(-format => $informat, -file => $input);
+	if( defined $input ) {
+	    $in = new Bio::AlignIO(-format => $informat, -file => $input);
+	} else {
+	    $in = new Bio::AlignIO(-format => $informat, -fh => \*ARGV);
+	}
     };
     if( $@ ) {
 	die("Unknown MSA format to bioperl $informat\n");
     }
     eval {
-	   if( $output ) {
-	       $out = new Bio::AlignIO(-format => $outformat,
-				       -file => ">$output", @extra);
-	   } else {
-	       # default to STDOUT for output
-	       $out = new Bio::AlignIO(-format => $outformat,@extra);
-	   }
-       };
+	if( $output ) {
+	    $out = new Bio::AlignIO(-format => $outformat,
+				    -file => ">$output", @extra);
+	} else {
+	    # default to STDOUT for output
+	    $out = new Bio::AlignIO(-format => $outformat,@extra);
+	}
+    };
     if( $@ ) {
 	die("Unknown MSA format to bioperl $outformat\n");
     }
@@ -89,7 +93,11 @@ if( $msa ) {
 
 } else {
     eval {
-	$in = new Bio::SeqIO(-format => $informat, -file => $input);
+	if( defined $input ) {
+	    $in = new Bio::SeqIO(-format => $informat, -file => $input);
+	} else { 
+	    $in = new Bio::SeqIO(-format => $informat, -fh => \*ARGV);
+	}
     };
     if( $@ ) {
 	if( $@ =~ /Could not open/ ) {
@@ -101,7 +109,7 @@ if( $msa ) {
     eval {
 	   if( $output ) {
 	       $out = new Bio::SeqIO(-format => $outformat,
-				       -file => ">$output");
+				     -file => ">$output");
 	   } else {
 	       # default to STDOUT for output
 	       $out = new Bio::SeqIO(-format => $outformat);
