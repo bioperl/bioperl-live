@@ -74,17 +74,14 @@ use vars qw { @ISA };
 =head2 new
 
  Title   : new
- Usage   : my $seqHandler = Bio::SeqIO::game::seqHandler->new
-             ($seq, $ann, $comp, $map, $src )
+ Usage   : my $seqHandler = Bio::SeqIO::game::seqHandler->new($seq, $ann, $comp, $map, $src )
  Function: constructor method to create a sequence handler
  Returns : a sequence handler object
  Args    : $seq  -- an XML sequence element
            $ann  -- a ref. to a list of <annotation> elements
-           $comp -- a ref. to a list of <computational_analysis> 
-                    elements (not used yet)
+           $comp -- a ref. to a list of <computational_analysis> elements (not used yet)
            $map  -- a <map_position> element
-           $src  -- a flag to indicate that the sequence 
-                    already has a source feature
+           $src  -- a flag to indicate that the sequence already has a source feature
 
 =cut
 
@@ -110,13 +107,11 @@ sub new {
 
  Title   : convert
  Usage   : @seqs = $seqHandler->convert
- Function: converts the main XML sequence element and associated 
-           annotations to Bio::
- Returns : a ref. to a an array containing the sequence object 
-           and a ref. to a list of features
+ Function: converts the main XML sequence element and associated annotations to Bio::
+ Returns : a ref. to a an array containing the sequence object and a ref. to a list of  features
  Args    : none
- Note    : The features and sequence are kept apart to facilitate 
-           downstream filtering of features 
+
+ Note    : The features and sequence are kept apart to facilitate downstream filtering of features 
 
 =cut
 
@@ -148,9 +143,9 @@ sub convert {
 
  Title   : _order_feats
  Usage   : $self->_order_feats( $self->{seq_h} )
- Function: an internal method to ensure the source feature comes first 
- Returns : a ref. to a an array containing the sequence object and 
-           a ref. to a list of  features 
+ Function: an internal method to ensure the source feature comes first
+           and keep gene, mRNA and CDS features together 
+ Returns : a ref. to an array containing the sequence object and a ref. to a list of  features 
  Args    : a ref. to a hash of sequences
 
 =cut
@@ -161,11 +156,15 @@ sub _order_feats {
     my $id  = $seq->id;
     my $ann = $self->{ann_l};
 
-    # make sure source comes first
-    my @src = grep { $_->primary_tag =~ /source|origin|\bregion\b/ } @$ann;
-    my @other = grep { $_->primary_tag !~ /source|origin|\bregion\b/ } @$ann;
-
-    return [$seq, [@src, @other]];
+    # make sure source(s) come first
+    my @src   = grep { $_->primary_tag =~ /source|origin|\bregion\b/ } @$ann;
+    # preserve gene->mRNA->CDS of ncRNA->gene->transcript order
+    my @genes = grep { $_->primary_tag =~ /gene|CDS|[a-z]+RNA|transcript/ } @$ann;
+    my @other = sort { $a->start <=> $b->start || $b->end   <=> $a->end  } 
+                grep { $_->primary_tag !~ /source|origin|\bregion\b/ } 
+                grep { $_->primary_tag !~ /gene|mRNA|CDS/ } @$ann;
+    
+    return [$seq, [@src, @genes, @other]];
 }
 
 =head2 _add_seq
@@ -259,18 +258,18 @@ sub _add_seq {
     if ( defined($seq->species) ) {
 	$tags->{organism} = [$seq->species->binomial];
     }
-    elsif ($seq eq $self->{main_seq}) {
-	$self->warn("The source organism for this sequence was\n" .
-		    "not specified.  I will guess Drosophila melanogaster.\n" .
-		    "Otherwise, add <organism>Genus species</organism>\n" .
-		    "to the main sequence element");
-	my @class = qw/ Eukaryota Metazoa Arthropoda Insecta Pterygota
-	                Neoptera Endopterygota Diptera Brachycera 
-	                Muscomorpha Ephydroidea Drosophilidae Drosophila melanogaster/;
-	my $species = Bio::Species->new( -classification => [ reverse @class ],
-					 -common_name    => 'fruit fly' );
-	$seq->species( $species );
-    }
+#    elsif ($seq eq $self->{main_seq}) {
+#	$self->warn("The source organism for this sequence was\n" .
+#		    "not specified.  I will guess Drosophila melanogaster.\n" .
+#		    "Otherwise, add <organism>Genus species</organism>\n" .
+#		    "to the main sequence element");
+#	my @class = qw/ Eukaryota Metazoa Arthropoda Insecta Pterygota
+#	                Neoptera Endopterygota Diptera Brachycera 
+#	                Muscomorpha Ephydroidea Drosophilidae Drosophila melanogaster/;
+#	my $species = Bio::Species->new( -classification => [ reverse @class ],
+#					 -common_name    => 'fruit fly' );
+#	$seq->species( $species );
+#    }
     
     # convert GAME to bioperl molecule types
     my $alphabet = $el->{Attributes}->{type};
@@ -434,6 +433,11 @@ sub _annotation {
 
     }
 	
+    # add a gene annotation if required
+    unless ( $featHandler->has_gene || $type ne 'gene' ) {
+	$featHandler->has_gene( $el, $gname, $id )
+    }
+
     if ( $tags->{symbol} ) {
         if ( !$tags->{gene} ) {
 	   $tags->{gene} = $tags->{symbol};

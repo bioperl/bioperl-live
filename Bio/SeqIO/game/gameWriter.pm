@@ -17,11 +17,22 @@ Bio::SeqIO::game::gameWriter -- a class for writing game-XML
 
 =head1 SYNOPSIS
 
-# insert sample code here
+use Bio::SeqIO;
+
+
+my $in  = Bio::SeqIO->new( -format => 'genbank', -file => 'myfile.gbk' );
+my $out = Bio::SeqIO->new( -format => 'game',    -file => 'myfile.xml' );
+
+# get a sequence object
+my $seq = $in->next_seq;
+
+#write it in GAME format
+$out->write_seq($seq);
 
 =head1 DESCRIPTION
 
-# Description goes here
+Bio::SeqIO::game::gameWriter writes GAME-XML (v. 1.2) that is readable by Apollo.  
+It is best not used directly.  It is accessed via Bio::SeqIO.
 
 =head1 FEEDBACK
 
@@ -103,10 +114,12 @@ sub write_to_game {
     # save the flat features, just in case
     $self->{feats} = [ $seq->remove_SeqFeatures ];
 
-    # intercept snRNAs and transposons with contained genes
+    # intercept non-coding RNAs and transposons with contained genes
+    # GAME-XML has these features as top level annotations which contain
+    # gene elements
     my @gene_containers = ();
     for ( @{$self->{feats}} ) {
-	if ( $_->primary_tag =~ /snRNA|repeat_region|transpos/ && 
+	if ( $_->primary_tag =~ /[^m]+RNA|repeat_region|transpos/ && 
              $_->has_tag('gene') ) {
 	    my @genes = $_->get_tag_values('gene');
 	    my ($min, $max) = (10000000000000,-10000000000000);
@@ -134,16 +147,15 @@ sub write_to_game {
     my $uf = Bio::SeqFeature::Tools::Unflattener->new;
     $uf->unflatten_seq( -seq => $seq, use_magic => 1 );
 
+    #my $treemaker = Bio::SeqIO->new( -format => 'asciitree' );
+    #$treemaker->write_seq($seq);
+
     # rearrange snRNA and transposon hierarchies
     $self->_rearrange($seq, @gene_containers);
 
-    # explore nested features
-    #for ( $seq->get_SeqFeatures ) {
-    #	traverse($_);
-    #}
-
     my $atts  = {};
     my $xml = '';
+    
     # write the XML to a string
     my $xml_handle = IO::String->new($xml);
     my $writer = XML::Writer->new(OUTPUT      => $xml_handle,
@@ -174,7 +186,6 @@ sub write_to_game {
     my $seqname = $seq->accession unless $seq->accession eq 'unknown';
     $seqname ||= $seq->display_name;
     $atts->{name} ||= $seqname;
-    $seq->display_name;
     $self->_seq($seq, $atts);
 
     # make a map_position element
@@ -386,15 +397,9 @@ sub _write_gene {
 		    ($sn) = $cds->get_tag_values('standard_name');
 		}
 
-		# catch missing protein ids
-		if ( $cds->has_tag('protein_id' ) ) {
-		    if ( !$cds->get_tag_values('protein_id') ) {
-			$cds->remove_tag('protein_id');
-			if ( $cds->has_tag('product') ) {
-			    $cds->add_tag_value($cds->get_tag_values('product'));
-			}
-		    }
-		}
+		# the protein needs a name
+		my $psn = $self->protein_id($cds, $sn);
+                $self->{curr_pname} = $psn;
 
 		# define the translation offset
 		my ($c_start, $c_end);
@@ -433,10 +438,7 @@ sub _write_gene {
 		my ($aa) = $cds->get_tag_values('translation')
 		    if $cds->has_tag('translation');
 		
-		if ( $aa ) {
-		    $proteins++;
-		    my $psn = $sn;
-		    $psn =~ s/-R/-P/;
+		if ( $aa && $psn ) {
 		    $cds->remove_tag('translation');
 		    my %add_seq = ();
 		    $add_seq{residues} = $aa;
@@ -454,15 +456,17 @@ sub _write_gene {
 			my $start = $cds->start;
 			my $end   = $cds->end;
 			my $str   = $cds->strand;
+			my $acc   = $self->{seq}->accession || $self->{seq}->display_id;
 			$str = $str < 0 ? '[-]' : '';
-			$add_seq{desc}  = "translation from_gene[$id] " .
-			    "cds_boundaries:(" . $self->{seq}->display_id . 
+			$add_seq{desc}  = "translation from_gene[$gid] " .
+			    "cds_boundaries:(" . $acc . 
 			    ":$start..$end$str) transcript_info:[$name]";
 		    }
 		    $self->{add_seqs} ||= [];
 		    push @{$self->{add_seqs}}, \%add_seq;
 		}
 	    }
+
 	    
 	    $writer->startTag('feature_set', id => $name);
 	    $self->_element('name', $name);
@@ -497,13 +501,14 @@ sub _write_gene {
 		    $self->_feature_span($ename, $unit);
 		}
 		elsif ( $unit->primary_tag eq 'start_codon' ) {
-		    $self->_feature_span(($sn || $gid), $unit, 1);
+		    $self->_feature_span(($sn || $gid), $unit, $self->{curr_pname});
 		}
 		else {
 		    my $uname = $unit->primary_tag . ":$id";
 		    $self->_feature_span($uname, $unit);
 		}
 	    }
+	    $self->{curr_pname} = '';
 	    $writer->endTag('feature_set');
 	}
 	
@@ -543,6 +548,7 @@ sub _write_gene {
     }
     $self->{other_stuff} = [];
 }
+
 
 =head2 _check_cds
 
@@ -586,29 +592,6 @@ sub _check_cds {
     }
 
 }
-
-################### DEBUGGING ###########################################
-# explore the nested gene containment hierarchy
-sub traverse {
-    my $feat = shift;
-    warn $feat->primary_tag, "\n";
-    for ($feat->get_SeqFeatures) {
-        warn "\t", $_->primary_tag, ' ', sname($_), "\n";
-	for my $s ($_->get_SeqFeatures) {
-	    warn "\t\t", $s->primary_tag, ' ', sname($s), "\n";
-	    for my $ss($s->get_SeqFeatures) {
-		warn "\t\t\t", $ss->primary_tag, ' ', sname($ss), "\n";
-	    }
-	}
-    }
-}
-
-sub sname {
-    my $f = shift;
-    return '' unless $f->has_tag('standard_name');
-    $f->get_tag_values('standard_name');
-}
-##########################################################################
 
 =head2 _feature_set_tags
 
@@ -794,13 +777,12 @@ sub _xref {
 =cut
 
 sub _feature_span {
-    my ($self, $name, $feat, $p) = @_;
+    my ($self, $name, $feat, $pname) = @_;
     my $type = $feat->primary_tag;
     my $writer = $self->{writer};
     my %atts = ( id => $name );
     
-    if ( $p ) {
-	my $pname = $name;
+    if ( $pname ) {
 	$pname =~ s/-R/-P/;
 	$atts{produces_seq} = $pname;
     }
@@ -825,12 +807,15 @@ sub _feature_span {
 sub _seq_relationship {
     my ($self, $type, $loc) = @_;
     my $writer = $self->{'writer'};
+    my $id = $self->{seq}->accession;
+    if ( $id eq 'unknown' ) {
+	$id = $self->{seq}->display_name;
+    }
     
     $writer->startTag(
 		      'seq_relationship',
 		      type => $type,
-		      seq  => ($self->{seq}->accession || 
-			       $self->{seq}->display_id)
+		      seq  => $id
 		     );
     $self->_span($loc);
     $writer->endTag('seq_relationship');
@@ -840,8 +825,13 @@ sub _seq_relationship {
 
  Title   : _element
  Usage   : $self->_element($name, $chars, $atts)
- Function: An internal method to generate 'generic' XML elements
- Example : $self->_element('foo', 'bar', { 'baz' => 1 });
+ Function: an internal method to generate 'generic' XML elements
+ Example : 
+ my $name = 'foo';
+ my $content = 'bar';
+ my $attributes = { baz => 1 }; 
+ # print the element
+ $self->_element($name, $content, $attributes);
  Returns : nothing 
  Args    : the element name and content plus a ref to an attribute hash
 
@@ -928,7 +918,12 @@ sub _seq {
     $writer->startTag(@seq);
 
     for my $k ( keys %{$atts} ) {
-	$self->_element($k, $atts->{$k});
+	if ( $k =~ /xref/ ) {
+	    $self->_xref($atts->{$k});
+	}
+	else {
+	    $self->_element($k, $atts->{$k});
+	}    
     }
     
     # add leading spaces and line breaks for 

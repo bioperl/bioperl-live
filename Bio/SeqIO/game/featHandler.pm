@@ -64,6 +64,7 @@ package Bio::SeqIO::game::featHandler;
 use Bio::SeqIO::game::gameSubs;
 use Bio::SeqFeature::Generic;
 use Bio::Location::Split;
+use Data::Dumper;
 use strict;
 
 use vars qw { @ISA };                                                                                
@@ -73,8 +74,7 @@ use vars qw { @ISA };
 =head2 new
 
  Title   : new
- Usage   : my $featHandler = Bio::SeqIO::game::featHandler->new
-    ($seq, $seq_h, $ann_l)
+ Usage   : my $featHandler = Bio::SeqIO::game::featHandler->new($seq, $seq_h, $ann_l)
  Function: creates an object to deal with sequence features 
  Returns : a handler object
  Args    : $seq   -- a Bio::SeqI compliant object
@@ -88,8 +88,8 @@ sub new {
     my ($caller, $seq, $seq_h, $ann_l  ) = @_;
     my $class = ref($caller) || $caller;
 
-    my $self = bless ({
-        seq           => $seq,
+    my $self = bless ({                                                                             
+        seq           => $seq,                                                                           
         curr_feats    => [],
 	curr_coords   => [],
 	seq_h         => $seq_h,
@@ -140,6 +140,11 @@ sub add_source {
 sub has_gene {
     my ($self, $gene, $gname, $id) = @_;
     
+    # use name preferentially over id. We can't edit IDs in Apollo
+    # AFAIK, and this will create an orphan CDS for newly created 
+    # transcipts -- I think this needs more work
+    #$id = $gname if $id && $gname;
+
     unless ( $gene ) {
 	if ( defined $self->{curr_gene} ) {
 	    return $self->{curr_gene};
@@ -152,7 +157,7 @@ sub has_gene {
         if ( $id && !$self->{curr_ltag} ) {
 	    $self->{curr_ltag} = $id;
 	}
-	if ( $gname && $gname ne $id && !$self->{curr_gname} ) {
+	if ( $gname && !$self->{curr_gname} ) {
 	    $self->{curr_gname} = $gname;
 	}
 	    
@@ -222,8 +227,7 @@ sub _has_CDS {
 
  Title   : add_annotation
  Usage   : $featHandler->add_annotation($seq, $type, $id, $tags, $feats)
- Function: converts a containment hierarchy into an ordered list 
-           of flat features
+ Function: converts a containment hierarchy into an ordered list of flat features
  Returns : nothing
  Args    : $seq   -- a Bio::SeqI compliant object
            $type  -- the annotation type
@@ -247,16 +251,15 @@ sub add_annotation {
 
     if ( $type eq 'gene' ) {
 	$feat = $self->has_gene;
-	$feat->add_tag_value( standard_name => $id );
-	$feat->add_tag_value( gene => ($self->{curr_gname} || $id) );
-        
+	$feat->add_tag_value( gene => ($self->{curr_gname} || $id) )
+	    unless $feat->has_tag('gene');
     }
     else {
 	$feat = Bio::SeqFeature::Generic->new;
 	$feat->primary_tag($type);
 	my $gene = $self->has_gene;
-	$gene->add_tag_value( standard_name => $id );
 	$gene->add_tag_value( gene => ($self->{curr_gname} || $id) );
+	$feat->add_tag_value( gene => ($self->{curr_gname} || $id) );
     }
     for ( keys %{$tags} ) {
 	# or else add simple tag/value pairs
@@ -290,7 +293,7 @@ sub add_annotation {
 	$gene->start( $self->{curr_coords}->[0] );
         $gene->end( $self->{curr_coords}->[-1] );
 	push @annotations, $gene;
-	$self->{curr_gene} = {};
+	$self->{curr_gene} = '';
     }
 
     # add the subfeatures
@@ -312,6 +315,7 @@ sub add_annotation {
     }
 
     # garbage collection
+    $self->{curr_gene}   = '';
     $self->{curr_ltag}   = '';
     $self->{curr_gname}  = '';
     $self->{curr_coords} = [];
@@ -334,11 +338,14 @@ sub add_annotation {
            $tags  -- ref. to a hash of tag/value attributes
            $feats -- ref to an array of Bio::SeqFeature::Generic objects
 
-
 =cut
 
 sub _add_generic_annotation {
     my ($self, $seq, $type, $id, $tags, $feats) = @_;
+    
+    for ( @$feats ) {
+	$_->primary_tag($type);
+    }
 
     push @{$self->{ann_l}}, @$feats;
 
@@ -373,7 +380,6 @@ sub feature_set {
     $self->{curr_subfeats} = [];
     $self->{curr_strand}   = 0;
     my @feats = ();
-    my $generic;
     my $tags = $self->{curr_tags};
     my $sname = $set->{_name}->{Characters} ||
         $set->{Attributes}->{id};
@@ -388,13 +394,14 @@ sub feature_set {
 	$self->_build_feature_set($set, 1);
 	my ($feat) = @{$self->{curr_subfeats}};
 	$feat->primary_tag('transcript') if $feat->primary_tag eq 'exon';
-
+	if ( $feat->primary_tag eq 'transcript' ) {
+	    $feat->add_tag_value( gene => ($gname || $id) );
+	}
 	for my $tag ( keys %{$tags} ) {
 	    for my $val ( @{$tags->{$tag}} ) {
 		$feat->add_tag_value( $tag => $val ) if $val;
 	    }
 	}
-	$feat->add_tag_value( gene => ($gname || $id) );
 	@feats = ($feat);
     }
     else {
@@ -416,47 +423,53 @@ sub feature_set {
 	my $feat = $self->{curr_feat};
 	$self->_build_feature_set($set);
 	
-	if ( $self->{curr_ltag} || $gname ) {
-	    $self->{curr_feat}->add_tag_value( gene => ($gname || $self->{curr_ltag}) );
-	}
-	
+	my $gene = $gname || $self->{curr_ltag};
+	$feat->add_tag_value( gene => $gene );
+
 	# if there is an annotated protein product
 	my $cds = $self->_has_CDS( $feat );
 
-	my $gene = $gname || $self->{curr_ltag};
-	$feat->add_tag_value( gene => $gene );
-	
 	if ( $cds ) {
-	    my $gene = $gname || $self->{curr_ltag};
 	    # we really just want one value here
 	    $cds->remove_tag('standard_name') if $cds->has_tag('standard_name');
 	    $cds->add_tag_value( standard_name => $sname );
 	    $cds->remove_tag('gene') if $cds->has_tag('gene');
 	    $cds->add_tag_value( gene => $gene );
 	    
-	    # catch missing/empty protein ids
-            if ( $cds->has_tag('protein_id' )) {
-		if ( !$cds->get_tag_values('protein_id') ) {
-		    $cds->remove_tag('protein_id');
-		    if ( $cds->has_tag('product') ) {
-			$cds->add_tag_value($cds->get_tag_values('product'));
-		    }
-		}
+            # catch empty protein ids
+            if ( $cds->has_tag('protein_id' ) && !$cds->get_tag_values('protein_id') ) {
+		my $pid = $self->protein_id($cds, $sname);
+		$cds->remove_tag('protein_id');
+		$cds->add_tag_value( protein_id => $pid );
 	    }
 
 	    # make sure other subfeats are tied to the transcript
-            # via a 'standard_name' qualifier and the gene via a 
-	    # 'gene' qualifier
+            # via a 'standard_name' qualifier and the gene via a 'gene' qualifier
 	    my @subfeats = @{$self->{curr_subfeats}};
             for my $sf ( @ subfeats ) {
-                $sf->add_tag_value( standard_name => $sname );
-                $sf->add_tag_value( gene => $gene );
+                $sf->add_tag_value( standard_name => $sname )
+		    unless $sf->has_tag('standard_name');
+                $sf->add_tag_value( gene => $gene )
+		    unless $sf->has_tag('gene');
             }
 	    
-	    $feat->add_tag_value( standard_name => $sname );
+	    $feat->add_tag_value( standard_name => $sname )
+		unless $feat->has_tag('standard_name');
+	    $feat->add_tag_value( gene => $gene )
+		unless $feat->has_tag('gene');
 
-            @feats = sort { $a->start <=> $b->start } ($cds, @subfeats);
-	    unshift @feats, $feat;
+            # if the mRNA and CDS are the same length, the mRNA is redundant
+            # lose the mRNA, steal its tags and give them to the CDS
+            if ( $feat->length == $cds->length ) {
+		for my $t ( $feat->all_tags ) {
+		    next if $t eq 'gene' && $cds->has_tag('gene');
+		    $cds->add_tag_value( $t => $feat->get_tag_values($t) );
+		}
+		undef $feat;
+	    }
+
+	    @feats = sort { $a->start <=> $b->start } ($cds, @subfeats);
+	    unshift @feats, $feat if $feat;
 	}
 	else {
 	    if ( @{$self->{curr_loc}} > 1 ) {
@@ -474,12 +487,22 @@ sub feature_set {
 	    else {
 		$feat->location( $self->{curr_loc}->[0] );
 	    }	
-	    
+ 	    
+	    for ( keys %$tags ) {
+		# expunge duplicate gene attributes
+		next if /gene/ && $feat->has_tag('gene');
+		for my $v ( @{$tags->{$_}} ) {
+		    $feat->add_tag_value( $_ => $v );
+		}
+	    }
+
 	    # make sure other subfeats are tied to the transcript
 	    my @subfeats = @{$self->{curr_subfeats}};
 	    for my $sf ( @ subfeats ) {
-		$sf->add_tag_value( standard_name => $sname );
-		$sf->add_tag_value( gene => $gene );
+		$sf->add_tag_value( standard_name => $sname )
+		    unless $feat->has_tag('standard_name');
+		$sf->add_tag_value( gene => $gene )
+		    unless $feat->has_tag('gene');
 	    }
 
 	    @feats = ( $feat, @subfeats );
@@ -491,7 +514,7 @@ sub feature_set {
     $self->{curr_coords}->[0] ||= 1000000000000;
     $self->{curr_coords}->[1] ||= -1000000000000;
     for ( @feats ) {
-	if ( $self->{curr_coords}->[0] > $_->start ) {
+        if ( $self->{curr_coords}->[0] > $_->start ) {
 	    $self->{curr_coords}->[0] = $_->start;
 	}
 	if ( $self->{curr_coords}->[1] < $_->end ) {
@@ -508,15 +531,12 @@ sub feature_set {
 =head2 _build_feature_set
 
  Title   : _build_feature_set
- Usage   : $self->_build_feature_set($set, 1)
- Function: an internal method to process attributes and subfeats 
-           of a feature set
+ Usage   : $self->_build_feature_set($set, 1) # 1 flag means retain the exon as a subfeat
+ Function: an internal method to process attributes and subfeats of a feature set
  Returns : nothing
  Args    : $set -- a <feature_set> element
-           1    -- optional flag to retain exons as subfeats.  
-                   Otherwise, they will be converted to sublocations 
-                   of a parent CDS feature
-
+           1    -- optional flag to retain exons as subfeats.  Otherwise, they will
+                   be converted to sublocations of a parent CDS feature
 
 =cut
 
@@ -680,12 +700,11 @@ sub _add_CDS {
     my $peptide = $seq->display_id;
 
     # Can we count on the description format being consistent?
-    # Why is critical CDS info saved as unconstrained text not 
-    # specified in the DTD? 
-    # Anyone have a better idea?    
+    # Why is CDS coordinate info saved as description text not 
+    # specified in the DTD?  Anyone have a better idea?    
     my $desc = $seq->description;
-    $desc =~ s/,//g;
-    $desc =~ s/\]\)/\]\) /g;
+    $desc =~ s/,|\n//g;
+    $desc =~ s/\)(\w)/\) $1/g;
     my ($start, $stop) = ();
     
     if ( $desc =~ /cds_boundaries:.+?(\d+)\.\.(\d+)/ ) {
@@ -732,12 +751,22 @@ sub _add_CDS {
     }
 
     my $parent = $self->{curr_gname} || $self->{curr_ltag};
-    my $cds_tags = $tags; 
-    $tags = {};
     
-    #delete $feat->{_gsf_tag_hash};
-    for ( $feat->all_tags ) {
-	$feat->remove_tag($_);
+    # try not to steal too many mRNA qualifiers for the CDS
+    my $cds_tags = {};
+    for my $k ( keys %$tags ) {
+	if ( $k =~ /product|protein|translation|codon_start/ ) {
+	    $cds_tags->{$k} = $tags->{$k};
+	    delete $tags->{$k};
+	}
+    } 
+
+    for ( keys %$tags ) {
+	# expunge duplicate gene attributes
+	next if /gene/;
+	for my $v ( @{$tags->{$_}} ) {
+	    $feat->add_tag_value( $_ => $v );
+	}
     }    
 
     $cds_tags->{product_desc} = [$desc];

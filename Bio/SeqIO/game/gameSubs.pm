@@ -446,5 +446,41 @@ sub date {
     1;
 }
 
+
+=head2 protein_id
+
+ Title   : protein_id
+ Usage   : $pid = $self->protein_id($cds, $standard_name)
+ Function: a method to search for a protein name
+ Returns : a string
+ Args    : the CDS object plus the transcript\'s 'standard_name'
+
+=cut
+
+sub protein_id {
+    my ($self, $cds, $sn) = @_;
+    my $psn;
+    if ( $sn ) {
+        $psn = $sn;
+    }
+    elsif ( $cds->has_tag('protein_id') ) {
+        ($psn) = $cds->get_tag_values('protein_id');
+    }
+    elsif ( $cds->has_tag('product') ) {
+        ($psn) = $cds->get_tag_values('product');
+        $psn =~ s/.+?(\S+)$/$1/;
+    }
+    elsif ( $cds->has_tag('gene') ) {
+        ($psn) = $cds->get_tag_values('gene');
+    }
+    else {
+        $self->complain("Could not find an ID for the protein");
+        return '';
+    }
+
+    $psn =~ s/-R/-P/;
+    return $psn;
+}
+
 1;
 
