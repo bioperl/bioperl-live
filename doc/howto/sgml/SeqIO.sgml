@@ -51,7 +51,7 @@
  
 <section id="basics">
 <title>The basics</title>
-</para>
+<para>
 This section assumes you've never seen Bioperl before, perhaps you're a
 biologist trying to get some information about some sequences or
 you're some kind of IT expert interested in learning something about
@@ -61,6 +61,8 @@ some information from a file containing 1 or more sequences.
 <para>
 A piece of advice: always use the module Bio::SeqIO! Here's what the 
 first lines of your script might look like:
+</para>
+<para>
 <programlisting>
 #!/bin/perl
 
@@ -69,6 +71,8 @@ my $file = shift; # get the file name, somehow
 my $seqio_object = Bio::SeqIO->new(-file => $file);
 my $seq_object = $seqio_object->next_seq;
 </programlisting>
+</para>
+<para>
 Why use Bio::SeqIO? In part because SeqIO understands the many different
 sequence file formats and creates the proper Bioperl object for each format. Some
 formats, like "fasta", are minimal. The fasta format contains a
@@ -133,7 +137,9 @@ information, rather than worrying about how to get the information.
      Bioperl's SeqIO system understands lot of formats and can
 interconvert all of them.
 Here is a current listing of formats, as of version 1.4.
-	<table>
+</para>
+<para>	
+<table>
 	  <title>Formats</title>
 	  <tgroup cols="3">
 	    <thead>
@@ -291,6 +297,8 @@ the different file formats. Though we just said
 that the conversions are done automatically we offer this table that
 shows some common formats and their corresponding object types, just
 to satisfy the curious.
+</para>
+<para>
 	<table>
 	  <title>Formats and Object</title>
 	  <tgroup cols="2">
@@ -344,7 +352,9 @@ to satisfy the curious.
     <para>
     The simplest script for parsing sequence files is written out
 below. It prints out the accession number for each entry in the file.
-     <programlisting>
+</para>    
+<para>
+ <programlisting>
      # first, bring in the SeqIO module
 
      use Bio::SeqIO;
@@ -384,6 +394,8 @@ below. It prints out the accession number for each entry in the file.
      }
      exit;
      </programlisting>
+</para>
+<para>
     This script takes two arguments on the commandline, and input filename
 and the format of the input file. This is the basic way to access the data in a Genbank
 file. It is the same for fasta, swissprot, ace, and
@@ -399,6 +411,8 @@ memory first.  The null that is returned at the end of file/stream is
 important, as it allows you to wrap successive calls to next_seq in a 
 while loop. This code snippet would load up all the sequences in a EMBL 
 file into an array:
+</para>
+<para>
     <programlisting>
      use strict;
      use Bio::SeqIO;
@@ -447,7 +461,9 @@ file into an array:
 	all of the data contained in the SeqI object into the right places, with the 
 	correct labels, for any of the supported formats. Let's make this more concrete
 	by writing a universal format translator:
-	<programlisting>                         
+</para>	
+<para>
+<programlisting>                         
 	  use Bio::SeqIO;
 	  # get command-line arguments, or die with a usage statement
 	  my $usage = "x2y.pl infile infileformat outfile outfileformat\n";
@@ -501,11 +517,17 @@ as an argument to a function. In concert, SeqIO allows you to pass a GLOB'ed
 filehandle to it using the '-fh' parameter in place of the '-file' parameter.
 Here is a program that takes a stream of sequences in a given format from 
 STDIN, meaning it could be used like this:
-	<programlisting>
+</para>	
+<para>
+<programlisting>
      >cat myseqs.fa | all2y.pl fasta newseqs.gb genbank
 	</programlisting>
+</para>
+<para>
 	The code for all2y.pl is:
-	<programlisting>
+</para>	
+<para>
+<programlisting>
      use Bio::SeqIO;
      # get command-line arguments, or die with a usage statement
      my $usage = "all2y.pl informat outfile outfileformat\n";
@@ -531,11 +553,17 @@ STDIN, meaning it could be used like this:
 	Why use files at all? We can pipe STDIN to STDOUT, which could
 	allow us to plug this into some other pipeline, something
 	like:
-	<programlisting>
+	</para>	
+<para>
+<programlisting>
      >cat *.seq | in2out.pl EMBL Genbank | someother program
 	</programlisting>
+</para>
+<para>
 	The code for in2out.pl could be:
-	<programlisting>
+</para>	
+<para>
+<programlisting>
      use Bio::SeqIO;
      # get command-line arguments, or die with a usage statement
      my $usage = "in2out.pl informat outformat\n";
@@ -555,6 +583,10 @@ STDIN, meaning it could be used like this:
      exit;
      </programlisting>
    </para>
+</section>
+
+<section id="string">
+<title>To and from a string</title>
    <para>
    A popular question many people have asked is "What if I have a string that has 
 a series of sequence records in some format, and I want to make it a Seq object?" 
@@ -565,6 +597,8 @@ the contents of a string into a standard globbed perl handle.  This isn't a comp
 program, but gives you the most relevant bits.  Assume that there is some type of
 CGI form processing, or some such business, that pulls a group of sequences into
 a variable, and also pulls the format definition into another variable.
+</para>	
+<para>
        <programlisting>                       
         use IO::String;
         use Bio::SeqIO;
@@ -581,6 +615,27 @@ a variable, and also pulls the format definition into another variable.
         exit;
        </programlisting>
    </para>
+<para>
+Naturally you can also take a sequence object and write it, in some
+format, to a string. The code would look something like this:
+</para>
+<para>
+<programlisting>
+       use IO::String;
+       use Bio::SeqIO;
+       
+       my $str;
+       my $io = IO::String->new(\$str);
+       my $seqOut = new Bio::SeqIO(-format =>'swiss', 
+                                   -fh => $io);
+       $seqOut->write_seq($seq_obj);
+       print $str;
+</programlisting>
+</para>
+</section>
+
+<section id="and_more">
+<title>And more examples...</title>
    <para>                       
    The -file parameter in SeqIO can take more than a filename. It can also take 
 a string that tells it to 'pipe' something else into it. This is of the form
@@ -590,11 +645,16 @@ files because you just don't have enough disk space to unzip them (e.g. a Genban
 full release file), but can make fasta files from them. Here is a program that
 takes a gzipped file of a given format and writes out a FASTA file,
    used like:
+</para>	
+<para>
 <programlisting>
       >gzip2fasta.pl gbpri1.seq.gz Genbank gbpri1.fa
 </programlisting>
-	Let the code begin...
-
+</para>	
+<para>
+	Let the the code begin...
+</para>	
+<para>
      <programlisting>                              
       use Bio::SeqIO;
       # get command-line arguments, or die with a usage statement
@@ -623,11 +683,16 @@ takes a gzipped file of a given format and writes out a FASTA file,
 beginning, just after the first quote.  Let's write a program to take an input file, 
 and write it directly to a WashU Blastable Database, without ever
     writing out a fasta file, like:
+</para>	
+<para>
 	<programlisting>                              
      >any2wublastable.pl myfile.gb Genbank mywublastable p
 </programlisting>
+</para>	
+<para>
 	And the code for any2wublastable.pl is: 
-
+</para>	
+<para>
 <programlisting>
      use Bio::SeqIO;
 
@@ -661,11 +726,17 @@ the human sequences out into a human.gb file, and all the rest of the sequences
 into the other.gb file. In this case, we will use a hash to store the two handles 
 where 'human' is the key for the human output, and 'other' is the key
 	to other, so the usage would be:
-	<programlisting>
+	</para>	
+<para>
+<programlisting>
       >splitgb.pl inseq.gb
 	</programlisting>
+</para>
+<para>
 	Here's what splitgb.pl looks like:
-	<programlisting>       
+</para>	
+<para>
+<programlisting>       
       use Bio::SeqIO;
      
       # get command-line argument, or die with a usage statement
@@ -697,7 +768,8 @@ where 'human' is the key for the human output, and 'other' is the key
    <para>                           
    Now, let's use a multidimensional hash to hold a genbank output and a fasta 
 output for both splits.
-
+</para>	
+<para>
      <programlisting>                              
      use Bio::SeqIO;
      # get command-line argument, or die with a usage statement
@@ -745,13 +817,16 @@ Let's find out how many GSS sequences are in gbpri1.seq.gz. Note that we
    have placed new-line characters in this to make it easier to read,
    but in practice you wouldn't actually hit the return key until you 
 	were ready to run the program.
-     <programlisting>
+    </para>	
+<para>
+ <programlisting>
       >perl -MBio::SeqIO -e 'my $gss = 0; my $in =  Bio::SeqIO->new(q(-file) => q(/usr/local/bin/gunzip -c gbpri1.seq.gz |), 
       q(-format) => q(Genbank)); while (my $seq = $in->next_seq) { $gss++ if ($seq->keywords =~ m/GSS/);} 
       print "There are $gss GSS sequences in gbpri1.seq.gz\n";'
      </programlisting>
    </para>
 </section>
+
     <section id="caveats">
    <title>Caveats</title>
 <para>
@@ -766,6 +841,7 @@ framework, and make that framework available to other sequence manipulation task
 programmatic fashion.
 </para>
 </section>
+
     <section id="errors">
       <title>Error Handling</title>
       <para>
@@ -773,7 +849,8 @@ programmatic fashion.
 	would have in fact died with an informative error message. In 
 	object-oriented jargon, this is called "throwing an exception".
 	An example would look like:
-	
+</para>	
+<para>	
 	<programlisting>
        [localhost:~/src/Bioperl-live] birney% perl t.pl bollocks silly
 
@@ -788,6 +865,8 @@ programmatic fashion.
 
        --------------------------------------
 </programlisting>
+</para>	
+<para>
 These exceptions are very useful when errors occur because you can 
 see the full route, or "stack trace", of where the error occurred and
 right at the end of this is the line number of the script which
@@ -798,7 +877,9 @@ The fact that these sorts of errors are automatically
 detected and by default cause the script to stop is a good thing, but
 you might want to handle these yourself. To do this you need to "catch
 the exception" as follows:
-    <programlisting>
+    </para>	
+<para>
+<programlisting>
     use strict;
     use Bio::SeqIO;
 
@@ -828,6 +909,8 @@ the exception" as follows:
        $seq_out->write_seq($seq);
     }
     </programlisting>
+</para>	
+<para>
 The use of eval { ... } accompanied by testing the value of the $@ variable (which
 is set on an error) is a generic Perl approach, and will work with all errors
 generated in a Perl program, not just the ones in Bioperl. Notice that we have
