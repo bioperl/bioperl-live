@@ -153,6 +153,7 @@ use strict;
 
 
 use Bio::Root::Root;
+use Bio::Annotation::Collection;
 use Bio::Seq;
 use Bio::Seq::RichSeq;
 use Bio::Factory::SequenceStreamI;
@@ -271,11 +272,8 @@ sub title {
 =cut
 
 sub gene {
-	my ($obj,$value) = @_;
-	if( defined $value) {
-		$obj->{'gene'} = $value;
-	}
-	return $obj->{'gene'};
+    my $self = shift;
+    return $self->_annotation_value('gene_name', @_);
 }
 
 
@@ -292,15 +290,9 @@ sub gene {
 =cut
 
 sub cytoband {
-	my ($obj,$value) = @_;
-	if( defined $value) {
-		$obj->{'cytoband'} = $value;
-	}
-	return $obj->{'cytoband'};
+    my $self = shift;
+    return $self->_annotation_value('cyto_band', @_);
 }
-
-
-
 
 =head2 mgi
 
@@ -315,11 +307,8 @@ sub cytoband {
 =cut
 
 sub mgi {
-	my ($obj,$value) = @_;
-	if( defined $value) {
-		$obj->{'mgi'} = $value;
-	}
-	return $obj->{'mgi'};
+    my $self = shift;
+    return $self->_annotation_value('mgi', @_);
 }
 
 
@@ -355,11 +344,8 @@ sub locuslink {
 =cut
 
 sub gnm_terminus {
-	my ($obj,$value) = @_;
-	if( defined $value) {
-		$obj->{'gnm_terminus'} = $value;
-	}
-	return $obj->{'gnm_terminus'};
+    my $self = shift;
+    return $self->_annotation_value('gnm_terminus', @_);
 }
 
 =head2 scount
@@ -638,7 +624,11 @@ sub get_members {
 sub annotation{
     my $self = shift;
 
-    return $self->{'annotation'} = shift if @_;
+    if(@_) {
+	return $self->{'annotation'} = shift;
+    } elsif(! exists($self->{'annotation'})) {
+	$self->{'annotation'} = Bio::Annotation::Collection->new();
+    }
     return $self->{'annotation'};
 }
 
@@ -999,6 +989,51 @@ sub sequence_factory {
     }
     $self->{'_seqfactory'};
 }
+
+=head1 Private methods
+
+=cut
+
+=head2 _annotation_value
+
+ Title   : _annotation_value
+ Usage   :
+ Function:
+ Example :
+ Returns : the value (a string)
+ Args    : annotation key (a string)
+           on set, annotation value (a string)
+
+
+=cut
+
+sub _annotation_value{
+    my $self = shift;
+    my $key = shift;
+
+    my ($ann, $val);
+    if(@_) {
+	$val = shift;
+	if(! defined($val)) {
+	    ($ann) = $self->annotation->remove_Annotations($key);
+	    return $ann ? $ann->value() : undef;
+	}
+    }
+    ($ann) = $self->annotation->get_Annotations($key);
+    if($ann && (! $val)) {
+	# get mode and exists
+	$val = $ann->value();
+    } elsif($val) {
+	# set mode
+	if(! $ann) {
+	    $ann = Bio::Annotation::SimpleValue->new(-tagname => $key);
+	    $self->annotation->add_Annotation($ann);
+	}
+	$ann->value($val);
+    }
+    return $val;
+}
+
 
 #####################################################################
 # aliases for naming consistency or other reasons                   #
