@@ -80,38 +80,99 @@ print STDERR "Generated sub tests. go make show_tests to see available subtests\
 # Prompt user for BioDBGFF stuff
 #
 
-if(  eval { require DBI } && grep {/mysql/} DBI->available_drivers) {
-  print "\n";
-  my $proceed = prompt("Do you want to run the BioDBGFF tests (requires a mysql, postgres or oracle database) y/n",'n');
-  if( $proceed =~ /^[yY]/) {
-    my $cfg = {dbd_driver => 'mysql'};
-    GFFQueryDb($cfg,{'prompt'=>1,'verbose'=>1});
-    if (open T,">t/do_biodbgff.tests") {
-      foreach (keys %$cfg) {
-	print T $_,"\t",$cfg->{$_},"\n";
+sub prompt_for_biodbgff {
+  if(  eval { require DBI } && grep {/mysql/} DBI->available_drivers) {
+    print "\n** Bio::DB::GFF Tests section** \n";
+    my $proceed = prompt("Do you want to run the BioDBGFF tests (requires a mysql, postgres or oracle database) y/n",'n');
+    if( $proceed =~ /^[yY]/) {
+      my $cfg = {dbd_driver => 'mysql'};
+      GFFQueryDb($cfg,{'prompt'=>1,'verbose'=>1});
+      if (open T,">t/do_biodbgff.tests") {
+	foreach (keys %$cfg) {
+	  print T $_,"\t",$cfg->{$_},"\n";
+	}
+	close T;
       }
-      close T;
-    }
-  } else {
-    if( -e "t/do_biodbgff.tests" ) {
-      unlink "t/do_biodbgff.tests";
+    } else {
+      if( -e "t/do_biodbgff.tests" ) {
+	unlink "t/do_biodbgff.tests";
+      }
     }
   }
 }
 
-#
-# Prompt user for installing scripts
-#
-print "\nBioperl comes with a number of useful scripts which you may wish to install.\n";
-my $prompt_mode = prompt("Install [a]ll Bioperl scripts, [n]one, or choose groups [i]nteractively?",'i');
-
 sub MY::postamble {
-  $tline . <<END;
+  $tline . "\n\n";
+}
 
-bioperl_scripts_install ::
-	\$(PERL) scripts/install_bioperl_scripts.pl \$(INSTALLSCRIPT) $prompt_mode
+sub get_scripts_to_install {
+  print "\n*** Script Install Section ****\n";
+  print "\nBioperl comes with a number of useful scripts which you may wish to install.\n";
+  my $prompt_mode = prompt("Install [a]ll Bioperl scripts, [n]one, or choose groups [i]nteractively?",'i');
+  return if $prompt_mode =~ /^[nN]/;
+  my @scripts;
+  my $script_dir = './scripts';
+  my $dest_dir    = './scripts_temp';
+  rmtree ($dest_dir) if -e $dest_dir;
+  mkdir($dest_dir) or die "Can't mkdir($dest_dir): $!";
+  opendir(F,$script_dir) or die "Can't opendir $script_dir: $!";
+  while (my $file_or_dir = readdir(F)) {
+    next if $file_or_dir =~ /^\./;
+    next if $file_or_dir eq 'CVS';
+    next unless -d "$script_dir/$file_or_dir";
+    next unless prompt_to_install($script_dir,$file_or_dir,$prompt_mode);
+    my @files = install_contents("$script_dir/$file_or_dir",$dest_dir);
+    push @scripts,@files;
+  }
+  closedir F;
+  return @scripts;
+}
 
-END
+sub prompt_to_install {
+  my $prefix = shift;
+  my $f      = shift;
+  my $prompt_mode = shift;
+  print "\n* Script Directory $f *\n";
+  if (-e "$prefix/$f/TAG" && (my $g = IO::File->new("$prefix/$f/TAG"))) {
+    print while <$g>;
+  }
+  return 1 if $prompt_mode =~ /^[aA]/;  # all
+  my $result = prompt("Install scripts in $f? [y]es [n]o [q]uit",'n');
+  die if $result =~ /^[qQ]/;
+  return $result =~ /^[yY]/;
+}
+
+sub install_contents {
+  my $dir  = shift;
+  my $dest = shift;
+  my $bangline = $Config{startperl};
+
+  my @files;
+  opendir (D,$dir) or die "Can't open $dir: $!\n";
+  while (my $script = readdir(D)) {
+    next unless $script =~ /\.PLS$/;
+    my $in  = IO::File->new("$dir/$script")    or die "Can't open $dir/$script: $!";
+    $script =~ s/\.PLS$/\.pl/;                   # change from .PLS to .pl
+    $script =~ s/^/bp_/ unless $script =~ /^bp/; # add the "bp" prefix
+    print "\tInstalling $script....\n";
+    unlink "$dest/$script" if -e "$dest/$script";
+    my $out = IO::File->new(">$dest/$script")  or die "Can't open $dest/$script: $!";
+    my $doneit;
+    while (<$in>) {
+      next if $doneit;
+      if (s/^\#\!\S+/$bangline/) {
+	$doneit++;
+      }
+    } continue {
+      print $out $_;
+    }
+    close $in;
+    close $out;
+    chmod 0555,"$dest/$script" or die "Can't change mode of $script to ",MODE,": $!";
+    push @files,"$dest/$script";
+  }
+  closedir D;
+  return @files;
 }
 
 
@@ -208,6 +269,13 @@ sub GFFQueryDb {
 
 require 5.005;
 use ExtUtils::MakeMaker ;
+use File::Path 'rmtree';
+use IO::File;
+use Config;
+
+my @scripts_to_install = eval {get_scripts_to_install()};
+prompt_for_biodbgff();
+
 
 $do_autoload_finesse = 0;
 $NAME     = 'Bio';
@@ -275,6 +343,7 @@ WriteMakefile(
     ) : (),
     'realclean' => {  FILES        => join(' ',@BACKUP_FILES) },
     DIR         => [  ], # directories with other Makefile.PL's in them
+    EXE_FILES   => \@scripts_to_install,
     PL_FILES	=> { 'doc/makedoc.PL' => ['bioscripts.pod','biodatabases.pod','biodesign.pod','bioperl.pod'] }
 );
 
@@ -290,10 +359,9 @@ sub MY::manifypods {
   }
 }
 
-sub MY::install {
+sub MY::clean {
   package MY;
-  my $inherited = shift->SUPER::install(@_);
-  $inherited =~ s/doc_install/doc_install bioperl_scripts_install/;
-  $inherited;
+  return shift->SUPER::clean(@_) . <<END;
+	-rm -rf scripts_temp
+END
 }
-
