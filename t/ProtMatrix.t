@@ -17,10 +17,9 @@ BEGIN {
    use Test;
 
    # fix this
-   plan tests => 15;
+   plan tests => 11;
 }
 
-use lib '/home/tex/working/bioperl-live';
 use Bio::Matrix::PSM::ProtMatrix;
 ok(1);
 
@@ -134,17 +133,13 @@ ok %x1, %x2;
 ok $matrix->curpos,1;
 
 ok $matrix->e_val(0.0001);
-
 ok $matrix->e_val,0.0001;
 
 #Now some PSM specific methods like regexp and matrix info
-#ok $matrix->regexp,'[Aa][Tt][AaCc][Cc][GgTt]';
-#my $regexp=$matrix->regexp;
-#ok 'ATCCT',"/$regexp/";
 
-#my @x=(1,0,0.5,0,0.1);
-#ok $matrix->get_array('A'),@x;
-#
-#@x=qw(Aa Tt AaCc Cc GgTt);
-#ok $matrix->regexp_array,@x;
+my @a = ('0', '10', '1', '9', '2', '0', '22', '16');
+ok $matrix->get_array('A'), @a;
 
+my $regexp = '[Mm][EeSs][Mm]\.[IiLl][RrNn][AaPp][DdSs]';
+ok $matrix->regexp, $regexp;
+ok $matrix->sequence_match_weight('MSMPLRPD');

@@ -181,7 +181,7 @@ use Bio::Root::Root;
 use vars qw(@ISA);
 use strict;
 
-@ISA=qw(Bio::Root::Root Bio::Matrix::PSM::SiteMatrixI);
+@ISA = qw(Bio::Root::Root Bio::Matrix::PSM::SiteMatrixI);
 
 =head2 new
 
@@ -434,11 +434,11 @@ sub accession_number {
 
  Title    : consensus
  Usage    :
- Function: Returns the consensus
+ Function : Returns the consensus sequence for this PSM.
  Throws   : if supplied with thresold outisde 5..10 range
  Example  :
  Returns  : string
- Args     : (optional) threshold value 5 to 10
+ Args     : (optional) threshold value 5 to 10 (corresponds to 50-100% at each position
 
 =cut
 
@@ -461,6 +461,40 @@ sub IUPAC {
 }
 
 
+=head2 get_string
+
+ Title   : get_string
+ Usage   :
+ Function: Returns given probability vector as a string. Useful if you want to
+            store things in a rel database, where arrays are not first choice
+ Throws  : If the argument is outside {A,C,G,T}
+ Example :
+ Returns : string
+ Args    : character {A,C,G,T}
+
+=cut
+
+sub get_string {
+   my $self = shift;
+   my $base = shift;
+   my $string = '';
+
+   my @prob = @{$self->{"prob$base"}};
+   if ( ! @prob ) {
+      $self->throw( "No such base: $base\n");
+   }
+
+   foreach my $prob (@prob) {
+      my $corrected = $prob*10;
+      my $next = sprintf("%.0f",$corrected);
+      $next = 'a' if ($next eq '10');
+      $string .= $next;
+   }
+   return $string;
+}
+
+
+
 =head2 width
 
  Title    : width
@@ -475,7 +509,7 @@ sub IUPAC {
 
 sub width {
    my $self = shift;
-   my $width=@{$self->{probA}};
+   my $width = @{$self->{probA}};
    return $width;
 }
 
@@ -541,32 +575,41 @@ sub id {
 }
 
 
+
+
 =head2 regexp
 
  Title    : regexp
  Usage    :
- Function: Returns a case-insensitive regular expression which matches the
+ Function : Returns a case-insensitive regular expression which matches the
             IUPAC convention.  X's in consensus sequence will match anything.     
  Throws   :
  Example  :
  Returns  : string
- Args     :
+ Args     : Threshold for calculating consensus sequence (number in range 0-100
+            representing a percentage). Threshold defaults to 20.
 
 =cut
 
 sub regexp {
    my $self = shift;
+   my $threshold = 20;
+   if ( @_ ) { my $threshold = shift };
 
-   my @regexp;
-   foreach my $letter (@{$self->{seq}}) {
+   my @alphabet = @{$self->{_alphabet}};
+   my $width = $self->width;
+   my (@regexp, $i);
+   for ( $i = 0; $i < $width; $i++ ) {
+      # get an array of the residues at this position with p > $threshold
+      my @letters = map { uc($_).lc($_) } grep { $self->{"prob$_"}->[$i] >= $threshold } @alphabet;
+
       my $reg;
-
-      if ( $letter == 'X' ) {
-         $reg = "\.";
+      if ( scalar(@letters) == 0 ) {
+         $reg = '\.';
       } else {
-         $reg = uc($letter).lc($letter);
+         $reg = '['.join('',@letters).']';
       }
-      push @regexp, "[$reg]";
+      push @regexp, $reg;
    }
 
    if ( wantarray ) { 
@@ -581,12 +624,13 @@ sub regexp {
 
  Title    : regexp_array
  Usage    :
- Function: Returns an array of position-specific regular expressions.
-                  N will match X, N, - and .
+ Function : Returns an array of position-specific regular expressions.
+             X's in consensus sequence will match anything.      
  Throws   :
  Example  :
  Returns  : Array of position-specific regular expressions.
- Args     : None.
+ Args     : Threshold for calculating consensus sequence (number in range 0-100
+            representing a percentage). Threshold defaults to 20.
  Notes    : Simply calls regexp method in list context.
 
 =cut
@@ -673,33 +717,33 @@ sub _uncompress_string {
 
 =cut
 
-sub get_compressed_freq {
-   my $self=shift;
-   my $base=shift;
-   my $string='';
-   my @prob;
-   BASE: {
-      if ($base eq 'A') {
-         @prob= @{$self->{probA}} unless (!defined($self->{probA}));
-         last BASE;
-      }
-         if ($base eq 'G') {
-         @prob= @{$self->{probG}} unless (!defined($self->{probG}));
-         last BASE;
-      }
-         if ($base eq 'C') {
-         @prob= @{$self->{probC}} unless (!defined($self->{probC}));
-         last BASE;
-      }
-         if ($base eq 'T') {
-         @prob= @{$self->{probT}} unless (!defined($self->{probT}));
-         last BASE;
-      }
-      $self->throw ("No such base: $base!\n");
-   }
-   my $str= _compress_array(\@prob,1,1);
-   return $str;
-}
+#sub get_compressed_freq {
+#   my $self=shift;
+#   my $base=shift;
+#   my $string='';
+#   my @prob;
+#   BASE: {
+#      if ($base eq 'A') {
+#         @prob = @{$self->{probA}} unless (!defined($self->{probA}));
+#         last BASE;
+#      }
+#         if ($base eq 'G') {
+#         @prob = @{$self->{probG}} unless (!defined($self->{probG}));
+#         last BASE;
+#      }
+#         if ($base eq 'C') {
+#         @prob = @{$self->{probC}} unless (!defined($self->{probC}));
+#         last BASE;
+#      }
+#         if ($base eq 'T') {
+#         @prob = @{$self->{probT}} unless (!defined($self->{probT}));
+#         last BASE;
+#      }
+#      $self->throw ("No such base: $base!\n");
+#   }
+#   my $str= _compress_array(\@prob,1,1);
+#   return $str;
+#}
 
 =head2 get_compressed_logs
 
@@ -714,48 +758,51 @@ sub get_compressed_freq {
 
 =cut
 
-sub get_compressed_logs {
-   my $self=shift;
-   my $base=shift;
-   my $string='';
-   my @prob;
-   BASE: {
-      if ($base eq 'A') {@prob= @{$self->{logA}} unless (!defined($self->{logA})); last BASE; }
-      if ($base eq 'C') {@prob= @{$self->{logC}} unless (!defined($self->{logC})); last BASE; }
-      if ($base eq 'G') {@prob= @{$self->{logG}} unless (!defined($self->{logG})); last BASE; }
-      if ($base eq 'T') {@prob= @{$self->{logT}} unless (!defined($self->{logT})); last BASE; }
-      $self->throw ("No such base: $base!\n");
-   }
-   return _compress_array(\@prob,1000,2);
-}
+#sub get_compressed_logs {
+#   my $self=shift;
+#   my $base=shift;
+#   my $string='';
+#   my @prob;
+#   BASE: {
+#      if ($base eq 'A') {@prob= @{$self->{logA}} unless (!defined($self->{logA})); last BASE; }
+#      if ($base eq 'C') {@prob= @{$self->{logC}} unless (!defined($self->{logC})); last BASE; }
+#      if ($base eq 'G') {@prob= @{$self->{logG}} unless (!defined($self->{logG})); last BASE; }
+#      if ($base eq 'T') {@prob= @{$self->{logT}} unless (!defined($self->{logT})); last BASE; }
+#      $self->throw ("No such base: $base!\n");
+#   }
+#   return _compress_array(\@prob,1000,2);
+#}
 
 =head2 sequence_match_weight
 
  Title    : sequence_match_weight
  Usage    :
- Function:   This method will calculate the score of a match, based on the PWM
+ Function :   This method will calculate the score of a match, based on the PWM
                   if such is associated with the matrix object. Returns undef if no
                    PWM data is available.
  Throws   :    if the length of the sequence is different from the matrix width
- Example :   my $score=$matrix->sequence_match_weight('ACGGATAG');
- Returns :   Floating point
- Args      :   string
+ Example  :   my $score=$matrix->sequence_match_weight('ACGGATAG');
+ Returns  :   Floating point
+ Args     :   string
 
 =cut
 
 sub sequence_match_weight {
-my ($self,$seq)=@_;
-return undef unless ($self->{logA});
-$self->throw ("I can calculate the score only for sequence which are exactly my size\n") unless (length($seq)==@{$self->{logA}});
-my @seq=split(//,$seq);
-my $score;
-my $i=0;
-foreach my $pos (@seq) {
-   my $tv='log' . $pos;
-   $score+=$self->{$tv}->[$i];
-   $i++;
-}
-return $score;
+   my ($self,$seq)=@_;
+   return undef unless ($self->{logA});
+
+   my $seqlen = length($seq);
+   my $width  = $self->width;
+   $self->throw("Error: Input sequence size ($seqlen) not equal to PSM size ($width)!\n")
+      unless (length($seq) == $self->width);
+
+   my ($score,$i) = (0,0);
+   foreach my $letter ( split //, $seq ) {
+      # add up the score for this position
+      $score += $self->{"log$letter"}->[$i];
+      $i++;
+   }
+   return $score;
 }
 
 
@@ -776,8 +823,9 @@ return $score;
 sub _to_IUPAC {
    my ($self,@probs,$thresh) = @_;
 
-   # provide a default threshold of 2.5
-   $thresh = 2.5 unless ( defined $thresh );
+   # provide a default threshold of 5, corresponds to 5% threshold for 
+   # inferring that the aa at any position is the true aa
+   $thresh = 5 unless ( defined $thresh );
 
    my ($IUPAC_aa,$max_prob) = ('X',$thresh);
    for my $aa ( @{$self->{_alphabet}} ) {
@@ -820,34 +868,34 @@ sub _to_cons {
 
 =cut
 
-sub get_all_vectors {
-   my $self = shift;
-   my $thresh = shift;
-
-   $self->throw("Out of range. Threshold should be >0 and 1<.\n") if (($thresh<0) || ($thresh>1));
-
-   my @seq = split(//,$self->consensus($thresh*10));
-   my @perm;
-   for my $i (0..@{$self->{probA}}) {
-      push @{$perm[$i]},'A' if ($self->{probA}->[$i]>$thresh);
-      push @{$perm[$i]},'C' if ($self->{probC}->[$i]>$thresh);
-      push @{$perm[$i]},'G' if ($self->{probG}->[$i]>$thresh);
-      push @{$perm[$i]},'T' if ($self->{probT}->[$i]>$thresh);
-      push @{$perm[$i]},'N' if  ($seq[$i] eq 'N');
-   }
-   my $fpos=shift @perm;
-   my @strings=@$fpos;
-   foreach my $pos (@perm) {
-      my @newstr;
-      foreach my $let (@$pos) {
-         foreach my $string (@strings) {
-           my $newstring = $string . $let;
-           push @newstr,$newstring;
-         }
-      }
-      @strings=@newstr;
-   }
-   return @strings;
-}
+#sub get_all_vectors {
+#   my $self = shift;
+#   my $thresh = shift;
+#
+#   $self->throw("Out of range. Threshold should be >0 and 1<.\n") if (($thresh<0) || ($thresh>1));
+#
+#   my @seq = split(//,$self->consensus($thresh*10));
+#   my @perm;
+#   for my $i (0..@{$self->{probA}}) {
+#      push @{$perm[$i]},'A' if ($self->{probA}->[$i]>$thresh);
+#      push @{$perm[$i]},'C' if ($self->{probC}->[$i]>$thresh);
+#      push @{$perm[$i]},'G' if ($self->{probG}->[$i]>$thresh);
+#      push @{$perm[$i]},'T' if ($self->{probT}->[$i]>$thresh);
+#      push @{$perm[$i]},'N' if  ($seq[$i] eq 'N');
+#   }
+#   my $fpos=shift @perm;
+#   my @strings=@$fpos;
+#   foreach my $pos (@perm) {
+#      my @newstr;
+#      foreach my $let (@$pos) {
+#         foreach my $string (@strings) {
+#           my $newstring = $string . $let;
+#           push @newstr,$newstring;
+#         }
+#      }
+#      @strings=@newstr;
+#   }
+#   return @strings;
+#}
 
 1;
