@@ -186,7 +186,7 @@ while (my $line=$self->_readline) {
 		$line=~s/\t/,/g;
 		#Parsing the general information for this prediction
 		($tr,$motif_id,$tr,$width,$tr,$sites,$tr,$tr,$tr,$e_val)=split(/,/,$line);
-		$id=$self->{query} . $motif_id;
+		$self->{id}=$self->{query} . $motif_id;
 	}
 	if ($line =~ 'content') {
 		$line=$self->_readline;
@@ -253,7 +253,6 @@ sub _parseMatrix {
 
 sub _parseInstance {
 	my $self=shift;
-	my $file=$self->{file};
 	my @instance;
 	my $i=0;
 	$self->_readline;
@@ -265,9 +264,9 @@ sub _parseInstance {
 		$line=~s/\s[AGCTXN-]+\s[AGCTXN-]+\s[AGCTXN-]+//g;
 		$line=~s/[\s\+]+/,/g;
 		my ($id,$start,$score)=split(/,/,$line);
-		my $sid = $self->{id} . '_' . $id;
-		$instance[$i]=new Bio::Matrix::PSM::InstanceSite(mid=> $self->{id}, start=>$start, score=>$score,
-		seq=>$seq, accession=>$id, desc=>'Bioperl MEME parser object, source: $file');
+		my $sid = $self->{id} . '@' . $id   ;
+		$instance[$i]=new Bio::Matrix::PSM::InstanceSite(-mid=> $self->{id}, -start=>$start, -score=>$score,
+		-seq=>$seq, -accession_number=>$id, -primary_id=>$sid, -desc=>'Bioperl MEME parser object' );
 		$i++;
 	}
 $self->{instances}=\@instance;
