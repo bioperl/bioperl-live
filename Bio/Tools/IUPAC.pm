@@ -131,7 +131,7 @@ methods. Internal methods are usually preceded with a _
 package Bio::Tools::IUPAC;
 
 use strict;
-use vars qw(@ISA %IUP %IUB $AUTOLOAD);
+use vars qw(@ISA %IUP %IUB %REV_IUB $AUTOLOAD);
 
 BEGIN {
     %IUB = ( A => [qw(A)],
@@ -152,6 +152,24 @@ BEGIN {
 	     X => [qw(G A T C)],
 	     N => [qw(G A T C)]
 	     );
+	%REV_IUB = (A	=> 'A',
+				T	=> 'T',
+				C	=> 'C',
+				G 	=> 'G',
+				AC	=> 'M',
+				AG	=> 'R',
+				AT	=> 'W',
+				CG	=> 'S',
+				CT	=> 'Y',
+				GT	=> 'K',
+				ACG	=> 'V',
+				ACT	=> 'H',
+				AGT	=> 'D',
+				CGT	=> 'B',
+				ACGT=> 'N',
+				N	=> 'N'
+				);					
+	
 
     %IUP = (A => [qw(A)],
 	    B => [qw(D N)],
@@ -293,6 +311,21 @@ sub iupac_iup{
 
 sub iupac_iub{
    return %IUB;
+}
+
+=head2 iupac_rev_iub
+
+ Title   : iupac_rev_iub
+ Usage   : my %dnasymbols = $iupac->iupac_rev_iub
+ Function: Returns a hash of nucleotide conmbinations =>IUPAC code
+           - a reverse of the iupac_iub hash.  
+ Returns : Hash
+ Args    : none
+
+=cut
+
+sub iupac_rev_iub{
+   return %REV_IUB;
 }
 
 sub AUTOLOAD {
