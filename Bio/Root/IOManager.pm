@@ -730,6 +730,13 @@ sub read {
 #	    next if m@^(\s*|$/*)$@; 
 	    
 	    $lines++;
+	    alarm(0);  # Deactivate the alarm as soon as we start reading.
+
+#  printf STDERR "Chunk length: %d\n", length $_;
+  if ($lines % 100 ==0) {
+#    printf STDERR "PS AUXW:\n  %s", `ps auxw | grep perl`;
+  }
+
 	    my($result);
 	    if($func_ref) {
 		$result = &$func_ref($_) or last READ_LOOP;
@@ -738,7 +745,6 @@ sub read {
 		$data .= $_;
 	    }
 	}
-	alarm(0);
     };
     if($@ =~ /Timed out!/) {
 	 $self->throw("Timed out while waiting for input from $self->{'_input_type'}.", "Timeout period = $wait seconds.\nFor a longer time out period, supply a -wait => <seconds> parameter\n".
