@@ -1,0 +1,6 @@
+This is unused code written simply for the benefit of impelementing
+the BioCORBA / OMG BSANE spec. We've pretty much given up on this in
+2002 as anything useful. So unless someone finds a need for this code
+we'll probably remove it in future releases.
+
+-Jason Stajich August 2003
