@@ -71,16 +71,6 @@ use Bio::PrimarySeq;
 
 @ISA = qw(Bio::SeqFeature::Generic Bio::SeqFeature::Gene::TranscriptI);
 
-# Default sort order for exon types propagated to a new instance.
-# This is only of relevance to exons(), and therefore mrna(), cds(), and
-# protein().
-my %exon_sortorder = ("utr5prime" => 0,
-		      "initial" => 1,
-		      "internal" => 2,
-		      "terminal" => 3,
-		      "utr3prime" => 4,
-		      "polyA" => 5);
-
 sub new {
     my ($caller, @args) = @_;
     my $self = $caller->SUPER::new(@args);
@@ -89,7 +79,6 @@ sub new {
     $primary = 'transcript' unless $primary;
     $self->primary_tag($primary);
     $self->strand(0) if(! defined($self->strand()));
-    $self->{'_exonsortorder'} = \%exon_sortorder;
     return $self;
 }
 
@@ -113,9 +102,7 @@ sub new {
 
 sub promoters {
     my ($self) = @_;
-
-    return () unless exists($self->{'_promoters'});
-    return @{$self->{'_promoters'}};
+    return $self->get_feature_type('Bio::SeqFeature::Gene::Promoter');
 }
 
 =head2 add_promoter
@@ -137,19 +124,7 @@ sub promoters {
 
 sub add_promoter {
     my ($self, $fea) = @_;
-
-    if(! $fea->isa('Bio::SeqFeatureI') ) {
-	$self->throw("$fea does not implement Bio::SeqFeatureI");
-    }
-    if(! exists($self->{'_promoters'})) {
-	$self->{'_promoters'} = [];
-    }
-    $self->_expand_region($fea);
-    if(defined($self->entire_seq()) && (! defined($fea->entire_seq())) &&
-       $fea->can('attach_seq')) {
-	$fea->attach_seq($fea->entire_seq());
-    }
-    push(@{$self->{'_promoters'}}, $fea);
+    $self->_add($fea,'Bio::SeqFeature::Gene::Promoter');
 }
 
 =head2 flush_promoters
@@ -162,7 +137,7 @@ sub add_promoter {
            This means that this method might change or even disappear in a
            future release. Be aware of this if you use it.
 
- Returns : 
+ Returns : the removed features as a list
  Args    : none
 
 
@@ -170,10 +145,7 @@ sub add_promoter {
 
 sub flush_promoters {
     my ($self) = @_;
-
-    if(exists($self->{'_promoters'})) {
-	delete($self->{'_promoters'});
-    }
+    return $self->_flush('Bio::SeqFeature::Gene::Promoter');
 }
 
 =head2 exons
@@ -181,14 +153,12 @@ sub flush_promoters {
  Title   : exons()
  Usage   : @exons = $gene->exons();
            ($inital_exon) = $gene->exons('Initial');
- Function: Get all exon features or all exons of specified type of this gene
-           structure.
+ Function: Get all exon features or all exons of specified type of this 
+           transcript.
 
            Exon type is treated as a case-insensitive regular expression and 
-           optional. For consistency, use only the following types: 
-           initial, internal, terminal, utr, utr5prime, and utr3prime. 
-           A special and virtual type is 'coding', which refers to all types
-           except UTR (utr, utr5prime, utr3prime).
+           is optional. For consistency, use only the following types: 
+           initial, internal, terminal.
 
  Returns : An array of Bio::SeqFeature::Gene::ExonI implementing objects.
  Args    : An optional string specifying the primary_tag of the feature.
@@ -198,47 +168,28 @@ sub flush_promoters {
 
 sub exons {
     my ($self, $type) = @_;
-    my @keys = ();
-    my @exons = ();
-    my $strand;
+    return $self->get_unordered_feature_type('Bio::SeqFeature::Gene::ExonI', $type);
+}
 
-    # pull out all exon types that exist and match
-    @keys = $self->_get_typed_keys("exons_",
-				   ($type && (lc($type) eq 'coding') ?
-				    "" : $type));
-    # if none matched we're done
-    return () unless(@keys);
-    # bring keys into the right order, depending on the strand, provided we've
-    # got an unambiguous strand
-    foreach my $exon (map { @{$_}; } @{$self}{@keys}) {
-	if($exon->strand()) {
-	    # defined and != 0
-	    $strand = $exon->strand() if(! $strand);
-	    if(($exon->strand() * $strand) < 0) {
-		$strand = undef;
-		last;
-	    }
-	}
-    }
-    my %order = %{$self->exon_type_sortorder()};
-    if((! $strand) || ($strand == 1)) {
-	# for undefined and forward, sort forward
-	@keys = sort {$order{substr($a,rindex($a,'_')+1)} <=>
-			  $order{substr($b,rindex($b,'_')+1)};} @keys;
-    } else {
-	# for reverse strand transcripts, sort in reverse order
-	@keys = sort {$order{substr($b,rindex($b,'_')+1)} <=>
-			  $order{substr($a,rindex($a,'_')+1)};} @keys;
-    }
-    # gather the individual arrays and flatten out into one
-    foreach my $key (@keys) {
-	if($type && (lc($type) eq 'coding')) {
-	    push(@exons, grep { $_->is_coding(); } @{$self->{$key}});
-	} else {
-	    push(@exons, @{$self->{$key}});
-	}
-    }
-    return @exons;
+=head2 exons_ordered
+
+ Title   : exons_ordered
+ Usage   : @exons = $gene->exons_ordered();
+           @exons = $gene->exons_ordered("Internal");
+ Function: Get an ordered list of all exon features or all exons of specified
+           type of this transcript.
+
+           Exon type is treated as a case-insensitive regular expression and 
+           is optional. For consistency, use only the following types:
+
+ Returns : An array of Bio::SeqFeature::Gene::ExonI implementing objects.
+ Args    : An optional string specifying the primary_tag of the feature.
+
+=cut
+
+sub exons_ordered { 
+    my ($self,$type) = @_;
+    return $self->get_feature_type('Bio::SeqFeature::Gene::ExonI', $type);
 }
 
 =head2 add_exon
@@ -268,26 +219,12 @@ sub exons {
 =cut
 
 sub add_exon {
-    my ($self, $fea, $type) = @_;
-    my $key;
-
+    my ($self, $fea) = @_;
     if(! $fea->isa('Bio::SeqFeature::Gene::ExonI') ) {
 	$self->throw("$fea does not implement Bio::SeqFeature::Gene::ExonI");
     }
-    $type = ($type ? lc($type) : "");
-    # treat utr separately
-    return $self->add_utr($fea,$type) if($type =~ /utr/);
-    # prefix key
-    $key = "_exons_$type";
-    if(! exists($self->{$key})) {
-	$self->{$key} = [];
-    }
-    $self->_expand_region($fea);
-    if(defined($self->entire_seq()) &&
-       (! defined($fea->entire_seq())) && $fea->can('attach_seq')) {
-	$fea->attach_seq($fea->entire_seq());
-    }
-    push(@{$self->{$key}}, $fea);
+    $self->_add($fea,'Bio::SeqFeature::Gene::Exon');
+    return;
 }
 
 =head2 flush_exons
@@ -301,7 +238,7 @@ sub add_exon {
 
            Calling without a type will not flush UTRs. Call flush_utrs() for
            this purpose.
- Returns : 
+ Returns : the deleted features as a list
  Args    : A string indicating the type of the exon (optional).
 
 
@@ -309,70 +246,7 @@ sub add_exon {
 
 sub flush_exons {
     my ($self, $type) = @_;
-
-    # pull out all exon types that exist and match
-    my @keys = grep { $_ !~ /utr/i; } $self->_get_typed_keys("exons_", $type);
-    # delete the keys pulled out
-    foreach my $key (@keys) {
-	delete($self->{$key});
-    }
-}
-
-=head2 exon_type_sortorder
-
- Title   : exon_type_sortorder
- Usage   : $transcript->exon_type_sortorder('type1','type2','type3');
-           $tableref = $transcript->exon_type_sortorder();
-           Bio::SeqFeature::Gene::Transcript->exon_type_sortorder('type1','type2','type3');
- Function: Install or retrieve the sort-order of exon types.
-
-           Ordering exons by type is only of relevance for methods
-           constructing a sequence corresponding to the transcript object
-           (e.g., mrna(), cds(), etc). For instance, an initial exon would
-           have to be put before an internal exon.
-
-           The sort-order installed by default covers only the exon types
-           documented in exons(). If you use a different set or additional
-           types, you must call this method with the proper ordering before
-           you can obtain meaningful results from methods that concatenate
-           the sequence of exons. On installing a sort-order, pass all types
-           you are using in ascending order.
-
-           You can also retrieve the installed order. Do not modify the
-           returned hash table (the method returns a reference) unless you know
-           exactly what you are doing. Inspecting the keys of the table will
-           tell you which types are currently known.
-
-           This method can also be called as a class method. When called as
-           class method it will operate on the default sort-order, which will
-           be propagated to every object instantiated thereafter. When called
-           as instance method it will operate only on the private copy of the
-           object.
-
- Returns : A reference to a hash table representing the sort-order.
- Args    : On installing an order, an array of exon types in ascending order.
-
-
-=cut
-
-sub exon_type_sortorder {
-    my ($caller, @order) = @_;
-    my %sorttable;
-
-    if(@order) {
-	my $num = 0;
-	foreach my $t (@order) {
-	    $sorttable{$t} = $num;
-	    $num++;
-	}
-	if(ref($caller)) {
-	    $caller->{'_exonsortorder'} = \%sorttable;
-	} else {
-	    %exon_sortorder = %sorttable;
-	}
-    }
-    return $caller->{'_exonsortorder'} if(ref($caller));
-    return \%exon_sortorder;
+    return $self->_flush('Bio::SeqFeature::Gene::Exon',$type);
 }
 
 =head2 introns
@@ -391,7 +265,7 @@ sub exon_type_sortorder {
            correctness the elements in the array returned will always be
            sorted.
 
- Returns : An array of Bio::SeqFeatureI implementing objects representing the
+ Returns : An array of Bio::SeqFeature::Gene::Intron objects representing the
            intron regions.
  Args    : 
 
@@ -436,12 +310,12 @@ sub introns {
 	}
 	$start = $exons[$i+$rev_order]->end() + 1;     # $i or $i+1
 	$end = $exons[$i+1-$rev_order]->start() - 1;   # $i+1 or $i
-	$intron = Bio::SeqFeature::Generic->new(
-                                        '-start'   => $start,
-                                        '-end'     => $end,
-                                        '-strand'  => $strand,
-                                        '-primary' => 'intron',
-					'-source'  => ref($self));
+	$intron = Bio::SeqFeature::Gene::Intron->new(
+						     '-start'   => $start,
+						     '-end'     => $end,
+						     '-strand'  => $strand,
+						     '-primary' => 'intron',
+						     '-source'  => ref($self));
 	my $seq = $self->entire_seq();
 	$intron->attach_seq($seq) if $seq;
 	$intron->seqname($self->seqname());
@@ -465,41 +339,28 @@ sub introns {
 
 sub poly_A_site {
     my ($self, $fea) = @_;
-
-    if(defined($fea)) {
-	if(! $fea) {
-	    delete($self->{'_poly_A_site'});
-	} else {
-	    if(! $fea->isa('Bio::SeqFeatureI') ) {
-		$self->throw("$fea does not implement Bio::SeqFeatureI");
-	    }
-	    $self->_expand_region($fea);
-	    if(defined($self->entire_seq()) &&
-	       (! defined($fea->entire_seq())) && $fea->can('attach_seq')) {
-		$fea->attach_seq($fea->entire_seq());
-	    }
-	    $self->{'_poly_A_site'} = $fea;
-	}
+    if ($fea) {
+	$self->_add($fea,'Bio::SeqFeature::Gene::poly_A_site');
     }
-    return $self->{'_poly_A_site'};
+    return ($self->get_feature_type('Bio::SeqFeature::Gene::poly_A_site'))[0];
 }
 
 =head2 utrs
 
  Title   : utrs()
- Usage   : @utr_sites = $transcript->utrs('3prime');
-           @utr_sites = $transcript->utrs('5prime');
+ Usage   : @utr_sites = $transcript->utrs('utr3prime');
+           @utr_sites = $transcript->utrs('utr5prime');
            @utr_sites = $transcript->utrs();
  Function: Get the features representing untranslated regions (UTR) of this
            transcript.
 
            You may provide an argument specifying the type of UTR. Currently
-           the following types are recognized: 5prime 3prime for UTR on the
+           the following types are recognized: utr5prime utr3prime for UTR on the
            5' and 3' end of the CDS, respectively.
 
- Returns : An array of Bio::SeqFeature::Gene::ExonI implementing objects
+ Returns : An array of Bio::SeqFeature::Gene::utr objects
            representing the UTR regions or sites.
- Args    : Optionally, either 3prime, or 5prime for the the type of UTR
+ Args    : Optionally, either utr3prime, or utr5prime for the the type of UTR
            feature.
 
 
@@ -507,16 +368,8 @@ sub poly_A_site {
 
 sub utrs {
     my ($self, $type) = @_;
-    my @utrs = ();
-    my @keys;
+    return $self->get_feature_type('Bio::SeqFeature::Gene::utr',$type);
 
-    # pull out all exon types that exist and match
-    @keys = $self->_get_typed_keys("exons_utr", $type);
-    # gather the individual arrays and flatten out into one
-    foreach my $key (@keys) {
-	push(@utrs, @{$self->{$key}});
-    }
-    return @utrs;
 }
 
 =head2 add_utr
@@ -527,7 +380,7 @@ sub utrs {
  Function: Add a UTR feature/site to this transcript.
 
            The second parameter is optional and denotes the type of the UTR
-           feature. Presently recognized types include '5prime' and '3prime'
+           feature. Presently recognized types include 'utr5prime' and 'utr3prime'
            for UTR on the 5' and 3' end of a gene, respectively.
 
            Calling this method is the same as calling 
@@ -539,43 +392,27 @@ sub utrs {
            Otherwise cds() and friends will become confused.
 
  Returns : 
- Args    : A Bio::SeqFeature::Gene::ExonI implementing object.
+ Args    : A Bio::SeqFeature::Gene::utr implementing object.
 
 
 =cut
 
 sub add_utr {
     my ($self, $fea, $type) = @_;
-
-    if(! $fea->isa('Bio::SeqFeature::Gene::ExonI') ) {
-	$self->throw("$fea does not implement Bio::SeqFeature::Gene::ExonI");
-    }
-    # prefix key
-    $type = ($type ? lc($type) : "");
-    $type = "utr".$type if($type !~ /^utr/);
-    my $key = "_exons_utr$type";
-    if(! exists($self->{$key})) {
-	$self->{$key} = [];
-    }
-    $self->_expand_region($fea);
-    if(defined($self->entire_seq()) &&
-       (! defined($fea->entire_seq())) && $fea->can('attach_seq')) {
-	$fea->attach_seq($fea->entire_seq());
-    }
-    $self->_expand_region($fea);
-    push(@{$self->{$key}}, $fea);
+    $self->_add($fea,'Bio::SeqFeature::Gene::utr',$type);
+    return;
 }
 
 =head2 flush_utrs
 
  Title   : flush_utrs()
  Usage   : $transcript->flush_utrs();
-           $transcript->flush_utrs('3prime');
+           $transcript->flush_utrs('utr3prime');
  Function: Remove all or a specific type of UTR features/sites from this
            transcript.
 
            Cf. add_utr() for documentation about recognized types.
- Returns : 
+ Returns : a list of the removed features
  Args    : Optionally a string denoting the type of UTR feature.
 
 
@@ -583,16 +420,7 @@ sub add_utr {
 
 sub flush_utrs {
     my ($self, $type) = @_;
-
-    # prefix key
-    $type = ($type ? lc($type) : "");
-    $type = "utr".$type if($type !~ /^utr/);
-    # pull out all types that exist and match
-    my @keys = $self->_get_typed_keys("exons_", $type);
-    # delete the keys pulled out
-    foreach my $key (@keys) {
-	delete($self->{$key});
-    }
+    return $self->_flush('Bio::SeqFeature::Gene::utr',$type);
 }
 
 =head2 sub_SeqFeature
@@ -681,7 +509,7 @@ sub flush_sub_SeqFeature {
 
 sub cds {
     my ($self) = @_;
-    my @exons = $self->exons('coding');
+    my @exons = $self->exons_ordered();  #this is always sorted properly according to strand
     my $strand;
 
     return undef unless(@exons);
@@ -694,17 +522,6 @@ sub cds {
 	if($exon->strand() && (($exon->strand() * $strand) < 0)) {
 	    $self->throw("Transcript mixes coding exons on plus and minus ".
 			 "strand. This makes no sense.");
-	}
-    }
-    # Make sure exons are sorted if we know the strand. If we don't know the
-    # the strand we go with the order found.
-    if($strand) {
-	if($strand == 1) {
-	    # always sort forward for plus-strand transcripts
-	    @exons = sort { $a->start() <=> $b->start(); } @exons;
-	} else {
-	    # sort in reverse order for transcripts on the negative strand
-	    @exons = sort { $b->start() <=> $a->start(); } @exons;
 	}
     }
     my $cds = $self->_make_cds(@exons);
@@ -769,12 +586,12 @@ sub mrna {
     }
     # get and add UTR sequences
     $mrna = "";
-    foreach $elem ($self->utrs('5prime')) {
+    foreach $elem ($self->utrs('utr5prime')) {
 	$mrna .= $elem->seq()->seq();
     }
     $seq->seq($mrna . $seq->seq());
     $mrna = "";
-    foreach $elem ($self->utrs('3prime')) {
+    foreach $elem ($self->utrs('utr3prime')) {
 	$mrna .= $elem->seq()->seq();
     }
     $seq->seq($seq->seq() . $mrna);
@@ -836,4 +653,124 @@ sub _make_cds {
     return $cds;
 }
 
+=head2 features
+
+ Title   : features
+ Usage   : my @features=$transcript->features;
+ Function: returns all the features associated with this transcript
+ Returns : a list of features
+ Args    : none
+
+
+=cut
+
+
+sub features {
+    my ($self)=@_;
+    return @{$self->{'_features'}};
+}
+
+sub get_unordered_feature_type{
+    my ($self, $type, $pri)=@_;
+    my @list;
+    foreach ($self->features) {
+	if ($_->isa($type)) {
+	    if ($pri && $_->primary_tag !~ /$pri/i) {
+		next;
+	    }
+	    push @list,$_;
+	}
+    }
+    return @list;
+
+}
+
+sub get_feature_type {
+    my ($self)=shift;
+    return $self->_my_sort($self->get_unordered_feature_type(@_));
+}
+
+sub _flush {
+    my ($self, $type, $pri)=@_;
+    my @list=$self->features;
+    my @cut;
+    for (0..$#list) {
+	if ($list[$_]->isa($type)) {
+	    if ($pri && $list[$_]->primary_tag !~ /$pri/i) {
+		next;
+	    }
+	    push @cut, splice @list, $_, 1;  #remove the element of $type from @list
+	                                     #and return each of them in @cut
+	}
+    }
+    $self->{'_features'}=\@list;
+    return @cut;
+}
+
+sub _add {
+    my ($self, $fea, $type)=@_;
+    require Bio::SeqFeature::Gene::Promoter;
+    require Bio::SeqFeature::Gene::utr;
+    require Bio::SeqFeature::Gene::Exon;
+    require Bio::SeqFeature::Gene::Intron;
+    require Bio::SeqFeature::Gene::poly_A_site;
+
+    if(! $fea->isa('Bio::SeqFeatureI') ) {
+	$self->throw("$fea does not implement Bio::SeqFeatureI");
+    }
+    if(! $fea->isa($type) ) {
+	$fea=$self->_new_of_type($fea,$type);
+    }
+    $self->_expand_region($fea);
+    if(defined($self->entire_seq()) && (! defined($fea->entire_seq())) &&
+       $fea->can('attach_seq')) {
+	$fea->attach_seq($fea->entire_seq());
+    }
+    push(@{$self->{'_features'}}, $fea);
+}
+
+sub _my_sort {
+    my ($self,@list)=@_;
+    my $strand;
+    foreach my $fea (@list) {
+	if($fea->strand()) {
+	    # defined and != 0
+	    $strand = $fea->strand() if(! $strand);
+	    if(($fea->strand() * $strand) < 0) {
+		$strand = undef;
+		last;
+	    }
+	}
+    }
+    if (defined $strand && $strand == - 1) {  #reverse strand
+	return sort {$b->start <=> $a->start} @list;
+    } else {               #undef or forward strand
+	return sort {$a->start <=> $b->start} @list;
+    }
+}
+
+sub _new_of_type {
+    my ($self, $fea, $type, $pri)= @_;
+    my $primary;
+    if ($pri) {
+	$primary = $pri;
+    } else {
+	($primary) = $type =~ /.*::(.+)/;
+    }
+    
+    my %args=(
+	      '-start'   => $fea->start,
+	      '-end'     => $fea->end,
+	      '-strand'  => $fea->strand,
+	      '-score'   => $fea->score,
+	      '-primary' => $primary,
+	      '-source'  => ref($self));
+    return $fea=$type->new(%args);
+}
+
 1;
+
+
+
+
+

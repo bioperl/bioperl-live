@@ -48,7 +48,7 @@ while(my $gene = $genscan->next_prediction()) {
 	$fea = ($gene->exons())[0];
 	ok $fea->strand(), -1, 
 	     "strand mismatch (".$fea->strand()." instead of -1)";
-	$fea = $gene->poly_A_site();
+	$fea = ($gene->poly_A_site());
 	ok $fea->score(), 1.05, 
              "score mismatch (".$fea->score()." instead of 1.05)";
     }
