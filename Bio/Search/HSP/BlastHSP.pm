@@ -186,8 +186,6 @@ $GAP_SYMBOL    = '-';          # Need a more general way to handle gap symbols.
            :      -PROGRAM      => string ('TBLASTN', 'BLASTP', etc.).
            :      -QUERY_NAME   => string, id of query sequence
            :      -HIT_NAME     => string, id of hit sequence
-           :      -QUERY_LENGTH => integer, length of query sequence
-           :      -HIT_LENGTH   => integer, length of hit sequence
            :
  Comments  : Having the raw data allows this object to do lazy parsing of 
            : the raw HSP data (i.e., not parsed until needed).
@@ -212,14 +210,12 @@ sub new {
     my ($raw_data, $qname, $hname, $qlen, $hlen);
 
     ($self->{'_prog'}, $self->{'_rank'}, $raw_data,
-     $qname, $hname, $qlen, $hlen) = 
+     $qname, $hname) = 
       $self->_rearrange([qw( PROGRAM
 			     RANK
 			     RAW_DATA
 			     QUERY_NAME
 			     HIT_NAME
-			     QUERY_LENGTH
-			     HIT_LENGTH
 			   )], @args );
     
     # _set_data() does a fair amount of parsing. 
@@ -230,15 +226,18 @@ sub new {
     my ($qb, $hb) = $self->start();
     my ($qe, $he) = $self->end();
     my ($qs, $hs) = $self->strand();
+    my ($f) = $self->frame();
 
     $self->query( Bio::SeqFeature::Similarity->new (-start=>$qb, 
 						    -end=>$qe, 
 						    -strand=>$qs, 
+						    -frame=>$f, 
 						    -source=>$self->{'_prog'} ));
 
     $self->hit( Bio::SeqFeature::Similarity->new (-start=>$hb, 
 						  -end=>$he, 
 						  -strand=>$hs, 
+                                                  -frame=>$f, 
 						  -source=>$self->{'_prog'} ));
 
 
@@ -259,6 +258,22 @@ sub new {
 sub DESTROY {
     my $self = shift; 
     #print STDERR "--->DESTROYING $self\n";
+}
+
+
+# Title   : _id_str; 
+# Purpose : Intended for internal use only to provide a string for use
+#           within exception messages to help users figure out which 
+#           query/hit caused the problem.
+# Returns : Short string with name of query and hit seq 
+sub _id_str {
+    my $self = shift;
+    if( not defined $self->{'_id_str'}) {
+        my $qname = $self->query->seqname;
+        my $hname = $self->hit->seqname;
+        $self->{'_id_str'} = "QUERY=\"$qname\" HIT=\"$hname\"";
+    }
+    return $self->{'_id_str'};
 }
 
 #=================================================
@@ -430,7 +445,7 @@ sub gaps {
     }
 
     if($seqType eq 'total') {
-	return (($self->{'_queryGaps'} || 0) + ($self->{'_sbjctGaps'} || 0)) || 0;
+	return ($self->{'_queryGaps'} + $self->{'_sbjctGaps'}) || 0;
     } else {
 	## Sensitive to member name format.
 	$seqType = "_\L$seqType\E";
@@ -726,11 +741,13 @@ sub _set_data {
     $self->{'_matchList'} = \@matchList;
 
     if(not defined ($self->{'_numIdentical'})) {
-      $self->throw( -text  => "Can't parse match statistics. Possibly a new or unrecognized Blast format.");
+        my $id_str = $self->_id_str;
+        $self->throw( -text  => "Can't parse match statistics. Possibly a new or unrecognized Blast format. ($id_str)");
     }
 
     if(!scalar @queryList or !scalar @sbjctList) {
-        $self->throw( "Can't find query or sbjct alignment lines. Possibly unrecognized Blast format.");
+        my $id_str = $self->_id_str;
+        $self->throw( "Can't find query or sbjct alignment lines. Possibly unrecognized Blast format. ($id_str)");
       }
 }
 
@@ -786,8 +803,9 @@ sub _set_score_stats {
 	$p                 = $5;
 
     } else {
+        my $id_str = $self->_id_str;
 	$self->throw(-class => 'Bio::Root::Exception',
-		     -text => "Can't parse score statistics: unrecognized format.", 
+		     -text => "Can't parse score statistics: unrecognized format. ($id_str)", 
 		     -value => $data);
     }
 
@@ -927,7 +945,7 @@ sub _set_seq {
     my $numGaps   = 0;
 
     foreach( @data ) {
-  if( m/(\d+) *([^\d\s]+) *(\d+)/) {
+	if( m/(\d+) *(\D+) *(\d+)/) {
 	    push @ranges, ( $1, $3 ) ;
 	    push @sequence, $2;
 	} else {
@@ -935,8 +953,10 @@ sub _set_seq {
 	}
     }
 
-    (scalar(@sequence) and scalar(@ranges)) ||
-	$self->throw("Can't set sequence: missing data. Possibly unrecognized Blast format.");
+    if( !(scalar(@sequence) and scalar(@ranges))) {
+        my $id_str = $self->_id_str;
+	$self->throw("Can't set sequence: missing data. Possibly unrecognized Blast format. ($id_str)");
+   }
  
     # Sensitive to member name changes.
     $seqType = "_\L$seqType\E";
@@ -1075,7 +1095,10 @@ sub _set_match_seq {
 #-------------------
     my $self = shift;
 
-    ref($self->{'_matchList'}) || $self->throw("Can't set HSP match sequence: No data");
+    if( ! ref($self->{'_matchList'}) ) {
+        my $id_str = $self->_id_str;
+        $self->throw("Can't set HSP match sequence: No data ($id_str)");
+    }
     
     my @data = @{$self->{'_matchList'}};
 
@@ -1151,7 +1174,9 @@ sub matches {
     my(@data);
     my($seqType, $beg, $end) = ($param{-SEQ}, $param{-START}, $param{-STOP});
     $seqType ||= 'query';
-   $seqType = 'sbjct' if $seqType eq 'hit';
+    $seqType = 'sbjct' if $seqType eq 'hit';
+
+    my($start,$stop);
 
     if(!defined $beg && !defined $end) {
 	## Get data for the whole alignment.
@@ -1160,7 +1185,7 @@ sub matches {
 	## Get the substring representing the desired sub-section of aln.
 	$beg ||= 0;
 	$end ||= 0;
-	my($start,$stop) = $self->range($seqType);
+	($start,$stop) = $self->range($seqType);
 	if($beg == 0) { $beg = $start; $end = $beg+$end; }
 	elsif($end == 0) { $end = $stop; $beg = $end-$beg; }
 
@@ -1205,7 +1230,8 @@ sub matches {
 	 ## ML: END DEBUGGING CODE----------
 
 	if(!CORE::length $seq) {
-	    $self->throw("Undefined sub-sequence ($beg,$end). Valid range = $start - $stop");
+            my $id_str = $self->_id_str;
+	    $self->throw("Undefined $seqType sub-sequence ($beg,$end). Valid range = $start - $stop ($id_str)");
 	}
 	## Get data for a substring.
 #	printf "Collecting HSP subsection data: beg,end = %d,%d; start,stop = %d,%d\n%s<---\n", $beg, $end, $start, $stop, $seq;
@@ -1442,7 +1468,8 @@ sub strand {
             $qstr = $STRAND_SYMBOL{$self->{'_queryStrand'}} if defined $self->{'_queryStrand'};
             $hstr = $STRAND_SYMBOL{$self->{'_sbjctStrand'}} if defined $self->{'_sbjctStrand'};
         }
-	return ($qstr, $hstr);
+        $qstr ||= 0;
+        $hstr ||= 0;  
 	return ($qstr, $hstr);
     }
     local $^W = 0;
@@ -1527,8 +1554,9 @@ sub seq_str {
 	return join('',@$aref); 
 
     } else {
+        my $id_str = $self->_id_str;
 	$self->throw(-class => 'Bio::Root::BadParameter',
-		     -text => "Invalid or undefined sequence type: $seqType\n" . 
+		     -text => "Invalid or undefined sequence type: $seqType ($id_str)\n" . 
 		               "Valid types: query, sbjct, match",
 		     -value => $seqType);
     }
