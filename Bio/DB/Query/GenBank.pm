@@ -197,8 +197,10 @@ sub _request_parameters {
   $method = 'get';
   $base   = ESEARCH;
   push @params,('term'   => $self->query);
+
   # Providing 'retmax' limits queries to 500 sequences
   # push @params,('retmax' => $self->{'_count'} || MAXENTRY);
+
   # And actually, it seems that we need 'retstart' equal to 0
   push @params, ('retstart' => 0);
   ($method,$base,@params);
@@ -219,6 +221,7 @@ Returns the number of entries that are matched by the query.
 
 sub count   {
   my $self = shift;
+  warn "count(@_)";
   if (@_) {
     my $d = $self->{'_count'};
     $self->{'_count'}   = shift;

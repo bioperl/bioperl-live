@@ -203,7 +203,7 @@ sub new {
 		   },$class;
   $self->{coordinate_mapper} = $args{-map_coords} 
     if exists $args{-map_coords} && ref($args{-map_coords}) eq 'CODE';
-  $self->{smart_features}    = $args{-smart_features} if exists $args{-smart_features};
+  $self->smart_features($args{-smart_features})       if exists $args{-smart_features};
   $self->{safe}              = $args{-safe}           if exists $args{-safe};
 
   # call with
@@ -623,6 +623,7 @@ feature's primary_tag() method will be invoked to get the type.
 sub add_feature {
   my $self = shift;
   my ($feature,$type) = @_;
+  $feature->configurator($self) if $self->smart_features;
   $type = $feature->primary_tag unless defined $type;
   $self->{visible}{$feature}++;
   $self->{feature_count}++;
