@@ -1,564 +1,135 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<HTML
-><HEAD
-><TITLE
->Flat Databases HOWTO</TITLE
-><META
-NAME="GENERATOR"
-CONTENT="Modular DocBook HTML Stylesheet Version 1.7"></HEAD
-><BODY
-CLASS="ARTICLE"
-BGCOLOR="#FFFFFF"
-TEXT="#000000"
-LINK="#0000FF"
-VLINK="#840084"
-ALINK="#0000FF"
-><DIV
-CLASS="ARTICLE"
-><DIV
-CLASS="TITLEPAGE"
-><H1
-CLASS="TITLE"
-><A
-NAME="AEN2"
->Flat Databases HOWTO</A
-></H1
-><H3
-CLASS="AUTHOR"
-><A
-NAME="AEN4"
->Lincoln Stein</A
-></H3
-><DIV
-CLASS="AFFILIATION"
-><SPAN
-CLASS="ORGNAME"
->	  <A
-HREF="http://www.cshl.org"
-TARGET="_top"
->Cold Spring Harbor Laboratory</A
->
-	<BR></SPAN
-><DIV
-CLASS="ADDRESS"
-><P
-CLASS="ADDRESS"
->	&nbsp;&nbsp;<CODE
-CLASS="EMAIL"
->&#60;<A
-HREF="mailto:lstein-at-cshl.org"
->lstein-at-cshl.org</A
->&#62;</CODE
-><br>
-	</P
-></DIV
-></DIV
-><H3
-CLASS="AUTHOR"
-><A
-NAME="AEN12"
->Brian Osborne</A
-></H3
-><DIV
-CLASS="AFFILIATION"
-><SPAN
-CLASS="ORGNAME"
-><A
-HREF="http://www.cognia.com"
-TARGET="_top"
->Cognia Corporation</A
-><BR></SPAN
-><DIV
-CLASS="ADDRESS"
-><P
-CLASS="ADDRESS"
->&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<CODE
-CLASS="EMAIL"
->&#60;<A
-HREF="mailto:brian-at-cognia.com"
->brian-at-cognia.com</A
->&#62;</CODE
-><br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</P
-></DIV
-></DIV
-><H3
-CLASS="AUTHOR"
-><A
-NAME="AEN22"
->Heikki Lehväslaiho</A
-></H3
-><DIV
-CLASS="AFFILIATION"
-><SPAN
-CLASS="ORGNAME"
->          <A
-HREF="http://www.ebi.ac.uk"
-TARGET="_top"
->European Bioinformatics Institute</A
->
-        <BR></SPAN
-><DIV
-CLASS="ADDRESS"
-><P
-CLASS="ADDRESS"
->&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<CODE
-CLASS="EMAIL"
->&#60;<A
-HREF="mailto:heikki-at-ebi.co.uk"
->heikki-at-ebi.co.uk</A
->&#62;</CODE
-><br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</P
-></DIV
-></DIV
-><P
-CLASS="PUBDATE"
->2003-02-26<BR></P
-><DIV
-CLASS="REVHISTORY"
-><TABLE
-WIDTH="100%"
-BORDER="0"
-><TR
-><TH
-ALIGN="LEFT"
-VALIGN="TOP"
-COLSPAN="3"
-><B
->Revision History</B
-></TH
-></TR
-><TR
-><TD
-ALIGN="LEFT"
->Revision 1.0</TD
-><TD
-ALIGN="LEFT"
->2003-02-26</TD
-><TD
-ALIGN="LEFT"
->Revised by: LS</TD
-></TR
-><TR
-><TD
-ALIGN="LEFT"
-COLSPAN="3"
->First version</TD
-></TR
-><TR
-><TD
-ALIGN="LEFT"
->Revision 1.1</TD
-><TD
-ALIGN="LEFT"
->2003-10-17</TD
-><TD
-ALIGN="LEFT"
->Revised by: BS</TD
-></TR
-><TR
-><TD
-ALIGN="LEFT"
-COLSPAN="3"
->fom text into howto</TD
-></TR
-><TR
-><TD
-ALIGN="LEFT"
->Revision 1.2</TD
-><TD
-ALIGN="LEFT"
->2003-10-17</TD
-><TD
-ALIGN="LEFT"
->Revised by: HL</TD
-></TR
-><TR
-><TD
-ALIGN="LEFT"
-COLSPAN="3"
->fom txt reformatted into SGML</TD
-></TR
-></TABLE
-></DIV
-><DIV
-><DIV
-CLASS="ABSTRACT"
-><P
-></P
-><A
-NAME="AEN51"
-></A
-><P
->	  The Open Biological Database Access (OBDA) standard
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"><head><title>Flat Databases HOWTO</title><link rel="stylesheet" href="e-novative.css" type="text/css"/><meta name="generator" content="DocBook XSL Stylesheets V1.55.0"/><meta name="description" content="&#xA;	  The Open Biological Database Access (OBDA) standard&#xA;	  specifies a way of generating indexes for entry-based&#xA;	  sequence files (e.g. FASTA, EMBL) so that the entries can be&#xA;	  looked up and retrieved quickly.  These indexes are created&#xA;	  and accessed using the Bio::DB::Flat&#xA;	  module.&#xA;	"/></head><body><div xmlns="" id="customheader"><span class="logo"></span>
+    
+    </div><div class="article"><div class="titlepage"><div><h1 class="title"><a id="d3e1"/>Flat Databases HOWTO</h1></div><div><div class="author"><h3 class="author">Lincoln Stein</h3><div class="affiliation"><span class="orgname">
+	  <a href="http://www.cshl.org" target="_top">Cold Spring Harbor Laboratory</a>
+	<br/></span><div class="address"><p>
+	  <tt>&lt;<a href="mailto:lstein-at-cshl.org">lstein-at-cshl.org</a>&gt;</tt>
+	</p></div></div></div></div><div><div class="author"><h3 class="author">Brian Osborne</h3><div class="affiliation"><span class="orgname"><a href="http://www.cognia.com" target="_top">Cognia Corporation</a><br/></span><div class="address"><p>
+          <tt>&lt;<a href="mailto:brian-at-cognia.com">brian-at-cognia.com</a>&gt;</tt>
+        </p></div></div></div></div><div><div class="author"><h3 class="author">Heikki Lehväslaiho</h3><div class="affiliation"><span class="orgname">
+          <a href="http://www.ebi.ac.uk" target="_top">European Bioinformatics Institute</a>
+        <br/></span><div class="address"><p>
+          <tt>&lt;<a href="mailto:heikki-at-ebi.co.uk">heikki-at-ebi.co.uk</a>&gt;</tt>
+        </p></div></div></div></div><div><div class="legalnotice"><p>This document is copyright Lincoln Stein, 2002.  For
+           reproduction other than personal use please contact lstein at cshl.org
+         </p></div></div><div><p class="pubdate">2003-02-26</p></div><div><div class="revhistory"><table border="1" width="100%" summary="Revision history"><tr><th align="left" valign="top" colspan="3"><b>Revision History</b></th></tr><tr><td align="left">Revision 1.0</td><td align="left">2003-02-26</td><td align="left">LS</td></tr><tr><td align="left" colspan="3">First version</td></tr><tr><td align="left">Revision 1.1</td><td align="left">2003-10-17</td><td align="left">BIO</td></tr><tr><td align="left" colspan="3"/></tr><tr><td align="left">Revision 1.2</td><td align="left">2003-10-17</td><td align="left">HL</td></tr><tr><td align="left" colspan="3">fom txt reformatted into SGML</td></tr></table></div></div><div><div class="abstract"><p class="title"><b>Abstract</b></p><p>
+	  The Open Biological Database Access (OBDA) standard
 	  specifies a way of generating indexes for entry-based
 	  sequence files (e.g. FASTA, EMBL) so that the entries can be
 	  looked up and retrieved quickly.  These indexes are created
-	  and accessed using the <CODE
-CLASS="CLASSNAME"
->Bio::DB::Flat</CODE
->
+	  and accessed using the <tt>Bio::DB::Flat</tt>
 	  module.
-	</P
-><P
-></P
-></DIV
-></DIV
-><HR></DIV
-><DIV
-CLASS="TOC"
-><DL
-><DT
-><B
->Table of Contents</B
-></DT
-><DT
->1. <A
-HREF="#INTRO"
->Creating OBDA-Compliant Indexed Sequence Files</A
-></DT
-><DT
->2. <A
-HREF="#OPTIONS"
->Choosing Your Options</A
-></DT
-><DT
->3. <A
-HREF="#FILES"
->Moving Database Files</A
-></DT
-></DL
-></DIV
-><DIV
-CLASS="SECTION"
-><H2
-CLASS="SECTION"
-><A
-NAME="INTRO"
->1. Creating OBDA-Compliant Indexed Sequence Files</A
-></H2
-><P
->    <CODE
-CLASS="CLASSNAME"
->Bio::DB::Flat</CODE
-> has the same functionality as
-    the various <CODE
-CLASS="CLASSNAME"
->Bio::Index</CODE
-> modules.  The main
+	</p></div></div><hr/></div><div class="toc"><p><b>Table of Contents</b></p><dl><dt>1. <a href="#intro">Creating OBDA-Compliant Indexed Sequence Files</a></dt><dt>2. <a href="#options">Choosing Your Options</a></dt><dt>3. <a href="#files">Moving Database Files</a></dt><dt>4. <a href="#more">More information</a></dt></dl></div><div class="section"><div class="titlepage"><div><h2 class="title" style="clear: both"><a id="intro"/>1. Creating OBDA-Compliant Indexed Sequence Files</h2></div></div><p>
+    <tt>Bio::DB::Flat</tt> has the same functionality as
+    the various <tt>Bio::Index</tt> modules.  The main
     reason to use it is if you want to use the BioSequence Registry
-    system (see the OBDA Access HOWTO at <A
-HREF="http://bioperl.org/HOWTOs"
-TARGET="_top"
->http://bioperl.org/HOWTOs</A
->),
+    system (see the OBDA Access HOWTO at <a href="http://bioperl.org/HOWTOs" target="_top">http://bioperl.org/HOWTOs</a>),
     or if you want to share the same indexed files among scripts
     written in other languages, such as those written with BioJava or
     BioPython.
-  </P
-><P
->    There are four steps to creating a
-    <CODE
-CLASS="CLASSNAME"
->Bio::DB::Flat</CODE
-> database:
-  </P
-><P
-></P
-><OL
-TYPE="1"
-><LI
-><P
->Select a Root Directory</P
-><P
->    Select a directory in which the flat file indexes will be stored.
+  </p><p>
+    There are four steps to creating a
+    <tt>Bio::DB::Flat</tt> database:
+  </p><div class="orderedlist"><ol type="1"><li><p>Select a Root Directory</p><p>
+    Select a directory in which the flat file indexes will be stored.
     This directory should be writable by you, and readable by everyone
     who will be running applications that access the sequence data.
-  </P
-></LI
-><LI
-><P
->Move the Flat Files Into a Good Location</P
-><P
->    The indexer records the path to the source files (e.g. FASTA, or
+  </p></li><li><p>Move the Flat Files Into a Good Location</p><p>
+    The indexer records the path to the source files (e.g. FASTA, or
     local copies of GenBank, Embl or SwissProt).  This means that you
     must not change the location or name of the source files after
     running the indexer.  Pick a good stable location for the source
     files and move them there.
-  </P
-></LI
-><LI
-><P
->Choose a Symbolic Name for the Database</P
-><P
->    Choose a good symbolic name for the database.  For example, if you
+  </p></li><li><p>Choose a Symbolic Name for the Database</p><p>
+    Choose a good symbolic name for the database.  For example, if you
     are mirroring GenBank, "genbank" might be a good choice.  The
     indexer will create files in a subdirectory by this name located
     underneath the root directory.
-  </P
-></LI
-><LI
-><P
->Run the bioflat_index.pl script to load the
-        sequence files into the database.</P
-><P
->     The final step is to run the bioflat_index.pl script.  This
-     script is located in the BioPerl distribution, under scripts/db.
-     For convenience, you may want to copy it to /usr/bin or another
-     system-wide directory.
-  </P
-></LI
-></OL
-></DIV
-><DIV
-CLASS="SECTION"
-><HR><H2
-CLASS="SECTION"
-><A
-NAME="OPTIONS"
->2. Choosing Your Options</A
-></H2
-><P
->     The first time you run the script, the typical usage is as
+  </p></li><li><p>Run the bioflat_index.pl script to load the
+        sequence files into the database.</p><p>
+	  The final step is to run the bioflat_index.PLS script.  This
+	  script is located in the BioPerl distribution, under scripts/DB.
+	  For convenience, you are offered the option to copy it to
+	  /usr/bin or another system-wide directory on 'make install' (and
+	  its name will be changed to bioflat_index.pl).
+	</p></li></ol></div></div><div class="section"><div class="titlepage"><div><h2 class="title" style="clear: both"><a id="options"/>2. Choosing Your Options</h2></div></div><p>
+     The first time you run the script, the typical usage is as
      follows:
-    <PRE
-CLASS="PROGRAMLISTING"
->     bioflat_index.pl -c -l /usr/share/biodb -d genbank -i bdb -f fasta data/*.fa
-    </PRE
->
+    <pre class="programlisting">
+     bioflat_index.pl -c -l /usr/share/biodb -d genbank -i bdb -f fasta data/*.fa
+    </pre>
 
      The following command line options are required:
 
-       <DIV
-CLASS="TABLE"
-><A
-NAME="AEN79"
-></A
-><P
-><B
->Table 1. </B
-></P
-><TABLE
-BORDER="1"
-CLASS="CALSTABLE"
-><COL><COL><THEAD
-><TR
-><TH
->Option</TH
-><TH
->Describtion</TH
-></TR
-></THEAD
-><TBODY
-><TR
-><TD
->-c</TD
-><TD
->create a new index</TD
-></TR
-><TR
-><TD
->-l</TD
-><TD
->path to the root directory</TD
-></TR
-><TR
-><TD
->-d</TD
-><TD
->symbolic name for the new database</TD
-></TR
-><TR
-><TD
->-i</TD
-><TD
->indexing scheme (discussed below)</TD
-></TR
-><TR
-><TD
->-f</TD
-><TD
->source file format</TD
-></TR
-></TBODY
-></TABLE
-></DIV
->
+       <div class="table"><a id="d3e79"/><table summary="bioflat_index command-line options" border="1"><colgroup><col/><col/></colgroup><thead><tr><th>Option</th><th>Description</th></tr></thead><tbody><tr><td>-c</td><td>create a new index</td></tr><tr><td>-l</td><td>path to the root directory</td></tr><tr><td>-d</td><td>symbolic name for the new database</td></tr><tr><td>-i</td><td>indexing scheme (discussed below)</td></tr><tr><td>-f</td><td>source file format</td></tr></tbody></table><p class="title"><b>Table 1. bioflat_index command-line options</b></p></div>
 
-  </P
-><P
->    The <VAR
-CLASS="PARAMETER"
->-c</VAR
-> option must be present to create the
+  </p><p>
+    The <i><tt>-c</tt></i> option must be present to create the
     database.  If the database already exists,
-    <VAR
-CLASS="PARAMETER"
->-c</VAR
-> will reinitialize the index, wiping out
+    <i><tt>-c</tt></i> will reinitialize the index, wiping out
     its current contents.
-  </P
-><P
->    The <VAR
-CLASS="PARAMETER"
->-l</VAR
-> option specifies the root directory
+  </p><p>
+    The <i><tt>-l</tt></i> option specifies the root directory
     for the database indexes.
-  </P
-><P
->    The <VAR
-CLASS="PARAMETER"
->-d</VAR
-> option chooses the symbolic name for
-    the new database.  If the <VAR
-CLASS="PARAMETER"
->-c</VAR
-> option is
+  </p><p>
+    The <i><tt>-d</tt></i> option chooses the symbolic name for
+    the new database.  If the <i><tt>-c</tt></i> option is
     specified, this will cause a new directory to be created
     underneath the root directory.
-  </P
-><P
->    The <VAR
-CLASS="PARAMETER"
->-i</VAR
-> option selects the indexing scheme.  Currently there are
-    two indexing schemes supported: "bdb" and "flat."  "bdb" selects
-    an index based on the BerkeleyDB library.  It is generally the
-    faster of the two, but it requires both the BerkeleyDB library and
-    the Perl DB_File module to be installed on your system.  "flat" is
-    a sorted text-based index that uses a binary search algorithm to
-    rapidly search for entries.  Although not as fast as bdb, the flat
-    indexing system has good performance for even large databases, and
-    it has no requirements beyond Perl itself.  Once an indexing
-    scheme has been selected there is no way to change it other than
-    recreating the index from scratch using the
-    <VAR
-CLASS="PARAMETER"
->-c</VAR
-> option.
-  </P
-><P
->    The <VAR
-CLASS="PARAMETER"
->-f</VAR
-> option specifies the format of the
-    source database files.  It must be one of the formats that BioPerl
+  </p><p>
+      The <i><tt>-i</tt></i> option selects the indexing scheme.  
+      Currently there are two indexing schemes supported: "bdb" and
+      "flat."  "bdb" selects an index based on the Berkeley DB library.  
+      It is generally the faster of the two, but it requires that the
+      Berkeley DB library (from Linux RPM or from <a href="http://www.sleepycat.com" target="_top">www.sleepycat.com</a>, 
+      version 2 or higher) and the Perl BerkeleyDB module be installed 
+      on your system. The Perl DB_File module will not work.
+    </p><p>
+      "flat" is a sorted text-based index that uses a binary search algorithm to
+      rapidly search for entries.  Although not as fast as bdb, the flat
+      indexing system has good performance for even large databases, and
+      it has no requirements beyond Perl itself.  Once an indexing
+      scheme has been selected there is no way to change it other than
+      recreating the index from scratch using the
+      <i><tt>-c</tt></i> option.
+  </p><p>
+    The <i><tt>-f</tt></i> option specifies the format of the
+    source database files.  It must be one of the many formats that BioPerl
     supports, including "genbank", "swiss", "embl" or "fasta".
-    Consult the <CODE
-CLASS="CLASSNAME"
->Bio::SeqIO</CODE
-> documentation for
+    Consult the <tt>Bio::SeqIO</tt> documentation for
     the complete list.  All files placed in the index must share the
     same format.
-  </P
-><P
->    The indexing script will print out a progress message every 1000
+  </p><p>
+    The indexing script will print out a progress message every 1000
     entries, and will report the number of entries successfully
     indexed at the end of its run.
-  </P
-><P
->    To update an existing index run bioflat_index.pl without the
-    <VAR
-CLASS="PARAMETER"
->-c</VAR
-> option and list the files to be added or
-    reindexed.  The <VAR
-CLASS="PARAMETER"
->-l</VAR
-> and
-    <VAR
-CLASS="PARAMETER"
->-d</VAR
-> options are required, but the indexing
+  </p><p>
+    To update an existing index run bioflat_index.pl without the
+    <i><tt>-c</tt></i> option and list the files to be added or
+    reindexed.  The <i><tt>-l</tt></i> and
+    <i><tt>-d</tt></i> options are required, but the indexing
     scheme and source file format do not have to be specified for
     updating as they will be read from the existing index.
-  </P
-><P
->    For your convenience, bioflat_index.pl will take default values
+  </p><p>
+    For your convenience, bioflat_index.pl will also take default values
     from the following environment variables:
 
-       <DIV
-CLASS="TABLE"
-><A
-NAME="AEN122"
-></A
-><P
-><B
->Table 2. </B
-></P
-><TABLE
-BORDER="1"
-CLASS="CALSTABLE"
-><COL><COL><THEAD
-><TR
-><TH
->ENV variable</TH
-><TH
->describtion</TH
-></TR
-></THEAD
-><TBODY
-><TR
-><TD
->OBDA_FORMAT</TD
-><TD
->format of sequence file (<VAR
-CLASS="PARAMETER"
->-f</VAR
->)
-                 </TD
-></TR
-><TR
-><TD
->OBDA_LOCATION</TD
-><TD
->path to directory
+       <div class="table"><a id="d3e124"/><table summary="Environmental variables" border="1"><colgroup><col/><col/></colgroup><thead><tr><th>ENV variable</th><th>description</th></tr></thead><tbody><tr><td>OBDA_FORMAT</td><td>format of sequence file (<i><tt>-f</tt></i>)
+                 </td></tr><tr><td>OBDA_LOCATION</td><td>path to directory
                  in which index files are stored
-                 (<VAR
-CLASS="PARAMETER"
->-l</VAR
->)
-                 </TD
-></TR
-><TR
-><TD
->OBDA_DBNAME</TD
-><TD
->name of database (-d)</TD
-></TR
-><TR
-><TD
->OBDA_INDEX</TD
-><TD
->type of index to create (<VAR
-CLASS="PARAMETER"
->-i</VAR
->)</TD
-></TR
-></TBODY
-></TABLE
-></DIV
->
-  </P
-></DIV
-><DIV
-CLASS="SECTION"
-><HR><H2
-CLASS="SECTION"
-><A
-NAME="FILES"
->3. Moving Database Files</A
-></H2
-><P
->    If you must change the location of the source sequence files after
+                 (<i><tt>-l</tt></i>)
+                 </td></tr><tr><td>OBDA_DBNAME</td><td>name of database (-d)</td></tr><tr><td>OBDA_INDEX</td><td>type of index to create (<i><tt>-i</tt></i>)</td></tr></tbody></table><p class="title"><b>Table 2. Environmental variables</b></p></div>
+  </p></div><div class="section"><div class="titlepage"><div><h2 class="title" style="clear: both"><a id="files"/>3. Moving Database Files</h2></div></div><p>
+    If you must change the location of the source sequence files after
     you create the index, there is a way to do so.  Inside the root
     directory you will find a subdirectory named after the database,
     and inside that you will find a text file named "config.dat."  An
     example config.dat is shown here:
-    <PRE
-CLASS="PROGRAMLISTING"
->     index	flat/1
+    <pre class="programlisting">
+     index	flat/1
      fileid_0	/share/data/alnfile.fasta	294
      fileid_1	/share/data/genomic-seq.fasta	171524
      fileid_2	/share/data/hs_owlmonkey.fasta	416
@@ -567,17 +138,18 @@ CLASS="PROGRAMLISTING"
      primary_namespace	ACC
      secondary_namespaces	ID
      format	URN:LSID:open-bio.org:fasta
-    </PRE
->
-  </P
-><P
->    For each source file you have moved, find its corresponding
+    </pre>
+  </p><p>
+    For each source file you have moved, find its corresponding
     "fileid" line and change the path.  Be careful not to change
     anything else in the file or to inadvertently replace tab
     characters with spaces.
-  </P
-></DIV
-></DIV
-></BODY
-></HTML
->
+  </p></div><div class="section"><div class="titlepage"><div><h2 class="title" style="clear: both"><a id="more"/>4. More information</h2></div></div><p>
+      For more information on using your indexed flat files please see the 
+      <a href="http://bioperl.org/HOWTOs/html/OBDA_Access.html" target="_top">
+      OBDA Access HOWTO</a>.
+    </p></div></div><div xmlns="" id="customfooter">
+      
+      
+      
+    </div></body></html>

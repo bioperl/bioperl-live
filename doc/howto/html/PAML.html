@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <!DOCTYPE html
   PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml"><head><title>Bio::Tools::Phylo::PAML HOWTO</title><link rel="stylesheet" href="e-novative.css" type="text/css"/><meta name="generator" content="DocBook XSL Stylesheets V1.55.0"/><meta name="description" content="&#xA;	paml is a package of C programs that implement&#xA;	Phylogenetic&#xA;	Analyses using&#xA;	Maximum&#xA;	Likelihood, written by Dr. Ziheng Yang,&#xA;	University College London.  These programs implement a wide&#xA;	variety of models to explore the evolutionary relationships&#xA;	between sequences at either the protein, codon or raw DNA&#xA;	level.  This document's aim is to explore and document how the&#xA;	BioPerl paml parser and result objects &#34;work&#34;.&#xA;"/></head><body><div class="article"><div class="titlepage"><div><h1 class="title"><a id="d3e1"/>Bio::Tools::Phylo::PAML HOWTO</h1></div><div><div class="author"><h3 class="author">Aaron Mackey</h3><div class="affiliation"><span class="orgname">
+<html xmlns="http://www.w3.org/1999/xhtml"><head><title>Bio::Tools::Phylo::PAML HOWTO</title><link rel="stylesheet" href="e-novative.css" type="text/css"/><meta name="generator" content="DocBook XSL Stylesheets V1.55.0"/><meta name="description" content="&#xA;	paml is a package of C programs that implement&#xA;	Phylogenetic&#xA;	Analyses using&#xA;	Maximum&#xA;	Likelihood, written by Dr. Ziheng Yang,&#xA;	University College London.  These programs implement a wide&#xA;	variety of models to explore the evolutionary relationships&#xA;	between sequences at either the protein, codon or raw DNA&#xA;	level.  This document's aim is to explore and document how the&#xA;	BioPerl paml parser and result objects &#34;work&#34;.&#xA;"/></head><body><div xmlns="" id="customheader"><span class="logo"></span>
+    
+    </div><div class="article"><div class="titlepage"><div><h1 class="title"><a id="d3e1"/>Bio::Tools::Phylo::PAML HOWTO</h1></div><div><div class="author"><h3 class="author">Aaron Mackey</h3><div class="affiliation"><span class="orgname">
 			<a href="http://www.virginia.edu" target="_top">University of Virginia</a>
 		<br/></span><div class="address"><p>
 			<tt>&lt;<a href="mailto:amackey@virginia.edu">amackey@virginia.edu</a>&gt;</tt>
@@ -33,7 +35,7 @@
 </p></div></div><hr/></div><div class="toc"><p><b>Table of Contents</b></p><dl><dt>1. <a href="#background">Background</a></dt><dt>2. <a href="#results">Accessing paml results</a></dt><dt>3. <a href="#running">Running PAML from within Bioperl</a></dt></dl></div><div class="section"><div class="titlepage"><div><h2 class="title" style="clear: both"><a id="background"/>1. Background</h2></div></div><p>
 	The <span class="emphasis"><em>paml</em></span> package consists of many different executable
 	programs, but the BioPerl Bio::Tools::Phylo::PAML object
-	(hereafter referred to as simply <span class="emphasis"><em>the</em></span> <span class="emphasis"><em>paml</em></span>
+	(hereafter referred to as simply the <span class="emphasis"><em>paml</em></span>
 	object) focuses on dealing with the output of the main
 	analysis programs "baseml", "codeml" (sometimes called "aaml")
 	and "codemlsites" (a batch version of "codeml").  All of these
@@ -130,7 +132,7 @@ while(my $result = $parser-&gt;next_result) {
 	multiple tree topologies.
 </p></div><div class="section"><div class="titlepage"><div><h2 class="title" style="clear: both"><a id="running"/>3. Running PAML from within Bioperl</h2></div></div><p>
 
-       Bioperl also has facilities for runnning <span class="emphasis"><em>paml</em></span> from within a
+       Bioperl also has facilities for running <span class="emphasis"><em>paml</em></span> from within a
        Perl script.  This allows you to compute Ka and Ks estimations
        from within an analysis pipeline.  The following section will
        describe the process of getting data into Bioperl, running the
@@ -250,4 +252,8 @@ for( my $i = 0; $i &lt; (scalar @otus -1) ; $i++) {
 </pre>
 </p><p>
 
-</p></div></div></body></html>
+</p></div></div><div xmlns="" id="customfooter">
+      
+      
+      
+    </div></body></html>

@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <!DOCTYPE html
   PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml"><head><title>OBDA Access HOWTO</title><link rel="stylesheet" href="e-novative.css" type="text/css"/><meta name="generator" content="DocBook XSL Stylesheets V1.55.0"/><meta name="description" content="&#xA;	This is a HOWTO written in DocBook (SGML) that explains how to set up &#xA;      and use the Open Biological Database Access system. &#xA;      "/></head><body><div class="article"><div class="titlepage"><div><h1 class="title"><a id="d3e1"/>OBDA Access HOWTO</h1></div><div><div class="author"><h3 class="author">Aaron Mackey</h3><div class="affiliation"><span class="orgname">
+<html xmlns="http://www.w3.org/1999/xhtml"><head><title>OBDA Access HOWTO</title><link rel="stylesheet" href="e-novative.css" type="text/css"/><meta name="generator" content="DocBook XSL Stylesheets V1.55.0"/><meta name="description" content="&#xA;	This is a HOWTO written in DocBook (SGML) that explains how to set up &#xA;      and use the Open Biological Database Access system. &#xA;      "/></head><body><div xmlns="" id="customheader"><span class="logo"></span>
+    
+    </div><div class="article"><div class="titlepage"><div><h1 class="title"><a id="d3e1"/>OBDA Access HOWTO</h1></div><div><div class="author"><h3 class="author">Aaron Mackey</h3><div class="affiliation"><span class="orgname">
                         <a href="http://www.virginia.edu" target="_top">University of Virginia</a>
                 <br/></span><div class="address"><p>
                         <tt>&lt;<a href="mailto:amackey@virginia.edu">amackey@virginia.edu</a>&gt;</tt>
@@ -17,7 +19,7 @@
                         <tt>&lt;<a href="mailto:lstein@cshl.org">lstein@cshl.org</a>&gt;</tt>
                 </p></div></div></div></div><div><div class="legalnotice"><p>This document is copyright Lincoln Stein, 2002.  For
 	reproduction other than personal use please contact lstein at cshl.org
-      </p></div></div><div><p class="pubdate">2002-07-14</p></div><div><div class="revhistory"><table border="1" width="100%" summary="Revision history"><tr><th align="left" valign="top" colspan="3"><b>Revision History</b></th></tr><tr><td align="left">Revision 1.1</td><td align="left">2003/02/20</td><td align="left">lstein</td></tr><tr><td align="left" colspan="3">added some OBDA documentation plus flat file index load script</td></tr><tr><td align="left">Revision 1.2</td><td align="left">2003/02/20</td><td align="left">lstein</td></tr><tr><td align="left" colspan="3">check in reasonable howtos for database access and flat databases</td></tr><tr><td align="left">Revision 1.3</td><td align="left">2003/02/20</td><td align="left">lstein</td></tr><tr><td align="left" colspan="3">added new heading to biodatabase access doc for Heikki to fill in</td></tr><tr><td align="left">Revision 1.4</td><td align="left">2003/02/20</td><td align="left">heikki</td></tr><tr><td align="left" colspan="3">added explanation for biogetseq</td></tr><tr><td align="left">Revision 1.5</td><td align="left">2003/03/01</td><td align="left">peters</td></tr><tr><td align="left" colspan="3">documentation updates</td></tr><tr><td align="left">Revision 1.6</td><td align="left">2003/03/12</td><td align="left">amackey</td></tr><tr><td align="left" colspan="3">documentation updates</td></tr><tr><td align="left">Revision 1.7</td><td align="left">2003/06/10</td><td align="left">bosborne</td></tr><tr><td align="left" colspan="3">convert to XML/SGML, corrections</td></tr></table></div></div><div><div class="abstract"><p class="title"><b>Abstract</b></p><p>
+      </p></div></div><div><p class="pubdate">2002-07-14</p></div><div><div class="revhistory"><table border="1" width="100%" summary="Revision history"><tr><th align="left" valign="top" colspan="3"><b>Revision History</b></th></tr><tr><td align="left">Revision 1.1</td><td align="left">2003/02/20</td><td align="left">lstein</td></tr><tr><td align="left" colspan="3">added some OBDA documentation plus flat file index load script</td></tr><tr><td align="left">Revision 1.2</td><td align="left">2003/02/20</td><td align="left">lstein</td></tr><tr><td align="left" colspan="3">check in reasonable howtos for database access and flat databases</td></tr><tr><td align="left">Revision 1.3</td><td align="left">2003/02/20</td><td align="left">lstein</td></tr><tr><td align="left" colspan="3">added new heading to biodatabase access doc for Heikki to fill in</td></tr><tr><td align="left">Revision 1.4</td><td align="left">2003/02/20</td><td align="left">heikki</td></tr><tr><td align="left" colspan="3">added explanation for biogetseq</td></tr><tr><td align="left">Revision 1.5</td><td align="left">2003/03/01</td><td align="left">peters</td></tr><tr><td align="left" colspan="3">documentation updates</td></tr><tr><td align="left">Revision 1.6</td><td align="left">2003/03/12</td><td align="left">amackey</td></tr><tr><td align="left" colspan="3">documentation updates</td></tr><tr><td align="left">Revision 1.7</td><td align="left">2003/06/10</td><td align="left">BIO</td></tr><tr><td align="left" colspan="3">convert to XML/SGML, corrections</td></tr></table></div></div><div><div class="abstract"><p class="title"><b>Abstract</b></p><p>
 	This is a HOWTO written in DocBook (SGML) that explains how to set up 
       and use the Open Biological Database Access system. 
       </p></div></div><hr/></div><div class="toc"><p><b>Table of Contents</b></p><dl><dt>1. <a href="#introduction">Introduction</a></dt><dt>2. <a href="#registry">Using the OBDA Registry System</a></dt><dt>3. <a href="#installation">Installing the Registry File</a></dt><dt>4. <a href="#modifying">Modifying the Search Path</a></dt><dt>5. <a href="#format">Format of the Registry File</a></dt><dt>6. <a href="#protocol">The Protocol Tag</a></dt><dt>7. <a href="#location">The Location Tag</a></dt><dt>8. <a href="#others">Other Tags</a></dt><dt>9. <a href="#local">Installing Local Databases</a></dt><dt>10. <a href="#code">Writing code to use the Registry</a></dt><dt>11. <a href="#biogetseq">Using biogetseq to Access Registry Databases</a></dt></dl></div><div class="section"><div class="titlepage"><div><h2 class="title" style="clear: both"><a id="introduction"/>1. Introduction</h2></div></div><p>
@@ -35,18 +37,19 @@ data-access subroutines in one's application code.
 The Open Biological Database Access (OBDA) System was designed so that
 one could use the same application code to access data from all three
 of the database types by simply changing a few lines in a
-"configuration file". This makes application code more portable and
+configuration file. This makes application code more portable and
 easier to maintain. This document shows how to set up the required
 OBDA-registry configuration file and how to access data from the
 databases referred to in the configuration file using a perl script as
-well as from the command line.
-    </p><p>
-Note: accessing data via the OBDA system is optional in Bioperl.  It
-is still possible (though probably not advantageous) to access
+well as from the command line. The Web site for OBDA is 
+<a href="http://obda.open-bio.org" target="_top">obda.open-bio.org</a>.
+    </p><div class="note"><table border="0" summary="Note"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Note]" src="images/note.png"/></td><th>Note</th></tr><tr><td colspan="2" align="left" valign="top">
+Accessing data via the OBDA system is optional in Bioperl.  It
+is still possible, though probably not advantageous, to access
 sequence data via the old database-format-specific modules such as 
-Bio::Index::Fasta.
-    </p></div><div class="section"><div class="titlepage"><div><h2 class="title" style="clear: both"><a id="registry"/>2. Using the OBDA Registry System</h2></div></div><p>
-The OBDA  BioDirectory Registry is a platform-independent system for 
+Bio::Index::Fasta or Bio::DB::Fasta.
+    </td></tr></table></div></div><div class="section"><div class="titlepage"><div><h2 class="title" style="clear: both"><a id="registry"/>2. Using the OBDA Registry System</h2></div></div><p>
+The OBDA BioDirectory Registry is a platform-independent system for 
 specifying how BioPerl programs find sequence databases.  It uses a 
 site-wide configuration file, known as the registry, which defines 
 one or more databases and the access methods to use to access them.
@@ -58,17 +61,21 @@ Bio{Perl,Java,Python,Ruby} applications will start using the mirrored
 local copy automatically - no source code changes are necessary.
     </p></div><div class="section"><div class="titlepage"><div><h2 class="title" style="clear: both"><a id="installation"/>3. Installing the Registry File</h2></div></div><p>
 The registry file should be named seqdatabase.ini.  By default, it
-should be installed in one of the following locations:
+should be installed in one or more of the following locations:
     <pre class="programlisting">
    $HOME/.bioinformatics/seqdatabase.ini
    /etc/bioinformatics/seqdatabase.ini
     </pre>
 The Bio{Perl,Java,Python,Ruby} registry-handling code will initialize
 itself from the registry file located in the home directory first,
-followed by the system-wide default in /etc.
+and then it will read the system-wide default in /etc. Windows Perl users
+should make sure to set the $HOME variable, otherwise the
+seqdatabase.ini file may not be found. Unix users need not do this
+since the code will use the getpwuid() method.    
     </p><p>
-If a local registry file cannot be found, the registry-handling code
-will take its configuration from the file located at this URL:
+      If a local registry file cannot be found, the registry-handling code
+      will attempt to copy the file located at this URL to a
+      $HOME/.bioinformatics directory:
     <pre class="programlisting">
    http://www.open-bio.org/registry/seqdatabase.ini
     </pre>    
@@ -79,14 +86,12 @@ environment variable OBDA_SEARCH_PATH.  This variable is a
     <pre class="programlisting">
  OBDA_SEARCH_PATH=/home/lstein/;http://foo.org/
     </pre>
-The search order proceeds from left to right.  The first file or URL
-that is found ends the search.
-    </p><p>
-Warning! Note that the fact that the search path is for an entire file
+    </p><div class="important"><table border="0" summary="Important"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Important]" src="images/important.png"/></td><th>Important</th></tr><tr><td colspan="2" align="left" valign="top">
+Note that the fact that the search path is for an entire file
 (seqdatabase.ini) rather than for single entry (e.g. 'genbank') means
 that you have to copy any default values you want to keep from the
 (old) default configuration file to your new configuration file. 
-    </p><p>
+    </td></tr></table></div><p>
 For example, say you have been using biofetch with the default
 configuration file http://www.open-bio.org/registry/seqdatabase.ini
 for all your sequence-data retrieval.  If you now install a local copy
@@ -166,7 +171,7 @@ Any number of additional tag values are allowed.  The number and
 nature of these tags depends on the access protocol selected.  Some
 protocols require no additional tags, whereas others will require
 several.
-    </p><div class="table"><a id="d3e133"/><table summary="OBDA Protocols" border="1"><colgroup><col/><col/><col/></colgroup><thead><tr><th>Protocol</th><th>Tag</th><th>Description</th></tr></thead><tbody><tr><td>flat</td><td>location</td><td>Directory in which
+    </p><div class="table"><a id="d3e134"/><table summary="OBDA Protocols" border="1"><colgroup><col/><col/><col/></colgroup><thead><tr><th>Protocol</th><th>Tag</th><th>Description</th></tr></thead><tbody><tr><td>flat</td><td>location</td><td>Directory in which
  the index is stored. The "config.dat" file generated during indexing must be found in this location</td></tr><tr><td>flat</td><td>dbname</td><td>Name of database</td></tr><tr><td>biofetch</td><td>location</td><td>Base URL for the
  web service. Currently the only compatible biofetch service is http://www.ebi.ac.uk/cgi-bin/dbfetch</td></tr><tr><td>biofetch</td><td>dbname</td><td>Name of the
  database.  Currently recognized values are "embl" (sequence and
@@ -176,9 +181,12 @@ reading sequences immediately.  For the flat and biosql protocols, you
 will need to create and initialize local databases.  See the following
 documentation on how to do this:
   </p><p>
-   flat protocol:    See FLAT-DATABASES-HOWTO.txt (in the doc/howto subdirectory)
+   flat protocol:<a href="http://bioperl.org/HOWTOs/html/Flat_Databases.html" target="_top">Flat
+   Databases HOWTO</a>
   </p><p>
-   biosql protocol:  See BIOSQL-HOWTO.txt (this doc is still being developed)
+   biosql protocol: BioSQL INSTALL (from the biosql-schema package,
+   available at <a href="http://obda.open-bio.org/" target="_top">obda.open-bio.org</a>).
+      Download the Biosql tar file to view all the documentation.
   </p></div><div class="section"><div class="titlepage"><div><h2 class="title" style="clear: both"><a id="code"/>10. Writing code to use the Registry</h2></div></div><p>
 Once you've set up the OBDA registry file, accessing sequence data
 from within a perl script is simple. The following example shows how;
@@ -211,15 +219,16 @@ appropriate manual page), which has just three methods:
 These methods return Bio::Seq objects by searching for their primary
 IDs, accession numbers and accession.version numbers respectively.
 The returned objects have all the methods defined by Bio::Seq (see
-the appropriate manual page).  In line 5, we call the sequence
+the appropriate manual page, online at <a href="http://doc.bioperl.org" target="_top">doc.bioperl.org</a>).  In 
+	  line 5, we call the sequence
 object's seq() method to fetch and print out the DNA or protein
 string.
   </p></div><div class="section"><div class="titlepage"><div><h2 class="title" style="clear: both"><a id="biogetseq"/>11. Using biogetseq to Access Registry Databases</h2></div></div><p>
-As a convenience, the Bioperl distribution includes a script
-      'biogetseq' that enables one to have OBDA access to sequence
+      As a convenience, the Bioperl distribution includes the script
+      biogetseq.PLS that enables one to have OBDA access to sequence
       data from the command line.
   </p><p>
-The script 'biogetseq' is located at the scripts/DB directory of the
+The script 'biogetseq' is located in the scripts/DB directory of the
 bioperl distribution. Move or add it into your path to run it. You can get to help by running it with no arguments:
   <pre class="programlisting">
 Usage: biogetseq --dbname embl --format embl --namespace acc id [ id ... ]*
@@ -239,6 +248,10 @@ The output is directed to STDOUT, so it can be redirected to a
 file.  The options can be given in long "double hyphen" format or
 abbreviated to one letter format:
   <pre class="programlisting">
-  % biogetseq -f fasta --namespace acc J02231 A21530 A10516 &gt; filed.seq
+  % biogetseq -f fasta -n acc J02231 A21530 A10516 &gt; filed.seq
   </pre>
-  </p></div></div></body></html>
+  </p></div></div><div xmlns="" id="customfooter">
+      
+      
+      
+    </div></body></html>
