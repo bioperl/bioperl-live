@@ -125,14 +125,14 @@
     <para>
       The Bio::SearchIO system was designed with the following
       assumptions:  That all reports parsed with it could be separated
-      into a hierarchy of components. The Result which is the entire
-      analysis for a single query sequence.  Multiple results can be
+      into a hierarchy of components. The Result is the entire
+      analysis for a single query sequence, and multiple Results can be
       concatenated together into a single file (i.e. running blastall
       with a fasta database as the input file rather than a single
-      sequence).  Each result is a set of Hits for the query sequence.
+      sequence).  Each Result is a set of Hits for the query sequence.
       Hits are sequences in the searched database which could be
       aligned to the query sequence and met the minimal search
-      parameters such as e-value threshold.  Each Hit has one or more
+      parameters, such as e-value threshold.  Each Hit has one or more
       High-scoring segment Pairs (HSPs) which are the alignments of the
       query and hit sequence.  Each Result has a set of one or more
       Hits and each Hit has a set of one or more HSPs, and this
@@ -165,7 +165,8 @@
     <para>
       The generality of the SearchIO approach is demonstrated by large number
       of report formats that have appeared since its introduction. These
-      formats include AXT format reports (BLAT, BLASTZ), NCBI tabular output (-m 8 or -m 9
+      formats include AXT format reports (BLAT, BLASTZ), NCBI tabular
+      output (-m 8 or -m 9
       options), NCBI Blast XML, chadosxpr format flat databases,
       Exonerate output, FASTA output, hmmsearch output (HMMER),
       megablast output, PSL format output (BLAT), sim4 output, WABA
@@ -178,7 +179,8 @@
       This section is going to describe how to use the SearchIO system
       to process reports.  We'll describe BLAST reports but the
       idea is that once you understand the methods associated with the
-      objects you won't need to know anything special about other SearchIO parsers.
+      objects you won't need to know anything special about other 
+      SearchIO parsers.
     </para>
     <para>
       Before we get into the details we should admit that there is
@@ -235,8 +237,7 @@
       available in SearchIO. In order to display all these methods
       and what they return let's use a report as input, a simple BLASTX result: 
     </para>
-    <programlisting>
-      
+    <programlisting>      
  BLASTX 2.2.4 [Aug-26-2002]
 
 
@@ -307,7 +308,6 @@
  X2: 38 (14.6 bits)
  X3: 64 (24.7 bits)
  S1: 32 (17.6 bits)
-
     </programlisting>
     <para>
       Table 1 shows all the data returned by methods used by the
@@ -702,9 +702,10 @@
       more than simply extract data directly from the output. For example, the
       ambiguous_aln() method is designed to tell us whether two or more
       HSPs from a given hit overlap, and whether the overlap refers to the
-      queries or the hits, or both. One situation where overlaps would be
+      queries or the hits, or both. One situation is where overlaps would be
       found in one but not the other arises where there are repeats in the
-      query or hit. The ambiguous_aln() method will return one of these values:
+      query or hit. The ambiguous_aln() method will return one of
+      these 4 values:
       <simplelist type="horiz" columns="2">
 	<member>q</member>
 	<member>query sequence contains overlapping sub-sequences
@@ -803,9 +804,8 @@
       The state that the listener is in is affected by the events that
       are processed.
     </para>
-    
     <para>
-      A small caveat, in an ideal situation a processor would throw
+      A small caveat: in an ideal situation a processor would throw
       events and not need to keep any state about where it is, it would
       just be processing data and the listener would manage the
       information and state.  However, a lot of the parsing of these
@@ -817,7 +817,6 @@
       system of reading the tag and sending the data that is inbetween
       the XML start and end tags.
     </para>
-    
     <para>
       All of this framework has been built up so to implement a new
       parser one only needs to write a module that produces the
@@ -960,7 +959,7 @@
       constructor system that we have setup so that the arguments are
       properly processed.  Here is a sample of what your code might look
       like (don't forget to write your own POD so that it will be
-      documented, I've left it off here to keep things simple).
+      documented, we've left it off here to keep things simple).
     </para>
     <para>
       <programlisting>

@@ -84,8 +84,6 @@
 	</para>
       </abstract>
     </articleinfo>
-
-
 <section id="intro">
 <title>Creating OBDA-Compliant Indexed Sequence Files</title>
 
@@ -99,7 +97,6 @@
     written in other languages, such as those written with BioJava or
     BioPython.
   </para>
-
 
   <para>
     There are four steps to creating a
@@ -139,14 +136,15 @@
     <listitem><para>Run the bioflat_index.pl script to load the
         sequence files into the database.</para>
 
-  <para>
-     The final step is to run the bioflat_index.pl script.  This
-     script is located in the BioPerl distribution, under scripts/db.
-     For convenience, you may want to copy it to /usr/bin or another
-     system-wide directory.
-  </para>
-    </listitem>
- </orderedlist>
+	<para>
+	  The final step is to run the bioflat_index.PLS script.  This
+	  script is located in the BioPerl distribution, under scripts/db.
+	  For convenience, you are offered the option to copy it to
+	  /usr/bin or another system-wide directory on 'make install' (and
+	  its name will be changed to bioflat_index.pl).
+	</para>
+      </listitem>
+    </orderedlist>
 
  </section>
 
@@ -217,24 +215,28 @@
     underneath the root directory.
   </para>
 
-  <para>
-    The <parameter>-i</parameter> option selects the indexing scheme.  Currently there are
-    two indexing schemes supported: "bdb" and "flat."  "bdb" selects
-    an index based on the BerkeleyDB library.  It is generally the
-    faster of the two, but it requires both the BerkeleyDB library and
-    the Perl DB_File module to be installed on your system.  "flat" is
-    a sorted text-based index that uses a binary search algorithm to
-    rapidly search for entries.  Although not as fast as bdb, the flat
-    indexing system has good performance for even large databases, and
-    it has no requirements beyond Perl itself.  Once an indexing
-    scheme has been selected there is no way to change it other than
-    recreating the index from scratch using the
-    <parameter>-c</parameter> option.
+    <para>
+      The <parameter>-i</parameter> option selects the indexing scheme.  
+      Currently there are two indexing schemes supported: "bdb" and
+      "flat."  "bdb" selects an index based on the Berkeley DB library.  
+      It is generally the faster of the two, but it requires that the
+      Berkeley DB library (from Linux RPM or from www.sleepycat.com),
+      the Perl DB_File module, and the Perl BerkeleyDB module be installed 
+      on your system.  
+    </para>
+    <para>
+      "flat" is a sorted text-based index that uses a binary search algorithm to
+      rapidly search for entries.  Although not as fast as bdb, the flat
+      indexing system has good performance for even large databases, and
+      it has no requirements beyond Perl itself.  Once an indexing
+      scheme has been selected there is no way to change it other than
+      recreating the index from scratch using the
+      <parameter>-c</parameter> option.
   </para>
 
   <para>
     The <parameter>-f</parameter> option specifies the format of the
-    source database files.  It must be one of the formats that BioPerl
+    source database files.  It must be one of the many formats that BioPerl
     supports, including "genbank", "swiss", "embl" or "fasta".
     Consult the <classname>Bio::SeqIO</classname> documentation for
     the complete list.  All files placed in the index must share the
@@ -257,7 +259,7 @@
   </para>
 
   <para>
-    For your convenience, bioflat_index.pl will take default values
+    For your convenience, bioflat_index.pl will also take default values
     from the following environment variables:
 
        <table>
@@ -266,7 +268,7 @@
           <thead>
              <row>
                 <entry>ENV variable</entry>
-                <entry>describtion</entry>
+                <entry>description</entry>
              </row>
          </thead>
          <tbody>
@@ -295,10 +297,8 @@
   </para>
  </section>
 
-
   <section id="files">
-      <title>Moving Database Files</title>
-  
+      <title>Moving Database Files</title>  
   <para>
     If you must change the location of the source sequence files after
     you create the index, there is a way to do so.  Inside the root
@@ -318,12 +318,19 @@
     </programlisting>
   </para>
 
-
   <para>
     For each source file you have moved, find its corresponding
     "fileid" line and change the path.  Be careful not to change
     anything else in the file or to inadvertently replace tab
     characters with spaces.
   </para>
- </section>
+ </section id="more">
+  <title>More information</title>
+  <section>
+    <para>
+      For more information on using your indexed flat files please see the 
+      <ulink url="http://bioperl.org/HOWTOs/html/OBDA_Access.html">
+      OBDA Access HOWTO</ulink>.
+     </para>
+  </section>
 </article>
