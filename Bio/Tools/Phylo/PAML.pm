@@ -373,7 +373,7 @@ sub _parse_summary {
 	$self->_parse_patterns();  # codon patterns - not very interesting	        
 	$self->_parse_seqs();  # the sequences data used for analysis
 	$self->_parse_codoncts();    # counts and distributions of codon/nt usage
-	$self->_parse_codon_freqs($seqtype); # codon frequencies
+	$self->_parse_codon_freqs(); # codon frequencies
 	$self->_parse_distmat(); # NG distance matrices
 	
 
@@ -387,7 +387,7 @@ sub _parse_summary {
 	$self->throw( -class => 'Bio::Root::NotImplemented',
 		      -text => 'BASEML parsing not yet implemented!');
     } elsif ($seqtype eq "YN00") {
-	$self->_parse_codon_freqs($seqtype);
+	$self->_parse_codon_freqs();
 	$self->_parse_codoncts();	
 	$self->_parse_distmat(); # NG distance matrices
 	
