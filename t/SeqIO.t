@@ -21,7 +21,7 @@
 
 
 ## We start with some black magic to print on failure.
-BEGIN { $| = 1; print "1..9\n"; 
+BEGIN { $| = 1; print "1..12\n"; 
 	use vars qw($loaded); }
 
 END {print "not ok 1\n" unless $loaded;}
@@ -31,6 +31,7 @@ use Bio::SeqIO::Fasta;
 use Bio::SeqIO::EMBL;
 use Bio::SeqIO::Raw;
 use Bio::SeqIO::GCG;
+use Bio::SeqIO::GenBank;
 
 
 $loaded = 1;
@@ -120,11 +121,28 @@ print "ok 9\n";
 ## End of ChrisDag's SeqIO tests.
 #####
 
+## Now we test Bio::SeqIO::GenBank
+$str = Bio::SeqIO->new(-file=> 't/test.genbank', '-format' => 'GenBank');
+
+if( $str ) {
+    print "ok 10\n";
+} else {
+    print "not ok 10 , unable to open stream from GenBank sequence file\n";	
+}
+
+if($seq = $str->next_seq()) { print "ok 11\n";
+ } else { print "not ok 11 , failed to read GenBank sequence from stream,\n"; }
+print "Sequence 1 of 1 from GenBank stream:\n", $seq->seq, "\n";
+
+## Now we test Bio::SeqIO::GCG output writing
+
+$str = Bio::SeqIO->new(-file=> '>t/genbank.out', '-format' => 'GenBank');
+
+$str->write_seq($seq);
+
+print "ok 12\n";
 
 # please leave this as the last line:
 $str = undef;
-
-
-
 
 
