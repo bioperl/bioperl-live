@@ -475,6 +475,9 @@ sub write_annseq {
         print $fh "XX\n";
     }
 
+
+    ## FEATURE TABLE
+
     print $fh "FH   Key             Location/Qualifiers\n";
     print $fh "FH\n";
 
@@ -505,13 +508,13 @@ sub write_annseq {
         }
     }
 
-   print $fh "XX\n";
+    print $fh "XX\n";
 
-   if( $self->_show_dna() == 0 ) {
-       return;
-   }
+    if( $self->_show_dna() == 0 ) {
+        return;
+    }
 
-   # finished printing features.
+    # finished printing features.
 
     $str =~ tr/A-Z/a-z/;
     
@@ -521,36 +524,36 @@ sub write_annseq {
     my $glen = $str =~ tr/g/g/;
     my $tlen = $str =~ tr/t/t/;
 
-   my $olen = $len - ($alen + $tlen + $clen + $glen);
-   if( $olen < 0 ) {
-       $self->warn("Weird. More atgc than bases. Problem!");
-   }
+    my $olen = $len - ($alen + $tlen + $clen + $glen);
+    if( $olen < 0 ) {
+        $self->warn("Weird. More atgc than bases. Problem!");
+    }
 
-   print $fh "SQ   Sequence $len BP; $alen A; $clen C; $glen G; $tlen T; $olen other;\n";
-   print $fh "     ";
-   my $linepos;
-   for ($i = 0; $i < length($str); $i += 10) {
-       
-       if( $i+10 >= length($str) ) {
-	   # last line.
-	   print $fh substr($str,$i);
-	   $linepos += length($str)-$i;
-	   print $fh ' ' x (70 - $linepos);
-	   print $fh sprintf(" %-5d\n",length($str));
-	   last;
-       }
-       print $fh substr($str,$i,10), " ";
-       $linepos += 11;
-       if( ($i+10)%60 == 0 ) {
-	   my $end = $i+10;
-	   print $fh sprintf("%-5d\n     ",$end);
-	   $linepos = 5;
-       }
-   }
+    print $fh "SQ   Sequence $len BP; $alen A; $clen C; $glen G; $tlen T; $olen other;\n";
+    print $fh "     ";
+    my $linepos;
+    for ($i = 0; $i < length($str); $i += 10) {
+
+        if( $i+10 >= length($str) ) {
+	    # last line.
+	    print $fh substr($str,$i);
+	    $linepos += length($str)-$i;
+	    print $fh ' ' x (70 - $linepos);
+	    print $fh sprintf(" %-5d\n",length($str));
+	    last;
+        }
+        print $fh substr($str,$i,10), " ";
+        $linepos += 11;
+        if( ($i+10)%60 == 0 ) {
+	    my $end = $i+10;
+	    print $fh sprintf("%-5d\n     ",$end);
+	    $linepos = 5;
+        }
+    }
 
 
-   print $fh "//\n";
-   return 1;
+    print $fh "//\n";
+    return 1;
 }
 
 =head2 _print_EMBL_FTHelper
