@@ -19,17 +19,18 @@ BEGIN {
 	use lib 't';
     }
     use Test;
-    plan tests => 23;
+    use vars qw($TESTCOUNT);
+    $TESTCOUNT = 23;
+    plan tests => $TESTCOUNT;
     
     $error  = 0;
     eval { require XML::Parser::PerlSAX; };
     if( $@ ) {
 	print STDERR "XML::Parser::PerlSAX not loaded. This means game test cannot be executed. Skipping\n";
-	foreach ( 1..9 ) {
+	foreach ( $Test::ntest..$TESTCOUNT ) {
 	    skip('XML::Parser::PerlSAX installed',1);
 	}
-       $error = 1;
-	
+	$error = 1;
     } 
     # make sure we can load it, assuming that the prerequisites are really met
 
@@ -37,7 +38,7 @@ BEGIN {
 	eval { require Bio::SeqIO::game; };
 	if( $@ ) {
 	    print STDERR "game.pm not loaded. This means game test cannot be executed. Skipping\n";
-	    foreach ( 1..9 ) {
+	    foreach ( $Test::ntest..$TESTCOUNT ) {
 		skip('game.pm not loaded because XML::Writer not loaded',1);
 	    }
 	    $error = 1;
