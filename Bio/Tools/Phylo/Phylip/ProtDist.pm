@@ -112,36 +112,42 @@ sub next_matrix{
    my @names;
    my @values;
    my $entry;
+   my $size = 0;
    while ($entry=$self->_readline) {
-       if($#names >=0 && $entry =~/^\s+\d+$/){
+       if($#names >=0 && $entry =~/^\s+\d+\n$/){
+	   $self->_pushback($_);
 	   last;
-       } elsif($entry=~/^\s+\d+\n$/){	   
+       } elsif($entry=~/^\s+(\d+)\n$/){	   
+	   $size = $1;
 	   next;
-       } elsif( $entry =~ s/^\s+(\d+\.\d+)/$1/ ) {
+       } elsif( $entry =~ s/^\s+(\-?\d+\.\d+)/$1/ ) {
 	   my (@line) = split( /\s+/,$entry);
 	   push @{$values[-1]}, @line;
 	   next;
        }
-       
-
        my ($n,@line) = split( /\s+/,$entry);
+       
        push @names, $n;
        push @values, [@line];
-    }
-    $#names>=0 || return;
-    my %dist;
-    my $i=0;
-    foreach my $name(@names){
-      my $j=0;
-      foreach my $n(@names) {
-        $dist{$name}{$n} = [$i,$j];
-        $j++;
-      }
-     $i++;
-    }
-    my $matrix = Bio::Matrix::PhylipDist->new(-matrix=>\%dist,
-                                              -names =>\@names,
-                                              -values=>\@values);
+   }
+   if( scalar @names != $size ) {
+       $self->warn("The number of entries ".(scalar @names).
+		   " is not the same $size");
+   }
+   $#names>=0 || return;
+   my %dist;
+   my $i=0;
+   foreach my $name(@names){
+       my $j=0;
+       foreach my $n(@names) {
+	   $dist{$name}{$n} = [$i,$j];
+	   $j++;
+       }
+       $i++;
+   }
+   my $matrix = Bio::Matrix::PhylipDist->new(-matrix=>\%dist,
+					     -names =>\@names,
+					     -values=>\@values);
     return $matrix;
 }
 
