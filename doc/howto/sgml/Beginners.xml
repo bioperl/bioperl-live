@@ -112,7 +112,8 @@
 		  This HOWTO does not discuss a very nice module that's designed for
 		  beginners, 
 		  <ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Perl.html">Bio::Perl</ulink>. The reason is that though this is an
-			 excellent introductory tool, it can't be extended. What we're
+		  excellent introductory tool, it's not object-oriented and
+		  it can't be extended. What we're
 		  attempting here is to introduce Bioperl and show you
 		  ways to expand your new-found skills.
       </para>
@@ -265,17 +266,17 @@
 		want to learn more about Perl:
 	 </para>
     <para>
-		<simplelist type="horiz" columns="2">
+		<simplelist type="horiz" columns="1">
 		  <member>
 			 Perl's own documentation. Do "perldoc perl" from the
 			 command-line for an introduction.
 		  </member>
 		  <member>
-			 <ulink url="">Learning Perl</ulink>
+			 <ulink url="http://www.oreilly.com/catalog/lperl3/">Learning Perl</ulink>
 			 is the most frequently cited beginner's book.
 		  </member>
 		  <member>
-			 <ulink url="">Perl in a Nutshell</ulink>
+			 <ulink url="http://www.oreilly.com/catalog/perlnut2/">Perl in a Nutshell</ulink>
 			 is also good. Not much in the way of examples, but covers
 			 many topics succintly.
 		  </member>
@@ -299,7 +300,7 @@
 	 </para>		
 	 <para>
 		<programlisting>
-		  >perl -v
+>perl -v
 		</programlisting>
 	 </para>
 	 <para>
@@ -326,7 +327,7 @@ Internet, point your browser at http://www.perl.com/, the Perl Home Page.
 	 </para>	
 	 <para>
 		<programlisting>
-			 >which perl
+>which perl
 		</programlisting>
 	 </para>
 	 <para>
@@ -334,7 +335,7 @@ Internet, point your browser at http://www.perl.com/, the Perl Home Page.
 	 </para>
 	 <para>
 		<programlisting>
-		  >/bin/perl
+>/bin/perl
 		</programlisting>
 	 </para>
 	 <para>
@@ -347,7 +348,7 @@ Internet, point your browser at http://www.perl.com/, the Perl Home Page.
 	 </para>
 	 <para>
 		<programlisting>
-		  >emacs seqio.pl
+>emacs seqio.pl
 		</programlisting>
 	 </para>
 	 <para>
@@ -355,7 +356,7 @@ Internet, point your browser at http://www.perl.com/, the Perl Home Page.
 	 </para>
 	 <para>
 		<programlisting>
-		  #!/bin/perl -w
+#!/bin/perl -w
 		</programlisting>
 	 </para>
 	 <para>
@@ -388,13 +389,13 @@ Internet, point your browser at http://www.perl.com/, the Perl Home Page.
 	 <para>
 		All objects in Bioperl are created by specific
 		Bioperl modules, so if you want to create an object you're also going
-		to have to tell Perl which module to use. Let's add another line:
+		to have to tell Perl which module to use, like this:
     </para>	
     <para>
 		<programlisting>
-		  #!/bin/perl -w
+#!/bin/perl -w
 
-		  use Bio::Seq;
+use Bio::Seq;
 		</programlisting>
     </para>
 	 <para>
@@ -404,11 +405,11 @@ Internet, point your browser at http://www.perl.com/, the Perl Home Page.
 		<ulink
 		url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Seq.html">Bio::Seq</ulink>
 		module to create a 
-<ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Seq.html>Bio::Seq</ulink> object.
+<ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Seq.html">Bio::Seq</ulink> object.
 		The 
-<ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Seq.html>Bio::Seq</ulink> module is one of the central modules in
+<ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Seq.html">Bio::Seq</ulink> module is one of the central modules in
 		Bioperl. The analogous 
-<ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Seq.html>Bio::Seq</ulink> object, or "Sequence object", or
+<ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Seq.html">Bio::Seq</ulink> object, or "Sequence object", or
 		"Seq object", is ubiquitous in Bioperl, it contains 
 		a single sequence and associated names, identifiers, and
 		properties. Let's create a very simple sequence object at
@@ -416,25 +417,25 @@ Internet, point your browser at http://www.perl.com/, the Perl Home Page.
     </para>
     <para>
 		<programlisting>
-		  #!/bin/perl -w
+#!/bin/perl -w
 
-		  use Bio::Seq;
+use Bio::Seq;
 		
-		  $seq_obj = Bio::Seq->new(-seq => "aaaatgggggggggggccccgtt");
+$seq_obj = Bio::Seq->new(-seq => "aaaatgggggggggggccccgtt");
 		</programlisting>
     </para>
 	 <para>
 		That's it! The variable <varname>$seq_obj</varname> is the
 		Sequence object, a simple one, containing just a sequence.
 	 </para>
-	 <para>
-      <note>
-			 <ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Seq.html>Bio::Seq</ulink> objects can be created manually, as above, but
+	 <note>
+		<para>
+			 <ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Seq.html">Bio::Seq</ulink> objects can be created manually, as above, but
 			 they're also create automatically in many operations
 			 in Bioperl, for example when alignment files or database
 			 entries or BLAST reports are parsed.
-      </note>
-	 </para>
+		</para>
+	 </note>
 	 <para>
 		Any time you explicitly create an object, you
 		will use this <function>new()</function> method. The syntax of this
@@ -448,7 +449,7 @@ Internet, point your browser at http://www.perl.com/, the Perl Home Page.
 	 <para>
 		<note>
 		  <para>
-			 If you've programmed before you've probably come across the term
+			 If you've programmed before you've come across the term
 			 "function". In object-oriented programming the term
 			 "method" is used instead.			 
 		  </para>
@@ -459,21 +460,21 @@ Internet, point your browser at http://www.perl.com/, the Perl Home Page.
 		than that. It can also do work, meaning it can call
 		specific methods taken from the module or modules that were used
 		to create it. For example, the 
-<ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Seq.html>Bio::Seq</ulink>
+<ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Seq.html">Bio::Seq</ulink>
 		module has a method
 		called <function>seq()</function> that will print out the
 		sequence of 
-<ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Seq.html>Bio::Seq</ulink> objects. You could use it like this:
+<ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Seq.html">Bio::Seq</ulink> objects. You could use it like this:
 	 </para>
 	 <para>
 		<programlisting>
-		  #!/bin/perl -w
+#!/bin/perl -w
 
-		  use Bio::Seq;
+use Bio::Seq;
 		
-		  $seq_obj = Bio::Seq->new(-seq => "aaaatgggggggggggccccgtt");
+$seq_obj = Bio::Seq->new(-seq => "aaaatgggggggggggccccgtt");
 
-		  print $seq_obj->seq;
+print $seq_obj->seq;
 		</programlisting>
 	 </para>
 	 <para>
@@ -489,15 +490,15 @@ Internet, point your browser at http://www.perl.com/, the Perl Home Page.
 	 </para>
 	 <para>
 		<programlisting>
-		  #!/bin/perl -w
+#!/bin/perl -w
 
-		  use Bio::Seq;
+use Bio::Seq;
 		
-		  $seq_obj = Bio::Seq->new(-seq => "aaaatgggggggggggccccgtt",
-		                           -display_id => "#12345",
-		                           -desc => "example 1" );
+$seq_obj = Bio::Seq->new(-seq => "aaaatgggggggggggccccgtt",
+                         -display_id => "#12345",
+	                -desc => "example 1" );
 
-		  print $seq_obj->seq();
+print $seq_obj->seq();
 		</programlisting>
 	 </para>
 	 <para>
@@ -518,25 +519,25 @@ Internet, point your browser at http://www.perl.com/, the Perl Home Page.
 		and we will create an
 		additional object whose responsibility it is to read from and write
 		to files. This object is the 
-<ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqIO.html>Bio::SeqIO</ulink> object, 
+<ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqIO.html">Bio::SeqIO</ulink> object, 
 		where IO stands for 
 		<emphasis>I</emphasis>nput-<emphasis>O</emphasis>utput.
 		By using 
-<ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqIO.html>Bio::SeqIO</ulink> in this manner you will be able to get input
+<ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqIO.html">Bio::SeqIO</ulink> in this manner you will be able to get input
 		and output from all of the sequence file formats supported by Bioperl
 		(the <ulink url="http://bioperl.org/HOWTOs/SeqIO/index.html">
 		  SeqIO HOWTO</ulink> has a complete list of supported formats).
 		The way you create <classname>Bio::SeqIO</classname> objects is 
 		very similar to the way we used <function>new()</function> to
 		create a 
-<ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Seq.html>Bio::Seq</ulink>, or sequence, object:
+<ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Seq.html">Bio::Seq</ulink>, or sequence, object:
 	 </para>    
 	 <para>
 		<programlisting>
-		  use Bio::SeqIO;
+use Bio::SeqIO;
 
-		  $seqio_obj = Bio::SeqIO->new(-file => '>sequence.fasta', 
-		                               -format => 'fasta' );
+$seqio_obj = Bio::SeqIO->new(-file => '>sequence.fasta', 
+                            -format => 'fasta' );
 		</programlisting> 
 	 </para> 
 	 <para>
@@ -553,19 +554,19 @@ Internet, point your browser at http://www.perl.com/, the Perl Home Page.
 	 </para>
 	 <para>
 		<programlisting>
-		  #!/bin/perl -w
+#!/bin/perl -w
 
-		  use Bio::Seq;
-		  use Bio::SeqIO;
+use Bio::Seq;
+use Bio::SeqIO;
 
-		  $seq_obj = Bio::Seq->new(-seq => "aaaatgggggggggggccccgtt",
-		                           -display_id => "#12345",
-		                           -desc => "example 1" );
+$seq_obj = Bio::Seq->new(-seq => "aaaatgggggggggggccccgtt",
+                         -display_id => "#12345",
+	               -desc => "example 1" );
 
-		  $seqio_obj = Bio::SeqIO->new(-file => '>sequence.fasta', 
-		                               -format => 'fasta' );
+$seqio_obj = Bio::SeqIO->new(-file => '>sequence.fasta', 
+	                  -format => 'fasta' );
 
-		  $seqio_obj->write_seq($seq_obj);
+$seqio_obj->write_seq($seq_obj);
 		</programlisting> 
 	 </para> 
 	 <para>
@@ -636,12 +637,12 @@ ORIGIN
 	 </para>
 	 <para>
 		<programlisting>
-		  #!/bin/perl -w
+#!/bin/perl -w
 
-		  use Bio::SeqIO;
+use Bio::SeqIO;
 
-		  $seqio_obj = Bio::SeqIO->new(-file => "sequence.fa",
-                                     -format => "fasta" );
+$seqio_obj = Bio::SeqIO->new(-file => "sequence.fa",
+                             -format => "fasta" );
 		</programlisting>
 	 </para>
 	 <para>
@@ -653,14 +654,14 @@ ORIGIN
 	 </para>
 	 <para>
 		<programlisting>
-		  #!/bin/perl -w
+#!/bin/perl -w
 
-		  use Bio::SeqIO;
+use Bio::SeqIO;
 
-		  $seqio_obj = Bio::SeqIO->new(-file => "sequence.fa",
-                                     -format => "fasta" );
+$seqio_obj = Bio::SeqIO->new(-file => "sequence.fa",
+                             -format => "fasta" );
 		  
-		  $seq_obj = $seqio->next_seq;
+$seq_obj = $seqio->next_seq;
 		</programlisting>
 	 </para>
 	 <para>
@@ -671,7 +672,7 @@ ORIGIN
 		the first sequence in the file that was just opened. The
 		Sequence object, <varname>$seq_obj</varname>, that's created
 		will be identical to
-		to the Sequence object we created manually in our first example.
+		to the Sequence object we created manually in our very first example.
 	 </para>
 	 <para>
 		If there were multiple sequences in the file you could just 
@@ -681,10 +682,10 @@ ORIGIN
 	 </para>
 	 <para>
 		<programlisting>
-		  while ($seq_obj = $seqio->next_seq){
-		      # print the sequence
-		      print $seq_obj->seq,"\n";
-		  }
+while ($seq_obj = $seqio->next_seq){
+     # print the sequence
+   print $seq_obj->seq,"\n";
+}
 		</programlisting>
 	 </para>
 	 <para>
@@ -712,7 +713,7 @@ ORIGIN
 	 </para>
 	 <para>
 		<programlisting>
-		  use Bio::DB::GenBank;
+use Bio::DB::GenBank;
 		</programlisting>
 	 </para>
 	 <para>
@@ -722,9 +723,9 @@ ORIGIN
 	 </para>
 	 <para>
 		<programlisting>
-		  use Bio::DB::GenBank;
+use Bio::DB::GenBank;
 
-		  $db_obj = Bio::DB::GenBank->new;
+$db_obj = Bio::DB::GenBank->new;
 		</programlisting>
 	 </para>
 	 <para>
@@ -734,11 +735,11 @@ ORIGIN
 	 </para>
 	 <para>
 		<programlisting>
-		  use Bio::DB::GenBank;
+use Bio::DB::GenBank;
 
-		  $db_obj = Bio::DB::GenBank->new;
+$db_obj = Bio::DB::GenBank->new;
 
-		  $seq_obj = $db_obj->get_Seq_by_id(2); 
+$seq_obj = $db_obj->get_Seq_by_id(2); 
 		</programlisting>
 	 </para>
 	 <para>
@@ -759,11 +760,11 @@ ORIGIN
 	 </para>
 	  <para>
 		<programlisting>
-		  use Bio::DB::Query::GenBank;
+use Bio::DB::Query::GenBank;
 
-		  $query = "Arabidopsis[ORGN] AND topoisomerase[TITL]";
-		  $query_obj = Bio::DB::Query::GenBank->new(-db    => 'nucleotide',
-		                                            -query => $query ); 
+$query = "Arabidopsis[ORGN] AND topoisomerase[TITL]";
+$query_obj = Bio::DB::Query::GenBank->new(-db    => 'nucleotide',
+                                          -query => $query ); 
 		</programlisting>
 	 </para>
 	 <para>
@@ -774,21 +775,21 @@ ORIGIN
 	 </para>
 	  <para>
 		<programlisting>
-		  use Bio::DB::GenBank;
-		  use Bio::DB::Query::GenBank;
+use Bio::DB::GenBank;
+use Bio::DB::Query::GenBank;
 
-		  $query = "Arabidopsis[ORGN] AND topoisomerase[TITL]";
-		  $query_obj = Bio::DB::Query::GenBank->new(-db    => 'nucleotide',
-		                                            -query => $query ); 
+$query = "Arabidopsis[ORGN] AND topoisomerase[TITL]";
+$query_obj = Bio::DB::Query::GenBank->new(-db    => 'nucleotide',
+	                                 -query => $query ); 
 
-		  $gb_obj = Bio::DB::GenBank->new;
+$gb_obj = Bio::DB::GenBank->new;
 
-		  $stream_obj = $gb_obj->get_Stream_by_query($query_obj);
+$stream_obj = $gb_obj->get_Stream_by_query($query_obj);
 		  
-		  while ($seq_obj = $stream_obj->next_seq) {
-	        # do something with the sequence object
-     		  print $seq_obj->display_id, "\t", $seq_obj->length, "\n";
-		  }
+while ($seq_obj = $stream_obj->next_seq) {
+  # do something with the sequence object
+      print $seq_obj->display_id, "\t", $seq_obj->length, "\n";
+}
 		</programlisting>
 	 </para>
 	 <para>
@@ -835,7 +836,7 @@ ORIGIN
     </para>
     <para>
       <programlisting>
-		  $sequence = $seq_obj->seq;
+$sequence = $seq_obj->seq;
       </programlisting>
 	 </para>
 	 <para>
@@ -843,13 +844,13 @@ ORIGIN
 	 </para>
 	 <para>
 		<programlisting>
-		  $seq_obj->seq("MMTYDFFFFVVNNNNPPPPAAAW");
+$seq_obj->seq("MMTYDFFFFVVNNNNPPPPAAAW");
       </programlisting>
 	 </para>
 	 <para>
 		<table>
 		  <title>Sequence Object Methods</title>
-		  <tgroup cols="3">
+		  <tgroup cols="4">
 			 <thead>
 				<row>
 				  <entry>Name</entry>
@@ -864,7 +865,8 @@ ORIGIN
 				  <entry>Sequence object</entry>
 				  <entry>$so = Bio::Seq->new(-seq => "MP")</entry>
 				  <entry>create a new one</entry>
-				</row>
+				</row>			
+				<row>
 				  <entry>seq</entry>
 				  <entry>sequence string</entry>
 				  <entry>$seq = $so->seq</entry>
@@ -979,7 +981,7 @@ ORIGIN
 	 <para>
 		The table above shows the methods you're likely to use that
 		concern the Sequence object directly. There are also a number
-		of methods that are concerned the Features and Annotations
+		of methods that are concerned with the Features and Annotations
 		associated with the Sequence object. This is something of a 
 		tangent but if you'd like to learn about Features and Annotations
 		see the relevant 
@@ -1045,10 +1047,10 @@ ORIGIN
     </para>
 	 <para>
 		<programlisting>
-		  use Bio::DB::GenBank;
+use Bio::DB::GenBank;
 
-		  $db_obj = Bio::DB::GenBank->new;
-		  $seq_obj = $db_obj->get_Seq_by_acc("J01673"); 
+$db_obj = Bio::DB::GenBank->new;
+$seq_obj = $db_obj->get_Seq_by_acc("J01673"); 
 		</programlisting>
 	 </para>
 	 <para>
@@ -1056,15 +1058,15 @@ ORIGIN
 	 </para>
 	 <para>
 		<programlisting>
-		  use Bio::SeqIO;
+use Bio::SeqIO;
 
-		  $seqio_obj = Bio::SeqIO->new(-file => "J01673.gb",
-                                     -format => "genbank" );
-		  $seq_obj = $seqio_obj->next_seq;
+$seqio_obj = Bio::SeqIO->new(-file => "J01673.gb",
+                             -format => "genbank" );
+$seq_obj = $seqio_obj->next_seq;
 		</programlisting>
 	 </para>
 	 <para>
-		Where the Genbank file looks like:
+		What the Genbank file looks like:
 	 </para>
     <para>
       <programlisting>
@@ -1129,7 +1131,7 @@ ORIGIN      15 bp upstream from HhaI site.
         1 aaccctagca ctgcgccgaa atatggcatc cgtggtatcc cgactctgct gctgttcaaa
        61 aacggtgaag tggcggcaac caaagtgggt gcactgtcta aaggtcagtt gaaagagttc
 
-                                  <...deleted...>  
+                                  ...deleted...  
 
      1801 tgggcatgtt aggaaaattc ctggaatttg ctggcatgtt atgcaatttg catatcaaat
      1861 ggttaatttt tgcacaggac
@@ -1141,7 +1143,7 @@ ORIGIN      15 bp upstream from HhaI site.
 	 </para>
 	 <para>
 		<table>
-		  <title>Values from Genbank</title>
+		  <title>Values from the Sequence object (Genbank)</title>
 		  <tgroup cols="2">
 			 <thead>
 				<row>
@@ -1223,7 +1225,7 @@ on factor
 AACCCTAGCACTGCGCCGAAATATGGCATCCGTGGTATCCCGACTCTGCTGCTGTTCAAAAACGGTGAAG
 TGGCGGCAACCAAAGTGGGTGCACTGTCTAAAGGTCAGTTGAAAGAGTTCCTCGACGCTAACCTGGCGTA
 
-                           <...deleted...>
+                           ...deleted...
 
 ACGTGTTTACGTGGCGTTTTGCTTTTATATCTGTAATCTTAATGCCGCGCTGGGCATGTTAGGAAAATTC
 CTGGAATTTGCTGGCATGTTATGCAATTTGCATATCAAATGGTTAATTTTTGCACAGGAC		  
@@ -1280,8 +1282,8 @@ CTGGAATTTGCTGGCATGTTATGCAATTTGCATATCAAATGGTTAATTTTTGCACAGGAC
 	 <para>
 		If you compare these values to the values taken from the Genbank 
 		entry you'll see that certain values, or methods, are missing,
-		like <function>seq_version</function>. That's because data types
-		likethis aren't usually present in the typical fasta file. 
+		like <function>seq_version</function>. That's because data
+		like this aren't usually present in the typical fasta file. 
 	 </para>
 	 <para>
 		Another natural question is why the values returned by methods
@@ -1305,6 +1307,9 @@ CTGGAATTTGCTGGCATGTTATGCAATTTGCATATCAAATGGTTAATTTTTGCACAGGAC
 		  when, really, what they should be doing is talking to each other?
 		</para>
 	 </note>
+	 <para>
+		
+	 </para>
   </section>
 
   <section id="blast">
@@ -1336,24 +1341,6 @@ while( $seq = $seq_in->next_seq() ) {
     </para>
     <para>
     </para>
-  </section>
-
-  <section id="blank2">
-    <title></title>
-    <para>
-	 </para>
-    <para>
-      <programlisting>
-      </programlisting>
-    </para>
-    <para>
-	 </para>
-    <para>
-      <programlisting>
-      </programlisting>
-    </para>
-    <para>
-	 </para>
   </section>
   
   <section id="perldoc">
