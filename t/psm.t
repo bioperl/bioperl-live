@@ -36,7 +36,7 @@ my %weights=$psmIO->weight;
 ok %weights;
 
 my %seq = $psmIO->seq;
-ok %seq,'1';#Meme doesn't have seq
+ok %seq,'0';#Meme doesn't have seq
 
 ok $psmIO->version,'3.0';
 
@@ -86,7 +86,7 @@ ok !$version;
 ok $psmIO->release, '6.4--2002-12-02';
 
 @ids     = $psmIO->hid;
-ok @ids, 0;
+ok @ids, '1';
 
 $psm     = $psmIO->next_psm;
 ok $psm;
