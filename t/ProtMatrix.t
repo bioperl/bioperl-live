@@ -16,7 +16,6 @@ BEGIN {
    }
    use Test;
 
-   # fix this
    plan tests => 14;
 }
 
@@ -142,4 +141,4 @@ ok $matrix->get_array('A'), @a;
 
 my $regexp = '[Mm][EeSs][Mm]\.[IiLl][RrNn][AaPp][DdSs]';
 ok $matrix->regexp, $regexp;
-ok $matrix->sequence_match_weight('MSMPLRPD');
+ok $matrix->sequence_match_weight('MSMPLRPD'), 33;
