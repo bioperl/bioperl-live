@@ -35,16 +35,25 @@ Bio::Tools::BPlite - Lightweight BLAST parser
 	 $hsp->homologySeq;
 	 $hsp->query->start;
 	 $hsp->query->end;
-	 $hsp->sbjct->start;
-	 $hsp->sbjct->end;
-	 $hsp->sbjct->seqname;
-	 $hsp->sbjct->overlaps($exon);
+	 $hsp->subject->start;
+	 $hsp->subject->end;
+	 $hsp->subject->seqname;
+	 $hsp->subject->overlaps($exon);
      }
  }
- last if (!($report->_parseHeader));  # this takes you to the next report
+
+ # the following line takes you to the next report in the stream/file
+ # it will return 0 if that report is empty,
+ # but that is valid for an empty blast report.
+ # Returns -1 for EOF.
+
+ last if ($report->_parseHeader == -1));
+
  redo
 
  }
+
+
 =head1 DESCRIPTION
 
 BPlite is a package for parsing BLAST reports. The BLAST programs are a family
@@ -113,10 +122,10 @@ contain the alignment sequences from the blast report.
  $hsp->query->start;
  $hsp->query->end;
  $hsp->query->seqname;
- $hsp->sbjct->primary_tag; # "similarity"
- $hsp->sbjct->source_tag;  # "BLAST"
- $hsp->sbjct->start;
- $hsp->sbjct->end;
+ $hsp->subject->primary_tag; # "similarity"
+ $hsp->subject->source_tag;  # "BLAST"
+ $hsp->subject->start;
+ $hsp->subject->end;
  ...
  "$hsp"; # overloaded for query->start..query->end bits
 
@@ -349,9 +358,14 @@ sub nextSbjct {
 sub _parseHeader {
   my ($self) = @_;
   my $FH = $self->_fh();
-  
+  # normally, _parseHeader will break out of the parse as soon as it reaches a new Subject (i.e. the first one after the header)
+  # if you call _parseHeader twice in a row, with nothing in between, all you accomplish is a ->nextSubject call..
+  # so we need a flag to indicate that we have *entered* a header, before we are allowed to leave it!
+  my $header_flag = 0;	# here is the flag/  It is "false" at first, and is set to "true" when any valid header element is encountered
+  $self->{'REPORT_DONE'} = 0;  # reset this bit for a new report
   while(<$FH>) {
-    if ($_ =~ /^Query=\s+([^\(]+)/)    {
+    if ($_ =~ /^Query=\s+([^\(]+)/){
+      $header_flag = 1;   # valid header element found
       my $query = $1;
       while(<$FH>) {
         last if $_ !~ /\S/;
@@ -364,19 +378,21 @@ sub _parseHeader {
       $self->{'QUERY'} = $query;
       $self->{'LENGTH'} = $length;
     }
-    elsif ($_ =~ /^Database:\s+(.+)/) {$self->{'DATABASE'} = $1}
+    elsif ($_ =~ /^Database:\s+(.+)/) {$header_flag = 1;$self->{'DATABASE'} = $1}   # valid header element found
     elsif ($_ =~ /^\s*pattern\s+(\S+).*position\s+(\d+)\D/) {   
 # For PHIBLAST reports
+		$header_flag = 1;    # valid header element found
 		$self->{'PATTERN'} = $1;
 		push (@{$self->{'QPATLOCATION'}}, $2);
 #			$self->{'QPATLOCATION'} = $2;
     } 
-    elsif ($_ =~ /^>/) {$self->{'LASTLINE'} = $_; return 1}
-    elsif ($_ =~ /^Parameters|^\s+Database:/) {
+    elsif (($_ =~ /^>/) && ($header_flag==1)) {$self->{'LASTLINE'} = $_; return 1} # only leave if we have actually parsed a valid header!
+    elsif (($_ =~ /^Parameters|^\s+Database:/) && ($header_flag==1)) {  # if we entered a header, and saw nothing before the stats at the end, then it was empty
       $self->{'LASTLINE'} = $_;
       return 0; # there's nothing in the report
     }
   }
+  return -1; # EOF
 }
 sub _fastForward {
     my ($self) = @_;
