@@ -5,7 +5,7 @@ use strict;
 use Carp 'croak';
 use constant BUMP_SPACING => 2; # vertical distance between bumped glyphs
 use vars '$VERSION';
-$VERSION = '1.01';
+$VERSION = '1.02';
 
 my %LAYOUT_COUNT;
 
@@ -324,6 +324,8 @@ sub connector {
 #              0    no bumping
 #              +1   bump down
 #              -1   bump up
+#              +2   simple bump up
+#              -2   simple bump down
 sub bump {
   my $self = shift;
   return $self->option('bump');
@@ -381,6 +383,7 @@ sub layout {
 
   $_->layout foreach @parts;  # recursively lay out
 
+  # no bumping requested, or only one part here
   if (@parts == 1 || !$bump_direction) {
     my $highest = 0;
     foreach (@parts) {
@@ -390,40 +393,59 @@ sub layout {
     return $self->{layout_height} = $highest + $self->pad_top + $self->pad_bottom;
   }
 
-  my %occupied;
-  for my $g (sort { $a->left <=> $b->left } @parts) {
+  if (abs($bump_direction) <= 1) {  # original bump algorithm
 
-    my $pos = 0;
+    my %occupied;
+    for my $g (sort { $a->left <=> $b->left } @parts) {
 
-    while (1) {
-      # look for collisions
-      my $bottom = $pos + $g->{layout_height};
+      my $pos = 0;
 
-      my $collision;
-      for my $old (sort {$b->[2]<=> $a->[2]} values %occupied) {
-	last if $old->[2] + 2 < $g->left;
-	next if $old->[3]  < $pos;
-	next if $old->[1] > $bottom;
-	$collision = $old;
-	last;
-      }
-      last unless $collision;
+      while (1) {
+	# look for collisions
+	my $bottom = $pos + $g->{layout_height};
 
-      if ($bump_direction > 0) {
-	$pos += $collision->[3]-$collision->[1] + BUMP_SPACING;                    # collision, so bump
+	my $collision;
+	for my $old (sort {$b->[2]<=> $a->[2]} values %occupied) {
+	  last if $old->[2] + 2 < $g->left;
+	  next if $old->[3] < $pos;
+	  next if $old->[1] > $bottom;
+	  $collision = $old;
+	  last;
+	}
+	last unless $collision;
 
-      } else {
-	$pos -= BUMP_SPACING;
-      }
+	if ($bump_direction > 0) {
+	  $pos += $collision->[3]-$collision->[1] + BUMP_SPACING;                    # collision, so bump
+
+	} else {
+	  $pos -= BUMP_SPACING;
+	}
     }
-    $g->move(0,$pos);
-    $occupied{$g} = [$g->left,$g->top,$g->right,$g->bottom];
+      $g->move(0,$pos);
+      $occupied{$g} = [$g->left,$g->top,$g->right,$g->bottom];
+    }
+  }
+
+  else {  # abs(bump) >= 2 -- simple bump algorithm
+    my $pos = 0;
+    my $last;
+    for my $g (sort { $a->left <=> $b->left } @parts) {
+      next if !defined($last);
+      $pos += $bump_direction > 0 ? $last->{layout_height} + BUMP_SPACING : - ($g->{layout_height}+BUMP_SPACING);
+      $g->move(0,$pos);
+    } continue {
+      $last = $g;
+    }
   }
 
   # If -1 bumping was allowed, then normalize so that the top glyph is at zero
   if ($bump_direction < 0) {
-    my ($topmost) = sort {$a->top <=> $b->top} @parts;
-    my $offset = 0 - $topmost->top;
+    my $topmost;
+    foreach (@parts) {
+      my $top  = $_->top;
+      $topmost = $top if !defined($topmost) or $top < $topmost;
+    }
+    my $offset = - $topmost;
     $_->move(0,$offset) foreach @parts;
   }
 
