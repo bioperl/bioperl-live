@@ -422,13 +422,15 @@ sub exists_exe {
     my ($self, $exe) = @_;
     $exe = $self if(!(ref($self) || $exe));
     $exe .= '.exe' if(($^O =~ /mswin/i) && ($exe !~ /\.(exe|com|bat|cmd)$/i));
-    return 1 if(-e $exe); # full path and exists
+    return $exe if(-e $exe); # full path and exists
+    $exe =~ s/^$PATHSEP//;
     # Not a full path, or does not exist. Let's see whether it's in the path.
     if($FILESPECLOADED) {
 	foreach my $dir (File::Spec->path()) {
-	    return 1 if(-e Bio::Root::IO->catfile($dir, $exe));
+	    my $f = Bio::Root::IO->catfile($dir, $exe);	    
+	    return $f if(-e $f );
 	}
-    }
+    }    
     return 0;
 }
 
@@ -475,7 +477,7 @@ sub tempfile {
 	$file = $self->catfile($dir,
 			       (exists($params{'TEMPLATE'}) ?
 				$params{'TEMPLATE'} :
-				sprintf( "%s-%s-%s",  
+				sprintf( "%s.%s.%s",  
 					 $ENV{USER} || 'unknown', $$, 
 					 $TEMPCOUNTER++)));
 	# taken from File::Temp
