@@ -23,7 +23,7 @@ Bio::Tree::TreeFunctionsI - Decorated Interface implementing basic Tree explorat
 
   my @nodes = $tree->find_node('id1');
 
-  if( $tree->is_monophyletic(-clade => @nodes, -outgroup => $outnode) ){
+  if( $tree->is_monophyletic(-nodes => \@nodes, -outgroup => $outnode) ){
 
   }
 
@@ -331,7 +331,7 @@ sub _check_two_nodes {
  Function: Will do a test of monophyly for the nodes specified
            in comparison to a chosen outgroup
  Returns : boolean
- Args    : -nodes => arrayref of nodes to test
+ Args    : -nodes    => arrayref of nodes to test
            -outgroup => outgroup to serve as a reference
 
 
