@@ -147,17 +147,14 @@ sub dna_fits {
 
 sub arrowhead {
   my $self = shift;
-  my $gd   = shift;
+  my $image = shift;
   my ($x,$y,$height,$orientation) = @_;
 
   my $fg = $self->set_pen;
   my $style = $self->option('arrowstyle') || 'regular';
   
-  my $img_class = $self->_image_class;
-  my $pkg       = $img_class . '::Polygon';
-  my $polygon   = $pkg->new();
-  
-  my $poly = $pkg->new();
+  my $poly_pkg = $self->_image_class . '::Polygon';
+  my $poly = $poly_pkg->new();
   if ($orientation >= 0) {
     $poly->addPt($x-$height,$y-$height);
     $poly->addPt($x,$y);
@@ -169,22 +166,22 @@ sub arrowhead {
   }
 
   if ($style eq 'filled') {
-    $gd->filledPolygon($poly,$fg);
+    $image->filledPolygon($poly,$fg);
   }
-  $gd->polygon($poly,$fg);
+  $image->polygon($poly,$fg);
 }
 
 sub arrow {
   my $self = shift;
-  my $gd   = shift;
+  my $image  = shift;
   my ($x1,$x2,$y) = @_;
 
   my $fg     = $self->set_pen;
   my $height = $self->height/3;
 
-  $gd->line($x1,$y,$x2,$y,$fg);
-  $self->arrowhead($gd,$x2,$y,$height,+1) if $x1 < $x2;
-  $self->arrowhead($gd,$x2,$y,$height,-1) if $x2 < $x1;
+  $image->line($x1,$y,$x2,$y,$fg);
+  $self->arrowhead($image,$x2,$y,$height,+1) if $x1 < $x2;
+  $self->arrowhead($image,$x2,$y,$height,-1) if $x2 < $x1;
 }
 
 sub reversec {
