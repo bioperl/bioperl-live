@@ -36,6 +36,7 @@ Bio/SeqIO/Handler.pm
 Bio/SeqIO/EMBL.pm
 Bio/SeqIO/Fasta.pm
 Bio/SeqIO/Raw.pm
+Bio/SeqIO/GCG.pm
 t/Seq.t
 t/SimpleAlign.t
 t/Blast.t              
@@ -50,8 +51,9 @@ t/HSP.t
 t/Sbjct.t              
 t/SimpleAlign.t
 t/SeqIO.t
-t/test.fasta
+t/test.fast
 t/test.raw
+t/test.gcg
 examples/restriction.pl
 examples/rev_and_trans.pl
 examples/root_object/Bar.pm
