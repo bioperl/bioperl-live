@@ -1,4 +1,4 @@
-## $Id: bioperl.pod,v 1.10.2.3 2001-03-05 00:49:00 dag Exp $
+## $Id: bioperl.pod,v 1.10.2.4 2001-06-15 17:51:37 jason Exp $
 
 ## Should contain general info about the distribution including
 ## links to all the various modules.
@@ -186,8 +186,8 @@ are also acceptable in a biosequence:
   B        C or G or T   
   X      G or A or T or C 
   N      G or A or T or C 
-
  
+
  IUPAC-IUB SYMBOLS FOR NUCLEOTIDE NOMENCLATURE:
    Cornish-Bowden (1985) Nucl. Acids Res. 13: 3021-3030.
 
