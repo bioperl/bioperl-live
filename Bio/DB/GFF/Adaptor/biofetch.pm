@@ -30,6 +30,7 @@ use strict;
 use Bio::DB::GFF::Util::Rearrange; # for rearrange()
 use Bio::DB::GFF::Adaptor::dbi::mysql;
 use Bio::DB::BioFetch;
+use Bio::SeqIO;
 
 use vars qw(@ISA);
 @ISA = qw(Bio::DB::GFF::Adaptor::dbi::mysql);
@@ -109,6 +110,7 @@ sub load_from_embl {
   my $self = shift;
   my $db   = shift;
   my $acc  = shift or $self->throw('Must provide an accession ID');
+
   my $biofetch;
   if ($self->{_biofetch}{$db}) {
     $biofetch = $self->{_biofetch}{$db};
@@ -117,7 +119,27 @@ sub load_from_embl {
     $biofetch->retrieval_type('tempfile');
     $biofetch->proxy(@{$self->{_proxy}}) if $self->{_proxy};
   }
+
   my $seq  = eval {$biofetch->get_Seq_by_id($acc)} or return;
+  $self->_load_embl($acc,$seq);
+  1;
+}
+
+sub load_from_file {
+  my $self = shift;
+  my $file = shift;
+
+  my $seqio = Bio::SeqIO->new( '-format' => 'embl', -file => $file);
+  my $seq   = $seqio->next_seq;
+
+  $self->_load_embl($seq->accession,$seq);
+  1;
+}
+
+sub _load_embl {
+  my $self = shift;
+  my $acc  = shift;
+  my $seq  = shift;
   my $refclass = $self->refclass;
 
   # begin loading
