@@ -26,6 +26,11 @@ interface.  Genotypes are defined by the L<Bio::PopGen::GenotypeI>
 interface, you will probably want to use the L<Bio::PopGen::Genotype>
 implementation.
 
+This is implemented via containment to avoid multiple inheritance
+problems.  Their is a L<Bio::PopGen::Individual> object which handles
+the L<Bio::PopGen::IndividualI> interface, and is accessible via the
+L<Bio::Tree::AlleleNode::individual()> method.
+
 =head1 FEEDBACK
 
 =head2 Mailing Lists
@@ -77,6 +82,7 @@ BEGIN { $UIDCOUNTER = 1 }
 
 use Bio::Tree::Node;
 use Bio::PopGen::IndividualI;
+use Bio::PopGen::Individual;
 use Bio::PopGen::Genotype;
 
 @ISA = qw(Bio::Tree::Node Bio::PopGen::IndividualI );
@@ -103,21 +109,28 @@ sub new {
     my($class,@args) = @_;
 
     my $self = $class->SUPER::new(@args);
-    $self->{'_genotypes'} = {};
-    my ($uid,$genotypes) = $self->_rearrange([qw(UNIQUE_ID
-						 GENOTYPES)],@args);
-    unless( defined $uid ) {
-	$uid = $UIDCOUNTER++;
-    } 
-    $self->unique_id($uid);
-    if( defined $genotypes ) {
-	if( ref($genotypes) =~ /array/i ) {
-	    $self->add_Genotype(@$genotypes);
-	} else { 
-	    $self->warn("Must provide a valid array reference to set the genotypes value in the contructor");
-	}
-    }
+    $self->individual( Bio::PopGen::Individual->new(@args));
     return $self;
+}
+
+=head2 individual
+
+ Title   : individual
+ Usage   : $obj->individual($newval)
+ Function: Get/Set Access to the underlying individual object
+ Returns : L<Bio::PopGen::Individual> object
+ Args    : on set, new value (L<Bio::PopGen::Individual>)
+
+
+=cut
+
+sub individual {
+    my ($self,$newval) = @_;
+    if( defined $newval || ! defined $self->{'individual'} ) {
+	$newval = Bio::PopGen::Individual->new() unless defined $newval;
+	$self->{'individual'} = $newval;
+    }
+    return $self->{'individual'};
 }
 
 =head2 Bio::PopGen::Individual methods
@@ -137,9 +150,8 @@ Methods required by L<Bio::PopGen::IndividualI>.
 =cut
 
 sub unique_id{
-   my ($self) = shift;
-   return $self->{'_unique_id'} = shift if @_;
-   return $self->{'_unique_id'};
+    my $self = shift;
+    $self->individual->unique_id(@_);
 }
 
 =head2 num_of_results
@@ -153,7 +165,8 @@ sub unique_id{
 =cut
 
 sub num_of_results {
-    return scalar keys %{shift->{'_genotypes'}};
+    my $self = shift;
+    $self->individual->num_of_results(@_);
 }
 
 =head2 add_Genotype
@@ -169,27 +182,8 @@ sub num_of_results {
 =cut
 
 sub add_Genotype {
-   my ($self,@genotypes) = @_;
-   
-   foreach my $g ( @genotypes ) {
-       if( !ref($g) || ! $g->isa('Bio::PopGen::GenotypeI') ) {
-	   $self->warn("cannot add $g as a genotype skipping");
-	   next;
-       }
-       my $mname = $g->marker_name;
-       if( ! defined $mname || ! length($mname) ) { 
-         # can't just say ! name b/c '0' wouldn't be valid 
-	   $self->warn("cannot add genotype because marker name is not defined or is an empty string");
-	   next;
-       }
-       if( $self->verbose > 0 && 
-	   defined $self->{'_genotypes'}->{$mname} ) {
-	   # a warning when we have verbosity cranked up 
-	   $self->debug("Overwriting the previous value for $mname for this individual");
-       }
-       $self->{'_genotypes'}->{$mname} = $g;
-   }
-   return scalar keys %{$self->{'_genotypes'}};
+    my $self = shift;
+    $self->individual->add_Genotype(@_);
 }
 
 =head2 reset_Genotypes
@@ -204,7 +198,8 @@ sub add_Genotype {
 =cut
 
 sub reset_Genotypes{
-    shift->{'_genotypes'} = {};
+    my $self = shift;
+    $self->individual->reset_Genotypes(@_);
 }
 
 =head2 remove_Genotype
@@ -219,10 +214,8 @@ sub reset_Genotypes{
 =cut
 
 sub remove_Genotype{
-   my ($self,@mkrs) = @_;
-   foreach my $m ( @mkrs ) {
-       delete($self->{'_genotypes'}->{$m});
-   }
+    my $self = shift;
+    $self->individual->remove_Genotype(@_);
 }
 
 =head2 get_Genotypes
@@ -238,19 +231,8 @@ sub remove_Genotype{
 =cut
 
 sub get_Genotypes{
-   my ($self,@args) = @_;
-   if( @args ) {
-       unshift @args, '-marker' if( @args == 1 );  # deal with single args
-       
-       my ($name) = $self->_rearrange([qw(MARKER)], @args);
-       if( ! $name ) {
-	   $self->warn("Only know how to process the -marker field currently");
-	   return();
-       }
-       my $v = $self->{'_genotypes'}->{$name};
-       return $v;
-   }
-   return values %{$self->{'_genotypes'} || {}};
+    my $self = shift;
+    $self->individual->get_Genotypes(@_);
 }
 
 =head2 has_Marker
@@ -266,15 +248,8 @@ sub get_Genotypes{
 =cut
 
 sub has_Marker{
-   my ($self,$name) = @_;
-   return 0 if ! defined $name;
-
-   $name = $name->name if ref($name) && $name->isa('Bio::PopGen::MarkerI');
-   if( ref($name) ) { 
-       $self->warn("Passed in a ".ref($name). " to has_Marker, expecting either a string or a Bio::PopGen::MarkerI");
-       return 0;
-   }
-   return defined $self->{'_genotypes'}->{$name};
+    my $self = shift;
+    $self->individual->has_Marker(@_);
 }
 
 =head2 get_marker_names
@@ -289,8 +264,8 @@ sub has_Marker{
 =cut
 
 sub get_marker_names{
-   my ($self) = @_;
-   return keys %{$self->{'_genotypes'}};
+   my $self = shift;
+   $self->individual->get_marker_names(@_);
 }
 
 =head2 Bio::Tree::Node methods
