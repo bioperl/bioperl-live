@@ -81,6 +81,7 @@ sub next_aln {
     my $seq;
     my $add;
     my $count = 0;
+    my $seq_residues;
 
     my $aln =  Bio::SimpleAlign->new();
 
@@ -106,7 +107,10 @@ sub next_aln {
 	}
 	if( $end == -1) {
 	    $start = 1;
-	    $end = length($seq);
+
+	    $seq_residues = $seq;
+	    $seq_residues =~ s/\W//g;
+	    $end = length($seq_residues);
 	}
 
 	$add = new Bio::LocatableSeq('-seq'=>$seq,
