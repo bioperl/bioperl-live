@@ -51,7 +51,7 @@ my $verbose = 0;
 ## the print "1..x\n" in the BEGIN block to reflect the
 ## total number of tests that will be run. 
 
-my ($db,$seq,$seqio);
+my ($db,$db2,$seq,$seqio);
 # get a single seq
 
 $seq = $seqio = undef;
@@ -67,7 +67,15 @@ undef $db; # testing to see if we can remove gb
 ok( defined($seq = $seqio->next_seq()));
 ok( $seq->length, 200);
 
-exit;
+#swissprot
+ok defined($db2 = new Bio::DB::BioFetch( -db => 'swall'));
+ok(defined($seq = $db2->get_Seq_by_id('YNB3_YEAST')));
+ok( $seq->length, 125);
+ok($seq->division, 'YEAST');
+$db2->request_format('fasta');
+ok(defined($seq = $db2->get_Seq_by_acc('P43780')));
+ok( $seq->length, 103); 
+
 $seq = $seqio = undef;
 
 eval {

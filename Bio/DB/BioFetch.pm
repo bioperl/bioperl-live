@@ -85,7 +85,7 @@ methods. Internal methods are usually preceded with a _
 =cut
 
 # Let the code begin...
-use vars qw(@ISA $VERSION);
+use vars qw(@ISA $VERSION %FORMATMAP );
 @ISA = 'Bio::DB::WebDBSeqI';
 $VERSION = '1.0';
 
@@ -93,8 +93,26 @@ $VERSION = '1.0';
 use constant DEFAULT_FORMAT   => 'fasta';
 use constant DEFAULT_LOCATION => 'http://www.ebi.ac.uk/cgi-bin/dbfetch';
 
-my %SUPPORTED_FORMATS = map {$_=>1} qw(fasta embl);
-my %SUPPORTED_DBS     = map {$_=>1} qw(embl genbank swall);
+#my %SUPPORTED_FORMATS = map {$_=>1} qw(default fasta embl swissprot swiss);
+#my %SUPPORTED_DBS     = map {$_=>1} qw(embl genbank swall);
+
+BEGIN {
+
+    %FORMATMAP = ( 
+		   'embl' => {
+		       module => 'embl',
+		       default => 'embl',
+		       embl => 1,
+		       fasta => 1
+		       },
+		   'swall' => {
+		       module => 'swissprot',
+		       default => 'swiss',
+		       swiss => 1,
+		       fasta => 1
+		       }
+		   );
+}
 
 =head2 new
 
@@ -109,16 +127,17 @@ my %SUPPORTED_DBS     = map {$_=>1} qw(embl genbank swall);
 table. If you do not provide any options, the module assumes reasonable
 defaults.
 
-   Option         Value                        Default
-   ------         -----                        -------
+  Option         Value                            Default
+  ------         -----                            -------
 
-   -baseaddress   location of dbfetch server   http://www.ebi.ac.uk/cgi-bin/dbfetch
-   -retrievaltype "tempfile" or "io_string"    io_string
-   -format        "embl" or "fasta"            embl
-   -db            "embl", "genbank" or "swall" embl
+  -baseaddress   location of dbfetch server       http://www.ebi.ac.uk/cgi-bin/dbfetch
+  -retrievaltype "tempfile" or "io_string"        io_string
+  -format        "embl" or "fasta" or "swissprot" embl
+  -db            "embl", "genbank" or "swall"     embl
 
 =cut
 
+#'
 sub new {
   my ($class,@args) = @_;
   my $self = $class->SUPER::new(@args);
@@ -266,25 +285,52 @@ is provided as an alias.
 
 
 sub get_request {
+    my ($self, @qualifiers) = @_;
+    my ($uids, $format) = $self->_rearrange([qw(UIDS FORMAT)],
+					    @qualifiers);
+    my $db     = $self->db;
+    $self->throw("Must specify a value for UIDs to fetch")
+	unless defined $uids;
+    my $tmp;
+    my $format_string = ''; #use Data::Dumper; print Dumper($self); exit;
+    $format ||= $self->default_format;
+    ($format, $tmp) = $self->request_format($format); $self->debug("====|$format|=====\n");
+    $format_string = "&format=$format" if $format ne $self->default_format;
+#    if (defined $format && $format ne $self->default_format) {
+#    }
+    my $base = $self->url_base_address;
+    my $uid = join('+',ref $uids ? @$uids : $uids);
+    $self->debug("\n$base$format_string&id=$uid\n");#$format='swissprot';
+#    return POST $url. $format_string. '&id='. $uid;
+    return POST($base,
+		[ db     => $db,
+		  id     => join('+',ref $uids ? @$uids : $uids),
+		  format => $format,
+		  style  => 'raw'
+	     ]);
+}
+
+sub xget_request {
   my $self = shift;
   my %qualifiers = @_;
   my $db     = $qualifiers{-db}     || $self->db;
   my $format = $qualifiers{-format} || $self->request_format;
 
-  $SUPPORTED_DBS{$db} or $self->throw('invalid -db argument, must be one of '.
-				      join(' ',keys %SUPPORTED_DBS));
-  $SUPPORTED_FORMATS{$format}
-    or $self->throw('-invalid -format argument, must be one of '.
-		    join(' ',keys %SUPPORTED_FORMATS));
-
+#  $SUPPORTED_DBS{$db} or $self->throw('invalid -db argument, must be one of '.
+#				       join(' ',keys %SUPPORTED_DBS));
+#  print "format = $format\n";
+#  $SUPPORTED_FORMATS{$format}
+#    or $self->throw('-invalid -format argument, must be one of '.
+#		     join(' ',keys %SUPPORTED_FORMATS));
+#
   my $base = $self->url_base_address;
-  my $uids = $qualifiers{-uids};
+  my $uids = $qualifiers{-uids};$format='swissprot';
   my $request = POST($base,
 		      [ db     => $db,
 			id     => join('+',ref $uids ? @$uids : $uids),
 			format => $format,
 			style  => 'raw'
-		      ]);
+		      ]); print "++|$request, $format|++\n";
   $request;
 }
 
@@ -298,7 +344,13 @@ sub get_request {
 
 =cut
 
-sub default_format { DEFAULT_FORMAT }
+sub default_format { 
+    my ($self) = @_;
+    my $db = $self->db || DEFAULT_FORMAT;
+    my $format = $FORMATMAP{$db}->{'default'};
+    $self->request_format($format);
+    return $format;
+}
 
 =head2 default_db
 
@@ -324,9 +376,15 @@ sub default_db     { 'embl' }
 
 sub db {
   my $self = shift;
-  my $d = $self->{_db};
-  $self->{_db} = shift if @_;
-  $d;
+
+  if (@_) {
+
+      my $db = shift;
+      $FORMATMAP{$db} or $self->throw("invalid db [$db], must be one of [".
+				     join(' ',keys %FORMATMAP).  "]");
+      $self->{_db} = $db;
+  }
+  return $self->{_db} || $self->default_db ;
 }
 
 =head2 postprocess_data
@@ -366,6 +424,38 @@ sub postprocess_data {
   else {
     $self->throw("Don't know how to preprocess data of type $args{'type'}");
   }
+}
+
+
+=head2 request_format
+
+ Title   : request_format
+ Usage   : my ($req_format, $ioformat) = $self->request_format;
+           $self->request_format("genbank");
+           $self->request_format("fasta");
+ Function: Get/Set sequence format retrieval. The get-form will normally not
+           be used outside of this and derived modules.
+ Returns : Array of two strings, the first representing the format for
+           retrieval, and the second specifying the corresponding SeqIO format.
+ Args    : $format = sequence format
+
+=cut
+
+sub request_format {
+    my ($self, $value) = @_;
+    if ( defined $value ) { 
+	my $db = $self->db; 
+	#print $FORMATMAP{$db}{$value}, "=\n";
+	#unless ( defined $FORMATMAP{$db}{$value} and $FORMATMAP{$db}{$value}  ) {
+	#    my %hash = %{$FORMATMAP{$self->db}};
+	#    use Data::Dumper; print Dumper ( \%hash);
+	#    $self->throw("Invalid format [$value], must be one of ".
+	#		  join(' ',keys $FORMATMAP{$self->db}));
+	#
+	#}
+	$self->{'_format'} = [ $FORMATMAP{$db}->{'module'}, $value];
+    }
+    return @{$self->{'_format'}};
 }
 
 1;
