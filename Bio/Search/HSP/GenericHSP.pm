@@ -196,8 +196,8 @@ sub new {
                                        QUERY_FRAME
                                        HIT_FRAME
 				       LINKS
-                                       RANK
                                        HSP_GROUP
+                                       RANK
                                        )], @args);
 
     $algo = 'GENERIC' unless defined $algo;
