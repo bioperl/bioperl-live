@@ -2901,7 +2901,7 @@ exit(0);
 #
 
 $access_remote_db = sub {
-    eval { 
+    eval {
 	require Bio::DB::GenBank;
     };
     if($@ ) {
@@ -2919,10 +2919,10 @@ $access_remote_db = sub {
         $seq1 = $gb->get_Seq_by_id('MUSIGHBA1');
     };
 
-if ($@ || !$seq1) {
-    warn "Warning: Couldn't connect to Genbank with Bio::DB::GenBank.pm!\nProbably no network access.\nSkipping method 'access_remote_db'.\n";
-    return 0;
-}
+    if ($@) {
+       warn "Warning: Couldn't connect to Genbank with Bio::DB::GenBank.pm!\nProbably no network access.\nSkipping method 'access_remote_db'.\n";
+       return 0;
+    }
     $seq1_id =  $seq1->display_id();
     print $outputfh "seq1 display id is $seq1_id \n";
     $seq2 = $gb->get_Seq_by_acc('AF303112');
@@ -3952,9 +3952,10 @@ $run_perl = sub {
     eval { 
 	$seq_object = get_sequence('swissprot',"ROA1_HUMAN");
     };
-    unless( $seq_object ) { return 0 } # deal with case when
-    # we're missing a necessary module and this returns undef
-
+    if ($@) {
+       warn "Warning: Couldn't connect to Genbank using Bio::Perl!\nProbably no network access.\nSkipping Bio::Perl test.\n";
+       return 0;
+    }
 
     # sequences are Bio::Seq objects, so the following methods work
     # (for more info see Bio::Seq documentation - try perldoc Bio::Seq)
@@ -4033,14 +4034,15 @@ $demo_xml = sub {
     # III.8.4 Sequence XML representations
     # - generation and parsing (SeqIO::game)
 
-    eval { 
+    eval {
 	require XML::Parser;
-	$str = Bio::SeqIO->new('-file'=>
+        require XML::Writer;
+	$str = Bio::SeqIO->new(-file =>
 			       Bio::Root::IO->catfile("t","data","test.game"),
-			       '-format' => 'game'); };
+			       -format => 'game'); };
     if ( $@ ) {
 	print STDERR "Cannot run demo_xml\n";
-	print STDERR "\tProblem parsing GAME format or missing necessary installed modules XML::Parser XML::Parser::PerlSAX\n";
+	print STDERR "\tProblem parsing GAME format or missing necessary installed modules XML::Parser XML::Parser::PerlSAX XML::Writer\n";
 	return 0;
     } else {
       $seqobj = $str->next_seq();
