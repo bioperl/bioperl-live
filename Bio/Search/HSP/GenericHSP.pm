@@ -733,7 +733,7 @@ sub num_conserved{
 
 
 =cut
-    
+
 sub num_identical{
    my ($self,$value) = @_;
    if( defined $value) {

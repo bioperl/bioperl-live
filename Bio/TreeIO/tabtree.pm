@@ -16,13 +16,13 @@ Bio::TreeIO::tabtree - A simple output format which displays a tree as an ASCII 
 
 =head1 SYNOPSIS
 
-use Bio::TreeIO;
-my $in = new Bio::TreeIO(-file => 'input', -format => 'newick');
-my $out = new Bio::TreeIO(-file => '>output', -format => 'tabtree');
+  use Bio::TreeIO;
+  my $in = new Bio::TreeIO(-file => 'input', -format => 'newick');
+  my $out = new Bio::TreeIO(-file => '>output', -format => 'tabtree');
 
-while( my $tree = $in->next_tree ) {
-    $out->write_tree($tree);
-}    
+  while( my $tree = $in->next_tree ) {
+      $out->write_tree($tree);
+  }
 
 =head1 DESCRIPTION
 

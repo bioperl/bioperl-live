@@ -177,7 +177,7 @@ sub new {
  Example :
  Returns : 1 if repeatmasker program found at expected location, 0 otherwise.
  Args    :  none
-    
+
 =cut
 
 sub exists_rm{

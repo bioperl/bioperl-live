@@ -151,7 +151,7 @@ sub exists_genscan {
     }
 }
 
-=head2 program                                    
+=head2 program
 
  Title   : program
  Usage   : $obj->program($newval)
@@ -174,6 +174,7 @@ sub program{
 
 
 =head2 predict_genes()
+
     Title   :   predict_genes()
     Usage   :   $obj->predictgenes($matrixFile,$seqFile)
     Function:   Runs genscan and creates an array of Genes
@@ -181,6 +182,7 @@ sub program{
     Args    :   A Bio::PrimarySeqI    
 
 =cut
+
 sub predict_genes() {
     my ($self,$seq) = @_;
     my $infile1 = $self->_writeSeqFile($seq);  
@@ -227,6 +229,7 @@ sub _run {
     Args    :
 
 =cut
+
 sub _set_input() {
    my ($self,$infile1) = @_;
    $self->{'input'}=$infile1;
