@@ -100,40 +100,46 @@ use Bio::Variation::Allele;
 =cut
 
 
-my %OK_AUTOLOAD = map {$_=>1} qw(
-		id
-		type
-		observed
-		seq_5
-		seq_3
-		ncbi_build
-		ncbi_chr_hits
-		ncbi_ctg_hits
-		ncbi_seq_loc
-		ucsc_build
-		ucsc_chr_hits
-		ucsc_ctg_hits
-		heterozygous
-		heterozygous_SE
-		validated
-		genotype
-		handle
-		batch_id
-		method
-		locus_id
-		symbol
-		mrna
-		protein
-		functional_class
+my %OK_AUTOLOAD = (
+		id			=> '',
+		type			=> '',
+		observed		=> [],
+		seq_5			=> '',
+		seq_3			=> '',
+		ncbi_build		=> '',
+		ncbi_chr_hits		=> '',
+		ncbi_ctg_hits		=> '',
+		ncbi_seq_loc		=> '',
+		ucsc_build		=> '',
+		ucsc_chr_hits		=> '',
+		ucsc_ctg_hits		=> '',
+		heterozygous		=> '',
+		heterozygous_SE		=> '',
+		validated		=> '',
+		genotype		=> '',
+		handle			=> '',
+		batch_id		=> '',
+		method			=> '',
+		locus_id		=> '',
+		symbol			=> '',
+		mrna			=> '',
+		protein			=> '',
+		functional_class	=> '',
 		);
 
 sub AUTOLOAD {
 	my $self = shift;
 	my $param = $AUTOLOAD;
 	$param =~ s/.*:://;
-	$self->throw(__PACKAGE__." doesn't implement $param") unless $OK_AUTOLOAD{$param};
-	$self->{$param} = shift if @_;
-	return $self->{$param};
+	$self->throw(__PACKAGE__." doesn't implement $param") unless defined $OK_AUTOLOAD{$param};
+
+	if( ref $OK_AUTOLOAD{$param} eq 'ARRAY' ) {
+		push @{$self->{$param}}, shift if @_;
+		return $self->{$param}->[scalar(@{$self->{$param}}) - 1];
+	} else {
+		$self->{$param} = shift if @_;
+		return $self->{$param};
+	}
 }
 
 

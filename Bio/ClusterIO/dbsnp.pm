@@ -185,7 +185,6 @@ sub next_cluster {
 	  $start = 0;
 	} 
 
-
 	#slurp up the data
 	if( defined $tfh ) {
 	  print $tfh $_;
