@@ -260,7 +260,7 @@ o INSTALLING BIOPERL IN A PERSONAL MODULE AREA
 
    This tells perl to install bioperl in the desired place, e.g.:
  
-     /home/users/dag/My_Perl_Modules/Bio/Seq.pm
+     /home/users/dag/My_Local_Perl_Modules/Bio/Seq.pm
 
    Then in your Bioperl script you would write:
 
