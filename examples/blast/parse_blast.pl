@@ -82,9 +82,8 @@ sub examples {
   ./$ID out/blastp.205.gz -signif 1e-1 -nostats
   ./$ID -signif 1e-5 -table 1 < out/tblastn.2 > parsed.out
   ./$ID out/blastx.2.email.gz -table 1 -signif 1e-4  
-  ./$ID out/blastp.email.html.gz -signif 1e-10 
-  ./$ID out/blastp.2* -table 1 -best -nostats > parsed.out2
-  ./$ID out/tblastn.206.gz -table 2 -signif 0.1 
+  ./$ID out/blastn.2* -table 1 -best -nostats > parsed.out2
+  ./$ID out/tblastn.206.out.gz -table 2 -signif 0.1 
   ./$ID out/blastp.1.gz   # should issue some warnings.
 
 STREAM PARSING:

@@ -43,8 +43,6 @@
 #
 #---------------------------------------------------------------------------
 
-use Getopt::Long;
-
 # Using blast_config.pl in the examples/blast distribution directory:
 require "blast_config.pl"; 
 # Proper path to blast_config.pl after you install it in your system:

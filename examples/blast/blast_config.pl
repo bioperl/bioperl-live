@@ -79,6 +79,9 @@ BEGIN {
 # for other ways to work with hit objects.
 #
 # MODIFICATIONS:
+#   25 Apr 1999, sac:
+#      * Added additional parameters for running Blasts to synch up with
+#        the new version of Webblast.pm.
 #   2 Feb 1999, sac:
 #      * Removed default values for the -prog and -db command-line parameters.
 #        These are no longer optional when running Blasts. Removed the -dna option
@@ -157,11 +160,21 @@ $opt_b      = 100;
 $opt_gap_c  = undef;
 $opt_gap_e  = undef;
 $opt_word   = undef;
-$opt_vers   = 2;
+$opt_vers   = 2;  # Version of Blast: 1, 2, PSI, WashU
 $opt_gap    = 1;
 $opt_mat    = '';
 $opt_filt   = 'default';
 $opt_email  = undef;
+
+$opt_org          = undef;
+$opt_org_custom   = undef;
+$opt_aln_view     = undef;
+$opt_cutoff       = undef;
+$opt_in_type      = undef;
+$opt_strnd        = undef;
+$opt_hist         = undef;
+$opt_proxy        = undef;
+
 
 # General options.
 $opt_parse  = 1;    # parse the Blast report.
@@ -256,8 +269,8 @@ sub blast_run_params {
  OPTIONAL:
  -seqfmt <str>: Format of the sequence file. Can be 'raw', 'fasta', or 'gcg'
                 default seqfmt = $opt_seqfmt.
- -vers <str>  : Version of the Blast program to use (1, 2)
-                default version = $opt_vers. PSI blasts not yet supported. 
+ -vers <str>  : Version of the Blast program to use (1, 2, PSI, WashU)
+                default version = $opt_vers. PHI blasts not yet supported. 
  -nogap       : Perform an ungapped alignment with Blast2 
                 default = gapping on.
  -expect <float>: Expect value (default = $opt_expect)
@@ -273,6 +286,14 @@ sub blast_run_params {
  -rem         : Run Blast at a remote site (default).
  -loc         : Run Blast at a local site (requires site-specific module).
  -compress    : Compress the Blast report file.
+ -org         : organism name to limit search (Blast2 only; 'GI_LIST')
+ -org_custom  : custom organism or taxon name (Blast2 only; 'LIST_ORG')
+ -aln_view    : Alignment view (Blast2 only; 0-4)
+ -cutoff      : Blast score cutoff.
+ -in_type     : Sequence input type (not yet supported).
+ -strnd       : Search strand (default = both)
+ -hist        : Histogram ('on', 'off',  or 'both' - default)
+ -proxy       : Proxy server address (url:port)
 
 QQ_RUN_QQ
 
@@ -355,6 +376,8 @@ sub init_blast {
 		'share!', 'stream!', 'tile_hsps!', 'residues!', 'desc!',
 		'compress!', 'eg!', 'rem!', 'loc!', 'check_all!', 'min_len=s',
 		'filt_func=s', 'exponent!', 'params!', 'wait=s',
+		'org=s', 'org_custom=s', 'aln_view=s', 'cutoff=s', 
+		'in_type=s', 'strnd=s', 'hist=s', 'proxy=s',
 		@opts);
     
 
@@ -443,6 +466,15 @@ sub set_blast_params {
 	      -gap_e    => $opt_gap_e,
 	      -word     => $opt_word,
 	      -min_len  => $opt_min_len,
+              -organism => $opt_org,          
+              -org_custom => $opt_org_custom,   
+              -align_view => $opt_aln_view,     
+              -cutoff     => $opt_cutoff,       
+              -input_type => $opt_in_type,      
+              -strand     => $opt_strnd,        
+              -histogram  => $opt_hist,         
+              -proxy_server => $opt_proxy,        
+
 	      );     
 
 # Define parsing parameters for the Blast object.

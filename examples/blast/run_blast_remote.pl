@@ -1,15 +1,15 @@
 #!/usr/bin/perl -w
 
 #---------------------------------------------------------------------------
-# PROGRAM  : run.pl
+# PROGRAM  : run_blast_remote.pl
 # PURPOSE  : To demonstrate how to run and parse Blast reports using the 
 #            Bio::Tools::Blast.pm module.
 # AUTHOR   : Steve A. Chervitz (sac@genome.stanford.edu)
 # CREATED  : 3 Feb 1998
 # REVISION : $Id$
 # WEBSITE  : http://bio.perl.org/Projects/Blast/
-# USAGE    : run.pl -h
-# EXAMPLES : run.pl -eg
+# USAGE    : run_blast_remote.pl -h
+# EXAMPLES : run_blast_remote.pl -eg
 #
 # INSTALLATION: 
 #    Set the require ".../blast_config.pl" to point to the proper location
@@ -38,8 +38,8 @@ use vars qw($ID $VERSION $DESC $MONITOR %runParam %blastParam
 	    $opt_seq $opt_seqfmt $opt_html $opt_parse 
 	    $opt_dna $opt_table $opt_compress);
 
-$ID      = 'run.pl';
-$VERSION = 0.1;
+$ID      = 'run_blast_remote.pl';
+$VERSION = 0.2;
 $DESC    = "Demonstrates running a single Blast report using Bio::Tools::Blast.pm";
 
 #--------------
@@ -48,9 +48,9 @@ sub run_usage {
     print STDERR "$ID, v$VERSION\n$DESC.\n";
     print STDERR <<"QQ_USAGE_QQ";
 
-Usage: run.pl [ parameters ] seq.file
+Usage: run_blast_remote.pl [ parameters ] seq.file
 
-run.pl obtains the query sequence to be Blasted from a 
+run_blast_remote.pl obtains the query sequence to be Blasted from a 
 file specified on the command line. 
 For running multiple sequences, see blast_seqs.pl.
 
