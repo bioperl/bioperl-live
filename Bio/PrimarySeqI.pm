@@ -633,6 +633,7 @@ sub desc {
    return '';
 }
 
+*description = \&desc;
 
 =head2 is_circular
 
