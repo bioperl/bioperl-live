@@ -166,18 +166,11 @@ sub write_seq {
      my($sum,$offset,$len,$i,$j,$cnt,@out);
 
      $len = length($str);
-     $offset=1;
      ## Set the offset if we have any non-standard numbering going on
-     $sum=0;
+     $offset=1;
+     # checksum
+     $sum = $self->GCG_checksum($seq);
      
-     #Generate the GCG Checksum value
-     for($i=0; $i<$len ;$i++) {             
-       $cnt++;
-       $sum += $cnt * ord(substr($str,$i,1));
-       ($cnt == 57) && ($cnt=0);
-     }
-     $sum %= 10000;
-
      #Output the sequence header info
      push(@out,"$comment\n");                        
      push(@out," $id Length: $len  $timestamp  $type Check: $sum  ..\n\n");
@@ -206,6 +199,39 @@ sub write_seq {
      return unless $self->_print(@out);
    }
    return 1;
+}
+
+=head2 GCG_checksum
+
+ Title     : GCG_checksum
+ Usage     : $cksum = $gcgio->GCG_checksum($seq);
+ Function  : returns a gcg checksum for the sequence specified
+
+             This method can also be called as a class method.
+ Example   : 
+ Returns   : a GCG checksum string
+ Argument  : a Bio::PrimarySeqI implementing object
+
+=cut
+ 
+sub GCG_checksum {
+    my ($self,$seqobj) = @_;
+    my $index = 0;
+    my $checksum = 0;
+    my $char;
+
+    my $seq = $seqobj->seq();
+    $seq =~ tr/a-z/A-Z/;
+    
+    foreach $char ( split(/[\.\-]*/, $seq)) {
+	$index++;
+	$checksum += ($index * (unpack("c",$char) || 0) );
+	if( $index ==  57 ) {
+	    $index = 0;
+	}
+    }
+
+    return ($checksum % 10000);
 }
 
 =head2 _validate_checksum
