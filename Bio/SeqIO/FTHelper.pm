@@ -295,7 +295,8 @@ sub from_SeqFeature {
 
     if( $sf->location->isa('Bio::Location::SplitLocationI') ) {
 	my @locationstrs;
-	foreach my $location ( $sf->location->sub_Location() ) {
+	foreach my $location ( sort { $a->start <=> $b->start } 
+			       $sf->location->sub_Location() ) {
 	    push @locationstrs, $fth->_output_single_location($location);
 	}
 	$locstr = sprintf("%s(%s)", $sf->location->splittype, 
