@@ -48,7 +48,40 @@
 	</para>
       </abstract>
     </articleinfo>
-    
+ 
+<section id="basics">
+<title>The basics</title>
+</para>
+This section assumes you've never seen Bioperl before, perhaps you're a
+biologist trying to get some information about some sequences or
+you're some kind of IT expert interested in learning something about
+this hot topic, "bioinformatics". Your first script may want to get 
+some information from a file containing 1 or more sequences.
+</para>
+<para>
+A piece of advice: always use the module Bio::SeqIO! Here's what the 
+first lines of your script might look like:
+<programlisting>
+#!/bin/perl
+
+use Bio::SeqIO;
+my $file = shift; # get the file name, somehow
+my $seqio_object = Bio::SeqIO->new(-file => $file);
+my $seq_object = $seqio_object->next_seq;
+</programlisting>
+Why use Bio::SeqIO? In part because SeqIO understands the many different
+sequence file formats and creates the proper Bioperl object for each format. Some
+formats, like "fasta", are minimal. The fasta format contains a
+sequence and some kind of identifier, but nothing else is required
+nor does the format inherently allow for much more detail, like a feature (a
+sub-sequence, usually with some biological property - 
+see the Feature-Annotation HOWTO for more information). When given
+fasta SeqIO creates a Bio::Seq object, a more spare object than
+the Bio::Seq::RichSeq object that's created when SeqIO is given formats
+like Genbank or EMBL, which may contain features and annotations.
+</para>
+</section>    
+
     <section id="overview">
       <title>10 second overview</title>
       <para>
@@ -82,9 +115,7 @@
 	well (more on this below), so just about anything can be fed into SeqIO to get at 
 the sequence information contained within it. What SeqIO does is create a Handle, 
 or take a given Handle, and parse it into SeqI compliant objects, one for each 
-entry at a time. It knows which SeqI object to use for a particular format, e.g.
-it uses a PrimarySeq for fasta formats, Seq for most other formats, and RichSeq 
-for Genbank/EMBL. It also knows, for each of the supported formats, things like 
+entry at a time. It also knows, for each of the supported formats, things like 
 which record-separator (e.g. "||" for Genbank, ">header" for fasta,
 	etc.) to use, and most importantly, how to parse their key-value based information. SeqIO does all 
 of this for you, so that you can focus on the things you want to do with the 
@@ -95,7 +126,8 @@ information, rather than worrying about how to get the information.
  <section id="formats">
    <title>Formats</title>
    <para>
-     Bioperl's SeqIO system has a lot of formats to interconvert sequences.
+     Bioperl's SeqIO system understands lot of formats and can
+interconvert all of them.
 Here is a current listing of formats, as of version 1.2.
 	<table>
 	  <title>Formats</title>
@@ -111,7 +143,7 @@ Here is a current listing of formats, as of version 1.2.
 	      <row>
 		<entry>abi</entry>
 		<entry>ABI tracefile</entry>
-		<entry> </entry>
+		<entry>ab[i1]</entry>
 	      </row>
 	      <row>
 		<entry>ace</entry>
@@ -121,7 +153,7 @@ Here is a current listing of formats, as of version 1.2.
 	      <row>
 		<entry>alf</entry>
 		<entry>ALF tracefile</entry>
-		<entry> </entry>
+		<entry>alf</entry>
 	      </row>
 	      <row>
 		<entry>bsml</entry>
@@ -131,7 +163,7 @@ Here is a current listing of formats, as of version 1.2.
 	      <row>
 		<entry>ctf</entry>
 		<entry>CTF tracefile</entry>
-		<entry> </entry>
+		<entry>ctf</entry>
 	      </row>
 	      <row>
 		<entry>embl</entry>
@@ -141,7 +173,7 @@ Here is a current listing of formats, as of version 1.2.
 	      <row>
 		<entry>exp</entry>
 		<entry>EXP format</entry>
-		<entry> </entry>
+		<entry>exp</entry>
 	      </row>
 	      <row>
 		<entry>fasta</entry>
@@ -186,7 +218,7 @@ Here is a current listing of formats, as of version 1.2.
 	      <row>
 		<entry>pln</entry>
 		<entry>PLN tracefile</entry>
-		<entry> </entry>
+		<entry>pln</entry>
 	      </row>
 	      <row>
 		<entry>qual</entry>
@@ -211,7 +243,7 @@ Here is a current listing of formats, as of version 1.2.
 	     <row>
 		<entry>ztr</entry>
 		<entry>ZTR tracefile</entry>
-		<entry> </entry>
+		<entry>ztr</entry>
 	      </row>
 	    </tbody>
 	  </tgroup>
@@ -222,14 +254,11 @@ Here is a current listing of formats, as of version 1.2.
 <para>
 For some one of the initial perplexities of Bioperl is the variety of
 different sequence objects, and this gives rise to questions like "How
-do I convert a PrimarySeq object into a RichSeq object?". The basic answer
+do I convert a PrimarySeq object into a RichSeq object?". The answer
 is that one should never have to do this, SeqIO takes care of all
 these conversions. The reason for these different objects in the first
 place has to with the information, or lack of information, inherent to
-the different file formats. For example, the fasta format has no place 
-for sequence features, and its contents end up in Bio::Seq objects, 
-whereas the Genbank format is designed to handle sequence features so its 
-contents are transformed into Bio::RichSeq objects. Though we just said
+the different file formats. Though we just said
 that the conversions are done automatically we offer this table that
 shows some common formats and their corresponding object types, just
 to satisfy the curious.
@@ -316,7 +345,7 @@ below. It prints out the accession number for each entry in the file.
      # code understand the function of the SeqIO object.
      
      my $inseq = Bio::SeqIO->new('-file'   => "&lt;$file",
-                                '-format' => $format );
+                                 '-format' => $format );
      # Now that we have a seq stream,
      # we need to tell it to give us a $seq.
      # We do this using the 'next_seq' method of SeqIO.
@@ -328,7 +357,7 @@ below. It prints out the accession number for each entry in the file.
      </programlisting>
     This script takes two arguments on the commandline, and input filename
 and the format of the input file. This is the basic way to access the data in a Genbank
-file. It is the same for fasta, swissprot, aceDB, and
+file. It is the same for fasta, swissprot, ace, and
 all the others as well, provided that the correct Bioperl-format-label is provided.
    </para>
    <para>
