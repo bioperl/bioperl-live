@@ -36,12 +36,13 @@ use Bio::Tools::Run::StandAloneBlast;
 use Bio::Tools::BPlite::Sbjct;
 use Bio::AlignIO;
 use Bio::SeqIO;
+use Bio::Root::IO;
 use strict;
 
 # set some default values
-my $queryseq = 't/cysprot1.fa';
+my $queryseq = Bio::Root::IO->catfile(qw(t data cysprot1.fa) );
 my $executable = 'blastpgp';
-my $queryaln = 't/cysprot.msf';
+my $queryaln = Bio::Root::IO->catfile(qw(t data cysprot.msf) );
 my @params = ('database' => $amino_database);
 my $do_only = ''; 	# string listing examples to be executed. Default is to execute
 			# all tests (ie 1,2 and 3)
@@ -50,7 +51,7 @@ my $example2param = 'GAP';  # parameter to be varied in example 1
 my $example1values = [ 'BLOSUM62', 'BLOSUM80', 'PAM70']; # MATRIX values to be tried
 my $example2values = [ 7, 9, 25]; # GAP values to be tried
 my $queryalnformat = 'msf';
-my  $jiter = 2;
+my $jiter = 2;
 my  $maskvalues = [50, 25, 75] ; # only use pos. specific scoring matrix if > 50% of residues have
 		     # consensus letter (and compare with 25% or 75% cut off)
 my $helpflag = 0;   # Flag to show usage info.
@@ -60,20 +61,21 @@ my @argv       = @ARGV;  # copy ARGV before GetOptions() massacres it.
 my $paramvalstring;
 my $maskvalstring;
 
-&GetOptions("h!" => \$helpflag, "help!" => \$helpflag,
-	"in=s" => \$queryseq,
-	"inaln=s" => \$queryaln,
-	"alnfmt=s" => \$queryalnformat,
-	"param=s" => \$example1param,
-	"exec=s" => \$executable,
-	"paramvals=s" => \$paramvalstring,
-	"do=i" =>  \$do_only,
-	"maskvals=s" => \$maskvalstring,
-	"iter=i" =>  \$jiter,
+&GetOptions("h!"          => \$helpflag, 
+	    "help!"       => \$helpflag,
+	    "in=s"        => \$queryseq,
+	    "inaln=s"     => \$queryaln,
+	    "alnfmt=s"    => \$queryalnformat,
+	    "param=s"     => \$example1param,
+	    "exec=s"      => \$executable,
+	    "paramvals=s" => \$paramvalstring,
+	    "do=i"        =>  \$do_only,
+	    "maskvals=s"  => \$maskvalstring,
+	    "iter=i"      =>  \$jiter,
 	) ;
 
 if ($paramvalstring) { @$example1values = split (":", $paramvalstring); }
-if ($maskvalstring) { @$maskvalues = split (":", $maskvalstring); }
+if ($maskvalstring)  { @$maskvalues     = split (":", $maskvalstring);  }
 
  if ($helpflag) { &example_usage(); exit 0;}
 
@@ -86,37 +88,42 @@ my  $factory = Bio::Tools::Run::StandAloneBlast->new(@params);
 	
 # If "do" variable not set, do all four examples
 if ( ! $do_only)  {
-	&vary_params($queryseq, $example1param, $example1values);   # ex. 1
-# To compare gap penalties of 7, 9 and 25 we need to set the scoring matrix to BLOSUM62
-#  and extension penalty to 2 (these are limitations of BLAST)
+    &vary_params($queryseq, $example1param, $example1values); # ex. 1
 
-	$factory->MATRIX('BLOSUM62');  
+    # To compare gap penalties of 7, 9 and 25 we need to set the
+    # scoring matrix to BLOSUM62 and extension penalty to 2 (these are
+    # limitations of BLAST)
 
-	$factory->EXTENSION(2);  
-	&vary_params($queryseq, $example2param, $example2values);   # ex. 2
-# For the psiblast tests we want to restore gap opening and extension values to their defaults
-	$factory->GAP(11);
-	$factory->EXTENSION(1);
-# now do the mask comparison example and ..
-	&vary_masks($queryseq, $maskvalues);       # ex. 3
-# do the jumpstart-align vs multiple iteration examples with the mask value set to 50%
-	&aligned_blast($queryseq, $queryaln, $queryalnformat, $jiter, $maskvalues->[0]);   # ex. 4
+    $factory->MATRIX('BLOSUM62');  
+
+    $factory->EXTENSION(2);  
+    &vary_params($queryseq, $example2param, $example2values); # ex. 2
+ 
+    # For the psiblast tests we want to restore gap opening and
+    # extension values to their defaults
+
+    $factory->GAP(11);
+    $factory->EXTENSION(1);
+    # now do the mask comparison example and ..
+    &vary_masks($queryseq, $maskvalues); # ex. 3
+    # do the jumpstart-align vs multiple iteration examples with the 
+    # mask value set to 50%
+    &aligned_blast($queryseq, $queryaln, $queryalnformat, 
+		   $jiter, $maskvalues->[0]); # ex. 4
 } elsif ($do_only  == 1) {
-	&vary_params($queryseq,$example1param, $example1values);
+    &vary_params($queryseq,$example1param, $example1values);
 } elsif ($do_only  == 3) {
-	&vary_masks($queryseq, $maskvalues);
+    &vary_masks($queryseq, $maskvalues);
 } elsif ($do_only  == 4 ) {
-	&aligned_blast($queryseq, $queryaln, $queryalnformat, $jiter, $maskvalues->[0]);
+    &aligned_blast($queryseq, $queryaln, $queryalnformat, $jiter, $maskvalues->[0]);
 }  else {
-	&example_usage();
+    &example_usage();
 }
 
 exit 0;
 
 ##########
 ## End of "main"
-
-
 
 
 #################################################
@@ -132,23 +139,24 @@ exit 0;
 #  returns: nothing  
 
 sub compare_runs {
-my $typetag = shift;
-my $runtags = shift;
+    my $typetag = shift;
+    my $runtags = shift;
 
-my $hashhits = shift;   
+    my $hashhits = shift;   
 
-my ($tag, @taghits);
+    my ($tag, @taghits);
 
-print "Comparing BLAST results... \n";
+    print "Comparing BLAST results... \n";
 
 # Get total number of hits found by any method
-my $numhits = keys %$hashhits ;   # scalar context to get total number of hits by all methods
-print  "Total number of hits found: $numhits \n";
+    my $numhits = keys %$hashhits ; # scalar context to get total number of hits by all methods
+    print  "Total number of hits found: $numhits \n";
 
 # Get total number of hits found by every method
-my $alltags =  join ( "" ,  @$runtags );
-my  @alltaghits = grep  $$hashhits{$_} =~ /$alltags/  ,  keys %$hashhits;
-print  " Number of hits found by every method / parameter-value: " ,   scalar(@alltaghits), "\n";
+    my $alltags =  join ( "" ,  @$runtags );
+    my  @alltaghits = grep  $$hashhits{$_} =~ /$alltags/  ,  keys %$hashhits;
+    print  " Number of hits found by every method / parameter-value: " ,   
+    scalar(@alltaghits), "\n";
 
 # If one desires to see the hits found by all methods, uncomment next 2 lines
 #print  " Hits were found all methods / parameters: \n";
@@ -156,12 +164,12 @@ print  " Number of hits found by every method / parameter-value: " ,   scalar(@a
 
 # For each method/parameter-value (labeled by type) display  hits found 
 # exclusively by that method
-  foreach $tag (@$runtags)  {
+    foreach $tag (@$runtags)  {
 	@taghits = grep  $$hashhits{$_} =~ /^$tag$/  ,  keys %$hashhits;
 	print  " Hits found only when $typetag was $tag: \n";
 	print   join ( "\n", @taghits ) ,  "\n";
-  }
-return 1;
+    }
+    return 1;
 }
 
 
@@ -178,44 +186,51 @@ return 1;
 
 sub vary_params {
 
-my $queryseq = shift;   
-my $param = shift;   
-my $values = shift;  
+    my $queryseq = shift;   
+    my $param = shift;   
+    my $values = shift;  
 
 
-print "Beginning $param parameter-varying example... \n";
+    print "Beginning $param parameter-varying example... \n";
 
-# Now we'll perform several blasts, 1 for each value of the selected parameter.
-# In the first default case, we vary the MATRIX substitution parameter,
-# creating 3 BLAST reports, using MATRIX values of  BLOSUM62, BLOSUM80 or PAM70.
-# In the second default case, we vary the GAP penalty parameter,  
-# creating 3 BLAST reports, using GAP penalties of 7, 9 and 25.
-# In either case we then automatically parse the resulting report to identify which hits
-# are found with any of the parameter values and which with only one of them.
-#
-# To test the BLAST results to some other parameter it is only necessary to change the 
-# parameters passed to the script on the commandline.  The only tricky part is that the BLAST
-# program itself only supports a limited range of parameters.  See the BLAST documentation.
+    # Now we'll perform several blasts, 1 for each value of the
+    # selected parameter.  In the first default case, we vary the
+    # MATRIX substitution parameter, creating 3 BLAST reports, using
+    # MATRIX values of BLOSUM62, BLOSUM80 or PAM70.
 
-my ($report, $sbjct, $paramvalue);
+    # In the second default case, we vary the GAP penalty parameter,
+    # creating 3 BLAST reports, using GAP penalties of 7, 9 and 25. In
+    # either case we then automatically parse the resulting report to
+    # identify which hits are found with any of the parameter values
+    # and which with only one of them.
 
-my $hashhits = { };     # key is hit id, value is string of param values for which hit was found
+ 
+    # To test the BLAST results to some other parameter it is only
+    # necessary to change the parameters passed to the script on the
+    # commandline.  The only tricky part is that the BLAST program
+    # itself only supports a limited range of parameters.  See the
+    # BLAST documentation.
 
-foreach $paramvalue (@$values)  {
+    my ($report, $sbjct, $paramvalue);
 
-	$factory->$param($paramvalue);  # set parameter value
+    my $hashhits = { };	# key is hit id, value is string of param values for which hit was found
+    
+    foreach $paramvalue (@$values)  {
+	
+	$factory->$param($paramvalue); # set parameter value
 
-            print "Performing BLAST with $param = $paramvalue \n";
+	print "Performing BLAST with $param = $paramvalue \n";
 
 	$report = $factory->$executable($queryseq);
-	while ($sbjct = $report->nextSbjct) {
-		$hashhits->{$sbjct->name} .= "$paramvalue";			
+	my $r = $report->next_result;
+	while( my $hit = $r->next_hit ) {
+	    $hashhits->{$hit->name} .= "$paramvalue";
 	}
-}
+    }
 
-&compare_runs( $param , $values , $hashhits);  
- 
-return 1;
+    &compare_runs( $param , $values , $hashhits);  
+
+    return 1;
 
 }
 
@@ -254,14 +269,15 @@ my $aln = $str->next_aln();
 
 foreach $maskvalue (@$values)  {
 
-        print "Performing BLAST with mask threshold = $maskvalue % \n";
+    print "Performing BLAST with mask threshold = $maskvalue % \n";
 
-	# Create the proper mask for 'jumpstarting'
-	my $mask = &create_mask($aln, $maskvalue);
-	my $report2 = $factory->blastpgp($queryseq, $aln, $mask);
-	while($sbjct = $report2->nextSbjct) {
-		$hashhits->{$sbjct->name} .= "$maskvalue";			
-	}
+    # Create the proper mask for 'jumpstarting'
+    my $mask = &create_mask($aln, $maskvalue);
+    my $report2 = $factory->blastpgp($queryseq, $aln, $mask);
+    my $r = $report2->next_result;
+    while($sbjct = $r->next_hit) {
+	$hashhits->{$sbjct->name} .= "$maskvalue";			
+    }
 }
 
 &compare_runs( 'mask threshold' , $values , $hashhits);
@@ -433,7 +449,7 @@ or
 or
  >standaloneblast.pl -do 4 -maskvals 0 -iter 3
 or
- >standaloneblast.pl -do 3 -maskvals '10:50:90'  -in 't/cysprot1.fa' -alnfmt msf -inaln 't/cysprot.msf'
+ >standaloneblast.pl -do 3 -maskvals '10:50:90'  -in 't/data/cysprot1.fa' -alnfmt msf -inaln 't/cysprot.msf'
 
 
 
