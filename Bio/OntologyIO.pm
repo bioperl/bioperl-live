@@ -118,7 +118,8 @@ my %format_driver_map = (
  Args    : Named parameters. Common parameters are
 
               -format    - the format of the input; supported right now are
-                          'go' and 'interpro'
+                          'go' (synonymous with goflat), 'so' (synonymous
+                          with soflat), and 'interpro'
               -file      - the file holding the data
               -fh        - the stream providing the data (-file and -fh are
                           mutually exclusive)
