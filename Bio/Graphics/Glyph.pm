@@ -40,9 +40,11 @@ sub new {
     $self->{parts}   = \@subglyphs;
   }
 
-  if (defined $self->start && defined $self->stop) {
-    my ($left,$right) = $factory->map_pt($self->start,$self->stop);
-    ($left,$right) = ($right,$left) if $left > $right;  # paranoia
+  my ($start,$stop) = ($self->start, $self->stop);
+  if (defined $start && defined $stop) {
+    ($start,$stop) = ($stop,$start) if $start > $stop;  # sheer paranoia
+    # the +1 here is critical for allowing features to meet nicely at nucleotide resolution
+    my ($left,$right) = $factory->map_pt($start,$stop+1); 
     $self->{left}    = $left;
     $self->{width}   = $right - $left + 1;
   }
