@@ -20,7 +20,7 @@ Bio::SearchIO::psiblast - Parser for traditional BLAST and PSI-BLAST reports
                                  -file    => 'report.blastp' );
 
     while ( my $blast = $in->next_result() ) {
-	foreach my $hit ( $blast->hits ) {
+        foreach my $hit ( $blast->hits ) {
             print "Hit: $hit\n";
         }
    }
@@ -32,9 +32,9 @@ Bio::SearchIO::psiblast - Parser for traditional BLAST and PSI-BLAST reports
     # hits in the report by testing the function $blast->no_hits_found().
 
     my $filt_func = sub{ my $hit=shift; 
-    			 $hit->frac_identical('query') >= 0.5 
-    			     && $hit->frac_aligned_query >= 0.50
-    			 };
+                             $hit->frac_identical('query') >= 0.5 
+                                 && $hit->frac_aligned_query >= 0.50
+                             };
 
     # Not supplying a -file or -fh parameter means read from STDIN
 
@@ -139,17 +139,17 @@ package Bio::SearchIO::psiblast;
 
 use strict;
 use vars qw( @ISA 
-	     $MAX_HSP_OVERLAP 
-	     $DEFAULT_MATRIX  
-	     $DEFAULT_SIGNIF  
-	     $DEFAULT_SCORE
-	     $DEFAULT_BLAST_WRITER_CLASS 
-	     $DEFAULT_HIT_FACTORY_CLASS 
-	     $DEFAULT_RESULT_FACTORY_CLASS  
-	     );
+             $MAX_HSP_OVERLAP 
+             $DEFAULT_MATRIX  
+             $DEFAULT_SIGNIF  
+             $DEFAULT_SCORE
+             $DEFAULT_BLAST_WRITER_CLASS 
+             $DEFAULT_HIT_FACTORY_CLASS 
+             $DEFAULT_RESULT_FACTORY_CLASS  
+             );
 
 use Bio::SearchIO;
-use Bio::Search::Result::BlastResult;
+use Bio::Search::Result::PsiBlastResult;
 use Bio::Factory::BlastHitFactory;
 use Bio::Factory::BlastResultFactory;
 use Bio::Tools::StateMachine::IOStateMachine qw($INITIAL_STATE $FINAL_STATE);
@@ -204,19 +204,19 @@ my $current_iteration;  # psiblast
  Returns   : Bio::SearchIO::psiblast object.
  Argument  : Named parameters:  (PARAMETER TAGS CAN BE UPPER OR LOWER CASE).
            : These are in addition to those specified by Bio::SearchIO::new() (see).
-	   : -SIGNIF     => number (float or scientific notation number to be used
-	   :                         as a P- or Expect value cutoff; default = 999.)
-	   : -SCORE     => number (integer or scientific notation number to be used
-	   :                         as a score value cutoff; default = 0.)
-	   : -HIT_FILTER  => func_ref (reference to a function to be used for
+           : -SIGNIF     => number (float or scientific notation number to be used
+           :                         as a P- or Expect value cutoff; default = 999.)
+           : -SCORE     => number (integer or scientific notation number to be used
+           :                         as a score value cutoff; default = 0.)
+           : -HIT_FILTER  => func_ref (reference to a function to be used for
            :                          filtering out hits based on arbitrary criteria.
            :                          This function should take a
            :                          Bio::Search::Hit::BlastHit.pm object as its first
            :                          argument and return a boolean value,
-	   :                          true if the hit should be filtered out).
+           :                          true if the hit should be filtered out).
            :                          Sample filter function:
            :                          -HIT_FILTER => sub { $hit = shift;
-	   :				                  $hit->gaps == 0; },
+           :                                                  $hit->gaps == 0; },
            :                 Historical note: This parameter was formerly
                              called -FILT_FUNC in the older
                              Bio::Tools::Blast::parse method. Using
@@ -224,7 +224,7 @@ my $current_iteration;  # psiblast
                              compatibility.
            : -CHECK_ALL_HITS => boolean (check all hits for significance against
            :                             significance criteria.  Default = false.
-	   :			         If false, stops processing hits after the first
+           :                                 If false, stops processing hits after the first
            :                             non-significant hit or the first hit that fails
            :                             the hit_filter call. This speeds parsing,
            :                             taking advantage of the fact that the hits
@@ -232,14 +232,14 @@ my $current_iteration;  # psiblast
            : -MIN_LEN     => integer (to be used as a minimum query sequence length
            :                          sequences below this length will not be processed).
            :                          default = no minimum length).
-	   : -STATS       => boolean (collect key statistical parameters for the report: 
+           : -STATS       => boolean (collect key statistical parameters for the report: 
            :                          matrix, filters, etc. default = false). 
            :                          This requires extra parsing
            :                          so if you aren't interested in this info, don't
            :                          set this parameter. Note that the unparsed 
            :                          parameter section of a Blast report is always
            :                          accessible via $blast->raw_statistics().
-	   : -BEST        => boolean (only process the best hit of each report;
+           : -BEST        => boolean (only process the best hit of each report;
            :                          default = false).
            : -OVERLAP     => integer (the amount of overlap to permit between
            :                          adjacent HSPs when tiling HSPs. A reasonable value is 2.
@@ -250,7 +250,7 @@ my $current_iteration;  # psiblast
            :                            Hit data is limited to what can be obtained
            :                            from the description line.
            :                            Replaces the older NO_ALIGNS option.)
-	   :		
+           :                
            :
  Comments  : Do NOT remove the HTML from an HTML-formatted Blast report by using the
            : "Save As" option of a web browser to save it as text. This renders the
@@ -273,6 +273,19 @@ sub new {
 
   $self->_init_parse_params( %args );
 
+  my ( $rfactory, $hfactory) =
+      $self->_rearrange([qw(
+			    RESULT_FACTORY 
+			    HIT_FACTORY
+                           )], %args);
+
+  if( not defined $self->{'_result_factory'}) {
+      $self->result_factory( $rfactory || $self->default_result_factory_class->new );
+  }
+  if( not defined $self->{'_hit_factory'}) {
+      $self->hit_factory( $hfactory || $self->default_hit_factory_class->new );
+  }
+
   $self->pause_between_reports( 1 );
 
   $self->{'_result_count'} = 0;
@@ -291,6 +304,61 @@ sub default_hit_factory_class {
   return $DEFAULT_HIT_FACTORY_CLASS;
 }
 
+=head2 hit_factory
+
+ Title   : hit_factory
+ Usage   : $hit_factory = $stream->hit_factory;  (get)
+         : $stream->hit_factory( $factory );     (set)
+ Function: Sets/Gets a factory object to create hit objects for this SearchIO
+ Returns : Bio::Factory::HitFactoryI object 
+ Args    : Bio::Factory::HitFactoryI object (when setting)
+ Throws  : Bio::Root::Exception if a non-Bio::Factory::HitFactoryI object  
+           is passed in.
+ Comments: A SearchIO implementation should provide a default hit factory.
+
+See L<Bio::Factory::HitFactoryI>
+
+=cut
+
+sub hit_factory {
+    my ($self, $fact) = @_;
+    if( ref $fact and $fact->isa( 'Bio::Factory::HitFactoryI' )) {
+    	   $self->{'_hit_factory'} = $fact;
+    }
+    elsif( defined $fact ) {
+        $self->throw("Can't set HitFactory. Not a Bio::Factory::HitFactoryI: $fact");
+    }
+    return $self->{'_hit_factory'};
+}
+
+=head2 result_factory
+
+ Title   : result_factory
+ Usage   : $result_factory = $stream->result_factory;  (get)
+         : $stream->result_factory( $factory );        (set)
+ Function: Sets/Gets a factory object to create result objects for this
+           SearchIO.
+ Returns : Bio::Factory::ResultFactoryI object 
+ Args    : Bio::Factory::ResultFactoryI object (when setting)
+ Throws  : Bio::Root::Exception if a non-Bio::Factory::ResultFactoryI object
+           is passed in.
+ Comments: A SearchIO implementation should provide a default result factory.
+
+See L<Bio::Factory::ResultFactoryI>
+
+=cut
+
+sub result_factory {
+    my ($self, $fact) = @_;
+    if( ref $fact and $fact->isa( 'Bio::Factory::ResultFactoryI' )) {
+    	   $self->{'_result_factory'} = $fact;
+    }
+    elsif( defined $fact ) {
+        $self->throw("Can't set ResultFactory. Not a Bio::Factory::ResultFactoryI: $fact");
+    }
+    return $self->{'_result_factory'};
+}
+
 sub check_for_new_state {
     my ($self) = @_;
 
@@ -301,50 +369,50 @@ sub check_for_new_state {
 
     # End the run if there's no more input.
     if( ! $chunk ) {
-	return $self->final_state;
+        return $self->final_state;
     }
     $self->clear_state_change_cache;
     my $curr_state = $self->current_state;
 
     if( $chunk =~ /^(<.*>)?T?BLAST[NPX]/ ) {
-	$newstate = $state{header};
-	$self->state_change_cache( $chunk );
+        $newstate = $state{header};
+        $self->state_change_cache( $chunk );
     }
 
     elsif ($chunk =~ /^Sequences producing/ ) {
-	$newstate = $state{descr};
-	$self->state_change_cache( $chunk );
+        $newstate = $state{descr};
+        $self->state_change_cache( $chunk );
     }
 
     elsif ($chunk =~ /No hits found/i ) {
-	$newstate = $state{nohits};
-	$self->state_change_cache( $chunk );
+        $newstate = $state{nohits};
+        $self->state_change_cache( $chunk );
     }
 
     elsif ($chunk =~ /^\s*Searching/ ) {
-	$newstate = $state{iteration};
+        $newstate = $state{iteration};
     }
 
     elsif ($chunk =~ /^>(.*)/ ) {
-	$newstate = $state{align};
-	$self->state_change_cache( "$1\n" );
+        $newstate = $state{align};
+        $self->state_change_cache( "$1\n" );
     }
 
     elsif ($chunk =~ /^(CPU time|Parameters):/ ) {
-	$newstate = $state{footer};
-	$self->state_change_cache( $chunk );
+        $newstate = $state{footer};
+        $self->state_change_cache( $chunk );
     }
 
     # Necessary to distinguish "  Database:" lines that start a footer section
     # from those that are internal to a footer section.
     elsif ($chunk =~ /^\s+Database:/ && $curr_state ne $state{'footer'}) {
-	$newstate = $state{footer};
-	$self->state_change_cache( $chunk );
+        $newstate = $state{footer};
+        $self->state_change_cache( $chunk );
     }
 
     if( $curr_state ne $INITIAL_STATE and not $newstate  ) {
 #        print "Appending input cache with ($curr_state): $chunk\n";
-	$self->append_input_cache( $chunk );
+        $self->append_input_cache( $chunk );
     }
 
     return $newstate;
@@ -364,12 +432,12 @@ sub change_state {
         # and all data from it is now in the input cache.
         my @data = $self->get_input_cache();
 
-#	 if($from_state eq $state{iteration} ) {
-#	   do{
-#	     print STDERR "State change cache: ", $self->state_change_cache, "\n";
-#	     print STDERR "Input cache ($from_state):\n@data\n\n";
-#	 };
-#	 }
+#         if($from_state eq $state{iteration} ) {
+#           do{
+#             print STDERR "State change cache: ", $self->state_change_cache, "\n";
+#             print STDERR "Input cache ($from_state):\n@data\n\n";
+#         };
+#         }
 
         # Now we need to process the input cache data.
         # Remember, at this point, the current state is the "from" state
@@ -389,8 +457,8 @@ sub change_state {
             $self->_process_alignment( @data );
         }
         elsif($from_state eq $state{footer} ) {
-	  my $ok_to_pause = not $state eq $self->final_state;
-	  $self->_process_footer( $ok_to_pause, @data );
+          my $ok_to_pause = not $state eq $self->final_state;
+          $self->_process_footer( $ok_to_pause, @data );
         }
 
         $self->finalize_state_change( $state, 1 );
@@ -431,9 +499,9 @@ sub _init_parse_params {
     my($signif, $filt_func, $hit_filter, $min_len, $check_all, 
        $gapped, $score, $overlap, $stats, $best, $shallow_parse, 
        $hold_raw) =
-	$self->_rearrange([qw(SIGNIF FILT_FUNC HIT_FILTER MIN_LEN 
-			      CHECK_ALL_HITS GAPPED SCORE
-			      OVERLAP STATS BEST SHALLOW_PARSE HOLD_RAW_DATA)], @param);
+        $self->_rearrange([qw(SIGNIF FILT_FUNC HIT_FILTER MIN_LEN 
+                              CHECK_ALL_HITS GAPPED SCORE
+                              OVERLAP STATS BEST SHALLOW_PARSE HOLD_RAW_DATA)], @param);
 
     $self->{'_hit_filter'} = $hit_filter || $filt_func || 0;
     $self->{'_check_all'} = $check_all || 0;
@@ -454,6 +522,7 @@ sub _init_parse_params {
     $self->_clear_errors;
     undef $self->{'_hit_count'};
     undef $self->{'_num_hits_significant'};
+
 }
 
 #=head2 _set_signif
@@ -491,45 +560,45 @@ sub _set_signif {
     my( $self, $sig, $len, $func, $score ) = @_;
 
     if(defined $sig) {
-	$self->{'_confirm_significance'} = 1;
-	if( $sig =~ /[^\d.e-]/ or $sig <= 0) {
-	    $self->throw(-class => 'Bio::Root::BadParameter',
+        $self->{'_confirm_significance'} = 1;
+        if( $sig =~ /[^\d.e-]/ or $sig <= 0) {
+            $self->throw(-class => 'Bio::Root::BadParameter',
                          -text => "Invalid significance value: $sig\n".
-			 "Must be a number greater than zero.");
-	}
-	$self->{'_max_significance'} = $sig;
+                         "Must be a number greater than zero.");
+        }
+        $self->{'_max_significance'} = $sig;
     } else {
-	$self->{'_max_significance'}   = $DEFAULT_SIGNIF;
+        $self->{'_max_significance'}   = $DEFAULT_SIGNIF;
     }
 
     if(defined $score) {
-	$self->{'_confirm_significance'} = 1;
-	if( $score =~ /[^\de+]/ or $score <= 0) {
-	    $self->throw(-class => 'Bio::Root::BadParameter',
+        $self->{'_confirm_significance'} = 1;
+        if( $score =~ /[^\de+]/ or $score <= 0) {
+            $self->throw(-class => 'Bio::Root::BadParameter',
                          -text => "Invalid score value: $score\n".
-			 "Must be an integer greater than zero.");
-	}
-	$self->{'_min_score'} = $score;
+                         "Must be an integer greater than zero.");
+        }
+        $self->{'_min_score'} = $score;
     } else {
-	$self->{'_min_score'}  = $DEFAULT_SCORE;
+        $self->{'_min_score'}  = $DEFAULT_SCORE;
     }
 
     if(defined $len) {
-	if($len =~ /\D/ or $len <= 0) {
-	    $self->warn("Invalid minimum length value: $len",
-			"Value must be an integer > 0. Value not set.");
-	} else {
-	    $self->{'_min_length'} = $len;
-	}
+        if($len =~ /\D/ or $len <= 0) {
+            $self->warn("Invalid minimum length value: $len",
+                        "Value must be an integer > 0. Value not set.");
+        } else {
+            $self->{'_min_length'} = $len;
+        }
     }
 
     if(defined $func) {
         $self->{'_check_all'} = 1;
-	$self->{'_confirm_significance'} = 1;
-	if($func and not ref $func eq 'CODE') {
-	    $self->throw("Not a function reference: $func",
-			  "The -hit_filter parameter must be function reference.");
-	  }
+        $self->{'_confirm_significance'} = 1;
+        if($func and not ref $func eq 'CODE') {
+            $self->throw("Not a function reference: $func",
+                          "The -hit_filter parameter must be function reference.");
+          }
     }
 }
 
@@ -758,14 +827,14 @@ sub _process_descriptions {
       next desc_loop if $line =~ /^\.\./;
 
       if($line =~ /^Sequences used in model/ ) {
-	#Sequences used in model and found again:
-	$hit_found_again = 1;
-	next;
+        #Sequences used in model and found again:
+        $hit_found_again = 1;
+        next;
       }
       elsif($line =~ /^Sequences not found previously/ ) {
-	#Sequences not found previously or not previously below threshold:
-	$hit_found_again  = 0;
-	next;
+        #Sequences not found previously or not previously below threshold:
+        $hit_found_again  = 0;
+        next;
       }
 
       ## Checking the significance value (P- or Expect value) of the hit
@@ -783,8 +852,8 @@ sub _process_descriptions {
           $score = $2;
           $layout = 1;
       } else {
-	$self->warn("Can't parse description line\n $line");
-	next desc_loop;
+        $self->warn("Can't parse description line\n $line");
+        next desc_loop;
       }
       not $layout_set and ($self->_layout($layout), $layout_set = 1);
 
@@ -830,8 +899,8 @@ sub _set_query_length {
     if(defined($self->{'_min_length'})) {
       local $^W = 0;
       if($length < $self->{'_min_len'}) {
-	$self->throw("Query sequence too short (Query= ${\$self->{'_current_blast'}->query_name}, length= $length)",
-		     "Minimum  length is $self->{'_min_len'}");
+        $self->throw("Query sequence too short (Query= ${\$self->{'_current_blast'}->query_name}, length= $length)",
+                     "Minimum  length is $self->{'_min_len'}");
       }
     }
 
@@ -850,13 +919,13 @@ sub _set_hi_low_signif_and_score {
     my $lowScore = $self->{'_lowestScore'} || $DEFAULT_SIGNIF;
 
     $self->{'_highestSignif'} = ($sig > $hiSig)
-   	                        ? $sig : $hiSig;
+                                   ? $sig : $hiSig;
 
     $self->{'_lowestSignif'} = ($sig < $lowSig)
                                  ? $sig : $lowSig;
 
     $self->{'_highestScore'} = ($score > $hiScore)
-   	                        ? $score : $hiScore;
+                                   ? $score : $hiScore;
 
     $self->{'_lowestScore'} = ($score < $lowScore)
                                  ? $score : $lowScore;
@@ -894,7 +963,7 @@ sub _layout {
 #------------
     my $self = shift;
     if(@_) {
-	$self->{'_layout'} = shift;
+        $self->{'_layout'} = shift;
     }
     $self->{'_layout'} || 2;
 }
@@ -933,8 +1002,8 @@ sub _parse_signif {
 
     # fail-safe check
     if(not $signif =~ /[.-]/) {
-	$offset = ($offset == 0 ? 1 : 0);
-	$signif = $linedat[ $#linedat - $offset ];
+        $offset = ($offset == 0 ? 1 : 0);
+        $signif = $linedat[ $#linedat - $offset ];
     }
 
     $signif = "1$signif" if $signif =~ /^e/i;
@@ -970,7 +1039,7 @@ sub _process_alignment {
     if(defined $self->{'_hit_count'} and
       defined $self->{'_num_hits_significant'}) {
       return if $self->{'_hit_count'} >= $self->{'_num_hits_significant'} and
-	not ($self->{'_check_all'} or $self->{'_collect_stats'});
+        not ($self->{'_check_all'} or $self->{'_collect_stats'});
     }
 
     # Return if we're only interested in the best hit.
@@ -1009,17 +1078,17 @@ sub _process_alignment {
     }
 
     my %hit_params = ( -RESULT     => $self->{'_current_blast'},
-		       -RAW_DATA   =>\@data,
-		       -SIGNIF     => $signif,
-		       -IS_PVAL    => $is_pval,
-		       -SCORE      => $score,
-		       -RANK       => $self->{'_hit_count'},
-		       -RANK_BY    => 'order',
-		       -OVERLAP    => $self->{'_overlap'} || $MAX_HSP_OVERLAP,
-		       -FOUND_AGAIN => $found_again,
-		       -SHALLOW_PARSE  => $self->{'_shallow_parse'},
-		       -HOLD_RAW_DATA  => $self->{'_hold_raw_data'},
-		     );
+                       -RAW_DATA   =>\@data,
+                       -SIGNIF     => $signif,
+                       -IS_PVAL    => $is_pval,
+                       -SCORE      => $score,
+                       -RANK       => $self->{'_hit_count'},
+                       -RANK_BY    => 'order',
+                       -OVERLAP    => $self->{'_overlap'} || $MAX_HSP_OVERLAP,
+                       -FOUND_AGAIN => $found_again,
+                       -SHALLOW_PARSE  => $self->{'_shallow_parse'},
+                       -HOLD_RAW_DATA  => $self->{'_hold_raw_data'},
+                     );
 
     my $hit; 
     $hit = $self->hit_factory->create_hit( %hit_params );
@@ -1027,15 +1096,15 @@ sub _process_alignment {
     # printf STDERR "NEW HIT: %s, SIGNIFICANCE = %g\n", $hit->name, $hit->expect;  <STDIN>;
     # The BLAST report may have not had a description section.
     if(not $self->{'_has_descriptions'}) {
-	$self->_process_significance($hit->signif, $score);
+        $self->_process_significance($hit->signif, $score);
     }
-    
+
     # Collect overall signif data if we don't already have it,
     # (as occurs if no -signif or -score parameter are supplied).
     my $hit_signif = $hit->signif;
-    
+
     if (not $self->{'_confirm_significance'} ) {
-	$self->_set_hi_low_signif_and_score($hit_signif, $score);
+        $self->_set_hi_low_signif_and_score($hit_signif, $score);
     }
 
     # Test significance using custom function (if supplied)
@@ -1080,7 +1149,7 @@ sub _process_footer {
     if( $self->errors ) {
         my $num_err = scalar($self->errors);
         $self->warn( "$num_err Blast parsing errors occurred.");
-	foreach( $self->errors ) { print STDERR "$_\n"; };
+        foreach( $self->errors ) { print STDERR "$_\n"; };
     }
 
     if( $self->{'_pause_between_reports'} and $ok_to_pause ) {
@@ -1105,8 +1174,8 @@ sub _process_iteration {
 
     foreach( @data ) {
         if( /Results from round \d+/i ) {
-	  $self->{'_current_blast'}->psiblast( 1 );
-	}
+          $self->{'_current_blast'}->psiblast( 1 );
+        }
         elsif( /No hits found/i ) {
             $self->_process_nohits();
             last;
