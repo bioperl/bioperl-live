@@ -73,14 +73,13 @@ use strict;
 
 # Object preamble - inherits from Bio::DB::BioSeqI
 
-use Bio::DB::RandomAccessDBI;
-use Bio::DB::BioSeqI;
+use Bio::DB::RandomAccessI;
 use Bio::SeqIO;
 use IO::Socket;
 
-@ISA = qw(Bio::DB::RandomAccessDBI Bio::DB::BioSeqI);
+@ISA = qw(Bio::Root::Object Bio::DB::RandomAccessI);
 
-# new() is inherited from Bio::DB::BioSeqI
+# new() is inherited from Bio::DB::SeqI
 
 # _initialize is where the heavy stuff will happen when new is called
 

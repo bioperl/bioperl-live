@@ -86,9 +86,9 @@ package Bio::DB::Ace;
 use vars qw($AUTOLOAD @ISA @EXPORT_OK);
 use strict;
 
-# Object preamble - inherits from Bio::DB::Abstract
+# Object preamble - inherits from Bio::DB::RandomAccessI
 
-use Bio::DB::BioSeqI;
+use Bio::DB::RandomAccessI;
 use Bio::Seq;
 
 BEGIN { 
@@ -101,7 +101,7 @@ BEGIN {
 }
 
 
-@ISA = qw(Bio::DB::BioSeqI Bio::Root::Object Exporter);
+@ISA = qw(Bio::DB::RandomAccessI Exporter);
 @EXPORT_OK = qw();
 
 # new() is inherited from Bio::DB::Abstract

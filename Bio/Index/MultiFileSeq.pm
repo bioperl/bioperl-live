@@ -12,7 +12,7 @@
 
 =head1 NAME
 
-Bio::Index::MultiFileSeq - Base class for MultiFileSeq's
+Bio::Index::MultiFileSeq - Base class for MultiFileSeq's #'
 
 =head1 SYNOPSIS
 
@@ -68,10 +68,10 @@ use strict;
 use Bio::SeqIO;
 use Bio::SeqIO::MultiFile;
 use Bio::Index::Abstract;
-use Bio::DB::SeqDBI;
+use Bio::DB::SeqI;
 
 
-@ISA = qw(Bio::Index::Abstract Bio::DB::SeqDBI);
+@ISA = qw(Bio::Index::Abstract Bio::DB::SeqI);
 
 # new() is inherited from Bio::Root::Object
 
