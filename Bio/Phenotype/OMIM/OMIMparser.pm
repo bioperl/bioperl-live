@@ -481,6 +481,7 @@ sub _createOMIMentry {
             } 
         }
         elsif ( $key == TEXT_STATE ) {
+            $val = undef if($val =~ /DESCRIPTION1\nDESCRIPTION2/);
             $omim_entry->description( $val );
         }
         elsif ( $key == ALLELIC_VARIANT_STATE ) {
@@ -499,12 +500,15 @@ sub _createOMIMentry {
             $omim_entry->clinical_symptoms_raw( $val );
         }
         elsif ( $key == CONTRIBUTORS_STATE ) {
+            $val = undef if($val =~ /cn1\ncn2\ncn3/);
             $omim_entry->contributors( $val );
         }
         elsif ( $key == CREATED_BY_STATE ) {
+            $val = undef if($val =~ /cd1\ncd2\ncd3/);
             $omim_entry->created( $val );
         }
         elsif ( $key == EDITED_BY_STATE ) {
+            $val = undef if($val =~ /ed1\ned2\ned3/);
             $omim_entry->edited( $val );
         }
         elsif ( $key == MINI_MIM_TEXT_STATE ) {
