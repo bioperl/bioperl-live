@@ -16,7 +16,7 @@ BEGIN {
     }
     use Test;
 
-    plan tests => 101;
+    plan tests => 113;
 }
 
 use Bio::Location::Simple;
@@ -27,7 +27,6 @@ use Bio::Coordinate::Result::Gap;
 use Bio::Coordinate::ExtrapolatingPair;
 use Bio::Coordinate::Collection;
 
-use Data::Dumper;
 
 use vars qw($DEBUG);
 ok(1);
@@ -149,7 +148,6 @@ $match2 = Bio::Location::Simple->new
 $pos = Bio::Location::Simple->new 
     (-start => 38, -end => 40, -strand=> 1 );
 $res = $pair->map($pos);
-#print Dumper $res;
 ok $res->start, 1;
 ok $res->end, 3;
 ok $res->strand, -1;
@@ -157,7 +155,6 @@ ok $res->strand, -1;
 $pos = Bio::Location::Simple->new 
     (-start => 1, -end => 3, -strand=> 1 );
 $res = $pair->map($pos);
-#print Dumper $res;
 ok $res->start, 38;
 ok $res->end, 40;
 ok $res->strand, -1;
@@ -176,14 +173,12 @@ ok my $m = new Bio::Coordinate::GeneMapper(-in => 'propeptide',
 #$m->verbose(2);
 
 ok $m->peptide_offset(5), 5;
-#print Dumper $m;
 
 
 # match within
 $pos = Bio::Location::Simple->new 
     (-start => 25, -end => 25, -strand=> 1 );
 $res = $m->map($pos);
-#print Dumper $res;
 
 ok $res->start, 20;
 ok $res->end, 20;
@@ -246,10 +241,6 @@ ok $res->start, 1;
 ok $res->end, 3;
 
 
-#$m->verbose(2);
-#         5   9     10  14    15  19
-#print "++++++++++++++++++++\n";
-#
 # Collection representing exons
 #
 #  cds    1   5     6   10    11  15
@@ -269,7 +260,6 @@ my $e3 = Bio::Location::Simple->new
     (-seq_id => 'gene', -start => 25, -end => 29, -strand=>1 );
 my @cexons = ($e1, $e2, $e3);
 
-#$m->exons($genestruct);
 $m= new Bio::Coordinate::GeneMapper;
 
 $m->in('chr');
@@ -287,13 +277,12 @@ ok $res->start, 2;
 ok $res->end, 3;
 
 $m->out('negative_intron');
-#$m->out('exon');
 $pos = Bio::Location::Simple->new 
     (-start => 12, -end => 14, -strand=> 1 );
 $res = $m->map($pos);
-#skip 'negative_intron', $res->start, -3;
-#skip 'negative_intron', $res->end, -1;
-#skip $res->seq_id, 'intron1';
+ok $res->start, -3;
+ok $res->end, -1;
+ok $res->seq_id, 'intron1';
 
 
 # cds
@@ -309,16 +298,12 @@ $pos = Bio::Location::Simple->new
 $res = $m->map($pos);
 ok $res->start, 6;
 ok $res->end, 11;
-#print Dumper $res;
 
 $pos = Bio::Location::Simple->new
     (-start => 5, -end => 19, -strand=> 1 );
 $res = $m->map($pos);
 ok $res->start, 1;
 ok $res->end, 10;
-#$m->to_string;
-#ok $m->cds(5); # recalculating exons
-
 
 
 #
@@ -338,7 +323,6 @@ ok $res->end, 15;
 #
 # cds to chr; single range into two
 #
-#$m->verbose(2);
 $m->in('cds');
 $m->out('gene');
 
@@ -350,9 +334,6 @@ ok $res->end, 12;
 
 
 
-#
-# Problem with negative numbers
-#
 # Collection representing exons
 #
 #  cds  -11  -7    -6  -2    -1   3  :27
@@ -372,9 +353,6 @@ $m->out('gene');
 $off = $m->cds(17);
 ok $off->start, 17; # start of the coding region
 ok $m->exons(@cexons), 3;
-#$m->to_string;
-#print Dumper $m;
-
 
 # testing parameter handling in the constructor
 ok $m = new Bio::Coordinate::GeneMapper(-in => 'gene',
@@ -385,7 +363,6 @@ ok $m = new Bio::Coordinate::GeneMapper(-in => 'gene',
 					-peptide_offset => 5
 				       );
 
-#$m->to_string;
 
 #
 # Real life data
@@ -464,7 +441,7 @@ $res = $g2->map($pos);
 ok $res->start, 1;
 ok $res->end, 3;
 ok $res->strand, -1;
-#print Dumper \@exons;
+
 
 $g2->exons(@exons);
 
@@ -501,8 +478,7 @@ ok $sublocs[0]->end, 3;
 ok $sublocs[1]->start, 10;
 ok $sublocs[1]->end, 12;
 
-# test  cds -> gene/chr which generates a split location from a simple one
-
+# testing  cds -> gene/chr which generates a split location from a simple one
 # exons in reverse strand!
 #
 #  pept   33222     111
@@ -527,48 +503,54 @@ $m = new Bio::Coordinate::GeneMapper(-in=>'cds', -out=>'chr');
 
 $m->cds($cds); # this has to be set first!?
 ok $m->exons(@cexons), 2;
-#$m->verbose(2);
 
 
 my $cds_f= Bio::Location::Simple->new
     (-start => 2, -end => 7, );
-
-#print Dumper $cds_f;
 $res = $m->map($cds_f);
-#print Dumper $res;
-#exit;
 
 ok @sublocs = $res->each_Location(1);
 ok @sublocs, 2;
 
-#print Dumper \@sublocs;
 ok $sublocs[0]->start, 6;
 ok $sublocs[0]->end, 9;
 ok $sublocs[1]->start, 15;
 ok $sublocs[1]->end, 16;
 
 
+# test inex, exon & negative_intron
+
+$m->in('gene');
+$m->out('inex');
+
+$pos = Bio::Location::Simple->new 
+    (-seq_id => 'gene', -start => 2, -end => 10, -strand=> 1 );
+
+$res = $m->map($pos);
+ok $res->each_Location, 3;
 
 
+$m->out('intron');
+$res = $m->map($pos);
+ok $res->match->start, 1;
+ok $res->match->end, 5;
+ok $res->match->strand, 1;
 
+$m->out('negative_intron');
+$res = $m->map($pos);
+ok $res->match->start, -5;
+ok $res->match->end, -1;
+ok $res->match->strand, 1;
 
-
-
-
-
-
-
+ok $m->_mapper_code2string('1-2'), 'chr-gene';
+ok $m->_mapper_string2code('chr-gene'), '1-2';
 
 
 #todo:
-#  gene in opposite strand,
-#  frame,
-#  negative exon coordinates,
-#  negative positions, no zero as in human genetics
 #  strict mapping mode
-#  test swapping
-#  extrapolating pair code into Bio::Coordinate::Pair
-#  split gene->inex mappings into start end... just athought
+#  extrapolating pair code into Bio::Coordinate::Pair ?
+
+
 
 
 

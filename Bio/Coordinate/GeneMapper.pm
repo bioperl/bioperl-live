@@ -16,57 +16,72 @@ Bio::Coordinate::GeneMapper - transformations between gene related coordinate sy
 
 =head1 SYNOPSIS
 
-  # to use
   use Bio::Coordinate::GeneMapper;
 
-  # defaults to ID 1 "Standard"
-  $gmap = Bio::Coordinate::GeneMapper->new();
-  $gmap = Bio::Coordinate::GeneMapper -> new (-in => 'chr',
-                                              -out=> 'cds',
-                                              -strict => 1,
-                                              -nozero => 0 );
+  # get a Bio::RangeI representing the start, end and strand of the CDS
+  # in chromosomal (or entry) coordinates
+  my $cds;
+
+  # get a Bio::Location::Split or an array of Bio::LocationI objects
+  # holding the start, end and strand of all the exons in chromosomal
+  # (or entry) coordinates
+  my $exons;
+
+  # create a gene mapper and set it to map from chromosomal to cds coordinates
+  my $gene = Bio::Coordinate::GeneMapper->new(-in=>'chr',
+                                              -out=>'cds',
+                                              -cds=>$cds,
+                                              -exons=>$exons
+                                             );
+
+  # get a a Bio::Location or sequence feature in input (chr) coordinates
+  my $loc;
+
+  # map the location into output coordinates and get a new location object
+  $newloc = $gene->map($loc);
 
 
 =head1 DESCRIPTION
 
-
-Bio::Coordinate::GeneMapper is a module for simple mapping of
-coodinate locations between various gene related locations in human
-genetics. It uses a relaxed form of Bio::Coordinate::Pair called
-Bio::Coordinate::ExtrapolatingPair which in addition to freely
-extrapolaiting values beyond boundaries disallows the use of location
-zero.
+Bio::Coordinate::GeneMapper is a module for simplifying the mappings
+of coodinate locations between various gene related locations in human
+genetics. It also adds a special human genetics twist to coordinate
+systems by making it possible to disable the use of zero
+(0). Locations before position one start from -1. See method
+L<nozero>.
 
 It understands by name the following coordinate systems and mapping
 between them:
 
-                         peptide (peptide length)
-                            ^
-                            | -peptide_offset
-                            |
-                  (frame) propeptide (propeptide length)
-                       ^    ^
-                        \   |
-            translate    \  |
-                          \ |
-                           cds  (transcript start and end)
-                            ^
-        negative_introns    | \
-                    ^       |  \  transcript
-                     \      |   \
-                 introns  exons  \
-                       ^    ^    /
-                        \   |   /
-               splice    \  |  /
-                          \ | /
-                          gene (gene length)
-                            ^
-                            | - gene_offset
-                            |
-                           chr (or entry)
+                          peptide (peptide length)
+                             ^
+                             | -peptide_offset
+                             |
+                    frame  propeptide (propeptide length)
+                        ^    ^
+                         \   |
+             translate    \  |
+                           \ |
+                            cds  (transcript start and end)
+                             ^
+      negative_intron        | \
+              ^              |  \  transcribe
+               \             |   \
+              intron        exon  \
+               ^   ^         ^     /
+      splice    \   \      / |    /
+                 \   \    /  |   /
+                  \   inex   |  /
+                   \    ^    | /
+                    \    \   |/
+                     ----- gene (gene_length)
+                             ^
+                             | - gene_offset
+                             |
+                            chr (or entry)
 
 
-This structure is kept in global variable $DAG which is a
+This structure is kept in the global variable $DAG which is a
 representation of a Directed Acyclic Graph. The path calculations
 traversing this graph are done in a helper class. See
 L<Bio::Coordinate::Graph>.
@@ -74,10 +89,21 @@ L<Bio::Coordinate::Graph>.
 Of these, two operations are special cases, translate and splice.
 Translating and reverse translating are implemented as internal
 methods that do the simple 1E<lt>-E<gt>3 conversion. Splicing needs
-additional information that in BioPerl is represented by
-Bio::SeqFeature::Gene::GeneStructureI modules. Splicing depends on
-method exons() which takes in a more general array of Bio::LocationI
-objects.
+additional information that is provided by method L<exons> which takes
+in an array of Bio::LocationI objects.
+
+Most of the coordinate system names should be selfexplanatory to
+anyone familiar with genes. Negative intron coordinate system is
+starts counting backwards from -1 as the last nucleotide in the
+intron. This used when only exon and a few flanking intron nucleotides
+are known.
+
+
+This class models coordinates within one transcript of a gene, so to
+tackle multiple transcripts you need several instances of the
+class. It is therefore valid to argue that the name of the class
+should be TranscriptMapper. GeneMapper is a catchier name, so it
+stuck.
 
 
 =head1 FEEDBACK
@@ -164,7 +190,7 @@ use Bio::Coordinate::ExtrapolatingPair;
 		    1 => 'chr'
 		   );
 
-$TRANSLATION =  $COORDINATE_SYSTEMS{'cds'}. "-".
+$TRANSLATION = $COORDINATE_SYSTEMS{'cds'}. "-".
     $COORDINATE_SYSTEMS{'propeptide'};
 
 $DAG = {
@@ -175,8 +201,8 @@ $DAG = {
 	6  => [],
 	5  => [6],
 	4  => [7],
-	3  => [],
-	2  => [4, 5, 7],
+	3  => [4, 5],
+	2  => [3, 4, 5, 7],
 	1  => [2]
        };
 
@@ -193,12 +219,11 @@ sub new {
     $graph->hash_of_arrays($DAG);
     $self->graph($graph);
 
-    my($in, $out, $peptide_offset, $transcript, $exons, $strict,
+    my($in, $out, $peptide_offset, $exons, $strict,
        $cds, $nozero) =
 	$self->_rearrange([qw(IN
                               OUT
                               PEPTIDE_OFFSET
-                              TRANSCRIPT
                               EXONS
                               CDS
                               NOZERO
@@ -206,40 +231,18 @@ sub new {
 			     )],
 			 @args);
 
-    # direction of mapping
+    # direction of mapping when going chr to protein
     $self->{_direction} = 1;
 
     $in  && $self->in($in);
     $out  && $self->out($out);
     $cds && $self->cds($cds);
     $exons  && ref($exons) =~ /ARRAY/i && $self->exons(@$exons);
-    $transcript  && $self->transcript($transcript);
     $peptide_offset && $self->peptide_offset($peptide_offset);
     $nozero && $self->nozero($nozero);
     $strict && $self->strict($strict);
 
     return $self; # success - we hope!
-}
-
-=head2 graph
-
- Title   : graph
- Usage   : $obj->graph('peptide');
- Function: Set and read the input coordinate system.
- Example :
- Returns : value of input system
- Args    : new value (optional)
-
-=cut
-
-sub graph {
-   my ($self,$value) = @_;
-   if( defined $value) {
-       $self->throw("Not a valid graph [$value]\n")
-	   unless $value->isa('Bio::Coordinate::Graph');
-       $self->{'_graph'} = $value;
-   }
-   return $self->{'_graph'};
 }
 
 =head2 in
@@ -340,6 +343,28 @@ sub nozero {
    return $NOZERO_KEYS->{$res};
 }
 
+=head2 graph
+
+ Title   : graph
+ Usage   : $obj->graph($new_graph);
+ Function: Set and read the graph object representing relationships
+           between coordinate systems
+ Example :
+ Returns : Bio::Coordinate::Graph object
+ Args    : new Bio::Coordinate::Graph object (optional)
+
+=cut
+
+sub graph {
+   my ($self,$value) = @_;
+   if( defined $value) {
+       $self->throw("Not a valid graph [$value]\n")
+	   unless $value->isa('Bio::Coordinate::Graph');
+       $self->{'_graph'} = $value;
+   }
+   return $self->{'_graph'};
+}
+
 =head2 peptide
 
  Title   : peptide
@@ -430,36 +455,6 @@ sub peptide_length {
        $self->{'_peptide_length'} = $len;
    }
    return $self->{'_peptide_length'};
-}
-
-
-=head2 transcript
-
- Title   : transcript
- Usage   : $obj->transcript(20);
- Function: Set and read the start and end of the  transcipt
-           in chromosamal or entry coordinates
-
- Returns : set value or 0
- Args    : new value (optional)
-
-=cut
-
-sub transcript {
-   my ($self,$value) = @_;
-   if( defined $value) {
-       if ($value =~ /^[+-]?\d+$/ ) {
-	   my $loc = Bio::Location::Simple->new(-start=>$value);
-	   $self->{'_cds'} = $loc;
-       }
-       elsif (ref $value &&  $value->isa('Bio::LocationI') ) {
-	   $self->{'_cds'} = $value;
-       } else {
-	   $self->throw("I need an integer or Bio::LocationI, not [$value]")
-       }
-       $self->{'_transcript'} = $value;
-   }
-   return $self->{'_transcript'} || 0;
 }
 
 
@@ -608,8 +603,8 @@ sub exons {
 	       # negative intron coordinates
 	       my $match5 = Bio::Location::Simple->new
 		   (-seq_id => 'intron'. ($exon_counter -1),
-		    -start => -1 * ($exon->start - 2 - $prev_exon_end),
-		    -end => 0,
+		    -start => -1 * ($exon->start - 2 - $prev_exon_end) -1,
+		    -end => -1,
 		    -strand=>$exon->strand );
 
 	       $inex_map->add_mapper(Bio::Coordinate::Pair->new
@@ -720,7 +715,8 @@ sub _clone_loc { # clone a simple location
            Simple input can be an integer which gives the start of the
            coding region in genomic coordinate. If you want to provide
            the end of the coding region or indicate the use of the
-           opposite strand, you have to pass a Bio::Location::Simple
+           opposite strand, you have to pass a Bio::RangeI
+           (e.g. Bio::Location::Simple or Bio::SegFeature::Generic)
            object to this method.
 
  Returns : set value or 0
@@ -944,7 +940,7 @@ sub swap {
 
  Title   : to_string
  Usage   : $newpos = $obj->to_string(5);
- Function: Dump the mapping values into human readable format
+ Function: Dump the internal mapper values into a human readable format
  Example :
  Returns : string
  Args    :
@@ -955,102 +951,82 @@ sub to_string {
    my ($self) = shift;
 
    print "-" x 40, "\n";
-   my $counter = 1;
-   while (defined $COORDINATE_INTS{$counter} && $COORDINATE_INTS{$counter+1}) {
-       my $in = $COORDINATE_INTS{$counter};
-       my $out = $COORDINATE_INTS{$counter+1};
-       my $mapper = "$counter-". ($counter+1);
 
+   # chr-gene
+   my $mapper_str = 'chr-gene';
+   my $mapper = $self->_mapper_string2code($mapper_str);
 
-       printf "\n%12s -> %-12s (%s)\n", $in, $out, $mapper
-	   unless $mapper eq '3-4' or $mapper eq '4-5';
-
-
-       if ($mapper eq $TRANSLATION) {
-	   printf "%9s%-12s\n", "", '"translate"';
-       }
-       elsif ($mapper eq '3-4' or $mapper eq '4-5') {
-	   next;
-       }
-       elsif ($mapper eq '2-3') {
-		   next unless $self->{'_mappers'}->{$mapper};
-#	   	   printf "%10s%-12s\n", "", '"splice"';
-
-		   my $i = 1;
-		   my $ex = 1;
-
-		   my $inex;
-		   foreach my $pair ( $self->{'_mappers'}->{$mapper}->each_mapper ) {
-		       $i%2 == 1 ? ($inex = 'exon') : ($inex = 'intron');
-		       printf "%2s :%8s -> %-12s%-6s\n", $i, $pair->in->start, $pair->out->start, "$inex$ex" ;
-		       printf "%2s :%8s -> %-12s\n", '', $pair->in->end, $pair->out->end ;
-		       $i++;
-		       $ex++ if $inex eq 'exon';
-		   }
-
-		   printf "\n%12s -> %-12s (%s)\n", 'intron', 'negative intron', '5-6';
-	   	   printf "%10s%-12s\n", "", '"splice"';
-		   $i = 1;
-		   foreach my $pair ( $self->{'_mappers'}->{'5-6'}->each_mapper ) {
-		       printf "%8s :%8s -> %-12s\n", "intron$i", $pair->in->start, $pair->out->start ;
-		       printf "%8s :%8s -> %-12s\n", '', $pair->in->end, $pair->out->end ;
-		       $i++;
-		   }
-
-		   printf "\n%12s -> %-12s (%s)\n", $in, 'cds', '2-7';
-	   	   printf "%10s%-12s\n", "", '"splice"';
-		   $i = 1;
-		   foreach my $pair ( $self->{'_mappers'}->{'2-7'}->each_mapper ) {
-		       printf "%2s :%8s -> %-12s\n", $i, $pair->in->start, $pair->out->start ;
-		       printf "%2s :%8s -> %-12s\n", '', $pair->in->end, $pair->out->end ;
-		       $i++;
-		   }
-
-		   printf "\n%12s -> %-12s (%s)\n", $in, 'exon', '2-4';
-	   	   printf "%10s%-12s\n", "", '"splice"';
-		   $i = 1;
-		   foreach my $pair ( $self->{'_mappers'}->{'2-4'}->each_mapper ) {
-		       printf "%2s :%8s -> %-12s\n", $i, $pair->in->start, $pair->out->start ;
-		       printf "%2s :%8s -> %-12s\n", '', $pair->in->end, $pair->out->end ;
-		       $i++;
-		   }
-
-		   printf "\n%12s -> %-12s (%s)\n", $in, 'intron', '2-5';
-	   	   printf "%10s%-12s\n", "", '"splice"';
-		   $i = 1;
-		   foreach my $pair ( $self->{'_mappers'}->{'2-5'}->each_mapper ) {
-		       printf "%2s :%8s -> %-12s\n", $i, $pair->in->start, $pair->out->start ;
-		       printf "%2s :%8s -> %-12s\n", '', $pair->in->end, $pair->out->end ;
-		       $i++;
-		   }
-
-
-       }
-       elsif (not defined $self->{'_mappers'}->{$mapper}) {
-	   printf "%12s%-12s\n", "", 'undef';
-       } else {
-	   if ($mapper eq '1-2') {
-	       my $end= 'undef';
-	       $end = $self->cds->end -1 if defined $self->cds->end;
-	       printf "%16s%s: %s (%s)\n", ' ', 'gene offset', $self->cds->start-1 , $end;
-	       printf "%16s%s: %s\n", ' ', 'gene strand', $self->cds->strand;
-
-	   }
-	   elsif ($mapper eq '3-4') {
-#	       printf "%16s%s: %s\n", ' ', "transcript (transcipt offset)", $self->transcript;
-	   }
-	   elsif ($mapper eq '9-10') {
-	       printf "%16s%s: %s\n", ' ', "peptide offset", $self->peptide_offset;
-	   }
-
-
-#	   printf "%12s -> %-12s\n",
-#	       $self->{'_mappers'}->{$mapper}->{'_in'}->start,
-#		   $self->{'_mappers'}->{$mapper}->{'_out'}->start;
-       }
-   } continue {
-       $counter++;
+   printf "\n     %-12s (%s)\n", $mapper_str, $mapper ;
+   if (defined $self->cds) {
+       my $end = $self->cds->end -1 if defined $self->cds->end;
+       printf "%16s%s: %s (%s)\n", ' ', 'gene offset', $self->cds->start-1 , $end || '';
+       printf "%16s%s: %s\n", ' ', 'gene strand', $self->cds->strand || 0;
    }
+
+   # gene-intron
+   $mapper_str = 'gene-intron';
+   $mapper = $self->_mapper_string2code($mapper_str);
+   printf "\n     %-12s (%s)\n", $mapper_str, $mapper ;
+
+   my $i = 1;
+   foreach my $pair ( $self->{'_mappers'}->{$mapper}->each_mapper ) {
+       printf "%8s :%8s -> %-12s\n", $i, $pair->in->start, $pair->out->start ;
+       printf "%8s :%8s -> %-12s\n", '', $pair->in->end, $pair->out->end ;
+       $i++;
+   }
+
+   # intron-negative_intron
+   $mapper_str = 'intron-negative_intron';
+   $mapper = $self->_mapper_string2code($mapper_str);
+   printf "\n     %-12s (%s)\n", $mapper_str, $mapper ;
+
+   $i = 1;
+   foreach my $pair ( $self->{'_mappers'}->{$mapper}->each_mapper ) {
+       printf "%8s :%8s -> %-12s\n", $i, $pair->in->start, $pair->out->start ;
+       printf "%8s :%8s -> %-12s\n", '', $pair->in->end, $pair->out->end ;
+       $i++;
+   }
+
+
+   # gene-exon
+   $mapper_str = 'gene-exon';
+   $mapper = $self->_mapper_string2code($mapper_str);
+   printf "\n     %-12s (%s)\n", $mapper_str, $mapper ;
+
+   $i = 1;
+   foreach my $pair ( $self->{'_mappers'}->{$mapper}->each_mapper ) {
+       printf "%8s :%8s -> %-12s\n", $i, $pair->in->start, $pair->out->start ;
+       printf "%8s :%8s -> %-12s\n", '', $pair->in->end, $pair->out->end ;
+       $i++;
+   }
+
+
+   # gene-cds
+   $mapper_str = 'gene-cds';
+   $mapper = $self->_mapper_string2code($mapper_str);
+   printf "\n     %-12s (%s)\n", $mapper_str, $mapper ;
+
+   $i = 1;
+   foreach my $pair ( $self->{'_mappers'}->{$mapper}->each_mapper ) {
+       printf "%8s :%8s -> %-12s\n", $i, $pair->in->start, $pair->out->start ;
+       printf "%8s :%8s -> %-12s\n", '', $pair->in->end, $pair->out->end ;
+       $i++;
+   }
+
+   # cds-propeptide
+   $mapper_str = 'cds-propeptide';
+   $mapper = $self->_mapper_string2code($mapper_str);
+   printf "\n     %-12s (%s)\n", $mapper_str, $mapper ;
+   printf "%9s%-12s\n", "", '"translate"';
+
+
+   # propeptide-peptide
+   $mapper_str = 'propeptide-peptide';
+   $mapper = $self->_mapper_string2code($mapper_str);
+   printf "\n     %-12s (%s)\n", $mapper_str, $mapper ;
+   printf "%16s%s: %s\n", ' ', "peptide offset", $self->peptide_offset;
+
+
 
    print "\nin : ", $self->in, "\n";
    print "out: ", $self->out, "\n";
@@ -1059,6 +1035,20 @@ sub to_string {
    printf "direction: %-8s(%s)\n",  $dir, $self->direction;
    print "\n", "-" x 40, "\n";
 
+   1;
+}
+
+sub _mapper_code2string {
+    my ($self, $code) = @_;
+    my ($a, $b) = $code =~ /(\d+)-(\d+)/;
+    return $COORDINATE_INTS{$a}. '-'.  $COORDINATE_INTS{$b};
+
+}
+
+sub _mapper_string2code {
+    my ($self, $string) =@_;
+    my ($a, $b) = $string =~ /([^-]+)-(.*)/;
+    return $COORDINATE_SYSTEMS{$a}. '-'.  $COORDINATE_SYSTEMS{$b};
 }
 
 
