@@ -300,6 +300,21 @@ sub seq_id {
     shift->throw_not_implemented();
 }
 
+=head2 unique_id
+
+ Title   : unique_id
+ Usage   : $obj->unique_id($newval)
+ Function: Get/set the unique-identify string for this feature
+ Returns : value of seq_id
+ Args    : newvalue (optional)
+
+
+=cut
+
+sub unique_id {
+    shift->throw_not_implemented();
+}
+
 =head2 gff_string
 
  Title   : gff_string

@@ -141,7 +141,8 @@ use Bio::Tools::GFF;
 #use Tie::IxHash;
 
 @ISA = qw(Bio::Root::Root Bio::SeqFeatureI 
-          Bio::AnnotatableI Bio::FeatureHolderI);
+          Bio::AnnotatableI Bio::FeatureHolderI
+	  Bio::AlternativeLocationHolderI);
 
 sub new {
     my ( $caller, @args) = @_;   
@@ -261,8 +262,8 @@ sub direct_new {
 
  Title   : location
  Usage   : my $location = $seqfeature->location()
- Function: returns a location object suitable for identifying location 
-	   of feature on sequence or parent feature  
+ Function: returns a location object suitable for identifying location
+	   of feature on sequence or parent feature
  Returns : Bio::LocationI object
  Args    : [optional] Bio::LocationI object to set the value to.
 
@@ -286,6 +287,73 @@ sub location {
     return $self->{'_location'};
 }
 
+=head2 add_alternative_locations
+
+ Title   : add_alternative_locations
+ Usage   : $seqfeature->add_alternative_locations(@locationi)
+ Function: adds new alternative location to the object
+ Returns : void
+ Args    : one or more LocationI-implementing object
+
+ This adds one or more alternative locations to the feature.  These are
+ to be viewed as alternative coordinate systems, such as
+ assembly-to-assembly alignments, and not as alternative locations in
+ the same coordinate space.
+
+=cut
+
+sub add_alternative_locations {
+    my $self = shift;
+    foreach (@_) {
+      $self->throw("object $_ pretends to be a location but ".
+			 "does not implement Bio::LocationI")
+          unless ref($_) and $_->isa('Bio::LocationI');
+      push @{$self->{'_gsf_alternative_locations'}},$_;
+    }
+}
+
+=head2 alternative_locations
+
+ Title   : alternative_locations
+ Usage   : @locations = $seqfeature->alternative_locations([$seq_id])
+ Function: returns alternative locations
+ Returns : list of alternative locations
+ Args    : optionally, a seq_id to filter on
+
+=cut
+
+sub alternative_locations {
+    my $self = shift;
+    my $seqid_filter = shift;
+    return unless $self->{'_gsf_alternative_locations'};
+    if ( $seqid_filter ) {
+       return grep {$seqid_filter eq $_->seq_id} @{$self->{'_gsf_alternative_locations'}};
+    } else {
+       return @{$self->{'_gsf_alternative_locations'}};
+    }
+}
+
+=head2 clear_alternative_locations
+
+ Title   : clear_alternative_locations
+ Usage   : $seqfeature->clear_alternative_locations([$seqid])
+ Function: clears all alternative locations
+ Returns : void
+ Args    : optionally, a seq_id to clear locations on
+
+=cut
+
+sub clear_alternative_locations {
+    my $self = shift;
+    my $seqid_filter = shift;
+    return unless $self->{'_gsf_alternative_locations'};
+    if ( $seqid_filter ) {
+       my @locations = grep {$seqid_filter ne $_->seq_id} @{$self->{'_gsf_alternative_locations'}};
+       return $self->{'_gsf_alternative_locations'} = \@locations;
+    } else {
+       $self->{'_gsf_alternative_locations'} = [];
+   }
+}
 
 =head2 start
 
@@ -353,6 +421,26 @@ sub length {
 sub strand {
    my ($self,$value) = @_;
    return $self->location->strand($value);
+}
+
+=head2 seq_id
+
+ Title   : seq_id
+ Usage   : $obj->seq_id($newval)
+ Function: This method returns the ID of the sequence that the
+           start, end and strand are relative to.  It is a simple
+           passthrough to $obj->location->seq_id().
+
+           This attribute *should* be used in GFF dumping.
+ Returns : value of unique_id
+ Args    : newvalue (optional)
+
+
+=cut
+
+sub seq_id {
+    my $obj = shift;
+    $obj->location->seq_id(@_);
 }
 
 =head2 score
@@ -470,15 +558,15 @@ sub has_tag {
  Title   : add_tag_value
  Usage   : $self->add_tag_value('note',"this is a note");
  Returns : TRUE on success
- Args    : tag (string) and value (any scalar)
+ Args    : tag (string) and value (a scalar or list)
 
 
 =cut
 
 sub add_tag_value {
-    my ($self, $tag, $value) = @_;    
+    my ($self, $tag, @value) = @_;
     $self->{'_gsf_tag_hash'}->{$tag} ||= [];
-    push(@{$self->{'_gsf_tag_hash'}->{$tag}},$value);
+    push(@{$self->{'_gsf_tag_hash'}->{$tag}},@value);
 }
 
 
@@ -635,30 +723,28 @@ sub entire_seq {
 }
 
 
-=head2 seq_id
+=head2 unique_id
 
- Title   : seq_id
- Usage   : $obj->seq_id($newval)
- Function: There are many cases when you make a feature that you
-           do know the sequence name, but do not know its actual
-           sequence. This is an attribute such that you can store
-           the ID (e.g., display_id) of the sequence.
+ Title   : unique_id
+ Usage   : $obj->unique_id($newval)
+ Function: This is a unique identifier that identifies this object.
+           If not set, will return the memory location.
 
            This attribute should *not* be used in GFF dumping, as
            that should come from the collection in which the seq
-           feature was found.
- Returns : value of seq_id
+           feature was found or from seq_id().
+ Returns : value of unique_id
  Args    : newvalue (optional)
 
 
 =cut
 
-sub seq_id {
+sub unique_id {
     my ($obj,$value) = @_;
     if ( defined $value ) {
-	$obj->{'_gsf_seq_id'} = $value;
+	$obj->{'_gsf_unique_id'} = $value;
     }
-    return $obj->{'_gsf_seq_id'};
+    return $obj->{'_gsf_unique_id'} || "$obj";
 }
 
 =head2 display_name

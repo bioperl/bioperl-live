@@ -89,6 +89,8 @@ use Bio::SeqFeature::Generic;
 
 @ISA = qw(Bio::Root::Root Bio::SeqAnalysisParserI Bio::Root::IO);
 
+my %STRANDS = ('.'=>0, '+'=>1, '-'=>-1);
+
 =head2 new
 
  Title   : new
@@ -112,13 +114,122 @@ sub new {
   $self->_initialize_io(@args);
     
   $gff_version ||= 2;
-  if(($gff_version != 1) && ($gff_version != 2)) {
+  unless ($gff_version =~ /^(1|2|3)$/) {
     $self->throw("Can't build a GFF object with the unknown version ".
 		 $gff_version);
   }
   $self->gff_version($gff_version);
   return $self;
 }
+
+=head2 features
+
+ Title   : features
+ Usage   : @features = $gffio->features();
+ Function: Build fully-realized list of features, constructing subfeature
+              relationships, if needed.
+ Example :
+ Returns : A list of Bio::SeqFeatureI implementing objects.
+ Args    : none
+ Author  : Lincoln-read-it-and-weep-Stein
+
+=cut
+
+sub features {
+   my $self = shift;
+   $self->throw('This method is only valid with the GFF3 format')
+         unless $self->version >= 3;
+
+   local $_;
+   my (%features,%parents,%ids);
+
+   while ( defined($_ = $self->_readline) ) {
+     next if /^\#/;
+     next if /^\s*$/;
+     next if /^\/\//;
+
+     my $feat = Bio::SeqFeature::Generic->new();
+     my @groups = $self->from_gff_string($feat,$_);
+     my $id = $feat->unique_id || $feat;  # either its unique ID or a memory location
+
+     # Have we seen a feature with the same ID before?  If so, then the GFF3
+     # semantics are trying to tell us that this is a disjunct location.
+     if (my $prev = $features{$id}) {
+       $self->_add_disjunct_location($prev,$feat);
+       next;  # we're done with this feature
+     }
+
+     for my $group (@groups) {  # fix up group membership
+        $parents{$group}{$id}++;  # keep track of heritage
+	defined(my $parent = $features{$group}) or next;
+        $self->_fixup_coordinates($feat,$parent);
+        $parent->add_SeqFeature($feat);
+     }
+
+     $features{$id} = $feat;
+     $ids{"$feat"}  = $id;  # to avoid costly method call later
+   }
+
+   # final fixup.
+   # we need to go through all the features and find those that
+   # 1) have an instantiated parent, and therefore are not top level
+   #    and should be excluded.
+   # 2) have a parent ID, but no instantiated parent, and need to be
+   #    adopted.  They are then excluded too.
+   my %exclude;
+   for my $parent_id (keys %parents) {
+
+     if ($features{$parent_id}) {  # has an instantiated parent
+       $exclude{$_}++ foreach keys %{$parents{$parent_id}};
+       next;
+     }
+
+     my $parent = Bio::SeqFeature::Generic->new(-primary=>'region');
+     for my $child_id (keys %{$parents{$parent_id}}) {
+       $parent->add_SeqFeature($features{$child_id});
+       $exclude{$child_id}++;
+     }
+   }
+
+   return grep {!$exclude{$ids{"$_"}}} values %features;
+}
+
+sub _add_disjunct_location {
+  my $self = shift;
+  my ($prev,$feat) = @_;
+
+     # The GFF3 semantics are trying to tell us that this is a
+     # disjunct location, such as a segment in a gapped alignment.
+     # Alternatively, somebody *might* by trying to indicate that this
+     # is an alternative coordinate system for the same feature; not a
+     # good idea, but we'll handle it gracefully.  disjunct location
+     # on the primary coord system?
+  if ($prev->seq_id eq $feat->seq_id) { 
+
+    # add a disjunct location to the primary coordinate space
+    $prev->location->add_sub_Location($feat->location);
+
+    # and to the alternative coordinate spaces, if any
+    for my $alt ($feat->alternative_locations) {
+      $_->add_sub_Location($alt) foreach $prev->alternative_locations($alt->seq_id);
+    }
+  }
+
+  # disjunct location on an alternative coord system?
+  elsif (my @locations = $prev->alternative_locations($feat->seq_id)) {
+    $_->add_sub_Location($feat->location) foreach @locations;
+  }
+
+  # never seen this seq_id before, so create a new alternative
+  # coordinate system for it (probably not a good idea in GFF format).
+  else {
+    $prev->add_alternative_location($feat->location);
+  }
+
+  # last fix-up: copy tags
+  $prev->add_tag_value($_,$_->get_tag_values) foreach $feat->get_all_tags;
+}
+
 
 =head2 next_feature
 
@@ -172,11 +283,14 @@ sub next_feature {
 
 sub from_gff_string {
     my ($self, $feat, $gff_string) = @_;
+    my $version = $self->gff_version;
 
-    if($self->gff_version() == 1)  {
+    if($version == 1)  {
 	$self->_from_gff1_string($feat, $gff_string);
-    } else {
+    } elsif ($version == 2) {
 	$self->_from_gff2_string($feat, $gff_string);
+    } elsif ($version == 3) {
+	$self->_from_gff3_string($feat, $gff_string);
     }
 }
 
@@ -329,6 +443,116 @@ sub _from_gff2_string {
 	   }
        }
    }
+}
+
+=head2 _from_gff3_string
+
+ Title   : _from_gff3_string
+ Usage   :
+ Function:
+ Example :
+ Returns : (@groups)
+ Args    : A Bio::SeqFeatureI implementing object to be initialized
+           The GFF3-formatted string to initialize it from
+
+ Author  : Lincoln-read-it-and-weep-Stein
+ Note    : Group is no longer conflated with attribute
+           $seqid is the ID of the collection that defines the
+              coordinate system.
+           @groups is a list of IDs that define the groups that
+              this feature is a direct part of
+
+=cut
+
+sub _from_gff3_string {
+   my ($gff, $feat, $string) = @_;
+   chomp($string);
+   my ($seqname, $source, $type, $start, $end, $score, $strand, $frame, $groups, $attribs) = split(/\t+/,$string,10);
+   $feat->throw("[$string] does not look like GFF3 to me") unless defined $frame;
+   $frame = 0 unless $frame =~ /^\d+$/;
+   $feat->seq_id($seqname);
+   $feat->primary_tag($type);
+   $feat->source($source);
+   $feat->start($start);
+   $feat->end($end);
+   $feat->strand($STRANDS{$strand}||0);
+   my @groups     = map {_unescape($_)} split /;\s*/,$groups;
+   my @attributes = split /;\s*/,$attribs;
+   foreach (@attributes) {
+      my ($name,$value) = split /=/,2;
+      _unescape($name);
+      _unescape($value);
+      # handle special cases
+      if ($name eq 'ID') {
+         $feat->unique_id($value);
+         next;
+      }
+      if ($name eq 'Target') {
+          my ($target,$tstart,$tend) =~ /^(.+):(\d+)\.\.(\d+)$/ or next;
+          my $tstrand = ($start < $end) ? +1 : -1;
+          my $location = Bio::Location::Simple->new(-start  => $tstart,
+                                                    -end    => $tend,
+                                                    -seq_id => $target,
+                                                    -strand => $tstrand);
+          $feat->add_alternative_locations($location);
+          next;
+      }
+
+      $feat->add_tag_value($name => $value);
+   }
+
+   (@groups);
+}
+
+sub _unescape {
+  return unless defined($_[0]);
+  $_[0] =~ tr/+/ /;       # pluses become spaces
+  $_[0] =~ s/%([0-9a-fA-F]{2})/chr hex($1)/g;
+  $_[0];
+}
+
+=head2 _fixup_coordinates
+
+ Title   : _fixup_coordinates
+ Usage   :
+ Function:
+ Example :
+ Returns : 'UNCHANGED','REMAPPED'
+ Args    : ($subfeature,$parent)
+
+ Checks that subfeature shares the same coordinate system as its
+ parent ($subfeature->seq_id eq $parent->seq_id).  If not,
+ it checks whether $subfeature->seq_id eq $parent->unique_id,
+ in which case it maps subfeature coordinates into parent
+ coordinates.  Otherwise raises an exception.
+
+=cut
+
+sub _fixup_coordinates {
+  my $self = shift;
+  my ($feat,$parent) = @_;
+  my $subref = $feat->seq_id;
+  my $parref = $parent->seq_id;
+  my $parid  = $parent->unique_id;
+  return 'UNCHANGED' if $subref eq $parref;
+  $self->throw("subfeature must use same coordinate system as parent group, or be relative to parent")
+     unless $parid = $subref;
+
+  # do coordinate mapping now
+  my ($start,$end,$strand);
+  if ($feat->strand >= 0) {
+     $start  = $parent->start + ($feat->start - 1);
+     $end    = $start + $feat->length - 1;
+     $strand = $parent->strand;
+  } else {
+     $end   = $parent->end   - ($feat->start - 1);
+     $start = $end - $feat->length + 1;
+     $strand *= -1;
+  }
+  $feat->start($start);
+  $feat->end($end);
+  $feat->strand($strand);
+  return 'REMAPPED';
 }
 
 =head2 write_feature
