@@ -111,8 +111,17 @@ sub prompt_for_biodbgff {
   }
 }
 
+sub MY::install {
+  package MY;
+  my $inherited = shift->SUPER::install(@_);
+  $inherited =~ s/doc_install/doc_install link_install /;
+  $inherited;
+}
+
+
 sub MY::postamble {
-  $tline . "\n\n";
+  $tline . "\n\n"
+     .  "link_install ::\n\t\$(PERL) \"".cwd()."/install_util/symlink_scripts.pl\"\n\n";
 }
 
 sub get_scripts_to_install {
@@ -282,6 +291,8 @@ use ExtUtils::MakeMaker ;
 use File::Path 'rmtree';
 use IO::File;
 use Config;
+use Cwd;
+
 
 my @scripts_to_install = eval {get_scripts_to_install()};
 prompt_for_biodbgff();
@@ -353,7 +364,8 @@ WriteMakefile(
     'realclean' => {  FILES        => join(' ',@BACKUP_FILES) },
     DIR         => [  ], # directories with other Makefile.PL's in them
     EXE_FILES   => \@scripts_to_install,
-    PL_FILES	=> { 'doc/makedoc.PL' => ['bioscripts.pod','biodatabases.pod','biodesign.pod','bioperl.pod'] },
+    PL_FILES	=> { 'doc/makedoc.PL' => ['bioscripts.pod','biodatabases.pod','biodesign.pod','bioperl.pod'],
+                     'install_util/symlink_scripts.PLS' => 'install_util/symlink_scripts.pl' },
     PREREQ_PM   => {
 	'IO::String'       => 0,
     	'File::Temp'       => 0,
