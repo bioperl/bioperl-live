@@ -12,11 +12,11 @@ BEGIN {
     # as a fallback
     eval { require Test; };
     if( $@ ) { 
-	use lib 't'; 
+	use lib 't';
     }
     use Test;
 
-    plan tests => 143;
+    plan tests => 145;
 }
 use Bio::Location::Simple;
 use Bio::Coordinate::Pair;
@@ -285,7 +285,7 @@ ok $gap2->strand, -1;
 #         |---|     |---|
 #-----|-----------------------
 #     1   5   9     15  19
-#
+#         pair1     pair2
 
 # gene
 $match1 = Bio::Location::Simple->new 
@@ -302,7 +302,7 @@ my $match3 = Bio::Location::Simple->new
     (-seq_id => 'gene', -start => 15, -end => 19, -strand=>1 );
 # exon
 my $match4 = Bio::Location::Simple->new
-    (-seq_id => 'exon1', -start => 6, -end => 10, -strand=>1 );
+    (-seq_id => 'exon2', -start => 6, -end => 10, -strand=>1 );
 
 ok my $pair2 = Bio::Coordinate::Pair->new(-in => $match3,
 					  -out => $match4,
@@ -346,6 +346,41 @@ ok $res = $transcribe->map($pos);
 ok $res->each_gap, 2;
 ok $res->each_match, 2;
 
+
+
+# testing sorting
+#
+#         1   5     6   10    11  15
+#         |---|     |---|     |---|
+#-----|-----------------------|---|--
+#     1   5   9     15  19    25  29
+#         pair1     pair2     pair3
+#
+#
+# create the third pair
+# gene
+my $match5 = Bio::Location::Simple->new 
+    (-seq_id => 'gene', -start => 25, -end => 29, -strand=>1 );
+# exon
+my $match6 = Bio::Location::Simple->new
+    (-seq_id => 'exon3', -start => 11, -end => 15, -strand=>1 );
+
+my $pair3 = Bio::Coordinate::Pair->new(-in => $match5,
+				       -out => $match6
+				      );
+
+# create a new collection in wrong order
+$transcribe = Bio::Coordinate::Collection->new;
+$transcribe->add_mapper($pair3);
+$transcribe->add_mapper($pair1);
+$transcribe->add_mapper($pair2);
+$transcribe->test;
+ok $transcribe->_sort;
+my @res;
+map {push @res, $_->in->start } $transcribe->each_mapper;
+ok compare_arrays ([5, 15, 25], \@res);
+
+
 #
 # Test using genomic data
 #
@@ -374,7 +409,7 @@ my @testres = (
 $pos = Bio::Location::Simple->new (-start => 383700, -end => 444000, -strand => 1);
 $res = $mapper->map($pos);
 #print Dumper $res;
-my @res =  $res->each_match;
+ @res =  $res->each_match;
 compare (shift @res, shift @testres);
 compare (shift @res, shift @testres);
 compare (shift @res, shift @testres);
@@ -409,6 +444,17 @@ exit; # end of tests
 #
 # subroutines only after this
 #
+
+sub compare_arrays {
+    my ($first, $second) = @_;
+    no warnings;  # silence spurious -w undef complaints
+    return 0 unless @$first == @$second;
+    for (my $i = 0; $i < @$first; $i++) {
+	return 0 if $first->[$i] ne $second->[$i];
+    }
+    return 1;
+}
+
 
 sub compare {
     my ($match, $test) = @_;

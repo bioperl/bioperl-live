@@ -24,7 +24,19 @@ Bio::Coordinate::Collection - Continuous match between two coordinate sets
 
 =head1 DESCRIPTION
 
-Class
+Generic, context neutral mapper to provide coordinate transforms
+between two B<disjoint> coordinate systems. It brings into Bioperl the
+functionality from Ewan Birney's Bio::EnsEMBL::Mapper ported into
+current bioperl usage.
+
+This class is aimed for representing mapping between whole chromosomes
+and contigs, or between contigs and clones, or between sequencing
+reads and assembly.
+
+If you know your mappers are in order, you can set $self->_is_sorted
+to true before calling map() for the first time, although strictly
+speaking that is cheating.
+
 
 =head1 FEEDBACK
 
@@ -57,7 +69,7 @@ Address:
 
 =head1 CONTRIBUTORS
 
-Additional contributors names and emails here
+Ewan Birney, birney@ebi.ac.uk
 
 =head1 APPENDIX
 
@@ -85,7 +97,7 @@ sub new {
     my($class,@args) = @_;
     my $self = $class->SUPER::new(@args);
 
-    $self->{'_pairs'} = [];
+    $self->{'_mappers'} = [];
 
     my($in, $out) =
 	$self->_rearrange([qw(IN
@@ -104,6 +116,7 @@ sub new {
  Title   : add_mapper
  Usage   : $obj->add_mapper($mapper)
  Function: Pushes one Bio::Coodinate::MapperI into the list of mappers.
+           Sets _is_sorted() to false.
  Example : 
  Returns : 1 when succeeds, 0 for failure.
  Args    : mapper object
@@ -115,7 +128,8 @@ sub add_mapper {
 
   $self->throw("Is not a Bio::Coordinate::MapperI but a [$self]")
       unless defined $value && $value->isa('Bio::Coordinate::MapperI');
-  push(@{$self->{'mappers'}},$value);
+  $self->_is_sorted(0);
+  push(@{$self->{'_mappers'}},$value);
 }
 
 
@@ -132,7 +146,7 @@ sub add_mapper {
 
 sub each_mapper{
    my ($self,@args) = @_;
-   return @{$self->{'mappers'}}; 
+   return @{$self->{'_mappers'}}; 
 }
 
 
@@ -202,6 +216,8 @@ sub map {
    $self->throw("No coordinate mappers!")
        unless $self->each_mapper;
 
+   $self->_sort unless $self->_is_sorted;
+
    my $result = new Bio::Coordinate::Result;
 
    foreach my $pair ($self->each_mapper) {
@@ -233,9 +249,48 @@ sub map {
 }
 
 
-#_is_tested
+=head2 _sort
 
+ Title   : _sort
+ Usage   : $obj->_sort;
+ Function: Sort function so that all mappings are sorted by
+           input coordinate start
+ Example :
+ Returns : 1
+ Args    : 
 
+=cut
+
+sub _sort{
+   my ($self) = @_;
+
+   @{$self->{'_mappers'}} =
+       sort { $a->in->start <=> $b->in->start } @{$self->{'_mappers'}};
+
+   #foreach my $p ( $self->each_mapper ) {
+   #    print $p->in->seq_id, ": ", $p->in->start, "\n";
+   #}
+
+   $self->_is_sorted(1);
+}
+
+=head2 _is_sorted
+
+ Title   : _is_sorted
+ Usage   : $newpos = $obj->_is_sorted;
+ Function: toggle for whether the (internal) coodinate mapper data are sorted
+ Example :
+ Returns : boolean
+ Args    : boolean
+
+=cut
+
+sub _is_sorted{
+   my ($self,$value) = @_;
+
+   $self->{'_is_sorted'} = 1 if defined $value && $value;
+   return $self->{'_is_sorted'};
+}
 
 1;
 
