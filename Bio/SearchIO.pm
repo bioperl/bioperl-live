@@ -499,6 +499,7 @@ sub _guess_format {
    return 'blast'   if (/blast/i or /\.bl\w$/i);
    return 'fasta' if (/fasta/i or /\.fas$/i);
    return 'blastxml' if (/blast/i and /\.xml$/i);
+   return 'exonerate' if ( /\.exonerate/i or /\.exon/i );
 }
 
 sub close { 
