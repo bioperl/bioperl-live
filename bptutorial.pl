@@ -63,7 +63,7 @@ BioPerlTutorial - a tutorial for bioperl
     III.3.4 Identifying amino acid cleavage sites (Sigcleave)
     III.3.5 Miscellaneous sequence utilities: OddCodes, SeqPattern
     III.3.6 Sequence manipulation using the Bioperl EMBOSS interface
-    III.3.7 Sequence manipulation without creating Bioperl "objects" 
+    III.3.7 Sequence manipulation without creating Bioperl "objects"
   III.4 Searching for "similar" sequences
      III.4.1 Running BLAST locally  (StandAloneBlast)
      III.4.2 Running BLAST remotely (using RemoteBlast.pm)
@@ -107,7 +107,7 @@ BioPerlTutorial - a tutorial for bioperl
 =head2  I.1 Overview
 
 Bioperl is a collection of perl modules that facilitate the
-development of perl scripts for bio-informatics applications.  As
+development of perl scripts for bioinformatics applications.  As
 such, it does not include ready to use programs in the sense that many
 commercial packages and free web-based interfaces (eg Entrez, SRS) do.
 On the other hand, bioperl does provide reusable perl modules that
@@ -149,7 +149,7 @@ bioperl.  To that end the tutorial includes:
 
 =item *
 
-Descriptions of what bio-informatics tasks can be handled with bioperl
+Descriptions of what bioinformatics tasks can be handled with bioperl
 
 =item *
 
@@ -163,7 +163,7 @@ Recommendations on where to go for additional information.
 =item *
 
 The POD documentation should contain runnable code in the SYNOPSIS section 
-which is meant to illustrate the use of a module and its methods. 
+which is meant to illustrate the use of a module and its methods.
 
 =back
 
@@ -198,7 +198,8 @@ objects related to one another.
 In addition, a bioperl online course is available on the web at
 http://www.pasteur.fr/recherche/unites/sis/formation/bioperl. The
 user is also referred to numerous bioperl scripts in the scripts/ and
-examples/ directories.
+examples/ directories (see bioperl.pod for a description of all these
+scripts).
 
 =head2 I.2 Software requirements
 
@@ -223,7 +224,7 @@ debugger is a very helpful way of seeing what is happening in such a
 complex software system - especially when the software is not behaving
 in the way that you expect.  The free graphical debugger ptkdb
 (available as Devel::ptkdb from CPAN) is highly recommended.  Active
-State (http://www.activestate.com) offers a commercial graphical
+State, from http://www.activestate.com, offers a commercial graphical
 debugger for windows systems.  The standard perl distribution also
 contains a powerful interactive debugger - though with a more cumbersome
 (command line) interface. The Perl tool Data::Dumper used with the syntax:
@@ -242,9 +243,9 @@ several standard compiled bioinformatics programs.
 
 B<Perl - extensions>
 
-The following perl modules are available from bioperl
-(http://bioperl.org/Core/external.shtml) or from CPAN
-(http://www.perl.com/CPAN/) are used by bioperl.  The listing also
+The following perl modules are available from bioperl,
+http://bioperl.org/Core/external.shtml, or from CPAN,
+http://www.perl.com/CPAN/, and are used by bioperl.  The listing also
 indicates what bioperl features will not be available if the
 corresponding CPAN module is not downloaded.  If these modules are not
 available (eg non-unix operating systems), the remainder of bioperl
@@ -337,7 +338,7 @@ expat-1.95.1 from http://sourceforge.net/projects/expat/
 For more current and additional information on external modules
 required by bioperl, check http://bioperl.org/Core/external.shtml
 
-B<Bioperl C extensions & external bio-informatics programs>
+B<Bioperl C extensions & external bioinformatics programs>
 
 Bioperl also uses several C programs for sequence alignment and local
 blast searching. To use these features of bioperl you will need an
@@ -632,6 +633,8 @@ existence is useful since they are the basis to understanding how
 bioperl programs can communicate with other bioinformatics projects
 such as Ensembl and the Annotation Workbench (see section IV).
 
+For more discussion of design and development issues please see the
+biodesign.pod file.
 
 =head1 III. Using bioperl
 
@@ -761,7 +764,7 @@ module.
 
 The Bio::DB::GFF module provides indexed access to files in GFF format,
 a file type that's highly suited to sequence annotation (see 
-http://www.sanger.ac.uk/software/GFF). The module accesses not
+http://www.sanger.ac.uk/software/GFF for details). The module accesses not
 only by id but by annotation type and position. Those who would like to
 explore bioperl as a means to overlay nucleotide sequence, protein sequence,
 features, and annotations should take a close look at L<Bio::DB::GFF> and
@@ -836,6 +839,10 @@ files in fasta data format. See L<Bio::AlignIO> and L<Bio::UnivAln>
 and section L<"III.5.4"> for more information.
 
 =head2 III.3 Manipulating sequences
+
+Bioperl contains many modules with functions for sequence analysis. And
+if you cannot find the function you want in bioperl you may be able to
+find it in EMBOSS, which is accessible through bioperl (see L<"III.3.6">).
 
 =cut
 
@@ -925,7 +932,7 @@ alternative genetic codes. There are currently 16 codon tables
 defined, including tables for 'Verterbate Mitochondrial', 'Bacterial',
 'Alternative Yeast Nuclear' and 'Ciliate, Dasycladacean and Hexamita
 Nuclear' translation. These tables are located in the object
-L<Bio::Tools::CodonTable> which is used by the translate method. For
+Bio::Tools::CodonTable which is used by the translate method. For
 example, for mitochondrial translation:
 
   $human_mitochondrial_translation =
@@ -949,6 +956,8 @@ the program to die if an improper CDS is found, e.g.
 
   $protein_object =
       $cds->translate(undef,undef,undef,undef,1,'die_if_errors');
+
+See L<Bio::Tools::CodonTable> for related details.
 
 =head2 III.3.2 Obtaining basic sequence statistics- MW, residue &codon
 frequencies(SeqStats, SeqWord)
@@ -1092,21 +1101,29 @@ examples in the script seq_pattern.pl in the examples/ directory.
 
   Use Bio::Tools::SeqPattern;
   $pattern     = '(CCCCT)N{1,200}(agggg)N{1,200}(agggg)';
-  $pattern_obj = new Bio::Tools::SeqPattern('-SEQ' =>$pattern,
-                                            '-TYPE' =>'dna');
+  $pattern_obj = new Bio::Tools::SeqPattern('-SEQ'  => $pattern,
+                                            '-TYPE' => 'dna');
   $pattern_obj2  = $pattern_obj->revcom();
-  $pattern_obj->revcom(1); ## returns expanded rev complement pattern.
+  $pattern_obj->revcom(1); # returns expanded rev complement pattern.
 
 More detail can be found in L<Bio::Tools::SeqPattern>.
 
+=for html <A NAME ="iii.3.6"></A>
+
 =head2    III.3.6 Sequence manipulation using the Bioperl EMBOSS interface (Tools::Run::EMBOSSApplication)
 
-EMBOSS (European Molecular Biology Open Source Software) is a large
-collection of sequence manipulation programs written in the C
-programming language (http://www.uk.embnet.org/Software/EMBOSS).  EMBOSS
-programs are conveniently called from the command line.  Bioperl provides
-a Perl "wrapper" for EMBOSS function calls so that they can be executed from
-within a Perl script.
+EMBOSS (European Molecular Biology Open Source Software) is an extensive
+collection of sequence analysis programs written in the C
+programming language, from http://www.uk.embnet.org/Software/EMBOSS.
+There are a number of algorithms in EMBOSS that are not found in "Bioperl
+proper" (eg. calculating DNA melting temperature, finding repeats,
+identifying prospective antigenic sites) so if you if you cannot find
+the function you want in bioperl you might be able to find it in EMBOSS.
+
+EMBOSS programs are usually called from the command line but bioperl
+provides a Perl "wrapper" for EMBOSS function calls so that they can be
+executed from within a Perl script.  Of course, the EMBOSS package must
+be installed for the Bioperl wrapper to function.
 
 In the future, it is planned that Bioperl EMBOSS objects will return
 appropriate Bioperl objects to the calling script in addition to
@@ -1116,19 +1133,25 @@ programs, so that they will return SimpleAlign objects in a manner
 similar to the way the Bioperl modules TCoffee.pm and Clustalw.pm
 work (see section L<"III.5.4"> for a discussion of SimpleAlign).
 
-Of course, the EMBOSS package must be installed for the Bioperl
-wrapper to function. An example of usage of the Bioperl EMBOSS wrapper
+An example of the Bioperl EMBOSS wrapper where a file is returned
 would be:
 
-  $factory = new Bio::Factory::EMBOSS();
+  $factory = new Bio::Factory::EMBOSS;
   $compseqapp = $factory->program('compseq');
-  %input = ( '-word'     => 4,
-	     '-sequence' => $input_datafile'),
-	     '-outfile'  => $compseqoutfile);
+  %input = ( -word     => 4,
+	     -sequence => $seqObj,
+	     -outfile  => $compseqoutfile );
   $compseqapp->run(\%input);
+  $seqio = Bio::SeqIO->new( -file => $compseqoutfile ); # etc...
+
+Note that a Seq object was used as input. The EMBOSS object can also
+accept a file name as input, eg
+
+  -sequence => "inputfasta.fa"
 
 Some EMBOSS programs will returns strings, others will create files that
-can be read directly using Bio::SeqIO (section L<"III.2.1">).
+can be read directly using Bio::SeqIO (section L<"III.2.1">), as in the
+example above.
 
 
 =head2    III.3.7 Sequence manipulation without creating Bioperl "objects" (Perl.pm)
@@ -1168,7 +1191,7 @@ There are several reasons why one might want to run the Blast programs
 locally - speed, data security, immunity to network problems, being
 able to run large batch runs etc.  The NCBI provides a downloadable
 version of blast in a stand-alone format, and running blast locally
-without any use of perl or bioperl - is completely straightforward.
+without any use of perl or bioperl is completely straightforward.
 However, there are situations where having a perl interface for running
 the blast programs locally is convenient.
 
@@ -1182,7 +1205,7 @@ as well as one or more blast-readable databases.
 Basic usage of the StandAloneBlast.pm module is simple.  Initially, a
 local blast "factory object" is created.
 
-  @params = ('program' => 'blastn',
+  @params = ('program'  => 'blastn',
              'database' => 'ecoli.nt');
   $factory = Bio::Tools::Run::StandAloneBlast->new(@params);
 
@@ -1403,10 +1426,7 @@ bl2seq report one should use the method $report-E<gt>next_feature,
 rather than $report-E<gt>nextSbjct-E<gt>nextHSP to obtain the next high
 scoring pair. See L<Bio::Tools::BPbl2seq> for more details.
 
-
-
-
-
+Blast.pm
 
 The parser contained within the Bio::Tools::Blast.pm module is the
 original Blast parser developed for Bioperl. It is very full featured and
@@ -1475,21 +1495,16 @@ PSIBLAST and BL2SEQ.  Consequently, the BPlite parser
 (described in the section L<"III.4.4">) is recommended for most blast
 parsing within bioperl.
 
-
-
-
-
-
-
+See L<Bio::Tools::Blast> for more information.
 
 
 =head2 III.4.5 Parsing HMM reports (HMMER::Results)
 
 Blast is not the only sequence-similarity-searching program supported
-by bioperl. HMMER is a Hidden Markov-chain Model (HMM) program that
-(among other capabilities) enables sequence similarity
-searching. Bioperl does not currently provide a perl interface for
-running HMMER.  However, bioperl does provide a HMMER report parser
+by bioperl. HMMER is a Hidden Markov Model (HMM) program that
+(among other capabilities) enables sequence similarity searching, from
+http://hmmer.wustl.edu. Bioperl does not currently provide a perl interface
+for running HMMER.  However, bioperl does provide a HMMER report parser
 with the (perhaps not too descriptive) name of Results.
 
 Results can parse reports generated both by the HMMER program
@@ -1501,8 +1516,8 @@ are made, one for each sequence. For hmmpfam searches, only one Set
 object is made. Sample usage for parsing a hmmsearch report might be:
 
   use Bio::Tools::HMMER::Results;
-  $res = new Bio::Tools::HMMER::Results('-file' => 'output.hmm' ,
-  					'-type' => 'hmmsearch');
+  $res = new Bio::Tools::HMMER::Results(-file => 'output.hmm',
+  					-type => 'hmmsearch' );
   foreach $seq ( $res->each_Set ) {
       print "Sequence bit score is ", $seq->bits, "\n";
       foreach $domain ( $seq->each_Domain ) {
@@ -1513,6 +1528,7 @@ object is made. Sample usage for parsing a hmmsearch report might be:
 
 Additional methods are described in L<Bio::Tools::HMMER::Results>.
 
+
 =head2 III.5 Creating and manipulating sequence alignments
 
 Once one has identified a set of similar sequences, one often needs to
@@ -1522,7 +1538,8 @@ and the bl2seq option of StandAloneBlast. All of these objects take
 as arguments a reference to an array of (unaligned) Seq objects.  All
 (except bl2seq) return a reference to a SimpleAlign object. bl2seq
 can also produce a SimpleAlign object when it is combined with
-Bio::AlignIO (see below section L<"III.5.2">).
+Bio::AlignIO (see section below, L<"III.5.2">).
+
 
 =head2    III.5.1 Aligning 2 sequences with Smith-Waterman (pSW)
 
@@ -1553,7 +1570,7 @@ An alterative way to get Smith-Waterman alignments can come from the EMBOSS prog
 
   use Bio::AlignIO;
   my $in = new Bio::AlignIO(-format => 'emboss', -file => 'filename');
-  my $aln = $in->next_aln();  
+  my $aln = $in->next_aln();
 
 =for html <A NAME ="iii.5.2"></A>
 
@@ -1629,7 +1646,7 @@ profile_align method. For further details on the required syntax and
 options for the profile_align method, the user is referred to
 L<Bio::Tools::Run::Alignment::Clustalw> and
 L<Bio::Tools::Run::Alignment::TCoffee>. The user is also
-encouraged to examine the script clustalw.pl in the examples directory.
+encouraged to examine the script clustalw.pl in the examples/ directory.
 
 =for html <A NAME ="iii.5.4"></A>
 
@@ -2045,7 +2062,7 @@ such as protein structure, phylogenetic trees and genetic maps.
 
 A StructureIO object can be created from
 one or more 3D structures represented in Protein Data Bank, or pdb,
-format (see http://www.rcsb.org/pdb for details).
+format, see http://www.rcsb.org/pdb for details.
 
 StructureIO objects allow access to a variety of related Bio:Structure
 objects. An Entry object consist of one or more Model objects, which
