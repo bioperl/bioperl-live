@@ -257,7 +257,8 @@ sub _from_gff2_string {
    # \t is safe, and $attribs gets the entire attributes field to be
    # parsed later
 
-   my ($seqname, $source, $primary, $start, $end, $score, $strand, $frame, @attribs) = split(/\t+/, $string);
+   my ($seqname, $source, $primary, $start, 
+       $end, $score, $strand, $frame, @attribs) = split(/\t+/, $string);
    my $attribs = join '', @attribs;  # just in case the rule 
                                      # against tab characters has been broken
    if ( !defined $frame ) {
@@ -270,7 +271,7 @@ sub _from_gff2_string {
    $feat->end($end);
    $feat->frame($frame);
    if ( $score eq '.' ) {
-       #$feat->score(undef);
+       # $feat->score(undef);
    } else {
        $feat->score($score);
    }
@@ -295,7 +296,7 @@ sub _from_gff2_string {
    # NOTE: changed to foreach loop which is more efficient in perl
    # --jasons
 
-   foreach my $a ( split //, $attribs ) { 
+   for my $a ( split //, $attribs ) { 
        # flag up on entering quoted text, down on leaving it
        if( $a eq '"') { $flag = ( $flag == 0 ) ? 1:0 }
        elsif( $a eq ';' && $flag ) { $a = "INSERT_SEMICOLON_HERE"}
@@ -597,6 +598,18 @@ sub _gff2_string{
        }
        chop $str; chop $str;  # remove the trailing semicolon and space
    }
+   # Add Target information for Feature Pairs
+   if( ! $feat->has_tag('Target') && # This is a bad hack IMHO
+       ! $feat->has_tag('Group') &&
+       $feat->isa('Bio::SeqFeature::FeaturePair') ) {
+       $str .= sprintf("\tTarget %s %d %d", $feat->feature2->seq_id,
+		       ( $feat->feature2->strand < 0 ? 
+			 ( $feat->feature2->end,
+			   $feat->feature2->start) :
+			 ( $feat->feature2->start,
+			   $feat->feature2->end) 
+			 ));
+   }
    return $str;
 }
 
@@ -668,6 +681,20 @@ sub _gff3_string {
 	}
 	push @groups, "$tag=".join(",",@v);
     }
+    # Add Target information for Feature Pairs
+    if( ! $feat->has_tag('Target') && 
+	! $feat->has_tag('Group') &&
+	$feat->isa('Bio::SeqFeature::FeaturePair') ) {
+	push @groups, sprintf("Target=%s:%d..%d", 
+			      $feat->feature2->seq_id,
+			      ( $feat->feature2->strand < 0 ? 
+				( $feat->feature2->end,
+				  $feat->feature2->start) :
+				( $feat->feature2->start,
+				      $feat->feature2->end) 
+				));
+    }
+    
     return join("\t",
 		$name,
 		$feat->source_tag(),
