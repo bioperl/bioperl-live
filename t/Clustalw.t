@@ -43,16 +43,16 @@ print "ok 1\n";    # 1st test passes.
 ## total number of tests that will be run. 
 
 
+sub test ($$;$) {
+    my($num, $true,$msg) = @_;
+    print($true ? "ok $num\n" : "not ok $num $msg\n");
+}
+
 ## Create clustalw alignment factory
 my @params = ('ktuple' => 2, 'matrix' => 'BLOSUM');
 my  $factory = Bio::Tools::Alignment::Clustalw->new(@params);
 
-if( $factory ) {
-    print "ok 2\n";
-} else {
-    print "not ok 2 , couldn't create alignment factory \n";	
-}
-
+test 2, $factory, " couldn't create alignment factory";
 
 ## Set parameter test
 
@@ -60,24 +60,12 @@ my $ktuple = 3;
 $factory->ktuple($ktuple);
 
 my $new_ktuple = $factory->ktuple();
-
-if( $new_ktuple == 3) {
-    print "ok 3\n";
-} else {
-    print "not ok 3 , couldn't set factory parameter\n";	
-}
-
+test 3, $new_ktuple == 3, " couldn't set factory parameter";
 
 ## Get parameter test
 
 my $what_matrix = $factory->matrix();
-
-if( $what_matrix eq 'BLOSUM') {
-    print "ok 4\n";
-} else {
-    print "not ok 4 , couldn't get factory parameter\n";	
-}
-
+test 4, $what_matrix eq 'BLOSUM', "couldn't get factory parameter";
 
 ## Alignment test (from fasta file)
 my $bequiet = 1;
@@ -96,11 +84,8 @@ unless ($clustal_present) {
 	exit 0;
 }
 $aln = $factory->align($inputfilename);
-if( $aln->{order}->{'0'} eq 'CATH_HUMAN-1-335' ) {
-    print "ok 5\n";
-} else {
-    print "not ok 5 , failed clustalw alignment using input file\n";	
-}
+
+test 5, $aln->{order}->{'0'} eq 'CATH_HUMAN-1-335', "failed clustalw alignment using input file";
 
 ## Alignment test (from BioSeq array)
 
@@ -114,13 +99,8 @@ while ( my $seq = $str->next_seq() ) {
 my $seq_array_ref = \@seq_array;
 
 $aln = $factory->align($seq_array_ref);
-
-if( $aln->{order}->{'0'} eq 'CATH_HUMAN-1-335' ) {
-    print "ok 6\n";
-} else {
-    print "not ok 6 , failed clustalw alignment using BioSeq array\n";	
-}
-
+	
+test 6,$aln->{order}->{'0'} eq 'CATH_HUMAN-1-335', "failed clustalw alignment using BioSeq array ";
 
 
 ## Profile alignment test (from alignment files)
@@ -130,11 +110,7 @@ my $profile1 = 't/cysprot1a.msf';
 my $profile2 = 't/cysprot1b.msf';
 $aln = $factory->profile_align($profile1,$profile2);
 
-if( $aln->{order}->{'1'} eq 'CATH_HUMAN-1-335' ) {
-    print "ok 7\n";
-} else {
-    print "not ok 7 , failed clustalw profile alignment using input file\n";	
-}
+test 7, $aln->{order}->{'1'} eq 'CATH_HUMAN-1-335', " failed clustalw profile alignment using input file" ;
 
 ## Profile alignment test (from SimpleAlign objects)
 
@@ -144,12 +120,7 @@ my $str2 = Bio::AlignIO->new(-file=> 't/cysprot1b.msf');
 my $aln2 = $str2->next_aln();
 
 $aln = $factory->profile_align($aln1,$aln2);
-
-if( $aln->{order}->{'1'} eq 'CATH_HUMAN-1-335' ) {
-    print "ok 8\n";
-} else {
-    print "not ok 8 , failed clustalw profile alignment using SimpleAlign input\n";	
-}
+test 8, $aln->{order}->{'1'} eq 'CATH_HUMAN-1-335', "failed clustalw profile alignment using SimpleAlign input ";
 
 
 ## Test aligning (single) new sequence to an alignment
@@ -160,13 +131,7 @@ $str2 = Bio::SeqIO->new(-file=> 't/cysprot1b.fa');
 my $seq = $str2->next_seq();
 $aln = $factory->profile_align($aln1,$seq);
 
-
-if( $aln->{order}->{'1'} eq 'CATH_HUMAN-1-335' ) {
-    print "ok 9\n";
-} else {
-    print "not ok 9 , failed adding new sequence to alignment\n";	
-}
-
+test 9, $aln->{order}->{'1'} eq 'CATH_HUMAN-1-335', "failed adding new sequence to alignment";
 
 
 

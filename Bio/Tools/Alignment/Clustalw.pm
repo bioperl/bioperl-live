@@ -66,17 +66,16 @@ passed most of the parameters or switches of the clustalw program, e.g.:
 Any parameters not explicitly set will remain as the defaults of the clustalw program.
 Additional parameters and switches (not available in clustalw) may also be set.  Currently,
 the only such parameter is "quiet", which when set to a non-zero value, suppresses clustalw's
-terminal output.
+terminal output. Not all clustalw parameters are supported at this stage.
 
-Not all clustalw parameters are supported at this stage.  Some parameters
-are not relevant - eg "output" and "outputfile" - since the clustalw output is returned in a
+By default, Clustalw.pm output is returned solely in a the form of a
 BioPerl Bio::SimpleAlign object which can then be printed and/or saved in multiple formats using
-the AlignIO.pm module. (Note: as currently implemented, Clustalw.pm also creates .msf and
-.dnd files. These files may be removed explicitly by the calling script.  In the future,
-automatic removal of .dnd and .msf files by Clustalw.pm may be included.)
+the AlignIO.pm module. Optionally the raw clustalw output file can be saved if
+the calling script specifies an output file (with the clustalw parameter OUTFILE).
+Currently only the GCG-MSF output file formats is supported.
 
 Other parameters and features (such as those corresponding to tree
-production) have simply not been implemented yet in Perl format.
+production) have not been implemented yet in Perl format.
 
 Alignment parameters can be changed and/or examined at any time after the factory has been created.
 The program checks that any parameter/switch being set/read is valid.  However, currently no
@@ -240,17 +239,20 @@ unless (exists_clustal()) {
 			#	explicitly overide the programs attempt at guessing
 			#	the type of the sequence.  It is only useful if you
 			#	are using sequences with a VERY strange composition.
-#	OUTPUT     	#:= GCG or PHYLIP or PIR.  The default output is 	
-			#	Clustal format.
-			## NB OUTFILE option not currently supported.  All output
-			## currently is in the form of SimpleAlign objects
+#	OUTPUT     	#:= clustalw supports GCG or PHYLIP or PIR or Clustal format.
+			# However currently only GCG format is supported by Clustalw.pm
+			# (because AlignIO input modules haven't been written yet for the
+                        # other formats)
+#	OUTFILE     	#: Name of clustalw's output file. If not set
+			# module will erase output file.  In any case alignment will
+			# be returned in the form of SimpleAlign objects
 #	TRANSIT     	#:transitions not weighted.  The default is to weight
 			#	transitions as more favourable than other mismatches
 			#	in DNA alignments.  This switch makes all nucleotide
 			#	mismatches equally weighted.
 
 my @clustal_params = qw(KTUPLE TOPDIAGS WINDOW PAIRGAP FIXEDGAP
-                   FLOATGAP MATRIX TYPE	TRANSIT DNAMATRIX
+                   FLOATGAP MATRIX TYPE	TRANSIT DNAMATRIX OUTFILE
                    GAPOPEN GAPEXT MAXDIV GAPDIST HGAPRESIDUES PWMATRIX
                    PWDNAMATRIX PWGAPOPEN PWGAPEXT SCORE TRANSWEIGHT
                    SEED HELIXGAP OUTORDER STRANDGAP LOOPGAP TERMINALGAP
@@ -361,7 +363,7 @@ if (!$infilename) {$self->throw("Bad input data or less than 2 sequences in $inp
 my $param_string = &_setparams($self);
 
 # run clustalw
-my $aln = &_runclustalw('align', $infilename, $param_string);
+my $aln = &_runclustalw($self, 'align', $infilename, $param_string);
 }
 #################################################
 
@@ -402,7 +404,7 @@ if (!$infilename1 || !$infilename2) {$self->throw("Bad input data: $input1 or $i
 my $param_string = &_setparams($self);
 
 # run clustalw
-my $aln = &_runclustalw('profile-aln', $infilename1, $infilename2, $param_string);
+my $aln = &_runclustalw($self, 'profile-aln', $infilename1, $infilename2, $param_string);
 
 }
 #################################################
@@ -419,39 +421,47 @@ Function:   makes actual system call to clustalw program
 
 
 =cut
-
 sub _runclustalw {
-
-my ($instring, $infilename, $infile1, $infile2);
+my $instring;
+my $infilename = "";
+my $infile1 = "";
+my $infile2 = "";
+my $self = shift;
 my $command = shift;
 if ($command =~ /align/) {
-	$infilename = shift;
+	$infilename = shift ;
 	$instring =  "-infile=$infilename";
 }
 if ($command =~ /profile/) {
-	$infile1 = shift;
-	$infile2 = shift;
+	$infile1 = shift ;
+	$infile2 = shift ;
 	$instring =  "-profile1=$infile1  -profile2=$infile2";
 	$command = '-profile';
 }
 my $param_string = shift;
 
-my $outfile=   "./clustalw.tmp" ;
-
 my $commandstring = "$program"." $command"." $instring".
-			" -output=gcg"." -outfile=$outfile". " $param_string";
+			" -output=gcg". " $param_string";
+
 # next line is for debugging purposes
 #print "clustal command = $commandstring \n";
 
-
 my $status = system($commandstring);
+die "Clustalw call crashed: $? \n" unless $status==0;
 
-  die "Clustalw call crashed: $? \n" unless $status==0;
-
-
+my $outfile = $self->outfile() || "clustalw.tmp" ;
 # retrieve alignment (Note: MSF format for AlignIO = GCG format of clustalw)
 my $in  = Bio::AlignIO->new(-file => $outfile, '-format' => 'MSF');
 my $aln = $in->next_aln();
+
+# Clean up the temporary files created along the way...
+system('rm -f clustalw.tmp tmp.fa tmp1.fa tmp2.fa tmp.dnd tmp1.dnd tmp2.dnd') ;
+   # Replace file suffix with dnd to find name of dendrogram file(s) to delete
+$infilename =~ s/\.[^\.]*// ;
+$infile1 =~ s/\.[^\.]*// ;
+$infile2 =~ s/\.[^\.]*// ;
+system("rm -f $infilename.dnd $infile1.dnd $infile2.dnd") ;
+
 return $aln;
 }
 
@@ -537,16 +547,23 @@ my $param_string = "";
 	$value = $self->$attr();
 	next unless (defined $value);
 	my $attr_key = lc $attr;      #put params in format expected by clustalw
-	$attr_key = '-'.$attr_key;
-	$param_string .= '"'.$attr_key.'='.$value.'",';
+	$attr_key = ' -'.$attr_key;
+	$param_string .= $attr_key.'='.$value;
  }
 
  for  $attr ( @clustalw_switches) {
 	$value = $self->$attr();
 	next unless ($value);
 	my $attr_key = lc $attr;      #put switches in format expected by clustalw
-	$attr_key = '-'.$attr_key;
-	$param_string .= '"'.$attr_key.'",';
+	$attr_key = ' -'.$attr_key;
+	$param_string .= $attr_key ;
+#	$attr_key = '-'.$attr_key;
+#	$param_string .= '"'.$attr_key.'",';
+ }
+
+# Set default output file if no explicit output file selected
+ unless ($param_string =~ /outfile/) {
+		$param_string .= ' -outfile=clustalw.tmp' ;
  }
 
 if ($self->quiet()) { $param_string .= '  >/dev/null';}

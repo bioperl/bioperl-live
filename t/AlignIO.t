@@ -38,138 +38,86 @@ print "ok 1\n";    # 1st test passes.
 ## the print "1..x\n" in the BEGIN block to reflect the
 ## total number of tests that will be run. 
 
+sub test ($$;$) {
+    my($num, $true,$msg) = @_;
+    print($true ? "ok $num\n" : "not ok $num $msg\n");
+}
+
 
 ## Now we test Bio::AlignIO::stockholm input
 $str = Bio::AlignIO->new(-file=> 't/testaln.stockholm','-format' => 'stockholm');
 $aln = $str->next_aln();
-
-if( $aln->{order}->{'0'} eq '1433_LYCES-9-246' ) {
-    print "ok 2\n";
-} else {
-    print "not ok 2 , failed stockholm format test \n";	
-}
-
+test 2, $aln->{order}->{'0'} eq '1433_LYCES-9-246', " failed stockholm format test";
 
 ## Now we test Bio::AlignIO::pfam
 
 $str = Bio::AlignIO->new(-file=> 't/testaln.pfam');
 $aln = $str->next_aln();
-if( $aln->{order}->{'0'} eq '1433_LYCES-9-246' ) {
-    print "ok 3\n";
-} else {
-    print "not ok 3, failed pfam input test\n";	
-}
+test 3,$aln->{order}->{'0'} eq '1433_LYCES-9-246', " failed pfam input test";
+
 $strout = Bio::AlignIO->new(-file=> '>t/testout.pfam', '-format' => 'pfam');
 $status = $strout->write_aln($aln);
-if($status) {
-    print "ok 4\n";
-} else {
-    print "not ok 4, failed pfam output test\n";	
-}
+test 4,$status, " failed pfam output test";
+
 
 ## Now we test Bio::AlignIO::msf
 
 $str = Bio::AlignIO->new(-file=> 't/testaln.msf');
 $aln = $str->next_aln();
-if( $aln->{order}->{'0'} eq  '1433_LYCES-9-246' ) {
-    print "ok 5\n";
-} else {
-    print "not ok 5, failed msf input test\n";	
-}
-
+test 5, $aln->{order}->{'0'} eq  '1433_LYCES-9-246', " failed msf input test";
 
 
 
 $strout = Bio::AlignIO->new(-file=> '>t/testout.msf', '-format' => 'msf');
 $status = $strout->write_aln($aln);
-if($status) {
-    print "ok 6\n";
-} else {
-    print "not ok 6, failed msf output test\n";	
-}
+test 6, $status, "  failed msf output test";
+
 
 ## Now we test Bio::AlignIO::fasta
 
 $str = Bio::AlignIO->new(-file=> 't/testaln.fasta', '-format' => 'fasta');
 $aln = $str->next_aln();
-if( $aln->{order}->{'0'} eq 'AK1H_ECOLI-1-378' ) {
-    print "ok 7\n";
-} else {
-    print "not ok 7, failed fasta input test \5n";	
-}
+test 7, $aln->{order}->{'0'} eq 'AK1H_ECOLI-1-378', " failed fasta input test ";
+
 
 $strout = Bio::AlignIO->new(-file=> '>t/testout.fasta', '-format' => 'fasta');
 $status = $strout->write_aln($aln);
-if($status) {
-    print "ok 8\n";
-} else {
-    print "not ok 8, failed fasta output test\n";	
-}
+test 8, $status, "  failed fasta output test";
 
 ## Now we test Bio::AlignIO::selex
 
 $str = Bio::AlignIO->new(-file=> 't/testaln.selex','-format' => 'selex');
 $aln = $str->next_aln();
-if( $aln->{order}->{'0'} eq 'AK1H_ECOLI-114-431' ) {
-    print "ok 9\n";
-} else {
-    print "not ok 9, failed selex format test\n";	
-}
+test 9, $aln->{order}->{'0'} eq 'AK1H_ECOLI-114-431', " failed selex format test ";
+
 
 $strout = Bio::AlignIO->new(-file=> '>t/testout.selex', '-format' => 'selex');
 $status = $strout->write_aln($aln);
-if($status) {
-    print "ok 10\n";
-} else {
-    print "not ok 10, failed selex output test\n";	
-}
-
+test 10, $status, "  failed selex output test";
 
 ## Now we test Bio::AlignIO::mase input
 $str = Bio::AlignIO->new(-file=> 't/testaln.mase','-format' => 'mase');
 $aln = $str->next_aln();
-if( $aln->{order}->{'0'} eq 'AK1H_ECOLI-1-378' ) {
-    print "ok 11\n";
-} else {
-    print "not ok 11, failed mase input test\n";	
-}
-
+test 11, $aln->{order}->{'0'} eq 'AK1H_ECOLI-1-378', " failed mase input test ";
 
 ## Now we test Bio::AlignIO::prodom input
 $str = Bio::AlignIO->new(-file=> 't/testaln.prodom','-format' => 'prodom');
 $aln = $str->next_aln();
-if( $aln->{order}->{'0'} eq 'P04777-1-33' ) {
-    print "ok 12\n";
-} else {
-    print "not ok 12, failed prodom input test\n";	
-}
-
+test 12, $aln->{order}->{'0'} eq 'P04777-1-33', " failed prodom input test ";
 
 ## Now we test Bio::AlignIO::clustalw output writing
 $strout = Bio::AlignIO->new(-file=> '>t/testaln.clustal', '-format' => 'clustalw');
 $status = $strout->write_aln($aln);
-if($status) {
-    print "ok 13\n";
-} else {
-    print "not ok 13, failed clustalw (.aln) output test\n";	
-}
-
+test 13, $status, "  failed clustalw (.aln) output test";
 
 
 # Testing filehandle manipulations
 
-    my $in  = Bio::AlignIO->newFh(-file => "t/testaln.fasta", '-format' => 'fasta');
-    my $out = Bio::AlignIO->newFh(-file => ">t/testout2.pfam", '-format' => 'pfam');
-     while ( $aln = <$in>) {
-	if( $aln->{order}->{'0'} eq 'AK1H_ECOLI-1-378' ) {
-    		print "ok 14\n";
-	} else {
-    		print "not ok 14, failed filehandle input test \n";	
-	}
+my $in  = Bio::AlignIO->newFh(-file => "t/testaln.fasta", '-format' => 'fasta');
+my $out = Bio::AlignIO->newFh(-file => ">t/testout2.pfam", '-format' => 'pfam');
+while ( $aln = <$in>) {
+	test 14, $aln->{order}->{'0'} eq 'AK1H_ECOLI-1-378', "  failed filehandle input test  ";
 	$status = print $out $aln;
-	if($status) {
-	    print "ok 15\n";
-	} else {
-	    print "not ok 15, failed filehandle output test\n";	
-	}
-    }
+}
+test 15, $status, "  failed filehandle output test";
+
