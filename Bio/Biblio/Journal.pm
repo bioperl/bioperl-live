@@ -13,11 +13,42 @@ Bio::Biblio::Journal - Representation of a journal
 
 =head1 SYNOPSIS
 
-#
+    $obj = new Bio::Biblio::Journal (-name => 'The Perl Journal',
+				     -issn  => '1087-903X');
+ --- OR ---
+
+    $obj = new Bio::Biblio::Journal;
+    $obj->issn ('1087-903X');
 
 =head1 DESCRIPTION
 
-#
+A storage object for a journal.
+See its place in the class hierarchy in
+http://industry.ebi.ac.uk/openBQS/images/bibobjects_perl.gif
+
+=head2 Attributes
+
+The following attributes are specific to this class
+(however, you can also set and get all attributes defined in the parent classes):
+
+  abbreviation
+  issn
+  name
+  provider       type: Bio::Biblio::Provider
+
+=head1 SEE ALSO
+
+=over
+
+=item *
+
+OpenBQS home page: http://industry.ebi.ac.uk/openBQS
+
+=item *
+
+Comments to the Perl client: http://industry.ebi.ac.uk/openBQS/Client_perl.html
+
+=back
 
 =head1 FEEDBACK
 
@@ -41,7 +72,7 @@ email or the web:
 
 =head1 AUTHORS
 
-Heikki Lehvaslaiho (heikki@ebi.ac.uk)
+Heikki Lehvaslaiho (heikki@ebi.ac.uk),
 Martin Senger (senger@ebi.ac.uk)
 
 =head1 COPYRIGHT
@@ -80,6 +111,7 @@ use Bio::Biblio::BiblioBase;
 	 _abbreviation => undef,
 	 _issn => undef,
 	 _name => undef,
+	 _provider => 'Bio::Biblio::Provider',
 	 );
 
     # return 1 if $attr is allowed to be set/get in this class

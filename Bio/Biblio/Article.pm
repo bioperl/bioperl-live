@@ -13,12 +13,44 @@ Bio::Biblio::Article - Representation of a general article
 
 =head1 SYNOPSIS
 
-#
+    $obj = new Bio::Biblio::Article (-identifier => '123abc',
+				     -first_page => 23,
+				     -last_page  => 68);
+ --- OR ---
+
+    $obj = new Bio::Biblio::Article;
+    $obj->identifier ('123abc');
+    $obj->first_page (23);
+    $obj->last_page (68);
 
 =head1 DESCRIPTION
 
-#
+A storage object for general articles.
+See its place in the class hierarchy in
+http://industry.ebi.ac.uk/openBQS/images/bibobjects_perl.gif
 
+=head2 Attributes
+
+The following attributes are specific to this class
+(however, you can also set and get all attributes defined in the parent classes):
+
+  first_page
+  last_page
+
+
+=head1 SEE ALSO
+
+=over
+
+=item *
+
+OpenBQS home page: http://industry.ebi.ac.uk/openBQS
+
+=item *
+
+Comments to the Perl client: http://industry.ebi.ac.uk/openBQS/Client_perl.html
+
+=back
 
 =head1 FEEDBACK
 
@@ -42,7 +74,7 @@ email or the web:
 
 =head1 AUTHORS
 
-Heikki Lehvaslaiho (heikki@ebi.ac.uk)
+Heikki Lehvaslaiho (heikki@ebi.ac.uk),
 Martin Senger (senger@ebi.ac.uk)
 
 =head1 COPYRIGHT

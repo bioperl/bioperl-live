@@ -13,11 +13,43 @@ Bio::Biblio::MedlineJournal - Representation of a MEDLINE journal
 
 =head1 SYNOPSIS
 
-#
+    $obj = new Bio::Biblio::MedlineJournal
+               (-medline_ta => 'J Vasc Interv Radiol');
+ --- OR ---
+
+    $obj = new Bio::Biblio::MedlineJournal;
+    $obj->medline_ta ('J Vasc Interv Radiol');
 
 =head1 DESCRIPTION
 
-#
+A storage object for a MEDLINE journal.
+See its place in the class hierarchy in
+http://industry.ebi.ac.uk/openBQS/images/bibobjects_perl.gif
+
+=head2 Attributes
+
+The following attributes are specific to this class
+(however, you can also set and get all attributes defined in the parent classes):
+
+  coden
+  country
+  medline_code
+  medline_ta
+  nlm_unique_id
+
+=head1 SEE ALSO
+
+=over
+
+=item *
+
+OpenBQS home page: http://industry.ebi.ac.uk/openBQS
+
+=item *
+
+Comments to the Perl client: http://industry.ebi.ac.uk/openBQS/Client_perl.html
+
+=back
 
 =head1 FEEDBACK
 
@@ -41,7 +73,7 @@ email or the web:
 
 =head1 AUTHORS
 
-Heikki Lehvaslaiho (heikki@ebi.ac.uk)
+Heikki Lehvaslaiho (heikki@ebi.ac.uk),
 Martin Senger (senger@ebi.ac.uk)
 
 =head1 COPYRIGHT
