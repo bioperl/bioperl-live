@@ -1,3 +1,4 @@
+# $Id$
 #
 # BioPerl module for Bio::SeqIO::ace
 #
@@ -63,30 +64,36 @@ The rest of the documentation details each of the object
 methods. Internal methods are usually preceded with a _
 
 =cut
+#'
 
 # Let the code begin...
 
 package Bio::SeqIO::ace;
-use vars qw(@ISA);
 use strict;
-# Object preamble - inherits from Bio::Root::Object
-
+use vars qw(@ISA);
 use Bio::SeqIO;
 
 @ISA = qw(Bio::SeqIO);
-# new() is inherited from Bio::Root::Object
 
-# _initialize is where the heavy stuff will happen when new is called
+
+# SeqIO is special - override new here to insure we instantiate this class 
+
+sub new {
+    my ($class,@args) = @_;    
+    my $self = bless {}, $class;
+    $self->_initialize(@args);
+    return $self;
+}
 
 sub _initialize {
   my($self,@args) = @_;
-  return unless my $make = $self->SUPER::_initialize(@args);
+  return unless $self->SUPER::_initialize(@args);
 }
 
-=head2 next_prmary_seq
+=head2 next_primary_seq
 
- Title   : next_seq
- Usage   : $seq = $stream->next_seq()
+ Title   : next_primary_seq
+ Usage   : $seq = $stream->next_primary_seq()
  Function: returns the next sequence in the stream
  Returns : Bio::PrimarySeq object
  Args    : NONE
@@ -135,7 +142,7 @@ sub _initialize {
         # to have any of these as part of object names in your acedb
         # database).
         $id =~ s/\\([\/"%;\t\\])/$1/g;
-
+#"
         if ($as_next_seq) {
             # Called as next_seq(), so give back a Bio::Seq
             return Bio::Seq->new(
@@ -181,7 +188,7 @@ sub write_seq {
         
         # Escape special charachers in id
         $id =~ s/([\/"%;\t\\])/\\$1/g;
-        
+#"        
         # Print header for DNA or Protein object
         if ($mol_type eq 'dna') {
             $self->_print( 

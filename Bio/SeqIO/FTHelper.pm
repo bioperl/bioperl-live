@@ -1,3 +1,4 @@
+# $Id$
 #
 # BioPerl module for Bio::SeqIO::FTHelper
 #
@@ -29,10 +30,9 @@ Represents one particular Feature with the following fields
 
 =head2 Mailing Lists
 
-User feedback is an integral part of the evolution of this
-and other Bioperl modules. Send your comments and suggestions preferably
- to one of the Bioperl mailing lists.
-Your participation is much appreciated.
+User feedback is an integral part of the evolution of this and other
+Bioperl modules. Send your comments and suggestions preferably to one
+of the Bioperl mailing lists.  Your participation is much appreciated.
 
   bioperl-l@bioperl.org                 - General discussion
   bioperl-guts-l@bioperl.org            - Technically-oriented discussion
@@ -41,8 +41,8 @@ Your participation is much appreciated.
 =head2 Reporting Bugs
 
 Report bugs to the Bioperl bug tracking system to help us keep track
- the bugs and their resolution.
- Bug reports can be submitted via email or the web:
+the bugs and their resolution.  Bug reports can be submitted via email
+or the web:
 
   bioperl-bugs@bio.perl.org
   http://bio.perl.org/bioperl-bugs/
@@ -55,7 +55,8 @@ Describe contact details here
 
 =head1 APPENDIX
 
-The rest of the documentation details each of the object methods. Internal methods are usually preceded with a _
+The rest of the documentation details each of the object
+methods. Internal methods are usually preceded with a _
 
 =cut
 
@@ -67,29 +68,25 @@ package Bio::SeqIO::FTHelper;
 use vars qw(@ISA);
 use strict;
 
-# Object preamble - inheriets from Bio::Root::Object
+use Bio::SeqFeature::Generic;
+use Bio::Root::RootI;
 
-use Bio::Root::Object;
+@ISA = qw(Bio::Root::RootI);
 
-
-@ISA = qw(Bio::Root::Object);
-# new() is inherited from Bio::Root::Object
-
-# _initialize is where the heavy stuff will happen when new is called
+# new() is inherited from Bio::Root::RootI
 
 sub _initialize {
   my ($self, @args) = @_;
-
-  my $make = $self->SUPER::_initialize;
+  my $make = $self->SUPER::_initialize(@args);
   $self->{'_field'} = {};
-# set stuff in self from @args
-  return $make; # success - we hope!
+  return 1; # success - we hope!
 }
 
 =head2 from_SeqFeature
 
  Title   : from_SeqFeature
- Usage   : @fthelperlist = Bio::SeqIO::FTHelper::from_SeqFeature($sf,$context_annseq);
+ Usage   : @fthelperlist = Bio::SeqIO::FTHelper::from_SeqFeature($sf,
+						     $context_annseq);
  Function: constructor of fthelpers from SeqFeatures
          :
          : The additional annseq argument is to allow the building of FTHelper
@@ -122,9 +119,9 @@ sub _generic_seqfeature {
     if(! defined($source)) {
 	$source = "EMBL/GenBank/SwissProt";
     }
-    
+
     $sf = new Bio::SeqFeature::Generic;
-    
+
     # Trap 23.46 type fuzzy locations
     if ($fth->loc =~ /\d+\.\d+/) {
         $fth->warn("unable to parse fuzzy location ('" .
@@ -546,4 +543,4 @@ sub add_field {
 
 }
 
-
+1;

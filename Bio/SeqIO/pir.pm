@@ -1,3 +1,4 @@
+# $Id$
 #
 # BioPerl module for Bio::SeqIO::PIR
 #
@@ -29,10 +30,9 @@ file databases.
 
 =head2 Mailing Lists
 
-User feedback is an integral part of the evolution of this
-and other Bioperl modules. Send your comments and suggestions preferably
- to one of the Bioperl mailing lists.
-Your participation is much appreciated.
+User feedback is an integral part of the evolution of this and other
+Bioperl modules. Send your comments and suggestions preferably to one
+of the Bioperl mailing lists.  Your participation is much appreciated.
 
   bioperl-l@bioperl.org                 - General discussion
   bioperl-guts-l@bioperl.org            - Technically-oriented discussion
@@ -67,6 +67,20 @@ use strict;
 use Bio::SeqIO;
 
 @ISA = qw(Bio::SeqIO);
+
+# SeqIO is special - override new here to insure we instantiate this class 
+
+sub new {
+    my ($class,@args) = @_;    
+    my $self = bless {}, $class;
+    $self->_initialize(@args);
+    return $self;
+}
+
+sub _initialize {
+  my($self,@args) = @_;
+  return unless $self->SUPER::_initialize(@args);
+}
 
 =head2 next_seq
 

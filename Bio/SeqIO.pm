@@ -1,4 +1,4 @@
-
+# $Id$
 #
 # BioPerl module for Bio::SeqIO
 #
@@ -236,11 +236,11 @@ package Bio::SeqIO;
 use strict;
 use vars '@ISA';
 
-use Bio::Root::Object;
+use Bio::Root::RootI;
 use Bio::Seq;
 use Symbol();
 
-@ISA = 'Bio::Root::Object';
+@ISA = qw(Bio::Root::RootI);
 
 =head2 new
 
@@ -262,7 +262,7 @@ sub new {
    my ($handler, $stream);
 
    if ( $class eq 'Bio::SeqIO::MultiFile' ) {
-       return Bio::Root::Object::new($class, %param);
+       return $class->new(%param);
    }
 
    @param{ map { lc $_ } keys %param } = values %param;  # lowercase keys
@@ -275,9 +275,10 @@ sub new {
        return undef;
    }
 
-   $stream = "Bio::SeqIO::$format"->_new(%param);
+   $stream = "Bio::SeqIO::$format"->new(%param);
    return $stream;
 }
+
 
 =head2 newFh
 
@@ -320,18 +321,11 @@ sub fh {
   return $s;
 }
 
-sub _new {
-  my $self = shift;
-  $self->SUPER::new(@_);
-}
 
-# _initialize is where the heavy stuff will happen when new is called
+# _initialize is chained for all SeqIO classes
 
 sub _initialize {
   my($self, @args) = @_;
-
-  my $make = $self->SUPER::_initialize;  # exception handling code
-
   my ($file, $fh) = $self->_rearrange([qw(
 					 FILE
 					 FH
@@ -350,7 +344,7 @@ sub _initialize {
     open ($fh,$file) || $self->throw("Could not open $file for Fasta stream reading $!");
   }
   $self->_filehandle($fh) if defined $fh;
-  return $make; # success - we hope!
+  return 1; # success - we hope!
 }
 
 =head2 _load_format_module

@@ -6,8 +6,8 @@
 
 =head1 NAME
 
-Bio::SeqIO::GAMEHandler  Parses bioxml 0.3 and higher into Bio::Seq objects. - 
-Sorry, no namespaces yet!
+Bio::SeqIO::GAMEHandler Parses bioxml 0.3 and higher into Bio::Seq
+objects. - Sorry, no namespaces yet!
 
 =head1 SYNOPSIS
 
@@ -15,17 +15,16 @@ Do not use this module directly.  Use it via the Bio::SeqIO class.
 
 =head1 DESCRIPTION
 
-This object can transform Bio::Seq objects from (and eventually to) bioxml game
-versions 0.3 and higher.
+This object can transform Bio::Seq objects from (and eventually to)
+bioxml game versions 0.3 and higher.
 
 =head1 FEEDBACK
 
 =head2 Mailing Lists
 
-User feedback is an integral part of the evolution of this
-and other Bioperl modules. Send your comments and suggestions preferably
- to one of the Bioperl mailing lists.
-Your participation is much appreciated.
+User feedback is an integral part of the evolution of this and other
+Bioperl modules. Send your comments and suggestions preferably to one
+of the Bioperl mailing lists.  Your participation is much appreciated.
 
   bioxml-dev@bioxml.org        - Technical discussion - Moderate volume
   bioxml-announce@bioxml.org   - General Announcements - Pretty dead
@@ -52,16 +51,14 @@ methods. Internal methods are usually preceded with a _
 
 
 package Bio::SeqIO::GAMEHandler;
-use vars qw{ $AUTOLOAD };
+use Bio::Root::RootI;
+use vars qw( $AUTOLOAD @ISA);
 
-sub new {
-    my $class = shift;
-    my $self = {};
-    my $seqs;
-    my @feats = [];
-    my $string;
-    my $feat = {};
-    return bless ($self, $class);
+@ISA = qw(Bio::Root::RootI);
+
+sub _initialize {
+    my ($self,@args) = @_;
+    return unless $self->SUPER::_initialize(@args);
 }
 
 # Basic PerlSAX
@@ -73,6 +70,7 @@ sub start_document            {
     $self->{Seqs} = {};
     $self->{feats} = [];
 }
+
 sub end_document              {
     my ($self, $document) = @_;
 
@@ -81,6 +79,7 @@ sub end_document              {
 
     return();
 }
+
 sub start_element             {
      my ($self, $element) = @_;
 
@@ -246,7 +245,7 @@ sub within_element {
 }
 
 sub getSeqs {
-  my $self=shift;
+  my $self = shift;
   return $self->{Seqs};
 }
 

@@ -1,3 +1,4 @@
+# $Id$
 #
 # BioPerl module for Bio::SeqIO::swiss
 #
@@ -103,48 +104,27 @@ use Bio::SeqIO::FTHelper;
 use Bio::SeqFeature::Generic;
 use Bio::Species;
 use Bio::Tools::SeqStats;
-#use Bio::SeqIO::StreamI;
-
-# Object preamble - inherits from Bio::Root::Object
-
-use Bio::Root::Object;
-use FileHandle;
 
 @ISA = qw(Bio::SeqIO);
-# new() is inherited from Bio::Root::Object
 
-# _initialize is where the heavy stuff will happen when new is called
+# SeqIO is special - override new here to insure we instantiate this class 
+
+sub new {
+    my ($class,@args) = @_;    
+    my $self = bless {}, $class;
+    $self->_initialize(@args);
+    return $self;
+}
 
 sub _initialize {
   my($self,@args) = @_;
 
   my $make = $self->SUPER::_initialize(@args);
    
-  my ($file,$fh) = $self->_rearrange([qw(
-					 FILE
-					 FH
-					 )],
-				     @args,
-				     );
-  if( $file && $fh ) {
-      $self->throw("Providing both a file and a filehandle for reading from - only one please!");
-  }
-
-  if( !$file && !$fh ) {
-      $self->throw("Neither a file (-file) nor a filehandle (-fh) provided to swissprot opening");
-  }
-
-  if( $file ) {
-      $fh = new FileHandle;
-      $fh->open($file) || $self->throw("Could not open $file for swissprot stream reading $!");
-  }
-  
   # hash for functions for decoding keys.
   $self->{'_func_ftunit_hash'} = {}; 
-  $self->_filehandle($fh);
   $self->_show_dna(1); # sets this to one by default. People can change it
 
-# set stuff in self from @args
  return $make; # success - we hope!
 }
 
@@ -1110,9 +1090,3 @@ sub _kw_generation_func{
 }
 
 1;
-    
-
-
-
-
-

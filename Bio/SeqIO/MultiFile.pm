@@ -1,4 +1,4 @@
-
+# $Id$
 #
 # BioPerl module for Bio::SeqIO::MultiFile
 #
@@ -66,15 +66,20 @@ The rest of the documentation details each of the object methods. Internal metho
 
 
 package Bio::SeqIO::MultiFile;
-use vars qw(@ISA);
 use strict;
+use vars qw(@ISA);
 use Bio::SeqIO;
-
-# Object preamble - inherits from Bio::Root::Object
 
 @ISA = qw(Bio::SeqIO);
 
-# new() is inherited from Bio::Root::Object
+
+# SeqIO is special - override new here to insure we instantiate this class 
+sub new {
+    my ($class, @args) = @_;
+    my $self = bless {}, $class;
+    $self->_initialize(@args);
+    return $self;
+}
 
 # _initialize is where the heavy stuff will happen when new is called
 
@@ -255,8 +260,4 @@ sub _format{
 
 }
 
-
-
-
-
-
+1;

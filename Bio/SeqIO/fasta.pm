@@ -1,4 +1,4 @@
-#
+# $Id$
 # BioPerl module for Bio::SeqIO::fasta
 #
 # Cared for by Ewan Birney <birney@ebi.ac.uk>
@@ -29,10 +29,9 @@ file databases.
 
 =head2 Mailing Lists
 
-User feedback is an integral part of the evolution of this
-and other Bioperl modules. Send your comments and suggestions preferably
- to one of the Bioperl mailing lists.
-Your participation is much appreciated.
+User feedback is an integral part of the evolution of this and other
+Bioperl modules. Send your comments and suggestions preferably to one
+of the Bioperl mailing lists.  Your participation is much appreciated.
 
   bioperl-l@bioperl.org            - General discussion
   bioperl-guts-l@bioperl.org       - Technically-oriented discussion
@@ -70,22 +69,20 @@ use strict;
 use Bio::SeqIO;
 
 @ISA = qw(Bio::SeqIO);
-# new() is inherited from Bio::Root::Object
 
-# _initialize is where the heavy stuff will happen when new is called
+# override new here to insure we instantiate this class 
+
+sub new {
+    my ($class,@args) = @_;    
+    my $self = bless {}, $class;
+    $self->_initialize(@args);
+    return $self;
+}
 
 sub _initialize {
   my($self,@args) = @_;
-  return unless my $make = $self->SUPER::_initialize(@args);
+  return unless $self->SUPER::_initialize(@args);
 }
-
-=head2 next_primary_seq
-
- Title   : next_seq
- Usage   : $seq = $stream->next_seq()
- Function: returns the next sequence in the stream
- Returns : Bio::PrimarySeq object
- Args    : NONE
 
 =head2 next_seq
 
@@ -100,6 +97,16 @@ sub _initialize {
 sub next_seq {
     return next_primary_seq( $_[0], 1 );
 }
+
+=head2 next_primary_seq
+
+ Title   : next_seq
+ Usage   : $seq = $stream->next_seq()
+ Function: returns the next sequence in the stream
+ Returns : Bio::PrimarySeq object
+ Args    : NONE
+
+=cut
 
 sub next_primary_seq {
   my( $self, $as_next_seq ) = @_;

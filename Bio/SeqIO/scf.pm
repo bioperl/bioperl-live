@@ -77,18 +77,24 @@ methods. Internal methods are usually preceded with a _
 
 
 package Bio::SeqIO::scf;
-use vars qw(@ISA);
 use strict;
+use vars qw(@ISA);
 use Bio::SeqIO;
-# Object preamble - inherits from Bio::Root::Object
 
 @ISA = qw(Bio::SeqIO);
 
-# _initialize is where the heavy stuff will happen when new is called
+# SeqIO is special - override new here to insure we instantiate this class 
+
+sub new {
+    my ($class,@args) = @_;    
+    my $self = bless {}, $class;
+    $self->_initialize(@args);
+    return $self;
+}
 
 sub _initialize {
   my($self,@args) = @_;
-  return unless my $make = $self->SUPER::_initialize(@args);
+  return unless $self->SUPER::_initialize(@args);
 }
 
 =head2 next_seq

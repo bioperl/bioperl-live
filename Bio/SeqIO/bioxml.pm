@@ -11,6 +11,7 @@
 # October 18, 1999  Largely rewritten by Lincoln Stein
 
 # POD documentation - main docs before the code
+# $Id$ 
 
 =head1 NAME
 
@@ -62,6 +63,7 @@ The rest of the documentation details each of the object
 methods. Internal methods are usually preceded with a _
 
 =cut
+#'
 
 # Let the code begin...
 
@@ -76,49 +78,45 @@ use XML::DOM;
 use XML::Handler::BuildDOM;
 
 @ISA = qw(Bio::SeqIO Bio::Root::Object);
-# new() is inherited from Bio::Root::Object
 
-# _initialize is where the heavy stuff will happen when new is called
-my $seq = ();
-sub _initialize {
-  my($self,@args) = @_;
-  return unless my $make = $self->SUPER::_initialize(@args);
-  if (@args[2] ne '') {
-    my $xmlfile = "";
-    while (my $next_line = $self->_readline) {
-      $xmlfile= $xmlfile.$next_line;
-    }
-    my $doc;
-    $doc = eval {
-      my $parser = new XML::DOM::Parser();
-      $doc = $parser->parse($xmlfile);
-      $seq = $doc->getElementsByTagName("seq");
-    };
-    if ($@) {
-      $self->throw("There was an error parsing the xml document $args[1].  It may not be well-formed");
-      exit(0);
-    }
-  }
+sub new {
+    my ($class,@args) = @_;    
+    my $self = bless {}, $class;
+    $self->_initialize(@args);
+    return $self;
 }
-my $seqnum = 0;
-=head2 next_seq
 
- Title   : next_seq
- Usage   : $seq = $stream->next_seq()
- Function: returns the next sequence in the stream
- Returns : Bio::Seq object
- Args    :
+sub _initialize {
+    my($self,@args) = @_;
+    $self->SUPER::_initialize(@args);
 
-=cut
+    if (@args[2] ne '') {
+	my $xmlfile = "";
+	while (my $next_line = $self->_readline) {
+	    $xmlfile= $xmlfile.$next_line;
+	}
+	my ($doc, $seq);
+	eval {
+	    my $parser = new XML::DOM::Parser();
+	    $doc = $parser->parse($xmlfile);
+	    $seq = $doc->getElementsByTagName("seq");
+	};
+	if ($@) {
+	    $self->throw("There was an error parsing the xml document $args[1].  It may not be well-formed");
+	    return 0;
+	}
+    }
+    $self->{_seqctr} = 0;
+}
 
 sub _residues {
-my $sequence = shift;
+    my ($self,$sequence) = @_;
     if (defined $sequence->item($seqnum)->getElementsByTagName("residues")->item(0)){
-      my $sequence=$seq->item($seqnum)->getElementsByTagName("residues")->item(0)->getFirstChild()->getNodeValue();
-      $sequence =~ s/ //g;
-      $sequence =~ s/\n//g;
-      my $type = $seq->item($seqnum)->getElementsByTagName("residues")->item(0)->getAttribute("type");
-      return ($sequence, $type);
+	my $sequence=$seq->item($seqnum)->getElementsByTagName("residues")->item(0)->getFirstChild()->getNodeValue();
+	$sequence =~ s/ //g;
+	$sequence =~ s/\n//g;
+	my $type = $seq->item($seqnum)->getElementsByTagName("residues")->item(0)->getAttribute("type");
+	return ($sequence, $type);
     } 
 }
 
@@ -141,23 +139,32 @@ sub _accession {
     } 
 }
     
-# $seqnum is just a counter for which sequence.
+=head2 next_seq
+
+ Title   : next_seq
+ Usage   : $seq = $stream->next_seq()
+ Function: returns the next sequence in the stream
+ Returns : Bio::Seq object
+ Args    :
+
+=cut
 
 sub next_seq{
-  if ($seqnum < $seq->getLength()) {
-    my $id = &_id($seq);
-    my ($sequence, $type)=&_residues($seq);
-    my $accession = &_accession($seq);
+    my ($self ) = @_;
+    if ($self->{_seqctr} < $seq->getLength()) {
+	my $id = &_id($seq);
+	my ($sequence, $type)=&_residues($seq);
+	my $accession = &_accession($seq);
 
-    $seqnum++;
+	$seqnum++;
 
-    
-    return Bio::Seq->new(-seq => $sequence,
-			 -accession_number => $accession,
-			 -display_id=>$id,
-			 -moltype=>$type
-			);
-  }
+
+	return Bio::Seq->new(-seq => $sequence,
+			     -accession_number => $accession,
+			     -display_id=>$id,
+			     -moltype=>$type
+			     );
+    }
 }
 
 =head2 write_seq

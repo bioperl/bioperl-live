@@ -1,3 +1,4 @@
+# $Id$
 # BioPerl module for Bio::SeqIO::GenBank
 #
 # Cared for by Elia Stupka <elia@ebi.ac.uk>
@@ -105,47 +106,28 @@ use Bio::SeqIO::FTHelper;
 use Bio::SeqFeature::Generic;
 use Bio::Species;
 
-
-# Object preamble - inherits from Bio::Root::Object
-
-use Bio::Root::Object;
-use FileHandle;
-
 @ISA = qw(Bio::SeqIO);
-# new() is inherited from Bio::Root::Object
 
+# SeqIO is special - override new here to insure we instantiate this class 
+
+sub new {
+    my ($class,@args) = @_;    
+    my $self = bless {}, $class;
+    $self->_initialize(@args);
+    return $self;
+}
+ 
 # _initialize is where the heavy stuff will happen when new is called
 
 sub _initialize {
     my($self,@args) = @_;
 
-    my $make = $self->SUPER::_initialize;
-    
-    my ($file,$fh) = $self->_rearrange([qw(
-					   FILE
-					   FH
-					   )],
-				       @args,
-				       );
-    if( $file && $fh ) {
-	$self->throw("Providing both a file and a filehandle for reading from - oly one please!");
-    }
-    
-    if( !$file && !$fh ) {
-	$self->throw("Neither a file (-file) nor a filehandle (-fh) provided to GenBank opening");
-    }
-    
-    if( $file ) {
-	$fh = new FileHandle;
-	$fh->open($file) || $self->throw("Could not open $file for GenBank stream reading $!");
-    }
-    
+    my $make = $self->SUPER::_initialize(@args);
+ 
     # hash for functions for decoding keys.
     $self->{'_func_ftunit_hash'} = {}; 
-    $self->_filehandle($fh);
     $self->_show_dna(1); # sets this to one by default. People can change it
     
-# set stuff in self from @args
     return $make; # success - we hope!
 }
 
@@ -834,11 +816,12 @@ sub _read_FTHelper_GenBank {
     # intact to provide informative error messages.)
   QUAL: for (my $i = 0; $i < @qual; $i++) {
         $_ = $qual[$i];
-        my( $qualifier, $value ) = m{^/([^=]+)(?:=(.+))?}
+        my( $qualifier, $value ) = (m{^/([^=]+)(?:=(.+))?})
 	    or $self->warn("cannot see new qualifier in feature $key: ".
 			   $qual[$i]);
             #or $self->throw("Can't see new qualifier in: $_\nfrom:\n"
             #    . join('', map "$_\n", @qual));
+	$qualifier = '' unless( defined $qualifier);
         if (defined $value) {
             # Do we have a quoted value?
             if (substr($value, 0, 1) eq '"') {
@@ -883,7 +866,6 @@ sub _read_FTHelper_GenBank {
         } else {
             $value = '_no_value';
         }
-
         # Store the qualifier
         $out->field->{$qualifier} ||= [];
         push(@{$out->field->{$qualifier}},$value);
@@ -1091,9 +1073,3 @@ sub _kw_generation_func{
 }
 
 1;
-    
-
-
-
-
-
