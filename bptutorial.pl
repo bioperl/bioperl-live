@@ -2675,6 +2675,7 @@ use Bio::SimpleAlign;
 use Bio::AlignIO;
 use Bio::SeqIO;
 use Bio::Seq;
+my $outputfh = *STDOUT;
 
 # subroutine references
 
@@ -2774,7 +2775,7 @@ $access_remote_db = sub {
 
     use Bio::DB::GenBank;
 
-    print "Beginning remote database access example... \n";
+    print $outputfh "Beginning remote database access example... \n";
 
     # III.2.1 Accessing remote databases (Bio::DB::GenBank, etc)
 
@@ -2790,13 +2791,13 @@ if ($@ || !$seq1) {
     return 0;
 }
     $seq1_id =  $seq1->display_id();
-    print "seq1 display id is $seq1_id \n";
+    print $outputfh "seq1 display id is $seq1_id \n";
     $seq2 = $gb->get_Seq_by_acc('AF303112');
     $seq2_id =  $seq2->display_id();
-    print "seq2 display id is $seq2_id \n";
+    print $outputfh "seq2 display id is $seq2_id \n";
     $seqio = $gb->get_Stream_by_id([ qw(2981014 J00522 AF303112)]);
     $seqobj = $seqio->next_seq();
-    print "Display id of first sequence in stream is ", $seqobj->display_id()  ,"\n";
+    print $outputfh "Display id of first sequence in stream is ", $seqobj->display_id()  ,"\n";
     return 1;
 } ;
 
@@ -2812,8 +2813,8 @@ $index_local_db = sub {
 
     my ( $Index_File_Name, $inx1, $inx2, $id, $dir, $key,
          $keyfound, $seq, $indexhash);
-    print "\nBeginning indexing local_db example... \n";
-    print "This subroutine unlikely to run unless OS = unix\n";
+    print $outputfh "\nBeginning indexing local_db example... \n";
+    print $outputfh "This subroutine unlikely to run unless OS = unix\n";
 
 
     # III.2.2 Indexing and accessing local databases
@@ -2837,7 +2838,7 @@ $index_local_db = sub {
 
 #    $inx1->make_index("$dir/t/data/multifa.seq");
 #    $inx1->make_index("$dir/t/data/seqs.fas");
-    print "Finished indexing local_db example... \n";
+    print $outputfh "Finished indexing local_db example... \n";
 
     return 1;
 } ;
@@ -2854,7 +2855,7 @@ $fetch_local_db = sub {
 
     my ( $Index_File_Name, $inx2, $id, $dir, $key,
          $keyfound, $seq, $indexhash,$value );
-    print "\nBeginning retrieving local_db example... \n";
+    print $outputfh "\nBeginning retrieving local_db example... \n";
 
     # then retrieve some files
     #$Index_File_Name = shift;
@@ -2880,7 +2881,7 @@ $fetch_local_db = sub {
     }
     if ($keyfound) {
         $seq = $inx2->fetch($id);
-        print "Sequence ", $seq->display_id(),
+        print $outputfh "Sequence ", $seq->display_id(),
         " has length  ", $seq->length()," \n";
     }
 
@@ -2900,7 +2901,7 @@ $sequence_manipulations = sub {
     my ($infile, $in, $out, $seqobj);
     $infile = $dna_seq_file;
 
-    print "\nBeginning sequence_manipulations and SeqIO example... \n";
+    print $outputfh "\nBeginning sequence_manipulations and SeqIO example... \n";
 
 
     # III.3.1 Transforming sequence files (SeqIO)
@@ -2914,9 +2915,10 @@ $sequence_manipulations = sub {
     # to read and write sequence objects, eg:
     #$out = Bio::SeqIO->newFh('-format' => 'EMBL');
 
-    $out = Bio::SeqIO->newFh('-format' => 'fasta');
+    $out = Bio::SeqIO->newFh('-format' => 'fasta',
+			     -fh       => \*$outputfh);
 
-    print "First sequence in fasta format... \n";
+    print $outputfh "First sequence in fasta format... \n";
     print $out $seqobj;
 
     # III.4 Manipulating individual sequences
@@ -2924,19 +2926,19 @@ $sequence_manipulations = sub {
     # The following methods return strings
 
 
-    print "Seq object display id is ",
+    print $outputfh "Seq object display id is ",
     $seqobj->display_id(), "\n"; # the human read-able id of the sequence
-    print "Sequence is ",
+    print $outputfh "Sequence is ",
     $seqobj->seq()," \n";        # string of sequence
-    print "Sequence from 5 to 10 is ",
+    print $outputfh "Sequence from 5 to 10 is ",
     $seqobj->subseq(5,10)," \n"; # part of the sequence as a string
-    print "Acc num is ",
+    print $outputfh "Acc num is ",
     $seqobj->accession_number(), " \n"; # when there, the accession number
-    print "Moltype is ",
+    print $outputfh "Moltype is ",
     $seqobj->alphabet(), " \n";    # one of 'dna','rna','protein'
-    print "Primary id is ", $seqobj->primary_seq->primary_id()," \n";
+    print $outputfh "Primary id is ", $seqobj->primary_seq->primary_id()," \n";
     # a unique id for this sequence irregardless
-    #print "Primary id is ", $seqobj->primary_id(), " \n";
+    #print $outputfh "Primary id is ", $seqobj->primary_id(), " \n";
     # a unique id for this sequence irregardless
     # of its display_id or accession number
 
@@ -2948,44 +2950,44 @@ $sequence_manipulations = sub {
     # The following methods returns new sequence objects,
     # but do not transfer features across
     # truncation from 5 to 10 as new object
-    print "Truncated Seq object sequence is ",
+    print $outputfh "Truncated Seq object sequence is ",
     $seqobj->trunc(5,10)->seq(), " \n";
     # reverse complements sequence
-    print "Reverse complemented sequence 5 to 10  is ",
+    print $outputfh "Reverse complemented sequence 5 to 10  is ",
     $seqobj->trunc(5,10)->revcom->seq, "  \n";
     # translation of the sequence
-    print "Translated sequence 6 to 15 is ",
+    print $outputfh "Translated sequence 6 to 15 is ",
     $seqobj->translate->subseq(6,15), " \n";
 
 
     my $c = shift;
     $c ||= 'ctgagaaaataa';
 
-    print "\nBeginning 3-frame and alternate codon translation example... \n";
+    print $outputfh "\nBeginning 3-frame and alternate codon translation example... \n";
 
     my $seq = new Bio::PrimarySeq('-SEQ' => $c,
                                   '-ID' => 'no.One');
-    print "$c translated using method defaults   : ",
+    print $outputfh "$c translated using method defaults   : ",
     $seq->translate->seq, "\n";
 
     # Bio::Seq uses same sequence methods as PrimarySeq
     my $seq2 = new Bio::Seq('-SEQ' => $c, '-ID' => 'no.Two');
-    print "$c translated as a coding region (CDS): ",
+    print $outputfh "$c translated as a coding region (CDS): ",
     $seq2->translate(undef, undef, undef, undef, 1)->seq, "\n";
 
-    print "\nTranslating in all six frames:\n";
+    print $outputfh "\nTranslating in all six frames:\n";
     my @frames = (0, 1, 2);
     foreach my $frame (@frames) {
-        print  " frame: ", $frame, " forward: ",
+        print $outputfh  " frame: ", $frame, " forward: ",
         $seq->translate(undef, undef, $frame)->seq, "\n";
-        print  " frame: ", $frame, " reverse-complement: ",
+        print $outputfh  " frame: ", $frame, " reverse-complement: ",
         $seq->revcom->translate(undef, undef, $frame)->seq, "\n";
     }
 
-    print "Translating with all codon tables using method defaults:\n";
+    print $outputfh "Translating with all codon tables using method defaults:\n";
     my @codontables = qw( 1 2 3 4 5 6 9 10 11 12 13 14 15 16 21 );
     foreach my $ct (@codontables) {
-        print $ct, " : ",
+        print $outputfh $ct, " : ",
         $seq->translate(undef, undef, undef, $ct)->seq, "\n";
     }
 
@@ -3001,7 +3003,7 @@ $seqstats_and_seqwords = sub {
     use Bio::Tools::SeqStats;
     use Bio::Tools::SeqWords;
 
-    print "\nBeginning seqstats_and_seqwords example... \n";
+    print $outputfh "\nBeginning seqstats_and_seqwords example... \n";
 
 
     my ($seqobj, $weight, $monomer_ref, $codon_ref,
@@ -3020,15 +3022,15 @@ $seqstats_and_seqwords = sub {
     $weight = $seq_stats->get_mol_wt();
     $monomer_ref = $seq_stats->count_monomers();
     $codon_ref = $seq_stats->count_codons();  # for nucleic acid sequence
-    print "Sequence \'test\' is ", $seqobj->seq(), " \n";
-    print "Sequence ", $seqobj->id()," molecular weight is $$weight[0] \n";
+    print $outputfh "Sequence \'test\' is ", $seqobj->seq(), " \n";
+    print $outputfh "Sequence ", $seqobj->id()," molecular weight is $$weight[0] \n";
     # Note, $weight is an array reference
-    print "Number of A\'s in sequence is $$monomer_ref{'A'} \n";
-    print "Number of ACT codon\'s in sequence is $$codon_ref{'ACT'} \n";
+    print $outputfh "Number of A\'s in sequence is $$monomer_ref{'A'} \n";
+    print $outputfh "Number of ACT codon\'s in sequence is $$codon_ref{'ACT'} \n";
 
     $words = Bio::Tools::SeqWords->new($seqobj);
     $hash = $words->count_words(6);
-    print "Number of 6-letter \'words\' of type ACTGTG in",
+    print $outputfh "Number of 6-letter \'words\' of type ACTGTG in",
     " sequence is $$hash{'ACTGTG'} \n";
 
     return 1;
@@ -3046,7 +3048,7 @@ $restriction_and_sigcleave = sub {
 
     my ($re, $re1, $re2, @sixcutters, @fragments1,
         @fragments2, $seqobj, $dna);
-    print "\nBeginning restriction enzyme example... \n";
+    print $outputfh "\nBeginning restriction enzyme example... \n";
 
     # III.4.4 Identifying restriction enzyme sites (RestrictionEnzyme)
 
@@ -3060,16 +3062,16 @@ $restriction_and_sigcleave = sub {
     $re  = new Bio::Tools::RestrictionEnzyme('-name'=>'EcoRI');
     @sixcutters = $re->available_list(6);
 
-    print "The following 6-cutters are available\n";
-    print join(" ",@sixcutters),"\n";
+    print $outputfh "The following 6-cutters are available\n";
+    print $outputfh join(" ",@sixcutters),"\n";
 
     $re1  = new Bio::Tools::RestrictionEnzyme('-name'=>'EcoRI');
     @fragments1 =  $re1->cut_seq($seqobj);
     #$seqobj is the Seq object for the dna to be cut
 
-    print "\nThe sequence of " . $seqobj->display_id . " is " .
+    print $outputfh "\nThe sequence of " . $seqobj->display_id . " is " .
     $seqobj->seq . "\n";
-    print "When cutting " . $seqobj->display_id() . " with " .
+    print $outputfh "When cutting " . $seqobj->display_id() . " with " .
     $re1->seq->id . " the initial fragment is\n" . $fragments1[0];
 
     $re2 = new Bio::Tools::RestrictionEnzyme
@@ -3077,13 +3079,13 @@ $restriction_and_sigcleave = sub {
          '-MAKE' =>'custom');
     @fragments2 =  $re2->cut_seq($seqobj);
 
-    print "\nWhen cutting ", $seqobj->display_id(),
+    print $outputfh "\nWhen cutting ", $seqobj->display_id(),
     " with ", $re2->seq->id;
-    print " the second fragment is\n", $fragments2[1], " \n";
+    print $outputfh " the second fragment is\n", $fragments2[1], " \n";
 
     # III.4.7 Identifying amino acid cleavage sites (Sigcleave)
 
-    print "\nBeginning  signal cleaving site location example... \n";
+    print $outputfh "\nBeginning  signal cleaving site location example... \n";
 
     my ( $sigcleave_object, %raw_results , $location,
          $formatted_output, $protein, $in, $seqobj2);
@@ -3104,12 +3106,12 @@ $restriction_and_sigcleave = sub {
     %raw_results      = $sigcleave_object->signals;
     $formatted_output = $sigcleave_object->pretty_print;
 
-    print " SigCleave \'raw results\': \n";
+    print $outputfh " SigCleave \'raw results\': \n";
     foreach $location (sort keys %raw_results) {
-        print " Cleave site found at location $location ",
+        print $outputfh " Cleave site found at location $location ",
         "with value of $raw_results{$location} \n";
     }
-    print "\nSigCleave formatted output: \n $formatted_output \n";
+    print $outputfh "\nSigCleave formatted output: \n $formatted_output \n";
     return 1;
 } ;
 
@@ -3126,13 +3128,14 @@ $run_standaloneblast = sub {
       print STDERR "Skipping local blast example:\n";
       return 0;
     }
-    print "\nBeginning run_standaloneblast example... \n";
+    print $outputfh "\nBeginning run_standaloneblast example... \n";
 
     my (@params, $factory, $input, $blast_report, $blast_present,
         $database, $sbjct, $str, $seq1);
 
 #    $database = $_[0] || 'ecoli.nt'; # user can select local nt database
-    $database = $_[0] || "$ENV{BLASTDIR}data/ecoli.nt"; # user can select local nt database
+    $database = $_[0] || defined $ENV{BLASTDB} ? "$ENV{BLASTDB}/ecoli.nt" : 
+	"$ENV{BLASTDIR}/data/ecoli.nt"; # user can select local nt database
     #@params = ('program' => 'blastn', 'database' => 'ecoli.nt');
     @params = ('program' => 'blastn', 'database' => $database);
     $factory = Bio::Tools::Run::StandAloneBlast->new(@params);
@@ -3151,7 +3154,7 @@ $run_standaloneblast = sub {
     my $result = $blast_report->next_result; 
     $sbjct = $result->next_hit;
 
-    print " Hit name is ", $sbjct->name, " \n";
+    print $outputfh " Hit name is ", $sbjct->name, " \n";
 
     return 1;
 } ;
@@ -3161,7 +3164,7 @@ $run_standaloneblast = sub {
 #
 
 $run_remoteblast = sub {
-    print "\nBeginning run_remoteblast example... \n";
+    print $outputfh "\nBeginning run_remoteblast example... \n";
     eval { require Bio::Tools::Run::RemoteBlast; };
 
     if ( $@ ) {
@@ -3186,24 +3189,24 @@ $run_remoteblast = sub {
 	  warn "\n\n**Warning**: Couldn't connect to NCBI with Bio::Tools::Run::StandAloneBlast.pm!\nProbably no network access.\n Skipping Test\n";
 	  return 0;
       }
-      print "submitted Blast job\n";
+      print $outputfh "submitted Blast job\n";
       while ( my @rids = $remote_blast_object->each_rid ) {
 	  foreach my $rid ( @rids ) {
 	      $rc = $remote_blast_object->retrieve_blast($rid);
-	      print "retrieving results...\n";
+	      print $outputfh "retrieving results...\n";
 	      if( !ref($rc) ) {   # $rc not a reference => either error 
 		  # or job not yet finished
 		  if( $rc < 0 ) {
 		      $remote_blast_object->remove_rid($rid);
-		      print "Error return code for BlastID code $rid ... \n";
+		      print $outputfh "Error return code for BlastID code $rid ... \n";
 		  }
 		  sleep 5;
 	      } else {
             $remote_blast_object->remove_rid($rid);
             while ( my $sbjct = $rc->nextSbjct ) {
-              print "sbjct name is ", $sbjct->name, "\n";
+              print $outputfh "sbjct name is ", $sbjct->name, "\n";
               while ( my $hsp = $sbjct->nextHSP ) {
-                print "score is ", $hsp->score, "\n"; 
+                print $outputfh "score is ", $hsp->score, "\n"; 
               }
             }
           }
@@ -3229,30 +3232,30 @@ use lib '.';
 use Bio::SearchIO;
 use Bio::Root::IO;
 
-print "\nBeginning searchio-parser example... \n";
+print $outputfh "\nBeginning searchio-parser example... \n";
 
 $searchio = new Bio::SearchIO ('-format' => 'blast',
   '-file' => Bio::Root::IO->catfile('t','data','ecolitst.bls'));
 
 $result = $searchio->next_result;
 
-print "Database name is ", $result->database_name , "\n";
-print "Algorithm is ", $result->algorithm , "\n";
-print "Query length used is ", $result->query_length , "\n";
-print "Kappa value is ", $result->get_statistic('kappa') , "\n";
-print "Name of matrix used is ", $result->get_parameter('matrix') , "\n";
+print $outputfh "Database name is ", $result->database_name , "\n";
+print $outputfh "Algorithm is ", $result->algorithm , "\n";
+print $outputfh "Query length used is ", $result->query_length , "\n";
+print $outputfh "Kappa value is ", $result->get_statistic('kappa') , "\n";
+print $outputfh "Name of matrix used is ", $result->get_parameter('matrix') , "\n";
 
 
 $hit = $result->next_hit;
-print "First hit name is ", $hit->name , "\n";
-print "First hit length is ", $hit->length , "\n";
-print "First hit accession number is ", $hit->accession , "\n";
+print $outputfh "First hit name is ", $hit->name , "\n";
+print $outputfh "First hit length is ", $hit->length , "\n";
+print $outputfh "First hit accession number is ", $hit->accession , "\n";
 
 $hsp = $hit->next_hsp;
-print "First hsp query start is ", $hsp->query->start , "\n";
-print "First hsp query end is ", $hsp->query->end , "\n";
-print "First hsp hit start is ", $hsp->hit->start , "\n";
-print "First hsp hit end is ", $hsp->hit->end , "\n";
+print $outputfh "First hsp query start is ", $hsp->query->start , "\n";
+print $outputfh "First hsp query end is ", $hsp->query->end , "\n";
+print $outputfh "First hsp hit start is ", $hsp->hit->start , "\n";
+print $outputfh "First hsp hit end is ", $hsp->hit->end , "\n";
 
     return 1;
 } ;
@@ -3269,7 +3272,7 @@ $bplite_parsing = sub {
         $last_iteration, $sbjct,  $total_iterations, $hsp,
         $matches, $loop);
 
-    print "\nBeginning bplite, bppsilite, bpbl2seq parsing example... \n";
+    print $outputfh "\nBeginning bplite, bppsilite, bpbl2seq parsing example... \n";
 
     ($file1, $file2, $file3) = ($bp_parse_file1,
                                 $bp_parse_file2 ,$bp_parse_file3 );
@@ -3277,7 +3280,7 @@ $bplite_parsing = sub {
     $report = Bio::Tools::BPlite->new('-file'=>$file1);
     $sbjct = $report->nextSbjct;
 
-    print " Hit name is ", $sbjct->name, " \n";
+    print $outputfh " Hit name is ", $sbjct->name, " \n";
     while ($hsp = $sbjct->nextHSP) {
         $hsp->score;
     }
@@ -3290,16 +3293,17 @@ $bplite_parsing = sub {
     # print first 10 psiblast hits
     for ($loop = 1; $loop <= 10; $loop++) {
         $sbjct =  $last_iteration->nextSbjct;
-        $sbjct && print " PSIBLAST Hit is ", $sbjct->name, " \n";
+        $sbjct && print $outputfh " PSIBLAST Hit is ", $sbjct->name, " \n";
     }
 
     #
     use Bio::Tools::BPbl2seq;
     $report3 = Bio::Tools::BPbl2seq->new('-file'  => $file3,
-                                         '-queryname' => "ALEU_HORVU");
+                                         '-report_type' => 'BLASTP',
+					 '-queryname' => "ALEU_HORVU");
     $hsp = $report3->next_feature;
     $matches = $hsp->match;
-    print " Number of Blast2seq matches for first hsp equals $matches \n";
+    print $outputfh " Number of Blast2seq matches for first hsp equals $matches \n";
     #
 
     return 1;
@@ -3312,7 +3316,7 @@ $bplite_parsing = sub {
 
 $hmmer_parsing = sub {
 
-    print "\nBeginning hmmer_parsing example \n" .
+    print $outputfh "\nBeginning hmmer_parsing example \n" .
           " (note: this test may be a little slow, please be patient...) \n";
 
     # Parsing HMM reports
@@ -3322,12 +3326,12 @@ $hmmer_parsing = sub {
           '-file' => Bio::Root::IO->catfile("t","data","hmmsearch.out"));
     my $res = $in->next_result;
     # get a Bio::Search::Result::HMMERResult object
-    print "The first result query name is ", $res->query_name,  "\n";
-    print "The first result HMM name is ",  $res->hmm_name, "\n";
+    print $outputfh "The first result query name is ", $res->query_name,  "\n";
+    print $outputfh "The first result HMM name is ",  $res->hmm_name, "\n";
     my $first_hit = $res->next_hit;
-    print "The name of the first hit is ", $first_hit->name, "\n";
+    print $outputfh "The name of the first hit is ", $first_hit->name, "\n";
     my $hsp = $first_hit->next_hsp;
-    print "The score of the first hsp of the first hit is ", $hsp->score, "\n";
+    print $outputfh "The score of the first hsp of the first hit is ", $hsp->score, "\n";
     return 1;
 } ;
 
@@ -3345,7 +3349,7 @@ $run_clustalw_tcoffee = sub {
     $infile = $unaligned_amino_file;
 
     # Aligning multiple sequences (Clustalw.pm, TCoffee.pm)
-    print "\nBeginning run_clustalw example... \n";
+    print $outputfh "\nBeginning run_clustalw example... \n";
 
     eval {require Bio::Tools::Run::Alignment::Clustalw; };
     if ( $@ ) { 
@@ -3356,7 +3360,7 @@ $run_clustalw_tcoffee = sub {
 
 	# put unaligned sequences in a Bio::Seq array
 	$str = Bio::SeqIO->new('-file'=> $infile,
-			       '-format' => 'Fasta');
+			       '-format' => 'fasta');
 	@seq_array =();
 	while ($seq = $str->next_seq() ) { push (@seq_array, $seq) ;}
 	$seq_array_ref = \@seq_array;
@@ -3367,14 +3371,15 @@ $run_clustalw_tcoffee = sub {
 	    $ktuple = 3;
 	    $factory->ktuple($ktuple);  # change the parameter before executing
 	    $aln = $factory->align($seq_array_ref);
-	    $strout = Bio::AlignIO->newFh('-format' => 'msf');
-	    print "Output of clustalw alignment... \n";
+	    $strout = Bio::AlignIO->newFh('-format' => 'msf',
+					  -fh       => \*$outputfh);
+	    print $outputfh "Output of clustalw alignment... \n";
 	    print $strout $aln;
 	} else {
 	    warn "Clustalw program not found. Skipping run_clustalw example....\n";
 	}
     }
-    print "\nBeginning run_tcoffee example... \n";
+    print $outputfh "\nBeginning run_tcoffee example... \n";
 
     eval {require Bio::Tools::Run::Alignment::TCoffee; };
     if ( $@ ) { 
@@ -3389,8 +3394,9 @@ $run_clustalw_tcoffee = sub {
 	$ktuple = 3;
         $factory->ktuple($ktuple);  # change the parameter before executing
         $aln = $factory->align($seq_array_ref);
-        $strout = Bio::AlignIO->newFh('-format' => 'msf');
-        print "Output of TCoffee alignment... \n";
+        $strout = Bio::AlignIO->newFh('-format' => 'msf',
+				      '-fh'     => \*$outputfh);
+        print $outputfh "Output of TCoffee alignment... \n";
         print $strout $aln;
     } else {
         warn "TCoffee program not found. Skipping run_TCoffee example....\n";
@@ -3407,30 +3413,31 @@ $simplealign = sub {
     my ($in, $out1,$out2, $aln, $threshold_percent, $infile);
     my ( $str, $resSlice1, $resSlice2, $resSlice3, $tmpfile);
 
-    print "\nBeginning simplealign and alignio example... \n";
+    print $outputfh "\nBeginning simplealign and alignio example... \n";
 
     # III.3.2 Transforming alignment files (AlignIO)
     $infile = $aligned_amino_file;
     #$tmpfile = "test.tmp";
     $in  = Bio::AlignIO->new('-file' => $infile ,
                              '-format' => 'pfam');
-    $out1 = Bio::AlignIO->newFh('-format' => 'msf');
+    $out1 = Bio::AlignIO->newFh('-format' => 'msf',
+				'-fh'     => \*$outputfh);
 
     # while ( my $aln = $in->next_aln() ) { $out->write_aln($aln);  }
     $aln = $in->next_aln() ;
-    print "Alignment to display in msf format... \n";
+    print $outputfh "Alignment to display in msf format... \n";
     print $out1 $aln;
 
     $threshold_percent = 60;
     $str = $aln->consensus_string($threshold_percent) ;
-    print "Consensus string with threshold = $threshold_percent is $str\n";
+    print $outputfh "Consensus string with threshold = $threshold_percent is $str\n";
 
-    print "The average percentage identity of the alignment is ", $aln->percentage_identity. "\n";
+    print $outputfh "The average percentage identity of the alignment is ", $aln->percentage_identity. "\n";
 
     my $seqname = '1433_LYCES';
     my $residue_number = 14;
     my $pos = $aln->column_from_residue_number($seqname, $residue_number);
-    print "Residue number $residue_number of the sequence $seqname in the alignment occurs at column $pos. \n";
+    print $outputfh "Residue number $residue_number of the sequence $seqname in the alignment occurs at column $pos. \n";
 
     my $s1 = new Bio::LocatableSeq (-id => 'AAA',  -seq => 'aawtat-tn-', -start => 1, -end => 8,
                             -alphabet => 'dna' );
@@ -3440,10 +3447,10 @@ $simplealign = sub {
     $a->add_seq($s1);
     $a->add_seq($s2);
 
-    print "The first sequence in the dna alignment is... \t", $s1->seq , "\n";
-    print "The second sequence in the dna alignment is... \t", $s2->seq , "\n";
+    print $outputfh "The first sequence in the dna alignment is... \t", $s1->seq , "\n";
+    print $outputfh "The second sequence in the dna alignment is... \t", $s2->seq , "\n";
     my $iupac_consensus =  $a->consensus_iupac;
-    print "The IUPAC consensus of the dna alignment is... \t",$iupac_consensus  , "\n";
+    print $outputfh "The IUPAC consensus of the dna alignment is... \t",$iupac_consensus  , "\n";
 
     return 1;
 } ;
@@ -3457,7 +3464,7 @@ $run_psw_bl2seq = sub {
     #use Bio::Tools::pSW;
     #use Bio::Tools::Run::StandAloneBlast;
     my ($factory, $aln, $out1, $out2, $str, $seq1, $seq2, @params);
-    print "\nBeginning run_psw_bl2seq example... \n";
+    print $outputfh "\nBeginning run_psw_bl2seq example... \n";
     eval { require Bio::Tools::pSW; };
     if( $@ ) {
         print STDERR "\nThe C-compiled engine for Smith Waterman alignments (Bio::Ext::Align) has not been installed.\n";
@@ -3478,11 +3485,12 @@ $run_psw_bl2seq = sub {
 					'-gap' => 12,
 					'-ext' => 2, );
 
-	$factory->align_and_show($seq1,$seq2,'STDOUT');
+	$factory->align_and_show($seq1,$seq2,$outputfh);
 	$aln = $factory->pairwise_alignment($seq1,$seq2);
 
-	$out1 = Bio::AlignIO->newFh('-format' => 'fasta');
-	print "The Smith-Waterman alignment in fasta format... \n";
+	$out1 = Bio::AlignIO->newFh('-format' => 'fasta',
+				    '-fh'     => $outputfh);
+	print $outputfh "The Smith-Waterman alignment in fasta format... \n";
 	print $out1 $aln;
     }
 
@@ -3514,8 +3522,9 @@ $run_psw_bl2seq = sub {
                              '-format' => 'bl2seq');
     $aln = $str->next_aln();
 
-    $out2 = Bio::AlignIO->newFh('-format' => 'fasta');
-    print "The Blast 2 sequence alignment in fasta format... \n";
+    $out2 = Bio::AlignIO->newFh('-format' => 'fasta',
+				'-fh'     => \*$outputfh);
+    print $outputfh "The Blast 2 sequence alignment in fasta format... \n";
     print $out2 $aln;
 
     return 1;
@@ -3530,7 +3539,7 @@ $gene_prediction_parsing = sub {
 
     use Bio::Tools::Genscan;
 
-    print "\nBeginning genscan_result_parsing example... \n";
+    print $outputfh "\nBeginning genscan_result_parsing example... \n";
 
     my ($genscan, $gene, @exon_arr, $first_exon);
 
@@ -3543,26 +3552,26 @@ $gene_prediction_parsing = sub {
     # $gene is an instance of Bio::Tools::Prediction::Gene
     # $gene->exons() returns an array of Bio::Tools::Prediction::Exon objects
     while($gene = $genscan->next_prediction()) {
-        print "Protein corresponding to current gene prediction is ",
+        print $outputfh "Protein corresponding to current gene prediction is ",
         $gene->predicted_protein->seq()," \n";
         @exon_arr = $gene->exons();
         $first_exon = $exon_arr[0];
-        print "Start location of first exon of current predicted gene is ",
+        print $outputfh "Start location of first exon of current predicted gene is ",
         $first_exon->start," \n";
     }
     $genscan->close();
 
     use Bio::Tools::Sim4::Results;
-    print "\nBeginning Sim4_result_parsing example... \n";
+    print $outputfh "\nBeginning Sim4_result_parsing example... \n";
     my ($sim4,$exonset, @exons, $exon, $homol);
 
    $sim4 = new Bio::Tools::Sim4::Results(-file=>  Bio::Root::IO->catfile("t","data","sim4.rev"), -estisfirst=>0);
    $exonset = $sim4->next_exonset;
    @exons = $exonset->sub_SeqFeature();
    $exon = $exons[1];
-    print "Start location of first exon of first exon set is ",$exon->start(), " \n";
-   print "Name of est sequence is ",$exon->est_hit()->seq_id(), " \n";
-   print "The length of the est hit is ",$exon->est_hit()->seqlength(), " \n";
+    print $outputfh "Start location of first exon of first exon set is ",$exon->start(), " \n";
+   print $outputfh "Name of est sequence is ",$exon->est_hit()->seq_id(), " \n";
+   print $outputfh "The length of the est hit is ",$exon->est_hit()->seqlength(), " \n";
    $sim4->close();
 
     return 1;
@@ -3575,7 +3584,7 @@ $gene_prediction_parsing = sub {
 
 $sequence_annotation = sub {
 
-    print "\nBeginning sequence_annotation example... \n";
+    print $outputfh "\nBeginning sequence_annotation example... \n";
     my ($feat, $feature1, $feature2,$seqobj, @topfeatures, @allfeatures,
         $ann, $in, $infile, $other, $answer);
     # III.9.1 Representing sequence annotations (SeqFeature)
@@ -3610,7 +3619,7 @@ $sequence_annotation = sub {
     $feat = $allfeatures[0];
     $other = $allfeatures[1];
 
-    print " Total number of sequence features is: ", scalar @allfeatures, " \n";
+    print $outputfh " Total number of sequence features is: ", scalar @allfeatures, " \n";
 
     # The individual components of a SeqFeature can also be set
     # or retrieved with methods including:
@@ -3625,20 +3634,20 @@ $sequence_annotation = sub {
     $feat->seq;            # the sequence between start,end
     $feat->entire_seq;     # the entire sequence
 
-    print " The primary tag of the feature is: ", $feat->primary_tag, "   \n";
-    print " The first feature begins at location ", $feat->start, " \n";
-    print "  ends at location ", $feat->end, " \n";
-    print "  and is located on strand ", $feat->strand, " \n";
+    print $outputfh " The primary tag of the feature is: ", $feat->primary_tag, "   \n";
+    print $outputfh " The first feature begins at location ", $feat->start, " \n";
+    print $outputfh "  ends at location ", $feat->end, " \n";
+    print $outputfh "  and is located on strand ", $feat->strand, " \n";
 
     # other useful methods include
     $answer = $feat->overlaps($other);  # do SeqFeature $feat and SeqFeature $other overlap?
-    print " Feature 1 does ", ($answer)? "":"not ", " overlap Feature2. \n";
+    print $outputfh " Feature 1 does ", ($answer)? "":"not ", " overlap Feature2. \n";
 
     $answer = $feat->contains($other); # is $other completely within $feat?
-    print " Feature 1 does ", ($answer)? "":"not ", " contain Feature2. \n";
+    print $outputfh " Feature 1 does ", ($answer)? "":"not ", " contain Feature2. \n";
 
     $answer = $feat->equals($other);   # do $feat and $other completely $agree?
-    print " Feature 1 does ", ($answer)? "":"not ", " equal Feature2. \n";
+    print $outputfh " Feature 1 does ", ($answer)? "":"not ", " equal Feature2. \n";
 
     $feat->sub_SeqFeature();  # create/access an array of subsequence features
 
@@ -3652,7 +3661,7 @@ $sequence_annotation = sub {
 
 $largeseqs = sub {
 
-    print "\nBeginning largeseqs example... \n";
+    print $outputfh "\nBeginning largeseqs example... \n";
 
     # III.7.2 Representing and large sequences
     my ( $tmpfile, $seqio, $pseq, $plength, $last_4);
@@ -3664,10 +3673,10 @@ $largeseqs = sub {
     $pseq = $seqio->next_seq();
     $plength = $pseq->length();
 
-    print " The length of the sequence ",
+    print $outputfh " The length of the sequence ",
     $pseq->display_id()," is $plength  \n";
     $last_4 = $pseq->subseq($plength-3,$plength);
-    print " The final four residues are $last_4 \n";
+    print $outputfh " The final four residues are $last_4 \n";
 
     #END { unlink $tmpfile; }
     unlink $tmpfile;
@@ -3685,7 +3694,7 @@ $liveseqs = sub {
     use Bio::LiveSeq::IO::BioPerl;
     my ($loader, $gene, $id, $maxstart);
 
-    print "\nBeginning liveseqs example... \n";
+    print $outputfh "\nBeginning liveseqs example... \n";
 
     # Representing changing sequences (LiveSeq)
 
@@ -3693,9 +3702,9 @@ $liveseqs = sub {
                                             '-file'=>Bio::Root::IO->catfile("t","data","factor7.embl"));
     $gene=$loader->gene2liveseq('-gene_name' => "factor7");
     $id = $gene->get_DNA->display_id ;
-    print " The id of the gene is $id , \n";
+    print $outputfh " The id of the gene is $id , \n";
     $maxstart = $gene->maxtranscript->start;
-    print " The start position of the max transcript is $maxstart , \n";
+    print $outputfh " The start position of the max transcript is $maxstart , \n";
 
     return 1;
 } ;
@@ -3715,7 +3724,7 @@ $run_struct = sub {
     print STDERR "Cannot run run_struct:\n";
     return 0;
   } else {
-    print "\nBeginning Structure object example... \n";
+    print $outputfh "\nBeginning Structure object example... \n";
 
     # testing PDB format
     my $pdb_file = Bio::Root::IO->catfile("t","data","pdb1bpt.ent"); 
@@ -3723,9 +3732,9 @@ $run_struct = sub {
                                            -format=> 'PDB');
     my $struc = $structio->next_structure;
     my ($chain) = $struc->chain;
-    print " The current chain is ",  $chain->id ," \n";
+    print $outputfh " The current chain is ",  $chain->id ," \n";
     my $pseq = $struc->seqres;
-    print " The first 20 residues of the sequence corresponding " .
+    print $outputfh " The first 20 residues of the sequence corresponding " .
     "to this structure are " . $pseq->subseq(1,20) . " \n";
     return 1;
   }
@@ -3744,7 +3753,7 @@ $run_map = sub {
 use Bio::MapIO;
 use Bio::Root::IO;
 
- print "\nBeginning MapIO example... \n";
+ print $outputfh "\nBeginning MapIO example... \n";
 
 
 my $mapio = new Bio::MapIO(
@@ -3754,12 +3763,12 @@ my $mapio = new Bio::MapIO(
 
 my $map = $mapio->next_map;
 
-print " The type of the map is " , $map->type  ," \n";
-print " The units of the map are " , $map->units  ," \n";
+print $outputfh " The type of the map is " , $map->type  ," \n";
+print $outputfh " The units of the map are " , $map->units  ," \n";
 
 my $count = 0;
 foreach my $marker ( $map->each_element ) {
-    print " The marker ", $marker->name," is at ordered position " ,  $marker->position->order  ," \n";
+    print $outputfh " The marker ", $marker->name," is at ordered position " ,  $marker->position->order  ," \n";
     if ($count++ >= 5) {return 1};
 }
 
@@ -3776,7 +3785,7 @@ $run_tree = sub {
 use Bio::TreeIO;
 use Bio::Root::IO;
 
-print "\nBeginning phylogenetic tree example... \n";
+print $outputfh "\nBeginning phylogenetic tree example... \n";
 
 
 my $treeio = new Bio::TreeIO( -format => 'newick',
@@ -3787,12 +3796,12 @@ my $tree = $treeio->next_tree;
 my @nodes = $tree->get_nodes;
 
  foreach my $node ( $tree->get_root_node()->each_Descendent() ) {
-	print "node id and branch length: ", $node->to_string(), "\n";
+	print $outputfh "node id and branch length: ", $node->to_string(), "\n";
 	my @ch = $node->each_Descendent();
 	if( @ch ) {
-	    print "\tchildren are: \n";
+	    print $outputfh "\tchildren are: \n";
 	    foreach my $node ( $node->each_Descendent() ) {
-		print "\t\t id and length: ", $node->to_string(), "\n";
+		print $outputfh "\t\t id and length: ", $node->to_string(), "\n";
 	    }
 	}
     }
@@ -3813,7 +3822,7 @@ use Bio::Perl qw( read_sequence
 		  new_sequence 
 		  get_sequence );
 
-print "\nBeginning example of sequence manipulation without explicit Seq objects... \n";
+print $outputfh "\nBeginning example of sequence manipulation without explicit Seq objects... \n";
 
 
   # getting a sequence from a database (assummes internet connection)
@@ -3823,14 +3832,14 @@ print "\nBeginning example of sequence manipulation without explicit Seq objects
    # sequences are Bio::Seq objects, so the following methods work
    # (for more info see Bio::Seq documentation - try perldoc Bio::Seq)
 
-   print "Name of sequence retrieved from swissprot is ",$seq_object->display_id,"\n";
-   print "Sequence acc  is ",$seq_object->accession_number,"\n";
-   print "First 5 residues are ",$seq_object->subseq(1,5),"\n";
+   print $outputfh "Name of sequence retrieved from swissprot is ",$seq_object->display_id,"\n";
+   print $outputfh "Sequence acc  is ",$seq_object->accession_number,"\n";
+   print $outputfh "First 5 residues are ",$seq_object->subseq(1,5),"\n";
 
   # getting sequence data from disk
 
    $seq_object = read_sequence($amino_seq_file,'fasta'); 
-   print "Name of sequence retrieved from disk is ",$seq_object->display_id,"\n";
+   print $outputfh "Name of sequence retrieved from disk is ",$seq_object->display_id,"\n";
 
    return 1;
 } ;
@@ -3842,7 +3851,7 @@ print "\nBeginning example of sequence manipulation without explicit Seq objects
 
 $demo_variations = sub {
 
-    print "\nBeginning demo_variations example... \n";
+    print $outputfh "\nBeginning demo_variations example... \n";
 
     # III.8.3 Representing related sequences
     # - mutations, polymorphisms etc (Allele, SeqDiff,)
@@ -3876,11 +3885,11 @@ $demo_variations = sub {
     # add it to a SeqDiff container object
     $seqDiff->add_Variant($dnamut);
     @current_variants = $seqDiff->each_Variant();
-    print " The original sequence at current variation is ",
+    print $outputfh " The original sequence at current variation is ",
     $current_variants[0]->allele_ori->seq ," \n";
-    print " The mutated sequence is ",
+    print $outputfh " The mutated sequence is ",
     $current_variants[0]->allele_mut->seq ," \n";
-    print " The upstream sequence is ",
+    print $outputfh " The upstream sequence is ",
     $current_variants[0]->upStreamSeq ," \n";
 
     return 1;
@@ -3893,7 +3902,7 @@ $demo_variations = sub {
 
 $demo_xml = sub {
 
-    print "\nBeginning demo_xml example... \n";
+    print $outputfh "\nBeginning demo_xml example... \n";
     my ($str, $seqobj, $id, @feats, $first_primary_tag);
 
     # III.8.4 Sequence XML representations
@@ -3911,24 +3920,24 @@ $demo_xml = sub {
       # $seq = $str->next_primary_seq();
       # $id = $seq->id;
 
-      print "Seq object display id is ", $seqobj->display_id(),
+      print $outputfh "Seq object display id is ", $seqobj->display_id(),
       "\n"; # the human read-able id of the sequence
-      print "The sequence description is: \n";
-      print "   ", $seqobj->desc(), " \n";
-      print "Acc num is ", $seqobj->accession_number(),
+      print $outputfh "The sequence description is: \n";
+      print $outputfh "   ", $seqobj->desc(), " \n";
+      print $outputfh "Acc num is ", $seqobj->accession_number(),
       " \n"; # when there, the accession number
-      print "Moltype is ", $seqobj->alphabet(),
+      print $outputfh "Moltype is ", $seqobj->alphabet(),
       " \n";    # one of 'dna','rna','protein'
 
       @feats = $seqobj->all_SeqFeatures();
       $first_primary_tag = $feats[0]->primary_tag;
-      print " Total number of sequence features is: ", scalar @feats, "
+      print $outputfh " Total number of sequence features is: ", scalar @feats, "
 \n";
-      print " The primary tag of the first feature is:
+      print $outputfh " The primary tag of the first feature is:
 $first_primary_tag \n";
-      print " The first feature begins at location ", $feats[0]->start,
+      print $outputfh " The first feature begins at location ", $feats[0]->start,
 " \n";
-      print "  and ends at location ", $feats[0]->end, " \n";
+      print $outputfh "  and ends at location ", $feats[0]->end, " \n";
 
       return 1;
    }
@@ -3949,7 +3958,7 @@ $other_seq_utilities = sub {
     my (@ii, $i, @res, $myCodonTable);
     my ( $pattern,$pattern_obj, $pattern_obj2, $pattern_obj3);
 
-    print "\nBeginning sequence utilities example... \n";
+    print $outputfh "\nBeginning sequence utilities example... \n";
 
     # III.4.6 Identifying amino acid characteristics
     # - eg charge, hydrophobicity (OddCodes)
@@ -3958,47 +3967,83 @@ $other_seq_utilities = sub {
                            '-format' => 'Fasta');
     $amino_obj = $in->next_seq->trunc(1,20);
     $oddcode_obj  =  Bio::Tools::OddCodes->new($amino_obj);
-    print "Initial sequence is: \n ", $amino_obj->seq(), " \n";
+    print $outputfh "Initial sequence is: \n ", $amino_obj->seq(), " \n";
     $chargeseq = $oddcode_obj->charge;
     # Note OddCodes returns a reference to the desired
     # sequence, not the sequence itself.
-    print "Sequence in \'charge\' alphabet is : \n ",$$chargeseq, " \n";
+    print $outputfh "Sequence in \'charge\' alphabet is : \n ",$$chargeseq, " \n";
     $chemseq = $oddcode_obj->chemical;
-    print "Sequence in \'chemical\' alphabet is : \n ",$$chemseq, " \n";
+    print $outputfh "Sequence in \'chemical\' alphabet is : \n ",$$chemseq, " \n";
 
     # III.4.2.1 non-standard nucleotide translation tables (CodonTable)
 
     # create a table object by giving an ID
     $myCodonTable = Bio::Tools::CodonTable -> new ( '-id' => 16);
-    print "\nThe name of the current codon table is ",
+    print $outputfh "\nThe name of the current codon table is ",
     $myCodonTable->name() , " \n";
 
     # translate some codons
     @ii  = qw(act acc att ggg ttt aaa ytr yyy);
     @res =();
     for $i (0..$#ii) { $res[$i] = $myCodonTable->translate($ii[$i]); }
-    print "\nWith the current codon table, the sequence \n ",
+    print $outputfh "\nWith the current codon table, the sequence \n ",
     @ii, "\n is translated as \n" , @res, " \n";
 
     # III.4.2.2 utilities for ambiguous residues (SeqPattern, IUPAC)
     # III.4.2.3 regex-like nucleotide pattern manipulation
 
-    print "\nBeginning demo of SeqPattern object \n ";
+    print $outputfh "\nBeginning demo of SeqPattern object \n ";
 
     $pattern     = '(CCCCT)N{1,200}(agyyg)N{1,80}(agggg)';
-    print "\nInput regular expression = $pattern \n ";
+    print $outputfh "\nInput regular expression = $pattern \n ";
     $pattern_obj = new Bio::Tools::SeqPattern('-SEQ' =>$pattern,
                                               '-TYPE' =>'dna');
     $pattern_obj2  = $pattern_obj->revcom();
-    print "\nReverse-complemented expression = ",$pattern_obj2->str, "\n ";
+    print $outputfh "\nReverse-complemented expression = ",$pattern_obj2->str, "\n ";
     $pattern_obj3 = $pattern_obj->revcom(1); ## returns expanded rev complement pattern.
-    print "\nExpanded reverse-complemented expression = ",$pattern_obj3->str, "\n ";
+    print $outputfh "\nExpanded reverse-complemented expression = ",$pattern_obj3->str, "\n ";
     #$pattern_obj->revcom(1); ## returns expanded rev complement pattern.
 
     return 1;
 } ;
 
-
+sub run_examples {
+    @runlist = @_;
+    @_ = ();
+    if (scalar(@runlist)==0) {&$display_help;}; # display help if no option
+    if( $runlist[0] == -1 ) { return }
+    if ($runlist[0] == 0) {@runlist = (1..22); }; # argument = 0 means run tests 1 thru 22
+    foreach $n  (@runlist) {
+        if ($n ==100) {my $object = $runlist[1]; &$bpinspect1($object); last;}
+        if ($n ==1) {&$sequence_manipulations; next;}
+        if ($n ==2) {&$seqstats_and_seqwords; next;}
+        if ($n ==3) {&$restriction_and_sigcleave; next;}
+        if ($n ==4) {&$other_seq_utilities; next;}
+        if ($n ==5) {&$run_perl; next;}
+        if ($n ==6) {&$searchio_parsing; next;}
+        if ($n ==7) {&$bplite_parsing; next;}
+        if ($n ==8) {&$hmmer_parsing; next;}
+        if ($n ==9) {&$simplealign ; next;}
+        if ($n ==10) {&$gene_prediction_parsing; next;}
+        if ($n ==11) {&$access_remote_db; next;}
+        if ($n ==12) {&$index_local_db; next;}
+        if ($n ==13) {&$fetch_local_db; next;}
+        if ($n ==14) {&$sequence_annotation; next;}
+        if ($n ==15) {&$largeseqs; next;}
+        if ($n ==16) {&$liveseqs; next;}
+        if ($n ==17) {&$run_struct; next;}
+        if ($n ==18) {&$demo_variations; next;}
+        if ($n ==19) {&$demo_xml; next;}
+        if ($n ==20) {&$run_tree; next;}
+        if ($n ==21) {&$run_map; next;}
+        if ($n ==22) {&$run_remoteblast; next;}
+        if ($n ==23) {&$run_standaloneblast; next;}
+        if ($n ==24) {&$run_clustalw_tcoffee; next;}
+        if ($n ==25) {&$run_psw_bl2seq; next;}
+         &$display_help;
+    }
+    1;
+}
 #################################################
 # bpinspect1  ():
 #
@@ -4016,27 +4061,27 @@ $bpinspect1 = sub {
     eval "require $object_class"; # eval causes replacement of "::" with "/" or "\"
     my $method_hash = $object->methods('all');
 
-    print " \n ***Methods for Object $object ********  \n";
+    print $outputfh " \n ***Methods for Object $object ********  \n";
 # get all the *unique* package names providing methods
     my %seen=();
     foreach $package  (values %$method_hash) {
         push(@package_list, $package) unless $seen{$package}++;
     }
     for $package (sort @package_list) {
-        print " \n\n Methods taken from package $package  \n";
+        print $outputfh " \n\n Methods taken from package $package  \n";
         my $out_count = 1;
         for my $method (sort keys %$method_hash) {
             if ($$method_hash{$method} eq $package ) {
-            print " $method  ";
+            print $outputfh " $method  ";
             $out_count++;
                 if ($out_count == 7) {
-                        print " \n";    # keeps output line from getting too long
+                        print $outputfh " \n";    # keeps output line from getting too long
                         $out_count = 1;
                 }
             }
          }
      }
-    print "\n";
+    print $outputfh "\n";
 
 # The following subroutine is based closely on Mark Summerfield's and Piers
 # Cawley's clever Class_Methods_Introspection program
@@ -4068,41 +4113,11 @@ $bpinspect1 = sub {
     return 1;
 } ;
 
-
-## "main" program follows
-#no strict 'refs';
-
-    @runlist = @ARGV;
-    if (scalar(@runlist)==0) {&$display_help;}; # display help if no option
-    if ($runlist[0] == 0) {@runlist = (1..22); }; # argument = 0 means run tests 1 thru 22
-    foreach $n  (@runlist) {
-        if ($n ==100) {my $object = $runlist[1]; &$bpinspect1($object); last;}
-        if ($n ==1) {&$sequence_manipulations; next;}
-        if ($n ==2) {&$seqstats_and_seqwords; next;}
-        if ($n ==3) {&$restriction_and_sigcleave; next;}
-        if ($n ==4) {&$other_seq_utilities; next;}
-        if ($n ==5) {&$run_perl; next;}
-        if ($n ==6) {&$searchio_parsing; next;}
-        if ($n ==7) {&$bplite_parsing; next;}
-        if ($n ==8) {&$hmmer_parsing; next;}
-        if ($n ==9) {&$simplealign ; next;}
-        if ($n ==10) {&$gene_prediction_parsing; next;}
-        if ($n ==11) {&$access_remote_db; next;}
-        if ($n ==12) {&$index_local_db; next;}
-        if ($n ==13) {&$fetch_local_db; next;}
-        if ($n ==14) {&$sequence_annotation; next;}
-        if ($n ==15) {&$largeseqs; next;}
-        if ($n ==16) {&$liveseqs; next;}
-        if ($n ==17) {&$run_struct; next;}
-        if ($n ==18) {&$demo_variations; next;}
-        if ($n ==19) {&$demo_xml; next;}
-        if ($n ==20) {&$run_tree; next;}
-        if ($n ==21) {&$run_map; next;}
-        if ($n ==22) {&$run_remoteblast; next;}
-        if ($n ==23) {&$run_standaloneblast; next;}
-        if ($n ==24) {&$run_clustalw_tcoffee; next;}
-        if ($n ==25) {&$run_psw_bl2seq; next;}
-         &$display_help;
+    if( defined $ARGV[0] && $ARGV[0] == -1 ) {
+	open(OUT, ">bptutorial.out") || die("cannot open outputfile: $!");
+	$outputfh = *OUT;
     }
+    &run_examples(@ARGV);
+
 ## End of "main"
 1;
