@@ -54,6 +54,10 @@ sub write_feature {
     my $vstring = join ',', map {$_->value} @v;
     push @attr, "ID=$vstring";
   }
+  if(my @v = ($feature->annotation->get_Annotations('Parent'))){
+    my $vstring = join ',', map {$_->value} @v;
+    push @attr, "Parent=$vstring";
+  }
 
   my $attr = join ';', @attr;
 
@@ -156,6 +160,9 @@ sub _handle_feature {
     ($feature_type) = $self->so->find_terms(-name => $type);
   }
 
+  if(!$feature_type){
+    $self->throw("couldn't find ontology term for '$type'.");
+  }
   my $fta = Bio::Annotation::OntologyTerm->new();
   $fta->term($feature_type);
 
@@ -167,10 +174,14 @@ sub _handle_feature {
     $attr{$key} = [@values];
   }
 
-  foreach my $id (@{ $attr{ID} }){
-    my $a = Bio::Annotation::SimpleValue->new();
-    $a->value($id);
-    $ac->add_Annotation('ID',$a);
+  foreach my $canonical (qw(ID Name Alias Parent Note Dbxref)){ #OntologyTerm, Gap, Target cannot be handled here
+    if($attr{$canonical}){
+      foreach my $value (@{ $attr{$canonical} }){
+        my $a = Bio::Annotation::SimpleValue->new();
+        $a->value($value);
+        $ac->add_Annotation($canonical,$a);
+      }
+    }
   }
 
   $ac->add_Annotation('feature_type',$fta);
