@@ -20,14 +20,19 @@ ok(1);
 my $dist = new Bio::SearchDist;
 
 ok ref($dist), 'Bio::SearchDist';
-my @scores =  qw( 100 200 120 121 78 165 215 6 18);
-foreach my $score ( @scores ) {
+
+my @scores;
+foreach my $i ( 1..5000 ) {
+    my $score = rand(1300);
+    #print STDERR "Got $score\n";
     $dist->add_score($score);
+    push(@scores,$score);
 }
+
     
 ok $dist->fit_evd(), 1;
 
 foreach my $score ( @scores ) {
     my $evalue = $dist->evalue($score);
-#    print SDTERR "Score $score had an evalue of $evalue\n";
+    print SDTERR "Score $score had an evalue of $evalue\n";
 }

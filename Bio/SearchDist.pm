@@ -174,8 +174,7 @@ sub add_score{
 sub fit_evd{
    my ($self,@args) = @_;
 
-   #return $self->_engine()->ExtremeValueFitHistogram(10000);
-   return $self->_engine()->fit_EVD(10000);
+   return $self->_engine()->fit_EVD(10000,1);
 }
 
 =head2 evalue
