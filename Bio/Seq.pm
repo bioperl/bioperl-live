@@ -308,6 +308,27 @@ See L<Bio::PrimarySeq> for more details on PrimarySeq objects.
 Please see L<Bio::SeqFeatureI> and L<Bio::SeqFeature::Generic>,
 for more information on sequence features.
 
+It is worth mentioning that one can also retrieve the start and end
+positions of a feature using a Bio::LocationI object:
+
+  $location = $feat->location # $location is a Bio::LocationI object
+  $location->start;           # start position
+  $location->end;             # end position
+
+This is useful because one needs a Bio::Location::SplitLocationI object
+in order to retrieve the coordinates inside the Genbank or EMBL join()
+statements (e.g. "CDS    join(51..142,273..495,1346..1474)"):
+
+  if ( $feat->location->isa('Bio::Location::SplitLocationI') &&
+	       $feat->primary_tag eq 'CDS' )  {
+    foreach $loc ( $feat->location->sub_Location ) {
+      print $loc->start . ".." . $loc->end . "\n";
+    }
+  }
+
+See L<Bio::LocationI> and L<Bio::Location::SplitLocationI> for more
+information.
+
 
 =head1 FEEDBACK
 
