@@ -109,7 +109,6 @@ use Bio::Seq;
 # get around a clash with CPAN shell...
 #
 
-
 sub _version {
     return 0.2;
 }
@@ -127,8 +126,6 @@ sub _file_format {
     return 'Fasta';
 }
 
-
-
 =head2 _index_file
 
   Title   : _index_file
@@ -143,35 +140,34 @@ sub _file_format {
 =cut
 
 sub _index_file {
-    my( $self,
-        $file, # File name
-        $i,    # Index-number of file being indexed
-        ) = @_;
-    
-    my( $begin,     # Offset from start of file of the start
-                    # of the last found record.
-        );
+	my( $self,
+		 $file, # File name
+		 $i,    # Index-number of file being indexed
+	  ) = @_;
 
-    $begin = 0;
+	my( $begin,     # Offset from start of file of the start
+		             # of the last found record.
+	  );
 
-    my $id_parser = $self->id_parser;
+	$begin = 0;
 
-    open FASTA, $file or $self->throw("Can't open file for read : $file");
+	my $id_parser = $self->id_parser;
 
-    # Main indexing loop
-    while (<FASTA>) {
-        if (/^>/) {
-            # $begin is the position of the first character after the '>'
-            my $begin = tell(FASTA) - length( $_ ) + 1;
-	    
-            foreach my $id (&$id_parser($_)) {
-		$self->add_record($id, $i, $begin);
-            }
-        }
-    }
+	open FASTA, $file or $self->throw("Can't open file for read : $file");
 
-    close FASTA;
-    return 1;
+	# Main indexing loop
+	while (<FASTA>) {
+		if (/^>/) {
+			# $begin is the position of the first character after the '>'
+			my $begin = tell(FASTA) - length( $_ ) + 1;
+
+			foreach my $id (&$id_parser($_)) {
+				$self->add_record($id, $i, $begin);
+			}
+		}
+	}
+	close FASTA;
+	return 1;
 }
 
 =head2 id_parser
@@ -194,15 +190,13 @@ sub _index_file {
 =cut
 
 sub id_parser {
-    my( $self, $code ) = @_;
-    
-    if ($code) {
-        $self->{'_id_parser'} = $code;
-    }
-    return $self->{'_id_parser'} || \&default_id_parser;
+	my( $self, $code ) = @_;
+
+	if ($code) {
+		$self->{'_id_parser'} = $code;
+	}
+	return $self->{'_id_parser'} || \&default_id_parser;
 }
-
-
 
 =head2 default_id_parser
 
@@ -216,12 +210,12 @@ sub id_parser {
 
 =cut
 
-sub default_id_parser {    
-    if ($_[0] =~ /^>\s*(\S+)/) {
-        return $1;
-    } else {
-        return;
-    }
+sub default_id_parser {
+	if ($_[0] =~ /^>\s*(\S+)/) {
+		return $1;
+	} else {
+		return;
+	}
 }
 
 1;
