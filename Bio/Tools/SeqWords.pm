@@ -1,7 +1,7 @@
 # $Id$
 
 #---------------------------------------------------------------------------
-# PACKAGE    : SeqWords.pm
+# PACKAGE    : Bio::Tools::SeqWords
 # PURPOSE    : To count n-mers in any sequence of characters
 # AUTHOR     : Derek Gatherer (d.gatherer@vir.gla.ac.uk)
 # SOURCE     : 
@@ -59,24 +59,24 @@ Bio::Tools::SeqWords - Object holding n-mer statistics for one sequence
 
   # or	
 
-  my $hash_ref = Bio::SeqWords->count_words($seqobj,$word_length);
+  my $hash_ref = Bio::Tools::SeqWords->count_words($seqobj,$word_length);
 
 
 =head1 DESCRIPTION
 
-Bio:SeqWords is a featherweight object for the calculation of n-mer
-word occurrences in a single sequence.  It is envisaged that the
+Bio::Tools::SeqWords is a featherweight object for the calculation of
+n-mer word occurrences in a single sequence.  It is envisaged that the
 object will be useful for construction of scripts which use n-mer word
 tables as the raw material for statistical calculations; for instance,
 hexamer frequency for the calculation of coding protential, or the
 calculation of periodicity in repetitive DNA.  Triplet frequency is
-already handled by Bio::SeqStats.pm (author: Peter Schattner).  There
-are a few possible applications for protein, eg: hypothesised amino
-acid 7-mers in heat shock proteins, or proteins with multiple simple
-motifs.  Sometimes these protein periodicities are best seen when the
-amino acid alphabet is truncated, eg Shulman alphabet.  Since there
-are quite a few of these shortened alphabets, this module does not
-specify any particular alphabet.
+already handled by L<Bio::Tools::SeqStats> (author: Peter Schattner).
+There are a few possible applications for protein, eg: hypothesised
+amino acid 7-mers in heat shock proteins, or proteins with multiple
+simple motifs.  Sometimes these protein periodicities are best seen
+when the amino acid alphabet is truncated, eg Shulman alphabet.  Since
+there are quite a few of these shortened alphabets, this module does
+not specify any particular alphabet.
 
 See Synopsis above for object creation code.
 
@@ -84,10 +84,9 @@ See Synopsis above for object creation code.
 
 =head2 Mailing Lists
 
-User feedback is an integral part of the evolution of this
-and other Bioperl modules. Send your comments and suggestions preferably
-to one of the Bioperl mailing lists.
-Your participation is much appreciated.
+User feedback is an integral part of the evolution of this and other
+Bioperl modules. Send your comments and suggestions preferably to one
+of the Bioperl mailing lists.  Your participation is much appreciated.
 
   bioperl-l@bioperl.org                 - General discussion
   http://bio.perl.org/MailList.html     - About the mailing lists
@@ -95,8 +94,8 @@ Your participation is much appreciated.
 =head2 Reporting Bugs
 
 Report bugs to the Bioperl bug tracking system to help us keep track
-the bugs and their resolution.
-Bug reports can be submitted via the web:
+the bugs and their resolution.  Bug reports can be submitted via the
+web:
 
   http://bugzilla.bioperl.org/
 
@@ -153,7 +152,7 @@ sub new {
 
  Title   : count_words
  Usage   : $word_count = $seq_stats->count_words($word_length); 
- or 	 : $word_count = $seq_stats->Bio::SeqWords->($seqobj,$word_length);
+ or 	 : $word_count = $seq_stats->Bio::Tools::SeqWords->($seqobj,$word_length);
  Function: Counts non-overlapping words within a string
 	 : any alphabet is used
  Example : a sequence ACCGTCCGT, counted at word length 4,
@@ -260,31 +259,32 @@ sub count_overlap_words
 
 # the actual counting routine
 # used by both count_words and count_overlap_words
-sub _count
-{
+sub _count {
     my ($seqobj, $word_length, $type) = @_;
     my %codon = ();
 
     # now the real business
     # JS - remove DNA assumption
-    
+
     my $seqstring = uc $seqobj->seq();
     if($type eq "non-overlap")
     {
-      while($seqstring =~ /((\w){$word_length})/gim){
-	        $codon{uc($1)}++;
-      }
-    }elsif($type eq "overlap"){
-      my $seqlen = $seqobj->length();			# measure length
-	    for (my $frame = 1; $frame<=$word_length; $frame++){  # run through frames
-		    my $seqstring = uc($seqobj->subseq($frame,$seqlen));# take the relevant substring
-		    while($seqstring =~ /((\w){$word_length})/gim){
-			     $codon{uc($1)}++;		# keep adding to hash
-		    }
+	while($seqstring =~ /((\w){$word_length})/gim){
+	    $codon{uc($1)}++;
+	}
+    } elsif($type eq "overlap"){
+	my $seqlen = $seqobj->length();	# measure length
+	for (my $frame = 1; $frame <= $word_length; $frame++) { 
+            # run through frames
+	    my $seqstring = uc($seqobj->subseq($frame,$seqlen));
+            # take the relevant substring
+	    while($seqstring =~ /((\w){$word_length})/gim){
+		$codon{uc($1)}++; # keep adding to hash
 	    }
-    }else{
-       die "\nSomething badly wrong here. \$type: $type can only be overlap or non-overlap";
-    }
+	}
+    } else {
+	Bio::Root::Root->throw("\nSomething badly wrong here. \$type: $type can only be overlap or non-overlap");
+      }
     return \%codon;
 }
 
