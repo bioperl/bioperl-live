@@ -86,29 +86,31 @@ use Bio::SeqIO;
 =cut
 
 sub next_seq{
-   my ($self,@args) = @_;
-   my ($seq,$fh,$c,$line,$name,$desc,$seqc);
-   
-   $line = $self->_readline;
-   $line =~ /^ID\s+(\S+)/ || $self->throw("EMBL stream with no ID. Not embl in my book");
-   $name = $1;
+    my ($self,@args) = @_;
+    my ($seq, $line, $name, $desc, $seqc);
 
-   while( defined ($_ = $self->_readline) ) {
-       /^DE\s+(\S.*\S)/ && do { $desc = $1;};
-       /^SQ/ && last;
-   }
+    $line = $self->_readline or return;
+    $line =~ /^ID\s+(\S+)/ || $self->throw("EMBL stream with no ID. Not embl in my book");
+    $name = $1;
 
-   while( defined ($_ = $self->_readline) ) {
-       /^\/\// && last;
-       $_ = uc($_);
-       s/\W//g;
-       $seqc .= $_;
-       eof $fh && last;
-   }
+    while( defined($_ = $self->_readline) ) {
+        if (/^DE\s+(.+)\s*/) {
+            # Make sure lines are joined with spaces
+            $desc .= $desc ? " $1" : $1;
+        }
+        /^SQ/ && last;   # Break on line before sequence data
+    }
 
-   $seq = Bio::Seq->new(-seq => $seqc , -id => $name, -desc => $desc);
-   
-   return $seq;
+    while( defined($_ = $self->_readline) ) {
+        /^\/\// && last; # Break on last line of entry
+        $_ = uc($_);
+        s/[\s\d]//g;
+        $seqc .= $_;
+    }
+
+    $seq = Bio::Seq->new(-seq => $seqc , -id => $name, -desc => $desc);
+
+    return $seq;
 
 }
 

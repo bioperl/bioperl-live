@@ -24,10 +24,10 @@ Bio::Seq - Bioperl lightweight Sequence Object
 
   #make from memory
   $seqobj = Bio::Seq->new ( -seq => 'ATGGGGTGGGCGGTGGGTGGTTTG',
-			 -id  => 'GeneFragment-12',
-			 -accession => 'X78121',
-			 -moltype => 'dna'
-			 );
+			    -id  => 'GeneFragment-12',
+			    -accession => 'X78121',
+			    -moltype => 'dna'
+			    );
   
   # read from file
   $inputstream = Bio::SeqIO->new(-file => "myseq.fa",-format => 'Fasta');

@@ -89,9 +89,9 @@ stability.
   # new style, better, but somewhat more wordy
   # notice this loops over multiple sequences
 
-  $stream = Bio::SeqIO->new(-file => 'myfile' -fmt => 'Fasta');
+  $stream = Bio::SeqIO->new(-file => 'myfile', -fmt => 'Fasta');
 
-  while $seq ( $stream->next_seq() ) {
+  while ($seq = $stream->next_seq() ) {
        # $seq is a Bio::Seq object
   }
 
@@ -99,9 +99,9 @@ stability.
 
 =head2 Object Manipulation
 
- $seq->[METHOD];
+ $seq->METHOD();
 
- $result = $seq->[METHOD];
+ $result = $seq->METHOD();
  
  
  
