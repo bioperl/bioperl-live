@@ -15,7 +15,7 @@ BEGIN {
 	use lib 't';
     }
     use Test;
-    plan tests => 42; 
+    plan tests => 43;
 }
 
 use Bio::Location::Simple;
@@ -136,6 +136,7 @@ ok($f->to_FTstring(), '>20..75^80');
 
 # test that even when end < start that length is always positive
 
-my $f = new Bio::Location::Simple(-start => 100, -end => 20, -strand => -1);
+$f = new Bio::Location::Simple(-start => 100, -end => 20, -strand => 1);
 
 ok($f->length, 81);
+ok($f->strand,-1);
