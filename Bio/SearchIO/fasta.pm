@@ -405,7 +405,7 @@ sub next_result{
 		   last;
 	       }
 	       if( $count == 0 ) {
-		   unless( /^\s+\d+\s+/ || /^\s+$/) {		       
+		   unless( /^\s+\d+/ || /^\s+$/) {		       
 		       $self->_pushback($_);
 		       $count = 2;
 		   }
