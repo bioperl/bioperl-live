@@ -24,6 +24,8 @@ Steve Chervitz E<lt>sac@bioperl.orgE<gt>
 package Bio::Search::SearchUtils;
 
 use strict;
+use vars qw($DEBUG);
+$DEBUG = 1;
 
 =head2 tile_hsps
 
@@ -146,19 +148,24 @@ sub tile_hsps {
 	($sstart, $sstop) = $hsp->range('sbjct');
 	$frame = $hsp->frame;
 	$frame = -1 unless defined $frame;
-	($qstrand, $sstrand) = $hsp->strand;
+	($qstrand, $sstrand) = ($hsp->query->strand,
+				$hsp->hit->strand);
 
         # Note: No correction for overlap.
-	my ($qgaps, $sgaps)  = $hsp->gaps();
+	my ($qgaps, $sgaps)  = ($hsp->gaps('query'), $hsp->gaps('hit'));
 	$hit_qgaps += $qgaps;
 	$hit_sgaps += $sgaps;
 	$hit_len_aln += $hsp->length;
 
 	## Collect contigs in the query sequence.
- 	$qoverlap = &_adjust_contigs('query', $hsp, $qstart, $qstop, \@qcontigs, $max_overlap, $frame, $qstrand);
+ 	$qoverlap = &_adjust_contigs('query', $hsp, $qstart, $qstop, 
+				     \@qcontigs, $max_overlap, $frame, 
+				     $qstrand);
 
 	## Collect contigs in the sbjct sequence (needed for domain data and gapped Blast).
-	$soverlap = &_adjust_contigs('sbjct', $hsp, $sstart, $sstop, \@scontigs, $max_overlap, $frame, $sstrand);
+	$soverlap = &_adjust_contigs('sbjct', $hsp, $sstart, $sstop, 
+				     \@scontigs, $max_overlap, $frame, 
+				     $sstrand);
 
 	## Collect overall start and stop data for query and sbjct over all HSPs.
 	if(not defined $start_stop{'qstart'}) {
@@ -167,10 +174,14 @@ sub tile_hsps {
             $start_stop{'sstart'} = $sstart;
             $start_stop{'sstop'} = $sstop;
 	} else {
-	    $start_stop{'qstart'} = ($qstart < $start_stop{'qstart'} ? $qstart : $start_stop{'qstart'} );
-	    $start_stop{'qstop'}  = ($qstop  > $start_stop{'qstop'} ? $qstop  : $start_stop{'qstop'} );
-	    $start_stop{'sstart'} = ($sstart < $start_stop{'sstart'} ? $sstart : $start_stop{'sstart'} );
-	    $start_stop{'sstop'} = ($sstop  > $start_stop{'sstop'} ? $sstop  : $start_stop{'sstop'} );
+	    $start_stop{'qstart'} = ($qstart < $start_stop{'qstart'} ? 
+				     $qstart : $start_stop{'qstart'} );
+	    $start_stop{'qstop'}  = ($qstop  > $start_stop{'qstop'} ? 
+				     $qstop  : $start_stop{'qstop'} );
+	    $start_stop{'sstart'} = ($sstart < $start_stop{'sstart'} ? 
+				     $sstart : $start_stop{'sstart'} );
+	    $start_stop{'sstop'} = ($sstop  > $start_stop{'sstop'} ? 
+				    $sstop  : $start_stop{'sstop'} );
 	}	    
     }
 
@@ -287,15 +298,16 @@ See Also   : L<tile_hsps>(), L<Bio::Search::Hit::BlastHSP::matches|Bio::Search::
 #-------------------
 sub _adjust_contigs {
 #-------------------
-    my ($seqType, $hsp, $start, $stop, $contigs_ref, $max_overlap, $frame, $strand) = @_;
+    my ($seqType, $hsp, $start, $stop, $contigs_ref, 
+	$max_overlap, $frame, $strand) = @_;
 
     my $overlap = 0;
     my ($numID, $numCons);
 
-#    print STDERR "Testing $seqType data: HSP (${\$hsp->name});  $start, $stop, strand=$strand, frame=$frame\n"; 
-    foreach(@$contigs_ref) {
-#	print STDERR "  Contig: $_->{'start'} - $_->{'stop'}, strand=$_->{'strand'}, frame=$_->{'frame'}, iden= $_->{'iden'}, cons= $_->{'cons'}\n";
-
+#    printf STDERR "Testing $seqType data: HSP (%s); $start, $stop, strand=$strand, frame=$frame\n", $hsp->$seqType()->seq_id if $DEBUG; 
+    
+    foreach ( @$contigs_ref) {
+	# print STDERR "  Contig: $_->{'start'} - $_->{'stop'}, strand=$_->{'strand'}, frame=$_->{'frame'}, iden= $_->{'iden'}, cons= $_->{'cons'}\n" if $DEBUG;
 	# Don't merge things unless they have matching strand/frame.
 	next unless ($_->{'frame'} == $frame and $_->{'strand'} == $strand);
 
@@ -317,15 +329,16 @@ sub _adjust_contigs {
 	    };
 	    if($@) { warn "\a\n$@\n"; }
 	    else {
-		$_->{'start'} = $start; # Assign a new start coordinate to the contig
-		$_->{'iden'} += $numID; # and add new data to #identical, #conserved.
+		$_->{'start'} = $start;	# Assign a new start coordinate to the contig
+		$_->{'iden'} += $numID;	# and add new data to #identical, #conserved.
 		$_->{'cons'} += $numCons;
 		$overlap     = 1; 
 	    }
 	}
 
 	## Test for overlap at end of contig.
-	if($stop > $_->{'stop'} and $start < ($_->{'stop'} - $max_overlap)) { 
+	if($stop > $_->{'stop'} and 
+	   $start < ($_->{'stop'} - $max_overlap)) { 
 #	    print STDERR "----> Overlaps end: existing beg,end: $_->{'start'},$_->{'stop'}, new beg,end: $start,$stop\n";
 	    # Collect stats over the non-overlapping region.
 	    eval {
@@ -335,8 +348,8 @@ sub _adjust_contigs {
 	    };
 	    if($@) { warn "\a\n$@\n"; }
 	    else {
-		$_->{'stop'}  = $stop;  # Assign a new stop coordinate to the contig
-		$_->{'iden'} += $numID; # and add new data to #identical, #conserved.
+		$_->{'stop'}  = $stop; # Assign a new stop coordinate to the contig
+		$_->{'iden'} += $numID;	# and add new data to #identical, #conserved.
 		$_->{'cons'} += $numCons;
 		$overlap    = 1; 
 	    }
@@ -344,8 +357,8 @@ sub _adjust_contigs {
 	$overlap && do {
 #		print STDERR " New Contig data:\n";
 #		print STDERR "  Contig: $_->{'start'} - $_->{'stop'}, iden= $_->{'iden'}, cons= $_->{'cons'}\n";
-		last;
-	    };
+	    last;
+	};
     }
     ## If there is no overlap, add the complete HSP data.
     !$overlap && do {
