@@ -869,10 +869,18 @@ sub filled_oval {
   my $linewidth = $self->linewidth;
 
   $fg = $self->set_pen($linewidth) if $linewidth > 1;
-  $gd->filledEllipse($cx,$cy,$x2-$x1,$y2-$y1,$bg);
 
-  # Draw the edge around the ellipse
-  $gd->ellipse($cx,$cy,$x2-$x1,$y2-$y1,$fg);
+  # Maintain backwards compatability with gd 1.8.4
+  # which does not support the ellipse methods.
+  # can() method fails with GD::SVG...
+  if ($gd->can('ellipse') || $gd =~ /SVG/ ) {
+    $gd->filledEllipse($cx,$cy,$x2-$x1,$y2-$y1,$bg);
+    # Draw the edge around the ellipse
+    $gd->ellipse($cx,$cy,$x2-$x1,$y2-$y1,$fg);
+  } else {
+    $gd->arc($cx,$cy,$x2-$x1,$y2-$y1,0,360,$fg);
+    $gd->fillToBorder($cx,$cy,$fg,$bg);
+  }
 }
 
 sub oval {
@@ -884,9 +892,15 @@ sub oval {
 
   my $fg = $self->fgcolor;
   my $linewidth = $self->linewidth;
-
   $fg = $self->set_pen($linewidth) if $linewidth > 1;
-  $gd->ellipse($cx,$cy,$x2-$x1,$y2-$y1,$fg);
+
+  # Maintain backwards compatability with gd 1.8.4 which does not
+  # support the ellipse method.
+  if ($gd->can('ellipse') || $gd =~ /SVG/ ) {
+    $gd->ellipse($cx,$cy,$x2-$x1,$y2-$y1,$fg);
+  } else {
+    $gd->arc($cx,$cy,$x2-$x1,$y2-$y1,0,360,$fg);
+  }
 }
 
 sub filled_arrow {
