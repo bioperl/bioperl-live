@@ -149,7 +149,7 @@ use Bio::Root::Root;
 =head2 fu_and_li_D
 
  Title   : fu_and_li_D
- Usage   : my $D = $statistics->fu_an_li_D(\@ingroup,$extmutations);
+ Usage   : my $D = $statistics->fu_and_li_D(\@ingroup,$extmutations);
  Function: Fu and Li D statistic for a list of individuals
            given an outgroup and the number of external mutations
            (either provided or calculated from list of outgroup individuals)
@@ -164,7 +164,7 @@ use Bio::Root::Root;
 sub fu_and_li_D { 
     my ($self,$ingroup,$outgroup) = @_;
 
-    my ($seg_sites,$n,$ancestral,$derived);
+    my ($seg_sites,$n,$ancestral,$derived) = (0,0,0,0);
     if( ref($ingroup) =~ /ARRAY/i ) {
 	$n = scalar @$ingroup;
 	# pi - all pairwise differences 
@@ -188,13 +188,13 @@ sub fu_and_li_D {
 	return 0;
     } elsif( ref($outgroup) ) {
 	($ancestral,$derived) = $self->derived_mutations($ingroup,$outgroup);
+	$ancestral = 0 unless defined $ancestral;
     } else { 
 	$ancestral = $outgroup;
     }
-    return $self->fu_and_li_D_counts($n,
-				     $seg_sites,
-				     $ancestral,
-				     $derived);
+   
+    return $self->fu_and_li_D_counts($n,$seg_sites,
+				     $ancestral,$derived);
 }
 
 =head2 fu_and_li_D_counts
@@ -215,7 +215,7 @@ sub fu_and_li_D {
 
 sub fu_and_li_D_counts {
     my ($self,$n,$seg_sites, $external_mut) = @_;
-    my $a_n;
+    my $a_n = 0;
     for(my $k= 1; $k < $n; $k++ ) {
 	$a_n += ( 1 / $k );
     }
@@ -869,7 +869,7 @@ sub segregating_sites_count{
 	   $seg_sites++ if( keys %$site > 1 );
        }
    } elsif( $type && $individuals->isa('Bio::PopGen::PopulationI') ) {
-       foreach my $marker ( $individuals->get_Markers ) {  
+       foreach my $marker ( $individuals->haploid_population->get_Markers ) {  
 	   my @alleles = $marker->get_Alleles;	    
 	   $seg_sites++ if ( scalar @alleles > 1 );
        }
@@ -957,7 +957,7 @@ sub derived_mutations{
        }	   
    } elsif( ref($ingroup) && $ingroup->isa('Bio::PopGen::PopulationI') ) {
        @marker_names = $ingroup->get_marker_names;
-       for my $ind ( $ingroup->get_Individuals() ) {
+       for my $ind ( $ingroup->haploid_population->get_Individuals() ) {
 	   for my $m ( @marker_names ) {
 	       for my $allele ( map { $_->get_Alleles} 
 				    $ind->get_Genotypes($m) ) {
@@ -986,7 +986,7 @@ sub derived_mutations{
        }
    
    } elsif( $otype->isa('Bio::PopGen::PopulationI') ) {
-       for my $ind ( $outgroup->get_Individuals() ) {
+       for my $ind ( $outgroup->haploid_population->get_Individuals() ) {
 	   for my $m ( @marker_names ) {
 	       for my $allele ( map { $_->get_Alleles} 
 				    $ind->get_Genotypes($m) ) {
