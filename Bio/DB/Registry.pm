@@ -60,7 +60,7 @@ use Bio::Root::HTTPget;
 my %implement = (
 		 'biocorba'      => 'Bio::CorbaClient::SeqDB',
 		 'index-berkeleydb' => 'Bio::DB::Flat',
-                 'index-flat'       => 'Bio::DB::Flat::OBDAFetch',
+                 'index-flat'       => 'Bio::DB::Flat::OBDAIndex',
 		 'biosql' => 'Bio::DB::SQL::BioDatabaseAdaptor',
 		 'biofetch' => 'Bio::DB::BioFetch'
 		 );
