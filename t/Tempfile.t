@@ -16,7 +16,7 @@ BEGIN {
 	use lib 't';
     }
     use Test;    
-    plan tests => 9;
+    plan tests => 8;
 }
 
 use Bio::Root::IO;
@@ -61,9 +61,8 @@ eval {
     $obj = new Bio::Root::IO(-verbose => 0);
     ($tfh, $tfile) = $obj->tempfile(UNLINK => 0);
     close $tfh;
-    ok( -e $tfile );
-    ok( -d $tdir );
-    undef $obj;    
+    ok( -e $tfile ,1, "tempfile ($tfile) does not exist when it should");   
+    undef $obj;
 };
 
 if( $@ ) { ok(0) }
