@@ -443,8 +443,8 @@ sub exists_exe {
 
     # Ewan's comment. I don't think we need this. People should not be
     # asking for a program with a pathseparator starting it
+    
     # $exe =~ s/^$PATHSEP//;
-
 
     # Not a full path, or does not exist. Let's see whether it's in the path.
     if($FILESPECLOADED) {
