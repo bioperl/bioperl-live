@@ -37,6 +37,10 @@ Revision history for Bioperl core modules
       
     o Updated FAQ with more example based answers to typical questions
 
+    o Bug #1202 was fixed which would improperly join together qual values
+      parsed by Bio::SeqIO::qual when a trailing space was not present before
+      the newline.
+
 1.0.0 Major Stable Release
 
   This represents a major release of bioperl with significant
