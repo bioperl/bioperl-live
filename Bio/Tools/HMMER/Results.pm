@@ -110,14 +110,16 @@ sub new {
   if( !defined $parsetype ) {
       $self->throw("No parse type provided. should be hmmsearch or hmmpfam");
   }
-
-  if( $parsetype eq 'hmmsearch' ) {
-      $self->_parse_hmmsearch($io->_fh());
-  } elsif ( $parsetype eq 'hmmpfam' ) {
-      $self->_parse_hmmpfam($io->_fh());
-  } else {
-      $self->throw("Did not recoginise type $parsetype");
-  } 
+  $self->parsetype($parsetype);
+  if( $io->_fh() ) {
+      if( $parsetype eq 'hmmsearch' ) {
+	  $self->_parse_hmmsearch($io->_fh());
+      } elsif ( $parsetype eq 'hmmpfam' ) {
+	  $self->_parse_hmmpfam($io->_fh());
+      } else {
+	  $self->throw("Did not recoginise type $parsetype");
+      } 
+  }
   
   return $self; # success - we hope!
 }
@@ -387,24 +389,17 @@ sub filter_on_cutoff {
        $self->throw("hmmresults filter on cutoff needs two arguments");
     }
 
-    $new = Bio::Tools::HMMER::Results->new();
+    $new = Bio::Tools::HMMER::Results->new(-type => $self->parsetype);
 
     foreach $seq ( $self->each_Set()) {
-
-	if( $seq->bits() < $seqthr ) {
-	    next;
-	}
-
+	next if( $seq->bits() < $seqthr );
 	$new->add_Set($seq);
-
 	foreach $unit ( $seq->each_Domain() ) {
-	    if( $unit->bits() < $domthr ) {
-		next;
-	    }
+	    next if( $unit->bits() < $domthr );
 	    $new->add_Domain($unit);
 	}
-
     }    
+    $new;
 }
 
 =head2 write_ascii_out
@@ -938,8 +933,24 @@ sub _parse_hmmsearch {
     return $count;
 }
 
+=head2 parsetype
+
+ Title   : parsetype
+ Usage   : $obj->parsetype($newval)
+ Function: 
+ Returns : value of parsetype
+ Args    : newvalue (optional)
 
 
+=cut
+
+sub parsetype{
+   my ($self,$value) = @_;
+   if( defined $value) {
+      $self->{'_parsetype'} = $value;
+    }
+    return $self->{'_parsetype'};
+}
 
 1;  # says use was ok
 __END__

@@ -16,7 +16,7 @@ BEGIN {
 	use lib 't';
     }
     use Test;
-    plan test => 24;
+    plan test => 26;
 }
 
 use Bio::Tools::HMMER::Domain;
@@ -115,3 +115,11 @@ foreach $set ( $res->each_Set) {
     }
 }
 ok ($res->number, 1);
+
+# test for bugs #(1189,1034,1172)
+$res = Bio::Tools::HMMER::Results->new( -file => Bio::Root::IO->catfile
+					("t","data","hmmsearch.out") , 
+					-type => 'hmmsearch');
+my $res2 = $res->filter_on_cutoff(100,50);
+ok($res2);
+ok($res2->number, 604);
