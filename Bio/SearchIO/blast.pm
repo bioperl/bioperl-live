@@ -282,12 +282,9 @@ sub next_result{
 	   $self->element({'Name' => 'BlastOutput_db',
 			   'Data' => $db});
        } elsif( /^>(\S+)\s*(.*)?/ ) {
-	   if( $self->in_element('hsp') ) {
-	       $self->end_element({ 'Name' => 'Hsp'});
-	   }
-	   if( $self->in_element('hit') ) {
-	       $self->end_element({ 'Name' => 'Hit'});
-	   }
+	   $self->in_element('hsp') && $self->end_element({ 'Name' => 'Hsp'});
+	   $self->in_element('hit') && $self->end_element({ 'Name' => 'Hit'});
+	   
 	   $self->start_element({ 'Name' => 'Hit'});
 	   my $id = $1;	  
 	   $self->element({ 'Name' => 'Hit_id',
@@ -313,9 +310,7 @@ sub next_result{
 			    'Data' => $1 });
        } elsif( ($self->in_element('hit') || $self->in_element('hsp')) && # wublast
 		/Score\s*=\s*(\d+)\s*\(([\d\.]+)\s*bits\),\s*Expect\s*=\s*([^,\s]+),\s*P\s*=\s*([^,\s]+)/ ) {
-	   if( $self->in_element('hsp') ) {
-	       $self->end_element({'Name' => 'Hsp'});
-	   }
+	   $self->in_element('hsp') && $self->end_element({'Name' => 'Hsp'});
 	   $self->start_element({'Name' => 'Hsp'});
        	   $self->element( { 'Name' => 'Hsp_score',
 			     'Data' => $1});
@@ -327,9 +322,8 @@ sub next_result{
 			    'Data'  =>$4});
        } elsif( ($self->in_element('hit') || $self->in_element('hsp')) && # ncbi blast
 		/Score\s*=\s*(\S+)\s*bits\s*\((\d+)\),\s*Expect(\(\d+\))?\s*=\s*(\S+)/) {
-	   if( $self->in_element('hsp') ) {
-	       $self->end_element({ 'Name' => 'Hsp'});
-	   }
+	   $self->in_element('hsp') && $self->end_element({ 'Name' => 'Hsp'});
+	   
 	   $self->start_element({'Name' => 'Hsp'});
 	   $self->element( { 'Name' => 'Hsp_score',
 			     'Data' => $2});
@@ -378,8 +372,8 @@ sub next_result{
 	   $self->element({'Name' => 'Hsp_hit-frame',
 			   'Data' => $hitframe});
        } elsif(  /^Parameters:/ || /\s+Database:/ ) {
-	   $self->end_element({'Name' => 'Hsp'});
-	   $self->end_element({'Name' => 'Hit'});
+	   $self->in_element('hsp') && $self->end_element({'Name' => 'Hsp'});
+	   $self->in_element('hit') && $self->end_element({'Name' => 'Hit'});
 	   my $blast = ( /Parameters/ ) ? 'wublast' : 'ncbi'; 
 	   my $last = '';
 	   while( defined ($_ = $self->_readline ) ) {
@@ -553,6 +547,7 @@ sub end_element {
        $self->{'_last_data'} =~ /(t?blast[npx])/i ) {
 	$self->{'_reporttype'} = uc $1; 	    
     }   
+
     # Hsp are sort of weird, in that they end when another
     # object begins so have to detect this in end_element for now
     if( $nm eq 'Hsp' ) {
