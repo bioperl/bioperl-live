@@ -368,7 +368,7 @@ sub next_result{
 								$prelength,
 								$width)});
 			   } else { 
-			       print STDERR "midline is $_\n" if( CORE::length($_) <= $prelength);
+			       $self->debug( "midline is $_\n") if( CORE::length($_) <= $prelength && $self->verbose > 0);
 			       $self->element({'Name' => 'Hsp_midline',
 					       'Data' => substr($_,
 								$prelength)});
