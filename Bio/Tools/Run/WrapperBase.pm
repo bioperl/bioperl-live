@@ -16,18 +16,18 @@ Bio::Tools::Run::WrapperBase - A Base object for wrappers around executables
 
 =head1 SYNOPSIS
 
-# do not use this object directly, it provides the following methods
-# for its subclasses
+  # do not use this object directly, it provides the following methods
+  # for its subclasses
 
-    my $errstr = $obj->error_string();
-    my $exe    = $obj->executable();
-    $obj->save_tempfiles($booleanflag)
-    my $outfile= $obj->outfile_name();
-    my $tempdir= $obj->tempdir(); # get a temporary dir for executing
-    my $io     = $obj->io;  # Bio::Root::IO object
-    my $cleanup= $obj->cleanup(); # remove tempfiles
-   
-    $obj->run({-arg1 => $value});
+  my $errstr = $obj->error_string();
+  my $exe    = $obj->executable();
+  $obj->save_tempfiles($booleanflag)
+  my $outfile= $obj->outfile_name();
+  my $tempdir= $obj->tempdir(); # get a temporary dir for executing
+  my $io     = $obj->io;  # Bio::Root::IO object
+  my $cleanup= $obj->cleanup(); # remove tempfiles
+
+  $obj->run({-arg1 => $value});
 
 =head1 DESCRIPTION
 
