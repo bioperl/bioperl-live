@@ -20,7 +20,7 @@ BEGIN {
 
 use Bio::Tools::Genscan;
 use Bio::Tools::Genemark;
-use Bio::Tools::MZEF;  # THIS IS STILL TODO!
+use Bio::Tools::MZEF;  
 use Bio::SeqIO;
 use Bio::Root::IO;
 
