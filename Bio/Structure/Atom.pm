@@ -278,6 +278,46 @@ sub tempfactor {
 }
 
 
+=head2 segID()
+
+ Title   : segID
+ Usage   : $segID = $atom->segID($segID)
+ Function: Sets/gets the segID
+ Returns : Returns the segID for this atom
+ Args    : reference to an Atom
+
+=cut
+
+sub segID {
+	my($self, $value) = @_;
+
+	if (defined $value) {
+		$self->{'segID'} = $value;
+	}
+	return $self->{'segID'};
+}
+
+
+=head2 pdb_atomname()
+
+ Title   : pdb_atomname
+ Usage   : $pdb_atomname = $atom->pdb_atomname($pdb_atomname)
+ Function: Sets/gets the pdb_atomname (atomname used in the PDB file)
+ Returns : Returns the pdb_atomname for this atom
+ Args    : reference to an Atom
+
+=cut
+
+sub pdb_atomname {
+	my($self, $value) = @_;
+
+	if (defined $value) {
+		$self->{'pdb_atomname'} = $value;
+	}
+	return $self->{'pdb_atomname'};
+}
+
+
 =head2 element()
 
  Title   : element
