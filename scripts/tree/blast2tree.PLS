@@ -138,7 +138,8 @@ foreach my $aln ( @alns ) {
 
 =head1 NAME
 
-tree_from_seqsearch - builds a phylogenetic tree based on a sequence search (FastA,BLAST,HMMER)
+tree_from_seqsearch - builds a phylogenetic tree based on a sequence
+search (FastA,BLAST,HMMER)
 
 =head1 DESCRIPTION
 

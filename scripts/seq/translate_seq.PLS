@@ -1,6 +1,6 @@
 #!perl -w
 use strict;
-# $Id: translate_seq.PLS,v 1.1 2003-05-12 14:58:16 birney Exp $
+# $Id: translate_seq.PLS,v 1.2 2003-05-30 15:48:29 jason Exp $
 
 
 =head1 NAME
@@ -9,7 +9,7 @@ translate_seq - translates a sequence
 
 =head1 SYNOPSIS
 
-translate_seq < cdna_cds.fa > protein.fa
+translate_seq E<lt> cdna_cds.fa E<gt> protein.fa
 
 =head1 DESCRIPTION 
 
@@ -36,7 +36,7 @@ email or the web:
 
 =head1 AUTHOR
 
-  Ewan Birney <birney@ebi.ac.uk>
+  Ewan Birney E<lt>birney@ebi.ac.ukE<gt>
 
 =cut
 
@@ -45,10 +45,9 @@ use Getopt::Long;
 
 my ($format);
 
-
 GetOptions(
 	   'format:s'  => \$format,
-	);
+	   );
 
 my $oformat = 'fasta';
 

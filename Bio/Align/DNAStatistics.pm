@@ -212,7 +212,9 @@ sub available_distance_methods{
 
 =head2 D - distance methods
 
+
 =cut
+
 
 =head2 D_JukesCantor
 
@@ -439,7 +441,9 @@ sub D_TajimaNei{
 
 =head2 K - sequence substitution methods
 
+
 =cut
+
 
 =head2 K_JukesCantor
 

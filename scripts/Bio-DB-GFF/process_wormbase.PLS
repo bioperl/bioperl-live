@@ -213,7 +213,7 @@ L<Bio::DB::GFF>, L<bulk_load_gff.pl>, L<load_gff.pl>
 
 =head1 AUTHOR
 
-Lincoln Stein <lstein@cshl.org>.
+Lincoln Stein E<lt>lstein@cshl.orgE<gt>
 
 Copyright (c) 2002 Cold Spring Harbor Laboratory
 
