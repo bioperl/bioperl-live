@@ -110,7 +110,7 @@ sub _initialize {
       $fh->open($file) || $self->throw("Could not open $file for Fasta stream reading $!");
    }
 
-  print "Setting filehandle to $fh\n";
+#  print "Setting filehandle to $fh\n";
    $self->_filehandle($fh);
       
 
@@ -140,7 +140,14 @@ sub next_seq{
    }
 
    $line = <$fh>;
-   if( $line !~ /^>\s*(\S+)\s+(.*?)\s*$/ ) {
+
+   # there's a problem with the logic here.  You're checking for '>', but what
+   # if this is the *second* read on $fh?  Last time you read from $fh, you
+   # kept reading until you found the next '>' - you've already read that '>'
+   # so you can't expect to find it here again.  I've thrown in the ? after
+   # > in the regex below so that multireads will work, but now we're no longer
+   # being strict about taking Fasta formatted files - no big deal with me. AJM
+   if( $line !~ /^>?\s*(\S+)\s*(.*?)\s*$/ ) {
        $self->throw("Fasta stream read attempted with no '>' as first character[ $line ]");
    }
    $name = $1;
