@@ -20,8 +20,10 @@ use Bio::Tools::BPlite::Sbjct; # we want to use Sbjct
 # _initialize is where the heavy stuff will happen when new is called
 
 sub _initialize {
-  my ($self, $fh) = @_; 
+  my ($self, @args) = @_; 
   my $make = $self->SUPER::_initialize;
+
+  my ($fh) = $self->_rearrange([qw(FH)],@args);
 
   if (ref $fh !~ /GLOB/)
     { $self->throw("Expecting a GLOB reference, not $fh!"); }
@@ -62,10 +64,10 @@ sub nextSbjct {
   ####################
   # the Sbjct object #
   ####################
-  my $sbjct = new Bio::Tools::BPlite::Sbjct($def, 
-                                            $self->{FH}, 
-					    $self->{LASTLINE}, 
-					    $self);
+  my $sbjct = new Bio::Tools::BPlite::Sbjct(-name=>$def, 
+                                            -fh=>$self->{FH}, 
+					    -lastline=>$self->{LASTLINE}, 
+					    -parent=>$self);
   return $sbjct;
 }
 
@@ -112,12 +114,12 @@ __END__
 
 =head1 NAME
 
-BPlite - Lightweight BLAST parser
+Bio::Tools::BPlite - Lightweight BLAST parser
 
 =head1 SYNOPSIS
 
- use BPlite;
- my $report = new BPlite(\*STDIN);
+ use Bio::Tools::BPlite;
+ my $report = new BPlite(-fh=>\*STDIN);
  $report->query;
  $report->database;
  while(my $sbjct = $report->nextSbjct) {
@@ -130,13 +132,15 @@ BPlite - Lightweight BLAST parser
          $hsp->match;
          $hsp->positive;
          $hsp->length;
-         $hsp->queryBegin;
-         $hsp->queryEnd;
-         $hsp->sbjctBegin;
-         $hsp->sbjctEnd;
-         $hsp->queryAlignment;
-         $hsp->sbjctAlignment;
-         $hsp->alignmentString;
+	 $hsp->querySeq;
+	 $hsp->sbjctSeq;
+	 $hsp->homologySeq;
+	 $hsp->query->start;
+	 $hsp->query->end;
+	 $hsp->sbjct->start;
+	 $hsp->sbjct->end;
+	 $hsp->sbjct->seqname;
+	 $hsp->sbjct->overlaps($exon);
      }
  }
 
@@ -159,7 +163,7 @@ in pipes.
 BPlite has three kinds of objects, the report, the subject, and the HSP. To
 create a new report, you pass a filehandle reference to the BPlite constructor.
 
- my $report = new BPlite(\*STDIN); # or any other filehandle
+ my $report = new BPlite(-fh=>\*STDIN); # or any other filehandle
 
 The report has two attributes (query and database), and one method (nextSbjct).
 
@@ -182,12 +186,18 @@ have one attribute (name) and one method (nextHSP).
      # canonical form is again a while loop
  }
 
-An HSP is a high scoring pair, or simply an alignment. HSP objects do not have
-any methods, just attributes (score, bits, percent, P, match, positive, length,
-queryBegin, queryEnd, sbjctBegin, sbjctEnd, queryAlignment, sbjctAlignment)
-that should be familiar to anyone who has seen a blast report. For
-lazy/efficient coders, two-letter abbreviations are available for the
-attributes with long names (qb, qe, sb, se, qa, sa).
+An HSP is a high scoring pair, or simply an alignment. 
+HSP objects inherit all the useful methods from RangeI/SeqFeatureI/FeaturePair,
+but provide an additional set of attributes (score, bits, percent, P, match, 
+positive, length, querySeq, sbjctSeq, homologySeq) that should be familiar to
+anyone who has seen a blast report. 
+
+For lazy/efficient coders, two-letter abbreviations are available for the 
+attributes with long names (qs, ss, hs). Ranges of the aligned sequences in
+query/subject and other information (like seqname) are stored
+in SeqFeature objects (i.e.: $hsp->query, $hsp->sbjct which is equal to
+$hsp->feature1, $hsp->feature2). querySeq, sbjctSeq and homologySeq do only
+contain the alignment sequences from the blast report.
 
  $hsp->score;
  $hsp->bits;
@@ -196,23 +206,27 @@ attributes with long names (qb, qe, sb, se, qa, sa).
  $hsp->match;
  $hsp->positive;
  $hsp->length;
- $hsp->queryBegin;      $hsp->qb;
- $hsp->queryEnd;        $hsp->qe;
- $hsp->sbjctBegin;      $hsp->sb;
- $hsp->sbjctEnd;        $hsp->se;
- $hsp->queryAlignment;  $hsp->qa;
- $hsp->sbjctAlignment;  $hsp->sa;
- $hsp->alignmentString; $hsp->as;
- "$hsp"; # overloaded for qb..qe bits
+ $hsp->querySeq;      $hsp->qs;
+ $hsp->sbjctSeq;      $hsp->ss;
+ $hsp->homologySeq;   $hsp->hs;
+ $hsp->query->start;
+ $hsp->query->end;
+ $hsp->query->seqname;
+ $hsp->sbjct->primary_tag; # "similarity"
+ $hsp->sbjct->source_tag;  # "BLAST"
+ $hsp->sbjct->start;
+ $hsp->sbjct->end;
+ ...
+ "$hsp"; # overloaded for query->start..query->end bits
 
 I've included a little bit of overloading for double quote variable
 interpolation convenience. A subject will return its name and an HSP will
-return its queryBegin, queryEnd, and bits in the alignment. Feel free to modify
-this to whatever is most frequently used by you.
+return its query->start, query->end, and bits in the alignment. Feel free 
+to modify this to whatever is most frequently used by you.
 
 So a very simple look into a BLAST report might look like this.
 
- my $report = new BPlite(\*STDIN);
+ my $report = new BPlite(-fh=>\*STDIN);
  while(my $sbjct = $report->nextSbjct) {
      print "$sbjct\n";
      while(my $hsp = $sbjct->nextHSP) {
@@ -230,9 +244,10 @@ The output of such code might look like this:
      265..290 22.1
 
 
-=head1 AUTHOR
+=head1 AUTHORS
 
-Ian Korf (ikorf@sapiens.wustl.edu, http://sapiens.wustl.edu/~ikorf)
+Ian Korf (ikorf@sapiens.wustl.edu, http://sapiens.wustl.edu/~ikorf), 
+Lorenz Pollak (lorenz@ist.org, bioperl port)
 
 =head1 ACKNOWLEDGEMENTS
 

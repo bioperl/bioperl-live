@@ -20,10 +20,16 @@ use vars qw(@ISA);
 @ISA = qw(Bio::Root::Object);
 
 sub _initialize {
-  my ($self, @param) = @_; 
+  my ($self, @args) = @_; 
   my $make = $self->SUPER::_initialize;
   
-  ($self->{NAME},$self->{FH},$self->{LASTLINE},$self->{PARENT}) = @param;
+  ($self->{NAME},$self->{FH},$self->{LASTLINE},$self->{PARENT}) =
+      $self->_rearrange([qw(NAME
+			    FH
+			    LASTLINE
+			    PARENT
+			    )],@args);
+  
   $self->{HSP_ALL_PARSED} = 0;
     
   return $make; # success - we hope!
@@ -96,14 +102,14 @@ sub nextHSP {
   my (@QL, @SL, @AS); # for better memory management
   
   for(my $i=0;$i<@hspline;$i+=3) {
-    #warn $hspline[$i], $hspline[$i+2];
-    $hspline[$i]   =~ /^Query:\s+(\d+)\s+(\S+)\s+(\d+)/;
+    # warn $hspline[$i], $hspline[$i+2];
+    $hspline[$i]   =~ /^Query:\s+(\d+)\s*([\D\S]+)\s+(\d+)/;
     $ql = $2; $qb = $1 unless $qb; $qe = $3;
     
     my $offset = index($hspline[$i], $ql);
     $as = substr($hspline[$i+1], $offset, CORE::length($ql));
     
-    $hspline[$i+2] =~ /^Sbjct:\s+(\d+)\s+(\S+)\s+(\d+)/;
+    $hspline[$i+2] =~ /^Sbjct:\s+(\d+)\s*([\D\S]+)\s+(\d+)/;
     $sl = $2; $sb = $1 unless $sb; $se = $3;
     
     push @QL, $ql; push @SL, $sl; push @AS, $as;
@@ -112,28 +118,15 @@ sub nextHSP {
   ##################
   # the HSP object #
   ##################
-  # score 
-  # bits
-  # match
-  # positive
-  # percent
-  # length of alignment ? 
-  # p: p value
-  # qb: query begin
-  # qe: query end
-  # sb: subject begin
-  # se: subject end
-  # ql: qery alignment
-  # sl: subject alignment
-  # as: alignment sequence
   $ql = join("", @QL);
   $sl = join("", @SL);
   $as = join("", @AS);
   my $hsp = new Bio::Tools::BPlite::HSP(
-    -score=>$score,-bits=>$bits,-match=>$match,
-    -positive=>$positive,-length=>$length,-p=>$p,
-    -queryBegin=>$qb,-queryEnd=>$qe,-sbjctBegin=>$sb,
-    -sbjctEnd=>$se,-queryLine=>$ql,-sbjctLine=>$sl,
-    -homologyLine=>$as);
+    -score=>$score, -bits=>$bits, -match=>$match,
+    -positive=>$positive, -length=>$length, -p=>$p,
+    -queryBegin=>$qb, -queryEnd=>$qe, -sbjctBegin=>$sb,
+    -sbjctEnd=>$se, -querySeq=>$ql, -sbjctSeq=>$sl,
+    -homologySeq=>$as, -queryName=>$self->{PARENT}->query,
+    -sbjctName=>$self->{NAME});
   return $hsp;
 }
