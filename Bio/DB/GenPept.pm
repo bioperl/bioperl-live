@@ -1,6 +1,6 @@
 
 #
-# BioPerl module for Bio::DB::GenBank
+# BioPerl module for Bio::DB::GenPept
 #
 # Cared for by Aaron Mackey <amackey@virginia.edu>
 #
@@ -12,21 +12,21 @@
 
 =head1 NAME
 
-Bio::DB::GenBank - Database object interface to GenBank
+Bio::DB::GenPept - Database object interface to GenPept
 
 =head1 SYNOPSIS
 
-    $gb = new Bio::DB::GenBank;
+    $gb = new Bio::DB::GenPept;
 
-    $seq = $gb->get_Seq_by_id('MUSIGHBA1'); # Unique ID
+    $seq = $gb->get_Seq_by_id('195055'); # Unique ID
 
     # or ...
 
-    $seq = $gb->get_Seq_by_acc('J00522'); # Accession Number
+    $seq = $gb->get_Seq_by_acc('195055'); # Accession Number
 
 =head1 DESCRIPTION
 
-Allows the dynamic retrieval of Sequence objects (Bio::Seq) from the GenBank
+Allows the dynamic retrieval of Sequence objects (Bio::Seq) from the GenPept
 database at NCBI, via an Entrez query.
 
 =head1 FEEDBACK
@@ -63,7 +63,7 @@ The rest of the documentation details each of the object methods. Internal metho
 
 # Let the code begin...
 
-package Bio::DB::GenBank;
+package Bio::DB::GenPept;
 use vars qw($AUTOLOAD @ISA @EXPORT_OK);
 use strict;
 
@@ -103,9 +103,9 @@ sub _initialize {
 sub get_Seq_by_id {
 
   my $self = shift;
-  my $uid = shift or $self-throw("Must supply an identifier!\n");
+  my $uid = shift or $self->throw("Must supply an identifier!\n");
 
-  my $entrez = "db=n&form=6&dopt=f&html=no&title=no&uid=$uid";
+  my $entrez = "db=p&form=6&dopt=f&html=no&title=no&uid=$uid" ;
 
   my $stream = $self->_get_stream($entrez);
   return $stream->next_seq();
@@ -118,14 +118,14 @@ sub get_Seq_by_id {
   Function: Gets a Bio::Seq object by its accession number
   Returns : a Bio::Seq object
   Args    : $acc : the accession number of the desired sequence entry
-  Note    : For GenBank, this just calls the same code for get_Seq_by_id()
+  Note    : For GenPept, this just calls the same code for get_Seq_by_id()
 
 =cut
 
 sub get_Seq_by_acc {
 
   my $self = shift;
-  my $acc = shift or $self-throw("Must supply an accesion number!\n");
+  my $acc = shift or $self->throw("Must supply an accesion number!\n");
   
   return $self->get_Seq_by_id($acc);
 }
@@ -149,7 +149,7 @@ sub get_Stream_by_id {
   ref($id) eq "ARRAY" or $self->throw("Must supply an array ref!\n");
 
   my $uid = join(',', @{$id});
-  my $entrez = "db=n&form=6&dopt=f&html=no&title=no&uid=$uid" ;
+  my $entrez = "db=p&form=6&dopt=f&html=no&title=no&uid=$uid" ;
 
   return $self->_get_stream($entrez);
 
@@ -190,7 +190,7 @@ sub _get_stream {
 				  );
   unless ($sock) {
     $@ =~ s/^.*?: //;
-    $self->throw("Can't connect to GenBank ($@)\n");
+    $self->throw("Can't connect to GenPept ($@)\n");
   }
   $sock->autoflush(); # just for safety's sake if they have old IO::Socket
 
@@ -216,14 +216,4 @@ sub _get_stream {
 
 1;
 __END__
-
-
-
-
-
-
-
-
-
-
 
