@@ -168,7 +168,8 @@ sub flush_promoters {
 
 sub exons {
     my ($self, $type) = @_;
-    return $self->get_unordered_feature_type('Bio::SeqFeature::Gene::ExonI', $type);
+    return $self->get_unordered_feature_type('Bio::SeqFeature::Gene::ExonI', 
+					     $type);
 }
 
 =head2 exons_ordered
@@ -665,7 +666,8 @@ sub _make_cds {
 
 
 sub features {
-    my ($self)=@_;
+    my ($self) = shift;
+    $self->{'_features'} = [] unless defined $self->{'_features'};
     return @{$self->{'_features'}};
 }
 
