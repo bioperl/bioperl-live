@@ -238,6 +238,16 @@ Information:
 QQ_ERROR_QQ
 }
 
+open(CONF,'>bioperl.conf') or die "couldn't open bioperl.conf";
+
+print CONF<<'!NO!GROK!';
+VERSION		1.2
+AUTHORS		file://AUTHORS
+!NO!GROK!
+
+close CONF;
+
+
 WriteMakefile(
     NAME	=> $NAME,
     DISTNAME    => $DISTNAME,
@@ -252,8 +262,11 @@ WriteMakefile(
     ) : (),
     'realclean' => {  FILES        => join(' ',@BACKUP_FILES) },
     DIR         => [  ], # directories with other Makefile.PL's in them
+    PL_FILES	=> {
+			'bioperl.PL' => 'bioperl.pod',
+			'biodatabases.PL' => 'biodatabases.pod',
+			'biodesign.PL' => 'biodesign.pod',
+			'bioscripts.PL' => 'bioscripts.pod',
+		   },
 );
-
-
-
 

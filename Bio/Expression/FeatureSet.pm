@@ -132,6 +132,73 @@ sub id {
   return $self->{id};
 }
 
+
+=head2 standard_deviation
+
+ Title   : standard_deviation
+ Usage   : $featureset->standard_deviation($optional_arg);
+ Function: get/set the standard deviation of the featureset value
+ Returns : the featureset standard deviation
+ Args    : a new value for the featureset standard deviation
+ Notes   : this method does no calculation, it merely holds a value
+
+=cut
+
+sub standard_deviation {
+  my $self = shift;
+  $self->{standard_deviation} = shift if @_;
+  return $self->{standard_deviation};
+}
+
+=head2 quantitation
+
+ Title   : quantitation
+ Usage   : $featureset->quantitation($optional_arg);
+ Function: get/set the quantitation of the featureset
+ Returns : the featureset's quantitated value
+ Args    : a new value for the featureset's quantitated value
+ Notes   : this method does no calculation, it merely holds a value
+
+=cut
+
+sub quantitation {
+  my $self = shift;
+  $self->{quantitation} = shift if @_;
+  return $self->{quantitation};
+}
+
+=head2 quantitation_units
+
+ Title   : quantitation_units
+ Usage   : $featureset->quantitation_units($optional_arg);
+ Function: get/set the quantitation units of the featureset
+ Returns : the featureset's quantitated value units
+ Args    : a new value for the featureset's quantitated value units
+
+=cut
+
+sub quantitation_units {
+  my $self = shift;
+  $self->{quantitation_units} = shift if @_;
+  return $self->{quantitation_units};
+}
+
+=head2 presence
+
+ Title   : presence
+ Usage   : $featureset->presence($optional_arg);
+ Function: get/set the presence call of the featureset
+ Returns : the featureset's presence call
+ Args    : a new value for the featureset's presence call
+
+=cut
+
+sub presence {
+  my $self = shift;
+  $self->{presence} = shift if @_;
+  return $self->{presence};
+}
+
 =head2 add_feature
 
  Title   : add_feature

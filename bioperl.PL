@@ -1,37 +1,60 @@
-## $Id: bioperl.pod,v 1.36 2002-08-26 12:36:04 bosborne Exp $
+#!/usr/bin/perl
+use strict;
+use LocalConfig;
+use File::Basename qw(basename dirname);
+my $file;
+($file = basename($0)) =~ s/\.PL$/\.pod/;
+open OUT,">$file" or die "Can't create $file: $!";
 
-## Should contain general info about the distribution including
-## links to many modules.
-##
-## 'cookbook' type examples are probably better off being placed
-## in the local embedded module PODs. This will make it easier for
-## authors to update and maintain.
-
+print OUT<<"!GROK!THIS!";
 =head1 NAME
 
-Bioperl - Coordinated OOP-Perl Modules for Biology
+Bioperl v$Local{VERSION} - Perl Modules for Biology
 
 =head1 SYNOPSIS
 
-Read on...
+If you're new to Bioperl, you should start reading F<bptutorial>, an
+overview of the Bioperl toolkit.
 
+In the style of the perl documentation, core Bioperl documentation has
+been split up into the following sections:
+
+=head2 Overview
+
+	bioperl		Bioperl overview (this document)
+
+=head2 Tutorials
+
+	bptutorial	Bioperl tutorial for beginners
+
+=head2 References for Individual Modules
+
+For ease of maintenance and coordination amongst contributors, bioperl is
+code is maintained in a modular form, as is the documentation.  Refer to
+the documentation for individual modules by using perldoc, i.e.
+
+C<perldoc Bio::Seq>
+
+to get documentation for the Bio::Seq object.
 
 =head1 DESCRIPTION
 
-Bioperl contains a number of Perl objects which are useful in biology.
-Examples include Sequence objects, Alignment objects and database
-searching objects. These objects not only do what they are advertised
-to do in the documentation, but they also interact - Alignment
+Bioperl is the product of a community effort to produce Perl code which is
+useful in biology.  Examples include Sequence objects, Alignment objects
+and database searching objects. These objects not only do what they are
+advertised to do in the documentation, but they also interact - Alignment
 objects are made from the Sequence objects, Sequence objects have access
 to Annotation and SeqFeature objects and databases, Blast objects can be
 converted to Alignment objects, and so on. This means that the objects
-provide a coordinated and extensible framework to do computational biology.
+provide a coordinated and extensible framework to do computational
+biology.
 
-Bioperl development is focused on the Perl modules or objects themselves.
-There are scripts provided in the scripts/ directory but scripts are
-not the main focus of the Bioperl developers. Of course, as the
-objects do most of the hard work for you, all you have to do is combine a
-number of objects together sensibly to make useful scripts.
+Bioperl development focuses on Perl classes, or code that is used to
+create objects representing biological entities. There are scripts
+provided in the scripts/ directory but scripts are not the main focus of
+the Bioperl developers. Of course, as the objects do most of the hard work
+for you, all you have to do is combine a number of objects together
+sensibly to make useful scripts.
 
 The intent of the Bioperl development effort is to make reusable tools
 that aid people in creating their own sites or job-specific applications.
@@ -101,7 +124,7 @@ We are very interested to hear how you experienced using Bioperl. Did
 it install cleanly? Did you understand the documentation? Could you
 get the objects to do what you wanted them to do? If Bioperl was useless
 we want to know why, and if it was great - that too. Post a message to
-bioperl-l@bioperl.org, the Bioperl mailing list, where all the developers
+bioperl-l\@bioperl.org, the Bioperl mailing list, where all the developers
 are.
 
 Only by getting people's feedback do we know whether we are providing
@@ -118,7 +141,7 @@ sort of work, advice is freely given and all are welcome!
 =head2 Find bugs!
 
 We know that there are bugs in there. If you find something which you are
-pretty sure is a problem, post a note to bioperl-bugs@bioperl.org and
+pretty sure is a problem, post a note to bioperl-bugs\@bioperl.org and
 we will get on it as soon as possible. You can also access the bug
 system through the web pages.
 
@@ -134,7 +157,7 @@ except for Seq.pm). Talk to him or her and suggest changes.
 If you can make a useful object we will happily include it into the
 core. Probably you will want to read a lot of the documentation 
 in the L<Bio::Root>, talk to people on the Bioperl mailing list,
-bioperl-l@bioperl.org, and read biodesign.pod. biodesign.pod provides
+bioperl-l\@bioperl.org, and read biodesign.pod. biodesign.pod provides
 documentation on the conventions and ideas used in Bioperl, it's definitely
 worth a read if you would like to be a Bioperl developer.
 
@@ -180,12 +203,17 @@ colocation facilities and Internet bandwidth donated by Genetics
 Institute. In particular Dr. Steven Howes, Kenny Grant & 
 Rich DiNunno have made significant efforts on our behalf.
 
+Finally, this document is maintained by Allen Day.  Contact
+<allenday\@ucla.edu> for comments/corrections.
+
+$Local{AUTHORS}
 
 =head1 COPYRIGHT
 
- Copyright (c) 1996-2000 Georg Fuellen, Richard Resnick, Steven E. Brenner,
- Chris Dagdigian, Steve Chervitz, Ewan Birney, James Gilbert, Elia Stupka, 
- and others. All Rights Reserved. This module is free software; 
- you can redistribute it and/or modify it under the same terms as Perl itself.
+Copyright (c) 1996-2003 Georg Fuellen, Richard Resnick, Steven E. Brenner,
+Chris Dagdigian, Steve Chervitz, Ewan Birney, James Gilbert, Elia Stupka,
+and others. All Rights Reserved. This module is free software;  you can
+redistribute it and/or modify it under the same terms as Perl itself.
 
 =cut
+!GROK!THIS!

@@ -1,4 +1,12 @@
+#!/usr/bin/perl
+use strict;
+use LocalConfig;
+use File::Basename qw(basename dirname);
+my $file;
+($file = basename($0)) =~ s/\.PL$/\.pod/;
+open OUT,">$file" or die "Can't create $file: $!";
 
+print OUT<<'!NO!GROK!';
 =head1 NAME
 
 biodesign.pod - Bioperl Design Documentation
@@ -419,3 +427,4 @@ The Bioperl effort has managed to strike that balance between creating
 reliable and powerful software and providing outlets for individual 
 creativity and imagination. In this spirit of open-mindedness we invite
 you to share your ideas with us at bioperl-l@bioperl.org.
+!NO!GROK!

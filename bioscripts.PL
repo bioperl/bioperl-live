@@ -1,3 +1,13 @@
+#!/usr/bin/perl
+use strict;
+use LocalConfig;
+use File::Basename qw(basename dirname);
+my $file;
+($file = basename($0)) =~ s/\.PL$/\.pod/;
+open OUT,">$file" or die "Can't create $file: $!";
+
+print OUT<<'!NO!GROK!';
+
 =head1 NAME
 
 Bioscripts
@@ -286,3 +296,4 @@ Script for testing and demonstrating Bio::Tools::Genscan.
 Convert a PAUP tree block to Phylip format.
 
 =cut
+!NO!GROK!

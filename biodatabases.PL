@@ -1,5 +1,12 @@
-## $Id: biodatabases.pod,v 1.4 2002-02-22 05:14:20 lstein Exp $
+#!/usr/bin/perl
+use strict;
+use LocalConfig;
+use File::Basename qw(basename dirname);
+my $file;
+($file = basename($0)) =~ s/\.PL$/\.pod/;
+open OUT,">$file" or die "Can't create $file: $!";
 
+print OUT<<'!NO!GROK!';
 #
 # Documentation about the backend of Bioperl
 # 
@@ -218,3 +225,5 @@ sequences and extract subsequences rapidly.
 
 See L<Bio::DB::GFF>, L<Bio::DB::GFF::RelSegment>,
 L<Bio::DB::GFF::Feature>, and L<Bio::DB::GFF::Adaptor::dbi>.
+
+!NO!GROK!
