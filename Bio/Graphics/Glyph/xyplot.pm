@@ -197,7 +197,6 @@ sub _draw_scale {
 
   my $fg    = $self->fgcolor;
   my $half  = ($y1+$y2)/2;
-  # TH
   my $font  = $self->font('gdTinyFont');
 
   $gd->line($x1,$y1,$x1,$y2,$fg) if $side eq 'left'  || $side eq 'both';
