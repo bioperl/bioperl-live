@@ -681,7 +681,11 @@ sub calculate_offsets {
   # deal with last entry
   if ($id) {
     my $pos = tell($fh);
-    my $seqlength   = $pos - $offset - length($_) - 1;
+
+#    my $seqlength   = $pos - $offset - length($_) - 1;
+    # $_ is always null should not be part of this calculation
+    my $seqlength   = $pos - $offset  - 1;
+
     if ($linelength == 0) { # yet another pesky empty chr_random.fa file
       $seqlength = 0;
     } else {
