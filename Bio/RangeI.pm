@@ -105,7 +105,7 @@ sub _strong {
   my ($s1, $s2) = ($r1->strand(), $r2->strand());
   
   return $s1 != 0 and $s2 != 0 and
-         $s1 = $s2;
+         $s1 == $s2;
 }
 
 # returns true if strands are equal or either is zero
@@ -123,7 +123,7 @@ sub _ignore {
 }
 
 # works out what test to use for the strictness and returns true/false
-# e.g. $r1->_testStrand($r2, STRONG)
+# e.g. $r1->_testStrand($r2, 'strong')
 sub _testStrand() {
   my ($r1, $r2, $comp) = @_;
   return 1 unless $comp;
@@ -248,7 +248,7 @@ sub overlaps {
 sub contains {
   my ($self, $other, $so) = @_;
   if(ref $other) { # a range object?
-    return ($self->_testStrand($so)      and
+    return ($self->_testStrand($other, $so)      and
       $other->start() >= $self->start() and
       $other->end() <= $self->end());
   } else { # a scalar?
@@ -268,7 +268,7 @@ sub contains {
 
 sub equals {
   my ($self, $other, $so) = @_;
-  return ($self->_testStrand($so)           and
+  return ($self->_testStrand($other, $so)   and
           $self->start() == $other->start() and
           $self->end()   == $other->end()       );
 }
@@ -283,14 +283,16 @@ triplets (start, stop, strand) from which new ranges could be built.
   Title   : intersection
   Usage   : ($start, $stop, $strand) = $r1->intersection($r2)
   Function: gives the range that is contained by both ranges
-  Args    : a range to compare this one to
-  Returns : nothing if they don't overlap, or the range that they do overlap
+  Args    : Two arguments:
+          :     arg #1 = a range to compare this one to
+          :     arg #2 = strand option ('strong', 'weak', 'ignore')
+  Returns : nothing if they do not overlap, or the range that they do overlap
 
 =cut
 
 sub intersection {
   my ($self, $other, $so) = @_;
-  return unless $self->_testStrand($so);
+  return unless $self->_testStrand($other, $so);
 
   my @start = sort {$a<=>$b}
                    ($self->start(), $other->start());
@@ -299,11 +301,19 @@ sub intersection {
 
   my $start = pop @start;
   my $end = shift @end;
-  
+
+  my $union_strand;  # Strand for the union range object.
+
+  if($self->strand == $other->strand) {
+      $union_strand = $other->strand;
+  } else {
+      $union_strand = 0;
+  } 
+
   if($start > $end) {
     return;     
   } else {
-    return ($start, $end, 0);
+    return ($start, $end, $union_strand);
   }
 }
 
@@ -336,8 +346,22 @@ sub union {
   }
 
   my $end = pop @end;
+
+  my $union_strand;  # Strand for the union range object.
+
+  foreach(@ranges) {
+      if(! defined $union_strand) {
+          $union_strand = $_->strand;
+          next;
+      } else {
+          if($union_strand ne $_->strand) {
+              $union_strand = 0;
+              last;
+          }
+      }
+  }
   
-  return ($start, $end, 0);
+  return ($start, $end, $union_strand);
 }
 
 =head2 overlap_extent
