@@ -22,7 +22,7 @@ BEGIN {
 	use lib 't';
     }
     use vars qw($NTESTS);
-    $NTESTS = 1208;
+    $NTESTS = 1209;
     $LASTXMLTEST = 63;
     $error = 0;
 
@@ -283,6 +283,12 @@ while( $hit = $result->next_hit ) {
     }
     last if( $count++ > @valid );
 }
+
+# test that add hit really works properly for BLAST objects
+# bug 1611
+my @hits = $result->hits;
+$result->add_hit($hits[0]);
+ok($result->num_hits, @hits + 1);
 
 # test WU-BLAST -noseqs option
 $searchio = new Bio::SearchIO ('-format' => 'blast',
