@@ -461,7 +461,7 @@ sub set_blast_params {
 		-exec_func  => '',
 		-save_array => '',   # Not used if exec_func is defined
                                      # (experimental).
-  	        -wait       => $opt_wait,
+  	        '-wait'     => $opt_wait,  # Use -WAIT and save the quotes
 	       );
 
     &print_blast_params if $opt_params;
