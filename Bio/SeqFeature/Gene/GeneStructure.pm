@@ -101,10 +101,7 @@ sub new {
 =cut
 
 sub transcripts {
-    my ($self) = @_;
-
-    return () unless exists($self->{'_transcripts'});
-    return @{$self->{'_transcripts'}};
+    return @{shift->{'_transcripts'} || []};
 }
 
 =head2 add_transcript
@@ -147,6 +144,9 @@ sub flush_transcripts {
     my ($self) = @_;
 
     if(exists($self->{'_transcripts'})) {
+	foreach my $t ( grep {defined} @{$self->{'_transcripts'} || []} ) {
+	    $t->parent(undef); # remove bkwds pointers
+	}
 	delete($self->{'_transcripts'});
     }
 }
@@ -390,11 +390,13 @@ sub flush_sub_SeqFeature {
    }
 }
 
+sub DESTROY { 
+    my $self = shift;
+    $self->flush_transcripts();
+    $self->SUPER::DESTROY();
+}
+
 1;
-
-
-
-
 
 
 

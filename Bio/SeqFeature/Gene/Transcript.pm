@@ -667,9 +667,8 @@ sub _make_cds {
 
 
 sub features {
-    my ($self) = shift;
-    $self->{'_features'} = [] unless defined $self->{'_features'};
-    return @{$self->{'_features'}};
+    my $self = shift;    
+    return @{$self->{'_features'} || []};
 }
 
 =head2 features_ordered
@@ -686,7 +685,7 @@ sub features {
 
 sub features_ordered{
    my ($self) = @_;
-   return $self->_stranded_sort(@{$self->{'_features'}});
+   return $self->_stranded_sort(@{$self->{'_features'} || []});
 }
 
 
@@ -794,6 +793,11 @@ sub _new_of_type {
     bless $fea,$type;
     $fea->primary_tag($primary);
     return $fea;
+}
+
+sub DESTROY {
+    my $self = shift;
+    $self->parent(undef);
 }
 
 1;

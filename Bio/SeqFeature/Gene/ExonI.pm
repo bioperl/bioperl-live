@@ -65,8 +65,6 @@ Internal methods are usually preceded with a _
 package Bio::SeqFeature::Gene::ExonI;
 use vars qw(@ISA);
 use strict;
-
-use Carp;
 use Bio::SeqFeatureI;
 
 @ISA = qw(Bio::SeqFeatureI);
