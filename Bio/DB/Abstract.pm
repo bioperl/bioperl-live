@@ -116,3 +116,9 @@ sub get_Seq_by_acc{
 
 }
 
+
+## End of Package
+
+1;
+__END__
+
