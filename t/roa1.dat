@@ -1,0 +1,448 @@
+ID   HSHNCPA1   standard; RNA; HUM; 1198 BP.
+XX
+AC   X79536;
+XX
+SV   X79536.1
+XX
+DT   03-JUN-1994 (Rel. 39, Created)
+DT   03-JUN-1994 (Rel. 39, Last updated, Version 1)
+XX
+DE   H.sapiens mRNA for hnRNPcore protein A1
+XX
+KW   core protein.
+XX
+OS   Homo sapiens (human)
+OC   Eukaryota; Metazoa; Chordata; Craniata; Vertebrata; Mammalia; Eutheria;
+OC   Primates; Catarrhini; Hominidae; Homo.
+XX
+RN   [2]
+RP   1-1198
+RA   Leffers H.;
+RT   ;
+RL   Submitted (01-JUN-1994) to the EMBL/GenBank/DDBJ databases.
+RL   H. Leffers, Inst. of Medical Research Biochemistry & Danish Centre for
+RL   Human Genome Research, Ole Worms Alle 170, Aarhus Univ., 8000 Aarhus C,
+RL   DENMARK
+XX
+RN   [3]
+RA   Knudsen S.M., Leffers H.;
+RT   "Cloning and sequencing of a splice variant of human hnRNP core protein
+RT   A1";
+RL   Unpublished.
+XX
+DR   SWISS-PROT; P09651; ROA1_HUMAN.
+XX
+FH   Key             Location/Qualifiers
+FH
+FT   source          1..1198
+FT                   /db_xref="taxon:9606"
+FT                   /organism="Homo sapiens"
+FT                   /tissue_type="lung"
+FT                   /cell_type="fibroblast"
+FT                   /cell_line="MRC5"
+FT                   /clone_lib="lambda ZapII"
+FT                   /clone="HDP1"
+FT   CDS             27..989
+FT                   /db_xref="SWISS-PROT:P09651"
+FT                   /product="hnRNPcore protein A1"
+FT                   /protein_id="CAA56072.1"
+FT                   /translation="MSKSESPKEPEQLRKLFIGGLSFETTDESLRSHFEQWGTLTDCVV
+FT                   MRDPNTKRSRGFGFVTYATVEEVDAAMNARPHKVDGRVVEPKRAVSREDSQRPGAHLTV
+FT                   KKIFVGGIKEDTEEHHLRDYFEQYGKIEVIEIMTDRGSGKKRGFAFVTFDDHDSVDKIV
+FT                   IQKYHTVNGHNCEVRKALSKQEMASASSSQRGRSGSGNFGGGRGGGFGGNDNFGRGGNF
+FT                   SGRGGFGGSRGGGGYGGSGDGYNGFGNDGSNFGGGGSYNDFGNYNNQSSNFGPMKGGNF
+FT                   GGRSSGPYGGGGQYFAKPRNQGGYGGSSSSSSYGSGRRF"
+FT   misc_feature    995
+FT                   /note="alternative splice site"
+FT   polyA_signal    1180..1185
+XX
+SQ   Sequence 1198 BP; 334 A; 216 C; 336 G; 312 T; 0 other;
+     ttaaagtctc tcttcaccct gccgtcatgt ctaagtcaga gtctcctaaa gagcccgaac        60
+     agctgaggaa gctcttcatt ggagggttga gctttgaaac aactgatgag agcctgagga       120
+     gccattttga gcaatgggga acgctcacgg actgtgtggt aatgagagat ccaaacacca       180
+     agcgctctag gggctttggg tttgtcacat atgccactgt ggaggaggtg gatgcagcta       240
+     tgaatgcaag gccacacaag gtggatggaa gagttgtgga accaaagaga gctgtctcca       300
+     gagaagattc tcaaagacca ggtgcccact taactgtgaa aaagatattt gttggtggca       360
+     ttaaagaaga cactgaagaa catcacctaa gagattattt tgaacagtat ggaaaaattg       420
+     aagtgattga aatcatgact gaccgaggca gtggcaagaa aaggggcttt gcctttgtaa       480
+     cctttgacga ccatgactcc gtggataaga ttgtcattca gaaataccat actgtgaatg       540
+     gccacaactg tgaagttaga aaagccctgt caaagcaaga gatggctagt gcttcatcca       600
+     gccaaagagg tcgaagtggt tctggaaact ttggtggtgg tcgtggaggt ggtttcggtg       660
+     ggaatgacaa cttcggtcgt ggaggaaact tcagtggtcg tggtggcttt ggtggcagcc       720
+     gtggtggtgg tggatatggt ggcagtgggg atggctataa tggatttggc aatgatggaa       780
+     gcaattttgg aggtggtgga agctacaatg attttgggaa ttacaacaat cagtcttcaa       840
+     attttggacc catgaaggga ggaaattttg gaggcagaag ctctggcccc tatggcggtg       900
+     gaggccaata ctttgcaaaa ccacgaaacc aaggtggcta tggcggttcc agcagcagca       960
+     gtagctatgg cagtggcaga agattttaat tagggaggag tctgctacta gtcttatcag      1020
+     ctcttaaaaa cagaaactca tctgtccaag ttcgtggcag aaaggaacgt ccttgtgaag      1080
+     acctttatct gagccactgt acttcgttat cacgccatgc agtttacatg agctgttctg      1140
+     cagctcgaaa ttccattttg tgaatgggtt ttttttttta ataaactgta tttaactt        1198
+//
+ID   HSHNRNPA   standard; DNA; HUM; 5368 BP.
+XX
+AC   X12671;
+XX
+SV   X12671.1
+XX
+DT   23-NOV-1989 (Rel. 21, Created)
+DT   24-APR-1993 (Rel. 35, Last updated, Version 3)
+XX
+DE   Human gene for heterogeneous nuclear ribonucleoprotein (hnRNP) core
+DE   protein A1
+XX
+KW   hnRNP A1 proten; ribonucleoprotein; RNA binding protein.
+XX
+OS   Homo sapiens (human)
+OC   Eukaryota; Metazoa; Chordata; Craniata; Vertebrata; Mammalia; Eutheria;
+OC   Primates; Catarrhini; Hominidae; Homo.
+XX
+RN   [1]
+RP   1-5368
+RA   Riva S.;
+RT   ;
+RL   Submitted (23-AUG-1988) to the EMBL/GenBank/DDBJ databases.
+RL   Riva S., Consiglio Nazionale Delle Ricerche, Istituto Di Genetica
+RL   Biochimica Ed Evoluzionistica CNR, Via Abbiategrasso 2D7, 27100 Pavia,
+RL   Italy.
+XX
+RN   [2]
+RP   1-5368
+RA   Biamonti G., Buvoli M., Bassi M.T., Morandi C., Cobianchi F., Riva S.;
+RT   "Isolation of an active gene encoding human hnRNP protein A1";
+RL   J. Mol. Biol. 207:491-503(1988).
+XX
+DR   SWISS-PROT; P09651; ROA1_HUMAN.
+XX
+FH   Key             Location/Qualifiers
+FH
+FT   source          1..5368
+FT                   /db_xref="taxon:9606"
+FT                   /organism="Homo sapiens"
+FT                   /clone="pES5"
+FT                   /tissue_type="liver"
+FT                   /clone_lib="lambdaCh4A."
+FT   mRNA            join(695..813,1377..1493,1789..1935,2084..2294,2388..2480,
+FT                   2567..2659,2794..2868,3806..3961,4252..4311,4543..5240)
+FT   CDS             join(799..813,1377..1493,1789..1935,2084..2294,2388..2480,
+FT                   2567..2659,2794..2868,3806..3961,4252..4307)
+FT                   /db_xref="SWISS-PROT:P09651"
+FT                   /product="hnrnp a1 protein"
+FT                   /protein_id="CAA31191.1"
+FT                   /translation="MSKSESPKEPEQLRKLFIGGLSFETTDESLRSHFEQWGTLTDCVV
+FT                   MRDPNTKRSRGFGFVTYATVEEVDAAMNARPHKVDGRVVEPKRAVSREDSQRPGAHLTV
+FT                   KKIFVGGIKEDTEEHHLRDYFEQYGKIEVIEIMTDRGSGKKRGFAFVTFDDHDSVDKIV
+FT                   IQKYHTVNGHNCEVRKALSKQEMASASSSQRGRSGSGNFGGGRGGGFGGNDNFGRGGNF
+FT                   SGRGGFGGSRGGGGYGGSGDGYNGFGNDGSNFGGGGSYNDFGNYNNQSSNFGPMKGGNF
+FT                   GGRSSGPYGGGGQYFAKPRNQGGYGGSSSSSSYGSGRRF"
+FT   exon            695..813
+FT                   /number=1
+FT   misc_feature    695..695
+FT                   /note="mRNA initiation site"
+FT   misc_feature    715..715
+FT                   /note="mRNA initiation site"
+FT   misc_feature    735..735
+FT                   /note="mRNA initiation site"
+FT   intron          814..1376
+FT                   /number=1
+FT   exon            1377..1493
+FT                   /number=2
+FT   intron          1494..1788
+FT                   /number=2
+FT   exon            1789..1935
+FT                   /number=3
+FT   intron          1936..2083
+FT                   /number=3
+FT   exon            2084..2294
+FT                   /number=4
+FT   intron          2295..2387
+FT                   /number=4
+FT   exon            2388..2480
+FT                   /number=5
+FT   intron          2481..2566
+FT                   /number=5
+FT   exon            2567..2659
+FT                   /number=6
+FT   intron          2660..2793
+FT                   /number=6
+FT   exon            2794..2868
+FT                   /number=7
+FT   intron          2869..3805
+FT                   /number=7
+FT   exon            3806..3961
+FT                   /number=8
+FT   intron          3962..4251
+FT                   /number=8
+FT   exon            4252..4311
+FT                   /number=9
+FT   intron          4312..4542
+FT                   /number=9
+FT   exon            4543..5240
+FT                   /number=10
+XX
+SQ   Sequence 5368 BP; 1476 A; 1052 C; 1270 G; 1570 T; 0 other;
+     gggattgaga gtgatcactc acgctaacgt ctgccctgtt cctgtatggt gaggccgcac        60
+     cacaagccac caccgccgcc gccttctgcg caacgccaac cgcccgccaa aacggatcct       120
+     tccctgcgcc tgcgcaacca atcttgggac cggacctttt ttctccgccc actacgcatg       180
+     cgcaaagcta ggacaaactc ccgccaacac gcaggcgccg taggttcact gcctactcct       240
+     gcccgccatt tcacgtgttc tcagaggcag gtggaacttc ttaatgcgcc tgcgcaaaac       300
+     tcgccatttt actacacgtg cggtcaacaa gagttcattg caaaaaaatt gttacctcct       360
+     agctgcttgt ctaatacata gtgttaatca tgctttgcca agcgacttga ctgtaatatt       420
+     tgcgcgtgga agattaaaaa gatgttaaac acccaaggta gattcaaatg tgaatgattg       480
+     gtcggttggc caatcagact ggttaacaat aacattactc gggaaccaat ggactccaag       540
+     gggtggagac ggcgtagaac gaccgaagga atgacgttac acagcaatgt ggcaccacag       600
+     gccaatagca gggggaagcg atttcaagta tccaatcaga gctgttctag ggcggagtct       660
+     accaatgccg aaagcgagga ggcggggtaa aaaagagagg gcgaaggtag gctggcagat       720
+     acgttcgtca gcttgctcct ttctgcccgt ggacgccgcc gaagaagcat cgttaaagtc       780
+     tctcttcacc ctgccgtcat gtctaagtca gaggtgagtt aggcgcgctt tcccacttga       840
+     attttttcct ctccctttcc tgaatcggta agatgctgct gggtttcgtt ccttgcacca       900
+     gcccattcta cagttccttc ggtcgctgcc acggcctacc cctcccaaag ttcaagtcgc       960
+     cattttgtcc tcttgatcgc catgaggccg ctctccgcca accatgtgtt atcatgcggg      1020
+     actcgttact cgtagcaaaa ttcttaggca cacaggatct ttgtcttttt ttaaaccttg      1080
+     ccttggtgag cgagttttct aaagagcgat tagtcccatt gtggagatgc acccctaccg      1140
+     cccaagcctt tgttgcgcgt gcgtcggaag gcgactaggg acgcatgcgc ttgcgatttc      1200
+     ctagcactcc caactccagc atacggcctc ccttgatagg cagaagcacg tgtcttgttg      1260
+     cgacctgaac gaacaataag tgctaggtac acagttggtg tctagttttt cttttcctcg      1320
+     atggaaattg tttcgtgttg tagcccattt aacacttccc cctcccccca ctctagtctc      1380
+     ctaaagagcc cgaacagctg aggaagctct tcattggagg gttgagcttt gaaacaactg      1440
+     atgagagcct gaggagccat tttgagcaat ggggaacgct cacggactgt gtggtaagat      1500
+     ttggaaggga caaagcagta aaacagccga tttccttggc ttatcttggt gcagtcttct      1560
+     ccgaatgctt atgaaagtag ttaatagcat tatagttaga gctttgttgg caaaggaacg      1620
+     tcctgctttg attttaaaag ctaacctctt aaatctaagg gtagtgggaa actggacgaa      1680
+     ctttttataa aaggctggtg taaagtttcc tattgcccta ttcaaagtta aaataacaaa      1740
+     agcttttgcg gtcagacttt gtgttacata aattaacact gttctcaggt aatgagagat      1800
+     ccaaacacca agcgctctag gggctttggg tttgtcacat atgccactgt ggaggaggtg      1860
+     gatgcagcta tgaatgcaag gccacacaag gtggatggaa gagttgtgga accaaagaga      1920
+     gctgtctcca gagaagtgag tgggtttttt ttcttcttct tcttaaactt acttggatat      1980
+     gtgctgctat gaacttaaga ttcgggagtt ttctaaactt accaaaattt tttattcgag      2040
+     tataggcttt gctaatctaa acctatggtt tttctcctat taggattctc aaagaccagg      2100
+     tgcccactta actgtgaaaa agatatttgt tggtggcatt aaagaagaca ctgaagaaca      2160
+     tcacctaaga gattattttg aacagtatgg aaaaattgaa gtgattgaaa tcatgactga      2220
+     ccgaggcagt ggcaagaaaa ggggctttgc ctttgtaacc tttgacgacc atgactccgt      2280
+     ggataagatt gtcagtaagt atcagatagt ggcatttagt aagggttcca caatctgtat      2340
+     ggcattctaa accctgatac catgttgtat ctatgttttt tttttagttc agaaatacca      2400
+     tactgtgaat ggccacaact gtgaagttag aaaagccctg tcaaagcaag agatggctag      2460
+     tgcttcatcc agccaaagag gtatgcttgt tgcttaatta aaccttaaag gtaactttga      2520
+     gttactccag tatgaatgat ttaatgctta aacttcatgt cttaaggtcg aagtggttct      2580
+     ggaaactttg gtggtggtcg tggaggtggt ttcggtggga atgacaactt cggtcgtgga      2640
+     ggaaacttca gtggtcgtgg tatgtatggt ttatctacat gtagttctga cttctcacca      2700
+     tctttgctat gaagatttta cagtacggga actgcattca gaatgtcact ttaagtccaa      2760
+     gtcatactta aaacttgaaa ctttttctta caggtggctt tggtggcagc cgtggtggtg      2820
+     gtggatatgg tggcagtggg gatggctata atggatttgg caatgatggt aagtttttta      2880
+     ggaataagta gagaaaaatt cctggcaacc tggatcttta gaataggtta gtagagacta      2940
+     aaattctggt gcatgtcaaa ctcaactttg cccataacac gcatgctgtg agcaggcctt      3000
+     cagccgttac acttgcacaa gttttcattg tcaaatactt ttgtcttatt gagaagaatt      3060
+     gtattcttgt aggtggttat ggaggaggcg gccctggtta ctctggagga agcagaggct      3120
+     atggaagtgg tggacagggt tatggaaacc agggcagtgg ctatggcggg agtggcagct      3180
+     atgacagcta taacaacgga ggcggaggcg gctttggcgg tggtagtggt aggtatccag      3240
+     tgatccaagt acttggtgtg acagctagat tagcctttta gagcttgggt tctggtgctg      3300
+     ttgaagcatt gtgtggtaca ctgcatggta tattaaaaac aaatgggctt gctatgctac      3360
+     ctcctcctag ctttaagctg gggccgcctc actcccaaat agtagagata agtggatagt      3420
+     gttgtctttg agttagatta gtatcataga aggatttagt attttaactc ctttgggacc      3480
+     ttaggcgctt agttgatgta tccaagatac ttctgcttgc tgtggccctg gatccgtgaa      3540
+     ggccttcaag gctgaagggt atgcttgtgc cactctgaaa atctctttat tttatgtcat      3600
+     ggtgagttag gccagttttc tttgtattac tggattattc aactgaatgc ctttcccaga      3660
+     gaatgaaatg caaagattgg agtcaccata gtttgggaga aaggaaggct gataactcaa      3720
+     ccttatttta ttctgactgc taaacagaat tggaaactaa catcatcctc aggtaacaga      3780
+     taaaggccct ctttcccatt cataggaagc aattttggag gtggtggaag ctacaatgat      3840
+     tttgggaatt acaacaatca gtcttcaaat tttggaccca tgaagggagg aaattttgga      3900
+     ggcagaagct ctggccccta tggcggtgga ggccaatact ttgcaaaacc acgaaaccaa      3960
+     ggtatggtat ctatgtaatt ttggataatg tcaaaagagt gtctgtagct actgctggga      4020
+     agaaagccct ttaactgcta tgtctgggca gcaaaacgtt tatagtttag aaccttcaga      4080
+     aagtgataat ttgatcacaa attagaaaaa tcatgggacc tctttaccac ctcccttgta      4140
+     gtagggccat ttttaaatgg ccagacactt gaatttaact tttattatcc caaatatgaa      4200
+     aacattactg ttggcacttt gaaactttaa aagaaaaatt gtacttttca ggtggctatg      4260
+     gcggttccag cagcagcagt agctatggca gtggcagaag attttaatta ggtaagtaag      4320
+     cacctttttg tgtgttgaca taatttttta aattgctgat gaacccaata accctaatgt      4380
+     agctgagcag tgcaacatag ttaacattat aattgcagta attgtggata taaagttaat      4440
+     attcagatca gcaaaatttg tgggaaacaa acttgatatt ggattgtagc cttgagtctt      4500
+     aatatgttta gattaacaac tctattccat attgttcaac aggaaacaaa gcttagcagg      4560
+     agaggagagc cagagaagtg acagggaagc tacaggttac aacagatttg tgaactcagc      4620
+     caagcacagt ggtggcaggg cctagctgct acaaagaaga catgttttag acaaatactc      4680
+     atgtgtatgg gcaaaaaact cgaggactgt atttgtgact aattgtataa caggttattt      4740
+     tagtttctgt tctgtggaaa gtgtaaagca ttccaacaaa gggttttaat gtagattttt      4800
+     ttttttgcac cccatgctgt tgattgctaa atgtaacagt ctgatcgtga cgctgaataa      4860
+     atgtcttttt tttaatgtgc tgtgtaaagt tagtctactc ttaagccatc ttggtaaatt      4920
+     tccccaacag tgtgaagtta gaattccttc agggtgatgc caggttctat ttggaattta      4980
+     tatacaacct gcttgggtgg agaagccatt gtcttcggaa accttggtgt agttgaactg      5040
+     atagttactg ttgtgacctg aagttcacca ttaaaaggga ttacccaagc aaaatcatgg      5100
+     aatggttata aaagtgattg ttggcacatc ctatgcaata tatctaaatt gaataatggt      5160
+     accagataaa attatagatg ggaatgaagc ttgtgtatcc attatcatgt gtaatcaata      5220
+     aacgatttaa ttctcttgaa tgaaatgaca actgtatgga tttgggactg gcagagattt      5280
+     ggactttccc tacccactcc ccctgataat aatgttgaat gcttctatca caattcaagt      5340
+     tcaaagctct gctagggaat agaaacta                                         5368
+//
+ID   HSRNPA1    standard; RNA; HUM; 1747 BP.
+XX
+AC   X06747;
+XX
+SV   X06747.1
+XX
+DT   08-JUN-1988 (Rel. 16, Created)
+DT   12-SEP-1993 (Rel. 36, Last updated, Version 2)
+XX
+DE   Human hnRNP core protein A1
+XX
+KW   hnRNP A1 protein; ribonucleoprotein.
+XX
+OS   Homo sapiens (human)
+OC   Eukaryota; Metazoa; Chordata; Craniata; Vertebrata; Mammalia; Eutheria;
+OC   Primates; Catarrhini; Hominidae; Homo.
+XX
+RN   [1]
+RP   1-1747
+RA   Riva S.;
+RT   ;
+RL   Submitted (26-JAN-1988) to the EMBL/GenBank/DDBJ databases.
+RL   Riva S., Istituto Di Genetica Biochimica, Ed Evoluzionistica - CNR, Via
+RL   Abbiategrasso 207, 27100 Pavia, Italy.
+XX
+RN   [2]
+RP   1-1747
+RX   MEDLINE; 88233978.
+RA   Buvoli M., Biamonti G., Ghetti A., Riva S., Bassi M.T., Horandi C.;
+RT   "cDNA cloning of human hnRNP protein A1 reveals the existence of multiple
+RT   mRNA isoforms.";
+RL   Nucleic Acids Res. 16:3751-3770(1988).
+XX
+DR   SWISS-PROT; P09651; ROA1_HUMAN.
+XX
+CC   pRP15 sequence encodes the protein A1 type alpha isoform,
+CC   pRP12 (truncated at the 5' end, respectively) the beta isoform
+XX
+FH   Key             Location/Qualifiers
+FH
+FT   source          1..1747
+FT                   /db_xref="taxon:9606"
+FT                   /organism="Homo sapiens"
+FT                   /tissue_type="fibroblast"
+FT                   /clone_lib="lambdagt11"
+FT                   /clone="pRP15"
+FT   CDS             86..1048
+FT                   /db_xref="SWISS-PROT:P09651"
+FT                   /note="protein A1-alpha (AA 1-320)"
+FT                   /protein_id="CAA29922.1"
+FT                   /translation="MSKSESPKEPEQLRKLFIGGLSFETTDESLRSHFEQWGTLTDCVV
+FT                   MRDPNTKRSRGFGFVTYATVEEVDAAMNARPHKVDGRVVEPKRAVSREDSQRPGAHLTV
+FT                   KKIFVGGIKEDTEEHHLRDYFEQFGKIEVIEIMTDRGSGKKKGFAFVTFDDHDSVDKIV
+FT                   IQKYHTVNGHNCEVRKALSKQEMASASSSQRGRSGSGNFGGGRGGGFGGNDNFGRGGNF
+FT                   SGRGGFGGSRGGGGYGGSGDGYNGFGNDGSNFGGGGSYNDFGNYNNQSSNFGPMKGGNF
+FT                   GGRSSGPYGGGGQYFAKPRNQGGYGGSSSSSSYGSGRRF"
+FT   misc_feature    209..209
+FT                   /note="5' end of clone pRP12"
+FT   variation       467..469
+FT                   /note="uau (Tyr) is uuu (Phe) in pRP12 (protein A1-beta)"
+FT   variation       521..523
+FT                   /note="agg (Arg) is aag (Lys) in pRP12 (protein A1-beta)"
+FT   misc_feature    1365..1370
+FT                   /note="polyA signal"
+FT   misc_feature    1726..1731
+FT                   /note="polyA signal"
+FT   polyA_site      1747..1747
+FT                   /note="polyA site"
+XX
+SQ   Sequence 1747 BP; 512 A; 300 C; 466 G; 469 T; 0 other;
+     cgaaaggtta caaaggcaaa gccccttttc tgcccgtgga cgccgccgaa gaagcatcgt        60
+     taaagtctct cttcaccctg ccgtcatgtc taagtcagag tctcctaaag agcccgaaca       120
+     gctgaggaag ctcttcattg gagggttgag ctttgaaaca actgatgaga gcctgaggag       180
+     ccattttgag caatggggaa cgctcacgga ctgtgtggta atgagagatc caaacaccaa       240
+     gcgctctagg ggctttgggt ttgtcacata tgccactgtg gaggaggtgg atgcagctat       300
+     gaatgcaagg ccacacaagg tggatggaag agttgtggaa ccaaagagag ctgtctccag       360
+     agaagattct caaagaccag gtgcccactt aactgtgaaa aagatatttg ttggtggcat       420
+     taaagaagac actgaagaac atcacctaag agattatttt gaacagtttg gaaaaattga       480
+     agtgattgaa atcatgactg accgaggcag tggcaagaaa aagggctttg cctttgtaac       540
+     ctttgacgac catgactccg tggataagat tgtcattcag aaataccata ctgtgaatgg       600
+     ccacaactgt gaagttagaa aagccctgtc aaagcaagag atggctagtg cttcatccag       660
+     ccaaagaggt cgaagtggtt ctggaaactt tggtggtggt cgtggaggtg gtttcggtgg       720
+     gaatgacaac ttcggtcgtg gaggaaactt cagtggtcgt ggtggctttg gtggcagccg       780
+     tggtggtggt ggatatggtg gcagtgggga tggctataat ggatttggca atgatggaag       840
+     caattttgga ggtggtggaa gctacaatga ttttgggaat tacaacaatc agtcttcaaa       900
+     ttttggaccc atgaagggag gaaattttgg aggcagaagc tctggcccct atggcggtgg       960
+     aggccaatac tttgcaaaac cacgaaacca aggtggctat ggcggttcca gcagcagcag      1020
+     tagctatggc agtggcagaa gattttaatt aggaaacaaa gcttagcagg agaggagagc      1080
+     cagagaagtg acagggaagc tacaggttac aacagatttg tgaactcagc caagcacagt      1140
+     ggtggcaggg cctagctgct acaaagaaga catgttttag acaaatactc atgtgtatgg      1200
+     gcaaaaaact cgaggactgt atttgtgact aattgtataa caggttattt tagtttctgt      1260
+     tctgtggaaa gtgtaaagca ttccaacaaa gggttttaat gtagattttt tttttgcacc      1320
+     ccatgctgtt gattgctaaa tgtaacagtc tgatcgtgac gctgaataaa tgtctttttt      1380
+     ttaatgtgct gtgtaaagtt agtctactct taagccatct tggtaaattt ccccaacagt      1440
+     gtgaagttag aattccttca gggtgatgcc aggttctatt tggaatttat atacaacctg      1500
+     cttgggtgga gaagccattg tcttcggaaa ccttggtgta gttgaactga tagttactgt      1560
+     tgtgacctga agttcaccat taaaagggat tacccaagca aaatcatgga atggttataa      1620
+     aagtgattgt tggcacatcc tatgcaatat atctaaattg aataatggta ccagataaaa      1680
+     ttatagatgg gaatgaagct tgtgtatcca ttatcatgtg taatcaataa acgatttaat      1740
+     tctcttg                                                                1747
+//
+ID   HSUPIR1    standard; RNA; HUM; 924 BP.
+XX
+AC   X04347;
+XX
+SV   X04347.1
+XX
+DT   18-NOV-1986 (Rel. 10, Created)
+DT   12-JUL-1995 (Rel. 44, Last updated, Version 3)
+XX
+DE   Human liver mRNA fragment DNA binding protein UPI homologue
+DE   (C-terminus)
+XX
+KW   DNA binding protein.
+XX
+OS   Homo sapiens (human)
+OC   Eukaryota; Metazoa; Chordata; Craniata; Vertebrata; Mammalia; Eutheria;
+OC   Primates; Catarrhini; Hominidae; Homo.
+XX
+RN   [1]
+RP   1-924
+RX   MEDLINE; 87053868.
+RA   Riva S., Morandi C., Tsoulfas P., Pandolfo M., Biamonti G., Merrill B.,
+RA   Williams K.R., Multhaup G., Beyreuther K., Werr H., Heinrich B.,
+RA   Schaefer K.P.;
+RT   "Mammalian single-stranded DNA binding protein UP I is derived from the
+RT   hnRNP cor protein A1";
+RL   EMBO J. 5:2267-2273(1986).
+XX
+DR   SWISS-PROT; P09651; ROA1_HUMAN.
+XX
+CC   Pos. 1-216 is homologous to UPI (aa 126-195); pos. 184-273 is
+CC   homologous to V8 protease peptide AI/II (aa 185-214)
+XX
+CC   Data kindly reviewed (08-NOV-1986) by K. Beyreuther
+XX
+FH   Key             Location/Qualifiers
+FH
+FT   source          1..924
+FT                   /db_xref="taxon:9606"
+FT                   /organism="Homo sapiens"
+FT   CDS             <1..591
+FT                   /codon_start=1
+FT                   /db_xref="SWISS-PROT:P09651"
+FT                   /note="ORF protein; C-terminal (aa 125-319; 196aa)"
+FT                   /protein_id="CAA27874.1"
+FT                   /translation="FEQYGKIEVIEIMTDPGSGKKRGFAFVTFDDHDSVDKIVIQKYHT
+FT                   VNGHNCEVRKALSKQEMASASSSQRGRSGSGNFGGGRGGGFGGNDNFGRGGNFSGRGGF
+FT                   GGSRGGGGYGGSGDGYNGFGNDGSNFGGGGSYNDFGNYNNQSSNFGPMKGGNFGGRSSG
+FT                   PYGGGGQYFAKPRNQGGYGGSSSSSSYGSGRRF"
+FT   misc_feature    208..210
+FT                   /note="dimethylated arginin"
+FT   polyA_signal    908..913
+FT                   /note="pot. polyA signal"
+FT   polyA_site      924..924
+FT                   /note="polyA site"
+XX
+SQ   Sequence 924 BP; 262 A; 148 C; 266 G; 248 T; 0 other;
+     tttgaacagt atggaaaaat tgaagtgatt gaaatcatga ctgacccagg cagtggcaag        60
+     aaaaggggct ttgcctttgt aacctttgac gaccatgact ccgtggataa gattgtcatt       120
+     cagaaatacc atactgtgaa tggccacaac tgtgaagtta gaaaagccct gtcaaagcaa       180
+     gagatggcta gtgcttcatc cagccaaaga ggtcgaagtg gttctggaaa ctttggtggt       240
+     ggtcgtggag gtggtttcgg tgggaatgac aacttcggtc gtggaggaaa cttcagtggt       300
+     cgtggtggct ttggtggcag ccgtggtggt ggtggatatg gtggcagtgg ggatggctat       360
+     aatggatttg gcaatgatgg aagcaatttt ggaggtggtg gaagctacaa tgattttggg       420
+     aattacaaca atcagtcttc aaattttgga cccatgaagg gaggaaattt tggaggcaga       480
+     agctctggcc cctatggcgg tggaggccaa tactttgcaa aaccacgaaa ccaaggtggc       540
+     tatggcggtt ccagcagcag cagtagctat ggcagtggca gaagatttta attaggaaac       600
+     aagcttggca ggagaggaga gccagagaag tgacagggaa gctacaggtt acaacagatt       660
+     tgtgaactca gccaagcaca gtggtggcag ggcctagctg ctacaaagaa gacatgtttt       720
+     agacaaatac tcatgtgtat gggcaaaaaa ctcgaggact gtatttgtga ctaattgtat       780
+     aacaggttat tttagtttct gttctgtgga aagtgaaagc attccaacaa agggttttaa       840
+     tgtagatttt ttttttttgc accccatgct gttgattgct aaatgtaaca gtctgatcgt       900
+     gacgctgaat aaatgtcttt tttt                                              924
+//
