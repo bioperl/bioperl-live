@@ -31,13 +31,27 @@ sub draw_component {
     return $self->SUPER::draw_component($gd,@_);
   }
 
-  $gd->line($x1,$ymid,$xmid,$y1,$fg);
-  $gd->line($xmid,$y1,$x2,$ymid,$fg);
-  $gd->line($x2,$ymid,$xmid,$y2,$fg);
-  $gd->line($xmid,$y2,$x1,$ymid,$fg);
+  # Fetch out the image_class
+  my $img_class = $self->_image_class;
+  my $pkg       = $img_class . '::Polygon';
+  my $polygon   = $pkg->new();
+  $polygon->addPt($x1,$ymid);
+  $polygon->addPt($xmid,$y1);
+  $polygon->addPt($x2,$ymid);
+  $polygon->addPt($xmid,$y2);
 
+  # Have to draw TWO polygons for fills in order
+  # to get an outline because filledPolygon croaks with extra
+  # parameters (and doesn't support drawing of stroke anyways).
   if (my $c = $self->bgcolor) {
-    $gd->fillToBorder($xmid,$ymid,$fg,$c);
+    if ($img_class =~ /SVG/) {
+      $gd->filledPolygon($polygon,$c,$fg);
+    } else {
+      $gd->filledPolygon($polygon,$c);
+      $gd->polygon($polygon,$fg);
+    }
+  } else {
+    $gd->polygon($polygon,$fg);
   }
 }
 
@@ -132,7 +146,7 @@ L<GD>
 
 =head1 AUTHOR
 
-Lincoln Stein E<lt>lstein@cshl.orgE<gt>
+Lincoln Stein E<lt>lstein@cshl.orgE<gt>, Todd Harris E<lt>harris@cshl.orgE<gt>
 
 Copyright (c) 2001 Cold Spring Harbor Laboratory
 
