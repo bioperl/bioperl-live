@@ -108,7 +108,7 @@ email or the web:
 
 =head1 AUTHOR 
 
-Steve Chervitz <sac@bioperl.org>
+Steve Chervitz E<lt>sac@bioperl.orgE<gt>
 
 See L<the FEEDBACK section | FEEDBACK> for where to send bug reports and comments.
 
@@ -120,6 +120,9 @@ feedback.
 =head1 COPYRIGHT
 
 Copyright (c) 2001 Steve Chervitz. All Rights Reserved.
+
+This library is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself.
 
 =head1 DISCLAIMER
 
