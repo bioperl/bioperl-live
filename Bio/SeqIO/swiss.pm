@@ -917,7 +917,7 @@ sub _read_swissprot_Species {
 		@spflds = split(' ',$binomial);
 
 		#if first term a conventional uppercase genus?
-		unless ( (grep { /^$spflds[0]/i } @Unknown_genus) || 
+		unless ( (grep { /^\Q$spflds[0]/i } @Unknown_genus) || 
 			 ($spflds[0] =~ m/^[^A-Z]/) ) {
 		    $genus = shift @spflds;
 		} else	{ undef $genus; }
@@ -982,7 +982,7 @@ sub _read_swissprot_Species {
     $self->_pushback($_); # pushback the last line because we need it
     
     #if the organism belongs to taxid 32644 then no Bio::Species object.
-    return if grep { /^$binomial$/ } @Unknown_names;
+    return if grep { /^\Q$binomial$/ } @Unknown_names;
     if (@class) { 
 	if ($class[0] eq 'Viruses') {
             push( @class, $ns_name );
