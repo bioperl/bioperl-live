@@ -148,7 +148,7 @@ use Bio::RangeI;
 use Bio::SeqFeature::Generic;
 use Bio::SeqFeature::Primer;
 
-use vars qw ($AUTOLOAD @RES %OK_FIELD @ISA $ID $version);
+use vars qw ($AUTOLOAD @RES %OK_FIELD @ISA $ID);
 
 @ISA = qw(Bio::Root::Root Bio::SeqFeature::Generic);
 
@@ -159,7 +159,6 @@ BEGIN {
 }
 
 $ID = 'Bio::Tools::Analysis::Nucleotide::PrimedSeq';
-$version = 1.0;
 
 
 sub AUTOLOAD {

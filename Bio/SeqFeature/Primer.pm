@@ -133,7 +133,7 @@ use Bio::Seq;
 use Bio::Tools::SeqStats;
 
 
-use vars qw ($AUTOLOAD @RES %OK_FIELD @ISA $ID $version);
+use vars qw ($AUTOLOAD @RES %OK_FIELD @ISA $ID);
 
 BEGIN {
  @RES=qw(); # nothing here yet, not sure what we want!
@@ -144,7 +144,6 @@ BEGIN {
 @ISA = qw(Bio::Root::Root Bio::SeqFeature::Generic);
 
 $ID = 'Bio::SeqFeature::Primer';
-$version = 1.0;
 
 sub AUTOLOAD {
  my $self = shift;

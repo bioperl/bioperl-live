@@ -129,7 +129,7 @@ use Bio::Seq::SeqFactory;
 use Bio::Root::Root;
 use Bio::Root::IO;
 
-use vars qw($AUTOLOAD @PRIMER3_PARAMS @ISA %OK_FIELD $ID $version);
+use vars qw($AUTOLOAD @PRIMER3_PARAMS @ISA %OK_FIELD $ID);
 
 BEGIN {
  @PRIMER3_PARAMS=qw(results seqobject);
@@ -151,7 +151,6 @@ sub AUTOLOAD {
 }
 
 $ID = 'Bio::Tools::Primer3';
-$version = 1.0;
 
 =head2 new()
 
