@@ -13,8 +13,6 @@ See L<Bio::DB::GFF>
 # a simple postgres adaptor
 use strict;
 use Bio::DB::GFF::Adaptor::dbi;
-#use Bio::DB::GFF::Adaptor::dbi::mysql;
-#use Bio::DB::GFF::Adaptor::dbi::mysqlopt;
 use Bio::DB::GFF::Util::Binning; 
 use Bio::DB::GFF::Util::Rearrange; # for rearrange()
 use vars qw($VERSION @ISA);
@@ -262,7 +260,7 @@ automatically if it is not there already.
   Argument       Description
   --------       -----------
 
-  -dsn           the DBI data source, e.g. 'dbi:mysql:ens0040' or "ens0040"
+  -dsn           the DBI data source, e.g. 'dbi:Pg:dbname=:ens0040' or "ens0040"
 
   -user          username for authentication
 
@@ -277,7 +275,7 @@ sub new {
   my ($dsn,$other) = rearrange([
 				[qw(FEATUREDB DB DSN)],
 			       ],@_);
-  $dsn = "dbi:Pg:$dsn" if !ref($dsn) && $dsn !~ /^(dbi|DBI):/;
+  $dsn = "dbi:Pg:dbname=$dsn" if !ref($dsn) && $dsn !~ /^(dbi|DBI):/;
   my $self = $class->SUPER::new(-dsn=>$dsn,%$other);
   $self;
 }
