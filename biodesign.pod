@@ -1,7 +1,7 @@
 
 =head1 NAME
 
-Bioperl - Design Documentation
+biodesign.pod - Bioperl Design Documentation
 
 =head1 SYNOPSIS
 
@@ -10,13 +10,13 @@ Not appropiate. Read on...
 =head1 DESCRIPTION
 
 Bioperl is a coordinated project which has a number of design features
-to allow bioperl to be well used, extended and collaborate with other
-packages. This design can be focused in a number of areas.
+which allow it to be well used and extensible as well as collaborate with
+other packages. biodesign focuses on a number of areas.
 
-  bioperl ettiquette and learning about it
-  bioperl root object - exception throwing, exceptions etc.
-  bioperl interface design
-  bioperl sequence object design notes
+  Bioperl etiquette and learning about it
+  Bioperl root object - exception throwing, exceptions etc.
+  Bioperl interface design
+  Bioperl sequence object design notes
 
 =head1 AUTHOR
 
@@ -24,11 +24,11 @@ This was written by Ewan Birney in a variety of airports across the US.
 
 =head1 Reusing code and working in collaborative projects
 
-The biggest problem often in reusing a code base like bioperl is that
+The biggest problem often in reusing a code base like Bioperl is that
 it requires both the people using it and the people contributing to
 it to change their attitude towards code. Generally people in bioinformatics
-are more likely to be self-taught, single programmers, who put together most
-of their scripts/programs as individuals. Bioperl is a truely collaborative
+are more likely to be self-taught programmers who put together most
+of their scripts/programs working alone. Bioperl is a truly collaborative
 project (the core code is the product of about 15 individuals) and anyone
 will be only contributing some part of it in the future.
 
@@ -56,7 +56,7 @@ tremendously wrong thing to do.
 This ranges from giving very accurate bug reports (this script --E<gt>
 makes this error, giving all data), through to pointing out design
 issues in a constructive manner (not - this *sucks*). If you find
-a problem, then providing a patch using diff or work around is
+a problem, then providing a patch using diff or a work around is
 a great thing to do - the author/maintainer of the module will
 love you for it.
 
@@ -66,7 +66,7 @@ To hear about successes gives everyone a warm glow.
 
 One trick I have learnt is that when I download a new project/code or
 use a new module I open up a fresh buffer in emacs and keep a mini diary
-of everything that I did or think when I started to use the package. After
+of everything that I did or thought when I started to use the package. After
 I used it I could go back, edit the buffer and then send it to the author
 either with "it was great - it did just what I wanted, but I found that
 the documentation here was misleading" to "to get it to install I had
@@ -75,12 +75,12 @@ to incant the following things..."
 =head2 Taking on a project
 
 When you want to get involved, hopefully it will be because you want to
-extend something or provide better facillities to something. The important
-thing here is not to work in a vacuum. By providing the main list with
+extend something or provide better facilities to something. The important
+thing here is not to work in a vacuum. Providing the main list with
 a good proposal before you start about what you are going to do (and listen
 to the responses) is a must. I have been pulled up so many times by other
 people looking at my design that I can't imagine coding stuff now without
-feedback.
+feedback, first.
 
 =head2 Designing good tests
 
@@ -89,15 +89,16 @@ that until you manage to test it! The CPAN style perl modules have a wonderful
 test suite system (delve around into the t/ directories) and I have extended
 the makefile system so that the test script which you write to test the module
 can be part of the t/ system from the start. Once a test is in the t/ system it
-will be run millions of times worldwide when bioperl is downloaded, providing
+will be run millions of times worldwide when Bioperl is downloaded, providing
 incredible and continual regression testing of your module (for free!).
 
 =head2 Having fun
 
 The coding process should be enjoyable, and I get very proud of people who tell
-me that they picked up bioperl and it worked for them, even if they don't use
-a single module that I wrote. There is a brilliant sense of community in bioperl
-about providing useful, stable code and it should be a pleasure to contribute to it.
+me that they picked up Bioperl and it worked for them, even if they don't use
+a single module that I wrote. There is a brilliant sense of community in
+Bioperl about providing useful, stable code and it should be a pleasure to
+contribute to it.
 
 So - I am always looking forward to people posting on the guts list
 with their feedback/questions/proposals. As well as the long standing fun we
@@ -105,32 +106,35 @@ have making new releases.
 
 =head1 Bioperl Root Object
 
-All objects in bioperl (but for interfaces - see the next section) inheriet
-from the Root Object. The bioperl root object allows a number of very useful
-concepts to be provided. In particular.
+All objects in Bioperl (but for interfaces - see L<Bioperl Interface design>)
+inherit from the Root Object. The Bioperl root object allows a number of
+very useful concepts to be provided. In particular.
 
 =over 3
 
 =item exceptions
 
-   Bioperl root object allow exceptions to be throw on the object with very
+Bioperl root object allow exceptions to be throw on the object with very
 nice debugging output
 
 =item context
 
-   Bioperl root object have a context which allows, in particular, exceptions
+Bioperl root object have a context which allows, in particular, exceptions
 that are thrown to say which object as throwing the exception.
 
 =item rearrange
 
-   Bioperl root object have some helper methods, in particular rearrange to
+Bioperl root object have some helper methods, in particular rearrange() to
 help functions which take hash inputs.
 
 =back
 
-=head2 Using the root object.
+You can go to L<Bio::Root::Object> for more information.
 
-To use the root object, the object has to inheriet from it. This means
+
+=head2 Using the root object
+
+To use the root object, the object has to inherit from it. This means
 the @ISA array should have (Bio::Roo::Object) in it and that the
 module goes "use Bio::Root::Object". The root object provides the
 -E<gt>new function. This new function builds a hash, sets some root object
@@ -138,8 +142,8 @@ management issues and then calls the _initialize function. It is this
 function which your object needs to implement.  The full code is given
 below.
 
-   # convention is that if you are using the Bio::Root object you should put it
-   # inside the Bio namespace
+   # convention is that if you are using the Bio::Root object you
+   # should put it inside the Bio namespace
 
    package Bio::MyNewObject;
    use vars qw(@ISA);
@@ -165,12 +169,12 @@ below.
 
 =head2 Throwing Exceptions
 
- Exceptions are die functions, in which the $@ variable (a scalar) is
+Exceptions are die functions, in which the $@ variable (a scalar) is
 used to indicate how it died. The exceptions can be caught using the
-eval {} system. The bioperl root object has a method called "-E<gt>throw"
+eval {} system. The Bioperl root object has a method called "-E<gt>throw"
 which calls die but also provides a full stack trace of where this
 throw happened on (and also which object the exception was thrown -
-see the context section). So an exception like
+see the L<Object Context> section). So an exception like
 
   $obj->throw("I am throwing an exception");
 
@@ -185,8 +189,8 @@ Provides the following output on STDERR if is not caught.
   main::(3)
   ---------------------------------------------------
 
-indicating that this exception was thrown at line 7 of subroutine my_subroutine,
-in myscript.pl
+indicating that this exception was thrown at line 7 of subroutine
+my_subroutine, in myscript.pl
 
 Exceptions can be caught using an eval block, such as
 
@@ -205,15 +209,15 @@ Exceptions can be caught using an eval block, such as
 
  # else - use $obj2
 
-notice that the eval block can have multiple statements in it, and
+Notice that the eval block can have multiple statements in it, and
 also that if you want to use variables outside of the eval block, they
 must be declared with my outside of the eval block (you are planning
-to use strict in your scripts, aren't you!).
+to "use strict" in your scripts, aren't you!).
 
 
-=head2 object context
+=head2 Object Context
 
-Each bioperl object has a context, which is given by the name
+Each Bioperl object has a context, which is given by the name
 attribute (name is a method defined in the Bio::Root::Object
 package). This context is displayed when the exception is made, so
 that the following script:
@@ -249,7 +253,7 @@ exceptions are better tracked down when you know where the object came
 from, not where in the code the exception is thrown.
 
 One of the drawbacks to this scheme is that the attribute -E<gt>name is
-"special" from bioperl's perspective. I believe it is best to stay
+"special" from Bioperl's perspective. I believe it is best to stay
 away from using $obj-E<gt>name() to mean anything from the object's
 perspective (for example -E<gt>id() ), leaving it free to be used as a
 context for debugging purposes. You might prefer to overload the name
@@ -265,20 +269,20 @@ implementation of an object. In languages like Java, interface
 definition is part of the language. In Perl, like many aspects of Perl
 you have to roll your own.
 
-In bioperl, the interface names are called Bio::MyObjectI, with the
+In Bioperl, the interface names are called Bio::MyObjectI, with the
 trailing I indicating it is an interface definition of an object. The
 interface files (sometimes nicknamed the 'I files') provide mainly
-documentation on what the interface is, and how to use (and implement
-it). All the functions which the implementation is expected to provide
+documentation on what the interface is, and how to use and implement
+it. All the functions which the implementation is expected to provide
 are defined as subroutines, and then die with an informative
 warning. The exception to this rule are the implementation independent
-functions (see later).
+functions (see L<Implementation functions in Interface files>).
 
-Objects which want to implement this interface should inheriet the
+Objects which want to implement this interface should inherit the
 Bio::MyObjectI file in their @ISA array. This means that if the
 implementation does not provide a method which the interface defines,
 rather than the user getting a "method not found error" it gets a
-"mymethod was not defined in MyObjectI, but should have been" which
+"mymethod() was not defined in MyObjectI, but should have been" which
 makes it clearer that whoever provided the implementation was to
 blame, and not the caller/script writer.
 
@@ -292,7 +296,6 @@ the implementation. for example
     $seq->isa('Bio::SeqI') || die "[$seq] is not a sequence. Cannot process";
 
     # do stuff
-
   }
 
 This is in contrast to
@@ -304,27 +307,26 @@ This is in contrast to
     $seq->isa('Bio::Seq') || die "[$seq] is not a sequence. Cannot process";
 
     # do stuff
-
   }
 
 
 =head2 Rationale of interface design
 
 Some people might justifiably argue "why do this?". The main reason is
-to support external objects from bioperl, and allow them to masquarade
-as real bioperl objects. For example you might have your own quite
-intricate sequence object which you want to use in bioperl functions,
+to support external objects from Bioperl, and allow them to masquerade
+as real Bioperl objects. For example you might have your own quite
+intricate sequence object which you want to use in Bioperl functions,
 but don't want to lose your own neat coding. One option would be to
-have a function which built a bioperl sequence object from your
+have a function which built a Bioperl sequence object from your
 object, but then you would be endlessly building temporary objects and
 destroying them, in particular if the script yo-yoed between your code
-and bioperl code.
+and Bioperl code.
 
 A better solution would be to implement the Bio::SeqI interface. You
-would read the Bio::SeqI documentation, and then provide the methods
+would read L<Bio::SeqI>, and then provide the methods
 which it required, and put Bio::SeqI in your @ISA array. Then you
-could pass in your object into bioperl routines and eh voila - you
-B<are> a bioperl sequence object.
+could pass in your object into Bioperl routines and I<eh voila> - you
+B<are> a Bioperl sequence object.
 
 (A problem might arise if your object has the same methods as the
 Bio::SeqI methods but use them differently - your $obj-E<gt>id() might
@@ -350,7 +352,7 @@ wants to mimic a class they should override the following methods. However,
 we (and in particular myself - Ewan) prefers a clear separation of the
 interface. It gives us a much clearer way of defining what is going on.
 It is in many ways just "design sugar" (as opposed to syntactic sugar)
-to help us, but it really helps, so thats good enough justification to me.
+to help us, but it really helps, so that's good enough justification to me.
 
 =head2 Implementation functions in Interface files
 
@@ -359,8 +361,8 @@ that there were methods that we would like to provide for classes
 which were independent of their implementation. A good example is
 a "Range" interface, which might define the following methods
 
-   $obj->start()
-   $obj->end()
+  $obj->start()
+  $obj->end()
 
 Now a client to the object might want to use a $obj-E<gt>length() method.
 because it is much easier than retrieving the two attributes and
@@ -373,7 +375,7 @@ life easier for the B<object implementation> one wants to have the
 bare minimum of functions defined which the implementer has to
 provide.
 
-In the Range interface this became more than annoyance, as alot of the
+In the Range interface this became more than annoyance, as a lot of the
 "smarts" of the Range system was that we wanted to have the ability to
 say
 
@@ -401,15 +403,3 @@ classes). We were quite happy about merging the implementation
 independent functions with the interface definition, and I (Ewan) used
 this in other interfaces since then. The documentation has to be clear
 about what is going on, but I think in general it is.
-
-=head2 IDL (Interface Definition Language)
-
-There is an idl definition of bioperl in bioperl.idl. This is the start
-of a new era of interoperability in this field, so please read it and
-see if you can comment on it.
-
-
-
-
-
-
