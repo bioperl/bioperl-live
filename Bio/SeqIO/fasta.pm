@@ -72,7 +72,6 @@ use Bio::Seq::SeqFactory;
 
 sub _initialize {
   my($self,@args) = @_;
-
   $self->SUPER::_initialize(@args);  
   if( ! defined $self->sequence_factory ) {
       $self->sequence_factory(new Bio::Seq::SeqFactory(-verbose => $self->verbose(), -type => 'Bio::Seq'));      
@@ -99,7 +98,7 @@ sub next_seq {
     if ($entry eq '>')  {	# very first one
 	return unless $entry = $self->_readline;
     }
-
+    
     my ($top,$sequence) = $entry =~ /^>?(.+?)\n([^>]*)/s
 	or $self->throw("Can't parse fasta entry");
     my ($id,$fulldesc) = $top =~ /^\s*(\S+)\s*(.*)/
@@ -120,15 +119,16 @@ sub next_seq {
     }
 
     # create the seq object
-    $seq = $self->sequence_factory->create_sequence(-seq        => $sequence,
-						 -id         => $id,
-						 -primary_id => $id,
-						 -desc       => $fulldesc,
-						 -alphabet    => $alphabet
-						 );
+    $seq = $self->{'_seqio_seqfactory'}->create_sequence(-seq        => $sequence,
+						    -id         => $id,
+						    -primary_id => $id,
+						    -desc       => $fulldesc,
+						    -alphabet    => $alphabet
+						    );
     # if there wasn't one before, set the guessed type
-    $self->alphabet($seq->alphabet());
-
+    if( ! defined $alphabet ) {
+	$self->alphabet($seq->alphabet());
+    }
     return $seq;
 }
 
