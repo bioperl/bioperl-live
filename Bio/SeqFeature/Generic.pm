@@ -574,8 +574,8 @@ sub attach_seq {
  Usage   : $tseq = $sf->seq()
  Function: returns the truncated sequence (if there) for this
  Example :
- Returns :
- Args    :
+ Returns : sub seq on attached sequence bounded by start & end
+ Args    : none
 
 
 =cut
@@ -729,6 +729,7 @@ sub _from_gff_string {
    if ( !defined $frame ) {
        $self->throw("[$string] does not look like GFF to me");
    }
+   $frame = 0 unless( $frame =~ /^\d+$/);
    $self->seqname($seqname);
    $self->source_tag($source);
    $self->primary_tag($primary);
