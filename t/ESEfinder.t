@@ -81,22 +81,22 @@ if (scalar @res > 0) {
     skip('No network access - could not connect to ESEfinder server', 1);
 }
 if (!$METAERROR) { #if Bio::Seq::Meta::Array available
-	ok($meta->{'seq'}, "atcgatgctatgcatgctatgggtgtgattcgatgcgactgttcatcgtagccccccccccccccctttt" );
-	ok( $meta->named_submeta_text('ESEfinder_SRp55', 1,2), "-3.221149 -1.602223");
-	ok ($meta->seq, "atcgatgctatgcatgctatgggtgtgattcgatgcgactgttcatcgtagccccccccccccccctttt" );
-	}
+    ok($meta->{'seq'}, "atcgatgctatgcatgctatgggtgtgattcgatgcgactgttcatcgtagccccccccccccccctttt" );
+    ok( $meta->named_submeta_text('ESEfinder_SRp55', 1,2), "-3.221149 -1.602223");
+    ok ($meta->seq, "atcgatgctatgcatgctatgggtgtgattcgatgcgactgttcatcgtagccccccccccccccctttt" );
+}
 ######## now repeat with Bio::Seq object, metasequence tests fail ########
-my $seq = Bio::Seq->new(-id=>'bioperl',
-                               -seq=>'atcgatgctatgcatgctatgggtgtgattcgatgcgactgttcatcgtagccccccccccccccctttt');
+$seq = Bio::Seq->new(-id=>'bioperl',
+		     -seq=>'atcgatgctatgcatgctatgggtgtgattcgatgcgactgttcatcgtagccccccccccccccctttt');
 
 ok $tool = Bio::Tools::Analysis::DNA::ESEfinder->new(-verbose =>$verbose, -seq => $seq);
 ok $tool->run ( );
 
-ok my @res = $tool->result('Bio::SeqFeatureI');
+ok @res = $tool->result('Bio::SeqFeatureI');
 #new tests her in v 1.2
-ok my $raw = $tool->result('');
-ok my $parsed = $tool->result('parsed');
-ok my $meta = $tool->result('all');
+ok $raw = $tool->result('');
+ok $parsed = $tool->result('parsed');
+ok $meta = $tool->result('all');
 ok ($parsed->[0][1], 41);
 if (scalar @res > 0) {
     ok 1;
