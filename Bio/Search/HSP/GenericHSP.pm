@@ -214,7 +214,7 @@ sub new {
 	$queryfactor = 1;	
     } elsif ($algo =~ /^T(BLAST|FAST)(X|Y|XY)/oi ||
 	     $algo =~ /^(BLAST|FAST)N/oi ||
-	     $algo eq 'WABA' || 
+	     $algo eq 'WABA' || $algo eq 'AXT' ||  
 	     $algo eq 'EXONERATE' || $algo eq 'MEGABLAST' ||
 	     $algo eq 'SMITH-WATERMAN' ){
 	$hitfactor = 1;
