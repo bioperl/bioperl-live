@@ -751,7 +751,7 @@ sub next_result{
 		   if( /^(\S+)\s+/ ) {
 		       $self->_pushback($_);
 		       $count = 2;
-		   } elsif( /^\s+\d+\s+/ || /^\s+$/ ) { 
+		   } elsif( /^\s+\d+/ || /^\s+$/ ) { 
 		       # do nothing, this is really a 0 line
 		   } elsif( length($_) == 0 ) { 
 		       $count = -1;
