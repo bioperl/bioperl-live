@@ -28,9 +28,8 @@ BEGIN {
 
     unless( eval "require IO::String; 1;" ) {
 #      warn $@;
-      print STDERR "IO::String not installed. This means that Bio::DB::BioFetch module is not usable. Skipping tests.\n";
-      for( 1..$NUMTESTS ) {
-	skip(1,"IO::String not installed. This means that Bio::DB::BioFetch module is not usable. Skipping tests.\n");
+      for( $Test::ntest..$NUMTESTS ) {
+	skip("IO::String not installed. This means that Bio::DB::BioFetch module is not usable. Skipping tests.",1);
       }
       $error = 1;
     }
@@ -123,12 +122,12 @@ ok $@;
 
 eval {
     ok $seq = $db->get_Seq_by_acc('NM_006732');
-    ok($seq && $seq->length eq 3775);
+    ok($seq && $seq->length, 3775);
 };
 
 if ($@) {
     print STDERR "Warning: Couldn't connect to BioFetch server with Bio::DB::BioFetch.pm!\n" . $@;
 
-    foreach ( 1..4) { 
+    foreach ( $Test::ntest..$NUMTESTS) { 
 	 skip('could not connect to embl',1);}
 }
