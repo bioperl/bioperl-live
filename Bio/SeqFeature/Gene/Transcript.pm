@@ -340,7 +340,7 @@ sub introns {
 sub poly_A_site {
     my ($self, $fea) = @_;
     if ($fea) {
-	$self->_add($fea,'Bio::SeqFeature::Gene::poly_A_site');
+	$self->_add($fea,'Bio::SeqFeature::Gene::Poly_A_site');
     }
     return ($self->get_feature_type('Bio::SeqFeature::Gene::Poly_A_site'))[0];
 }

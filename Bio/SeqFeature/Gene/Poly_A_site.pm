@@ -1,6 +1,6 @@
 # $Id$
 #
-# BioPerl module for Bio::SeqFeature::Gene::poly_A_site
+# BioPerl module for Bio::SeqFeature::Gene::Poly_A_site
 #
 # Cared for by David Block <dblock@gene.pbi.nrc.ca>
 #
@@ -63,7 +63,7 @@ Internal methods are usually preceded with a _
 # Let the code begin...
 
 
-package Bio::SeqFeature::Gene::poly_A_site;
+package Bio::SeqFeature::Gene::Poly_A_site;
 use vars qw(@ISA);
 use strict;
 
