@@ -308,9 +308,9 @@ User feedback is an integral part of the evolution of this and other Bioperl mod
 Send your comments and suggestions preferably to one of the Bioperl mailing lists.
 Your participation is much appreciated.
 
-    vsns-bcd-perl@lists.uni-bielefeld.de          - General discussion
-    vsns-bcd-perl-guts@lists.uni-bielefeld.de     - Technically-oriented discussion
-    http://bio.perl.org/MailList.html             - About the mailing lists
+  bioperl-l@bioperl.org             - General discussion
+  bioperl-guts-l@bioperl.org        - Technically-oriented discussion
+  http://bioperl.org/MailList.shtml - About the mailing lists
 
 =head2 Reporting Bugs
 
@@ -997,55 +997,6 @@ sub record_err {
 }
 
 
-
-=head2 _set_err_state
-
- Usage     : n/a; called automatically by _set_err()
- Purpose   : Sets the {'_errState'} data member to one of @Bio::Root::Err::ERR_TYPES.
-           : This method is called after setting a new error with _set_err().
- Returns   : An Err.pm object (the current {'_err'} data member)
- Argument  : An Err.pm object (the one jsut created by _set_err()).
- Comments  : Modifications to state are permitted only if the object:
-           :   1. has only one error, OR
-           :   2. has multiple errors and none of those errors are fatal.
-           : This prevents an object from setting its state to warning
-           : if it already has a fatal error.
-           :
-           : The unfatal() method circumvents this method since the conditions
-           : under which unfatal() is called are different. _set_err_state() is
-           : only called when setting new errors.
-
-See also   : L<_set_err>(), L<_set_warning>() 
-
-=cut
-
-#--------------------
-sub _set_err_state {  
-#--------------------
-    my( $self, $err ) = @_;
-    my @state = ();
-    
-    require Bio::Root::Err; import Bio::Root::Err qw(:data);
-    
-    my $data = $err->type || 'EXCEPTION';
-
-    if($self->{'_errState'} and $self->{'_errState'} !~ /EXCEPTION|FATAL/) {
-	
-	my @err_types = @Bio::Root::Err::ERR_TYPES; # prevents warnings
-	if( @state = grep /$data/i, @Bio::Root::Err::ERR_TYPES ) {
-	    $self->{'_errState'} = $state[0];
-	} else {
-	    $self->{'_errState'} = 'UNKNOWN STATE';
-	}
-    }
-    $DEBUG and do{ print STDERR "$ID: Setting state to $self->{'_errState'} (arg=$data)\n"; <STDIN>; };
-
-#    $self->{'_err'}->last;
-    return $err;
-}
-
-
-
 =head2 err_state
 
  Usage     : $object->err_state();
@@ -1081,34 +1032,6 @@ sub clear_err {
 #-------------
     my $self = shift;
     $self->_set_err();
-}
-
-
-=head2 _set_warning
-
- Purpose   : To record data regarding recoverable error conditions.
- Usage     : n/a; called automatically by Bio::Root::Object::warn() 
- Arguments : Arguments passed as-is to _set_err().
- Comments  : An object with a warning should be considered 
-           : completely operational, so use this type of error sparingly. 
-           : These errors are intended for problem conditions which:
-           :  1. Don't destroy the basic functionality of the object.
-           :  2. Might be of incidental interest to the user.
-           :  3. Are of interest to the programmer but not the end user.
-
-See also   : L<warn>(), L<_set_err>(), L<err>()
-
-=cut
-
-#-----------------'
-sub _set_warning {  
-#-----------------
-    my( $self, @data ) = @_;  
-    $DEBUG and print STDERR "\n$ID: setting warning.\n";
-    
-    my $err = $self->_set_err(@data, -STACK_NUM=>4);
-    $err->last->set('type','WARNING');
-    $self->_set_err_state($err);
 }
 
 
