@@ -181,25 +181,26 @@ some HTML tags:
 
 Specify the format of the file.  Supported formats include:
 
-   Fasta       FASTA format
-   EMBL        EMBL format
-   GenBank     GenBank format
-   swiss       Swissprot format
-   PIR         Protein Information Resource format
-   GCG         GCG format
-   raw         Raw format (one sequence per line, no ID)
-   ace         ACeDB sequence format
-   game        GAME XML format
-   phd         phred output
-   qual        Quality values (get a sequence of quality scores)
-   Fastq       Fastq format
-   SCF         SCF tracefile format
    ABI         ABI tracefile format
    ALF         ALF tracefile format
    CTF         CTF tracefile format
-   ZTR         ZTR tracefile format
-   PLN         Staden plain tracefile format
+   EMBL        EMBL format
    EXP         Staden tagged experiment tracefile format
+   Fasta       FASTA format
+   Fastq       Fastq format
+   GCG         GCG format
+   GenBank     GenBank format
+   PIR         Protein Information Resource format
+   PLN         Staden plain tracefile format
+   SCF         SCF tracefile format
+   ZTR         ZTR tracefile format
+   ace         ACeDB sequence format
+   game        GAME XML format
+   locuslink   LocusLink annotation (LL_tmpl format only)
+   phd         phred output
+   qual        Quality values (get a sequence of quality scores)
+   raw         Raw format (one sequence per line, no ID)
+   swiss       Swissprot format
 
 If no format is specified and a filename is given then the module
 will attempt to deduce the format from the filename suffix.  If this
