@@ -143,6 +143,21 @@ sub primary_tag{
 
 }
 
+=head2 type_string
+
+ Title   : type_string
+ Usage   : $tag = $feat->type_string()
+ Function: Returns the feature type as a string.
+           This is a synonym for 'primary_tag'
+ Returns : a string 
+ Args    : none
+
+=cut
+
+sub type_string {
+    shift->primary_tag(@_);
+}
+
 =head2 source_tag
 
  Title   : source_tag

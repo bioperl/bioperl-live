@@ -32,7 +32,7 @@ Bio::Ontology::TermFactory - Instantiates a new Bio::Ontology::TermI (or derived
 
     use Bio::Ontology::TermFactory;
     # the default type is Bio::Ontology::Term
-    my $factory = new Bio::Ontology::TermFactory(-type => 'Bio::Ontology::GOterm');
+    my $factory = Bio::Ontology::TermFactory->new(-type => 'Bio::Ontology::GOterm');
     my $clu = $factory->create_object(-name => 'peroxisome',
                                       -category => 'cellular component',
                                       -identifier => 'GO:0005777');

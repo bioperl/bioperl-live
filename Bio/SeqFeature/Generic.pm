@@ -504,18 +504,107 @@ sub frame {
  Function: get/set on the primary tag for a feature,
            eg 'exon'
  Returns : a string
- Args    : none
-
+ Args    : none if get, the new value if set
 
 =cut
 
 sub primary_tag {
    my ($self,$value) = @_;
+   my $type = $self->type;
    if ( defined $value ) {
-       $self->{'_primary_tag'} = $value;
+       if (!$type) {
+           require "Bio/Ontology/TermFactory.pm";
+           my $factory = Bio::Ontology::TermFactory->new(-type => 'Bio::Ontology::Term');
+           $type = 
+             $factory->create_object(-name => $value,
+                                     -category => 'adhoc_sequence');
+           $self->type($type);
+       }
+       else {
+           $type->name($value);
+       }
    }
-   return $self->{'_primary_tag'};
+   if ($type) {
+       return $type->name;
+   }
+   else {
+       return;
+   }
 }
+
+=head2 type_string
+
+ Title   : type_string
+ Usage   : $tag = $feat->type_string()
+           $feat->type_string('exon')
+ Function: synonym for 'primary_tag'
+           get/set on the primary tag for a feature,
+           eg 'exon'
+ Returns : a string
+ Args    : none if get, the new value if set
+
+=cut
+
+sub type_string {
+    shift->primary_tag(@_);
+}
+
+=head2 type
+
+ Title   : type
+ Usage   : $seq_ont_term = $feat->type()
+           $feat->type($seq_ont_term)
+ Function: get/set on the primary tag for a feature,
+           eg 'exon'
+ Returns : a string
+ Args    : none if get, the new value if set
+
+=cut
+
+sub type {
+    my ($self, $value) = @_;
+    if ( defined $value ) {
+        if (UNIVERSAL::isa($value, "Bio::Ontology::TermI")) {
+            $self->{'_type'} = $value;
+        }
+        else {
+            $self->throw("type attribute must be Bio::Ontology::TermI objects");
+        }
+    }
+    return $self->{'_type'};
+}
+
+=head2 resolve_type
+
+ Title   : resolve_type
+ Usage   :
+ Function: resolves a $feat->type() (a Bio::OntologyTermI object)
+           using the current type_string() [primary_tag()]
+ Example :
+ Returns : Bio::OntologyTermI on success, undef on failure
+ Args    : Graph (currently must be a GO::Model::Graph object)
+           Hash mapping [OPTIONAL] - a hashref og mapping of ad-hoc termnames to 
+                                     ontology termnames
+
+=cut
+
+sub resolve_type{
+   my ($self, $graph, $mapping) = @_;
+
+   my $tname = $self->type_string;
+   $tname = $mapping->{$tname} if $mapping->{$tname};
+   my $term = $graph->get_term_by_name($tname);
+   if ($term) {
+       # turn GO object into Bio object
+       $self->type_string($term->name);
+       $self->type->identifier($term->acc);
+       $self->type->category("sequence");
+       $term = $self->type;
+   }
+   return $term;
+}
+
+
 
 =head2 source_tag
 

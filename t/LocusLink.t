@@ -24,14 +24,17 @@ my $seqin = Bio::SeqIO->new(-file => Bio::Root::IO->catfile("t","data",
 							 "LL-sample.seq"),
 			    -format => 'locuslink');
 ok $seqin;
-my $seqout = Bio::SeqIO->new(-file => ">locuslink-test.out.embl",
-			     -format => 'embl');
+my $seqout = Bio::SeqIO->new(-file => ">locuslink-test.out.gb",
+			     -format => 'genbank');
 
 # process and write to output
 my @seqs = ();
 
 while(my $seq = $seqin->next_seq()) {
     push(@seqs, $seq);
+    use Data::Dumper;
+    print Dumper $seq->annotation->hash_tree;
+    next;
     
     # create an artificial feature to stick the annotation on
     my $fea = Bio::SeqFeature::Generic->new(-start => 1, -end => 9999,

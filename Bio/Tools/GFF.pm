@@ -137,17 +137,21 @@ sub new {
 
 sub features {
    my $self = shift;
-   $self->throw('This method is only valid with the GFF3 format')
-         unless $self->gff_version >= 3;
 
    local $_;
    my (%features,%parents,%ids);
 
    while ( defined($_ = $self->_readline) ) {
+       if (/^\#\#gff-version\s+(\d+)/) {
+           $self->gff_version($1);
+       }
      next if /^\#/;
      next if /^\s*$/;
      next if /^\/\//;
      chomp;
+
+     $self->throw('This method is only valid with the GFF3 format')
+       unless $self->gff_version >= 3;
 
      my $feat = Bio::SeqFeature::Generic->new();
      my @groups = $self->from_gff_string($feat,$_);
@@ -192,6 +196,9 @@ sub features {
        $exclude{$child_id}++;
      }
    }
+#   use Data::Dumper;
+#   print Dumper \%ids;
+#   die Dumper \%exclude;
 
    return grep {!$exclude{$ids{"$_"}}} values %features;
 }
@@ -208,7 +215,7 @@ sub _add_disjunct_location {
   if ($prev->seq_id eq $feat->seq_id) {
 
     # add a disjunct location to the primary coordinate space
-    $prev->location->add_sub_Location($feat->location);
+      $prev->location->add_sub_Location($feat->location);
 
     # and to the alternative coordinate spaces, if any
     for my $alt ($feat->alternative_locations) {
@@ -225,7 +232,9 @@ sub _add_disjunct_location {
   }
 
   # last fix-up: copy tags
-  $prev->add_tag_value($_,$_->get_tag_values) foreach $feat->get_all_tags;
+  foreach ($feat->get_all_tags) {
+      $prev->add_tag_value($_,$prev->get_tag_values);
+  }
 }
 
 
@@ -249,6 +258,9 @@ sub next_feature {
     # be graceful about empty lines or comments, and make sure we return undef
     # if the input's consumed
     while(($gff_string = $self->_readline()) && defined($gff_string)) {	
+        if ($gff_string =~ /^\#\#gff-version\s+(\d+)/) {
+            $self->gff_version($1);
+        }
 	next if($gff_string =~ /^\#/ || $gff_string =~ /^\s*$/ ||
 		$gff_string =~ /^\/\//);
 	last;
@@ -464,7 +476,7 @@ sub _from_gff2_string {
 sub _from_gff3_string {
    my ($gff, $feat, $string) = @_;
    chomp($string);
-   my ($seqname, $source, $type, $start, $end, $score, $strand, $frame, $groups, $attribs) = split(/\t+/,$string,10);
+   my ($seqname, $source, $type, $start, $end, $score, $strand, $frame, $attribs) = split(/\t+/,$string,10);
    $feat->throw("[$string] does not look like GFF3 to me") unless defined $frame;
    $frame = 0 unless $frame =~ /^\d+$/;
    $feat->seq_id($seqname);
@@ -473,16 +485,31 @@ sub _from_gff3_string {
    $feat->start($start);
    $feat->end($end);
    $feat->strand($STRANDS{$strand}||0);
-   my @groups     = grep {$_ ne '.'} map {_unescape($_)} split /;\s*/,$groups;
+# CJM
+# gff3 does not have groups, only attributes
+#   my @groups     = grep {$_ ne '.'} map {_unescape($_)} split /;\s*/,$groups;
    my @attributes = split /;\s*/,$attribs if $attribs;
+   my @groups = ();
    foreach (@attributes) {
       my ($name,$value) = split /=/,$_,2;
       _unescape($name);
       _unescape($value);
+      if (!$value) {
+#          $gff->throw("BAD:$_");
+          next;
+      }
+      my @values = split(/\,/, $value);
       # handle special cases
       if ($name eq 'ID') {
-         $feat->unique_id($value);
-         next;
+          if (@values > 1) {
+              $gff->throw("You said ID= @values; ID must have cardinality 1");
+          }
+          $feat->unique_id($value);
+          next;
+      }
+      if ($name eq 'Parent') {
+          # CJM I added this
+          push(@groups, @values);
       }
       if ($name eq 'Target') {
           my ($target,$tstart,$tend) = $value =~ /^(.+):(\d+)\.\.(\d+)$/ or next;
@@ -499,8 +526,8 @@ sub _from_gff3_string {
 
       $feat->add_tag_value($name => $value);
    }
-
-   (@groups);
+   # CJM reurn groups
+   (@groups)
 }
 
 sub _unescape {

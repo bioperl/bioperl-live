@@ -490,7 +490,7 @@ sub _get_first_goid {
         return $1;
     }
     else {
-        die( "format error" );
+        die( "format error; line=$line" );
     }
     
 } # _get_first_goid
