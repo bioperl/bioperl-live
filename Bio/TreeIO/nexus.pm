@@ -76,6 +76,25 @@ use IO::String;
 
 @ISA = qw(Bio::TreeIO );
 
+=head2 new
+
+ Title   : new
+ Args    : -header    => boolean  default is true 
+                         print/do not print #NEXUS header
+           -translate => boolean default is true
+                         print/do not print Node Id translation to a number
+=cut
+
+sub _initialize { 
+    my $self = shift;
+    $self->SUPER::_initialize(@_);
+    my ($hdr,$trans) = $self->_rearrange([qw(HEADER
+					     TRANSLATE)],
+					 @_);
+    $self->header(defined $hdr ? $hdr : 1 );
+    $self->translate_node(defined $trans ? $trans : 1);
+}
+
 
 =head2 next_tree
 
@@ -173,9 +192,125 @@ sub _parse {
 =cut
 
 sub write_tree{
-   my ($self,$tree) = @_;
-   $self->throw("Cannot call method write_tree on Bio::TreeIO object must use a subclass");
+   my ($self,@trees) = @_;
+   if ( $self->header ) {
+       $self->_print("#NEXUS\n\n");
+   }
+   my $translate = $self->translate_node;
+   my $time = localtime();
+   $self->_print(sprintf("Begin trees; [Treefile created %s]\n",$time));
+
+   my ($first,$nodecter,%node2num) = (0,1);
+   foreach my $tree ( @trees ) {
+       
+       if( $first == 0 && 
+	   $translate ) { 
+	   $self->_print("\tTranslate\n");
+	   $self->_print(join(",\n",
+			      map { $node2num{$_->id} = $nodecter;
+				  sprintf("\t\t%d %s",$nodecter++,$_->id) }
+			      grep { $_->is_Leaf } $tree->get_nodes),
+			 "\n;\n");
+       }
+       my @data = _write_tree_Helper($tree->get_root_node,\%node2num);
+       if($data[-1] !~ /\)$/ ) {
+	   $data[0] = "(".$data[0];
+	   $data[-1] .= ")";
+       }
+       # by default all trees in bioperl are currently rooted
+       # something we'll try and fix one day....
+       $self->_print(sprintf("\t tree %s = [&%s] %s;\n",
+			     ($tree->id || 
+			      sprintf("Bioperl_%d",$first+1)),
+			     ( $tree->get_root_node ) ? 'R' : 'U',
+			     join(',', @data)));
+       $first++;
+   }
+   $self->_print("End;\n");
+   $self->flush if $self->_flush_on_write && defined $self->_fh;
+   return;
 }
 
+sub _write_tree_Helper {
+    my ($node,$node2num) = @_;
+    return () if (!defined $node);
+
+    my @data;
+    
+    foreach my $n ( $node->each_Descendent() ) {
+	push @data, _write_tree_Helper($n);
+    }
+    
+    if( @data > 1 ) {
+	$data[0] = "(" . $data[0];
+	$data[-1] .= ")";
+	# let's explicitly write out the bootstrap if we've got it
+	my $b;
+	
+	my $bl = $node->branch_length;
+	if( ! defined $bl ) {
+	} elsif($bl =~ /\#/ ) { 
+	 $data[-1] .= $bl;
+	} else { 
+	 $data[-1] .= ":$bl";
+	}
+	if( defined ($b = $node->bootstrap) ) {
+	    $data[-1] .= sprintf("[%s]",$b);
+	} elsif( defined ($b = $node->id) ) {
+	    $b = $node2num->{$b} if( $node2num->{$b} ); # translate node2num
+	    $data[-1] .= sprintf("[%s]",$b);
+	}
+
+    } else {
+	if( defined $node->id || defined $node->branch_length ) { 
+	    my $id= defined $node->id ? $node->id : '';
+	    if( length($id) && $node2num->{$id} ) {
+		$id = $node2num->{$id};
+	    }
+	    push @data, sprintf("%s%s",$id,
+				defined $node->branch_length ? ":" .
+				$node->branch_length : '');
+	}
+    }
+    return @data;
+}
+
+=head2 header
+
+ Title   : header
+ Usage   : $obj->header($newval)
+ Function: 
+ Example : 
+ Returns : value of header (a scalar)
+ Args    : on set, new value (a scalar or undef, optional)
+
+
+=cut
+
+sub header{
+    my $self = shift;
+
+    return $self->{'header'} = shift if @_;
+    return $self->{'header'};
+}
+
+=head2 translate_node
+
+ Title   : translate_node
+ Usage   : $obj->translate_node($newval)
+ Function: 
+ Example : 
+ Returns : value of translate_node (a scalar)
+ Args    : on set, new value (a scalar or undef, optional)
+
+
+=cut
+
+sub translate_node{
+    my $self = shift;
+
+    return $self->{'translate_node'} = shift if @_;
+    return $self->{'translate_node'};
+}
 
 1;
