@@ -140,6 +140,7 @@ sub _initialize {
   return $make; # success - we hope!
 }
 
+
 =head2 start
 
  Title   : start
@@ -619,6 +620,36 @@ sub seqname{
 
 }
 
+=head2 slurp_gff_file
+
+ Title   : slurp_file
+ Usage   : @features = Bio::SeqFeature::Generic::slurp_gff_file(\*FILE);
+ Function: Sneaky function to load an entire file as in memory objects.
+           Beware big files
+ Example :
+ Returns : 
+ Args    :
+
+
+=cut
+
+sub slurp_gff_file{
+   my ($f) = @_;
+   my @out;
+   if( !defined $f ) {
+       die "Must has a filehandle";
+   }
+
+   while(<$f>) {
+ 
+       my $sf = Bio::SeqFeature::Generic->new( -gff_string => $_ );
+       push(@out,$sf);
+   }
+
+   return @out;
+
+}
+
 =head2 _from_gff_string
 
  Title   : _from_gff_string
@@ -634,7 +665,9 @@ sub seqname{
 sub _from_gff_string{
    my ($self,$string) = @_;
 
+ 
    my($seqname,$source,$primary,$start,$end,$score,$strand,$frame,@group) = split(/\s+/,$string);
+ 
    if( !defined $frame ) {
        $self->throw("[$string] does not look like GFF to me");
    }
@@ -644,14 +677,22 @@ sub _from_gff_string{
    $self->start($start);
    $self->end($end);
    if( $score eq '.' ) {
-       $self->score(undef);
+       #$self->score(undef);
    } else {
        $self->score($score);
    }
    if( $strand eq '-' ) { $self->strand(-1); }
    if( $strand eq '+' ) { $self->strand(1); }   
    if( $strand eq '.' ) { $self->strand(0); }
-   
+   foreach my $g ( @group ){
+       if( $g =~ /(\S+)=(\S+)/ ) {
+	   my $tag = $1;
+	   my $value = $2;
+	   $self->add_tag_value($1,$2);
+       } else {
+	   $self->add_tag_value('group',$g);
+       }
+   }
 }
 
 =head2 _parse
