@@ -105,87 +105,171 @@ sub _initialize {
 =head2 _generic_seqfeature
 
  Title   : _generic_seqfeature
- Usage   : $fthelper->_generic_seqfeature($annseq)
+ Usage   : $fthelper->_generic_seqfeature($annseq, "GenBank")
  Function: processes fthelper into a generic seqfeature
- Returns : nothing (places a new seqfeature into annseq)
- Args    : Bio::Seq,Bio::SeqIO::FTHelper
+ Returns : TRUE on success and otherwise FALSE
+ Args    : Bio::Seq, string indicating the source (GenBank/EMBL/SwissProt)
 
 
 =cut
 
 sub _generic_seqfeature {
-   my ($fth,$annseq) = @_;
-   my ($sf);
+    my ($fth, $annseq, $source) = @_;
+    my ($sf);
 
-  # print "Converting from", $fth->key, "\n";
+    # print "Converting from", $fth->key, "\n";
 
-   $sf = new Bio::SeqFeature::Generic;
-   if( $fth->loc =~ /join/ ) {
-       my $strand;
-       if ( $fth->loc =~ /complement/ ) {
-	   $strand = -1;
-       } else {
-	   $strand = 1;
-       }
+    # set a default if not specified
+    if(! defined($source)) {
+	$source = "EMBL/GenBank/SwissProt";
+    }
+    
+    $sf = new Bio::SeqFeature::Generic;
+    
+    # Trap 23.46 type fuzzy locations
+    if ($fth->loc =~ /\d+\.\d+/) {
+        $fth->warn("unable to parse fuzzy location ('" .
+		   $fth->loc . "') ignoring feature (seqid=" .
+		   $annseq->id() . ")");
+        $sf = undef;
+    }
+    # Parse compound features
+    elsif ( $fth->loc =~ /join/ ) {
+	my $strand;
+	if ( $fth->loc =~ /complement/ ) {
+	    $strand = -1;
+	} else {
+	    $strand = 1;
+	}
 
-       $sf->strand($strand);
-       $sf->primary_tag($fth->key . "_span");
-       $sf->source_tag('EMBL_GenBank');
-       $sf->has_tag("parent",1);
-       $sf->_parse->{'parent_homogenous'} = 1;
+	$sf->strand($strand);
+	$sf->primary_tag($fth->key . "_span");
+	$sf->source_tag($source);
+	$sf->has_tag("parent", 1);
+	$sf->_parse->{'parent_homogenous'} = 1;
 
-       # we need to make sub features
-       my $loc = $fth->loc;
-       while( $loc =~ /\<?(\d+)\.\.\>?(\d+)/g ) {
-	   my $start = $1;
-	   my $end   = $2;
-	   #print "Processing $start-$end\n";
-	   my $sub = new Bio::SeqFeature::Generic;
-	   $sub->primary_tag($fth->key);
-	   $sub->start($start);
-	   $sub->end($end);
-	   $sub->strand($strand);
-	   $sub->source_tag('EMBL_GenBank');
-	   $sf->add_sub_SeqFeature($sub,'EXPAND');
-       }
+	# we need to make sub features
+	my $loc = $fth->loc;
+	while ( $loc =~ /(\<?\d+[ \W]{1,3}\>?\d+)/g ) {
+	    my $next_loc = $1;
+	    my $sub = new Bio::SeqFeature::Generic;
+	    $sub->primary_tag($fth->key);
+	    $sub->strand($strand);
+	    if($fth->_parse_loc($sub, $next_loc)) {
+		$sub->source_tag($source);
+		$sf->add_sub_SeqFeature($sub,'EXPAND');
+	    } else {
+		$fth->warn("unable to parse location successfully out of " .
+			   $next_loc . ", ignoring feature (seqid=" .
+			   $annseq->id() . ")");
+                $sf = undef;
+	    }
+	}
 
-   } else {
-       my $lst;
-       my $len;
+    }
+    # Parse simple locations
+    else {
+	$sf->source_tag($source);
+	$sf->primary_tag($fth->key);
+	if ( $fth->loc =~ /complement/ ) {
+	    $sf->strand(-1);
+	} else {
+	    $sf->strand(1);
+	}
+	if(! $fth->_parse_loc($sf, $fth->loc())) {
+	    $annseq->warn("unexpected location line [" . $fth->loc() .
+			  "] in reading $source, ignoring feature " .
+			  $fth->key() . " (seqid=" . $annseq->id() . ")");
+	    $sf = undef;
+	}
+    }
+    #print "Adding B4 ", $sf->primary_tag , "\n";
 
-       if( $fth->loc =~ /^(\d+)$/ ) {
-	   $lst = $len = $1;
-       } else {
-	   $fth->loc =~ /\<?(\d+)\.\.\>?(\d+)/ || do {
-	       $annseq->throw("Weird location line [" . $fth->loc . "] in reading GenBank");
-	       last;
-	   };
-	   $lst = $1;
-	   $len = $2;
-       }
+    if(defined($sf)) {
+	foreach my $key ( keys %{$fth->field} ){
+	    foreach my $value ( @{$fth->field->{$key}} ) {
+		$sf->add_tag_value($key,$value);
+	    }
+	}
+	$annseq->add_SeqFeature($sf);
+	return 1;
+    } else {
+	$fth->warn("unable to parse feature " . $fth->key() .
+		   " in $source sequence entry (id=" .
+		   $annseq->id() . "), ignoring");
+	return 0;
+    }
+}
 
-       $sf->start($lst);
-       $sf->end($len);
-       $sf->source_tag('EMBL_GenBank');
-       $sf->primary_tag($fth->key);
-       if( $fth->loc =~ /complement/ ) {
-	   $sf->strand(-1);
-       } else {
-	   $sf->strand(1);
-       }
-   }
+=head2 _parse_loc
 
-   #print "Adding B4 ", $sf->primary_tag , "\n";
+ Title   : _parse_loc
+ Usage   : $fthelper->_parse_loc($feature, $loc_string)
+ Function: Parses the given location string and sets start() and end() in the
+           given feature object appropriately. As side effects, tag values
+           (private) for features where only partial locations are given
+           may be set.
 
-   foreach my $key ( keys %{$fth->field} ){
-       foreach my $value ( @{$fth->field->{$key}} ) {
-	   $sf->add_tag_value($key,$value);
-       }
-   }
-
+           Note that this method is private.
+ Returns : TRUE on success and otherwise FALSE
+ Args    : Bio::SeqFeatureI, string
 
 
-   $annseq->add_SeqFeature($sf);
+=cut
+
+sub _parse_loc {
+    my ($self, $sf, $loc) = @_;
+    my ($start,$end,$fea_type,$tagval);
+    my %compl_of = ("5" => "3", "3" => "5");
+    my $fwd = ($sf->strand() > -1) ? "5" : "3";
+
+    #print "Processing $loc\n";
+    if($loc =~ /^\s*(\w+[A-Za-z])?\(?([\<\?\d]\d*)[ \W]{1,3}([\<\?\d]\d*)[,;\" ]*([A-Za-z]\w*)?\"?\)?\s*$/) {
+	#print "1 = \"$1\", 2 = \"$2\", 3 = \"$3\", 4 = \"$4\"\n";
+	$fea_type = $1 if $1;
+	$start = $2;
+	$end   = $3;
+	$tagval = $4 if $4;
+    } elsif($loc =~ /^\s*(\w+[A-Za-z])?\(?([<>\?\d]\d*)[,;\" ]*([A-Za-z]\w*)?\"?\)?\s*$/) {
+	#print "1 = \"$1\", 2 = \"$2\", 3 = \"$3\"\n";
+	$fea_type = $1 if $1;
+	$start = $end = $2;
+	$tagval = $3 if $3;
+    } else {
+	print "didn't match\n";
+	return 0;
+    }
+    if ( $start =~ /[\<\?]*(\d*)[\<\?]*/ ) {
+	$start = $1;
+	$sf->add_tag_value('_part_feature', $fwd . '_prime_missing');
+    }
+    if ( $end =~ /[\<\?]*(\d*)[\<\?]*/ ) {
+	$end = $1;
+	$sf->add_tag_value('_part_feature',
+			    $compl_of{$fwd} . '_prime_missing');
+    }
+    #print "$loc: start = $start, end = $end\n";
+    $sf->start($start) if(length($start) > 0);
+    $sf->end($end) if(length($end)) > 0;
+    if(defined($fea_type) && ($fea_type ne "complement")) {
+	#print "featype: $fea_type\n";
+	$sf->add_tag_value('_feature_type', $fea_type);
+    }
+    if(defined($tagval)) {
+	if(! $fea_type) {
+	    $fea_type = "note";
+	}
+	$sf->add_tag_value($fea_type, $tagval);
+    }
+    if ( $loc =~ /\d+\^\d+/ ) {
+	$sf->add_tag_value('_zero_width_feature', 1);
+	$sf->strand(0);
+	if ($sf->start + 1 != $sf->end ) {
+	    # FIXME this is a uncertainty condition, which is not yet retained
+	    # in the feature object
+	}
+    }
+    return 1;
 }
 
 sub from_SeqFeature {

@@ -185,7 +185,9 @@ sub next_seq{
     $line =~ /^LOCUS\s+(\S+)\s+\S+\s+bp\s+(\S+)\s+(\S+)\s+(\S+)/;
 
     $name = $1;
-
+    # this is important to have the id for display in e.g. FTHelper, otherwise
+    # you won't know which entry caused an error
+    $seq->display_id($name);
     $mol=$2; 
     if ($mol) {
 	$seq->molecule($mol);
@@ -691,13 +693,16 @@ sub _read_GenBank_Species {
     $_ = $$buffer;
     
     my( $sub_species, $species, $genus, $common, @class );
-    while (defined( $_ = $self->_readline )) {
-
+    # upon first entering the loop, we must not read a new line -- the SOURCE
+    # line is already in the buffer (HL 05/10/2000)
+    while (defined($_) || defined($_ = $self->_readline())) {
         if (/^SOURCE\s+(.*)/) {
+	    # FIXME this is probably mostly wrong (e.g., it yields things like
+	    # Homo sapiens adult placenta cDNA to mRNA
+	    # which is certainly not what you want)
 	    $common = $1;
-	    $common =~ s/\.//;
-	}
-	if (/^  ORGANISM\s+(\S+)(?:\s+(\S+))?(?:\s+(\S+))?/) {
+	    $common =~ s/\.$//;
+	} elsif (/^\s+ORGANISM\s+(\S+)(?:\s+(\S+))?(?:\s+(\S+))?/) {
             $genus = $1;
 	    if ($2) {
 		$species = $2;
@@ -705,11 +710,9 @@ sub _read_GenBank_Species {
 		$species = "sp.";
 	    }
 	    $sub_species = $3 if $3;
-        }
-        elsif (/^\s+(.+)/) {
-            @class = split /[;\s\.]+/, $1;
-        }
-        else {
+        } elsif (/^\s+(.+)/) {
+            push(@class, split /[;\s\.]+/, $1);
+        } else {
             last;
         }
         
@@ -818,8 +821,6 @@ sub _read_FTHelper_GenBank {
     # Make the new FTHelper object
     my $out = new Bio::SeqIO::FTHelper();
     $out->key($key);
-    $loc =~ s/<//;
-    $loc =~ s/>//;
     $out->loc($loc);
 
     # Now parse and add any qualifiers.  (@qual is kept

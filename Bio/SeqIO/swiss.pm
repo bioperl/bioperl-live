@@ -57,6 +57,7 @@ This is function which is called as
 To generate the ID line. If it is not there, it generates a sensible ID
 line using a number of tools.
 
+ 
 =back
 
 =head1 FEEDBACK
@@ -182,6 +183,9 @@ sub next_seq {
 
    $line =~ /^ID\s+(\S+)/ || $self->throw("swissprot stream with no ID. Not swissprot in my book");
    $name = $1;
+    # this is important to have the id for display in e.g. FTHelper, otherwise
+    # you won't know which entry caused an error
+   $seq->display_id($name);
    
    my $buffer = $line;
 
@@ -191,61 +195,59 @@ sub next_seq {
        
        # Exit at start of Feature table
        last if /^FT/;
+       # and at the sequence at the latest HL 05/11/2000
+       last if /^SQ/;
 
        # Description line(s)
        if (/^DE\s+(\S.*\S)/) {
            $desc .= $desc ? " $1" : $1;
        }
-
        #Gene name
-       if (/^GN\s+(\S+)/) {
+       elsif (/^GN\s+(\S+)/) {
 	   $seq->annotation->gene_name($1);
        }  
-
        #accession number
-       if( /^AC\s+(\S+); (\S+)?/) {
-	   $acc = $1;
-	   my $acc2 = $2 if $2;
-	   $acc2 =~ s/\;//;
+       elsif( /^AC\s+(.+)/) {
+	   my( $acc, @sec ) = split /[\s;]+/, $1;
 	   $seq->accession($acc);
-	   $seq->add_secondary_accession($acc2);
+           foreach my $s (@sec) {
+	      $seq->add_secondary_accession($s);
+           }
        }
-       
        #version number
-       if( /^SV\s+(\S+);?/ ) {
+       elsif( /^SV\s+(\S+);?/ ) {
 	   my $sv = $1;
 	   $sv =~ s/\;//;
 	   $seq->sv($sv);
        }
-
        #date (NOTE: takes last date line)
-       if( /^DT\s+(\S+)/ ) {
+       elsif( /^DT\s+(\S+)/ ) {
 	   my $date = $1;
 	   $date =~ s/\;//;
 	   $seq->add_date($date);
        }
-       
-     
-
        # Organism name and phylogenetic information
-       if (/^O[SC]/) {
+       elsif (/^O[SC]/) {
            my $species = $self->_read_swissprot_Species(\$buffer);
            $seq->species( $species );
+	   # now we are one line ahead -- so continue without reading the next
+	   # line   HL 05/11/2000
+	   next;
        }
-
        # References
-       if (/^R/) {
+       elsif (/^R/) {
 	   my @refs = $self->_read_swissprot_References(\$buffer);
 	   $seq->annotation->add_Reference(@refs);
+	   # now we are one line ahead -- so continue without reading the next
+	   # line   HL 05/11/2000
+	   next;
        }
-
-     
        #Comments
-       if (/^CC\s+(.*)/) {
+       elsif (/^CC\s+(.*)/) {
 	   $comment .= $1;
 	   $comment .= " ";
-	   while (defined ($_ = $self->_readline)) {
-	       if (/^CC\s+(.*)/) {
+	   while (defined ($buffer = $self->_readline)) {
+	       if ($buffer =~ /^CC\s+(.*)/) {
 		   $comment .= $1;
 		   $comment .= " ";
 	       }
@@ -259,43 +261,51 @@ sub next_seq {
 	   $commobj->text($comment);
 	   $seq->annotation->add_Comment($commobj);
 	   $comment = "";
+	   # now we are one line ahead -- so continue without reading the next
+	   # line   HL 05/11/2000
+	   next;
        }
-
        #DBLinks
-       if (/^DR\s+(\S+)\; (\S+)\; (\S+)\; (\S+)/) {
+       elsif (/^DR\s+(\S+)\; (\S+)\; (\S+)\; (\S+)/) {
 	   my $dblinkobj =  Bio::Annotation::DBLink->new();
 	   $dblinkobj->database($1);
 	   $dblinkobj->primary_id($2);
 	   $dblinkobj->optional_id($3);
 	   $dblinkobj->comment($4);
 	   $seq->annotation->add_DBLink($dblinkobj);
-       } elsif (/^DR\s+(\S+)\; (\S+)\;/) {
+       }
+       elsif (/^DR\s+(\S+)\; (\S+)\;/) {
 	   my $dblinkobj =  Bio::Annotation::DBLink->new();
 	   $dblinkobj->database($1);
 	   $dblinkobj->primary_id($2);
 	   $seq->annotation->add_DBLink($dblinkobj);
        }
-
        #keywords
-       if( /^KW   (.*)\S*$/ ) {
+       elsif( /^KW   (.*)\S*$/ ) {
 	   my $keywords = $1;
 	   $seq->keywords($keywords);
        }
 
-       # Get next line.
+       # Get next line. Getting here assumes that we indeed need to read the
+       # line.
        $buffer = $self->_readline;
    }
    
    $buffer = $_;
       
-   FEATURE_TABLE :   
-   while (defined ($buffer)) {
+   FEATURE_TABLE :
+   # if there is no feature table, or if we've got beyond, exit loop or don't
+   # even enter    HL 05/11/2000
+   while (defined ($buffer) && ($buffer =~ /^FT/)) {
        my $ftunit = $self->_read_FTHelper_swissprot(\$buffer);
        
        # process ftunit
-       $ftunit->_generic_seqfeature($seq);
-       if( $buffer !~ /^FT/ ) {
-	   last;
+       # when parsing of the line fails we get undef returned
+       if($ftunit) {
+	   $ftunit->_generic_seqfeature($seq, "SwissProt");
+       } else {
+	   $self->warn("failed to parse feature table line for seq " .
+		       $seq->display_id());
        }
    }
    if( $buffer !~ /^SQ/  ) {
@@ -533,8 +543,9 @@ sub write_seq {
 sub _print_swissprot_FTHelper {
    my ($self,$fth,$always_quote) = @_;
    
-   ### FIXME - not implemented
+    ### FIXME - not implemented
     warn "_print_swissprot_FTHelper NOT IMPLEMENTED";
+
 }
 
 
@@ -570,8 +581,10 @@ sub _read_swissprot_References{
        
    }
    while( defined ($_ = $self->_readline) ) {
-       /^CC/ && goto OUT;
-       /^RN/ && last;
+       #/^CC/ && last;
+       #/^RN/ && last;
+       #/^SQ/ && last; # there may be sequences without CC lines! HL 05/11/2000
+       /^[^R]/ && last; # may be the safest exit point HL 05/11/2000
        /^RX   MEDLINE;\s+(\d+)/ && do {$med=$1};
        /^RA   (.*)/ && do { $au .= $1;   next;};
        /^RT   (.*)/ && do { $title .= $1; next;};
@@ -579,7 +592,7 @@ sub _read_swissprot_References{
        /^RC   (.*)/ && do { $com .= $1; next;};
    }
    
-   OUT: my $ref = new Bio::Annotation::Reference;
+   my $ref = new Bio::Annotation::Reference;
    $au =~ s/;\s*$//g;
    if( defined $title ) {
        $title =~ s/;\s*$//g;
@@ -612,7 +625,6 @@ sub _read_swissprot_References{
 
 =cut
 
-
 sub _read_swissprot_Species {
     my( $self, $buffer ) = @_;
     my $org;
@@ -620,13 +632,13 @@ sub _read_swissprot_Species {
     $_ = $$buffer;
     my( $sub_species, $species, $genus, $common, @class );
     while (defined( $_ ||= $self->_readline )) {
-        
         if (/^OS\s+(\S+)(?:\s+([^\(]\S*))?(?:\s+([^\(]\S*))?(?:\s+\((.*)\))?/) {
             $genus   = $1;
 	    if ($2) {
-		$species = $2
-		}
-	    else {
+		$species = $2;
+		# remove trailing dot -- TrEMBL has that. HL 05/11/2000
+		$species =~ s/.$//;
+	    } else {
 		$species = "sp.";
 	    }
 	    $sub_species = $3 if $3;
@@ -666,7 +678,6 @@ sub _read_swissprot_Species {
     return $make;
 }
 
-
 =head2 _filehandle
 
  Title   : _filehandle
@@ -679,19 +690,12 @@ sub _read_swissprot_Species {
 
 =cut
 
-sub _filehandle{
-   my ($obj,$value) = @_;
-   if( defined $value) {
-      $obj->{'_filehandle'} = $value;
-    }
-    return $obj->{'_filehandle'};
-
-}
+# inherited from SeqIO.pm ! HL 05/11/2000
 
 =head2 _read_FTHelper_swissprot
 
  Title   : _read_FTHelper_swissprot
- Usage   : _read_FTHelper_swissprot($buffer)
+ Usage   : _read_FTHelper_swissprot(\$buffer)
  Function: reads the next FT key line
  Example :
  Returns : Bio::SeqIO::FTHelper object 

@@ -131,7 +131,7 @@ sub _initialize {
 				     @args,
 				     );
   if( $file && $fh ) {
-      $self->throw("Providing both a file and a filehandle for reading from - oly one please!");
+      $self->throw("Providing both a file and a filehandle for reading from - only one please!");
   }
 
   if( !$file && !$fh ) {
@@ -187,7 +187,12 @@ sub next_seq {
    $line =~ /^ID\s+\S+/ || $self->throw("EMBL stream with no ID. Not embl in my book");
    $line =~ /^ID\s+(\S+)\s+\S+\; (.+)\; (\S+)/;
    $name = $1;
-   
+   if(! $name) {
+       $name = "unknown id";
+   }
+    # this is important to have the id for display in e.g. FTHelper, otherwise
+    # you won't know which entry caused an error
+   $seq->display_id($name);
    $mol= $2;
    $mol =~ s/\;//;
    if ($mol) {
@@ -715,12 +720,7 @@ sub _read_EMBL_Species {
         
         if (/^OS\s+(\S+)(?:\s+([^\(]\S*))?(?:\s+([^\(]\S*))?(?:\s+\((.*)\))?/) {
             $genus   = $1;
-	    if ($2) {
-		$species = $2
-		}
-	    else {
-		$species = "sp.";
-	    }
+            $species = $2 || 'sp.';
 	    $sub_species = $3 if $3;
             $common      = $4 if $4;
         }
@@ -878,8 +878,6 @@ sub _read_FTHelper_EMBL {
     # Make the new FTHelper object
     my $out = new Bio::SeqIO::FTHelper();
     $out->key($key);
-    $loc =~ s/<//;
-    $loc =~ s/>//;
     $out->loc($loc);
 
     # Now parse and add any qualifiers.  (@qual is kept
@@ -988,7 +986,6 @@ sub _write_line_EMBL_regex {
         push(@lines, $1.$2);
     }
     foreach (@lines) { s/\s+$//; }
-    #chomp(@lines);
     
     # Print first line
     my $s = shift(@lines);
