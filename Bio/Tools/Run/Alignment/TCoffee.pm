@@ -578,7 +578,11 @@ sub AUTOLOAD {
 
 
 sub exists_tcoffee {
-    return Bio::Root::IO->exists_exe($PROGRAM);
+    if( my $f = Bio::Root::IO->exists_exe($PROGRAM) ) {
+	$PROGRAM = $f if( -e $f );
+	return 1;
+    }
+    return 0;
 }
 
 =head2  align
@@ -691,10 +695,8 @@ sub _run {
     my $instring = "-in=".join(",", @{$self->{'_in'}});
     my $commandstring = $PROGRAM." $instring".
 	" -output=gcg". " $param_string";
-    # next line is for debugging purposes
-    if( $self->verbose > 0 ) {
-	print "tcoffee command = $commandstring \n";
-    }
+
+    $self->debug( "tcoffee command = $commandstring \n");
 
     my $status = system($commandstring);
     $self->throw( "TCoffee call crashed: $? [command $commandstring]\n") if( -z $TMPOUTFILE );
@@ -704,7 +706,7 @@ sub _run {
     # retrieve alignment (Note: MSF format for AlignIO = GCG format of
     # tcoffee)
 
-    my $in  = Bio::AlignIO->new(-file => $outfile, '-format' => 'MSF');
+    my $in  = Bio::AlignIO->new('-file' => $outfile, '-format' => 'MSF');
     my $aln = $in->next_aln();
 
     # Replace file suffix with dnd to find name of dendrogram file(s) to delete

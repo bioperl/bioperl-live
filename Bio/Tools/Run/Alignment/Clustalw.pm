@@ -310,7 +310,7 @@ methods. Internal methods are usually preceded with a _
 
 package Bio::Tools::Run::Alignment::Clustalw;
 
-use vars qw($AUTOLOAD @ISA $DEBUG $PROGRAM $PROGRAMDIR
+use vars qw($AUTOLOAD @ISA $PROGRAM $PROGRAMDIR
 	    $TMPDIR $TMPOUTFILE @CLUSTALW_SWITCHES @CLUSTALW_PARAMS
 	    @OTHER_SWITCHES %OK_FIELD);
 use strict;
@@ -360,11 +360,9 @@ sub new {
     my $self = $class->SUPER::new(@args);
     # to facilitiate tempfile cleanup
     $self->_initialize_io();
-
+    
     unless (&exists_clustal()) {
-	if( $self->verbose >= 0 ) {
-	    warn "Clustalw program not found as $PROGRAM or not executable. \n  Clustalw can be obtained from eg- http://corba.ebi.ac.uk/Biocatalog/Alignment_Search_software.html/ \n";
-	}
+	$self->warn( "Clustalw program not found as $PROGRAM or not executable. \n  Clustalw can be obtained from eg- http://corba.ebi.ac.uk/Biocatalog/Alignment_Search_software.html/");	
     }
 
     my ($attr, $value);
@@ -402,8 +400,12 @@ sub AUTOLOAD {
 =cut
 
 
-sub exists_clustal {
-    return Bio::Root::IO->exists_exe($PROGRAM);
+sub exists_clustal {    
+    if( my $f = Bio::Root::IO->exists_exe($PROGRAM) ) {
+	$PROGRAM = $f;
+	return 1;
+    }
+    return 0;
 }
 
 
@@ -515,10 +517,8 @@ sub _run {
     my $commandstring = $PROGRAM." $command"." $instring".
 	" -output=gcg". " $param_string";
 
-# next line is for debugging purposes
-    if( $DEBUG ) {
-	print "clustal command = $commandstring \n";
-    }
+    $self->debug( "clustal command = $commandstring");
+    
     my $status = system($commandstring);
     $self->throw( "Clustalw call crashed: $? \n") unless $status==0;
 
@@ -649,7 +649,7 @@ sub _setparams {
     }
 
     if ($self->quiet()) { $param_string .= '  >/dev/null';}
-
+    
     return $param_string;
 }
 
