@@ -95,7 +95,7 @@ my (%unigene,@express,@locuslink,@chromosome,@sts,@txmap,@protsim,@sequence);
 # set up the regexes
 my $data = qr/(?:.+)/;
 my $num  = qr/(?:\d+)/;
-my $organism = qr/(?:At|Bt|Dr|Hs|Hv|Mm|Os|Rn|Ta|Xl|Zm)/;
+my $organism = qr/(?:At|Bt|Dm|Dr|Hs|Hv|Mm|Os|Rn|Ta|Xl|Zm)/;
 
 my %line_is = (
 			ID				=> 	qq/ID ($organism\.$num)/,
