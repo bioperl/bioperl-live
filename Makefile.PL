@@ -71,12 +71,12 @@ sub MY::postamble {
 
 				           
 #
-# Talk to Ewan (<birney@sanger.ac.uk>) for more info.
+# Talk to Ewan (<birney@ebi.ac.uk>) or bioperl-l@bioperl.org for more info.
 #
 
 # Let the code begin...
 
-require 5.004;
+require 5.005;
 use ExtUtils::MakeMaker;
 
 $do_autoload_finesse = 0;

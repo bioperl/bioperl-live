@@ -3,6 +3,8 @@ Revision history for Bioperl core modules
 
 0.9.0 Developer's release
 
+    o perl version at least 5.005 is now required instead of perl 5.004
+
     o Bio::Tools::Run::RemoteBlast is available for running remote 
       blast jobs at NCBI.
 
