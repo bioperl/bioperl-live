@@ -16,9 +16,11 @@ Bio::Tools::RandomDistFunctions - A set of routines useful for generating random
 
 =head1 SYNOPSIS
 
-  use Bio::Tools::RandomDistFunctions qw(:all);
+  use Bio::Tools::RandomDistFunctions;
+  my $dist = Bio::Tools::RandomDistFunctions->new();
   for my $v ( 1..1000 ) { 
-    my $birth_dist = rand_birth_distribution($lambda);
+    my $birth_dist = $dist->rand_birth_distribution($lambda);
+    # ... do something with the variable
   }
 
 =head1 DESCRIPTION
@@ -85,10 +87,11 @@ use Bio::Root::Root;
 =head2 birth_distribution
 
  Title   : rand_birth_distribution
- Usage   : my $randvar = Bio::Tools::RandomDistFunctions->
-             rand_birth_distribution($lambda);
- Function: Returns a random number from a birth process waiting time with
-           a fixed interval 1.0.  Times are measured from 0=present,1=root;
+ Usage   : my $randvar = $dist->
+            rand_birth_distribution($lambda);
+ Function: Returns a random number from a birth process waiting 
+           time with a fixed interval
+           1.0.  Times are measured from 0=present,1=root;
  Returns : floating point number
  Args    : $lambda ( > 0 )
  References : This is based on code by Mike Sanders in r8s.
@@ -112,12 +115,12 @@ sub rand_birth_distribution{
 =head2 rand_geometric_distribution
 
  Title   : rand_geometric_distribution
- Usage   : my $randvar = Bio::Tools::RandomDistFunctions->
-             rand_geometric_distribution($param);
- Function: Returns a random geometric variate distributed with paramater 
-           $param, according to c.d.f. 1 - ( 1- param) ^ n 
+ Usage   : my $randvar = $dist->rand_geometric_distribution($param);
+ Function: Returns a random geometric variate distributed with 
+           paramater $param, according to
+           c.d.f. 1 - ( 1- param) ^ n 
  Returns : integer
- Args    : $param ( > 0 )
+ Args    : $param ( 0 > $param < 1 )
 
 
 =cut
@@ -152,17 +155,16 @@ sub rand_geometric_distribution{
 =head2 rand_exponentional_distribution
 
  Title   : rand_exponentional_distribution
- Usage   : my $var = Bio::Tools::RandomDistFunctions->
-             rand_exponentional_distribution($param);
+ Usage   : my $var = $dist->rand_exponentional_distribution($param);
  Function: Returns a random exponential variate distributed with parameter
            $param, according to c.d.f 1 - e^(-param * x)
  Returns : floating point number 
- Args    : $param ( > )
+ Args    : $param ( > 0 )
 
 
 =cut
 
-sub rand_exponentional_distribution{
+sub rand_exponentional_distribution {
    my ($self,$param) = @_;
       if( ! ref($self) && 
        $self !~ /RandomDistFunctions/ ) { 
@@ -177,7 +179,7 @@ sub rand_exponentional_distribution{
 =head2 rand_normal_distribution
 
  Title   : rand_normal_distribution
- Usage   : my $var = Bio::Tools::RandomDistFunctions->rand_normal_distribution()
+ Usage   : my $var = $dist->rand_normal_distribution()
  Function: Returns a random normal (gaussian) variate distributed 
  Returns : floating point number
  Args    : none
@@ -197,6 +199,5 @@ sub rand_normal_distribution{
     $gset = $v1 * $fac;
     return $v2 * $fac;
 }
-
 
 1;
