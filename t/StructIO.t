@@ -16,7 +16,7 @@ BEGIN {
 	use lib 't';
     }
     use Test;
-    plan tests => 8;
+    plan tests => 9;
 }
 use Bio::Structure::Entry;
 use Bio::Structure::IO;
@@ -41,4 +41,6 @@ ok($struc->parent($atom)->id, "LYS-46");
 my ($ann) = $struc->annotation->get_Annotations("author");
 ok($ann->as_text, "Value: D.HOUSSET,A.WLODAWER,F.TAO,J.FUCHS,C.WOODWARD              ");
 
+my $pseq = $struc->seqres;
+ok($pseq->subseq(1,20), "RPDFCLEPPYTGPCKARIIR");
 
