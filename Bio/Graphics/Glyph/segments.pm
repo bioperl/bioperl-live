@@ -116,8 +116,14 @@ sub draw_dna {
 
   my @segs;
 
+  if ($strand < 0) {
+    $dna     = $self->reversec($dna);
+    $genomic = $self->reversec($genomic);
+    $strand  = 1;
+  }
   my $complement      = $strand < 0;
 
+  # oh dear, undoing what we just did!
   if ($self->{flip}) {
     $dna     = $self->reversec($dna);
     $genomic = $self->reversec($genomic);
@@ -125,6 +131,9 @@ sub draw_dna {
   }
 
   warn "strand = $strand, complement = $complement" if DEBUG;
+
+  warn "feature = $feature: length(dna) = ",length($dna)," length(genomic) = ",length($genomic), 
+    " target = ",$feature->target->start,'..',$feature->target->end if DEBUG;
 
   if ($genomic && length($genomic) != length($dna) && eval { require Bio::Graphics::Browser::Realign}) {
     warn "$genomic\n$dna\n" if DEBUG;
@@ -147,9 +156,10 @@ sub draw_dna {
   my $pink = $self->factory->translate_color('lightpink');
   my $panel_end = $self->panel->right;
 
-  my $start  = $self->map_no_trunc($self->feature->start- $start_offset);
-  my $end    = $self->map_no_trunc($self->feature->end  - $start_offset);
-  my $canonical_strand = $self->option('canonical_strand');
+  my $start       = $self->map_no_trunc($self->feature->start- $start_offset);
+  my $end         = $self->map_no_trunc($self->feature->end  - $start_offset);
+  my $true_target = $self->option('true_target');
+  my $show_complement  = $true_target && $feature->strand < 0;
 
 
   my ($last,$tlast);
@@ -179,7 +189,7 @@ sub draw_dna {
                               : int($offset + ($i+1)*$pixels_per_target + 0.5);
 
 	$self->filled_box($gd,$x,$y1+3,$x+$fontwidth,$y1+$lineheight-3,$pink,$pink) unless $gaps;
-	$gd->char($font,$x,$y1,$complement && !$canonical_strand ? $complement{$fill_in[$i]} : $fill_in[$i],$color);
+	$gd->char($font,$x,$y1,$show_complement ? $complement{$fill_in[$i]} : $fill_in[$i],$color);
       }
     }
 
@@ -193,7 +203,7 @@ sub draw_dna {
       if ($genomic[$i] && lc($bases[$i]) ne lc($complement ? $complement{$genomic[@genomic - $i - 1]} : $genomic[$i])) {
 	$self->filled_box($gd,$x,$y1+3,$x+$fontwidth,$y1+$lineheight-3,$pink,$pink);
       }
-      $gd->char($font,$x,$y1,$complement && !$canonical_strand ? $complement{$bases[$i]} || $bases[$i] : $bases[$i],$color);
+      $gd->char($font,$x,$y1,$show_complement ? $complement{$bases[$i]} || $bases[$i] : $bases[$i],$color);
     }
     $last  = $seg->[1];
     $tlast = $seg->[3];
@@ -213,9 +223,9 @@ sub _subseq {
   my @subseq  = $self->SUPER::_subseq($feature);
   return @subseq if @subseq;
   if ($self->level == 0 && !@subseq && !eval{$feature->compound}) {
-    my($start,$end) = ($feature->start,$feature->end);
-    ($start,$end) = ($end,$start) if $start > $end; # to keep Bio::Location::Simple from bitching
-    #    return Bio::Location::Simple->new(-start=>$start,-end=>$end);
+    # my($start,$end) = ($feature->start,$feature->end);
+    # ($start,$end) = ($end,$start) if $start > $end; # to keep Bio::Location::Simple from bitching
+    # return Bio::Location::Simple->new(-start=>$start,-end=>$end);
     return $self->feature;
   } else {
     return;
@@ -295,10 +305,9 @@ In addition, the following segments-specific options are recognized:
                  highlights mismatched bases in
                  pink.  SEE NOTE.
 
-  -canonical_strand If true, will reverse         0 (false)
-                    complement minus strand
-                    matches so that the displayed
-                    DNA is on the plus strand.
+  -true_target   Show the true sequence of the    0 (false)
+                 matched DNA, even if the match
+                 is on the minus strand.
 
 The -draw_target and -ragged_start options only work with seqfeatures
 that implement the hit() method (Bio::SeqFeature::SimilarityPair).
@@ -307,6 +316,12 @@ cloning sites at the beginning of ESTs and cDNAs.  Currently there is
 no way of activating ragged ends.  The length of the ragged starts is
 hard-coded at 25 bp, and the color of mismatches is hard-coded as
 light pink.
+
+At high magnifications, minus strand matches will automatically be
+shown as their reverse complement (so that the match has the same
+sequence as the plus strand of the source dna).  If you prefer to see
+the actual sequence of the target as it appears on the minus strand,
+then set -true_target to true.
 
 =head1 BUGS
 

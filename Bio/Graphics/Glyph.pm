@@ -623,6 +623,7 @@ sub draw {
   @{$self}{qw(partno total_parts)} = ($partno,$total_parts);
 
   my $connector =  $self->connector;
+
   if (my @parts = $self->parts) {
 
     # invoke sorter if use wants to sort always and we haven't already sorted
@@ -647,7 +648,7 @@ sub draw {
   else {  # no part
     $self->draw_connectors($gd,$left,$top)
       if $connector && $connector ne 'none' && $self->{level} == 0;
-    $self->draw_component($gd,$left,$top);
+    $self->draw_component($gd,$left,$top) unless eval{$self->feature->compound};
   }
 }
 
@@ -674,6 +675,9 @@ sub draw_connectors {
     $self->_connector($gd,$dx,$dy,$x1,$xt,$x1,$xb,$xl,$xt,$xr,$xb)      if $x1 < $xl;
     my ($xl2,$xt2,$xr2,$xb2) = $parts[-1]->bounds;
     $self->_connector($gd,$dx,$dy,$parts[-1]->bounds,$x2,$xt2,$x2,$xb2) if $x2 > $xr;
+  } else {
+    my ($x1,$y1,$x2,$y2) = $self->bounds($dx,$dy);
+    $self->draw_connector($gd,$y1,$y2,$x1,$y1,$y2,$x2);
   }
 
 }
@@ -966,7 +970,7 @@ sub draw_component {
 sub subseq {
   my $self    = shift;
   my $feature = shift;
-  return $self->_subseq($feature) unless ref $self;
+  return $self->_subseq($feature) unless ref $self;  # protect against class invocation
   return @{$self->{cached_subseq}{$feature}} if $self->{cached_subseq}{$feature};
   my @ss = $self->_subseq($feature);
   $self->{cached_subseq}{$feature} = \@ss;

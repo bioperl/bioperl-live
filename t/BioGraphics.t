@@ -12,6 +12,7 @@ use vars qw($NUMTESTS $DEBUG);
 use lib '..','.','./blib/lib';
 use constant IMAGES => './t/data/biographics';
 use constant FILES  => './t/data/biographics';
+use constant IMAGE_TESTS => 0;
 
 my $error;
 
@@ -26,7 +27,7 @@ BEGIN {
     }
     use Test;
 
-    $NUMTESTS = 14;
+    $NUMTESTS = 14 + (IMAGE_TESTS ? 3 : 0);
     plan tests => $NUMTESTS;
 
     eval {
@@ -58,11 +59,7 @@ my $write   = 0;
 ## the print "1..x\n" in the BEGIN block to reflect the
 ## total number of tests that will be run. 
 
-# my @images = qw(t1 t2 t3);
-
-
-
-my @images = qw();
+my @images = IMAGE_TESTS ? qw(t1 t2 t3) : ();
 
 # parse command line arguments
 while (@ARGV && $ARGV[0] =~ /^--?(\w+)/) {
