@@ -244,12 +244,17 @@ The following registry-configuration tags are recognized:
 =cut
 
 sub new_from_registry {
-    my ($self,%config) =  @_;
-    my $location = $config{'location'} or $self->throw('location tag must be specified.');
-    my $dbname   = $config{'dbname'}   or $self->throw('dbname tag must be specified.');
-    my $index    = $self->new(-directory => $location,
-			      -dbname    => $dbname,
-			     );
+   my ($self,%config) =  @_;
+   my $location = $config{'location'} or $self->throw('location tag must be specified.');
+   my $dbname   = $config{'dbname'}   or $self->throw('dbname tag must be specified.');
+   #my $index    = $self->new(-directory => $location,
+   #			      -dbname    => $dbname,
+   #			     );
+   my $index = $config{'protocol'} or $self->throw('index or protocol tag must be specified.');
+   my $db = $self->new(-directory => $location,
+			-dbname    => $dbname,
+			-index     => $index );
+    $db;
 }
 
 # accessors
