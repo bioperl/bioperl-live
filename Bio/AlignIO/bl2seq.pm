@@ -101,6 +101,16 @@ use Bio::Tools::BPbl2seq;
 
 @ISA = qw(Bio::AlignIO);
 
+
+sub new { 
+    my ($class) = shift;
+    my $self = $class->SUPER::new(@_);
+    my ($rt) = $self->_rearrange([qw(REPORT_TYPE)],@_);
+    $self->report_type($rt);
+    $self;
+    
+}
+
 =head2 next_aln
 
  Title   : next_aln
@@ -116,8 +126,9 @@ sub next_aln {
     my $self = shift;
     my ($start,$end,$name,$seqname,$seq,$seqchar);
     my $aln =  Bio::SimpleAlign->new(-source => 'bl2seq');
-    $self->{'bl2seqobj'} =
-    	$self->{'bl2seqobj'} || Bio::Tools::BPbl2seq->new(-fh => $self->_fh);
+    $self->{'bl2seqobj'} = $self->{'bl2seqobj'} || 
+	Bio::Tools::BPbl2seq->new(-fh => $self->_fh,
+				  -report_type => $self->report_type);
     my $bl2seqobj = $self->{'bl2seqobj'};
     my $hsp =   $bl2seqobj->next_feature;
     $seqchar = $hsp->querySeq;
@@ -171,6 +182,23 @@ sub write_aln {
     my ($self,@aln) = @_;
 
     $self->throw("Sorry: writing bl2seq output is not available! /n");
+}
+
+=head2 report_type
+
+ Title   : report_type
+ Usage   : $obj->report_type($newval)
+ Function: Sets the report type (blastn, blastp...)
+ Returns : value of report_type (a scalar)
+ Args    : on set, new value (a scalar or undef, optional)
+
+
+=cut
+
+sub report_type{
+    my $self = shift;
+    return $self->{'report_type'} = shift if @_;
+    return $self->{'report_type'};
 }
 
 1;
