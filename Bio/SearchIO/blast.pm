@@ -217,7 +217,7 @@ sub next_result{
 	   my $q = $1;
 	   my $size = 0;      
 	   $_ = $self->_readline;
-	   while( defined ($_) && $_ !~ /^\s+$/ ) {	       
+	   while( defined ($_) && $_ !~ /^\s+$/ ) {	
 	       if( /\(([\d,]+)\s+letters\)/ ) {		   
 		   $size = $1;
 		   $size =~ s/,//g;
@@ -240,17 +240,25 @@ sub next_result{
 	   $self->element({ 'Name' =>  'BlastOutput_query-acc',
 			    'Data'  => $acc});	   
        } elsif ( /^Database:\s*(.+)$/ ) {
+	   my $db = $1;
+
+	   while( defined($_ = $self->_readline) ) {
+	       if( /^\s+([\d\,]+)\s+sequences\;\s+([\d,]+)\s+total\s+letters/){
+		   my ($s,$l) = ($1,$2);
+		   $s =~ s/,//g;
+		   $l =~ s/,//g;
+		   $self->element({'Name' => 'BlastOutput_db-len',
+				   'Data' => $s});	       
+		   $self->element({'Name' => 'BlastOutput_db-let',
+				   'Data' => $l});
+		   last;
+	       } else {
+		   chomp;
+		   $db .= $_;
+	       }
+	   }	       
 	   $self->element({'Name' => 'BlastOutput_db',
-			   'Data' => $1});
-	   if( $self->_readline =~ /^\s+([\d\,]+)\s+sequences\;\s+([\d,]+)\s+total\s+letters/ ) {
-	       my ($s,$l) = ($1,$2);
-	       $s =~ s/,//g;
-	       $l =~ s/,//g;
-	       $self->element({'Name' => 'BlastOutput_db-len',
-			       'Data' => $s});	       
-	       $self->element({'Name' => 'BlastOutput_db-let',
-			       'Data' => $l});
-	   }
+			   'Data' => $db});
        } elsif( /^>(\S+)\s*(.*)?/ ) {
 	   if( $self->in_element('hsp') ) {
 	       $self->end_element({ 'Name' => 'Hsp'});
