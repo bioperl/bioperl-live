@@ -1,21 +1,15 @@
 #!/usr/bin/perl
-use strict;
+#use strict;
 use LocalConfig;
 use File::Basename qw(basename dirname);
 my $file;
 ($file = basename($0)) =~ s/\.PL$/\.pod/;
 open OUT,">$file" or die "Can't create $file: $!";
 
-print OUT<<'!NO!GROK!';
-#
-# Documentation about the backend of Bioperl
-# 
-# This is a quick overview about how to use databases with Bioperl
-#
-
+print OUT<<"THEEND"
 =head1 NAME
 
-Bioperl databases - how to use databases with Bioperl
+Bioperl databases $Local{VERSION} - how to use databases with Bioperl
 
 =head1 SYNOPSIS
 
@@ -229,4 +223,4 @@ sequences and extract subsequences rapidly.
 See L<Bio::DB::GFF>, L<Bio::DB::GFF::RelSegment>,
 L<Bio::DB::GFF::Feature>, and L<Bio::DB::GFF::Adaptor::dbi>.
 
-!NO!GROK!
+THEEND

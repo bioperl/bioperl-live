@@ -1,19 +1,19 @@
 #!/usr/bin/perl
-use strict;
+#use strict;
 use LocalConfig;
 use File::Basename qw(basename dirname);
 my $file;
 ($file = basename($0)) =~ s/\.PL$/\.pod/;
 open OUT,">$file" or die "Can't create $file: $!";
 
-print OUT<<'!NO!GROK!';
+print OUT<<"THEEND";
 =head1 NAME
 
-biodesign.pod - Bioperl Design Documentation
+Biodesign v$Local{VERSION} - Bioperl Design Documentation
 
 =head1 SYNOPSIS
 
-Not appropiate. Read on...
+Not appropriate. Read on...
 
 =head1 DESCRIPTION
 
@@ -426,5 +426,6 @@ L<Bio::SeqIO::FTHelper> for details.
 The Bioperl effort has managed to strike that balance between creating
 reliable and powerful software and providing outlets for individual 
 creativity and imagination. In this spirit of open-mindedness we invite
-you to share your ideas with us at bioperl-l@bioperl.org.
-!NO!GROK!
+you to share your ideas with us at bioperl-l at bioperl.org.
+
+THEEND

@@ -6,11 +6,10 @@ my $file;
 ($file = basename($0)) =~ s/\.PL$/\.pod/;
 open OUT,">$file" or die "Can't create $file: $!";
 
-print OUT<<'!NO!GROK!';
-
+print OUT<<"THEEND";
 =head1 NAME
 
-Bioscripts
+Bioscripts v$Local{VERSION} - Bioperl scripts
 
 =head1 SYNOPSIS
 
@@ -22,10 +21,11 @@ These scripts have been contributed by the developers and users of
 Bioperl. They are organized into directories roughly mirroring those
 in the Bioperl Bio/ directory. There are 2 directories for these 
 scripts, scripts/ and examples/. The scripts in scripts/ are 
-production quality scripts, the scripts in examples/ are useful
+production quality scripts that have POD documentation and accept
+command-line arguments, the scripts in examples/ are useful
 examples of Bioperl code.
 
-Please contact bioperl-l@bioperl.org if you are interested in 
+Please contact bioperl-l at bioperl.org if you are interested in 
 contributing your own script.
 
 =head1 PRODUCTION SCRIPTS
@@ -83,6 +83,10 @@ Indexes local databases, partners with bpfetch.pl.
 =head2 scripts/seq/extract_feature_seq.PLS
 
 Extract the sequence for a specified feature type.
+
+=head2 scripts/seqstats/chaos_plot.pl
+
+Produce a PNG or JPEG chaos plot given a DNA sequence using GD.pm.
 
 =head2 scripts/taxa/taxid4species.PLS
 
@@ -292,10 +296,6 @@ Calculate amino acid composition of a protein using Tools::CodonTable
 and Tools::IUPAC. See L<Bio::Tools::IUPAC> and
 L<Bio::Tools::CodonTable> for more information.
 
-=head2 examples/seqstats/chaos_plot.pl
-
-Produce a PNG or JPEG chaos plot given a DNA sequence using GD.pm.
-
 =head2 examples/seqstats/gccalc.pl
 
 Calculate %GC given a DNA sequence using Tools::SeqStats. See
@@ -374,4 +374,4 @@ Script for testing and demonstrating Bio::Tools::Genscan.
 Convert a PAUP tree block to Phylip format.
 
 =cut
-!NO!GROK!
+THEEND
