@@ -125,9 +125,6 @@ use constant FALSE        => 0;
                              Enabling this allows to parse multiple input
                              files into the same ontology and still have
                              separately rooted.
-           -id_prefix     => The prefix for the term identifiers. Terms
-                             in this format often come without identifiers,
-                             in which case 
            -engine        => the L<Bio::Ontology::OntologyEngineI> object
                              to be reused (will be created otherwise); note
                              that every L<Bio::Ontology::OntologyI> will
@@ -442,11 +439,11 @@ sub _parse_flat_file {
 
 
   while ( my $line = $self->_readline() ) {
-	if ( $line =~ /^[$indent_string]*[\|\-]/ ) { #this is not yet generalized
+        if ( $line =~ /^[$indent_string]*[\|\-]/ ) { #this is not yet generalized
 	  next;
-	}
+        }
 
-	my($current_term) = $line =~ /^[$indent_string]*(.*)/;
+	my ($current_term) = $line =~ /^[$indent_string]*(.*)/;
 	my $current_indent = $self->_count_indents( $line );
 	chomp $current_term;
 	# remove extraneous delimiter characters at the end of the name if any
@@ -479,15 +476,9 @@ sub _parse_flat_file {
 	  }
  	}
 
- 	my $curr_term_obj = $self->_get_terms( $current_term );
- 	#$current_term_object->ontology( $ont );
+        # note: we are ensured to see the parent first in this type of file,
+        # so we never need to possibly insert the parent here
 
-	#we are ensured to see the parent first in this type of file.
-	#if ( ! $self->_has_term( $parent ) ) {
-	#  my $term = $self->_create_ont_entry( $parent );
-	#  $self->_add_term( $term, $ont );
-	#}
-	
  	if ( $current_indent != $prev_indent  ) {
  	  if ( $current_indent == $prev_indent + 1 ) {
  		push( @stack, $prev_term );
@@ -497,7 +488,10 @@ sub _parse_flat_file {
  		  pop( @stack );
  		}
  	  } else {
- 		$self->throw( "format error (file ".$self->file.")" );
+ 		$self->throw("format error: indentation level $current_indent "
+                             ."is more than one higher than the previous "
+                             ."level $prev_indent ('$current_term', "
+                             ."file ".$self->file.")" );
  	  }
  	}
 
