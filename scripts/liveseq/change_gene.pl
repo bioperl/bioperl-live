@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-#$id$
+# $Id$
 
 use strict;
 use Bio::LiveSeq::IO::BioPerl;
@@ -18,8 +18,8 @@ Arguments: filename containing embl entry, gene_name
            It will then issue mutations and print results
 
 Usage:     change_gene.pl filename genename
- 
-Example:   change_gene.pl ../t/ar.embl AR
+
+Example:   change_gene.pl ../../t/data/ar.embl AR
 USAGE
 exit;
 } else {
@@ -28,7 +28,7 @@ exit;
     my $loader=Bio::LiveSeq::IO::BioPerl->load(-file => "$filename");
 
     my $gene_name=$ARGV[1];
-    my $gene=$loader->gene2liveseq(-gene_name => $gene_name, 
+    my $gene=$loader->gene2liveseq(-gene_name => $gene_name,
 				   -getswissprotinfo => 0);
 
     print STDERR "Gene: ",$gene->name,"\n";
