@@ -55,7 +55,7 @@ eval {
     # This example demonstrates that Bio::Root::Root->throw() 
     # won't use Error.pm when called with a string.
 
-    print "[2] Throwing error within an eval{} and passing a string to Bio::Root::Root::throw()\n";
+    print "[2] Calling Bio::Root::Root->throw('string') within an eval{}\n";
     $foo->throw("Error message string.");
 
 };
@@ -77,7 +77,7 @@ eval {
     # an eval{} doesn't lead to anything getting added to $@,
     # so don't do this. Use die() or croak() instead.
 
-    print "[3] Attempting to throw Error directly within an eval{} block\n";
+    print "[3] Attempting to throw Error directly within an eval{} block (this should fail).\n";
 
     if( $ENV{OSTYPE} =~ /cygwin/ ) {
         die "[3] This causes a segmentation fault with cygwin perl! Skipping.\n";
