@@ -19,7 +19,7 @@ BEGIN {
 	use lib 't';
     }
     use vars qw($NTESTS);
-    $NTESTS = 76;
+    $NTESTS = 78;
     $error = 0;
 
     use Test;
@@ -407,7 +407,8 @@ my $aln = $alnin->next_aln;
 $population = Bio::PopGen::Utilities->aln_to_population(-alignment => $aln);
 ok($population->get_number_individuals,9);
 #warn($aln->match_line,"\n");
-ok( $population->get_marker_names, $aln->match_line =~ tr/ //);
+my $matchline = $aln->match_line;
+ok( $population->get_marker_names, $matchline =~ tr/ //);
 for my $name ( $population->get_marker_names ) {
     my $marker = $population->get_Marker($name); 
 #    warn("$name ",join(" ",$marker->get_Alleles()),"\n");

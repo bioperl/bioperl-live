@@ -19,6 +19,7 @@ BEGIN {
 use Bio::Matrix::PSM::IO;
 
 ok(1);
+
 #Let's try meme here
 my $psmIO =  new Bio::Matrix::PSM::IO(-format=>'meme', 
 				      -file=>Bio::Root::IO->catfile(qw(t data meme.dat)));
@@ -49,8 +50,8 @@ ok $psm;
 my $fA=$psm->get_compressed_freq('A');
 my @check=Bio::Matrix::PSM::SiteMatrix::_uncompress_string($fA,1,1);
 my @A=$psm->get_array('A');
-my ($var,$max);
-for (my $i;$i<@check;$i++) {
+my ($var,$max) = (0,0);
+for (my $i = 0; $i<@check;$i++) {
   my $diff=abs(abs($check[$i])-abs($A[$i]));
   $var += $diff;
   $max=$diff if ($diff>$max);
@@ -59,15 +60,15 @@ my $avg=$var/@check;
 ok $avg<0.01; #Loss of data under 1 percent
 
 my $lA=$psm->get_compressed_logs('A');
-my @check=Bio::Matrix::PSM::SiteMatrix::_uncompress_string($lA,1000,2);
-my @A=$psm->get_logs_array('A');
-my ($var,$max);
-for (my $i;$i<@check;$i++) {
+@check=Bio::Matrix::PSM::SiteMatrix::_uncompress_string($lA,1000,2);
+@A=$psm->get_logs_array('A');
+($var,$max) = (0,0);
+for (my $i = 0;$i<@check;$i++) {
   my $diff=abs(abs($check[$i])-abs($A[$i]));
   $var += $diff;
   $max=$diff if ($diff>$max);
 }
-my $avg=$var/@check;
+$avg=$var/@check;
 ok $avg<10; #Loss of data under 1 percent
 
 my $matrix=$psm->matrix;
@@ -118,30 +119,30 @@ ok @ids, '1';
 $psm     = $psmIO->next_psm;
 ok $psm;
 
-#Lets try to compress and uncompress the log odds and the frequencies, see if there is no
-#considerable loss of data.
-my $fA=$psm->get_compressed_freq('A');
-my @check=Bio::Matrix::PSM::SiteMatrix::_uncompress_string($fA,1,1);
-my @A=$psm->get_array('A');
-my ($var,$max);
-for (my $i;$i<@check;$i++) {
+# Lets try to compress and uncompress the log odds and the frequencies, see if
+# there is no considerable loss of data.
+$fA=$psm->get_compressed_freq('A');
+@check=Bio::Matrix::PSM::SiteMatrix::_uncompress_string($fA,1,1);
+@A=$psm->get_array('A');
+($var,$max) = (0,0);
+for (my $i = 0; $i<@check;$i++) {
   my $diff=abs(abs($check[$i])-abs($A[$i]));
   $var += $diff;
   $max=$diff if ($diff>$max);
 }
-my $avg=$var/@check;
+$avg=$var/@check;
 ok $avg<0.01; #Loss of data under 1 percent
 
-my $lA=$psm->get_compressed_logs('A');
-my @check=Bio::Matrix::PSM::SiteMatrix::_uncompress_string($lA,1000,2);
-my @A=$psm->get_logs_array('A');
-my ($var,$max);
-for (my $i;$i<@check;$i++) {
-  my $diff=abs(abs($check[$i])-abs($A[$i]));
+$lA=$psm->get_compressed_logs('A');
+@check=Bio::Matrix::PSM::SiteMatrix::_uncompress_string($lA,1000,2);
+@A=$psm->get_logs_array('A');
+($var,$max) = (0,0);
+for (my $i = 0;$i<@check;$i++) {
+  my $diff=abs(abs($check[$i]||0)-abs($A[$i]||0));
   $var += $diff;
   $max=$diff if ($diff>$max);
 }
-my $avg=$var/@check;
+$avg=$var/@check;
 ok $avg<10; #Loss of data under 1 percent
 
 %weights = $psmIO->weight;
