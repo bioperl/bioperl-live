@@ -300,10 +300,10 @@ sub _make_pwm {
   $count--;
   foreach my $pos(sort{$a<=>$b} keys %hash){
     my @array;
-    push @array,$hash{$pos}{'A'}/$count;
-    push @array,$hash{$pos}{'C'}/$count;
-    push @array,$hash{$pos}{'G'}/$count;
-    push @array,$hash{$pos}{'T'}/$count;
+    push @array,($hash{$pos}{'A'}||0)/$count;
+    push @array,($hash{$pos}{'C'}||0)/$count;
+    push @array,($hash{$pos}{'G'}||0)/$count;
+    push @array,($hash{$pos}{'T'}||0)/$count;
 
     #calculate bits
     # relative entropy (RelEnt) or Kullback-Liebler distance
@@ -311,12 +311,12 @@ sub _make_pwm {
     # gk the background frequency of nucleotide k
     
     my $bits;
-    $bits+=($hash{$pos}{'A'} / $count) * log2(($hash{$pos}{'A'}/$count) / ($bgd->{'A'}));
-    $bits+=($hash{$pos}{'C'} / $count) * log2(($hash{$pos}{'C'}/$count) / ($bgd->{'C'}));
-    $bits+=($hash{$pos}{'G'} / $count) * log2(($hash{$pos}{'G'}/$count) / ($bgd->{'G'}));
-    $bits+=($hash{$pos}{'T'} / $count) * log2(($hash{$pos}{'T'}/$count) / ($bgd->{'T'}));
+    $bits+=(($hash{$pos}{'A'}||0) / $count) * log2((($hash{$pos}{'A'}||0)/$count) / ($bgd->{'A'}));
+    $bits+=(($hash{$pos}{'C'}||0) / $count) * log2((($hash{$pos}{'C'}||0)/$count) / ($bgd->{'C'}));
+    $bits+=(($hash{$pos}{'G'}||0) / $count) * log2((($hash{$pos}{'G'}||0)/$count) / ($bgd->{'G'}));
+    $bits+=(($hash{$pos}{'T'}||0) / $count) * log2((($hash{$pos}{'T'}||0)/$count) / ($bgd->{'T'}));
     push @array, abs(sprintf("%.3f",$bits));
-     
+
     push @pwm,\@array;
   }
   return $self->pwm(\@pwm);
