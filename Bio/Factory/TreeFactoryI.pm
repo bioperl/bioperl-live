@@ -25,7 +25,7 @@ Bio::Factory::TreeFactoryI - Factory Interface for getting and writing trees
 
   # convert tree formats from newick/phylip to nexus
   while(my $tree = $treeio->next_tree) {
-      $treeout->write_tree($treeout);
+      $treeout->write_tree($tree);
   }
 
 =head1 DESCRIPTION
