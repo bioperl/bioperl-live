@@ -230,8 +230,8 @@ sub score {
   
   if(@_) {
        my $value = shift;
-       if( $value !~ /^\[+-]?\d+\.?\d*/ ) {
-	   $self->throw("$value is not a valid score");
+       if( $value !~ /^[+-]?\d+\.?\d*(e-\d+)?/ ) {
+	   $self->throw("'$value' is not a valid score");
        }
        $self->{'_gsf_score'} = $value;
   }
