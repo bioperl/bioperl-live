@@ -215,18 +215,12 @@ sub next_cluster {
 
 sub _load_format_module {
   my ($format) = @_;
-  my ($module, $load, $m);
 
-  $module = "_<Bio/ClusterIO/$format.pm";
-  $load = "Bio/ClusterIO/$format.pm";
+  my $load = "Bio::ClusterIO::$format";
 
-  return 1 if $main::{$module};
-  eval {
-    require $load;
-  };
-  if ( $@ ) {
+  if ( require "$load" ) {
     print STDERR <<END;
-$load: $format cannot be found - for more details on supported formats please see the ClusterIO docs
+$load: couldn't load $format - for more details on supported formats please see the ClusterIO docs
 Exception $@
 END
   ;
