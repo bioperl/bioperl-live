@@ -337,7 +337,10 @@ sub get_number_individuals{
 
 sub get_Frequency_Homozygotes{
    my ($self,$marker,$allelename) = @_;
-   my ($homozygote_count);
+   my ($homozygote_count) = 0;
+   return 0 if ! defined $marker || ! defined $allelename;
+   $marker = $marker->name if( defined $marker && 
+			       $marker->isa('Bio::PopGen::MarkerI'));
    my $total = $self->get_number_individuals($marker);
    foreach my $genotype ( $self->get_Genotypes($marker) ) {
        my %alleles = map { $_ => 1} $genotype->get_Alleles();
@@ -362,8 +365,12 @@ sub get_Frequency_Homozygotes{
 
 sub get_Frequency_Heterozygotes{
    my ($self,$marker,$allelename) = @_;
-   my ($heterozygote_count);
+   my ($heterozygote_count) = 0;
+   return 0 if ! defined $marker || ! defined $allelename;
+   $marker = $marker->name if( defined $marker && 
+			       $marker->isa('Bio::PopGen::MarkerI'));
    my $total = $self->get_number_individuals($marker);
+
    foreach my $genotype ( $self->get_Genotypes($marker) ) {
        my %alleles = map { $_ => 1} $genotype->get_Alleles();
        # what to do for non-diploid situations?
