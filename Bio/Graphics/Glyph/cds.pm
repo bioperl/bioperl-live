@@ -131,7 +131,7 @@ sub draw_component {
     my $x = $strand > 0 ? $start + $i * $pixels_per_residue
                         : $stop  - $i * $pixels_per_residue;
     next unless ($x >= $x1 && $x <= $x2);
-    $gd->char($font,$x,$y1,$residues[$i],$color);
+    $gd->char($font,$x+1,$y1,$residues[$i],$color);
   }
 }
 

@@ -13,9 +13,27 @@ use constant RAGGED_START_FUZZ => 25;  # will show ragged ends of alignments
 @ISA = qw( Bio::Graphics::Glyph::segmented_keyglyph
 	   Bio::Graphics::Glyph::generic
 	 );
-$VERSION = '1.05';
+$VERSION = '1.06';
 my %complement = (g=>'c',a=>'t',t=>'a',c=>'g',n=>'n',
 		  G=>'C',A=>'T',T=>'A',C=>'G',N=>'N');
+
+sub pad_left {
+  my $self = shift;
+  return $self->SUPER::pad_left unless $self->option('draw_target') && $self->option('ragged_start') && $self->dna_fits;
+  return $self->SUPER::pad_left unless $self->level > 0;
+  my $target = $self->feature->hit;
+  return $self->SUPER::pad_left unless $target->start<$target->end && $target->start < RAGGED_START_FUZZ;
+  return ($target->start-1) * $self->scale;
+}
+
+sub pad_right {
+  my $self = shift;
+  return $self->SUPER::pad_right unless $self->level > 0;
+  return $self->SUPER::pad_right unless $self->option('draw_target') && $self->option('ragged_start') && $self->dna_fits;
+  my $target = $self->feature->hit;
+  return $self->SUPER::pad_right unless $target->end < $target->start && $target->start < RAGGED_START_FUZZ;
+  return ($target->end-1) * $self->scale;
+}
 
 # group sets connector to 'solid'
 sub connector {
@@ -24,12 +42,18 @@ sub connector {
   return ($self->SUPER::connector(@_) || 'solid');
 }
 
-
 # never allow our components to bump
 sub bump {
   my $self = shift;
   return $self->SUPER::bump(@_) if $self->all_callbacks;
   return 0;
+}
+
+sub fontcolor {
+  my $self = shift;
+  return $self->SUPER::fontcolor unless $self->option('draw_target') || $self->option('draw_dna');
+  return $self->SUPER::fontcolor unless $self->dna_fits;
+  return $self->bgcolor;
 }
 
 sub draw_component {
@@ -42,13 +66,13 @@ sub draw_component {
 
   my $dna = $draw_target ? eval {$self->feature->hit->seq}
                          : eval {$self->feature->seq};
+  return $self->SUPER::draw_component(@_) unless length $dna > 0;  # safety
+
   my $show_mismatch = $draw_target && $self->option('show_mismatch');
   my $genomic = eval {$self->feature->seq} if $show_mismatch;
 
-
   my $gd = shift;
   my ($x1,$y1,$x2,$y2) = $self->bounds(@_);
-
 
   # adjust for nonaligned left end (for ESTs...)  The size given here is roughly sufficient
   # to show a polyA end or a c. elegans trans-spliced leader.
@@ -56,18 +80,15 @@ sub draw_component {
   eval {  # protect against data structures that don't implement the target() method.
     if ($draw_target && $self->option('ragged_start')){
       my $target = $self->feature->hit;
-      if ($target->start < $target->end && $target->start < RAGGED_START_FUZZ) {
+      if ($target->start < $target->end && $target->start < RAGGED_START_FUZZ  && $self->{partno} == 0) {
 	$offset = $target->start - 1;
 	if ($offset > 0) {
-	  #	warn "subseq = (1-$offset,0)";
 	  $dna       = $target->subseq(1-$offset,0)->seq . $dna;
 	  $genomic   = $self->feature->subseq(1-$offset,0)->seq         . $genomic;
-	  #	warn "dna = $dna\n";
-	  #	warn "gen = $genomic\n";
 	  $x1        -= $offset * $self->scale;
 	}
       }
-      elsif ($target->end < $target->start && $target->end < RAGGED_START_FUZZ) {
+      elsif ($target->end < $target->start && $target->end < RAGGED_START_FUZZ && $self->{partno} == $self->{total_parts}) {
 	$offset = $target->end - 1;
 	if ($offset > 0) {
 	  $dna       .= $target->factory->get_dna($target,$offset,1);
@@ -100,19 +121,17 @@ sub draw_dna {
 
   my $start  = $self->map_no_trunc($self->feature->start-$start_offset);
   my $offset = int(($x1-$start-1)/$pixels_per_base);
-#  warn "offset = $offset";
-#  warn "@bases\n";
-#  warn "@genomic\n";
 
   for (my $i=$offset;$i<@bases;$i++) {
     my $x = $start + $i * $pixels_per_base;
     next if $x+1 < $x1;
-    last if $x > $x2;
+    last if $x+1 > $x2;
     if ($genomic[$i] && lc($bases[$i]) ne lc($complement ? $complement{$genomic[@genomic - $i - 1]} : $genomic[$i])) {
-      $self->filled_box($gd,$x-1,$y1+1,$x+$fontwidth,$y1+$lineheight,$pink,$pink);
+      $self->filled_box($gd,$x,$y1+2,$x+$fontwidth,$y1+$lineheight-2,$pink,$pink);
     }
-    $gd->char($font,$x,$y1,$complement ? $complement{$bases[$i]} || $bases[$i] : $bases[$i],$color);
+    $gd->char($font,$x+1,$y1,$complement ? $complement{$bases[$i]} || $bases[$i] : $bases[$i],$color);
   }
+
 
 }
 
@@ -202,10 +221,17 @@ L<Bio::Graphics::Glyph> for a full explanation.
                  draw a few bases beyond the end
                  of the alignment.  SEE NOTE.
 
+  -show_mismatch When combined with -draw_target, 0 (false)
+                 highlights mismatched bases in
+                 pink.  SEE NOTE.
+
 The -draw_target and -ragged_start options only work with seqfeatures
 that implement the hit() method (Bio::SeqFeature::SimilarityPair).
 The -ragged_start option is mostly useful for looking for polyAs and
-cloning sites at the beginning of ESTs and cDNAs.
+cloning sites at the beginning of ESTs and cDNAs.  Currently there is
+no way of activating ragged ends.  The length of the ragged starts is
+hard-coded at 25 bp, and the color of mismatches is hard-coded as
+light pink.
 
 =head1 BUGS
 
