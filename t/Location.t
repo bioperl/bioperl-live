@@ -7,8 +7,11 @@
 
 use Test;
 use strict;
-BEGIN { plan tests => 13 }
+BEGIN { plan tests => 18 }
 use Bio::Location::Simple;
+use Bio::Location::Split;
+use Bio::Location::Fuzzy;
+
 use Bio::SeqFeature::Generic;
 use Bio::SeqFeature::SimilarityPair;
 use Bio::SeqFeature::FeaturePair;
@@ -44,8 +47,27 @@ my $feat3 = new Bio::SeqFeature::Generic('-start' => 35, '-end' => 50,
 
 ok $featpair->start, 30;
 ok $featpair->end,  43;
+
 ok $featpair->length, 14;
 
 ok $featpair->overlaps($feat3);
 ok $generic->overlaps($simple);
 ok $generic->contains($simple);
+
+my $splitlocation = new Bio::Location::Split;
+$splitlocation->add_sub_Location(new Bio::Location::Simple('-start'=>1,
+							   '-end'=>30,
+							   '-strand'=>1));
+$splitlocation->add_sub_Location(new Bio::Location::Simple('-start'=>50,
+							   '-end'=>61,
+							   '-strand'=>1));
+
+ok($splitlocation->sub_Location(),2);
+
+my $fuzzy = new Bio::Location::Fuzzy('-start'=>10, '-end' => 20, -strand=>1,
+				     -startfuzzy => 1, -endfuzzy=>0 );
+ok($fuzzy->start, 10);
+ok($fuzzy->end,20);
+ok($fuzzy->start_fuzzy);
+ok(!$fuzzy->end_fuzzy);
+

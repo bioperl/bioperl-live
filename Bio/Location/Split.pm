@@ -1,6 +1,6 @@
 # $Id$
 #
-# BioPerl module for Bio::Location::SplitLocationI
+# BioPerl module for Bio::Location::SplitLocation
 # Cared for by Jason Stajich <jason@chg.mc.duke.edu>
 #
 # Copyright Jason Stajich
@@ -10,13 +10,18 @@
 
 =head1 NAME
 
-Bio::SplitLocationI - Abstract interface of a Location on a Sequence
+Bio::Location::Split - Implementation of a Location on a Sequence
 which has multiple locations (start/end points)
 
 =head1 SYNOPSIS
 
-  # get a SplitLocationI somehow
-    print $splitlocation->start, "..", $splitlocation->end, "\n";
+    my $splitlocation = new Bio::Location::Split();
+    $splitlocation->add_sub_Location(new Bio::Location::Simple(-start=>1,
+							       -end=>30,
+							       -strand=>1));
+    $splitlocation->add_sub_Location(new Bio::Location::Simple(-start=>50,
+							       -end=>61,
+							       -strand=>1));   
     my @sublocs = $splitlocation->sub_Location();
 
     my $count = 1;
@@ -29,10 +34,8 @@ which has multiple locations (start/end points)
 
 =head1 DESCRIPTION
 
-This interface encapsulates the necessary methods for representing the
-location of a sequence feature that has more that just a single
-start/end pair.  Some examples of this are the annotated exons in a
-gene or the annotated CDS in a sequence file.
+This implementation handles locations which span more than one
+start/end location.
 
 =head1 FEEDBACK
 
@@ -66,30 +69,26 @@ methods. Internal methods are usually preceded with a _
 # Let the code begin...
 
 
-package Bio::Location::SplitLocationI;
+package Bio::Location::Split;
 use vars qw(@ISA);
 use strict;
 
-use Bio::LocationI;
-use Carp;
+use Bio::Root::RootI;
+use Bio::Location::SplitLocationI;
+use Bio::Location::Simple;
 
-@ISA = qw(Bio::LocationI);
+@ISA = qw(Bio::Location::Simple Bio::Location::SplitLocationI );
 
-# utility method Prints out a method like: 
-# Abstract method stop defined in interface Bio::LocationI not
-# implemented by package You::BadLocation
-
-sub _abstractDeath {
-  my $self = shift;
-  my $package = ref $self;
-  my $caller = (caller)[1];
-  
-  my $msg = "Abstract method '$caller' defined in interface Bio::ComplexLocationI but not implemented by package $package";
-  if( $self->can('throw') ) {
-      $self->throw($msg);
-  } else {
-      confess($msg);
-  }
+sub new {
+    my ($class, @args) = @_;
+    my $self = $class->SUPER::new(@args);
+    my ( $locations ) = $self->_rearrange([qw(LOCATIONS)], @args);
+    if( defined $locations && ref($locations) =~ /array/i ) {
+	$self->{'_sublocations'} = $locations;
+    } else { 
+	$self->{'_sublocations'} = [];
+    }
+    return $self;
 }
 
 =head2 sub_Location
@@ -103,27 +102,35 @@ sub _abstractDeath {
 =cut
 
 sub sub_Location {
-    my ($self,@args) = @_;
-    $self->_abstractDeath;
+    my ($self) = @_;
+    return @{$self->{'_sublocations'}};
 }
 
 =head2 add_sub_Location
 
  Title   : add_sub_Location
- Usage   : $feat->add_sub_Location($locationIobj);
+ Usage   : $feat->add_sub_Location(@locationIobjs);
  Function: add an additional sublocation
  Returns : # of current sub locations
- Args    : LocationI object to add
+ Args    : list of LocationI object(s) to add
 
 =cut
 
 sub add_sub_Location {
     my ($self,@args) = @_;
-    $self->_abstractDeath;
+    my @locs;
+    foreach my $l ( @args ) {
+	if( ref($l) && $l->isa('Bio::LocationI')) {
+	    push @locs, $l;
+	} else {
+	    $self->warn("($l) was not a valid Bio::LocationI object to add as a subLocation");
+	}
+    }
+    push @{$self->{'_sublocations'}}, @locs;
 }
 
 
-# we'll need to override the RangeI methods since our locations will
+# we'll probably need to override the RangeI methods since our locations will
 # not be contiguous.
 
 1;

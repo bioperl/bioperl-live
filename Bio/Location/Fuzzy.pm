@@ -1,6 +1,6 @@
 # $Id$
 #
-# BioPerl module for Bio::Location::FuzzyLocationI
+# BioPerl module for Bio::Location::Fuzzy
 # Cared for by Jason Stajich <jason@chg.mc.duke.edu>
 #
 # Copyright Jason Stajich
@@ -10,17 +10,17 @@
 
 =head1 NAME
 
-Bio::FuzzyLocationI - Abstract interface of a Location on a Sequence
-which has unclear start/end location
+Bio::Location::Fuzzy - Implementation of a Location on a Sequence
+which has unclear start and/or end locations
 
 =head1 SYNOPSIS
 
-    # Get a FuzzyLocationI object somehow
-    # methods have yet to be defined
+    my $fuzzylocation = new Bio::Location::Fuzzy(-start => 30,
+						 -end   => 'missing');
 
 =head1 DESCRIPTION
 
-This interface encapsulates the necessary methods for representing a
+This module implements the necessary methods for representing a
 Fuzzy Location, one that does not have clear start and/or end points.
 This will initially serve to handle features from Genbank/EMBL feature
 tables that are written as 1^100 meaning between bases 1 and 100 or
@@ -62,30 +62,45 @@ methods. Internal methods are usually preceded with a _
 # Let the code begin...
 
 
-package Bio::Location::FuzzyLocationI;
+package Bio::Location::Fuzzy;
 use vars qw(@ISA);
 use strict;
 
-use Bio::LocationI;
-use Carp;
+use Bio::Location::FuzzyLocationI;
+use Bio::Location::Simple;
 
-@ISA = qw(Bio::LocationI);
+@ISA = qw(Bio::Location::Simple Bio::Location::FuzzyLocationI );
 
-# utility method Prints out a method like: 
-# Abstract method stop defined in interface Bio::LocationI not
-# implemented by package You::BadLocation
+sub new {
+    my ($class, @args) = @_;
+    my $self = $class->SUPER::new(@args);
+    my ($startfuzzy, $endfuzzy) = $self->_rearrange([qw(STARTFUZZY ENDFUZZY)],
+						    @args);
 
-sub _abstractDeath {
-  my $self = shift;
-  my $package = ref $self;
-  my $caller = (caller)[1];
-  
-  my $msg = "Abstract method '$caller' defined in interface Bio::ComplexLocationI but not implemented by package $package";
-  if( $self->can('throw') ) {
-      $self->throw($msg);
-  } else {
-      confess($msg);
-  }
+    $startfuzzy = 0 unless( defined($startfuzzy)); 
+    $endfuzzy = 0 unless( defined($endfuzzy)); 
+
+    $self->start_fuzzy($startfuzzy);
+    $self->end_fuzzy($endfuzzy);
+
+    return $self;
+}
+
+=head2
+
+  Title   : length
+  Usage   : $length = $fuzzy->length();
+  Function: get/set the length of this range
+  Returns : the length of this range
+  Args    : none
+
+=cut
+
+sub length {
+    my($self) = @_;
+    return $self->SUPER::length() if( !$self->start_fuzzy && !$self->end_fuzzy);
+    $self->warn('Length is not valid for a FuzzyLocation'); 
+    return 0;
 }
 
 =head2
@@ -101,7 +116,10 @@ sub _abstractDeath {
 
 sub start_fuzzy {
     my ($self, $value) = @_;
-    $self->_abstractDeath();
+    if( defined $value ) {
+	$self->{'_startfuzzy'} = $value;
+    }
+    return $self->{'_startfuzzy'};
 }
 
 =head2
@@ -117,7 +135,10 @@ sub start_fuzzy {
 
 sub end_fuzzy {
     my ($self, $value) = @_;
-    $self->_abstractDeath();
+    if( defined $value ) {
+	$self->{'_endfuzzy'} = $value;
+    }
+    return $self->{'_endfuzzy'};
 }
 
 1;
