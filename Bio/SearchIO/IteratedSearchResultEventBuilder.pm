@@ -14,7 +14,8 @@
 
 =head1 NAME
 
-Bio::SearchIO::IteratedSearchResultEventBuilder - Event Handler for SearchIO events.
+Bio::SearchIO::IteratedSearchResultEventBuilder - Event Handler for
+SearchIO events.
 
 =head1 SYNOPSIS
 
@@ -52,7 +53,8 @@ Email sac@bioperl.org
 
 =head1 CONTRIBUTORS
 
-Parts of code based on SearchResultEventBuilder by Jason Stajich jason@bioperl.org
+Parts of code based on SearchResultEventBuilder by Jason Stajich
+jason@bioperl.org
 
 =head1 APPENDIX
 
@@ -218,7 +220,8 @@ sub end_result {
         if( $data->{'runid'} !~ /^lcl\|/) { 
             $data->{"RESULT-query_name"}= $data->{'runid'};
         } else { 
-            ($data->{"RESULT-query_name"},$data->{"RESULT-query_description"}) = split(/\s+/,$data->{"RESULT-query_description"},2);
+            ($data->{"RESULT-query_name"},$data->{"RESULT-query_description"}) = 
+                split(/\s+/,$data->{"RESULT-query_description"},2);
         }
         
         if( my @a = split(/\|/,$data->{'RESULT-query_name'}) ) {
@@ -529,7 +532,7 @@ sub hit_filter {
 
 =head2 inclusion_threshold
 
-See L<Bio::SearchIO::blast::inclusion_threshold()>.
+See L<Bio::SearchIO::blast::inclusion_threshold>.
 
 =cut
 

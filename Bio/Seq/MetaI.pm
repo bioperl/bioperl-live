@@ -134,7 +134,7 @@ Email heikki@ebi.ac.uk
 
 Chad Matsalla, bioinformatics@dieselwurks.com;
 Aaron Mackey, amackey@virginia.edu;
-Peter Schattner <schattner@alum.mit.edu;
+Peter Schattner schattner@alum.mit.edu;
 Richard Adams, Richard.Adams@ed.ac.uk
 
 =head1 APPENDIX

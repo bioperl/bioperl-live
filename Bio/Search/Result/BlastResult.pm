@@ -136,13 +136,13 @@ sub new {
 
 =head2 hits
 
-This method overrides L<Bio::Search::Result::GenericResult::hits()> to take 
+This method overrides L<Bio::Search::Result::GenericResult::hits> to take 
 into account the possibility of multiple iterations, as occurs in PSI-BLAST reports.
 
 If there are multiple iterations, all 'new' hits for all iterations are returned.
 These are the hits that did not occur in a previous iteration.
 
-See Also: L<Bio::Search::Result::GenericResult::hits()>
+See Also: L<Bio::Search::Result::GenericResult::hits>
 
 =cut
 
@@ -160,13 +160,13 @@ sub hits {
 
 =head2 next_hit
 
-This method overrides L<Bio::Search::Result::GenericResult::next_hit()> to take 
+This method overrides L<Bio::Search::Result::GenericResult::next_hit> to take 
 into account the possibility of multiple iterations, as occurs in PSI-BLAST reports.
 
 If there are multiple iterations, calling next_hit() traverses the
 all of the hits, old and new, for each iteration, calling next_hit() on each iteration. 
 
-See Also: L<Bio::Search::Iteration::GenericIteration::next_hit()>
+See Also: L<Bio::Search::Iteration::GenericIteration::next_hit>
 
 =cut
 
@@ -194,14 +194,14 @@ sub next_hit {
 
 =head2 num_hits
 
-This method overrides L<Bio::Search::Result::GenericResult::num_hits()> to take 
+This method overrides L<Bio::Search::Result::GenericResult::num_hits> to take 
 into account the possibility of multiple iterations, as occurs in PSI-BLAST reports.
 
 If there are multiple iterations, calling num_hits() returns the number of
 'new' hits for each iteration. These are the hits that did not occur
 in a previous iteration.
 
-See Also: L<Bio::Search::Result::GenericResult::num_hits()>
+See Also: L<Bio::Search::Result::GenericResult::num_hits>
 
 =cut
 
@@ -300,7 +300,7 @@ sub num_iterations { shift->{'_iteration_count'} }
 
 =head2 number_of_iterations
 
-Same as L<num_iterations()>.
+Same as L<num_iterations>.
 
 =cut
 
@@ -308,7 +308,7 @@ sub number_of_iterations { shift->num_iterations }
 
 =head2 round
 
-Same as L<iteration()>.
+Same as L<iteration>.
 
 =cut
 

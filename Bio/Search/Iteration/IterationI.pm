@@ -12,7 +12,8 @@
 
 =head1 NAME
 
-Bio::Search::Iteration::IterationI - Abstract interface to an iteration from an iterated search result, such as PSI-BLAST.
+Bio::Search::Iteration::IterationI - Abstract interface to an
+iteration from an iterated search result, such as PSI-BLAST.
 
 =head1 SYNOPSIS
 
@@ -161,8 +162,8 @@ The union of newhits() and oldhits() [subset B + subset C].
 
 =back
 
-For the first iteration, the methods L<oldhits()>, L<oldhits_below_threshold()>, 
-L<oldhits_newly_below_threshold()>, and oldhits_not_below_threshold()
+For the first iteration, the methods L<oldhits>, L<oldhits_below_threshold>,
+L<oldhits_newly_below_threshold>, and oldhits_not_below_threshold()
 will return empty lists.
 
 Iterator and numbers-of-hit methods are provided for subsets A, B, and C:
@@ -264,11 +265,11 @@ See Also: L<hits>, L<Classification of Hits>
 
 next_hit() iterates through all hits, including the new ones
 for this iteration and those found in previous iterations.
-You can interrogate each hit using L<Bio::Search::Hit::HitI::found_again()>
+You can interrogate each hit using L<Bio::Search::Hit::HitI::found_again>
 to determine whether it is new or old.
 
-To get just the new hits, use L<next_hit_new()>.
-To get just the old hits, use L<next_hit_old()>.
+To get just the new hits, use L<next_hit_new>.
+To get just the old hits, use L<next_hit_old>.
 
 =cut
 
@@ -290,7 +291,7 @@ sub next_hit {
            unless otherwise specified.
  Args    : none
 
-See Also: L<next_hit()>, L<next_hit_old()>, L<newhits>, L<Classification of Hits>
+See Also: L<next_hit>, L<next_hit_old>, L<newhits>, L<Classification of Hits>
 
 =cut
 
@@ -313,7 +314,7 @@ sub next_hit_new {
            unless otherwise specified.
  Args    : none
 
-See Also: L<next_hit()>, L<next_hit_old()>, L<oldhits>, L<Classification of Hits>
+See Also: L<next_hit>, L<next_hit_old>, L<oldhits>, L<Classification of Hits>
 
 =cut
 
@@ -331,7 +332,7 @@ sub next_hit_old {
  Returns : integer
  Args    : none
 
-See Also: L<num_hits_new()>, L<num_hits_old()>, L<Classification of Hits>
+See Also: L<num_hits_new>, L<num_hits_old>, L<Classification of Hits>
 
 =cut
 
@@ -355,7 +356,7 @@ sub num_hits {
            that are below the inclusion threshold.
 
 
-See Also: L<num_hits()>, L<num_hits_old()>, L<Classification of Hits>
+See Also: L<num_hits>, L<num_hits_old>, L<Classification of Hits>
 
 =cut
 
@@ -378,7 +379,7 @@ sub num_hits_new {
  Args    : (optional) boolean, true if you want to get a count of just the old hits
            that are below the inclusion threshold.
 
-See Also: L<num_hits()>, L<num_hits_new()>, L<Classification of Hits>
+See Also: L<num_hits>, L<num_hits_new>, L<Classification of Hits>
 
 =cut
 
@@ -400,7 +401,7 @@ sub num_hits_old {
             unless otherwise specified.
  Args     : none
 
-See Also: L<newhits()>, L<oldhits()>, L<Classification of Hits>
+See Also: L<newhits>, L<oldhits>, L<Classification of Hits>
 
 =cut
 
@@ -419,7 +420,7 @@ sub hits  { shift->throw_not_implemented(); }
             unless otherwise specified.
  Args     : none
 
-See Also: L<hits()>, L<oldhits()>, L<newhits_below_threshold()> + L<newhits_not_below_threshold()>, L<Classification of Hits>
+See Also: L<hits>, L<oldhits>, L<newhits_below_threshold> + L<newhits_not_below_threshold>, L<Classification of Hits>
 
 =cut
 
@@ -438,7 +439,7 @@ sub newhits  { shift->throw_not_implemented(); }
             unless otherwise specified.
  Args     : none
 
-See Also: L<hits()>, L<newhits()>, L<oldhits_below_threshold()>, L<oldhits_newly_below_threshold()>, L<oldhits_not_below_threshold()>, L<Classification of Hits>
+See Also: L<hits>, L<newhits>, L<oldhits_below_threshold>, L<oldhits_newly_below_threshold>, L<oldhits_not_below_threshold>, L<Classification of Hits>
 
 =cut
 
@@ -457,7 +458,7 @@ sub oldhits  { shift->throw_not_implemented(); }
            unless otherwise specified.
  Args    : none
 
-See Also: L<newhits_not_below_threshold()>, L<oldhits_newly_below_threshold()>, L<newhits()>, L<Classification of Hits>
+See Also: L<newhits_not_below_threshold>, L<oldhits_newly_below_threshold>, L<newhits>, L<Classification of Hits>
 
 =cut
 
@@ -476,7 +477,7 @@ sub newhits_below_threshold  { shift->throw_not_implemented(); }
            unless otherwise specified.
  Args    : none
 
-See Also: L<oldhits_not_below_threshold()>, L<oldhits_newly_below_threshold()>, L<oldhits()>, L<Classification of Hits>
+See Also: L<oldhits_not_below_threshold>, L<oldhits_newly_below_threshold>, L<oldhits>, L<Classification of Hits>
 
 =cut
 
@@ -496,7 +497,7 @@ sub oldhits_below_threshold  { shift->throw_not_implemented(); }
            unless otherwise specified.
  Args    : none
 
-See Also: L<newhits_below_threshold()>, L<oldhits()>, L<Classification of Hits>
+See Also: L<newhits_below_threshold>, L<oldhits>, L<Classification of Hits>
 
 =cut
 
@@ -515,7 +516,7 @@ sub oldhits_newly_below_threshold  { shift->throw_not_implemented(); }
            unless otherwise specified.
  Args    : none
 
-See Also: L<oldhits_below_threshold()>, L<oldhits()>, L<Classification of Hits>
+See Also: L<oldhits_below_threshold>, L<oldhits>, L<Classification of Hits>
 
 =cut
 
@@ -535,7 +536,7 @@ sub oldhits_not_below_threshold  { shift->throw_not_implemented(); }
            unless otherwise specified.
  Args    : none
 
-See Also: L<newhits_below_threshold()>, L<newhits()>, L<Classification of Hits>
+See Also: L<newhits_below_threshold>, L<newhits>, L<Classification of Hits>
 
 =cut
 
@@ -553,7 +554,7 @@ sub newhits_not_below_threshold  { shift->throw_not_implemented(); }
            unless otherwise specified.
  Args    : none
 
-See Also: L<newhits_below_threshold()>, L<oldhits_newly_below_threshold()>, L<oldhits_below_threshold()>, L<Classification of Hits>
+See Also: L<newhits_below_threshold>, L<oldhits_newly_below_threshold>, L<oldhits_below_threshold>, L<Classification of Hits>
 
 =cut
 

@@ -248,8 +248,8 @@ sub number {
 
 =head2 next_hit
 
-This iterates through all old hits as returned by L<oldhits()> 
-followed by all new hits as returned by L<newhits()>.
+This iterates through all old hits as returned by L<oldhits> 
+followed by all new hits as returned by L<newhits>.
 
 For more documentation see L<Bio::Search::Iteration::IterationI::next_hit()|Bio::Search::Iteration::IterationI>.
 

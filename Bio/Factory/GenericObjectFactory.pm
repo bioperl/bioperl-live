@@ -113,7 +113,7 @@ sub new {
  Returns : Object of type defined by type()
  Args    : hash of initialization parameters
 
-See Also: L<type()>
+See Also: L<type>
 
 =cut
 

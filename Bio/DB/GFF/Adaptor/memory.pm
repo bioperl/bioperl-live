@@ -21,7 +21,7 @@ store and retrieve SHORT GFF files. It inherits from Bio::DB::GFF.
 
 =head1 CONSTRUCTOR
 
-Use Bio::DB::GFF->new() to construct new instances of this class.
+Use Bio::DB::GFF-E<gt>new() to construct new instances of this class.
 Three named arguments are recommended:
 
    Argument         Description
@@ -45,7 +45,7 @@ L<Bio::DB::GFF>, L<bioperl>
 
 =head1 AUTHOR
 
-Shuly Avraham <lt>avraham@cshl.orgE<gt>.
+Shuly Avraham E<lt>avraham@cshl.orgE<gt>.
 
 Copyright (c) 2002 Cold Spring Harbor Laboratory.
 

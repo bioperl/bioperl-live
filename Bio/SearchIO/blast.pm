@@ -20,7 +20,8 @@
 
 =head1 NAME
 
-Bio::SearchIO::blast - Event generator for event based parsing of blast reports 
+Bio::SearchIO::blast - Event generator for event based parsing of
+blast reports
 
 =head1 SYNOPSIS
 
@@ -41,31 +42,47 @@ Bio::SearchIO::blast - Event generator for event based parsing of blast reports
 =head1 DESCRIPTION
 
 This object encapsulated the necessary methods for generating events
-suitable for building Bio::Search objects from a BLAST report file. 
+suitable for building Bio::Search objects from a BLAST report file.
 Read the L<Bio::SearchIO> for more information about how to use this.
 
 This driver can parse:
-- NCBI produced plain text BLAST reports from blastall, this also includes
-  PSIBLAST, PSITBLASTN, RPSBLAST, and bl2seq reports.  
-  NCBI XML BLAST output is parsed with 
-  the blastxml SearchIO driver
-- WU-BLAST all reports
-- Jim Kent's BLAST-like output from his programs (BLASTZ, BLAT)
-- BLAST-like output from Paracel BTK output
 
-=head2 bl2seq parsing 
+=over 4
+
+=item * 
+
+NCBI produced plain text BLAST reports from blastall, this also
+includes PSIBLAST, PSITBLASTN, RPSBLAST, and bl2seq reports.  NCBI XML
+BLAST output is parsed with the blastxml SearchIO driver
+
+=item *
+
+WU-BLAST all reports
+
+=item *
+
+Jim Kent's BLAST-like output from his programs (BLASTZ, BLAT)
+
+=item *
+
+BLAST-like output from Paracel BTK output
+
+=back
+
+=head2 bl2seq parsing
 
 Since I cannot differentiate between BLASTX and TBLASTN since bl2seq
 doesn't report the algorithm used - I assume it is BLASTX by default -
 you can supply the program type with -report_type in the SearchIO
-constructor i.e.  
- my $parser = new Bio::SearchIO(-format => 'blast',
-                                -file => 'bl2seq.tblastn.report', 
-                                -report_type => 'tblastn');
+constructor i.e.
+
+  my $parser = new Bio::SearchIO(-format => 'blast',
+                                 -file => 'bl2seq.tblastn.report',
+                                 -report_type => 'tblastn');
 
 This only really affects where the frame and strand information are
-put - they will always be on the $hsp->query instead of on the
-$hsp->hit part of the feature pair for blastx and tblastn bl2seq
+put - they will always be on the $hsp-E<gt>query instead of on the
+$hsp-E<gt>hit part of the feature pair for blastx and tblastn bl2seq
 produced reports.  Hope that's clear...
 
 =head1 FEEDBACK
@@ -983,17 +1000,29 @@ sub _start_iteration {
  Args    : string containing type of element.
 
 Optimizations:
-  1. Using the cached pointer to the EventHandler to minimize repeated lookups.
-  2. Caching the will_handle status for each type that is encountered
-     so that it only need be checked by calling handler->will_handle($type) once.
 
-This does not lead to a major savings by itself (only 5-10%).
-In combination with other optimizations, or for large parse jobs, the
+=over 2
+
+=item 1
+
+Using the cached pointer to the EventHandler to minimize repeated
+lookups.
+
+=item 2
+
+Caching the will_handle status for each type that is encountered so
+that it only need be checked by calling
+handler-E<gt>will_handle($type) once.
+
+=back
+
+This does not lead to a major savings by itself (only 5-10%).  In
+combination with other optimizations, or for large parse jobs, the
 savings good be significant.
 
 To test against the unoptimized version, remove the parentheses from
 around the third term in the ternary " ? : " operator and add two
-calls to $self->_eventHandler().
+calls to $self-E<gt>_eventHandler().
 
 =cut
 
@@ -1172,7 +1201,7 @@ sub characters{
  Returns : boolean
  Args    : string element name 
 
-See Also: L<in_element()>
+See Also: L<in_element>
 
 =cut
 
@@ -1200,7 +1229,7 @@ sub within_element{
  Returns : boolean
  Args    : string element name 
 
-See Also: L<within_element()>
+See Also: L<within_element>
 
 =cut
 

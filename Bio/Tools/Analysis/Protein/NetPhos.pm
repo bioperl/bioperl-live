@@ -109,6 +109,7 @@ use Bio::SeqIO;
 use HTTP::Request::Common qw (POST);
 use Bio::SeqFeature::Generic;
 use Bio::SimpleAnalysisI;
+use Bio::Root::IO;
 
 @ISA = qw(Bio::WebAgent Bio::SimpleAnalysisI);
 
@@ -516,6 +517,42 @@ sub result {
 
     return $self->{'_result'};
 }
+
+=head2 Persistance
+
+=cut
+
+=head2 file
+
+ Usage   : $tool->file ('netfosresult.html');
+ Returns : boolean
+ Args    : filename containing Netphos server results
+
+=cut
+
+sub _initialize_state {
+    my ($self,@args) = @_;
+
+    $self->close();
+    $self->_initialize_io(@args);
+
+    $self->{'_analysis_sbjct'} = undef;
+    $self->{'_analysis_query'} = undef;
+    $self->{'_analysis_prog'} = undef;
+    $self->{'_analysis_progVersion'} = undef;
+    $self->{'_analysis_date'} = undef;
+
+    return 1;
+}
+
+
+=head2 save
+
+ Usage   : $tool->file ('netfosresult.html');
+ Returns : boolean
+ Args    : filename containing Netphos server results
+
+=cut
 
 
 

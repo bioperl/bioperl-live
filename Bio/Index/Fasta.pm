@@ -57,7 +57,7 @@ Details on configuration and additional example code are available in the
 biodatabases.pod file, scripts/index/*PLS and in bptutorial.pl.
 
 Note that by default the key for the sequence will be the first continuous
-string after the '>' in the fasta header. If you want to use a specific
+string after the 'E<gt>' in the fasta header. If you want to use a specific
 substring of the fasta header you must use the id_parser() method.
 
 =head1 FEED_BACK

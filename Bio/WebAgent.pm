@@ -33,7 +33,7 @@ methods from Bio::DB::WebDBSeqI: delay() and delay_policy. These are
 used to prevent overwhelming the server by rapidly repeated . Ideally
 there should be a common abstract superclass with these. See L<delay>.
 
-=HEAD1 SEE ALSO
+=head1 SEE ALSO
 
 L<LWP::UserAgent>, 
 L<Bio::DB::WebDBSeqI>, 
@@ -73,16 +73,6 @@ it under the same terms as Perl itself.
 =head1 DISCLAIMER
 
 This software is provided "as is" without warranty of any kind.
-
-=head1 SEE ALSO
-
-=over
-
-=item *
-
-L<LWP::UserAgent>
-
-=back
 
 =head1 APPENDIX
 

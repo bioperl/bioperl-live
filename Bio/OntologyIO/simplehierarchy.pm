@@ -136,6 +136,7 @@ use constant FALSE        => 0;
            -comment_character => not yet implemented.  will allow specification of a regular
                                  expression string to indicate a comment line.  currently
                                  defaults to "[\|\-]".
+
 =cut
 
 # in reality, we let OntologyIO::new do the instantiation, and override
@@ -144,7 +145,8 @@ sub _initialize {
     my ($self, %arg) = @_;
     $self->SUPER::_initialize( %arg );
 
-    my ( $indent,$term,$files,$name,$eng ) = map {$arg{$_}} qw(-indent_string -term_factory -files -ontology_name -engine);
+    my ( $indent,$term,$files,$name,$eng ) =
+        map {$arg{$_}} qw(-indent_string -term_factory -files -ontology_name -engine);
 
     $self->_done( FALSE );
     $self->_not_first_record( FALSE );
