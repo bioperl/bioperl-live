@@ -1,8 +1,10 @@
 package Bio::Graphics::Feature;
 use strict;
+use Bio::SeqFeatureI;
 
-use vars '$VERSION';
-$VERSION = 1.2;
+use vars '$VERSION','@ISA';
+$VERSION = 1.3;
+@ISA  = 'Bio::SeqFeatureI';
 
 *stop        = \&end;
 *info        = \&name;
