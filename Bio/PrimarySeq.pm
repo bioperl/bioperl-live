@@ -356,13 +356,14 @@ sub subseq {
        return $seq;
    } elsif(  defined  $start && defined $end ) {
        if( $start > $end ){
-	   $self->throw("in subseq, start [$start] has to be ".
-			"greater than end [$end]");
+	   $self->throw("Bad start,end parameters. Start [$start] has to be ".
+			"less than end [$end]");
        }
-       if( $start <= 0 || $end > $self->length ) {
-	   $self->throw("You have to have start positive\n\tand length less ".
-			"than the total length of sequence [$start:$end] ".
-			"Total ".$self->length."");
+       if( $start <= 0 ) {
+	   $self->throw("Bad start parameter ($start). Start must be positive.");
+       }
+       if( $end > $self->length ) {
+	   $self->throw("Bad end parameter ($end). End must be less than the total length of sequence (total=".$self->length.")");
        }
 
        # remove one from start, and then length is end-start
