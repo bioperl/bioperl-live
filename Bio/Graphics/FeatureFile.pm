@@ -489,7 +489,7 @@ sub parse_line {
   # attribute handling
   my %attributes;
   my $score;
-  if (defined $description && $description =~ /^\w+=\w+/) { # attribute line
+  if (defined $description && $description =~ /\w+=\w+/) { # attribute line
     my @attributes = split /;\s*/,$description;
     foreach (@attributes) {
       my ($name,$value) = split /=/,$_,2;

@@ -5,14 +5,31 @@ use strict;
 use Bio::Graphics::Glyph::generic;
 use vars '@ISA','$VERSION';
 @ISA = 'Bio::Graphics::Glyph::generic';
-$VERSION = 1.01;
+$VERSION = 1.00;
 
 sub bgcolor {
   my $self = shift;
+  $self->{force_bgcolor};
+}
+
+sub fgcolor {
+  my $self = shift;
+  return $self->option('border') ? $self->SUPER::fgcolor : $self->{force_bgcolor};
+}
+
+sub draw {
+  my $self = shift;
   my $val  = $self->feature->score;
-  my @rgb = map {int($_)} HSVtoRGB(120*(1-$val),1,255);
-  warn join ' ',map{sprintf("%2.2lx",$_)} @rgb,"\n";
-  return $self->panel->translate_color(@rgb);
+
+  # we're going to force all our parts to share the same colors
+  # since the
+  my @parts = $self->parts;
+  @parts    = $self if !@parts && $self->level == 0;
+  my @rgb   = map {int($_)} HSVtoRGB(120*(1-$val),1,255);
+  my $color =  $self->panel->translate_color(@rgb);
+  $_->{force_bgcolor} = $color foreach @parts;
+
+  $self->SUPER::draw(@_);
 }
 
 sub HSVtoRGB ($$$) {
@@ -119,6 +136,12 @@ L<Bio::Graphics::Glyph> for a full explanation.
   -label        Whether to draw a label	       0 (false)
 
   -description  Whether to draw a description  0 (false)
+
+The following glyph-specific option is recognized:
+
+  -border       Draw a fgcolor border around   0 (false)
+                the box
+
 
 =head1 BUGS
 
