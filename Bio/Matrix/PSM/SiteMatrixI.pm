@@ -221,6 +221,25 @@ sub consensus {
   $self->throw_not_implemented();
 }
 
+=head2 accession_number
+
+ Title   : accession_number
+ Usage   :
+ Function: accession number, this will be unique id for the SiteMatrix object as
+ 			well for any other object, inheriting from SiteMatrix
+ Throws  :
+ Example :
+ Returns : string
+ Args    : string
+
+=cut
+
+sub accession_number {
+  my $self = shift;
+  $self->throw_not_implemented();
+}
+
+
 =head2 width
 
  Title   : width

@@ -334,6 +334,26 @@ sub IC {
     return $prev;
 }
 
+=head2 accession_number
+
+ Title   : accession_number
+ Usage   :
+ Function: accession number, this will be unique id for the SiteMatrix object as
+ 			well for any other object, inheriting from SiteMatrix
+ Throws  :
+ Example :
+ Returns : string
+ Args    : string
+
+=cut
+
+sub accession_number {
+    my $self = shift;
+    my $prev = $self->{accession_number};
+    if (@_) { $self->{accession_number} = shift; }
+    return $prev;
+}
+
 =head2 consensus
 
  Title   : consensus
