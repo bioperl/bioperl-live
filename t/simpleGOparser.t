@@ -202,7 +202,7 @@ ok( $ont->add_term( Bio::Ontology::GOterm->new(-identifier => "GO:0000000")));
 ok( $engine->has_term( "GO:0000300" ) );
 
 ok( scalar $ont->get_all_terms(), 44 );
-ok( scalar $ont->get_relationship_types(), 2 );
+ok( scalar $ont->get_relationship_types(), 3 );
 
 ok( ! $ont->add_relationship( $rels[ 2 ] ) ); # this edge already exists, cannot add
 

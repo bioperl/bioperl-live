@@ -31,7 +31,7 @@ RelationshipType - a relationship type for an ontology
 =head1 DESCRIPTION
 
 This class can be used to model various types of relationships
-(such as "IS_A", "PART_OF", "CONTAINS", "FOUND_IN").
+(such as "IS_A", "PART_OF", "CONTAINS", "FOUND_IN", "RELATED_TO").
 
 This class extends L<Bio::Ontology::Term>, so it essentially is-a
 L<Bio::Ontology::TermI>. In addition, all methods are overridden such
@@ -87,10 +87,11 @@ use strict;
 use Bio::Ontology::Term;
 
 
-use constant PART_OF  => "PART_OF";
-use constant IS_A     => "IS_A";
-use constant CONTAINS => "CONTAINS";
-use constant FOUND_IN => "FOUND_IN";
+use constant PART_OF    => "PART_OF";
+use constant RELATED_TO => "RELATED_TO";
+use constant IS_A       => "IS_A";
+use constant CONTAINS   => "CONTAINS";
+use constant FOUND_IN   => "FOUND_IN";
 
 
 @ISA = qw( Bio::Ontology::Term );
@@ -105,13 +106,14 @@ my %term_name_map = ();
 =head2 get_instance
 
  Title   : get_instance
- Usage   : $IS_A     = Bio::Ontology::RelationshipType->get_instance( "IS_A" );
-           $PART_OF  = Bio::Ontology::RelationshipType->get_instance( "PART_OF" );
-           $CONTAINS = Bio::Ontology::RelationshipType->get_instance( "CONTAINS" );
-           $FOUND_IN = Bio::Ontology::RelationshipType->get_instance( "FOUND_IN" );
+ Usage   : $IS_A       = Bio::Ontology::RelationshipType->get_instance( "IS_A" );
+           $PART_OF    = Bio::Ontology::RelationshipType->get_instance( "PART_OF" );
+           $RELATED_TO = Bio::Ontology::RelationshipType->get_instance( "RELATED_TO" );
+           $CONTAINS   = Bio::Ontology::RelationshipType->get_instance( "CONTAINS" );
+           $FOUND_IN   = Bio::Ontology::RelationshipType->get_instance( "FOUND_IN" );
  Function: Factory method to create instances of RelationshipType
  Returns : [Bio::Ontology::RelationshipType]
- Args    : "IS_A" or "PART_OF" or "CONTAINS" or "FOUND_IN" [scalar]
+ Args    : "IS_A" or "PART_OF" or "CONTAINS" or "FOUND_IN" or "RELATED_TO" [scalar]
            the ontology [Bio::Ontology::OntologyI] (optional)
 
 =cut

@@ -36,8 +36,9 @@ SimpleGOEngine - a Ontology Engine for GO implementing OntologyEngineI
 
   my $engine = $parser->parse();
 
-  my $IS_A    = Bio::Ontology::RelationshipType->get_instance( "IS_A" );
-  my $PART_OF = Bio::Ontology::RelationshipType->get_instance( "PART_OF" );
+  my $IS_A       = Bio::Ontology::RelationshipType->get_instance( "IS_A" );
+  my $PART_OF    = Bio::Ontology::RelationshipType->get_instance( "PART_OF" );
+  my $RELATED_TO = Bio::Ontology::RelationshipType->get_instance( "RELATED_TO" );
 
 
 =head1 DESCRIPTION
@@ -102,13 +103,14 @@ use Bio::Ontology::RelationshipFactory;
 use Bio::Ontology::OntologyEngineI;
 use Data::Dumper;
 
-use constant TRUE     => 1;
-use constant FALSE    => 0;
-use constant IS_A     => "IS_A";
-use constant PART_OF  => "PART_OF";
-use constant TERM     => "TERM";
-use constant TYPE     => "TYPE";
-use constant ONTOLOGY => "ONTOLOGY";
+use constant TRUE       => 1;
+use constant FALSE      => 0;
+use constant IS_A       => "IS_A";
+use constant PART_OF    => "PART_OF";
+use constant RELATED_TO => "RELATED_TO";
+use constant TERM       => "TERM";
+use constant TYPE       => "TYPE";
+use constant ONTOLOGY   => "ONTOLOGY";
 
 @ISA = qw( Bio::Root::Root
            Bio::Ontology::OntologyEngineI );
@@ -150,8 +152,9 @@ sub new {
 sub init {
     my ( $self ) = @_;
 
-    $self->{ "_is_a_relationship" }    = Bio::Ontology::RelationshipType->get_instance( IS_A );
-    $self->{ "_part_of_relationship" } = Bio::Ontology::RelationshipType->get_instance( PART_OF );
+    $self->{ "_is_a_relationship" }       = Bio::Ontology::RelationshipType->get_instance( IS_A );
+    $self->{ "_part_of_relationship" }    = Bio::Ontology::RelationshipType->get_instance( PART_OF );
+    $self->{ "_related_to_relationship" } = Bio::Ontology::RelationshipType->get_instance( RELATED_TO );
 
     $self->graph( Graph::Directed->new() );
 
@@ -206,6 +209,27 @@ sub part_of_relationship {
 
     return $self->{ "_part_of_relationship" };
 } # part_of_relationship
+
+=head2 related_to_relationship
+
+ Title   : related_to_relationship()
+ Usage   : $RELATED_TO = $engine->related_to_relationship();
+ Function: Returns a Bio::Ontology::RelationshipType object for "related-to"
+           relationships
+ Returns : Bio::Ontology::RelationshipType set to "RELATED_TO"
+ Args    :
+
+=cut
+
+sub related_to_relationship {
+    my ( $self, $value ) = @_;
+
+    if ( defined $value ) {
+        $self->throw( "Attempted to change immutable field" );
+    }
+
+    return $self->{ "_related_to_relationship" };
+} # related_to_relationship
 
 
 
@@ -443,7 +467,8 @@ sub get_predicate_terms {
     my ( $self ) = @_;
 
     my @a = ( $self->is_a_relationship(),
-              $self->part_of_relationship() );
+              $self->part_of_relationship(),
+              $self->related_to_relationship());
 
 	foreach my $termname (keys %{$self->{ "_extra_relationship_types" }}){
 	  push @a, $self->{ "_extra_relationship_types" }{ $termname };

@@ -40,8 +40,9 @@ dagflat - a base class parser for GO flat-file type formats
 
   my $go_ontology = $parser->next_ontology();
 
-  my $IS_A    = Bio::Ontology::RelationshipType->get_instance( "IS_A" );
-  my $PART_OF = Bio::Ontology::RelationshipType->get_instance( "PART_OF" );
+  my $IS_A       = Bio::Ontology::RelationshipType->get_instance( "IS_A" );
+  my $PART_OF    = Bio::Ontology::RelationshipType->get_instance( "PART_OF" );
+  my $RELATED_TO = Bio::Ontology::RelationshipType->get_instance( "RELATED_TO" );
 
 =head1 DESCRIPTION
 
@@ -237,7 +238,7 @@ sub parse {
     }
 
     # set up the ontology of the relationship types
-    foreach ($self->_part_of_relationship(), $self->_is_a_relationship()) {
+    foreach ($self->_part_of_relationship(), $self->_is_a_relationship(), $self->_related_to_relationship()) {
 	$_->ontology($ont);
     }
 
@@ -425,6 +426,13 @@ sub _is_a_relationship {
     return $self->_ont_engine()->is_a_relationship(@_);
 } # _is_a_relationship 
 
+# This simply delegates. See SimpleGOEngine
+sub _related_to_relationship {
+    my $self = shift;
+
+    return $self->_ont_engine()->related_to_relationship(@_);
+} # _is_a_relationship 
+
 
 
 # This simply delegates. See SimpleGOEngine
@@ -553,11 +561,11 @@ sub _parse_flat_file {
 	# of the ontology (which is also the name of the ontology)
 	if ( index($line,'$') != 0 ) {
 	  #adding @reltype@ syntax
-	  if ( $line !~ /^\s*([<%]|\@\w+?\@)/ ) {
-		$self->throw( "format error (file ".$self->file.")" );
+	  if ( $line !~ /^\s*([<%~]|\@\w+?\@)/ ) {
+		$self->throw( "format error (file ".$self->file.") offending line:\n$line" );
 	  }
 
-	  my($relstring) = $line =~ /^\s*([<%]|\@[^\@]+?\@)/;
+	  my($relstring) = $line =~ /^\s*([<%~]|\@[^\@]+?\@)/;
 
 	  my $reltype;
 
@@ -565,10 +573,12 @@ sub _parse_flat_file {
 		$reltype = $self->_part_of_relationship;
 	  } elsif ($relstring eq '%') {
 		$reltype = $self->_is_a_relationship;
+	  } elsif ($relstring eq '~') {
+		$reltype = $self->_related_to_relationship;
 	  } else {
 		$relstring =~ s/\@//g;
 		if ($self->_ont_engine->get_relationship_type($relstring)) {
-          $reltype = $self->_ont_engine->get_relationship_type($relstring);
+		  $reltype = $self->_ont_engine->get_relationship_type($relstring);
 		} else {
 		  $self->_ont_engine->add_relationship_type($relstring, $ont);
 		  $reltype = $self->_ont_engine->get_relationship_type($relstring);
@@ -608,7 +618,7 @@ sub _get_first_termid {
 sub _get_name {
     my ( $self, $line, $termid ) = @_;
     
-    if ( $line =~ /([^;<%]+);\s*$termid/ ) {
+    if ( $line =~ /([^;<%~]+);\s*$termid/ ) {
         my $name = $1;
 	# remove trailing and leading whitespace
         $name =~ s/\s+$//;
@@ -636,7 +646,7 @@ sub _get_synonyms {
    
     my @synonyms = ();
    
-    while ( $line =~ /synonym\s*:\s*([^;<%]+)/g ) {
+    while ( $line =~ /synonym\s*:\s*([^;<%~]+)/g ) {
         my $syn = $1;
         $syn =~ s/\s+$//;
         $syn =~ s/^\s+//;
@@ -654,7 +664,7 @@ sub _get_db_cross_refs {
    
     my @refs = ();
    
-    while ( $line =~ /;([^;<%:]+:[^;<%:]+)/g ) {
+    while ( $line =~ /;([^;<%~:]+:[^;<%~:]+)/g ) {
         my $ref = $1;
         if ( $ref =~ /synonym/ || $ref =~ /[A-Z]{1,8}:\d{3,}/ ) {
             next;
