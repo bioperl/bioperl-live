@@ -103,7 +103,7 @@ sub new {
 =head2 create
 
  Title   : create
- Usage   : my $seq = $seqbuilder->create_sequence(-seq => 'CAGT', -id => 'name');
+ Usage   : my $seq = $seqbuilder->create(-seq => 'CAGT', -id => 'name');
  Function: Instantiates new Bio::SeqI (or one of its child classes)
            This object allows us to genericize the instantiation of sequence
            objects.
