@@ -321,10 +321,9 @@ if( $error == 1 ) {
 
 Information:
 
-   There are some external packages and perl modules, listed above, which 
-   bioperl uses. This only effects the functionality which is listed above:
-   the rest of bioperl will work fine, which includes nearly all of the
-   core packages.
+   Some perl modules are missing, listed above. The only
+   functionality that will be affected is also described above,
+   the rest of bioperl will work fine.
 
    The installation of these external packages is very simple. You
    can read more about bioperl external dependencies in the INSTALL
