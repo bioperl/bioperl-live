@@ -424,22 +424,13 @@ sub write_annseq {
 
    # finished printing features.
 
-   $str =~ tr/A-Z/a-z/;
-   my $a = $str; 
-   $a =~ s/[^a]//g;
-   my $alen = length $a;
-
-   $t = $str;   # $t already defined above
-   $t =~ s/[^t]//g;
-   my $tlen = length $t;
-
-   my $g = $str; 
-   $g =~ s/[^g]//g;
-   my $glen = length $g;
-
-   my $c = $str; 
-   $c =~ s/[^c]//g;
-   my $clen = length $c;
+    $str =~ tr/A-Z/a-z/;
+    
+    # Count each nucleotide
+    my $alen = $str =~ tr/a/a/;
+    my $clen = $str =~ tr/c/c/;
+    my $glen = $str =~ tr/g/g/;
+    my $tlen = $str =~ tr/t/t/;
 
    my $olen = $len - ($alen + $tlen + $clen + $glen);
    if( $olen < 0 ) {
