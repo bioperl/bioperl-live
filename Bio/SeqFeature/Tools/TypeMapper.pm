@@ -222,11 +222,14 @@ sub map_types_to_SO{
 		     misc_feature=>'located_sequence_feature',
 
 		     # not sure about this one...
-		     source=>'database_entry',
+		     source=>'databank_entry',
 
 		     LTR=>'LTR_retrotransposon',
 
 		     rep_origin=>'origin_of_replication',
+
+                     # this should really be subtyped...
+                     variation=>'sequence_variant',
 		     
 		    }));
    return $self->map_types(@args);
