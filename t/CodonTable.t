@@ -6,6 +6,7 @@
 # `make test'. After `make install' it should work as `perl test.t'
 
 use strict;
+use lib './';
 BEGIN { 
     # to handle systems with no installed Test module
     # we include the t dir (where a copy of Test.pm is located)
@@ -177,5 +178,10 @@ ok $seq->translate(undef, undef, undef, undef, undef, undef, $myCodonTable)->seq
 # test gapped translated
 
 ok $seq = Bio::PrimarySeq->new(-seq      => 'atg---aar------aay',
-			       -alphabet => 'dna');
+			                   -alphabet => 'dna');
 ok $seq->translate->seq, 'M-K--N';
+
+ok $seq = Bio::PrimarySeq->new(-seq=>'ASDFGHKL');
+ok $myCodonTable->reverse_translate_all($seq), 'GCBWSNGAYTTYGGVCAYAARYTN';
+ok $seq = Bio::PrimarySeq->new(-seq=>'ASXFHKL');
+ok $myCodonTable->reverse_translate_all($seq), 'GCBWSNNNNTTYCAYAARYTN';
