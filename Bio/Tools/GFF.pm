@@ -134,7 +134,7 @@ sub _from_gff2_string {
    my @key_vals = split /;/, $attribs;   # attributes are semicolon-delimited
 
    foreach my $pair ( @key_vals ) {
-       my ($blank, $key, $values) = split  /^\s*([\w\d]+)\s/, $pair;	# separate the key from the value based on the = sign
+       my ($blank, $key, $values) = split  /^\s*([\w\d]+)\s/, $pair;	# separate the key from the value
 
        my @values;								
 
@@ -273,10 +273,10 @@ sub _gff2_string{
             my $valuestr; # a string which will hold one or more values for this tag, with quoted free text and space-separated individual values.
             foreach my $value ( $feat->each_tag_value($tag) ) {
          		if ($value =~ /[^A-Za-z0-9_]/){
-         			$value =~ s/\t/\\t/g;         # substitute tab and newline characters
+         			$value =~ s/\t/\\t/g;          # substitute tab and newline characters
          			$value =~ s/\n/\\n/g;          # to their UNIX equivalents
          			$value = '"' . $value . '" '}  # if the value contains anything other than valid tag/value characters, then quote it
-         		$valuestr .= $value;								# with a trailing space in case there are multiple values
+         		$valuestr .=  $value . " ";								# with a trailing space in case there are multiple values
          															# for this tag (allowed in GFF2 and .ace format)		
             }
             $str .= "$tag $valuestr ; ";                              # semicolon delimited with no '=' sign
