@@ -83,8 +83,10 @@ use Bio::Tree::TreeI;
  Usage   : my $obj = new Bio::Tree::Tree();
  Function: Builds a new Bio::Tree::Tree object 
  Returns : Bio::Tree::Tree
- Args    : 
-
+ Args    : -root     => L<Bio::Tree::NodeI> object which is the root
+           -nodelete => boolean, whether or not to try and cleanup all
+                                 the nodes when this this tree goes out
+                                 of scope.
 
 =cut
 
@@ -95,11 +97,31 @@ sub new {
   $self->{'_rootnode'} = undef;
   $self->{'_maxbranchlen'} = 0;
   $self->_register_for_cleanup(\&cleanup_tree);
-  my ($root)= $self->_rearrange([qw(ROOT)], @args);
+  my ($root,$nodel)= $self->_rearrange([qw(ROOT NODELETE)], @args);
   if( $root ) { $self->set_root_node($root); }
+  $self->nodelete($nodel || 0);
   return $self;
 }
 
+
+=head2 nodelete
+
+ Title   : nodelete
+ Usage   : $obj->nodelete($newval)
+ Function: Get/Set Boolean whether or not to delete the underlying
+           nodes when it goes out of scope.  By default this is false
+           meaning trees are cleaned up.
+ Returns : boolean
+ Args    : on set, new boolean value
+
+
+=cut
+
+sub nodelete{
+    my $self = shift;
+    return $self->{'nodelete'} = shift if @_;
+    return $self->{'nodelete'};
+}
 
 =head2 get_nodes
 
@@ -118,7 +140,7 @@ sub get_nodes{
    my ($order, $sortby) = $self->_rearrange([qw(ORDER SORTBY)],@args);
    $order ||= 'depth';
    $sortby ||= 'height';
-
+   return () unless defined $self->get_root_node;
    if ($order =~ m/^b|(breadth)$/oi) {
        my $node = $self->get_root_node;
        my @children = ($node);
@@ -164,14 +186,16 @@ sub get_root_node{
 =cut
 
 sub set_root_node{
-   my ($self,$value) = @_;
-   if( defined $value ) { 
-       if( ! $value->isa('Bio::Tree::NodeI') ) { 
+   my $self = shift;
+   if( @_ ) { 
+       my $value = shift;
+       if( defined $value && 
+	   ! $value->isa('Bio::Tree::NodeI') ) { 
 	   $self->warn("Trying to set the root node to $value which is not a Bio::Tree::NodeI");
 	   return $self->get_root_node;
        }
        $self->{'_rootnode'} = $value;
-   }
+   } 
    return $self->get_root_node;
 }
 
@@ -188,7 +212,11 @@ sub set_root_node{
 sub total_branch_length {
    my ($self) = @_;
    my $sum = 0;
-   map { $sum += $_->branch_length || 0 } $self->get_root_node->get_Descendents();
+   if( defined $self->get_root_node ) {
+       for ( $self->get_root_node->get_Descendents() ) {
+	   $sum += $_->branch_length || 0;
+       }
+   }
    return $sum;
 }
 
@@ -259,13 +287,16 @@ sub score{
 =cut
 
 
+# -- private internal methods --
+
 sub cleanup_tree {
     my $self = shift;
-    foreach my $node ( $self->get_nodes ) {
-	$node->ancestor(undef);
-	$node = undef;	
+    unless( $self->nodelete ) {
+	foreach my $node ( $self->get_nodes ) {
+	    $node->ancestor(undef);
+	    $node = undef;	
+	}
     }
     $self->{'_rootnode'} = undef;
 }
-
 1;
