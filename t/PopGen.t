@@ -19,7 +19,7 @@ BEGIN {
 	use lib 't';
     }
     use vars qw($NTESTS);
-    $NTESTS = 45;
+    $NTESTS = 49;
     $error = 0;
 
     use Test;
@@ -274,8 +274,7 @@ unlink($FILE1);
 $io = new Bio::PopGen::IO(-format          => 'prettybase',
 			  -no_header       => 1,
 			  -file            => Bio::Root::IO->catfile
-			  (qw(t data
-			      popstats.prettybase)));
+			  (qw(t data popstats.prettybase)));
 my (@ingroup,@outgroup);
 my $sitecount;
 while( my $ind = $io->next_individual ) {
@@ -295,6 +294,16 @@ ok(Bio::PopGen::Statistics->pi(\@ingroup,$sitecount),0.4);
 
 ok(Bio::PopGen::Statistics->theta(\@ingroup),1.92);
 ok(Bio::PopGen::Statistics->theta(\@ingroup,$sitecount),0.384);
+
+# Test with a population object
+my $ingroup = new Bio::PopGen::Population(-individuals => \@ingroup);
+
+ok($stats->pi($ingroup),2);
+ok(Bio::PopGen::Statistics->pi($ingroup,$sitecount),0.4);
+
+ok(Bio::PopGen::Statistics->theta($ingroup),1.92);
+ok(Bio::PopGen::Statistics->theta($ingroup,$sitecount),0.384);
+
 
 # to fix
 #ok(Bio::PopGen::Statistics->tajima_D(\@ingroup),0.27345);
