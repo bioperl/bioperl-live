@@ -103,21 +103,21 @@ sub next_seq {
 sub next_primary_seq {
   my( $self, $as_next_seq ) = @_;
   local $/ = '>';
-
+  
   return unless my $entry = $self->_readline;
-
+  
   if ($entry eq '>')  {  # very first one
-    return unless $entry = $self->_readline;
+      return unless $entry = $self->_readline;
   }
   my $next_rec = $entry;
-  while( $next_rec =~ /(^|.)>$/) {
+  #while( $next_rec =~ /(^|.)>$/) {
       # Jason applying HL's patch from 25/05/2000 
       # (on 02/10/2000)
       # a greater sign not preceded by a newline indicates that there is a
       # '>' within the description, so we need more to complete the record
-      return unless defined($next_rec = $self->_readline());
-      $entry .= $next_rec;  
-  }
+      #return unless defined($next_rec = $self->_readline());
+      #$entry .= $next_rec;  
+  #}
 
   my ($top,$sequence) = $entry =~ /^(.+?)\n([^>]+)/s
     or $self->throw("Can't parse entry");
