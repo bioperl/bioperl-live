@@ -110,7 +110,6 @@ sub _initialize {
       $fh->open($file) || $self->throw("Could not open $file for SCF stream reading $!");
   }
 
-#  print "Setting filehandle to $fh\n";
   $self->_filehandle($fh);
 
 # set stuff in self from @args
@@ -133,6 +132,7 @@ sub next_seq{
    my ($seq, $seqc, $fh, $buffer, %names);
 
    $fh = $self->_filehandle();
+   binmode $fh; # for the Win32/Mac crowds
 
    if( eof $fh ) {
        return undef; # no throws - end of file
