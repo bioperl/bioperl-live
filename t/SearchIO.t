@@ -990,7 +990,7 @@ $writer = Bio::SearchIO::Writer::HitTableWriter->new(
                                                   )]  );
 
 $out = new Bio::SearchIO(-writer => $writer,
-			    -file   => ">searchio.out");
+			 -file   => ">searchio.out");
 $out->write_result($result, 1);
 ok(-e 'searchio.out');
 $writerhtml = new Bio::SearchIO::Writer::HTMLResultWriter();
