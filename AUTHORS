@@ -9,6 +9,7 @@ Releases co-ordinated and submitted by bioperl core devs.
 * Hilmar Lapp <hilmarl at yahoo.com>
 * Heikki Lehvaslaiho <heikki at ebi.ac.uk>
 * Jason Stajich <jason at bioperl.org>
+* Lincoln Stein <stein at cshl.org>
 
 Major Contributors
 (Feel free to add descriptions of which modules you are responsible
@@ -44,7 +45,6 @@ Lorenz Pollack <lorenz at ist.org> -- BPlite porting
 Todd Richmond <todd at andrew2.stanford.edu>
 Peter Schattner <schattner at alum.mit.edu>
 Arne Stabenau <stabenau at ebi.ac.uk>
-Lincoln Stein <lstein at cshl.org>
 Elia Stupka <elia at ebi.ac.uk>
 Gert Thijs <gert.thijs at esat.kuleuven.ac.be> 
 Charles Tilford <tilfordc at bms.com>
