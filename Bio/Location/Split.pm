@@ -126,7 +126,8 @@ sub sub_Location {
     $order = 1 if($order > 1);
     $order = -1 if($order < -1);
 
-    my @sublocs = @{$self->{'_sublocations'}};
+    my @sublocs = defined $self->{'_sublocations'} ? 
+	          @{$self->{'_sublocations'}} : ();
 
     # return the array if no ordering requested
     return @sublocs if( ($order == 0) || (! @sublocs) );
