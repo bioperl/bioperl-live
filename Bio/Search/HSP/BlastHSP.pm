@@ -1602,10 +1602,7 @@ sub seq_inds {
  Comments  : Requires Bio::SimpleAlign.
            : The Bio::SimpleAlign object is constructed from the query + sbjct 
            : sequence objects obtained by calling seq().
-           : Gap residues are included (see $GAP_SYMBOL). It is important that 
-           : Bio::UnivAln recognizes the gaps correctly. A strategy for doing 
-           : this is being considered. Currently it is hard-wired.
-
+           : Gap residues are included (see $GAP_SYMBOL).
 See Also   : L<seq()|seq>, L<Bio::SimpleAlign>
 
 =cut
