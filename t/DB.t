@@ -63,7 +63,6 @@ my $verbose = 0;
 
 my ($gb,$seq,$seqio,$query);
 # get a single seq
-if( 0 ) {
 eval {
     ok defined ( $gb = new Bio::DB::GenBank('-verbose'=>$verbose,'-delay'=>0) );
     ok( defined ($seq = $gb->get_Seq_by_id('MUSIGHBA1')));
@@ -264,8 +263,6 @@ if ($@) {
     }
   }
 $seq = $seqio = undef;
-}
-
 
 # test query facility
 eval {
