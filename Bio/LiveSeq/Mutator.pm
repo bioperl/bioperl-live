@@ -78,7 +78,6 @@ package Bio::LiveSeq::Mutator;
 use vars qw(@ISA);
 use strict;
 
-use Carp qw(cluck croak carp);
 use vars qw($VERSION @ISA);
 use Bio::Variation::SeqDiff;
 use Bio::Variation::DNAMutation;
@@ -201,11 +200,11 @@ sub add_Mutation{
 	return undef;
     }
     if (! $value->pos) {
-	carp "No value for mutation position in the sequence!";
+	$self->warn("No value for mutation position in the sequence!");
 	return undef;
     }
     if (! $value->seq && ! $value->len) {
-	carp "Either mutated sequence or length of the deletion must be given!";
+	$self->warn("Either mutated sequence or length of the deletion must be given!");
 	return undef;
     }
     push(@{$self->{'mutations'}},$value);
@@ -521,7 +520,7 @@ sub change_gene {
     # Sanity check
     #
     unless ($self->gene) {
-	carp "Input object Bio::LiveSeq::Gene is not given\n";
+	$self->warn("Input object Bio::LiveSeq::Gene is not given");
 	return 0;
     }
     #
@@ -540,8 +539,8 @@ sub change_gene {
 	if ($transnumber && $transnumber >= 0 && $transnumber <= $#transcripts) {
 	    $refseq=$transcripts[$transnumber];
 	} else {
-	    $transnumber && carp "The alternative transcript number", $transnumber+1,
-	    "- does not exist. Reverting to the 1st transcript\n";
+	    $transnumber && $self->warn("The alternative transcript number ". $transnumber+1 .
+	    "- does not exist. Reverting to the 1st transcript\n");
 	    $refseq=$transcripts[0];
 	}
     } else {
@@ -582,7 +581,8 @@ sub change_gene {
     #
     # Converting mutation positions to labels
     #
-    carp "no mutations", return 0 unless  $self->_mutationpos2label($refseq, $seqDiff);
+    $self->warn("no mutations"), return 0 
+	unless $self->_mutationpos2label($refseq, $seqDiff);
 
     # need to add more than one rna & aa
     #foreach $transcript (@transcripts) {
@@ -630,7 +630,7 @@ sub change_gene {
 	elsif ($seqDiff->offset != 0 and $dnamut->region ne 'intron') {
 	    $self->_untranslated ($seqDiff, $dnamut);
 	} else {
-	    #carp "Mutation starts outside coding region, RNAChange object not created";
+	    #$self->warn("Mutation starts outside coding region, RNAChange object not created");
 	}
 
 	#########################################################################
@@ -805,12 +805,12 @@ sub _rnaAffected {
 	 #this means one of the two labels is an inserted one
 	 #(coming from a previous mutation. This would falsify all <,>
 	 #checks, so the follow() has to be used
-	 carp "Attention, workaround not fully tested yet! Expect unpredictable results.\n";
+	 $self->warn("Attention, workaround not fully tested yet! Expect unpredictable results.\n");
 	 if (($self->mutation->postlabel==$RNAstart) or (follows($self->mutation->postlabel,$RNAstart))) {
-	     carp "RNA not affected because change occurs before RNAstart";
+	     $self->warn("RNA not affected because change occurs before RNAstart");
 	 }
 	 elsif (($RNAend==$self->mutation->prelabel) or (follows($RNAend,$self->mutation->prelabel))) {
-	     carp "RNA not affected because change occurs after RNAend";
+	     $self->warn("RNA not affected because change occurs after RNAend");
 	 }
 	 elsif (scalar @exons == 1) {
 	     #no introns, just one exon
@@ -838,12 +838,12 @@ sub _rnaAffected {
 	my $strand = $exons[0]->strand;
 	if (($strand == 1 and $self->mutation->postlabel <= $RNAstart) or
 	    ($strand != 1 and $self->mutation->postlabel >= $RNAstart)) {
-	    #carp "RNA not affected because change occurs before RNAstart";
+	    #$self->warn("RNA not affected because change occurs before RNAstart");
 	    $rnaAffected = 0;
 	}
 	elsif (($strand == 1 and $self->mutation->prelabel >= $RNAend) or
 		($strand != 1 and $self->mutation->prelabel <= $RNAend)) {
-	     #carp "RNA not affected because change occurs after RNAend";
+	     #$self->warn("RNA not affected because change occurs after RNAend");
 	     $rnaAffected = 0;
 	     my $dist;
 	     if ($strand == 1){
@@ -884,10 +884,6 @@ sub _rnaAffected {
 		 #print "first exon  : ", $firstexon->start, " - ", $firstexon->end, "<br>\n";
 		 foreach $i (0..$#exons) {
 		     $after=$exons[$i]->start;
-		     #print "exon ", $i+2, " : ", $exons[$i]->start, " - ", $exons[$i]->end, "<br>\n";
-		     #print "  ", $strand, " : ", 
-		     $exons[$i]->start, '|', $self->mutation->prelabel, '|', 
-		     $exons[$i]->end, '|', $self->mutation->postlabel, "|<br>\n";
 		     #proximity test for intronic mutations
 		     if ( ($strand == 1 and 
 			   $self->mutation->prelabel >=  $before and 
@@ -945,7 +941,7 @@ sub _rnaAffected {
 	     }
 	 }
      }
-    #carp "RNA not affected because change occurs inside an intron";
+    #$self->warn("RNA not affected because change occurs inside an intron");
     #return(0); # if still not returned, then not affected, return 0
     return $rnaAffected;
 }
@@ -1225,7 +1221,7 @@ sub _post_mutation {
 		     $aachange->allele_mut->seq(substr $aachange->allele_mut->seq, 0,
 						length ($aachange->RNAChange->allele_mut->seq) / 3 +1);
 		 }
-	     }
+	     }	    
 	 } else {
 	     #frameshift
 	     #my $pos = index $aachange->allele_mut
@@ -1242,14 +1238,14 @@ sub _post_mutation {
 	 my $i;
 	 if (scalar(@beforeexons) ne scalar(@afterexons)) {
 	     my $mut_number = $self->mutation->issue;
-	     carp "Exons have been modified at mutation n.$mut_number!";
+	     $self->warn("Exons have been modified at mutation n.$mut_number!");
 	     $self->rnachange->exons_modified(1);
 	 } else {
 	   EXONCHECK:
 	     foreach $i (0..$#beforeexons) {
 		 if ($beforeexons[$i] ne $afterexons[$i]) {
 	     my $mut_number = $self->mutation->issue;
-		     carp "Exons have been modified at mutation n.$mut_number!";
+		     $self->warn("Exons have been modified at mutation n.$mut_number!");
 		     $self->rnachange->exons_modified(1);
 		     last EXONCHECK;
 		 }

@@ -81,7 +81,7 @@ $VERSION=1.9;
 # Tue Mar 21 01:36:29 GMT 2000 v.1.83 added default strand if new(DNA)
 # Tue Mar 21 14:19:17 GMT 2000 v.1.9 moved new(DNA) to DNA, added chain2string()
 
-use Carp qw(cluck croak);
+use Carp qw(croak);
 use strict; # this will be moved before when strict enforced in Chain.pm
 
 use Bio::LiveSeq::Chain 2.6; # package where all the subroutines are defined
