@@ -15,7 +15,7 @@ BEGIN {
 	use lib 't';
     }
     use Test;
-    plan tests => 60;
+    plan tests => 63;
 }
 
 use Bio::Annotation::Collection;
@@ -37,7 +37,7 @@ my $link1 = new Bio::Annotation::DBLink(-database => 'TSC',
 ok $link1->isa('Bio::AnnotationI');
 ok $link1->database(), 'TSC';
 ok $link1->primary_id(), 'TSC0000030';
-
+ok $link1->as_text, 'Direct database link to TSC0000030 in database TSC';
 my $ac = Bio::Annotation::Collection->new();
 ok $ac->isa('Bio::AnnotationCollectionI');
 
@@ -48,6 +48,7 @@ $ac->add_Annotation('dblink',
 
 my $comment = Bio::Annotation::Comment->new( '-text' => 'sometext');
 ok $comment->text, 'sometext';
+ok $comment->as_text, 'Comment: sometext';
 $ac->add_Annotation('comment', $comment);
 
 
@@ -60,7 +61,7 @@ ok $ref->title,  'title line';
 ok $ref->location, 'location line';
 ok $ref->start, 12;
 ok $ref->database, 'MEDLINE';
-
+ok $ref->as_text, 'Reference: title line';
 $ac->add_Annotation('reference', $ref);
 
 
@@ -91,7 +92,7 @@ foreach my $link ( $ac->get_Annotations('dblink') ) {
 }
 ok ($n, 3);
 
-# annotation of structured simple values (like swissprot's GN line)
+# annotation of structured simple values (like swissprot''is GN line)
 my $ann = Bio::Annotation::StructuredValue->new();
 ok ($ann->isa("Bio::AnnotationI"));
 

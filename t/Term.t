@@ -87,8 +87,8 @@ $obj = Bio::Ontology::Term->new(
     -ontology    => "cat",
     -comment     => "X",
     -dblinks    => [
-        Bio::Annotation::DBLink->new(-dbname => 'db1'),
-        Bio::Annotation::DBLink->new(-dbname => 'db2')
+        Bio::Annotation::DBLink->new(-database => 'db1'),
+        Bio::Annotation::DBLink->new(-database => 'db2')
     ],
     -references => []
 );  
