@@ -6,7 +6,7 @@ use Bio::Graphics::Util qw(frame_and_offset);
 use Bio::Tools::CodonTable;
 use Bio::Graphics::Glyph::translation;
 use vars '@ISA','$VERSION';
-@ISA = qw(Bio::Graphics::Glyph::segments Bio::Graphics::Glyph::translation);
+@ISA = qw(Bio::Graphics::Glyph::segmented_keyglyph Bio::Graphics::Glyph::translation);
 $VERSION = '1.01';
 
 sub connector   { 0 };
@@ -22,8 +22,9 @@ sub draw {
   my ($gd,$left,$top) = @_;
 
   my @parts = $self->parts;
+  @parts    = $self unless @parts;
 
-  return $self->SUPER::draw(@_) unless @parts;
+#  return $self->SUPER::draw(@_) unless @parts;
 
   my $fits = $self->protein_fits;
 

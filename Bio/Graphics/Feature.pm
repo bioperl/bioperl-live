@@ -46,14 +46,15 @@ feature that contains no subfeatures, or a hierarchically nested object.
 Arguments are as follows:
 
   -start       the start position of the feature
-  -stop        the stop position of the feature
-  -end         an alias for stop
+  -end         the stop position of the feature
+  -stop        an alias for end
   -name        the feature name (returned by seqname())
   -type        the feature type (returned by primary_tag())
   -source      the source tag
   -desc        a description of the feature
   -segments    a list of subfeatures (see below)
   -subtype     the type to use when creating subfeatures
+  -strand      the strand of the feature (one of -1, 0 or +1)
 
 The subfeatures passed in -segments may be an array of
 Bio::Graphics::Feature objects, or an array of [$start,$stop]
