@@ -347,7 +347,8 @@ sub new {
     unless (&Bio::Tools::Run::StandAloneBlast::exists_blast()) {
 	warn "Blast program not found or not executable. \n  Blast can be obtained from ftp://ncbi.nlm.nih.gov/blast\n";
     }
-
+    # to facilitiate tempfile cleanup
+    $self->_initialize_io();
     my ($fh,$tempfile) = $self->tempfile();
     $self->outfile($tempfile);
     $self->_READMETHOD('BPlite');
@@ -623,7 +624,7 @@ SWITCH:  {
 	last SWITCH; 
     }
 #  $input may be an array of BioSeq objects...
-    if (ref($input1) eq "ARRAY") {
+    if (ref($input1) =~ /ARRAY/i ) {
 	($fh,$infilename1) = $self->tempfile();
 	$temp =  Bio::SeqIO->new(-fh=> $fh, '-format' => 'Fasta');
 	foreach $seq (@$input1) {
