@@ -249,18 +249,41 @@ sub result {
         #make BioSeq feature#
         if ($value eq 'Bio::SeqFeatureI') {
             my $i = 0;          #array index (= aa num -1)
+			my $in_trough = 0;
+			my ($st, $end, $rank, $min_score, $min_locus) = (0,0,0,0,0);
+			my $seqlen = $self->seq->length();
             for my $score (@{$self->{'_parsed'}}) {
-                if ($score->{'rank'}) {  #if rank assigned
-                    push @fts, Bio::SeqFeature::Generic->new
-                        (
-                         -start => $i +1,
-                         -end => $i +1,
-                         -primary => 'Domcut',
-                         -tag => {
-                                  score => $score->{'score'},
-                                  rank => $score->{'rank'}
+				##start a potential trough
+				if ($in_trough == 0 && $score->{'score'} < -0.09) {
+					$in_trough = 1;
+					$st        = $i+1;
+					}
+				## in a trough, is it ranked?
+				elsif ( $in_trough == 1 && $score->{'score'} < -0.09 && $i +1 < $seqlen){
+					if ($score->{'rank'} ) {
+						$rank      = $score->{'rank'};
+						$min_score = $score->{'score'};
+					    $min_locus = $i + 1;
+						}
+				}
+							
+				## end of trough or end of sequence, make into feature if possible
+				elsif ($in_trough == 1 && ($score->{'score'} > -0.09 ||
+						 $i +1  == $seqlen) ){
+					if ($rank != 0) {
+                    	push @fts, Bio::SeqFeature::Generic->new (
+                         	-start   => $st,
+                            -end     => $i +1, #current position
+                         	-primary => 'Domcut',
+                         	-tag => {
+                                  score   => $min_score,
+                                  rank    => $rank,
+								  residue => $min_locus,
                                  },
                         );
+					}
+					##and reset parameters ##
+					($st, $in_trough, $min_locus, $min_score, $rank) = (0,0,0,0,0);
                 }
                 $i++;
             }
