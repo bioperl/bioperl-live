@@ -3303,7 +3303,7 @@ sub _split_gff2_group {
       }
 
       # otherwise look for the preferred groups
-      else {
+      elsif (ref($self)) {
         for ($self->preferred_groups) {
 	  if (uc $k eq uc $_) {
 	    ($gclass, $gname) = ($k, $v);

@@ -597,8 +597,8 @@ sub index_file {
   unlink $index if $force_reindex;
 
   # get the modification time of the index
-  my $indextime = (stat($index))[9];
-  my $modtime   = (stat($file))[9];
+  my $indextime = (stat($index))[9] || 0;
+  my $modtime   = (stat($file))[9]  || 0;
 
   my $reindex = $force_reindex || $indextime < $modtime;
   my $offsets = $self->_open_index($index,$reindex) or return;

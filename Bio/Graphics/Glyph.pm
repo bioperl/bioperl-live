@@ -155,6 +155,7 @@ sub add_group {
 					 -type => 'group'
 					);
   $self->add_feature($f);
+  $f;
 }
 
 sub top {
