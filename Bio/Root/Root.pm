@@ -312,7 +312,7 @@ sub throw{
 	       $args{-object} = $self;
 	   }
 
-           throw $class ( %args || @args );
+           throw $class ( %args > 0 ? %args : @args ); # (%args || @args) puts %args in scalar context!
        }
    }
    else {
