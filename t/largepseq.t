@@ -15,10 +15,13 @@ BEGIN {
 	use lib 't';
     }
     use Test;
-    plan tests => 19;
+    plan tests => 22;
 }
 use Bio::Seq::LargePrimarySeq;
 use Bio::Seq::LargeSeq;
+use Bio::Location::Simple;
+use Bio::Location::Fuzzy;
+use Bio::Location::Split;
 
 my $pseq = Bio::Seq::LargePrimarySeq->new();
 ok $pseq;
@@ -30,6 +33,28 @@ ok $pseq->display_id('hello'), 'hello';
 ok $pseq->seq, 'ATGGGGTGGGGTGAAACCCTTTGGGGGTGGGGTAAATGTTTGGGGTTAAACCCCTTTGGGGGGT' , "Sequence is " . $pseq->seq;
 
 ok $pseq->subseq(3,7), 'GGGGT', "Subseq is ".$pseq->subseq(3,7);
+my $location = new Bio::Location::Simple(-start => 4, -end => 8,
+					 -strand => 1);
+ok($pseq->subseq($location), 'GGGTG');
+
+my $splitlocation = new Bio::Location::Split;
+
+$splitlocation->add_sub_Location( new Bio::Location::Simple('-start' => 1,
+							    '-end'   => 15,
+							    '-strand' => 1));
+
+$splitlocation->add_sub_Location( new Bio::Location::Simple('-start' => 21,
+							    '-end'   => 27,
+							    '-strand' => -1));
+
+ok( $pseq->subseq($splitlocation), 'ATGGGGTGGGGTGAACCCCCAA');
+
+my $fuzzy = new Bio::Location::Fuzzy(-start => '<10',
+				     -end   => '18',
+				     -strand => 1);
+
+ok( $pseq->subseq($fuzzy), 'GGTGAAACC');
+
 
 ok($pseq->trunc(8,15)->seq, 'GGGGTGAA', 
     'trunc seq was ' . $pseq->trunc(8,15)->seq);

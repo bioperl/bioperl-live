@@ -152,16 +152,58 @@ sub seq {
 
 sub subseq{
    my ($self,$start,$end) = @_;
-
-   if( $start < 1 || $end > $self->length ) {
-       $self->throw("Attempting to get a subseq out of range $start:$end vs ".$self->length);
+   my $string;
+   my $fh = $self->_fh();
+   
+   if( ref($start) && $start->isa('Bio::LocationI') ) {
+       my $loc = $start;
+       if( $loc->length == 0 ) { 
+	   $self->warn("Expect location lengths to be > 0");
+	   return '';
+       } elsif( $loc->end < $loc->start ) { 
+	   # what about circular seqs
+	   $self->warn("Expect location start to come before location end");
+       }
+       my $seq = '';
+       if( $loc->isa('Bio::Location::SplitLocationI') ) {
+	   foreach my $subloc ( $loc->sub_Location ) {
+	       if(! seek($fh,$subloc->start() - 1,0)) {
+		   $self->throw("Unable to seek on file $start:$end $!");
+	       }
+	       my $ret = read($fh, $string, $subloc->length());
+	       if( !defined $ret ) {
+		   $self->throw("Unable to read $start:$end $!");
+	       }
+	       if( $subloc->strand < 0 ) { 
+		   $string = Bio::PrimarySeq->new(-seq => $string)->revcom()->seq();
+	       }
+	       $seq .= $string;		   
+	   }
+       } else { 
+	   if(! seek($fh,$loc->start()-1,0)) {
+	       $self->throw("Unable to seek on file ".$loc->start.":".
+			    $loc->end ." $!");
+	   }
+	   my $ret = read($fh, $string, $loc->length());
+	   if( !defined $ret ) {
+	       $self->throw("Unable to read ".$loc->start.":".
+			    $loc->end ." $!");
+	   }
+	   $seq = $string;
+       }
+       if( $loc->strand < 0 ) { 
+	   $seq = Bio::PrimarySeq->new(-seq => $seq)->revcom()->seq();
+       }
+       return $seq;
+   }
+   if( $start <= 0 || $end > $self->length ) {
+       $self->throw("Attempting to get a subseq out of range $start:$end vs ".
+		    $self->length);
    }
    if( $end < $start ) {
        $self->throw("Attempting to subseq with end ($end) less than start ($start). To revcom use the revcom function with trunc");
    }
    
-   my $string;
-   my $fh = $self->_fh();
    if(! seek($fh,$start-1,0)) {
        $self->throw("Unable to seek on file $start:$end $!");
    }
