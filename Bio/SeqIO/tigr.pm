@@ -71,6 +71,7 @@ use Bio::SeqFeature::Generic;
 use Bio::Seq::SeqFactory;
 use Bio::Seq::RichSeq;
 use Data::Dumper;
+use Error qw/:try/;
 
 @ISA = qw(Bio::SeqIO);
 
@@ -79,16 +80,12 @@ sub _initialize
 	my($self, @args) = @_;
 
 	$self->SUPER::_initialize(@args);
-	($self->{'tu'}, $self->{'model'})
-	 = $self->_rearrange([qw(TU MODEL)], @args);
-	$self->{'tu'}      = 1 if !defined($self->{'tu'});
-	$self->{'model'}   = 1 if !defined($self->{'model'});
-	$self->{'eof'}     = 0;
 	$self->sequence_factory(new Bio::Seq::SeqFactory(
-			-type => 'Bio::Seq::RichSeq'));
+			-type => 'Bio::Seq::RichSeq')
+	);
 
+	# Parse the document
 	$self->_process();
-	my $list=$self->{'ASSEMBLY'}->{'GENE_LIST'}->{'PROTEIN_CODING'}->{'TU'};
 }
 
 =head2 next_seq
@@ -104,300 +101,73 @@ sub _initialize
 sub next_seq()
 {
 	my ($self) = @_;
-	my $list=$self->{'ASSEMBLY'}->{'GENE_LIST'}->{'PROTEIN_CODING'}->{'TU'};
-
-	return 0 if $self->{'eof'} == 1;
-
-	if(defined(@{$self->{'seq'}}) and @{$self->{'seq'}} > 0) {
-		return shift @{$self->{'seq'}};
-	}
-
-	while($self->{'eof'} == 0) {
-		until((defined(@$list) and @$list > 0) or $self->{'eof'} == 1) {
-			$self->_process();
-		}
-
-		while(defined(@$list) and @$list > 0 and
-			(!defined(@{$self->{'seq'}}) or @{$self->{'seq'}} == 0)
-		) {
-			$self->_process_seq();
-		}
-
-		if(defined(@{$self->{'seq'}}) and @{$self->{'seq'}} > 0) {
-			return shift @{$self->{'seq'}};
-		}
-	}
-
-	return undef;
-}
-
-sub _get_sequence
-{
-	my($self, $start, $end) = @_;
-	my $dir   = ($start < $end)? 1 : -1;
-	my $len   = ($end - $start) * $dir + 1;
-	my $seqstr;
-
-
-	if($dir == -1) {
-		$seqstr = reverse(substr(
-			$self->{'ASSEMBLY'}->{'ASSEMBLY_SEQUENCE'},
-			$end - 1, $len));
-		$seqstr =~ tr/acgtrymkswhbvdnxACGTRYMKSWHBVDNX/tgcayrkmswdvbhnxTGCAYRKMSWDVBHNX/;
-	} else {
-		$seqstr = substr(
-			$self->{'ASSEMBLY'}->{'ASSEMBLY_SEQUENCE'},
-			$start - 1, $len);
-	}
-	return $seqstr;
-}
-
-sub _process_seq
-{
-	my ($self) = @_;
-	my $list=$self->{'ASSEMBLY'}->{'GENE_LIST'}->{'PROTEIN_CODING'}->{'TU'};
-	my $kw = join(' ', @{$self->{'ASSEMBLY'}->{'HEADER'}->{'KEYWORDS'}})
-		if defined($self->{'ASSEMBLY'}->{'HEADER'}->{'KEYWORDS'});
-
-	my $tu = shift(@$list);
-	push(@{$self->{'seq'}}, $self->_process_seq_tu($tu))
-		if defined($self->{'tu'});
-}
-
-sub _process_seq_tu()
-{
-	my ($self, $tu) = @_;
-	my $start  = $tu->{'COORDSET'}->{'END5'};
-	my $end    = $tu->{'COORDSET'}->{'END3'};
-	my $seqstr = $self->_get_sequence($start, $end);
 	
-	my $id = $tu->{GENE_INFO}->{PUB_LOCUS};
-	if(!defined($id) or $id =~ /^\s*$/o) {
-		$id = $tu->{FEAT_NAME};
+	# Check for any more sequences
+	return undef if !defined($self->{_sequences}) or scalar(@{$self->{_sequences}}) < 1;
+
+	# get the next sequence
+	my $seq = pop(@{ $self->{_sequences} } );
+
+	# Get the 5' and 3' ends
+	my ($source) = grep { $_->primary_tag() eq 'source' } $seq->get_SeqFeatures();
+	my ($end5) = $source->get_tag_values('end5');
+	my ($end3) = $source->get_tag_values('end3');
+
+	# Sort the 5' and 3':
+	my ($start, $end) = ( $end5 < $end3  ? ( $end5, $end3 ) : ( $end3, $end5 ) );
+
+	# make the start a perl index
+	$start -= 1;
+
+	# Figure out the length
+	my $length = $end - $start;
+
+	# check to make sure $start >= 0 and $end <= length(assembly_seq)
+    if($start < 0) {
+        throw Bio::Root::OutOfRange("the sequence start is $start < 0");
+    } elsif($end > length($self->{_assembly}->{seq})) {
+        throw Bio::Root::OutOfRange("the sequence end is $end < " . length($self->{_assembly}->{seq}));
+    } elsif($start >= $end) {
+        throw Bio::Root::OutOfRange("the sequence start is after end $start >= $end");
+    }
+
+	# Get and set the real sequence
+	$seq->seq(substr($self->{_assembly}->{seq}, $start, $length));
+
+	if( $end5 > $end3 ) {
+		# Reverse complement the sequence
+		$seq->seq( $seq->primary_seq()->revcom()->seq() );
 	}
 
-	my $seq = $self->sequence_factory()->create(
-		-id => $id,
-		-seq => $seqstr,
-		-accession_number => $id
-	);
+	# add the translation to each CDS
+	foreach my $feat ($seq->get_SeqFeatures()) {
+		next if $feat->primary_tag() ne "CDS";
 
-	$seq->primary_id($id);
-	$seq->add_date($tu->{'DATE'}) if defined($tu->{'DATE'});
-	$seq->add_date($tu->{'GENE_INFO'}->{'DATE'});
-	$seq->add_secondary_accession($tu->{'FEAT_NAME'}) unless $tu->{FEAT_NAME} eq $id;
-	$seq->add_secondary_accession($tu->{'GENE_INFO'}->{'LOCUS'});
-	$seq->add_secondary_accession($tu->{'GENE_INFO'}->{'ALT_LOCUS'})
-		if defined($tu->{'GENE_INFO'}->{'ALT_LOCUS'});
-
-	$seq->description(join(' | ',
-		'genomic nucleotide',
-		$tu->{'GENE_INFO'}->{'COM_NAME'}
-	));
-
-	my $strand = 1;
-	$strand = -1 if $start > $end;
-	
-	my $source = new Bio::SeqFeature::Generic(
-		-primary => 'source',
-		-start   => 1,
-		-end     => $seq->length(),
-		-tag     => {
-			date    =>  $tu->{DATE},
-			end5    =>  $tu->{COORDSET}->{END5},
-			end3    =>  $tu->{COORDSET}->{END3},
-			strand  => ($tu->{COORDSET}->{END5} < $tu->{COORDSET}->{END3} ? "positive" : "negative"),
-		}
-	);
-
-	$self->_add_source($source);
-	$seq->add_SeqFeature($source);
-
-	foreach my $model (@{$tu->{'MODEL'}}) {
-		my @exons;
-		my @cds;
-		my $mstart = $strand*($model->{'COORDSET'}->{'END5'} - $start) + 1;
-		my $mend   = $strand*($model->{'COORDSET'}->{'END3'} - $start) + 1;
-
-		my $locus = $model->{PUB_LOCUS};
-		if(!defined($locus) or $locus =~ /^\s*$/) {
-			$locus = $model->{FEAT_NAME};
-		}
-
-		$seq->add_secondary_accession($locus);
-		$seq->add_secondary_accession($model->{FEAT_NAME}) unless $locus eq $model->{FEAT_NAME};
-
-		my $mfeat = new Bio::SeqFeature::Generic(
-			-primary     => 'MODEL',
-			-start       => $mstart,
-			-end         => $mend,
-			-tag => {
-				locus => $locus,
-				feat_name => $model->{'FEAT_NAME'}
-			}
-		);
-		$seq->add_SeqFeature($mfeat);
-
-		foreach my $exon (@{$model->{'EXON'}}) {
-			my $estart = $strand * ($exon->{'COORDSET'}->{'END5'} - $start) + 1;
-			my $eend   = $strand * ($exon->{'COORDSET'}->{'END3'} - $start) + 1;
-
-			push @exons, {
-				"start" => $estart,
-				"end"   => $eend,
-				"date"  => $exon->{'DATE'},
-				"locus" => $exon->{'FEAT_NAME'},
-			};
-
-
-			if(defined($exon->{'CDS'})) {
-				my $c = $exon->{'CDS'};
-				my $cstart = $strand * ($c->{'COORDSET'}->{'END5'} - $start) + 1;
-				my $cend   = $strand * ($c->{'COORDSET'}->{'END3'} - $start) + 1;
-
-				push @cds, {
-					"start" => $cstart,
-					"end"   => $cend,
-					"date"  => $c->{'DATE'},
-					"locus" => $c->{'FEAT_NAME'},
-				};
-			}
-
-			if(defined($exon->{'UTRS'})) {
-				my $u = $exon->{'UTRS'};
-
-				while( defined @{$u->{'LEFT_UTR'}} and 0 < @{$u->{'LEFT_UTR'}}) {
-					my $lutr = shift @{$u->{'LEFT_UTR'}};
-					my $us = $strand * ($lutr->{'END5'} - $start) + 1;
-					my $ue = $strand * ($lutr->{'END3'} - $start) + 1;
-
-					$seq->add_SeqFeature(new Bio::SeqFeature::Generic(
-						-primary => 'LEFT_UTR',
-						-start   => $us,
-						-end     => $ue,
-						-tag     => {
-							locus => $model->{'PUB_LOCUS'} || $model->{'FEAT_NAME'}
-						}
-					));
-				}
-
-				while( defined @{$u->{'RIGHT_UTR'}} and 0 < @{$u->{'RIGHT_UTR'}}) {
-					my $rutr = shift @{$u->{'RIGHT_UTR'}};
-					my $us = $strand * ($rutr->{'END5'} - $start) + 1;
-					my $ue = $strand * ($rutr->{'END3'} - $start) + 1;
-
-					$seq->add_SeqFeature(new Bio::SeqFeature::Generic(
-						-primary => 'RIGHT_UTR',
-						-start   => $us,
-						-end     => $ue,
-						-tag => {
-							locus => $model->{'PUB_LOCUS'} || $model->{'FEAT_NAME'}
-						}
-					));
-				}
-
-				while( defined @{$u->{'EXTENDED_UTR'}} and 0 < @{$u->{'EXTENDED_UTR'}}) {
-					my $eutr = shift @{$u->{'EXTENDED_UTR'}};
-					my $us = $strand * ($eutr->{'END5'} - $start) + 1;
-					my $ue = $strand * ($eutr->{'END3'} - $start) + 1;
-
-					$seq->add_SeqFeature(new Bio::SeqFeature::Generic(
-						-primary => 'EXTENDED_UTR',
-						-start   => $us,
-						-end     => $ue,
-						-tag => {
-							locus => $model->{'PUB_LOCUS'} || $model->{'FEAT_NAME'}
-						}
-					));
-				}
-			}
-		}
-
-		my $loc = new Bio::Location::Split();
-		foreach my $e (@exons) {
-			$loc->add_sub_Location(new Bio::Location::Simple(
-					-start => $e->{'start'},
-					-end   => $e->{'end'}
-			));
-		}
-
-		my $efeat = new Bio::SeqFeature::Generic(
-			-primary      => 'EXON',
-			-location     => $loc,
-			-tag => {
-				locus => $model->{'PUB_LOCUS'} || $model->{'FEAT_NAME'}
-			}
-		);
-		$seq->add_SeqFeature($efeat);
-
-		if(scalar(@cds) > 0) {
-			$loc = new Bio::Location::Split();
-			foreach my $c (@cds) {
-				$loc->add_sub_Location(new Bio::Location::Simple(
-						-start => $c->{'start'},
-						-end   => $c->{'end'}
-				));
-			}
-
-			my $cfeat = new Bio::SeqFeature::Generic(
-				-primary     => 'CDS',
-				-location    => $loc,
-				-tag => {
-					locus => $model->{'PUB_LOCUS'} || $model->{'FEAT_NAME'}
-				}
+		# Check for an invalid protein
+		try {
+			# Get the subsq
+			my $cds = new Bio::PrimarySeq(
+				-strand => 1,
+				-id  => $seq->accession_number(),
+				-seq => $seq->subseq($feat->location())
 			);
 
-			my $trans;
-			eval {
-				$trans = new Bio::PrimarySeq(
-					-id => $seq->primary_id(),
-					-seq => $seq->subseq($loc)
-				);
-				$cfeat->add_tag_value('translation',
-					$trans->translate(undef, undef, undef, undef, 1, 0)->seq()
-				);
-			};
-			if($@) {
-				$self->warn("Unable to translate protein. Probably a psuedo-protein.");
-			} else {
-				$seq->add_SeqFeature($cfeat);
-			}
-		}
+			# Translate it
+			my $trans = $cds->translate(undef, undef, undef, undef, 1, 1)->seq();
+
+			# Add the tag
+			$feat->add_tag_value(translation => $trans);
+		} catch Bio::Root::Exception with {
+			print STDERR 'TIGR strikes again, the CDS is not a valid protein: ', $seq->accession_number(), "\n"
+				if $self->verbose() > 0;
+		};
 	}
-	
-	my $kw = $self->{'ASSEMBLY'}->{'HEADER'}->{'KEYWORDS'};
-	$seq->keywords(join(' ', @$kw)) if defined(@$kw);
-	$self->_add_species($seq);
-	
-	while(my $comment = shift @{$tu->{'GENE_INFO'}->{'COMMENTS'}}) {
-		my $com = new Bio::Annotation::Comment('-text' => $comment);
-		$seq->annotation()->add_Annotation('comment', $com);
-	}
+
+	# Set the display id to the accession number if there
+	# is no display id
+	$seq->display_id( $seq->accession_number() ) unless $seq->display_id();
 	
 	return $seq;
-}
-
-
-sub _add_species
-{
-	my($self, $seq) = @_;
-	my $o = $self->{'ASSEMBLY'}->{'HEADER'}->{'ORGANISM'};
-	my $lineage = $self->{'ASSEMBLY'}->{'HEADER'}->{'LINEAGE'};
-	my $species = new Bio::Species(-classification => $lineage);
-	my ($genus, $spec, @sub) = split(/ /, $o);
-
-	$species->genus($genus);
-	$species->species($spec);
-	$species->sub_species(join(' ', @sub));
-
-	$seq->species($species);
-}
-
-sub _add_source
-{
-	my($self, $source) = @_;
-	$source->add_tag_value("chromosome", $self->{ASSEMBLY}->{CHROMOSOME});
-	$source->add_tag_value("clone", $self->{ASSEMBLY}->{HEADER}->{CLONE_NAME});
 }
 
 sub _process
@@ -406,10 +176,8 @@ sub _process
 	my $line;
 	my $tu = undef;
 
-	return if $self->{'eof'} == 1;
-
+	$line = $self->_readline();
 	do {
-		$line = $self->_readline();
 		if($line =~ /<\?xml\s+version\s+=\s+"\d+\.\d+"\?>/o) {
 			# do nothing
 		} elsif ($line =~ /<!DOCTYPE (\w+) SYSTEM "[\w\.]+">/o) {
@@ -428,9 +196,8 @@ sub _process
 			$self->throw("Unknown or Invalid process directive:",
 				join('', ($line =~ /^\s*(<[^>]+>)/o)));
 		}
-		$tu = $self->{'ASSEMBLY'}->{'GENE_LIST'}->{'PROTEIN_CODING'};
-	} until((defined($tu->{'TU'}) and @{$tu->{'TU'}} != 0)
-			or !defined($line));
+		$line = $self->_readline();
+	} while( defined( $line ) );
 }
 
 sub _process_tigr
@@ -450,7 +217,7 @@ sub _process_tigr
 		$self->_process_pseudochromosome();
 	} elsif ($line =~ /<ASSEMBLY.*?>/o) {
 		$self->_pushback($line);
-		$self->{'ASSEMBLY'} = $self->_process_assembly();
+		$self->_process_assembly();
 	}
 }
 
@@ -471,13 +238,13 @@ sub _process_pseudochromosome
 	} else {
 		$self->warn( "No Scaffold found in <PSUEDOCHROMOSOME> this " .
 		             "is a violation of the TIGR dtd, but we ignore " .
-			     "it so we are ignoring the error\n"
+		             "it so we are ignoring the error\n"
 		);
 	}
 
 	if($line =~ /<ASSEMBLY.*>/o) {
 		$self->_pushback($line);
-		$self->{'ASSEMBLY'} = $self->_process_assembly();
+		$self->_process_assembly();
 		$line = $self->_readline();
 	} else {
 		$self->throw("Missing required ASSEMBLY in <PSEUDOCHROMOSOME>");
@@ -494,29 +261,24 @@ sub _process_assembly
 {
 	my($self) = @_;
 	my $line;
-	my $assembly;
 
-	
 	$line = $self->_readline();
 	if($line !~ /<ASSEMBLY([^>]*)>/o) {
 		$self->throw("Bio::SeqIO::tigr::_process_assembly called ",
 		             "but no <ASSEMBLY> found in stream");
 	}
 
-
 	my %attribs = ($1 =~ /(\w+)\s*=\s+"(.*?)"/og);
-	foreach my $key (keys(%attribs)) {
-		$assembly->{$key} =  $attribs{$key};
-	}
+	$self->{_assembly}->{date}       = $attribs{CURRENT_DATE};
+	$self->{_assembly}->{db}         = $attribs{DATABASE};
+	$self->{_assembly}->{chromosome} = $attribs{CHROMOSOME};
 
 	$line = $self->_readline();
 	my($attr, $val); 
 	if(($attr, $val) = ($line =~ /<ASMBL_ID([^>]*)>([^<]*)<\/ASMBL_ID>/o)) {
 		%attribs = ($attr =~ /(\w+)\s*=\s+"(.*?)"/og);
-		foreach my $key (keys(%attribs)) {
-			$assembly->{$key} =  $attribs{$key};
-		}
-		$assembly->{'ASMBL_ID'} = $val;
+		$self->{_assembly}->{clone_name} = $attribs{CLONE_NAME};
+		$self->{_assembly}->{clone} = $val;
 		$line = $self->_readtag();
 	} else {
 		$self->throw("Required <ASMBL_ID> missing");
@@ -524,7 +286,11 @@ sub _process_assembly
 
 	if($line =~ /<COORDSET>/o) {
 		$self->_pushback($line);
-		$assembly->{'COORDSET'} = $self->_process_coordset();
+		my $cs = $self->_process_coordset();
+
+		$self->{_assembly}->{end5} = $cs->{end5};
+		$self->{_assembly}->{end3} = $cs->{end3};
+
 		$line = $self->_readline();
 	} else {
 		$self->throw("Required <COORDSET> missing");
@@ -532,7 +298,7 @@ sub _process_assembly
 
 	if($line =~ /<HEADER>/o) {
 		$self->_pushback($line);
-		$assembly->{'HEADER'} = $self->_process_header();
+		$self->_process_header();
 		$line = $self->_readline();
 	} else {
 		$self->throw("Required <HEADER> missing");
@@ -540,13 +306,13 @@ sub _process_assembly
 
 	if($line =~ /<TILING_PATH>/o) {
 		$self->_pushback($line);
-		$assembly->{'TILING_PATH'} = $self->_process_tiling_path();
+		$self->_process_tiling_path();
 		$line = $self->_readline();
 	}
 
 	if($line =~ /<GENE_LIST>/o) {
 		$self->_pushback($line);
-		$assembly->{'GENE_LIST'} = $self->_process_gene_list();
+		$self->_process_gene_list();
 		$line = $self->_readline();
 	} else {
 		$self->throw("Required <GENE_LIST> missing");
@@ -554,28 +320,27 @@ sub _process_assembly
 
 	if($line =~ /<MISC_INFO>/o) {
 		$self->_pushback($line);
-		$assembly->{'MISC_INFO'} = $self->_process_misc_info();
+		$self->_process_misc_info();
 		$line = $self->_readline();
 	}
 
 	if($line =~ /<REPEAT_LIST>/o) {
 		$self->_pushback($line);
-		$assembly->{'REPEAT_LIST'} = $self->_process_repeat_list();
+		$self->_process_repeat_list();
 		$line = $self->_readline();
 	}
 
 	if($line =~ /<ASSEMBLY_SEQUENCE>/o) {
 		$self->_pushback($line);
-		$assembly->{'ASSEMBLY_SEQUENCE'}=$self->_process_assembly_seq();
+		$self->_process_assembly_seq();
 		$line = $self->_readline();
 	} else {
 		$self->throw("Required <ASSEMBLY_SEQUENCE> missing");
 	}
 
 	if($line =~ /<\/ASSEMBLY>/o) {
-		return $assembly;
+		return;
 	}
-
 	$self->throw("Reached the end of <ASSEMBLY>");
 }
 
@@ -590,10 +355,22 @@ sub _process_assembly_seq()
 			     "with no <ASSEMBLY_SEQUENCE> in the stream");
 	}
 
-	$line = $self->_readline();
-	if($line =~ /^(.+)<\/ASSEMBLY_SEQUENCE>/o) {
-		return $1;
-	}
+	# Protect agains lots of smaller lines
+	my @chunks;
+
+	do {
+		$line = $self->_readline();
+		last unless $line;
+
+		my $seq;
+		if (($seq) = ($line =~ /^\s*(\w+)\s*$/o)) {
+			push(@chunks, $seq);
+		} elsif( ($seq) = ( $line =~ /^\s*(\w+)<\/ASSEMBLY_SEQUENCE>\s*$/o) ) {
+			push(@chunks, $seq);
+			$self->{_assembly}->{seq} = join('', @chunks);
+			return;
+		}
+	} while( $line );
 
 	$self->throw("Reached end of _proces_assembly");
 }
@@ -608,9 +385,9 @@ sub _process_coordset($)
 	if($line =~ /<COORDSET>/o) {
 		$self->_pushback($line);
 		$line = $self->_readtag();
-		($h->{'END5'}, $h->{'END3'}) = ($line =~ /<COORDSET>\s*<END5>\s*(\d+)\s*<\/END5>\s*<END3>\s*(\d+)\s*<\/END3>/os);
-		if(!defined($h->{'END5'}) or !defined($h->{'END3'})) {
-			$self->throw("Invalid <COORDSEt>");
+		($h->{end5}, $h->{end3}) = ($line =~ /<COORDSET>\s*<END5>\s*(\d+)\s*<\/END5>\s*<END3>\s*(\d+)\s*<\/END3>/os);
+		if(!defined($h->{end5}) or !defined($h->{end3})) {
+			$self->throw("Invalid <COORDSET>: $line");
 		}
 		return $h;
 	} else {
@@ -622,7 +399,6 @@ sub _process_coordset($)
 sub _process_header
 {
 	my ($self) = @_;
-	my $header;
 	my $line = $self->_readline();
 
 	if($line !~ /<HEADER>/o) {
@@ -632,66 +408,73 @@ sub _process_header
 
 	$line = $self->_readtag();
 	if($line =~ /<CLONE_NAME>([^>]+)<\/CLONE_NAME>/o) {
-		$header->{'CLONE_NAME'} = $1;
+		$self->{_assembly}->{clone_name} = $1;
 		$line = $self->_readtag();
 	} else {
 		$self->throw("Required <CLONE_NAME> missing");
 	}
 
 	if($line =~ /<SEQ_LAST_TOUCHED>/o) {
-		($header->{'SEQ_LAST_TOUCHED'}) =
-			($line =~ /<DATE>([^<]+)<\/DATE>/o);
+		# Ignored for now
 		$line = $self->_readtag();
 	} else {
 		$self->throw("Reqired <SEQ_LAST_TOUCHED> missing");
 	}
 
 	if($line =~ /<GB_ACCESSION>([^<]*)<\/GB_ACCESSION>/o) {
-		$header->{'GB_ACCESSION'} = $1;
+		$self->{_assembly}->{gb} = $1;
 		$line = $self->_readtag();
 	} else {
 		$self->throw("Required <GB_ACCESSION> missing");
 	}
 
-	if($line =~ /<ORGANISM>([^<]*)<\/ORGANISM>/o) {
-		$header->{'ORGANISM'} = $1;
+	if($line =~ /<ORGANISM>\s*(.+)\s*<\/ORGANISM>/o) {
+		my( $genus, $species, @ss ) = split(/\s+/o, $1);
+		$self->{_assembly}->{species} = new Bio::Species();
+		$self->{_assembly}->{species}->genus($genus);
+		$self->{_assembly}->{species}->species($species);
+		$self->{_assembly}->{species}->sub_species(join(' ', @ss)) if scalar(@ss) > 0;
+
 		$line = $self->_readtag();
 	} else {
 		$self->throw("Required <ORGANISM> missing");
 	}
 
 	if($line =~ /<LINEAGE>([^<]*)<\/LINEAGE>/o) {
-		@{$header->{'LINEAGE'}}
-			= reverse(split(/\s*;\s*/o, $1));
+		$self->{_assembly}->{species}->classification(
+			$self->{_assembly}->{species}->species(),
+			reverse(split(/\s*;\s*/o, $1))
+		);
 		$line = $self->_readtag();
 	} else {
 		$self->throw("Required <LINEAGE> missing");
 	}
 
 	if($line =~ /<SEQ_GROUP>([^<]*)<\/SEQ_GROUP>/o) {
-		$header->{'SEQ_GROUP'} = $1;
+		# ingnored
 		$line = $self->_readtag();
 	} else {
 		$self->throw("Required <SEQ_GROUP> missing");
 	}
 
 	while($line =~ /<KEYWORDS>[^<]*<\/KEYWORDS>/o) {
-		push(@{$header->{'KEYWORDS'}}, $1);
+		push(@{$self->{_assembly}->{keywords}}, $1);
 		$line = $self->_readtag();
 	}
 
 	while($line =~ /<GB_DESCRIPTION>([^<]+)<\/GB_DESCRIPTION>/o) {
-		push(@{$header->{'GB_DESCRIPTION'}},$1);
+		push(@{$self->{_assembly}->{gb_desc}},$1);
 		$line = $self->_readtag();
 	}
 
 	while($line =~ /<GB_COMMENT>([^<]+)<\/GB_COMMENT>/o) {
-		push(@{$header->{'GB_COMMENT'}}, $1);
+		push(@{$self->{_assembly}->{gb_comment}}, $1);
 		$line = $self->_readtag();
 	}
 
 	if(my %h = ($line =~ /<AUTHOR_LIST(?:\s*(\w+)\s*=\s*"([^"]+)"\s*)*>/o)) {
-		$header->{'AUTHOR_LIST'}=$h{'CONTACT'};
+		#$header->{'AUTHOR_LIST'}=$h{'CONTACT'};
+		# Ignored
 		while($line !~ /<\/AUTHOR_LIST>/o) {
 			$self->_readtag();
 		}
@@ -701,7 +484,7 @@ sub _process_header
 	}
 
 	if($line =~ /<\/HEADER>/o) {
-		return $header;
+		return;
 	}
 
 	$self->throw("Reached end of header\n");
@@ -710,7 +493,6 @@ sub _process_header
 sub _process_gene_list
 {
 	my($self) = @_;
-	my $gene;
 	my $line;
 
 	$line = $self->_readline();
@@ -722,7 +504,7 @@ sub _process_gene_list
 	$line = $self->_readline();
 	if($line =~ /<PROTEIN_CODING>/o) {
 		$self->_pushback($line);
-		$gene->{'PROTEIN_CODING'} = $self->_process_protein_coding();
+		$self->_process_protein_coding();
 		$line = $self->_readline();
 	} else {
 		$self->throw("Required <PROTEIN_CODING> missing");
@@ -730,14 +512,14 @@ sub _process_gene_list
 
 	if($line =~ /<RNA_GENES>/o) {
 		$self->_pushback($line);
-		$gene->{'RNA_GENES'} = $self->_process_rna_genes();
+		$self->_process_rna_genes();
 		$line = $self->_readline();
 	} else {
 		$self->throw("Required <RNA_GENES> missing");
 	}
 
 	if($line =~ /<\/GENE_LIST>/o) {
-		return $gene;
+		return;
 	}
 
 	$self->throw("Reached end of _process_gene_list");
@@ -746,7 +528,6 @@ sub _process_gene_list
 sub _process_protein_coding
 {
 	my ($self) = @_;
-	my $prot;
 	my $line = $self->_readline();
 
 	if($line !~ /<PROTEIN_CODING>/o) {
@@ -755,14 +536,14 @@ sub _process_protein_coding
 	}
 
 	$line = $self->_readline();
-	while($line =~ /<TU>/o) {
+	while($line and $line =~ /<TU>/o) {
 		$self->_pushback($line);
-		push(@{$prot->{'TU'}}, $self->_process_tu());
+		$self->_process_tu();
 		$line = $self->_readline();
 	}
 
 	if($line =~ /<\/PROTEIN_CODING>/o) {
-		return $prot;
+		return;
 	}
 
 	$self->throw("Reached end of _process_protein_coding");
@@ -847,142 +628,214 @@ sub _process_tu
 {
 	my($self) = @_;
 	my $line = $self->_readline();
-	my $tu;
 
-	if($line !~ /<TU>/o) {
-		$self->throw("Process_tu called when no <TU> tag");
-	}
+	try {
+		my $tu = new Bio::Seq::RichSeq(-strand => 1);
+		$tu->species( $self->{_assembly}->{species} );
 
-	$line = $self->_readtag();
-	if ($line =~ /<FEAT_NAME>([\w\.]+)<\/FEAT_NAME>/o) {
-		$tu->{'FEAT_NAME'} = $1;
+		# Add the source tag, so we can add the GO annotations to it
+		$tu->add_SeqFeature(new Bio::SeqFeature::Generic(-source_tag => 'TIGR', -primary_tag => 'source'));
+		
+		if($line !~ /<TU>/o) {
+			$self->throw("Process_tu called when no <TU> tag");
+		}
+
 		$line = $self->_readtag();
-	} else {
-		$self->throw("Invalid Feat_Name");
-	}
+		if ($line =~ /<FEAT_NAME>([\w\.]+)<\/FEAT_NAME>/o) {
+			$tu->accession_number($1);
+			$tu->add_secondary_accession($1);
+			$line = $self->_readtag();
+		} else {
+			$self->throw("Invalid Feat_Name");
+		}
 
-	while($line =~ /<GENE_SYNONYM>/o) {
-		$line = $self->_readtag();
-	}
+		while($line =~ /<GENE_SYNONYM>/o) {
+			# ignore
+			$line = $self->_readtag();
+		}
 	
-	while($line =~ /<CHROMO_LINK>([\w\.]+)<\/CHROMO_LINK>/o) {
-		 push @{$tu->{'CHROMO_LINK'}}, $1;
-		 $line = $self->_readtag();
-	}
+		while($line =~ /<CHROMO_LINK>\s*([\w\.]+)\s*<\/CHROMO_LINK>/o) {
+			$tu->add_secondary_accession($1);
+			$line = $self->_readtag();
+		}
 
-	if ($line =~ /<DATE>([^>]+)<\/DATE>/o) {
-		$tu->{'DATE'} = $1;
-		$line = $self->_readline();
-	} else {
-		$self->throw("Invalid Date");
-	}
-
-	if ($line =~ /<GENE_INFO>/o) {
-		$self->_pushback($line);
-		$tu->{'GENE_INFO'} = $self->_process_gene_info();
-		$line = $self->_readline();
-	} else {
-		$self->throw("Invalid Gene_Info");
-	}
-
-	if($line =~ /<COORDSET>/o) {
-		$self->_pushback($line);
-		$tu->{'COORDSET'} = $self->_process_coordset();
-		$line = $self->_readline();
-	} else {
-		$self->throw("Invalid Coordset");
-	}
-
-	if($line =~ /<MODEL[^>]*>/o) {
-		do {
-			$self->_pushback($line);
-			push(@{$tu->{'MODEL'}},
-				$self->_process_model());
+		if ($line =~ /<DATE>([^>]*)<\/DATE>/o) {
+			$tu->add_date($1) if $1 and $1 !~ /^\s*$/o;
 			$line = $self->_readline();
-		} while($line =~ /<MODEL[^>]*>/o);
-		$self->_pushback($line);
-		$line = $self->_readtag();
-	} else {
-		$self->throw("Expected <MODEL> not found");
-	}
+		} else {
+			#$self->throw("Invalid Date: $line");
+		}
 
-	if($line =~ /<TRANSCRIPT_SEQUENCE>/o) {
-		$line = $self->_readtag();
-	}
+		if ($line =~ /<GENE_INFO>/o) {
+			$self->_pushback($line);
+			$self->_process_gene_info($tu);
+			$line = $self->_readline();
+		} else {
+			$self->throw("Invalid Gene_Info");
+		}
 
-	if($line =~ /<GENE_EVIDENCE>/o) {
-		$line = $self->_readtag();
-	}
+		my $source;
+		my $end5;
+		my $end3;
+		if($line =~ /<COORDSET>/o) {
+			$self->_pushback($line);
+			my $cs = $self->_process_coordset();
+	
+			$end5 = $cs->{end5};
+			$end3 = $cs->{end3};
 
-	while($line =~ /<URL[^>]*>[^<]*<\/URL>/o) {
-		$line = $self->_readtag();
-	}
+			my $length = $end3 - $end5;
+			my $strand = $length <=> 0;
+			$length = $length * $strand;
+			$length++; # Correct for starting at 1, not 0
 
-	if($line =~ /<\/TU>/o) {
-		return $tu;
-	} else {
-		$self->throw("Expected </TU> not found: $line");
-	}
+			# Add X filler sequence
+			$tu->seq('X' x $length);
+
+			# Get the source tag:
+			my($source) = grep { $_->primary_tag() eq 'source' } $tu->get_SeqFeatures();
+
+			# Set the start and end values
+			$source->start(1);
+			$source->end($length);
+			$source->strand(1);
+
+			# Add a bunch of tags to it
+			$source->add_tag_value(clone      => $self->{_assembly}->{clone});
+			$source->add_tag_value(clone_name => $self->{_assembly}->{clone_name});
+			$source->add_tag_value(end5       => $end5);
+			$source->add_tag_value(end3       => $end3);
+			$source->add_tag_value(chromosome => $self->{_assembly}->{chromosome});
+			$source->add_tag_value(strand     => ( $strand == 1 ? 'positive' : 'negative' ));
+
+			$line = $self->_readline();
+		} else {
+			$self->throw("Invalid Coordset");
+		}
+
+		if($line =~ /<MODEL[^>]*>/o) {
+			do {
+				$self->_pushback($line);
+				$self->_process_model($tu, $end5, $end3);
+				$line = $self->_readline();
+			} while($line =~ /<MODEL[^>]*>/o);
+			$self->_pushback($line);
+			$line = $self->_readtag();
+		} else {
+			$self->throw("Expected <MODEL> not found");
+		}
+		
+		if($line =~ /<TRANSCRIPT_SEQUENCE>/o) {
+			my @chunks;
+			$line = $self->_readline();
+			while ($line =~ /^\s*([ACGT]+)\s*$/o) {
+				push( @chunks, $1 );
+				$line = $self->_readline();
+			}
+			#	$line = $self->_readline();
+		}
+		
+		if($line =~ /<GENE_EVIDENCE>/o) {
+			$line = $self->_readtag();
+		}
+		
+		while($line =~ /<URL[^>]*>[^<]*<\/URL>/o) {
+			$line = $self->_readtag();
+		}
+		
+		if($line =~ /<\/TU>/o) {
+			push(@{$self->{_sequences}}, $tu);
+			return;
+		} else {
+			$self->throw("Expected </TU> not found: $line");
+		}
+	} catch Bio::Root::OutOfRange with {
+		my $E = shift;
+		$self->warn(sprintf("One sub location of a sequence is invalid near line $.\: %s", $E->text()));
+		$line = $self->_readline() until $line =~ /<\/TU>/o;
+		return;
+	};
 }
 
 sub _process_gene_info
 {
-	my($self) = @_;
+	my($self, $tu) = @_;
 	my $line = $self->_readline();
-	my $geneinfo;
 
 	$self->throw("Invalid Gene Info: $line") if $line !~ /<GENE_INFO>/o;
 	$line = $self->_readline();
 
-	if($line =~ /<LOCUS>([^>]*)<\/LOCUS>/o) {
-		$geneinfo->{'LOCUS'} = $1;
+	if($line =~ /<LOCUS>\s*([\w\.]+)\s*<\/LOCUS>/o) {
+		$tu->accession_number($1);
+		$tu->add_secondary_accession($1);
 		$line = $self->_readline();
-	} else {
-		$self->throw("Invalid Locus");
-	}
-
-	if($line =~ /<ALT_LOCUS>([^>]+)<\/ALT_LOCUS>/o) {
-		$geneinfo->{'ALT_LOCUS'} = $1;
-		$line = $self->_readline();
-	}
-
-	if($line =~ /<PUB_LOCUS>([^>]+)<\/PUB_LOCUS>/o) {
-		$geneinfo->{'PUB_LOCUS'} = $1;
+	} elsif( $line =~ /<LOCUS>.*<\/LOCUS>/o) {
+		# We should throw an error, but TIGR doesn't alwasy play
+		# nice with adhering to their dtd
 		$line = $self->_readtag();
 	} else {
+		#$self->throw("Invalid Locus: $line");
+	}
+
+	if($line =~ /<ALT_LOCUS>\s*([\w\.]+)\s*<\/ALT_LOCUS>/o) {
+		$tu->accession_number($1);
+		$tu->add_secondary_accession($1);
+		$line = $self->_readline();
+	}
+
+	if($line =~ /<PUB_LOCUS>\s*([\w\.]+)\s*<\/PUB_LOCUS>/o) {
+		$tu->accession_number($1);
+		$tu->add_secondary_accession($1);
+		$line = $self->_readtag();
+	} elsif( $line =~ /<PUB_LOCUS>.*<\/PUB_LOCUS>/o) {
+		$line = $self->_readtag();
 #		$self->throw("Invalid Pub_Locus");
 	}
 
-	if($line =~ /<COM_NAME\s+CURATED="(\d+)">([^>]+)<\/COM_NAME>/o) {
-		$geneinfo->{'CURATED'} = $1;
-		$geneinfo->{'COM_NAME'} = $2;
+	if($line =~ /<GENE_NAME.*>.*<\/GENE_NAME>/o) {
+		# Skip the GENE_NAME
+		$line = $self->_readtag();
+	}
+
+	if(my($attr, $value) = ($line =~ /<COM_NAME([^>]*)>([^>]+)<\/COM_NAME>/o)) {
+		#%attribs = ($attr =~ /(\w+)\s*=\s+"(.*?)"/og);
+		#$geneinfo->{'CURATED'} = $attribs{CURATED};
+		#$geneinfo->{IS_PRIMARY} = $attribs{IS_PRIMARY}
+		# TODO: add a tag on sources for curated
+		$tu->desc($value);
 		$line = $self->_readtag();
 	} else {
-		$self->throw("invalid com_name");
+		$self->throw("invalid com_name: $line");
 	}
 
 	while($line =~ /<COMMENT>([^<]+)<\/COMMENT>/o) {
-		push(@{$geneinfo->{'COMMENTS'}}, $1);
+		my $comment = new Bio::Annotation::Comment(
+			-text => $1
+		);
+		$tu->annotation()->add_Annotation('comment', $comment);
 		$line = $self->_readtag();
 	}
 
 	while($line =~ /<PUB_COMMENT>([^<]+)<\/PUB_COMMENT>/o) {
-		push(@{$geneinfo->{'COMMENTS'}}, $1);
+		my $comment = new Bio::Annotation::Comment(
+			-text => $1
+		);
+		$tu->annotation()->add_Annotation('comment', $comment);
 		$line = $self->_readtag();
 	}
 
 	if($line =~ /<EC_NUM>([\w\-\\\.]+)<\/EC_NUM>/o) {
-		$geneinfo->{'EC_NUM'} = $1;
+		#$geneinfo->{'EC_NUM'} = $1;
 		$line = $self->_readtag();
 	}
 
-	if($line =~ /<GENE_SYM>([^<]+)<\/GENE_SYM>/o) {
-		$geneinfo->{'GENE_SYM'} = $1;
+	if($line =~ /<GENE_SYM>\s*([^<]+)\s*<\/GENE_SYM>/o) {
+		#$tu->add_secondary_accession($1);
 		$line = $self->_readtag();
 	}
 
 	if($line =~ /<IS_PSEUDOGENE>([^>]+)<\/IS_PSEUDOGENE>/o) {
-		$geneinfo->{'IS_PSEUDOGENE'} = $1;
+		#$geneinfo->{'IS_PSEUDOGENE'} = $1;
 		$line = $self->_readtag();
 	} else {
 		$self->throw("invalid is_pseudogene: $line");
@@ -993,47 +846,99 @@ sub _process_gene_info
 	}
 
 	if($line =~ /<DATE>([^>]+)<\/DATE>/o) {
-		$geneinfo->{'DATE'} = $1;
+		#$geneinfo->{'DATE'} = $1;
 		$line = $self->_readtag();
 	}
 
-	if($line =~ /<GENE_ONTOLOGY>/o) {
-		until($line =~ /<\/GENE_ONTOLOGY>/o) {
-			$line = $self->_readline();
+	while($line =~ /<GENE_ONTOLOGY>/o) {
+		# TODO: Add GO annotation
+		my( $assignment, $term, $type ) = ( $line =~
+			/<GENE_ONTOLOGY>\s*
+			   <GO_ID\s+ASSIGNMENT\s*=\s*"GO:(\d+)">\s*
+			   <DATE>.*<\/DATE>\s*
+			   <GO_TERM>([^<]+)<\/GO_TERM>\s*
+			   <GO_TYPE>([^<]+)<\/GO_TYPE>\s*
+			   .*
+			   <\/GO_ID>\s*
+			 <\/GENE_ONTOLOGY>\s*
+			/osx
+		);
+		if($type) {
+			# Get the source tag
+			my($source) = grep { $_->primary_tag() eq 'source' } $tu->get_SeqFeatures();
+
+			# Add the GO Annotation
+			$source->add_tag_value(
+				GO => "ID: $assignment; Type: $type; $term"
+			);
 		}
 		$line = $self->_readline();
 	}
 	
 	if($line =~ /<\/GENE_INFO/o) {
-		return $geneinfo;
+		return;
 	}
 
 	$self->throw("unexpected end of gene_info");
 }
 
+sub _build_location
+{
+	my($self, $end5, $end3, $length, $cs) = @_;
+	
+	# Find the start and end of the location
+	# relative to the sequence.
+	my $start = abs( $end5 - $cs->{end5} ) + 1;
+	my $end   = abs( $end5 - $cs->{end3} ) + 1;
+
+	# Do some bounds checking:
+	if( $start < 1 ) {
+		throw Bio::Root::OutOfRange(
+			-text => "locations' start( $start) must be >= 1"
+		);
+	} elsif( $end > $length ) {
+		throw Bio::Root::OutOfRange(
+			-text => "locations' end( $end ) must be <= length( $length )"
+		);
+	} elsif( $start > $end ) {
+		throw Bio::Root::OutOfRange(
+			-text => "locations' start ( $start ) must be < end ( $end ) $end5, $end3, $cs->{end5}, $cs->{end3}"
+		);
+	}
+
+	return new Bio::Location::Simple( -start => $start, -end => $end, -strand => 1 );
+}
+
 sub _process_model
 {
-	my($self) = @_;
+	my($self, $tu, $end5, $end3) = @_;
 	my $line;
-	my $model;
+	my( $source ) = grep { $_->primary_tag() eq 'source' } $tu->get_SeqFeatures();
+	my $model = new Bio::SeqFeature::Generic(
+		-source_tag  => 'TIGR',
+		-primary_tag => 'MODEL',
+	);
 
 	$line = $self->_readline();
 	if($line !~ /<MODEL ([^>]+)>/o) {
 		$self->throw("Invalid Model: $line")
 	}
 	my %attribs = ($1 =~ /(\w+)\s*=\s*"([^"]*)"/og);
-	$model->{'CURATED'} = $attribs{'CURATED'};
+	#$model->{'CURATED'} = $attribs{'CURATED'};
+	# TODO: Add tag to model
 	$line = $self->_readline();
 
-	if($line =~ /<FEAT_NAME>([^>]+)<\/FEAT_NAME>/o) {
-		$model->{'FEAT_NAME'} = $1;
+	if($line =~ /<FEAT_NAME>\s*([\w\.]+)\s*<\/FEAT_NAME>/o) {
+		$model->add_tag_value( feat_name => $1 );
+		$tu->add_secondary_accession($1);
 		$line = $self->_readline();
 	} else {
 		$self->throw("Invalid Feature Name: $line");
 	}
 
-	if($line =~ /<PUB_LOCUS>([^>]+)<\/PUB_LOCUS>/o) {
-		$model->{'PUB_LOCUS'} = $1;
+	if($line =~ /<PUB_LOCUS>\s*([\w\.]+)\s*<\/PUB_LOCUS>/o) {
+		$model->add_tag_value( pub_locus => $1 );
+		$tu->add_secondary_accession($1);
 		$line = $self->_readline();
 	} else {
 #		$self->throw("Invalid Pub_Locus: $line");
@@ -1041,17 +946,16 @@ sub _process_model
 
 	if($line =~ /<CDNA_SUPPORT>/o) {
 		$self->_pushback($line);
-		$self->_process_cdna_support();
+		$self->_process_cdna_support( $model );
 		$line = $self->_readline();
 	}
 
 	while($line =~ /<CHROMO_LINK>([^>]+)<\/CHROMO_LINK>/o) {
-		push @{$model->{'CHROMO_LINK'}}, $1;
+		$model->add_tag_value( chromo_link => $1 );
 		$line = $self->_readline();
 	} 
 
 	if($line =~ /<DATE>([^>]+)<\/DATE>/o) {
-		$model->{'DATE'} = $1;
 		$line = $self->_readline();
 	} else {
 		$self->throw("Invalid Date: $line");
@@ -1059,16 +963,37 @@ sub _process_model
 
 	if($line =~ /<COORDSET>/o) {
 		$self->_pushback($line);
-		$model->{'COORDSET'} = $self->_process_coordset();
+		my $cs = $self->_process_coordset();
+		my $loc = $self->_build_location($end5, $end3, $tu->length(), $cs);
+		
+		$model->start( $loc->start() );
+		$model->end(   $loc->end()   );
 		$line = $self->_readline();
 	} else {
 		$self->throw("Invalid Coordset: $line");
 	}
 
+	my $exon = new Bio::SeqFeature::Generic(
+		-source_tag  => 'TIGR',
+		-primary_tag => 'EXON',
+		-location => new Bio::Location::Split(),
+		-tags => [ locus => $tu->accession_number() ],
+	);
+	$exon->add_tag_value( model => $model->get_tag_values('feat_name') );
+
+	my $cds  = new Bio::SeqFeature::Generic(
+		-source_tag  => 'TIGR',
+		-primary_tag => 'CDS',
+		-location => new Bio::Location::Split(),
+		-tags => [ locus => $tu->accession_number() ],
+	);
+	$cds->add_tag_value( model => $model->get_tag_values('feat_name') );
+	my $utr = [];
+
 	if($line =~ /<EXON>/o) {
 		do {
 			$self->_pushback($line);
-			push(@{$model->{'EXON'}}, $self->_process_exon());
+			$self->_process_exon( $tu, $exon, $cds, $utr, $end5, $end3 );
 			$line = $self->_readline();
 		} while($line =~ /<EXON>/o);
 	} else {
@@ -1079,13 +1004,22 @@ sub _process_model
 		$line = $self->_readline();
 	}
 
-	return $model;
-}
 
+	$_->add_tag_value( model => $model->get_tag_values('feat_name') )
+		foreach @$utr;
+
+	# Add the model, EXONs, CDS, and UTRs
+	$tu->add_SeqFeature($model) if $model and $model->start() >= 1;
+	$tu->add_SeqFeature($exon)  if $exon  and scalar($exon->location()->each_Location()) >= 1;
+	$tu->add_SeqFeature($cds)   if $cds   and scalar($cds->location()->each_Location()) >= 1;
+	$tu->add_SeqFeature(@$utr);
+
+	return;
+}
 
 sub _process_cdna_support
 {
-	my($self) = @_;
+	my($self, $model) = @_;
 	my $line = $self->_readline();
 
 	if($line !~ /<CDNA_SUPPORT>/o) {
@@ -1093,18 +1027,34 @@ sub _process_cdna_support
 		             "but no <CDNA_SUPPORT> in the stream");
 	}
 
-	# TODO Add CDNA Support
-	do {
+	$line = $self->_readline();
+
+	while( $line =~ /<ACCESSION([^>]+)>(.*)<\/ACCESSION>/o) {
+		# Save the text
+		my $desc = $2;
+		
+		# Get the element's attributes
+		my %attribs = ($1 =~ /(\w+)\s*=\s*"([^"]*)"/og);
+
+		# Add the tag to the model
+		$model->add_tag_value(
+			cdna_support => "DBXRef: $attribs{DBXREF}; $desc"
+		);
+
 		$line = $self->_readline();
-	} while($line !~ /<\/CDNA_SUPPORT>/o);
+	}
+
+	if( $line =~ /<\/CDNA_SUPPORT>/o) {
+		return;
+	}
+	$self->throw("reached end of _process_cdna_support");
 }
 
 
 sub _process_exon
 {
-	my($self) = @_;
+	my($self, $tu, $exon, $cds, $utr, $end5, $end3 ) = @_;
 	my $line = $self->_readline();
-	my $exon;
 
 	if($line !~ /<EXON>/o) {
 		$self->throw("Bio::SeqIO::tigr::_process_exon called ",
@@ -1113,14 +1063,14 @@ sub _process_exon
 
 	$line = $self->_readtag();
 	if($line =~ /<FEAT_NAME>([^<]+)<\/FEAT_NAME>/o) {
-		$exon->{'FEAT_NAME'} = $1;
+		# Ignore
 		$line = $self->_readtag();
 	} else {
 		$self->throw("Required <FEAT_NAME> missing");
 	}
 
 	if($line =~ /<DATE>([^<]+)<\/DATE>/o) {
-		$exon->{'DATE'} = $1;
+		# Ignore
 		$line = $self->_readtag();
 	} else {
 		$self->throw("Required <DATE> missing");
@@ -1128,7 +1078,9 @@ sub _process_exon
 
 	if($line =~ /<COORDSET>/o) {
 		$self->_pushback($line);
-		$exon->{'COORDSET'} = $self->_process_coordset();
+		my $cs = $self->_process_coordset();
+		my $loc = $self->_build_location($end5, $end3, $tu->length(), $cs);
+		$exon->location()->add_sub_Location($loc);
 		$line = $self->_readline();
 	} else {
 		$self->throw("Required <COORDSET> missing");
@@ -1136,18 +1088,18 @@ sub _process_exon
 
 	if($line =~ /<CDS>/o) {
 		$self->_pushback($line);
-		$exon->{'CDS'} = $self->_process_cds();
+		$self->_process_cds($tu, $end5, $end3, $cds);
 		$line = $self->_readline();
 	}
 
 	if($line =~ /<UTRS>/o) {
 		$self->_pushback($line);
-		$exon->{'UTRS'} = $self->_process_utrs();
+		$self->_process_utrs($tu, $end5, $end3, $utr);
 		$line = $self->_readline();
 	}
 
 	if($line =~ /<\/EXON>/o) {
-		return $exon;
+		return;
 	}
 
 	$self->throw("Reached End of Bio::SeqIO::tigr::_process_exon");
@@ -1155,9 +1107,8 @@ sub _process_exon
 
 sub _process_cds
 {
-	my($self) = @_;
+	my($self, $tu, $end5, $end3, $cds) = @_;
 	my $line = $self->_readline();
-	my $cds;
 
 	if($line !~ /<CDS>/o) {
 		$self->throw("Bio::SeqIO::tigr::_process_cda_support called ",
@@ -1166,14 +1117,14 @@ sub _process_cds
 	
 	$line = $self->_readtag();
 	if($line =~ /<FEAT_NAME>([^<]+)<\/FEAT_NAME>/o) {
-		$cds->{'FEAT_NAME'} = $1;
+		#$cds->{'FEAT_NAME'} = $1;
 		$line = $self->_readtag();
 	} else {
 		$self->throw("Required <FEAT_NAME> missing");
 	}
 
 	if($line =~ /<DATE>([^<]+)<\/DATE>/o) {
-		$cds->{'DATE'} = $1;
+		#$cds->{'DATE'} = $1;
 		$line = $self->_readtag();
 	} else {
 		$self->throw("Required <DATE> missing");
@@ -1181,14 +1132,16 @@ sub _process_cds
 
 	if($line =~ /<COORDSET>/o) {
 		$self->_pushback($line);
-		$cds->{'COORDSET'} = $self->_process_coordset();
-		$line = $self->_readtag();
+		my $cs = $self->_process_coordset();
+		my $loc = $self->_build_location($end5, $end3, $tu->length(), $cs);
+		$cds->location()->add_sub_Location($loc);
+		$line = $self->_readline();
 	} else {
 		$self->throw("Required <COORDSET> missing");
 	}
 
 	if($line =~ /<\/CDS>/o) {
-		return $cds;
+		return;
 	}
 
 	$self->throw("Reached onf of Bio::SeqIO::tigr::_process_cds");
@@ -1196,9 +1149,8 @@ sub _process_cds
 
 sub _process_utrs
 {
-	my($self) = @_;
+	my($self, $tu, $end5, $end3, $utrs) = @_;
 	my $line = $self->_readline();
-	my $utrs;
 
 	if($line !~ /<UTRS/o) {
 		$self->throw("Bio::SeqIO::tigr::_process_utrs called but no ",
@@ -1209,11 +1161,11 @@ sub _process_utrs
 	while($line !~ /<\/UTRS>/o) {
 		$self->_pushback($line);
 		if($line =~ /<LEFT_UTR>/o) {
-			push(@{$utrs->{'LEFT_UTR'}}, $self->_process_left_utr());
+			$self->_process_left_utr($tu, $end5, $end3, $utrs);
 		} elsif ($line =~ /<RIGHT_UTR>/o) {
-			push(@{$utrs->{'RIGHT_UTR'}}, $self->_process_right_utr());
+			$self->_process_right_utr($tu, $end5, $end3, $utrs);
 		} elsif ($line =~ /<EXTENDED_UTR>/o) {
-			push(@{$utrs->{'EXTENDED_UTR'}}, $self->_process_ext_utr());
+			$self->_process_ext_utr($tu, $end5, $end3, $utrs);
 		} else {
 			$self->throw("Unexpected tag");
 		}
@@ -1229,7 +1181,7 @@ sub _process_utrs
 
 sub _process_left_utr
 {
-	my($self) = @_;
+	my($self, $tu, $end5, $end3, $utrs) = @_;
 	my $line = $self->_readline();
 	my $coordset;
 
@@ -1241,21 +1193,31 @@ sub _process_left_utr
 	$line = $self->_readtag();
 	if($line =~ /<COORDSET>/o) {
 		$self->_pushback($line);
-		$coordset = $self->_process_coordset();
+		my $cs = $self->_process_coordset();
+		my $loc = $self->_build_location($end5, $end3, $tu->length(), $cs);
+
+		push(@$utrs, new Bio::SeqFeature::Generic(
+		        -source_tag  => 'TIGR',
+				-primary_tag => 'LEFT_UTR',
+				-strand => 1,
+				-start => $loc->start(),
+				-end   => $loc->end()
+		));
+
+		$line = $self->_readline();
 	} else {
 		$self->throw("Required <COORDSET> missing");
 	}
 
-	$line = $self->_readline();
 	if($line =~ /<\/LEFT_UTR>/o) {
-		return $coordset;
+		return;
 	}
 	$self->throw("Reached end of Bio::SeqIO::tigr::_process_left_utr");
 }
 
 sub _process_right_utr
 {
-	my($self) = @_;
+	my($self, $tu, $end5, $end3, $utrs) = @_;
 	my $line = $self->_readline();
 	my $coordset;
 
@@ -1268,11 +1230,23 @@ sub _process_right_utr
 	if($line =~ /<COORDSET>/o) {
 		$self->_pushback($line);
 		$coordset = $self->_process_coordset();
+		$self->_pushback($line);
+		my $cs = $self->_process_coordset();
+		my $loc = $self->_build_location($end5, $end3, $tu->length(), $cs);
+
+		push(@$utrs, new Bio::SeqFeature::Generic(
+		        -source_tag  => 'TIGR',
+				-primary_tag => 'RIGHT_UTR',
+				-strand => 1,
+				-start => $loc->start(),
+				-end   => $loc->end()
+		));
+
+		$line = $self->_readline();
 	} else {
 		$self->throw("Required <COORDSET> missing");
 	}
 
-	$line = $self->_readline();
 	if($line =~ /<\/RIGHT_UTR>/o) {
 		return $coordset;
 	}
@@ -1281,7 +1255,7 @@ sub _process_right_utr
 
 sub _process_ext_utr
 {
-	my($self) = @_;
+	my($self, $tu, $end5, $end3, $utrs) = @_;
 	my $line = $self->_readline();
 	my $coordset;
 
@@ -1293,12 +1267,22 @@ sub _process_ext_utr
 	$line = $self->_readtag();
 	if($line =~ /<COORDSET>/o) {
 		$self->_pushback($line);
-		$coordset = $self->_process_coordset();
+		my $cs = $self->_process_coordset();
+		my $loc = $self->_build_location($end5, $end3, $tu->length(), $cs);
+
+		push(@$utrs, new Bio::SeqFeature::Generic(
+		        -source_tag  => 'TIGR',
+				-primary_tag => 'EXTENDED_UTR',
+				-strand => 1,
+				-start => $loc->start(),
+				-end   => $loc->end()
+		));
+
+		$line = $self->_readline();
 	} else {
 		$self->throw("Required <COORDSET> missing");
 	}
 
-	$line = $self->_readline();
 	if($line =~ /<\/EXTENDED_UTR>/o) {
 		return $coordset;
 	}
