@@ -88,14 +88,16 @@ BEGIN {
     if( $@ ) { $HasInMemory = 0 }
     else { $HasInMemory = 1 }
 }
+
+use Bio::AnnotationCollectionI;
 use Bio::RangeI;
 use Bio::Seq;
 
 use Carp;
 
-@ISA = qw(Bio::RangeI);
+@ISA = qw(Bio::RangeI Bio::AnnotationCollectionI);
 
-=head1 SeqFeatureI specific methods
+=head1 Bio::SeqFeatureI specific methods
 
 New method interfaces.
 
@@ -108,7 +110,6 @@ New method interfaces.
  Function: Returns an array of sub Sequence Features
  Returns : An array
  Args    : none
-
 
 =cut
 
@@ -169,84 +170,6 @@ sub source_tag{
    $self->throw_not_implemented();
 }
 
-=head2 has_tag
-
- Title   : has_tag
- Usage   : $tag_exists = $self->has_tag('some_tag')
- Function: 
- Returns : TRUE if the specified tag exists, and FALSE otherwise
- Args    :
-
-
-=cut
-
-sub has_tag{
-   my ($self,@args) = @_;
-
-   $self->throw_not_implemented();
-
-}
-
-=head2 get_tag_values
-
- Title   : get_tag_values
- Usage   : @values = $self->get_tag_values('some_tag')
- Function: 
- Returns : A list comprising the values of the specified tag.
- Args    : a string
-
-throws an exception if there is no such tag
-
-=cut
-
-sub get_tag_values {
-    shift->throw_not_implemented();
-}
-
-=head2 get_tagset_values
-
- Title   : get_tagset_values
- Usage   : @values = $self->get_tagset_values(qw(label transcript_id product))
- Function: 
- Returns : A list comprising the values of the specified tags, in order of tags
- Args    : A list of strings
-
-does NOT throw an exception if none of the tags are not present
-
-this method is useful for getting a human-readable label for a
-SeqFeatureI; not all tags can be assumed to be present, so a list of
-possible tags in preferential order is provided
-
-=cut
-
-# interface + abstract method
-sub get_tagset_values {
-    my ($self, @args) = @_;
-    my @vals = ();
-    foreach my $arg (@args) {
-        if ($self->has_tag($arg)) {
-            push(@vals, $self->get_tag_values($arg));
-        }
-    }
-    return @vals;
-}
-
-
-
-=head2 get_all_tags
-
- Title   : get_all_tags
- Usage   : @tags = $feat->get_all_tags()
- Function: gives all tags for this feature
- Returns : an array of strings
- Args    : none
-
-
-=cut
-
-sub get_all_tags{
-    shift->throw_not_implemented();
-}
 
 =head2 attach_seq
 
@@ -390,40 +313,6 @@ sub _static_gff_formatter{
    return $static_gff_formatter;
 }
 
-=head1 Bio::RangeI methods
-
-List of interfaces inherited from Bio::RangeI (see L<Bio::RangeI>
-for details).
-
-=cut
-
-=head2 start
-
- Title   : start
- Usage   : $start = $feat->start
- Function: Returns the start coordinate of the feature
- Returns : integer
- Args    : none
-
-
-=head2 end
-
- Title   : end
- Usage   : $end = $feat->end
- Function: Returns the end coordinate of the feature
- Returns : integer
- Args    : none
-
-=head2 strand
-
- Title   : strand
- Usage   : $strand = $feat->strand()
- Function: Returns strand information, being 1,-1 or 0
- Returns : -1,1 or 0
- Args    : none
-
-
-=cut
 
 =head1 Decorating methods
 
@@ -580,65 +469,6 @@ sub spliced_seq {
     return $out;
 }
 
-=head1 RangeI methods
-
-These methods are inherited from RangeI and can be used
-directly from a SeqFeatureI interface. Remember that a 
-SeqFeature is-a RangeI, and so wherever you see RangeI you
-can use a feature ($r in the below documentation).
-
-=head2 overlaps
-
-  Title   : overlaps
-  Usage   : if($feat->overlaps($r)) { do stuff }
-            if($feat->overlaps(200)) { do stuff }
-  Function: tests if $feat overlaps $r
-  Args    : a RangeI to test for overlap with, or a point
-  Returns : true if the Range overlaps with the feature, false otherwise
-
-
-=head2 contains
-
-  Title   : contains
-  Usage   : if($feat->contains($r) { do stuff }
-  Function: tests whether $feat totally contains $r
-  Args    : a RangeI to test for being contained
-  Returns : true if the argument is totaly contained within this range
-
-
-=head2 equals
-
-  Title   : equals
-  Usage   : if($feat->equals($r))
-  Function: test whether $feat has the same start, end, strand as $r
-  Args    : a RangeI to test for equality
-  Returns : true if they are describing the same range
-
-
-=head1 Geometrical methods
-
-These methods do things to the geometry of ranges, and return
-triplets (start, stop, strand) from which new ranges could be built.
-
-=head2 intersection
-
-  Title   : intersection
-  Usage   : ($start, $stop, $strand) = $feat->intersection($r)
-  Function: gives the range that is contained by both ranges
-  Args    : a RangeI to compare this one to
-  Returns : nothing if they do not overlap, or the range that they do overlap
-
-=head2 union
-
-  Title   : union
-  Usage   : ($start, $stop, $strand) = $feat->union($r);
-          : ($start, $stop, $strand) = Bio::RangeI->union(@ranges);
-  Function: finds the minimal range that contains all of the ranges
-  Args    : a range or list of ranges to find the union of
-  Returns : the range containing all of the ranges
-
-=cut
-
 =head2 location
 
  Title   : location
@@ -699,6 +529,77 @@ sub generate_unique_persistent_id {
     require "Bio/SeqFeature/Tools/IDHandler.pm";
     Bio::SeqFeature::Tools::IDHandler->new->generate_unique_persistent_id($self);
 }
+
+=head1 Bio::RangeI methods
+
+These methods are inherited from RangeI and can be used
+directly from a SeqFeatureI interface. Remember that a 
+SeqFeature is-a RangeI, and so wherever you see RangeI you
+can use a feature ($r in the below documentation).
+
+=cut
+
+=head2 start()
+
+ See L<Bio::RangeI>
+
+=head2 end()
+
+ See L<Bio::RangeI>
+
+=head2 strand()
+
+ See L<Bio::RangeI>
+
+=head2 overlaps()
+
+ See L<Bio::RangeI>
+
+=head2 contains()
+
+ See L<Bio::RangeI>
+
+=head2 equals()
+
+ See L<Bio::RangeI>
+
+=head2 intersection()
+
+ See L<Bio::RangeI>
+
+=head2 union()
+
+ See L<Bio::RangeI>
+
+=head1 Bio::AnnotationCollectionI methods
+
+=cut
+
+=head2 has_tag()
+
+ B<Deprecated>.  See L<Bio::AnnotationCollectionI>
+
+=head2 remove_tag()
+
+ B<Deprecated>.  See L<Bio::AnnotationCollectionI>
+
+=head2 add_tag_value()
+
+ B<Deprecated>.  See L<Bio::AnnotationCollectionI>
+
+=head2 get_tag_values()
+
+ B<Deprecated>.  See L<Bio::AnnotationCollectionI>
+
+=head2 get_tagset_values()
+
+ B<Deprecated>.  See L<Bio::AnnotationCollectionI>
+
+=head2 get_all_tags()
+
+ B<Deprecated>.  See L<Bio::AnnotationCollectionI>
+
+=cut
 
 
 
