@@ -161,6 +161,7 @@ sub next_seq {
        $name = $1;
        $seq->division('UNK');       
    }
+   
    $seq->primary_id($1);
    $seq->alphabet('protein');
     # this is important to have the id for display in e.g. FTHelper, otherwise
@@ -254,7 +255,7 @@ sub next_seq {
 	   next;
        }
        #DBLinks
-       elsif (/^DR\s+(\S+)\; (\S+)\; (\S+)[\;\.](.*)$/) {
+       elsif (/^DR\s+(\S+)\;\s+(\S+)\;\s+(\S+)[\;\.](.*)$/) {
 	   my $dblinkobj =  Bio::Annotation::DBLink->new();
 	   $dblinkobj->database($1);
 	   $dblinkobj->primary_id($2);
@@ -262,8 +263,11 @@ sub next_seq {
 	   my $comment = $4;
 	   if(length($comment) > 0) {
 	       # edit comment to get rid of leading space and trailing dot
-	       $comment = s/^\s*(\S+)\..*/$1/;
-	       $dblinkobj->comment($comment);
+	       if( $comment =~ /^\s*(\S+)\./ ) {
+		   $dblinkobj->comment($1);
+	       } else {
+		   $dblinkobj->comment($comment);
+	       }
 	   }
 	   $seq->annotation->add_Annotation('dblink',$dblinkobj);
        }
@@ -368,6 +372,7 @@ sub write_seq {
        # if e.g. the Bio::DB::GenPept module is used as input.
        # Hence, switch to display_id(); _every_ sequence is supposed to have
        # this. HL 2000/09/03
+       $mol =~ s/protein/PRT/;
        $temp_line = sprintf ("%10s     STANDARD;      %3s;   %d AA.",
 			     $seq->display_id(), $mol, $len);
    }
@@ -478,8 +483,11 @@ sub write_seq {
 					    $ref->medline.".","\\s\+\|\$",80);
 	 }
        }
-       $self->_write_line_swissprot_regex("RA   ","RA   ",$ref->authors,"\\s\+\|\$",80);
-       $self->_write_line_swissprot_regex("RT   ","RT   ",$ref->title,"\\s\+\|\$",80);
+       my $author = $ref->authors .';' if($ref->authors);
+       my $title = $ref->title .';' if( $ref->title);
+       
+       $self->_write_line_swissprot_regex("RA   ","RA   ",$author,"\\s\+\|\$",80);
+       $self->_write_line_swissprot_regex("RT   ","RT   ",$title,"\\s\+\|\$",80);
        $self->_write_line_swissprot_regex("RL   ","RL   ",$ref->location,"\\s\+\|\$",80);
        $t++;
    }
@@ -496,19 +504,20 @@ sub write_seq {
        }
    }
 
-   foreach my $dblink ( $seq->annotation->get_Annotations('dblink') ) {
+   foreach my $dblink ( $seq->annotation->get_Annotations('dblink') ) 
+   {
      if (defined($dblink->comment)&&($dblink->comment)) {
-       $self->_print("DR   ",$dblink->database,"; ",$dblink->primary_id,"; ",
-		     $dblink->optional_id,"; ",$dblink->comment,".\n");
+	 $self->_print("DR   ",$dblink->database,"; ",$dblink->primary_id,"; ",
+		       $dblink->optional_id,"; ",$dblink->comment,".\n");
      } elsif($dblink->optional_id) {
-       $self->_print("DR   ",$dblink->database,"; ",$dblink->primary_id,"; ",
-		     $dblink->optional_id,".\n");
+	 $self->_print("DR   ",$dblink->database,"; ",$dblink->primary_id,"; ",
+		       $dblink->optional_id,".\n");
      }
      else {
-	$self->_print("DR   ",$dblink->database,"; ",$dblink->primary_id,"; ",
-		     "-.\n");
-    } 
- }   
+	 $self->_print("DR   ",$dblink->database,"; ",$dblink->primary_id,"; ",
+		       "-.\n");
+     }
+   }   
 
    # if there, write the kw line
    
