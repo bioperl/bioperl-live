@@ -2,7 +2,7 @@
 
 use lib '.';
 
-# $Id: bp_genbank2gff.PLS,v 1.5 2003-07-30 15:17:06 mwilkinson Exp $
+# $Id: bp_genbank2gff.PLS,v 1.6 2003-08-11 20:50:21 mwilkinson Exp $
 use strict;
 use Bio::DB::GFF;
 use Getopt::Long;
@@ -142,6 +142,7 @@ Load a Bio::DB::GFF database from GFF files.
    --pass      <password>    Password for mysql authentication
    --proxy     <proxy>       Proxy server to use for remote access
    --stdout                  direct output to STDOUT
+   --adaptor   <adaptor>     adaptor to use (e.g. biofetch_oracle or biofetch)
     EITHER --file            Arguments that follow are Genbank/EMBL file names
     OR --gb_folder           What follows is a folder full of gb files to process
     OR --accession           Arguments that follow are genbank accession numbers (not gi!)
