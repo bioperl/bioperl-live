@@ -4,8 +4,7 @@ Bio::SearchIO HOWTO
    This document is copyright Jason Stajich, 2002. For reproduction other
    than personal use please contact me at jason-at-bioperl.org
 
-                                  AbDone.
-
+                                  Abstract
 
    This is a HOWTO written in DocBook (SGML) for the reasoning behind the
    creation of the Bio::SearchIO system, how to use it, and how one goes
@@ -19,6 +18,8 @@ Bio::SearchIO HOWTO
    [2]Design
    [3]Parsing with Bio::SearchIO
    [4]Implementation
+   [5]Writing and formatting output
+   [6]Extending SearchIO
 
 Background
 
@@ -108,7 +109,7 @@ the HSPs are > 100 residues and the percent identity is < 75 percent.
 
 You can read up on the Bio::Search::HSP::HSPI object that is produced by
 Bio::SearchIO to see what other methods besides length and percent_identity
-are supported. The best place for this [5]http://doc.bioperl.org which
+are supported. The best place for this [7]http://doc.bioperl.org which
 provides HTML-ified version of the Perl POD (Plain Old Documentation) that
 is embedded in every (well written) Perl module.
 
@@ -186,7 +187,7 @@ blastxml.pm, SearchResultEventBuilder.pm, EventHandlerI.pm (depending on
 what version of the toolkit there may be more modules in there). There is
 also a SearchWriterI.pm and Writer directory in there but we'll save that
 for later. If you don't have the distribution handy you can navigate this at
-the bioperl [6]CVSweb page.
+the bioperl [8]CVSweb page.
 
 Lets use the blast.pm module as an example to describe the relationship of
 the modules in this dir (could have subsituted any of the other format
@@ -221,12 +222,137 @@ have implemented Bio::SearchIO::SearchResultEventBuilder so that it can use
 factories for creating its resulting Bio::Search objects - see
 Bio::SearchIO::hmmer _initialize method for an example of how this can be
 set.
+     _________________________________________________________________
+
+Writing and formatting output
+
+Often people want to write back out a BLAST report for users who are most
+confortable with that output or if you want to visualize the context of a
+weakly aligned region to use human intuition to score the confidence of a
+putative homologue. Bio::SearchIO is for parsing in the data and
+Bio::SearchIO::Writer is for outputting the information. The simpliest way
+to output data as a pseudo-BLAST HTML format is as follows.
+
+   my $writerhtml = new Bio::SearchIO::Writer::HTMLResultWriter();
+   my $outhtml = new Bio::SearchIO(-writer => $writerhtml,
+                                   -file   => ">searchio.html");
+   # get a result from Bio::SearchIO parsing or build it up in memory
+   $out->write_result($result);
+
+   If  you  wanted to get the output as a string rather than write it out
+   to a file, simply use the following.
+     $writerhtml->to_string($result);
+
+   The HTMLResultWriter supports setting your own remote database url for
+   the sequence links in the event you'd like to point to your own SRS or
+   local  HTTP  based  connection  to  the  sequence data, simply use the
+   remote_database_url  method  which  accepts  a  sequence type as input
+   (protein or nucleotide).
+
+   You  can  also  override the id_parser() method to define what are the
+   unique  IDs from these sequence ids in the event you would like to use
+   something  other  than  accession  number  that  is  gleaned  from the
+   sequence string.
+
+   If  your  data  is  instead  stored  in a database you could build the
+   Bio::Search  objects up in memory directly from your database and then
+   use  the  Writer  object to output the data. Currently their is also a
+   Bio::SearchIO::Writer::TextResultWriter  which  supports writing BLAST
+   textfile output.
+     _________________________________________________________________
+
+Extending SearchIO
+
+The framework for Bio::SearchIO is just a starting point for parsing these
+reports and creating objects which represent the information. If you would
+like to create your own set of objects which extend the current
+functionality we have built the system so that it will support this. For
+example, if you've built your own HSP object which supports a special
+operation like, realign_with_sw which might realign the HSP via a
+Smith-Waterman algorithm pulling extra bases from the flanking sequence. You
+might call your module Bio::Search::HSP::RealignHSP and put it in a file
+called Bio/Search/HSP/RealignHSP.pm. Note that you don't have to put this
+file directly in the bioperl src directory - you can create your own local
+directory structure that is in parallel to the bioperl release src code as
+long as you have updated your PERL5LIB to contain your local directory or
+use the 'use lib' directive in your script. Also, you don't have to use the
+namespace Bio::Search::HSP as namespaces don't mean anything about object
+inheritance in perl, but we reccommend you name things in a logical manner
+so that others might read your code and if you feel encouraged to donate
+your code to the project it might easily integrated with existing modules.
+
+So, you're going to write your new special module, you do need to make sure
+it inherits from the base Bio::Search::HSP::HSPI object. Additionally unless
+you want to reimplement all the initialization state in the current
+Bio::Search::HSP::GenericHSP you should just plan to extend that object. You
+need to follow the chained constructor system that we have setup so that the
+arguments are properly processed. Here is a sample of what your code might
+look like (don't forget to write your own POD so that it will be documented,
+I've left it off here to keep things simple).
+
+package Bio::Search::HSP::RealignHSP;
+use strict;
+use Bio::Search::HSP::GenericHSP;
+use vars qw(@ISA); # for inheritance
+@ISA = qw(Bio::Search::HSP::GenericHSP); # RealignHSP inherits from GenericHSP
+
+sub new {
+   my ($class,@args) = @_;
+   my $self = $class->SUPER::new(@args); # chained contructor
+
+   # process the 1 additional argument this object supports
+   my ($ownarg1) = $self->_rearrange([OWNARG1],@args);
+
+  return $self; # remember to pass the object reference back out
+}
+
+sub realign_hsp {
+  my ($self) = @_;
+  # implement my special realign method here
+}
+
+   The  above code gives you a skeleton of how to start to implement your
+   object.  To  register  it so that it is used when the SearchIO systems
+   makes HSPs you just need to call a couple of functions. The code below
+   outlines them.
+
+use Bio::SearchIO;
+use Bio::Search::HSP::HSPFactory;
+use Bio::Search::Hit::HitFactory;
+
+# setup the blast parser, you can do this with and SearchIO parser however
+my $searchio = new Bio::SearchIO(-file => $blastfile,
+                                 -format =>'blast');
+# build HSP factory with a certain type of HSPs to make
+# the default is Bio::Search::HSP::GenericHSP
+my $hspfact = new Bio::Seach::HSP::HSPFactory(-type =>
+                 'Bio::Search::HSP::RealignHSP');
+# if you wanted to replace the Hit factory you can do this as well
+# additionally there is an analagous
+# Bio::Search::Result::ResultFactory for setting custom Result objects
+my $hitfact = new Bio::Seach::Hit::HitFactory(-type =>
+                  'Bio::Search::Hit::SUPERDUPER_Hit');
+$searchio->_eventHandler->register_factory('hsp', $hspfact);
+$searchio->_eventHandler->register_factory('hit', $hitfact);
+
+   We  have  to  register  the  HSPFactory which is the object which will
+   create  HSPI objects, by allowing this to be built by a factory rather
+   than  a  hardcoded  Bio::Search::HSP::GenericHSP->new(...) call we are
+   permitting a user from taking advantage of the whole parsing structure
+   and  the ability to slot their own object into the process rather than
+   reimplementing  very much. We think this is very powerful and is worth
+   the  system  overhead  which may not permit this to be as efficient in
+   parsing as we would like. Future work will hopefully address speed and
+   memory  issues  with  this  parser. Volunteers and improvement code is
+   always welcome.
 
 References
 
-   1. file://localhost/tmp/html-H1br3X#BACKGROUND
-   2. file://localhost/tmp/html-H1br3X#DESIGN
-   3. file://localhost/tmp/html-H1br3X#USE
-   4. file://localhost/tmp/html-H1br3X#IMPLEMENTATION
-   5. http://doc.bioperl.org/
-   6. http://cvs.open-bio.org/cgi-bin/viewcvs/viewcvs.cgi/bioperl-live/Bio/SearchIO/?cvsroot=bioperl
+   1. file://localhost/tmp/html-7vvrkC#BACKGROUND
+   2. file://localhost/tmp/html-7vvrkC#DESIGN
+   3. file://localhost/tmp/html-7vvrkC#USE
+   4. file://localhost/tmp/html-7vvrkC#IMPLEMENTATION
+   5. file://localhost/tmp/html-7vvrkC#OUTPUTTING
+   6. file://localhost/tmp/html-7vvrkC#EXTENDING
+   7. http://doc.bioperl.org/
+   8. http://cvs.open-bio.org/cgi-bin/viewcvs/viewcvs.cgi/bioperl-live/Bio/SearchIO/?cvsroot=bioperl
