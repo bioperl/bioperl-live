@@ -52,9 +52,10 @@ use FileHandle            ();
 @ISA   = qw(Bio::Root::Object);
 
 use strict;
-use vars qw($ID $VERSION $revision);
+use vars qw($ID $VERSION $revision $Timeout);
 $ID = 'Bio::Root::IOManager';
-$VERSION = 0.041;
+$VERSION = 0.042;
+$Timeout = 20;   # Number of seconds to wait for input in read().
 
 ## POD Documentation:
 
@@ -679,7 +680,7 @@ sub fh {
            :                (The -HANDLE parameter is no longer necessary
            :                 since -FILE can now contain a FileHandle ref.)
            :    -WAIT    => integer (number of seconds to wait for input
-           :                before timing out. Default = 3 seconds).
+           :                before timing out. Default = 20 seconds).
            :
  Returns   : string, array, or undef depending on the arguments.
            : If a function reference is supplied, this function will be
@@ -731,7 +732,7 @@ sub read {
 	$self->_rearrange([qw( REC_SEP FUNC WAIT)], @param);
 
     my $fmt = (wantarray ? 'list' : 'string');
-    $wait ||= 3;  # seconds to wait before timing out.
+    $wait ||= $Timeout;  # seconds to wait before timing out.
 
     my $FH = $Util->create_filehandle( -client => $self, @param);
 

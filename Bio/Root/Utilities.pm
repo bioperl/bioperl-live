@@ -11,6 +11,9 @@
 #           Make use of Date::Manip and/or Date::DateCalc as appropriate.
 #
 # MODIFIED:
+#    13 Feb 1999, sac:
+#      * Renamed get_newline_char() to get_newline() since it could be >1 char.
+#
 #    3 Feb 1999, sac:
 #      * Added three new methods: create_filehandle, get_newline_char, taste_file.
 #        create_filehandle represents functionality that was formerly buried
@@ -39,7 +42,6 @@
 package	Bio::Root::Utilities;
 
 use Bio::Root::Global  qw(:data :std);
-#use Bio::Root::Err     qw(:std);
 use Bio::Root::Object  ();
 use Exporter           ();
 use POSIX;
@@ -791,7 +793,7 @@ sub delete {
 
  Usage     : $object->create_filehandle(<named parameters>);
  Purpose   : Create a FileHandle object from a file or STDIN.
-           : Mainly used as a helper method by read() and get_newline_char().
+           : Mainly used as a helper method by read() and get_newline().
  Example   : $data = $object->create_filehandle(-FILE =>'usr/people/me/data.txt')
            :
  Argument  : Named parameters (case-insensitive):
@@ -807,7 +809,7 @@ sub delete {
            : reference that is not a FileHandle ref.
  Comments  : If given a FileHandle reference, this method simply returns it.
 
-See Also :  L<get_newline_char>(), L<Bio::Root:IOManager::read>(),
+See Also :  L<get_newline>(), L<Bio::Root:IOManager::read>(),
 
 =cut
 
@@ -856,25 +858,28 @@ sub create_filehandle {
     return $FH;
   }
 
-=head2 get_newline_char
+=head2 get_newline
 
- Usage     : $object->get_newline_char(<named parameters>);
+ Usage     : $object->get_newline(<named parameters>);
  Purpose   : Determine the character(s) used for newlines in a given file or
-           : input stream. Delegates to Bio::Root::Utilities::get_newline_char()
- Example   : $data = $object->get_newline_char(-CLIENT => $anObj,
+           : input stream. Delegates to Bio::Root::Utilities::get_newline()
+ Example   : $data = $object->get_newline(-CLIENT => $anObj,
            :                                   -FILE =>'usr/people/me/data.txt')
  Argument  : Same arguemnts as for create_filehandle().
  Returns   : Reference to a FileHandle object.   
- Throws    : Propogates and exceptions thrown by Bio::Root::Utilities::get_newline_char().
+ Throws    : Propogates and exceptions thrown by Bio::Root::Utilities::get_newline().
 
-See Also : L<taste_file>(), L<create_filehandle>(), B<Bio::Root::Utilities::get_newline_char>()
+See Also : L<taste_file>(), L<create_filehandle>()
 
 =cut
 
-#---------------------
-sub get_newline_char {
-#---------------------
+#-----------------
+sub get_newline {
+#-----------------
     my($self, @param) = @_;
+
+    return $NEWLINE if defined $NEWLINE;
+
     my($client ) =
 	$self->_rearrange([qw( CLIENT )], @param);
 
@@ -882,7 +887,7 @@ sub get_newline_char {
 
     if(not $client) {  $client = $self;   }
 
-    my $char = $self->taste_file($FH);
+    $NEWLINE = $self->taste_file($FH);
 
     close ($FH) unless $client->{'_input_type'} eq 'STDIN';
     
@@ -897,14 +902,14 @@ sub get_newline_char {
     delete $client->{'_file_owner'};
     delete $client->{'_compressed_file'};
 
-    return $char;
+    return $NEWLINE;
   }
 
 
 =head2 taste_file
 
  Usage     : $object->taste_file( <FileHandle> );
-           : Mainly a utility method for get_newline_char().
+           : Mainly a utility method for get_newline().
  Purpose   : Sample a filehandle to determine the character(s) used for a newline.
  Example   : $char = $Util->taste_file($FH)
  Argument  : Reference to a FileHandle object.
@@ -916,7 +921,7 @@ sub get_newline_char {
            : Warning if cannot determie neewline char(s).
  Comments  : Based on code submitted by Vicki Brown (vlb@deltagen.com).
 
-See Also : L<get_newline_char>()
+See Also : L<get_newline>()
 
 =cut
 

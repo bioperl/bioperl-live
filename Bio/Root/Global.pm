@@ -44,19 +44,19 @@ use Exporter ();
 use vars qw($BASE_YEAR @DAYS @MONTHS);
 
 @ISA       = qw( Exporter );
-@EXPORT_OK = qw($AUTHORITY 
+@EXPORT_OK = qw($AUTHORITY $NEWLINE
 		$DEBUG $MONITOR $TESTING 
 		$DONT_WARN $WARN_ON_FATAL $FATAL_ON_WARN $RECORD_ERR
 		$STRICTNESS $VERBOSITY
 		$CGI $GLOBAL 
-		$BASE_YEAR %ROMAN_NUMS @MONTHS @DAYS
+		$BASE_YEAR %ROMAN_NUMS @MONTHS @DAYS 
 		&roman2int &debug &monitor &testing &dont_warn &record_err
 		&warn_on_fatal &fatal_on_warn &strictness &verbosity
 		);
 
 %EXPORT_TAGS = (
 		
-		std   =>[qw($DEBUG $MONITOR $TESTING 
+		std   =>[qw($DEBUG $MONITOR $TESTING $NEWLINE
 			    $DONT_WARN $WARN_ON_FATAL $FATAL_ON_WARN $RECORD_ERR
 			    $STRICTNESS $VERBOSITY			    
 			    &debug &monitor &testing &dont_warn 
@@ -68,7 +68,7 @@ use vars qw($BASE_YEAR @DAYS @MONTHS);
 
 		devel =>[qw($DEBUG $MONITOR $TESTING $DONT_WARN 
 			    $WARN_ON_FATAL $FATAL_ON_WARN $RECORD_ERR
-			    $STRICTNESS $VERBOSITY			    
+			    $STRICTNESS $VERBOSITY $NEWLINE		    
 			    &debug &monitor &testing &dont_warn 
 			    &strictness &verbosity
 			    &warn_on_fatal &fatal_on_warn)], 
@@ -98,6 +98,7 @@ $STRICTNESS    = 0;
 $VERBOSITY     = 0;
 
 $BASE_YEAR = 1900;
+$NEWLINE   = undef;
 
 %ROMAN_NUMS  = ('1'=>'I',    '2'=>'II',    '3'=>'III',    '4'=>'IV',    '5'=>'V',
 		'6'=>'VI',   '7'=>'VII',   '8'=>'VIII',   '9'=>'IX',   '10'=>'X',
