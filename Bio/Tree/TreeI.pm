@@ -72,17 +72,7 @@ use Bio::Tree::NodeI;
 use vars qw(@ISA);
 use strict;
 
-use Carp;
-
 @ISA = qw(Bio::Tree::NodeI);
-
-sub _abstractDeath {
-  my $self = shift;
-  my $package = ref $self;
-  my $caller = (caller)[1];
-  
-  confess "Abstract method '$caller' defined in interface Bio::Tree::TreeI not implemented by pacakge $package. Not your fault - author of $package should be blamed!";
-}
 
 =head2 get_nodes
 
@@ -97,7 +87,7 @@ sub _abstractDeath {
 
 sub get_nodes{
    my ($self) = @_;
-   $self->_abstractDeath;
+   $self->_abstractDeath('get_nodes');
 }
 
 =head2 get_root_node
@@ -113,7 +103,7 @@ sub get_nodes{
 
 sub get_root_node{
    my ($self) = @_;
-   $self->_abstractDeath;
+   $self->_abstractDeath('get_root_node');
 }
 
 =head2 number_nodes
@@ -138,11 +128,11 @@ sub number_nodes{
 }
 
 
-=head2 branch_length
+=head2 total_branch_length
 
- Title   : branch_length
- Usage   : my $size = $tree->branch_length
- Function: Returns the number of branches 
+ Title   : total_branch_length
+ Usage   : my $size = $tree->total_branch_length
+ Function: Returns the sum of the length of all branches
  Returns : integer
  Args    : none
 
@@ -150,7 +140,7 @@ sub number_nodes{
 
 sub branch_length {
    my ($self) = @_;
-   $self->_abstractDeath;
+   $self->_abstractDeath('branch_length');
 }
 
 =head2 height

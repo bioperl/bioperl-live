@@ -77,7 +77,7 @@ use strict;
 use Bio::Root::Root;
 use Bio::Tree::TreeI;
 
-@ISA = qw(Bio::Tree::TreeI Bio::Root::Root );
+@ISA = qw(Bio::Root::Root Bio::Tree::TreeI );
 
 =head2 new
 
@@ -164,19 +164,21 @@ sub set_root_node{
    return $self->get_root_node;
 }
 
-=head2 branch_length
+=head2 total_branch_length
 
- Title   : branch_length
- Usage   : my $size = $tree->branch_length
- Function: Returns the number of branches 
+ Title   : total_branch_length
+ Usage   : my $size = $tree->total_branch_length
+ Function: Returns the sum of the length of all branches
  Returns : integer
  Args    : none
 
 =cut
 
-sub branch_length {
+sub total_branch_length {
    my ($self) = @_;
-   return 0;
+   my $sum = 0;
+   map { $sum += $_->branch_length || 0 } $self->get_root_node->get_Descendents();
+   return $sum;
 }
 
 

@@ -18,7 +18,7 @@ BEGIN {
     }
 
     use Test;
-    plan tests => 9; 
+    plan tests => 10; 
 
 #    eval { require XML::Parser::PerlSAX; };
 #    if( $@ ) {
@@ -105,6 +105,8 @@ if($verbose ) {
 	}
     }
 }
+
+ok($tree->total_branch_length, 7.12148);
 
 $treeio = new Bio::TreeIO(-verbose => $verbose,
 			  -format => 'newick', 
