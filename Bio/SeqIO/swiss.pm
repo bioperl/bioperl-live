@@ -195,61 +195,59 @@ sub next_seq {
        
        # Exit at start of Feature table
        last if /^FT/;
+       # and at the sequence at the latest HL 05/11/2000
+       last if /^SQ/;
 
        # Description line(s)
        if (/^DE\s+(\S.*\S)/) {
            $desc .= $desc ? " $1" : $1;
        }
-
        #Gene name
-       if (/^GN\s+(\S+)/) {
+       elsif (/^GN\s+(\S+)/) {
 	   $seq->annotation->gene_name($1);
        }  
-
        #accession number
-       if( /^AC\s+(\S+); (\S+)?/) {
+       elsif( /^AC\s+(\S+); (\S+)?/) {
 	   $acc = $1;
 	   my $acc2 = $2 if $2;
 	   $acc2 =~ s/\;//;
 	   $seq->accession($acc);
 	   $seq->add_secondary_accession($acc2);
        }
-       
        #version number
-       if( /^SV\s+(\S+);?/ ) {
+       elsif( /^SV\s+(\S+);?/ ) {
 	   my $sv = $1;
 	   $sv =~ s/\;//;
 	   $seq->sv($sv);
        }
-
        #date (NOTE: takes last date line)
-       if( /^DT\s+(\S+)/ ) {
+       elsif( /^DT\s+(\S+)/ ) {
 	   my $date = $1;
 	   $date =~ s/\;//;
 	   $seq->add_date($date);
        }
-       
-     
-
        # Organism name and phylogenetic information
-       if (/^O[SC]/) {
+       elsif (/^O[SC]/) {
            my $species = $self->_read_swissprot_Species(\$buffer);
            $seq->species( $species );
+	   # now we are one line ahead -- so continue without reading the next
+	   # line   HL 05/11/2000
+	   next;
        }
-
        # References
-       if (/^R/) {
+       elsif (/^R/) {
 	   my @refs = $self->_read_swissprot_References(\$buffer);
 	   $seq->annotation->add_Reference(@refs);
+	   # now we are one line ahead -- so continue without reading the next
+	   # line   HL 05/11/2000
+	   next;
        }
-
-     
        #Comments
-       if (/^CC\s+(.*)/) {
+       elsif (/^CC\s+(.*)/) {
 	   $comment .= $1;
 	   $comment .= " ";
-	   while (defined ($_ = $self->_readline)) {
-	       if (/^CC\s+(.*)/) {
+	   while (defined ($buffer = $self->_readline)) {
+	       if ($buffer =~ /^CC\s+(.*)/) {
 		   $comment .= $1;
 		   $comment .= " ";
 	       }
@@ -263,43 +261,51 @@ sub next_seq {
 	   $commobj->text($comment);
 	   $seq->annotation->add_Comment($commobj);
 	   $comment = "";
+	   # now we are one line ahead -- so continue without reading the next
+	   # line   HL 05/11/2000
+	   next;
        }
-
        #DBLinks
-       if (/^DR\s+(\S+)\; (\S+)\; (\S+)\; (\S+)/) {
+       elsif (/^DR\s+(\S+)\; (\S+)\; (\S+)\; (\S+)/) {
 	   my $dblinkobj =  Bio::Annotation::DBLink->new();
 	   $dblinkobj->database($1);
 	   $dblinkobj->primary_id($2);
 	   $dblinkobj->optional_id($3);
 	   $dblinkobj->comment($4);
 	   $seq->annotation->add_DBLink($dblinkobj);
-       } elsif (/^DR\s+(\S+)\; (\S+)\;/) {
+       }
+       elsif (/^DR\s+(\S+)\; (\S+)\;/) {
 	   my $dblinkobj =  Bio::Annotation::DBLink->new();
 	   $dblinkobj->database($1);
 	   $dblinkobj->primary_id($2);
 	   $seq->annotation->add_DBLink($dblinkobj);
        }
-
        #keywords
-       if( /^KW   (.*)\S*$/ ) {
+       elsif( /^KW   (.*)\S*$/ ) {
 	   my $keywords = $1;
 	   $seq->keywords($keywords);
        }
 
-       # Get next line.
+       # Get next line. Getting here assumes that we indeed need to read the
+       # line.
        $buffer = $self->_readline;
    }
    
    $buffer = $_;
       
-   FEATURE_TABLE :   
-   while (defined ($buffer)) {
+   FEATURE_TABLE :
+   # if there is no feature table, or if we've got beyond, exit loop or don't
+   # even enter    HL 05/11/2000
+   while (defined ($buffer) && ($buffer =~ /^FT/)) {
        my $ftunit = $self->_read_FTHelper_swissprot(\$buffer);
        
        # process ftunit
-       $ftunit->_generic_seqfeature($seq);
-       if( $buffer !~ /^FT/ ) {
-	   last;
+       # when parsing of the line fails we get undef returned
+       if($ftunit) {
+	   $ftunit->_generic_seqfeature($seq, "SwissProt");
+       } else {
+	   $self->warn("failed to parse feature table line for seq " .
+		       $seq->display_id());
        }
    }
    if( $buffer !~ /^SQ/  ) {
@@ -575,8 +581,10 @@ sub _read_swissprot_References{
        
    }
    while( defined ($_ = $self->_readline) ) {
-       /^CC/ && goto OUT;
-       /^RN/ && last;
+       #/^CC/ && last;
+       #/^RN/ && last;
+       #/^SQ/ && last; # there may be sequences without CC lines! HL 05/11/2000
+       /^[^R]/ && last; # may be the safest exit point HL 05/11/2000
        /^RX   MEDLINE;\s+(\d+)/ && do {$med=$1};
        /^RA   (.*)/ && do { $au .= $1;   next;};
        /^RT   (.*)/ && do { $title .= $1; next;};
@@ -584,7 +592,7 @@ sub _read_swissprot_References{
        /^RC   (.*)/ && do { $com .= $1; next;};
    }
    
-   OUT: my $ref = new Bio::Annotation::Reference;
+   my $ref = new Bio::Annotation::Reference;
    $au =~ s/;\s*$//g;
    if( defined $title ) {
        $title =~ s/;\s*$//g;
@@ -624,7 +632,6 @@ sub _read_swissprot_Species {
     $_ = $$buffer;
     my( $sub_species, $species, $genus, $common, @class );
     while (defined( $_ ||= $self->_readline )) {
-        
         if (/^OS\s+(\S+)(?:\s+([^\(]\S*))?(?:\s+([^\(]\S*))?(?:\s+\((.*)\))?/) {
             $genus   = $1;
 	    if ($2) {
@@ -682,14 +689,7 @@ sub _read_swissprot_Species {
 
 =cut
 
-sub _filehandle{
-   my ($obj,$value) = @_;
-   if( defined $value) {
-      $obj->{'_filehandle'} = $value;
-    }
-    return $obj->{'_filehandle'};
-
-}
+# inherited from SeqIO.pm ! HL 05/11/2000
 
 =head2 _read_FTHelper_swissprot
 
@@ -712,10 +712,10 @@ sub _read_FTHelper_swissprot {
         $desc,  # The descriptive text
         );
     
-    if ($$buffer =~ /^FT   (\w+)\s+([\d\?]+)\s+([\d\?]+)\s*(.*)$/) {
+    if ($$buffer =~ /^FT   (\w+)\s+([\d\?\<]+)\s+([\d\?\>]+)\s*(.*)$/) {
         $key = $1;
-        my $loc1 = ($2 eq '?' ? '<' : $2);
-        my $loc2 = ($3 eq '?' ? '>' : $3);
+        my $loc1 = $2;
+        my $loc2 = $3;
 	$loc = "$loc1..$loc2";
 	if($4 && (length($4) > 0)) {
 	    $desc = 4;
@@ -724,13 +724,14 @@ sub _read_FTHelper_swissprot {
 	    $desc = "";
 	}
 	# Read all the continuation lines up to the next feature
-	while (defined($_ = $self->_readline) && /^FT\s{20,}(\w.*)$/) {
+	while (defined($_ = $self->_readline) && /^FT\s{20,}(\S.*)$/) {
 	    $desc .= $1;
 	    chomp($desc);
 	}
 	$desc =~ s/\.$//;
     } else {
-        # No feature key
+        # No feature key. What's this?
+	$self->warn("No feature key in putative feature table line: $_");
         return;
     } 
     
