@@ -9,7 +9,7 @@ BEGIN {
 		use lib 't';
 	}
 	use Test;
-	plan tests => 113;
+	plan tests => 132;
 }
 
 use Bio::SimpleAlign;
@@ -180,6 +180,85 @@ $strout = Bio::AlignIO->new('-file'  => ">".
 			    '-format' => 'nexus', );
 $status = $strout->write_aln($aln);
 ok $status, 1, "  failed nexus output test";
+
+$str = Bio::AlignIO->new('-file' => Bio::Root::IO->catfile("t","data","Bird_Ovomucoids.nex"),
+			  '-format' => 'nexus');
+ok defined($str) && ref($str) && $str->isa('Bio::AlignIO');
+$aln = $str->next_aln();
+$str = Bio::AlignIO->new('-file' => Bio::Root::IO->catfile("t","data","basic-ladder.nex"),
+			  '-format' => 'nexus');
+ok defined($str) && ref($str) && $str->isa('Bio::AlignIO');
+$aln = $str->next_aln();
+$str = Bio::AlignIO->new('-file' => Bio::Root::IO->catfile("t","data","Kingdoms_DNA.nex"),
+			  '-format' => 'nexus');
+ok defined($str) && ref($str) && $str->isa('Bio::AlignIO');
+$aln = $str->next_aln();
+$str = Bio::AlignIO->new('-file' => Bio::Root::IO->catfile("t","data","char-interleave.nex"),
+			  '-format' => 'nexus');
+ok defined($str) && ref($str) && $str->isa('Bio::AlignIO');
+$aln = $str->next_aln();
+$str = Bio::AlignIO->new('-file' => Bio::Root::IO->catfile("t","data","Primate_mtDNA.nex"),
+			  '-format' => 'nexus');
+ok defined($str) && ref($str) && $str->isa('Bio::AlignIO');
+$aln = $str->next_aln();
+$str = Bio::AlignIO->new('-file' => Bio::Root::IO->catfile("t","data","char-matrix-spaces.nex"),
+			  '-format' => 'nexus');
+ok defined($str) && ref($str) && $str->isa('Bio::AlignIO');
+$aln = $str->next_aln();
+$str = Bio::AlignIO->new('-file' => Bio::Root::IO->catfile("t","data","SPAN_Family4nl.nex"),
+			  '-format' => 'nexus');
+ok defined($str) && ref($str) && $str->isa('Bio::AlignIO');
+$aln = $str->next_aln();
+$str = Bio::AlignIO->new('-file' => Bio::Root::IO->catfile("t","data","intrablock-comment.nex"),
+			  '-format' => 'nexus');
+ok defined($str) && ref($str) && $str->isa('Bio::AlignIO');
+$aln = $str->next_aln();
+$str = Bio::AlignIO->new('-file' => Bio::Root::IO->catfile("t","data","SPAN_Family7n.nex"),
+			  '-format' => 'nexus');
+ok defined($str) && ref($str) && $str->isa('Bio::AlignIO');
+$aln = $str->next_aln();
+$str = Bio::AlignIO->new('-file' => Bio::Root::IO->catfile("t","data","long-names.nex"),
+			  '-format' => 'nexus');
+ok defined($str) && ref($str) && $str->isa('Bio::AlignIO');
+$aln = $str->next_aln();
+$str = Bio::AlignIO->new('-file' => Bio::Root::IO->catfile("t","data","SPAN_Family8a.nex"),
+			  '-format' => 'nexus');
+ok defined($str) && ref($str) && $str->isa('Bio::AlignIO');
+$aln = $str->next_aln();
+$str = Bio::AlignIO->new('-file' => Bio::Root::IO->catfile("t","data","multiline-intrablock-comment.nex"),
+			  '-format' => 'nexus');
+ok defined($str) && ref($str) && $str->isa('Bio::AlignIO');
+$aln = $str->next_aln();
+$str = Bio::AlignIO->new('-file' => Bio::Root::IO->catfile("t","data","Treebase-chlamy-dna.nex"),
+			  '-format' => 'nexus');
+ok defined($str) && ref($str) && $str->isa('Bio::AlignIO');
+$aln = $str->next_aln();
+$str = Bio::AlignIO->new('-file' => Bio::Root::IO->catfile("t","data","quoted-strings1.nex"),
+			  '-format' => 'nexus');
+ok defined($str) && ref($str) && $str->isa('Bio::AlignIO');
+$aln = $str->next_aln();
+$str = Bio::AlignIO->new('-file' => Bio::Root::IO->catfile("t","data","UnaSmithHIV-both.nex"),
+			  '-format' => 'nexus');
+ok defined($str) && ref($str) && $str->isa('Bio::AlignIO');
+$aln = $str->next_aln();
+$str = Bio::AlignIO->new('-file' => Bio::Root::IO->catfile("t","data","quoted-strings2.nex"),
+			  '-format' => 'nexus');
+ok defined($str) && ref($str) && $str->isa('Bio::AlignIO');
+$aln = $str->next_aln();
+$str = Bio::AlignIO->new('-file' => Bio::Root::IO->catfile("t","data","barns-combined.nex"),
+			  '-format' => 'nexus');
+ok defined($str) && ref($str) && $str->isa('Bio::AlignIO');
+$aln = $str->next_aln();
+$str = Bio::AlignIO->new('-file' => Bio::Root::IO->catfile("t","data","radical-whitespace.nex"),
+			  '-format' => 'nexus');
+ok defined($str) && ref($str) && $str->isa('Bio::AlignIO');
+$aln = $str->next_aln();
+$str = Bio::AlignIO->new('-file' => Bio::Root::IO->catfile("t","data","basic-bush.nex"),
+			  '-format' => 'nexus');
+ok defined($str) && ref($str) && $str->isa('Bio::AlignIO');
+$aln = $str->next_aln();
+$str = Bio::AlignIO->new('-file' => Bio::Root::IO->catfile("t","data","radical-whitespace_02.nex"),
+			  '-format' => 'nexus');
 
 # EMBOSS water
 $str = new Bio::AlignIO('-format' => 'emboss',
