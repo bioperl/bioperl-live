@@ -97,13 +97,132 @@ sub _overload {
 	return $self->start."..".$self->end." ".$self->bits;
 }
 
+=head2 P
+
+ Title    : P
+ Usage    : $hsp->P();
+ Function : returns the P (significance) value for a HSP 
+ Example  : 
+ Returns  : (double) significance value
+ Args     :
+
+=cut
+
 sub P               {shift->significance(@_)}
+
+=head2 percent
+
+ Title    : percent
+ Usage    : $hsp->percent();
+ Function : returns the percent matching 
+ Example  : 
+ Returns  : (double) percent matching
+ Args     :
+
+=cut
+
 sub percent         {shift->{PERCENT}}
+
+=head2 match
+
+ Title    : match
+ Usage    : $hsp->match();
+ Function : returns the match
+ Example  : 
+ Returns  : (double) frac_identical 
+ Args     :
+
+=cut
+
 sub match           {shift->query->frac_identical(@_)}
+
+=head2 positive
+
+ Title    : positive
+ Usage    : $hsp->positive();
+ Function : returns the number of positive hits 
+ Example  : 
+ Returns  : (int) number of positive residue hits 
+ Args     :
+
+=cut
+
 sub positive        {shift->{POSITIVE}}
+
+=head2 querySeq
+
+ Title    : querySeq
+ Usage    : $hsp->querySeq();
+ Function : returns the query sequence
+ Example  : 
+ Returns  : (string) the Query Sequence 
+ Args     :
+
+=cut
+
 sub querySeq        {shift->{QS}}
+
+=head2 sbjctSeq
+
+ Title    : sbjctSeq
+ Usage    : $hsp->sbjctSeq();
+ Function : returns the Sbjct sequence 
+ Example  : 
+ Returns  : (string) the Sbjct Sequence 
+ Args     :
+
+=cut
+
 sub sbjctSeq        {shift->{SS}}
+
+=head2 homologySeq
+
+ Title    : homologySeq
+ Usage    : $hsp->homologySeq();
+ Function : returns the homologous sequence 
+ Example  : 
+ Returns  : (string) homologous sequence 
+ Args     :
+
+=cut
+
 sub homologySeq     {shift->{HS}}
+
+=head2 qs
+
+ Title    : qs
+ Usage    : $hsp->qs();
+ Function : returns the Query Sequence (same as querySeq)
+ Example  : 
+ Returns  : (string) query Sequence 
+ Args     :
+
+=cut
+
 sub qs              {shift->{QS}}
+
+=head2 ss
+
+ Title    : ss
+ Usage    : $hsp->ss();
+ Function : returns the subject sequence ( same as sbjctSeq) 
+ Example  : 
+ Returns  : (string) Sbjct Sequence
+ Args     :
+
+=cut
+
 sub ss              {shift->{SS}}
+
+=head2 hs
+
+ Title    : hs
+ Usage    : $hsp->hs();
+ Function : returns the Homologous Sequence (same as homologySeq ) 
+ Example  : 
+ Returns  : (string) Homologous Sequence
+ Args     :
+
+=cut
+
 sub hs              {shift->{HS}}

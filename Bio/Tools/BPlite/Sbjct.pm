@@ -36,9 +36,42 @@ sub _initialize {
   return $make; # success - we hope!
 }
 
+=head2 name
+
+ Title    : name
+ Usage    : $name = $obj->name();
+ Function : returns the name of the Sbjct 
+ Example  : 
+ Returns  : name of the Sbjct 
+ Args     :
+
+=cut
+
 sub name {shift->{NAME}}
 
+=head2 nextFeaturePair
+
+ Title    : nextFeaturePair
+ Usage    : $name = $obj->nextFeaturePair();
+ Function : same as the nextHSP function 
+ Example  : 
+ Returns  : next FeaturePair 
+ Args     :
+
+=cut
+
 sub nextFeaturePair {shift->nextHSP}; # just another name
+
+=head2 nextHSP
+
+ Title    : nextHSP
+ Usage    : $hsp = $obj->nextHSP();
+ Function : returns the next available High Scoring Pair
+ Example  : 
+ Returns  : Bio::Tools::HSP  or null if finished
+ Args     :
+
+=cut
 
 sub nextHSP {
   my ($self) = @_;

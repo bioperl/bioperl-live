@@ -7,120 +7,6 @@
 #
 # You may distribute this module under the same terms as perl itself
 
-package Bio::Tools::BPlite;
-
-use strict;
-use vars qw(@ISA);
-
-use Bio::Root::Object; # root object to inherit from
-use Bio::Tools::BPlite::Sbjct; # we want to use Sbjct
-
-@ISA = qw(Bio::Root::Object);
-
-# _initialize is where the heavy stuff will happen when new is called
-
-sub _initialize {
-  my ($self, @args) = @_; 
-  my $make = $self->SUPER::_initialize;
-
-  my ($fh) = $self->_rearrange([qw(FH)],@args);
-
-  if (ref $fh !~ /GLOB/)
-    { $self->throw("Expecting a GLOB reference, not $fh!"); }
-
-  $self->{FH} = $fh;
-  $self->{LASTLINE} = "";
-  
-  if ($self->_parseHeader) {$self->{REPORT_DONE} = 0} # there are alignments
-  else                     {$self->{REPORT_DONE} = 1} # empty report
-  
-  return $make; # success - we hope!
-}
-
-sub query    {shift->{QUERY}}
-
-sub qlength  {shift->{LENGTH}}
-
-sub database {shift->{DATABASE}}
-
-sub nextSbjct {
-  my ($self) = @_;
-  $self->_fastForward or return 0;
-  
-  #######################
-  # get all sbjct lines #
-  #######################
-  my $def = $self->{LASTLINE};
-  my $FH = $self->{FH};
-  while(<$FH>) {
-    if    ($_ !~ /\w/)            {next}
-    elsif ($_ =~ /Strand HSP/)    {next} # WU-BLAST non-data
-    elsif ($_ =~ /^\s{0,2}Score/) {$self->{LASTLINE} = $_; last}
-    else                          {$def .= $_}
-  }
-  $def =~ s/\s+/ /g;
-  $def =~ s/\s+$//g;
-  $def =~ s/Length = ([\d,]+)$//g;
-  my $length = $1;
-  return 0 unless $def =~ /^>/;
-  $def =~ s/^>//;
-
-  ####################
-  # the Sbjct object #
-  ####################
-  my $sbjct = new Bio::Tools::BPlite::Sbjct(-name=>$def,
-					    -length=>$length,
-                                            -fh=>$self->{FH}, 
-					    -lastline=>$self->{LASTLINE}, 
-					    -parent=>$self);
-  return $sbjct;
-}
-
-sub _parseHeader {
-  my ($self) = @_;
-  my $FH = $self->{FH};
-  
-  while(<$FH>) {
-    if ($_ =~ /^Query=\s+([^\(]+)/)    {
-      my $query = $1;
-      while(<$FH>) {
-        last if $_ !~ /\S/;
-	$query .= $_;
-      }
-      $query =~ s/\s+/ /g;
-      $query =~ s/^>//;
-      $query =~ /\((\d+)\s+\S+\)\s*$/;
-      my $length = $1;
-      $self->{QUERY} = $query;
-      $self->{LENGTH} = $length;
-    }
-    elsif ($_ =~ /^Database:\s+(.+)/) {$self->{DATABASE} = $1}
-    elsif ($_ =~ /^>/)                {$self->{LASTLINE} = $_; return 1}
-    elsif ($_ =~ /^Parameters|^\s+Database:/) {
-      $self->{LASTLINE} = $_;
-      return 0; # there's nothing in the report
-    }
-  }
-}
-
-sub _fastForward {
-  my ($self) = @_;
-  return 0 if $self->{REPORT_DONE}; # empty report
-  return 1 if $self->{LASTLINE} =~ /^>/;
-
-  my $FH = $self->{FH};
-  while(<$FH>) {
-    if ($_ =~ /^>|^Parameters|^\s+Database:/) {
-      $self->{LASTLINE} = $_;
-      return 1;
-    }
-  }
-  $self->warn("Possible error while parsing BLAST report!");
-}
-
-1;
-__END__
-
 =head1 NAME
 
 Bio::Tools::BPlite - Lightweight BLAST parser
@@ -272,6 +158,167 @@ Copyright (C) 1999 Ian Korf. All Rights Reserved.
 This software is provided "as is" without warranty of any kind.
 
 =cut
+#'
+
+package Bio::Tools::BPlite;
+
+use strict;
+use vars qw(@ISA);
+
+use Bio::Root::Object; # root object to inherit from
+use Bio::Tools::BPlite::Sbjct; # we want to use Sbjct
+
+@ISA = qw(Bio::Root::Object);
+
+# _initialize is where the heavy stuff will happen when new is called
+
+sub _initialize {
+  my ($self, @args) = @_; 
+  my $make = $self->SUPER::_initialize;
+
+  my ($fh) = $self->_rearrange([qw(FH)],@args);
+
+  if (ref $fh !~ /GLOB/)
+    { $self->throw("Expecting a GLOB reference, not $fh!"); }
+
+  $self->{FH} = $fh;
+  $self->{LASTLINE} = "";
+  
+  if ($self->_parseHeader) {$self->{REPORT_DONE} = 0} # there are alignments
+  else                     {$self->{REPORT_DONE} = 1} # empty report
+  
+  return $make; # success - we hope!
+}
+
+=head2 query
+
+ Title    : query
+ Usage    : $query = $obj->query();
+ Function : returns the query object
+ Example  :
+ Returns  : query object
+ Args     :
+
+=cut
+
+sub query    {shift->{QUERY}}
+
+=head2 qlength
+
+ Title    : qlength
+ Usage    : $len = $obj->qlength();
+ Function : returns the length of the query 
+ Example  :
+ Returns  : length of query
+ Args     :
+
+=cut
+
+sub qlength  {shift->{LENGTH}}
+
+=head2 database
+
+ Title    : database
+ Usage    : $db = $obj->database();
+ Function : returns the database used in this search
+ Example  :
+ Returns  : database used for search
+ Args     :
+
+=cut
+
+sub database {shift->{DATABASE}}
+
+=head2 nextSbjct
+
+ Title    : nextSbjct
+ Usage    : $sbjct = $obj->nextSbjct();
+ Function : Method of iterating through all the Sbjct retrieved 
+            from parsing the report 
+ Example  : while ( my $sbjct = $obj->nextSbjct ) {}
+ Returns  : next Sbjct object or null if finished
+ Args     :
+
+=cut
+
+sub nextSbjct {
+  my ($self) = @_;
+  $self->_fastForward or return 0;
+  
+  #######################
+  # get all sbjct lines #
+  #######################
+  my $def = $self->{LASTLINE};
+  my $FH = $self->{FH};
+  while(<$FH>) {
+    if    ($_ !~ /\w/)            {next}
+    elsif ($_ =~ /Strand HSP/)    {next} # WU-BLAST non-data
+    elsif ($_ =~ /^\s{0,2}Score/) {$self->{LASTLINE} = $_; last}
+    else                          {$def .= $_}
+  }
+  $def =~ s/\s+/ /g;
+  $def =~ s/\s+$//g;
+  $def =~ s/Length = ([\d,]+)$//g;
+  my $length = $1;
+  return 0 unless $def =~ /^>/;
+  $def =~ s/^>//;
+
+  ####################
+  # the Sbjct object #
+  ####################
+  my $sbjct = new Bio::Tools::BPlite::Sbjct(-name=>$def,
+					    -length=>$length,
+                                            -fh=>$self->{FH}, 
+					    -lastline=>$self->{LASTLINE}, 
+					    -parent=>$self);
+  return $sbjct;
+}
+
+sub _parseHeader {
+  my ($self) = @_;
+  my $FH = $self->{FH};
+  
+  while(<$FH>) {
+    if ($_ =~ /^Query=\s+([^\(]+)/)    {
+      my $query = $1;
+      while(<$FH>) {
+        last if $_ !~ /\S/;
+	$query .= $_;
+      }
+      $query =~ s/\s+/ /g;
+      $query =~ s/^>//;
+      $query =~ /\((\d+)\s+\S+\)\s*$/;
+      my $length = $1;
+      $self->{QUERY} = $query;
+      $self->{LENGTH} = $length;
+    }
+    elsif ($_ =~ /^Database:\s+(.+)/) {$self->{DATABASE} = $1}
+    elsif ($_ =~ /^>/)                {$self->{LASTLINE} = $_; return 1}
+    elsif ($_ =~ /^Parameters|^\s+Database:/) {
+      $self->{LASTLINE} = $_;
+      return 0; # there's nothing in the report
+    }
+  }
+}
+
+sub _fastForward {
+  my ($self) = @_;
+  return 0 if $self->{REPORT_DONE}; # empty report
+  return 1 if $self->{LASTLINE} =~ /^>/;
+
+  my $FH = $self->{FH};
+  while(<$FH>) {
+    if ($_ =~ /^>|^Parameters|^\s+Database:/) {
+      $self->{LASTLINE} = $_;
+      return 1;
+    }
+  }
+  $self->warn("Possible error while parsing BLAST report!");
+}
+
+1;
+__END__
+
 
 
 
