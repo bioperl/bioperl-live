@@ -600,7 +600,7 @@ sub make_link {
   }
 
   elsif (my $configurator = $self->configurator) {
-    return $configurator->make_link($self);
+    return $configurator->make_link($self) if $configurator->can('make_link');
   }
 
   else {

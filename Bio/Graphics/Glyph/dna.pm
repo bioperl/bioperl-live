@@ -29,6 +29,10 @@ sub do_gc {
   return  1;
 }
 
+sub draw {
+  shift->draw_component(@_);
+}
+
 sub draw_component {
   my $self = shift;
   my $gd = shift;
@@ -87,8 +91,8 @@ sub draw_dna {
     my $x = $start + $i * $pixels_per_base;
     next if $x+1 < $x1;
     last if $x > $x2;
-    $gd->char($font,$x+1,$y1,$bases[$i],$color)                                      if $forward;
-    $gd->char($font,$x+1,$y1+($forward ? $lineheight:0),$complement{$bases[$i]}||$bases[$i],$color) if $reverse;
+    $gd->char($font,$x+2,$y1,$bases[$i],$color)                                      if $forward;
+    $gd->char($font,$x+2,$y1+($forward ? $lineheight:0),$complement{$bases[$i]}||$bases[$i],$color) if $reverse;
   }
 
 }

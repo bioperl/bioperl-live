@@ -3,7 +3,7 @@ package Bio::Graphics::Glyph::translation;
 use strict;
 use Bio::Graphics::Glyph::generic;
 use Bio::Graphics::Util qw(frame_and_offset);
-use vars '@ISA';
+use vars qw(@ISA $VERSION);
 @ISA = qw(Bio::Graphics::Glyph::generic);
 
 my %default_colors = qw(
@@ -14,6 +14,7 @@ my %default_colors = qw(
 			frame1r  red
 			frame2r  crimson
 		       );
+$VERSION = 1.00;
 
 # turn off description
 sub description { 0 }
@@ -123,6 +124,7 @@ sub draw_frame {
   my $self = shift;
   my ($feature,$strand,$base_offset,$phase,$gd,$x1,$y1,$x2,$y2) = @_;
   return unless $feature->seq;  # no sequence, arggh.
+  $strand *= -1 if $self->{flip};
   my ($seq,$pos) = $strand < 0 ? ($feature->revcom,$feature->end)
                                : ($feature,$feature->start);
   my ($frame,$offset) = frame_and_offset($pos,$strand,$phase);
@@ -164,15 +166,21 @@ sub draw_protein {
   my ($protein,$strand,$color,$gd,$x1,$y1,$x2,$y2) = @_;
   my $pixels_per_base = $self->pixels_per_base;
   my $font   = $self->font;
+  my $flip   = $self->{flip};
+  my $right  = $self->panel->right;
 
   my @residues = split '',$$protein;
   for (my $i=0;$i<@residues;$i++) {
-    my $x = $strand > 0 
+    my $x = $strand > 0
       ? $x1 + 3 * $i * $pixels_per_base
-      : $x2 - 3 * $i * $pixels_per_base;
+      : $x2 - 3 * $i * $pixels_per_base - $pixels_per_base;
     next if $x+1 < $x1;
     last if $x > $x2;
-    $gd->char($font,$x,$y1,$residues[$i],$color);
+    if ($flip) {
+      $gd->char($font,$right-$x+2,$y1,$residues[$i],$color);
+    } else {
+      $gd->char($font,$x+2,$y1,$residues[$i],$color);
+    }
   }
 }
 
@@ -181,6 +189,8 @@ sub draw_orfs {
   my ($protein,$strand,$color,$gd,$x1,$y1,$x2,$y2) = @_;
   my $pixels_per_base = $self->pixels_per_base * 3;
   $y1++;
+  my $right  = $self->panel->right;
+  my $flip   = $self->{flip};
 
   my $gcolor = $self->gridcolor;
   $gd->line($x1,$y1,$x2,$y1,$gcolor);
@@ -194,7 +204,11 @@ sub draw_orfs {
         : $x2 - $stop * $pixels_per_base;
       next if $pos+1 < $x1;
       last if $pos   > $x2;
-      $gd->line($pos,$y1-2,$pos,$y1+2,$color);
+      if ($flip) {
+	$gd->line($right-$pos,$y1-2,$right-$pos,$y1+2,$color);
+      } else {
+	$gd->line($pos,$y1-2,$pos,$y1+2,$color);
+      }
     }
   }
 
@@ -209,6 +223,7 @@ sub draw_orfs {
         : $x2 - $start * $pixels_per_base;
       next if $pos+1 < $x1;
       last if $pos   > $x2;
+      $pos = $self->{flip} ? $right - $pos : $pos;
 
       # little arrowheads at the start codons
       $strand > 0 ? $self->arrowhead($gd,$pos-$arrowhead_height,$y1,
@@ -217,6 +232,7 @@ sub draw_orfs {
 				     $arrowhead_height,-1)
     }
   }
+  $strand *= -1 if $flip;
 
   $strand > 0 ? $self->arrowhead($gd,$x2-1,$y1,3,+1)
               : $self->arrowhead($gd,$x1,$y1,3,-1)

@@ -5,7 +5,7 @@ use Bio::Graphics::Glyph::segments;
 use Bio::Graphics::Util qw(frame_and_offset);
 use Bio::Tools::CodonTable;
 use Bio::Graphics::Glyph::translation;
-use vars '@ISA';
+use vars qw(@ISA $VERSION);
 @ISA = qw(Bio::Graphics::Glyph::segmented_keyglyph Bio::Graphics::Glyph::translation);
 
 my %default_colors = qw(
@@ -16,6 +16,7 @@ my %default_colors = qw(
 			frame1r  red
 			frame2r crimson
 		       );
+$VERSION = 1.00;
 
 sub connector   { 0 };
 sub description {
@@ -80,11 +81,13 @@ sub draw {
   for (my $i=0; $i < @parts; $i++) {
     my $part    = $parts[$i];
     my $feature = $part->feature;
-    my $pos     = $strand > 0 ? $feature->start : $feature->end;
+    my $pos     = $feature->start;
     my $phase   = eval {$feature->phase} || 0;
+    my $strand  = $feature->strand;
     my ($frame,$offset) = frame_and_offset($pos,
-					   $feature->strand,
+					   $strand,
 					   -$phase);
+    $strand *= -1 if $self->{flip};
     my $suffix = $strand < 0 ? 'r' : 'f';
     my $key = "frame$frame$suffix";
     $self->{cds_frame2color}{$key} ||= $self->color($key) || $self->default_color($key) || $fill;
@@ -157,7 +160,9 @@ sub draw_component {
   # 2) correct for the phase offset
   my $start = $self->map_no_trunc($feature->start + $self->{cds_offset});
   my $stop  = $self->map_no_trunc($feature->end   + $self->{cds_offset});
-  ($start,$stop) = ($stop,$start) if $self->{flip};
+
+  ($start,$stop) = ($stop,$start) if $stop < $start;  # why does this keep happening?
+  #  ($start,$stop) = ($stop,$start) if $self->{flip};
 
   my @residues = split '',$self->{cds_translation};
 
