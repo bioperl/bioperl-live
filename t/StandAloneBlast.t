@@ -2,6 +2,8 @@
 ## Bioperl Test Harness Script for Modules
 ## $Id$
 #
+# Note: the swissprot and ecoli.nt data sets may be downloaded from
+# ftp://ftp.ncbi.nih.gov/blast/db
 
 use strict;
 use constant NUMTESTS => 16;
