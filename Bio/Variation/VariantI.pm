@@ -650,10 +650,10 @@ sub SeqDiff {
 
 sub add_DBLink{
    my ($self,$com) = @_;
-   if( ! $com->isa('Bio::Annotation::DBLink') ) {
+   if( $com && ! $com->isa('Bio::Annotation::DBLink') ) {
        $self->throw("Is not a link object but a  [$com]");
    }
-   push(@{$self->{'link'}},$com);
+   $com && push(@{$self->{'link'}},$com);
 }
 
 =head2 each_DBLink
