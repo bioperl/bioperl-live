@@ -210,10 +210,10 @@ sub has_Marker{
    return defined $self->{'_genotypes'}->{$name};
 }
 
-=head2 get_Marker_Names
+=head2 get_marker_names
 
- Title   : get_Marker_Names
- Usage   : my @names = $individual->get_Marker_Names;
+ Title   : get_marker_names
+ Usage   : my @names = $individual->get_marker_names;
  Function: Returns the list of known marker names
  Returns : List of strings
  Args    : none
@@ -221,7 +221,7 @@ sub has_Marker{
 
 =cut
 
-sub get_Marker_Names{
+sub get_marker_names{
    my ($self) = @_;
    return keys %{$self->{'_genotypes'}};
 }
