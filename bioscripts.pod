@@ -172,11 +172,6 @@ Retrieve the NCBI Tada ID for a given species.
 Builds a phylogenetic tree based on a sequence search (Fasta,
 BLAST, HMMER).
 
-=head2 scripts/utilities/remote_blast.PLS
-
-This script executes a remote Blast search using RemoteBlast. See 
-L<Bio::Tools::Run::RemoteBlast> for more information.
-
 =head2 scripts/utilities/bp_mrtrans.PLS
 
 Perl implementation of Bill Pearson's mrtrans to project protein 
@@ -197,11 +192,30 @@ alignment converter.
 Splits one or more sequence files into subfiles with specified
 numbers of sequences, any sequence format.
 
+=head2 scripts/utilities/mask_by_search.PLS
+
+Masks parts of a sequence based on a significant matches to that
+sequence as contained in a SearchIO-compatible report file.
+
 =head2 scripts/utilities/pairwise_kaks.PLS
 
 Takes cDNA sequences as input, aligns them as proteins, 
 projects the alignment back into cDNA and estimates 
 the Ka (non-synonymous) and Ks (synonymous) substitutions.
+
+=head2 scripts/utilities/remote_blast.PLS
+
+This script executes a remote Blast search using RemoteBlast. See 
+L<Bio::Tools::Run::RemoteBlast> for more information.
+
+=head2 scripts/utilities/search2BSML.PLS
+
+Turns SearchIO-compatible reports into a BSML report.
+
+=head2 scripts/utilities/search2alnblocks.PLS
+
+Turns SearchIO-compatible reports into alignments in formats supported
+by AlignIO.
 
 =head2 scripts/utilities/search2tribe.PLS
 
