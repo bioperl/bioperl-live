@@ -333,7 +333,7 @@ finding overlapping features.
 
 sub overlapping_features {
   my $self = shift;
-  my @args = $_[0] !~ /^-/ ? (@_,         -rangetype=>'overlaps')
+  my @args = $_[0] =~ /^-/ ? (@_,         -rangetype=>'overlaps')
                            : (-types=>\@_,-rangetype=>'overlaps');
   $self->features(@args);
 }
@@ -354,7 +354,7 @@ a range type of 'contained'.
 
 sub contained_features {
   my $self = shift;
-  my @args = $_[0] !~ /^-/ ? (@_,         -rangetype=>'contained')
+  my @args = $_[0] =~ /^-/ ? (@_,         -rangetype=>'contained')
                            : (-types=>\@_,-rangetype=>'contained');
   $self->features(@args);
 }
@@ -375,7 +375,7 @@ a range type of 'contained_in'.
 
 sub contained_in {
   my $self = shift;
-  my @args = $_[0] !~ /^-/ ? (@_,         -rangetype=>'contained_in')
+  my @args = $_[0] =~ /^-/ ? (@_,         -rangetype=>'contained_in')
                            : (-types=>\@_,-rangetype=>'contained_in');
   $self->features(@args);
 }
