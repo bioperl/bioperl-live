@@ -577,18 +577,18 @@ sub raw_statistics {
 #------------
     my $self = shift; 
     if(@_) {
-         my $params = shift;
-         if( ref $params eq 'ARRAY') {
-              $self->{'_raw_statistics'} = $params;
-         }
-        else {
+	my $params = shift;
+	if( ref $params eq 'ARRAY') {
+	    $self->{'_raw_statistics'} = $params;
+	}
+	else {
             $self->throw(-class =>'Bio::Root::BadParameter',
                          -text => "Can't set statistical params: not an ARRAY ref: $params"
                          );
         }
     }
     if(not defined $self->{'_raw_statistics'}) {
-              $self->{'_raw_statistics'} = [];
+	$self->{'_raw_statistics'} = [];
     }
 
     @{$self->{'_raw_statistics'}};

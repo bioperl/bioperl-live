@@ -269,7 +269,6 @@ sub new {
   $args{-USE_FACTORIES} = 1;
 
   my $self = $class->Bio::SearchIO::new(%args);
-
   $self->_init_state_machine( %args, -transition_table => \@state_transitions);
 
   $self->_init_parse_params( %args );
@@ -427,12 +426,13 @@ sub _init_parse_params {
 #Initializes parameters used during parsing of Blast reports.
 
     my ( $self, @param ) = @_;
-
     # -FILT_FUNC has been replaced by -HIT_FILTER.
     # Leaving -FILT_FUNC in place for backward compatibility
-    my($signif, $filt_func, $hit_filter, $min_len, $check_all, $gapped, $score, 
-       $overlap, $stats, $best, $shallow_parse, $hold_raw) =
-	$self->_rearrange([qw(SIGNIF FILT_FUNC HIT_FILTER MIN_LEN CHECK_ALL_HITS GAPPED SCORE
+    my($signif, $filt_func, $hit_filter, $min_len, $check_all, 
+       $gapped, $score, $overlap, $stats, $best, $shallow_parse, 
+       $hold_raw) =
+	$self->_rearrange([qw(SIGNIF FILT_FUNC HIT_FILTER MIN_LEN 
+			      CHECK_ALL_HITS GAPPED SCORE
 			      OVERLAP STATS BEST SHALLOW_PARSE HOLD_RAW_DATA)], @param);
 
     $self->{'_hit_filter'} = $hit_filter || $filt_func || 0;
@@ -998,7 +998,7 @@ sub _process_alignment {
     
     # Now construct the BlastHit objects from the alignment section
 
-#	debug(1);
+    # debug(1);
 
     $self->{'_hit_count'}++;
 
@@ -1024,10 +1024,10 @@ sub _process_alignment {
     my $hit; 
     $hit = $self->hit_factory->create_hit( %hit_params );
 
-    #printf STDERR "NEW HIT: %s, SIGNIFICANCE = %g\n", $hit->name, $hit->expect;  <STDIN>;
+    # printf STDERR "NEW HIT: %s, SIGNIFICANCE = %g\n", $hit->name, $hit->expect;  <STDIN>;
     # The BLAST report may have not had a description section.
     if(not $self->{'_has_descriptions'}) {
-      $self->_process_significance($hit->signif, $score);
+	$self->_process_significance($hit->signif, $score);
     }
     
     # Collect overall signif data if we don't already have it,
@@ -1050,7 +1050,6 @@ sub _process_alignment {
     } elsif($hit_signif <= $max_signif and $score >= $min_score) {
         $add_hit = 1;
     }
-
     $add_hit && $self->{'_current_blast'}->add_hit( $hit );
 }
 
