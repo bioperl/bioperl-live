@@ -255,14 +255,15 @@ sub new {
 
 sub _calculate_consensus {
     my $self=shift;
+    my $thresh=shift;
     my ($lc,$lt,$lg)=($#{$self->{probC}},$#{$self->{probT}},$#{$self->{probG}});
     my $len=$#{$self->{probA}};
     $self->throw("Probability matrix is damaged for C: $len vs $lc") if ($len != $lc);
     $self->throw("Probability matrix is damaged for T: $len vs $lt") if ($len != $lt);
     $self->throw("Probability matrix is damaged for G: $len vs $lg") if ($len != $lg);
     for (my $i=0; $i<$len+1; $i++) {
-	(${$self->{IUPAC}}[$i],${$self->{IUPACp}}[$i])=_to_IUPAC(${$self->{probA}}[$i],${$self->{probC}}[$i],${$self->{probG}}[$i],${$self->{probT}}[$i]);
-	(${$self->{seq}}[$i],${$self->{seqp}}[$i])=_to_cons(${$self->{probA}}[$i],${$self->{probC}}[$i],${$self->{probG}}[$i],${$self->{probT}}[$i]);
+	(${$self->{IUPAC}}[$i],${$self->{IUPACp}}[$i])=_to_IUPAC(${$self->{probA}}[$i],${$self->{probC}}[$i],${$self->{probG}}[$i],${$self->{probT}}[$i],$thresh);
+	(${$self->{seq}}[$i],${$self->{seqp}}[$i])=_to_cons(${$self->{probA}}[$i],${$self->{probC}}[$i],${$self->{probG}}[$i],${$self->{probT}}[$i],$thresh);
     }
     return $self;
 }
@@ -388,15 +389,17 @@ sub accession_number {
  Title   : consensus
  Usage   :
  Function: Returns the consensus
- Throws  :
+ Throws  : if supplied with thresold outisde 5..10 range
  Example :
  Returns : string
- Args    :
+ Args    : (optional) threshold value 5 to 10
 
 =cut
 
 sub consensus {
   my $self = shift;
+  my $thresh=shift;
+  _calculate_consensus($self,$thresh)  if ($thresh); #Change of threshold
   my $consensus='';
   foreach my $letter (@{$self->{seq}}) {
      $consensus .= $letter;
@@ -516,17 +519,21 @@ sub _to_cons {
 	my $C=shift;
 	my $G=shift;
 	my $T=shift;
+  my $thresh=shift;
 	my $all=$A+$G+$C+$T;
 	my $a=$A*10/$all;
 	my $g=$G*10/$all;
 	my $c=$C*10/$all;
 	my $t=$T*10/$all;
-	return 'A',$a if ($a>5);
-	return 'G',$g if ($g>5);
-	return 'C',$c if ($c>5);
-	return 'T',$t if ($t>5);
+ #Check for user supplied threshold
+  return 'N',10 if (($a<$thresh) &&  ($c<$thresh) &&  ($g<$thresh) && ($t<$thresh));
+  $thresh=5 unless ($thresh);  #default threshold
+	return 'A',$a if ($a>$thresh);
+	return 'G',$g if ($g>$thresh);
+	return 'C',$c if ($c>$thresh);
+	return 'T',$t if ($t>$thresh);
 	return 'N',10 if (($a==$t) && ($a==$c) && ($a==$g));
-	return 'A',$a if (($a>$t) &&($a>$c) && ($a>$g));
+	return 'A',$a if (($a>$t) &&($a>$c) && ($a>$g)); #Is this a good idea?
 	return 'C',$c if (($c>$t) &&($c>$a) && ($c>$g));
 	return 'G',$g if (($g>$t) &&($g>$c) && ($g>$a));
 	return 'N',10;

@@ -248,12 +248,12 @@ sub e_val {
 =head2 consensus
 
  Title   : consensus
- Usage   :  my $consensus=$site->consensus;
+ Usage   :  my $strict=$matrix->consensus(8);
  Function: Returns the consensus
- Throws  :
+ Throws  : if supplied with thresold outisde 5..10 range
  Example :
  Returns : string
- Args    :
+ Args    : (optional) threshold value 5 to 10
 
 =cut
 
