@@ -513,6 +513,10 @@ my %valid_range_types = (overlaps     => 1,
 			 contains     => 1,
 			 contained_in => 1);
 
+my %gff3_ids = (Target => 1,
+		Parent => 2,
+		ID     => 3);
+
 =head1 Querying GFF Databases
 
 =head2 new
@@ -3382,7 +3386,7 @@ sub _split_gff3_group {
   my $self   = shift;
   my @groups = @_;
   my $dc     = $self->default_class;
-  my ($gclass,$gname,$tstart,$tstop,@attributes);
+  my (%id,@attributes);
 
   for my $group (@groups) {
     my ($tag,$value) = split /=/,$group;
@@ -3393,14 +3397,28 @@ sub _split_gff3_group {
     # and the group it belonged to.  This code is a transition between
     # gff2 and the new parent/ID dichotomy in gff3.
     if ($tag eq 'Parent' or $tag eq 'ID') {
-      ($gname,$gclass) = _gff3_name_munging(shift(@values),$dc);
+      $id{$tag} = [_gff3_name_munging(shift(@values),$dc)];
     }
     elsif ($tag eq 'Target') {
-      ($gname,$tstart,$tstop) = split /\s+/,shift @values;
-      ($gname,$gclass) = _gff3_name_munging($gname,$dc);
+      my ($gname,$tstart,$tstop) = split /\s+/,shift @values;
+      $id{$tag} = [_gff3_name_munging($gname,$dc),$tstart,$tstop];
     }
     push @attributes,[$tag=>$_] foreach @values;
   }
+
+  my ($gclass,$gname,$tstart,$tstop);
+  for my $preferred (sort {$gff3_ids{$a}<=>$gff3_ids{$b}}
+		     keys %id) {
+    unless (defined $gname) {
+      ($gname,$gclass,$tstart,$tstop) = @{$id{$preferred}};
+    } else {
+      push @attributes,[$preferred=>$id{$preferred}[1]
+			? join(':',@{$id{$preferred}}[1,0])
+			: $id{$preferred}[0]];
+      push @attributes,[Alias=>$id{$preferred}[0]];
+    }
+  }
+
   return ($gclass,$gname,$tstart,$tstop,\@attributes);
 }
 

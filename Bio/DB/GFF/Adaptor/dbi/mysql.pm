@@ -691,7 +691,7 @@ sub load_gff_line {
 					       $groupid,
 					       $gff->{tstart},$gff->{tstop});
 
-  warn $dbh->errstr,"\n" and return unless $result;
+  warn $dbh->errstr,"\n" && return unless $result;
 
   my $fid = $dbh->{mysql_insertid}
     || $self->get_feature_id($gff->{ref},$gff->{start},$gff->{stop},$typeid,$groupid);
