@@ -430,12 +430,54 @@ location of the alignment.
 
 =cut
 
+
 sub target {
-  my $self = shift;
-  my $group = $self->group or return;
-  return unless $group->can('start');
-  $group;
+    my $self = shift;
+    my $group = $self->group or return;
+    return unless $group->can('start');
+    $group;
 }
+
+=head2 flatten_target
+
+ Title   : flatten_target
+ Usage   : $target = $f->flatten_target($f->target)
+ Function: flatten a target (Featname) object
+ Returns : a string (GFF2), an array [GFF2.5] or an array ref [GFF3]
+ Args    : a target object (required), GFF version (optional) 
+ Status  : Public
+
+This method flattens a target (Featname) object into text for
+GFF dumping.  If a second argument is provided, version-specific
+vocabulary is used for the flattened target.
+
+=cut
+
+sub flatten_target {
+    my $self = shift;
+    my $t    = shift || return;
+    my $v    = shift;
+
+    return 0 unless $t->can('start');
+    my $class = $t->class;
+    my $name  = $t->name;
+    my $start = $t->start;
+    my $stop  = $t->stop;
+#    ($start, $stop) = ($stop, $start) if $start > $stop;  # not for GFF2.5 targets
+
+    if ( $v == 2.5 ) {
+	
+	print STDERR qq(Target "$class:$name"), "tstart $start", "tstop $stop\n";
+	return (qq(Target "$class:$name"), "tstart $start", "tstop $stop");
+    }
+    elsif ( $v == 3 ) {
+	return [Target=>"$name $start $stop"];
+    }
+    else {
+	return qq(Target "$class:$name" $start $stop);
+    }
+}
+
 
 =head2 hit
 
@@ -873,7 +915,9 @@ sub all_tags {
 sub has_tag {
   my $self = shift;
   my $tag  = shift;
-  my %tags = map {$_=>1} $self->all_tags;
+  my %att  = $self->attributes;
+  my %tags = map {$_=>1} ( $self->all_tags );
+  print map { $_, '=>', $tags{$_}, "\n" } keys %tags;
   return $tags{$tag};
 }
 
@@ -1028,8 +1072,8 @@ sub name {
 =head2 gff_string
 
  Title   : gff_string
- Usage   : $string = $feature->gff_strin
- Function: return GFF version 2 representation of feature
+ Usage   : $string = $feature->gff_string
+ Function: return GFF2 of GFF2.5 representation of feature
  Returns : a string
  Args    : none
  Status  : Public
@@ -1038,6 +1082,13 @@ sub name {
 
 sub gff_string {
   my $self = shift;
+  my $version = $self->version;
+print STDERR "version $self $version\n";
+  
+  # gff3_string and gff_string are synonymous if the version is set to 3
+  return $self->gff3_string(@_) if $version == 3;
+print STDERR "version not 3\n";
+
   my ($start,$stop) = ($self->start,$self->stop);
 
   # the defined() tests prevent uninitialized variable warnings, when dealing with clone objects
@@ -1045,13 +1096,17 @@ sub gff_string {
   ($start,$stop) = ($stop,$start) if defined($start) && defined($stop) && $start > $stop;
 
   my ($class,$name) = ('','');
+  my $strand = ('-','.','+')[$self->strand+1];
+print STDERR "strand ".($self->strand)." $strand\n";
+
   my @group;
+print STDERR "testing target".($self->target)."\n";
+
   if (my $t = $self->target) {
-    my $class = $t->class;
-    my $name  = $t->name;
-    my $start = $t->start;
-    my $stop  = $t->stop;
-    push @group,qq(Target "$class:$name" $start $stop);
+#    $strand = '-' if $t->stop < $t->start;
+print STDERR "FLATTENING $t\n";
+    push @group, $version == 2.5 ? $self->flatten_target($t,2.5) 
+                                 : $self->flatten_target($t);
   }
 
   elsif (my $g = $self->group) {
@@ -1059,15 +1114,26 @@ sub gff_string {
     $name  = $g->name  || '';
     push @group,"$class $name";
   }
-  push @group,map {qq(Note "$_")} $self->notes;
+  
+  # for GFF2.5, add an exhaustive list of attributes
+  if ($version == 2.5) {
+    my %att = $self->attributes;
+    for ( keys %att ) {
+      my $v = $att{$_} =~ /\S\s+\S/ ? qq("$att{$_}") : $att{$_};
+      push @group, qq($_ $v);
+    }
+  }
+  else {
+    push @group,map {qq(Note "$_")} $self->notes;
+  }
 
   my $group_field = join ' ; ',@group;
-  my $strand = ('-','.','+')[$self->strand+1];
   my $ref = $self->refseq;
   my $n   = ref($ref) ? $ref->name : $ref;
   my $phase = $self->phase;
   $phase = '.' unless defined $phase;
-  return join("\t",$n,$self->source,$self->method,$start||'.',$stop||'.',$self->score||'.',$strand||'.',$phase,$group_field);
+  return join("\t",$n,$self->source,$self->method,$start||'.',$stop||'.',
+                   $self->score||'.',$strand||'.',$phase,$group_field);
 }
 
 =head2 gff3_string
@@ -1100,14 +1166,8 @@ sub gff3_string {
   my ($class,$name) = ('','');
   my @group;
   if (my $t = $self->target) {
-    my $name  = $t->name;
-    my $start = $t->start;
-    my $stop  = $t->stop;
-    if ($start > $stop) {  # oy vey
-      ($start,$stop) = ($stop,$start);
-      $strand = '-';       # no matter what
-    }
-    push @group,[Target=>"$name $start $stop"];
+    $strand = '-' if $t->stop < $t->start;
+    push @group, $self->flatten_target($t,3);
   }
 
   elsif (my $g = $self->group) {
@@ -1135,9 +1195,27 @@ sub gff3_string {
   $string;
 }
 
+=head2 version
+
+ Title   : version
+ Usage   : $feature->version()
+ Function: get/set the GFF version to be returned by gff_string
+ Returns : the GFF version (default is 2)
+ Args    : the GFF version (2, 2.5 of 3)
+ Status  : Public
+
+=cut
+
+sub version {
+  my ($self, $version) = @_;
+  $self->{version} = $version if $version;
+  return $self->{version} || 2;
+}
+
+
 sub _escape {
   my $toencode = shift;
-  $toencode    =~ s/([^a-zA-Z0-9_,. :?^*\(\)\[\]@!-])/uc sprintf("%%%02x",ord($1))/eg;
+  $toencode    =~ s/([^a-zA-Z0-9_. :?^*\(\)\[\]@!-])/uc sprintf("%%%02x",ord($1))/eg;
   $toencode    =~ tr/ /+/;
   $toencode;
 }
