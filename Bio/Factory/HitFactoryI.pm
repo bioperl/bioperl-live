@@ -68,7 +68,7 @@ The rest of the documentation details each of the object methods.
 package Bio::Factory::HitFactoryI;
 
 use strict;
-use Bio::Root::RootI;
+use Bio::Factory::ObjectFactoryI;
 
 use vars qw(@ISA);
 

@@ -463,7 +463,7 @@ my $refseq_db = undef;
 sub get_sequence{
    my ($db_type,$identifier) = @_;
    if( ! $DBOKAY ) {
-       confess("Your system does not have IO::String installed so the DB retrieval method is not available");
+       confess("Your system does not have one of LWP, HTTP::Request::Common, IO::String installed so the DB retrieval method is not available.  \nFull error message is:\n $!\n");
        return;
    }
    $db_type = lc($db_type);

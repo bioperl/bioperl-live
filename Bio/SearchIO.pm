@@ -17,7 +17,7 @@ Bio::SearchIO - Driver for parsing Sequence Database Searches (Blast,FASTA,...)
 =head1 SYNOPSIS
 
    use Bio::SearchIO;
-   # format can be 'fasta', 'blast'
+   # format can be 'fasta', 'blast', 'exonerate', ...
    my $searchio = new Bio::SearchIO( -format => 'blastxml',
                                      -file   => 'blastout.xml' );
    while ( my $result = $searchio->next_result() ) {
@@ -103,9 +103,9 @@ use Symbol();
  Usage   : my $obj = new Bio::SearchIO();
  Function: Builds a new Bio::SearchIO object 
  Returns : Bio::SearchIO initialized with the correct format
- Args    : Args    : -file => $filename
-           -format => format
-           -fh => filehandle to attach to
+ Args    : -file           => $filename
+           -format         => format
+           -fh             => filehandle to attach to
            -result_factory => Object implementing Bio::Factory::ObjectFactoryI
            -hit_factory    => Object implementing Bio::Factory::ObjectFactoryI
            -hsp_factory    => Object implementing Bio::Factory::ObjectFactoryI
@@ -114,9 +114,9 @@ use Symbol();
 
 See L<Bio::Factory::ObjectFactoryI>, L<Bio::SearchIO::SearchWriterI>
 
-Any factory objects in the arguments are passed along to the SearchResultEventBuilder
-object which holds these factories and sets default ones if none are supplied as
-arguments.
+Any factory objects in the arguments are passed along to the
+SearchResultEventBuilder object which holds these factories and sets
+default ones if none are supplied as arguments.
 
 =cut
 
