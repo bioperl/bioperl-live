@@ -2,7 +2,9 @@
 # $Id$
 
 use strict;
-my $exit;
+use vars qw($exit $DEBUG);
+$DEBUG = $ENV{"BIOPERLDEBUG"} || 0;
+
 BEGIN {
    eval { require Test; };
    use vars qw($NUMTESTS);
@@ -24,7 +26,7 @@ BEGIN {
 		require Fcntl;
 	};
    if ( $@ ) {
-      warn("Module DB_File or Fcntl or Storable or File::Temp not installed - skipping tests");
+      warn("Module DB_File or Fcntl or Storable or File::Temp not installed - skipping tests\n") if $DEBUG;
       $exit = 1;
    }
    plan tests => $NUMTESTS;
@@ -158,7 +160,13 @@ if (Bio::DB::FileCache->can('new')) {
    skip('Bio::DB::FileCache not loaded because one or more of Storable, Fcntl, DB_File or File::Temp not installed',1);
 }
 
-END { cleanup(); }
+END { 
+
+    foreach ( $Test::ntest..$NUMTESTS) {
+	skip('Cannot run tests some needed modules (DB_File, Fcntl, or Storable) are not installed',1);
+    }
+    cleanup(); 
+}
 
 sub cleanup {
 	foreach my $root ( qw( Wibbl Wibbl2 Wibbl3 Wibbl4 Wibbl5
