@@ -55,7 +55,7 @@ sub new {
   }
 
   my ($start,$stop) = ($self->start, $self->stop);
-  if (defined $start && defined $stop) {
+  if (defined $start && defined $stop && $start ne '') {  # more paranoia
     ($start,$stop) = ($stop,$start) if $start > $stop;  # sheer paranoia
     # the +1 here is critical for allowing features to meet nicely at nucleotide resolution
     my ($left,$right) = $factory->map_pt($start,$stop+1);

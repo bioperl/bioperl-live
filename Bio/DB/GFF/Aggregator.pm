@@ -294,6 +294,7 @@ sub aggregate {
 
   my (%aggregates,@result);
   for my $feature (@$features) {
+
     if ($feature->group && $matchsub->($feature)) {
       if ($main_method && lc $feature->method eq lc $main_method) {
 	$aggregates{$feature->group,$feature->refseq}{base} ||= $feature->clone;

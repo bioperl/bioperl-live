@@ -63,7 +63,7 @@ sub method { 'processed_transcript' }
 =cut
 
 sub part_names {
-  return qw(CDS 5'-UTR 3'-UTR transcription_start_site 
+  return qw(CDS 5'-UTR 3'-UTR transcription_start_site
 	    polyA_site UTR five_prime_untranslated_region
 	    three_prime_untranslated_region);
 }

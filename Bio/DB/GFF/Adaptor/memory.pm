@@ -138,6 +138,7 @@ sub get_dna {
   if (my $dna_db = $self->dna_db) {
     return $dna_db->seq($id,$start=>$stop);
   }
+  return '' unless $self->{dna};
 
   return $self->{dna}{$id} if !defined $start || !defined $stop;
   $start = 1 if !defined $start;
@@ -567,7 +568,7 @@ sub get_types {
     }
     
     if (defined $class){ 
-      next unless $feature_class eq $class ;
+      next unless defined $feature_class && $feature_class eq $class ;
     }
     
      # the requested range should OVERLAP the retrieved features
