@@ -91,12 +91,13 @@ BioPerlTutorial - a tutorial for bioperl
      III.9.1 Extended DNA / RNA alphabet
      III.9.2 Amino Acid alphabet
 
-  IV.  Related projects - biocorba, biopython, biojava, EMBOSS, Ensembl, AnnotationWorkbench
+  IV.  Related projects - biocorba, biopython, biojava, EMBOSS, Ensembl, GFF, AnnotationWorkbench
      IV.1 Biocorba
      IV.2 Biopython and biojava
      IV.3 EMBOSS
-     IV.2 Ensembl and bioperl-db
-     IV.4 The Annotation Workbench and bioperl-gui
+     IV.4 Ensembl and bioperl-db
+     IV.5 GFF format and Bio::DB::GFF*
+     IV.6 The Annotation Workbench and bioperl-gui
 
   V.  Appendices
      V.1 Finding out which methods are used by which Bioperl Objects
@@ -331,6 +332,14 @@ XML-Writer-0.4
 
 =item *
 
+Soap-Lite
+
+=item *
+
+XML-DOM
+
+=item *
+
 expat-1.95.1 from http://sourceforge.net/projects/expat/
 
 =back
@@ -506,9 +515,9 @@ RichSeq objects store additional annotations beyond those used by
 standard Seq objects.  If you are using sources with very rich
 sequence annotation, you may want to consider using these objects
 which are described in section L<"III.7.1">. SeqWithQuality objects are
-used to manipulate sequences with "quality" data.  These objects are
-described in section L<"III.7.4">, L<Bio::Seq::RichSeqI>, and in
-L<Bio::Seq::SeqWithQuality>.
+used to manipulate sequences with quality data, like those produced by
+phred.  These objects are described in section L<"III.7.4">,
+L<Bio::Seq::RichSeqI>, and in L<Bio::Seq::SeqWithQuality>.
 
 On the other hand, if you need a script capable of simultaneously
 handling many (hundreds or thousands) sequences at a time, then the
@@ -762,15 +771,6 @@ It's similar to Bio::Index::Fasta but offers more methods, eg
 Please see L<Bio::DB::Fasta> for more information on this fully-featured
 module.
 
-The Bio::DB::GFF module provides indexed access to files in GFF format,
-a file type that's highly suited to sequence annotation (see 
-http://www.sanger.ac.uk/software/GFF for details). The module accesses not
-only by id but by annotation type and position. Those who would like to
-explore bioperl as a means to overlay nucleotide sequence, protein sequence,
-features, and annotations should take a close look at L<Bio::DB::GFF> and
-the load_gff.pl, bulk_load_gff.pl, gadfly_to_gff.pl, and sgd_to_gff.pl
-scripts in the scripts/Bio-DB-GFF directory.
-
 
 =head2 III.2 Transforming formats of database/ file records
 
@@ -784,12 +784,12 @@ A common - and tedious - bioinformatics task is that of converting
 sequence data among the many widely used data formats.  Bioperl\'s
 SeqIO object, however, makes this chore a breeze.  SeqIO can
 read a stream of sequences - located in a single or in multiple files -
-in any of six formats: Fasta, EMBL, GenBank, Swissprot, PIR and GCG.
-Once the sequence data has been read in with SeqIO, it is available to
-bioperl in the form of Seq objects.  Moreover, the Seq objects can
-then be written to another file (again using SeqIO) in any of the
-supported data formats making data converters simple to implement, for
-example:
+in a number of formats: Fasta, EMBL, GenBank, Swissprot, PIR, GCG, SCF,
+phd/phred, Ace, or raw (plain sequence). Once the sequence data has
+been read in with SeqIO, it is available to bioperl in the form of Seq
+objects.  Moreover, the Seq objects can then be written to another file
+(again using SeqIO) in any of the supported data formats making data
+converters simple to implement, for example:
 
   use Bio::SeqIO;
   $in  = Bio::SeqIO->new('-file' => "inputfilename",
@@ -1860,7 +1860,7 @@ Sample usage might be:
     @dates       = $richseq->get_dates; 
     $seq_version = $richseq->seq_version;  
 
-See the L<Bio::Seq::RichSeqI> documentation for more details.
+See L<Bio::Seq::RichSeqI> for more details.
 
 =for html <A NAME ="iii.7.2"></A>
 
@@ -1939,13 +1939,13 @@ and polymorphism objects used to accomplish this.
 
 
 =head2 III.7.3 Representing related sequences - mutations,
-polymorphisms etc (Allele, SeqDiff,)
+polymorphisms etc (Allele, SeqDiff)
 
 The Mutation object allows for a basic description of a sequence change
 in the DNA sequence of a gene. The Mutator object takes in mutations,
 applies them to a LiveSeq gene and returns a set of Bio::Variation
 objects describing the net effect of the mutation on the gene at the DNA,
-RNA and protein stages.
+RNA and protein level.
 
 The objects in Bio::Variation and Bio::LiveSeq directory were
 originally designed for the "Computational Mutation Expression
@@ -1962,11 +1962,9 @@ mutation are exactly the same in DNA and RNA sequences, we can write:
   $loader = Bio::LiveSeq::IO::BioPerl->load('-file' => "$filename");
   $gene = $loader->gene2liveseq('-gene_name' => $gene_name);
   $mutation = new Bio::LiveSeq::Mutation ('-seq' =>'G',
-  					  '-pos' => 100,
-  					 );
+  					  '-pos' => 100 );
   $mutate = Bio::LiveSeq::Mutator->new('-gene'      => $gene,
-  				       '-numbering' => "coding"
-  				      );
+  				       '-numbering' => "coding"  );
   $mutate->add_Mutation($mutation);
   $seqdiff = $mutate->change_gene();
   $DNA_re_changes = $seqdiff->DNAMutation->restriction_changes;
@@ -1987,7 +1985,8 @@ SeqWithQuality objects are used to describe sequences with very
 specific annotations - that is, data quality annotaions.  Data quality
 information is important for documenting the reliability of base
 "calls" in newly sequenced or otherwise questionable sequence
-data. Syntax for using SeqWithQuality objects is as follows:
+data. The quality data is contained within a Bio::Seq::PrimaryQual object.
+Syntax for using SeqWithQuality objects is as follows:
 
   # first, make a PrimarySeq object
   $seqobj = Bio::PrimarySeq->new
@@ -2006,8 +2005,15 @@ data. Syntax for using SeqWithQuality objects is as follows:
   $swqobj->seq(); # the sequence of the SeqWithQuality object
   $swqobj->qual(); # the quality of the SeqWithQuality object
 
+A SeqWithQuality object is created automatically when phred output, a *phd
+file, is read by Seqio, eg
 
-See L<Bio::Seq::SeqWithQuality> for a detailed description of the methods.
+  $seqio = Bio::SeqIO->new(-file=>"my.phd",-format=>"phd");
+  # or just 'Bio::SeqIO->new(-file=>"my.phd")'
+  $seqWithQualObj = $seqio->next_seq;
+
+See L<Bio::Seq::SeqWithQuality> for a detailed description of the methods,
+L<Bio::Seq::PrimaryQual>, and L<Bio::SeqIO::phd>.
 
 =head2 III.7.5 Sequence XML representations - generation and parsing (SeqIO::game, SeqIO::bsml)
 
@@ -2060,9 +2066,9 @@ such as protein structure, phylogenetic trees and genetic maps.
 =head2 III.8.1 Using 3D structure objects and reading PDB files
 (StructureI, Structure::IO)
 
-A StructureIO object can be created from
-one or more 3D structures represented in Protein Data Bank, or pdb,
-format, see http://www.rcsb.org/pdb for details.
+A StructureIO object can be created from one or more 3D structures
+represented in Protein Data Bank, or pdb, format, see
+http://www.rcsb.org/pdb for details.
 
 StructureIO objects allow access to a variety of related Bio:Structure
 objects. An Entry object consist of one or more Model objects, which
@@ -2070,13 +2076,13 @@ in turn consist of one or more Chain objects. A Chain is composed of
 Residue objects, which in turn consist of Atom objects. There's a
 wealth of methods, here are just a few:
 
-  my $structio = Bio::Structure::IO->new( -file => "1XYZ.pdb");
-  my $struc = $structio->next_structure; # returns an Entry object
-  my $ann = $struc->annotation; # returns a Bio::Annotation object
-  my $pseq = $struc->seqres;    # returns a PrimarySeq object, thus
-  $pseq->subseq(1,20);          # returns a sequence string
-  my @atoms = $struc->get_atoms($res); # Atom objects, given a Residue
-  my @xyz = $atom->xyz;         # the 3D coordinates of the atom
+  $structio = Bio::Structure::IO->new( -file => "1XYZ.pdb");
+  $struc = $structio->next_structure; # returns an Entry object
+  $ann = $struc->annotation; # returns a Bio::Annotation object
+  $pseq = $struc->seqres;    # returns a PrimarySeq object, thus
+  $pseq->subseq(1,20);              # returns a sequence string
+  @atoms = $struc->get_atoms($res); # Atom objects, given a Residue
+  @xyz = $atom->xyz;                # the 3D coordinates of the atom
 
 These lines show how one has access to a number of related objects and methods.
 See L<Bio::Structure::IO>, L<Bio::Structure::Entry>, L<Bio::Structure::Model>,
@@ -2192,7 +2198,7 @@ are also acceptable in a biosequence:
  *        Terminator
 
 
- IUPAC-IUP AMINO ACID SYMBOLS:
+   IUPAC-IUP AMINO ACID SYMBOLS:
    Biochem J. 1984 Apr 15; 219(2): 345-373
    Eur J Biochem. 1993 Apr 1; 213(1): 2
 
@@ -2280,10 +2286,26 @@ databases, as in
   $loader->store($newid,$seqobj)
 
 Similarly one can query the database in a variety of ways and retrieve
-arrays of Seq objects. See L<Bio::DB::SQL::SeqAdaptor>,
+arrays of Seq objects. See biodatabases.pod, L<Bio::DB::SQL::SeqAdaptor>,
 L<Bio::DB::SQL::QueryConstraint>, and L<Bio::DB::SQL::BioQuery> for examples.
 
-=head2 IV.4 The Annotation Workbench and bioperl-gui
+
+=head2 IV.5 GFF format and Bio::DB::GFF*
+
+The Bio::DB::GFF module provides access to relational databases constructed
+from data files in GFF format. This file type is well suited to sequence
+annotation because it allows the ability to describe entries in terms of
+parent-child relationships (see http://www.sanger.ac.uk/software/GFF for
+details).
+
+The module accesses not only by id but by annotation type and position or
+range. Those who would like to explore bioperl as a means to overlay nucleotide
+sequence, protein sequence, features, and annotations should take a close
+look at L<Bio::DB::GFF>and the load_gff.pl, bulk_load_gff.pl, gadfly_to_gff.pl,
+and sgd_to_gff.pl scripts in the scripts/Bio-DB-GFF directory.
+
+
+=head2 IV.6 The Annotation Workbench and bioperl-gui
 
 The Annotation Workbench (AW) being developed at the Plant
 Biotechnology Institute of the National Research Council of Canada is
