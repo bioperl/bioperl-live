@@ -506,6 +506,9 @@ sub trunc{
            The resulting translation is identical to EMBL/TREMBL database 
            translations.
 
+           Note: if you set $dna_seq_obj->verbose(1) you will get
+           a warning if the first codon is not a valid initator.
+
  Returns : A Bio::PrimarySeqI implementing object
  Args    : character for terminator (optional) defaults to '*'
            character for unknown amino acid (optional) defaults to 'X'
@@ -565,6 +568,14 @@ sub translate {
       chop $output;
   }
 
+  # if the initiator codon is not ATG, the amino acid needs to changed into M
+  if ( substr($output,0,1) ne 'M' ) {
+      if ($codonTable->is_start_codon(substr($seq, 0, 3)) ) {
+	  $output = 'M'. substr($output,1);
+      } else {
+	  $self->warn('Not using a valid initiator codon!') if $self->verbose;
+      }      
+  }
 
   my($out,$id);
   $id = $self->id();
