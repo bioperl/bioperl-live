@@ -338,18 +338,8 @@ sub add_sub_SeqFeature{
        $self->warn("$feat does not implement Bio::SeqFeatureI. Will add it anyway, but beware...");
    }
 
-   if( $expand eq 'EXPAND' ) {
-       # if this doesn't have start/end set - forget it!
-       if ( !defined $self->start && !defined $self->end ) {
-	   $self->start($feat->start());
-	   $self->end($feat->end());
-	   $self->strand($feat->strand);
-       } else {
-	   my ($start, $end, $strand) = $self->union($feat);
-	   $self->start($start);
-	   $self->end($end);
-	   $self->strand($strand);
-       }
+   if($expand eq 'EXPAND') {
+       $self->_expand_region($feat);
    } else {
        if ( !$self->contains($feat) ) {
 	   $self->throw("$feat is not contained within parent feature, and expansion is not valid");
@@ -613,6 +603,7 @@ sub seq {
 sub entire_seq {
    my ($self) = @_;
 
+   return undef unless exists($self->{'_gsf_seq'});
    return $self->{'_gsf_seq'};
 }
 
@@ -746,6 +737,40 @@ sub _from_gff_string {
    }
 }
 
+=head2 _expand_region
+
+ Title   : _expand_region
+ Usage   : $self->_expand_region($feature);
+ Function: Expand the total region covered by this feature to
+           accomodate for the given feature.
+
+           May be called whenever any kind of subfeature is added to this
+           feature. add_sub_SeqFeature() already does this.
+ Returns : 
+ Args    : A Bio::SeqFeatureI implementing object.
+
+
+=cut
+
+sub _expand_region {
+    my ($self, $feat) = @_;
+
+    if(! $feat->isa('Bio::SeqFeatureI')) {
+	$self->warn("$feat does not implement Bio::SeqFeatureI");
+    }
+    # if this doesn't have start/end set - forget it!
+    if((! defined($self->start())) && (! defined $self->end())) {
+	$self->start($feat->start());
+	$self->end($feat->end());
+	$self->strand($feat->strand) unless defined($self->strand());
+    } else {
+	my ($start, $end, $strand) = $self->union($feat);
+	$self->start($start);
+	$self->end($end);
+	$self->strand($strand);
+    }
+}
+
 =head2 _parse
 
  Title   : _parse
@@ -764,5 +789,4 @@ sub _parse {
    return $self->{'_parse_h'};
 }
 
-
-
+1;
