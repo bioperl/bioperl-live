@@ -35,6 +35,14 @@ use Bio::SeqIO;
 use vars qw(@ISA %preferred_tags);
 @ISA = qw(Bio::DB::GFF::Adaptor::dbi::mysql);
 
+
+sub _preferred_tags {
+    my ($self, $tags) = @_;
+    if ($tags && (ref($tags) =~ /HASH/)){
+        $self->{preferred_tags} = $tags;
+    }
+    return $self->{preferred_tags};
+}
 # priority for choosing names of CDS tags, higher is higher priority
 %preferred_tags = (
 		      strain        => 10,
@@ -52,7 +60,14 @@ use vars qw(@ISA %preferred_tags);
  Usage   : $db = Bio::DB::GFF->new(-adaptor=>'biofetch',@args)
  Function: create a new adaptor
  Returns : a Bio::DB::GFF object
- Args    : see below
+ Args    :   -adaptor : required.  Which adaptor to use; biofetch for mysql, biofetch_oracle for Oracle
+             -preferred_tags : optional.  A hash of {classname => weight,...}
+                               used to determine the class and name of the feature
+                               when a choice of possible feature classes is available
+                               (e.g. a feature has both a 'gene' and a 'locus' tag).
+                               Common defaults are provided that work well for eukaryotic
+                               features (but not well for viral/prokaryotic)
+              see below for additional arguments.                             
  Status  : Public
 
 This is the constructor for the adaptor.  It is called automatically
@@ -80,8 +95,12 @@ argument must be passed as an array reference.
 
 sub new {
   my $class = shift;
-  my $self  = $class->SUPER::new(@_);
-  my ($proxy) = rearrange(['PROXY'],@_);
+  my $args = shift;
+  my $self  = $class->SUPER::new($args);
+  my ($preferred) = rearrange(['PREFERRED_TAGS'],$args);
+  $self->_preferred_tags($preferred?$preferred:\%default_preferred_tags);  # if the caller sent their own preferences, then use these, otherwise use defaults.
+
+  my ($proxy) = rearrange(['PROXY'],$args);
   if ($proxy) {
     my @args = ref($proxy) ? @$proxy : eval $proxy;
     $self->{_proxy} = \@args if @args;
@@ -267,7 +286,7 @@ sub guess_name {
   my $attributes = shift;
 # remove this fix when Lincoln fixes it properly
   return ["Misc" => "Misc"] unless ($attributes);  # these are arbitrary, and possibly destructive defaults
-  my @ordered_attributes = sort {($preferred_tags{$a->[0]} || 0) <=> ($preferred_tags{$b->[0]} || 0)} @$attributes;
+  my @ordered_attributes = sort {($self->_preferred_tags->{$a->[0]} || 0) <=> ($self->_preferred_tags->{$b->[0]} || 0)} @$attributes;
   my $best = pop @ordered_attributes;
   @$attributes = @ordered_attributes;
   return $best;

@@ -68,7 +68,7 @@ sub _preferred_tags {
                                (e.g. a feature has both a 'gene' and a 'locus' tag).
                                Common defaults are provided that work well for eukaryotic
                                features (but not well for viral/prokaryotic)
-              see beow for additional arguments.                             
+              see below for additional arguments.                             
  Status  : Public
 
 This is the constructor for the adaptor.  It is called automatically
