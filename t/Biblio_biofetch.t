@@ -67,11 +67,11 @@ eval {
 };
 
 if ($@) {
-    print STDERR "Warning: Couldn't connect to BioFetch server with Bio::DB::Medline.pm!\n" . $@;
+    print STDERR "Warning: Couldn't connect to BioFetch server with Bio::DB::Medline.pm!\n";
+	print STDERR $@ if( $DEBUG );
 
-foreach ( $Test::ntest..$NUMTESTS) { 
+    foreach ( $Test::ntest..$NUMTESTS) { 
 	skip(1,'could not connect to Medline');}
-
 }
 
 $ref = $refio = undef;
