@@ -856,11 +856,7 @@ sub each_date {
 
 sub accession {
    my ($obj,$value) = @_;
-   if( defined $value) {
-      $obj->{'accession'} = $value;
-    }
-    return $obj->{'accession'};
-
+   return $obj->accession_number($value);
 }
 
 =head2 add_secondary_accession
