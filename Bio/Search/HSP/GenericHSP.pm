@@ -101,7 +101,7 @@ use Bio::Root::Root;
 use Bio::SeqFeature::Similarity;
 use Bio::Search::HSP::HSPI;
 
-@ISA = qw(Bio::Root::Root Bio::Search::HSP::HSPI);
+@ISA = qw(Bio::Search::HSP::HSPI Bio::Root::Root );
 
 BEGIN {
     $GAP_SYMBOL = '-';
@@ -205,27 +205,28 @@ sub new {
     }
     # Store the aligned query as sequence feature
     my $strand;
-    
     if( ! $qe || ! $qs ) { $self->throw("Did not specify a Query End or Query Begin @args"); }
     if( ! $he || ! $hs ) { $self->throw("Did not specify a Hit End or Hit Begin"); }
     if ($qe > $qs) {  # normal query: start < end
-	if ($queryfactor) { $strand = 1; } else { $strand = undef; }
-	$self->query( Bio::SeqFeature::Similarity->new
-		      ('-start' => $qs,
-		       '-end'   => $qe,
-		       '-strand'=> $strand,
-		       '-source'=> $algo,
-		      ) ) }
-    else { # reverse query (i dont know if this is possible, 
-	   # but feel free to correct)
+	if ($queryfactor) { $strand = 1; } else { $strand = undef; }	
+    } else { # reverse query (i dont know if this is possible, 
+	     # but feel free to correct)
 	if ($queryfactor) { $strand = -1; } else { $strand = undef; }
-	$self->query( Bio::SeqFeature::Similarity->new
-		      ('-start' => $qe,
-		       '-end'   => $qs,
-		       '-strand'=> $strand,
-		       '-source'=> $algo,
-		      ) );
+	($qs,$qe) = ($qe,$qs);
+    
     }
+    $self->query( new  Bio::SeqFeature::Similarity
+		  ('-primary'  => $self->primary_tag,
+		   '-start'    => $qs,
+		   '-expect'   => $evalue,
+		   '-bits'     => $bits,
+		   '-end'      => $qe,
+		   '-strand'   => $strand,
+		   '-seqname'  => $query_name,
+		   '-seqlength'=> $query_len,
+		   '-source'   => $algo,
+		   ) );
+    
     # to determine frame from something like FASTXY which doesn't
     # report the frame
     if( defined $strand && ! defined $qframe && $queryfactor ) {
@@ -236,22 +237,24 @@ sub new {
     # store the aligned subject as sequence feature
     if ($he > $hs) {		# normal subject
 	if ($hitfactor) { $strand = 1; } else { $strand = undef; }
-	$self->hit( Bio::SeqFeature::Similarity->new
-		    ('-start' => $hs,
-		     '-end'   => $he,
-		     '-strand'=> $strand,
-		     '-source'=> $algo) ) }
-    else {			# reverse subject: start bigger than end
+    } else {
 	if ($hitfactor) { $strand = -1; } else { $strand = undef; }
-	$self->hit( Bio::SeqFeature::Similarity->new
-		    ('-start' => $he,
-		     '-end'   => $hs,
-		     '-strand'=> $strand,
-		     '-source'=> $algo) );
+	($hs,$he) = ( $he,$hs); # reverse subject: start bigger than end
     }
 
+    $self->hit( Bio::SeqFeature::Similarity->new
+		('-start'     => $hs,
+		 '-end'       => $he,
+		 '-strand'    => $strand,
+		 '-expect'    => $evalue,
+		 '-bits'      => $bits,
+		 '-source'    => $algo,
+		 '-seqname'   => $hit_name,
+		 '-seqlength' => $hit_len,
+		 '-primary'   => $self->primary_tag ));
+    
     if( defined $strand && ! defined $hframe && $hitfactor ) {
-	$hframe = ( $self->hit->start % 3 ) * $strand;
+	$hframe = ( $hs % 3 ) * $strand;
     } elsif( ! defined $strand ) { 
 	$hframe = 0;
     }
@@ -262,18 +265,12 @@ sub new {
 	$self->throw("Must defined hit and query length");
     }
 
-    $self->hit->seqname($hit_name);
-    $self->query->seqname($query_name);
-
-    $self->hit->seqlength($hit_len);
-    $self->query->seqlength($query_len);
-
     if( ! defined $identical ) { 
 	$self->warn("Did not defined the number of identical matches in the HSP assuming 0");
 	$identical = 0;
     } 
     if( ! defined $conserved ) {
-	$self->warn("Did not defined the number of conserved matches in the HSP assuming conserved == identical ($identical)") if( $algo !~ /T?(FAST|BLAST)N/i);
+	$self->warn("Did not defined the number of conserved matches in the HSP assuming conserved == identical ($identical)") if( $algo !~ /(FAST|BLAST)N/i);
 	$conserved = $identical;
     } 
     # protect for divide by zero if user does not specify 
