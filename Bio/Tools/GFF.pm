@@ -103,13 +103,16 @@ use Bio::SeqFeature::Generic;
 =head2 new
 
  Title   : new
- Usage   : 
+ Usage   : my $parser = new Bio::Tools::GFF(-gff_version => 2,
+					    -file        => "filename.gff");
+           or
+           my $writer = new Bio::Tools::GFF(-gff_version => 3,
+					    -file        => ">filename.gff3");
  Function: Creates a new instance. Recognized named parameters are -file, -fh,
            and -gff_version.
-
  Returns : a new object
- Args    : names parameters
-
+ Args    : named parameters
+           -gff_version => [1,2,3]
 
 =cut
 
@@ -121,11 +124,9 @@ sub new {
 
   # initialize IO
   $self->_initialize_io(@args);
-  
-  $self->_parse_header();
+  $self->_parse_header;
 
   $gff_version ||= 2;
-  
   if( ! $self->gff_version($gff_version) )  {
       $self->throw("Can't build a GFF object with the unknown version ".
 		   $gff_version);
@@ -141,7 +142,6 @@ sub new {
  Function: used to turn parse GFF header lines.  currently
            produces Bio::LocatableSeq objects from ##sequence-region
            lines
- Example :
  Returns : 1 on success
  Args    : none
 
@@ -149,19 +149,23 @@ sub new {
 =cut
 
 sub _parse_header{
-   my ($self,@args) = @_;
+   my ($self) = @_;
 
    my @unhandled;
+   local $^W = 0; # hide warnings when we try and parse from a file opened
+                  # for writing - there isn't really a better way to do
+                  # AFAIK - cannot detech if a FH is read or write.
    while(my $line = $self->_readline()){
  	 my $handled = 0;
-
+	 next if /^\s+$/;
 	 if($line =~ /^\#\#sequence-region\s+(\S+)\s+(\S+)\s+(\S+)\s*/){
 	   my($seqid,$start,$end) = ($1,$2,$3);
-	   push @{ $self->{'segments'} }, Bio::LocatableSeq->new(
-															 -id    => unescape($seqid),
-															 -start => $start,
-															 -end   => $end,
-															);
+	   push @{ $self->{'segments'} }, Bio::LocatableSeq->new
+	       (
+		-id    => unescape($seqid),
+		-start => $start,
+		-end   => $end,
+		);
 	   $handled = 1;
 	 } elsif($line =~ /^(\#\#feature-ontology)/) {
 	   #to be implemented
@@ -212,7 +216,6 @@ sub _parse_header{
 
 sub next_segment{
    my ($self,@args) = @_;
-
    return shift @{ $self->{'segments'} } if defined $self->{'segments'};
    return undef;
 }
@@ -234,7 +237,7 @@ sub next_feature {
     my ($self) = @_;
     
     my $gff_string;
-
+    
     # be graceful about empty lines or comments, and make sure we return undef
     # if the input's consumed
     while(($gff_string = $self->_readline()) && defined($gff_string)) {	
