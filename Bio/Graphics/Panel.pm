@@ -679,14 +679,15 @@ sub translate_color {
 # workaround for bad GD
 sub colorClosest {
   my ($self,$gd,@c) = @_;
-  return $gd->colorClosest(@c) if $GD::VERSION < 2.04;
+  return $self->{closestcache}{"@c"} if exists $self->{closestcache}{"@c"};
+  return $self->{closestcache}{"@c"} = $gd->colorClosest(@c) if $GD::VERSION < 2.04;
   my ($value,$index);
   for (keys %COLORS) {
     my ($r,$g,$b) = @{$COLORS{$_}};
     my $dist = ($r-$c[0])**2 + ($g-$c[1])**2 + ($b-$c[2])**2;
     ($value,$index) = ($dist,$_) if !defined($value) || $dist < $value;
   }
-  return $self->{translations}{$index};
+  return $self->{closestcache}{"@c"} = $self->{translations}{$index};
 }
 
 sub bgcolor {
