@@ -10,7 +10,7 @@ BEGIN {
     }
     use Test;
     use vars qw($NTESTS);
-    $NTESTS = 9;
+    $NTESTS = 10;
     plan tests => $NTESTS;
 }
 
@@ -31,6 +31,8 @@ ok(1);
 my @params = ('ktuple' => 2, 'matrix' => 'BLOSUM', 
 	      -verbose => -1);
 my  $factory = Bio::Tools::Run::Alignment::Clustalw->new(@params);
+
+ok ($factory->version >= 1.8, 1, "Code tested only on ClustalW versions > 1.8 ");
 
 ok $factory->isa('Bio::Tools::Run::Alignment::Clustalw');
 
@@ -81,21 +83,22 @@ $aln = $factory->profile_align($profile1,$profile2);
 ok( $aln->get_seq_by_pos(2)->get_nse, 'CATH_HUMAN/1-335', 
     " failed clustalw profile alignment using input file" );
 
-my $str1 = Bio::AlignIO->new(-file=> Bio::Root::IO->catfile("t","data","cysprot1a.msf"));
-my $aln1 = $str1->next_aln();
-my $str2 = Bio::AlignIO->new(-file=> Bio::Root::IO->catfile("t","data","cysprot1b.msf"));
-my $aln2 = $str2->next_aln();
+if ($factory->version > 1.82 ) {
+    my $str1 = Bio::AlignIO->new(-file=> Bio::Root::IO->catfile("t","data","cysprot1a.msf"));
+    my $aln1 = $str1->next_aln();
+    my $str2 = Bio::AlignIO->new(-file=> Bio::Root::IO->catfile("t","data","cysprot1b.msf"));
+    my $aln2 = $str2->next_aln();
+    
+    $aln = $factory->profile_align($aln1,$aln2);
+    ok($aln->get_seq_by_pos(2)->get_nse, 'CATH_HUMAN/1-335');
 
-$aln = $factory->profile_align($aln1,$aln2);
-skip("skipping due to clustalw 1.81 bug",1);
-#ok($aln->get_seq_by_pos(2)->get_nse, 'CATH_HUMAN/1-335', 
-#   "failed clustalw profile alignment using SimpleAlign input. \nThere is known bug in ClustalW 1.81 and before causing this test to fail.");
-
-$str1 = Bio::AlignIO->new(-file=> Bio::Root::IO->catfile("t","data","cysprot1a.msf"));
-$aln1 = $str1->next_aln();
-$str2 = Bio::SeqIO->new(-file=> Bio::Root::IO->catfile("t","data","cysprot1b.fa"));
-my $seq = $str2->next_seq();
-$aln = $factory->profile_align($aln1,$seq);
-skip("skipping due to clustalw 1.81 bug",1);
-#ok ($aln->get_seq_by_pos(2)->get_nse,  'CATH_HUMAN/1-335', 
-#    "failed adding new sequence to alignment \nThere is known bug in ClustalW 1.81 and before causing this test to fail.");
+    $str1 = Bio::AlignIO->new(-file=> Bio::Root::IO->catfile("t","data","cysprot1a.msf"));
+    $aln1 = $str1->next_aln();
+    $str2 = Bio::SeqIO->new(-file=> Bio::Root::IO->catfile("t","data","cysprot1b.fa"));
+    my $seq = $str2->next_seq();
+    $aln = $factory->profile_align($aln1,$seq);
+    ok ($aln->get_seq_by_pos(2)->get_nse,  'CATH_HUMAN/1-335');
+} else {
+    skip("skipping due to clustalw 1.81 & 1.82 profile align bug",1);
+    skip("skipping due to clustalw 1.81 & 1.82 profile align bug",1);
+}
