@@ -2,7 +2,7 @@
 
 use lib '.';
 
-# $Id: bp_genbank2gff.PLS,v 1.2 2003-07-29 19:35:38 lstein Exp $
+# $Id: bp_genbank2gff.PLS,v 1.3 2003-07-30 13:55:17 mwilkinson Exp $
 use strict;
 use Bio::DB::GFF;
 use Getopt::Long;
@@ -37,10 +37,12 @@ e.g. -d instead of --database.
    --dsn       <dsn>         Data source (default dbi:mysql:test)
    --user      <user>        Username for mysql authentication
    --pass      <password>    Password for mysql authentication
-   --proxy     <proxy>       Proxy server to use for remote access
-   --file                    Arguments that follow are Genbank/EMBL file names (default)
-   --accession               Arguments that follow are genbank accession numbers
    --stdout                  Write converted GFF file to stdout rather than loading
+   --proxy     <proxy>       Proxy server to use for remote access
+    EITHER --file            Arguments that follow are Genbank/EMBL file names
+    OR --accession           Arguments that follow are genbank accession numbers
+    OR --acc_file            accession numbers in a file (one per line, no punc.) 
+    OR --acc_pipe            accession numbers from a STDIN pipe (one per line)   
 
 =head1 SEE ALSO
 
@@ -99,6 +101,9 @@ sub load_gff_line {
        push @attributes,"$a=".join(',',@{$a{$a}});
     }
   }
+  ${$options}{'score'} = "." unless ${$options}{'score'};
+  ${$options}{'strand'} = "." unless ${$options}{'strand'};
+  ${$options}{'phase'} = "." unless ${$options}{'phase'};
   my $last_column = join ';',@attributes;
   if ($options->{method} eq 'origin') {
      print "##sequence-region $options->{gname} $options->{start} $options->{stop}\n";
@@ -124,17 +129,10 @@ sub finish_load { }
 
 package main;
 
-my ($DSN,$ADAPTOR,$CREATE,$USER,$PASSWORD,$FASTA,$ACC,$FILE,$PROXY,$STDOUT);
+my $USAGE = <<USAGE;
 
-GetOptions ('dsn:s'       => \$DSN,
-	    'user:s'      => \$USER,
-	    'password:s'  => \$PASSWORD,
-            'accession'   => \$ACC,
-            'file'        => \$FILE,
-            'proxy:s'     => \$PROXY,
-            stdout        => \$STDOUT,
-	    create        => \$CREATE) or die <<USAGE;
-Usage: $0 [options] <gff file 1> <gff file 2> ...
+
+Usage: $0 [options] [<gff file 1> <gff file 2>] ...
 Load a Bio::DB::GFF database from GFF files.
 
  Options:
@@ -143,8 +141,13 @@ Load a Bio::DB::GFF database from GFF files.
    --user      <user>        Username for mysql authentication
    --pass      <password>    Password for mysql authentication
    --proxy     <proxy>       Proxy server to use for remote access
-   --file                    Arguments that follow are Genbank/EMBL file names (default)
-   --accession               Arguments that follow are genbank accession numbers
+   --stdout                  direct output to STDOUT
+    EITHER --file            Arguments that follow are Genbank/EMBL file names
+    OR --gb_folder           What follows is a folder full of gb files to process
+    OR --accession           Arguments that follow are genbank accession numbers (not gi!)
+    OR --acc_file            accession numbers (not gi!) in a file (one per line, no punc.) 
+    OR --acc_pipe            accession numbers (not gi!) from a STDIN pipe (one per line)   
+
 
 This script loads a Bio::DB::GFF database with the features contained
 in a either a local genbank file or an accession that is fetched from
@@ -158,6 +161,25 @@ that are supported by GFF through adaptors.
 
 USAGE
 ;
+
+my ($DSN,$ADAPTOR,$CREATE,$USER,$PASSWORD,$gbFOLDER,$FASTA,$ACC,$accFILE, $accPIPE, $FILE,$PROXY,$STDOUT);
+
+
+GetOptions (
+            'dsn:s'       => \$DSN,
+            'user:s'      => \$USER,
+            'password:s'  => \$PASSWORD,
+            'accession'   => \$ACC,
+            'file'        => \$FILE,
+            'acc_file'    => \$accFILE,
+            'acc_pipe'    => \$accPIPE,
+            'gb_folder=s' => \$gbFOLDER,
+            'proxy:s'     => \$PROXY,
+            'stdout'      => \$STDOUT,
+            'create'      => \$CREATE) or die $USAGE;
+
+
+die $USAGE unless ($DSN || $STDOUT);  # at a minimum we need to have a place to write to!
 
 # some local defaults
 $DSN     ||= 'dbi:mysql:test';
@@ -175,19 +197,64 @@ if ($CREATE) {
   $db->initialize(1);
 }
 
-die "you must specify either an accession to retrieve from\nembl or a local file containing data in embl format\n" 
-  unless @ARGV;
+die "you must specify either an accession to retrieve from\nembl or a local file containing data in embl format\n" if (($FILE || $ACC) && !scalar(@ARGV));
 
-if ($ACC && !$FILE) {
+if ($ACC) {
   while ($_ = shift) {
     print STDERR "Loading $_...";
     my $result = $db->load_from_embl(/^NC_/?'refseq':'embl' => $_);
     print STDERR $result ? "ok\n" : "failed\n";
   }
-} else {
+  exit 1;
+} elsif ($FILE) {
   while ($_ = shift) {
     print STDERR "Loading $_...\n";
     my $result = $db->load_from_file($_);
     print STDERR $result ? "ok\n" : "failed\n";
   }
+  exit 1;
+} elsif ($accFILE){
+    my $filename = shift;
+    die "you must supply a filename after the --accFILE command line flag\n" unless $filename;
+    die "file $filename does not exist\n" unless (-e $filename && !(-d $filename));
+    open IN, "$filename" || die "Can't open file $filename for reading accession numbers: $!\n";
+    while (<IN>){
+        chomp;
+        print STDERR "Loading $_...";   
+        my $result = $db->load_from_embl(/^NC_/?'refseq':'embl' => $_);
+        print STDERR $result ? "ok\n" : "failed\n";
+    }
+    exit 1;
+} elsif ($gbFOLDER){
+    my $dir = $gbFOLDER;
+    die "folder $dir does not exist\n" unless (-e $dir && -d $dir);
+    opendir DIR, "$dir" || die "can't open directory $dir for reading: $!\n";
+    my @files = readdir DIR;
+    foreach my $file(@files){
+        if (!(-e "$gbFOLDER/$file") || (-d "$gbFOLDER/$file")){
+            print STDERR " $gbFOLDER/$file is not a filename!  Skipping...\n";
+            next
+        }
+        my $result = $db->load_from_file("$gbFOLDER/$file");
+        print STDERR $result ? "ok\n" : "failed\n";        
+    }
+} elsif ($accPIPE){
+    my @accessions = <STDIN>;
+    chomp @accessions;
+    foreach (@accessions){
+        print STDERR "Loading $_...";   
+        my $result = $db->load_from_embl(/^NC_/?'refseq':'embl' => $_);
+        print STDERR $result ? "ok\n" : "failed\n";        
+    }
+    exit 1;
+} else {
+    my $done;
+    while ($_ = shift) {
+        $done = 1;
+        print STDERR "Loading $_...\n";
+        my $result = $db->load_from_file($_);
+        print STDERR $result ? "ok\n" : "failed\n";
+    }
+    $done || die "\n\nyou didn't provide any source of data you silly sausage!\ndying from boredom...Aaaaaaaaaahhhhhhh\n\n";
+    exit 1;
 }
