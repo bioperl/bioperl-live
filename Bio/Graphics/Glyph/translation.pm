@@ -202,11 +202,12 @@ sub find_codons {
 
 sub make_key_feature {
   my $self = shift;
+  my @gatc = qw(g a t c);
   my $offset = $self->panel->offset;
   my $scale = 1/$self->scale;  # base pairs/pixel
   my $start = $offset;
   my $stop  = $offset + 100 * $scale;
-  my $seq   = join('',map{qw(g a t c)[rand 4]} (1..500));
+  my $seq   = join('',map{$gatc[rand 4]} (1..500));
   my $feature =
     Bio::Graphics::Feature->new(-start=> $start,
 				-end  => $stop,

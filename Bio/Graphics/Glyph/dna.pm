@@ -157,6 +157,7 @@ sub draw_gc_content {
 
 sub make_key_feature {
   my $self = shift;
+  my @gatc = qw(g a t c);
   my $offset = $self->panel->offset;
   my $scale = 1/$self->scale;  # base pairs/pixel
 
@@ -165,7 +166,7 @@ sub make_key_feature {
   my $feature =
     Bio::Graphics::Feature->new(-start=> $start,
 				-stop => $stop,
-				-seq  => join('',map{qw(g a t c)[rand 4]} (1..500)),
+				-seq  => join('',map{$gatc[rand 4]} (1..500)),
 				-name => $self->option('key'),
 				-strand => '+1',
 			       );
