@@ -109,9 +109,11 @@ sub new {
     my $self = Bio::Root::Root->new();
     bless $self,$class;
 
-    my ($seqdb,$file_name,$keep) = $self->_rearrange([qw(SEQDB FILE KEEP)],@args);
+    my ($seqdb,$file_name,$keep) = $self->_rearrange([qw(SEQDB FILE 
+							 KEEP)],@args);
 
-    if( !defined $seqdb || !ref $seqdb || !$seqdb->isa('Bio::DB::RandomAccessI') ) {
+    if( !defined $seqdb || !ref $seqdb || 
+	! $seqdb->isa('Bio::DB::RandomAccessI') ) {
        $self->throw("Must be a randomaccess database not a [$seqdb]");
     }
 
