@@ -13,11 +13,48 @@ Bio::Biblio::PubmedArticle - Representation of a PUBMED article
 
 =head1 SYNOPSIS
 
-#
+    $obj = new Bio::Biblio::PubmedArticle
+                  (-pubmed_history_list =>
+                       [ { 'pub_status' => 'pubmed',
+			   'date' => '2001-12-1T10:0:00Z' },
+			 { 'pub_status' => 'medline',
+			   'date' => '2002-1-5T10:1:00Z' } ],
+                   -pubmed_status => 'ppublish');
+ --- OR ---
+
+    $obj = new Bio::Biblio::PubmedArticle;
+    $obj->pubmed_status ('ppublish');
 
 =head1 DESCRIPTION
 
-#
+A storage object for a general PUBMED article.
+See its place in the class hierarchy in
+http://industry.ebi.ac.uk/openBQS/images/bibobjects_perl.gif
+
+=head2 Attributes
+
+The following attributes are specific to this class
+(however, you can also set and get all attributes defined in the parent classes):
+
+  pubmed_status
+  pubmed_provider_id
+  pubmed_history_list       type: array ref of hashes
+  pubmed_article_id_list    type: array ref of hashes
+  pubmed_url_list           type: array ref of hashes
+
+=head1 SEE ALSO
+
+=over
+
+=item *
+
+OpenBQS home page: http://industry.ebi.ac.uk/openBQS
+
+=item *
+
+Comments to the Perl client: http://industry.ebi.ac.uk/openBQS/Client_perl.html
+
+=back
 
 =head1 FEEDBACK
 

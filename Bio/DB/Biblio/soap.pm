@@ -420,7 +420,9 @@ sub get_next {
    my $soap = $self->{'_soap'};
    my ($collection_id) = $self->{'_collection_id'};
    $self->throw ($self->_no_id_msg) unless $collection_id;
-   $soap->getNext (SOAP::Data->type (string => $collection_id))->result;
+   my $ra = $soap->getNext (SOAP::Data->type (string => $collection_id))->result;
+   $self->{'_collection_id'} = shift @{ $ra };
+   shift @{ $ra };
 }
 
 sub get_more {
@@ -438,8 +440,10 @@ sub get_more {
        $how_many = 1;
    }
 
-   $soap->getMore (SOAP::Data->type (string => $collection_id),
-		   SOAP::Data->type (int    => $how_many))->result;
+   my $ra = $soap->getMore (SOAP::Data->type (string => $collection_id),
+			    SOAP::Data->type (int    => $how_many))->result;
+   $self->{'_collection_id'} = shift @{ $ra };
+   $ra;
 }
 
 sub reset_retrieval {
@@ -447,7 +451,7 @@ sub reset_retrieval {
    my $soap = $self->{'_soap'};
    my ($collection_id) = $self->{'_collection_id'};
    $self->throw ($self->_no_id_msg) unless $collection_id;
-   $soap->resetRetrieval (SOAP::Data->type (string => $collection_id));
+   $self->{'_collection_id'} = $soap->resetRetrieval (SOAP::Data->type (string => $collection_id))->result;
 }
 
 sub exists {

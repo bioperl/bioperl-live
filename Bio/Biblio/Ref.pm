@@ -13,21 +13,67 @@ Bio::Biblio::Ref - Representation of a bibliographic reference
 
 =head1 SYNOPSIS
 
-  # to be written
+    $obj = new Bio::Biblio::Ref (-type  => 'Letter',
+				 -title => 'Onegin to Tatiana');
+ --- OR ---
+
+    $obj = new Bio::Biblio::Ref;
+    $obj->type ('Letter');
 
 =head1 DESCRIPTION
 
-Super class and interface class for bibliographic references. The
-central class of the Bio::Biblio name space.
+A storage object for a general bibliographic reference (a citation).
+See its place in the class hierarchy in
+http://industry.ebi.ac.uk/openBQS/images/bibobjects_perl.gif
 
-The class names and attributes comes from the Martin Senger's java implementation
-of Biblio objects - the I<OpenBQS> project pages are at
-http://industry.ebi.ac.uk/openBQS/.
+=head2 Attributes
 
-See Martin's the UML diagram at 
-http://industry.ebi.ac.uk/openBQS/images/bibobjects_java.jpg
-for an overview.
+The following attributes are specific to this class, 
+and they are inherited by all citation types.
 
+  author_list_complete            values: 'Y'  (default) or 'N'
+  authors                         type:   array ref of Bio::Biblio::Provider's
+  cross_references                type:   array ref of Bio::Annotation::DBLink's
+  cross_references_list_complete  values: 'Y' (default) or 'N'
+  abstract
+  abstract_language
+  abstract_type
+  codes                           type:   hash ref
+  contributors                    type:   array ref of Bio::Biblio::Provider's
+  date
+  date_completed
+  date_created
+  date_revised
+  format
+  identifier
+  keywords
+  language
+  last_modified_date
+  publisher                       type:   Bio::Biblio::Provider
+  repository_subset
+  rights
+  spatial_location
+  subject_headings                type:   hash ref
+  subject_headings_source
+  temporal_period
+  title
+  toc
+  toc_type
+  type
+
+=head1 SEE ALSO
+
+=over
+
+=item *
+
+OpenBQS home page: http://industry.ebi.ac.uk/openBQS
+
+=item *
+
+Comments to the Perl client: http://industry.ebi.ac.uk/openBQS/Client_perl.html
+
+=back
 
 =head1 FEEDBACK
 
@@ -51,7 +97,7 @@ email or the web:
 
 =head1 AUTHORS
 
-Heikki Lehvaslaiho (heikki@ebi.ac.uk)
+Heikki Lehvaslaiho (heikki@ebi.ac.uk),
 Martin Senger (senger@ebi.ac.uk)
 
 =head1 COPYRIGHT
@@ -144,13 +190,11 @@ use Bio::Annotation::DBLink;
  Usage   : $self->add_cross_reference
                (new Bio::Annotation::DBLink (-database   => 'EMBL',
 					     -primary_id => 'V00808');
- Function: 
- Example : 
+ Function: adding a link to a database entry
  Returns : new value of 'cross_references'
  Args    : an object of type Bio::Annotation::DBLink
 
 =cut
-
 
 sub add_cross_reference {
     my ($self, $value) = @_;
@@ -166,9 +210,8 @@ sub add_cross_reference {
 =head2 add_author
 
  Usage   : $self->add_author (new Bio::Biblio::Person (-lastname => 'Novak');
- Function: 
- Example : 
- Returns : new value of 'authors'
+ Function: adding an author to a list of authors
+ Returns : new value of 'authors' (a full list)
  Args    : an object of type Bio::Biblio::Provider
 
 =cut
@@ -187,13 +230,11 @@ sub add_author {
 =head2 add_contributor
 
  Usage   : $self->add_contributor (new Bio::Biblio::Person (-lastname => 'Novak');
- Function: 
- Example : 
- Returns : new value of 'contributors'
+ Function: adding a contributor to a list of contributors
+ Returns : new value of 'contributors' (a full list)
  Args    : an object of type Bio::Biblio::Provider
 
 =cut
-
 
 sub add_contributor {
     my ($self, $value) = @_;

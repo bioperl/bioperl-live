@@ -13,11 +13,37 @@ Bio::Biblio::Proceeding - Representation of a conference proceeding
 
 =head1 SYNOPSIS
 
-#
+    $obj = new Bio::Biblio::Proceeding (-title => 'JavaONE');
+
+ --- OR ---
+
+    $obj = new Bio::Biblio::Proceeding;
+    $obj->title ('JavaONE');
 
 =head1 DESCRIPTION
 
-#
+A storage object for a conference proceeding.
+See its place in the class hierarchy in
+http://industry.ebi.ac.uk/openBQS/images/bibobjects_perl.gif
+
+=head2 Attributes
+
+There are no specific attributes in this class
+(however, you can set and get all attributes defined in the parent classes).
+
+=head1 SEE ALSO
+
+=over
+
+=item *
+
+OpenBQS home page: http://industry.ebi.ac.uk/openBQS
+
+=item *
+
+Comments to the Perl client: http://industry.ebi.ac.uk/openBQS/Client_perl.html
+
+=back
 
 =head1 FEEDBACK
 
@@ -41,7 +67,7 @@ email or the web:
 
 =head1 AUTHORS
 
-Heikki Lehvaslaiho (heikki@ebi.ac.uk)
+Heikki Lehvaslaiho (heikki@ebi.ac.uk),
 Martin Senger (senger@ebi.ac.uk)
 
 =head1 COPYRIGHT
@@ -54,6 +80,12 @@ it under the same terms as Perl itself.
 =head1 DISCLAIMER
 
 This software is provided "as is" without warranty of any kind.
+
+=head1 BUGS AND LIMITATIONS
+
+This class should be probably somewhere else in the class hierarchy
+because a proceeding is actrually a collection of resources. Perhaps
+this will be changed in the future.
 
 =cut
 

@@ -13,11 +13,53 @@ Bio::Biblio::PubmedJournalArticle - Representation of a PUBMED journal article
 
 =head1 SYNOPSIS
 
-#
+    $obj = new Bio::Biblio::PubmedJournalArticle (
+
+                  # some attributes from MedlineJournalArticle
+                  -title => 'Thermal adaptation analyzed by comparison of protein sequences from mesophilic and extremely thermophilic Methanococcus species.',
+		  -journal => new Bio::Biblio::MedlineJournal (-issn => '0027-8424'),
+		  -volume => 96,
+		  -issue => 7,
+
+                  # and some from PubmedArticle
+                  -pubmed_history_list =>
+                       [ { 'pub_status' => 'pubmed',
+			   'date' => '2001-12-1T10:0:00Z' },
+			 { 'pub_status' => 'medline',
+			   'date' => '2002-1-5T10:1:00Z' } ],
+                   -pubmed_status => 'ppublish');
+ --- OR ---
+
+    $obj = new Bio::Biblio::PubmedJournalArticle;
+    $obj->title ('...');
+    $obj->journal (new Bio::Biblio::MedlineJournal (-issn => '0027-8424'));
+    $obj->pubmed_status ('ppublish');
+
 
 =head1 DESCRIPTION
 
-#
+A storage object for a PUBMED journal article.
+See its place in the class hierarchy in
+http://industry.ebi.ac.uk/openBQS/images/bibobjects_perl.gif
+
+=head2 Attributes
+
+There are no specific attributes in this class
+(however, you can set and get all attributes defined in the parent classes).
+
+=head1 SEE ALSO
+
+=over
+
+=item *
+
+OpenBQS home page: http://industry.ebi.ac.uk/openBQS
+
+=item *
+
+Comments to the Perl client: http://industry.ebi.ac.uk/openBQS/Client_perl.html
+
+=back
 
 =head1 FEEDBACK
 

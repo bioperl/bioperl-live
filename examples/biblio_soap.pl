@@ -1,10 +1,44 @@
 #!/usr/bin/perl -w
+#
+# This was actually a part of the test suite - but because it starts
+# an external process it was safer not to use it as a test (the process
+# could be left running if an error occurs).
+#
+# It is an example of a TCP-based SOAP exchange.
+#
+
 use strict;
 eval { require SOAP::Lite;
 };
 if( $@ ){
     die("must have SOAP::Lite installed to run this script");
 }
+
+use vars qw($NUMTESTS);
+
+my $error;
+
+BEGIN { 
+    # to handle systems with no installed Test module
+    # we include the t dir (where a copy of Test.pm is located)
+    # as a fallback
+    eval { require Test; };
+    $error = 0;
+    if( $@ ) {
+	use lib 't';
+    }
+    use Test;
+    plan tests => 10;
+}
+
+my $testnum;
+my $verbose = 0;
+
+## End of black magic.
+##
+## Insert additional test code below but remember to change
+## the print "1..x\n" in the BEGIN block to reflect the
+## total number of tests that will be run. 
 
 use Bio::Biblio;
 
@@ -70,10 +104,10 @@ if ($pid = fork) {
     sub getAllIDs { shift; return [ shift ] }
     sub getAllBibRefs { shift; return [ shift ] }
     sub hasNext { return SOAP::Data->type (boolean => 'true'); }
-    sub getNext { shift; return shift; }
+    sub getNext { shift; return [ '1', shift]; }
     sub getMore {
 	my ($self, $id, $how_many) = @_;
-	my @result;
+	my @result = ('1');
 	push (@result, $id) for (1..$how_many);
 	return \@result;
     }

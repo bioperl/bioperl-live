@@ -70,10 +70,11 @@ attributes they have, eventually what attribute values are allowed.
 
 =item B<Bio::Biblio>
 
-This is the main (and the only) class to be used by the end users. It
+This is the main class to be used by the end users. It
 loads a real implementation for a particular access protocol according
 to the argument I<-access>. At the time of writing this documentation
-there is only one available access method:
+there is only one available access module implementing all query and
+retrieval methods:
 
    -access => soap
 
@@ -82,27 +83,39 @@ I<Bio::DB::BiblioI> (see L<Bio::DB::BiblioI>) by delegating
 calls to a loaded low-level module (e.g. see
 L<Bio::DB::Biblio::soap>).
 
-=item B<Bio::DB::BiblioI>
+Note that there is also another module (and perhaps more) which does
+not use SOAP protocol and do not implement all query methods -
+nevertheless it has retrieval methods and it can be used in the same
+way:
+
+   -access => biofetch
+
+
+=item Bio::DB::BiblioI
 
 This is an interface defining all methods that can be called on
 I<Bio::Biblio> instances.
 
-=item B<Bio::DB::Biblio::soap>
+=item Bio::DB::Biblio::soap
 
 This is a real implementation of all methods defined in
 Bio::DB::BiblioI using SOAP protocol (calling a WebService
 based on SOAP). This class should not be instantiated directly (use
 I<Bio::Biblio> instead). See L<Bio::DB::BiblioI> for details.
 
-=item Bio::Biblio::IO   I<(not yet written)>
+=item Bio::Biblio::IO
 
-This module instantiates and uses a lower-level converter
-(e.g. I<Bio::Biblio::IO::medlinexml>) in order to transform citations
-from an XML format to Perl objects.
+This module instantiates and uses a converter of the citations read by
+any of the access methods mentioned above. See L<Bio::Biblio::IO> for
+details.
 
-=item Bio::Biblio::IO::medlinexml  I<(not yet written)>
+=item Bio::Biblio::IO::medlinexml and Bio::Biblio::IO::medline2ref
 
 A converter of MEDLINE citations in XML into Perl objects.
+
+=item Bio::Biblio::IO::pubmedxml and Bio::Biblio::IO::pubmed2ref
+
+A converter of PUBMED citations in XML into Perl objects.
 
 =back
 
@@ -194,8 +207,7 @@ BEGIN {
 
              -access => 'soap'
                It indicates what lower-level module to load.
-               Default is 'soap' - and it is at the moment the only
-               available and recognised value. 
+               Default is 'soap'.
 
              -location => 'http://...'
                 It says where to find a bibliographic query service.

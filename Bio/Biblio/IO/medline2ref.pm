@@ -229,6 +229,23 @@ sub convert {
        $result->contributors (\@contributors);
    }
 
+   # ...MEDLINE's OtherAbstract into an array of hashtables, each one
+   # having keys for the 'type', 'AbstractText' and the 'copyright'
+   $result->other_abstracts ($$source{'otherAbstracts'}) if defined $$source{'otherAbstracts'};
+#   if (defined $$source{'otherAbstracts'}) {
+#	my @other_abstracts = ();
+#	foreach my $oa ( @{ $$source{'otherAbstracts'} } ) {
+#	    if (defined $$oa{'abstractText'}) {
+#		my $abstract = $$oa{'abstractText'};
+#		delete $$oa{'abstractText'};
+#		$$oa{'abstract'} = $$abstract{'abstractText'};
+#		$$oa{'rights'} = $$abstract{'copyrightInformation'} if defined $$abstract{'copyrightInformation'};
+#		push (@other_abstracts, $oa);
+#	    }
+#	}
+#	$result->other_abstracts (\@other_abstracts);
+#    }
+
    # ...MEDLINE's OtherIDs into an array of hashtables, each one
    # having keys for the 'id', and 'source'
    $result->other_ids ($$source{'otherIDs'}) if defined $$source{'otherIDs'};
@@ -449,26 +466,6 @@ sub _convert_article {
 	$article->abstract_type ('text/plain');
 	$article->rights ($$abstract{'copyrightInformation'}) if defined $$abstract{'copyrightInformation'};
     }
-
-    # ...MEDLINE's OtherAbstract into an array of hashtables, each one
-    # having keys for the 'type', 'AbstractText' and the 'copyright'
-    if (defined $$from_article{'otherAbstracts'}) {
-       my @other_abstracts;
-       foreach my $oa ( @{ $$from_article{'otherAbstracts'} } ) {
-	   if (defined $$oa{'type'}) {
-	       $$oa{'other_abstract_type'} = $$oa{'type'};
-	       delete $$oa{'type'};
-	   }
-	   if (defined $$oa{'abstract'}) {
-	       my $abstract = $$oa{'abstract'};
-	       delete $$oa{'abstract'};
-               $$oa{'abstract'} = $$abstract{'abstractText'} if defined $$abstract{'abstractText'};
-               $$oa{'rights'} = $$abstract{'copyrightInformation'} if defined $$abstract{'copyrightInformation'};
-	       push (@other_abstracts, $oa);
-	   }
-       }
-       $article->other_abstracts (\@other_abstracts);
-   }
 
     if (defined $$from_article{'languages'}) {
 	my $languages = $$from_article{'languages'};  # ref-array

@@ -9,16 +9,86 @@
 
 =head1 NAME
 
-Bio::Biblio::edlineArticle - Representation of a general MEDLINE article
+Bio::Biblio::edlineArticle - Representation of a MEDLINE article
 
 =head1 SYNOPSIS
 
-#
+  $obj = new Bio::Biblio::MedlineArticle (-mesh_headings => ...);
+
+  # how are Mesh terms stored:
+  use Data::Dumper;
+  print Data::Dumper->Dump ( [$obj->mesh_headings], ['MeshHeadings']);
+
+  It produces (something like) this:
+  'MeshHeadings' => [
+	 { 'descriptorName' => 'Adult' },
+         { 'descriptorName' => 'Cardiovascular Diseases',
+           'subHeadings'    => [ { 'subHeading' => 'etiology' },
+			         { 'majorTopic' => 'Y',
+			           'subHeading' => 'mortality' } ] },
+	 { 'descriptorName' => 'Child Development',
+	   'subHeadings'    => [ { 'majorTopic' => 'Y',
+				   'subHeading' => 'physiology' } ] },
+	 { 'descriptorName' => 'Human' },
+	]
 
 =head1 DESCRIPTION
 
-#
+A storage object for a MEDLINE article.
+See its place in the class hierarchy in
+http://industry.ebi.ac.uk/openBQS/images/bibobjects_perl.gif
 
+=head2 Attributes
+
+The following attributes are specific to this class
+(however, you can also set and get all attributes defined in the parent classes):
+
+  affiliation
+  chemicals                      type: array ref of hashes
+  citation_owner
+  comment_ins                    type: array ref of hashes
+  comment_ons                    type: array ref of hashes
+  date_of_electronic_publication
+  erratum_fors                   type: array ref of hashes
+  erratum_in                     type: array ref of hashes
+  gene_symbols
+  general_notes                  type: array ref of hashes
+  grant_list_complete
+  grants                         type: array ref of hashes
+  medline_date
+  medline_id
+  medline_page
+  mesh_headings                  type: array ref of hashes
+  number_of_references
+  original_report_ins            type: array ref of hashes
+  other_abstracts                type: array ref of hashes
+  other_ids                      type: array ref of hashes
+  other_languages
+  pmid
+  republished_froms              type: array ref of hashes
+  republished_ins                type: array ref of hashes
+  retraction_ins                 type: array ref of hashes
+  retraction_ofs                 type: array ref of hashes
+  season
+  status
+  summary_for_patients_ins       type: array ref of hashes
+  update_ins                     type: array ref of hashes
+  update_ofs                     type: array ref of hashes
+  vernacular_title
+
+=head1 SEE ALSO
+
+=over
+
+=item *
+
+OpenBQS home page: http://industry.ebi.ac.uk/openBQS
+
+=item *
+
+Comments to the Perl client: http://industry.ebi.ac.uk/openBQS/Client_perl.html
+
+=back
 
 =head1 FEEDBACK
 
@@ -42,7 +112,7 @@ email or the web:
 
 =head1 AUTHORS
 
-Heikki Lehvaslaiho (heikki@ebi.ac.uk)
+Heikki Lehvaslaiho (heikki@ebi.ac.uk),
 Martin Senger (senger@ebi.ac.uk)
 
 =head1 COPYRIGHT

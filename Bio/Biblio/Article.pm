@@ -25,7 +25,7 @@ Bio::Biblio::Article - Representation of a general article
 
 =head1 DESCRIPTION
 
-A storage object for general articles.
+A storage object for a general article.
 See its place in the class hierarchy in
 http://industry.ebi.ac.uk/openBQS/images/bibobjects_perl.gif
 

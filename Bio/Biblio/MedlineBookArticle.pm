@@ -13,11 +13,40 @@ Bio::Biblio::MedlineBookArticle - Representation of a MEDLINE book article
 
 =head1 SYNOPSIS
 
-#
+    $obj = new Bio::Biblio::MedlineBookArticle
+                  (-title => 'Getting started'.
+		   -book => new Bio::Biblio::MedlineBook);
+ --- OR ---
+
+    $obj = new Bio::Biblio::MedlineBookArticle;
+    $obj->title ('Getting started');
 
 =head1 DESCRIPTION
 
-#
+A storage object for a MEDLINE book.
+See its place in the class hierarchy in
+http://industry.ebi.ac.uk/openBQS/images/bibobjects_perl.gif
+
+=head2 Attributes
+
+The following attributes are specific to this class
+(however, you can also set and get all attributes defined in the parent classes):
+
+  book           type: Bio::Biblio::MedlineBook
+
+=head1 SEE ALSO
+
+=over
+
+=item *
+
+OpenBQS home page: http://industry.ebi.ac.uk/openBQS
+
+=item *
+
+Comments to the Perl client: http://industry.ebi.ac.uk/openBQS/Client_perl.html
+
+=back
 
 =head1 FEEDBACK
 
@@ -41,7 +70,7 @@ email or the web:
 
 =head1 AUTHORS
 
-Heikki Lehvaslaiho (heikki@ebi.ac.uk)
+Heikki Lehvaslaiho (heikki@ebi.ac.uk),
 Martin Senger (senger@ebi.ac.uk)
 
 =head1 COPYRIGHT

@@ -13,11 +13,40 @@ Bio::Biblio::PubmedBookArticle - Representation of a PUBMED book article
 
 =head1 SYNOPSIS
 
-#
+    $obj = new Bio::Biblio::PubmedBookArticle
+                  (-title => 'Still getting started'.
+		   -book => new Bio::Biblio::MedlineBook);
+    # note that there is no specialised class PubmedBook
+
+ --- OR ---
+
+    $obj = new Bio::Biblio::PubmedBookArticle;
+    $obj->title ('Still getting started');
 
 =head1 DESCRIPTION
 
-#
+A storage object for a PUBMED book article.
+See its place in the class hierarchy in
+http://industry.ebi.ac.uk/openBQS/images/bibobjects_perl.gif
+
+=head2 Attributes
+
+There are no specific attributes in this class
+(however, you can set and get all attributes defined in the parent classes).
+
+=head1 SEE ALSO
+
+=over
+
+=item *
+
+OpenBQS home page: http://industry.ebi.ac.uk/openBQS
+
+=item *
+
+Comments to the Perl client: http://industry.ebi.ac.uk/openBQS/Client_perl.html
+
+=back
 
 =head1 FEEDBACK
 
