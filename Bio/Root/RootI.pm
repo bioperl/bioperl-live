@@ -120,14 +120,6 @@ sub _create_object {
   return Bio::Root::Root->new(@args);
 }
 
-sub _abstractDeath {
-  my ($self,$method) = @_;
-  $method = 'NOTSPECIFIED' unless defined $method;
-  my $package = ref $self || $self;
-  my $caller = (caller)[1];
-  confess "Abstract method '$method' defined in interface $caller not implemented by package '$package'. Not your fault - author of '$package' should be blamed!";
-}
-
 =head2 throw
 
  Title   : throw
@@ -482,6 +474,101 @@ sub _cleanup_methods {
   carp("Use of Bio::Root::RootI is deprecated.  Please use Bio::Root::Root instead");
   return;
 }
+
+=head2 B<throw_not_implemented()>
+
+ Purpose : Throws a Bio::Root::NotImplemented exception.
+           Intended for use in the method definitions of 
+           abstract interface modules where methods are defined
+           but are intended to be overridden by subclasses.
+ Usage   : $object->throw_not_implemented();
+ Example : sub method_foo { 
+             $self = shift; 
+             $self->throw_not_implemented();
+           }
+ Returns : n/a
+ Args    : n/a
+ Throws  : A Bio::Root::NotImplemented exception (via Error.pm)
+           The message of the exception contains
+             - the name of the method 
+             - the name of the interface 
+             - the name of the implementing class 
+           The name of the method is also placed within the 'value'
+           field of the Error object.
+
+           This method will work even when Error.pm isn't installed,
+  	   in which case $self->throw will be used.
+           If the object doesn't have a throw() method, 
+           Carp::confess() will be used.
+
+
+=cut   #'
+
+sub throw_not_implemented {
+    my $self = shift;
+    my $package = ref $self;
+    my $iface = caller(0);
+    my @call = caller(1);
+    my $meth = $call[3];
+
+    my $message = "Abstract method \"$meth\" is not implemented by package $package.\n" .
+		   "This is not your fault - author of $package should be blamed!\n";
+
+    # Checking if Error.pm is available in case the object isn't decended from
+    # Bio::Root::Root, which knows how to check for Error.pm.
+
+    if( $Bio::Root::Root::ERRORLOADED ) {
+	throw Bio::Root::NotImplemented ( -text   => $message,
+                                          -value  => $meth
+                                        );
+    }
+    elsif( $self->can('throw') ) {
+	 $self->throw( $message );
+    }
+    else {
+	confess $message ;
+    }
+}
+
+
+=head2 B<warn_not_implemented()>
+
+ Purpose : Generates a warning that a method has not been implemented.
+           Intended for use in the method definitions of 
+           abstract interface modules where methods are defined
+           but are intended to be overridden by subclasses.
+           Generally, throw_not_implemented() should be used,
+           but warn_not_implemented() may be used if the method isn't
+           considered essential and convenient no-op behavior can be 
+           provided within the interface.
+ Usage   : $object->warn_not_implemented( method-name-string );
+ Example : $self->warn_not_implemented( "get_foobar" );
+ Returns : Calls $self->warn on this object, if available.
+           If the object doesn't have a warn() method,
+           Carp::carp() will be used.
+ Args    : n/a
+
+
+=cut   #'
+
+sub warn_not_implemented {
+    my $self = shift;
+    my $package = ref $self;
+    my $iface = caller(0);
+    my @call = caller(1);
+    my $meth = $call[3];
+
+    my $message = "Abstract method \"$meth\" is not implemented by package $package.\n" .
+		   "This is not your fault - author of $package should be blamed!\n";
+
+    if( $self->can('warn') ) {
+        $self->warn( $message );
+    }
+    else {
+	carp $message ;
+    }
+}
+
 
 sub DESTROY {
     my $self = shift;
