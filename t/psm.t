@@ -13,7 +13,7 @@ BEGIN {
     }
     use Test;
 
-    plan tests => 41;
+    plan tests => 42;
 }
 use Bio::Matrix::PSM::IO;
 
@@ -123,6 +123,8 @@ ok %seq;
 foreach my $id ($psmIO->hid) {
     ok $seq{$id};
 }
+my $psm=$psmIO->next_psm;
+ok $psm;
 
 my %instances=$psmIO->instances;
 ok %instances;
