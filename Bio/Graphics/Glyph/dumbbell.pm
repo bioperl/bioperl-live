@@ -74,36 +74,41 @@ sub draw_end_diamond
   return ($x1, $x2);  
 }
 
+sub translated_polygon
+{
+  my ($self, $midX, $midY, $scale_factor, @coords) = @_;
+
+  my $poly_pkg = $self->polygon_package;
+
+  my $polygon   = $poly_pkg->new();
+  for (my $i=0; $i<(scalar @coords) / 2; $i++)
+  {
+    $polygon->addPt($coords[2*$i], $coords[2*$i+1]);
+  }
+  
+  $polygon->scale($scale_factor, $scale_factor);
+  $polygon->offset($midX, $midY);
+	
+	return $polygon;
+}
+
 sub draw_end_star
 {
   my ($self, $gd, $x1, $y1, $shape_size, $fg) = @_;
   
   #my @coords = (95, -31, -58, 81, 0, -100, 58, 81, -95, -31);
-  my @coords = (100, 0, -81, 59, 31, -95, 31, 95, -81, -58);
-  
+  my @coords1 = (31, 42, 31, -42, -49, -30, -38, 0, -49, 30);
+  my @coords2 = (100, 0, -81, 59, 31, -95, 31, 95, -81, -58);
+
   my $star_size = 190;
   
-  my $scaleFactor = $shape_size / $star_size;
-
-  my $poly_pkg = $self->polygon_package;
-
-  my $polygon   = $poly_pkg->new();
-  for (my $i=0; $i<5; $i++)
-  {
-    $polygon->addPt($coords[2*$i], $coords[2*$i+1]);
-  }
+  my $scale_factor = $shape_size / $star_size;
   
   my ($midX, $midY) = ($x1+$shape_size/2, $y1+$shape_size/2);
-  $polygon->scale($scaleFactor, $scaleFactor);
-  $polygon->offset($midX, $midY);
-  
-  $gd->filledPolygon($polygon, $fg);
-  
-  #GD draws a star with an empty interior - we have to fill it.
-  #There is a bogus vertical line in there - have to fill on both sides of it.
-  $gd->fill($midX+$shape_size/10, $midY+$shape_size/10, $fg);
-  $gd->fill($midX-$shape_size/10, $midY-$shape_size/10, $fg);
-  
+ 
+	$gd->filledPolygon($self->translated_polygon($midX, $midY, $scale_factor,  @coords1), $fg);
+	$gd->filledPolygon($self->translated_polygon($midX, $midY, $scale_factor, @coords2), $fg);
+
   return ($midX, $midX);
 }
  
@@ -155,7 +160,7 @@ sub draw_end_clover
 
   $gd->filledPolygon($polygon, $fg);
   
-  my $radius = $shape_size / 4.5;
+  my $radius = $shape_size / 4.3;
   
   $self->filled_oval($gd, $midX-$radius, $y1, $midX+$radius, $y1+2*$radius, $fg, $fg);
   $self->filled_oval($gd, $x1, $y1+1.3*$radius, $x1+2*$radius, $y1+3.3*$radius, $fg, $fg);
