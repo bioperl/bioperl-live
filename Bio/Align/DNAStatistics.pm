@@ -39,7 +39,7 @@ Bio::Align::DNAStatistics - Calculate some statistics for a DNA alignment
   my $alnobj = $in->next_aln;
   my ($seqid,$seq2id) = map { $_->display_id } $alnobj->each_seq;
   my $results = $stats->calc_KaKs_pair($alnobj, $seqid, $seq2id);
-  print "comparing $results->[0]{'Seq1'} and $results->[0]{'Seq2'}\n"; 
+  print "comparing ".$results->[0]{'Seq1'}." and ".$results->[0]{'Seq2'}."\n";
   for (sort keys %{$results->[0]} ){
       next if /Seq/;
       printf("%-9s %.4f \n",$_ , $results->[0]{$_});
@@ -47,7 +47,7 @@ Bio::Align::DNAStatistics - Calculate some statistics for a DNA alignment
 
   my $results2 = $stats->calc_all_KaKs_pairs($alnobj);
   for my $an (@$results2){
-      print "comparing $an->{'Seq1'} and $an->{'Seq2'} \n";
+      print "comparing ". $an->{'Seq1'}." and ". $an->{'Seq2'}. " \n";
       for (sort keys %$an ){
 	  next if /Seq/;
 	  printf("%-9s %.4f \n",$_ , $an->{$_});
