@@ -200,8 +200,8 @@ sub next_primary_qual {
 =cut
 
 sub write_seq {
-    my ($self,%args) = @_;
-    my ($source)  = $self->_rearrange([qw(SOURCE)], %args);
+    my ($self,@args) = @_;
+    my ($source)  = $self->_rearrange([qw(SOURCE)], @args);
 
     if (!$source || ( ref($source) ne "Bio::Seq::SeqWithQuality" && 
 		      ref($source) ne "Bio::Seq::PrimaryQual")) {
