@@ -736,7 +736,7 @@ sub next_result{
 	   while( defined($_ ) ) {
 	       chomp;
 	       $self->debug( "$count $_\n");
-
+	       
 	       if( /residues in \d+\s+query\s+sequences/) {
 		   $self->_pushback($_);
 		   last;
@@ -750,7 +750,7 @@ sub next_result{
 	       if( $count == 0 ) { 
 		   unless( /^\s+\d+/ || /^\s+$/) {
 		       $self->_pushback($_);
-		       $count = 2;
+		       $count = 0;
 		   }
 	       } elsif( $count == 1 || $count == 3 ) {
 		   if( /^(\S+)\s+/ ) {
@@ -768,7 +768,7 @@ sub next_result{
 		   }
 	       } elsif( $count == 2 ) {
 		   if( /^\s+\d+\s+/ ) {
-		       $self->warn("$_\n");
+		       $self->warn("$_\n") if $self->verbose > 0;
 		       $count = 4;
 		   } else {
 		       # toss the first IDLENGTH characters of the line
