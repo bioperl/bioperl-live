@@ -24,20 +24,26 @@ o System requirements
    is available for bioperl.  Issue the following commands in your PPM
    shell to install Bioperl.
 
-   PPM>repository add Bioperl http://bioperl.org/DIST/
+     PPM>repository add Bioperl http://bioperl.org/DIST/
 
    Get the number of the Bioperl repository:
 
-   PPM>repository
+     PPM>repository
 
    Set the Bioperl repository, find Bioperl, install Bioperl:
 
-   PPM>repository set <Bioperl repository number>
-   PPM>search *
-   PPM>install <bioperl package number>
+     PPM>repository set <Bioperl repository number>
+     PPM>search *
+     PPM>install <bioperl package number>
   
    As of this writing the Bundle::BioPerl bundle is not found in any
-   ActiveState package, we are working to fix this.
+   ActiveState package but the following command should work in 
+   Command Prompt:
+
+     >perl -MCPAN -e "install Bundle::BioPerl"
+
+   See "DEPENDENCIES AND Bundle::BioPerl" below for more information
+   on this useful bundle.
 
  - Additional information using Bioperl with MacOS can be 
    found at http://bioperl.org/Core/mac-bioperl.html
@@ -283,7 +289,7 @@ THE TEST SYSTEM
  detects that the network is not present and thus should skip, not
  fail, any tests that require a network connection.
 
-DEPENDENCIES
+DEPENDENCIES AND Bundle::BioPerl
 
 The following packages are used by Bioperl.  Not all are required for
 Bioperl to operate properly, however, some functionality will be
@@ -291,10 +297,14 @@ missing without them.  You can easily install all of these, except
 srsperl.pm, using the Bundle::BioPerl CPAN bundle. A command-line
 example:
 
->perl -e shell -MCPAN
-cpan>install Bundle::BioPerl
-<...installation details...>
-cpan>quit
+  >perl -e shell -MCPAN
+  cpan>install Bundle::BioPerl
+  <...installation details...>
+  cpan>quit
+
+or more simply:
+
+  >perl -MCPAN -e "install Bundle::BioPerl"
 
 
 Module			 Where it is Used
