@@ -11,6 +11,9 @@
 # (preferably from Perl v5.004 or better).
 #
 # MODIFIED:
+# sac --- Thu Feb  4 03:45:25 1999:
+#   * _parse_seq_stream() calls get_newline_char() to autoconfigure the
+#    record searator for different platforms.
 # sac --- Mon Sep  7 13:20:48 1998:
 #   * Modified _get_parse_seq_func() to destroy all created Seq objects
 #      after calling exec_func if an exec_func supplied.
@@ -23,7 +26,8 @@
 package Bio::Tools::Fasta;
 
 use Bio::Tools::SeqAnal;
-use Bio::Root::Global   qw(:std);
+use Bio::Root::Global     qw(:std);
+use Bio::Root::Utilities  qw(:obj); 
 
 @ISA        = qw( Bio::Tools::SeqAnal Exporter);
 @EXPORT     = qw();
@@ -32,10 +36,10 @@ use Bio::Root::Global   qw(:std);
 		 std => [qw($Fasta)]);
 
 use strict;
-use vars qw($ID $VERSION $Fasta $RawData);
+use vars qw($ID $VERSION $Fasta $RawData $Newline_char);
 
 $ID = 'Bio::Tools::Fasta';
-$VERSION  = 0.011; 
+$VERSION  = 0.012; 
 
 
 ## Static FASTA object. 
@@ -164,7 +168,7 @@ Steve A. Chervitz, sac@genome.stanford.edu
 
 =head1 VERSION
 
-Bio::Tools::Fasta.pm, 0.011
+Bio::Tools::Fasta.pm, 0.012
 
 =head1 COPYRIGHT
 
@@ -387,7 +391,10 @@ sub _parse_seq_stream {
 
     $self->{'_seqCount'} = 0;
 
-    $self->read(-REC_SEP  =>"\n>", 
+    # Only setting the newline character once for efficiency.
+    $Newline_char ||= $Util->get_newline_char(-client => $self, %param);
+
+    $self->read(-REC_SEP  =>"$Newline_char>", 
 		-FUNC     => $func,
 		%param);
 
