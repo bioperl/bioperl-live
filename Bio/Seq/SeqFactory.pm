@@ -99,8 +99,6 @@ sub new {
   if( ! defined $type ) { 
       $type = 'Bio::PrimarySeq';
   }
-  eval "require $type";
-  if( $@ ) { $self->throw("$@: Unrecognized Sequence type for SeqFactory '$type'");}
   $self->type($type);
   return $self;
 }
@@ -141,6 +139,13 @@ sub create {
 sub type{
    my ($self,$value) = @_;
    if( defined $value) {
+       eval "require $value";
+       if( $@ ) { $self->throw("$@: Unrecognized Sequence type for SeqFactory '$value'");}
+       
+       my $a = bless {},$value;
+       unless( $a->isa('Bio::PrimarySeqI') ) {
+	   $self->throw("Must provide a valid Bio::PrimarySeqI or child class to SeqFactory Not $value");
+       }
       $self->{'type'} = $value;
     }
     return $self->{'type'};
