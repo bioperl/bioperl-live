@@ -28,6 +28,7 @@ been split up into the following sections:
 =head2 Tutorials
 
 	bptutorial.pl	Bioperl tutorial for beginners
+        http://www.pasteur.fr/recherche/unites/sis/formation/bioperl
 
 =head2 References for Individual Modules
 
@@ -53,10 +54,10 @@ biology.
 
 Bioperl development focuses on Perl classes, or code that is used to
 create objects representing biological entities. There are scripts
-provided in the scripts/ directory but scripts are not the main focus of
-the Bioperl developers. Of course, as the objects do most of the hard work
-for you, all you have to do is combine a number of objects together
-sensibly to make useful scripts.
+provided in the scripts/ and examples/ directories but scripts are not the 
+main focus of the Bioperl developers. Of course, as the objects do most of 
+the hard work for you, all you have to do is combine a number of objects 
+together sensibly to make useful scripts.
 
 The intent of the Bioperl development effort is to make reusable tools
 that aid people in creating their own sites or job-specific applications.
@@ -69,7 +70,7 @@ useful code ideas and contribute your own if possible.
 
 =head1 DOCUMENTATION
 
-The Bio::Perl module is designed to flatten the learning curver for
+The Bio::Perl module is designed to flatten the learning curve for
 newcomers to Perl/Bioperl. This is a good place to start if you want
 some simple functionality. We have a cookbook tutorial in
 bptutorial.pl which has embedded documentation. Start there if
@@ -77,7 +78,7 @@ learning-by-example suits you most, or examine the Bioperl online
 course at
 http://www.pasteur.fr/recherche/unites/sis/formation/bioperl. Make
 sure to check the documentation in the modules as well - there are
-over 500 modules in Bioperl, and counting, and there's detail in the
+over 900 modules in Bioperl, and counting, and there's detail in the
 modules' documentation that will not appear in the general
 documentation.
 
@@ -94,10 +95,10 @@ databases. To learn how to set this up, look at the biodatabases.pod
 documentation ('perldoc biodatabases.pod' should work once Bioperl has
 been installed).
 
-The bioperl-db, bioperl-run, bioperl-gui, corba-server,
-bioperl-pipeline and corba-client packages are installed separately
-from Bioperl. Please refer to their respective documentation for more
-information.
+The bioperl-db, bioperl-run, bioperl-gui, corba-server, bioperl-ext,
+bioperl-pipeline, bioperl-microarray and corba-client packages are 
+installed separately from Bioperl. Please refer to their respective 
+documentation for more information.
 
 
 =head1 GETTING STARTED
@@ -106,11 +107,12 @@ A good place to start is by reading and running the cookbook script,
 bptutorial.pl.
 
 The distribution I<scripts/> directory has working scripts for use
-with Bioperl. A list and brief description of these scripts is found
+with Bioperl, check the self-described examples/ directory as well. 
+A list and brief description of all these scripts is found
 in bioscripts.pod. You are more than welcome to contribute your script!
 
 If you have installed Bioperl in the standard way, as detailed in the
-README in the distribution, these scripts should work by just running
+INSTALL in the distribution, these scripts should work by just running
 them. If you have not installed it in a standard way you will
 have to change the 'use lib' to point to your installation (see INSTALL
 for details).
@@ -164,10 +166,16 @@ except for Seq.pm). Talk to him or her and suggest changes.
 
 If you can make a useful object we will happily include it into the
 core. Probably you will want to read a lot of the documentation 
-in the L<Bio::Root>, talk to people on the Bioperl mailing list,
+in L<Bio::Root>, talk to people on the Bioperl mailing list,
 B<bioperl-l\@bioperl.org>, and read biodesign.pod. biodesign.pod provides
 documentation on the conventions and ideas used in Bioperl, it's definitely
 worth a read if you would like to be a Bioperl developer.
+
+=head2 Writing documentation
+
+We appreciate good documentation. It's what tells the world what's in
+Bioperl, it's what instructs the user, it's what describes the rationale
+and inner workings of the package. Feel free to contribute.
 
 
 =head1 ACKNOWLEDGEMENTS
@@ -218,7 +226,6 @@ we released bioperl 1.0 as an effort to put a stamp of completeness on
 the toolkit and submitted a paper detailing the efforts thus far (see
 the FAQ).  In late 2002 we released a developer release 1.1 for
 testing purposes and released bioperl 1.2 at the beginning of 2003.
-
 
 Current server hardware for bioperl.org (and other open-bio.org hosted
 projects) is provided by Sun. A previous server was provided by Compaq

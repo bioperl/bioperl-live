@@ -60,9 +60,9 @@ directory. These diagrams are not guaranteed to include every single class
 but may help you understand the overall layout of Bioperl's modules.
 
 Documentation on Bio::Root can also be found in the form of scripts - check
-the scripts/root_object directory for a start. We have also created a 
-"howto" directory that addresses specific design questions, not
-necessarily related to Bio::Root. See doc/howto.
+the scripts/root_object directory for a start, as well as L<Bio::Root>. We 
+have also created a "howto" directory that addresses specific design questions, 
+not necessarily related to Bio::Root. See doc/howto.
 
 =head2 Respect people's code (in particular if it works)
 
