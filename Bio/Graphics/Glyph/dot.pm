@@ -39,7 +39,7 @@ sub draw {
 	      $ymid+($r*cos($angle*PI/180)),$fg);
   }
 
-  $self->draw_label($gd,$x1,$y1-$self->height) if $self->option('label');
+  $self->draw_label($gd,@_) if $self->option('label');
 }
 
 1;
