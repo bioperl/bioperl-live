@@ -17,7 +17,7 @@ BEGIN {
 	use lib 't';
     }
     use vars qw($NTESTS);
-    $NTESTS = 160;
+    $NTESTS = 245;
     use Test;
     plan tests => $NTESTS; 
 
@@ -255,7 +255,120 @@ while( $subject = $report->next_subject ) {
 	    ok($hsp->query->frame(), 0);
 	    ok($hsp->subject->frame(), 1);
 	    ok($hsp->gaps, 0);	    
+	    ok($hsp->query_seq, 'SAYWSIFPPLGCWWSTLGPRGSLSPL');
+	    ok($hsp->subject_seq, 'AAVWALFPPVGSQWGCLASQWRTSPL');
+	    ok($hsp->homology_seq, '+A W++FPP+G  W  L  +   SPL');
 	}
     }
     last if( $count++ > @valid );
 }
+
+$searchio = new Bio::SearchIO(-format => 'fasta',
+				 -file   => 't/data/HUMBETGLOA.FASTA');
+$report = $searchio->next_report;
+ok($report->database_name, qr/dros_clones.2.5/);
+ok($report->database_size, 112936249);
+ok($report->program_name, 'FASTA');
+ok($report->program_version, '3.3t08');
+ok($report->query_name, qr/HUMBETGLOA Human haplotype C4 beta-globin gene, complete cds./);
+ok($report->query_size, 3002);
+ok($report->get_parameter('gapopen'), -16);
+ok($report->get_parameter('gapext'), -4);
+ok($report->get_parameter('ktup'), 6);
+
+ok($report->get_statistic('lambda'), 0.0823);
+ok($report->get_statistic('dblength'), 112936249);
+ok($report->get_statistic('dbnum'), 657);
+
+@valid = ( [ 'BACR21I23', 73982, 'BACR21I23'],
+	   [ 'BACR40P19', 73982, 'BACR40P19'],
+	   [ 'BACR30L17', 32481, 'BACR30L17']);
+$count = 0;
+
+while( my $subject = $report->next_subject ) {
+    my $d = shift @valid;
+    ok($subject->name, $d->[0]);
+    ok($subject->length, $d->[1]);
+    ok($subject->accession, $d->[2]);
+    if( $count == 0 ) {
+	while( my $hsp = $subject->next_hsp ) {
+	    ok($hsp->query->start, 31);
+	    ok($hsp->query->end, 289);
+	    ok($hsp->query->strand, -1);
+	    ok($hsp->subject->end, 65167);
+	    ok($hsp->subject->start, 64902);
+	    ok($hsp->subject->strand, 1);
+	    ok($hsp->hsp_length, 267);
+	    ok($hsp->P == 0.017);
+	    ok($hsp->evalue == 0.017);
+	    ok($hsp->score, 134.5);
+	    ok($hsp->bits,44.2);
+	    ok($hsp->percent_identity, 57.3);
+	    ok($hsp->query->frac_identical, 153);  # not sure this is right
+	    ok($hsp->subject->frac_identical, 153);  # not sure this is right
+	    ok($hsp->query->frame(), 0);
+	    ok($hsp->subject->frame(), 0);
+	    ok($hsp->gaps, 159);	    
+	    ok($hsp->query_seq, 'GATTAAAACCTTCTGGTAAGAAAAGAAAAAATATATATATATATATATGTGTATATGTACACACATACATATACATATATATGCATTCATTTGTTGTTGTTTTTCTTAATTTGCTCATGCATGCTA----ATAAATTATGTCTAAAAATAGAAT---AAATACAAATCAATGTGCTCTGTGCATTA-GTTACTTATTAGGTTTTGGGAAACAAGAGGTAAAAAACTAGAGACCTCTTAATGCAGTCAAAAATACAAATAAATAAAAAGTCACTTACAACCCAAAGTGTGACTATCAATGGGGTAATCAGTGGTGTCAAATAGGAGGT');
+	    ok($hsp->subject_seq, 'GATGTCCTTGGTGGATTATGGTGTTAGGGTATATATATATATATATATATATATATATATATATATATATATATATATATATATATATATATATATATATATATATATATAATATAATACAAAATATAATACAAAATATAATACAAAATATAATACAAAATATAATACAAAATATAATACAAAATATAATACAAAATATAATATAAAATATAATATAAAATATAATATAAAATAAAATATAAAATAAAATATAAAATAAAATATAAAATAAAATATAAAATAAAATAT-AATATAAAATATAAAATAAAATATAATATAAAATATAATATAAAATATAATATAAAATATAATATAAAATA');
+	    ok($hsp->homology_seq, '                              :::::::::::::::::: : ::::: :: : : ::: ::::: ::::::::  ::  :: : :   : : : : :  ::    : :: ::   ::    : ::: :::     :::::: :::   ::::: ::  :::  :    :    : ::   :::  : ::   : :   : : :: :   :: : : :: : :       ::  : : ::: ::: ::  ::::: ::: : :  :: ::   ::: : : : ::: ::                                                               ');
+	}
+    }
+    last if( $count++ > @valid );
+} 
+
+$searchio = new Bio::SearchIO(-format => 'fasta',
+				 -file   => 't/data/cysprot1.FASTA');
+$report = $searchio->next_report;
+ok($report->database_name, qr/ecoli.aa/);
+ok($report->database_size, 1358987);
+ok($report->program_name, 'FASTA');
+ok($report->program_version, '3.3t08');
+ok($report->query_name, 'CYS1_DICDI');
+ok($report->query_size, 343);
+ok($report->get_parameter('gapopen'), -12);
+ok($report->get_parameter('gapext'), -2);
+ok($report->get_parameter('ktup'), 2);
+
+ok($report->get_statistic('lambda'), 0.1456);
+ok($report->get_statistic('dblength'), 1358987);
+ok($report->get_statistic('dbnum'), 4289);
+
+
+@valid = ( [ 'gi|1787478|gb|AAC74309.1|', 512, 'AAC74309'],
+	   [ 'gi|1790635|gb|AAC77148.1|', 251, 'AAC77148'],
+	   [ 'gi|1786590|gb|AAC73494.1|', 94, 'AAC73494']);
+$count = 0;
+
+while( my $subject = $report->next_subject ) {
+    my $d = shift @valid;
+    ok($subject->name, $d->[0]);
+    ok($subject->length, $d->[1]);
+    ok($subject->accession, $d->[2]);
+    if( $count == 0 ) {
+	while( my $hsp = $subject->next_hsp ) {
+	    ok($hsp->query->start, 125);
+	    ok($hsp->query->end, 305);
+	    ok($hsp->query->strand, 1);
+	    ok($hsp->subject->start, 2);
+	    ok($hsp->subject->end, 181);
+	    ok($hsp->subject->strand, 1);
+	    ok($hsp->hsp_length, 188);
+	    ok($hsp->P == 1.2);
+	    ok($hsp->evalue == 1.2);
+	    ok($hsp->score, 109.2);
+	    ok($hsp->bits,29.2);
+	    ok($hsp->percent_identity, 23.9);
+	    ok($hsp->query->frac_identical, 45); # not sure this is right
+	    ok($hsp->subject->frac_identical, 45); # not sure this is right
+	    ok($hsp->query->frame(), 0);
+	    ok($hsp->subject->frame(), 0);
+	    ok($hsp->gaps, 49);	    
+	    ok($hsp->query_seq, 'NKEAIFTDDLPVADYLDDEFINSIPTAFDWRTRGAVTPVKNQGQCGSCWSFSTT-GNV----EGQHFISQNKLVSLSEQNLVDCDHECME-YEGEEACDEGCNGGLQPNAYNYIIKNGGIQTESSYPYTAETGTQCNFNSANIGAKISNFTMIPKNETVMAGYIVSTGP-LAIAADAVEWQFYIGGVFDIPCNPNSLDHGILIVGYSAKNTIFRKNMPYWIVKNSWGADWGEQGYIYLRRGKNTCGVSNFVSTSII');
+	    ok($hsp->subject_seq, 'MKIRSQVGMVLNLDKCIGCHTCSVTCKNVWTSREGVEYAWFNNVETKPGQGF-PTDWENQEKYKGGWI--RKINGKLQPRMGNRAMLLGKIFANPHLPGIDDYYEPFDFDYQNLHTAPEG----SKSQPIARPRSLITGERMAKIEKGPNWEDDLGGEFDKLAKDKNFDN-IQKAMYSQFENTFMMYLPRLCEHCLNPACVATCPSGAIYKREEDGIVLIDQDKCRGWRMCITGCPYKKIYFNWKSGKSEKCIFCYPRIEAGQPTVCSETC');
+	    ok($hsp->homology_seq, '                              . :. :  : :  .: .: . :.:  ::    :: ..   :.. .   :..   : : .: :.:     .  :: :::   :  .  : : ..   :   .     .:.  :. .   .     :.. .     . ::  .:    . .:.  .:: ::   . ...:. :  . ::  .. :   .:                                                                                  ');
+	}
+    }
+    last if( $count++ > @valid );
+} 
+
