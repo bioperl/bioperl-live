@@ -66,33 +66,32 @@ code).
 
 =head1 EXTENDING IT
 
-bpindex is just a wrapper around James Gilbert's excellent Index modules
+bpindex is just a wrapper around James Gilbert\'s excellent Index modules
 found in bioperl
 
 =head1 FEEDBACK
 
-=head2 Mailing Lists 
+=head2 Mailing Lists
 
 User feedback is an integral part of the evolution of this and other
-Bioperl modules.  Send your comments and suggestions preferably to one
-of the Bioperl mailing lists.  Your participation is much appreciated.
+Bioperl modules. Send your comments and suggestions preferably to
+the Bioperl mailing list.  Your participation is much appreciated.
 
-    vsns-bcd-perl@lists.uni-bielefeld.de          - General discussion
-    vsns-bcd-perl-guts@lists.uni-bielefeld.de     - Technically-oriented discussion
-    http://bio.perl.org/MailList.html             - About the mailing lists
+  bioperl-l@bioperl.org              - General discussion
+  http://bioperl.org/MailList.shtml  - About the mailing lists
 
 =head2 Reporting Bugs
 
 Report bugs to the Bioperl bug tracking system to help us keep track
-the bugs and their resolution. Bug reports can be submitted via email
-or the web:
+of the bugs and their resolution. Bug reports can be submitted via
+email or the web:
 
-    bioperl-bugs@bio.perl.org                   
-    http://bio.perl.org/bioperl-bugs/           
+  bioperl-bugs@bioperl.org
+  http://bioperl.org/bioperl-bugs/
 
-=head1 AUTHOR
+=head1 AUTHOR - Ewan Birney
 
-Ewan Birney, birney@sanger.ac.uk
+Ewan Birney <birney@ebi.ac.uk>
 
 =cut
 
