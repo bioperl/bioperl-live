@@ -128,7 +128,6 @@ use Bio::Tools::Sim4::Exon;
 
 @ISA = qw(Bio::Tools::AnalysisResult);
 
-my $count = 0;
 
 sub _initialize_state {
     my($self,@args) = @_;
@@ -305,7 +304,6 @@ sub parse_next_alignment {
 	       $to_reverse->{'end'} = $to_reverse->{'length'} - $tmp + 1;
 	   }
 	   # create and initialize the exon object
-	   $count++;
 	   my $exon = Bio::Tools::Sim4::Exon->new(
 					    '-start' => $genomseq->{'start'},
 					    '-end'   => $genomseq->{'end'},
