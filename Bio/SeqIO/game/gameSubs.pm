@@ -460,10 +460,7 @@ sub date {
 sub protein_id {
     my ($self, $cds, $sn) = @_;
     my $psn;
-    if ( $sn ) {
-        $psn = $sn;
-    }
-    elsif ( $cds->has_tag('protein_id') ) {
+    if ( $cds->has_tag('protein_id') ) {
         ($psn) = $cds->get_tag_values('protein_id');
     }
     elsif ( $cds->has_tag('product') ) {
@@ -472,6 +469,9 @@ sub protein_id {
     }
     elsif ( $cds->has_tag('gene') ) {
         ($psn) = $cds->get_tag_values('gene');
+    }
+    elsif ( $sn ) {
+	$psn = $sn;
     }
     else {
         $self->complain("Could not find an ID for the protein");

@@ -1,4 +1,4 @@
-# $Id: 
+# $Id$
 # 
 #
 # Helper module for Bio::SeqIO::game::featHandler
@@ -179,10 +179,10 @@ sub has_gene {
 	my $feat = Bio::SeqFeature::Generic->new( 
 	    -primary => 'gene',
 	);
-
+        my %seen;
 	for ( keys %{$tags} ) {
 	    for my $val ( @{$tags->{$_}} ) {
-		$feat->add_tag_value( $_ => $val );
+		$feat->add_tag_value( $_ => $val ) unless ++$seen{$_.$val} > 1;
 	    }
 	}
 	    
@@ -214,11 +214,6 @@ sub _has_CDS {
     }
     else {
 	my $tags = $self->{curr_tags};
-
-	unless ( defined $tags->{product} ){
-	    return 0;
-	}
-	
 	$self->{curr_cds} = $self->_add_CDS( $transcript, $tags );
     }
 }
@@ -258,15 +253,16 @@ sub add_annotation {
 	$feat = Bio::SeqFeature::Generic->new;
 	$feat->primary_tag($type);
 	my $gene = $self->has_gene;
-	$gene->add_tag_value( gene => ($self->{curr_gname} || $id) );
-	$feat->add_tag_value( gene => ($self->{curr_gname} || $id) );
+	$gene->add_tag_value( gene => ($self->{curr_gname} || $id) )
+	    unless $gene->has_tag('gene');
+	$feat->add_tag_value( gene => ($self->{curr_gname} || $id) )
+	    unless $feat->has_tag('gene');;
     }
     for ( keys %{$tags} ) {
 	# or else add simple tag/value pairs
 	if ( $_ eq 'name' && $tags->{type}->[0] eq 'gene' ) {
-	    unless ( $feat->has_tag( 'gene' ) ) {
-		$feat->add_tag_value( gene => $tags->{name}->[0] );
-	    }
+	    $feat->add_tag_value( gene => $tags->{name}->[0] )
+		unless $feat->has_tag( 'gene' );
 	    delete $tags->{name};
 	}
 	else {
@@ -395,11 +391,15 @@ sub feature_set {
 	my ($feat) = @{$self->{curr_subfeats}};
 	$feat->primary_tag('transcript') if $feat->primary_tag eq 'exon';
 	if ( $feat->primary_tag eq 'transcript' ) {
-	    $feat->add_tag_value( gene => ($gname || $id) );
+	    $feat->add_tag_value( gene => ($gname || $id) )
+		unless $feat->has_tag('gene');
 	}
+        
+        my %seen_tag;
 	for my $tag ( keys %{$tags} ) {
 	    for my $val ( @{$tags->{$tag}} ) {
-		$feat->add_tag_value( $tag => $val ) if $val;
+		$feat->add_tag_value( $tag => $val ) 
+		    if $val && ++$seen_tag{$tag.$val} < 2;
 	    }
 	}
 	@feats = ($feat);
@@ -409,7 +409,7 @@ sub feature_set {
 	$self->{curr_cds}      = '';
 	$gname = $id if $gname eq 'gene';
 	$self->{curr_gname} = $gname;
-    
+
 	if ( $self->has_gene ) {
 	    unless ( $anntype =~/RNA/i ) {
 		$stype =~ s/transcript/mRNA/;
@@ -424,12 +424,16 @@ sub feature_set {
 	$self->_build_feature_set($set);
 	
 	my $gene = $gname || $self->{curr_ltag};
-	$feat->add_tag_value( gene => $gene );
+	
+	$feat->add_tag_value( gene => $gene )
+	    unless $feat->has_tag('gene');
 
 	# if there is an annotated protein product
 	my $cds = $self->_has_CDS( $feat );
 
 	if ( $cds ) {
+            $feat->primary_tag('mRNA');
+
 	    # we really just want one value here
 	    $cds->remove_tag('standard_name') if $cds->has_tag('standard_name');
 	    $cds->add_tag_value( standard_name => $sname );
@@ -460,9 +464,10 @@ sub feature_set {
 
             # if the mRNA and CDS are the same length, the mRNA is redundant
             # lose the mRNA, steal its tags and give them to the CDS
-            if ( $feat->length == $cds->length ) {
+            my %seen;
+	    if ( $feat->length == $cds->length ) {
 		for my $t ( $feat->all_tags ) {
-		    next if $t eq 'gene' && $cds->has_tag('gene');
+		    next if $t =~ /gene|standard_name/;
 		    $cds->add_tag_value( $t => $feat->get_tag_values($t) );
 		}
 		undef $feat;
@@ -500,9 +505,9 @@ sub feature_set {
 	    my @subfeats = @{$self->{curr_subfeats}};
 	    for my $sf ( @ subfeats ) {
 		$sf->add_tag_value( standard_name => $sname )
-		    unless $feat->has_tag('standard_name');
+		    unless $sf->has_tag('standard_name');
 		$sf->add_tag_value( gene => $gene )
-		    unless $feat->has_tag('gene');
+		    unless $sf->has_tag('gene');
 	    }
 
 	    @feats = ( $feat, @subfeats );
@@ -564,7 +569,7 @@ sub _build_feature_set {
             $self->property( $child );
         }
 
-        # need to add the db_xref tags to the gene??
+        # need to add the db_xref tags to the gene?
         # otherwise, simple tag/value pairs
         elsif ( $name =~ /synonym|author|description/) {
             $self->{curr_tags}->{$name} = [$child->{Characters}];
@@ -636,11 +641,12 @@ sub _add_feature_span {
 				       -primary => $type );
     }
 
-    # identify the translation product                                             
-    if ( $el->{Attributes}->{produces_seq} ) {
+    # identify the translation product     
+    my $tscript = $el->{Attributes}->{produces_seq};
+    if ( $tscript && $tscript ne 'null') {
 	my $subseq = $self->{seq_h}->{$el->{Attributes}->{produces_seq}};                       
         $self->{curr_tags}->{product} = [$el->{Attributes}->{produces_seq}];
-	$self->{curr_tags}->{translation} = [$subseq->seq];
+	$self->{curr_tags}->{translation} = [$subseq->seq] if $subseq;
     }      
 
     $self->flush( $el );
@@ -666,9 +672,7 @@ sub _add_CDS {
         $loc = Bio::Location::Split->new;
 
         # sort the exons in ascending start order
-        my @loc = map  { $_->[1] }
-                  sort { $a->[0] <=> $b->[0] }
-                  map  { [$_->start, $_] } @{$self->{curr_loc}};
+	my @loc = sort { $a->start <=> $b->start } @{$self->{curr_loc}};
 
         # then add them to the location object
         for ( @loc ) {
@@ -684,52 +688,55 @@ sub _add_CDS {
     my @exons = $single ? $loc : $loc->sub_Location(1);
 
     $feat->location($loc);
-
     # try to find a peptide
-    my $seq  = $self->{seq_h}->{ $tags->{product}->[0] } ||
-	       $self->{seq_h}->{ $tags->{protein_id}->[0] } ||
-	       $self->{seq_h}->{ $tags->{gene}->[0] } ||
-	       $self->{seq_h}->{ $tags->{standard_name}->[0] };
-    
-    unless ( $seq ) {
-	$self->warn("I did not find a protein sequence for " . 
-		     $feat->display_name . ".  I can't figure out the CDS boundaries");
-	$feat->location($loc);
-	next;
-    }	
-    my $peptide = $seq->display_id;
+    my $seq = $self->{seq_h}->{ $tags->{protein_id}->[0] };
+    $seq  ||= $self->{seq_h}->{ $tags->{product}->[0] } ||
+	      $self->{seq_h}->{ $tags->{gene}->[0] } ||
+	      $self->{seq_h}->{ $tags->{standard_name}->[0] };
+     
 
     # Can we count on the description format being consistent?
     # Why is CDS coordinate info saved as description text not 
-    # specified in the DTD?  Anyone have a better idea?    
-    my $desc = $seq->description;
-    $desc =~ s/,|\n//g;
-    $desc =~ s/\)(\w)/\) $1/g;
-    my ($start, $stop) = ();
-    
-    if ( $desc =~ /cds_boundaries:.+?(\d+)\.\.(\d+)/ ) {
-	($start, $stop) = ($1 - $self->{offset}, $2 - $self->{offset});
+    # specified in the DTD?  Anyone have a better idea? Aww,
+    # who am I kidding, I'm the only one who will ever read this!
+    my ($start, $stop, $peptide) = ();
+    if ( $seq ) {
+	$peptide = $seq->display_id;
+	my $desc = $seq->description || '';
+	$desc =~ s/,|\n//g;
+	$desc =~ s/\)(\w)/\) $1/g;
+
+	if ( $desc =~ /cds_boundaries:.+?(\d+)\.\.(\d+)/ ) {
+	    ($start, $stop) = ($1 - $self->{offset}, $2 - $self->{offset});
+	}
+	else {
+	    # OK, I guess the transcript must be the CDS then
+	    $start = $loc->start;
+	    $stop  = $loc->end;
+	}
     }
     else {
-	$self->warn("I could not find the CDS boundaries");
-	$feat->location($loc);
-	next;
+        $self->warn("I did not find a protein sequence for " . $feat->display_name);
     }
-    
+
     delete $tags->{transcript};
     
     # now chop off the UTRs to create a CDS
     my @exons_to_add = ();
+    #warn scalar(@exons), " exons, $start, $stop\n";
     for ( @exons ) {
         my $exon = Bio::Location::Simple->new;
 
 	if ( $_->end < $start || $_->start > $stop ) {
+	    #warn "exon out of range\n";
 	    next;
 	}
 	if ( $_->start < $start && $_->end > $start ) {
+	    #warn "chopping off left UTR\n";
 	    $exon->start( $start );
 	}
 	if ( $_->end > $stop && $_->start < $stop ) {
+	    #warn "chopping off right UTR\n";
 	    $exon->end( $stop );
 	}
 
@@ -752,7 +759,7 @@ sub _add_CDS {
 
     my $parent = $self->{curr_gname} || $self->{curr_ltag};
     
-    # try not to steal too many mRNA qualifiers for the CDS
+    # try not to steal too many mRNA attributes for the CDS
     my $cds_tags = {};
     for my $k ( keys %$tags ) {
 	if ( $k =~ /product|protein|translation|codon_start/ ) {
@@ -762,14 +769,11 @@ sub _add_CDS {
     } 
 
     for ( keys %$tags ) {
-	# expunge duplicate gene attributes
-	next if /gene/;
 	for my $v ( @{$tags->{$_}} ) {
-	    $feat->add_tag_value( $_ => $v );
+	    $feat->add_tag_value( $_ => $v )
+		unless $feat->has_tag($_);
 	}
     }    
-
-    $cds_tags->{product_desc} = [$desc];
 
     if ( $self->{curr_gname} ) {
         $cds_tags->{gene} = [$self->{curr_gname}];	
@@ -785,13 +789,14 @@ sub _add_CDS {
     $cds_tags->{translation} = [$seq->seq];
   
     for ( keys %{$cds_tags} ) {
+	my %seen;
 	for my $val (@{$cds_tags->{$_}}) {
+	    next if ++$seen{$val} > 1;
 	    $cds->add_tag_value( $_ => $val );
 	}        
     }
     
     $cds;
-
 }
 
 1;

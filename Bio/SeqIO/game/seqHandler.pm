@@ -60,6 +60,8 @@ methods. Internal methods are usually preceded with a _
 
 package Bio::SeqIO::game::seqHandler;
 
+use Data::Dumper;
+
 use Bio::SeqIO::game::featHandler;
 use Bio::SeqIO::game::gameSubs;
 use Bio::SeqFeature::Generic;
@@ -158,7 +160,7 @@ sub _order_feats {
 
     # make sure source(s) come first
     my @src   = grep { $_->primary_tag =~ /source|origin|\bregion\b/ } @$ann;
-    # preserve gene->mRNA->CDS of ncRNA->gene->transcript order
+    # preserve gene->mRNA->CDS or ncRNA->gene->transcript order
     my @genes = grep { $_->primary_tag =~ /gene|CDS|[a-z]+RNA|transcript/ } @$ann;
     my @other = sort { $a->start <=> $b->start || $b->end   <=> $a->end  } 
                 grep { $_->primary_tag !~ /source|origin|\bregion\b/ } 
@@ -281,7 +283,7 @@ sub _add_seq {
 
     # add a source feature if req'd
     if ( !$self->{has_source} && $focus ) {
-	$self->{source} = $featHandler->add_source($seq->length, $tags);
+	#$self->{source} = $featHandler->add_source($seq->length, $tags);
     }
     
     if ( $focus ) {
@@ -306,7 +308,14 @@ sub _add_seq {
 
 sub _map_position {
     my ($self, $el) = @_;
- 
+
+    # we can live without it
+    if ( !$el ) {
+	$self->{offset}= 0;
+	return 0;
+    }
+
+
     # chromosome and coordinates
     my $arm   = $el->{_arm}->{Characters};
     my $type  = $el->{Attributes}->{type};
@@ -383,7 +392,7 @@ sub _annotation {
     my $gname   = $el->{_name}->{Characters} eq $id ? '' : $el->{_name}->{Characters};
 
     # 'transposable element' is too long (breaks Bio::SeqIO::GenBank)
-    $type =~ s/transposable_element/repeat_region/;
+    # $type =~ s/transposable_element/repeat_region/;
     
     # annotations must be on the main sequence
     my $seqid = $self->{main_seq}->id;

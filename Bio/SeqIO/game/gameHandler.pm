@@ -121,8 +121,7 @@ sub load {
         my $ann  = $self->{annotations}->{$_}
 	  or $self->throw("No annotations");
         my $comp = $self->{computations}->{$_};
-	my $map  = $self->{map_position}->{$_}
-	  or $self->complain("No map position defined");
+	my $map  = $self->{map_position}->{$_};
         my $foc  = $self->{focus}->{$_}
 	  or $self->throw("No main sequence defined");
 	my $src  = $self->{has_source};
