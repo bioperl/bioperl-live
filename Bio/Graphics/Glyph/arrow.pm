@@ -4,7 +4,7 @@ package Bio::Graphics::Glyph::arrow;
 use strict;
 use vars '@ISA','$VERSION';
 use Bio::Graphics::Glyph::generic;
-$VERSION = 1.02;
+$VERSION = 1.03;
 @ISA = 'Bio::Graphics::Glyph::generic';
 
 my %UNITS = (n => 1e-12,
@@ -12,7 +12,7 @@ my %UNITS = (n => 1e-12,
 	     u => 1e-6,
 	     m => 0.001,
 	     c => 0.01,
-	     K => 1000,
+	     k => 1000,
 	     M => 1_000_000,
 	     G => 1_000_000_000);
 
