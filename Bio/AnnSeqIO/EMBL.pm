@@ -267,7 +267,7 @@ sub write_annseq {
        $div = 'UNK';
    }
 
-   print $fh sprintf("ID    %-11sstandard; DNA; $div; %d BP.",$seq->id(),$len);
+   print $fh sprintf("ID   %-11sstandard; DNA; $div; %d BP.",$seq->id(),$len);
    
    print $fh "\nXX   \n";
 
@@ -350,19 +350,19 @@ sub write_annseq {
 
    $str =~ tr/A-Z/a-z/;
    my $a = $str; 
-   $a =~ s/[^A]//g;
+   $a =~ s/[^a]//g;
    my $alen = length $a;
 
    my $t = $str; 
-   $t =~ s/[^T]//g;
+   $t =~ s/[^t]//g;
    my $tlen = length $t;
 
    my $g = $str; 
-   $g =~ s/[^G]//g;
+   $g =~ s/[^g]//g;
    my $glen = length $g;
 
    my $c = $str; 
-   $c =~ s/[^C]//g;
+   $c =~ s/[^c]//g;
    my $clen = length $c;
 
    my $olen = $len - ($alen + $tlen + $clen + $glen);
@@ -370,7 +370,7 @@ sub write_annseq {
        $self->warn("Weird. More atgc than bases. Problem!");
    }
 
-   print $fh "SQ   Sequence $len BP; $alen A; $clen C; $glen G; $tlen T; $olen other;\n";
+   print $fh "SQ  Sequence $len BP; $alen A; $clen C; $glen G; $tlen T; $olen other;\n";
    print $fh "    ";
    for ($i = 0; $i < length($str); $i += 10) {
        print $fh substr($str,$i,10), " ";
