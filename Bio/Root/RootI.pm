@@ -73,7 +73,11 @@ BEGIN {
 =cut
 
 sub new {
-    my ($class, @args) = @_;
+    my ($caller, @args) = @_;
+    
+    my $caller_is_obj = ref($caller);      #Dave Block
+    my $class = $caller_is_obj || $caller; #copied from Conway, OOPerl
+
     my $self = bless {}, $class;
     eval { 
 	$self->_initialize(@args);   
