@@ -39,7 +39,7 @@ if( $error ==  1 ) {
 
 END {
     foreach ( $Test::ntest..NUMTESTS) {
-	skip(1,'Server may be down');
+	skip('Server may be down',1);
     }
 }
 
