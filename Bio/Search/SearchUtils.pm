@@ -104,13 +104,15 @@ See Also   : L<_adjust_contigs>(), L<Bio::Search::Hit::GenericHit|Bio::Search::H
 sub tile_hsps {
 #--------------
     my $sbjct = shift;
-
+    
     $sbjct->tiled_hsps(1);
     $sbjct->gaps('query', 0);
     $sbjct->gaps('hit', 0);
-
+    
     ## Simple summation scheme. Valid if there is only one HSP.
-    if( $sbjct->n == 1 or $sbjct->num_hsps == 1) {
+    if( $sbjct->num_hsps == 0 || $sbjct->n == 0 ) { 		
+	return;
+    } elsif( $sbjct->n == 1 or $sbjct->num_hsps == 1) {
 	my $hsp = $sbjct->hsp;
 	$sbjct->length_aln('query', $hsp->length('query'));
 	$sbjct->length_aln('hit', $hsp->length('sbjct'));

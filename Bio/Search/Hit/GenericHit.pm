@@ -554,7 +554,9 @@ sub n {
 
     my ($n);
     if(not defined($self->{'_n'})) {
-        $n = $self->hsp->n;
+	if( $self->hsp ) {
+	    $n = $self->hsp->n;
+	}
     } else {
         $n = $self->{'_n'}; 
     } 
