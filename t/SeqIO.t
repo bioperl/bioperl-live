@@ -32,6 +32,7 @@ use Bio::SeqIO::EMBL;
 use Bio::SeqIO::Raw;
 use Bio::SeqIO::GCG;
 
+
 $loaded = 1;
 print "ok 1\n";    # 1st test passes.
 
@@ -118,6 +119,11 @@ print "ok 9\n";
 #####
 ## End of ChrisDag's SeqIO tests.
 #####
+
+
+# please leave this as the last line:
+$str = undef;
+
 
 
 
