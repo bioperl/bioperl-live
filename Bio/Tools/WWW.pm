@@ -99,14 +99,10 @@ correct or exhaustive and will require periodic updating.
 By keeping URL management within Bio::Tools::WWW.pm, other generic 
 modules can easily access a variety of different web sites without 
 having to know about a potential multitude of specific modules 
-specialized for one database or another. A specific example
-of this is in B<Bio::Tools::Blast.pm> where the function blast_to_html()
-needs access to different URLs in order to add database links
-to the Blast report. An alternative approach would be to have
-multiple blast_to_html() functions defined within modules
-specialized for Blast analyses of different datasets. This, however,
-may create maintenance headaches when updating the different
-versions of the function. 
+specialized for one database or another. An alternative approach would
+be to have addresses defined within modules specialized for different
+web sites. This, however, may create maintenance headaches when updating
+these addresses.
 
 =head2 Complex Websites
 
