@@ -1350,6 +1350,11 @@ sub start {
 #----------
     my ($self, $seqType) = @_;
 
+    # Hack to deal with the fact that RelRange calls strand()
+    # which will lead to an error because parsing hasn't yet occurred.
+    # See RelRange::new().
+    return if $self->{'_initializing'};
+
     $seqType ||= (wantarray ? 'list' : 'query');
     $seqType = 'sbjct' if $seqType eq 'hit';
 
@@ -1389,6 +1394,11 @@ See Also   : L<start()|start>, L<range()|range>, L<strand()|strand>
 sub end {
 #----------
     my ($self, $seqType) = @_;
+
+    # Hack to deal with the fact that RelRange calls strand()
+    # which will lead to an error because parsing hasn't yet occurred.
+    # See RelRange::new().
+    return if $self->{'_initializing'};
 
     $seqType ||= (wantarray ? 'list' : 'query');
     $seqType = 'sbjct' if $seqType eq 'hit';
