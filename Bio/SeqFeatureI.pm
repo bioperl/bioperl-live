@@ -191,10 +191,9 @@ sub source_tag{
 =head2 has_tag
 
  Title   : has_tag
- Usage   : $value = $self->has_tag('some_tag')
- Function: Returns the value of the tag (undef if 
-           none)
- Returns : 
+ Usage   : $tag_exists = $self->has_tag('some_tag')
+ Function: 
+ Returns : TRUE if the specified tag exists, and FALSE otherwise
  Args    :
 
 
