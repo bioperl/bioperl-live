@@ -241,7 +241,6 @@ sub next_prediction {
 
 sub _parse_predictions {
     my ($self) = @_;
-    my ($method, $version); # set but not used presently
     my %exontags = ('Init' => 'InitialExon',
 		    'Intr' => 'InternalExon',
 		    'Term' => 'TerminalExon',
@@ -311,8 +310,8 @@ sub _parse_predictions {
 	    next;
 	}
 	if(/^(GENSCAN)\s+(\S+)/) {
-	    $method = $1;
-	    $version = $2;
+	    $self->analysis_method($1);
+	    $self->analysis_method_version($2);
 	    next;
 	}
 	if(/^Sequence\s+(\S+)\s*:/) {
