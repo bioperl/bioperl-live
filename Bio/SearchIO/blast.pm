@@ -512,7 +512,7 @@ sub next_result{
            $self->element({ 'Name' => 'BlastOutput_querydesc', 
                             'Data' => $desc});
            my ($acc,$version) = &_get_accession_version($nm);
-	   $version = defined($version) ? ".$version" : "";
+	   $version = defined($version) && length($version) ? ".$version" : "";
            $acc = '' unless defined($acc);
 	   $self->element({ 'Name' =>  'BlastOutput_query-acc',
 			    'Data'  => "$acc$version"});
@@ -824,7 +824,7 @@ sub next_result{
 	       my $id  = $v->[2];
 	       my $desc= $v->[3];
 	       $self->element({ 'Name' => 'Hit_id',
-				'Data' => $id});           
+				'Data' => $id});
 	       my ($acc,$version) = &_get_accession_version($id);
 	       $self->element({ 'Name' =>  'Hit_accession',
 				'Data'  => $acc});
