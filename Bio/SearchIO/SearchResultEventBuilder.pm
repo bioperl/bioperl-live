@@ -388,5 +388,16 @@ sub factory{
                     -text=>"No factory registered for $type");
 }
 
+=head2 inclusion_threshold
+
+See L<Bio::SearchIO::blast::inclusion_threshold>.
+
+=cut
+
+sub inclusion_threshold {
+    my $self = shift;
+    return $self->{'_inclusion_threshold'} = shift if @_;
+    return $self->{'_inclusion_threshold'};
+}
 
 1;
