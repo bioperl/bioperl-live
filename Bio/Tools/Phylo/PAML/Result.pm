@@ -1,4 +1,4 @@
-# Result.pm,v 1.3 2002/06/20 18:50:39 amackey Exp
+# $Id$ 
 #
 # BioPerl module for Bio::Tools::Phylo::PAML::Result
 #
@@ -17,6 +17,18 @@ Bio::Tools::Phylo::PAML::Result - A PAML result set object
 =head1 SYNOPSIS
 
   # see Bio::Tools::Phylo::PAML for example usage
+  use Bio::Tools::Phylo::PAML;
+  my $parser = new Bio::Tools::Phylo::PAML
+    (-file => "./results/mlc", -dir => "./results/");
+
+  # get the first/next result; a Bio::Tools::Phylo::PAML::Result object,
+  # which isa Bio::SeqAnalysisResultI object.
+  my $result = $parser->next_result();
+
+  my @seqs       = $result->get_seqs;
+  my @MLmatrix   = $result->get_MLmatrix; # get MaxLikelihood Matrix
+  my @NGmatrix   = $result->get_NGmatrix; # get Nei-Gojoburi Matrix
+  my @basfreq    = $result->get_codon_pos_basefreq;
 
 =head1 DESCRIPTION
 
@@ -82,8 +94,8 @@ use Bio::AnalysisResultI;
  Args    : -trees     => array reference of L<Bio::Tree::TreeI> objects
            -MLmatrix  => ML matrix
            -seqs      => array reference of L<Bio::PrimarySeqI> objects
-           -codonpos  => 
-           -codonfreq => 
+           -codonpos  => array reference of codon positions 
+           -codonfreq => array reference of codon frequencies
            -version   => version string
            -model     => model string
            -patterns  => hashref with the fields '-patterns', '-ns', '-ls'
@@ -98,7 +110,6 @@ sub new {
   my($class,@args) = @_;
 
   my $self = $class->SUPER::new(@args);
-  
   my ($trees,$mlmat,$seqs,$ngmatrix,
       $codonpos,$codonfreq,$version,
       $model,$patterns, $stats,
@@ -147,7 +158,6 @@ sub new {
 	  $self->set_NGmatrix($ngmatrix);
       }
   } 
-  
   if( $codonfreq ) {
       if( ref($codonfreq) =~ /ARRAY/i ) {
 	  $self->set_CodonFreqs($codonfreq);
@@ -175,7 +185,6 @@ sub new {
   }
 
   $self->{'_aafreqs'} = {};
-    
   if( $aafreq ) {
       if( ref($aafreq) =~ /HASH/i ) {
 	  $self->set_AAFreqs($aafreq);
@@ -719,8 +728,7 @@ sub get_NSSite_results{
 
  Title   : set_CodonFreqs
  Usage   : $obj->set_CodonFreqs($newval)
- Function: 
- Example : 
+ Function: Get/Set the Codon Frequence table
  Returns : value of set_CodonFreqs (a scalar)
  Args    : on set, new value (a scalar or undef, optional)
 
