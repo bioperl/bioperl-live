@@ -11,6 +11,8 @@ Bio::DB::Registry - Access to the Open Bio Database Access registry scheme
 
     $registry = new Bio::DB::Registry();
 
+    @available_services = $registry->services;
+
     $db = $registry->get_database('embl');
 
     # $db is a Bio::DB::SeqI implementing class
@@ -170,6 +172,24 @@ sub get_database {
 
 
     return $db;
+}
+
+
+sub services {
+    my $self = shift;
+    my @services;
+
+    # Retrieving all the keys sometimes reveals
+    # internal hashes such as "_root_verbose". Need
+    # to remove entries that begin with '_' before we
+    # return
+
+    foreach(keys %$self) {
+        next if /^_/;
+	push @services, $_;
+    }
+
+    return @services;
 }
 
 
