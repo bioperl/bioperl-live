@@ -143,6 +143,8 @@ for if you see fit)
 
 =item * Andrew Macgregor <andrew at anatomy.otago.ac.nz>
 
+=item * Sheldon McKay <smckay at bcgsc.bc.ca> - Bio::SeqIO::game
+
 =item * Juha Muilu <muilu at ebi.ac.uk>
 
 =item * Chris Mungall <cjm at fruitfly.org>
