@@ -11,8 +11,15 @@ sub parse_one_record {
   my $fh    = shift;
   my $parser =
     $self->{embl_cached_parsers}{fileno($fh)} ||= Bio::SeqIO->new(-fh=>$fh,-format=>$self->default_file_format);
-
   my $seq = $parser->next_seq;
+  my $ids = $self->seq_to_ids($seq);
+  return $ids;
+}
+
+sub seq_to_ids {
+  my $self = shift;
+  my $seq  = shift;
+
   my $display_id = $seq->display_id;
   my $accession  = $seq->accession_number;
   my %ids;

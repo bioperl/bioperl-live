@@ -127,21 +127,6 @@ sub get_Seq_by_id {
   return $seqio->next_seq;
 }
 
-=head2 fetch
-
-  Title   : fetch
-  Usage   : $index->fetch( $id )
-  Function: Returns a Bio::Seq object from the index
-  Example : $seq = $index->fetch( 'dJ67B12' )
-  Returns : Bio::Seq object
-  Args    : ID
-
-Deprecated.  Use get_Seq_by_id instead.
-
-=cut
-
-*fetch = \&get_Seq_by_id;
-
 # fetch array of Bio::Seq objects
 sub get_Seq_by_acc {
   my $self = shift;
@@ -204,13 +189,6 @@ sub expand_ids {
   return $self->unpack_secondary($record);
 }
 
-sub write_seq {
-  my $self = shift;
-  my $seq  = shift;
-  my $fh   = $self->out_file or $self->throw('no outfile defined; use the -out argument to new()');
-  
-}
-
 # build index from files listed
 sub build_index {
   my $self  = shift;
@@ -247,31 +225,6 @@ sub _index_file {
 The following methods MUST be implemented by subclasses.
 
 =cut
-
-# This is the method that must be implemented in
-# child classes.  It is passed a filehandle which should
-# point to the next record to be indexed in the file, 
-# and returns a two element list
-# consisting of a key and an adjustment value.
-# The key can be a scalar, in which case it is treated
-# as the primary ID, or a hashref containing namespace=>[id] pairs,
-# one of which MUST correspond to the primary namespace.
-# The adjustment value is normally zero, but can be a positive or
-# negative integer which will be added to the current file position
-# in order to calculate the correct end of the record.
-sub parse_one_record {
-  my $self = shift;
-  my $fh   = shift;
-  $self->throw_not_implemented;
-  # here's what you would implement
-  my (%keys,$offset);
-  return (\%keys,$offset);
-}
-
-sub default_file_format {
-  my $self = shift;
-  $self->throw_not_implemented;
-}
 
 =head2 May Be Overridden in Subclasses
 

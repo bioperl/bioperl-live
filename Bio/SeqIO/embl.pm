@@ -190,6 +190,8 @@ sub next_seq {
    
 #   $self->warn("not parsing upper annotation in EMBL file yet!");
    my $buffer = $line;
+
+   local $_;
  
    
    BEFORE_FEATURE_TABLE :

@@ -336,7 +336,7 @@ sub stack_trace{
            :  @param = (-name=>'me', -color=>'blue');
            :  @param = (-NAME=>'me', -COLOR=>'blue');
            :  @param = (-Name=>'me', -Color=>'blue');
-           :  @param = ('me', 'blue');  
+           :  @param = ('me', 'blue');
            : A leading hyphenated argument is used by this function to 
            : indicate that named parameters are being used.
            : Therefore, the ('me', 'blue') list will be returned as-is.
@@ -416,7 +416,7 @@ sub _rearrange {
 #    print "\n_rearrange() after processing:\n";
 #    my $i; for ($i=0;$i<@return_array;$i++) { printf "%20s => %s\n", ${$order}[$i], $return_array[$i]; } <STDIN>;
 
-    return (@return_array);
+    return @return_array;
 }
 
 =head2 _register_for_cleanup
