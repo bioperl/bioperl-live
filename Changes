@@ -2,6 +2,10 @@ $Id$
 Revision history for Bioperl core modules
 
 (fixes and improvements on main trunk not on 1.2 branch)
+
+   o Bio::SearchIO::axt and Bio::SearchIO::psl have been added
+     for parsing these UCSC formats.
+
    o Bio::PopGen has been added to support several population genetics
      types of questions.  Tests for statistical neutrality of mutations
      (Fu and Li's D/F, Tajima's D) are in Bio::PopGen::Statistics.  Tests
