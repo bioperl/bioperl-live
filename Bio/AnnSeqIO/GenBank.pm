@@ -529,6 +529,8 @@ sub _print_GenBank_FTHelper {
    }
     &_write_line_GenBank_regex($fh,sprintf("     %-16s",$fth->key),"                     ",$fth->loc,"\,\|\$",80);
 
+   if( !defined $always_quote) { $always_quote = 0; }
+
    foreach my $tag ( keys %{$fth->field} ) {
        foreach my $value ( @{$fth->field->{$tag}} ) {
 	   $value =~ s/\"/\"\"/g;
