@@ -100,6 +100,7 @@ use FileHandle;
 use Dumpvalue qw(dumpValue);
 use Bio::Tools::Alignment::Trim;
 use FreezeThaw qw(freeze thaw safeFreeze);
+use Bio::Root::IO;
 
 $VERSION = '0.60';
 
@@ -121,6 +122,7 @@ $VERSION = '0.60';
            Bio::Tools::Alignment::Consed to
            be noisy during parsing of the acefile, specify some value for
 	   (-verbose).
+
 =cut
 
 sub new {
@@ -145,10 +147,13 @@ sub new {
     else { $self->{verbose} = 0; }
     $self->{filename} =~ m/(.*\/)(.*)ace.*$/;
     $self->{path} = $1;
-    $self->{fh} = new FileHandle;
+	# csm: change this for BIOPERL
+	# $self->{fh} = new FileHandle;
     $self->{o_trim} = new Bio::Tools::Alignment::Trim;
-    open($self->{fh},$self->{filename}) or die "I can't open the acefile ($filename) : $!\n";
+	# csm: Change this for BIOPERL
+    	# open($self->{fh},$self->{filename}) or die "I can't open the acefile ($filename) : $!\n";
     bless ($self, $class);
+	# csm: change this for BIOPERL
     &_read_file($self,"verbose");
     return $self;
 }
@@ -213,15 +218,18 @@ sub get_filename {
  Returns : A scalar containing the number of sequences in the ace project
 	directory.
  Args    : None.
+ Notes   : If you are on a non-UNIX platform, you really don't have to use
+	this. It is more of a debugging routine designed to address very
+	specific problems.
 
 =cut
 
 sub count_sequences_with_grep {
     my $self = shift;
     my ($working_dir,$grep_cli,@total_grep_sequences);
-    # I tried to cause graceful exiting if not on *ix here
-    # the i took platforms from Bioperl*/PLATFORMS here. Is that good?
-    # print("\$^O is $^O\n");
+    	# I tried to cause graceful exiting if not on *ix here
+    	# then i took platforms from Bioperl*/PLATFORMS here. Is that good?
+    	# print("\$^O is $^O\n");
     if (!($^O =~ /linux|unix|bsd|solaris/i)) {
 	print("Bio::Tools::Alignment::Consed::count_sequences_with_grep: This sub uses grep which is doesn't run on this operating system, AFAIK. Sorry.\n");
 	return 1;
@@ -233,12 +241,8 @@ sub count_sequences_with_grep {
     }
     chomp $grep_cli;
     push(@total_grep_sequences, my @foo = `$grep_cli ^AF $self->{filename}`);
-    # print("path is $self->{path}\n");
     my $cli = "$grep_cli \\> $self->{path}*.singlets";
-    print("The grep \$cli is $cli\n");
     push(@total_grep_sequences, @foo = `$cli`);
-    # print("I saw ".scalar(@total_grep_sequences)." sequences here. They are:\n");
-    # ::dumpValue(\@total_grep_sequences);	
     return scalar(@total_grep_sequences);
 }
 
@@ -297,7 +301,6 @@ sub get_contigs {
 sub get_quality_array {
     my ($self,$contig) = @_;
     my @qualities = split(' ',($self->{contigs}{$contig}{quality}=~s/\s+//));
-    # return @{$self->{contigs}{$contig}{quality}};
     return @qualities;
 }
 
@@ -322,6 +325,7 @@ sub get_quality_scalar {
     my ($self,$contig) = @_;
     return $self->{contigs}{$contig}{quality};
 }
+
 =head2 freeze_hash()
 
  Title   : freeze_hash()
@@ -362,7 +366,7 @@ sub freeze_hash {
 
  Title   : get_members($contig_keyname)
  Usage   : $o_consed->get_members($contig_keyname);
- Function: Return the names of the reads in this contig.
+ Function: Return the _names_ of the reads in this contig.
  Returns : An array containing the names of the reads in this contig.
  Args    : The keyname of a contig. Note this is a keyname. The keyname
 	would normally come from get_contigs.
@@ -479,8 +483,9 @@ sub set_final_sequence {
  Function: An internal subroutine used to read in an acefile and parse it
 	into a Bio::Tools::Alignment::Consed object.
  Returns : 0 or 1.
- Args    : Nothing. uses the filehandle ($self->{fh} from the new() subroutine.)
- Notes   : 
+ Args    : Nothing.
+ Notes   : This routine creates and saves the filhandle for reading the
+	files in {fh}
 
 =cut
 
@@ -489,9 +494,11 @@ sub _read_file {
     my ($line,$in_contig,$in_quality,$contig_number,$top); 
     if ($self->{verbose} == 1) { $verbose = 1; }
     if ($verbose) { print("Bio::Tools::Alignment::Consed is opening $self->{filename} in _read_file()\n"); }
+
     # make it easier to type $fhl
+	$self->{fh} = Bio::Root::IO->new(-file => $self->{filename});
     my $fhl = $self->{fh};
-    while ($line=<$fhl>) {
+    while ($line=$fhl->_readline()) {
 	chomp $line;
 	# check if there is anything on this line
 	# if not, you can stop gathering consensus sequence
@@ -544,15 +551,15 @@ sub _read_file {
 	    $self->{contigs}{$contig_number}{contig_direction} = "$2";
 	    $in_contig = 1;
 	}
-	# 000713
-	# this BS is deprecated, I think.
-	# haha, I am really witty. <ew>
+		# 000713
+		# this BS is deprecated, I think.
+		# haha, I am really witty. <ew>
 	elsif ($line =~ /^BSDEPRECATED/) {
 	    $line =~ m/^BS\s+\d+\s+\d+\s+(.+)/;
 	    my $member = $1;
 	    $self->{contigs}{$contig_number}{$member}++;
 	}
-	# the members of the contigs are determined by the AF line in the ace file
+		# the members of the contigs are determined by the AF line in the ace file
 	elsif ($line =~ /^AF/) {
 	    if ($self->{verbose} == 1) { print("I see an AF line here.\n"); }
 	    $line =~ /^AF\ (\S+)\ (\w)\ (\S+)/;
@@ -578,7 +585,7 @@ sub _read_file {
 		$top = 1;
 	    }
 	    else {
-		# if the contig sequence is marked as the complement, the top becomes the bottom and$
+		# if the contig sequence is marked as the complement, the top becomes the bottom and the bottom becomes the top
 		if ($self->{contigs}{$contig_number}{contig_direction} eq "C") {
 		    if ($self->{verbose} == 1) { print("Reversing the order of the reads. The top will be $1\n"); }
 		    $self->{contigs}{$contig_number}{top_name} = $1;
@@ -902,12 +909,9 @@ sub set_singlets {
     if (-f $singletsfile) {
 	if ($verbose == 1) { print("$singletsfile is indeed a file. Trying to open it...\n"); }
     }
-    open(SINGLETS,$singletsfile) or do {
-	print STDERR "Could not open the singletsfile ($singletsfile) to catalogue the singlets for this project: $!\n";
-	return;
-    };
+	my $singlets_fh = Bio::Root::IO->new(-file => $singletsfile);
     my ($sequence,$name,$count);
-    while (<SINGLETS>) {
+    while ($_ = $singlets_fh->_readline()) {
 	chomp $_;
 	if (/\>/) {
 	    if ($name && $sequence) {
@@ -940,10 +944,9 @@ sub set_singlets {
 	$self->{contigs}{$name}{"singlet"} = 1;
 	$self->{contigs}{$name}{class} = "singlet";
     }
-    close SINGLETS;
     if ($verbose == 1) { print("Bio::Tools::Alignment::Consed::set_singlets: Done adding singlets to the singlets hash.\n"); }
-    # if ($count) { print("\t$count singlets were found in $singletsfile\n"); }
-    # else { print("\tNo singlets were found here.\n"); }
+    			# if ($count) { print("\t$count singlets were found in $singletsfile\n"); }
+    			# else { print("\tNo singlets were found here.\n"); }
     $self->{singlets_set} = "done";
     return 0;
 }				# end sub set_singlets
@@ -1026,17 +1029,9 @@ sub set_quality_by_name {
 sub set_singlet_quality {
     my $self = shift;
     my $full_filename = $self->{filename};
-    # print("Bio::Tools::Alignment::Consed::set_singlet_quality: Setting singlet qualities.\n");
-    # print("for file $full_filename...");
-    # print("Consed->set_singlet_quality: acefilename is $full_filename\n");
-    # Run_SRC3700_2000-08-01_73+74.fasta.screen.ace.2
-    # Run_SRC3700_2000-08-01_73+74.fasta.screen.contigs.qual
-    # from Consed.pm
     $full_filename =~ m/(.*\/)(.*)ace.*$/;
     my ($base_path,$filename) = ($1,"$2"."qual");
-    # print("\singlet-qual filename is $filename and \$base_path is $base_path\n");
     my $singletsfile = $base_path.$filename;
-    # print("\$singletsfile is $singletsfile\n");
     if (-f $singletsfile) {
 	# print("$singletsfile is indeed a file. Trying to open it...\n");
     }
@@ -1044,12 +1039,10 @@ sub set_singlet_quality {
 	print("$singletsfile is not a file. Sorry.\n");
 	return;
     }
-    open(SINGLETS,$singletsfile) or do {
-	print STDERR "Could not open the singletsfile ($singletsfile) to catalogue the singlets for this project: $!";
-	return;
-    };
-    my ($sequence,$name,$count,$identity,$line,$quality,@qline);
-    while ($line = <SINGLETS>) {
+	my $singlets_fh = Bio::Root::IO->new(-file => $singletsfile);
+	my ($sequence,$name,$count);
+    my ($identity,$line,$quality,@qline);
+    while ($line = $singlets_fh->_readline()) {
 	chomp $line;
 	if ($line =~ /^\>/) {
 	    $quality = undef;
@@ -1085,16 +1078,15 @@ sub set_singlet_quality {
 =cut
 
 sub set_contig_quality {
-    # note: contigs _include_ singletons but _not_ singlets
-    print("Bio::Tools::Alignment::Consed::set_contig_quality: Setting contig qualities....\n");
+	    # note: contigs _include_ singletons but _not_ singlets
     my ($self) = shift;
     my $full_filename = $self->{filename};
-    # Run_SRC3700_2000-08-01_73+74.fasta.screen.contigs.qual
-    # from Consed.pm
+	    # Run_SRC3700_2000-08-01_73+74.fasta.screen.contigs.qual
+	    # from Consed.pm
     $full_filename =~ m/(.*\/)(.*)ace.*$/;
     my ($base_path,$filename) = ($1,"$2"."contigs.qual");
     my $singletsfile = $base_path.$filename;
-    # print("\$singletsfile is $singletsfile\n");
+	    # print("\$singletsfile is $singletsfile\n");
     if (-f $singletsfile) {
 	# print("$singletsfile is indeed a file. Trying to open it...\n");
     }
@@ -1102,13 +1094,13 @@ sub set_contig_quality {
 	print("Bio::Tools::Alignment::Consed::set_contig_quality $singletsfile is not a file. Sorry.\n");
 	return;
     }
-    open(CONTIGS,$singletsfile) or do {
-	print "Could not open the singletsfile ($singletsfile) to catalogue the singlets for this project: $!";
-	return;
-    };
+	my $contig_quality_fh = Bio::Root::IO->new(-file => $singletsfile);
+
     my ($sequence,$name,$count,$identity,$line,$quality);
-    while ($line = <CONTIGS>) {
-	chomp $line;
+		# delete me csm!
+    						# while ($line = <CONTIGS>) {
+	while ($line = $contig_quality_fh->_readline()) {
+		chomp $line;
 	if ($line =~ /^\>/) {
 	    $quality = undef;
 				# Contig identity is >Run_SRC3700_2000-08-01_73+74.fasta.screen.Contig1	
@@ -1137,8 +1129,8 @@ sub set_contig_quality {
 =cut
     
 sub get_multiplets {
-    # returns an array of multiplet names
-    # multiplets have # members > 2
+	    # returns an array of multiplet names
+	    # multiplets have # members > 2
     my $self = shift;
     my (@multiplets,@array);
     foreach my $key (sort keys %{$self->{contigs}}) {
