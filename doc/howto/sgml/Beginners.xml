@@ -47,7 +47,7 @@
       </affiliation>
     </author>
 
-    <pubdate>2004-12-14</pubdate>
+    <pubdate>2005-02-08</pubdate>
 <!--
     <revhistory>
       <revision>
@@ -72,6 +72,15 @@
 		  Bioperl, for biologists who would like to learn more
 		  about writing their own bioinformatics scripts using Bioperl. 
       </para>
+		<para>
+		  What is Bioperl? It is an open source bioinformatics toolkit
+		  used by researchers all over the world. If you're looking for
+		  a script built to fit your exact need it's likely 
+		  you won't find it in Bioperl. What you will find is a
+		  diverse set of Perl modules that will enable you to write
+		  your own script, and a commmunity of people who are willing 
+		  to help you.
+		</para>
     </abstract>
   </articleinfo>
   
@@ -112,7 +121,8 @@
 		  This HOWTO does not discuss a very nice module that's designed for
 		  beginners, 
 		  <ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Perl.html">Bio::Perl</ulink>. The reason is that though this is an
-			 excellent introductory tool, it can't be extended. What we're
+			 excellent introductory tool, it is not object-oriented and
+		  can't be extended. What we're
 		  attempting here is to introduce Bioperl and show you
 		  ways to expand your new-found skills.
       </para>
@@ -309,6 +319,7 @@
 >perl -v
 		</programlisting>
 	 </para>
+<para></para>
 	 <para>
 		You will see something like:
 	 </para>
@@ -326,6 +337,7 @@ this system using `man perl' or `perldoc perl'.  If you have access to the
 Internet, point your browser at http://www.perl.com/, the Perl Home Page.
 		</programlisting>
 	 </para>
+<para></para>
 	 <para>
 		Hopefully you're using Perl version 5.4 or higher, earlier
 		versions may be troublesome. Now let's find out where the Perl 
@@ -336,6 +348,7 @@ Internet, point your browser at http://www.perl.com/, the Perl Home Page.
 >which perl
 		</programlisting>
 	 </para>
+<para></para>
 	 <para>
 		This will give you something like:
 	 </para>
@@ -344,6 +357,7 @@ Internet, point your browser at http://www.perl.com/, the Perl Home Page.
 >/bin/perl
 		</programlisting>
 	 </para>
+<para></para>
 	 <para>
 		Now that we know where Perl is located we're ready to write a
 		script, and line 1 of the script will specify this location.
@@ -357,6 +371,7 @@ Internet, point your browser at http://www.perl.com/, the Perl Home Page.
 >emacs seqio.pl
 		</programlisting>
 	 </para>
+<para></para>
 	 <para>
 	 And make this the first line of the script:
 	 </para>
@@ -365,6 +380,7 @@ Internet, point your browser at http://www.perl.com/, the Perl Home Page.
 #!/bin/perl -w
 		</programlisting>
 	 </para>
+<para></para>
 	 <para>
 		The "-w" flag tells Perl to warn you if and when various common errors
 		are encountered, it's useful.
@@ -377,7 +393,7 @@ Internet, point your browser at http://www.perl.com/, the Perl Home Page.
 		Our first script will create a sequence. Well, not just a sequence,
 		you will be creating a "sequence object", since
 		Bioperl is written in an object-oriented way. Why be
-		object-oriented? Why introduce these novel or intrusive notions into
+		object-oriented? Why introduce these odd or intrusive notions into
 		software that should be "biological" or "intuitive"? The reason is 
 		that thinking in terms of modules or objects turns out to be the
 		most flexible, and ultimately the simplest, way to deal with
@@ -404,6 +420,7 @@ Internet, point your browser at http://www.perl.com/, the Perl Home Page.
 use Bio::Seq;
 		</programlisting>
     </para>
+<para></para>
 	 <para>
 		This line says that there's a module file on your machine called
 		"Bio/Seq.pm".
@@ -430,6 +447,7 @@ use Bio::Seq;
 $seq_obj = Bio::Seq->new(-seq => "aaaatgggggggggggccccgtt");
 		</programlisting>
     </para>
+<para></para>
 	 <para>
 		That's it! The variable <varname>$seq_obj</varname> is the
 		Sequence object, a simple one, containing just a sequence.
@@ -460,11 +478,11 @@ $seq_obj = Bio::Seq->new(-seq => "aaaatgggggggggggccccgtt");
 	 <para></para>
 	 <para>
 		The object was described as a data container, but it is more
-		than that. It can also do work, meaning it can call
+		than that. It can also do work, meaning it can use or call
 		specific methods taken from the module or modules that were used
 		to create it. For example, the 
 <ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Seq.html">Bio::Seq</ulink>
-		module has a method
+		module can access a method
 		called <function>seq()</function> that will print out the
 		sequence of 
 <ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Seq.html">Bio::Seq</ulink> objects. You could use it like this:
@@ -480,12 +498,14 @@ $seq_obj = Bio::Seq->new(-seq => "aaaatgggggggggggccccgtt");
 print $seq_obj->seq;
 		</programlisting>
 	 </para>
+<para></para>
 	 <para>
 		As you'd expect, this script will print out <emphasis>
 		  aaaatgggggggggggccccgtt</emphasis>. That <emphasis>->
 		</emphasis> symbol is used when an object calls or accesses
 		its methods. 
 	 </para>
+<para></para>
 	 <para>
 		Let's make our example a bit more true-to-life, since a typical
 		sequence needs a name, perhaps a description, in addition to
@@ -504,6 +524,7 @@ $seq_obj = Bio::Seq->new(-seq => "aaaatgggggggggggccccgtt",
 print $seq_obj->seq();
 		</programlisting>
 	 </para>
+<para></para>
 	 <para>
 		"aaaatgggggggggggccccgtt", "#12345", and "example 1" are called
 		"arguments" in programming jargon. You could say that
@@ -541,6 +562,7 @@ $seqio_obj = Bio::SeqIO->new(-file => '>sequence.fasta',
 		             -format => 'fasta' );
 		</programlisting> 
 	 </para> 
+<para></para>
 	 <para>
 	   Note that <emphasis>&gt;</emphasis> in the -file argument.
 		This character indicates that we're going to
@@ -571,6 +593,7 @@ $seqio_obj = Bio::SeqIO->new(-file => '>sequence.fasta',
 $seqio_obj->write_seq($seq_obj);
 		</programlisting> 
 	 </para> 
+<para></para>
 	 <para>
 		Let's consider that last line where you see two objects since 
 		this is where some  
@@ -597,6 +620,7 @@ $seqio_obj->write_seq($seq_obj);
 aaaatgggggggggggccccgtt
 		</programlisting>
 	 </para>
+<para></para>
 	 <para>
 		Let's demonstrate the intelligence of the SeqIO object - the example
 		below shows what file content is created when the argument to
@@ -647,12 +671,14 @@ $seqio_obj = Bio::SeqIO->new(-file => "sequence.fa",
                              -format => "fasta" );
 		</programlisting>
 	 </para>
+<para></para>
 	 <para>
 		One difference is immediately apparent: there is no <emphasis>
 		  &gt;</emphasis> character. Just as with with the <function>
 		  open()</function> function this means we'll be reading from
 		the "sequence.fasta" file. Let's add the key line, where
-		we actually retrieve the Sequence object from the file:
+		we actually retrieve the Sequence object from the file using
+		the <function>next_seq</function> method:
 	 </para>
 	 <para>
 		<programlisting>
@@ -666,6 +692,7 @@ $seqio_obj = Bio::SeqIO->new(-file => "sequence.fa",
 $seq_obj = $seqio->next_seq;
 		</programlisting>
 	 </para>
+<para></para>
 	 <para>
 		Here we've used the <function>next_seq()</function> method of the
 		<ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqIO.html">Bio::SeqIO</ulink> object. When you use, or call, 
@@ -675,9 +702,16 @@ $seq_obj = $seqio->next_seq;
 		Sequence object, <varname>$seq_obj</varname>, that's created
 		will be identical to
 		to the Sequence object we created manually in our first example.
+		This is another idiom that's used frequently in Bioperl, the
+		next_&lt;something&gt; method. You'll come across the same idea
+		in the <function>next_aln</function> method of AlignIO (reading and 
+		writing alignment files) and 
+		the <function>next_hit</function> method of SearchIO (reading 
+		the output of sequence comparison programs such as BLAST and 
+		HMMER).
 	 </para>
 	 <para>
-		If there were multiple sequences in the file you could just 
+		If there were multiple sequences in the input file you could just 
 		continue to call <function>next_seq()</function> in some loop, 
 		and SeqIO would retrieve the Seq objects, one by one, 
 		until none were left:
@@ -690,6 +724,7 @@ while ($seq_obj = $seqio->next_seq){
 }
 		</programlisting>
 	 </para>
+<para></para>
 	 <para>
 		Do you have to supply a "-format" argument when you are reading 
 		from a file, as we did? Not necessarily, but it's the safe thing
@@ -719,6 +754,7 @@ while ($seq_obj = $seqio->next_seq){
 use Bio::DB::GenBank;
 		</programlisting>
 	 </para>
+<para></para>
 	 <para>
 		We could also query SwissProt, GenPept, EMBL, or RefSeq in an 
 		analogous fashion (e.g "use Bio::DB::SwissProt"). Now we'll
@@ -731,6 +767,7 @@ use Bio::DB::GenBank;
 $db_obj = Bio::DB::GenBank->new;
 		</programlisting>
 	 </para>
+<para></para>
 	 <para>
 		In this case we've created a "database object" using the 
 		<function>new</function> method, but without any arguments. 
@@ -745,6 +782,7 @@ $db_obj = Bio::DB::GenBank->new;
 $seq_obj = $db_obj->get_Seq_by_id(2); 
 		</programlisting>
 	 </para>
+<para></para>
 	 <para>
 		The argument passed to the <function>get_Seq_by_id</function>
 		method is an identifier, 2, a Genbank GI number. You could
@@ -770,6 +808,7 @@ $query_obj = Bio::DB::Query::GenBank->new(-db    => 'nucleotide',
 		                          -query => $query ); 
 		</programlisting>
 	 </para>
+<para></para>
 	 <para>
 		That is how we would construct a "query object", but we
 		haven't retrieved sequences yet. To do so we will have to create
@@ -795,25 +834,28 @@ while ($seq_obj = $stream_obj->next_seq) {
 }
 		</programlisting>
 	 </para>
+<para></para>
 	 <para>
-		That <classname>get_Stream_by_query</classname> method and its
+		That <function>get_Stream_by_query</function> method and its
 		<varname>$stream_obj</varname> may not look familiar. The idea
 		is that you will use a stream whenever you expect to retrieve 
-		a stream or series of sequence objects. Much like <classname>
-		  get_Seq_by_id</classname>, but built to retrieve one or
+		a stream or series of sequence objects. Much like <function>
+		  get_Seq_by_id</function>, but built to retrieve one or
 		more objects, not just one object.
 	 </para>
 	 <para>
 		Notice how carefully separated the responsibilities of each
-		object are in the code above: there's an object just to describe the query,
-		an object to execute the query using the query object, an object to 
+		object are in the code above: there's an object just to 
+		hold the query,
+		an object to execute the query using this query object, an object to 
 		do the I/O, and finally the sequence object.
 	 </para>
 	 <warning>
 		<para>
 		  Be careful what you ask for, many of today's nucleotide database
 		  entries are genome-size and you will probably run out of memory
-		  if your query accidentally tries to retrieve one of these monstrosities.
+		  if your query accidentally tries to retrieve one of 
+		  these monstrosities.
 		</para>
 	 </warning>
 	 <para></para>
@@ -843,6 +885,7 @@ while ($seq_obj = $stream_obj->next_seq) {
 $sequence = $seq_obj->seq;
       </programlisting>
 	 </para>
+<para></para>
 	 <para>
 		To <emphasis>set</emphasis> or assign a value:
 	 </para>
@@ -851,6 +894,7 @@ $sequence = $seq_obj->seq;
 $seq_obj->seq("MMTYDFFFFVVNNNNPPPPAAAW");
       </programlisting>
 	 </para>
+<para></para>
 	 <para>
 		<table>
 		  <title>Sequence Object Methods</title>
@@ -1057,6 +1101,7 @@ $db_obj = Bio::DB::GenBank->new;
 $seq_obj = $db_obj->get_Seq_by_acc("J01673"); 
 		</programlisting>
 	 </para>
+<para></para>
 	 <para>
 		Or it could have been created from a file like this:
 	 </para>
@@ -1069,6 +1114,7 @@ $seqio_obj = Bio::SeqIO->new(-file => "J01673.gb",
 $seq_obj = $seqio_obj->next_seq;
 		</programlisting>
 	 </para>
+<para></para>
 	 <para>
 		What the Genbank file looks like:
 	 </para>
@@ -1142,6 +1188,7 @@ ORIGIN      15 bp upstream from HhaI site.
 //      
 		</programlisting>
     </para>
+<para></para>
 	 <para>
 		Either way, the values returned by various methods are shown below.
 	 </para>
@@ -1219,7 +1266,7 @@ ORIGIN      15 bp upstream from HhaI site.
 	 <para>
 		Next let's take a look at the values returned by the methods
 		used by the Sequence object when a fasta file is used as input.
-		The fasta file entry looks like this, it's clearly much simpler
+		The fasta file entry looks like this, clearly much simpler
 		than the corresponding Genbank entry:
 	 </para>
 	 <para>
@@ -1235,6 +1282,7 @@ ACGTGTTTACGTGGCGTTTTGCTTTTATATCTGTAATCTTAATGCCGCGCTGGGCATGTTAGGAAAATTC
 CTGGAATTTGCTGGCATGTTATGCAATTTGCATATCAAATGGTTAATTTTTGCACAGGAC		  
 		</programlisting>
     </para>
+<para></para>
     <para>
 		And here are the values:
     </para>
@@ -1485,6 +1533,7 @@ use Bio::Tools::Run::StandAloneBlast;
 	   database => 'db.fa' );
       </programlisting>
     </para>
+<para></para>
 	 <para>
 		As you'd expect, we want to create a Blast object, and we will
 		pass a Sequence object to the Blast object:
@@ -1509,6 +1558,7 @@ $result_obj = $report_obj->next_result;
 print $result_obj->num_hits;
 		</programlisting>
 	 </para>
+<para></para>
 	 <para>
 		The report object, <varname>$report_obj</varname>, and the
 		result object,<varname>$result_obj</varname>, come from 
@@ -1541,10 +1591,53 @@ print $result_obj->num_hits;
   </section>
 -->  
 
+  <section id="more">
+	 <title>More on Bioperl</title>
+	 <para>
+		Perhaps this article has gotten you interested in learning a
+		bit more about Bioperl. Here are some other things you might 
+		want to look at:
+	 </para>
+	 <para>
+		<orderedlist>
+		  <listitem><para>
+			 The <ulink url="http://bioperl.org/Core/Latest/bptutorial.html">
+				bptutorial</ulink>. This gives a good overview of many
+			 different topics. Few topics are covered in detail but many
+			 of the most important modules and concepts are covered.
+		  </para></listitem>
+		  <listitem><para>
+			 The <ulink url="http://bioperl.org/HOWTOs">
+				HOWTOs</ulink>. Each one covers a topic in some detail, 
+			 but there are certainly some HOWTOs that are missing that
+			 we would like to see written.
+		  </para></listitem>
+		  <listitem><para>
+			 The <ulink
+					 url="http://doc.bioperl.org/releases/bioperl-1.4/">
+				module documentation</ulink>. Each module is documented,
+			 but the quality and quantity varies by module. 
+		  </para></listitem>
+		  <listitem><para>
+			 Bioperl scripts. You'll find them in the scripts/ directory
+			 and in the examples/ directory of the Bioperl package.
+			 The former contains more carefully written and documented
+			 scripts that can be installed along with Bioperl. 
+		  </para></listitem>
+		  <listitem><para>
+			 <ulink url="http://bioperl.org/Core/Latest/modules.html#user">
+			 User-contributed documentation</ulink>. If you look on the
+			 documentation page will you will see this section,
+			 there some very good material here.
+		  </para></listitem>
+		</orderedlist>
+	 </para>
+  </section>
+
   <section id="perldoc">
 	 <title>Perl's Documentation System</title>
 	 <para>
-		Documentation for Perl is written using a system known as POD, which
+		The documentation for Perl is available using a system known as POD, which
 		stands for <emphasis>P</emphasis>lain <emphasis>O</emphasis>ld 
 		<emphasis>D</emphasis>ocumentation. You can access this built-in
 		documentation by using the "perldoc" command. To view information 
