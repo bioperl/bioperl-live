@@ -1627,12 +1627,29 @@ print $result_obj->num_hits;
 		objects to extract useful data from your BLAST analyses.
 	 </para>
 	 <para>
+		Sometimes you'll see errors when you try to use
+<ulink
+		  url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Tools/Run/StandAloneBlast.html">Bio::Tools::Run::StandAloneBlast</ulink> 
+		that have nothing to do with Bioperl. Make sure that BLAST is 
+		set up properly and running before you attempt to script it
+		using 
+<ulink
+		  url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Tools/Run/StandAloneBlast.html">Bio::Tools::Run::StandAloneBlast</ulink>. There are
+		some notes on setting up BLAST in the 
+<ulink
+		  url="http://bioperl.org/Core/Latest/INSTALL">INSTALL</ulink> 
+		file.
+	 </para>
+	 <para>
 		Bioperl enables you to run a wide variety of bioinformatics
 		programs but in order to do so, in most cases, you will need
 		to install the accessory bioperl-run package. In addition 
 		there is no guarantee that there is a corresponding parser
 		for the program that you wish to run, but parsers have been
-		built for the most popular programs.
+		built for the most popular programs. You can find the
+		bioperl-run package on the 
+<ulink
+		  url="http://bioperl.org/Core/Latest/index.shtml">download page</ulink>. 
 	 </para>
   </section>
 
@@ -1646,11 +1663,12 @@ print $result_obj->num_hits;
 		Speed, for one. Retrieving sequences from local, indexed
 		sequence files is much faster than using the Bio::DB* modules
 		that were used above. It's also much faster than using SeqIO,
-		in part because SeqIO is stepping through the file, one at a 
-		time, starting at
-		the beginning of the file. Flexibility would be another reason. What
+		in part because SeqIO is stepping through the file, one 
+		sequence at a time, starting at
+		the beginning of the file. Flexibility is another reason. What
 		if you'd created your own collection of sequences, not found in
-		a public database?
+		a public database? By indexing this collection you'll get fast
+		access to your sequences.
 	 </para>
 	 <para>
 		There's only one requirement here, the term or id that you
@@ -1673,7 +1691,8 @@ $ENV{BIOPERL_INDEX} = ".";
 	 </para>
 	 <para></para>
 	 <para>
-		Yes, you can set environmental variables from within Perl and
+		The lines above show that you can set environmental 
+		variables from within Perl and
 		they are stored in Perl's own <varname>%ENV</varname> hash.
 		This is essentially the same thing as the following in tcsh
 		or csh:
@@ -1697,8 +1716,10 @@ $ENV{BIOPERL_INDEX} = ".";
 	 <para>
 		The BIOPERL_INDEX_TYPE variable refers to the indexing scheme, 
 		and SDBM_File is the scheme that comes with Perl. BIOPERL_INDEX
-		stipulates the location of the index file, this way you could have more 
-		than one index file per sequence file if you wanted (and the 
+		stipulates the location of the index file, and this way you
+		could have more 
+		than one index file per sequence file if you wanted, by 
+		designating multiple locations (and the 
 		utility of more than 1 index will become apparent).
 	 </para>
 	 <para>
@@ -1731,7 +1752,7 @@ $seq_obj = $inx->fetch($id)
 	 </para>
 	 <para></para>
 	 <para>
-		By default the indexing code will use the string following the 
+		By default the fasta indexing code will use the string following the 
 		<emphasis>&gt;</emphasis> character as a key, meaning that 
 		fasta header line should look something like this:
 	 </para>
@@ -1744,7 +1765,10 @@ $seq_obj = $inx->fetch($id)
 	  <para>
 		However, what if you wanted to retrieve using some other key,
 		like "1CRA" in this example? You can customize the index by 
-		using the <function>id_parser</function> method, which accepts
+		using 
+<ulink
+		url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Index/Fasta.html">Bio::Index::Fasta</ulink>'s 
+<function>id_parser</function> method, which accepts
 		the name of a function as an argument where that function
 		tells the indexing object what key to use. For example:
 	 </para>
