@@ -1,4 +1,4 @@
-
+# $Id$
 #
 # BioPerl module for Bio::Annotation::Link
 #
@@ -18,7 +18,7 @@ Bio::Annotation::DBLink - DESCRIPTION of Object
 
    $link1 = new Bio::Annotation::DBLink(-database => 'TSC',
                                         -primary_id => 'TSC0000030'
-				     );
+					);
 
    #or 
 
@@ -35,9 +35,9 @@ Bio::Annotation::DBLink - DESCRIPTION of Object
 Provides an object which represents a link from one onbject to something
 in another database without proscribing what is in the other database
 
-=head1 CONTACT
+=head1 AUTHOR - Ewan Birney
 
-Describe contact details here
+Ewan Birney - birney@ebi.ac.uk
 
 =head1 APPENDIX
 
@@ -48,7 +48,6 @@ methods. Internal methods are usually preceded with a _
 
 
 # Let the code begin...
-
 
 package Bio::Annotation::DBLink;
 use vars qw(@ISA);
@@ -89,7 +88,6 @@ sub new {
  Returns : value of database
  Args    : newvalue (optional)
 
-
 =cut
 
 sub database{
@@ -113,7 +111,6 @@ sub database{
  Example : 
  Returns : value of primary_id
  Args    : newvalue (optional)
-
 
 =cut
 
@@ -141,8 +138,9 @@ sub primary_id{
  Returns : value of optional_id
  Args    : newvalue (optional)
 
-
 =cut
+
+#'
 
 sub optional_id{
    my ($self,$value) = @_;
@@ -163,16 +161,14 @@ sub optional_id{
  Returns : value of comment (Bio::Annotation::Comment)
  Args    : newvalue (optional)
 
-
 =cut
 
-sub comment{
+sub comment {
    my ($self,$value) = @_;
    if( defined $value) {
       $self->{'comment'} = $value;
     }
     return $self->{'comment'};
-
 }
 
 1;

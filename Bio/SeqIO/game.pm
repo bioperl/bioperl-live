@@ -1,8 +1,8 @@
+# $Id$
 #
-# BioPerl module for Bio::SeqIO::fasta
+# BioPerl module for Bio::SeqIO::game
 #
 # Cared for by Brad Marshall <bradmars@yahoo.com>
-#         
 #
 # Copyright Ewan Birney & Lincoln Stein & Brad Marshall
 #
@@ -14,7 +14,7 @@
 
 =head1 NAME
 
-	Bio::SeqIO::game - Parses GAME XML 0.1 and higher into and out of Bio::Seq objects.  
+Bio::SeqIO::game - Parses GAME XML 0.1 and higher into and out of Bio::Seq objects.  
 
 =head1 SYNOPSIS
 
@@ -51,6 +51,7 @@ and other Bioperl modules. Send your comments and suggestions preferably
  to one of the Bioperl mailing lists.
 Your participation is much appreciated.
 
+  bioperl-l@bioperl.org        - Technical bioperl discussion
   bioxml-dev@bioxml.org        - Technical discussion - Moderate volume
   bioxml-announce@bioxml.org   - General Announcements - Pretty dead
   http://www.bioxml.org/MailingLists/         - About the mailing lists
@@ -108,8 +109,6 @@ sub _initialize {
   
   # filehandle is stored by superclass _initialize
 }
-
-
 
 =head2 _export_subfeatures
 
