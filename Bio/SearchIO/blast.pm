@@ -449,8 +449,8 @@ sub next_result{
                $self->_start_iteration;
            }
            $seeniteration = 1;
-       } elsif ( /^Query=\s*(.+)$/ ) {
-#           $self->debug("blast.pm: Query= found...$_\n");
+       } elsif ( /^Query=\s*(.*)$/ ) {
+           #$self->debug("blast.pm: Query= found...$_\n");
            my $q = $1;
            my $size = 0;
 	   
@@ -732,7 +732,7 @@ sub next_result{
                              'Data' => $evalue});
 	   $score = '' unless defined $score; # deal with BLAT which
                                               # has no score only bits
-           $self->debug("Got NCBI HSP score=$score, evalue $evalue\n") 
+           #$self->debug("Got NCBI HSP score=$score, evalue $evalue\n") 
 	       if $self->verbose > 0;
 
        } elsif( $self->in_element('hsp') &&
@@ -978,7 +978,7 @@ sub next_result{
 						   'Data' => shift @fields});
 			       }
 			   } else  {
-			       print "fields are @fields\n";
+			       #print STDERR "fields are @fields\n";
 			       for my $type ( qw(length
 						 efflength
 						 E S W T X E2 S2) ) {
@@ -1119,13 +1119,13 @@ sub next_result{
 		       $self->element({'Name' => 'Statistics_posted_date',
 				       'Data' => $d});
 		   } elsif( ! /^\s+$/ ) { 
-		       $self->debug( "unmatched stat $_");
+		       #$self->debug( "unmatched stat $_");
 		   }
                }
                $last = $_;
            }
        } elsif( $self->in_element('hsp') ) {
-#           $self->debug("blast.pm: Processing HSP\n");
+           #$self->debug("blast.pm: Processing HSP\n");
            # let's read 3 lines at a time;
 	   # bl2seq hackiness... Not sure I like
 	   $self->{'_reporttype'} ||= $DEFAULTREPORTTYPE;
