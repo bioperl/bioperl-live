@@ -249,7 +249,7 @@ sub seq {
        my $is_changed_seq = exists($obj->{'seq'});
        $obj->{'seq'} = $value;
        if($is_changed_seq || (! defined($obj->moltype()))) {
-	   $obj->_guess_type();
+	   $obj->_guess_type() if $value ne ''; # do not try to guess type if seq length is 0!
        }
     }
    return $obj->{'seq'};
