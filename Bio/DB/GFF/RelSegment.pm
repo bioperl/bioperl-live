@@ -26,7 +26,7 @@ physical stretch of DNA, naturally.  However, they do not have to be
 on the same strand.  The strandedness of the reference sequence
 determines whether coordinates increase to the right or the left.
 
-Generally, you will not create or manipulate Bio::DB::GFF::RelSegment
+Generally, you will not create or manipulate Bio::DB::GFF::RelSeg0ment
 objects directly, but use those that are returned by the Bio::DB::GFF
 module.
 
@@ -328,8 +328,8 @@ reference sequence to a sequence that isn't contained in the database,
 or one that has a different source sequence from the segment.
 
 =cut
-#'
 
+#'
 sub refseq {
   my $self = shift;
   my $g    = $self->{ref};

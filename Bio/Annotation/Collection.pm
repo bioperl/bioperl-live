@@ -80,6 +80,8 @@ sub new{
 
 =head2 Bio::Annotation::CollectionI implementing methods
 
+=cut
+
 =head2 get_all_annotation_keys
 
  Title   : get_all_annotation_keys
@@ -134,6 +136,8 @@ sub get_num_of_annotations{
 }
 
 =head2 Implementation specific functions - mainly for adding
+
+=cut
 
 =head2 add_Annotation
 

@@ -29,12 +29,12 @@ Bio::Symbol::Alphabet - DESCRIPTION of Object
 
 =head1 DESCRIPTION
 
- Alphabet contains set of symbols, which can be concatenated to
- form symbol lists. Sequence string, for example, is stringified
- representation of the symbol list (tokens of symbols).
+Alphabet contains set of symbols, which can be concatenated to
+form symbol lists. Sequence string, for example, is stringified
+representation of the symbol list (tokens of symbols).
 
- This module was implemented for the purposes of meeting the
- BSANE/BioCORBA spec 0.3 only.
+This module was implemented for the purposes of meeting the
+BSANE/BioCORBA spec 0.3 only.
 
 =head1 FEEDBACK
 
@@ -107,7 +107,7 @@ sub new {
     $self->{'_alphabets'} = [];
     my ($symbols, $subalphas) = $self->_rearrange([qw(SYMBOLS SUBALPHAS)],
 						  @args);
-    
+
     defined $symbols && ref($symbols) =~ /array/i && $self->symbols(@$symbols);
     defined $subalphas && ref($subalphas) =~ /array/i && $self->alphabets(@$subalphas);
     return $self;

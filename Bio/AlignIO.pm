@@ -172,7 +172,7 @@ Specify the format of the file.  Supported formats include:
    bl2seq      Bl2seq Blast output
    nexus       Swofford et al NEXUS format
    pfam        Pfam sequence alignment format
-   phylip      Felsenstein\'s PHYLIP format
+   phylip      Felsenstein's PHYLIP format
 
 Currently only those formats which were implemented in SimpleAlign.pm
 have been incorporated in AlignIO.pm.  Specifically, mase, stockholm
@@ -255,7 +255,7 @@ methods. Internal methods are usually preceded with a _
 
 =cut
 
-# Let the code begin...
+# 'Let the code begin...
 
 package Bio::AlignIO;
 

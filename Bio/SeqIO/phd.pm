@@ -20,7 +20,7 @@ Do not use this module directly.  Use it via the L<Bio::SeqIO> class.
 
 =head1 DESCRIPTION
 
-This object can transform .phd files (from Phil Green\'s phred basecaller)
+This object can transform .phd files (from Phil Green's phred basecaller)
 to and from Bio::Seq::SeqWithQuality objects
 
 =head1 FEEDBACK
@@ -59,7 +59,7 @@ methods. Internal methods are usually preceded with a _
 
 =cut
 
-# Let the code begin...
+# 'Let the code begin...
 
 package Bio::SeqIO::phd;
 use vars qw(@ISA);
@@ -95,7 +95,7 @@ sub next_seq {
 =head2 _next_phd()
 
  Title   : _next_phd()
- Usage   : $seq = $stream->_next_phd() (but don\'t do this. use next_seq()
+ Usage   : $seq = $stream->_next_phd() (but do not do this. use next_seq()
 	instead.)
  Function: returns the next phred sequence in the stream
  Returns : Bio::Seq::SeqWithQuality object

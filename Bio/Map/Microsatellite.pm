@@ -271,11 +271,12 @@ sub repeat_start_position {
 	end position based on the start position, the length of the
 	motif, and the nuimber of repeats.
 	If you specify a value the current end position of the repeat
-	will be set to that value. This is a really bad idea. Don\'t do
+	will be set to that value. This is a really bad idea. Don't do
 	it.
 
 =cut
 
+#'
 sub repeat_end_position {
 	my ($self,$caller) = @_;
 	if( defined $caller ) { 

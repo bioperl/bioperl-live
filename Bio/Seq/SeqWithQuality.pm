@@ -250,12 +250,13 @@ sub new {
  Title   : _common_id()
  Usage   : $common_id = $self->_common_id();
  Function: Compare the display_id of {qual_ref} and {seq_ref}.
- Returns : Nothing if they don\'t match. If they do return
-	{seq_ref}->display_id()
+ Returns : Nothing if they don't match. If they do return
+	   {seq_ref}->display_id()
  Args    : None.
 
 =cut
 
+#'
 sub _common_id {
 	my $self = shift;
 	return if (!$self->{seq_ref} || !$self->{qual_ref});
@@ -272,12 +273,13 @@ sub _common_id {
  Title   : _common_id()
  Usage   : $common_id = $self->_common_display_id();
  Function: Compare the display_id of {qual_ref} and {seq_ref}.
- Returns : Nothing if they don\'t match. If they do return
-	{seq_ref}->display_id()
+ Returns : Nothing if they don't match. If they do return
+	   {seq_ref}->display_id()
  Args    : None.
 
 =cut
 
+#'
 sub _common_display_id {
 	my $self = shift;
 	$self->common_id();
@@ -288,12 +290,13 @@ sub _common_display_id {
  Title   : _common_accession_number()
  Usage   : $common_id = $self->_common_accession_number();
  Function: Compare the accession_number() of {qual_ref} and {seq_ref}.
- Returns : Nothing if they don\'t match. If they do return
-	{seq_ref}->accession_number()
+ Returns : Nothing if they don't match. If they do return
+	   {seq_ref}->accession_number()
  Args    : None.
 
 =cut
 
+#'
 sub _common_accession_number {
 	my $self = shift;
 	return if ($self->{seq_ref} || $self->{qual_ref});
@@ -311,12 +314,13 @@ sub _common_accession_number {
  Title   : _common_primary_id()
  Usage   : $common_primard_id = $self->_common_primary_id();
  Function: Compare the primary_id of {qual_ref} and {seq_ref}.
- Returns : Nothing if they don\'t match. If they do return
-	{seq_ref}->primary_id()
+ Returns : Nothing if they don't match. If they do return
+	   {seq_ref}->primary_id()
  Args    : None.
 
 =cut
 
+#'
 sub _common_primary_id {
 	my $self = shift;
 	return if ($self->{seq_ref} || $self->{qual_ref});
@@ -333,12 +337,13 @@ sub _common_primary_id {
  Title   : _common_desc()
  Usage   : $common_desc = $self->_common_desc();
  Function: Compare the desc of {qual_ref} and {seq_ref}.
- Returns : Nothing if they don\'t match. If they do return
-	{seq_ref}->desc()
+ Returns : Nothing if they don't match. If they do return
+	   {seq_ref}->desc()
  Args    : None.
 
 =cut
 
+#'
 sub _common_desc {
 	my $self = shift;
 	return if ($self->{seq_ref} || $self->{qual_ref});

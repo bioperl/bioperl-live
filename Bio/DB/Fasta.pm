@@ -65,7 +65,7 @@ Entries may have any line length, and different line lengths are
 allowed in the same file.  However, within a sequence entry, all lines
 must be the same length except for the last.
 
-The module uses /^E<gt>(\S+)/ to extract each sequence\'s primary ID from
+The module uses /^E<gt>(\S+)/ to extract each sequence's primary ID from
 the Fasta header.  During indexing, you may pass a callback routine to
 modify this primary ID.  For example, you may wish to extract a
 portion of the gi|gb|abc|xyz nonsense that GenBank Fasta files use.
@@ -139,7 +139,7 @@ Bio::SeqIO style.
 =back
 
 The -makeid option gives you a chance to modify sequence IDs during
-indexing.  The option\'s value should be a code reference that will
+indexing.  The option's value should be a code reference that will
 take a scalar argument and return a scalar result, like this:
 
   sub make_my_id {
@@ -311,7 +311,7 @@ object and call its methods.
     print "$id => ",tied(%db)->length($id),"\n";
  }
 
-You may, in addition invoke Bio::DB::Fasta\'s FIRSTKEY and NEXTKEY tied
+You may, in addition invoke Bio::DB::Fasta's FIRSTKEY and NEXTKEY tied
 hash methods directly.
 
 =over 4
@@ -376,6 +376,7 @@ disclaimers of warranty.
 
 =cut
 
+#'
 package Bio::DB::Fasta;
 
 BEGIN {

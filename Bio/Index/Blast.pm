@@ -335,7 +335,7 @@ sub _process_report {
            while( <$fh> ) {
               # do something
            }
-           will parse the entire file if you don\'t put in
+           will parse the entire file if you don't put in
            a last statement in, like
 
            while( <$fh> ) {

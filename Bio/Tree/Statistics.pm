@@ -23,8 +23,8 @@ Give standard usage here
 This object is a place to accumulate routines for calculating various
 tree statistics from population genetic and phylogenetic methods.  
 
-Currently Fu and Li\'s D is implemented.
-Tajima\'s D planned.
+Currently Fu and Li's D is implemented.
+Tajima's D planned.
 
 References forthcoming.
 
@@ -100,9 +100,9 @@ sub new {
  Usage   : my $D = $statistics->fu_an_li_D($tree,$nummut);
  Function:
            For this we assume that the tree is made up of
-           Bio::Tree::AlleleNode\'s which contain markers and alleles
+           Bio::Tree::AlleleNode's which contain markers and alleles
            each marker is a 'mutation' 
- Returns : Fu and Li\'s D statistic for this Tree
+ Returns : Fu and Li's D statistic for this Tree
  Args    : $tree - Bio::Tree::TreeI which contains Bio::Tree::AlleleNodes
 
 =cut

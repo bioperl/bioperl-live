@@ -306,14 +306,16 @@ sub _parseHeader {
 
  Title    : _preprocess
  Usage    : internal routine, not called directly
- Function :  determines number of iterations in report and prepares
-	data so individual iterations canbe parsed in non-sequential order 
+ Function : determines number of iterations in report and prepares
+	    data so individual iterations canbe parsed in non-sequential 
+            order 
  Example  :  
- Returns  :  nothing. Sets TOTAL_ITERATION_NUMBER in object\'s hash
- Args     :  reference to calling object
+ Returns  : nothing. Sets TOTAL_ITERATION_NUMBER in object's hash
+ Args     : reference to calling object
 
 =cut
 
+#'
 sub _preprocess {
     my $self = shift;
 #	$self->throw(" PSIBLAST report preprocessing not implemented yet!");

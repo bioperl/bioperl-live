@@ -90,7 +90,7 @@ sub next_seq {
 =head2 _next_qual
 
  Title   : _next_qual
- Usage   : $seq = $stream->_next_qual() (but don\'t do
+ Usage   : $seq = $stream->_next_qual() (but do not do
 	   that. Use $stream->next_seq() instead)
  Function: returns the next quality in the stream
  Returns : Bio::Seq::PrimaryQual object

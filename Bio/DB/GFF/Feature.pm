@@ -161,18 +161,18 @@ The 11 arguments are positional:
   $srcseq       the source sequence
   $start        start of this feature
   $stop         stop of this feature
-  $method       this feature\'s GFF method
-  $source       this feature\'s GFF source
-  $score	this feature\'s score
-  $fstrand      this feature\'s strand (relative to the source
+  $method       this feature's GFF method
+  $source       this feature's GFF source
+  $score	this feature's score
+  $fstrand      this feature's strand (relative to the source
                       sequence, which has its own strandedness!)
-  $phase        this feature\'s phase
-  $group        this feature\'s group
-  $db_id        this feature\'s internal database ID
+  $phase        this feature's phase
+  $group        this feature's group
+  $db_id        this feature's internal database ID
 
 =cut
 
-# This is called when creating a feature from scratch.  It does not have
+# 'This is called when creating a feature from scratch.  It does not have
 # an inherited coordinate system.
 sub new {
   my $package = shift;
@@ -250,7 +250,7 @@ sub type   {
  Status  : Public
 
 This method gets or sets the feature method.  It is a convenience
-feature that delegates the task to the feature\'s type object.
+feature that delegates the task to the feature's type object.
 
 =cut
 
@@ -683,8 +683,8 @@ sub AUTOLOAD {
   return $self->sub_SeqFeature($func_name) if $func_name =~ /^[A-Z]/;
 
   # error message of last resort
-  $self->throw(qq(Can\'t locate object method "$func_name" via package "$pack"));
-}
+  $self->throw(qq(Can't locate object method "$func_name" via package "$pack"));
+}#'
 
 =head2 adjust_bounds
 

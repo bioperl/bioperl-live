@@ -32,7 +32,7 @@ Bio::SeqIO - Handler for SeqIO Formats
     }
 
 now, to actually get at the sequence object, use the standard Bio::Seq
-methods (look at Bio::Seq documentation if you don\'t know what they
+methods (look at Bio::Seq documentation if you don't know what they
 are)
 
     use Bio::SeqIO;

@@ -24,16 +24,16 @@ Bio::Symbol::SymbolI - Interface for a Symbol
 
 =head1 DESCRIPTION
 
- Symbol represents a single token in the sequence. Symbol can have
- multiple synonyms or matches within the same Alphabet, which
- makes possible to represent ambiguity codes and gaps.
+Symbol represents a single token in the sequence. Symbol can have
+multiple synonyms or matches within the same Alphabet, which
+makes possible to represent ambiguity codes and gaps.
 
- Symbols can be also composed from ordered list other symbols. For
- example, codons can be represented by single Symbol using a
- compound Alphabet made from three DNA Alphabets.
+Symbols can be also composed from ordered list other symbols. For
+example, codons can be represented by single Symbol using a
+compound Alphabet made from three DNA Alphabets.
 
- This module was implemented for the purposes of meeting the
- BSANE/BioCORBA spec 0.3 only.
+This module was implemented for the purposes of meeting the
+BSANE/BioCORBA spec 0.3 only.
 
 =head1 FEEDBACK
 

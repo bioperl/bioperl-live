@@ -307,12 +307,13 @@ sub bootstrap{
 
  Title   : ancestor
  Usage   : my $node = $node->ancestor;
- Function: Get/Set a Node\'s ancestor node
+ Function: Get/Set a Node's ancestor node
  Returns : Null if this is top level node
  Args    : none
 
 =cut
 
+#'
 sub ancestor{
    my ($self,@args) = @_;
    $self->_abstractDeath;

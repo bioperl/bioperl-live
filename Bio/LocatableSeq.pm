@@ -51,7 +51,7 @@ of the Sequence object we had to decide what to do with this.
 
 It is, to be honest, not well integrated with the rest of bioperl, for
 example, the trunc() function does not return a LocatableSeq object,
-as some might have thought. There are all sorts of nasty gotcha\'s
+as some might have thought. There are all sorts of nasty gotcha's
 about interactions between coordinate systems when these sort of
 objects are used.
 

@@ -12,7 +12,8 @@
 
 =head1 NAME
 
-Bio::TreeIO::TreeEventBuilder - Build Bio::Tree::Tree\'s and Bio::Tree::Node\'s from Events 
+Bio::TreeIO::TreeEventBuilder - Build Bio::Tree::Tree's and 
+  Bio::Tree::Node's from Events 
 
 =head1 SYNOPSIS
 

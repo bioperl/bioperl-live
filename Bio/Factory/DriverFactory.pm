@@ -21,7 +21,7 @@ Bio::Factory::DriverFactory - Base class for factory classes loading drivers
 
 =head1 DESCRIPTION
 
-This a base class for factory classes that load drivers. Normally, you don\'t
+This a base class for factory classes that load drivers. Normally, you don't
 instantiate this class directly.
 
 =head1 FEEDBACK
@@ -55,7 +55,7 @@ The rest of the documentation details each of the object methods. Internal metho
 
 =cut
 
-
+#'
 package Bio::Factory::DriverFactory;
 use strict;
 use Bio::Root::Root;

@@ -25,12 +25,12 @@ Bio::Symbol::AlphabetI - A Symbol Alphabet
 
 =head1 DESCRIPTION
 
- Alphabet contains set of symbols, which can be concatenated to
- form symbol lists. Sequence string, for example, is stringified
- representation of the symbol list (tokens of symbols).
+Alphabet contains set of symbols, which can be concatenated to form
+symbol lists. Sequence string, for example, is stringified
+representation of the symbol list (tokens of symbols).
 
- This module was implemented for the purposes of meeting the
- BSANE/BioCORBA spec 0.3 only.
+This module was implemented for the purposes of meeting the
+BSANE/BioCORBA spec 0.3 only.
 
 =head1 FEEDBACK
 

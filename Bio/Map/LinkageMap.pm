@@ -140,11 +140,12 @@ sub length {
 	   Bio::Map::Mappable that you create to place on this
 	   map. Using some other Bio::Map::Position might work but might
 	   be unpredictable.
-           N.B. I\'ve added Bio::Map::OrderedPosition which should achieve
+           N.B. I've added Bio::Map::OrderedPosition which should achieve
                 similar things from LinkagePosition and will work for
                 RH markers too.
 =cut
 
+#'
 sub add_element {
     my ($self,$marker) = @_;
 

@@ -598,10 +598,11 @@ sub count_doublet_trailing_zeros {
  Args    : $r_quals: A reference to an array containing quality values.
 	   $windowsize : The size of the sliding window.
  Notes   : This was written before PrimaryQual objects existed. They
-	   should use that object but I haven\'t rewritten this yet.
+	   should use that object but I haven't rewritten this yet.
 
 =cut 
 
+#'
 sub _sliding_window {
     my ($r_quals,$windowsize) = @_;
     my (@window,@quals,$qualsum,$count,$count2,$average,@averages,$bases_counted);
@@ -675,12 +676,13 @@ sub _print_formatted_qualities {
 =head2 _get_end_old($r_qual,$windowsize,$phreds,$count)
 
  Title   : _get_end_old($r_qual,$windowsize,$phreds,$count)
- Usage   : Deprecated. Don\'t use this!
- Returns : Deprecated. Don\'t use this!
- Args    : Deprecated. Don\'t use this!
+ Usage   : Deprecated. Don't use this!
+ Returns : Deprecated. Don't use this!
+ Args    : Deprecated. Don't use this!
 
 =cut 
 
+#'
 sub _get_end_old {
     my ($r_qual,$windowsize,$phreds,$count) = @_;
     # print("rqual,windowsize,phreds: #$r_qual#,#$windowsize#,#$phreds#\n");

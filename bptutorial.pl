@@ -475,7 +475,7 @@ need to input a sequence alignment by hand (ieg to build a SimpleAlign
 object), you will need to input the sequences as LocatableSeqs.
 
 A LargeSeq object is a special type of Seq object used for handling
-very long ( eg L<gt> 100 MB) sequences.  If you need to manipulate such
+very long ( eg E<gt> 100 MB) sequences.  If you need to manipulate such
 long sequences see section III.7.2 which describes LargeSeq objects.
 
 A LiveSeq object is another specialized object for storing sequence

@@ -34,7 +34,7 @@ Bio::SeqI - Abstract Interface of Sequence (with features)
 =head1 DESCRIPTION
 
 SeqI is the abstract interface of annotated Sequence. These methods
-are those which you can be guarenteed to get for any annseq. There aren\'t
+are those which you can be guarenteed to get for any annseq. There aren't
 many here, because too many complicated functions here prevent implementations
 which are just wrappers around a database or similar delayed mechanisms.
 

@@ -47,7 +47,7 @@ SimpleAlign - Multiple alignments held as a set of sequences
 =head1 DESCRIPTION
 
 SimpleAlign handles multiple alignments of sequences. It is very
-permissive of types (it won\'t insist on things being all same length
+permissive of types (it won't insist on things being all same length
 etc): really it is a SequenceSet explicitly held in memory with a
 whole series of built in manipulations and especially file format
 systems for read/writing alignments.
@@ -67,13 +67,13 @@ with a start and end positions in the parent reference sequence.
 Tricky concepts. SimpleAlign expects name,start,end to be 'unique' in
 the alignment, and this is the key for the internal hashes.
 (name,start,end is abbreviated nse in the code). However, in many
-cases people don\'t want the name/start-end to be displayed: either
+cases people don't want the name/start-end to be displayed: either
 multiple names in an alignment or names specific to the alignment
 (ROA1_HUMAN_1, ROA1_HUMAN_2 etc). These names are called
 'displayname', and generally is what is used to print out the
 alignment. They default to name/start-end.
 
-The SimpleAlign Module came from Ewan Birney\'s Align module.
+The SimpleAlign Module came from Ewan Birney's Align module.
 
 =head1 PROGRESS
 
@@ -131,7 +131,7 @@ methods. Internal methods are usually preceded with a _
 
 =cut
 
-# Let the code begin...
+# 'Let the code begin...
 
 package Bio::SimpleAlign;
 use vars qw(@ISA %CONSERVATION_GROUPS);

@@ -34,7 +34,7 @@ Bio::LiveSeq::IO::BioPerl - Loader for LiveSeq from EMBL entries with BioPerl
   NOTE2: -file requires a filename (and path if necessary) containing an
                EMBL entry
          -id will use Bio::DB::EMBL.pm to fetch the sequence from the web,
-               (bioperl wraparound to SRS\'s [w]getz)
+               (bioperl wraparound to [w]getz from SRS)
   NOTE3: To retrieve the swissprot (if possible) attached to the embl entry
                (to get protein domains at dna level), only Bio::DB::EMBL.pm
                is supported under BioPerl. Refer to Bio::LiveSeq::IO::SRS

@@ -49,7 +49,7 @@ Bio::Index::Swissprot - Interface for indexing (multiple) Swissprot
 
 Inherits functions for managing dbm files from Bio::Index::Abstract.pm,
 and provides the basic funtionallity for indexing Swissprot files, and
-retrieving the sequence from them. Heavily snaffled from James Gilbert\'s
+retrieving the sequence from them. Heavily snaffled from James Gilbert's
 Fasta system.
 
 =head1 FEED_BACK
@@ -79,12 +79,13 @@ Email - birney@sanger.ac.uk
 
 =head1 APPENDIX
 
-The rest of the documentation details each of the object methods. Internal methods are usually preceded with a _
+The rest of the documentation details each of the object methods. 
+Internal methods are usually preceded with a _
 
 =cut
 
 
-# Let\'s begin the code...
+# Let's begin the code...
 
 
 package Bio::Index::Swissprot;

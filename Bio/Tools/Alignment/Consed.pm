@@ -37,8 +37,8 @@ Bio::Tools::Alignment::Consed takes in the name of in .ace file and
 provides objects for the results.
 
 A word about doublets: This module was written to accomodate a large
-EST sequencing operation. In this case, EST\'s were sequenced from the
-3\' and from the 5\' end of the EST. The objective was to find a
+EST sequencing operation. In this case, EST's were sequenced from the
+3' and from the 5' end of the EST. The objective was to find a
 consensus sequence for these two reads.  Thus, a contig of two is what
 we wanted, and this contig should consist of the forward and reverse
 reads of a getn clone. For example, for a forward designator of "F"
@@ -93,6 +93,7 @@ methods. Internal methods are usually preceded with a _
 
 =cut
 
+#'
 package Bio::Tools::Alignment::Consed;
 
 use strict;
@@ -296,11 +297,12 @@ sub get_contigs {
  Notes   : Returns an array, not a reference. Is this a bug? <thinking> No.
 	Well, maybe.
 	Why was this developed like this? I was using FreezeThaw for object
-	presistence, and when it froze out these arrays it took a coon\'s age
+	presistence, and when it froze out these arrays it took a coon's age
 	to thaw it. Much better as a scalar.
 
 =cut
 
+#'
 sub get_quality_array {
     my ($self,$contig) = @_;
     my @qualities = split(' ',($self->{contigs}{$contig}{quality}=~s/\s+//));
@@ -319,11 +321,12 @@ sub get_quality_array {
 	normally come from get_contigs.
  Notes   :
 	Why was this developed like this? I was using FreezeThaw for object
-	presistence, and when it froze out these arrays it took a coon\'s age
+	presistence, and when it froze out these arrays it took a coon's age
 	to thaw it. Much better as a scalar.
 
 =cut
 
+#'
 sub get_quality_scalar {
     my ($self,$contig) = @_;
     return $self->{contigs}{$contig}{quality};
@@ -334,7 +337,7 @@ sub get_quality_scalar {
  Title   : freeze_hash()
  Usage   : $o_consed->freeze_hash();
 
- Function: Use Ilya\'s FreezeThaw module to create a persistent data
+ Function: Use Ilya's FreezeThaw module to create a persistent data
 	   object for this Bio::Tools::Alignment::Consed data
 	   structure. In the case of AAFC, we use
 	   Bio::Tools::Alignment::Consed to pre-process bunches of
@@ -348,6 +351,7 @@ sub get_quality_scalar {
 
 =cut
 
+#'
 sub freeze_hash {
     my $self = shift;
 	$self->warn("This method was removed from the bioperl consed.pm. Sorry.\n");
@@ -682,7 +686,7 @@ sub set_designator_ignore_case {
 	   object was designed specifically for me and is mysterious
 	   in its ways. Every time somebody other then me uses it a
 	   swarm of locusts decends on a small Central American
-	   village so don\'t say you weren\'t warned.
+	   village so don't say you weren't warned.
  Returns : Nothing.
  Args    : None.
  Notes   : Working on exceptions and warnings here.
@@ -822,11 +826,12 @@ sub set_dash_present_in_sequence_name {
 	Bio::Tools::Alignment::Consed looking for contigs of 2. If the forward and
 	reverse designator are removed from each of the reads in
 	{member_array} and the remaining reads are the same, {name} is set
-	to that name and the contig\'s class is set as "doublet". If any of
+	to that name and the contig's class is set as "doublet". If any of
 	those cases fail the contig is marked as a "pair".
 
 =cut
 
+#'
 sub set_doublets {
     my ($self,$verbose) = @_;
     if ($self->{verbose}) { $verbose = 1; }

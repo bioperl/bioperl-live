@@ -52,7 +52,7 @@ hash_tree
 should return an anonymous hash with "XML-like" formatting. The
 formatting is as follows.
 
-  (1) For each key in the hash, if the value is a reference\'d array -
+  (1) For each key in the hash, if the value is a reference'd array -
 
       (2) For each element of the array if the value is a object - 
           Assumme the object has the method "hash_tree";
@@ -103,7 +103,7 @@ The rest of the documentation details each of the object methods. Internal metho
 
 =cut
 
-
+#'
 # Let the code begin...
 
 

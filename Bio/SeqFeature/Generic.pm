@@ -350,7 +350,7 @@ sub sub_SeqFeature {
            as to whether it lies inside the parent, and throw
            an exception if not.
 
-           If EXPAND is used, the parent\'s start/end/strand will
+           If EXPAND is used, the parent's start/end/strand will
            be adjusted so that it grows to accommodate the new
            subFeature
  Returns : nothing
@@ -359,6 +359,7 @@ sub sub_SeqFeature {
 
 =cut
 
+#'
 sub add_sub_SeqFeature{
     my ($self,$feat,$expand) = @_;
 

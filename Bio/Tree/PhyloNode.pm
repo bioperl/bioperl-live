@@ -218,7 +218,7 @@ sub branch_length{
 
  Title   : get_parent
  Usage   : my $node = $node->parent;
- Function: Gets a Node\'s parent node
+ Function: Gets a Node's parent node
  Returns : Null if this is top level node
  Args    : none
 
