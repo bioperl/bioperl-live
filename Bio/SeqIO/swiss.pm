@@ -108,7 +108,7 @@ The rest of the documentation details each of the object methods. Internal metho
 
 
 package Bio::SeqIO::swiss;
-use vars qw(@ISA);
+use vars qw(@ISA @Unknown_names @Unknown_genus);
 use strict;
 use Bio::SeqIO;
 use Bio::SeqIO::FTHelper;
@@ -125,6 +125,16 @@ use Bio::Annotation::StructuredValue;
 
 @ISA = qw(Bio::SeqIO);
 
+# this is for doing species name parsing
+@Unknown_names=('other', 'unidentified',
+		'unknown organism', 'not specified', 
+		'not shown', 'Unspecified', 'Unknown', 
+		'None', 'unclassified', 'unidentified organism', 
+		'not supplied'
+	       );
+# dictionary of synonyms for taxid 32644
+# all above can be part of valid species name
+@Unknown_genus = qw(unknown unclassified uncultured unidentified);
 
 sub _initialize {
   my($self,@args) = @_;
@@ -155,33 +165,23 @@ sub next_seq {
    my ($self,@args) = @_;
    my ($pseq,$c,$line,$name,$desc,$acc,$seqc,$mol,$div,
        $date,$comment,@date_arr);
-   
    my $genename = "";
    my ($annotation, %params, @features) = ( new Bio::Annotation::Collection);
 
-   $line = $self->_readline;
+   local $_;
 
-   if( !defined $line) {
-       return undef; # no throws - end of file
+   while( defined($_ = $self->_readline) && /^\s+$/ ) { 
    }
-
-   if( $line =~ /^\s+$/ ) {
-       while( defined ($line = $self->_readline) ) {
-   	   $line =~ /\S/ && last;
-       }
-   }
-   if( !defined $line ) {
-       return undef; # end of file
-   }
-   last unless $line =~ /^ID\s/;
+   return unless defined $_ && /^ID\s/;
 
    # fixed to allow _DIVISION to be optional for bug #946
    # see bug report for more information
-   if( !($line =~ /^ID\s+([^\s_]+)(_([^\s_]+))?\s+([^\s;]+);\s+([^\s;]+);/)
-       && !($line =~ /^ID\s+([^\s_]+)(_([^\s_]+))?/ ) )  {
+   unless(  m/^ID\s+([^\s_]+)(_([^\s_]+))? # match the XXXX_XXX IDs
+             \s+([^\s;]+);\s+([^\s;]+);/ox ||
+	    
+	    m/^ID\s+([^\s_]+)(_([^\s_]+))? /ox ) {
        $self->throw("swissprot stream with no ID. Not swissprot in my book");
    }
-
    if( $3 ) {
        $name = "$1$2";
        $params{'-division'} = $3;
@@ -195,16 +195,12 @@ sub next_seq {
     # you won't know which entry caused an error
    $params{'-display_id'} = $name;
    
-   my $buffer = $line;
-
    BEFORE_FEATURE_TABLE :
-   until( !defined ($buffer) ) {
-       $_ = $buffer;
+   while( defined($_ = $self->_readline) ) {
        
-       # Exit at start of Feature table
-       last if /^FT/;
-       # and at the sequence at the latest HL 05/11/2000
-       last if /^SQ/;
+       # Exit at start of Feature table and at the sequence at the
+       # latest HL 05/11/2000
+       last if( /^(FT|SQ)/ );
 
        # Description line(s)
        if (/^DE\s+(\S.*\S)/) {
@@ -248,35 +244,24 @@ sub next_seq {
        }
        # Organism name and phylogenetic information
        elsif (/^O[SCG]/) {
-           my $species = $self->_read_swissprot_Species(\$buffer);
+           my $species = $self->_read_swissprot_Species($_);
            $params{'-species'}= $species;
 	   # now we are one line ahead -- so continue without reading the next
 	   # line   HL 05/11/2000
-	   next;
        }
        # References
        elsif (/^R/) {
-	   my $refs = $self->_read_swissprot_References(\$buffer);
-
+	   my $refs = $self->_read_swissprot_References($_);
 	   foreach my $r (@$refs) {
 	       $annotation->add_Annotation('reference',$r);
 	   }
-	   # now we are one line ahead -- so continue without reading the next
-	   # line   HL 05/11/2000
-	   next;
-       }
-       #Comments
+       } 
+       # Comments
        elsif (/^CC\s{3}(.*)/) {
 	   $comment .= $1;
 	   $comment .= "\n";
-	   while (defined ($buffer = $self->_readline)) {
-	       if ($buffer =~ /^CC\s{3}(.*)/) {
-		   $comment .= $1;
-		   $comment .= "\n";
-	       }
-	       else {
-		   last;
-	       }
+	   while (defined ($_ = $self->_readline) && /^CC\s{3}(.*)/ ) {
+	       $comment .= $1 . "\n";
 	   }
 	   my $commobj = Bio::Annotation::Comment->new();
 	   # note: don't try to process comments here -- they may contain
@@ -284,9 +269,7 @@ sub next_seq {
 	   $commobj->text($comment);
 	   $annotation->add_Annotation('comment',$commobj);
 	   $comment = "";
-	   # now we are one line ahead -- so continue without reading the next
-	   # line   HL 05/11/2000
-	   next;
+	   $self->_pushback($_);
        }
        #DBLinks
        # old regexp
@@ -314,19 +297,13 @@ sub next_seq {
 	   defined $kw[-1] && $kw[-1] =~ s/\.$//;
 	   push @{$params{'-keywords'}}, @kw;   
        }
-
-       # Get next line. Getting here assumes that we indeed need to read the
-       # line.
-       $buffer = $self->_readline;
    }
    
-   $buffer = $_;
-      
    FEATURE_TABLE :
    # if there is no feature table, or if we've got beyond, exit loop or don't
    # even enter    HL 05/11/2000
-   while (defined ($buffer) && ($buffer =~ /^FT/)) {
-       my $ftunit = $self->_read_FTHelper_swissprot(\$buffer);
+   while (defined $_ && /^FT/ ) {
+       my $ftunit = $self->_read_FTHelper_swissprot($_);
        
        # process ftunit
        # when parsing of the line fails we get undef returned
@@ -336,20 +313,18 @@ sub next_seq {
 					     $params{'-seqid'}, "SwissProt"));
        } else {
 	   $self->warn("failed to parse feature table line for seq " .
-		       $params{'-display_id'});
+		       $params{'-display_id'}. "\n$_");
        }
+       $_ = $self->_readline;
    }
-   if( $buffer !~ /^SQ/  ) {
-       while( defined($_ = $self->_readline) ) {
-	   /^SQ/ && last;
-       }
+   while( defined($_) && ! /^SQ/ ) { 
+       $_ = $self->_readline;
    }
    $seqc = "";	
    while( defined ($_ = $self->_readline) ) {
-       /^\/\// && last;
-       $_ = uc($_);
-       s/[^A-Za-z]//g;
-       $seqc .= $_;
+       last if /^\/\//;
+       s/[^A-Za-z]//g;       
+       $seqc .= uc($_);
    }
 
    my $seq=  $self->sequence_factory->create
@@ -823,56 +798,72 @@ sub _print_swissprot_FTHelper {
 =cut
 
 sub _read_swissprot_References{
-   my ($self,$buffer) = @_;
-   my (@refs);
+   my ($self,$line) = @_;
    my ($b1, $b2, $rp, $title, $loc, $au, $med, $com, $pubmed);
-   
-   if ($$buffer !~ /^RP/) {
-       $$buffer = $self->_readline;
-   }
-   if( !defined $$buffer ) { return undef; }
-   if( $$buffer =~ /^RP/ ) {
-       if ($$buffer =~ /^RP   (SEQUENCE OF (\d+)-(\d+).*)/) { 
-	   $rp=$1;
-	   $b1=$2;
-	   $b2=$3; 
-       }
-       elsif ($$buffer =~ /^RP   (.*)/) {
-	   $rp=$1;
-       }
-       
-   }
-   while( defined ($_ = $self->_readline) ) {
+   my @refs;
+   local $_ = $line;
+   while( defined $_ ) {
+       if( /^[^R]/ ) { 
+	   if( $rp ) { 
+	       $au =~ s/;\s*$//g;
+	       if( defined $title ) {
+		   $title =~ s/;\s*$//g;
+	       }
+	       push @refs, Bio::Annotation::Reference->new(-title    => $title,
+							   -start    => $b1,
+							   -end      => $b2,
+							   -authors  => $au,
+							   -location => $loc,
+							   -medline  => $med,
+							   -pubmed   => $pubmed,
+							   -comment  => $com,
+							   -rp       => $rp);
+	       $rp = '';
+	   }
+	   $self->_pushback($_); # want this line to go back on the list
+	   last; # may be the safest exit point HL 05/11/2000
+       } elsif ( /^RP   (SEQUENCE OF (\d+)-(\d+).*)/) { 
+	   $rp  .= $1;
+	   $b1   = $2;
+	   $b2   = $3; 
+       } elsif ( /^RP   (.*)/) {
+	   if($rp) { $rp .= " ".$1 }
+	   else    { $rp = $1 }
+       } elsif ( /^RN/ ) { 
+	   if( $rp ) { 
+	       $au =~ s/;\s*$//g;
+	       if( defined $title ) {
+		   $title =~ s/;\s*$//g;
+	       }
+	       push @refs, Bio::Annotation::Reference->new(-title    => $title,
+							   -start    => $b1,
+							   -end      => $b2,
+							   -authors  => $au,
+							   -location => $loc,
+							   -medline  => $med,
+							   -pubmed   => $pubmed,
+							   -comment  => $com,
+							   -rp       => $rp);
+	       $rp = ''
+	   }
+       } elsif( /^RX   MEDLINE;\s+(\d+)/ )  {
+	   $med   = $1;
+       } elsif( /^RX   MEDLINE=(\d+);\s+PubMed=(\d+);/ ) { 
+	   $med   = $1;
+	   $pubmed= $2;
+       } elsif( /^RA   (.*)/ ) { 
+	   $au .= $au ? " $1" : $1;
+       } elsif ( /^RT   (.*)/ ) { 
+	   $title .= $title ? " $1" : $1;
+       } elsif (/^RL   (.*)/ ) { 
+	   $loc .= $loc ? " $1" : $1;
+       } elsif ( /^RC   (.*)/ ) {
+	   $com .= $com ? " $1" : $1;
+       } 
        #/^CC/ && last;
-       /^RN/ && last; # separator between references ! LP 07/25/2000
        #/^SQ/ && last; # there may be sequences without CC lines! HL 05/11/2000
-       /^[^R]/ && last; # may be the safest exit point HL 05/11/2000
-       /^RX   MEDLINE;\s+(\d+)/ && do {$med=$1};
-       /^RX   MEDLINE=(\d+);\s+PubMed=(\d+);/ && do {$med=$1;$pubmed=$2};
-       /^RA   (.*)/ && do { $au .= $au ? " $1" : $1;   next;};
-       /^RT   (.*)/ && do { $title .= $title ? " $1" : $1; next;};
-       /^RL   (.*)/ && do { $loc .= $loc ? " $1" : $1; next;};
-       /^RC   (.*)/ && do { $com .= $com ? " $1" : $1; next;};
+       $_ = $self->_readline;
    }
-   
-   my $ref = new Bio::Annotation::Reference;
-   $au =~ s/;\s*$//g;
-   if( defined $title ) {
-       $title =~ s/;\s*$//g;
-   }
-   
-   $ref->start($b1);
-   $ref->end($b2);
-   $ref->authors($au);
-   $ref->title($title);
-   $ref->location($loc);
-   $ref->medline($med);
-   $ref->pubmed($pubmed) if (defined $pubmed);
-   $ref->comment($com);
-   $ref->rp($rp);
-
-   push(@refs,$ref);
-   $$buffer = $_;
    return \@refs;
 }
 
@@ -892,21 +883,16 @@ sub _read_swissprot_References{
 =cut
 
 sub _read_swissprot_Species {
-    my( $self, $buffer ) = @_;
+    my( $self,$line ) = @_;
     my $org;
+    local $_ = $line;
 
-    $_ = $$buffer;
     my( $subspecies, $species, $genus, $common, $variant, $ncbi_taxid, $ns_name );
     my (@class,@spflds);
     my ($binomial, $descr);
     my $osline = "";
 
-	my @unkn_names=("other", 'unidentified','unknown organism', 'not specified', 'not shown', 'Unspecified', 'Unknown', 'None', 'unclassified', 'unidentified organism', 'not supplied');
-	#dictionary of synonyms for taxid 32644
-	my @unkn_genus=('unknown','unclassified','uncultured','unidentified');
-	#all above can be part of valid species name
-
-    while (defined( $_ ||= $self->_readline )) {
+    while ( defined $_ ) {
 	last unless /^O[SCGX]/;
 	# believe it or not, but OS may come multiple times -- at this time
 	# we can't capture multiple species
@@ -915,25 +901,25 @@ sub _read_swissprot_Species {
 	    $osline .= $1;
 	    if($osline =~ s/(,|, and|\.)$//) {
 		($binomial, $descr) = $osline =~ /(\S[^\(]+)(.*)/;
-		        ($ns_name) = $binomial;
+		($ns_name) = $binomial;
                 $ns_name =~ s/\s+$//; #####
-	
+
 		#binomial could contain more than a three words. 		
-		@spflds=split(' ',$binomial);
-		
+		@spflds = split(' ',$binomial);
+
 		#if first term a conventional uppercase genus?
-		unless ((grep {$_=~/^$spflds[0]/i;} @unkn_genus) || ($spflds[0]=~m/^[^A-Z]/))	{
-			$genus=shift @spflds;
-		}
-		else	{ undef $genus; }
-		
+		unless ( (grep { /^$spflds[0]/i } @Unknown_genus) || 
+			 ($spflds[0] =~ m/^[^A-Z]/) ) {
+		    $genus = shift @spflds;
+		} else	{ undef $genus; }
+
 		if (@spflds)	{
-				while (my $fld = shift @spflds)	{
-				$species.="$fld ";
-				last if ($fld =~ m/(sp\.|var\.)/);
-			}
-			chop $species;	#last space
-			$subspecies = join ' ',@spflds if(@spflds);
+		    while (my $fld = shift @spflds)	{
+			$species.="$fld ";
+			last if ($fld =~ m/(sp\.|var\.)/);
+		    }
+		    chop $species; #last space
+		    $subspecies = join ' ',@spflds if(@spflds);
 		}
 		else { $species = 'sp.'; }
 		while($descr =~ /\(([^\)]+)\)/g) {
@@ -960,8 +946,7 @@ sub _read_swissprot_Species {
 		    }
 		}
 	    }
-        }
-        elsif (s/^OC\s+//) {
+        } elsif (s/^OC\s+//) {
             push(@class, split /[\;\.]\s*/);
 	    if($class[0] =~ /viruses/i) { 
 		# viruses have different OS/OC syntax
@@ -983,18 +968,16 @@ sub _read_swissprot_Species {
                 $self->throw("$taxstring doesn't look like NCBI_TaxID");
             }
 	}
-        
-        $_ = undef; # Empty $_ to trigger read of next line
+	$_ = $self->_readline;
     }
+    $self->_pushback($_); # pushback the last line because we need it
     
-    $$buffer = $_;
-    
-	#if the organism belongs to taxid 32644 then no Bio::Species object.
-	my $unkn = grep { $_ =~ /^$binomial$/; } @unkn_names;
-	return unless $unkn==0;
-		
+    #if the organism belongs to taxid 32644 then no Bio::Species object.
+    my $unkn = grep { /^$binomial$/ } @Unknown_names;
+    return unless $unkn == 0;
+    if( ! @class ) { 
 	
-	if ($class[0] eq 'Viruses') {
+    } elsif ($class[0] eq 'Viruses') {
         push( @class, $ns_name );
     }
     elsif ($class[0] eq 'Viruses') {
@@ -1041,24 +1024,26 @@ sub _read_swissprot_Species {
  Function: reads the next FT key line
  Example :
  Returns : Bio::SeqIO::FTHelper object 
- Args    : filehandle and reference to a scalar
+ Args    : 
 
 
 =cut
 
 sub _read_FTHelper_swissprot {
+    my ($self,$line ) = @_;
     # initial version implemented by HL 05/10/2000
     # FIXME this may not be perfect, so please review 
-    my ($self,$buffer) = @_;
+    # lots of cleaning up by JES 2004/07/01, still may not be perfect =)
+    
+    local $_ = $line;
     my ($key,   # The key of the feature
         $loc,   # The location line from the feature
         $desc,  # The descriptive text
         );
-    
-    if ($$buffer =~ /^FT   (\w+)\s+([\d\?\<]+)\s+([\d\?\>]+)\s*(.*)$/) {
-        $key = $1;
-        my $loc1 = $2;
-        my $loc2 = $3;
+    if( m/^FT\s{3}(\w+)\s+([\d\?\<]+)\s+([\d\?\>]+)\s*(.*)$/ox) {
+	$key = $1;
+	my $loc1 = $2;
+	my $loc2 = $3;
 	$loc = "$loc1..$loc2";
 	if($4 && (length($4) > 0)) {
 	    $desc = $4;
@@ -1066,29 +1051,29 @@ sub _read_FTHelper_swissprot {
 	} else {
 	    $desc = "";
 	}
-	# Read all the continuation lines up to the next feature
-	while (defined($_ = $self->_readline) && /^FT\s{20,}(\S.*)$/) {
-	    $desc .= $1;
-	    chomp($desc);
-	}
-	$desc =~ s/\.$//;
-    } else {
-        # No feature key. What's this?
-	$self->warn("No feature key in putative feature table line: $_");
-        return;
     } 
     
-    # Put the first line of the next feature into the buffer
-    $$buffer = $_;
-
+    while ( defined($_ = $self->_readline) &&
+	    /^FT\s{20,}(\S.*)$/ ) { 
+	if( $desc) { $desc .= " $1" }
+	else { $desc = $1 }
+	chomp($desc);
+    }    
+    $self->_pushback($_);
+    unless( $key ) { 
+        # No feature key. What's this?
+	$self->warn("No feature key in putative feature table line: $line");
+        return;
+    } 
+        
     # Make the new FTHelper object
     my $out = new Bio::SeqIO::FTHelper(-verbose => $self->verbose());
     $out->key($key);
     $out->loc($loc);
     
     # store the description if there is one
-    if($desc && (length($desc) > 0)) {
-	$out->field->{"description"} ||= [];
+    if( $desc && length($desc) ) {
+	$desc =~ s/\.$//;
 	push(@{$out->field->{"description"}}, $desc);
     }
     return $out;
