@@ -52,7 +52,8 @@ sub draw_component {
   $gd->line($vx1,$vy1,$vx2,$vy2,$fg);
   $gd->line($vx2,$vy2,$vx3,$vy3,$fg);
   $gd->line($vx3,$vy3,$vx1,$vy1,$fg);
-  $xmid = 0 if $xmid < 0;
+  $xmid = $self->panel->left+1  if $xmid <= $self->panel->left;
+  $xmid = $self->panel->right-1 if $xmid >= $self->panel->right;
 
   if (my $c = $self->bgcolor){
     $gd->fillToBorder($xmid,$ymid,$fg,$c) if $orient eq 'S' || $orient eq 'N';
