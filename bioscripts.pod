@@ -33,9 +33,6 @@ contributing your own script.
 This script installs scripts from the scripts/ directory on
 'make install'.
 
-A fully-featured script that uses Bio::Biblio, a module for 
-accessing and querying bibliographic repositories like Medline.
-
 =head2 scripts/biblio/biblio.PLS
 
 A fully-featured script that uses Bio::Biblio, a module for 
