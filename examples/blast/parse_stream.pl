@@ -1,5 +1,7 @@
 #!/usr/bin/perl  -w
 
+# THIS SCRIPT IS OBSOLETE. USE parse_blast.pl INSTEAD.
+
 # WARNING:
 #
 #  There is a memory leak in the stream parsing code of Bio::Tools::Blast.pm 

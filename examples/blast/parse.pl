@@ -1,5 +1,7 @@
 #!/usr/bin/perl -w
 
+# THIS SCRIPT IS OBSOLETE. USE parse_blast.pl INSTEAD.
+
 #---------------------------------------------------------------------------
 # PROGRAM : parse.pl
 # PURPOSE : To demonstrate parsing features of the Bio::Tools::Blast.pm module.

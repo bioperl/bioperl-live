@@ -23,6 +23,11 @@
 # See parse2.pl and parse_positions.pl script for some other manipulations and 
 # the POD for the Bio::Tools::Blast.pm, accessible from the above website.
 #
+# TODO:
+#  * Create an example that shows how to parse with HTML-formatted
+#    reports. The new Blast.pm module no longer parses such reports
+#    directly.
+#
 # MODIFIED:
 #  sac, 11 Mar 1999: Renamed parse_blast.pl. No longer any parse_stream.pl
 #                    One script for all your parsing needs. ;)
@@ -82,8 +87,18 @@ sub examples {
 
 STREAM PARSING:
 
-  gzip -cd out/blastp.2* | ./$ID -signif 1e-5 -table 2  
+  gzip -cd out/blastp.2* | ./$ID -signif 1e-5 -table 2  > blast.table2
+  cat ./out/blastx* | ./$ID -table 1 > blast.table1
+  print_blasts.pl ./out | ./$ID -best -noshare
+    
+  The '-noshare' argument is necessary because the out/ directory
+  contains a mixed bag of Blast reports (version 1, 2, blastp, tblastn,
+  gapped, ungapped, etc.). Most of the time, -noshare is unnecessary
+  since all reports have the same program, version, gapping, etc.
 
+  The "print_blasts.pl dir" syntax is recommended when working with large
+  numbers of Blast reports (thousands). The Blasts reports located in "dir"
+  can be compressed or not. 
 
 QQ_EG_QQ
 }

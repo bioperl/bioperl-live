@@ -188,6 +188,8 @@ sub blast_usage {
 For PARSING BLAST reports:
  Usage: $ID [ parsing parameters ] blast.files.*
         $ID [ parsing parameters ] < blast.file  
+        gzip -cd blast*.gz | $ID [ parameters ] > outfile
+        print_blasts.pl dir | $ID [ parameters ] > outfile
 
  blast.file  : Raw Blast report file. Can be compressed.
                (STDIN should be uncompressed).
