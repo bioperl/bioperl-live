@@ -1,5 +1,5 @@
 # Bioperl Manifest List
-# $Id: MANIFEST,v 1.8 1999-02-21 21:36:33 dag Exp $
+# $Id: MANIFEST,v 1.9 1999-03-12 18:45:11 amackey Exp $
 #
 MANIFEST
 Makefile.PL
@@ -33,7 +33,9 @@ Bio/Tools/WWW.pm
 Bio/Tools/pSW.pm
 Bio/Tools/Sigcleave.pm
 Bio/Tools/RestrictionEnzyme.pm
-Bio/DB/Abstract.pm
+Bio/DB/BioSeqI.pm
+Bio/DB/GenBank.pm
+Bio/DB/GenPept.pm
 Bio/SeqIO.pm
 Bio/SeqIO/Handler.pm
 Bio/SeqIO/EMBL.pm
@@ -54,6 +56,7 @@ t/HSP.t
 t/Sbjct.t              
 t/SimpleAlign.t
 t/SeqIO.t
+t/DB.t
 t/test.fasta
 t/test.raw
 t/test.gcg
