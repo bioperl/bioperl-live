@@ -1,4 +1,4 @@
-# $Id$
+# PAML.pm,v 1.3 2002/06/20 18:50:37 amackey Exp
 #
 # BioPerl module for Bio::Tools::Phylo::PAML
 #
@@ -159,7 +159,7 @@ use strict;
 # Object preamble - inherits from Bio::Root::Root
 
 use Bio::Root::Root;
-use Bio::SeqAnalysisParserI;
+use Bio::AnalysisParserI;
 use Bio::Root::IO;
 @ISA = qw(Bio::Root::Root Bio::Root::IO Bio::AnalysisParserI);
 
