@@ -98,6 +98,10 @@ reformat using Bio::Index* and Bio::DB*.
 
 Indexes local databases, partners with bpfetch.pl.
 
+=head2 scripts/seq/seqconvert.PLS
+
+Bioperl sequence format converter.
+
 =head2 scripts/seq/extract_feature_seq.PLS
 
 Extract the sequence for a specified feature type.
