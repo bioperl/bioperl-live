@@ -7,6 +7,8 @@ use Bio::OntologyIO;
 
 use Bio::Annotation::OntologyTerm;
 use Bio::Annotation::SimpleValue;
+use Bio::Annotation::DBLink;
+
 use Bio::Ontology::OntologyStore;
 
 =pod
@@ -174,12 +176,65 @@ sub _handle_feature {
     $attr{$key} = [@values];
   }
 
-  foreach my $canonical (qw(ID Name Alias Parent Note Dbxref)){ #OntologyTerm, Gap, Target cannot be handled here
-    if($attr{$canonical}){
-      foreach my $value (@{ $attr{$canonical} }){
+  #Handle Dbxref attributes
+  if($attr{Dbxref}){
+    foreach my $value (@{ $attr{Dbxref} }){
+      my $a = Bio::Annotation::DBLink->new();
+      my($db,$accession) = $value =~ /^(.+?):(.+)$/;
+
+      if(!$db or !$accession){ #dbxref malformed
+        $self->throw("Error in line:\n$feature_string\nDbxref value '$value' did not conform to GFF3 specification");
+      }
+
+      $a->database($db);
+      $a->primary_id($accession);
+    }
+  }
+
+  #Handle Ontology_term attributes
+  if($attr{Ontology_term}){
+    $self->warn("Warning for line:\n$feature_string\nOntology_term attribute handling not yet implemented, skipping it");
+  }
+
+  #Handle Gap attributes
+  if($attr{Gap}){
+    $self->warn("Warning for line:\n$feature_string\nGap attribute handling not yet implemented, skipping it");
+  }
+
+  #Handle Target attributes
+  if($attr{Target}){
+    $self->warn("Warning for line:\n$feature_string\nTarget attribute handling not yet implemented, skipping it");
+  }
+
+  #Handle ID attribute.  May only have one ID, throw error otherwise
+  if($attr{ID}){
+    if(scalar( @{ $attr{ID} } ) > 1){
+      $self->throw("Error in line:\n$feature_string\nA feature may have at most one ID value");
+    }
+
+    my $a = Bio::Annotation::SimpleValue->new();
+    $a->value( @{ $attr{ID} }[0] );
+    $ac->add_Annotation('ID',$a);
+  }
+
+  #Handle Name attribute.  May only have one Name, throw error otherwise
+  if($attr{Name}){
+    if(scalar( @{ $attr{Name} } ) > 1){
+      $self->throw("Error in line:\n$feature_string\nA feature may have at most one Name value");
+    }
+
+    my $a = Bio::Annotation::SimpleValue->new();
+    $a->value( @{ $attr{Name} }[0] );
+    $ac->add_Annotation('Name',$a);
+  }
+
+
+  foreach my $other_canonical (qw(Alias Parent Note)){
+    if($attr{$other_canonical}){
+      foreach my $value (@{ $attr{$other_canonical} }){
         my $a = Bio::Annotation::SimpleValue->new();
         $a->value($value);
-        $ac->add_Annotation($canonical,$a);
+        $ac->add_Annotation($other_canonical,$a);
       }
     }
   }
