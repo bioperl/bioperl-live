@@ -2,10 +2,10 @@ package LocalConfig;
 
 use strict;
 use Exporter;
-our @ISA = qw(Exporter);
+use vars qw(@ISA %Local @EXPORT);
 
-our %Local;
-our @EXPORT = qw( %Local );
+@ISA = qw(Exporter);
+@EXPORT = qw( %Local );
 
 open(CONF,'bioperl.conf');
 
