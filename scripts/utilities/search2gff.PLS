@@ -1,5 +1,5 @@
 #!/usr/bin/perl -w
-# $Id: search2gff.PLS,v 1.5 2003-06-04 21:12:11 jason Exp $
+# $Id: search2gff.PLS,v 1.6 2003-09-22 00:38:59 jason Exp $
 
 # Author:      Jason Stajich <jason@bioperl.org>
 # Description: Turn SearchIO parseable report(s) into a GFF report
@@ -44,13 +44,14 @@ use Bio::Tools::GFF;
 use Getopt::Long;
 use Bio::SearchIO;
 
-my ($output,$input,$format,$type,$help,$cutoff);
+my ($output,$input,$format,$type,$help,$cutoff,$sourcetag);
 $format = 'blast'; # by default
 $type   = 'query';
 GetOptions(
 	   'i|input:s'  => \$input,
 	   'o|output:s' => \$output,
 	   'f|format:s' => \$format,
+	   's|source:s' => \$sourcetag,
 	   't|type:s'   => \$type,
 	   'c|cutoff:s' => \$cutoff,
 	   'h|help'     => sub{ exec('perldoc',$0);
@@ -58,7 +59,8 @@ GetOptions(
 				},
 	   );
 $type = lc($type);
-if( $type ne 'query' && $type ne 'hit' ) {
+if( $type =~ /target/ ) { $type = 'hit' }
+elsif( $type ne 'query' && $type ne 'hit' ) {
     die("seqtype must be either 'query' or 'hit'");
 } 
 # if no input is provided STDIN will be used
@@ -108,7 +110,11 @@ while( my $result = $parser->next_result ) {
 		}
 	    }
 	    $feature->location($proxyfor->location);
-	    $feature->source_tag($proxyfor->source_tag);
+	    if( $sourcetag ) { 
+		$feature->source_tag($sourcetag);
+	    } else {
+		$feature->source_tag($proxyfor->source_tag);
+	    }
 	    $feature->score($proxyfor->score);
 	    $feature->frame($proxyfor->frame);
 	    $feature->seq_id($proxyfor->seq_id);
