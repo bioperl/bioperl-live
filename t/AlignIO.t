@@ -8,7 +8,7 @@ BEGIN {
 	use lib 't';
     }
     use Test;
-    plan tests => 45;
+    plan tests => 51;
 }
 
 use Bio::SimpleAlign;
@@ -143,7 +143,8 @@ $str = Bio::AlignIO->new('-file' => Bio::Root::IO->catfile("t","data","testaln.n
 ok defined($str) && ref($str) && $str->isa('Bio::AlignIO');
 $aln = $str->next_aln();
 ok $aln->get_seq_by_pos(1)->get_nse, 'Homo_sapiens/1-45';
-$strout = Bio::AlignIO->new('-file'  => ">".Bio::Root::IO->catfile("t", "data", "testout.nexus"),
+$strout = Bio::AlignIO->new('-file'  => ">".
+			  Bio::Root::IO->catfile("t", "data", "testout.nexus"),
 			    '-format' => 'nexus', );
 $status = $strout->write_aln($aln);
 ok $status, 1, "  failed nexus output test";
@@ -156,6 +157,9 @@ $aln = $str->next_aln();
 ok($aln);
 ok($aln->get_seq_by_pos(1)->get_nse,'PAPA_CARPA/3-342');
 ok($aln->get_seq_by_pos(2)->get_nse,'CATL_HUMAN/1-331');
+ok(sprintf("%.1f",$aln->percentage_identity),33.8);
+ok($aln->get_seq_by_pos(1)->start, 3);
+ok($aln->length,364);
 
 # EMBOSS needle
 
@@ -183,10 +187,14 @@ ok($aln->get_seq_by_pos(2)->get_nse,'ALEU_HORVU/61-360');
 
 # EMBOSS water 2.2.x sparse needle
 
-$str = new Bio::AlignIO('-format' => 'emboss',
+$str = new Bio::AlignIO(-verbose => 1,
+			'-format' => 'emboss',
 			'-file'   => Bio::Root::IO->catfile("t", "data", 'sparsealn.needle'));
 $aln = $str->next_aln();
 ok($aln);
+ok(sprintf("%.1f",$aln->percentage_identity), 2.1);
+ok($aln->get_seq_by_pos(1)->length, 238);
+ok($aln->length,238);
 ok($aln->get_seq_by_pos(1)->get_nse,'KV1K_HUMAN/1-108');
 ok($aln->get_seq_by_pos(2)->get_nse,'IF1Y_HUMAN/1-143');
 

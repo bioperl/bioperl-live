@@ -1,3 +1,4 @@
+
 # -*-Perl-*-
 ## Bioperl Test Harness Script for Modules
 ## $Id$
@@ -102,10 +103,12 @@ my $aln = $alnin->next_aln;
 ok($aln);
 ok($aln->length, 43);
 ok($aln->percentage_identity, 100);
+my ($first) = $aln->each_seq();
+ok($first->seq(), 'SCWSFSTTGNVEGQHFISQNKLVSLSEQNLVDCDHECMEYEGE');
 $aln = $alnin->next_aln;
 ok($aln);
 ok($aln->length, 339);
-ok(sprintf("%.2f",$aln->percentage_identity), 40.58);
+ok(sprintf("%.2f",$aln->percentage_identity), 33.04);
 
 my $cons = $factory->program('cons');
 $cons->verbose(0);
