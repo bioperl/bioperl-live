@@ -493,6 +493,7 @@ sub add_tag_value {
 
 sub each_tag_value {
    my ($self, $tag) = @_;
+   if( ! defined $tag ) { return (); }
    if ( ! exists $self->{'_gsf_tag_hash'}->{$tag} ) {
        $self->throw("asking for tag value that does not exist $tag");
    }
