@@ -1,3 +1,5 @@
+# 
+
 =head1 NAME
 
 Bio::DB::GFF::Segment -- Simple DNA segment object
@@ -22,15 +24,15 @@ module.
 package Bio::DB::GFF::Segment;
 
 use strict;
-use Bio::Root::Root;
-use Bio::Annotation::Collection;
-use Bio::RangeI;
-use Bio::Das::SegmentI;
+use Bio::SeqFeature::SimpleSegment;
 use Bio::SeqI;
 
 use vars qw($VERSION @ISA);
-@ISA = qw(Bio::Root::Root Bio::RangeI Bio::SeqI Bio::Das::SegmentI);
+@ISA = qw( Bio::SeqFeature::SimpleSegment Bio::SeqI );
 $VERSION = '0.31';
+
+## Other imports
+use Bio::Annotation::Collection;
 
 use overload 
   '""'     => 'asString',
@@ -60,8 +62,8 @@ derivatives.
 There are five positional arguments:
 
  $factory      a Bio::DB::GFF::Adaptor to use for database access
- $sourceseq    ID of the source sequence
  $sourceclass  class of the source sequence
+ $sourceseq    ID of the source sequence
  $start        start of the desired segment relative to source sequence
  $stop         stop of the desired segment relative to source sequence
 
@@ -70,68 +72,21 @@ There are five positional arguments:
 sub new {
   my $class = shift;
   my ($factory,$segclass,$segname,$start,$stop) = @_;
+
   $segclass = $segname->class if ref($segname) && $segname->can('class');
   $segclass ||= 'Sequence';
-
   $factory or $class->throw("->new(): provide a factory argument");
-  $class = ref $class if ref $class;
-  return bless { factory   => $factory,
-		 sourceseq => $segname,
-		 class     => $segclass,
-		 start     => $start,
-		 stop      => $stop,
-		 strand    => 0,
-	       },$class;
-}
 
-# read-only accessors
-
-=head2 factory
-
- Title   : factory
- Usage   : $s->factory
- Function: get the factory object
- Returns : a Bio::DB::GFF::Adaptor
- Args    : none
- Status  : Public
-
-This is a read-only accessor for the Bio::DB::GFF::Adaptor object used 
-to create the segment.
-
-=cut
-
-sub factory { shift->{factory} }
-
-# start, stop, length
-=head2 start
-
- Title   : start
- Usage   : $s->start
- Function: start of segment
- Returns : integer
- Args    : none
- Status  : Public
-
-This is a read-only accessor for the start of the segment.
-
-=cut
-
-sub start  { shift->{start} }
-
-=head2 end
-
- Title   : end
- Usage   : $s->end
- Function: end of segment
- Returns : integer
- Args    : none
- Status  : Public
-
-This is a read-only accessor for the end of the segment.
-
-=cut
-
-sub end   { shift->{stop}  }
+  my %args = {
+    '-seq_id' => $segname,
+    '-start' => $start,
+    '-end' => $stop,
+    '-parent' => $factory
+  };
+  my $self = $class->SUPER::new( %args );
+  $self->{ 'class' } = $segclass;
+  return $self;
+} # new(..)
 
 =head2 stop
 
@@ -147,40 +102,6 @@ This is an alias for end(), provided for AcePerl compatibility.
 =cut
 
 *stop = \&end;
-
-=head2 length
-
- Title   : length
- Usage   : $s->length
- Function: length of segment
- Returns : integer
- Args    : none
- Status  : Public
-
-Returns the length of the segment.  Always a positive number.
-
-=cut
-
-sub length { abs($_[0]->{start} - $_[0]->{stop})+1 }
-
-
-=head2 strand
-
- Title   : strand
- Usage   : $s->strand
- Function: strand of segment
- Returns : +1,0,-1
- Args    : none
- Status  : Public
-
-Returns the strand on which the segment resides, either +1, 0 or -1.
-
-=cut
-
-sub strand {
-  my $self = shift;
-  0;
-}
 
 =head2 low
 
@@ -200,7 +121,6 @@ sub low {
   my ($start,$stop) = ($self->start,$self->stop);
   return $start < $stop ? $start : $stop;
 }
-*abs_low = \&low;
 
 =head2 high
 
@@ -220,7 +140,6 @@ sub high {
   my ($start,$stop) = ($self->start,$self->stop);
   return $start > $stop ? $start : $stop;
 }
-*abs_high = \&high;
 
 =head2 sourceseq
 
@@ -231,11 +150,13 @@ sub high {
  Args    : none
  Status  : Public
 
-Returns the name of the source sequence for this segment.
+An alias for seq_id.
 
 =cut
 
-sub sourceseq { shift->{sourceseq} }
+sub sourceseq {
+  shift->seq_id( @_ );
+}
 
 =head2 class
 
@@ -337,9 +258,9 @@ sub equals {
   my $peer = shift;
   return unless defined $peer;
   return $self->asString eq $peer unless ref($peer) && $peer->isa('Bio::DB::GFF::Segment');
-  return $self->{start} eq $peer->{start}
-         && $self->{stop}  eq $peer->{stop}
-         && $self->{sourceseq} eq $peer->{sourceseq};
+  return $self->start eq $peer->start
+         && $self->stop  eq $peer->stop
+         && $self->sourceseq eq $peer->sourceseq;
 }
 
 =head2 asString
@@ -407,64 +328,6 @@ sub error {
   $g;
 }
 
-=head1 Relative Addressing Methods
-
-The following methods are provided for compatibility with
-Bio::DB::GFF::RelSegment, which provides relative addressing
-functions.
-
-=head2 abs_start
-
- Title   : abs_start
- Usage   : $s->abs_start
- Function: the absolute start of the segment
- Returns : an integer
- Args    : none
- Status  : Public
-
-This is an alias to start(), and provided for API compatibility with
-Bio::DB::GFF::RelSegment.
-
-=cut
-
-*abs_start  = \&start;
-
-=head2 abs_end
-
- Title   : abs_end
- Usage   : $s->abs_end
- Function: the absolute stop of the segment
- Returns : an integer
- Args    : none
- Status  : Public
-
-This is an alias to stop(), and provided for API compatibility with
-Bio::DB::GFF::RelSegment.
-
-=cut
-
-*abs_stop   = \&stop;
-*abs_end    = \&stop;
-
-=head2 abs_strand
-
- Title   : abs_strand
- Usage   : $s->abs_strand
- Function: the absolute strand of the segment
- Returns : +1,0,-1
- Args    : none
- Status  : Public
-
-This is an alias to strand(), and provided for API compatibility with
-Bio::DB::GFF::RelSegment.
-
-=cut
-
-sub abs_strand {
-  my $self = shift;
-  return $self->abs_end <=> $self->abs_start;
-}
-
 =head2 abs_ref
 
  Title   : abs_ref
@@ -474,12 +337,13 @@ sub abs_strand {
  Args    : none
  Status  : Public
 
-This is an alias to sourceseq(), and is here to provide API
-compatibility with Bio::DB::GFF::RelSegment.
+This is an alias to abs_seq_id().
 
 =cut
 
-*abs_ref    = \&sourceseq;
+sub abs_ref {
+  shift->abs_seq_id( @_ );
+}
 
 =head2 refseq
 
@@ -491,12 +355,13 @@ compatibility with Bio::DB::GFF::RelSegment.
  Status  : Public
 
 Examine or change the reference sequence. This is an alias to
-sourceseq(), provided here for API compatibility with
-Bio::DB::GFF::RelSegment.
+seq_id().
 
 =cut
 
-*refseq     = \&sourceseq;
+sub refseq {
+  shift->sourceseq( @_ );
+}
 
 =head2 ref
 
@@ -512,21 +377,6 @@ An alias for refseq()
 =cut
 
 sub ref { shift->refseq(@_) }
-
-=head2 seq_id
-
- Title   : seq_id
- Usage   : $ref = $s->seq_id
- Function: get the reference sequence in a LocationI-compatible way
- Returns : a string
- Args    : none
- Status  : Public
-
-An alias for refseq() but only allows reading.
-
-=cut
-
-sub seq_id { shift->refseq }
 
 =head2 truncated
 
@@ -551,66 +401,6 @@ sub truncated {
   CORE::ref($hash) eq 'HASH' or return [1,1];  # paranoia -- not that this would ever happen ;-)
   return [$hash->{start},$hash->{stop}];
 }
-
-=head2 Bio::RangeI Methods
-
-The following Bio::RangeI methods are supported:
-
-overlaps(), contains(), equals(),intersection(),union(),overlap_extent()
-
-=cut
-
-sub overlaps {
-  my $self  = shift;
-  my($other,$so) = @_;
-  if ($other->isa('Bio::DB::GFF::RelSegment')) {
-    return if $self->abs_ref ne $other->abs_ref;
-  }
-  $self->SUPER::overlaps(@_);
-}
-
-sub contains {
-  my $self  = shift;
-  my($other,$so) = @_;
-  if ($other->isa('Bio::DB::GFF::RelSegment')) {
-    return if $self->abs_ref ne $other->abs_ref;
-  }
-  $self->SUPER::contains(@_);
-}
-#sub equals {
-#  my $self  = shift;
-#  my($other,$so) = @_;
-#  if ($other->isa('Bio::DB::GFF::RelSegment')) {
-#    return if $self->abs_ref ne $other->abs_ref;
-#  }
-#  $self->SUPER::equals(@_);
-#}
-sub intersection {
-  my $self  = shift;
-  my($other,$so) = @_;
-  if ($other->isa('Bio::DB::GFF::RelSegment')) {
-    return if $self->abs_ref ne $other->abs_ref;
-  }
-  $self->SUPER::intersection(@_);
-}
-sub union {
-  my $self  = shift;
-  my($other) = @_;
-  if ($other->isa('Bio::DB::GFF::RelSegment')) {
-    return if $self->abs_ref ne $other->abs_ref;
-  }
-  $self->SUPER::union(@_);
-}
-
-sub overlap_extent {
-  my $self  = shift;
-  my($other) = @_;
-  if ($other->isa('Bio::DB::GFF::RelSegment')) {
-    return if $self->abs_ref ne $other->abs_ref;
-  }
-  $self->SUPER::overlap_extent(@_);
-}
-
 
 =head2 Bio::SeqI implementation
 
