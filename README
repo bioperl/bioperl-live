@@ -1,5 +1,5 @@
 This is the README file for the Bioperl central distribution,
-version 0.05
+version 0.05.1
 
 # $Id$
 
@@ -35,10 +35,16 @@ o Contact info
 o System requirements
 
   - Not tested on anything but common forms of Unix
-  - perl 5.003 or later (5.004 recommended; not much 5.005 testing)
+  - perl 5.004 or later (*).
   - ANSI C or Gnu C compiler for XS extensions
   - LWP (libwww-perl) modules for running network BLAST analyses
     (available from CPAN http://www.perl.com/CPAN/).
+
+  * Note that most modules will work with earlier versions of perl. 
+    The only ones that will not are Bio::SimpleAlign.pm and 
+    the Bio::Index::* modules. If you don't need these modules
+    and you want to install bioperl using an earlier version of perl,
+    edit the "require 5.004;" line in Makefile.PL as necessary.
 
 o Documentation
 

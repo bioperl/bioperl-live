@@ -23,13 +23,13 @@
 
 # Let the code begin...
 
-require 5.003;
+require 5.004;
 use ExtUtils::MakeMaker;
 
 $do_autoload_finesse = 0;
 $NAME     = 'Bio';
 $DISTNAME = "bioperl";
-$VERSION  = "0.05";
+$VERSION  = "0.05.1";
 
 if( $do_autoload_finesse == 1 ) {
     fatal("Autoload finessing does not work at the moment!");
