@@ -6,8 +6,14 @@ package Bio::UnivAln;
 
 use vars qw ($VERSION $Revision);
 
-$VERSION    = 1.009; # Beta Version; 25 May 1998
+$VERSION    = 1.010; # bio.perl.org Version;
 $Revision   = '$Id$';
+
+# Disclaimer from Georg Fuellen:
+# UnivAln is now under the CVS system. Georg Fuellen is currently 
+# not working on it, nor is he responsible for the version 
+# distributed via bio.perl.org. This version is nearly identical 
+# to Georg's latest version 1.009.
 
 # Revision History: see the end of the POD, under the header `REVISION HISTORY'
 # Last important change in Version 1.008 on 13 May 1998 :
@@ -3409,6 +3415,7 @@ sub catch {
   print "Caught internal error";
 }
 
+1;
 __END__
 
 # The following routine is an undocumented shortcut
