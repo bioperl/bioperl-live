@@ -207,7 +207,8 @@ sub from_SeqFeature {
     # if the parent homogenous flag is set, build things from the
     # sub level
     my $loc;
-    if( $sf->_parse->{'parent_homogenous'} == 1 ) {
+    my $ph_flag = $sf->_parse->{'parent_homogenous'} || 0;
+    if( $ph_flag == 1 ) {
 	$key = $sf->primary_tag();
 	$key =~ s/_span//g;
 	$loc = "join("; 
@@ -228,6 +229,7 @@ sub from_SeqFeature {
     } else {
 	$loc = $sf->start() . ".." . $sf->end();
 	$key = $sf->primary_tag();
+        
 	if( $sf->strand == -1 ) {
 	    $loc = "complement($loc)";
 	}

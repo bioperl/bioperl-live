@@ -346,19 +346,15 @@ sub write_annseq {
    my $div;
    my $len = $seq->seq_len();
 
-   if ( !$annseq->can('division') || ($div = $annseq->division()) == undef ) {
-       $div = 'UNK';
-   }
-   else {
-       $div=$annseq->division;
-   }
-   
-   if( !$annseq->can('molecule')  || ($mol = $annseq->molecule()) == undef ) {
-       $mol = 'XXX';
-   }
-   else {
-       $mol = $annseq->molecule;
-   }
+    if ($annseq->can('division')) {
+        $div = $annseq->division();
+    }
+    $div ||= 'UNK';
+    
+    if ($annseq->can('molecule')) {
+        $mol = $annseq->molecule();
+    }
+    $mol ||= 'XXX';
    
    my $temp_line;
    if( $self->_id_generation_func ) {
@@ -570,6 +566,7 @@ sub write_annseq {
 
 sub _print_EMBL_FTHelper {
    my ($fth,$fh,$always_quote) = @_;
+   $always_quote ||= 0;
    
    if( ! ref $fth || ! $fth->isa('Bio::AnnSeqIO::FTHelper') ) {
        $fth->warn("$fth is not a FTHelper class. Attempting to print, but there could be tears!");
