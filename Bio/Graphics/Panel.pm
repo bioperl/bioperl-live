@@ -1575,9 +1575,13 @@ disable the -bump, -label and -description options.  This is to avoid,
 for example, a label being attached to each exon in a transcript, or
 the various segments of a gapped alignment bumping each other.  You
 can override this behavior and force your callback to be invoked by
-providing add_track() with a true B<-all_callbacks> argument.  In this 
+providing add_track() with a true B<-all_callbacks> argument.  In this
 case, you must be prepared to handle configuring options for the
 "group" and "track" glyphs.
+
+In particular, this means that in order to control the -bump option
+with a callback, you should specify -all_callbacks=>1, and turn on
+bumping when the callback is in the track or group glyphs.
 
 =head2 ACCESSORS
 
