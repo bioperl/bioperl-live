@@ -4,6 +4,8 @@ package Bio::Graphics::Glyph::arrow;
 use strict;
 use vars '@ISA';
 use Bio::Graphics::Glyph::generic;
+use Bio::Coordinate::Pair;
+use Bio::Location::Simple;
 @ISA = 'Bio::Graphics::Glyph::generic';
 
 my %UNITS = (n => 1e-12,
@@ -99,20 +101,31 @@ sub draw_parallel {
     my $font_color = $self->fontcolor;
     my $height     = $self->height;
 
-    my $relative               = $self->option('relative_coords');
-    my $reversed = exists $self->{flip} || ($relative && $self->feature->strand < 0);
+    my $relative   = $self->option('relative_coords');
+    my $flipped    = $self->{flip};
+    my $end        = $self->panel->end + 1;
+
+    my $tickwidth  = $self->option('tickwidth'); $tickwidth = $self->linewidth unless defined $tickwidth;
+    my $tickcolor  = $self->color($self->option('tickcolor') || $self->option('fgcolor'));
+    my $tickpen    = $self->set_pen($tickwidth, $tickcolor);
+
     my $relative_coords_offset = $self->option('relative_coords_offset');
     $relative_coords_offset    = 1 unless defined $relative_coords_offset;
 
     my $start    = $relative ? $relative_coords_offset : $self->feature->start-1;
     my $stop     = $start + $self->feature->length - 1;
 
-    # WARNING: THIS IS NOT WELL THOUGHT OUT, REVERSED SEGMENTS MAY NOT INTERACT
-    # WITH RELATIVE COORDINATES OFFSET CORRECTLY
-    my $offset   = $relative ? 
-                   $reversed ? ($self->feature->end   - $relative_coords_offset) 
-                             : ($self->feature->start - $relative_coords_offset) 
-	          : 0;
+    my $map = Bio::Coordinate::Pair->new(-in  => Bio::Location::Simple->new( -seq_id => "rel",
+									     -start => $start,
+									     -end => $stop,
+									     -strand => 1,
+									     ),
+					 -out => Bio::Location::Simple->new( -seq_id => "abs",
+									     -start => $self->feature->start,
+									     -end => $self->feature->end,
+									     -strand => $self->feature->strand,
+									     ),
+					 ) if $relative;
 
     my $unit_label   = $self->option('units') || '';
     my $unit_divider = $self->option('unit_divider') || 1;
@@ -136,21 +149,37 @@ sub draw_parallel {
     my $right = $ne ? $x2-$height : $x2;
 
     # adjust for portions of arrow that are outside panel
-    $start += $self->panel->start - $self->feature->start
-      if $self->feature->start < $self->panel->start;
-    $stop  -= $self->feature->end - $self->panel->end
-      if $self->feature->end   > $self->panel->end;
-
+    if ($relative && $self->feature->strand == -1) {
+	$start += $self->feature->end - $self->panel->end if $self->feature->end > $self->panel->end;
+	$stop -= $self->panel->start - $self->feature->start if $self->feature->start < $self->panel->start;
+    } else {
+	$start += $self->panel->start - $self->feature->start
+	    if $self->feature->start < $self->panel->start;
+	$stop  -= $self->feature->end - $self->panel->end
+	    if $self->feature->end   > $self->panel->end;
+    }
+	
     my $first_tick = $major_interval * int(0.5 + $start/$major_interval);
     my $last_tick  = $major_interval * int(0.5 + $stop/$major_interval);
 
     for (my $i = $first_tick; $i <= $last_tick; $i += $major_interval) {
+      my $abs = $i;
+      if ($relative) {
+	  $abs = $map->map( Bio::Location::Simple->new(-seq_id => "rel",
+						       -start  => $i,
+						       -end   => $i,
+						       -strand => 1,
+						       )
+			    )->match;
+	  next unless $abs;
+	  $abs = $abs->start;
+      }
 
-      my $tickpos = $dx + ($reversed ? $self->map_pt($stop - $i + $offset)
-	                             : $self->map_pt($i + $offset));
+      $abs = $end - $abs if $flipped;
+
+      my $tickpos = $dx + $self->map_pt($abs);
       next if $tickpos < $left or $tickpos > $right;
-
-      $gd->line($tickpos,$center-$a2,$tickpos,$center+$a2,$fg);
+      $gd->line($tickpos,$center-$a2,$tickpos,$center+$a2,$tickpen);
       my $label = $scale ? $i / $scale : $i;
       my $scaled = $label/$divisor;
       $label = sprintf($format,$scaled,$unit_label);
@@ -169,11 +198,23 @@ sub draw_parallel {
 
       my $a4 = $self->height/4;
       for (my $i = $first_tick; $i <= $last_tick; $i += $minor_interval) {
-	my $tickpos = $dx + ($reversed ? $self->map_pt($stop - $i + $offset)
-	                               : $self->map_pt($i + $offset));
-	next if $tickpos < $left or $tickpos > $right;
+	  my $abs = $i;
+	  if ($relative) {
+	      $abs = $map->map( Bio::Location::Simple->new(-seq_id => "rel",
+							   -start  => $i,
+							   -end    => $i,
+							   -strand => 1,
+							   )
+				)->match;
+	      next unless $abs;
+	      $abs = $abs->start;
+	  }
+	  $abs = $end - $abs if $flipped;
 
-	$gd->line($tickpos,$center-$a4,$tickpos,$center+$a4,$fg);
+	  my $tickpos = $dx + $self->map_pt($abs);
+	  next if $tickpos < $left or $tickpos > $right;
+
+	  $gd->line($tickpos,$center-$a4,$tickpos,$center+$a4,$tickpen);
       }
     }
   }
@@ -285,6 +326,10 @@ options are recognized:
 	      0 = no ticks
 	      1 = major ticks
 	      2 = minor ticks
+
+  -tickcolor  Color to use for tick marks       fgcolor
+
+  -tickwidth  Line width to use for ticks       linewidth
 
   -parallel   Whether to draw the arrow         1 (true)
 	      parallel to the sequence
