@@ -90,8 +90,12 @@ sub _initialize {
 =head2 from_SeqFeature
 
  Title   : from_SeqFeature
- Usage   : @fthelperlist = Bio::AnnSeqIO::FTHelper::from_SeqFeature($sf);
+ Usage   : @fthelperlist = Bio::AnnSeqIO::FTHelper::from_SeqFeature($sf,$context_annseq);
  Function: constructor of fthelpers from SeqFeatures
+         :
+         : The additional annseq argument is to allow the building of FTHelper
+         : lines relevant to particular sequences (ie, when features are spread over
+         : enteries, knowing how to build this)
  Returns : an array of FThelpers
  Args    : seq features
 
@@ -99,10 +103,21 @@ sub _initialize {
 =cut
 
 sub from_SeqFeature {
-    my ($sf) = shift;
+    my ($sf,$context_annseq) = shift;
     my @ret;
     my $key;
 
+    #
+    # If this object knows how to make FThelpers, then let it
+    # - this allows us to store *really* weird objects that can write
+    # themselves to the EMBL/GenBank...
+    #
+
+    if( $sf->can("to_FTHelper") ) {
+	return $sf->to_FTHelper($context_annseq);
+    }
+
+    # build something sensible...
     # if the parent homogenous flag is set, build things from the
     # sub level
     my $loc;
@@ -214,6 +229,28 @@ sub field{
    my ($self) = @_;
 
    return $self->{'_field'};
+}
+
+=head2 add_field
+
+ Title   : add_field
+ Usage   :
+ Function:
+ Example :
+ Returns : 
+ Args    :
+
+
+=cut
+
+sub add_field{
+   my ($self,$key,$val) = @_;
+
+   if( !exists $self->field->{$key} ) {
+       $self->field->{$key} = [];
+   } 
+   push( @{$self->field->{$key}} , $val);
+   
 }
 
 

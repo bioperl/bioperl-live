@@ -220,6 +220,15 @@ sub next_annseq{
 
 sub write_annseq{
    my ($self,$annseq) = @_;
+
+   if( !defined $annseq ) {
+       $self->throw("Attempting to write with no annseq!");
+   }
+
+   if( ! ref $annseq || ! $annseq->isa('Bio::AnnSeqI') ) {
+       $self->warn(" $annseq is not a AnnSeqI compliant module. Attempting to dump, but may fail!");
+   }
+
    my $fh = $self->_filehandle();
    my $seq = $annseq->seq();
    my $i;
@@ -240,7 +249,7 @@ sub write_annseq{
    print $fh "FH   \n";
 
    foreach my $sf ( $annseq->top_SeqFeatures ) {
-       my @fth = Bio::AnnSeqIO::FTHelper::from_SeqFeature($sf);
+       my @fth = Bio::AnnSeqIO::FTHelper::from_SeqFeature($sf,$annseq);
        foreach my $fth ( @fth ) {
 	   &_print_EMBL_FTHelper($fth,$fh);
        }

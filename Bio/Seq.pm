@@ -919,12 +919,16 @@ my %Alphabets_strict =
      $SeqAlph{'rna'}      => [ "A","C","G","U" ],
      $SeqAlph{'amino'}    => [ "A","R","N","D","C","Q","E","G","H","I","L","K","M","F",
 			     "P","S","T","W","Y","V"], 
+     $SeqAlph{'aligned'}    => [ "A","R","N","D","C","Q","E","G","H","I","L","K","M","F",
+			     "P","S","T","W","X","Y","V","B","Z","*","-","." ], # eb - added for alignments
      $SeqAlph{'otherseq'} => $Alphabets{'otherseq'},
      );
+
 #create alphabets like ``1Mg''=$SeqAlph{dna}Mg = [ "A","C","G","T","?" ],
 #and ``1Gp''=$SeqAlph{dna}Gp = [ "A","C","G","T","-" ],
 #where "?" denotes the character for missing nucleotide data, "-" denotes gaps.
 #Note that $Alphabets{"1GpMg"} = "A C G T - ?" is defined by this procedure !
+
 grep {$Alphabets{$_."Gp"} ||= [ @{ $Alphabets{$_} },"-" ] } keys %Alphabets;
 grep {$Alphabets{$_."Mg"} ||= [ @{ $Alphabets{$_} },"?" ] } keys %Alphabets;
 {
@@ -1104,10 +1108,11 @@ sub _seq {
     else {
         $self->throw("No sequence was assigned since input sequence is not a string, nor an array, but a ${\ref($nseq)} or somesuch.");
     }
+    my $bad;
      ##Warn if non-standard sequence characters present 
-     unless($self->alphabet_ok) {
-         $self->warn("Sequence $self->{'id'} contains non-standard alphabet character(s)",
-		     "Seq = $self->{'seq'}",
+     unless($self->alphabet_ok(\$bad)) {
+         $self->warn("Sequence $self->{'id'} contains non-standard alphabet character(s)" .
+		     "Offending characters are [$bad]\n" .
 		     "alphabet (${\$self->type}, ${\$self->strict}): ".$self->alphabet,
 		     );  # SAC: displaying the problem sequence and alphabet.
      }
@@ -2025,13 +2030,14 @@ sub out_fasta {
 =head2 alphabet_ok
 
  Title     : alphabet_ok
- Usage     : $myseq->alphabet_ok;
+ Usage     : $myseq->alphabet_ok(\$bad_chars);
  Function  : Checks the sequence for presence of any characters
            : that are not considered valid members of the genetic
            : alphabet. In addition to the standard genetic alphabet
            : (see documentation), "?" and "-" characters are
            :  considered valid.
-           :
+           : $bad chars is optional. If it is there, it retrieves the bad
+           : characters
  Example   : if($myseq->alphabet_ok) { print "OK!!\n"; }
            :     else { print "Not OK! \n"; }
            :
@@ -2045,7 +2051,7 @@ sub out_fasta {
 #_______________________________________________________________________'
  
 sub alphabet_ok {
-    my($self) = @_;
+    my($self,$chars) = @_;
 
     my($seq) = $self->{"seq"};
     $seq =~ tr/a-z/A-Z/;
@@ -2077,7 +2083,15 @@ sub alphabet_ok {
 
     ## SAC: Corrected error. Was returning 0 if the seq was okay.
     ##Look for non-alphabet characters via regex
-    if($seq =~ /[^$al]/i) { return 0; } # not OK  
+    if($seq =~ /[^$al]/i) { 
+	if( defined $chars ) {
+	    $seq =~ s/[$al]//g;
+	    $$chars = $seq;
+	}
+
+	return 0; 
+    } # not OK  
+    
     else { return 1 ; }                 # OK
  
 }
