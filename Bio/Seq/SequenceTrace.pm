@@ -907,7 +907,7 @@ sub initialize_traces {
      foreach (qw(a t g c)) {
           my @temp;
           for (my $count=0; $count<$length; $count++) {
-               @temp->[$count] = $value;
+               $temp[$count] = $value;
           }
           $self->trace($_,\@temp);
      }
