@@ -248,7 +248,8 @@ sub _parse_gene_struct {
    my $lasthseqname;
    my $gene = new Bio::SeqFeature::Gene::GeneStructure(-source => $self->analysis_method);
    my $transcript = new Bio::SeqFeature::Gene::Transcript(-source => $self->analysis_method);
-
+   my @suppf;
+   my @exon;
    while( defined($_ = $self->_readline) ) {
        if( /Note Best alignment is between (reversed|forward) est and (reversed|forward) genome, (but|and) splice\s+sites imply\s+(forward gene|REVERSED GENE)/) {
 	      if( $seensegment ) {
@@ -274,6 +275,14 @@ sub _parse_gene_struct {
 							              }
 						       );
           $transcript->seq_id($qseqname) unless $transcript->seq_id;
+          $exon->add_tag_value('phase',0);
+          push @exon, $exon;
+              
+       } elsif( /^([\-\+\?])(Intron)/) {
+         next; #intron auto matically built from exons..hope thats ok..
+       } elsif( /^Span/ ) {
+       } elsif( /^Segment/ ) {
+    	    my ($name,$len,$score,$qstart,$qend,$qseqname,$hstart,$hend, $hseqname) = split;
 	         my $query = new Bio::SeqFeature::Similarity(-primary => $name,
 						       -source  => $self->analysis_method,
 						       -seq_id => $qseqname, # FIXME WHEN WE REDO THE GENERIC NAME CHANGE
@@ -301,19 +310,24 @@ sub _parse_gene_struct {
         	   my $support =  new Bio::SeqFeature::SimilarityPair (-query => $query,
                                                               		-hit   => $hit,
                                                               		-source => $self->analysis_method);
-            $exon->add_tag_value('supporting_feature'=>$support);
-            $transcript->add_exon($exon);
-              
-       } elsif( /^([\-\+\?])(Intron)/) {
-         next; #intron auto matically built from exons..hope thats ok..
-       } elsif( /^Span/ ) {
-       } elsif( /^Segment/ ) {
-      	   $seensegment = 1;
+             push @suppf, $support;
        } elsif( /^\s+$/ ) { # do nothing
        } else {
       	   $self->warn( "unknown line $_\n");
        }
    }
+   return undef unless $#exon >=0;
+   foreach my $e(@exon){
+    my @add;
+    foreach my $sf(@suppf){
+      if($sf->overlaps($e)){
+          push @add,$sf;
+      }
+    }
+    $e->add_tag_value('supporting_feature',@add);
+    $transcript->add_exon($e);
+  }
+  
    $gene->add_transcript($transcript);
    $gene->seq_id($transcript->seq_id);
    return $gene;
