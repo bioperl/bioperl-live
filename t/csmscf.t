@@ -79,21 +79,22 @@ print("Trying to create a new scf file from the existing object (from above)...\
 
 my $out_scf = Bio::SeqIO->new('-file' => ">write_scf.scf",
 			      '-format' => 'csmscf');
-    $out_scf->write_seq(-SeqWithQuality	=>	$swq,
-			-MACH		=>	'CSM sequence-o-matic 5000',
-			-TPSW		=>	'trace processing software',
-			-BCSW		=>	'basecalling software',
-			-DATF		=>	'AM_Version=2.00',
-			-DATN		=>	'a22c.alf',
-			-CONV		=>	'Bioperl-scf.pm');
+$out_scf->write_seq(-SeqWithQuality	=>	$swq,
+		    -MACH		=>	'CSM sequence-o-matic 5000',
+		    -TPSW		=>	'trace processing software',
+		    -BCSW		=>	'basecalling software',
+		    -DATF		=>	'AM_Version=2.00',
+		    -DATN		=>	'a22c.alf',
+		    -CONV		=>	'Bioperl-scf.pm');
+ok( -e "write_scf.scf");
 
 print("Trying to create an scf using null qualities.\n");
 
 $swq = Bio::Seq::SeqWithQuality->new(-seq=>'ATCGTACGTACGTC',
-				-qual=>"");
+				     -qual=>"");
 
 $out_scf = Bio::SeqIO->new('-file' => ">write_scf_no_qualities.scf",
-			      '-format' => 'csmscf');
+			   '-format' => 'csmscf');
 $out_scf->write_seq(	-SeqWithQuality	=>	$swq,
 			-MACH		=>	'CSM sequence-o-matic 5000',
 			-TPSW		=>	'trace processing software',
@@ -104,8 +105,9 @@ $out_scf->write_seq(	-SeqWithQuality	=>	$swq,
 
 	print("Trying to create an scf using null sequence but with qualities.\n");
 
-$out_scf = Bio::SeqIO->new('-file' => ">write_scf_no_sequence.scf",
-			      '-format' => 'csmscf');
+$out_scf = Bio::SeqIO->new('-verbose' => 1,
+			   '-file' => ">write_scf_no_sequence.scf",
+			   '-format' => 'csmscf');
 
 $swq = Bio::Seq::SeqWithQuality->new(-seq=>'',
 				     -qual=>"10 20 30 40 50 20 10 30 40 50",
@@ -120,4 +122,3 @@ $out_scf->write_seq(	-SeqWithQuality	=>	$swq,
 			-CONV		=>	'Bioperl-scf.pm');
 
 # dumpValue($in_scf);
-ok( -e "write_scf.scf");
