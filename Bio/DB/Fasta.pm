@@ -786,7 +786,7 @@ sub fileno2path {
 sub path2fileno {
   my $self = shift;
   my $path = shift;
-  unless (exists $self->{offsets}{"__path_$path"}) {
+  if ( !defined $self->{offsets}{"__path_$path"} ) {
     my $fileno  = ($self->{offsets}{"__path_$path"} = 0+ $self->{fileno}++);
     $self->{offsets}{"__file_$fileno"} = $path;
   }
