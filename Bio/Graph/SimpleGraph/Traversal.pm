@@ -11,7 +11,31 @@ Bio::Graph::SimpleGraph::Traversal;
 
 =head1 SYNOPSIS
 
+  use Bio::Graph::SimpleGraph::Traversal;
+  use Bio::Graph::SimpleGraph;
+
+  ## get a graph , $g.
+  
+  my $traversal = Bio::Graph::SimpleGraph::Traversal->new(-graph=>$g,
+                                                          -start=>$start,
+                                                         -order=>$order,
+                                                          -what =>$what);
+ ##cycle through nodes one at a time
+ while ($traversal->has_next() {
+        my $node = $traversal->get_next();
+      }
+ ## reset traversal to start
+  $traversal->reset;
+
+ ## get all nodes
+  my @all_nodes = $traversal->get_all();
+
+ 
+
+
+
 =head1 DESCRIPTION
+This is a helper class for performing graph traversal operations for Bio::Graph::SimpleGraph objects and Bio::Graph::Protein::Graph objects. The documentation ocnerning the use of this class is described in the "Graph algorithms" section of the  Bio::Graph::SimpleGraph  modules. Only the methods are documented here. 
 
 =head1 FEEDBACK
 
@@ -33,9 +57,9 @@ or the web:
   bioperl-bugs@bioperl.org
   http://bugzilla.bioperl.org/
 
-=head1 AUTHOR - Richard Adams
+=head1 AUTHOR - Nat Goodman, Richard Adams
 
-Email richard.adams@ed.ac.uk
+Email natg@shore.net, richard.adams@ed.ac.uk
 
 =cut
 
@@ -63,12 +87,30 @@ sub _init_self {
 	$self->graph or $self->graph(new Bio::Graph::SimpleGraph);
 	# can't be in DEFAULTS - circular includes!
 }
+=head2      has_next
+
+ name      : has_next
+ usage     : while (my $traversal->has_next() ) {..
+ purpose   : returns true if there are more items in traversal, else undef
+ arguments : none
+ returns   : true or unde;
+
+=cut 
 
 sub has_next {
   my($self)=@_;
   $self->reset unless $self->is_initialized;
   @{$self->_future}>0;
 }
+=head2      get_next
+
+ name      : get_next
+ usage     : my $node =  $traversal->get_next() ;
+ purpose   : returns  next item in traversal or undef if traversal is exhausted. 
+ arguments : none
+ returns   : a node  or undef;
+
+=cut 
 
 sub get_next {
   my($self)= @_;
@@ -92,6 +134,17 @@ sub get_next {
   }
   $self->_present(undef);
 }
+
+=head2      get_all
+
+ name      : get_all
+ usage     : my @nodes =  $traversal->get_all() ;
+ purpose   : get all remaining items in traversal as ARRAY (in array context)
+              or ARRAY ref.
+ arguments : none
+ returns   : an array, an array reference or undef.
+
+=cut 
 
 sub get_all {
   my($self, $val)   = @_;
@@ -122,11 +175,30 @@ sub get_all {
   wantarray? @$results: $results;
 }
 
+=head2      get_this
+
+ name      : get_all
+ usage     : my @nodes =  $traversal->get_all() ;
+ purpose   : gets current node in traversal 
+ arguments : none
+ returns   : the current node or undef.
+
+=cut 
+
 sub get_this {
   my($self)=@_;
   $self->reset unless $self->is_initialized;
   $self->_present;
 }
+=head2      reset
+
+ name      : reset
+ usage     : $traversal->reset() ;
+ purpose   : restarts traversal from first node
+ arguments : none
+ returns   : void.
+
+=cut 
 
 sub reset {
   my($self)= @_;
