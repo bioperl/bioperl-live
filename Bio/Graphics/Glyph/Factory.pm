@@ -324,7 +324,8 @@ sub make_glyph {
     my $type = $self->feature_to_glyph($f);
     my $glyphclass = 'Bio::Graphics::Glyph';
     $type ||= 'generic';
-    $glyphclass .= "\:\:\L$type";
+    chomp($glyphclass .= "\:\:\L$type");
+    $glyphclass =~ tr[ ][]d; # trash whitespace
 
     unless ($LOADED_GLYPHS{$glyphclass}++) {
       carp("the requested glyph class, ``$type'' is not available: $@")
