@@ -241,7 +241,7 @@ sub add_seq {
 	$self->throw("Unable to process non locatable sequences [", ref($seq), "]");
     }
 
-    $id = $seq->id();
+    $id = $seq->id() ||$seq->display_id || $seq->primary_id;
     $start = $seq->start();
     $end  = $seq->end();
 
@@ -264,7 +264,7 @@ sub add_seq {
 
 	$self->{'_order'}->{$order} = $name;
 
-	if (not exists( $self->{'_start_end_lists'}->{$id})) {
+	unless( exists( $self->{'_start_end_lists'}->{$id})) {
 	    $self->{'_start_end_lists'}->{$id} = [];
 	}
 	push @{$self->{'_start_end_lists'}->{$id}}, $seq;
