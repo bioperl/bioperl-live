@@ -849,4 +849,3 @@ t/scf.t
 t/seqwithquality.t
 t/testformats.pl
 t/trim.t
-testfasta.pl
