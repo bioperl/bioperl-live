@@ -319,9 +319,8 @@ sub end_element {
   my $at = $data->{'Attributes'};
 
   my $method = $self->{will_handle};
-
   if($method){
-	if($nm =~ /^NSE-rs/){
+	if($nm =~ /^NSE-rs/ or $nm =~ /^NSE-SeqLoc/ or $nm =~ /^NSE-FxnSet/){
 	  $self->refsnp->$method($self->{last_data});
 	} elsif ($nm =~ /^NSE-ss/){
 	  $self->refsnp->subsnp->$method($self->{last_data});
