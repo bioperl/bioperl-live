@@ -203,7 +203,6 @@ sub _run {
     $self->delay(1);
     # delay repeated calls by default by 3 sec, set delay() to change
     $self->sleep;
-    print "seq is $seq_fasta\n";
     $self->status('TERMINATED_BY_ERROR');
 
     my $request = POST $self->url,
@@ -222,7 +221,6 @@ sub _run {
     my $content = $self->request($request);
     my $text = $content->content; #1st reponse
     my ($tmpfile) = $text =~ /value="(tmp.+txt)"/;
-    print "tmpfile is $tmpfile\n";
     # now get data for all residues #
     my $rq2 = POST 'http://exon.cshl.org/cgi-bin/ESE/resultfile.txt',
         Content_Type => 'x-www-form-urlencoded',
@@ -233,7 +231,6 @@ sub _run {
     my $content2 = $ua2->request($rq2);
     my $text2 = $content2->content;
     open (OUT, ">dump") or die -$!;
-    print OUT $text2;
     close OUT;
     $self->{'_result'} = $text2;		
     $self->status('COMPLETED') if $text2 ne '';
@@ -277,7 +274,6 @@ sub result {
 
         if ($value eq 'Bio::SeqFeatureI') {
             foreach (@sig_pdctns) {
-                print join "\n", @$_;
                 #make new ese object for each row of results
                 push @fts, Bio::SeqFeature::Generic->new
                     (
@@ -313,7 +309,7 @@ sub result {
                 # implementing it and we can avoid having to make
                 # asubclass for each implementation
 
-                $Bio::Seq::Meta::Array::DEFAULT_NAME = "ESEFinder_SRp55";
+                $Bio::Seq::Meta::Array::DEFAULT_NAME = "ESEfinder_SRp55";
                 my $meta_name = $self->analysis_spec->{'name'} . "_" . "$prot";
                 $self->seq->named_meta($meta_name,\@meta );
             }
@@ -321,7 +317,8 @@ sub result {
             return $self->seq;
 
         }
-        return @sig_pdctns;
+		#return ref to array of arrays
+        return \@sig_pdctns;
     }
     return $self->{'_result'};
 }
