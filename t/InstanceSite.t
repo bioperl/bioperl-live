@@ -1,5 +1,5 @@
 use strict;
-
+use lib 'C:\bioperl-live';
 BEGIN {
     # to handle systems with no installed Test module
     # we include the t dir (where a copy of Test.pm is located)
