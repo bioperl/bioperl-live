@@ -21,10 +21,10 @@
  
 <revhistory>
 	<revision>
-		<revnumber>0.1</revnumber>
-		<date>2002-09-01</date>
+		<revnumber>0.2</revnumber>
+		<date>2003-05-15</date>
 		<authorinitials>lds</authorinitials>
-		<revremark>first draft</revremark>
+		<revremark>Current as of BioPerl 1.2.2</revremark>
 	</revision>
 </revhistory>
 
