@@ -189,7 +189,6 @@ Specify the format of the file.  Supported formats include:
    EMBL        EMBL format
    GenBank     GenBank format
    swiss       Swissprot format
-   SCF         SCF tracefile format
    PIR         Protein Information Resource format
    GCG         GCG format
    raw         Raw format (one sequence per line, no ID)
@@ -198,6 +197,13 @@ Specify the format of the file.  Supported formats include:
    phd         phred output
    qual        Quality values (get a sequence of quality scores)
    Fastq       Fastq format
+   SCF         SCF tracefile format
+   ABI         ABI tracefile format
+   ALF         ALF tracefile format
+   CTF         CTF tracefile format
+   ZTR         ZTR tracefile format
+   PLN         Staden plain tracefile format
+   EXP         Staden tagged experiment tracefile format
 
 If no format is specified and a filename is given then the module
 will attempt to deduce the format from the filename suffix.  If this
@@ -205,6 +211,11 @@ is unsuccessful then Fasta format is assumed.
 
 The format name is case insensitive.  'FASTA', 'Fasta' and 'fasta' are
 all valid suffixes.
+
+Currently, the tracefile formats (except for SCF) require installation
+of the external Staden "io_lib" package, as well as the
+Bio::SeqIO::staden::read package available from the bioperl-ext
+repository.
 
 =back
 
@@ -551,6 +562,13 @@ sub _guess_format {
    return 'fasta'   if /\.(fasta|fast|seq|fa|fsa|nt|aa)$/i;
    return 'genbank' if /\.(gb|gbank|genbank)$/i;
    return 'scf'     if /\.scf$/i;
+   return 'scf'     if /\.scf$/i;
+   return 'abi'     if /\.abi$/i;
+   return 'alf'     if /\.alf$/i;
+   return 'ctf'     if /\.ctf$/i;
+   return 'ztr'     if /\.ztr$/i;
+   return 'pln'     if /\.pln$/i;
+   return 'exp'     if /\.exp$/i;
    return 'pir'     if /\.pir$/i;
    return 'embl'    if /\.(embl|ebl|emb|dat)$/i;
    return 'raw'     if /\.(txt)$/i;
