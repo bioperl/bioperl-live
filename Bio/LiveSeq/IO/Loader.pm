@@ -779,7 +779,7 @@ sub _findgenefeatures {
 
   my $skipgenematch=0;
   if (scalar(@cds) == 1) {
-    carp "Note: only one CDS in this entry. Treating all features found in entry as Gene features.";
+    #carp "Note: only one CDS in this entry. Treating all features found in entry as Gene features.";
     $skipgenematch=1;
   }
 
