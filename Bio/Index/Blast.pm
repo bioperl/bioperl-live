@@ -1,3 +1,4 @@
+# $Id$
 #
 # BioPerl module for Bio::Index::Blast
 #
@@ -14,10 +15,24 @@
 Bio::Index::Blast - Indexes Blast reports and supports retrieval based on query accession(s)
 
 =head1 SYNOPSIS
-{
+
     use Bio::Index::Blast;
+    my $index = new Bio::Index::Blast(-filename => $indexfile,
+				      -write_flag => 1);
+    $index->make_index($file1, $file2);
     
-}
+    my $data = $index->get_stream($id);
+    
+    my $bplite_report = $index->fetch_report($id);
+    print "query is ", $bplite_report->query, "\n";
+    while( my $sbjct = $bplite_report->nextSbjct ) {
+	print $sbjct->name, "\n";
+	while( my $hsp = $sbjct->nextHSP ) {
+	    print "\t e-value ", $hsp->P,
+	}
+	print "\n";
+    }
+
 =head1 DESCRIPTION
 
 This object allows one to build an index on a blast file (or files)
