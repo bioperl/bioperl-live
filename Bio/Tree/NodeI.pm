@@ -334,4 +334,20 @@ sub ancestor{
     $self->throw_not_implemented();
 }
 
+=head2 invalidate_height
+
+ Title   : invalidate_height
+ Usage   : private helper method
+ Function: Invalidate our cached value of the node'e height in the tree
+ Returns : nothing
+ Args    : none
+
+=cut
+
+#'
+
+sub invalidate_height { 
+    shift->throw_not_implemented();
+}
+
 1;
