@@ -1,5 +1,5 @@
 #!/usr/bin/perl -w
-# $Id: mask_by_search.PLS,v 1.3 2003-09-08 12:17:15 heikki Exp $
+# $Id: mask_by_search.PLS,v 1.4 2004-12-08 10:48:05 heikki Exp $
 
 =head1 NAME
 
@@ -29,8 +29,8 @@ Below the double dash (--) options are of the form
 or you can just say
 -f fasta
 
-By -f/--format I mean either are acceptable options.  The =s or =n or
-=c specify these arguments expect a 'string'
+By -f/--format I mean either are acceptable options.  The =s or =n
+or =c specify these arguments expect a 'string'
 
 Options:
     -f/--format=s    Search report format (fasta,blast,axt,hmmer,etc)

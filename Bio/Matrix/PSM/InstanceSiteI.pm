@@ -72,7 +72,7 @@ use vars qw(@ISA);
 use strict;
 
 @ISA=qw(Bio::Root::RootI);
- 
+
 =head2 mid
 
  Title   : mid

@@ -175,7 +175,7 @@ sub e_game {
     my ($self, $el) = @_;
     $self->flush( $el );
 }
- 
+
 =head2 e_seq
 
  Title   : e_seq

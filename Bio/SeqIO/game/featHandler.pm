@@ -584,7 +584,7 @@ sub _build_feature_set {
 }
 
 =head2 _add_feature_span
- 
+
  Title   : _add_feature_span
  Usage   : $self->_add_feature_span($el, 1)
  Function: an internal method to process <feature_span> elements

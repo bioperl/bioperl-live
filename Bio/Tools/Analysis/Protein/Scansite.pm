@@ -204,7 +204,7 @@ my $URL = 'http://scansite.mit.edu/cgi-bin/motifscan_seq';
 
 
 =head2 result
- 
+
  Name    : result
  Usage   : $job->result (...)
  Returns : a result created by running an analysis

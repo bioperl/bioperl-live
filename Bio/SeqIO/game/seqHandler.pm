@@ -460,6 +460,7 @@ sub _annotation {
 }
 
 # get/set the sequence object
+
 =head2 _seq
 
  Title   : _seq
@@ -487,6 +488,7 @@ sub _seq {
 }
 
 #get/set the feature handler
+
 =head2 _feat_handler
 
  Title   : _feat_handler

@@ -111,6 +111,7 @@ use Bio::AnalysisResultI;
            -kappa_mat => Bio::Matrix::PhylipDist of kappa values (only for BASEML)
            -alpha_mat => Bio::Matrix::PhylipDist of alpha values (only for BASEML)
            -NSSitesresult => arrayref of PAML::ModelResult 
+
 =cut
 
 sub new {

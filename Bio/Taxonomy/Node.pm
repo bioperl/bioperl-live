@@ -487,7 +487,7 @@ sub show_all{
 }
 
 =head2 name
-  
+
   Title:    name
   Usage:    $obj->name('scientific', 'sapiens');
             $obj->name('common', 'human', 'man');

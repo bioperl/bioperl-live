@@ -148,7 +148,7 @@ use Bio::Tools::Analysis::SimpleAnalysisBase;
 
 
 =head2 result
- 
+
  Name    : result
  Usage   : $job->result (...)
  Returns : a result created by running an analysis

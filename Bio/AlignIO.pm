@@ -292,6 +292,7 @@ use Bio::Tools::GuessSeqFormat;
            -displayname_flat => 1 [optional] 
                                 to force the displayname to not show start/end
                                 information
+
 =cut
 
 sub new {

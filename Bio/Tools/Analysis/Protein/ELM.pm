@@ -11,7 +11,7 @@
 # POD documentation - main docs before the code
 
 =head1     NAME
- 
+
 Bio::Tools::Analysis::Protein::ELM
 
 =head1     SYNOPSIS

@@ -824,7 +824,7 @@ sub _uncompress_string {
 	}
 	return @array;
 }
-	
+
 =head2 get_compressed_freq
 
  Title   : get_compressed_freq

@@ -130,6 +130,7 @@ use Bio::SearchIO::SearchWriterI;
            -no_wublastlinks => boolean. Do not display WU-BLAST lines 
                                even if they are parsed out.
                                Links = (1) 
+
 =cut
 
 sub new {

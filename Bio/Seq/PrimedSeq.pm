@@ -29,6 +29,7 @@ Bio::Seq::PrimedSeq - A representation of a sequence and two primers flanking a
   target region for amplification
 
 =head1 SYNOPSIS
+
   # The easiest way to use this is probably as one of the following:
   # (i) to get the output from Bio::Tools::Run::Primer3, Bio::Tools::Primer3,
   # or Bio::Tools::PCRSimulation
