@@ -227,9 +227,10 @@ while($seq = $stream->next_seq()) {
     $lasts = $seq;
 }
 ok $lasts->display_id(), "HUMBETGLOA";
-ok(scalar $lasts->annotation->get_Annotations('reference'), 1);
-
+my ($ref) = $lasts->annotation->get_Annotations('reference');
+ok($ref->medline, 94173918);
 $stream->close();
+
 $ent = Bio::SeqIO->new( '-file' => Bio::Root::IO->catfile("t","data","test.embl"), 
 			'-format' => 'embl');
 $ent->verbose($verbosity);
