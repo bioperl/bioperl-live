@@ -127,6 +127,11 @@ Indexes local databases, partners with bpfetch.pl.
 
 Extract the sequence for a specified feature type.
 
+=head2 scripts/popgen/heterogeneity.PLS
+
+A test for distinguishing between selection and population
+expansion.
+
 =head2 scripts/seq/seqconvert.PLS
 
 Bioperl sequence format converter.
