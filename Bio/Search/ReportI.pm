@@ -12,15 +12,35 @@
 
 =head1 NAME
 
-Bio::Search::ReportI - DESCRIPTION of Interface
+Bio::Search::ReportI - Interface for a Search Report (BLAST, FASTA, HMMER)
 
 =head1 SYNOPSIS
+{
+    # get a Search Report somehow
+    # like from a SearchIO
+    my $searchio = new Bio::SearchIO(-format => 'blastxml', -file => 'report.xml');
+    my $report = $searchio->next_report;
+     
+    my @searchparams = $report->available_parameters;
+    print "program was ", $report->program_name, " ", $report->program_version,
+    "\n";
 
-Give standard usage here
-
+    foreach my $p ( @searchparams ) {
+	print "$p = ", $report->get_parameter($p), "\n";
+    }
+    print "db was ", $report->database_name, 
+    ($report->database_size) ? " and size was ".$report->database_size : '',
+    "\n";
+    print "query was ", $report->query_name, " query length was ", 
+    $report->query_size, "\n";
+    while( my $subject = $report->next_subject ) {
+	# process a Bio::Search::SubjectI object
+    }
+    
 =head1 DESCRIPTION
 
-Describe the interface here
+This is an interface describing the minimal information for a
+describing a Search Report.
 
 =head1 FEEDBACK
 
@@ -187,6 +207,68 @@ sub program_version{
    my ($self,@args) = @_;
    $self->_abstractDeath;   
 
+}
+
+=head2 get_parameter
+
+ Title   : get_parameter
+ Usage   : my $gap_ext = $report->get_parameter('gapext')
+ Function: Returns the value for a specific parameter used
+           when running this report
+ Returns : string
+ Args    : name of parameter (string)
+
+=cut
+
+sub get_parameter{
+   my ($self,@args) = @_;
+   $self->_abstractDeath;
+}
+
+=head2 available_parameters
+
+ Title   : available_parameters
+ Usage   : my @params = $report->available_parameters
+ Function: Returns the names of the available parameters
+ Returns : Return list of available parameters used for this report
+ Args    : none
+
+=cut
+
+sub available_parameters{
+   my ($self) = @_;
+   $self->_abstractDeath;
+}
+
+=head2 get_statistic
+
+ Title   : get_statistic
+ Usage   : my $gap_ext = $report->get_statistic('kappa')
+ Function: Returns the value for a specific statistic available 
+           from this report
+ Returns : string
+ Args    : name of statistic (string)
+
+=cut
+
+sub get_statistic{
+   my ($self,@args) = @_;
+   $self->_abstractDeath;
+}
+
+=head2 available_statistics
+
+ Title   : available_statistics
+ Usage   : my @statnames = $report->available_statistics
+ Function: Returns the names of the available statistics
+ Returns : Return list of available statistics used for this report
+ Args    : none
+
+=cut
+
+sub available_statistics{
+   my ($self) = @_;
+   $self->_abstractDeath;
 }
 
 1;

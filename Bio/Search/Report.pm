@@ -12,15 +12,18 @@
 
 =head1 NAME
 
-Bio::Search::Report - DESCRIPTION of Object
+Bio::Search::Report - A sequence database search report
 
 =head1 SYNOPSIS
 
-Give standard usage here
+my $searchio = new Bio::SearchIO(-format => 'blastxml',
+				 -file   => 'blsreport.xml');
+
+my $report = $searchio->next_report;
 
 =head1 DESCRIPTION
 
-Describe the object here
+This object encapsulates the essential for a database search report.
 
 =head1 FEEDBACK
 
@@ -83,6 +86,8 @@ use Bio::Search::Subject;
            -db_size => database size
            -query_name => query sequence name
            -query_size => query sequence size
+           -parameters => key value pairs (hash) of parameters
+           -statistics => key value pairs (hash) of statistics
            -subjects   => array ref of Bio::Seach::SubjectIs 
 
 =cut
@@ -94,12 +99,15 @@ sub new {
 
   $self->{'_subjects'} = [];
   my ($dbname, $dbsize, $qname,$qsize, $pname,$pver,
+      $params,$stats,
       $subjects) = $self->_rearrange([qw(DB_NAME
 					 DB_SIZE
 					 QUERY_NAME
 					 QUERY_SIZE
 					 PROGRAM_NAME
 					 PROGRAM_VERSION
+					 PARAMETERS
+					 STATISTICS
 					 SUBJECTS)],
 				     @args);
   $self->{'_subjectindex'} = 0;
@@ -107,9 +115,28 @@ sub new {
   $self->{'_query_size'} = $qsize  || 0;
   $self->{'_db_name'}    = $dbname || '';
   $self->{'_db_size'}    = $dbsize || 0;
-  
+  $self->{'_statistics'} = {};
+  $self->{'_parameters'} = {};
+
   defined $pname && ($self->{'_program_name'} = $pname);
   defined $pver  && ($self->{'_program_version'} = $pver);
+
+  if( defined $params ) {
+      if( ref($params) !~ /hash/i ) {
+	  $self->throw("Must specify a hash reference with the the parameter '-parameters");
+      }
+      while( my ($key,$value) = each %{$params} ) {
+	  $self->add_parameter($key,$value);
+      }
+  }
+  if( defined $stats ) {
+      if( ref($stats) !~ /hash/i ) {
+	  $self->throw("Must specify a hash reference with the the parameter '-statistics");
+      }
+      while( my ($key,$value) = each %{$stats} ) {
+	  $self->add_statistic($key,$value);
+      }
+  }
 
   if( defined $subjects  ) { 
       $self->throw("Must define arrayref of Subjects when initializing a $class\n") unless ref($subjects) =~ /array/i;
@@ -284,6 +311,103 @@ sub rewind{
 sub _nextsubjectindex{
    my ($self,@args) = @_;
    return $self->{'_subjectindex'}++;
+}
+
+
+=head2 get_parameter
+
+ Title   : get_parameter
+ Usage   : my $gap_ext = $report->get_parameter('gapext')
+ Function: Returns the value for a specific parameter used
+           when running this report
+ Returns : string
+ Args    : name of parameter (string)
+
+=cut
+
+sub get_parameter{
+   my ($self,$name) = @_;
+   return $self->{'_parameters'}->{$name};
+}
+
+=head2 add_parameter
+
+ Title   : add_parameter
+ Usage   : $report->add_parameter('gapext', 11);
+ Function: Adds a parameter
+ Returns : none
+ Args    : key  - key value name for this parama
+           value - value for this parameter
+
+=cut
+
+sub add_parameter{
+   my ($self,$key,$value) = @_;
+   $self->{'_parameters'}->{$key} = $value;
+}
+
+=head2 available_parameters
+
+ Title   : available_parameters
+ Usage   : my @params = $report->available_paramters
+ Function: Returns the names of the available parameters
+ Returns : Return list of available parameters used for this report
+ Args    : none
+
+=cut
+
+sub available_parameters{
+   my ($self) = @_;
+   return keys %{$self->{'_parameters'}};
+}
+
+
+=head2 get_statistic
+
+ Title   : get_statistic
+ Usage   : my $gap_ext = $report->get_statistic('kappa')
+ Function: Returns the value for a specific statistic available 
+           from this report
+ Returns : string
+ Args    : name of statistic (string)
+
+=cut
+
+sub get_statistic{
+   my ($self,$key) = @_;
+   return $self->{'_statistics'}->{$key};
+}
+
+=head2 add_statistic
+
+ Title   : add_statistic
+ Usage   : $report->add_statistic('lambda', 2.3);
+ Function: Adds a parameter
+ Returns : none
+ Args    : key  - key value name for this parama
+           value - value for this parameter
+
+=cut
+
+sub add_statistic {
+   my ($self,$key,$value) = @_;
+   $self->{'_statistics'}->{$key} = $value;
+   return;
+}
+
+=head2 available_statistics
+
+ Title   : available_statistics
+ Usage   : my @statnames = $report->available_statistics
+ Function: Returns the names of the available statistics
+ Returns : Return list of available statistics used for this report
+ Args    : none
+
+=cut
+
+sub available_statistics{
+   my ($self) = @_;
+   return keys %{$self->{'_statistics'}};
 }
 
 1;
