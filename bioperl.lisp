@@ -17,7 +17,7 @@
 (defun bioperl-object-start (perl-object-name perl-caretaker-name caretaker-email)
   "Places standard bioperl object notation headers and footers"
   (interactive "sName of Object: \nsName of caretaker: \nsEmail: ")
-  (insert "# $Id: bioperl.lisp,v 1.21 2002-08-22 07:58:17 lapp Exp $\n#\n# BioPerl module for " perl-object-name "\n#\n# Cared for by " perl-caretaker-name " <" caretaker-email ">\n#\n# Copyright " perl-caretaker-name "\n#\n# You may distribute this module under the same terms as perl itself\n\n")
+  (insert "# $Id: bioperl.lisp,v 1.22 2002-09-16 21:51:47 lapp Exp $\n#\n# BioPerl module for " perl-object-name "\n#\n# Cared for by " perl-caretaker-name " <" caretaker-email ">\n#\n# Copyright " perl-caretaker-name "\n#\n# You may distribute this module under the same terms as perl itself\n\n")
   (insert "# POD documentation - main docs before the code\n\n")
   (insert "=head1 NAME\n\n" perl-object-name " - DESCRIPTION of Object\n\n")
   (insert "=head1 SYNOPSIS\n\nGive standard usage here\n\n")
@@ -49,7 +49,7 @@
 						 caretaker-email)
   "Places standard bioperl object notation headers and footers"
   (interactive "sName of Object: \nsName of caretaker: \nsEmail: ")
-  (insert "# $Id: bioperl.lisp,v 1.21 2002-08-22 07:58:17 lapp Exp $\n#\n# BioPerl module for " perl-object-name "\n#\n# Cared for by " perl-caretaker-name " <" caretaker-email ">\n#\n# Copyright " perl-caretaker-name "\n#\n# You may distribute this module under the same terms as perl itself\n\n")
+  (insert "# $Id: bioperl.lisp,v 1.22 2002-09-16 21:51:47 lapp Exp $\n#\n# BioPerl module for " perl-object-name "\n#\n# Cared for by " perl-caretaker-name " <" caretaker-email ">\n#\n# Copyright " perl-caretaker-name "\n#\n# You may distribute this module under the same terms as perl itself\n\n")
   (insert "# POD documentation - main docs before the code\n\n")
   (insert "=head1 NAME\n\n" perl-object-name " - DESCRIPTION of Interface\n\n")
   (insert "=head1 SYNOPSIS\n\nGive standard usage here\n\n")
@@ -101,8 +101,8 @@
 
 
 
-(setq perl-mode-hook 
-      '(lambda ()
+;;(setq perl-mode-hook 
+;;      '(lambda ()
 	 (define-key perl-mode-map "\C-c\C-h" 'perl-insert-start)
 	 (define-key perl-mode-map "\C-c\C-b" 'bioperl-object-start)
 	 (define-key perl-mode-map "\C-c\C-i" 'bioperl-interface-start)
@@ -123,5 +123,5 @@
 	   '("bioperl field func" . bioperl-getset))
 	 (define-key perl-mode-map [menu-bar p bioperl-method]
 	   '("bioperl method" . bioperl-method))
-	 ))
+;;	 ))
 

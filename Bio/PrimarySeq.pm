@@ -798,11 +798,3 @@ sub _guess_alphabet {
 
 1;
 
-
-
-
-
-
-
-
-

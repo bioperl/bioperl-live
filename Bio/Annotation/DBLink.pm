@@ -55,8 +55,9 @@ use strict;
 
 use Bio::Root::Root;
 use Bio::AnnotationI;
+use Bio::IdentifiableI;
 
-@ISA = qw(Bio::AnnotationI Bio::Root::Root);
+@ISA = qw(Bio::Root::Root Bio::AnnotationI Bio::IdentifiableI);
 
 
 sub new {
@@ -79,9 +80,10 @@ sub new {
   return $self;
 }
 
-=head2 AnnotationI implementing functions
+=head1 AnnotationI implementing functions
 
 =cut
+
 
 =head2 as_text
 
@@ -225,6 +227,86 @@ sub comment {
       $self->{'comment'} = $value;
     }
     return $self->{'comment'};
+}
+
+=head1 Methods for Bio::IdentifiableI compliance
+
+=head2 object_id
+
+ Title   : object_id
+ Usage   : $string    = $obj->object_id()
+ Function: a string which represents the stable primary identifier
+           in this namespace of this object. For DNA sequences this
+           is its accession_number, similarly for protein sequences
+
+           This is aliased to primary_id().
+ Returns : A scalar
+
+
+=cut
+
+sub object_id {
+    return shift->primary_id(@_);
+}
+
+=head2 version
+
+ Title   : version
+ Usage   : $version    = $obj->version()
+ Function: a number which differentiates between versions of
+           the same object. Higher numbers are considered to be
+           later and more relevant, but a single object described
+           the same identifier should represent the same concept
+
+ Returns : A number
+
+=cut
+
+sub version{
+    my ($self,$value) = @_;
+    if( defined $value) {
+	$self->{'_version'} = $value;
+    }
+    return $self->{'_version'};
+}
+
+
+=head2 authority
+
+ Title   : authority
+ Usage   : $authority    = $obj->authority()
+ Function: a string which represents the organisation which
+           granted the namespace, written as the DNS name for  
+           organisation (eg, wormbase.org)
+
+ Returns : A scalar
+
+=cut
+
+sub authority {
+    my ($obj,$value) = @_;
+    if( defined $value) {
+	$obj->{'authority'} = $value;
+    }
+    return $obj->{'authority'};
+}
+
+=head2 namespace
+
+ Title   : namespace
+ Usage   : $string    = $obj->namespace()
+ Function: A string representing the name space this identifier
+           is valid in, often the database name or the name
+           describing the collection 
+
+           For DBLink this is the same as database().
+ Returns : A scalar
+
+
+=cut
+
+sub namespace{
+    return shift->database(@_);
 }
 
 1;

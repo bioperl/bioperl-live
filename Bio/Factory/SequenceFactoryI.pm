@@ -20,7 +20,7 @@ Bio::Factory::SequenceFactoryI - This interface allows for generic building of s
 # get a Bio::Factory::SequenceFactoryI object like
 
     use Bio::Seq::SeqFactory;
-    my $seqbuilder = new Bio::Seq:SeqFactory('type' => 'Bio::PrimarySeq');
+    my $seqbuilder = new Bio::Seq::SeqFactory('type' => 'Bio::PrimarySeq');
 
     my $seq = $seqbuilder->create(-seq => 'ACTGAT',
 				  -display_id => 'exampleseq');
@@ -73,9 +73,12 @@ Internal methods are usually preceded with a _
 
 
 package Bio::Factory::SequenceFactoryI;
+
 use vars qw(@ISA);
 use strict;
-@ISA = qw(Bio::Root::RootI);
+use Bio::Factory::ObjectFactoryI;
+
+@ISA = qw(Bio::Factory::ObjectFactoryI);
 
 =head2 create
 
