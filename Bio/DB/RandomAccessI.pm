@@ -2,6 +2,7 @@
 #
 # $Id$
 #
+
 =head1 NAME
 
 Bio::DB::RandomAccessI - Abstract interface for a sequence database
