@@ -208,8 +208,9 @@ sub subseq {
 =head2 display_id
 
  Title   : display_id
- Usage   : $id_string = $obj->display_id();
- Function: returns the display id, aka the common name of the Sequence object.
+ Usage   : $id_string = $obj->display_id($newid);
+ Function: returns or sets the display id, aka the common name of the 
+           Sequence object.
 
            The semantics of this is that it is the most likely string
            to be used as an identifier of the sequence, and likely to
@@ -225,7 +226,7 @@ sub subseq {
            Notice that $seq->id() maps to this function, mainly for 
            legacy/convience issues
  Returns : A string
- Args    : None
+ Args    : newid (optional)
 
 
 =cut
@@ -313,9 +314,8 @@ sub desc {
 =cut
 
 sub primary_id {
-   my ($self,@args) = @_;
-
    my ($obj,$value) = @_;
+
    if( defined $value) {
       $obj->{'primary_id'} = $value;
     }
@@ -323,7 +323,6 @@ sub primary_id {
        return "$obj";
    }
    return $obj->{'primary_id'};
-
 }
 
 =head2 can_call_new
@@ -434,7 +433,7 @@ dealing with this is welcome to give it a go.
 
  Title   : id
  Usage   : $id = $seq->id()
- Function:
+ Function: This is mapped on display_id
  Example :
  Returns : 
  Args    :
@@ -443,8 +442,11 @@ dealing with this is welcome to give it a go.
 =cut
 
 sub  id {
-   my ($self)= @_;
+   my ($self,$value) = @_;
 
+   if( defined $value ) {
+	return $self->display_id($value);
+   }
    return $self->display_id();
 }
 
