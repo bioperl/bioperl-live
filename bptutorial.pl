@@ -772,14 +772,53 @@ methods, eg
   my $seqobj = $db->get_Seq_by_id($id); # get a PrimarySeq obj
   my $desc = $db->header($id);          # get the header, or description, line
 
-This module also offers the user the ability to designate a specific string
-within the fasta header as the desired id, such as the gi number within the
-string "gi|4556644|gb|X45555" (use the -makeid option for this capability).
 See L<Bio::DB::Fasta> for more information on this fully-featured module.
 
+Both modules also offer the user the ability to designate a specific string
+within the fasta header as the desired id, such as the gi number within the
+string "gi|4556644|gb|X45555" (use the -makeid option for this capability in 
+Bio::DB::Fasta). Consider the following fasta-formatted sequence:
+
+  >gi|523232|emb|AAC12345|sp|D12567 titin fragment
+  MHRHHRTGYSAAYGPLKJHGYVHFIMCVVVSWWASDVVTYIPLLLNNSSAGWKRWWWIIFGGE
+  GHGHHRTYSALWWPPLKJHGSKHFILCVKVSWLAKKERTYIPKKILLMMGGWWAAWWWI
+
+By default Bio::Index::Fasta and Bio::DB::Fasta will use the first "word" they 
+encounter in the fasta header as the retrieval key, in this case 
+"gi|523232|emb|AAC12345|sp|D12567". What would be more useful as a key would be a 
+single id.  The code below will index a given fasta file and create an index file 
+with a suffix ".idx", and then retrieve an entry using a SwissProt id if it's present 
+in the header as in the example above.
+
+  # example usage: retrieve.pl myseqs.fa D12567
+  use Bio::Index::Fasta;
+  # SDBM_File is the database that comes with Perl
+  $ENV{BIOPERL_INDEX_TYPE} = "SDBM_File";
+  # look for the index in the current directory
+  $ENV{BIOPERL_INDEX} = ".";
+
+  my $file_name = shift or die "Usage: $0 <fasta file name> <Swissprot id>\n";
+  my $inx = Bio::Index::Fasta->new( -filename   => $file_name . ".idx",
+     				    -write_flag => 1 );
+  # pass a reference to the critical function to the Bio::Index object
+  $inx->id_parser(\&get_sp);
+  # make the index
+  $inx->make_index($file_name);
+  my $id = shift or die "Usage: $0 <fasta file name> <Swissprot id>\n";
+  # retrieve the sequence as Bio::Seq object
+  my $seq = $inx->fetch($id) or die "Id $id not found\n";
+  print $seq->seq;
+
+  # here is where the retrieval key is specified
+  sub get_sp {
+     my $header = shift;
+     $header =~ /^>.*\bsp\|([A-Z]\d{5}\b)/;
+     $1;
+  }
+
 The core bioperl installation does not support accessing sequences
-stored in relational databases. However, such capabilility is
-available with the auxilliary bioperl-db library. See section IV.3 for
+stored in relational databases. However, this capability is
+available with the auxilliary bioperl-db library. See section L<"IV.3"> for
 more information.
 
 =head2 III.2 Transforming formats of database/ file records
@@ -793,7 +832,8 @@ sequence data among the many widely used data formats.  Bioperl's
 SeqIO object, however, makes this chore a breeze.  SeqIO can
 read a stream of sequences - located in a single or in multiple files -
 in a number of formats: Fasta, EMBL, GenBank, Swissprot, PIR, GCG, SCF,
-phd/phred, Ace, fastq, exp, or raw (plain sequence). SeqIO can also parse tracefiles in alf, ztr, abi, ctf, and ctr format Once the sequence data
+phd/phred, Ace, fastq, exp, or raw (plain sequence). SeqIO can also parse tracefiles 
+in alf, ztr, abi, ctf, and ctr format Once the sequence data
 has been read in with SeqIO, it is available to bioperl in the form of
 Seq objects.  Moreover, the Seq objects can then be written to another
 file (again using SeqIO) in any of the supported data formats making
