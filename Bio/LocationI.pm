@@ -190,6 +190,38 @@ sub seq_id {
     return $self->{'_seqid'};
 }
 
+=head2 coordinate_policy
+
+  Title   : coordinate_policy
+  Usage   : $policy = $location->coordinate_policy();
+            $location->coordinate_policy($mypolicy); # set may not be possible
+  Function: Get the coordinate computing policy employed by this object.
+
+            See Bio::Location::CoordinatePolicyI for documentation about
+            the policy object and its use.
+
+            The interface *does not* require implementing classes to accept
+            setting of a different policy. The implementation provided here
+            does, however, allow to do so.
+
+  Returns : A Bio::Location::CoordinatePolicyI implementing object.
+  Args    : On set, a Bio::Location::CoordinatePolicyI implementing object.
+
+=cut
+
+sub coordinate_policy {
+    my ($self, $policy) = @_;
+
+    if(defined($policy)) {
+	if(! $policy->isa('Bio::Location::CoordinatePolicyI')) {
+	    $self->throw("Object of class ".ref($policy)." does not implement".
+			 " Bio::Location::CoordinatePolicyI");
+	}
+	$self->{'_coordpolicy'} = $policy;
+    }
+    return $self->{'_coordpolicy'};
+}
+
 =head2 to_FTstring
 
   Title   : to_FTstring
