@@ -26,8 +26,14 @@ This module provides access to the Open Bio Database Access scheme,
 which provides a cross language and cross platform specification of how
 to get to databases.
 
-If the user or system administrator has not installed the default init file,
-creating the first Registry object copies the default settings from the net.
+If the user or system administrator has not installed the default init 
+file, seqdatabase.ini, in /etc/bioinformatics or ${HOME}/.bioinformatics 
+then creating the first Registry object copies the default settings from 
+the net. The Registry object will attempt to store these settings in
+${HOME}/.bioinformatics/seqdatabase.ini.
+
+Users can specify one or more custom locations for the init file by setting 
+$OBDA_SEARCH_PATH to those directories.
 
 =head1 CONTACT
 
@@ -98,7 +104,7 @@ sub _load_registry {
     my $f;
 
     if ( $OBDA_SEARCH_PATH ) {
-        foreach ( split /\+/, $OBDA_SEARCH_PATH ) {
+        foreach ( split /\+/,$OBDA_SEARCH_PATH ) {
             next unless -e $_;
             open(F,"$OBDA_SEARCH_PATH/seqdatabase.ini");
             $f = \*F;
