@@ -36,6 +36,7 @@ Bio/Biblio/BookArticle.pm
 Bio/Biblio/IO.pm
 Bio/Biblio/IO/medline2ref.pm
 Bio/Biblio/IO/medlinexml.pm
+Bio/Biblio/IO/pubmed2ref.pm
 Bio/Biblio/IO/pubmedxml.pm
 Bio/Biblio/Journal.pm
 Bio/Biblio/JournalArticle.pm
@@ -49,6 +50,8 @@ Bio/Biblio/Patent.pm
 Bio/Biblio/Person.pm
 Bio/Biblio/Proceeding.pm
 Bio/Biblio/Provider.pm
+Bio/Biblio/PubmedArticle.pm
+Bio/Biblio/PubmedBookArticle.pm
 Bio/Biblio/PubmedJournalArticle.pm
 Bio/Biblio/Ref.pm
 Bio/Biblio/Service.pm
@@ -243,8 +246,6 @@ Bio/Search/Hit/Fasta.pm
 Bio/Search/Hit/GenericHit.pm
 Bio/Search/Hit/HitI.pm
 Bio/Search/Processor.pm
-Bio/Search/Processor/Fasta.pm
-Bio/Search/Processor/ProcessorI.pm
 Bio/Search/Result/BlastResult.pm
 Bio/Search/Result/GenericResult.pm
 Bio/Search/Result/ResultI.pm
@@ -344,14 +345,10 @@ Bio/Tools/Blast/CHANGES
 Bio/Tools/Blast/HSP.pm
 Bio/Tools/Blast/HTML.pm
 Bio/Tools/Blast/README
-Bio/Tools/Blast/Run/LocalBlast.pm
-Bio/Tools/Blast/Run/Webblast.pm
-Bio/Tools/Blast/Run/postclient.pl
 Bio/Tools/Blast/Sbjct.pm
 Bio/Tools/CodonTable.pm
 Bio/Tools/EPCR.pm
 Bio/Tools/ESTScan.pm
-Bio/Tools/FASTAParser.pm
 Bio/Tools/GFF.pm
 Bio/Tools/Gel.pm
 Bio/Tools/Genemark.pm
@@ -381,13 +378,11 @@ Bio/Tools/Sim4/Exon.pm
 Bio/Tools/Sim4/Results.pm
 Bio/Tools/StateMachine/AbstractStateMachine.pm
 Bio/Tools/StateMachine/IOStateMachine.pm
-Bio/Tools/SwissProtParser.pm
 Bio/Tools/WWW.pm
 Bio/Tools/pSW.pm
 Bio/Tree/AlleleNode.pm
 Bio/Tree/Node.pm
 Bio/Tree/NodeI.pm
-Bio/Tree/PhyloNode.pm
 Bio/Tree/RandomFactory.pm
 Bio/Tree/Statistics.pm
 Bio/Tree/Tree.pm
@@ -395,7 +390,6 @@ Bio/Tree/TreeI.pm
 Bio/TreeIO.pm
 Bio/TreeIO/TreeEventBuilder.pm
 Bio/TreeIO/newick.pm
-Bio/UnivAln.pm
 Bio/UpdateableSeqI.pm
 Bio/Variation/AAChange.pm
 Bio/Variation/AAReverseMutate.pm
@@ -540,7 +534,9 @@ examples/state-machine.pl
 examples/structure/struct_example1.pl
 examples/structure/struct_example2.pl
 examples/test-genscan.pl
+examples/use_registry.pl
 models/README
+models/biblio.dia
 models/bio_liveseq_variation.dia
 models/bio_map.dia
 models/bioperl.dia
@@ -623,7 +619,6 @@ t/EMBOSS.t
 t/GDB.t
 t/GFF.t
 t/Genpred.t
-t/HTML.t
 t/Index.t
 t/LinkageMap.t
 t/LiveSeq.t
@@ -667,14 +662,12 @@ t/StateMachine.t
 t/StructIO.t
 t/Structure.t
 t/Swiss.t
-t/SwissProtParser.t
 t/Symbol.t
 t/TCoffee.t
 t/Tempfile.t
 t/Test.pm
 t/Tools.t
 t/TreeIO.t
-t/UnivAln.t
 t/Variation_IO.t
 t/XEMBL_DB.t
 t/consed.t
@@ -683,7 +676,7 @@ t/data/AAC12660.fa
 t/data/AE003528_ecoli.bls
 t/data/AF165282.gb
 t/data/HUMBETGLOA.FASTA
-t/data/HUMBETGLOA.fasta
+t/data/HUMBETGLOA.fa
 t/data/HUMBETGLOA.gff
 t/data/HUMBETGLOA.grail
 t/data/HUMBETGLOA.grailexp
@@ -795,6 +788,7 @@ t/data/sim4.for.rev
 t/data/sim4.rev
 t/data/sparsealn.needle
 t/data/stress_test_medline.xml
+t/data/stress_test_pubmed.xml
 t/data/swiss.dat
 t/data/swiss_unk.dat
 t/data/swisspfam.data
