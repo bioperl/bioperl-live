@@ -85,7 +85,7 @@ use Bio::DB::GFF::Util::Rearrange;
 
 use vars qw($VERSION @ISA);
 @ISA = qw(Bio::DB::GFF::Adaptor::dbi::mysql);
-$VERSION = 0.50;
+$VERSION = 0.80;
 
 # this is the largest that any reference sequence can be (100 megabases)
 use constant MAX_BIN    => 100_000_000;
@@ -169,6 +169,28 @@ sub new {
 
 sub dna_db      { shift->{dna_db}      }
 sub acedb       { shift->{acedb}       }
+
+
+=head2 freshen_ace
+
+ Title   : freshen
+ Usage   : $flag = Bio::DB::GFF->freshen_ace;
+ Function: Refresh internal acedb handle
+ Returns : flag if correctly freshened
+ Args    : none
+ Status  : Public
+
+ACeDB has an annoying way of timing out, leaving dangling database
+handles.  This method will invoke the ACeDB reopen() method, which
+causes dangling handles to be refreshed.  It has no effect if you are
+not using ACeDB to create ACeDB objects.
+
+=cut
+
+sub freshen_ace {
+  my $acedb = shift->acedb or return;
+  $acedb->reopen();
+}
 
 # meta values
 sub default_meta_values {
