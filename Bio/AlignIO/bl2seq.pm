@@ -97,7 +97,7 @@ use strict;
 # Object preamble - inherits from Bio::Root::Object
 
 use Bio::AlignIO;
-use Bio::Tools::BPbl2seq;
+use Bio::SearchIO;
 
 @ISA = qw(Bio::AlignIO);
 
@@ -127,47 +127,53 @@ sub next_aln {
     my ($start,$end,$name,$seqname,$seq,$seqchar,$strand);
     my $aln =  Bio::SimpleAlign->new(-source => 'bl2seq');
     $self->{'bl2seqobj'} = $self->{'bl2seqobj'} || 
-	Bio::Tools::BPbl2seq->new(-fh => $self->_fh,
-				  -report_type => $self->report_type);
+	Bio::SearchIO->new(-fh => $self->_fh,
+			   -format => 'blast');
     my $bl2seqobj = $self->{'bl2seqobj'};
-    my $hsp =   $bl2seqobj->next_feature;
-    $seqchar = $hsp->querySeq;
-    $start = $hsp->query->start;
-    $end = $hsp->query->end;
-    $seqname = 'Query-sequence';    # Query name not present in bl2seq report
-    $strand = $hsp->query->strand;
+    my $result = $self->{'_result'} || $bl2seqobj->next_result;
+    $self->{'result'} = undef, return unless defined $result;
     
-    #    unless ($seqchar && $start && $end  && $seqname) {return 0} ;	
-    unless ($seqchar && $start && $end ) {return 0} ;	
+    my $hit = $self->{'_hit'} || $result->next_hit;
+    $self->{'_hit'} = undef, return unless defined $hit;
+    
+    my $hsp  = $hit->next_hsp;
+    return $hsp->get_aln;
+# much easier above, eh?
+#     $seqchar = $hsp->query_string;
+#     $start   = $hsp->query->start;
+#     $end     = $hsp->query->end;
+#      # Query name typically not present in bl2seq report
+#     $seqname = $hsp->query->seq_id || 'Query-sequence'; 
+#     $strand  = $hsp->query->strand;
+    
+#     #    unless ($seqchar && $start && $end  && $seqname) {return 0} ;	
+#     unless ($seqchar && $start && $end ) {return 0} ;	
 
-    $seq = new Bio::LocatableSeq('-seq'=>$seqchar,
-				 '-id'=>$seqname,
-				 '-start'=>$start,
-				 '-end'=>$end,
-				 '-strand'=>$strand,
-				 );
+#     $seq = new Bio::LocatableSeq('-seq'   =>$seqchar,
+# 				 '-id'    =>$seqname,
+# 				 '-start' =>$start,
+# 				 '-end'   =>$end,
+# 				 '-strand'=>$strand,
+# 				 );
 
-    $aln->add_seq($seq);
+#     $aln->add_seq($seq);
 
-    $seqchar = $hsp->sbjctSeq;
-    $start = $hsp->hit->start;
-    $end = $hsp->hit->end;
-    $seqname = $bl2seqobj->sbjctName;
-    $strand = $hsp->hit->strand;
+#     $seqchar  = $hsp->hit_string;
+#     $start    = $hsp->hit->start;
+#     $end      = $hsp->hit->end;
+#     $seqname  = $hsp->hit->seq_id;
+#     $strand   = $hsp->hit->strand;
 
-    unless ($seqchar && $start && $end  && $seqname) {return 0} ;	
+#     unless ($seqchar && $start && $end  && $seqname) {return 0} ;	
 
-    $seq = new Bio::LocatableSeq('-seq'=>$seqchar,
-				 '-id'=>$seqname,
-				 '-start'=>$start,
-				 '-end'=>$end,
-				 '-strand'=>$strand,
-				 );
-
-    $aln->add_seq($seq);
-
-    return $aln;
-
+#     $seq = new Bio::LocatableSeq('-seq'   =>$seqchar,
+# 				 '-id'    =>$seqname,
+# 				 '-start' =>$start,
+# 				 '-end'   =>$end,
+# 				 '-strand'=>$strand,
+# 				 );
+#     $aln->add_seq($seq);
+#     return $aln;
 }
 	
 
