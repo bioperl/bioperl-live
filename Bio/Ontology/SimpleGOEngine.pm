@@ -1,6 +1,6 @@
 # $Id$
 #
-# BioPerl module for Bio::Ontology::simpleGOengine
+# BioPerl module for Bio::Ontology::SimpleGOEngine
 #
 # Cared for by Christian M. Zmasek <czmasek@gnf.org> or <cmzmasek@hotmail.com>
 #
@@ -22,7 +22,7 @@
 
 =head1 NAME
 
-simpleGOengine - a Ontology Engine for GO implementing OntologyEngineI
+SimpleGOEngine - a Ontology Engine for GO implementing OntologyEngineI
 
 =head1 SYNOPSIS
 
@@ -65,7 +65,7 @@ report bugs to the Bioperl bug tracking system to help us keep track
  email or the web:
 
   bioperl-bugs@bio.perl.org
-  http://bio.perl.org/bioperl-bugs/
+  http://bugzilla.bioperl.org/
 
 =head1 AUTHOR
 
@@ -93,7 +93,7 @@ methods. Internal methods are usually preceded with a _
 
 
 
-package Bio::Ontology::simpleGOengine;
+package Bio::Ontology::SimpleGOEngine;
 
 use Graph::Directed;
 
@@ -118,9 +118,9 @@ use constant TYPE    => "TYPE";
 =head2 new
 
  Title   : new
- Usage   : $engine = Bio::Ontology::simpleGOengine->new()                      
- Function: Creates a new simpleGOengine
- Returns : A new simpleGOengine object
+ Usage   : $engine = Bio::Ontology::SimpleGOEngine->new()                      
+ Function: Creates a new SimpleGOEngine
+ Returns : A new SimpleGOEngine object
  Args    : 
 
 =cut

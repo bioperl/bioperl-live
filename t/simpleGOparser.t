@@ -18,21 +18,25 @@ BEGIN {
 
     eval { require 'Graph.pm' };
     if( $@ ) {
-	    print STDERR "\nShould have Graph.pm installed...\n\n";
+	    print STDERR "\nGraph.pm doesn't seem to be installed on this system -- the GO Parser needs it...\n\n";
 	    plan tests => 1;
 	    ok( 1 );
 	    exit( 0 );
     }
 
-    plan tests => 81;
+    plan tests => 81, todo => [80,81];
 }
 
 
-use Bio::Ontology::simpleGOparser;
+use Bio::OntologyIO::simpleGOparser;
+use Bio::Root::IO;
 
-
-my $parser = Bio::Ontology::simpleGOparser->new( -go_defs_file_name    => "./t/data/GO.defs.test",
-                                                 -components_file_name => "./t/data/component.ontology.test" );
+my $io = new Bio::Root::IO; # less typing from now on ...
+my $parser = Bio::OntologyIO::simpleGOparser->new(
+		      -go_defs_file_name => $io->catfile("t","data",
+							 "GO.defs.test"),
+		      -components_file_name => $io->catfile("t","data",
+						  "component.ontology.test" ));
 
 
 my $IS_A    = Bio::Ontology::RelationshipType->get_instance( "IS_A" );
@@ -250,12 +254,12 @@ ok( $engine->add_relationship( $rels[ 2 ] ) ); # now it's changed, can add
 
 
 
-$parser = Bio::Ontology::simpleGOparser->new( -go_defs_file_name    => "/home/czmasek/GO/GO.defs.test2",
-                                              -components_file_name => "/home/czmasek/GO/component.ontology.test2" );
+# $parser = Bio::OntologyIO::simpleGOparser->new( -go_defs_file_name    => "/home/czmasek/GO/GO.defs.test2",
+#                                               -components_file_name => "/home/czmasek/GO/component.ontology.test2" );
 
 
 
-$engine = $parser->parse();
+# $engine = $parser->parse();
 
 my @roots = sort( $engine->get_root_terms() );
 

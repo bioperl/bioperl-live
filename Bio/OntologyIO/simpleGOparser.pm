@@ -1,6 +1,6 @@
 # $Id$
 #
-# BioPerl module for Bio::Ontology::simpleGOparser
+# BioPerl module for Bio::OntologyIO::simpleGOparser
 #
 # Cared for by Christian M. Zmasek <czmasek@gnf.org> or <cmzmasek@hotmail.com>
 #
@@ -22,15 +22,15 @@
 
 =head1 NAME
 
-simpleGOparser - a simple GO parser returning a simpleGOengine
+simpleGOparser - a simple GO parser returning a SimpleGOEngine
 
 =head1 SYNOPSIS
 
-use Bio::Ontology::simpleGOparser;
+use Bio::OntologyIO::simpleGOparser;
 
 
 
-my $parser = Bio::Ontology::simpleGOparser->new( -go_defs_file_name    => "/home/czmasek/GO/GO.defs",
+my $parser = Bio::OntologyIO::simpleGOparser->new( -go_defs_file_name    => "/home/czmasek/GO/GO.defs",
                                                  -components_file_name => "/home/czmasek/GO/component.ontology",
                                                  -functions_file_name  => "/home/czmasek/GO/function.ontology",
                                                  -processes_file_name  => "/home/czmasek/GO/process.ontology" );
@@ -92,9 +92,7 @@ methods. Internal methods are usually preceded with a _
 # Let the code begin...
 
 
-package  Bio::Ontology::simpleGOparser;
-
-use Graph;
+package  Bio::OntologyIO::simpleGOparser;
 
 use vars qw( @ISA );
 use strict;
@@ -102,7 +100,7 @@ use strict;
 use Bio::Root::IO;
 use Bio::Root::Root;
 use Bio::Ontology::GOterm;
-use Bio::Ontology::simpleGOengine;
+use Bio::Ontology::SimpleGOEngine;
 
 use constant TRUE         => 1;
 use constant FALSE        => 0;
@@ -117,7 +115,7 @@ use constant FALSE        => 0;
 =head2 new
 
  Title   : new
- Usage   : $parser = Bio::Ontology::simpleGOparser->new( -go_defs_file_name    => "/path/to/GO.defs",
+ Usage   : $parser = Bio::OntologyIO::simpleGOparser->new( -go_defs_file_name    => "/path/to/GO.defs",
                                                          -components_file_name => "/path/to/component.ontology"
                                                          -functions_file_name  => "/path/to/function.ontology"
                                                          -processes_file_name  => "/path/to/process.ontology" );                      
@@ -179,7 +177,7 @@ sub init {
     $self->_not_first_record( FALSE );
     $self->_term( "" );
     
-    $self->_go_engine( Bio::Ontology::simpleGOengine->new() );
+    $self->_go_engine( Bio::Ontology::SimpleGOEngine->new() );
 
 } # init
 
@@ -192,7 +190,7 @@ sub init {
  Function: Parses the files set wirh "new" or with methods
            go_defs_file_name, components_file_name, functions_file_name,
            processes_file_name.
- Returns : [Bio::Ontology::simpleGOengine]
+ Returns : [Bio::Ontology::SimpleGOEngine]
  Args    :
 
 =cut
@@ -323,7 +321,7 @@ sub processes_file_name {
 # ----------------
 
 
-# This simply delegates. See simpleGOengine.
+# This simply delegates. See SimpleGOEngine.
 sub _add_term {
     my ( $self, $term ) = @_;
 
@@ -334,7 +332,7 @@ sub _add_term {
 
 
 
-# This simply delegates. See simpleGOengine
+# This simply delegates. See SimpleGOEngine
 sub _part_of_relationship {
     my ( $self, $term ) = @_;
 
@@ -345,7 +343,7 @@ sub _part_of_relationship {
 
 
 
-# This simply delegates. See simpleGOengine
+# This simply delegates. See SimpleGOEngine
 sub _is_a_relationship {
     my ( $self, $term ) = @_;
 
@@ -356,7 +354,7 @@ sub _is_a_relationship {
 
 
 
-# This simply delegates. See simpleGOengine
+# This simply delegates. See SimpleGOEngine
 sub _add_relationship {
     my ( $self, $parent, $child, $type ) = @_;
 
@@ -367,7 +365,7 @@ sub _add_relationship {
 } # _add_term 
 
 
-# This simply delegates. See simpleGOengine
+# This simply delegates. See SimpleGOEngine
 sub _has_term {
     my ( $self, $term ) = @_;
 
