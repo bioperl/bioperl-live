@@ -847,12 +847,13 @@ sub unflatten_seq{
    my ($self,@args) = @_;
 
     my($seq, $resolver_method, $group_tag, $partonomy, 
-       $structure_type, $use_magic) =
+       $structure_type, $resolver_tag, $use_magic) =
 	$self->_rearrange([qw(SEQ
                               RESOLVER_METHOD
                               GROUP_TAG
                               PARTONOMY
 			      STRUCTURE_TYPE
+			      RESOLVER_TAG
 			      USE_MAGIC
 			     )],
                           @args);
@@ -1077,8 +1078,21 @@ sub unflatten_seq{
        }
    }
 
+   # see if we have an obvious resolver_tag
+   if ($use_magic) {
+       foreach my $sf (@all_seq_features) {
+	   if ($sf->has_tag('derived_from')) {
+	       $resolver_tag = 'derived_from';
+	   }
+       }
+   }
+
    if ($use_magic) {
        my @roots = $self->_get_partonomy_roots;
+       # point all feature types without a container type to the root type.
+       #
+       # for example, if we have an unanticipated feature_type, say
+       # 'aberration', this should by default point to the parent 'gene'
        foreach my $group (@groups) {
 	   my @sfs = @$group;
 	   if (@sfs > 1) {
@@ -1108,7 +1122,8 @@ sub unflatten_seq{
    #    mRNA-b
    #      CDS-b
    my @top_sfs = $self->unflatten_groups(-groups=>\@groups,
-                                         -resolver_method=>$resolver_method);
+                                         -resolver_method=>$resolver_method,
+					 -resolver_tag=>$resolver_tag);
    
    # restore settings
    $self->partonomy($old_partonomy);
@@ -1201,6 +1216,7 @@ sub unflatten_seq{
 
 	   # report any problems
 	   if ($problem) {
+	       $self->_write_hier(\@top_sfs);
 	       # TODO - allow more fine grained control over this
 	       $self->throw($problem);
 	   }
@@ -1308,17 +1324,19 @@ grained control over how the unflattening process.
 
 sub unflatten_groups{
    my ($self,@args) = @_;
-   my($groups, $resolver_method) =
+   my($groups, $resolver_method, $resolver_tag) =
      $self->_rearrange([qw(GROUPS
                            RESOLVER_METHOD
+			   RESOLVER_TAG
                           )],
                           @args);
 
    # this is just a simple wrapper for unflatten_group()
    return 
      map {
-         $self->unflatten_group(-group=>$_, 
-                                -resolver_method=>$resolver_method)
+         $self->unflatten_group(-group=>$_,
+                                -resolver_method=>$resolver_method,
+				-resolver_tag=>$resolver_tag)
      } @$groups;
 }
 
@@ -1351,11 +1369,17 @@ grained control over how the unflattening process.
 sub unflatten_group{
    my ($self,@args) = @_;
 
-   my($group, $resolver_method) =
+   my($group, $resolver_method, $resolver_tag) =
      $self->_rearrange([qw(GROUP
                            RESOLVER_METHOD
+			   RESOLVER_TAG
                           )],
                           @args);
+
+   if ($self->verbose) {
+       print "UNFLATTENING GROUP:\n";
+       $self->_write_group($group, $self->group_tag);
+   }
 
    my @sfs = @$group;
 
@@ -1366,6 +1390,40 @@ sub unflatten_group{
 
    # use default function for resolving, unless one passed in
    $resolver_method = $resolver_method || \&_resolve_container_for_sf;
+
+   if ($resolver_tag) {
+       my $backup_resolver_method = $resolver_method;
+       # closure: $resolver_tag is remembered by this sub
+       my $sub = 
+	 sub {
+	     my ($self, $sf, @possible_container_sfs) = @_;
+	     my @container_sfs = ();
+	     if ($sf->has_tag($resolver_tag)) {
+		 my ($resolver_tagval) = $sf->get_tag_values($resolver_tag);
+		 @container_sfs = 
+		   grep {
+		       my $match = 0;
+		       $self->_write_sf($_);
+		       foreach my $tag (qw(product symbol label)) {
+			   if ($_->has_tag($tag)) {
+			       my @vals =
+				 $_->get_tag_values($tag);
+			       if (grep {$_ eq $resolver_tagval} @vals) {
+				   $match = 1;
+				   last;
+			       }
+			   }   
+		       }
+		       $match;
+		   } @possible_container_sfs;
+	     } 
+	     else {
+		 return $backup_resolver_method->($sf, @possible_container_sfs);
+	     }
+	     return map {$_=>0} @container_sfs;
+	 };
+       $resolver_method = $sub;
+   }
 
    # find all the features for which there is no
    # containing feature type (eg genes)
@@ -1387,8 +1445,6 @@ sub unflatten_group{
        push(@{$sfs_by_type{$sf->primary_tag}}, $sf);
    }
 
-   my %container = ();
-   my %has_been_chosen = ();
 
    # ALGORITHM: build containment graph
    #
@@ -1398,46 +1454,108 @@ sub unflatten_group{
    # containers are any SFs of type 'gene' (should only be 1).
    #
    # contention is resolved by checking coordinates of splice sites
-   foreach my $sf (@sfs) {
+
+   my @containment_pairs = ();    # child->parent pairs
+   my %idxsf = map {$sfs[$_]=>$_} (0..$#sfs);
+   my @roots = ();
+   for (my $i=0; $i<@sfs; $i++) {
+       my $sf = $sfs[$i];
        my $type = $sf->primary_tag;
        my $container_type = 
          $self->get_container_type($type);
        if ($container_type) {
            my @possible_container_sfs =
              @{$sfs_by_type{$container_type} || []};
-           @possible_container_sfs =
-             grep {!$has_been_chosen{$_}} @possible_container_sfs; 
-           if (@possible_container_sfs == 0) {
+	   # get the position in the @sfs array for each of 
+	   # the possible container sfs
+	   my @J =
+	     map {
+		 my $j = $idxsf{$_};
+		 if (!defined($j)) {
+		     $self->throw("ASSERTION ERROR");
+		 }
+		 if ($j<0) {
+		     $self->throw("ASSERTION ERROR");
+		 }
+		 if ($j>@sfs) {
+		     $self->throw("ASSERTION ERROR");
+		 }
+		 $j;
+	     } @possible_container_sfs;
+           if (@J == 0) {
+	       push(@roots, $i);
            }
-           elsif (@possible_container_sfs == 1) {
+           elsif (@J == 1) {
 #               push(@{$sf_parents{$sf}}, $possible_container_sfs[0]);
-               $container{$sf} = $possible_container_sfs[0];
+#               $container{$sf} = $possible_container_sfs[0];
+	       my $j = $J[0];
+	       push(@containment_pairs, [$i, $j, 0]);
            }
            else {
+	       $self->throw("ASSERTION ERROR") unless @possible_container_sfs > 1;
                # contention for container; use resolver
                # (default is to check splice sites)
-               my @container_sfs =
+               my %container_sfh =
                  $resolver_method->($self, $sf, @possible_container_sfs);
-               if (@container_sfs == 0) {
-                   # none found
-                   printf "SF:%s\n\n", $sf->gff_string;
-                   printf "POSS:%s\n",
-                     join("\n\n", map{$_->gff_string} @possible_container_sfs);
-                   $self->throw("No container for SF");
-               }
-               elsif (@container_sfs == 1) {
-                   # perfect - exactly one possible container
-                   $container{$sf} = $container_sfs[0];
-               }
-               else {
-                   # ambiguous - loss has occurred in the GenBank
-                   # representation
-                   my $c = shift @container_sfs;
-                   $has_been_chosen{$c} = 1;
-                   $container{$sf} = $c;                   
-               }
-           }
+	       foreach my $sf (keys %container_sfh) {
+		   my $j = $idxsf{$sf};
+		   push(@containment_pairs, [$i, $j, $container_sfh{$sf}]);
+	       }
+	   }	   
        }
+       else {
+	   # $sf type has no container type
+	   # must be a root node
+       }
+   }
+
+   # we now have a graph representing POSSIBLE parent/containment
+   # relationships. each sf can only have one parent. there are a 
+   # number of trees that can be made from any graph - find them
+   # and evaluate them.
+   if ($self->verbose) {
+       print "CONTAINMENT PAIRS:\n";
+       foreach my $pair (@containment_pairs) {
+	   my ($childid, $parentid) = @$pair;
+	   my ($childsf, $parentsf) = ($sfs[$childid], $sfs[$parentid]);
+	   printf("  PAIR: [$pair->[0] %s => $pair->[1] %s : $pair->[2]] of %s\n", 
+		  $childsf->has_tag('product') ? $childsf->get_tag_values('product') : '-',
+		  $parentsf->has_tag('product') ? $parentsf->get_tag_values('product') : '-',
+		  scalar(@containment_pairs));
+       }
+   }
+   
+   # sort by score
+   my %container = ();
+   @containment_pairs = sort {$b->[2] <=> $a->[2]} @containment_pairs;
+   while (my $pair = shift @containment_pairs) {
+       my ($childid, $parentid) = @$pair;
+       my ($childsf, $parentsf) = ($sfs[$childid], $sfs[$parentid]);
+       if ($self->verbose) {
+	   printf("  CHOSEN: [$pair->[0] %s => $pair->[1] %s : $pair->[2]] of %s\n", 
+		  $childsf->has_tag('product') ? $childsf->get_tag_values('product') : '-',
+		  $parentsf->has_tag('product') ? $parentsf->get_tag_values('product') : '-',
+		  scalar(@containment_pairs));
+       }
+       $container{$childsf} = $parentsf;
+       if ($childsf->primary_tag eq 'CDS' &&
+	   $parentsf->primary_tag eq 'mRNA') {
+	   # HACK: we want to try and preserve a 1:1 mapping between
+	   # CDS and mRNAs
+	   #
+	   # get rid of other possible CDS children of this mRNA
+	   @containment_pairs = 
+	     grep { 
+		 !($_->[1] == $parentid &&
+		   $sfs[$_->[0]]->primary_tag eq 'CDS')
+	     } @containment_pairs;
+	   # re-sort
+	   @containment_pairs = sort {$b->[2] <=> $a->[2]} @containment_pairs;
+       }
+       
+       # each child can only have one parent; get rid of all other
+       # possible parents
+       @containment_pairs = grep { $_->[0] != $childid } @containment_pairs;
    }
 
    my @top = ();
@@ -1451,8 +1569,8 @@ sub unflatten_group{
        }
    }
    return @top;
-
 }
+
 
 # ----------------------------------------------
 # writes a group to stdout
@@ -1462,7 +1580,7 @@ sub unflatten_group{
 sub _write_group {
     my $self = shift;
     my $group = shift;
-    my $group_tag = shift;
+    my $group_tag = shift || 'gene';
 
     my $f = $group->[0];
     my $label = '';
@@ -1483,6 +1601,21 @@ sub _write_sf {
     return;
 }
 
+sub _write_hier {
+    my $self = shift;
+    my @sfs = @{shift || []};
+    my $indent = shift || 0;
+    foreach my $sf (@sfs) {
+        my $label;
+        if ($sf->has_tag('product')) {
+            ($label) = $sf->get_tag_values('product');
+        }
+        printf "%s%s $label\n", '  ' x $indent, $sf->primary_tag;
+        my @sub_sfs = $sf->sub_SeqFeature;
+        $self->_write_hier(\@sub_sfs, $indent+1);
+    }
+}
+
 # -----------------------------------------------
 #
 # returns all possible containers for an SF based
@@ -1495,12 +1628,26 @@ sub _resolve_container_for_sf{
    my @coords = $self->_get_splice_coords_for_sf($sf);
    my $splice_uniq_str = "@coords";
    
-   my @sfs =
-     grep {
-         my @coords = $self->_get_splice_coords_for_sf($_);
-         index("@coords", $splice_uniq_str) > -1;
-     } @possible_container_sfs;
-   return @sfs;
+   my @sf_score_pairs = ();
+   # a CDS is contained by a mRNA if the locations of the splice
+   # coordinates are identical
+   foreach (@possible_container_sfs) {
+       my @container_coords = $self->_get_splice_coords_for_sf($_);
+       my $inside = 
+	 !$splice_uniq_str || 
+	   index("@container_coords", $splice_uniq_str) > -1;
+       if ($self->verbose) {
+	   print "    Checking containment:[$inside] @container_coords IN $splice_uniq_str\n";
+       }
+       if ($inside) {
+	   # SCORE: matching (ss-scoords+2)/(n-container-ss-coords+2)
+	   my $score =
+	     (scalar(@coords)+2)/scalar(@container_coords)+2;
+	   push(@sf_score_pairs,
+		$_=>$score);
+       }
+   }
+   return @sf_score_pairs;
 }
 
 sub _get_splice_coords_for_sf {
