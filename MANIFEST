@@ -245,7 +245,6 @@ Bio/Search/Hit/BlastHit.pm
 Bio/Search/Hit/Fasta.pm
 Bio/Search/Hit/GenericHit.pm
 Bio/Search/Hit/HitI.pm
-Bio/Search/Processor.pm
 Bio/Search/Result/BlastResult.pm
 Bio/Search/Result/GenericResult.pm
 Bio/Search/Result/ResultI.pm
