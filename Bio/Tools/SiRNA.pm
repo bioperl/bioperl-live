@@ -4,7 +4,7 @@
 #
 # Cared for by Donald Jackson, donald.jackson@bms.com
 #
-# Copyright Donald Jackson
+# Copyright Bristol-Myers Squibb
 #
 # You may distribute this module under the same terms as perl itself
 
@@ -18,7 +18,10 @@ SiRNA - Perl object for designing small inhibitory RNAs.
 
   use Bio::Tools::SiRNA;
 
-  my $sirna_designer = Bio::Tools::SiRNA->new( -target => $bio_seq );
+  my $sirna_designer = Bio::Tools::SiRNA->new( -target => $bio_seq,
+                                               -rules  => 'saigo'
+    
+    );
   my @pairs = $sirna_designer->design;
 
   foreach $pair (@pairs) {
@@ -32,7 +35,7 @@ SiRNA - Perl object for designing small inhibitory RNAs.
 
 =head1 DESCRIPTION
 
-Package for designing SiRNA reagents.
+Package for designing siRNA reagents.
 
 Input is a Bio::SeqI-compliant object (the target).
 
@@ -43,23 +46,25 @@ Bio::SeqFeature::SiRNA::Pair contains two subfeatures
 oligos.  These objects provide accessors for the information on the
 individual reagent pairs.
 
-This module implements the design rules described by Tuschl and
-colleagues (see
-http://www.mpibpc.gwdg.de/abteilungen/100/105/sirna.html).  They
-describe three rules for RNAi oligos, which I label as rank 1 (best),
-2, and 3 (worst).
+This verion of Bio::Tools::SiRNA represents a major change in architecture.
+Specific 'rulesets' for siRNA selection as developed by various groups are
+implemented as Bio::Tools::SiRNA::Ruleset objects, which inherit from
+Bio::Tools::SiRNA.  This will make it easier to add new rule sets or modify
+existing approaches. Currently the Tuschl and Ui-Tei (2004) rules are 
+implemented. For consistency, the Tuschl rules are implemented by default.
 
-I added three modifications: 
+In addition, this module provides three 'extra' rules which can be added
+above and beyond any ruleset.
 
 1. SiRNAs that overlap known SNPs (identified as SeqFeatures with 
-primary tag = variation) are avoided, 
+primary tag = variation) can be avoided.
 
 2. Other regions (with primary tag = 'Excluded') can also be skipped.  
 I use this with Bio::Tools::Run::Mdust to avoid low-complexity 
 regions (must be run separately), but other programs could also be used.
 
 3. SiRNAs may also be selected in the 3 prime UTR of a gene
-by setting $sirna_designer-E<gt>include_3pr() to true.
+by setting $sirna_designer->include_3pr() to true.
 
 =head2 EXPORT
 
@@ -121,11 +126,6 @@ use Bio::SeqFeature::SiRNA::Pair;
 
 our @ISA = qw(Bio::Root::Root);
 
-our %PATTERNS = ( 1 	=> '(AA.{19}TT)',
-		  2 	=> '(AA.{19}[ACG][ACG])',
-		  3 	=> '([CGT]A.{21})',
-		  Pol3	=> '(.A[AG].{17}[CT]..)'
-		  );
 
 our %COMP = ( A => 'T',
 	      T => 'A',
@@ -134,7 +134,7 @@ our %COMP = ( A => 'T',
 	      N => 'N',
 	      );
 
-our @ARGNAMES = qw(START_PAD END_PAD MIN_GC CUTOFF OLIGOS AVOID_SNPS
+our @ARGNAMES = qw(RULES START_PAD END_PAD MIN_GC CUTOFF OLIGOS AVOID_SNPS
 		   GSTRING TMPDIR TARGET DEBUG);
 
 
@@ -148,6 +148,7 @@ our @ARGNAMES = qw(START_PAD END_PAD MIN_GC CUTOFF OLIGOS AVOID_SNPS
                   start_pad - distance from the CDS start to skip (default 75)
                   end_pad - distance from the CDS end to skip (default 50)
                   include_3pr - set to true to include SiRNAs in the 3prime UTR (default false)
+                  rules - rules for selecting siRNAs, currently supporting saigo and tuschl
                   min_gc - minimum GC fraction (NOT percent) (default 0.4)
                   max_gc - maximum GC fraction (NOT percent) (default 0.6)
                   cutoff - worst 'rank' accepted(default 3)
@@ -166,11 +167,16 @@ sub new {
     my ($proto, @args) = @_;
     my $pkg = ref($proto) || $proto;
 
-    my %args;
     my $self = {};
     bless ($self, $pkg);
 
+    my %args;
+
     @args{@ARGNAMES} = $self->_rearrange(\@ARGNAMES, @args); 
+    
+    if ($args{'RULES'}) {
+	$self->rules($args{'RULES'});
+    }
 
     $self->{'start_pad'} = $args{'START_PAD'} || 75; # nt from start to mask
     $self->{'end_pad'} = $args{'END_PAD'} || 50; # nt from end to mask
@@ -186,7 +192,6 @@ sub new {
     $self->{'debug'} = $args{'DEBUG'} || 0;
 
     $self->target($args{'TARGET'}) if ($args{'TARGET'});
-
 
     return $self;
 }
@@ -237,6 +242,51 @@ sub target {
     }
 }
 
+=head2 rules
+
+    Title	: rules
+    Usage	: $sirna->rules('ruleset')
+    Purpose	: set/get ruleset to use for selecting SiRNA oligo pairs.
+    Returns	: not sure yet
+    Args	: a ruleset name (currently supported: Tuschl, Saigo)
+                  or a Bio::Tools::SiRNA::RulesetI compliant object
+
+=cut
+
+sub rules {
+    my ($self, $rules) = @_;
+
+    if ($rules) {
+	$self->_load_ruleset($rules);
+    }
+    # default: use tuschl rules
+    unless ($self->{_rules}) {
+	$self->_load_ruleset('tuschl');
+    }
+    return $self->{_rules};
+}
+
+sub _load_ruleset {
+    my ($self, $ruleset) = @_;
+
+    my $rule_module = join('::', ref($self), 'Ruleset', lc($ruleset));
+
+    eval "require $rule_module";
+    
+    if ($@) {
+	#warn join("\n", '@INC contains:', @INC, undef);
+	$self->throw("Unable to load $rule_module: $@");
+	return undef;
+    }
+
+    else {
+	$self->{_rules} = $rule_module;
+	bless($self, $rule_module); # recast as subclass
+    }
+	
+    return 1;
+}
+
 =head2 design
 
   Title		: design
@@ -250,13 +300,13 @@ sub target {
 sub design {	
     my ($self) = @_;
 
-    unless ( grep { $_->primary_tag eq 'Target' } $self->target->top_SeqFeatures ) {
-	$self->_define_target();
-    }
+    ($self->rules) or $self->throw('Unable to design siRNAs: no rule set specified');
 
-    foreach ( 1 .. $self->cutoff ) {
-	$self->_get_oligos($_);
-    }
+#     unless ( grep { $_->primary_tag eq 'Target' } $self->target->top_SeqFeatures ) {
+# 	$self->_define_target();
+#     }
+
+    my @oligos = $self->_get_oligos();
        
     return ( grep { $_->isa('Bio::SeqFeature::SiRNA::Pair') } $self->target->top_SeqFeatures );
 }
@@ -294,78 +344,151 @@ sub _define_target {
 						    -end 		=> $right,
 						    -primary		=> 'Target' );
     $self->target->add_SeqFeature($targregion);
-}
 
-sub _regex {
-    my ($self, $rank) = @_;
-    return $PATTERNS{$rank};
-}
+    # locate excluded regions
+    my @excluded = grep { $_->primary_tag eq 'Excluded' } $self->target->top_SeqFeatures;
 
-sub _get_oligos {
-    # use regular expressions to pull out oligos
-
-    my ($self, $rank) = @_;
-    my $regex = $self->_regex($rank);
-    my @exclude;
-
-
-    my ($targregion) = grep { $_->primary_tag eq 'Target' } $self->target->top_SeqFeatures;
-    my $seq = $targregion->seq->seq;
-    # but this way I loose start info
-    my $targstart = $targregion->start;
-    
-    # exclude masked region
-    push(@exclude, grep { $_->primary_tag eq 'Excluded' } $self->target->top_SeqFeatures);
-
-    # add SNP checking
     if ($self->avoid_snps) {
 	my @snps =  grep { $_->primary_tag eq 'variation' } $self->target->top_SeqFeatures;
-	push(@exclude, @snps);
+	push(@excluded, @snps);
     }
+    
+    $self->excluded(\@excluded);
 
-    while ( $seq =~ /$regex/gi ) {
-	my $target = $1;
+    return $targregion;
+}
 
-	# check for too many Gs (or Cs on the other strand)
-	next if ( $target =~ /G{ $self->gstring,}/io );
-	next if ( $target =~ /C{ $self->gstring,}/io );
-	# skip Ns (for filtering)
-	next if ( $target =~ /N/i);
+sub _get_targetregion {
+    my ($self) = @_;
+    
+    my ($targregion) = grep { $_->primary_tag eq 'Target' } $self->target->top_SeqFeatures;
+    $targregion ||= $self->_define_target;
 
-	my $start = length($`) + $targstart;
-	my $stop = $start + length($target) -1;
+    $self->throw("Target region for SiRNA design not defined") unless ($targregion);
 
-	my @gc = ( $target =~ /G|C/gi);
-	my $fxGC = sprintf("%2.2f", (scalar(@gc) / length($target)));
-	next if ($fxGC < $self->min_gc);
-	next if ($fxGC > $self->max_gc);
+    my $seq = $targregion->seq->seq;
+    # but this way I loose start info
+     my $targstart = $targregion->start;
 
-	my $sense = Bio::SeqFeature::SiRNA::Oligo->new( -start 		=> $start,
-							-end 		=> $stop,
-							-strand 	=> 1,
-							-seq 		=> _get_sense($target),
-							-source_tag	=> ref($self),
-						       );	
+    return ($seq, $targstart);
+}   
 
-	my $asense = Bio::SeqFeature::SiRNA::Oligo->new( -start 	=> $start,
-							 -end		=> $stop,
-							 -strand	=> -1,
-							 -seq 		=> _get_anti($target), 
-							 -source_tag	=> ref($self),
-							 );
+# MOVE to SiRNA::Ruleset::tuschl
+# sub _regex {
+#     my ($self, $rank) = @_;
+#     return $PATTERNS{$rank};
+# }
 
-  	my $sirna = Bio::SeqFeature::SiRNA::Pair->new( -rank 		=> $rank,
-						       -fxGC		=> $fxGC,
-						       -sense 		=> $sense,
-						       -antisense 	=> $asense,     
-						       -source_tag	=> ref($self),
-						       );
+# sub _get_oligos {
+#     # use regular expressions to pull out oligos
 
-	unless ($self->_has_overlap($sirna, \@exclude)) {
-	    $self->target->add_SeqFeature($sirna);
-	}
+#     my ($self, $rank) = @_;
+#     my $regex = $self->_regex($rank);
+#     my @exclude;
+
+
+#     my ($targregion) = grep { $_->primary_tag eq 'Target' } $self->target->top_SeqFeatures;
+#     my $seq = $targregion->seq->seq;
+#     # but this way I loose start info
+#     my $targstart = $targregion->start;
+    
+#     # exclude masked region
+#     push(@exclude, grep { $_->primary_tag eq 'Excluded' } $self->target->top_SeqFeatures);
+
+#     # add SNP checking
+#     if ($self->avoid_snps) {
+# 	my @snps =  grep { $_->primary_tag eq 'variation' } $self->target->top_SeqFeatures;
+# 	push(@exclude, @snps);
+#     }
+
+#     while ( $seq =~ /$regex/gi ) {
+# 	my $target = $1;
+
+# 	# check for too many Gs (or Cs on the other strand)
+# 	next if ( $target =~ /G{ $self->gstring,}/io );
+# 	next if ( $target =~ /C{ $self->gstring,}/io );
+# 	# skip Ns (for filtering)
+# 	next if ( $target =~ /N/i);
+
+# 	my $start = length($`) + $targstart;
+# 	my $stop = $start + length($target) -1;
+
+# 	my @gc = ( $target =~ /G|C/gi);
+# 	my $fxGC = sprintf("%2.2f", (scalar(@gc) / length($target)));
+# 	next if ($fxGC < $self->min_gc);
+# 	next if ($fxGC > $self->max_gc);
+
+# 	my $sense = Bio::SeqFeature::SiRNA::Oligo->new( -start 		=> $start,
+# 							-end 		=> $stop,
+# 							-strand 	=> 1,
+# 							-seq 		=> _get_sense($target),
+# 							-source_tag	=> ref($self),
+# 						       );	
+
+# 	my $asense = Bio::SeqFeature::SiRNA::Oligo->new( -start 	=> $start,
+# 							 -end		=> $stop,
+# 							 -strand	=> -1,
+# 							 -seq 		=> _get_anti($target), 
+# 							 -source_tag	=> ref($self),
+# 							 );
+
+#   	my $sirna = Bio::SeqFeature::SiRNA::Pair->new( -rank 		=> $rank,
+# 						       -fxGC		=> $fxGC,
+# 						       -sense 		=> $sense,
+# 						       -antisense 	=> $asense,     
+# 						       -source_tag	=> ref($self),
+# 						       );
+
+# 	unless ($self->_has_overlap($sirna, \@exclude)) {
+# 	    $self->target->add_SeqFeature($sirna);
+# 	}
+#     }
+# }    
+
+=head2 add_oligos
+
+  Title		: add_oligos
+  Usage	 	: $sirna_designer->add_oligos($sequence, $start, $rank);
+  Purpose	: Add SiRNA olgos to target Bio::Seq as Bio::SeqFeature::SiRNA::Pair objects
+  Args		: Oligo sequence and start position (required), rank/score (optional)
+
+=cut
+
+sub add_oligos {
+    my ($self, $seq, $start, $rank) = @_;
+
+    ($seq) or throw ('No sequence supplied for add_oligos');
+    (defined $start) or throw ('No start position specified for  add_oligos');
+    
+    my ($end) = $start + length($seq);
+
+    my ($sseq) = $self->_get_sense($seq);
+    my $sense = Bio::SeqFeature::SiRNA::Oligo->new( -start 		=> $start,
+						    -end 		=> ($start + length($sseq)),
+						    -strand 	=> 1,
+						    -seq 		=> $sseq,
+						    -source_tag	=> ref($self),
+						    );	
+
+    my $aseq = $self->_get_anti($seq);
+    my $asense = Bio::SeqFeature::SiRNA::Oligo->new( -start 		=> $end,
+						     -end		=> ($end - length($aseq)),
+						     -strand		=> -1,
+						     -seq 		=> $aseq, 
+						     -source_tag	=> ref($self),
+						     );
+
+    my $sirna = Bio::SeqFeature::SiRNA::Pair->new( -rank 		=> $rank,
+						  # -fxGC		=> $fxGC,
+						   -sense 		=> $sense,
+						   -antisense 	=> $asense,     
+						   -source_tag	=> ref($self),
+						   );
+
+    unless ($self->_has_overlap($sirna, $self->excluded)) {
+	$self->target->add_SeqFeature($sirna);
     }
-}    
+}
 
 sub _has_overlap {
     # flag any pairs that overlap an UNDESIRED feature (eg SNP)
@@ -385,37 +508,38 @@ sub _has_overlap {
     return 0; # default - no overlap
 }
     
+# MOVE to SiRNA::Ruleset::tuschl
 	 
-sub _get_sense {
-    my ($target) = @_;
-    # trim off 1st 2 nt to get overhang
-    $target =~ s/^..//;
-    # convert T's to U's (transcribe)
-    $target =~ s/T/U/g;
-    # force last 2 nt to be T's
-    $target =~ s/..$/TT/;
+# sub _get_sense {
+#     my ($target) = @_;
+#     # trim off 1st 2 nt to get overhang
+#     $target =~ s/^..//;
+#     # convert T's to U's (transcribe)
+#     $target =~ s/T/U/gi;
+#     # force last 2 nt to be T's
+#     $target =~ s/..$/TT/;
 
-    return $target;
-}
+#     return $target;
+# }
 
-sub _get_anti {
-    my ($target) = @_;
-    my @target = split(//, $target);
-    my ($nt,@antitarget);
+# sub _get_anti {
+#     my ($target) = @_;
+#     my @target = split(//, $target);
+#     my ($nt,@antitarget);
 
-    while ($nt = pop @target) {
-	push(@antitarget, $COMP{$nt});
-    }
-    my $anti = join('', @antitarget);
-    # trim off 1st 2 nt to get overhang
-    $anti =~ s/^..//;
-    # convert T's to U's
-    $anti =~ s/T/U/g;
-    # convert last 2 NT's to T
-    $anti =~ s/..$/TT/;
+#     while ($nt = pop @target) {
+# 	push(@antitarget, $COMP{$nt});
+#     }
+#     my $anti = join('', @antitarget);
+#     # trim off 1st 2 nt to get overhang
+#     $anti =~ s/^..//;
+#     # convert T's to U's
+#     $anti =~ s/T/U/gi;
+#     # convert last 2 NT's to T
+#     $anti =~ s/..$/TT/;
 
-    return $anti;
-}
+#     return $anti;
+# }
 
 
 sub AUTOLOAD {
@@ -438,4 +562,11 @@ sub AUTOLOAD {
     return $self->{$name};
 }
 
+sub _comp {
+    my ($self, $char) = @_;
+
+    return undef unless ($char);
+    $char = uc($char);
+    return $COMP{ $char };
+}
 1;
