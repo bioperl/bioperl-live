@@ -39,6 +39,8 @@ if( $error ==  1 ) {
 }
 
 require Bio::DB::RefSeq;
+use  Bio::DB::GenBank;
+use  Bio::DB::EMBL;
 
 my $testnum;
 my $verbose = 0;
@@ -53,6 +55,27 @@ my ($db,$seq,$seqio);
 # get a single seq
 
 $seq = $seqio = undef;
+
+#test redirection from GenBank and EMBL
+#GenBank
+$verbose = -1;
+ok $db = new Bio::DB::GenBank('-verbose'=>$verbose) ;     
+eval {
+    $seq = $db->get_Seq_by_acc('NT_006732');
+};
+ok $@;
+ok $seq = $db->get_Seq_by_acc('NM_006732');
+ok($seq && $seq->length eq 3775);
+#EMBL
+ok $db = new Bio::DB::EMBL('-verbose'=>$verbose) ;     
+eval {
+    $seq = $db->get_Seq_by_acc('NT_006732');
+};
+ok $@;
+ok $seq = $db->get_Seq_by_acc('NM_006732');
+ok($seq && $seq->length eq 3775);
+
+$verbose = 0;
 
 eval { 
     ok defined($db = new Bio::DB::RefSeq(-verbose=>$verbose)); 

@@ -135,4 +135,63 @@ sub new {
 }
 
 
+=head2 Bio::DB::WebDBSeqI methods
+
+Overriding WebDBSeqI method to help newbies to retrieve sequences.
+EMBL database is all too often passed RefSeq accessions. This
+redirects those calls. See L<Bio::DB::RefSeq>.
+
+
+=head2 get_Stream_by_acc
+
+  Title   : get_Stream_by_acc
+  Usage   : $seq = $db->get_Seq_by_acc([$acc1, $acc2]);
+  Function: Gets a series of Seq objects by accession numbers
+  Returns : a Bio::SeqIO stream object
+  Args    : $ref : a reference to an array of accession numbers for
+                   the desired sequence entries
+  Note    : For GenBank, this just calls the same code for get_Stream_by_id()
+
+=cut
+
+sub get_Stream_by_acc {
+    my ($self, $ids ) = @_;
+    my $newdb = $self->_check_id($ids);
+    if ($newdb->isa('Bio::DB::RefSeq')) {
+	return $newdb->get_seq_stream('-uids' => $ids, '-mode' => 'single');
+    } else {
+	return $self->get_seq_stream('-uids' => $ids, '-mode' => 'single');
+    }
+}
+
+
+=head2 _check_id
+
+  Title   : _check_id
+  Usage   : 
+  Function: 
+            
+  Returns : A Bio::DB::RefSeq reference or throws
+  Args    : $id(s), $string
+=cut
+
+sub _check_id {
+    my ($self, $ids) = @_;
+
+    # NT contigs can not be retrieved
+    $self->throw("NT_ contigs are whole chromosome files which are not part of regular".
+		 "database distributions. Go to ftp://ftp.ncbi.nih.gov/genomes/.") 
+	if $ids =~ /NT_/;
+
+    # Asking for a RefSeq from EMBL/GenBank
+
+    if ($ids =~ /N._/) {
+	$self->warn("[$ids] is not a normal sequence database but a RefSeq entry.".
+		   " Redirecting the request.\n")
+	    if $self->verbose >= 0;
+	return  new Bio::DB::RefSeq;
+    }
+}
+
+
 1;
