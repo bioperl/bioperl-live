@@ -75,7 +75,7 @@ Internal methods are usually preceded with a _
 package Bio::Align::Utilities;
 use vars qw(@ISA @EXPORT @EXPORT_OK);
 use strict;
-
+use Carp;
 require Exporter;
 
 @ISA = qw(Exporter);
