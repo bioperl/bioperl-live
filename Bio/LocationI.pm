@@ -82,5 +82,23 @@ sub _abstractDeath {
   }
 }
 
+
+=head2 seq_id
+
+  Title   : seq_id
+  Usage   : my $seqid = $location->seq_id();
+  Function: Get/Set seq_id that location refers to
+  Returns : seq_id
+  Args    : [optional] seq_id value to set
+
+=cut
+
+sub seq_id {
+    my ($self, $seqid) = @_;
+    if( defined $seqid ) {
+	$self->{'_seqid'} = $seqid;
+    }
+    return $self->{'_seqid'};
+}
 1;
 
