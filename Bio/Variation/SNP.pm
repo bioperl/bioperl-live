@@ -62,6 +62,42 @@ use Bio::Variation::Allele;
 
 @ISA = qw( Bio::Variation::SeqDiff Bio::Variation::Allele);
 
+=head2 get/set-able methods
+
+ Usage   : $is = $snp->method()
+ Function: for getting/setting attributes
+ Returns : a value.  probably a scalar.
+ Args    : if you're trying to set an attribute, pass in the new value.
+
+ Methods:
+ --------
+ id
+ type
+ observed
+ seq_5
+ seq_3
+ ncbi_build
+ ncbi_chr_hits
+ ncbi_ctg_hits
+ ncbi_seq_loc
+ ucsc_build 
+ ucsc_chr_hits
+ ucsc_ctg_hits
+ heterozygous
+ heterozygous_SE
+ validated
+ genotype
+ handle
+ batch_id
+ method
+ locus_id
+ symbol
+ mrna
+ protein
+ functional_class
+=cut
+
+
 my %OK_AUTOLOAD = map {$_=>1} qw(
 		id
 		type
