@@ -19,7 +19,11 @@ Bio::Tools::Est2Genome - Parse est2genome output, makes simple Bio::SeqFeature::
 use Bio::Tools::Est2Genome;
 
 my $featureiter = new Bio::Tools::Est2Genome(-file => 'output.est2genome');
-while( my $f = $featureiter->next_feature ) {
+
+# This is going to be fixed to use the SeqAnalysisI next_feature
+# Method eventually when we have the objects to put the data in 
+# properly
+while( my $f = $featureiter->parse_next_gene ) {
  # process Bio::SeqFeature::Generic objects here
 }
 
@@ -28,6 +32,10 @@ while( my $f = $featureiter->next_feature ) {
 This module is a parser for est2genome [EMBOSS] alignments of est/cdna
 sequence to genomic DNA.  This is generally accepted as the best
 program for predicting splice sites based on est/cdnas*.
+
+This module currently does not try pull out the ungapped alignments
+(Segment) but may in the future.
+
 
 * AFAIK
 
@@ -80,6 +88,9 @@ use strict;
 
 use Bio::Root::Root;
 use Bio::Tools::AnalysisResult;
+use Bio::SeqFeature::Gene::Exon;
+use Bio::SeqFeature::Gene::Intron;
+use Bio::SeqFeature::Gene::GeneStructure;
 use Bio::SeqFeature::SimilarityPair;
 
 @ISA = qw(Bio::Tools::AnalysisResult );
@@ -148,7 +159,7 @@ sub analysis_method {
            The length is accessible via the seqlength() 
            attribute of $exon->query() and
            $exon->est_hit().
- Returns : An array of Bio::SeqFeature::SimilarityPair and Bio::SeqFeature::Generic objects
+ Returns : An array (or array reference) of Bio::SeqFeature::SimilarityPair and Bio::SeqFeature::Generic objects
  Args    : none
 
 
@@ -198,13 +209,13 @@ sub parse_next_alignment {
 	       (-query => $query,
 		-hit   => $hit,
 		-source => $self->analysis_method);
-       } elsif( /^(\-)?(Intron)/) {
+       } elsif( /^([\-\+])(Intron)/) {
 	   my ($name,$len,$score,$qstart,$qend,$qseqname) = split;
 	   push @features, new Bio::SeqFeature::Generic(-primary => $2,
 							-source => $self->analysis_method,
 							-start => $qstart,
 							-end   => $qend,
-							-strand => $qstrand,
+							-strand => $1,
 							-score  => $score,
 							-seqname => $qseqname);
        } elsif( /^Span/ ) {
@@ -215,7 +226,26 @@ sub parse_next_alignment {
 	   $self->warn( "unknown line $_\n");
        }
    }
-   return wantarray ? @features : \@features if $seensegment;
-   
+   return wantarray ? @features : \@features if $seensegment;   
 }
+
+=head2 next_feature
+
+ Title   : next_feature
+ Usage   : $seqfeature = $obj->next_feature();
+ Function: Returns the next feature available in the analysis result, or
+           undef if there are no more features.
+ Example :
+ Returns : A Bio::SeqFeatureI implementing object, or undef if there are no
+           more features.
+ Args    : none    
+
+=cut
+
+sub next_feature {
+    my ($self) = shift;
+    $self->throw("We haven't really done this right, yet, use parse_next_alignment");
+}
+
+
 1;
