@@ -29,10 +29,9 @@ package Bio::DB::GFF::Aggregator::ucsc_unigene;
 use strict;
 use Bio::DB::GFF::Aggregator;
 
-use vars qw($VERSION @ISA);
+use vars qw(@ISA);
 @ISA = qw(Bio::DB::GFF::Aggregator);
 
-$VERSION = '0.10';
 
 =head2 method
 
@@ -52,14 +51,14 @@ sub method { 'unigene' }
  Title   : part_names
  Usage   : $aggregator->part_names
  Function: return the methods for the sub-parts
- Returns : the list "unigene_2"
+ Returns : empty list
  Args    : none
  Status  : Public
 
 =cut
 
 sub part_names {
-  return qw(unigene_2);
+  return ();
 }
 
 =head2 main_name
@@ -74,7 +73,8 @@ sub part_names {
 =cut
 
 sub main_name {
-  return 'transcript';
+#transcript
+  return 'transcript:uniGene_2';
 }
 
 1;

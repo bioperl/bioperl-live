@@ -74,11 +74,10 @@ use Bio::SeqFeatureI;
 use Bio::Root::Root;
 use Bio::LocationI;
 
-use vars qw($VERSION @ISA $AUTOLOAD);
+use vars qw(@ISA $AUTOLOAD);
 @ISA = qw(Bio::DB::GFF::RelSegment Bio::SeqFeatureI 
 	  Bio::Root::Root);
 
-$VERSION = '0.61';
 #' 
 
 *segments = \&sub_SeqFeature;
@@ -599,6 +598,22 @@ sub add_subfeature {
   push @{$subfeat},$feature;
 }
 
+=head2 attach_seq
+
+ Title   : attach_seq
+ Usage   : $sf->attach_seq($seq)
+ Function: Attaches a Bio::Seq object to this feature. This
+           Bio::Seq object is for the *entire* sequence: ie
+           from 1 to 10000
+ Example :
+ Returns : TRUE on success
+ Args    : a Bio::PrimarySeqI compliant object
+
+=cut
+
+sub attach_seq { }
+
+
 =head2 location
 
  Title   : location
@@ -688,9 +703,10 @@ sub merged_segments {
   for my $s (@segs) {
     my $previous = $merged[-1] if @merged;
     my ($pscore,$score) = (eval{$previous->score}||0,eval{$s->score}||0);
-    if (defined($previous) 
+    if (defined($previous)
 	&& $previous->stop+1 >= $s->start
-	&& $previous->score == $s->score
+	&& (!defined($s->score) || $previous->score  == $s->score)
+	&& $previous->method eq $s->method
        ) {
       if ($self->absolute && $self->strand < 0) {
 	$previous->{start} = $s->{start};
@@ -703,8 +719,8 @@ sub merged_segments {
 	my $cg = $s->{group};
 	$g->{stop} = $cg->{stop};
       }
-    } elsif (defined($previous) 
-	     && $previous->start == $s->start 
+    } elsif (defined($previous)
+	     && $previous->start == $s->start
 	     && $previous->stop == $s->stop) {
       next;
     } else {
@@ -837,7 +853,7 @@ is equivalent to this call:
 
 The following Bio::SeqFeatureI methods are implemented:
 
-primary_tag(), source_tag(), all_tags(), has_tag(), each_tag_value().
+primary_tag(), source_tag(), all_tags(), has_tag(), each_tag_value() [renamed get_tag_values()].
 
 =cut
 
@@ -860,7 +876,10 @@ sub has_tag {
   my %tags = map {$_=>1} $self->all_tags;
   return $tags{$tag};
 }
-sub each_tag_value {
+
+*each_tag_value = \&get_tag_values;
+
+sub get_tag_values {
   my $self = shift;
   my $tag  = shift;
   return $self->$tag() if $CONSTANT_TAGS{$tag};
@@ -912,12 +931,13 @@ sub adjust_bounds {
 	# fix up our bounds to hold largest subfeature
 	my($start,$stop,$strand) = $feat->adjust_bounds;
 	$self->{fstrand} = $strand unless defined $self->{fstrand};
-	if ($start <= $stop) {
-	  $self->{start} = $start if !defined($self->{start}) || $start < $self->{start};
-	  $self->{stop}  = $stop  if !defined($self->{stop})  || $stop  > $self->{stop};
+	my ($low,$high)  = $start < $stop ? ($start,$stop) : ($stop,$start);
+	if ($self->{fstrand} ne '-') {
+	  $self->{start} = $low   if !defined($self->{start}) || $low < $self->{start};
+	  $self->{stop}  = $high  if !defined($self->{stop})  || $high  > $self->{stop};
 	} else {
-	  $self->{start} = $start if !defined($self->{start}) || $start > $self->{start};
-	  $self->{stop}  = $stop  if !defined($self->{stop})  || $stop  < $self->{stop};
+	  $self->{start} = $high  if !defined($self->{start}) || $high > $self->{start};
+	  $self->{stop}  = $low   if !defined($self->{stop})  || $low  < $self->{stop};
 	}
 
 	# fix up endpoints of targets too (for homologies only)
@@ -925,7 +945,7 @@ sub adjust_bounds {
 	next unless $h && $h->isa('Bio::DB::GFF::Homol');
 	next unless $g && $g->isa('Bio::DB::GFF::Homol');
 	($start,$stop) = ($h->{start},$h->{stop});
-	if ($h->strand >= 0) {
+	if ($start <= $stop) {
 	  $g->{start} = $start if !defined($g->{start}) || $start < $g->{start};
 	  $g->{stop}  = $stop  if !defined($g->{stop})  || $stop  > $g->{stop};
 	} else {

@@ -3,9 +3,8 @@ package Bio::DB::GFF::Adaptor::dbi::caching_handle;
 use strict;
 use DBI;
 use Bio::Root::Root;
-use vars '$AUTOLOAD','$VERSION','@ISA';
+use vars '$AUTOLOAD','@ISA';
 @ISA = qw(Bio::Root::Root);
-$VERSION = 1.0;
 
 =head1 NAME
 
@@ -138,6 +137,7 @@ sub dbh {
   # if we get here, we must create a new one
   warn "(Re)connecting to database\n" if $self->debug;
   my $dbh = DBI->connect(@{$self->{args}}) or return;
+
   $dbh->{PrintError} = 0;
   
   # for Oracle - to retrieve LOBs, need to define the length (Jul 15, 2002)
@@ -147,6 +147,35 @@ sub dbh {
   my $wrapper = Bio::DB::GFF::Adaptor::dbi::faux_dbh->new($dbh);
   push @{$self->{dbh}},$wrapper;
   $wrapper;
+}
+
+=head2 attribute
+
+ Title   : attribute
+ Usage   : $value = $db->attribute(AttributeName , [$newvalue])
+ Function: get/set DBI::db handle attribute
+ Returns : current state of the attribute
+ Args    : name of the attribute and optional new setting of attribute
+ Status  : public
+
+  Under Bio::DB::GFF::Adaptor::dbi::caching_handle the DBI::db
+  attributes that are usually set using hashref calls are unavailable.
+  Use attribute() instead.  For example, instead of:
+
+    $dbh->{AutoCommit} = 0;
+
+  use
+
+    $dbh->attribute(AutoCommit=>0);
+
+=cut
+
+sub attribute {
+  my $self = shift;
+  my $dbh = $self->dbh->{dbh};
+  return $dbh->{$_[0]} = $_[1] if @_ == 2;
+  return $dbh->{$_[0]}         if @_ == 1;
+  return;
 }
 
 sub disconnect {
@@ -169,33 +198,24 @@ use vars '$AUTOLOAD';
 sub new {
   my $class = shift;
   my $dbh   = shift;
-  bless {dbh=>$dbh,usage=>0},$class;
+  bless {dbh=>$dbh},$class;
 }
 
 sub prepare {
   my $self = shift;
   my $sth = $self->{dbh}->prepare(@_) or return;
   $sth->{mysql_use_result} = 1 if $self->{dbh}->{Driver}{Name} eq 'mysql';
-  return Bio::DB::GFF::Adaptor::dbi::faux_sth->new($self,$sth);
+  $sth;
 }
 
 sub prepare_delayed {
   my $self = shift;
   my $sth = $self->{dbh}->prepare(@_) or return;
-  return Bio::DB::GFF::Adaptor::dbi::faux_sth->new($self,$sth);
+  $sth;
 }
 
 sub inuse {
-  $_[0]->{usage};
-}
-
-sub increment {
-  $_[0]->{usage}++;
-}
-
-sub decrement {
-  $_[0]->{usage}--;
-  $_[0]->{usage} = 0 if $_[0]->{usage} < 0;
+    shift->{dbh}->{ActiveKids};
 }
 
 sub DESTROY { }
@@ -208,48 +228,6 @@ sub AUTOLOAD {
       $self->{dbh}->$func_name(@_);
   }
 }
-
-package Bio::DB::GFF::Adaptor::dbi::faux_sth;
-use vars '$AUTOLOAD';
-
-sub new {
-  my $class = shift;
-  my ($dbh,$sth) = @_;
-  return bless {dbh=>$dbh,sth=>$sth},$class;
-}
-
-sub AUTOLOAD {
-  my($pack,$func_name) = $AUTOLOAD=~/(.+)::([^:]+)$/;
-  return if $func_name eq 'DESTROY';
-  my $self = shift;
-  $self->{sth}->$func_name(@_);
-}
-
-sub execute {
-  my $self = shift;
-  $self->{dbh}->increment;
-  $self->{sth}->execute(@_);
-}
-
-sub finish {
-  my $self = shift;
-  $self->{dbh} && $self->{dbh}->decrement;
-  $self->{sth} && $self->{sth}->finish;
-}
-
-# shuly Jun25 
-#this function was moved out to the Adaptors,since it only takes care of mysql
-
-#sub insertid {
-#  my $self = shift;
-#  $self->{sth}{mysql_insertid};
-#}
-
-sub DESTROY {
-  my $self = shift;
-  $self->finish;
-}
-
 
 1;
 

@@ -29,10 +29,9 @@ package Bio::DB::GFF::Aggregator::ucsc_acembly;
 use strict;
 use Bio::DB::GFF::Aggregator;
 
-use vars qw($VERSION @ISA);
+use vars qw(@ISA);
 @ISA = qw(Bio::DB::GFF::Aggregator);
 
-$VERSION = '0.10';
 
 =head2 method
 
@@ -52,14 +51,14 @@ sub method { 'acembly' }
  Title   : part_names
  Usage   : $aggregator->part_names
  Function: return the methods for the sub-parts
- Returns : the list "acembly"
+ Returns : empty list
  Args    : none
  Status  : Public
 
 =cut
 
 sub part_names {
-  return qw(acembly);
+  return ();
 }
 
 =head2 main_name
@@ -67,14 +66,14 @@ sub part_names {
  Title   : main_name
  Usage   : $aggregator->main_name
  Function: return the method for the main component
- Returns : the string "transcript"
+ Returns : the string "transcript:acembly"
  Args    : none
  Status  : Public
 
 =cut
 
 sub main_name {
-  return 'transcript';
+  return 'transcript:acembly';
 }
 
 1;

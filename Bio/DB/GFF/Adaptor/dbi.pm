@@ -27,10 +27,9 @@ use Bio::DB::GFF::Util::Rearrange; # for rearrange()
 use Bio::DB::GFF::Util::Binning;
 use Bio::DB::GFF::Adaptor::dbi::iterator;
 use Bio::DB::GFF::Adaptor::dbi::caching_handle;
-use vars qw($VERSION @ISA);
+use vars qw(@ISA);
 
 @ISA =  qw(Bio::DB::GFF);
-$VERSION = '0.40';
 
 # constants for choosing
 
@@ -119,6 +118,14 @@ sub debug {
  Returns : a DBI handle
  Args    : none
  Status  : Public
+
+ Note: what is returned is not really a DBI::db handle, but a
+ subclass of one.  This means that you cannot manipulate the
+ handle's attributes directly.  Instead call the attribute
+ method:
+
+ my $dbh = $db->features_db;
+ $dbh->attribute(AutoCommit=>0);
 
 =cut
 
@@ -385,14 +392,20 @@ by make_feature().  Internally, it invokes the following abstract procedures:
 
 sub _feature_by_name {
   my $self = shift;
-  my ($class,$name,$callback) = @_;
+  my ($class,$name,$location,$callback) = @_;
   $callback || $self->throw('must provide a callback argument');
 
   my $select         = $self->make_features_select_part;
-  my $from           = $self->make_features_from_part;
+  my $from           = $self->make_features_from_part(undef,{sparse_groups=>1});
   my ($where,@args)  = $self->make_features_by_name_where_part($class,$name);
   my $join           = $self->make_features_join_part;
+  my $range          = $self->make_features_by_range_where_part('overlaps',
+								{refseq=>$location->[0],
+								 class =>'',
+								 start=>$location->[1],
+								 stop =>$location->[2]}) if $location;
   my $query  = "SELECT $select FROM $from WHERE $where AND $join";
+  $query    .= " AND $range" if $range;
   my $sth    = $self->dbh->do_query($query,@args);
 
   my $count = 0;

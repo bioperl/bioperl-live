@@ -28,9 +28,8 @@ use Bio::RangeI;
 use Bio::Das::SegmentI;
 use Bio::SeqI;
 
-use vars qw($VERSION @ISA);
+use vars qw(@ISA);
 @ISA = qw(Bio::Root::Root Bio::RangeI Bio::SeqI Bio::Das::SegmentI);
-$VERSION = '0.31';
 
 use overload 
   '""'     => 'asString',
@@ -103,6 +102,7 @@ to create the segment.
 sub factory { shift->{factory} }
 
 # start, stop, length
+
 =head2 start
 
  Title   : start
@@ -318,6 +318,39 @@ sub seq {
 }
 
 *protein = *dna = \&seq;
+
+
+=head2 primary_seq
+
+ Title   : primary_seq
+ Usage   : $s->primary_seq
+ Function: returns a Bio::PrimarySeqI compatible object
+ Returns : a Bio::PrimarySeqI object
+ Args    : none
+ Status  : Public
+
+This is for compatibility with BioPerl's separation of SeqI
+from PrimarySeqI.  It just returns itself.
+
+=cut
+
+sub primary_seq { shift }
+
+=head2 type
+
+ Title   : type
+ Usage   : $s->type
+ Function: return the string "feature"
+ Returns : the string "feature"
+ Args    : none
+ Status  : Public
+
+This is for future sequence ontology-compatibility and
+represents the default type of a feature on the genome
+
+=cut
+
+sub type { "feature" }
 
 =head2 equals
 
@@ -648,10 +681,10 @@ sub primary_id {
 }
 
 
-=head2 display_id
+=head2 display_name
 
- Title   : display_id
- Usage   : $id = $obj->display_id or $obj->display_id($newid);
+ Title   : display_name
+ Usage   : $id = $obj->display_name or $obj->display_name($newid);
  Function: Gets or sets the display id, also known as the common name of
            the Seq object.
 
@@ -671,10 +704,13 @@ sub primary_id {
  Returns : A string
  Args    : None or a new id
 
+Note, this used to be called display_id(), and this name is preserved for
+backward compatibility.  The default is to return the seq_id().
 
 =cut
 
-sub display_id { shift->seq_id }
+sub display_name { shift->seq_id }
+*display_id = \&display_name;
 
 =head2 accession_number
 

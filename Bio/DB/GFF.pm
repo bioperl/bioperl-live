@@ -196,7 +196,7 @@ not stranded.
 
 For annotations that are linked to proteins, this field describes the
 phase of the annotation on the codons.  It is a number from 0 to 2, or
-"." for features that have no phase.
+"." for features that have no phase\.
 
 =item 9. group
 
@@ -209,6 +209,10 @@ the Transcript named "R119.7".
 The group field is also used to store information about the target of
 sequence similarity hits, and miscellaneous notes.  See the next
 section for a description of how to describe similarity targets.
+
+The format of the group fields is "Class:ID" with a ":" separating the
+class from the ID. It is VERY IMPORTANT to follow this format, or
+grouping will not work properly.
 
 =back
 
@@ -387,10 +391,11 @@ contained in the database.  After the query is generated, each
 aggregator is called again in order to build composite annotations
 from the returned components.
 
-For example, during disaggregation, the standard "transcript"
-aggregator generates a list of component feature types including
-"intron", "exon", "CDS", and "3'UTR".  Later, it aggregates these
-features into a set of annotations of type "transcript".
+For example, during disaggregation, the standard
+"processed_transcript" aggregator generates a list of component
+feature types including "UTR", "CDS", and "polyA_site".  Later, it
+aggregates these features into a set of annotations of type
+"processed_transcript".
 
 During aggregation, the list of aggregators is called in reverse
 order.  This allows aggregators to collaborate to create multi-level
@@ -428,7 +433,7 @@ this call:
 will return a list of unaggregated similarity segments.
 
 For more informnation, see the manual pages for
-Bio::DB::GFF::Aggregator::transcript, Bio::DB::GFF::Aggregator::clone,
+Bio::DB::GFF::Aggregator::processed_transcript, Bio::DB::GFF::Aggregator::clone,
 etc.
 
 =back
@@ -450,10 +455,9 @@ use Bio::DB::GFF::Aggregator;
 use Bio::DasI;
 use Bio::Root::Root;
 
-use vars qw($VERSION @ISA);
+use vars qw(@ISA);
 @ISA = qw(Bio::Root::Root Bio::DasI);
 
-$VERSION = '1.04';
 my %valid_range_types = (overlaps     => 1,
 			 contains     => 1,
 			 contained_in => 1);
@@ -476,7 +480,7 @@ These are the arguments:
 
  -aggregator   Array reference to a list of aggregators
                to apply to the database.  If none provided,
-	       defaults to ['transcript','clone','alignment'].
+	       defaults to ['processed_transcript','clone','alignment'].
 
   <other>      Any other named argument pairs are passed to
                the adaptor for processing.
@@ -526,6 +530,8 @@ adaptor-specific arguments:
 
   -pass          the password for authentication
 
+  -refclass      landmark Class; defaults to "Sequence"
+
 The commonly used 'dbi::mysqlopt' adaptor also recogizes the following
 arguments.
 
@@ -544,16 +550,17 @@ arguments.
 
 sub new {
   my $package   = shift;
-  my ($adaptor,$aggregators,$args);
+  my ($adaptor,$aggregators,$args,$refclass);
 
   if (@_ == 1) {  # special case, default to dbi::mysqlopt
     $adaptor = 'dbi::mysqlopt';
     $args = {DSN => shift};
   } else {
-    ($adaptor,$aggregators,$args) = rearrange([
-					       [qw(ADAPTOR FACTORY)],
-					       [qw(AGGREGATOR AGGREGATORS)]
-					      ],@_);
+    ($adaptor,$aggregators,$refclass,$args) = rearrange([
+							 [qw(ADAPTOR FACTORY)],
+							 [qw(AGGREGATOR AGGREGATORS)],
+							 'REFCLASS',
+							],@_);
   }
 
   $adaptor    ||= 'dbi::mysqlopt';
@@ -562,6 +569,7 @@ sub new {
   $package->throw("Unable to load $adaptor adaptor: $@") if $@;
 
   my $self = $class->new($args);
+  $self->default_class($refclass) if defined $refclass;
 
   # handle the aggregators.
   # aggregators are responsible for creating complex multi-part features
@@ -960,6 +968,14 @@ for features that belong to a group of size one, this method can be
 used to retrieve that group (and is equivalent to the segment()
 method).  Any Alias attributes are also searched for matching names.
 
+An alternative syntax allows you to search for features by name within
+a circumscribed region:
+
+  @f = $db->get_feature_by_name(-class => $class,-name=>$name,
+                                -ref   => $sequence_name,
+                                -start => $start,
+                                -end   => $end);
+
 This method may return zero, one, or several Bio::DB::GFF::Feature
 objects.
 
@@ -973,12 +989,15 @@ are preserved for backward compatibility.
 
 sub get_feature_by_name {
   my $self = shift;
-  my ($gclass,$gname,$automerge);
+  my ($gclass,$gname,$automerge,$ref,$start,$end);
   if (@_ == 1) {
     $gclass = $self->default_class;
     $gname  = shift;
   } else  {
-    ($gclass,$gname,$automerge) = rearrange(['CLASS','NAME','AUTOMERGE'],@_);
+    ($gclass,$gname,$automerge,$ref,$start,$end) = rearrange(['CLASS','NAME','AUTOMERGE',
+							      ['REF','REFSEQ'],
+							      'START',['STOP','END']
+							     ],@_);
     $gclass ||= $self->default_class;
   }
   $automerge = $self->automerge unless defined $automerge;
@@ -994,8 +1013,8 @@ sub get_feature_by_name {
   my %groups;         # cache the groups we create to avoid consuming too much unecessary memory
   my $features = [];
   my $callback = sub { push @$features,$self->make_feature(undef,\%groups,@_) };
-  $self->_feature_by_name($gclass,$gname,$callback);
-  $self->_feature_by_alias($gclass,$gname,$callback) if $self->can('_feature_by_alias');
+  my $location = [$ref,$start,$end] if defined $ref;
+  $self->_feature_by_name($gclass,$gname,$location,$callback);
 
   warn "aggregating...\n" if $self->debug;
   foreach my $a (@aggregators) {  # last aggregator gets first shot
@@ -1421,10 +1440,11 @@ old method name is also recognized.
 sub load_gff {
   my $self              = shift;
   my $file_or_directory = shift || '.';
-  open SAVEIN,"<&STDIN";
+  my $tied_stdin = tied(*STDIN);
+  open SAVEIN,"<&STDIN" unless $tied_stdin;
   local @ARGV = $self->setup_argv($file_or_directory,'gff') or return;  # to play tricks with reader
-  my $result = $self->do_load_gff;
-  open STDIN,"<&SAVEIN";  # restore STDIN
+  my $result = $self->do_load_gff();
+  open STDIN,"<&SAVEIN" unless $tied_stdin;  # restore STDIN
   return $result;
 }
 
@@ -1478,10 +1498,11 @@ web server can be loaded with an expression like this:
 sub load_fasta {
   my $self              = shift;
   my $file_or_directory = shift || '.';
-  open SAVEIN,"<&STDIN";
-  local @ARGV = $self->setup_argv($file_or_directory,'fa') or return;  # to play tricks with reader
+  my $tied = tied(*STDIN);
+  open SAVEIN,"<&STDIN" unless $tied;
+  local @ARGV = $self->setup_argv($file_or_directory,'fa','dna','fasta') or return;  # to play tricks with reader
   my $result = $self->load_sequence();
-  open STDIN,"<&SAVEIN";  # restore STDIN
+  open STDIN,"<&SAVEIN" unless $tied;  # restore STDIN
   return $result;
 }
 
@@ -1508,13 +1529,13 @@ sub load_sequence_string {
 sub setup_argv {
   my $self = shift;
   my $file_or_directory = shift;
-  my $suffix = shift;
+  my @suffixes          = @_;
   no strict 'refs';  # so that we can call fileno() on the argument
 
   my @argv;
 
   if (-d $file_or_directory) {
-    @argv = glob("$file_or_directory/*.{$suffix,$suffix.gz,$suffix.Z,$suffix.bz2}");
+    @argv = map { glob("$file_or_directory/*.{$_,$_.gz,$_.Z,$_.bz2}")} @suffixes;
   } elsif (my $fd = fileno($file_or_directory)) {
     open STDIN,"<&=$fd" or $self->throw("Can't dup STDIN");
     @argv = '-';
@@ -1779,8 +1800,8 @@ sub add_aggregator {
   elsif ($aggregator =~ /^(\w+)\{([^\/\}]+)\/?(.*)\}$/) {
     my($agg_name,$subparts,$mainpart) = ($1,$2,$3);
     my @subparts = split /,\s*/,$subparts;
-    my @args = (-method    => $agg_name,
-		-sub_parts => \@subparts);
+    my @args = (-method      => $agg_name,
+		-sub_parts   => \@subparts);
     push @args,(-main_method => $mainpart) if $mainpart;
     warn "making an aggregator with (@args), subparts = @subparts" if $self->debug;
     push @$list,Bio::DB::GFF::Aggregator->new(@args);
@@ -1891,7 +1912,7 @@ specified in the constructor.
 
 sub default_aggregators {
   my $self = shift;
-  return ['transcript','clone','alignment'];
+  return ['processed_transcript','alignment'];
 }
 
 =head2 do_load_gff
@@ -1916,9 +1937,18 @@ field, which are legion.
 # load from <>
 sub do_load_gff {
   my $self = shift;
+  local $self->{gff3_flag} = 0;
   $self->setup_load();
 
+  my $fasta_sequence_id;
+
   while (<>) {
+    chomp;
+    $self->{gff3_flag}++ if /^\#\#gff-version\s+3/;
+    if (/^>(\S+)/) {  # uh oh, sequence coming
+      $fasta_sequence_id = $1;
+      last;
+    }
     if (/^\#\#\s*sequence-region\s+(\S+)\s+(\d+)\s+(\d+)/i) { # header line
       $self->load_gff_line(
 			   {
@@ -1948,15 +1978,23 @@ sub do_load_gff {
       undef $$_ if $$_ eq '.';
     }
 
-    # handle group parsing
-    # protect embedded semicolons in the group; there must be faster/more elegant way
-    # to do this.
-    $group =~ s/\\;/$;/g;
-    while ($group =~ s/( \"[^\"]*);([^\"]*\")/$1$;$2/) { 1 }
-    my @groups = split(/\s*;\s*/,$group);
-    foreach (@groups) { s/$;/;/g }
+    my ($gclass,$gname,$tstart,$tstop,$attributes);
+    if ($self->{gff3_flag}) {
+      my @groups = split /[;&]/,$group;  # so easy!
+      ($gclass,$gname,$tstart,$tstop,$attributes) = $self->_split_gff3_group(@groups);
+    }
 
-    my ($gclass,$gname,$tstart,$tstop,$attributes) = $self->_split_group(@groups);
+    else { #gff2 parsing
+      # handle group parsing
+      # protect embedded semicolons in the group; there must be faster/more elegant way
+      # to do this.
+      $group =~ s/\\;/$;/g;
+      while ($group =~ s/( \"[^\"]*);([^\"]*\")/$1$;$2/) { 1 }
+      my @groups = split(/\s*;\s*/,$group);
+      foreach (@groups) { s/$;/;/g }
+
+      ($gclass,$gname,$tstart,$tstop,$attributes) = $self->_split_group(@groups);
+    }
 
     # no standard way in the GFF file to denote the class of the reference sequence -- drat!
     # so we invoke the factory to do it
@@ -1988,13 +2026,17 @@ sub do_load_gff {
 			);
   }
 
-  $self->finish_load();
+  my $result = $self->finish_load();
+  $result += $self->load_sequence($fasta_sequence_id) if defined $fasta_sequence_id;
+  $result;
+
 }
 
 sub load_sequence {
   my $self = shift;
+  my $id   = shift;   # hack for GFF files that contain fasta data
   # read fasta file(s) from ARGV
-  my ($id,$seq,$offset,$loaded);
+  my ($seq,$offset,$loaded) = (undef,0,0);
   while (<>) {
     chomp;
     if (/^>(\S+)/) {
@@ -2036,18 +2078,20 @@ sub insert_sequence {
   $self->throw('insert_sequence(): must be defined in subclass');
 }
 
-# default is to return 'Sequence' as the class of all references
-sub refclass {
-  my $self = shift;
-  my $refname = shift;
-  'Sequence';
-}
-
+# This is the default class for reference points.  Defaults to Sequence.
 sub default_class {
    my $self = shift;
    my $d = exists($self->{default_class}) ? $self->{default_class} : 'Sequence';
    $self->{default_class} = shift if @_;
    $d;
+}
+
+# gets name of the reference sequence, and returns its class
+# currently just calls default_class
+sub refclass {
+  my $self = shift;
+  my $name = shift;
+  return $self->default_class;
 }
 
 =head2 setup_load
@@ -2335,7 +2379,7 @@ sub get_features{
 =head2 _feature_by_name
 
  Title   : _feature_by_name
- Usage   : $db->_feature_by_name($name,$class,$callback)
+ Usage   : $db->_feature_by_name($class,$name,$location,$callback)
  Function: get a list of features by name and class
  Returns : count of number of features retrieved
  Args    : name of feature, class of feature, and a callback
@@ -2349,7 +2393,7 @@ subclasses.
 
 sub _feature_by_name {
   my $self = shift;
-  my ($class,$name,$callback) = @_;
+  my ($class,$name,$location,$callback) = @_;
   $self->throw("_feature_by_name() must be implemented by an adaptor");
 }
 
@@ -2618,6 +2662,12 @@ sub make_feature {
       $group = $self->make_object($group_class,$group_name,$tstart,$tstop);
     }
   }
+
+# fix for some broken GFF files
+# unfortunately - has undesired side effects
+#  if (defined $tstart && defined $tstop && !defined $strand) {
+#    $strand = $tstart <= $tstop ? '+' : '-';
+#  }
 
   if (ref $parent) { # note that the src sequence is ignored
     return Bio::DB::GFF::Feature->new_from_parent($parent,$start,$stop,
@@ -2972,6 +3022,59 @@ sub _split_group {
   return ($gclass,$gname,$tstart,$tstop,\@attributes);
 }
 
+=head2 _split_gff3_group
+
+ Title   : _split_gff3_group
+ Usage   : $db->_split_gff3_group(@groups)
+ Function: parse GFF3 group field
+ Returns : ($gclass,$gname,$tstart,$tstop,$attributes)
+ Args    : a list of group fields from a GFF line
+ Status  : internal
+
+This is an internal method that is called by load_gff_line to parse
+out the contents of one or more group fields.  It returns the class of
+the group, its name, the start and stop of the target, if any, and an
+array reference containing any attributes that were stuck into the
+group field, in [attribute_name,attribute_value] format.
+
+It is used for lines from GFF3 files.
+
+=cut
+
+sub _split_gff3_group {
+  my $self   = shift;
+  my @groups = @_;
+  my ($gclass,$gname,$tstart,$tstop,@attributes);
+
+  for my $group (@groups) {
+    my ($tag,$value) = split /=/,$group;
+    $tag             = unescape($tag);
+    my @values       = map {unescape($_)} split /,/,$value;
+    if ($tag eq 'Parent') {
+      $gclass = 'Sequence';
+      $gname  = shift @values;
+    }
+    elsif ($tag eq 'ID') {
+      $gclass = 'Sequence';
+      $gname  = shift @values;
+    }
+    elsif ($tag eq 'Target') {
+      $gclass = 'Sequence';
+      ($gname,$tstart,$tstop) = split /\s+/,shift @values;
+    }
+    push @attributes,[$tag=>$_] foreach @values;
+  }
+  return ($gclass,$gname,$tstart,$tstop,\@attributes);
+}
+
+sub unescape {
+  my $v = shift;
+  $v =~ tr/+/ /;
+  $v =~ s/%([0-9a-fA-F]{2})/chr hex($1)/ge;
+  return $v;
+}
+
+
 package Bio::DB::GFF::ID_Iterator;
 use strict;
 
@@ -3019,7 +3122,7 @@ L<Bio::DB::GFF::Aggregator>,
 L<Bio::DB::GFF::Feature>,
 L<Bio::DB::GFF::Adaptor::dbi::mysqlopt>,
 L<Bio::DB::GFF::Adaptor::dbi::oracle>,
-L<Bio::DB::GFF::Adaptor::dbi::memory>
+L<Bio::DB::GFF::Adaptor::memory>
 
 =head1 AUTHOR
 

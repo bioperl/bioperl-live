@@ -1,4 +1,63 @@
 package Bio::DB::GFF::Adaptor::memory;
+
+=head1 NAME
+
+Bio::DB::GFF::Adaptor::dbi::mysql -- Database adaptor for a specific mysql schema
+
+=head1 SYNOPSIS
+
+  use Bio::DB::GFF;
+  my $db = Bio::DB::GFF->new(-adaptor=> 'memory',
+                             -file   => 'my_features.gff',
+                             -fasta  => 'my_dna.fa'
+                            );
+
+See L<Bio::DB::GFF> for other methods.
+
+=head1 DESCRIPTION
+
+This adaptor implements an in-memory version of Bio::DB::GFF.  It can be used to
+store and retrieve SHORT GFF files. It inherits from Bio::DB::GFF.
+
+=head1 CONSTRUCTOR
+
+Use Bio::DB::GFF-E<gt>new() to construct new instances of this class.
+Three named arguments are recommended:
+
+   Argument         Description
+
+   -adaptor         Set to "memory" to create an instance of this class.
+   -gff             Read the indicated file or directory of .gff file.
+   -fasta           Read the indicated file or directory of fasta files.
+   -dsn             Indicates a directory containing .gff and .fa files
+
+If you use the -dsn option and the indicated directory is writable by
+the current process, then this library will create a FASTA file index
+that greatly diminishes the memory usage of this module.
+
+=head1 METHODS
+
+See L<Bio::DB::GFF> for inherited methods.
+
+=head1 BUGS
+
+none ;-)
+
+=head1 SEE ALSO
+
+L<Bio::DB::GFF>, L<bioperl>
+
+=head1 AUTHOR
+
+Shuly Avraham E<lt>avraham@cshl.orgE<gt>.
+
+Copyright (c) 2002 Cold Spring Harbor Laboratory.
+
+This library is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself.
+
+=cut
+
 use strict;
 # $Id$
 # AUTHOR: Shulamit Avraham
@@ -16,26 +75,52 @@ use strict;
 use Bio::DB::GFF;
 use Bio::DB::GFF::Util::Rearrange; # for rearrange()
 use Bio::DB::GFF::Adaptor::memory_iterator;
-use vars qw($VERSION @ISA);
+use File::Basename 'dirname';
+
+use vars qw(@ISA);
 
 use constant MAX_SEGMENT => 100_000_000;  # the largest a segment can get
 
 @ISA =  qw(Bio::DB::GFF);
-$VERSION = '0.02';
 
 sub new {
   my $class = shift ;
-  my ($file) = rearrange([
-			  [qw(FILE DIRECTORY)]
-			 ],@_);
+  my ($file,$fasta,$dbdir) = rearrange([
+					[qw(GFF FILE DIRECTORY)],
+					'FASTA',
+					[qw(DSN DB DIR)],
+				],@_);
 
   # fill in object
   my $self = bless{ data => [] },$class;
-  $self->load($file) if $file;
+  $file  ||= $dbdir;
+  $fasta ||= $dbdir;
+  $self->load_gff($file)             if $file;
+  $self->load_or_store_fasta($fasta) if $fasta;
   return $self;
 }
 
+sub load_or_store_fasta {
+  my $self  = shift;
+  my $fasta = shift;
+  if ((-f $fasta && -w dirname($fasta))
+      or
+      (-d $fasta && -w $fasta)) {
+    require Bio::DB::Fasta;
+    my $dna_db = Bio::DB::Fasta->new($fasta)
+      or $self->throw("Couldn't create a new Bio::DB::Fasta index from $fasta");
+    $self->dna_db($dna_db);
+  } else {
+    $self->load_fasta($fasta);
+  }
+}
 
+sub dna_db {
+  my $self = shift;
+  my $d    = $self->{dna_db};
+  $self->{dna_db} = shift if @_;
+  $d;
+}
 
 sub insert_sequence {
   my $self = shift;
@@ -43,16 +128,18 @@ sub insert_sequence {
   $self->{dna}{$id} .= $seq;
 }
 
-
-
 # low-level fetch of a DNA substring given its
 # name, class and the desired range.
 sub get_dna {
   my $self = shift;
   my ($id,$start,$stop,$class) = @_;
+  if (my $dna_db = $self->dna_db) {
+    return $dna_db->seq($id,$start=>$stop);
+  }
+
   return $self->{dna}{$id} if !defined $start || !defined $stop;
   $start = 1 if !defined $start;
-  
+
   my $reversed = 0;
   if ($start > $stop) {
     $reversed++;
@@ -67,7 +154,6 @@ sub get_dna {
   $dna;
 }
 
-
 # this method loads the feature as a hash into memory -
 # keeps an array of features-hashes as an in-memory db
 sub load_gff_line {
@@ -78,40 +164,44 @@ sub load_gff_line {
   push @{$self->{data}},$feature_hash;
 }
 
-
 # given sequence name, return (reference,start,stop,strand)
 sub get_abscoords {
   my $self = shift;
   my ($name,$class,$refseq) = @_;
   my %refs;
+  my $regexp;
+
+  if ($name =~ /[*?]/) {  # uh oh regexp time
+    $name =~ quotemeta($name);
+    $name =~ s/\\\*/.*/g;
+    $name =~ s/\\\?/.?/g;
+    $regexp++;
+  }
 
   # Find all features that have the requested name and class.
   # Sort them by reference point.
   for my $feature (@{$self->{data}}) {
-    #next unless $feature->{gname} eq $name;
-    #next unless $feature->{gclass} eq $class;
-    
+
     my $no_match_class_name;
     my $empty_class_name;
-    if ($feature->{gname} and $feature->{gclass}){
-      $no_match_class_name = 1 
-	if ($feature->{gname} ne $name || $feature->{gclass} ne $class);
+    if (defined $feature->{gname} and defined $feature->{gclass}){
+      my $matches = $feature->{gclass} eq $class
+	&& ($regexp ? $feature->{gname} =~ /$name/i : $feature->{gname} eq $name);
+      $no_match_class_name = !$matches;  # to accomodate Shuly's interesting logic
     }
+
     else{
       $empty_class_name = 1;
     }
 
     if ($no_match_class_name || $empty_class_name){
-    #if ($feature->{gname} ne $name || $feature->{gclass} ne $class){
 
       my $feature_attributes = $feature->{attributes};
       my $attributes = {Alias => $name};
       if (!_matching_attributes($feature_attributes,$attributes)){
          next;
       }
-    
     }
-    
     push @{$refs{$feature->{ref}}},$feature;
   }
 
@@ -152,6 +242,34 @@ sub get_abscoords {
   return \@found_segments;
 }
 
+sub search_notes {
+  my $self = shift;
+  my ($search_string,$limit) = @_;
+  my @results;
+  my @words = map {quotemeta($_)} $search_string =~ /(\w+)/g;
+
+  for my $feature (@{$self->{data}}) {
+    next unless defined $feature->{gclass} && defined $feature->{gname}; # ignore NULL objects
+    next unless $feature->{attributes};
+    my @attributes = @{$feature->{attributes}};
+    my @values     = map {$_->[1]} @attributes;
+    my $value      = "@values";
+    my $matches    = 0;
+    my $note;
+    for my $w (@words) {
+      my @hits = $value =~ /($w)/g;
+      $note ||= $value if @hits;
+      $matches += @hits;
+    }
+    next unless $matches;
+
+    my $relevance = 10 * $matches;
+    my $featname = Bio::DB::GFF::Featname->new($feature->{gclass}=>$feature->{gname});
+    push @results,[$featname,$note,$relevance];
+    last if @results >= $limit;
+  }
+  @results;
+}
 
 # attributes -
 
@@ -170,7 +288,6 @@ sub do_attributes{
   my $attr ;
 
   my $feature = ${$self->{data}}[$feature_id];
-  
   my @result;
   for my $attr (@{$feature->{attributes}}) {
     my ($attr_name,$attr_value) = @$attr ;
@@ -186,7 +303,6 @@ sub _feature_by_attribute{
   my $self = shift;
   my ($attributes,$callback) = @_;
   $callback || $self->throw('must provide a callback argument');
-  
   my $count = 0;
   my $feature_id = -1;
   my $feature_group_id = undef;
@@ -196,11 +312,9 @@ sub _feature_by_attribute{
     $feature_id++;
     for my $attr (@{$feature->{attributes}}) {
       my ($attr_name,$attr_value) = @$attr ;
-      
       #there could be more than one set of attributes......
       foreach (keys %$attributes) {
 	if ($_ eq $attr_name && $attributes->{$_} eq $attr_value){
-	   
            $callback->($feature->{ref},
 	        $feature->{start},
 	        $feature->{stop},
@@ -215,8 +329,8 @@ sub _feature_by_attribute{
 		$feature->{tstop},
 	        $feature_id,
 		$feature_group_id);
-	   $count++;						    
-        }						       
+	   $count++;
+        }
       }
     }
   }
@@ -233,18 +347,17 @@ sub _feature_by_attribute{
 sub get_features{
   my $self = shift;
   my $count = 0;
-  
-  my ($search,$options,$callback) = @_;				       
+  my ($search,$options,$callback) = @_;
   my $data = \@{$self->{data}};
 
   my $found_features;
 
   $found_features = _get_features_by_search_options($data,$search,$options);
-  
+
   # only true if the sort by group option was specified
   @{$found_features} = sort {"$a->{gclass}:$a->{gname}" cmp "$b->{gclass}:$b->{gname}"} 
     @{$found_features} if $options->{sort_by_group} ;
-  
+
   for my $feature (@{$found_features}) {  # only true if the sort by group option was specified
     $count++;
     $callback->(
@@ -276,15 +389,29 @@ by make_feature().
 
 sub _feature_by_name {
   my $self = shift;
-  my ($class,$name,$callback) = @_;
+  my ($class,$name,$location,$callback) = @_;
   $callback || $self->throw('must provide a callback argument');
   my $count = 0;
   my $id    = -1;
+  my $regexp;
+
+  if ($name =~ /[*?]/) {  # uh oh regexp time
+    $name =~ quotemeta($name);
+    $name =~ s/\\\*/.*/g;
+    $name =~ s/\\\?/.?/g;
+    $regexp++;
+  }
+
 
   for my $feature (@{$self->{data}}) {
     $id++;
-    next unless $feature->{gname} eq $name;
+    next unless ($regexp && $feature->{gname} =~ /$name/i) || $feature->{gname}  eq $name;
     next unless $feature->{gclass} eq $class;
+    if ($location) {
+      next if $location->[0] ne $feature->{ref};
+      next if $location->[1] && $location->[1] > $feature->{stop};
+      next if $location->[2] && $location->[2] < $feature->{start};
+    }
     $count++;
     $callback->(@{$feature}{qw(
 			       ref
@@ -419,11 +546,8 @@ sub get_types {
 # Internal method that performs a search on the features array, 
 # sequentialy retrieves the features, and performs a check on each feature
 # according to the search options.
- 
 sub _get_features_by_search_options{
- 
   my $count = 0;
-  
   my ($data,$search,$options) = @_;
   my ($rangetype,$refseq,$class,$start,$stop,$types,$sparse,$order_by_group,$attributes) = 
     (@{$search}{qw(rangetype refseq refclass start stop types)},
@@ -539,10 +663,6 @@ sub _convert_feature_hash_to_array{
   return \@features_array_array;
 }
 
-
-
-
-
 sub _matching_typelist{ 
   my ($feature_method,$feature_source,$typelist) = @_; 
   foreach (@$typelist) {
@@ -582,3 +702,4 @@ sub get_feature_by_group_id{ 1; }
 1;
 
 }
+1;

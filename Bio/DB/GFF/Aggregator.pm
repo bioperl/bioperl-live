@@ -142,9 +142,8 @@ package Bio::DB::GFF::Aggregator;
 use strict;
 use Bio::DB::GFF::Util::Rearrange;  # for rearrange()
 use Bio::DB::GFF::Feature;
-use vars qw($VERSION @ISA);
+use vars qw(@ISA);
 
-$VERSION = '1.00';
 @ISA = qw(Bio::Root::Root);
 
 my $ALWAYS_TRUE   = sub { 1 };
@@ -226,7 +225,7 @@ sub disaggregate {
     my (@synthetic_types,@unchanged);
     foreach (@$types) {
       my ($method,$source) = @$_;
-      if (lc($method) eq $self->get_method) { # e.g. "transcript"
+      if (lc $method eq lc $self->get_method) { # e.g. "transcript"
 	push @synthetic_types,map { [$_->[0],$_->[1] || $source] } @$sub_features,@$main_feature;
       }
       else {
@@ -574,6 +573,9 @@ None known yet.
 L<Bio::DB::GFF>,
 L<Bio::DB::GFF::Aggregator::alignment>,
 L<Bio::DB::GFF::Aggregator::clone>,
+L<Bio::DB::GFF::Aggregator::coding>,
+L<Bio::DB::GFF::Aggregator::match>,
+L<Bio::DB::GFF::Aggregator::processed_transcript>,
 L<Bio::DB::GFF::Aggregator::transcript>,
 L<Bio::DB::GFF::Aggregator::none>
 

@@ -15,9 +15,8 @@ use strict;
 use Bio::DB::GFF::Adaptor::dbi;
 use Bio::DB::GFF::Util::Rearrange; # for rearrange()
 use Bio::DB::GFF::Util::Binning;
-use vars qw($VERSION @ISA);
+use vars qw(@ISA);
 @ISA = qw(Bio::DB::GFF::Adaptor::dbi);
-$VERSION = '0.90';
 
 use constant MAX_SEGMENT => 100_000_000;  # the largest a segment can get
 
@@ -371,9 +370,12 @@ END
 # WHETHER OR NOT THIS WORKS IS CRITICALLY DEPENDENT ON THE RELATIVE MAGNITUDE OF THE
 sub make_features_from_part {
   my $self = shift;
-  my $sparse = shift;
-  my $options = shift || {};
-  my $index = $sparse ? ' USE INDEX(ftypeid)': '';
+  my $sparse_types  = shift;
+  my $options       = shift || {};
+  my $sparse_groups = $options->{sparse_groups};
+  my $index =  $sparse_groups ? ' USE INDEX(gid)'
+             : $sparse_types  ? ' USE INDEX(ftypeid)'
+             : '';
   return $options->{attributes} ? "fdata${index},ftype,fgroup,fattribute,fattribute_to_feature\n"
                                 : "fdata${index},ftype,fgroup\n";
 }
@@ -480,7 +482,7 @@ table=> q{
 create table fgroup (
     gid	    int not null  auto_increment,
     gclass  varchar(100),
-    gname   varchar(100) binary,
+    gname   varchar(100),
     primary key(gid),
     unique(gclass,gname)
 ) type=MyISAM
@@ -784,7 +786,7 @@ sub get_table_id {
 sub insertid {
   my $self = shift;
   my $s = shift ;
-  $s->{sth}{mysql_insertid};
+  $s->{mysql_insertid};
 }
 
 

@@ -33,9 +33,8 @@ package Bio::DB::GFF::Aggregator::clone;
 use strict;
 
 use Bio::DB::GFF::Aggregator;
-use vars qw($VERSION @ISA);
+use vars qw(@ISA);
 
-$VERSION = '0.20';
 @ISA = qw(Bio::DB::GFF::Aggregator);
 
 =head2 aggregate

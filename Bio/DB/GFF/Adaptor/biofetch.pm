@@ -30,10 +30,21 @@ use strict;
 use Bio::DB::GFF::Util::Rearrange; # for rearrange()
 use Bio::DB::GFF::Adaptor::dbi::mysql;
 use Bio::DB::BioFetch;
+use Bio::SeqIO;
 
-use vars qw($VERSION @ISA);
+use vars qw(@ISA %preferred_tags);
 @ISA = qw(Bio::DB::GFF::Adaptor::dbi::mysql);
-$VERSION = 0.50;
+
+# priority for choosing names of CDS tags, higher is higher priority
+%preferred_tags = (
+		      strain        => 10,
+		      organism      => 20,
+		      protein_id    => 40,
+		      locus_tag     => 50,
+		      locus         => 60,
+		      gene          => 70,
+		      standard_name => 80,
+		      );
 
 =head2 new
 
@@ -110,6 +121,7 @@ sub load_from_embl {
   my $self = shift;
   my $db   = shift;
   my $acc  = shift or $self->throw('Must provide an accession ID');
+
   my $biofetch;
   if ($self->{_biofetch}{$db}) {
     $biofetch = $self->{_biofetch}{$db};
@@ -118,8 +130,31 @@ sub load_from_embl {
     $biofetch->retrieval_type('tempfile');
     $biofetch->proxy(@{$self->{_proxy}}) if $self->{_proxy};
   }
+
   my $seq  = eval {$biofetch->get_Seq_by_id($acc)} or return;
+  $self->_load_embl($acc,$seq);
+  1;
+}
+
+sub load_from_file {
+  my $self = shift;
+  my $file = shift;
+
+  my $format = $file =~ /\.(gb|genbank|gbk)$/i ? 'genbank' : 'embl';
+
+  my $seqio = Bio::SeqIO->new( '-format' => $format, -file => $file);
+  my $seq   = $seqio->next_seq;
+
+  $self->_load_embl($seq->accession,$seq);
+  1;
+}
+
+sub _load_embl {
+  my $self = shift;
+  my $acc  = shift;
+  my $seq  = shift;
   my $refclass = $self->refclass;
+  my $locus    = $seq->id;
 
   # begin loading
   $self->setup_load();
@@ -151,32 +186,57 @@ sub load_from_embl {
   # now load each feature in turn
   for my $feat ($seq->all_SeqFeatures) {
     my $attributes = $self->get_attributes($feat);
-    my $first = (shift @$attributes);
+    my $name       = $self->guess_name($attributes);
 
     my $location = $feat->location;
-    my @segments = map {[$_->start,$_->end]} 
+    my @segments = map {[$_->start,$_->end,$_->seq_id]}
       $location->can('sub_Location') ? $location->sub_Location : $location;
 
-    for my $segment (@segments) {
+    my $type     =  $feat->primary_tag eq 'CDS' ? 'mRNA'  : $feat->primary_tag;
+    my $parttype =  $feat->primary_tag eq 'gene' ? 'exon' : $feat->primary_tag;
 
+    if ($feat->primary_tag =~ /^(gene|CDS)$/) {
       $self->load_gff_line( {
 			     ref    => $acc,
 			     class  => $refclass,
 			     source => 'EMBL',
-			     method => $feat->primary_tag,
+			     method => $type,
+			     start  => $location->start,
+			     stop   => $location->end,
+			     score  => $feat->score || undef,
+			     strand => $feat->strand > 0 ? '+' : ($feat->strand < 0 ? '-' : '.'),
+			     phase  => $feat->frame || '.',
+			     gclass => $name->[0],
+			     gname  => $name->[1],
+			     tstart => undef,
+			     tstop  => undef,
+			     attributes  => $attributes,
+			    }
+			  );
+      @$attributes = ();
+    }
+
+    for my $segment (@segments) {
+
+      $self->load_gff_line( {
+			     ref    => $segment->[2] eq $locus ? $acc : $segment->[2],
+			     class  => $refclass,
+			     source => 'EMBL',
+			     method => $parttype,
 			     start  => $segment->[0],
 			     stop   => $segment->[1],
 			     score  => $feat->score || undef,
 			     strand => $feat->strand > 0 ? '+' : ($feat->strand < 0 ? '-' : '.'),
 			     phase  => $feat->frame || '.',
-			     gclass => $first->[0],
-			     gname  => $first->[1],
+			     gclass => $name->[0],
+			     gname  => $name->[1],
 			     tstart => undef,
 			     tstop  => undef,
 			     attributes  => $attributes,
 			    }
 			  );
     }
+
   }
 
   # finish loading
@@ -200,6 +260,15 @@ sub get_attributes {
     }
   }
   \@result;
+}
+
+sub guess_name {
+  my $self = shift;
+  my $attributes = shift;
+  my @ordered_attributes = sort {($preferred_tags{$a->[0]} || 0) <=> ($preferred_tags{$b->[0]} || 0)} @$attributes;
+  my $best = pop @ordered_attributes;
+  @$attributes = @ordered_attributes;
+  return $best;
 }
 
 

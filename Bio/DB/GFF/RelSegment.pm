@@ -113,9 +113,8 @@ use Bio::DB::GFF::Util::Rearrange;
 use Bio::DB::GFF::Segment;
 use Bio::RangeI;
 
-use vars qw($VERSION @ISA);
+use vars qw(@ISA);
 @ISA = qw(Bio::DB::GFF::Segment);
-$VERSION = '0.45';
 
 use overload '""' => 'asString',
              'bool' => sub { overload::StrVal(shift) },
@@ -230,7 +229,7 @@ sub new {
     $name  = $name->name;
   }
   # if the class of the landmark is not specified then default to 'Sequence'
-  $class ||= 'Sequence';
+  $class ||= eval{$factory->default_class} || 'Sequence';
 
   # confirm that indicated sequence is actually in the database!
   my @abscoords;

@@ -61,6 +61,9 @@ Revision history for Bioperl core modules
     o Bio::Graphics
       - added a few new glyphs
 
+    o Bio::DB::GFF
+      - in memory adaptor more robust
+
 1.2.1 Stable release update
 
     o Inclusion of WrapperBase, a needed component for StandAloneBlast
