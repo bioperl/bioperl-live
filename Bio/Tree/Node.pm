@@ -318,7 +318,14 @@ sub ancestor{
 
 sub branch_length{
     my $self = shift;
-    $self->{'_branch_length'} = shift @_ if @_;
+    if( @_ ) {
+	my $bl = shift;
+	if( defined $bl &&
+	    $bl =~ s/\[(\d+)\]// ) {
+	    $self->bootstrap($1);
+	}
+	$self->{'_branch_length'} = $bl;
+    }
     return $self->{'_branch_length'};
 }
 
@@ -334,10 +341,15 @@ sub branch_length{
 
 =cut
 
-sub bootstrap{
+sub bootstrap { 
     my $self = shift;
-    $self->{'_bootstrap'} = shift @_ if @_;
-    return $self->{'_bootstrap'};
+    if( @_ ) {
+	if( $self->has_tag('B') ) {
+	    $self->remove_tag('B');
+	}
+	$self->add_tag_value('B',shift);
+    }
+    return ($self->get_tag_values('B'))[0];
 }
 
 =head2 description
@@ -381,7 +393,7 @@ sub id{
     if ($value) {
         $self->warn("Illegal characters ();:  and space in the id [$value], converting to _ ")
             if $value =~ /\(\);:/ and $self->verbose >= 0;
-        $value =~ s/\(\);: /_/g;
+        $value =~ s/[\(\);:\s]/_/g;
         $self->{'_id'} = $value;
     }
     return $self->{'_id'};

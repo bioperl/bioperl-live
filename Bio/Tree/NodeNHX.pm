@@ -133,6 +133,19 @@ sub to_string{
 		  );
 }
 
+=head2 nhx_tag
+
+ Title   : nhx_tag
+ Usage   : my $tag = $nodenhx->nhx_tag(%tags);
+ Function: Set tag-value pairs for NHX nodes
+ Returns : none
+ Args    : hashref to update the tags/value pairs
+           OR 
+           with a scalar value update the bootstrap value by default
+
+
+=cut
+
 sub nhx_tag {
     my ($self, $tags) = @_;
     if (defined $tags && (ref($tags) =~ /HASH/i)) {
@@ -155,15 +168,4 @@ sub nhx_tag {
     }
 }
 
-sub bootstrap { 
-    my $self = shift;
-    if( @_ ) {
-	if( $self->has_tag('B') ) {
-	    $self->remove_tag('B');
-	}
-	$self->add_tag_value('B',shift);
-    }
-    return ($self->get_tag_values('B'))[0];
-}
 1;
-
