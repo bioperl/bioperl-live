@@ -1,5 +1,11 @@
 #!/usr/bin/perl -w
 
+# IMPORTANT NOTE:
+#  After running this script, you will have a collection of
+#  NCBI BLAST queue submission data files. These can be read by 
+#  retrieve_blast.pl to fetch the actual BLAST reports from NCBI.
+#  See comments in retrieve_blast.pl for usage details.
+
 #---------------------------------------------------------------------------
 # PROGRAM  : blast_seq.pl
 # PURPOSE  : To submit a set of sequence for Blast analysis and parse the results.
@@ -16,6 +22,9 @@
 #    See blast_config.pl and seqtools.pl for additional steps.
 #
 # MODIFIED:
+#
+#   For all further modifications, refer to the cvs log.
+#
 #  sac, 3 Feb 1999: Added -wait argument to example to prevent timeout
 #      while reading sequence data.
 #  sac, 16 Jun 1998: Added installation comment, require statement comments.
@@ -25,8 +34,7 @@
 require "../seq/seqtools.pl";
 require "blast_config.pl";
 # Proper paths after you install them in your system:
-#require "/share/www-data/html/perlOOP/bioperl/bin/seq/seqtools.pl";
-#require "/share/www-data/html/perlOOP/bioperl/bin/blast/blast_config.pl";
+#require "/home/steve/bin/bioperl/examples/seq/seqtools.pl";#$require "/home/steve/bin/bioperl/examples/blast/blast_config.pl";
 
 use vars qw($ID $VERSION $DESC %runParam %blastParam 
 	    $opt_parse $opt_table $opt_compress );
@@ -50,7 +58,7 @@ $DESC    = "Run and parse a set of Blast reports given a set of Fasta formatted 
 
 &load_ids();
 
-&get_seq_objs(\&blast_seq);
+&load_seqs(\&blast_seq);
 
 &wrap_up_seq();
 
@@ -97,9 +105,9 @@ sub examples {
 <<"QQ_EG_QQ";
 (Run this in the examples/blast/ directory of the distribution.)
 
-  ./$ID seq/seqs.fasta -eid -prog blastp -db yeast -signif 1e-5 -table 2 -wait 300 > runseqs.out
+  ./$ID seq/seqs.fasta -eid -prog blastp -db yeast -signif 1e-5 -table 2 -wait 300
 
-(The wait argument is necessary to prevent a timeout while reading sequences.)
+(The wait argument is necessary to prevent a possible timeout while reading sequences.)
 
 QQ_EG_QQ
 }
@@ -114,8 +122,6 @@ sub blast_seq {
     my $seq = shift;
 
     print STDERR "\nBLASTing sequence ${\$seq->id}\n";
-    print STDERR "REC_SEP = --->$/<---\n";
-    exit 1;
 
     $runParam{-seqs} = [ $seq ];
     $blastParam{-run} = \%runParam;
@@ -132,6 +138,13 @@ sub blast_seq {
       print STDERR "\nTROUBLE Blasting:\n$@\n";
       return 0;
     }
+
+    # We no longer can create Blast objects from NCBI submissions
+    # since we get back queue information, not the actual BLAST
+    # report. Hence, create_blast always fails, so there's
+    # nothing to parse.
+
+    return 0 unless ref($blast_obj);
 
     $opt_compress && $blast_obj->compress_file; 
     
