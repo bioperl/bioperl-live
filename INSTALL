@@ -389,3 +389,6 @@ XML::DOM		 XML parser
 			 Bio::SeqIO::bsml.pm
 
 enum			 Bio::Microarray::Affymetrix
+
+PDL			 Perl Data Language, number crunching
+			 Bio::Microarray::Affymetrix
