@@ -183,7 +183,8 @@ sub new {
     if( $algo eq 'TFASTN' || $algo eq 'TFASTY' || $algo eq 'TFASTXY' ||
 	$algo eq 'TBLASTN' ) {
 	$hitfactor = 1;	
-    } elsif ($algo eq 'FASTX' || $algo eq 'FASTY' || $algo eq 'FASTXY'  ) {
+    } elsif ($algo eq 'BLASTX' || 
+	     $algo eq 'FASTX' || $algo eq 'FASTY' || $algo eq 'FASTXY'  ) {
 	$queryfactor = 1;	
     } elsif ($algo eq 'TBLASTX' ||$algo eq 'TFASTX' ||
 	     $algo eq 'TFASTXY' || $algo eq 'TFASTY' || 
@@ -195,7 +196,6 @@ sub new {
 	$queryfactor = $hitfactor = 0;
 	$qframe = $hframe = 0;
     }
-
     # Store the aligned query as sequence feature
     my $strand;
     if( ! $qe || ! $qs ) { $self->throw("Did not specify a Query End or Query Begin"); }
