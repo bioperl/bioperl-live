@@ -159,6 +159,10 @@ sub new {
     $self->{_correction}   =  defined($input{correction}) ? 
 	$input{correction} : 1 ; # Correction might be unwanted- supply your own
     # No id provided, null for the sake of rel db
+	$self->{logA}   = $input{lA};
+	$self->{logC}   = $input{lC};
+	$self->{logG}   = $input{lG};
+	$self->{logT}   = $input{lT};
     $self->{id}= defined($input{id}) ? $input{id} : 'null'; 
 	return $self unless (defined($input{pA}) && defined($input{pC}) && defined($input{pG}) && defined($input{pT}));
 #Check for input type- no mixing alllowed, throw ex
@@ -561,6 +565,28 @@ sub get_array {
 }
 
 
+=head2 get_logs_array
+
+ Title   : get_logs_array
+ Usage   :
+ Function: Returns an array with log_odds for a specified base
+ Throws  :
+ Example :
+ Returns : array
+ Args    : char
+
+=cut
+
+sub get_logs_array {
+	my $self=shift;
+	my $base=uc(shift);
+	return  @{$self->{logA}} if ($base eq 'A');
+	return  @{$self->{logC}} if ($base eq 'C');
+	return  @{$self->{logG}} if ($base eq 'G');
+	return  @{$self->{logT}} if ($base eq 'T');
+	$self->throw ("No such base: $base!\n");
+}
+
 =head2 id
 
  Title   : id
@@ -664,4 +690,123 @@ sub regexp_array {
 return @regexp;
 }
 
+
+=head2 _compress_array
+
+ Title   : _compress_array
+ Usage   :
+ Function:  Will compress an array of real signed numbers to a string (ie vector of bytes)
+ 			-127 to +127 for bi-directional(signed) and 0..255 for unsigned ;
+ Throws  :
+ Example :  Internal stuff
+ Returns :  String
+ Args    :  array reference, followed by an max value and 
+ 			direction (optional, default 1-unsigned),1 unsigned, any other is signed. 
+
+=cut
+
+sub _compress_array {
+	my ($array,$lm,$direct)=@_;
+	my $str;
+	return undef unless(($array) && ($lm));
+	$direct=1 unless ($direct);
+	my $k1= ($direct==1) ? (255/$lm) : (127/$lm);
+	foreach my $c (@{$array}) {
+		$c=$lm if ($c>$lm);
+		$c=-$lm if (($c<-$lm) && ($direct !=1));
+    $c=0 if (($c<0) && ($direct ==1));
+		my $byte=int($k1*$c);
+    $byte=127+$byte if ($direct !=1);#Clumsy, should be really shift the bits
+    my $char=chr($byte);
+		$str.=$char;
+	}
+	return $str;
+}
+
+=head2 _uncompress_string
+
+ Title   : _uncompress_string
+ Usage   :
+ Function:  Will uncompress a string (vector of bytes) to create an array of real
+            signed numbers (opposite to_compress_array)
+ Throws  :
+ Example :  Internal stuff
+ Returns :  string, followed by an max value and
+ 			direction (optional, default 1-unsigned), 1 unsigned, any other is signed.
+ Args    :  array
+
+=cut
+
+sub _uncompress_string {
+	my ($str,$lm,$direct)=@_;
+	my @array;
+	return undef unless(($str) && ($lm));
+	$direct=1 unless ($direct);
+	my $k1= ($direct==1) ? (255/$lm) : (127/$lm);
+	while (my $c=chop($str)) {
+		my $byte=ord($c);
+    $byte=$byte-127 if ($direct !=1);#Clumsy, should be really shift the bits
+    my $num=$byte/$k1;
+    unshift @array,$num;
+	}
+	return @array;
+}
+	
+=head2 get_compressed_freq
+
+ Title   : get_compressed_freq
+ Usage   :
+ Function:  A method to provide a compressed frequency vector. It uses one byte to
+ 			code the frequence for one of the probability vectors for one position.
+			Useful for relational database. Improvment of the previous 0..a coding.
+ Throws  :
+ Example :  my $strA=$self->get_compressed_freq('A');
+ Returns :  String
+ Args    :  char 
+
+=cut
+
+sub get_compressed_freq {
+	my $self=shift;
+	my $base=shift;
+	my $string='';
+	my @prob;
+	BASE: {
+		if ($base eq 'A') {@prob= @{$self->{probA}}; last BASE; }
+		if ($base eq 'C') {@prob= @{$self->{probC}}; last BASE; }
+		if ($base eq 'G') {@prob= @{$self->{probG}}; last BASE; }
+		if ($base eq 'T') {@prob= @{$self->{probT}}; last BASE; }
+		$self->throw ("No such base: $base!\n");
+	}
+	my $str= _compress_array(\@prob,1,1);
+  return $str;
+}
+
+=head2 get_compressed_logs
+
+ Title   : get_compressed_logs
+ Usage   :
+ Function:  A method to provide a compressed log-odd vector. It uses one byte to
+ 			code the log value for one of the log-odds vectors for one position.
+ Throws  :
+ Example :  my $strA=$self->get_compressed_logs('A');
+ Returns :  String
+ Args    :  char 
+
+=cut
+
+sub get_compressed_logs {
+	my $self=shift;
+	my $base=shift;
+	my $string='';
+	my @prob;
+	BASE: {
+		if ($base eq 'A') {@prob= @{$self->{logA}}; last BASE; }
+		if ($base eq 'C') {@prob= @{$self->{logC}}; last BASE; }
+		if ($base eq 'G') {@prob= @{$self->{logG}}; last BASE; }
+		if ($base eq 'T') {@prob= @{$self->{logT}}; last BASE; }
+		$self->throw ("No such base: $base!\n");
+	}
+	return _compress_array(\@prob,1000,2);
+}
 1;
