@@ -446,7 +446,7 @@ sub write_seq {
 	    } elsif( $seq->isa('Bio::Seq::RichSeqI') && 
 		     defined($seq->accession_number) ) {
 		$acc = $seq->accession_number;
-		$acc = join(";", $acc, $seq->get_secondary_accessions);
+		$acc = join("; ", $acc, $seq->get_secondary_accessions);
 	    } elsif ( $seq->can('accession_number') ) {
 		$acc = $seq->accession_number;
 	    }
