@@ -140,8 +140,9 @@ sub new {
 
     my $self = $class->SUPER::new(%newargs);
     
-    my ($score,$bits,$match,$hsplength,$positive,$gaps,$p,$qb,$qe,$sb,$se,$qs,
-	$ss,$hs,$qname,$sname,$qlength,$slength,$qframe,$sframe,$blasttype) = 
+    my ($score,$bits,$match,$hsplength,$positive,$gaps,$p,$exp,$qb,$qe,$sb,
+	$se,$qs,$ss,$hs,$qname,$sname,$qlength,$slength,$qframe,$sframe,
+	$blasttype) = 
 	    $self->_rearrange([qw(SCORE
 				  BITS
 				  MATCH
@@ -149,6 +150,7 @@ sub new {
 				  POSITIVE
 				  GAPS				  
 				  P
+				  EXP
 				  QUERYBEGIN
 				  QUERYEND
 				  SBJCTBEGIN
@@ -216,7 +218,10 @@ sub new {
     # set object vars
     $self->score($score);
     $self->bits($bits);
+
     $self->significance($p);
+    $self->{'EXP'} = $exp;
+    
     $self->query->frac_identical($match);
     $self->hit->frac_identical($match);
     $self->{'HSPLENGTH'} = $hsplength;
@@ -260,12 +265,28 @@ sub report_type {
     return $self->{'_report_type'};
 }
 
+=head2 EXP
+
+ Title   : EXP
+ Usage   : my $exp = $hsp->EXP;
+ Function: returns the EXP value for the HSP
+ Returns : string value
+ Args    : none
+ Note    : Patch provided by Sami Ashour for BTK parsing
+
+
+=cut
+
+sub EXP{
+    return $_[0]->{'EXP'};
+}
+
+
 =head2 P
 
  Title    : P
  Usage    : $hsp->P();
  Function : returns the P (significance) value for a HSP 
- Example  : 
  Returns  : (double) significance value
  Args     :
 

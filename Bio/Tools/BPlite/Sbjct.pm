@@ -7,8 +7,6 @@
 # see http://sapiens.wustl.edu/~ikorf
 #
 # You may distribute this module under the same terms as perl itself
-
-
 #
 # BioPerl module for Bio::Tools::BPlite::Sbjct
 #
@@ -79,7 +77,7 @@ Email: schattner@alum.mit.edu
 
 =head1 CONTRIBUTORS
 
-Jason Stajich, jason@cgt.mc.duke.edu
+Jason Stajich, jason@bioperl.org
 
 =head1 APPENDIX
 
@@ -211,9 +209,12 @@ sub nextHSP {
   }
   $positive = $match if not defined $positive;
   $gaps = '0' if not defined $gaps;
-  my ($p)        = $scoreline =~ /[Sum ]*P[\(\d+\)]* = (\S+)/;
-  if (not defined $p) {(undef, $p) = $scoreline =~ /Expect(\(\d+\))? =\s+(\S+)/}
-  $self->throw("Unable to parse '$scoreline'") if not defined $score;
+  my ($p)        = ($scoreline =~ /[Sum ]*P[\(\d+\)]* = (\S+)/);
+  unless (defined $p) {(undef, $p) = $scoreline =~ /Expect(\(\d+\))? =\s+(\S+)/}
+  my ($exp) = ($scoreline =~ /Expect(?:\(\d+\))? =\s+([^\s,]+)/);
+  $exp = -1 unless( defined $exp );
+
+  $self->throw("Unable to parse '$scoreline'") unless defined $score;
   
   #######################
   # get alignment lines #
@@ -228,7 +229,7 @@ sub nextHSP {
       elsif ($_ =~ /^\s*Strand/)    {next} # NCBI-BLAST non-data
       elsif ($_ =~ /^\s*Score/)     {$self->_pushback($_); last}
 
-      elsif ($_ =~ /^>|^Parameters|^\s+Database:|^CPU\stime|^\s*Lambda/)   
+      elsif ($_ =~ /^>|^Histogram|^Searching|^Parameters|^\s+Database:|^CPU\stime|^\s*Lambda/)   
       {    
 	  #ps 5/28/01	
 	  # elsif ($_ =~ /^>|^Parameters|^\s+Database:|^CPU\stime/)   {
@@ -265,7 +266,7 @@ sub nextHSP {
   
   for(my $i=0;$i<@hspline;$i+=3) {
     # warn $hspline[$i], $hspline[$i+2];
-    $hspline[$i]   =~ /^Query:\s+(\d+)\s*([\D\S]+)\s+(\d+)/;
+    $hspline[$i]   =~ /^(?:Query|Trans):\s+(\d+)\s*([\D\S]+)\s+(\d+)/;
     $ql = $2; $qb = $1 unless $qb; $qe = $3;
     
     my $offset = index($hspline[$i], $ql);
@@ -299,6 +300,7 @@ sub nextHSP {
        '-gaps'       => $gaps,
        '-hsplength'  => $hsplength,
        '-p'          => $p,
+       '-exp'        => $exp,
        '-queryBegin' => $qb, 
        '-queryEnd'   => $qe, 
        '-sbjctBegin' => $sb,
