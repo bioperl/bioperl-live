@@ -167,7 +167,7 @@ sub gene_name{
 =head2 add_Reference
 
  Title   : add_Reference
- Usage   : $self->add_Reference($ref)
+ Usage   : $self->add_Reference($ref1[,$ref2,...])
  Function: adds a reference object
  Example :
  Returns : 
@@ -182,6 +182,24 @@ sub add_Reference{
        push(@{$self->{'refs'}},$ref);
    }
 }
+
+=head2 remove_Reference
+
+ Title   : remove_Reference
+ Usage   : $self->remove_Reference($index)
+ Function: removes a reference object
+ Example :
+ Returns : 
+ Args    : index number from references array
+
+
+=cut
+
+sub remove_Reference{
+   my ($self,$idx) = @_;
+   splice @{$self->{'refs'}}, $idx, 1;
+}
+
 
 =head2 each_Reference
 
@@ -226,6 +244,23 @@ sub add_Comment{
    }
 }
 
+=head2 remove_Comment
+
+ Title   : remove_Comment
+ Usage   : $self->remove_Comment($index)
+ Function: removes a comment object
+ Example :
+ Returns : 
+ Args    : index number from comments array
+
+
+=cut
+
+sub remove_Comment{
+   my ($self,$idx) = @_;
+   splice @{$self->{'comment'}}, $idx, 1;
+}
+
 =head2 each_Comment
 
  Title   : each_Comment
@@ -264,6 +299,24 @@ sub add_DBLink{
    }
    push(@{$self->{'link'}},$com);
 }
+
+=head2 remove_DBLink
+
+ Title   : remove_DBLink
+ Usage   : $self->remove_DBLink($index)
+ Function: removes a DBLink object
+ Example :
+ Returns : 
+ Args    : index number from links array
+
+
+=cut
+
+sub remove_DBLink{
+   my ($self,$idx) = @_;
+   splice @{$self->{'link'}}, $idx, 1;
+}
+
 
 =head2 each_DBLink
 
