@@ -277,7 +277,8 @@ sub next_seq{
 	    # Get next line.
 	    $buffer = $self->_readline;
 	}
-
+    $seq->desc($desc);
+    
     # following block and loop fixed by
     # HL <hlapp@gmx.net>, 05/05/2000
     # see comments

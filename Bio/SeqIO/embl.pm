@@ -288,6 +288,7 @@ sub next_seq {
        # Get next line.
        $buffer = $self->_readline;
    }
+    $seq->desc($desc);
 
    while( defined ($_ = $self->_readline) ) {
        /^FT   \w/ && last;
