@@ -1,11 +1,9 @@
-#!/bin/perl -w
-use strict;
-package Bio::Graph::ProteinGraph;
-use Bio::Graph::SimpleGraph;
-use Bio::Graph::Edge;
-use Clone qw(clone);
-use vars  qw(@ISA);
-our @ISA = qw(Bio::Graph::SimpleGraph);
+# $Id$
+#
+# BioPerl module for Bio::Graph::ProteinGraph
+#
+# You may distribute this module under the same terms as perl itself
+# POD documentation - main docs before the code
 
 =head1     NAME
 
@@ -13,133 +11,130 @@ Bio::Graph::ProteinGraph - a representation of a protein interaction graph.
 
 =head1     SYNOPSIS
 
-    ## read in from file
-    my $graphio = Bio::Graph::IO->new(-file=>'myfile.dat', -format=>'dip');
-    my $graph   = $graphio->next_network();
+  # read in from file
+  my $graphio = Bio::Graph::IO->new(-file   => 'myfile.dat',
+                                    -format => 'dip');
+  my $graph   = $graphio->next_network();
 
-    ## remove duplicate interactions from within a dataset
+  # remove duplicate interactions from within a dataset
 
-    $graph->remove_dup_edges();
+  $graph->remove_dup_edges();
 
-    ## get a node (represented by a sequence object) from the graph.
-    my $seqobj = $gr->nodes_by_id('P12345');
+  # get a node (represented by a sequence object) from the graph.
+  my $seqobj = $gr->nodes_by_id('P12345');
 
-        ## get clustering coefficient of a given node.  
-        my $cc = $gr->clustering_coefficient($graph->nodes_by_id('NP_023232'));
-        if ($cc != -1) {  ## result is -1 if cannot be calculated
+  # get clustering coefficient of a given node.  
+  my $cc = $gr->clustering_coefficient($graph->nodes_by_id('NP_023232'));
+  if ($cc != -1) {  ## result is -1 if cannot be calculated
                 print "CC for NP_023232 is $cc";
                 }
 
-    ## get graph density
-    my $density = $gr->density();
+  # get graph density
+  my $density = $gr->density();
 
-   ## get connected subgraphs
-   my @graphs = $gr->components();
+  # get connected subgraphs
+  my @graphs = $gr->components();
 
-   ## remove a node
+  # remove a node
    $gr->remove_nodes($gr->nodes_by_id('P12345'));
 
-   ## How many interactions are there?
-   my $count = $gr->edge_count;
+  # How many interactions are there?
+  my $count = $gr->edge_count;
 
-   ## How many nodes are there?
-   my $ncount = $gr->node_count();
+  # How many nodes are there?
+  my $ncount = $gr->node_count();
 
-   ## Lets get interactions above a threshold confidence score.
-   my $edges = $gr->edges;
-   for my $edge (keys %$edges) {
-		if (defined($edges->{$edge}->weight()) &&
-                $edges->{$edge}->weight() > 0.6) {
-		        	print $edges->{$edge}->object_id(), "\t", $edges->{$edge}->weight(),"\n";
-		}
+  # Lets get interactions above a threshold confidence score.
+  my $edges = $gr->edges;
+  for my $edge (keys %$edges) {
+	 if (defined($edges->{$edge}->weight()) &&
+       $edges->{$edge}->weight() > 0.6) {
+		    print $edges->{$edge}->object_id(), "\t",
+             $edges->{$edge}->weight(),"\n";
+		 }
 	}
 
+  # get interactors of your favourite protein
 
+  my $node      = $graph->nodes_by_id('NP_023232');
+  my @neighbors = $graph->neighbors($node); 
+  print "      NP_023232 interacts with ";
+  print join " ," map{$_->object_id()} @neighbors;
+  print "\n";
 
-    ## get interactors of your favourite protein
+  # annotate your sequences with interaction info
 
-    my $node      = $graph->nodes_by_id('NP_023232');
-    my @neighbors = $graph->neighbors($node); 
-    print "      NP_023232 interacts with ";
-    print join " ," map{$_->object_id()} @neighbors;
-    print "\n";
-
-    ## annotate your sequences with interaction info
-
-    my @my_seqs; ##array of sequence objects
-    for my $seq(@seqs) {
-          if ($graph->has_node($seq->accession_number)) {
-          my $node      = $graph->nodes_by_id( $seq->accession_number);
-          my @neighbors = $graph->neighbors($node);
-          for my $n (@neighbors) {
-            my $ft = Bio::SeqFeature::Generic->new(
+  my @my_seqs; ##array of sequence objects
+  for my $seq(@seqs) {
+    if ($graph->has_node($seq->accession_number)) {
+       my $node      = $graph->nodes_by_id( $seq->accession_number);
+         my @neighbors = $graph->neighbors($node);
+         for my $n (@neighbors) {
+           my $ft = Bio::SeqFeature::Generic->new(
                       -primary_tag => 'Interactor',
                       -tags        => { id => $n->accession_number
                                      }
                       );
             $seq->add_SeqFeature($ft);
          }
-        }
-    }
-
-    ## get proteins with > 10 interactors
-
-    my @nodes = $graph->nodes();
-    my @hubs;
-    for my $node (@nodes) {
-       if ($graph->neighbor_count($node) > 10) {       
-           push @hubs, $node;
-          }
       }
-    print "the following proteins have > 10 interactors:\n"
-    print join "\n", map{$_->object_id()} @hubs;
+   }
 
-    ## merge 2 graphs, flag duplicate edges ##
+  # get proteins with > 10 interactors
 
-   # get second graph $g2
-   $g1->union($g2);
-   my @duplicates = $g1->dup_edges();
+  my @nodes = $graph->nodes();
+  my @hubs;
+  for my $node (@nodes) {
+    if ($graph->neighbor_count($node) > 10) {       
+       push @hubs, $node;
+    }
+  }
+  print "the following proteins have > 10 interactors:\n"
+  print join "\n", map{$_->object_id()} @hubs;
 
-   print "these interactions exist in $g1 and $g2:\n";
-   print join "\n", map{$_->object_id} @duplicates;
+  # merge 2 graphs, flag duplicate edges ##
 
-   ## what to do if you have interaction data in your own format:
+  # get second graph $g2
+  $g1->union($g2);
+  my @duplicates = $g1->dup_edges();
 
-   ## e.g.,  
-   edgeid node1  node2 node2 score
+  print "these interactions exist in $g1 and $g2:\n";
+  print join "\n", map{$_->object_id} @duplicates;
 
-   my $io = Bio::Root::IO->new(-file => 'mydata');
-   my $gr = Bio::Graph::ProteinGraph->new();
-   my %seen= (); # to record seen nodes
-   while (my $l = $io->_readline() ) {
- 
-      ## parse out your data
-      my ($e_id, $n1, $n2, $sc) = split /\t/, $l;
- 
-      ## make nodes if they are unseen
-      my @nodes =();
-      for my $n ($n1, $n2 ) {
+  # what to do if you have interaction data in your own format:
+
+  # e.g.,  
+  edgeid node1  node2 node2 score
+
+  my $io = Bio::Root::IO->new(-file => 'mydata');
+  my $gr = Bio::Graph::ProteinGraph->new();
+  my %seen= (); # to record seen nodes
+  while (my $l = $io->_readline() ) {
+
+  # parse out your data
+  my ($e_id, $n1, $n2, $sc) = split /\t/, $l;
+
+  # make nodes if they are unseen
+  my @nodes =();
+    for my $n ($n1, $n2 ) {
 		if (!exists($seen{$n})) {
             push @nodes,  Bio::Seq->new(-accession_number => $n);
 			$seen{$n} = $nodes[$#nodes];
-           }
+      }
         else{
 			push @nodes, $seen{$n};
-		  }
-	   }
+		}
+	 }
 
-      ## make an edge
-      my $edge  = Bio::Graph::Edge->new(-nodes => \@nodes,
-                                        -id    => $e_id,
-                                        -weight=> $sc);
-      ## add it to graph
+  # make an edge
+  my $edge  = Bio::Graph::Edge->new(-nodes => \@nodes,
+                                    -id    => $e_id,
+                                    -weight=> $sc);
+  # add it to graph
       $gr->add_edge($edge);
-   } 
+   }
 
-     
-
-
-=head1          DESCRIPTION
+=head1 DESCRIPTION
 
 A Protein graph is a representation of a protein interaction network.
 It derives most of its functionality from Nat Goodman's SimpleGraph
@@ -155,14 +150,15 @@ in the Protein Standards Initiative schema. Hopefully that will be
 available soon
 
 A dataset may contain duplicate or redundant interactions. 
-Duplicate interactions are interactions that occur twice in the datset but with a different
-interaction ID, perhaps from a different experiment. The dup_edges method will retrieve these.
+Duplicate interactions are interactions that occur twice in the dataset 
+but with a different interaction ID, perhaps from a different 
+experiment. The dup_edges method will retrieve these.
 
-Redundant interaction are interactions that occur twice or more in a datset with the same interaction
-id. These are more likely to be due to database errors. 
-These methods are useful when merging 2 datasets using the union() method. Interactions
-present in both datasets, with different IDs, will be duplicate edges. 
-
+Redundant interaction are interactions that occur twice or more in a 
+dataset with the same interaction id. These are more likely to be 
+due to database errors. These methods are useful when merging 2 
+datasets using the union() method. Interactions present in both 
+datasets, with different IDs, will be duplicate edges. 
 
 For developers:
 
@@ -174,38 +170,43 @@ Bio::PrimarySeq object should work fine too.
 Edges are represented by Bio::Graph::Edge objects. In order to
 work with SimpleGraph these objects must be array references, with the
 first 2 elements being references to the 2 nodes. More data can be
-added in $e[2]. etc. Edges should  be
-Bio::Graph::Edge objects, which are Bio::IdentifiableI implementing objects.
-. At present edges only have an identifier and a
-weight() method, to hold confidence data, but subclasses of this could
-hold all the interaction data held in an XML document.
+added in $e[2]. etc. Edges should  be Bio::Graph::Edge objects, which 
+are Bio::IdentifiableI implementing objects.
+At present edges only have an identifier and a weight() method, to 
+hold confidence data, but subclasses of this could hold all the 
+interaction data held in an XML document.
 
 So, a graph has the following data:
 
-1. A hash of nodes, where keys are the text representation of a nodes memory address
-    and values are the sequence object references.
-2. A hash of neighbors, where keys are the text representation of a nodes memory address
-    and a value is a reference to a list of neighboring node references
+1. A hash of nodes, where keys are the text representation of a 
+nodes memory address and values are the sequence object references.
+
+2. A hash of neighbors, where keys are the text representation of a 
+nodes memory address and a value is a reference to a list of 
+neighboring node references.
+
 3. A hash of edges, where a key is a text representation of the 2 nodes.
-       e.g., "address1,address2" a as a string, and values are Bio::Graph::Edge objects
+E.g., "address1,address2" as a string, and values are Bio::Graph::Edge 
+objects.
+
 4. Look up hash ('_id_map') for finding a node by any of its ids. 
-5. Look up hash for edges ('_edge_id_map') for retrieving an edge object  from its identifier
-     
+
+5. Look up hash for edges ('_edge_id_map') for retrieving an edge 
+object  from its identifier.
+
 
 =head1  REQUIREMENTS
 
 To use this code you will need the Clone.pm module availabe from CPAN.
-You also need Class::AutoClass availabe from CPAN as well.  To read in
-XML data you will need XML::Twig available from CPAN too.
+You also need Class::AutoClass, available from CPAN as well.  To read in
+XML data you will need XML::Twig available from CPAN.
 
 =head1 SEE ALSO
 
-L<Bio::Graph::SimpleGraph>, 
-L<Bio::Graph::IO>,
+L<Bio::Graph::SimpleGraph>
+L<Bio::Graph::IO>
 L<Bio::Graph::Edge>
-
 L<Bio::DB::CUTG>
-
 
 =head1 FEEDBACK
 
@@ -252,6 +253,14 @@ Email richard.adams@ed.ac.uk
 
 =cut
 
+use strict;
+package Bio::Graph::ProteinGraph;
+use Bio::Graph::SimpleGraph;
+use Bio::Graph::Edge;
+use Clone qw(clone);
+use vars  qw(@ISA);
+our @ISA = qw(Bio::Graph::SimpleGraph);
+
 sub has_node {
 
  my ($self, $arg) = @_;
@@ -261,10 +270,7 @@ sub has_node {
  my @nodes = $self->nodes_by_id($arg);
  if (defined($nodes[0])){return 1;}else{return 0};
 
-
-
 }
-
 
 =head2    nodes_by_id
 
@@ -272,8 +278,8 @@ sub has_node {
  purpose   : get node memory address from an id
  usage     : my @neighbors= $self->neighbors($self->nodes_by_id('O232322'))
  returns   : a SimpleGraph node representation ( a text representation
-               of a node needed fro other graph methods e.g., neighbors()
-              , edges()
+             of a node needed fro other graph methods e.g.,
+             neighbors(), edges()
  arguments : a protein identifier., e.g., its accession number. 
 
 =cut
@@ -289,8 +295,9 @@ sub nodes_by_id {
 
 =head2    union
 
- name        :  union
- purpose     : To merge two graphs together, flagging interactions as duplicate.
+ name        : union
+ purpose     : To merge two graphs together, flagging interactions as 
+               duplicate.
  usage       : $g1->union($g2), where g1 and g2 are 2 graph objects. 
  returns     : void, $g1 is modified
  arguments   : A Graph object of the same class as the calling object. 
@@ -333,8 +340,6 @@ sub nodes_by_id {
                         X3     P2  P3 - new edge links existing proteins in G1
                         X4     Z4  Z5 - not added to Graph1. Are these different
                                        proteins or synonyms for proteins in G1?
-
-
 
 =cut
 
