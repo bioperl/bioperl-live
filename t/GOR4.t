@@ -18,7 +18,7 @@ BEGIN {
     }
     use Test;
 
-    $NUMTESTS = 11;
+    $NUMTESTS = 13;
     plan tests => $NUMTESTS;
 
     eval {
@@ -70,18 +70,20 @@ if( $DEBUG ) {
     exit if $tool->status eq 'TERMINATED_BY_ERROR';
     ok my $raw = $tool->result('');
     ok my $parsed = $tool->result('parsed');
-    ok ($parsed->[0]{'coil'}, '0.999');
+    ok ($parsed->[0]{'coil'}, '999');
     my @res = $tool->result('Bio::SeqFeatureI');
     if (scalar @res > 0) {
 	ok 1;
     } else {
 	skip('No network access - could not connect to GOR4 server', 1);
     }
+	ok $res[0]->start, 1;
+	ok $res[0]->end, 43;
     ok my $meta = $tool->result('meta');
     
     if (!$METAERROR) { #if Bio::Seq::Meta::Array available
 	
-	ok ( $meta->named_submeta_text('GOR4_coil',1,2), '0.999 0.999');
+	ok ( $meta->named_submeta_text('GOR4_coil',1,2), '999 999');
 	ok ( $meta->seq, 'MSADQRWRQDSQDSFGDSFDGDPPPPPPPPFGDSFGDGFSDRSRQDQRS');
     }
 } else {

@@ -222,12 +222,12 @@ sub result {
         if (!exists($self->{'_parsed'}) ) {
             my $result = IO::String->new($self->{'_result'});
             while (my $line = <$result>) {
-                next unless $line =~ /^\s\w\s/; # or for sopma/hnn  /^[A-Z]\s/
-                $line =~/(\w)\s+(\d\.\d+)\s+(\d\.\d+)\s+(\d\.\d+)$/; # or for so
+                next unless $line =~ /^\w\s/; # or for sopma/hnn  /^[A-Z]\s/
+                $line =~/(\w)\s+(\d+)\s+(\d+)\s+(\d+)/; # or for so
                 push @scores, { struc => $1,
                                 helix => $2,
                                 sheet => $3,
-                                coil => $4,
+                                coil  => $4,
                               };
             }
             $self->{'_parsed'} = \@scores;
@@ -238,9 +238,9 @@ sub result {
                 next if $type =~  /\w{2,}/; #if not H,C,E or T
                 for my $loc (@{$self->{'_parsed_coords'}{$type}} ) {
                     push @fts, Bio::SeqFeature::Generic->new
-                        (-start => $loc->{'start'},
-                         -end => $loc->{'end'},
-                         -source => 'GOR4',
+                        (-start   => $loc->{'start'},
+                         -end     => $loc->{'end'},
+                         -source  => 'GOR4',
                          -primary => 'Region',
                          -tag => {
                                   type => $type,
