@@ -132,6 +132,7 @@ BPlite.pm is copyright (C) 1999 by Ian Korf.
 This software is provided "as is" without warranty of any kind.
 
 =cut
+
 package Bio::Tools::BPpsilite;
 
 use strict;
