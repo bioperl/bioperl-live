@@ -11,45 +11,83 @@ BEGIN {
 	use lib 't';
     }
     use Test;
-    $NTESTS = 8;
+    $NTESTS = 10;
     plan tests => $NTESTS }
 
 use Bio::Factory::Pise;
 use Bio::Tools::Genscan;
 use Bio::SeqIO;
+use ExtUtils::MakeMaker qw(prompt);
+my $golden_outfile = 'golden.out';
+my $actually_submit;
 
-END { 
+END {
+    if ($actually_submit) {
+	for ( $Test::ntest..$NTESTS ) {
+	    skip("Unable to run Pise tests - probably no network connection.",1);
+	}
+	unlink($golden_outfile);
+    } else {
+	for ( $Test::ntest..3 ) {
+	    skip("Unable to run Pise tests.",1);
+	}
+    }
+}
 
+sub Prompt
+{
+ my($prompt, $def) = @_;
+ $def = "" unless defined $def;
+ chomp($prompt);
+ prompt($prompt,$def);
 }
 
 my $verbose = $ENV{'BIOPERLDEBUG'} || -1;
 ok(1);
 
-my $factory = Bio::Factory::Pise->new(-email => 'letondal@pasteur.fr');
-ok($factory);
-my $golden = $factory->program('golden', 
-			       -db => 'swissprot', -query => '100K_RAT');
-ok($golden->isa('Bio::Tools::Run::PiseApplication::golden'));
-my $job = $golden->run();
-ok($job->isa('Bio::Tools::Run::PiseJob'));
-if ($job->error) {
-    print STDERR "Error: ", $job->error_message, "\n";
+my $email = Prompt('Please enter your email: ');
+if (! $email) {
+    exit;
 }
-ok(! $job->error);
 
-# testing a program with a Bio::Seq + bioperl parsing of output
-my $in = Bio::SeqIO->new ( -file   => 't/data/Genscan.FastA',
-			   -format => 'fasta');
+my $factory = Bio::Factory::Pise->new(-email => $email);
+ok($factory);
 
-my $seq = $in->next_seq();
-my $genscan = $factory->program('genscan',
-				-parameter_file => "HumanIso.smat"
-				);
-ok($genscan);
-$genscan->seq($seq);
-my $job = $genscan->run();
-ok($job);
-my $parser = Bio::Tools::Genscan->new(-fh => $job->fh('genscan.out'));
-ok($parser->isa('Bio::Tools::Genscan'));
+my $golden = $factory->program('golden', 
+			       -db => 'genbank', 
+			       -query => 'HUMRASH');
+ok($golden->isa('Bio::Tools::Run::PiseApplication::golden'));
+
+$actually_submit = Prompt('Actually submit? ',1);
+
+if ($actually_submit) {
+    my $job = $golden->run();
+    ok($job->isa('Bio::Tools::Run::PiseJob'));
+
+    if ($job->error) {
+	print STDERR "Error: ", $job->error_message, "\n";
+    }
+    ok(! $job->error);
+
+    $job->save($golden_outfile);
+    ok (-e $golden_outfile);
+
+    my $in = Bio::SeqIO->new ( -file   => $golden_outfile,
+			       -format => 'genbank');
+    my $seq = $in->next_seq();
+    my $genscan = $factory->program('genscan',
+				    -parameter_file => "HumanIso.smat",
+				    );
+    ok($genscan->isa('Bio::Tools::Run::PiseApplication::genscan'));
+
+    $genscan->seq($seq);
+    ok(1);
+
+    my $job = $genscan->run();
+    ok($job->isa('Bio::Tools::Run::PiseJob'));
+
+    my $parser = Bio::Tools::Genscan->new(-fh => $job->fh('genscan.out'));
+    ok($parser->isa('Bio::Tools::Genscan'));
+}
 
 
