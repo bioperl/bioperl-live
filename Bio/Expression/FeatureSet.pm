@@ -52,7 +52,7 @@ package Bio::Expression::FeatureSet;
 
 use strict;
 
-use base qw(Bio::Root::Root Bio Expression::FeatureI);
+use base qw(Bio::Root::Root Bio::Expression::FeatureI);
 use vars qw($DEBUG);
 
 =head2 new
