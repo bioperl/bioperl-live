@@ -662,7 +662,7 @@ sub all_SeqFeatures {
 =cut
 
 sub feature_count {
-    my $($self) = @_;
+    my ($self) = @_;
 
     if (defined($self->{'_as_feat'})) {
 	return ($#{$self->{'_as_feat'}} + 1);
