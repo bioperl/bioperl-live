@@ -73,12 +73,13 @@ Internal methods are usually preceded with a _
 
 
 package Bio::SearchIO::Writer::HTMLResultWriter;
-use vars qw(@ISA %RemoteURLDefault $MaxDescLen $AlignmentLineWidth);
+use vars qw(@ISA %RemoteURLDefault $MaxDescLen $DATE $AlignmentLineWidth);
 use strict;
 
 # Object preamble - inherits from Bio::Root::RootI
 
 BEGIN {
+    $DATE = localtime(time);
     %RemoteURLDefault = ( 'PROTEIN' => 'http://www.ncbi.nlm.nih.gov/entrez/query.fcgi?db=protein&cmd=search&term=%s',			  
 			  'NUCLEOTIDE' => 'http://www.ncbi.nlm.nih.gov/entrez/query.fcgi?db=nucleotide&cmd=search&term=%s'
 			  );
@@ -162,10 +163,11 @@ sub to_string {
     my $type = ( $result->algorithm =~ /(P|X|Y)$/i ) ? 'PROTEIN' : 'NUCLEOTIDE';
     my $str = sprintf(
 qq{<HTML>
-    <HEAD><CENTER><TITLE>Bioperl Reformatted HTML of %s Search output with Bio::Search</TITLE></CENTER></HEAD>
+    <HEAD><CENTER><TITLE>Bioperl Reformatted HTML of %s Search output with Bioperl Bio::SearchIO system</TITLE></CENTER></HEAD>
     <BODY BGCOLOR="WHITE">
     <CENTER><H1>Bioperl Reformatted HTML of %s Search Report<br> for %s</H1></CENTER>
     <hr>
+	<pre>%s</pre>
     <b>Query=</b>%s %s<br><dd>(%d letters)</dd>
     <p>
     <b>Database:</b> %s<br><dd>%d sequences; %d total letters<p></dd>
@@ -174,13 +176,16 @@ qq{<HTML>
     <tr><th>Sequences producing significant alignments:</th>
 	<th>Score<br>(bits)</th><th>E<br>value</th></tr>
   }, 
-		      $result->algorithm, $result->algorithm,
-		      $result->query_name(), $result->query_name, 
+		      $result->algorithm, $result->algorithm,		      
+		      $result->query_name(), 
+		      $self->algorithm_reference($result),,
+		      $result->query_name, 
 		      $result->query_description, $result->query_length, 
 		      $result->database_name(),
 		      $result->database_entries(),$result->database_letters(),
 		      );
     my $hspstr = '<p><p>';
+    $result->rewind();
     while( my $hit = $result->next_hit ) {
 	my $nm = $hit->name();
 	my $id_parser = $self->id_parser;
@@ -188,20 +193,21 @@ qq{<HTML>
 	my ($gi,$acc) = &$id_parser($nm);
 	my $descsub = substr($hit->description,0,$MaxDescLen);
 	$descsub .= " ..." if length($descsub) < length($hit->description);
+	my $url = length($self->remote_database_url($type)) > 0 ? 
+	    sprintf('<a href="%s">%s</a>',$gi || $acc, $hit->name()) : 
+		$hit->name();
 	
-	$str .= sprintf('<tr><td><a href="%s">%s</a> %s </td><td>%s</td><td><a href="#%s">%s</a></td></tr>'."\n",
-			sprintf($self->remote_database_url($type), 
-				$gi || $acc),
-			$hit->name, $descsub,
+	$str .= sprintf('<tr><td>%s %s</td><td>%s</td><td><a href="#%s">%s</a></td></tr>'."\n",
+			$url, $descsub, 
 			defined $hit->raw_score ? $hit->raw_score : '?',
 			$acc,
 			defined $hit->significance ? $hit->significance : '?');
 
 	$hspstr .= "<a name=\"$acc\"><pre>\n".
-	    sprintf(">%s %s\n<dd>Length = %d</dd><p>\n\n", $hit->name, 
+	    sprintf("><b>%s</b> %s\n<dd>Length = %d</dd><p>\n\n", $hit->name, 
 			defined $hit->description ? $hit->description : '', 
 		    $hit->length);
-	
+	$hit->rewind();
 	while( my $hsp = $hit->next_hsp ) {
 	    $hspstr .= sprintf(" Score = %s bits (%s), Expect = %s",
 			       $hsp->bits, $hsp->score, $hsp->evalue);
@@ -301,25 +307,26 @@ qq{<HTML>
 				       $start,
 				       $piece,
 				       $end
-				       );
+				       );		    
 		}
 		$count += $AlignmentLineWidth;
-		$hspstr .= '<p>';
+		$hspstr .= "\n\n";
 	    }
 	}
 	$hspstr .= "</pre>\n";
     }
-    $str .= "</table><p>\n".$hspstr;
-
+    $str .= "</table><p>\n".$hspstr."<p><p><hr><h2>Search Parameters</h2><table border=1><tr><th>Parameter</th><th>Value</th>\n";
+    
+    
     foreach my $param ( $result->available_parameters ) {
-	$str .= "$param=". $result->get_parameter($param) ."<br>\n";
+	$str .= "<tr><td>$param</td><td>". $result->get_parameter($param) ."</td></tr>\n";
 	
     }
-    $str .= "<p>";
+    $str .= "</table><p><h2>Search Statistics</h2><table border=1><tr><th>Statistic</th><th>Value</th></tr>\n";
    foreach my $stat ( sort $result->available_statistics ) {
-	$str .= "$stat=". $result->get_statistic($stat). "<br>\n";
+	$str .= "<tr><td>$stat</td><td>". $result->get_statistic($stat). "</td></th>\n";
     }
-    $str .=  $self->footer() . "</BODY>\n</HTML>\n";
+    $str .=  "</table>".$self->footer() . "</BODY>\n</HTML>\n";
     
     return $str;
 }
@@ -390,8 +397,49 @@ sub MAX { $a <=> $b ? $b : $a; }
 
 sub footer { 
     my ($self) = @_;
-    return "<hr><h6>Produced by Bioperl module".ref($self)."</h6>\n"
+    return "<hr><h5>Produced by Bioperl module".ref($self)." on $DATE</h5>\n"
     
+}
+
+=head2 algorithm_reference
+
+ Title   : algorithm_reference
+ Usage   :
+ Function:
+ Example :
+ Returns : 
+ Args    :
+
+
+=cut
+
+sub algorithm_reference{
+   my ($self,$result) = @_;
+   return '' if( ! defined $result || !ref($result) ||
+		 ! $result->isa('Bio::Search::Result::ResultI')) ;   
+   if( $result->algorithm =~ /BLAST/i ) {
+       my $res = $result->algorithm . ' '. $result->algorithm_version. "\n";
+       if( $result->algorithm_version =~ /WashU/i ) {
+	   return $res .qq{
+Copyright (C) 1996-2000 Washington University, Saint Louis, Missouri USA.
+All Rights Reserved.
+ 
+Reference:  Gish, W. (1996-2000) http://blast.wustl.edu
+};	   
+       } else {
+	   return $res . qq{
+Reference: Altschul, Stephen F., Thomas L. Madden, Alejandro A. Schaffer,
+Jinghui Zhang, Zheng Zhang, Webb Miller, and David J. Lipman (1997),
+"Gapped BLAST and PSI-BLAST: a new generation of protein database search
+programs",  Nucleic Acids Res. 25:3389-3402.
+};
+       }       
+   } elsif( $result->algorithm =~ /FAST/i ) {
+       return $result->algorithm. " ". $result->algorithm_version . "\n".
+	   "\nReference: Pearson et al, Genomics (1997) 46:24-36\n";
+   } else { 
+       return '';
+   }
 }
 
 1;
