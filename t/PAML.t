@@ -21,7 +21,7 @@ BEGIN {
     }
     use Test;
 
-    $NUMTESTS = 21;
+    $NUMTESTS = 37;
     plan tests => $NUMTESTS;
     eval { require IO::String; 
 	   require Bio::Tools::Phylo::PAML;}; 
@@ -80,6 +80,33 @@ ok($codonposfreq[2]->{'G'}, 0.32842);
 
 $inpaml = new Bio::Tools::Phylo::PAML(-file => Bio::Root::IO->catfile(qw(t data aaml.mlc)));
 
-#ok($inpaml);
+ok($inpaml);
 #$result = $inpaml->next_result;
+#ok($result);
+
+$inpaml = new Bio::Tools::Phylo::PAML(-file => Bio::Root::IO->catfile(qw(t data yn00.mlc)));
+
+ok($inpaml);
+$result = $inpaml->next_result;
+
 ok($result);
+$MLmat = $result->get_MLmatrix;
+$NGmat = $result->get_NGmatrix;
+
+
+ok($NGmat->[0]->[1]->{'omega'}, 0.251);
+ok($NGmat->[0]->[1]->{'dN'}, 0.0863);
+ok($NGmat->[0]->[1]->{'dS'}, 0.3443);
+ok($NGmat->[2]->[3]->{'omega'}, 0.218);
+ok($NGmat->[2]->[3]->{'dN'}, 0.1348);
+ok($NGmat->[2]->[3]->{'dS'}, 0.6187);
+
+ok($MLmat->[0]->[1]->{'omega'}, 0.1625);
+ok($MLmat->[0]->[1]->{'dN'}, 0.0818);
+ok($MLmat->[0]->[1]->{'dS'}, 0.5031);
+ok($MLmat->[2]->[3]->{'omega'}, 0.1262);
+ok($MLmat->[2]->[3]->{'dN'}, 0.1298);
+ok($MLmat->[2]->[3]->{'dN_SE'}, 0.0149);
+ok($MLmat->[2]->[3]->{'dS'}, 1.0286);
+ok($MLmat->[2]->[3]->{'dS_SE'}, 0.2614);
+

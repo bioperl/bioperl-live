@@ -217,17 +217,17 @@ sub next_result {
 
     my ($self) = @_;
 
-    my %data;
-
+    my %data;    
     # get the various codon and other sequence summary data, if necessary:
     $self->_parse_summary
 	unless ($self->{'_summary'} && !$self->{'_summary'}->{'multidata'});
 
     # OK, depending on seqtype and runmode now, one of a few things can happen:
     my $seqtype = $self->{'_summary'}->{'seqtype'};
-    if ($seqtype eq 'CODONML' || $seqtype eq 'AAML') {
-	while ($_ = $self->_readline) {
-	    if ($seqtype eq 'CODONML' && m/^pairwise comparison, codon frequencies:/o) {
+    if ($seqtype eq 'CODONML' || $seqtype eq 'AAML'    ) {
+	while ($_ = $self->_readline) {	    
+	    if ($seqtype eq 'CODONML' && 
+		m/^pairwise comparison, codon frequencies:/o) {
 
 		# runmode = -2, CODONML
 		$self->_pushback($_);
@@ -239,18 +239,17 @@ sub next_result {
 		# runmode = -2, AAML
 		$self->throw( -class => 'Bio::Root::NotImplemented',
 			      -text  => "Pairwise AA not yet implemented!"
-			    );
+			      );
 
 		# $self->_pushback($_);
 		# %data = $self->_parse_PairwiseAA;
-		# last;
-
+		# last;	    
 	    } elsif (m/^Model \d+: /o) {
 
 		# NSSitesBatch
 		$self->throw( -class => 'Bio::Root::NotImplemented',
 			      -text  => "NSsitesBatch not yet implemented!"
-			    );
+			      );
 
 		# $self->_pushback($_);
 		# %data = $self->_parse_NSsitesBatch;
@@ -268,7 +267,7 @@ sub next_result {
 		# runmode = 3
 		$self->throw( -class => 'Bio::Root::NotImplemented',
 			      -text  => "StepwiseAddition not yet implemented!"
-			    );
+			      );
 
 		# $self->_pushback($_);
 		# %data = $self->_parse_StepwiseAddition;
@@ -279,7 +278,7 @@ sub next_result {
 		# runmode = 4
 		$self->throw( -class => 'Bio::Root::NotImplemented',
 			      -text  => "NNI Perturbation not yet implemented!"
-			    );
+			      );
 
 		# $self->_pushback($_);
 		# %data = $self->_parse_Perturbation;
@@ -290,7 +289,7 @@ sub next_result {
 		# runmode = (1 or 2)
 		$self->throw( -class => 'Bio::Root::NotImplemented',
 			      -text  => "StarDecomposition not yet implemented!"
-			    );
+			      );
 
 		# $self->_pushback($_);
 		# %data = $self->_parse_StarDecomposition;
@@ -300,9 +299,14 @@ sub next_result {
 	}
     } elsif ($seqtype eq 'BASEML') {
     } elsif ($seqtype eq 'YN00') {
+	while ($_ = $self->_readline) {
+	    if( m/^Estimation by the method/ ) {
+		$self->_pushback($_);
+		%data = $self->_parse_YN_Pairwise;
+		last;
+	    }
+	}
     }
-
-
     if (%data) {
 	$data{'-seqs'} = $self->{'_summary'}->{'seqs'};
 	$data{'-patterns'} = $self->{'_summary'}->{'patterns'};
@@ -351,7 +355,7 @@ sub _parse_summary {
 	}
     }
 
-    unless (defined $self->{'_summary'}->{'seqtype'}) {
+    unless (defined $self->{'_summary'}->{'seqtype'}) {	
 	$self->throw( -class => 'Bio::Root::NotImplemented',
 		      -text => 'Unknown format of PAML output');
     }
@@ -379,8 +383,10 @@ sub _parse_summary {
 	$self->throw( -class => 'Bio::Root::NotImplemented',
 		      -text => 'BASEML parsing not yet implemented!');
     } elsif ($seqtype eq "YN00") {
-	$self->throw( -class => 'Bio::Root::NotImplemented',
-		      -text => 'YN00 parsing not yet implemented!');
+	$self->_parse_codon_freqs();
+	$self->_parse_codoncts();	
+	$self->_parse_distmat(); # NG distance matrices
+	
     } else {
 	$self->throw( -class => 'Bio::Root::NotImplemented',
 		      -text => 'Unknown seqtype, not yet implemented!',
@@ -499,19 +505,20 @@ sub _parse_distmat {
     }
     return unless (/^Nei\s*\&\s*Gojobori/);
     # skip the next 3 lines
-    $self->_readline;
-    $self->_readline;
-    $self->_readline;
+    if( $self->{'_summary'}->{'seqtype'} eq 'CODONML' ) {
+	$self->_readline;
+	$self->_readline;
+	$self->_readline;
+    }
     my $seqct = 0;
     while( defined ($_ = $self->_readline ) ) {
-	
 	last if( /^\s+$/ && exists $self->{'_summary'}->{'ngmatrix'} );
 	next if( /^\s+$/ );
 	chomp;
 	my ($seq,$rest) = split(/\s+/,$_,2);
 	my $j = 0;
 	while( $rest =~ 
-	       /(\-?\d+(\.\d+)?)\s+\(\-?(\d+(\.\d+)?)\s+(\-?\d+(\.\d+))\)/g ) {
+	       /(\-?\d+(\.\d+)?)\s*\(\-?(\d+(\.\d+)?)\s+(\-?\d+(\.\d+)?)\)/g ) {
 	    $self->{'_summary'}->{'ngmatrix'}->[$j++]->[$seqct] = 
 	    { 'omega' => $1,
 	      'dN'    => $3,
@@ -551,6 +558,47 @@ sub _parse_PairwiseCodon {
 	} elsif( /^\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)/ ) {
 	} else { 
 	    $self->debug( "unknown line: $_");
+	}
+    }
+    return ( -mlmatrix => \@result);
+}
+
+sub _parse_YN_Pairwise {
+    my ($self) = @_;
+    my @result;
+    while( defined( $_ = $self->_readline) ) {
+	last if( /^seq\.\s+seq\./);
+    }
+    while( defined( $_ = $self->_readline) ) {
+	if( m/^\s+(\d+)\s+  # seq #
+	    (\d+)\s+        # seq #
+	    (\d+(\.\d+))\s+ # S
+	    (\d+(\.\d+))\s+ # N
+	    (\d+(\.\d+))\s+ # t
+	    (\d+(\.\d+))\s+ # kappa
+	    (\d+(\.\d+))\s+ # omega
+	    (\d+(\.\d+))\s+ # dN
+	    \+\-\s+
+	    (\d+(\.\d+))\s+ # dN SE
+	    (\d+(\.\d+))\s+ # dS
+	    \+\-\s+
+	    (\d+(\.\d+))\s+ # dS SE
+	    /ox 
+	    ) {
+	    
+	    $result[$2-1]->[$1-1] = { 
+		'S' => $3,
+		'N' => $5,
+		't' => $7,
+		'kappa' => $9,
+		'omega' => $11,
+		'dN' => $13,
+		'dN_SE' => $15,
+		'dS' => $17,
+		'dS_SE' => $19,
+	    };
+	} elsif( /^\s+$/ ) { 
+	    next; 
 	}
     }
     return ( -mlmatrix => \@result);
