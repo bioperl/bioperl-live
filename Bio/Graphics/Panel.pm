@@ -364,6 +364,19 @@ sub height {
   return $height + $key_height + $self->pad_top + $self->pad_bottom;
 }
 
+sub setup_fonts {
+  my $self = shift;
+  return if ref $self->{key_font};
+
+  my $image_class = $self->_image_class;
+  eval "use $image_class; 1" or die $@;
+
+  my $image_class = $self->_image_class;
+  my $keyfont = $self->{key_font};
+  my $font_obj = $image_class->$keyfont;
+  $self->{key_font} = $font_obj;
+}
+
 sub gd {
   my $self        = shift;
   my $existing_gd = shift;
@@ -372,19 +385,16 @@ sub gd {
 
   return $self->{gd} if $self->{gd};
 
-  my $image_class = $self->_image_class;
+  $self->setup_fonts;
+
   unless ($existing_gd) {
     # Encapsulating this eval within a BEGIN block
     # adds nothing since $image_class is undefined at compile time.
     # gd exported functions should all use ();
     # BEGIN {
-    eval "use $image_class";
+    my $image_class = $self->_image_class;
+    eval "use $image_class; 1" or die $@;
     # }
-
-    # Image class, established, let's set up the keyfont...
-    my $keyfont = $self->{key_font};
-    my $font_obj = $image_class->$keyfont;
-    $self->{key_font} = $font_obj;
   }
 
   my $width  = $self->width;
@@ -477,6 +487,8 @@ sub boxes {
   my $self = shift;
   my @boxes;
   my $offset = 0;
+
+  $self->setup_fonts;
 
   my $pl = $self->pad_left;
   my $pt = $self->pad_top;

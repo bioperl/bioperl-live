@@ -395,7 +395,7 @@ sub font {
 
   my $img_class = $self->_image_class;
   # Bring in the appropriate image package...yuck...
-  eval "use $img_class";
+  eval "use $img_class; 1" or die $@;
 
   unless (UNIVERSAL::isa($font,$img_class . '::Font')) {
     my $ref    = {
