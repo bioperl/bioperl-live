@@ -466,9 +466,9 @@ $seqio = new Bio::SeqIO(-format => 'genbank',
 							     D10483.gbk)));
 
 $seq = $seqio->next_seq;
-my @kw =  $seq->get_keywords;
+@kw =  $seq->get_keywords;
 ok(scalar @kw, 118);
 ok($kw[-1], 'yabO');
-my @sec_acc = $seq->get_secondary_accessions();
+@sec_acc = $seq->get_secondary_accessions();
 ok(scalar @sec_acc,23);
 ok($sec_acc[-1], 'X56742');
