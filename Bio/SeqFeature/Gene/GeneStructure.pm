@@ -167,6 +167,7 @@ sub add_transcript_as_features{
    my ($self,@features) = @_;
    my $transcript=Bio::SeqFeature::Gene::Transcript->new;
    foreach my $fea (@features) {
+       
        if ($fea->primary_tag =~ /utr/i) {           #UTR / utr/ 3' utr / utr5 etc.
 	   $transcript->add_utr($fea);
        } elsif ($fea->primary_tag =~ /promot/i) {   #allow for spelling differences
@@ -390,3 +391,11 @@ sub flush_sub_SeqFeature {
 }
 
 1;
+
+
+
+
+
+
+
+
