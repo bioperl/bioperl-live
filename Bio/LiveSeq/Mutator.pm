@@ -1082,11 +1082,13 @@ sub _post_mutation {
 	     if ($aachange->RNAChange->codon_pos == 1){
 		 if ($aachange->RNAChange->allele_mut->seq eq  '') {
 		     $aachange->allele_mut->seq('');
+		     $aachange->end($aachange->start + $aachange->length - 1 );
 		 }
 		 elsif ($aachange->RNAChange->allele_ori->seq eq '' ) {
 		     $aachange->allele_mut->seq(substr $aachange->allele_mut->seq, 0,
 					   length ($aachange->RNAChange->allele_mut->seq) / 3);
 		     $aachange->allele_ori->seq('');
+		     $aachange->end($aachange->start + $aachange->length - 1 );
 		     $aachange->length(0);
 		 }
 	     } else {
