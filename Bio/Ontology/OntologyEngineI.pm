@@ -128,6 +128,38 @@ sub add_relationship{
     shift->throw_not_implemented();
 }
 
+=head2 add_relationship_type
+
+ Title   : add_relationship_type
+ Usage   : add_relationship_type(scalar,OntologyI ontology)
+ Function: Adds a relationshiptype object to the ontology engine.
+ Example :
+ Returns : 1 on success, undef on failure
+ Args    : The name(scalar) of the relationshiptype, and the OntologyI it is to be added to.
+
+
+=cut
+
+sub add_relationship_type{
+    shift->throw_not_implemented();
+}
+
+=head2 get_relationship_type
+
+ Title   : get_relationship_type
+ Usage   : get_relationship_type(scalar): RelationshipTypeI
+ Function: Get a relationshiptype object from the ontology engine.
+ Example :
+ Returns : A RelationshipTypeI object.
+ Args    : The name (scalar) of the RelationshipTypeI object desired.
+
+
+=cut
+
+sub get_relationship_type{
+    shift->throw_not_implemented();
+}
+
 =head2 get_relationships
 
  Title   : get_relationships
