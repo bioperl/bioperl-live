@@ -77,7 +77,7 @@ my @feat = $col->features_in_range(-range => ( new Bio::Location::Simple
 ok(scalar @feat, 5);
 if( $verbose ) {    
     foreach my $f ( @feat ) {
-	print $f->location->to_FTstring(), "\n";    	
+	print "location: ", $f->location->to_FTstring(), "\n";    	
     }
 }
 
