@@ -34,12 +34,6 @@ disk.  Can be inhereted by any BioPerl object. As it will not usually
 be the first class in the inheretence list, _initialise_storable()
 should be called during object instantiation.
 
-Currently stores objects in binary format (using the Perl Storable
-module).  This can cause problems when storing and retrieving with
-different versions of Storable (e.g. on different machines). An
-ASCII storage option (using Data::Dumper) may be implemented in the
-future.
-
 Object storage is recursive; If the object being stored contains other
 storable objects, these will be stored seperately, and replaced by a
 skeleton object in the parent heirarchy. When the parent is later
@@ -47,13 +41,15 @@ retrieved, its children remain in the skeleton state until explicitly
 retrieved by the parent. This lazy-retrieve approach has obvious
 memory efficiency benefits for certain applications.
 
-Anyone planning to use Bio::Root::Storable in bioperl modules:
-Storable is not part of all perl core libraries. When inheriting from
-it, you have to do:
 
-    eval { require Storable; };
+By default, objects are stored in binary format (using the Perl
+Storable module). Earlier versions of Perl5 do not include Storable as
+a core module. If this is the case, ASCII object storage (using the
+Perl Data::Dumper module) is used instead.
 
-and fail gracefully.
+ASCII storage can be enabled by default by setting the value of
+$Bio::Root::Storable::BINARY to false.
+
 
 
 =head1 FEEDBACK
@@ -92,15 +88,22 @@ Internal methods are usually preceded with a _
 package Bio::Root::Storable;
 
 use strict;
-#use Data::Dumper qw( Dumper );
-use Storable qw( freeze thaw dclone );
+use Data::Dumper qw( Dumper );
 
 use vars qw(@ISA);
 
 use Bio::Root::Root;
 use Bio::Root::IO;
 
+use vars qw( $BINARY );
 @ISA = qw( Bio::Root::Root );
+
+BEGIN{
+  if( eval "require Storable" ){
+    Storable->import( 'freeze', 'thaw' );
+    $BINARY = 1;
+  }
+}
 
 #----------------------------------------------------------------------
 
@@ -270,8 +273,8 @@ sub suffix {
   Returntype: Bio::Root::Storable inhereting object
   Exceptions: 
   Caller    : 
-  Example   : my $clone = $obj->new_retrievable(); # skeleton
-              $skel->retrieve();                   # clone
+  Example   : my $skel = $obj->new_retrievable(); # skeleton 
+              $skel->retrieve();                  # clone
 
 =cut
 
@@ -350,7 +353,7 @@ sub store{
   my $statefile = $self->statefile;
   my $store_obj = $self->serialise;
   my $io = Bio::Root::IO->new( ">$statefile" );
-  $io->_print( $store_obj->freeze() );
+  $io->_print( $self->_freeze( $store_obj ) );
   $self->debug( "STORING $store_obj to $statefile\n" );
   return $statefile;
 }
@@ -369,7 +372,7 @@ sub store{
   Returntype: string
   Exceptions: 
   Caller    : 
-  Example   : my $serialised = $obj->_prepare_storable();
+  Example   : my $serialised = $obj->serialise();
 
 =cut
 
@@ -443,7 +446,7 @@ sub serialise{
               Note that the retrieved object will be blessed into its original
               class, and not the
   Returntype: Bio::Root::Storable inhereting object
-  Exceptions:_
+  Exceptions: 
   Caller    : 
   Example   : my $obj = Bio::Root::Storable->retrieve( $token );
 
@@ -475,7 +478,7 @@ sub retrieve{
   my $stored_obj;
   my $success;
   for( my $i=0; $i<10; $i++ ){
-    eval{ $stored_obj = thaw( $state_str ) };
+    eval{ $stored_obj = $self->_thaw( $state_str ) };
     if( ! $@ ){ $success=1; last }
     my $package;
     if( $@ =~ /Cannot restore overloading/i ){
@@ -516,8 +519,9 @@ sub retrieve{
 =cut
 
 sub clone {
-   my $self = shift;
-   return dclone( $self );
+  my $self = shift;
+  my $frozen = $self->_freeze( $self );
+  return $self->_thaw( $frozen );
 }
 
 
@@ -542,6 +546,67 @@ sub remove {
   }
   return 1;
 }
+
+#----------------------------------------------------------------------
+
+=head2 _freeze
+
+  Arg [1]   : variable
+  Function  : Converts whatever is in the the arg into a string.
+              Uses either Storable::freeze or Data::Dumper::Dump
+              depending on the value of $Bio::Root::BINARY
+  Returntype: 
+  Exceptions: 
+  Caller    : 
+  Example   : 
+
+=cut
+
+sub _freeze {
+  my $self = shift;
+  my $data = shift;
+  if( $BINARY ){
+    return freeze( $data );
+  }
+  else{
+    $Data::Dumper::Purity = 1;
+    return Data::Dumper->Dump( [\$data],["*code"] );
+  }
+}
+
+#----------------------------------------------------------------------
+
+=head2 _thaw
+
+  Arg [1]   : string
+  Function  : Converts the string into a perl 'whatever'.
+              Uses either Storable::thaw or eval depending on the
+              value of $Bio::Root::BINARY.
+              Note; the string arg should have been created with 
+              the _freeze method, or strange things may occur!
+  Returntype: variable
+  Exceptions: 
+  Caller    : 
+  Example   : 
+
+=cut
+
+sub _thaw {
+  my $self = shift;
+  my $data = shift;
+  if( $BINARY ){ return thaw( $data ) }
+  else{ 
+    my $code; 
+    $code = eval( $data ) ;
+    if($@) {
+      die( "eval: $@" );
+    }   
+    ref( $code ) eq 'REF' || 
+      $self->throw( "Serialised string was not a scalar ref" );
+    return $$code;
+  }
+}
+
 
 
 
