@@ -1,13 +1,12 @@
 #!/usr/bin/perl
 
-
 =head1 NAME
 
-bpindex.pl - indexes files for use by bpfetch
+bpindex.pl - indexes files for use by bpfetch.pl
 
 =head1 SYNOPSIS
 
-bpindex.pl index_name file1 file2 etc
+bpindex.pl index_name file1 file2 etc.
 
 =head1 DESCRIPTION
 
@@ -24,33 +23,34 @@ nrdb.fasta, and
 would build an index called swiss for all the files in /data/swiss
 which end in .dat which are in EMBL format.
 
-The indexes are build using the Bio/Index/* modules, in particular,
+The indexes are built using the Bio/Index/* modules, in particular,
 Bio::Index::EMBL and the Bio::Index::Fasta modules. Any script which
 uses these modules can use the index. A good example script is bpfetch
-which fetches sequences and pipes them to stdout, for example
+which fetches sequences and pipes them to STDOUT, for example
 
    bpfetch swiss:ROA1_HUMAN
 
 gets the ROA1_HUMAN sequence from the swiss index and writes it as
-fasta format on stdout
+fasta format on STDOUT.
 
 =head1 OPTIONS
 
   -fmt  <format>   - Fasta (default), swiss or EMBL
-  -v               - report every index addition (debugging)
+  -dir  <dir>      - directory where the index files are found
+                     (overrides BIOPERL_INDEX environment variable)
 
-options only for expert use
+Options for expert use
 
-  -dir  <dir>      - directory to find the index files
-                     (overrides BIOPERL_INDEX environment varaible)
   -type <db_type>  - DBM_file type. 
-                     (overrides BIOPERL_INDEX_TYPE environment varaible)
+                     (overrides BIOPERL_INDEX_TYPE environment variable)
+  -v               - report every index addition (debugging)
 
 =head1 ENVIRONMENT
 
 bpindex and bpfetch coordinate where the databases lie using the
 enviroment variable BIOPERL_INDEX. This can be overridden using the
--dir option.
+-dir option. There is no default value, so you must use the -dir option 
+or set BIOPERL_INDEX.
 
 The DB type is coordinated with BIOPERL_INDEX_TYPE which if it
 is not there, defaults to whatever the bioperl modules have installed,
@@ -66,7 +66,7 @@ code).
 
 =head1 EXTENDING IT
 
-bpindex is just a wrapper around James Gilbert\'s excellent Index modules
+bpindex is just a wrapper around James Gilbert's excellent Index modules
 found in bioperl
 
 =head1 FEEDBACK
@@ -99,7 +99,7 @@ Ewan Birney E<lt>birney@ebi.ac.ukE<gt>
 use strict;
 
 #
-# Dofus catcher for people who are trying this script without
+# Doofus catcher for people who are trying this script without
 # installing bioperl
 #
 
