@@ -75,10 +75,14 @@ formats, like "fasta", are minimal. The fasta format contains a
 sequence and some kind of identifier, but nothing else is required
 nor does the format inherently allow for much more detail, like a feature (a
 sub-sequence, usually with some biological property - 
-see the Feature-Annotation HOWTO for more information). When given
+see the <ulink url="http://bioperl.org/HOWTOS/html/Feature-Annotation.html">Feature-Annotation HOWTO</ulink> for more information). When given
 fasta SeqIO creates a Bio::Seq object, a more spare object than
 the Bio::Seq::RichSeq object that's created when SeqIO is given formats
 like Genbank or EMBL, which may contain features and annotations.
+</para>
+<para>
+Now, should you care what kind of Bioperl object is created by SeqIO?
+For the most part no, let SeqIO take care of these details.
 </para>
 </section>    
 
@@ -128,7 +132,7 @@ information, rather than worrying about how to get the information.
    <para>
      Bioperl's SeqIO system understands lot of formats and can
 interconvert all of them.
-Here is a current listing of formats, as of version 1.2.
+Here is a current listing of formats, as of version 1.4.
 	<table>
 	  <title>Formats</title>
 	  <tgroup cols="3">
@@ -159,6 +163,11 @@ Here is a current listing of formats, as of version 1.2.
 		<entry>bsml</entry>
 		<entry></entry>
 		<entry>bsm|bsml</entry>
+	      </row>
+	      <row>
+		<entry>chado</entry>
+		<entry>Chado</entry>
+		<entry></entry>
 	      </row>
 	      <row>
 		<entry>ctf</entry>
@@ -200,7 +209,12 @@ Here is a current listing of formats, as of version 1.2.
 		<entry>GenBank</entry>
 		<entry>gb|gbank|genbank</entry>
 	      </row>
-	      <row>
+ <row>
+		<entry>kegg</entry>
+		<entry>KEGG</entry>
+		<entry></entry>
+	      </row>
+	   	      <row>
 		<entry>largefasta</entry>
 		<entry></entry>
 		<entry> </entry>
@@ -240,7 +254,17 @@ Here is a current listing of formats, as of version 1.2.
 		<entry>SwissProt</entry>
 		<entry>swiss|sp</entry>
 	      </row>
-	     <row>
+	    <row>
+		<entry>tab</entry>
+		<entry>tab-delimited</entry>
+		<entry></entry>
+	      </row>
+	      <row>
+		<entry>tigr</entry>
+		<entry>TIGR XML</entry>
+		<entry></entry>
+	      </row>
+	   <row>
 		<entry>ztr</entry>
 		<entry>ZTR tracefile</entry>
 		<entry>ztr</entry>
@@ -447,13 +471,13 @@ formats. However, rather than using the &lt;F&gt; operator to read files you
 use the $seqio->next_seq() method and rather than saying "print F $line"
 you say $seqio->write_seq($seq_object).
    </para>
-   <para>
-   An aside: Bio::SeqIO actually allows you to make use of a rather
+   <note>
+   Bio::SeqIO actually allows you to make use of a rather
 scary/clever part of Perl that can "mimic" filehandles, so that
 the &lt;F&gt; operator returns sequences and the print F operator writes
 sequences. However, for most people, including myself, this looks
 really really weird and leads to probably more confusion.
-   </para>         
+   </note>         
    <para>
    Notice that the universal formatter only required a
 few more lines of code than the accession number lister and mean sequence 
@@ -629,7 +653,7 @@ returns a reference, which can be placed into any of the data structures used in
 perl. For instance, let's say you wanted to take a genbank file with
 	multiple sequences, and split 
 the human sequences out into a human.gb file, and all the rest of the sequences 
-into the other.gb file. In this case, I will use a hash to store the two handles 
+into the other.gb file. In this case, we will use a hash to store the two handles 
 where 'human' is the key for the human output, and 'other' is the key
 	to other, so the usage would be:
 	<programlisting>
@@ -731,7 +755,7 @@ Because Bioperl uses a single, generalized data structure to hold sequences from
 little common sense is necessary when using the system. For example, a person who 
 takes a flat file pulled directly from Genbank, and converts it to another Genbank 
 file with Bioperl, will be surprised to find subtle differences between the two files
-(try "diff origfile newfile" to see what I am talking about).  Just remember when using Bioperl that it was never designed to "round trip" your favorite formats.  Rather, it 
+(try "diff origfile newfile" to see what we are talking about).  Just remember when using Bioperl that it was never designed to "round trip" your favorite formats.  Rather, it 
 was designed to store sequence data from many widely different formats into a common 
 framework, and make that framework available to other sequence manipulation tasks in a
 programmatic fashion.
@@ -760,9 +784,9 @@ programmatic fashion.
        --------------------------------------
 </programlisting>
 These exceptions are very useful when errors occur because you can 
-see the full route, or "stack trace", of where the error occurred and right at the end of this
-is the line number of the script which
-caused the error, which in this case I called t.pl. 
+see the full route, or "stack trace", of where the error occurred and
+right at the end of this is the line number of the script which
+caused the error, which in this case we called t.pl. 
 </para>
 <para>
 The fact that these sorts of errors are automatically 
