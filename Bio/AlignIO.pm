@@ -313,7 +313,9 @@ use Bio::Tools::GuessSeqFormat;
  Args    : -file => $filename 
            -format => format
            -fh => filehandle to attach to
-
+           -displayname_flat => 1 [optional] 
+                                to force the displayname to not show start/end
+                                information
 =cut
 
 sub new {
@@ -395,7 +397,9 @@ sub fh {
 
 sub _initialize {
   my($self,@args) = @_;
-
+  my ($flat) = $self->_rearrange([qw(DISPLAYNAME_FLAT)],
+				 @args);
+  $self->force_displayname_flat($flat) if defined $flat;
   $self->_initialize_io(@args);
   1;
 }
@@ -511,6 +515,25 @@ sub READLINE {
 sub PRINT {
   my $self = shift;
   $self->{'alignio'}->write_aln(@_);
+}
+
+
+=head2 force_displayname_flat
+
+ Title   : force_displayname_flat
+ Usage   : $obj->force_displayname_flat($newval)
+ Function: 
+ Example : 
+ Returns : value of force_displayname_flat (a scalar)
+ Args    : on set, new value (a scalar or undef, optional)
+
+
+=cut
+
+sub force_displayname_flat{
+    my $self = shift;
+    return $self->{'_force_displayname_flat'} = shift if @_;
+    return $self->{'_force_displayname_flat'} || 0;
 }
 
 1;
