@@ -17,7 +17,7 @@ my $USAGE = "taxid4species: [-v] [-p] \"Genus1 species1\" \"Genus2 species2\"";
 GetOptions('v|verbose' => \$verbose,
 	   'p|plain'   => \$plain,
 	   'h|help'    => \$help);
-die("$usage\n") if $help;
+die("$USAGE\n") if $help;
 
 my $ua = new LWP::UserAgent();
 
