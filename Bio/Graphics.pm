@@ -6,7 +6,6 @@ use strict;
 use vars '$VERSION';
 $VERSION = '0.98';
 
-
 1;
 
 =head1 NAME
@@ -16,24 +15,21 @@ Bio::Graphics - Generate GD images of Bio::Seq objects
 =head1 SYNOPSIS
 
   use Bio::Graphics;
+  use Ace::Sequence; # or any other way to create a Bio::Seq object
 
   # get a set of Bio::SeqFeature objects ... somehow
-  my $cosmid = Bio::
   my $db     = Ace->connect(-host=>'brie2.cshl.org',-port=>2005) or die;
   my $cosmid = Ace::Sequence->new(-seq=>'Y16B4A',
 				  -db=>$db,-start=>-15000,-end=>15000) or die;
   my @transcripts = $cosmid->transcripts;
 
   # let the drawing begin...
-  my $panel = Bio::Graphics::Panel->new(
-				      -segment => $cosmid,
-				      -width  => 800
-				     );
-
+  my $panel = Bio::Graphics::Panel->new( -segment => $cosmid,
+				         -width   => 800  );
 
   $panel->add_track(arrow => $cosmid,
- 		  -bump => 0,
- 		  -tick=>2);
+ 		    -bump => 0,
+ 		    -tick =>2);
 
   $panel->add_track(transcript => \@transcripts,
  		    -bgcolor   =>  'wheat',
@@ -48,7 +44,7 @@ Bio::Graphics - Generate GD images of Bio::Seq objects
 
 =head1 DESCRIPTION
 
-Please see Bio::Graphics::Panel for the full API.
+Please see L<Bio::Graphics::Panel> for the full API.
 
 =head1 SEE ALSO
 
