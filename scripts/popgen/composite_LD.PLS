@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 # -*-Perl-*- 
-# $Id: composite_LD.PLS,v 1.3 2003-08-18 15:49:50 jason Exp $
+# $Id: composite_LD.PLS,v 1.4 2003-08-18 15:50:16 jason Exp $
 
 =head1 NAME 
 
@@ -58,7 +58,7 @@ if( ! $file ) {
     $file = shift @ARGV;  # if no -i specified
 }
 
-my $io = Bio::PopGen::IO->new(-format => $format,\
+my $io = Bio::PopGen::IO->new(-format => $format,
 			      -verbose=> $verbose,
 			      -CONVERT_INDEL_STATES => ! $noconvert,
 			      -file   => $file);
