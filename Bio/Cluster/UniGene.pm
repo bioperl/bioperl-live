@@ -984,7 +984,7 @@ sub _next_element{
     $queuename = "_".$queuename."_queue";
     if(! exists($self->{$queuename})) {
 	# re-initialize from array of sequence data
-	$self->{$queuename} = [@{$self->$meth}];
+	$self->{$queuename} = [@{$self->{$meth}}];
     }
     my $queue = $self->{$queuename};
     # is queue exhausted (equivalent to end of stream)?
