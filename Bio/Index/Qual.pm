@@ -60,6 +60,21 @@ Note that by default the key for the sequence will be the first continuous
 string after the 'E<gt>' in the qual header. If you want to use a specific
 substring of the qual header you must use the id_parser() method.
 
+You can also set or customize the unique key used to retrieve by 
+writing your own function and calling the id_parser() method.
+For example:
+
+   $inx->id_parser(\&get_id);
+   # make the index
+   $inx->make_index($file_name);
+
+   # here is where the retrieval key is specified
+   sub get_id {
+      my $line = shift;
+      $line =~ /^(\d+)/;
+      $1;
+   }
+
 =head1 FEED_BACK
 
 =head2 Mailing Lists
@@ -111,7 +126,7 @@ use Bio::Seq;
 
 
 sub _version {
-    return 0.2;
+	return 0.2;
 }
 
 =head2 _file_format
@@ -124,7 +139,7 @@ sub _version {
 =cut
 
 sub _file_format {
-    return 'qual';
+	return 'qual';
 }
 
 
@@ -143,35 +158,35 @@ sub _file_format {
 =cut
 
 sub _index_file {
-    my( $self,
-        $file, # File name
-        $i,    # Index-number of file being indexed
-        ) = @_;
-    
-    my( $begin,     # Offset from start of file of the start
+	my( $self,
+		 $file, # File name
+		 $i,    # Index-number of file being indexed
+	  ) = @_;
+
+	my( $begin,     # Offset from start of file of the start
                     # of the last found record.
-        );
+	  );
 
-    $begin = 0;
+	$begin = 0;
 
-    my $id_parser = $self->id_parser;
+	my $id_parser = $self->id_parser;
 
-    open QUAL, $file or $self->throw("Can't open file for read : $file");
+	open QUAL, $file or $self->throw("Can't open file for read : $file");
 
-    # Main indexing loop
-    while (<QUAL>) {
-        if (/^>/) {
-            # $begin is the position of the first character after the '>'
-            my $begin = tell(QUAL) - length( $_ ) + 1;
-	    
-            foreach my $id (&$id_parser($_)) {
-		$self->add_record($id, $i, $begin);
-            }
-        }
-    }
+	# Main indexing loop
+	while (<QUAL>) {
+		if (/^>/) {
+			# $begin is the position of the first character after the '>'
+			my $begin = tell(QUAL) - length( $_ ) + 1;
 
-    close QUAL;
-    return 1;
+			foreach my $id (&$id_parser($_)) {
+				$self->add_record($id, $i, $begin);
+			}
+		}
+	}
+
+	close QUAL;
+	return 1;
 }
 
 =head2 id_parser
@@ -194,12 +209,12 @@ sub _index_file {
 =cut
 
 sub id_parser {
-    my( $self, $code ) = @_;
-    
-    if ($code) {
-        $self->{'_id_parser'} = $code;
-    }
-    return $self->{'_id_parser'} || \&default_id_parser;
+	my( $self, $code ) = @_;
+
+	if ($code) {
+		$self->{'_id_parser'} = $code;
+	}
+	return $self->{'_id_parser'} || \&default_id_parser;
 }
 
 
@@ -217,11 +232,11 @@ sub id_parser {
 =cut
 
 sub default_id_parser {    
-    if ($_[0] =~ /^>\s*(\S+)/) {
-        return $1;
-    } else {
-        return;
-    }
+	if ($_[0] =~ /^>\s*(\S+)/) {
+		return $1;
+	} else {
+		return;
+	}
 }
 
 1;

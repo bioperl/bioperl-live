@@ -60,6 +60,22 @@ Note that by default the key for the sequence will be the first continuous
 string after the 'E<gt>' in the fasta header. If you want to use a specific
 substring of the fasta header you must use the id_parser() method.
 
+You can also set or customize the unique key used to retrieve by 
+writing your own function and calling the id_parser() method.
+For example:
+
+   $inx->id_parser(\&get_id);
+   # make the index
+   $inx->make_index($file_name);
+
+   # here is where the retrieval key is specified
+   sub get_id {
+      my $line = shift;
+      $line =~ /^>.+gi\|(\d+)/;
+      $1;
+   }
+
+
 =head1 FEED_BACK
 
 =head2 Mailing Lists

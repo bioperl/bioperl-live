@@ -53,6 +53,22 @@ Bio::Index::Abstract.pm, and provides the basic functionality
 for indexing Swissprot files, and retrieving sequence objects from 
 them. For best results 'use strict'.
 
+You can also set or customize the unique key used to retrieve by 
+writing your own function and calling the id_parser() method.
+For example:
+
+   $inx->id_parser(\&get_id);
+   # make the index
+   $inx->make_index($file_name);
+
+   # here is where the retrieval key is specified
+   sub get_id {
+      my $line = shift;
+      $line =~ /^KW\s+([A-Z]+)/i;
+      $1;
+   }
+
+
 =head1 FEED_BACK
 
 =head2 Mailing Lists

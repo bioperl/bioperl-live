@@ -53,7 +53,23 @@ Bio::Index::Hmmer Indexes HMMER reports and supports retreival based on query
 
 This object allows one to build an index on a HMMER file (or files)
 and provide quick access to the HMMER report for that accession.
-Note: for best results 'use strict'.
+For best results 'use strict'.
+
+You can also set or customize the unique key used to retrieve by 
+writing your own function and calling the id_parser() method.
+For example:
+
+   $inx->id_parser(\&get_id);
+   # make the index
+   $inx->make_index($file_name);
+
+   # here is where the retrieval key is specified
+   sub get_id {
+      my $line = shift;
+      $line =~ /^KW\s+([A-Z]+)/i;
+      $1;
+   }
+
 
 =head1 FEEDBACK
 
@@ -87,7 +103,6 @@ Internal methods are usually preceded with a _
 =cut
 
 # Let the code begin...
-	
 
 package Bio::Index::Hmmer;
 use vars qw(@ISA $VERSION);
@@ -259,7 +274,7 @@ sub _index_file {
 
 	my $id;
 	my $indexpoint = 0;
-	
+
 	while(<HMMER>) {
 		if( /Query sequence: ([^\s]+)/o ) {
 			$indexpoint = tell(HMMER);
