@@ -911,29 +911,49 @@ GO: cellular component|integral to plasma membrane|P|GO:0005887|Proteome|8396931
 	      <entry>ref()</entry></row>  
 	  </thead>
 	  <tbody>
-<row><entry>Direct database link to AAA93114 in database GenBank</entry><entry>dblink</entry><entry>Bio::Anno
-tation::DBLink</entry></row>
-<row><entry>Value: http://www.ncbi.nlm.nih.gov/UniGene/clust.cgi?ORG=Hs&amp;CID=52931</entry><entry>URL</entry><entry>Bio:
-:Annotation::SimpleValue</entry></row>
-<row><entry>Value: 8</entry><entry>CHR</entry><entry>Bio::Annotation::SimpleValue</entry></row>
-<row><entry>Direct database link to NP_000671 in database RefSeq</entry><entry>dblink</entry><entry>Bio::Annotation::DBLink</entry></row>
-<row><entry>Direct database link to SGC35558 in database STS</entry><entry>dblink</entry><entry>Bio::Annotation::DBLink</entry></row>
-<row><entry>Comment: Summary: Alpha-1-ARs are members of the GPCR superfamily</entry><entry>comment</entry><entry>Bio::Annotation::Comment</entry></row>
-<row><entry>Value: adrenergic, alpha-1A-, receptor</entry><entry>OFFICIAL_GENE_NAME</entry><entry>Bio::Annotation::SimpleValue</entry></row>
-<row><entry>Value: ADRA1C</entry><entry>ALIAS_SYMBOL</entry><entry>Bio::Annotation::SimpleValue</entry></row>
-<row><entry>Value: adrenergic, alpha -1A-, receptor</entry><entry>ALIAS_PROT</entry><entry>Bio::Annotation::SimpleValue</entry></row>
-<row><entry>Direct database link to NM_000680 in database RefSeq</entry><entry>dblink</entry><entry>Bio::Annotation::DBLink</entry></row>
-<row><entry>Value: ADRA1A</entry><entry>OFFICIAL_SYMBOL</entry><entry>Bio::Annotation::SimpleValue</entry></row>
-<row><entry>Direct database link to SGC35557 in database STS</entry><entry>dblink</entry><entry>Bio::Annotation::DBLink</entry></row>
-<row><entry>Value: 8p21-p11.2</entry><entry>MAP</entry><entry>Bio::Annotation::SimpleValue</entry></row>
-<row><entry>Direct database link to 104221 in database MIM</entry><entry>dblink</entry><entry>Bio::Annotation::DBLink</entry></row>
-<row><entry>Direct database link to D8S2033 in database STS</entry><entry>dblink</entry><entry>Bio::Annotation::DBLink</entry></row>
-<row><entry>Direct database link to none in database GenBank</entry><entry>dblink</entry><entry>Bio::Annotation::DBLink</entry></row>
+<row><entry>Direct database link to AAA93114 in database GenBank</entry><entry>dblink</entry><entry><ulink
+	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/DBLink.html>Bio::Annotation::DBLink</ulink></entry></row>
+<row><entry>Value:
+	    http://www.ncbi.nlm.nih.gov/UniGene/clust.cgi?ORG=Hs&amp;CID=52931</entry><entry>URL</entry><entry>
+<ulink
+	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/SimpleValue.html>Bio::Annotation::SimpleValue</ulink></entry></row>
+<row><entry>Value: 8</entry><entry>CHR</entry><entry><ulink
+	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/SimpleValue.html>Bio::Annotation::SimpleValue</ulink></entry></row>
+<row><entry>Direct database link to NP_000671 in database RefSeq</entry><entry>dblink</entry><entry><ulink
+	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/DBLink.html>Bio::Annotation::DBLink</ulink></entry></row>
+<row><entry>Direct database link to SGC35558 in database STS</entry><entry>dblink</entry><entry><ulink
+	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/DBLink.html>Bio::Annotation::DBLink</ulink></entry></row>
+<row><entry>Comment: Summary: Alpha-1-ARs are members of the GPCR superfamily</entry><entry>comment</entry><entry><ulink
+	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/Comment.html>Bio::Annotation::Comment</ulink></entry></row>
+<row><entry>Value: adrenergic, alpha-1A-, receptor</entry><entry>OFFICIAL_GENE_NAME</entry><entry><ulink
+	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/SimpleValue.html>Bio::Annotation::SimpleValue</ulink></entry></row>
+<row><entry>Value: ADRA1C</entry><entry>ALIAS_SYMBOL</entry><entry><ulink
+	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/SimpleValue.html>Bio::Annotation::SimpleValue</ulink></entry></row>
+<row><entry>Value: adrenergic, alpha -1A-, receptor</entry><entry>ALIAS_PROT</entry><entry><ulink
+	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/SimpleValue.html>Bio::Annotation::SimpleValue</ulink></entry></row>
+<row><entry>Direct database link to NM_000680 in database RefSeq</entry><entry>dblink</entry><entry><ulink
+	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/DBLink.html>Bio::Annotation::DBLink</ulink></entry></row>
+<row><entry>Value: ADRA1A</entry><entry>OFFICIAL_SYMBOL</entry><entry><ulink
+	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/SimpleValue.html>Bio::Annotation::SimpleValue</ulink></entry></row>
+<row><entry>Direct database link to SGC35557 in database STS</entry><entry>dblink</entry><entry><ulink
+	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/DBLink.html>Bio::Annotation::DBLink</ulink></entry></row>
+<row><entry>Value: 8p21-p11.2</entry><entry>MAP</entry><entry><ulink
+	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/SimpleValue.html>Bio::Annotation::SimpleValue</ulink></entry></row>
+<row><entry>Direct database link to 104221 in database MIM</entry><entry>dblink</entry><entry><ulink
+	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/DBLink.html>Bio::Annotation::DBLink</ulink></entry></row>
+<row><entry>Direct database link to D8S2033 in database STS</entry><entry>dblink</entry><entry><ulink
+	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/DBLink.html>Bio::Annotation::DBLink</ulink></entry></row>
+<row><entry>Direct database link to none in database GenBank</entry><entry>dblink</entry><entry><ulink
+	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/DBLink.html>Bio::Annotation::DBLink</ulink></entry></row>
 <row><entry>cellular component|integral to plasma membrane|GO:0005887</entry><entry>cellular
- component</entry><entry>Bio::Annotation::OntologyTerm</entry></row>
-<row><entry>Direct database link to Hs.52931 in database UniGene</entry><entry>dblink</entry><entry>Bio::Annotation::DBLink</entry></row>
-<row><entry>Direct database link to M11313 in database GenBank</entry><entry>dblink</entry><entry>Bio::Annotation::DBLink</entry></row>
-<row><entry>Direct database link to P35348 in database GenBank</entry><entry>dblink</entry><entry>Bio::Annotation::DBLink</entry></row>
+ component</entry><entry><ulink
+	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/OntologyTerm.html>Bio::Annotation::OntologyTerm</ulink></entry></row>
+<row><entry>Direct database link to Hs.52931 in database UniGene</entry><entry>dblink</entry><entry><ulink
+	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/DBLink.html>Bio::Annotation::DBLink</ulink></entry></row>
+<row><entry>Direct database link to M11313 in database GenBank</entry><entry>dblink</entry><entry><ulink
+	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/DBLink.html>Bio::Annotation::DBLink</ulink></entry></row>
+<row><entry>Direct database link to P35348 in database GenBank</entry><entry>dblink</entry><entry><ulink
+	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/DBLink.html>Bio::Annotation::DBLink</ulink></entry></row>
 	  </tbody>
 	</tgroup>
       </table>
