@@ -22,8 +22,8 @@ Bio::Index::Fasta - Interface for indexing (multiple) fasta files
 
     my $Index_File_Name = shift;
     my $inx = Bio::Index::Fasta->new(
-        -filename => $Index_File_Name,
-        -write_flag => 1);
+        '-filename' => $Index_File_Name,
+        '-write_flag' => 1);
     $inx->make_index(@ARGV);
 
     # Print out several sequences present in the index
@@ -31,7 +31,7 @@ Bio::Index::Fasta - Interface for indexing (multiple) fasta files
     use Bio::Index::Fasta;
 
     my $Index_File_Name = shift;
-    my $inx = Bio::Index::Fasta->new($Index_File_Name);
+    my $inx = Bio::Index::Fasta->new('-filename' => $Index_File_Name);
     my $out = Bio::SeqIO->new('-format' => 'Fasta','-fh' => \*STDOUT);
 
     foreach my $id (@ARGV) {

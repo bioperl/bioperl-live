@@ -22,7 +22,8 @@ Bio::Index::Swissprot - Interface for indexing (multiple) Swissprot
     use Bio::Index::Swissprot;
 
     my $Index_File_Name = shift;
-    my $inx = Bio::Index::Swissprot->new($Index_File_Name, 'WRITE');
+    my $inx = Bio::Index::Swissprot->new('-filename' => $Index_File_Name, 
+					 '-write_flag' => 'WRITE');
     $inx->make_index(@ARGV);
 
     # Print out several sequences present in the index
@@ -32,7 +33,7 @@ Bio::Index::Swissprot - Interface for indexing (multiple) Swissprot
 
     my $out = Bio::SeqIO->new( '-format' => 'gcg', -fh => \*STDOUT );
     my $Index_File_Name = shift;
-    my $inx = Bio::Index::Swissprot->new($Index_File_Name);
+    my $inx = Bio::Index::Swissprot->new('-filename' => $Index_File_Name);
 
     foreach my $id (@ARGV) {
         my $seq = $inx->fetch($id); # Returns Bio::Seq object
