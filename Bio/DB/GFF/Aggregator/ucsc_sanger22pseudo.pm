@@ -52,14 +52,14 @@ sub method { 'sanger22pseudo' }
  Title   : part_names
  Usage   : $aggregator->part_names
  Function: return the methods for the sub-parts
- Returns : the list "sanger22pseudo"
+ Returns : empty list
  Args    : none
  Status  : Public
 
 =cut
 
 sub part_names {
-  return qw(sanger22pseudo);
+  return ();
 }
 
 =head2 main_name
@@ -67,14 +67,14 @@ sub part_names {
  Title   : main_name
  Usage   : $aggregator->main_name
  Function: return the method for the main component
- Returns : the string "transcript"
+ Returns : the string "transcript:sanger22pseudo"
  Args    : none
  Status  : Public
 
 =cut
 
 sub main_name {
-  return 'transcript';
+  return 'transcript:sanger22pseudo';
 }
 
 1;
