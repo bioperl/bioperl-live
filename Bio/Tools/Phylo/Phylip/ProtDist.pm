@@ -83,7 +83,7 @@ use Bio::Root::IO;
  Function: Builds a new Bio::Tools::Phylo::Phylip::ProtDist object 
  Returns : Bio::Tools::ProtDist
  Args    : -fh/-file => $val, # for initing input, see Bio::Root::IO
-
+           -program  => 'programname' # name of the program
 
 =cut
 
@@ -92,7 +92,8 @@ sub new {
 
   my $self = $class->SUPER::new(@args);
   $self->_initialize_io(@args);
-
+  my ($prog) = $self->_rearrange([qw(PROGRAM)], @args);
+  $self->{'_program'} = $prog;
   return $self;
 }
 
@@ -145,9 +146,10 @@ sub next_matrix{
        }
        $i++;
    }
-   my $matrix = Bio::Matrix::PhylipDist->new(-matrix=>\%dist,
-					     -names =>\@names,
-					     -values=>\@values);
+   my $matrix = Bio::Matrix::PhylipDist->new(-program => $self->{'_program'},
+					     -matrix  => \%dist,
+					     -names   => \@names,
+					     -values  => \@values);
     return $matrix;
 }
 

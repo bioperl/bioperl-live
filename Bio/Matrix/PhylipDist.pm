@@ -14,11 +14,15 @@ Bio::Matrix::PhylipDist - A Phylip Distance Matrix object
 
 =head1 SYNOPSIS
 
-  use Bio::Matrix::PhylipDist;
-
-  my $dist = Bio::Matrix::PhylipDist->new(-file=>"protdist.out",-program=>"ProtDist");
+  use Bio::Tools::Phylo::Phylip::ProtDist;
+  my $dist = Bio::Tools::Phylo::Phylip::ProtDist->new(
+    -file=>"protdist.out",
+    -program=>"ProtDist");
   #or
-  my $dist = Bio::Matrix::PhylipDist->new(-fh=>$FH,-program=>"ProtDist");
+   my $dist = Bio::Tools::Phylo::Phylip::ProtDist->new(
+    -fh=>"protdist.out",
+    -program=>"ProtDist");
+
 
   #get specific entries
   my $distance_value = $dist->get_entry('ALPHA','BETA');
@@ -88,9 +92,9 @@ use strict;
 use vars qw(@ISA);
 
 use Bio::Root::Root;
-use Bio::Root::IO;
+use Bio::Tools::Phylo::Phylip::ProtDist;
 
-@ISA = qw(Bio::Root::Root Bio::Root::IO);
+@ISA = qw(Bio::Root::Root);
 
 =head2 new
 
@@ -105,19 +109,18 @@ use Bio::Root::IO;
 sub new {
     my ($class,@args) = @_;
     my $self = $class->SUPER::new(@args);
-    my ($matrix,$values, $names,$file, $fh,$program) = $self->_rearrange([qw(MATRIX VALUES NAMES FILE FH PROGRAM)],@args);
-
-    ($matrix && $values && $names) || $file || $fh || $self->throw("Need a file or file handle!");
+    my ($matrix,$values, $names,
+	$program) = $self->_rearrange([qw(MATRIX VALUES 
+					  NAMES PROGRAM)],@args);
+    
+    ($matrix && $values && $names) || 
+	$self->throw("Need a file or file handle!");
 
     $program && $self->program($program);
-    $self->_initialize_io(@args);
-
+    
     $self->_matrix($matrix) if $matrix;
     $self->_values($values) if $values;
     $self->names($names) if $names;
-    if(!$matrix && !$values && !$names){
-      $self->_parse();
-    }
 
     return $self;
 }

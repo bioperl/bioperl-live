@@ -10,7 +10,7 @@ BEGIN {
     }
     use Test;
     use vars qw($NTESTS);
-    $NTESTS = 18;
+    $NTESTS = 199;
     plan tests => $NTESTS;
 }
 use Bio::Matrix::PhylipDist;
@@ -23,8 +23,11 @@ END {
 
 
 my $inputfilename= Bio::Root::IO->catfile("t","data","phylipdist.out");
-my $phy = Bio::Matrix::PhylipDist->new(-file => $inputfilename);
+my $parser = Bio::Tools::Phylo::Phylip::ProtDist->new(-program => 'phylipdist',
+						      -file => $inputfilename);
 
+my $phy = $parser->next_matrix;
+ok $phy->program, 'phylipdist';
 ok $phy->get_entry('Alpha','Beta'), '4.23419';
 ok $phy->get_entry('Gamma','Alpha'),'3.63330';
 my @column =  $phy->get_column('Alpha');
