@@ -94,7 +94,7 @@ use Bio::Tools::HMMER::Set;
 use Bio::SeqAnalysisParserI;
 use Symbol;
 
-@ISA = qw(Bio::Root::Root Bio::SeqAnalysisParserI);
+@ISA = qw(Bio::Root::Root Bio::Root::IO Bio::SeqAnalysisParserI);
 
 sub new {
   my($class,@args) = @_;
@@ -105,17 +105,16 @@ sub new {
   $self->{'seq'} = {};
 
   my ($parsetype) = $self->_rearrange([qw(TYPE)],@args);
-  my $io = Bio::Root::IO->new(@args);
-
+  $self->_initialize_io(@args);
   if( !defined $parsetype ) {
       $self->throw("No parse type provided. should be hmmsearch or hmmpfam");
   }
   $self->parsetype($parsetype);
-  if( $io->_fh() ) {
+  if( defined $self->_fh() ) {
       if( $parsetype eq 'hmmsearch' ) {
-	  $self->_parse_hmmsearch($io->_fh());
+	  $self->_parse_hmmsearch($self->_fh());
       } elsif ( $parsetype eq 'hmmpfam' ) {
-	  $self->_parse_hmmpfam($io->_fh());
+	  $self->_parse_hmmpfam($self->_fh());
       } else {
 	  $self->throw("Did not recoginise type $parsetype");
       } 
