@@ -26,7 +26,7 @@ Bio::LocationI - Abstract interface of a Location on a Sequence
 This Interface defines the methods for a Bio::LocationI, an object
 which encapsulates a location on a biological sequence.  Locations
 need not be attached to actual sequences as they are stand alone
-objects.  LocationI objects are used by Bio::SeqFeatureI objects to
+objects.  LocationI objects are used by L<Bio::SeqFeatureI> objects to
 manage and represent locations for a Sequence Feature.
 
 =head1 FEEDBACK
@@ -49,7 +49,7 @@ or the web:
 
 =head1 AUTHOR - Jason Stajich
 
-Email jason@chg.mc.duke.edu
+Email jason@bioperl.org
 
 =head1 APPENDIX
 
@@ -86,7 +86,7 @@ BEGIN {
 
 sub location_type { 
     my ($self,@args) = @_;
-    $self->_abstractDeath('location_type');
+    $self->throw_not_implemented();
 }
 
 =head2 start
@@ -99,11 +99,12 @@ sub location_type {
             in more ambiguous cases like fuzzy locations the number may be
             equal to one or neither of both.
 
-            We override this here from RangeI in order to delegate 'get' to
-            a Bio::Location::CoordinatePolicy implementing object. Implementing
-            classes may also wish to provide 'set' functionality, in which
-            case they *must* override this method. The implementation
-            provided here will throw an exception if called with arguments.
+            We override this here from RangeI in order to delegate
+            'get' to a L<Bio::Location::CoordinatePolicy> implementing
+            object.  Implementing classes may also wish to provide
+            'set' functionality, in which case they *must* override
+            this method. The implementation provided here will throw
+            an exception if called with arguments.
 
   Returns : A positive integer value.
   Args    : none
@@ -131,11 +132,12 @@ sub start {
             in more ambiguous cases like fuzzy locations the number may be
             equal to one or neither of both.
 
-            We override this here from RangeI in order to delegate 'get' to
-            a Bio::Location::CoordinatePolicy implementing object. Implementing
-            classes may also wish to provide 'set' functionality, in which
-            case they *must* override this method. The implementation
-            provided here will throw an exception if called with arguments.
+            We override this here from L<Bio::RangeI> in order to delegate
+            'get' to a L<Bio::Location::CoordinatePolicy> implementing
+            object. Implementing classes may also wish to provide
+            'set' functionality, in which case they *must* override
+            this method. The implementation provided here will throw
+            an exception if called with arguments.
 
   Returns : A positive integer value.
   Args    : none
@@ -304,16 +306,17 @@ sub seq_id {
             setting of a different policy. The implementation provided here
             does, however, allow to do so.
 
-            Implementors of this interface are expected to initialize every
-            new instance with a CoordinatePolicyI object. The implementation
-            provided here will return a default policy object if none has
-            been set yet. To change this default policy object call this
-            method as a class method with an appropriate argument. Note that
-            in this case only subsequently created Location objects will be
-            affected.
+            Implementors of this interface are expected to initialize
+            every new instance with a
+            L<Bio::Location::CoordinatePolicyI> object. The
+            implementation provided here will return a default policy
+            object if none has been set yet. To change this default
+            policy object call this method as a class method with an
+            appropriate argument. Note that in this case only
+            subsequently created Location objects will be affected.
 
-  Returns : A Bio::Location::CoordinatePolicyI implementing object.
-  Args    : On set, a Bio::Location::CoordinatePolicyI implementing object.
+  Returns : A L<Bio::Location::CoordinatePolicyI> implementing object.
+  Args    : On set, a L<Bio::Location::CoordinatePolicyI> implementing object.
 
 =cut
 
