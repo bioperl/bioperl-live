@@ -161,7 +161,7 @@ sub to_string {
     my ($self,$result) = @_; 
     return unless defined $result;
     my $type = ( $result->algorithm =~ /(P|X|Y)$/i ) ? 'PROTEIN' : 'NUCLEOTIDE';
-    my $reference = $result->program_reference || $self->algorithm_reference($result);
+    my $reference = $result->algorithm_reference || $self->algorithm_reference($result);
     $reference =~ s/\~/\n/g;
     my $str = sprintf(
 qq{<HTML>
@@ -187,7 +187,9 @@ qq{<HTML>
 		      $result->database_entries(),$result->database_letters(),
 		      );
     my $hspstr = '<p><p>';
-    $result->rewind(); # support stream based parsing routines
+    if( $result->can('rewind')) {
+        $result->rewind(); # support stream based parsing routines
+    }
     while( my $hit = $result->next_hit ) {
 	my $nm = $hit->name();
 	my $id_parser = $self->id_parser;
