@@ -1,7 +1,7 @@
 # $Id$
 # BioPerl module for Bio::ClusterIO::unigene
 #
-# Cared for by Andrew Macgregor <andrew@anatomy.otago.ac.nz>
+# Cared for by Andrew Macgregor <andrew at cbbc.murdoch.edu.au>
 #
 # Copyright Andrew Macgregor, Jo-Ann Stanton, David Green
 # Molecular Embryology Group, Anatomy & Structural Biology, University of Otago
@@ -50,7 +50,7 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 
 =head1 AUTHORS - Andrew Macgregor
 
-Email: andrew@anatomy.otago.ac.nz
+Email: andrew at cbbc.murdoch.edu.au
 
 
 =head1 APPENDIX
@@ -80,6 +80,7 @@ my %line_is = (
 		CYTOBAND		=>	q/CYTOBAND\s+(\S.*)/,
 		MGI			=>	q/MGI\s+(\S.*)/,
 		LOCUSLINK		=>	q/LOCUSLINK\s+(\S.*)/,
+		HOMOL		=>	q/HOMOL\s+(\S.*)/,
 		EXPRESS			=>	q/EXPRESS\s+(\S.*)/,
 		GNM_TERMINUS		=>	q/GNM_TERMINUS\s+(\S.*)/,
 		CHROMOSOME		=>	q/CHROMOSOME\s+(\S.*)/,
@@ -164,6 +165,9 @@ sub next_cluster {
 		elsif ($line =~ /$line_is{LOCUSLINK}/gcx) {
 			@locuslink = split /;/, $1;
 		}
+		elsif ($line =~ /$line_is{HOMOL}/gcx) {
+			$unigene{HOMOL} = $1;
+		}
 		elsif ($line =~ /$line_is{EXPRESS}/gcx) {
 			my $express = $1;
 			# remove initial semicolon if present
@@ -237,6 +241,7 @@ sub next_cluster {
 			$UGobj->cytoband($unigene{CYTOBAND}) if defined($unigene{CYTOBAND});
 			$UGobj->mgi($unigene{MGI}) if defined ($unigene{MGI});
 			$UGobj->locuslink(\@locuslink);
+			$UGobj->homol($unigene{HOMOL}) if defined ($unigene{HOMOL});
 			$UGobj->express(\@express);
 			$UGobj->gnm_terminus($unigene{GNM_TERMINUS}) if defined ($unigene{GNM_TERMINUS});
 			$UGobj->chromosome(\@chromosome);

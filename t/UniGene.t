@@ -12,7 +12,7 @@ use vars qw($NUMTESTS);
 
 my $error;
 
-BEGIN { 
+BEGIN {
     # to handle systems with no installed Test module
     # we include the t dir (where a copy of Test.pm is located)
     # as a fallback
@@ -23,9 +23,9 @@ BEGIN {
     }
     use Test;
 
-    $NUMTESTS = 61;
+    $NUMTESTS = 63;
     plan tests => $NUMTESTS;
-    
+
 }
 
 use Bio::Cluster::UniGene;
@@ -53,23 +53,24 @@ ok($unigene->title, 'N-acetyltransferase 2 (arylamine N-acetyltransferase)');
 ok($unigene->gene, 'NAT2');
 ok($unigene->cytoband,'8p22');
 ok($unigene->gnm_terminus,'S');
-ok($unigene->scount,25);
+ok($unigene->homol,'YES');
+ok($unigene->scount,26);
 ok(scalar @{ $unigene->locuslink }, 1);
 ok(scalar @{ $unigene->chromosome }, 1);
 ok(scalar @{ $unigene->express }, 7);
-ok(scalar @{ $unigene->sts }, 10);
+ok(scalar @{ $unigene->sts }, 8);
 ok(scalar @{ $unigene->txmap }, 0);
 ok(scalar @{ $unigene->protsim } , 4);
-ok(scalar @{ $unigene->sequences },25);
+ok(scalar @{ $unigene->sequences },26);
 
 ok($unigene->locuslink->[0], '10');
 ok($unigene->chromosome->[0], '8');
 ok($unigene->express->[0], 'liver');
-ok($unigene->sts->[0], 'ACC=GDB:386004 UNISTS=157141');
-ok($unigene->protsim->[0], 'ORG=Escherischia coli; PROTGI=16129422; PROTID=ref:NP_415980.1; PCT=24; ALN=255');
+ok($unigene->sts->[0], 'ACC=G59899 UNISTS=137181');
+ok($unigene->protsim->[0], 'ORG=Escherischia coli; PROTGI=16129422; PROTID=ref:NP_415980.1; PCT=24.81; ALN=255');
 
 my ($seq1) = $unigene->next_seq;
-ok($seq1->display_id, 'D90040');
+ok($seq1->display_id, 'BX095770');
 #ok($seq1->desc, 'ACC=D90042 NID=g219415 PID=g219416');
 
 # test recognition of species
@@ -84,9 +85,9 @@ my $n = 1; # we've seen already one seq
 while($seq1 = $unigene->next_seq()) {
     $n++;
 }
-ok ($n, 25);
-ok ($unigene->size(), 25);
-ok (scalar($unigene->get_members()), 25);
+ok ($n, 26);
+ok ($unigene->size(), 26);
+ok (scalar($unigene->get_members()), 26);
 ok ($unigene->description, 'N-acetyltransferase 2 (arylamine N-acetyltransferase)');
 ok ($unigene->display_id, "Hs.2");
 ok ($unigene->namespace, "UniGene");
@@ -107,6 +108,9 @@ ok($unigene->cytoband, 'cytoband_test', 'cytoband was ' . $unigene->cytoband);
 $unigene->gnm_terminus('gnm_terminus_test');
 ok($unigene->gnm_terminus, 'gnm_terminus_test', 'gnm_terminus was ' . $unigene->gnm_terminus);
 
+$unigene->homol('homol_test');
+ok($unigene->homol, 'homol_test', 'homol was ' . $unigene->homol);
+
 $unigene->scount('scount_test');
 ok($unigene->scount, 'scount_test', 'scount was ' . $unigene->scount);
 
@@ -114,9 +118,9 @@ my $seq = $unigene->next_seq;
 $seq = $unigene->next_seq;
 ok($seq->isa('Bio::PrimarySeqI'), 1,'expected a Bio::PrimarySeq object but got a ' . ref($seq));
 my $accession = $seq->accession_number;
-ok($accession, 'BC015878');
+ok($accession, 'AI262683');
 my $version = $seq->seq_version();
-ok($version, "");
+ok($version, "1");
 
 
 # test the sequence parsing is working
@@ -124,7 +128,7 @@ my $ac = $seq->annotation();
 my $simple_ann_object;
 ($simple_ann_object) = $ac->get_Annotations('seqtype');
 ok $simple_ann_object;
-ok($simple_ann_object->value(), 'mRNA', 'seqtype was ' . $simple_ann_object->value);	
+ok($simple_ann_object->value(), 'EST', 'seqtype was ' . $simple_ann_object->value);	
 
 
 
@@ -197,4 +201,3 @@ $seq = $unigene->next_seq;
 ok($seq->isa('Bio::PrimarySeqI'), 1,'expected a Bio::PrimarySeq object but got a ' . ref($seq));
 $version = $seq->seq_version();
 ok($version, '1');
-

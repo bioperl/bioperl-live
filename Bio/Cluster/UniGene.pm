@@ -2,7 +2,7 @@
 #
 # BioPerl module for Bio::Cluster::UniGene.pm
 #
-# Cared for by Andrew Macgregor <andrew@anatomy.otago.ac.nz>
+# Cared for by Andrew Macgregor <andrew at cbbc.murdoch.edu.au>
 #
 # Copyright Andrew Macgregor, Jo-Ann Stanton, David Green
 # Molecular Embryology Group, Anatomy & Structural Biology, University of Otago
@@ -68,6 +68,8 @@ cytoband() - set/get cytoband
 mgi() - set/get mgi
 
 locuslink() - set/get locuslink
+
+homol() - set/get homologene
 
 gnm_terminus() - set/get gnm_terminus
 
@@ -152,7 +154,7 @@ or the web:
 
 =head1 AUTHOR - Andrew Macgregor
 
-Email andrew@anatomy.otago.ac.nz
+Email andrew at cbbc.murdoch.edu.au
 
 =head1 CONTRIBUTORS
 
@@ -192,6 +194,7 @@ use Bio::Cluster::UniGeneI;
 
 my %species_map = (
 		   'Aga' => "Anopheles gambiae",
+		   'Ame' => "Apis mellifera",
 		   'At'  => "Arabidopsis thaliana",
 		   'Bmo' => "Bombyx mori",
 		   'Bt'  => "Bos taurus",
@@ -206,10 +209,15 @@ my %species_map = (
 		   'Gma' => "Glycine max",
 		   'Han' => "Helianthus annus",
 		   'Hs'  => "Homo sapiens",
+		   'Hma' => "Hydra magnipapillata",
 		   'Hv'  => "Hordeum vulgare",
+		   'Lco' => "Lotus corniculatus",
 		   'Les' => "Lycopersicon esculentum",
-		   'Mtr' => "Medicago truncatula",
+		   'Lsa' => "Lactuca sativa",
+		   'Mdo' => "Malus x domestica",
 		   'Mm'  => "Mus musculus",
+		   'Mtr' => "Medicago truncatula",
+		   'Oar' => "Ovis aries",
 		   'Omy' => "Oncorhynchus mykiss",
 		   'Os'  => "Oryza sativa",
 		   'Ola' => "Oryzias latipes",
@@ -424,6 +432,23 @@ sub locuslink {
 	$ll = [@accs];
     }
     return $ll;
+}
+
+
+=head2 homol
+
+ Title   : homol
+ Usage   : homol();
+ Function: Returns the homol entry associated with the object.
+ Example : $homol = $unigene->homol or $unigene->homol($homol)
+ Returns : A string
+ Args    : None or a homol entry
+
+=cut
+
+sub homol {
+    my $self = shift;
+    return $self->_annotation_value('homol', @_);
 }
 
 
