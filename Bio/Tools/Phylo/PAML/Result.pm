@@ -2,7 +2,7 @@
 #
 # BioPerl module for Bio::Tools::Phylo::PAML::Result
 #
-# Cared for by Jason Stajich <jason@bioperl.org>
+# Cared for by Jason Stajich <jason-at-bioperl.org>
 #
 # Copyright Jason Stajich, Aaron Mackey
 #
@@ -56,13 +56,12 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 of the bugs and their resolution. Bug reports can be submitted via
 email or the web:
 
-  bioperl-bugs@bioperl.org
   http://bugzilla.bioperl.org/
 
 =head1 AUTHOR - Jason Stajich, Aaron Mackey
 
-Email jason@bioperl.org
-Email amackey@virginia.edu
+Email jason-at-bioperl-dot-org
+Email amackey-at-virginia-dot-edu
 
 Describe contact details here
 
@@ -108,6 +107,9 @@ use Bio::AnalysisResultI;
            -aafreq    => Hashref of AA frequencies (only for AAML)
            -aadistmat => Bio::Matrix::PhylipDist   (only for AAML)
            -aamldistmat => Bio::Matrix::PhylipDist   (only for pairwise AAML)
+           -ntfreq    => array ref of NT frequencies (only for BASEML)
+           -kappa_mat => Bio::Matrix::PhylipDist of kappa values (only for BASEML)
+           -alpha_mat => Bio::Matrix::PhylipDist of alpha values (only for BASEML)
            -NSSitesresult => arrayref of PAML::ModelResult 
 =cut
 
@@ -120,12 +122,16 @@ sub new {
       $model,$patterns, $stats,
       $aafreq, $aadistmat, 
       $aamldistmat,
+      $ntfreqs, $kappa_mat,$alpha_mat,
       $NSSitesresults ) = $self->_rearrange([qw(TREES MLMATRIX 
 						SEQS NGMATRIX
 						CODONPOS CODONFREQ
 						VERSION MODEL PATTERNS
 						STATS AAFREQ AADISTMAT
 						AAMLDISTMAT 
+						NTFREQ
+						KAPPA_DISTMAT
+						ALPHA_DISTMAT
 						NSSITESRESULTS)], 
 				       @args);
   $self->reset_seqs;
@@ -217,6 +223,22 @@ sub new {
 	      $self->add_NSSite_result($m);
 	  }
       }
+  }
+
+  $self->{'_ntfreqs'} = {};
+  if( $ntfreqs ) {
+      if( ref($ntfreqs) =~ /HASH/i ) {
+	  $self->set_NTFreqs($ntfreqs);
+      } else { 
+	  $self->warn("Must have provided a valid hash reference to initialize ntfreq");
+      }
+  }
+
+  if( $kappa_mat ) {
+      $self->set_KappaMatrix($kappa_mat);
+  } 
+  if( $alpha_mat ) {
+      $self->set_AlphaMatrix($alpha_mat);
   }
   return $self;
 }
@@ -568,6 +590,53 @@ sub get_AAFreqs{
    }
 }
 
+=head2 set_NTFreqs
+
+ Title   : set_NTFreqs
+ Usage   : $result->set_NTFreqs(\%aafreqs);
+ Function: Get/Set NT freqs
+ Returns : none
+ Args    : Hashref, keys are the sequence names, each points to a hashref
+           which in turn has keys which are the amino acids
+
+
+=cut
+
+sub set_NTFreqs{
+   my ($self,$freqs) = @_;
+   
+   if( $freqs && ref($freqs) =~ /HASH/i ) {
+       foreach my $seqname ( keys %{$freqs} ) {
+	   $self->{'_ntfreqs'}->{$seqname} = $freqs->{$seqname};
+       }
+   }
+}
+
+=head2 get_NTFreqs
+
+ Title   : get_NTFreqs
+ Usage   : my %all_nt_freqs = $result->get_NTFreqs() 
+            OR
+           my %seq_nt_freqs = $result->get_NTFreqs($seqname) 
+ Function: Get the NT freqs, either for every sequence or just 
+           for a specific sequence
+           The average nt freqs for the entire set are also available
+           for the sequence named 'Average'
+ Returns : Hashref
+ Args    : (optional) sequence name to retrieve nt freqs for
+
+
+=cut
+
+sub get_NTFreqs{
+   my ($self,$seqname) = @_;
+   if( $seqname ) {
+       return $self->{'_ntfreqs'}->{$seqname} || {};
+   } else { 
+       return $self->{'_ntfreqs'};
+   }
+}
+
 =head2 add_stat
 
  Title   : add_stat
@@ -764,5 +833,84 @@ sub get_CodonFreqs{
    return @{$self->{'_codonfreqs'} || []};
 }
 
+
+=head2 BASEML Relavent values
+
+=head2 get_KappaMatrix
+
+ Title   : get_KappaMatrix
+ Usage   : my $mat = $obj->get_KappaMatrix()
+ Function: Get KappaDistance Matrix
+ Returns : value of KappaMatrix (Bio::Matrix::PhylipDist)
+ Args    : none
+
+
+=cut
+
+sub get_KappaMatrix{
+    my $self = shift;
+    return $self->{'_KappaMatix'};
+}
+
+=head2 set_KappaMatrix
+
+ Title   : set_KappaMatrix
+ Usage   : $obj->set_KappaMatrix($mat);
+ Function: Set the KappaDistrance Matrix (Bio::Matrix::PhylipDist)
+ Returns : none
+ Args    : KappaDistrance Matrix (Bio::Matrix::PhylipDist)
+
+
+=cut
+
+sub set_KappaMatrix{
+   my ($self,$d) = @_;
+   if( ! $d || 
+       ! ref($d) ||
+       ! $d->isa('Bio::Matrix::PhylipDist') ) {
+       $self->warn("Must provide a valid Bio::Matrix::MatrixI for set_NTDistMatrix");
+   }
+   $self->{'_KappaMatix'} = $d;
+   return undef;
+}
+
+
+=head2 get_AlphaMatrix
+
+ Title   : get_AlphaMatrix
+ Usage   : my $mat = $obj->get_AlphaMatrix()
+ Function: Get AlphaDistance Matrix
+ Returns : value of AlphaMatrix (Bio::Matrix::PhylipDist)
+ Args    : none
+
+
+=cut
+
+sub get_AlphaMatrix{
+    my $self = shift;
+    return $self->{'_AlphaMatix'};
+}
+
+=head2 set_AlphaMatrix
+
+ Title   : set_AlphaMatrix
+ Usage   : $obj->set_AlphaMatrix($mat);
+ Function: Set the AlphaDistrance Matrix (Bio::Matrix::PhylipDist)
+ Returns : none
+ Args    : AlphaDistrance Matrix (Bio::Matrix::PhylipDist)
+
+
+=cut
+
+sub set_AlphaMatrix{
+   my ($self,$d) = @_;
+   if( ! $d || 
+       ! ref($d) ||
+       ! $d->isa('Bio::Matrix::PhylipDist') ) {
+       $self->warn("Must provide a valid Bio::Matrix::MatrixI for set_NTDistMatrix");
+   }
+   $self->{'_AlphaMatix'} = $d;
+   return undef;
+}
 
 1;

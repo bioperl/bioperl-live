@@ -250,3 +250,34 @@ ok($firstsite->[0], 15);
 ok($firstsite->[1], 'L');
 ok($firstsite->[2], 0.6588);
 
+
+# test BASEML
+# pairwise first
+
+my $baseml_p = Bio::Tools::Phylo::PAML->new
+    (-file => Bio::Root::IO->catfile(qw(t data baseml.pairwise)));
+ok($baseml_p);
+my $baseml = $baseml_p->next_result;
+my @b_seqs =  $baseml->get_seqs;
+ok($b_seqs[0]->seq, 'GTAGAGTACTTT');
+ok($b_seqs[1]->seq, 'GTAAGAGACGAT');
+
+my @otus = map { $_->display_id } @b_seqs;
+ok(scalar @otus, 3);
+my $ntfreq = $baseml->get_NTFreqs;
+ok($ntfreq);
+ok($ntfreq->{$otus[0]}->{'A'}, '0.3333');
+ok($ntfreq->{$otus[1]}->{'G'}, '0.2105');
+my $kappaM = $baseml->get_KappaMatrix;
+ok($kappaM);
+ok($kappaM->get_entry($otus[1],$otus[0]), '0.3240');
+ok($kappaM->get_entry($otus[0],$otus[1]), 
+   $kappaM->get_entry($otus[1],$otus[0]));
+ok($kappaM->get_entry($otus[1],$otus[2]), '0.1343');
+my $alphaM = $baseml->get_AlphaMatrix;
+ok($alphaM);
+ok($alphaM->get_entry($otus[1],$otus[0]), '9.3595');
+ok($alphaM->get_entry($otus[0],$otus[1]), 
+   $alphaM->get_entry($otus[1],$otus[0]));
+ok($alphaM->get_entry($otus[1],$otus[2]), '1.1101');
+ok($alphaM->get_entry($otus[0],$otus[2]), '33.1197');
