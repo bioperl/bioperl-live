@@ -298,6 +298,7 @@ sub _readline {
     } else {
 	$line = <$fh>;
     }
+    $line =~ s/\r\n/\n/g if (defined $line);
     return $line;
 }
 
