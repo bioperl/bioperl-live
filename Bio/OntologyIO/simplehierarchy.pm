@@ -389,7 +389,7 @@ sub _parse_flat_file {
 
   my @stack       = ();
   my $prev_indent = -1;
-  my $prev_parent = "";
+  my $parent      = "";
   my $prev_term   = "";
 
   my $indent_string = $self->indent_string;
@@ -404,17 +404,15 @@ sub _parse_flat_file {
 	my $current_indent = $self->_count_indents( $line );
 	chomp $current_term;
 
-#	my $parent = $prev_term;
-	my $parent = $prev_parent;
  	if ( ! $self->_has_term( $current_term ) ) {
  	  my $term =$self->_create_ont_entry($current_term);
  	  $self->_add_term( $term, $ont );
 
 	  #go on to the next term if a root node.
 	  if($current_indent == 0){
-		$prev_indent = 0;
-		$prev_parent = $current_term;
+		$prev_indent = $current_indent;
 		$prev_term = $current_term;
+		push @stack, $current_term;
 		next;
 	  }
  	}
@@ -422,20 +420,15 @@ sub _parse_flat_file {
  	my $current_term_object = $self->_ont_engine()->get_terms( $current_term );
  	$current_term_object->ontology( $ont );
 
- 	if ( ! $self->_has_term( $parent ) ) {
- 	  my $term = $self->_create_ont_entry( $parent );
- 	  $self->_add_term( $term, $ont );
- 	}
-
- 	$self->_add_relationship( $parent,
- 							  $current_term,
- 							  $self->_part_of_relationship(),
- 							  $ont);
+	#we are ensured to see the parent first in this type of file.
+	#if ( ! $self->_has_term( $parent ) ) {
+	#  my $term = $self->_create_ont_entry( $parent );
+	#  $self->_add_term( $term, $ont );
+	#}
 	
  	if ( $current_indent != $prev_indent  ) {
-
  	  if ( $current_indent == $prev_indent + 1 ) {
- 		push( @stack, $prev_term ); 
+ 		push( @stack, $prev_term );
  	  } elsif ( $current_indent < $prev_indent ) {
  		my $n = $prev_indent -  $current_indent;
  		for ( my $i = 0; $i < $n; ++$i ) {
@@ -446,7 +439,7 @@ sub _parse_flat_file {
  	  }
  	}
 
- 	my $parent = $stack[ @stack - 1 ];
+ 	$parent = $stack[-1];
 
  	$self->_add_relationship($parent,
  							 $current_term,
@@ -454,9 +447,8 @@ sub _parse_flat_file {
  							 $ont
  							);
 
-	$prev_parent = $current_indent == $prev_indent + 1 ? $prev_term : $prev_parent;
 	$prev_indent = $current_indent;
-	$prev_term = $current_term;
+	$prev_term   = $current_term;
   } 
   return $ont;
 }								# _parse_relationships_file
