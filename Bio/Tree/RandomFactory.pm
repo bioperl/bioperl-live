@@ -148,7 +148,11 @@ sub new{
 
 sub next_tree{
    my ($self) = @_;
-   return undef if( $self->{'_treecounter'}++ >= $self->maxcount );
+   # If maxcount is set to something non-zero then next tree will
+   # continue to return valid trees until maxcount is reached
+   # otherwise will always return trees 
+   return undef if( $self->maxcount &&
+		    $self->{'_treecounter'}++ >= $self->maxcount );
    my $size = $self->sample_size;
    
    my $in;
