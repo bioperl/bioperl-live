@@ -177,8 +177,9 @@ BEGIN {
            -accession_number => accession number
            -primary_id  => primary id (Genbank id)
            -desc        => description text
-           -alphabet     => molecule type (dna,rna,protein)
+           -alphabet    => molecule type (dna,rna,protein)
            -id          => alias for display id
+           -is_circular => boolean field for whether or not sequence is circular
 
 =cut
 
@@ -198,8 +199,6 @@ sub new {
 			      IS_CIRCULAR
 			      )],
 			  @args);
-
-
     if( defined $id && defined $given_id ) {
 	if( $id ne $given_id ) {
 	    $self->throw("Provided both id and display_id constructor ".
@@ -207,7 +206,6 @@ sub new {
 	}
     }
     if( defined $given_id ) { $id = $given_id; }
-
     # if alphabet is provided we set it first, so that it won't be guessed
     # when the sequence is set
     $alphabet && $self->alphabet($alphabet);
@@ -215,7 +213,7 @@ sub new {
     $self->seq($seq) if defined($seq);
     $id      && $self->display_id($id);
     $acc     && $self->accession_number($acc);
-    $pid     && $self->primary_id($pid);
+    defined $pid     && $self->primary_id($pid);
     $desc    && $self->desc($desc);
     $is_circular && $self->is_circular($is_circular);
 
