@@ -64,9 +64,9 @@ and other Bioperl modules. Send your comments and suggestions preferably
  to one of the Bioperl mailing lists.
 Your participation is much appreciated.
 
-  vsns-bcd-perl@lists.uni-bielefeld.de          - General discussion
-  vsns-bcd-perl-guts@lists.uni-bielefeld.de     - Technically-oriented discussion
-  http://bio.perl.org/MailList.html             - About the mailing lists
+  bioperl-l@bioperl.org                 - General discussion
+  bioperl-guts-l@bioperl.org            - Technically-oriented discussion
+  http://bio.perl.org/MailList.html  - About the mailing lists
 
 =head2 Reporting Bugs
 
@@ -74,7 +74,7 @@ Report bugs to the Bioperl bug tracking system to help us keep track
  the bugs and their resolution.
  Bug reports can be submitted via email or the web:
 
-  bioperl-bugs@bio.perl.org
+  bioperl-bugs@bioperl.org
   http://bio.perl.org/bioperl-bugs/
 
 =head1 AUTHOR - Ewan Birney, inspired by Ian Korf objects
@@ -853,6 +853,7 @@ sub each_date {
 
 
 =cut
+#'
 
 sub accession {
    my ($obj,$value) = @_;
@@ -937,11 +938,4 @@ sub keywords {
 
 }
 
-
-
-
-
-
-
-
-
+1;
