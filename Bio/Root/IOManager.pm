@@ -10,7 +10,7 @@
 #
 # MODIFICATION NOTES: See bottom of file.
 #
-# Copyright (c) 1997-8 Steve A. Chervitz. All Rights Reserved.
+# Copyright (c) 1997-2000 Steve A. Chervitz. All Rights Reserved.
 #           This module is free software; you can redistribute it and/or 
 #           modify it under the same terms as Perl itself.
 #-----------------------------------------------------------------------------
@@ -214,7 +214,8 @@ for documentation purposes only.
  Purpose   : Set/Get name of a file associated with an object.
  Example   : $object->file('/usr/home/me/data.txt');
  Returns   : String (full path name)
- Argument  : String (full path name) (argument only required for setting)
+ Argument  : String (full path name) OR a FileHandle or TypeGlob reference
+           : (argument only required for setting)
  Throws    : Exception if the file appears to be empty or non-existent
  Comments  : File can be text or binary.
 
@@ -228,7 +229,7 @@ sub file {
     my $self = shift; 
     if($_[0]) { 
 	my $file = $_[0];
-	if(not -s $file) {
+	if(not ref $file and not -s $file) {
 	    $self->throw("File is empty or non-existent: $file");
 	}	    
 	$self->{'_file'} = $file;
@@ -705,6 +706,8 @@ sub read {
     my $FH = $Util->create_filehandle( -client => $self, @param);
 
     # Set the record separator (if necessary) using dynamic scope.
+    my $prev_rec_sep;
+    $prev_rec_sep = $/  if scalar $rec_sep;  # save the previous rec_sep
     local $/ = $rec_sep if scalar $rec_sep;
 
     # Verify that we have a proper reference to a function.
@@ -716,12 +719,24 @@ sub read {
 
     $DEBUG && printf STDERR "$ID: read(): rec_sep = %s; func = %s\n",$/, ($func_ref?'defined':'none');
     
-    my($data, $lines);
+    my($data, $lines, $alarm_available);
+
+    $alarm_available = 1;
+
+    eval {
+        alarm(0);
+    };
+    if($@) {
+        # alarm() not available (ActiveState perl for win32 doesn't have it.
+        # See jitterbug PR#98)
+        $alarm_available = 0;
+    }
 
     $SIG{ALRM} = sub { die "Timed out!"; };
  
     eval {
-	 alarm($wait);
+        $alarm_available and alarm($wait);
+        
       READ_LOOP:
 	while(<$FH>) {
 	    # Default behavior: read all lines.
@@ -730,9 +745,11 @@ sub read {
 #	    next if m@^(\s*|$/*)$@; 
 	    
 	    $lines++;
-	    alarm(0);  # Deactivate the alarm as soon as we start reading.
+            $alarm_available and alarm(0);  # Deactivate the alarm as soon as we start reading.
 	    my($result);
 	    if($func_ref) {
+		# Need to reset $/ for any called function.
+		local $/ = $prev_rec_sep if defined $prev_rec_sep;
 		$result = &$func_ref($_) or last READ_LOOP;
 	    } else {
 		$data .= $_;
@@ -743,8 +760,8 @@ sub read {
 	 $self->throw("Timed out while waiting for input from $self->{'_input_type'}.", "Timeout period = $wait seconds.\nFor a longer time out period, supply a -wait => <seconds> parameter\n".
 		     "or edit \$TIMEOUT_SECS in Bio::Root::Global.pm.");
     } elsif($@ =~ /\S/) {
-         my $err = $@;
-	 $self->throw("Unexpected error during read: $err");
+        my $err = $@;
+        $self->throw("Unexpected error during read: $err");
     }
 
     close ($FH) unless $self->{'_input_type'} eq 'STDIN';

@@ -10,7 +10,7 @@
 #
 # MODIFICATION NOTES: See bottom of file.
 #
-# Copyright (c) 1996-98 Steve A. Chervitz. All Rights Reserved.
+# Copyright (c) 1996-2000 Steve A. Chervitz. All Rights Reserved.
 #           This module is free software; you can redistribute it and/or 
 #           modify it under the same terms as Perl itself.
 #           Retain this notice and note any modifications made.
@@ -997,192 +997,6 @@ sub record_err {
 }
 
 
-=head2 _set_err
-
- Purpose   : To create a Bio::Root::Err.pm object and optionally attach it
-           : it to the current object.
- Usage     : This is an internal method and should not be called directly
-           : $object->_set_err( msg)  
-           : $object->_set_err( msg, note) 
-           : $object->_set_err( msg, note, tech)
-           : $object->_set_err( -MSG  =>"main message", 
-	   :	                -TECH =>"technical note only")
-           : $object->_set_err($object->err())  # Transfers pre-existing err
-           : $object->_set_err()                # Re-sets an object's error state 
-           :                                    # (Public method: clear_err())
- Example   : $self->throw("Data not found.");
-           : To throw an error:
-           : $myData eq 'foo' || return $self->throw("Data is not 'foo'.")
- Returns   : Object reference to the newly created Bio::Root::Err.pm object
-           : via call to _set_err_state().
-           :
- Argument  : @param may be empty, or contain a single error object, 
-           : named parameters, or a list of unnamed parameters for 
-           : building an Bio::Root::Err object.
-           :   msg  = string, basic description of the exception.
-           :   note = string, additional note to indicate cause or exception
-           :          or provide information about how to fix/report it.
-           :   tech = string, addition note with technical information
-           :          of interest to developer.
-           :
-           : When using unnamed parameters, the number of items in @param 
-           : is used as a "syntactic sugar" to indicate which fields in the 
-           : err object to set (1 = msg, 2 = msg + note, 3 = msg + note + tech)
-           : Calling _set_err() with no arguments clears the {'_err'} and 
-           : {'_errState'} data members and destroys the Err object.
-           : 
- Comments  : NEW VERSION: NOT ATTACHING EXCEPTIONS TO THE OBJECT.
-           : Since exceptions are fatal, it is more expedient for the calling code
-           : to handle them as they arise. Attaching exceptions to the objects
-           : that generated them implies that the object assumes responsibility for 
-           : any error it might throw, which is not usually appropriate and is 
-           : difficult to manage.
-           :
-           : The new code now by default will not attach Err objects to the 
-           : object that. Attaching Err objects can be enabled using the -RECORD_ERR
-           : constructor option or the record_err() method. Bio::Root::Global::record_err()
-           : turns on Err attaching for all objects in a script.
-           :
-           : Attaching exceptions to the objects that produced them is considered
-           : non-standard and must be explicitly requested. This behavior might be 
-           : useful in situations where one runs some code in an unsupervised 
-           : setting and needs a means for reporting all warnings/errors later.
-           :
-           : One problem with attaching Err objects is that if an object is contained 
-           : within another object, the containing object will not know about the 
-           : warning unless it polls all of it contained objects, (bad design).
-           : One could propagate the warning through the containment hierarchy
-           : but the hierarchy may not be accessible to the objects themselves:
-           : a given object may not know where it is contained (i.e, it may not 
-           : have a parent).
-           :    
-           : * To transfer an error between objects, you can use 
-           :   $self->warn($object->err) or $self->throw($object->err) or
-           :   $self->_set_err($object->err) to not generate a warning.
-
-See also   : L<_set_warning>(), L<err>(), L<warn>(), L<throw>(), L<record_err>(), L<_set_err_state>(), B<Bio::Root::Err.pm>
-
-=cut
-
-#--------------
-sub _set_err {   
-#--------------
-    my($self, @param) = @_;
-    
-    require Bio::Root::Err; import Bio::Root::Err qw(:data);
-
-    ## Re-set the object's 'Err' member and clear the 'ErrState'
-    ## if no data was provided. 
-    if(!@param) {
-	if(ref($self->{'_err'})) {
-	    $self->{'_err'}->remove_all;
-	    %{$self->{'_err'}} = ();
-	}
-	undef $self->{'_err'};
-	undef $self->{'_errState'};
-	return;
-    }
-    
-    # If client specifies any error field (ie. -MSG=>'Bad data') the 'custom' constructor
-    # is used. If no error field is specified by name, the constructor is selected based on
-    # the number of arguments in @param.
-
-    local($^W) = 0;  
-    my %err_fields = %Bio::Root::Err::ERR_FIELDS;  # prevents warnings
-    my $constructor = 'custom';
-    if( !grep exists $Bio::Root::Err::ERR_FIELDS{uc($_)}, @param) {
-	$constructor = scalar @param;
-    }
-    
-    $DEBUG and do{ print STDERR "\n$ID: setting error ${\ref($self)} with constructor = $constructor"; <STDIN>; };
-    
-    ## Adjust the constructor number if STACK_NUM was given in @param (for warnings).
-    ## This is a bit of a hack, but will do for now.
-    ## The constructor needs to be adjusted since it included the "-STACK_NUM=>#" data
-    ## which increases the number of arguments by 2 and is not to be included in 
-    ## the exception's data.
-
-    my $stackNum = 3;  
-    if($constructor =~ /\d/ and grep (/STACK_NUM/i, @param)) { 
-	$constructor -= 2;  ## Since STACK_NUM data was appended to @_.
-	$stackNum=$param[$#param];
-    }
-
-    my ($err);
-    eval {
-	local $_ = $constructor;
-	## Switching on the number of items in @param (now in $_).
-	SWITCH: {
-	    ## Single argument: $param[0] is either an Err object or a message.
-	    /1/ && do{ 	if((ref($param[0]) =~ /Err/)) {
-#		print "$ID: cloning err for object ${\ref $self}, \"${\$self->name}\"\n";<STDIN>;
-		$err = $param[0]->clone(); ## Cloning error object.
-	    } else {
-		$err = new Bio::Root::Err(-MSG     =>$param[0], 
-					  -STACK   =>scalar($self->stack_trace($stackNum)),
-					  -CONTEXT =>$self->containment,
-				       # -PARENT =>$self
-					  );
-	    }
-			last SWITCH; };
-	    
-	    ## Two arguments: Message and note data.
-	    /2/ && do{ $err = new Bio::Root::Err(-MSG     =>$param[0], 
-						 -NOTE    =>$param[1], 
-						 -STACK   =>scalar($self->stack_trace($stackNum)),
-						 -CONTEXT =>$self->containment,
-						# -PARENT =>$self 
-						 );
-		       last SWITCH; };
-	    
-	    ## Three arguments: Message, note, and tech data.
-	    /3/ && do{ $err = new Bio::Root::Err(-MSG     =>$param[0], 
-						 -NOTE    =>$param[1],  
-						 -TECH    =>$param[2], 
-						 -STACK   =>scalar($self->stack_trace($stackNum)),
-						 -CONTEXT =>$self->containment,
-					      #   -PARENT =>$self 
-						 );
-		       last SWITCH; };
-	    
-	    ## Default. Pass arguments to Err object for custom construction.
-	    ## Note: Stack data is not added. Should be provided in @_.
-	    $err = new Bio::Root::Err( @param, 
-				       -STACK   =>scalar($self->stack_trace($stackNum)),
-				     #  -PARENT =>$self
-				       );
-	}
-    };
-    if($@) {
-	printf STDERR "%s \"%s\": Failed to create Err object: \n $@", ref($self),$self->name;<STDIN>;
-	print STDERR "\nReturning $self->{'_err'}:";<STDIN>;
-	return $self->{'_err'}; }  ## Err construction will fail if the err is a duplicate.
-                                  ## In any event, the Err object creation error is
-                                  ## simply reported to STDERR and 
-                                  ## the current 'Err' member is returned since 
-                                  ## there is no call to _set_err_state().
-
-    ## ONLY ATTACH THE Err OBJECT IF DIRECTED TO.
-    if($RECORD_ERR or $self->{'_record_err'}) {
-	if( ref($self->{'_err'})) {
-	    ## Expand the linked list of Err objects if necessary.
-#	    print "Expanding linked list of errors for ${\$self->name}.\nError = ${\$err->msg}\n";
-	    $self->{'_err'}->last->add($err);
-	} else {
-#	    print "Adding new error for ${\$self->name}.\nError = ${\$err->msg}\n";
-	    $self->{'_err'} = $err;
-	}
-
-	## Propagate the error up the containment hierarchy to ensure it gets noticed.
-	## No longer needed since exception is fatal.
-#	$self->_propagate_err($err);
-    }
-#    else { print "NOT SETTING ERR OBJECT: \n${\$err->string}\n\n"; }
-
-    $self->_set_err_state($err);
-}
-
-
 
 =head2 _set_err_state
 
@@ -1588,7 +1402,9 @@ sub _set_io {
     
     require Bio::Root::IOManager;
 
-    $self->{'_io'} = new Bio::Root::IOManager(-PARENT=>$self, @_);
+# See PR#192. 
+#    $self->{'_io'} = new Bio::Root::IOManager(-PARENT=>$self, @_);
+    $self->{'_io'} = new Bio::Root::IOManager(-PARENT=>$self);
 }
 
 
