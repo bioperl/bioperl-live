@@ -1,5 +1,3 @@
-use lib '/home1/sis/letondal/packages/bioperl-live';
-
 use strict;
 BEGIN {
     use vars qw($NTESTS);
