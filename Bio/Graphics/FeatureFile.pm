@@ -794,7 +794,7 @@ sub code_setting {
     $self->set($section,$option,$coderef);
     return $coderef;
   }
-  elsif ($setting =~ /^sub\s*\{/) {
+  elsif ($setting =~ /^sub\s*(\(\$\$\))*\s*\{/) {
     my $coderef   = eval $setting;
     warn $@ if $@;
     $self->set($section,$option,$coderef);
