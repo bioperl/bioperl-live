@@ -2,7 +2,7 @@
 
 use lib '.';
 
-# $Id: bp_genbank2gff.PLS,v 1.6 2003-08-11 20:50:21 mwilkinson Exp $
+# $Id: bp_genbank2gff.PLS,v 1.7 2003-08-11 23:46:41 mwilkinson Exp $
 use strict;
 use Bio::DB::GFF;
 use Getopt::Long;
@@ -143,6 +143,7 @@ Load a Bio::DB::GFF database from GFF files.
    --proxy     <proxy>       Proxy server to use for remote access
    --stdout                  direct output to STDOUT
    --adaptor   <adaptor>     adaptor to use (e.g. biofetch_oracle or biofetch)
+   --viral                   the genome you are loading is viral (changes tag choices)
     EITHER --file            Arguments that follow are Genbank/EMBL file names
     OR --gb_folder           What follows is a folder full of gb files to process
     OR --accession           Arguments that follow are genbank accession numbers (not gi!)
@@ -163,7 +164,7 @@ that are supported by GFF through adaptors.
 USAGE
 ;
 
-my ($DSN,$ADAPTOR,$CREATE,$USER,$PASSWORD,$gbFOLDER,$FASTA,$ACC,$accFILE, $accPIPE, $FILE,$PROXY,$STDOUT);
+my ($DSN,$ADAPTOR,$CREATE,$USER,$VIRAL,$PASSWORD,$gbFOLDER,$FASTA,$ACC,$accFILE, $accPIPE, $FILE,$PROXY,$STDOUT);
 
 
 GetOptions (
@@ -173,6 +174,7 @@ GetOptions (
             'adaptor:s'   => \$ADAPTOR,
             'accession'   => \$ACC,
             'file'        => \$FILE,
+            'viral'       => \$VIRAL,
             'acc_file'    => \$accFILE,
             'acc_pipe'    => \$accPIPE,
             'gb_folder=s' => \$gbFOLDER,
@@ -193,7 +195,19 @@ push @auth,(-user=>$USER)     if defined $USER;
 push @auth,(-pass=>$PASSWORD) if defined $PASSWORD;
 push @auth,(-proxy=>$PROXY)   if defined $PROXY;
 
-my $db = Bio::DB::GFF->new(-adaptor=>$ADAPTOR,-dsn => $DSN,@auth)
+my %preferred_tags = (
+		      strain        => 10,
+		      organism      => 20,
+		      protein_id    => 40,
+		      locus_tag     => 50,
+		      locus         => 60,
+		      gene          => 70,
+		      standard_name => 80,
+                     );
+$preferred_tags{'product'} = 90 if $VIRAL; # added this to the default list for viral genomes
+                                    # since most functions come from post-translational processing, so the defailt labels are crap!
+
+my $db = Bio::DB::GFF->new(-adaptor=>$ADAPTOR,-dsn => $DSN,@auth, -preferred_tags => \%preferred_tags)
   or die "Can't open database: ",Bio::DB::GFF->error,"\n";
 
 if ($CREATE) {
