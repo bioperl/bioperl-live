@@ -12,7 +12,7 @@
 
 =head1 NAME
 
-Bio::LiveSeq::Mutator - Package mutating LiveSequences
+  Bio::LiveSeq::Mutator - Package mutating LiveSequences
 
 =head1 SYNOPSIS
 
@@ -157,11 +157,11 @@ sub gene {
  Function:
 
             Sets and returns coordinate system used in positioning the
-            mutations.
+            mutations. See L<change_gene> for details.
 
  Example :
  Returns : string
- Args    : string (coding [transcript number] | entry)
+ Args    : string (coding [transcript number] | gene | entry)
 
 =cut
 
@@ -169,7 +169,7 @@ sub gene {
 sub numbering {
     my ($self,$value) = @_;
     if( defined $value) {
-	if ($value =~ /(coding)( )?(\d+)?/ or $value eq 'entry') {
+	if ($value =~ /(coding)( )?(\d+)?/ or $value eq 'entry' or $value eq 'gene') {
 	    $self->{'numbering'} = $value;
 	} else { # defaulting to 'coding'
 	    $self->{'numbering'} = 'coding';
@@ -475,6 +475,7 @@ sub exons {
  Usage   : my $mutate = Bio::LiveSeq::Mutator->new(-gene => $gene,
 						   numbering => "coding"
 						   );
+           # $mut is Bio::LiveSeq::Mutation object
            $mutate->add_Mutation($mut);
            my $results=$mutate->change_gene();
 
@@ -482,25 +483,32 @@ sub exons {
 
            Returns a Bio::Variation::SeqDiff object containing the
            results of the changes performed according to the
-           instructions present in the mutmatrix.  The -numbering
+           instructions present in Mutation(s).  The -numbering
            argument decides what molecule is being changed and what
            numbering scheme being used:
 
             -numbering => "entry"
 
-               determines the DNA level, using the numbering of the
+               determines the DNA level, using the numbering from the
                beginning of the sequence
 
             -numbering => "coding"
 
-               determines the cDNA level, using the numbering from the
+               determines the RNA level, using the numbering from the
                beginning of the 1st transcript
 
-           Alternative transcripts can be used by specifying "coding 2" or
-           "coding 3" ...
+               Alternative transcripts can be used by specifying
+               "coding 2" or "coding 3" ...
+
+            -numbering => "gene"
+
+               determines the DNA level, using the numbering from the
+               beginning of the 1st transcript and inluding introns.
+               The meaning equals 'coding' if the reference molecule
+               is cDNA.
 
  Args    : Bio::LiveSeq::Gene object
-           reference to a mutmatrix array of arrays
+           Bio::LiveSeq::Mutation object(s)
            string specifying a numbering scheme (defaults to 'coding')
  Returns : Bio::Variation::SeqDiff object or 0 on error
 
@@ -521,6 +529,10 @@ sub change_gene {
     #
     my @transcripts=@{$self->gene->get_Transcripts};
     my $refseq; # will hold Bio::LiveSeq:Transcript object or Bio::LiveSeq::DNA
+
+    # 'gene' eq 'coding' if reference sequence is cDNA
+    $self->numbering ('coding') if $self->gene->get_DNA->moltype eq 'rna' and $self->numbering eq 'gene';
+
     if ($self->numbering =~ /(coding)( )?(\d+)?/ ) {
 	$self->numbering($1);
 	my $transnumber = $3;
@@ -580,12 +592,19 @@ sub change_gene {
     my $k;
     foreach my $mutation ($self->each_Mutation) {
 #	print STDERR "+2:", $mutation->label, "+\n";
+
+	if ($self->numbering eq 'gene') {
+	    my $tmp = $mutation->label;
+	    $tmp++ if $mutation->label < 1;
+	    $tmp += $seqDiff->offset;
+	    $mutation->label($tmp);
+	}
 	next unless $mutation->label > 0;
 	$self->mutation($mutation);
 
 	$mutation->issue(++$k);
 	#
-	# current position on the trascript
+	# current position on the transcript
 	#
 	if ($self->numbering =~ /coding/) {
 	    $mutation->transpos($mutation->pos); # transpos given by user
@@ -625,7 +644,7 @@ sub change_gene {
 	# Mutations are done here!                                              #
 	$refseq->labelchange($mutation->seq, $mutation->label, $mutation->len); #
 	#########################################################################
-#	create_mut_objs_after ( $seqDiff,$before_mutation);
+
 	$self->_post_mutation ($seqDiff);
 
 	$self->dnamut(undef);
@@ -636,7 +655,11 @@ sub change_gene {
     # record the final state of all three sequences
     $seqDiff->dna_mut($self->DNA->seq);
     $seqDiff->rna_mut($self->RNA->seq);
-    $seqDiff->aa_mut($refseq->get_Translation->seq);
+    if ($refseq->isa("Bio::LiveSeq::Transcript")) {
+	$seqDiff->aa_mut($refseq->get_Translation->seq);
+    } else {
+	$seqDiff->aa_mut($self->RNA->get_Translation->seq);
+    }
 
     #$seqDiff{mut_dna_seq}=$gene->get_DNA->seq;
     #my $i=1;
