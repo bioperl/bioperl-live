@@ -18,7 +18,7 @@ BEGIN {
     }
     use Test;
     use vars qw($TESTCOUNT);
-    $TESTCOUNT = 22;
+    $TESTCOUNT = 26;
     plan tests => $TESTCOUNT;
 }
 
@@ -48,6 +48,8 @@ $treeio = new Bio::TreeIO(-format => 'newick',
 			  -file   => Bio::Root::IO->catfile('t','data',
 							    'test.nh'));
 $tree = $treeio->next_tree;
+
+
 if( $verbose ) { 
     my $out = new Bio::TreeIO(-format => 'tabtree');
     
@@ -68,6 +70,9 @@ my @mixgroup = ( $tree->find_node('hADH1'),
 
 my ($iADHX) = $tree->find_node('iADHX');
 
+# test height
+ok($iADHX->height, 0);
+ok($iADHX->depth,0.22);
 ok(! $tree->is_monophyletic(-nodes   => \@mixgroup,
 			    -outgroup=> $iADHX));
 
@@ -147,6 +152,26 @@ $eps = 0.001 * $total_length_new;    # tolerance for checking length
 ok(($total_length_orig >= $tree->total_branch_length - $eps)
    and ($total_length_orig <= $tree->total_branch_length + $eps));
 ok($tree->get_root_node, $a->ancestor);
+
+# BFS and DFS search testing
+$treeio = new Bio::TreeIO(-verbose => $verbose,
+			     -format => 'newick',
+			     -file   => Bio::Root::IO->catfile('t','data', 
+							       'test.nh'));
+$tree = $treeio->next_tree;
+my $ct =0;
+my $let = ord('A');
+for my $n (  $tree->get_leaf_nodes ) {
+    $n->id(chr($let++));
+}
+
+for my $n ( grep {! $_->is_Leaf } $tree->get_nodes ) {
+    $n->id($ct++);
+}
+my $BFSorder = join(",", map { $_->id } ( $tree->get_nodes(-order => 'b')));
+ok($BFSorder, '0,1,2,E,F,G,H,C,D,3,A,B');
+my $DFSorder = join(",", map { $_->id } ( $tree->get_nodes(-order => 'd')));
+ok($DFSorder, '0,1,E,F,G,H,2,C,D,3,A,B');
 
 __DATA__
 (D,(C,(A,B)));
