@@ -1,13 +1,3 @@
-
-#
-# BioPerl module for Bio::DB::Abstract
-#
-# Cared for by Ewan Birney <birney@sanger.ac.uk>
-#
-# Copyright Ewan Birney
-#
-# You may distribute this module under the same terms as perl itself
-
 # POD documentation - main docs before the code
 
 =head1 NAME
@@ -54,13 +44,12 @@ The rest of the documentation details each of the object methods. Internal metho
 
 
 package Bio::DB::Abstract;
-use vars qw($AUTOLOAD @ISA);
+use vars qw($AUTOLOAD @ISA @EXPORT_OK);
 use strict;
 
-# Object preamble - inheriets from Bio::Root::Object
+# Object preamble - inherits from Bio::Root::Object
 
 use Bio::Root::Object;
-
 
 use AutoLoader;
 @ISA = qw(Bio::Root::Object Exporter);
