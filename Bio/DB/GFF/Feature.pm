@@ -707,6 +707,7 @@ sub merged_segments {
     if (defined($previous)
 	&& $previous->stop+1 >= $s->start
 	&& $previous->score  == $s->score
+	&& $previous->method eq $s->method
        ) {
       if ($self->absolute && $self->strand < 0) {
 	$previous->{start} = $s->{start};
