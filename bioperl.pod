@@ -1,4 +1,4 @@
-## $Id: bioperl.pod,v 1.31 2002-07-29 12:27:55 bosborne Exp $
+## $Id: bioperl.pod,v 1.32 2002-08-06 13:01:45 bosborne Exp $
 
 ## Should contain general info about the distribution including
 ## links to many modules.
@@ -48,7 +48,7 @@ We have a cookbook tutorial in bptutorial.pl which has embedded
 documentation. Start there if learning-by-example suits you most, or
 examine the Bioperl online course at
 http://www.pasteur.fr/recherche/unites/sis/formation/bioperl. Make sure
-to check the documentation in the modules as well - there are almost 200
+to check the documentation in the modules as well - there are over 500
 modules in Bioperl, and counting, and there's detail in the modules'
 documentation that will not appear in the general documentation.
 
