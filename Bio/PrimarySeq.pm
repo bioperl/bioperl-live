@@ -192,6 +192,9 @@ sub _initialize {
   }
   if( defined $given_id ) { $id = $given_id; }
 
+defined($seq) && print STDOUT "PR seq:$seq~~\n";
+
+
   $seq     && $self->seq($seq);
   $id      && $self->display_id($id);
   $acc     && $self->accession_number($acc);
@@ -441,6 +444,28 @@ sub can_call_new {
    return 1;
 
 }
+
+=head2 id
+
+ Title   : id
+ Usage   : $id = $seq->id()
+ Function: This is mapped on display_id
+ Example :
+ Returns : 
+ Args    :
+
+
+=cut
+
+sub  id {
+   my ($self,$value) = @_;
+
+   if( defined $value ) {
+	return $self->display_id($value);
+   }
+   return $self->display_id();
+}
+
 
 =head1 Methods Inherieted from Bio::PrimarySeqI
 
