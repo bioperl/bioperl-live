@@ -18,6 +18,7 @@ Bio::PrimarySeq - Bioperl lightweight Sequence Object
 
   # The Bio::SeqIO for file reading, Bio::DB::GenBank for
   # database reading
+
   use Bio::Seq;
   use Bio::SeqIO;
   use Bio::DB::GenBank;
@@ -37,9 +38,6 @@ Bio::PrimarySeq - Bioperl lightweight Sequence Object
   $seqobj = $inputstream->next_seq();
   print "Sequence ", $seqobj->id(), " and desc ", $seqobj->desc, "\n";
 
-  # get from database
-  $db = Bio::DB::GenBank->new();
-  $seqobj = $db->get_Seq_by_acc('X78121');
 
   # to get out parts of the sequence.
 
@@ -58,6 +56,13 @@ contain sequence features or other information.  To have a sequence
 with sequence features you should use the Seq object which uses this
 object.
 
+Although newusers will use Bio::PrimarySeq alot, in general you will
+be using it from the Bio::Seq object. For more information on Bio::Seq
+go perldoc Bio::Seq. For interest you might like to known that
+Bio::Seq has-a Bio::PrimarySeq and forwards most of the function calls
+to do with sequence to it (the has-a relationship lets us get out of a
+otherwise nasty cyclical reference in Perl which would leak memory).
+
 Sequence objects are defined by the Bio::PrimarySeqI interface, and this
 object is a pure Perl implementation of the interface (if that's
 gibberish to you, don't worry. The take home message is that this
@@ -69,38 +74,6 @@ objects, then you should read the Bio::PrimarySeqI documentation
 The documenation of this object is a merge of the Bio::PrimarySeq and
 Bio::PrimarySeqI documentation.  This allows all the methods which you can
 call on sequence objects here.
-
-=head1 Reimplementation
-
-The Sequence object was completely rewritten for the 0.6 series. This
-was because the old Sequence object was becoming heavily bloated and
-difficult to maintain. There are some key changes from the old object
-to the new object, but basically, everything should work with the new
-object with a minimal number of changes.
-
-The key change is that the format IO has been removed from this object
-and moved to the Bio::SeqIO system, which provides a much better way
-to encapsulate the sequence format reading. Please read the SeqIO
-documentation, but the take home message is that lines like
-
-    # old style reading from files
-    $seq = Bio::Seq->new( -file => "myfile");
-
-Becomes
-
-    # new style reading from files.
-    $inputstream = Bio::SeqIO->new( -file => "myfile", -format => 'Fasta');
-    $seqobj = $inputstream->next_seq();
-
-For writing files, a similar system is used
-
-     # old style writing to files
-     print OUTPUT $seq->layout_fasta;
-
-     # new style writing to files
-     $outputstream = Bio::SeqIO->new( -fh => \*OUTPUT, -format => 'Fasta');
-     $outputstream->write_seq($seqobj);
-
 
 =head1 FEEDBACK
 

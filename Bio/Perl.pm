@@ -247,6 +247,7 @@ sub write_sequence{
    my $error = 0;
    my $seqname = "sequence1";
 
+   # catch users who haven't passed us a filename we can open
    if( $filename !~ /^\>/ && $filename !~ /^|/ ) {
        $filename = ">".$filename;
    }

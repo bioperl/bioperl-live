@@ -15,18 +15,72 @@
 Bio::Seq - Sequence object, with features
 
 =head1 SYNOPSIS
+   
+    # This is the main sequence object in Bioperl
 
+    # gets a sequence from a file
     $seqio  = Bio::SeqIO->new( '-format' => 'embl' , -file => 'myfile.dat');
     $seqobj = $seqio->next_seq();
 
-    # features must implement Bio::SeqFeatureI
+    # SeqIO can both read and write sequences; see Bio::SeqIO
+    # for more information and examples
+
+    # get from database
+    $db = Bio::DB::GenBank->new();
+    $seqobj = $db->get_Seq_by_acc('X78121');
+
+    # make from strings in script
+    $seqobj = Bio::Seq->new( -display_id => 'my_id', 
+			     -seq => $sequence_as_string);
+
+    # gets sequence as a string from sequence object
+    $seqstr   = $seqobj->seq(); # actual sequence as a string
+    $seqstr   = $seqobj->subseq(10,50); # slice in biological coordinates
+
+    # retrieves information from the sequence
+    # features must implement Bio::SeqFeatureI interface
 
     @features = $seqobj->get_SeqFeatures(); # just top level
-    @features = $seqobj->get_all_SeqFeatures(); # descend into sub features
+    foreach my $feat ( @features ) {
+	print "Feature ",$feat->primary_tag," starts ",$feat->start," ends ",
+	$feat->end," strand ",$feat->strand,"\n";
 
-    $seq      = $seqobj->seq(); # actual sequence as a string
-    $seqstr   = $seqobj->subseq(10,50);
+        # features retain link to underlying sequence object
+        print "Feature sequence is ",$feat->seq->seq(),"\n"
+    }
+
+    # sequences may have a species
+   
+    if( defined $seq->species ) { 
+	print "Sequence is from ",$species->binomial_name," [",$species->common_name,"]\n";
+    }
+
+    # annotation objects are Bio::AnnotationCollectionI's
     $ann      = $seqobj->annotation(); # annotation object
+  
+    # references is one type of annotations to get. Also get
+    # comment and dblink. Look at Bio::AnnotationCollection for
+    # more information
+
+    foreach my $ref ( $ann->get_Annotations('reference') ) {
+	print "Reference ",$ref->title,"\n";
+    }
+
+    # you can get truncations, translations and reverse complements, these
+    # all give back Bio::Seq objects themselves, though currently with no
+    # features transfered 
+
+    my $trunc = $seqobj->trunc(100,200);
+    my $rev   = $seqobj->revcom();
+
+    # there are many options to translate
+    my $trans = $seqobj->translate();
+
+    # these functions can be chained together 
+
+    my $trans_trunc_rev = $seqobj->trunc(100,200)->revcom->translate();
+
+ 
 
 =head1 DESCRIPTION
 

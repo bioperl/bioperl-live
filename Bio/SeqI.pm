@@ -12,32 +12,47 @@
 
 =head1 NAME
 
-Bio::SeqI - Abstract Interface of Sequence (with features)
+Bio::SeqI [Developers] - Abstract Interface of Sequence (with features)
 
 =head1 SYNOPSIS
 
-    # get a Bio::SeqI somehow, eg, via SeqIO. See SeqIO info
-    # for more information
+    # Bio::SeqI is the interface class for sequences.
+   
+    # If you are a newcomer to bioperl, you should 
+    # start with Bio::Seq documentation. This 
+    # documentation is mainly for developers using
+    # Bioperl. 
 
-    $seqio  = Bio::SeqIO->new ( '-format' => 'Fasta' , -file => 'myfile.fasta');
-    $seqobj = $seqio->next_seq();
+    # Bio::SeqI implements Bio::PrimarySeqI
+    $seq      = $seqobj->seq(); # actual sequence as a string
+    $seqstr   = $seqobj->subseq(10,50);    
 
+    # Bio::SeqI has annotationcollections
+
+    $ann      = $seqobj->annotation(); # annotation object
+
+    # Bio::SeqI has sequence features
     # features must implement Bio::SeqFeatureI
 
     @features = $seqobj->get_SeqFeatures(); # just top level
     @features = $seqobj->get_all_SeqFeatures(); # descend into sub features
 
-    $seq      = $seqobj->seq(); # actual sequence as a string
-    $seqstr   = $seqobj->subseq(10,50);    
-    $ann      = $seqobj->annotation(); # annotation object
 
 
 =head1 DESCRIPTION
 
-SeqI is the abstract interface of annotated Sequence. These methods
-are those which you can be guarenteed to get for any annseq. There aren't
-many here, because too many complicated functions here prevent implementations
-which are just wrappers around a database or similar delayed mechanisms.
+Bio::SeqI is the abstract interface of annotated Sequences. These
+methods are those which you can be guarenteed to get for any Bio::SeqI
+- for most users of the package the documentation (and methods) in
+this class are not at useful - this is a developers only class which
+defines what methods have to be implmented by other Perl objects to
+comply to the Bio::SeqI interface. Go "perldoc Bio::Seq" or "man
+Bio::Seq" for more information.
+
+
+There aren't many here, because too many complicated functions here
+prevent implementations which are just wrappers around a database or
+similar delayed mechanisms.
 
 Most of the clever stuff happens inside the SeqFeatureI system.
 

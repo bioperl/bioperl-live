@@ -12,11 +12,17 @@
 
 =head1 NAME
 
-Bio::PrimarySeqI - Interface definition for a Bio::PrimarySeq
+Bio::PrimarySeqI [Developers] - Interface definition for a Bio::PrimarySeq
 
 =head1 SYNOPSIS
 
-    # get a Bio::PrimarySeqI compliant object somehow
+
+    # Bio::PrimarySeqI is the interface class for sequences.
+   
+    # If you are a newcomer to bioperl, you should 
+    # start with Bio::Seq documentation. This 
+    # documentation is mainly for developers using
+    # Bioperl. 
 
     # to test this is a seq object
 
@@ -51,14 +57,22 @@ Bio::PrimarySeqI - Interface definition for a Bio::PrimarySeq
 =head1 DESCRIPTION
 
 This object defines an abstract interface to basic sequence
-information. PrimarySeq is an object just for the sequence and its
-name(s), nothing more. Seq is the larger object complete with
-features. There is a pure perl implementation of this in
-Bio::PrimarySeq. If you just want to use Bio::PrimarySeq objects, then
-please read that module first. This module defines the interface, and
-is of more interest to people who want to wrap their own Perl
-Objects/RDBs/FileSystems etc in way that they "are" bioperl sequence
-objects, even though it is not using Perl to store the sequence etc.
+information - for most users of the package the documentation (and
+methods) in this class are not useful - this is a developers only
+class which defines what methods have to be implmented by other Perl
+objects to comply to the Bio::PrimarySeqI interface. Go "perldoc
+Bio::Seq" or "man Bio::Seq" for more information on the main class for
+sequences.
+
+
+PrimarySeq is an object just for the sequence and its name(s), nothing
+more. Seq is the larger object complete with features. There is a pure
+perl implementation of this in Bio::PrimarySeq. If you just want to
+use Bio::PrimarySeq objects, then please read that module first. This
+module defines the interface, and is of more interest to people who
+want to wrap their own Perl Objects/RDBs/FileSystems etc in way that
+they "are" bioperl sequence objects, even though it is not using Perl
+to store the sequence etc.
 
 
 This interface defines what bioperl consideres necessary to "be" a
