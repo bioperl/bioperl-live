@@ -151,7 +151,8 @@ sub get_Seq_by_id {
     $self->throw("id does not exist") if( !defined $seqio ) ;
     my @seqs;
     while( my $seq = $seqio->next_seq() ) { push @seqs, $seq; }
-   if( wantarray ) { return @seqs } else { return shift @seqs }
+    $self->throw("id does not exist") unless @seqs;
+    if( wantarray ) { return @seqs } else { return shift @seqs }
 }
 
 =head2 get_Seq_by_acc
@@ -167,11 +168,12 @@ sub get_Seq_by_id {
 
 sub get_Seq_by_acc {
    my ($self,$seqid) = @_;
-    $self->_sleep;
+   $self->_sleep;
    my $seqio = $self->get_Stream_by_acc($seqid);
-   $self->throw("acc does not exist") if( !defined $seqio );
+   $self->throw("acc does not exist") if( ! defined $seqio );
    my @seqs;
    while( my $seq = $seqio->next_seq() ) { push @seqs, $seq; }
+   $self->throw("acc does not exist") unless @seqs;
    if( wantarray ) { return @seqs } else { return shift @seqs }
 }
 
@@ -194,6 +196,7 @@ sub get_Seq_by_gi {
    $self->throw("gi does not exist") if( !defined $seqio );
    my @seqs;
    while( my $seq = $seqio->next_seq() ) { push @seqs, $seq; }
+   $self->throw("gi does not exist") unless @seqs;
    if( wantarray ) { return @seqs } else { return shift @seqs }
 }
 
@@ -215,6 +218,7 @@ sub get_Seq_by_version {
    $self->throw("accession.version does not exist") if( !defined $seqio );
    my @seqs;
    while( my $seq = $seqio->next_seq() ) { push @seqs, $seq; }
+   $self->throw("accession.version does not exist") unless @seqs;
    if( wantarray ) { return @seqs } else { return shift @seqs }
 }
 
@@ -265,7 +269,7 @@ sub get_Stream_by_id {
 =head2 get_Stream_by_acc
 
   Title   : get_Stream_by_acc
-  Usage   : $seq = $db->get_Seq_by_acc([$acc1, $acc2]);
+  Usage   : $seq = $db->get_Stream_by_acc([$acc1, $acc2]);
   Function: Gets a series of Seq objects by accession numbers
   Returns : a Bio::SeqIO stream object
   Args    : $ref : a reference to an array of accession numbers for
@@ -283,7 +287,7 @@ sub get_Stream_by_acc {
 =head2 get_Stream_by_gi
 
   Title   : get_Stream_by_gi
-  Usage   : $seq = $db->get_Seq_by_gi([$gi1, $gi2]);
+  Usage   : $seq = $db->get_Stream_by_gi([$gi1, $gi2]);
   Function: Gets a series of Seq objects by gi numbers
   Returns : a Bio::SeqIO stream object
   Args    : $ref : a reference to an array of gi numbers for
@@ -300,7 +304,7 @@ sub get_Stream_by_gi {
 =head2 get_Stream_by_version
 
   Title   : get_Stream_by_version
-  Usage   : $seq = $db->get_Seq_by_version([$version1, $version2]);
+  Usage   : $seq = $db->get_Stream_by_version([$version1, $version2]);
   Function: Gets a series of Seq objects by accession.versions
   Returns : a Bio::SeqIO stream object
   Args    : $ref : a reference to an array of accession.version strings for
@@ -421,7 +425,7 @@ sub get_seq_stream {
 	exit 0;
       }
       else {
-	return Bio::SeqIO->new('-verbose' => $self->verbose,
+	  return Bio::SeqIO->new('-verbose' => $self->verbose,
 			       '-format'  => $ioformat,
 			       '-fh'      => \*STREAM);
       }
@@ -432,7 +436,7 @@ sub get_seq_stream {
   }
 
   if ($self->retrieval_type =~ /temp/i) {
-    my $dir = $self->io()->tempdir( CLEANUP => 1);
+    my $dir = $self->io->tempdir( CLEANUP => 1);
     my ( $fh, $tmpfile) = $self->io()->tempfile( DIR => $dir );
     close $fh;
     my $resp = $self->_request($request, $tmpfile);		
