@@ -1,5 +1,5 @@
 #!/usr/bin/perl -w
-# $Id: biofetch_genbank_proxy.PLS,v 1.1 2003-02-21 03:40:26 lstein Exp $
+# $Id: biofetch_genbank_proxy.PLS,v 1.2 2003-02-21 04:56:20 lstein Exp $
 
 # dbfetch style caching proxy for GenBank
 use strict;
@@ -33,6 +33,8 @@ my $style  = param('style');
 my $format = param('format');
 my $id     = param('id');
 my @ids    = split /\s+/,$id;
+
+$format = 'genbank' if $format eq 'default';  #h'mmmph
 
 $MAPPING{$db}        or error(1=>"Unknown database [$db]");
 $style  eq 'raw'     or error(2=>"Unknown style [$style]");
