@@ -16,16 +16,97 @@ BEGIN {
 	use lib 't';
     }
     use Test;
-    plan test => 26;
+    plan test => 83;
 }
 
+use Bio::SearchIO;
 use Bio::Tools::HMMER::Domain;
 use Bio::Tools::HMMER::Set;
 use Bio::Tools::HMMER::Results;
 use Bio::Root::IO;
 
+
+my $searchio = new Bio::SearchIO(-format => 'hmmer',
+				 -file   => Bio::Root::IO->catfile
+				 ("t","data","hmmpfam.out"));
+
+while( my $result = $searchio->next_result ) {
+    ok(ref($result),'Bio::Search::Result::HMMERResult');
+    ok($result->algorithm, 'HMMPFAM');
+    ok($result->algorithm_version, '2.1.1');
+    ok($result->hmm_name, 'pfam');
+    ok($result->sequence_file, '/home/birney/src/wise2/example/road.pep');
+    ok($result->query_name, 'roa1_drome');
+    ok($result->query_description, '');
+    ok($result->num_hits(), 1);
+    while( my $hit = $result->next_model ) {
+	ok($hit->name, 'SEED');
+	ok($hit->raw_score, '146.1');
+	ok($hit->significance, '6.3e-40');
+	ok(ref($hit), 'Bio::Search::Hit::HMMERHit');
+	ok($hit->num_hsps, 2);
+	my $hsp = $hit->next_domain;
+	if( defined $hsp ) {
+	    ok($hsp->hit->start, 1);
+	    ok($hsp->hit->end, 77);
+	    ok($hsp->query->start, 33);
+	    ok($hsp->query->end, 103);
+	    ok($hsp->score, 71.2);
+	    ok($hsp->evalue, '2.2e-17');
+	    ok($hsp->query_string, 'LFIGGLDYRTTDENLKAHFEKWGNIVDVVVMKD-----PRTKRSRGFGFITYSHSSMIDEAQK--SRpHKIDGRVVEP');
+	    ok($hsp->gaps('query'), 7);
+	    ok($hsp->hit_string, 'lfVgNLppdvteedLkdlFskfGpivsikivrDiiekpketgkskGfaFVeFeseedAekAlealnG.kelggrklrv');
+	    ok($hsp->homology_string, 'lf+g+L + +t+e Lk++F+k G iv++ +++D     + t++s+Gf+F+++  ++  + A +    +++++gr+++ ');
+	    ok(	length($hsp->homology_string), length($hsp->hit_string));
+	    ok( length($hsp->query_string), length($hsp->homology_string));
+	}
+	$hsp = $hit->next_domain;
+	if( defined $hsp ) {
+	    ok($hsp->hit->start, 1);
+	    ok($hsp->hit->end, 77);
+	    ok($hsp->query->start, 124);
+	    ok($hsp->query->end, 194);
+	    ok($hsp->score, 75.5);
+	    ok($hsp->evalue, '1.1e-18');
+	    ok($hsp->query_string, 'LFVGALKDDHDEQSIRDYFQHFGNIVDINIVID-----KETGKKRGFAFVEFDDYDPVDKVVL-QKQHQLNGKMVDV');
+	    ok($hsp->gaps('query'), 6);
+	    ok($hsp->hit_string, 'lfVgNLppdvteedLkdlFskfGpivsikivrDiiekpketgkskGfaFVeFeseedAekAlealnGkelggrklrv');	 
+	    ok($hsp->homology_string, 'lfVg L  d +e+ ++d+F++fG iv+i+iv+D     ketgk +GfaFVeF++++ ++k +     ++l+g+ + v');
+	    ok(	length($hsp->homology_string), length($hsp->hit_string));
+	    ok( length($hsp->query_string), length($hsp->homology_string));
+	}
+    }
+}
+$searchio = new Bio::SearchIO(-format => 'hmmer',
+			      -file   => Bio::Root::IO->catfile
+			      ("t","data","hmmsearch.out"));
+while( my $result = $searchio->next_result ) {
+    ok(ref($result),'Bio::Search::Result::HMMERResult');
+    ok($result->algorithm, 'HMMSEARCH');
+    ok($result->algorithm_version, '2.0');
+    ok($result->hmm_name, 'HMM [SEED]');
+    ok($result->sequence_file, 'HMM.dbtemp.29591');
+    ok($result->query_name, 'SEED');
+    ok($result->query_description, '');
+    ok($result->num_hits(), 1215);
+    my $hit = $result->next_model;
+    ok($hit->name, 'Q91581');
+    ok($hit->description,'Q91581 POLYADENYLATION FACTOR 64 KDA SUBUN');
+    ok($hit->significance, '2e-31');
+    ok($hit->raw_score, 119.7);
+    my $hsp = $hit->next_domain;
+    ok($hsp->score,119.7);
+    ok($hsp->evalue, '2e-31');
+    ok($hsp->query->start, 18);
+    ok($hsp->query->end, 89);
+    ok($hsp->hit->start, 1);
+    ok($hsp->hit->end, 77);
+    ok($hsp->query->seqname(), 'SEED');
+    ok($hsp->hit->seqname(), 'Q91581');
+}
+
 my ($domain,$set,$homol,$rev,$res,$dom,@doms);
-$domain = Bio::Tools::HMMER::Domain->new(-verbose=>1);
+    $domain = Bio::Tools::HMMER::Domain->new(-verbose=>1);
 
 ok ref($domain), 'Bio::Tools::HMMER::Domain';
 
@@ -123,3 +204,6 @@ $res = Bio::Tools::HMMER::Results->new( -file => Bio::Root::IO->catfile
 my $res2 = $res->filter_on_cutoff(100,50);
 ok($res2);
 ok($res2->number, 604);
+
+
+# now let's test the new Bio::SearchIO::hmmer
