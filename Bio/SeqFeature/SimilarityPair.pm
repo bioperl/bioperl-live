@@ -32,29 +32,28 @@ print $sim_pair->query()->gff_string(), "\n";
 
 =head1 DESCRIPTION
 
-Lightweight similarity search result as a pair of Similarity features. This
-class inherits off Bio::SeqFeature::FeaturePair and therefore implements
-Bio::SeqFeatureI, whereas the two features of the pair are descendants of
-Bio::SeqFeature::Generic, with better support for representing similarity
-search results in a cleaner way.
+Lightweight similarity search result as a pair of Similarity
+features. This class inherits off Bio::SeqFeature::FeaturePair and
+therefore implements Bio::SeqFeatureI, whereas the two features of the
+pair are descendants of Bio::SeqFeature::Generic, with better support
+for representing similarity search results in a cleaner way.
 
 =head1 FEEDBACK
 
 =head2 Mailing Lists
 
-User feedback is an integral part of the evolution of this
-and other Bioperl modules. Send your comments and suggestions preferably
- to one of the Bioperl mailing lists.
-Your participation is much appreciated.
+User feedback is an integral part of the evolution of this and other
+Bioperl modules. Send your comments and suggestions preferably to one
+of the Bioperl mailing lists.  Your participation is much appreciated.
 
-  bioperl-l@bioperl.org          - General discussion
-  http://bio.perl.org/MailList.html             - About the mailing lists
+  bioperl-l@bioperl.org              - General discussion
+  http://bio.perl.org/MailList.html  - About the mailing lists
 
 =head2 Reporting Bugs
 
 Report bugs to the Bioperl bug tracking system to help us keep track
- the bugs and their resolution.
- Bug reports can be submitted via email or the web:
+ the bugs and their resolution.  Bug reports can be submitted via
+ email or the web:
 
   bioperl-bugs@bio.perl.org
   http://bio.perl.org/bioperl-bugs/
@@ -86,38 +85,27 @@ use Bio::Tools::Blast::Sbjct;
 @ISA = qw(Bio::SeqFeature::FeaturePair);
 
 sub new {
-    my ($class, @args) = @_;
-    my $self = bless {} , ref($class) || $class;
-    $self->_initialize(@args);
-    return $self;
-}
+    my($class,@args) = @_;
+    my $self = $class->SUPER::new(@args);
 
-sub _initialize {
-    my($self,@args) = @_;
-        
     my ($sbjct, $query, $fea1, $source) =
 	$self->_rearrange([qw(SUBJECT
 			      QUERY
 			      FEATURE1
                               SOURCE
 			      )],@args);
-
+    
     # make sure at least the query feature exists -- this refers to feature1
-    if($query && (! $fea1)) {
-	$self->query($query);
-    } else {
-	$self->query();
-    }
-    # now call inherited initialization
-    my $make = $self->SUPER::_initialize(@args);
-
+    if($query && ! $fea1) { $self->query( $query);  } 
+    else { $self->query('null'); } # call with no args sets a default value for query
+    
     $sbjct && $self->subject($sbjct);
     # the following refer to feature1, which has been ensured to exist
-    $self->primary_tag('similarity') if(! defined($self->primary_tag()));
+    $self->primary_tag('similarity') unless( defined $self->primary_tag() );
     $source && $self->source_tag($source);
-    $self->strand(0) if(! defined($self->strand()));
-    # set stuff in self from @args
-    return $make; # success - we hope!
+    $self->strand(0) unless( defined $self->strand() );
+
+    return $self;
 }
 
 =head2 from_searchResult
@@ -231,7 +219,7 @@ sub _from_BlastObj {
 	my $strands = $hsps[0]->strand('sbjct');
 	my $frm = $hsps[0]->frame();
 	foreach my $hsp (@hsps) {
-	    if($hsp->strand('query') != $strandq) {
+	    if(!$hsp->strand('query') || $hsp->strand('query') != $strandq) {
 		$strandq = undef;
 		last; # frames can hardly agree in this case
 	    }
@@ -272,12 +260,32 @@ sub _from_BlastObj {
 
 =cut
 
-sub query{
+sub query {
     my ($self, @args) = @_;
-
-    if((! defined($self->feature1())) && (! @args)) {
-	my $qu = Bio::SeqFeature::Similarity->new();
-	$self->feature1($qu);
+    my $f = $self->feature1();
+    if( ! @args || ( !ref($args[0]) && $args[0] eq 'null') ) {
+	if( ! defined( $f) ) {
+	    @args = Bio::SeqFeature::Similarity->new();	    
+	} elsif( ! $f->isa('Bio::SeqFeature::Similarity') && 
+		 $f->isa('Bio::SeqFeatureI') ) {
+	    # a Bio::SeqFeature::Generic was placeholder for feature1
+	    my $newf = new 
+	      Bio::SeqFeature::Similarity( -start   => $f->start(),
+					   -end     => $f->end(),
+					   -strand  => $f->strand(),
+					   -primary => $f->primary_tag(),
+					   -source  => $f->source_tag(),
+					   -seqname => $f->seqname(),
+					   -score   => $f->score(),
+					   -frame   => $f->frame(),
+					   );
+	    foreach my $tag ( $newf->all_tags ) {
+		$tag->add_tag($tag, $newf->each_tag($tag));
+	    }
+	    @args = $newf;	   
+	} else {
+	    @args = ();
+	}
     }
     return $self->feature1(@args);
 }
@@ -296,10 +304,28 @@ sub query{
 
 sub subject {
     my ($self, @args) = @_;
-
-    if((! defined($self->feature2())) && (! @args)) {
-	my $fea = Bio::SeqFeature::Similarity->new();
-	$self->feature2($fea);
+    my $f = $self->feature2();
+    if(! @args || (!ref($args[0]) && $args[0] eq 'null') ) {
+	if( ! defined( $f) ) {
+	    @args = Bio::SeqFeature::Similarity->new();
+	} elsif( ! $f->isa('Bio::SeqFeature::Similarity') && 
+		 $f->isa('Bio::SeqFeatureI')) {
+	    # a Bio::SeqFeature::Generic was placeholder for feature2
+	    my $newf = new 
+	      Bio::SeqFeature::Similarity( -start   => $f->start(),
+					   -end     => $f->end(),
+					   -strand  => $f->strand(),
+					   -primary => $f->primary_tag(),
+					   -source  => $f->source_tag(),
+					   -seqname => $f->seqname(),
+					   -score   => $f->score(),
+					   -frame   => $f->frame(),
+					   );
+	    foreach my $tag ( $newf->all_tags ) {
+		$tag->add_tag($tag, $newf->each_tag($tag));
+	    }
+	    @args = $newf;
+	}
     }
     return $self->feature2(@args);
 }

@@ -75,28 +75,26 @@ use Bio::SeqFeature::Generic;
 @ISA = qw(Bio::SeqFeature::Generic);
 
 sub new {
-    my ($class, @args) = @_;
-    my $self = bless {}, ref($class) || $class;
-    $self->_initialize(@args);
-    return $self;
-}
+    my ( $caller, @args) = @_;   
+    my ($self) = $caller->SUPER::new(@args); 
 
-sub _initialize {
-    my($self,@args) = @_;
-    
-    my $make = $self->SUPER::_initialize(@args);
-
-    my ($evalue, $seqlen) =
+    my ($evalue, $bits, $frac,$seqlen,$seqdesc) =
 	$self->_rearrange([qw(EXPECT
-			      SEQLENGTH
+			      BITS
+			      FRAC
+			      SEQDESC
+			      SEQLENGTH				      
 			      )],@args);
 
     $evalue && $self->significance($evalue);
+    $bits   && $self->bits($bits);
+    $frac   && $self->frac_identical($frac);
     $seqlen && $self->seqlength($seqlen);
-    $self->primary_tag('similarity') if(! defined($self->primary_tag()));
-    $self->strand(0) if(! defined($self->strand()));
-    # set stuff in self from @args
-    return $make; # success - we hope!
+    $seqdesc && $self->seqdesc($seqdesc);
+    $self->primary_tag('similarity') unless( defined $self->primary_tag() );
+    $self->strand(0) unless( defined $self->strand() );
+
+    return $self;
 }
 
 =head2 significance

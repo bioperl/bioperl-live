@@ -71,18 +71,10 @@ use Bio::SeqFeature::Generic;
 
 @ISA = qw(Bio::SeqFeature::Generic);
 
+
 sub new {
-    my ($class, @args) = @_;
-    my $self = bless {}, ref($class) || $class;
-    $self->_initialize(@args);
-    return $self;
-}
-
-sub _initialize {
-    my($self,@args) = @_;
-    
-    my $make = $self->SUPER::_initialize(@args);
-
+    my ($caller, @args) = @_;
+    my $self = $caller->SUPER::new(@args);
     my ($primary) =
 	$self->_rearrange([qw(PRIMARY
 			      )],@args);
@@ -90,8 +82,7 @@ sub _initialize {
     $primary = 'gene_structure' unless $primary;
     $self->primary_tag($primary);
     $self->strand(0) if(! defined($self->strand()));
-    # set stuff in self from @args
-    return $make; # success - we hope!
+    return $self;
 }
 
 #
@@ -205,7 +196,7 @@ sub exons {
 =cut
 
 sub add_exon {
-    my ($self, $fea, $type) = @_;
+    my ($self, $fea) = @_;
     my $key = '_exons';
 
     if(! $fea->isa('Bio::SeqFeatureI') ) {

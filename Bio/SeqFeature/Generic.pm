@@ -123,52 +123,46 @@ use Bio::Annotation;
 
 @ISA = qw(Bio::Root::RootI Bio::SeqFeatureI);
 
-
 sub new {
-    my ( $class, @args) = @_;
-    my $self = bless {}, ref($class) || $class;
-    $self->_initialize(@args);
+    my ( $caller, @args) = @_;   
+    my ($self) = $caller->SUPER::new(@args); 
+
+    $self->{'_gsf_tag_hash'} = {};
+    $self->{'_gsf_sub_array'} = [];
+    $self->{'_parse_h'} = {};
+    
+    my ($start, $end, $strand, $primary, $source, $frame, 
+	$score, $tag, $gff_string, $gff2_string, $seqname, $annot) =
+	    $self->_rearrange([qw(START
+				  END
+				  STRAND
+				  PRIMARY
+				  SOURCE
+				  FRAME
+				  SCORE
+				  TAG
+				  GFF_STRING
+				  GFF2_STRING
+				  SEQNAME
+				  ANNOTATION
+				  )], @args);
+    $gff2_string && $self->_from_gff2_string($gff2_string);
+    $gff_string  && $self->_from_gff_string($gff_string);
+    $start       && $self->start($start);    
+    $end         && $self->end($end);
+    $strand      && $self->strand($strand);
+    $primary     && $self->primary_tag($primary);
+    $source      && $self->source_tag($source);
+    $frame       && $self->frame($frame);
+    $score       && $self->score($score);
+    $seqname     && $self->seqname($seqname);
+    $annot       && $self->annotation($annot);
+    $tag         && do {
+	foreach my $t ( keys %$tag ) {
+	    $self->add_tag_value($t,$tag->{$t});
+	}
+    };
     return $self;
-}
-
-sub _initialize {
-  my ($self, @args) = @_;
-  my $make = $self->SUPER::_initialize(@args);
-
-  $self->{'_gsf_tag_hash'} = {};
-  $self->{'_gsf_sub_array'} = [];
-  $self->{'_parse_h'} = {};
-
-  my ($start, $end, $strand, $primary, $source, $frame, 
-      $score, $tag, $gff_string, $gff2_string) =
-	  $self->_rearrange([qw(START
-				END
-				STRAND
-				PRIMARY
-				SOURCE
-				FRAME
-				SCORE
-				TAG
-				GFF_STRING
-				GFF2_STRING
-				)],@args);
-  $gff2_string && $self->_from_gff2_string($gff2_string);
-  $gff_string  && $self->_from_gff_string($gff_string);
-  $start       && $self->start($start);
-  $end         && $self->end($end);
-  $strand      && $self->strand($strand);
-  $primary     && $self->primary_tag($primary);
-  $source      && $self->source_tag($source);
-  $frame       && $self->frame($frame);
-  $score       && $self->score($score);
-  $tag         && do {
-      foreach my $t ( keys %$tag ) {
-	  $self->add_tag_value($t,$tag->{$t});
-      }
-  };
-
-  # set stuff in self from @args
-  return $make; # success - we hope!
 }
 
 
@@ -185,10 +179,8 @@ sub _initialize {
 =cut
 
 sub start {
-   my $self = shift;
-
-   if ( @_ ) {
-       my $value = shift;
+   my ($self,$value) = @_;
+   if ( defined $value ) {
        if ( $value !~ /^\-?\d+/ ) {
 	   $self->throw("$value is not a valid start");
        }
@@ -211,10 +203,9 @@ sub start {
 =cut
 
 sub end {
-   my $self = shift;
+   my ($self,$value) = @_;
 
-   if ( @_ ) {
-       my $value = shift;
+   if ( defined $value ) {       
        if ( $value !~ /^\-?\d+/ ) {
 	   $self->throw("$value is not a valid end");
        }
@@ -238,8 +229,7 @@ sub end {
 
 sub length {
    my ($self) = @_;
-
-   return $self->end - $self->start +1;
+   return $self->end() - $self->start() +1;
 }
 
 
@@ -338,8 +328,7 @@ sub frame {
 =cut
 
 sub sub_SeqFeature {
-   my ($self) = @_;
-
+   my ($self) = @_;   
    return @{$self->{'_gsf_sub_array'}};
 }
 
@@ -659,13 +648,11 @@ sub entire_seq {
 =cut
 
 sub seqname {
-   my $obj = shift;
-   if ( @_ ) {
-      my $value = shift;
-      $obj->{'_gsf_seqname'} = $value;
+    my ($obj,$value) = @_;
+    if ( defined $value ) {
+	$obj->{'_gsf_seqname'} = $value;
     }
     return $obj->{'_gsf_seqname'};
-
 }
 
 =head2 annotation

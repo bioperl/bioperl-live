@@ -99,29 +99,18 @@ use Bio::SeqFeature::Generic;
 
 sub new {
     my ($class, @args) = @_;
-    my $self = bless {}, ref($class) || $class;
-    $self->_initialize(@args);
+    my $self = $class->SUPER::new(@args);
+    
+    my ($feature1,$feature2) = 
+	$self->_rearrange([qw(FEATURE1
+			      FEATURE2
+			      )],@args);
+    
+    # Store the features in the object
+    $feature1 && $self->feature1($feature1);
+    $feature2 && $self->feature2($feature2);
     return $self;
 }
-
-sub _initialize {
-  my($self,@args) = @_;
-  my $make = $self->SUPER::_initialize(@args);
-
-  my ($feature1,$feature2) = 
-      $self->_rearrange([qw(FEATURE1
-			    FEATURE2
-			    )],@args);
-
-  # Store the features in the object
-
-  $feature1 && $self->feature1($feature1);
-  $feature2 && $self->feature2($feature2);
-
-  # set stuff in self from @args
-  return $make; # success - we hope!
-}
-
 
 =head2 feature1
 
@@ -130,20 +119,20 @@ sub _initialize {
            $featpair->feature1($feature)
  Function: Get/set for the query feature
  Returns : Bio::SeqFeatureI
- Args    : none
+ Args    : Bio::SeqFeatureI
 
 
 =cut
 
-
 sub feature1 {
-    my ($self,$arg) = @_;
-
-    if (defined($arg)) {
-	$self->throw("Argument [$arg] must be a Bio::SeqFeatureI") unless (ref($arg) ne "" && $arg->isa("Bio::SeqFeatureI"));
+    my ($self,$arg) = @_;    
+    if ( defined($arg) ) {
+	$self->throw("Argument [$arg] must be a Bio::SeqFeatureI") 
+	    unless (ref($arg) && $arg->isa("Bio::SeqFeatureI"));
 	$self->{'feature1'} = $arg;
-    } 
-
+    } elsif( ! defined $self->{'feature1'} ) {
+	$self->{'feature1'} = new Bio::SeqFeature::Generic;
+    }
     return $self->{'feature1'};
 }
 
@@ -154,7 +143,7 @@ sub feature1 {
            $featpair->feature2($feature)
  Function: Get/set for the hit feature
  Returns : Bio::SeqFeatureI
- Args    : none
+ Args    : Bio::SeqFeatureI
 
 
 =cut
@@ -162,10 +151,14 @@ sub feature1 {
 sub feature2 {
     my ($self,$arg) = @_;
 
-    if (defined($arg)) {
-	$self->throw("Argument [$arg] must be a Bio::SeqFeatureI") unless (ref($arg) ne "" && $arg->isa("Bio::SeqFeatureI"));
+    if ( defined($arg) ) {
+	$self->throw("Argument [$arg] must be a Bio::SeqFeatureI") 
+	    unless (ref($arg) && $arg->isa("Bio::SeqFeatureI"));
 	$self->{'feature2'} = $arg;
-    } 
+    } elsif( ! defined $self->{'feature2'} ) {
+	$self->{'feature2'} = new Bio::SeqFeature::Generic;
+    }
+
     return $self->{'feature2'};
 }
 
@@ -182,13 +175,13 @@ sub feature2 {
 
 sub start {
     my ($self,$value) = @_;
-    
+    print $self->{'_gsf_start'}, " is stored start\n" 
+	if( $self->{'_gsf_start'}); 
     if (defined($value)) {
 	return $self->feature1->start($value);
     } else {
 	return $self->feature1->start;
     }
-
 }
 
 =head2 end
@@ -292,7 +285,6 @@ sub frame {
 
 sub primary_tag{
     my ($self,$arg) = @_;
-    
     if (defined($arg)) {
 	return $self->feature1->primary_tag($arg);
     } else {
