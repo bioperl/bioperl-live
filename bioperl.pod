@@ -1,4 +1,4 @@
-## $Id: bioperl.pod,v 1.16 2002-02-05 20:27:05 bosborne Exp $
+## $Id: bioperl.pod,v 1.17 2002-02-07 21:40:10 bosborne Exp $
 
 ## Should contain general info about the distribution including
 ## links to all the various modules.
@@ -29,8 +29,8 @@ biology.
 Bioperl development is focused on the objects themselves, and less on the 
 scripts or programs that put these objects together. There are some scripts
 provided in the scripts/ and examples/ directories, but it is not the focus
-of the objects that are distributed. Of course, as the objects do most of the
-hard work for you, all you have to do is combine a number of objects
+of the objects that are distributed. Of course, as the objects do most of
+the hard work for you, all you have to do is combine a number of objects
 together sensibly to make useful scripts.
 
 The intent of the Bioperl development effort is to make reusable tools
@@ -59,7 +59,7 @@ go perldoc bioback.pod directly).
 
 =head1 GETTING STARTED
 
-The best place to start is by reading and running the cookbook script,
+A good place to start is by reading and running the cookbook script,
 bptutorial.pl.
 
 The distribution I<scripts/> directory has fully working, industrial
@@ -78,19 +78,132 @@ them. If you have a not installed it in a standard way you will
 have to change the 'use lib' to point to your installation.
 
 
-I<examples/rev_and_trans.pl> - examples using Bio::Seq.pm for reversing and translating sequences
+=head1 Examples/ Directory
 
-I<examples/restriction.pl> - example code for using the Bio::Tools::RestrictionEnzyme.pm module.
+Here are brief descriptions of the scripts in the I<examples/> directory:
 
-I<examples/simplealign.pl> - example code for using the Bio::SimpleAlign module.
+I<examples/aligntutorial.pl> - examples using EMBOSS, pSW, Clustalw,
+TCoffee, and Blast to align sequences
 
-I<examples/psw.pl> - example code for using the XS extensions for a Protein Smith-Waterman comparison.
+I<examples/blast/*pl> - a set of scripts showing how to use
+Bio::Tools::Blast
 
-I<examples/blast/> - example code for using the Bio::Tools::Blast.pm module.
+I<examples/change_gene.pl> - a script showing how to use LiveSeq::Mutator
+and LiveSeq::Mutation
 
-I<examples/seq/> - example code for working with multiple sequence files.
+I<examples/clustalw.pl> - a demonstration of the various uses of
+Bio::Tools::Run::Alignment::Clustalw
 
-I<examples/root_object/> - example code for using Bio::Root::Object.pm.
+I<examples/getGenbank.pl> - retrieving Genbank entries over the Web using
+Bio::DB::GenBank
+
+I<examples/gsequence> - create a Protein Sequence Control Panel GUI with Gtk
+
+I<examples/hitdisplay.pl> - create a GUI for displaying Blast results using
+Bio::Tk::HitDisplay
+
+I<examples/psw.pl> - example code for using the XS extensions for a protein
+Smith-Waterman comparison.
+
+I<examples/remote_blast.pl> - this script executes remote Blast using
+Bio::Tools::Run::RemoteBlast
+
+I<examples/restriction.pl> - example code for using the
+Bio::Tools::RestrictionEnzyme.pm module
+
+I<examples/rev_and_trans.pl> - examples using Bio::Seq.pm for reversing
+and translating sequences
+
+I<examples/root_object/*> - example code for using Bio::Root::Object.pm.
+
+I<examples/run_genscan.pl> - run GENSCAN on multiple sequences and create
+output sequence files using Bio::Tools::Genscan
+
+I<examples/seq/*> - example code for working with multiple sequence files,
+including formatting and filtering based on length or description or ID
+
+I<examples/seq_pattern.pl> - a script that shows how to use sequences as
+regular expressions using Bio::Tools::SeqPattern
+
+I<examples/simplealign.pl> - a script that demonstrates some uses of 
+Bio::AlignIO
+
+I<examples/standaloneblast.pl> - a demonstration of some of the uses of
+Bio::Tools::StandAloneBlast.pl
+
+I<examples/state-machine.pl> - a demonstration of how to create a
+state machine using Bio::Tools::StateMachine::AbstractStateMachine
+
+
+=head1 Scripts/ Directory
+
+Here are brief descriptions of the scripts in the I<scripts/> directory:
+
+I<scripts/align_on_codons.pl>
+
+I<scripts/bioperl.pl> - a Bioperl shell!
+
+I<scripts/blast_fetch_local.pl> - parse a Blast results file for ids and
+extract pertinent sequences from a local, indexed database using
+Bio::Tools::BPlite and Bio::Index::Fasta
+
+I<scripts/blast_fetch.pl> - parse a Blast result and fetch sequences from
+Genbank or Genpept over the network using Bio::Tools::Blast and Bio::DB*
+
+I<scripts/bpfetch.pl> - fetch sequences from local indexed database or over
+the network and reformat using Bio::Index* and Bio::DB*
+
+I<scripts/bpindex.pl> - indexes local databases, partners with bpfetch.pl
+
+I<scripts/das/das_server> - sets up a minimal DAS annotation server, requires
+Apache::DBI and Bio::DB::GFF
+
+I<scripts/DB/dbfetch> - creates a Web page to query a local SRS server and
+fetch sequences using 
+
+I<scripts/est_tissue_query.pl> - fetch EST sequences from local files or
+Genbank filtered by tissue using Bio::DB* or Bio::Index*
+
+I<scripts/gb_to_gff.pl> - extracts top-level sequence features from Genbank-
+formatted sequence files using Bio::Tools::GFF
+
+I<scripts/generate_random_seq.pl> - writes random RNA, DNA, or protein
+sequence of given length
+
+I<scripts/get_seqs.pl> - fetches and formats sequences from GenBank, EMBL,
+or SwissProt over the network using Bio::DB*
+
+I<scripts/gff2ps.pl> - takes an input file in GFF format and draws its genes
+and features as Postscript using Bio::Tools::GFF
+
+I<scripts/make_mrna_protein.pl> - translate a cDNA or ORF to protein using
+Bio::Seq's translate() method
+
+I<scripts/make_primers.pl> - design PCR primers given a sequence and the 
+positions of the start and stop codons in the sequence's ORF
+
+I<scripts/prosite2perl.pl> - convert Prosite motifs to Perl regular
+expressions
+
+I<scripts/seqstats/aacomp.pl> - calculate amino acid composition of a 
+protein using Bio::Tools::CodonTable and Bio::Tools::IUPAC
+
+I<scripts/seqstats/chaos_plot.pl> - produce a chaos plot given a DNA
+sequence using GD.pm
+
+I<scripts/seqstats/gccalc.pl> - calculate %GC given a DNA sequence using
+Bio::Tools::SeqStats
+
+I<scripts/seqstats/oligo_count.pl> - calculates oligomer frequencies given
+an oligomer length and a sequence
+
+I<scripts/structure/nmrpdb_parse.pl> - extracts individual conformers
+from an NMR-derived PDB file
+
+I<scripts/subsequence.cgi> - CGI script to fetch a sequence from Genbank
+and extract a subsequence using Bio:DB::GenBank
+
+I<scripts/tree/paup2phylip.pl> - convert a PAUP tree block to Phylip format
 
 
 =head1 GETTING INVOLVED
@@ -134,7 +247,7 @@ system through the web pages.
 
 You can suggest areas where the objects are not ideally written and
 could be done better. The best way is to find the main developer
-of the module (each module was written principly by one person,
+of the module (each module was written principally by one person,
 except for Seq.pm). Talk to him or her and suggest changes.
 
 =head2 Make your own objects
@@ -142,7 +255,7 @@ except for Seq.pm). Talk to him or her and suggest changes.
 If you can make a useful object we will happily include it into the
 core. Probably you will want to read a lot of the documentation 
 in the L<Bio::Root> section and also talk to people on the Bioperl
-mailing list bioperl-l@bioperl.org
+mailing list, bioperl-l@bioperl.org.
 
 biodesign.pod provides documentation on the conventions and ideas
 used in Bioperl. It is definitely worth a read if you are interested
