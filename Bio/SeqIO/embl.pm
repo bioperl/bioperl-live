@@ -447,7 +447,7 @@ sub write_seq {
 	} else {
 		$self->warn("No whitespace allowed in EMBL id [". $seq->id. "]")
 		  if $seq->id =~ /\s/;
-		$temp_line = sprintf("%-11.10sstandard; $mol; $div; %d BP.", $seq->id(), $len);
+		$temp_line = sprintf("%-10s standard; $mol; $div; %d BP.", $seq->id(), $len);
 	}
 
 	$self->_print( "ID   $temp_line\n","XX\n");
