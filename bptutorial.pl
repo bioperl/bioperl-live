@@ -263,11 +263,11 @@ libxml-perl-0.07
 
 =item *
 
-XML-Node-0.10
+XML-Parser-2.30
 
 =item *
 
-XML-Parser.2.30
+XML-Twig-2.02
 
 =item *
 

@@ -125,7 +125,7 @@ eval {
 if( $@ ) {
     print STDERR
 	"\nThe XML-format conversion requires the CPAN modules ",
-	"XML::Node, XML::Writer, and IO::String to be installed ",
+	"XML::Twig, XML::Writer, and IO::String to be installed ",
 	"on your system, which they probably aren't. Skipping these tests.\n";
     for( $Test::ntest..$NUMTESTS) {
 	skip(1, 1,"");

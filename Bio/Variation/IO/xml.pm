@@ -23,14 +23,14 @@ Do not use this module directly.  Use it via the Bio::Variation::IO class.
 This object can transform Bio::Variation::SeqDiff objects to and from XML
 file databases.
 
-The XML format, although consistent, is still evolving. The DTD is not
-yet available. There is also a formatting problem: The module is not
-able to write root tags around entries.
+The XML format, although consistent, is still evolving. The current
+DTD for it is at L<http://www.ebi.ac.uk/mutations/DTD/seqDiff.dtd>.
 
 =head1 REQUIREMENTS
 
-To use this code you need the CPAN module XML::Node to read XML and
-modules XML::Writer and IO::String to write XML out.
+To use this code you need the module XML::Twig which creates an
+interface to XML::Parser to read XML and modules XML::Writer and
+IO::String to write XML out.
 
 =head1 FEEDBACK
 
@@ -61,7 +61,6 @@ Address:
      Wellcome Trust Genome Campus, Hinxton
      Cambs. CB10 1SD, United Kingdom
 
-
 =head1 APPENDIX
 
 The rest of the documentation details each of the object
@@ -72,16 +71,11 @@ methods. Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::Variation::IO::xml;
-my $VERSION=1.0;
-use vars qw(@ISA  $h $id $moltype $offset $dna $start $end $len $ismut $number
-	    $allele_ori $allele_mut $upFlank $dnFlank $proof $region $region_value $region_dist
-	    $rna $codon_ori $codon_mut $codon_pos $codon_table $aa $upflank $dnflank
-	    $prevdnaobj $prevrnaobj $prevaaobj);
+my $VERSION=1.1;
+use vars qw(@ISA $seqdiff $var $prevdnaobj $prevrnaobj $prevaaobj);
 use strict;
-# Object preamble - inherits from Bio::Root::Object
 
-#use XML::Parser;
-use XML::Node 0.10;
+use XML::Twig;
 use XML::Writer 0.4;
 use IO::String;
 use Bio::Variation::IO;
@@ -92,7 +86,7 @@ use Bio::Variation::AAChange;
 use Bio::Variation::Allele;
 
 # new() is inherited from Bio::Root::Object
-@ISA = qw(Bio::Variation::IO);
+@ISA = qw( Bio::Variation::IO );
 
 # _initialize is where the heavy stuff will happen when new is called
 
@@ -120,205 +114,120 @@ sub _initialize {
 
 
 sub _seqDiff {
-    $h->id($id);
-    $h->moltype($moltype);
-    $h->offset($offset);
+    my ($t, $term)= @_;
+    $seqdiff->id( $term->att('id') );
+    $seqdiff->moltype( $term->att('moltype') );
+    $seqdiff->offset( $term->att('offset') );
 
-    $id = $moltype = $offset = '';
-}
-
-
-sub _DNA {
-    my ($variation_number, $change_number) = split /\./, $number;
-    #$self->warn("|$mut_number|>|$variation_number|$change_number|");
-    if ($change_number and $change_number > 1 ) {
-	my $a3 = Bio::Variation::Allele->new;
-	$a3->seq($allele_mut) if $allele_mut;
-	$prevdnaobj->add_Allele($a3);
-    } else {
-	$dna = Bio::Variation::DNAMutation->new ('-start'         => $start,
-						 '-end'           => $end,
-						 '-lenght'        => $len,
-						 '-mut_number'    => $number,
-						 '-upStreamSeq'   => $upFlank,
-						 '-dnStreamSeq'   => $dnFlank,
-						 '-proof'         => $proof
-						 );
-	
-	$dna->region($region) if $region;
-	$dna->region_value($region_value) if $region_value;
-	$dna->region_dist($region_dist) if $region_dist;
-
-	my $a1 = Bio::Variation::Allele->new;
-	$a1->seq($allele_ori) if $allele_ori;
-	$dna->allele_ori($a1);
-	my $a2 = Bio::Variation::Allele->new;
-	$a2->seq($allele_mut) if $allele_mut;
-	$dna->isMutation(1) if $ismut;
-	$dna->allele_mut($a2);	
-	$dna->add_Allele($a2);
-	$dna->length($len);
-	$h->add_Variant($dna);
-	$prevdnaobj = $dna;
+    foreach my $child ($term->children) {
+	 _variant($t, $child);
     }
-    $upFlank = $dnFlank = '';
-    $start = $end = $len = $ismut = $number = $allele_ori = $allele_mut =
-        $proof = $region = $region_value = $region_dist = '';
 }
 
-sub _RNA {
-    my ($variation_number, $change_number) = split /\./, $number;
-    #$self->warn("|$mut_number|>|$variation_number|$change_number|");
-    if ($change_number and $change_number > 1 ) {
+sub _variant {
+    my ($t, $term)= @_;
+    my $var;
+    my $att = $term->atts();
+    my ($variation_number, $change_number) = split /\./,  $att->{number}; 
+    
+    # if more than two alleles
+    if ($variation_number and $change_number and $change_number > 1 ) {
 	my $a3 = Bio::Variation::Allele->new;
-	$a3->seq($allele_mut) if $allele_mut;
-	$prevrnaobj->add_Allele($a3);
-    } else {
-	$rna = Bio::Variation::RNAChange->new ('-start'         => $start,
-					       '-end'           => $end,
-					       '-lenght'        => $len,
-					       '-mut_number'    => $number,
-					       '-upStreamSeq'   => $upFlank,
-					       '-dnStreamSeq'   => $dnFlank,
-					       '-proof'         => $proof
-					       );
-
-	$rna->region($region) if $region;
-	$rna->region_value($region_value) if $region_value;
-	$rna->region_dist($region_dist) if $region_dist;
-
-	my $a1 = Bio::Variation::Allele->new;
-	$a1->seq($allele_ori) if $allele_ori;
-	$rna->allele_ori($a1);
-	my $a2 = Bio::Variation::Allele->new;
-	$a2->seq($allele_mut) if $allele_mut;
-	if ($ismut) {
-	    $rna->isMutation(1);
+	$a3->seq( $term->first_child_text('allele_mut') ) 
+	    if $term->first_child_text('allele_mut');
+	if ($term->gi eq 'DNA') {
+	    $prevdnaobj->add_Allele($a3);
 	}
-	$rna->allele_mut($a2);
-	$rna->add_Allele($a2);
-	$codon_table = 1 || $rna->codon_table($codon_table);
-	$codon_pos  &&  $rna->codon_pos($codon_pos);
-	$rna->length($len);
-	$dna->RNAChange($rna);
-	$rna->DNAMutation($dna);
-	$h->add_Variant($rna);
-	$prevrnaobj = $rna;
-    }	
-    $codon_table = $codon_ori = $codon_mut = $codon_pos ='';
-    $upFlank = $dnFlank = '';
-    $start = $end = $len = $ismut = $number = $allele_ori = $allele_mut =
-	$proof = $region = $region_value = $region_dist = '';
-}
+	elsif ($term->gi eq 'RNA') {
+	    $prevrnaobj->add_Allele($a3);
+	} else { # AA
+	    $prevaaobj->add_Allele($a3);
+	}
+    } else { # create new variants
+	if ($term->gi eq 'DNA') {
+	    $var = new Bio::Variation::DNAMutation;
+	}
+	elsif ($term->gi eq 'RNA') {
+	    $var = new Bio::Variation::RNAChange;
+	} else { # AA
+	    $var = new Bio::Variation::AAChange;
+	}
 
+	# these are always present
+	$var->start( $att->{start} );
+	$var->end( $att->{end});
+	$var->length($att->{len});
+	$var->mut_number( $att->{number});
+	$var->upStreamSeq($term->first_child_text('upFlank'));
+	$var->dnStreamSeq($term->first_child_text('dnFlank'));
+	$var->proof($term->first_child_text('proof'));
 
-sub _AA {
-    my ($variation_number, $change_number) = split /\./, $number;
-    #$self->warn("|$mut_number|>|$variation_number|$change_number|");
-    if ($change_number and $change_number > 1 ) {
-	my $a3 = Bio::Variation::Allele->new;
-	$a3->seq($allele_mut) if $allele_mut;
-	$prevaaobj->add_Allele($a3);
-    } else {
-	$aa = Bio::Variation::AAChange->new ('-start'         => $start,
-					     '-end'           => $end,
-					     '-lenght'        => $len,
-					     '-mut_number'    => $number,
-					     '-proof'         => $proof
-					     );
-
-	$aa->region($region) if $region;
-	$aa->region_value($region_value) if $region_value;
-	$aa->region_dist($region_dist) if $region_dist;
-
+	# region
+	my $region = $term->first_child('region');
+	if ($region) {
+	    $var->region($region->text);
+	    my $region_atts = $region->atts;
+	    $var->region_value( $region_atts->{value} ) 
+		if $region_atts->{value};
+	    $var->region_dist( $region_atts->{dist} ) 
+		if $region_atts->{dist};
+	}
+	
+	# alleles
 	my $a1 = Bio::Variation::Allele->new;
-	$a1->seq($allele_ori) if $allele_ori;
-	$aa->allele_ori($a1);
+	$a1->seq($term->first_child_text('allele_ori') ) 
+	    if $term->first_child_text('allele_ori');
+	$var->allele_ori($a1);
 	my $a2 = Bio::Variation::Allele->new;
-	$a2->seq($allele_mut) if $allele_mut;
-	$aa->isMutation(1) if $ismut;
-	$aa->allele_mut($a2);
-	$aa->add_Allele($a2);
-	$aa->length($len);
+	$a2->seq($term->first_child_text('allele_mut') ) 
+	    if $term->first_child_text('allele_mut');
+	$var->isMutation(1) if $term->att('isMutation');
+	$var->allele_mut($a2);	
+	$var->add_Allele($a2);
+	$var->length( $term->att('length') );
+	$seqdiff->add_Variant($var);
 
-	$rna->AAChange($aa);
-	$aa->RNAChange($rna);
-	$h->add_Variant($aa);
-	$prevaaobj = $aa;
+	# variant specific code
+	if ($term->gi eq 'DNA') {
+	    $prevdnaobj = $var;
+	}
+	elsif ($term->gi eq 'RNA') {
+	    my $codon = $term->first_child('codon');
+	    if ($codon) {
+		my $codon_atts = $codon->atts;
+		$var->codon_table( $codon->att('codon_table') ) 
+		    if $codon_atts->{codon_table} and $codon_atts->{codon_table} != 1;
+		$var->codon_pos( $codon->att('codon_pos') ) 
+		    if $codon_atts->{codon_pos};
+	    }
+	    $prevdnaobj->RNAChange($var);
+	    $var->DNAMutation($prevdnaobj);
+	    $prevrnaobj = $var;
+	} else {
+	    $prevrnaobj->AAChange($var);
+	    $var->RNAChange($prevrnaobj);
+	    $prevaaobj = $var;
+	}
     }
-    $start = $end = $len = $ismut = $number = $allele_ori = $allele_mut = $upflank =
-	$dnflank = $proof = $region  = $region_value = $region_dist = '';
 }
 
 sub next {
     my( $self ) = @_;
 
-    #$self->_readline unless $self->_readline =~ /<seqDiff/;
-    local $/ = '</seqDiff>';
-
+    local $/ = "</seqDiff>\n";
     return unless my $entry = $self->_readline;
-    #print  STDERR "|$entry|";
+#    print  STDERR "|$entry|";
     return unless $entry =~ /^\W*<seqDiff/;
 
-    $id = $offset = '';
-    $start = $end = $len = $number = $allele_ori = $allele_mut = $upflank =
-	$dnflank = $proof = $region  = $region_value = $region_dist = '';
-
-    $h = Bio::Variation::SeqDiff->new;
+    $seqdiff = Bio::Variation::SeqDiff->new;
 
     # create new parser object
-    my $p = XML::Node->new();
+    my $twig_handlers = {'seqDiff' =>  \&_seqDiff };
+    my $t = new XML::Twig ( TwigHandlers => $twig_handlers,
+			    KeepEncoding => 1 );
+    $t->parse($entry);
 
-    # tell object which elements and which attibutes to keep track on and what to do
-    $p->register(">seqDiff:id","attr" => \$id);
-    $p->register(">seqDiff:moltype","attr" => \$moltype);
-    $p->register(">seqDiff:offset","attr" => \$offset);
-    $p->register(">seqDiff","end" => \&_seqDiff);
-
-    $p->register(">seqDiff>DNA:number","attr" => \$number);
-    $p->register(">seqDiff>DNA:start","attr" => \$start);
-    $p->register(">seqDiff>DNA:end","attr" => \$end);
-    $p->register(">seqDiff>DNA:length","attr" => \$len);
-    $p->register(">seqDiff>DNA:isMutation","attr" => \$ismut);
-
-    $p->register(">seqDiff>RNA:number","attr" => \$number);
-    $p->register(">seqDiff>RNA:start","attr" => \$start);
-    $p->register(">seqDiff>RNA:end","attr" => \$end);
-    $p->register(">seqDiff>RNA:length","attr" => \$len);
-    $p->register(">seqDiff>RNA:isMutation","attr" => \$ismut);
-
-    $p->register(">seqDiff>AA:number","attr" => \$number);
-    $p->register(">seqDiff>AA:start","attr" => \$start);
-    $p->register(">seqDiff>AA:end","attr" => \$end);
-    $p->register(">seqDiff>AA:length","attr" => \$len);
-    $p->register(">seqDiff>AA:isMutation","attr" => \$ismut);
-
-    $p->register("proof","char" => \$proof);
-    $p->register("upFlank","char" => \$upFlank);
-    $p->register("dnFlank","char" => \$dnFlank);
-    $p->register("allele_ori","char" => \$allele_ori);
-    $p->register("allele_mut","char" => \$allele_mut);
-    $p->register("region","char" => \$region);
-    $p->register(">seqDiff>DNA>region:value","attr" => \$region_value);
-    $p->register(">seqDiff>DNA>region:dist","attr" => \$region_dist);
-    $p->register(">seqDiff>RNA>region:value","attr" => \$region_value);
-    $p->register(">seqDiff>RNA>region:dist","attr" => \$region_dist);
-    $p->register(">seqDiff>AA>region:value","attr" => \$region_value);
-    $p->register(">seqDiff>AA>region:dist","attr" => \$region_dist);
-
-    $p->register("codon_table","char" => \$codon_table);
-    $p->register(">seqDiff>RNA>codon:codon_ori","attr" => \$codon_ori);
-    $p->register(">seqDiff>RNA>codon:codon_mut","attr" => \$codon_mut);
-    $p->register(">seqDiff>RNA>codon:codon_pos","attr" => \$codon_pos);
-
-    $p->register("DNA","end" => \&_DNA);
-    $p->register("RNA","end" => \&_RNA);
-    $p->register("AA","end" => \&_AA);
-
-    #parse the entry string
-    $p->parse($entry);
-
-    return $h;
+    return $seqdiff;
 }
 
 =head2 write
