@@ -9,6 +9,8 @@ my $error;
 
 use vars qw($SKIPXML $LASTXMLTEST); 
 use strict;
+use lib '.';
+
 BEGIN {     
     # to handle systems with no installed Test module
     # we include the t dir (where a copy of Test.pm is located)
@@ -18,7 +20,7 @@ BEGIN {
 	use lib 't';
     }
     use vars qw($NTESTS);
-    $NTESTS = 245;
+    $NTESTS = 246;
     $LASTXMLTEST = 46;
     $error = 0;
 
@@ -378,4 +380,13 @@ while( my $subject = $report->next_subject ) {
     }
     last if( $count++ > @valid );
 } 
+
+
+# TODO: Flesh this test out!
+$searchio = new Bio::SearchIO ('-format' => 'psiblast',
+			       '-file'   => Bio::Root::IO->catfile('t','data','HUMBETGLOA.tblastx'));
+
+my $result = $searchio->next_result;
+
+ok($result);
 
