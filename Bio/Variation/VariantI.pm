@@ -683,7 +683,7 @@ sub each_DBLink{
             Returns a string containing a list of restriction
             enzyme changes of form +EcoRI, separated by
             commas. Strings need to be valid restriction enzyme names
-            as stored in REBASE. allele_ori and and allele_mut need to be assigned.
+            as stored in REBASE. allele_ori and allele_mut need to be assigned.
 
  Example : 
  Returns : string
