@@ -138,7 +138,7 @@ Email richard.adams@ed.ac.uk
 
  name      : has_node
  purpose   : Is a protein in the graph?
- usage     : if ($g->has_node('NP_23456')) {....
+ usage     : if ($g->has_node('NP_23456')) {....}
  returns   : 1 if true, 0 if false
  arguments : A sequence identifier.
 
@@ -151,7 +151,7 @@ sub has_node {
 		$self->throw ("I need a sequence identifier!");
    }
  my @nodes = $self->nodes_by_id($arg);
- if (@nodes){return 1;}else{return 0};
+ if (defined($nodes[0])){return 1;}else{return 0};
 
 
 
@@ -437,6 +437,154 @@ sub add_dup_edge {
 		$self->warn("2nd duplicate edge - $newedge_id");
 		return 0;
 	}
+}
+
+=head2      remove_dup_edges 
+
+ name        : remove_dup_edges
+ purpose     : removes suplicate edges from graph
+ arguments   : none         - removes all duplicate edges
+               edge id list - removes spwcified edges
+ returns     : void
+ usage       :    $gr->remove_dup_edges()
+               or $gr->remove_dup_edges($edgeid1, $edgeid2);
+
+=cut
+
+sub  remove_dup_edges{
+  my ($self, @args) = @_;
+  my $dups = $self->_dup_edges(); 
+	if (!@args) {
+  		@$dups   = ();
+		}
+	else {
+		while (my $node = shift @args) {
+			my @new_dups;
+			for my $dup (@$dups) {
+				if (!grep{$node eq $_} $dup->nodes) {
+					push @new_dups, $dup;
+				}
+			}
+			@$dups = @new_dups;
+		}
+	}
+	return 1;
+
+}
+
+=head2      clustering_coefficient
+
+ name      : clustering_coefficient
+ purpose   : determines the clustering coefficient of a node, a number in range 0-1
+              indicating the extent to which a node's neighbours are interconnnected.
+ arguments : A sequence object (preferred) or a text identifier
+ returns   : The clustering coefficient. 0 is a valid result.
+             If the CC is not calculable ( if the node has <2 neighbors), 
+                returns -1.
+ usage     : my $node = $gr->nodes_by_id('P12345');
+             my $cc   = $gr->clustering_coefficient($node);
+
+=cut
+ 
+ 
+
+sub clustering_coefficient {
+	my  ($self, $val)  = @_;
+	my $n;
+	if (!$val ) {
+		$self->throw( " I need a node that's a sequence object");
+		}
+
+	## if param is texttry to get sequence object..
+	if (!ref($val)){
+		 $n = $self->nodes_by_id($val);
+		if(!defined($n)) {
+			$self->throw ("Cannnot find node given by the id [$val]");
+			}
+	}
+	# if reference should be a SeqObj
+	elsif(!$val->isa('Bio::SeqI')){
+		$self->throw( " I need a node that's a sequence object".
+                      " not a [". ref($val) . "].");
+		}
+
+	## is a seq obj
+	else {$n = $val};
+
+	my @n = $self->neighbors($n);
+	my $n_count = scalar @n;
+	my $c = 0;
+	if ($n_count >= 2){
+		for (my $i = 0; $i <= $#n; $i++ ) {
+			for (my $j = 1; $j <= $#n; $j++) {
+				if ($self->has_edge($n[$i], $n[$j])){
+					$c++;
+				}
+			}
+		}
+		$c = 2 * $c / ($n_count *($n_count - 1));
+		return $c; # can be 0 if unconnected. 
+	}else{
+		return -1; # if value is not calculable
+	}
+}
+
+=head2    remove_nodes
+
+ name      : remove_nodes
+ purpose   : to delete a node from a graph, e.g., to simulate effect of mutation
+ usage     : $gr->remove_nodes($seqobj);
+ arguments : a single $seqobj or list of seq objects (nodes)
+ returns   : 1 on success
+
+=cut
+
+
+sub remove_nodes {
+	my $self = shift @_;
+	if (!@_) {
+		$self->warn("You have to sepcify a node");
+		return;
+		}
+	my $edges     = $self->_edges;
+	my $ns = $self->_neighbors;
+	my $dups      = $self->_dup_edges;
+	my $nodes     = $self->_nodes;
+	while (my $node = shift @_ ) {
+
+		##1. remove dup edges containing the node ##
+		$self->remove_dup_edges($node);
+	
+
+		##3. remove node from interactor's neighbours
+
+		my @ns = $self->neighbors($node);
+		for my $n (@ns) {
+			my @otherns = $self->neighbors($n);
+			my @new_others = ();
+			@new_others = grep{$node ne $_} @otherns;
+			@{$ns->{$n}} = @new_others;
+		}
+
+		##2. Delete node from neighbour hash
+		delete $ns->{$node};
+
+		##4. Now remove edges involving node
+		my $re  = $node;
+		print STDERR $re;
+		for my $k (keys %$edges) {
+			if ($edges->{$k}->[0] eq $node ||
+			   $edges->{$k}->[1] eq $node){
+				print STDERR "herhe";
+		
+				delete($edges->{$k});
+			}
+		}
+		##5. Now remove node itself;
+		delete $nodes->{$node};
+
+	}
+	return 1;
 }
 
 
