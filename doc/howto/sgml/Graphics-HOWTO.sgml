@@ -377,10 +377,13 @@ configure the track as before.  The -glyph argument says to use the
 contain tick marks, and that both major and minor ticks should be
 shown (tick type of "2").  We set the foreground color to black, and
 request that arrows should be placed at both ends (-double =>1).
+</para>
+<para>
 <footnote>
 <para>Obtain the list of glyphs by running perldoc on
 Bio::Graphics::Glyph.  Obtain a description of the glyph options by
 running perldoc on individual glyphs, for example "perldoc Bio::Graphics::Glyph::arrow."
+</para>
 </footnote>
 </para>
 
