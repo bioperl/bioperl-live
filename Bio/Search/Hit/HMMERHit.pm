@@ -1,6 +1,6 @@
 # $Id$
 #
-# BioPerl module for Bio::Search::Hit::GenericHit
+# BioPerl module for Bio::Search::Hit::HMMERHit
 #
 # Cared for by Jason Stajich <jason@bioperl.org>
 #
@@ -12,20 +12,20 @@
 
 =head1 NAME
 
-Bio::Search::Hit::GenericHit - A generic implementation of the Bio::Search::Hit::HitI interface
+Bio::Search::Hit::HMMERHit - A Hit module for HMMER hits
 
 =head1 SYNOPSIS
 
-  {
-    use Bio::Search::Hit::GenericHit;
-    my $hit = new Bio::Search::Hit::GenericHit(-algorithm => 'blastp');
-
-  }
+    use Bio::Search::Hit::HMMERHit;
+    my $hit = new Bio::Search::Hit::HMMERHit;
+    # use it in the same way as Bio::Search::Hit::GenericHit
 
 =head1 DESCRIPTION
 
-This object handles the hit data from a Database Sequence Search such
-as FASTA or BLAST.
+This is a specialization of L<Bio::Search::Hit::GenericHit>.  There
+are a few news methods L<next_domain()> and L<domains()>.  Note that
+L<bits()> and L<iteration()> make no sense for this object and will
+return 0.
 
 =head1 FEEDBACK
 
@@ -47,10 +47,11 @@ email or the web:
   bioperl-bugs@bioperl.org
   http://bioperl.org/bioperl-bugs/
 
-=head1 AUTHOR - Jason Stajich and Steve Chervitz
+=head1 AUTHOR - Jason Stajich
 
 Email jason@bioperl.org
-Email sac@bioperl.org
+
+Describe contact details here
 
 =head1 CONTRIBUTORS
 
@@ -67,22 +68,24 @@ Internal methods are usually preceded with a _
 # Let the code begin...
 
 
-package Bio::Search::Hit::GenericHit;
+package Bio::Search::Hit::HMMERHit;
 use vars qw(@ISA);
 use strict;
 
-use Bio::Root::Root;
-use Bio::Search::Hit::HitI;
+use Bio::Search::Hit::GenericHit;
 
-@ISA = qw(Bio::Root::Root Bio::Search::Hit::HitI );
+@ISA = qw(Bio::Search::Hit::GenericHit );
 
 =head2 new
 
  Title   : new
- Usage   : my $obj = new Bio::Search::Hit::GenericHit();
- Function: Builds a new Bio::Search::Hit::GenericHit object 
- Returns : Bio::Search::Hit::GenericHit
- Args    : -name         => Name of Hit (required)
+ Usage   : my $obj = new Bio::Search::Hit::HMMERHit();
+ Function: Builds a new Bio::Search::Hit::HMMERHit object 
+ Returns : Bio::Search::Hit::HMMERHit
+ Args    : 
+
+Plus the Bio::Search::Hit::GenericHit inherited params
+           -name         => Name of Hit (required)
            -description  => Description (optional)
            -accession    => Accession number (optional)
            -length       => Length of the Hit (optional)
@@ -90,49 +93,41 @@ use Bio::Search::Hit::HitI;
            -significance => Significance value for the Hit (optional)
            -algorithm    => Algorithm used (BLASTP, FASTX, etc...)
            -hsps         => Array ref of HSPs for this Hit. 
-           -iteration    => integer for the PSI-Blast iteration number
-        
+
+
 =cut
 
-sub new {
-  my($class,@args) = @_;
 
-  my $self = $class->SUPER::new(@args);
-  my ($hsps, $name,$desc, $acc, $length,
-      $score,$algo,$signif,$bits,
-      $iter) = $self->_rearrange([qw(HSPS NAME DESCRIPTION
-				     ACCESSION
-				     LENGTH SCORE ALGORITHM 
-				     SIGNIFICANCE BITS ITERATION)], @args);
-  
-  if( ! defined $name ) { 
-      $self->throw("Must have defined a valid name for Hit");
-  } else { 
-      $self->name($name);
-  }  
+=head2 next_domain
 
-  defined $acc    && $self->accession($acc);
-  defined $desc   && $self->description($desc);
-  defined $length && $self->length($length);
-  defined $algo   && $self->algorithm($algo);
-  defined $signif && $self->significance($signif);
-  defined $score  && $self->raw_score($score);
-  defined $bits   && $self->bits($bits);
-  defined $iter   && $self->iteration($iter);
+ Title   : next_domain 
+ Usage   : my $domain = $hit->next_domain();
+ Function: An alias for L<next_hsp()>, this will return the next HSP
+ Returns : L<Bio::Search::HSP::HSPI> object
+ Args    : none
 
-  $self->{'_iterator'} = 0;
-  $self->{'_hsps'} = [];
-  if( defined $hsps  ) {
-      if( ref($hsps) !~ /array/i ) {
-	  $self->warn("Did not specify a valid array ref for the param HSPS ($hsps)");
-      } else {
-	  while( @$hsps ) { 
-	      $self->add_hsp(shift @$hsps );
-	  }
-      }
-  } 
-  return $self;
-}
+
+=cut
+
+sub next_domain{ shift->next_hsp }
+
+=head2 domains
+
+ Title   : domains
+ Usage   : my @domains = $hit->domains();
+ Function: An alias for L<hsps()>, this will return the full list of hsps
+ Returns : array of L<Bio::Search::HSP::HSPI> objects
+ Args    : none
+
+
+=cut
+
+sub domains{ shift->hsps() }
+
+
+=head2 inherited Bio::Search::Hit::GenericHit methods
+
+=cut
 
 =head2 add_hsp
 
@@ -145,21 +140,9 @@ sub new {
 
 =cut
 
-sub add_hsp {
-   my ($self,$hsp) = @_;
-   if( !defined $hsp || ! $hsp->isa('Bio::Search::HSP::HSPI') ) { 
-       $self->warn("Must provide a valid Bio::Search::HSP::HSPI object to object: $self method: add_hsp value: $hsp");
-       return undef;
-   }
-   push @{$self->{'_hsps'}}, $hsp;
-   return scalar @{$self->{'_hsps'}};
-}
-
-
-
 =head2 Bio::Search::Hit::HitI methods
 
-Implementation of Bio::Search::Hit::HitI methods
+=cut
 
 =head2 name
 
@@ -171,16 +154,6 @@ Implementation of Bio::Search::Hit::HitI methods
 
 =cut
 
-sub name {
-    my ($self,$value) = @_;
-    my $previous = $self->{'_name'};
-    if( defined $value || ! defined $previous ) {
-	$value = $previous = '' unless defined $value;
-	$self->{'_name'} = $value;
-    } 
-    return $previous;
-}
-
 =head2 accession
 
  Title   : accession
@@ -190,16 +163,6 @@ sub name {
  Args    : none
 
 =cut
-
-sub accession {
-    my ($self,$value) = @_;
-    my $previous = $self->{'_accession'};
-    if( defined $value || ! defined $previous ) { 
-	$value = $previous = '' unless defined $value;
-	$self->{'_accession'} = $value;
-    } 
-    return $previous;
-}
 
 =head2 description
 
@@ -211,16 +174,6 @@ sub accession {
 
 =cut
 
-sub description {
-    my ($self,$value) = @_;
-    my $previous = $self->{'_description'};
-    if( defined $value || ! defined $previous ) { 
-	$value = $previous = '' unless defined $value;
-	$self->{'_description'} = $value;
-    } 
-    return $previous;
-}
-
 =head2 length
 
  Title   : length
@@ -230,17 +183,6 @@ sub description {
  Args    : [optional] integer to set the length
 
 =cut
-
-sub length {
-    my ($self,$value) = @_;
-    my $previous = $self->{'_length'};
-    if( defined $value || ! defined $previous ) { 
-	$value = $previous = 0 unless defined $value;
-	$self->{'_length'} = $value;
-    } 
-    return $previous;
-}
-
 
 =head2 algorithm
 
@@ -256,16 +198,6 @@ sub length {
 
 =cut
 
-sub algorithm {
-    my ($self,$value) = @_;
-    my $previous = $self->{'_algorithm'};
-    if( defined $value || ! defined $previous ) { 
-	$value = $previous = '' unless defined $value;
-	$self->{'_algorithm'} = $value;
-    } 
-    return $previous;
-}
-
 =head2 raw_score
 
  Title   : raw_score
@@ -277,16 +209,6 @@ sub algorithm {
  Args    : [optional] scalar value to set the raw score
 
 =cut
-
-sub raw_score {
-    my ($self,$value) = @_;
-    my $previous = $self->{'_score'};
-    if( defined $value || ! defined $previous ) { 
-	$value = $previous = '' unless defined $value;
-	$self->{'_score'} = $value;
-    } 
-    return $previous;
-}
 
 =head2 significance
 
@@ -301,16 +223,6 @@ sub raw_score {
 
 =cut
 
-sub significance {
-    my ($self,$value) = @_;
-    my $previous = $self->{'_significance'};
-    if( defined $value || ! defined $previous ) { 
-	$value = $previous = '' unless defined $value;
-	$self->{'_significance'} = $value;
-    } 
-    return $previous;
-}
-
 =head2 bits
 
  Usage     : $hit_object->bits();
@@ -318,24 +230,12 @@ sub significance {
  Example   : $bits = $hit_object->bits();
  Returns   : Integer or undef if bit score is not set
  Argument  : n/a
- Comments  : For BLAST1, the non-bit score is listed in the summary line.
 
 See Also   : L<score()|score>
 
 =cut
 
-#---------
-sub bits { 
-#---------
-    my ($self) = @_; 
-    
-    my $bits = $self->{'_bits'};
-    if( ! defined $bits ) {
-	$bits = $self->{'_hsps'}->[0]->bits();
-	$self->{'_bits'} = $bits;
-    } 
-    return $bits;
-}
+sub bits { return 0 }
 
 =head2 next_hsp
 
@@ -347,14 +247,6 @@ sub bits {
  Args     : none
 
 =cut
-
-sub next_hsp {
-    my ($self) = @_;
-    $self->{'_iterator'} = 0 unless defined $self->{'_iterator'};
-    return undef if $self->{'_iterator'} > scalar @{$self->{'_hsps'}};
-    return $self->{'_hsps'}->[$self->{'_iterator'}++];    
-}
-
 
 =head2 hsps
 
@@ -373,22 +265,6 @@ See Also   : L<hsp()|hsp>, L<num_hsps()|num_hsps>
 
 =cut
 
-#---------
-sub hsps {
-#---------
-   my $self = shift;
-   
-   if (not ref $self->{'_hsps'}) {
-       $self->throw("Can't get HSPs: data not collected.");
-   }
-   
-   return wantarray 
-       #  returning list containing all HSPs.
-       ? @{$self->{'_hsps'}}
-   #  returning number of HSPs.
-   : scalar(@{$self->{'_hsps'}});
-}
-
 =head2 num_hsps
 
  Usage     : $hit_object->num_hsps();
@@ -402,17 +278,6 @@ See Also   : L<hsps()|hsps>
 
 =cut
 
-#-------------
-sub num_hsps {
-    my $self = shift;
-    
-    if (not defined $self->{'_hsps'}) {
-	$self->throw("Can't get HSPs: data not collected.");
-    }
-
-    return scalar(@{$self->{'_hsps'}});
-}
-
 =head2 rewind
 
  Title   : rewind
@@ -423,11 +288,6 @@ sub num_hsps {
  Args    : none
 
 =cut
-
-sub rewind{
-   my ($self) = @_;
-   $self->{'_iterator'} = 0;
-}
 
 =head2 iteration
 
@@ -440,13 +300,7 @@ sub rewind{
 
 =cut
 
-sub iteration{
-   my ($self,$value) = @_;
-   if( defined $value) {
-      $self->{'_psiblast_iteration'} = $value;
-    }
-    return $self->{'_psiblast_iteration'};
 
-}
+sub iteration { return 0 }
 
 1;

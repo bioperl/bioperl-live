@@ -1019,7 +1019,7 @@ sub _set_residues {
     my $resCount_query = $self->{'_queryStop'} || 0;
     my $resCount_sbjct = $self->{'_sbjctStop'} || 0;
 
-    my $prog = $self->{'_prog'};
+    my $prog = $self->algorithm;
     if($prog !~ /^BLASTP|^BLASTN/) {
 	if($prog eq 'TBLASTN') {
 	    $resCount_sbjct /= 3;

@@ -202,7 +202,8 @@ sub new {
     }
     # Store the aligned query as sequence feature
     my $strand;
-    if( ! $qe || ! $qs ) { $self->throw("Did not specify a Query End or Query Begin"); }
+    
+    if( ! $qe || ! $qs ) { $self->throw("Did not specify a Query End or Query Begin @args"); }
     if( ! $he || ! $hs ) { $self->throw("Did not specify a Hit End or Hit Begin"); }
     if ($qe > $qs) {  # normal query: start < end
 	if ($queryfactor) { $strand = 1; } else { $strand = undef; }
