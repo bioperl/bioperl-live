@@ -217,7 +217,7 @@ sub next_cluster {
 =cut
 
 sub _load_format_module {
-  my ($format) = @_;
+  my ($self,$format) = @_;
   my $module = "Bio::ClusterIO::" . $format;
   my $ok;
   

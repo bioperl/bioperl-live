@@ -884,21 +884,26 @@ sub _read_swissprot_Species {
 		($genus, $species, $subspecies) = split(/\s+/, $binomial);
 		$species = "sp." unless $species;
 		while($descr =~ /\(([^\)]+)\)/g) {
-		    $common = $1;
-		    if($common =~ /^(strain|isolate|biovar|pv\.)/) {
-			$variant = $common;
-			$common = undef;
-		    } elsif($common =~ s/^subsp\.\s+//) {
+		    my $item = $1;
+		    # strain etc may not necessarily come first (yes, swissprot
+		    # is messy)
+		    if((! defined($variant)) &&
+		       (($item =~ /(^|[^\(\w])([Ss]train|isolate|serogroup|serotype|subtype|clone)\b/) ||
+			($item =~ /^(biovar|pv\.|type\s+)/))) {
+			$variant = $item;
+		    } elsif($item =~ s/^subsp\.\s+//) {
 			if(! $subspecies) {
-			    $subspecies = $common;
+			    $subspecies = $item;
 			} elsif(! $variant) {
-			    $variant = $common;
+			    $variant = $item;
 			}
-			$common = undef;
-		    } else {
-			# we're only interested in the first common name, and
-			# strain and/or isolate are supposed to come before
-			last;
+		    } elsif(! defined($common)) {
+			# we're only interested in the first common name
+			$common = $item;
+			if((index($common, '(') >= 0) &&
+			   (index($common, ')') < 0)) {
+			    $common .= ')';
+			}
 		    }
 		}
 	    }
@@ -908,7 +913,7 @@ sub _read_swissprot_Species {
 	    if($class[0] =~ /viruses/i) { 
 		# viruses have different OS/OC syntax
 		my @virusnames = split(/\s+/, $binomial);
-		$species = pop(@virusnames);
+		$species = (@virusnames > 1) ? pop(@virusnames) : '';
 		$genus = join(" ", @virusnames);
 		$subspecies = undef;
 	    }
