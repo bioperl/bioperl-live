@@ -16,7 +16,7 @@ BEGIN {
         use lib 't';
     }
     use Test;
-    plan test => 11;
+    plan test => 12;
 }
 use Bio::DB::Fasta;
 use Bio::Root::IO;
@@ -29,6 +29,7 @@ ok(length $db->seq('AW057119',1,10) == 10);
 my $primary_seq = $db->get_Seq_by_id('AW057119');
 ok($primary_seq);
 ok(length($primary_seq->seq) > 0);
+ok(!defined $db->get_Seq_by_id('foobarbaz'));
 undef $db;
 undef $primary_seq;
 
@@ -41,6 +42,7 @@ ok($dna2 = $h{'AW057146:10,1'});
 my $revcom = reverse $dna1;
 $revcom =~ tr/gatcGATC/ctagCTAG/;
 ok($dna2 eq $revcom);
+
 
 END {
   unlink Bio::Root::IO->catfile(qw(t data dbfa directory.index));

@@ -571,6 +571,7 @@ sub index_dir {
 sub get_Seq_by_id {
   my $self = shift;
   my $id   = shift;
+  return unless exists $self->{offsets}{$id};
   return Bio::PrimarySeq::Fasta->new($self,$id);
 }
 
