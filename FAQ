@@ -1,4 +1,4 @@
-# $Id: FAQ,v 1.1 2002-02-14 17:39:57 jason Exp $
+# $Id: FAQ,v 1.2 2002-02-14 22:59:07 bosborne Exp $
 
 Bioperl FAQ
 -----------
@@ -26,6 +26,11 @@ III. Report parsing
 
   1. I want to parse Blast, how do I do this?  
   2. What's wrong with Bio::Tools::Blast?
+
+IV. Sequence utilities
+
+  1. How do I find all the ORFs in a nucleotide sequence? Antigenic sites
+     in a protein? Calculate nucleotide melting temperature? Find repeats?
 
 ------------------------------------------------------------------------
 This FAQ maintained by those listed below:
@@ -88,6 +93,10 @@ I. Bioperl in general
       introduction.  There are links to tutorials off the bioperl
       website that may provide some additional help.
  
+      There are also many scripts in the examples/ and scripts/
+      directories that could be useful - see bioperl.pod for a brief
+      description of all of them.
+
       Additionally we have written many tests for our modules, you
       can see test data and example usage of the modules in these
       tests - look in the test dir (called 't').
@@ -168,3 +177,18 @@ III. Report parsing
      the Bio::SeqIO system of parsing sequence files.  However, the
      objects produced are of the Bio::Search rather than Bio::Seq
      variety.
+
+
+------------------------------------------------------------------------
+IV. Sequence utilities
+------------------------------------------------------------------------
+
+  1. How do I find all the ORFs in a nucleotide sequence? Antigenic sites
+     in a protein? Calculate nucleotide melting temperature? Find repeats?
+
+     In fact, none of these functions are built into Bioperl but they are
+     all available in the EMBOSS package (www.uk.embnet.org/Software/EMBOSS),
+     as well as many others. The Bioperl developers created a simple
+     interface to EMBOSS such any and all EMBOSS programs can be run
+     from with Bioperl. See Bio::Factory::EMBOSS for more information.
+     
