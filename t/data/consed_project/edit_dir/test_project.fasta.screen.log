@@ -1,0 +1,88 @@
+No. words: 2989; after pruning: 2826
+
+
+Histogram of relative pair offsets, for read pairs with multiple alignments:
+
+Pass 1
+             Gap  Score    
+
+Pass: 1
+#reads  #contigs (not counting singlets)
+    1      2
+
+N.B. Following not based on all pairs!!
+
+Lowest   # merges  # failures
+LLR score
+
+Gap   # merges  # failures
+ size
+
+Offset
+
+Pass 3
+             Gap  Score    
+Merge:(0)    0    0.0 15.1 (1,1:768)  628  3.27 0.00 0.00  ML4924F       10   713 (21)  C ML4924R   (3)   760    57 *
+
+Pass: 3
+#reads  #contigs (not counting singlets)
+    2      1
+
+N.B. Following not based on all pairs!!
+
+Lowest   # merges  # failures
+LLR score
+0.0       1        0
+
+Gap   # merges  # failures
+ size
+ 0       1        0
+
+Offset
+  0       1 
+
+Pass 4
+             Gap  Score    
+
+Pass: 4
+#reads  #contigs (not counting singlets)
+    2      1
+
+N.B. Following not based on all pairs!!
+
+Lowest   # merges  # failures
+LLR score
+
+Gap   # merges  # failures
+ size
+
+Offset
+
+Read equivalence class histogram:
+    1    2
+    2    1
+
+Chimera merges: 
+
+
+Contig 1:  302 nodes
+
+ 153 str. conn. components
+
+Path
+    1  C ML4924R         763 
+   19    ML4924F          25 
+  275  C ML4924R         489 
+  610    ML4924F         616 
+  622  C ML4924R         142 
+  660    ML4924F         666 
+  668  C ML4924R          96 
+Contig length: old 769, new 763
+
+Contig length: old 763, new 708
+New start: 0 
+
+Contig 1 unpadded => padded conversion:
+  200 =>   200
+  400 =>   400
+  600 =>   600
