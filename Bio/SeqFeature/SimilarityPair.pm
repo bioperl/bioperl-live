@@ -19,8 +19,8 @@ Bio::SeqFeature::SimilarityPair - Sequence feature based on the similarity
 
   $sim_pair = Bio::SeqFeature::SimilarityPair->from_searchResult($blastHit);
 
-  $sim = $sim_pair->query(); # a Bio::SeqFeature::Similarity object
-  $sim = $sim_pair->subject(); # dto.
+  $sim = $sim_pair->query(); # a Bio::SeqFeature::Similarity object - the query
+  $sim = $sim_pair->hit();   # dto - the hit.
 
   # some properties for the similarity pair
   $expect = $sim_pair->significance();
@@ -84,6 +84,21 @@ use Bio::Tools::Blast::Sbjct;
 
 @ISA = qw(Bio::SeqFeature::FeaturePair);
 
+=head2 new
+
+ Title   : new
+ Usage   : my $similarityPair = new Bio::SeqFeature::SimilarityPair
+                                 (-hit   => $hit,
+				  -query => $query,
+				  -source => 'blastp');
+ Function: Initializes a new SimilarityPair object
+ Returns : Bio::SeqFeature::SimilarityPair
+ Args    : -query => The query in a Feature pair 
+           -hit   => (formerly '-subject') the subject/hit in a Feature pair
+          
+
+=cut
+
 sub new {
     my($class,@args) = @_;
 
@@ -95,18 +110,27 @@ sub new {
     # TODO: Remove this when BlastHSP doesn't do lazy parsing.
     $self->{'_initializing'} = 1;
 
-    my ($sbjct, $query, $fea1, $source) =
-	$self->_rearrange([qw(SUBJECT
+    my ($hit, $query, $fea1, $source,$sbjct) =
+	$self->_rearrange([qw(HIT
 			      QUERY
 			      FEATURE1
                               SOURCE
+			      SUBJECT
 			      )],@args);
     
+    if( $sbjct ) { 
+	$self->warn("use of -subject deprecated: SimilarityPair now uses 'hit'");
+	if(! $hit) { $hit = $sbjct } 
+	else { 
+	    $self->warn("-hit and -subject were specified, using -hit and ignoring -subject");
+	}
+    }
+
     # make sure at least the query feature exists -- this refers to feature1
     if($query && ! $fea1) { $self->query( $query);  } 
     else { $self->query('null'); } # call with no args sets a default value for query
     
-    $sbjct && $self->subject($sbjct);
+    $hit && $self->hit($hit);
     # the following refer to feature1, which has been ensured to exist
     $self->primary_tag('similarity') unless( defined $self->primary_tag() );
     $source && $self->source_tag($source);
@@ -182,7 +206,7 @@ sub _from_BlastObj {
 	$obj = $obj->new();
     }
     my $simqu = $obj->query();
-    my $simsb = $obj->subject();
+    my $simsb = $obj->hit();
     my $report = $blastObj->parent();
     my $blastSbjct = $blastObj;
     if($blastObj->isa('Bio::Tools::Blast::HSP')) {
@@ -197,7 +221,7 @@ sub _from_BlastObj {
     $obj->significance($blastObj->signif());
     $obj->source_tag($report->program());
     #
-    # set the query and subject specific properties
+    # set the query and hit specific properties
     #
     # seq names
     $simqu->seqname($report->query());
@@ -298,19 +322,40 @@ sub query {
     return $self->feature1(@args);
 }
 
+
+
+
 =head2 subject
 
  Title   : subject
  Usage   : $sbjct_feature = $obj->subject();
            $obj->subject($sbjct_feature);
- Function: 
- Returns : 
- Args    : 
+ Function: Get/Set Subject for a SimilarityPair 
+ Returns : Bio::SeqFeature::Similarity
+ Args    : [optional] Bio::SeqFeature::Similarity
+ Notes   : Deprecated.  Use the method 'hit' instead
+
+=cut
+
+sub subject { 
+    my $self = shift;
+    $self->warn("Method subject deprecated: use hit() instead");
+    $self->hit(@_); 
+}
+
+=head2 hit
+
+ Title   : hit
+ Usage   : $sbjct_feature = $obj->hit();
+           $obj->hit($sbjct_feature);
+ Function: Get/Set Hit for a SimilarityPair 
+ Returns : Bio::SeqFeature::Similarity
+ Args    : [optional] Bio::SeqFeature::Similarity
 
 
 =cut
 
-sub subject {
+sub hit {
     my ($self, @args) = @_;
     my $f = $self->feature2();
     if(! @args || (!ref($args[0]) && $args[0] eq 'null') ) {
@@ -354,7 +399,7 @@ sub source_tag {
     my ($self, @args) = @_;
 
     if(@args) {
-	$self->subject()->source_tag(@args);
+	$self->hit()->source_tag(@args);
     }
     return $self->query()->source_tag(@args);
 }
@@ -375,7 +420,7 @@ sub significance {
     my ($self, @args) = @_;
 
     if(@args) {
-	$self->subject()->significance(@args);
+	$self->hit()->significance(@args);
     }
     return $self->query()->significance(@args);
 }
@@ -396,7 +441,7 @@ sub score {
     my ($self, @args) = @_;
 
     if(@args) {
-	$self->subject()->score(@args);
+	$self->hit()->score(@args);
     }
     return $self->query()->score(@args);
 }
@@ -417,7 +462,7 @@ sub bits {
     my ($self, @args) = @_;
 
     if(@args) {
-	$self->subject()->bits(@args);
+	$self->hit()->bits(@args);
     }
     return $self->query()->bits(@args);
 }
