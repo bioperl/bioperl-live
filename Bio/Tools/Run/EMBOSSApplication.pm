@@ -18,16 +18,18 @@ Bio::Tools::Run::EMBOSSApplication -  class for EMBOSS Applications
 =head1 SYNOPSIS
 
   # get an EMBOSS application object from the EMBOSS factory
-  # $f is a  Bio::Factory::EMBOSS object
+  $factory = new Bio::Factory::EMBOSS
   $application = $factory->program('embossversion');
-  # run the appiation with an optional hash containing parameters
-  $application->run();
+  # run the application with an optional hash containing parameters
+  $result = $application->run(); # returns a string or creates a file
+  print $result . "\n";
 
 =head1 DESCRIPTION
 
 The EMBOSSApplication class can represent EMBOSS any program. It is
-created by a L<Bio::Factory::EMBOSS> object which primes it by reading
-in the ADC description of the command line options.
+created by a Bio::Factory::EMBOSS object which primes it by reading
+in the ADC description of the command line options. See also
+L<Bio::Factory::EMBOSS>.
 
 =head1 FEEDBACK
 
@@ -97,7 +99,7 @@ sub new {
  Title   : run
  Usage   : $embossapplication->run($attribute_hash)
  Function: Runs the EMBOSS program.
- Returns : string only for now; will return objects!
+ Returns : string or creates files for now; will return objects!
  Args    : hash of input to the program
 
 =cut
