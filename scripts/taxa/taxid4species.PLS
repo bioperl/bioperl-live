@@ -3,7 +3,7 @@
 # Purpose: Retrieve the NCBI Taxa ID for organism(s)
 
 # TODO: add rest of POD
-# 
+#
 
 use LWP::UserAgent;
 use XML::Twig;
@@ -49,13 +49,13 @@ unless( $plain  ) {
 }
 
 =head1 NAME
-    
-    taxid4species: Simple script which returns the NCBI Taxanomic id for a requested species
+
+taxid4species: Simple script which returns the NCBI Taxanomic id for a requested species
 
 =head1 DESCRIPTION
 
 This simple script shows how to get the taxa id from NCBI Entrez and
 will return a list of taxa ids for requested organisms.
 
-=cut 
+=cut
 
