@@ -1,4 +1,3 @@
-
 #
 # $Id$
 #
@@ -29,13 +28,13 @@ Bio::Index::GenBank - Interface for indexing (multiple) GenBank
     # Print out several sequences present in the index
     # in gcg format
     use Bio::Index::GenBank;
-
+    use Bio::SeqIO;
     my $Index_File_Name = shift;
     my $inx = Bio::Index::GenBank->new('-filename' => $Index_File_Name);
-
+    my $seqio = new Bio::SeqIO(-format => 'gcg');
     foreach my $id (@ARGV) {
         my $seq = $inx->fetch($id); # Returns Bio::Seq object
-        print $seq->layout('GCG');
+        $seqio->write_seq($seq);
     }
 
     # alternatively
@@ -72,7 +71,7 @@ email or the web:
 
 =head1 AUTHOR - Ewan Birney
 
-Email - birney@sanger.ac.uk
+Email - birney@ebi.ac.uk
 
 =head1 APPENDIX
 
@@ -202,16 +201,4 @@ sub _file_format{
    return 'GenBank';
 }
 
-
-
 1;
-
-
-
-
-
-
-
-
-
-
