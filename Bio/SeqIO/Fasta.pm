@@ -157,17 +157,20 @@ sub next_seq{
        $_ = uc($_);
        s/\W//g;
        $seqc .= $_;
+     GETC:
        $fh->eof && last;
        $c = $fh->getc();
-
+       print ord($c) . "\t$c\n";
        if( $c eq '>' ) {
 	   last;
+       } elsif( $c eq $/ ) { # don't slurp past newlines.
+	   goto GETC;
        } else {
 	   $seqc .= uc($c) unless $c =~ m/\W/;
        }
    }
 
-   $seq = Bio::Seq->new(-seq => $seqc , -id => $name);
+   $seq = Bio::Seq->new(-seq => $seqc , -id => $name, -desc => $desc);
    
    return $seq;
 
