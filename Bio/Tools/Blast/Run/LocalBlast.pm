@@ -26,7 +26,7 @@ use Bio::Root::Utilities qw(:obj);
 use Carp;
 
 use Exporter;
-use vars qw( @ISA @EXPORT @EXPORT_OK );
+use vars qw( @ISA @EXPORT @EXPORT_OK %EXPORT_TAGS );
 @ISA        = qw(Exporter);
 @EXPORT     = qw();
 @EXPORT_OK  = qw(&blast_local @Blast_dbp_local @Blast_dbn_local 
