@@ -80,6 +80,7 @@ use Bio::Seq::SeqFactory;
 use Bio::Species;
 use Bio::SeqFeature::Generic;
 use Bio::Annotation::Reference;
+use Bio::Annotation::Comment;
 use Bio::Annotation::DBLink;
 
 @ISA = qw( Bio::SeqIO XML::SAX::Base);
@@ -334,6 +335,12 @@ sub start_element {
 
 	push @{$self->{'_seendata'}->{'_feats'}}, $f;
 	$self->{'_seendata'}->{'_seqs'}->[-1]->add_SeqFeature($f);	
+    } elsif ( $name  eq 'AUTHOR' ) {
+    } elsif( $name eq 'GB_DESCRIPTION' ) {
+	
+    } elsif( $name eq 'GB_COMMENT' ) {
+    } elsif( $name eq 'LINEAGE' ) {
+
     } else { 
 	$self->warn("Unknown element $name, ignored\n");
     }
@@ -457,7 +464,7 @@ sub characters {
     my ($self,$data) = @_;
     if( ! @{$self->{'_state'}} ) {
 	$self->warn("Calling characters with no previous start_element call. Ignoring data");
-    } else { 
+    } else {
 	my $curseq = $self->{'_seendata'}->{'_seqs'}->[-1];
 	my $curfeat = $self->{'_seendata'}->{'_feats'}->[-1];
 	my $name = $self->{'_state'}->[-1];	
@@ -465,12 +472,22 @@ sub characters {
 	    if( $name eq 'CLONE_NAME' ) {
 		$self->debug("Clone name is ",$data->{'Data'}, "\n");
 		$curseq->display_id($data->{'Data'});
-	    } elsif( $name eq 'ORGANISM' ) { 
-		$curseq->species(Bio::Species->new
-				 (
-				  -classification => [split(/\s+/,
-							    $data->{'Data'})]
-				  ));
+	    } elsif( $name eq 'ORGANISM' ) {
+		my ($genus,$species,$subspec) = split(/\s+/,$data->{Data},3);
+		$curseq->species(Bio::Species->new(
+						   -classification => 
+						   [$species,$genus],
+						   -sub_species => $species));
+	    } elsif( $name eq 'LINEAGE' ) {
+		$curseq->species->classification( 
+				  [ 
+				    $curseq->species->species,
+				    $curseq->species->genus, 
+				    reverse  (map { s/^\s+//; 
+						    s/\s+$//; $_; } 
+					      split /[;\.]+/,$data->{'Data'} ),
+				    ]
+				  );
 	    } elsif( $name eq 'AUTHOR' ) {
 		push @{$self->{'_seendata'}->{'_authors'}}, $data->{'Data'};
 	    }
@@ -487,6 +504,12 @@ sub characters {
 	    } elsif( $name eq 'REPEAT_LIST' ) {
 	    } elsif( $name eq 'REPEAT' ) {
 		$curfeat->add_tag_value('Note',$data->{'Data'});
+	    } elsif( $name eq 'GB_COMMENT' ) {
+		$curseq->annotation->add_Annotation
+		    ('comment',
+		     Bio::Annotation::Comment->new(-text => $data->{'Data'}));
+	    } elsif( $name eq 'GB_DESCRIPTION' ) {
+		$curseq->description($data->{'Data'});
 	    }
 	}
     }
