@@ -8,24 +8,11 @@
 # Before `make install' is performed this script should be runnable with
 # `make test'. After `make install' it should work as `perl test.t'
 
-#-----------------------------------------------------------------------
-## perl test harness expects the following output syntax only!
-## 1..3
-## ok 1  [not ok 1 (if test fails)]
-## 2..3
-## ok 2  [not ok 2 (if test fails)]
-## 3..3
-## ok 3  [not ok 3 (if test fails)]
-##
-## etc. etc. etc. (continue on for each tested function in the .t file)
-#-----------------------------------------------------------------------
-
-
 ## We start with some black magic to print on failure.
-BEGIN { $| = 1; print "1..27\n"; 
-	use vars qw($loaded); }
+use Test;
+use strict;
 
-END {print "not ok 1\n" unless $loaded;}
+BEGIN { plan tests => 27 }
 
 use Bio::Seq;
 use Bio::SeqFeature::Generic;
@@ -34,13 +21,12 @@ use Bio::SeqFeature::SimilarityPair;
 use Bio::Tools::Blast;
 use Bio::SeqFeature::Computation;
 
-$loaded = 1;
-print "ok 1\n";    # 1st test passes.
 
-sub test ($$;$) {
-    my($num, $true,$msg) = @_;
-    print($true ? "ok $num\n" : "not ok $num $msg\n");
-}
+ok(1);
+
+# predeclare variables for strict
+my ($feat,$str,$feat2,$pair,$comp_obj1,$comp_obj2,@sft); 
+
 
 $feat = new Bio::SeqFeature::Generic ( -start => 40,
 				       -end => 80,
@@ -53,18 +39,15 @@ $feat = new Bio::SeqFeature::Generic ( -start => 40,
 					   }
 				       );
 
-test 2, ( $feat->start == 40 );
+ok $feat->start, 40;
 
-test 3, ( $feat->end == 80 );
+ok $feat->end, 80;
 
-test 4, ( $feat->primary_tag eq 'exon' );
+ok $feat->primary_tag, 'exon';
 
+ok $feat->source_tag, 'internal';
 
-test 5, ( $feat->source_tag eq 'internal' );
-
-
-$str = $feat->gff_string();
-$str = ""; # shut up -w
+$str = $feat->gff_string() || ""; # placate -w
 
 # we need to figure out the correct mapping of this stuff
 # soon
@@ -75,11 +58,11 @@ $str = ""; # shut up -w
 #    print "ok 3\n";
 #}
 
-test 6, 1;
+ok(1);
 
 $pair = new Bio::SeqFeature::FeaturePair();
 
-test 7, 1;
+ok defined $pair;
 
 $feat2 = new Bio::SeqFeature::Generic ( -start => 400,
 				       -end => 440,
@@ -92,31 +75,31 @@ $feat2 = new Bio::SeqFeature::Generic ( -start => 400,
 					   }
 				       );
 
+ok defined $feat2;
 $pair->feature1($feat);
 $pair->feature2($feat2);
 
-test 8, 1;
+ok $pair->feature1, $feat;
+ok $pair->feature2, $feat2;
+ok $pair->start, 40;
 
-test 9, ( $pair->start == 40 );
-
-test 10, ( $pair->end == 80 );
+ok $pair->end, 80;
 
 
-test 11, ( $pair->primary_tag eq 'exon' );
+ok $pair->primary_tag, 'exon';
+ok $pair->source_tag, 'internal';
 
-test 12, ( $pair->source_tag eq 'internal' );
+ok $pair->hstart, 400;
 
-test 13, ( $pair->hstart == 400 );
+ok $pair->hend, 440;
 
-test 14, ( $pair->hend == 440 );
+ok $pair->hprimary_tag, 'other' ;
 
-test 15, ( $pair->hprimary_tag eq 'other' );
-
-test 16, ( $pair->hsource_tag eq 'program_a' );
+ok $pair->hsource_tag, 'program_a';
 
 $pair->invert;
 
-test 17, ( $pair->end == 440 );
+ok $pair->end, 440;
 
 # Test attaching a SeqFeature::Generic to a Bio::Seq
 {
@@ -135,11 +118,11 @@ test 17, ( $pair->end == 440 );
         );
     
     # Add the SeqFeature to the parent
-    test 18, ($seq->add_SeqFeature($sf1));
+    ok ($seq->add_SeqFeature($sf1));
     
     # Test that it gives the correct sequence
     my $sf_seq1 = $sf1->seq->seq;
-    test 19, ($sf_seq1 eq 'aggggt');
+    ok $sf_seq1, 'aggggt';
     
     # Make a second seqfeature on the opposite strand
     my $sf2 = Bio::SeqFeature::Generic->new(
@@ -150,22 +133,22 @@ test 17, ( $pair->end == 440 );
     
     # This time add the PrimarySeq to the seqfeature
     # before adding it to the parent
-    test 20, ($sf2->attach_seq($seq->primary_seq));
+    ok ($sf2->attach_seq($seq->primary_seq));
     $seq->add_SeqFeature($sf2);
     
     # Test again that we have the correct sequence
     my $sf_seq2 = $sf2->seq->seq;
-    test 21, ($sf_seq2 eq 'acccct');
+    ok $sf_seq2, 'acccct';
 }
 
 #Do some tests for computation.pm
 
-test 22, ( $comp_obj1 = Bio::SeqFeature::Computation->new() );
-test 23, ( $comp_obj1->computation_id(332) );
-test 24, ( $comp_obj1->add_score_value('P', 33) );
+ok defined ( $comp_obj1 = Bio::SeqFeature::Computation->new() );
+ok ( $comp_obj1->computation_id(332) );
+ok ( $comp_obj1->add_score_value('P', 33) );
 {
     $comp_obj2 = Bio::SeqFeature::Computation->new();
-    test 25, ($comp_obj1->add_sub_SeqFeature($comp_obj2, 'exon') );
-    test 26, (@sft = $comp_obj1->all_sub_SeqFeature_types() );
-    test 27, ($sft[0] eq 'exon');
+    ok ($comp_obj1->add_sub_SeqFeature($comp_obj2, 'exon') );
+    ok (@sft = $comp_obj1->all_sub_SeqFeature_types() );
+    ok ($sft[0], 'exon');
 }
