@@ -74,7 +74,7 @@ sub examples {
   ./$ID out/blastx.2.email.gz -table 1 -signif 1e-4  
   ./$ID out/blastp.email.html.gz -signif 1e-10 
   ./$ID out/blastp.2* -table 1 -best -nostats > parsed.out2
-  ./$ID out/tblastn.2 -table 2 -signif 0.1  # should issue a warning
+  ./$ID out/tblastn.206.gz -table 2 -signif 0.1 
   ./$ID out/blastp.1.gz   # should issue some warnings.
 
 QQ_EG_QQ
