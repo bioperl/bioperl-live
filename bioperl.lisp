@@ -1,5 +1,5 @@
 ;;
-;; $Id: bioperl.lisp,v 1.27 2003-02-18 02:16:14 jason Exp $
+;; $Id: bioperl.lisp,v 1.28 2003-03-06 03:41:24 lapp Exp $
 ;;
 ;; Perl mode set up
 
@@ -19,7 +19,7 @@
 (defun bioperl-object-start (perl-object-name perl-caretaker-name caretaker-email)
   "Places standard bioperl object notation headers and footers"
   (interactive "sName of Object: \nsName of caretaker: \nsEmail: ")
-  (insert "# $Id: bioperl.lisp,v 1.27 2003-02-18 02:16:14 jason Exp $\n#\n# BioPerl module for " perl-object-name "\n#\n# Cared for by " perl-caretaker-name " <" caretaker-email ">\n#\n# Copyright " perl-caretaker-name "\n#\n# You may distribute this module under the same terms as perl itself\n\n")
+  (insert "# $Id: bioperl.lisp,v 1.28 2003-03-06 03:41:24 lapp Exp $\n#\n# BioPerl module for " perl-object-name "\n#\n# Cared for by " perl-caretaker-name " <" caretaker-email ">\n#\n# Copyright " perl-caretaker-name "\n#\n# You may distribute this module under the same terms as perl itself\n\n")
   (insert "# POD documentation - main docs before the code\n\n")
   (insert "=head1 NAME\n\n" perl-object-name " - DESCRIPTION of Object\n\n")
   (insert "=head1 SYNOPSIS\n\nGive standard usage here\n\n")
@@ -90,6 +90,16 @@
   (insert "sub " field-name "{\n    my $self = shift;\n\n    return $self->{'" field-name "'} = shift if @_;\n    return $self->{'" field-name "'};")
   (insert "\n}\n"))
 
+(defun bioperl-array-getset (field-name class-name)
+  "puts in a bioperl method for array get/add/remove methods complete with pod boiler-plate"
+  (interactive "sarray base object: \nstype of element: ")
+  (insert "=head2 get_" field-name "s\n\n Title   : get_" field-name "s\n Usage   : @arr = get_" field-name "s()\n Function: Get the list of " field-name "(s) for this object.\n Example :\n Returns : An array of " class-name " objects\n Args    :\n\n\n=cut\n\n")
+  (insert "sub get_" field-name "s{\n    my $self = shift;\n\n    return @{$self->{'_" field-name "s'}} if exists($self->{'_" field-name "s'});\n    return ();\n}\n\n")
+  (insert "=head2 add_" field-name "\n\n Title   : add_" field-name "\n Usage   :\n Function: Add one or more " field-name "(s) to this object.\n Example :\n Returns : \n Args    : One or more " class-name " objects.\n\n\n=cut\n\n")
+  (insert "sub add_" field-name "{\n    my $self = shift;\n\n    $self->{'_" field-name "s'} = [] unless exists($self->{'_" field-name "s'});\n    push(@{$self->{'_" field-name "s'}}, @_);\n}\n\n")
+  (insert "=head2 remove_" field-name "s\n\n Title   : remove_" field-name "s\n Usage   :\n Function: Remove all " field-name "s for this class.\n Example :\n Returns : The list of previous " field-name "s as an array of\n           " class-name " objects.\n Args    :\n\n\n=cut\n\n")
+  (insert "sub remove_" field-name "s{\n    my $self = shift;\n\n    my @arr = $self->get_" field-name "s();\n    $self->{'_" field-name "s'} = [];\n    return @arr;\n}\n\n"))
+
 
 (defun bioperl-abstract-method (method-name)
   "puts in a bioperl abstract method for interface classes"
@@ -109,6 +119,7 @@
 	 (define-key perl-mode-map "\C-c\C-b" 'bioperl-object-start)
 	 (define-key perl-mode-map "\C-c\C-i" 'bioperl-interface-start)
 	 (define-key perl-mode-map "\C-c\C-v" 'bioperl-getset)
+	 (define-key perl-mode-map "\C-c\C-r" 'bioperl-arrray-getset)
 	 (define-key perl-mode-map "\C-c\C-b" 'bioperl-method)
 	 (define-key perl-mode-map "\C-c\C-a\C-m" 'bioperl-abstract-method)
 	 (define-key perl-mode-map "\C-c\C-z" 'compile)
@@ -121,9 +132,10 @@
 	   '("bioperl object template" . bioperl-object-start))
 	 (define-key perl-mode-map [menu-bar p bioperl-interface-start]
 	   '("bioperl interface template" . bioperl-interface-start))
-
 	 (define-key perl-mode-map [menu-bar p bioperl-getset]
 	   '("bioperl field func" . bioperl-getset))
+	 (define-key perl-mode-map [menu-bar p bioperl-array-getset]
+	   '("bioperl array get/add/remove" . bioperl-array-getset))
 	 (define-key perl-mode-map [menu-bar p bioperl-method]
 	   '("bioperl method" . bioperl-method))
 	 ))
