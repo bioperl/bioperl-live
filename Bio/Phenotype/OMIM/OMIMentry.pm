@@ -111,12 +111,7 @@ use constant DEFAULT_MIM_NUMER => 0;
            -edited                         => edited by whom/when    
            -contributors                   => contributed by whom/when 
            -additional_references          => "see also"     
-           -clinical_symptoms              => the clinical symptoms      
-           -correlates                     => list of Bio::Phenotype::Correlate         
-           -references                     => list of Bio::Annotation::Reference
-           -allelic_variants               => list of Bio::Phenotype::OMIM::OMIMentryAllelicVariant
-           -cyto_positions                 => list of Bio::Map::CytoPosition
-           -gene_symbols                   => list of gene symbols [strings]
+           -clinical_symptoms              => the clinical symptoms
            -minimim                        => the Mini MIM associated with this OMIM antry
 
 =cut
@@ -141,12 +136,7 @@ sub new {
          $edited,    
          $contributors,
          $additional_references,     
-         $clinical_symptoms,       
-         @correlates,        
-         @references,
-         @allelic_variants,
-         @cyto_positions,
-         @gene_symbols,
+         $clinical_symptoms, 
          $miniMIM )
     = $self->_rearrange( [ qw( MIM_NUMBER
                                TITLE
@@ -162,12 +152,7 @@ sub new {
                                EDITED
                                CONTRIBUTORS
                                ADDITIONAL_REFERENCES
-                               CLINICAL_SYMPTOMS   
-                               CORRELATES       
-                               REFERENCES
-                               ALLELIC_VARIANTS
-                               CYTO_POSITIONS
-                               GENE_SYMBOLS
+                               CLINICAL_SYMPTOMS
                                MINIMIM ) ], @args );
    
     $self->init(); 
@@ -186,12 +171,7 @@ sub new {
     $edited                         && $self->edited( $edited );    
     $contributors                   && $self->contributors( $contributors );
     $additional_references          && $self->additional_references( $additional_references );     
-    $clinical_symptoms              && $self->clinical_symptoms( $clinical_symptoms );       
-    @correlates                     && $self->add_Correlates( @correlates );        
-    @references                     && $self->add_References( @references );
-    @allelic_variants               && $self->add_AllelicVariants( @allelic_variants );
-    @cyto_positions                 && $self->add_CytoPositions( @cyto_positions );
-    @gene_symbols                   && $self->add_gene_symbols( @gene_symbols );
+    $clinical_symptoms              && $self->clinical_symptoms( $clinical_symptoms );
     $miniMIM                        && $self->miniMIM( $miniMIM );
                                                     
     return $self;
