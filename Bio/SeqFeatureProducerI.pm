@@ -12,7 +12,8 @@
 
 =head1 NAME
 
-Bio::SeqFeatureProducerI
+Bio::SeqFeatureProducerI - interface describing objects capable of annotating
+              sequences with features
 
 =head1 SYNOPSIS
 
