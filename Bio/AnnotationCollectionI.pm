@@ -44,7 +44,7 @@ a Sequence Feature and may or may not have an Annotation Collection).
 The trouble about this is we are not that sure what "interesting
 facts" someone might want to store: the possibility is endless. 
 
-Bioperl's approach is that the "interesting facts" are represented by
+Bioperl\'s approach is that the "interesting facts" are represented by
 Bio::AnnotationI objects. The interface Bio::AnnotationI guarentees
 two methods
 
@@ -64,7 +64,7 @@ and in some cases (like the tag "gene_name") indicate how to interpret the
 data underneath the tag. The tag is only one tag deep and each tag can have an
 array of values.
 
-In addition, AnnotationCollectionI's are guarentee to maintain a consistent
+In addition, AnnotationCollectionI\'s are guarentee to maintain a consistent
 set object values under each tag - at least that each object complies to one
 interface. The "standard" AnnotationCollection insists the following rules
 are set up
@@ -124,12 +124,11 @@ package Bio::AnnotationCollectionI;
 use vars qw(@ISA);
 use strict;
 
-# Object preamble - inherits from Bio::Root::Root
+# Interface preamble - inherits from Bio::Root::RootI
 
-use Bio::Root::Root;
+use Bio::Root::RootI;
 
-
-@ISA = qw(Bio::Root::Root);
+@ISA = qw(Bio::Root::RootI);
 
 
 

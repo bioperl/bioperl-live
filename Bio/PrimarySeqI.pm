@@ -107,10 +107,13 @@ The rest of the documentation details each of the object methods. Internal metho
 
 
 package Bio::PrimarySeqI;
-use vars qw(@ISA);
+use vars qw(@ISA );
 use strict;
 use Carp;
 use Bio::Tools::CodonTable;
+use Bio::Root::RootI;
+
+@ISA = qw(Bio::Root::RootI);
 
 =head1 Implementation Specific Functions
 

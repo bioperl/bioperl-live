@@ -90,17 +90,9 @@ use vars qw(@ISA);
 use Bio::PrimarySeqI;
 use Carp;
 
-# Object preamble - inheriets from Bio::Root::Object
+# Object preamble - inheriets from Bio::PrimarySeqI
 
 @ISA = qw(Bio::PrimarySeqI);
-
-sub _abstractDeath {
-  my $self = shift;
-  my $package = ref $self;
-  my $caller = (caller)[1];
-  
-  confess "Abstract method '$caller' defined in interface Bio::SeqI not implemented by pacakge $package. Not your fault - author of $package should be blamed!";
-}
 
 =head2 top_SeqFeatures
 
