@@ -109,6 +109,9 @@ sub draw {
   $self->draw_description(@_) if $self->option('description');
 }
 
+sub min { $_[0] <= $_[1] ? $_[0] : $_[1] }
+sub max { $_[0] >= $_[1] ? $_[0] : $_[1] }
+
 sub draw_label {
   my $self = shift;
   my ($gd,$left,$top,$partno,$total_parts) = @_;

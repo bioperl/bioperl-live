@@ -15,11 +15,23 @@ sub connector {
 sub draw {
   my $self = shift;
   my ($gd,$left,$top,$partno,$total_parts) = @_;
+
+  # the clipping code here prevents poorly-behaving glyphs from
+  # drawing outside the track
+  my @clip;
+  if ($gd->can('clip')) {
+    @clip = $gd->clip();
+    $gd->clip($left+$self->left,$top-6,$left+$self->width+$self->panel->extra_right_padding-3
+	      ,$top+$self->layout_height);
+  }
+
   my @parts = $self->parts;
   for (my $i=0; $i<@parts; $i++) {
     $parts[$i]->draw_highlight($gd,$left,$top);
     $parts[$i]->draw($gd,$left,$top,0,1);
   }
+
+  $gd->clip(@clip) if @clip;
 }
 
 # do nothing for components

@@ -13,6 +13,7 @@ use constant KEYSTYLE     => 'bottom';
 use constant KEYALIGN     => 'left';
 use constant GRIDCOLOR    => 'lightcyan';
 use constant MISSING_TRACK_COLOR =>'gray';
+use constant EXTRA_RIGHT_PADDING => 30;
 
 my %COLORS;  # translation table for symbolic color names to RGB triple
 my $IMAGEMAP = 'bgmap00001';
@@ -382,10 +383,13 @@ sub _expand_padding {
     my $width_i_have = $self->pad_left;
     $self->pad_left($width_needed)  if $width_needed > $width_i_have;
   } elsif ($keystyle eq 'right') {
+    $width_needed += EXTRA_RIGHT_PADDING;
     my $width_i_have = $self->pad_right;
     $self->pad_right($width_needed) if $width_needed > $width_i_have;
   }
 }
+
+sub extra_right_padding { EXTRA_RIGHT_PADDING }
 
 sub height {
   my $self = shift;
@@ -601,7 +605,7 @@ sub draw_side_key {
   my ($gd,$track,$offset,$side) = @_;
   my $key = $track->option('key') or return;
   my $pos = $side eq 'left' ? $self->pad_left - $self->{key_font}->width * CORE::length($key)-3
-                            : $self->pad_left + $self->width + 3;
+                            : $self->pad_left + $self->width + EXTRA_RIGHT_PADDING;
   my $color = $self->translate_color('black');
   $gd->filledRectangle($pos,$offset,
 		 $pos+$self->{key_font}->width*CORE::length($key),$offset,#-$self->{key_font}->height)/2,
