@@ -154,9 +154,8 @@ use Bio::DescribableI;
 #
 # setup the allowed values for alphabet()
 #
-BEGIN {
-    %valid_type = map {$_, 1} qw( dna rna protein );
-}
+
+%valid_type = map {$_, 1} qw( dna rna protein );
 
 =head2 new
 
