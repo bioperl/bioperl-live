@@ -680,38 +680,36 @@ Blast report.
 =head1 DEMO SCRIPTS
 
 Sample Scripts are included in the central bioperl distribution in the
-'examples/blast/' directory (see L<INSTALLATION | INSTALLATION>). These are also
-available at the following URLs (but it would be safer to use the
-scripts included with the distribution).
+'examples/blast/' directory (see L<INSTALLATION | INSTALLATION>):
 
 =head2 Handy library for working with Bio::Tools::Blast.pm
 
-   http://bio.perl.org/Core/Examples/blast/blast_config.pl
+   examples/blast/blast_config.pl
 
 =head2 Parsing Blast reports one at a time.
 
-   http://bio.perl.org/Core/Examples/blast/parse_blast.pl
-   http://bio.perl.org/Core/Examples/blast/parse_blast2.pl
-   http://bio.perl.org/Core/Examples/blast/parse_positions.pl
+   examples/blast/parse_blast.pl
+   examples/blast/parse_blast2.pl
+   examples/blast/parse_positions.pl
 
 =head2 Parsing sets of Blast reports.
 
-   http://bio.perl.org/Core/Examples/blast/parse_blast.pl
-   http://bio.perl.org/Core/Examples/blast/parse_multi.pl
+   examples/blast/parse_blast.pl
+   examples/blast/parse_multi.pl
 
    B<Warning:> See note about L<Memory Usage Issues>.
 
 =head2 Running Blast analyses one at a time.
 
-   http://bio.perl.org/Core/Examples/blast/run_blast_remote.pl
+   examples/blast/run_blast_remote.pl
 
 =head2 Running Blast analyses given a set of sequences.
 
-   http://bio.perl.org/Core/Examples/blast/blast_seq.pl
+   examples/blast/blast_seq.pl
 
 =head2 HTML-formatting Blast reports.
 
-   http://bio.perl.org/Core/Examples/blast/html.pl
+   examples/blast/html.pl
 
 =head1 TECHNICAL DETAILS
 

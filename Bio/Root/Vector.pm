@@ -85,9 +85,8 @@ This is not necessarily ideal and is expected to change.
 
 =head1 USAGE
 
-For a usage demo of Bio::Root::Vector.pm, see:
-
-    http://bio.perl.org/Core/Examples/Root_object/Vector
+For a usage demo of Bio::Root::Vector.pm see the scripts in the 
+examples/root_object/vector directory.
 
 
 =head1 DEPENDENCIES
