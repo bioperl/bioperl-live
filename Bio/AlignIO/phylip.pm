@@ -130,6 +130,7 @@ sub next_aln {
 	    $name = $1;
 	    $str = $2;
 	    $name =~ s/[\s\/]/_/g;
+	    $name =~ s/_+$//; # remove any trailing _'s
 	    push @names, $name;
 	    
 	    $str =~ s/\s//g;
