@@ -16,12 +16,16 @@ my %complement = (g=>'c',a=>'t',t=>'a',c=>'g',
 
 sub pad_top {
   my $self = shift;
+  my $top  = $self->option('pad_top');
+  return $top if defined $top;
   my $pad = $self->SUPER::pad_top;
   $pad   += $self->labelheight if $self->label;
   $pad;
 }
 sub pad_bottom {
   my $self = shift;
+  my $bottom  = $self->option('pad_bottom');
+  return $bottom if defined $bottom;
   my $pad = $self->SUPER::pad_bottom;
   $pad   += $self->labelheight if $self->description;
   $pad;
@@ -232,12 +236,20 @@ L<Bio::Graphics::Glyph> for a full explanation.
   -connector_color
                 Connector color                black
 
+  -pad_top      Top padding                    0
+
+  -pad_bottom   Bottom padding                 0
+
   -label        Whether to draw a label	       0 (false)
 
   -description  Whether to draw a description  0 (false)
 
   -strand_arrow Whether to indicate            0 (false)
                  strandedness
+
+-pad_top and -pad_bottom allow you to insert some blank space between
+the glyph's boundary and its contents.  This is useful if you are
+changing the glyph's height dynamically based on its feature's score.
 
 =head1 BUGS
 
