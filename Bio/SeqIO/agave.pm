@@ -65,6 +65,15 @@ methods. Internal methods are usually preceded with a _
 
 =cut
 
+=head1 Author's Musings...
+
+The one thing that annoys me to no end is poorly documented code.
+
+
+=cut
+
+
+
 # Let the code begin...
 
 package Bio::SeqIO::agave;
@@ -108,9 +117,21 @@ sub _initialize {
 
 }
 # ==================================================================================
+=head2
+
+	Title    : _process
+	Usage    : $self->_process
+	Function : Parses the agave xml file.
+	Args     : None.
+	Returns  : Nothing.
+	Note     : Method(s) that call(s) this method : _initialize
+		   Method(s) that this method calls   : _process_sciobj
+
+=cut
 sub _process {
 
 	my ($self) = @_;
+
 	while (1){
 
 		my $line = $self->_readline;
@@ -140,6 +161,8 @@ sub _process {
 
 	} # close while loop
 
+	return;
+
 }
 # ==================================================================================
 =head2
@@ -149,8 +172,8 @@ sub _process {
 	Function : Parses the data between the <sciobj></sciobj> tags.
 	Args     : The string that holds the attributes for <sciobj>.
 	Returns  : Data structure holding the values parsed between the <sciobj></sciobj> tags.
-	Note     : Method(s) that calls this method: _process
- 		   Method(s) that this method calls: _helper_store_attribute_list , _process_contig
+	Note     : Method(s) that call(s) this method : _process
+ 		   Method(s) that this method calls   : _helper_store_attribute_list , _process_contig
 
 =cut
 sub _process_sciobj {
@@ -165,7 +188,7 @@ sub _process_sciobj {
 	while ($line =~ /<contig\s?(.*?)\s?>/){
 		my $contig = $self->_process_contig(\$line, $1);
 		push @{$sciobj->{'contig'}}, $contig;
-		print "line in _process_sciobj: $line\n"; # $line changes value within the subs called in this sub (_process_contig).
+		# print "line in _process_sciobj: $line\n"; # $line changes value within the subs called in this sub (_process_contig).
 	}
 
 	return $sciobj;
@@ -177,11 +200,11 @@ sub _process_sciobj {
 	Usage    : $self->_process_contig
 	Function : Parses the data between the <contig></contig> tags.
 	Args     : 2 scalars:
-		   - scalar holding the line to be parsed.
+		   - reference to a scalar holding the line to be parsed.
 		   - scalar holding the attributes for the <contig> tag to be parsed.
 	Returns  : Data structure holding the values parsed between the <contig></contig> tags.
-	Note     : Method(s) that call this method  : _process_sciobj
-		   Method(s) that this method calls : _one_tag , _process_fragment_order
+	Note     : Method(s) that call(s) this method : _process_sciobj
+		   Method(s) that this method calls   : _helper_store_attribute_list, _one_tag , _process_fragment_order
 
 =cut
 sub _process_contig {
@@ -189,6 +212,7 @@ sub _process_contig {
 	my ($self, $line, $attribute_line) = @_;
 
 	my $contig;
+	$self->_helper_store_attribute_list($attribute_line, \$contig);
 	$$line = $self->_readline;
 
 	# One <db_id>:
@@ -208,11 +232,11 @@ sub _process_contig {
 	Usage    : $self->_process_fragment_order
 	Function : Parses the data between the <fragment_order></fragment_order> tags.
 	Args     : 2 scalars:
-		   - scalar holding the value of the line to be parsed.
+		   - reference to a scalar holding the value of the line to be parsed.
 		   - reference to a data structure to store the <fragment_order> data.
 	Returns  : Nothing.
-	Note     : Method(s) that call this method  : _process_contig
-	           Method(s) that this method calls : _helper_store_attribute_list , _process_fragment_orientation
+	Note     : Method(s) that call(s) this method : _process_contig
+	           Method(s) that this method calls   : _helper_store_attribute_list , _process_fragment_orientation
 
 =cut
 sub _process_fragment_order {
@@ -240,25 +264,36 @@ sub _process_fragment_order {
 
 }
 # ==================================================================================
+=head2
+
+	Title    : _process_fragment_orientation
+	Usage    : $self->_process_fragment_orientation
+	Function : Parses the data between the <fragment_orientation></fragment_orientation> tags.
+        Args     : 2 scalars:
+                   - reference to a scalar holding the value of the line to be parsed.
+                   - reference to a data structure to store the <fragment_orientation> data.
+	Returns  : Nothing.
+	Note     : Method(s) that call(s) this method : _process_fragment_order
+	           Method(s) that this method calls   : _helper_store_attribute_list , _process_bio_sequence
+
+=cut
 sub _process_fragment_orientation {
 
 
 	my ($self, $line, $data_structure) = @_;
 
-	my $count = 0;
+	my $count = 0; # counter to determine the number of iterations within this while loop.
 
 	# One or more <fragment_orientation>
 	while ($$line =~ /<fragment_orientation\s?(.*?)\s?>/){
-		
-			
+
 		my $fragment_orientation;
 		$self->_helper_store_attribute_list($1, \$fragment_orientation);		
 		$$line = $self->_readline;
 
 		# One <bio_sequence>
 		$$line =~ /<bio_sequence\s?(.*?)\s?>/;
-		# print "about to process\n"; exit;
-		my $bio_sequence = $self->_process_bio_sequence($line, $1);
+		my $bio_sequence = $self->_process_bio_sequence($line, $1);	# Process the data between <bio_sequence></bio_sequence>
 		$fragment_orientation->{'bio_sequence'} = $bio_sequence;
 		
 		push @{$$data_structure->{'fragment_orientation'}}, $fragment_orientation;
@@ -267,10 +302,25 @@ sub _process_fragment_orientation {
 	}
 
 
-	die "Error.  Missing <fragment_orientation> tag.  Got this: $$line" if $count == 0;
+	$self->throw("Error: Missing <fragment_orientation> tag.  Got this: $$line\n\n") if $count == 0;
+
+	return;
 
 }
 # ==================================================================================
+=head2
+	Title    : _process_bio_sequence
+	Usage    : $self->_process_bio_sequence
+	Function : Parses the data between the <bio_sequence></bio_sequence> tags.
+	Args     : 2 scalars:
+		   - reference to a scalar holding the value of the line to be parsed.
+		   - scalar holding the value of the attributes for <bio_sequence>
+	Returns  : data structure holding the values between <bio_sequence></bio_sequence>
+	Note     : Method(s) that call(s) this method : _process_fragment_orientation
+		   Method(s) that this method calls   : _helper_store_attribute_list , _one_tag , _question_mark_tag , _star_tag , 
+						       _process_alt_ids , _process_xrefs , _process_sequence_map
+
+=cut
 sub _process_bio_sequence {
 
 	my ($self, $line, $attribute_line) = @_;
@@ -279,115 +329,165 @@ sub _process_bio_sequence {
 
 	$self->_helper_store_attribute_list($attribute_line, \$bio_sequence);
 	$$line = $self->_readline;
+
 	
 	# One <db_id>.  
 	$self->_one_tag($line, \$bio_sequence, 'db_id');
-	# $line = $self->_readline;	
+
 
 	# Zero or one <note>.
 	$self->_question_mark_tag($line, \$bio_sequence, 'note');
-	# $line = $self->_readline;
+
 
 	# Zero or more <description>
 	$self->_question_mark_tag($line, \$bio_sequence, 'description');
-	# $line = $self->_readline;
+
 
 	# Zero or more <keyword>
 	$self->_star_tag($line, \$bio_sequence, 'keyword');
 
+
 	# Zero or one <sequence>
 	$self->_question_mark_tag($line, \$bio_sequence, 'sequence');
-	# $line = $self->_readline;
+
 
 	# Zero or one <alt_ids>
-	if ($line =~ /<alt_ids>/){ # NOT DONE YET!
-		my $alt_ids;
-		$bio_sequence->{'alt_ids'} = $self->_process_alt_ids(\$alt_ids);
-	}
+	# NOT IMPLEMENTED!!!!
+	#if ($line =~ /<alt_ids>/){ # NOT DONE YET!
+	#	my $alt_ids;
+	#	$bio_sequence->{'alt_ids'} = $self->_process_alt_ids(\$alt_ids);
+	#}
 	
 
 	# Zero or one <xrefs>
-	my $xrefs = $self->_process_xrefs($line, \$bio_sequence);
-	$bio_sequence->{'xrefs'} = $xrefs || 'null';	
+	if ($$line =~ /<xrefs\s?(.*?)\s?>/){
+		my $xrefs = $self->_process_xrefs($line, \$bio_sequence);
+		$bio_sequence->{'xrefs'} = $xrefs || 'null';	
+	}
 
-	# $line = $self->_readline;
 
 	# Zero or more <sequence_map>
-	# print "line after return: $$line\n"; # <sequence_map label="EMBL/GenBank/SwissProt">
 	if ($$line =~ /<sequence_map\s?(.*?)\s?>/){
 		my $sequence_map = $self->_process_sequence_map($line);
 		push @{$bio_sequence->{'sequence_map'}}, $sequence_map;
 	}
 
+	print Data::Dumper->Dump([$bio_sequence]); exit;
+
 	return $bio_sequence;
+
 }
 # ==================================================================================
+=head2
+
+	Title    : _process_xrefs
+	Usage    : $self->_process_xrefs
+	Function : Parse the data between the <xrefs></xrefs> tags.
+	Args     : reference to a scalar holding the value of the line to be parsed.
+	Return   : Nothing.
+	Note     : Method(s) that call(s) this method: _process_bio_sequence
+		   Method(s) that this method calls: _one_tag , _process_xref
+
+=cut
 sub _process_xrefs {
 
-	my ($self, $line, $data_structure) = @_;
+	my ($self, $line) = @_;
 
 	my $xrefs;
 
-	# print "line in _process_xrefs: $$line\n"; exit;
-	# Zero or one <xrefs>
-	if ($$line =~ /<xrefs\s?(.*?)\s?>/){
+	$$line = $self->_readline;
+
+	# One or more <db_id> or <xref> within <xrefs></xrefs>.  Check if to see if there's at least one.
+	if ($$line =~ /<db_id|xref\s?(.*?)\s?>/){
 
 
-		# JUST a quick and dirty 'fix' for the moment...
-		return if $$line =~ /<xrefs><\/xrefs>/;	
+		while ($$line =~ /<(db_id|xref)\s?(.*?)\s?>/){
 
-		$$line = $self->_readline;
-		# print "line in _process_xrefs: $$line\n";
+			if ($1 eq "db_id"){
 
-		# One or more <db_id> or <xref>
-		print "before: $$line\n"; exit;
-		if ($$line =~ /<db_id|xref\s?(.*?)\s?>/){
-			while ($$line =~ /<(db_id|xref)\s?(.*?)\s?>/){
-				# print "line: $$line\n";
-				if ($1 eq "db_id"){
-					my $db_id;
-					$self->_one_tag($line, \$db_id, 'db_id');
-					push @{$xrefs->{'db_id'}}, $db_id;
-				} elsif ($1 eq "xref"){
-					my $xref;
-					$self->_process_xref($line, \$xref);
-				}
-			}	
+				my $db_id;
+				$self->_one_tag($line, \$db_id, 'db_id');
+				push @{$xrefs->{'db_id'}}, $db_id;
 
-			# print Data::Dumper->Dump([$xrefs]); exit;
+			} elsif ($1 eq "xref"){
 
-			if ($$line =~ /<\/xrefs>/){
-				$$line = $self->_readline; # get the next line to be _processed by the next sub.
-				return $xrefs;
+				my $xref;
+				$self->_process_xref($line, \$xref);
+				push @{$xrefs->{'xref'}}, $xref;
+
+			} else {
+
+				$self->throw("Error:  Tag type should be one of db_id or xref!  Got this: $$line\n\n");
+
 			}
 
 
+		} # close while loop
+
+
+		if ($$line =~ /<\/xrefs>/){
+			$$line = $self->_readline; # get the next line to be _processed by the next sub.
+			return $xrefs;
 		} else {
-			die "Error.  Missing <db_id> or <xref> tag.  Got this: $$line";
+			$self->throw("Error: Missing </xrefs> tag.  Got this: $$line\n\n");
 		}
 
+
+
 	} else {
-		die "nope";
+
+		$self->throw("Error: Missing <db_id> or <xref> tag.  Got this: $$line\n\n");		
+	}
+
+	return;
+
+}
+# ==================================================================================
+=head2
+
+	Title    : _process_xref
+	Usage    : $self->_process_xref
+	Function : Parses the data between the <xref></xref> tags.
+	Args     : 2 scalars:
+                   - reference to a scalar holding the value of the line to be parsed.
+                   - reference to a data structure to store the <xref> data.
+	Returns  : Nothing. 
+	Note     : Method(s) that call(s) this method : _process_xrefs (note the 's' in 'xrefs')
+		   Method(s) that this method calls   : _helper_store_attribute_list , _star_tag
+
+=cut
+sub _process_xref {
+
+	my ($self, $line, $xref) = @_;
+
+	$$line = $self->_readline;
+
+	# One <db_id>
+	if ($$line =~ /<db_id\s?(.*?)\s?>/){
+		$self->_helper_store_attribute_list($1, $xref);
+	} else {
+		$self->throw("Error:  Missing <db_id> tag.  Got this: $$line\n\n");
 	}
 
 
-}
-# ==================================================================================
-sub _process_xref {
-
-	my ($self, $line, $data_structure) = @_;
-
-	# One <db_id>
-	
-
-
 	# Zero or more <xref_property>
+	$self->_star_tag($line, $xref, 'xref_propery');	
 
-
-
+	return;
 
 }
 # ==================================================================================
+=head2
+
+	Title    : _process_sequence_map
+	Usage    : $self->_process_sequence_map
+	Function : Parses the data between the <sequence_map></sequence_map> tags.
+	Args     : Reference to scalar holding the line to be parsed.
+	Returns  : Data structure that holds the values that were parsed.
+	Note     : Method(s) that call(s) this method : _process_bio_sequence
+		   Method(s) that this method calls   : _helper_store_attribute_list , _question_mark_tag , _process_annotations
+
+=cut
 sub _process_sequence_map {
 
 	my ($self, $line) = @_;
@@ -397,19 +497,18 @@ sub _process_sequence_map {
 	# Zero or more <sequence_map>
 	while ($$line =~ /<sequence_map\s?(.*?)\s?>/){
 
-		if (defined $1){
-			$self->_helper_store_attribute_list($1, \$sequence_map);
-		}	        	
-		# print Data::Dumper->Dump([$sequence_map]); exit;
+		$self->_helper_store_attribute_list($1, \$sequence_map) if defined $1;
 		$$line = $self->_readline;
 
 		# Zero or one <note>
 		$self->_question_mark_tag($line, \$sequence_map, 'note');		
 
-		if ($$line =~ /<computations\?(.*?)\s?>/){
-			# $self->_process_computations();
-		}
-		
+		# NOT IMPLEMENTED!!!
+		#if ($$line =~ /<computations\?(.*?)\s?>/){
+		#	# $self->_process_computations();
+		#}
+
+
 		# Zero or one <annotations>
 		if ($$line =~ /<annotations\s?(.*?)\s?>/){
 			my $annotations = $self->_process_annotations($line);
@@ -417,13 +516,17 @@ sub _process_sequence_map {
 		}
 
 
-	}
+	} # closes the while loop
 
+
+	# Match closing tag:
 	if ($$line =~ /<\/sequence_map>/){
 		return $sequence_map;
 	} else {
-		die "Error.  Missing </sequence_map>.  Got: $$line";
+		$self->throw("Error:  Missing </sequence_map> tag.  Got this: $$line\n\n");
 	}
+
+
 }
 # ==================================================================================
 sub _process_annotations {
@@ -746,17 +849,6 @@ sub _process_query_region {
 
 }
 # ==================================================================================
-sub _process_alt_ids {
-
-	my ($self, $data_structure) = @_;
-	
-	my $line = $self->_readline;
-	
-	# One or more <db_id>
-	$self->_plus_tag(\$line, $data_structure, 'alt_ids');	
-
-}
-# ==================================================================================
 sub _tag_processing_helper {
 
 	my ($self, $attribute_list, $data_structure, $tag_name, $tag_value, $caller) = @_;
@@ -805,12 +897,12 @@ sub _star_tag {
 
 	my ($self, $line, $data_structure, $tag_name) = @_;
 
-	# print "_star_tag: $$line\n";
 	while ($$line =~ /<$tag_name\s?(.*?)\s?>(.*?)<\/$tag_name>/){
-		# print "iss: $$line\n";
-		$self->_tag_processing_helper($1, $data_structure, $tag_name, $2, 'star');
+		$self->_tag_processing_helper($1, $data_structure, $tag_name, $2, 'star') if defined $1;
 		$$line = $self->_readline;
 	}
+
+	return;
 
 }
 
@@ -829,20 +921,33 @@ sub _plus_tag {
 	}
 
 }
+# ==================================================================================
+=head2
 
+	Title    : _helper_store_attribute_list
+	Usage    : $self->_helper_store_attribute_list
+	Function : A helper method used to extract the attributes from tags.
+	Args     : 2 scalars:
+                   - scalar holding the attribute values to be parsed.
+                   - reference to a data structure to store the data between the 2 tags.
+	Returns  : Nothing.
+	Note     : Method(s) that call(s) this method : Many.
+	           Method(s) that this method call(s) : None.
 
+=cut
 sub _helper_store_attribute_list {
 
         my ($self, $attribute_line, $data_structure) = @_;
 
-	# print "attribute_line: $attribute_line\n";
         my %attribs = ($attribute_line =~ /(\w+)\s*=\s*"([^"]*)"/g);
                                                                                                                                              
         my $attribute_list;
         for my $key (keys %attribs){
-                # print "key: $key , value: $attribs{$key}\n";
                 $$data_structure->{$key} = $attribs{$key};
         }
+
+	return;
+
 }
 
 
@@ -890,10 +995,10 @@ sub _store_seqs {
                                                                                                                                              
                                         my $organism_name = $bio_sequence->{organism_name};
 					if (defined $organism_name){
-						my ($genus_name, $species_name) = split(' ', $organism_name);
-	                                        my $species = Bio::Species->new();
-						$species->classification(qw($species_name $genus_name));
-                                        	$seq->species($organism_name);
+#						my ($genus_name, $species_name) = split(' ', $organism_name);
+#	                                        my $species = Bio::Species->new();
+#						$species->classification(qw($species_name $genus_name));
+ #                                       	$seq->species($organism_name);
 					}                                                                    
                                                                          
                                         my $keywords = $bio_sequence->{keyword};
@@ -1318,7 +1423,4 @@ sub throw {
         $self->SUPER::throw($string);
 
 }
-
-
-
 1;
