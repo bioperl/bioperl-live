@@ -66,7 +66,7 @@ my ($gb,$seq,$seqio,$query);
 
 
 eval {
-    ok defined ( $gb = new Bio::DB::GenBank('-verbose'=>$verbose) );
+    ok defined ( $gb = new Bio::DB::GenBank('-verbose'=>$verbose,'-delay'=>0) );
     ok( defined ($seq = $gb->get_Seq_by_id('MUSIGHBA1')));
     ok( $seq->length, 408); 
     ok( defined ($seq = $gb->get_Seq_by_acc('AF303112')));
@@ -102,7 +102,7 @@ if ($@) {
 $seq = $seqio = undef;
 
 eval { 
-    ok defined($gb = new Bio::DB::GenPept('-verbose'=>$verbose)); 
+    ok defined($gb = new Bio::DB::GenPept('-verbose'=>$verbose,'-delay'=>0)); 
     ok( defined($seq = $gb->get_Seq_by_id('195055')));
     ok( $seq->length, 136); 
     $seq = $gb->get_Seq_by_acc('AAC06201');
@@ -126,7 +126,7 @@ if ($@) {
 $seq  = $seqio = undef;
 
 eval {
-    ok defined($gb = new Bio::DB::SwissProt('-verbose'=>$verbose,-retrievaltype=>'pipeline')); 
+    ok defined($gb = new Bio::DB::SwissProt('-verbose'=>$verbose,-retrievaltype=>'pipeline','-delay'=>0));
     ok(defined($seq = $gb->get_Seq_by_id('YNB3_YEAST')));
     ok( $seq->length, 125);
     ok($seq->division, 'YEAST');
@@ -149,7 +149,9 @@ eval {
     ok( $seq->division, 'CHLTR');
 
     ok( defined($gb = new Bio::DB::SwissProt('-verbose'=>$verbose, 
-					     '-retrievaltype' => 'tempfile')));
+					     '-retrievaltype' => 'tempfile',
+					     '-delay' => 0,
+					    )));
     ok(defined($seqio = $gb->get_Stream_by_id(['KPY1_ECOLI', 'KPY1_HUMAN'])));
     undef $gb; # testing to see if we can remove gb
     ok( defined($seq = $seqio->next_seq()));
@@ -173,7 +175,8 @@ $seq = undef;
 eval {
     ok defined ( $gb = new Bio::DB::GenBank('-verbose' =>$verbose,
 					    '-format' => 'fasta',
-					    '-retrievaltype' => 'tempfile') );
+					    '-retrievaltype' => 'tempfile',
+					    '-delay' => 0) );
     ok( defined ($seq = $gb->get_Seq_by_id('MUSIGHBA1')));
     ok($seq->length, 408); 
     $seq = $gb->get_Seq_by_acc('AF303112');
@@ -205,7 +208,9 @@ $seq = undef;
 # test pipeline creation
 eval {
     ok defined ( $gb = new Bio::DB::GenBank('-verbose' =>$verbose,
-					    '-retrievaltype' => 'pipeline') );
+					    '-retrievaltype' => 'pipeline',
+					    '-delay'  => 0,
+					   ) );
     ok( defined ($seq = $gb->get_Seq_by_id('MUSIGHBA1')));
     ok($seq->length, 408); 
     $seq = $gb->get_Seq_by_acc('AF303112');
@@ -243,7 +248,9 @@ eval {
   my @ids = $query->ids;
   ok @ids > 0;
   ok @ids == $query->count;
-  ok defined ($gb = Bio::DB::GenBank->new('-verbose' =>$verbose));
+  ok defined ($gb = Bio::DB::GenBank->new('-verbose' =>$verbose,
+					  '-delay'  => 0,
+					 ));
   ok defined ($seqio = $gb->get_Stream_by_query($query));
   ok($seqio->next_seq->length,13747);
   ok($seqio->next_seq->length,3766);
@@ -272,7 +279,9 @@ eval {
   my @ids = $query->ids;
   ok @ids > 0;
   ok @ids == $query->count;
-  ok defined ($gb = Bio::DB::GenBank->new('-verbose' =>$verbose));
+  ok defined ($gb = Bio::DB::GenBank->new('-verbose' =>$verbose,
+					  '-delay'  => 0,
+					 ));
   ok defined ($seqio = $gb->get_Stream_by_query($query));
   ok($seqio->next_seq->length, 408);
   ok($seqio->next_seq->length, 1611);
