@@ -421,7 +421,7 @@ sub new {
 						      SPECIES)], @args);
     $pid && $self->primary_id($pid);
     $species && $self->species($species);
-    $self->annotation($ann || new Bio::Annotation::Collection);
+    $ann && $self->annotation($ann);
     $self->primary_seq($pseq);
     if( defined $feat ) {
 	if( ref($feat) !~ /ARRAY/i ) {
@@ -1210,14 +1210,13 @@ for more information
 =cut
 
 sub annotation {
-   my ($obj,$value) = @_;
-   if( defined $value) {
-      $obj->{'annotation'} = $value;
+    my ($obj,$value) = @_;
+    if( defined $value || ! defined $obj->{'_annotation'}) {
+	$value = new Bio::Annotation::Collection unless defined $value;
+	$obj->{'_annotation'} = $value;
     }
-    return $obj->{'annotation'};
-
+    return $obj->{'_annotation'};
 }
-
 
 # keep AUTOLOAD happy
 sub DESTROY { }
