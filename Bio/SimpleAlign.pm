@@ -901,7 +901,7 @@ sub read_fasta {
  Argument  :
 
 =cut
-	
+
 sub read_mase {
     my $self = shift;
     my $in = shift;

@@ -65,7 +65,7 @@ use Bio::LiveSeq::Prim_Transcript 1.0; # needed to create maxtranscript obj
 #use Bio::LiveSeq::SeqI 2.11; # uses SeqI, inherits from it
 #@ISA=qw(Bio::LiveSeq::SeqI);
 
-=head1 new
+=head2 new
 
   Title   : new
   Usage   : $gene = Bio::LiveSeq::Gene->new(-name => "name",

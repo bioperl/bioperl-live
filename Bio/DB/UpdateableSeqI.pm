@@ -25,7 +25,7 @@ Bio::DB::UpdateableSeqI - An interface for writing to a database of sequences.
 	my ( @updatedseqs, @newseqs, @deadseqs);
 	my $seq = $db->get_Seq_by_id('ROA1_HUMAN');
 	$seq->desc('a new description');
-	
+
 	push @updatedseqs, $seq;
 
 	$db->write_seq(\@updatedseqs, \@newseqs, \@deadseqs);

@@ -55,7 +55,7 @@ use vars qw($VERSION @ISA);
 use Bio::LiveSeq::Range 1.2; # uses Range, inherits from it
 @ISA=qw(Bio::LiveSeq::Range);
 
-=head1 new
+=head2 new
 
   Title   : new
   Usage   : $exon1 = Bio::LiveSeq::Exon-> new(-seq => $objref,

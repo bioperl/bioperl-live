@@ -1,3 +1,4 @@
+
 # $Id$
 #
 # bioperl module for Bio::LiveSeq::Intron
@@ -54,7 +55,7 @@ use vars qw($VERSION @ISA);
 use Bio::LiveSeq::Range 1.2; # uses Range, inherits from it
 @ISA=qw(Bio::LiveSeq::Range);
 
-=head1 new
+=head2 new
 
   Title   : new
   Usage   : $intron1=Bio::LiveSeq::Intron->new(-seq => $objref,

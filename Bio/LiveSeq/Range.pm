@@ -59,7 +59,7 @@ use vars qw($VERSION @ISA);
 use Bio::LiveSeq::SeqI 3.2; # uses SeqI, inherits from it
 @ISA=qw(Bio::LiveSeq::SeqI);
 
-=head1 new
+=head2 new
 
   Title   : new
   Usage   : $range1 = Bio::LiveSeq::Range->new(-seq => $obj_ref,
@@ -125,7 +125,7 @@ sub new {
   return $obj;
 }
 
-=head1 valid
+=head2 valid
 
   Title   : valid
   Usage   : $boolean = $obj->valid($label)

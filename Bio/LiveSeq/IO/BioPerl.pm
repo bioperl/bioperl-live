@@ -92,7 +92,7 @@ use Bio::LiveSeq::IO::Loader 2.0;
 # This package can in the future host other databases loading subroutines.
 # e.g. ensembl2hash
 
-=head1 load
+=head2 load
 
   Title   : load
   Usage   : my $filename="../data/M20132";
@@ -144,7 +144,7 @@ sub load {
   return $obj;
 }
 
-=head1 embl2hash
+=head2 embl2hash
 
   Title   : embl2hash
   Function: retrieves with BioPerl an EMBL entry, parses it and creates
@@ -299,7 +299,7 @@ sub embl2hash {
   return (\%entryhash);
 }
 
-=head1 novelaasequence2gene
+=head2 novelaasequence2gene
 
   Title   : novelaasequence2gene
   Usage   : $gene=Bio::LiveSeq::IO::BioPerl->novelaasequence2gene(-aasequence => "MGLAAPTRS*");

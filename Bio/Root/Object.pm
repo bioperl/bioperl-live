@@ -60,7 +60,7 @@ This module is no longer being maintained and will eventually disappear.>
 =head2 Object Creation
 
     require Bio::Root::Object;
- 
+
     $dad = new Bio::Root::Object();
     $son = new Bio::Root::Object(-name    => 'Junior', 
 			         -parent  => $dad,
@@ -257,7 +257,7 @@ are sensitive to these values as indicated in the tables below:
     e    2   |   stack trace  stack trace    trace and 
     s        |                               sysbeep
     s
- 
+
 
     +---------+
     | warn()  |         v e r b o s i t y

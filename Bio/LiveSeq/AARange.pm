@@ -104,7 +104,7 @@ use vars qw($VERSION @ISA);
 use Bio::LiveSeq::SeqI 3.2; # uses SeqI, inherits from it
 @ISA=qw(Bio::LiveSeq::SeqI);
 
-=head1 new
+=head2 new
 
   Title   : new
   Usage   : $aarange = Bio::LiveSeq::AARange->new(-translation => $obj_ref,

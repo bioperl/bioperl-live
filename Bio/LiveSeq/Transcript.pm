@@ -146,7 +146,7 @@ sub new {
  Example : foreach $exon ($transcript->all_Exons()) { do_something }
  Returns : array of object references
  Args    : none
- 
+
 =cut
 
 sub all_Exons {

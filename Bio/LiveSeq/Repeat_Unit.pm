@@ -54,7 +54,7 @@ use vars qw($VERSION @ISA);
 use Bio::LiveSeq::Repeat_Region 1.0; # uses Repeat_Region, inherits from it
 @ISA=qw(Bio::LiveSeq::Repeat_Region);
 
-=head1 new
+=head2 new
 
   Title   : new
   Usage   : $intron1=Bio::LiveSeq::Repeat_Unit->new(-seq => $objref,

@@ -175,7 +175,7 @@ sub all_labels {
   return (@{$labels});
 }
 
-=head1 labelsubseq
+=head2 labelsubseq
 
   Title   : labelsubseq
   Usage   : $dna->labelsubseq();
@@ -364,7 +364,7 @@ sub subseq {
   return $str;
 }
 
-=head1 length
+=head2 length
 
   Title   : length
   Usage   : $seq->length();
@@ -713,7 +713,7 @@ sub _mutate {
   }
 }
 
-=head1 valid
+=head2 valid
 
   Title   : valid
   Usage   : $boolean = $obj->valid($label)
@@ -738,7 +738,7 @@ sub valid {
 }
 
 
-=head1 start
+=head2 start
 
   Title   : start
   Usage   : $startlabel=$obj->start()
@@ -753,7 +753,7 @@ sub start {
   return $self->{'start'}; # common for all classes BUT DNA (which redefines it) and Transcript (that takes the information from the Exons)
 }
 
-=head1 end
+=head2 end
 
   Title   : end
   Usage   : $endlabel=$obj->end()
@@ -768,7 +768,7 @@ sub end {
   return $self->{'end'};
 }
 
-=head1 strand
+=head2 strand
 
   Title   : strand
   Usage   : $strand=$obj->strand()
@@ -791,7 +791,7 @@ sub strand {
   return $self->{'strand'};
 }
 
-=head1 moltype
+=head2 moltype
 
  Title   : moltype
  Usage   : if( $obj->moltype eq 'dna' ) { /Do Something/ }
@@ -801,7 +801,7 @@ sub strand {
  Returns : a string either 'dna','rna','protein'.
  Args    : none
  Note    : "circular dna" is set as dna
- 
+
 =cut
 
 
@@ -818,7 +818,7 @@ sub moltype {
   return $self->{'moltype'};
 }
 
-=head1 coordinate_start
+=head2 coordinate_start
 
   Title   : coordinate_start
   Usage   : $coordstartlabel=$obj->coordinate_start()
@@ -852,7 +852,7 @@ sub coordinate_start {
   }
 }
 
-=head1 label
+=head2 label
 
   Title   : label
   Usage   : $seq->label($position)
@@ -904,7 +904,7 @@ sub label {
 }
 
 
-=head1 position
+=head2 position
 
   Title   : position
   Usage   : $seq->position($label)
@@ -953,7 +953,7 @@ sub position {
   }
 }
 
-=head1 follows
+=head2 follows
 
   Title   : follows
   Usage   : $seq->follows($firstlabel,$secondlabel)
@@ -1076,14 +1076,14 @@ sub translate_string {
   return ($output);
 }
 
-=head1 gene
+=head2 gene
 
  Title   : gene
  Usage   : my $gene=$obj->gene;
  Function: Gets or sets the reference to the LiveSeq::Gene object.
            Objects that are features of a LiveSeq Gene will have this
            attribute set automatically.
- 
+
  Returns : reference to an object of class Gene
  Note    : if Gene object is not set, this method will return 0;
  Args    : none or reference to object of class Bio::LiveSeq::Gene
@@ -1102,7 +1102,7 @@ sub gene {
   }
 }
 
-=head1 obj_valid
+=head2 obj_valid
 
  Title   : obj_valid
  Usage   : if ($obj->obj_valid) {do something;}
@@ -1296,7 +1296,7 @@ sub verbose {
  Example : $obj->warn("Starting position not specified, using default start",1);
  Returns : nothing
  Args    : string, boolean
- 
+
 =cut
 
 #'

@@ -827,7 +827,7 @@ sub _is_updownstream {
   return $found;
 }
 
-=head1 is_downstream
+=head2 is_downstream
 
   Title   : is_downstream
   Usage   : Bio::LiveSeq::Chain::is_downstream($chainref,$firstlabel,$secondlabel)
@@ -845,7 +845,7 @@ sub is_downstream {
   _is_updownstream("down",@_);
 }
 
-=head1 is_upstream
+=head2 is_upstream
 
   Title   : is_upstream
   Usage   : Bio::LiveSeq::Chain::is_upstream($chainref,$firstlabel,$secondlabel)
