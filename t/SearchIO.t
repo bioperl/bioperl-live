@@ -1015,7 +1015,7 @@ my @accnums = $hit->each_accession_number;
 foreach my $a (@accnums) {
 	ok($a, shift @$d);
 }
-my $d = shift @valid;
+$d = shift @valid;
 $hit = $result->next_hit;
 ok($hit->name, shift @$d);
 ok($hit->accession, shift @$d);
