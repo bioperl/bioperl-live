@@ -85,6 +85,7 @@ sub new {
     $desc && $self->desc($desc);
 
     $self->{'domains'} = [];
+    $self->{'domainnames'} = {};
     return $self;
 }
 
@@ -105,7 +106,7 @@ sub add_Domain{
    if( ! defined $domain || ! $domain->isa("Bio::Tools::HMMER::Domain") ) {
        $self->throw("[$domain] is not a Bio::Tools::HMMER::Domain. aborting");
    }
-
+   return if $self->{'domainnames'}->{$domain->get_nse}++;
    push(@{$self->{'domains'}},$domain);
 
 }
