@@ -161,8 +161,7 @@ for my $edge (@edges) {
 
 	    # print out nodes in dip order
 		my %ids = $gr->_get_ids_by_db($n); #need to modify this in graph()
-
-		for my $db (qw(DIP SWP PIR GI)){
+		for my $db (qw(DIP SWP PIR GI Ref-Seq RefSeq psixml ens)){
 			if (exists($ids{$db})){
 				$str .= "$db:$ids{$db}\t";
 			} else {
