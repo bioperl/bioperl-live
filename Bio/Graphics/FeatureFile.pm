@@ -1,12 +1,105 @@
 package Bio::Graphics::FeatureFile;
 
 # $Id$
-
 # This package parses and renders a simple tab-delimited format for features.
 # It is simpler than GFF, but still has a lot of expressive power.
+# See __END__ for the file format
 
-# Documentation is pending, but see __END__ for the file format, and eg/feature_draw.pl for an
-# example of usage.
+=head1 NAME
+
+Bio::Graphics::FeatureFile -- A set of Bio::Graphics features, stored in a file
+
+=head1 SYNOPSIS
+
+ use Bio::Graphics::FeatureFile;
+ my $data  = Bio::Graphics::FeatureFile->new(-file => 'features.txt');
+
+ # render contents of the file onto a Bio::Graphics::Panel in one step
+ $data->render($panel);
+
+ # for more control, render tracks individually
+ my @feature_types = $data->types;
+ for my $type (@feature_types) {
+    my $features = $data->features($type);
+    my %options  = $data->style($type);
+    $panel->add_track($features,%options);  # assuming we have a Bio::Graphics::Panel
+ }
+
+ # get individual settings
+ my $est_fg_color = $data->setting(EST => 'fgcolor');
+
+ # or create the FeatureFile by hand
+
+ # add a type
+ $data->add_type(EST => {fgcolor=>'blue',height=>12});
+
+ # add a feature
+ my $feature = Bio::Graphics::Feature->new(....); # or some other SeqI
+ $data->add_feature($feature=>'EST');
+
+=head1 DESCRIPTION
+
+The Bio::Graphics::FeatureFile module reads and parses files that
+describe sequence features and their renderings.  It accepts both GFF
+format and a more human-friendly file format described below.  Once a
+FeatureFile object has been initialized, you can interrogate it for
+its consistuent features and their settings, or render the entire file
+onto a Bio::Graphics::Panel.
+
+=head2 The File Format
+
+There are two types of entry in the file format: feature entries, and
+formatting entries.  They can occur in any order.  See the Appendix
+for a full example.
+
+Feature entries can take several forms.  At their simplest, they look
+like this:
+
+ Gene	B0511.1	516-11208
+
+This means that a feature of type "Gene" and name "B0511.1" occupies
+the range between bases 516 and 11208.  A range can be specified
+equally well using a hyphen, or two dots as in 516..11208.  Negative
+coordinates are allowed, such as -187..1000.
+
+A discontinuous range ("split location") uses commas to separate the
+ranges.  For example:
+
+ Gene B0511.1  516-619,3185-3294,10946-11208
+
+Alternatively, the locations can be split by repeating the features
+type and name on multiple adjacent lines:
+
+ Gene	B0511.1	516-619
+ Gene	B0511.1	3185-3294
+ Gene	B0511.1	10946-11208
+
+A comment can be added to features by adding a fourth column.  These
+comments will be rendered as under-the-glyph descriptions by those
+glyphs that honor descriptions:
+
+ Gene  B0511.1  516-619,3185-3294,10946-11208 "Putative primase"
+
+Columns are separated using whitespace, not (necessarily) tabs.
+Embedded whitespace can be escaped using quote marks or backslashes in
+the same way as in the shell:
+
+ 'Putative Gene' my\ favorite\ gene 516-11208
+
+Features can be grouped so that they are rendered by the "group" glyph
+(so far this has only been used to relate 5' and 3' ESTs).  To start a
+group, create a two-column feature entry showing the group type and a
+name for the group.  Follow this with a list of feature entries with a
+blank type.  For example:
+
+ EST	yk53c10
+ 	yk53c10.3	15000-15500,15700-15800
+ 	yk53c10.5	18892-19154
+
+This example is declaring that the ESTs named yk53c10.3 and yk53c10.5
+belong to the same group named yk53c10.  
+
+=cut
 
 use strict;
 use Bio::Graphics::Feature;
@@ -285,6 +378,8 @@ sub destroy {
   delete $self->{features};
 }
 
+sub DESTROY { shift->destroy(@_) }
+
 # return configuration information
 # arguments are ($type) => returns tags for type
 #               ($type=>$tag) => returns values of tag on type
@@ -454,10 +549,14 @@ sub render {
 
   my @base_config = $self->style('general');
 
-  $options ||= 0;
   my @override = ();
-  push @override,(-bump => 1) if $options >= 1;
-  push @override,(-label =>1) if $options >= 2;
+  if ($options && ref $options eq 'HASH') {
+    @override = %$options;
+  } else {
+    $options ||= 0;
+    push @override,(-bump => 1) if $options >= 1;
+    push @override,(-label =>1) if $options >= 2;
+  }
 
   for my $type (@configured_types,@unconfigured_types) {
     my @config = ( -glyph   => 'segments',         # really generic
@@ -601,22 +700,13 @@ sub name {
 
 __END__
 
-=head1 NAME
-
-Bio::Graphics::FeatureFile - Parse a simple feature file format into a form suitable for rendering
-
-=head1 SYNOPSIS
-
-This package parses and renders a simple tab-delimited format for features.
-It is simpler than GFF, but still has a lot of expressive power.
-
-Documentation is pending, but see the file format here, and eg/feature_draw.pl for an
-example of usage.
+=head1 Appendix -- Sample Feature File
 
  # file begins
  [general]
  pixels = 1024
  bases = 1-20000
+ reference = Contig41
  height = 12
 
  [Cosmid]
@@ -635,34 +725,25 @@ example of usage.
  bgcolor = green
  description = 1
 
- Cosmid	B0511	+	516-619
- Cosmid	B0511	+	3185-3294
- Cosmid	B0511	+	10946-11208
- Cosmid	B0511	+	13126-13511
- Cosmid	B0511	+	11394-11539
- Cosmid	B0511	+	14383-14490
- Cosmid	B0511	+	15569-15755
- Cosmid	B0511	+	18879-19178
- Cosmid	B0511	+	15850-16110
- Cosmid	B0511	+	66-208
- Cosmid	B0511	+	6354-6499
- Cosmid	B0511	+	13955-14115
- Cosmid	B0511	+	7985-8042
- Cosmid	B0511	+	11916-12046
- EST	yk260e10.5	+	15569-15724
- EST	yk672a12.5	+	537-618,3187-3294
- EST	yk595e6.5	+	552-618
- EST	yk595e6.5	+	3187-3294
- EST	yk846e07.3	+	11015-11208
+ Cosmid	B0511	516-619
+ Cosmid	B0511	3185-3294
+ Cosmid	B0511	10946-11208
+ Cosmid	B0511	13126-13511
+ Cosmid	B0511	11394-11539
+ EST	yk260e10.5	15569-15724
+ EST	yk672a12.5	537-618,3187-3294
+ EST	yk595e6.5	552-618
+ EST	yk595e6.5	3187-3294
+ EST	yk846e07.3	11015-11208
  EST	yk53c10
- 	yk53c10.3	+	15000-15500,15700-15800
- 	yk53c10.5	+	18892-19154
- EST	yk53c10.5	+	16032-16105
- SwissProt	PECANEX	+	13153-13656	Swedish fish
- FGENESH	Predicted gene 1	-	1-205,518-616,661-735,3187-3365,3436-3846	Pfam domain
- FGENESH	Predicted gene 2	+	5513-6497,7968-8136,8278-8383,8651-8839,9462-9515,10032-10705,10949-11340,11387-11524,11765-12067,12876-13577,13882-14121,14169-14535,15006-15209,15259-15462,15513-15753,15853-16219	Mysterious
- FGENESH	Predicted gene 3	-	16626-17396,17451-17597
- FGENESH	Predicted gene 4	+	18459-18722,18882-19176,19221-19513,19572-19835	Transmembrane protein
+ 	yk53c10.3	15000-15500,15700-15800
+ 	yk53c10.5	18892-19154
+ EST	yk53c10.5	16032-16105
+ SwissProt	PECANEX	13153-13656	Swedish fish
+ FGENESH	Predicted gene 1	1-205,518-616,661-735,3187-3365,3436-3846	Pfam domain
+ FGENESH	Predicted gene 2	5513-6497,7968-8136,8278-8383,8651-8839,9462-9515,10032-10705,10949-11340,11387-11524,11765-12067,12876-13577,13882-14121,14169-14535,15006-15209,15259-15462,15513-15753,15853-16219	Mysterious
+ FGENESH	Predicted gene 3	16626-17396,17451-17597
+ FGENESH	Predicted gene 4	18459-18722,18882-19176,19221-19513,19572-19835	Transmembrane protein
  # file ends
 
 =head1 SEE ALSO

@@ -158,8 +158,8 @@ sub high {
 
  Title   : location
  Usage   : my $location = $seqfeature->location()
- Function: returns a location object suitable for identifying location 
-	   of feature on sequence or parent feature  
+ Function: returns a location object suitable for identifying location
+	   of feature on sequence or parent feature
  Returns : Bio::LocationI object
  Args    : none
 
@@ -172,7 +172,7 @@ sub location {
    if (my @segments = $self->segments) {
        $location = Bio::Location::Split->new();
        foreach (@segments) {
-          $location->add_sub_Location($_);
+	 $location->add_sub_Location($_);
        }
    } else {
        $location = $self;
