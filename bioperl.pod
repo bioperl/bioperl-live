@@ -1,4 +1,4 @@
-## $Id: bioperl.pod,v 1.30 2002-07-26 14:37:44 bosborne Exp $
+## $Id: bioperl.pod,v 1.31 2002-07-29 12:27:55 bosborne Exp $
 
 ## Should contain general info about the distribution including
 ## links to many modules.
@@ -266,6 +266,9 @@ Bio::Seq's translate() method
 
 I<scripts/make_primers.pl> - design PCR primers given a sequence and the 
 positions of the start and stop codons in the sequence's ORF
+
+I<scripts/parse_codeml.pl> - script that parses output from codeml, one
+of the PAML programs. See L<Bio::Tools::Phylo::PAML>
 
 I<scripts/prosite2perl.pl> - convert Prosite motifs to Perl regular
 expressions
