@@ -406,7 +406,7 @@ sub _parseHeader {
       }
       # bug fix suggested by MI Sadowski via Martin Lomas
       # see bug report #1118
-      if( eof($self->_fh()) ) {
+      if( $self->_fh()->can('EOF') && eof($self->_fh()) ) {
 	  $self->warn("unexpected EOF in file\n");
 	  return -1;
       }
