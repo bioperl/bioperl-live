@@ -2636,6 +2636,12 @@ sub make_feature {
     }
   }
 
+# fix for some broken GFF files
+# unfortunately - has undesired side effects
+#  if (defined $tstart && defined $tstop && !defined $strand) {
+#    $strand = $tstart <= $tstop ? '+' : '-';
+#  }
+
   if (ref $parent) { # note that the src sequence is ignored
     return Bio::DB::GFF::Feature->new_from_parent($parent,$start,$stop,
 						  $method,$source,

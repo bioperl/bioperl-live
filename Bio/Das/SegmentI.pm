@@ -120,6 +120,21 @@ $VERSION = 1.00;
 
 sub seq_id { shift->throw_not_implemented }
 
+=head2 display_name
+
+ Title   : seq_name
+ Usage   : $ref = $s->seq_name
+ Function: return the human-readable name for the landmark
+ Returns : a string
+ Args    : none
+ Status  : Public
+
+This defaults to the same as seq_id.
+
+=cut
+
+sub display_name { shift->seq_id }
+
 =head2 start
 
  Title   : start

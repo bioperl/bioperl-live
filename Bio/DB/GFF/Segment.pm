@@ -682,10 +682,10 @@ sub primary_id {
 }
 
 
-=head2 display_id
+=head2 display_name
 
- Title   : display_id
- Usage   : $id = $obj->display_id or $obj->display_id($newid);
+ Title   : display_name
+ Usage   : $id = $obj->display_name or $obj->display_name($newid);
  Function: Gets or sets the display id, also known as the common name of
            the Seq object.
 
@@ -705,10 +705,13 @@ sub primary_id {
  Returns : A string
  Args    : None or a new id
 
+Note, this used to be called display_id(), and this name is preserved for
+backward compatibility.  The default is to return the seq_id().
 
 =cut
 
-sub display_id { shift->seq_id }
+sub display_name { shift->seq_id }
+*display_id = \&display_name;
 
 =head2 accession_number
 

@@ -929,7 +929,7 @@ sub adjust_bounds {
 	# fix up our bounds to hold largest subfeature
 	my($start,$stop,$strand) = $feat->adjust_bounds;
 	$self->{fstrand} = $strand unless defined $self->{fstrand};
-	my ($low,$high) = $start < $stop ? ($start,$stop) : ($stop,$start);
+	my ($low,$high)  = $start < $stop ? ($start,$stop) : ($stop,$start);
 	if ($self->{fstrand} ne '-') {
 	  $self->{start} = $low   if !defined($self->{start}) || $low < $self->{start};
 	  $self->{stop}  = $high  if !defined($self->{stop})  || $high  > $self->{stop};
@@ -943,7 +943,7 @@ sub adjust_bounds {
 	next unless $h && $h->isa('Bio::DB::GFF::Homol');
 	next unless $g && $g->isa('Bio::DB::GFF::Homol');
 	($start,$stop) = ($h->{start},$h->{stop});
-	if ($h->strand >= 0) {
+	if ($start <= $stop) {
 	  $g->{start} = $start if !defined($g->{start}) || $start < $g->{start};
 	  $g->{stop}  = $stop  if !defined($g->{stop})  || $stop  > $g->{stop};
 	} else {

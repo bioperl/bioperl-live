@@ -79,17 +79,17 @@ sub draw_component {
   eval {  # protect against data structures that don't implement the target() method.
     if ($draw_target && $self->option('ragged_start')){
       my $target = $self->feature->hit;
-      if ($target->start < $target->end && $target->start < RAGGED_START_FUZZ  && $self->{partno} == 0) {
-	warn "ragged left";
+      if ($target->start < $target->end && $target->start < RAGGED_START_FUZZ  
+	  && $self->{partno} == 0) {
 	$offset = $target->start - 1;
 	if ($offset > 0) {
-	  $dna       = $target->subseq(1-$offset,0)->seq . $dna;
-	  $genomic   = $self->feature->subseq(1-$offset,0)->seq         . $genomic;
+	  $dna       = $target->subseq(1-$offset,0)->seq        . $dna;
+	  $genomic   = $self->feature->subseq(1-$offset,0)->seq . $genomic;
 	  $x1        -= $offset * $self->scale;
 	}
       }
-      elsif ($target->end < $target->start && $target->end < RAGGED_START_FUZZ && $self->{partno} == $self->{total_parts}) {
-	warn "ragged right";
+      elsif ($target->end < $target->start && 
+	     $target->end < RAGGED_START_FUZZ && $self->{partno} == $self->{total_parts}) {
 	$offset = $target->end - 1;
 	if ($offset > 0) {
 	  $dna       .= $target->factory->get_dna($target,$offset,1);
