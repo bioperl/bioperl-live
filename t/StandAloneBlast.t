@@ -59,7 +59,7 @@ my $amino_database_file = Bio::Root::IO->catfile($Bio::Tools::Run::StandAloneBla
 my $file_present = -e $nt_database_file;
 my $file_present2 = -e $amino_database_file;
 unless ($blast_present && $file_present && $file_present2) {
-    warn "blast program or databases [$nt_database,$amino_database] not found. Skipping tests $Test::ntest to NUMTESTS\n";
+    warn "blast program or databases [$nt_database,$amino_database] not found. Skipping rest of tests\n";
     exit 0;
 }
 
