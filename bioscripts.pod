@@ -152,6 +152,10 @@ Simple script to filter by SearchIO criteria and print.
 
 Turn SearchIO reports into a tabular format like blastall's "-m 9" output.
 
+=head2 scripts/searchio/fastam9_to_table.PLS
+
+Turn FASTA -m9 reports into a tabular format like blastall's "-m 9" output.  Does not actually use SearchIO is very fast.
+
 =head2 scripts/seq/seqconvert.PLS
 
 Bioperl sequence format converter.
