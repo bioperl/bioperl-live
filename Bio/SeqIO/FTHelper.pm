@@ -127,8 +127,9 @@ sub _generic_seqfeature {
 	my $combotype=$1;
 	$sf->primary_tag($fth->key);
 	$sf->source_tag($source);
+	
 	my $splitlocation = new Bio::Location::Split(-strand=>$strand, 
-						     -seqid => $annseq->id,
+						     -seq_id => $annseq->id,
 						     -splittype => $combotype);
 	# we need to make sub features
 	my $loc = $fth->loc;
@@ -197,11 +198,10 @@ sub _generic_seqfeature {
 	$sf->location($location);
 
       } else {
-	
+	  
 	if ( $loc =~ s/\(?\s*([A-Za-z\d\_]+(\.\d+)?):// ) {
 	  ($seqid) = $1;
 	}
-	
 	
 	if( my $location = $fth->_parse_loc($sf,$loc) ) {
 	  $location->seq_id($seqid) if ( $seqid);
