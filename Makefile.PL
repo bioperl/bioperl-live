@@ -39,7 +39,7 @@ use ExtUtils::MakeMaker;
 $do_autoload_finesse = 0;
 $NAME     = 'Bio';
 $DISTNAME = "bioperl";
-$VERSION  = "0.04.4";
+$VERSION  = "0.05";
 
 if( $do_autoload_finesse == 1 ) {
     fatal("Autoload finessing does not work at the moment!");
@@ -64,6 +64,26 @@ if( $do_autoload_finesse ) {
     `perl -p -i.bak -e 's/#__END__/__END__/' Seq.pm`;
     print "done.\n\n";
 }
+
+# Check for LWP and warn that Webblast requires it.
+
+unless( eval "require HTTP::Request::Common" and
+	eval "require LWP::UserAgent") {
+
+print STDERR << "QQ_MISSING_LWP_QQ;
+
+======================================================
+WARNING: LWP IS NOT INSTALLED.
+
+   Webblast.pm now requires the LWP (libwww-perl) modules.
+   To launch remote BLASTs, you will need to install
+   these most-excellent modules which can be readily
+   obtained from your local CPAN site:
+   http://www.perl.com/CPAN/
+======================================================
+
+QQ_MISSING_LWP_QQ
+
 
 WriteMakefile(
     NAME	=> $NAME,

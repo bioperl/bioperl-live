@@ -1,5 +1,5 @@
 This is the README file for the Bioperl central distribution,
-version 0.04.4
+version 0.05
 
 # $Id$
 
@@ -37,6 +37,8 @@ o System requirements
   - Not tested on anything but common forms of Unix
   - perl 5.003 or later (5.004 recommended; not much 5.005 testing)
   - ANSI C or Gnu C compiler for XS extensions
+  - LWP (libwww-perl) modules for running network BLAST analyses
+    (available from CPAN http://www.perl.com/CPAN/).
 
 o Documentation
 

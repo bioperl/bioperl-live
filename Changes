@@ -1,8 +1,9 @@
 Revision history for Bioperl core modules
 
-0.05    <to be filled in by steve>
+0.05  Sun Apr 25 01:14:11 1999
         - Bio::Tools::Blast modules have less memory problems
-          and faster parsing
+          and faster parsing. Webblast uses LWP and supports
+          more functionality. See Bio/Tools/Blast/CHANGES for more.
         - The Bio::SeqIO system has been started, moving the
           sequence reformatting code out of the sequence object
         - The Bio::Index:: system has been started, providing
