@@ -240,6 +240,7 @@ sub _from_gff1_string {
 
 sub _from_gff2_string {
    my ($gff, $feat, $string) = @_;
+   chomp($string);
    # according to the Sanger website, GFF2 should be single-tab separated elements, and the
    # free-text at the end should contain text-translated tab symbols but no "real" tabs,
    # so splitting on \t is safe, and $attribs gets the entire attributes field to be parsed later
