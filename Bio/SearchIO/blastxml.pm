@@ -238,7 +238,7 @@ sub next_result {
 	    $sawxmlheader = 1;
 	} 
 	# for the non xml version prefixed in each section
-	if( /DOCTYPE/ || /<BlastOutput>/ ) {
+	if( /DOCTYPE/ ) { #|| /<BlastOutput>/
 	    if(  $sawdoctype ) {
 		if( ! $sawxmlheader ) { 
 		    $self->_pushback("<?xml version=\"1.0\"?>\n");
@@ -262,7 +262,6 @@ sub next_result {
 	}
 	$firstline = 0;
     }
-
     return undef unless( $okaytoprocess);
     
     my %parser_args;

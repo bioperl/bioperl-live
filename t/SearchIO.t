@@ -20,8 +20,8 @@ BEGIN {
 	use lib 't';
     }
     use vars qw($NTESTS);
-    $NTESTS = 1108;
-    $LASTXMLTEST = 54;
+    $NTESTS = 1117;
+    $LASTXMLTEST = 63;
     $error = 0;
 
     use Test;
@@ -131,6 +131,21 @@ if( ! $SKIPXML ) {
     $hit = $result->next_hit;
     ok(! $hit);
 
+    $searchio = new Bio::SearchIO(-format => 'blastxml', 
+				  -file => Bio::Root::IO->catfile('t','data','mus.bls.xml'));
+
+    $result = $searchio->next_result;
+
+    ok($result->database_name,'Hs15_up1000');
+    ok($result->query_name,'NM_011441_up_1000_chr1_4505586_r');
+    ok($result->query_description,'chr1:4505586-4506585');
+    ok($result->query_accession,'NM_011441_up_1000_chr1_4505586_r');
+    ok($result->query_length,'1000');
+    $hit = $result->next_hit;
+    ok($hit->name,'NM_001938_up_1000_chr1_93161154_f');
+    ok($hit->description,'chr1:93161154-93162153');
+    ok($hit->accession,'3153');
+    ok($hit->length,'1000');
 }
 $searchio = new Bio::SearchIO ('-format' => 'blast',
 				  '-file'   => Bio::Root::IO->catfile('t','data','ecolitst.bls'));
