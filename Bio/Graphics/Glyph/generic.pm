@@ -43,11 +43,13 @@ sub labelheight {
 }
 sub label {
   my $self = shift;
+  return unless $self->{level} == 0;
   return exists $self->{label} ? $self->{label}
                                : $self->{label} = $self->_label;
 }
 sub description {
   my $self = shift;
+  return unless $self->{level} == 0;
   return exists $self->{description} ? $self->{description}
                                      : $self->{description} = $self->_description;
 }

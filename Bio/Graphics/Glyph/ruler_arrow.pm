@@ -175,7 +175,7 @@ sub draw_label {
   my $divisor = $UNITS{$units} || 1 if $units;
 
   my ($major_ticks,$minor_ticks) = $self->panel->ticks($start,$stop,$self->font,$divisor);
-  my $tick_scale = " (".($major_ticks->[1]-$major_ticks->[0])." bp/";
+  my $tick_scale = " ($major_ticks bp/";
   $tick_scale .= ($self->option('tick') >= 2)?"major tick)":"tick)";
 
   my $top_left_label = $label5;

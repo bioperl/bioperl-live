@@ -73,7 +73,8 @@ sub add_segment {
 
       if ($start > $stop) {
 	($start,$stop) = ($stop,$start);
-	$strand *= -1;
+#	$strand *= -1;
+	$strand = -1;
       }
       push @segments,$self->new(-start  => $start,
 				-stop   => $stop,

@@ -4,7 +4,7 @@ use strict;
 use base 'Bio::Graphics::Glyph::generic';
 
 # override draw_component to draw a crossed box rather than empty
-sub draw {
+sub draw_component {
   my $self = shift;
   my $gd = shift;
   my $fg = $self->fgcolor;
@@ -25,8 +25,6 @@ sub draw {
     $gd->line($x1,$y1,$x2,$y2,$fg);
     $gd->line($x1,$y2,$x2,$y1,$fg);
   }
-
-  $self->draw_label($gd,$x1,$y1-$self->height) if $self->option('label');
 }
 
 

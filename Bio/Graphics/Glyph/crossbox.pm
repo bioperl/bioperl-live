@@ -24,8 +24,6 @@ sub draw_component {
 
   $gd->line($x1,$y1,$x2,$y2,$fg);
   $gd->line($x1,$y2,$x2,$y1,$fg);
-
-  $self->draw_label($gd,$x1,$y1-$self->height) if $self->option('label');
 }
 
 
