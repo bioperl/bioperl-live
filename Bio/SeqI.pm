@@ -108,9 +108,7 @@ use Carp;
 
 sub top_SeqFeatures{
    my ($self) = @_;
-
-   $self->_abstractDeath('top_SeqFeatures');
-
+   $self->throw_not_implemented;
 }
 
 
@@ -127,9 +125,7 @@ sub top_SeqFeatures{
 
 sub all_SeqFeatures{
    my ($self) = @_;
-   
-   $self->_abstractDeath('all_SeqFeatures');
-
+   $self->throw_not_implemented();
 }
 
 =head2 seq
@@ -146,9 +142,7 @@ sub all_SeqFeatures{
 
 sub seq{
    my ($self) = @_;
-
-   $self->_abstractDeath('seq');
-
+   $self->throw_not_implemented();
 }
 
 =head2 write_GFF
@@ -188,24 +182,7 @@ sub write_GFF{
 
 sub annotation {
    my ($obj) = @_;
-   $obj->_abstractDeath('annotation');
-}
-
-=head2 primary_seq
-
- Title   : primary_seq
- Usage   : $obj->primary_seq($newval)
- Function: 
- Example : 
- Returns : value of primary_seq
- Args    : newvalue (optional)
-
-
-=cut
-
-sub primary_seq {
-    my ($obj) = @_;
-    $obj->_abstractDeath('primary_seq');
+   $obj->throw_not_implemented();
 }
 
 =head2 feature_count
@@ -222,7 +199,7 @@ sub primary_seq {
 
 sub feature_count {
     my ($obj) = @_;
-    $obj->_abstractDeath('feature_count');
+    $obj->throw_not_implemented();
 }
 
 =head2 species
@@ -239,7 +216,24 @@ sub feature_count {
 
 sub species {
     my ($self) = @_;
-    $self->_abstractDeath('species');
+    $self->throw_not_implemented();
+}
+
+=head2 primary_seq
+
+ Title   : primary_seq
+ Usage   : $obj->primary_seq($newval)
+ Function: 
+ Example : 
+ Returns : value of primary_seq
+ Args    : newvalue (optional)
+
+
+=cut
+
+sub primary_seq {
+    my ($self) = @_;
+    $self->throw_not_implemented;
 }
 
 1;

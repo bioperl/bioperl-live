@@ -138,8 +138,8 @@ define.
 sub seq {
    my ($self) = @_;
 
-   if( $self->can('throw') ) {
-       $self->throw("Bio::PrimarySeqI definition of seq - implementing class did not provide this method");
+   if( $self->can('throw_not_implemented') ) {
+       $self->throw_not_implemented();
    } else {
        confess("Bio::PrimarySeqI definition of seq - implementing class did not provide this method");
    }
@@ -164,8 +164,8 @@ sub seq {
 sub subseq{
    my ($self) = @_;
 
-   if( $self->can('throw') ) {
-       $self->throw("Bio::PrimarySeqI definition of subseq - implementing class did not provide this method");
+   if( $self->can('throw_not_implemented') ) {
+       $self->throw_not_implemented();
    } else {
        confess("Bio::PrimarySeqI definition of subseq - implementing class did not provide this method");
    }
@@ -201,8 +201,8 @@ sub subseq{
 sub display_id {
    my ($self) = @_;
 
-   if( $self->can('throw') ) {
-       $self->throw("Bio::PrimarySeqI definition of display_id - implementing class did not provide this method");
+   if( $self->can('throw_not_implemented') ) {
+       $self->throw_not_implemented();
    } else {
        confess("Bio::PrimarySeqI definition of display_id - implementing class did not provide this method");
    }
@@ -233,8 +233,8 @@ sub display_id {
 sub accession_number {
    my ($self,@args) = @_;
 
-   if( $self->can('throw') ) {
-       $self->throw("Bio::PrimarySeqI definition of seq - implementing class did not provide this method");
+   if( $self->can('throw_not_implemented') ) {
+       $self->throw_not_implemented();
    } else {
        confess("Bio::PrimarySeqI definition of seq - implementing class did not provide this method");
    }
@@ -264,8 +264,8 @@ sub accession_number {
 sub primary_id {
    my ($self,@args) = @_;
 
-   if( $self->can('throw') ) {
-       $self->throw("Bio::PrimarySeqI definition of seq - implementing class did not provide this method");
+   if( $self->can('throw_not_implemented') ) {
+       $self->throw_not_implemented();
    } else {
        confess("Bio::PrimarySeqI definition of seq - implementing class did not provide this method");
    }
@@ -327,11 +327,11 @@ sub can_call_new{
 sub alphabet{
     my ( $self ) = @_;
 
-    my $class = ref($self);
-    my $msg = "Class '$class' does not implement method 'alphabet'";
-    if( $self->can('throw') ) {
-        $self->throw($msg);
+    if( $self->can('throw_not_implemented') ) {
+        $self->throw_not_implemented();
     } else {
+	my $class = ref($self);
+	my $msg = "Class '$class' does not implement method 'alphabet'";
         confess($msg);
     }
 }
@@ -346,8 +346,7 @@ sub moltype{
 
 =head1 Optional Implementation Functions
 
-The following functions rely on the above functions. A implementing
-class does not need to provide these functions, as they will be
+The following functions rely on the above functions. A implementingclass does not need to provide these functions, as they will be
 provided by this class, but is free to override these functions.
 
 All of revcom(), trunc(), and translate() create new sequence
@@ -645,8 +644,8 @@ sub  id {
 sub  length {
    my ($self)= @_;
 
-   if( $self->can('throw') ) {
-       $self->throw("Bio::PrimarySeqI definition of length - implementing class did not provide this method");
+   if( $self->can('throw_not_implemented') ) {
+       $self->throw_not_implemented();
    } else {
        confess("Bio::PrimarySeqI definition of length - implementing class did not provide this method");
    }
@@ -667,8 +666,8 @@ sub  length {
 
 sub desc {
    my ($self,$value) = @_;
-   if( $self->can('warn') ) {
-       $self->warn("Bio::PrimarySeqI definition of desc - implementing class did not provide this method");
+   if( $self->can('warn_not_implemented') ) {
+       $self->warn_not_implemented();
    } else {
        warn("Bio::PrimarySeqI definition of desc - implementing class did not provide this method");
    }
@@ -689,7 +688,7 @@ sub desc {
 sub is_circular{
     my ($self,$value) = @_;
     if (defined $value) {
-            $self->{'_is_circular'} = 1 if $value;
+	$self->{'_is_circular'} = 1 if $value;
     }
     return $self->{'_is_circular'};
 } 
@@ -705,7 +704,7 @@ sub str{
 
    # we assumme anyone using this is using vanilla bioperl object
    my ($p,$f,$l) = caller;
-   $self->warn("$f:$l Seq::str - deprecated method. You should use \$obj->seq in preference");
+   $self->deprecated("$f:$l Seq::str - deprecated method. You should use \$obj->seq in preference");
 
    if( defined $end ) {
        return $self->subseq($start,$end);
@@ -719,7 +718,7 @@ sub ary{
 
    # we assumme anyone using this is using vanilla bioperl object
    my ($p,$f,$l) = caller;
-   $self->warn("$f:$l Seq::ary - deprecated method. You should use \$obj->seq in preference, followed by your split to an array");
+   $self->deprecated("$f:$l Seq::ary - deprecated method. You should use \$obj->seq in preference, followed by your split to an array");
 
    my $str;
    if( defined $end ) {
@@ -746,7 +745,7 @@ sub setseq {
 
    # we assumme anyone using this is using vanilla bioperl object
    my ($p,$f,$l) = caller;
-   $self->warn("$f:$l Seq::setseq - deprecated method. You should use \$obj->seq in preference, followed by your split to an array");
+   $self->deprecated("$f:$l Seq::setseq - deprecated method. You should use \$obj->seq in preference, followed by your split to an array");
 
    return $self->seq($seq);
 }
@@ -756,7 +755,7 @@ sub type{
 
    # we assumme anyone using this is using vanilla bioperl object
    my ($p,$f,$l) = caller;
-   $self->warn("$f:$l Seq::type - deprecated method. You should use \$obj->alphabet in preference (notice that alphabet returns lowercase strings)");
+   $self->deprecated("$f:$l Seq::type - deprecated method. You should use \$obj->alphabet in preference (notice that alphabet returns lowercase strings)");
 
    my $t = $self->alphabet;
    $t eq "dna" && return "DNA";
@@ -769,7 +768,7 @@ sub seq_len {
     my $self = shift;
    # we assumme anyone using this is using vanilla bioperl object
     my ($p,$f,$l) = caller;
-    $self->warn("$f:$l Seq::seq_len - deprecated method. You should use \$obj->length in preference");
+    $self->deprecated("$f:$l Seq::seq_len - deprecated method. You should use \$obj->length in preference");
     return $self->length();
 }
 
@@ -777,7 +776,7 @@ sub out_fasta{
    my ($self,@args) = @_;
 
    my ($p,$f,$l) = caller;
-   $self->warn("$f:$l Seq::out_fasta - deprecated method. You should use the SeqIO package in preference");
+   $self->deprecated("$f:$l Seq::out_fasta - deprecated method. You should use the SeqIO package in preference");
 
    my $str = $self->seq;
    $str =~ tr/a-z/A-Z/;

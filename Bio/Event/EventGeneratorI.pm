@@ -66,8 +66,8 @@ Internal methods are usually preceded with a _
 package Bio::Event::EventGeneratorI;
 use vars qw(@ISA);
 use strict;
-use Bio::Root::Interface;
-@ISA = qw( Bio::Root::Interface );
+
+@ISA = qw( Bio::Root::RootI );
 
 =head2 SAX methods
 

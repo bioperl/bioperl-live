@@ -56,14 +56,8 @@ package Bio::DB::RandomAccessI;
 use vars qw(@ISA);
 use strict;
 
-# Object preamble - inherits from Bio::Root::Object
 use Bio::Root::Root;
 @ISA = qw(Bio::Root::Root);
-
-# new() is inherited from Bio::Root::Object
-
-# _initialize is where the heavy stuff will happen when new is called
-
 
 =head2 get_Seq_by_id
 
@@ -79,7 +73,7 @@ use Bio::Root::Root;
 
 sub get_Seq_by_id{
    my ($self,@args) = @_;
-
+   $self->throw_not_implemented();
    $self->throw("Abstract database call of get_Seq_by_id. Your database has not implemented this method!");
 }
 
@@ -97,6 +91,7 @@ sub get_Seq_by_id{
 
 sub get_Seq_by_acc{
    my ($self,@args) = @_;
+   $self->throw_not_implemented();
 
    $self->throw("Abstract database call of get_Seq_by_acc. Your database has not implemented this method!");
 }
@@ -116,6 +111,7 @@ sub get_Seq_by_acc{
 
 sub get_Seq_by_version{
    my ($self,@args) = @_;
+   $self->throw_not_implemented();
 
    $self->throw("Abstract database call of get_Seq_by_version. Your database has not implemented this method!");
 }

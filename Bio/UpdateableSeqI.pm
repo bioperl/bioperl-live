@@ -76,13 +76,6 @@ use Bio::SeqI;
 
 @ISA = qw(Bio::SeqI);
 
-sub _abstractDeath {
-  my $self = shift;
-  my $package = ref $self;
-  my $caller = (caller)[1];
-  
-  confess "Abstract method '$caller' defined in interface Bio::SeqI not implemented by package $package. Not your fault - author of $package should be blamed!";
-}
 
 =head2 delete_feature
 
@@ -107,8 +100,7 @@ sub _abstractDeath {
 sub delete_feature{
    my ($self,$feature,$transcript,$gene) = @_;
 
-   $self->_abstractDeath();
-
+   $self->throw_not_implemented();
 }
 
 

@@ -84,7 +84,7 @@ use Carp;
 
 sub will_handle{
    my ($self,$type) = @_;
-   $self->_abstractDeath('will_handle');
+   $self->throw_not_implemented();
 }
 
 1;

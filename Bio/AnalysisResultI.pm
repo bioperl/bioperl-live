@@ -87,9 +87,9 @@ package Bio::AnalysisResultI;
 use strict;
 use vars qw(@ISA);
 
-use Bio::Root::Interface;
+use Bio::Root::RootI;
 
-@ISA = qw( Bio::Root::Interface );
+@ISA = qw( Bio::Root::RootI );
 
 
 =head2 analysis_query
