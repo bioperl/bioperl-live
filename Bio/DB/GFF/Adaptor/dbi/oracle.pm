@@ -727,6 +727,9 @@ sub load_gff_line {
 
 
   # insert attributes
+
+    print STDERR map {"$fid attribute:". $_->[0]."=".$_->[1]."\n"} @{$gff->{attributes}};
+
   foreach (@{$gff->{attributes}}) {
     defined(my $attribute_id = $self->get_table_id('fattribute',$_->[0])) or return;
     $s->{sth}{insert_fattribute_value}->execute($fid,$attribute_id,$_->[1]);

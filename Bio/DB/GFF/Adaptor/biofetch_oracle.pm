@@ -98,13 +98,12 @@ argument must be passed as an array reference.
 
 sub new {
   my $class = shift;
-  my %args = @_;
-  my $self  = $class->SUPER::new(@_);
-  my $preferred = $args{'-preferred_tags'} if $args{'-preferred_tags'};
-  delete $args{'-preferred_tags'};  # get rid of the argument before passing it on to the rearrange/PROXY calls below
-  $self->preferred_tags($preferred?$preferred:\%default_preferred_tags);  # if the caller sent their own preferences, then use these, otherwise use defaults.
+  my $args = shift;
+  my $self  = $class->SUPER::new($args);
+  my ($preferred) = rearrange(['PREFERRED_TAGS'],$args);
+  $self->_preferred_tags($preferred?$preferred:\%default_preferred_tags);  # if the caller sent their own preferences, then use these, otherwise use defaults.
 
-  my ($proxy) = rearrange(['PROXY'],@_);
+  my ($proxy) = rearrange(['PROXY'],$args);
   if ($proxy) {
     my @args = ref($proxy) ? @$proxy : eval $proxy;
     $self->{_proxy} = \@args if @args;
