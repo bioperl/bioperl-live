@@ -28,7 +28,7 @@ Bio::Tools::pSW - DESCRIPTION of Object
 
     # make a Bio::SimpleAlign and do something with it
 
-    $aln->pairwise_alignment($seq1,$seq2);
+    $aln = $factory->pairwise_alignment($seq1,$seq2);
 
     $aln->write_MSF(\*STDOUT);
 
