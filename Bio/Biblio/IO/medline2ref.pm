@@ -238,7 +238,7 @@ sub convert {
        foreach my $mesh ( @{ $$source{'meshHeadings'} } ) {
 	   $subject_headings{ $$mesh{'descriptorName'} } = 1 if defined $$mesh{'descriptorName'};
        }
-       if (defined %subject_headings) {
+       if (%subject_headings) {
 	   $result->set_subject_headings (\%subject_headings);
 	   $result->set_subject_headings_source ('Mesh');
        }
@@ -256,7 +256,7 @@ sub convert {
 	       }
 	   }
        }
-       $result->set_keywords (\%keywords) if defined %keywords;
+       $result->set_keywords (\%keywords) if %keywords;
    }
 
    # Done!
@@ -405,7 +405,7 @@ sub _convert_book_article {
     }
 
     my @authors = &_convert_providers ($$from_book{'authors'});
-    $book->set_authors (\@authors) if defined @authors;
+    $book->set_authors (\@authors) if @authors;
 
     $result->set_book ($book);
     &_convert_article ($result, $source);
@@ -471,7 +471,7 @@ sub _convert_article {
     }
 
     my @authors = &_convert_providers ($$from_article{'authors'});
-    if (defined @authors) {
+    if (@authors) {
 	$article->set_authors (\@authors);
 	$article->set_author_list_complete
 	    ($$from_article{'authorListComplete'}) if defined $$from_article{'authorListComplete'};
@@ -490,7 +490,7 @@ sub _convert_article {
 		}
 	    }
 	}
-	if (defined @references) {
+	if (@references) {
 	    $article->set_cross_references (\@references);
 	    $article->set_cross_references_list_complete
 		($$from_article{'dataBankListComplete'}) if defined $$from_article{'dataBankListComplete'};
@@ -523,7 +523,7 @@ sub _convert_providers {
             new Bio::Biblio::ProviderI;
 	}
     }
-    return undef unless defined @results;
+    return undef unless @results;
     return @results;
 }
 
