@@ -25,11 +25,11 @@ BEGIN {
     $NUMTESTS = 9;
     plan tests => $NUMTESTS;
     
-    unless( eval "use SOAP::Lite; use XML::DOM; 1;" ) {
-      warn $@;
+    unless( eval "require SOAP::Lite; require XML::DOM; 1;" ) {
+ #     warn $@;
       print STDERR "SOAP::Lite and/or XML::DOM not installed. This means that Bio::DB::XEMBL module is not usable. Skipping tests.\n";
       for( 1..$NUMTESTS ) {
-	skip(1,"SOAP::Lite and/or XML::DOM not installed. This means that Bio::DB::XEMBL module is not usable. Skipping tests.\n");
+	skip("SOAP::Lite and/or XML::DOM not installed. This means that Bio::DB::XEMBL module is not usable. Skipping tests.\n",1);
       }
       $error = 1;
     }
