@@ -52,6 +52,11 @@ Bio::Root::Object - A core Perl 5 object.
 
 =head1 SYNOPSIS
 
+B<Use of this module is deprecated. Wherever possible try to switch to
+Bio::Root::RootI as the root of your inheritance tree. Using this module as
+your root of inheritance will trigger a warning at object instantiation.
+This module is no longer being maintained and will eventually disappear.>
+
 =head2 Object Creation
 
     require Bio::Root::Object;
@@ -399,6 +404,14 @@ for documentation purposes only.
 
 =cut
 
+#
+# This object is deprecated as the root of the inheritance tree, but some
+# modules depend on it as a legacy. We issue a deprecation warning for all
+# other modules.
+#
+my @inheriting_modules = ('Bio::Tools::Blast', 'Bio::Root::Object',
+			  'Bio::Root::IOManager');
+
 
 #######################################################
 #               CONSTRUCTOR/DESTRUCTOR                #
@@ -520,6 +533,11 @@ sub _initialize {
     local($^W) = 0;
     my($self, %param) = @_;
     
+    if(! grep { ref($self) =~ /$_/; } @inheriting_modules) {
+	$self->warn("Class " . ref($self) .
+		    " inherits from Bio::Root::Object, which is deprecated. ".
+		    "Try changing your inheritance to Bio::Root::RootI.");
+    }
     my($name, $parent, $make, $strict, $verbose, $obj, $record_err) = (
 	($param{-NAME}||$param{'-name'}), ($param{-PARENT}||$param{'-parent'}), 
 	($param{-MAKE}||$param{'-make'}), ($param{-STRICT}||$param{'-strict'}),
