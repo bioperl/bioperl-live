@@ -1,4 +1,4 @@
-# $Id: FAQ,v 1.4 2002-02-22 15:25:52 bosborne Exp $
+# $Id: FAQ,v 1.5 2002-03-01 20:27:51 bosborne Exp $
 
 Bioperl FAQ
 -----------
@@ -27,18 +27,18 @@ III. Report parsing
   1. I want to parse Blast, how do I do this?  
   2. What's wrong with Bio::Tools::Blast?
 
-IV. Sequence utilities
+IV. Utilities
 
   1. How do I find all the ORFs in a nucleotide sequence? Antigenic sites
      in a protein? Calculate nucleotide melting temperature? Find repeats?
   2. How do I do motif searches with Bioperl? Can I do "find all sequences
      that are 75% identical" to a given motif?
-
+  3. Can I query MEDLINE or other bibliographic repositories using Bioperl?
 
 ------------------------------------------------------------------------
 This FAQ maintained by those listed below:
 Jason Stajich <jason@bioperl.org>
-
+Brian Osborne <b_i_osborne@hotmail.com>
 
 ------------------------------------------------------------------------
 I. Bioperl in general
@@ -88,7 +88,7 @@ I. Bioperl in general
 
       Read the embedded perl documentation (Plain Old Documentation -
       POD) that is part of every modules.  Do
-      % perldoc MODULES 
+      % perldoc MODULE 
       (careful - spelling and case counts!).
 
       The bioperl tutorial - bptutorial.pl - provided in the root
@@ -136,7 +136,7 @@ I. Bioperl in general
       Bioperl is licensed under the same terms as Perl itself which is
       the Perl Artistic License.  You can see more information on that
       license at http://www.perl.com/pub/a/language/misc/Artistic.html
-      and  http://www.opensource.org/licenses/artistic-license.html
+      and http://www.opensource.org/licenses/artistic-license.html
             
 
 ------------------------------------------------------------------------
@@ -147,7 +147,7 @@ II. Sequences
 
      Use the Bio::SeqIO system.  This will create Bio::Seq objects for
      you.  See the tutorial bptutorial.pl for more information or the
-     documentation for Bio::SeqIO.
+     documentation for Bio::SeqIO (e.g. 'perldoc SeqIO.pm').
 
 
   2. I can't get sequences with Bio::DB::GenBank any more, why not?
@@ -183,7 +183,7 @@ III. Report parsing
 
 
 ------------------------------------------------------------------------
-IV. Sequence utilities
+IV. Utilities
 ------------------------------------------------------------------------
 
   1. How do I find all the ORFs in a nucleotide sequence? Antigenic sites
@@ -206,8 +206,15 @@ IV. Sequence utilities
      There are a number of approaches inside and outside of Bioperl. Within
      Bioperl take a look at Bio::Tools::SeqPattern, but it's also conceivable
      that the combination of Bioperl and Perl's regular expressions could do
-     the trick. You should also consider the CPAN module String::Approx (this
+     the trick. You might also consider the CPAN module String::Approx (this
      module addresses the percent match query). Or, take a look at the TFBS
      package, at http://forkhead.cgb.ki.se/TFBS (Transcription Factor Binding
      Site). This Bioperl-compliant package specializes in pattern searching
      of nucleotide sequence using matrices.
+
+  3. Can I query MEDLINE or other bibliographic repositories using Bioperl?
+
+     Yes! The solution lies in Bio::Biblio*, a set of modules that provide
+     access to MEDLINE and OpenBQS-compliant servers using SOAP. See
+     Bio/Biblio.pm or examples/biblio.pl for details and example code.
+
