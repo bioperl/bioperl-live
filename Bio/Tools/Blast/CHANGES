@@ -1,5 +1,16 @@
 Revision history for Perl extension Bio::Tools::Blast.pm and related modules.
 
+0.091 Thu May 18 15:15:35 2000
+        (These fixes were made on both branch-06 and the main trunk).
+       - Fixed Webblast.pm (jitterbug PR #220). It now uses SeqIO and IO::Scalar 
+         for sending formatted query sequence data to the BLAST servers.
+       - Fixed the examples/blast/ scripts related to remote BLASTing.
+       - Added single quotes to an '_expect' data member in Sbjct 
+         (reported by Janet Young in jitterbug PR #218).
+       - Fixed regexp bug in Blast::HTML.pm that caused accessions with 
+         . and _ characters to not be recognized.
+
+
 0.09  Wed Mar 22 00:44:01 2000
        - Handles Blast reports that don't contain description sections.
        - Handles parsing of NCBI 2.0.9 Blast2 reports.
