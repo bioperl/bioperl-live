@@ -79,15 +79,16 @@ sub sequence {
   Title   : value
   Usage   : $val = $probe->value()
   Function: get/set the probe's observed value
-  Returns : A float
-  Args    : a new float (optional)
+  Returns : A numeric value
+  Args    : a new numeric value (optional)
 
 =cut
 
 sub value {
+  shift->throw_not_implemented();
   my($self,$arg) = @_;
   if($arg){
-    $self->throw(__PACKAGE__ . "::value only accepts floating point values") unless $arg =~ /^[\d.]+$/;
+    $self->throw(__PACKAGE__ . "::value only accepts numeric values") unless $arg =~ /^[\d.]+$/;
     $self->{value} = $arg;
   }
   return $self->{value} || 0;
