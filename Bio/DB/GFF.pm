@@ -470,7 +470,7 @@ my %valid_range_types = (overlaps     => 1,
 These are the arguments:
 
  -adaptor      Name of the adaptor module to use.  If none
-               provided, defaults to "dbi:mysqlopt".
+               provided, defaults to "dbi::mysqlopt".
 
  -aggregator   Array reference to a list of aggregators
                to apply to the database.  If none provided,
@@ -482,7 +482,7 @@ These are the arguments:
 The adaptor argument must correspond to a module contained within the
 Bio::DB::GFF::Adaptor namespace.  For example, the
 Bio::DB::GFF::Adaptor::dbi::mysql adaptor is loaded by specifying
-'dbi:mysql'.  By Perl convention, the adaptors names are lower case
+'dbi::mysql'.  By Perl convention, the adaptors names are lower case
 because they are loaded at run time.
 
 The aggregator array may contain a list of aggregator names, a list of
@@ -497,7 +497,7 @@ it to the GFF constructor this way:
                                                           polyA spliced_leader)]);
 
   my $db = Bio::DB::GFF->new(-aggregator=>[$transcript,'clone','alignment],
-                             -adaptor   => 'dbi:mysql',
+                             -adaptor   => 'dbi::mysql',
                              -dsn      => 'dbi:mysql:elegans42');
 
 Alternatively, you could create an entirely new transcript aggregator
@@ -505,12 +505,12 @@ this way:
 
   my $new_agg = 'transcript{exon,intron,utr,polyA,spliced_leader}';
   my $db      = Bio::DB::GFF->new(-aggregator=>[$new_agg,'clone','alignment],
-                                  -adaptor   => 'dbi:mysql',
+                                  -adaptor   => 'dbi::mysql',
                                   -dsn       => 'dbi:mysql:elegans42');
 
 See L<Bio::DB::GFF::Aggregator> for more details.
 
-The commonly used 'dbi:mysql' adaptor recognizes the following
+The commonly used 'dbi::mysql' adaptor recognizes the following
 adaptor-specific arguments:
 
   Argument       Description
@@ -524,7 +524,7 @@ adaptor-specific arguments:
 
   -pass          the password for authentication
 
-The commonly used 'dbi:mysqlopt' adaptor also recogizes the following
+The commonly used 'dbi::mysqlopt' adaptor also recogizes the following
 arguments.
 
   Argument       Description
@@ -731,7 +731,7 @@ Arguments:
 
 Here's an example to explain how this works:
 
-  my $db = Bio::DB::GFF->new(-dsn => 'dbi:mysql:human',-adaptor=>'dbi:mysql');
+  my $db = Bio::DB::GFF->new(-dsn => 'dbi:mysql:human',-adaptor=>'dbi::mysql');
 
 If successful, $db will now hold the database accessor object.  We now
 try to fetch the fragment of sequence whose ID is A0000182 and class
@@ -756,7 +756,7 @@ and find the start and stop on the source like this:
 
 If we had another segment, say $s2, which is on the same contiguous
 piece of DNA, we can pass that to the refseq() method in order to
-establish it as the coordinat reference point:
+establish it as the coordinate reference point:
 
   $segment->refseq($s2);
 
