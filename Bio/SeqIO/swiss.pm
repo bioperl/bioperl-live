@@ -162,7 +162,7 @@ sub next_seq {
        $seq->division('UNK');       
    }
    $seq->primary_id($1);
-   $seq->molecule($5);
+   $seq->moltype($5);
     # this is important to have the id for display in e.g. FTHelper, otherwise
     # you won't know which entry caused an error
    $seq->display_id($name);
@@ -347,7 +347,7 @@ sub write_seq {
        $div = 'UNK';
    }
    
-   if( ! $seq->can('molecule') || ! defined ($mol = $seq->molecule) ) {
+   if( ! $seq->can('moltype') || ! defined ($mol = $seq->moltype) ) {
        $mol = 'XXX';
    }
    
@@ -729,10 +729,10 @@ sub _print_swissprot_FTHelper {
    if (!$start) { $start = $end = $fth->loc; }					#JB955
    my $desc = "";
    $desc = @{$fth->field->{"description"}}[0]."." 
-     if exists $fth->field->{"description"};
-   
+       if exists $fth->field->{"description"};
    $self->_write_line_swissprot_regex(sprintf("FT   %-8s %6s %6s       ",
-					      $fth->key,$start,$end),
+					      substr($fth->key,0,8),
+					      $start,$end),
 				      "FT                                ",
 				      $desc,'\s+|$',80);
 }
@@ -1001,14 +1001,14 @@ sub _write_line_swissprot{
 
 sub _write_line_swissprot_regex {
    my ($self,$pre1,$pre2,$line,$regex,$length) = @_;
-
    
    #print STDOUT "Going to print with $line!\n";
 
    $length || die "Miscalled write_line_swissprot without length. Programming error!";
 
    if( length $pre1 != length $pre2 ) {
-       die "Programming error - cannot called write_line_swissprot_regex with different length pre1 and pre2 tags!";
+       print STDERR "len 1 is ", length $pre1, " len 2 is ", length $pre2, "\n";
+       die "Programming error - cannot called write_line_swissprot_regex with different length \npre1 ($pre1) and \npre2 ($pre2) tags!";
    }
 
    my $subl = $length - (length $pre1) -1 ;
