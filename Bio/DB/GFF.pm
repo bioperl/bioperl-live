@@ -174,11 +174,11 @@ class contains whitespace.
 
 =head2 Making GFF files work with this module
 
-Some annotations do not need to be individually identified.  For
-example, it is probably not useful to assign a unique name to each ALU
-repeat in a vertebrate genome.  Others, such as predicted genes,
-correspond to named biological objects; you probably want to be able
-to fetch the positions of these objects by referring to them by name.
+Some annotations do not need to be individually named.  For example,
+it is probably not useful to assign a unique name to each ALU repeat
+in a vertebrate genome.  Others, such as predicted genes, correspond
+to named biological objects; you probably want to be able to fetch the
+positions of these objects by referring to them by name.
 
 To accomodate named annotations, the GFF format places the object
 class and name in the group field.  The name identifies the object,
@@ -202,8 +202,8 @@ It is not necessary for the annotation's method to correspond to the
 object class, although this is commonly the case.
 
 As explained above, each annotation in a GFF file refers to a
-reference sequence.  It is a good idea for each reference sequence to
-be identified by a line in the GFF file.  This allows the Bio::DB::GFF
+reference sequence.  It is important that each reference sequence be
+identified by a line in the GFF file.  This allows the Bio::DB::GFF
 module to determine the length and class of the reference sequence,
 and makes it possible to do relative arithmetic.
 
