@@ -162,7 +162,7 @@ sub map_pt {
   my $offset = $self->{offset};
   my $scale  = $self->{scale} || $self->scale;
   my $pl     = $self->{pad_left};
-  my $pr     = $pl + $self->{width};# - $self->{pad_right};
+  my $pr     = $self->{width};
   my $flip   = $self->{flip};
   my $length = $self->{length};
   my @result;
@@ -401,6 +401,7 @@ sub height {
   my $key_style         = $self->key_style;
   my $bottom_key        = $key_style eq 'bottom';
   my $between_key       = $key_style eq 'between';
+  my $side_key          = $key_style =~ /left|right/;
   my $draw_empty        = $empty_track_style =~ /^(line|dashed)$/;
   my $keyheight         = $self->{key_font}->height;
   my $height = 0;
@@ -411,7 +412,8 @@ sub height {
 		        or  $empty_track_style eq 'key' && $bottom_key);
     $height += $keyheight if $draw_between;
     $height += $self->spacing;
-    $height += $track->layout_height;
+    my $layout_height = $track->layout_height;
+    $height += ($side_key && $keyheight > $layout_height) ? $keyheight : $layout_height;
   }
 
   # get rid of spacing under last track
@@ -506,6 +508,8 @@ sub gd {
   for my $track (@{$self->{tracks}}) {
     my $draw_between = $between_key && $track->option('key');
     my $has_parts = $track->parts;
+    my $side_key_height = 0;
+
     next if !$has_parts && ($empty_track_style eq 'suppress'
 			or  $empty_track_style eq 'key' && $bottom_key);
 
@@ -520,11 +524,12 @@ sub gd {
     $track->draw($gd,$pl,$offset,0,1);
 
     if ($self->{key_style} =~ /^(left|right)$/) {
-      $self->draw_side_key($gd,$track,$offset,$self->{key_style});
+      $side_key_height = $self->draw_side_key($gd,$track,$offset,$self->{key_style});
     }
 
     $self->track_position($track,$offset);
-    $offset += $track->layout_height + $spacing;
+    my $layout_height = $track->layout_height;
+    $offset += ($side_key_height > $layout_height ? $side_key_height : $layout_height)+$spacing;
   }
 
 
@@ -598,14 +603,11 @@ sub draw_side_key {
   my $pos = $side eq 'left' ? $self->pad_left - $self->{key_font}->width * CORE::length($key)-3
                             : $self->pad_left + $self->width + 3;
   my $color = $self->translate_color('black');
-  # help me not go off the bottom!
-  if ((my $deficit = ($offset + $self->{key_font}->height) - ($gd->getBounds)[1])>0) {
-    $offset -= $deficit;
-  }
   $gd->filledRectangle($pos,$offset,
-		 $pos+$self->{key_font}->width*CORE::length($key),$offset+$self->{key_font}->height,
+		 $pos+$self->{key_font}->width*CORE::length($key),$offset,#-$self->{key_font}->height)/2,
 		 $self->bgcolor);
   $gd->string($self->{key_font},$pos,$offset,$key,$color);
+  return $self->{key_font}->height;
 }
 
 # draw the keys -- bottom

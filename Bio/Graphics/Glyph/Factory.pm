@@ -301,7 +301,6 @@ sub make_glyph {
   my $level = shift;
   my @result;
   my $panel = $self->panel;
-  my ($leftmost,$rightmost) = ($panel->left,$panel->right);
   my $flip   = $panel->flip;
 
   for my $f (@_) {
@@ -320,10 +319,8 @@ sub make_glyph {
 				 -flip     => $flip,
 				 -level    => $level);
 
-    # this is removing glyphs that are not onscreen at all.
-    # But never remove tracks!
-    push @result,$glyph if $type eq 'track'
-	|| ($glyph->{left} + $glyph->{width} > $leftmost && $glyph->{left} < $rightmost);
+
+    push @result,$glyph;
 
   }
   return wantarray ? @result : $result[0];

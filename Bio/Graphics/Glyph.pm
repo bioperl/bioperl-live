@@ -664,8 +664,7 @@ sub draw {
 
     my $last_x;
     for (my $i=0; $i<@parts; $i++) {
-      # lie just a little bit to avoid lines overlapping and
-      # make the picture prettier
+      # lie just a little bit to avoid lines overlapping and make the picture prettier
       my $fake_x = $x;
       $fake_x-- if defined $last_x && $parts[$i]->left - $last_x == 1;
       $parts[$i]->draw($gd,$fake_x,$y,$i,scalar(@parts));
@@ -946,6 +945,7 @@ sub filled_arrow {
 	    or ($x2 - $x1 < 3);
 
   my $fg   = $self->fgcolor;
+  my $bg   = $self->bgcolor;
   my $pkg  = $self->polygon_package;
   my $poly = $pkg->new();
   if ($orientation >= 0) {
@@ -961,8 +961,14 @@ sub filled_arrow {
     $poly->addPt($x1,($y2+$y1)/2);
     $poly->addPt($x1+$indent,$y1);
   }
-  $gd->filledPolygon($poly,$self->bgcolor);
+  $gd->filledPolygon($poly,$bg);
   $gd->polygon($poly,$fg);
+
+  # blunt it a bit if off the end
+  # good idea - but isn't inuitive
+  # if ($orientation >= 0 && $x2 > $width - $self->panel->pad_right) {
+  # $gd->filledRectangle($x2-3,$y1,$x2,$y2,$self->panel->bgcolor);
+  #}
 }
 
 sub linewidth {

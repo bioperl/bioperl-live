@@ -26,7 +26,6 @@ sub draw {
   my $self = shift;
   my ($gd,$dx,$dy) = @_;
   my ($left,$top,$right,$bottom) = $self->calculate_boundaries($dx,$dy);
-  #warn "here I am";
 
   my @parts = $self->parts;
 

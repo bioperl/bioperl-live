@@ -65,12 +65,17 @@ sub draw_component {
   my ($left,$top) = @_;
   my @rect = $self->bounds(@_);
 
+  my $f      = $self->feature;
+  my $strand = $f->strand;
+  my $str    = $strand * ($self->{flip} ? -1 : 1);
+
   my $width = abs($rect[2] - $rect[0]);
   my $filled = defined($self->{partno}) && $width >= MIN_WIDTH_FOR_ARROW;
+  my ($pwidth) = $gd->getBounds;
+  $filled = 0 if $str < 0 && $rect[0] < $self->panel->pad_left;
+  $filled = 0 if $str > 0 && $rect[2] > $pwidth - $self->panel->pad_right;
 
   if ($filled) {
-    my $f      = $self->feature;
-    my $strand = $f->strand;
     my ($first,$last)  = ($self->{partno} == 0 , $self->{partno} == $self->{total_parts}-1);
     ($first,$last)     = ($last,$first) if $self->{flip};
 
