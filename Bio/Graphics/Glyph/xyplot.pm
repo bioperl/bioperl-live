@@ -1,11 +1,11 @@
 package Bio::Graphics::Glyph::xyplot;
 
 use strict;
-use Bio::Graphics::Glyph::segments;
+use Bio::Graphics::Glyph::minmax;
 use vars '@ISA';
 use GD 'gdTinyFont';
 
-@ISA = 'Bio::Graphics::Glyph::segments';
+@ISA = 'Bio::Graphics::Glyph::minmax';
 
 use constant DEFAULT_POINT_RADIUS=>1;
 
@@ -30,20 +30,7 @@ sub draw {
   my @parts = $self->parts;
   return $self->SUPER::draw(@_) unless @parts > 0;
 
-  # figure out the scale and such like
-  my $max_score = $self->option('max_score');
-  my $min_score = $self->option('min_score');
-
-  unless (defined $max_score && defined $min_score) {
-    my $first = $parts[0];
-    $max_score = $min_score = eval { $first->feature->score} || 0;
-    for my $part (@parts) {
-      my $s = eval { $part->feature->score };
-      next unless defined $s;
-      $max_score = $s if $s > $max_score;
-      $min_score = $s if $s < $min_score;
-    }
-  }
+  my ($min_score,$max_score) = $self->minmax(\@parts);
 
   # if a scale is called for, then we adjust the max and min to be even
   # multiples of a power of 10.
@@ -211,21 +198,21 @@ sub _draw_scale {
   my $fg    = $self->fgcolor;
   my $half  = ($y1+$y2)/2;
 
-  $gd->line($x1+1,$y1,$x1+1,$y2,$fg) if $side eq 'left'  || $side eq 'both';
-  $gd->line($x2-2,$y1,$x2-2,$y2,$fg) if $side eq 'right' || $side eq 'both';
+  $gd->line($x1,$y1,$x1,$y2,$fg) if $side eq 'left'  || $side eq 'both';
+  $gd->line($x2,$y1,$x2,$y2,$fg) if $side eq 'right' || $side eq 'both';
 
   for ([$y1,$max],[$half,int(($max-$min)/2+0.5)]) {
-    $gd->line($x1,$_->[0],$x1+3,$_->[0],$fg) if $side eq 'left'  || $side eq 'both';
-    $gd->line($x2-4,$_->[0],$x2,$_->[0],$fg) if $side eq 'right' || $side eq 'both';
+    $gd->line($x1-3,$_->[0],$x1,$_->[0],$fg) if $side eq 'left'  || $side eq 'both';
+    $gd->line($x2,$_->[0],$x2+3,$_->[0],$fg) if $side eq 'right' || $side eq 'both';
     if ($side eq 'left' or $side eq 'both') {
       $gd->string(gdTinyFont,
-		  $x1 + 5,$_->[0]-(gdTinyFont->height/3),
+		  $x1 - gdTinyFont->width * length($_->[1]) - 3,$_->[0]-(gdTinyFont->height/3),
 		  $_->[1],
 		  $fg);
     }
     if ($side eq 'right' or $side eq 'both') {
       $gd->string(gdTinyFont,
-		  $x2-5 - (length($_->[1])*gdTinyFont->width),$_->[0]-(gdTinyFont->height/3),
+		  $x2 + 4,$_->[0]-(gdTinyFont->height/3),
 		  $_->[1],
 		  $fg);
     }
@@ -419,7 +406,7 @@ glyph-specific options:
   -scale        Position where the Y axis     none
                 scale is drawn if any.
                 It should be one of
-                "left", "right" or "none"
+                "left", "right", "both" or "none"
 
   -graph_height Specify height of the graph   Same as the
                                               "height" option.

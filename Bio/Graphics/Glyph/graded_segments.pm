@@ -2,9 +2,9 @@ package Bio::Graphics::Glyph::graded_segments;
 #$Id$
 
 use strict;
-use Bio::Graphics::Glyph::segments;
+use Bio::Graphics::Glyph::minmax;
 use vars '@ISA';
-@ISA = 'Bio::Graphics::Glyph::segments';
+@ISA = 'Bio::Graphics::Glyph::minmax';
 
 # override draw method to calculate the min and max values for the components
 sub draw {
@@ -17,17 +17,7 @@ sub draw {
   @parts    = $self if !@parts && $self->level == 0;
   return $self->SUPER::draw(@_) unless @parts;
 
-  # figure out the colors
-  my $max_score = $self->option('max_score');
-  my $min_score = $self->option('min_score');
-  unless (defined $max_score && defined $min_score) {
-    for my $part (@parts) {
-      my $s = eval { $part->feature->score };
-      next unless defined $s;
-      $max_score = $s if !defined $max_score or $s > $max_score;
-      $min_score = $s if !defined $min_score or $s < $min_score;
-    }
-  }
+  my ($min_score,$max_score) = $self->minmax(\@parts);
 
   return $self->SUPER::draw(@_)
     unless defined($max_score) && defined($min_score)
