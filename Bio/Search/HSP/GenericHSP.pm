@@ -208,12 +208,13 @@ sub new {
     defined $score     && $self->score($score);
     my ($queryfactor, $hitfactor) = (0,0);
 
-    if( $algo =~ /^(PSI)?T(BLAST|FAST)[NY]/oi ) {
+    if( $algo =~ /^(PSI)?T(BLAST|FAST|SW)[NY]/oi ) {
 	$hitfactor = 1;	
-    } elsif ($algo =~ /^(FAST|BLAST)(X|Y|XY)/oi ) {
+    } elsif ($algo =~ /^(FAST|BLAST)(X|Y|XY)/oi ||
+	     $algo =~ /^P?GENEWISE/oi ) {
 	$queryfactor = 1;	
-    } elsif ($algo =~ /^T(BLAST|FAST)(X|Y|XY)/oi ||
-	     $algo =~ /^(BLAST|FAST)N/oi ||
+    } elsif ($algo =~ /^T(BLAST|FAST|SW)(X|Y|XY)/oi ||
+	     $algo =~ /^(BLAST|FAST|SW)N/oi ||
 	     $algo eq 'WABA' || $algo eq 'AXT' ||  
 	     $algo eq 'EXONERATE' || $algo eq 'MEGABLAST' ||
 	     $algo eq 'SMITH-WATERMAN' ){
@@ -471,7 +472,7 @@ sub frac_identical {
 sub frac_conserved {
     my ($self, $type,$value) = @_;
     $type = lc $type if defined $type;
-    $type = 'hit' if( $type =~ /subject|sbjct/);
+    $type = 'hit' if( defined $type && $type =~ /subject|sbjct/);
     $type = 'total' if( ! defined $type || $type eq 'hsp' ||
                         $type !~ /query|hit|subject|sbjct|total/);
     my $previous = $self->{'_frac_conserved'}->{$type};

@@ -351,7 +351,8 @@ sub next_result{
        if( /^([T]?BLAST[NPX])\s*(.+)$/i ||
 	   /^(PSITBLASTN)\s+(.+)$/i ||
 	   /^(RPS-BLAST)\s*(.+)$/i ||
-	   /^(MEGABLAST)\s*(.+)$/i 
+	   /^(MEGABLAST)\s*(.+)$/i || 
+	   /^(P?GENEWISE|HFRAME|SWN|TSWN)\s+(.+)/i #Paracel BTK
            ) {
 	   if( $self->{'_seentop'} ) {
                # This handles multi-result input streams
@@ -587,6 +588,45 @@ sub next_result{
        } elsif( /\s+(Plus|Minus) Strand HSPs:/i ) {
            next;
        } elsif( ($self->in_element('hit') || 
+                 $self->in_element('hsp')) && # paracel genewise BTK
+		m/Score\s*=\s*(\S+)\s*bits\s* # Bit score
+                (\((\d+)\))?,                 # Raw score
+		\s+Log\-Length\sScore\s*=\s*(\d+) # Log-Length score
+                /ox) {
+	   $self->in_element('hsp') && $self->end_element({'Name' => 'Hsp'});
+           $self->start_element({'Name' => 'Hsp'});
+	   $self->debug( "Got paracel genewise HSP score=$1\n");
+	   
+           # Some data clean-up so e-value will appear numeric to perl
+           my ($score, $bits, $evalue) = ($3, $1, $4);
+           
+	   $self->element( { 'Name' => 'Hsp_score',
+                             'Data' => $score});
+           $self->element( { 'Name' => 'Hsp_bit-score',
+                             'Data' => $bits});
+           $self->element( { 'Name' => 'Hsp_evalue',
+                             'Data' => $evalue});
+       } elsif( ($self->in_element('hit') || 
+                 $self->in_element('hsp')) && # paracel hframe BTK
+		m/Score\s*=\s*([^,\s]+),     # Raw score
+		\s*Expect\s*=\s*([^,\s]+),  # E-value
+                \s*P(\(\S+\))?\s*=\s*([^,\s]+) # P-value
+                /ox) {
+	   $self->in_element('hsp') && $self->end_element({'Name' => 'Hsp'});
+           $self->start_element({'Name' => 'Hsp'});
+	   $self->debug( "Got paracel hframe HSP score=$1\n");
+	   # Some data clean-up so e-value will appear numeric to perl
+           my ($score, $evalue, $pvalue) = ($1, $2, $4);
+           $evalue = "1$evalue" if $evalue =~ /^e/;
+           $pvalue = "1$pvalue" if $pvalue =~ /^e/;
+	   
+	   $self->element( { 'Name' => 'Hsp_score',
+                             'Data' => $score});
+           $self->element( { 'Name' => 'Hsp_evalue',
+                             'Data' => $evalue});
+           $self->element( {'Name'  => 'Hsp_pvalue',
+                            'Data'  =>$pvalue});           
+       } elsif( ($self->in_element('hit') || 
                  $self->in_element('hsp')) && # wublast
                m/Score\s*=\s*(\S+)\s*       # Bit score
                 \(([\d\.]+)\s*bits\),       # Raw score
@@ -719,7 +759,9 @@ sub next_result{
                            'Data' => 'yes'});
            while( defined ($_ = $self->_readline ) ) {
 	       if( /^(PSI)?([T]?BLAST[NPX])\s*(.+)/i ||
-		   /^MEGABLAST\s*(.+)/ ) {
+		   /^MEGABLAST\s*(.+)/i ||
+		   /^(P?GENEWISE|HFRAME|SWN|TSWN)\s+(.+)/i #Paracel BTK
+		   ) {
                    $self->_pushback($_);
                    # let's handle this in the loop
                    last;
@@ -901,12 +943,16 @@ sub next_result{
        }
    } 
 
-   #print STDERR "blast.pm: End of BlastOutput\n";
-   if( $bl2seq_fix ) { 
-       $self->element({ 'Name' => 'BlastOutput_program',
-			'Data' => $reporttype});
+   # print STDERR "blast.pm: End of BlastOutput\n";
+   if( $self->{'_seentop'} ) {
+       $self->within_element('iteration') && 
+	   $self->end_element({'Name' => 'Iteration'});
+       if( $bl2seq_fix ) { 
+	   $self->element({ 'Name' => 'BlastOutput_program',
+			    'Data' => $reporttype});
+       }    
+       $self->end_element({'Name' => 'BlastOutput'});
    }
-   $self->end_element({'Name' => 'BlastOutput'}) unless ! $self->{'_seentop'};
    return $self->end_document();
 }
 
