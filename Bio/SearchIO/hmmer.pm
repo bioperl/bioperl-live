@@ -288,7 +288,7 @@ sub next_result{
 			       $self->end_element({'Name' => 'Hit'});
 			   }
 			   $self->start_element({'Name' => 'Hit'});
-			   my $info = [@{$hitinfo[$hitinfo{$name}] $self->throw("Could not find hit info for $name: Insure that your database contains only unique sequence names")}];
+			   my $info = [@{$hitinfo[$hitinfo{$name}] || $self->throw("Could not find hit info for $name: Insure that your database contains only unique sequence names")}];
 			   if( $info->[0] ne $name ) { 
 			       $self->throw("Somehow the Model table order does not match the order in the domains (got ".$info->[0].", expected $name)"); 
 			   }
