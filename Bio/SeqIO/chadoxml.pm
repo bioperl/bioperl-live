@@ -65,11 +65,16 @@ Destination of data in the subject Bio::Seq object $seq is as following:
 
 	*$seq->display_id:  name of the top-level feature;
 
-	*$seq->accession_number: if defined, uniquename and feature_dbxref of the top-level feature
-				 if not defined, $seq->display_id is used as the uniquename of the top-level feature;
+	*$seq->accession_number: if defined, uniquename and
+				 feature_dbxref of the top-level
+				 feature if not defined,
+				 $seq->display_id is used as the
+				 uniquename of the top-level feature;
 
-	*$seq->molecule: transformed to SO type, used as the feature type of the top-level feature
-			if -seq_so_type argument is supplied, use the supplied SO type as the feature type of the top-level feature;
+	*$seq->molecule: transformed to SO type, used as the feature
+			type of the top-level feature if -seq_so_type
+			argument is supplied, use the supplied SO type
+			as the feature type of the top-level feature;
 
 	*$seq->species: organism of the top-level feature;
 
@@ -89,9 +94,14 @@ Destination of data in the subject Bio::Seq object $seq is as following:
 
 	*feature "source" other tags: featureprop for top-level feature;
 
-	*subfeature 'symbol' or 'label' tag: feature uniquename, if none of these is present, the chadoxml object generates feature uniquenames as: <gene>-<feature_type>-<span> (e.g. foo-mRNA--1000..3000); 
+	*subfeature 'symbol' or 'label' tag: feature uniquename, if
+                     none of these is present, the chadoxml object
+                     generates feature uniquenames as:
+                     <gene>-<feature_type>-<span>
+                     (e.g. foo-mRNA--1000..3000);
 
-	*gene model: feature_relationship built based on the containment hierarchy; 
+	*gene model: feature_relationship built based on the
+                     containment hierarchy;
 
 	*feature span: featureloc; 
 
@@ -101,25 +111,60 @@ Destination of data in the subject Bio::Seq object $seq is as following:
 
 Things to watch out for:
 
-	*chado schema change: this version works with the chado version tagged chado_1_01 in GMOD CVS.
+	*chado schema change: this version works with the chado
+                               version tagged chado_1_01 in GMOD CVS.
 
-	*feature uniquenames: especially important if using XORT loader to do incremental load into chado. may need pre-processing of the source data to put the correct uniquenames in place.
+	*feature uniquenames: especially important if using XORT
+                              loader to do incremental load into
+                              chado. may need pre-processing of the
+                              source data to put the correct
+                              uniquenames in place.
 
-	*pub uniquenames: chadoxml->write_seq() has the FlyBase policy on pub uniquenames hard-coded, it assigns pub uniquenames in the following way: for journals and books, use ISBN number; for published papers, use MEDLINE ID; for everything else, use FlyBase unique identifier FBrf#. need to modify the code to implement your policy. look for the comments in the code.
+	*pub uniquenames: chadoxml->write_seq() has the FlyBase policy
+                          on pub uniquenames hard-coded, it assigns
+                          pub uniquenames in the following way: for
+                          journals and books, use ISBN number; for
+                          published papers, use MEDLINE ID; for
+                          everything else, use FlyBase unique
+                          identifier FBrf#. need to modify the code to
+                          implement your policy. look for the comments
+                          in the code.
 
-	*for pubs possibly existing in chado but with no knowledge of its uniquename: put "op" as "match", then need to run the output chadoxml through a special filter that talks to chado database and tries to find the pub by matching with the provided information instead of looking up by the unique key. after matching, the filter also resets the "match" operation to either "force" (default), or "lookup", or "insert", or "update". the "match" operation is for a special FlyBase use case. please modify to work according to your rules.
+	*for pubs possibly existing in chado but with no knowledge of
+         its uniquename:put "op" as "match", then need to run the
+                        output chadoxml through a special filter that
+                        talks to chado database and tries to find the
+                        pub by matching with the provided information
+                        instead of looking up by the unique key. after
+                        matching, the filter also resets the "match"
+                        operation to either "force" (default), or
+                        "lookup", or "insert", or "update". the
+                        "match" operation is for a special FlyBase use
+                        case. please modify to work according to your
+                        rules.
 
 	*chado initialization for loading: 
-		cv & cvterm: in the output chadoxml, all cv's and cvterm's are lookup only. Therefore, before using XORT loader to load the output into chado, chado must be pre-loaded with all necessary CVs and CVterms, including "SO" , "property type", "relationship type", "pub type", "pubprop type", "pub relationship type", "sequence topology", "GenBank feature qualifier", "GenBank division". A pub by the uniquename 'nullpub' of type 'null pub' needs to be inserted.
+
+		cv & cvterm: in the output chadoxml, all cv's and
+                             cvterm's are lookup only. Therefore,
+                             before using XORT loader to load the
+                             output into chado, chado must be
+                             pre-loaded with all necessary CVs and
+                             CVterms, including "SO" , "property
+                             type", "relationship type", "pub type",
+                             "pubprop type", "pub relationship type",
+                             "sequence topology", "GenBank feature
+                             qualifier", "GenBank division". A pub by
+                             the uniquename 'nullpub' of type 'null
+                             pub' needs to be inserted.
 
 =head1 FEEDBACK
 
 =head2 Mailing Lists
 
-User feedback is an integral part of the evolution of this
-and other Bioperl modules. Send your comments and suggestions preferably
- to one of the Bioperl mailing lists.
-Your participation is much appreciated.
+User feedback is an integral part of the evolution of this and other
+Bioperl modules. Send your comments and suggestions preferably to one
+of the Bioperl mailing lists.  Your participation is much appreciated.
 
   bioperl-l@bioperl.org                  - General discussion
   http://www.bioperl.org/MailList.shtml  - About the mailing lists
@@ -128,9 +173,8 @@ Your participation is much appreciated.
 
 Report bugs to the Bioperl bug tracking system to help us keep track
  the bugs and their resolution.
- Bug reports can be submitted via email or the web:
+ Bug reports can be submitted via the web:
 
-  bioperl-bugs@bio.perl.org
   http://bio.perl.org/bioperl-bugs/
 
 =head1 AUTHOR - Peili Zhang
@@ -225,11 +269,6 @@ sub _initialize {
     my($self,@args) = @_;
     
     $self->SUPER::_initialize(@args); 
-    my ($filename) = 
-	   $self->_rearrange([qw(FILE
-				 )],
-			      @args);
-    $self->{'filename'} = $filename;
     unless( defined $self->sequence_factory ) {
         $self->sequence_factory(new Bio::Seq::SeqFactory
                                 (-verbose => $self->verbose(), 
@@ -261,22 +300,27 @@ sub _initialize {
 	   sequence features listed in $seq are treated as subfeatures
 	   of the mRNA feature.
  Returns : 1 for success and 0 for error
- Args    : A Bio::Seq object $seq, optional $seqSOtype, $srcfeature, $srcfeattype.
-	   when $srcfeature (a string, the uniquename of the source 
-	   feature) is given, the location and strand information of the top-level
-	   feature against the source feature will be derived from the sequence
-	   feature called 'source' of the $seq object, a featureloc record is
-	   generated for the top-level feature on $srcfeature. when $srcfeature 
-	   is given, $srcfeattype must also be present. All feature coordinates 
-	   in $seq should be against $srcfeature.
-	   $seqSOtype is the optional SO term to use as the type of the top-level
-	   feature. For example, a GenBank data file for a Drosophila melanogaster
-	   genome scaffold has the molecule type of "DNA", when converting to chadoxml,
-	   a $seqSOtype argument of "golden_path_region" can be supplied to save the
-	   scaffold as a feature of type "golden_path_region" in chadoxml, instead of
-	   "DNA".
-	   a feature with primary tag of 'source' must be present in the sequence
-	   feature list of $seq, to decribe the whole sequence record.
+
+
+ Args     : A Bio::Seq object $seq, optional $seqSOtype, $srcfeature,
+	   $srcfeattype.  when $srcfeature (a string, the uniquename
+	   of the source feature) is given, the location and strand
+	   information of the top-level feature against the source
+	   feature will be derived from the sequence feature called
+	   'source' of the $seq object, a featureloc record is
+	   generated for the top-level feature on $srcfeature. when
+	   $srcfeature is given, $srcfeattype must also be
+	   present. All feature coordinates in $seq should be against
+	   $srcfeature.  $seqSOtype is the optional SO term to use as
+	   the type of the top-level feature. For example, a GenBank
+	   data file for a Drosophila melanogaster genome scaffold has
+	   the molecule type of "DNA", when converting to chadoxml, a
+	   $seqSOtype argument of "golden_path_region" can be supplied
+	   to save the scaffold as a feature of type
+	   "golden_path_region" in chadoxml, instead of "DNA".  a
+	   feature with primary tag of 'source' must be present in the
+	   sequence feature list of $seq, to decribe the whole
+	   sequence record.
 
 
 =cut
@@ -284,9 +328,13 @@ sub _initialize {
 sub write_seq {
 	my $usage = <<EOUSAGE;
 Bio::SeqIO::chadoxml->write_seq()
-Usage   : \$stream->write_seq(-seq=>\$seq, -seq_so_type=>\$SOtype, -src_feature=>\$srcfeature, -src_feat_type=>\$srcfeattype)
+Usage   : \$stream->write_seq(-seq=>\$seq, 
+			      -seq_so_type=>\$SOtype, 
+			      -src_feature=>\$srcfeature, 
+			      -src_feat_type=>\$srcfeattype)
 Args    : \$seq		: a Bio::Seq object 
-	  \$SOtype	: the SO term to use as the feature type of the \$seq record, optional
+	  \$SOtype	: the SO term to use as the feature type of 
+	                  the \$seq record, optional
 	  \$srcfeature	: unique name of the source feature, a string 
 			  containing at least one alphabetical letter 
 			  (a-z, A-Z), optional
@@ -295,47 +343,62 @@ Args    : \$seq		: a Bio::Seq object
 	  when \$srcfeature is given, \$srcfeattype becomes mandatory,
 EOUSAGE
 
-	my ($self,@args) = @_;
-
+my ($self,@args) = @_;
+	
 	my ($seq, $seq_so_type, $srcfeature, $srcfeattype) =
-	   $self->_rearrange([qw(SEQ
-				 SEQ_SO_TYPE
-				 SRC_FEATURE
-				 SRC_FEAT_TYPE
-				 )],
+	    $self->_rearrange([qw(SEQ
+				  SEQ_SO_TYPE
+				  SRC_FEATURE
+				  SRC_FEAT_TYPE
+				  )],
 			      @args);
 	#print "$seq_so_type, $srcfeature, $srcfeattype\n";
-
+	
 	if( !defined $seq ) {
-		$self->throw("Attempting to write with no seq!");
+	    $self->throw("Attempting to write with no seq!");
 	}
-
+	
 	if( ! ref $seq || ! $seq->isa('Bio::Seq::RichSeqI') ) {
-		$self->warn(" $seq is not a RichSeqI compliant module. Attempting to dump, but may fail!");
+	    $self->warn(" $seq is not a RichSeqI compliant module. Attempting to dump, but may fail!");
 	}
-
+	
 	#$srcfeature, when provided, should contain at least one alphabetical letter
 	if (defined $srcfeature)
 	{
-		if ($srcfeature =~ /[a-zA-Z]/) 
-		{
-			chomp($srcfeature);
-		} else {
-			die $usage;
-		}
+	    if ($srcfeature =~ /[a-zA-Z]/) 
+	    {
+		chomp($srcfeature);
+	    } else {
+		# this is really weird - we don't typically 
+		# have any die code in the library
+		# but use throw instead
+		# jason -- 2003-12-10
+		# die($usage)
+		$self->throw( $usage );
+	    }
 
-		#check for mandatory $srcfeattype
-		if (! defined $srcfeattype)
-		{
-			die $usage;
+	    #check for mandatory $srcfeattype
+	    if (! defined $srcfeattype)
+	    {
+		# this is really weird - we don't typically 
+		# have any die code in the library
+		# but use throw instead
+		# jason -- 2003-12-10
+		# die($usage)
+		$self->throw( $usage );
 		#$srcfeattype must be a string of non-whitespace characters
+	    } else {
+		if ($srcfeattype =~ /\S+/) {
+		    chomp($srcfeattype);
 		} else {
-			if ($srcfeattype =~ /\S+/) {
-				chomp($srcfeattype);
-			} else {
-				die $usage;
-			}
+		    # this is really weird - we don't typically 
+		    # have any die code in the library
+		    # but use throw instead
+		    # jason -- 2003-12-10
+		    # die($usage)
+		    $self->throw( $usage );
 		}
+	    }
 	}
 
 	# variables local to write_seq()
@@ -426,14 +489,36 @@ EOUSAGE
 	#sequence topology as feature_cvterm
 	if ($seq->is_circular) {
 		%sthash = (
-			"cvterm_id"	=> {'name' => 'circular', 'cv_id' => {'name' => 'sequence topology'}},
-			"pub_id"	=> {'miniref' => 'nullpub', 'type_id' => {'name' => 'null pub', 'cv_id' => {'name'=> 'pub type'}}},
+			"cvterm_id"	=> {'name' => 'circular', 
+					    'cv_id' => {
+						'name' => 'sequence topology',
+					    },
+					},
+			   "pub_id"	=> {'miniref' => 'nullpub', 
+					    'type_id' => {
+						'name' => 'null pub', 
+						'cv_id' => {
+						    'name'=> 'pub type',
+						},
+					    },
+					},
 			);
 	} else {
 		%sthash = (
-			"cvterm_id"	=> {'name' => 'linear', 'cv_id' => {'name' => 'sequence topology'}},
-			"pub_id"	=> {'miniref' => 'nullpub', 'type_id' => {'name' => 'null pub', 'cv_id' => {'name'=> 'pub type'}}},
-			);
+			"cvterm_id"	=> { 'name' => 'linear', 
+					     'cv_id' => {
+						 'name' => 'sequence topology',
+					     }
+					 },
+			"pub_id"	=> {'miniref' => 'nullpub', 
+					    'type_id' => {
+						'name' => 'null pub', 
+						'cv_id' => {
+						    'name'=> 'pub type',
+						},
+					    },
+					},
+			   );
 	}
 	push(@feature_cvterms, \%sthash);
 
@@ -441,9 +526,16 @@ EOUSAGE
         if ($seq->can('division') && defined $seq->division()) {
         	$div = $seq->division();
 		%dvhash = (
-			"cvterm_id"	=> {'name' => $div, 'cv_id' => {'name' => 'GenBank division'}},
-			"pub_id"	=> {'miniref' => 'nullpub', 'type_id' => {'name' => 'null pub', 'cv_id' => {'name'=> 'pub type'}}},
-			);
+			"cvterm_id"	=> {'name' => $div, 
+					    'cv_id' => {
+						'name' => 'GenBank division'}},
+			"pub_id"	=> {'miniref' => 'nullpub', 
+					    'type_id' => {
+						'name' => 'null pub', 
+						'cv_id' => {
+						    'name'=> 'pub type'},
+					    }},
+			   );
 		push(@feature_cvterms, \%dvhash);
 	}
 
@@ -455,7 +547,9 @@ EOUSAGE
 		$temp = $seq->desc();
 		
 		my %prophash = (
-			"type_id" 	=> {'name' => 'description', 'cv_id' => {'name' => 'property type'}},
+			"type_id" 	=> {'name' => 'description', 
+					    'cv_id' => {
+						'name' => 'property type'}},
 			"value"		=> $temp,
 			);
 
@@ -464,16 +558,19 @@ EOUSAGE
 
 	#KEYWORDS
 	if ($seq->can('keywords')) {
-		$temp = $seq->keywords();
+	    $temp = $seq->keywords();
 
-		if (defined $temp && $temp ne '.' && $temp ne '') {
-                	my %prophash = (
-                        	"type_id"       => {'name' => 'keywords', 'cv_id' => {'name' => 'property type'}},
-                        	"value"          => $temp,
+	    if (defined $temp && $temp ne '.' && $temp ne '') {
+		my %prophash = (
+				"type_id"       => {'name' => 'keywords', 
+						    'cv_id' => 
+						    {'name' => 'property type'}
+						},
+				"value"          => $temp,
                         	);
 
 		push(@top_featureprops, \%prophash);
-		}
+	    }
         }
 
 	#COMMENT
@@ -483,7 +580,9 @@ EOUSAGE
 			$temp = $comment->as_text();
 			#print "fcomment: $temp\n";
 			my %prophash = (
-				"type_id"	=> {'name' => 'comment', 'cv_id' => {'name' => 'property type'}},
+				"type_id"	=> {'name' => 'comment', 
+						    'cv_id' => 
+						    {'name' => 'property type'}},
 				"value"		=> $temp,
 				);
 
@@ -494,14 +593,14 @@ EOUSAGE
 	#accession and version as feature_dbxref
 	my @top_dbxrefs = ();
 	if ($seq->can('accession_number') && defined $seq->accession_number) {
-		my $db = $self->_guess_acc_db($seq, $seq->accession_number);
-		my %acchash = (
-			"db_id"		=> {'name' => $db},
-			"accession"	=> $seq->accession_number,
-			"version"	=> $seq->seq_version,
-			);
-		my %fdbx = ('dbxref_id' => \%acchash);
-		push(@top_dbxrefs, \%fdbx);
+	    my $db = $self->_guess_acc_db($seq, $seq->accession_number);
+	    my %acchash = (
+			   "db_id"	=> {'name' => $db},
+			   "accession"	=> $seq->accession_number,
+			   "version"	=> $seq->seq_version,
+			   );
+	    my %fdbx = ('dbxref_id' => \%acchash);
+	    push(@top_dbxrefs, \%fdbx);
 	}
 
 	if( $seq->isa('Bio::Seq::RichSeqI') && defined $seq->get_secondary_accessions() ) {
@@ -533,214 +632,218 @@ EOUSAGE
 
 	#REFERENCES as feature_pub
 	if (defined $ann) {
-		#get the references
-		@references = $ann->get_Annotations('reference');
-		foreach $ref (@references) {
-			undef(my %pubhash);
-			$refhash = $ref->hash_tree();
-			$location = $ref->location || $refhash->{'location'};
-			#print "location: $location\n";
+	    #get the references
+	    @references = $ann->get_Annotations('reference');
+	    foreach $ref (@references) {
+		undef(my %pubhash);
+		$refhash = $ref->hash_tree();
+		$location = $ref->location || $refhash->{'location'};
+		#print "location: $location\n";
 
-			#get FBrf#, special for FlyBase SEAN loading
-			if (index($location, ' ==') >= 0) {
-				$location =~ /\s==/;
+		#get FBrf#, special for FlyBase SEAN loading
+		if (index($location, ' ==') >= 0) {
+		    $location =~ /\s==/;
 				#print "match: $MATCH\n";
 				#print "prematch: $PREMATCH\n";
 				#print "postmatch: $POSTMATCH\n";
-				$fbrf = $PREMATCH;
-				$location = $POSTMATCH;
-				$location =~ s/^\s//;
-			}
+		    $fbrf = $PREMATCH;
+		    $location = $POSTMATCH;
+		    $location =~ s/^\s//;
+		}
 
-			#print "location: $location\n";
-			#unpublished reference
-			if ($location =~ /Unpublished/) {
-				$pubtype = 'unpublished';
-				%pubhash = (
-					"title"		=> $ref->title || $refhash->{'title'},
-					#"miniref"	=> substr($location, 0, 255),
-					"type_id"	=> {'name' => $pubtype, 'cv_id' => {'name' =>'pub type'}}
-					);
-			}
-			#submitted
-			elsif ($location =~ /Submitted/) {
-				$pubtype = 'submitted';
+		#print "location: $location\n";
+		#unpublished reference
+		if ($location =~ /Unpublished/) {
+		    $pubtype = 'unpublished';
+		    %pubhash = (
+				"title"		=> $ref->title || $refhash->{'title'},
+				#"miniref"	=> substr($location, 0, 255),
+				"type_id"	=> {'name' => $pubtype, 'cv_id' => {'name' =>'pub type'}}
+				);
+		}
+		#submitted
+		elsif ($location =~ /Submitted/) {
+		    $pubtype = 'submitted';
 
-				%pubhash = (
-					"title"		=> $ref->title || $refhash->{'title'},
-					#"miniref"	=> substr($location, 0, 255),
-					"type_id"	=> {'name' => $pubtype, 'cv_id' => {'name' =>'pub type'}}
-					);
+		    %pubhash = (
+				"title"		=> $ref->title || $refhash->{'title'},
+				#"miniref"	=> substr($location, 0, 255),
+				"type_id"	=> {'name' => $pubtype, 'cv_id' => {'name' =>'pub type'}}
+				);
 
-				undef(my $pyear);
-				$pyear = $self->_getSubmitYear($location);
-				if (defined $pyear) {
-					$pubhash{'pyear'} = $pyear;
-				}
-			}
+		    undef(my $pyear);
+		    $pyear = $self->_getSubmitYear($location);
+		    if (defined $pyear) {
+			$pubhash{'pyear'} = $pyear;
+		    }
+		}
 
-			#published journal paper
-			elsif ($location =~ /\D+\s\d+\s\((\d+|\d+-\d+)\),\s(\d+-\d+|\d+--\d+)\s\(\d\d\d\d\)$/) {
-				$pubtype = 'paper';
-				
+		#published journal paper
+		elsif ($location =~ /\D+\s\d+\s\((\d+|\d+-\d+)\),\s(\d+-\d+|\d+--\d+)\s\(\d\d\d\d\)$/) {
+		    $pubtype = 'paper';
+
 				#parse location to get journal, volume, issue, pages & year
-				$location =~ /\(\d\d\d\d\)$/;
+		    $location =~ /\(\d\d\d\d\)$/;
 
-				$year = $MATCH;
-				my $stuff = $PREMATCH;
-				$year =~ s/\(//;		#remove the leading parenthesis
-				$year =~ s/\)//;		#remove the trailing parenthesis
+		    $year = $MATCH;
+		    my $stuff = $PREMATCH;
+		    $year =~ s/\(//; #remove the leading parenthesis
+		    $year =~ s/\)//; #remove the trailing parenthesis
 
-				$stuff =~ /,\s(\d+-\d+|\d+--\d+)\s$/;
+		    $stuff =~ /,\s(\d+-\d+|\d+--\d+)\s$/;
 
-				$pages = $MATCH;
-				$stuff = $PREMATCH;
-				$pages =~ s/^, //;	#remove the leading comma and space
-				$pages =~ s/ $//;	#remove the last space
+		    $pages = $MATCH;
+		    $stuff = $PREMATCH;
+		    $pages =~ s/^, //; #remove the leading comma and space
+		    $pages =~ s/ $//; #remove the last space
 
-				$stuff =~ /\s\d+\s\((\d+|\d+-\d+)\)$/;
+		    $stuff =~ /\s\d+\s\((\d+|\d+-\d+)\)$/;
 
-				$volumeissue = $MATCH;
-				$journal = $PREMATCH;
-				$volumeissue =~ s/^ //;	#remove the leading space
-				$volumeissue =~ /\((\d+|\d+-\d+)\)$/;
-				$issue = $MATCH;
-				$volume = $PREMATCH;
-				$issue =~ s/^\(//;	#remove the leading parentheses
-				$issue =~ s/\)$//;	#remove the last parentheses
-				$volume =~ s/^\s//;		#remove the leading space
-				$volume =~ s/\s$//;		#remove the last space
+		    $volumeissue = $MATCH;
+		    $journal = $PREMATCH;
+		    $volumeissue =~ s/^ //; #remove the leading space
+		    $volumeissue =~ /\((\d+|\d+-\d+)\)$/;
+		    $issue = $MATCH;
+		    $volume = $PREMATCH;
+		    $issue =~ s/^\(//; #remove the leading parentheses
+		    $issue =~ s/\)$//; #remove the last parentheses
+		    $volume =~ s/^\s//;	#remove the leading space
+		    $volume =~ s/\s$//;	#remove the last space
 
-				%pubhash = (
-					"title"		=> $ref->title || $refhash->{'title'},
-					"volume"	=> $volume,
-					"issue"		=> $issue,
-					"pyear"		=> $year,
-					"pages"		=> $pages,
-					#"miniref"	=> substr($location, 0, 255),
-					#"miniref"	=> ' ',
-					#"uniquename"	=> $fbrf,
-					"type_id"	=> {'name' => $pubtype, 'cv_id' => {'name' =>'pub type'}},
-					"pub_relationship" => {'obj_pub_id' => {'uniquename' => $journal,
-										'title' => $journal, 
-										#'miniref' => substr($journal, 0, 255), 
-										'type_id' =>{'name' => 'journal', 
-											     'cv_id' => {'name' => 'pub type'
-													},
-											    },
-										#'pubprop' =>{'value'=> $journal,
-										#	     'type_id'=>{'name' => 'abbreviation', 'cv_id' => {'name' => 'pubprop type'}},
-										#	    },
-									       }, 
-								'type_id' => {'name' => 'published_in',
-									      'cv_id' => {'name' => 'pub relationship type'},
-									     },
-							      },
-					);
-			}
-
-			#other references
-			else {
-				$pubtype = 'other';
-
-				%pubhash = (
-					"title"		=> $ref->title || $refhash->{'title'},
-					#"miniref"	=> $fbrf,
-					"type_id"	=> {
-							    'name' => $pubtype, 
-							    'cv_id' => {'name' =>'pub type'}
-							   }
-					   );
-			}
-
-			#pub_author
-			my $autref = $self->_getRefAuthors($ref);
+		    %pubhash = (
+				"title"		=> $ref->title || $refhash->{'title'},
+				"volume"	=> $volume,
+				"issue"		=> $issue,
+				"pyear"		=> $year,
+				"pages"		=> $pages,
+				#"miniref"	=> substr($location, 0, 255),
+				#"miniref"	=> ' ',
+				#"uniquename"	=> $fbrf,
+				"type_id"	=> {'name' => $pubtype, 'cv_id' => {'name' =>'pub type'}},
+				"pub_relationship" => {
+				    'obj_pub_id' => {
+					'uniquename' => $journal,
+					'title' => $journal, 
+					#'miniref' => substr($journal, 0, 255), 
+					'type_id' =>{'name' => 'journal', 
+						     'cv_id' => 
+						     {'name' => 'pub type'
+						      },
+						 },
+						     #'pubprop' =>{'value'=> $journal,
+						     #	     'type_id'=>{'name' => 'abbreviation', 'cv_id' => {'name' => 'pubprop type'}},
+						     #	    },
+						 }, 
+					   'type_id' => {
+					       'name' => 'published_in',
+					       'cv_id' => {
+						   'name' => 'pub relationship type'},
+					   },
+				},
+				);
+		}
+		
+		#other references
+		else {
+		    $pubtype = 'other';
+		    %pubhash = (
+				"title"		=> $ref->title || $refhash->{'title'},
+				#"miniref"	=> $fbrf,
+				"type_id"	=> {
+				    'name' => $pubtype, 
+				    'cv_id' => {'name' =>'pub type'}
+				}
+				);
+		}
+		
+		#pub_author
+		my $autref = $self->_getRefAuthors($ref);
+		if (defined $autref) {
+		    $pubhash{'pub_author'} = $autref;
+		}
+		# if no author and is type 'submitted' and has submitter address, use the first 100 characters of submitter address as the author lastname.
+		else {
+		    if ($pubtype eq 'submitted') {
+			my $autref = $self->_getSubmitAddr($ref);
 			if (defined $autref) {
-				$pubhash{'pub_author'} = $autref;
+			    $pubhash{'pub_author'} = $autref;
 			}
-			# if no author and is type 'submitted' and has submitter address, use the first 100 characters of submitter address as the author lastname.
-			else {
-				if ($pubtype eq 'submitted') {
-					my $autref = $self->_getSubmitAddr($ref);
-					if (defined $autref) {
-						$pubhash{'pub_author'} = $autref;
-					}
-				}
-			}
+		    }
+		}
 
-			#$ref->comment as pubprop 
-			#print "ref comment: ", $ref->comment, "\n";
-			#print "ref comment: ", $refhash->{'comment'}, "\n";
-			if (defined $ref->comment || defined $refhash->{'comment'}) {
-				my $comnt = $ref->comment || $refhash->{'comment'};
+		#$ref->comment as pubprop 
+		#print "ref comment: ", $ref->comment, "\n";
+		#print "ref comment: ", $refhash->{'comment'}, "\n";
+		if (defined $ref->comment || defined $refhash->{'comment'}) {
+		    my $comnt = $ref->comment || $refhash->{'comment'};
 				#print "remark: ", $comnt, "\n";
-				$pubhash{'pubprop'} = { 
-                        		"type_id"       => {'name' => 'comment', 'cv_id' => {'name' => 'pubprop type'}},
-					"value"		=> $comnt,
-					};
-			}
+		    $pubhash{'pubprop'} = { 
+			"type_id"       => {'name' => 'comment', 'cv_id' => {'name' => 'pubprop type'}},
+			"value"		=> $comnt,
+		    };
+		}
 
-			#pub_dbxref
-			undef(my @pub_dbxrefs);
-			if (defined $fbrf) {
-				push(@pub_dbxrefs, {dbxref_id => {accession => $fbrf, db_id => {'name' => 'FlyBase'}}});
-			}
-			if (defined ($temp = $ref->medline)) {
-				push(@pub_dbxrefs, {dbxref_id => {accession => $temp, db_id => {'name' => 'MEDLINE'}}});
+		#pub_dbxref
+		undef(my @pub_dbxrefs);
+		if (defined $fbrf) {
+		    push(@pub_dbxrefs, {dbxref_id => {accession => $fbrf, db_id => {'name' => 'FlyBase'}}});
+		}
+		if (defined ($temp = $ref->medline)) {
+		    push(@pub_dbxrefs, {dbxref_id => {accession => $temp, db_id => {'name' => 'MEDLINE'}}});
 				#use medline # as the pub's uniquename
-				$pubhash{'uniquename'} = $temp;
-			}
-			if (defined ($temp = $ref->pubmed)) {
-				push(@pub_dbxrefs, {dbxref_id => {accession => $temp, db_id => {'name' => 'PUBMED'}}});
-			}
-			$pubhash{'pub_dbxref'} = \@pub_dbxrefs;
+		    $pubhash{'uniquename'} = $temp;
+		}
+		if (defined ($temp = $ref->pubmed)) {
+		    push(@pub_dbxrefs, {dbxref_id => {accession => $temp, db_id => {'name' => 'PUBMED'}}});
+		}
+		$pubhash{'pub_dbxref'} = \@pub_dbxrefs;
 
-			#if the pub uniquename is not defined or blank, put its FBrf# as its uniquename
-			#this is unique to FlyBase
-			#USERS OF THIS MODULE: PLEASE MODIFY HERE TO IMPLEMENT YOUR POLICY
-			# ON PUB UNIQUENAME!!!
-			if (!defined $pubhash{'uniquename'} || $pubhash{'uniquename'} eq '') {
-				if (defined $fbrf) {
-					$pubhash{'uniquename'} = $fbrf;
-				}
+		#if the pub uniquename is not defined or blank, put its FBrf# as its uniquename
+		#this is unique to FlyBase
+		#USERS OF THIS MODULE: PLEASE MODIFY HERE TO IMPLEMENT YOUR POLICY
+		# ON PUB UNIQUENAME!!!
+		if (!defined $pubhash{'uniquename'} || $pubhash{'uniquename'} eq '') {
+		    if (defined $fbrf) {
+			$pubhash{'uniquename'} = $fbrf;
+		    }
 				#else {
 				#	$pubhash{'uniquename'} = $self->_CreatePubUname($ref);
 				#}
-			}
-
-			#add to collection of references
-			#if the pub covers the entire sequence of the top-level feature, add it to feature_pubs
-			if (($ref->start == 1 && $ref->end == $len) || (!defined $ref->start && !defined $ref->end)) {
-				push(@feature_pubs, {"pub_id" => \%pubhash});
-			} 
-			#the pub is about a sub-sequence of the top-level feature
-			#create a feature for the sub-sequence and add pub as its feature_pub
-			#featureloc of this sub-sequence is against the top-level feature, in interbase coordinates.
-			else {
-				my %parf = (
-					'uniquename'	=> $uniquename . ':' . $ref->start . "\.\." . $ref->end,
-					'organism_id'	=>\%organism,
-					'type_id'	=>{'name' =>'region', 'cv_id' => {'name' => 'SO'}},
-					);
-				my %parfsrcf = (
-					'uniquename'	=> $uniquename,
-					'organism_id'	=>\%organism,
-					);
-				my %parfloc = (
-					'srcfeature_id'	=> \%parfsrcf,
-					'fmin'		=> $ref->start - 1,
-					'fmax'		=> $ref->end,
-					);
-				$parf{'featureloc'} = \%parfloc;
-				$parf{'feature_pub'} = {'pub_id' => \%pubhash};
-				my %ffr = (
-					'subject_id'	=> \%parf,
-					'type_id'		=> { 'name' => 'partof', 'cv_id' => { 'name' => 'relationship type'}},
-					);
-				push(@top_featrels, \%ffr);
-			}
 		}
-		$datahash{'feature_pub'} = \@feature_pubs;
+
+		#add to collection of references
+		#if the pub covers the entire sequence of the top-level feature, add it to feature_pubs
+		if (($ref->start == 1 && $ref->end == $len) || (!defined $ref->start && !defined $ref->end)) {
+		    push(@feature_pubs, {"pub_id" => \%pubhash});
+		} 
+		#the pub is about a sub-sequence of the top-level feature
+		#create a feature for the sub-sequence and add pub as its feature_pub
+		#featureloc of this sub-sequence is against the top-level feature, in interbase coordinates.
+		else {
+		    my %parf = (
+				'uniquename'	=> $uniquename . ':' . $ref->start . "\.\." . $ref->end,
+				'organism_id'	=>\%organism,
+				'type_id'	=>{'name' =>'region', 'cv_id' => {'name' => 'SO'}},
+				);
+		    my %parfsrcf = (
+				    'uniquename'	=> $uniquename,
+				    'organism_id'	=>\%organism,
+				    );
+		    my %parfloc = (
+				   'srcfeature_id'	=> \%parfsrcf,
+				   'fmin'		=> $ref->start - 1,
+				   'fmax'		=> $ref->end,
+				   );
+		    $parf{'featureloc'} = \%parfloc;
+		    $parf{'feature_pub'} = {'pub_id' => \%pubhash};
+		    my %ffr = (
+			       'subject_id'	=> \%parf,
+			       'type_id'		=> { 'name' => 'partof', 'cv_id' => { 'name' => 'relationship type'}},
+			       );
+		    push(@top_featrels, \%ffr);
+		}
+	    }
+	    $datahash{'feature_pub'} = \@feature_pubs;
 	}
 
 	##construct srcfeature hash for use in featureloc
@@ -871,131 +974,130 @@ EOUSAGE
 }
 
 sub _hash2xml {
-	my $self = shift;
-	my $isMatch = undef;
-	$isMatch = shift;
-        my $ult = shift;
-        my $ref = shift;
-        my %mh = %$ref;
-	undef(my $writer);
-	$writer = shift if (@_);
-        my $key;
-        my $v;
-        my $sh;
-	my $xx;
-	my $yy;
-	my $nt;
-	my $ntref;
-	my $filename;
-	my $output;
-	my $root = shift if (@_);
-	#print "ult: $ult\n";
-	if (!defined $writer) {
-		$root = 1;
-		$filename = $self->{'filename'};
-		$output = new IO::File($filename);
-		$writer = new XML::Writer(OUTPUT => $output, DATA_MODE => 1, DATA_INDENT => 3);
+    my $self = shift;
+    my $isMatch = undef;
+    $isMatch = shift;
+    my $ult = shift;
+    my $ref = shift;
+    my %mh = %$ref;
+    undef(my $writer);
+    $writer = shift if (@_);
+    my $key;
+    my $v;
+    my $sh;
+    my $xx;
+    my $yy;
+    my $nt;
+    my $ntref;
+    my $output;
+    my $root = shift if (@_);
+    #print "ult: $ult\n";
+    if (!defined $writer) {
+	$root = 1;
+	$writer = new XML::Writer(OUTPUT => $self->_fh, 
+				  DATA_MODE => 1, 
+				  DATA_INDENT => 3);
 
-		#print header
-		$writer->xmlDecl("UTF-8");
-		$writer->comment("created by Peili Zhang, Flybase, Harvard University");
+	#print header
+	$writer->xmlDecl("UTF-8");
+	$writer->comment("created by Peili Zhang, Flybase, Harvard University");
 
-		#start chadoxml
-		$writer->startTag('chado');
-	}
-	my $temp;
-	my %subh = undef;
+	#start chadoxml
+	$writer->startTag('chado');
+    }
+    my $temp;
+    my %subh = undef;
 
-        #start opeing tag
-	#if pub record of type 'journal', form the 'ref' attribute for special pub lookup
-	#requires that the journal name itself is also stored as a pubprop record for the journal with value equal
-	#to the journal name and type of 'abbreviation'.
-	if ($ult eq 'pub' && $mh{'type_id'}->{'name'} eq 'journal') {
-		$writer->startTag($ult, 'ref' => $mh{'title'} . ':journal:abbreviation');
-	}
+    #start opeing tag
+    #if pub record of type 'journal', form the 'ref' attribute for special pub lookup
+    #requires that the journal name itself is also stored as a pubprop record for the journal with value equal
+    #to the journal name and type of 'abbreviation'.
+    if ($ult eq 'pub' && $mh{'type_id'}->{'name'} eq 'journal') {
+	$writer->startTag($ult, 'ref' => $mh{'title'} . ':journal:abbreviation');
+    }
 
-	#special pub match if pub uniquename not known
-	elsif ($ult eq 'pub' && !defined $mh{'uniquename'}) {
-		$writer->startTag($ult, 'op' => 'match');
-		#set the match flag, all the sub tags should also have "op"="match"
-		$isMatch = 1;
-	}
+    #special pub match if pub uniquename not known
+    elsif ($ult eq 'pub' && !defined $mh{'uniquename'}) {
+	$writer->startTag($ult, 'op' => 'match');
+	#set the match flag, all the sub tags should also have "op"="match"
+	$isMatch = 1;
+    }
 
-	#if cvterm or cv, lookup only
-	elsif (($ult eq 'cvterm') || ($ult eq 'cv')) { 
-        	$writer->startTag($ult, 'op' => 'lookup');
-	} 
+    #if cvterm or cv, lookup only
+    elsif (($ult eq 'cvterm') || ($ult eq 'cv')) { 
+	$writer->startTag($ult, 'op' => 'lookup');
+    } 
 
-	#if nested tables of match table, match too
-	elsif ($isMatch) {
-		$writer->startTag($ult, 'op' => 'match');
-	}
+    #if nested tables of match table, match too
+    elsif ($isMatch) {
+	$writer->startTag($ult, 'op' => 'match');
+    }
 
-	else {
-        	$writer->startTag($ult);
-	}
+    else {
+	$writer->startTag($ult);
+    }
 
-	#first loop to produce xml for all the table columns
-        foreach $key (keys %mh) 
+    #first loop to produce xml for all the table columns
+    foreach $key (keys %mh) 
+    {
+	#print "key: $key\n";
+	$xx = ' ' . $key;
+	$yy = $key . ' ';
+	if (index($chadotables, $xx) < 0 && index($chadotables, $yy) < 0) 
 	{
-           #print "key: $key\n";
-           $xx = ' ' . $key;
-           $yy = $key . ' ';
-           if (index($chadotables, $xx) < 0 && index($chadotables, $yy) < 0) 
-	   {
-		if ($isMatch) {
-                	$writer->startTag($key, 'op' => 'match');
-		} else {
-                	$writer->startTag($key);
-		}
+	    if ($isMatch) {
+		$writer->startTag($key, 'op' => 'match');
+	    } else {
+		$writer->startTag($key);
+	    }
 
-                my $x = $ult . '.' . $key;
-		#the column is a foreign key
-                if (defined $fkey{$x}) 
-		{
-                        $nt = $fkey{$x};
-                        $sh = $mh{$key};
-			$self->_hash2xml($isMatch, $nt, $sh, $writer, 0);
-                } else 
-		{
-			#print "$key: $mh{$key}\n";
-                        $writer->characters($mh{$key});
-                }
-                $writer->endTag($key);
-           }
-        }
+	    my $x = $ult . '.' . $key;
+	    #the column is a foreign key
+	    if (defined $fkey{$x}) 
+	    {
+		$nt = $fkey{$x};
+		$sh = $mh{$key};
+		$self->_hash2xml($isMatch, $nt, $sh, $writer, 0);
+	    } else 
+	    {
+		#print "$key: $mh{$key}\n";
+		$writer->characters($mh{$key});
+	    }
+	    $writer->endTag($key);
+	}
+    }
 
-	#second loop to produce xml for all the nested tables
-        foreach $key (keys %mh) 
+    #second loop to produce xml for all the nested tables
+    foreach $key (keys %mh) 
+    {
+	#print "key: $key\n";
+	$xx = ' ' . $key;
+	$yy = $key . ' ';
+	#a nested table
+	if (index($chadotables, $xx) > 0 || index($chadotables, $yy) > 0) 
 	{
-           #print "key: $key\n";
-           $xx = ' ' . $key;
-           $yy = $key . ' ';
-           #a nested table
-           if (index($chadotables, $xx) > 0 || index($chadotables, $yy) > 0) 
-	   {
-                #$writer->startTag($key);
-                $ntref = $mh{$key};
-                #print "$key: ", ref($ntref), "\n";
-		if (ref($ntref) =~ 'HASH') {
-			$self->_hash2xml($isMatch, $key, $ntref, $writer, 0);
-		} elsif (ref($ntref) =~ 'ARRAY') {
-			#print "array dim: ", $#$ntref, "\n";
-			foreach $ref (@$ntref) {
+	    #$writer->startTag($key);
+	    $ntref = $mh{$key};
+	    #print "$key: ", ref($ntref), "\n";
+	    if (ref($ntref) =~ 'HASH') {
+		$self->_hash2xml($isMatch, $key, $ntref, $writer, 0);
+	    } elsif (ref($ntref) =~ 'ARRAY') {
+		#print "array dim: ", $#$ntref, "\n";
+		foreach $ref (@$ntref) {
 				#print "\n";
-				$self->_hash2xml($isMatch, $key, $ref, $writer, 0);
-			}
+		    $self->_hash2xml($isMatch, $key, $ref, $writer, 0);
 		}
-                #$writer->endTag($key);
-           }
-        }
-
-        #end tag
-        $writer->endTag($ult);
-
-	if ($root == 1) {
-		$writer->endTag('chado');
+	    }
+	    #$writer->endTag($key);
 	}
+    }
+
+    #end tag
+    $writer->endTag($ult);
+
+    if ($root == 1) {
+	$writer->endTag('chado');
+    }
 }
 
 sub _guess_acc_db {
@@ -1282,44 +1384,44 @@ sub _getRefAuthors {
 #extract submission year from the citation of the submitted reference
 #genbank format for the submitted citation: JOURNAL   Submitted (DD-MON-YYYY) submitter address
 sub _getSubmitYear {
-	my $self = shift;
-	my $citation = shift;
+    my $self = shift;
+    my $citation = shift;
 
-	if ($citation !~ /Submitted/) {
-		$self->warn("not citation for a submitted reference. cannot extract submission year.");
-		return undef;
-	} else {
-		$citation =~ /Submitted \(\d\d-[a-zA-Z]{3}-\d{4}\)/;
-		my $a = $MATCH;
-		$a =~ /\d{4}/;
-		my $year = $MATCH;
+    if ($citation !~ /Submitted/) {
+	$self->warn("not citation for a submitted reference. cannot extract submission year.");
+	return undef;
+    } else {
+	$citation =~ /Submitted \(\d\d-[a-zA-Z]{3}-\d{4}\)/;
+	my $a = $MATCH;
+	$a =~ /\d{4}/;
+	my $year = $MATCH;
 
-		return $year;
-	}
+	return $year;
+    }
 }
 
 sub _getSubmitAddr {
-	my $self = shift;
-	my $ref = shift;
-	undef(my %author);
+    my $self = shift;
+    my $ref = shift;
+    undef(my %author);
 
-	my $citation = $ref->location;
-	if ($citation !~ /Submitted/) {
-		$self->warn("not citation for a submitted reference. cannot extract submission year.");
-		return undef;
+    my $citation = $ref->location;
+    if ($citation !~ /Submitted/) {
+	$self->warn("not citation for a submitted reference. cannot extract submission year.");
+	return undef;
+    } else {
+	$citation =~ /Submitted \(\d\d-[a-zA-Z]{3}-\d{4}\)/;
+	my $a = $POSTMATCH;
+	if (defined $a) {
+	    $a =~ s/^\s//;
+	    %author = (
+		       'author_id'	=> {'surname'	=> substr($a, 0, 100)},
+		       );
+	    return \%author;
 	} else {
-		$citation =~ /Submitted \(\d\d-[a-zA-Z]{3}-\d{4}\)/;
-		my $a = $POSTMATCH;
-		if (defined $a) {
-			$a =~ s/^\s//;
-			%author = (
-				'author_id'	=> {'surname'	=> substr($a, 0, 100)},
-				);
-			return \%author;
-		} else {
-			return undef;
-		}
+	    return undef;
 	}
+    }
 }
 
 1;
