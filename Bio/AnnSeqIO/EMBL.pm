@@ -366,7 +366,7 @@ sub write_annseq {
     print $fh "ID   $temp_line\n",
               "XX\n";
 
-    # if there, write the accession line
+    # Write the accession line if present
     {
         my( $acc );
         if( my $func = $self->_ac_generation_func ) {
@@ -380,7 +380,7 @@ sub write_annseq {
         }
     }
 
-    # if there, write the sv line
+    # Write the sv line if present
     {
         my( $sv );
         if (my $func = $self->_sv_generation_func) {
@@ -471,46 +471,39 @@ sub write_annseq {
 
     # Comment lines
     foreach my $comment ( $annseq->annotation->each_Comment() ) {
-        foreach my $line (split /\n+/, $comment->text) {
-           _write_line_EMBL_regex($fh, "CC   ", "CC   ", $line, "\\s\+\|\$", 80);
-        }
+        _write_line_EMBL_regex($fh, "CC   ", "CC   ", $comment->text, "\\s\+\|\$", 80);
         print $fh "XX\n";
     }
 
-   print $fh "FH   Key             Location/Qualifiers\n";
-   print $fh "FH\n";
+    print $fh "FH   Key             Location/Qualifiers\n";
+    print $fh "FH\n";
 
+    if( defined $self->_post_sort ) {
+        # we need to read things into an array. Process. Sort them. Print 'em
 
-   if( defined $self->_post_sort ) {
-       # we need to read things into an array. Process. Sort them. Print 'em
+        my $post_sort_func = $self->_post_sort();
+        my @fth;
 
-       my $post_sort_func = $self->_post_sort();
-       my @fth;
+        foreach my $sf ( $annseq->top_SeqFeatures ) {
+	    push(@fth,Bio::AnnSeqIO::FTHelper::from_SeqFeature($sf,$annseq));
+        }
 
-       foreach my $sf ( $annseq->top_SeqFeatures ) {
-	   push(@fth,Bio::AnnSeqIO::FTHelper::from_SeqFeature($sf,$annseq));
-       }
+        @fth = sort { &$post_sort_func($a,$b) } @fth;
 
-       @fth = sort { &$post_sort_func($a,$b) } @fth;
-       
-       foreach my $fth ( @fth ) {
-	   &_print_EMBL_FTHelper($fth,$fh);
-       }
-   } else {
-       # not post sorted. And so we can print as we get them.
-       # lower memory load...
-       
-       foreach my $sf ( $annseq->top_SeqFeatures ) {
-	   my @fth = Bio::AnnSeqIO::FTHelper::from_SeqFeature($sf,$annseq);
-	   foreach my $fth ( @fth ) {
-	       if( ! $fth->isa('Bio::AnnSeqIO::FTHelper') ) {
-		   $sf->throw("Cannot process FTHelper... $fth");
-	       }
+        foreach my $fth ( @fth ) {
+	    &_print_EMBL_FTHelper($fth,$fh);
+        }
+    } else {
+        # not post sorted. And so we can print as we get them.
+        # lower memory load...
 
-	       &_print_EMBL_FTHelper($fth,$fh);
-	   }
-       }
-   }
+        foreach my $sf ( $annseq->top_SeqFeatures ) {
+	    my @fth = Bio::AnnSeqIO::FTHelper::from_SeqFeature($sf,$annseq);
+	    foreach my $fth ( @fth ) {
+	        &_print_EMBL_FTHelper($fth,$fh);
+	    }
+        }
+    }
 
    print $fh "XX\n";
 
@@ -590,10 +583,11 @@ sub _print_EMBL_FTHelper {
 	   $value =~ s/\"/\"\"/g;
 	   if ($value eq "_no_value") {
 	       &_write_line_EMBL_regex($fh,"FT                   ","FT                   ","/$tag","\.\|\$",80);
-	   }  
+	   }
            elsif( $always_quote == 1 || $value !~ /^\d+$/ ) {
 	      &_write_line_EMBL_regex($fh,"FT                   ","FT                   ","/$tag=\"$value\"","\.\|\$",80);
-           } else {
+           }
+           else {
               &_write_line_EMBL_regex($fh,"FT                   ","FT                   ","/$tag=$value","\.\|\$",80);
            }
 	  # print $fh "FT                   /", $tag, "=\"", $value, "\"\n";

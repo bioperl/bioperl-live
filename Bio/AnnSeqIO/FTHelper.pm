@@ -189,7 +189,7 @@ sub _generic_seqfeature {
 }
 
 sub from_SeqFeature {
-    my ($sf,$context_annseq,) = shift;
+    my ($sf, $context_annseq) = @_;
     my @ret;
     my $key;
 
@@ -199,7 +199,7 @@ sub from_SeqFeature {
     # themselves to the EMBL/GenBank...
     #
 
-    if( $sf->can("to_FTHelper") ) {
+    if ($sf->can("to_FTHelper")) {
 	return $sf->to_FTHelper($context_annseq);
     }
 
@@ -244,7 +244,7 @@ sub from_SeqFeature {
 
     $fth->loc($loc);
     $fth->key($key);
-    $fth->field->{'note'}= [];
+    $fth->field->{'note'} = [];
     #$sf->source_tag && do { push(@{$fth->field->{'note'}},"source=" . $sf->source_tag ); };
     $sf->score && do { push(@{$fth->field->{'note'}},"score=" . $sf->score ); };
     $sf->frame && do { push(@{$fth->field->{'note'}},"frame=" . $sf->frame ); };
@@ -261,7 +261,7 @@ sub from_SeqFeature {
 
     push(@ret,$fth);
 
-    if( $#ret == -1 ) {
+    unless (@ret) {
 	$context_annseq->throw("Problem in processing seqfeature $sf - no fthelpers. Error!");
     }
     foreach my $ft ( @ret ) {
