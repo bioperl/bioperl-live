@@ -71,7 +71,7 @@ if( $DEBUG ) {
     ok my $raw = $tool->result('');
     ok my $parsed = $tool->result('parsed');
     ok ($parsed->[0]{'coil'}, '999');
-    my @res = $tool->result('Bio::SeqFeatureI');
+    my @res = sort {$a->start <=> $b->start} $tool->result('Bio::SeqFeatureI');
     if (scalar @res > 0) {
 	ok 1;
     } else {
