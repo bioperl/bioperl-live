@@ -1,4 +1,4 @@
-## $Id: MANIFEST,v 1.63 2002-02-27 13:20:56 dag Exp $
+## $Id: MANIFEST,v 1.64 2002-03-07 17:40:40 jason Exp $
 ##
 ## This is the file listing for everything that
 ## comes with the bioperl distribution. The perl
@@ -34,27 +34,48 @@ Bio/Annotation/SimpleValue.pm
 Bio/Annotation/TypeManager.pm
 Bio/AnnotationCollectionI.pm
 Bio/AnnotationI.pm
+Bio/Biblio.pm
 Bio/Biblio/Article.pm
+Bio/Biblio/BiblioBase.pm
 Bio/Biblio/Book.pm
 Bio/Biblio/BookArticle.pm
+Bio/Biblio/IO.pm
+Bio/Biblio/IO/medline2ref.pm
+Bio/Biblio/IO/medlinexml.pm
 Bio/Biblio/Journal.pm
 Bio/Biblio/JournalArticle.pm
+Bio/Biblio/MedlineArticle.pm
+Bio/Biblio/MedlineBook.pm
+Bio/Biblio/MedlineBookArticle.pm
+Bio/Biblio/MedlineJournal.pm
+Bio/Biblio/MedlineJournalArticle.pm
 Bio/Biblio/Organisation.pm
 Bio/Biblio/Patent.pm
 Bio/Biblio/Person.pm
 Bio/Biblio/Proceeding.pm
+Bio/Biblio/Provider.pm
 Bio/Biblio/ProviderI.pm
+Bio/Biblio/Ref.pm
 Bio/Biblio/RefI.pm
 Bio/Biblio/Service.pm
 Bio/Biblio/TechReport.pm
 Bio/Biblio/Thesis.pm
 Bio/Biblio/WebResource.pm
 Bio/DB/Ace.pm
+Bio/DB/Biblio/biofetch.pm
+Bio/DB/Biblio/soap.pm
+Bio/DB/BiblioI.pm
 Bio/DB/BioFetch.pm
 Bio/DB/DBFetch.pm
 Bio/DB/EMBL.pm
 Bio/DB/Failover.pm
 Bio/DB/Fasta.pm
+Bio/DB/FileCache.pm
+Bio/DB/Flat.pm
+Bio/DB/Flat/BDB.pm
+Bio/DB/Flat/BDB/embl.pm
+Bio/DB/Flat/BDB/fasta.pm
+Bio/DB/Flat/OBDAIndex.pm
 Bio/DB/GDB.pm
 Bio/DB/GFF.pm
 Bio/DB/GFF/Adaptor/dbi.pm
@@ -79,6 +100,7 @@ Bio/DB/GFF/Util/Binning.pm
 Bio/DB/GFF/Util/Rearrange.pm
 Bio/DB/GenBank.pm
 Bio/DB/GenPept.pm
+Bio/DB/InMemoryCache.pm
 Bio/DB/MANIFEST
 Bio/DB/NCBIHelper.pm
 Bio/DB/RandomAccessI.pm
@@ -92,6 +114,8 @@ Bio/DB/WebDBSeqI.pm
 Bio/DB/XEMBL.pm
 Bio/DB/XEMBLService.pm
 Bio/DBLinkContainerI.pm
+Bio/DasI.pm
+Bio/DasSegmentI.pm
 Bio/Event/EventGeneratorI.pm
 Bio/Event/EventHandlerI.pm
 Bio/Factory/ApplicationFactoryI.pm
@@ -105,6 +129,41 @@ Bio/Factory/ResultFactoryI.pm
 Bio/Factory/SeqAnalysisParserFactory.pm
 Bio/Factory/SeqAnalysisParserFactoryI.pm
 Bio/Factory/TreeFactoryI.pm
+Bio/Graphics.pm
+Bio/Graphics/Feature.pm
+Bio/Graphics/FeatureFile.pm
+Bio/Graphics/Glyph.pm
+Bio/Graphics/Glyph/Factory.pm
+Bio/Graphics/Glyph/alignment.pm
+Bio/Graphics/Glyph/anchored_arrow.pm
+Bio/Graphics/Glyph/arrow.pm
+Bio/Graphics/Glyph/box.pm
+Bio/Graphics/Glyph/crossbox.pm
+Bio/Graphics/Glyph/diamond.pm
+Bio/Graphics/Glyph/dna.pm
+Bio/Graphics/Glyph/dot.pm
+Bio/Graphics/Glyph/ellipse.pm
+Bio/Graphics/Glyph/ex.pm
+Bio/Graphics/Glyph/extending_arrow.pm
+Bio/Graphics/Glyph/generic.pm
+Bio/Graphics/Glyph/graded_segments.pm
+Bio/Graphics/Glyph/group.pm
+Bio/Graphics/Glyph/line.pm
+Bio/Graphics/Glyph/oval.pm
+Bio/Graphics/Glyph/pinsertion.pm
+Bio/Graphics/Glyph/primers.pm
+Bio/Graphics/Glyph/rndrect.pm
+Bio/Graphics/Glyph/ruler_arrow.pm
+Bio/Graphics/Glyph/segmented_keyglyph.pm
+Bio/Graphics/Glyph/segments.pm
+Bio/Graphics/Glyph/span.pm
+Bio/Graphics/Glyph/toomany.pm
+Bio/Graphics/Glyph/track.pm
+Bio/Graphics/Glyph/transcript.pm
+Bio/Graphics/Glyph/transcript2.pm
+Bio/Graphics/Glyph/triangle.pm
+Bio/Graphics/Glyph/wormbase_transcript.pm
+Bio/Graphics/Panel.pm
 Bio/Index/Abstract.pm
 Bio/Index/AbstractSeq.pm
 Bio/Index/Blast.pm
@@ -169,6 +228,7 @@ Bio/RangeI.pm
 Bio/Root/Err.pm
 Bio/Root/Exception.pm
 Bio/Root/Global.pm
+Bio/Root/HTTPget.pm
 Bio/Root/IO.pm
 Bio/Root/IOManager.pm
 Bio/Root/Interface.pm
@@ -178,7 +238,6 @@ Bio/Root/RootI.pm
 Bio/Root/Utilities.pm
 Bio/Root/Vector.pm
 Bio/Root/Xref.pm
-Bio/Root/HTTPget.pm
 Bio/Search/BlastUtils.pm
 Bio/Search/DatabaseI.pm
 Bio/Search/GenericDatabase.pm
@@ -202,6 +261,7 @@ Bio/SearchIO/EventHandlerI.pm
 Bio/SearchIO/SearchResultEventBuilder.pm
 Bio/SearchIO/SearchWriterI.pm
 Bio/SearchIO/Writer/HSPTableWriter.pm
+Bio/SearchIO/Writer/HTMLResultWriter.pm
 Bio/SearchIO/Writer/HitTableWriter.pm
 Bio/SearchIO/Writer/ResultTableWriter.pm
 Bio/SearchIO/blast.pm
@@ -231,6 +291,7 @@ Bio/SeqFeature/Gene/Transcript.pm
 Bio/SeqFeature/Gene/TranscriptI.pm
 Bio/SeqFeature/Gene/UTR.pm
 Bio/SeqFeature/Generic.pm
+Bio/SeqFeature/PositionProxy.pm
 Bio/SeqFeature/Similarity.pm
 Bio/SeqFeature/SimilarityPair.pm
 Bio/SeqFeatureI.pm
@@ -337,6 +398,7 @@ Bio/Tools/pSW.pm
 Bio/Tree/AlleleNode.pm
 Bio/Tree/Node.pm
 Bio/Tree/NodeI.pm
+Bio/Tree/PhyloNode.pm
 Bio/Tree/RandomFactory.pm
 Bio/Tree/Statistics.pm
 Bio/Tree/Tree.pm
@@ -368,6 +430,7 @@ biodesign.pod
 bioperl.pod
 bptutorial.pl
 examples/aligntutorial.pl
+examples/biblio.pl
 examples/blast/blast_config.pl
 examples/blast/blast_seq.pl
 examples/blast/example.table1
@@ -483,6 +546,8 @@ examples/seq_pattern.pl
 examples/simplealign.pl
 examples/standaloneblast.pl
 examples/state-machine.pl
+examples/structure/struct_example1.pl
+examples/structure/struct_example2.pl
 examples/test-genscan.pl
 models/README
 models/bio_liveseq_variation.dia
@@ -530,6 +595,8 @@ scripts/gff2ps.pl
 scripts/make_mrna_protein.pl
 scripts/make_primers.pl
 scripts/prosite2perl.pl
+scripts/render_sequence.pl
+scripts/rfetch.pl
 scripts/seqstats/aacomp.pl
 scripts/seqstats/chaos_plot.pl
 scripts/seqstats/gccalc.pl
@@ -546,8 +613,10 @@ t/Annotation.t
 t/BPbl2seq.t
 t/BPlite.t
 t/BPpsilite.t
+t/Biblio.t
 t/BiblioProviders.t
 t/BiblioReferences.t
+t/Biblio_biofetch.t
 t/BioDBGFF.t
 t/BioFetch_DB.t
 t/Blast.t
@@ -737,6 +806,7 @@ t/data/short.blx
 t/data/sim4.for.for
 t/data/sim4.for.rev
 t/data/sim4.rev
+t/data/stress_test_medline.xml
 t/data/swiss.dat
 t/data/swiss_unk.dat
 t/data/swisspfam.data
@@ -765,6 +835,7 @@ t/data/version2.scf
 t/data/version3.scf
 t/ePCR.t
 t/exception.t
+t/flat.t
 t/game.t
 t/hmmer.t
 t/largefasta.t
