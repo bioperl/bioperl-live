@@ -79,7 +79,7 @@ if( ! $SKIPXML ) {
 
     $hsp = $hit->next_hsp;
     ok($hsp->pvalue, undef);
-    ok($hsp->evalue, 1.46134e-90);
+    ok(sprintf("%g",$hsp->evalue), '1.46134e-90');
     ok($hsp->score, 838);
     ok($hsp->bits,327.405);
     ok($hsp->query->start, 498);
@@ -148,7 +148,7 @@ ok($result->get_parameter('matrix'), 'BLOSUM62');
 ok($result->get_parameter('gapopen'), 11);
 ok($result->get_parameter('gapext'), 1);
 
-my @valid = ( [ 'gb|AAC73113.1|', 820, 'AAC73113.1', '0.0', 1567],
+my @valid = ( [ 'gb|AAC73113.1|', 820, 'AAC73113.1', '0', 1567],
 	      [ 'gb|AAC76922.1|', 810, 'AAC76922.1', '1e-91', 332],
 	      [ 'gb|AAC76994.1|', 449, 'AAC76994.1', '3e-47', 184]);
 my $count = 0;
@@ -158,7 +158,7 @@ while( $hit = $result->next_hit ) {
     ok($hit->name, shift @$d);
     ok($hit->length, shift @$d);
     ok($hit->accession, shift @$d);
-    ok($hit->significance, shift @$d );
+    ok(sprintf("%g",$hit->significance), shift @$d );
     ok($hit->raw_score, shift @$d );
 
     if( $count == 0 ) {
@@ -204,7 +204,7 @@ ok($result->get_statistic('dbletters'), 1358990);
 ok($result->get_statistic('dbentries'), 4289);
 ok($result->get_parameter('matrix'), 'BLOSUM62');
 
-@valid = ( [ 'gb|AAC73113.1|', 820, 'AAC73113.1', '0.0', 4141],
+@valid = ( [ 'gb|AAC73113.1|', 820, 'AAC73113.1', '0', 4141],
 	   [ 'gb|AAC76922.1|', 810, 'AAC76922.1', '3.1e-86', 844],
 	   [ 'gb|AAC76994.1|', 449, 'AAC76994.1', '2.8e-47', 483]);
 $count = 0;
@@ -214,7 +214,7 @@ while( $hit = $result->next_hit ) {
     ok($hit->name, shift @$d);
     ok($hit->length, shift @$d);
     ok($hit->accession, shift @$d);
-    ok($hit->significance, shift @$d );
+    ok(sprintf("%g",$hit->significance), shift @$d );
     ok($hit->raw_score, shift @$d );
 
     if( $count == 0 ) {
@@ -451,11 +451,11 @@ ok($result->get_statistic('dbentries'), 14334);
 
 
 @valid = ( [ 'Cp1|FBgn0013770|pp-CT20780|FBan0006692', 341, 
-	     'FBan0006692', 3.1e-59, 227.8],
+	     'FBan0006692', '3.1e-59', 227.8],
 	   [ 'CG11459|FBgn0037396|pp-CT28891|FBan0011459', 336, 
-	     'FBan0011459', 6.4e-41,  166.9],
+	     'FBan0011459', '6.4e-41',  166.9],
 	   [ 'CG4847|FBgn0034229|pp-CT15577|FBan0004847', 390, 
-	     'FBan0004847',  2.5e-40, 165.2]);
+	     'FBan0004847',  '2.5e-40', 165.2]);
 $count = 0;
 
 while( my $hit = $result->next_hit ) {
@@ -464,7 +464,7 @@ while( my $hit = $result->next_hit ) {
     ok($hit->name, shift @$d);
     ok($hit->length, shift @$d);
     ok($hit->accession, shift @$d);
-    ok($hit->significance, shift @$d );
+    ok(sprintf("%g",$hit->significance), shift @$d );
     ok($hit->raw_score, shift @$d );
 
     if( $count == 0 ) {
@@ -476,7 +476,7 @@ while( my $hit = $result->next_hit ) {
 	    ok($hsp->hit->end, 341);
 	    ok($hsp->hit->strand, 0);
 	    ok($hsp->length('hsp'), 345);	    
-	    ok($hsp->evalue == 3.1e-59 );
+	    ok(sprintf("%g",$hsp->evalue), '3.1e-59' );
 	    ok($hsp->score, 1170.6);
 	    ok($hsp->bits,227.8);
 	    ok(sprintf("%.2f",$hsp->percent_identity), 53.04);
@@ -529,7 +529,7 @@ while( my $hit = $result->next_hit ) {
     ok($hit->name, shift @$d);
     ok($hit->length, shift @$d);
     ok($hit->accession, shift @$d);
-    ok($hit->significance, shift @$d );
+    ok(sprintf("%g",$hit->significance), shift @$d );
     ok($hit->raw_score, shift @$d );
 
     if( $count == 0 ) {
@@ -542,7 +542,7 @@ while( my $hit = $result->next_hit ) {
 	    ok($hsp->hit->strand, 0);
 	    ok($hsp->length('hsp'), 1165);
 
-	    ok($hsp->evalue == 1.6e-154);
+	    ok(sprintf("%g",$hsp->evalue), '1.6e-154');
 	    ok($hsp->score, 2877.6);
 	    ok($hsp->bits,'547.0');
 	    ok(sprintf("%.2f",$hsp->percent_identity), 51.67);
@@ -599,7 +599,7 @@ ok($result->get_statistic('dbentries'), 1083200);
 	     '1.0000'],
 	   [ 'gb|AC002329.2|AC002329', 76170, 'AC002329', '3e-18', 96, 1, 60, 
 	     '1.0000' ],
-	   [ 'gb|AF132318.1|AF132318', 5383, 'AF132318', '0.040', 42, 35, 55, 
+	   [ 'gb|AF132318.1|AF132318', 5383, 'AF132318', '0.04', 42, 35, 55, 
 	     '0.3500']);
 $count = 0;
 
@@ -608,7 +608,7 @@ while( my $hit = $result->next_hit ) {
     ok($hit->name, shift @$d);
     ok($hit->length, shift @$d);
     ok($hit->accession, shift @$d);
-    ok($hit->significance, shift @$d );
+    ok(sprintf("%g",$hit->significance), shift @$d );
     ok($hit->raw_score, shift @$d );
     ok($hit->start, shift @$d);
     ok($hit->end,shift @$d);    
@@ -622,7 +622,7 @@ while( my $hit = $result->next_hit ) {
 	    ok($hsp->hit->end, 212);
 	    ok($hsp->hit->strand, 1);
 	    ok($hsp->length('hsp'), 60);	    
-	    ok($hsp->evalue == '3e-18');
+	    ok(sprintf("%g",$hsp->evalue), '3e-18');
 	    ok($hsp->score, 48);
 	    ok($hsp->bits,95.6);
 	    ok(sprintf("%.2f",$hsp->percent_identity), 96.67);
@@ -674,7 +674,7 @@ while( my $hit = $result->next_hit ) {
     ok($hit->name, shift @$d);
     ok($hit->length, shift @$d);
     ok($hit->accession, shift @$d);
-    ok($hit->significance, shift @$d );
+    ok(sprintf("%g",$hit->significance), shift @$d );
     ok($hit->raw_score, shift @$d );
 
     if( $count == 0 ) {
@@ -686,8 +686,8 @@ while( my $hit = $result->next_hit ) {
 	    ok($hsp->hit->end, 413);
 	    ok($hsp->hit->strand, 0);
 	    ok($hsp->length('hsp'), 421);	    
-	    ok($hsp->evalue == '1.1e-74');
-	    ok($hsp->pvalue == '1.1e-74');
+	    ok(sprintf("%g",$hsp->evalue), '1.1e-74');
+	    ok(sprintf("%g",$hsp->pvalue), '1.1e-74');
 	    ok($hsp->score,671);
 	    ok($hsp->bits,265.8);
 	    ok(sprintf("%.2f",$hsp->percent_identity), 35.87);
@@ -738,7 +738,7 @@ while( my $hit = $result->next_hit ) {
     ok($hit->name, shift @$d);
     ok($hit->length, shift @$d);
     ok($hit->accession, shift @$d);
-    ok($hit->significance, shift @$d );
+    ok(sprintf("%g",$hit->significance), shift @$d );
     ok($hit->raw_score, shift @$d );
 
     if( $count == 0 ) {
@@ -750,8 +750,8 @@ while( my $hit = $result->next_hit ) {
 	    ok($hsp->hit->end, 6016);
 	    ok($hsp->hit->strand, 1);
 	    ok($hsp->length('hsp'), 421);	    
-	    ok($hsp->evalue == '1.4e-73');
-	    ok($hsp->pvalue == '1.4e-73');
+	    ok(sprintf("%g",$hsp->evalue), '1.4e-73');
+	    ok(sprintf("%g",$hsp->pvalue), '1.4e-73');
 	    ok($hsp->score,671);
 	    ok($hsp->bits,265.8);
 	    ok(sprintf("%.2f",$hsp->percent_identity), 35.87);
@@ -802,7 +802,8 @@ while( my $hit = $result->next_hit ) {
     ok($hit->name, shift @$d);
     ok($hit->length, shift @$d);
     ok($hit->accession, shift @$d);
-    ok($hit->significance, shift @$d );
+    # using e here to deal with 0.9992 coming out right here as well
+    ok(sprintf("%g",$hit->significance), shift @$d );
     ok($hit->raw_score, shift @$d );
 
     if( $count == 0 ) {
@@ -818,8 +819,8 @@ while( my $hit = $result->next_hit ) {
 		ok($hsp->hit->end, 5368);
 		ok($hsp->hit->strand, 1);
 		ok($hsp->length('hsp'), 59);	    
-		ok($hsp->evalue == '6.4e-70');
-		ok($hsp->pvalue == '6.4e-70');
+		ok(sprintf("%g",$hsp->evalue), '6.4e-70');
+		ok(sprintf("%g",$hsp->pvalue), '6.4e-70');
 		ok($hsp->score,85);
 		ok($hsp->bits,41.8);
 		ok(sprintf("%.2f",$hsp->percent_identity), '32.20');
@@ -898,7 +899,7 @@ skip('Significance parsing broken for GCG-BLAST Hits -- see HSP',$hit->significa
 skip('Raw score parsing broken for GCG-BLAST Hits -- see HSP',$hit->raw_score, 57 );
 
 $hsp = $hit->next_hsp;
-ok($hsp->evalue, '2e-08');
+ok(sprintf("%g",$hsp->evalue), '2e-08');
 ok($hsp->bits, '57.0');
 ok($hsp->score, 136);
 ok(int($hsp->percent_identity), 28);
