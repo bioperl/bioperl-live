@@ -316,32 +316,6 @@ sub gnm_terminus {
    return $obj->{'gnm_terminus'};
 }
 
-
-=head2 chromosome
-
- Title   : chromosome
- Usage   : chromosome();
- Function: Returns the chromosome associated with the object.
- Example : $chromosome = $unigene->chromosome or 
-           $unigene->chromosome($chromosome)
- Returns : A string
- Args    : None or a chromosome
-
-=cut
-
-sub chromosome {
-   my ($obj,$value) = @_;
-
-   if( defined $value) {
-      $obj->{'chromosome'} = $value;
-    }
-   if( ! exists $obj->{'chromosome'} ) {
-       return "$obj";
-   }
-   return $obj->{'chromosome'};
-}
-
-
 =head2 scount
 
  Title   : scount
