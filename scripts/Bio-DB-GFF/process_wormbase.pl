@@ -1,4 +1,4 @@
-#!/usr/bin/perl
+#!/lab/bin/perl
 
 use strict;
 use Ace;

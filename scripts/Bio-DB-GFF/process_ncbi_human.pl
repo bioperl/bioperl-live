@@ -1,5 +1,3 @@
-#!/lab/bin/perl
-
 #!/usr/bin/perl -w
 
 =head1 NAME
@@ -16,7 +14,7 @@ ncbi_2_gff.pl - Massage NCBI chromosome annotation into GFF-format suitable for 
 
 =head2 SYNOPSIS
 
-   perl ncbi_to_gff.pl [options] /path/to/gzipped/datafile(s)
+   perl process_ncbi_human.pl [options] /path/to/gzipped/datafile(s)
 
 =head2 DESCRIPTION
 
@@ -29,16 +27,27 @@ into the GFF-format recognized by Bio::DB::GFF. If the resulting GFF-files are l
 
 To produce the GFF-files, download all the chr*sequence.gz files from the FTP-directory above. While in that same directory, run the following example command (see also help clause by running script with no arguments):
 
-ncbi_to_gff.pl --locuslink [path to LL.out_hs.gz] chr*sequence.gz
-  
-This will unzip all the files on the fly and open an output file with the name chrom[$chrom]_ncbiannotation.gff for each, read the LocusLink records into an in-memory hash and then read through the NCBI feature lines, lookup 'locus' features in the LocusLink hash for details on 'locus' features and print to the proper GFF files.
-LL.out_hs.gz is accessible here at the time of writing:
+process_ncbi_human.pl --locuslink [path to LL.out_hs.gz] chr*sequence.gz
+
+This will unzip all the files on the fly and open an output file with
+the name chrom[$chrom]_ncbiannotation.gff for each, read the LocusLink
+records into an in-memory hash and then read through the NCBI feature
+lines, lookup 'locus' features in the LocusLink hash for details on
+'locus' features and print to the proper GFF files.  LL.out_hs.gz is
+accessible here at the time of writing:
 
   ftp://ftp.ncbi.nih.gov/refseq/LocusLink/LL.out_hs.gz
 
-Note that several of the NCBI features are skipped from the reformatting, either because their nature is not fully known at this time (TAG,GS_TRAN) or their sheer volume stands in the way of them being accessibly in Bio::DB::GFF at this time (EST similarities). You  can easily change this by modifying the $SKIP variable to your liking to add or remove features, but if you add then you will have to add handling for those new features.
+Note that several of the NCBI features are skipped from the
+reformatting, either because their nature is not fully known at this
+time (TAG,GS_TRAN) or their sheer volume stands in the way of them
+being accessibly in Bio::DB::GFF at this time (EST similarities). You
+can easily change this by modifying the $SKIP variable to your liking
+to add or remove features, but if you add then you will have to add
+handling for those new features.
 
-To bulk-import the GFF-files into a Bio::DB::GFF database, use the bulk_load_gff.pl utility provided with Bio::DB::GFF
+To bulk-import the GFF-files into a Bio::DB::GFF database, use the
+bulk_load_gff.pl utility provided with Bio::DB::GFF
 
 =head2 AUTHOR
 
