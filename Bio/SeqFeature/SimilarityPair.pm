@@ -89,8 +89,8 @@ use Bio::SearchIO;
  Title   : new
  Usage   : my $similarityPair = new Bio::SeqFeature::SimilarityPair
                                  (-hit   => $hit,
-				  -query => $query,
-				  -source => 'blastp');
+                                  -query => $query,
+                                  -source => 'blastp');
  Function: Initializes a new SimilarityPair object
  Returns : Bio::SeqFeature::SimilarityPair
  Args    : -query => The query in a Feature pair 
@@ -111,21 +111,21 @@ sub new {
     $self->{'_initializing'} = 1;
 
     my ($primary, $hit, $query, $fea1, $source,$sbjct) =
-	$self->_rearrange([qw(PRIMARY
-			      HIT
-			      QUERY
-			      FEATURE1
+        $self->_rearrange([qw(PRIMARY
+                              HIT
+                              QUERY
+                              FEATURE1
                               SOURCE
-			      SUBJECT
-			      )],@args);
+                              SUBJECT
+                              )],@args);
     
     if( $sbjct ) { 
-	# undeprecated by Jason before 1.1 release 
+        # undeprecated by Jason before 1.1 release 
         # $self->deprecated("use of -subject deprecated: SimilarityPair now uses 'hit'");
-	if(! $hit) { $hit = $sbjct } 
-	else { 
-	    $self->warn("-hit and -subject were specified, using -hit and ignoring -subject");
-	}
+        if(! $hit) { $hit = $sbjct } 
+        else { 
+            $self->warn("-hit and -subject were specified, using -hit and ignoring -subject");
+        }
     }
 
     # make sure at least the query feature exists -- this refers to feature1
@@ -135,8 +135,8 @@ sub new {
     $hit && $self->hit($hit);
     # the following refer to feature1, which has been ensured to exist
     if( defined $primary || ! defined $self->primary_tag) { 
-	$primary = 'similarity' unless defined $primary;
-	$self->primary_tag($primary);
+        $primary = 'similarity' unless defined $primary;
+        $self->primary_tag($primary);
     } 
 
     $source && $self->source_tag($source);
@@ -167,28 +167,28 @@ sub query {
     my ($self, @args) = @_;
     my $f = $self->feature1();
     if( ! @args || ( !ref($args[0]) && $args[0] eq 'null') ) {
-	if( ! defined( $f) ) {
-	    @args = Bio::SeqFeature::Similarity->new();
-	} elsif( ! $f->isa('Bio::SeqFeature::Similarity') && 
-		 $f->isa('Bio::SeqFeatureI') ) {
-	    # a Bio::SeqFeature::Generic was placeholder for feature1	    
-	    my $newf = new 
-	      Bio::SeqFeature::Similarity( -start   => $f->start(),
-					   -end     => $f->end(),
-					   -strand  => $f->strand(),
-					   -primary => $f->primary_tag(),
-					   -source  => $f->source_tag(),
-					   -seq_id  => $f->seq_id(),
-					   -score   => $f->score(),
-					   -frame   => $f->frame(),
-					   );
-	    foreach my $tag ( $newf->all_tags ) {
-		$tag->add_tag($tag, $newf->each_tag($tag));
-	    }
-	    @args = $newf;	   
-	} else {
-	    @args = ();
-	}
+        if( ! defined( $f) ) {
+            @args = Bio::SeqFeature::Similarity->new();
+        } elsif( ! $f->isa('Bio::SeqFeature::Similarity') && 
+                 $f->isa('Bio::SeqFeatureI') ) {
+            # a Bio::SeqFeature::Generic was placeholder for feature1            
+            my $newf = new 
+              Bio::SeqFeature::Similarity( -start   => $f->start(),
+                                           -end     => $f->end(),
+                                           -strand  => $f->strand(),
+                                           -primary => $f->primary_tag(),
+                                           -source  => $f->source_tag(),
+                                           -seq_id  => $f->seq_id(),
+                                           -score   => $f->score(),
+                                           -frame   => $f->frame(),
+                                           );
+            foreach my $tag ( $newf->all_tags ) {
+                $tag->add_tag($tag, $newf->each_tag($tag));
+            }
+            @args = $newf;           
+        } else {
+            @args = ();
+        }
     }
     return $self->feature1(@args);
 }
@@ -232,26 +232,26 @@ sub hit {
     my ($self, @args) = @_;
     my $f = $self->feature2();
     if(! @args || (!ref($args[0]) && $args[0] eq 'null') ) {
-	if( ! defined( $f) ) {
-	    @args = Bio::SeqFeature::Similarity->new();
-	} elsif( ! $f->isa('Bio::SeqFeature::Similarity') && 
-		 $f->isa('Bio::SeqFeatureI')) {
-	    # a Bio::SeqFeature::Generic was placeholder for feature2	    
-	    my $newf = new 
-	      Bio::SeqFeature::Similarity( -start   => $f->start(),
-					   -end     => $f->end(),
-					   -strand  => $f->strand(),
-					   -primary => $f->primary_tag(),
-					   -source  => $f->source_tag(),
-					   -seq_id  => $f->seq_id(),
-					   -score   => $f->score(),
-					   -frame   => $f->frame(),
-					   );
-	    foreach my $tag ( $newf->all_tags ) {
-		$tag->add_tag($tag, $newf->each_tag($tag));
-	    }
-	    @args = $newf;
-	}
+        if( ! defined( $f) ) {
+            @args = Bio::SeqFeature::Similarity->new();
+        } elsif( ! $f->isa('Bio::SeqFeature::Similarity') && 
+                 $f->isa('Bio::SeqFeatureI')) {
+            # a Bio::SeqFeature::Generic was placeholder for feature2            
+            my $newf = new 
+              Bio::SeqFeature::Similarity( -start   => $f->start(),
+                                           -end     => $f->end(),
+                                           -strand  => $f->strand(),
+                                           -primary => $f->primary_tag(),
+                                           -source  => $f->source_tag(),
+                                           -seq_id  => $f->seq_id(),
+                                           -score   => $f->score(),
+                                           -frame   => $f->frame(),
+                                           );
+            foreach my $tag ( $newf->all_tags ) {
+                $tag->add_tag($tag, $newf->each_tag($tag));
+            }
+            @args = $newf;
+        }
     }
     return $self->feature2(@args);
 }
@@ -272,7 +272,7 @@ sub source_tag {
     my ($self, @args) = @_;
 
     if(@args) {
-	$self->hit()->source_tag(@args);
+        $self->hit()->source_tag(@args);
     }
     return $self->query()->source_tag(@args);
 }
@@ -293,7 +293,7 @@ sub significance {
     my ($self, @args) = @_;
 
     if(@args) {
-	$self->hit()->significance(@args);
+        $self->hit()->significance(@args);
     }
     return $self->query()->significance(@args);
 }
@@ -314,8 +314,11 @@ sub score {
     my ($self, @args) = @_;
 
     if(@args) {
-	$self->hit()->score(@args);
+        $self->hit()->score(@args);
     }
+    # Note: You might think it's only getting set on the hit object.
+    # Actually, it's getting set on both hit and query.
+
     return $self->query()->score(@args);
 }
 
@@ -335,7 +338,7 @@ sub bits {
     my ($self, @args) = @_;
 
     if(@args) {
-	$self->hit()->bits(@args);
+        $self->hit()->bits(@args);
     }
     return $self->query()->bits(@args);
 }
