@@ -295,7 +295,8 @@ sub AUTOLOAD {
     my $self = shift @_;
     my $method = $AUTOLOAD;
     $method =~ s/.*:://;
-    return $self->{'_SeqObj'}->$method(@_);
+    return $self->{'_SeqObj'}->$method(@_)
+	unless $method eq 'DESTROY';
 }
 
 1;
