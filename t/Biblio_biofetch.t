@@ -73,10 +73,10 @@ eval {
 
 if ($@) {
 	if( $DEBUG  ) { 
-		print STDERR "Warning: Couldn't connect to BioFetch server with Bio::DB::Medline.pm!\n" . $@;
+		print STDERR "Warning: Couldn't connect to BioFetch server with Bio::DB::Biblio::biofetch!\n" . $@;
 	}
 	foreach ( $Test::ntest..$NUMTESTS) {
-		skip('Could not connect to Biofetch',1);
+		skip('Could not connect to BioFetch',1);
 	}
 	exit(0);
 }
