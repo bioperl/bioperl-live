@@ -124,6 +124,51 @@ sub new {
 
 =head2 Bio::Map::PositionI methods
 
+=head2 equals
+
+ Title   : equals
+ Usage   : if( $mappable->equals($mapable2)) ...
+ Function: Test if a position is equal to another position
+ Returns : boolean
+ Args    : Bio::Map::MappableI or Bio::Map::PositionI
+
+=cut
+
+sub equals{
+   my ($self,$compare) = @_;
+
+}
+
+=head2 less_than
+
+ Title   : less_than
+ Usage   : if( $mappable->less_than($m2) ) ...
+ Function: Tests if a position is less than another position
+ Returns : boolean
+ Args    : Bio::Map::MappableI or Bio::Map::PositionI
+
+=cut
+
+sub less_than{
+   my ($self,$compare) = @_;
+
+}
+
+=head2 greater_than
+
+ Title   : greater_than
+ Usage   : if( $mappable->greater_than($m2) ) ...
+ Function: Tests if position is greater than another position
+ Returns : boolean
+ Args    : Bio::Map::PositionI or Bio::Map::PositionI
+
+=cut
+
+sub greater_than{
+   my ($self,$compare) = @_;
+
+}
+
 =head2 each_position
 
  Title   : each_position
@@ -178,7 +223,7 @@ sub purge_positions {
 
  Title   : Get/set the positions for this Position
  Usage   : $o_position->position($new_position) _or_
-        $o_position->position()
+           $o_position->position()
  Function: get/set the position of this LinkagePosiAtion
  Returns : An array representing the current position.
  Args    : If $new_position is provided, the current position of this Position
@@ -187,13 +232,13 @@ sub purge_positions {
 =cut
 
 sub position {
-        my ($self,$position) = @_;
-        if ($position) {
-	                # no point in keeing the old ones
-                $self->purge_positions();
-                $self->add_position($position);
-        }
-        return $self->{'_positions'};
+    my ($self,$position) = @_;
+    if ($position) {
+	# no point in keeing the old ones
+	$self->purge_positions();
+	$self->add_position($position);
+    }
+    return $self->{'_positions'};
 }
 
 1;

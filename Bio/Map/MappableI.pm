@@ -103,7 +103,7 @@ sub position{
  Usage   : if( $mappable->equals($mapable2)) ...
  Function: Test if a position is equal to another position
  Returns : boolean
- Args    : Bio::Map::MappableI
+ Args    : Bio::Map::MappableI or Bio::Map::PositionI
 
 =cut
 
@@ -118,7 +118,7 @@ sub equals{
  Usage   : if( $mappable->less_than($m2) ) ...
  Function: Tests if a position is less than another position
  Returns : boolean
- Args    : Bio::Map::MappableI
+ Args    : Bio::Map::MappableI or Bio::Map::PositionI
 
 =cut
 
@@ -133,7 +133,7 @@ sub less_than{
  Usage   : if( $mappable->greater_than($m2) ) ...
  Function: Tests if position is greater than another position
  Returns : boolean
- Args    : Bio::Map::MappableI
+ Args    : Bio::Map::MappableI or Bio::Map::PositionI
 
 =cut
 

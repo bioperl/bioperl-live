@@ -121,6 +121,21 @@ sub type {
    $self->_abstractDeath('type');
 }
 
+=head2 name
+
+ Title   : name
+ Usage   : my $name = $map->name
+ Function: Get/Set Map name
+ Returns : Map name
+ Args    : (optional) string
+
+=cut
+
+sub name {
+   my ($self) = @_;
+   $self->_abstractDeath('name');
+}
+
 =head2 length
 
  Title   : length

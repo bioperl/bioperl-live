@@ -98,18 +98,23 @@ use Bio::Map::MapI;
 
 sub new {
   my($class,@args) = @_;  
-
+  
+  my $self = $class->SUPER::new(@args);
+  
   $self->{'_elements'} = [];
   $self->{'_name'}     = '';
   $self->{'_species'}  = '';
   $self->{'_units'}    = '';
+  $self->{'_type'}    = '';
 
-  my $self = $class->SUPER::new(@args);
-  my ($name, $species, $units, 
-      $elements) = $self->_rearrange([qw(NAME SPECIES UNITS ELEMENTS)], @args);
-  $name     && $self->name($name);
-  $species  && $self->species($species);
-  $units    && $self->units($units);
+  my ($name, $type,$species, $units,
+      $elements) = $self->_rearrange([qw(NAME TYPE 
+					 SPECIES UNITS 
+					 ELEMENTS)], @args);
+  defined $name     && $self->name($name);
+  defined $species  && $self->species($species);
+  defined $units    && $self->units($units);
+  defined $type     && $self->type($type);
   if( $elements && ref($elements) =~ /array/ ) {
       foreach my $item ( @$elements ) {
 	  $self->add_element($item);
@@ -176,7 +181,25 @@ sub type {
        $self->{'_type'} = $value;
    }
    return $self->{'_type'};
+}
 
+
+=head2 name
+
+ Title   : name
+ Usage   : my $name = $map->name
+ Function: Get/Set Map name
+ Returns : Map name
+ Args    : (optional) string
+
+=cut
+
+sub name {
+   my ($self,$value) = @_;
+   if( defined $value ) {
+       $self->{'_name'} = $value;
+   }
+   return $self->{'_name'};
 }
 
 =head2 length

@@ -104,7 +104,6 @@ sub each_position{
 sub add_position{
    my ($self) = @_;
    $self->_abstractDeath('add_position');
-
 }
 
 =head2 purge
@@ -121,4 +120,51 @@ sub purge_positions{
    my ($self) = @_;
    $self->_abstractDeath('purge_positions');
 }
+
+
+=head2 equals
+
+ Title   : equals
+ Usage   : if( $mappable->equals($mapable2)) ...
+ Function: Test if a position is equal to another position
+ Returns : boolean
+ Args    : Bio::Map::MappableI or Bio::Map::PositionI
+
+=cut
+
+sub equals{
+   my ($self,$compare) = @_;
+   $self->_abstractDeath('less_than');
+}
+
+=head2 less_than
+
+ Title   : less_than
+ Usage   : if( $mappable->less_than($m2) ) ...
+ Function: Tests if a position is less than another position
+ Returns : boolean
+ Args    : Bio::Map::MappableI or Bio::Map::PositionI
+
+=cut
+
+sub less_than{
+   my ($self,$compare) = @_;
+   $self->_abstractDeath('less_than');
+}
+
+=head2 greater_than
+
+ Title   : greater_than
+ Usage   : if( $mappable->greater_than($m2) ) ...
+ Function: Tests if position is greater than another position
+ Returns : boolean
+ Args    : Bio::Map::PositionI or Bio::Map::PositionI
+
+=cut
+
+sub greater_than{
+   my ($self,$compare) = @_;
+   $self->_abstractDeath('greater_than');
+}
+
 1;

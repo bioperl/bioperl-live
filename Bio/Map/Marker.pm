@@ -69,6 +69,7 @@ package Bio::Map::Marker;
 use vars qw(@ISA);
 use strict;
 use Bio::Root::Root;
+use Bio::Map::MarkerI;
 
 @ISA = qw(Bio::Root::Root Bio::Map::MarkerI);
 
@@ -133,6 +134,75 @@ sub name {
 	$self->{'_name'} = $name;
     }
     return $self->{'_name'};	
+}
+
+=head2 equals
+
+ Title   : equals
+ Usage   : if( $mappable->equals($mapable2)) ...
+ Function: Test if a position is equal to another position
+ Returns : boolean
+ Args    : Bio::Map::MappableI
+
+=cut
+
+sub equals{
+   my ($self,$compare) = @_;
+   return 0 unless defined $compare;
+   if( $compare->isa('Bio::Map::MappableI') ){
+       return ($self->position->equals($compare->position));
+   } elsif( $compare->isa('Bio::Map::PositionI') ) {
+       return ($self->position->equals($compare));
+   } else { 
+       $self->warn("Can only run equals with Bio::Map::MappableI or Bio::Map::PositionI"); 
+   }
+   return 0;
+}
+
+=head2 less_than
+
+ Title   : less_than
+ Usage   : if( $mappable->less_than($m2) ) ...
+ Function: Tests if a position is less than another position
+ Returns : boolean
+ Args    : Bio::Map::MappableI
+
+=cut
+
+sub less_than{
+   my ($self,$compare) = @_;
+   return 0 unless defined $compare;
+   if( $compare->isa('Bio::Map::MappableI') ){
+       return ($self->position->less_than($compare->position));
+   } elsif( $compare->isa('Bio::Map::PositionI') ) {
+       return ($self->position->less_than($compare));
+   } else { 
+       $self->warn("Can only run less_than with Bio::Map::MappableI or Bio::Map::PositionI"); 
+   }
+   return 0;
+}
+
+=head2 greater_than
+
+ Title   : greater_than
+ Usage   : if( $mappable->greater_than($m2) ) ...
+ Function: Tests if position is greater than another position
+ Returns : boolean
+ Args    : Bio::Map::MappableI
+
+=cut
+
+sub greater_than{
+   my ($self,$compare) = @_;
+   return 0 unless defined $compare;
+   if( $compare->isa('Bio::Map::MappableI') ){
+       return ($self->position->greater_than($compare->position));
+   } elsif( $compare->isa('Bio::Map::PositionI') ) {
+       return ($self->position->greater_than($compare));
+   } else { 
+       $self->warn("Can only run greater_than with Bio::Map::MappableI or Bio::Map::PositionI"); 
+   }
+   return 0;
 }
 
 1;
