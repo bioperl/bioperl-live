@@ -84,6 +84,7 @@ use Bio::Variation::DNAMutation;
 use Bio::Variation::RNAChange;
 use Bio::Variation::AAChange;
 use Bio::Variation::Allele;
+use Bio::LiveSeq::Mutation;
 
 #use integer;
 # Object preamble - inheritance
