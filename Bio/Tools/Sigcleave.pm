@@ -30,7 +30,7 @@ use Bio::Seq ();
 
 @ISA = qw(Bio::Seq);
 use strict;
-use vars qw ($ID $VERSION);
+use vars qw ($ID $VERSION %WeightTable);
 $ID  = 'Bio::Tools::Sigcleave';
 $VERSION = 0.01;
 
@@ -164,7 +164,7 @@ preceded by an underscore ("_").
 #
 
 
-my %WeightTable = (
+%Bio::Tools::Sigcleave::WeightTable = (
 A => [ -0.109199, -0.035091, 0.033902, 0.321584, 0.216223, 0.216223, 0.159065, 0.544727, 0.033902, 1.175999, -0.882389, 1.707878, 0.216223, -0.882389, 0.000000, 0.000000], 
 C => [ 0.287682, 0.693147, 0.441833, 0.693147, 1.134980, 0.287682, 0.575364, 0.105361, 0.287682, 1.440362, -0.405465, 0.693147, 0.575364, -0.405465, 0.000000, 0.000000], 
 D => [ -2.186051, -2.186051, -2.186051, -2.186051, -2.186051, -2.186051, -2.186051, -0.576613, -1.087439, -25.211902, -0.576613, -25.211902, 0.116534, 0.211844, 0.000000, 0.000000], 
@@ -261,11 +261,22 @@ sub _Analyze {
 #----------------
 my($self) = @_;
 
-my (@hitWeight, @hitSort, @hitPos, %signals, $maxSite, $seqPos, $istart,
-   $iend, $icol, $i, $k, $weight, $c);
+## need to shut strict() up
 
+my %signals;
+my @hitWeight = ();
+my @hitsort   = ();
+my @hitpos    = ();
+my $maxSite   = "";
+my $seqPos    = "";
+my $istart    = "";
+my $iend      = "";
+my $icol      = "";
+my $i         = "";
+my $weight    = "";
+my $k         = 0;
+my $c         = 0;
 my $seqBegin  = 0; 
-
 my $pVal      = -13; 
 my $nVal      = 2;
 my $nHits     = 0;
@@ -288,7 +299,12 @@ for($seqPos = $seqBegin; $seqPos < $seqEnd; $seqPos++)
     for ($k=0; $k<$icol; $k++)
      {
 	$c = substr($pep, $istart + $k, 1);
-	$weight += $WeightTable{$c}[$k];
+
+        ## CD: The if(defined) stuff was put in here because Sigcleave.pm
+        ## CD: kept getting warnings about undefined vals during 'make test' ... 
+
+	if(defined $WeightTable{$c}[$k]) { $weight += $WeightTable{$c}[$k]; }
+
      }
 
     if ($weight >= $minWeight)
