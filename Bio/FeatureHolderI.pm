@@ -126,7 +126,7 @@ At some day we may want to expand this method to allow for a feature
 filter to be passed in.
 
 Our default implementation allows for any number of additional
-arguments and will pass them on get_SeqFeatures(). I.e., in order to
+arguments and will pass them on to get_SeqFeatures(). I.e., in order to
 support filter arguments, just support them in get_SeqFeatures().
 
 =cut
