@@ -202,22 +202,23 @@ o System requirements
 
  Example:
 
-   perl Makefile.PL  PREFIX=/home/dag/My_Local_Perl_Modules
+   perl Makefile.PL  LIB=/home/dag/My_Local_Perl_Modules
    make
    make test
    make install
 
- This will cause perl to install the bioperl modules in:
- /home/dag/My_Perl_Modules/lib/perl5/site_perl/
+ This tells perl to install bioperl in the desired place, e.g.:
+ 
+  /home/dag/My_Perl_Modules/Bio/Seq.pm
 
- And the bioperl man pages will go in:
- /home/dag/My_Perl_Modules/lib/perl5/man/
+ Then in your Bioperl script you would write:
 
- To specify a directory besides lib/perl5/site_perl, 
- or if there are still permission problems, include
- an INSTALLSITELIB directive along with the PREFIX:
+  use lib "/home/dag/My_Local_Perl_Modules";
+  use Bio::Seq;
 
-   perl Makefile.PL  PREFIX=/home/dag/perl INSTALLSITELIB=/home/dag/perl/lib
+ The man pages will probably be installed in $LIB/man. For more
+ information on these sorts of custom installs see the documentation
+ for ExtUtils::MakeMaker.
 
  See below for how to use modules that are not installed in the
  standard Perl5 location.
