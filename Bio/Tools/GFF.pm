@@ -1,10 +1,104 @@
+# $Id$
+#
+# BioPerl module for Bio::Tools::GFF
+#
+# Cared for by the Bioperl core team
+#
+# Copyright Matthew Pocock
+#
+# You may distribute this module under the same terms as perl itself
+
+# POD documentation - main docs before the code
+
+=head1 NAME
+
+Bio::Tools::GFF - A Bio::SeqAnalysisParserI compliant GFF format parser
+
+=head1 SYNOPSIS
+
+    use Bio::Tool::GFF;
+
+    # specify input via -fh or -file
+    my $gffio = Bio::Tools::GFF(-fh => \*STDIN, -gff_version => 2);
+    my $feature;
+    # loop over the input stream
+    while($feature = $gffio->next_feature()) {
+        # do something with feature
+    }
+    $gffio->close();
+
+    # you can also obtain a GFF parser as a SeqAnalasisParserI in
+    # HT analysis pipelines (see Bio::SeqAnalysisParserI and
+    # Bio::Factory::SeqAnalysisParserFactory)
+    my $factory = Bio::Factory::SeqAnalysisParserFactory->new();
+    my $parser = $factory->get_parser(-input => \*STDIN, -method => "gff");
+    while($feature = $parser->next_feature()) {
+        # do something with feature
+    }
+
+=head1 DESCRIPTION
+
+This class provides a simple GFF parser and writer. In the sense of a
+SeqAnalysisParser, it parses an input file or stream into SeqFeatureI
+objects, but is not in any way specific to a particular analysis
+program and the output that program produces.
+
+That is, if you can get your analysis program spit out GFF, here is
+your result parser.
+
+=head1 FEEDBACK
+
+=head2 Mailing Lists
+
+User feedback is an integral part of the evolution of this and other
+Bioperl modules. Send your comments and suggestions preferably to one
+of the Bioperl mailing lists.  Your participation is much appreciated.
+
+  bioperl-l@bioperl.org          - General discussion
+  http://bio.perl.org/MailList.html             - About the mailing lists
+
+=head2 Reporting Bugs
+
+Report bugs to the Bioperl bug tracking system to help us keep track
+the bugs and their resolution.  Bug reports can be submitted via email
+or the web:
+
+  bioperl-bugs@bio.perl.org
+  http://bio.perl.org/bioperl-bugs/
+
+=head1 AUTHOR - Matthew Pocock
+
+Email mrp@sanger.ac.uk
+
+=head1 APPENDIX
+
+The rest of the documentation details each of the object methods. Internal methods are usually preceded with a _
+
+=cut
+
+# Let the code begin...
+
 package Bio::Tools::GFF;
 
 use vars qw(@ISA);
 use strict;
+
 use Bio::SeqAnalysisParserI;
 
 @ISA = qw(Bio::Root::RootI Bio::SeqAnalysisParserI);
+
+=head2 new
+
+ Title   : new
+ Usage   : 
+ Function: Creates a new instance. Recognized named parameters are -file, -fh,
+           and -gff_version.
+
+ Returns : a new object
+ Args    : names parameters
+
+
+=cut
 
 sub new {
   my ($class, @args) = @_;
@@ -23,30 +117,52 @@ sub new {
       if (ref $fh !~ /GLOB/)
       { $self->throw("Expecting a GLOB reference, not $fh!"); }
   }
-  $self->fh($fh);
+  $self->_fh($fh);
   
   $gff_version ||= 2;
   if(($gff_version != 1) && ($gff_version != 2)) {
-    $self->throw("Can't build a GFF object with the unknown version".
+    $self->throw("Can't build a GFF object with the unknown version ".
 		 $gff_version);
   }
   $self->gff_version($gff_version);
   return $self;
 }
 
+=head2 next_feature
+
+ Title   : next_feature
+ Usage   : $seqfeature = $gffio->next_feature();
+ Function: Returns the next feature available in the input file or stream, or
+           undef if there are no more features.
+ Example :
+ Returns : A Bio::SeqFeatureI implementing object, or undef if there are no
+           more features.
+ Args    : none    
+
+=cut
+
 sub next_feature {
-  my ($self) = @_;
-  
-  my $gff_string = $self->_readLine();
-  my $feat = Bio::SeqFeature::Generic->new();
-  
-  if($self->gff_version() == 1)  {
-    $self->_from_gff_string($feat, $gff_string);
-  } else {
-    $self->_from_gff2_string($feat, $gff_string);
-  }
-  
-  return $feat;
+    my ($self) = @_;
+    
+    my $gff_string;
+
+    # be graceful about empty lines or comments, and make sure we return undef
+    # if the input's consumed
+    while(($gff_string = $self->_readLine()) && defined($gff_string)) {
+	next if($gff_string =~ /^\#/);
+	next if($gff_string =~ /^\s*$/);
+	last;
+    }
+    return undef unless $gff_string;
+
+    my $feat = Bio::SeqFeature::Generic->new();
+    
+    if($self->gff_version() == 1)  {
+	$self->_from_gff_string($feat, $gff_string);
+    } else {
+	$self->_from_gff2_string($feat, $gff_string);
+    }
+    return $feat;
 }
 
 =head2 _from_gff_string
@@ -55,9 +171,9 @@ sub next_feature {
  Usage   :
  Function:
  Example :
- Returns :
- Args    :
-
+ Returns : void
+ Args    : A Bio::SeqFeatureI implementing object to be initialized
+           The GFF-formatted string to initialize it from
 
 =cut
 
@@ -101,8 +217,9 @@ sub _from_gff_string {
  Usage   :
  Function:
  Example :
- Returns :
- Args    :
+ Returns : void
+ Args    : A Bio::SeqFeatureI implementing object to be initialized
+           The GFF2-formatted string to initialize it from
 
 
 =cut
@@ -155,6 +272,18 @@ sub _from_gff2_string {
    }
 }
 
+=head2 write_feature
+
+ Title   : write_feature
+ Usage   : $gffio->write_feature($feature);
+ Function: Writes the specified SeqFeatureI object in GFF format to the stream
+           associated with this instance.
+ Example :
+ Returns : 
+ Args    : A Bio::SeqFeatureI implementing object to be serialized
+
+=cut
+
 sub write_feature {
   my ($self, $feature) = @_;
   if($self->gff_version() == 1) {
@@ -163,6 +292,17 @@ sub write_feature {
     $self->_print($self->_gff2_string($feature)."\n");
   }
 }
+
+=head2 _gff_string
+
+ Title   : _gff_string
+ Usage   : $gffstr = $gffio->_gff_string
+ Function: 
+ Example :
+ Returns : A GFF-formatted string representation of the SeqFeature
+ Args    : A Bio::SeqFeatureI implementing object to be GFF-stringified
+
+=cut
 
 sub _gff_string{
    my ($gff, $feat) = @_;
@@ -214,6 +354,17 @@ sub _gff_string{
 
    return $str;
 }
+
+=head2 _gff2_string
+
+ Title   : _gff2_string
+ Usage   : $gffstr = $gffio->_gff2_string
+ Function: 
+ Example :
+ Returns : A GFF2-formatted string representation of the SeqFeature
+ Args    : A Bio::SeqFeatureI implementing object to be GFF2-stringified
+
+=cut
 
 sub _gff2_string{
    my ($gff, $feat) = @_;
@@ -287,13 +438,35 @@ sub _gff2_string{
    return $str;
 }
 
-sub fh {
+=head2 _fh
+
+ Title   : _fh
+ Usage   : 
+ Function: 
+ Example :
+ Returns : The input file handle
+ Args    : none
+
+=cut
+
+sub _fh {
   my ($self, $value) = @_;
   if(defined $value && ref($value) =~ /GLOB/i ) {
     $self->{'FH'} = $value;
   } 
   return $self->{'FH'};
 }
+
+=head2 gff_version
+
+ Title   : _gff_version
+ Usage   : $gffversion = $gffio->gff_version
+ Function: 
+ Example :
+ Returns : The GFF version this parser will accept and emit.
+ Args    : none
+
+=cut
 
 sub gff_version {
   my ($self, $value) = @_;
@@ -306,14 +479,14 @@ sub gff_version {
 sub _print {
   my ($self, $str) = @_;
   
-  my $fh = $self->fh() || \*STDOUT;
+  my $fh = $self->_fh() || \*STDOUT;
   print $fh $str;
 }
 
 sub _readLine {
   my ($self) = @_;
   
-  my $fh = $self->fh() || \*STDIN;
+  my $fh = $self->_fh() || \*STDIN;
   my $line = <$fh>;
   
   return $line;
@@ -322,8 +495,13 @@ sub _readLine {
 =head2 close
 
  Title   : close
- Usage   : $seqio->close()
- Function: Closes the file handle
+ Usage   : $gffio->close()
+ Function: Closes the file handle associated with this GFF parser.
+
+           Note that is Perl this is equivalent to undefining the reference
+           to the handle. That is, closing the filehandle here does not
+           necessarily close the file globally.
+
  Example :
  Returns :
  Args    :
