@@ -4,6 +4,10 @@
 
 use strict;
 
+CHECK {
+  $ENV{PERL_HASH_SEED} = 0;
+}
+
 BEGIN {
     # to handle systems with no installed Test module
     # we include the t dir (where a copy of Test.pm is located)
