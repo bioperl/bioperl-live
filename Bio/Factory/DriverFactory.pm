@@ -59,6 +59,8 @@ The rest of the documentation details each of the object methods. Internal metho
 package Bio::Factory::DriverFactory;
 use strict;
 use Bio::Root::RootI;
+use Bio::Root::IO;
+
 use vars qw(@ISA %DRIVERS);
 
 @ISA = qw(Bio::Root::RootI); 
@@ -70,7 +72,6 @@ BEGIN {
 sub new {
     my ($class, @args) = @_;
     my $self = $class->SUPER::new(@args);
-
     return $self;
 }
 
@@ -166,19 +167,13 @@ sub get_driver {
 sub _load_module {
     my ($self, $name) = @_;
     my ($module, $load, $m);
-    
     $module = "_<$name.pm";
     return 1 if $main::{$module};
     $load = "$name.pm";
-    eval {
-	use File::Spec;
-	$load = File::Spec->catfile((split(/::/,$load)));
-    };
-    if($@) {
-	my $filesep = ($^O =~ /MSWin/ ? "\\" :
-		       ($^O =~ /Mac/ ? ":" : "/"));
-	$load = join($filesep, (split(/::/,$load)));
-    }
+
+    my $io = new Bio::Root::IO();
+    # catfile comes from IO
+    $load = $io->catfile((split(/::/,$load)));
     eval {
 	require $load;
     };
