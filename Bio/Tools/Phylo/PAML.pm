@@ -631,7 +631,7 @@ sub _parse_distmat {
 	if( $self->{'_summary'}->{'seqtype'} eq 'YN00') {
 	    push @seqs, Bio::PrimarySeq->new(-display_id => $seq);
 	}
-	while( $rest =~ 
+	while ( $rest && $rest =~ 
 	       /(\-?\d+(\.\d+)?)\s*\(\-?(\d+(\.\d+)?)\s+(\-?\d+(\.\d+)?)\)/g ) {
 	    $self->{'_summary'}->{'ngmatrix'}->[$j++]->[$seqct] = 
 	    { 'omega' => $1,
