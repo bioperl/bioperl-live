@@ -1,5 +1,5 @@
 # $Id$
-# BioPerl module for Bio::Expression::Microarray::FeatureSet
+# BioPerl module for Bio::Expression::FeatureSet
 #
 # Copyright Allen Day <allenday@ucla.edu>, Stan Nelsonley <snelson@ucla.edu>
 # Human Genetics, UCLA Medical School, University of California, Los Angeles
@@ -8,7 +8,7 @@
 
 =head1 NAME
 
-Bio::Expression::Microarray::FeatureSet - a set of DNA microarray features
+Bio::Expression::FeatureSet - a set of DNA/RNA features
 
 =head1 SYNOPSIS
 
@@ -47,7 +47,7 @@ methods. Internal methods are usually preceded with a _
 =cut
 
 # Let the code begin...
-package Bio::Expression::Microarray::FeatureSet;
+package Bio::Expression::FeatureSet;
 
 use strict;
 
@@ -57,9 +57,9 @@ use vars qw($DEBUG);
 =head2 new
 
  Title   : new
- Usage   : $featureset = Bio::Expression::Microarray::FeatureSet->new(%args);
+ Usage   : $featureset = Bio::Expression::FeatureSet->new(%args);
  Function: create a new featureset object
- Returns : a Bio::Expression::Microarray::FeatureSet object
+ Returns : a Bio::Expression::FeatureSet object
  Args    : an optional hash of parameters to be used in initialization:
            -id    --  the featureset ID
            -type  --  the featureset type
