@@ -93,7 +93,6 @@ $PRECISION_DIGITS = 3; # Precision for the branchlength
 
 use Bio::Factory::TreeFactoryI;
 use Bio::Root::Root;
-use Bio::TreeIO::TreeEventBuilder;
 use Bio::Tree::AlleleNode;
 use Bio::PopGen::Genotype;
 
@@ -117,7 +116,6 @@ sub new{
    my ($class,@args) = @_;
    my $self = $class->SUPER::new(@args);
    
-   $self->{'_eventbuilder'} = new Bio::TreeIO::TreeEventBuilder();
    $self->{'_treecounter'} = 0;
    $self->{'_maxcount'} = 0;
    my ($maxcount, $samps,$samplesize ) = $self->_rearrange([qw(MAXCOUNT
@@ -383,42 +381,6 @@ sub sample_size{
     }
     return $self->{'sample_size'};
 
-}
-
-=head2 attach_EventHandler
-
- Title   : attach_EventHandler
- Usage   : $parser->attatch_EventHandler($handler)
- Function: Adds an event handler to listen for events
- Returns : none
- Args    : Bio::Event::EventHandlerI
-
-=cut
-
-sub attach_EventHandler{
-    my ($self,$handler) = @_;
-    return if( ! $handler );
-    if( ! $handler->isa('Bio::Event::EventHandlerI') ) {
-	$self->warn("Ignoring request to attatch handler ".ref($handler). ' because it is not a Bio::Event::EventHandlerI');
-    }
-    $self->{'_handler'} = $handler;
-    return;
-}
-
-=head2 _eventHandler
-
- Title   : _eventHandler
- Usage   : private
- Function: Get the EventHandler
- Returns : Bio::Event::EventHandlerI
- Args    : none
-
-
-=cut
-
-sub _eventHandler{
-   my ($self) = @_;
-   return $self->{'_handler'};
 }
 
 =head2 random
