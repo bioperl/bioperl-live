@@ -404,6 +404,7 @@ Bio/Variation/SeqDiff.pm
 Bio/Variation/VariantI.pm
 Changes
 FAQ
+INSTALL
 LICENSE
 MANIFEST
 PLATFORMS
