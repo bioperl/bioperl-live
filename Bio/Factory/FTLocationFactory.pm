@@ -215,9 +215,12 @@ sub _parse_location {
     my ($start_num, $end_num) = ($start,$end);
     if ( ($start =~ /[\>\<\?\.\^]/) || ($end   =~ /[\>\<\?\.\^]/) ) {
 	$locclass = 'Bio::Location::Fuzzy';
-	($start_num) = ($start =~ /(\d+)/);
-	($end_num)   = ($end =~ /(\d+)/);
-	
+	if($start =~ /(\d+)/) {
+	    ($start_num) = $1;
+	} else { $start_num = 0 }
+	if($end =~ /(\d+)/) {
+	    ($end_num)   = $1;
+	} else { $end_num = 0 }
     } 
     my $strand = 1;
 
