@@ -815,7 +815,6 @@ sub _from_gff_string {
 
 sub _expand_region {
     my ($self, $feat) = @_;
-
     if(! $feat->isa('Bio::SeqFeatureI')) {
 	$self->warn("$feat does not implement Bio::SeqFeatureI");
     }
@@ -825,10 +824,10 @@ sub _expand_region {
 	$self->end($feat->end());
 	$self->strand($feat->strand) unless defined($self->strand());
     } else {
-	my ($start, $end, $strand) = $self->union($feat);
-	$self->start($start);
-	$self->end($end);
-	$self->strand($strand);
+	my $range = $self->union($feat);
+	$self->start($range->start);
+	$self->end($range->end);
+	$self->strand($range->strand);
     }
 }
 
