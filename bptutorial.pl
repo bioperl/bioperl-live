@@ -359,12 +359,14 @@ for Smith-Waterman alignments- bioperl-ext-0.6 from
 http://bioperl.org/Core/external.shtml
 
 for clustalw alignments-
-http://www.csc.fi/molbio/progs/clustalw/clustalw.html
+ftp://ftp-igbmc.u-strasbg.fr/pub/ClustalW/
 
 for tcoffee alignments-
 http://igs-server.cnrs-mrs.fr/~cnotred/Projects_home_page/t_coffee_home_page.html
 
 for local blast searching- ftp://ftp.ncbi.nlm.nih.gov/blast/server/current_release/
+
+for EMBOSS applications - http://www.hgmp.mrc.ac.uk/Software/EMBOSS/download.html
 
 =for html <A NAME ="i.3"></A>
 
@@ -814,6 +816,25 @@ and write sequence objects, eg:
                            '-format' => 'Fasta');
   $out = Bio::SeqIO->newFh('-format' => 'EMBL');
   print $out $_ while <$in>;
+
+If the "-format" argument isn't used then Bioperl will guess the format
+based on the file's suffix in a case-insensitive manner. Here are the
+current interpretations:
+
+   Format   Suffixes
+
+   fasta    fasta|fast|seq|fa|fsa|nt|aa
+   genbank  gb|gbank|genbank
+   scf      scf
+   pir      pir
+   embl     embl|ebl|emb|dat
+   raw      txt
+   gcg      gcg
+   ace      ace
+   bsml     bsm|bsml
+   swiss    swiss|sp
+   phd      phd|phred
+
 
 For more information see L<Bio::SeqIO>.
 
