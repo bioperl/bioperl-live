@@ -83,7 +83,7 @@ Some note on the terminology/notation of method names:
 # Let the code begin...
 
 package Bio::LiveSeq::SeqI;
-$VERSION=3.0;
+$VERSION=3.1;
 # Version history:
 # Thu Mar 16 18:11:18 GMT 2000 v.1.0 Started implementation, interface/inheritance from ChainI.pm
 # Thu Mar 16 20:05:51 GMT 2000 v 1.2 implemented up to splice_out
@@ -117,6 +117,7 @@ $VERSION=3.0;
 # Thu Jun 22 20:17:32 BST 2000 v 2.91 _unsecure_labelsubseq() added
 # Sat Jun 24 00:10:31 BST 2000 v 2.92 unsecure is an option of labelsubseq() now
 # Thu Jun 29 16:38:45 BST 2000 v 3.0 labelchange() now calls itself again for the DNAobj if the label for the change is not valid for the object requested but valid for the DNAobj
+# Tue Jan 30 14:16:22 EST 2001 v 3.1 delete_Obj added, to flush circular references
 
 use strict;
 use Carp qw(cluck croak carp);
@@ -1188,6 +1189,42 @@ sub source {
     return $self->{'source'};
   }
 }
+
+sub delete_Obj {
+  my $self = shift;
+  my @values= values %{$self};
+  my @keys= keys %{$self};
+
+  foreach my $key ( @keys ) {
+    delete $self->{$key};
+  }
+  foreach my $value ( @values ) {
+    if (index(ref($value),"LiveSeq" != -1)) { # object case
+      eval {
+	# delete $self->{$value};
+	$value->delete_Obj;
+      };
+    } elsif (index(ref($value),"ARRAY" != -1)) { # array case
+      my @array=@{$value};
+      my $element;
+      foreach $element (@array) {
+	eval {
+	  $element->delete_Obj;
+	};
+      }
+    } elsif (index(ref($value),"HASH" != -1)) { # object case
+      my %hash=%{$value};
+      my $element;
+      foreach $element (%hash) {
+	eval {
+	  $element->delete_Obj;
+	};
+      }
+    }
+  }
+  return(1);
+}
+
 
 1;
 

@@ -41,7 +41,7 @@ methods. Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::LiveSeq::Gene;
-$VERSION=2.11;
+$VERSION=2.2;
 
 # Version history:
 # Tue Apr  4 15:22:41 BST 2000 v 1.0 begun
@@ -53,6 +53,7 @@ $VERSION=2.11;
 # Fri Apr  7 02:53:05 BST 2000 v 2.0 added maxtranscript object creation
 # Wed Jun 28 18:38:45 BST 2000 v 2.1 chaged croak to carp + return(-1)
 # Wed Jul 12 15:19:26 BST 2000 v 2.11 ->strand call protected by if(ref(transcript))
+# Tue Jan 30 14:15:42 EST 2001 v 2.2 delete_Obj added, to flush circular references
 
 use strict;
 use Carp;
@@ -365,6 +366,41 @@ sub printfeaturesnum {
 sub maxtranscript {
   my $self=shift;
   return ($self->{'maxtranscript'});
+}
+
+sub delete_Obj {
+  my $self = shift;
+  my @values= values %{$self};
+  my @keys= keys %{$self};
+
+  foreach my $key ( @keys ) {
+    delete $self->{$key};
+  }
+  foreach my $value ( @values ) {
+    if (index(ref($value),"LiveSeq" != -1)) { # object case
+      eval {
+	# delete $self->{$value};
+	$value->delete_Obj;
+      };
+    } elsif (index(ref($value),"ARRAY" != -1)) { # array case
+      my @array=@{$value};
+      my $element;
+      foreach $element (@array) {
+	eval {
+	  $element->delete_Obj;
+	};
+      }
+    } elsif (index(ref($value),"HASH" != -1)) { # object case
+      my %hash=%{$value};
+      my $element;
+      foreach $element (%hash) {
+	eval {
+	  $element->delete_Obj;
+	};
+      }
+    }
+  }
+  return(1);
 }
 
 1;

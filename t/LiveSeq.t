@@ -17,7 +17,7 @@ BEGIN {
 	use lib 't';
     }
     use Test;
-    plan tests => 46; 
+    plan tests => 47; 
 }
 
 use Bio::LiveSeq::IO::BioPerl;
@@ -81,3 +81,4 @@ ok substr($transcript->seq,0,32), "atggtctcccaggccctcaggctcctctgcct";
 ok $transcript->translation_table(2);
 ok $transcript->translation_table , 2;
 ok substr($translation->seq,0,16), "MVSQAL*"; # mitochondrial table creates stop codon
+ok $gene->delete_Obj(); # to free all memory, deleting circular references
