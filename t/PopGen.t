@@ -19,7 +19,7 @@ BEGIN {
 	use lib 't';
     }
     use vars qw($NTESTS);
-    $NTESTS = 74;
+    $NTESTS = 75;
     $error = 0;
 
     use Test;
@@ -145,7 +145,7 @@ my $envpop = new Bio::PopGen::Population(-name        => 'NC',
 					  -individuals => \@envinds);
 
 my $stats = new Bio::PopGen::PopStats(-haploid => 1);
-my $fst = $stats->Fst([$mrsapop,$mssapop],[qw(AFLP1 )]);
+my $fst = $stats->Fst([$mrsapop,$mssapop],[qw(AFLP1)]);
 # We're going to check the values against other programs first
 ok(sprintf("%.3f",$fst),0.077,'mrsa,mssa aflp1'); 
   
@@ -274,7 +274,7 @@ unlink($FILE1);
 $io = new Bio::PopGen::IO(-format          => 'prettybase',
 			  -no_header       => 1,
 			  -file            => Bio::Root::IO->catfile
-			  (qw(t data popstats.prettybase)));
+			  (qw(t data popstats.prettybase )));
 my (@ingroup,@outgroup);
 my $sitecount;
 while( my $ind = $io->next_individual ) {
@@ -304,6 +304,9 @@ ok(Bio::PopGen::Statistics->pi($ingroup,$sitecount),0.4);
 
 ok(Bio::PopGen::Statistics->theta($ingroup),1.92);
 ok(Bio::PopGen::Statistics->theta($ingroup,$sitecount),0.384);
+
+my $haploidpop = $ingroup->haploid_population;
+ok(sprintf("%.5f",Bio::PopGen::Statistics->tajima_D($haploidpop)), 0.27345);
 
 # to fix
 ok(sprintf("%.5f",Bio::PopGen::Statistics->tajima_D(\@ingroup)),0.27345);
