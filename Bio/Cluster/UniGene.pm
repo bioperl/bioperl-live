@@ -125,10 +125,11 @@ use strict;
 
 use Bio::Root::Root;
 use Bio::Seq;
-use Bio::PrimarySeq;
-
+use Bio::Seq::RichSeq;
+use Bio::Factory::SequenceStreamI;
+use Bio::Seq::SeqFactory;
 $VERSION = '1.0';
-@ISA = qw(Bio::Root::Root);
+@ISA = qw(Bio::Root::Root Bio::Factory::SequenceStreamI);
 
 
 =head2 new
@@ -143,7 +144,14 @@ sub new {
     # standard new call..
     my($caller,@args) = @_;
     my $self = $caller->SUPER::new(@args);
-
+    my ($seqfact) = $self->_rearrange([qw(SEQFACTORY)], @args);
+    $self->{'_alphabet'} = 'dna';
+    if( ! defined $seqfact ) {
+	$seqfact = new Bio::Seq::SeqFactory
+	    (-verbose => $self->verbose(), 
+	     -type => 'Bio::Seq::RichSeq');
+    }
+    $self->sequence_factory($seqfact);
     return $self;
 }
 
@@ -547,65 +555,50 @@ sub sequence {
 
  Title   : next_seq
  Usage   : next_seq();
- Function: Returns the next seq as a Seq object, at present with just the accession_number
- Example : 		while ( my $sequence = $in->next_seq() ) {
-					print $sequence->accession_number() . "\n";
-				}	
-
- Returns : String
+ Function: Returns the next seq as a Seq object as defined by 
+           $seq->sequence_factory(), 
+           at present an empty Bio::Seq::RichSeq object with 
+           just the accession_number() and pid() set
+ Example :  while ( my $sequence = $in->next_seq() ) {
+             print $sequence->accession_number() . "\n";
+	    }
+ Returns : Bio::PrimarySeqI object
  Args    : None
 
 =cut
-
+    
 sub next_seq {
-	my ($obj) = @_;
-	return unless (my $seq = shift @{$obj->{'sequence'}});
-	my $seqobj = Bio::PrimarySeq->new( -accession_number         => $seq->{acc},
-		         );
-	return $seqobj;
+    my ($obj) = @_;
+    return unless (my $seq = shift @{$obj->{'sequence'}});
+    my $seqobj = $obj->sequence_factory->create_sequence
+	( -accession_number => $seq->{acc},
+	  -pid => $seq->{pid},
+	  -id => $seq->{acc},
+	  -desc => join(' ', map { uc($_) ."=". $seq->{$_}} sort keys %{$seq} ));
+    return $seqobj;
 }
 
+=head2 sequence_factory
 
-
-
-
-# I've left this in here from Seq.pm - comments welcome
-
-=head2 can_call_new
-
- Title   : can_call_new
- Usage   : if ( $obj->can_call_new ) {
-             $newobj = $obj->new( %param );
-	   }
- Function: can_call_new returns 1 or 0 depending
-           on whether an implementation allows new
-           constructor to be called. If a new constructor
-           is allowed, then it should take the followed hashed
-           constructor list.
-
-           $myobject->new( -seq => $sequence_as_string,
-			   -display_id  => $id
-			   -accession_number => $accession
-			   -alphabet => 'dna',
-			 );
- Example :
- Returns : 1 or 0
- Args    : None
+ Title   : sequence_factory
+ Usage   : $seqio->sequence_factory($seqfactory)
+ Function: Get/Set the Bio::Factory::SequenceFactoryI
+ Returns : Bio::Factory::SequenceFactoryI
+ Args    : [optional] Bio::Factory::SequenceFactoryI
 
 
 =cut
 
-sub can_call_new {
-   my ($self) = @_;
-
-   return 1;
+sub sequence_factory {
+    my ($self,$obj) = @_;   
+    if( defined $obj ) {
+	if( ! ref($obj) || ! $obj->isa('Bio::Factory::SequenceFactoryI') ) {
+	    $self->throw("Must provide a valid Bio::Factory::SequenceFactoryI object to ".ref($self)." sequence_factory()");
+	}
+	$self->{'_seqfactory'} = $obj;
+    }
+    $self->{'_seqfactory'};
 }
-
-
-
-
-
-
 
 # keep AUTOLOAD happy
 sub DESTROY {
