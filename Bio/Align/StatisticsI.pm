@@ -71,8 +71,6 @@ use Bio::Root::RootI;
 
 @ISA = qw(Bio::Root::RootI);
 
-
-
 =head2 distance
 
  Title   : distance
