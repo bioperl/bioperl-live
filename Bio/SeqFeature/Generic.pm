@@ -709,11 +709,11 @@ sub gff_format {
 	if(ref($self)) {
 	    $self->{'_gffio'} = $gffio;
 	} else {
-	    $Bio::SeqFeatureI::GFF_FORMATTER = $gffio;
+	    $Bio::SeqFeatureI::static_gff_formatter = $gffio;
 	}
     }
     return (ref($self) && exists($self->{'_gffio'}) ?
-	    $self->{'_gffio'} : $Bio::SeqFeatureI::GFF_FORMATTER);
+	    $self->{'_gffio'} : $self->_static_gff_formatter);
 }
 
 =head2 gff_string

@@ -80,14 +80,11 @@ use strict;
 
 # Object preamble - inheriets from Bio::Root::Object
 use Bio::RangeI;
-use Bio::Tools::GFF;
+
 use Carp;
 
 @ISA = qw(Bio::RangeI);
 
-BEGIN {
-    $GFF_FORMATTER = Bio::Tools::GFF->new('-gff_version' => 2);
-}
 
 # utility method Prints out a method like: 
 # Abstract method stop defined in interface Bio::SeqFeatureI not
@@ -288,9 +285,34 @@ sub all_tags{
 sub gff_string{
    my ($self,$formatter) = @_;
 
-   $formatter = $GFF_FORMATTER unless $formatter;
+   $formatter = $self->_static_gff_formatter unless $formatter;
    return $formatter->gff_string($self);
 }
+
+my $static_gff_formatter = undef;
+
+=head2 _static_gff_formatter
+
+ Title   : _static_gff_formatter
+ Usage   :
+ Function:
+ Example :
+ Returns : 
+ Args    :
+
+
+=cut
+
+sub _static_gff_formatter{
+   my ($self,@args) = @_;
+
+   if( !defined $static_gff_formatter ) {
+       $static_gff_formatter = Bio::Tools::GFF->new('-gff_version' => 2);
+   }
+
+   return $static_gff_formatter;
+}
+
 
 
 =head1 RangeI methods
