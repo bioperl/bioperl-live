@@ -61,7 +61,7 @@ use Bio::Root::Root;
 use Bio::Variation::SeqDiff;
 use Bio::Variation::Allele;
 
-@ISA = qw( Bio::Variation::SeqDiff );
+@ISA = qw( Bio::Variation::SeqDiff Bio::Variation::Allele);
 
 my %OK_AUTOLOAD = map {$_=>1} qw(
 		id
