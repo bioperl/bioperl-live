@@ -11,7 +11,7 @@ BEGIN {
 	use lib 't';
     }
     use Test;
-    $TESTCOUNT = 220;
+    $TESTCOUNT = 230;
     plan tests => $TESTCOUNT;
 }
 
@@ -128,6 +128,22 @@ $out = Bio::SeqIO->new('-file'=> ">embl.out",
 ok($out->write_seq($seq),1,
    'failure to write Embl format with ^ < and > locations');
 unlink("embl.out");
+
+# kegg
+my $kegg = Bio::SeqIO->new( '-format' => 'kegg' ,
+			    '-file' => Bio::Root::IO->catfile("t","data","AHCYL1.kegg"));
+
+ok($kegg);
+$kegg = $kegg->next_seq();
+ok($kegg);
+ok($kegg->accession, '10768');
+ok($kegg->display_id, 'AHCYL1');
+ok($kegg->alphabet, 'dna');
+ok($kegg->seq);
+ok($kegg->primary_seq->translate->seq);
+ok(($kegg->annotation->get_Annotations('description'))[0]->text, 'S-adenosylhomocysteine hydrolase-like 1 [EC:3.3.1.1]');
+ok( (grep {$_->database eq 'KO'} $kegg->annotation->get_Annotations('dblink'))[0]->comment, 'adenosylhomocysteinase' );
+ok( (grep {$_->database eq 'PATH'} $kegg->annotation->get_Annotations('dblink'))[0]->primary_id, 'hsa00271' );
 
 # multifile
 $mf = Bio::SeqIO::MultiFile->new( '-format' => 'Fasta' ,
