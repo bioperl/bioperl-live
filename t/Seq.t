@@ -119,7 +119,7 @@ foreach my $frame (@frames) {
     $string .= $seq->translate(undef, undef, $frame)->seq;
     $string .= $seq->revcom->translate(undef, undef, $frame)->seq;
 }
-ok $string, 'MW*LPHCGXYHXVVTT';
+ok $string, 'MW*LPHCGYHVVTT';
 
 #Translating with all codon tables using method defaults
 $string = '';
