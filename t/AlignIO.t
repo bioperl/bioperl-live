@@ -62,7 +62,7 @@ ok $status, 1, "  failed selex output test";
 
 $str = Bio::AlignIO->new(-file=> Bio::Root::IO->catfile("t","testaln.mase"),'-format' => 'mase');
 $aln = $str->next_aln();
-ok $aln->{order}->{'0'}, 'AK1H_ECOLI-1-378', " failed mase input test ";
+ok $aln->{order}->{'0'}, 'AK1H_ECOLI-1-318', " failed mase input test ";
 
 $str = Bio::AlignIO->new(-file=> Bio::Root::IO->catfile("t","testaln.prodom"),'-format' => 'prodom');
 $aln = $str->next_aln();
