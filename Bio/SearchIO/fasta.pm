@@ -203,27 +203,38 @@ sub next_result{
 		/^\s+$/); # skip empty lines
        if( /(\S+)\s+searches\s+a\s+((protein\s+or\s+DNA\s+sequence)|(sequence\s+database))/i || /(\S+) compares a/ ||
 	   ( m/^# / && ($_ = $self->_readline) &&
-	     /(\S+)\s+searches\s+a\s+((protein\s+or\s+DNA\s+sequence)|(sequence\s+database))/i || /(\S+) compares a/
-	   )
+	     /(\S+)\s+searches\s+a\s+((protein\s+or\s+DNA\s+sequence)|(sequence\s+database))/i || /(\S+) compares a/	     
+	   ) ||	
+	   (/^\s*\d+\s*>>>/)
 	 ) {
 	   if( $seentop ) {
 	       $self->_pushback($_);
 	       $self->end_element({ 'Name' => 'FastaOutput'});
 	       return $self->end_document();
 	   }
-	   $self->{'_reporttype'} = $1;
 	   $self->start_element({ 'Name' => 'FastaOutput' } );
-	   $seentop = 1;
+	   $seentop = 1;	   
+
 	   
+           # If we're dealing with mlib output this would have been
+	   # set by the preceeding iteration through this loop.
+	   # However in single iter FASTA this will be processed.
+	   
+	   if( defined $1 ) { 
+	       $self->{'_reporttype'} = $1;
+	       $_ = $self->_readline();
+	       my ($version) = (/version\s+(\S+)/);
+	       $version = '' unless defined $version;
+	       $self->{'_version'} = $version;
+	   } else { 
+	       $self->_pushback($_); # push it back one more time 
+	                             # for the benefit of using same
+	                             # same logic below
+	   }
+	   $self->element({ 'Name' => 'FastaOutput_version',
+			    'Data' => $self->{'_version'}});
 	   $self->element({ 'Name' => 'FastaOutput_program',
 			    'Data' => $self->{'_reporttype'}});
-	   $_ = $self->_readline();
-	   my ($version) = (/version\s+(\S+)/);
-	   $version = '' unless defined $version;
-	   $self->{'_version'} = $version;
-	   $self->element({ 'Name' => 'FastaOutput_version',
-			    'Data' => $version});
-
 	   my ($last, $leadin, $type, $querylen, $querytype, $querydef);
 
 	   while( defined($_ = $self->_readline()) ) {
@@ -837,13 +848,12 @@ sub end_element {
 
     if( my $type = $MODEMAP{$nm} ) {
 	if( $self->_eventHandler->will_handle($type) ) {
-	    my $func = sprintf("end_%s",lc $type);
+	    my $func = sprintf("end_%s",lc $type);	    
 	    $rc = $self->_eventHandler->$func($self->{'_reporttype'},
 					      $self->{'_values'});	    
 	}
 	shift @{$self->{'_elements'}};
-
-    } elsif( $MAPPING{$nm} ) { 	
+    } elsif( $MAPPING{$nm} ) {
 	if ( ref($MAPPING{$nm}) =~ /hash/i ) {
 	    my $key = (keys %{$MAPPING{$nm}})[0];	    
 	    $self->{'_values'}->{$key}->{$MAPPING{$nm}->{$key}} = $self->{'_last_data'};
