@@ -1,6 +1,4 @@
 #!/usr/bin/perl
-
-
 =head1 NAME
 
 bpfetch.pl - fetches sequences from bioperl indexed databases
@@ -23,8 +21,8 @@ Fetches sequences using the DB access systems in Bioperl. The most
 common use of this is to fetch sequences from bioperl indices built
 using bpindex.pl, or to fetch sequences from the NCBI website
 
-The format for retrieving sequences is delibrately like GCG/EMBOSS
-format, going
+The format for retrieving sequences is delibrately like the
+GCG/EMBOSS format like the following:
 
   db:name
 
@@ -79,6 +77,7 @@ These modules can be used directly, which is far better than using
 this script as a system call or a pipe to read from. Read the
 source code for bpfetch to see how it is used.
 
+
 =head1 EXTENDING IT
 
 bpfetch uses a number of different modules to provide access to
@@ -95,28 +94,27 @@ obviously).
 
 =head1 FEEDBACK
 
-=head2 Mailing Lists 
+=head2 Mailing Lists
 
 User feedback is an integral part of the evolution of this and other
-Bioperl modules.  Send your comments and suggestions preferably to one
-of the Bioperl mailing lists.  Your participation is much appreciated.
+Bioperl modules. Send your comments and suggestions preferably to
+the Bioperl mailing list.  Your participation is much appreciated.
 
-    vsns-bcd-perl@lists.uni-bielefeld.de          - General discussion
-    vsns-bcd-perl-guts@lists.uni-bielefeld.de     - Technically-oriented discussion
-    http://bio.perl.org/MailList.html             - About the mailing lists
+  bioperl-l@bioperl.org              - General discussion
+  http://bioperl.org/MailList.shtml  - About the mailing lists
 
 =head2 Reporting Bugs
 
 Report bugs to the Bioperl bug tracking system to help us keep track
-the bugs and their resolution. Bug reports can be submitted via email
-or the web:
+of the bugs and their resolution. Bug reports can be submitted via
+email or the web:
 
-    bioperl-bugs@bio.perl.org                   
-    http://bio.perl.org/bioperl-bugs/           
+  bioperl-bugs@bioperl.org
+  http://bioperl.org/bioperl-bugs/
 
 =head1 AUTHOR
 
-Ewan Birney, birney@sanger.ac.uk
+Ewan Birney <birney@ebi.ac.uk>
 
 =cut
 
@@ -137,8 +135,9 @@ BEGIN {
 	require Bio::Index::Swissprot;
         require Bio::DB::GenBank;
         require Bio::DB::GenPept;
+        require Bio::DB::EMBL;
         require Bio::SeqIO;
-	
+
     };
     if ( $@ ) {
 	# one up from here is Bio directory - we hope!
@@ -149,6 +148,7 @@ BEGIN {
 	    require Bio::Index::Swissprot;
             require Bio::DB::GenBank;
             require Bio::DB::GenPept;
+            require Bio::DB::EMBL;
             require Bio::SeqIO;
 	};
 	if ( $@ ) {
@@ -223,18 +223,20 @@ foreach my $arg ( @ARGV ) {
 	SWITCH : {
 	    $_ = $meta;
 	    /^net$/ && do {
-		if( $db =~ /genbank/ ) {
+		if( $db =~ /genbank/i ) {
 		    $dbobj = Bio::DB::GenBank->new();
 		}
-		elsif( $db =~ /genpept/ ) {
+		elsif( $db =~ /genpept/i ) {
 		    $dbobj = Bio::DB::GenPept->new();
-		} else {
+		} elsif( $db =~ /embl/i ) {
+		    $dbobj = Bio::DB::EMBL->new();
+                } else {
 		    die "Net database $db not available";
 		}
 		last SWITCH;
 	    };
 	    /^ace$/ && do {
-		
+
 		# yank in Bio::DB::Ace at runtime
 		eval {
 		    require Bio::DB::Ace;		    
