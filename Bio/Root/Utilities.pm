@@ -857,6 +857,7 @@ sub create_filehandle {
 
     } else {
       # Read from STDIN.
+      # This should also work: $FH = new FileHandle('-');
       $FH = \*STDIN;
       $self->verbose > 0 and printf STDERR "$ID: reading data from STDIN\n";
       $client->{'_input_type'} = "STDIN";
