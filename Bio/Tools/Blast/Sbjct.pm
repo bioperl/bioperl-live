@@ -28,7 +28,7 @@ use Exporter           ();
 use strict;
 use vars qw($ID $VERSION %SUMMARY_OFFSET $Revision);
 $ID = 'Bio::Tools::Blast::Sbjct';
-$VERSION = 0.071;
+$VERSION = 0.072;
 $Revision = '$Id$';  #'
 
 my $_layout     = '';
@@ -227,7 +227,7 @@ See the L<FEEDBACK> section for where to send bug reports and comments.
 
 =head1 VERSION
 
-Bio::Tools::Blast::Sbjct.pm, 0.071
+Bio::Tools::Blast::Sbjct.pm, 0.072
 
 =head1 COPYRIGHT
 
@@ -594,6 +594,11 @@ sub _set_hsps {
     
     $self->{'_length'} or $self->throw( "Can't determine hit sequence length.");
 
+    # Adjust logical length based on BLAST flavor.
+    if($_prog =~ /TBLAST[NX]/) {
+	$self->{'_logical_length'} = $self->{'_length'} / 3;
+    }
+    
     if( not scalar @hspList) {
 	$self->throw( "Failed to build HSP list");
     } else {
@@ -778,7 +783,17 @@ sub _tile_hsps {
 	$self->ambiguous_aln('s'); 
 #	print "\n*** AMBIGUOUS ALIGNMENT: Sbjct\n\n";
     }
-   
+
+    # Adjust length based on BLAST flavor.
+    my $prog = $self->parent->program;
+    if($prog eq 'TBLASTN') {
+	$self->{'_length_aln_sbjct'} /= 3;
+    } elsif($prog eq 'BLASTX' ) {
+	$self->{'_length_aln_query'} /= 3;
+    } elsif($prog eq 'TBLASTX') {
+	$self->{'_length_aln_query'} /= 3;
+	$self->{'_length_aln_sbjct'} /= 3;
+    }
 }
 
 
@@ -1403,13 +1418,13 @@ sub num_hsps {
  Usage     : $sbjct_object->length();
  Purpose   : Get the total length of the hit sequence.
  Example   : $len    = $sbjct_object->length();
- Returns   : Integer 
+ Returns   : Integer 
  Argument  : n/a
  Throws    : n/a
  Comments  : Developer note: when using the built-in length function within
            : this module, call it as CORE::length().
 
-See Also   : L<length_aln>()
+See Also   : L<logical_length>(),  L<length_aln>()
 
 =cut
 
@@ -1421,21 +1436,69 @@ sub length {
 }    
 
 
+=head2 logical_length
+
+ Usage     : $sbjct_object->logical_length( [seq_type] );
+           : (mostly intended for internal use).
+ Purpose   : Get the logical length of the hit sequence.
+           : If the Blast is a TBLASTN or TBLASTX, the returned length 
+           : is the length of the would-be amino acid sequence (length/3).
+           : For all other BLAST flavors, this function is the same as length().
+ Example   : $len    = $sbjct_object->logical_length();
+ Returns   : Integer 
+ Argument  : seq_type = 'query' or 'sbjct' (default = 'query')
+ Throws    : n/a
+ Comments  : This is important for functions like frac_aligned_query()
+           : which need to operate in amino acid coordinate space when dealing
+           : with [T]BLAST[NX] type reports.
+
+See Also   : L<length>(), L<frac_aligned_query>(), L<frac_aligned_hit>()
+
+=cut
+
+#--------------------
+sub logical_length {
+#--------------------
+    my $self = shift;
+    my $seqType = shift || 'query';
+
+    # Return logical sbjct length
+    $seqType eq 'sbjct' and return 
+	$self->{'_logical_length'} || $self->{'_length'}; 
+
+    # Otherwise, return logical query length
+    my $qlen = $self->parent->length;    
+
+    # Adjust length based on BLAST flavor.
+    my $prog = $self->parent->program;
+    if($prog =~ /T?BLASTX/ ) {
+	$qlen /= 3;
+    }
+    return $qlen;
+}    
+
+
 
 =head2 length_aln
 
  Usage     : $sbjct_object->length_aln( [seq_type] );
  Purpose   : Get the total length of the aligned region for query or sbjct seq.
            : This number will include all HSPs
- Example   : $len    = $sbjct_object->length_aln(); #default = total
+ Example   : $len    = $sbjct_object->length_aln(); # default = query
            : $lenAln = $sbjct_object->length_aln('query');
  Returns   : Integer 
  Argument  : seq_Type = 'query' | 'sbjct'  (Default = 'query')
  Throws    : Exception if the argument is not recognized.
- Comments  : This method requires that all HSPs be tiled. If they have not
+ Comments  : This method will report the logical length of the alignment,
+           : meaning that for TBLAST[NX] reports, the length is reported
+           : using amino acid coordinate space (i.e., nucleotides / 3).
+           : 
+           : This method requires that all HSPs be tiled. If they have not
            : already been tiled, they will be tiled first.
+           : If you don't want the tiled data, iterate through each HSP
+           : calling length() on each (use hsps() to get the HSPs).
 
-See Also   : L<length>(), L<frac_aligned_query>(), L<frac_aligned_hit>(), L<gaps>(), L<_tile_hsps>()
+See Also   : L<length>(), L<frac_aligned_query>(), L<frac_aligned_hit>(), L<gaps>(), L<_tile_hsps>(), B<Bio::Tools::Blast::HSP::length()>
 
 =cut
 
@@ -1685,15 +1748,24 @@ sub range {
 
 =head2 frac_identical
 
- Usage     : $sbjct_object->frac_identical( seq_type );
+ Usage     : $sbjct_object->frac_identical( [seq_type] );
  Purpose   : Get the overall fraction of identical positions across all HSPs.
            : The number refers to only the aligned regions and does not
            : account for unaligned regions in between the HSPs, if any.
  Example   : $frac_iden = $sbjct_object->frac_identical('query');
  Returns   : Float (2-decimal precision, e.g., 0.75).
- Argument  : seq_type: 'query' | 'sbjct' (default = 'query')
+ Argument  : seq_type: 'query' | 'sbjct' 
+           : If no argument is provided, the longest sequence will be used.
  Throws    : n/a
- Comments  : If you need data for each HSP, use hsps() and then interate
+ Comments  : The default behavior of using the longest sequence allows this method
+           : to report the value reported by Blast when working with gapped alignments.
+           : The presence of gaps "inflates" the size of a sequence and Blast 
+           : reports the fraction identical using this inflated size.
+           : To get the fraction identical among only the aligned residues,
+           : ignoring the gaps, call this method with an argument of 'query'
+           : or 'sbjct'.
+           :
+           : If you need data for each HSP, use hsps() and then iterate
            : through the HSP objects.
            : This method requires that all HSPs be tiled. If they have not
            : already been tiled, they will be tiled first.
@@ -1706,10 +1778,15 @@ See Also   : L<frac_conserved>(), L<frac_aligned_query>(), L<matches>(), L<_tile
 sub frac_identical {
 #------------------
     my $self = shift;
+    my $seqType = shift;
 
     $self->_tile_hsps($self->parent->gapped) if not $self->{'_tile_hsps'};
 
-    my $seqType = (shift || 'query');
+    if(!$seqType) {
+	$seqType = ($self->{'_length_aln_query'} > $self->{'_length_aln_sbjct'}) 
+	           ? 'query' : 'sbjct';
+    }
+
     sprintf( "%.2f", $self->{'_totalIdentical'}/$self->{'_length_aln_'.$seqType});
 }
 
@@ -1717,15 +1794,24 @@ sub frac_identical {
 
 =head2 frac_conserved
 
- Usage     : $sbjct_object->frac_conserved( seq_type );
+ Usage     : $sbjct_object->frac_conserved( [seq_type] );
  Purpose   : Get the overall fraction of conserved positions across all HSPs.
            : The number refers to only the aligned regions and does not
            : account for unaligned regions in between the HSPs, if any.
  Example   : $frac_cons = $sbjct_object->frac_conserved('sbjct');
  Returns   : Float (2-decimal precision, e.g., 0.75).
- Argument  : seq_type: 'query' | 'sbjct' (default = 'query')
+ Argument  : seq_type: 'query' | 'sbjct' 
+           : If no argument is provided, the longest sequence will be used.
  Throws    : n/a
- Comments  : If you need data for each HSP, use hsps() and then interate
+ Comments  : The default behavior of using the longest sequence allows this method
+           : to report the value reported by Blast when working with gapped alignments.
+           : The presence of gaps "inflates" the size of a sequence and Blast 
+           : reports the fraction conserved using this inflated size.
+           : To get the fraction conserved among only the aligned residues,
+           : ignoring the gaps, call this method with an argument of 'query'
+           : or 'sbjct'.
+           :
+           : If you need data for each HSP, use hsps() and then interate
            : through the HSP objects.
            : This method requires that all HSPs be tiled. If they have not
            : already been tiled, they will be tiled first.
@@ -1738,10 +1824,15 @@ See Also   : L<frac_identical>(), L<matches>(), L<_tile_hsps>()
 sub frac_conserved {
 #--------------------
     my $self = shift;
+    my $seqType = shift;
 
     $self->_tile_hsps($self->parent->gapped) if not $self->{'_tile_hsps'};
 
-    my $seqType = (shift || 'query');
+    if(!$seqType) {
+	$seqType = ($self->{'_length_aln_query'} > $self->{'_length_aln_sbjct'}) 
+	           ? 'query' : 'sbjct';
+    }
+
     sprintf( "%.2f", $self->{'_totalConserved'}/$self->{'_length_aln_'.$seqType});
 }
 
@@ -1760,10 +1851,15 @@ sub frac_conserved {
  Throws    : n/a
  Comments  : If you need data for each HSP, use hsps() and then interate
            : through the HSP objects.
+           : To compute the fraction aligned, the logical length of the query
+           : sequence is used, meaning that for [T]BLASTX reports, the 
+           : full length of the query sequence is converted into amino acids
+           : by dividing by 3. This is necessary because of the way 
+           : the lengths of aligned sequences are computed.
            : This method requires that all HSPs be tiled. If they have not
            : already been tiled, they will be tiled first.
 
-See Also   : L<frac_aligned_hit>(), L<_tile_hsps>()
+See Also   : L<frac_aligned_hit>(), L<_tile_hsps>(), L<logical_length>(), L<length_aln>()
 
 =cut
 
@@ -1774,7 +1870,7 @@ sub frac_aligned_query {
 
     $self->_tile_hsps($self->parent->gapped) if not $self->{'_tile_hsps'};
 
-    sprintf( "%.2f", $self->{'_length_aln_query'}/$self->parent->length);
+    sprintf( "%.2f", $self->{'_length_aln_query'}/$self->logical_length('query'));
 }
 
 
@@ -1791,10 +1887,15 @@ sub frac_aligned_query {
  Throws    : n/a
  Comments  : If you need data for each HSP, use hsps() and then interate
            : through the HSP objects.
+           : To compute the fraction aligned, the logical length of the sbjct
+           : sequence is used, meaning that for TBLAST[NX] reports, the 
+           : full length of the sbjct sequence is converted into amino acids
+           : by dividing by 3. This is necessary because of the way 
+           : the lengths of aligned sequences are computed.
            : This method requires that all HSPs be tiled. If they have not
            : already been tiled, they will be tiled first.
 
-See Also   : L<frac_aligned_query>(), L<matches>(), L<_tile_hsps>()
+See Also   : L<frac_aligned_query>(), L<matches>(), L<_tile_hsps>(), L<logical_length>(), L<length_aln>()
 
 =cut
 
@@ -1805,7 +1906,7 @@ sub frac_aligned_hit {
 
     $self->_tile_hsps($self->parent->gapped) if not $self->{'_tile_hsps'};
 
-    sprintf( "%.2f", $self->{'_length_aln_sbjct'}/$self->length('seq'));
+    sprintf( "%.2f", $self->{'_length_aln_sbjct'}/$self->logical_length('sbjct'));
 }
 
 # Safety-net methods for those who try don't read or remember the API.
@@ -1830,12 +1931,14 @@ sub num_unaligned_sbjct {  my $self=shift; $self->num_unaligned_hit(@_); }
  Returns   : Integer
  Argument  : n/a
  Throws    : n/a
- Comments  : If you need data for each HSP, use hsps() and then interate
+ Comments  : See notes regarding logical lengths in the comments for frac_aligned_hit().
+           : They apply here as well.
+           : If you need data for each HSP, use hsps() and then interate
            : through the HSP objects.
            : This method requires that all HSPs be tiled. If they have not
            : already been tiled, they will be tiled first.
 
-See Also   : L<num_unaligned_query>(), L<_tile_hsps>()
+See Also   : L<num_unaligned_query>(), L<_tile_hsps>(), L<frac_aligned_hit>()
 
 =cut
 
@@ -1846,7 +1949,7 @@ sub num_unaligned_hit {
 
     $self->_tile_hsps($self->parent->gapped) if not $self->{'_tile_hsps'};
 
-    my $num = $self->length('seq') - $self->{'_length_aln_sbjct'};
+    my $num = $self->logical_length('sbjct') - $self->{'_length_aln_sbjct'};
     ($num < 0 ? 0 : $num );
 }
 
@@ -1860,12 +1963,14 @@ sub num_unaligned_hit {
  Returns   : Integer
  Argument  : n/a
  Throws    : n/a
- Comments  : If you need data for each HSP, use hsps() and then interate
+ Comments  : See notes regarding logical lengths in the comments for frac_aligned_query().
+           : They apply here as well.
+           : If you need data for each HSP, use hsps() and then interate
            : through the HSP objects.
            : This method requires that all HSPs be tiled. If they have not
            : already been tiled, they will be tiled first.
 
-See Also   : L<num_unaligned_hit>(), L<_tile_hsps>()
+See Also   : L<num_unaligned_hit>(), L<_tile_hsps>(), L<frac_aligned_query>()
 
 =cut
 
@@ -1876,7 +1981,7 @@ sub num_unaligned_query {
 
     $self->_tile_hsps($self->parent->gapped) if not $self->{'_tile_hsps'};
 
-    my $num = $self->parent->length - $self->{'_length_aln_query'};
+    my $num = $self->logical_length('query') - $self->{'_length_aln_query'};
     ($num < 0 ? 0 : $num );
 }
 
@@ -1993,7 +2098,7 @@ sub _display_stats {
 		$self->rank(), $self->name(),
 		$self->database() || 'UNKNOWN DB' ,$self->score(),$self->bits(),$self->p(),$self->expect(),
 		$self->gaps(), $self->n(), 
-		$self->length('seq'), $self->length_aln('query'),
+		$self->length(), $self->length_aln('query'),
 		$self->ambiguous_aln(),
 		$self->frac_aligned_query, $self->frac_aligned_hit, 
 		$self->matches('iden'), $self->frac_identical('query'), 
@@ -2003,7 +2108,7 @@ sub _display_stats {
 		$self->rank(), $self->name(),
 		$self->database()  || 'UNKNOWN DB' ,$self->score(),$self->bits(),$self->expect(),
 		$self->gaps(), $self->num_hsps, 
-		$self->length('seq'), $self->length_aln('query'),
+		$self->length(), $self->length_aln('query'),
 		$self->ambiguous_aln(),
 		$self->frac_aligned_query, $self->frac_aligned_hit, 
 		$self->matches('iden'), $self->frac_identical('query'), 

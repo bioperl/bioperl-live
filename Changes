@@ -1,5 +1,11 @@
 Revision history for Bioperl core modules
 
+0.04.1  Wed Dec 16 05:39:15 1998
+        - Bug fixes in Bio::Tools::Blast modules, version 0.072
+          (see Bio::Tools::Blast::CHANGES).
+        - Compile/SW/Makefile.PL now removes *.o and *.a files 
+          with make clean.
+
 0.04  Tue Dec  8 07:49:19 1998
 	- Lots of new modules added including:
            * Ewan Birney's Bio::SimpleAlign.pm, Bio::Tools::AlignFactory.pm,

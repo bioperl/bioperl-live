@@ -1,5 +1,20 @@
 Revision history for Perl extension Bio::Tools::Blast.pm and related modules.
 
+0.072  Wed Dec 16 05:05:21 1998
+        - Fixed out of range exception in HSP::matches() as suggested by
+          Michael Lonetto in bio.perl.org bug report #11.
+        - Made changes in Sbjct.pm and HSP.pm to deal with the reporting of
+          TBLAST[NX] data in amino acid coordinate space. This affects 
+          frac_identical() and frac_conserved() in HSP.pm, and _tile_hsps(),
+          length_aln(), frac_aligned_query(), frac_aligned_hit(), 
+          frac_unaligned_query(), frac_unaligned_hit() in Sbjct.pm.
+	  These also in response to bug report #11.
+        - Fixed behavior of frac_identical() and frac_aligned() in 
+          both Sbjct.pm and HSP.pm to correspond to the data reported
+          by Blast. Default behavior now includes gaps instead of ignoring
+          them as before. This was in response to a report by Eli Venter.
+        - Cleaned up a few "uninitialized value" warnings.
+
 0.071  Thu Dec 10 18:41:51 1998
         - Bio::Tools::Blast::Sbjct::_set_id() to no longer uppercases
           sequence ids for sbjct sequences. (Note however that the Blast

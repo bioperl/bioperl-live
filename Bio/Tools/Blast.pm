@@ -34,7 +34,7 @@ use strict;
 use vars qw($ID $VERSION $Blast @Blast_programs $Revision);
 
 $ID = 'Bio::Tools::Blast';
-$VERSION  = 0.071; 
+$VERSION  = 0.072; 
 $Revision = '$Id$';  #'
 
 ## Static Blast object. 
@@ -877,7 +877,7 @@ for use with "make test" during installation.
 
 =head1 VERSION
 
-Bio::Tools::Blast.pm, 0.071
+Bio::Tools::Blast.pm, 0.072
 
 
 =head1 FEEDBACK
