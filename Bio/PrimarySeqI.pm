@@ -514,13 +514,14 @@ sub trunc{
            character for unknown amino acid (optional) defaults to 'X'
            frame (optional) valid values 0, 1, 3, defaults to 0
            codon table id (optional) defaults to 1
+           Final argument set to 1 means do not edit amino terminal codon
 
 =cut
 
 
 sub translate {
   my($self) = shift;
-  my($stop, $unknown, $frame, $tableid) = @_;
+  my($stop, $unknown, $frame, $tableid,$no_amino_edit) = @_;
   my($i, $len, $output) = (0,0,'');
   my($codon)   = "";
   my $aa;
@@ -569,7 +570,8 @@ sub translate {
   }
 
   # if the initiator codon is not ATG, the amino acid needs to changed into M
-  if ( substr($output,0,1) ne 'M' ) {
+  # checking to see whether the person really wanted to do this or not.
+  if ( !defined $no_amino_edit && substr($output,0,1) ne 'M' ) {
       if ($codonTable->is_start_codon(substr($seq, 0, 3)) ) {
 	  $output = 'M'. substr($output,1);
       } else {
