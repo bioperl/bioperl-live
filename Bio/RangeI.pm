@@ -2,7 +2,7 @@
 #
 # BioPerl module for Bio::RangeI
 #
-# Cared for by Matthew Pocock <mrp@sanger.ac.uk>
+# Cared for by Lehvaslaiho <heikki@ebi.ac.uk>
 #
 # Copyright Matthew Pocock
 #
@@ -22,14 +22,14 @@ None.
 
 This provides a standard BioPerl range interface that should be
 implemented by any object that wants to be treated as a range. This
-serves purely as an abstract base class for implementers and can
-not be instantiated.
+serves purely as an abstract base class for implementers and can not
+be instantiated.
 
-Ranges are modeled as having (start, end, length, strand). They
-use Bio-coordinates - all points >= start and <= end are within
-the range. End is always greater-than or equal-to start, and
-length is greather than or equal to 1. The behaviour of a range
-is undefined if ranges with negative numbers or zero are used.
+Ranges are modeled as having (start, end, length, strand). They use
+Bio-coordinates - all points >= start and <= end are within the
+range. End is always greater-than or equal-to start, and length is
+greather than or equal to 1. The behaviour of a range is undefined if
+ranges with negative numbers or zero are used.
 
 So, in summary:
 
@@ -57,14 +57,14 @@ or the web:
   bioperl-bugs@bio.perl.org
   http://bio.perl.org/bioperl-bugs/
 
-=head1 AUTHOR - Matthew Pocock
+=head1 AUTHOR - Heikki Lehvaslaiho
 
-Email mrp@sanger.ac.uk
+Email:  heikki@ebi.ac.uk
 
 =head1 APPENDIX
 
 The rest of the documentation details each of the object
-methods. Internal metho ds are usually preceded with a _
+methods. Internal methods are usually preceded with a _
 
 =cut
 
@@ -72,7 +72,7 @@ package Bio::RangeI;
 
 use strict;
 use Carp;
-
+use integer;
 use vars '%STRAND_OPTIONS';
 
 BEGIN {
@@ -93,15 +93,15 @@ sub _abstractDeath {
   my $self = shift;
   my $package = ref $self || $self;
   my $caller = (caller)[1];
-  
-  confess "Abstract method '$caller' defined in interface Bio::RangeI not implemented by pacakge $package";
+
+  confess "Abstract method '$caller' defined in interface Bio::RangeI not implemented by package $package";
 }
 
 # returns true if strands are equal and non-zero
 sub _strong {
   my ($r1, $r2) = @_;
   my ($s1, $s2) = ($r1->strand(), $r2->strand());
-  
+
   return $s1 != 0 and $s2 != 0 and
          $s1 == $s2;
 }
@@ -169,7 +169,7 @@ sub start {
   Function: get/set the end of this range
   Returns : the end of this range
   Args    : optionaly allows the end to be set
-          : using $range->end($start)
+          : using $range->end($end)
 
 =cut
 
@@ -209,7 +209,8 @@ sub strand {
 
 =head1 Boolean Methods
 
-These methods return true or false.
+These methods return true or false. They throw an error if start and end are
+not defined.
 
  $range->overlaps($otherRange) && print "Ranges overlap\n";
 
@@ -226,8 +227,15 @@ These methods return true or false.
 
 sub overlaps {
   my ($self, $other, $so) = @_;
+
+  $self->throw("start is undefined") unless defined $self->start;
+  $self->throw("end is undefined") unless defined $self->end;
+  $other->throw("not a Bio::RangeI object") unless  $other->isa('Bio::RangeI');
+  $other->throw("start is undefined") unless defined $other->start;
+  $other->throw("end is undefined") unless defined $other->end;
+
   return
-    ($self->_testStrand($other, $so) and 
+    ($self->_testStrand($other, $so) and
     not (
       ($self->start() > $other->end() or
        $self->end() < $other->start()   )
@@ -238,8 +246,9 @@ sub overlaps {
 
   Title   : contains
   Usage   : if($r1->contains($r2) { do stuff }
-  Function: tests whether $r1 totally contains $r2
+  Function: tests whether $r1 totally contains $r2 
   Args    : arg #1 = a range to compare this one to (mandatory)
+	             alternatively, integer scalar to test
             arg #2 = strand option ('strong', 'weak', 'ignore') (optional)
   Returns : true if the argument is totaly contained within this range
 
@@ -247,12 +256,20 @@ sub overlaps {
 
 sub contains {
   my ($self, $other, $so) = @_;
+  $self->throw("start is undefined") unless defined $self->start;
+  $self->throw("end is undefined") unless defined $self->end;
+
   if(defined $other && ref $other) { # a range object?
-    return ($self->_testStrand($other, $so)      and
-      $other->start() >= $self->start() and
-      $other->end() <= $self->end());
+      $other->throw("Not a Bio::RangeI object") unless  $other->isa('Bio::RangeI');
+      $other->throw("start is undefined") unless defined $other->start;
+      $other->throw("end is undefined") unless defined $other->end;
+
+      return ($self->_testStrand($other, $so)      and
+	      $other->start() >= $self->start() and
+	      $other->end() <= $self->end());
   } else { # a scalar?
-    return ($other >= $self->start() and $other <= $self->end());
+      $self->throw("'$other' is not an integer.\n") unless $other =~ /^[-+]?\d+$/;
+      return ($other >= $self->start() and $other <= $self->end());
   }
 }
 
@@ -268,6 +285,13 @@ sub contains {
 
 sub equals {
   my ($self, $other, $so) = @_;
+
+  $self->throw("start is undefined") unless defined $self->start;
+  $self->throw("end is undefined") unless defined $self->end;
+  $other->throw("Not a Bio::RangeI object") unless  $other->isa('Bio::RangeI');
+  $other->throw("start is undefined") unless defined $other->start;
+  $other->throw("end is undefined") unless defined $other->end;
+
   return ($self->_testStrand($other, $so)   and
           $self->start() == $other->start() and
           $self->end()   == $other->end()       );
@@ -276,7 +300,9 @@ sub equals {
 =head1 Geometrical methods
 
 These methods do things to the geometry of ranges, and return
-triplets (start, stop, strand) from which new ranges could be built.
+Bio::RangeI compliant objects or triplets (start, stop, strand) from
+which new ranges could be built.
+
 
 =head2
 
@@ -285,13 +311,20 @@ triplets (start, stop, strand) from which new ranges could be built.
   Function: gives the range that is contained by both ranges
   Args    : arg #1 = a range to compare this one to (mandatory)
             arg #2 = strand option ('strong', 'weak', 'ignore') (optional)
-  Returns : nothing if they do not overlap, or the range that they do overlap
+  Returns : undef if they do not overlap, 
+            or the range that they do overlap (in an objectlike the calling one)
 
 =cut
 
 sub intersection {
   my ($self, $other, $so) = @_;
   return unless $self->_testStrand($other, $so);
+
+  $self->throw("start is undefined") unless defined $self->start;
+  $self->throw("end is undefined") unless defined $self->end;
+  $other->throw("Not a Bio::RangeI object") unless  $other->isa('Bio::RangeI');
+  $other->throw("start is undefined") unless defined $other->start;
+  $other->throw("end is undefined") unless defined $other->end;
 
   my @start = sort {$a<=>$b}
                    ($self->start(), $other->start());
@@ -307,12 +340,16 @@ sub intersection {
       $union_strand = $other->strand;
   } else {
       $union_strand = 0;
-  } 
+  }
 
   if($start > $end) {
-    return;     
+    return undef;
   } else {
-    return ($start, $end, $union_strand);
+      return $self->new('-start' => $start,
+			'-end' => $end,
+			'-strand' => $union_strand
+			);
+      #return ($start, $end, $union_strand);
   }
 }
 
@@ -323,17 +360,17 @@ sub intersection {
           : ($start, $stop, $strand) = Bio::RangeI->union(@ranges);
   Function: finds the minimal range that contains all of the ranges
   Args    : a range or list of ranges to find the union of
-  Returns : the range containing all of the ranges
+  Returns : the range object containing all of the ranges
 
 =cut
 
 sub union {
-  my $thingy = shift;
+  my $self = shift;
   my @ranges = @_;
-  if(ref $thingy) {
-    unshift @ranges, $thingy;
+  if(ref $self) {
+    unshift @ranges, $self;
   }
-  
+
   my @start = sort {$a<=>$b}
                    map( { $_->start() } @ranges);
   my @end   = sort {$a<=>$b}
@@ -359,8 +396,11 @@ sub union {
           }
       }
   }
-  
-  return ($start, $end, $union_strand);
+  return undef unless $start or $end;
+  return $self->new('-start' => $start,
+		    '-end' => $end,
+		    '-strand' => $union_strand
+		    );
 }
 
 =head2 overlap_extent
@@ -368,11 +408,13 @@ sub union {
  Title   : overlap_extent
  Usage   : ($a_unique,$common,$b_unique) = $a->overlap_extent($b)
  Function: Provides actual amount of overlap between two different
-           ranges, being the amount unique to a, the amount unique to
-           b and the amount common to both.
+           ranges.
  Example :
- Returns : 
- Args    :
+ Returns : array of values for 
+           - the amount unique to a
+           - the amount common to both
+           - the amount unique to b
+ Args    : 
 
 
 =cut
@@ -380,6 +422,12 @@ sub union {
 sub overlap_extent{
    my ($a,$b) = @_;
 
+   $a->throw("start is undefined") unless defined $a->start;
+   $a->throw("end is undefined") unless defined $a->end;
+   $b->throw("Not a Bio::RangeI object") unless  $b->isa('Bio::RangeI');
+   $b->throw("start is undefined") unless defined $b->start;
+   $b->throw("end is undefined") unless defined $b->end;
+   
    my ($au,$bu,$is,$ie);
    if( ! $a->overlaps($b) ) {
        return ($a->length,0,$b->length);
@@ -398,9 +446,6 @@ sub overlap_extent{
    }
 
    ($is,$ie) = $a->intersection($b);
-
-  # print STDERR "Returning $au,$ie,$is,$bu\n";
-
    return ($au,$ie-$is+1,$bu);
 }
 

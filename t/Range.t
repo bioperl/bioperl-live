@@ -15,18 +15,17 @@ BEGIN {
 	use lib 't';
     }
     use Test;
-    plan tests => 16;
+    plan tests => 17;
 }
 
 use Bio::Range;
 
-ok(1);
+ok 1;
 
 my $range = Bio::Range->new(-start=>10,
                             -end=>20,
 			    -strand=>1);
 ok defined $range;
-
 ok $range->strand, 1;
 
 my $range2 = Bio::Range->new(-start=>15,
@@ -36,22 +35,24 @@ my $range2 = Bio::Range->new(-start=>15,
 ok defined $range2;
 ok $range2->strand, 1;
 
-my ($start, $stop);
+my $r = Bio::Range->new();
+ok $r->strand(0), 0;
+ok $r->start(27), 27;
+ok $r->end(28), 28;
 
-($start, $stop) = $range->union($range2);
-ok ($start, 10);
-ok ($stop, 25 );
+ok $r->intersection($range2), undef;
 
-($start, $stop) = $range->intersection($range2);
-ok ($start, 15);
-ok ($stop, 20);
+$r = $range->union($range2);
+ok $r->start, 10;
+ok $r->end, 25;
+
+$r = $range->intersection($range2);
+ok $r->start, 15;
+ok $r->end, 20;
 
 ok !($range->contains($range2));
 ok !($range2->contains($range));
-ok ($range->overlaps($range2));
-ok ($range2->overlaps($range));
+ok $range->overlaps($range2);
+ok $range2->overlaps($range);
 
-ok ($range->strand(0), 0);
-ok ($range->start(27), 27);
-ok ($range->end(28), 28);
 

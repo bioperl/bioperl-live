@@ -2,7 +2,7 @@
 #
 # BioPerl module for Bio::Range
 #
-# Cared for by Matthew Pocock <mrp@sanger.ac.uk>
+# Cared for by Heikki Lehvaslaiho <heikki@ebi.ac.uk>
 #
 # Copywright Matthew Pocock
 #
@@ -10,15 +10,6 @@
 #
 # POD documentation - main docs before the code
 #
-# BioPerl module for Bio::RangeI
-#
-# Cared for by Matthew Pocock <mrp@sanger.ac.uk>
-#
-# Copywright Matthew Pocock
-#
-# You may distribute this module under the same terms as perl itself
-#
-# POD documentation - main docs before the code
 
 =head1 NAME
 
@@ -26,13 +17,14 @@ Bio::Range - Pure perl RangeI implementation
 
 =head1 DESCRIPTION
 
-This provides a pure perl implementation of the  BioPerl range interface.
+This provides a pure perl implementation of the BioPerl range
+interface.
 
-Ranges are modeled as having (start, end, length, strand). They
-use Bio-coordinates - all points >= start and <= end are within
-the range. End is always greater-than or equal-to start, and
-length is greather than or equal to 1. The behaviour of a range
-is undefined if ranges with negative numbers or zero are used.
+Ranges are modeled as having (start, end, length, strand). They use
+Bio-coordinates - all points >= start and <= end are within the
+range. End is always greater-than or equal-to start, and length is
+greather than or equal to 1. The behaviour of a range is undefined if
+ranges with negative numbers or zero are used.
 
 So, in summary:
 
@@ -70,9 +62,9 @@ or the web:
   bioperl-bugs@bio.perl.org
   http://bio.perl.org/bioperl-bugs/
 
-=head1 AUTHOR - Matthew Pocock
+=head1 AUTHOR - Heikki Lehvaslaiho
 
-Email mrp@sanger.ac.uk
+Email heikki@ebi.ac.uk
 
 =head1 APPENDIX
 
@@ -85,7 +77,7 @@ package Bio::Range;
 
 use strict;
 use Carp;
-
+use integer;
 use Bio::RangeI;
 use Bio::Root::RootI;
 
@@ -109,30 +101,24 @@ use vars qw(@ISA);
 sub new {
   my ($caller, @args) = @_;
   my $self = $caller->SUPER::new(@args);
-  my $usageMessage = "Specify exactly two of -start, -end, '-length'";
-  my ($strand, $start, 
-      $end, $length) = $self->_rearrange([qw(STRAND START
-					     END LENGTH)],@args);
+  my ($strand, $start, $end, $length) = 
+      $self->_rearrange([qw(STRAND 
+			    START
+			    END 
+			    LENGTH
+			    )],@args);
   $self->strand($strand || 0);
-  
-  if(defined $start && defined $end && defined $length ) {
-      $self->throw($usageMessage);
-  }
-  
-  if(defined $start ) {      
+
+  if(defined $start ) {
       $self->start($start);
       if(defined $end) {
 	  $self->end($end);
       } elsif(defined $length) {
 	  $self->end($self->start()+ $length - 1);
-      } else {
-	  $self->throw( $usageMessage);
       }
-  } elsif(defined $end && defined $length ) {      
+  } elsif(defined $end && defined $length ) {
       $self->end($end);
       $self->start($self->end() - $length + 1);
-  } else {
-      $self->throw($usageMessage);
   }
   return $self;
 }
@@ -147,15 +133,19 @@ These methods let you get at and set the member variables
   Function : return or set the start co-ordinate
   Example  : $s = $range->start(); $range->start(7);
   Returns  : the value of the start co-ordinate
-  Args     : optionaly, the new start co-ordinate
+  Args     : optionally, the new start co-ordinate
   Overrides: Bio::RangeI::start
 
 =cut
 
 sub start {
-  my $self = shift;
-  @_ ? $self->{'start'} = shift
-     : $self->{'start'};
+    my ($self,$value) = @_;
+    if( defined $value) {
+	$self->throw("'$value' is not an integer.\n") 
+	    unless $value =~ /^[-+]?\d+$/;
+        $self->{'start'} = $value;
+    }
+    return $self->{'start'};
 }
 
 =head2 end
@@ -164,15 +154,20 @@ sub start {
   Function : return or set the end co-ordinate
   Example  : $e = $range->end(); $range->end(2000);
   Returns  : the value of the end co-ordinate
-  Args     : optionaly, the new end co-ordinate
+  Args     : optionally, the new end co-ordinate
   Overrides: Bio::RangeI::end
 
 =cut
 
 sub end {
-  my $self = shift;
-  @_ ? $self->{'end'} = shift
-     : $self->{'end'};
+
+    my ($self,$value) = @_;
+    if( defined $value) {
+	$self->throw("'$value' is not an integer.\n") 
+	    unless $value =~ /^[-+]?\d+$/;
+        $self->{'end'} = $value;
+    }
+    return $self->{'end'};
 }
 
 =head2 strand
@@ -196,7 +191,7 @@ sub strand {
     if($val == -1 || $val == 0 || $val == 1 ) {
       $self->{'strand'} = $val;
     }
-  }  
+  }
   return $self->{'strand'};
 }
 
@@ -278,16 +273,44 @@ triplets (start, end, strand) from which new ranges could be built.
   Function : gives the range that is contained by both ranges
   Args     : a range to compare this one to
   Returns  : nothing if they don't overlap, or the range that they do overlap
-  Inherited: Bio::RangeI
+  Inherited: Bio::RangeI::intersection
 
+=cut
+
+#
+#sub intersection { 
+#  my ($self, $other, $so) = @_;
+#  my ($r) = undef;
+#  my ($start, $end, $union_strand) = Bio::RangeI::intersection($self, $other, $so);
+#  return $r unless $start;
+#  return $r = new Bio::Range('-start' => $start,
+#			      '-end' => $end,
+#			      '-strand' => $union_strand
+#			      );
+#}
+#
 =head2
 
   Title    : union
   Usage    : ($start, $stop, $strand) = $r1->union($r2);
-           : ($start, $stop, $strand) = Bio::RangeI->union(@ranges);
+           : ($start, $stop, $strand) = Bio::Range->union(@ranges);
   Function : finds the minimal range that contains all of the ranges
   Args     : a range or list of ranges to find the union of
   Returns  : the range containing all of the ranges
-  Inherited: Bio::RangeI
+  Inherited: Bio::RangeI::union
 
+=cut
+
+#sub union {
+#  my $self = shift;
+#  my @ranges = @_;
+#  my ($r) = undef;
+#  my ($start, $end, $union_strand) = Bio::RangeI::union($self, @ranges);
+#  return $r unless $start;
+#  return $r = new Bio::Range('-start' => $start,
+#			      '-end' => $end,
+#			      '-strand' => $union_strand
+#			      );
+#}
+#
 1;
