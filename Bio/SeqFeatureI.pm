@@ -243,9 +243,8 @@ sub gff_string{
 
    if( $feat->can('score') ) {
        $score = $feat->score();
-   } else {
-       $score = '.';
    }
+   $score = '.' unless defined $score;
 
    if( $feat->can('frame') ) {
        $frame = $feat->frame();
@@ -253,7 +252,15 @@ sub gff_string{
        $frame = '.';
    }
 
-   $str = join("\t","SEQ",$feat->source_tag,$feat->primary_tag,$feat->start,$feat->end,$feat->strand,$score,$frame);
+   $str = join("\t",
+                 "SEQ",
+		 $feat->source_tag(),
+		 $feat->primary_tag(),
+		 $feat->start(),
+		 $feat->end(),
+		 $feat->strand(),
+		 $score,
+		 $frame);
 
    return $str;
 }

@@ -312,9 +312,9 @@ sub add_sub_SeqFeature{
 =cut
 
 sub primary_tag{
-   my ($self,$value) = @_;
+   my $self = shift;
 
-   return $self->has_tag('primary',$value);
+   return $self->has_tag('primary', @_);
 }
 
 =head2 source_tag
@@ -331,9 +331,9 @@ sub primary_tag{
 =cut
 
 sub source_tag{
-   my ($self,$value) = @_;
+   my $self = shift;
 
-   return $self->has_tag('source',$value);
+   return $self->has_tag('source',@_);
 }
 
 =head2 has_tag
