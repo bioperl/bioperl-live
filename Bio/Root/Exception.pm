@@ -50,9 +50,9 @@ Bio::Root::Exception - Generic exception objects for Bioperl
 
      # Note: You don't have to be within a try{} block
      open (IN, $file) || $object->throw(
-			       -class => 'Bio::Root::FileOpenException',
-			       -text => "Can't open file $file for reading",
-			       -value => $!);
+                                        -class => 'Bio::Root::FileOpenException',
+                                        -text => "Can't open file $file for reading",
+                                        -value => $!);
 
 =head2 Defining a new Exception type as a subclass of Bio::Root::Exception:
 
@@ -156,6 +156,7 @@ package Bio::Root::Exception;
 use strict;
 
 my $debug = $Error::Debug;  # Prevents the "used only once" warning.
+my $DEFAULT_VALUE = "__DUMMY__";  # Permits eval{} based handlers to work
 
 =head2 B<Bio::Root::Exception>
 
@@ -176,6 +177,57 @@ my $debug = $Error::Debug;  # Prevents the "used only once" warning.
 
 =over 4
 
+=item B< new() >
+
+=cut
+
+=item B< new() >
+
+ Purpose : Guarantees that -value is set properly before
+           calling Error::new().
+
+ Arguments: same as for Error::new()
+
+     -value must be non-zero and not an empty string in order for
+     eval{}-based exception handlers to work. These require that
+     if($@) evaluates to true, which will not be the case if
+     the Error has no value (Error overloads numeric operations
+     to the Error::value() method).
+    
+     It is OK to create Bio::Root::Exception objects without
+     specifing -value. In this case, an invisible dummy value is used.
+    
+     If you happen to specify a -value of zero (0), it will
+     be replaced by the string "The number zero (0)".
+    
+     If you happen to specify a -value of empty string (""), it will
+     be replaced by the string "An empty string ("")".
+    
+=cut
+
+sub new {
+    my ($class, @args) = @_; 
+    my %params;
+    if( @args % 2 == 0 ) {
+        %params = @args;
+        my $value = $params{'-value'};
+        if( defined $value and not $value) {
+            $params{-value} = "The number zero (0)" if $value == 0;
+            $params{-value} = "An empty string (\"\")" if $value eq "";
+        } 
+        else {
+            $params{-value} ||= $DEFAULT_VALUE; 
+        }
+    }
+    else {
+        $params{-text} ||= $args[0];
+        $params{-value} ||= $DEFAULT_VALUE; 
+    }
+
+    my $self = $class->SUPER::new( %params );
+    return $self;
+}
+
 =item B< pretty_format() >
 
  Purpose : Get a nicely formatted string containing information about the 
@@ -194,7 +246,7 @@ sub pretty_format {
     if( $Error::Debug ) {
       $stack = $self->_reformat_stacktrace();
     }
-    my $value_string = $self->value ? "VALUE: ".$self->value."\n" : "";
+    my $value_string = $self->value ne $DEFAULT_VALUE ? "VALUE: ".$self->value."\n" : "";
     my $class = ref($self);
 
     my $title = "------------- EXCEPTION: $class -------------";
@@ -223,30 +275,30 @@ sub _reformat_stacktrace {
     my ($method, $file, $linenum, $prev_file, $prev_linenum);
     my $stack_count = 0;
     foreach my $i( 0..$#stack ) {
-     # print "STACK-ORIG: $stack[$i]\n";
-      if( ($stack[$i] =~ /^\s*([^(]+)\s*\(.*\) called at (\S+) line (\d+)/) ||
-	   ($stack[$i] =~ /^\s*(require 0) called at (\S+) line (\d+)/)) {
-	($method, $file, $linenum) = ($1, $2, $3);
-	$stack_count++;
-      }
-      else{
-	next;
-      }
-      if( $stack_count == 1 ) {
-	push @new_stack, "STACK: $method";
-       ($prev_file, $prev_linenum) = ($file, $linenum);
-	next;
-      }
-      
-      if( $method =~ /__ANON__/ ) {
-	$method = "try{} block";
-      }
-      if( ($method =~ /^require/ and $file =~ /Error\.pm/ ) ||
-	  ($method =~ /^Error::subs::try/ ) )   {
-	last;
-      }
-      push @new_stack, "STACK: $method $prev_file:$prev_linenum";
-      ($prev_file, $prev_linenum) = ($file, $linenum);
+        # print "STACK-ORIG: $stack[$i]\n";
+        if( ($stack[$i] =~ /^\s*([^(]+)\s*\(.*\) called at (\S+) line (\d+)/) ||
+             ($stack[$i] =~ /^\s*(require 0) called at (\S+) line (\d+)/)) {
+            ($method, $file, $linenum) = ($1, $2, $3);
+            $stack_count++;
+        }
+        else{
+            next;
+        }
+        if( $stack_count == 1 ) {
+            push @new_stack, "STACK: $method";
+            ($prev_file, $prev_linenum) = ($file, $linenum);
+            next;
+        }
+        
+        if( $method =~ /__ANON__/ ) {
+            $method = "try{} block";
+        }
+        if( ($method =~ /^require/ and $file =~ /Error\.pm/ ) ||
+            ($method =~ /^Error::subs::try/ ) )   {
+            last;
+        }
+        push @new_stack, "STACK: $method $prev_file:$prev_linenum";
+        ($prev_file, $prev_linenum) = ($file, $linenum);
     }
     return join "\n", @new_stack;
 }
