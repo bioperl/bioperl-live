@@ -130,7 +130,7 @@ define.
            but implementations are suggested to keep an open mind about
            case (some users... want mixed case!)
  Returns : A scalar
-
+ Status  : Virtual
 
 =cut
 
@@ -156,6 +156,7 @@ sub seq {
 
  Returns : a string
  Args    :
+ Status  : Virtual
 
 
 =cut
@@ -192,6 +193,7 @@ sub subseq{
            legacy/convience issues
  Returns : A string
  Args    : None
+ Status  : Virtual
 
 
 =cut
@@ -223,6 +225,7 @@ sub display_id {
            "unknown".
  Returns : A string
  Args    : None
+ Status  : Virtual
 
 
 =cut
@@ -253,6 +256,7 @@ sub accession_number {
            a stringified memory location.
  Returns : A string
  Args    : None
+ Status  : Virtual
 
 
 =cut
@@ -315,6 +319,7 @@ sub can_call_new{
            make a call of the type - if there is no type specified it
            has to guess.
  Args    : none
+ Status  : Virtual
 
 
 =cut
@@ -704,8 +709,9 @@ sub  id {
  Usage   : $len = $seq->length()
  Function:
  Example :
- Returns : 
+ Returns : integer representing the length of the sequence.
  Args    :
+ Status  : Virtual
 
 
 =cut
@@ -713,7 +719,11 @@ sub  id {
 sub  length {
    my ($self)= @_;
 
-   return CORE::length($self->seq());
+   if( $self->can('throw') ) {
+       $self->throw("Bio::PrimarySeqI definition of length - implementing class did not provide this method");
+   } else {
+       confess("Bio::PrimarySeqI definition of length - implementing class did not provide this method");
+   }
 }
 
 =head1 Methods for Backward Compatibility
