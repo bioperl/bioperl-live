@@ -336,7 +336,8 @@ use Bio::Root::IO;
 BEGIN {
 
     $PROGRAMDIR = $ENV{CLUSTALDIR} || '';
-    $PROGRAM = Bio::Root::IO->catfile($PROGRAMDIR,'clustalw');
+    $PROGRAM = Bio::Root::IO->catfile($PROGRAMDIR,
+				      'clustalw'.($^O =~ /mswin/i ?'.exe':''));
 
     @CLUSTALW_PARAMS = qw(KTUPLE TOPDIAGS WINDOW PAIRGAP FIXEDGAP
                    FLOATGAP MATRIX TYPE	TRANSIT DNAMATRIX OUTFILE
@@ -359,9 +360,6 @@ sub new {
     my $self = $class->SUPER::new(@args);
     # to facilitiate tempfile cleanup
     $self->_initialize_io();
-
-    $PROGRAMDIR = $ENV{CLUSTALDIR} || '';
-    $PROGRAM = Bio::Root::IO->catfile($PROGRAMDIR,'clustalw');
 
     unless (&exists_clustal()) {
 	warn "Clustalw program not found as $PROGRAM or not executable. \n  Clustalw can be obtained from eg- http://corba.ebi.ac.uk/Biocatalog/Alignment_Search_software.html/ \n";
@@ -403,7 +401,7 @@ sub AUTOLOAD {
 
 
 sub exists_clustal {
-    my $returnvalue = (-e $PROGRAM) ;
+    return Bio::Root::IO->exists_exe($PROGRAM);
 }
 
 
