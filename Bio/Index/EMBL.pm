@@ -20,7 +20,8 @@ Bio::Index::EMBL - Interface for indexing (multiple) EMBL/Swissprot
     use Bio::Index::EMBL;
 
     my $Index_File_Name = shift;
-    my $inx = Bio::Index::EMBL->new($Index_File_Name, 'WRITE');
+    my $inx = Bio::Index::EMBL->new('-filename' => $Index_File_Name, 
+				    '-write_flag' => 'WRITE');
     $inx->make_index(@ARGV);
 
     # Print out several sequences present in the index
@@ -28,7 +29,7 @@ Bio::Index::EMBL - Interface for indexing (multiple) EMBL/Swissprot
     use Bio::Index::EMBL;
 
     my $Index_File_Name = shift;
-    my $inx = Bio::Index::EMBL->new($Index_File_Name);
+    my $inx = Bio::Index::EMBL->new('-filename' => $Index_File_Name);
     my $out = Bio::SeqIO->new('-format' => 'Fasta','-fh' => \*STDOUT);
 
     foreach my $id (@ARGV) {

@@ -22,7 +22,8 @@ Bio::Index::GenBank - Interface for indexing (multiple) GenBank
     use Bio::Index::GenBank;
 
     my $Index_File_Name = shift;
-    my $inx = Bio::Index::GenBank->new($Index_File_Name, 'WRITE');
+    my $inx = Bio::Index::GenBank->new('-filename' => $Index_File_Name,
+				       '-write_flag' => 'WRITE');
     $inx->make_index(@ARGV);
 
     # Print out several sequences present in the index
@@ -30,7 +31,7 @@ Bio::Index::GenBank - Interface for indexing (multiple) GenBank
     use Bio::Index::GenBank;
 
     my $Index_File_Name = shift;
-    my $inx = Bio::Index::GenBank->new($Index_File_Name);
+    my $inx = Bio::Index::GenBank->new('-filename' => $Index_File_Name);
 
     foreach my $id (@ARGV) {
         my $seq = $inx->fetch($id); # Returns Bio::Seq object

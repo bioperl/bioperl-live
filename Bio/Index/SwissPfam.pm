@@ -19,13 +19,14 @@ Bio::Index::SwissPfam - Interface for indexing swisspfam files
     use Bio::Index::SwissPfam;
 
     my $Index_File_Name = shift;
-    my $inx = Bio::Index::SwissPfam->new($Index_File_Name, 'WRITE');
+    my $inx = Bio::Index::SwissPfam->new('-filename' => $Index_File_Name, 
+					 '-write_flag' => 'WRITE');
     $inx->make_index(@ARGV);
 
     use Bio::Index::SwissPfam;
 
     my $Index_File_Name = shift;
-    my $inx = Bio::Index::SwissPfam->new($Index_File_Name);
+    my $inx = Bio::Index::SwissPfam->new('-filename' => $Index_File_Name);
 
     foreach my $id (@ARGV) {
         my $seq = $inx->fetch($id); # Returns stream

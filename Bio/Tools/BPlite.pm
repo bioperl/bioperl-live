@@ -15,7 +15,7 @@ Bio::Tools::BPlite - Lightweight BLAST parser
 =head1 SYNOPSIS
 
  use Bio::Tools::BPlite;
- my $report = new BPlite(-fh=>\*STDIN);
+ my $report = new Bio::Tools::BPlite(-fh=>\*STDIN);
  $report->query;
  $report->database;
  while(my $sbjct = $report->nextSbjct) {
