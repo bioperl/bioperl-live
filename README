@@ -6,7 +6,8 @@ o Getting Started
  
  Thanks for downloading this distribution!
 
- For tutorials see Bioperl's bptutorial.pl or the online Bioperl tutorial
+ For tutorials see Bioperl's bptutorial.pl (in this directory) or 
+ howto documents in the online Bioperl tutorial
  at http://www.pasteur.fr/recherche/unites/sis/formation/bioperl. For
  information on databases and Bioperl see biodatabases.pod. To look at
  example code browse the scripts/ directories, and look at

@@ -7,7 +7,7 @@ o System requirements
  - Tested on all common forms of Unix, Win9X/NT/2000, Mac OS X 
    (see the PLATFORMS file for more details)
 
- - perl 5.004 or later *.
+ - perl 5.005 or later *.
 
  - ANSI C or Gnu C compiler for optional extra XS extensions 
 

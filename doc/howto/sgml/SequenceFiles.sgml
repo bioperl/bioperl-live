@@ -1,0 +1,263 @@
+<!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook V4.1//EN">
+<article>
+
+<articleinfo>
+
+<title>Bio::SeqIO HOWTO</title>
+    <author>
+      <!-- one of (CONTRIB AUTHORBLURB AFFILIATION OTHERNAME LINEAGE
+      SURNAME FIRSTNAME HONORIFIC) -->
+      <firstname>Ewan</firstname>
+      <surname>Birney</surname>
+      <authorblurb>
+	<para>Bioperl Core Developer</para>
+      </authorblurb>
+      <affiliation>
+	<orgname>EBI</orgname>
+	<address><email>birney-at-ebi.ac.uk</email></address>
+      </affiliation>
+    </author>
+
+
+ <legalnotice>
+
+ <para>This document is copyright Ewan Birney, 2002.  For
+ reproduction other than personal use please contact me at birney-at-ebi.ac.uk
+ </para>
+
+ </legalnotice>
+
+ <abstract>
+  <para>
+    This HOWTO tries to teach you about the SeqIO system for reading and 
+    writing file formats
+  </para>
+ </abstract>
+</articleinfo>
+
+<section id="overview">
+    <title>10 second overview</title>
+    <para>
+    Lots of bioinformatics involve different file formats - indeed,
+there often seems to be about as many files as there are programs for
+processing them. The Bio::SeqIO systems handles different formatted files
+and is the way Bioperl pushes sequences in and out of objects. You can
+think of the Bio::SeqIO system as "a smart filehandle for sequences"
+    </para>
+</section>
+<section id="working">
+    <title>Working Examples</title>
+
+    <para>
+    The simplest script for parsing sequence files is written out
+below. It converts a GenBank file to a Fasta file of sequences
+    
+    <programlisting>
+
+    use strict;
+    use Bio::SeqIO;
+
+    my $input_file = shift; 
+    my $output_file = shift;
+
+    my $seq_in  = Bio::SeqIO->new( -format => 'genbank', 
+                                 -file => $input_file);
+
+
+    my $seq_out = Bio::SeqIO->new( -format => 'fasta',
+                                 -file => ">$output_file");
+   
+
+    my $seq;
+    while( $seq = $seq_in->next_seq() ) {
+       $seq_out->write_seq($seq);
+    }
+
+    </programlisting>
+
+    This script takes two arguments on the commandline, an input file
+and an outputfile. In each case we make a new Bio::SeqIO object, with
+different formats, reading in genbank format and writing out fasta format.
+You can think of the two variables, $seq_in and $seq_out as being rather 
+special types of filehandles which "know" about sequences and sequence
+formats. However, rather than using the <F> operator to read files you 
+use the $seqio->next_seq() method and rather than saying "print F $line"
+you say $seqio->write_seq($seq_object).
+</para>
+
+<para>
+(Aside: Bio::SeqIO actually allows you to make use of a rather
+scary/clever part of Perl that can "mimic" filehandles, so that
+the <F> operator returns sequences and the print F operator writes
+sequences. However, for most people, including myself, this looks
+really really weird and leads to probably more confusion)
+</para>
+
+<para>
+Notice that SeqIO naturally works over sets of sequences in files, not
+just one sequence - in other words you can keep looping over in next_seq
+to pull out each sequence in turn. This code snippet would load up all
+the sequences in a file into an array
+
+   <programlisting>
+    use strict;
+    use Bio::SeqIO;
+
+    my $input_file = shift; 
+
+    my $seq_in  = Bio::SeqIO->new( -format => 'embl', 
+                                 -file => $input_file);
+
+    # loads the whole file into memory - be careful
+    # if this is a big file, then this script will use
+    # alot of memory
+ 
+    my $seq;
+    my @seq_array();
+    while( $seq = $seq_in->next_seq() ) {
+       push(@seq_array,$seq);
+    }
+
+    # now do something with these. First sort by length,
+    # find the average and median lengths and print them out
+
+    @seq_array = sort { $a->length <=> $b->length } @seq_array;
+   
+    my $total = 0;
+    my $count = 0;
+    foreach my $seq ( @seq_array ) {
+       $total += $seq->length; 
+       $count++;
+    }
+
+    print "Mean length ",$total/$count," Median ",$seq_array[$count/2],"\n";
+
+   </programlisting>
+</para>
+</section>
+<section id="formats">
+   <title>Formats</title>
+   <para>
+     Bioperl's SeqIO system has alot of formats to interconvert sequences.
+Here is a current listing (relevant for 1.2 series)
+
+   <programlisting>
+  abi
+  ace
+  alf
+  bsml
+  ctf
+  embl
+  exp
+  fasta
+  fastq
+  game
+  gcg
+  genbank
+  largefasta
+  phd
+  pir
+  pln
+  qual
+  raw
+  scf
+  swiss
+  ztr
+   </programlisting>
+  TODO - describe formats
+ </para>
+</section>
+
+<section id="errors">
+  <title>Error Handling</title>
+
+  <para>
+    If you gave an impossible filename to the first script, it
+    would have in fact died with an informative error message. In 
+object orientated jargon, this is called "throwing an exception".
+An example would look like:
+  
+  <programlisting>
+[localhost:~/src/bioperl-live] birney% perl t.pl bollocks silly
+
+------------- EXCEPTION  -------------
+MSG: Could not open bollocks for reading: No such file or directory
+STACK Bio::Root::IO::_initialize_io Bio/Root/IO.pm:259
+STACK Bio::SeqIO::_initialize Bio/SeqIO.pm:441
+STACK Bio::SeqIO::genbank::_initialize Bio/SeqIO/genbank.pm:122
+STACK Bio::SeqIO::new Bio/SeqIO.pm:359
+STACK Bio::SeqIO::new Bio/SeqIO.pm:372
+STACK toplevel t.pl:9
+
+--------------------------------------
+</programlisting>
+
+These exceptions are very useful when errors happen because you can 
+see the full route of where the error occurred (this route
+through the code is called the "stack trace") and right at the end of this
+is the line number of the script (which in this case I called t.pl) which
+caused the error. 
+</para>
+<para>
+The fact that these sorts of errors are automatically 
+detected and by default cause the script to stop is a good thing, but
+you might want to handle these yourself. To do this you need to "catch
+the exception" as follows
+
+    <programlisting>
+
+    use strict;
+    use Bio::SeqIO;
+
+    my $input_file = shift; 
+    my $output_file = shift;
+
+    # we have to declare $seq_in and $seq_out before
+    # the eval block as we want to use them afterwards
+    
+    my $seq_in;
+    my $seq_out;
+
+    eval {
+     $seq_in  = Bio::SeqIO->new( -format => 'genbank', 
+                                 -file => $input_file);
+
+
+    $seq_out = Bio::SeqIO->new( -format => 'fasta',
+                                 -file => ">$output_file");
+   
+    };
+    if( $@) { # an error occurred
+      print "Was not able to open files, sorry!\n";
+      print "Full error is\n\n$@\n";
+      exit(-1);
+    }
+
+    my $seq;
+    while( $seq = $seq_in->next_seq() ) {
+       $seq_out->write_seq($seq);
+    }
+
+    </programlisting>
+
+The use of eval { ... } and then testing the value of the $@ variable (which
+is set on an error) is a generic Perl system, and will work with all errors
+generated in a Perl program, not just the ones in Bioperl. Notice that we have
+to declare $seq_in and $seq_out using my before the eval block - a common
+gotcha is to wrap a eval block around some my variables inside the block - and
+now my localises those variables only to that block. If you use strict this
+error will be caught (and, of course, you are going to use strict right?)
+
+</para>
+
+<para>
+
+</para>
+
+</section>
+
+</article>
+
+
+
+

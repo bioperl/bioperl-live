@@ -16,6 +16,8 @@ Revision history for Bioperl core modules
 
     o Support for Genewise parsing in Bio::Tools::Genewise
 
+    o Start of Ontology framework with Bio::Ontology
+
     o Speedup to the Bio::Root::Root object method _rearrange.
       A global _load_module method was implemented to simplify the
       dynamic loading of modules ala Bio::SeqIO::genbank.  This
@@ -29,6 +31,8 @@ Revision history for Bioperl core modules
       method for sequence retrieval with their E-utils CGI scripts.
       More work to support Entrez queries to their fullest is planned
       before 1.2 release.
+
+    o Numerous fixes to Bio::SearchIO and sequence parsing (swissprot)
 
 1.1 Developer release 
 
