@@ -49,7 +49,6 @@ Bio::Tools::Sigcleave - Bioperl object for sigcleave analysis
                                                 -threshold=>'3.5',
                                                 );
 
-
   # now you can detect procaryotic signal sequences as well as eucaryotic
   $sig->matrix('eucaryotic'); # or 'procaryotic'
 
@@ -170,7 +169,6 @@ contained in this module. Some functions are for internal
 use and are not meant to be called by the user; they are 
 preceded by an underscore ("_").
 
-
 =cut
 
 #
@@ -180,7 +178,6 @@ preceded by an underscore ("_").
 ###
 ##
 #
-
 
 package Bio::Tools::Sigcleave;
 
@@ -257,37 +254,35 @@ $ID  = 'Bio::Tools::Sigcleave';
 
 
 foreach my $i (keys %WeightTable_euc) {
-    my $expected = $WeightTable_euc{$i}[15];
-    if ($expected > 0) {
-	for (my $j=0; $j<16; $j++) {
-	    if ($WeightTable_euc{$i}[$j] == 0) {
-		$WeightTable_euc{$i}[$j] = 1; 
-		if ($j == 10 || $j == 12) {
-		    $WeightTable_euc{$i}[$j] = 1.e-10;
+	my $expected = $WeightTable_euc{$i}[15];
+	if ($expected > 0) {
+		for (my $j=0; $j<16; $j++) {
+			if ($WeightTable_euc{$i}[$j] == 0) {
+				$WeightTable_euc{$i}[$j] = 1; 
+				if ($j == 10 || $j == 12) {
+					$WeightTable_euc{$i}[$j] = 1.e-10;
+				}
+			}
+			$WeightTable_euc{$i}[$j] = log($WeightTable_euc{$i}[$j]/$expected);
 		}
-	    }
-	    $WeightTable_euc{$i}[$j] = log($WeightTable_euc{$i}[$j]/$expected);
 	}
-    }
 }
 
 
 foreach my $i (keys %WeightTable_pro) {
-    my $expected = $WeightTable_pro{$i}[15];
-    if ($expected > 0) {
-	for (my $j=0; $j<16; $j++) {
-	    if ($WeightTable_pro{$i}[$j] == 0) {
-		$WeightTable_pro{$i}[$j] = 1; 
-		if ($j == 10 || $j == 12) {
-		    $WeightTable_pro{$i}[$j] = 1.e-10;
+	my $expected = $WeightTable_pro{$i}[15];
+	if ($expected > 0) {
+		for (my $j=0; $j<16; $j++) {
+			if ($WeightTable_pro{$i}[$j] == 0) {
+				$WeightTable_pro{$i}[$j] = 1; 
+				if ($j == 10 || $j == 12) {
+					$WeightTable_pro{$i}[$j] = 1.e-10;
+				}
+			}
+			$WeightTable_pro{$i}[$j] = log($WeightTable_pro{$i}[$j]/$expected);
 		}
-	    }
-	    $WeightTable_pro{$i}[$j] = log($WeightTable_pro{$i}[$j]/$expected);
 	}
-    }
 }
-
-
 
 #####################################################################################
 ##                                 CONSTRUCTOR                                     ##
@@ -327,13 +322,13 @@ sub new {
 #----------------
 sub threshold {
 #----------------
-    my ($self, $value) = @_;
-    if( defined $value) {
-	$self->throw("I need a number, not [$value]")
-	    if  $value !~ /^[+-]?[\d\.]+$/;
-	$self->{'_threshold'} = $value;
-    }
-    return $self->{'_threshold'} || 3.5 ;
+	my ($self, $value) = @_;
+	if( defined $value) {
+		$self->throw("I need a number, not [$value]")
+		  if  $value !~ /^[+-]?[\d\.]+$/;
+		$self->{'_threshold'} = $value;
+	}
+	return $self->{'_threshold'} || 3.5 ;
 }
 
 =head1 matrix
@@ -352,25 +347,22 @@ sub threshold {
 #----------------
 sub matrix {
 #----------------
-    my ($self, $value) = @_;
-    if( defined $value) {
-	$self->throw("I need 'eucaryotic' or 'procaryotic', not [$value]")
-	    unless  $value eq 'eucaryotic' or $value eq 'procaryotic';
-	$self->{'_matrix'} = $value;
-    }
-    return $self->{'_matrix'} || 'eucaryotic' ;
-
+	my ($self, $value) = @_;
+	if( defined $value) {
+		$self->throw("I need 'eucaryotic' or 'procaryotic', not [$value]")
+		  unless  $value eq 'eucaryotic' or $value eq 'procaryotic';
+		$self->{'_matrix'} = $value;
+	}
+	return $self->{'_matrix'} || 'eucaryotic' ;
 }
 
 =head1 seq
 
  Title     : seq
- Usage     : $value = $self->seq('procaryotic')
- Purpose   : Read/write method sigcleave seq.
- Returns   : float.
- Argument  : new value: 'eucaryotic' or 'procaryotic'
- Throws    : on non-number argument
- Comments  : defaults to 3.5
+ Usage     : $value = $self->seq($seq_object)
+ Purpose   : set the Seq object to be used
+ Returns   : Seq object
+ Argument  : protein sequence or Seq object
  See Also   : n/a
 
 =cut
@@ -378,19 +370,17 @@ sub matrix {
 #----------------
 sub seq {
 #----------------
-    my ($self, $value) = @_;
-    if( defined $value) {
-	if ($value->isa('Bio::PrimarySeqI')) {
-	    $self->{'_seq'} = $value;
-	} else {
-	    $self->{'_seq'} = Bio::PrimarySeq->new(-seq=>$value, 
-						   -alphabet=>'protein');
+	my ($self, $value) = @_;
+	if( defined $value) {
+		if ($value->isa('Bio::PrimarySeqI')) {
+			$self->{'_seq'} = $value;
+		} else {
+			$self->{'_seq'} = Bio::PrimarySeq->new(-seq => $value, 
+																-alphabet => 'protein');
+		}
 	}
-    }
-    return $self->{'_seq'};
+	return $self->{'_seq'};
 }
-
-
 
 =head1 _Analyze
 
@@ -446,24 +436,23 @@ sub _Analyze {
     $pep =~ tr/a-z/A-Z/;
 
     for ($seqPos = $seqBegin; $seqPos < $seqEnd; $seqPos++) {
-	$istart = (0 > $seqPos + $pVal)? 0 : $seqPos + $pVal;
-	$iend = ($seqPos + $nVal - 1 < $seqEnd)? $seqPos + $nVal - 1 : $seqEnd;
-	$icol= $iend - $istart + 1;
-	$weight = 0.00;
-	for ($k=0; $k<$icol; $k++) {
-	    $c = substr($pep, $istart + $k, 1);
+		 $istart = (0 > $seqPos + $pVal)? 0 : $seqPos + $pVal;
+		 $iend = ($seqPos + $nVal - 1 < $seqEnd)? $seqPos + $nVal - 1 : $seqEnd;
+		 $icol= $iend - $istart + 1;
+		 $weight = 0.00;
+		 for ($k=0; $k<$icol; $k++) {
+			 $c = substr($pep, $istart + $k, 1);
 
-	    ## CD: The if(defined) stuff was put in here because Sigcleave.pm
-	    ## CD: kept getting warnings about undefined vals during 'make test' ...
-	    if ($matrix eq 'eucaryotic') {
-		$weight += $WeightTable_euc{$c}[$k] if defined $WeightTable_euc{$c}[$k];
-	    } else {
-		$weight += $WeightTable_pro{$c}[$k] if defined $WeightTable_pro{$c}[$k];
-	    }
-	}
-	$signals{$seqPos+1} = sprintf ("%.1f", $weight)	if $weight >= $minWeight;
+			 ## CD: The if(defined) stuff was put in here because Sigcleave.pm
+			 ## CD: kept getting warnings about undefined vals during 'make test' ...
+			 if ($matrix eq 'eucaryotic') {
+				 $weight += $WeightTable_euc{$c}[$k] if defined $WeightTable_euc{$c}[$k];
+			 } else {
+				 $weight += $WeightTable_pro{$c}[$k] if defined $WeightTable_pro{$c}[$k];
+			 }
+		 }
+		 $signals{$seqPos+1} = sprintf ("%.1f", $weight)	if $weight >= $minWeight;
     }
-
     $self->{"_signal_scores"} = { %signals };
 }
 
@@ -489,17 +478,17 @@ See Also   : THRESHOLD
 #----------------
 sub signals {
 #----------------
-    my $self = shift;
-    my %results;
-    my $position;
+	my $self = shift;
+	my %results;
+	my $position;
 
-    # do the calculations
-    $self->_Analyze;
+	# do the calculations
+	$self->_Analyze;
 
-    foreach $position ( sort keys %{ $self->{'_signal_scores'} } ) {
-	$results{$position} = $self->{'_signal_scores'}{$position};
-    }
-    return %results;
+	foreach $position ( sort keys %{ $self->{'_signal_scores'} } ) {
+		$results{$position} = $self->{'_signal_scores'}{$position};
+	}
+	return %results;
 }
 
 
@@ -523,9 +512,9 @@ See Also   : THRESHOLD
 #----------------
 sub result_count {
 #----------------
-    my $self = shift;
-    $self->_Analyze;
-    return keys %{ $self->{'_signal_scores'} };
+	my $self = shift;
+	$self->_Analyze;
+	return keys %{ $self->{'_signal_scores'} };
 }
 
 
@@ -565,29 +554,29 @@ sub pretty_print {
     $output = "SIGCLEAVE of $name from: 1 to $seqlen\n\n";
 
     if ($hitcount > 0) {
-	$output .= "Report scores over $thresh\n";
-	foreach $pos ((sort { $results{$b} cmp $results{$a} } keys %results)) {
-	    my $start = $pos - 15;
-	    $start = 1 if $start < 1;
-	    my $sig = substr($pep,$start -1,$pos-$start );
+		 $output .= "Report scores over $thresh\n";
+		 foreach $pos ((sort { $results{$b} cmp $results{$a} } keys %results)) {
+			 my $start = $pos - 15;
+			 $start = 1 if $start < 1;
+			 my $sig = substr($pep,$start -1,$pos-$start );
 
-	    $output .= sprintf ("Maximum score %1.1f at residue %3d\n",$results{$pos},$pos);
-	    $output .= "\n";
-	    $output .= " Sequence:  ";
-	    $output .= $sig;
-	    $output .= "-" x (15- length($sig));
-	    $output .= "-";
-	    $output .= substr($pep,$pos-1,50);
-	    $output .= "\n";
-	    $output .= " " x 12;
-	    $output .= "| \(signal\)      | \(mature peptide\)\n";
-	    $output .= sprintf("          %3d             %3d\n\n",$start,$pos);
+			 $output .= sprintf ("Maximum score %1.1f at residue %3d\n",$results{$pos},$pos);
+			 $output .= "\n";
+			 $output .= " Sequence:  ";
+			 $output .= $sig;
+			 $output .= "-" x (15- length($sig));
+			 $output .= "-";
+			 $output .= substr($pep,$pos-1,50);
+			 $output .= "\n";
+			 $output .= " " x 12;
+			 $output .= "| \(signal\)      | \(mature peptide\)\n";
+			 $output .= sprintf("          %3d             %3d\n\n",$start,$pos);
 
-	    if (($hitcount > 1) && ($cnt == 1)) {
-    		$output .= " Other entries above $thresh\n\n";
-	    }
-	    $cnt++;
- 	}
+			 if (($hitcount > 1) && ($cnt == 1)) {
+				 $output .= " Other entries above $thresh\n\n";
+			 }
+			 $cnt++;
+		 }
     }
     $output;
 }
