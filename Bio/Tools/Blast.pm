@@ -48,8 +48,8 @@ $Blast->{'_name'} = "Static Blast object";
 @Blast_programs  = qw(blastp blastn blastx tblastn tblastx);
 
 use vars qw($DEFAULT_MATRIX $DEFAULT_SIGNIF);
-$DEFAULT_MATRIX      = 'BLOSUM62';
-$DEFAULT_SIGNIF      = 999;# Value used as significance cutoff if none supplied.
+my $DEFAULT_MATRIX   = 'BLOSUM62';
+my $DEFAULT_SIGNIF   = 999;# Value used as significance cutoff if none supplied.
 my $MAX_HSP_OVERLAP  = 2;  # Used when tiling multiple HSPs.
 
 ## POD Documentation:
@@ -1536,7 +1536,7 @@ sub _set_signif {
 	$Blast->{'_confirm_significance'} = 1;
 	if( $sig =~ /[^\d.e-]/ or $sig <= 0) { 
 	    $Blast->throw("Invalid significance value: $sig", 
-			 "Must be greater than 0.");
+			 "Must be greater than zero.");
 	} 
 	$Blast->{'_significance'} = $sig;
     } else {
@@ -1625,7 +1625,10 @@ sub _get_parse_blast_func {
     my $count = 0;
     my $strict = $self->strict();
 
-    # Some parameter validation:
+    # Some parameter validation.
+    # Remember, all Blast parsing will use this function now.
+    # You won't need a exec-func or save_array when just creating a Blast object
+    #  as in: $blast = new Bio::Tools::Blast();
     if($exec_func and not ref($exec_func) eq 'CODE') {
 	$self->throw("The -EXEC_FUNC parameter must be function reference.",
 		    "exec_func = $exec_func");
@@ -1633,12 +1636,6 @@ sub _get_parse_blast_func {
     } elsif($save_a and not ref($save_a) eq 'ARRAY') {
 	$self->throw("The -SAVE_ARRAY parameter must supply an array reference".
 		     "when not using an -EXEC_FUNC parameter.");
-# You won't need a exec-func or save_array when just creating a Blast object
-#   as in: $blast = new Bio::Tools::Blast(...);
-# Remember, all Blast parsing will use this function now.
-#    } elsif(not ($save_a or $exec_func)) {
-#	$self->throw("No -EXEC_FUNC or -SAVE_ARRAY parameter was specified.",
-#		     "Need to do something with the Blast objects.");
     }
 
     ## Might consider breaking this closure up if possible.
@@ -1716,9 +1713,14 @@ sub _get_parse_blast_func {
 	    $current_blast->_parse_header($data);
 	    
 	    # At this point, we know if there are any significant hits.
-	    if($Blast->{'_confirm_significance'} and not $current_blast->is_signif) {
-	      $current_blast->throw("No significant BLAST hits for ${\$current_blast->name}");
-	  }
+	    # No longer throwing exception if there were no significant hits
+	    # and a -signif parameter was specified. Doing so prevents the
+	    # construction of a Blast object, which could still be useful. 
+#	    if($Blast->{'_confirm_significance'} and not $current_blast->is_signif) {
+#	      $current_blast->throw("No significant BLAST hits for ${\$current_blast->name}");
+
+#	    }
+
 	} # Done parsing header/description section
 
 	elsif(ref $Blast->{'_current_blast'}) {
@@ -1759,7 +1761,7 @@ sub _get_parse_blast_func {
 =head2 _report_errors
 
  Title   : _report_errors
- Usage   : n/a; Internal method called by parse().
+ Usage   : n/a; Internal method called by _get_parse_blast_func().
  Purpose : Throw or warn about any errors encountered. 
  Returns : n/a
  Args    : n/a
@@ -1777,7 +1779,8 @@ sub _report_errors {
 #-------------------
   my $self = shift;
 
-  ref($self->{'_blast_errs'}) || (print STDERR "\nNO ERRORS\n", return );
+  return unless ref($self->{'_blast_errs'});
+#  ref($self->{'_blast_errs'}) || (print STDERR "\nNO ERRORS\n", return );
 
   my @errs = @{$self->{'_blast_errs'}};
 
@@ -1816,7 +1819,9 @@ sub _report_errors {
  Purpose   : Parses the header section of a BLAST report.
  Argument  : String containing the header+description section of a BLAST report.
  Throws    : Exception if description data cannot be parsed properly.
-             Exception if there are no significant hits.
+           : Exception if there is a 'FATAL' error in the Blast report.
+           : Warning if there is a 'WARNING' in the Blast report.
+           : Warning if there are no significant hits.
  Comments  : Description section contains a single line for each hit listing
            : the seq id, description, score, Expect or P-value, etc.
 
@@ -1849,7 +1854,8 @@ sub _parse_header {
 	
     $data =~ /WARNING: (.+?)$Newline$Newline/so and $self->warn("$1") if $self->strict;
     $data =~ /FATAL: (.+?)$Newline$Newline/so and $self->throw("FATAL BLAST ERROR = $1"); 
-    $data =~ /No hits? found/i and $self->throw("No hits were found."); 
+    # No longer throwing exception when no hits were found. Still reporting it.
+    $data =~ /No hits? found/i and $self->warn("No hits were found.") if $self->strict; 
 
     # If this is the first Blast, the program, version, and database info
     # pertain to it. Otherwise, they are for the previous report and have
