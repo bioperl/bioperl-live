@@ -87,7 +87,9 @@ use Bio::SearchIO;
 
 select STDOUT; $|=1; 
 
-my $in     = Bio::SearchIO->new( -format => 'blast', -signif => 0.1 );
+my $in     = Bio::SearchIO->new( -format => 'blast', 
+				 -fh => \*ARGV,
+                                 -signif => 0.1 );
 my $writer = MyBlastWriter->new();
 my $out    = Bio::SearchIO->new( -format => 'blast',
 				 -writer => $writer,

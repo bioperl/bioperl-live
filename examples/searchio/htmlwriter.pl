@@ -37,7 +37,8 @@ my $outfile = "searchio.html";
 my $file = shift or die "Usage: $0 <BLAST-report-file>\n       HTML output is saved to $outfile\n";
 
 my $in = Bio::SearchIO->new( -format => 'blast', 
-                             -file => $file, # comment out this line to read STDIN
+                             -file => $file,  #comment this out to read STDIN
+                             #-fh => \*ARGV,  #uncomment this to read from STDIN
                              -verbose => 0 );
 
 my $writer = new Bio::SearchIO::Writer::HTMLResultWriter();

@@ -65,7 +65,9 @@ print STDERR "\nUsing SearchIO->new()\n";
 # Note that all parameters for the $in, $out, and $writer objects are optional.
 # Default in = STDIN; Default out = STDOUT; Default writer = all columns 
 # In this example, we're reading from STDIN and  writing to a STDOUT
-my $in     = Bio::SearchIO->new( -format => 'blast' );
+my $in     = Bio::SearchIO->new( -format => 'blast',
+				 -fh => \*ARGV
+                               );
 my $writer = Bio::SearchIO::Writer::HSPTableWriter->new( -columns => \@columns );
 my $out    = Bio::SearchIO->new( -format => 'blast', 
 				 -writer => $writer,

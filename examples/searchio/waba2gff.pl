@@ -14,7 +14,8 @@ GetOptions(
 $infile = shift unless $infile;
 
 my $in = new Bio::SearchIO(-format => 'waba',
-			   -file   => $infile,
+			   -file   => $infile, #comment out to read from STDIN
+                           #-fh => \*ARGV,  # uncomment to read from STDIN
 			   -verbose => $verbose);
 
 my $out;

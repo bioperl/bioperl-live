@@ -39,7 +39,9 @@ use Bio::SearchIO;
 # to do a full parse of the alignments. Thus, we're using a -shalow_parse
 # flag to indicate that we don't need to parse alignments. This should
 # result in faster processing.
+# TODO: Convert this to use -format='blast'. Shallow-parse option not supported there.
 my $in = Bio::SearchIO->new(-format => 'psiblast', 
+                            -fh => \*ARGV,
 			    -signif => 0.1,
 			    -shallow_parse => 1,
 			    -hold_raw_data => 1 );

@@ -28,6 +28,7 @@ use lib '../../';
 use Bio::SearchIO;
 
 my $in = Bio::SearchIO->new( -format => 'psiblast',
+                             -fh => \*ARGV,
 			     -signif => 0.1, 
 			     -verbose => 0 );
 my @hitless_reports = ();

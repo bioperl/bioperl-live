@@ -55,6 +55,7 @@ print "\nUsing SearchIO->new()\n";
 # within 10 sec. (Note the clock is still ticking when you background the job.)
 # Setting verbose to 1 is useful for debugging.
 my $in = Bio::SearchIO->new( -format => 'blast', 
+                             -fh => \*ARGV,
                              -signif => 0.1, 
                              -verbose => 0, 
                              -timeout_sec => 10 );
