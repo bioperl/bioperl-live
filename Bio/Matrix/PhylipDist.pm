@@ -95,11 +95,9 @@ package Bio::Matrix::PhylipDist;
 use strict;
 
 use vars qw(@ISA);
+use Bio::Matrix::MatrixI;
 
-use Bio::Root::Root;
-use Bio::Tools::Phylo::Phylip::ProtDist;
-
-@ISA = qw(Bio::Root::Root);
+@ISA = qw(Bio::Root::Root Bio::Matrix::MatrixI);
 
 =head2 new
 
@@ -115,17 +113,24 @@ sub new {
     my ($class,@args) = @_;
     my $self = $class->SUPER::new(@args);
     my ($matrix,$values, $names,
-	$program) = $self->_rearrange([qw(MATRIX VALUES 
-					  NAMES PROGRAM)],@args);
+	$program,$matname,
+	$matid) = $self->_rearrange([qw(MATRIX VALUES 
+					NAMES PROGRAM
+					MATRIX_NAME
+					MATRIX_ID
+					  )],@args);
     
     ($matrix && $values && $names) || 
 	$self->throw("Need matrix, values, and names fields all provided!");
 
-    $program && $self->program($program);
+    $program && $self->matrix_name($program) if defined $program;
     
     $self->_matrix($matrix) if ref($matrix) =~ /HASH/i;
     $self->_values($values) if ref($values) =~ /ARRAY/i;
     $self->names($names) if ref($names) =~ /ARRAY/i;
+
+    $self->matrix_name($matname) if defined $matname;
+    $self->matrix_id  ($matid)   if defined $matid;
 
     return $self;
 }
@@ -296,7 +301,7 @@ sub _matrix {
 sub names {
   my ($self,$val) = @_;
   if($val){
-    $self->{"_names"} = $val;
+    $self->{'_names'} = $val;
   }
   return $self->{'_names'};
 }
@@ -313,11 +318,8 @@ sub names {
 =cut
 
 sub program {
-  my ($self,$val) = @_;
-  if($val){
-    $self->{'_program'} = $val;
-  }
-  return $self->{'_program'};
+  my ($self) = shift;
+  return $self->matrix_name(@_);
 }
 
 =head2 _values
@@ -338,5 +340,173 @@ sub _values {
   }
   return $self->{'_values'};
 }
-  
+
+
+=head1 L<Bio::Matrix::MatrixI> implementation
+
+
+=head2 matrix_id
+
+ Title   : matrix_id
+ Usage   : my $id = $matrix->matrix_id
+ Function: Get/Set the matrix ID
+ Returns : scalar value
+ Args    : [optional] new id value to store
+
+
+=cut
+
+sub matrix_id{
+   my $self = shift;
+   return $self->{'_matid'} = shift if @_;
+   return $self->{'_matid'};
+
+   
+}
+
+=head2 matrix_name
+
+ Title   : matrix_name
+ Usage   : my $name = $matrix->matrix_name();
+ Function: Get/Set the matrix name
+ Returns : scalar value
+ Args    : [optional] new matrix name value
+
+
+=cut
+
+sub matrix_name{
+   my $self = shift;
+   return $self->{'_matname'} = shift if @_;
+   return $self->{'_matname'};
+}
+
+=head2 column_header
+
+ Title   : column_header
+ Usage   : my $name = $matrix->column_header(0)
+ Function: Gets the column header for a particular column number
+ Returns : string
+ Args    : integer
+
+
+=cut
+
+sub column_header{
+    my ($self,$num) = @_;
+    my @coln = $self->column_names;
+    return $coln[$num];
+}
+
+
+=head2 row_header
+
+ Title   : row_header
+ Usage   : my $name = $matrix->row_header(0)
+ Function: Gets the row header for a particular row number
+ Returns : string
+ Args    : integer
+
+
+=cut
+
+sub row_header{
+    my ($self,$num) = @_;
+    my @rown = $self->row_names;
+   return $rown[$num];
+}
+=head2 column_num_for_name
+
+ Title   : column_num_for_name
+ Usage   : my $num = $matrix->column_num_for_name($name)
+ Function: Gets the column number for a particular column name
+ Returns : integer
+ Args    : string
+
+
+=cut
+
+sub column_num_for_name{
+   my ($self,$name) = @_;
+   my $ct = 0;
+   foreach my $n ( $self->column_names ) {
+       return $ct if $n eq $name;
+       $ct++;
+   }
+   return undef;
+}
+
+=head2 row_num_for_name
+
+ Title   : row_num_for_name
+ Usage   : my $num = $matrix->row_num_for_name($name)
+ Function: Gets the row number for a particular row name
+ Returns : integer
+ Args    : string
+
+
+=cut
+
+sub row_num_for_name{
+   my ($self,$name) = @_;
+   my $ct = 0;
+   foreach my $n ( $self->row_names ) {
+       return $ct if $n eq $name;
+       $ct++;
+   }
+}
+
+=head2 num_rows
+
+ Title   : num_rows
+ Usage   : my $rowcount = $matrix->num_rows;
+ Function: Get the number of rows
+ Returns : integer
+ Args    : none
+
+
+=cut
+
+sub num_rows{ return scalar @{shift->names} }
+
+=head2 num_columns
+
+ Title   : num_columns
+ Usage   : my $colcount = $matrix->num_columns
+ Function: Get the number of columns
+ Returns : integer
+ Args    : none
+
+
+=cut
+
+sub num_columns{
+   return scalar @{shift->names};
+}
+
+=head2 row_names
+
+ Title   : row_names
+ Usage   : my @rows = $matrix->row_names
+ Function: The names of all the rows
+ Returns : array in array context, arrayref in scalar context
+ Args    : none
+
+
+=cut
+
+sub row_names{ return @{shift->names} }
+
+=head2 column_names
+
+ Title   : column_names
+ Usage   : my @columns = $matrix->column_names
+ Function: The names of all the columns
+ Returns : array in array context, arrayref in scalar context
+ Args    : none
+
+
+=cut
+
+sub column_names{ return @{shift->names} }  
 1;

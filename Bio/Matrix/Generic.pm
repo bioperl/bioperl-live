@@ -731,6 +731,45 @@ sub num_columns{
 }
 
 
+=head2 row_names
+
+ Title   : row_names
+ Usage   : my @rows = $matrix->row_names
+ Function: The names of all the rows
+ Returns : array in array context, arrayref in scalar context
+ Args    : none
+
+
+=cut
+
+sub row_names{
+   if( wantarray ) { 
+       return @{shift->{'_rownames'}};
+   } else { 
+       return shift->{'_rownames'};
+   }
+}
+
+
+=head2 column_names
+
+ Title   : column_names
+ Usage   : my @columns = $matrix->column_names
+ Function: The names of all the columns
+ Returns : array in array context, arrayref in scalar context
+ Args    : none
+
+
+=cut
+
+sub column_names{
+   if( wantarray ) { 
+       return @{shift->{'_colnames'}};
+   } else { 
+       return shift->{'_colnames'};
+   }
+}
+
 =head2 private methods
 
 Private methods for a Generic Matrix

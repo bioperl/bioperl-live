@@ -259,7 +259,7 @@ sub reverse{
  Title   : row_names
  Usage   : my @rows = $matrix->row_names
  Function: The names of all the rows
- Returns : array
+ Returns : array in array context, arrayref in scalar context
  Args    : none
 
 
@@ -276,7 +276,7 @@ sub row_names{
  Title   : column_names
  Usage   : my @columns = $matrix->column_names
  Function: The names of all the columns
- Returns : array
+ Returns : array in array context, arrayref in scalar context
  Args    : none
 
 

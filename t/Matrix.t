@@ -16,7 +16,7 @@ BEGIN {
         use lib 't';
     }
     use Test;
-    plan tests => 46;
+    plan tests => 61;
 }
 
 END {
@@ -109,3 +109,40 @@ ok($pam_matrix->get_entry('L','I'), 2);
 ok($diag[2],2);
 @row = $pam_matrix->get_row('D');
 ok($row[5], $pam_matrix->get_entry('D','Q'));
+
+# test Phylip parsing
+
+$io = new Bio::Matrix::IO(-format  => 'phylip',
+			  -program => 'phylipdist',
+			  -file    => Bio::Root::IO->catfile
+			  (qw(t data phylipdist.out)));
+
+my $phy = $io->next_matrix;
+ok $phy->program, 'phylipdist';
+ok $phy->get_entry('Alpha','Beta'), '4.23419';
+ok $phy->get_entry('Gamma','Alpha'),'3.63330';
+
+my @column =  $phy->get_column('Alpha');
+ok $column[0], '0.00000';
+ok $column[1], '4.23419';
+ok $column[2], '3.63330';
+ok $column[3], '6.20865';
+ok $column[4], '3.45431';
+
+@row    = $phy->get_row('Gamma');
+ok $row[0], '3.63330';
+ok $row[1], '3.49289';
+ok $row[2], '0.00000';
+ok $row[3], '3.68733';
+ok $row[4], '5.84929';
+
+@diag   = $phy->get_diagonal;
+
+ok $diag[0], '0.00000';
+ok $diag[1], '0.00000';
+ok $diag[2], '0.00000';
+ok $diag[3], '0.00000';
+ok $diag[4], '0.00000';
+
+
+
