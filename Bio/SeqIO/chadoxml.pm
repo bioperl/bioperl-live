@@ -26,7 +26,7 @@ rather go through the SeqIO handler system. Go:
 =head1 DESCRIPTION
 
 This object can transform Bio::Seq objects to and from chadoxml flat
-file databases. CURRENTLY ONLY TO
+file databases (for chadoxml DTD, see http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/gmod/schema/chado/dat/chado.dtd). CURRENTLY ONLY TO
 
     $seqio = Bio::SeqIO->new(-file => '>outfile.xml', -format => 'chadoxml');
 
@@ -85,9 +85,13 @@ Destination of data in the subject Bio::Seq object $seq is as following:
 
 Things to watch out for:
 
+	*chado schema change: this version works with the chado version tagged chado_1_01 in GMOD CVS.
+
 	*feature uniquenames: especially important if using XORT loader to do incremental load into chado. may need pre-processing of the source data to put the correct uniquenames in place.
 
 	*pub uniquenames: chadoxml->write_seq() has the FlyBase policy on pub uniquenames hard-coded, it assigns pub uniquenames in the following way: for journals and books, use ISBN number; for published papers, use MEDLINE ID; for everything else, use FlyBase unique identifier FBrf#. need to modify the code to implement your policy. look for the comments in the code.
+
+	*for pubs possibly existing in chado but with no knowledge of its uniquename: put "op" as "match", then need to run the output chadoxml through a special filter that talks to chado database and tries to find the pub by matching with the provided information instead of looking up by the unique key. after matching, the filter also resets the "match" operation to either "force" (default), or "lookup", or "insert", or "update". the "match" operation is for a special FlyBase use case. please modify to work according to your rules.
 
 	*chado initialization for loading: 
 		cv & cvterm: in the output chadoxml, all cv's and cvterm's are lookup only. Therefore, before using XORT loader to load the output into chado, chado must be pre-loaded with all necessary CVs and CVterms, including "SO" , "property type", "relationship type", "pub type", "pubprop type", "pub relationship type", "sequence topology", "GenBank feature qualifier", "GenBank division". A pub by the uniquename 'nullpub' of type 'null pub' needs to be inserted.
@@ -508,15 +512,15 @@ EOUSAGE
 			#get FBrf#, special for FlyBase SEAN loading
 			if (index($location, ' ==') >= 0) {
 				$location =~ /\s==/;
-				print "match: $MATCH\n";
-				print "prematch: $PREMATCH\n";
-				print "postmatch: $POSTMATCH\n";
+				#print "match: $MATCH\n";
+				#print "prematch: $PREMATCH\n";
+				#print "postmatch: $POSTMATCH\n";
 				$fbrf = $PREMATCH;
 				$location = $POSTMATCH;
 				$location =~ s/^\s//;
 			}
 
-			print "location: $location\n";
+			#print "location: $location\n";
 			#unpublished reference
 			if ($location =~ /Unpublished/) {
 				$pubtype = 'unpublished';
@@ -835,13 +839,15 @@ EOUSAGE
 	}
 
 	my $mainTag = 'feature';
-	$self->_hash2xml($mainTag, \%finaldatahash);
+	$self->_hash2xml(undef, $mainTag, \%finaldatahash);
 
 	return 1;
 }
 
 sub _hash2xml {
 	my $self = shift;
+	my $isMatch = undef;
+	$isMatch = shift;
         my $ult = shift;
         my $ref = shift;
         my %mh = %$ref;
@@ -885,12 +891,20 @@ sub _hash2xml {
 	#special pub match if pub uniquename not known
 	elsif ($ult eq 'pub' && !defined $mh{'uniquename'}) {
 		$writer->startTag($ult, 'op' => 'match');
+		#set the match flag, all the sub tags should also have "op"="match"
+		$isMatch = 1;
 	}
 
 	#if cvterm or cv, lookup only
 	elsif (($ult eq 'cvterm') || ($ult eq 'cv')) { 
         	$writer->startTag($ult, 'op' => 'lookup');
 	} 
+
+	#if nested tables of match table, match too
+	elsif ($isMatch) {
+		$writer->startTag($ult, 'op' => 'match');
+	}
+
 	else {
         	$writer->startTag($ult);
 	}
@@ -903,7 +917,11 @@ sub _hash2xml {
            $yy = $key . ' ';
            if (index($chadotables, $xx) < 0 && index($chadotables, $yy) < 0) 
 	   {
-                $writer->startTag($key);
+		if ($isMatch) {
+                	$writer->startTag($key, 'op' => 'match');
+		} else {
+                	$writer->startTag($key);
+		}
 
                 my $x = $ult . '.' . $key;
 		#the column is a foreign key
@@ -911,7 +929,7 @@ sub _hash2xml {
 		{
                         $nt = $fkey{$x};
                         $sh = $mh{$key};
-			$self->_hash2xml($nt, $sh, $writer, 0);
+			$self->_hash2xml($isMatch, $nt, $sh, $writer, 0);
                 } else 
 		{
 			#print "$key: $mh{$key}\n";
@@ -934,19 +952,19 @@ sub _hash2xml {
                 $ntref = $mh{$key};
                 #print "$key: ", ref($ntref), "\n";
 		if (ref($ntref) =~ 'HASH') {
-			$self->_hash2xml($key, $ntref, $writer, 0);
+			$self->_hash2xml($isMatch, $key, $ntref, $writer, 0);
 		} elsif (ref($ntref) =~ 'ARRAY') {
 			#print "array dim: ", $#$ntref, "\n";
 			foreach $ref (@$ntref) {
 				#print "\n";
-				$self->_hash2xml($key, $ref, $writer, 0);
+				$self->_hash2xml($isMatch, $key, $ref, $writer, 0);
 			}
 		}
                 #$writer->endTag($key);
            }
         }
 
-        #end enclosing tag
+        #end tag
         $writer->endTag($ult);
 
 	if ($root == 1) {
