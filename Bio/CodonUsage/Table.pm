@@ -26,8 +26,8 @@ at http://www.kazusa.or.jp/codon.
 
   ## or from local file
 
-  my $io = Bio::CodonUsage::IO->new(-file=>"file");
-  my $cdtable= $io->next_data();
+  my $io      = Bio::CodonUsage::IO->new(-file=>"file");
+  my $cdtable = $io->next_data();
 
 
   ## or create your own from your own sequences 
@@ -39,7 +39,7 @@ at http://www.kazusa.or.jp/codon.
 
   ### the '-data' field must be specified ##
   ### the '-species' and 'genetic_code' fields are optional
-  my $CUT = Bio::CodonUsage::Table->new(-data =>$codonstats,
+  my $CUT = Bio::CodonUsage::Table->new(-data    => $codonstats,
                                         -species => 'Hsapiens_kinase');
 
   print "leu frequency is ", $cdtable->aa_frequency('LEU'), "\n";
@@ -110,7 +110,7 @@ use Bio::Tools::CodonTable;
 @ISA = qw(Bio::Root::Root);
 
 BEGIN{
- @AA = qw(A C D E F G H I K L M N P Q R S T V W Y);
+ @AA = qw(A C D E F G H I K L M N P Q R S T V W Y *);
  map {$STRICTAA{$_} = undef} @AA;
 }
 
@@ -141,7 +141,7 @@ sub new {
 		my $is_codon_hash = 1;
 		my $is_Aa_hash = 1;
 		for my $k (keys %$arg) {
-			## cpnvert to UC
+			## convert to UC
 			$k =~ s/(\w+)/\U$1/;
 			if (!exists($STRICTAA{$k}) ){
 				$is_Aa_hash = 0;
@@ -241,6 +241,45 @@ sub codon_rel_frequency {
 		return 0;
 		}
 }
+
+=head2 probable_codons
+
+ Title    : probable_codons
+ Usage    : my $prob_codons = $cd_table->probable_codons(10);
+ Purpose  : to obtain a list of codons for the amino acid above a given
+            threshold % relative frequency
+ Returns  : A reference to a hash where keys are 1 letter amino acid  codes
+            and values are references to arrays of codons whose frequency
+            is above the threshold.
+ Arguments: a minimum threshold frequency
+
+=cut
+
+sub probable_codons {
+	my ($self, $threshold) = @_;
+	if (!$threshold || $threshold < 0 || $threshold > 100) {
+		$self->throw(" I need a threshold percentage ");
+		}
+	my %return_hash;
+	for my $a(keys %STRICTAA) {
+		my @common_codons;
+		my $aa =$Bio::SeqUtils::THREECODE{$a};
+		for my $codon (keys %{ $self->{'_table'}{$aa}}) {
+			if ($self->{'_table'}{$aa}{$codon}{'rel_freq'} > $threshold/100){
+				push @common_codons, $codon;
+			}
+		}
+		$return_hash{$a} = \@common_codons;
+	}
+    ## check to make sure that all codons are populated ##
+	if (grep{scalar @{$return_hash{$_}} == 0} keys %return_hash) {
+		$self->warn("Threshold is too high, some amino acids do not" .
+					" have any codon above the threshold!");
+		}
+    return \%return_hash;
+}
+		
+
 
 =head2 codon_count
 
@@ -428,10 +467,8 @@ sub aa_frequency {
 	## process args ##
 
 	## deal with cases ##
-	 my $aa = lc $a;
+	my $aa = lc $a;	
 	$aa =~ s/^(\w)/\U$1/;
-
-
 	if (!exists($STRICTAA{$aa}) && !exists($Bio::SeqUtils::ONECODE{$aa}) ) {
 		$self->warn("Invalid amino acid! must be a unique 1 letter or 3 letter identifier");
 		return;
@@ -445,7 +482,73 @@ sub aa_frequency {
 	return sprintf("%.2f", $freq/10);
 }
 
+=head2 common_codon
+
+ Title   : common_codon
+ Usage   : my $freq = $cdtable->common_codon('Leu');
+ Purpose : To retrieve the frequency of the most common codon of that aa
+ Returns : a percentage
+ Args    : a 1 letter or 3 letter string representing the amino acid
+
+=cut
+
+sub common_codon{
+
+	my ($self, $a) = @_;
+	my $aa = lc $a;	
+	$aa =~ s/^(\w)/\U$1/;
+
+	if ($self->_check_aa($aa))	{
+		my $aa3 = $Bio::SeqUtils::THREECODE{$aa};
+		my $max = 0;
+		for my $cod (keys %{$self->{'_cod_table'}{$aa3}}) {
+			$max = ($self->{'_cod_table'}{$aa3}{$cod}{'rel_freq'} > $max) ?
+					$self->{'_cod_table'}{$aa3}{$cod}{'rel_freq'}:$max;
+			}
+		return $max;
+		}else {return 0;}
+}
+
+=head2 rare_codon
+
+ Title   : rare_codon
+ Usage   : my $freq = $cdtable->rare_codon('Leu');
+ Purpose : To retrieve the frquency of the least common codon of that aa
+ Returns : a percentage
+ Args    : a 1 letter or 3 letter string representing the amino acid
+
+=cut
+
+sub rare_codon {
+my ($self, $a) = @_;
+	my $aa = lc $a;	
+	$aa =~ s/^(\w)/\U$1/;
+	if ($self->_check_aa($aa))	{
+		my $aa3 = $Bio::SeqUtils::THREECODE{$aa};
+		my $min = 0;
+		for my $cod (keys %{$self->{'_cod_table'}{$aa3}}) {
+			$min = ($self->{'_cod_table'}{$aa3}{$cod}{'rel_freq'} < $min) ?
+					$self->{'_cod_table'}{$aa3}{$cod}{'rel_freq'}:$min;
+			}
+		return $min;
+		}else {return 0;}
+
+
+}
+
+
 ## internal sub that checks a codon is correct format
+sub _check_aa {
+	my ($self, $aa ) = @_;
+	if (!exists($STRICTAA{$aa}) && !exists($Bio::SeqUtils::ONECODE{$aa}) ) {
+		$self->warn("Invalid amino acid! must be a unique 1 letter or 3 letter identifier");
+		return 0;
+		}else {return 1;}
+}
+
+	
+
+
 sub _check_codon {
 	my ($self, $cod) = @_;
 	if ($cod =~ /[^ATCG]/  || $cod !~ /\w\w\w/) {
