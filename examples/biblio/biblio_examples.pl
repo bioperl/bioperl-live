@@ -51,6 +51,9 @@ while ($refs->has_next){
    my $io = Bio::Biblio::IO->new( -result => "raw", -data => $ref );
    my $nextref = $io->next_bibref;
    my $abstract = $nextref->{article}->{abstract}->{abstractText};
+   # you could also write:
+   # my $abstract = Bio::Biblio::IO->new( -result => "raw",
+   #  -data => $refs->get_next )->next_bibref->{article}->{abstract}->{abstractText};
    print $abstract,"\n";
 }
 
