@@ -22,7 +22,7 @@ alignments using the Clustalw program
   $factory = Bio::Tools::Run::Alignment::Clustalw->new(@params);
 
   #  Pass the factory a list of sequences to be aligned.	
-  $inputfilename = 't/cysprot.fa';
+  $inputfilename = 't/data/cysprot.fa';
   $aln = $factory->align($inputfilename); # $aln is a SimpleAlign object.
   # or
   $seq_array_ref = \@seq_array;
@@ -109,12 +109,12 @@ alignment to an initial alignment.
 
 Input to align() may consist of a set of unaligned sequences in the
 form of the name of file containing the sequences. For example,
-$inputfilename = 't/cysprot.fa'; $aln =
+$inputfilename = 't/data/cysprot.fa'; $aln =
 $factory-E<gt>align($inputfilename);
 
 Alternately one can create an array of Bio::Seq objects somehow
 
-	$str = Bio::SeqIO->new(-file=> 't/cysprot.fa', '-format' => 'Fasta');
+	$str = Bio::SeqIO->new(-file=> 't/data/cysprot.fa', '-format' => 'Fasta');
 	@seq_array =();
 	while ( my $seq = $str->next_seq() ) {push (@seq_array, $seq) ;}
 
@@ -135,9 +135,9 @@ filename or as an array of BioPerl sequence objects or as a single
 BioPerl Seq object.  For example (to add a single sequence to an
 alignment),
 
-	$str = Bio::AlignIO->new(-file=> 't/cysprot1a.msf');
+	$str = Bio::AlignIO->new(-file=> 't/data/cysprot1a.msf');
 	$aln = $str->next_aln();
-	$str1 = Bio::SeqIO->new(-file=> 't/cysprot1b.fa');
+	$str1 = Bio::SeqIO->new(-file=> 't/data/cysprot1b.fa');
 	$seq = $str1->next_seq();
 	$aln = $factory->profile_align($aln,$seq);
 
@@ -150,13 +150,13 @@ aligned against each other.  The alignments can be passed in the form
 of either a pair of alignment files or a pair of Bio:SimpleAlign
 objects. For example,
 
-	$profile1 = 't/cysprot1a.msf';
-	$profile2 = 't/cysprot1b.msf';
+	$profile1 = 't/data/cysprot1a.msf';
+	$profile2 = 't/data/cysprot1b.msf';
 	$aln = $factory->profile_align($profile1,$profile2);
 or
-	$str1 = Bio::AlignIO->new(-file=> 't/cysprot1a.msf');
+	$str1 = Bio::AlignIO->new(-file=> 't/data/cysprot1a.msf');
 	$aln1 = $str1->next_aln();
-	$str2 = Bio::AlignIO->new(-file=> 't/cysprot1b.msf');
+	$str2 = Bio::AlignIO->new(-file=> 't/data/cysprot1b.msf');
 	$aln2 = $str2->next_aln();
 	$aln = $factory->profile_align($aln1,$aln2);
 
@@ -310,7 +310,7 @@ methods. Internal methods are usually preceded with a _
 
 package Bio::Tools::Run::Alignment::Clustalw;
 
-use vars qw($AUTOLOAD @ISA $PROGRAM $PROGRAMDIR
+use vars qw($AUTOLOAD @ISA $DEBUG $PROGRAM $PROGRAMDIR
 	    $TMPDIR $TMPOUTFILE @CLUSTALW_SWITCHES @CLUSTALW_PARAMS
 	    @OTHER_SWITCHES %OK_FIELD);
 use strict;
@@ -320,8 +320,9 @@ use Bio::SimpleAlign;
 use Bio::AlignIO;
 use Bio::Root::Root;
 use Bio::Root::IO;
+use Bio::Factory::ApplicationFactoryI;
 
-@ISA = qw(Bio::Root::Root Bio::Root::IO);
+@ISA = qw(Bio::Root::Root Bio::Root::IO Bio::Factory::ApplicationFactoryI);
 
 # You will need to enable Clustalw to find the clustalw program. This
 # can be done in (at least) two ways:
@@ -360,9 +361,11 @@ sub new {
     my $self = $class->SUPER::new(@args);
     # to facilitiate tempfile cleanup
     $self->_initialize_io();
-    
+
     unless (&exists_clustal()) {
-	$self->warn( "Clustalw program not found as $PROGRAM or not executable. \n  Clustalw can be obtained from eg- http://corba.ebi.ac.uk/Biocatalog/Alignment_Search_software.html/");	
+	if( $self->verbose >= 0 ) {
+	    warn "Clustalw program not found as $PROGRAM or not executable. \n  Clustalw can be obtained from eg- http://corba.ebi.ac.uk/Biocatalog/Alignment_Search_software.html/ \n";
+	}
     }
 
     my ($attr, $value);
@@ -400,12 +403,29 @@ sub AUTOLOAD {
 =cut
 
 
-sub exists_clustal {    
-    if( my $f = Bio::Root::IO->exists_exe($PROGRAM) ) {
-	$PROGRAM = $f;
-	return 1;
-    }
-    return 0;
+sub exists_clustal {
+    return Bio::Root::IO->exists_exe($PROGRAM);
+}
+
+=head2  version
+
+ Title   : version
+ Usage   : exit if $prog->version() < 1.8
+ Function: Determine the version number of the program
+ Example :
+ Returns : float or undef
+ Args    : none
+
+=cut
+
+sub version {
+    my ($self) = @_;
+
+    return undef unless $self->exists_clustal;
+    my $string = `clustalw -- ` ;
+    $string =~ /\(([\d.]+)\)/;
+    return $1 || undef;
+
 }
 
 
@@ -413,7 +433,7 @@ sub exists_clustal {
 
  Title   : align
  Usage   :
-	$inputfilename = 't/cysprot.fa';
+	$inputfilename = 't/data/cysprot.fa';
 	$aln = $factory->align($inputfilename);
 or
 	$seq_array_ref = \@seq_array; @seq_array is array of Seq objs
@@ -477,11 +497,11 @@ sub profile_align {
     $infilename1 = $self->_setinput($input1,1);
     $infilename2 = $self->_setinput($input2,2);
     if (!$infilename1 || !$infilename2) {$self->throw("Bad input data: $input1 or $input2 !");}
+    unless ( -e $infilename1 and -e  $infilename2) {$self->throw("Bad input file: $input1 or $input2 !");}
 
 
 # Create parameter string to pass to clustalw program
     my $param_string = $self->_setparams();
-
 # run clustalw
     my $aln = $self->_run('profile-aln', $infilename1,
 			  $infilename2, $param_string);
@@ -512,16 +532,17 @@ sub _run {
     }
     if ($command =~ /profile/) {
 	$instring =  "-profile1=$infile1  -profile2=$infile2";
+	chmod 0777, $infile1,$infile2;
 	$command = '-profile';
     }
     my $commandstring = $PROGRAM." $command"." $instring".
 	" -output=gcg". " $param_string";
-
-    $self->debug( "clustal command = $commandstring");
-    
+# next line is for debugging purposes
+    if( $DEBUG ) {
+	print "clustal command = $commandstring \n";
+    }
     my $status = system($commandstring);
     $self->throw( "Clustalw call crashed: $? \n") unless $status==0;
-
     my $outfile = $self->outfile() || $TMPOUTFILE ;
 # retrieve alignment (Note: MSF format for AlignIO = GCG format of clustalw)
     my $in  = Bio::AlignIO->new(-file => $outfile, '-format' => 'MSF');
@@ -649,7 +670,7 @@ sub _setparams {
     }
 
     if ($self->quiet()) { $param_string .= '  >/dev/null';}
-    
+
     return $param_string;
 }
 
