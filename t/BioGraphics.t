@@ -113,7 +113,7 @@ sub do_compare {
   my $data = '';
   while (read(IN,$data,1024,length $data)) { 1 }
   close IN;
-  ok($data eq $cangif ? $panel->gd->gif : $panel->gd->png);
+  ok($data eq ($cangif ? $panel->gd->gif : $panel->gd->png));
 }
 
 
