@@ -1,5 +1,5 @@
 # $Id$
-# BioPerl module for Bio::Expression::FeatureI
+# BioPerl module for Bio::Expression::ProbeI
 #
 # Copyright Allen Day <allenday@ucla.edu>, Stan Nelson <snelson@ucla.edu>
 # Human Genetics, UCLA Medical School, University of California, Los Angeles
@@ -8,7 +8,7 @@
 
 =head1 NAME
 
-Bio::Expression::FeatureI - an interface class for DNA/RNA features
+Bio::Expression::ProbeI - an interface class for DNA/RNA probes
 
 =head1 SYNOPSIS
 
@@ -17,7 +17,7 @@ Do not use this module directly
 =head1 DESCRIPTION
 
 This provides a standard bioperl interface class for representing
-DNA and RNA features.  It cannot be instantiated directly, but serves
+DNA and RNA probes.  It cannot be instantiated directly, but serves
 as an abstract base class for implementors.
 
 =head1 FEEDBACK
@@ -38,7 +38,7 @@ Report bugs to the Bioperl bug tracking system to help us keep track
  Bug reports can be submitted via email or the web:
 
   bioperl-bugs@bio.perl.org
-  http://bugzilla.bioperl.org/
+  http://bio.perl.org/bioperl-bugs/
 
 =head1 AUTHOR
 
@@ -52,7 +52,7 @@ methods. Internal methods are usually preceded with a _
 =cut
 
 # Let the code begin...
-package Bio::Expression::FeatureI;
+package Bio::Expression::ProbeI;
 
 use strict;
 use Bio::Root::Root;
@@ -60,39 +60,46 @@ use Bio::Root::Root;
 use base qw(Bio::Root::Root Bio::PrimarySeqI);
 use vars qw($DEBUG);
 
-=head2 quantitation()
+=head2 value()
 
   Title   : value
-  Usage   : $val = $ftr->quantitation()
-  Function: get/set the feature's quantitation
+  Usage   : $val = $probe->value()
+  Function: get/set the probe's observed value
   Returns : A numeric value
   Args    : a new numeric value (optional)
 
 =cut
 
-sub quantitation {
-  shift->throw_not_implemented();
+sub value {
+  my($self,$arg) = @_;
+  if($arg){
+    $self->throw(__PACKAGE__ . "::value only accepts numeric values") unless $arg =~ /^[\d.]+$/;
+    $self->{value} = $arg;
+  }
+  return $self->{value} || 0;
 }
 
-=head2 quantitation_units()
+=head2 value_units()
 
-  Title   : quantitation_units
-  Usage   : $units = $ftr->quantitation_units()
-  Function: get/set the units of the feature's quantitation
+  Title   : value_units
+  Usage   : $units = $probe->units()
+  Function: get/set the units of the probe's observed value
   Returns : A string or undef
   Args    : a new string (optional)
 
 =cut
 
-sub quantitation_units {
-  shift->throw_not_implemented();
+sub value_units {
+  my($self,$arg) = @_;
+  $self->{value_units} = $arg if defined $arg;
+  return $self->{value_units};
 }
 
 =head2 standard_deviation()
 
   Title   : standard_deviation
-  Usage   : $std_dev = $ftr->standard_deviation()
-  Function: get/set the feature's standard deviation of quantitation()
+  Usage   : $std_dev = $probe->standard_deviation()
+  Function: get/set the probe's standard deviation of value()
   Returns : A numeric value
   Args    : a new numeric value (optional)
   Comments: no calculation is done here
@@ -100,22 +107,32 @@ sub quantitation_units {
 =cut
 
 sub standard_deviation {
-  shift->throw_not_implemented();
+  my($self,$arg) = @_;
+  if($arg){
+    $self->throw(__PACKAGE__ . "::standard_deviation only accepts numeric values") unless $arg =~ /^[\d.]+$/;
+    $self->{standard_deviation} = $arg;
+  }
+  return $self->{deviation} || 0;
 }
 
 =head2 sample_count()
 
   Title   : sample_count
-  Usage   : $sample_count = $ftr->sample_count()
+  Usage   : $sample_count = $probe->sample_count()
   Function: get/set the number of samples used to calculate
-            quantitation()
+            value()
   Returns : An integer
   Args    : a new integer (optional)
 
 =cut
 
 sub sample_count {
-  shift->throw_not_implemented();
+  my($self,$arg) = @_;
+  if($arg){
+    $self->throw(__PACKAGE__ . "::sample_count only accepts integers") unless $arg =~ /^[\d]+$/;
+    $self->{sample_count} = $arg;
+  }
+  return $self->{sample_count} || 0;
 }
 
 1;
