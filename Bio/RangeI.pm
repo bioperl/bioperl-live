@@ -89,7 +89,7 @@ BEGIN {
 # Abstract method stop defined in interface Bio::RangeI not implemented by package You::BadRange
 sub _abstractDeath {
   my $self = shift;
-  my $package = ref $self;
+  my $package = ref $self || $self;
   my $caller = (caller)[1];
   
   confess "Abstract method '$caller' defined in interface Bio::RangeI not implemented by pacakge $package";
