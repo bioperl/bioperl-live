@@ -168,10 +168,17 @@ sub _load_module {
     my ($module, $load, $m);
     
     $module = "_<$name.pm";
-    $load = "$name.pm";
-    $load =~ s/:/\//g;
-
     return 1 if $main::{$module};
+    $load = "$name.pm";
+    eval {
+	use File::Spec;
+	$load = File::Spec->catfile((split(/::/,$load)));
+    };
+    if($@) {
+	my $filesep = ($^O =~ /MSWin/ ? "\\" :
+		       ($^O =~ /Mac/ ? ":" : "/"));
+	$load = join($filesep, (split(/::/,$load)));
+    }
     eval {
 	require $load;
     };
