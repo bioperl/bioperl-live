@@ -33,7 +33,9 @@ RelationshipType - a relationship type for an ontology
 This class can be used to model various types of relationships
 (such as "IS_A", "PART_OF", "CONTAINS", "FOUND_IN").
 
-This class extends Bio::Ontology::Term.
+This class extends L<Bio::Ontology::Term>, so it essentially is-a
+L<Bio::Ontology::TermI>. In addition, all methods are overridden such
+as to make the object immutable.
 
 =head1 FEEDBACK
 
@@ -53,7 +55,7 @@ report bugs to the Bioperl bug tracking system to help us keep track
  email or the web:
 
   bioperl-bugs@bio.perl.org
-  http://bio.perl.org/bioperl-bugs/
+  http://bugzilla.bioperl.org/
 
 =head1 AUTHOR
 
@@ -80,7 +82,7 @@ methods. Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::Ontology::RelationshipType;
-use vars qw( @ISA $IS_A $PART_OF $CONTAINS $FOUND_IN );
+use vars qw( @ISA );
 use strict;
 use Bio::Ontology::Term;
 
@@ -94,11 +96,10 @@ use constant FOUND_IN => "FOUND_IN";
 @ISA = qw( Bio::Ontology::Term );
 
 
-$IS_A     = Bio::Ontology::RelationshipType->get_instance( IS_A );
-$PART_OF  = Bio::Ontology::RelationshipType->get_instance( PART_OF );
-$CONTAINS = Bio::Ontology::RelationshipType->get_instance( CONTAINS );
-$FOUND_IN = Bio::Ontology::RelationshipType->get_instance( FOUND_IN );
-
+#
+# cache for terms
+#
+my %term_name_map = ();
 
 
 =head2 get_instance
@@ -111,43 +112,40 @@ $FOUND_IN = Bio::Ontology::RelationshipType->get_instance( FOUND_IN );
  Function: Factory method to create instances of RelationshipType
  Returns : [Bio::Ontology::RelationshipType]
  Args    : "IS_A" or "PART_OF" or "CONTAINS" or "FOUND_IN" [scalar]
+           the ontology [Bio::Ontology::OntologyI] (optional)
 
 =cut
 
 sub get_instance {
-    my ( $class, $value ) = @_;
+    my ( $class, $name, $ont ) = @_;
 
-    my $instance = $class->new();
-    $instance->category( "relationship type" );
+    $class->throw("must provide name, not ".(defined($name)? "\"\"":"undef"))
+	unless $name;
 
-    if ( $value eq IS_A ) {
-        $instance->identifier( IS_A );
-        $instance->name( IS_A );
-        $instance->definition( IS_A . " relationship type" );
+    # is one in the cache?
+    my $reltype = $term_name_map{$name};
+
+    if($reltype &&
+       # check whether ontologies match
+       (($ont && $reltype->ontology() &&
+	 ($ont->name() eq $reltype->ontology->name())) ||
+	(! ($reltype->ontology() || $ont)))) {
+	# we're done, return cached type
+	return $reltype;
     }
-    elsif ( $value eq PART_OF ) {
-        $instance->identifier( PART_OF );
-        $instance->name( PART_OF );
-        $instance->definition( PART_OF . " relationship type" );
-    }
-    elsif ( $value eq CONTAINS ) {
-        $instance->identifier( CONTAINS );
-        $instance->name( CONTAINS );
-        $instance->definition( CONTAINS . " relationship type" );
-    }
-    elsif ( $value eq FOUND_IN ) {
-        $instance->identifier( FOUND_IN );
-        $instance->name( FOUND_IN );
-        $instance->definition( FOUND_IN . " relationship type" );
-    }
-    else {
-        my $msg = "Found unknown type of relationship: [" . $value . "]\n";
+    # valid relationship type?
+    if ( ! (($name eq IS_A) || ($name eq PART_OF) ||
+	    ($name eq CONTAINS) || ( $name eq FOUND_IN ))) {
+        my $msg = "Found unknown type of relationship: [" . $name . "]\n";
         $msg .= "Known types are: [" . IS_A . "], [" . PART_OF . "], [" . CONTAINS . "], [" . FOUND_IN . "]";
         $class->throw( $msg );
     }
-
-    return $instance;
-
+    # if we get here we need to create the rel.type
+    $reltype = $class->new(-name     => $name,
+			   -ontology => $ont);
+    # cache it (FIXME possibly overrides one from another ontology)
+    $term_name_map{$name} = $reltype;
+    return $reltype;
 } # get_instance
 
 
@@ -163,16 +161,11 @@ sub get_instance {
 =cut
 
 sub init {
-   my( $self ) = @_;
+    my $self = shift;
 
-    $self->{ "_identifier" }  = undef;
-    $self->{ "_name" }        = undef;
-    $self->{ "_definition" }  = undef;
-    $self->{ "_version" }     = undef;
-    $self->{ "_is_obsolete" } = undef;
-    $self->{ "_comment" }     = undef;
-    $self->remove_synonyms();
+    $self->SUPER::init();
 
+    # at this point we don't really need to do anything special for us
 } # init
 
 
@@ -216,17 +209,14 @@ sub equals {
 =cut
 
 sub identifier {
-    my ( $self, $value ) = @_;
-
-    if ( defined $value ) {
-        if ( defined $self->{ "_identifier" } ) {
-            $self->throw( "Attempted to change field in immutable object" );
-        }
-        $self->{ "_identifier" } = $value;
+    my $self = shift;
+    my $ret = $self->SUPER::identifier();
+    if(@_) {
+	$self->throw("attempted to change field in immutable object") if $ret;
+	$ret = $self->SUPER::identifier(@_);
     }
-
-    return $self->{ "_identifier" };
-
+    # we need to return something here
+    return $ret || $self->name();
 } # identifier
 
 
@@ -245,17 +235,13 @@ sub identifier {
 =cut
 
 sub name {
-    my ( $self, $value ) = @_;
-
-    if ( defined $value ) {
-        if ( defined $self->{ "_name" } ) {
-            $self->throw( "Attempted to change field in immutable object" );
-        }
-        $self->{ "_name" } = $value;
+    my $self = shift;
+    my $ret = $self->SUPER::name();
+    if(@_) {
+	$self->throw("attempted to change field in immutable object") if $ret;
+	$ret = $self->SUPER::name(@_);
     }
-
-    return $self->{ "_name" };
-
+    return $ret;
 } # name
 
 
@@ -275,58 +261,40 @@ sub name {
 =cut
 
 sub definition {
-    my ( $self, $value ) = @_;
-
-    if ( defined $value ) {
-        if ( defined $self->{ "_definition" } ) {
-            $self->throw( "Attempted to change field in immutable object" );
-        }
-        $self->{ "_definition" } = $value;
+    my $self = shift;
+    my $ret = $self->SUPER::definition();
+    if(@_) {
+	$self->throw("attempted to change field in immutable object") if $ret;
+	$ret = $self->SUPER::definition(@_);
     }
-
-    return $self->{ "_definition" };
-
+    # let's be nice and return something readable here
+    return $ret || ($self->name() . " relationship type");
 } # definition
 
 
 
-=head2 category
+=head2 ontology
 
- Title   : category
- Usage   : $term->category( $top );
+ Title   : ontology
+ Usage   : $term->ontology( $top );
            or
-           $top = $term->category();
- Function: Set/get for a immutable  relationship between this Type and
-           another Term (e.g. the top level of the ontology).
- Returns : The category [TermI].
- Args    : The category [TermI or scalar -- which
-           becomes the name of the catagory term] (optional).
+           $top = $term->ontology();
+ Function: Set/get for the ontology this relationship type lives in.
+ Returns : The ontology [Bio::Ontology::OntologyI].
+ Args    : On set, the ontology [Bio::Ontology::OntologyI] (optional).
 
 =cut
 
-sub category {
-    my ( $self, $value ) = @_;
-
-    if ( defined $value ) {
-        if ( defined $self->{ "_category" } ) {
-            $self->throw( "Attempted to change field in immutable object" );
-        }
-        if ( ! ref( $value ) ) {
-            my $term = $self->new();
-            $term->name( $value );
-            $self->{ "_category" } = $term;
-        }
-        elsif ( $value->isa( "Bio::Ontology::TermI" ) ) {
-            $self->{ "_category" } = $value;
-        }
-        else {
-            $self->throw( "Found [". ref( $value )
-            . "] where [Bio::Ontology::TermI] or [scalar] expected" );
-        }
+sub ontology {
+    my $self = shift;
+    my $ret = $self->SUPER::ontology();
+    if(@_) {
+	my $ont = shift;
+	$self->throw("attempted to change field in immutable object")
+	    if $ret && ($ont != $ret);
+	$ret = $self->SUPER::ontology($ont);
     }
-
-    return $self->{ "_category" };
-
+    return $ret;
 } # category
 
 
@@ -344,17 +312,13 @@ sub category {
 =cut
 
 sub version {
-    my ( $self, $value ) = @_;
-
-    if ( defined $value ) {
-        if ( defined $self->{ "_version" } ) {
-            $self->throw( "Attempted to change field in immutable object" );
-        }
-        $self->{ "_version" } = $value;
+    my $self = shift;
+    my $ret = $self->SUPER::version();
+    if(@_) {
+	$self->throw("attempted to change field in immutable object") if $ret;
+	$ret = $self->SUPER::version(@_);
     }
-
-    return $self->{ "_version" };
-
+    return $ret;
 } # version
 
 
@@ -372,18 +336,13 @@ sub version {
 =cut
 
 sub is_obsolete {
-    my ( $self, $value ) = @_;
-
-    if ( defined $value ) {
-            if ( defined $self->{ "_is_obsolete" } ) {
-            $self->throw( "Attempted to change field in immutable object" );
-        }
-        $self->_is_true_or_false( $value );
-        $self->{ "_is_obsolete" } = $value;
+    my $self = shift;
+    my $ret = $self->SUPER::is_obsolete();
+    if(@_) {
+	$self->throw("attempted to change field in immutable object") if $ret;
+	$ret = $self->SUPER::is_obsolete(@_);
     }
-
-    return $self->{ "_is_obsolete" };
-
+    return $ret;
 } # is_obsolete
 
 
@@ -403,17 +362,13 @@ sub is_obsolete {
 =cut
 
 sub comment {
-    my ( $self, $value ) = @_;
-
-    if ( defined $value ) {
-        if ( defined $self->{ "_comment" } ) {
-            $self->throw( "Attempted to change field in immutable object" );
-        }
-        $self->{ "_comment" } = $value;
+    my $self = shift;
+    my $ret = $self->SUPER::comment();
+    if(@_) {
+	$self->throw("attempted to change field in immutable object") if $ret;
+	$ret = $self->SUPER::comment(@_);
     }
-
-    return $self->{ "_comment" };
-
+    return $ret;
 } # comment
 
 

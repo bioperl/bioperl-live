@@ -138,12 +138,12 @@ ok (scalar($nested_ac->get_all_Annotations()), 6);
 # OntologyTerm annotation
 my $termann = Bio::Annotation::OntologyTerm->new(-label => 'test case',
 						 -identifier => 'Ann:00001',
-						 -category => 'dumpster');
+						 -ontology => 'dumpster');
 ok ($termann->term);
 ok ($termann->term->name, 'test case');
 ok ($termann->term->identifier, 'Ann:00001');
 ok ($termann->tagname, 'dumpster');
-ok ($termann->category->name, 'dumpster');
+ok ($termann->ontology->name, 'dumpster');
 ok ($termann->as_text, "dumpster|test case|Ann:00001");
 
 # AnnotatableI

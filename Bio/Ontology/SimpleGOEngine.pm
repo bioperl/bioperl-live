@@ -101,14 +101,16 @@ use Bio::Ontology::RelationshipType;
 use Bio::Ontology::Relationship;
 use Bio::Ontology::OntologyEngineI;
 
-use constant TRUE    => 1;
-use constant FALSE   => 0;
-use constant IS_A    => "IS_A";
-use constant PART_OF => "PART_OF";
-use constant TERM    => "TERM";
-use constant TYPE    => "TYPE";
+use constant TRUE     => 1;
+use constant FALSE    => 0;
+use constant IS_A     => "IS_A";
+use constant PART_OF  => "PART_OF";
+use constant TERM     => "TERM";
+use constant TYPE     => "TYPE";
+use constant ONTOLOGY => "ONTOLOGY";
 
-@ISA = qw( Bio::Ontology::OntologyEngineI );
+@ISA = qw( Bio::Root::Root
+           Bio::Ontology::OntologyEngineI );
 
 
 
@@ -207,10 +209,10 @@ sub part_of_relationship {
 =head2 add_term
 
  Title   : add_term
- Usage   : $engine->add_term( $GOterm_obj );
- Function: Adds a Bio::Ontology::GOterm to this engine
+ Usage   : $engine->add_term( $term_obj );
+ Function: Adds a Bio::Ontology::TermI to this engine
  Returns : true
- Args    : Bio::Ontology::GOterm
+ Args    : Bio::Ontology::TermI
 
 
 =cut
@@ -218,13 +220,12 @@ sub part_of_relationship {
 sub add_term {
     my ( $self, $term ) = @_;
 
-    $self->_check_class( $term, "Bio::Ontology::GOterm" );
-
-    my $goid = $term->GO_id();
-
-    if ( $self->graph()->has_vertex( $term ) ) {
-        $self->throw( "Ontology already contains a GO term with an identifier of \"$goid\"" );
+    if ( $self->has_term( $term ) ) {
+        $self->throw("Ontology already contains a term with an ".
+		     "identifier of \"".$self->_get_id($term)."\"" );
     }
+
+    my $goid = $self->_get_id($term);
 
     $self->graph()->add_vertex( $goid );
     $self->graph()->set_attribute( TERM, $goid, $term );
@@ -239,11 +240,11 @@ sub add_term {
 
  Title   : has_term
  Usage   : $engine->has_term( $term );
- Function: Checks whether this engine contains a particular GO term
+ Function: Checks whether this engine contains a particular term
  Returns : true or false
- Args    : Bio::Ontology::GOterm
+ Args    : Bio::Ontology::TermI
            or
-           GO term identifier (e.g. "GO:0012345")
+           erm identifier (e.g. "GO:0012345")
 
 
 =cut
@@ -272,9 +273,9 @@ sub has_term {
            $engine->add_relatioship( $parent_id, $child_id, $relationship_type);
  Function: Adds a relationship to this engine
  Returns : true if successfully added, false otherwise
- Args    : GO id, GO id, Bio::Ontology::RelationshipType
+ Args    : term id, term id, Bio::Ontology::RelationshipType, ontology 
            or
-           Bio::Ontology::GOterm, Bio::Ontology::GOterm, Bio::Ontology::RelationshipType
+           Bio::Ontology::TermI, Bio::Ontology::TermI, Bio::Ontology::RelationshipType, ontology
            or
            Bio::Ontology::RelationshipI
 
@@ -282,35 +283,39 @@ sub has_term {
 
 # term objs or term ids
 sub add_relationship {
-    my ( $self, $parent, $child, $type ) = @_;
+    my ( $self, $parent, $child, $type, $ont ) = @_;
 
     if ( scalar( @_ ) == 2 ) {
         $self->_check_class( $parent, "Bio::Ontology::RelationshipI" );
-        $child = $parent->child_term();
-        $type = $parent->relationship_type();
+        $child  = $parent->child_term();
+        $type   = $parent->relationship_type();
         $parent = $parent->parent_term();
+	$ont    = $parent->ontology();
     }
 
 
-    $self->_check_class( $type, "Bio::Ontology::RelationshipType" );
+    $self->_check_class( $type, "Bio::Ontology::TermI" );
 
     $parent = $self->_get_id( $parent );
     $child = $self->_get_id( $child );
 
-    if ( ! $self->graph()->has_vertex( $child ) ) {
-        $self->throw( "Ontology does not contain a GO term with an identifier of \"$child\"" );
+    my $g = $self->graph();
+
+    if ( ! $g->has_vertex( $child ) ) {
+        $self->throw( "Ontology does not contain a term with an identifier of \"$child\"" );
     }
-    if ( ! $self->graph()->has_vertex( $parent ) ) {
-        $self->throw( "Ontology does not contain a GO term with an identifier of \"$parent\"" );
+    if ( ! $g->has_vertex( $parent ) ) {
+        $self->throw( "Ontology does not contain a term with an identifier of \"$parent\"" );
     }
 
     # This prevents multi graphs.
-    if ( $self->graph()->has_edge( $parent, $child ) ) {
+    if ( $g->has_edge( $parent, $child ) ) {
         return FALSE;
     }
 
-    $self->graph()->add_edge( $parent, $child );
-    $self->graph()->set_attribute( TYPE, $parent, $child, $type );
+    $g->add_edge( $parent, $child );
+    $g->set_attribute( TYPE, $parent, $child, $type );
+    $g->set_attribute( ONTOLOGY, $parent, $child, $ont );
 
     return TRUE;
 
@@ -326,19 +331,21 @@ sub add_relationship {
  Usage   : $engine->get_relationships( $term );
  Function: Returns all relationships of a term
  Returns : Relationship[]
- Args    : GO id
+ Args    : term id
            or
-           Bio::Ontology::GOterm
+           Bio::Ontology::TermI
 
 =cut
 
 sub get_relationships {
     my ( $self, $term ) = @_;
 
+    my $g = $self->graph();
+
     $term = $self->_get_id( $term );
 
-    if ( ! $self->graph()->has_vertex( $term ) ) {
-        $self->throw( "Ontology does not contain a GO term with an identifier of \"$term\"" );
+    if ( ! $g->has_vertex( $term ) ) {
+        $self->throw( "Ontology does not contain a term with an identifier of \"$term\"" );
     }
 
     my @childs  = $self->get_child_terms( $term );
@@ -350,14 +357,20 @@ sub get_relationships {
         my $rel = Bio::Ontology::Relationship->new();
         $rel->parent_term( $self->get_terms( $term ) );
         $rel->child_term( $child );
-        $rel->relationship_type( $self->graph()->get_attribute( TYPE, $term, $child->GO_id() ) );
+        $rel->relationship_type($g->get_attribute(TYPE, $term,
+						  $child->identifier()));
+	$rel->ontology($g->get_attribute( ONTOLOGY,
+					  $term, $child->identifier()));
         push( @rels, $rel );
     }
     foreach my $parent ( @parents ) {
         my $rel = Bio::Ontology::Relationship->new();
         $rel->parent_term( $parent );
         $rel->child_term( $self->get_terms( $term ) );
-        $rel->relationship_type( $self->graph()->get_attribute( TYPE, $parent->GO_id(), $term ) );
+        $rel->relationship_type($g->get_attribute(TYPE, $parent->identifier(),
+						  $term) );
+        $rel->ontology( $g->get_attribute(ONTOLOGY,
+					  $parent->identifier(), $term) );
         push( @rels, $rel );
     }
 
@@ -396,10 +409,10 @@ sub get_relationship_types {
  Usage   : $engine->get_child_terms( $term_obj, @rel_types );
            $engine->get_child_terms( $term_id, @rel_types );
  Function: Returns the children of this term
- Returns : Bio::Ontology::GOterm[]
- Args    : Bio::Ontology::GOterm, Bio::Ontology::RelationshipType[]
+ Returns : Bio::Ontology::TermI[]
+ Args    : Bio::Ontology::TermI, Bio::Ontology::RelationshipType[]
            or
-           GO id, Bio::Ontology::RelationshipType[]
+           term id, Bio::Ontology::RelationshipType[]
 
            if NO Bio::Ontology::RelationshipType[] is indicated: children
            of ALL types are returned
@@ -423,10 +436,10 @@ sub get_child_terms {
  Usage   : $engine->get_descendant_terms( $term_obj, @rel_types );
            $engine->get_descendant_terms( $term_id, @rel_types );
  Function: Returns the descendants of this term
- Returns : Bio::Ontology::GOterm[]
- Args    : Bio::Ontology::GOterm, Bio::Ontology::RelationshipType[]
+ Returns : Bio::Ontology::TermI[]
+ Args    : Bio::Ontology::TermI, Bio::Ontology::RelationshipType[]
            or
-           GO id, Bio::Ontology::RelationshipType[]
+           term id, Bio::Ontology::RelationshipType[]
 
            if NO Bio::Ontology::RelationshipType[] is indicated: descendants
            of ALL types are returned
@@ -442,7 +455,7 @@ sub get_descendant_terms {
     $term = $self->_get_id( $term );
 
     if ( ! $self->graph()->has_vertex( $term ) ) {
-        $self->throw( "Ontology does not contain a GO term with an identifier of \"$term\"" );
+        $self->throw( "Ontology does not contain a term with an identifier of \"$term\"" );
     }
 
     $self->_get_descendant_terms_helper( $term, \%ids, \@types );
@@ -464,10 +477,10 @@ sub get_descendant_terms {
  Usage   : $engine->get_parent_terms( $term_obj, @rel_types );
            $engine->get_parent_terms( $term_id, @rel_types );
  Function: Returns the parents of this term
- Returns : Bio::Ontology::GOterm[]
- Args    : Bio::Ontology::GOterm, Bio::Ontology::RelationshipType[]
+ Returns : Bio::Ontology::TermI[]
+ Args    : Bio::Ontology::TermI, Bio::Ontology::RelationshipType[]
            or
-           GO id, Bio::Ontology::RelationshipType[]
+           term id, Bio::Ontology::RelationshipType[]
 
            if NO Bio::Ontology::RelationshipType[] is indicated: parents
            of ALL types are returned
@@ -489,10 +502,10 @@ sub get_parent_terms {
  Usage   : $engine->get_ancestor_terms( $term_obj, @rel_types );
            $engine->get_ancestor_terms( $term_id, @rel_types );
  Function: Returns the ancestors of this term
- Returns : Bio::Ontology::GOterm[]
- Args    : Bio::Ontology::GOterm, Bio::Ontology::RelationshipType[]
+ Returns : Bio::Ontology::TermI[]
+ Args    : Bio::Ontology::TermI, Bio::Ontology::RelationshipType[]
            or
-           GO id, Bio::Ontology::RelationshipType[]
+           term id, Bio::Ontology::RelationshipType[]
 
            if NO Bio::Ontology::RelationshipType[] is indicated: ancestors
            of ALL types are returned
@@ -508,7 +521,7 @@ sub get_ancestor_terms {
     $term = $self->_get_id( $term );
 
     if ( ! $self->graph()->has_vertex( $term ) ) {
-        $self->throw( "Ontology does not contain a GO term with an identifier of \"$term\"" );
+        $self->throw( "Ontology does not contain a term with an identifier of \"$term\"" );
     }
 
     $self->_get_ancestor_terms_helper( $term, \%ids, \@types );
@@ -530,7 +543,7 @@ sub get_ancestor_terms {
  Title   : get_leaf_terms
  Usage   : $engine->get_leaf_terms();
  Function: Returns the leaf terms
- Returns : Bio::Ontology::GOterm[]
+ Returns : Bio::Ontology::TermI[]
  Args    :
 
 =cut
@@ -551,7 +564,7 @@ sub get_leaf_terms {
  Title   : get_root_terms
  Usage   : $engine->get_root_terms();
  Function: Returns the root terms
- Returns : Bio::Ontology::GOterm[]
+ Returns : Bio::Ontology::TermI[]
  Args    :
 
 =cut
@@ -567,36 +580,14 @@ sub get_root_terms {
 }
 
 
-
-=head2 get_term
-
- Title   : get_term
- Usage   : $engine->get_term( "GO:1234567" );
- Function: Returns a GO term with a given identifier
- Returns : Bio::Ontology::GOterm is present, false otherwise
- Args    : GO id
-
-
-=cut
-
-sub get_term {
-    my ( $self, $id ) = @_;
-    if ( $self->graph()->has_vertex( $id ) ) {
-        return( $self->graph()->get_attribute( TERM, $id ) );
-    }
-
-} # get_term
-
-
-
-
 =head2 get_terms
 
  Title   : get_terms
- Usage   : $engine->get_term( "GO:1234567", "GO:2234567" );
- Function: Returns a GO terms with given identifiers
- Returns : Bio::Ontology::GOterm[]
- Args    : GO id[]
+ Usage   : @terms = $engine->get_terms( "GO:1234567", "GO:2234567" );
+ Function: Returns term objects with given identifiers
+ Returns : Bio::Ontology::TermI[], or the term corresponding to the
+           first identifier if called in scalar context
+ Args    : term ids[]
 
 
 =cut
@@ -612,29 +603,27 @@ sub get_terms {
         }
     }
 
-    return @terms;
+    return wantarray ? @terms : shift(@terms);
 
 } # get_terms
 
 
+=head2 get_all_terms
 
-
-=head2 each_term
-
- Title   : each_term
- Usage   : $engine->each_term();
+ Title   : get_all_terms
+ Usage   : $engine->get_all_terms();
  Function: Returns all terms in this engine
- Returns : Bio::Ontology::GOterm[]
+ Returns : Bio::Ontology::TermI[]
  Args    :
 
 =cut
 
-sub each_term {
+sub get_all_terms {
     my ( $self ) = @_;
 
     return( $self->get_terms( $self->graph()->vertices() ) );
 
-} # each_term
+} # get_all_terms
 
 
 
@@ -666,29 +655,30 @@ sub graph {
 # ----------------
 
 
-# Checks the correct format of a GO id
-# Gets the GO out of a GOterm
+# Checks the correct format of a GOBO-formatted id
+# Gets the id out of a term of id string
 sub _get_id {
     my ( $self, $term ) = @_;
-    if ( ref( $term ) ) {
-        if ( $term->isa( "Bio::Ontology::GOterm" ) ) {
-            return $term->GO_id();
-        }
-        else {
-            $self->throw( "Found [" . ref( $term ) . "] where [Bio::Ontology::GOterm] expected" );
-        }
+
+    if(ref($term)) {
+	return $term->GO_id() if $term->isa("Bio::Ontology::GOterm");
+	# if not a GOterm, use standard API
+	$self->throw("object must implement Bio::Ontology::TermI ".
+		     "but it doesn't")
+	    unless $term->isa("Bio::Ontology::TermI");
+	$term = $term->identifier();
     }
-    else {
-        if ( $term =~ /^GO:\d{7}$/ ) {
-            return $term;
-        }
-        elsif ( $term =~ /^\d{7}$/ ) {
-            return "GO:" . $term;
-        }
-        else {
-            $self->throw( "Illegal format for GO identifier [$term]" );
-        }
+    # don't fuss if it looks remotely standard
+    return $term if $term =~ /^[A-Z]{1,8}:\d{7}$/;
+    # prefix with something if only numbers
+    if($term =~ /^\d{7}$/) {
+	$self->warn(ref($self).": identifier [$term] is only numbers - ".
+		    "prefixing with 'GO:'");
+	return "GO:" . $term;
     }
+    $self->warn(ref($self).": Are you sure '$term' is a valid identifier? ".
+		"If you see problems, this may be the cause.");
+    return $term;
 } # _get_id
 
 
@@ -704,7 +694,7 @@ sub _get_child_parent_terms_helper {
 
     $term = $self->_get_id( $term );
     if ( ! $self->graph()->has_vertex( $term ) ) {
-        $self->throw( "Ontology does not contain a GO term with an identifier of \"$term\"" );
+        $self->throw( "Ontology does not contain a term with an identifier of \"$term\"" );
     }
 
     my @all_relative_terms = ();
@@ -751,7 +741,7 @@ sub _get_descendant_terms_helper {
     }
 
     foreach my $child_term ( @child_terms ) {
-        my $child_term_id = $child_term->GO_id();
+        my $child_term_id = $child_term->identifier();
         $ids_ref->{ $child_term_id } = 0;
         $self->_get_descendant_terms_helper( $child_term_id, $ids_ref, $types_ref );
     }
@@ -770,7 +760,7 @@ sub _get_ancestor_terms_helper {
     }
 
     foreach my $parent_term ( @parent_terms ) {
-        my $parent_term_id = $parent_term->GO_id();
+        my $parent_term_id = $parent_term->identifier();
         $ids_ref->{ $parent_term_id } = 0;
         $self->_get_ancestor_terms_helper( $parent_term_id, $ids_ref, $types_ref );
     }
@@ -793,6 +783,7 @@ sub _check_class {
     }
 
 } # _check_class
+
 
 
 1;

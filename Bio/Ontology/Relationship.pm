@@ -87,8 +87,8 @@ use Bio::Root::Root;
 use Bio::Ontology::TermI;
 use Bio::Ontology::RelationshipI;
 
-@ISA = qw( Bio::Ontology::RelationshipI );
-
+@ISA = qw( Bio::Root::Root
+           Bio::Ontology::RelationshipI );
 
 
 
@@ -118,18 +118,22 @@ sub new {
     my ( $identifier,
          $parent_term,
          $child_term,
-         $relationship_type )
-    = $self->_rearrange( [ qw( IDENTIFIER
-                               PARENT_TERM
-                               CHILD_TERM
-                               RELATIONSHIP_TYPE ) ], @args );
+         $relationship_type,
+	 $ont)
+	= $self->_rearrange( [qw( IDENTIFIER
+				  PARENT_TERM
+				  CHILD_TERM
+				  RELATIONSHIP_TYPE
+				  ONTOLOGY)
+			      ], @args );
    
     $self->init(); 
     
     $identifier        && $self->identifier( $identifier );
     $parent_term       && $self->parent_term( $parent_term );
     $child_term        && $self->child_term( $child_term );
-    $relationship_type && $self->relationship_type( $relationship_type );   
+    $relationship_type && $self->relationship_type( $relationship_type );
+    $ont               && $self->ontology($ont);
                                                     
     return $self;
     
@@ -148,13 +152,14 @@ sub new {
 =cut
 
 sub init {
-   my( $self ) = @_;
-
+    my( $self ) = @_;
+    
     $self->{ "_identifier" }        = undef;
     $self->{ "_parent_term" }       = undef;
     $self->{ "_child_term" }        = undef;
     $self->{ "_relationship_type" } = undef;
-  
+    $self->ontology(undef);
+   
 } # init
 
 
@@ -259,6 +264,36 @@ sub relationship_type {
 }
 
 
+=head2 ontology
+
+ Title   : ontology
+ Usage   : $ont = $obj->ontology()
+ Function: Get/set the ontology that defined this relationship.
+ Example : 
+ Returns : an object implementing L<Bio::Ontology::OntologyI>
+ Args    : on set, undef or an object implementing 
+           L<Bio::Ontology::OntologyI> (optional)
+
+
+=cut
+
+sub ontology{
+    my $self = shift;
+    my $ont;
+
+    if(@_) {
+	$ont = shift;
+	if($ont) {
+	    $ont = Bio::Ontology::Ontology->new(-name => $ont) if ! ref($ont);
+	    if(! $ont->isa("Bio::Ontology::OntologyI")) {
+		$self->throw(ref($ont)." does not implement ".
+			     "Bio::Ontology::OntologyI. Bummer.");
+	    }
+	} 
+	return $self->{"_ontology"} = $ont;
+    } 
+    return $self->{"_ontology"};
+}
 
 =head2 to_string
 

@@ -68,7 +68,7 @@ of the bugs and their resolution. Bug reports can be submitted via
 email or the web:
 
   bioperl-bugs@bioperl.org
-  http://bioperl.org/bioperl-bugs/
+  http://bugzilla.bioperl.org/
 
 =head1 AUTHOR - Keith Ching
 
@@ -506,7 +506,7 @@ sub next_seq{
 		my $goann = Bio::Annotation::OntologyTerm->new(
 					   -identifier => $record{GO}->[$j],
 					   -name => $record{GO_DESC}->[$j],
-					   -category => $record{GO_CAT}->[$j]);
+					   -ontology => $record{GO_CAT}->[$j]);
 		$ann->add_Annotation($goann);
 	    }
 	}

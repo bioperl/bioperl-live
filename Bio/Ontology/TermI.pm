@@ -35,7 +35,7 @@ TermI - interface for ontology terms
   print $term->is_obsolete(), "\n";
   print $term->comment(), "\n";
 
-  foreach my $synonym ( $term->each_synonym() ) {
+  foreach my $synonym ( $term->get_synonyms() ) {
       print $synonym, "\n";
   }
 
@@ -92,9 +92,9 @@ methods.
 package Bio::Ontology::TermI;
 use vars qw( @ISA );
 use strict;
-use Bio::Root::Object;
+use Bio::Root::RootI;
 
-@ISA = qw( Bio::Root::Root );
+@ISA = qw( Bio::Root::RootI );
 
 
 
@@ -164,26 +164,36 @@ sub definition {
 
 
 
-=head2 category
+=head2 ontology
 
- Title   : category
- Usage   : $term->category( $top );
+ Title   : ontology
+ Usage   : $ont = $term->ontology();
            or 
-           $top = $term->category();
- Function: Set/get for a relationship between this Term and
-           another Term (e.g. the top level of the ontology).
- Returns : The category of this Term [TermI].
- Args    : The category of this Term [TermI or scalar -- which
-           becomes the name of the catagory term] (optional).
+           $term->ontology( $ont );
+ Function: Get the ontology this term is in.
+
+           An implementation may not permit the value of this
+           attribute to be changed once it is set, since that may have
+           serious consequences (note that with the ontology in hand
+           you can query for all related terms etc).
+
+           Note for implementors: you will almost certainly have to
+           take special precaution in order not to create cyclical
+           references in memory.
+
+ Returns : The ontology of this Term as a L<Bio::Ontology::OntologyI>
+           implementing object.
+ Args    : On set, the  ontology of this Term as a L<Bio::Ontology::OntologyI>
+           implementing object or a string representing its name.
 
 =cut
 
-sub category {
+sub ontology {
     my ( $self ) = @_;
     
     $self->throw_not_implemented();
     
-} # category
+} # ontology
 
 
 
@@ -252,60 +262,71 @@ sub comment {
 
 
 
-=head2 each_synonym
+=head2 get_synonyms
 
- Title   : each_synonym()
- Usage   : @aliases = $term->each_synonym();                 
+ Title   : get_synonyms
+ Usage   : @aliases = $term->get_synonyms();
  Function: Returns a list of aliases of this Term.
+
+           If an implementor of this interface permits modification of
+           this array property, the class should define at least
+           methods add_synonym() and remove_synonyms(), with obvious
+           functionality.
+
  Returns : A list of aliases [array of [scalar]].
  Args    :
 
 =cut
 
-sub each_synonym {
+sub get_synonyms {
     my ( $self ) = @_;
     
     $self->throw_not_implemented();
 
-} # each_synonym
+} # get_synonyms
 
+=head2 get_dblinks
 
-=head2 add_synonyms
+ Title   : get_dblinks()
+ Usage   : @ds = $term->get_dblinks();
+ Function: Returns a list of each dblink of this term.
 
- Title   : add_synonyms
- Usage   : $term->add_synonyms( @asynonyms );
-           or
-           $term->add_synonyms( $synonym );                  
- Function: Pushes one or more synonyms into the list of synonyms.
- Returns : 
- Args    : One synonym [scalar] or a list of synonyms [array of [scalar]].
+           If an implementor of this interface permits modification of
+           this array property, the class should define at least
+           methods add_dblink() and remove_dblinks(), with obvious
+           functionality.
 
-=cut
-
-sub add_synonyms {
-    my ( $self ) = @_;
-    
-    $self->throw_not_implemented();
-
-} # add_synonyms
-
-
-=head2 remove_synonyms
-
- Title   : remove_synonyms()
- Usage   : $term->remove_synonyms();
- Function: Deletes (and returns) the synonyms of this Term.
- Returns : A list of synonyms [array of [scalar]].
+ Returns : A list of dblinks [array of [scalars]].
  Args    :
 
 =cut
 
-sub remove_synonyms {
-    my ( $self ) = @_;
-    
-    $self->throw_not_implemented();
+sub get_dblinks {
+    shift->throw_not_implemented();
+} # get_dblinks
 
-} # remove_synonyms
+=head2 get_secondary_ids
+
+ Title   : get_secondary_ids
+ Usage   : @ids = $term->get_secondary_ids();
+ Function: Returns a list of secondary identifiers of this Term.
+
+           Secondary identifiers mostly originate from merging terms,
+           or possibly also from splitting terms.
+
+           If an implementor of this interface permits modification of
+           this array property, the class should define at least
+           methods add_secondary_id() and remove_secondary_ids(), with
+           obvious functionality.
+
+ Returns : A list of secondary identifiers [array of [scalar]]
+ Args    :
+
+=cut
+
+sub get_secondary_ids {
+    shift->throw_not_implemented();
+} # get_secondary_ids
 
 
 1;

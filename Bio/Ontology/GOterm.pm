@@ -98,7 +98,7 @@ use vars qw( @ISA );
 use strict;
 use Bio::Ontology::Term;
 
-use constant GOID_DEFAULT => "GO:-------";
+use constant GOID_DEFAULT => "GO:0000000";
 use constant TRUE         => 1;
 use constant FALSE        => 0;
 
@@ -117,15 +117,15 @@ use constant FALSE        => 0;
                                                -comment     => "" );                   
  Function: Creates a new Bio::Ontology::GOterm.
  Returns : A new Bio::Ontology::GOterm object.
- Args    : -go_id                 => the goid of this GO term [GO:nnnnnnn] 
-                                     or [nnnnnnn] (nnnnnnn is a zero-padded
-                                     integer of seven digits)
-           -name                  => the name of this GO term [scalar]
-           -definition            => the definition of this GO term [scalar]  
-           -category              => a relationship between this Term and another Term [TermI or scalar]
-           -version               => version information [scalar]
-           -is_obsolete           => the obsoleteness of this GO term [0 or 1]   
-           -comment               => a comment [scalar]
+ Args    : -go_id         => the goid of this GO term [GO:nnnnnnn] 
+                             or [nnnnnnn] (nnnnnnn is a zero-padded
+                             integer of seven digits)
+           -name          => the name of this GO term [scalar]
+           -definition    => the definition of this GO term [scalar]  
+           -ontology      => a relationship between this Term and another Term [TermI or scalar]
+           -version       => version information [scalar]
+           -is_obsolete   => the obsoleteness of this GO term [0 or 1]   
+           -comment       => a comment [scalar]
 
 =cut
 
@@ -146,9 +146,6 @@ sub new {
 } # new
 
 
-
-
-
 =head2 init
 
  Title   : init()
@@ -163,12 +160,11 @@ sub init {
 
     my $self = shift;
 
+    # first call the inherited version to properly chain up the hierarchy
     $self->SUPER::init(@_);
 
+    # then only initialize what we implement ourselves here
     $self->GO_id( GOID_DEFAULT );
-    $self->remove_dblinks();
-    $self->remove_secondary_GO_ids();
-    $self->remove_synonyms();
   
 } # init
 
@@ -206,110 +202,36 @@ sub GO_id {
 } # GO_id
 
 
+=head2 get_secondary_GO_ids
 
-
-
-=head2 each_dblink
-
- Title   : each_dblink()
- Usage   : @ds = $term->each_dblink();                 
- Function: Returns a list of each dblinks of this GO term.
- Returns : A list of dblinks [array of [scalars]].
- Args    :
-
-=cut
-
-sub each_dblink {
-    my ( $self ) = @_;
-    
-    if ( $self->{ "_dblinks" } ) {
-        return @{ $self->{ "_dblinks" } };
-    }
-    else {
-        return my @a = (); 
-    }
-    
-} # each_dblink
-
-
-=head2 add_dblinks
-
- Title   : add_dblinks
- Usage   : $term->add_dblinks( @dbls );
-           or
-           $term->add_dblinks( $dbl );                  
- Function: Pushes one or more dblinks
-           into the list of dblinks.
- Returns : 
- Args    : One  dblink [scalar] or a list of
-            dblinks [array of [scalars]].
-
-=cut
-
-sub add_dblinks {
-    my ( $self, @values ) = @_;
-    
-    return unless( @values );
-        
-    push( @{ $self->{ "_dblinks" } }, @values );
-    
-} # add_dblinks
-
-
-=head2 remove_dblinks
-
- Title   : remove_dblinks()
- Usage   : $term->remove_dblinks();
- Function: Deletes (and returns) the definition references of this GO term.
- Returns : A list of definition references [array of [scalars]].
- Args    :
-
-=cut
-
-sub remove_dblinks {
-    my ( $self ) = @_;
-     
-    my @a = $self->each_dblink();
-    $self->{ "_dblinks" } = [];
-    return @a;
-
-} # remove_dblinks
-
-
-
-
-=head2 each_secondary_GO_id
-
- Title   : each_secondary_GO_id()
- Usage   : @ids = $term->each_secondary_GO_id();                 
+ Title   : get_secondary_GO_ids
+ Usage   : @ids = $term->get_secondary_GO_ids();
  Function: Returns a list of secondary goids of this Term.
+
+           This is aliased to remove_secondary_ids().
+
  Returns : A list of secondary goids [array of [GO:nnnnnnn]]
            (nnnnnnn is a zero-padded integer of seven digits).
  Args    :
 
 =cut
 
-sub each_secondary_GO_id {
-    my ( $self ) = @_;
-    
-    if ( $self->{ "_secondary_GO_ids" } ) {
-        return @{ $self->{ "_secondary_GO_ids" } };
-    }
-    else {
-        return my @a = (); 
-    }
-    
-} # each_secondary_GO_id
+sub get_secondary_GO_ids {
+    return shift->get_secondary_ids(@_);
+} # get_secondary_GO_ids
 
 
-=head2 add_secondary_GO_ids
+=head2 add_secondary_GO_id
 
- Title   : add_secondary_GO_ids
- Usage   : $term->add_secondary_GO_ids( @ids );
+ Title   : add_secondary_GO_id
+ Usage   : $term->add_secondary_GO_id( @ids );
            or
-           $term->add_secondary_GO_ids( $id );                  
+           $term->add_secondary_GO_id( $id );                  
  Function: Pushes one or more secondary goids into
            the list of secondary goids.
+
+           This is aliased to remove_secondary_ids().
+
  Returns : 
  Args    : One secondary goid [GO:nnnnnnn or nnnnnnn] or a list
            of secondary goids [array of [GO:nnnnnnn or nnnnnnn]]
@@ -317,18 +239,9 @@ sub each_secondary_GO_id {
 
 =cut
 
-sub add_secondary_GO_ids {
-    my ( $self, @values ) = @_;
-    
-    return unless( @values );
-    
-    foreach my $value ( @values ) {  
-        $value = $self->_check_go_id( $value );
-    }
-    
-    push( @{ $self->{ "_secondary_GO_ids" } }, @values );
-    
-} # add_secondary_GO_ids
+sub add_secondary_GO_id {
+    return shift->add_secondary_id(@_);
+} # add_secondary_GO_id
 
 
 =head2 remove_secondary_GO_ids
@@ -336,6 +249,9 @@ sub add_secondary_GO_ids {
  Title   : remove_secondary_GO_ids()
  Usage   : $term->remove_secondary_GO_ids();
  Function: Deletes (and returns) the secondary goids of this Term.
+
+           This is aliased to remove_secondary_ids().
+
  Returns : A list of secondary goids [array of [GO:nnnnnnn]]
            (nnnnnnn is a zero-padded integer of seven digits).
  Args    :
@@ -343,12 +259,7 @@ sub add_secondary_GO_ids {
 =cut
 
 sub remove_secondary_GO_ids {
-    my ( $self ) = @_;
-     
-    my @a = $self->each_secondary_GO_id();
-    $self->{ "_secondary_GO_ids" } = [];
-    return @a;
-
+    return shift->remove_secondary_ids(@_);
 } # remove_secondary_GO_ids
 
 
@@ -376,8 +287,8 @@ sub to_string {
     $s .= "-- Definition:\n";
     $s .= ($self->definition() || '') ."\n";
     $s .= "-- Category:\n";
-    if ( defined( $self->category() ) ) {
-        $s .= $self->category()->name()."\n";
+    if ( defined( $self->ontology() ) ) {
+        $s .= $self->ontology()->name()."\n";
     }
     else {
         $s .= "\n";
@@ -389,11 +300,11 @@ sub to_string {
     $s .= "-- Comment:\n";
     $s .= ($self->comment() || '') ."\n"; 
     $s .= "-- Definition references:\n";
-    $s .= $self->_array_to_string( $self->each_dblink() )."\n";
+    $s .= $self->_array_to_string( $self->get_dblinks() )."\n";
     $s .= "-- Secondary GO ids:\n";
-    $s .= $self->_array_to_string( $self->each_secondary_GO_id() )."\n";
+    $s .= $self->_array_to_string( $self->get_secondary_GO_ids() )."\n";
     $s .= "-- Aliases:\n";
-    $s .= $self->_array_to_string( $self->each_synonym() );
+    $s .= $self->_array_to_string( $self->get_synonyms() );
     
     return $s;
     
@@ -440,5 +351,11 @@ sub _array_to_string {
     
 } # _array_to_string
 
+#################################################################
+# aliases or forwards to maintain backward compatibility
+#################################################################
+
+*each_secondary_GO_id = \&get_secondary_GO_ids;
+*add_secondary_GO_ids = \&add_secondary_GO_id;
 
 1;

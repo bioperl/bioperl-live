@@ -23,11 +23,7 @@ use Bio::Ontology::TermFactory;
   
 my $obj = Bio::Ontology::Term->new();
 
-ok( $obj->isa( "Bio::Ontology::Term" ) );
-
-$obj->init();
-
-
+ok( $obj->isa( "Bio::Ontology::TermI" ) );
 
 ok( $obj->identifier( "0003947" ), "0003947" );
 ok( $obj->identifier(), "0003947" );
@@ -41,14 +37,14 @@ ok( $obj->definition(), "Catalysis of ..." );
 ok( $obj->version( "666" ), "666" );
 ok( $obj->version(), "666" );
 
-ok( $obj->category( "category 1 name" ) );
-ok( $obj->category()->name(), "category 1 name" );
+ok( $obj->ontology( "category 1 name" ) );
+ok( $obj->ontology()->name(), "category 1 name" );
 
-my $cat = Bio::Ontology::Term->new();
-ok( $cat->name( "category 2 name" ) );
+my $ont = Bio::Ontology::Ontology->new();
+ok( $ont->name( "category 2 name" ) );
 
-ok( $obj->category( $cat ) );
-ok( $obj->category()->name(), "category 2 name" );
+ok( $obj->ontology( $ont ) );
+ok( $obj->ontology()->name(), "category 2 name" );
 
 ok( $obj->is_obsolete( 1 ), 1 );
 ok( $obj->is_obsolete(), 1 );
@@ -56,32 +52,29 @@ ok( $obj->is_obsolete(), 1 );
 ok( $obj->comment( "Consider the term ..." ), "Consider the term ..." );
 ok( $obj->comment(), "Consider the term ..." );
 
-ok( $obj->each_synonym(), 0 );
+ok( $obj->get_synonyms(), 0 );
 
-ok( $obj->add_synonyms( ( "AA", "AB" ) ) );
-ok( $obj->each_synonym(), 2 );
-my @al1 = $obj->each_synonym();
+ok( $obj->add_synonym( ( "AA", "AB" ) ) );
+ok( $obj->get_synonyms(), 2 );
+my @al1 = $obj->get_synonyms();
 ok( $al1[ 0 ], "AA" );
 ok( $al1[ 1 ], "AB" );
-ok( $obj->each_synonym(), 2 );
+ok( $obj->get_synonyms(), 2 );
 
 my @al2 = $obj->remove_synonyms();
 ok( $al2[ 0 ], "AA" );
 ok( $al2[ 1 ], "AB" );
 
-ok( $obj->each_synonym(), 0 );
+ok( $obj->get_synonyms(), 0 );
 ok( $obj->remove_synonyms(), 0 );
 
 ok( $obj->add_synonyms( ( "AA", "AB" ) ) );
 
-
-
-$obj->init();
-ok( $obj->identifier(), undef );
-ok( $obj->name(), undef );
-ok( $obj->definition(), undef );
-ok( $obj->is_obsolete(), 0 );
-ok( $obj->comment(), undef );
+ok( $obj->identifier(undef), undef );
+ok( $obj->name(undef), undef );
+ok( $obj->definition(undef), undef );
+ok( $obj->is_obsolete(0), 0 );
+ok( $obj->comment(undef), undef );
 
 
 $obj = Bio::Ontology::Term->new( -identifier  => "0016847",
@@ -89,16 +82,16 @@ $obj = Bio::Ontology::Term->new( -identifier  => "0016847",
                                  -definition  => "Catalysis of ...",
                                  -is_obsolete => 0,
                                  -version     => "6.6.6",
-                                 -category    => "cat",
+                                 -ontology    => "cat",
                                  -comment     => "X" );  
 
 ok( $obj->identifier(), "0016847" );
 ok( $obj->name(), "1-aminocyclopropane-1-carboxylate synthase" );
 ok( $obj->definition(), "Catalysis of ..." );
-ok( $obj->is_obsolete(), 0 );
+ok( $obj->is_obsolete(), 0);
 ok( $obj->comment(), "X" );
 ok( $obj->version(), "6.6.6" );
-ok( $obj->category()->name(), "cat" );
+ok( $obj->ontology()->name(), "cat" );
 
 # test object factory for terms
 my $fact = Bio::Ontology::TermFactory->new();
@@ -117,7 +110,7 @@ ok ($obj->identifier, "GO:987654");
 $fact->type("Bio::Annotation::OntologyTerm");
 $obj = $fact->create_object(-name => "some ontology term",
 			    -identifier => "GO:987654",
-			    -category => "nonsense");
+			    -ontology => "nonsense");
 ok $obj->isa("Bio::Ontology::TermI");
 ok $obj->isa("Bio::AnnotationI");
 ok ($obj->name, "some ontology term");

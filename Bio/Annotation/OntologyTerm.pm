@@ -47,8 +47,8 @@ Bio::Annotation::OntologyTerm - An ontology term adapted to AnnotationI
    # e.g.
    my $term = $annterm->term(); # term is-a Bio::Ontology::TermI
    print "ontology term ",$term->name()," (ID ",$term->identifier(),
-         "), category ",$term->category()->name(),"\n";
-   $term = Bio::Ontology::Term->new(-name => 'ABC2', -category => 'Gene Name');
+         "), ontology ",$term->ontology()->name(),"\n";
+   $term = Bio::Ontology::Term->new(-name => 'ABC2', -ontology => 'Gene Name');
    $annterm->term($term);
 
 =head1 DESCRIPTION
@@ -113,7 +113,7 @@ use Bio::Root::Root;
  Args    : -term => $term to initialize the term data field [optional]
            Most named arguments that Bio::Ontology::Term accepts will work
            here too. -label is a synonym for -name, -tagname is a synonym for
-           -category.
+           -ontology.
 
 =cut
 
@@ -122,13 +122,13 @@ sub new{
     
     my $self = $class->SUPER::new(@args);
     
-    my ($term,$name,$label,$identifier,$definition,$cat,$tag) =
+    my ($term,$name,$label,$identifier,$definition,$ont,$tag) =
 	$self->_rearrange([qw(TERM
 			      NAME
 			      LABEL
 			      IDENTIFIER
 			      DEFINITION
-			      CATEGORY
+			      ONTOLOGY
 			      TAGNAME)],
 			  @args);
     if($term) {
@@ -138,7 +138,7 @@ sub new{
 	$self->identifier($identifier) if $identifier;
 	$self->definition($definition) if $definition;
     }
-    $self->category($cat || $tag) if $cat || $tag;
+    $self->ontology($ont || $tag) if $ont || $tag;
 
     return $self;
 }
@@ -197,7 +197,7 @@ sub hash_tree{
            Setting this is optional. If set, it obviates the need to provide
            a tag to AnnotationCollection when adding this object.
 
-           This is aliased to category() here.
+           This is aliased to ontology() here.
  Example : 
  Returns : value of tagname (a scalar)
  Args    : new value (a scalar, optional)
@@ -208,10 +208,10 @@ sub hash_tree{
 sub tagname{
     my $self = shift;
 
-    return $self->category(@_) if @_;
-    # if in get mode we need to get the name from the category term
-    my $cat = $self->category();
-    return ref($cat) ? $cat->name() : $cat;
+    return $self->ontology(@_) if @_;
+    # if in get mode we need to get the name from the ontology
+    my $ont = $self->ontology();
+    return ref($ont) ? $ont->name() : $ont;
 }
 
 =head1 Methods for Bio::Ontology::TermI compliance
@@ -293,22 +293,22 @@ sub definition {
     return shift->term()->definition(@_);
 } # definition
 
-=head2 category
+=head2 ontology
 
- Title   : category
- Usage   : $term->category( $top );
+ Title   : ontology
+ Usage   : $term->ontology( $top );
            or 
-           $top = $term->category();
+           $top = $term->ontology();
  Function: Set/get for a relationship between this Term and
            another Term (e.g. the top level of the ontology).
- Returns : The category of this Term [TermI].
- Args    : The category of this Term [TermI or scalar -- which
+ Returns : The ontology of this Term [TermI].
+ Args    : The ontology of this Term [TermI or scalar -- which
            becomes the name of the catagory term] (optional).
 
 =cut
 
-sub category {
-    return shift->term()->category(@_);
+sub ontology {
+    return shift->term()->ontology(@_);
 }
 
 =head2 is_obsolete
@@ -343,35 +343,35 @@ sub comment {
     return shift->term()->comment(@_);
 } # comment
 
-=head2 each_synonym
+=head2 get_synonyms
 
- Title   : each_synonym()
- Usage   : @aliases = $term->each_synonym();                 
+ Title   : get_synonyms()
+ Usage   : @aliases = $term->get_synonyms();                 
  Function: Returns a list of aliases of this Term.
  Returns : A list of aliases [array of [scalar]].
  Args    :
 
 =cut
 
-sub each_synonym {
-    return shift->term()->each_synonym(@_);
-} # each_synonym
+sub get_synonyms {
+    return shift->term()->get_synonyms(@_);
+} # get_synonyms
 
-=head2 add_synonyms
+=head2 add_synonym
 
- Title   : add_synonyms
- Usage   : $term->add_synonyms( @asynonyms );
+ Title   : add_synonym
+ Usage   : $term->add_synonym( @asynonyms );
            or
-           $term->add_synonyms( $synonym );                  
+           $term->add_synonym( $synonym );                  
  Function: Pushes one or more synonyms into the list of synonyms.
  Returns : 
  Args    : One synonym [scalar] or a list of synonyms [array of [scalar]].
 
 =cut
 
-sub add_synonyms {
-    return shift->term()->add_synonyms(@_);
-} # add_synonyms
+sub add_synonym {
+    return shift->term()->add_synonym(@_);
+} # add_synonym
 
 
 =head2 remove_synonyms
