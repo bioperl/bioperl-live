@@ -279,6 +279,7 @@ sub next_result{
 	   }
 
 	   if( $last =~ /^\s*vs\s+(\S+)/ ||	       	       
+	       ($last =~ /^searching\s+(\S+)\s+library/)  ||
 	       (defined $_ && /^\s*vs\s+(\S+)/) ||
 	       (defined ($_ = $self->_readline()) && /^\s*vs\s+(\S+)/)
 	     ) {
