@@ -953,7 +953,8 @@ sub feature2label {
   my $self = shift;
   my $feature = shift;
   my $type  = eval {$feature->type} || $feature->primary_tag or return;
-  my $label = $self->type2label($type) || $type;
+  (my $basetype = $type) =~ s/:.+$//;
+  my $label = $self->type2label($type) || $self->type2label($basetype) || $type;
   $label;
 }
 
