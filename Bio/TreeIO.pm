@@ -92,7 +92,6 @@ use Bio::Factory::TreeFactoryI;
  Function: Builds a new Bio::TreeIO object 
  Returns : Bio::TreeIO
  Args    : a hash.  useful keys:
-   -nodefactory => Bio::Factory::TreeNodeFactoryI object [optional]
    -format : Specify the format of the file.  Supported formats:
 
      newick             Newick tree format
@@ -100,7 +99,7 @@ use Bio::Factory::TreeFactoryI;
      nhx                NHX tree format
      svggraph           SVG graphical representation of tree
      tabtree            ASCII text representation of tree
-
+     lintree            lintree output format
 
 =cut
 
@@ -258,6 +257,7 @@ sub _guess_format {
    return 'nhx'   if /\.(nhx)$/i;
    return 'phyloxml' if /\.(xml)$/i;
    return 'svggraph' if /\.svg$/i;
+   return 'lintree'  if( /\.(lin|lintree)$/i );
 }
 
 sub DESTROY {
