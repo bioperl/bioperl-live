@@ -144,7 +144,7 @@ use Bio::Root::Root;
 sub fu_and_li_D { 
     my ($self,$ingroup,$outgroup) = @_;
 
-    my ($seg_sites,$pi,$sample_size,$ext_mutations);
+    my ($seg_sites,$pi,$sample_size,$ancestral,$derived);
     if( ref($ingroup) =~ /ARRAY/i ) {
 	$sample_size = scalar @$ingroup;
 	# pi - all pairwise differences 
@@ -169,9 +169,9 @@ sub fu_and_li_D {
 	$self->warn("Need to provide either an array ref to the outgroup individuals or the number of external mutations");
 	return 0;
     } elsif( ref($outgroup) ) {
-	$ext_mutations = $self->external_mutations($ingroup,$outgroup);
+	($ancestral,$derived) = $self->derived_mutations($ingroup,$outgroup);
     } else { 
-	$ext_mutations = $outgroup;
+	$ancestral = $outgroup;
     }
     my $a = 0;
     for(my $k= 1; $k < $sample_size; $k++ ) {
@@ -190,7 +190,7 @@ sub fu_and_li_D {
                                                         ( $sample_size - 1) ) ));
 
     my $u = $a - 1 - $v;
-    my $D = ( $seg_sites - (  $a * $ext_mutations) ) /
+    my $D = ( $seg_sites - (  $a * $ancestral) ) /
 	( sqrt ( ($u * $seg_sites ) + ( $v * $seg_sites **2) ) );
 
     return $D;
@@ -287,7 +287,7 @@ sub fu_and_li_D_star {
 
 sub fu_and_li_F {
     my ($self,$ingroup,$outgroup) = @_;
-    my ($seg_sites,$pi,$sample_size,$ext_mutations);
+    my ($seg_sites,$pi,$sample_size,$external,$internal);
     if( ref($ingroup) =~ /ARRAY/i ) {
 	$sample_size = scalar @$ingroup;
 	# pi - all pairwise differences 
@@ -307,9 +307,9 @@ sub fu_and_li_F {
 	$self->warn("Need to provide either an array ref to the outgroup individuals or the number of external mutations");
 	return 0;
     } elsif( ref($outgroup) ) {
-	$ext_mutations = $self->external_mutations($ingroup,$outgroup);
+	($external,$internal) = $self->derived_mutations($ingroup,$outgroup);
     } else { 
-	$ext_mutations = $outgroup;
+	$external = $outgroup;
     }
     
     my $a = 0;
@@ -339,8 +339,8 @@ sub fu_and_li_F {
 		($a1 - ((2*$sample_size)/($sample_size+1))) ) /
 		($a - $v_F);
 
-    my $F = ($pi - $ext_mutations) / ( sqrt( ($u_F*$seg_sites) +
-					     ($v_F*($seg_sites**2)) ) );
+    my $F = ($pi - $external) / ( sqrt( ($u_F*$seg_sites) +
+					($v_F*($seg_sites**2)) ) );
 
     return $F;
 }
@@ -760,13 +760,14 @@ sub heterozygosity {
     return $h;
 }
 
-=head2 external_mutations
+=head2 derived_mutations
 
- Title   : external_mutations
- Usage   : my $ext = Bio::PopGen::Statistics->external_mutations($ingroup,$outgroup);
+ Title   : derived_mutations
+ Usage   : my $ext = Bio::PopGen::Statistics->derived_mutations($ingroup,$outgroup);
  Function: Calculate the number of alleles or (mutations) which are ancestral
- Returns : integer of number of mutations which are ancestral or 'external'
-           based on the outgroup
+           and the number which are derived (occurred only on the tips)
+ Returns : array of 2 items - number of external and internal derived 
+           mutation
  Args    : ingroup - L<Bio::PopGen::IndividualI>s arrayref OR 
                      L<Bio::PopGen::PopulationI>
            outgroup- L<Bio::PopGen::IndividualI>s arrayref OR 
@@ -775,9 +776,10 @@ sub heterozygosity {
 
 =cut
 
-sub external_mutations{
+sub derived_mutations{
    my ($self,$ingroup,$outgroup) = @_;
    my (%indata,%outdata,@marker_names);
+
    # basically we have to do some type checking
    # if that perl were typed...
    my ($itype,$otype) = (ref($ingroup),ref($outgroup));
@@ -847,19 +849,37 @@ sub external_mutations{
        $self->warn("Need an arrayref of Bio::PopGen::IndividualI objs or a Bio::PopGen::Population for outgroup in external_mutations");
        return 0;
    }
-   my $external_alleles;
+   
+   # derived mutations are defined as 
+   # 
+   # ingroup  (G A T)
+   # outgroup (A)
+   # derived mutations are G and T, A is the external mutation
+   
+   # ingroup  (A T)
+   # outgroup (C)
+   # derived mutations A,T no external/ancestral mutations
+   
+   # ingroup  (G A T)
+   # outgroup (A T)
+   # cannot determine
+  
+   my ($internal,$external);
    foreach my $marker ( @marker_names ) {
-       next if( keys %{$outdata{$marker}} > 1);
+       my @outalleles = keys %{$outdata{$marker}};
        my @in_alleles = keys %{$indata{$marker}};
-       
+       next if( @outalleles > 1 || @in_alleles == 1);
        for my $allele ( @in_alleles ) {
-	   if( $indata{$marker}->{$allele} == 1 &&
-	       exists $outdata{$marker}->{$allele}  ) {
-	       $external_alleles++;
+	   if( ! exists $outdata{$marker}->{$allele} ) { 
+	       if( $indata{$marker}->{$allele} == 1 ) { 
+		   $external++;
+	       } else { 
+		   $internal++;
+	       }
 	   }
        }
    }
-   return $external_alleles;
+   return ($external, $internal);
 }
 
 
