@@ -1370,12 +1370,6 @@ related methods.
 sub make_features_group_by_part {
   my $self = shift;
   my $options = shift || {};
-  my $att = $options->{attributes} or return;
-  my $key_count = keys %$att;
-  return unless $key_count > 1;
-  #return ("fdata.fid having count(fdata.fid) > ?",$key_count-1);
-  return ("fref,fstart,fstop,fsource,fmethod,fscore,fstrand,fphase,gclass,gname,ftarget_start,ftarget_stop,fdata.fid,fdata.gid having count(fdata.fid) > ?",$key_count-1);
-
   if (my $att = $options->{attributes}) {
     my $key_count = keys %$att;
     return unless $key_count > 1;
