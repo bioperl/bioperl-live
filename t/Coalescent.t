@@ -15,7 +15,7 @@ BEGIN {
 	use lib 't';
     }
     use Test;
-    plan tests => 10;
+    plan tests => 11;
 }
 
 use Bio::PopGen::Simulation::Coalescent;
@@ -69,4 +69,5 @@ ok($flD_star < 1,1, 'fu and li D*');
 my $flF = $stats->fu_and_li_F($leaves,$single);
 ok(defined $flF, 1,'fu and li F');
 
-
+my $flFstar = $stats->fu_and_li_F_star($leaves);
+ok(defined $flF, 1,'fu and li F');
