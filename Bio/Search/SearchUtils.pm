@@ -120,6 +120,7 @@ sub tile_hsps {
 
     } elsif( $sbjct->n == 1 or $sbjct->num_hsps == 1) {
         ## Simple summation scheme. Valid if there is only one HSP.
+	#print STDERR "_tile_hsps(): single HSP, easy stats.\n";
 	my $hsp = $sbjct->hsp;
 	$sbjct->length_aln('query', $hsp->length('query'));
 	$sbjct->length_aln('hit', $hsp->length('sbjct'));
@@ -128,9 +129,7 @@ sub tile_hsps {
 	$sbjct->gaps('query', $hsp->gaps('query'));
 	$sbjct->gaps('sbjct', $hsp->gaps('sbjct'));
 
-	#print STDERR "_tile_hsps(): single HSP, easy stats.\n";
-        $sbjct->tiled_hsps(1);
-    
+        _adjust_length_aln($sbjct);
 	return 1;
     } else {
 	#print STDERR "Sbjct: _tile_hsps: summing multiple HSPs\n";
@@ -140,8 +139,6 @@ sub tile_hsps {
  	$sbjct->matches( 0, 0);
         $sbjct->gaps('query', 0);
         $sbjct->gaps('hit', 0);
-        $sbjct->tiled_hsps(1);
-    
     }
 
     ## More than one HSP. Must tile HSPs.
@@ -290,41 +287,78 @@ sub tile_hsps {
 	#$sbjct->debug( "\n*** AMBIGUOUS ALIGNMENT: Sbjct\n\n");
     }
 
-    # Adjust length based on BLAST flavor.
-    my $prog = $sbjct->algorithm;
-    if($prog =~ /^(PSI)?T(BLAST|FAST)[NY]/oi ) {
-	$sbjct->length_aln('sbjct', $sbjct->length_aln('sbjct')/3);
-    } elsif($prog =~ /^(BLAST|FAST)(X|Y|XY)/oi ) {
-	$sbjct->length_aln('query', $sbjct->length_aln('query')/3);
-    } elsif($prog =~ /^T(BLAST|FAST)(X|Y|XY)/oi ) {
-	$sbjct->length_aln('query', $sbjct->length_aln('query')/3);
-	$sbjct->length_aln('sbjct', $sbjct->length_aln('sbjct')/3);
-    }
-
+    _adjust_length_aln($sbjct);
     return 1;
 }
 
 
 
-=head2 _adjust_contigs
+# Title    : _adjust_length_aln  
+# Usage    : n/a; internal use only; called by tile_hsps.
+# Purpose  : Adjust length of aligment based on BLAST flavor.
+# Comments : See comments in logica_length()
+sub _adjust_length_aln {
+    my $sbjct = shift;
+    my $algo = $sbjct->algorithm;
+    my $hlen = $sbjct->length_aln('sbjct');
+    my $qlen = $sbjct->length_aln('query');
 
- Usage     : n/a; called automatically during object construction.
- Purpose   : Builds HSP contigs for a given BLAST hit.
-           : Utility method called by _tile_hsps()
- Returns   : 
- Argument  : 
- Throws    : Exceptions propagated from Bio::Search::Hit::BlastHSP::matches()
-           : for invalid sub-sequence ranges.
- Status    : Experimental
- Comments  : This method does not currently support gapped alignments.
-           : Also, it does not keep track of the number of HSPs that
-           : overlap within the amount specified by overlap().
-           : This will lead to significant tracking errors for large
-           : overlap values.
+    $sbjct->length_aln('sbjct', logical_length($algo, 'sbjct', $hlen));
+    $sbjct->length_aln('query', logical_length($algo, 'query', $qlen));
+}
 
-See Also   : L<tile_hsps>(), L<Bio::Search::Hit::BlastHSP::matches|Bio::Search::Hit::BlastHSP>
+=head2 logical_length
+
+ Usage     : logical_length( $alg_name, $seq_type, $length );
+ Purpose   : Determine the logical length of an aligned sequence based on 
+           : algorithm name and sequence type.
+ Returns   : integer representing the logical aligned length.
+ Argument  : $alg_name = name of algorigthm (e.g., blastx, tblastn)
+           : $seq_type = type of sequence (e.g., query or hit)
+           : $length = physical length of the sequence in the alignment.
+ Throws    : n/a
+ Comments  : This function is used to account for the fact that number of identities 
+             and conserved residues is reported in peptide space while the query 
+             length (in the case of BLASTX and TBLASTX) and/or the hit length 
+             (in the case of TBLASTN and TBLASTX) are in nucleotide space.
+             The adjustment affects the values reported by the various frac_XXX 
+             methods in GenericHit and GenericHSP.
 
 =cut
+
+sub logical_length {
+    my ($algo, $type, $len) = @_;
+    my $logical = $len;
+    if($algo =~ /^(PSI)?T(BLAST|FAST)[NY]/oi ) {
+        $logical = $len/3 if $type =~ /sbjct|hit|tot/i;
+    } elsif($algo =~ /^(BLAST|FAST)(X|Y|XY)/oi ) {
+        $logical = $len/3 if $type =~ /query|tot/i;
+    } elsif($algo =~ /^T(BLAST|FAST)(X|Y|XY)/oi ) {
+        $logical = $len/3;
+    }
+    return $logical;
+}
+
+
+#=head2 _adjust_contigs
+#
+# Usage     : n/a; internal function called by tile_hsps
+# Purpose   : Builds HSP contigs for a given BLAST hit.
+#           : Utility method called by _tile_hsps()
+# Returns   : 
+# Argument  : 
+# Throws    : Exceptions propagated from Bio::Search::Hit::BlastHSP::matches()
+#           : for invalid sub-sequence ranges.
+# Status    : Experimental
+# Comments  : This method does not currently support gapped alignments.
+#           : Also, it does not keep track of the number of HSPs that
+#           : overlap within the amount specified by overlap().
+#           : This will lead to significant tracking errors for large
+#           : overlap values.
+#
+#See Also   : L<tile_hsps>(), L<Bio::Search::Hit::BlastHSP::matches|Bio::Search::Hit::BlastHSP>
+#
+#=cut
 
 #-------------------
 sub _adjust_contigs {
