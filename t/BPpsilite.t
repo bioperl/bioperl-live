@@ -29,11 +29,11 @@ my $last_iteration = $report->round($total_iterations);
 my $oldhitarray_ref = $last_iteration->oldhits;
 
 # Process initial newly identified hit only
-my ($sbjct, $id, $new_hsp, $is_old, @is_old);
+my ($sbjct, $id, $new_hsp, @is_old);
  HIT: while($sbjct = $last_iteration->nextSbjct) {
 	$id = $sbjct->name;
-	$is_old =  grep  /\Q$id\E/, @$oldhitarray_ref;
-	next HIT if ($is_old );
+	@is_old =  grep  /\Q${id}\E/, @$oldhitarray_ref;
+	next HIT if (@is_old);
  	$new_hsp = $sbjct->nextHSP;
 	ok $new_hsp->score, 1097, " HSP score not found";
 	last HIT;
