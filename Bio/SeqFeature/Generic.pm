@@ -310,7 +310,7 @@ sub frame {
   my ($self,$value) = @_;
 
   if ( defined $value ) {
-       if ( $value !~ /^[0-2]$/ ) {
+       if ( $value !~ /^[0-2.]$/ ) {
 	   $self->throw("'$value' is not a valid frame");
        }
        $self->{'_gsf_frame'} = $value;
