@@ -149,7 +149,7 @@ package, and isn't recommended.
 It is possible to test your BioPerl installation on windows with "make
 test", although this requires having a copy of make utility available on
 your system.  If you used ppm to install, this step will not be possible
-as activestate doesn't install this information.
+as Activestate doesn't install this information.
 
 2.0 Windows-Specific Behaviour
 ==============================
@@ -248,10 +248,12 @@ depending.
 3.1.1 Mysql and DBD::Mysql
 ==========================
 
-The easiest way to install Mysql is to use the Windows binaries 
-available at www.mysql.com. Note that Windows does not have
-sockets, so you need to force the Mysql connections to use TCP/IP
-instead. Do this by using the "-h" option from the command-line:
+You may want to install a relational database in order to use 
+bioperl-db, BioSQL or OBDA. The easiest way to install Mysql is to 
+use the Windows binaries available at www.mysql.com. Note that Windows 
+does not have sockets, so you need to force the Mysql connections to 
+use TCP/IP instead. Do this by using the "-h", or host, option from the 
+command-line. Example:
 
 >mysql -h 127.0.0.1 -u <user> -p<password> <database>
 
