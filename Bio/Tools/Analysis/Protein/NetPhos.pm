@@ -193,7 +193,7 @@ sub result {
         my $result = IO::String->new($self->{'_result'});
         while (<$result>) {
             next if /^____/;
-            /^\w+ +(\d+) +\w+ +(0\.\d+) +.([STY])/;
+            /^\S+ +(\d+) +\w+ +(0\.\d+) +.([STY])/;
             next unless $3 and $2 > $self->threshold;
             push @predictions, [$1, $2, $3];
         }
