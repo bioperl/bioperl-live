@@ -3,7 +3,6 @@ package Bio::Graphics::Panel;
 use strict;
 use Bio::Graphics::Glyph::Factory;
 use Bio::Graphics::Feature;
-#use GD::SVG;
 
 # KEYLABELFONT must be treated as string until image_class is established
 use constant KEYLABELFONT => 'gdMediumBoldFont';
@@ -41,7 +40,6 @@ sub new {
   my $empty_track_style   = $options{-empty_tracks} || 'key';
   my $truecolor    = $options{-truecolor}  || 0;
   my $image_class  = $options{-image_class} || 'GD';
-  $image_class = ($image_class eq 'GD') ? $image_class : "GD::$image_class";
   $options{-stop}||= $options{-end};  # damn damn damn
   
   if (my $seg = $options{-segment}) {
@@ -76,7 +74,7 @@ sub new {
 		truecolor     => $truecolor,
 		flip          => $flip,
 		empty_track_style  => $empty_track_style,
-		image_class => $image_class,
+		image_class   => $image_class,
 	       },$class;
 }
 
@@ -1097,7 +1095,7 @@ You can add a key to the generated image using either of two key
 styles.  One style places the key captions at the top of each track.
 The other style generates a graphical key at the bottom of the image.
 
-Note that this modules depends on GD. The optional SVG output depends
+Note that this module depends on GD. The optional SVG output depends
 on SVG.
 
 =head1 METHODS
@@ -1215,7 +1213,7 @@ a set of tag/value pairs as follows:
 
   -image_class To create output in scalable vector
                graphics (SVG), optionally pass the image
-               class parameter 'SVG'. Defaults to
+               class parameter 'GD::SVG'. Defaults to
                using vanilla GD.
 
 Typically you will pass new() an object that implements the
@@ -1238,7 +1236,7 @@ and then to compute its width using the formula:
   $width = gdMediumBoldFont->width * length($longest_key) +3;
 
 In order to obtain scalable vector graphics (SVG) output, you should
-pass new() the -image_class=E<gt>'SVG' parameter. This will cause
+pass new() the -image_class=>'GD::SVG' parameter. This will cause
 Bio::Graphics::Panel to load the optional GD::SVG module. See the gd()
 and svg() methods below for additional information.
 
@@ -1462,7 +1460,7 @@ wish to draw on top of.  If you do so, you should call the width() and
 height() methods first to ensure that the image has sufficient
 dimensions.
 
-If you passed new() the -image_class=E<gt>'SVG' parameter, the gd() method
+If you passed new() the -image_class=>'GD::SVG' parameter, the gd() method
 returns a GD::SVG::Image object. This object overrides GD::Image
 methods in order to generate SVG output. It behaves exactly as
 described for GD::Image objects with one exception: it implements and
