@@ -1,6 +1,6 @@
 # $Id$
 #
-# BioPerl module for Bio::Biblio::TechReport
+# BioPerl module for Bio::Biblio::JournalI
 #
 # Cared for by Martin Senger <senger@ebi.ac.uk>
 # For copyright and disclaimer see below.
@@ -9,7 +9,7 @@
 
 =head1 NAME
 
-Bio::Biblio::TechReport - Representation of a technical report
+Bio::Biblio::JournalI - Representation of a journal
 
 =head1 SYNOPSIS
 
@@ -60,14 +60,13 @@ This software is provided "as is" without warranty of any kind.
 
 # Let the code begin...
 
-
-package Bio::Biblio::TechReport;
+package Bio::Biblio::JournalI;
 use strict;
-use vars qw(@ISA);
+use vars qw(@ISA $AUTOLOAD);
 
-use Bio::Biblio::RefI;
+use Bio::Biblio::BiblioBase;
 
-@ISA = qw( Bio::Biblio::RefI);
+@ISA = qw(Bio::Biblio::BiblioBase);
 
 #
 # a closure with a list of allowed attribute names (these names
@@ -76,26 +75,35 @@ use Bio::Biblio::RefI;
 # simple scalar)
 #
 {
-    my %_allowed = (
-    );
+    my %_allowed =
+	(
+	 _abbreviation => undef,
+	 _coden => undef,
+	 _country => undef,
+	 _issn => undef,
+	 _issue => undef,
+	 _medline_code => undef,
+	 _medline_date => undef,
+	 _medline_ta => undef,
+	 _name => undef,
+	 _nlm_unique_id => undef,
+	 _pub_date => undef,
+	 _season => undef,
+	 _volume => undef,
+	 );
 
     # return 1 if $attr is allowed to be set/get in this class
     sub _accessible {
 	my ($self, $attr) = @_;
-	exists $_allowed{$attr} or $self->SUPER::_accessible ($attr);
+	exists $_allowed{$attr};
     }
 
     # return an expected type of given $attr
     sub _attr_type {
 	my ($self, $attr) = @_;
-	if (exists $_allowed{$attr}) {
-	    return $_allowed{$attr};
-	} else {
-	    return $self->SUPER::_attr_type ($attr);
-	}
+	$_allowed{$attr};
     }
 }
-
 
 1;
 __END__

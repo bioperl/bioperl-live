@@ -2,17 +2,14 @@
 #
 # BioPerl module for Bio::Biblio::WebResource
 #
-# Cared for by Heikki Lehvaslaiho <heikki@ebi.ac.uk>
-#
-# Copyright Heikki Lehvaslaiho
-#
-# You may distribute this module under the same terms as perl itself
+# Cared for by Martin Senger <senger@ebi.ac.uk>
+# For copyright and disclaimer see below.
 
 # POD documentation - main docs before the code
 
 =head1 NAME
 
-Bio::Biblio::WebResource - A type of an author
+Bio::Biblio::WebResource - Representation of a web resource
 
 =head1 SYNOPSIS
 
@@ -21,7 +18,6 @@ Bio::Biblio::WebResource - A type of an author
 =head1 DESCRIPTION
 
 #
-
 
 =head1 FEEDBACK
 
@@ -43,20 +39,21 @@ email or the web:
   bioperl-bugs@bioperl.org
   http://bioperl.org/bioperl-bugs/
 
-=head1 AUTHOR - Heikki Lehvaslaiho
+=head1 AUTHORS
 
-Email heikki@ebi.ac.uk
+Heikki Lehvaslaiho (heikki@ebi.ac.uk)
+Martin Senger (senger@ebi.ac.uk)
 
-Describe contact details here
+=head1 COPYRIGHT
 
-=head1 CONTRIBUTORS
+Copyright (c) 2002 European Bioinformatics Institute. All Rights Reserved.
 
-Additional contributors names and emails here
+This module is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself.
 
-=head1 APPENDIX
+=head1 DISCLAIMER
 
-The rest of the documentation details each of the object methods.
-Internal methods are usually preceded with a _
+This software is provided "as is" without warranty of any kind.
 
 =cut
 
@@ -65,156 +62,43 @@ Internal methods are usually preceded with a _
 
 
 package Bio::Biblio::WebResource;
-use vars qw(@ISA);
 use strict;
-
-# Object preamble - inherits from Bio::Root::Root
+use vars qw(@ISA);
 
 use Bio::Biblio::RefI;
 
-@ISA = qw( Bio::Biblio::RefI Bio::Root::Root );
+@ISA = qw( Bio::Biblio::RefI);
 
-sub new {
-    my($class,@args) = @_;
-    my $self;
-    $self = {};
-    bless $self, $class;
+#
+# a closure with a list of allowed attribute names (these names
+# correspond with the allowed 'get' and 'set' methods); each name also
+# keep what type the attribute should be (use 'undef' if it is a
+# simple scalar)
+#
+{
+    my %_allowed = (
+		    _url => undef,
+		    _estimated_size => undef,
+		    _costs => undef,
+		    );
 
-    my ($id, $type, $title, $rights, $language, $format, $date, 
-	$spatial_location, $temporal_period, $last_modified, 
-	$repository_subset, $abstract, $abstract_type, $toc, 
-	$toc_type, $publisher, $url, $size, $cost
-	) =
-	    $self->_rearrange([qw(ID
-				  TYPE               
-				  TITLE              
-				  RIGHTS             
-				  LANGUAGE           
-				  FORMAT             
-				  DATE               
-				  SPATIAL_LOCATION   
-				  TEMPORAL_PERIOD    
-				  LAST_MODIFIED      
-				  REPOSITORY_SUBSET  
-				  ABSTRACT           
-				  ABSTRACT_TYPE      
-				  TOC 
-				  TOC_TYPE           
-				  PUBLISHER      
-				  URL
-				  SIZE
-				  COST    
-				  )],
-			      @args);
-
-    $id && $self->id($id);
-    $type && $self->type($type);
-    $title && $self->title($title);
-    $rights && $self->rights($rights);
-    $language && $self->language($language);
-    $format && $self->format($format);
-    $date && $self->date($date);
-    $spatial_location && $self->spatial_location($spatial_location);
-    $temporal_period && $self->temporal_period($temporal_period);
-    $last_modified && $self->last_modified($last_modified);
-    $repository_subset && $self->repository_subset($repository_subset);
-    $abstract && $self->abstract($abstract);
-    $abstract_type && $self->abstract_type($abstract_type);
-    $toc && $self->toc($toc);
-    $toc_type && $self->toc_type($toc_type);
-    $publisher && $self->publisher($publisher);
-
-    $url && $self->url($url);
-    $size && $self->size($size);
-    $cost && $self->cost($cost);
-
-    return $self; # success - we hope!
-
-}
-
-
-=head2 url
-
- Title   : url
- Usage   : $obj->url();
- Function: 
-
-           Sets and returns the Web URL
-           [BiblioWebResource::url]
-
- Example : 
- Returns : string
- Args    : string
-
-=cut
-
-
-sub url {
-    my ($self,$value) = @_;
-    if ( defined $value) {
-	$self->{'_url'} = $value;
+    # return 1 if $attr is allowed to be set/get in this class
+    sub _accessible {
+	my ($self, $attr) = @_;
+	exists $_allowed{$attr} or $self->SUPER::_accessible ($attr);
     }
-    if ( ! exists $self->{'_url'} ) {
-	return 0;
-    } 
-    return $self->{'_url'};
-}
 
-
-=head2 size
-
- Title   : size
- Usage   : $obj->size();
- Function: 
-
-           Sets and returns the estimated size of the resource in characters.
-           [BiblioWebResource::estimatedSize]
-
- Example : 
- Returns : integer
- Args    : integer
-
-=cut
-
-
-sub size {
-    my ($self,$value) = @_;
-    if ( defined $value) {
-	$self->{'_size'} = $value;
+    # return an expected type of given $attr
+    sub _attr_type {
+	my ($self, $attr) = @_;
+	if (exists $_allowed{$attr}) {
+	    return $_allowed{$attr};
+	} else {
+	    return $self->SUPER::_attr_type ($attr);
+	}
     }
-    if ( ! exists $self->{'_size'} ) {
-	return 0;
-    } 
-    return $self->{'_size'};
 }
-
-=head2 cost
-
- Title   : cost
- Usage   : $obj->cost();
- Function: 
-
-           Sets and returns the name of the reference.
-           [BibRefWebResource::cost]
-
- Example : 
- Returns : string
- Args    : string
-
-=cut
-
-
-sub cost {
-    my ($self,$value) = @_;
-    if ( defined $value) {
-	$self->{'_cost'} = $value;
-    }
-    if ( ! exists $self->{'_cost'} ) {
-	return 0;
-    } 
-    return $self->{'_cost'};
-}
-
 
 
 1;
+__END__

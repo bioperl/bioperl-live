@@ -2,26 +2,22 @@
 #
 # BioPerl module for Bio::Biblio::ProviderI
 #
-# Cared for by Heikki Lehvaslaiho <heikki@ebi.ac.uk>
-#
-# Copyright Heikki Lehvaslaiho
-#
-# You may distribute this module under the same terms as perl itself
+# Cared for by Martin Senger <senger@ebi.ac.uk>
+# For copyright and disclaimer see below.
 
 # POD documentation - main docs before the code
 
 =head1 NAME
 
-Bio::Biblio::ProviderI - Abstract interface for a author classes
+Bio::Biblio::ProviderI - Representation of a general provider
 
 =head1 SYNOPSIS
 
-# not instantiable
+#
 
 =head1 DESCRIPTION
 
-Super class and interface class for bibliographic reference providers
-- "authors".
+#
 
 =head1 FEEDBACK
 
@@ -43,20 +39,21 @@ email or the web:
   bioperl-bugs@bioperl.org
   http://bioperl.org/bioperl-bugs/
 
-=head1 AUTHOR - Heikki Lehvaslaiho
+=head1 AUTHORS
 
-Email heikki@ebi.ac.uk
+Heikki Lehvaslaiho (heikki@ebi.ac.uk)
+Martin Senger (senger@ebi.ac.uk)
 
-Describe contact details here
+=head1 COPYRIGHT
 
-=head1 CONTRIBUTORS
+Copyright (c) 2002 European Bioinformatics Institute. All Rights Reserved.
 
-Additional contributors names and emails here
+This module is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself.
 
-=head1 APPENDIX
+=head1 DISCLAIMER
 
-The rest of the documentation details each of the object methods.
-Internal methods are usually preceded with a _
+This software is provided "as is" without warranty of any kind.
 
 =cut
 
@@ -65,39 +62,36 @@ Internal methods are usually preceded with a _
 
 
 package Bio::Biblio::ProviderI;
-use vars qw(@ISA);
 use strict;
+use vars qw(@ISA $AUTOLOAD);
 
-# Object preamble - inherits from Bio::Root::Root
+use Bio::Biblio::BiblioBase;
 
-use Bio::Root::Root;
+@ISA = qw(Bio::Biblio::BiblioBase);
 
+#
+# a closure with a list of allowed attribute names (these names
+# correspond with the allowed 'get' and 'set' methods); each name also
+# keep what type the attribute should be (use 'undef' if it is a
+# simple scalar)
+#
+{
+    my %_allowed =
+	(
+	 );
 
-=head2 name
-
- Title   : name
- Usage   : $obj->name();
- Function: 
-
-           Sets and returns the name of the provider.
-           [BiblioProvider::name]
-
- Example : 
- Returns : string
- Args    : string
-
-=cut
-
-
-sub name {
-    my ($self,$value) = @_;
-    if ( defined $value) {
-	$self->{'_name'} = $value;
+    # return 1 if $attr is allowed to be set/get in this class
+    sub _accessible {
+	my ($self, $attr) = @_;
+	exists $_allowed{$attr};
     }
-    if ( ! exists $self->{'_name'} ) {
-	return 0;
-    } 
-    return $self->{'_name'};
+
+    # return an expected type of given $attr
+    sub _attr_type {
+	my ($self, $attr) = @_;
+	$_allowed{$attr};
+    }
 }
 
 1;
+__END__
