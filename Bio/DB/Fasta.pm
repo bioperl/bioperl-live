@@ -573,7 +573,7 @@ sub index_dir {
 sub get_Seq_by_id {
   my $self = shift;
   my $id   = shift;
-  return Bio::PrimarySeqI->new($self,$id);
+  return Bio::PrimarySeq::Fasta->new($self,$id);
 }
 
 =head2 index_file
@@ -960,7 +960,7 @@ use vars '@ISA';
 eval {
   require Bio::PrimarySeqI;
   require Bio::Root::Root;
-} && (@ISA = ('Bio::PrimarySeqI','Bio::Root::Root'));
+} && (@ISA = ('Bio::Root::Root','Bio::PrimarySeqI'));
 
 sub new {
   my $class = shift;
