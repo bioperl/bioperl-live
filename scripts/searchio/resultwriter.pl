@@ -70,8 +70,8 @@ my $outhtml = new Bio::SearchIO(-writer => $writerhtml,
 
 while ( my $result = $in->next_result() ) {
     eval {
-        # printf STDERR "Report %d: $result\n", $in->report_count;
-        $out->write_result($result, ($in->report_count - 1 ? 0 : 1) );
+        # printf STDERR "Report %d: $result\n", $in->result_count;
+        $out->write_result($result, ($in->result_count - 1 ? 0 : 1) );
         
         $outhtml->write_result($result, 1);
 
@@ -85,12 +85,12 @@ while ( my $result = $in->next_result() ) {
         #         }
         
 	## For a simple progress monitor, uncomment this line:
-	#print STDERR "."; print STDERR "\n" if $in->report_count % 50 == 0;
+	#print STDERR "."; print STDERR "\n" if $in->result_count % 50 == 0;
     };
     if($@) {
         warn "Warning: Blast parsing or writing exception caught for $result:\n$@\n";
     }
 }
 
-printf STDERR "\n%d Blast report(s) processed.\n", $in->report_count;
+printf STDERR "\n%d Blast report(s) processed.\n", $in->result_count;
 printf STDERR "Output sent to file: %s\n",  $out->file if $out->file;

@@ -45,7 +45,7 @@ my $out = new Bio::SearchIO(-writer => $writer,
 
 while ( my $result = $in->next_result() ) {
     eval {
-        # printf STDERR "Report %d: $result\n", $in->report_count;
+        # printf STDERR "Report %d: $result\n", $in->result_count;
         $out->write_result($result, 1);
     };
     if($@) {
@@ -53,5 +53,5 @@ while ( my $result = $in->next_result() ) {
     }
 }
 
-printf STDERR "\n%d Blast report(s) processed.\n", $in->report_count;
+printf STDERR "\n%d Blast report(s) processed.\n", $in->result_count;
 printf STDERR "Output sent to file: %s\n",  $out->file if $out->file;

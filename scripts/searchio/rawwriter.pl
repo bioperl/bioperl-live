@@ -54,5 +54,5 @@ while ( my $result = $in->next_result() ) {
   print "=" x 50 , "\n";
 }
 
-printf STDERR "\n%d Blast report(s) processed.\n", $in->report_count;
+printf STDERR "\n%d Blast report(s) processed.\n", $in->result_count;
 

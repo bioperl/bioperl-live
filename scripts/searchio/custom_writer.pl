@@ -94,10 +94,10 @@ my $out    = Bio::SearchIO->new( -format => 'psiblast',
 				 -file   => ">custom_writer.out" );
 
 while ( my $result = $in->next_result() ) {
-    printf STDERR "Report %d: $result\n", $in->report_count;
+    printf STDERR "Report %d: $result\n", $in->result_count;
     $out->write_result($result);
 }
 
-printf STDERR "\n%d Results processed.\n", $in->report_count;
+printf STDERR "\n%d Results processed.\n", $in->result_count;
 printf STDERR "Output sent to file: %s\n",  $out->file if $out->file;
 

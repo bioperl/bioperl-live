@@ -71,10 +71,10 @@ my $out    = Bio::SearchIO->new( -format => 'psiblast',
 				 -file   => ">hspwriter.out" );
 
 while ( my $result = $in->next_result() ) {
-  printf STDERR "\nReport %d: $result\n", $in->report_count;
+  printf STDERR "\nReport %d: $result\n", $in->result_count;
   
   if( $result->hits ) {
-    $out->write_result($result, ($in->report_count - 1 ? 0 : 1) );
+    $out->write_result($result, ($in->result_count - 1 ? 0 : 1) );
   }
   else {
     print STDERR "Hitless Blast Report: $result ";
@@ -82,9 +82,9 @@ while ( my $result = $in->next_result() ) {
   }
   
   ## For a simple progress monitor, uncomment this line:
-  #print STDERR "."; print STDERR "\n" if $in->report_count % 50 == 0;
+  #print STDERR "."; print STDERR "\n" if $in->result_count % 50 == 0;
 }
 
-printf STDERR "\n%d Blast report(s) processed.\n", $in->report_count;
+printf STDERR "\n%d Blast report(s) processed.\n", $in->result_count;
 printf STDERR "Output sent to file: %s\n",  $out->file if $out->file;
 

@@ -44,7 +44,7 @@ while ( my $blast = $in->next_result() ) {
     }
 }
 
-printf STDERR "\n%d Blast report(s) processed.\n", $in->report_count;
+printf STDERR "\n%d Blast report(s) processed.\n", $in->result_count;
 printf STDERR "\n%d reports had no hits:\n", scalar(@hitless_reports);
 
 foreach my $blast (@hitless_reports) {

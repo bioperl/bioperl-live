@@ -77,10 +77,10 @@ my $out    = Bio::SearchIO->new( -format => 'psiblast',
 				 -file   => ">hitwriter.out" );
 # Need to keep a separate count of reports with hits
 # to know when to include labels. The first report may be hitless, 
-# so we can't use $in->report_count
+# so we can't use $in->result_count
 my $hit_count = 0;
 while ( my $blast = $in->next_result() ) {
-  printf STDERR "\nReport %d: $blast\n", $in->report_count;
+  printf STDERR "\nReport %d: $blast\n", $in->result_count;
   
   if( $blast->hits ) {
     $hit_count++;
@@ -92,9 +92,9 @@ while ( my $blast = $in->next_result() ) {
   }
   
   ## For a simple progress monitor, uncomment this line:
-  #print STDERR "."; print STDERR "\n" if $in->report_count % 50 == 0;
+  #print STDERR "."; print STDERR "\n" if $in->result_count % 50 == 0;
 }
 
-printf STDERR "\n%d Blast report(s) processed.\n", $in->report_count;
+printf STDERR "\n%d Blast report(s) processed.\n", $in->result_count;
 printf STDERR "Output sent to file: %s\n",  $out->file if $out->file;
 
