@@ -1,4 +1,4 @@
-## $Id: MANIFEST,v 1.25 2000-12-17 21:10:41 jason Exp $
+## $Id: MANIFEST,v 1.26 2000-12-17 22:54:22 jason Exp $
 ##
 ## This is the file listing for everything that
 ## comes with the bioperl distribution. The perl
@@ -30,7 +30,7 @@ Bio/AlignIO/selex.pm
 Bio/SeqAnalysisParserI.pm
 Bio/SeqFeatureI.pm
 Bio/SeqFeatureProducerI.pm
-Bio/SeqFeatureProducer
+Bio/SeqFeatureProducer.pm
 Bio/SeqIO.pm
 Bio/SimpleAlign.pm
 Bio/Species.pm
