@@ -882,6 +882,25 @@ sub get_problems{
     return ();
 }
 
+=head2 clear_problems
+
+ Title   : clear_problems
+ Usage   :
+ Function: resets the problem list to empty
+ Example :
+ Returns : 
+ Args    :
+
+
+=cut
+
+sub clear_problems{
+   my ($self,@args) = @_;
+   $self->{'_problems'} = [];
+   return;
+}
+
+
 # PRIVATE
 # see get_problems
 sub add_problem{
@@ -1749,15 +1768,24 @@ sub unflatten_group{
 
    my $partonomy = $self->partonomy;
 
-   # RESOLVER METHOD
-   #   a subroutine for connecting the correct parents and children
-   # the resolver method returns a child feature
-   #
-   # use default function for resolving, unless one passed in
+   # $resolver_method is a reference to a SUB that will resolve
+   # ambiguous parent/child containment; for example, determining
+   # which mRNAs go with which CDSs
    $resolver_method = $resolver_method || \&_resolve_container_for_sf;
 
-   # if the user specifies a 'resolver_tag' (e.g. /derives_from) then
-   # make a resolver_method based around this tag
+   # TAG BASED RESOLVING OF HIERARCHIES
+   #
+   # if the user specifies $resolver_tag, then we use this tag
+   # to pair up ambiguous parents and children;
+   #
+   # for example, the CDS feature may have a resolver tag of /derives_from
+   # which is a 'foreign key' into the /label tag of the mRNA feature
+   #
+   # this kind of tag-based resolution is possible for a certain subset
+   # of genbank records
+   #
+   # if no resolver tag is specified, we revert to the normal
+   # resolver_method
    if ($resolver_tag) {
        my $backup_resolver_method = $resolver_method;
        # closure: $resolver_tag is remembered by this sub
@@ -1794,7 +1822,17 @@ sub unflatten_group{
 	 };
        $resolver_method = $sub;
    }
+   else {
+       # CONDITION: $resolver_tag is NOT set
+       $self->throw("assertion error") if $resolver_tag;
+   }
+   # we have now set $resolver_method to a subroutine for
+   # disambiguatimng parent/child relationships. we will
+   # now build the whole containment hierarchy for this group
 
+
+   # FIND TOP/ROOT SEQFEATURES
+   #
    # find all the features for which there is no
    # containing feature type (eg genes)
    my @top_sfs =
@@ -1802,20 +1840,26 @@ sub unflatten_group{
          !$self->get_container_type($_->primary_tag);
      } @sfs;
 
+   # CONDITION: there must be at most one root
    if (@top_sfs > 1) {
        $self->_write_group($group, $self->group_tag);
        print "TOP SFS:\n";
        $self->_write_sf($_) foreach @top_sfs;
        $self->throw("multiple top-sfs in group");
    }
+   my $top_sf = $top_sfs[0];
 
-
+   # CREATE INDEX OF SEQFEATURES BY TYPE
    my %sfs_by_type = ();
    foreach my $sf (@sfs) {
        push(@{$sfs_by_type{$sf->primary_tag}}, $sf);
    }
 
-   my %container = ();   # containment index; keyed by child; lookup parent
+   # containment index; keyed by child; lookup parent
+   # note: this index uses the stringified object reference of
+   # the object as a surrogate lookup key
+
+   my %container = ();   # child -> parent
 
    # ALGORITHM: build containment graph
    #
@@ -1836,30 +1880,55 @@ sub unflatten_group{
    # any mappings that need further resolution (eg CDS to mRNA) are
    # placed in %unresolved
 
+   # %unresolved index
+   # (keyed by stringified object reference of child seqfeature)
    my %unresolved = ();    # child -> [parent,score] to be resolved
-
+                           
+   # index of seqfeatures by their stringified object reference;
+   # this is essentially a way of 'reviving' an object from its stringified
+   # reference
+   # (see NOTE ON USING OBJECTS AS KEYS IN HASHES, below)
    my %idxsf = map {$_=>$_} @sfs;
 
    foreach my $sf (@sfs) {
        my $type = $sf->primary_tag;
+
+       # container type (e.g. the container type for CDS is usually mRNA)
        my $container_type = 
          $self->get_container_type($type);
        if ($container_type) {
+
            my @possible_container_sfs =
              @{$sfs_by_type{$container_type} || []};
+           # we now have a list of possible containers
+           # (eg for a CDS in an alternately spliced gene, this
+           #  would be a list of all the mRNAs for this gene)
 
 	   if (!@possible_container_sfs) {
 	       # root of hierarchy
 	   }
 	   else {
 	       if (@possible_container_sfs == 1) {
-		   # there is only one choice
+                   # this is the easy situation, whereby the containment
+                   # hierarchy is unambiguous. this will probably be the
+                   # case if the genbank record has no alternate splicing
+                   # within it
+
+		   # ONE OPTION ONLY - resolved!
 		   $container{$sf} = $possible_container_sfs[0];
+
 	       }
 	       else {
 		   # MULTIPLE CONTAINER CHOICES
 		   $self->throw("ASSERTION ERROR") unless @possible_container_sfs > 1;
 
+                   # push this onto the %unresolved graph, and deal with it
+                   # later
+
+                   # for now we hardcode things such that the only type 
+                   # with ambiguous parents is a CDS; if this is violated,
+                   # it has a weak problem class of '1' so the API user
+                   # can easily set things to ignore these
 		   if ($sf->primary_tag ne 'CDS') {
 		       $self->problem(1,
 				      "multiple container choice for non-CDS; ".
@@ -1868,12 +1937,38 @@ sub unflatten_group{
 				      $sf);
 		   }
 
-		   # choice: use resolver to score possibilities
-		   # (default is to check splice sites)
-		   # we will resolve remaining contentions later
+                   # previously we set the SUB $resolver_method
+                   $self->throw("ASSERTION ERROR")
+                     unless $resolver_method;
+
+                   # $resolver_method will assign scores to
+                   # parent/child combinations; later on we
+                   # will use these scores to find the optimal
+                   # parent/child pairings
+
+                   # the default $resolver_method uses splice sites to
+                   # score possible parent/child matches
+
 		   my %container_sfh =
 		     $resolver_method->($self, $sf, @possible_container_sfs);
+                   if (!%container_sfh) {
+                       $self->problem(2,
+                                      "no containers possible for SeqFeature of ".
+                                      "type: $type; this SF is being placed at ".
+                                      "root level",
+                                      $sf);
+                       # RESOLVED! (sort of - placed at root/gene level)
+                       $container{$sf} = $top_sf;
+
+                       # this sort of thing happens if the record is
+                       # badly messed up and there is absolutely no indication
+                       # of where to put the CDS. Perhaps we should just
+                       # place it with a random mRNA?
+                   }
 		   foreach my $jsf (keys %container_sfh) {
+
+                       # add [score, parent] pairs to the %unresolved
+                       # lookup table/graph
 		       push(@{$unresolved{$sf}}, 
 			    [$idxsf{$jsf}, $container_sfh{$jsf} || 0]);
 		   }
@@ -1881,44 +1976,54 @@ sub unflatten_group{
 	   }
        }
        else {
-	   # $sf type has no container type
-	   # must be a root node (e.g. type: gene)
+           # CONDITION:
+           # not container type for $sf->primary_tag
+           
+           # CONDITION:
+	   # $sf must be a root/top node (eg gene)
        }
    }
 
-   # we require a 1:1 mapping between mRNAs and CDSs;
-   # create artificial duplicates if we can't do this...
-   if (%unresolved) {
-       my %childh = map {$_=>1} keys %unresolved;
-       my %parenth = map {$_->[0]=>1} map {@$_} values %unresolved;
-       if ($self->verbose) {
-           printf "MATCHING %d CHILDREN TO %d PARENTS\n",
-             scalar(keys %childh), scalar(keys %parenth);
+   if (0) {
+
+       # CODE CURRENTLY DISABLED
+
+       # we require a 1:1 mapping between mRNAs and CDSs;
+       # create artificial duplicates if we can't do this...
+       if (%unresolved) {
+           my %childh = map {$_=>1} keys %unresolved;
+           my %parenth = map {$_->[0]=>1} map {@$_} values %unresolved;
+           if ($self->verbose) {
+               printf "MATCHING %d CHILDREN TO %d PARENTS\n",
+                 scalar(keys %childh), scalar(keys %parenth);
+           }
+           # 99.99% of the time in genbank genomic record of structure type 0, we
+           # see one CDS for every mRNA; one exception is the S Pombe
+           # genome, which is all CDS, bar a few spurious mRNAs; we have to
+           # filter out the spurious mRNAs in this case
+           #
+           # another strange case is in the mouse genome, NT_078847.1
+           # for Pcdh13 you will notice there is 4 mRNAs and 5 CDSs.
+           # most unusual! 
+           # I'm at a loss for a really clever thing to do here. I think the
+           # best thing is to create duplicate features to preserve the 1:1 mapping
+           #       my $suffix_id = 1;
+           #       while (keys %childh > keys %parenth) {
+           #           
+           #       }
        }
-       # 99.99% of the time in genbank genomic record of structure type 0, we
-       # see one CDS for every mRNA; one exception is the S Pombe
-       # genome, which is all CDS, bar a few spurious mRNAs; we have to
-       # filter out the spurious mRNAs in this case
-       #
-       # another strange case is in the mouse genome, NT_078847.1
-       # for Pcdh13 you will notice there is 4 mRNAs and 5 CDSs.
-       # most unusual! 
-       # I'm at a loss for a really clever thing to do here. I think the
-       # best thing is to create duplicate features to preserve the 1:1 mapping
-#       my $suffix_id = 1;
-#       while (keys %childh > keys %parenth) {
-#           
-#       }
    }
 
-   # we now have a graph representing POSSIBLE parent/containment
-   # relationships.
+   # CONDITION:
+   # The graph %container 
+
+   # DEBUGGING CODE
    if ($self->verbose && scalar(keys %unresolved)) {
        print "UNRESOLVED PAIRS:\n";
        foreach my $childsf (keys %unresolved) {
 	   my @poss = @{$unresolved{$childsf}};
 	   foreach my $p (@poss) {
-	       my $parentsf = $idxsf{$p->[0]};
+	       my $parentsf = $p->[0];
 	       $childsf = $idxsf{$childsf};
                my @clabels = $childsf->get_tagset_values(qw(protein_id label product));
                my @plabels = $parentsf->get_tagset_values(qw(transcript_id label product));
@@ -1928,7 +2033,14 @@ sub unflatten_group{
        }
    } # -- end of verbose
 
-   # find optimal set of pairings using find_best_matches() algorithm
+   # Now we have to fully resolve the containment hierarchy; remember,
+   # the graph %container has the fully resolved child->parent links;
+   #
+   # the graph %unresolved is keyed by children missing parents; we
+   # need to put all these orphans in the %container graph
+   #
+   # we do this using the scores in %unresolved, with the
+   # find_best_matches() algorithm
    if (%unresolved) {
        my $new_pairs =
 	 $self->find_best_matches(\%unresolved, []);
@@ -1943,10 +2055,15 @@ sub unflatten_group{
 	       printf "  resolved pair @$pair\n";
 	   }
 	   $container{$pair->[0]} = $pair->[1];
+           delete $unresolved{$pair->[0]};
        }
    }
 
-   # CONTAINMENT HIERARCHY RESOLVED
+   # CONDITION: containment hierarchy resolved
+   if (%unresolved) {
+       $self->throw("UNRESOLVED: %unresolved");
+   }
+
    # make nested SeqFeature hierarchy from @containment_pairs
    # ie put child SeqFeatures into parent SeqFeatures
    my @top = ();
@@ -1973,7 +2090,28 @@ sub unflatten_group{
        }
    }
    return @top;
-}
+} # -- end of unflatten_group
+
+# -------
+# A NOTE ON USING OBJECTS AS KEYS IN HASHES (stringified objects)
+#
+# Often we with to use seqfeatures as keys in a hashtable; because seqfeatures
+# in bioperl have no unique ID, we use a surrogate ID in the form of the
+# stringified object references - this is just what you get if you say
+#
+#  print "$sf\n";
+#
+# this is guaranteed to be unique (within a particular perl execution)
+#
+# often we want to 'revive' the objects used as keys in a hash - once the
+# objects are used as keys, remember it is the *strings* used as keys and
+# not the object itself, so the object needs to be revived using another
+# hashtable that looks like this
+#
+#    %sfidx = map { $_ => $_ } @sfs
+#
+# -------
+
 
 # recursively finds the best set of pairings from a matrix of possible pairings
 #

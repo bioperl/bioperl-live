@@ -9,7 +9,7 @@ BEGIN {
 	use lib 't';
     }
     use Test;
-    $TESTCOUNT = 8;
+    $TESTCOUNT = 11;
     plan tests => $TESTCOUNT;
 }
 
@@ -87,6 +87,39 @@ if (1) {
     my @numbers = keys %numberh;
     printf "DISTINCT EXONS: %d [@numbers]\n", scalar(@numbers);
     ok(@numbers == 6);  # distinct exons
+}
+
+if (1) {
+    
+    # example of a BAD genbank entry
+
+    my @path = ("t","data","dmel_2Lchunk.gb");
+    $seq = getseq(@path);
+    
+    my @topsfs = $seq->get_SeqFeatures;
+    printf "TOP:%d\n", scalar(@topsfs);
+#    write_hier(@topsfs);
+    
+    # UNFLATTEN
+    #
+    # we EXPECT problems with this erroneous record
+    $unflattener->error_threshold(2);
+    @sfs = $unflattener->unflatten_seq(-seq=>$seq,
+                                       -use_magic=>1,
+                                      );
+    my @probs = $unflattener->get_problems;
+    $unflattener->report_problems(\*STDOUT);
+    $unflattener->clear_problems;
+    print "\n\nPOST PROCESSING:\n";
+    @sfs = $seq->get_SeqFeatures;
+    write_hier(@sfs);
+    printf "PROCESSED/TOP:%d\n", scalar(@sfs);
+    ok(@sfs == 2);
+    my @exons = grep {$_->primary_tag eq 'exon'} $seq->get_all_SeqFeatures;
+    ok(@exons == 6);    # total number of exons per splice
+
+    printf "PROBLEMS ENCOUNTERED: %d (EXPECTED: 6)\n", scalar(@probs);
+    ok(@probs == 6);
 }
 
 
