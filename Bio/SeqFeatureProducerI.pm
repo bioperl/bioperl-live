@@ -89,7 +89,7 @@ sub _abstractDeath {
 =head2 add_features
 
  Title   : add_features
- Usage   : $featprod->add_features($seq);
+ Usage   : $featprod->add_features($seq, $rptObj);
  Function: Adds features to the sequence based on
            already parsed sequence data
  Returns : none
@@ -98,22 +98,7 @@ sub _abstractDeath {
 =cut
 
 sub add_features {
-    my $self = shift;
-   $self->_abstractDeath();
-}
-
-=head2 _parse_rpt
-
- Title   : _parse_rpt
- Usage   : $seqprod->_parse_rpt($filename);
- Function: Reads in rpt file
- Returns : none
- Args    : Bio::Seq object
-
-=cut
-
-sub _parse_rpt_file {
-    my ($self,$rpt) = @_;
+    my ($self,$seq,$robj) = @_;
    $self->_abstractDeath();
 }
 

@@ -1,0 +1,12 @@
+ ENTER NAME OF THE SEQUENCE FILE (in single quotes)
+HUMBETGLOA.fasta
+ ENTER 1 FOR FORWARD, 2 FOR REVERSE
+1
+ ENTER PRIOR PROBABILITY (suggesting .04)
+.04
+ ENTER OVER LAPPING NUMBER (suggesting 0)
+0
+ Internal coding exons predicted by MZEF
+ File_Name: HUMBETGLOA  Sequence_length:   3002  G+C_content:  0.400
+  Coordinates    P    Fr1   Fr2   Fr3  Orf   3ss   Cds   5ss
+  1088 -  1310 0.986 0.510 0.468 0.651 221 0.478 0.594 0.571

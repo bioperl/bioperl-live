@@ -1,6 +1,6 @@
 
 #
-# BioPerl module for Bio::SeqFeatureProducer::GFF
+# BioPerl module for Bio::SeqFeatureProducer::MZEF
 #
 # Cared for by Jason Stajich <jason@chg.mc.duke.edu>
 #
@@ -12,15 +12,15 @@
 
 =head1 NAME
 
-Bio::SeqFeatureProducer::GFF - Produce Sequence Features from a GFF file
+Bio::SeqFeatureProducer::MZEF - Produce Sequence Features from a MZEF file
 
 =head1 SYNOPSIS
 
-input GFF, add_features($seq), $seq now has features from the GFF.
+input MZEF, add_features($seq), $seq now has features from the MZEF.
 
 =head1 DESCRIPTION
 
-GFF parsing and feature adding.
+MZEF parsing and feature adding.
 
 =head1 FEEDBACK
 
@@ -60,7 +60,7 @@ The rest of the documentation details each of the object methods. Internal metho
 # Let the code begin...
 
 
-package Bio::SeqFeatureProducer::GFF;
+package Bio::SeqFeatureProducer::MZEF;
 
 use vars qw(@ISA);
 use Bio::SeqFeatureProducerI;
@@ -78,10 +78,10 @@ use Carp;
 sub _initialize {
     my ($self, @args) = @_;
     my $make = $self->SUPER::_initialize();
-    my ( $gff ) = $self->_rearrange([qw(GFF)], @args);
+    my ( $mzefrpt ) = $self->_rearrange([qw(MZEF)], @args);
     $self->{'_rptfileread'} = 0;
-    if( defined $gff ) {
-	$self->_parse_rpt($gff);
+    if( defined $mzefrpt ) {
+	$self->_parse_rpt($mzefrpt);
     }
     return $make;
 }
@@ -107,11 +107,30 @@ sub _parse_rpt {
     } else { 
 	$fileh = new IO::File($rpt, "r");	
     }
-    my @feats;
-    while( <$fileh> ) {
-	next if ( /^\#/);
-	my $feat = new Bio::SeqFeature::Generic( -gff_string=> $_ );    
-	push @feats, $feat;
+    my (@feats, $readingdata, $strand);
+    $strand = '+';
+    my ($prognm, $label, $seqnm) = 
+	('MZEF', 'predicted-exon', 'unknown');
+    while( <$fileh> ) {	
+	if( $readingdata ) {
+	    my ( $start, undef, $end, $prob, $f1, $f2, $f3, 
+		 $orf, $ss5, $cds, $ss3) = split;
+	    my $gffstr = join("\t", ($seqnm,$prognm,$label,$start,$end,
+				     $prob,$strand, substr($orf,0,1)));	    
+	    print STDERR "$gffstr\n";
+	    my $feat = new Bio::SeqFeature::Generic( -gff_string=> $gffstr );
+	    push @feats, $feat;
+	    next;
+	} elsif ( /File_Name:\s*(\S+)/ ) {
+	    $seqnm = $1;
+	} elsif ( /^\s*Coordinates/ ) {
+	    $readingdata = 1;
+	} elsif (/ENTER 1 FOR FORWARD, 2 FOR REVERSE\s+\n/ ) {
+	    my $l = <$fileh>;
+	    if( $l =~ /^\s*(1|2)/ ) {
+		$strand = '-' if( $1 == 2 );
+	    }
+	}
     }
     $self->{'_features'} = [ @feats ];
     $self->{'_rptfileread'}  = 1;
