@@ -1,14 +1,14 @@
-package Bio::DB::GFF::Adaptor::dbi::mysqlace;
+package Bio::DB::GFF::Adaptor::dbi::oracleace;
 
 =head1 NAME
 
-Bio::DB::GFF::Adaptor::dbi::mysqlace -- Unholy union between mysql GFF database and acedb database
+Bio::DB::GFF::Adaptor::dbi::oracleace -- Unholy union between oracle GFF database and acedb database
 
 =head1 SYNOPSIS
 
 Pending
 
-See L<Bio::DB::GFF> and L<Bio::DB::GFF::Adaptor::dbi::mysql>
+See L<Bio::DB::GFF> and L<Bio::DB::GFF::Adaptor::dbi::oracle>
 
 =head1 SEE ALSO
 
@@ -26,12 +26,12 @@ it under the same terms as Perl itself.
 =cut
 
 use strict;
-use Bio::DB::GFF::Adaptor::dbi::mysql;
+use Bio::DB::GFF::Adaptor::dbi::oracle;
 use Bio::DB::GFF::Adaptor::ace;
 use Bio::DB::GFF::Util::Rearrange; # for rearrange()
 
 use vars '@ISA';
-@ISA = qw(Bio::DB::GFF::Adaptor::dbi::mysql Bio::DB::GFF::Adaptor::ace);
+@ISA = qw(Bio::DB::GFF::Adaptor::ace Bio::DB::GFF::Adaptor::dbi::oracle);
 
 # Create a new Bio::DB::GFF::Adaptor::dbi object
 sub new {
@@ -57,25 +57,6 @@ sub new {
   $self;
 }
 
-=head2 freshen_ace
-
- Title   : freshen
- Usage   : $flag = Bio::DB::GFF->freshen_ace;
- Function: Refresh internal acedb handle
- Returns : flag if correctly freshened
- Args    : none
- Status  : Public
-
-ACeDB has an annoying way of timing out, leaving dangling database
-handles.  This method will invoke the ACeDB reopen() method, which
-causes dangling handles to be refreshed.  It has no effect if you are
-not using ACeDB to create ACeDB objects.
-
-=cut
-
-#########################
-# Moved from mysqlopt.pm
-#########################
 sub make_object {
   my $self = shift;
   my ($class,$name,$start,$stop) = @_;
@@ -110,5 +91,21 @@ sub get_dna {
   my $dna_db = $self->dna_db or return $self->SUPER::get_dna(@_);
   return $dna_db->seq($ref,$start,$stop,$class);
 }
+
+=head2 freshen_ace
+
+ Title   : freshen
+ Usage   : $flag = Bio::DB::GFF->freshen_ace;
+ Function: Refresh internal acedb handle
+ Returns : flag if correctly freshened
+ Args    : none
+ Status  : Public
+
+ACeDB has an annoying way of timing out, leaving dangling database
+handles.  This method will invoke the ACeDB reopen() method, which
+causes dangling handles to be refreshed.  It has no effect if you are
+not using ACeDB to create ACeDB objects.
+
+=cut
 
 1;

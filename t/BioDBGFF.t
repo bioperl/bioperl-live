@@ -76,6 +76,7 @@ ok($types{'transposon:tc1'},2);
 
 # exercise segment
 my $segment1 = $db->segment('Contig1');
+
 ok($segment1);
 ok($segment1->length,37450);
 ok($segment1->start,1);

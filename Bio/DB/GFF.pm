@@ -1,4 +1,5 @@
 # $Id$
+
 =head1 NAME
 
 Bio::DB::GFF -- Storage and retrieval of sequence annotation data
@@ -581,6 +582,7 @@ sub new {
 
   $self;
 }
+
 
 =head2 types
 
