@@ -287,7 +287,7 @@ in the way that you expect.  The free graphical debugger ptkdb
 (available as Devel::ptkdb from CPAN) is highly recommended.  The
 standard perl distribution also contains a powerful interactive
 debugger - though with a more cumbersome command-line interface (use
-it like "perl -d <script>). The Perl tool Data::Dumper used with the 
+it like "perl -d <script>"). The Perl tool Data::Dumper used with the 
 syntax:
 
   use Data::Dumper;
@@ -865,14 +865,14 @@ Modify the function that's passed to the id_parser method:
 The Bio::DB::Fasta module uses the same principle, but the syntax is 
 slightly different, for example:
 
-my $db = Bio::DB::Fasta->new('test.fa', -makeid=>\&make_my_id);
-my $seqobj = $db->get_Seq_by_id($id);
+  my $db = Bio::DB::Fasta->new('test.fa', -makeid=>\&make_my_id);
+  my $seqobj = $db->get_Seq_by_id($id);
 
-sub make_my_id {
-   my $description_line = shift;
-   $description_line =~ /gi\|(\d+)\|emb\|(\w+)/;
-   ($1,$2);
-}
+  sub make_my_id {
+     my $description_line = shift;
+     $description_line =~ /gi\|(\d+)\|emb\|(\w+)/;
+     ($1,$2);
+  }
 
 The core bioperl installation does not support accessing sequences
 and data stored in relational databases. However, this capability is

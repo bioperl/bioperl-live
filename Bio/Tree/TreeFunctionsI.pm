@@ -440,7 +440,6 @@ sub is_paraphyletic{
  Function: Reroots a tree either making a new node the root
  Returns : 1 on success, 0 on failure
  Args    : Bio::Tree::NodeI that is in the tree, but is not the current root
- 
 
 =cut
 
@@ -484,7 +483,7 @@ sub reroot {
 }
 
 =head2 reverse_edge
-                                                                               
+
  Title   : reverse_edge
  Usage   : $node->reverse_edge(child);
  Function: makes child be a parent of node
@@ -493,24 +492,23 @@ sub reroot {
  Args    : Bio::Tree::NodeI that is in the tree
 
 =cut
-                                                                               
+
 sub reverse_edge {
     my ($self,$node) = @_;
     delete_edge($self, $node);
     $node->add_Descendent($self);
     1;
 }
-                                                                               
-                                                                               
+
 =head2 delete_edge
-                                                                               
+
  Title   : delete_edge
  Usage   : $node->reverse_edge(child); 
  Function: makes child be a parent of node
  Requires: child must be a direct descendent of node
  Returns : nothing
  Args    : Bio::Tree::NodeI that is in the tree
- 
+
 =cut
 
 sub delete_edge {
@@ -533,8 +531,7 @@ sub delete_edge {
     }
     1;
 }
-                                                                           
-                                                                               
+
 sub findnode_by_id {
     my $tree = shift;
     my $id = shift;

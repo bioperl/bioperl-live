@@ -384,9 +384,9 @@ sub comment {
     return $ret;
 } # comment
 
-=head1
+=head1 Private methods
 
-Private methods. May be overridden in a derived class, but should
+May be overridden in a derived class, but should
 never be called from outside.
 
 =cut
