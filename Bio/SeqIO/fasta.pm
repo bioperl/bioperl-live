@@ -104,11 +104,11 @@ sub next_seq {
 sub next_primary_seq {
   my( $self, $as_next_seq ) = @_;
   local $/ = '>';
-  
+
   return unless my $entry = $self->_readline;
 
   if ($entry eq '>')  {  # very first one
-      return unless $entry = $self->_readline;
+    return unless $entry = $self->_readline;
   }
 
   my ($top,$sequence) = $entry =~ /^(.+?)\n([^>]+)/s
@@ -150,9 +150,9 @@ sub write_seq {
    foreach my $seq (@seq) {
      my $str = $seq->seq;
      my $top = $seq->id();
-     if (my $desc = $seq->desc()) {
+     if ($seq->can('desc') and my $desc = $seq->desc()) {
 	 $desc =~ s/\n//g;
-	 $top .= " $desc";
+        $top .= " $desc";
      }
      $str=~ s/(.{1,60})/$1\n/g;
      $self->_print (">",$top,"\n",$str) or return;
