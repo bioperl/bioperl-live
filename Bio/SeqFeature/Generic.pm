@@ -795,7 +795,7 @@ sub add_SeqFeature{
 sub remove_SeqFeatures {
    my ($self) = @_;
 
-   my @subfeats = @{$self->{'_gsf_sub_array'}};
+   my @subfeats = @{$self->{'_gsf_sub_array'} || []};
    $self->{'_gsf_sub_array'} = []; # zap the array implicitly.
    return @subfeats;
 }
@@ -942,7 +942,8 @@ sub _expand_region {
     if((! defined($self->start())) && (! defined $self->end())) {
         $self->start($feat->start());
         $self->end($feat->end());
-        $self->strand($feat->strand) unless defined($self->strand());
+#        $self->strand($feat->strand) unless defined($self->strand());
+        $self->strand($feat->strand) unless $self->strand();
     } else {
         my $range = $self->union($feat);
         $self->start($range->start);
