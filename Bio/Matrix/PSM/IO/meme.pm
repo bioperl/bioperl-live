@@ -179,7 +179,7 @@ sub next_psm {
     #Parses the next prediction and returns a psm objects
     my $self=shift;
     return undef if ($self->{end});
-    my ($line,$instances,$tr,$width,$motif_id,$sites,$e_val,$id,$ic);
+    my ($endm,$line,$instances,$tr,$width,$motif_id,$sites,$e_val,$id,$ic);
     while (defined( $line = $self->_readline) ) {
 	if ($line=~ m/\sSite\s/) {
 	    $instances=$self->_parseInstance;
@@ -215,13 +215,14 @@ sub next_psm {
 	    $self->{end}=1;
 	    return undef;
 	}
-	if ($line=~/^Time\s/) {
+	$endm=1 if ($line=~/^Time\s/); 
+    }
+	if ($endm) { #End of file found, end of current motif too, but not all predictions were made as requested (No summary)
 	    $self->{end}=1;
 		warn "This MEME analysis was terminated prematurely, you may have less motifs than you requested\n";
 	    return undef;
 	}
-    }
-    $self->throw("Wrong format\n"); # Should be able to find the SUMMARY part, not that we parse it really
+    $self->throw("Wrong format\n"); # Multiple keywords not found, probably wrong format
 }
 
 =head2 _parseMatrix
