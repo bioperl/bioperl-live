@@ -739,9 +739,9 @@ sub _subseq {
   my $feature = shift;
   return $feature->merged_segments         if $feature->can('merged_segments');
   return $feature->segments                if $feature->can('segments');
-  my @split = eval { my $id = $feature->location->seq_id;
+  my @split = eval { my $id   = $feature->location->seq_id;
 		     my @subs = $feature->location->sub_Location;
-		     grep {$id eq $_->seq_id} $feature->location->sub_Location};
+		     grep {$id eq $_->seq_id} @subs};
   return @split if @split;
   return $feature->sub_SeqFeature          if $feature->can('sub_SeqFeature');
   return;

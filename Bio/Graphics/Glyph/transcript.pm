@@ -25,13 +25,27 @@ sub pad_right {
   return $self->arrow_length > $pad ? $self->arrow_length : $pad;
 }
 
+sub draw_component {
+  my $self = shift;
+  return unless $self->level > 0;
+  $self->SUPER::draw_component(@_);
+}
+
 sub draw_connectors {
   my $self = shift;
   my $gd = shift;
   my ($left,$top) = @_;
   $self->SUPER::draw_connectors($gd,$left,$top);
   my @parts = $self->parts;
-  @parts = $self unless @parts;
+
+  # H'mmm.  No parts.  Must be in an intron, so draw intron
+  # spanning entire range
+  if (!@parts) {
+    my($x1,$y1,$x2,$y2) = $self->bounds(0,0);
+    $self->_connector($gd,$left,$top,$x1,$y1,$x1,$y2,$x2,$y1,$x2,$y2);
+    @parts = $self;
+  }
+
   if ($self->feature->strand >= 0) {
     my($x1,$y1,$x2,$y2) = $parts[-1]->bounds(@_);
     my $center = ($y2+$y1)/2;
@@ -73,6 +87,21 @@ sub description {
   return $self->SUPER::description(@_) if $self->all_callbacks;
   return unless $self->{level} == 0;
   return $self->SUPER::description(@_);
+}
+
+
+# This ensures that single-exon genes (which have a position of Bio::Location::Simple
+# rather than Bio::Location::Split) can be drawn uniformly.
+sub _subseq {
+  my $class   = shift;
+  my $feature = shift;
+  my @subseq  = $class->SUPER::_subseq($feature);
+  return @subseq if @subseq;
+  if ($feature->can('location') && $feature->location->isa('Bio::Location::Simple')) {
+    return Bio::Location::Simple->new(-start=>$feature->start,-end=>$feature->end);
+  } else {
+    return;
+  }
 }
 
 1;

@@ -34,6 +34,8 @@ sub pad_right  {
 
 sub draw_component {
   my $self = shift;
+  return unless $self->level > 0;
+
   my $gd = shift;
   my ($left,$top) = @_;
   my @rect = $self->bounds(@_);
@@ -70,17 +72,21 @@ sub connector {
 
 sub draw_connectors {
   my $self = shift;
+  my ($gd,$dx,$dy) = @_;
 
   my $part;
   if (my @parts  = $self->parts) {
     $part   = $self->feature->strand > 0 ? $parts[-1] : $parts[0];
   } else {
+    # no parts -- so draw an intron spanning whole thing
+    my($x1,$y1,$x2,$y2) = $self->bounds(0,0);
+    $self->_connector($gd,$dx,$dy,$x1,$y1,$x1,$y2,$x2,$y1,$x2,$y2);
     $part = $self;
   }
   my @rect   = $part->bounds();
   my $width  = abs($rect[2] - $rect[0]);
   my $filled = $width >= MIN_WIDTH_FOR_ARROW;
-  
+
   if ($filled) {
     $self->Bio::Graphics::Glyph::generic::draw_connectors(@_);
   } else {
