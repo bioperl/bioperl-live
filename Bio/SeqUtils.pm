@@ -317,4 +317,38 @@ sub valid_aa{
    }
 }
 
+=head2 mutate
+
+ Title   : mutate
+ Usage   : my @aa = $table->valid_aa
+ Function: Does inplace editing of the sequence object
+ Returns : boolean
+ Args    : sequence object
+           mutation, a Bio::LiveSeq::Mutation object, r arr
+
+See <Bio::LiveSeq::Mutation>.
+
+=cut
+
+sub mutate {
+    my ($self, $seq, $mutation ) = @_;
+
+    $self->throw('Object [$seq] '. 'of class ['. ref($seq).
+                 '] should be a Bio::PrimarySeqI ')
+	unless $seq->isa('Bio::PrimarySeqI');
+    $self->throw('Object [$mutation] '. 'of class ['. ref($mutation).
+                 '] should be a Bio::LiveSeq::Mutation')
+	unless $mutation->isa('Bio::LiveSeq::Mutation');
+
+    $self->throw(Atempting to mutate sequence beyond its length)
+        unless $mutation->pos <= $seq->length;
+
+    my $string = $seq->seq;
+    substr $string, $mutation->pos - 1, $mutation->len, $mutation->seq;
+    $seq->seq($string);
+    1;
+
+}
+
 1;
+
