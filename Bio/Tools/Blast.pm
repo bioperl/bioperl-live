@@ -2424,7 +2424,7 @@ sub _set_blast1_stats {
 #----------------------
     my ($self, $data) = (@_);
     
-    if(!$self->{'_gapped'} and $self->program_version() =~ /^2[\w-.]+WashU/) {
+    if(!$self->{'_gapped'} and $self->program_version() =~ /^2[\w-\.]+WashU/) {
 	$self->_set_gapping_wu($data);
     } else {
 	$self->{'_gapped'} = 0;
