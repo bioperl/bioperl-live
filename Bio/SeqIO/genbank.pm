@@ -925,6 +925,10 @@ sub _read_FTHelper_GenBank {
     } else {
         # No feature key
 	$self->debug("no feature key!\n");
+	# change suggested by JDiggans to avoid infinite loop- 
+	# see bugreport 1062.
+	# reset buffer to prevent infinite loop
+	$$buffer = $self->_readline();
         return;
     } 
     
