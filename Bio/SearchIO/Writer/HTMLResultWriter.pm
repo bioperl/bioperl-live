@@ -244,7 +244,7 @@ qq{
     %s
     <b>Query=</b>%s %s<br><dd>(%s letters)</dd>
     <p>
-    <b>Database:</b> %s<br><dd>%d sequences; %d total letters<p></dd>
+    <b>Database:</b> %s<br><dd>%s sequences; %s total letters<p></dd>
     <p>
     <table border=0>
     <tr><th>Sequences producing significant alignments:</th>
@@ -255,7 +255,8 @@ qq{
 		    $result->query_name, 
 		    $result->query_description, $result->query_length, 
 		    $result->database_name(),
-		    $result->database_entries(),$result->database_letters(),
+		    &_numwithcommas($result->database_entries()), 
+		    &_numwithcommas($result->database_letters()),
 		    );
     my $hspstr = '<p><p>';
     if( $result->can('rewind')) {
@@ -300,12 +301,12 @@ qq{
 	    sprintf("><b>%s</b> %s\n<dd>Length = %d</dd><p>\n\n", $url_align, 
 			defined $hit->description ? $hit->description : '', 
 		    $hit->length);
-	
+	my $ct = 0;
 	foreach my $hsp (@hsps ) {
 	    next if( $hspfilter && ! &{$hspfilter}($hsp) );
 	    $hspstr .= sprintf(" Score = %s bits (%s), Expect = %s",
 			       $hsp->bits, $hsp->score, $hsp->evalue);
-	    if( $hsp->pvalue ) {
+	    if( defined $hsp->pvalue ) {
 		$hspstr .= ", P = ".$hsp->pvalue;
 	    }
 	    $hspstr .= "<br>\n";
@@ -330,17 +331,38 @@ qq{
 				    $hsp->length('total')));
 	    }
 	    
-	    my ($h,$q) = ( $hsp->hit->frame, $hsp->query->frame);
-		
-	    if( $h || $q ) {
-		$hspstr .= "<br>Frame = ";
+	    my ($hframe,$qframe)   = ( $hsp->hit->frame, $hsp->query->frame);
+	    my ($hstrand,$qstrand) = ($hsp->hit->strand,$hsp->query->strand);
+	    # so TBLASTX will have Query/Hit frames
+	    #    BLASTX  will have Query frame
+	    #    TBLASTN will have Hit frame
+	    if( $hstrand || $qstrand ) {
+		$hspstr .= ", Frame = ";
 		my ($signq, $signh);
-                $signq = ($q > 0 ? '+' : '');
-                $signh = ($q > 0 ? '+' : '');
-		if( $h && ! $q) {  $hspstr .= "$signh$h" }
-		elsif( $q && ! $h) {  $hspstr .= "$signq$q" }
-		else { 
-		    $hspstr .= " $signh$h / $signq$q ";
+		unless( $hstrand ) {
+		    $hframe = undef;
+		    # if strand is null or 0 then it is protein
+		    # and this no frame
+		} else { 
+		    $signh = $hstrand < 0 ? '-' : '+';
+		}
+		unless( $qstrand  ) {
+		    $qframe = undef;
+		    # if strand is null or 0 then it is protein
+		} else { 
+		    $signq =$qstrand < 0 ? '-' : '+';
+		}
+		# remember bioperl stores frames as 0,1,2 (GFF way)
+		# BLAST reports reports as 1,2,3 so
+		# we have to add 1 to the frame values
+		if( defined $hframe && ! defined $qframe) {  
+		    $hspstr .= "$signh".($hframe+1);
+		} elsif( defined $qframe && ! defined $hframe) {  
+		    $hspstr .= "$signq".($qframe+1);
+		} else { 
+		    $hspstr .= sprintf(" %s%d / %s%d",
+				       $signq,$qframe+1,
+				       $signh, $hframe+1);
 		}
 	    }
 #	    $hspstr .= "</pre></a><p>\n<pre>";
@@ -348,12 +370,14 @@ qq{
 	    
 	    my @hspvals = ( {'name' => 'Query:',
 			     'seq'  => $hsp->query_string,
-			     'start' => $hsp->query->strand >= 0 ? 
-				 $hsp->query->start : $hsp->query->end,
-			     'end'   => $hsp->query->strand >= 0 ? 
-			         $hsp->query->end : $hsp->query->start,
+			     'start' => ($qstrand >= 0 ? 
+					 $hsp->query->start : 
+					 $hsp->query->end),
+			     'end'   => ($qstrand >= 0 ? 
+					 $hsp->query->end : 
+					 $hsp->query->start),
 			     'index' => 0,
-			     'direction' => $hsp->query->strand || 1
+			     'direction' => $qstrand || 1
 			     },
 			    { 'name' => ' 'x6,
 			      'seq'  => $hsp->homology_string,
@@ -364,12 +388,14 @@ qq{
 			      },
 			    { 'name'  => 'Sbjct:',
 			      'seq'   => $hsp->hit_string,
-			      'start' => $hsp->hit->strand >= 0 ? 
-				  $hsp->hit->start : $hsp->hit->end,
-			      'end'   => $hsp->hit->strand >= 0 ? 
-			          $hsp->hit->end : $hsp->hit->start,
+			      'start' => ($hstrand >= 0 ? 
+					  $hsp->hit->start : 
+					  $hsp->hit->end),
+			      'end'   => ($hstrand >= 0 ? 
+					  $hsp->hit->end : 
+					  $hsp->hit->start),
 			      'index' => 0, 
-			      'direction' => $hsp->hit->strand || 1
+			      'direction' => $hstrand || 1
 			      }
 			    );	    
 	    
@@ -413,8 +439,9 @@ qq{
 		$count += $AlignmentLineWidth;
 		$hspstr .= "\n\n";
 	    }
+	    $hspstr .= "</pre>\n";
 	}
-	$hspstr .= "</pre>\n";
+#	$hspstr .= "</pre>\n";
     }
     $str .= "</table><p>\n".$hspstr."<p><p><hr><h2>Search Parameters</h2><table border=1><tr><th>Parameter</th><th>Value</th>\n";
     
@@ -674,6 +701,13 @@ programs\",  Nucleic Acids Res. 25:3389-3402.<p>";
    } else { 
        return '';
    }
+}
+
+# from Perl Cookbook 2.17
+sub _numwithcommas {
+    my $num = reverse( $_[0] );
+    $num =~ s/(\d{3})(?=\d)(?!\d*\.)/$1,/g;
+    return scalar reverse $num;
 }
 
 =head2 Methods Bio::SearchIO::SearchWriterI
