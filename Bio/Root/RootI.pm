@@ -877,7 +877,9 @@ sub parent {
 sub tempfile {
     my ($self, @args) = @_;
     if ( $TEMPMODLOADED ) {
-	return &File::Temp::tempfile(@args);
+	my ($tfh, $file) = &File::Temp::tempfile(@args);
+	push @{$self->{_rooti_tempfiles}}, $file;
+	return ($tfh,$file);
     }
     my %hash = @args;
     my $dir;
@@ -932,7 +934,9 @@ sub tempdir {
     my ( $self, %hash ) = @_;
 
     if( $TEMPMODLOADED ) {
-	return &File::Temp::tempdir(%hash);
+	my $dir = &File::Temp::tempdir(%hash);
+	push @{$self->{_rooti_tempdirs}},$dir;
+	return $dir;
     }
     # we are planning to cleanup temp files no matter what
     if( $hash{CLEANUP} == 1 ) {
