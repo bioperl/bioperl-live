@@ -14,12 +14,18 @@ use Getopt::Long;
 
 my $text = '';
 my $html = '';
-GetOptions('text' => \$text, 'html' => \$html);
-$text || $html || die "Usage: faq.pl [-text|-html] <xml_file>";
+my $silent = ''; # see the debugging output
+GetOptions('text' => \$text, 'html' => \$html, 'debug' => \$silent);
+$text || $html || die "Usage: faq.pl (-t[ext] | -h[tml) <xml_file>";
+if ($silent) {
+  $text = '';
+  $silent = '';
+}
+$html and $text = ''; #preference for HTML output
 
-my $file= shift || die "usage [-text|-html] faq.pl <xml_file>";
+my $file= shift || die "Usage faq.pl (-t[ext] | -h[tml) <xml_file>";
 
-# those 2 globals are grabed from the xml header and used to
+# those 2 globals are grabbed from the xml header and used to
 # generate the html header
 my $G_TITLE;   # title
 my $G_VERSION; # version
@@ -28,6 +34,7 @@ my $SNB = -1;     # section index
 my $QNB =  0;     # question index
 
 # text mode globals
+my $INDENT = 7;
 my $SEP = "-" x 75;
 $SEP .= "\n";
 my @QA;
@@ -238,7 +245,7 @@ sub question {
     my $hr= new XML::Twig::Elt( 'p');
     $hr->paste( 'before', $question);
 
-    # store teh original text for headers
+    # store the original text for headers
     my $question_text = $question->text;
 
     # add the question number
@@ -257,7 +264,7 @@ sub question {
 	my $q= $question->parent->parent;
         $TOC= new XML::Twig::Elt( 'ul');
         $TOC->paste( 'before', $q);
-        my $toc_title=  new XML::Twig::Elt( 'h3', 'Content');
+        my $toc_title=  new XML::Twig::Elt( 'h3', 'Contents');
         $toc_title->paste( 'before', $TOC);
 	my $hr= new XML::Twig::Elt ( 'hr');
 	$hr->paste( 'before', $toc_title);
@@ -268,8 +275,9 @@ sub question {
 
     if ($text) {
 
-	push @QA, "\n\n", wrap("  ", "        ", $question->text. "\n");
-	print wrap("  ", "        ", $question->text. "\n");
+	my $indent_length = $INDENT - length($target);
+	push @QA, "\n\n", wrap(" " x $indent_length, " " x ($INDENT+2), $question->text. "\n");
+	print wrap(" " x $indent_length, " " x ($INDENT+2), $question->text. "\n");
     }
 
     $question->set_gi( 'h3');
@@ -278,20 +286,42 @@ sub question {
 sub answer { 
     my( $t, $answer)= @_;
 
+
+    # add an A for an answer
+    my $a_string = "A: ";
+    my $a= new XML::Twig::Elt( 'b', $a_string);
+
+    my $first_child= $answer->first_child;
+    if( $first_child->gi eq 'p') {
+	$a->paste( $first_child);
+    } else {
+	$a->paste( $answer);
+    }
+
     if ($text) {
+	my $indent_length = $INDENT - length($a_string) + 2;
 	if ($answer->first_child && $answer->first_child->gi eq 'p') {
-	    foreach my $para ($answer->children) {
-		push @QA, "\n", wrap("        ", "        ", $para->text. "\n");
+	    my @answers = $answer->children;
+	    #first paragraph
+	    my $first_answer = shift @answers;
+	    push @QA, "\n", wrap(" " x $indent_length, " " x ($INDENT+2),
+				     $first_answer->text. "\n");
+	    foreach my $para (@answers) {
+		push @QA, "\n", wrap(" " x ($INDENT+2), " " x ($INDENT+2),
+				     $para->text. "\n");
+#		push @QA, "\n", wrap("        ", "        ",
+#				     $para->text. "\n");
 	    }
 	} else {
-	    push @QA, "\n", wrap("        ", "        ", $answer->text. "\n");
+	    push @QA, "\n", wrap(" " x $indent_length, " " x ($INDENT+2),
+				 $answer->text. "\n");
+#	    push @QA, "\n", wrap("      ", "         ", $answer->text. "\n");
 	}
     }
 
-
-    # replace the answer by a 'p'$answer->first_child
+    # replace the answer tag by a 'p'
     # unless the first child is already a 'p'
-    my $first_child= $answer->first_child;
+    # and add the A into appropriate place
     if( $first_child->gi eq 'p') {
 	$answer->erase;
     } else {
