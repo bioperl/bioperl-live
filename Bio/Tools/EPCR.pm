@@ -92,12 +92,29 @@ use Bio::SeqFeature::Generic;
 =head2 new
 
  Title   : new
- Usage   : my $epcr = new Bio::Tools::EPCR(-file => $file);
+ Usage   : my $epcr = new Bio::Tools::EPCR(-file => $file,
+					   -primary => $fprimary, 
+					   -source => $fsource, 
+					   -groupclass => $fgroupclass);
  Function: Initializes a new EPCR parser
  Returns : Bio::Tools::EPCR
  Args    : -fh   => filehandle
            OR
            -file => filename
+
+           -primary => a string to be used as the common value for
+                       each features '-primary' tag.  Defaults to
+                       'sts'.  (This in turn maps to the GFF 'type'
+                       tag (aka 'method')).
+ 
+            -source => a string to be used as the common value for
+                       each features '-source' tag.  Defaults to
+                       'e-PCR'. (This in turn maps to the GFF 'source'
+                       tag)
+
+             -groupclass => a string to be used as the name of the tag
+                           which will hold the sts marker namefirst
+                           attribute.  Defaults to 'name'.
 
 =cut
 
@@ -105,8 +122,15 @@ sub new {
   my($class,@args) = @_;
 
   my $self = $class->SUPER::new(@args);
+  my ($primary, $source, 
+      $groupclass) = $self->_rearrange([qw(PRIMARY
+					   SOURCE 
+					   GROUPCLASS)],@args);
+  $self->primary(defined $primary ? $primary : 'sts');
+  $self->source(defined $source ? $source : 'e-PCR');
+  $self->groupclass(defined $groupclass ? $groupclass : 'name');
+
   $self->_initialize_io(@args);
-  
   return $self;
 }
 
@@ -136,17 +160,73 @@ sub next_feature {
     # for now hardcoded to 0
 
     my $strand = 0;
-    my $markerfeature = new Bio::SeqFeature::Generic ( '-start'   => $start,
-						       '-end'     => $end,
-						       '-strand'  => $strand,
-						       '-source'  => 'e-PCR',
-						       '-primary' => 'sts',
-						       '-seq_id'  => $seqname,
-						       '-tag'     => {
-							   'name'=> $mkrname,
-							   'note'=> $rest,
-						       });
+    my $markerfeature = new Bio::SeqFeature::Generic 
+	( '-start'   => $start,
+	  '-end'     => $end,
+	  '-strand'  => $strand,
+	  '-source'  => $self->source,
+	  '-primary' => $self->primary,
+	  '-seq_id'  => $seqname,
+	  '-tag'     => {
+	      $self->groupclass => $mkrname,
+	      'Note'            => $rest,
+	  });
     return $markerfeature;
+}
+
+=head2 source
+
+ Title   : source
+ Usage   : $obj->source($newval)
+ Function: 
+ Example : 
+ Returns : value of source (a scalar)
+ Args    : on set, new value (a scalar or undef, optional)
+
+
+=cut
+
+sub source{
+    my $self = shift;
+    return $self->{'_source'} = shift if @_;
+    return $self->{'_source'};
+}
+
+=head2 primary
+
+ Title   : primary
+ Usage   : $obj->primary($newval)
+ Function: 
+ Example : 
+ Returns : value of primary (a scalar)
+ Args    : on set, new value (a scalar or undef, optional)
+
+
+=cut
+
+sub primary{
+    my $self = shift;
+    return $self->{'_primary'} = shift if @_;
+    return $self->{'_primary'};
+}
+
+=head2 groupclass
+
+ Title   : groupclass
+ Usage   : $obj->groupclass($newval)
+ Function: 
+ Example : 
+ Returns : value of groupclass (a scalar)
+ Args    : on set, new value (a scalar or undef, optional)
+
+
+=cut
+
+sub groupclass{
+    my $self = shift;
+
+    return $self->{'_groupclass'} = shift if @_;
+    return $self->{'_groupclass'};
 }
 
 1;
