@@ -39,7 +39,7 @@ o SYSTEM REQUIREMENTS
    The CPAN Bioperl Bundle (Bundle::BioPerl) makes installation 
    of these external modules easy. Simply install the bundle 
    using your CPAN shell and all necessary modules will be installed.
-   See BIOPERL BUNDLE, below.
+   See THE BIOPERL BUNDLE, below.
 
  * Note that most modules will work with earlier versions of Perl. 
    The only ones that will not are Bio::SimpleAlign.pm and 
@@ -408,7 +408,7 @@ o DEPENDENCIES AND Bundle::BioPerl
    applications or databases: MySQL, Berkeley DB, and expat respectively.
 
 
- Module			 Where it is Used
+ Module			  Where it is Used
  ------------------------------------------------------------------
  HTTP::Request::Common    GenBank+GenPept sequence retrieval, 
 	 		  remote http Blast jobs
@@ -499,7 +499,7 @@ o DEPENDENCIES AND Bundle::BioPerl
                           Requires Berkeley DB, from Linux RPM
 			  or from www.sleepycat.com
 
- Graph::Directed          generic graph data and algorithms
+ Graph::Directed          Generic graph data and algorithms
                           Bio::Ontology::SimpleOntologyEngine
 
  Data::Stag::ITextWriter  Structured Tags datastructures
@@ -510,8 +510,10 @@ o DEPENDENCIES AND Bundle::BioPerl
 
  Data::Stag::XMLWriter    Structured Tags datastructures
 			  Bio::SeqIO::chadoxml
- Text::Wrap               (Very optional)
+ 
+ Text::Wrap               Very optional
                           Bio::SearchIO::Writer::TextResultWriter
- HTML::Entities           (only if you want to run webanalysis modules)
+ 
+ HTML::Entities           If you want to run Web analysis modules
 			  Bio::Tools::Analysis::DNA::*
 			  Bio::Tools::Analysis::Protein::*
