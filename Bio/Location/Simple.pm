@@ -170,7 +170,7 @@ sub strand {
 
 sub length {
    my ($self) = @_;
-   return $self->end() - $self->start() + 1;
+   return abs($self->end() - $self->start()) + 1;
 }
 
 =head2 min_start

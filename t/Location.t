@@ -15,7 +15,7 @@ BEGIN {
 	use lib 't';
     }
     use Test;
-    plan tests => 41; 
+    plan tests => 42; 
 }
 
 use Bio::Location::Simple;
@@ -133,3 +133,9 @@ $f = new Bio::Location::Fuzzy(-start => '45.60',
 ok($f->to_FTstring(), '45.60..75^80');
 $f->start('20>');
 ok($f->to_FTstring(), '>20..75^80');
+
+# test that even when end < start that length is always positive
+
+my $f = new Bio::Location::Simple(-start => 100, -end => 20, -strand => -1);
+
+ok($f->length, 81);
