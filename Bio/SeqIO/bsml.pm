@@ -152,6 +152,7 @@ my $nvtoken = ": ";  # The token used if a name/value pair has to be stuffed
 =cut
 
 # LS: this seems to get overwritten on line 1317, generating a redefinition error.  Dead code?
+# CAT: This was inappropriately added in revision 1.10 - I added the check for existance of a sequence factory to the actual _initialize
 # sub _initialize {
 #   my($self,@args) = @_;
 #   $self->SUPER::_initialize(@args);  
@@ -1332,6 +1333,11 @@ sub _initialize {
       # current_node => the <Sequence> node next in line for next_seq
       $self->{'current_node'} = 0;
   }
+    
+  $self->sequence_factory( new Bio::Seq::SeqFactory
+			   ( -verbose => $self->verbose(), 
+			     -type => 'Bio::Seq::RichSeq')) 
+      if( ! defined $self->sequence_factory );
 }
 
 
