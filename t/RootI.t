@@ -9,7 +9,7 @@
 use Test;
 use strict;
 
-BEGIN {plan test => 10 }
+BEGIN {plan test => 9 }
 
 use lib '../';
 use Bio::Root::RootI;
@@ -60,9 +60,11 @@ eval {
 ok $val, '/Testing warn/', 'verbose(1) warn did not work properly' . $val;
 
 my @stack = $obj->stack_trace();
-ok scalar @stack, 1;
+ok scalar @stack, 2;
 
 my $verbobj = new Bio::Root::RootI(-verbose=>1,-strict=>1);
 ok $verbobj->verbose(), 1;
-ok $verbobj->strict(), 1;
+
 1;
+
+

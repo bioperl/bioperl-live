@@ -357,7 +357,6 @@ sub new {
 	%data = $self->_make_standard($name);
     }
     $self->{'_seq'} = new Bio::Seq(%data, 
-				   -STRICT  =>$self->strict, 
 				   -VERBOSE =>$self->verbose,
 				   -moltype => 'dna',
 				   );
@@ -773,6 +772,28 @@ sub available {
     print STDERR "\nDeprecated method: $ID:: available(); ".
 	"use is_available() instead.\n";
     $self->is_available($name);
+}
+
+
+=head2 name
+
+ Title   : name
+ Usage   : $obj->name($newval)
+ Function: 
+ Example : 
+ Returns : value of name
+ Args    : newvalue (optional)
+
+
+=cut
+
+sub name{
+   my ($obj,$value) = @_;
+   if( defined $value) {
+      $obj->{'name'} = $value;
+    }
+    return $obj->{'name'};
+
 }
 
 =head1 available_list
