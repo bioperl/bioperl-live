@@ -542,11 +542,13 @@ sub signif { shift->max_significance }
 
  Usage     : $obj->max_significance();
  Purpose   : Gets the P or Expect value used as significance screening cutoff.
+             This is the value of the -signif parameter supplied to new().
+             Hits with P or E-value above this are skipped.
  Returns   : Scientific notation number with this format: 1.0e-05.
  Argument  : n/a
  Comments  : Screening of significant hits uses the data provided on the
-           : description line. For Blast1 and WU-Blast2, this data is P-value.
-           : for Blast2 it is an Expect value.
+           : description line. For NCBI BLAST1 and WU-BLAST, this data 
+           : is P-value. for NCBI BLAST2 it is an Expect value.
 
 =cut
 
@@ -561,7 +563,9 @@ sub max_significance {
 =head2 min_score
 
  Usage     : $obj->min_score();
- Purpose   : Gets the Blast score used as significance screening cutoff.
+ Purpose   : Gets the Blast score used as screening cutoff.
+             This is the value of the -score parameter supplied to new().
+             Hits with scores below this are skipped.
  Returns   : Integer or scientific notation number.
  Argument  : n/a
  Comments  : Screening of significant hits uses the data provided on the
@@ -579,7 +583,9 @@ sub min_score {
 =head2 min_length
 
  Usage     : $obj->min_length();
- Purpose   : Gets the query sequence length used as significance screening criteria.
+ Purpose   : Gets the query sequence length used as screening criteria.
+             This is the value of the -min_len parameter supplied to new().
+             Hits with sequence length below this are skipped.
  Returns   : Integer
  Argument  : n/a
 
@@ -593,6 +599,56 @@ sub min_length {
     my $self = shift;
     $self->{'_min_length'};
 }
+
+=head2 highest_signif
+
+ Usage     : $value = $obj->highest_signif();
+ Purpose   : Gets the largest significance (P- or E-value) observed in
+             the report.
+           : For NCBI BLAST1 and WU-BLAST, this is a P-value. 
+           : For NCBI BLAST2 it is an Expect value.
+ Returns   : Float or sci notation number
+ Argument  : n/a
+
+=cut
+
+sub highest_signif { shift->{'_highestSignif'} }
+
+=head2 lowest_signif
+
+ Usage     : $value = $obj->lowest_signif();
+ Purpose   : Gets the largest significance (P- or E-value) observed in
+             the report.
+           : For NCBI BLAST1 and WU-BLAST, this is a P-value. 
+           : For NCBI BLAST2 it is an Expect value.
+ Returns   : Float or sci notation number
+ Argument  : n/a
+
+=cut
+
+sub lowest_signif { shift->{'_lowestSignif'} }
+
+=head2 highest_score
+
+ Usage     : $value = $obj->highest_score();
+ Purpose   : Gets the largest BLAST score observed in the report.
+ Returns   : Integer or sci notation number
+ Argument  : n/a
+
+=cut
+
+sub highest_score { shift->{'_highestScore'} }
+
+=head2 lowest_score
+
+ Usage     : $value = $obj->lowest_score();
+ Purpose   : Gets the largest BLAST score observed in the report.
+ Returns   : Integer or sci notation number
+ Argument  : n/a
+
+=cut
+
+sub lowest_score { shift->{'_lowestScore'} }
 
 
 # Throws : Exception if BLAST report contains a FATAL: error.
@@ -778,13 +834,15 @@ sub _set_query_length {
 }
 
 
-sub _process_significance {
+# Records the highest and lowest significance (P- or E-value) and
+# score encountered in a given report. 
+sub _set_hi_low_signif_and_score {
     my($self, $sig, $score) = @_;
 
     my $hiSig = $self->{'_highestSignif'} || 0;
-    my $lowSig = $self->{'_lowestSignif'} || 0;
+    my $lowSig = $self->{'_lowestSignif'} || $DEFAULT_SIGNIF;
     my $hiScore = $self->{'_highestScore'} || 0;
-    my $lowScore = $self->{'_lowestScore'} || 0;
+    my $lowScore = $self->{'_lowestScore'} || $DEFAULT_SIGNIF;
 
     $self->{'_highestSignif'} = ($sig > $hiSig)
    	                        ? $sig : $hiSig;
@@ -797,6 +855,13 @@ sub _process_significance {
 
     $self->{'_lowestScore'} = ($score < $lowScore)
                                  ? $score : $lowScore;
+}
+
+
+sub _process_significance {
+    my($self, $sig, $score) = @_;
+
+    $self->_set_hi_low_signif_and_score($sig, $score);
 
     # Significance value assessment.
     if($sig <= $self->{'_max_significance'} and $score >= $self->{'_min_score'}) {
@@ -965,17 +1030,7 @@ sub _process_alignment {
     my $hit_signif = $hit->signif;
     
     if (not $self->{'_confirm_significance'} ) {
-        $self->{'_highestSignif'} = ($hit_signif > $self->{'_highestSignif'})
-            ? $hit_signif : $self->{'_highestSignif'};
-
-        $self->{'_lowestSignif'} = ($hit_signif < $self->{'_lowestSignif'})
-            ? $hit_signif : $self->{'_lowestSignif'};
-
-        $self->{'_highestScore'} = ($score > $self->{'_highestScore'})
-            ? $score : $self->{'_highestScore'};
-
-        $self->{'_lowestScore'} = ($score < $self->{'_lowestScore'})
-            ? $score : $self->{'_lowestScore'};
+	$self->_set_hi_low_signif_and_score($hit_signif, $score);
     }
 
     # Test significance using custom function (if supplied)
