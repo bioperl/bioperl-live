@@ -81,9 +81,14 @@ methods. Internal methods are usually preceded with a _
 
 
 package Bio::SeqFeatureI;
-use vars qw(@ISA);
+use vars qw(@ISA $HasInMemory);
 use strict;
 
+BEGIN {
+    eval { require Bio::DB::InMemoryCache };
+    if( $@ ) { $HasInMemory = 0 }
+    else { $HasInMemory = 1 }
+}
 use Bio::RangeI;
 use Bio::Seq;
 
@@ -428,8 +433,8 @@ but can be validly overwritten by subclasses
 =cut
 
 sub spliced_seq {
-    my ($self,$db) = shift;
-
+    my ($self,$db) = @_;
+   
     if( ! $self->location->isa("Bio::Location::SplitLocationI") ) {
 	return $self->seq(); # nice and easy!
     }
@@ -449,6 +454,13 @@ sub spliced_seq {
     # (can I mention how much fun this is NOT! --jason)
     
     my ($mixed,$mixedloc,$tloc, $fstrand) = (0);
+    if( $db && ref($db) && ! $db->isa('Bio::DB::RandomAccessI') ) {
+	$self->warn("Must pass in a valid Bio::DB::RandomAccessI object for access to remote locations for spliced_seq");
+	$db = undef;
+    }
+    elsif( $HasInMemory && ! $db->isa('Bio::DB::InMemoryCache') ) {
+	$db = new Bio::DB::InMemoryCache(-seqdb => $db);
+    }
     if( $self->isa('Bio::Das::SegmentI') &&
 	! $self->absolute ) { 
 	$self->warn("Calling spliced_seq with a Bio::Das::SegmentI which does have absolute set to 1 -- be warned you may not be getting things on the correct strand");
@@ -464,8 +476,7 @@ sub spliced_seq {
 	$fstrand = $_->strand unless defined $fstrand;
 	$mixed = 1 if defined $_->strand && $fstrand != $_->strand;
 	if( defined $_->seq_id ) {
-	    $tloc = $_->seq_id unless defined $tloc;
-	    $mixedloc = 1 if( $tloc ne $_->seq_id );
+	    $mixedloc = 1 if( $_->seq_id ne $seqid );
 	}
 	[ $_, $_->start* ($_->strand || 1)];	    
     } $self->location->each_Location; 
@@ -492,7 +503,7 @@ sub spliced_seq {
 	    $loc->seq_id ne $seqid ) {
 	    if( defined $db ) {
 		my $sid = $loc->seq_id;
-		$sid =~ s/\.\d+//g;
+		$sid =~ s/\.\d+$//g;
 		eval {
 		    $called_seq = $db->get_Seq_by_acc($sid);
 		};
@@ -501,9 +512,11 @@ sub spliced_seq {
 		    $called_seq = undef;
 		}
 	    } else {
+		$self->warn( "cannot get remote location for ".$loc->seq_id ." without a valid Bio::DB::RandomAccessI database handle (like Bio::DB::GenBank)");
 		$called_seq = undef;
 	    }
 	    if( !defined $called_seq ) {
+		print STDERR "cannot get called seq for $seqid\n";
 		$seqstr .= 'N' x $self->length;
 		next;
 	    }
@@ -524,7 +537,7 @@ sub spliced_seq {
 	}
     }
     my $out = Bio::Seq->new( -id => $self->entire_seq->display_id . "_spliced_feat",
-				      -seq => $seqstr);
+			     -seq => $seqstr);
     
     return $out;
 }

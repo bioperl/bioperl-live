@@ -20,7 +20,7 @@ BEGIN {
 	use lib 't';
     }
     use Test;
-    $NUMTESTS = 70;
+    $NUMTESTS = 74;
     plan tests => $NUMTESTS;
 
     eval { require IO::String; 
@@ -329,6 +329,17 @@ unless( $skipdbtests ) {
     my $cdsseq = $CDS->spliced_seq($db);
     ok($cdsseq->subseq(1,60, 'ATGCAGCCATACGCTTCCGTGAGCGGGCGATGTCTATCTAGACCAGATGCATTGCATGTGATACCGTTTGGGCGAC'));
     ok($cdsseq->translate->subseq(1,100), 'MQPYASVSGRCLSRPDALHVIPFGRPLQAIAGRRFVRCFAKGGQPGDKKKLNVTDKLRLGNTPPTLDVLKAPRPTDAPSAIDDAPSTSGLGLGGGVASPR');
+
+    ok  $seqio = new Bio::SeqIO(-file => Bio::Root::IO->catfile(qw(t data AF032047.gbk)),
+				-format  => 'genbank');
+    
+    ok $geneseq = $seqio->next_seq();
+    ($CDS) = grep { $_->primary_tag eq 'CDS' } $geneseq->get_SeqFeatures;
+    
+    $cdsseq = $CDS->spliced_seq($db);
+    ok($cdsseq->subseq(1,60, 'ATGGCTCGCTTCGTGGTGGTAGCCCTGCTCGCGCTACTCTCTCTGTCTGGCCTGGAGGCTATCCAGCATG'));
+    ok($cdsseq->translate->seq, 'MARFVVVALLALLSLSGLEAIQHAPKIQVYSRHPAENGKPNFLNCYVSGFHPSDIEVDLLKNGKKIEKVEHSDLSFSKDWSFYLLYYTEFTPNEKDEYACRVSHVTFPTPKTVKWDRTM*');
+    
 } else { 
     foreach ( $Test::ntest..$NUMTESTS) {
 	skip('Skipping tests which need the Bio::DB::GenBank module',1);
