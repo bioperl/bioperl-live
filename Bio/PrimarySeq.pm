@@ -170,7 +170,12 @@ use Bio::PrimarySeqI;
 
  Function: Returns a new primary seq object from
            basic constructors, being a string for the sequence
-           and strings for id and accession_number
+           and strings for id and accession_number.
+
+           Note that you can provide an empty sequence string. However, in
+           this case you MUST specify the type of sequence you wish to
+           initialize by the parameter -moltype. See moltype() for possible
+           values.
  Returns : a new Bio::PrimarySeq object
 
 =cut
@@ -198,13 +203,16 @@ sub new {
 	}
     }
     if( defined $given_id ) { $id = $given_id; }
-    
-    $seq     && $self->seq($seq);
+
+    # if moltype is provided we set it first, so that it won't be guessed
+    # when the sequence is set
+    $moltype && $self->moltype($moltype);
+    # note: the sequence string may be empty
+    $self->seq($seq) if defined($seq);
     $id      && $self->display_id($id);
     $acc     && $self->accession_number($acc);
     $pid     && $self->primary_id($pid);
     $desc    && $self->desc($desc);
-    $moltype && $self->moltype($moltype);
     
     return $self;
 }
@@ -223,12 +231,19 @@ sub new {
 
 sub seq {
    my ($obj,$value) = @_;
+
    if( defined $value) {
-       if( $value !~ /^[A-Za-z\-\.\*]+$/ ) {
+       if((CORE::length($value) > 0) &&
+	  ($value !~ /^[A-Za-z\-\.\*]+$/)) {
 	   $obj->throw("Attempting to set the sequence to [$value] which does not look healthy");
        }
+       # if a sequence was already set we make sure that we re-adjust the
+       # mol.type, otherwise we skip guessing if mol.type is already set
+       my $is_changed_seq = exists($obj->{'seq'});
        $obj->{'seq'} = $value;
-       $obj->_guess_type();
+       if($is_changed_seq || (! defined($obj->moltype()))) {
+	   $obj->_guess_type();
+       }
     }
    return $obj->{'seq'};
 }
@@ -412,7 +427,7 @@ BEGIN {
 
  Title   : desc
  Usage   : $obj->desc($newval)
- Function: 
+ Function: Get/set description of the sequence.
  Example : 
  Returns : value of desc
  Args    : newvalue (optional)
