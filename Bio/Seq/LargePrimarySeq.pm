@@ -78,7 +78,6 @@ use strict;
 
 use Bio::Root::RootI;
 use Bio::PrimarySeqI;
-use File::Temp qw(tempfile tempdir);
 use IO::File;
 
 @ISA = qw(Bio::PrimarySeqI Bio::Root::RootI);
@@ -122,8 +121,8 @@ sub _initialize {
     $desc    && $self->desc($desc);
     $moltype && $self->moltype($moltype);
 
-    my $tempdir = tempdir( CLEANUP => 1);
-    my ($tfh,$file) = tempfile( DIR => $tempdir );
+    my $tempdir = $self->tempdir( CLEANUP => 1);
+    my ($tfh,$file) = $self->tempfile( DIR => $tempdir );
 
     my $fh = IO::File->new($file, O_RDWR);
 
@@ -429,6 +428,7 @@ sub DESTROY {
     if( defined  $self->_fh ) {
 	$self->_fh->close();
     }
+    $self->SUPER::DESTROY();
 }
 
 1;
