@@ -21,8 +21,8 @@ rather go through the SeqIO handler system. Go:
 
     $stream = Bio::SeqIO->new(-file => $filename, -format => 'GenBank');
 
-    while ( my $annseq = $stream->next_annseq() ) {
-	# do something with $annseq
+    while ( my $seq = $stream->next_seq() ) {
+	# do something with $seq
     }
 
 =head1 DESCRIPTION
@@ -108,7 +108,7 @@ use Bio::SeqFeature::Generic;
 use Bio::Species;
 
 
-# Object preamble - inheriets from Bio::Root::Object
+# Object preamble - inherits from Bio::Root::Object
 
 use Bio::Root::Object;
 use FileHandle;
@@ -348,6 +348,7 @@ sub write_seq {
 	$mol = $seq->molecule;
     }
     
+    local($^W) = 0;   # supressing warnings about uninitialized fields.
     
     my $temp_line;
     if( $self->_id_generation_func ) {
@@ -362,7 +363,7 @@ sub write_seq {
     _write_line_GenBank_regex($fh,"DEFINITION  ","            ",$seq->desc(),"\\s\+\|\$",80);
     
     # if there, write the accession line
-    
+
     if( $self->_ac_generation_func ) {
 	$temp_line = &{$self->_ac_generation_func}($seq);
 	print $fh "ACCESSION   $temp_line\n";   
