@@ -30,7 +30,7 @@ my $USAGE = "bpsreformat -if INFORMAT -of OUTFORMAT -i FILENAME -o output.FORMAT
                         nointerleaved   -- for phylip,non-interleaved format
                         idlinebreak       -- for phylip, makes it molphy format
                         percentages     -- for clustalw, show % id per line
-
+	                flat            -- don't show start-end in seqid
 ";
 
 
@@ -89,7 +89,9 @@ if( $msa ) {
     if( $@ ) {
 	die("Unknown MSA format to bioperl $outformat\n");
     }
-    while( my $aln = $in->next_aln) { $out->write_aln($aln) }
+    while( my $aln = $in->next_aln) { 
+	 if( $special =~ /flat/ ) {$aln->set_displayname_flat(1); }
+	 $out->write_aln($aln) }
 
 } else {
     eval {
