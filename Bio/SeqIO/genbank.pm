@@ -200,6 +200,7 @@ sub next_seq{
 	$seq->division($4);
 	$date = $5;
     } else {
+	$seq->molecule('PRT');
 	$seq->division($3);
 	$date = $4;
     }
@@ -854,8 +855,10 @@ sub _read_FTHelper_GenBank {
   QUAL: for (my $i = 0; $i < @qual; $i++) {
         $_ = $qual[$i];
         my( $qualifier, $value ) = m{^/([^=]+)(?:=(.+))?}
-            or $self->throw("Can't see new qualifier in: $_\nfrom:\n"
-                . join('', map "$_\n", @qual));
+	    or $self->warn("cannot see new qualifier in feature $key: ".
+			   $qual[$i]);
+            #or $self->throw("Can't see new qualifier in: $_\nfrom:\n"
+            #    . join('', map "$_\n", @qual));
         if (defined $value) {
             # Do we have a quoted value?
             if (substr($value, 0, 1) eq '"') {
@@ -878,9 +881,9 @@ sub _read_FTHelper_GenBank {
 			#		"accepting though");
 			#    last;
 			#} else {
-			    warn("Unbalanced quote in:\n",
-					map("$_\n", @qual),
-					"No further qualifiers will ".
+			    $self->warn("Unbalanced quote in:\n" .
+					join('', map("$_\n", @qual)) .
+					"No further qualifiers will " .
 					"be added for this feature");
 			    last QUAL;
 			#}
