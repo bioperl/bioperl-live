@@ -46,6 +46,12 @@ program and the output that program produces.
 That is, if you can get your analysis program spit out GFF, here is
 your result parser.
 
+=head1 NOTE
+
+While Bio::Tools::GFF supports GFF3, it does not deal with sequence data,
+which is valid in GFF3. If you want to use Bio::Tools::GFF with GFF3 that
+has sequence data, the sequence must be removed before analysis.
+
 =head1 FEEDBACK
 
 =head2 Mailing Lists
@@ -436,17 +442,14 @@ sub _from_gff3_string {
     my ($gff, $feat, $string) = @_;
     chomp($string);
 
-    # according to the Sanger website, GFF2 should be single-tab
-    # separated elements, and the free-text at the end should contain
-    # text-translated tab symbols but no "real" tabs, so splitting on
-    # \t is safe, and $attribs gets the entire attributes field to be
-    # parsed later
+    # according to the nascent GFF3 spec, it should be space
+    # separated elements, spaces anywhere else should be escaped.
 
     my ($seqname, $source, $primary, $start, $end, 
-	$score, $strand, $frame, $groups) = split(/\t+/, $string);
+	$score, $strand, $frame, $groups) = split(/\s+/, $string);
     
     if ( ! defined $frame ) {
-	$feat->throw("[$string] does not look like GFF2 to me");
+	$feat->throw("[$string] does not look like GFF3 to me");
     }
     $feat->seq_id($seqname);
     $feat->source_tag($source);
