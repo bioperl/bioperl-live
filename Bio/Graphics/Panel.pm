@@ -761,9 +761,10 @@ sub draw_grid {
   my $pt = $self->pad_top;
   my $pr = $self->right;
   my $pb = $self->height - $self->pad_bottom;
-  local $self->{flip} = 0;
+  my $offset = $self->{offset}+$self->{length}+1;
   for my $tick (@positions) {
-    my ($pos) = $self->map_pt($tick);
+    my ($pos) = $self->map_pt($self->{flip} ? $offset - $tick
+                                            : $tick);
 
     $gd->line($pl+$pos,$pt,$pl+$pos,$pb,$gridcolor);
   }
