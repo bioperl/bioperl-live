@@ -167,7 +167,7 @@ my $richseq = Bio::Seq::RichSeq->new( -seq => 'atgtggtaataa',
 				      -id => 'id1',
 				      -dates => [ '2001/1/1' ],
 				      -pid => '887821',
-				      -keywords => 'JUNK1 JUNK2',
+				      -keywords => 'JUNK1;JUNK2',
 				      -division => 'Fungi',
 				      -secondary_accessions => 'AC1152' );
 				 
@@ -181,6 +181,6 @@ ok ($richseq->alphabet, 'rna');
 ok ($richseq->molecule, 'mRNA');
 ok ($richseq->pid, 887821);
 ok ($richseq->division, 'Fungi');
-ok ($richseq->keywords, 'JUNK1 JUNK2');
+ok ($richseq->keywords, 'JUNK1; JUNK2');
 $richseq->seq_version('2');
 ok ($richseq->seq_version, 2);

@@ -59,7 +59,10 @@ $numseqs = 0;
 
 while($seq = $seqio->next_seq()) {
     ok ($seq->accession_number, $loci[$numseqs++]);
-    ok (scalar($seq->annotation->get_Annotations()), 0);
+    ok (scalar(grep { ! ($_->tagname eq "keyword" ||
+			 $_->tagname eq "date_changed" ||
+			 $_->tagname eq "secondary_accession"); }
+	       $seq->annotation->get_Annotations()), 0);
     if($numseqs <= 3) {
 	ok (scalar($seq->top_SeqFeatures), 0);
     } else {

@@ -120,14 +120,14 @@ sub new {
     my ($dates, $xtra, $sv,
 	$keywords, $pid, $mol, 
 	$division ) = $self->_rearrange([qw(DATES 
-					   SECONDARY_ACCESSIONS
-					   SEQ_VERSION 
-					   KEYWORDS
-					   PID
-					   MOLECULE
-					   DIVISION
-					   )],
-				   @args);
+					    SECONDARY_ACCESSIONS
+					    SEQ_VERSION 
+					    KEYWORDS
+					    PID
+					    MOLECULE
+					    DIVISION
+					    )],
+					@args);
     defined $division && $self->division($division);
     defined $mol && $self->molecule($mol);
     defined $keywords && $self->keywords($keywords);
@@ -135,7 +135,7 @@ sub new {
     defined $pid && $self->pid($pid);
 
     if( defined $dates ) {
-	if( ref($dates) =~ /array/i ) {
+	if( ref($dates) eq "ARRAY" ) {
 	    foreach ( @$dates) {
 		$self->add_date($_);
 	    } 
@@ -145,7 +145,7 @@ sub new {
     }
 
     if( defined $xtra ) {
-	if( ref($xtra) =~ /array/i ) {
+	if( ref($xtra) eq "ARRAY" ) {
 	    foreach ( @$xtra) {
 		$self->add_secondary_accession($_);
 	    } 
@@ -204,26 +204,29 @@ sub molecule {
 
  Title   : add_date
  Usage   : $self->add_date($datestr)
- Function: adds a date
+ Function: adds one or more dates
+
+           This implementation stores dates as keyed annotation, the
+           key being 'date_changed'. You can take advantage of this
+           fact when accessing the annotation collection directly.
+
  Example :
- Returns : a date string or an array of such strings
- Args    :
+ Returns : 
+ Args    : a date string or an array of such strings
 
 
 =cut
 
 sub add_date {
-   my ($self,@dates) = @_;
-   foreach my $dt ( @dates ) {
-       push(@{$self->{'_dates'}},$dt);
-   }
+    return shift->_add_annotation_value('date_changed',@_);
 }
 
 =head2 get_dates
 
  Title   : get_dates
  Usage   :
- Function:
+ Function: Get the dates of the sequence (usually, when it was created and
+           changed.
  Example :
  Returns : an array of date strings
  Args    :
@@ -232,8 +235,7 @@ sub add_date {
 =cut
 
 sub get_dates{
-   my ($self) = @_;
-   return @{$self->{'_dates'}}; 
+    return shift->_get_annotation_values('date_changed');
 }
 
 
@@ -250,12 +252,10 @@ sub get_dates{
 
 =cut
 
-sub pid {
-    my ($self,$pid) = @_;
-    
-    if(defined($pid)) {
-	$self->{'_pid'} = $pid;
-    }
+sub pid{
+    my $self = shift;
+
+    return $self->{'_pid'} = shift if @_;
     return $self->{'_pid'};
 }
 
@@ -286,6 +286,12 @@ sub accession {
  Title   : add_secondary_accession
  Usage   : $self->add_domment($ref)
  Function: adds a secondary_accession
+
+           This implementation stores secondary accession numbers as
+           keyed annotation, the key being 'secondary_accession'. You
+           can take advantage of this fact when accessing the
+           annotation collection directly.
+
  Example :
  Returns : 
  Args    : a string or an array of strings
@@ -294,17 +300,14 @@ sub accession {
 =cut
 
 sub add_secondary_accession {
-   my ($self) = shift;
-   foreach my $dt ( @_ ) {
-       push(@{$self->{'_secondary_accession'}},$dt);
-   }
+    return shift->_add_annotation_value('secondary_accession',@_);
 }
 
 =head2 get_secondary_accessions
 
  Title   : get_secondary_accessions
  Usage   :
- Function:
+ Function: Get the secondary accession numbers as strings.
  Example :
  Returns : An array of strings
  Args    :
@@ -313,8 +316,7 @@ sub add_secondary_accession {
 =cut
 
 sub get_secondary_accessions{
-   my ($self,@args) = @_;
-   return @{$self->{'_secondary_accession'}}; 
+    return shift->_get_annotation_values('secondary_accession');
 }
 
 =head2 seq_version
@@ -323,48 +325,126 @@ sub get_secondary_accessions{
  Usage   : $obj->seq_version($newval)
  Function: 
  Example : 
- Returns : value of seq_version
- Args    : newvalue (optional)
+ Returns : value of seq_version (a scalar)
+ Args    : on set, new value (a scalar or undef, optional)
 
 
 =cut
 
 sub seq_version{
-   my ($obj,$value) = @_;
-   if( defined $value) {
-      $obj->{'_seq_version'} = $value;
-    }
-    return $obj->{'_seq_version'};
+    my $self = shift;
 
+    return $self->{'_seq_version'} = shift if @_;
+    return $self->{'_seq_version'};
 }
 
 
-=head2 keywords
+=head2 add_keyword
 
- Title   : keywords
- Usage   : $obj->keywords($newval)
- Function: 
- Returns : value of keywords (a string)
- Args    : newvalue (optional) (a string)
+ Title   : add_keyword
+ Usage   : $obj->add_keyword($newval)
+ Function: Add a new keyword to the annotation of the sequence.
+
+           This implementation stores keywords as keyed annotation,
+           the key being 'keyword'. You can take advantage of this
+           fact when accessing the annotation collection directly.
+
+ Returns : 
+ Args    : value to be added (optional) (a string)
 
 
 =cut
 
-sub keywords {
-   my $obj = shift;
-   if( @_ ) {
-      my $value = shift;
-      $obj->{'_keywords'} = $value;
-    }
-    return $obj->{'_keywords'};
+sub add_keyword {
+    return shift->_add_annotation_value('keyword',@_);
+}
 
+=head2 get_keywords
+
+ Title   : get_keywords
+ Usage   : $obj->get_keywords($newval)
+ Function: Get the keywords for this sequence as an array of strings.
+ Returns : an array of strings
+ Args    : 
+
+
+=cut
+
+sub get_keywords {
+    return shift->_get_annotation_values('keyword');
+}
+
+=head1
+
+ Private methods and synonyms for backward compatibility
+
+=cut
+
+=head2 _add_annotation_value
+
+ Title   : _add_annotation_value
+ Usage   :
+ Function: Adds a value to the annotation collection under the specified
+           key. Note that this is not a public method.
+ Example :
+ Returns : 
+ Args    : key (a string), value(s) (one or more scalars)
+
+
+=cut
+
+sub _add_annotation_value{
+    my $self = shift;
+    my $key  = shift;
+
+    foreach my $val (@_) {
+	$self->annotation->add_Annotation(
+			Bio::Annotation::SimpleValue->new(-tagname => $key,
+							  -value => $val)
+					  );
+    }
+}
+
+=head2 _get_annotation_values
+
+ Title   : _get_annotation_values
+ Usage   :
+ Function: Gets the values of a specific annotation as identified by the
+           key from the annotation collection. Note that this is not a
+           public method.
+ Example :
+ Returns : an array of strings
+ Args    : the key (a string)
+
+
+=cut
+
+sub _get_annotation_values{
+    my $self = shift;
+
+    return map { $_->value(); } $self->annotation->get_Annotations(shift);
 }
 
 #
 ##
-### Deprecated methods kept for ease of transtion
+### Deprecated methods kept for ease of transition
 ##
 #
+
+sub keywords {
+    my $self = shift;
+
+    # have we been called in set mode?
+    if(@_) {
+	# yes; translate to the new API
+	foreach my $kwd (@_) {
+	    $self->add_keyword(split(/\s*;\s*/,$kwd));
+	}
+    } else {
+	# no; translate read-only to the new API
+	return join("; ",$self->get_keywords());
+    }
+}
 
 sub each_date {
    my ($self) = @_;
