@@ -6,3 +6,4 @@
 \.bak$
 \.dist$
 bioperl.lisp
+Makefile
