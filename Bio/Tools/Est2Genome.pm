@@ -214,7 +214,7 @@ sub parse_next_gene {
 	       (-query => $query,
 		-hit   => $hit,
 		-source => $self->analysis_method);
-       } elsif( /^([\-\+\?])(Intro)/) {
+       } elsif( /^([\-\+\?])(Intron)/) {
 	   my ($name,$len,$score,$qstart,$qend,$qseqname) = split;
 	   push @features, new Bio::SeqFeature::Generic(-primary => $2,
 							-source => $self->analysis_method,
