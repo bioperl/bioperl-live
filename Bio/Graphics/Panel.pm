@@ -129,6 +129,15 @@ sub key_style {
   $g;
 }
 
+# public routine for mapping from a base pair
+# location to pixel coordinates
+sub location2pixel {
+  my $self   = shift;
+  my $end    = $self->end + 1;
+  my @coords = $self->{flip} ? map { $end-$_ } @_ : @_;
+  $self->map_pt(@coords);
+}
+
 # numerous direct calls into array used here for performance considerations
 sub map_pt {
   my $self   = shift;
@@ -1428,6 +1437,11 @@ After calling gd() or boxes(), you can learn the resulting Y
 coordinate of a track by calling track_position() with the value
 returned by add_track() or unshift_track().  This will return undef if
 called before gd() or boxes() or with an invalid track.
+
+=item @pixel_coords = $panel-E<gt>location2pixel(@feature_coords)
+
+Public routine to map feature coordinates (in base pairs) into pixel
+coordinates relative to the left-hand edge of the picture.
 
 =back
 
