@@ -3,20 +3,21 @@
   PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml"><head>
       <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
-   <title>Phylogenetic Tree HOWTO</title><link rel="stylesheet" href="ede.css" type="text/css"><meta name="generator" content="DocBook XSL Stylesheets V1.61.3"><meta name="description" content="&#xA;	This HOWTO intends to show how to use the Bioperl Tree objects to&#xA;	manipulate phylogenetic trees.  It shows how to read and write&#xA;	trees, query them for information about specific nodes or&#xA;	overall statistics.  Advanced topics include discussion of&#xA;	generating random trees and extensions of the basic structure&#xA;	for integration with other modules in Bioperl.&#xA;      "></head><body><div xmlns="" id="customheader">
+   <title>Phylogenetic Tree HOWTO</title><link rel="stylesheet" href="ede.css" type="text/css"><meta name="generator" content="DocBook XSL Stylesheets V1.61.3"><meta name="description" content="&#xA;		  This HOWTO intends to show how to use the Bioperl Tree objects to&#xA;		  manipulate phylogenetic trees.  It shows how to read and write&#xA;		  trees, query them for information about specific nodes or&#xA;		  overall statistics, and create pictures of trees.  Advanced &#xA;		  topics include discussion of&#xA;		  generating random trees and extensions of the basic structure&#xA;		  for integration with other modules in Bioperl.&#xA;      "></head><body><div xmlns="" id="customheader">
 BioPerl DocBook
 </div><div class="article" lang="en"><div class="titlepage"><div><div><h1 class="title"><a id="d3e1"></a>Phylogenetic Tree HOWTO</h1></div><div><div class="author"><h3 class="author"><span class="firstname">Jason</span> <span class="surname">Stajich</span></h3><div class="affiliation"><span class="orgname">Dept Molecular Genetics and Microbiology,
 	  Duke University<br></span><div class="address"><p><tt class="email">&lt;<a href="mailto:jason AT bioperl.org">jason&nbsp;AT&nbsp;bioperl.org</a>&gt;</tt></p></div></div></div></div><div><div class="legalnotice"><p>This document is copyright Jason Stajich, 2003.  It can
         be copied and distributed under the terms of the Perl
         Artistic License.
-      </p></div></div><div><p class="pubdate">2003-12-01</p></div><div><div class="revhistory"><table border="1" width="100%" summary="Revision history"><tr><th align="left" valign="top" colspan="3"><b>Revision History</b></th></tr><tr><td align="left">Revision 0.1</td><td align="left">2003-12-01</td><td align="left">JES</td></tr><tr><td align="left" colspan="3">First version</td></tr></table></div></div><div><div class="abstract"><p class="title"><b>Abstract</b></p><p>
-	This HOWTO intends to show how to use the Bioperl Tree objects to
-	manipulate phylogenetic trees.  It shows how to read and write
-	trees, query them for information about specific nodes or
-	overall statistics.  Advanced topics include discussion of
-	generating random trees and extensions of the basic structure
-	for integration with other modules in Bioperl.
-      </p></div></div></div><div></div><hr></div><div class="toc"><p><b>Table of Contents</b></p><dl><dt>1. <a href="#introduction">Introduction</a></dt><dt>2. <a href="#simple_usage">Simple Usage</a></dt><dt>3. <a href="#IO">Reading and Writing Trees</a></dt><dt>4. <a href="#d3e48">Example Code</a></dt><dt>5. <a href="#TreeI">Bio::Tree::TreeI methods</a></dt><dt>6. <a href="#TreeFunctionsI">Bio::Tree::TreeFunctionsI</a></dt><dt>7. <a href="#tree_building">Constructing Trees</a></dt><dt>8. <a href="#advanced_topics">Advanced Topics</a></dt><dt>9. <a href="#References">References and More Reading</a></dt></dl></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="introduction"></a>1.&nbsp;Introduction</h2></div></div><div></div></div><p>
+      </p></div></div><div><p class="pubdate">2003-12-01</p></div><div><div class="revhistory"><table border="1" width="100%" summary="Revision history"><tr><th align="left" valign="top" colspan="3"><b>Revision History</b></th></tr><tr><td align="left">Revision 0.1</td><td align="left">2003-12-01</td><td align="left">JES</td></tr><tr><td align="left" colspan="3">First version</td></tr><tr><td align="left">Revision 0.2</td><td align="left">2004-11-05</td><td align="left">BIO</td></tr><tr><td align="left" colspan="3">Add SVG section and links</td></tr></table></div></div><div><div class="abstract"><p class="title"><b>Abstract</b></p><p>
+		  This HOWTO intends to show how to use the Bioperl Tree objects to
+		  manipulate phylogenetic trees.  It shows how to read and write
+		  trees, query them for information about specific nodes or
+		  overall statistics, and create pictures of trees.  Advanced 
+		  topics include discussion of
+		  generating random trees and extensions of the basic structure
+		  for integration with other modules in Bioperl.
+      </p></div></div></div><div></div><hr></div><div class="toc"><p><b>Table of Contents</b></p><dl><dt>1. <a href="#introduction">Introduction</a></dt><dt>2. <a href="#IO">Reading and Writing Trees</a></dt><dt>3. <a href="#d3e51">Example Code</a></dt><dt>4. <a href="#TreeI">Bio::Tree::TreeI methods</a></dt><dt>5. <a href="#TreeFunctionsI">Bio::Tree::TreeFunctionsI</a></dt><dt>6. <a href="#tree_images">Making Images of Trees</a></dt><dt>7. <a href="#tree_building">Constructing Trees</a></dt><dt>8. <a href="#advanced_topics">Advanced Topics</a></dt><dt>9. <a href="#References">References and More Reading</a></dt><dt>10. <a href="#in_addition">Additional Information</a></dt></dl></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="introduction"></a>1.&nbsp;Introduction</h2></div></div><div></div></div><p>
       Generating and manipulating phylogenetic trees is an important
       part of modern systematics and molecular evolution research.
       The construction of trees is the subject of a rich literature
@@ -42,8 +43,8 @@ BioPerl DocBook
       represented generically by <tt class="classname">Bio::Tree::Node</tt>,
       however there are subclasses of this object to handle particular
       cases where we need a richer object (see
-      <tt class="classname">Bio::PopGen::Simulations::Coalescent</tt> and
-      the PopGen HOWTO for more information).  The connections between
+      <tt class="classname">Bio::PopGen::Simulations::Coalescent</tt> for 
+		more information).  The connections between
       Nodes are described using a few simple concepts. There is the concept of
       pointers or references where a particular Node keeps track of
       who its parent is and who its children are.  A Node can only have 1
@@ -54,10 +55,10 @@ BioPerl DocBook
       <tt class="classname">Bio::Tree::Tree</tt> object is just a 
       container for some summary information about the tree and a
       description of the tree's root node.
-    </p></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="simple_usage"></a>2.&nbsp;Simple Usage</h2></div></div><div></div></div><p>
-      Trees are used to represent the history of a collection of taxa,
+    </p></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="IO"></a>2.&nbsp;Reading and Writing Trees</h2></div></div><div></div></div><p>
+      Trees are used to represent the ancestry of a collection of taxa,
       sequences, or populations. 
-    </p></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="IO"></a>3.&nbsp;Reading and Writing Trees</h2></div></div><div></div></div><p>
+    </p><p>
       Using <tt class="classname">Bio::TreeIO</tt> one can read trees
       from files or datastreams and
       create <tt class="classname">Bio::Tree::Tree</tt> objects.  This is
@@ -79,7 +80,8 @@ BioPerl DocBook
       <tt class="classname">Bio::TreeIO::nexus</tt> supports parsing tree
       data from PAUP's Nexus format. However this driver currently
       only supports parsing, not writing, of Nexus format tree files.
-   </p></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="d3e48"></a>4.&nbsp;Example Code</h2></div></div><div></div></div><p>
+		There are also modules for lintree and Page1 output formats.
+   </p></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="d3e51"></a>3.&nbsp;Example Code</h2></div></div><div></div></div><p>
       Here is some code which will read in a Tree from a file called
       "tree.tre" and produce a Bio::Tree::Tree object which is stored in 
       the variable <pre class="programlisting">$tree</pre>.
@@ -98,7 +100,7 @@ BioPerl DocBook
     </p><p>
       Once you have a Tree object you can do a number of things with it.
       These are all methods required in <tt class="classname">Bio::Tree::TreeI</tt>.
-    </p></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="TreeI"></a>5.&nbsp;Bio::Tree::TreeI methods</h2></div></div><div></div></div><p>
+    </p></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="TreeI"></a>4.&nbsp;Bio::Tree::TreeI methods</h2></div></div><div></div></div><p>
       Request the taxa (leaves of the tree).
       <pre class="programlisting">my @taxa = $tree-&gt;get_leaf_nodes;</pre>
     </p><p>
@@ -111,7 +113,7 @@ BioPerl DocBook
       <pre class="programlisting">
 my $total_length = $tree-&gt;total_branch_length;
       </pre>
-    </p></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="TreeFunctionsI"></a>6.&nbsp;Bio::Tree::TreeFunctionsI</h2></div></div><div></div></div><p>
+    </p></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="TreeFunctionsI"></a>5.&nbsp;Bio::Tree::TreeFunctionsI</h2></div></div><div></div></div><p>
       An additional interface was written which implements 
       utility functions which are useful for manipulating a Tree.
     </p><p>
@@ -128,8 +130,8 @@ my $total_length = $tree-&gt;total_branch_length;
       </pre>
     </p><p>
       If you would like to do more sophisticated searches, like "find all
-     the nodes with bootstrap values better than 70", you can easily
-     implement this yourself.
+		the nodes with bootstrap values better than 70", you can easily
+		implement this yourself.
       <pre class="programlisting">
      my @nodes = grep { $_-&gt;bootstrap &gt; 70 } $tree-&gt;get_nodes;
       </pre>
@@ -159,11 +161,11 @@ my $total_length = $tree-&gt;total_branch_length;
    my $distances = $tree-&gt;distance(-nodes =&gt; [$node1,$node2]);
       </pre>
     </p><p>
-   Perform a test of monophyly for a set of nodes and a given outgroup
-   node.  This means the common ancestor for the members of the
-   internal_nodes group is more recent than the common ancestor that any of them
-   share with the outgroup node.
-   <pre class="programlisting">
+		Perform a test of monophyly for a set of nodes and a given outgroup
+		node.  This means the common ancestor for the members of the
+		internal_nodes group is more recent than the common ancestor that any of them
+		share with the outgroup node.
+		<pre class="programlisting">
    if( $tree-&gt;is_monophyletic(-nodes    =&gt; \@internal_nodes,
                               -outgroup =&gt; $outgroup) ) {
      print "these nodes are monophyletic: ",
@@ -184,19 +186,38 @@ my $total_length = $tree-&gt;total_branch_length;
    }   
       </pre>   
     </p><p>
-   Reroot a tree, specifying a different node as the root (and a
-   different node as the outgroup).
-   <pre class="programlisting">
+		Re-root a tree, specifying a different node as the root (and a
+		different node as the outgroup).
+		<pre class="programlisting">
    # node can either be a Leaf node in which case it becomes the
    # outgroup and its ancestor is the new root of the tree
    # or it can be an internal node which will become the new
    # root of the Tree
    $tree-&gt;reroot($node);
       </pre>
-    </p></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="tree_building"></a>7.&nbsp;Constructing Trees</h2></div></div><div></div></div><p>
+    </p></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="tree_images"></a>6.&nbsp;Making Images of Trees</h2></div></div><div></div></div><p>
+		You can also make images of trees. If you have the module
+		SVG::Graph installed you can create an SVG image of your tree. 
+		The example below uses TreeIO to get a
+		Tree object and then its tree is written to an image file.
+	 </p><p>
+		<pre class="programlisting">
+  use Bio::TreeIO;
+  my $in = new Bio::TreeIO(-file =&gt; 'input',
+                           -format =&gt; 'newick');
+  my $out = new Bio::TreeIO(-file =&gt; '&gt;mytree.svg',
+                            -format =&gt; 'svggraph');
+
+  while( my $tree = $in-&gt;next_tree ) {
+      $out-&gt;write_tree($tree);
+  }
+		</pre>
+	 </p><p>
+		Alternatively you could use an output format of "tabtree", 
+		this option will create an ASCII drawing of the tree.
+	 </p></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="tree_building"></a>7.&nbsp;Constructing Trees</h2></div></div><div></div></div><p>
       Pairwise distances for all sequences in an alignment can be
       computed with <tt class="classname">Bio::Align::DNAStatistics</tt> and
-      (for DNA)
       and <tt class="classname">Bio::Align::ProteinStatistics</tt>.  There
       are several different methods implemented.  For DNA alignments,
       Jukes-Cantor (1969), Juke-Cantor uncorrected, Kimura 2-parameter
@@ -212,7 +233,7 @@ my $total_length = $tree-&gt;total_branch_length;
       (<tt class="classname">Bio::SimpleAlign</tt>) and the type of distance
       method to use and the module will return
       a <tt class="classname">Bio::Matrix::PhylipDist</tt> matrix object of
-      pairwise distances.  The code example below shows how this should
+      pairwise distances.  The code example below shows how this could
       be done.
     </p><p>
       Given the matrix of pairwise distances one can build a phylogenetic
@@ -297,20 +318,28 @@ my $total_length = $tree-&gt;total_branch_length;
       of data, but by no means should this be looked at as the final
       product.  If you have a particular statistic or function that
       applies to trees that you would like to see included in the
-      toolkit we encourage you to send details to the Bioperl list.
+      toolkit we encourage you to send details to the Bioperl list,
+		bioperl-l@bioperl.org.
     </p></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="References"></a>9.&nbsp;References and More Reading</h2></div></div><div></div></div><p>
       For more reading and some references for the techniques above see
       these titles.   
     </p><p>
       <table class="simplelist" border="0" summary="Simple list"><tr><td>
-	  J. Felsenstein, "Infering Phylogenies" 2003. Sinuar and Associates.
-	</td></tr><tr><td>
-	  D. Swoffrod, Olsen, Waddell and D. Hillis, "Phylogenetic Inference"
-	  1996. in Mol. Systematics, 2nd ed, 1996, Ch 11.
-	</td></tr><tr><td>
-	  Eddy SR, Durbin R, Krogh A, Mitchison G, "Biological Sequence
-	  Analysis" 1998. Cambridge Univ Press, Cambridge, UK.
-	</td></tr></table>
-    </p></div></div><div xmlns="" id="customfooter">
+			 J. Felsenstein, "Infering Phylogenies" 2003. Sinuar and Associates.
+		  </td></tr><tr><td>
+			 D. Swoffrod, Olsen, Waddell and D. Hillis, "Phylogenetic Inference"
+			 1996. in Mol. Systematics, 2nd ed, 1996, Ch 11.
+		  </td></tr><tr><td>
+			 Eddy SR, Durbin R, Krogh A, Mitchison G, "Biological Sequence
+			 Analysis" 1998. Cambridge Univ Press, Cambridge, UK.
+		  </td></tr></table>
+    </p></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="in_addition"></a>10.&nbsp;Additional Information</h2></div></div><div></div></div><p>
+		Here's a list of the relevant modules. If you have questions
+      or comments that aren't addressed herein then write the
+      Bioperl community at bioperl-l@bioperl.org.
+    </p><p>
+      <span class="emphasis"><em>Related Modules</em></span>
+      <table class="simplelist" border="0" summary="Simple list"><tr><td><a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/TreeIO.html" target="_top">Bio/TreeIO.pm</a></td></tr><tr><td><a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Tree/Tree.html" target="_top">Bio/Tree/Tree.pm</a></td></tr><tr><td><a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Align/DNAStatistics.html" target="_top">Bio/Align/DNAStatistics.pm</a></td></tr><tr><td><a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Align/ProteinStatistics.html" target="_top">Bio/Align/ProteinStatistics.pm</a></td></tr><tr><td><a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Align/Utilities.html" target="_top">Bio/Align/Utilities.pm</a></td></tr><tr><td><a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Matrix/PhylipDist.html" target="_top">Bio/Matrix/PhylipDist.pm</a></td></tr><tr><td><a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/PopGen/Simulation/Coalescent.html" target="_top">Bio/PopGen/Simulation/Coalescent.pm</a></td></tr><tr><td><a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SimpleAlign.html" target="_top">Bio/SimpleAlign.pm</a></td></tr><tr><td><a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Tree/DistanceFactory.html" target="_top">Bio/Tree/DistanceFactory.pm</a></td></tr><tr><td><a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Tree/Node.html" target="_top">Bio/Tree/Node.pm</a></td></tr><tr><td><a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Tree/RandomFactory.html" target="_top">Bio/Tree/RandomFactory.pm</a></td></tr><tr><td><a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Tree/TreeI.html" target="_top">Bio/Tree/TreeI.pm</a></td></tr><tr><td><a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Tree/AlleleNode.html" target="_top">Bio/Tree/AlleleNode.pm</a></td></tr><tr><td><a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Tree/NodeI.html" target="_top">Bio/Tree/NodeI.pm</a></td></tr><tr><td><a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Tree/NodeNHX.html" target="_top">Bio/Tree/NodeNHX.pm</a></td></tr><tr><td><a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Tree/TreeFunctionsI.html" target="_top">Bio/Tree/TreeFunctionsI.pm</a></td></tr><tr><td><a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Tree/Statistics.html" target="_top">Bio/Tree/Statistics.pm</a></td></tr><tr><td><a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/TreeIO/newick.html" target="_top">Bio/TreeIO/newick.pm</a></td></tr><tr><td><a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/TreeIO/nexus.html" target="_top">Bio/TreeIO/nexus.pm</a></td></tr><tr><td><a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/TreeIO/nhx.html" target="_top">Bio/TreeIO/nhx.pm</a></td></tr><tr><td><a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/TreeIO/pag.html" target="_top">Bio/TreeIO/pag.pm</a></td></tr><tr><td><a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/TreeIO/svggraph.html" target="_top">Bio/TreeIO/svggraph.pm</a></td></tr><tr><td><a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/TreeIO/lintree.html" target="_top">Bio/TreeIO/lintree.pm</a></td></tr><tr><td><a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/TreeIO/tabtree.html" target="_top">Bio/TreeIO/tabtree.pm</a></td></tr><tr><td><a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/TreeIO/TreeEventBuilder.html" target="_top">Bio/TreeIO/TreeEventBuilder.pm</a></td></tr></table>
+	 </p></div></div><div xmlns="" id="customfooter">
 BioPerl DocBook
 </div></body></html>

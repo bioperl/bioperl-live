@@ -16,28 +16,31 @@ Jason Stajich
    Revision History
    Revision 0.1 2003-12-01 JES
    First version
+   Revision 0.2 2004-11-05 BIO
+   Add SVG section and links
 
    Abstract
 
    This HOWTO intends to show how to use the Bioperl Tree objects to
    manipulate phylogenetic trees. It shows how to read and write trees,
-   query them for information about specific nodes or overall statistics.
-   Advanced topics include discussion of generating random trees and
-   extensions of the basic structure for integration with other modules
-   in Bioperl.
+   query them for information about specific nodes or overall statistics,
+   and create pictures of trees. Advanced topics include discussion of
+   generating random trees and extensions of the basic structure for
+   integration with other modules in Bioperl.
      _________________________________________________________________
 
    Table of Contents
 
    1. [2]Introduction
-   2. [3]Simple Usage
-   3. [4]Reading and Writing Trees
-   4. [5]Example Code
-   5. [6]Bio::Tree::TreeI methods
-   6. [7]Bio::Tree::TreeFunctionsI
+   2. [3]Reading and Writing Trees
+   3. [4]Example Code
+   4. [5]Bio::Tree::TreeI methods
+   5. [6]Bio::Tree::TreeFunctionsI
+   6. [7]Making Images of Trees
    7. [8]Constructing Trees
    8. [9]Advanced Topics
    9. [10]References and More Reading
+   10. [11]Additional Information
 
 1. Introduction
 
@@ -62,23 +65,21 @@ Jason Stajich
    main entry point to the data represented by a tree. A Node is
    represented generically by Bio::Tree::Node, however there are
    subclasses of this object to handle particular cases where we need a
-   richer object (see Bio::PopGen::Simulations::Coalescent and the PopGen
-   HOWTO for more information). The connections between Nodes are
-   described using a few simple concepts. There is the concept of
-   pointers or references where a particular Node keeps track of who its
-   parent is and who its children are. A Node can only have 1 parent and
-   it can have 1 or many children. In fact all of the information in a
-   tree pertaining to the relationships between Nodes and specific data,
-   like bootstrap values and labels, are all stored in the Node objects
-   while the Bio::Tree::Tree object is just a container for some summary
+   richer object (see Bio::PopGen::Simulations::Coalescent for more
+   information). The connections between Nodes are described using a few
+   simple concepts. There is the concept of pointers or references where
+   a particular Node keeps track of who its parent is and who its
+   children are. A Node can only have 1 parent and it can have 1 or many
+   children. In fact all of the information in a tree pertaining to the
+   relationships between Nodes and specific data, like bootstrap values
+   and labels, are all stored in the Node objects while the
+   Bio::Tree::Tree object is just a container for some summary
    information about the tree and a description of the tree's root node.
 
-2. Simple Usage
+2. Reading and Writing Trees
 
-   Trees are used to represent the history of a collection of taxa,
+   Trees are used to represent the ancestry of a collection of taxa,
    sequences, or populations.
-
-3. Reading and Writing Trees
 
    Using Bio::TreeIO one can read trees from files or datastreams and
    create Bio::Tree::Tree objects. This is analagous to how we read
@@ -95,9 +96,10 @@ Jason Stajich
    Sean Eddy and Christian Zmeck as part of their RIO and ATV system
    [reference here]. The driver Bio::TreeIO::nexus supports parsing tree
    data from PAUP's Nexus format. However this driver currently only
-   supports parsing, not writing, of Nexus format tree files.
+   supports parsing, not writing, of Nexus format tree files. There are
+   also modules for lintree and Page1 output formats.
 
-4. Example Code
+3. Example Code
 
    Here is some code which will read in a Tree from a file called
    "tree.tre" and produce a Bio::Tree::Tree object which is stored in the
@@ -120,7 +122,7 @@ $tree
    Once you have a Tree object you can do a number of things with it.
    These are all methods required in Bio::Tree::TreeI.
 
-5. Bio::Tree::TreeI methods
+4. Bio::Tree::TreeI methods
 
    Request the taxa (leaves of the tree).
 my @taxa = $tree->get_leaf_nodes;
@@ -134,7 +136,7 @@ my $root = $tree->get_root_node;
 my $total_length = $tree->total_branch_length;
 
 
-6. Bio::Tree::TreeFunctionsI
+5. Bio::Tree::TreeFunctionsI
 
    An additional interface was written which implements utility functions
    which are useful for manipulating a Tree.
@@ -202,7 +204,7 @@ my $total_length = $tree->total_branch_length;
    }
 
 
-   Reroot a tree, specifying a different node as the root (and a
+   Re-root a tree, specifying a different node as the root (and a
    different node as the outgroup).
    # node can either be a Leaf node in which case it becomes the
    # outgroup and its ancestor is the new root of the tree
@@ -211,23 +213,43 @@ my $total_length = $tree->total_branch_length;
    $tree->reroot($node);
 
 
+6. Making Images of Trees
+
+   You can also make images of trees. If you have the module SVG::Graph
+   installed you can create an SVG image of your tree. The example below
+   uses TreeIO to get a Tree object and then its tree is written to an
+   image file.
+
+  use Bio::TreeIO;
+  my $in = new Bio::TreeIO(-file => 'input',
+                           -format => 'newick');
+  my $out = new Bio::TreeIO(-file => '>mytree.svg',
+                            -format => 'svggraph');
+
+  while( my $tree = $in->next_tree ) {
+      $out->write_tree($tree);
+  }
+
+   Alternatively you could use an output format of "tabtree", this option
+   will create an ASCII drawing of the tree.
+
 7. Constructing Trees
 
    Pairwise distances for all sequences in an alignment can be computed
-   with Bio::Align::DNAStatistics and (for DNA) and
-   Bio::Align::ProteinStatistics. There are several different methods
-   implemented. For DNA alignments, Jukes-Cantor (1969), Juke-Cantor
-   uncorrected, Kimura 2-parameter (1980), Felsenstein (1981), Tajima-Nei
-   (1984), and Tamura (1992) are currently implemented. In addition, for
-   coding sequences, synonymous and non-synonymous counts can be computed
-   with the calc_KaKs_pair. For Protein sequences alignments only Kimura
-   (1983) is currently supported although other methods will be added.
+   with Bio::Align::DNAStatistics and and Bio::Align::ProteinStatistics.
+   There are several different methods implemented. For DNA alignments,
+   Jukes-Cantor (1969), Juke-Cantor uncorrected, Kimura 2-parameter
+   (1980), Felsenstein (1981), Tajima-Nei (1984), and Tamura (1992) are
+   currently implemented. In addition, for coding sequences, synonymous
+   and non-synonymous counts can be computed with the calc_KaKs_pair. For
+   Protein sequences alignments only Kimura (1983) is currently supported
+   although other methods will be added.
 
    To use these methods simply initialize a statistics module, and pass
    in an alignment object (Bio::SimpleAlign) and the type of distance
    method to use and the module will return a Bio::Matrix::PhylipDist
    matrix object of pairwise distances. The code example below shows how
-   this should be done.
+   this could be done.
 
    Given the matrix of pairwise distances one can build a phylogenetic
    tree using 2 simple methods provided in the
@@ -307,7 +329,8 @@ my $total_length = $tree->total_branch_length;
    of data, but by no means should this be looked at as the final
    product. If you have a particular statistic or function that applies
    to trees that you would like to see included in the toolkit we
-   encourage you to send details to the Bioperl list.
+   encourage you to send details to the Bioperl list,
+   bioperl-l@bioperl.org.
 
 9. References and More Reading
 
@@ -320,17 +343,76 @@ my $total_length = $tree->total_branch_length;
    Eddy SR, Durbin R, Krogh A, Mitchison G, "Biological Sequence
    Analysis" 1998. Cambridge Univ Press, Cambridge, UK.
 
+10. Additional Information
+
+   Here's a list of the relevant modules. If you have questions or
+   comments that aren't addressed herein then write the Bioperl community
+   at bioperl-l@bioperl.org.
+
+   Related Modules
+   [12]Bio/TreeIO.pm
+   [13]Bio/Tree/Tree.pm
+   [14]Bio/Align/DNAStatistics.pm
+   [15]Bio/Align/ProteinStatistics.pm
+   [16]Bio/Align/Utilities.pm
+   [17]Bio/Matrix/PhylipDist.pm
+   [18]Bio/PopGen/Simulation/Coalescent.pm
+   [19]Bio/SimpleAlign.pm
+   [20]Bio/Tree/DistanceFactory.pm
+   [21]Bio/Tree/Node.pm
+   [22]Bio/Tree/RandomFactory.pm
+   [23]Bio/Tree/TreeI.pm
+   [24]Bio/Tree/AlleleNode.pm
+   [25]Bio/Tree/NodeI.pm
+   [26]Bio/Tree/NodeNHX.pm
+   [27]Bio/Tree/TreeFunctionsI.pm
+   [28]Bio/Tree/Statistics.pm
+   [29]Bio/TreeIO/newick.pm
+   [30]Bio/TreeIO/nexus.pm
+   [31]Bio/TreeIO/nhx.pm
+   [32]Bio/TreeIO/pag.pm
+   [33]Bio/TreeIO/svggraph.pm
+   [34]Bio/TreeIO/lintree.pm
+   [35]Bio/TreeIO/tabtree.pm
+   [36]Bio/TreeIO/TreeEventBuilder.pm
+
    BioPerl DocBook
 
 References
 
    1. mailto:jason AT bioperl.org
    2. file://localhost/cygdrive/c/docbook/deploy/Trees/Trees.html#introduction
-   3. file://localhost/cygdrive/c/docbook/deploy/Trees/Trees.html#simple_usage
-   4. file://localhost/cygdrive/c/docbook/deploy/Trees/Trees.html#IO
-   5. file://localhost/cygdrive/c/docbook/deploy/Trees/Trees.html#d3e48
-   6. file://localhost/cygdrive/c/docbook/deploy/Trees/Trees.html#TreeI
-   7. file://localhost/cygdrive/c/docbook/deploy/Trees/Trees.html#TreeFunctionsI
+   3. file://localhost/cygdrive/c/docbook/deploy/Trees/Trees.html#IO
+   4. file://localhost/cygdrive/c/docbook/deploy/Trees/Trees.html#d3e51
+   5. file://localhost/cygdrive/c/docbook/deploy/Trees/Trees.html#TreeI
+   6. file://localhost/cygdrive/c/docbook/deploy/Trees/Trees.html#TreeFunctionsI
+   7. file://localhost/cygdrive/c/docbook/deploy/Trees/Trees.html#tree_images
    8. file://localhost/cygdrive/c/docbook/deploy/Trees/Trees.html#tree_building
    9. file://localhost/cygdrive/c/docbook/deploy/Trees/Trees.html#advanced_topics
   10. file://localhost/cygdrive/c/docbook/deploy/Trees/Trees.html#References
+  11. file://localhost/cygdrive/c/docbook/deploy/Trees/Trees.html#in_addition
+  12. http://doc.bioperl.org/releases/bioperl-1.4/Bio/TreeIO.html
+  13. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Tree/Tree.html
+  14. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Align/DNAStatistics.html
+  15. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Align/ProteinStatistics.html
+  16. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Align/Utilities.html
+  17. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Matrix/PhylipDist.html
+  18. http://doc.bioperl.org/releases/bioperl-1.4/Bio/PopGen/Simulation/Coalescent.html
+  19. http://doc.bioperl.org/releases/bioperl-1.4/Bio/SimpleAlign.html
+  20. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Tree/DistanceFactory.html
+  21. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Tree/Node.html
+  22. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Tree/RandomFactory.html
+  23. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Tree/TreeI.html
+  24. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Tree/AlleleNode.html
+  25. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Tree/NodeI.html
+  26. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Tree/NodeNHX.html
+  27. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Tree/TreeFunctionsI.html
+  28. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Tree/Statistics.html
+  29. http://doc.bioperl.org/releases/bioperl-1.4/Bio/TreeIO/newick.html
+  30. http://doc.bioperl.org/releases/bioperl-1.4/Bio/TreeIO/nexus.html
+  31. http://doc.bioperl.org/releases/bioperl-1.4/Bio/TreeIO/nhx.html
+  32. http://doc.bioperl.org/releases/bioperl-1.4/Bio/TreeIO/pag.html
+  33. http://doc.bioperl.org/releases/bioperl-1.4/Bio/TreeIO/svggraph.html
+  34. http://doc.bioperl.org/releases/bioperl-1.4/Bio/TreeIO/lintree.html
+  35. http://doc.bioperl.org/releases/bioperl-1.4/Bio/TreeIO/tabtree.html
+  36. http://doc.bioperl.org/releases/bioperl-1.4/Bio/TreeIO/TreeEventBuilder.html
