@@ -391,3 +391,6 @@ XML::DOM		 XML parser
 DB_File                  Perl access to Berkeley DB
                          Bio::DB::Flat
                          Bio::SeqFeature::Collection
+
+Text::Wrap               (Very optional)
+                          Bio::SearchIO::Writer::TextResultWriter
