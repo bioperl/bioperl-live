@@ -1,6 +1,6 @@
 #-----------------------------------------------------------------------------
 # PACKAGE : Bio::Tools::Sigcleave.pm
-# AUTHOR  : Chris Dagdigian, cdagdigian@genetics.com
+# AUTHOR  : Chris Dagdigian, dag@sonsorol.org
 # CREATED : Jan 28 1999
 # REVISION: $Id$
 #            
@@ -74,12 +74,23 @@ Follow the installation instructions included in the README file.
 =head1 DESCRIPTION
 
 "Sigcleave" was a program distributed as part of the free EGCG add-on to
-earlier versions of the GCG Sequence Analysis package.  It analyzes a given 
-protein sequence for putative signal cleavage sites.
+earlier versions of the GCG Sequence Analysis package. 
+
+From the EGCG documentation:
+  SigCleave uses the von Heijne method to locate signal sequences, and to identify 
+  the cleavage site. The method is 95% accurate in resolving signal sequences from 
+  non-signal sequences with a cutoff score of 3.5, and 75-80% accurate in identifying 
+  the cleavage site. The program reports all hits above a minimum value. 
+
+The EGCG Sigcleave program was written by Peter Rice 
+(E-mail: pmr@sanger.ac.uk Post: Informatics Division, The Sanger Centre,
+Wellcome Trust Genome Campus, Hinxton, Cambs, CB10 1SA, UK). 
 
 Since EGCG is no longer distributed for the latest versions of GCG, this code
 was developed to emulate the output of the original program as much as possible for
 those who lost access to sigcleave when upgrading to newer versions of GCG.
+
+The EGCG website can be found at: http://www.sanger.ac.uk/Software/EGCG/
 
 There are 2 accessor methods for this object. "signals" will return a perl
 associative array containing the sigcleave scores keyed by amino acid position.
@@ -112,7 +123,10 @@ Example pretty_print output:
 
 =head1 USAGE
 
-No warranty implied or expressed. Use at your own risk :)
+No warranty implied or expressed. Use at your own risk :) Users unfamiliar
+with the original Sigcleave application should read the von Heijne papers. 
+
+The weight matrix in thos code is for eukaryote signal sequences.
 
 Please see the example script located in the bioperl distribution
 to see how this code can be used.
@@ -133,7 +147,7 @@ their resolution. Bug reports can be submitted via email or the web:
 
 =head1 AUTHOR
 
-Chris Dagdigian, dag@sonsorol.org
+Chris Dagdigian, dag@sonsorol.org  & others
 
 =head1 VERSION
 
@@ -144,6 +158,16 @@ Bio::Tools::Sigcleave.pm, $Id$
 Copyright (c) 1999 Chris Dagdigian & others. All Rights Reserved.
 This module is free software; you can redistribute it and/or 
 modify it under the same terms as Perl itself.
+
+=head1 REFERENCES / SEE ALSO
+
+von Heijne G. (1986) "A new method for predicting signal sequences cleavage sites." 
+Nucleic Acids Res. 14, 4683-4690. 
+
+von Heijne G. (1987) in "Sequence Analysis in Molecular Biology: Treasure Trove or Trivial Pursuit" 
+(Acad. Press, (1987), 113-117). 
+
+EGCG website: http://www.sanger.ac.uk/Software/EGCG/
 
 =head1 APPENDIX
 
