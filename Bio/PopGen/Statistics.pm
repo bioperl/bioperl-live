@@ -176,7 +176,7 @@ sub fu_and_li_D {
 	$pi          = $self->pi($ingroup);
 	$seg_sites   = $self->segregating_sites_count($ingroup);
     } else { 
-	$self->throw("expected an array reference of a list of Bio::PopGen::IndividualI OR a Bio::PopGen::PopulationI object to tajima_D");
+	$self->throw("expected an array reference of a list of Bio::PopGen::IndividualI OR a Bio::PopGen::PopulationI object to fu_and_li_D");
 	return 0;
     }
     
