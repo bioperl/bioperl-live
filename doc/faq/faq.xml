@@ -251,6 +251,27 @@ $hsp-&gt;query-&gt;frame();
 </code>
          </answer>
       </q>
+      <q id="6">
+         <question>How do I tell BLAST to search multiple database using Bio::Tools::Run::StandAloneBlast?
+</question>
+         <answer>
+            <p>Put the names of the databases in a variable. like so:
+            </p>
+<code>
+my $dbs = '"/dba/BMC.fsa /dba/ALC.fsa /dba/HCC.fsa"';
+my @params = ( d           => "$dbs",
+		   program     => "BLASTN",
+		   _READMETHOD => "Blast",
+		   outfile     => "$dir/est.bls" );
+
+my $factory = Bio::Tools::Run::StandAloneBlast->new(@params);
+my $seqio = Bio::SeqIO->new(-file=>'t/amino.fa',-format => 'Fasta' );
+my $seqobj = $seqio->next_seq();
+$factory->blastall($seqobj);
+</code>
+         </answer>
+      </q>
+
    </section>
    <section id="4">
       <section_name>Utilities</section_name>
@@ -322,6 +343,40 @@ $hsp-&gt;query-&gt;frame();
   foreach $location ( $feature-&gt;location-&gt;sub_Location ) {
     print $location-&gt;start . ".." . $location-&gt;end . "\n";
   }
+}
+      </code>
+       </answer>
+      </q>
+      <q id="4">
+      <question>How do I retrieve a nucleotide coding sequence when I have a protein gi number?
+      </question>
+      <answer>
+      <p>You will go through the protein's feature table and find the 'coded_by' value. The trick is to associate the coded_by nucleotide coordinates to the nucleotide entry, which you'll retrieve using the accession number from the same feature.
+</p>
+<code>
+my $gp = new Bio::DB::GenPept;
+my $gb = new Bio::DB::GenBank;
+# factory to turn strings into Bio::Location objects
+my $loc_factory = new Bio::Factory::FTLocationFactory;
+
+my $prot_obj = $gp->get_Seq_by_id($protein_gi);
+foreach my $feat ( $prot_obj->top_SeqFeatures ) {
+   if ( $feat->primary_tag eq 'CDS' ) {
+      # example: 'coded_by="U05729.1:1..122"'
+      my @coded_by = $feat->each_tag_value('coded_by');
+      my ($nuc_acc,$loc_str) = split /\:/, $coded_by[0];
+      # remove the version number
+      $nuc_acc =~ s/\.\d+$//;
+      my $nuc_obj = $gb->get_Seq_by_acc($nuc_acc);
+      # create Bio::Location object from a string
+      my $loc_object = $loc_factory->from_string($loc_str);
+      # create a Feature object by using a Location
+      my $feat_obj = new Bio::SeqFeature::Generic(-location =>$loc_object);
+      # associate the Feature object to the nucleotide Seq object
+      $nuc_obj->add_SeqFeature($feat_obj);
+      my $cds_seq = $feat_obj->spliced_seq;
+      print "CDS sequence is ",$cds_seq->seq,"\n";
+   }
 }
       </code>
        </answer>
