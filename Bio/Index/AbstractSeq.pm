@@ -248,7 +248,7 @@ sub get_PrimarySeq_stream {
 
 =head2 get_all_primary_ids
 
- Title   : get_all_ids
+ Title   : get_all_primary_ids
  Usage   : @ids = $seqdb->get_all_primary_ids()
  Function: gives an array of all the primary_ids of the 
            sequence objects in the database. These
