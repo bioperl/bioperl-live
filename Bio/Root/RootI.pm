@@ -13,7 +13,8 @@
 # This was refactored to have chained calls to new instead
 # of chained calls to _initialize
 #
-
+# added debug and deprecated methods --Jason Stajich 2001-10-12
+# 
 =head1 NAME
 
 Bio::Root::RootI - Abstract interface to root object code
@@ -165,6 +166,41 @@ sub warn{
     print STDERR $out;
 }
 
+=head2 debug
+
+ Title   : debug
+ Usage   : $obj->debug("This is debugging output");
+ Function: Prints a debugging message when verbose is > 0
+ Returns : none
+ Args    : message string to print to STDERR
+
+=cut
+
+sub debug{
+   my ($self,$msg) = @_;
+   
+   if( $self->verbose > 0 ) { 
+       print STDERR $msg;
+   }   
+}
+
+=head2 deprecated
+
+ Title   : deprecated
+ Usage   : $obj->deprecated("Method X is deprecated");
+ Function: Prints a message about deprecation 
+           unless verbose is < 0 (which means be quiet)
+ Returns : none
+ Args    : Message string to print to STDERR
+
+=cut
+
+sub deprecated{
+   my ($self,$msg) = @_;
+   if( $self->verbose >= 0 ) { 
+       print STDERR $msg, "\n", $self->stack_trace_dump;
+   }
+}
 
 		     
 =head2 verbose
