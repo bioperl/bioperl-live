@@ -243,13 +243,12 @@ sub next {
 sub write {
     my ($self,@h) = @_;
 
-    if( !defined $h[0] ) {
+    if( ! defined $h[0] ) {
         $self->throw("Attempting to write with no information!");
     }
     my $str;
     my $output = IO::String->new($str);
     my $w = new XML::Writer(OUTPUT => $output, DATA_MODE => 1, DATA_INDENT => 4 );
-
     foreach my $h (@h) {
 	#
 	# seqDiff
@@ -553,10 +552,9 @@ sub write {
     }
     $w->endTag;
 
-
     $w->end;
     $self->_print($str);
-    $output->close;
+    $output = undef;
     return 1;
 }
 
