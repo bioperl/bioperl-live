@@ -7,7 +7,7 @@ bpindex.pl - indexes files for use by bpfetch
 
 =head1 SYNOPSIS
 
-  bpindex.pl index_name file1 file2 etc
+bpindex.pl index_name file1 file2 etc
 
 =head1 DESCRIPTION
 
@@ -96,7 +96,7 @@ Ewan Birney E<lt>birney@ebi.ac.ukE<gt>
 =cut
 
 #'
-#use strict;
+use strict;
 
 #
 # Dofus catcher for people who are trying this script without
