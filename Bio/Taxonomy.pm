@@ -10,11 +10,11 @@
 
 =head1 NAME
 
-Bio::Taxonomy - Conversion used bt the Taxonomy classes
+Bio::Taxonomy - Conventions used by the Taxonomy classes
 
 =head1 SYNOPSIS
 
-    use Bio::Taxonomy;
+  use Bio::Taxonomy;
 
 =head1 DESCRIPTION
 
@@ -40,7 +40,7 @@ package Bio::Taxonomy;
 use vars qw(@ISA);
 use strict;
 
-# Object preamble - inherits from Bio::Root::Object
+# Object preamble - inherits from Bio::Root::Root Object
 use Bio::Root::Root;
 
 @ISA = qw(Bio::Root::Root);
@@ -244,16 +244,16 @@ sub ranks {
    # currently this makes no uniqueness sanity check (this should be done)
    # I am think that adding a way of converting multiple 'no rank' ranks 
    # to unique 'no rank #' ranks so that the level of a 'no rank' is 
-   # abstracted way from the user - I'm not sure of the vlaue of this
+   # abstracted way from the user - I'm not sure of the value of this
 
-   if (defined @value) {
+   if (@value) {
       $self->{'_ranks'}=\@value;
    }
 
    for (my $i=0; $i <= @{$self->{'_ranks'}}-1; $i++) {
       $self->{'_rank_hash'}{$self->{'_ranks'}[$i]}=$i unless $self->{'_ranks'}[$i] eq 'no rank';
    }
-      
+
    return @{$self->{'_ranks'}};
 }
 
