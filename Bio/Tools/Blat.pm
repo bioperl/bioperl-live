@@ -8,19 +8,19 @@
 
 =head1 NAME
 
-Bio::Tools::Blat  
+Bio::Tools::Blat
 
 =head1 SYNOPSIS
 
   use Bio::Tools::Blat;
   my $blat_parser = new Bio::Tools::Blat(-fh =>$filehandle );
   while( my $blat_feat = $blat_parser->next_result ) {
-        push @bllat_feat, $blat_feat;
+        push @blat_feat, $blat_feat;
   }
 
 =head1 DESCRIPTION
 
- Parser for Blat  program
+ Parser for Blat program
 
 =head1 FEEDBACK
 
@@ -98,117 +98,119 @@ sub new {
 =cut
 
 sub next_result {
-    my ($self) = @_;
-    my $filehandle;
-    
- my $line;
+	my ($self) = @_;
+	my $filehandle;
+	my $line;
+	my $id;
 
-    my $id;
- while ($_=$self->_readline()){
-   
-    # first split on spaces:
-    $line = $_;
-    chomp $line;
-   # chomp;
-   
-    my (
-            $matches,      $mismatches,    $rep_matches, $n_count, $q_num_insert, $q_base_insert,
-            $t_num_insert, $t_base_insert, $strand,      $q_name,  $q_length,     $q_start,
-            $q_end,        $t_name,        $t_length,    $t_start, $t_end,        $block_count,
-            $block_sizes,  $q_starts,      $t_starts
-          )
-          = split;
+	while ($_=$self->_readline()){
+		# first split on spaces:
+		$line = $_;
+		chomp $line;
 
-   
-    my $superfeature = Bio::SeqFeature::Generic->new();
-   
-    # ignore any preceeding text
-    unless ( $matches =~/^\d+$/ ){
-      next;
-    }
-   
-    # create as many features as blocks there are in each output line
-    my (%feat1, %feat2);
-    $feat1{name} = $t_name;
-    $feat2{name} = $q_name;
-   
-    $feat2{strand} = 1;
-    $feat1{strand} = $strand;
-   
-   
-    my $percent_id = sprintf "%.2f", ( 100 * ($matches + $rep_matches)/( $matches + $mismatches + $rep_matches )
-);
-   
-   
-    unless ( $q_length ){
-      $self->warn("length of query is zero, something is wrong!");
-      next;
-    }
-    my $score   = sprintf "%.2f", ( 100 * ( $matches + $mismatches + $rep_matches ) / $q_length );
-   
-    # size of each block of alignment (inclusive)
-    my @block_sizes     = split ",",$block_sizes;
-   
-    # start position of each block (you must add 1 as psl output is off by one in the start coordinate)
-    my @q_start_positions = split ",",$q_starts;
-    my @t_start_positions = split ",",$t_starts;
-   
-    $superfeature->seq_id($q_name);
-    $superfeature->score( $score );
-    #$superfeature->percent_id( $percent_id );
-    $superfeature->add_tag_value('percent_id',$percent_id);
-    # each line of output represents one possible entire aligment of the query (feat1) and the target(feat2)
-    for (my $i=0; $i<$block_count; $i++ ){
-   
+		my (
+			 $matches,      $mismatches,    $rep_matches, $n_count, $q_num_insert, $q_base_insert,
+			 $t_num_insert, $t_base_insert, $strand,      $q_name,  $q_length,     $q_start,
+			 $q_end,        $t_name,        $t_length,    $t_start, $t_end,        $block_count,
+			 $block_sizes,  $q_starts,      $t_starts
+			)
+		  = split;
 
-      my ($query_start,$query_end);
+		my $superfeature = Bio::SeqFeature::Generic->new();
 
-      if ( $strand eq '+' ){
-        $query_start = $q_start_positions[$i] + 1;
-        $query_end   = $query_start + $block_sizes[$i] - 1;
-      }
-      else{
-        $query_end   = $q_length  - $q_start_positions[$i];
-        $query_start = $query_end - $block_sizes[$i] + 1;
-      }
-   
-      #$feat2 {start} = $q_start_positions[$i] + 1;
-      #$feat2 {end}   = $feat2{start} + $block_sizes[$i] - 1;
-      $feat2 {start} = $query_start;
-      $feat2 {end}   = $query_end;
-      if ( $query_end <  $query_start ){
-        $self->warn("dodgy feature coordinates: end = $query_end, start = $query_start. Reversing...");
-        $feat2 {end}   = $query_start;
-        $feat2 {start} = $query_end;
-      }
+		# ignore any preceeding text
+		unless ( $matches =~/^\d+$/ ){
+			next;
+		}
 
-      $feat1 {start} = $t_start_positions[$i] + 1;
-      $feat1 {end}   = $feat1{start} + $block_sizes[$i] - 1;
-   
-      # we put all the features with the same score and percent_id
-      $feat2 {score}   = $score;
-      $feat1 {score}   = $feat2 {score};
-      $feat2 {percent} = $percent_id;
-      $feat1 {percent} = $feat2 {percent};
-   
-      # other stuff:
-      $feat1 {db}         = undef;
-      $feat1 {db_version} = undef;
-      $feat1 {program}    = 'blat';
-      $feat1 {p_version}  = '1';
-      $feat1 {source}     = 'blat';
-      $feat1 {primary}    = 'similarity';
-      $feat2 {source}     = 'blat';
-      $feat2 {primary}    = 'similarity';
-   
-      my $feature_pair = $self->create_feature(\%feat1, \%feat2);
-      $superfeature->add_sub_SeqFeature( $feature_pair,'EXPAND');
-    }
-    #push(@features_within_features, $superfeature);
-    return $superfeature; 
-  }
+		# create as many features as blocks there are in each output line
+		my (%feat1, %feat2);
+		$feat1{name} = $t_name;
+		$feat2{name} = $q_name;
 
+		$feat2{strand} = 1;
+		$feat1{strand} = $strand;
+
+		my $percent_id = sprintf "%.2f",
+		  ( 100 * ($matches + $rep_matches)/( $matches + $mismatches + $rep_matches ));
+
+		unless ( $q_length ){
+			$self->warn("length of query is zero, something is wrong!");
+			next;
+		}
+		my $score   = sprintf "%.2f", 
+		  ( 100 * ( $matches + $mismatches + $rep_matches ) / $q_length );
+
+		# size of each block of alignment (inclusive)
+		my @block_sizes     = split ",",$block_sizes;
+
+		# start position of each block (you must add 1 as psl output 
+		# is off by one in the start coordinate)
+		my @q_start_positions = split ",",$q_starts;
+		my @t_start_positions = split ",",$t_starts;
+
+		$superfeature->seq_id($q_name);
+		$superfeature->score( $score );
+		#$superfeature->percent_id( $percent_id );
+		$superfeature->add_tag_value('percent_id',$percent_id);
+
+		# each line of output represents one possible entire aligment 
+		# of the query (feat1) and the target(feat2)
+
+		for (my $i=0; $i<$block_count; $i++ ){
+
+			my ($query_start,$query_end);
+
+			if($strand =~/([+-])[+-]/) {
+				$strand = $1;
+			}
+
+			if ( $strand eq '+' ){
+				$query_start = $q_start_positions[$i] + 1;
+				$query_end   = $query_start + $block_sizes[$i] - 1;
+			}
+			else{
+				$query_end   = $q_length  - $q_start_positions[$i];
+				$query_start = $query_end - $block_sizes[$i] + 1;
+			}
+
+			#$feat2 {start} = $q_start_positions[$i] + 1;
+			#$feat2 {end}   = $feat2{start} + $block_sizes[$i] - 1;
+			$feat2 {start} = $query_start;
+			$feat2 {end}   = $query_end;
+			if ( $query_end <  $query_start ){
+				$self->warn("dodgy feature coordinates: end = $query_end, start = $query_start. Reversing...");
+				$feat2 {end}   = $query_start;
+				$feat2 {start} = $query_end;
+			}
+
+			$feat1 {start} = $t_start_positions[$i] + 1;
+			$feat1 {end}   = $feat1{start} + $block_sizes[$i] - 1;
+
+			# we put all the features with the same score and percent_id
+			$feat2 {score}   = $score;
+			$feat1 {score}   = $feat2 {score};
+			$feat2 {percent} = $percent_id;
+			$feat1 {percent} = $feat2 {percent};
+
+			# other stuff:
+			$feat1 {db}         = undef;
+			$feat1 {db_version} = undef;
+			$feat1 {program}    = 'blat';
+			$feat1 {p_version}  = '1';
+			$feat1 {source}     = 'blat';
+			$feat1 {primary}    = 'similarity';
+			$feat2 {source}     = 'blat';
+			$feat2 {primary}    = 'similarity';
+
+			my $feature_pair = $self->create_feature(\%feat1, \%feat2);
+			$superfeature->add_sub_SeqFeature( $feature_pair,'EXPAND');
+		}
+		#push(@features_within_features, $superfeature);
+		return $superfeature; 
+	}
 }
+
 =head2 create_feature
 
  Title   : create_feature
