@@ -168,19 +168,17 @@ sub seq3 {
  Usage   : $string = Bio::SeqUtils->seq3in($seq, 'MetGlyTer')
  Function:
 
-           Read only method that returns the amino acid sequence as a
-           string of three letter codes. alphabet has to be
-           'protein'. Output follows the IUPAC standard plus 'Ter' for
-           terminator. Any unknown character, including the default
-           unknown character 'X', is changed into 'Xaa'
+           Method for in-place changeing of the sequence of a
+           L<Bio::PrimarySeqI> sequence object. The three letter amino
+           acid input string is coverted into one letter code.  Any
+           unknown character triplet, including the default 'Xaa', is
+           converted into 'X'.
 
  Returns : Bio::PrimarySeq object;
  Args    : character to be used for stop in the protein seqence,
               optional, defaults to '*'
            character to be used for unknown in the protein seqence,
               optional, defaults to 'X'
-           string used to separate the output amino acid codes,
-              optional, defaults to ''
 
 =cut
 
@@ -206,7 +204,7 @@ sub seq3in {
    for (my $i = 0 ; $i < $length ; $i += 3)  {
        $aa3 = substr($string, $i, 3);
        $ONECODE{$aa3} and $aas .= $ONECODE{$aa3}, next;
-       warn("Unknown three letter amino acid code [$aa3] ignored");
+       $aas .= 'X';
    }
    $seq->seq($aas);
    return $seq;
