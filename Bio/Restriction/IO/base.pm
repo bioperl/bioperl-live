@@ -165,7 +165,7 @@ class. (They are 'protected' in the sense the word is used in Java.)
 sub _cuts_from_site {
     my ($self, $site) = @_;
 
-    my ($cut, $comp_cut) = $site =~ /\((\d+)\/(\d+)\)/;
+    my ($cut, $comp_cut) = $site =~ /\((-?\d+)\/(-?\d+)\)/;
     $site =~ s/\(.*\)$//;
     return ($site, $cut, $comp_cut);
 }
@@ -319,7 +319,7 @@ sub _make_multicuts {
 
     my $re2 = $re->clone;
 
-    my ($cut, $comp_cut) = $precut =~ /(\d+)\/(\d+)/;
+    my ($cut, $comp_cut) = $precut =~ /(-?\d+)\/(-?\d+)/;
 
     $re2->cut("-$cut");
     $re2->complementary_cut("-$comp_cut");
