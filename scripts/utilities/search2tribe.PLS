@@ -1,5 +1,5 @@
 #!/usr/bin/perl -w
-# $Id: search2tribe.PLS,v 1.3 2003-03-26 09:20:02 heikki Exp $
+# $Id: search2tribe.PLS,v 1.4 2003-06-17 15:56:04 jason Exp $
 
 # Author:      Jason Stajich <jason@bioperl.org>
 # Description: Turn SearchIO parseable report(s) into a TRIBE matrix
@@ -74,7 +74,7 @@ while( my $report = $parser->next_result ) {
     my $q = $report->query_name;
     while( my $hit = $report->next_hit ) {
 	my $evalue = $hit->significance;
-	$evalue =~ s/^e/1e/;
+	$evalue =~ s/^e/1e/i;
 
 	if( $evalue == 0 ) {	    
 	    $evalue = "1e-$weight";
