@@ -457,8 +457,8 @@ sub spliced_seq {
     if( $db && ref($db) && ! $db->isa('Bio::DB::RandomAccessI') ) {
 	$self->warn("Must pass in a valid Bio::DB::RandomAccessI object for access to remote locations for spliced_seq");
 	$db = undef;
-    }
-    elsif( $HasInMemory && ! $db->isa('Bio::DB::InMemoryCache') ) {
+    } elsif( defined $db && $HasInMemory && 
+	     ! $db->isa('Bio::DB::InMemoryCache') ) {
 	$db = new Bio::DB::InMemoryCache(-seqdb => $db);
     }
     if( $self->isa('Bio::Das::SegmentI') &&
