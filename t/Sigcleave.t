@@ -29,6 +29,11 @@ sub test ($$;$) {
 
 $protein = 'VXCAAEFDFMEKETPLRYTKTLLLPVVLVVFVAIVRKIISDMWGVLAKQQTHVRKHQFDHGELVYHALQLLAYTALGILIMRLKLFLTPYMCVMASLICSRQLFGWLFCKVHPGAIVFVILAAMSIQGSANLQTQWKSTASLALET';
 
+## need this to escape the strict() warnings...
+$formatted_output = "";
+my %results;
+
+
 # Build object
 test 2, $sigcleave_object = new Bio::Tools::Sigcleave(-ID   =>'test_sigcleave_seq',
                                                       -TYPE =>'amino',
@@ -46,7 +51,7 @@ test 4, $formatted_output = $sigcleave_object->pretty_print, "unable to pretty p
 $sigcleave_object = new Bio::Tools::Sigcleave(-ID   =>'test_sigcleave_seq',
                                               -TYPE =>'amino',
 		                              -SEQ  =>$protein); 
-my %results = $sigcleave_object->signals;
+%results = $sigcleave_object->signals;
 
 unless($results{111}) { print "not ok 5   expected to see a sigcleave score at position 111\n";
  } else { print "ok 5\n"; }
