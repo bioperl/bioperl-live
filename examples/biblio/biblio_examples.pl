@@ -44,6 +44,17 @@ foreach my $ref ( @{$nextref->{article}->{authors}} ) {
 my $year = $nextref->{article}->{journal}->{journalIssue}->{pubDate}->{year};
 my $title = $nextref->{article}->{articleTitle};
 
+# put it all together...
+my $refs = new Bio::Biblio->find("Osborne","authors")->find("2000","year");
+while ($refs->has_next){
+   my $ref = $refs->get_next;
+   my $io = Bio::Biblio::IO->new( -result => "raw", -data => $ref );
+   my $nextref = $io->next_bibref;
+   my $abstract = $nextref->{article}->{abstract}->{abstractText};
+   print $abstract,"\n";
+}
+
+
 __END__
 
 Output from Data::Dumper->Dump:
