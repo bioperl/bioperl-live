@@ -13,7 +13,7 @@ Bioperl v$Local{VERSION} - Perl Modules for Biology
 
 =head1 SYNOPSIS
 
-If you're new to Bioperl, you should start reading F<bptutorial>, an
+If you're new to Bioperl, you should start reading F<bptutorial.pl>, an
 overview of the Bioperl toolkit.
 
 In the style of the perl documentation, core Bioperl documentation has
