@@ -46,7 +46,7 @@ while(my $gene = $genscan->next_prediction()) {
     foreach $fea ($gene->promoters()) {
 	print $out "PROM ", $fea->gff_string(), "\n";
     }
-    foreach $fea ($gene->poly_A_sites()) {
+    foreach $fea ($gene->poly_A_site()) {
 	print $out "POLA ", $fea->gff_string(), "\n";
     }
     # sequences
