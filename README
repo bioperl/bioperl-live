@@ -17,6 +17,8 @@ o About Bioperl
   developers of Perl-based software for life 
   science research. 
 
+  See the Changes and BUGS files for listings of what has changed
+  since the last release and what known bugs are part of this release.
 
 o Contact info
 
@@ -31,6 +33,9 @@ o Contact info
   Please send us bugs, in particular about documentation which you 
   think is unclear or problems in installation. We are also very
   interested in functions which don't work the way you think they do!
+
+  Please see the AUTHORS file for the complete list of bioperl
+  developers and contributors.
 
 o System requirements
 
@@ -148,11 +153,14 @@ the correct -fPIC/-fpic flags for the c compiler that is used. This
 requires manual editing of the generated makefile to switch case. Try
 it out once, and if you get errors, try editing the -fpic line
 
-BUILDING THE COMPILED EXTENSIONS
+BUILDING THE COMPILED EXTENSIONS (OPTIONAL, ONLY FOR RUNNING LOCAL
+PROTEIN SMITH-WATERMAN ANALYSES FROM PERL)
 
-Move to the directory Compile/SW. This is where the C code and XS
-extension for the bp_sw module is held and execute these commands:
-(possibly after making the change for *BSD and Solaris, as detailed above)
+Move to the directory bioperl-ext.  This is available as a separate
+package released from ftp://bioperl.org/pub/DIST.  This is where the C
+code and XS extension for the bp_sw module is held and execute these
+commands: (possibly after making the change for *BSD and Solaris, as
+detailed above)
 
   perl Makefile.PL   # makes the system specific makefile 
                      # Solaris/BSD users might need to edit the Makefile here
