@@ -554,8 +554,9 @@ sub _give_tracesbases_binary {
 		$samples->{'arrays'}->{'sam_a'}[$ramp_position+$current_ramp] = $peak_quality * $samples->{'ramp'}[$current_ramp];
 	    }
 	    push @{$samples->{'arrays'}->{'all_bases'}},($place_base_at+1,
-						       $peak_quality,0,0,
-						       0,$current_base,0,0,0);
+							 $peak_quality,0,0,
+							 0,$current_base,
+							 0,0,0);
 	} elsif ($current_base eq "C") {
 	    $ramp_position = $place_base_at - $half_ramp;
 	    for ($current_ramp = 0; 
@@ -577,8 +578,18 @@ sub _give_tracesbases_binary {
 	    push @{$samples->{'arrays'}->{'all_bases'}},($place_base_at+1,0,
 							 0,$peak_quality,0,
 							 $current_base,0,0,0);
-	}
-	elsif ($current_base eq "N") {
+	} elsif( $current_base eq "T" ) { 
+		    $ramp_position = $place_base_at - $half_ramp;
+	    for ($current_ramp = 0; 
+		 $current_ramp < $samples->{'ramp_width'}; 
+		 $current_ramp++) 
+	    {
+		$samples->{'arrays'}->{'sam_t'}[$ramp_position+$current_ramp] = $peak_quality * $samples->{'ramp'}[$current_ramp];
+	    }
+	    push @{$samples->{'arrays'}->{'all_bases'}},($place_base_at+1,0,
+							 0,$peak_quality,0,
+							 $current_base,0,0,0);
+	} elsif ($current_base eq "N") {
 	    $ramp_position = $place_base_at - $half_ramp;
 	    for ($current_ramp = 0; 
 		 $current_ramp < $samples->{'ramp_width'}; 
@@ -591,7 +602,7 @@ sub _give_tracesbases_binary {
 	}
 	else {
 		# don't print this.
-	    # print("The current base is not a base. Hmmm.\n");
+	    $self->debug("The current base ($current_base) is not a base. Hmmm.\n");
 	}
     }
     ($samples->{'strings'}->{'trace_string'}->{'string'},
@@ -645,13 +656,17 @@ sub _make_trace_string {
     my @traces_view;
     my @as = @$ra; my @cs = @$rc; my @gs = @$rg; my @ts = @$rt;
     for (my $curr=0; $curr < scalar(@as); $curr++) {
-	push @traces,($as[$curr],$cs[$curr],$gs[$curr],$ts[$curr]);
-	push @traces_view,join(' ', ( $as[$curr], $cs[$curr],
-				      $gs[$curr], $ts[$curr]) );
 	
+	$as[$curr] = $DEFAULT_QUALITY unless defined $as[$curr];
+	$cs[$curr] = $DEFAULT_QUALITY unless defined $cs[$curr];
+	$gs[$curr] = $DEFAULT_QUALITY unless defined $gs[$curr];
+	$ts[$curr] = $DEFAULT_QUALITY unless defined $ts[$curr];
+	push @traces,($as[$curr],$cs[$curr],$gs[$curr],$ts[$curr]);
+	push @traces_view, join (' ', ( $as[$curr], $cs[$curr],
+					$gs[$curr], $ts[$curr]) );
     }
     my $length = scalar(@traces)/4;
-    my $trace_string = join' ',@traces;
+    my $trace_string = join(' ',@traces);
     return $trace_string,\@traces_view,$length,\@traces;
 }	
 
