@@ -263,7 +263,87 @@
    </programlisting>
    </para>
    </section>
+   <section id="tree_building">
+   <title>Constructing Trees</title>
+   <para>
 
+    Pairwise distances for all sequences in an alignment can be
+    computed with <classname>Bio::Align::DNAStatistics</classname> and
+    (for DNA)
+    and <classname>Bio::Align::ProteinStatistics</classname>.  There
+    are several different methods implemented.  For DNA alignments,
+    Jukes-Cantor (1969), Juke-Cantor uncorrected, Kimura 2-parameter
+    (1980), Felsenstein (1981), Tajima-Nei (1984), and Tamura (1992)
+    are currently implemented.  In addition, for coding sequences,
+    synonymous and non-synonymous counts can be computed with
+    the <function>calc_KaKs_pair</function>.  For Protein sequences
+    alignments only Kimura (1983) is currently supported although
+    other methods will be added. 
+   </para>
+   <para>
+
+   To use these methods simply initialize a statistics module, and
+   pass in an alignment object
+   (<classname>Bio::SimpleAlign</classname>) and the type of distance
+   method to use and the module will return
+   a <classname>Bio::Matrix::PhylipDist</classname> matrix object of
+   pairwise distances.  The code example below shows how this should
+   be done.
+   </para>
+
+   <para>
+
+   Given the matrix of pairwise distances one can build a phylogenetic
+   tree using 2 simple methods provided in
+   the <classname>Bio::Tree::DistanceFactory</classname>.  Simple
+   request either Neighbor-Joining (NJ) trees or Unweighted Pair Group
+   Method with Arithmatic Mean (UPGMA) clusters.  There are caveats
+   with these methods and whether or not the distances are additive.
+   The method <function>check_additivity</function> 
+   in <classname>Bio::Tree::DistanceFactory</classname>
+   is provided to calculate whether or not additivity holds for the
+   data.
+
+   </para>
+   <para> 
+   The following is a basic code snippet which describes how to use
+   the pairwise distance and tree building modules in Bioperl. 
+   </para>
+   <para>
+   <programlisting>
+   use Bio::AlignIO;
+   use Bio::Align::DNAStatistics;
+   use Bio::Tree::DistanceFactory;
+   # for a dna alignment
+   # can also use ProteinStatistics
+   my $aln = Bio::AlignIO->new(-file => 'filename', -format=>'clustalw');
+   my $stats = Bio::Align::DNAStatistics->new;
+   my $mat = $stats->distance(-method => 'Kimura',
+			      -align  => $aln);
+   my $dfactory = Bio::Tree::DistanceFactory->new(-method => 'NJ');
+   my $tree = $dfactory->make_tree($mat);
+   </programlisting>
+   </para>
+   <para>
+   TODO: Using external programs: phylip,MrBayes,paup,puzzle,protml
+   </para>
+   <para>
+
+   Non-parametric bootstrapping is one method to test the consistency
+   of the data with the optimal tree.  A set of subreplicates are
+   generated from the alignment using the method
+   from <classname>Bio::Align::Utilities</classname> called
+   <function>bootstrap_replicates</function>.  One passes in an
+   alignment object and the count of the number of replicates to generate.
+
+   </para>
+   <para>
+   <programlisting>
+   use Bio::Align::Utilities qw(:all); 
+   my $replicates = bootstrap_replicates($aln,$count);
+   </programlisting>
+   </para>
+   </section>
    <section id="advanced_topics">
    <title>Advanced Topics</title>
    <para>
@@ -327,6 +407,12 @@
    J. Felsenstein, "Infering Phylogenies" 2003. Sinuar and Associates.
    </member>
    <member>
+   D. Swoffrod, Olsen, Waddell and D. Hillis, "Phylogenetic Inference"
+   1996. in Mol. Systematics, 2nd ed, 1996, Ch 11.
+   </member>
+   <member>
+   Eddy SR, Durbin R, Krogh A, Mitchison G, "Biological Sequence
+   Analysis" 1998. Cambridge Univ Press, Cambridge, UK.
    </member>
    </simplelist>
    </para>
