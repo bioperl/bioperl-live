@@ -525,6 +525,10 @@ sub _set_context {
     } else {
 	$aref->[0] = "Error in \l$aref->[0]";
     }
+
+    my $script = ($0 =~ /([\w\/\.]+)/, $1);
+    push @$aref, "SCRIPT: $script";
+
     $self->{'_context'} = $aref;
 
 #    print "$ID: _set_context():\n";

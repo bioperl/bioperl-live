@@ -1157,8 +1157,8 @@ sub warn {
 	$self->throw(@param);
 
     } else {
-	if($verbosity < 0) {
-	    # Low verbosity: don't print anything but set warning.
+	if($verbosity < 0 || $CGI) {
+	    # Low verbosity or script is a cgi: don't print anything but set warning.
 	    $self->_set_warning(@param);
 	} elsif($verbosity > 0) {
 	    # Extra verbosity: print all data and beep

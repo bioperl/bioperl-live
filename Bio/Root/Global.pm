@@ -19,6 +19,8 @@
 #           in Bio::Root::Object.pm.
 #             
 # MODIFIED: 
+#    sac --- Fri Jan  8 00:04:28 1999
+#      * Added BEGIN block to set $CGI if script is running as a cgi.
 #    sac --- Tue Dec 1 1998
 #      * Added $STRICTNESS and $VERBOSITY.
 #      * Deprecated WARN_ON_FATAL, FATAL_ON_WARN, DONT_WARN and related methods.
@@ -27,6 +29,16 @@
 #    sac --- Sun Aug 16 1998: Added $RECORD_ERR and &record_err().
 #--------------------------------------------------------------------------------
 package	 Bio::Root::Global;
+
+BEGIN {
+    use vars qw($CGI);
+
+    # $CGI is a boolean to indicate if the script is running as a CGI.
+    # Useful for conditionally producing HTML-formatted messages
+    # or suppressing messages appropriate only for interactive sessions.
+
+    $CGI = 1 if $ENV{REMOTE_ADDR} || $ENV{REMOTE_HOST};
+}
 
 use Exporter ();
 use vars qw($BASE_YEAR @DAYS @MONTHS);
@@ -96,9 +108,6 @@ $BASE_YEAR = 1900;
 
 @MONTHS = qw(Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec);
 @DAYS   = qw(Sun Mon Tue Wed Thu Fri Sat);
-
-$CGI = 0;  # Boolean to indicate if the script is running as a CGI.
-           # Useful for conditionally producing HTML-formatted messages.
 
 # The implicit global object. Used for trapping miscellaneous errors/exceptions.
 # Created without using or requiring Bio::Root::Object.pm, because Object.pm uses Global.pm.
@@ -180,21 +189,21 @@ sub record_err {
 
 sub dont_warn {
     my $arg = shift;
-    print STDERR "\nDeprecated method dont_warn() called. Use verbosity(-1) instead\n";
+    !$CGI and print STDERR "\n$0: Deprecated method dont_warn() called. Use verbosity(-1) instead\n";
     if( $arg) { verbosity(-1)}
     else { verbosity(0); }
 }
 
 sub warn_on_fatal {
     my $arg = shift;
-    print STDERR "\nDeprecated method warn_on_fatal() called. Use strictness(-2) instead\n";
+    !$CGI and print STDERR "\n$0: Deprecated method warn_on_fatal() called. Use strictness(-2) instead\n";
     if( $arg) { strictness(-2)}
     else { strictness(0); }
 }
 
 sub fatal_on_warn {
     my $arg = shift;
-    print STDERR "\nDeprecated method fatal_on_warn() called. Use strictness(2) instead\n";
+    !$CGI and print STDERR "\n$0: Deprecated method fatal_on_warn() called. Use strictness(2) instead\n";
     if( $arg) { strictness(2)}
     else { strictness(0); }
 }
