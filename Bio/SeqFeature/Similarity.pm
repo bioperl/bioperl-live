@@ -12,15 +12,22 @@
 
 =head1 NAME
 
-Bio::SeqFeature::Similarity
+Bio::SeqFeature::Similarity - A sequence feature based on similarity
 
 =head1 SYNOPSIS
 
-Give standard usage here
+    # obtain a similarity feature somehow
+    print "significance: ", $sim_fea->significance(), "\n";
+    print "bit score: ", $sim_fea->bits(), "\n";
+    print "score: ", $sim_fea->score(), "\n";
+    print "fraction of identical residues: ", $sim_fea->frac_identical(), "\n";
 
 =head1 DESCRIPTION
 
-Describe the object here
+This module is basically a sequence features based on similarity, and therefore
+has support for measures assessing the similarity.
+
+Everything else is inherited from L<Bio::SeqFeature::Generic>.
 
 =head1 FEEDBACK
 
