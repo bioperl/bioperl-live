@@ -212,8 +212,8 @@ sub pairwise_alignment{
 
     # we are going to need the sequences as arrays for convience
 
-    @str1 = $seq1->seq();
-    @str2 = $seq2->seq();
+    @str1 = split(//, $seq1->seq());
+    @str2 = split(//, $seq2->seq());
 
     # get out start points
 
@@ -262,17 +262,17 @@ sub pairwise_alignment{
 
     $tstr = join('',@ostr1);
     $tid = $seq1->id();
-    $out->addSeq(Bio::Seq->new( -seq=> $tstr,
-			       -start => $start1,
-			       -end   => $end1,
-			       -id=>$tid ));
+    $out->addSeq(Bio::LocatableSeq->new( -seq=> $tstr,
+					 -start => $start1,
+					 -end   => $end1,
+					 -id=>$tid ));
 
     $tstr = join('',@ostr2);
     $tid = $seq2->id();
-    $out->addSeq(Bio::Seq->new( -seq=> $tstr,
-			       -start => $start2,
-			       -end => $end2,
-			       -id=> $tid ));
+    $out->addSeq(Bio::LocatableSeq->new( -seq=> $tstr,
+					 -start => $start2,
+					 -end => $end2,
+					 -id=> $tid ));
 
     # give'm back the alignment
 
