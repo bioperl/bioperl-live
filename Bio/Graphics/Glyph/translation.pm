@@ -140,7 +140,13 @@ sub draw_frame {
   $y2 = $y1;
 
   my $codon_table = $self->option('codontable') || 1;
-  my $protein = $seq->translate(undef,undef,$base_offset,$codon_table)->seq;
+
+  # the dreaded difference between a Bio::SeqFeature and a Bio::Seq
+  my $realseq     = $seq->can('translate') ? $seq
+                  : $seq->can('seq')      ? $seq->seq
+		  : undef;
+  return unless $realseq;
+  my $protein = $realseq->translate(undef,undef,$base_offset,$codon_table)->seq;
 
   my $k       = $strand>=0 ? 'f' : 'r';
   my $color   = $self->color("frame$frame$k") ||
