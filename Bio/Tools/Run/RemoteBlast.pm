@@ -485,34 +485,27 @@ sub submit_blast {
 	my $response = $self->ua->request( $request);
 
 	if( $response->is_success ) {
-	    if( $self->verbose > 0 ) {
-		my ($tempfh) = $self->tempfile();
-		# Hmm, what exactly are we trying to do here?
-		print $tempfh $response->content;
-		close($tempfh);
-		undef $tempfh;
-	    }
 	    my @subdata = split(/\n/, $response->content );
 	    my $count = 0;
 	    foreach ( @subdata ) {
-		if( /$RIDLINE/ ) {
-		    $count++;
-		    print STDERR $_ if( $self->verbose > 0);
-		    $self->add_rid($1);		
-		    last;
-		}	
+			if( /$RIDLINE/ ) {
+		    	$count++;
+		    	print STDERR $_ if( $self->verbose > 0);
+		    	$self->add_rid($1);		
+		    	last;
+			}	
 	    }
 	    if( $count == 0 ) {
-		$self->warn("req was ". $request->as_string() . "\n");
-		$self->warn(join('', @subdata));
-	    }    	
+			$self->warn("req was ". $request->as_string() . "\n");
+			$self->warn(join('', @subdata));
+	    	}    	
 	    $tcount += $count;
 	} else {
 	    # should try and be a little more verbose here
 	    $self->warn("req was ". $request->as_string() . "\n" .
 			$response->error_as_HTML);
 	    $tcount = -1;
-	}
+		}
     }
     return $tcount;
 }
@@ -532,40 +525,43 @@ sub submit_blast {
 
 sub retrieve_blast {
     my($self, $rid) = @_;
-    my (undef,$tempfile) = $self->tempfile();
+    #my (undef,$tempfile) = $self->tempfile();
     my %hdr = %RETRIEVALHEADER;
     $hdr{'RID'} = $rid;
     my $req = POST $URLBASE, [%hdr];
     if( $self->verbose > 0 ) {
 	$self->warn("retrieve request is " . $req->as_string());
     }
-    my $response = $self->ua->request($req, $tempfile);
-    if( $self->verbose > 0 ) {
-	open(TMP, $tempfile) or $self->throw("cannot open $tempfile");
-	while(<TMP>) { print $_; }
-	close TMP;
-    }
+    my $response = $self->ua->request($req);
     if( $response->is_success ) {	
-	my $size = -s $tempfile;
-	if( $size > 1000 ) {
-	    my $blastobj;
-	    if( $self->readmethod =~ /BPlite/ ) {
-		$blastobj = new Bio::Tools::BPlite(-file => $tempfile);
-	    } else {
-		$blastobj = new Bio::SearchIO(-file => $tempfile,
-					      -format => 'blast');
-	    }
-	    #save tempfile
-	    $self->file($tempfile);
-	    return $blastobj;
-	} elsif( $size < 500 ) { # search had a problem
-	    open(ERR, "<$tempfile") or $self->throw("cannot open file $tempfile");
-	    $self->warn(join("", <ERR>));
-	    close ERR;
-	    return -1;
-	} else { # still working
-	    return 0;
-	}
+		my $text = $response->content();
+    	if( $self->verbose > 0 ) {
+			#print content of reply if verbose > 1
+			print STDERR $text;
+			
+   		 }
+		my $size = length($text);
+		## if proper reply 
+		if( $size > 1000 ) {
+	    	my $blastobj;
+			my $io = IO::String->new($text);
+	   	 	if( $self->readmethod =~ /BPlite/ ) {
+				$blastobj = new Bio::Tools::BPlite(-fh => $io);
+	    	} else {
+				$blastobj = new Bio::SearchIO( -fh     => $io,
+					      			           -format => 'blast');
+	    		}
+			
+			## store raw report in object ##
+	    	$self->{'_raw'} = $text;
+	    	return $blastobj;
+		} elsif( $size < 500 ) { # search had a problem
+	    	$self->warn("Failed blast report: ".
+						$text );
+	    	return -1;
+		} else { # still working
+	    	return 0;
+			}
     } else {
 	$self->warn($response->error_as_HTML);
 	return -1;
@@ -588,24 +584,25 @@ sub save_output {
         	$self->throw("Can't save blast output.  You must specify a filename to save to.");
     }
     #should be set when retrieving blast
-   	my $blastfile = $self->file;
-   	#open temp file and output file, have to filter out some HTML
-	open(TMP, $blastfile) or $self->throw("cannot open $blastfile");
+	if (!defined($self->{'_raw'}) ) {
+		$self->throw(" No raw blast report contained in blast factory object ");
+		return -1;
+		}
+	my $io = IO::String->new($self->{'_raw'});
 	open(SAVEOUT, ">$filename") or $self->throw("cannot open $filename");
-	my $seentop=0;
-	while(<TMP>) {
-		next if (/<pre>/);	
-		if( /^(?:[T]?BLAST[NPX])\s*.+$/i ||
-	   		/^RPS-BLAST\s*.+$/i ) {
+	my $seentop = 0;
+	while(my $l = <$io>) {
+		next if ($l =~ /<pre>/);	
+		if( $l =~ /^(?:[T]?BLAST[NPX])\s*.+$/i ||
+	   		 $l =~/^RPS-BLAST\s*.+$/i ) {
 	   		$seentop=1;
 	   	}
 	   	next if !$seentop;
 	    if( $seentop ) {
-			print SAVEOUT;
+			print SAVEOUT $l;
 		}
 	}
 	close SAVEOUT;
-	close TMP;
 	return 1;	
 }
 
@@ -613,7 +610,7 @@ sub _load_input {
     my ($self, $input) = @_;
 
     if( ! defined $input ) {
-	$self->throw("Calling remote blast with no input");	
+		$self->throw("Calling remote blast with no input");	
     }
     my @seqs;
     if( ! ref $input ) {
