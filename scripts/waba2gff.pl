@@ -11,6 +11,7 @@ GetOptions(
 	    'o|output:s' => \$outfile,
 	    'v|verbose'  => \$verbose,
 	    );
+$infile = shift unless $infile;
 
 my $in = new Bio::SearchIO(-format => 'waba',
 			   -file   => $infile,
