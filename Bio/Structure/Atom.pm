@@ -221,6 +221,11 @@ sub id {
         return $self->{'id'};
 }
 
+sub DESTROY {
+	my $self =  shift;
+	
+	# dummy, nothing needs to be done here
+}
 
 #
 # from here on only private methods

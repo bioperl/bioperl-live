@@ -212,6 +212,17 @@ sub id {
 	return $self->{'id'};
 }
 
+
+sub DESTROY {
+	my $self = shift;
+
+	for my $model ($self->model) {
+		next unless (defined $model);
+		$model->DESTROY;
+	}
+	$self->{'model'} = [];
+}
+
 #
 # from here on only private methods
 #

@@ -214,6 +214,18 @@ sub id {
 }
 
 
+sub DESTROY {
+	my $self = shift;
+	
+	# get rid of circular references
+	for my $res ($self->residue) {
+		next unless (defined $res);
+		$res->DESTROY;
+	}
+	$self->{'residue'} = [];
+}
+
+
 #
 # from here on only private methods
 #

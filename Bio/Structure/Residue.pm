@@ -213,6 +213,25 @@ sub id {
 }
 
 
+=head2 DESTROY()
+
+ Title   : DESTROY
+ Usage   : 
+ Function: destructor ( get rid of circular references )
+ Returns : 
+ Args    : 
+
+=cut
+
+sub DESTROY {
+	my $self = shift;
+
+	# no need to explicitely call Atom destructor as it's the lowest level
+	$self->{'atom'} = [];
+
+}
+
+
 #
 # from here on only private methods
 #

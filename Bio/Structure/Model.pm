@@ -223,7 +223,16 @@ sub id {
 }
 
 
+sub DESTROY {
+	my $self = shift;
 
+	for my $chain ($self->chain) {
+		# if someone shoots our children faster then we can
+		next unless (defined $chain);
+		$chain->DESTROY;
+	}
+	$self->{'chain'} = [];
+}
 
 #
 # from here on only private methods
