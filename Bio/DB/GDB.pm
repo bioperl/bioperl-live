@@ -17,11 +17,14 @@ Bio::DB::GDB - Database object interface to GDB HTTP query
 
 =head1 SYNOPSIS
 
-    $gb = new Bio::DB::GDB;
+    $gdb = new Bio::DB::GDB;
 
-    $primers = $gb->get_primers_for_marker('D1S243'); # Marker name
+    $info = $gdb->get_info(-type=>'marker',
+			     -id=>'D1S243'); # Marker name
 
-    print "(fwd, rev, length) ", join(",", @$primers), "\n";
+   print "genbank id is ", $info->{'gdbid'},
+    "\nprimers are (fwd, rev) ", join(",", @{$info->{'primers'}}), 
+    "\nproduct length is ", $info->{'length'}, "\n";
 
 =head1 DESCRIPTION
 
