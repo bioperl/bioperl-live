@@ -53,7 +53,8 @@ The rest of the documentation details each of the object methods. Internal metho
 package Bio::Annotation::Reference;
 use vars qw(@ISA);
 use strict;
-# use overload '""' => \&as_text;
+use overload '""' => sub { $_[0]->title || ''};
+use overload 'eq' => sub { "$_[0]" eq "$_[1]" };
 
 use Bio::Annotation::DBLink;
 use Bio::AnnotationI;

@@ -83,6 +83,8 @@ use strict;
 
 use Bio::AnnotationI;
 use Bio::Annotation::SimpleValue;
+use overload '""' => sub { $_[0]->value || ''};
+use overload 'eq' => sub { "$_[0]" eq "$_[1]" };
 
 @ISA = qw(Bio::Annotation::SimpleValue);
 

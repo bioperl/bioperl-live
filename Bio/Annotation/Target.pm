@@ -58,7 +58,8 @@ methods. Internal methods are usually preceded with a _
 package Bio::Annotation::Target;
 use vars qw(@ISA);
 use strict;
-#use overload '""' => \&as_text; 
+use overload '""' => sub { $_[0]->as_text || ''};
+use overload 'eq' => sub { "$_[0]" eq "$_[1]" };
 
 use Bio::Root::Root;
 use Bio::AnnotationI;

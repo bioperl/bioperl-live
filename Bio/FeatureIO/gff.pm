@@ -485,7 +485,6 @@ sub _handle_directive {
   elsif($directive eq '#'){
     #all forward references resolved
     $self->{group_not_done} = 0;
-    $self->warn("'##$directive' directive handling not yet implemented");
   }
 
   else {

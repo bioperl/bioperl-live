@@ -101,6 +101,8 @@ use Bio::AnnotationI;
 use Bio::Ontology::TermI;
 use Bio::Ontology::Term;
 use Bio::Root::Root;
+use overload '""' => sub { $_[0]->identifier || ''};
+use overload 'eq' => sub { "$_[0]" eq "$_[1]" };
 
 @ISA = qw(Bio::Root::Root Bio::AnnotationI Bio::Ontology::TermI);
 
