@@ -4021,5 +4021,5 @@ $bpinspect1 = sub {
         if ($n ==25) {&$run_psw_bl2seq; next;}
          &$display_help;
     }
-
 ## End of "main"
+1;
