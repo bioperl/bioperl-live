@@ -1,26 +1,119 @@
 
+#
+# BioPerl module for Bio::DB::GenBank
+#
+# Cared for by Aaron Mackey <amackey@virginia.edu>
+#
+# Copyright Aaron Mackey
+#
+# You may distribute this module under the same terms as perl itself
+
+# POD documentation - main docs before the code
+
+=head1 NAME
+
+Bio::DB::GenBank - Database object interface to GenBank
+
+=head1 SYNOPSIS
+
+    $gb = new Bio::DB::GenBank;
+
+    $seq = $gb->get_Seq_by_id('ROA1_HUMAN'); # Unique ID
+
+    # or ...
+
+    $seq = $db->get_Seq_by_acc('X77802'); # Accession Number
+
+=head1 DESCRIPTION
+
+Allows the dynamic retrieval of Sequence objects (Bio::Seq) from the GenBank
+database at NCBI, via an Entrez query.
+
+=head1 FEEDBACK
+
+=head2 Mailing Lists
+
+User feedback is an integral part of the evolution of this
+and other Bioperl modules. Send your comments and suggestions preferably
+ to one of the Bioperl mailing lists.
+Your participation is much appreciated.
+
+  vsns-bcd-perl@lists.uni-bielefeld.de          - General discussion
+  vsns-bcd-perl-guts@lists.uni-bielefeld.de     - Technically-oriented discussion
+  http://bio.perl.org/MailList.html             - About the mailing lists
+
+=head2 Reporting Bugs
+
+Report bugs to the Bioperl bug tracking system to help us keep track
+ the bugs and their resolution.
+ Bug reports can be submitted via email or the web:
+
+  bioperl-bugs@bio.perl.org
+  http://bio.perl.org/bioperl-bugs/
+
+=head1 AUTHOR - Aaron Mackey
+
+Email amackey@virginia.edu
+
+=head1 APPENDIX
+
+The rest of the documentation details each of the object methods. Internal methods are usually preceded with a _
+
+=cut
+
+# Let the code begin...
+
 package Bio::DB::GenBank;
 use vars qw($AUTOLOAD @ISA @EXPORT_OK);
 use strict;
 
-use Bio::DB::Abstract;     # to inherit from
+# Object preamble - inherits from Bio::DB::Abstract
 
-use Bio::SeqIO;                     # to parse and return Seq object
-use IO::Socket;                     # to connect with GenBank
+use Bio::DB::Abstract;
+
+use Bio::SeqIO;
+use IO::Socket;
 
 @ISA = qw(Bio::DB::Abstract Exporter);
 @EXPORT_OK = qw();
 
+# new() is inherited from Bio::DB::Abstract
+
+# _initialize is where the heavy stuff will happen when new is called
+
+sub _initialize {
+  my($self,@args) = @_;
+
+  my $make = $self->SUPER::_initialize;
+
+# set stuff in self from @args
+ return $make; # success - we hope!
+}
+
+=head2 get_Seq_by_id
+
+ Title   : get_Seq_by_id
+ Usage   : $seq = $db->get_Seq_by_id($uid, $type);
+           $seq = $db->get_Seq_by_id(-uid  => $uid,
+                                     -type => $type );
+ Function: Gets a Bio::Seq object by its unique identifier/name
+ Returns : a Bio::Seq object
+ Args    : $uid : the id (as a string) of the desired sequence entry
+           $type : 'nucleotide' or 'protein' - specifies whether to
+                   search GenBank or GenPept for the sequence
+                   (defaults to 'nucleotide').  Optional.
+
+=cut
+
 sub get_Seq_by_id {
 
   my($self, @params) = @_;
-  my($uid, $alpha) = $self->_rearrange( [qw(UID ALPHA)], @params);
+  my($uid, $type) = $self->_rearrange( [qw(UID TYPE)], @params);
 
-  $alpha ||= 'n'; # default of nucleotide
-  my $entrez = ($alpha =~ m/^p/i ? 'db=p&' : 'db=n&') .
+  $type ||= 'n'; # default of nucleotide
+  my $entrez = ($type =~ m/^p/i ? 'db=p&' : 'db=n&') .
     "form=6&dopt=f&html=no&title=no&uid=$uid" ;
 
-  print STDOUT $entrez;
   my $hostname = `hostname`;
   chop $hostname;
   my $sock = IO::Socket::INET->new(PeerAddr => 'www3.ncbi.nlm.nih.gov',
@@ -49,6 +142,7 @@ sub get_Seq_by_id {
 }
 
 1;
-
 __END__
+
+
 
