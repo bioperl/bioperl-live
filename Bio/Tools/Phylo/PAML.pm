@@ -225,7 +225,8 @@ sub next_result {
 
     my ($self) = @_;
 
-    my %data;    
+    my %data;
+    my $idlookup; # a hashreference to SEQID (number) ==> 'SEQUENCENAME'
     # get the various codon and other sequence summary data, if necessary:
     $self->_parse_summary
 	unless ($self->{'_summary'} && !$self->{'_summary'}->{'multidata'});
@@ -236,7 +237,6 @@ sub next_result {
 	while (defined ($_ = $self->_readline)) {
 	    if ($seqtype eq 'CODONML' && 
 		m/^pairwise comparison, codon frequencies:/) {
-
 		# runmode = -2, CODONML
 		$self->_pushback($_);
 		%data = $self->_parse_PairwiseCodon;
@@ -248,16 +248,54 @@ sub next_result {
 		# $self->_pushback($_);
 		# %data = $self->_parse_PairwiseAA;
 		# last;	    
-	    } elsif (m/^Model\s+(\d+)/) {
+	    } elsif (m/^Model\s+(\d+)/ ) { 
 		$self->_pushback($_);
 		my $model = $self->_parse_NSsitesBatch;
 		push @{$data{'-NSsitesresults'}}, $model;
+	    } elsif ( m/for each branch/ ) {
+		my %branch_dnds = $self->_parse_branch_dnds;
+		if( ! defined $data{'-trees'} ) {
+		    warn("No trees have been loaded, can't do anything\n");
+		    next;
+		}
+		my ($tree) = @{$data{'-trees'}};
+		if( ! $tree || ! ref($tree) || 
+		    ! $tree->isa('Bio::Tree::Tree') ) {
+		    warn("no tree object already stored!\n");
+		    next;
+		}
+		# These need to be added to the Node/branches
+		while( my ($k,$v) = each %branch_dnds) {
+		    # we can probably do better by caching at some point
+		    my @nodes;
+		    for my $id ( split(/\.\./,$k ) ) {
+			my @nodes_L = map { $tree->find_node(-id => $_) }
+			@{$idlookup->{$id}};
+			while( @nodes_L > 1 ) {
+			    my $lca = $tree->get_lca
+				(-nodes => [shift @nodes_L,
+					    shift @nodes_L]);
+			    push @nodes_L, $lca;
+			}
+			my $n = shift @nodes_L;
+			if( ! $n ) {
+			    warn("no node for $n\n");
+			}
+			unless( $n->is_Leaf && $n->id) { 
+			    $n->id($id);
+			}
+			push @nodes, $n;
+		    }
+		    my ($parent,$child) = @nodes;
+		    while ( my ($kk,$vv) = each %$v ) {
+			$child->add_tag_value($kk,$vv);
+		    }
+		}		
 	    } elsif (m/^TREE/) {
 		# runmode = 0
 		$self->_pushback($_);
-		$data{'-trees'} = [$self->_parse_Forestry];
-		last;
-
+		($data{'-trees'},$idlookup) = $self->_parse_Forestry;
+		#last;
 	    } elsif (m/Heuristic tree search by stepwise addition$/ ) {
 		
 		# runmode = 3
@@ -303,7 +341,7 @@ sub next_result {
 			  );
 	    } elsif( /^TREE/ ) {
 		$self->_pushback($_);
-		$data{'-trees'} = [$self->_parse_Forestry];
+		($data{'-trees'},$idlookup) = $self->_parse_Forestry;
 	    }
 	}
     } elsif ($seqtype eq 'YN00') {
@@ -673,8 +711,10 @@ sub _parse_distmat {
 	}
 	$seqct++;
     }
-    $self->{'_summary'}->{'seqs'} = \@seqs 
-	if($self->{'_summary'}->{'seqtype'} eq 'YN00' && @seqs );
+    if($self->{'_summary'}->{'seqtype'} eq 'YN00' && @seqs ){ 
+	$self->{'_summary'}->{'seqs'} = \@seqs;
+    }
+	
     1;
 }
 
@@ -765,10 +805,12 @@ sub _parse_Forestry {
     my ($instancecount,$loglikelihood,$score,$done,$treelength) = (0,0,0,0,0);
     my @trees;
     my $okay = 0;
+    my (@ids,%match,@branches);
     while( defined ($_ = $self->_readline) ) {
 	last if $done;	
-	if( /^TREE/ ) {
-	    ($score) = (/MP\s+score\:\s+(\S+)/ );
+	if( s/^TREE\s+\#\s*\d+:\s+// ) {
+	    ($score) = (s/MP\s+score\:\s+(\S+)\s+$// );
+	    @ids = /(\d+)[\,\)]/g;
 	} elsif( /^Node\s+\&/ || /^\s+N37/ || /^(CODONML|AAML|YN00|BASEML)/ ||
 		 /^\*\*/ || /^Detailed output identifying parameters/) {
 	    $self->_pushback($_);
@@ -781,27 +823,50 @@ sub _parse_Forestry {
 	} elsif( /^\s*lnL\(.+\)\:\s+(\S+)/ ) {
 	    $loglikelihood = $1;
 	} elsif( /^\(/) {
-	    if( $okay > 0 ) {
-		s/([\,:])\s+/$1/g;
-		my $treestr = new IO::String($_);
-		my $treeio = new Bio::TreeIO(-fh => $treestr,
-					     -format => 'newick');
-		my $tree = $treeio->next_tree;
-		if( $tree ) {
-		    $tree->score($loglikelihood);
+	    s/([\,:])\s+/$1/g;
+	    my $treestr = new IO::String($_);
+	    my $treeio = new Bio::TreeIO(-fh => $treestr,
+					 -format => 'newick');
+	    my $tree = $treeio->next_tree;
+	    if( $tree ) {
+		$tree->score($loglikelihood);
+		if( $okay > 0 ) {
+                  # we don't save the trees with the number labels
+		    if( ! %match && @ids) {
+			my $i = 0;
+			for my $m ( /([^():,]+):/g ) {
+			    $match{shift @ids} = [$m];			    
+			}
+			my %grp;
+			while ( my $br = shift @branches ) {
+			    my ($parent,$child) = @$br;
+			    if( $match{$child} ) {
+				push @{$match{$parent}}, @{$match{$child}};
+			    } else {
+				push @branches, $br;
+			    }
+			}
+			if( $self->verbose > 1 ) {
+			    for my $k ( sort { $a <=> $b } keys %match ) {
+				warn "$k -> ",join(",",@{$match{$k}}), "\n";
+			    }
+			}
+		    }
 		    push @trees, $tree;
 		}
-		last;
+#		last;
 	    }
 	    $okay++;
-	} 
+	} elsif( /^\s*\d+\.\.\d+/ ) {
+	    push @branches, map { [split(/\.\./,$_)] } split;
+	}
     }
-    return @trees;
+    return \@trees,\%match;
 }
 
 sub _parse_NSsitesBatch {
     my $self = shift;
-    my %data;
+    my (%data,$idlookup); 
     my ($okay,$done) =(0,0);
     while( defined($_ = $self->_readline) ) {
 	last if $done;
@@ -826,7 +891,8 @@ sub _parse_NSsitesBatch {
 	} elsif( /^kappa\s+\(ts\/tv\)\s+\=\s+(\S+)/ ) { 	    
 	    $data{'-kappa'} = $1;
 	} elsif( /^TREE/ ) {
-	    $data{'-trees'} = [$self->_parse_Forestry];
+	    $self->_pushback($_);
+	    ($data{'-trees'},$idlookup) = $self->_parse_Forestry;
 	    if( defined $data{'-trees'} && 
 		scalar @{$data{'-trees'}} ) {
 		$data{'-likelihood'}= $data{'-trees'}->[0]->score;
@@ -846,8 +912,43 @@ sub _parse_NSsitesBatch {
 						'w' => \@w};
 	    } elsif( /for each branch/ ) {
 		my %branch_dnds = $self->_parse_branch_dnds;
+		if( ! defined $data{'-trees'} ) {
+		    warn("No trees have been loaded, can't do anything\n");
+		    next;
+		}
+		my ($tree) = @{$data{'-trees'}};
+		if( ! $tree || ! ref($tree) || 
+		    ! $tree->isa('Bio::Tree::Tree') ) {
+		    warn("no tree object already stored!\n");
+		    next;
+		}
 		# These need to be added to the Node/branches
-		$self->_pushback($_);
+		while( my ($k,$v) = each %branch_dnds) {
+		    # we can probably do better by caching at some point
+		    my @nodes;
+		    for my $id ( split(/\.\./,$k ) ) {
+			my @nodes_L = map { $tree->find_node(-id => $_) }
+			@{$idlookup->{$id}};
+			while( @nodes_L > 1 ) {
+			    my $lca = $tree->get_lca
+				(-nodes => [shift @nodes_L,
+					    shift @nodes_L]);
+			    push @nodes_L, $lca;
+			}
+			my $n = shift @nodes_L;
+			if( ! $n ) {
+			    warn("no node for $n\n");
+			}
+			unless( $n->is_Leaf && $n->id) { 
+			    $n->id($id);
+			}
+			push @nodes, $n;
+		    }
+		    my ($parent,$child) = @nodes;
+		    while ( my ($kk,$vv) = each %$v ) {
+			$child->add_tag_value($kk,$vv);
+		    }
+		}
 	    }
 	} elsif( /^Parameters in beta:/ ) {
 	    $_ = $self->_readline; # need the next line
@@ -907,15 +1008,23 @@ sub _parse_branch_dnds {
     my $self = shift;
     my ($okay) = (0);
     my %branch_dnds;
+    my @header;
     while(defined($_ = $self->_readline ) ) {
 	next if( /^\s+$/);
 	next unless ( $okay || /^\s+branch\s+t/);
-	if( /^\s+branch\s+t/ ) {
+	if( /^\s+branch\s+(.+)/ ) {
+	    s/^\s+//;
+	    @header = split(/\s+/,$_);
 	    $okay = 1;
-	} elsif( /^\s*(\d+)\.\.(\d+)/ ) {
-	    my ($branch,$t,$S,$N,$dNdS,$dN,$dS,$S_dS,$N_dN) = split;
-	    $branch_dnds{$branch} = [$branch,$t,$S,$N,$dNdS,$dN,
-				     $dS,$S_dS,$N_dN];
+	} elsif( /^\s*(\d+\.\.\d+)/ ) {
+	    my $branch = $1;
+	    s/^\s+//;
+	    my $i =0;
+	    # fancyness just maps the header names like 't' or 'dN'
+	    # into the hash so we get at the end of the day
+	    # 't' => 0.067
+	    # 'dN'=> 0.001
+	    $branch_dnds{$branch} = { map { $header[$i++] => $_ } split};
 	} else { 
 	    $self->_pushback($_);
 	    last;
