@@ -497,12 +497,14 @@ sub sub_SeqFeature {
  Returns : nothing
  Args    : An object which has the SeqFeatureI interface
          : (optional) 'EXPAND'
-	 : (optional) 'sub_SeqFeature_typ'
+	 : (optional) 'sub_SeqFeature_type'
 
 =cut
 
 sub add_sub_SeqFeature{
    my ($self,$feat,$var1, $var2) = @_;
+   $var1 = '' unless( defined $var1);
+   $var2 = '' unless( defined $var2);   
    my ($expand, $ssf_type) = ('', $var1 . $var2);	
    $expand = 'EXPAND' if ($ssf_type =~ s/EXPAND//);
 
