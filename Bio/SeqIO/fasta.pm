@@ -101,10 +101,14 @@ sub next_seq {
     my $alphabet;
     local $/ = "\n>";
     return unless my $entry = $self->_readline;
-    if ($entry eq '>')  {	# very first one
+
+    chomp($entry);
+    if ($entry =~ m/\A\s*\Z/s)  { # very first one
 	return unless $entry = $self->_readline;
+	chomp($entry);
     }
     $entry =~ s/^>//;
+
     my ($top,$sequence) = split(/\n/,$entry,2);
     $sequence =~ s/>//g;
 #    my ($top,$sequence) = $entry =~ /^>?(.+?)\n+([^>]*)/s
