@@ -78,6 +78,7 @@ use Bio::Structure::Entry;
 #use Bio::Structure::Residue;
 use Bio::Structure::Atom;
 use Bio::SeqFeature::Generic;
+use Bio::Annotation::Reference;
 
 @ISA = qw(Bio::Structure::IO);
 
