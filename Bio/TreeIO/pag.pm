@@ -12,15 +12,23 @@
 
 =head1 NAME
 
-Bio::TreeIO::pag - DESCRIPTION of Object
+Bio::TreeIO::pag - Bio::TreeIO driver for Pagel format
 
 =head1 SYNOPSIS
 
-Give standard usage here
+  use Bio::TreeIO;
+  my $in = Bio::TreeIO->new(-format => 'nexus',
+                            -file   => 't/data/adh.mb_tree.nexus');
 
+  my $out = Bio::TreeIO->new(-format => 'pag');
+  while( my $tree = $in->next_tree ) {
+    $out->write_tree($tree);
+  }
+  
 =head1 DESCRIPTION
 
-Describe the object here
+Convert a Bio::TreeIO to Pagel format. Currenty  
+More information here http://sapc34.rdg.ac.uk/meade/Mark/
 
 =head1 FEEDBACK
 
@@ -37,9 +45,8 @@ the Bioperl mailing list.  Your participation is much appreciated.
 
 Report bugs to the Bioperl bug tracking system to help us keep track
 of the bugs and their resolution. Bug reports can be submitted via
-email or the web:
+the web:
 
-  bioperl-bugs@bioperl.org
   http://bioperl.org/bioperl-bugs/
 
 =head1 AUTHOR - Jason Stajich
