@@ -80,7 +80,7 @@ Internal methods are usually preceded with a _
 
 package Bio::SearchIO::blast;
 use strict;
-use vars qw(@ISA %MAPPING %MODEMAP);
+use vars qw(@ISA %MAPPING %MODEMAP $DEFAULT_BLAST_WRITER_CLASS);
 use Bio::SearchIO;
 
 @ISA = qw(Bio::SearchIO );
@@ -179,6 +179,8 @@ BEGIN {
 	  'Statistics_starttime' => { 'RESULT-statistics' => 'start_time'},
 	  'Statistics_endtime' => { 'RESULT-statistics' => 'end_time'},
 	  );
+
+    $DEFAULT_BLAST_WRITER_CLASS = 'Bio::Search::Writer::HitTableWriter';
 }
 
 
@@ -590,19 +592,20 @@ sub next_result{
 
 sub start_element{
    my ($self,$data) = @_;
-    # we currently don't care about attributes
-    my $nm = $data->{'Name'};    
-    if( my $type = $MODEMAP{$nm} ) {
-	if( $self->_eventHandler->will_handle($type) ) {
-	    my $func = sprintf("start_%s",lc $type);
-	    $self->_eventHandler->$func($data->{'Attributes'});
-	}						 
-	unshift @{$self->{'_elements'}}, $type;
-    }
-    if($nm eq 'BlastOutput') {
-	$self->{'_values'} = {};
-	$self->{'_result'}= undef;
-    }
+   # we currently don't care about attributes
+   my $nm = $data->{'Name'};    
+   my $type = $MODEMAP{$nm};
+   if( $type ) {
+       if( $self->_eventHandler->will_handle($type) ) {
+	   my $func = sprintf("start_%s",lc $type);
+	   $self->_eventHandler->$func($data->{'Attributes'});
+       }						 
+       unshift @{$self->{'_elements'}}, $type;
+   }
+   if($type eq 'result') {
+       $self->{'_values'} = {};
+       $self->{'_result'}= undef;
+   }
 
 }
 
@@ -620,6 +623,7 @@ sub start_element{
 sub end_element {
     my ($self,$data) = @_;
     my $nm = $data->{'Name'};
+    my $type = $MODEMAP{$nm};
     my $rc;
     if($nm eq 'BlastOutput_program' &&
        $self->{'_last_data'} =~ /(t?blast[npx])/i ) {
@@ -644,7 +648,7 @@ sub end_element {
 	$self->element({'Name' => 'Hsp_hit-to',
 			'Data' => $self->{'_Sbjct'}->{'end'}});
     }
-    if( my $type = $MODEMAP{$nm} ) {
+    if( $type = $MODEMAP{$nm} ) {
 	if( $self->_eventHandler->will_handle($type) ) {
 	    my $func = sprintf("end_%s",lc $type);
 	    $rc = $self->_eventHandler->$func($self->{'_reporttype'},
@@ -661,11 +665,11 @@ sub end_element {
 	    $self->{'_values'}->{$MAPPING{$nm}} = $self->{'_last_data'};
 	}
     } else { 
-	print "unknown nm $nm, ignoring\n";
+	$self->debug( "unknown nm $nm, ignoring\n");
     }
     $self->{'_last_data'} = ''; # remove read data if we are at 
 				# end of an element
-    $self->{'_result'} = $rc if( $nm eq 'BlastOutput' );
+    $self->{'_result'} = $rc if( defined $type && $type eq 'result' );
     return $rc;
 
 }
@@ -791,5 +795,17 @@ sub end_document{
    my ($self,@args) = @_;
    return $self->{'_result'};
 }
+
+
+sub write_result {
+   my ($self, $blast, @args) = @_;
+
+   if( not defined($self->writer) ) {
+       $self->warn("Writer not defined. Using a $DEFAULT_BLAST_WRITER_CLASS");
+       $self->writer( $DEFAULT_BLAST_WRITER_CLASS->new() );
+   }
+   $self->SUPER::write_result( $blast, @args );
+}
+
 
 1;
