@@ -88,6 +88,7 @@ sub new {
     $self->_initialize_io(@args) || warn "Did you intend to use STDIN?"; #Read only for now
     $self->{_end}=0;
     undef $self->{hid};
+    return $self if ($file=~/^>/);#Just writing
     my $buf=$self->_readline;
 	$self->throw('Cannot parse HTML format yet') if ($buf =~/^<HTML>/); 
     # this should probably be moved to its own function
@@ -232,5 +233,38 @@ sub next_psm {
     return $psm;
 }
 
+
+=head2 write_psm
+
+ Title   : write_psm
+ Usage   : #Get SiteMatrix object somehow (see Bio::Matrix::PSM::SiteMatrix)
+            my $matrix=$psmin->next_matrix;
+            #Create the stream
+            my $psmio=new(-file=>">psms.mast",-format=>'mast');
+            $psmio->write_psm($matrix);
+            #Will warn if only PFM data is contained in $matrix, recalculate the PWM
+            #based on normal distribution (A=>0.25, C=>0.25, etc)
+ Function: writes pwm in mast format
+ Throws  :
+ Example : 
+ Args    : SiteMatrix object
+ Returns : 
+
+=cut
+
+sub write_psm {
+    my ($self,$matrix)=@_;
+#    my $idline=">". $matrix->id . "\n";
+    my $w=$matrix->width;
+    my $header="ALPHABET= ACGT\nlog-odds matrix: alength= 4 w= $w\n";
+    $self->_print($header);
+    unless ($matrix->get_logs_array('A')) {
+        warn "No log-odds data, available, using normal distribution to recalculate the PWM";
+        $matrix->calc_weight({A=>0.25, C=>0.25, G=>0.25,T=>0.25});
+    }
+    while (my %h=$matrix->next_pos) {
+	$self->_print (join("\t",$h{lA},$h{lC},$h{lG},$h{lT},"\n"));
+    }
+}
 
 1;
