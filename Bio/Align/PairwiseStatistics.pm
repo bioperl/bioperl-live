@@ -41,21 +41,14 @@ the Bioperl mailing list.  Your participation is much appreciated.
 =head2 Reporting Bugs
 
 Report bugs to the Bioperl bug tracking system to help us keep track
-of the bugs and their resolution. Bug reports can be submitted via
-email or the web:
+of the bugs and their resolution. Bug reports can be submitted via the
+web:
 
-  bioperl-bugs@bioperl.org
   http://bugzilla.bioperl.org/
 
 =head1 AUTHOR - Jason Stajich
 
-Email jason@bioperl.org
-
-Describe contact details here
-
-=head1 CONTRIBUTORS
-
-Additional contributors names and emails here
+Email jason-at-bioperl-dot-org
 
 =head1 APPENDIX
 
@@ -145,7 +138,7 @@ sub number_of_differences{
 
  Title   : number_of_gaps
  Usage   : my $nd = $stat->number_of_gaps($aln);
- Function: Returns the number of gaps between two sequences
+ Function: Returns the number of gapped positions among sequences in alignment
  Returns : integer
  Args    : L<Bio::Align::AlignI>
 
@@ -157,25 +150,10 @@ sub number_of_gaps{
     if( ! defined $aln || ! $aln->isa('Bio::Align::AlignI') ) {
 	$self->warn("Must provide a Bio::Align::AlignI compliant object to Bio::Align::PairwiseStatistics");
 	return 0;
-    } elsif( $aln->no_sequences != 2 ) { 
-       $self->warn("only pairwise calculations currently supported ". $aln->no_sequences."\n");
     }
-    my (@seqs);
-    foreach my $seq ( $aln->each_seq) {
-	push @seqs, [ split(//,$seq->seq())];
-    }
-    my $firstseq = shift @seqs;
-#    my $secondseq = shift @seqs;
-   my $gapcount = 0;
-    for (my $i = 0;$i<$aln->length; $i++ ) { 
-	($gapcount++) && next if( ! defined $firstseq->[$i] ||
-				  $firstseq->[$i]  =~ /^$GapChars$/);
-	foreach my $seq ( @seqs ) {
-	    ($gapcount++) && next if( ! defined $seq->[$i] ||
-				      $seq->[$i]  =~ /^$GapChars$/);
-	}
-    }
-    return $gapcount;
+   my $gapline = $aln->gap_line;
+   # this will count the number of '-' characters
+   return $gapline =~ tr/-/-/;
 }
 
 1;
