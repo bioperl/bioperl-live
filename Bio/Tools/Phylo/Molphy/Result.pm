@@ -16,11 +16,56 @@ Bio::Tools::Phylo::Molphy::Result - DESCRIPTION of Object
 
 =head1 SYNOPSIS
 
-Give standard usage here
+  # do not use this object directly, you will get it back as part of a 
+  # Molphy parser
+  use Bio::Tools::Phylo::Molphy;
+  my $parser = new Bio::Tools::Phylo::Molphy(-file => 'output.protml');
+  while( my $r = $parser->next_result ) {
+    # r is a Bio::Tools::Phylo::Molphy::Result object
+
+    # print the model name
+    print $r->model, "\n";
+
+    # get the substitution matrix
+    # this is a hash of 3letter aa codes -> 3letter aa codes representing
+    # substitution rate
+    my $smat = $r->substitution_matrix;
+    print "Arg -> Gln substitution rate is %d\n", 
+          $smat->{'Arg'}->{'Gln'}, "\n";
+
+    # get the transition probablity matrix
+    # this is a hash of 3letter aa codes -> 3letter aa codes representing
+    # transition probabilty
+    my $tmat = $r->transition_probability_matrix
+    print "Arg -> Gln transition probablity is %.2f\n", 
+          $tmat->{'Arg'}->{'Gln'}, "\n";
+
+    # get the frequency for each of the residues
+    my $rfreqs = $r->residue_frequencies;
+
+    foreach my $residue ( keys %{$rfreqs} ) {
+       printf "residue %s  expected freq: %.2f observed freq: %.2f\n",
+              $residue,$rfreqs->{$residue}->[0], $rfreqs->{$residue}->[1];     
+    }
+
+    my @trees;
+    while( my $t = $r->next_tree ) {
+        push @trees, $t;
+    }
+
+    print "search space is ", $r->search_space, "\n",
+          "1st tree score is ", $trees[0]->score, "\n";
+
+    # writing to STDOUT, use -file => '>filename' to specify a file
+    my $out = new Bio::TreeIO(-format => "newick");
+    $out->write_tree($trees[0]); # writing only the 1st tree
+  }
+
 
 =head1 DESCRIPTION
 
-Describe the object here
+A container for data parsed from a ProtML run.
+
 
 =head1 FEEDBACK
 
@@ -46,11 +91,7 @@ email or the web:
 
 Email jason@bioperl.org
 
-Describe contact details here
-
 =head1 CONTRIBUTORS
-
-Additional contributors names and emails here
 
 =head1 APPENDIX
 
@@ -89,11 +130,10 @@ sub new {
   my($class,@args) = @_;
 
   my $self = $class->SUPER::new(@args);
-  my ($trees,
-      $smat,$tmat,$freq,
+  my ($trees,$smat,$freq,
       $model, $sspace,
       ) = $self->_rearrange([qw(TREES SUBSTITUTION_MATRIX
-				TRANSITION_MATRIX FREQUENCIES
+				FREQUENCIES
 				MODEL SEARCH_SPACE)], @args);
 
   if( $trees ) {
@@ -109,9 +149,6 @@ sub new {
   # little OO programmer
   if( ref($smat) =~ /HASH/i ) {
       $self->substitution_matrix($smat);
-  }
-  if( ref($tmat) =~ /HASH/i ) { 
-      $self->transition_probability_matrix($tmat);
   }
   if( ref($freq) =~ /HASH/i ) {
       $self->residue_frequencies($freq);
@@ -182,13 +219,15 @@ sub substitution_matrix{
  Usage   : my $matrixref = $molphy->transition_probablity_matrix();
  Function: Gets the observed transition probability matrix
  Returns : hash of hashes of aa/nt transition to each other aa/nt 
- Args    : none
+ Args    : Transition matrix type, typically
+           '1PAM-1.0e05' or '1PAM-1.0e07'
 
 
 =cut
 
-sub transition_probability_matrix{
-   my ($self,$val) = @_;
+sub transition_probability_matrix {
+   my ($self,$type,$val) = @_;
+   $type = '1PAM-1.0e7' unless defined $type;
    if(defined $val ) { 
        if( ref($val) =~ /HASH/ ) {
 	   foreach my $v (values %{$val} ) {
@@ -197,7 +236,7 @@ sub transition_probability_matrix{
 		   return undef;
 	       }
 	   } 
-	   $self->{'_TPM'} = $val;
+	   $self->{'_TPM'}->{$type} = $val;
        } else { 
 	   $self->warn("Must be a valid hashref of hashrefs for transition_probablity_matrix");
 	   return undef;
@@ -206,7 +245,7 @@ sub transition_probability_matrix{
 
    # fix this for nucml where there are 2 values (one is just a transformation
    # of the either, but how to represent?)
-   return $self->{'_TPM'};
+   return $self->{'_TPM'}->{$type};
 }
 
 =head2 residue_frequencies
@@ -227,7 +266,7 @@ sub transition_probability_matrix{
 
 #'
 
-sub residue_frequencies{
+sub residue_frequencies {
    my ($self,$val) = @_;
    if(defined $val ) { 
        if( ref($val) =~ /HASH/ ) {

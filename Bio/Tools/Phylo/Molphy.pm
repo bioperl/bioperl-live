@@ -16,11 +16,48 @@ Bio::Tools::Phylo::Molphy - DESCRIPTION of Object
 
 =head1 SYNOPSIS
 
-    use Bio::Tools::Phylo::Molphy;
-    my $parser = new Bio::Tools::Phylo::Molphy(-file => 'output.protml');
-    while( my $result = $parser->next_result ) {
+  use Bio::Tools::Phylo::Molphy;
+  my $parser = new Bio::Tools::Phylo::Molphy(-file => 'output.protml');
+  while( my $r = $parser->next_result ) {
+    # r is a Bio::Tools::Phylo::Molphy::Result object
 
+    # print the model name
+    print $r->model, "\n";
+
+    # get the substitution matrix
+    # this is a hash of 3letter aa codes -> 3letter aa codes representing
+    # substitution rate
+    my $smat = $r->substitution_matrix;
+    print "Arg -> Gln substitution rate is %d\n", 
+          $smat->{'Arg'}->{'Gln'}, "\n";
+
+    # get the transition probablity matrix
+    # this is a hash of 3letter aa codes -> 3letter aa codes representing
+    # transition probabilty
+    my $tmat = $r->transition_probability_matrix
+    print "Arg -> Gln transition probablity is %.2f\n", 
+          $tmat->{'Arg'}->{'Gln'}, "\n";
+
+    # get the frequency for each of the residues
+    my $rfreqs = $r->residue_frequencies;
+
+    foreach my $residue ( keys %{$rfreqs} ) {
+       printf "residue %s  expected freq: %.2f observed freq: %.2f\n",
+              $residue,$rfreqs->{$residue}->[0], $rfreqs->{$residue}->[1];     
     }
+
+    my @trees;
+    while( my $t = $r->next_tree ) {
+        push @trees, $t;
+    }
+
+    print "search space is ", $r->search_space, "\n",
+          "1st tree score is ", $trees[0]->score, "\n";
+
+    # writing to STDOUT, use -file => '>filename' to specify a file
+    my $out = new Bio::TreeIO(-format => "newick");
+    $out->write_tree($trees[0]); # writing only the 1st tree
+  }
 
 =head1 DESCRIPTION
 
@@ -49,8 +86,6 @@ email or the web:
 =head1 AUTHOR - Jason Stajich
 
 Email jason@bioperl.org
-
-Describe contact details here
 
 =head1 CONTRIBUTORS
 
@@ -118,7 +153,10 @@ sub next_result{
        @transition_matrix, %transition_mat, @resloc,) = ( 0,0);
    my ( %subst_matrix, @treelines, @treedata, %frequencies);
    my ( $treenum,$possible_trees, $model);
+   my ($trans_type,$trans_amount);
+   my $parsed = 0;
    while( defined ( $_ = $self->_readline()) ) {
+       $parsed = 1;
        if( /^Relative Substitution Rate Matrix/ ) {
 	   if( %subst_matrix ) { 
 	       $self->_pushback($_);
@@ -157,11 +195,25 @@ sub next_result{
 	       $i++;
 	   }
        } elsif( /^Transition Probability Matrix/ ) {	   
-	   if( /1\.0e7/ ) { 
+	   if( /(1\.0e(5|7))\)\s+(\S+)/ ) {
 	       $state = 1;
+	       my $newtrans_type = "$3-$1";
+	       $trans_amount = $1;
+	       if( defined $trans_type ) {
+		   # finish processing the transition_matrix
+		   my $i =0;
+		   foreach my $row ( @transition_matrix ) {
+		       my $j = 0;
+		       foreach my $col ( @$row ) {
+			   $transition_mat{$trans_type}->{$resloc[$i]}->{$resloc[$j]} = $col;
+			   $j++;
+		       }
+		       $i++;
+		   }
+	       }
+	       $trans_type = $newtrans_type;
 	       $transition_ct = 0;
-	   } else { 
-	       $state = 0;
+	       @transition_matrix = ();
 	   }
        } elsif ( /Acid Frequencies/ ) {
 	   $state = 0;
@@ -177,18 +229,17 @@ sub next_result{
 	       $frequencies{$res} = [ $model,$data];
 	   }
        } elsif( /^(\d+)\s*\/\s*(\d+)\s+(.+)\s+model/ ) {
-	   my @save = ($1,$2,$3);
+	   my @save = ($1,$2,$3);	   
 	   # finish processing the transition_matrix
 	   my $i =0;
 	   foreach my $row ( @transition_matrix ) {
 	       my $j = 0;
 	       foreach my $col ( @$row ) {
-		   $transition_mat{$resloc[$i]}->{$resloc[$j]} = $col;
+		   $transition_mat{$trans_type}->{$resloc[$i]}->{$resloc[$j]} = $col;
 		   $j++;
 	       }
 	       $i++;
-	   }
-	   
+	   }	   
 	   if( defined $treenum ) { 	       
 	       $self->_pushback($_);
 	       last;
@@ -198,12 +249,19 @@ sub next_result{
 	   ($treenum,$possible_trees, $model) = @save;
 	   $model =~ s/\s+/ /g;
        } elsif( $state == 1 ) {
-	   next if( /^\s+$/ );
+	   next if( /^\s+$/ || /^\s+Ala/);
 	   s/^\s+//;
 	   s/\s+$//;
-	   # because the matrix is split up into 2-10 column sets 
-	   push @{$transition_matrix[$transition_ct++]}, split ;
-	   $transition_ct = 0 if $transition_ct % 20 == 0;
+	   if( $trans_type eq '1PAM-1.0e7' ) {
+	       # because the matrix is split up into 2-10 column sets 
+	       push @{$transition_matrix[$transition_ct++]}, split ;	   
+	       $transition_ct = 0 if $transition_ct % 20 == 0;
+	   } elsif( $trans_type eq '1PAM-1.0e5' ) {
+	       # because the matrix is split up into 2-10 column sets 
+	       my ($res,@row) = split;
+	       next if $transition_ct >= 20; # skip last 
+	       push @{$transition_matrix[$transition_ct++]}, @row;	   	       
+	   }
        } elsif( $state == 2 ) {
 	   if( s/^(\d+)\s+(\-?\d+(\.\d+)?)\s+// ) {
 	       push @treedata, [ $1,$2];
@@ -229,16 +287,18 @@ sub next_result{
 	   push @trees, $tree;
        }
    }
-
+   return undef unless( $parsed );
    my $result = new Bio::Tools::Phylo::Molphy::Result
        (-trees => \@trees,
 	-substitution_matrix => \%subst_matrix,
-	-transition_matrix   => \%transition_mat,
 	-frequencies         => \%frequencies,
 	-model               => $model,
 	-search_space        => $possible_trees,
 	);
-
+   while( my ($type,$mat) = each %transition_mat ) {
+       $result->transition_probability_matrix( $type,$mat);
+   }
+   $result;
 }
 
 1;
