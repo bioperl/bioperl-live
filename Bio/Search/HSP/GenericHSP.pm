@@ -300,9 +300,7 @@ sub new {
     } else {
 	$self->gaps('hit', scalar ( $hit_seq =~ tr/\-//));
     }
-
     if(! defined $gaps ) {
-	$self->warn("Did not defined the number of gaps in the HSP calculating");
 	$gaps = $self->gaps("query") + $self->gaps("hit");
     } 
     $self->gaps('total', $gaps);
@@ -585,8 +583,9 @@ sub length{
  Returns : array of query and subjects if return type wants an array
            or query frame if defined or subject frame
  Args    : none
- Note    : Frames are stored in the GFF way (0-2 +/-) not 1-3
-           as they are in BLAST
+ Note    : Frames are stored in the GFF way (0-2) not 1-3
+           as they are in BLAST (negative frames are deduced by checking 
+				 the strand of the query or hit)
 
 =cut
 
@@ -607,7 +606,7 @@ sub frame {
 	    }
 	    # Set frame to GFF [0-2] -
 	    # what if someone tries to put in a GFF frame!
-	    $qframe = $2 - 1;
+	    $qframe = $2 - 1;	    
 	}
 	$self->query->frame($qframe);
     }
@@ -618,8 +617,10 @@ sub frame {
 	    $self->warn("Specifying an invalid subject frame ($sframe)");
 	    $sframe = undef;
 	  } else {
-	      if( (defined $1 && $1 eq '-' && $self->hit->strand >= 0) ||
-		  (defined $1 && $1 eq '+' && $self->hit->strand <= 0) )
+	      my $dir = $1;
+	      $dir = '+' unless defined $dir;
+	      if( ($dir eq '-' && $self->hit->strand >= 0) ||
+		  ($dir eq '+' && $self->hit->strand <= 0) )
 	      {
 		  $self->warn("Subject frame ($sframe) did not match strand of subject (". $self->hit->strand() . ")");
 	      }
