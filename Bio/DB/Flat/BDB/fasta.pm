@@ -61,26 +61,15 @@ use vars '@ISA';
 
 @ISA = qw(Bio::DB::Flat::BDB);
 
-sub parse_one_record {
-  my $self  = shift;
-  my $fh    = shift;
+sub default_file_format { "fasta" }
 
-  undef $self->{fasta_stored_id} if exists $self->{fasta_stored_fh}
-    && $fh ne $self->{fasta_stored_fh} ;
-  $self->{fasta_stored_fh} = $fh;
-
-  while (<$fh>) {		# don't try this at home
-    if (/^>(\S+)/) {
-      my $id = $self->{fasta_stored_id};
-      $self->{fasta_stored_id} = $1;
-      next unless defined $id;
-      return ($id,-length($_));
-    }
-  }
-  # we get here at the end of the file
-  return $self->{fasta_stored_id};
+sub seq_to_ids {
+  my $self = shift;
+  my $seq  = shift;
+  my %ids;
+  $ids{$self->primary_namespace} = $seq->primary_id;
+  \%ids;
 }
 
-sub default_file_format { "fasta" }
 
 1;

@@ -569,6 +569,36 @@ sub read_record {
 
 }
 
+=head2 get_all_primary_ids
+
+ Title   : get_all_primary_ids
+ Usage   : @ids = $seqdb->get_all_primary_ids()
+ Function: gives an array of all the primary_ids of the
+           sequence objects in the database.
+ Example :
+ Returns : an array of strings
+ Args    : none
+
+=cut
+
+sub get_all_primary_ids {
+  my $self = shift;
+
+  my $fh = $self->primary_index_filehandle;
+  sysseek ($fh,0,2);
+  my $filesize = (tell $fh);
+  my $recsize  = $self->record_size;
+  my $end = $filesize;
+
+  my @ids;
+  for (my $pos=$self->{_start_pos}; $pos < $end; $pos += $recsize) {
+    my $record = $self->read_record($fh,$pos,$recsize);
+    my ($entryid)  = split(/\t/,$record);
+    push @ids,$entryid;
+  }
+  @ids;
+}
+
 
 =head2 find_entry
 
@@ -646,7 +676,7 @@ sub build_index {
     if (!defined($rootdir)) {
 	$self->throw("No index directory set - can't build indices");
     }
-    
+
     if (! -d $rootdir) {
 	$self->throw("Index directory [$rootdir] is not a directory. Cant' build indices");
     }
@@ -660,28 +690,37 @@ sub build_index {
     if (!(@files)) {
 	$self->throw("Must enter an array of filenames to index");
     }
-    
-    my $pwd = `pwd`; chomp($pwd);
 
     foreach my $file (@files) {
-	if ($file !~ /^\//) {
-	    $file = $pwd . "/$file";
-	}
+      $file = File::Spec->rel2abs($file)
+	unless File::Spec->file_name_is_absolute($file);
 	if (! -e $file) {
 	    $self->throw("Can't index file [$file] as it doesn't exist");
 	}
     }
-    
-    $self->make_config_file(\@files);
-    
-    # Finally lets index
-    foreach my $file (@files) {
-	$self->_index_file($file);
+
+    if (my $filehash = $self->{_dbfile}) {
+      push @files,keys %$filehash;
     }
+
+    my %seen;
+    @files = grep {!$seen{$_}++} @files;
+
+    # Lets index
+    $self->make_config_file(\@files);
+    my $entries = 0;
+    foreach my $file (@files) {
+      $entries += $self->_index_file($file);
+    }
+
+    # update alphabet if necessary
+    $self->make_config_file(\@files);
 
     # And finally write out the indices
     $self->write_primary_index;
     $self->write_secondary_indices;
+
+    $entries;
 }
 
 =head2 _index_file
@@ -713,7 +752,7 @@ sub _index_file {
     my $pos = 0;
 
     my $new_primary_entry;
-    
+
     my $length;
     #my $pos = 0;
     my $fh = \*FILE;
@@ -726,9 +765,11 @@ sub _index_file {
 
     while (<$fh>) {
       $last_one = $_;
+      $self->{alphabet} ||= $self->guess_alphabet($_);		
       if ($_ =~ /$start_pattern/) {
 	if ($done == 0) {
 	  $id = $new_primary_entry;
+	  $self->{alphabet} ||= $self->guess_alphabet($_);
 		
 	  my $tmplen = tell($fh) - length($_);
 
@@ -780,7 +821,6 @@ sub _index_file {
     # Remember to add in the last one
 
     $id = $new_primary_entry;
-		
     my $tmplen = tell($fh) - length($last_one);
 
     $length = $tmplen  - $pos;
@@ -799,8 +839,10 @@ sub _index_file {
     }
     
     $self->_add_id_position($id,$pos,$fileid,$length,\%secondary_id);
+    $count++;
     
     close(FILE);
+    $count;
 }
 
 =head2 write_primary_index
@@ -821,8 +863,6 @@ sub write_primary_index {
     my @ids = keys %{$self->{_id}};
 
     @ids = sort {$a cmp $b} @ids;
-
-    print STDERR "Number of ids = " . scalar(@ids) . "\n";
 
     open (INDEX,">" . $self->primary_index_file) || $self->throw("Can't open primary index file [" . $self->primary_index_file . "]");
 
@@ -1103,9 +1143,11 @@ sub make_config_file {
     if (!defined($self->format)) {
 	$self->throw("Format does not exist in module - can't write config file");
     } else {
-	print CON "format\t" . $self->format . "\n";
+      my $format = $self->format;
+      my $alphabet = $self->alphabet;
+      my $alpha    = $alphabet ? "/$alphabet" : '';
+      print CON "format\t" . "URN:LSID:open-bio.org:$format$alpha\n";
     }
-
 
     close(CON);
 }
@@ -1185,9 +1227,16 @@ sub read_config_file {
 
 	if ($_ =~ /format\t(\S+)/) {
 
-	    # Check the format here?
+	  # Check the format here?
+	  my $format = $1;
 
+	  # handle LSID format
+	  if ($format =~ /^URN:LSID:open-bio\.org:(\w+)(?:\/(\w+))/) {
 	    $self->format($1);
+	    $self->alphabet($2);
+	  } else {  # compatibility with older versions
+	    $self->format($1);
+	  }
 	}
     }
     close(CON);
@@ -1314,6 +1363,14 @@ sub format{
     }
     return $obj->{'format'};
 
+}
+
+sub alphabet{
+   my ($obj,$value) = @_;
+   if( defined $value) {
+      $obj->{alphabet} = $value;
+    }
+    return $obj->{alphabet};
 }
 
 =head2 write_flag
@@ -1640,6 +1697,32 @@ sub new_FASTA_index {
 
    return $index;
 
+}
+
+# EVERYTHING THAT FOLLOWS THIS
+# is an awful hack - in reality Michele's code needs to be rewritten
+# to use Bio::SeqIO, but I have too little time to do this -- LS
+sub guess_alphabet {
+  my $self = shift;
+  my $line = shift;
+
+  my $format = $self->format;
+  return 'protein' if $format eq 'swissprot';
+
+  if ($format eq 'genbank') {
+    return unless $line =~ /^LOCUS/;
+    return 'dna' if $line =~ /\s+\d+\s+bp/i;
+    return 'protein';
+  }
+
+  if ($format eq 'embl') {
+    return unless $line =~ /^ID/;
+    return 'dna' if $line =~ / DNA;/i;
+    return 'rna' if $line =~ / RNA;/i;
+    return 'protein';
+  }
+
+  return;
 }
 
 # return (namespace,primary_pattern,start_pattern,secondary_pattern)

@@ -82,18 +82,23 @@ methods. Internal methods are usually preceded with a _
 package Bio::DB::XEMBL;
 use strict;
 use Bio::DB::RandomAccessI;
-use Bio::DB::XEMBLService 'getNucSeq';
+use SOAP::Lite;
 # bsml parser appears broken...
 use Bio::SeqIO::bsml;
 use File::Temp 'tempfile';
 use vars qw(@ISA $MODVERSION);
 
 @ISA = qw(Bio::DB::RandomAccessI);
-$MODVERSION = '0.1';
+$MODVERSION = '0.2';
+
+use constant DEFAULT_ENDPOINT => 'http://www.ebi.ac.uk:80/cgi-bin/xembl/XEMBL-SOAP.pl';
 
 sub new {
     my ($class, @args ) = @_;
     my $self = $class->SUPER::new(@args);
+    my $endpoint = $self->_rearrange([qw(ENDPOINT)]);
+    $endpoint ||= DEFAULT_ENDPOINT;
+    $self->endpoint($endpoint);
     return $self;
 }
 
@@ -134,9 +139,17 @@ sub get_Stream_by_batch {
   $self->throw("expected an array ref, but got $ids")
     unless ref($ids) eq 'ARRAY';
   my @args = @$ids;
-  my $result = getNucSeq(SOAP::Data->name(format=>'bsml'),
-			 SOAP::Data->name(ids=>"@args"))
-    or $self->throw('id does not exist');
+
+  my $endpoint = $self->endpoint;
+  my $som = SOAP::Lite
+    ->uri('http://www.ebi.ac.uk/XEMBL')
+    ->proxy($endpoint)
+    ->getNucSeq(SOAP::Data->name(format=>'bsml'),
+		SOAP::Data->name(ids=>"@args"));
+  if ($som->fault) {
+    $self->throw($som->faultstring);
+  }
+  my $result = $som->result;
   my($fh,$filename) = tempfile(File::Spec->tmpdir . '/bsmlXXXXXX',SUFFIX=>'.bsml');
   print $fh $result;
   close $fh;
@@ -178,6 +191,23 @@ sub get_Seq_by_acc{
 sub get_Seq_by_version{
    my ($self,@args) = @_;
    return $self->get_Seq_by_id(@args);
+}
+
+=head2 endpoint
+
+ Title   : endpoint
+ Usage   : $endpoint = $db->endpoint([$endpoint])
+ Function: Gets/sets endpoint for SOAP connection
+ Returns : old endpoint
+ Args    : new endpoint(optional)
+
+=cut
+
+sub endpoint {
+  my $self = shift;
+  my $d = $self->{endpoint};
+  $self->{endpoint} = shift if @_;
+  $d;
 }
 
 =head2 new_from_registry

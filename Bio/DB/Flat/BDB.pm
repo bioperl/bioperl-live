@@ -212,7 +212,7 @@ sub build_index {
   for my $file (@files) {
     $file = File::Spec->rel2abs($file)
       unless File::Spec->file_name_is_absolute($file);
-    $count++ if $self->_index_file($file);
+    $count += $self->_index_file($file);
   }
   $self->write_config;
   $count;
@@ -227,14 +227,16 @@ sub _index_file {
 
   my $fh     = $self->_fhcache($file) or $self->throw("could not open $file for indexing: $!");
   my $offset = 0;
+  my $count  = 0;
   while (!eof($fh)) {
     my ($ids,$adjustment)  = $self->parse_one_record($fh) or next;
     $adjustment ||= 0;  # prevent uninit variable warning
     my $pos = tell($fh) + $adjustment;
     $self->_store_index($ids,$file,$offset,$pos-$offset);
     $offset = $pos;
+    $count++;
   }
-  1;
+  $count;
 }
 
 =head2 To Be Implemented in Subclasses

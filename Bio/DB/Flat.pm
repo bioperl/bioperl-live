@@ -92,7 +92,7 @@ use constant CONFIG_FILE_NAME => 'config.dat';
  Function: create a new Bio::DB::Flat object
  Returns : new Bio::DB::Flat object
  Args    : -directory    Root directory containing "config.dat"
-           -write_flag   If true, allows reindexing.
+           -write_flag   If true, allows creation/updating.
            -verbose      Verbose messages
            -out          File to write to when write_seq invoked
  Status  : Public
@@ -303,6 +303,27 @@ sub file_format {
   $d;
 }
 
+# return the alphabet
+sub alphabet {
+  my $self = shift;
+  my $d    = $self->{flat_alphabet};
+  $self->{flat_alphabet} = shift if @_;
+  $d;
+}
+
+sub parse_one_record {
+  my $self  = shift;
+  my $fh    = shift;
+  my $parser =
+    $self->{cached_parsers}{fileno($fh)}
+      ||= Bio::SeqIO->new(-fh=>$fh,-format=>$self->default_file_format);
+  my $seq = $parser->next_seq or return;
+  $self->{flat_alphabet} ||= $seq->alphabet;
+  my $ids = $self->seq_to_ids($seq);
+  return $ids;
+}
+
+
 # return the indexing scheme
 sub indexing_scheme {
   my $self = shift;
@@ -350,7 +371,9 @@ sub write_config {
   print F "index\t$index_type\n";
 
   my $format     = $self->file_format;
-  print F "format\t$format\n";
+  my $alphabet   = $self->alphabet;
+  my $alpha      = $alphabet ? "/$alphabet" : '';
+  print F "format\tURN:LSID:open-bio.org:${format}${alpha}\n";
 
   my @filenos = $self->_filenos or $self->throw("cannot write config file because no flat files defined");
   for my $nf (@filenos) {
@@ -435,7 +458,15 @@ sub _read_config {
 
   $self->indexing_scheme($1);
 
-  $self->file_format($config{format}[0]) if $config{format};
+  if ($config{format}) {
+    # handle LSID format
+    if ($config{format}[0] =~ /^URN:LSID:open-bio\.org:(\w+)(?:\/(\w+))/) {
+      $self->file_format($1);
+      $self->alphabet($2);
+    } else {  # compatibility with older versions
+      $self->file_format($config{format}[0]);
+    }
+  }
 
   # set up primary namespace
   my $primary_namespace = $config{primary_namespace}[0]
@@ -530,26 +561,6 @@ sub get_Seq_by_acc {
 sub fetch_raw {
   my ($self,$id,$namespace) = @_;
   $self->throw_not_implemented;
-}
-
-# This is the method that must be implemented in
-# child classes.  It is passed a filehandle which should
-# point to the next record to be indexed in the file, 
-# and returns a two element list
-# consisting of a key and an adjustment value.
-# The key can be a scalar, in which case it is treated
-# as the primary ID, or a hashref containing namespace=>[id] pairs,
-# one of which MUST correspond to the primary namespace.
-# The adjustment value is normally zero, but can be a positive or
-# negative integer which will be added to the current file position
-# in order to calculate the correct end of the record.
-sub parse_one_record {
-  my $self = shift;
-  my $fh   = shift;
-  $self->throw_not_implemented;
-  # here's what you would implement
-  my (%keys,$offset);
-  return (\%keys,$offset);
 }
 
 sub default_file_format {

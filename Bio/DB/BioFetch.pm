@@ -106,18 +106,27 @@ BEGIN {
 		   'embl' => {
 		       default => 'embl', # default BioFetch format/SeqIOmodule pair
 		       embl => 'embl',    # alternative BioFetch format/module pair 
-		       fasta => 'fasta'   # alternative BioFetch format/module pair 
+		       fasta => 'fasta',   # alternative BioFetch format/module pair 
+		       namespace => 'embl',
 		       },
-		   'swall' => {
+		   'swissprot' => {
 		       default => 'swiss',
 		       swissprot => 'swiss',
-		       fasta => 'fasta'
+		       fasta => 'fasta',
+                       namespace => 'swall',
 		       },
 		   'refseq' => {
 		       default => 'genbank',
 		       genbank => 'genbank',
-		       fasta => 'fasta'
-		       }
+		       fasta => 'fasta',
+                       namespace => 'RefSeq',
+		       },
+		   'swall' => {
+		       default => 'swiss',
+		       swissprot => 'swiss',
+		       fasta => 'fasta',
+                       namespace => 'swall',
+		       },
 		   );
 }
 
@@ -140,7 +149,7 @@ defaults.
   -baseaddress   location of dbfetch server       http://www.ebi.ac.uk/cgi-bin/dbfetch
   -retrievaltype "tempfile" or "io_string"        io_string
   -format        "embl" or "fasta" or "swissprot" embl
-  -db            "embl", "genbank" or "swall"     embl
+  -db            "embl", "genbank" or "swissprot" embl
 
 =cut
 
@@ -289,6 +298,8 @@ sub get_request {
     my ($uids, $format) = $self->_rearrange([qw(UIDS FORMAT)],
 					    @qualifiers);
     my $db     = $self->db;
+    my $namespace = $self->_namespace;
+
     $self->throw("Must specify a value for UIDs to fetch")
 	unless defined $uids;
     my $tmp;
@@ -301,7 +312,7 @@ sub get_request {
     my $uid = join('+',ref $uids ? @$uids : $uids);
     $self->debug("\n$base$format_string&id=$uid\n");
     return POST($base,
-		[ db     => $db,
+		[ db     => $namespace,
 		  id     => join('+',ref $uids ? @$uids : $uids),
 		  format => $format,
 		  style  => 'raw'
@@ -355,6 +366,12 @@ sub db {
       $self->{_db} = $db;
   }
   return $self->{_db} || $self->default_db ;
+}
+
+sub _namespace {
+  my $self = shift;
+  my $db = $self->db;
+  return $FORMATMAP{$db}{namespace} or $db;
 }
 
 =head2 postprocess_data
@@ -415,9 +432,10 @@ sub postprocess_data {
 sub request_format {
     my ($self, $value) = @_;
     if ( defined $value ) { 
-	my $db = $self->db; 
+	my $db = $self->db;
+	my $namespace = $self->_namespace;
 	my $format = lc $value;
-	print "format:", $format, " module:", $FORMATMAP{$db}->{$format}, " ($db)\n" 
+	print "format:", $format, " module:", $FORMATMAP{$db}->{$format}, " ($namespace)\n" 
 	    if $self->verbose > 0; 
 	$self->throw("Invalid format [$format], must be one of [".
 		     join(' ',keys %{$FORMATMAP{$db}}). "]")

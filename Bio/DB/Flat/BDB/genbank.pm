@@ -61,17 +61,6 @@ use vars '@ISA';
 
 @ISA = qw(Bio::DB::Flat::BDB);
 
-sub parse_one_record {
-  my $self  = shift;
-  my $fh    = shift;
-  my $parser =
-    $self->{genbank_cached_parsers}{fileno($fh)}
-      ||= Bio::SeqIO->new(-fh=>$fh,-format=>$self->default_file_format);
-  my $seq = $parser->next_seq or return;
-  my $ids = $self->seq_to_ids($seq);
-  return $ids;
-}
-
 sub seq_to_ids {
   my $self = shift;
   my $seq  = shift;

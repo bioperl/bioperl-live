@@ -1,7 +1,6 @@
 $Id$
 
-OBDA REGISTRY FILE FORMAT, VERSION 1.00
----------------------------------------
+USING THE BIODIRECTORY REGISTRY SYSTEM TO ACCESS SEQUENCE DATABASES
 
 The BioDirectory Registry is a system for specifying how BioPerl
 programs find sequence databases.  It uses a site-wide configuration
@@ -42,6 +41,8 @@ delimited string of files and URLs, for example:
 The search order proceeds from left to right.  The first file or URL
 that is found ends the search.
 
+=======================================================================================
+
 FORMAT OF THE REGISTRY FILE
 
 The registry file is a simple text file, as shown in the following
@@ -75,8 +76,9 @@ The file remainder is a simple stanza format which goes:
   tag=value
 
 Each stanza starts with a symbolic database service name enclosed in
-square brackets.  The remainder of the stanza is followed by a series
-of tag=value pairs that configure access to the service.
+square brackets.  Service names are case insensitive.  The remainder
+of the stanza is followed by a series of tag=value pairs that
+configure access to the service.
 
 Database-name stanzas can be repeated, in which case the client should
 try each service in turn from top to bottom.
@@ -94,9 +96,7 @@ one of:
 
   flat
   biofetch
-  bsane-corba
   biosql
-  xembl
 
 "flat" is used to fetch sequences from local flat files that have been
 indexed using BerkeleyDB or binary search indexing.
@@ -105,14 +105,8 @@ indexed using BerkeleyDB or binary search indexing.
 restrictions on the use of these databases, this is recommended only
 for lightweight applications.
 
-"bsane-corba" is used to fetch sequences from BSANE/CORBA services.
-To use this service you will need to download the bioperl-corba
-distribution.
-
 "biosql" fetches sequences from BioSQL databases.  To use this module
 you will need to install the bioperl-db distribution.
-
-"xembl" uses the EBI's XEMBL web service to fetch sequences.
 
 The Location Tag
 ----------------
@@ -145,7 +139,7 @@ several.
 
                 dbname     Name of the database.  Currently recognized
                            values are "embl" (sequence and protein),
-                           "swissprot" (SwissProt + TREMBL), and "refseq"
+                           "swall" (SwissProt + TREMBL), and "refseq"
                            (NCBI RefSeq entries).
 
  biosql		location   <host:port>
@@ -155,9 +149,47 @@ several.
 		passwd     <passwd>
 		biodbname  <biodatabase name>
 
- xembl          location   The SOAP endpoint.  Currently the only
-                           known compatible service is 
-			   http://www.ebi.ac.uk:80/cgi-bin/xembl/XEMBL-SOAP.pl
+=======================================================================================
 
- bsane-corba    location   <I don't know>
-                <others?>
+INSTALLING LOCAL DATABASES
+
+If you are using the biofetch protocol, you're all set.  You can start
+reading sequences immediately.  For the flat and biosql protocols, you
+will need to create and initialize local databases.  See the following
+documentation on how to do this:
+
+   flat protocol:    See FLAT-DATABASES-HOWTO.txt
+   biosql protocol:  See BIOSQL-HOWTO.txt
+
+=======================================================================================
+
+WRITING CODE TO USE THE REGISTRY
+
+To use the registry from a Perl script, use the following idiom:
+
+    1 use Bio::DB::Registry;
+    2 $registry = Bio::DB::Registry->new;
+    3 $db = $registry->get_database('embl');
+    4 $seq = $db->get_Seq_by_acc("J02231");
+    5 print $seq->seq,"\n";
+
+In lines 1 and 2, we bring in the Bio::DB::Registry module and create
+a new Bio::DB::Registry object.  We then ask the registry to return a
+database accessor for the symbolic data source "embl", which must be
+defined in an [embl] stanza in the seqdatabase.ini registry file.
+
+The returned accessor is a Bio::DB::RandomAccessI object (see the
+appropriate manual page), which has just three methods:
+
+   $db->get_Seq_by_id($id);
+   $db->get_Seq_by_acc($acc);
+   $db->get_Seq_by_version($version);
+
+These methods return Bio::SeqI objects by serching for their primary
+IDs, accession numbers and accession.version numbers respectively.
+The returned objects have all the methods defined by Bio::SeqI (see
+the appropriate manual page).  In line 5, we call the sequence
+object's seq() method to fetch and print out the DNA or protein
+string.
+
+$Log$
