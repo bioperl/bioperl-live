@@ -47,10 +47,14 @@ my $program = 'blastn';
 
 
 my $blast_present = Bio::Tools::Run::StandAloneBlast->exists_blast();
-my $file_present = -e $nt_database;
+my $nt_database_file = Bio::Root::IO->catfile($Bio::Tools::Run::StandAloneBlast::DATADIR, $nt_database);
+my $amino_database_file = Bio::Root::IO->catfile($Bio::Tools::Run::StandAloneBlast::DATADIR, $amino_database);
 
-unless ($blast_present && $file_present) {
-    warn "blast program or database [$nt_database] not found. Skipping tests $Test::ntest to $NUMTESTS\n";
+my $file_present = -e $nt_database_file;
+my $file_present2 = -e $amino_database_file;
+
+unless ($blast_present && $file_present && $file_present2) {
+    warn "blast program or databases [$nt_database,$amino_database] not found. Skipping tests $Test::ntest to $NUMTESTS\n";
     foreach ($Test::ntest..$NUMTESTS) {
 	skip('blast program not found',1);
     }
@@ -68,7 +72,7 @@ if ($nt_database eq 'ecoli.nt') {
 	$testresults[4]  =  '$hsp->score';
 	$testresults[5]  =  '$hsp->score';
 }
-if ($nt_database eq 'swissprot') {	
+if ($amino_database eq 'swissprot') {	
 	$testresults[8]  =  '$blast_report->number_of_iterations == 2';
 } else {
 	$testresults[8] =  '$blast_report->number_of_iterations';
@@ -106,7 +110,7 @@ my $seq4 = $str->next_seq();
 
 my $bl2seq_report = $factory->bl2seq($seq3, $seq4);
 $hsp = $bl2seq_report->next_feature;
-ok $hsp->subject->start, 167, " failed creating or parsing bl2seq report object";
+ok $hsp->hit()->start, 167, " failed creating or parsing bl2seq report object";
 
 
 @params = ('database' => $amino_database);
