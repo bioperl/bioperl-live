@@ -35,7 +35,7 @@ my $_signif_fmt = '';
 
 =head1 NAME
 
-Bio::Tools::Blast::Sbjct.pm - Bioperl BLAST "Hit" object
+Bio::Tools::Blast::Sbjct - Bioperl BLAST "Hit" object
 
 =head1 SYNOPSIS
 

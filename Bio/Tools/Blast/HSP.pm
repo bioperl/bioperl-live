@@ -37,7 +37,7 @@ $GAP_SYMBOL    = '-';          # Need a more general way to handle gap symbols.
 
 =head1 NAME
 
-Bio::Tools::Blast::HSP.pm - Bioperl BLAST High-Scoring Segment Pair object
+Bio::Tools::Blast::HSP - Bioperl BLAST High-Scoring Segment Pair object
 
 =head1 SYNOPSIS
 

@@ -50,8 +50,7 @@ my $_gi_link = '';
 
 =head1 NAME
 
-Bio::Tools::Blast::HTML.pm - Bioperl Utility module for HTML
-formatting Blast reports
+Bio::Tools::Blast::HTML - Bioperl Utility module for HTML formatting Blast reports
 
 =head1 SYNOPSIS
 

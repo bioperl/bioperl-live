@@ -36,7 +36,7 @@ $VERSION = 0.01;
 
 =head1 NAME
 
-Bio::Tools::Sigcleave.pm - Bioperl object for sigcleave analysis
+Bio::Tools::Sigcleave - Bioperl object for sigcleave analysis
 
 =head1 SYNOPSIS
 

@@ -58,7 +58,7 @@ my $MAX_HSP_OVERLAP  = 2;  # Used when tiling multiple HSPs.
 
 =head1 NAME
 
-Bio::Tools::Blast.pm - Bioperl BLAST sequence analysis object
+Bio::Tools::Blast - Bioperl BLAST sequence analysis object
 
 =head1 SYNOPSIS
 

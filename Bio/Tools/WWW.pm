@@ -42,7 +42,7 @@ $BioWWW->{'_name'} = "Static $ID object";
 
 =head1 NAME
 
-Bio::Tools::WWW.pm - Bioperl manager for web resources related to biology.
+Bio::Tools::WWW - Bioperl manager for web resources related to biology.
 
 =head1 SYNOPSIS
 

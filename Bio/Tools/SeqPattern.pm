@@ -12,7 +12,7 @@
 
 =head1 NAME
 
-Bio::Tools::SeqPattern.pm - Bioperl object for a sequence pattern or motif
+Bio::Tools::SeqPattern - Bioperl object for a sequence pattern or motif
 
 =head1 SYNOPSIS
 

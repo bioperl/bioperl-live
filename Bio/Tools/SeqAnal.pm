@@ -27,7 +27,7 @@ $VERSION  = 0.011;
 
 =head1 NAME
 
-Bio::Tools::SeqAnal.pm - Bioperl sequence analysis base class.
+Bio::Tools::SeqAnal - Bioperl sequence analysis base class.
 
 =head1 SYNOPSIS
 

@@ -175,10 +175,9 @@ sub new {
  Function: Determine whether RepeatMasker program can be found on 
            current host
  Example :
- Returns : 1 if repeatmasker program found at expected location, 
-           0 otherwise.
- Args    : none
-
+ Returns : 1 if repeatmasker program found at expected location, 0 otherwise.
+ Args    :  none
+    
 =cut
 
 sub exists_rm{
