@@ -365,7 +365,27 @@ sub next_seq {
 		  }
 	      }
 	      next;
+	  } elsif( /^SEGMENT\s+(.+)/ ) {
+	      if($annotation) {
+		  my $segment = $1;
+		  while (defined($_ = $self->_readline)) {
+		      last if (/^\S/);
+		      $segment .= $_; 
+		  }
+		  $segment =~ s/\n/ /g;
+		  $segment =~ s/  +/ /g;
+		  $annotation->add_Annotation(
+					      'segment',
+					      Bio::Annotation::SimpleValue->new(-value => $segment));
+		  $buffer = $_;
+	      } else {
+		  while(defined($buffer = $self->_readline())) {
+		      last if substr($buffer,0,1) ne ' ';
+		  }
+	      }
+	      next;
 	  }
+
 	  # Exit at start of Feature table, or start of sequence
 	  last if( /^(FEATURES|ORIGIN)/ );
 	  # Get next line and loop again
@@ -600,7 +620,12 @@ sub write_seq {
 	    }
 	} 
 
-
+	# SEGMENT if it exists
+	foreach my $ref ( $seq->annotation->get_Annotations('segment') ) {
+	    $self->_print(sprintf ("%-11s %s\n",'SEGMENT',
+				  $ref->value));
+	}
+ 
 	# Organism lines
 	if (my $spec = $seq->species) {
 	    my ($species, $genus, @class) = $spec->classification();
