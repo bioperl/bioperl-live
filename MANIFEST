@@ -1,4 +1,4 @@
-## $Id: MANIFEST,v 1.32 2001-03-30 05:14:15 lapp Exp $
+## $Id: MANIFEST,v 1.33 2001-04-08 01:11:41 lapp Exp $
 ##
 ## This is the file listing for everything that
 ## comes with the bioperl distribution. The perl
@@ -32,6 +32,7 @@ Bio/DB/Ace.pm
 Bio/DB/GDB.pm
 Bio/DB/GenBank.pm
 Bio/DB/GenPept.pm
+Bio/DB/EMBL.pm
 Bio/DB/NCBIHelper.pm
 Bio/DB/RandomAccessI.pm
 Bio/DB/SeqI.pm
