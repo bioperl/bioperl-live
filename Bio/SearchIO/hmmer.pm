@@ -169,12 +169,12 @@ sub next_result{
    my ($self) = @_;
    my $seentop = 0;
    my $reporttype;
-   my ($last,@hitinfo,@hspinfo,%hitinfo);
+   my ($last,@hitinfo,@hspinfo,%hspinfo,%hitinfo);
    $self->start_document();
 
    while( defined ($_ = $self->_readline )) {
        chomp;
-       if( /^HMMER ([\d\.]+)\s+\((.+)\)/ ) {
+       if( /^HMMER\s+(\S+)\s+\((.+)\)/ ) {
 	   my ($prog,$version) = split;
 	   if( $seentop ) {
 	       $self->_pushback($_);
@@ -224,47 +224,120 @@ sub next_result{
 	       @hspinfo = ();
 	       while( defined($_ = $self->_readline) ) {
 		   last if( /^\s+$/);
-		   next if( /^Model\s+Domain/ || /^\-\-\-/ );
+		   next if( /^(Model|Sequence)\s+Domain/ || /^\-\-\-/ );
 		   chomp;
 		   if( my @vals = (/(\S+)\s+\S+\s+(\d+)\s+(\d+).+?(\d+)\s+(\d+)\s+\S+\s+(\S+)\s+(\S+)\s*$/) ) {
-
+		       
 		       my $n = shift @vals;
 		       my $info = $hitinfo{$n};
 		       if( !defined $info ) { 
 			   $self->warn("incomplete Sequence information, can't find $n"); 
 			   next;
 		       }
-		       $self->start_element({'Name' => 'Hit'});
-		       $self->element({'Name' => 'Hit_id',
-				       'Data' => $info->[0]});
-		       $self->element({'Name' => 'Hit_desc',
-				       'Data' => $info->[1]});
-		       $self->element({'Name' => 'Hit_signif',
-				       'Data' => $info->[2]});
-		       $self->element({'Name' => 'Hit_score',
-				       'Data' => $info->[3]});
+		       $hspinfo{$n} = [ $n, @vals ];
+		   }
+	       }
+	   } elsif( /^Alignments of top/  ) {
+	       my ($prelength,$lastdomain,$count,$width);
+	       $count = 0;
+	       while( defined($_ = $self->_readline) ) {
+		   next if( /^Align/ );
+		   if( /^Histogram/ || m!^//! ) { 
+		       if( $self->in_element('hsp')) {
+			   $self->end_element({'Name' => 'Hsp'});
+		       }
+		       $self->end_element({'Name' => 'Hit'});
+		       last;
+		   }
+		   chomp;
+		   if( /^\s*(\S+):.*from\s+(\d+)\s+to\s+(\d+)/ ) {
+		       my ($name,$from,$to) = ($1,$2,$3);
+		       if( ! defined $lastdomain || $lastdomain ne $name ) {
+			   if( $self->in_element('hit') ) {
+			       $self->end_element({'Name' => 'Hsp'});
+			       $self->end_element({'Name' => 'Hit'});
+			   }
+			   $self->start_element({'Name' => 'Hit'});
+			   
+			   my $info = $hitinfo{$name};
+
+			   if( $info->[0] ne $name ) { 
+			       $self->throw("Somehow the Model table order does not match the order in the domains (got ".$info->[0].", expected $name)"); 
+			   }
+			   $self->element({'Name' => 'Hit_id',
+					   'Data' => shift @{$info}});
+			   $self->element({'Name' => 'Hit_desc',
+					   'Data' => shift @{$info}});
+			   $self->element({'Name' => 'Hit_score',
+					   'Data' => shift @{$info}});
+			   $self->element({'Name' => 'Hit_signif',
+					   'Data' => shift @{$info}});
+		       }
+		       if( defined $lastdomain ) {
+			   $self->end_element({'Name' => 'Hsp'});
+		       } 
 		       $self->start_element({'Name' => 'Hsp'});
-		       $self->element({'Name' => 'Hsp_query-from',
-				       'Data' => shift @vals});
-		       $self->element({'Name' => 'Hsp_query-to',
-				       'Data' => shift @vals});
-		       $self->element({'Name' => 'Hsp_hit-from',
-				       'Data' => shift @vals});
-		       $self->element({'Name' => 'Hsp_hit-to',
-				       'Data' => shift @vals});
-		       $self->element({'Name' => 'Hsp_score',
-				       'Data' => shift @vals});
-		       $self->element({'Name' => 'Hsp_evalue',
-				       'Data' => shift @vals});
 		       $self->element({'Name' => 'Hsp_identity',
 				       'Data' => 0});
 		       $self->element({'Name' => 'Hsp_positive',
 				       'Data' => 0});
-		       $self->end_element({'Name' => 'Hsp'});
-		       $self->end_element({'Name' => 'Hit'});
+		       my $HSPinfo = $hspinfo{$name};
+		       my $id = shift @$HSPinfo;
+
+		       if( $id ne $name ) { 
+			   $self->throw("Somehow the domain list details do not match the table (got $id, expected $name)");
+		       }
+
+		       $self->element({'Name' => 'Hsp_query-from',
+				       'Data' => shift @$HSPinfo});
+		       $self->element({'Name' => 'Hsp_query-to',
+				       'Data' => shift @$HSPinfo});
+		       $self->element({'Name' => 'Hsp_hit-from',
+				       'Data' => shift @$HSPinfo});
+		       $self->element({'Name' => 'Hsp_hit-to',
+				       'Data' => shift @$HSPinfo});
+		       $self->element({'Name' => 'Hsp_score',
+				       'Data' => shift @$HSPinfo});
+		       $self->element({'Name' => 'Hsp_evalue',
+				       'Data' => shift @$HSPinfo});
+
+		       $lastdomain = $name;
+		   } else { 
+		       if( /^(\s+\*\-\>)(\S+)/ ||
+			   /^(\s+)(\S+)\<\-\*\s*$/) {
+			   $prelength = CORE::length($1);
+			   $width = CORE::length($2);
+			   $self->element({'Name' =>'Hsp_hseq',
+					   'Data' => $2});
+			   $count = 0;
+		       } elsif( CORE::length($_) == 0 || /^\s+$/ ) { 
+			   next;
+		       } elsif( $count == 0 ) {
+			   if( ! defined $prelength) { 
+			       $self->warn("prelength not set"); 
+			   }
+			   $self->element({'Name' => 'Hsp_hseq',
+					   'Data' => substr($_,$prelength)});
+
+		       } elsif( $count == 1) { 
+			   if( ! defined $prelength || ! defined $width) { 
+			       $self->warn("prelength or width not set"); 
+			   }
+			   $self->element({'Name' => 'Hsp_midline',
+					   'Data' => substr($_,$prelength,$width)});
+		       } elsif( $count == 2) {
+			   if( /^\s+(\S+)\s+(\d+)\s+(\S+)\s+(\d+)/ ) {
+			       # how do reverse strand matches work on DNA???
+			       $self->element({'Name' => 'Hsp_qseq',
+					       'Data'  => $3});
+			   } else {
+			       $self->warn("unrecognized line: $_\n");
+			   }
+		       } 
+		       $count = 0 if $count++ >= 2;
 		   }
 	       }
-	   }    
+	   }
        } elsif( defined $self->{'_reporttype'} &&
 		$self->{'_reporttype'} eq 'HMMPFAM' ) {
 	   if( /^Scores for sequence family/ ) {
@@ -295,7 +368,7 @@ sub next_result{
 	       $count = 0;
 	       while( defined($_ = $self->_readline) ) {
 		   next if( /^Align/ );
-		   if( m!^//! ) { 
+		   if( /^Histogram/ || m!^//! ) { 
 		       if( $self->in_element('hsp')) {
 			   $self->end_element({'Name' => 'Hsp'});
 		       }
@@ -306,7 +379,6 @@ sub next_result{
 		   if( /^\s*(\S+):.*from\s+(\d+)\s+to\s+(\d+)/ ) {
 		       my ($name,$from,$to) = ($1,$2,$3);
 		       if( ! defined $lastdomain || $lastdomain ne $name ) {
-
 			   if( $self->in_element('hit') ) {
 			       $self->end_element({'Name' => 'Hsp'});
 			       $self->end_element({'Name' => 'Hit'});
@@ -387,11 +459,11 @@ sub next_result{
 			   }
 		       } 
 		       $count = 0 if $count++ >= 2;
-		   }
-	       }
-	   }
-       } else { 
-	   $self->debug($_);
+		   }	       
+	       }	   
+	   } else { 
+	       $self->debug($_);
+	   }	   
        }
        $last = $_;
    }
