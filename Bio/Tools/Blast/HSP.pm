@@ -27,7 +27,7 @@ use Bio::Root::Object ();
 use strict;
 use vars qw($ID $VERSION $GAP_SYMBOL @SCORE_CUTOFFS $Revision);
 $ID       = 'Bio::Tools::Blast::HSP';
-$VERSION  = 0.071;
+$VERSION  = 0.072;
 $Revision = '$Id$';  #'
 
 $GAP_SYMBOL    = '-';          # Need a more general way to handle gap symbols.
@@ -138,7 +138,7 @@ Steve A. Chervitz, sac@genome.stanford.edu
 
 =head1 VERSION
 
-Bio::Tools::Blast::HSP.pm, 0.071
+Bio::Tools::Blast::HSP.pm, 0.072
 
 =head1 SEE ALSO
 
@@ -296,6 +296,7 @@ sub _set_data {
 
     # Storing the match list in case it is needed later.
     $self->{'_matchList'} = \@matchList;
+
 }
 
 
@@ -443,7 +444,8 @@ sub _set_seq_data {
 
     # Liberate some memory.
     @{$self->{'_queryList'}} = @{$self->{'_sbjctList'}} = ();
-    $self->{'_queryList'} = $self->{'_sbjctList'} = undef;
+    undef $self->{'_queryList'};
+    undef $self->{'_sbjctList'};
 
     $self->{'_set_seq_data'} = 1;
 }
@@ -926,22 +928,45 @@ sub matches {
 	my($start,$stop) = $self->range($seqType);
 	if($beg == 0) { $beg = $start; $end = $beg+$end; }
 	elsif($end == 0) { $end = $stop; $beg = $end-$beg; }
-	if($end > $stop) { $end = $stop; }
+
+	if($end >= $stop) { $end = $stop; } ##ML changed from if (end >stop)
+	else { $end += 1;}   ##ML moved from commented position below, makes
+                             ##more sense here
+#	if($end > $stop) { $end = $stop; }
 	if($beg < $start) { $beg = $start; }
-	else { $end += 1;}
+#	else { $end += 1;}
 
-	my $seq = substr($self->seq_str('match'), $beg-$start, ($end-$beg));
+#	my $seq = substr($self->seq_str('match'), $beg-$start, ($end-$beg));
 
-## DEBUGGING CODE:
-#	my $seq = $self->seq_str('match');
-#	if($seq =~ /FIG\+LDI/) {
-#	    print "\n\nFIG+LDI FOUND IN: Hit ", $self->parent->name, ", Blast ", $self->parent->parent->name; <STDIN>;
-#	}
-#	if($self->parent->name eq '1AK5_' and $self->parent->parent->name eq 'YAR073W') {
-#	    print "\nGOT MATCH SEQ:\n   $seq"; <STDIN>;
-#	}
-#	$seq = substr($seq, $beg-$start, ($end-$beg));
-## END DEBUGGING CODE
+	## ML: START fix for substr out of range error ------------------
+	my $seq = "";
+	if (($self->{'_prog'} eq 'TBLASTN') and ($seqType eq 'sbjct'))
+	{
+	    $seq = substr($self->seq_str('match'),
+			  int(($beg-$start)/3), int(($end-$beg+1)/3));
+
+	} elsif (($self->{'_prog'} eq 'BLASTX') and ($seqType eq 'query'))
+	{
+	    ## ML: does BLASTX also need special handling?
+	} else {
+	    $seq = substr($self->seq_str('match'), 
+			  $beg-$start, ($end-$beg));
+	}
+	## ML: End of fix for  substr out of range error -----------------
+
+	
+	## ML: debugging code
+	## This is where we get our exception.  Try printing out the values going
+	## into this:
+	##
+#	 print STDERR 
+#	     qq(*------------MY EXCEPTION --------------------\nSeq: ") , 
+#	     $self->seq_str("$seqType"), qq("\n),$self->name,",(  index:";
+#	 print STDERR  $beg-$start, ", len: ", $end-$beg," ), (HSPRealLen:", 
+#	     CORE::length $self->seq_str("$seqType");
+#	 print STDERR ", HSPCalcLen: ", $stop - $start +1 ," ), 
+#	     ( beg: $beg, end: $end ), ( start: $start, stop: stop )\n";
+	 ## ML: END DEBUGGING CODE----------
 
 	if(!CORE::length $seq) {
 	    $self->throw("Undefined sub-sequence ($beg,$end). Valid range = $start - $stop");
@@ -967,8 +992,16 @@ sub matches {
  Purpose   : Get the fraction of identical positions within the given HSP.
  Example   : $frac_iden = $hsp_object->frac_identical('query');
  Returns   : Float (2-decimal precision, e.g., 0.75).
- Argument  : seq_type: 'query' | 'sbjct' (default = 'query')
+ Argument  : seq_type: 'query' | 'sbjct' 
+           : If no argument is provided, the longest sequence will be used.
  Throws    : n/a
+ Comments  : The default behavior of using the longest sequence allows this method
+           : to report the value reported by Blast when working with gapped alignments.
+           : The presence of gaps "inflates" the size of a sequence and Blast 
+           : reports the fraction identical using this inflated size.
+           : To get the fraction identical among only the aligned residues,
+           : ignoring the gaps, call this method with an argument of 'query'
+           : or 'sbjct'.
 
 See Also   : L<frac_conserved>(), L<matches>()
 
@@ -981,14 +1014,18 @@ sub frac_identical {
 # This saves storage and also permits flexibility in determining for which
 # sequence (query or sbjct) the figure is to be calculated.
 
-    my( $self, $type ) = @_;
-    $type  ||= 'query';
-    ## Sensitive to member name format.
-    $type = "_\L$type\E";
+    my( $self, $seqType ) = @_;
 
     $self->_set_seq_data() unless $self->{'_set_seq_data'};
 
-    sprintf( "%.2f", $self->{'_numIdentical'}/$self->{$type.'Length'});
+    if(!$seqType) {
+	$seqType = ($self->{'_queryLength'} > $self->{'_sbjctLength'}) 
+	           ? 'query' : 'sbjct';
+    }
+    ## Sensitive to member name format.
+    $seqType = "_\L$seqType\E";
+
+    sprintf( "%.2f", $self->{'_numIdentical'}/$self->{$seqType.'Length'});
 }
 
 
@@ -1000,8 +1037,16 @@ sub frac_identical {
 	   : Blast report.)
  Example   : $frac_cons = $hsp_object->frac_conserved('query');
  Returns   : Float (2-decimal precision, e.g., 0.75).
- Argument  : seq_type: 'query' | 'sbjct' (default = 'query')
+ Argument  : seq_type: 'query' | 'sbjct' 
+           : If no argument is provided, the longest sequence will be used.
  Throws    : n/a
+ Comments  : The default behavior of using the longest sequence allows this method
+           : to report the value reported by Blast when working with gapped alignments.
+           : The presence of gaps "inflates" the size of a sequence and Blast 
+           : reports the fraction conserved using this inflated size.
+           : To get the fraction conserved among only the aligned residues,
+           : ignoring the gaps, call this method with an argument of 'query'
+           : or 'sbjct'.
 
 See Also   : L<frac_conserved>(), L<matches>()
 
@@ -1014,15 +1059,18 @@ sub frac_conserved {
 # This saves storage and also permits flexibility in determining for which
 # sequence (query or sbjct) the figure is to be calculated.
  
-    my( $self, $type ) = @_;
+    my( $self, $seqType ) = @_;
 
     $self->_set_seq_data() unless $self->{'_set_seq_data'};
 
-    $type  ||= 'query';
+    if(!$seqType) {
+	$seqType = ($self->{'_queryLength'} > $self->{'_sbjctLength'}) 
+	           ? 'query' : 'sbjct';
+    }
     ## Sensitive to member name format.
-    $type = "_\L$type\E";
+    $seqType = "_\L$seqType\E";
 
-    sprintf( "%.2f", $self->{'_numConserved'}/$self->{$type.'Length'});
+    sprintf( "%.2f", $self->{'_numConserved'}/$self->{$seqType.'Length'});
 }
 
 
@@ -1160,7 +1208,7 @@ sub strand {
     my( $self, $seqType ) = @_;
     $seqType  ||= (wantarray ? 'list' : 'query');
 
-    return undef if $seqType eq 'query' and $self->{'_prog'} eq 'TBLASTN';
+    return '' if $seqType eq 'query' and $self->{'_prog'} eq 'TBLASTN';
 
     ## Sensitive to member name format.
     $seqType = "_\L$seqType\E";
