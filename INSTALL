@@ -517,3 +517,9 @@ o DEPENDENCIES AND Bundle::BioPerl
  HTML::Entities           If you want to run Web analysis modules
 			  Bio::Tools::Analysis::DNA::*
 			  Bio::Tools::Analysis::Protein::*
+
+ Class::AutoClass         Used to create objects
+                          Bio::Graph::SimpleGraph*
+
+ Clone                    Used to clone objects
+                          Bio::Graph::ProteinGraph
