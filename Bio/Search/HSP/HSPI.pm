@@ -315,28 +315,8 @@ sub percent_identity{
 =cut
 
 sub get_aln {
-    my ($self) = @_;
-    require Bio::LocatableSeq;
-    require Bio::SimpleAlign;
-    my $aln = new Bio::SimpleAlign;
-    my $hs = $self->hit_string();
-    my $qs = $self->query_string();
-    $hs =~ s/[\/\\]/\-/g;
-    $qs =~ s/[\/\\]/\-/g;
-    my $query = new Bio::LocatableSeq('-seq'   => $qs,
-				      '-id'    => $self->query->seqname(),
-				      '-start' => 1,
-				      '-end' => $self->query->length(),
-				      );
-    
-    my $hit =  new Bio::LocatableSeq('-seq'   => $hs,
-				      '-id'    => $self->hit->seqname(),
-				      '-start' => 1,
-				      '-end' => $self->hit->length(),
-				      );
-    $aln->add_seq($query);
-    $aln->add_seq($hit);
-    return $aln;
+   my ($self) = @_;
+   $self->throw_not_implemented;
 }
 
 =head2 Inherited from Bio::SeqFeature::SimilarityPair

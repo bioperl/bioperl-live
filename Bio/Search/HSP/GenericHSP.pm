@@ -170,16 +170,18 @@ sub new {
     defined $bits      && $self->bits($bits);
     defined $score     && $self->score($score);
 
-    my ($queryfactor, $hitfactor) = (1,0); # default
-    if ($algo eq 'BLASTP' || $algo eq 'TBLASTN'
-	|| $algo eq 'FASTX' || $algo eq 'FASTY' ||
-	$algo eq 'FASTXY' ) {
-	$queryfactor = 0;
-    } elsif ($algo eq 'TBLASTN' || $algo eq 'TBLASTX' ||
-	     $algo eq 'BLASTN' || $algo eq 'TFASTX' ||
-	     $algo eq 'TFASTXY' || $algo eq 'TFASTY' ||
-	     $algo eq 'FASTA' )  {
+    my ($queryfactor, $hitfactor) = (0,0);
+    if( $algo eq 'TFASTN' || $algo eq 'TFASTY' || $algo eq 'TFASTXY' ||
+	$algo eq 'TBLASTN' ) {
+	$hitfactor = 1;	
+    } elsif ($algo eq 'FASTX' || $algo eq 'FASTY' || $algo eq 'FASTXY'  ) {
+	$queryfactor = 1;	
+    } elsif ($algo eq 'TBLASTX' ||$algo eq 'TFASTX' ||
+	     $algo eq 'TFASTXY' || $algo eq 'TFASTY' || 
+	     $algo eq 'BLASTN' || 
+	     $algo eq 'FASTN' )  {
 	$hitfactor = 1;
+	$queryfactor = 1;
     } elsif( $algo eq 'RPSBLAST' ) {
 	$queryfactor = $hitfactor = 0;
 	$qframe = $hframe = 0;
@@ -188,7 +190,7 @@ sub new {
     # Store the aligned query as sequence feature
     my $strand;
     if( ! $qe || ! $qs ) { $self->throw("Did not specify a Query End or Query Begin"); }
-    if ($qe > $qs) {		# normal query: start < end
+    if ($qe > $qs) {  # normal query: start < end
 	if ($queryfactor) { $strand = 1; } else { $strand = undef; }
 	$self->query( Bio::SeqFeature::Similarity->new
 		      ('-start' => $qs,
@@ -196,8 +198,8 @@ sub new {
 		       '-strand'=> $strand,
 		       '-source'=> $algo,
 		      ) ) }
-    else {			# reverse query (i dont know if this is possible, 
-	# but feel free to correct)
+    else { # reverse query (i dont know if this is possible, 
+	   # but feel free to correct)
 	if ($queryfactor) { $strand = -1; } else { $strand = undef; }
 	$self->query( Bio::SeqFeature::Similarity->new
 		      ('-start' => $qe,
@@ -206,7 +208,13 @@ sub new {
 		       '-source'=> $algo,
 		      ) );
     }
-    $qframe = 0 unless defined $strand;
+    # to determine frame from something like FASTXY which doesn't
+    # report the frame
+    if( defined $strand && ! defined $qframe && $queryfactor ) {
+	$qframe = ( $self->query->start % 3 ) * $strand;
+    } elsif( ! defined $strand ) { 
+	$qframe = 0;
+    }
     # store the aligned subject as sequence feature
     if ($he > $hs) {		# normal subject
 	if ($hitfactor) { $strand = 1; } else { $strand = undef; }
@@ -223,6 +231,12 @@ sub new {
 		     '-strand'=> $strand,
 		     '-source'=> $algo) );
     }
+    if( defined $strand && ! defined $hframe && $hitfactor ) {
+	$hframe = ( $self->hit->start % 3 ) * $strand;
+    } elsif( ! defined $strand ) { 
+	$hframe = 0;
+    }
+
     $self->frame($qframe,$hframe);
 
     if( ! defined $query_len || ! defined $hit_len ) { 
@@ -618,6 +632,36 @@ sub frame {
  Args    : none
 
 =cut
+
+sub get_aln {
+    my ($self) = @_;
+    require Bio::LocatableSeq;
+    require Bio::SimpleAlign;
+    my $aln = new Bio::SimpleAlign;
+    my $hs = $self->hit_string();
+    my $qs = $self->query_string();
+    $hs =~ s/[\/\\]/\-/g;
+    $qs =~ s/[\/\\]/\-/g;
+    my $seqonly = $qs;
+    $seqonly =~ s/\-//g;
+    
+    my $query = new Bio::LocatableSeq('-seq'   => $qs,
+				      '-id'    => $self->query->seqname(),
+				      '-start' => 1,
+				      '-end' => CORE::length($seqonly),
+				      );
+    $seqonly = $hs;
+    $seqonly =~ s/\-//g;
+    
+    my $hit =  new Bio::LocatableSeq('-seq'   => $hs,
+				      '-id'    => $self->hit->seqname(),
+				      '-start' => 1,
+				      '-end' => CORE::length($seqonly),
+				      );
+    $aln->add_seq($query);
+    $aln->add_seq($hit);
+    return $aln;
+}
 
 =head2 Inherited from Bio::SeqFeature::SimilarityPair
 
