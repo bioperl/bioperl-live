@@ -39,14 +39,16 @@ This is a factory class capable of instantiating SeqAnalysisParserI
 implementing parsers.
 
 The concept behind this class and the interface it implements
-(Bio::Factory::SeqAnalysisParserFactoryI) is a generic analysis result parsing
-in high-throughput automated sequence annotation pipelines. See
-Bio::SeqAnalysisParserI for more documentation of this concept.
+(Bio::Factory::SeqAnalysisParserFactoryI) is a generic analysis result
+parsing in high-throughput automated sequence annotation
+pipelines. See Bio::SeqAnalysisParserI for more documentation of this
+concept.
 
 You can always find out the methods an instance of this class knows
 about by the way given in the SYNOPSIS section. By default, and
 assuming that the documentation is up-to-date, this will comprise of
-genscan, mzef, estscan, blast, hmmer, gff, and sim4 (all case-insensitive).
+genscan, mzef, estscan, blast, hmmer, gff, and sim4 (all
+case-insensitive).
 
 =head1 FEEDBACK
 
@@ -75,7 +77,8 @@ Email Hilmar Lapp E<lt>hlapp@gmx.netE<gt>, Jason Stajich E<lt>jason@bioperl.orgE
 
 =head1 APPENDIX
 
-The rest of the documentation details each of the object methods. Internal methods are usually preceded with a _
+The rest of the documentation details each of the object
+methods. Internal methods are usually preceded with a _
 
 =cut
 
@@ -137,10 +140,10 @@ sub get_parser {
     my ($self, @args) = @_;
     my $parser;
     my $module;
-    
+
     my ($input, $params, $method) =
 	$self->_rearrange([qw(INPUT PARAMS METHOD)], @args);
-    
+
     # retrieve module name for requested method
     $method = lc $method; # method is case-insensitive
     $module = $self->get_driver($method);
@@ -159,9 +162,53 @@ sub get_parser {
     # instantiate parser and return the result
     $parser = $module->new($inputmethod => $input, @$params);
     if(! $parser->isa('Bio::SeqAnalysisParserI')) {
-	$self->throw("Driver $module registered for method $method does not implement Bio::SeqAnalyisParserI. How come?");
+	$self->throw("Driver $module registered for method $method does not ".
+                     "implement Bio::SeqAnalyisParserI. How come?");
     }
     return $parser;
 }
+
+
+=head2 register_driver
+
+ Title   : register_driver
+ Usage   : $factory->register_driver("genscan", "Bio::Tools::Genscan");
+ Function: Registers a driver a factory class should be able to instantiate.
+
+           This method can be called both as an instance and as a
+           class method.
+
+ Returns : 
+ Args    : Key of the driver (string) and the module implementing the driver
+           (string).
+
+=cut
+
+=head2 driver_table
+
+ Title   : driver_table
+ Usage   : $table = $factory->driver_table();
+ Function: Returns a reference to the hash table storing associations of
+           methods with drivers.
+
+           You use this table to look up registered methods (keys) and
+           drivers (values).
+
+           In this implementation the table is class-specific and
+           therefore shared by all instances. You can override this in
+           a derived class, but note that this method can be called
+           both as an instance and a class method.
+
+           This will be the table used by the object internally. You
+           should definitely know what you're doing if you modify the
+           table's contents.  Modifications are shared by _all_
+           instances, those present and those yet to be created.
+
+ Returns : A reference to a hash table.
+ Args    : 
+
+
+=cut
+
 
 1;
