@@ -39,7 +39,7 @@ The index can now be created using
     my $index = new Bio::DB::Flat::BinarySearch(
 	     -start_pattern   => $start_pattern,
 	     -primary_pattern => $primary_pattern,
-             -primary_namespace => "ACC",
+             -primary_namespace => "ID",
 					     );
 
 To actually write it out to disk we need to enter a directory where the 
@@ -91,7 +91,7 @@ id (1433_CAEEL) as the secondary id.  The index is created as follows
     my $index = new Bio::DB::Flat::BinarySearch(
                 -start_pattern     => $start_pattern,
                 -primary_pattern   => $primary_pattern,
-                -primary_namespace  => 'ACC',
+                -primary_namespace  => 'ID',
                 -secondary_patterns => \%secondary_patterns);
 
     $index->build_index("/Users/michele/indices","mydb",($seqfile));
@@ -486,7 +486,7 @@ sub get_Seq_by_secondary {
 
     while ($current_id eq $newid) {
 	$record = $self->read_record($fh,$pos,$recsize);
-	print "Record is :$record:\n";
+	# print "Record is :$record:\n";
 	my ($secid,$primary_id) = split(/\t/,$record,2);
 	$current_id = $secid;
 
@@ -504,12 +504,12 @@ sub get_Seq_by_secondary {
       return;
     }
 
-    my $entry;
+    my @entry;
 
     foreach my $id (keys %primary_id) {
-	$entry .= $self->get_Seq_by_id($id);
+      push @entry,$self->get_Seq_by_id($id);
     }
-    return $entry;
+    return wantarray ? @entry : $entry[0];
 
 }
 
@@ -585,12 +585,13 @@ sub find_entry {
 
     my ($record) = $self->read_record($fh,$pos,$recsize);
     my ($entryid,$rest)  = split(/\t/,$record,2);
+    $rest =~ s/\s+$//;
 
 #    print "Mid $recsize $mid $pos:$entryid:$rest:$record\n";
 #    print "Entry :$id:$entryid:$rest\n";
 
     
-    my ($first,$second) = sort { $a cmp $b} ($id,$entryid);
+    my ($first,$second) = $id le $entryid ? ($id,$entryid) : ($entryid,$id);
 
     if ($id eq $entryid) {
 
@@ -1207,11 +1208,11 @@ sub read_config_file {
 	}
 
 	# Look for namespace lines
-	if ($_ =~ /(.*)_namespace.*\t(\S+)/) {
+	if (/(.*)_namespaces?\t(.+)/) {
 	    if ($1 eq "primary") {
 		$self->primary_namespace($2);
 	    } elsif ($1 eq "secondary") {
-		$self->secondary_namespaces($2);
+		$self->secondary_namespaces(split "\t",$2);
 	    } else {
 		$self->throw("Unknown namespace name in config file [$1");
 	    }
@@ -1563,13 +1564,13 @@ sub secondary_patterns{
 =cut
 
 sub secondary_namespaces{
-   my ($obj,$value) = @_;
+   my ($obj,@values) = @_;
 
    if (!defined($obj->{secondary_namespaces})) {
        $obj->{secondary_namespaces} = [];
    }
-   if( defined $value) {
-       push(@{$obj->{'secondary_namespaces'}},$value);
+   if (@values) {
+       push(@{$obj->{'secondary_namespaces'}},@values);
     }
    return @{$obj->{'secondary_namespaces'}};
 
@@ -1652,24 +1653,42 @@ sub _guess_patterns {
   my $self = shift;
   my $format = shift;
   if ($format eq 'swissprot') {
-    return ('ACC',
-	    "^AC   (\\S+)\\;",
+    return ('ID',
 	    "^ID   (\\S+)",
-	    {ID  => "^ID   (\\S+)"});
+	    "^ID   (\\S+)",
+	    {
+	     ACC  => "^AC   (\\S+);"
+	    });
   }
 
   if ($format eq 'embl') {
-    return ('ACC',
-	    "^AC   (\\S+)\\;",
+    return ('ID',
 	    "^ID   (\\S+)",
-	    {ID  => "^ID   (\\S+)"});
+	    "^ID   (\\S+)",
+	    {
+	     ACC     => q/^AC   (\S+);/,
+	     VERSION => q/^SV\s+(\S+)/
+	    });
+  }
+
+  if ($format eq 'genbank') {
+    return ('ID',
+	    q/^LOCUS\s+(\S+)/,
+	    q/^LOCUS/,
+	    {
+	     ACC     => q/^ACCESSION\s+(\S+)/,
+	     VERSION => q/^VERSION\s+(\S+)/
+	    });
   }
 
   if ($format eq 'fasta') {
     return ('ACC',
 	    "^>(\\S+)",
 	    "^>",
-	    {ID => "^>\\S+ +(\\S+)"});
+	    {
+	     ID => "^>\\S+ +(\\S+)"
+	    }
+	   );
   }
 
   $self->throw("I can't handle format $format");

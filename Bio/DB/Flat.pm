@@ -126,7 +126,11 @@ sub new {
 
   # set values from configuration file
   $self->directory($flat_directory);
-  $self->_read_config() if -e $flat_directory;
+  $self->throw("Base directory $flat_directory doesn't exist")
+    unless -e $flat_directory;
+  $self->throw("$flat_directory isn't a directory")
+    unless -d _;
+  $self->_read_config();
 
   # but override with initialization values
   $self->_initialize(@_);

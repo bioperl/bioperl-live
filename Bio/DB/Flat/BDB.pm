@@ -134,7 +134,18 @@ sub get_Seq_by_id {
 # fetch array of Bio::Seq objects
 sub get_Seq_by_acc {
   my $self = shift;
-  return $self->get_Seq_by_id(shift) if @_ == 1;
+  unshift @_,'ACC' if @_==1;
+  my ($ns,$key) = @_;
+  my @primary_ids = $self->expand_ids($ns => $key);
+  $self->throw("more than one sequences correspond to this accession")
+    if @primary_ids > 1 && !wantarray;
+  return map {$self->get_Seq_by_id($_)} @primary_ids;
+}
+
+# fetch array of Bio::Seq objects
+sub get_Seq_by_version {
+  my $self = shift;
+  unshift @_,'VERSION' if @_==1;
   my ($ns,$key) = @_;
   my @primary_ids = $self->expand_ids($ns => $key);
   $self->throw("more than one sequences correspond to this accession")

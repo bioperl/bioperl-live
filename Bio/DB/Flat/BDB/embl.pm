@@ -77,9 +77,12 @@ sub seq_to_ids {
 
   my $display_id = $seq->display_id;
   my $accession  = $seq->accession_number;
+  my $version    = $seq->seq_version;
+
   my %ids;
   $ids{ID}       = $display_id;
   $ids{ACC}      = $accession   if defined $accession;
+  $ids{VERSION}  = $version     if defined $version;
   return \%ids;
 }
 
@@ -88,7 +91,7 @@ sub default_primary_namespace {
 }
 
 sub default_secondary_namespaces {
-  return qw(ACC);
+  return qw(ACC VERSION);
 }
 
 sub default_file_format { "embl" }
