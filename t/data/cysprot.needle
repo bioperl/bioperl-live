@@ -1,0 +1,41 @@
+Global: PAPA_CARPA vs CATL_HUMAN
+Score: 499.50
+
+PAPA_CARPA      1        MAMIPSISKLLFVAICLFVYMGLSFGDFSIVGYSQNDLTSTERLI 45      
+                           | |:   |:  | ||              | :   ||    | 
+CATL_HUMAN      1          MNPT...LILAAFCL..............GIASATLTFDHSLE 26      
+
+PAPA_CARPA      46       QLFESWMLKHNKIYKNIDEKIYRFEIFKDNLKYIDETNKK....N 86      
+                           :  |   ||::|  ::|: :|  ::: |:| |:  |::     
+CATL_HUMAN      27       AQWTKWKAMHNRLY.GMNEEGWRRAVWEKNMKMIELHNQEYREGK 70      
+
+PAPA_CARPA      87       NSYWLGLNVFADMSNDEFKEKYTG.....SIAGNYTTTELSYEEV 126     
+                         :|: : :| | ||:::||::   |        |      | ||  
+CATL_HUMAN      71       HSFTMAMNAFGDMTSEEFRQVMNGFQNRKPRKGKVFQEPLFYE.. 113     
+
+PAPA_CARPA      127      LNDGDVNIPEYVDWRQKGAVTPVKNQGSCGSCWAFSAVVTIEGII 171     
+                                 |  ||||:|| |||||||| |||||||||   :|| :
+CATL_HUMAN      114      .......APRSVDWREKGYVTPVKNQGQCGSCWAFSATGALEGQM 151     
+
+PAPA_CARPA      172      KIRTGNLNEYSEQELLDCD..RRSYGCNGGYPWSALQLVAQY.GI 213     
+                           :|| |   ||| |:||   : : |||||    | | |    |:
+CATL_HUMAN      152      FRKTGRLISLSEQNLVDCSGPQGNEGCNGGLMDYAFQYVQDNGGL 196     
+
+PAPA_CARPA      214      HYRNTYPYEGVQRYCRSREKGPYAAKTD.GVRQVQPYNEGALLYS 257     
+                             :||||  :  |:   |  |:   | |   : |  | ||: :
+CATL_HUMAN      197      DSEESYPYEATEESCKYNPK..YSVANDTGFVDI.PKQEKALMKA 238     
+
+PAPA_CARPA      258      IAN.QPVSVVLEAAGKDFQLYRGGIFVGP.CGNK.VDHAVAAVGY 299     
+                         :|   |:|| ::|  : |  |: ||:  | | :: :|| |  |||
+CATL_HUMAN      239      VATVGPISVAIDAGHESFLFYKEGIYFEPDCSSEDMDHGVLVVGY 283     
+
+PAPA_CARPA      300      G........PNYILIKNSWGTGWGENGYIRIKRGTGNSYGVCGLY 336     
+                         |          | |:|||||  ||  ||::: :   |    ||: 
+CATL_HUMAN      284      GFESTESDNNKYWLVKNSWGEEWGMGGYVKMAKDRRNH...CGIA 325     
+
+PAPA_CARPA      337      TSSFYPVKN                                     345     
+                         ::: ||   
+CATL_HUMAN      326      SAASYPTV                                      333     
+
+%id = 39.81			%similarity = 59.22
+Overall %id = 35.65		Overall %similarity = 53.04

@@ -8,13 +8,27 @@ BEGIN {
 	use lib 't';
     }
     use Test;
-    plan tests => 25 }
+    plan tests => 31  }
 
 use Bio::SimpleAlign;
 use Bio::AlignIO;
 use Bio::Root::IO;
-ok 1;
 
+ok (1);
+
+END {
+    unlink(Bio::Root::IO->catfile("t","data","testout2.pfam"),
+	 Bio::Root::IO->catfile("t","data","testout.selex"),
+	 Bio::Root::IO->catfile("t","data","testout.pfam"),
+	 Bio::Root::IO->catfile("t","data","testout.msf"),
+	 Bio::Root::IO->catfile("t","data","testout.fasta"), 
+	 Bio::Root::IO->catfile("t","data","testout.clustal"),
+	 Bio::Root::IO->catfile("t","data","testout.phylip"),
+	 Bio::Root::IO->catfile("t","data","testout.nexus"),
+	   );
+
+
+}
 my ($str,$aln,$strout,$status);
 
 # STOCKHOLM
@@ -133,14 +147,21 @@ $strout = Bio::AlignIO->new('-file'  => ">".Bio::Root::IO->catfile("t", "data", 
 $status = $strout->write_aln($aln);
 ok $status, 1, "  failed nexus output test";
 
+# EMBOSS water
 
-unlink(Bio::Root::IO->catfile("t","data","testout2.pfam"),
-     Bio::Root::IO->catfile("t","data","testout.selex"),
-     Bio::Root::IO->catfile("t","data","testout.pfam"),
-     Bio::Root::IO->catfile("t","data","testout.msf"),
-     Bio::Root::IO->catfile("t","data","testout.fasta"), 
-     Bio::Root::IO->catfile("t","data","testout.clustal"),
-     Bio::Root::IO->catfile("t","data","testout.phylip"),
-     Bio::Root::IO->catfile("t","data","testout.nexus"),
-       );
+$str = new Bio::AlignIO('-format' => 'emboss',
+			'-file'   => Bio::Root::IO->catfile("t", "data", 'cysprot.water'));
+$aln = $str->next_aln();
+ok($aln);
+ok($aln->get_seq_by_pos(1)->get_nse,'PAPA_CARPA/3-342');
+ok($aln->get_seq_by_pos(2)->get_nse,'CATL_HUMAN/1-331');
+
+# EMBOSS needle
+
+$str = new Bio::AlignIO('-format' => 'emboss',
+			'-file'   => Bio::Root::IO->catfile("t", "data", 'cysprot.needle'));
+$aln = $str->next_aln();
+ok($aln);
+ok($aln->get_seq_by_pos(1)->get_nse,'PAPA_CARPA/1-345');
+ok($aln->get_seq_by_pos(2)->get_nse,'CATL_HUMAN/1-333');
 

@@ -1,0 +1,41 @@
+Local: PAPA_CARPA vs CATL_HUMAN
+Score: 501.50
+
+PAPA_CARPA      3        MIPSISKLLFVAICLFVYMGLSFGDFSIVGYSQNDLTSTERLIQL 47      
+                         | |:   |:  | ||              | :   ||    |   
+CATL_HUMAN      1        MNPT...LILAAFCL..............GIASATLTFDHSLEAQ 28      
+
+PAPA_CARPA      48       FESWMLKHNKIYKNIDEKIYRFEIFKDNLKYIDETNKK....NNS 88      
+                         :  |   ||::|  ::|: :|  ::: |:| |:  |::     :|
+CATL_HUMAN      29       WTKWKAMHNRLY.GMNEEGWRRAVWEKNMKMIELHNQEYREGKHS 72      
+
+PAPA_CARPA      89       YWLGLNVFADMSNDEFKEKYTG.....SIAGNYTTTELSYEEVLN 128     
+                         : : :| | ||:::||::   |        |      | ||    
+CATL_HUMAN      73       FTMAMNAFGDMTSEEFRQVMNGFQNRKPRKGKVFQEPLFYE.... 113     
+
+PAPA_CARPA      129      DGDVNIPEYVDWRQKGAVTPVKNQGSCGSCWAFSAVVTIEGIIKI 173     
+                               |  ||||:|| |||||||| |||||||||   :|| :  
+CATL_HUMAN      114      .....APRSVDWREKGYVTPVKNQGQCGSCWAFSATGALEGQMFR 153     
+
+PAPA_CARPA      174      RTGNLNEYSEQELLDCD..RRSYGCNGGYPWSALQLVAQY.GIHY 215     
+                         :|| |   ||| |:||   : : |||||    | | |    |:  
+CATL_HUMAN      154      KTGRLISLSEQNLVDCSGPQGNEGCNGGLMDYAFQYVQDNGGLDS 198     
+
+PAPA_CARPA      216      RNTYPYEGVQRYCRSREKGPYAAKTD.GVRQVQPYNEGALLYSIA 259     
+                           :||||  :  |:   |  |:   | |   : |  | ||: ::|
+CATL_HUMAN      199      EESYPYEATEESCKYNPK..YSVANDTGFVDI.PKQEKALMKAVA 240     
+
+PAPA_CARPA      260      N.QPVSVVLEAAGKDFQLYRGGIFVGP.CGNK.VDHAVAAVGYG. 300     
+                            |:|| ::|  : |  |: ||:  | | :: :|| |  |||| 
+CATL_HUMAN      241      TVGPISVAIDAGHESFLFYKEGIYFEPDCSSEDMDHGVLVVGYGF 285     
+
+PAPA_CARPA      301      .......PNYILIKNSWGTGWGENGYIRIKRGTGNSYGVCGLYTS 338     
+                                  | |:|||||  ||  ||::: :   |    ||: ::
+CATL_HUMAN      286      ESTESDNNKYWLVKNSWGEEWGMGGYVKMAKDRRNH...CGIASA 327     
+
+PAPA_CARPA      339      SFYP                                          342     
+                         : ||
+CATL_HUMAN      328      ASYP                                          331     
+
+%id = 40.07			%similarity = 59.61
+Overall %id = 35.65		Overall %similarity = 53.04
