@@ -557,6 +557,8 @@ sub _guess_format {
 }
 
 sub DESTROY {
+    my $self = shift;
+
     $self->close();
 }
 
