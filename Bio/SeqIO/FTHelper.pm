@@ -234,55 +234,36 @@ sub _parse_loc {
 
     $strand = ( $locstr =~ /complement/ ) ? -1 : 1;
     my ($fuzzystartbf, $fuzzystartaf, $fuzzyendbf,$fuzzyendaf,$delim);
-    if($locstr =~ /^\s*(\w+[A-Za-z])?\(?([\<\>\?])?(\d+)([\<\>\?])?([.\^\s]{1,3})([\<\>\?])?(\d+)([\<\>\?])?[,;\" ]*([A-Za-z]\w*)?\"?\)?\s*$/) {
+    if($locstr =~ /^\s*(\w+[A-Za-z])?\(?([\<\>\?]?\d+[\<\>\?]?)([.\^\s]{1,3})([\<\>\?]?\d+[\<\>\?]?)[,;\" ]*([A-Za-z]\w*)?\"?\)?\s*$/) {
 #	print "1 = \"$1\", 2 = \"$2\", 3 = \"$3\", 4 = \"$4\"\n";
 	$fea_type = $1 if $1;
-	($fuzzystartbf, $fuzzystartaf) = ($2, $4);
-	$start = $3;
-	$delim = $5;
-	($fuzzyendbf, $fuzzyendaf) = ($6,$8);
-	$end   = $7;
-	$tagval = $9 if $9;
+	$start = $2;
+	$delim = $3;
+	$end   = $4;
+	$tagval = $5 if $5;
     } 
     # like before, but only one number
-    elsif($locstr =~ /^\s*(\w+[A-Za-z])?\(?([\<\>\?])?(\d+)([\<\>\?])[,;\" ]*([A-Za-z]\w*)?\"?\)?\s*$/) {
+    elsif($locstr =~ /^\s*(\w+[A-Za-z])?\(?([\<\>\?]?\d+[\<\>\?])[,;\" ]*([A-Za-z]\w*)?\"?\)?\s*$/) {
 #	print "1 = \"$1\", 2 = \"$2\", 3 = \"$3\"\n";	
 	$fea_type = $1 if $1;
-	($fuzzystartbf, $fuzzystartaf) = ($2, $4);
-	$start = $end = $3;
-	$tagval = $5 if $5;
+	$start = $end = $2;
+	$tagval = $3 if $3;
     } else {
 	#print "didn't match\n";
 	return 0;
     }
-    my $location;
-    if ( $fuzzystartbf || $fuzzystartaf  || $fuzzyendbf || $fuzzyendaf || $delim)
+    
+    my $type = 'Bio::Location::Simple';
+    my @args = ('-start'=>$start, '-end' => $end,
+		'-strand' => $strand);
+    if ( $start =~ /[\>\<\?]/ || 
+	 $end    =~ /[\>\<\?]/ || $delim =~ /^[\.^]$/ )
     {
-	my $startfuzzy = ( $fuzzystartbf ) ? -1 : ( $fuzzystartaf ) ? 1 : 0; 
-	my $endfuzzy   = ( $fuzzyendbf ) ? -1 : ( $fuzzyendaf ) ? 1 : 0; 
-	my $rangefuzzy = ( $delim && $delim eq '.' ) ? 1 : 0;
-#	if ( defined $delim && 
-#	     $delim eq '^' ) {
-#	    $location->strand(0);
-#	    if ($location->start + 1 != $location->end ) {
-		# FIXME this is a uncertainty condition, which is not yet retained
-		# in the feature object
-		
-	    # we should become fuzzy here
-#	    }
-#	} 
-	$location = new Bio::Location::Fuzzy(-strand=>$strand,
-					     -start=>$start, 
-					     -end  => $end, 
-					     -startfuzzy=>$startfuzzy,
-					     -endfuzzy  => $endfuzzy,
-					     -rangefuzzy => $rangefuzzy); 
-    } else { 
-	$location = new Bio::Location::Simple(-start=>$start, 
-					      -end=>$end, 
-					      -strand => $strand);
-    }
-
+	$type = 'Bio::Location::Fuzzy';
+	push @args, ('-rangefuzzy' => $delim); 
+    } 
+    my $location = $type->new(@args);
+    
     if(defined($tagval) && $tagval ne '') {
 	if(! $fea_type) {
 	    $fea_type = "note";
@@ -386,14 +367,9 @@ sub _output_single_location {
     # handle fuzziness here as well
     my ( $delim,$start, $end ) = ( '..', $location->start, $location->end );
     if( $location->isa('Bio::Location::FuzzyLocationI') ) {
-	$start = $location->fuzzy_string($location->start, 
-					 $location->start_fuzzy);
-	$end = $location->fuzzy_string($location->end, 
-					 $location->end_fuzzy);
-
-	$delim = '.' if( $location->range_fuzzy );	
-    } elsif($location->length <= 1) {
-	$delim = '^';
+	($start,$end) = ($location->fuzzy_start,
+			 $location->fuzzy_end);
+	$delim = $location->fuzzy_range;	
     }
     
     my $str = $start . $delim . $end;

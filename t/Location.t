@@ -15,7 +15,7 @@ BEGIN {
 	use lib 't';
     }
     use Test;
-    plan tests => 20; 
+    plan tests => 32; 
 }
 
 use Bio::Location::Simple;
@@ -77,10 +77,37 @@ ok($splitlocation->min_start, 1);
 
 ok($splitlocation->sub_Location(),2);
 
-my $fuzzy = new Bio::Location::Fuzzy('-start'=>10, '-end' => 20, -strand=>1,
-				     -startfuzzy => 1, -endfuzzy=>0 );
+my $fuzzy = new Bio::Location::Fuzzy('-start'=>'<10', '-end' => 20, 
+				     -strand=>1);
+				     
 ok($fuzzy->start, 10);
 ok($fuzzy->end,20);
-ok($fuzzy->start_fuzzy);
-ok(!$fuzzy->end_fuzzy);
+ok($fuzzy->fuzzy_start, '<10');
+ok($fuzzy->fuzzy_end, 20);
+ok($fuzzy->fuzzy_range, '..');
 
+my ($encode,$pt) = $fuzzy->_fuzzypoint('>5');
+ok($encode, -2);
+ok($pt, 5);
+
+($encode,$pt) = $fuzzy->_fuzzypoint('<5');
+ok($encode, -1);
+ok($pt, 5);
+
+($encode,$pt) = $fuzzy->_fuzzypoint('5>');
+ok($encode, 1);
+ok($pt, 5);
+
+($encode,$pt) = $fuzzy->_fuzzypoint('5<');
+ok($encode, 2);
+ok($pt, 5);
+
+($encode,$pt) = $fuzzy->_fuzzypoint('5');
+ok($encode, 0);
+ok($pt, 5);
+
+$fuzzy->verbose(-1);
+($encode,$pt) = $fuzzy->_fuzzypoint('badstr');
+ok($encode, undef);
+ok($pt, undef);
+$fuzzy->verbose(0);

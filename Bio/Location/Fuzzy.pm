@@ -15,24 +15,22 @@ which has unclear start and/or end locations
 
 =head1 SYNOPSIS
 
-    my $fuzzylocation = new Bio::Location::Fuzzy(-start => 30,
+    my $fuzzylocation = new Bio::Location::Fuzzy(-start => '<30',
 						 -end   => 90,
-						 -startfuzzy => -1
-						 -rangefuzzy => 1);
+						 -rangefuzzy => '.');
 
-    my $fuzzy_start = $loc->fuzzy_string($loc->start, $loc->start_fuzzy);
-    my $fuzzy_end = $loc->fuzzy_string($loc->end, $loc->end_fuzzy);
+    my $fuzzy_start = $loc->fuzzy_start();
+    my $fuzzy_end = $loc->fuzzy_end();
     print $fuzzy_start, $loc->range_fuzzy ? "." : "..",
           $fuzzy_end, "\n";
 
-
 =head1 DESCRIPTION
 
-This module implements the necessary methods for representing a
-Fuzzy Location, one that does not have clear start and/or end points.
-This will initially serve to handle features from Genbank/EMBL feature
+This module implements the necessary methods for representing a Fuzzy
+Location, one that does not have clear start and/or end points.  This
+will initially serve to handle features from Genbank/EMBL feature
 tables that are written as 1^100 meaning between bases 1 and 100 or
-<100..300 meaning it starts somewhere before 100.  Advanced
+<100..300 meaning the feature starts somewhere before 100.  Advanced
 implementations of this interface may be able to handle the necessary
 logic of overlaps/intersection/contains/union, but initially this will
 be just a holder for the Genbank/EMBL fuzzy location parsing and
@@ -81,25 +79,16 @@ use Bio::Location::Simple;
 
 sub new {
     my ($class, @args) = @_;
+
     my $self = $class->SUPER::new(@args);
-    my ($startfuzzy, $endfuzzy,
-	$rangefuzzy) = $self->_rearrange([qw(STARTFUZZY
-					     ENDFUZZY 
-					     RANGEFUZZY)],
-						    @args);
+    my ($rangefuzzy) = $self->_rearrange([qw(RANGEFUZZY)],
+					 @args);
     
-    $startfuzzy = 0 unless( defined($startfuzzy)); 
-    $endfuzzy = 0 unless( defined($endfuzzy)); 
-    $rangefuzzy = 0 unless( defined($rangefuzzy)); 
-
-    $self->start_fuzzy($startfuzzy);
-    $self->end_fuzzy($endfuzzy);
-    $self->range_fuzzy($rangefuzzy);
-
+    $self->fuzzy_range( ($rangefuzzy) ? $rangefuzzy : '..');
     return $self;
 }
 
-=head2
+=head2 length
 
   Title   : length
   Usage   : $length = $fuzzy->length();
@@ -111,66 +100,123 @@ sub new {
 
 sub length {
     my($self) = @_;
-    return $self->SUPER::length() if( !$self->start_fuzzy && !$self->end_fuzzy);
+    return $self->SUPER::length() if( !$self->fuzzy_start && !$self->fuzzy_end);
     $self->warn('Length is not valid for a FuzzyLocation'); 
     return 0;
 }
 
-=head2
+=head2 start
 
-  Title   : start_fuzzy
-  Usage   : $status = $fuzzy->start_fuzzy();
-  Function: get/set if start point is fuzzy
-  Returns : true if start point is fuzzy, false otherwise
-  Args    : optionaly allows the status to be set
-          : using $fuzzy->start_fuzzy($value)
+  Title   : start
+  Usage   : $start = $fuzzy->start();
+  Function: get/set start of this range, handling fuzzy_starts
+  Returns : and integer representing the start of the range
+  Args    : start location (can be fuzzy string)
 
 =cut
 
-sub start_fuzzy {
-    my ($self, $value) = @_;
+sub start {
+    my($self,$value) = @_;
+
     if( defined $value ) {
-	$self->{'_startfuzzy'} = $value;
+	my ($encode, $start) = $self->_fuzzypoint($value);	
+	if( defined $encode ) {
+	    $self->fuzzy_start($value);
+	    $value = $start;
+	}
     }
-    return $self->{'_startfuzzy'};
+    return $self->SUPER::start($value);
 }
 
-=head2
+=head2 end
 
-  Title   : end_fuzzy
-  Usage   : $status = $fuzzy->end_fuzzy();
+  Title   : end
+  Usage   : $end = $fuzzy->end();
+  Function: get/set end of this range, handling fuzzy_ends
+  Returns : and integer representing the end of the range
+  Args    : end location (can be fuzzy string)
+
+=cut
+
+sub end {
+    my($self,$value) = @_;
+
+    if( defined $value ) {
+	my ($encode, $end) = $self->_fuzzypoint($value);	
+	if( defined $encode ) {
+	    $self->fuzzy_end($value);
+	    $value = $end;
+	}
+    }
+    return $self->SUPER::end($value);
+}
+
+=head2 fuzzy_start
+
+  Title   : fuzzy_start
+  Usage   : $status = $fuzzy->fuzzy_start();
+  Function: get/set fuzzy startpoint
+  Returns : fuzzy start string
+  Args    : 
+
+=cut
+
+sub fuzzy_start {
+    my ($self, $value) = @_;
+    if( defined $value ) {	
+	my ($encode, $end) = $self->_fuzzypoint($value);
+	if( !defined $encode ) {
+	    $self->throw("Trying to set fuzzy_end to an invalid value ($value)");
+	}
+	$self->{'_fuzzystart'} = $value;
+    }
+    return $self->{'_fuzzystart'} || $self->start;
+}
+
+=head2 fuzzy_end
+
+  Title   : fuzzy_end
+  Usage   : $status = $fuzzy->fuzzy_end();
   Function: get/set if end point is fuzzy
   Returns : true if end point is fuzzy, false otherwise
   Args    : optionaly allows the status to be set
-          : using $fuzzy->end_fuzzy($value)
+          : using $fuzzy->fuzzy_end($value)
 
 =cut
 
-sub end_fuzzy {
+sub fuzzy_end {
     my ($self, $value) = @_;
     if( defined $value ) {
-	$self->{'_endfuzzy'} = $value;
+	my ($encode, $end) = $self->_fuzzypoint($value);
+	if( !defined $encode ) {
+	    $self->throw("Trying to set fuzzy_end to an invalid value ($value)");
+	}
+	$self->{'_fuzzyend'} = $value;
     }
-    return $self->{'_endfuzzy'};
+    return $self->{'_fuzzyend'} || $self->end;
 }
 
-=head2
+=head2 fuzzy_range
 
-  Title   : range_fuzzy
-  Usage   : $status = $fuzzy->range_fuzzy();
-  Function: get/set if range is fuzzy (ie 10.20 )
-  Returns : true if range is fuzzy, false otherwise
-  Args    : optionaly allows the status to be set
-          : using $fuzzy->range_fuzzy($value)
+  Title   : fuzzy_range
+  Usage   : $status = $fuzzy->fuzzy_range();
+  Function: get/set range delimiter
+  Returns : range delimiter
+  Args    : optionaly allows the delimiter to be set
+          : using $fuzzy->fuzzy_range($value)
 
 =cut
 
-sub range_fuzzy {
+sub fuzzy_range {
     my ($self, $value) = @_;
     if( defined $value ) {
-	$self->{'_rangefuzzy'} = $value;
+	my ($encoded) = $self->_fuzzyrange($value);
+	if( !defined $encoded ) {
+	    $self->throw("Tried to set fuzzy_range to an invalid value ($value)");
+	}
+	$self->{'_fuzzyrange'} = $value;
     }
-    return $self->{'_rangefuzzy'};
+    return $self->{'_fuzzyrange'};
 }
 
 1;

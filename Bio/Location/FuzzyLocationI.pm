@@ -16,8 +16,8 @@ which has unclear start/end location
 =head1 SYNOPSIS
 
     # Get a FuzzyLocationI object somehow
-    my $fuzzy_start = $loc->fuzzy_string($loc->start, $loc->start_fuzzy);
-    my $fuzzy_end = $loc->fuzzy_string($loc->end, $loc->end_fuzzy);
+    my $fuzzy_start = $loc->fuzzy_start();
+    my $fuzzy_end = $loc->fuzzy_end();
     print $fuzzy_start, $loc->range_fuzzy ? "." : "..",
           $fuzzy_end, "\n";
 
@@ -66,13 +66,27 @@ methods. Internal methods are usually preceded with a _
 
 
 package Bio::Location::FuzzyLocationI;
-use vars qw(@ISA);
+use vars qw(@ISA %FUZZYPOINTENCODE %FUZZYRANGEENCODE);
 use strict;
 
 use Bio::LocationI;
 use Carp;
 
 @ISA = qw(Bio::LocationI);
+
+BEGIN { 
+    %FUZZYPOINTENCODE = ( 
+		     '\>(\d+)' => -2,
+		     '\<(\d+)' => -1,
+		     '(\d+)'  => 0,
+		     '(\d+)\>' => 1,
+		     '(\d+)\<' => 2,
+		     );
+    
+    %FUZZYRANGEENCODE  = ( '.' => -1,
+			   '..' => 0,
+			   '^' => 1 );
+}
 
 # utility method Prints out a method like: 
 # Abstract method stop defined in interface Bio::LocationI not
@@ -91,79 +105,93 @@ sub _abstractDeath {
   }
 }
 
-=head2
+=head2 fuzzy_start
 
-  Title   : start_fuzzy
-  Usage   : $status = $fuzzy->start_fuzzy();
-  Function: get/set if start point is fuzzy
-  Returns : true if start point is fuzzy, false otherwise
-  Args    : optionaly allows the status to be set
-          : using $fuzzy->start_fuzzy($value)
+  Title   : fuzzy_start
+  Usage   : $fuzzystr = $fuzzy->fuzzy_start();
+  Function: get/set if start point as a fuzzystring
+  Returns : fuzzy startpoint string
+  Args    : [optional] fuzzy startpoint string to set
 
 =cut
 
-sub start_fuzzy {
+sub fuzzy_start {
+    my ($self, $value) = @_;
+    $self->_abstractDeath();
+}
+
+=head2 fuzzy_end
+
+  Title   : fuzzy_end
+  Usage   : $fuzzystr = $fuzzy->fuzzy_end();
+  Function: get/set fuzzy endpoint
+  Returns : fuzzy endpoint string
+  Args    : [optional] fuzzy endpoint string to set
+
+=cut
+
+sub fuzzy_end {
     my ($self, $value) = @_;
     $self->_abstractDeath();
 }
 
 =head2
 
-  Title   : end_fuzzy
-  Usage   : $status = $fuzzy->end_fuzzy();
-  Function: get/set if end point is fuzzy
-  Returns : true if end point is fuzzy, false otherwise
-  Args    : optionaly allows the status to be set
-          : using $fuzzy->end_fuzzy($value)
-
-=cut
-
-sub end_fuzzy {
-    my ($self, $value) = @_;
-    $self->_abstractDeath();
-}
-
-=head2
-
-  Title   : range_fuzzy
-  Usage   : $status = $fuzzy->range_fuzzy();
+  Title   : fuzzy_range
+  Usage   : $status = $fuzzy->fuzzy_range();
   Function: get/set if range is fuzzy (ie 10.20 )
   Returns : true if range is fuzzy, false otherwise
   Args    : optionaly allows the status to be set
-          : using $fuzzy->range_fuzzy($value)
-
+          : using $fuzzy->fuzzy_range($value)
 =cut
 
-sub range_fuzzy {
+sub fuzzy_range {
     my ($self, $value) = @_;
     $self->_abstractDeath();
 }
 
 =head2
 
-  Title   : fuzzy_string
-  Usage   : $fuzzystr = $fuzzy->fuzzy_string();
-  Function: get a fuzzy string representation of a location point 
-  Returns : string
-  Args    : location point - integer
-          : fuzziness      - [-1, 0, 1] indicating 5' partial, 
-          :                   not fuzzy, or 3' partial 
-          : format         - [optional] when other output formats are supported
-                                        they can be handled here
+  Title   : _fuzzypoint
+  Usage   : $fuzzy->_fuzzypoint('5>');
+  Function: encode a fuzzy string
+  Returns : array of fuzzy encoding and the integer value of the point
+          : empty array on fail
+  Args    : fuzzypoint string
 
 =cut
 
-sub fuzzy_string {
-    my ($self, $loc, $fuzziness, $format) = @_;
-    if( $fuzziness == 0) {
-	return $loc;
-    } elsif( $fuzziness < 0 ) {
-	return "<$loc";
-    } elsif ($fuzziness > 0 ) { 
-	return "$loc>";
-    } else {
-	return $loc;
+sub _fuzzypoint {
+    my ($self, $string) = @_;
+    return () if( !defined $string);
+    foreach my $pattern ( keys %FUZZYPOINTENCODE ) {
+	if( $string =~ /^\s*$pattern\s*$/ ) {
+	    return ($FUZZYPOINTENCODE{$pattern}, $1);
+	}
     }
+    if( $self->verbose > 1 ) {
+	$self->warn("could not find a valid fuzzy encoding for $string");
+    }
+    return ();
+}
+
+=head2
+
+  Title   : _fuzzyrange
+  Usage   : $fuzzy->_fuzzyrange('.');
+  Function: encode a fuzzy range
+  Returns : fuzzy range encoding string or undef on fail 
+  Args    : fuzzy range string [ '.', '..', '^' ]
+
+=cut
+
+sub _fuzzyrange {
+    my ($self, $string) = @_;
+    my $encode = $FUZZYRANGEENCODE{$string};
+    if( !defined $encode ) {
+	$self->warn("could not find a valid fuzzy encoding for $string") if( $self->verbose > 1);
+    }
+    return $encode;
 }
 
 1;
