@@ -603,7 +603,6 @@ sub make_index {
 	# this is supplied by the subclass and does the serious work
         $recs += $self->_index_file( $file, $i ); # Specific method for each type of index
 
-
         # Save file name and size for this index
         $self->add_record("__FILE_$i", $file, -s $file)
             or $self->throw("Can't add data to file: $file");
@@ -711,6 +710,9 @@ sub _file_count {
 sub add_record {
     my( $self, $id, @rec ) = @_;
     $self->debug( "Adding key $id\n") if( $self->verbose > 0 );
+    if( exists $self->db->{$id} ) {
+	$self->warn("overwriting a current value stored for $id\n");
+    }
     $self->db->{$id} = $self->pack_record( @rec );
     return 1;
 }
