@@ -221,8 +221,7 @@ sub fu_and_li_D {
 
  Title   : fu_li_D_counts
  Usage   : my $D = $statistics->fu_and_li_D_counts($samps,$sites,
-                                                   $external,
-						   $internal);
+                                                   $external);
  Function: Fu and Li D statistic for the raw counts of the number
            of samples, sites, external and internal mutations
  Returns : decimal number

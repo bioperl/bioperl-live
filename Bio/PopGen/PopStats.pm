@@ -125,7 +125,8 @@ sub haploid_status{
  Returns : Fst value (a value between 0 and 1)
  Args    : Arrayref of populations to process
            Arrayref of marker names to process
- Note    : Based on Weir BS, Genetics Data Analysis II, 199?
+ Note    : Based on diploid method in Weir BS, Genetics Data Analysis II, 1996
+           page 178.
 
 =cut
 
