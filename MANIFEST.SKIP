@@ -1,0 +1,8 @@
+\bCVS\b
+^MANIFEST\.
+^blib/
+\.html$
+\.old$
+\.bak$
+\.dist$
+bioperl.lisp

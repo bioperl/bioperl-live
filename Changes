@@ -1,0 +1,18 @@
+Revision history for Bioperl core modules
+
+0.04  Tue Dec  8 07:49:19 1998
+	- Lots of new modules added including:
+           * Ewan Birney's Bio::SimpleAlign.pm, Bio::Tools::AlignFactory.pm,
+             and Bio/Compile directory containing XS-linked C code for
+             creating Smith-Waterman sequence alignments from within Perl.
+           * Steve Chervitz's Blast distribution has been incorporated.
+           * Georg Fuellen's Bio::UnivAln.pm for multiple alignment objects.
+        - Bio/examples directory for demo scripts for all included modules.
+        - Bio/t directory containing test suit for all included modules.
+        - For changes specific to the Blast-related modules prior to
+          incorporation in this central distribution, see the CHANGES
+          file in the Bio/Tools/Blast directory.
+     
+0.01  Tue Sep  8 14:23:22 1998
+	- original version from central CVS tree; created by h2xs 1.18
+

@@ -1,0 +1,32 @@
+
+Object Driver2.
+-----------------
+
+-------------------------------------------------------------
+Use of uninitialized value at ./filehandle.pl line 51.
+Redirecting STDOUT to: 
+-------------------------------------------------------------
+
+NAME        : foo1
+MAKE        : default
+Use of uninitialized value at /home/steve/perl/lib/Bio/Root/Object.pm line 1444.
+ERRORS      : 0
+ERR STATE   : OKAY
+DATA        : 150
+COLOR       : red
+
+STATS FOR Bar "BAR_150"
+------------------------------------------------------------
+NAME        : BAR_150
+MAKE        : default
+SRC OBJ      Foo: foo1
+Use of uninitialized value at /home/steve/perl/lib/Bio/Root/Object.pm line 1444.
+ERRORS      : 0
+ERR STATE   : OKAY
+DATA        : 250
+FLAVOR      : lemon-lime
+
+
+
+Done.
+

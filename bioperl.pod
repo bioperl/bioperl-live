@@ -1,0 +1,404 @@
+## bioperl.pod
+## $Id: bioperl.pod,v 1.1.1.1 1998-12-11 15:24:21 birney Exp $
+
+## Should contain general info about the distribution including
+## links to all the various modules.
+##
+## 'cookbook' type examples are probably better off being placed
+## in the local embedded module PODs. This will make it easier for
+## authors to update and maintain.
+
+=head1 NAME
+
+Bioperl - Coordinated OOP-Perl Modules for Biology
+
+=head1 SYNOPSIS
+
+Not very appropriate to put a synopsis  - many
+different objects to use. Read on...
+
+=head1 DESCRIPTION
+
+Bioperl contains a number of Perl objects which are useful in biology.
+Examples include Sequence objects, Alignment objects and database
+searching objects. These objects not only do what they are advertised
+to do in the documentation, but they also interact - Alignment
+objects are made from the Sequence objects and so on. This means that
+the objects provide a coordinated framework to do computational
+biology.
+
+Bioperl development is focused on the objects themselves, and less on the 
+scripts (programs) that put these objects together. There are some example
+scripts provided in the distribution, but it is not the focus of the
+objects that are distributed. Of course, as the objects do most of the
+hardwork for you, all you have to do is combine a number of objects
+together sensibly.
+
+The intent of the bioperl development effort is to make reusable tools
+that aid people in creating their own site or job specific applications.
+
+The bio.perl.org (http://bio.perl.org) website also attempts to maintain 
+links and archives of standalone bio-related perl tools that are not
+affiliated or related to the core bioperl effort. Check the site for
+useful code ideas and contribute your own if possible.
+
+
+=head1 INSTALLATION
+
+The Bioperl modules are distributed as a tar file that expands into a
+standard perl CPAN distribution.  Detailed installation directions 
+can be found in the distribution README file.
+
+=head1 GETTING STARTED
+
+The standalone scripts in the distribution I<examples/>
+directory and sub directories therein give you an idea of how to use 
+some of the modules and driver code.
+
+If you have installed bioperl in the standard way, as said in the
+README in the distribution these examples should work by just running
+them. If you have a not installed it in a standard way you will
+have to change the 'use lib' to point to your installation.
+
+
+I<examples/rev_and_trans.pl> - examples using Bio::Seq.pm for reversing and translating sequences
+
+I<examples/restriction.pl> - example code for using the Bio::Tools::RestrictionEnzyme.pm module.
+
+I<examples/simplealign.pl> - example code for using the Bio::SimpleAlign module.
+
+I<examples/psw.pl> - example code for using the XS extensions for a Protein Smith-Waterman comparison.
+
+I<examples/blast/> - example code for using the Bio::Tools::Blast.pm module.
+
+I<examples/seq/> - example code for working with multiple sequence files.
+
+I<examples/root_object/> - example code for using Bio::Root::Object.pm.
+
+
+=head1 OBJECTS
+
+
+=head2 Sequence objects
+
+I<Bio::Seq> Sequence object
+
+This module is the generic sequence object which lies at
+the core of the bioperl project. It stores DNA, RNA, or
+amino acid sequence information and brief annotation. It has
+associated methods to perform various manipulations of
+sequences and support for a reading and writing sequence
+data in a variety of file formats.
+
+Seq.pm has its own detailed documentation.
+
+=head2 Blast objects
+
+I<Bio::Tools::Blast>
+
+The Bio::Tools::Blast.pm module encapsulates data and
+methods for running, parsing, and analyzing pre-existing
+BLAST reports. 
+
+Blast.pm and all associated helper modules all have
+their own detailed documentation.
+
+FEATURES:
+
+       o Supports NCBI Blast1.x, Blast2.x, and WashU-Blast2.x,
+         gapped and ungapped. Can parse HTML-formatted as well 
+         as non-HTML-formatted reports.
+
+       o Launch new Blast analyses remotely or locally.
+         Blast objects can be constructed directly from the
+         results of the run.  (Support for local Blasts 
+         is not yet complete.)
+
+       o Construct Blast objects from pre-existing files or from
+         a new run.
+         Build a Blast object from a single file or build
+         multiple Blast objects from an input stream containing
+         multiple reports. 
+
+       o Add hypertext links from a BLAST report.
+
+       o Generate sequence and sequence alignment objects from
+         HSP sequences.
+
+
+=head2 Restriction Enzyme objects
+
+I<Bio::Tools::RestrictionEnzyme>
+
+The Bio::Tools::RestrictionEnzyme.pm module encapsulates
+generic data and methods for using restriction
+endonucleases for in silico restriction analysis of DNA
+sequences.
+
+RestrictionEnzyme.pm has its own detailed documentation.
+
+=head2 Protein Smith-Waterman alignment objects
+
+I<Bio::Tools::pSW>
+
+This module allows the production of Smith Waterman alignments. 
+I<Warning> it requires a compiled-C extension (bp_sw) which is
+provided in the distribution. The Bio::Tools::pSW object is 
+an object factory which builds Bio::SimpleAlign objects from
+two protein sequences objects (Bio::Seq).
+
+DNA alignments will be added soon.
+
+=head2 SimpleAlign objects
+
+I<Bio::SimpleAlign>
+
+Bio::SimpleAlign encapsulates multiple alignments as simple blocks of
+immutable sequences. This modules provides principly I/O of multiple
+alignments and some easy ways to iterate over an alignment
+
+It is not capable of complex join or editing functions, which is
+better provided by Georg Fuellen's UnivAlign module. Nor does it
+I<make> alignments, which must be done by external programs or, for
+pairwise alignments, the Bio::Tools::pSW module
+
+=head2 Other Modules
+
+(** to be completed **)
+
+=head2 Using the Bio::Root modules with your own perl5 classes
+
+The example directory in the bioperl distribution I<examples/root_object/> 
+contains code and scripts that show how the Bio::Root modules can be used 
+as a foundation for robust and fault tolerant perl5 classes.
+
+=head1 GETTING INVOLVED
+
+Bioperl is a completely open community of developers. We are not
+funded and we don't have a mission statement. We encourage
+collaborative code, in particular in perl. You can help us in many
+different ways, from just a simple statement about how you have used
+bioperl to do something interesting to contributing a whole new object
+heirarchy. See http://bio.perl.org for more information. Here are
+some ways of helping us
+
+=head2 Telling us you used it
+
+We are very interested to hear how you experienced using bioperl. Did
+it install cleanly? Did you understand the documentation? Could you
+get the objects to do what you wanted it to do? If bioperl was useless
+we want to know why, and if it was great - that too. Post a message to
+vsns-bcd-perl-guts@lists.uni-bielefeld.de (the bioperl 'guts' mailing
+list, where all the developers are).
+
+Only by getting people's feedback do we know whether we are providing
+anything useful.
+
+=head2 Writing a script that uses it
+
+By writing a good script that uses bioperl you both show that bioperl
+is useful and probably save someone elsewhere writing it. If you
+contribute it to the 'script central' at http://bio.perl.org then other
+people can view and use it
+
+=head2 Find bugs!
+
+We know that there are bugs in there. If you find something which you are
+pretty sure is a problem, post a note to bioperl-bugs@bio.perl.org and
+we will get on it as soon as possible. (you can also access the bug
+system through the web pages).
+
+=head2 Suggest new functionality
+
+You can suggest areas where the objects are not ideally written and
+could be done better. The best way is to find the main developer
+of the module (each module was written principly by one person
+except for Seq.pm). Talk to him or her and suggest changes.
+
+=head2 Make your own objects
+
+If you can make a useful object we will happily include it into the
+core. Probably you will want to read alot of the documentation 
+in the Bio::Root section and also talk to people on the 'guts'
+mailing list vsns-bcd-perl-guts@lists.uni-bielefeld.de
+
+
+=head1 CONVENTIONS
+
+=head2 Alphabets
+
+Bioperl modules use the standard extended single-letter genetic
+alphabets to represent nucleotide and amino acid sequences.
+
+In addition to the standard alphabet, the following symbols
+are also acceptable in a biosequence:
+
+ ?  (a missing nucleotide or amino acid)
+ -  (gap in sequence)
+
+=head2 Extended Dna / Rna alphabet
+
+ (includes symbols for nucleotide ambiguity)
+ ------------------------------------------
+ Symbol       Meaning      Nucleic Acid
+ ------------------------------------------
+  A            A           Adenine
+  C            C           Cytosine
+  G            G           Guanine
+  T            T           Thymine
+  U            U           Uracil
+  M          A or C  
+  R          A or G   
+  W          A or T    
+  S          C or G     
+  Y          C or T     
+  K          G or T     
+  V        A or C or G  
+  H        A or C or T  
+  D        A or G or T  
+  B        C or G or T   
+  X      G or A or T or C 
+  N      G or A or T or C 
+
+ 
+ IUPAC-IUB SYMBOLS FOR NUCLEOTIDE NOMENCLATURE:
+   Cornish-Bowden (1985) Nucl. Acids Res. 13: 3021-3030.
+
+
+=head2  Amino Acid alphabet
+
+ ------------------------------------------
+ Symbol           Meaning   
+ ------------------------------------------
+ A        Alanine
+ B        Aspartic Acid, Asparagine
+ C        Cystine
+ D        Aspartic Acid
+ E        Glutamic Acid
+ F        Phenylalanine
+ G        Glycine
+ H        Histidine
+ I        Isoleucine
+ K        Lysine
+ L        Leucine
+ M        Methionine
+ N        Asparagine
+ P        Proline
+ Q        Glutamine
+ R        Arginine
+ S        Serine
+ T        Threonine
+ V        Valine
+ W        Tryptophan
+ X        Unknown
+ Y        Tyrosine
+ Z        Glutamic Acid, Glutamine
+ *        Terminator
+
+ 
+ IUPAC-IUP AMINO ACID SYMBOLS:
+   Biochem J. 1984 Apr 15; 219(2): 345-373
+   Eur J Biochem. 1993 Apr 1; 213(1): 2
+
+
+
+=head1 TODO
+
+There are many many aspects of bioperl that are being worked on or
+should be worked on. Below lists a non exhaustive set: it is very likely
+by the time you read this document that some of these things have been
+done already, so check out http://bio.perl.org for more details.
+Some modules have their own TODO section, which will contain module-
+specific action items.
+
+=over
+
+=item Documentation clean-up
+
+'Meta' documentation is still spread around the different objects
+rather than in here
+
+=item Bio::SeqFeature and Bio::Entry 
+
+The Bio::Entry is the 'heavy weight' sequence object which is more
+like a representation of a Genbank or EMBL flat file complete with
+feature table. Ian Korf is working on these objects.
+
+=item Bio::Structure
+
+A number of people have been talking about a Structure object
+(probably an object heirarchy). See http://bio.perl.org/Projects/Structure
+for the current state-of-affairs in this area and to learn how
+to get involved.
+
+
+=item Bio::SearchDist
+
+A perl wrapper for Sean Eddy's Extreme Value and Gaussian fitting
+code (already provided in the bp_sw XS extension). Ewan Birney
+is working on this.
+
+=item Bio::Tools::dAlign 
+
+DNA alignments like pSW provided in a perl wrapper. Ewan Birney is
+working on this.
+
+
+=item Perl version support
+
+All modules included in the intial Bioperl distribution support 5.003 and
+higher. At some point we will begin adding features and modules that require
+later versions of perl. Individual modules perhaps should explicitly impose 
+their own perl version requirements. Consider this issue open for discussion
+on the guts (developer) mailing list.
+
+=end
+
+=head1 ACKNOWLEDGEMENTS
+
+Bioperl owes its early organizational support to its association with
+the award-winning VSNS-BCD BioComputing Courses; some students of the
+1996 course (Chris Dagdigian, Richard Resnick, Lew Gramer, Alessandro
+Guffanti, and others) have contributed code and commentary. Georg
+Fuellen, the VSNS-BCD chief organizer is one of the driving forces
+behind bioperl. Steve Brenner, who was an early adopter of Perl for
+bioinformatics provided some of the early work on bioperl.
+
+Bioperl was then taken up by people developing code at the large
+genome centres. In particular at Stanford, Steve Chervitz (the current
+bioperl coordinator), at the Genome Sequencing Centre (St Louis) Ian
+Korf and at the Sanger Centre (Cambridge UK) Ewan Birney.  All of the
+C code XS extensions were provided by Ewan Birney. Bioperl is used in
+anger at these sites, indicating that is both useful and that it
+works.
+
+Uni-bielefeld provides us with our Mailing lists.
+
+Jon Orwant at The Perl Journal (http://www.tpj.com) gave us permission to reprint 
+Lincoln Stein's great article on our website. He also worked with the Perl Institute 
+(http://www.perl.org) to arrange our perl.org DNS entry. 
+
+Hardware for bio.perl.org was donated by Genetics Institute (http://www.genetics.com)
+
+Bandwith and internet connectivity (ISDN) donated by Chris Dagdigian until we 
+co-locate somewhere faster :) 
+
+
+=head1 COPYRIGHT
+
+ Copyright (c) 1996-1998 Georg Fuellen, Richard Resnick, Steven E. Brenner,
+ Chris Dagdigian, Steve A. Chervitz, Ewan Birney and others. All Rights Reserved.
+ This module is free software; you can redistribute it and/or modify 
+ it under the same terms as Perl itself.
+
+=cut
+
+
+
+
+
+
+
+
+
+
