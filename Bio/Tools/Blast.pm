@@ -1000,22 +1000,22 @@ modify it under the same terms as Perl itself.
 =head2 Links to related modules
 
  Bio::Tools::SeqAnal.pm      
-      http://bio.perl.org/Core/POD/Tools/SeqAnal.html
+      http://bio.perl.org/Core/POD/Bio/Tools/SeqAnal.html
 
  Bio::Tools::Blast::Sbjct.pm 
-      http://bio.perl.org/Core/POD/Tools/Blast/Sbjct.html
+      http://bio.perl.org/Core/POD/Bio/Tools/Blast/Sbjct.html
 
  Bio::Tools::Blast::HSP.pm   
-      http://bio.perl.org/Core/POD/Tools/Blast/HSP.html
+      http://bio.perl.org/Core/POD/Bio/Tools/Blast/HSP.html
 
  Bio::Tools::Blast::HTML.pm       
-      http://bio.perl.org/Core/POD/Tools/Blast/HTML.html
+      http://bio.perl.org/Core/POD/Bio/Tools/Blast/HTML.html
 
  Bio::Tools::Blast::Run::Webblast.pm 
-      http://bio.perl.org/Core/POD/Tools/Blast/Run/Webblast.html
+      http://bio.perl.org/Core/POD/Bio/Tools/Blast/Run/Webblast.html
 
  Bio::Tools::Blast::Run::LocalBlast.pm 
-      http://bio.perl.org/Core/POD/Tools/Blast/Run/LocalBlast.html
+      http://bio.perl.org/Core/POD/Bio/Tools/Blast/Run/LocalBlast.html
 
  Bio::Seq.pm              
       http://bio.perl.org/Core/POD/Seq.html
