@@ -1398,7 +1398,11 @@ sub start {
       $self->throw( "Unable to set the absolute start value.  If you would like to set the relative start, first turn the absolute() flag off, then try again." );
     }
     unless( $new_val =~ /^[-+]?\d+$/ ) {
-      $self->throw( "'$new_val' is not an integer.\n" );
+      if( $new_val=~ /^[-+]?[\d\.]+$/ ) {
+        $new_val = int( $new_val );
+      } else {
+        $self->throw( "'$new_val' is not an integer.\n" );
+      }
     }
     if( ( $position_policy eq 'stranded' ) && ( $self->strand() < 0 ) ) {
       # If they give all positions in stranded coords, and we're
@@ -1487,7 +1491,11 @@ sub end {
       $self->throw( "Unable to set the absolute end value.  If you would like to set the relative end, first turn the absolute() flag off, then try again." );
     }
     unless( $new_val =~ /^[-+]?\d+$/ ) {
-      $self->throw( "'$new_val' is not an integer.\n" );
+      if( $new_val=~ /^[-+]?[\d\.]+$/ ) {
+        $new_val = int( $new_val );
+      } else {
+        $self->throw( "'$new_val' is not an integer.\n" );
+      }
     }
     if( ( $position_policy eq 'stranded' ) && ( $self->strand() < 0 ) ) {
       # If they give all positions in stranded coords, and we're
