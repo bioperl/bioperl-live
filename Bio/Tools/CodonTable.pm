@@ -537,6 +537,61 @@ sub revtranslate {
 
     return @codons;
 }
+=head2 reverse_translate_all
+
+ Title   : reverse_translate_all
+ Usage   : my $iup_str = $cttable->reverse_translate_all($seq_object)
+ Function: reverse translates a protein sequence into IUPAC nucleotide
+           sequence. An 'X' in the protein sequence is converted to 'NNN'
+           in the nucleotide sequence.
+ Returns : a string
+ Args    : a Bio::PrimarySeqI compatible object, ie. any type of Bioperl
+           sequence object
+
+
+=cut
+
+sub reverse_translate_all {
+	
+	my ($self, $obj) = @_;
+	if (!$obj || !$obj->isa('Bio::PrimarySeqI')){
+		$self->throw(" I need a Bio::PrimarySeqI object, not a [".
+						ref($obj) . "]");
+		}
+	if($obj->alphabet ne 'protein')	{
+		$self->throw("Cannot reverse translate, need an amino acid sequence .".
+                     "This sequence is of type [" . $obj->alphabet ."]");
+		}
+    my %iupac_hash = Bio::Tools::IUPAC->iupac_rev_iub();
+	my @data;
+	my @seq = split '', $obj->seq;
+	## get lists of possible codons for each aa. 
+	for my $aa (@seq) {
+		if ($aa =~ /x/i) {
+			push @data, (['NNN']);
+		}else {
+			my @cods = $self->revtranslate($aa);
+			push @data, \@cods;
+		}
+	}
+
+	my $iupac_string = ''; ## the string to be returned
+	for my $aa (@data) {
+		## scan through codon positions, record the differing values,	
+		# then look up in the iub hash
+		for my $index(0..2) {
+			my %h;
+			map { my $k = substr($_,$index,1);
+		 		$h{$k}  = undef;} @$aa;
+			my $lookup_key = join '', sort{$a cmp $b}keys %h;
+
+            ## extend string 
+			$iupac_string .= $iupac_hash{uc$lookup_key};
+		}
+	}
+    return $iupac_string;
+
+}
 
 =head2 is_start_codon
 
