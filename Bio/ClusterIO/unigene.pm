@@ -69,6 +69,7 @@ use strict;
 
 use Bio::ClusterIO;
 use Bio::Cluster::UniGene;
+use Bio::Cluster::ClusterFactory;
 
 @ISA = qw(Bio::ClusterIO);
 
@@ -97,6 +98,17 @@ my %line_is = (
 		DELIMITER		=>	q/^\/\//
 );
 
+# we set the right factory here
+sub _initialize {
+    my($self, @args) = @_;
+
+    $self->SUPER::_initialize(@args);
+    if(! $self->cluster_factory()) {
+	$self->cluster_factory(Bio::Cluster::ClusterFactory->new(
+					    -type => 'Bio::Cluster::UniGene'));
+    }
+}
+
 =head2 next_cluster
 
  Title   : next_cluster
@@ -112,11 +124,11 @@ sub next_cluster {
 	local $/ = "//";
 	return unless my $entry = $self->_readline;
 	
-	my $UGobj = Bio::Cluster::UniGene->new();
-
 # set up the variables we'll need
-my (%unigene,@express,@locuslink,@chromosome,@sts,@txmap,@protsim,@sequence);
-
+	my (%unigene,@express,@locuslink,@chromosome,
+	    @sts,@txmap,@protsim,@sequence);
+	my $UGobj;
+	
 # set up the regexes
 
 # add whitespace parsing and precompile regexes
@@ -207,8 +219,11 @@ my (%unigene,@express,@locuslink,@chromosome,@sts,@txmap,@protsim,@sequence);
 		}
 		elsif ($line =~ /$line_is{DELIMITER}/gcx) {
 		    # at the end of the record, add data to the object
-		    $UGobj->unigene_id($unigene{ID});
-		    $UGobj->title($unigene{TITLE});
+		    $UGobj = $self->cluster_factory->create_object(
+			      -display_id  => $unigene{ID},
+			      -description => $unigene{TITLE},
+			      -size        => $unigene{SCOUNT},
+			      -members     => \@sequence);
 		    $UGobj->gene($unigene{GENE}) if defined ($unigene{GENE});
 		    $UGobj->cytoband($unigene{CYTOBAND})
 			if defined($unigene{CYTOBAND});
@@ -221,8 +236,6 @@ my (%unigene,@express,@locuslink,@chromosome,@sts,@txmap,@protsim,@sequence);
 		    $UGobj->sts(\@sts);
 		    $UGobj->txmap(\@txmap);
 		    $UGobj->protsim(\@protsim);
-		    $UGobj->scount($unigene{SCOUNT});
-		    $UGobj->sequences(\@sequence);
 		}
 	}
 	return $UGobj;

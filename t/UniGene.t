@@ -23,7 +23,7 @@ BEGIN {
     }
     use Test;
 
-    $NUMTESTS = 56;
+    $NUMTESTS = 58;
     plan tests => $NUMTESTS;
     
 }
@@ -58,7 +58,6 @@ ok(scalar @{ $unigene->express }, 4);
 ok(scalar @{ $unigene->sts }, 4);
 ok(scalar @{ $unigene->txmap }, 1);
 ok(scalar @{ $unigene->protsim } , 4);
-
 ok(scalar @{ $unigene->sequences },29);
 
 ok($unigene->locuslink->[0], '58473');
@@ -67,9 +66,14 @@ ok($unigene->express->[0], 'colon');
 ok($unigene->sts->[0], 'ACC=- NAME=GDB:386004 UNISTS=157141');
 ok($unigene->txmap->[0], 'D8S549-D8S258; MARKER=stSG40; RHPANEL=GB4');
 ok($unigene->protsim->[0], 'ORG=Escherischia coli; PROTGI=8928262; PROTID=Ec_pid; PCT=24; ALN=254');
+
 my ($seq1) = $unigene->next_seq;
 ok($seq1->display_id, 'D90042');
 ok($seq1->desc, 'ACC=D90042 NID=g219415 PID=g219416 UNIGENE_ID=Hs.2');
+
+# test recognition of species
+ok $unigene->species;
+skip (! $unigene->species, $unigene->species->binomial, "Homo sapiens");
 
 # test accessors of interfaces
 ok ($seq1->namespace, "GenBank");

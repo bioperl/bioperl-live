@@ -29,7 +29,8 @@ Bio::Seq::SeqFactory - Instantiates a new Bio::PrimarySeqI (or derived class) th
 
 =head1 DESCRIPTION
 
-This object will build Bio::Seq objects generically.
+This object will build L<Bio::PrimarySeqI> and L<Bio::SeqI> objects
+generically.
 
 =head1 FEEDBACK
 

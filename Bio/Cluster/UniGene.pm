@@ -158,8 +158,7 @@ use Bio::Root::Root;
 use Bio::Annotation::Collection;
 use Bio::Annotation::DBLink;
 use Bio::Annotation::SimpleValue;
-use Bio::Seq;
-use Bio::Seq::RichSeq;
+use Bio::Species;
 use Bio::Factory::SequenceStreamI;
 use Bio::Seq::SeqFactory;
 use Bio::Cluster::UniGeneI;
@@ -169,6 +168,25 @@ $VERSION = '1.0';
 	Bio::IdentifiableI Bio::DescribableI
 	Bio::Factory::SequenceStreamI);
 
+my %species_map = (
+		 'Hs'  => "Homo sapiens",
+		 'Mm'  => "Mus musculus",
+		 'Rn'  => "Rattus norvegicus",
+		 'Bt'  => "Bos taurus",
+		 'Dr'  => "Danio rerio",
+		 'Dm'  => "Drosophila melanogaster",
+		 'Aga' => "Anopheles gambiae",
+		 'Xl'  => "Xenopus laevis",
+		 'At'  => "Arabidopsis thaliana",
+		 'Gma' => "Glycine max",
+		 'Hv'  => "Hordeum vulgare",
+		 'Les' => "Lycopersicon esculentum",
+		 'Mtr' => "Medicago truncatula",
+		 'Os'  => "Oryza sativa",
+		 'Ta'  => "Triticum aestivum",
+		 'Zm'  => "Zea mays",
+		 );
+		 
 
 =head2 new
 
@@ -183,10 +201,12 @@ sub new {
     my($caller,@args) = @_;
     my $self = $caller->SUPER::new(@args);
 
-    my ($ugid,$desc,$mems,$dispid,$id,$ns,$auth,$v,$seqfact) =
+    my ($ugid,$desc,$mems,$size,$species,$dispid,$id,$ns,$auth,$v,$seqfact) =
 	$self->_rearrange([qw(UNIGENE_ID
 			      DESCRIPTION
 			      MEMBERS
+			      SIZE
+			      SPECIES
 			      DISPLAY_ID
 			      OBJECT_ID
 			      NAMESPACE
@@ -201,6 +221,7 @@ sub new {
     $self->unigene_id($ugid) if $ugid;
     $self->description($desc) if $desc;
     $self->sequences($mems) if $mems;
+    $self->size($size) if defined($size);
     $self->display_id($dispid) if $dispid; # overwrites ugid
     $self->object_id($id) if $id;          # overwrites dispid
     $self->namespace($ns || 'UniGene');
@@ -212,6 +233,11 @@ sub new {
 	     -type => 'Bio::Seq::RichSeq');
     }
     $self->sequence_factory($seqfact);
+    if((! $species) && ($self->unigene_id() =~ /^([A-Za-z]+)\.[0-9]/)) {
+	# try set a default one depending on the ID
+	$species = $species_map{$1};
+    }
+    $self->species($species);
     return $self;
 }
 
@@ -500,6 +526,32 @@ sub sequences {
 		$obj->{'sequences'} = $value;
 	}
 	return $obj->{'sequences'};
+}
+
+=head2 species
+
+ Title   : species
+ Usage   : $obj->species($newval)
+ Function: Get/set the species object for this Unigene cluster.
+ Example : 
+ Returns : value of species (a L<Bio::Species> object)
+ Args    : on set, new value (a L<Bio::Species> object or undef, optional)
+
+
+=cut
+
+sub species{
+    my $self = shift;
+
+    if(@_) {
+	my $species = shift;
+	if($species && (! ref($species))) {
+	    my @class = reverse(split(' ',$species));
+	    $species = Bio::Species->new(-classification => \@class);
+	}
+	return $self->{'species'} = $species;
+    }
+    return $self->{'species'};
 }
 
 

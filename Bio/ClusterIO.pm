@@ -172,14 +172,13 @@ sub new {
 	    $class->_guess_format( $param{-file} || $ARGV[0] );
 	$format = "\L$format";	# normalize capitalization to lower case
 
-	# normalize capitalization
 	return undef unless( $class->_load_format_module($format) );
 	return "Bio::ClusterIO::$format"->new(@args);
     }
 }
 
 
-# _initialize is chained for all SeqIO classes
+# _initialize is chained for all ClusterIO classes
 
 sub _initialize {
     my($self, @args) = @_;
@@ -192,7 +191,7 @@ sub _initialize {
  Title   : next_cluster
  Usage   : $cluster = $stream->next_cluster()
  Function: Reads the next cluster object from the stream and returns it.
- Returns : a Bio::Cluster::ClusterI compliant object
+ Returns : a L<Bio::ClusterI> compliant object
  Args    : none
 
 
@@ -203,7 +202,26 @@ sub next_cluster {
    $self->throw("Sorry, you cannot read from a generic Bio::ClusterIO object.");
 }
 
+=head2 cluster_factory
 
+ Title   : cluster_factory
+ Usage   : $obj->cluster_factory($newval)
+ Function: Get/set the object factory to use for creating the cluster
+           objects.
+ Example : 
+ Returns : a L<Bio::Factory::ObjectFactoryI> compliant object
+ Args    : on set, new value (a L<Bio::Factory::ObjectFactoryI> 
+           compliant object or undef, optional)
+
+
+=cut
+
+sub cluster_factory{
+    my $self = shift;
+
+    return $self->{'cluster_factory'} = shift if @_;
+    return $self->{'cluster_factory'};
+}
 
 =head2 _load_format_module
 
@@ -242,9 +260,7 @@ END
  Example :
  Returns : guessed format of filename (lower case)
  Args    :
- Notes   : formats that _filehandle() will guess include fasta,
-           genbank, scf, pir, embl, raw, gcg, ace, bsml, swissprot,
-           and phd/phred
+ Notes   : formats that _filehandle() will guess include unigene and dbsnp
 
 =cut
 

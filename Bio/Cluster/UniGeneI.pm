@@ -325,6 +325,22 @@ sub sequence {
 	$self->throw_not_implemented;
 }
 
+=head2 species
+
+ Title   : species
+ Usage   : $obj->species($newval)
+ Function: Get the species object for this Unigene cluster.
+ Example : 
+ Returns : value of species (a L<Bio::Species> object)
+ Args    : 
+
+
+=cut
+
+sub species{
+    shift->throw_not_implemented();
+}
+
 =head1 Methods inherited from L<Bio::ClusterI>
 
 =cut

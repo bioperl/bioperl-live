@@ -20,7 +20,7 @@ BEGIN {
 	use lib 't';
     }
     use vars qw($NTESTS);
-    $NTESTS = 10;
+    $NTESTS = 12;
     $LASTXMLTEST = 10;
     $error = 0;
 
@@ -43,6 +43,7 @@ if( $error == 1 ) {
 
 use Bio::ClusterIO;
 use Bio::Root::IO;
+use Bio::Cluster::ClusterFactory;
 
 my ($clusterio, $result,$hit,$hsp);
 if( ! $SKIPXML ) {
@@ -63,3 +64,14 @@ if( ! $SKIPXML ) {
 	ok($result->heterozygous == 0.208738461136818);
 	ok($result->heterozygous_SE == 0.0260274689436777);
 }
+
+###################################
+# ClusterFactory tests            #
+###################################
+
+my $fact = Bio::Cluster::ClusterFactory->new();
+# auto-recognize implementation class
+my $clu = $fact->create_object(-display_id => 'Hs.2');
+ok $clu->isa("Bio::Cluster::UniGeneI");
+$clu = $fact->create_object(-namespace => "UNIGENE");
+ok $clu->isa("Bio::Cluster::UniGeneI");
