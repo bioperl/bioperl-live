@@ -70,7 +70,7 @@ Internal methods are usually preceded with a _
 
 
 package Bio::SearchIO::fasta;
-use vars qw(@ISA %MODEMAP %MAPPING);
+use vars qw(@ISA %MODEMAP %MAPPING $IDLENGTH);
 use strict;
 
 # Object preamble - inherits from Bio::Root::RootI
@@ -79,6 +79,9 @@ use Bio::SearchIO;
 use POSIX;
 
 BEGIN { 
+    # Set IDLENGTH to a new value if you have
+    # compile FASTA with a different ID length    
+    $IDLENGTH = 7;
     # mapping of NCBI Blast terms to Bioperl hash keys
     %MODEMAP = ('FastaOutput' => 'result',
 		'Hit'         => 'hit',
@@ -153,16 +156,21 @@ BEGIN {
  Usage   : my $obj = new Bio::SearchIO::fasta();
  Function: Builds a new Bio::SearchIO::fasta object 
  Returns : Bio::SearchIO::fasta
- Args    :
-
+ Args    : -idlength - set ID length to something other 
+                       than the default (7), this is only
+                       necessary if you have compiled FASTA
+                       with a new default id length to display
+                       in the HSP alignment blocks
 
 =cut
 
-sub new {
-  my($class,@args) = @_;
-
-  my $self = $class->SUPER::new(@args);
-  
+sub _initialize {
+  my($self,@args) = @_;
+  $self->SUPER::_initialize(@args);
+  return unless @args;
+  my ($idlength) = $self->_rearrange([qw(IDLENGTH)],@args);
+  $self->idlength($idlength || $IDLENGTH);
+  return 1;
 }
 
 =head2 next_result
@@ -378,10 +386,9 @@ sub next_result{
 	   
 	   my @data = ( '','','');
 	   my $count = 0;
-	   my $len = 0;
+	   my $len = $self->idlength;
 	   
 	   while( defined($_ ) ) {
-	       
 	       chomp;
 	       if( /residues in \d+\s+query\s+sequences/) {
 		   $self->_pushback($_);
@@ -391,19 +398,20 @@ sub next_result{
 		   last;
 	       }	       
 	       if( $count == 0 ) {
+		   
 	       } elsif( $count == 1 || $count == 3 ) {
-		   if( /^(\S+\s+)(\S+)/ ) {
-		       $len = length($1);
-		       $data[$count-1] = $2;
+		   if( /^\S+\s+/ ) {
+		       s/\s+$//; # trim trailing spaces, we don't want them 
+		       $data[$count-1] = substr($_,$len);
 		   } elsif( /^\s+\d+/ ) {
 		       $count--; # handle the case where we're off by one line
 		   } elsif( /^\s+/ || length($_) == 0) {
-		       
+		       # going to skip these
 		   } else {
 		       $self->warn("Unrecognized alignment line ($count) $_");
 		   }
-	       } elsif( $count == 2 ) {		   
-		   # toss the first 7 characters of the line
+	       } elsif( $count == 2 ) {
+		   # toss the first IDLENGTH characters of the line
 		   if( length($_) >= $len ) {
 		       $data[$count-1] = substr($_,$len);
 		   }
@@ -546,7 +554,10 @@ sub element{
 sub characters{
    my ($self,$data) = @_;   
 
-   return unless ( defined $data->{'Data'} && $data->{'Data'} !~ /^\s+$/ );
+   return unless ( defined $data->{'Data'} );
+   if( $data->{'Data'} =~ /^\s+$/ ) {
+       return unless $data->{'Name'} =~ /Hsp\_(midline|qseq|hseq)/;
+   }
 
    if( $self->in_element('hsp') && 
        $data->{'Name'} =~ /Hsp\_(qseq|hseq|midline)/ ) {
@@ -658,6 +669,27 @@ sub start_document{
 sub end_document{
    my ($self,@args) = @_;
    return $self->{'_result'};
+}
+
+=head2 idlength
+
+ Title   : idlength
+ Usage   : $obj->idlength($newval)
+ Function: Internal storage of the length of the ID desc
+           in the HSP alignment blocks.  Defaults to
+           $IDLENGTH class variable value
+ Returns : value of idlength
+ Args    : newvalue (optional)
+
+
+=cut
+
+sub idlength{
+   my ($self,$value) = @_;
+   if( defined $value) {
+      $self->{'_idlength'} = $value;
+    }
+    return $self->{'_idlength'} || $IDLENGTH;
 }
 
 1;
