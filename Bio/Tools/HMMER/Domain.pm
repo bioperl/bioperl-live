@@ -250,8 +250,10 @@ sub hmmacc{
 
 sub hmmname {
    my ($self,$hname) = @_;
-
-   return $self->homol_SeqFeature->seqname($hname);
+   if( defined $hname ) {
+       $self->homol_SeqFeature->seqname($hname);
+   } 
+   return $self->homol_SeqFeature->seqname();
 }
 
 =head2 bits
