@@ -300,8 +300,8 @@ sub _request {
     } else { $resp =  $self->ua->request($url); } 
 
     if( $resp->is_error  ) {
-	$self->warn($resp->as_string());
-	$self->warn("Error getting for url " . $url->uri . "!\n");
+	$self->warn($resp->as_string() . "\nError getting for url " .
+		     $url->uri . "!\n");
 	return undef;
     }
     return $resp;

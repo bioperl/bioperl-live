@@ -1,7 +1,7 @@
 # This is -*-Perl-*- code
 ## Bioperl Test Harness Script for Modules
 ##
-
+# $Id$
 
 # Before `make install' is performed this script should be runnable with
 # `make test'. After `make install' it should work as `perl test.t'
@@ -22,9 +22,9 @@ BEGIN {
     $NUMTESTS = 11;
     plan tests => $NUMTESTS;
     
-    eval { require ('LWP/UserAgent.pm'); require ('HTML/Parser.pm');
-	   require ('HTTP/Request/Common.pm') ;
-	};
+    eval { require ('LWP/UserAgent.pm'); require('HTML/Parser.pm');	
+	   require ('HTTP/Request/Common.pm');
+	 };
     if( $@ ) {
 	print STDERR "Cannot load LWP::UserAgent or HTML::Parser, skipping tests\n";
 	foreach ( 1..$NUMTESTS) { skip(1,1); }
@@ -50,10 +50,10 @@ $marker = 'D1S234';
 eval { 
     ok defined ( $gdb = new Bio::DB::GDB(-verbose=>$verbose) );     
     ok($info = $gdb->get_info(-type=>'marker',
-			   -id  => $marker));
+			      -id  => $marker));
 };
-if( $@ ) {
-    warn "Warning: Couldn't connect to GDB website with Bio::DB::GDB.pm!\nError: $@ Do you have network access? Skipping all other tests";
+if( $@ || ! defined $info) {
+    warn "Warning: Couldn't connect to GDB website with Bio::DB::GDB.pm!\nError: Do you have network access? Skipping all other tests";
     foreach ( $Test::ntest..$NUMTESTS ) { skip(1,1, 'no network access'); }
     exit(0);
 }
@@ -66,8 +66,15 @@ ok $info->{'length'}, 226, 'value was '. $info->{'length'};
 
 $marker = 'UT497';
 $info = undef;
+eval { 
 ok ($info = $gdb->get_info(-type=>'marker',
 			     -id  => $marker));
+};
+if( $@ || ! defined $info ) {
+    warn "Warning: Couldn't connect to GDB website with Bio::DB::GDB.pm!\nError: Do you have network access? Skipping all other tests";
+    foreach ( $Test::ntest..$NUMTESTS ) { skip(1,1, 'no network access'); }
+    exit(0);
+}
 ok $info->{gdbid}, 'GDB:198271', 'value was ' . $info->{gdbid};
 ok $info->{primers}->[0], 'GGGTGACAGAACAAGACCT', 'value was ' . $info->{primers}->[0];
 ok $info->{primers}->[1], 'ACCCATTAGCCTTGAACTGA', 'value was ' . $info->{primers}->[1];
