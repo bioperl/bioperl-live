@@ -1,4 +1,4 @@
-## $Id: bioperl.pod,v 1.25 2002-04-17 02:25:08 bosborne Exp $
+## $Id: bioperl.pod,v 1.26 2002-05-17 16:01:35 bosborne Exp $
 
 ## Should contain general info about the distribution including
 ## links to many modules.
@@ -115,6 +115,9 @@ L<Bio::LiveSeq::Mutation> for more information
 
 I<examples/clustalw.pl> - a demonstration of the various uses of
 Alignment::Clustalw. See L<Bio::Tools::Run::Alignment::Clustalw> for more
+
+I<examples/gb2features.pl> - shows how to extract all the features from
+a Genbank file. See L<Bio::Seq> for more information on features
 
 I<examples/getGenBank.pl> - retrieving Genbank entries over the Web using
 DB::GenBank. See L<Bio::DB::GenBank> for more information
