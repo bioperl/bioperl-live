@@ -64,7 +64,7 @@ BioPerlTutorial - a tutorial for bioperl
     III.2.2 Transforming alignment files (AlignIO)
   III.3 Manipulating sequences
     III.3.1 Manipulating sequence data with Seq methods (Seq)
-    III.3.2 Obtaining basic sequence statistics- MW, residue & codon frequencies (SeqStats)
+    III.3.2 Obtaining basic sequence statistics (SeqStats,SeqWord)
     III.3.3 Identifying restriction enzyme sites (Bio::Restriction)
     III.3.4 Identifying amino acid cleavage sites (Sigcleave)
     III.3.5 Miscellaneous sequence utilities: OddCodes, SeqPattern
@@ -1155,8 +1155,7 @@ the program to die if an improper CDS is found, e.g.
 
 See L<Bio::Tools::CodonTable> for related details.
 
-=head2 III.3.2 Obtaining basic sequence statistics- molecular weights,
-residue & codon frequencies(SeqStats, SeqWord)
+=head2 III.3.2 Obtaining basic sequence statistics (SeqStats,SeqWord)
 
 In addition to the methods directly available in the Seq object,
 bioperl provides various "helper" objects to determine additional
