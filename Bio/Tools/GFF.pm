@@ -498,11 +498,12 @@ sub _gff2_string{
    # MW
 
    my $valuestr;
-   if ($feat->all_tags) { # only play this game if it is worth playing...
+   my @all_tags = $feat->all_tags;
+   if (@all_tags) { # only play this game if it is worth playing...
        $str .= "\t"; # my interpretation of the GFF2
                      # specification suggests the need 
                      # for this additional TAB character...??
-       foreach my $tag ( $feat->all_tags ) {
+       foreach my $tag ( @all_tags ) {
 	   my $valuestr; # a string which will hold one or more values 
 	                 # for this tag, with quoted free text and 
 	                 # space-separated individual values.
