@@ -25,7 +25,7 @@ Do not use this module directly.  Use it via the Bio::AlignIO class.
 
 =head1 DESCRIPTION
 
-This object can transform Bio::SimpleAlign objects to and from clustalw flat
+This object can transform Bio::Align::AlignI objects to and from clustalw flat
 file databases.
 
 =head1 FEEDBACK
@@ -69,6 +69,7 @@ use strict;
 
 use Bio::AlignIO;
 use Bio::LocatableSeq;
+use Bio::SimpleAlign; # to be Bio::Align::Simple
 
 BEGIN { 
     $LINELENGTH = 60;
@@ -81,7 +82,7 @@ BEGIN {
  Title   : next_aln
  Usage   : $aln = $stream->next_aln()
  Function: returns the next alignment in the stream
- Returns : SimpleAlign object
+ Returns : Bio::Align::AlignI object
  Args    : NONE
 
 =cut
@@ -142,7 +143,7 @@ sub next_aln {
  Usage   : $stream->write_aln(@aln)
  Function: writes the clustalw-format object (.aln) into the stream
  Returns : 1 for success and 0 for error
- Args    : Bio::SimpleAlign object
+ Args    : Bio::Align::AlignI object
 
 
 =cut
@@ -151,6 +152,10 @@ sub write_aln {
     my ($self,@aln) = @_;
     my ($count,$length,$seq,@seq,$tempcount);
     foreach my $aln (@aln) {
+	if( ! $aln || ! $aln->isa('Bio::Align::AlignI')  ) { 
+	    $self->warn("Must provide a Bio::Align::AlignI object when calling write_aln");
+	    next;
+	}
 	my $matchline = $aln->match_line;
     
 	$self->_print (sprintf("CLUSTAL W(1.81) multiple sequence alignment\n\n\n")) or return;

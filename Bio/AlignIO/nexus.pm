@@ -95,12 +95,12 @@ sub next_aln {
 
     # file starts with #NEXUS
     $entry = $self->_readline; 
-    $self->throw("Not a valid interleaved NEXUS file! [#NEXUS] not starting the file]") 
+    $self->throw("Not a valid interleaved NEXUS file! [#NEXUS] not starting the file") 
 	unless $entry =~ /^#NEXUS/i;
 
     # skip anything before either the taxa or data block 
     # but read in the optional title in a comment
-    while ($entry = $self->_readline) {
+    while (defined($entry = $self->_readline)) {
 	local ($_) = $entry;
 	/\[TITLE. *([^\]]+)]\s+/i and $aln_name = $1; 
 	last if /^begin +data/i || /^begin +taxa/i;
@@ -264,57 +264,60 @@ sub write_aln {
     my ($match, $missing, $gap,$symbols) = ('', '', '','');
 
     foreach my $aln (@aln) {
-	
-	 $self->throw("All sequences in the alignment must be the same length") 
-	     unless $aln->is_flush($self->verbose);
+	if( ! $aln || ! $aln->isa('Bio::Align::AlignI')  ) { 
+	    $self->warn("Must provide a Bio::Align::AlignI object when calling write_aln");
+	    next;
+	}
+	$self->throw("All sequences in the alignment must be the same length") 
+	    unless $aln->is_flush($self->verbose);
 
-	 $length  = $aln->length();
+	$length  = $aln->length();
 
-	 $self->_print (sprintf("#NEXUS\n[TITLE: %s]\n\nbegin data;\ndimensions ntax=%s nchar=%s;\n", 
-				$aln->id, $aln->no_sequences, $length));
-	 $match = "match=". $aln->match_char if $aln->match_char;
-	 $missing = "missing=". $aln->missing_char if $aln->missing_char;
-	 $gap = "gap=". $aln->gap_char if $aln->gap_char;
-	 $symbols = 'symbols="'.join('',$aln->symbol_chars). '"' if( $aln->symbol_chars);
-	 $self->_print (sprintf("format interleave datatype=%s %s %s %s %s;\n\nmatrix\n",
-				$aln->get_seq_by_pos(1)->alphabet, $match, $missing, $gap, $symbols));
+	$self->_print (sprintf("#NEXUS\n[TITLE: %s]\n\nbegin data;\ndimensions ntax=%s nchar=%s;\n", 
+			       $aln->id, $aln->no_sequences, $length));
+	$match = "match=". $aln->match_char if $aln->match_char;
+	$missing = "missing=". $aln->missing_char if $aln->missing_char;
+	$gap = "gap=". $aln->gap_char if $aln->gap_char;
+	$symbols = 'symbols="'.join('',$aln->symbol_chars). '"' if( $aln->symbol_chars);
+	$self->_print (sprintf("format interleave datatype=%s %s %s %s %s;\n\nmatrix\n",
+			       $aln->get_seq_by_pos(1)->alphabet, $match, $missing, $gap, $symbols));
 
-	 my $indent = $aln->maxdisplayname_length;
-	 $aln->set_displayname_flat();
-	 foreach $seq ( $aln->each_seq() ) {
-	     $name = $aln->displayname($seq->get_nse());	     
-	     $name = sprintf("%-${indent}s", $name); 
-	     $hash{$name} = $seq->seq();
-	     push(@arr,$name);
-	 }
+	my $indent = $aln->maxdisplayname_length;
+	$aln->set_displayname_flat();
+	foreach $seq ( $aln->each_seq() ) {
+	    $name = $aln->displayname($seq->get_nse());	     
+	    $name = sprintf("%-${indent}s", $name); 
+	    $hash{$name} = $seq->seq();
+	    push(@arr,$name);
+	}
 
-	 while( $count < $length ) {	
-	     # there is another block to go!
-	     foreach $name ( @arr ) {
-		 my $dispname = $name;
+	while( $count < $length ) {	
+	    # there is another block to go!
+	    foreach $name ( @arr ) {
+		my $dispname = $name;
 #		 $dispname = '' if $wrapped;
-		 $self->_print (sprintf("%${indent}s  ",$dispname));
-		 $tempcount = $count;
-		 $index = 0;
-		 while( ($tempcount + 10 < $length) && ($index < 5)  ) {
-		     $self->_print (sprintf("%s ",substr($hash{$name},$tempcount,10)));
-		     $tempcount += 10;
-		     $index++;
-		 }
-		 # last
-		 if( $index < 5) {
-		     # space to print!
-		     $self->_print (sprintf("%s ",substr($hash{$name},$tempcount)));
-		     $tempcount += 10;
-		 }
-		 $self->_print ("\n");
-	     }
-	     $self->_print ("\n\n");
-	     $count = $tempcount;
-	     $wrapped = 1;
-	 }
-	 $self->_print (";\n\nendblock;\n");
-     }
+		$self->_print (sprintf("%${indent}s  ",$dispname));
+		$tempcount = $count;
+		$index = 0;
+		while( ($tempcount + 10 < $length) && ($index < 5)  ) {
+		    $self->_print (sprintf("%s ",substr($hash{$name},$tempcount,10)));
+		    $tempcount += 10;
+		    $index++;
+		}
+		# last
+		if( $index < 5) {
+		    # space to print!
+		    $self->_print (sprintf("%s ",substr($hash{$name},$tempcount)));
+		    $tempcount += 10;
+		}
+		$self->_print ("\n");
+	    }
+	    $self->_print ("\n\n");
+	    $count = $tempcount;
+	    $wrapped = 1;
+	}
+	$self->_print (";\n\nendblock;\n");
+    }
     return 1;
 }
 

@@ -85,7 +85,7 @@ use Bio::LocatableSeq;
  Title   : next_aln
  Usage   : $aln = $stream->next_aln()
  Function: returns the next alignment in the stream.
- Returns : SimpleAlign object - returns 0 on end of file
+ Returns : Bio::SimpleAlign object - returns 0 on end of file
 	    or on error
  Args    : NONE
 
@@ -149,9 +149,9 @@ sub next_aln {
 
  Title   : write_aln
  Usage   : $stream->write_aln(@aln)
- Function: writes the $aln object into the stream in bl2seq format
+ Function: writes the $aln object into the stream in emboss format
  Returns : 1 for success and 0 for error
- Args    : Bio::SimpleAlign object
+ Args    : Bio::Align::AlignI object
 
 
 =cut
@@ -159,7 +159,7 @@ sub next_aln {
 sub write_aln {
     my ($self,@aln) = @_;
 
-    $self->throw("Sorry: writing emboss output is not currently available! /n");
+    $self->throw("Sorry: writing emboss output is not currently available! \n");
 }
 
 1;

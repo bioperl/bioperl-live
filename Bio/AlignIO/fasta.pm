@@ -58,6 +58,7 @@ use vars qw(@ISA);
 use strict;
 
 use Bio::AlignIO;
+use Bio::SimpleAlign;
 
 @ISA = qw(Bio::AlignIO);
 
@@ -67,7 +68,7 @@ use Bio::AlignIO;
  Title   : next_aln
  Usage   : $aln = $stream->next_aln()
  Function: returns the next alignment in the stream.
- Returns : SimpleAlign object - returns 0 on end of file
+ Returns : Bio::Align::AlignI object - returns 0 on end of file
 	    or on error
  Args    : NONE
 
@@ -165,22 +166,25 @@ sub write_aln {
     my ($self,@aln) = @_;
     my ($seq,$rseq,$name,$count,$length,$seqsub);
 
-  foreach my $aln (@aln) {
-
-      foreach $rseq ( $aln->each_seq() ) {
-	$name = $aln->displayname($rseq->get_nse());
-	$seq  = $rseq->seq();	
-	$self->_print (">$name\n") or return ;	
-	$count =0;
-	$length = length($seq);
-	while( ($count * 60 ) < $length ) {
-	    $seqsub = substr($seq,$count*60,60);
-	    $self->_print ("$seqsub\n") or return ;
-	    $count++;
+    foreach my $aln (@aln) {
+	if( ! $aln || ! $aln->isa('Bio::Align::AlignI')  ) { 
+	    $self->warn("Must provide a Bio::Align::AlignI object when calling write_aln");
+	    next;
 	}
-      }
-   }
-   return 1;
+	foreach $rseq ( $aln->each_seq() ) {
+	    $name = $aln->displayname($rseq->get_nse());
+	    $seq  = $rseq->seq();	
+	    $self->_print (">$name\n") or return ;	
+	    $count =0;
+	    $length = length($seq);
+	    while( ($count * 60 ) < $length ) {
+		$seqsub = substr($seq,$count*60,60);
+		$self->_print ("$seqsub\n") or return ;
+		$count++;
+	    }
+	}
+    }
+    return 1;
 }
 
 1;
