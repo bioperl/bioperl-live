@@ -142,13 +142,13 @@ In addition, sequence input may be in the form of either a Bio::Seq
  $blast_report = $factory->blastall($input);
 
 For blastall and non-psiblast blastpgp runs, report object is either a
-BPlite.pm or Bio::SearchIO object, selected by the user with the
+L,Bio::Tools::BPlite> or L<Bio::SearchIO> object, selected by the user with the
 parameter _READMETHOD.  (The leading underscore is needed to
 distinguish this option from options which are passed to the BLAST
 executable.) The default parser is Bio::SearchIO::blast.  If BPlite
-method is selected, Bio::Tools::BPlite objects will be returned for
-standard blast and Bio::Tools::BPpsilite for a multiple-iteration
-blasts, and a Bio::Tools::BPbl2seq for bl2seq.  In any case, the "raw"
+method is selected, L<Bio::Tools::BPlite> objects will be returned for
+standard blast and L<Bio::Tools::BPpsilite> for a multiple-iteration
+blasts, and a L<Bio::Tools::BPbl2seq> for bl2seq.  In any case, the "raw"
 blast report is also available. The filename is set by the in the
 'outfile' parameter and has the default value of "blastreport.out".
 
@@ -579,8 +579,8 @@ sub wublast {
 	or 
 	      $seq_array_ref = \@seq_array;  # where @seq_array is an array of Bio::Seq objects
 	      $blast_report = $factory-> blastpgp(\@seq_array);
- Returns : Reference to a Blast object or BPlite object containing 
-           the blast report.
+ Returns : Reference to a Bio::SearchIO object or BPlite object containing 
+           the blast report (BPlite only if you specify _READMETHOD=> 'BPlite')
  Args    : Name of a file or Bio::Seq object. In psiblast jumpstart 
            mode two additional arguments are required: a SimpleAlign 
            object one of whose elements is the query and a "mask" to 
@@ -592,7 +592,8 @@ sub wublast {
            (or to an array of Seq objects).  If argument is string, 
            throws exception if file corresponding to string name can 
            not be found.
- Returns : Reference to either a BPlite.pm, Blast.pm or BPpsilite.pm  
+ Returns : Reference to L<Bio::SearchIO> object 
+           or L<Bio::Tools::BPpsilite> if you specify _READMETHOD => 'BPlite'  
            object containing the blast report.
 
 =cut
@@ -662,9 +663,9 @@ sub bl2seq {
 =head2  _generic_local_blast
 
  Title   : _generic_local_blast
- Usage   :  internal function not called directly
- Returns :  Blast or BPlite object
- Args    :   Reference to calling object and name of BLAST executable 
+ Usage   : internal function not called directly
+ Returns : L<Bio::SearchIO> or L<Bio::Tools::BPlite> object
+ Args    : Reference to calling object and name of BLAST executable 
 
 =cut
 
@@ -707,8 +708,9 @@ sub _generic_local_wublast {
  Usage   :  Internal function, not to be called directly	
  Function:   makes actual system call to Blast program
  Example :
- Returns : Report object in the appropriate format (BPlite, 
-           BPpsilite, Blast, or BPbl2seq)
+ Returns : Report object in the appropriate format (L<Bio::SearchIO>)
+           or if BPlite is requested: L<Bio::Tools::BPlite>, 
+           L<Bio::Tools::BPpsilite>,or L<Bio::Tools::BPbl2seq>)
  Args    : Reference to calling object, name of BLAST executable, 
            and parameter string for executable 
 
