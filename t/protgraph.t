@@ -81,7 +81,7 @@ ok $gr->edge_count, 68;
  @nodes = $gr->articulation_points();
 ok grep {$_->object_id eq 'B64701'} @nodes;
 
-ok my $node   = $gr->nodes_by_id('A64696');
+ok $node   = $gr->nodes_by_id('A64696');
 ok $node->accession_number, 'A64696';
 
 
