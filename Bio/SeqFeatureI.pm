@@ -20,8 +20,8 @@ Bio::SeqFeatureI - Abstract interface of a Sequence Feature
 
     foreach $feat ( $annseq->all_seqfeatures() ) {
             print "Feature from ", $feat->start, "to ", 
-	    $feat->end, " Primary tag  ", $feat->primary_tag, 
-	    " From", $feat->source_tag() "\n";
+	          $feat->end, " Primary tag  ", $feat->primary_tag, 
+	          ", produced by ", $feat->source_tag() "\n";
 
             if( $feat->strand == 0 ) {
 		print "Feature applicable to either strand\n";
@@ -30,8 +30,12 @@ Bio::SeqFeatureI - Abstract interface of a Sequence Feature
             }
 
             foreach $tag ( $feat->all_tags() ) {
-		print "Feature has tag ",$tag,"with value,", $feat->has_tag($tag), "\n";
+		print "Feature has tag ", $tag, "with values, ",
+		      join(' ',@feat->each_tag_value($tag)), "\n";
             }
+	    print "new feature\n" if $feat->has_tag('new');
+	    # features can have sub features
+	    my @subfeat = $feat->sub_SeqFeature();
 	}
 
 =head1 DESCRIPTION
@@ -205,6 +209,23 @@ sub has_tag{
 
    $self->_abstractDeath();
 
+}
+
+=head2 each_tag_value
+
+ Title   : each_tag_value
+ Usage   : @values = $self->each_tag_value('some_tag')
+ Function: 
+ Returns : An array comprising the values of the specified tag.
+ Args    :
+
+
+=cut
+
+sub each_tag_value {
+   my ($self,@args) = @_;
+
+   $self->_abstractDeath();
 }
 
 =head2 all_tags
