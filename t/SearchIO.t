@@ -1140,7 +1140,7 @@ ok($r->query_name, 'gi|1786183|gb|AAC73113.1|');
 $hit = $r->next_hit;
 ok($hit->name, 'gnl|CDD|3919');
 ok($hit->significance, 0.064);
-ok($hit->raw_score, 28;
+ok($hit->raw_score, 28);
 $hsp = $hit->next_hsp;
 ok($hsp->query->start, 599);
 ok($hsp->query->end,655);
