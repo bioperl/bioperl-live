@@ -717,8 +717,8 @@ sub next_result{
        } elsif( ($self->in_element('hit') || 
                  $self->in_element('hsp')) && # ncbi blast
                 m/Score\s*=\s*(\S+)\s*bits\s* # Bit score
-                (?:\((\d+)\))?,               # Missing for BLAT pseudo-BLAST fmt 
-                \s*Expect(?:\(\d+\))?\s*=\s*(\S+) # E-value
+                (?:\((\d+)\))?,            # Missing for BLAT pseudo-BLAST fmt 
+                \s*Expect(?:\(\d+\+?\))?\s*=\s*(\S+) # E-value
                 /ox) { # parse NCBI blast HSP
            $self->in_element('hsp') && $self->end_element({ 'Name' => 'Hsp'});
 	   
@@ -1139,7 +1139,7 @@ sub next_result{
                 defined($_) && $i < 3; 
                 $i++ ) {
                chomp;
-	       if( ($i == 0 &&  /^\s+$/) ||  /^\s*Lambda/i ) { 
+	       if( ($i == 0 && /^\s+$/) ||  /^\s*Lambda/i ) { 
 		   $self->_pushback($_) if defined $_;
                    $self->end_element({'Name' => 'Hsp'});
                    last; 
