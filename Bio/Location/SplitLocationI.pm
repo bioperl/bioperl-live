@@ -122,6 +122,27 @@ sub splittype {
     $self->_abstractDeath();
 }
 
+
+=head2 is_single_sequence
+
+  Title   : is_single_sequence
+  Usage   : if($splitloc->is_single_sequence()) {
+                print "Location object $splitloc is split ".
+                      "but only across a single sequence\n";
+	    }
+  Function: Determine whether this location is split across a single or
+            multiple sequences.
+  Returns : TRUE if all sublocations lie on the same sequence as the root
+            location (feature), and FALSE otherwise.
+  Args    : none
+
+=cut
+
+sub is_single_sequence {
+    my ($self) = @_;
+    $self->_abstractDeath();
+}
+
 =head2 LocationI methods
 
 =head2 min_start
