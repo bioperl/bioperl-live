@@ -119,8 +119,9 @@ sub next_aln {
     my ($self) = @_;
 
     my $first_line;
+    
     while($first_line = $self->_readline){
-      last if $first_line!~/^$/;
+	last if $first_line!~/^$/;
     }
     $self->_pushback($first_line);
     if( defined ($first_line  = $self->_readline ) 
@@ -135,27 +136,25 @@ sub next_aln {
     $self->{_lastline} = '';
     while( defined ($_ = $self->_readline) ) {
 	next if ( /^\s+$/ );	
-
-    #break the loop if we come to the end of the current alignment
-    #and push back the CLUSTAL header
-    if(/CLUSTAL/){
-      $self->_pushback($_);
-      last;
-    }
+	#break the loop if we come to the end of the current alignment
+	#and push back the CLUSTAL header
+	if(/CLUSTAL/){
+	    $self->_pushback($_);
+	    last;
+	}
 
 	my ($seqname, $aln_line) = ('', '');	
-	if( /^\s*(\S+)\s*\/\s*(\d+)-(\d+)\s+(\S+)\s*$/ ) {
+	if( /^\s*(\S+)\s*\/\s*(\d+)-(\d+)\s+(\S+)\s*$/ox ) {
 	    # clustal 1.4 format
 	    ($seqname,$aln_line) = ("$1:$2-$3",$4);
-	} elsif( /^(\S+)\s+([A-Z\-]+)\s*$/ ) {
+	} elsif( /^\s*(\S+)\s+(\S+)\s*$/ox ) {
 	    ($seqname,$aln_line) = ($1,$2);
 	} else { $self->{_lastline} = $_; next }
 	
 	if( !exists $order{$seqname} ) {
 	    $order{$seqname} = $order++;
 	}
-
-	$alignments{$seqname} .= $aln_line;  
+	$alignments{$seqname} .= $aln_line;
     }
     my ($sname,$start,$end);
     foreach my $name ( sort { $order{$a} <=> $order{$b} } keys %alignments ) {
@@ -168,11 +167,14 @@ sub next_aln {
 	    $end = length($str);
 	}
 	my $seq = new Bio::LocatableSeq('-seq'   => $alignments{$name},
-					 '-id'    => $sname,
-					 '-start' => $start,
-					 '-end'   => $end);
+					'-id'    => $sname,
+					'-start' => $start,
+					'-end'   => $end);
 	$aln->add_seq($seq);
     }
+    # not sure if this should be a default option - or we can pass in 
+    # an option to do this in the future? --jasonstajich
+    #$aln->map_chars('\.','-');
     undef $aln if( !defined $end || $end <= 0);
     return $aln;
 }
