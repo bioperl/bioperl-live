@@ -80,10 +80,10 @@ sub new {
 							    END 
 							    STRAND
 							    SEQID)],@args);
-    $start && $self->start($start);
-    $end && $self->end($end);
-    $strand && $self->strand($strand);
-    $seqid && $self->seq_id($seqid);
+    defined $start  && $self->start($start);
+    defined $end    && $self->end($end);
+    defined $strand && $self->strand($strand);
+    $seqid          && $self->seq_id($seqid);
 
     return $self;
 }
@@ -101,7 +101,6 @@ sub new {
 
 sub start {
   my ($self, $value) = @_;
-
   $self->min_start($value) if( defined $value );
   return $self->SUPER::start();
 }
