@@ -16,7 +16,7 @@ Bio::RangeI - Range interface
 
 =head1 SYNOPSIS
 
-None.
+  #Do not run this module directly
 
 =head1 DESCRIPTION
 
