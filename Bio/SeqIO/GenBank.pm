@@ -174,7 +174,7 @@ sub next_seq{
 
       ## Here is where we grab the sequence info.
       while ( ($line = <$fh>) !~ /^\/\// ) { ## while not Entry Termination Symbol encountered
-       warn "inside sequence $line";
+       #warn "inside sequence $line";
 
       next if($line eq "\n");       ## skip whitespace lines in formatted seq
       $line =~ s/[^a-zA-Z]//g;      ## remove anything that is not alphabet char
@@ -182,7 +182,7 @@ sub next_seq{
       $sequence .= $line;
       eof $fh && last LINE;
      }
-     warn "outside sequence $line";
+     #warn "outside sequence $line";
     };
     if (m#^//#) { last LINE; }
    }

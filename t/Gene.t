@@ -130,8 +130,9 @@ foreach $tls ( $gene->each_Translation() ) {
 }
 
 print "ok 11\n";
-print STDERR "\n";
+#print STDERR "\n";
 foreach $sf ( $aseq->all_SeqFeatures() ) {
-    print STDERR $sf->gff_string() , "\n";
+    #print STDERR $sf->gff_string() , "\n";
+    $sf->gff_string();
 }
 
