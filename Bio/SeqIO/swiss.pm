@@ -155,7 +155,7 @@ sub next_seq {
    my ($self,@args) = @_;
    my ($pseq,$c,$line,$name,$desc,$acc,$seqc,$mol,$div,
        $date,$comment,@date_arr, @sec);
-   my ($keywords,$acc_string);
+   my (@keywords,$acc_string);
    my $genename = "";
    my ($annotation, %params, @features) = ( new Bio::Annotation::Collection);
 
@@ -301,7 +301,9 @@ sub next_seq {
        }
        #keywords
        elsif( /^KW\s+(.*)$/ ) {
-           $keywords .= $keywords ? " $1" : $1;
+	   my ($kw) = $1;
+	   $kw =~ s/\.$//;
+           push @keywords, split(/\s*\;\s*/, $kw);
        }
 
        # Get next line. Getting here assumes that we indeed need to read the
@@ -348,7 +350,7 @@ sub next_seq {
 	%params,
 	-seq      => $seqc,
 	-desc     => $desc,
-	-keywords => $keywords,
+	-keywords => \@keywords,
 	-accession_number => $acc,
 	-secondary_accessions => \@sec,
 	-features => \@features,
@@ -541,12 +543,13 @@ sub write_seq {
 		$self->_print("DR   ",$dblink->database,"; ",$dblink->primary_id,"; ",
 			      $dblink->optional_id,"; ",$dblink->comment,".\n");
 	    } elsif($dblink->optional_id) {
-		$self->_print("DR   ",$dblink->database,"; ",$dblink->primary_id,"; ",
+		$self->_print("DR   ",$dblink->database,"; ",
+			      $dblink->primary_id,"; ",
 			      $dblink->optional_id,".\n");
 	    }
 	    else {
-		$self->_print("DR   ",$dblink->database,"; ",$dblink->primary_id,"; ",
-			      "-.\n");
+		$self->_print("DR   ",$dblink->database,
+			      "; ",$dblink->primary_id,"; ","-.\n");
 	    }
 	}   
 
@@ -554,11 +557,13 @@ sub write_seq {
 
 	if( $self->_kw_generation_func ) {
 	    $temp_line = &{$self->_kw_generation_func}($seq);
-	    $self->_print( "KW   $temp_line\n");
+	    $self->_print( "KW   $temp_line.\n");
 	} else {
-	    if( $seq->can('keywords') ) {
+	    if( $seq->can('get_keywords') ) {
 		$self->_write_line_swissprot_regex("KW   ","KW   ",
-						   $seq->keywords,"\\s\+\|\$",80);       
+						   join('; ', 
+							$seq->get_keywords),
+						   "\\s\+\|\$",80);       
 	    }
 	}
 
@@ -789,7 +794,7 @@ sub _print_swissprot_FTHelper {
 					      substr($fth->key,0,8),
 					      $start,$end),
 				      "FT                                ",
-				      $desc,'\s+|$',80);
+				      $desc.'.','\s+|$',80);
 }
 #'
 
