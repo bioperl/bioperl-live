@@ -281,7 +281,7 @@ sub get_seq_stream {
 	my ( $fh, $tmpfile) = $self->io()->tempfile( DIR => $dir );
 	close $fh;
 	my ($resp) = $self->_request($request, $tmpfile);		
-	if( ! -e $tmpfile || -z $tmpfile ) {
+	if( ! -e $tmpfile || -z $tmpfile || ! $resp->is_success() ) {
             $self->throw("WebDBSeqI Error - check query sequences!\n");
 	}
 	$self->postprocess_data('type' => 'file',
@@ -297,7 +297,7 @@ sub get_seq_stream {
     } elsif( $self->retrieval_type =~ /io_string/i ) {
 	my ($resp) = $self->_request($request);
         my $content = $resp->content_ref;	
-	if( ${$content} =~ /ERROR/ || length(${$resp->content_ref()}) == 0 ) {
+	if( ! $resp->is_success() || length(${$resp->content_ref()}) == 0 ) {
 	    $self->throw("WebDBSeqI Error - check query sequences!\n");	
         }  
 	($rformat,$ioformat) = $self->request_format();
