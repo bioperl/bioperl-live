@@ -76,7 +76,7 @@ use vars qw(@ISA %KNOWNEVENTS
 use strict;
 
 use Bio::SearchIO::SearchResultEventBuilder;
-use Bio::Factory::GenericObjectFactory;
+use Bio::Factory::ObjectFactory;
 
 @ISA = qw(Bio::SearchIO::SearchResultEventBuilder);
 
@@ -128,11 +128,11 @@ sub new {
 
     # Note that we need to override the setting of result and factories here
     # so that we can set different default factories than are set by the super class.
-    $self->register_factory('result', $resultF || Bio::Factory::GenericObjectFactory->new(-type => 'Bio::Search::Result::BlastResult'));
-    $self->register_factory('hit', $hitF || Bio::Factory::GenericObjectFactory->new(-type => 'Bio::Search::Hit::BlastHit'));
+    $self->register_factory('result', $resultF || Bio::Factory::ObjectFactory->new(-type => 'Bio::Search::Result::BlastResult'));
+    $self->register_factory('hit', $hitF || Bio::Factory::ObjectFactory->new(-type => 'Bio::Search::Hit::BlastHit'));
 
     # TODO: Change this to BlastIteration (maybe)
-    $self->register_factory('iteration', $iterationF || Bio::Factory::GenericObjectFactory->new(-type => 'Bio::Search::Iteration::GenericIteration'));
+    $self->register_factory('iteration', $iterationF || Bio::Factory::ObjectFactory->new(-type => 'Bio::Search::Iteration::GenericIteration'));
 
     return $self;
 }

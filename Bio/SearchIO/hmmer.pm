@@ -81,7 +81,7 @@ package Bio::SearchIO::hmmer;
 use vars qw(@ISA);
 use strict;
 
-use Bio::Factory::GenericObjectFactory;
+use Bio::Factory::ObjectFactory;
 
 use vars qw(@ISA %MAPPING %MODEMAP 
             );
@@ -149,9 +149,9 @@ BEGIN {
 sub _initialize {
     my ($self,@args) = @_;
     $self->SUPER::_initialize(@args);
-    $self->_eventHandler->register_factory('result', Bio::Factory::GenericObjectFactory->new(-type => 'Bio::Search::Result::HMMERResult'));
-    $self->_eventHandler->register_factory('hit', Bio::Factory::GenericObjectFactory->new(-type => 'Bio::Search::Hit::HMMERHit'));
-    $self->_eventHandler->register_factory('hsp', Bio::Factory::GenericObjectFactory->new(-type => 'Bio::Search::HSP::HMMERHSP'));
+    $self->_eventHandler->register_factory('result', Bio::Factory::ObjectFactory->new(-type => 'Bio::Search::Result::HMMERResult'));
+    $self->_eventHandler->register_factory('hit', Bio::Factory::ObjectFactory->new(-type => 'Bio::Search::Hit::HMMERHit'));
+    $self->_eventHandler->register_factory('hsp', Bio::Factory::ObjectFactory->new(-type => 'Bio::Search::HSP::HMMERHSP'));
 }
 
 =head2 next_result
