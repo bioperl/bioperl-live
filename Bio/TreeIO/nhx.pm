@@ -115,7 +115,7 @@ sub next_tree{
 
    my $chars = '';
    $self->_eventHandler->start_document;
-   my ($lastevent,$prev_lastevent) = ('',''); # need 1 and 2 step lookbacks
+   my $lastevent = '';
    my @ch = split(//, $_);
    for (my $i = 0 ; $i < @ch ; $i++) {
        my $ch = $ch[$i];
@@ -139,12 +139,10 @@ sub next_tree{
 	   }
            $chars = '';
 	   $self->_eventHandler->start_element( { Name => 'nhx_tag' });
-	   $prev_lastevent = $lastevent;
 	   $lastevent = $ch;
        } elsif( $ch eq '(' ) {
 	   $chars = '';
 	   $self->_eventHandler->start_element( {'Name' => 'tree'} );
-	   $prev_lastevent = $lastevent;
 	   $lastevent = $ch;
        } elsif($ch eq ')' ) {
 	   if( length $chars ) {
@@ -167,15 +165,9 @@ sub next_tree{
 	   } elsif ( $lastevent ne ']' ) {
 	       $self->_eventHandler->start_element( {'Name' => 'node'} )
 	   }
-           # leaves always end with parens
-	   $self->_eventHandler->start_element( { 'Name' => 'leaf' } );	   
-	   $self->_eventHandler->characters(1);
-	   $self->_eventHandler->end_element( { 'Name' => 'leaf' } );
-
 	   $self->_eventHandler->end_element( {'Name' => 'node'} );
 	   $self->_eventHandler->end_element( {'Name' => 'tree'} );
 	   $chars = '';
-	   $prev_lastevent = $lastevent;
 	   $lastevent = $ch;
        } elsif ( $ch eq ',' ) {
 	   if( length $chars ) {
@@ -193,15 +185,8 @@ sub next_tree{
 	   } elsif ( $lastevent ne ']' ) {
 	       $self->_eventHandler->start_element( { 'Name' => 'node' } );
 	   }
-	   	   
-           # leaves always end with parens
-	   $self->_eventHandler->start_element( { 'Name' => 'leaf' } );	   
-	   $self->_eventHandler->characters($prev_lastevent ne ')' );
-	   $self->_eventHandler->end_element( { 'Name' => 'leaf' } );
-	   	       
 	   $self->_eventHandler->end_element( {'Name' => 'node'} );
 	   $chars = '';
-	   $prev_lastevent = $lastevent;
 	   $lastevent = $ch;
        } elsif( $ch eq ':' ) {
 	   if ($self->_eventHandler->within_element('nhx_tag')) {
@@ -232,7 +217,6 @@ sub next_tree{
 	       $self->_eventHandler->characters($chars);
 	       $self->_eventHandler->end_element( { Name => 'tag_name' } );
 	       $chars = '';
-	       $prev_lastevent = $lastevent;
 	       $lastevent = $ch;
 	   } else {
 	       $chars .= $ch;
@@ -244,7 +228,6 @@ sub next_tree{
 	       $self->_eventHandler->end_element( { Name => 'tag_value' } );
 	       $chars = '';
 	       $self->_eventHandler->end_element( { Name => 'nhx_tag' } );
-	       $prev_lastevent = $lastevent;
 	       $lastevent = $ch;
 	   } else {
 	       $chars .= $ch;

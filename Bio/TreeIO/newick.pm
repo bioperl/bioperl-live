@@ -13,13 +13,14 @@
 =head1 NAME
 
 Bio::TreeIO::newick - TreeIO implementation for parsing 
-    Newick/New Hampshire/PHYLIP format.
+  Newick/New Hampshire/PHYLIP format.
 
 =head1 SYNOPSIS
 
   # do not use this module directly
   use Bio::TreeIO;
-  my $treeio = new Bio::TreeIO(-format => 'newick', -file => 'tree.dnd');
+  my $treeio = new Bio::TreeIO(-format => 'newick', 
+                               -file => 't/data/LOAD_Ccd1.dnd');
   my $tree = $treeio->next_tree;
 
 =head1 DESCRIPTION
@@ -50,9 +51,11 @@ email or the web:
 
 Email jason@bioperl.org
 
+Describe contact details here
+
 =head1 CONTRIBUTORS
 
-Aaron Mackey amackey@virginia.edu
+Additional contributors names and emails here
 
 =head1 APPENDIX
 
@@ -106,17 +109,16 @@ sub next_tree{
 
    my $chars = '';
    $self->_eventHandler->start_document;
-   my ($lastevent,$prev_lastevent) = ('',''); # need 1 and 2 step lookbacks
+   my $lastevent = '';
    foreach my $ch ( split(//,$_) ) {
-       if( $ch eq ';' ) {
+       if( $ch eq ';' ) { 	   
 	   return $self->_eventHandler->end_document;
        } elsif( $ch eq '(' ) {
 	   $chars = '';
 	   $self->_eventHandler->start_element( {'Name' => 'tree'} );
-	   $prev_lastevent = $lastevent;
 	   $lastevent = $ch;
-       } elsif($ch eq ')' ) {	   
-	   if( length $chars ) {
+       } elsif($ch eq ')' ) {
+	   if( $chars ) {
 	       if( $lastevent eq ':' ) {
 		   $self->_eventHandler->start_element( { 'Name' => 'branch_length'});
 		   $self->_eventHandler->characters($chars);
@@ -132,20 +134,12 @@ sub next_tree{
 	   } else {
 	       $self->_eventHandler->start_element( {'Name' => 'node'} )
 	   }
-           # leaves always end with parens
-	   $self->_eventHandler->start_element( { 'Name' => 'leaf' } );	   
-	   $self->_eventHandler->characters(1);
-	   $self->_eventHandler->end_element( { 'Name' => 'leaf' } );
-
-	   $self->_eventHandler->end_element( {'Name' => 'node'} );	   
+	   $self->_eventHandler->end_element( {'Name' => 'node'} );
 	   $self->_eventHandler->end_element( {'Name' => 'tree'} );
 	   $chars = '';
-	   $prev_lastevent = $lastevent;
 	   $lastevent = $ch;
        } elsif ( $ch eq ',' ) {
-	   $self->debug("here with '$ch' $chars\n");
-	   
-	   if( length $chars ) {
+	   if( $chars ) {
 	       if( $lastevent eq ':' ) {
 		   $self->_eventHandler->start_element( { 'Name' => 'branch_length'});
 		   $self->_eventHandler->characters($chars);
@@ -156,28 +150,20 @@ sub next_tree{
 		   $self->_eventHandler->start_element( { 'Name' => 'id' } );
 		   $self->_eventHandler->characters($chars);
 		   $self->_eventHandler->end_element( { 'Name' => 'id' } );
-	       }
+	       }   
 	   } else {
 	       $self->_eventHandler->start_element( { 'Name' => 'node' } );
 	   }
-	   
-           # leaves always end with parens
-	   $self->_eventHandler->start_element( { 'Name' => 'leaf' } );	   
-	   $self->_eventHandler->characters(( $prev_lastevent ne ')' ) || $lastevent eq ',');
-	   $self->_eventHandler->end_element( { 'Name' => 'leaf' } );	   	       
-	    
 	   $self->_eventHandler->end_element( {'Name' => 'node'} );
 	   $chars = '';
-	   $prev_lastevent = $lastevent;
 	   $lastevent = $ch;
        } elsif( $ch eq ':' ) {
 	   $self->debug("id with a branchlength coming is $chars\n");
 	   $self->_eventHandler->start_element( { 'Name' => 'node' } );
 	   $self->_eventHandler->start_element( { 'Name' => 'id' } );	   
 	   $self->_eventHandler->characters($chars);
-	   $self->_eventHandler->end_element( { 'Name' => 'id' } );	   	       
+	   $self->_eventHandler->end_element( { 'Name' => 'id' } );	   
 	   $chars = '';
-	   $prev_lastevent = $lastevent;
 	   $lastevent = $ch;
        } else { 	   
 	   $chars .= $ch;

@@ -48,9 +48,11 @@ email or the web:
 
 Email jason@bioperl.org
 
+Describe contact details here
+
 =head1 CONTRIBUTORS
 
-Aaron Mackey amackey@virginia.edu
+Additional contributors names and emails here
 
 =head1 APPENDIX
 
@@ -236,9 +238,7 @@ sub end_element{
 
        $tnode = $self->nodetype->new( -verbose => $self->verbose,
 				      %{$node});
-       $self->debug( sprintf("\tnode is %s leaf is %s\n",$node->{'-id'} || '',
-			     $node->{'-leaf'} || ''));
-       unless ( $node->{'-leaf'} ) { 	
+       unless ( $node->{'-id'} ) { 
 	   for ( splice( @{$self->{_currentnodes}}, -$self->{_nodect}->[$self->{_treelevel} + 1]) ) {
 	       $self->debug("adding desc: " . $_->to_string . "\n");
 	       $tnode->add_Descendent($_);
@@ -325,8 +325,6 @@ sub characters{
        } elsif ( $self->in_element('tag_value') ) {
 	   $hash->{'-nhx'}->{$hash->{'-NHXtagname'}} = $ch;
 	   delete $hash->{'-NHXtagname'};
-       } elsif(  $self->in_element('leaf') ) {
-	   $hash->{'-leaf'} = $ch;
        }
        push @{$self->{'_currentitems'}}, $hash;
    }
