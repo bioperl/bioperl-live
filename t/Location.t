@@ -15,7 +15,7 @@ BEGIN {
 	use lib 't';
     }
     use Test;
-    plan tests => 40; 
+    plan tests => 41; 
 }
 
 use Bio::Location::Simple;
@@ -131,3 +131,5 @@ $f = new Bio::Location::Fuzzy(-start => '45.60',
 			      -end   => '75^80');
 
 ok($f->to_FTstring(), '45.60..75^80');
+$f->start('20>');
+ok($f->to_FTstring(), '>20..75^80');

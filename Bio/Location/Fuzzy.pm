@@ -369,11 +369,19 @@ sub to_FTstring {
 				       $vals{"$point\_code"})). ")");
 		return '';
 	    }
-	    
+	    if( defined $vals{"$point\_code"} && 
+		($vals{"$point\_code"} eq 'BEFORE' ||
+		 $vals{"$point\_code"} eq 'AFTER')
+		) {
+		$strs{$point} .= $FUZZYCODES{$vals{"$point\_code"}};
+	    } 
 	    if( defined $vals{"min_$point"} ) {
 		$strs{$point} .= $vals{"min_$point"};
 	    }
-	    if( defined $vals{"$point\_code"} ) {
+	    if( defined $vals{"$point\_code"} && 
+		($vals{"$point\_code"} eq 'WITHIN' ||
+		 $vals{"$point\_code"} eq 'BETWEEN')
+		) {
 		$strs{$point} .= $FUZZYCODES{$vals{"$point\_code"}};
 	    }
 	    if( defined $vals{"max_$point"} ) {
