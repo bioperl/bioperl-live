@@ -102,7 +102,7 @@ use strict;
 use vars qw($VERSION @ISA $Contigs %DEFAULTS);
 use Carp;
 use FileHandle;
-use Dumpvalue qw(dumpValue);
+use Dumpvalue;
 use Bio::Tools::Alignment::Trim;
 use Bio::Root::Root;
 use Bio::Root::IO;
