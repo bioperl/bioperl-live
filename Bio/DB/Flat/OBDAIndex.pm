@@ -111,7 +111,7 @@ object
 Now you can happily fetch sequences either by the primary key or
 by the secondary keys.
 
-    my $entry = $index->get_entry_by_id('HBA_HUMAN');
+    my $seq = $index->get_entry_by_id('HBA_HUMAN');
 
 This returns just a string containing the whole entry.  This is
 useful is you just want to print the sequence to screen or write it to a file.
@@ -303,6 +303,10 @@ sub get_Seq_by_id {
 	$self->throw("Can't create sequence - format is not defined");
     }
 
+    if (!defined($fh)) {
+       return;
+    }
+
     if (!defined($self->{_seqio})) {
 	$self->{_seqio} = new Bio::SeqIO(-fh => $fh,
 					 -format => $self->format);
@@ -474,11 +478,12 @@ sub get_Seq_by_secondary {
     my $current_id = $newid;
     my %primary_id;
 
+    $primary_id =~ s/ //g;
     $primary_id{$primary_id} = 1;
 
     while ($current_id eq $newid) {
 	$record = $self->read_record($fh,$pos,$recsize);
-	print "Record is :$record:\n";
+	#print "Record is :$record:\n";
 	my ($secid,$primary_id) = split(/\t/,$record,2);
 	$current_id = $secid;
 
@@ -496,12 +501,15 @@ sub get_Seq_by_secondary {
       return;
     }
 
-    my $entry;
+    my @seqs;
 
     foreach my $id (keys %primary_id) {
-	$entry .= $self->get_Seq_by_id($id);
+	my $seq = $self->get_Seq_by_id($id);
+        if (defined($seq)) {
+          push(@seqs,$seq);
+        }
     }
-    return $entry;
+    return @seqs;
 
 }
 
