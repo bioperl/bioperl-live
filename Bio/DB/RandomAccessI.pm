@@ -52,7 +52,7 @@ use vars qw($AUTOLOAD @ISA @EXPORT_OK);
 use strict;
 
 # Object preamble - inherits from Bio::Root::Object
-use Bio::Root::Object;
+use Bio::Root::RootI;
 @ISA = qw(Bio::Root::RootI Exporter);
 @EXPORT_OK = qw();
 
