@@ -528,7 +528,7 @@ sub _run {
     my $instring;
     if ($command =~ /align/) {
 	$instring =  "-infile=$infile1";
-	$param_string = $infile2;
+	$param_string .= " $infile2";
     }
     if ($command =~ /profile/) {
 	$instring =  "-profile1=$infile1  -profile2=$infile2";
