@@ -11,7 +11,7 @@
 # To generate documentation, run this module through pod2html
 # (preferably from Perl v5.004 or better).
 #
-# Copyright (c) 1996-98 Steve A. Chervitz. All Rights Reserved.
+# Copyright (c) 1996-2000 Steve A. Chervitz. All Rights Reserved.
 #           This module is free software; you can redistribute it and/or 
 #           modify it under the same terms as Perl itself.
 #------------------------------------------------------------------------------
@@ -26,7 +26,7 @@ use Bio::Root::Object  ();
 use strict;
 use vars qw($ID $VERSION %SUMMARY_OFFSET $Revision);
 $ID = 'Bio::Tools::Blast::Sbjct';
-$VERSION = 0.080;
+$VERSION = 0.09;
 $Revision = '$Id$';  #'
 
 my $_prog       = '';
@@ -218,7 +218,7 @@ See the L<FEEDBACK> section for where to send bug reports and comments.
 
 =head1 VERSION
 
-Bio::Tools::Blast::Sbjct.pm, 0.080
+Bio::Tools::Blast::Sbjct.pm, 0.09
 
 =head1 COPYRIGHT
 
@@ -354,19 +354,15 @@ sub rank {
 
  Usage     : n/a; automatically called by _initialize()
  Purpose   : Sets the name of the Sbjct sequence from the BLAST summary line.
-           : Also extracts database id.
-           : For sequences without database ids, database id is set to "-".
+           : The identifier is assumed to be the first
+           : chunk of non-whitespace characters in the description line
+           : Does not assume any semantics in the structure of the identifier
+           : (Formerly, this method attempted to extract database name from
+           : the seq identifiers, but this was prone to break).
  Returns   : n/a
  Argument  : String containing description line of the hit from Blast report
            : or first line of an alignment section.
  Throws    : Warning if cannot locate sequence ID.
- Comments  : If more than one sequence identifier is present they are
-           : combined as "SEQID1/SEQID2"
- Warning   : The success of this method to obtain the sequence ID(s)
-           : and distinguish them from the database ID is highly 
-           : dependent on the formatting convention of the Blast flat file.
-           : Future or non-standard versions of Blast will break this code.
-           : Parsing ASN.1 or another structured format would help.
 
 See Also   : L<_initialize>(), B<Bio::Tools::Blast.pm>::database
 
@@ -382,40 +378,56 @@ sub _set_id {
     my @linedat = split();
     my $data = $linedat[0];
 
-    # Proceeding from more standard (NCBI-like) to less standard.
-
-    if($data =~ /(\S+?)[:\|]+(\S+?)[:\|]+(\S*)/) {
-       # matches: database|id1|id2 or database||id1||id2 or database:id1:id2 
-	$dbID    = $1;
-	$seqID1  = $2;
-	$seqID2  = $3;
-	if($seqID2 eq $seqID1) { undef($seqID2); }
-
-    } elsif($data =~ /(\S+?)[:\|]+(\S+)/) {
-       # matches: database|id1  or database:id1
-	$dbID    = $1;
-	$seqID1  = $2;
-
-    } elsif($data =~ /^(\S+)\s+([gb|emb|dbj|sp|pir])\s+(\S+)*/) {
-       # matches: id1 database id2 
-	$seqID1  = $1;
-	$dbID    = $2;
-	$seqID2  = $3;
-
-    } elsif($data =~ /^(\S+)\s*/) {
-	$seqID1 = $1;
+# New strategy: Assume only that the ID is the first white space
+# delimited chunk. Not attempting to extract database name.
+# Clients will have to interpret it as necessary.
+    if($data =~ /^(\S+)\s*/) {
+        $self->name($1);
     }
-
-    ## Combine the multiple IDs.
-    $seqID2 = scalar($seqID2) ? "/$seqID2" : '';
-
-    if( !scalar $seqID1) {
-	$self->warn("Can't locate sequence identifier in summary line.", "Line = $data");
-	$self->name('Unknown sequence ID');
-    } else {
-	$self->name($seqID1.$seqID2);
+    else {
+        $self->warn("Can't locate sequence identifier in summary line.", "Line = $data");
+        $data = 'Unknown sequence ID' if not $data;
+        $self->name($data);
     }
-    $self->{'_db'}  = $dbID || '-';
+    $self->{'_db'}  = '-';
+
+# Old strategy: assumes semantics in the identifier
+# and tries to separate out database and id components.
+# Too fancy and fragile!  SAC, 2000-02-18
+
+#    # Proceeding from more standard (NCBI-like) to less standard.
+#    if($data =~ /(\S+?)[:\|]+(\S+?)[:\|]+(\S*)/) {
+#       # matches: database|id1|id2 or database||id1||id2 or database:id1:id2 
+#        $dbID    = $1;
+#        $seqID1  = $2;
+#        $seqID2  = $3;
+#        if($seqID2 eq $seqID1) { undef($seqID2); }
+#
+#    } elsif($data =~ /(\S+?)[:\|]+(\S+)/) {
+#       # matches: database|id1  or database:id1
+#        $dbID    = $1;
+#        $seqID1  = $2;
+#
+#    } elsif($data =~ /^(\S+)\s+([gb|emb|dbj|sp|pir])\s+(\S+)*/) {
+#       # matches: id1 database id2 
+#        $seqID1  = $1;
+#        $dbID    = $2;
+#        $seqID2  = $3;
+#
+#    } elsif($data =~ /^(\S+)\s*/) {
+#        $seqID1 = $1;
+#    }
+#
+#    ## Combine the multiple IDs.
+#    $seqID2 = scalar($seqID2) ? "/$seqID2" : '';
+#
+#    if( !scalar $seqID1) {
+#        $self->warn("Can't locate sequence identifier in summary line.", "Line = $data");
+#        $self->name('Unknown sequence ID');
+#    } else {
+#        $self->name($seqID1.$seqID2);
+#    }
+#    $self->{'_db'}  = $dbID || '-';
 }
 
 
@@ -498,8 +510,12 @@ sub _set_hsps {
    		    undef $hspObj;
 		} else {
 		    push @hspList, $hspObj;
-		    $self->{'_expect'} = $hspObj->expect() if $hspCount == 1;
-		    $self->{'_p'}      = ($hspObj->p() || undef) if $hspCount == 1;
+                    if (!defined($self->{'_expect'}) || $hspObj->expect() < $self->{'_expect'}) {
+                        $self->{'_expect'} = $hspObj->expect();
+                    }
+                    if (!defined($self->{'_p'}) || $hspObj->p() < $self->{'_p'}) {
+                        $self->{'_p'} = $hspObj->p();
+                    }
 		}
 		@hspData = ();
 		push @hspData, $line;
@@ -509,7 +525,7 @@ sub _set_hsps {
 	   }
        } elsif( $start ) {
 	   ## This block is for setting the last HSP (which may be the first as well!).
-	   if( $line =~ /^(end|>|Parameters|CPU)/ ) {
+	   if( $line =~ /^(end|>|Parameters|CPU|Database:)/ ) {
 	       $hspCount++;
 	       $DEBUG and do{ print STDERR +( $hspCount % 10 ? "+" : "+\n" ); };
 
@@ -529,8 +545,12 @@ sub _set_hsps {
    		  undef $hspObj;
 	       } else {
 		   push @hspList, $hspObj;
-		   $self->{'_expect'} ||= $hspObj->expect() if $hspCount == 1;
-		   $self->{'_p'}      ||= ($hspObj->p() || undef) if $hspCount == 1;
+                   if (!defined($self->{'_expect'}) || $hspObj->expect() < $self->{'_expect'}) {
+                       $self->{_expect} = $hspObj->expect();
+                   }
+                   if (!defined($self->{'_p'}) || $hspObj->p() < $self->{'_p'}) {
+                       $self->{'_p'} = $hspObj->p();
+                   }
 	       }
 	   } else {
 	       push @hspData, $line;

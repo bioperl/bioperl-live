@@ -21,11 +21,11 @@ Read the Bio::Tools::HMMER::Results docs
 =head1 DESCRIPTION
 
 A particular domain score. We reuse the Homol SeqFeature system
-here, so this inheriets off Homol SeqFeature. As this code
+here, so this inherits off Homol SeqFeature. As this code
 originally came from a separate project, there are some backward
 compatibility stuff provided to keep this working with old code.
 
-Don\'t forget this inheriets off Bio::SeqFeature, so all your usual
+Don\'t forget this inherits off Bio::SeqFeature, so all your usual
 nice start/end/score stuff is ready for use.
 
 =head1 CONTACT

@@ -11,7 +11,7 @@
 # To generate documentation, run this module through pod2html
 # (preferably from Perl v5.004 or better).
 #
-# Copyright (c) 1996-98 Steve A. Chervitz. All Rights Reserved.
+# Copyright (c) 1996-2000 Steve A. Chervitz. All Rights Reserved.
 #           This module is free software; you can redistribute it and/or 
 #           modify it under the same terms as Perl itself.
 #----------------------------------------------------------------------------
@@ -25,14 +25,14 @@ use Bio::Root::Object ();
 @ISA = qw( Bio::Root::Object);  
 
 use strict;
-use vars qw($ID $VERSION $GAP_SYMBOL @SCORE_CUTOFFS $Revision);
+use vars qw($ID $VERSION $GAP_SYMBOL @SCORE_CUTOFFS $Revision %STRAND_SYMBOL);
 $ID       = 'Bio::Tools::Blast::HSP';
-$VERSION  = 0.080;
+$VERSION  = 0.09;
 $Revision = '$Id$';  #'
 
 $GAP_SYMBOL    = '-';          # Need a more general way to handle gap symbols.
 @SCORE_CUTOFFS = ( 100, 30 );  # Bit score cutoffs (see homol_score()).
-
+%STRAND_SYMBOL = ('Plus' => 1, 'Minus' => -1);
 
 ## POD Documentation:
 
@@ -137,7 +137,7 @@ Steve A. Chervitz, sac@genome.stanford.edu
 
 =head1 VERSION
 
-Bio::Tools::Blast::HSP.pm, 0.080
+Bio::Tools::Blast::HSP.pm, 0.09
 
 =head1 SEE ALSO
 
@@ -298,7 +298,7 @@ sub _set_data {
     # Storing the match list in case it is needed later.
     $self->{'_matchList'} = \@matchList;
 
-    if(!$self->{'_numIdentical'}) {
+    if(not defined ($self->{'_numIdentical'})) {
       $self->throw("Can't parse match statistics.",
 		   "Possibly a new or unrecognized Blast format.");
     }
@@ -334,26 +334,26 @@ sub _set_score_stats {
 
     my ($expect, $p);
 
-    if($data =~ /Score = +([\d.e+]+) bits \(([\d.e+]+)\), +Expect = +([\d.e+-]+)/) {
+    if($data =~ /Score = +([\d.e+-]+) bits \(([\d.e+-]+)\), +Expect = +([\d.e+-]+)/) {
 	# blast2 format n = 1
 	$self->{'_bits'}   = $1;
 	$self->{'_score'}  = $2;
 	$expect            = $3;
-    } elsif($data =~ /Score = +([\d.e+]+) bits \(([\d.e+]+)\), +Expect\((\d+)\) = +([\d.e+-]+)/) {
+    } elsif($data =~ /Score = +([\d.e+-]+) bits \(([\d.e+-]+)\), +Expect\((\d+)\) = +([\d.e+-]+)/) {
 	# blast2 format n > 1
 	$self->{'_bits'}   = $1;
 	$self->{'_score'}  = $2;
 	$self->{'_n'}      = $3;
 	$expect            = $4;
 
-    } elsif($data =~ /Score = +([\d.e+]+) \(([\d.e+]+) bits\), +Expect = +([\d.e+-]+), P = +([\d.e-]+)/) {
+    } elsif($data =~ /Score = +([\d.e+-]+) \(([\d.e+-]+) bits\), +Expect = +([\d.e+-]+), P = +([\d.e-]+)/) {
 	# blast1 format, n = 1
 	$self->{'_score'}  = $1;
 	$self->{'_bits'}   = $2;
 	$expect            = $3;
 	$p                 = $4;
 
-    } elsif($data =~ /Score = +([\d.e+]+) \(([\d.e+]+) bits\), +Expect = +([\d.e+-]+), +Sum P\((\d+)\) = +([\d.e-]+)/) {
+    } elsif($data =~ /Score = +([\d.e+-]+) \(([\d.e+-]+) bits\), +Expect = +([\d.e+-]+), +Sum P\((\d+)\) = +([\d.e-]+)/) {
 	# blast1 format, n > 1
 	$self->{'_score'}  = $1;
 	$self->{'_bits'}   = $2;
@@ -1256,13 +1256,14 @@ sub end {
  Purpose   : Get the strand of the query or sbjct sequence.
  Example   : print $hsp->strand('query');
            : ($qstrand, $sstrand) = $hsp->strand();
- Returns   : string: 'Minus' or 'Plus'
-           : In scalar context without arguments, returns queryStrand.
+ Returns   : -1, 0, or 1
+           : -1 = Minus strand, +1 = Plus strand
+           : Returns 0 if strand is not defined, which occurs
+           : for non-TBLASTN/X reports.
+           : In scalar context without arguments, returns queryStrand value.
            : In array context without arguments, returns a two-element list 
            :    of strings (queryStrand, sbjctStrand).
            : Array context can be "induced" by providing an argument of 'list' or 'array'.
-           : Returns null string(s) if strand is not defined, which occurs
-           : for non-TBLASTN/X reports.
  Argument  : seq_type: 'query' | 'sbjct' or undef
  Throws    : n/a
 
@@ -1288,7 +1289,8 @@ sub strand {
 	return ('','') unless defined $self->{'_queryStrand'};
 	return ($self->{'_queryStrand'}, $self->{'_sbjctStrand'});
     }
-    $self->{$seqType.'Strand'} || '';
+    local $^W = 0;
+    $STRAND_SYMBOL{$self->{$seqType.'Strand'}} || 0;
 }
 
 

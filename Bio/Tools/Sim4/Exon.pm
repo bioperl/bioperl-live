@@ -87,7 +87,7 @@ sub _initialize {
 }
 
 #
-# Everything else is just inherieted from SeqFeature::Generic. Cool.
+# Everything else is just inherited from SeqFeature::Generic. Cool.
 #
 
 =head2 percentage_id

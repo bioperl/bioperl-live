@@ -41,7 +41,7 @@ The sim4 module provides a parser and results object for sim4 output. The
 sim4 results are specialised types of SeqFeatures, meaning you can add them
 to AnnSeq objects fine, and manipulate them in the "normal" seqfeature manner.
 
-The sim4 Exon objects are Bio::SeqFeature::Homol inherieted objects. The 
+The sim4 Exon objects are Bio::SeqFeature::Homol inherited objects. The 
 $h = $exon->homol_SeqFeature() is the seqfeature on the matching object, in
 which the start/end points are where the hit lies.
 
