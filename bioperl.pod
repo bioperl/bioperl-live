@@ -1,4 +1,4 @@
-## $Id: bioperl.pod,v 1.27 2002-05-31 16:47:55 bosborne Exp $
+## $Id: bioperl.pod,v 1.28 2002-06-13 20:23:19 bosborne Exp $
 
 ## Should contain general info about the distribution including
 ## links to many modules.
@@ -105,6 +105,9 @@ L<Bio::Biblio> for details
 
 I<examples/biblio_soap.pl> - connect to and test a SOAP server using a
 Bio::Biblio object
+
+I<examples/BioPerlBlast.pl> - script that takes multiple query sequences
+and queries a database with Blast
 
 I<examples/blast/*pl> - a set of scripts showing how to use Blast.pm.
 Please see L<Bio::Tools::Blast> for more information
