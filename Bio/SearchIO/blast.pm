@@ -179,6 +179,7 @@ BEGIN {
           'Hsp_query-frame'=> 'HSP-query_frame',
           'Hsp_hit-frame'  => 'HSP-hit_frame',
 	  'Hsp_links'      => 'HSP-links',
+	  'Hsp_group'      => 'HSP-group',
 
           'Hit_id'        => 'HIT-name',
           'Hit_len'       => 'HIT-length',
@@ -696,13 +697,14 @@ sub next_result{
                 \s*Expect\s*=\s*([^,\s]+),    # E-value
                 \s*(?:Sum)?\s*                # SUM
                 P(?:\(\d+\))?\s*=\s*([^,\s]+) # P-value
+                (?:\s+Group\s*\=\s*(\d+))?    # HSP Group
                 /ox 
                   ) { # wu-blast HSP parse
            $self->in_element('hsp') && $self->end_element({'Name' => 'Hsp'});
            $self->start_element({'Name' => 'Hsp'});
 	   
            # Some data clean-up so e-value will appear numeric to perl
-           my ($score, $bits, $evalue, $pvalue) = ($1, $2, $3, $4);
+           my ($score, $bits, $evalue, $pvalue,$group) = ($1, $2, $3, $4,$5);
            $evalue =~ s/^e/1e/i;
            $pvalue =~ s/^e/1e/i;
 	   
@@ -714,6 +716,11 @@ sub next_result{
                              'Data' => $evalue});
            $self->element( {'Name'  => 'Hsp_pvalue',
                             'Data'  =>$pvalue});
+	   if( defined $group ) {
+	       $self->element( {'Name'  => 'Hsp_group',
+				'Data'  =>$group});
+	   }
+
        } elsif( ($self->in_element('hit') || 
                  $self->in_element('hsp')) && # ncbi blast
                 m/Score\s*=\s*(\S+)\s*bits\s* # Bit score
@@ -736,7 +743,6 @@ sub next_result{
 	   $score = '' unless defined $score; # deal with BLAT which
                                               # has no score only bits
            #$self->debug("Got NCBI HSP score=$score, evalue $evalue\n") if $self->verbose > 0;
-
        } elsif( $self->in_element('hsp') &&
                 m/Identities\s*=\s*(\d+)\s*\/\s*(\d+)\s*[\d\%\(\)]+\s*
                 (?:,\s*Positives\s*=\s*(\d+)\/(\d+)\s*[\d\%\(\)]+\s*)? # pos only valid for Protein alignments
