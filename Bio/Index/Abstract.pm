@@ -494,6 +494,12 @@ sub make_index {
     my($self, @files) = @_;
     my $count = 0;
 
+    # blow up if write flag is not set. EB fix
+
+    if( !defined $self->write_flag ) {
+	$self->throw("Attempting to make an index on a read-only database. What about a WRITE flag on opening the index?");
+    }
+
     # We're really fussy/lazy, expecting all file names to be fully qualified
     $self->throw("No files to index provided") unless @files;
     foreach my $file (@files) {
