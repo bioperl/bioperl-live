@@ -343,8 +343,12 @@ sub significance {
     if( defined $value ) { 
         $self->{'_significance'} = $value;
     } elsif ( ! defined $previous ) {
+	unless( defined $self->{'_hsps'}->[0] ) {
+	    $self->warn("No HSPs for this Hit (".$self->name.")");
+	    return undef;
+	}
         # Set the significance of the Hit to that of the top HSP.
-        $self->{'_significance'} = ($self->hsps)[0]->significance;
+        $previous = $self->{'_significance'} = ($self->hsps)[0]->significance;
     }
 
     return $previous;
@@ -366,14 +370,19 @@ See Also   : L<score()|score>
 #---------
 sub bits { 
 #---------
-    my ($self) = @_; 
-    
-    my $bits = $self->{'_bits'};
-    if( ! defined $bits ) {
-        $bits = $self->{'_hsps'}->[0]->bits();
-        $self->{'_bits'} = $bits;
-    } 
-    return $bits;
+    my ($self,$value) = @_; 
+    my $previous = $self->{'_bits'};
+    if( defined $value ) { 
+        $self->{'_bits'} = $value;
+    } elsif ( ! defined $previous ) {
+        # Set the significance of the Hit to that of the top HSP.
+	unless( defined $self->{'_hsps'}->[0] ) {
+	    $self->warn("No HSPs for this Hit (".$self->name.")");
+	    return undef;
+	}
+        $previous = $self->{'_bits'} = ($self->hsps)[0]->bits;
+    }    
+    return $previous;
 }
 
 =head2 next_hsp
