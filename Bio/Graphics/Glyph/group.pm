@@ -16,6 +16,15 @@ sub connector {
 # we don't label group (yet)
 sub label { 0 }
 
+sub new {
+  my $self = shift->SUPER::new(@_);
+  # reset our parts to level zero
+  foreach (@{$self->{parts}}) {
+    $_->{level} = 0;
+  }
+  $self;
+}
+
 #sub layout_width {
 #  my $self = shift;
 #  my @parts = $self->parts or return $self->SUPER::layout_width;

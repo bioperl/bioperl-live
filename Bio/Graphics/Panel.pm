@@ -261,7 +261,7 @@ sub _add_track {
 					   );
 
   my $factory = Bio::Graphics::Glyph::Factory->new($self,@options);
-  my $track   = $factory->make_glyph($feature);
+  my $track   = $factory->make_glyph(-1,$feature);
 
   splice(@{$self->{tracks}},$position,0,$track);
   return $track;
@@ -404,7 +404,7 @@ sub format_key {
 	my $t = Bio::Graphics::Feature->new(-segments=>
 					    [Bio::Graphics::Feature->new(-start => $self->offset,
 									 -stop  => $self->offset+$self->length)]);
-	my $g = $track->factory->make_glyph($t);
+	my $g = $track->factory->make_glyph(0,$t);
 	$glyph = $g->keyglyph;
       }
       next unless $glyph;

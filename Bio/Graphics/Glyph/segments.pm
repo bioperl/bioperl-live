@@ -28,14 +28,14 @@ sub bump {
 }
 sub label {
   my $self = shift;
-  return $self->SUPER::label(@_) if $self->all_callbacks || !$self->is_recursive;
-  return unless $self->subseq($self->feature);
+  return $self->SUPER::label(@_) if $self->all_callbacks;
+  return unless $self->{level} == 0;
   return $self->SUPER::label(@_);
 }
 sub description {
   my $self = shift;
-  return $self->SUPER::description(@_) if $self->all_callbacks || !$self->is_recursive;
-  return unless $self->subseq($self->feature);
+  return $self->SUPER::description(@_) if $self->all_callbacks;
+  return unless $self->{level} == 0;
   return $self->SUPER::description(@_);
 }
 

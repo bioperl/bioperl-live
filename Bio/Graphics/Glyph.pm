@@ -19,10 +19,12 @@ sub new {
 
   my $feature = $arg{-feature} or die "No feature";
   my $factory = $arg{-factory} || $class->default_factory;
+  my $level   = $arg{-level} || 0;
 
   my $self = bless {},$class;
   $self->{feature} = $feature;
   $self->{factory} = $factory;
+  $self->{level}   = $level;
   $self->{top} = 0;
 
   my @subglyphs;
@@ -31,7 +33,7 @@ sub new {
   if (@subfeatures) {
 
     # dynamic glyph resolution
-    @subglyphs = sort { $a->left  <=> $b->left }  $factory->make_glyph(@subfeatures);
+    @subglyphs = sort { $a->left  <=> $b->left }  $factory->make_glyph($level+1,@subfeatures);
 
     $self->{parts}   = \@subglyphs;
   }
@@ -112,7 +114,7 @@ sub add_feature {
     if (ref $feature eq 'ARRAY') {
       $self->add_group(@$feature);
     } else {
-      push @{$self->{parts}},$factory->make_glyph($feature);
+      push @{$self->{parts}},$factory->make_glyph(0,$feature);
     }
   }
 }
@@ -459,7 +461,7 @@ sub draw {
   else {  # no part
     $self->draw_component($gd,$left,$top);
     $self->draw_connectors($gd,$left,$top)
-      if $connector && $connector ne 'none' && !$self->is_recursive;
+      if $connector && $connector ne 'none' && $self->{level} == 0;
   }
 }
 
@@ -739,7 +741,7 @@ sub keyglyph {
   $factory->set_option(label => 1);
   $factory->set_option(bump  => 0);
   $factory->set_option(connector  => 'solid');
-  return $factory->make_glyph($feature);
+  return $factory->make_glyph(0,$feature);
 }
 
 # synthesize a key glyph
@@ -769,16 +771,6 @@ sub all_callbacks {
 
 sub default_factory {
   croak "no default factory implemented";
-}
-
-# This returns true if the underlying feature is fully recursive, like Bio::DB::GFF or
-# Gadfly, false if the underlying feature has split locations, like Bio::Seq::RichSeq.
-# Play with this if you start getting labels appearing on each element of a segmented
-# glyph.
-sub is_recursive {
-  my $self = shift;
-  return $self->{_recursive} if exists $self->{_recursive};
-  return $self->{_recursive} = !$self->feature->isa('Bio::SeqFeature::Generic');
 }
 
 1;

@@ -1,4 +1,5 @@
 package Bio::Graphics::Glyph::transcript;
+# $Id$
 
 use strict;
 use Bio::Graphics::Glyph::generic;
@@ -11,6 +12,7 @@ use vars '@ISA';
 sub pad_left  {
   my $self = shift;
   my $pad  = $self->SUPER::pad_left;
+  return $pad if $self->{level} > 0;
   return $pad unless $self->feature->strand < 0;
   return $self->arrow_length > $pad ? $self->arrow_length : $pad;
 }
@@ -18,6 +20,7 @@ sub pad_left  {
 sub pad_right {
   my $self = shift;
   my $pad  = $self->SUPER::pad_right;
+  return $pad if $self->{level} > 0;
   return $pad unless $self->feature->strand > 0;
   return $self->arrow_length > $pad ? $self->arrow_length : $pad;
 }
@@ -60,15 +63,15 @@ sub bump {
 
 sub label {
   my $self = shift;
-  return $self->SUPER::label(@_) if $self->all_callbacks || !$self->is_recursive;
-  return unless $self->subseq($self->feature);
+  return $self->SUPER::label(@_) if $self->all_callbacks;
+  return unless $self->{level} == 0;
   return $self->SUPER::label(@_);
 }
 
 sub description {
   my $self = shift;
-  return $self->SUPER::description(@_) if $self->all_callbacks || !$self->is_recursive;
-  return unless $self->subseq($self->feature);
+  return $self->SUPER::description(@_) if $self->all_callbacks;
+  return unless $self->{level} == 0;
   return $self->SUPER::description(@_);
 }
 
