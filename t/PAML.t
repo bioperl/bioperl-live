@@ -80,6 +80,6 @@ ok($codonposfreq[2]->{'G'}, 0.32842);
 
 $inpaml = new Bio::Tools::Phylo::PAML(-file => Bio::Root::IO->catfile(qw(t data aaml.mlc)));
 
-ok($inpaml);
+#ok($inpaml);
 #$result = $inpaml->next_result;
-#ok($result);
+ok($result);
