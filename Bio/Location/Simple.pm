@@ -320,7 +320,8 @@ sub to_FTstring {
     if($self->is_remote() && $self->seq_id()) {
 	$str = $self->seq_id() . ":" . $str;
     }
-    if( $self->strand == -1 ) {
+    if( defined $self->strand &&
+	$self->strand == -1 ) {
 	$str = "complement(".$str.")";
     }
     return $str;
