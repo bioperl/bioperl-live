@@ -58,7 +58,7 @@ To generate the ID line. If it is not there, it generates a sensible ID
 line using a number of tools.
 
  
-=end
+=back
 
 =head1 FEEDBACK
 
@@ -378,12 +378,12 @@ sub write_seq {
        $self->_print( "AC   $temp_line\n");   
    } else {
        if ($seq->can('accession') ) {
-	   print "AC   ",$seq->accession,";";
+	   $self->_print("AC   ",$seq->accession,";");
 	   if ($seq->can('each_secondary_accession') ) {
-	       print " ",$seq->each_secondary_accession,";\n";
+	       $self->_print(" ",$seq->each_secondary_accession,";\n");
 	   }
 	   else {
-	       print "\n";
+	       $self->_print("\n");
 	   }
        }
        # otherwise - cannot print <sigh>
@@ -399,21 +399,23 @@ sub write_seq {
 
    #Gene name
    if ($seq->annotation->can('gene_name')) {
-       print "GN   ",$seq->annotation->gene_name,"\n";
+       $self->_print("GN   ",$seq->annotation->gene_name,"\n");
    }
    
    # Organism lines
-   if (my $spec = $seq->species) {
-       my($sub_species, $species, $genus, @class) = $spec->classification();
-       my $OS = "$genus $species $sub_species";
-       if (my $common = $spec->common_name) {
-	   $OS .= " ($common)";
-       }
-       $self->_print( "OS   $OS\n");
-       my $OC = join('; ', reverse(@class));
-       $OC =~ s/\;\s+$//;
-       $OC .= ".";
-       $self->_write_line_swissprot_regex("OC   ","OC   ",$OC,"\; \|\$",80);
+   if ($seq->can('species') && (my $spec = $seq->species)) {
+        my($species, @class) = $spec->classification();
+        my $genus = $class[0];
+        my $OS = "$genus $species";
+	if (my $ssp = $spec->sub_species) {
+            $OS .= " $ssp";
+        }
+        if (my $common = $spec->common_name) {
+            $OS .= " ($common)";
+        }
+        $self->_print( "OS   $OS\n");
+        my $OC = join('; ', reverse(@class)) .'.';
+        $self->_write_line_swissprot_regex("OC   ","OC   ",$OC,"\; \|\$",80);
 	if ($spec->organelle) {
 	    $self->_write_line_swissprot_regex("OG   ","OG   ",$spec->organelle,"\; \|\$",80);
 	}
@@ -532,30 +534,8 @@ sub write_seq {
 sub _print_swissprot_FTHelper {
    my ($self,$fth,$always_quote) = @_;
    
-   if( ! ref $fth || ! $fth->isa('Bio::SeqIO::FTHelper') ) {
-       $fth->warn("$fth is not a FTHelper class. Attempting to print, but there could be tears!");
-   }
-   my $loc= $fth->loc;
-   $loc =~ /(\d+)..(\d+)/;
-   my $loc1 = $1;
-   my $loc2 = $2;
-#   my $line = sprintf ("FT   %-12s %-5s %s",$fth->key,$loc1,$loc2);
-#   $self->_print( "$line");
-   my $switch=0; 
-   foreach my $tag ( keys %{$fth->field} ) {
-       foreach my $value ( @{$fth->field->{$tag}} ) {
-	   $value =~ s/\"/\"\"/g;
-	   if ($switch == 0) {
-	       my $line = sprintf ("FT   %-12s %-5s %-10s%s",$fth->key,$loc1,$loc2,$value);
-	       $self->_print( "$line\n");
-	   }
-           else {
-	       $self->_print( "FT                                /$tag\n");
-           } 
-	   $switch = 1;
-	  # $self->_print( "FT                   /", $tag, "=\"", $value, "\"\n");
-       }
-   }
+    ### FIXME - not implemented
+    warn "_print_swissprot_FTHelper NOT IMPLEMENTED";
 
 }
 
@@ -635,14 +615,14 @@ sub _read_swissprot_References{
 =cut
 
 sub _read_swissprot_Species {
-    my( $self,$buffer ) = @_;
+    my( $self, $buffer ) = @_;
     my $org;
 
     $_ = $$buffer;
     my( $sub_species, $species, $genus, $common, @class );
     while (defined( $_ ||= $self->_readline )) {
         
-        if (/^OS\s+(\S+)\s+(\S+)\s+(\S+)?(?:\s+\((.*)\))?/) {
+        if (/^OS\s+(\S+)(?:\s+([^\(]\S*))?(?:\s+([^\(]\S*))?(?:\s+\((.*)\))?/) {
             $genus   = $1;
 	    if ($2) {
 		$species = $2
@@ -651,7 +631,7 @@ sub _read_swissprot_Species {
 		$species = "sp.";
 	    }
 	    $sub_species = $3 if $3;
-            $common  = $4 if $4;
+            $common      = $4 if $4;
         }
         elsif (s/^OC\s+//) {
             push(@class, split /[\;\s\.]+/);
@@ -668,22 +648,22 @@ sub _read_swissprot_Species {
     
     $$buffer = $_;
     
-    # Don't make a species object if it's "Unknown" or "None"
+    # Don't make a species object if it is "Unknown" or "None"
     return if $genus =~ /^(Unknown|None)$/i;
 
     # Bio::Species array needs array in Species -> Kingdom direction
-    if ($sub_species) {
-	push( @class, $genus, $species, $sub_species);
-    }
-    else {
-	push( @class, $genus, $species, "");
+    if ($class[$#class] eq $genus) {
+        push( @class, $species );
+    } else {
+        push( @class, $genus, $species );
     }
     @class = reverse @class;
     
     my $make = Bio::Species->new();
     $make->classification( @class );
-    $make->common_name( $common ) if $common;
-    $make->organelle($org) if $org;
+    $make->common_name( $common      ) if $common;
+    $make->sub_species( $sub_species ) if $sub_species;
+    $make->organelle  ( $org         ) if $org;
     return $make;
 }
 
@@ -722,82 +702,10 @@ sub _filehandle{
 
 sub _read_FTHelper_swissprot {
    my ($self,$buffer) = @_;
-   my ($key,$loc,$out,$value);
-   $out = new Bio::SeqIO::FTHelper();
-
-   if ( $$buffer !~ /^FT\s+(\S+)/) {
-       $out->throw("Weird location line in swissprot feature table: '$_'");
-   }
-   #Read key and location lines
-   if( $$buffer =~ /^FT\s+(\S+)\s+(\d+)\s+(\d+)\s+(.*)/ ) {
-       $key = $1;
-       $loc = $2;
-       $loc .= "..";
-       $loc .= $3;
-       $value = $4;
-   }
-
-   $loc =~ s/<//;
-   $loc =~ s/>//;
-   $out->key($key);
-   $out->loc($loc);
-   # $out->field->{$key};   # What's the purpose of this? I changed to next line. SAC 2/21/00
-   $out->field($key);
-   $value =~ s/\"\"/\"/g;
-   push (@{$out->field->{$key}},$value);
    
-   # Now read in other fields
-   # Loop reads $_ when defined (i.e. only in first loop), then $self->_readline, until end of file
-   $_ = $self->_readline;
-   while( defined($_ ||= $self->_readline) ) {
+   ### FIXME - not implemented
 
-       # Exit loop on non FT lines!
-       /^FT/  || last;       
-       # Exit loop on new primary key
-       /^FT   \w/ && last;
-       # Field on one line
-       if (/^FT\s+\/(\S+)=\"(.+)\"/) {
-	   my $key = $1;
-	   my $value = $2;
-	   if(! defined $out->field->{$key} ) {
-	       $out->field->{$key} = [];
-	   }
-	   $value =~ s/\"\"/\"/g;
-	   
-	   push(@{$out->field->{$key}},$value);
-       }
-       # Field on on multilines:
-       elsif (/^FT\s+\/(\S+)=\"(.*)/) {
-	   my $key = $1;
-	   my $value = $2;
-	   while ( defined($_ = $self->_readline) ) {
-	       s/\"\"/__DOUBLE_QUOTE_STRING__/g;
-	       /FT\s+(.*)\"/ && do { $value .= $1; last; };
-	       /FT\s+(.*)/ && do {$value .= $1; };
-	   }
-	   $value =~ s/__DOUBLE_QUOTE_STRING__/\"/g;
 
-	   if(! defined $out->field->{$key} ) {
-	       $out->field->{$key} = [];
-	   }
-	   push(@{$out->field->{$key}},$value);
-       }
-       # Field with no quoted value
-       elsif (/^FT\s+\/(\S+)=?(\S+)?/) {
-	   my $key = $1;
-	   my $value = $2 if $2;
-	   $value = "_no_value" unless $2;
-	   if(! defined $out->field->{$key} ) {
-	       $out->field->{$key} = [];
-	   }
-	   push(@{$out->field->{$key}},$value);
-       }
-       
-       # Empty $_ to trigger read from $self->_readline
-       undef $_;
-   }   
-   $$buffer = $_;
-   return $out;
 }
 
 

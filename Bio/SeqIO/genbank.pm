@@ -55,7 +55,7 @@ To generate the ID line. If it is not there, it generates a sensible ID
 line using a number of tools.
 
  
-=end
+=back
 
 =head1 FEEDBACK
 
@@ -405,16 +405,13 @@ sub write_seq {
     # Organism lines
     if (my $spec = $seq->species) {
         my($species, $genus, @class) = $spec->classification();
-	my $sub_species = $spec->sub_species();
-	if( !defined $sub_species ) { $sub_species = ""; }
-
-        my $OS = "$genus $species $sub_species";
-	$self->_print("SOURCE      $OS\n");
+        my $OS = "$genus $species";
+        if (my $ssp = $spec->sub_species) {
+            $OS .= " $ssp";
+        }
+	$self->_print("SOURCE      $OS.\n");
 	$self->_print("  ORGANISM  $OS\n");
-        my $OC = join (';', reverse(@class));
-	$OC =~ s/\n//g;
-	$OC =~ s/\;/\; /g;
-	$OC = "$OC; $genus.";
+        my $OC = join('; ', (reverse(@class), $genus)) .'.';
         $self->_write_line_GenBank_regex("            ","            ",
 					 $OC,"\\s\+\|\$",80);
     }
@@ -493,7 +490,8 @@ sub write_seq {
     if( $olen < 0 ) {
 	$self->warn("Weird. More atgc than bases. Problem!");
     }
-    $self->_print("BASE COUNT %8s a %6s c %6s g %6s t\n",$alen,$clen,$glen,$tlen); 
+    my $base_count = sprintf("BASE COUNT %8s a %6s c %6s g %6s t\n",$alen,$clen,$glen,$tlen);
+    $self->_print($base_count); 
     $self->_print("ORIGIN\n");
     my $di;
     for ($i = 0; $i < length($str); $i += 10) {
@@ -552,9 +550,10 @@ sub _print_GenBank_FTHelper {
 						"/$tag","\.\|\$",80);
 	   }
            elsif( $always_quote == 1 || $value !~ /^\d+$/ ) {
+              my $pat = $value =~ /\s/ ? '\s|$' : '.|$';
 	      $self->_write_line_GenBank_regex("                     ",
 					       "                     ",
-					       "/$tag=\"$value\"","\.\|\$",80);
+					       "/$tag=\"$value\"",$pat,80);
            } else {
               $self->_write_line_GenBank_regex("                     ",
 					       "                     ",
@@ -692,23 +691,25 @@ sub _read_GenBank_Species {
     $_ = $$buffer;
     
     my( $sub_species, $species, $genus, $common, @class );
-    while (defined($_) || (defined($_ = $self->_readline))) {
+    while (defined( $_ = $self->_readline )) {
+
         if (/^SOURCE\s+(.*)/) {
-	    # FIXME this is probably mostly wrong (e.g., it yields things like
-	    # Homo sapiens adult placenta cDNA to mRNA
-	    # which is certainly not what you want)
 	    $common = $1;
-	    $common =~ s/\.$//;
+	    $common =~ s/\.//;
 	}
-	if (/^\s*ORGANISM/) {
-	    s/\s*ORGANISM\s*//;
-	    ($genus,$species,$sub_species) = split(/\s+/, $_);
-        } elsif (/^\s+/ || /^SOURCE/) {
-	    s/\s+//g;
-	    s/^SOURCE\S+//;
-	    s/\.$//;
-            push(@class, split /[\s;]+/, $_);
-        } else {
+	if (/^  ORGANISM\s+(\S+)(?:\s+(\S+))?(?:\s+(\S+))?/) {
+            $genus = $1;
+	    if ($2) {
+		$species = $2;
+	    } else {
+		$species = "sp.";
+	    }
+	    $sub_species = $3 if $3;
+        }
+        elsif (/^\s+(.+)/) {
+            @class = split /[;\s\.]+/, $1;
+        }
+        else {
             last;
         }
         
@@ -717,26 +718,21 @@ sub _read_GenBank_Species {
     
     $$buffer = $_;
     
-    # Don't make a species object if it's "Unknown" or "None"
-    if(($genus =~ /^(Unknown|None)$/i) || (length($genus) == 0)) {
-	return;
-    }
-
-    if(! defined($sub_species)) {
-	$sub_species = "";
-    }
-    # make sure that genus is not duplicated
-    if((scalar(@class) > 0) && ($genus eq $class[scalar(@class)-1])) {
-	push( @class, $species, $sub_species);
-    } else {
-	push( @class, $genus, $species, $sub_species);
-    }
+    # Don't make a species object if it's empty or "Unknown" or "None"
+    return unless $genus and  $genus !~ /^(Unknown|None)$/i;
+    
     # Bio::Species array needs array in Species -> Kingdom direction
-    @class = CORE::reverse @class;
+    if ($class[$#class] eq $genus) {
+        push( @class, $species );
+    } else {
+        push( @class, $genus, $species );
+    }
+    @class = reverse @class;
     
     my $make = Bio::Species->new();
     $make->classification( @class );
-    $make->common_name( $common ) if $common;
+    $make->common_name( $common      ) if $common;
+    $make->sub_species( $sub_species ) if $sub_species;
     return $make;
 }
 
@@ -774,81 +770,95 @@ sub _filehandle{
 =cut
 
 sub _read_FTHelper_GenBank {
-   my ($self,$buffer) = @_;
-   my ($key,$loc,$out);
+    my ($self,$buffer) = @_;
+    
+    my ($key,   # The key of the feature
+        $loc,   # The location line from the feature
+        @qual,  # An arrray of lines making up the qualifiers
+        );
+    
+    if ($$buffer =~ /^     (\S+)\s+(\S+)/) {
+        $key = $1;
+        $loc = $2;
+        # Read all the lines up to the next feature
+        while ( defined($_ = $self->_readline) ) {
+            if (/^(\s+)(.+?)\s*$/) {
+                # Lines inside features are preceeded by 21 spaces
+                # A new feature is preceeded by 5 spaces
+                if (length($1) > 6) {
+                    # Add to qualifiers if we're in the qualifiers
+                    if (@qual) {
+                        push(@qual, $2);
+                    }
+                    # Start the qualifier list if it's the first qualifier
+                    elsif (substr($2, 0, 1) eq '/') {
+                        @qual = ($2);
+                    }
+                    # We're still in the location line, so append to location
+                    else {
+                        $loc .= $2;
+                    }
+                } else {
+                    # We've reached the start of the next feature
+                    last;
+                }
+            } else {
+                # We're at the end of the feature table
+                last;
+            }
+        }
+    } else {
+        # No feature key
+        return;
+    } 
+    
+    # Put the first line of the next feature into the buffer
+    $$buffer = $_;
 
-   $_ = $$buffer;
-   if( $$buffer =~ /^\s+(\S+)\s+(\S+)/ ) {
-       $key = $1;
-       $loc = $2;
-       if ($$buffer !~ /^\s+\//) {
-	   while ( defined($_ = $self->_readline) ) {
-	       # read location line until feature, qualifier or end of feature table
-	       /^\s+\S+\s+\S+/ && last; # trigger for next feature
-	       /\s+\// && last; # trigger for qualifier
-	       /^BASE/ && last; # trigger for end of feature table
-	       /\s+\>?(\S+)/ && do {$loc .= $1;};
-	       
-	   }
-       }
-   }
+    # Make the new FTHelper object
+    my $out = new Bio::SeqIO::FTHelper();
+    $out->key($key);
+    $out->loc($loc);
 
-   $out = new Bio::SeqIO::FTHelper();
-   $out->key($key);
-   $out->loc($loc);
+    # Now parse and add any qualifiers.  (@qual is kept
+    # intact to provide informative error messages.)
+  QUAL: for (my $i = 0; $i < @qual; $i++) {
+        $_ = $qual[$i];
+        my( $qualifier, $value ) = m{^/([^=]+)(?:=(.+))?}
+            or $self->throw("Can't see new qualifier in: $_\nfrom:\n"
+                . join('', map "$_\n", @qual));
+        if (defined $value) {
+            # Do we have a quoted value?
+            if (substr($value, 0, 1) eq '"') {
+                # Keep adding to value until we find the trailing quote
+                # and the quotes are balanced
+                while ($value !~ /"$/ or $value =~ tr/"/"/ % 2) {
+                    $i++;
+                    my $next = $qual[$i];
+                    unless (defined($next)) {
+                        warn("Unbalanced quote in:\n", map("$_\n", @qual),
+                            "No further qualifiers will be added for this feature");
+                        last QUAL;
+                    }
 
-   # Now read in other fields
-   # Loop reads $_ when defined (i.e. only in first loop), then read $self->_readline, until eof 
-   while ( defined($_ ||= $self->_readline) ) {
-       # Exit loop on new primary key or end of features
-       #(/^     \S+/||/^BASE/) && last;
-       # Requiring a fixed number of spaces is prone to break. Try to be
-       # as smart as possible. HL <Hilmar.Lapp@pharma.novartis.com>, 05/05/2000
-       (/^(\s+)([^\s\/]\S+)(\s+)(\S+)/ || /^BASE/) && last;
-       # Field on one line
-       if (/^\s+\/(\S+)=\"(.*)\"/) {
-	   my $key = $1;
-	   my $value = $2;
-	   if(! defined $out->field->{$key} ) {
-	       $out->field->{$key} = [];
-	   }
-	   $value =~ s/\"\"/\"/g;
+                    # Join to value with space if value or next line contains a space
+                    $value .= (grep /\s/, ($value, $next)) ? " $next" : $next;
+                }
+                # Trim leading and trailing quotes
+                $value =~ s/^"|"$//g;
+                # Undouble internal quotes
+                $value =~ s/""/"/g;
+            }
+        } else {
+            $value = '_no_value';
+        }
 
-	   push(@{$out->field->{$key}},$value);
-       }
-       # Field on on multilines:
-       elsif (/^\s+\/(\S+)=\"(.*)/) {
-	   my $key = $1;
-	   my $value = $2;
-	   while ( defined($_ = $self->_readline) ) {
-	       # first subs out the ""
-	       s/\"\"/__DOUBLE_QUOTE_STRING__/g;
-	       /\s+(.*)\"/ && do { $value .= $1; last; };
-	       /\s+(.*)/ && do {$value .= $1; };
-	   }
-	   $value =~ s/__DOUBLE_QUOTE_STRING__/\"/g;
+        # Store the qualifier
+        $out->field->{$qualifier} ||= [];
+        push(@{$out->field->{$qualifier}},$value);
+    }   
 
-	   if(! defined $out->field->{$key} ) {
-	       $out->field->{$key} = [];
-	   }
-	   push(@{$out->field->{$key}},$value);
-       }
-       # Field with no quoted value
-       elsif (/^\s+\/([^\s=]+)=?(\S+)?/) {
-	   my $key = $1;
-	   my $value = $2 if $2;
-	   $value = "_no_value" unless $2;
-	   if(! defined $out->field->{$key} ) {
-	       $out->field->{$key} = [];
-	   }
-	   push(@{$out->field->{$key}},$value);
-       }
-
-       # Empty $_ to trigger read from _readline
-       undef $_;
-   }   
-   $$buffer = $_;
-   return $out;
+    return $out;
 }
 
 =head2 _write_line_GenBank
