@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <!DOCTYPE html
   PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml"><head><title>Bio::SeqIO HOWTO</title><link rel="stylesheet" href="e-novative.css" type="text/css"/><meta name="generator" content="DocBook XSL Stylesheets V1.55.0"/><meta name="description" content="&#xA;	  This HOWTO tries to teach you about the SeqIO system for reading and &#xA;	  writing sequences of various formats&#xA;	"/></head><body><div xmlns="" id="customheader"><span class="logo"></span>
-
-    </div><div class="article"><div class="titlepage"><div><h1 class="title"><a id="d3e1"/>Bio::SeqIO HOWTO</h1></div><div><div class="author"><h3 class="author">Ewan Birney</h3><div class="affiliation"><span class="orgname">EBI<br/></span><div class="address"><p><tt>&lt;<a href="mailto:birney-at-ebi.ac.uk">birney-at-ebi.ac.uk</a>&gt;</tt></p></div></div></div></div><div><div class="author"><h3 class="author">Darinn London</h3><div class="affiliation"><span class="orgname">EBI<br/></span><div class="address"><p><tt>&lt;<a href="mailto:dlondon-at-ebi.ac.uk">dlondon-at-ebi.ac.uk</a>&gt;</tt></p></div></div></div></div><div><div class="author"><h3 class="author">Brian Osborne</h3><div class="affiliation"><span class="orgname">Cognia Corpoation<br/></span><div class="address"><p><tt>&lt;<a href="mailto:brian-at-cognia.com">brian-at-cognia.com</a>&gt;</tt></p></div></div></div></div><div><div class="legalnotice"><p>This document is copyright Ewan Birney, 2002.  For 
+<html xmlns="http://www.w3.org/1999/xhtml"><head><title>Bio::SeqIO HOWTO</title><link rel="stylesheet" href="e-novative.css" type="text/css"/><meta name="description" content="&#xA;	  This HOWTO tries to teach you about the SeqIO system for reading and &#xA;	  writing sequences of various formats&#xA;	"/></head><body><div class="article"><div class="titlepage"><div><h1 class="title"><a id="d3e1"/>Bio::SeqIO HOWTO</h1></div><div><div class="author"><h3 class="author">Ewan Birney</h3><div class="affiliation"><span class="orgname">EBI<br/></span><div class="address"><p><tt>&lt;<a href="mailto:birney-at-ebi.ac.uk">birney-at-ebi.ac.uk</a>&gt;</tt></p></div></div></div></div><div><div class="author"><h3 class="author">Darinn London</h3><div class="affiliation"><span class="orgname">EBI<br/></span><div class="address"><p><tt>&lt;<a href="mailto:dlondon-at-ebi.ac.uk">dlondon-at-ebi.ac.uk</a>&gt;</tt></p></div></div></div></div><div><div class="author"><h3 class="author">Brian Osborne</h3><div class="affiliation"><span class="orgname">Cognia Corpoation<br/></span><div class="address"><p><tt>&lt;<a href="mailto:brian-at-cognia.com">brian-at-cognia.com</a>&gt;</tt></p></div></div></div></div><div><div class="legalnotice"><p>This document is copyright Ewan Birney, 2002.  For 
 	  reproduction other than personal use please contact me at 
 	  birney-at-ebi.ac.uk
 	</p></div></div><div><div class="abstract"><p class="title"><b>Abstract</b></p><p>
@@ -165,8 +163,8 @@ file into an array:
                                         '-format' =&gt; $outfileformat);
 
           # write each entry in the input file to the output file
-          while (my $inseq = $seqin-&gt;next_seq) {
-             $seqout-&gt;write_seq($inseq);
+          while ( my $inseq = $seq_in-&gt;next_seq ) {
+             $seq_out-&gt;write_seq($inseq);
           }
           exit;
      </pre>                          
@@ -518,4 +516,4 @@ to declare $seq_in and $seq_out using "my" before the eval block - a common
 gotcha is to wrap a eval block around some "my" variables inside the block - and
 now "my" localizes those variables only to that block. If you "use strict" this
 error will be caught. And, of course, you are going to "use strict" right?
-</p></div> </div></body></html>
+</p></body></html>
