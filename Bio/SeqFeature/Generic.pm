@@ -1,4 +1,4 @@
-
+# $Id$
 #
 # BioPerl module for Bio::SeqFeature::Generic
 #
@@ -38,8 +38,8 @@ Bio::SeqFeature::Generic - Generic SeqFeature
 =head1 DESCRIPTION
 
 Bio::SeqFeature::Generic is a generic implementation for the
-Bio::SeqFeatureI interface, providing a simple object to provide
-all the information for a feature on a sequence.
+Bio::SeqFeatureI interface, providing a simple object to provide all
+the information for a feature on a sequence.
 
 For many Features, this is all you will need to use (for example, this
 is fine for Repeats in DNA sequence or Domains in protein
@@ -48,18 +48,20 @@ good base class to extend using inheritence to have new things: this
 is what is done in the Bio::SeqFeature::Gene,
 Bio::SeqFeature::Transcript and Bio::SeqFeature::Exon, which provide
 well coordinated classes to represent genes on DNA sequence (for
-example, you can get the protein sequence out from a transcript class).
+example, you can get the protein sequence out from a transcript
+class).
 
-For many Features, you want to add some piece of information, for example
-a common one is that this feature is 'new' whereas other features are 'old'.
-The tag system, which here is implemented using a hash can be used here.
-You can use the tag system to extend the SeqFeature::Generic programmatically:
-that is, you know that you have read in more information into the tag 
-'mytag' which you can the retrieve. This means you do not need to know 
-how to write inherieted Perl to provide more complex information on a feature,
-and/or, if you do know but you donot want to write a new class every time
-you need some extra piece of information, you can use the tag system
-to easily store and then retrieve information.
+For many Features, you want to add some piece of information, for
+example a common one is that this feature is 'new' whereas other
+features are 'old'.  The tag system, which here is implemented using a
+hash can be used here.  You can use the tag system to extend the
+SeqFeature::Generic programmatically: that is, you know that you have
+read in more information into the tag 'mytag' which you can the
+retrieve. This means you do not need to know how to write inherieted
+Perl to provide more complex information on a feature, and/or, if you
+do know but you donot want to write a new class every time you need
+some extra piece of information, you can use the tag system to easily
+store and then retrieve information.
 
 The tag system can be written in/out of GFF format, and also into EMBL
 format via AnnSeqIO::EMBL.
@@ -68,10 +70,9 @@ format via AnnSeqIO::EMBL.
 
 =head2 Mailing Lists
 
-User feedback is an integral part of the evolution of this
-and other Bioperl modules. Send your comments and suggestions preferably
- to one of the Bioperl mailing lists.
-Your participation is much appreciated.
+User feedback is an integral part of the evolution of this and other
+Bioperl modules. Send your comments and suggestions preferably to one
+of the Bioperl mailing lists.  Your participation is much appreciated.
 
   bioperl-l@bioperl.org          - General discussion
   http://bio.perl.org/MailList.html             - About the mailing lists
@@ -79,8 +80,8 @@ Your participation is much appreciated.
 =head2 Reporting Bugs
 
 Report bugs to the Bioperl bug tracking system to help us keep track
- the bugs and their resolution.
- Bug reports can be submitted via email or the web:
+the bugs and their resolution.  Bug reports can be submitted via email
+or the web:
 
   bioperl-bugs@bio.perl.org
   http://bio.perl.org/bioperl-bugs/
@@ -102,7 +103,8 @@ the actual object hash are:
 
 =head1 APPENDIX
 
-The rest of the documentation details each of the object methods. Internal methods are usually preceded with a _
+The rest of the documentation details each of the object
+methods. Internal methods are usually preceded with a _
 
 =cut
 
@@ -116,15 +118,12 @@ use strict;
 
 # Object preamble - inheriets from Bio::Root::Object
 
-use Bio::Root::Object;
+use Bio::Root::RootI;
 use Bio::SeqFeatureI;
 use Bio::Annotation;
 
 
-@ISA = qw(Bio::Root::Object Bio::SeqFeatureI);
-# new() is inherited from Bio::Root::Object
-
-# _initialize is where the heavy stuff will happen when new is called
+@ISA = qw(Bio::Root::RootI Bio::SeqFeatureI);
 
 sub _initialize {
   my ($self, @args) = @_;
@@ -134,28 +133,29 @@ sub _initialize {
   $self->{'_gsf_sub_array'} = [];
   $self->{'_parse_h'} = {};
 
-  my ($start, $end, $strand, $primary, $source, $frame, $score, $tag, $gff_string, $gff2_string) =
-      $self->_rearrange([qw(START
-			    END
-			    STRAND
-			    PRIMARY
-			    SOURCE
-			    FRAME
-			    SCORE
-			    TAG
-			    GFF_STRING
-			    GFF2_STRING
-			    )],@args);
+  my ($start, $end, $strand, $primary, $source, $frame, 
+      $score, $tag, $gff_string, $gff2_string) =
+	  $self->_rearrange([qw(START
+				END
+				STRAND
+				PRIMARY
+				SOURCE
+				FRAME
+				SCORE
+				TAG
+				GFF_STRING
+				GFF2_STRING
+				)],@args);
   $gff2_string && $self->_from_gff2_string($gff2_string);
-  $gff_string && $self->_from_gff_string($gff_string);
-  $start && $self->start($start);
-  $end   && $self->end($end);
-  $strand && $self->strand($strand);
-  $primary && $self->primary_tag($primary);
-  $source  && $self->source_tag($source);
-  $frame   && $self->frame($frame);
-  $score   && $self->score($score);
-  $tag     && do {
+  $gff_string  && $self->_from_gff_string($gff_string);
+  $start       && $self->start($start);
+  $end         && $self->end($end);
+  $strand      && $self->strand($strand);
+  $primary     && $self->primary_tag($primary);
+  $source      && $self->source_tag($source);
+  $frame       && $self->frame($frame);
+  $score       && $self->score($score);
+  $tag         && do {
       foreach my $t ( keys %$tag ) {
 	  $self->add_tag_value($t,$tag->{$t});
       }
@@ -812,7 +812,7 @@ sub _from_gff2_string {
 
        my @othervals = split /\s+/, $values;  # and what is left over should be space-separated non-free-text values
        foreach my $othervalue(@othervals){
-       		if (length($othervalue) > 0){push @values, $othervalue}  # get rid of any empty strings which might result from the split
+       		if (CORE::length($othervalue) > 0){push @values, $othervalue}  # get rid of any empty strings which might result from the split
        }
 
        foreach my $value(@values){
