@@ -354,4 +354,6 @@ srsperl.pm		 Sequence Retrieval System (SRS)
 Storable		 Persistent object storage & retrieval 
 			 Bio::DB::FileCache
 
-
+Text::Shellwords	 Thin wrapper around the shellwords.pl
+			 Used as a utillity in for pulling words out.
+	                 Bio::Graphics::FeatureFile
