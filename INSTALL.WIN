@@ -213,8 +213,13 @@ bioperl-pipeline external packages. Fortunately there's some good
 instructions online:
 http://search.cpan.org/src/JWIED/DBD-mysql-2.1025/INSTALL.html#windows/cygwin.
 
-One known bug is that Bio::Tools::Run::StandAloneBlast seems not to
-work, it seems that files are not created in the /tmp directory.
+Also, set the environmental variable TEMPDIR, a number of
+bioinformatics programs need a place to create temporary files. E.g.:
+
+setenv TEMPDIR /tmp    # csh, tcsh
+export TEMPDIR=/tmp    # sh, bash
+
+This is necessary for Bio::Tools::Run::StandAloneBlast.
 
 3.1 Cygwin tips
 ===============
