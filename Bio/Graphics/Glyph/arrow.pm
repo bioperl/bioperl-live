@@ -2,9 +2,8 @@ package Bio::Graphics::Glyph::arrow;
 # package to use for drawing an arrow
 
 use strict;
-use vars '@ISA','$VERSION';
+use vars '@ISA';
 use Bio::Graphics::Glyph::generic;
-$VERSION = 1.03;
 @ISA = 'Bio::Graphics::Glyph::generic';
 
 my %UNITS = (n => 1e-12,
@@ -74,15 +73,21 @@ sub draw_parallel {
   my $a2 = ($self->height)/2;
   my $center = $y1+$a2;
 
-  $x1 = $self->panel->left  if $x1 < $self->panel->left;
-  $x2 = $self->panel->right if $x2 > $self->panel->right;
+  my $trunc_left  = $x1 < $self->panel->left;
+  my $trunc_right = $x2 > $self->panel->right;
+
+  $x1 = $self->panel->left  if $trunc_left;
+  $x2 = $self->panel->right if $trunc_right;
+
+  $trunc_left = 0  if $self->no_trunc;
+  $trunc_right = 0 if $self->no_trunc;
 
   my ($sw,$ne,$base_w,$base_e) = $self->arrowheads;
   $gd->line($x1,$center,$x2,$center,$fg);
-  $self->arrowhead($gd,$x1,$center,$a2,-1) if $sw; # west arrow
-  $self->arrowhead($gd,$x2,$center,$a2,+1) if $ne; # east arrow
-  $gd->line($x2,$center-$a2,$x2,$center+$a2,$fg) if $base_e; #east base
-  $gd->line($x1,$center-$a2,$x1,$center+$a2,$fg) if $base_w; #west base
+  $self->arrowhead($gd,$x1,$center,$a2,-1) if $sw && !$trunc_left;  # west arrow
+  $self->arrowhead($gd,$x2,$center,$a2,+1) if $ne && !$trunc_right; # east arrow
+  $gd->line($x1,$center-$a2,$x1,$center+$a2,$fg) if $base_w && !$trunc_left;  #west base
+  $gd->line($x2,$center-$a2,$x2,$center+$a2,$fg) if $base_e && !$trunc_right; #east base
 
   # turn on ticks
   if ($self->option('tick')) {
@@ -93,12 +98,14 @@ sub draw_parallel {
     my $height     = $self->height;
 
     my $relative = $self->option('relative_coords');
+    my $relative_coords_offset = $self->option('relative_coords_offset');
+    $relative_coords_offset = 1 unless ($relative_coords_offset);
 
-    my $start    = $relative ? 1 : $self->feature->start;
+    my $start    = $relative ? $relative_coords_offset : $self->feature->start-1;
     my $stop     = $start + $self->feature->length - 1;
 
-    my $offset   = $relative ? $self->feature->start-1 : 0;
-    my $reversed = $relative && $self->feature->strand < 0;
+    my $offset   = $relative ? ($self->feature->start - $relative_coords_offset) : 0;
+    my $reversed = exists $self->{flip} || ($relative && $self->feature->strand < 0);
 
     my $unit_label   = $self->option('units') || '';
     my $unit_divider = $self->option('unit_divider') || 1;
@@ -183,12 +190,15 @@ sub arrowheads {
     # turn on both if neither specified
     $ne = 1 if $self->feature->strand > 0;
     $sw = 1 if $self->feature->strand < 0;
+    ($ne,$sw) = ($sw,$ne) if $self->{flip};
   }
   return ($sw,$ne,0,0) unless $self->option('base');
   return ($sw,$ne,
 	  (!$sw && $self->feature->start>= $self->panel->start),
 	  (!$ne && $self->feature->end  <= $self->panel->end));
 }
+
+sub no_trunc { 0; }
 
 sub calculate_units {
   my $self   = shift;
@@ -267,28 +277,28 @@ options are recognized:
 	      1 = major ticks
 	      2 = minor ticks
 
-  -parallel   Whether to draw the arrow         true
+  -parallel   Whether to draw the arrow         1 (true)
 	      parallel to the sequence
 	      or perpendicular to it.
 
-  -northeast  Force a north or east             true
+  -northeast  Force a north or east             1 (true)
 	      arrowhead(depending 
 	      on orientation)
 
   -east       synonym of above
 
-  -southwest  Force a south or west             true
+  -southwest  Force a south or west             1 (true)
 	      arrowhead(depending 
 	      on orientation)
 
   -west       synonym of above
 
-  -double     force-doubleheaded arrow          false
+  -double     force-doubleheaded arrow          0 (false)
 
-  -base       Draw a vertical base at the       false
+  -base       Draw a vertical base at the       0 (false)
               non-arrowhead side
 
-  -scale      Reset the labels on the arrow     false
+  -scale      Reset the labels on the arrow     0 (false)
               to reflect an externally 
               established scale.
 
@@ -306,7 +316,7 @@ options are recognized:
               if you want to display in
               cR units)
 
-Set -parallel to false to display a point-like feature such as a
+Set -parallel to 0 (false) to display a point-like feature such as a
 polymorphism, or to indicate an important location.  If the feature
 start == end, then the glyph will draw a single arrow at the
 designated location:

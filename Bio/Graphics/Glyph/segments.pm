@@ -5,15 +5,16 @@ use strict;
 use Bio::Location::Simple;
 use Bio::Graphics::Glyph::generic;
 use Bio::Graphics::Glyph::segmented_keyglyph;
-use vars '@ISA','$VERSION';
+use vars '@ISA';
 
 use constant RAGGED_START_FUZZ => 25;  # will show ragged ends of alignments
                                        # up to this many bp.
+use constant DEBUG => 0;
 
 @ISA = qw( Bio::Graphics::Glyph::segmented_keyglyph
 	   Bio::Graphics::Glyph::generic
 	 );
-$VERSION = '1.06';
+
 my %complement = (g=>'c',a=>'t',t=>'a',c=>'g',n=>'n',
 		  G=>'C',A=>'T',T=>'A',C=>'G',N=>'N');
 
@@ -68,30 +69,32 @@ sub draw_component {
   return $self->SUPER::draw_component(@_) unless length $dna > 0;  # safety
 
   my $show_mismatch = $draw_target && $self->option('show_mismatch');
-  my $genomic = eval {$self->feature->seq} if $show_mismatch;
+  my $genomic       = eval {$self->feature->seq} if $show_mismatch;
 
   my $gd = shift;
   my ($x1,$y1,$x2,$y2) = $self->bounds(@_);
 
   # adjust for nonaligned left end (for ESTs...)  The size given here is roughly sufficient
-  # to show a polyA end or a c. elegans trans-spliced leader.
+  # to show a polyA end or a C. elegans trans-spliced leader.
   my $offset = 0;
   eval {  # protect against data structures that don't implement the target() method.
     if ($draw_target && $self->option('ragged_start')){
       my $target = $self->feature->hit;
-      if ($target->start < $target->end && $target->start < RAGGED_START_FUZZ  && $self->{partno} == 0) {
+      if ($target->start < $target->end && $target->start < RAGGED_START_FUZZ  
+	  && $self->{partno} == 0) {
 	$offset = $target->start - 1;
 	if ($offset > 0) {
-	  $dna       = $target->subseq(1-$offset,0)->seq . $dna;
-	  $genomic   = $self->feature->subseq(1-$offset,0)->seq         . $genomic;
+	  $dna       = $target->subseq(1-$offset,0)->seq        . $dna;
+	  $genomic   = $self->feature->subseq(1-$offset,0)->seq . $genomic;
 	  $x1        -= $offset * $self->scale;
 	}
       }
-      elsif ($target->end < $target->start && $target->end < RAGGED_START_FUZZ && $self->{partno} == $self->{total_parts}) {
+      elsif ($target->end < $target->start && 
+	     $target->end < RAGGED_START_FUZZ && $self->{partno} == $self->{total_parts}) {
 	$offset = $target->end - 1;
 	if ($offset > 0) {
 	  $dna       .= $target->factory->get_dna($target,$offset,1);
-	  $genomic   = $self->feature->subseq(-$offset,0)->seq . $genomic;
+	  $genomic    = $self->feature->subseq(-$offset,0)->seq . $genomic;
 	  $x2        += $offset * $self->scale;
 	  $offset = 0;
 	}
@@ -99,7 +102,7 @@ sub draw_component {
     }
   };
 
-  $self->draw_dna($gd,$offset,$dna,$genomic,$x1,$y1,$x2,$y2);
+  $self->draw_dna($gd,$offset,lc $dna,lc $genomic,$x1,$y1,$x2,$y2);
 }
 
 sub draw_dna {
@@ -107,30 +110,92 @@ sub draw_dna {
 
   my ($gd,$start_offset,$dna,$genomic,$x1,$y1,$x2,$y2) = @_;
   my $pixels_per_base = $self->scale;
-  my $complement      = $self->feature->strand < 0;
+  my $feature         = $self->feature;
+  my $target          = $feature->target;
+  my $strand          = $feature->strand;
 
-  my @bases   = split '',$dna;
-  my @genomic = split '',$genomic;
+  my @segs;
+
+  my $complement      = $strand < 0;
+
+  if ($self->{flip}) {
+    $dna     = $self->reversec($dna);
+    $genomic = $self->reversec($genomic);
+    $strand            *= -1;
+  }
+
+  warn "strand = $strand, complement = $complement" if DEBUG;
+
+  if ($genomic && length($genomic) != length($dna) && eval { require Bio::Graphics::Browser::Realign}) {
+    warn "$genomic\n$dna\n" if DEBUG;
+    warn "strand = $strand" if DEBUG;
+    @segs = Bio::Graphics::Browser::Realign::align_segs($genomic,$dna);
+    for my $seg (@segs) {
+      my $src = substr($genomic,$seg->[0],$seg->[1]-$seg->[0]+1);
+      my $tgt = substr($dna,    $seg->[2],$seg->[3]-$seg->[2]+1);
+      warn "@$seg\n$src\n$tgt" if DEBUG;
+    }
+  } else {
+    @segs = [0,length($genomic)-1,0,length($dna)-1];
+  }
+
   my $color = $self->fgcolor;
   my $font  = $self->font;
   my $lineheight = $font->height;
   my $fontwidth  = $font->width;
   $y1 -= $lineheight/2 - 3;
   my $pink = $self->factory->translate_color('lightpink');
+  my $panel_end = $self->panel->right;
 
-  my $start  = $self->map_no_trunc($self->feature->start-$start_offset);
-  my $offset = int (($x1-$start-1)/$pixels_per_base);
+  my $start  = $self->map_no_trunc($self->feature->start- $start_offset);
+  my $end    = $self->map_no_trunc($self->feature->end  - $start_offset);
 
-  for (my $i=$offset;$i<@bases;$i++) {
-    my $x = int($start + $i * $pixels_per_base+0.5);
-    next if $x+1 < $x1;
-    last if $x+1 > $x2;
-    if ($genomic[$i] && lc($bases[$i]) ne lc($complement ? $complement{$genomic[@genomic - $i - 1]} : $genomic[$i])) {
-      $self->filled_box($gd,$x,$y1+3,$x+$fontwidth,$y1+$lineheight-3,$pink,$pink);
+  my ($last,$tlast);
+  for my $seg (@segs) {
+
+    # fill in misaligned bits with dashes and bases
+    if (defined $last) {
+      my $delta  = $seg->[0] - $last  - 1;
+      my $tdelta = $seg->[2] - $tlast - 1;
+      warn "src gap [$last,$seg->[0]], tgt gap [$tlast,$seg->[2]], delta = $delta, tdelta = $tdelta\n" if DEBUG;
+
+      my $gaps   = $delta - $tdelta;
+      my @fill_in = split '',substr($dna,$tlast+1,$tdelta) if $tdelta > 0;
+      unshift @fill_in,('-')x$gaps if $gaps > 0;
+
+      warn "gaps = $gaps, fill_in = @fill_in\n" if DEBUG;
+
+      my $distance          = $pixels_per_base * ($delta+1);
+      my $pixels_per_target = $gaps >= 0 ? $pixels_per_base : $distance/(@fill_in+1);
+
+      warn "pixels_per_base = $pixels_per_base, pixels_per_target=$pixels_per_target\n" if DEBUG;
+      my $offset = $self->{flip} ?  $end + ($last-1)*$pixels_per_base : $start + $last*$pixels_per_base;
+      
+      for (my $i=0; $i<@fill_in; $i++) {
+
+	my $x = $self->{flip} ? int($offset + ($i+1)*$pixels_per_target + 0.5)
+                              : int($offset + ($i+1)*$pixels_per_target + 0.5);
+
+	$self->filled_box($gd,$x,$y1+3,$x+$fontwidth,$y1+$lineheight-3,$pink,$pink) unless $gaps;
+	$gd->char($font,$x,$y1,$complement? $complement{$fill_in[$i]} : $fill_in[$i],$color); 
+      }
     }
-    $gd->char($font,$x+1,$y1,$complement ? $complement{$bases[$i]} || $bases[$i] : $bases[$i],$color);
-  }
 
+    my @genomic = split '',substr($genomic,$seg->[0],$seg->[1]-$seg->[0]+1);
+    my @bases   = split '',substr($dna,    $seg->[2],$seg->[3]-$seg->[2]+1);
+    for (my $i = 0; $i<@bases; $i++) {
+      my $x = $self->{flip} ? int($end   + ($seg->[0] + $i - 1)*$pixels_per_base + 0.5)
+                            : int($start + ($seg->[0] + $i)    *$pixels_per_base + 0.5);
+      next if $x+1 < $x1;
+      last if $x+1 > $x2;
+      if ($genomic[$i] && lc($bases[$i]) ne lc($complement ? $complement{$genomic[@genomic - $i - 1]} : $genomic[$i])) {
+	$self->filled_box($gd,$x,$y1+3,$x+$fontwidth,$y1+$lineheight-3,$pink,$pink);
+      }
+      $gd->char($font,$x,$y1,$complement ? $complement{$bases[$i]} || $bases[$i] : $bases[$i],$color);
+    }
+    $last  = $seg->[1];
+    $tlast = $seg->[3];
+  }
 
 }
 

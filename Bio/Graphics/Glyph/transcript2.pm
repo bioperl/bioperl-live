@@ -4,9 +4,8 @@ package Bio::Graphics::Glyph::transcript2;
 
 use strict;
 use Bio::Graphics::Glyph::transcript;
-use vars '@ISA','$VERSION';
+use vars '@ISA';
 @ISA = 'Bio::Graphics::Glyph::transcript';
-$VERSION = '1.2';
 
 use constant MIN_WIDTH_FOR_ARROW => 8;
 
@@ -44,15 +43,14 @@ sub draw_component {
   my $filled = defined($self->{partno}) && $width >= MIN_WIDTH_FOR_ARROW;
 
   if ($filled) {
-    my $f = $self->feature;
+    my $f      = $self->feature;
+    my $strand = $f->strand;
+    my ($first,$last)  = ($self->{partno} == 0 , $self->{partno} == $self->{total_parts}-1);
+    ($first,$last)     = ($last,$first) if $self->{flip};
 
-    if ($f->strand < 0
-	&&
-	$self->{partno} == 0) { # first exon, minus strand transcript
+    if ($strand < 0 && $first) { # first exon, minus strand transcript
       $self->filled_arrow($gd,-1,@rect);
-    } elsif ($f->strand >= 0
-	     &&
-	     $self->{partno} == $self->{total_parts}-1) { # last exon, plus strand
+    } elsif ($strand >= 0 && $last) { # last exon, plus strand
       $self->filled_arrow($gd,+1,@rect);
     } else {
       $self->SUPER::draw_component($gd,@_);
@@ -65,18 +63,15 @@ sub draw_component {
 
 }
 
-# override option() for force the "hat" type of connector
-sub connector {
-  return 'hat';
-}
-
 sub draw_connectors {
   my $self = shift;
   my ($gd,$dx,$dy) = @_;
 
   my $part;
+  my $strand = $self->feature->strand;
+  $strand   *= -1 if $self->{flip};  #sigh
   if (my @parts  = $self->parts) {
-    $part   = $self->feature->strand >= 0 ? $parts[-1] : $parts[0];
+    $part   = $strand >= 0 ? $parts[-1] : $parts[0];
   } else {
     # no parts -- so draw an intron spanning whole thing
     my($x1,$y1,$x2,$y2) = $self->bounds(0,0);

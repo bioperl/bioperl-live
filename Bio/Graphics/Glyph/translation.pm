@@ -6,11 +6,25 @@ use Bio::Graphics::Util qw(frame_and_offset);
 use vars '@ISA';
 @ISA = qw(Bio::Graphics::Glyph::generic);
 
+my %default_colors = qw(
+			frame0f  cadetblue
+			frame1f  blue
+			frame2f  darkblue
+			frame0r  darkred
+			frame1r  red
+			frame2r  crimson
+		       );
+
 # turn off description
 sub description { 0 }
 
 # turn off label
 # sub label { 1 }
+
+sub default_color {
+  my ($self,$key) = @_;
+  return $self->factory->translate_color($default_colors{$key});
+}
 
 sub height {
   my $self = shift;
@@ -100,6 +114,7 @@ sub draw_component {
 sub draw_frame {
   my $self = shift;
   my ($feature,$strand,$base_offset,$phase,$gd,$x1,$y1,$x2,$y2) = @_;
+  return unless $feature->seq;  # no sequence, arggh.
   my ($seq,$pos) = $strand < 0 ? ($feature->revcom,$feature->end)
                                : ($feature,$feature->start);
   my ($frame,$offset) = frame_and_offset($pos,$strand,$phase);
@@ -117,7 +132,10 @@ sub draw_frame {
   $y2 = $y1;
 
   my $protein = $seq->translate(undef,undef,$base_offset)->seq;
-  my $color   = $self->color("frame$frame") || $self->fgcolor;
+  my $k       = $strand>=0 ? 'f' : 'r';
+  my $color   = $self->color("frame$frame$k") ||
+                $self->color("frame$frame") ||
+                $self->default_color("frame$frame$k") || $self->fgcolor;
   if ($self->protein_fits) {
     $self->draw_protein(\$protein,$strand,$color,$gd,$x1,$y1,$x2,$y2);
   } else {

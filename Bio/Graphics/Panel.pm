@@ -3,10 +3,8 @@ package Bio::Graphics::Panel;
 use strict;
 use Bio::Graphics::Glyph::Factory;
 use Bio::Graphics::Feature;
-use GD;
-use vars '$VERSION';
+use GD;;
 
-$VERSION = 1.04;
 
 use constant KEYLABELFONT => gdMediumBoldFont;
 use constant KEYSPACING   => 5; # extra space between key columns
@@ -39,11 +37,14 @@ sub new {
   my $allcallbacks = $options{-all_callbacks} || 0;
   my $gridcolor    = $options{-gridcolor} || GRIDCOLOR;
   my $grid         = $options{-grid}       || 0;
+  my $flip         = $options{-flip}       || 0;
   my $empty_track_style   = $options{-empty_tracks} || 'key';
   my $truecolor    = $options{-truecolor}  || 0;
 
-  $offset   ||= $options{-segment}->start-1 if $options{-segment};
-  $length   ||= $options{-segment}->length  if $options{-segment};
+  if (my $seg = $options{-segment}) {
+    $offset = eval {$seg->start-1} || 0;
+    $length = $seg->length;
+  }
 
   $offset   ||= $options{-start}-1 if defined $options{-start};
   $length   ||= $options{-stop}-$options{-start}+1 
@@ -70,6 +71,7 @@ sub new {
 		key_align => $keyalign,
 		all_callbacks => $allcallbacks,
 		truecolor     => $truecolor,
+		flip          => $flip,
 		empty_track_style    => $empty_track_style,
 	       },$class;
 }
@@ -99,6 +101,13 @@ sub pad_bottom {
   $g;
 }
 
+sub flip {
+  my $self = shift;
+  my $g = $self->{flip};
+  $self->{flip} = shift if @_;
+  $g;
+}
+
 # values of empty_track_style are:
 #    "suppress" -- suppress empty tracks entirely (default)
 #    "key"      -- show just the key in "between" mode
@@ -118,6 +127,15 @@ sub key_style {
   $g;
 }
 
+# public routine for mapping from a base pair
+# location to pixel coordinates
+sub location2pixel {
+  my $self   = shift;
+  my $end    = $self->end + 1;
+  my @coords = $self->{flip} ? map { $end-$_ } @_ : @_;
+  $self->map_pt(@coords);
+}
+
 # numerous direct calls into array used here for performance considerations
 sub map_pt {
   my $self   = shift;
@@ -125,9 +143,11 @@ sub map_pt {
   my $scale  = $self->{scale} || $self->scale;
   my $pl     = $self->{pad_left};
   my $pr     = $self->{width} - $self->{pad_right};
+  my $flip   = $self->{flip};
+  my $length = $self->{length};
   my @result;
   foreach (@_) {
-    my $val = int (0.5 + $pl + ($_-$offset-1) * $scale);
+    my $val = $flip ? int (0.5 + $pr - ($length - ($_- 1)) * $scale) : int (0.5 + $pl + ($_-$offset-1) * $scale);
     $val = $pl-1 if $val < $pl;
     $val = $pr+1 if $val > $pr;
     push @result,$val;
@@ -139,10 +159,14 @@ sub map_no_trunc {
   my $self   = shift;
   my $offset = $self->{offset};
   my $scale  = $self->scale;
-  my $pl = $self->{pad_left};
+  my $pl     = $self->{pad_left};
+  my $pr     = $self->{width} - $self->{pad_right};
+  my $flip   = $self->{flip};
+  my $length = $self->{length};
+  my $end    = $offset+$length;
   my @result;
   foreach (@_) {
-    my $val = int (0.5 + $pl + ($_-$offset-1) * $scale);
+    my $val = $flip ? int (0.5 + $pl + ($end - ($_- 1)) * $scale) : int (0.5 + $pl + ($_-$offset-1) * $scale);
     push @result,$val;
   }
   @result;
@@ -150,8 +174,7 @@ sub map_no_trunc {
 
 sub scale {
   my $self = shift;
-  $self->{scale} ||= ($self->{width}-$self->pad_left-$self->pad_right-1)/($self->length-1);  # wrong!
-#  $self->{scale} ||= ($self->{width}-$self->pad_left-$self->pad_right-1)/($self->length);   # right, but I don't want to fix regression tests!
+  $self->{scale} ||= ($self->{width}-$self->pad_left-$self->pad_right)/($self->length);
 }
 
 sub start { shift->{offset}+1}
@@ -256,23 +279,25 @@ sub _do_add_track {
   $glyph_name = $map if defined $map;
   $glyph_name ||= 'generic';
 
+  local $^W = 0;  # uninitialized variable warnings under 5.00503
+
   my $panel_map =
     ref($map) eq 'CODE' ?  sub {
       my $feature = shift;
-      return 'track' if eval { $feature->primary_tag  eq 'track' };
-      return 'group' if eval { $feature->primary_tag  eq 'group' };
+      return 'track' if eval { defined $feature->primary_tag && $feature->primary_tag  eq 'track' };
+      return 'group' if eval { defined $feature->primary_tag && $feature->primary_tag  eq 'group' };
       return $map->($feature);
     }
    : ref($map) eq 'HASH' ? sub {
      my $feature = shift;
-     return 'track' if eval { $feature->primary_tag  eq 'track' };
-     return 'group' if eval { $feature->primary_tag  eq 'group' };
+     return 'track' if eval { defined $feature->primary_tag && $feature->primary_tag  eq 'track' };
+     return 'group' if eval { defined $feature->primary_tag && $feature->primary_tag  eq 'group' };
      return eval {$map->{$feature->primary_tag}} || 'generic';
    }
    : sub {
      my $feature = shift;
-     return 'track' if eval { $feature->primary_tag  eq 'track' };
-     return 'group' if eval { $feature->primary_tag  eq 'group' };
+     return 'track' if eval { defined $feature->primary_tag && $feature->primary_tag  eq 'track' };
+     return 'group' if eval { defined $feature->primary_tag && $feature->primary_tag  eq 'group' };
      return $glyph_name;
    };
 
@@ -624,6 +649,7 @@ sub draw_grid {
   my $pl = $self->pad_left;
   my $pt = $self->pad_top;
   my $pb = $self->height - $self->pad_bottom;
+  local $self->{flip} = 0;
   for my $tick (@positions) {
     my ($pos) = $self->map_pt($tick);
     $gd->line($pos,$pt,$pos,$pb,$gridcolor);
@@ -652,6 +678,11 @@ sub ticks {
     last if $pixels >= $minwidth;
     $interval *= 10;
   }
+
+  # to make sure a major tick shows up somewhere in the first half
+  #
+  $interval *= .5 if ($interval > 0.5*$length);
+
   return ($interval,$interval/10);
 }
 
@@ -889,6 +920,56 @@ wheat                F5           DE            B3
 whitesmoke           F5           F5            F5
 yellow               FF           FF            00
 yellowgreen          9A           CD            32
+gradient1	00 ff 00
+gradient2	0a ff 00
+gradient3	14 ff 00
+gradient4	1e ff 00
+gradient5	28 ff 00
+gradient6	32 ff 00
+gradient7	3d ff 00
+gradient8	47 ff 00
+gradient9	51 ff 00
+gradient10	5b ff 00
+gradient11	65 ff 00
+gradient12	70 ff 00
+gradient13	7a ff 00
+gradient14	84 ff 00
+gradient15	8e ff 00
+gradient16	99 ff 00
+gradient17	a3 ff 00
+gradient18	ad ff 00
+gradient19	b7 ff 00
+gradient20	c1 ff 00
+gradient21	cc ff 00
+gradient22	d6 ff 00
+gradient23	e0 ff 00
+gradient24	ea ff 00
+gradient25	f4 ff 00
+gradient26	ff ff 00
+gradient27	ff f4 00
+gradient28	ff ea 00
+gradient29	ff e0 00
+gradient30	ff d6 00
+gradient31	ff cc 00
+gradient32	ff c1 00
+gradient33	ff b7 00
+gradient34	ff ad 00
+gradient35	ff a3 00
+gradient36	ff 99 00
+gradient37	ff 8e 00
+gradient38	ff 84 00
+gradient39	ff 7a 00
+gradient40	ff 70 00
+gradient41	ff 65 00
+gradient42	ff 5b 00
+gradient43	ff 51 00
+gradient44	ff 47 00
+gradient45	ff 3d 00
+gradient46	ff 32 00
+gradient47	ff 28 00
+gradient48	ff 1e 00
+gradient49	ff 14 00
+gradient50	ff 0a 00
 __END__
 
 =head1 NAME
@@ -906,8 +987,8 @@ Bio::Graphics::Panel - Generate GD images of Bio::Seq objects
  use Bio::SeqIO;
 
  my $file = shift                       or die "provide a sequence file as the argument";
- my $io = Bio::SeqIO->new(-file=>$file) or die "couldn't create Bio::SeqIO";
- my $seq = $io->next_seq                or die "couldn't find a sequence in the file";
+ my $io = Bio::SeqIO->new(-file=>$file) or die "could not create Bio::SeqIO";
+ my $seq = $io->next_seq                or die "could not find a sequence in the file";
 
  my @features = $seq->all_SeqFeatures;
 
@@ -919,19 +1000,17 @@ Bio::Graphics::Panel - Generate GD images of Bio::Seq objects
  }
 
  my $panel = Bio::Graphics::Panel->new(
- 				      -segment   => $seq,
+                                      -length    => $seq->length,
  				      -key_style => 'between',
  				      -width     => 800,
  				      -pad_left  => 10,
  				      -pad_right => 10,
  				      );
-
  $panel->add_track( arrow => Bio::SeqFeature::Generic->new(-start=>1,
                                                            -end=>$seq->length),
  		  -bump => 0,
  		  -double=>1,
  		  -tick => 2);
-
  $panel->add_track(generic => Bio::SeqFeature::Generic->new(-start=>1,
 							  -end=>$seq->length),
  		  -glyph  => 'generic',
@@ -1080,6 +1159,12 @@ a set of tag/value pairs as follows:
               to draw a thin grey line ("line"),
               or to draw a dashed line ("dashed").
 
+  -flip       flip the drawing coordinates left     false
+              to right, so that lower coordinates
+              are to the right.  This can be
+              useful for drawing (-) strand
+              features.
+
   -all_callbacks Whether to invoke callbacks on      false
                the automatic "track" and "group"
                glyphs.
@@ -1155,6 +1240,11 @@ Currently, the following glyphs are available:
   Name        Description
   ----        -----------
 
+  anchored_arrow
+              a span with vertical bases |---------|.  If one or
+              the other end of the feature is off-screen, the base
+              will be replaced by an arrow.
+
   arrow	      An arrow; can be unidirectional or bidirectional.
 	      It is also capable of displaying a scale with
 	      major and minor tickmarks, and can be oriented
@@ -1200,8 +1290,15 @@ Currently, the following glyphs are available:
   pinsertion  A triangle designed to look like an insertion location
               (e.g. a transposon insertion).
 
+  processed_transcript  multi-purpose representation of a spliced mRNA, including
+			positions of UTRs
+
   primers     Two inward pointing arrows connected by a line.
 	      Used for STSs.
+
+  redgreen_box A box that changes from green->yellow->red as the score
+              of the feature increases from 0.0 to 1.0.  Useful for
+              representing microarray results.
 
   rndrect     A round-cornered rectangle.
 
@@ -1231,6 +1328,8 @@ Currently, the following glyphs are available:
               translation.
 
   triangle    A triangle whose width and orientation can be altered.
+
+  xyplot      Histograms and other graphs plotted against the genome.
 
 If the glyph name is omitted from add_track(), the "generic" glyph
 will be used by default.  To get more information about a glyph, run
@@ -1351,6 +1450,11 @@ coordinate of a track by calling track_position() with the value
 returned by add_track() or unshift_track().  This will return undef if
 called before gd() or boxes() or with an invalid track.
 
+=item @pixel_coords = $panel-E<gt>location2pixel(@feature_coords)
+
+Public routine to map feature coordinates (in base pairs) into pixel
+coordinates relative to the left-hand edge of the picture.
+
 =back
 
 =head1 GLYPH OPTIONS
@@ -1388,11 +1492,16 @@ some are shared by all glyphs:
   -bump_limit Maximum number of levels     undef (unlimited)
               to bump
 
+  -strand_arrow Whether to indicate        undef (false)
+                 strandedness
+
+  -stranded    Synonym for -strand_arrow   undef (false)
+
   -connector  Type of connector to         none
 	      use to connect related
 	      features.  Options are
-	      "hat", "dashed" and
-	      "none".
+	      "solid," "hat", "dashed", 
+              "quill" and "none".
 
   -key        Description of track for     undef
 	      use in key.
@@ -1466,7 +1575,17 @@ subglyphs, and the "transcript" and "transcript2" glyphs draw
 hat-shaped lines between their subglyphs.  All other glyphs do not
 connect their components.  You can override this behavior by providing 
 a -connector option, to explicitly set the type of connector.  Valid
-options are "dashed", "solid", "hat" and "none".
+options are:
+
+
+   "hat"     an upward-angling conector
+   "solid"   a straight horizontal connector
+   "quill"   a decorated line with small arrows indicating strandedness
+             (like the UCSC Genome Browser uses)
+   "dashed"  a horizontal dashed line.
+
+The B<-connector_color> option controls the color of the connector, if
+any.
 
 B<Collision control:> The -bump argument controls what happens when
 glyphs collide.  By default, they will simply overlap (value 0).  A
@@ -1486,6 +1605,12 @@ to create clickable imagemaps, for example), the rectangles will
 surround the top level features.  If you wish for the rectangles to
 surround subpieces of the glyph, such as the exons in a transcript,
 set box_subparts to a true value.
+
+B<strand_arrow:> If set to true, some glyphs will indicate their
+strandedness, usually by drawing an arrow.  For this to work, the
+Bio::SeqFeature must have a strand of +1 or -1.  The glyph will ignore
+this directive if the underlying feature has a strand of zero or
+undef.
 
 B<sort_order>: By default, features are drawn with a layout based only on the
 position of the feature, assuring a maximal "packing" of the glyphs
@@ -1605,6 +1730,7 @@ and then caches the result.
    spacing()	      Get/set spacing between tracks
    key_spacing()      Get/set spacing between keys
    length()	      Get/set length of segment (bp)
+   flip()             Get/set coordinate flipping
    pad_top()	      Get/set top padding
    pad_left()	      Get/set left padding
    pad_bottom()	      Get/set bottom padding
@@ -1678,12 +1804,14 @@ L<Bio::Graphics::Glyph::pinsertion>,
 L<Bio::Graphics::Glyph::primers>,
 L<Bio::Graphics::Glyph::rndrect>,
 L<Bio::Graphics::Glyph::segments>,
+L<Bio::Graphics::Glyph::redgreen_box>,
 L<Bio::Graphics::Glyph::ruler_arrow>,
 L<Bio::Graphics::Glyph::toomany>,
 L<Bio::Graphics::Glyph::transcript>,
 L<Bio::Graphics::Glyph::transcript2>,
 L<Bio::Graphics::Glyph::translation>,
 L<Bio::Graphics::Glyph::triangle>,
+L<Bio::Graphics::Glyph::xyplot>,
 L<Bio::SeqI>,
 L<Bio::SeqFeatureI>,
 L<Bio::Das>,

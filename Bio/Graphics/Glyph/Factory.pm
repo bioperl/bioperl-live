@@ -53,6 +53,7 @@ package Bio::Graphics::Glyph::Factory;
 use strict;
 use Carp qw(:DEFAULT cluck);
 use GD;
+use Bio::Root::Version;
 
 my %LOADED_GLYPHS = ();
 my %GENERIC_OPTIONS = (
@@ -301,6 +302,7 @@ sub make_glyph {
   my @result;
   my $panel = $self->panel;
   my ($leftmost,$rightmost) = ($panel->left,$panel->right);
+  my $flip   = $panel->flip;
 
   for my $f (@_) {
 
@@ -315,6 +317,7 @@ sub make_glyph {
     }
     my $glyph = $glyphclass->new(-feature  => $f,
 				 -factory  => $self,
+				 -flip     => $flip,
 				 -level    => $level);
 
     # this is removing glyphs that are not onscreen at all.

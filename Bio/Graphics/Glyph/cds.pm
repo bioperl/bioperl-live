@@ -5,9 +5,17 @@ use Bio::Graphics::Glyph::segments;
 use Bio::Graphics::Util qw(frame_and_offset);
 use Bio::Tools::CodonTable;
 use Bio::Graphics::Glyph::translation;
-use vars '@ISA','$VERSION';
+use vars '@ISA';
 @ISA = qw(Bio::Graphics::Glyph::segmented_keyglyph Bio::Graphics::Glyph::translation);
-$VERSION = '1.02';
+
+my %default_colors = qw(
+			frame0f  cadetblue
+			frame1f  blue
+			frame2f  darkblue
+			frame0r  darkred
+			frame1r  red
+			frame2r crimson
+		       );
 
 sub connector   { 0 };
 sub description {
@@ -16,26 +24,43 @@ sub description {
   return $self->SUPER::description;
 };
 
+sub default_color {
+  my ($self,$key) = @_;
+  return $self->factory->translate_color($default_colors{$key});
+}
+
+sub sixframe {
+  my $self = shift;
+  $self->{sixframe} = $self->option('sixframe')
+    unless exists $self->{sixframe};
+  return $self->{sixframe};
+}
+
+sub require_subparts {
+  my $self = shift;
+  my $rs   = $self->option('require_subparts');
+  $rs      = $self->feature->type eq 'coding' if !defined $rs;  # shortcut for the "coding" aggregator
+  $rs;
+}
+
 # figure out (in advance) the color of each component
 sub draw {
   my $self = shift;
   my ($gd,$left,$top) = @_;
 
   my @parts = $self->parts;
-  @parts    = $self if !@parts && $self->level == 0;
-  return $self->SUPER::draw(@_) unless @parts;
+  @parts    = $self if !@parts && $self->level == 0 && !$self->require_subparts;
 
   my $fits = $self->protein_fits;
 
-  if (!$fits) {
-    # draw the staff (musically speaking)
-    my ($x1,$y1,$x2,$y2) = $self->bounds($left,$top);
-    my $height = ($y2-$y1)/3;
-    my $grid  = $self->gridcolor;
-    for (0..2) {
-      my $offset = $y1+$height*$_+1;
-      $gd->line($x1,$offset,$x2,$offset,$grid);
-    }
+  # draw the staff (musically speaking)
+  my ($x1,$y1,$x2,$y2) = $self->bounds($left,$top);
+  my $line_count = $self->sixframe ? 6 : 3;
+  my $height = ($y2-$y1)/$line_count;
+  my $grid  = $self->gridcolor;
+  for (0..$line_count-1) {
+    my $offset = $y1+$height*$_+1;
+    $gd->line($x1,$offset,$x2,$offset,$grid);
   }
 
   $self->{cds_part2color} ||= {};
@@ -59,36 +84,37 @@ sub draw {
 					   -$phase);
     my $suffix = $strand < 0 ? 'r' : 'f';
     my $key = "frame$frame$suffix";
-    $self->{cds_frame2color}{$key} ||= $self->color($key) || $fill;
+    $self->{cds_frame2color}{$key} ||= $self->color($key) || $self->default_color($key) || $fill;
     $part->{cds_partcolor} = $self->{cds_frame2color}{$key};
     $part->{cds_frame}     = $frame;
     $part->{cds_offset}    = $offset;
 
-    next unless $fits;
+    if ($fits && $part->feature->seq) {
 
-    # do in silico splicing in order to find the codon that
-    # arises from the splice
-    my $protein = $part->feature->translate(undef,undef,$phase)->seq;
-    $part->{cds_translation}  = $protein;
+      # do in silico splicing in order to find the codon that
+      # arises from the splice
+      my $protein = $part->feature->translate(undef,undef,$phase)->seq;
+      $part->{cds_translation}  = $protein;
 
-  BLOCK: {
-      length $protein >= $feature->length/3           and last BLOCK;
-      ($feature->length - $phase) % 3 == 0            and last BLOCK;
-
-      my $next_part    = $parts[$i+1]
-	or do {
-	  $part->{cds_splice_residue} = '?';
-	  last BLOCK; };
-
-      my $next_feature = $next_part->feature         or  last BLOCK;
-      my $next_phase   = eval {$next_feature->phase} or  last BLOCK;
-      my $splice_codon = '';
-      my $left_of_splice  = substr($feature->seq,-$next_phase,$next_phase);
-      my $right_of_splice = substr($next_feature->seq,0,3-$next_phase);
-      $splice_codon = $left_of_splice . $right_of_splice;
-      length $splice_codon == 3                      or last BLOCK;
-      my $amino_acid = $translate_table->translate($splice_codon);
-      $part->{cds_splice_residue} = $amino_acid;
+    BLOCK: {
+	length $protein >= $feature->length/3           and last BLOCK;
+	($feature->length - $phase) % 3 == 0            and last BLOCK;
+	
+	my $next_part    = $parts[$i+1]
+	  or do {
+	    $part->{cds_splice_residue} = '?';
+	    last BLOCK; };
+	
+	my $next_feature = $next_part->feature         or  last BLOCK;
+	my $next_phase   = eval {$next_feature->phase} or  last BLOCK;
+	my $splice_codon = '';
+	my $left_of_splice  = substr($feature->seq,-$next_phase,$next_phase);
+	my $right_of_splice = substr($next_feature->seq,0,3-$next_phase);
+	$splice_codon = $left_of_splice . $right_of_splice;
+	length $splice_codon == 3                      or last BLOCK;
+	my $amino_acid = $translate_table->translate($splice_codon);
+	$part->{cds_splice_residue} = $amino_acid;
+      }
     }
   }
 
@@ -102,13 +128,15 @@ sub draw_component {
   my $gd = shift;
   my ($x1,$y1,$x2,$y2) = $self->bounds(@_);
 
-  my $color = $self->{cds_partcolor};
+  my $color = $self->{cds_partcolor} or return;
   my $feature   = $self->feature;
   my $frame     = $self->{cds_frame};
+  my $linecount = $self->sixframe ? 6 : 3;
 
   unless ($self->protein_fits) {
-    my $height = ($y2-$y1)/3;
+    my $height = ($y2-$y1)/$linecount;
     my $offset = $y1 + $height*$frame;
+    $offset   += ($y2-$y1)/2 if $self->sixframe && $self->strand < 0;
     $gd->filledRectangle($x1,$offset,$x2,$offset+2,$color);
     return;
   }
@@ -117,12 +145,16 @@ sub draw_component {
   my $font  = $self->font;
   my $pixels_per_residue = $self->pixels_per_residue;
   my $strand = $feature->strand;
+  my $y      = $y1-1;
+
+  $strand *= -1 if $self->{flip};
 
   # have to remap feature start and end into pixel coords in order to:
   # 1) correctly align the amino acids with the nucleotide seq
   # 2) correct for the phase offset
   my $start = $self->map_no_trunc($feature->start + $self->{cds_offset});
   my $stop  = $self->map_no_trunc($feature->end   + $self->{cds_offset});
+  ($start,$stop) = ($stop,$start) if $self->{flip};
 
   my @residues = split '',$self->{cds_translation};
 
@@ -131,7 +163,7 @@ sub draw_component {
     my $x = $strand > 0 ? $start + $i * $pixels_per_residue
                         : $stop  - $i * $pixels_per_residue;
     next unless ($x >= $x1 && $x <= $x2);
-    $gd->char($font,$x+1,$y1,$residues[$i],$color);
+    $gd->char($font,$x+1,$y,$residues[$i],$color);
   }
 }
 
@@ -249,6 +281,19 @@ glyph-specific options:
   -frame2r    Color for third (-) frame    background color
 
   -gridcolor  Color for the "staff"        lightslategray
+
+  -sixframe   Draw a six-frame staff       0 (false; usually draws 3 frame)
+
+  -require_subparts
+              Don't draw the reading frame 0 (false)
+              unless it is a feature
+              subpart.
+
+The -require_subparts option is suggested when rendering spliced
+transcripts which contain multiple CDS subparts.  Otherwise, the glyph
+will hickup when zoomed way down onto an intron between two CDSs (a
+phantom reading frame will appear).  For unspliced sequences, do *not*
+use -require_subparts.
 
 =head1 SUGGESTED STANZA FOR GENOME BROWSER
 

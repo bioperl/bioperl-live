@@ -8,6 +8,7 @@ require Exporter;
 use vars '@ISA','@EXPORT','@EXPORT_OK';
 @ISA = 'Exporter';
 @EXPORT = 'frame_and_offset';
+use Bio::Root::Version;
 
 =over 4
 

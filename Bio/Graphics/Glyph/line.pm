@@ -4,6 +4,7 @@ package Bio::Graphics::Glyph::line;
 use strict;
 use vars '@ISA';
 @ISA = 'Bio::Graphics::Glyph::generic';
+use Bio::Graphics::Glyph::generic;
 
 sub bottom {
   my $self = shift;

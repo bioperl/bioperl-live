@@ -14,18 +14,18 @@ my %complement = (g=>'c',a=>'t',t=>'a',c=>'g',
 # If a flag, label will be taken from seqname, if it exists or primary_tag().
 #            description will be taken from source_tag().
 
-sub font {
-  my $self = shift;
-  $self->factory->font($self);
-}
 sub pad_top {
   my $self = shift;
+  my $top  = $self->option('pad_top');
+  return $top if defined $top;
   my $pad = $self->SUPER::pad_top;
   $pad   += $self->labelheight if $self->label;
   $pad;
 }
 sub pad_bottom {
   my $self = shift;
+  my $bottom  = $self->option('pad_bottom');
+  return $bottom if defined $bottom;
   my $pad = $self->SUPER::pad_bottom;
   $pad   += $self->labelheight if $self->description;
   $pad;
@@ -71,9 +71,9 @@ sub _label {
   # figure it out ourselves
   my $f = $self->feature;
 
-  return $f->info         if $f->can('info');
+  return $f->display_name if $f->can('display_name');
+  return $f->info         if $f->can('info');   # deprecated API
   return $f->seq_id       if $f->can('seq_id');
-  return $f->display_name if $f->can('display_name');   # deprecated API
   return eval{$f->primary_tag};
 }
 sub _description {
@@ -149,6 +149,7 @@ sub arrowhead {
   my $self = shift;
   my $gd   = shift;
   my ($x,$y,$height,$orientation) = @_;
+
   my $fg = $self->set_pen;
   my $style = $self->option('arrowstyle') || 'regular';
 
@@ -235,12 +236,20 @@ L<Bio::Graphics::Glyph> for a full explanation.
   -connector_color
                 Connector color                black
 
+  -pad_top      Top padding                    0
+
+  -pad_bottom   Bottom padding                 0
+
   -label        Whether to draw a label	       0 (false)
 
   -description  Whether to draw a description  0 (false)
 
   -strand_arrow Whether to indicate            0 (false)
                  strandedness
+
+-pad_top and -pad_bottom allow you to insert some blank space between
+the glyph's boundary and its contents.  This is useful if you are
+changing the glyph's height dynamically based on its feature's score.
 
 =head1 BUGS
 

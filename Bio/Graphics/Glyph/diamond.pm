@@ -2,10 +2,9 @@ package Bio::Graphics::Glyph::diamond;
 # DAS-compatible package to use for drawing a colored diamond
 
 use strict;
-use vars '@ISA','$VERSION';
+use vars '@ISA';
 use Bio::Graphics::Glyph::generic;
 @ISA = 'Bio::Graphics::Glyph::generic';
-$VERSION = 1.01;
 
 sub draw_component {
   my $self = shift;

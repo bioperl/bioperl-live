@@ -2,9 +2,8 @@ package Bio::Graphics::Glyph::dna;
 
 use strict;
 use Bio::Graphics::Glyph::generic;
-use vars '@ISA','$VERSION';
+use vars '@ISA';
 @ISA = qw(Bio::Graphics::Glyph::generic);
-$VERSION = '1.01';
 
 my %complement = (g=>'c',a=>'t',t=>'a',c=>'g',n=>'n',
 		  G=>'C',A=>'T',T=>'A',C=>'G',N=>'N');
@@ -36,7 +35,11 @@ sub draw_component {
   my ($x1,$y1,$x2,$y2) = $self->bounds(@_);
 
   my $dna        = eval { $self->feature->seq };
+  $dna           = $dna->seq if ref($dna) and $dna->can('seq'); # to catch Bio::PrimarySeqI objects
   $dna or return;
+
+  # workaround for my misreading of interface -- LS
+  $dna = $dna->seq if ref($dna) && $dna->can('seq');
 
   if ($self->dna_fits) {
     $self->draw_dna($gd,$dna,$x1,$y1,$x2,$y2);
@@ -50,9 +53,13 @@ sub draw_dna {
 
   my ($gd,$dna,$x1,$y1,$x2,$y2) = @_;
   my $pixels_per_base = $self->scale;
-
+  
   my $feature = $self->feature;
-  my @bases = split '',$feature->strand >= 0 ? $dna : $self->reversec($dna);
+
+  my $strand = $feature->strand;
+  $strand *= -1 if $self->{flip};
+
+  my @bases = split '',$strand >= 0 ? $dna : $self->reversec($dna);
   my $color = $self->fgcolor;
   my $font  = $self->font;
   my $lineheight = $font->height;
@@ -72,7 +79,9 @@ sub draw_dna {
   }
 
   my $start  = $self->map_no_trunc($feature->start);
-  my $offset = int(($x1-$start-1)/$pixels_per_base);
+  my $end    = $self->map_no_trunc($feature->end);
+
+  my $offset  = int(($x1-$start-1)/$pixels_per_base);
 
   for (my $i=$offset;$i<@bases;$i++) {
     my $x = $start + $i * $pixels_per_base;
