@@ -56,7 +56,7 @@ One should really read the online manual for the best explaination of
 all the features.  See
 http://igs-server.cnrs-mrs.fr/~cnotred/Documentation/t_coffee/t_coffee_doc.html
 
-These can be specified as paramters when instantiating a new TCoffee
+These can be specified as parameters when instantiating a new TCoffee
 object, or through get/set methods of the same name (lowercase).
 
 =head1 PARAMETERS FOR ALIGNMENT COMPUTATION
@@ -758,7 +758,7 @@ sub _setinput {
 				'-format' => 'Fasta');
 	unless (scalar(@$input) > 1) {return 0;} # Need at least 2 seqs for alignment
 	foreach $seq (@$input) {
-	    return 0 if( !ref($seq) || ! $seq->isa("Bio::PrimarySeqI"));
+	    return 0 unless ( ref($seq) and $seq->isa("Bio::PrimarySeqI") and $seq->id );
 	    $temp->write_seq($seq);
 	}
 	return $infilename;

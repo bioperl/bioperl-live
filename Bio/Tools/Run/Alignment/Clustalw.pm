@@ -439,7 +439,7 @@ sub align {
 
 # Create input file pointer
     $infilename = $self->_setinput($input);
-    if (!$infilename) {$self->throw("Bad input data or less than 2 sequences in $input !");}
+    if (!$infilename) {$self->throw("Bad input data (sequences need an id ) or less than 2 sequences in $input !");}
 
 # Create parameter string to pass to clustalw program
     my $param_string = $self->_setparams();
@@ -576,7 +576,7 @@ sub _setinput {
 	unless (scalar(@$input) > 1) {return 0;}
 
 	foreach $seq (@$input) {
-	    unless (ref($seq) eq "Bio::Seq")
+	    unless ( $seq->isa("Bio::PrimarySeqI") and $seq->id() )
 	    {return 0;}
 	    $temp->write_seq($seq);
 	}
