@@ -1,4 +1,4 @@
-## $Id: MANIFEST,v 1.31.2.2 2001-06-21 14:50:56 dag Exp $
+## $Id: MANIFEST,v 1.31.2.3 2001-06-27 12:53:42 jason Exp $
 ##
 ## bioperl 0.7.1 manifest listing
 ##
@@ -129,7 +129,6 @@ Bio/SeqIO/game/seqHandler.pm
 Bio/SeqIO/gcg.pm
 Bio/SeqIO/genbank.pm
 Bio/SeqIO/largefasta.pm
-Bio/SeqIO/pir.pm
 Bio/SeqIO/raw.pm
 Bio/SeqIO/scf.pm
 Bio/SeqIO/swiss.pm

@@ -312,10 +312,10 @@ sub from_SeqFeature {
     my $locstr = $sf->location->to_FTstring;
 
     # going into sub features
-    foreach my $sub ( $sf->sub_SeqFeature() ) {
-	my @subfth = &Bio::SeqIO::FTHelper::from_SeqFeature($sub);
-	push(@ret, @subfth);    
-    }
+#    foreach my $sub ( $sf->sub_SeqFeature() ) {
+#	my @subfth = &Bio::SeqIO::FTHelper::from_SeqFeature($sub);
+#	push(@ret, @subfth);    
+#    }
 
     $fth->loc($locstr);
     $fth->key($key);
