@@ -48,8 +48,6 @@ email or the web:
 
 Email jason@bioperl.org
 
-Describe contact details here
-
 =head1 CONTRIBUTORS
 
 Additional contributors names and emails here
@@ -312,6 +310,11 @@ sub end_hit{
     $args{'-query_len'} =  $data->{'RESULT-query_length'};
     my ($hitrank) = scalar @{$self->{'_hits'}} + 1;
     $args{'-rank'} = $hitrank;
+    unless( defined $args{'-significance'} ) {
+	if( defined $args{'-hsps'} ) {
+	    $args{'-significance'} = $args{'-hsps'}->[0]->evalue;
+	}
+    }
     my $hit = $self->factory('hit')->create(%args);
     $self->_add_hit($hit);
     $self->{'_hsps'} = [];
