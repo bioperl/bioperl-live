@@ -269,9 +269,10 @@ sub location_type {
 
     if( defined $value || ! defined $self->{'_location_type'} ) {
 	$value = 'EXACT' unless defined $value;
-
+	$value = uc $value;
+	print "----------------------------|$value|\n";
 	if (! defined $RANGEDECODE{$value}) {
-	    $value = $RANGEDECODE{uc $value};
+	    $value = $RANGEENCODE{$value};
 	}
 	$self->throw("Did not specify a valid location type.[$value] is no good")
 	    unless defined $value;
