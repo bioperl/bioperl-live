@@ -61,7 +61,7 @@ methods. Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::SeqIO::fasta;
-use vars qw(@ISA);
+use vars qw(@ISA $WIDTH);
 use strict;
 # Object preamble - inherits from Bio::Root::Object
 
@@ -70,9 +70,13 @@ use Bio::Seq::SeqFactory;
 
 @ISA = qw(Bio::SeqIO);
 
+BEGIN { $WIDTH = 60}
+
 sub _initialize {
   my($self,@args) = @_;
   $self->SUPER::_initialize(@args);  
+  my ($width) = $self->_rearrange([qw(WIDTH)], @args);
+  $width && $self->width($width);
   if( ! defined $self->sequence_factory ) {
       $self->sequence_factory(new Bio::Seq::SeqFactory(-verbose => $self->verbose(), -type => 'Bio::Seq'));      
   }
@@ -146,6 +150,7 @@ sub next_seq {
 
 sub write_seq {
    my ($self,@seq) = @_;
+   my $width = $self->width;
    foreach my $seq (@seq) {
      my $str = $seq->seq;
      my $top = $seq->display_id();
@@ -154,7 +159,7 @@ sub write_seq {
         $top .= " $desc";
      }
      if(length($str) > 0) {
-	 $str =~ s/(.{1,60})/$1\n/g;
+	 $str =~ s/(.{1,$width})/$1\n/g;
      } else {
 	 $str = "\n";
      }
@@ -163,6 +168,25 @@ sub write_seq {
 
    $self->_fh->flush if $self->_flush_on_write && defined $self->_fh;
    return 1;
+}
+
+=head2 width
+
+ Title   : width
+ Usage   : $obj->width($newval)
+ Function: Get/Set the line width for FASTA output
+ Returns : value of width
+ Args    : newvalue (optional)
+
+
+=cut
+
+sub width{
+   my ($self,$value) = @_;
+   if( defined $value) {
+      $self->{'width'} = $value;
+    }
+    return $self->{'width'} || $WIDTH;
 }
 
 1;
