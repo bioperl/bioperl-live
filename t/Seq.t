@@ -58,4 +58,9 @@ if( $trans->str() ne 'TVAST' ) {
    print "ok 5\n";
 }
 
+# test ability to get str function
+
+$t = $seq->str();
+if( $t eq 'ACTGTGGCGTCAACT' ) {
+  print "ok 
 

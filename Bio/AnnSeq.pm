@@ -109,6 +109,15 @@ sub seq{
    my ($obj,$value) = @_;
    if( defined $value) {
       $obj->{'seq'} = $value;
+      # descend down over all seqfeature objects, seeing whether they
+      # want an attached seq.
+
+      foreach my $sf ( $obj->top_SeqFeatures() ) {
+	  if( $sf->can("attach_seq") ) {
+	      $sf->attach_seq($value);
+	  }
+      }
+
     }
     return $obj->{'seq'};
 
@@ -167,7 +176,7 @@ sub add_SeqFeature{
 	   } else {
 	       if( $feat->can("attach_seq") ) {
 		   # attach it 
-		   $fseq->attach_seq($aseq);
+		   $feat->attach_seq($aseq);
 	       }
 	   }
        } # end of if aseq
