@@ -3,15 +3,20 @@
 
 
 use strict;
+use vars qw($NTESTS $SVG_AVAIL);
+
 BEGIN {
     eval { require Test; };
     if( $@ ) {
         use lib 't';
     }
     use Test;
-    use vars qw($NTESTS);
     $NTESTS = 2;
     plan tests => $NTESTS;
+    eval {
+	require Bio::Graphics::Pictogram;
+    };
+    $SVG_AVAIL = $@ ? 0 : 1;
 }
 
 END {
@@ -19,15 +24,12 @@ END {
         skip("SVG module not found. Skipping. ",1);
     }
 }
-eval {
-   require('SVG.pm');
-};
-if($@){
+
+if(!$SVG_AVAIL){
   warn("SVG not installed, skipping tests");
   exit;
 }
 
-use Bio::Graphics::Pictogram;
 use Bio::SeqIO;
 my $file =  Bio::Root::IO->catfile("t","data","pictogram.fa");
 my $sio = Bio::SeqIO->new(-file=>$file,-format=>'fasta');

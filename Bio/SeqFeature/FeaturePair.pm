@@ -87,7 +87,7 @@ methods. Internal methods are usually preceded with a _
 
 
 package Bio::SeqFeature::FeaturePair;
-use vars qw(@ISA);
+use vars qw(@ISA $AUTOLOAD);
 use strict;
 
 use Bio::SeqFeatureI;
@@ -169,8 +169,7 @@ sub feature2 {
 =cut
 
 sub start {
-    my ($self,$value) = @_;    
-    return $self->feature1->start($value);
+    return shift->feature1->start(@_);
 }
 
 =head2 end
@@ -186,8 +185,7 @@ sub start {
 =cut
 
 sub end{
-    my ($self,$value) = @_;    
-    return $self->feature1->end($value);    
+    return shift->feature1->end(@_);    
 }
 
 =head2 strand
@@ -203,8 +201,7 @@ sub end{
 =cut
 
 sub strand{
-    my ($self,$arg) = @_;
-    return $self->feature1->strand($arg);    
+    return shift->feature1->strand(@_);    
 }
 
 =head2 location
@@ -219,8 +216,7 @@ sub strand{
 =cut
 
 sub location {
-    my ($self,$value) = @_;    
-    return $self->feature1->location($value);
+    return shift->feature1->location(@_);
 }
 
 =head2 score
@@ -236,8 +232,7 @@ sub location {
 =cut
 
 sub score {
-    my ($self,$arg) = @_;
-    return $self->feature1->score($arg);    
+    return shift->feature1->score(@_);    
 }
 
 =head2 frame
@@ -253,8 +248,7 @@ sub score {
 =cut
 
 sub frame {
-    my ($self,$arg) = @_;
-    return $self->feature1->frame($arg);    
+    return shift->feature1->frame(@_);    
 }
 
 =head2 primary_tag
@@ -269,8 +263,7 @@ sub frame {
 =cut
 
 sub primary_tag{
-    my ($self,$arg) = @_;
-    return $self->feature1->primary_tag($arg);    
+    return shift->feature1->primary_tag(@_);    
 }
 
 =head2 source_tag
@@ -287,8 +280,7 @@ sub primary_tag{
 =cut
 
 sub source_tag{
-    my ($self,$arg) = @_;
-    return $self->feature1->source_tag($arg);    
+    return shift->feature1->source_tag(@_);    
 }
 
 =head2 seqname
@@ -309,9 +301,8 @@ sub source_tag{
 
 =cut
 
-sub seqname{
-    my ($self,$arg) = @_;
-    return $self->feature1->seq_id($arg);    
+sub seq_id{
+    return shift->feature1->seq_id(@_);    
 }
 
 =head2 hseqname
@@ -326,9 +317,8 @@ sub seqname{
 
 =cut
 
-sub hseqname {
-    my ($self,$arg) = @_;
-    return $self->feature2->seq_id($arg);
+sub hseq_id {
+    return shift->feature2->seq_id(@_);
 }
 
 
@@ -344,8 +334,7 @@ sub hseqname {
 =cut
 
 sub hstart {
-    my ($self,$value) = @_;
-    return $self->feature2->start($value);    
+    return shift->feature2->start(@_);    
 }
 
 =head2 hend
@@ -361,8 +350,7 @@ sub hstart {
 =cut
 
 sub hend{
-    my ($self,$value) = @_;
-    return $self->feature2->end($value);    
+    return shift->feature2->end(@_);    
 }
 
 
@@ -379,8 +367,7 @@ sub hend{
 =cut
 
 sub hstrand{
-    my ($self,$arg) = @_;
-    return $self->feature2->strand($arg);
+    return shift->feature2->strand(@_);
 }
 
 =head2 hscore
@@ -396,8 +383,7 @@ sub hstrand{
 =cut
 
 sub hscore {
-    my ($self,$arg) = @_;
-    return $self->feature2->score($arg);    
+    return shift->feature2->score(@_);    
 }
 
 =head2 hframe
@@ -413,8 +399,7 @@ sub hscore {
 =cut
 
 sub hframe {
-    my ($self,$arg) = @_;
-    return $self->feature2->frame($arg);    
+    return shift->feature2->frame(@_);    
 }
 
 =head2 hprimary_tag
@@ -429,8 +414,7 @@ sub hframe {
 =cut
 
 sub hprimary_tag{
-    my ($self,$arg) = @_;
-    return $self->feature2->primary_tag($arg);    
+    return shift->feature2->primary_tag(@_);    
 }
 
 =head2 hsource_tag
@@ -447,8 +431,7 @@ sub hprimary_tag{
 =cut
 
 sub hsource_tag{
-    my ($self,$arg) = @_;
-    return $self->feature2->source_tag($arg);
+    return shift->feature2->source_tag(@_);
 }
 
 =head2 invert
@@ -470,6 +453,18 @@ sub invert {
     $self->feature1($self->feature2);
     $self->feature2($tmp);
     return undef;
+}
+
+#################################################################
+# aliases for backwards compatibility                           #
+#################################################################
+
+# seqname() is already aliased in Generic.pm, and we overwrite seq_id
+
+sub hseqname {
+    my $self = shift;
+    $self->warn("SeqFeatureI::seqname() is deprecated. Please use seq_id() instead.");
+    return $self->hseq_id(@_);
 }
 
 1;

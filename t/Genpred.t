@@ -15,7 +15,7 @@ BEGIN {
 	use lib 't';
     }
     use Test;
-    plan tests => 34;
+    plan tests => 35;
 }
 
 use Bio::Tools::Genscan;

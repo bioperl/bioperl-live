@@ -410,6 +410,27 @@ sub find_terms{
     return @terms;
 }
 
+=head1 Experimental API method proposals
+
+ Ontologies are a very new domain in bioperl, and we aren't sure yet
+ what we will want to do on and with ontologies in which
+ situation. The methods from here on downwards are solely API
+ descriptions to solicit comment and feedback; the chance of any of
+ those being actually implemented already is very slim.
+
+ Disclaimer: As long as an API method stays in this section, it is
+ subject to change, possibly even radical change or complete
+ deletion. If it's not implemented yet (most likely it isn't),
+ implement yourself at your own risk.
+
+ So far for the disclaimer. The reason the API description is here,
+ however, is to solicit feedback. Please feel encouraged to share your
+ opinion, regardless of what it is (a notable difference of this API
+ method to others is that there is actually no working code behind it
+ - so the defense line is non-existent for practical purposes).
+
+=cut
+
 =head2 common_ancestor_path
 
  Title   : common_ancestor_path
