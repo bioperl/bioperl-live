@@ -84,6 +84,8 @@ sub new {
     $self->{'QS'} = $qs;
     $self->{'SS'} = $ss;
     $self->{'HS'} = $hs;
+    
+    
     defined $frame && $self->frame($frame);
     return $self;		# success - we hope!
 }
@@ -216,4 +218,17 @@ sub ss              {shift->{'SS'}}
 
 sub hs              {shift->{'HS'}}
 
+sub frame {
+    my ($self, $frame) = @_;
+    if( defined $frame ) {
+	if( $frame == 0 ) {
+	} elsif( $frame !~ /^[+-]?([0-3])/ ) {
+	    $self->warn("Specifying an invalid frame ($frame)");
+	    $frame = 0;
+	} else { 
+	    $frame = $1 - 1;
+	}
+    }
+    return $self->SUPER::frame($frame);
+}
 1;
