@@ -1,5 +1,17 @@
 Revision history for Bioperl core modules
 
+0.04.3  Wed Feb  3 04:01:16 1999
+        - Bio::Root::Object.pm and Global.pm now detect when
+          script is run as a CGI and suppress output that is only
+          appropriate when running interactively.
+        - Bio::Root::Err::_set_context() adds name of script ($0).
+        - Added comments in Bio::Tools::WWW.pm and Bio::Root::Utilities.pm
+          regarding the use of the static objects via the qw(:obj) tag.
+        - Fixed the ambiguous reverse calls in Seq.pm and UnivAln.pm to 
+          CORE::reverse, avoiding Perl warnings.
+        - Bug fixes in Bio::Tools::Blast modules, version 0.074
+          (see Bio::Tools::Blast::CHANGES).
+
 0.04.2  Wed Dec 30 02:27:36 1998
         - Bug fixes in Bio::Tools::Blast modules, version 0.073
           (see Bio::Tools::Blast::CHANGES).
@@ -19,7 +31,7 @@ Revision history for Bioperl core modules
           with make clean.
 
 0.04  Tue Dec  8 07:49:19 1998
-	- Lots of new modules added including:
+        - Lots of new modules added including:
            * Ewan Birney's Bio::SimpleAlign.pm, Bio::Tools::AlignFactory.pm,
              and Bio/Compile directory containing XS-linked C code for
              creating Smith-Waterman sequence alignments from within Perl.
@@ -32,5 +44,5 @@ Revision history for Bioperl core modules
           file in the Bio/Tools/Blast directory.
      
 0.01  Tue Sep  8 14:23:22 1998
-	- original version from central CVS tree; created by h2xs 1.18
+        - original version from central CVS tree; created by h2xs 1.18
 

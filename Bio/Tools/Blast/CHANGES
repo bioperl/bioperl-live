@@ -1,5 +1,17 @@
 Revision history for Perl extension Bio::Tools::Blast.pm and related modules.
 
+0.074  Wed Feb  3 04:10:06 1999
+        - Modified blast_config.pl to make the -prog and -db command-line
+          arguments mandatory. There are no default values for $opt_blast
+          and $opt_db. Also removed the -dna command-line argument.
+        - Fixed alignment section parsing bug in Bio::Tools::Blast.pm 
+          (bug report #24); affects _parse_hsp_string().
+        - Modified Blast::_display_hits() to use table_tiled(), thus
+          avoiding the buggy Sbjct::_display_hits().
+        - Changed the #! line of Bio/Tools/Blast/Run/postclient.pl
+          to the more standard /usr/bin/perl and predeclared some vars
+          to avoid compiler warnings.
+
 0.073  Mon Dec 28 15:18:29 1998
         - Made changes in Sbjct.pm and HSP.pm to allow parsing of older
           versions of Blast. This affected HSP::_set_data() ("Query:?")
