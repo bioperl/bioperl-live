@@ -1613,7 +1613,7 @@ old method name is also recognized.
 sub load_gff {
   my $self              = shift;
   my $file_or_directory = shift || '.';
-  return $self->do_load_gff($file_or_directory) if tied $file_or_directory;
+  return $self->do_load_gff($file_or_directory) if tied *$file_or_directory;
 
   my $tied_stdin = tied(*STDIN);
   open SAVEIN,"<&STDIN" unless $tied_stdin;
@@ -1673,7 +1673,7 @@ web server can be loaded with an expression like this:
 sub load_fasta {
   my $self              = shift;
   my $file_or_directory = shift || '.';
-  return $self->load_sequence($file_or_directory) if tied $file_or_directory;
+  return $self->load_sequence($file_or_directory) if tied *$file_or_directory;
 
   my $tied = tied(*STDIN);
   open SAVEIN,"<&STDIN" unless $tied;
