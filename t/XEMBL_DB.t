@@ -7,8 +7,7 @@
 # `make test'. After `make install' it should work as `perl test.t'
 
 use strict;
-use vars qw($NUMTESTS);
-
+use constant NUMTESTS => 9;
 my $error;
 
 BEGIN { 
@@ -22,13 +21,12 @@ BEGIN {
     }
     use Test;
 
-    $NUMTESTS = 9;
-    plan tests => $NUMTESTS;
+    plan tests => NUMTESTS;
     
     unless( eval "require SOAP::Lite; require XML::DOM; 1;" ) {
  #     warn $@;
       print STDERR "SOAP::Lite and/or XML::DOM not installed. This means that Bio::DB::XEMBL module is not usable. Skipping tests.\n";
-      for( 1..$NUMTESTS ) {
+      for( 1..NUMTESTS ) {
 	skip("SOAP::Lite and/or XML::DOM not installed. This means that Bio::DB::XEMBL module is not usable. Skipping tests.\n",1);
       }
       $error = 1;
@@ -37,6 +35,12 @@ BEGIN {
 
 if( $error ==  1 ) {
     exit(0);
+}
+
+END {
+    foreach ( $Test::ntest..NUMTESTS) {
+	skip('Server may be down',1);
+    }
 }
 
 require Bio::DB::XEMBL;
@@ -91,7 +95,5 @@ eval {
 
 if ($@) {
     warn "Batch access test failed.\nError: $@\n";
-    foreach ( $Test::ntest..$NUMTESTS ) { skip('no network access',1); }
+    foreach ( $Test::ntest..NUMTESTS ) { skip('no network access',1); }
 }
-
-
