@@ -6,13 +6,14 @@ my $exit;
 BEGIN {     
     eval { require Test; };
     use vars qw($NUMTESTS);
-    $NUMTESTS = 32;
+    $NUMTESTS = 35;
     if( $@ ) {
 	use lib 't';
     }
     use Test;
     $exit = 0;
     eval { require Bio::Index::Fasta;
+           require Bio::Index::Qual;
 	   require Bio::Index::SwissPfam;
 	   require Bio::Index::EMBL;
 	   require Bio::Index::GenBank;
@@ -97,6 +98,65 @@ ok ( -e "Wibbl" || -e "Wibbl.pag" );
 	}
     }
     ok $ok_4;
+}
+
+{
+    my $ind = Bio::Index::Fasta->new(-filename => 'multifa_index',
+				     -write_flag => 1,
+				     -verbose => 0);
+    $ind->make_index(Bio::Root::IO->catfile($dir,"t","data","multifa.seq.qual"));
+}
+
+ok ( -e "multifa_index" );
+
+{
+    my $ind = Bio::Index::Qual->new(-filename => 'multifa_qual_index',
+                                    -write_flag => 1,
+                                    -verbose => 0);
+    $ind->make_index(Bio::Root::IO->catfile($dir,"t","data","multifa.seq.qual"));
+}
+
+ok ( -e "multifa_qual_index" );
+
+{
+    my %t_seq = (
+        HSEARLOBE               => 321,
+        HSMETOO                 => 134,
+        MMWHISK                 => 62,
+    );
+
+    my $ind_f = Bio::Index::Fasta->new(-FILENAME => 'multifa_index');
+    my $ind_q = Bio::Index::Qual->new(-FILENAME => 'multifa_qual_index');
+
+    my $ok_3 = 1;
+    my $ok_4 = 1;
+    while (my($name, $length) = each %t_seq) {
+        my $seq = $ind_f->fetch($name);
+	my $qual = $ind_q->fetch($name);
+        if( defined($seq) and $seq->isa('Bio::SeqI') ) {
+            my $r_length = $seq->length;
+	    unless ($r_length == $length) {
+                warn "$name - retrieved seq length '$r_length' doesn't match known length '$length'\n";
+                $ok_3 = 0;
+            }
+        } else {
+            warn "Didn't get sequence '$name' from fasta index\n";
+            $ok_3 = 0;
+        }
+	ok $ok_3;
+	if( defined($qual) and $qual->isa('Bio::Seq::QualI') ) {
+            my $r_length = $qual->length;
+	    unless ($r_length == $length) {
+                warn "$name - retrieved qual length '$r_length' doesn't match known length '$length'\n";
+                $ok_4 = 0;
+            }
+        } else {
+            warn "Didn't get sequence '$name' from qual index\n";
+            $ok_4 = 0;
+        }
+
+	ok $ok_4;
+    }
 }
 
 {
