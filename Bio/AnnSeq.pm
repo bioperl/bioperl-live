@@ -316,6 +316,27 @@ sub division{
 
 }
 
+=head2 accession
+
+ Title   : accession
+ Usage   : $obj->accession($newval)
+ Function: 
+ Example : 
+ Returns : value of accession
+ Args    : newvalue (optional)
+
+
+=cut
+
+sub accession{
+   my ($obj,$value) = @_;
+   if( defined $value) {
+      $obj->{'accession'} = $value;
+    }
+    return $obj->{'accession'};
+
+}
+
 
 
 

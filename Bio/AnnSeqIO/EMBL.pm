@@ -101,13 +101,14 @@ use Bio::AnnSeq;
 use Bio::AnnSeqIO::FTHelper;
 use Bio::SeqFeature::Generic;
 use Bio::Species;
+use Bio::AnnSeqIO::StreamI;
 
 # Object preamble - inheriets from Bio::Root::Object
 
 use Bio::Root::Object;
 use FileHandle;
 
-@ISA = qw(Bio::Root::Object Exporter);
+@ISA = qw(Bio::Root::Object Bio::AnnSeqIO::StreamI);
 # new() is inherited from Bio::Root::Object
 
 # _initialize is where the heavy stuff will happen when new is called
@@ -159,7 +160,7 @@ sub _initialize {
 
 sub next_annseq{
    my ($self,@args) = @_;
-   my ($seq,$fh,$c,$line,$name,$desc,$seqc);
+   my ($seq,$fh,$c,$line,$name,$desc,$acc,$seqc);
 
    $fh = $self->_filehandle();
 
@@ -189,6 +190,11 @@ sub next_annseq{
        if (/^DE\s+(\S.*\S)/) {
            $desc .= $desc ? " $1" : $1;
        }
+       if( /^AC\s+(\S+);?/ ) {
+	   $acc = $1;
+	   $annseq->accession($acc);
+       }
+
        # accession numbers...
        
        # References
@@ -428,17 +434,28 @@ sub write_annseq {
 
    print $fh "SQ   Sequence $len BP; $alen A; $clen C; $glen G; $tlen T; $olen other;\n";
    print $fh "     ";
+   my $linepos;
    for ($i = 0; $i < length($str); $i += 10) {
+       
+       if( $i+10 >= length($str) ) {
+	   # last line.
+	   print $fh substr($str,$i);
+	   $linepos += length($str)-$i;
+	   print $fh ' ' x (70 - $linepos);
+	   print $fh sprintf(" %-5d\n",length($str));
+	   last;
+       }
        print $fh substr($str,$i,10), " ";
+       $linepos += 11;
        if( ($i+10)%60 == 0 ) {
 	   my $end = $i+10;
 	   print $fh sprintf("%-5d\n     ",$end);
+	   $linepos = 5;
        }
    }
 
-   # FIXME : we are not printing the last number! Doh!
 
-   print $fh "\n//\n";
+   print $fh "//\n";
    return 1;
 }
 
