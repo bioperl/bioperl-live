@@ -15,7 +15,7 @@ BEGIN {
 	use lib 't';
     }
     use Test;
-    plan tests => 43;
+    plan tests => 45;
 }
 
 use Bio::Location::Simple;
@@ -120,6 +120,7 @@ ok($splitlocation->end, 90);
 ok($splitlocation->start, 13);
 ok($splitlocation->sub_Location(),5);
 
+
 ok($fuzzy->to_FTstring(), '<10..20');
 $fuzzy->strand(-1);
 ok($fuzzy->to_FTstring(), 'complement(<10..20)');
@@ -127,6 +128,15 @@ ok($simple->to_FTstring(), '10..20');
 $simple->strand(-1);
 ok($simple->to_FTstring(), 'complement(10..20)');
 ok( $splitlocation->to_FTstring(), 'join(13..30,30..90,18..22,19..20,<50..61)');
+# test for bug #1074
+$f = new Bio::Location::Simple(-start => 5,
+			       -end   => 12,
+			       -strand => -1);
+$splitlocation->add_sub_Location($f);
+ok( $splitlocation->to_FTstring(), 'join(13..30,30..90,18..22,19..20,<50..61,complement(5..12))');
+$splitlocation->strand(-1);
+ok( $splitlocation->to_FTstring(), 'join(13..30,30..90,18..22,19..20,<50..61,complement(5..12))');
+
 $f = new Bio::Location::Fuzzy(-start => '45.60',
 			      -end   => '75^80');
 
@@ -141,3 +151,4 @@ $f = new Bio::Location::Simple(-verbose => -1,
 
 ok($f->length, 81);
 ok($f->strand,-1);
+
