@@ -23,6 +23,9 @@ BEGIN {
 END {
     unlink qw(write_scf.scf);
 }
+
+
+
 print("Checking if the Bio::SeqIO::csmscf module could be used, even though it shouldn't be directly use'd...\n") if( $DEBUG);
         # test 1
 use Bio::SeqIO::csmscf;
@@ -82,6 +85,46 @@ my $out_scf = Bio::SeqIO->new('-file' => ">write_scf.scf",
 			-DATF		=>	'AM_Version=2.00',
 			-DATN		=>	'a22c.alf',
 			-CONV		=>	'Bioperl-scf.pm');
+
+if ($DEBUG) {
+	print("Trying to create an scf using null qualities.\n");
+}
+
+$swq = Bio::Seq::SeqWithQuality->new(-seq=>'ATCGTACGTACGTC',
+				-qual=>"");
+
+my $out_scf = Bio::SeqIO->new('-file' => ">write_scf_no_qualities.scf",
+			      '-format' => 'csmscf');
+$out_scf->write_scf(	-SeqWithQuality	=>	$swq,
+			-MACH		=>	'CSM sequence-o-matic 5000',
+			-TPSW		=>	'trace processing software',
+			-BCSW		=>	'basecalling software',
+			-DATF		=>	'AM_Version=2.00',
+			-DATN		=>	'a22c.alf',
+			-CONV		=>	'Bioperl-scf.pm');
+
+if ($DEBUG) {
+	print("Trying to create an scf using null sequence but with qualities.\n");
+}
+
+my $out_scf = Bio::SeqIO->new('-file' => ">write_scf_no_sequence.scf",
+			      '-format' => 'csmscf');
+
+$swq = Bio::Seq::SeqWithQuality->new(-seq=>'',
+				-qual=>"10 20 30 40 50 20 10 30 40 50",
+				-moltype=>'dna');
+    
+$out_scf->write_scf(	-SeqWithQuality	=>	$swq,
+			-MACH		=>	'CSM sequence-o-matic 5000',
+			-TPSW		=>	'trace processing software',
+			-BCSW		=>	'basecalling software',
+			-DATF		=>	'AM_Version=2.00',
+			-DATN		=>	'a22c.alf',
+			-CONV		=>	'Bioperl-scf.pm');
+
+
+				
+
 
 # dumpValue($in_scf);
 ok( -e "write_scf.scf");
