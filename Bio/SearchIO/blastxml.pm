@@ -85,7 +85,7 @@ Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::SearchIO::blastxml;
-use vars qw(@ISA $DTD %MAPPING %MODEMAP);
+use vars qw(@ISA $DTD %MAPPING %MODEMAP $DEBUG);
 use strict;
 
 $DTD = 'ftp://ftp.ncbi.nlm.nih.gov/blast/documents/NCBI_BlastOutput.dtd';
@@ -97,6 +97,7 @@ use XML::Parser::PerlSAX;
 use XML::Handler::Subs;
 use IO::File;
 
+
 BEGIN { 
     # mapping of NCBI Blast terms to Bioperl hash keys
     %MODEMAP = ('BlastOutput' => 'result',
@@ -105,6 +106,7 @@ BEGIN {
 		);
 
     %MAPPING = ( 
+		 # HSP specific fields
 		 'Hsp_bit-score' => 'bits',
 		 'Hsp_score'     => 'score',
 		 'Hsp_evalue'    => 'evalue',
@@ -124,18 +126,30 @@ BEGIN {
 		 'Hsp_query-frame'=> 'queryframe',
 		 'Hsp_hit-frame'  => 'hitframe',
 
+		 # these are ignored for now
+		 'Hsp_num'       => 'hsporder',
+		 'Hsp_pattern-from' => 'patternend',
+		 'Hsp_pattern-to'   => 'patternstart',
+		 'Hsp_density'   => 'hspdensity',
+
+		 # Hit specific fields
 		 'Hit_id'        => 'hitname',
 		 'Hit_len'       => 'hitlen',
 		 'Hit_accession' => 'hitacc',
 		 'Hit_def'       => 'hitdesc',
+		 'Hit_num'       => 'hitorder',
 		 
 		 'BlastOutput_program'  => 'programname',
 		 'BlastOutput_version'  => 'programver',
 		 'BlastOutput_query-def'=> 'queryname',
 		 'BlastOutput_query-len'=> 'querylen',
 		 'BlastOutput_db'       => 'dbname',
+		 'BlastOutput_reference' => 'programref',
+		 'BlastOutput_query-ID'  => 'runid',		 
 		 
 		 'Iteration_iter-num'   => 'iternum',
+		 'Iteration_stat'       => 'iterstat',
+		 
 		 'Parameters_matrix'    => { 'param' => 'matrix'},
 		 'Parameters_expect'    => { 'param' => 'expect'},
 		 'Parameters_include'   => { 'param' => 'include'},
@@ -152,7 +166,10 @@ BEGIN {
 		 'Statistics_lambda'    => { 'stat' => 'lambda' },
 		 'Statistics_entropy'   => { 'stat' => 'entropy'},
 		 );
+    eval {  require Time::HiRes };	
+    if( $@ ) { $DEBUG = -1; }
 }
+
 
 @ISA = qw(Bio::SearchIO );
 
@@ -184,6 +201,8 @@ sub _initialize{
    my ($usetempfile) = $self->_rearrange([qw(TEMPFILE)],@args);
    defined $usetempfile && $self->use_tempfile($usetempfile);
    $self->{'_xmlparser'} = new XML::Parser::PerlSAX();
+   $DEBUG = 1 if( ! defined $DEBUG && $self->verbose > 0);
+
 }
 
 =head2 next_result
@@ -240,11 +259,18 @@ sub next_result {
 			'Handler' => $self);
     }
     my $result;
+    my $starttime;
+    if( $DEBUG ) {  $starttime = [ Time::HiRes::gettimeofday() ]; }
+
     eval { 
 	$result = $self->{'_xmlparser'}->parse(%parser_args);
     };
     if( $@ ) {
 	$self->warn("error in parsing a report:\n $@");
+	$result = undef;
+    }    
+    if( $DEBUG ) {
+	$self->debug( sprintf("parsing took %f seconds\n", Time::HiRes::tv_interval($starttime)));
     }
     # parsing magic here - but we call event handlers rather than 
     # instantiating things 
@@ -352,9 +378,13 @@ sub end_element{
 	} else {
 	    $self->{'_values'}->{$MAPPING{$nm}} = $self->{'_last_data'};
 	}
-    } else { 
+    } elsif( $nm eq 'Iteration' || $nm eq 'Hit_hsps' || $nm eq 'Parameters' ||
+	     $nm eq 'BlastOutput_param' || $nm eq 'Iteration_hits' || 
+	     $nm eq 'Statistics' || $nm eq 'BlastOutput_iterations' ){
+    
+    } else { 	
 	
-	$self->debug("ignoring unrecognized element type $nm");
+	$self->debug("ignoring unrecognized element type $nm\n");
     }
     $self->{'_last_data'} = ''; # remove read data if we are at 
 				# end of an element
