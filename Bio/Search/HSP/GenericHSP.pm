@@ -799,6 +799,7 @@ sub rank {
            : or conserved residues in the query or sbjct sequence.
  Example   : @s_ind = $hsp->seq_inds('query', 'identical');
            : @h_ind = $hsp->seq_inds('hit', 'conserved');
+             @h_ind = $hsp->seq_inds('hit', 'conserved-not-identical'); 
            : @h_ind = $hsp->seq_inds('hit', 'conserved', 1);
  Returns   : List of integers 
            : May include ranges if collapse is true.
@@ -807,7 +808,7 @@ sub rank {
            : class     = 'identical' or 'conserved' or 'nomatch' or 'gap'
            :              (default = identical)
            :              (can be shortened to 'id' or 'cons')
-           :              
+           :             or 'conserved-not-identical'
            : collapse  = boolean, if true, consecutive positions are merged
            :             using a range notation, e.g., "1 2 3 4 5 7 9 10 11" 
            :             collapses to "1-5 7 9-11". This is useful for 
@@ -815,7 +816,8 @@ sub rank {
  Throws    : n/a.
  Comments  : 
 
-See Also   : L<Bio::Search::BlastUtils::collapse_nums()|Bio::Search::BlastUtils>, L<Bio::Search::Hit::HitI::seq_inds()|Bio::Search::Hit::HitI>
+See Also   : L<Bio::Search::SearchUtils::collapse_nums()|Bio::Search::SearchUtils>, 
+             L<Bio::Search::Hit::HitI::seq_inds()|Bio::Search::Hit::HitI>
 
 =cut
 
@@ -839,10 +841,14 @@ sub seq_inds{
        $self->warn("unknown seqtype $seqType using 'query'");
        $seqType = 'query';
    }
-
    $t = lc(substr($class,0,1));
+ 
    if( $t eq 'c' ) {
-     $class = 'conserved';  
+       if( $class =~ /conserved\-not\-identical/ ) {
+	   $class = 'conserved';
+       } else { 
+	   $class = 'conservedall';
+       }
    } elsif( $t eq 'i' ) {
        $class = 'identical';
    } elsif( $t eq 'n' ) {
@@ -858,6 +864,7 @@ sub seq_inds{
    $seqType  = "_\L$seqType\E";
    $class = "_\L$class\E";
    my @ary;
+
    if( $class eq '_gap' ) {
        # this means that we are remapping the gap length that is stored
        # in the hash (for example $self->{'_gapRes_query'} ) 
@@ -869,9 +876,13 @@ sub seq_inds{
 			$_..($_ + $self->{"${class}Res$seqType"}->{$_} - 1) : 
 			$_ }
               sort { $a <=> $b } keys %{ $self->{"${class}Res$seqType"}};
-   } else {
+   } elsif( $class eq '_conservedall' ) {
+       @ary = sort { $a <=> $b } 
+       keys %{ $self->{"_conservedRes$seqType"}},
+       keys %{ $self->{"_identicalRes$seqType"}},
+   }  else { 
        @ary = sort { $a <=> $b } keys %{ $self->{"${class}Res$seqType"}};
-   }   
+   } 
    require Bio::Search::BlastUtils if $collapse;
    
    return $collapse ? &Bio::Search::SearchUtils::collapse_nums(@ary) : @ary;
@@ -972,7 +983,7 @@ sub bits {
 
  Title   : _calculate_seq_positions
  Usage   : $self->_calculate_seq_positions
- Function:
+ Function: Internal function
  Returns : 
  Args    :
 
@@ -1030,22 +1041,23 @@ sub _calculate_seq_positions {
 	$qseq =~ s![\\\/]!!g;
 	$sseq =~ s![\\\/]!!g;
     }
+    
     if($prog eq 'TBLASTN' || $prog eq 'TFASTN' ) {
-	$resCount_sbjct /= 3;
+	$resCount_sbjct = int($resCount_sbjct / 3);
     } elsif($prog eq 'BLASTX' || $prog eq 'FASTX' || $prog eq 'FASTY' || 
 	    $prog eq 'FASTXY' ) {
-	$resCount_query /= 3;
+	$resCount_query = int($resCount_query / 3);
     } elsif($prog eq 'TBLASTX' ||
 	    $prog eq 'TFASTXY' || $prog eq 'TFASTY' || 
 	    $prog eq 'TFASTX' ) {
-	$resCount_query /= 3;
-	$resCount_sbjct /= 3;
+	$resCount_query = int($resCount_query / 3);
+	$resCount_sbjct = int($resCount_sbjct / 3);
     }    
     while( $mchar = chop($seqString) ) {
 	($qchar, $schar) = (chop($qseq), chop($sseq));
 	if( $mchar eq '+' || $mchar eq '.' || $mchar eq ':' ) { 
 	    $conservedList_query{ $resCount_query } = 1; 
-	    $conservedList_sbjct{ $resCount_sbjct } = 1; 
+	    $conservedList_sbjct{ $resCount_sbjct } = 1;
 	} elsif( $mchar ne ' ' ) { 
 	    $identicalList_query{ $resCount_query } = 1; 
 	    $identicalList_sbjct{ $resCount_sbjct } = 1;
@@ -1066,13 +1078,13 @@ sub _calculate_seq_positions {
     }
     $self->{'_identicalRes_query'} = \%identicalList_query;
     $self->{'_conservedRes_query'} = \%conservedList_query;
-    $self->{'_nomatchRes_query'} = \%nomatchList_query;
-    $self->{'_gapRes_query'} = \%gapList_query;
+    $self->{'_nomatchRes_query'}   = \%nomatchList_query;
+    $self->{'_gapRes_query'}       = \%gapList_query;
 
     $self->{'_identicalRes_sbjct'} = \%identicalList_sbjct;
     $self->{'_conservedRes_sbjct'} = \%conservedList_sbjct;
-    $self->{'_nomatchRes_sbjct'} = \%nomatchList_sbjct;
-    $self->{'_gapRes_sbjct'} = \%gapList_sbjct;
+    $self->{'_nomatchRes_sbjct'}   = \%nomatchList_sbjct;
+    $self->{'_gapRes_sbjct'}       = \%gapList_sbjct;
     return 1;
 }
 
