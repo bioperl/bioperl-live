@@ -44,7 +44,7 @@ Bio::Variation::IO::flat). It is the officially sanctioned way of getting at
 the format objects, which most people should use.
 
 The structure, conventions and most of the code is inherited from
-L<Bio:SeqIO> module. The main difference is that instead of using
+L<Bio::SeqIO> module. The main difference is that instead of using
 methods next_seq and write_seq, you drop '_seq' from the method names.
 
 The idea is that you request a stream object for a particular format.
@@ -66,7 +66,7 @@ also
    $stream->type() # returns 'INPUT' or 'OUTPUT'
 
 As an added bonus, you can recover a filehandle that is tied to the
-SeqIO object, allowing you to use the standard <> and print operations
+SeqIO object, allowing you to use the standard E<lt>E<gt> and print operations
 to read and write sequence objects:
 
     use Bio::Variation::IO;
@@ -99,7 +99,7 @@ This makes the simplest ever reformatter
 
 =head1 CONSTRUCTORS
 
-=head2 Bio::Variation::IO->new()
+=head2 Bio::Variation::IO-E<gt>new()
 
    $seqIO = Bio::Variation::IO->new(-file => 'filename',   -format=>$format);
    $seqIO = Bio::Variation::IO->new(-fh   => \*FILEHANDLE, -format=>$format);
@@ -133,7 +133,7 @@ example, to read from STDIN:
 Note that you must pass filehandles as references to globs.
 
 If neither a filehandle nor a filename is specified, then the module
-will read from the @ARGV array or STDIN, using the familiar <>
+will read from the @ARGV array or STDIN, using the familiar E<lt>E<gt>
 semantics.
 
 =item -format
@@ -152,7 +152,7 @@ all supported.
 
 =back
 
-=head2 Bio::Variation::IO->newFh()
+=head2 Bio::Variation::IO-E<gt>newFh()
 
    $fh = Bio::Variation::IO->newFh(-fh   => \*FILEHANDLE, -format=>$format);
    $fh = Bio::Variation::IO->newFh(-format => $format);
@@ -164,7 +164,7 @@ all supported.
 
 This constructor behaves like new(), but returns a tied filehandle
 rather than a Bio::Variation::IO object.  You can read sequences from this
-object using the familiar <> operator, and write to it using print().
+object using the familiar E<lt>E<gt> operator, and write to it using print().
 The usual array and $_ semantics work.  For example, you can read all
 sequence objects into an array like this:
 
@@ -177,11 +177,11 @@ are not supported.
 
 See below for more detailed summaries.  The main methods are:
 
-=head2 $sequence = $seqIO->next()
+=head2 $sequence = $seqIO-E<gt>next()
 
 Fetch the next sequence from the stream.
 
-=head2 $seqIO->write($sequence [,$another_sequence,...])
+=head2 $seqIO-E<gt>write($sequence [,$another_sequence,...])
 
 Write the specified sequence(s) to the stream.
 
@@ -304,6 +304,7 @@ END
  Function: reads the next $seqDiff object from the stream
  Returns : a Bio::Variation::SeqDiff object
  Args    :
+
 =cut
 
 sub next {
