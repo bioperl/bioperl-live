@@ -54,7 +54,7 @@ use Bio::Root::RootI;
 use vars qw($VERSION @ISA $AUTOLOAD);
 @ISA = qw(Bio::DB::GFF::RelSegment Bio::SeqFeatureI Bio::Root::RootI);
 
-$VERSION = '0.20';
+$VERSION = '0.25';
 
 *segments = \&sub_SeqFeature;
 *name     = \&group;
@@ -172,7 +172,7 @@ sub new {
   @{$self}{qw(factory sourceseq start stop strand class)} =
     ($factory,$srcseq,$start,$stop,$fstrand,$class);
 
-  @{$self}{qw(ref refstart refstrand)} = ($srcseq,1,$fstrand);
+  @{$self}{qw(ref refstart refstrand)} = ($srcseq,1,'+');  # by definition, reference sequence begins at 1 and goes forward
 
   @{$self}{qw(type fstrand score phase group db_id)} =
     (Bio::DB::GFF::Typename->new($method,$source),$fstrand,$score,$phase,$group,$db_id);
