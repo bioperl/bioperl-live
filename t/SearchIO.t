@@ -20,7 +20,7 @@ BEGIN {
 	use lib 't';
     }
     use vars qw($NTESTS);
-    $NTESTS = 290;
+    $NTESTS = 297;
     $LASTXMLTEST = 49;
     $error = 0;
 
@@ -45,11 +45,11 @@ use Bio::SearchIO;
 use Bio::Root::IO;
 
 ok(1);
-
 my ($searchio, $result,$hit,$hsp);
 if( ! $SKIPXML ) {
     # test with RPSBLAST data first 
-    $searchio = new Bio::SearchIO ('-format' => 'blastxml',
+    $searchio = new Bio::SearchIO ('-tempfile' => 1,
+				   '-format' => 'blastxml',
 				   '-file'   => Bio::Root::IO->catfile('t','data','ecoli_domains.rps.xml'));
     
     $result = $searchio->next_result;
@@ -105,7 +105,8 @@ if( ! $SKIPXML ) {
     while( $result = $searchio->next_result ) { ok($result); }
 
 
-    $searchio = new Bio::SearchIO(-format => 'blastxml', -file => Bio::Root::IO->catfile('t','data','plague_yeast.bls.xml'));
+    $searchio = new Bio::SearchIO(-format => 'blastxml', 
+				  -file => Bio::Root::IO->catfile('t','data','plague_yeast.bls.xml'));
 
     $result = $searchio->next_result;
 
@@ -117,14 +118,15 @@ if( ! $SKIPXML ) {
     ok(! $hit);
 
 }
-
 $searchio = new Bio::SearchIO ('-format' => 'blast',
 				  '-file'   => Bio::Root::IO->catfile('t','data','ecolitst.bls'));
 
 $result = $searchio->next_result;
 
 ok($result->database_name, 'ecoli.aa');
-ok($result->database_entries, 1358990);
+ok($result->database_entries, 4289);
+ok($result->database_letters, 1358990);
+
 ok($result->algorithm, 'BLASTP');
 ok($result->algorithm_version, '2.1.3');
 ok($result->query_name, qr/gi|1786183|gb|AAC73113.1| (AE000111) aspartokinase I,\s+homoserine dehydrogenase I [Escherichia coli]/);
@@ -132,17 +134,17 @@ ok($result->query_length, 820);
 ok($result->get_statistic('kappa')== 0.041);
 ok($result->get_statistic('lambda'), 0.267);
 ok($result->get_statistic('entropy') == 0.14);
-ok($result->get_statistic('dblength'), 1358990);
-ok($result->get_statistic('dbnum'), 4289);
+ok($result->get_statistic('dbletters'), 1358990);
+ok($result->get_statistic('dbentries'), 4289);
 ok($result->get_statistic('hsplength'), 47);
 ok($result->get_statistic('effectivespace'), 894675611);
 ok($result->get_parameter('matrix'), 'BLOSUM62');
 ok($result->get_parameter('gapopen'), 11);
 ok($result->get_parameter('gapext'), 1);
 
-my @valid = ( [ 'gb|AAC73113.1|', 820, 'AAC73113'],
-	      [ 'gb|AAC76922.1|', 810, 'AAC76922'],
-	      [ 'gb|AAC76994.1|', 449, 'AAC76994']);
+my @valid = ( [ 'gb|AAC73113.1|', 820, 'AAC73113.1'],
+	      [ 'gb|AAC76922.1|', 810, 'AAC76922.1'],
+	      [ 'gb|AAC76994.1|', 449, 'AAC76994.1']);
 my $count = 0;
 while( $hit = $result->next_hit ) {
     my $d = shift @valid;
@@ -170,26 +172,29 @@ while( $hit = $result->next_hit ) {
 }
 
 $searchio = new Bio::SearchIO ('-format' => 'blast',
-			       '-file'   => Bio::Root::IO->catfile('t','data','ecolitst.wublastn'));
+			       '-file'   => Bio::Root::IO->catfile('t','data','ecolitst.wublastp'));
 
 $result = $searchio->next_result;
 
 ok($result->database_name, 'ecoli.aa');
-ok($result->database_entries, 1358990);
+ok($result->database_letters, 1358990);
+ok($result->database_entries, 4289);
 ok($result->algorithm, 'BLASTP');
 ok($result->algorithm_version, '2.0MP-WashU');
 ok($result->query_name, qr/gi|1786183|gb|AAC73113.1| (AE000111) aspartokinase I,\s+homoserine dehydrogenase I [Escherichia coli]/);
+ok($result->query_accession, 'AAC73113.1');
+
 ok($result->query_length, 820);
 ok($result->get_statistic('kappa'), 0.136);
 ok($result->get_statistic('lambda'), 0.319);
 ok($result->get_statistic('entropy'), 0.384);
-ok($result->get_statistic('dblength'), 1358990);
-ok($result->get_statistic('dbnum'), 4289);
+ok($result->get_statistic('dbletters'), 1358990);
+ok($result->get_statistic('dbentries'), 4289);
 ok($result->get_parameter('matrix'), 'BLOSUM62');
 
-@valid = ( [ 'gb|AAC73113.1|', 820, 'AAC73113'],
-	   [ 'gb|AAC76922.1|', 810, 'AAC76922'],
-	   [ 'gb|AAC76994.1|', 449, 'AAC76994']);
+@valid = ( [ 'gb|AAC73113.1|', 820, 'AAC73113.1'],
+	   [ 'gb|AAC76922.1|', 810, 'AAC76922.1'],
+	   [ 'gb|AAC76994.1|', 449, 'AAC76994.1']);
 $count = 0;
 while( $hit = $result->next_hit ) {
     my $d = shift @valid;
@@ -222,7 +227,8 @@ $searchio = new Bio::SearchIO ('-format' => 'blast',
 
 $result = $searchio->next_result;
 ok($result->database_name, 'ecoli.nt');
-ok($result->database_entries, 4662239);
+ok($result->database_letters, 4662239);
+ok($result->database_entries, 400);
 ok($result->algorithm, 'TBLASTX');
 ok($result->algorithm_version, '2.1.2');
 ok($result->query_name, qr/HUMBETGLOA Human haplotype C4 beta-globin gene, complete cds./);
@@ -230,8 +236,11 @@ ok($result->query_length, 3002);
 ok($result->get_statistic('kappa'), 0.135);
 ok($result->get_statistic('lambda'), 0.318);
 ok($result->get_statistic('entropy'), 0.401);
-ok($result->get_statistic('dblength'), 4662239);
-ok($result->get_statistic('dbnum'), 400);
+ok($result->get_statistic('dbletters'), 4662239);
+ok($result->get_statistic('dbentries'), 400);
+ok($result->get_statistic('T'), 13);
+ok($result->get_statistic('decayconst'), 0.1);
+
 ok($result->get_parameter('matrix'), 'BLOSUM62');
 
 @valid = ( [ 'gb|AE000479.1|AE000479', 10934, 'AE000479'],
@@ -319,7 +328,7 @@ while( my $hit = $result->next_hit ) {
 	    ok($hsp->query->frame(), 0);
 	    ok($hsp->hit->frame(), 0);
 	    ok($hsp->gaps, 159);
-	    ok($hsp->gaps('query'), 1);
+	    ok($hsp->gaps('query'), 8);
 	    ok($hsp->gaps('hit'),1);
 	    ok($hsp->query_string, 'GATTAAAACCTTCTGGTAAGAAAAGAAAAAATATATATATATATATATGTGTATATGTACACACATACATATACATATATATGCATTCATTTGTTGTTGTTTTTCTTAATTTGCTCATGCATGCTA----ATAAATTATGTCTAAAAATAGAAT---AAATACAAATCAATGTGCTCTGTGCATTA-GTTACTTATTAGGTTTTGGGAAACAAGAGGTAAAAAACTAGAGACCTCTTAATGCAGTCAAAAATACAAATAAATAAAAAGTCACTTACAACCCAAAGTGTGACTATCAATGGGGTAATCAGTGGTGTCAAATAGGAGGT');
 	    ok($hsp->hit_string, 'GATGTCCTTGGTGGATTATGGTGTTAGGGTATATATATATATATATATATATATATATATATATATATATATATATATATATATATATATATATATATATATATATATATAATATAATACAAAATATAATACAAAATATAATACAAAATATAATACAAAATATAATACAAAATATAATACAAAATATAATACAAAATATAATATAAAATATAATATAAAATATAATATAAAATAAAATATAAAATAAAATATAAAATAAAATATAAAATAAAATATAAAATAAAATAT-AATATAAAATATAAAATAAAATATAATATAAAATATAATATAAAATATAATATAAAATATAATATAAAATA');
@@ -375,6 +384,7 @@ while( my $hit = $result->next_hit ) {
 	    ok(sprintf("%.4f",$hsp->frac_identical('hit')), 0.0879);
 	    ok($hsp->query->frame(), 0);
 	    ok($hsp->hit->frame(), 0);
+	    ok($hsp->gaps('query'), 7);
 	    ok($hsp->gaps, 49);	    
 	    ok($hsp->query_string, 'NKEAIFTDDLPVADYLDDEFINSIPTAFDWRTRGAVTPVKNQGQCGSCWSFSTT-GNV----EGQHFISQNKLVSLSEQNLVDCDHECME-YEGEEACDEGCNGGLQPNAYNYIIKNGGIQTESSYPYTAETGTQCNFNSANIGAKISNFTMIPKNETVMAGYIVSTGP-LAIAADAVEWQFYIGGVFDIPCNPNSLDHGILIVGYSAKNTIFRKNMPYWIVKNSWGADWGEQGYIYLRRGKNTCGVSNFVSTSII');
 	    ok($hsp->hit_string, 'MKIRSQVGMVLNLDKCIGCHTCSVTCKNVWTSREGVEYAWFNNVETKPGQGF-PTDWENQEKYKGGWI--RKINGKLQPRMGNRAMLLGKIFANPHLPGIDDYYEPFDFDYQNLHTAPEG----SKSQPIARPRSLITGERMAKIEKGPNWEDDLGGEFDKLAKDKNFDN-IQKAMYSQFENTFMMYLPRLCEHCLNPACVATCPSGAIYKREEDGIVLIDQDKCRGWRMCITGCPYKKIYFNWKSGKSEKCIFCYPRIEAGQPTVCSETC');
