@@ -195,6 +195,24 @@ Wilkinson and David Block) and Biocorba (Jason Stajich, Brad Chapman
 and Alan Robinson) and finally Game-XML (Brad Marshall) provided more
 interoperability.
 
+From 2001-2002 we saw the developer ranks swell and contributions
+increase with folks volunteering everything from bibliographic modules
+(Martin Senger) to new SCF chromatogram file parsers (Chad Matsalla
+and Aaron Mackey) to a new relational database and Bioperl layer for
+fast access to feature data (Lincoln Stein) as well graphical
+rendering of sequences with features (Lincoln Stein).  In early 2002
+Open-Bioinformatics foundation was formally incorperated as a
+non-profit organization (see http://www.open-bio.org) in the early
+part of 2002. We also participated in the 1st Bio-Hackathon that
+February which drew developers from several Open-Bio projects to
+lovely Cape Town, South Africa and the hospitality of the co-sponsor
+Electric Genetics (O'Reilly and Associates also co-sponsored the
+event).  In early May we released bioperl 1.0 as an effort to put a
+stamp of completeness on the toolkit and submitted a paper detailing
+the efforts thus far (see the FAQ).  In late 2002 we released a
+developer release 1.1 for testing purposes and released bioperl 1.2 at
+the beginning of 2003.
+
 Current server hardware for bioperl.org (and other open-bio.org hosted
 projects) was provided by Compaq Computer Corporation.  The donation 
 was facilitated by both the Pharmaceutical Sales and High Performance 
