@@ -162,9 +162,25 @@ of course, you are free to use these functions anyway.
 sub seq {
    my ($self,$value) = @_;
    if( defined $value ) {
-       return $self->primary_seq->seq($value);
+       return $self->{'primary_seq'}->seq($value);
    }
-   return $self->primary_seq->seq();
+   return $self->{'primary_seq'}->seq();
+}
+
+=head2 length
+
+ Title   : length
+ Usage   : $len = $seq->length()
+ Function:
+ Example :
+ Returns : integer representing the length of the sequence.
+ Args    :
+
+=cut
+
+sub length {
+   my ($self) = @_;
+   return $self->{'primary_seq'}->length();
 }
 
 =head2 subseq
@@ -185,7 +201,7 @@ sub seq {
 
 sub subseq {
    my ($self,$s,$e) = @_;
-   return $self->primary_seq->subseq($s,$e);
+   return $self->{'primary_seq'}->subseq($s,$e);
 }
 
 =head2 display_id
@@ -431,17 +447,6 @@ sub  id {
    return $self->display_id();
 }
 
-=head2 length
-
- Title   : length
- Usage   : $len = $seq->length()
- Function:
- Example :
- Returns : 
- Args    :
-
-
-=cut
 
 =head1 Methods for Backward Compatibility
 
