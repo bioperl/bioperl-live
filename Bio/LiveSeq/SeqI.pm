@@ -1199,12 +1199,12 @@ sub delete_Obj {
     delete $self->{$key};
   }
   foreach my $value ( @values ) {
-    if (index(ref($value),"LiveSeq" != -1)) { # object case
+    if (index(ref($value),"LiveSeq") != -1) { # object case
       eval {
 	# delete $self->{$value};
 	$value->delete_Obj;
       };
-    } elsif (index(ref($value),"ARRAY" != -1)) { # array case
+    } elsif (index(ref($value),"ARRAY") != -1) { # array case
       my @array=@{$value};
       my $element;
       foreach $element (@array) {
@@ -1212,7 +1212,7 @@ sub delete_Obj {
 	  $element->delete_Obj;
 	};
       }
-    } elsif (index(ref($value),"HASH" != -1)) { # object case
+    } elsif (index(ref($value),"HASH") != -1) { # object case
       my %hash=%{$value};
       my $element;
       foreach $element (%hash) {
