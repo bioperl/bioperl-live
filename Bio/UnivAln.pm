@@ -2278,7 +2278,7 @@ sub _complement_of_array {
 sub _rev_complement_of_array {
   my $str = join "", @{ $_[0] };
   $str =~ tr/acgtrymkswhbvdnxACGTRYMKSWHBVDNX/tgcayrkmswdvbhnxTGCAYRKMSWDVBHNX/;
-  return [ reverse split "", $str ];
+  return [ CORE::reverse split "", $str ];
 }
 
 =head2 complement()
@@ -2341,8 +2341,8 @@ sub revcom {
     $self->{'seqs'}    = [@rows];
     $self->{'row_ids'} = [ @{ $self->{'row_ids'} }[@$rrowsel2] ];
     $self->{'row_descs'} = [ @{ $self->{'row_descs'} }[@$rrowsel2] ];
-    $self->{'col_ids'} = [ reverse @{ $self->{'col_ids'} } ];
-    $self->{'col_descs'} = [ reverse @{ $self->{'col_descs'} } ];
+    $self->{'col_ids'} = [ CORE::reverse @{ $self->{'col_ids'} } ];
+    $self->{'col_descs'} = [ CORE::reverse @{ $self->{'col_descs'} } ];
     return wantarray ? (1) : 1;
   } else {
     return wantarray ? @rows : _stringify(@rows);
