@@ -85,6 +85,14 @@ sub new {
 							       SEQ_ID)],@args);
     defined $v && $self->verbose($v);
     defined $strand && $self->strand($strand);
+
+    #if( defined $start && $start !~ /^\d+$/ ) {
+    #	$self->throw("Attempting to set start as non numeric [$start]");
+    #}
+    #if( defined $end && $end !~ /^\d+$/ ) {
+    #	$self->throw("Attempting to set end as non numeric [$end]");
+    #}
+
     defined $start  && $self->start($start);
     defined $end    && $self->end($end);
     if( defined $self->start && defined $self->end &&

@@ -222,11 +222,12 @@ foreach $name ( keys %packages ) {
 if( $error == 1 ) {
     print <<QQ_ERROR_QQ;
 
-Warning:
+Information:
 
    There are some external packages and perl modules, listed above, which 
    bioperl uses. This only effects the functionality which is listed above:
-   the rest of bioperl will work fine.
+   the rest of bioperl will work fine, which includes nearly all of the
+   core packages.
 
    The installation of these external packages is very simple. You
    can read more about bioperl external dependencies at

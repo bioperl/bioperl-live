@@ -103,6 +103,7 @@ use Bio::Root::Root;
 @ISA = qw(Bio::Root::Root);
 
 my $TEMPCOUNTER;
+my $HAS_WIN32 = 0;
 
 BEGIN {
     $TEMPCOUNTER = 0;
@@ -120,6 +121,17 @@ BEGIN {
 	print STDERR "Cannot load File::Path: $@" if( $VERBOSE > 0 );
 	# do nothing
     }
+
+
+    # If on Win32, attempt to find Win32 package
+
+    if($^O =~ /mswin/i) {
+	eval {
+	    require Win32;
+	    $HAS_WIN32 = 1;
+	};
+    }
+
     # Try to provide a path separator. Why doesn't File::Spec export this,
     # or did I miss it?
     if($^O =~ /mswin/i) {
@@ -428,7 +440,12 @@ sub exists_exe {
     $exe = $self if(!(ref($self) || $exe));
     $exe .= '.exe' if(($^O =~ /mswin/i) && ($exe !~ /\.(exe|com|bat|cmd)$/i));
     return $exe if(-e $exe); # full path and exists
-    $exe =~ s/^$PATHSEP//;
+
+    # Ewan's comment. I don't think we need this. People should not be
+    # asking for a program with a pathseparator starting it
+    # $exe =~ s/^$PATHSEP//;
+
+
     # Not a full path, or does not exist. Let's see whether it's in the path.
     if($FILESPECLOADED) {
 	foreach my $dir (File::Spec->path()) {
@@ -498,6 +515,12 @@ sub tempfile {
 				sprintf( "%s.%s.%s",  
 					 $ENV{USER} || 'unknown', $$, 
 					 $TEMPCOUNTER++)));
+
+	# sneakiness for getting around long filenames on Win32?
+	if( $HAS_WIN32 ) {
+	    $file = Win32::GetShortPathName($file);
+	}
+
 	# taken from File::Temp
 	if ($] < 5.006) {
 	    $tfh = &Symbol::gensym;
@@ -522,6 +545,8 @@ sub tempfile {
     if(  $params{'UNLINK'} ) {
 	push @{$self->{'_rootio_tempfiles'}}, $file;
     } 
+
+
     return wantarray ? ($tfh,$file) : $tfh;
 }
 
