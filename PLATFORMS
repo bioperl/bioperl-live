@@ -1,4 +1,4 @@
-# $Id: PLATFORMS,v 1.21 2003-01-10 13:02:40 bosborne Exp $
+# $Id: PLATFORMS,v 1.22 2003-12-31 20:09:56 bosborne Exp $
 
 Perl general comments:
 
@@ -76,11 +76,8 @@ Comments: Be sure that the module DB_File is installed and up-to-date
 Machine : CygWin NT_5 v. 1.3.10,18 on Windows 2000 5.00
 Compiler: gcc
 Perl    : 5.6.1,5.8
-Comments: Recommend that blastall app be obtained from NCBI
-          (blast/executables/blastz.exe). expat is part of Cygwin.
-          Cygwin has an error in the SearchIO test, possibly due to some
-          temporary file issues
-        
+Comments: See INSTALL.WIN for more information
+	
 Machine : MacOS
 Compiler: --
 Perl    : MacPerl
