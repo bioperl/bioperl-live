@@ -16,7 +16,7 @@ BEGIN {
         use lib 't';
     }
     use Test;
-    plan test => 9;
+    plan test => 11;
 }
 use Bio::DB::Fasta;
 
@@ -25,9 +25,13 @@ ok($db);
 ok($db->length('CEESC13F') > 0);
 ok(length $db->seq('CEESC13F:1,10') == 10);
 ok(length $db->seq('AW057119',1,10) == 10);
+my $primary_seq = $db->get_Seq_by_id('AW057119');
+ok($primary_seq);
+ok(length($primary_seq->seq) > 0);
 undef $db;
-my (%h,$dna1,$dna2);
+undef $primary_seq;
 
+my (%h,$dna1,$dna2);
 ok(tie(%h,'Bio::DB::Fasta','./t/data/dbfa'));
 ok($h{'AW057146'});
 ok($dna1 = $h{'AW057146:1,10'});
