@@ -176,10 +176,14 @@ and stop position in the sequence.  In the case of DNA sequence, if
 $stop is less than $start, then the reverse complement of the sequence
 is returned (this violates Bio::Seq conventions).
 
-For your convenience, subsequences can be indicated with this compound 
-ID:
+For your convenience, subsequences can be indicated with any of the
+following compound IDs:
 
    $db->seq("$id:$start,$stop")
+
+   $db->seq("$id:$start..$stop")
+
+   $db->seq("$id:$start-$stop")
 
 =item $length = $db-E<gt>length($id)
 
@@ -820,7 +824,7 @@ sub path2fileno {
 
 sub subseq {
   my ($self,$id,$start,$stop) = @_;
-  if ($id =~ /^(.+):([\d_]+)[,-]([\d_]+)$/) {
+  if ($id =~ /^(.+):([\d_]+)(?:,|-|\.\.)([\d_]+)$/) {
     ($id,$start,$stop) = ($1,$2,$3);
     $start =~ s/_//g;
     $stop =~ s/_//g;
@@ -829,7 +833,7 @@ sub subseq {
   $stop  ||= $self->length($id);
 
   my $reversed;
-  if ($start > $stop) {
+  if (defined $stop && $start > $stop) {
     ($start,$stop) = ($stop,$start);
     $reversed++;
   }
