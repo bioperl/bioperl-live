@@ -564,9 +564,7 @@ sub warn_not_implemented {
 sub _not_implemented_msg {
     my $self = shift;
     my $package = ref $self;
-    my $iface = caller(0);
-    my @call = caller(1);
-    my $meth = $call[3];
+    my $meth = (caller(2))[3];
     my $msg =<<EOD_NOT_IMP;
 Abstract method \"$meth\" is not implemented by package $package.
 This is not your fault - author of $package should be blamed!
