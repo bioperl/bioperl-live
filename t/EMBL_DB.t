@@ -74,7 +74,7 @@ if ($@) {
     print STDERR "Warning: Couldn't connect to EMBL with Bio::DB::EMBL.pm!\n" . $@;
 
     foreach ( $Test::ntest..$NUMTESTS) { 
-	 skip(1,1,1,'could not connect to embl');}
+	 skip('could not connect to embl',1);}
 
 }
 exit;
@@ -93,7 +93,7 @@ eval {
 
 if ($@) {
     warn "Batch access test failed.\nError: $@\n";
-    foreach ( $Test::ntest..$NUMTESTS ) { skip(1,1,'no network access'); }
+    foreach ( $Test::ntest..$NUMTESTS ) { skip('no network access',1); }
 }
 
 

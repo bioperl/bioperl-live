@@ -67,7 +67,6 @@ if ($@) {
     print STDERR "Warning: Couldn't connect to EMBL with Bio::DB::RefSeq.pm!\n" . $@;
 
     foreach ( $Test::ntest..$NUMTESTS) { 
-	 skip(1,1,1,'could not connect to embl');}
-
+	 skip('could not connect to embl',1);}
 }
 
