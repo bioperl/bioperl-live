@@ -22,7 +22,7 @@ Bio::AlignIO::phylip - PHYLIP format sequence input/output stream
 					-idlength=>30);
     # convert data from one format to another
     my $gcgstream     =  new Bio::AlignIO(-format => 'msf',
-					  -file   => 't/data/cysprot1a.msf');    
+					  -file   => 't/data/cysprot1a.msf');
 
     while( my $aln = $gcgstream->next_aln ) {
 	$phylipstream->write_aln($aln);
@@ -152,40 +152,49 @@ sub next_aln {
     # first alignment section
     my $idlen = $self->idlength;
     $count = 0;
+    my $non_interleaved = ! $self->interleaved ;
     while( $entry = $self->_readline) {
-    	$entry =~ /^\s$/ and last;
-    	$entry =~ /^(.{$idlen})\s+(.*)\s$/ && do {
+	last if( $entry =~ /^\s?$/ && ! $non_interleaved );
+
+	if( $entry =~ /^\s+(.+)$/ ) {
+	    $str = $1;
+	    $non_interleaved = 1;
+	    $str =~ s/\s//g;
+	    $count = scalar @names;
+	    $hash{$count} .= $str;
+	} elsif( $entry =~ /^(.{$idlen})\s+(.*)\s$/ ) {
 	    $name = $1;
 	    $str = $2;
 	    $name =~ s/[\s\/]/_/g;
 	    $name =~ s/_+$//; # remove any trailing _'s
 	    push @names, $name;
-	    
 	    $str =~ s/\s//g;
 	    $count = scalar @names;
 	    $hash{$count} = $str;
-	};
+	} 
 	$self->throw("Not a valid interleaved PHYLIP file!") if $count > $seqcount; 
     }
     
-    # interleaved sections
-    $count = 0;
-    while( $entry = $self->_readline) {
-      #finish current entry
-      if($entry =~/\s*\d+\s+\d+/){
-          $self->_pushback($entry);
-          last;
-      }
-    	$count = 0, next if $entry =~ /^\s$/;
-    	$entry =~ /\s*(.*)$/ && do {
-	    $str = $1;
-	    $str =~ s/\s//g;
-	    $count++;
-	    $hash{$count} .= $str;
-	};
-	$self->throw("Not a valid interleaved PHYLIP file!") if $count > $seqcount; 
+    unless( $non_interleaved ) {    
+	# interleaved sections
+	$count = 0;
+	while( $entry = $self->_readline) {
+	    # finish current entry
+	    if($entry =~/\s*\d+\s+\d+/){
+		$self->_pushback($entry);
+		last;
+	    }
+	    $count = 0, next if $entry =~ /^\s$/;
+	    
+	    $entry =~ /\s*(.*)$/ && do {
+		$str = $1;
+		$str =~ s/\s//g;
+		$count++;
+		$hash{$count} .= $str;
+	    };
+	    $self->throw("Not a valid interleaved PHYLIP file!") if $count > $seqcount; 
+	}
     }
-    
     return 0 if scalar @names < 1;
     
     # sequence creation
@@ -203,7 +212,6 @@ sub next_aln {
 	    $str =~ s/[^A-Za-z]//g;
 	    $end = length($str);
 	}
-	
 	# consistency test
 	$self->throw("Length of sequence [$seqname] is not [$residuecount]! ") 
 	    unless CORE::length($hash{$count}) == $residuecount; 
