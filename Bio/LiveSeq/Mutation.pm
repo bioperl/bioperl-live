@@ -123,7 +123,7 @@ sub new {
     $seq && $self->seq($seq);
     $seqori && $self->seqori($seqori);
     $pos && $self->pos($pos);
-    $len && $self->len($len);
+    defined($len) && $self->len($len); # defined() added otherwise won't work for len==0
     
     return $self; # success - we hope!
 }
