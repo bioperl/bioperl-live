@@ -103,9 +103,14 @@ use Bio::Tools::Prediction::Exon;
 
 @ISA = qw(Bio::Tools::AnalysisResult);
 
+my %ExonTags = ('Init' => 'Initial',
+		'Intr' => 'Internal',
+		'Term' => 'Terminal',
+		'Sngl' => '');
+    
 sub _initialize_state {
     my ($self,@args) = @_;
-
+    
     # first call the inherited method!
     $self->SUPER::_initialize_state(@args);
 
@@ -247,10 +252,6 @@ sub next_prediction {
 
 sub _parse_predictions {
     my ($self) = @_;
-    my %exontags = ('Init' => 'Initial',
-		    'Intr' => 'Internal',
-		    'Term' => 'Terminal',
-		    'Sngl' => '');
     my $gene;
     my $seqname;
 
@@ -269,7 +270,7 @@ sub _parse_predictions {
 	    my @flds = split(' ', $_);
 	    # create the feature object depending on the type of signal
 	    my $predobj;
-	    my $is_exon = grep {$_ eq $flds[1];} (keys(%exontags));
+	    my $is_exon = grep {$_ eq $flds[1];} (keys(%ExonTags));
 	    if($is_exon) {
 		$predobj = Bio::Tools::Prediction::Exon->new();
 	    } else {
@@ -296,7 +297,7 @@ sub _parse_predictions {
 		$predobj->end_signal_score($flds[9]);
 		$predobj->coding_signal_score($flds[10]);
 		$predobj->significance($flds[11]);
-		$predobj->primary_tag($exontags{$flds[1]} . 'Exon');
+		$predobj->primary_tag($ExonTags{$flds[1]} . 'Exon');
 		$predobj->is_coding(1);
 		# Figure out the frame of this exon. This is NOT the frame
 		# given by Genscan, which is the absolute frame of the base
@@ -327,7 +328,7 @@ sub _parse_predictions {
 		# number of bases the first codon is missing).
 		$predobj->frame(3 - $cod_offset);
 		# then add to gene structure object
-		$gene->add_exon($predobj, $exontags{$flds[1]});		
+		$gene->add_exon($predobj, $ExonTags{$flds[1]});		
 	    } elsif($flds[1] eq 'PlyA') {
 		$predobj->primary_tag("PolyAsite");
 		$gene->poly_A_site($predobj);
