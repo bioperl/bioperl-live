@@ -149,7 +149,7 @@ sub next_seq{
        if( $c eq '>' ) {
 	   last;
        } else {
-	   $seqc .= $c unless $c =~ m/[\n\l\f\r\s]/;
+	   $seqc .= $c unless $c =~ m/\W/;
        }
    }
 
