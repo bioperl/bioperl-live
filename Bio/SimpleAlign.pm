@@ -769,6 +769,58 @@ sub uppercase {
     return 1;
 }
 
+=head2 cigar_line
+
+ Title    : cigar_line()
+ Usage    : $align->cigar_line()
+ Function : Generates a "cigar" line for each sequence in the alignment
+            The format is simply A-1,60;B-1,1:4,60;C-5,10:12,58
+            where A,B,C,etc. are the sequence identifiers, and the numbers
+            refer to conserved positions within the alignment
+ Args     : none
+
+=cut
+
+sub cigar_line {
+    my ($self) = @_;
+
+    my %cigar;
+    my %clines;
+    my @seqchars;
+    my $seqcount = 0;
+    my $sc;
+    foreach my $seq ( $self->each_seq ) {
+	push @seqchars, [ split(//, uc ($seq->seq)) ];
+	$sc = scalar(@seqchars);
+    }
+
+    foreach my $pos ( 0..$self->length ) {
+	my $i=0;
+	foreach my $seq ( @seqchars ) {
+	    $i++;
+#	    print STDERR "Seq $i at pos $pos: ".$seq->[$pos]."\n";
+	    if ($seq->[$pos] eq '.') {
+		if (defined $cigar{$i} && $clines{$i} !~ $cigar{$i}) {
+		    $clines{$i}.=$cigar{$i};
+		}
+	    }
+	    else {
+		if (! defined $cigar{$i}) {
+		    $clines{$i}.=($pos+1).",";
+		}
+		$cigar{$i}=$pos+1;
+	    }
+	    if ($pos+1 == $self->length && ($clines{$i} =~ /\,$/) ) {
+		$clines{$i}.=$cigar{$i};
+	     }
+	}
+    }
+    for(my $i=1; $i<$sc+1;$i++) {
+	print STDERR "Seq $i cigar line ".$clines{$i}."\n";
+    }
+    return %clines;
+}
+
 =head2 match_line
 
  Title    : match_line()
