@@ -569,4 +569,44 @@ sub add_statistic {
    return;
 }
 
+
+=head2 num_hits
+
+ Title   : num_hits
+ Usage   : my $hitcount= $result->num_hits
+ Function: returns the number of hits for this query result
+ Returns : integer
+ Args    : none
+
+
+=cut
+
+sub num_hits{
+   my ($self) = shift;
+   if (not defined $self->{'_hits'}) {
+       $self->throw("Can't get Hits: data not collected.");
+    }
+    return scalar(@{$self->{'_hits'}});
+}
+
+
+=head2 hits
+
+ Title   : hits
+ Usage   : my @hits = $result->hits
+ Function: Returns the available hits for this Result
+ Returns : Array of L<Bio::Search::Hit::HitI> objects
+ Args    : none
+
+
+=cut
+
+sub hits{
+   my ($self) = shift;
+   my @hits = ();
+   if( ref $self->{'_hits'}) {
+       @hits = @{$self->{'_hits'}};
+   }
+    return @hits;   
+}
 1;

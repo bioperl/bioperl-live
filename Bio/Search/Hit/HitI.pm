@@ -230,6 +230,168 @@ sub next_hsp {
 }
 
 
+=head2 hsps
+
+ Usage     : $hit_object->hsps();
+ Purpose   : Get a list containing all HSP objects.
+           : Get the numbers of HSPs for the current hit.
+ Example   : @hsps = $hit_object->hsps();
+           : $num  = $hit_object->hsps();  # alternatively, use num_hsps()
+ Returns   : Array context : list of Bio::Search::HSP::BlastHSP.pm objects.
+           : Scalar context: integer (number of HSPs).
+           :                 (Equivalent to num_hsps()).
+ Argument  : n/a. Relies on wantarray
+ Throws    : Exception if the HSPs have not been collected.
+
+See Also   : L<hsp()|hsp>, L<num_hsps()|num_hsps>
+
+=cut
+
+#---------
+sub hsps {
+#---------
+    my $self = shift;
+
+    $self->throw_not_implemented();
+}
+
+
+
+=head2 num_hsps
+
+ Usage     : $hit_object->num_hsps();
+ Purpose   : Get the number of HSPs for the present Blast hit.
+ Example   : $nhsps = $hit_object->num_hsps();
+ Returns   : Integer
+ Argument  : n/a
+ Throws    : Exception if the HSPs have not been collected.
+
+See Also   : L<hsps()|hsps>
+
+=cut
+
+#-------------
+sub num_hsps {
+#-------------
+    shift->throw_not_implemented();
+}
+
+
+=head2 seq_inds
+
+ Usage     : $hit->seq_inds( seq_type, class, collapse );
+ Purpose   : Get a list of residue positions (indices) across all HSPs
+           : for identical or conserved residues in the query or sbjct sequence.
+ Example   : @s_ind = $hit->seq_inds('query', 'identical');
+           : @h_ind = $hit->seq_inds('hit', 'conserved');
+           : @h_ind = $hit->seq_inds('hit', 'conserved', 1);
+ Returns   : Array of integers 
+           : May include ranges if collapse is non-zero.
+ Argument  : [0] seq_type  = 'query' or 'hit' or 'sbjct'  (default = 'query')
+           :                 ('sbjct' is synonymous with 'hit')
+           : [1] class     = 'identical' or 'conserved' (default = 'identical')
+           :              (can be shortened to 'id' or 'cons')
+           :              (actually, anything not 'id' will evaluate to 'conserved').
+           : [2] collapse  = boolean, if non-zero, consecutive positions are merged
+           :             using a range notation, e.g., "1 2 3 4 5 7 9 10 11" 
+           :             collapses to "1-5 7 9-11". This is useful for 
+           :             consolidating long lists. Default = no collapse.
+ Throws    : n/a.
+
+See Also   : L<Bio::Search::HSP::BlastHSP::seq_inds()|Bio::Search::HSP::BlastHSP>
+
+=cut
+
+#-------------
+sub seq_inds {
+#-------------
+    my ($self, $seqType, $class, $collapse) = @_;
+
+    $seqType  ||= 'query';
+    $class ||= 'identical';
+    $collapse ||= 0;
+
+    $seqType = 'sbjct' if $seqType eq 'hit';
+
+    my (@inds, $hsp);    
+    foreach $hsp ($self->hsps) {
+	# This will merge data for all HSPs together.
+	push @inds, $hsp->seq_inds($seqType, $class);
+    }
+    
+    # Need to remove duplicates and sort the merged positions.
+    if(@inds) {
+	my %tmp = map { $_, 1 } @inds;
+	@inds = sort {$a <=> $b} keys %tmp;
+    }
+
+    $collapse ?  &Bio::Search::BlastUtils::collapse_nums(@inds) : @inds; 
+}
+
+=head2 rewind
+
+ Title   : rewind
+ Usage   : $hit->rewind;
+ Function: Allow one to reset the HSP iteration to the beginning
+           if possible
+ Returns : none
+ Args    : none
+
+=cut
+
+sub rewind{
+   my ($self) = @_;
+   $self->throw_not_implemented();
+}
+
+
+=head2 iteration
+
+ Usage     : $hit->iteration( );
+ Purpose   : Gets the iteration number in which the Hit was found.
+ Example   : $iteration_num = $sbjct->iteration();
+ Returns   : Integer greater than or equal to 1
+             Non-PSI-BLAST reports will report iteration as 1, but this number
+             is only meaningful for PSI-BLAST reports.
+ Argument  : none
+ Throws    : none
+
+See Also   : L<found_again()|found_again>
+
+=cut
+
+#----------------
+sub iteration { shift->throw_not_implemented }
+#----------------
+
+=head2 found_again
+
+ Usage     : $hit->found_again;
+ Purpose   : Gets a boolean indicator whether or not the hit has
+             been found in a previous iteration.
+             This is only applicable to PSI-BLAST reports.
+
+ 	     This method indicates if the hit was reported in the 
+ 	     "Sequences used in model and found again" section of the
+ 	     PSI-BLAST report or if it was reported in the
+ 	     "Sequences not found previously or not previously below threshold"
+ 	     section of the PSI-BLAST report. Only for hits in iteration > 1.
+
+ Example   : if( $sbjct->found_again()) { ... };
+ Returns   : Boolean (1 or 0) for PSI-BLAST report iterations greater than 1.
+             Returns undef for PSI-BLAST report iteration 1 and non PSI_BLAST
+             reports.
+ Argument  : none
+ Throws    : none
+
+See Also   : L<found_again()|found_again>
+
+=cut
+
+#----------------
+sub found_again { shift->throw_not_implemented }
+#----------------
+
 1;
 
 

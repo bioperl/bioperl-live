@@ -311,6 +311,38 @@ sub available_statistics{
    $self->throw_not_implemented();
 }
 
+=head2 num_hits
+
+ Title   : num_hits
+ Usage   : my $hitcount= $result->num_hits
+ Function: returns the number of hits for this query result
+ Returns : integer
+ Args    : none
+
+
+=cut
+
+sub num_hits{
+   my ($self,@args) = @_;
+   $self->throw_not_implemented();
+}
+
+=head2 hits
+
+ Title   : hits
+ Usage   : my @hits = $result->hits
+ Function: Returns the available hits for this Result
+ Returns : Array of L<Bio::Search::Hit::HitI> objects
+ Args    : none
+
+
+=cut
+
+sub hits{
+   my ($self,@args) = @_;
+   $self->throw_not_implemented();
+}
+
 1;
 
 
