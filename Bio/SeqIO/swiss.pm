@@ -487,11 +487,15 @@ sub write_seq {
      if (defined($dblink->comment)&&($dblink->comment)) {
        $self->_print("DR   ",$dblink->database,"; ",$dblink->primary_id,"; ",
 		     $dblink->optional_id,"; ",$dblink->comment,".\n");
-     } else {
+     } elsif($dblink->optional_id) {
        $self->_print("DR   ",$dblink->database,"; ",$dblink->primary_id,"; ",
 		     $dblink->optional_id,".\n");
      }
-   }
+     else {
+	$self->_print("DR   ",$dblink->database,"; ",$dblink->primary_id,"; ",
+		     "-.\n");
+    } 
+ }
    
 
    # if there, write the kw line
@@ -504,50 +508,57 @@ sub write_seq {
 	 $self->_write_line_swissprot_regex("KW   ","KW   ",
 					    $seq->keywords,"\\s\+\|\$",80);       
        }
-   } 
-   if( defined $self->_post_sort ) {
-       # we need to read things into an array. Process. Sort them. Print 'em
+   }
 
-       my $post_sort_func = $self->_post_sort();
-       my @fth;
-
-       foreach my $sf ( $seq->top_SeqFeatures ) {
-	   push(@fth,Bio::SeqIO::FTHelper::from_SeqFeature($sf,$seq));
-       }
-
-       @fth = sort { &$post_sort_func($a,$b) } @fth;
-       
-       foreach my $fth ( @fth ) {
-	   $self->_print_swissprot_FTHelper($fth);
-       }
-   } else {
-       # not post sorted. And so we can print as we get them.
-       # lower memory load...
-       
-       foreach my $sf ( $seq->top_SeqFeatures ) {
-	   my @fth = Bio::SeqIO::FTHelper::from_SeqFeature($sf,$seq);
+#Check if there is seqfeatures before printing the FT line
+   my @feats = $seq->top_SeqFeatures;
+       if ($feats[0]) {
+         if( defined $self->_post_sort ) {
+	     
+	     # we need to read things into an array. Process. Sort them. Print 'em
+	     
+	     my $post_sort_func = $self->_post_sort();
+	     my @fth;
+	     
+	   my @feats = $seq->top_SeqFeatures;
+	   
+	   foreach my $sf ( $seq->top_SeqFeatures ) {
+	       push(@fth,Bio::SeqIO::FTHelper::from_SeqFeature($sf,$seq));
+	   }
+	   @fth = sort { &$post_sort_func($a,$b) } @fth;
+	   
 	   foreach my $fth ( @fth ) {
-	       if( ! $fth->isa('Bio::SeqIO::FTHelper') ) {
-		   $sf->throw("Cannot process FTHelper... $fth");
-	       }
-
 	       $self->_print_swissprot_FTHelper($fth);
 	   }
+       } else {
+	   # not post sorted. And so we can print as we get them.
+	   # lower memory load...
+	   
+	   foreach my $sf ( $seq->top_SeqFeatures ) {
+	       my @fth = Bio::SeqIO::FTHelper::from_SeqFeature($sf,$seq);
+	       foreach my $fth ( @fth ) {
+		   if( ! $fth->isa('Bio::SeqIO::FTHelper') ) {
+		       $sf->throw("Cannot process FTHelper... $fth");
+		   }
+		   
+		   $self->_print_swissprot_FTHelper($fth);
+	       }
+	   }
+       }
+       
+       if( $self->_show_dna() == 0 ) {
+	   return;
        }
    }
-
-   if( $self->_show_dna() == 0 ) {
-       return;
-   }
-
    # finished printing features.
 
    # molecular weight
    my $mw = ${Bio::Tools::SeqStats->get_mol_wt($seq->primary_seq)}[0];
    # checksum
-   my $crc32 = $self->_crc32(\$str); 
-   $self->_print( sprintf("SQ   SEQUENCE  %4d AA;  %d MW;  %X CRC32;\n",
-			  $len,$mw,$crc32));
+   # was crc32 checksum, changed it to crc64 
+   my $crc64 = $self->_crc64(\$str); 
+   $self->_print( sprintf("SQ   SEQUENCE  %4d AA;  %d MW;  %16s CRC64;\n",
+			  $len,$mw,$crc64));
    $self->_print( "     ");
    my $linepos;
    for ($i = 0; $i < length($str); $i += 10) {
@@ -628,6 +639,63 @@ sub _crc32 {
   }
   return $crc;
 }
+
+=head2 _crc64
+
+ Title   : _crc64
+ Usage   :
+ Function:
+ Example :
+ Returns : 
+ Args    :
+
+
+=cut
+
+sub _crc64{
+    my ($self, $sequence) = @_;
+    my $POLY64REVh = 0xd8000000;
+    my @CRCTableh = 256;
+    my @CRCTablel = 256;
+    my $initialized;       
+    
+
+    my $seq = $$sequence;
+      
+    $seq = shift;
+    my $crcl = 0;
+    my $crch = 0;
+    if (!$initialized) {
+	$initialized = 1;
+	for (my $i=0; $i<256; $i++) {
+	    my $partl = $i;
+	    my $parth = 0;
+	    for (my $j=0; $j<8; $j++) {
+		my $rflag = $partl & 1;
+		$partl >>= 1;
+		$partl |= (1 << 31) if $parth & 1;
+		$parth >>= 1;
+		$parth ^= $POLY64REVh if $rflag;
+	    }
+	    $CRCTableh[$i] = $parth;
+	    $CRCTablel[$i] = $partl;
+	}
+    }
+    
+    foreach (split '', $seq) {
+	my $shr = ($crch & 0xFF) << 24;
+	my $temp1h = $crch >> 8;
+	my $temp1l = ($crcl >> 8) | $shr;
+	my $tableindex = ($crcl ^ (unpack "C", $_)) & 0xFF;
+	$crch = $temp1h ^ $CRCTableh[$tableindex];
+	$crcl = $temp1l ^ $CRCTablel[$tableindex];
+    }
+    my $crc64 = sprintf("%08X%08X", $crch, $crcl);
+        
+    return $crc64;
+      
+}
+
 
 =head2 _print_swissprot_FTHelper
 
