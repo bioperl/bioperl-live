@@ -9,9 +9,9 @@ indexes are created and accessed using the Bio::DB::Flat module.
 
 Bio::DB::Flat has the same functionality as the various Bio::Index
 modules.  The main reason to use it is if you want to use the
-BioSequence Registry system (see BIODATABASE_ACCESS.txt), or if you
-want to share the same indexed files among scripts written in other
-languages, such as those written with BioJava or BioPython.
+BioSequence Registry system (see doc/howto/BIODATABASE_ACCESS.txt), or 
+if you want to share the same indexed files among scripts written in 
+other languages, such as those written with BioJava or BioPython.
 
 There are three steps to creating a Bio::DB::Flat database:
 
@@ -19,8 +19,8 @@ There are three steps to creating a Bio::DB::Flat database:
      be stored.
   2) move the flat files into a good location
   3) choose a symbolic name for the database
-  4) run the bioflat_index.pl script to load the sequence files into
-     the database.
+  4) run the examples/db/bioflat_index.pl script to load the sequence 
+     files into the database.
 
 1. Select a Root Directory
 
@@ -46,7 +46,7 @@ root directory.
 4) Run the bioflat_index.pl Script
 
 The final step is to run the bioflat_index.pl script.  This script is
-located in the BioPerl distribution, under scripts/DB.  For
+located in the BioPerl distribution, under scripts/db.  For
 convenience, you may want to copy it to /usr/bin or another
 system-wide directory.
 
