@@ -1,6 +1,6 @@
 =head1 NAME
 
-Bioscripts @@VERSION@@ - Bioperl scripts
+Bioscripts 1.3 - Bioperl scripts
 
 =head1 SYNOPSIS
 
@@ -160,6 +160,11 @@ numbers of sequences, any sequence format.
 Takes cDNA sequences as input, aligns them as proteins, 
 projects the alignment back into cDNA and estimates 
 the Ka (non-synonymous) and Ks (synonymous) substitutions.
+
+=head2 scripts/utilities/search2tribe.PLS
+
+This script will turn a protein SearchIO-compatible report (BLASTP, 
+FASTP, SSEARCH) into a Markov Matrix for TribeMCL clustering.
 
 =head2 scripts/utilities/seq_length.PLS
 
@@ -329,6 +334,10 @@ Convert raw WABA output to one type of GFF.
 
 Example code for working with multiple sequence files, including
 formatting, printing, and filtering based on length or description or ID.
+
+=head2 examples/seq/extract_cds.pl
+
+Extract the CDS features from a Genbank file.
 
 =head2 examples/seqstats/aacomp.pl
 
