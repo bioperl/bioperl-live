@@ -97,7 +97,7 @@ sub _initialize {
 				     @args,
 				     );
   if( $file && $fh ) {
-      $self->throw("Providing both a file and a filehandle for reading from - oly one please!");
+      $self->throw("Providing both a file and a filehandle for reading from - only one please!");
   }
 
   if( !$file && !$fh ) {
@@ -231,7 +231,7 @@ sub write_seq {
 
 =cut
 
-sub _filehandle{
+sub _filehandle {
    my ($obj,$value) = @_;
    if( defined $value) {
       $obj->{'_filehandle'} = $value;
