@@ -17,7 +17,7 @@ Bio::DB::GFF::Aggregator::none -- No aggregation
 
 Bio::DB::GFF::Aggregator::none can be used to indicate that you do not
 want any aggregation performed.  It is equivalent to providing undef
-to the B<-aggregator> argument.  It overrides disaggregate() and
+to the B<-aggregator> argument.  It overrides disaggregate_types() and
 aggregate() so that they do exactly nothing.
 
 =cut
@@ -31,16 +31,16 @@ use vars qw($VERSION @ISA);
 @ISA = qw(Bio::DB::GFF::Aggregator);
 $VERSION = '0.10';
 
-sub disaggregate {
+sub disaggregate_types {
   my $self  = shift;
   my $types = shift;
-  # no change
+  return 0;  # no change
 }
 
 sub aggregate {
   my $self = shift;
   my $features = shift;
-  return;  # no change
+  return 0;  # no change
 }
 
 1;
