@@ -807,7 +807,7 @@ sub molecule {
 =head2 add_date
 
  Title   : add_date
- Usage   : $self->add_domment($ref)
+ Usage   : $self->add_date($ref)
  Function: adds a date
  Example :
  Returns : 
@@ -845,7 +845,7 @@ sub each_date {
  Title   : accession
  Usage   : $obj->accession($newval)
  Function: Whilst the underlying sequence object does not 
-           have an accession, so we need one here. Wont stay
+           have an accession, so we need one here. Won't stay
            when we do the reimplementation.
  Example : 
  Returns : value of accession

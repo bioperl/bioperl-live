@@ -322,8 +322,7 @@ sub next_seq {
        $seqc .= $_;
    }
 
-   $pseq = Bio::PrimarySeq->new(-seq => $seqc , -id => $name, -desc => $desc);
-   $seq->primary_seq($pseq);
+   $seq->seq($seqc);
    return $seq;
 }
 

@@ -113,7 +113,7 @@ sub _parse_rpt {
 	('MZEF', 'predicted-exon', 'unknown');
     while( <$fileh> ) {	
 	if( $readingdata ) {
-	    my ( $start, undef, $end, $prob, $f1, $f2, $f3, 
+	    my ( $start, $IGNORE_ME, $end, $prob, $f1, $f2, $f3, 
 		 $orf, $ss5, $cds, $ss3) = split;
 	    my $gffstr = join("\t", ($seqnm,$prognm,$label,$start,$end,
 				     $prob,$strand, substr($orf,0,1)));	    

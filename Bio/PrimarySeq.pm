@@ -327,15 +327,15 @@ sub display_id {
 =cut
 
 sub accession_number {
-   my ($obj,$value) = @_;
-   if( defined $value) {
-      $obj->{'accession_number'} = $value;
-  }
-   if( ! exists $obj->{'accession_number'} ) {
-       return "unknown";
-   } 
-   return $obj->{'accession_number'};
-
+    my( $obj, $acc ) = @_;
+    
+    if (defined $acc) {
+        $obj->{'accession_number'} = $acc;
+    } else {
+        $acc = $obj->{'accession_number'};
+        $acc = 'unknown' unless defined $acc;
+    }
+    return $acc;
 }
 
 

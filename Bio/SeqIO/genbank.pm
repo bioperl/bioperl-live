@@ -317,10 +317,8 @@ sub next_seq{
 	s/[^A-Za-z]//g;
 	$seqc .= $_;
     }
-    $pseq = Bio::PrimarySeq->new('-seq' => $seqc, '-id' => $name,
-				 '-moltype' => $seq->moltype(),
-				 '-desc' => $desc);
-    $seq->primary_seq($pseq);
+    $seq->seq($seqc);
+
     return $seq;
 }
 
