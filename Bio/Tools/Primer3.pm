@@ -15,7 +15,7 @@ program primer3
 
 =head1 SYNOPSIS
 
-<Chad will put synopses here by the end of the week ending 020819.>
+Chad will put synopses here by the end of the second week of october, 2002.
 
 =head1 DESCRIPTION
 
@@ -46,8 +46,6 @@ or the web:
 =head1 AUTHOR - Chad Matsalla
 
 bioinformatics1@dieselwurks.com
-
-=head1 CONTRIBUTORS
 
 =head1 APPENDIX
 
@@ -89,9 +87,9 @@ my $dumper = new Dumpvalue;
 		# }
 
 
-=head2 
+=head2 new()
 
- Title   : 
+ Title   : new()
  Usage   : 
  Function: 
  Returns : 
@@ -267,8 +265,7 @@ sub _create_primer_features {
 
  Title   : get_amplified_region()
  Usage   : $primer->get_amplified_region()
- Function: Returns a Bio::Seq object representing the sequence amplified by
-     
+ Function: Returns a Bio::Seq object representing the sequence amplified
  Returns : (I think) A Bio::Seq object
  Args    : None.
  Notes   : This is not implemented at this time.
@@ -551,9 +548,9 @@ sub dump_infile_hash {
 1;
 __END__
 
-=head2 null
+=head2 placeholder
 
- Title   : 
+ Title   : This is a place holder so chad can cut and paste
  Usage   : 
  Function: 
  Returns : 

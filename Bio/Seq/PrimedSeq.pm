@@ -89,12 +89,7 @@ my $dumper = new Dumpvalue();
 @ISA = qw(Bio::Seq);
 
 
-=head2 Bio::RangeI methods
-
-List of interfaces inherited from Bio::RangeI (see L<Bio::RangeI>
-for details).
-
-=head2 start
+=head2 new
 
  Title   : new()
  Usage   : $primed_sequence = new Bio::SeqFeature::Primer( -seq => $sequence,
@@ -184,7 +179,7 @@ Developer Notes:
           This is entirely dependent on the sequence to which this primer is attached!
           I think that there could be trouble if one takes this primer from sequence 1
           and naively place it on sequence 2 without updating this
-
+          ** This is incomplete at this time.
 =cut
 
 sub start() {
@@ -203,7 +198,8 @@ sub start() {
  Function: Returns the end coordinate of the feature
  Returns : integer
  Args    : none
-
+Developer Notes:
+          ** This is incomplete at this time.
 =cut
 
 sub end() {
@@ -219,6 +215,8 @@ sub end() {
  Function: Returns strand information, being 1,-1 or 0
  Returns : -1,1 or 0
  Args    : none
+Developer Notes:
+          ** This is incomplete at this time.
 
 
 =cut

@@ -16,7 +16,11 @@ Bio::SeqFeature::Primer - Primer Generic SeqFeature
 
 =head1 SYNOPSIS
 
+     A synopsis does not yet exist for this module.
+
 =head1 DESCRIPTION
+     
+     A description does not yet exist for this module.
 
 =head1 FEEDBACK
 
@@ -41,8 +45,6 @@ or the web:
 =head1 AUTHOR - Chad Matsalla
 
 Chad Matsalla E<lt>bioinformatics1@dieselwurks.comE<gt>
-
-=head1 DEVELOPERS
 
 =head1 APPENDIX
 
