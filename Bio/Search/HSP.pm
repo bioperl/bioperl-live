@@ -209,7 +209,7 @@ sub new {
 	$self->{'_percent_id'} = 0;
     }
     $self->{'_positive'} = $positive;
-    $self->{'_gaps'} = $gaps;
+    $self->{'_gaps'} = defined $gaps ? $gaps : 0;
     $self->{'_query_seq'} = $qs;
     $self->{'_subject_seq'} = $ss;
     $self->{'_homol_seq'} = $hs;
