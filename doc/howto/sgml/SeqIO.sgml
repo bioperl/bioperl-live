@@ -161,6 +161,11 @@ Here is a current listing of formats, as of version 1.4.
 		<entry>ace</entry>
 	      </row>
 	      <row>
+		<entry>agave</entry>
+		<entry>AGAVE XML</entry>
+		<entry></entry>
+	      </row>
+	      <row>
 		<entry>alf</entry>
 		<entry>ALF tracefile</entry>
 		<entry>alf</entry>

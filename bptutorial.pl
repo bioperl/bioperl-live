@@ -932,6 +932,7 @@ based on actual content. Here is the current set of suffixes:
    Format     Suffixes                     Comment
 
    ace        ace                          ACeDB
+   agave                                   AGAVE XML
    bsml       bsm|bsml                     BSML XML
    chado                                   Chado XML
    embl       embl|ebl|emb|dat             EMBL
@@ -2275,8 +2276,8 @@ Residue, and Atom objects:
   }
 
 See L<Bio::Structure::IO>, L<Bio::Structure::Entry>, L<Bio::Structure::Model>,
-L<Bio::Structure::Chain>, L<Bio::Structure::Residue>, and
-L<Bio::Structure::Atom> for more information.
+L<Bio::Structure::Chain>, L<Bio::Structure::Residue>, L<Bio::Structure::Atom>
+and the examples/structure directory for more information.
 
 =head2  III.9.2 Tree objects and phylogenetic trees (Tree::Tree, TreeIO, PAML)
 
@@ -2321,7 +2322,7 @@ See L<Bio::MapIO> and L<Bio::Map::SimpleMap> for more information.
 
 Bio::Biblio objects are used to query bibliographic databases, such as MEDLINE.
 The associated modules are built to work with OpenBQS-compatible databases
-(see http://industry.ebi.ac.uk/openBQS). A Bio::Biblio object can execute 
+(see http://industry.ebi.ac.uk/openBQS). A Bio::Biblio object can execute
 a query like:
 
   my $collection = $biblio->find ('brazma', 'authors');
@@ -2329,7 +2330,7 @@ a query like:
       print $collection->get_next;
   }
 
-See L<Bio::Biblio>, the scripts/biblio/biblio.PLS script, or the 
+See L<Bio::Biblio>, the scripts/biblio/biblio.PLS script, or the
 examples/biblio/biblio_examples.pl script for more information.
 
 
