@@ -25,7 +25,7 @@ my ($seqobj, $oddcode_obj);
 $seqobj = Bio::PrimarySeq->new('-seq'=>'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
 			       '-moltype'=>'protein', 
 			       '-id'=>'test');
-$oddcode_obj  =  Bio::Tools::OddCodes->new($seqobj);
+$oddcode_obj  =  Bio::Tools::OddCodes->new('-seq' => $seqobj);
 
 ok defined($oddcode_obj) && ref($oddcode_obj) && 
     $oddcode_obj->isa('Bio::Tools::OddCodes');
