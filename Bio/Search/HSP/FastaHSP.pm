@@ -165,7 +165,7 @@ sub get_aln {
     }
 
     my $seqonly = $qs;
-    $seqonly =~ s/[\-\s]//g;
+    $seqonly =~ s/\s+//g;
     my ($q_nm,$s_nm) = ($self->query->seq_id(),
 			$self->hit->seq_id());
     unless( defined $q_nm && CORE::length ($q_nm) ) {
@@ -174,14 +174,14 @@ sub get_aln {
     unless( defined $s_nm && CORE::length ($s_nm) ) {
 	$s_nm = 'hit';
     }
-    my $query = new Bio::LocatableSeq('-seq'   => $qs,
+    my $query = new Bio::LocatableSeq('-seq'   => $seqonly,
 				      '-id'    => $q_nm,
 				      '-start' => $self->query->start,
 				      '-end'   => $self->query->end,
 				      );
     $seqonly = $hs;
-    $seqonly =~ s/[\-\s]//g;
-    my $hit =  new Bio::LocatableSeq('-seq'    => $hs,
+    $seqonly =~ s/\s+//g;
+    my $hit =  new Bio::LocatableSeq('-seq'    => $seqonly,
 				      '-id'    => $s_nm,
 				      '-start' => $self->hit->start,
 				      '-end'   => $self->hit->end,
