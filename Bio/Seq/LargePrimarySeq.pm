@@ -191,7 +191,8 @@ sub subseq{
 	   }
 	   $seq = $string;
        }
-       if( $loc->strand < 0 ) { 
+       if( defined $loc->strand && 
+	   $loc->strand < 0 ) { 
 	   $seq = Bio::PrimarySeq->new(-seq => $seq)->revcom()->seq();
        }
        return $seq;
