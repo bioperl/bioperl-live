@@ -143,30 +143,30 @@ sub moltype {
 =cut
 
 sub qual {
-	my ($obj,$value) = @_;
-	if( defined $value) {
-		if (!$value) {
-			$obj->warn("Setting quality to an empty value.");
-			my @foo = [];
-			$obj->{'qual'} = \@foo;
-		}
-		elsif(! $obj->validate_qual($value)) {
-			$obj->throw("Attempting to set the quality to [$value] which does not look healthy");
-		}
-		elsif (ref($value) eq "ARRAY") {
-			# if the user passed in a reference to an array
-			$obj->{'qual'} = $value;
-		}
-		else {
-			my @quality_array = split/\s+/,$value;
-			$obj->{'qual'} = \@quality_array;
-		}
-			# if(($is_changed_qual && (CORE::length($value) > 0)) ||
-			# (! defined($obj->moltype()))) {
-			#	$obj->_guess_type();
-			# }
+    my ($obj,$value) = @_;
+    if( defined $value) {
+	if (!$value) {
+	    $obj->warn("Setting quality to an empty value (NOT $value).");
+	    my @foo = [];
+	    $obj->{'qual'} = \@foo;
 	}
-   return $obj->{'qual'};
+	elsif(! $obj->validate_qual($value)) {
+	    $obj->throw("Attempting to set the quality to [$value] which does not look healthy");
+	}
+	elsif (ref($value) eq "ARRAY") {
+	    # if the user passed in a reference to an array
+	    $obj->{'qual'} = $value;
+	}
+	else {
+	    my @quality_array = split/\s+/,$value;
+	    $obj->{'qual'} = \@quality_array;
+	}
+	# if(($is_changed_qual && (CORE::length($value) > 0)) ||
+	# (! defined($obj->moltype()))) {
+	#	$obj->_guess_type();
+	# }
+    }
+    return $obj->{'qual'};
 }
 
 =head2 validate_qual($qualstring)
@@ -177,7 +177,7 @@ sub qual {
 	least one digit. Note that quality strings are parsed into arrays
 	using split/\d+/,$quality_string, so make sure that your quality
 	scalar looks like this if you want it to be parsed properly.
- Returns : 1 for a valid sequence (WHY? Shouldn't it return 0? <boggle>)
+ Returns : 1 for a valid sequence (WHY? Shouldn\'t it return 0? <boggle>)
  Args    : a scalar (any scalar, why PrimarySeq author?) and a scalar
 	containing the string to validate.
 

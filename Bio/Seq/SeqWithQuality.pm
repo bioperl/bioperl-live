@@ -140,113 +140,117 @@ use Bio::PrimarySeqI;
 =cut
 
 sub new {
-	my ($class, @args) = @_;
-	my $self = $class->SUPER::new(@args);
-	my($qual,$seq,$id,$acc,$pid,$desc,$given_id,$moltype) =
+    my ($class, @args) = @_;
+    my $self = $class->SUPER::new(@args);
+    my($qual,$seq,$id,$acc,$pid,$desc,$given_id,$moltype) =
 	$self->_rearrange([qw(
-		QUAL
-		SEQ
-		DISPLAY_ID
-		ACCESSION_NUMBER
-		PRIMARY_ID
-		DESC
-		ID
-		MOLTYPE
-		)],
-		@args);
-		# first, deal with the sequence and quality information
-		# i am going CRAZY here....
-		# if ( defined $id ) { print("CSM id \n"); }
-		# if (defined $given_id) { print("CSM given_id\n"); }
+			      QUAL
+			      SEQ
+			      DISPLAY_ID
+			      ACCESSION_NUMBER
+			      PRIMARY_ID
+			      DESC
+			      ID
+			      MOLTYPE
+			      )],
+			  @args);
+    # first, deal with the sequence and quality information
+    # i am going CRAZY here....
+    # if ( defined $id ) { print("CSM id \n"); }
+    # if (defined $given_id) { print("CSM given_id\n"); }
 
-	if ( defined $id && defined $given_id ) {
-		if( $id ne $given_id ) {
-			$self->throw("Provided both id and display_id constructor functions. [$id] [$given_id]");
-		}
-	} 
-	if( defined $given_id ) {
-		$self->display_id($given_id);
-		$id = $given_id;
-			# print("Setting id to display_id's value ($given_id).\n");
-	} 
-		# if (!$id) { print("No id, just before (\!seq)\n"); }
-		# else { print("just before (\!seq) id is $id\n"); }
-	if (!$seq) {
-		my $id;
-		$self->warn("You did not provide sequence information during the construction of a Bio::Seq::SeqWithQuality object. Sequence components for this object will be empty.");
-		if (!$moltype) {
-			$self->throw("If you want me to create a PrimarySeq object for your empty sequence <boggle> you must specify a -moltype to satisfy the constructor requirements for a Bio::PrimarySeq object with no sequence. Read the POD for it, luke.");		
-		}
-		# if (!$self->display_id()) {
-			# my $id;
-			# if ($qual && (ref($qual) eq "Bio::Seq::PrimaryQual") && ($id = $qual->id())) {
-			#	$self->warn("You didn't provide an ID either. The PrimarySeq object needs an ID to be created. I got an id from the quality object that you passed into the constructor for the Bio::Seq::SeqWithQuality");
-			#}
-		# }
-		$self->{seq_ref} = Bio::PrimarySeq->new(
-								-seq		=>	"",
-								-accession_number	=>	$acc,
-								-primary_id	=>	$pid,
-								-desc		=>	$desc,
-								-display_id	=>	$id,
-								-moltype	=>	$moltype
-								);
+    if ( defined $id && defined $given_id ) {
+	if( $id ne $given_id ) {
+	    $self->throw("Provided both id and display_id constructor functions. [$id] [$given_id]");
 	}
-	elsif (ref($seq) eq "Bio::PrimarySeq" ) {
-		$self->{seq_ref} = $seq;
+    } 
+    if( defined $given_id ) {
+	$self->display_id($given_id);
+	$id = $given_id;
+	#print("Setting id to display_id's value ($given_id).\n");
+    } 
+    # if (!$id) { print("No id, just before (\!seq)\n"); }
+    # else { print("just before (\!seq) id is $id\n"); }
+    if (!$seq) {
+	my $id;
+	$self->warn("You did not provide sequence information during the construction of a Bio::Seq::SeqWithQuality object. Sequence components for this object will be empty.");
+	if (!$moltype) {
+	    $self->throw("If you want me to create a PrimarySeq object for your empty sequence <boggle> you must specify a -moltype to satisfy the constructor requirements for a Bio::PrimarySeq object with no sequence. Read the POD for it, luke.");		
 	}
+	# if (!$self->display_id()) {
+	# my $id;
+	# if ($qual && (ref($qual) eq "Bio::Seq::PrimaryQual") && ($id = $qual->id())) {
+	#	$self->warn("You didn't provide an ID either. The PrimarySeq object needs an ID to be created. I got an id from the quality object that you passed into the constructor for the Bio::Seq::SeqWithQuality");
+	#}
+	# }
+	$self->{seq_ref} = Bio::PrimarySeq->new
+	    (
+	     -seq		=>	"",
+	     -accession_number	=>	$acc,
+	     -primary_id	=>	$pid,
+	     -desc		=>	$desc,
+	     -display_id	=>	$id,
+	     -moltype	=>	$moltype
+	     );
+    }
+    elsif (ref($seq) eq "Bio::PrimarySeq" ) {
+	$self->{seq_ref} = $seq;
+    }
 
-	else {
-		my $seqobj = Bio::PrimarySeq->new(
-								-seq		=>	$seq,
-								-accession_number	=>	$acc,
-								-primary_id	=>	$pid,
-								-desc		=>	$desc,
-								-display_id	=>	$id,
-								);
-		$self->{seq_ref} = $seqobj;
-	}
-		# if ($id) { print("just before if(!qual) \$id is $id\n"); }
-		# else { print("just before if(!qual) \$id was null\n"); }
+    else {
+	my $seqobj = Bio::PrimarySeq->new
+	    (
+	     -seq		=>	$seq,
+	     -accession_number	=>	$acc,
+	     -primary_id	=>	$pid,
+	     -desc		=>	$desc,
+	     -display_id	=>	$id,
+	     );
+	$self->{seq_ref} = $seqobj;
+    }
+    # if ($id) { print("just before if(!qual) \$id is $id\n"); }
+    # else { print("just before if(!qual) \$id was null\n"); }
 
-	if (!$qual) {
-		# $self->warn("You did not provide quality information during the construction of a Bio::Seq::SeqWithQuality object. Quality componenets for this object will be empty.");
-		# my $id;
-		# if (!$self->display_id()) {
-		#	if ($id = $self->{seq_ref}->display_id()) {
- 		#		$self->warn("You didn't provide an ID either. The PrimaryQual object needs an id to be created. I got one from the PrimarySeq object you passed into the Bio::Seq::SeqWithQuality->new() constructor.");
-		#	}
-		#	else {
-		#		$self->throw("Can't find an ID anywhere. Bah. Giving up. You should be more careful when constructing these objects.\n");
-		#	}
-		# }
-		$self->{qual_ref} = Bio::Seq::PrimaryQual->new(
-							-qual		=>	"",
-							-accession_number	=>	$acc,
-							-primary_id	=>	$pid,
-							-desc		=>	$desc,
-							-display_id	=>	$id,
-					);
-	}
-	elsif (ref($qual) eq "Bio::Seq::PrimaryQual") {
-		$self->{qual_ref} = $qual;
-	}
-	else {
-		my $qualobj = Bio::Seq::PrimaryQual->new(
-								-qual		=>	$qual,
-								-accession_number	=>	$acc,
-								-primary_id	=>	$pid,
-								-desc		=>	$desc,
-								-display_id	=>	$id,
-						);
-		$self->{qual_ref} = $qualobj;
-	}
+    if (!$qual) {
+	# $self->warn("You did not provide quality information during the construction of a Bio::Seq::SeqWithQuality object. Quality componenets for this object will be empty.");
+	# my $id;
+	# if (!$self->display_id()) {
+	#	if ($id = $self->{seq_ref}->display_id()) {
+	#		$self->warn("You didn't provide an ID either. The PrimaryQual object needs an id to be created. I got one from the PrimarySeq object you passed into the Bio::Seq::SeqWithQuality->new() constructor.");
+	#	}
+	#	else {
+	#		$self->throw("Can't find an ID anywhere. Bah. Giving up. You should be more careful when constructing these objects.\n");
+	#	}
+	# }
+	$self->{qual_ref} = Bio::Seq::PrimaryQual->new
+	    (
+	     -qual		=>	"",
+	     -accession_number	=>	$acc,
+	     -primary_id	=>	$pid,
+	     -desc		=>	$desc,
+	     -display_id	=>	$id,
+	     );
+    }
+    elsif (ref($qual) eq "Bio::Seq::PrimaryQual") {
+	$self->{qual_ref} = $qual;
+    }
+    else {
+	my $qualobj = Bio::Seq::PrimaryQual->new
+	    (
+	     -qual		=>	$qual,
+	     -accession_number	=>	$acc,
+	     -primary_id	=>	$pid,
+	     -desc		=>	$desc,
+	     -display_id	=>	$id,
+	     );
+	$self->{qual_ref} = $qualobj;
+    }
 
-		# now try to set the descriptors for this object
-		# print("Done with the sequence and quality. Dealing with descriptors now.\n");
-	$self->_set_descriptors($qual,$seq,$id,$acc,$pid,$desc,$given_id,$moltype);
-	$self->length();
-	return $self;
+    # now try to set the descriptors for this object
+    # print("Done with the sequence and quality. Dealing with descriptors now.\n");
+    $self->_set_descriptors($qual,$seq,$id,$acc,$pid,$desc,$given_id,$moltype);
+    $self->length();
+    return $self;
 }
 
 =head2 _common_id()
@@ -254,7 +258,7 @@ sub new {
  Title   : _common_id()
  Usage   : $common_id = $self->_common_id();
  Function: Compare the display_id of {qual_ref} and {seq_ref}.
- Returns : Nothing if they don't match. If they do return
+ Returns : Nothing if they don\'t match. If they do return
 	{seq_ref}->display_id()
  Args    : None.
 
@@ -276,7 +280,7 @@ sub _common_id {
  Title   : _common_id()
  Usage   : $common_id = $self->_common_display_id();
  Function: Compare the display_id of {qual_ref} and {seq_ref}.
- Returns : Nothing if they don't match. If they do return
+ Returns : Nothing if they don\'t match. If they do return
 	{seq_ref}->display_id()
  Args    : None.
 
@@ -292,7 +296,7 @@ sub _common_display_id {
  Title   : _common_accession_number()
  Usage   : $common_id = $self->_common_accession_number();
  Function: Compare the accession_number() of {qual_ref} and {seq_ref}.
- Returns : Nothing if they don't match. If they do return
+ Returns : Nothing if they don\'t match. If they do return
 	{seq_ref}->accession_number()
  Args    : None.
 
@@ -315,7 +319,7 @@ sub _common_accession_number {
  Title   : _common_primary_id()
  Usage   : $common_primard_id = $self->_common_primary_id();
  Function: Compare the primary_id of {qual_ref} and {seq_ref}.
- Returns : Nothing if they don't match. If they do return
+ Returns : Nothing if they don\'t match. If they do return
 	{seq_ref}->primary_id()
  Args    : None.
 
@@ -337,7 +341,7 @@ sub _common_primary_id {
  Title   : _common_desc()
  Usage   : $common_desc = $self->_common_desc();
  Function: Compare the desc of {qual_ref} and {seq_ref}.
- Returns : Nothing if they don't match. If they do return
+ Returns : Nothing if they don\'t match. If they do return
 	{seq_ref}->desc()
  Args    : None.
 
@@ -788,3 +792,4 @@ sub qualat {
 	my ($self,$val) = @_;
 	return $self->{qual_ref}->qualat($val);
 }
+1;
