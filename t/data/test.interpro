@@ -1,0 +1,241 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<interpro_matches>
+
+   <protein id="AAA02489" length="1068" crc64="2BC49DB46BD50A75" >
+	<interpro id="IPR002719" name="Retinoblastoma-associated protein, B-box" type="Domain" parent_id="IPR011028">
+	  <match id="PF01857" name="RB_B" dbname="PFAM">
+	    <location start="786" end="944" score="2.2e-111" status="T" evidence="HMMPfam" />
+	  </match>
+	</interpro>
+	<interpro id="IPR002720" name="Retinoblastoma-associated protein, A-box" type="Domain" parent_id="IPR011028">
+	  <match id="PF01858" name="RB_A" dbname="PFAM">
+	    <location start="385" end="578" score="2e-120" status="T" evidence="HMMPfam" />
+	  </match>
+	</interpro>
+	<interpro id="IPR006670" name="Cyclin" type="Domain" parent_id="IPR011028">
+	  <found_in>
+	    <rel_ref ipr_ref="IPR005258"/>
+	    <rel_ref ipr_ref="IPR000812"/>
+	 </found_in>
+	  <contains>
+	    <rel_ref ipr_ref="IPR006671"/>
+	  </contains>
+	  <match id="SM00385" name="CYCLIN" dbname="SMART">
+	    <location start="801" end="910" score="8.1e-06" status="T" evidence="HMMSmart" />
+	  </match>
+	</interpro>
+	<interpro id="IPR011028" name="Cyclin-like" type="Domain">
+	  <child_list>
+	    <rel_ref ipr_ref="IPR002719"/>
+	    <rel_ref ipr_ref="IPR002720"/>
+	    <rel_ref ipr_ref="IPR006670"/>
+	    <rel_ref ipr_ref="IPR006671"/>
+	    <rel_ref ipr_ref="IPR004367"/>
+	  </child_list>
+	  <found_in>
+	    <rel_ref ipr_ref="IPR005258"/>
+	    <rel_ref ipr_ref="IPR008721"/>
+	    <rel_ref ipr_ref="IPR004944"/>
+	    <rel_ref ipr_ref="IPR000812"/>
+	 </found_in>
+	  <match id="SSF47954" name="Cyclin-like" dbname="SUPERFAMILY">
+	    <location start="392" end="582" score="5.3e-69" status="T" evidence="superfamily" />
+	    <location start="786" end="969" score="1.2e-43" status="T" evidence="superfamily" />
+	    <location start="14" end="129" score="2.9e-05" status="T" evidence="superfamily" />
+	  </match>
+	</interpro>
+	  <match id="seg" name="seg" dbname="SEG">
+	    <location start="8" end="20" status="?" evidence="Seg" />
+	    <location start="609" end="618" status="?" evidence="Seg" />
+	  </match>
+   </protein>
+   <protein id="AAA02501" length="2221" crc64="2281A7271A5F1BBD" >
+	<interpro id="IPR001682" name="Ca2+/Na+ channel, pore region" type="Family" parent_id="IPR005820">
+	  <child_list>
+	    <rel_ref ipr_ref="IPR001696"/>
+	    <rel_ref ipr_ref="IPR002077"/>
+	  </child_list>
+	  <contains>
+	    <rel_ref ipr_ref="IPR002111"/>
+	  </contains>
+	  <match id="PS50273" name="CHANNEL_PORE_CA_NA" dbname="PROFILE">
+	    <location start="234" end="408" score="16.410" status="T" evidence="ProfileScan" />
+	    <location start="617" end="756" score="17.689" status="T" evidence="ProfileScan" />
+	    <location start="1015" end="1189" score="14.354" status="T" evidence="ProfileScan" />
+	    <location start="1374" end="1527" score="52.450" status="T" evidence="ProfileScan" />
+	  </match>
+	</interpro>
+	<interpro id="IPR002077" name="Ca2+ channel, alpha subunit" type="Family" parent_id="IPR001682">
+	  <child_list>
+	    <rel_ref ipr_ref="IPR005445"/>
+	    <rel_ref ipr_ref="IPR005446"/>
+	    <rel_ref ipr_ref="IPR005447"/>
+	    <rel_ref ipr_ref="IPR005448"/>
+	    <rel_ref ipr_ref="IPR005449"/>
+	  </child_list>
+	  <contains>
+	    <rel_ref ipr_ref="IPR002111"/>
+	  </contains>
+	  <match id="PR00167" name="CACHANNEL" dbname="PRINTS">
+	    <location start="255" end="270" score="9.3e-75" status="T" evidence="FPrintScan" />
+	    <location start="366" end="383" score="9.3e-75" status="T" evidence="FPrintScan" />
+	    <location start="405" end="429" score="9.3e-75" status="T" evidence="FPrintScan" />
+	    <location start="687" end="713" score="9.3e-75" status="T" evidence="FPrintScan" />
+	    <location start="1187" end="1207" score="9.3e-75" status="T" evidence="FPrintScan" />
+	    <location start="1397" end="1411" score="9.3e-75" status="T" evidence="FPrintScan" />
+	    <location start="1445" end="1457" score="9.3e-75" status="T" evidence="FPrintScan" />
+	  </match>
+	</interpro>
+	<interpro id="IPR002111" name="Cation (not K+) channel, TM region" type="Domain">
+	  <found_in>
+	    <rel_ref ipr_ref="IPR000434"/>
+	    <rel_ref ipr_ref="IPR002077"/>
+	    <rel_ref ipr_ref="IPR002153"/>
+	    <rel_ref ipr_ref="IPR005445"/>
+	    <rel_ref ipr_ref="IPR005446"/>
+	    <rel_ref ipr_ref="IPR005447"/>
+	    <rel_ref ipr_ref="IPR005448"/>
+	    <rel_ref ipr_ref="IPR005449"/>
+	    <rel_ref ipr_ref="IPR005450"/>
+	    <rel_ref ipr_ref="IPR005451"/>
+	    <rel_ref ipr_ref="IPR005452"/>
+	    <rel_ref ipr_ref="IPR005457"/>
+	    <rel_ref ipr_ref="IPR005458"/>
+	    <rel_ref ipr_ref="IPR005459"/>
+	    <rel_ref ipr_ref="IPR005461"/>
+	    <rel_ref ipr_ref="IPR005462"/>
+	    <rel_ref ipr_ref="IPR005463"/>
+	    <rel_ref ipr_ref="IPR008051"/>
+	    <rel_ref ipr_ref="IPR008052"/>
+	    <rel_ref ipr_ref="IPR008053"/>
+	    <rel_ref ipr_ref="IPR008054"/>
+	    <rel_ref ipr_ref="IPR005820"/>
+	    <rel_ref ipr_ref="IPR005821"/>
+	    <rel_ref ipr_ref="IPR003915"/>
+	    <rel_ref ipr_ref="IPR001682"/>
+	    <rel_ref ipr_ref="IPR001696"/>
+	    <rel_ref ipr_ref="IPR008344"/>
+	    <rel_ref ipr_ref="IPR008345"/>
+	    <rel_ref ipr_ref="IPR008346"/>
+	    <rel_ref ipr_ref="IPR008347"/>
+	 </found_in>
+	  <match id="PS50272" name="CATION_CHANNEL_TRPL" dbname="PROFILE">
+	    <location start="618" end="756" score="10.675" status="T" evidence="ProfileScan" />
+	    <location start="1310" end="1527" score="11.101" status="T" evidence="ProfileScan" />
+	  </match>
+	</interpro>
+	<interpro id="IPR005446" name="L-type voltage-dependent calcium channel alpha 1 subunit" type="Family" parent_id="IPR002077">
+	  <child_list>
+	    <rel_ref ipr_ref="IPR005450"/>
+	    <rel_ref ipr_ref="IPR005451"/>
+	    <rel_ref ipr_ref="IPR005452"/>
+	  </child_list>
+	  <contains>
+	    <rel_ref ipr_ref="IPR002111"/>
+	  </contains>
+	  <match id="PR01630" name="LVDCCALPHA1" dbname="PRINTS">
+	    <location start="152" end="170" score="4.2e-49" status="T" evidence="FPrintScan" />
+	    <location start="203" end="214" score="4.2e-49" status="T" evidence="FPrintScan" />
+	    <location start="414" end="427" score="4.2e-49" status="T" evidence="FPrintScan" />
+	    <location start="501" end="519" score="4.2e-49" status="T" evidence="FPrintScan" />
+	    <location start="590" end="605" score="4.2e-49" status="T" evidence="FPrintScan" />
+	    <location start="678" end="691" score="4.2e-49" status="T" evidence="FPrintScan" />
+	  </match>
+	</interpro>
+	<interpro id="IPR005451" name="L-type voltage-dependent calcium channel alpha 1C subunit" type="Family" parent_id="IPR005446">
+	  <contains>
+	    <rel_ref ipr_ref="IPR002111"/>
+	    <rel_ref ipr_ref="IPR010983"/>
+	  </contains>
+	  <match id="PR01635" name="LVDCCALPHA1C" dbname="PRINTS">
+	    <location start="17" end="32" score="3.6e-116" status="T" evidence="FPrintScan" />
+	    <location start="33" end="48" score="3.6e-116" status="T" evidence="FPrintScan" />
+	    <location start="64" end="80" score="3.6e-116" status="T" evidence="FPrintScan" />
+	    <location start="788" end="807" score="3.6e-116" status="T" evidence="FPrintScan" />
+	    <location start="808" end="827" score="3.6e-116" status="T" evidence="FPrintScan" />
+	    <location start="828" end="844" score="3.6e-116" status="T" evidence="FPrintScan" />
+	    <location start="1480" end="1494" score="3.6e-116" status="T" evidence="FPrintScan" />
+	    <location start="1727" end="1739" score="3.6e-116" status="T" evidence="FPrintScan" />
+	    <location start="1788" end="1806" score="3.6e-116" status="T" evidence="FPrintScan" />
+	    <location start="1807" end="1823" score="3.6e-116" status="T" evidence="FPrintScan" />
+	    <location start="1929" end="1949" score="3.6e-116" status="T" evidence="FPrintScan" />
+	    <location start="1994" end="2004" score="3.6e-116" status="T" evidence="FPrintScan" />
+	  </match>
+	</interpro>
+	<interpro id="IPR005820" name="Cation channel, non-ligand gated" type="Family" parent_id="IPR005821">
+	  <child_list>
+	    <rel_ref ipr_ref="IPR001682"/>
+	    <rel_ref ipr_ref="IPR003091"/>
+	  </child_list>
+	  <contains>
+	    <rel_ref ipr_ref="IPR001622"/>
+	    <rel_ref ipr_ref="IPR002111"/>
+	  </contains>
+	  <match id="PS50266" name="CATION_CHANNEL_TM" dbname="PROFILE">
+	    <location start="124" end="408" score="28.433" status="T" evidence="ProfileScan" />
+	    <location start="524" end="756" score="24.586" status="T" evidence="ProfileScan" />
+	    <location start="900" end="1189" score="26.324" status="T" evidence="ProfileScan" />
+	    <location start="1239" end="1527" score="30.008" status="T" evidence="ProfileScan" />
+	  </match>
+	</interpro>
+	<interpro id="IPR005821" name="Ion transport protein" type="Family">
+	  <child_list>
+	    <rel_ref ipr_ref="IPR004729"/>
+	    <rel_ref ipr_ref="IPR005820"/>
+	    <rel_ref ipr_ref="IPR003280"/>
+	  </child_list>
+	  <contains>
+	    <rel_ref ipr_ref="IPR001622"/>
+	    <rel_ref ipr_ref="IPR002110"/>
+	    <rel_ref ipr_ref="IPR002111"/>
+	  </contains>
+	  <match id="PF00520" name="Ion_trans" dbname="PFAM">
+	    <location start="158" end="404" score="1.2e-71" status="T" evidence="HMMPfam" />
+	    <location start="555" end="752" score="4.8e-58" status="T" evidence="HMMPfam" />
+	    <location start="952" end="1185" score="5.2e-66" status="T" evidence="HMMPfam" />
+	    <location start="1270" end="1523" score="1.8e-70" status="T" evidence="HMMPfam" />
+	  </match>
+	</interpro>
+	<interpro id="IPR010983" name="EF-Hand-like" type="Domain">
+	  <child_list>
+	    <rel_ref ipr_ref="IPR000261"/>
+	    <rel_ref ipr_ref="IPR001751"/>
+	    <rel_ref ipr_ref="IPR002048"/>
+	  </child_list>
+	  <found_in>
+	    <rel_ref ipr_ref="IPR005359"/>
+	    <rel_ref ipr_ref="IPR005451"/>
+	    <rel_ref ipr_ref="IPR007736"/>
+	    <rel_ref ipr_ref="IPR008080"/>
+	    <rel_ref ipr_ref="IPR003299"/>
+	    <rel_ref ipr_ref="IPR001125"/>
+	    <rel_ref ipr_ref="IPR001192"/>
+	    <rel_ref ipr_ref="IPR005176"/>
+	    <rel_ref ipr_ref="IPR003153"/>
+	 </found_in>
+	  <match id="SSF47473" name="EF-hand" dbname="SUPERFAMILY">
+	    <location start="1526" end="1670" score="3.6e-05" status="T" evidence="superfamily" />
+	  </match>
+	</interpro>
+	  <match id="coil" name="coiled-coil" dbname="COIL">
+	    <location start="756" end="783" status="?" evidence="Coil" />
+	    <location start="1619" end="1640" status="?" evidence="Coil" />
+	  </match>
+	  <match id="seg" name="seg" dbname="SEG">
+	    <location start="26" end="39" status="?" evidence="Seg" />
+	    <location start="504" end="518" status="?" evidence="Seg" />
+	    <location start="635" end="648" status="?" evidence="Seg" />
+	    <location start="650" end="668" status="?" evidence="Seg" />
+	    <location start="767" end="777" status="?" evidence="Seg" />
+	    <location start="798" end="809" status="?" evidence="Seg" />
+	    <location start="838" end="857" status="?" evidence="Seg" />
+	    <location start="905" end="917" status="?" evidence="Seg" />
+	    <location start="994" end="1003" status="?" evidence="Seg" />
+	    <location start="1013" end="1027" status="?" evidence="Seg" />
+	    <location start="1162" end="1181" status="?" evidence="Seg" />
+	    <location start="1812" end="1822" status="?" evidence="Seg" />
+	    <location start="2027" end="2042" status="?" evidence="Seg" />
+	    <location start="2084" end="2093" status="?" evidence="Seg" />
+	  </match>
+   </protein>
+</interpro_matches>

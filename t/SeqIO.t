@@ -11,7 +11,7 @@ BEGIN {
         use lib 't';
     }
     use Test;
-    $TESTCOUNT = 262;
+    $TESTCOUNT = 270;
     plan tests => $TESTCOUNT;
 }
 
@@ -211,6 +211,26 @@ ok(scalar $as->annotation->get_Annotations('reference'), 11);
 
 ($ent, $seq, $out,$as) = undef;
 
+#interpro
+{
+  my $t_file = Bio::Root::IO->catfile("t","data","test.interpro");
+  my $a_in = Bio::SeqIO->new( -FILE => $t_file, -FORMAT => 'interpro');
+
+  my $seq = $a_in->next_seq();
+  ok($seq);
+  ok($seq->isa('Bio::Seq::RichSeq'));
+  ok(scalar( $seq->get_SeqFeatures() ) == 6);
+
+  my($feat) = $seq->get_SeqFeatures();
+  ok($feat->isa('Bio::SeqFeature::Generic'));
+
+  ok($feat->display_name eq 'Retinoblastoma-associated protein, B-box');
+
+  ok($seq = $a_in->next_seq());
+  ok(scalar( $seq->get_SeqFeatures() ) == 40);
+
+  ok(!($seq = $a_in->next_seq()));
+}
 
 #ace
 {
