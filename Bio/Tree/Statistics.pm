@@ -85,4 +85,53 @@ use Bio::Root::Root;
 =cut
 
 
+=head2 assess_bootstrap
+
+ Title   : assess_bootstrap
+ Usage   : my $tree_with_bs = $stats->assess_bootstrap(\@bs_trees);
+ Function: Calculates the bootstrap for internal nodes based on
+ Returns : L<Bio::Tree::TreeI>
+ Args    : Arrayref of L<Bio::Tree::TreeI>s
+
+
+=cut
+
+sub assess_bootstrap{
+   my ($self,$bs_trees,$guide_tree) = @_;
+   my @consensus;
+
+   # internal nodes are defined by their children
+   
+   my (%lookup,%internal);
+   my $i = 0;
+   for my $tree ( $guide_tree, @$bs_trees ) {
+       # Do this as a top down approach, can probably be
+       # improved by caching internal node states, but not going
+       # to worry about it right now.
+       
+       my @allnodes = $tree->get_nodes;
+       my @internalnodes = grep { ! $_->is_Leaf } @allnodes;
+       for my $node ( @internalnodes ) {
+	   my @tips = sort map { $_->id } 
+	              grep { $_->is_Leaf() } $node->get_all_Descendents;
+	   my $id = "(".join(",", @tips).")";
+	   if( $i == 0 ) {
+	       $internal{$id} = $node->internal_id;
+	   } else { 
+	       $lookup{$id}++;
+	   }
+       }
+       $i++;
+   }
+   my @save;
+   for my $l ( keys %lookup ) {
+       if( defined $internal{$l} ) {#&& $lookup{$l} > $min_seen ) {
+	   my $intnode = $guide_tree->find_node(-internal_id => $internal{$l});
+	   $intnode->bootstrap(sprintf("%d",100 * $lookup{$l} / $i));
+       }
+   }
+   return $guide_tree;
+}
+
+
 1;
