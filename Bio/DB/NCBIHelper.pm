@@ -460,7 +460,7 @@ Overriding WebDBSeqI method to help newbies to retrieve sequences
 sub get_Stream_by_acc {
     my ($self, $ids ) = @_;
     my $newdb = $self->_check_id($ids);
-    if ($newdb->isa('Bio::DB::RefSeq')) {
+    if (defined $newdb && ref($newdb) && $newdb->isa('Bio::DB::RefSeq')) {
 	return $newdb->get_seq_stream('-uids' => $ids, '-mode' => 'single');
     } else {
 	return $self->get_seq_stream('-uids' => $ids, '-mode' => 'single');
