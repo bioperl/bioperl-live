@@ -18,6 +18,7 @@ Bio::DB::Flat - Interface for indexed flat files
   $db = Bio::DB::Flat->new(-directory  => '/usr/share/embl',
 			   -dbname     => 'mydb',
                            -format     => 'embl',
+                           -index      => 'bdb',
                            -write_flag => 1);
   $db->build_index('/usr/share/embl/primate.embl',
                    '/usr/share/embl/protists.embl');
