@@ -180,9 +180,17 @@ sub new {
 
 sub location {
    my ($self,$value) = @_;  
+
    # guarantees a real location object is returned every time
-   if( defined $value || !defined $self->{'_location'} ) {       
-       $value = new Bio::Location::Simple() unless defined $value;
+   if( defined($value) || !exists($self->{'_location'}) ) {
+       if(defined($value)) {
+	   if(! $value->isa('Bio::LocationI')) {
+	       $self->throw("object $value pretends to be a location but ".
+			    "does not implement Bio::LocationI");
+	   }
+       } else {
+	   $value = Bio::Location::Simple->new();
+       }
        $self->{'_location'} = $value;
    }
    return $self->{'_location'};
