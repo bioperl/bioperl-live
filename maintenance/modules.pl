@@ -15,7 +15,7 @@ B<modules.pl> [B<-V|--verbose>] [B<-c|--count>] | [B<-l|--list>] |
 This script counts, lists and provides other information about bioperl
 modules. It is mainly meant to be run by bioperl maintainers.
 
-The default action is to count modlues in the bioperl core
+The default action is to count modules in the bioperl core
 distribution. Based on the class name it tries to classify them into
 categories. The following is a tentative glossary of terms used.
 
