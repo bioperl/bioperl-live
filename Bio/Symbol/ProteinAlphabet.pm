@@ -74,7 +74,7 @@ use strict;
 use Bio::Symbol::Alphabet;
 use Bio::Symbol::Symbol;
 use Bio::Tools::IUPAC;
-use Bio::Tools::CodonTable;
+use Bio::SeqUtils;
 
 @ISA = qw(Bio::Symbol::Alphabet);
 
@@ -92,8 +92,7 @@ use Bio::Tools::CodonTable;
 sub new {
   my($class,@args) = @_;
   my $self = $class->SUPER::new(@args);  
-  my $table = new Bio::Tools::CodonTable();
-  my %aa = $table->valid_aa(2);
+  my %aa = Bio::SeqUtils->valid_aa(2);
   my %codes = Bio::Tools::IUPAC->iupac_iup();
   my %symbols;
   my @left;

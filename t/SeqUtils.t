@@ -13,7 +13,7 @@ BEGIN {
 	use lib 't';
     }
     use Test;
-    plan tests => 11;
+    plan tests => 17;
 }
 
 use Bio::PrimarySeq;
@@ -72,4 +72,18 @@ ok scalar @a, 6;
 #foreach $a (@a) {
 #    print 'ID: ', $a->id, ' ', $a->seq, "\n";
 #} 
+
+# test for valid AA return
+my @valid_aa = sort Bio::SeqUtils->valid_aa;
+ok(@valid_aa, 24);
+ok ($valid_aa[1], 'B');
+@valid_aa = sort Bio::SeqUtils->valid_aa(1);
+
+ok(@valid_aa, 24);
+ok ($valid_aa[1], 'Ala');
+
+my %valid_aa = Bio::SeqUtils->valid_aa(2);
+
+ok($valid_aa{'C'}, 'Cys');
+ok( $valid_aa{'Cys'}, 'C');
 

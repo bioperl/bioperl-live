@@ -161,149 +161,109 @@ methods. Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::Tools::CodonTable;
-use vars qw(@ISA);
+use vars qw(@ISA @NAMES @TABLES @STARTS $TRCOL $CODONS %IUPAC_DNA 
+	    %IUPAC_AA %THREELETTERSYMBOLS $VALID_PROTEIN $TERMINATOR);
 use strict;
 
 # Object preamble - inherits from Bio::Root::Root
 use Bio::Root::Root;
+use Bio::Tools::IUPAC;
+use Bio::SeqUtils;
+
 @ISA = qw(Bio::Root::Root);
 
 # first set internal values for all translation tables
 
-my @names =  #id
-    (
-     'Standard', #1
-     'Vertebrate Mitochondrial',#2
-     'Yeast Mitochondrial',# 3
-     'Mold, Protozoan, and CoelenterateMitochondrial and Mycoplasma/Spiroplasma',#4
-     'Invertebrate Mitochondrial',#5
-     'Ciliate, Dasycladacean and Hexamita Nuclear',# 6
-       '', '',
-     'Echinoderm Mitochondrial',#9
-     'Euplotid Nuclear',#10
-     '"Bacterial"',# 11
-     'Alternative Yeast Nuclear',# 12
-     'Ascidian Mitochondrial',# 13
-     'Flatworm Mitochondrial',# 14
-     'Blepharisma Nuclear',# 15
-     'Chlorophycean Mitochondrial',# 16
-       '', '',  '', '',
-     'Trematode Mitochondrial',# 21
-     'Scenedesmus obliquus Mitochondrial', #22
-     'Thraustochytrium Mitochondrial' #23
-     );
+BEGIN { 
+    @NAMES =			#id
+	(
+	 'Standard',		#1
+	 'Vertebrate Mitochondrial',#2
+	 'Yeast Mitochondrial',# 3
+	 'Mold, Protozoan, and CoelenterateMitochondrial and Mycoplasma/Spiroplasma',#4
+	 'Invertebrate Mitochondrial',#5
+	 'Ciliate, Dasycladacean and Hexamita Nuclear',# 6
+	 '', '',
+	 'Echinoderm Mitochondrial',#9
+	 'Euplotid Nuclear',#10
+	 '"Bacterial"',# 11
+	 'Alternative Yeast Nuclear',# 12
+	 'Ascidian Mitochondrial',# 13
+	 'Flatworm Mitochondrial',# 14
+	 'Blepharisma Nuclear',# 15
+	 'Chlorophycean Mitochondrial',# 16
+	 '', '',  '', '',
+	 'Trematode Mitochondrial',# 21
+	 'Scenedesmus obliquus Mitochondrial', #22
+	 'Thraustochytrium Mitochondrial' #23
+	 );
 
-my @tables =
-    qw(
-       FFLLSSSSYY**CC*WLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG
-       FFLLSSSSYY**CCWWLLLLPPPPHHQQRRRRIIMMTTTTNNKKSS**VVVVAAAADDEEGGGG
-       FFLLSSSSYY**CCWWTTTTPPPPHHQQRRRRIIMMTTTTNNKKSSRRVVVVAAAADDEEGGGG
-       FFLLSSSSYY**CCWWLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG
-       FFLLSSSSYY**CCWWLLLLPPPPHHQQRRRRIIMMTTTTNNKKSSSSVVVVAAAADDEEGGGG
-       FFLLSSSSYYQQCC*WLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG
-       '' ''
-       FFLLSSSSYY**CCWWLLLLPPPPHHQQRRRRIIIMTTTTNNNKSSSSVVVVAAAADDEEGGGG
-       FFLLSSSSYY**CCCWLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG
-       FFLLSSSSYY**CC*WLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG
-       FFLLSSSSYY**CC*WLLLSPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG
-       FFLLSSSSYY**CCWWLLLLPPPPHHQQRRRRIIMMTTTTNNKKSSGGVVVVAAAADDEEGGGG
-       FFLLSSSSYYY*CCWWLLLLPPPPHHQQRRRRIIIMTTTTNNNKSSSSVVVVAAAADDEEGGGG
-       FFLLSSSSYY*QCC*WLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG
-       FFLLSSSSYY*LCC*WLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG
-       '' '' '' ''
-       FFLLSSSSYY**CCWWLLLLPPPPHHQQRRRRIIMMTTTTNNNKSSSSVVVVAAAADDEEGGGG   
-       FFLLSS*SYY*LCC*WLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG
-       FF*LSSSSYY**CC*WLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG
-       );
+    @TABLES =
+	qw(
+	   FFLLSSSSYY**CC*WLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG
+	   FFLLSSSSYY**CCWWLLLLPPPPHHQQRRRRIIMMTTTTNNKKSS**VVVVAAAADDEEGGGG
+	   FFLLSSSSYY**CCWWTTTTPPPPHHQQRRRRIIMMTTTTNNKKSSRRVVVVAAAADDEEGGGG
+	   FFLLSSSSYY**CCWWLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG
+	   FFLLSSSSYY**CCWWLLLLPPPPHHQQRRRRIIMMTTTTNNKKSSSSVVVVAAAADDEEGGGG
+	   FFLLSSSSYYQQCC*WLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG
+	   '' ''
+	   FFLLSSSSYY**CCWWLLLLPPPPHHQQRRRRIIIMTTTTNNNKSSSSVVVVAAAADDEEGGGG
+	   FFLLSSSSYY**CCCWLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG
+	   FFLLSSSSYY**CC*WLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG
+	   FFLLSSSSYY**CC*WLLLSPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG
+	   FFLLSSSSYY**CCWWLLLLPPPPHHQQRRRRIIMMTTTTNNKKSSGGVVVVAAAADDEEGGGG
+	   FFLLSSSSYYY*CCWWLLLLPPPPHHQQRRRRIIIMTTTTNNNKSSSSVVVVAAAADDEEGGGG
+	   FFLLSSSSYY*QCC*WLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG
+	   FFLLSSSSYY*LCC*WLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG
+	   '' '' '' ''
+	   FFLLSSSSYY**CCWWLLLLPPPPHHQQRRRRIIMMTTTTNNNKSSSSVVVVAAAADDEEGGGG   
+	   FFLLSS*SYY*LCC*WLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG
+	   FF*LSSSSYY**CC*WLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG
+	   );
 
 
-my @starts =
-    qw(
-       ---M---------------M---------------M----------------------------
-       --------------------------------MMMM---------------M------------
-       ----------------------------------MM----------------------------
-       --MM---------------M------------MMMM---------------M------------
-       ---M----------------------------MMMM---------------M------------
-       -----------------------------------M----------------------------
-       '' ''
-       -----------------------------------M----------------------------
-       -----------------------------------M----------------------------
-       ---M---------------M------------MMMM---------------M------------
-       -------------------M---------------M----------------------------
-       -----------------------------------M----------------------------
-       -----------------------------------M----------------------------
-       -----------------------------------M----------------------------
-       -----------------------------------M----------------------------
-       '' ''  '' ''
-       -----------------------------------M---------------M------------  
-       -----------------------------------M----------------------------
-       --------------------------------M--M---------------M------------
-       );
+    @STARTS =
+	qw(
+	   ---M---------------M---------------M----------------------------
+	   --------------------------------MMMM---------------M------------
+	   ----------------------------------MM----------------------------
+	   --MM---------------M------------MMMM---------------M------------
+	   ---M----------------------------MMMM---------------M------------
+	   -----------------------------------M----------------------------
+	   '' ''
+	   -----------------------------------M----------------------------
+	   -----------------------------------M----------------------------
+	   ---M---------------M------------MMMM---------------M------------
+	   -------------------M---------------M----------------------------
+	   -----------------------------------M----------------------------
+	   -----------------------------------M----------------------------
+	   -----------------------------------M----------------------------
+	   -----------------------------------M----------------------------
+	   '' ''  '' ''
+	   -----------------------------------M---------------M------------  
+	   -----------------------------------M----------------------------
+	   --------------------------------M--M---------------M------------
+	   );
 
-my @nucs = qw(t c a g);
-my $x = 0;
-my ($codons, $trCol);
-for my $i (@nucs) {
-    for my $j (@nucs) {
-        for my $k (@nucs) {
-            my $codon = "$i$j$k";
-            $codons->{$codon} = $x;
-            $trCol->{$x} = $codon;
-            $x++;
-        }
+    my @nucs = qw(t c a g);
+    my $x = 0;
+    ($CODONS, $TRCOL) = ({}, {});
+    for my $i (@nucs) {
+	for my $j (@nucs) {
+	    for my $k (@nucs) {
+		my $codon = "$i$j$k";
+		$CODONS->{$codon} = $x;
+		$TRCOL->{$x} = $codon;
+		$x++;
+	    }
+	}
     }
+    %IUPAC_DNA = Bio::Tools::IUPAC->iupac_iub();    
+    %IUPAC_AA = Bio::Tools::IUPAC->iupac_iup();
+    %THREELETTERSYMBOLS = Bio::SeqUtils->valid_aa(2);
+    $VALID_PROTEIN = '['.join('',Bio::SeqUtils->valid_aa(0)).']';
+    $TERMINATOR = '*';
 }
-
-my  %onecode =
-    ('Ala' => 'A',     'Asx' => 'B',
-     'Cys' => 'C',     'Asp' => 'D',
-     'Glu' => 'E',     'Phe' => 'F',
-     'Gly' => 'G',     'His' => 'H',
-     'Ile' => 'I',     'Lys' => 'K',
-     'Leu' => 'L',     'Met' => 'M',
-     'Asn' => 'N',     'Pro' => 'P',
-     'Gln' => 'Q',     'Arg' => 'R',
-     'Ser' => 'S',     'Thr' => 'T',
-     'Val' => 'V',     'Trp' => 'W',
-     'Xaa' => 'X',     'Tyr' => 'Y',
-     'Glx' => 'Z',     'Ter' => '*'
-     );
-
-my %iupac_dna =
-    ( 'a' => [qw( a       )],
-      'c' => [qw( c       )],
-      'g' => [qw( g       )],
-      't' => [qw( t       )],
-      'u' => [qw( t       )],
-      'm' => [qw( a c     )],
-      'r' => [qw( a g     )],
-      'w' => [qw( a t     )],
-      'k' => [qw( g t     )],
-      'y' => [qw( c t     )],
-      's' => [qw( c g     )],
-      'v' => [qw( a c g   )],
-      'h' => [qw( a c t   )],
-      'd' => [qw( a g t   )],
-      'b' => [qw( c g t   )],
-      'n' => [qw( a c g t )],
-      'x' => [qw( a c g t )],
-     );
-
-my %iupac_aa =
-    ( A => [qw(A)],      B => [qw(D N)],
-      C => [qw(C)],      D => [qw(D)],
-      E => [qw(E)],      F => [qw(F)],
-      G => [qw(G)],      H => [qw(H)],
-      I => [qw(I)],      K => [qw(K)],
-      L => [qw(L)],      M => [qw(M)],
-      N => [qw(N)],      P => [qw(P)],
-      Q => [qw(Q)],      R => [qw(R)],
-      S => [qw(S)],      T => [qw(T)],
-      U => [qw(U)],      V => [qw(V)],
-      W => [qw(W)],      X => [qw(X)],
-      Y => [qw(Y)],      Z => [qw(E Q)],
-      '*' => ['*']
-      );
 
 sub new {
     my($class,@args) = @_;
@@ -340,7 +300,7 @@ sub new {
 sub id{
    my ($self,$value) = @_;
    if( defined $value) {
-       if (  !(defined $tables[$value-1]) or $tables[$value-1] eq '') {
+       if (  !(defined $TABLES[$value-1]) or $TABLES[$value-1] eq '') {
 	   $self->warn("Not a valid codon table ID [$value] ");
 	   $value = 0;
        }
@@ -365,8 +325,7 @@ sub name{
    my ($self) = @_;
 
    my ($id) = $self->{'id'};
-   return $names[$id-1];
-
+   return $NAMES[$id-1];
 }
 
 =head2 translate
@@ -414,8 +373,9 @@ sub translate {
     if ($seq =~ /[^actg]/ ) { #ambiguous chars
         for (my $i = 0; $i < (length($seq) - 2 ); $i+=3) {
             my $triplet = substr($seq, $i, 3);
-	    if (exists $codons->{$triplet}) {
-		$protein .= substr($tables[$id-1], $codons->{$triplet},1);
+	    if (exists $CODONS->{$triplet}) {
+		$protein .= substr($TABLES[$id-1], 
+				   $CODONS->{$triplet},1);
 	    } else {
 		$protein .= $self->_translate_ambiguous_codon($triplet);
 	    }
@@ -423,8 +383,8 @@ sub translate {
     } else { # simple, strict translation
 	for (my $i = 0; $i < (length($seq) - 2 ); $i+=3) {
             my $triplet = substr($seq, $i, 3); 
-            if (exists $codons->{$triplet}) {
-                $protein .= substr($tables[$id-1], $codons->{$triplet}, 1);
+            if (exists $CODONS->{$triplet}) {
+                $protein .= substr($TABLES[$id-1], $CODONS->{$triplet}, 1);
 	    } else {
                 $protein .= 'X';
             }
@@ -432,8 +392,8 @@ sub translate {
     }
     if ($partial == 2) { # 2 overhanging nucleotides
 	my $triplet = substr($seq, ($partial -4)). "n";
-	if (exists $codons->{$triplet}) {
-	    my $aa = substr($tables[$id-1], $codons->{$triplet},1);       
+	if (exists $CODONS->{$triplet}) {
+	    my $aa = substr($TABLES[$id-1], $CODONS->{$triplet},1);       
 	    $protein .= $aa;
 	} else {
 	    $protein .= $self->_translate_ambiguous_codon($triplet, $partial);
@@ -450,7 +410,7 @@ sub _translate_ambiguous_codon {
     my @codons = _unambiquous_codons($triplet);
     my %aas =();
     foreach my $codon (@codons) {
-	$aas{substr($tables[$id-1],$codons->{$codon},1)} = 1;
+	$aas{substr($TABLES[$id-1],$CODONS->{$codon},1)} = 1;
     }
     my $count = scalar keys %aas;
     if ( $count == 1 ) {
@@ -502,11 +462,11 @@ sub translate_strict{
    if (length $value != 3 ) {
        return '';
    }
-   elsif (!(defined $codons->{$value}))  {
+   elsif (!(defined $CODONS->{$value}))  {
        return 'X';
    }
    else {
-       return substr($tables[$id-1],$codons->{$value},1);
+       return substr($TABLES[$id-1],$CODONS->{$value},1);
    }
 }
 
@@ -541,17 +501,18 @@ sub revtranslate {
     if (length($value) == 3 ) {
 	$value = lc $value;
 	$value = ucfirst $value;
-	$value = $onecode{$value};
+	$value = $THREELETTERSYMBOLS{$value};
     }
-    if ( defined $value and $value =~ /[ARNDCQEGHILKMFPSTWYVBZX*]/ and length($value) == 1 ) {
+    if ( defined $value and $value =~ /$VALID_PROTEIN/ 
+	 and length($value) == 1 ) {
 	$value = uc $value;
-	@aas = @ {$iupac_aa{$value}} ;	
+	@aas = @{$IUPAC_AA{$value}};	
 	foreach my $aa (@aas) {
 	    #print $aa, " -2\n";
 	    $aa = '\*' if $aa eq '*';
-	    while ($tables[$id-1] =~ m/$aa/g) {
-		$p = pos $tables[$id-1];
-		push (@codons, $trCol->{--$p});
+	    while ($TABLES[$id-1] =~ m/$aa/g) {
+		$p = pos $TABLES[$id-1];
+		push (@codons, $TRCOL->{--$p});
 	    }
 	}
     }
@@ -590,7 +551,7 @@ sub is_start_codon{
    }
    else {
        my $result = 1;
-       my @ms = map { substr($starts[$id-1],$codons->{$_},1) } _unambiquous_codons($value);
+       my @ms = map { substr($STARTS[$id-1],$CODONS->{$_},1) } _unambiquous_codons($value);
        foreach my $c (@ms) {
 	   $result = 0 if $c ne 'M';
        }
@@ -625,9 +586,9 @@ sub is_ter_codon{
    }
    else {
        my $result = 1;
-       my @ms = map { substr($tables[$id-1],$codons->{$_},1) } _unambiquous_codons($value);
+       my @ms = map { substr($TABLES[$id-1],$CODONS->{$_},1) } _unambiquous_codons($value);
        foreach my $c (@ms) {
-	   $result = 0 if $c ne '*';
+	   $result = 0 if $c ne $TERMINATOR;
        }
        return $result;
    }
@@ -658,7 +619,7 @@ sub is_unknown_codon{
    }
    else {
        my $result = 0;
-       my @cs = map { substr($tables[$id-1],$codons->{$_},1) } _unambiquous_codons($value);
+       my @cs = map { substr($TABLES[$id-1],$CODONS->{$_},1) } _unambiquous_codons($value);
        $result = 1 if scalar @cs == 0;
        return $result;
    }
@@ -680,60 +641,15 @@ sub _unambiquous_codons{
     my @nts = ();
     my @codons = ();
     my ($i, $j, $k);
-    @nts = map { $iupac_dna{$_} }  split(//, $value);
+    @nts = map { $IUPAC_DNA{uc $_} }  split(//, $value);
     for my $i (@{$nts[0]}) {
 	for my $j (@{$nts[1]}) {
 	    for my $k (@{$nts[2]}) {
-		push @codons, "$i$j$k";
+		push @codons, lc "$i$j$k";
 	    }
 	}
     }
     return @codons;
 }
-
-
-=head2 valid_aa
-
- Title   : valid_aa
- Usage   : my @aa = $table->valid_aa
- Function: Retrieves a list of the valid amino acid codes
- Returns : array of all the valid amino acid codes
- Args    : [optional] $code => [0 -> return list of 1 letter aa codes,
-				1 -> return list of 3 letter aa codes,
-				2 -> return associative array of both ]
-
-=cut
-
-sub valid_aa{
-   my ($self,$code) = @_;
-   if( ! $code ) { 
-       my @codes;
-       foreach my $c ( sort values %onecode ) {
-	   push @codes, $c unless ( $c =~ /[BZX\*]/ );
-       }
-       push @codes, qw(B Z X);
-       return @codes;
-  } 
-   elsif( $code == 1 ) { 
-       my @codes;
-       foreach my $c ( sort keys %onecode ) {
-	   push @codes, $c unless ( $c =~ /(Asx|Glx|Xaa|Ter)/ );
-       }
-       push @codes, ('Asx', 'Glx', '?');
-       return @codes;
-   }
-   elsif( $code == 2 ) { 
-       my %codes = %onecode;
-       foreach my $c ( keys %onecode ) {
-	   my $aa = $onecode{$c};
-	   $codes{$aa} = $c;
-       }
-       return %codes;
-   } else {
-       $self->warn("unrecognized code in ".ref($self)." method valid_aa()");
-       return ();
-   }
-}
-
 
 1;

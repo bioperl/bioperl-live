@@ -89,17 +89,16 @@ methods. Internal methods are usually preceded with a _
 
 
 package Bio::SeqUtils;
-use vars qw(@ISA);
+use vars qw(@ISA %ONECODE %THREECODE);
 use strict;
 use Carp;
-use Bio::Tools::CodonTable;
 
 @ISA = qw(Bio::Root::Root);
 # new inherited from RootI
 
-{
+BEGIN {
 
-my  %onecode =
+    %ONECODE =
     ('Ala' => 'A', 'Asx' => 'B', 'Cys' => 'C', 'Asp' => 'D',
      'Glu' => 'E', 'Phe' => 'F', 'Gly' => 'G', 'His' => 'H',
      'Ile' => 'I', 'Lys' => 'K', 'Leu' => 'L', 'Met' => 'M',
@@ -109,7 +108,7 @@ my  %onecode =
      'Sel' => 'U'
      );
 
-my  %threecode =
+    %THREECODE =
     ('A' => 'Ala', 'B' => 'Asx', 'C' => 'Cys', 'D' => 'Asp',
      'E' => 'Glu', 'F' => 'Phe', 'G' => 'Gly', 'H' => 'His',
      'I' => 'Ile', 'K' => 'Lys', 'L' => 'Leu', 'M' => 'Met',
@@ -118,6 +117,7 @@ my  %threecode =
      'Y' => 'Tyr', 'Z' => 'Glx', 'X' => 'Xaa', '*' => 'Ter',
      'U' => 'Sel'
      );
+}
 
 =head2 seq3
 
@@ -149,13 +149,13 @@ sub seq3 {
 
    if (defined $stop) {
        length $stop != 1 and $self->throw('One character stop needed, not [$stop]');
-       $threecode{$stop} = "Ter";
+       $THREECODE{$stop} = "Ter";
    }
    $sep ||= '';
 
    my $aa3s;
    foreach my $aa  (split //, uc $seq->seq) {
-       $threecode{$aa} and $aa3s .= $threecode{$aa}. $sep, next;
+       $THREECODE{$aa} and $aa3s .= $THREECODE{$aa}. $sep, next;
        $aa3s .= 'Xaa'. $sep;
    }
    $sep and substr($aa3s, -(length $sep), length $sep) = '' ;
@@ -194,18 +194,18 @@ sub seq3in {
 
    if (defined $stop) {
        length $stop != 1 and $self->throw('One character stop needed, not [$stop]');
-       $onecode{'Ter'} = $stop;
+       $ONECODE{'Ter'} = $stop;
    }
    if (defined $unknown) {
        length $unknown != 1 and $self->throw('One character stop needed, not [$unknown]');
-       $onecode{'Xaa'} = $unknown;
+       $ONECODE{'Xaa'} = $unknown;
    }
 
    my ($aas, $aa3);
    my $length = (length $string) - 2;
    for (my $i = 0 ; $i < $length ; $i += 3)  {
        $aa3 = substr($string, $i, 3);
-       $onecode{$aa3} and $aas .= $onecode{$aa3}, next;
+       $ONECODE{$aa3} and $aas .= $ONECODE{$aa3}, next;
        warn("Unknown three letter amino acid code [$aa3] ignored");
    }
    $seq->seq($aas);
@@ -270,5 +270,49 @@ sub translate_6frames {
     return @seqs, @seqs2;
 }
 
+
+=head2 valid_aa
+
+ Title   : valid_aa
+ Usage   : my @aa = $table->valid_aa
+ Function: Retrieves a list of the valid amino acid codes
+ Returns : array of all the valid amino acid codes
+ Args    : [optional] $code => [0 -> return list of 1 letter aa codes,
+				1 -> return list of 3 letter aa codes,
+				2 -> return associative array of both ]
+
+=cut
+
+sub valid_aa{
+   my ($self,$code) = @_;
+
+   if( ! $code ) { 
+       my @codes;
+       foreach my $c ( sort values %ONECODE ) {
+	   push @codes, $c unless ( $c =~ /[BZX\*]/ );
+       }
+       push @codes, qw(B Z X); # so they are in correct order ?
+       return @codes;
+  } 
+   elsif( $code == 1 ) { 
+       my @codes;
+       foreach my $c ( sort keys %ONECODE ) {
+	   push @codes, $c unless ( $c =~ /(Asx|Glx|Xaa|Ter)/ );
+       }
+       push @codes, ('Asx', 'Glx', '?' );
+       return @codes;
+   }
+   elsif( $code == 2 ) { 
+       my %codes = %ONECODE;
+       foreach my $c ( keys %ONECODE ) {
+	   my $aa = $ONECODE{$c};
+	   $codes{$aa} = $c;
+       }
+       return %codes;
+   } else {
+       $self->warn("unrecognized code in ".ref($self)." method valid_aa()");
+       return ();
+   }
 }
+
 1;

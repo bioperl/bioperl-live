@@ -16,14 +16,14 @@ BEGIN {
     }
     use Test;
 
-    plan tests => 36;
+    plan tests => 30;
 }
 use Bio::Tools::CodonTable;
 use vars qw($DEBUG);
 ok(1);
 
 # create a table object by giving an ID
-
+$DEBUG = 0;
 my $myCodonTable = Bio::Tools::CodonTable -> new ( -id => 16);
 ok defined $myCodonTable;
 ok $myCodonTable->isa('Bio::Tools::CodonTable');
@@ -59,8 +59,7 @@ for my $i (0..$#ii) {
 	last ;
     }
 }
-ok $test;
-
+ok ($test);
 ok $myCodonTable->translate('ag'), '';
 ok $myCodonTable->translate('jj'), '';
 ok $myCodonTable->translate('jjg'), 'X';
@@ -133,7 +132,7 @@ ok $test;
 $myCodonTable->id(1);
 
 ok $myCodonTable->is_start_codon('ATG');  
-ok $myCodonTable->is_start_codon('GGH'), 0;
+ok( $myCodonTable->is_start_codon('GGH'), 0);
 ok $myCodonTable->is_start_codon('HTG');
 ok $myCodonTable->is_start_codon('CCC'), 0;
 
@@ -149,17 +148,3 @@ ok $myCodonTable->is_unknown_codon('UAG'), 0;
 
 
 ok $myCodonTable->translate_strict('ATG'), 'M';
-
-# test for valid AA return
-my @valid_aa = sort $myCodonTable->valid_aa;
-ok(@valid_aa, 23);
-ok ($valid_aa[1], 'B');
-@valid_aa = sort $myCodonTable->valid_aa(1);
-
-ok(@valid_aa, 23);
-ok ($valid_aa[1], 'Ala');
-
-my %valid_aa = $myCodonTable->valid_aa(2);
-
-ok($valid_aa{'C'}, 'Cys');
-ok( $valid_aa{'Cys'}, 'C');

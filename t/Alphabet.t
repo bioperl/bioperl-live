@@ -14,7 +14,7 @@ BEGIN {
     }
     use Test;
 
-    plan tests => 6;
+    plan tests => 90;
 }
 
 use Bio::Symbol::Alphabet;
