@@ -78,12 +78,12 @@ use vars qw(@ISA);
 # Object preamble - inherits from Bio::Root::IO
 
 use Bio::Root::IO;
-use Bio::SearchIO::EventGeneratorI;
+use Bio::Event::EventGeneratorI;
 use Bio::SearchIO::SearchResultEventBuilder;
 use Bio::AnalysisParserI;
 use Symbol();
 
-@ISA = qw( Bio::Root::IO Bio::SearchIO::EventGeneratorI Bio::AnalysisParserI);
+@ISA = qw( Bio::Root::IO Bio::Event::EventGeneratorI Bio::AnalysisParserI);
 
 =head2 new
 
