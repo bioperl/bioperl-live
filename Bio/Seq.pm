@@ -168,11 +168,37 @@ of course, you are free to use these functions anyway.
 =cut
 
 sub seq {
-   my ($self,$value) = @_;
-   if( defined $value ) {
-       return $self->primary_seq()->seq($value);
-   }
-   return $self->primary_seq()->seq();
+   my ($self,@args) = @_;
+
+   return $self->primary_seq()->seq(@args);
+}
+
+=head2 validate_seq
+
+ Title   : validate_seq
+ Usage   : if(! $seq->validate_seq($seq_str) ) {
+                print "sequence $seq_str is not valid for an object of type ",
+		      ref($seq), "\n";
+	   }
+ Function: Validates a given sequence string. A validating sequence string
+           must be accepted by seq(). A string that does not validate will
+           lead to an exception if passed to seq().
+
+           The implementation provided here does not take moltype() into
+           account. Allowed are all letters (A-Z) and '-','.', and '*'.
+
+ Example :
+ Returns : TRUE if the supplied sequence string is valid for the object, and
+           FALSE otherwise.
+ Args    : The sequence string to be validated.
+
+
+=cut
+
+sub validate_seq {
+   my ($self,@args) = @_;
+
+   return $self->primary_seq()->validate_seq(@args);
 }
 
 =head2 length
