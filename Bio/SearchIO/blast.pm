@@ -424,10 +424,11 @@ sub next_result{
 	   	   
 	   $self->element({'Name' => 'Hsp_hit-frame',
 			   'Data' => $hitframe});
-       } elsif(  /^Parameters:/ || /^\s+Database:\s+?/ || 
+       } elsif(  /^Parameters:/ || /^\s+Database:\s+?/ || /^\s+Subset/ ||
 		 ( $self->in_element('hsp') && (/WARNING/ || /NOTE/ )) ) {
 	   $self->in_element('hsp') && $self->end_element({'Name' => 'Hsp'});
 	   $self->in_element('hit') && $self->end_element({'Name' => 'Hit'});
+	   next if /^\s+Subset/;
 	   my $blast = ( /Parameters\:/ ) ? 'wublast' : 'ncbi'; 
 	   my $last = '';
 	   # default is that gaps are allowed
