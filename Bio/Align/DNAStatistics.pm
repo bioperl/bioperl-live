@@ -16,49 +16,50 @@ Bio::Align::DNAStatistics - Calculate some statistics for a DNA alignment
 
 =head1 SYNOPSIS
 
-    use Bio::Align::DNAStatistics;
-    use Bio::AlignIO;
+  use Bio::AlignIO;
+  use Bio::Align::DNAStatistics;
 
-    my $stats = new Bio::Align::PairwiseStatistics;
-    my $alignin = new Bio::AlignIO(-format => 'emboss',
-				   -file   => 't/data/insulin.water');
-    my $jc = $stats->distance($aln, 'Jukes-Cantor');
-    foreach my $r ( @$jc )  {
-	print "\t";
-	foreach my $r ( @$d ) {
-	    print "$r\t";
-	} 
-	print "\n";
+  my $stats = new Bio::Align::DNAStatistics;
+  my $alignin = new Bio::AlignIO(-format => 'emboss',
+                                 -file   => 't/data/insulin.water');
+  my $aln = $alignin->next_aln;
+  my $jc = $stats->distance(-align => $aln, 
+                            -method => 'Jukes-Cantor');
+  foreach my $d ( @$jc )  {
+      print "\t";
+      foreach my $r ( @$d ) {
+	  print "$r\t";
+      } 
+      print "\n";
+  }
+  ## and for measurements of synonymous /nonsynonymous substitutions ##
 
-	## and for measurements of synonymous /nonsynonymous substitutions ##
+  my $in = new Bio::AlignIO(-format => 'fasta',
+                            -file   => 't/data/nei_gojobori_test.aln');
+  my $alnobj = $in->next_aln;
+  my ($seqid,$seq2id) = map { $_->display_id } $alnobj->each_seq;
+  my $results = $stats->calc_KaKs_pair($alnobj, $seqid, $seq2id);
+  print "comparing $results->[0]{'Seq1'} and $results->[0]{'Seq2'}\n"; 
+  for (sort keys %{$results->[0]} ){
+      next if /Seq/;
+      printf("%-9s %.4f \n",$_ , $results->[0]{$_});
+  }
 
-	my $in = new Bio::AlignIO(-format => 'fasta',
-				   -file   => 't/data/nei_gojobori_test.aln');
-	my $alnobj = $in->next_aln;
+  my $results2 = $stats->calc_all_KaKs_pairs($alnobj);
+  for my $an (@$results2){
+      print "comparing $an->{'Seq1'} and $an->{'Seq2'} \n";
+      for (sort keys %$an ){
+	  next if /Seq/;
+	  printf("%-9s %.4f \n",$_ , $an->{$_});
+      }
+      print "\n\n";
+  }
 
-	my $results = $stats->calc_KaKs_pair($alnobj, $seqid, $seq2id);
-		print "comparing $result->[0]{'Seq1'} and $result->[0]{'Seq2'}\n"; 
-		for (sort keys %{$result->[0]} ){
-			next if /Seq/;
-			printf("%-9s %.4f \n",$_ , $result->[0]{$_});
-			}
-
-		my $results2 = $stats->calc_all_KaKs_pairs($alnobj);
-		for my $an (@$result2){
-			print "comparing $an->{'Seq1'} and $an->{'Seq2'} \n";
-			for (sort keys %$an ){
-					next if /Seq/;
-					printf("%-9s %.4f \n",$_ , $an->{$_});
-				}
-			print "\n\n";
-		}
-
-		my $result3 = $anal->calc_average_KaKs($aln_obj, 1000);
-		for (sort keys %$result3 ){
-			next if /Seq/;
-			printf("%-9s %.4f \n",$_ , $result3->{$_});
-			}
-    }
+  my $result3 = $stats->calc_average_KaKs($alnobj, 1000);
+  for (sort keys %$result3 ){
+      next if /Seq/;
+      printf("%-9s %.4f \n",$_ , $result3->{$_});
+  }
 
 =head1 DESCRIPTION
 
