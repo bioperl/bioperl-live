@@ -2,7 +2,7 @@
 
 =head1 NAME
 
-Bio::DB::Abstract - Abstract definition of a database
+Bio::DB::BioSeqI - Abstract interface for a sequence database
 
 =head1 SYNOPSIS
 
@@ -12,12 +12,16 @@ Bio::DB::Abstract - Abstract definition of a database
 
   $seq = $db->get_Seq_by_id('ROA1_HUMAN');
 
+  #
+  # $seq is a Bio::Seq object
+  #
+
 =head1 DESCRIPTION
 
-This is a purely abstract class - in other words, all this does is define
+This is a pure interface class - in other words, all this does is define
 methods which other (concrete) classes will actually implement. 
 
-The Bio::DB::Abstract class defines what methods a generic database class
+The Bio::DB::BioSeqI class defines what methods a generic database class
 should have. At the moment it is just the ability to make Bio::Seq objects
 from a name (id) or a accession number.
 

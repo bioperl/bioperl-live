@@ -69,12 +69,12 @@ use strict;
 
 # Object preamble - inherits from Bio::DB::Abstract
 
-use Bio::DB::Abstract;
+use Bio::DB::BioSeqI;
 
 use Bio::SeqIO;
 use IO::Socket;
 
-@ISA = qw(Bio::DB::Abstract Exporter);
+@ISA = qw(Bio::DB::BioSeqI Exporter);
 @EXPORT_OK = qw();
 
 # new() is inherited from Bio::DB::Abstract

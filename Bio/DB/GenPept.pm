@@ -67,14 +67,14 @@ package Bio::DB::GenPept;
 use vars qw($AUTOLOAD @ISA @EXPORT_OK);
 use strict;
 
-# Object preamble - inherits from Bio::DB::Abstract
+# Object preamble - inherits from Bio::DB::BioSeqI
 
-use Bio::DB::Abstract;
+use Bio::DB::BioSeqI;
 
 use Bio::SeqIO;
 use IO::Socket;
 
-@ISA = qw(Bio::DB::Abstract Exporter);
+@ISA = qw(Bio::DB::BioSeqI Exporter);
 @EXPORT_OK = qw();
 
 # new() is inherited from Bio::DB::Abstract
@@ -197,7 +197,7 @@ sub _get_stream {
   print $sock join("\015\012" =>
 		   "GET /htbin-post/Entrez/query?$entrez HTTP/1.0",
 		   "Host: www3.ncbi.nlm.nih.gov",
-		   "User-Agent: $0::Bio::DB::GenBank",
+		   "User-Agent: $0::Bio::DB::GenPept",
 		   "", "");
 
   while(<$sock>) {
@@ -216,4 +216,5 @@ sub _get_stream {
 
 1;
 __END__
+
 
