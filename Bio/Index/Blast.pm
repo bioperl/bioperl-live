@@ -220,15 +220,12 @@ sub _index_file {
     
     my( $begin,     # Offset from start of file of the start
                     # of the last found record.
-        @id_list,   # List of ids from last record
         );
-
-    my $id_parser = $self->id_parser;
 
     open(BLAST, "<$file") or die("cannot open file $file\n");
     
-    my (@data,@reports, @records);
-    my $indexdata = 0;
+    my (@data, @records);
+    my $indexpoint = 0;
     my $lastline = 0;
 
     while(<BLAST> ) {	
@@ -237,43 +234,43 @@ sub _index_file {
 		# if we have already read a report
 		# then store the data for this report 
 		# in the CURRENT index
-		foreach ( @data ) { 
-		    push @{$reports[$indexdata]}, $_;
-		}
-		$indexdata++;
+		$self->_process_report($indexpoint, $i,join("",@data));
+		
 	    } # handle fencepost problem (beginning) 
 	      # by skipping here when empty
 
 	    # since we are at the beginning of a new report
 	    # store this begin location for the next index	   
-	    $records[$indexdata] = $lastline;
+	    $indexpoint = $lastline;
 	    @data = ();
 	}
 	push @data, $_;
 	$lastline = tell(BLAST);
-
     }
     # handle fencepost problem (end)
-    foreach ( @data ) { 
-	push @{$reports[$indexdata]}, $_;
+    if( @data ) {
+	$self->_process_report($indexpoint,$i,join("",@data));
     }
-    
-    
-    $indexdata = 0;
-    foreach my $report ( @reports ) {
-	#print "data is ", join("", @$report), "\n";
-	my $data = new IO::String(join("", @$report));
-	my $report = new Bio::Tools::BPlite(-fh => $data);
-
-	my $query = $report->query;		
-	my $begin = $records[$indexdata++];
-	foreach my $id (&$id_parser($query)) {
-	    print "id is $id, begin is $begin\n" if( $self->verbose > 0);
-	    $self->add_record($id, $i, $begin);
-	}
-  }
 }
 
+sub _process_report {
+    my ($self,$begin,$i,$data) = @_;
+    
+    if( ! $data ) { 
+	$self->warn("calling _process_report without a valid data string"); 
+	return ; 
+    }
+    my $id_parser = $self->id_parser;
+
+    my $datal = new IO::String($data);
+    my $report = new Bio::Tools::BPlite(-fh => $datal);
+    
+    my $query = $report->query;		
+    foreach my $id (&$id_parser($query)) {
+	print "id is $id, begin is $begin\n" if( $self->verbose > 0);
+	$self->add_record($id, $i, $begin);
+    }
+}
 =head2 Bio::Index::Abstract methods
 
 =head2 filename
