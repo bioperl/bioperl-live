@@ -807,7 +807,7 @@ sub create_filehandle {
     my($client, $file, $handle) =
 	$self->_rearrange([qw( CLIENT FILE HANDLE )], @param);
 
-    if(not $client) {  $client = $self; }
+    if(not ref $client) {  $client = $self; }
     $file ||= $handle;
     $file = $client->file($file);
 
@@ -879,7 +879,7 @@ sub get_newline {
 
     my $FH = $self->create_filehandle(@param);
 
-    if(not $client) {  $client = $self;   }
+    if(not ref $client) {  $client = $self;   }
 
     if($client->{'_input_type'} =~ /STDIN|Glob|compressed/) {
       # Can't taste from STDIN since we can't seek 0 on it.
