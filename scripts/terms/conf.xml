@@ -1,0 +1,27 @@
+<parserconfig>
+
+	<parsers scriptdir=".">
+		<parser name="interpro2go" type="TERM2TERM">
+			<sourcenamespace>InterPro</sourcenamespace>
+			<targetnamespace>Gene Ontology</targetnamespace>
+			<script>interpro2go.pl</script>
+			<server protocol="http">
+				<host>www.geneontology.org</host>
+				<filename>/external2go/interpro2go</filename>
+			</server>
+		</parser>
+	</parsers>
+
+	<httpproxy>
+		<url>http://myproxy:8080</url>
+	</httpproxy>
+
+	<database>
+		<driver>Oracle</driver>
+		<host>mydbhost</host>
+		<dbname>mydbname</dbname>
+		<username>mybiosqluser</username>
+		<password>mybiosqlpwd</password>
+	</database>
+
+</parserconfig>
