@@ -119,8 +119,7 @@ sub _generic_seqfeature {
     my $strand = ( $fth->loc =~ /complement/ ) ? -1 : 1;    
     $sf->strand($strand);
 
-
-        # Parse compound features
+    # Parse compound features
     if ( $fth->loc =~ /(join)/i || $fth->loc =~ /(order)/i  || 
 	 $fth->loc =~ /(bond)/i ) {
 
@@ -149,6 +148,7 @@ sub _generic_seqfeature {
 		if ($remote) {
 		    $location->is_remote(1);
 		}
+                $location->strand($strand);
 		$splitlocation->add_sub_Location($location);
 	    } else {
 		$fth->warn("unable to parse location successfully out of " .
