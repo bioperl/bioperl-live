@@ -3,7 +3,7 @@
 <faq>
   <header>
     <title>Bioperl FAQ</title>
-    <version>1.2.2</version>
+    <version>1.4.0</version>
     <author>Jason Stajich &lt;jason@bioperl.org&gt;</author>
     <author>Brian Osborne &lt;brian_osborne@cognia.com&gt;</author>
     <author>Heikki Lehvaslaiho &lt;heikki@ebi.ac.uk&gt;</author>
@@ -131,6 +131,25 @@
 	</code>
       </answer>
     </q>
+    <q id="13">
+     <question>Can you explain the Object Model design and rationale?</question>
+     <answer>
+<p>
+There is complicated answer to these questions.  Simply put, this is a toolkit which has grown organically.  The goals and user audience has evolved.  Some decisions have been made and we have been forced to live by them rather than destroy backwards compatability.  In addition there are different philosophies of software development.  The major developers on the project have tried to impose a set of standards on the code so that the project can be coordinated without every commit being cleared by a few key individuals.  See Eric S Raymond's "The Cathedral and the Bazaar" for different styles of running an open-source project - we are clearly on the Bazaar end.  The biodesign.pod document in the bioperl distribution and available on the website <a href="http://bioperl.org/Core/Lates/biodesign.html">http://bioperl.org/Core/Lates/biodesign.html</a> should detail more about specific design goals.
+</p>
+
+<p>
+The clear consensus of the project developers is that Bioperl should be consistent.  This may cause us to pay the price of some copy+paste of code (the Get/Set accessor methods being a sore spot for some) and the lack of using AUTOLOAD.  By being consistent we hope that someone can grok the gist of a module from the basic documentation, see example code, and get a set of methods from the API documetation.  We aim to make the core object design easy to understand.  This has not been realized by any stretch of the imagination as the toolkit has well over 1000 modules in bioperl-live and bioperl-run alone.
+</p>
+<p>
+That said we do want to improve things.  We want to experiment with newer modules which made Perl more Object-Oriented.  We have high hopes for some of the promises of Perl6.  To try and realize this goal we are encouraging developers to play with new object models in a bioperl-experimental project.  
+</p>
+<p>
+Some useful discussion on the mailing list can be found at this node <a
+href="http://bioperl.org/pipermail/bioperl-l/2003-December/014406.html">http://bioperl.org/pipermail/bioperl-l/2003-December/014406.html</a>.   We encourage you to participate in the discussion and to join in the development process either on existing Bioperl code or the bioperl-experimental code if you have a particular interest in making the toolkit more Object-Oriented.
+  </p>
+  </answer>
+  </q>
   </section>
   <section id="2">
     <section_name>Sequences</section_name>
@@ -497,5 +516,5 @@
 	<p>Yes, this file is missing in version 1.2. Two possible solutions: install version 1.2.1 or greater or retrieve and copy WrapperBase.pm to the proper location. You can get it at <a href="http://bio.perl.org/Bugs">http://bio.perl.org/Bugs</a>.</p></answer>
     </q>   
   </section>
-  <copyright>Copyright (c)2002-2003 Open Bioinformatics Foundation. You may distribute this FAQ under the same terms as perl itself.</copyright>
+  <copyright>Copyright (c)2002-2004 Open Bioinformatics Foundation. You may distribute this FAQ under the same terms as perl itself.</copyright>
 </faq>
