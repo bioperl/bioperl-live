@@ -15,6 +15,7 @@
 Bio::Symbol::SymbolI - Interface for a Symbol
 
 =head1 SYNOPSIS
+
     # get a Bio::Symbol::SymbolI object somehow
     
     my ($name,$token) = ($symbol->name, $symbol->token);
