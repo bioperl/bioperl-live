@@ -220,11 +220,11 @@ sub exons_ordered {
 =cut
 
 sub add_exon {
-    my ($self, $fea) = @_;
+    my ($self, $fea, $type) = @_;
     if(! $fea->isa('Bio::SeqFeature::Gene::ExonI') ) {
 	$self->throw("$fea does not implement Bio::SeqFeature::Gene::ExonI");
     }
-    $self->_add($fea,'Bio::SeqFeature::Gene::Exon');
+    $self->_add($fea,'Bio::SeqFeature::Gene::Exon', $type);
 }
 
 =head2 flush_exons
@@ -730,7 +730,7 @@ sub _flush {
 }
 
 sub _add {
-    my ($self, $fea, $type)=@_;
+    my ($self, $fea, $type, $pri)=@_;
     require Bio::SeqFeature::Gene::Promoter;
     require Bio::SeqFeature::Gene::UTR;
     require Bio::SeqFeature::Gene::Exon;
@@ -740,8 +740,8 @@ sub _add {
     if(! $fea->isa('Bio::SeqFeatureI') ) {
 	$self->throw("$fea does not implement Bio::SeqFeatureI");
     }
-    if(! $fea->isa($type) ) {
-	$fea=$self->_new_of_type($fea,$type);
+    if(! $fea->isa($type) || $pri) {
+	$fea=$self->_new_of_type($fea,$type,$pri);
     }
     if (! $self->strand) {
 	$self->strand($fea->strand);
