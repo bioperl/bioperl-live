@@ -351,17 +351,17 @@ sub _initialize {
     my $make = $self->SUPER::_initialize(%param);
 
     my (%data);
-    
+    my $name = $self->name;
+
     if($make eq 'custom') {
-	%data = $self->_make_custom($param{-NAME}); 
+	%data = $self->_make_custom($name); 
     } else {
-	%data = $self->_make_standard($param{-NAME});
+	%data = $self->_make_standard($name);
     }
     $self->{'_seq'} = new Bio::Seq(%data, 
-				      -STRICT  =>$self->strict, 
-				      -VERBOSE =>$self->verbose,
-				      );
-
+				   -STRICT  =>$self->strict, 
+				   -VERBOSE =>$self->verbose,
+				  );
     $make;
 }
 
@@ -386,6 +386,8 @@ sub _make_standard {
 #------------------
     my($self, $name) = @_;
 
+    $name =~ s/^\s+|\s+$//g;
+ 
     $self->is_available($name) || 
 	$self->throw("Unavailable or undefined enzyme: $name (Note: CASE SENSITIVE)",
 		     "Currently available enzymes: \n@RE_available\n");
