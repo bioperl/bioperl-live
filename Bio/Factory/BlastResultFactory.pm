@@ -94,7 +94,7 @@ sub new {
 
  Title   : create_result
  Usage   : $result = $factory->create_result( %params );
- Function: Creates a new Bio::Search::Result::BlastResult object.
+ Function: Creates a new Bio::Search::Result::PsiBlastResult object.
  Returns : A single Bio::Search::Result::BlastResult object
  Args    : none
 
@@ -103,7 +103,7 @@ sub new {
 sub create_result {
     my ($self, @args) = @_;
 
-    my $result = Bio::Search::Result::BlastResult->new( @args );
+    my $result = Bio::Search::Result::PsiBlastResult->new( @args );
 
     return $result;
 }
