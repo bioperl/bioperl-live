@@ -19,11 +19,18 @@ BEGIN {
     if( $@ ) {
 	use lib 't';
     }
-    use vars qw($NTESTS);
-    $NTESTS = 8;
+    use vars qw($NTESTS $SKIPERROR);
+    $NTESTS = 7;
     $error = 0;
 
     use Test;
+
+    eval { require Error; };
+    if( $@ ) {
+	$NTESTS = 3;
+	$SKIPERROR = 1;
+    }
+
     plan tests => $NTESTS; 
 }
 
@@ -46,16 +53,24 @@ ok($test);
 
 ok($test->data('Eeny meeny miney moe.'), 'Eeny meeny miney moe.');
 
-# This demonstrates what will happen if a method defined in an interface 
-# that is not implemented in the implementating object.
-try {
-    $test->foo();
-}
-catch Bio::Root::NotImplemented with {
-    my $err = shift;
-    ok(ref $err, 'Bio::Root::NotImplemented');
-};
+exit if $SKIPERROR; # bail if we don't have Error installed
 
+# This demonstrates what will happen if a method defined in an
+# interface that is not implemented in the implementating object.
+
+eval { 
+    try {
+	$test->foo();
+    }
+    catch Bio::Root::NotImplemented with {
+	my $err = shift;
+	ok(ref $err, 'Bio::Root::NotImplemented');
+    };
+
+};
+if( $@ ) { 
+#    warn($@);
+}
 # TestObject::bar() deliberately throws a Bio::TestException, 
 # which is defined in TestObject.pm
 try {
@@ -77,8 +92,10 @@ catch Bio::Root::Exception with {
     ok($err->value, 42);
 };
 
-# Try to call a subroutine that doesn't exist. But because it occurs within a try block,
-# the Error module will create a Error::Simple to capture it. Handy eh?
+# Try to call a subroutine that doesn't exist. But because it occurs
+# within a try block, the Error module will create a Error::Simple to
+# capture it. Handy eh?
+
 if( defined $^V && $^V ge 5.6.1 ) {
     try {
 	$test->foobar();
