@@ -681,7 +681,7 @@
     
     <para>
       Table 1 shows that a method can return a string, an array, an array
-      or a string, or an object. When an object is returned some
+      of strings, or an object. When an object is returned some
       additional code will probably be needed to get the data of
       interest. For example, if you wanted a printable alignment after
       you'd parsed BLAST output you could use the get_aln() method,
@@ -705,23 +705,28 @@
       queries or the hits, or both. One situation where overlaps would be
       found in one but not the other arises where there are repeats in the
       query or hit. The ambiguous_aln() method will return one of these values:
-
-      q  - query sequence contains overlapping sub-sequences
-             while hit sequence does not.
-      s  - hit sequence contains overlapping sub-sequences
-             while query does not.
-      qs - query and hit sequences contain overlapping sub-sequences
-             relative to each other.
-      -  - query and hit sequence do not contain multiple domains
+      <simplelist type="horiz" columns="2">
+	<member>q</member>
+	<member>query sequence contains overlapping sub-sequences
+             while hit sequence does not</member>
+	<member>s</member>
+	<member>hit sequence contains overlapping sub-sequences
+             while query does not</member>
+	<member>qw</member>
+	<member>query and hit sequences contain overlapping sub-sequences
+             relative to each other</member>
+	<member>-</member>
+	<member>query and hit sequence do not contain multiple domains
              relative to each other OR both contain the same distribution
-             of similar domains.
+             of similar domains</member>
+      </simplelist>
     </para>
     <para>
-    Another method that's useful in dissecting an HSP is the
-    seq_inds() method of the HSP object. What this method does is tell
-    us what the positions are of all the identical or conserved
-    residues in an alignment, query or hit. It could be used like this:
-    <programlisting>
+      Another method that's useful in dissecting an HSP is the
+      seq_inds() method of the HSP object. What this method does is tell
+      us what the positions are of all the identical or conserved
+      residues in an alignment, query or hit. It could be used like this:
+      <programlisting>
 	# put all the conserved matches in query strand into an array
 	my @str_array = split "",$hsp->query_strand;
 	foreach ( $hsp->seq_inds('query','conserved') ){
@@ -829,7 +834,7 @@
       There is also a SearchWriterI.pm and Writer directory in there
       but we'll save that for later.  If you don't have the
       distribution handy you can navigate this at the bioperl <ulink
-	url="http://cvs.open-bio.org/cgi-bin/viewcvs/viewcvs.cgi/bioperl-live/Bio/SearchIO/?cvsroot=bioperl">CVSweb
+	url="http://cvs.open-bio.org/cgi-bin/viewcvs/viewcvs.cgi/bioperl-live/Bio/SearchIO/?cvsroot=bioperl">CVS web
 	page</ulink>.  
     </para>
     <para>
