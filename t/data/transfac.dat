@@ -1,0 +1,83 @@
+VV  TRANSFAC MATRIX TABLE, Release 6.4 - licensed - 2002-12-02, (C) Biobase GmbH
+XX
+//
+AC  M00001
+XX
+ID  V$MYOD_01
+XX
+DT  19.10.1992 (created); ewi.
+DT  22.10.1997 (updated); dbo.
+CO  Copyright (C), Biobase GmbH.
+XX
+NA  MyoD
+XX
+DE  myoblast determination gene product
+XX
+BF  T00526; MyoD; Species: mouse, Mus musculus.
+XX
+P0      A      C      G      T
+01      1      2      2      0      S
+02      2      1      2      0      R
+03      3      0      1      1      A
+04      0      5      0      0      C
+05      5      0      0      0      A
+06      0      0      4      1      G
+07      0      1      4      0      G
+08      0      0      0      5      T
+09      0      0      5      0      G
+10      0      1      2      2      K
+11      0      2      0      3      Y
+12      1      0      3      1      G
+XX
+BA  5 functional elements in 3 genes
+XX
+CC  no comment
+XX
+//
+AC  M00002
+XX
+ID  V$E47_01
+XX
+DT  19.10.1992 (created); ewi.
+DT  18.07.2000 (updated); ewi.
+CO  Copyright (C), Biobase GmbH.
+XX
+NA  E47
+XX
+DE  E47
+XX
+BF  T00207; E47; Species: human, Homo sapiens.
+XX
+P0      A      C      G      T
+01      4      4      3      0      V
+02      2      5      4      0      S
+03      3      2      4      2      N
+04      2      0      9      0      G
+05      0     11      0      0      C
+06     11      0      0      0      A
+07      0      0     11      0      G
+08      1      2      8      0      G
+09      0      0      0     11      T
+10      0      0     11      0      G
+11      0      0      4      7      K
+12      1      4      3      3      N
+13      1      6      2      2      C
+14      1      4      4      2      N
+15      1      4      2      3      N
+XX
+BA  11 selected strong binding sites for E47, E47-MyoD, E12+MyoD and (weak) for
+BA  E12
+XX
+BS  R05108; Start: 3; Length: 15; Gaps: 17; Orientation: p.
+BS  R05109; Start: 1; Length: 15; Gaps:; Orientation: p.
+BS  R05110; Start: 5; Length: 15; Gaps:; Orientation: p.
+BS  R05111; Start: 5; Length: 15; Gaps:; Orientation: p.
+BS  R05112; Start: 8; Length: 15; Gaps:; Orientation: p.
+BS  R05113; Start: 9; Length: 15; Gaps:; Orientation: p.
+BS  R05114; Start: 8; Length: 15; Gaps:; Orientation: p.
+BS  R05115; Start: 7; Length: 15; Gaps:; Orientation: p.
+BS  R05116; Start: 11; Length: 15; Gaps:; Orientation: p.
+BS  R05117; Start: 5; Length: 15; Gaps:; Orientation: p.
+BS  R05118; Start: 5; Length: 15; Gaps:; Orientation: p.
+XX
+
