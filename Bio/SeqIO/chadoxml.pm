@@ -367,16 +367,19 @@ EOUSAGE
 	}
         my $len = $seq->length();
 
+	undef(my $gb_type);
+	if (!$seq->can('molecule') || ! defined ($gb_type = $seq->molecule()) ) {
+		$gb_type = $seq->alphabet || 'DNA';
+	}
+	$gb_type = 'DNA' if $ftype eq 'dna';
+	$gb_type = 'RNA' if $ftype eq 'rna';
+
 	if (defined $seq_so_type) {
 		$ftype = $seq_so_type;
 	}
-	elsif (!$seq->can('molecule') || ! defined ($ftype = $seq->molecule()) ) {
-		$ftype = $seq->alphabet || 'DNA';
+	else {
+		$ftype = $gb_type;
 	}
-	$ftype = 'DNA' if $ftype eq 'dna';
-	$ftype = 'RNA' if $ftype eq 'rna';
-
-	my $gb_type = $ftype;
 
 	my %ftype_hash = ( "name" => $ftype, "cv_id" => {"name" => 'SO'});
 		
@@ -397,6 +400,12 @@ EOUSAGE
 		"type_id"	=> \%ftype_hash,
 		"organism_id"	=> \%organism,
 		);
+
+	#if $srcfeature is not given, use the Bio::Seq object itself as the srcfeature for featureloc's
+	if (!defined $srcfeature) {
+		$srcfeature = $uniquename;
+		$srcfeattype = $ftype;
+	}
 
 	#sequence topology as feature_cvterm
 	if ($seq->is_circular) {
@@ -718,7 +727,7 @@ EOUSAGE
 		$datahash{'feature_pub'} = \@feature_pubs;
 	}
 
-	##feature_relationship for the top-level feature, if $srcfeature is provided
+	##construct srcfeature hash for use in featureloc
 	if (defined $srcfeature) {
 		%srcfhash = ('uniquename' 	=> $srcfeature, 
 				'organism_id'   => \%organism, 
@@ -747,12 +756,6 @@ EOUSAGE
 	foreach $feat (@top_sfs) {
 		#$feat = $top_sfs[$si];
 		#print "si: $si\n";
-		if (!defined $feat) {
-			print "feature is not defined!\n";
-		}elsif (!$feat->isa('Bio::SeqFeatureI')) {
-			print "feature is not a bio::SeqFeature!\n";
-			next;
-		}
 		my $prim_tag = $feat->primary_tag;
 		#print $prim_tag, "\n";
 
