@@ -1,0 +1,540 @@
+#!/usr/bin/perl -w
+
+use strict;
+use Bio::Graphics::Panel;
+use Bio::Graphics::Feature;
+use Bio::Graphics::FeatureFile;
+use CGI qw(:standard);
+use CGI::Carp;
+use File::Temp ':mktemp';
+use File::Basename 'basename';
+use File::Path 'mkpath';
+use vars '@COLORS';
+
+use constant WIDTH  => 600;  # default width
+use constant BUMP_THRESHOLD => 50;  # if more than this # of features, will stop bumping
+use constant DIR    => '/var/tmp/ace_images/frend/';
+@COLORS = qw(cyan blue red yellow green wheat turquoise orange);  # default colors
+
+
+if (param('cat')) {
+  catfile(param('cat'));
+  exit 0;
+}
+
+print header,start_html(-title=>'Sequence Feature Renderer',-bgcolor=>'white');
+
+print p('This is an experimental sequence annotation renderer that illustrates use of the',
+	a({-href=>'http://www.gmod.org'},'Generic Model Organisms System'),
+	i('Bio::Graphics module'),
+	'Cut and paste your sequence annotation data into the text field below, or upload it using the',
+	'upload button.',
+	'The format of the annotation data is explained',a({-href=>'#format'},'below.'));
+
+my $self = url(-relative=>1);
+print h3('Instant examples'),
+  p('For the impatient, you can try a pre-built',
+    b(a({-href=>"$self?Example%202=Example%202"},'example file.')));
+
+read_file() if param('file');
+
+my $example = param('Example 1') 
+  ? test_data(0) 
+  : param('Example 2')
+  ? test_data(1)
+  : '';
+param(text => $example) if length $example;
+
+render() if param('text') || param('file') =~ /\w/;
+
+print start_multipart_form(),
+  table({-border=>0,-width=>300,-cellspacing=>0,-cellpadding=>0},
+	TR({-class=>'resultsbody'},
+	   td({-colspan=>1},
+	      'Cut and Paste the annotation file...'
+	     ),
+	   td({-colspan=>2},
+	      'Image width: ',
+	      popup_menu(-name=>'width',-values=>[480,640,800,1024,1280,1600],-default=>800)
+	     ),
+	   TR({-class=>'resultsbody'},
+	      td({-colspan=>3},
+		 pre(
+		     textarea(-name=>'text',-value=>$example,
+			      -cols=>110,-rows=>15,-wrap=>'off',-override=>length $example || param('Clear'))
+		    )
+		)
+	     )
+	  ),
+	TR({-class=>'resultsbody'},
+	   td({-colspan=>1},'Upload it... ',filefield(-name=>'file',-size=>30)),
+	   td({-align=>'left',-colspan=>2},
+	      'Or paste one of the example files...',
+	      submit('Example 1'),
+	      submit('Example 2'),
+	      submit('Clear'),
+	     )
+	  ),
+	TR({-class=>'resultstitle'},
+	   td({-align=>'left',-colspan=>3},
+	      "Press",b('Render'),'when ready...',
+	      b(submit('Render...'))
+	     ),
+	   )),
+  end_form;
+
+print_format();
+print hr,end_html();
+
+sub read_file {
+  my $text;
+  my $fh = param('file') or return;
+  $text .= $_ while <$fh>;
+  param(text => $text);
+}
+
+sub render {
+  my $text = shift;
+  my $color = 0;      # position in color cycle
+
+  $text ||= param('text');
+  my $data = $text ? Bio::Graphics::FeatureFile->new(-text => $text) 
+                   : Bio::Graphics::FeatureFile->new(-file => param('file'));
+
+  unless ($data->min < $data->max) {
+    AceError("This doesn't look like a valid annotation file.  No annotations found.");
+    exit 0;
+  }
+
+  # general configuration of the image here
+  my $width = $data->setting(general => 'pixels') 
+    || $data->setting(general => 'width') 
+      || param('width') || WIDTH;
+  my ($start,$stop) = $data->setting(general => 'bases') =~ /([\d-]+)(?:-|\.\.)([\d-]+)/;
+  
+  $start = $data->min unless defined $start;
+  $stop  = $data->max unless defined $stop;
+  
+  # Use the order of the stylesheet to determine features.  Whatever is left
+  # over is presented in alphabetic order
+  my %types = map {$_=>1} $data->configured_types;
+  
+  my @configured_types   = grep {exists $data->features->{$_}} $data->configured_types;
+  my @unconfigured_types = sort grep {!exists $types{$_}}      $data->types;
+
+  # create the segment,the panel and the arrow with tickmarks
+  my $segment = Bio::Graphics::Feature->new(-start=>$start,-stop=>$stop);
+  my $panel = Bio::Graphics::Panel->new(-segment   => $segment,
+					-width     => $width,
+					-grid      => 1,
+					-key_style => 'between');
+  $panel->add_track($segment,-glyph=>'arrow',-tick=>2);
+  
+  my @base_config = $data->style('general');
+
+  for my $type (@configured_types,@unconfigured_types) {
+    my $features = $data->features($type);
+    my @config = ( -glyph   => 'segments',         # really generic
+		   -bgcolor     => $COLORS[$color++ % @COLORS],
+		   -label       => @$features < BUMP_THRESHOLD,
+		   -description => @$features < BUMP_THRESHOLD,
+		   -key     => $type,
+		   -bump    => @$features < BUMP_THRESHOLD,
+		   @base_config,             # global
+		   $data->style($type),  # feature-specificp
+		 );
+    $panel->add_track($features,@config);
+  }
+  
+  # we create the file and write it out
+  my $gd = $panel->gd;
+  my $suffix = $gd->can('png') ? '.png' : '.gif';
+  mkpath(DIR) unless -e DIR;
+  my($fh,$filename) = mkstemps(DIR . 'XXXXXXXX',$suffix);
+  warn "creating $filename";
+
+  print $fh ($gd->can('png') ? $gd->png : $gd->gif);
+  close $fh;
+
+  # now we send the link to the user
+  my $self = url(-relative=>1);
+  my $base = basename($filename);
+  my $url  = "$self/features$suffix?cat=$base";
+  my ($w,$h) = $gd->getBounds;
+
+  print hr(),h2('Rendering');
+  print a({-name=>'rendering'},
+	  img({-src=>$url,-alt=>'Right-click and "Save As..." to save this image',
+	       -border=>0,-width=>$w,-height=>$h})
+	  );
+}
+
+sub catfile {
+  my $file = shift;
+  my $path = DIR . $file;
+  print header($path =~ /\.gif$/ ? 'image/gif' : 'image/png');
+  open F,$path or die "Couldn't open $file for reading: $!";
+  print while <F>;
+  close F;
+  unlink $path;
+}
+
+sub print_format {
+  print hr();
+  print a({-name=>'format'},h2('Annotation file format'));
+  print <<END;
+<p>
+The annotation file format has a configuration section and a data section.  The configuration section
+sets up the size and overall properties of the image, and the data section gives the annotation data 
+itself.
+<p>
+<h3>Configuration Section</h3>
+<p>
+If not provided, this page generates a reasonable default configuration section for you, so you 
+do not need to provide a configuration section to get a reasonable image.  However, to tune the
+appearance of the image, you will probably want to tweak the configuration.  Here is an excerpt 
+from the configuration section:
+<blockquote>
+<pre>
+# example file
+[general]
+bases = -1000..21000
+height = 12
+
+[EST]
+glyph = segments
+bgcolor= yellow
+connector = dashed
+height = 5
+
+[FGENES]
+glyph = transcript2
+bgcolor = green
+description = 1
+</pre>
+</blockquote>
+
+<p>
+The configuration section is divided into a set of sections, each one labeled with a [section title].
+The [general] section specifies global options for the entire image.  Other sections apply to particular
+feature types.  In the example above, the configuration in the [EST] section applies to features labeled
+as ESTs, while the configuration in the [FGENES] section applies to features labeled as predictions from
+the FGENES gene prediction program.
+<p>
+Inside each section is a series of <i>name</i>=<i>value</i> pairs, where the name is the name of
+an option to set.  You can put whitespace around the = sign to make it more readable, or even use
+a colon (:) if you prefer.  The following option names are recognized:
+<p>
+<table border="1">
+<tr>
+  <th>Option</th><th>Value</th><th>Example</th>
+</tr>
+<tr>
+  <th>bases</th><td>Min &amp; max of the sequence range (bp)</td><td>1200..60000</td>
+</tr>
+<tr>
+  <th>width</th><td>width of the image (pixels)</td>                 <td>600</td>
+</tr>
+<tr>
+  <th>height</th><td>Height of each graphical element (pixels)</td><td>10</td>
+</tr>
+<tr>
+  <th>glyph</th><td>Style of each graphical element (see below)</td><td>transcript</td>
+</tr>
+<tr>
+  <th>fgcolor</th>      <td>Foreground color of each element</td>            <td>yellow</td>
+</tr>
+<tr>
+  <th>bgcolor</th>      <td>Background color of each element</td>            <td>blue</td>
+</tr>
+<tr>
+  <th>linewidth</th>      <td>Width of lines</td>            <td>3</td>
+</tr>
+<tr>
+  <th>label</th>        <td>Print the feature's name</td>         <td>1</td>
+</tr>
+<tr>
+  <th>description</th>  <td>Whether to print the feature's description </td> <td>0</td>
+</tr>
+<tr>
+  <th>bump</th>         <td>Elements are not allowed to collide</td> <td>1</td>
+</tr>
+<tr>
+  <th>ticks</th>        <td>Print tick marks on arrows</td>       <td>1</td>
+</tr>
+<tr>
+  <th>connector</th>    <td>Type of group connector (dashed, hat or solid)</td>       <td>dashed</td>
+</tr>
+</table>
+<p>
+
+The "bases" and "width" options are only relevant in the [general]
+section.  The rest can be located in any section, but if present in
+the [general] section will set defaults for the others.
+
+<p>
+
+Colors are English-language color names or Web-style #RRGGBB colors
+(see a book on HTML for an explanation).  True/false values are 1 for
+true, and 0 for false.  Numeric ranges can be expressed in
+<i>start</i>..<i>end</i> fashion with two dots, or as
+<i>start</i>-<i>end</i> with a hyphen.
+
+<p>
+The "glyph" option controls how the features are rendered.  The
+following glyphs are implemented:
+
+<p>
+
+<table border="1">
+
+<tr><th>Name</th><th>Description</th></tr>
+<tr>
+  <th>
+  box
+  </th>
+  <td>A filled rectangle, nondirectional.</td>
+</tr>
+<tr>
+  <th>ellipse</th><td>An oval.</td>
+</tr>
+<tr>
+<th>arrow</th>
+<td>	      An arrow; can be unidirectional or bidirectional.
+	      It is also capable of displaying a scale with
+	      major and minor tickmarks, and can be oriented
+	      horizontally or vertically.
+</td>
+</tr>
+<tr>
+  <th>segments</th>
+  <td>    A set of filled rectangles connected by solid lines.
+  Used for interrupted features, such as gapped
+  alignments.
+</td>
+</tr>
+<tr>
+  <th>transcript</th>
+<td>
+  Similar to segments, but the connecting line is
+  a "hat" shape, and the direction of transcription
+  is indicated by a small arrow.
+  </td>
+</tr>
+<tr>
+<th>
+  transcript2</th>
+<td>  Similar to transcript, but the direction of
+  transcription is indicated by a terminal segment
+  in the shape of an arrow.
+</td>
+</tr>
+<tr>
+<th>
+  primers
+</th>
+<td>     Two inward pointing arrows connected by a line.
+	      Used for STSs.
+</td>
+</tr>
+</table>
+<p>
+
+The <b>bump</b> option is the most important option for controlling the look
+of the image.  If set to false (the number 0), then the features are allowed
+to overlap.  If set to true (the number 1), then the features will move
+vertically to avoid colliding.  If not specified, bump is turned on
+if the number of any given type of sequence feature is greater than
+${\BUMP_THRESHOLD}.
+
+<h3>Data Section</h3>
+<p>
+
+The data section can follow or proceed the configuration section.  The two sections
+can also be intermixed.  The data section is a tab or whitespace-delimited file which you can
+export from a spreadsheet application or word processor file (be sure to save as text only!)
+
+<p>
+
+Here is an example data section:
+
+<p>
+
+<blockquote>
+<pre>
+Cosmid	   B0511	.	516-619
+Cosmid	   B0511	.	3185-3294
+Cosmid	   B0511	.	10946-11208
+Cosmid	   B0511	.	13126-13511
+Cosmid	   B0511	.	66-208
+Cosmid	   B0511	.	6354-6499
+Cosmid	   B0511	.	13955-14115
+EST	   yk595e6.5	+	3187-3294
+EST	   yk846e07.3	-	11015-11208
+EST	   yk53c10
+	   yk53c10.5	+	18892-19154
+	   yk53c10.3	-	15000-15500,15700-15800
+EST	   yk53c10.5	+	16032-16105
+SwissProt  PECANEX	+	13153-13656	Swedish fish
+FGENESH	   "Gene 1"	-	1-205,518-616,661-735,3187-3365,3436-3846	Transmembrane domain
+FGENESH	   "Gene 2"	-	16626-17396,17451-17597	Kinase and sushi domains
+</pre>
+</blockquote>
+
+<p>
+
+Each line of the file contains five columns.  The columns are:
+
+<p>
+
+<table border="1">
+<tr><th>Column #</th><th>Column Description</th></tr>
+<tr><td align="right">1</td><td>feature type</td></tr>
+<tr><td align="right">2</td><td>feature name</td></tr>
+<tr><td align="right">3</td><td>strand</td></tr>
+<tr><td align="right">4</td><td>coordinates</td></tr>
+<tr><td align="right">5</td><td>description</td></tr>
+</table>
+<p>
+
+The <b>feature type</b> should correspond to one of the [feature type] headings
+in the configuration section.  If it doesn't, the [general] options will
+be applied to the feature when rendering it.  The <b>feature name</b> is a
+name for the feature.  Use a "." or "-" if this is not relevant.  If
+the name contains whitespace, put single or double quotes ("") around
+the name.
+
+<p>
+
+The <b>strand</b>
+indicates which strand the feature is on.  It is one of "+" for the 
+forward strand, "-" for the reverse strand, or "." for features that are not
+stranded.  
+
+<p>
+
+The <b>coordinates</b> column is a set of one or more ranges that the
+feature occupies.  Ranges are written using ".." as in <i>start</i>..<i>stop</i>,
+or with hyphens, as in <i>start</i>-<i>stop</i>. For features that are composed
+of multiple ranges &em; for example transcripts that have multiple exons &em;
+you can either put the ranges on the same line separated by commas or spaces,
+or put the ranges on individual lines and just use the same feature name and
+type to group them.  In the example above, the Cosmid B0511 features use
+the individual line style, while the FGENESH features use the all-ranges-on-one-line
+style.
+
+<p>
+
+The last column contains some descriptive text.  If the <b>description</b> option
+is set to true, this text will be printed underneath the feature in the rendering.
+
+<p>
+
+Finally, it is possible to group related features together.  An example is
+the ESTs yk53c10.5 and yk53c10.3, which are related by being reads from 
+the two ends of the clone yk53c10.  To indicate this relationship, generate
+a section that looks like this:
+
+<p>
+
+<blockquote>
+<pre>
+EST	   yk53c10
+	   yk53c10.5	+	18892-19154
+	   yk53c10.3	-	15000-15500,15700-15800
+</pre>
+</blockquote>
+
+<p>
+
+The group is indicated by a line that contains just two columns 
+containing the feature type and a unique name for the group.
+Follow this line with all 
+the features that form the group, but leave the first column 
+(the feature type) blank.  The group will be rendered by
+drawing a dashed line between all the members of the group.  
+You can change this by specifying a different <b>connector</b>
+option in the configuration section for this feature type.
+
+END
+;
+
+}
+
+sub test_data {
+  my $config = shift;
+  my $header = <<'END';
+[general]
+pixels = 750
+bases = -1000..21000
+height = 12
+reference = B0511
+
+[Cosmid]
+glyph = segments
+fgcolor = blue
+key = C. elegans conserved regions
+
+[EST]
+glyph = segments
+bgcolor= yellow
+connector = dashed
+height = 5
+
+[FGENESH]
+glyph = transcript2
+bgcolor = green
+description = 1
+
+[SwissProt]
+glyph = arrow
+base  = 1
+linewidth = 2
+fgcolor = red
+description = 1
+
+[P-element]
+glyph = triangle
+orient = S
+bgcolor = red
+fgcolor = white
+label = 1
+point = 1
+END
+;
+
+my $data =<<'END';
+Cosmid	B0511	516-619
+Cosmid	B0511	3185-3294
+Cosmid	B0511	10946-11208
+Cosmid	B0511	13126-13511
+Cosmid	B0511	11394-11539
+Cosmid	B0511	14383-14490
+Cosmid	B0511	15569-15755
+Cosmid	B0511	18879-19178
+Cosmid	B0511	15850-16110
+Cosmid	B0511	66-208
+Cosmid	B0511	6354-6499
+Cosmid	B0511	13955-14115
+Cosmid	B0511	7985-8042
+Cosmid	B0511	11916-12046
+P-element	""	500-500
+P-element	MrQ	700-700
+P-element	MrR	10000-10000
+EST	yk260e10.5	15569-15724
+EST	yk672a12.5	537-618,3187-3294
+EST	yk595e6.5	552-618
+EST	yk595e6.5	3187-3294
+EST	yk846e07.3	11015-11208
+EST	yk53c10
+	yk53c10.3	12876-13577,13882-14121,14169-14535
+	yk53c10.5	18892-19154,15853-16219
+SwissProt	"PECANEX Protein"	5513-16656	"From SwissProt"
+FGENESH	"Predicted gene 1"	-1200--500,518-616,661-735,3187-3365,3436-3846	Pfam domain
+FGENESH	"Predicted gene 2"	5513-6497,7968-8136,8278-8383,8651-8839,9462-9515,10032-10705,10949-11340,11387-11524,11765-12067,12876-13577,13882-14121,14169-14535,15006-15209,15259-15462,15513-15753,15853-16219	Mysterious
+FGENESH	"Predicted gene 3"	16626-17396,17451-17597
+FGENESH	"Predicted gene 4"	18459-18722,18882-19176,19221-19513,19572-30000	"Transmembrane protein"
+END
+
+  return $config ? $header . $data : $data;
+}
