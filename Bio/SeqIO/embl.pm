@@ -725,7 +725,7 @@ sub _print_EMBL_FTHelper {
            # there are almost 3x more quoted qualifier values and they
            # are more common too so we take quoted ones first
            elsif (!$FTQUAL_NO_QUOTE{$tag}) {
-              my $pat = $value =~ /\s/ ? '\s|$' : '.|$';
+              my $pat = $value =~ /\s/ ? '\s|\-|$' : '.|\-|$';
 	      $self->_write_line_EMBL_regex("FT                   ",
 					    "FT                   ",
 					    "/$tag=\"$value\"",$pat,80);
