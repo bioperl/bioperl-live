@@ -214,6 +214,8 @@ sub subject {
     $self->hit(@_); 
 }
 
+*sbjct = \&subject;
+
 =head2 hit
 
  Title   : hit
