@@ -18,7 +18,7 @@ BEGIN {
     plan test => 1;
 }
 
-use Bio::Tools::SeqAnal;
+#use Bio::Tools::SeqAnal; # deprecated, don't use any more
 use Bio::Tools::IUPAC;
 use Bio::Seq;
 
