@@ -106,13 +106,14 @@ BEGIN {
 sub new {
     my ($class, @args) = @_;
     my $self = $class->SUPER::new(@args);
-    my ($baseaddress, $params, $ret_type, $format,$delay) =
-	$self->_rearrange([qw(BASEADDRESS PARAMS RETRIEVALTYPE FORMAT DELAY)],
+    my ($baseaddress, $params, $ret_type, $format,$delay,$db) =
+	$self->_rearrange([qw(BASEADDRESS PARAMS RETRIEVALTYPE FORMAT DELAY DB)],
 			  @args);
 
     $ret_type = $DEFAULT_RETRIEVAL_TYPE unless ( $ret_type);
     $baseaddress   && $self->url_base_address($baseaddress);
     $params        && $self->url_params($params);
+    $db            && $self->db($db);
     $ret_type      && $self->retrieval_type($ret_type);
     $delay          = $self->delay_policy unless defined $delay;
     $self->delay($delay);
@@ -349,6 +350,14 @@ sub get_Stream_by_query {
 
 sub default_format {
     return $DEFAULTFORMAT;
+}
+
+# sorry, but this is hacked in because of BioFetch problems...
+sub db {
+  my $self = shift;
+  my $d    = $self->{_db};
+  $self->{_db} = shift if @_;
+  $d;
 }
 
 =head2 request_format

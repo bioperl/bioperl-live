@@ -102,7 +102,7 @@ use constant DEFAULT_LOCATION => 'http://www.ebi.ac.uk/cgi-bin/dbfetch';
 
 BEGIN {
 
-    %FORMATMAP = ( 
+    %FORMATMAP = (
 		   'embl' => {
 		       default => 'embl', # default BioFetch format/SeqIOmodule pair
 		       embl => 'embl',    # alternative BioFetch format/module pair 
@@ -129,7 +129,7 @@ BEGIN {
 		       },
 		   'genbank' => {
 		       default => 'genbank',
-			genbank => 'genbank',
+		       genbank => 'genbank',
                        namespace => 'genbank',
 		       },
 		   );
@@ -153,7 +153,8 @@ defaults.
 
   -baseaddress   location of dbfetch server       http://www.ebi.ac.uk/cgi-bin/dbfetch
   -retrievaltype "tempfile" or "io_string"        io_string
-  -format        "embl" or "fasta" or "swissprot" embl
+  -format        "embl", "fasta", "swissprot",    embl
+                  or "genbank"
   -db            "embl", "genbank" or "swissprot" embl
 
 =cut
