@@ -1,4 +1,4 @@
-# $Id: BUGS,v 1.1.2.2 2001-06-21 16:43:47 jason Exp $
+# $Id: BUGS,v 1.1.2.3 2001-06-25 18:36:18 jason Exp $
 Known Bugs 
 
 
@@ -17,7 +17,7 @@ Bioperl 0.7.1
    of rmtree method in Bio::Root::IO, however, it is best to install
    File::Temp when running 0.7 branch code.
 
- * Bio::Tools::Blast does not allow users to run blast, instead us
+ * Bio::Tools::Blast does not allow users to run blast, instead use
    Bio::Tools::Run::StandAloneBlast to run local blasts.  To submit
    jobs to a remote blast server like NCBI a module
    Bio::Tools::Run::RemoteBlast has been written but is part of the
