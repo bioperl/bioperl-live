@@ -6,11 +6,20 @@ Bio::FeatureIO::gff - DESCRIPTION of Object
 
 =head1 SYNOPSIS
 
-Give standard usage here
+  my $feature; #get a Bio::SeqFeature::Annotated somehow
+  my $featureOut = Bio::FeatureIO->new(-format => 'gff', -version => 3, -fh => \*STDOUT);
+  $featureOut->write_feature($feature);
 
 =head1 DESCRIPTION
 
-currently only handles gff version 3.  spec at http://song.sf.net/
+ currently implemented:
+
+ version         read?   write?
+ ------------------------------
+ GFF 1             N       N
+ GFF 2             N       N
+ GFF 2.5 (GTF)     N       Y
+ GFF 3             Y       Y
 
 =head1 FEEDBACK
 
@@ -64,10 +73,14 @@ use Bio::Annotation::DBLink;
 
 use Bio::Ontology::OntologyStore;
 
+use constant DEFAULT_VERSION => 3;
+
 sub _initialize {
   my($self,%arg) = @_;
 
   $self->SUPER::_initialize(%arg);
+
+  $self->version($arg{-version} || DEFAULT_VERSION);
 
   #read headers
   my $directive;
@@ -84,6 +97,65 @@ sub _initialize {
 sub write_feature {
   my($self,$feature) = @_;
   $self->throw("only Bio::SeqFeature::Annotated objects are writeable") unless $feature->isa('Bio::SeqFeature::Annotated');
+
+  if($self->version == 1){
+    return $self->_write_feature_1($feature);
+  } elsif($self->version == 2){
+    return $self->_write_feature_2($feature);
+  } elsif($self->version == 2.5){
+    return $self->_write_feature_25($feature);
+  } elsif($self->version == 3){
+    return $self->_write_feature_3($feature);
+  } else {
+    $self->throw(sprintf("don't know how to write GFF version %s",$self->version));
+  }
+
+}
+
+sub _write_feature_1 {
+  my($self,$feature) = @_;
+  $self->throw(sprintf("write_feature unimplemented for GFF version %s",$self->version));
+}
+
+sub _write_feature_2 {
+  my($self,$feature) = @_;
+  $self->throw(sprintf("write_feature unimplemented for GFF version %s",$self->version));
+}
+
+sub _write_feature_25 {
+  my($self,$feature,$group) = @_;
+
+  #the top-level feature is an aggregate of all subfeatures
+  if(!defined($group)){
+    $group = ($feature->annotation->get_Annotations('ID'))[0]->value;
+  }
+
+  my $seq    = $feature->seq_id || '.';
+  my $source = ($feature->annotation->get_Annotations('source'))[0]->value;
+  my $type   = ($feature->annotation->get_Annotations('feature_type'))[0]->name;
+  $type = 'EXON' if $type eq 'exon'; #a GTF peculiarity, incosistent with the sequence ontology.
+  my $min    = $feature->start   || '.';
+  my $max    = $feature->end     || '.';
+  my $strand = $feature->strand == 1 ? '+' : $feature->strand == -1 ? '-' : '.';
+  my $score  = $feature->score   || '.';
+  my $phase  = $feature->frame   || '.';
+
+  #these are the only valid types in a GTF document
+  if($type eq 'EXON' or $type eq 'CDS' or $type eq 'start_codon' or $type eq 'stop_codon'){
+    my $attr = sprintf('gene_id "%s"; transcript_id "%s";',$group,$group);
+    my $outstring = sprintf("%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n",
+                            $seq,$source,$type,$min,$max,$score,$strand,$phase,$attr);
+
+    $self->_print($outstring);
+  }
+
+  foreach my $subfeat ($feature->get_SeqFeatures){
+    $self->write_feature_25($subfeat,$group);
+  }
+}
+
+sub _write_feature_3 {
+  my($self,$feature) = @_;
 
   my $seq    = $feature->seq_id || '.';
   my $source = ($feature->annotation->get_Annotations('source'))[0]->value;
@@ -117,7 +189,7 @@ sub write_feature {
   $self->_print($outstring);
 
   foreach my $subfeat ($feature->get_SeqFeatures){
-    $self->write_feature($subfeat);
+    $self->write_feature_3($subfeat);
   }
 }
 
@@ -291,6 +363,38 @@ sub _handle_feature {
 
   return $feat;
 }
+
+=head2 version
+
+ Title   : version
+ Usage   : $obj->version($newval)
+ Function: version of GFF to read/write.  valid values are 1, 2, 2.5, and 3.
+ Example : 
+ Returns : value of version (a scalar)
+ Args    : on set, new value (a scalar or undef, optional)
+
+
+=cut
+
+sub version{
+    my $self = shift;
+
+    return $self->{'version'} = shift if @_;
+    return $self->{'version'};
+}
+
+
+=head2 so
+
+ Title   : so
+ Usage   : $obj->so($newval)
+ Function: holds a Sequence Ontology instance
+ Example : 
+ Returns : value of so (a scalar)
+ Args    : on set, new value (a scalar or undef, optional)
+
+
+=cut
 
 sub so {
   my $self = shift;
