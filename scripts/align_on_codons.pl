@@ -19,6 +19,7 @@ BEGIN {
     }
     $USAGE = 
 qq{align_on_codons.pl < file.fa
+-h/--help                 See this information
 -f/--frame            Translation Frame (0,1,2) are valid (defaults to '0')
 -ct/--codontable      Codon table to use (defaults to '0')
                         see perldoc Bio::PrimarySeq for more information
@@ -54,6 +55,9 @@ GetOptions( 'h|help'            => \$help,
 	    
 	    );
 
+if( $help ) { 
+    die($USAGE);
+}
 if( ! $alignprog || !defined $VALIDALIGN{$alignprog} ) {
     die("Cannot use $alignprog as 'alignprog' parameter");  
 } else {
