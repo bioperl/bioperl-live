@@ -151,7 +151,7 @@ object.  Arguments are -name=E<gt>value pairs:
 
    -safe           Indicates that the contents of this file is trusted.
                    Any option value that begins with the string "sub {"
-                   will be evaluated as a code reference.
+                   or \&subname will be evaluated as a code reference.
 
 The -file and -text arguments are mutually exclusive, and -file will
 supersede the other if both are present.
@@ -167,6 +167,11 @@ package) for an illustration of how to use this to do wonderful stuff.
 The -smart_features flag is used by the generic genome browser to
 provide features with a way to access the link-generation code.  See
 gbrowse for how this works.
+
+If the file is trusted, and there is an option named "init_code" in
+the [GENERAL] section of the file, it will be evaluated as perl code
+immediately after parsing.  You can use this to declare global
+variables and subroutines for use in option values.
 
 =back
 
@@ -697,11 +702,23 @@ sub code_setting {
   my $setting = $self->_setting($section=>$option);
   return unless defined $setting;
   return $setting if ref($setting) eq 'CODE';
-  return $setting unless $setting =~ /^sub\s*\{/;
-  my $coderef = eval $setting;
-  warn $@ if $@;
-  $self->set($section,$option,$coderef);
-  return $coderef;
+  if ($setting =~ /^\\&(\w+)/) {  # coderef in string form
+    my $subroutine_name = $1;
+    my $package = $self->base2package;
+    my $codestring = "\\&${package}\:\:${subroutine_name}";
+    my $coderef    = eval $codestring;
+    warn $@ if $@;
+    $self->set($section,$option,$coderef);
+    return $coderef;
+  }
+  elsif ($setting =~ /^sub\s*\{/) {
+    my $coderef = eval $setting;
+    warn $@ if $@;
+    $self->set($section,$option,$coderef);
+    return $coderef;
+  } else {
+    return $setting;
+  }
 }
 
 =over 4
@@ -911,11 +928,28 @@ sub consolidate_groups {
 
 sub evaluate_coderefs {
   my $self = shift;
+  $self->initialize_code();
   for my $s ($self->_setting) {
     for my $o ($self->_setting($s)) {
       $self->code_setting($s,$o);
     }
   }
+}
+
+sub initialize_code {
+  my $self       = shift;
+  my $package = $self->base2package;
+  my $init_code = $self->_setting(general => 'init_code') or return;
+  my $code = "package $package; $init_code; 1;";
+  eval $code;
+  warn $@ if $@;
+}
+
+sub base2package {
+  my $self = shift;
+  (my $package = overload::StrVal($self)) =~ s/[^a-z0-9A-Z_]/_/g;
+  $package     =~ s/^[^a-zA-Z_]/_/g;
+  $package;
 }
 
 sub split_group {

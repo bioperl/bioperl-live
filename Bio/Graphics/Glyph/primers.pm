@@ -9,10 +9,10 @@ use vars '@ISA';
 use constant HEIGHT => 4;
 
 # we do not need the default amount of room
-sub calculate_height {
-  my $self = shift;
-  return $self->option('label') ? HEIGHT + $self->labelheight + 2 : HEIGHT;
-}
+#sub calculate_height {
+#  my $self = shift;
+#  return $self->option('label') ? HEIGHT + $self->labelheight + 2 : HEIGHT;
+#}
 
 # override draw method
 sub draw {
@@ -32,22 +32,32 @@ sub draw {
 
   # otherwise draw two pairs of arrows
   # -->   <--
-  $gd->line($x1,$center,$x1 + HEIGHT,$center,$fg);
-  $gd->line($x1 + HEIGHT,$center,$x1 + HEIGHT - $a2,$center-$a2,$fg);
-  $gd->line($x1 + HEIGHT,$center,$x1 + HEIGHT - $a2,$center+$a2,$fg);
+  my $trunc_left  = $x1 < $self->panel->left;
+  my $trunc_right = $x2 > $self->panel->right;
 
-  $gd->line($x2,$center,$x2 - HEIGHT,$center,$fg);
-  $gd->line($x2 - HEIGHT,$center,$x2 - HEIGHT + $a2,$center+$a2,$fg);
-  $gd->line($x2 - HEIGHT,$center,$x2 - HEIGHT + $a2,$center-$a2,$fg);
+  unless ($trunc_left) { 
+    $gd->line($x1,$center,$x1 + HEIGHT,$center,$fg);
+    $gd->line($x1 + HEIGHT,$center,$x1 + HEIGHT - $a2,$center-$a2,$fg);
+    $gd->line($x1 + HEIGHT,$center,$x1 + HEIGHT - $a2,$center+$a2,$fg);
+  }
+
+  unless ($trunc_right) {
+    $gd->line($x2,$center,$x2 - HEIGHT,$center,$fg);
+    $gd->line($x2 - HEIGHT,$center,$x2 - HEIGHT + $a2,$center+$a2,$fg);
+    $gd->line($x2 - HEIGHT,$center,$x2 - HEIGHT + $a2,$center-$a2,$fg);
+  }
 
   # connect the dots if requested
   if ($self->connect) {
     my $c = $self->color('connect_color') || $self->bgcolor;
-    $gd->line($x1 + HEIGHT + 2,$center,$x2 - HEIGHT - 2,$center,$c);
+    $gd->line($x1 + ($trunc_left  ? 0 : HEIGHT + 2),$center,
+	      $x2 - ($trunc_right ? 0 : HEIGHT + 2),$center,
+	      $c);
   }
 
   # add a label if requested
-  $self->draw_label($gd,@_) if $self->option('label');
+  $self->draw_label($gd,@_)       if $self->option('label');
+  $self->draw_description($gd,@_) if $self->option('description');
 
 }
 
