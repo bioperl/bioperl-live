@@ -65,7 +65,7 @@ o Contact info
 
 o About the directory structure
 
- The bioperl directory structure is organised as follows:
+ The bioperl directory structure is organized as follows:
 
  Bio/         - Bioperl modules  
  models/      - DIA drawing program generated OO UML for bioperl classes
@@ -147,7 +147,7 @@ o Releases
  etc) are development releases which one should only use if you are
  interested in the latest and greatest features. The final number (eg,
  1.2.0, 1.2.1 etc) is the bug fix release. The higher the number the
- more bug fixes has been incorportated. In theory you can upgrade from one
+ more bug fixes has been incorporated. In theory you can upgrade from one
  bug fix release to the next with no changes to your own code (for production
  cases, obviously check things out carefully before you switch over).
 
@@ -155,7 +155,7 @@ o Caveats, warnings, etc
 
  When you run the tests (make test) often some tests will issue
  warnings messages or even fail.  Sometimes this is because we didn't
- have anyone test the test system on the combintaion or your operating
+ have anyone test the test system on the combination or your operating
  system, version of perl, and associated libraries and other modules.
  Because Bioperl depends on several outside libraries we may not be
  able to test every single combination (mind you, now you've tested
@@ -173,7 +173,7 @@ o Caveats, warnings, etc
  Not all scripts in the examples/ directory are correct and up-to-date.
  We need volunteers to help maintain these so if you find they do not
  work, submit a bug report http://bugzilla.bioperl.org and/or consider
- helping out in their maintence.  Don't be disuaded by a script not
+ helping out in their maintenance.  Don't be dissuaded by a script not
  working, often the SYNOPSIS of the module is the best place to start
  when trying to learn how to use them.  
 
@@ -192,7 +192,7 @@ o A simple module summary
   - Seq is for Sequences (protein and DNA).
     o Bio::PrimarySeq is a plain sequence (sequence data + identifiers)
     o Bio::Seq is a PrimarySeq plus it has a Bio::Annotation::Collection 
-      and a Bio::SeqFeatureI objects attatched.
+      and a Bio::SeqFeatureI objects attached.
     o Bio::Seq::RichSeq is all of the above plus it has slots for
       extra information specific to GenBank/EMBL/SwissProt files.
     o Bio::Seq::LargeSeq is for sequences which are too big for
@@ -273,8 +273,8 @@ o Upgrading from an older version
  If you have a previously installed version of bioperl on your system
  some of these notes may help you.  
 
- Some modules have been removed because they have been superceeded by
- new developement efforts.  They are documented in the DEPRECATED file
+ Some modules have been removed because they have been superseded by
+ new development efforts.  They are documented in the DEPRECATED file
  that is included in the release.  In addition some methods, or the
  Application Programming Interface (API), have changed or been
  removed.  You may find that scripts which worked with bioperl 1.0.2
