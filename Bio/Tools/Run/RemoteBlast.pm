@@ -345,6 +345,7 @@ sub submit_blast {
 	    # should try and be a little more verbose here
 	    $self->warn("req was ". $request->as_string() . "\n" .
 			$response->error_as_HTML);
+	    $tcount = -1;
 	}
     }
     return $tcount;
