@@ -7,7 +7,7 @@
 # `make test'. After `make install' it should work as `perl test.t'
 
 use strict;
-
+my $error;
 BEGIN {
     # to handle systems with no installed Test module
     # we include the t dir (where a copy of Test.pm is located)
@@ -16,6 +16,7 @@ BEGIN {
     if( $@ ) {
 	use lib 't';
     }
+    $error = 0;
     use Test;    
     use vars qw($NUMTESTS);
     $NUMTESTS = 11;
@@ -25,11 +26,20 @@ BEGIN {
     if( $@ ) {
 	print STDERR "Cannot load LWP::UserAgent, skipping tests\n";
 	foreach ( 1..$NUMTESTS) { skip(1,1); }
-	exit(0);
+	$error = 1;
+    } 
+    if( $] < 5.005 ) {
+	print STDERR "GDB parsing does not work with 5.005 or lower Perl versions.\n";
+	foreach ( 1..$NUMTESTS) { skip(1,1); }
+	$error = 1;
     }
 }
 
-use Bio::DB::GDB;
+if( $error == 1 ) {
+    exit(0);
+}
+
+require "Bio::DB::GDB";
 my $verbose = 0;
 
 my ($gdb, $marker, $info);
