@@ -167,7 +167,10 @@ available from CPAN.
 
 <section id="gettingStarted">
 <title>Getting Started</title>
-
+<para>
+All the code examples and BLAST input files we'll use are available in
+the doc/howto/examples/graphics directory in the BioPerl package. 
+</para>
 <para>
 Our first example will be rendering a table of BLAST hits on a
 sequence that is exactly 1000 residues long. For now, we're ignoring
@@ -201,7 +204,7 @@ Our first attempt to parse and render this file looks like this:
 
 <para>
 <example id="code1">
-<title>Rendering the simple blast hit file (render1.pl)</title>
+<title>Rendering the simple blast hit file (render_blast1.pl)</title>
 <programlisting>
   0  #!/usr/bin/perl
 
@@ -369,7 +372,7 @@ There are several changes to look at.  The first is minor.  We'd like
 to put a boundary around the left and right edges of the image so that
 the features don't bump up against the margin, so we specify a 10
 pixel leeway with the <parameter>-pad_left</parameter> and
-<parameter>-pad_right</parameter> arguments in line 5.
+<parameter>-pad_right</parameter> arguments in lines 8 and 9.
 </para>
 
 <para>
@@ -577,10 +580,10 @@ Code example 4 shows the new utility.
   4  use Bio::Graphics;
   5  use Bio::SearchIO;
 
-  6  my $file = shift or die "Usage: render4.pl &lt;blast file&gt;\n";
+  6  my $file = shift or die "Usage: render_blast4.pl &lt;blast file&gt;\n";
 
   7  my $searchio = Bio::SearchIO-&gt;new(-file   =&gt; $file,
-  8                                    -format =&gt; 'blast') or die "parse failed";
+  8                                       -format =&gt; 'blast') or die "parse failed";
 
 
   9  my $result = $searchio-&gt;next_result() or die "no result";
@@ -636,7 +639,7 @@ Code example 4 shows the new utility.
 </para>
 
 <para>
-In lines 6-7 we read the name of the file that contains the BLAST
+In lines 6-8 we read the name of the file that contains the BLAST
 results from the command line, and pass it to
 <function>Bio::SearchIO-&gt;new()</function>, returning a
 <classname>Bio::SearchIO</classname> object.  We read a single result
@@ -816,7 +819,7 @@ The way this script works is simple.  After the library load preamble,
 the script reads the name of the GenBank or EMBL file from the command
 line (line 8).  It passes the filename to
 <classname>Bio::SeqIO</classname>'s <function>new()</function> method,
-and reads the first sequence object from it (lines 9-10).  If anything
+and reads the first sequence object from it (lines 9-11).  If anything
 goes wrong, the script dies with an error message.
 </para>
 
@@ -853,7 +856,7 @@ the track immediately.
 <para>
 We are now ready to create a track for each feature type.  In order to
 distinguish the tracks by color, we initialize an array of 9 color
-names and simply cycle through them (lines 38-54).  For each feature
+names and simply cycle through them (lines 39-54).  For each feature
 tag, we retrieve the corresponding list of features from
 <varname>%sorted_features</varname> (line 42) and create a track for
 it using the "generic" glyph and the next color in the list (lines
@@ -1187,8 +1190,9 @@ Finally, if you find yourself constantly tweaking the graphic options,
 you might be interested in
 <classname>Bio::Graphics::FeatureFile</classname>, a utility module
 for interpreting and rendering a simple tab-delimited format for
-sequence features.  feature_draw.pl is a Perl script built on top of
-this module, which you can find in the Bioperl distribution.
+sequence features.  feature_draw.PLS is a Perl script built on top of
+this module, which you can find in the scripts/graphics directory in
+the Bioperl distribution.
 </para>
 
 </section>
