@@ -208,8 +208,8 @@ sub next_seq {
        #accession number
        if( /^AC\s+(.*)?/ ) {
 	   my @accs = split(/[; ]+/, $1); # allow space in addition
-	   $params{'-accession_number'} = shift @accs;
-	   $params{'-secondary_accessions'} = \@accs;
+	   $params{'-accession_number'} = shift @accs unless defined $params{'-accession_number'};
+	   push @{$params{'-secondary_accessions'}}, @accs;
        }
        
        #version number
