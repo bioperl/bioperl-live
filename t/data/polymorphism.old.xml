@@ -1,3 +1,4 @@
+
 <seqDiff id="M20132" moltype="rna" offset="362" sysname="[c.+4G|A|T;c.+31C|A]" trivname="[E2|K|X;Q11|K]">
     <DNA number="1.1" start="4" end="4" length="1" isMutation="0">
         <label>point</label>

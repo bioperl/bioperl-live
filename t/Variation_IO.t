@@ -11,7 +11,7 @@ BEGIN {
     }
     use Test;
 
-    eval { require 'Text/Wrap.pm' };
+    eval { require 'Text/Wrap.pm'; require 'XML/Writer.pm'; };
     if( $@ || $Text::Wrap::VERSION < 98 ) {
 	print STDERR "Must have at least Text::Wrap 98 installed\n";
 	plan tests => 1;
@@ -25,6 +25,7 @@ BEGIN {
 use Text::Wrap 98;
 use Bio::Variation::IO;
 use Bio::Root::IO;
+use XML::Writer;
 
 sub fileformat ($) {
     my ($file) = shift;
@@ -110,10 +111,8 @@ sub io {
 
 
 
-
 io  (Bio::Root::IO->catfile("t","data","mutations.dat"), 
-   Bio::Root::IO->catfile("t","data","mutations.out.dat")); #1..5
-
+     Bio::Root::IO->catfile("t","data","mutations.out.dat")); #1..5
 io  (Bio::Root::IO->catfile("t","data","polymorphism.dat"), 
    Bio::Root::IO->catfile("t","data","polymorphism.out.dat")); #6..10
 
@@ -134,8 +133,13 @@ if( $@ ) {
 }
 
 eval {
-    io  (Bio::Root::IO->catfile("t","data","mutations.xml"), 
-	Bio::Root::IO->catfile("t","data","mutations.out.xml")); #10..12
+    if( $XML::Writer::VERSION >= 0.500 ) { 
+	io  (Bio::Root::IO->catfile("t","data","mutations.xml"), 
+	     Bio::Root::IO->catfile("t","data","mutations.out.xml")); #10..12
+    } else { 
+	io  (Bio::Root::IO->catfile("t","data","mutations.old.xml"), 
+	     Bio::Root::IO->catfile("t","data","mutations.out.xml")); #10..12
+    }
 };
 
 eval {
