@@ -46,7 +46,7 @@ Bio::SeqAnalysisParserI for more documentation of this concept.
 You can always find out the methods an instance of this class knows
 about by the way given in the SYNOPSIS section. By default, and
 assuming that the documentation is up-to-date, this will comprise of
-genscan, mzef, estscan, blast, and hmmer (all case-insensitive).
+genscan, mzef, estscan, blast, hmmer, gff, and sim4 (all case-insensitive).
 
 =head1 FEEDBACK
 
@@ -96,6 +96,8 @@ BEGIN {
 			 "bplite" => "Bio::Tools::BPlite",
 			 "blast" => "Bio::Tools::BPlite",
                          "hmmer" => "Bio::Tools::HMMER::Result",
+			 "gff" => "Bio::Tools::GFF",
+			 "sim4" => "Bio::Tools::Sim4::Results",
 						 );
 }
 
