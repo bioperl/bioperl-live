@@ -132,7 +132,7 @@ sub new {
     defined $mol && $self->molecule($mol);
     if(defined($keywords)) {
 	if(ref($keywords) eq "ARRAY") {
-	    $seld->add_keyword(@$keywords);
+	    $self->add_keyword(@$keywords);
 	} else {
 	    # got a string - use the old API
 	    $self->keywords($keywords);
@@ -231,10 +231,9 @@ sub add_date {
 =head2 get_dates
 
  Title   : get_dates
- Usage   :
+ Usage   : my @dates = $seq->get_dates;
  Function: Get the dates of the sequence (usually, when it was created and
            changed.
- Example :
  Returns : an array of date strings
  Args    :
 
@@ -249,10 +248,9 @@ sub get_dates{
 =head2 pid
 
  Title   : pid
- Usage   :
+ Usage   : my $pid = $seq->pid();
  Function: Get (and set, depending on the implementation) the PID property
            for the sequence.
- Example :
  Returns : a string
  Args    :
 
@@ -313,11 +311,10 @@ sub add_secondary_accession {
 =head2 get_secondary_accessions
 
  Title   : get_secondary_accessions
- Usage   :
+ Usage   : my @acc = $seq->get_secondary_accessions();
  Function: Get the secondary accession numbers as strings.
- Example :
  Returns : An array of strings
- Args    :
+ Args    : none
 
 
 =cut
@@ -330,8 +327,7 @@ sub get_secondary_accessions{
 
  Title   : seq_version
  Usage   : $obj->seq_version($newval)
- Function: 
- Example : 
+ Function: Get/set the sequence version
  Returns : value of seq_version (a scalar)
  Args    : on set, new value (a scalar or undef, optional)
 
@@ -393,7 +389,6 @@ sub get_keywords {
  Usage   :
  Function: Adds a value to the annotation collection under the specified
            key. Note that this is not a public method.
- Example :
  Returns : 
  Args    : key (a string), value(s) (one or more scalars)
 

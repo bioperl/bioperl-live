@@ -239,7 +239,6 @@ sub next_seq {
 	  $annotation = new Bio::Annotation::Collection;
       }
       $buffer = $self->_readline();
-
       until( !defined ($buffer) ) {
 	  $_ = $buffer;
 	  
@@ -247,7 +246,8 @@ sub next_seq {
 	  if (/^DEFINITION\s+(\S.*\S)/) {
 	      my @desc = ($1);
 	      while ( defined($_ = $self->_readline) ) { 
-		  /^\s+(.*)/ && do { push (@desc, $1); next;};
+		  if( /^\s+(.*)/ ) { push (@desc, $1); next };		  
+ 		  $self->_pushback($_);
 		  last;
 	      }
 	      $builder->add_slot_value(-desc => join(' ', @desc));
@@ -256,7 +256,12 @@ sub next_seq {
 	  }
 	  # accession number (there can be multiple accessions)
 	  if( /^ACCESSION\s+(\S.*\S)/ ) {
-	      push(@acc, split(' ',$1));
+	      push(@acc, split(/\s+/,$1));
+	      while( defined($_ = $self->_readline) ) { 
+		  /^\s+(.*)/ && do { push (@acc, split(/\s+/,$1)); next };
+		  $self->_pushback($_);
+		  last;
+	      }
 	  }
 	  # PID
 	  elsif( /^PID\s+(\S+)/ ) {
@@ -275,10 +280,17 @@ sub next_seq {
 	  }
 	  #Keywords
 	  elsif( /^KEYWORDS\s+(.*)/ ) {
-	      my $keywords = $1;
-	      $keywords =~ s/\;//g;
-	      $keywords =~ s/\.$//; # remove possibly trailing dot
-	      $params{'-keywords'} = $keywords;
+	      
+	      my @kw = split(/\s*\;\s*/,$1);
+	      while( defined($_ = $self->_readline) ) { 
+		  chomp;
+		  /^\s+(.*)/ && do { push (@kw, split(/\s*\;\s*/,$1)); next };
+		  $self->_pushback($_);
+		  last;
+	      }
+	      
+	      $kw[-1] =~ s/\.$//;
+	      $params{'-keywords'} = \@kw;
 	  }
 	  # Organism name and phylogenetic information
 	  elsif (/^SOURCE/) {
