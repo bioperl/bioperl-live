@@ -181,23 +181,28 @@ sub next_seq{
     }
     
     $line =~ /^LOCUS\s+\S+/ || $self->throw("GenBank stream with no LOCUS. Not GenBank in my book. Got $line");
-    $line =~ /^LOCUS\s+(\S+)\s+\S+\s+bp\s+(\S+)\s+(\S+)\s+(\S+)?/;
+    $line =~ /^LOCUS\s+(\S+)\s+\S+\s+(bp|aa)\s+(\S+)\s+(\S+)\s+(\S+)?/;
 
     $name = $1;
     # this is important to have the id for display in e.g. FTHelper, otherwise
     # you won't know which entry caused an error
     $seq->display_id($name);
-    $mol=$2; 
-    if ($mol) {
-	$seq->molecule($mol);
+    # the moltype of the entry
+    if($2 eq 'bp') {
+	$seq->moltype('dna');
+    } else {
+	# $2 eq 'aa'
+	$seq->moltype('protein');
     }
-    
-    $div=$3;
-    if ($div) {
-	$seq->division($div);
+    # for aa there is usually no 'molecule' (mRNA etc)
+    if (($2 eq 'bp') || defined($5)) {
+	$seq->molecule($3);
+	$seq->division($4);
+	$date = $5;
+    } else {
+	$seq->division($3);
+	$date = $4;
     }
-    
-    $date=$4;
     if ($date) {
 	$seq->add_date($date);
     }
@@ -262,30 +267,32 @@ sub next_seq{
 			my $commobj = Bio::Annotation::Comment->new();
 			$commobj->text($comment);
 			$seq->annotation->add_Comment($commobj);
-			last BEFORE_FEATURE_TABLE;
+			last;
 		    }
 		    $comment .= $_; 
 		}
+		last;
 	    }
-	    goto ORIGIN if( /^ORIGIN/ );
+	    last if( /^ORIGIN/ );
 	    # Get next line.
 	    $buffer = $self->_readline;
 	}
 
-    # need to read the first line of the feature table
-    
     # following block and loop fixed by
     # HL <hlapp@gmx.net>, 05/05/2000
     # see comments
 
-    $buffer = $self->_readline;
+    # some "minimal" formats may not necessarily have a feature table
+    if(/^FEATURES/) {
+	# need to read the first line of the feature table
+	$buffer = $self->_readline;
 
-    FEATURE_TABLE :
 	# DO NOT read lines in the while condition -- this is done as a side
 	# effect in _read_FTHelper_GenBank!
 	while( defined($buffer) ) {
-	    # check immidiately -- not at the end of the loop
-	    last if($buffer =~ /^BASE/);
+	    # check immediately -- not at the end of the loop
+	    # note: GenPept entries obviously do not have a BASE line
+	    last if(($buffer =~ /^BASE/) || ($buffer =~ /^ORIGIN/));
 	    # slurp in one feature at a time -- at return, the start of
 	    # the next feature will have been read already, so we need
 	    # to pass a reference, and the called method must set this
@@ -294,9 +301,14 @@ sub next_seq{
 	    # process ftunit
 	    $ftunit->_generic_seqfeature($seq);
 	}
-    $seqc = "";	
-    while (defined( $_ = $self->_readline)) {
-	last if /^ORIGIN/;
+	$_ = $buffer;
+    }
+    # advance to the section with the sequence
+    if(! /^ORIGIN/) {
+	$seqc = "";	
+	while (defined( $_ = $self->_readline)) {
+	    last if /^ORIGIN/;
+	}
     }
   ORIGIN:
     while( defined($_ = $self->_readline) ) {
@@ -305,7 +317,9 @@ sub next_seq{
 	s/[^A-Za-z]//g;
 	$seqc .= $_;
     }
-    $pseq = Bio::PrimarySeq->new(-seq => $seqc , -id => $name, -desc => $desc);
+    $pseq = Bio::PrimarySeq->new('-seq' => $seqc, '-id' => $name,
+				 '-moltype' => $seq->moltype(),
+				 '-desc' => $desc);
     $seq->primary_seq($pseq);
     return $seq;
 }
