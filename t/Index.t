@@ -22,7 +22,7 @@
 
 
 ## We start with some black magic to print on failure.
-BEGIN { $| = 1; print "1..5\n"; 
+BEGIN { $| = 1; print "1..8\n"; 
 	use vars qw($loaded); }
 
 END {print "not ok 1\n" unless $loaded;}
@@ -31,6 +31,9 @@ use strict;
 use Bio::Index::Fasta;
 use Bio::Index::SwissPfam;
 use Bio::Index::EMBL;
+use Bio::Index::GenBank;
+use Bio::Index::Swissprot;
+
 my $dir;
 eval {
     use Cwd;
@@ -51,7 +54,8 @@ sub test ($$;$) {
 
 chomp( $dir );
 {
-    my $ind = Bio::Index::Fasta->new(-filename => 'Wibbl', -write_flag => 1, -verbose => 0);
+    my $ind = Bio::Index::Fasta->new(-filename => 'Wibbl', -write_flag => 1,
+				     -verbose => 0);
     $ind->make_index("$dir/t/multifa.seq");
     $ind->make_index("$dir/t/seqs.fas");
     $ind->make_index("$dir/t/multi_1.fa");
@@ -93,21 +97,44 @@ test 2, ( -e "Wibbl" );
     while( my $seq2 = $stream->next_primary_seq ) {
 	unless ($seq2->isa('Bio::PrimarySeqI')) {
 	    $ok_4 = 0;
+	    last; # no point continuing...
 	}
     }
     test 4, $ok_4;
 }
 
-
 {
-    my $ind = Bio::Index::SwissPfam->new('Wibbl2', 'WRITE');
+    my $ind = Bio::Index::SwissPfam->new(-filename=>'Wibbl2', 
+					 -write_flag=>1);
     $ind->make_index("$dir/t/swisspfam.data");
     test 5, ( -e "Wibbl2" );
 }
 
-# don't test EMBL yet. Bad...
-unlink qw( Wibbl2 Wibbl);
+{
+    my $ind = Bio::Index::EMBL->new(-filename=>'Wibbl3', 
+				    -write_flag=>1);
+    $ind->make_index("$dir/t/test.embl");
+    test 6, ( -e "Wibbl3" ) && $ind->fetch('AL031232')->length == 4870;
+}
 
+{
+    my $ind = Bio::Index::Swissprot->new(-filename=>'Wibbl4', 
+				    -write_flag=>1);
+    $ind->make_index("$dir/t/roa1.swiss");
+    test 7, ( -e "Wibbl4" ) && ($ind->fetch('P09651')->display_id() eq 'ROA1_HUMAN');
+}
+
+{
+    my $ind = Bio::Index::GenBank->new(-filename=>'Wibbl5', 
+				       -write_flag=>1, 
+				       -verbose => 0);
+    $ind->make_index("$dir/t/roa1.genbank");
+    test 8, ( -e "Wibbl5" ) && $ind->fetch('AI129902')->length == 37;
+}
+
+END { 
+    unlink qw( Wibbl Wibbl2 Wibbl3 Wibbl4 Wibbl5);
+}
 
 
 
