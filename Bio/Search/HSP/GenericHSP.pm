@@ -184,7 +184,10 @@ sub new {
     $algo = 'GENERIC' unless defined $algo;
     $self->algorithm($algo);
 
-    defined $evalue    && $self->evalue($evalue);
+#    defined $evalue    && $self->evalue($evalue)
+#    $hsp->significance is initialized by the 
+#    the SimilarityPair object - let's only keep one
+#    value, don't need 2 slots.
 
     defined $pvalue    && $self->pvalue($pvalue);
     defined $bits      && $self->bits($bits);
@@ -380,14 +383,7 @@ sub pvalue {
 
 =cut
 
-sub evalue {
-    my ($self,$value) = @_;
-    my $previous = $self->{'_evalue'};
-    if( defined $value  ) { 	
-	$self->{'_evalue'} = $value;
-    } 
-    return $previous;   
-}
+sub evalue { shift->significance(@_) }
 
 =head2 frac_identical
 
