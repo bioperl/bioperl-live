@@ -572,32 +572,36 @@ sub write_seq {
 	$self->_print("FH   Key             Location/Qualifiers\n");
 	$self->_print("FH\n");
 
-	if( defined $self->_post_sort ) {
-	    # we need to read things into an array. Process. Sort them. Print 'em
+	my @feats = $seq->can('top_SeqFeatures') ? $seq->top_SeqFeatures : ();
+	if ($feats[0]) {
+	    if( defined $self->_post_sort ) {
+		# we need to read things into an array. 
+		# Process. Sort them. Print 'em
 
-	    my $post_sort_func = $self->_post_sort();
-	    my @fth;
+		my $post_sort_func = $self->_post_sort();
+		my @fth;
 
-	    foreach my $sf ( $seq->top_SeqFeatures ) {
-		push(@fth,Bio::SeqIO::FTHelper::from_SeqFeature($sf,$seq));
-	    }
+		foreach my $sf ( @feats ) {
+		    push(@fth,Bio::SeqIO::FTHelper::from_SeqFeature($sf,$seq));
+		}
 
-	    @fth = sort { &$post_sort_func($a,$b) } @fth;
+		@fth = sort { &$post_sort_func($a,$b) } @fth;
 
-	    foreach my $fth ( @fth ) {
-		$self->_print_EMBL_FTHelper($fth);
-	    }
-	} elsif ($seq->can('top_SeqFeatures')) {
-	    # not post sorted. And so we can print as we get them.
-	    # lower memory load...
-
-	    foreach my $sf ( $seq->top_SeqFeatures ) {
-		my @fth = Bio::SeqIO::FTHelper::from_SeqFeature($sf,$seq);
 		foreach my $fth ( @fth ) {
-		    if( $fth->key eq 'CONTIG') {
-			$self->_show_dna(0);
-		    }
 		    $self->_print_EMBL_FTHelper($fth);
+		}
+	    } else {
+		# not post sorted. And so we can print as we get them.
+		# lower memory load...
+
+		foreach my $sf ( @feats ) {
+		    my @fth = Bio::SeqIO::FTHelper::from_SeqFeature($sf,$seq);
+		    foreach my $fth ( @fth ) {
+			if( $fth->key eq 'CONTIG') {
+			    $self->_show_dna(0);
+			}
+			$self->_print_EMBL_FTHelper($fth);
+		    }
 		}
 	    }
 	}
