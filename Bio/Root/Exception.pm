@@ -17,16 +17,39 @@ Bio::Root::Exception - Generic exception objects for Bioperl
 =head2 Throwing exceptions using B<Error::throw()>:
 
     use Bio::Root::Exception;
-    use Error qw(:try);
+    use Error;
+
+    # Set Error::Debug to include stack trace data in the error messages
+    $Error::Debug = 1;
 
     $file = shift;
+    open (IN, $file) ||
+	    throw Bio::Root::FileOpenException ( "Can't open file $file for reading", $!);
 
+=head2 Throwing exceptions using B<Bio::Root::Root::throw()>:
+
+     # Here we have an object that ISA Bio::Root::Root, so it inherits throw().
+
+     open (IN, $file) || 
+                $object->throw(-class => 'Bio::Root::FileOpenException',
+                               -text => "Can't open file $file for reading",
+                               -value => $!);
+
+=head2 Catching and handling exceptions using B<Error::try()>:
+
+    use Bio::Root::Exception;
+    use Error qw(:try);
+
+    # Note that we need to import the 'try' tag from Error.pm
+
+    # Set Error::Debug to include stack trace data in the error messages
+    $Error::Debug = 1;
+
+    $file = shift;
     try {
-        open (IN, $file) || throw Bio::Root::FileOpenException (
-	  -text => "Can't open file $file for reading",
-          -value => $!,
-	  -object => $self );
-    } 
+        open (IN, $file) ||
+	    throw Bio::Root::FileOpenException ( "Can't open file $file for reading", $!);
+    }
     catch Bio::Root::FileOpenException with {
         my $err = shift;
         print STDERR "Using default input file: $default_file\n";
@@ -45,14 +68,6 @@ Bio::Root::Exception - Generic exception objects for Bioperl
    };  
    # the ending semicolon is essential!
 
-
-=head2 Throwing exceptions using B<Bio::Root::Root::throw()>:
-
-     # Note: You don't have to be within a try{} block
-     open (IN, $file) || $object->throw(
-                                        -class => 'Bio::Root::FileOpenException',
-                                        -text => "Can't open file $file for reading",
-                                        -value => $!);
 
 =head2 Defining a new Exception type as a subclass of Bio::Root::Exception:
 
@@ -86,9 +101,21 @@ in any module or script.
 
 =back
 
-All of these exceptions inherit from a common base class exception,
-Bio::Root::Exception. This allows a user to write a handler for all
-Bioperl-derived exceptions as follows:
+Using defined exception classes like these is a good idea because it
+indicates the basic nature of what went wrong in a convenient,
+computable way.
+
+If there is a type of exception that you want to throw
+that is not covered by the classes listed above, it is easy to define
+a new one that fits your needs. Just write a line like the following
+in your module or script where you want to use it (or put it somewhere
+that is accessible to your code):
+
+    @NoCanDoException::ISA = qw( Bio::Root::Exception );
+
+All of the exceptions defined in this module inherit from a common
+base class exception, Bio::Root::Exception. This allows a user to
+write a handler for all Bioperl-derived exceptions as follows:
 
            use Bio::Whatever;
            use Error qw(:try);
@@ -100,6 +127,10 @@ Bioperl-derived exceptions as follows:
                my $err = shift;
                print "A Bioperl exception occurred:\n$err\n";
            };
+
+So if you do create your own exceptions, just be sure they inherit
+from Bio::Root::Exception directly, or indirectly by inheriting from a
+Bio::Root::Exception subclass.
 
 The exceptions in Bio::Root::Exception are extensions of Graham Barr's
 B<Error.pm> module available from CPAN.  Despite this dependency, the
@@ -166,9 +197,7 @@ my $DEFAULT_VALUE = "__DUMMY__";  # Permits eval{} based handlers to work
  Purpose : A generic base class for all BioPerl exceptions.
            By including a "catch Bio::Root::Exception" block, you
            should be able to trap all BioPerl exceptions.
- Example : throw Bio::Root::Exception( 
-               -text   => "A generic exception",
-               -object => $self );
+ Example : throw Bio::Root::Exception("A generic exception", $!);
 
 =cut
 
@@ -185,13 +214,16 @@ my $DEFAULT_VALUE = "__DUMMY__";  # Permits eval{} based handlers to work
  Purpose : Guarantees that -value is set properly before
            calling Error::new().
 
- Arguments: same as for Error::new()
+ Arguments: key-value style arguments same as for Error::new()
 
-     -value must be non-zero and not an empty string in order for
-     eval{}-based exception handlers to work. These require that
-     if($@) evaluates to true, which will not be the case if
-     the Error has no value (Error overloads numeric operations
-     to the Error::value() method).
+     You can also specify plain arguments as ($message, $value)
+     where $value is optional.
+
+     -value, if defined, must be non-zero and not an empty string 
+     in order for eval{}-based exception handlers to work. 
+     These require that if($@) evaluates to true, which will not 
+     be the case if the Error has no value (Error overloads 
+     numeric operations to the Error::value() method).
 
      It is OK to create Bio::Root::Exception objects without
      specifing -value. In this case, an invisible dummy value is used.
@@ -206,22 +238,24 @@ my $DEFAULT_VALUE = "__DUMMY__";  # Permits eval{} based handlers to work
 
 sub new {
     my ($class, @args) = @_; 
-    my %params;
-    if( @args % 2 == 0 ) {
+    my ($value, %params);
+    if( @args % 2 == 0 && $args[0] =~ /^-/) {
         %params = @args;
-        my $value = $params{'-value'};
-        if( defined $value and not $value) {
-            $params{-value} = "The number zero (0)" if $value == 0;
-            $params{-value} = "An empty string (\"\")" if $value eq "";
-        } 
-        else {
-            $params{-value} ||= $DEFAULT_VALUE; 
-        }
+        $value = $params{'-value'};
     }
     else {
-        $params{-text} ||= $args[0];
-        $params{-value} ||= $DEFAULT_VALUE; 
+        $params{-text} = $args[0];
+        $value = $args[1];
     }
+
+    if( defined $value and not $value) {
+	$value = "The number zero (0)" if $value == 0;
+	$value = "An empty string (\"\")" if $value eq "";
+    }
+    else {
+	$value ||= $DEFAULT_VALUE;
+    }
+    $params{-value} = $value;
 
     my $self = $class->SUPER::new( %params );
     return $self;
@@ -250,8 +284,8 @@ sub pretty_format {
 
     my $title = "------------- EXCEPTION: $class -------------";
     my $footer = "\n" . '-' x CORE::length($title);
-    my $out = $title . "\n" .
-       "MSG: ".$msg."\n". $value_string. $stack. $footer . "\n";
+    my $out = "\n$title\n" .
+       "MSG: $msg\n". $value_string. $stack. $footer . "\n";
     return $out;
 }
 
