@@ -130,7 +130,14 @@ sub new {
 					@args);
     defined $division && $self->division($division);
     defined $mol && $self->molecule($mol);
-    defined $keywords && $self->keywords($keywords);
+    if(defined($keywords)) {
+	if(ref($keywords) eq "ARRAY") {
+	    $seld->add_keyword(@$keywords);
+	} else {
+	    # got a string - use the old API
+	    $self->keywords($keywords);
+	}
+    }
     defined $sv && $self->seq_version($sv);
     defined $pid && $self->pid($pid);
 
