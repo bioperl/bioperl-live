@@ -187,7 +187,7 @@ sub write_seq {
 
     #    my $seq_temp_uid = $self->get_temp_uid($seq);
 
-    my $seq_temp_uid = $seq->accession . '.' . ($seq->can('seq_version') ? $seq->seq_version : $seq->version);
+    my $seq_temp_uid = $seq->accession_number . '.' . ($seq->can('seq_version') ? $seq->seq_version : $seq->version);
 
     # data structure representing the core sequence for this record
     my $seqnode =
