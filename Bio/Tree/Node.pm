@@ -260,7 +260,10 @@ sub remove_all_Descendents{
 =cut
 
 sub ancestor{
-   my ($self) = @_;
+   my ($self, $value) = @_;
+   if (defined $value) {
+       $self->{'_ancestor'} = $value;
+   }
    return $self->{'_ancestor'};
 }
 
@@ -319,9 +322,9 @@ sub bootstrap{
 sub description{
    my ($self,$value) = @_;
    if( defined $value  ) {
-       $self->{'_description'} = $value;
+       $self->{'_desc'} = $value;
    }
-   return $self->{'_description'};
+   return $self->{'_desc'};
 }
 
 =head2 id
