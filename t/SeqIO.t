@@ -19,7 +19,7 @@
 
 
 ## We start with some black magic to print on failure.
-BEGIN { $| = 1; print "1..18\n"; 
+BEGIN { $| = 1; print "1..19\n"; 
 	use vars qw($loaded); }
 
 END {print "not ok 1\n" unless $loaded;}
@@ -128,16 +128,21 @@ if( $str ) {
     print "not ok 11 , unable to open stream from GenBank sequence file\n";	
 }
 
-if($seq = $str->next_seq()) { print "ok 12\n";
- } else { print "not ok 12 , failed to read GenBank sequence from stream,\n"; }
+if ($seq = $str->next_seq()) {
+    print "ok 12\n";
+} else {
+    print "not ok 12 , failed to read GenBank sequence from stream,\n";
+}
 print "Sequence 1 of 1 from GenBank stream:\n", $seq->seq, "\n";
 
 
 $str = Bio::SeqIO->new(-file=> '>t/genbank.out', '-format' => 'GenBank');
 
-$str->write_seq($seq);
-
-print "ok 13\n";
+if ($str->write_seq($seq)) {
+    print "ok 13\n";
+} else {
+    print "not ok 13\n";
+}
 
 # please leave this as the last line:
 $str = undef;
@@ -147,29 +152,41 @@ $str = undef;
 
 $ast = Bio::SeqIO->new( '-format' => 'embl' , -file => 't/roa1.dat');
 
-while( my $as = $ast->next_seq() ) {
-       if( ! defined $as->seq ) {
-	   print "not ok 14\n";
-	   }
-      }
+{
+    my( $as, $save );
+    while ($as = $ast->next_seq()) {
+        $save = $as;
+        unless ($as->seq) {
+            print "not ok 14\n";
+        }
+    }
+    print "ok 14\n";
 
+    use Data::Dumper;
+    warn Dumper($save->species);
 
-print "ok 14\n";
+    my $aso = Bio::SeqIO->new( '-format' => 'embl' , -file => '>t/roa1.out');
+    if ($aso->write_seq($save)) {
+        print "ok 15\n";
+    } else {
+        print "not ok 15\n";
+    }
+}
+
+# GenBank format (again)
 
 $ast = Bio::SeqIO->new( '-format' => 'GenBank' , -file => 't/roa1.genbank');
 
-while( my $as = $ast->next_seq() ) {
-       if( ! defined $as->seq ) {
-	   print "not ok 15\n";
-	   }
-      }
-
-
-print "ok 15\n";
+while(my $as = $ast->next_seq()) {
+    unless ($as->seq) {
+        print "not ok 16\n";
+    }
+}
+print "ok 16\n";
 
 $mf = Bio::SeqIO::MultiFile->new( '-format' => 'Fasta' , -files => ['t/multi_1.fa','t/multi_2.fa']);
 
-print "ok 16\n";
+print "ok 17\n";
 
 # read completely to the end
 
@@ -177,17 +194,17 @@ while( $seq = $mf->next_seq() ) {
 	$temp = $seq->display_id;
 }
 $temp = undef;
-print "ok 17\n";
+print "ok 18\n";
 
 
 $ast = Bio::SeqIO->new( '-format' => 'Swiss' , -file => 't/roa1.swiss');
 
 while( my $as = $ast->next_seq() ) {
    if( ! defined $as->seq || $as->id ne 'ROA1_HUMAN' ) {
-	print "not ok 18\n";
+	print "not ok 19\n";
 	print STDERR "id is ".$as->id."\n";
    } else {
-     print "ok 18\n";
+     print "ok 19\n";
    }
 }
 

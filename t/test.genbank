@@ -30,6 +30,12 @@ FEATURES             Location/Qualifiers
                      /clone="p427/428"
      misc_feature    10..200
                      /note="A second feature to test GenBank parsing"
+     misc_feature    <100..200
+                     /note="A third feature which has a comment which runs
+                     onto more than one line"
+     misc_feature    complement(3..245)
+                     /note="This value has one of those double double quotes ""
+                     at the end of one line, but acutally occupies two"
 BASE COUNT      118 a     46 c     67 g     79 t
 ORIGIN      
         1 gtgacagttg gctgtcagac atacaatgat tgtttagaag aggagaagat tgatccggag

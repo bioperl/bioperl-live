@@ -377,12 +377,12 @@ sub write_seq {
        $self->_print( "AC   $temp_line\n");   
    } else {
        if ($seq->can('accession') ) {
-	   print "AC   ",$seq->accession,";";
+	   $self->_print("AC   ",$seq->accession,";");
 	   if ($seq->can('each_secondary_accession') ) {
-	       print " ",$seq->each_secondary_accession,";\n";
+	       $self->_print(" ",$seq->each_secondary_accession,";\n");
 	   }
 	   else {
-	       print "\n";
+	       $self->_print("\n");
 	   }
        }
        # otherwise - cannot print <sigh>
@@ -398,21 +398,23 @@ sub write_seq {
 
    #Gene name
    if ($seq->annotation->can('gene_name')) {
-       print "GN   ",$seq->annotation->gene_name,"\n";
+       $self->_print("GN   ",$seq->annotation->gene_name,"\n");
    }
    
    # Organism lines
-   if (my $spec = $seq->species) {
-       my($sub_species, $species, $genus, @class) = $spec->classification();
-       my $OS = "$genus $species $sub_species";
-       if (my $common = $spec->common_name) {
-	   $OS .= " ($common)";
-       }
-       $self->_print( "OS   $OS\n");
-       my $OC = join('; ', reverse(@class));
-       $OC =~ s/\;\s+$//;
-       $OC .= ".";
-       $self->_write_line_swissprot_regex("OC   ","OC   ",$OC,"\; \|\$",80);
+   if ($seq->can('species') && (my $spec = $seq->species)) {
+        my($species, @class) = $spec->classification();
+        my $genus = $class[0];
+        my $OS = "$genus $species";
+	if (my $ssp = $spec->sub_species) {
+            $OS .= " $ssp";
+        }
+        if (my $common = $spec->common_name) {
+            $OS .= " ($common)";
+        }
+        $self->_print( "OS   $OS\n");
+        my $OC = join('; ', reverse(@class)) .'.';
+        $self->_write_line_swissprot_regex("OC   ","OC   ",$OC,"\; \|\$",80);
 	if ($spec->organelle) {
 	    $self->_write_line_swissprot_regex("OG   ","OG   ",$spec->organelle,"\; \|\$",80);
 	}
@@ -633,15 +635,16 @@ sub _read_swissprot_References{
 
 =cut
 
+
 sub _read_swissprot_Species {
-    my( $self,$buffer ) = @_;
+    my( $self, $buffer ) = @_;
     my $org;
 
     $_ = $$buffer;
     my( $sub_species, $species, $genus, $common, @class );
     while (defined( $_ ||= $self->_readline )) {
         
-        if (/^OS\s+(\S+)\s+(\S+)\s+(\S+)?(?:\s+\((.*)\))?/) {
+        if (/^OS\s+(\S+)(?:\s+([^\(]\S*))?(?:\s+([^\(]\S*))?(?:\s+\((.*)\))?/) {
             $genus   = $1;
 	    if ($2) {
 		$species = $2
@@ -650,7 +653,7 @@ sub _read_swissprot_Species {
 		$species = "sp.";
 	    }
 	    $sub_species = $3 if $3;
-            $common  = $4 if $4;
+            $common      = $4 if $4;
         }
         elsif (s/^OC\s+//) {
             push(@class, split /[\;\s\.]+/);
@@ -667,24 +670,25 @@ sub _read_swissprot_Species {
     
     $$buffer = $_;
     
-    # Don't make a species object if it's "Unknown" or "None"
+    # Don't make a species object if it is "Unknown" or "None"
     return if $genus =~ /^(Unknown|None)$/i;
 
     # Bio::Species array needs array in Species -> Kingdom direction
-    if ($sub_species) {
-	push( @class, $genus, $species, $sub_species);
-    }
-    else {
-	push( @class, $genus, $species, "");
+    if ($class[$#class] eq $genus) {
+        push( @class, $species );
+    } else {
+        push( @class, $genus, $species );
     }
     @class = reverse @class;
     
     my $make = Bio::Species->new();
     $make->classification( @class );
-    $make->common_name( $common ) if $common;
-    $make->organelle($org) if $org;
+    $make->common_name( $common      ) if $common;
+    $make->sub_species( $sub_species ) if $sub_species;
+    $make->organelle  ( $org         ) if $org;
     return $make;
 }
+
 
 =head2 _filehandle
 

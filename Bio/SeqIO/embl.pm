@@ -428,23 +428,22 @@ sub write_seq {
     # Organism lines
 
     if ($seq->can('species') && (my $spec = $seq->species)) {
-        my($species, $genus, @class) = $spec->classification();
+        my($species, @class) = $spec->classification();
+        my $genus = $class[0];
         my $OS = "$genus $species";
-	if (my $sub_species = $spec->sub_species) {
-            $OS .= " $sub_species";
+	if (my $ssp = $spec->sub_species) {
+            $OS .= " $ssp";
         }
         if (my $common = $spec->common_name) {
             $OS .= " ($common)";
         }
-        $self->_print( "OS   $OS\n");
-        my $OC = join('; ', reverse(@class));
-	$OC =~ s/\;\s+$//;
-	$OC .= ".";
+        $self->_print("OS   $OS\n");
+        my $OC = join('; ', reverse(@class)) .'.';
         $self->_write_line_EMBL_regex("OC   ","OC   ",$OC,'; |$',80);
 	if ($spec->organelle) {
 	    $self->_write_line_EMBL_regex("OG   ","OG   ",$spec->organelle,'; |$',80);
 	}
-        $self->_print( "XX\n");
+        $self->_print("XX\n");
     }
    
     # Reference lines
@@ -624,7 +623,7 @@ sub _print_EMBL_FTHelper {
 	       $self->_write_line_EMBL_regex("FT                   ","FT                   ","/$tag",'.|$',80);
 	   }
            elsif( $always_quote == 1 || $value !~ /^\d+$/ ) {
-                my $pat = $value =~ /\s/ ? '\s|$' : '.|$';
+              my $pat = $value =~ /\s/ ? '\s|$' : '.|$';
 	      $self->_write_line_EMBL_regex("FT                   ","FT                   ","/$tag=\"$value\"",$pat,80);
            }
            else {
@@ -714,7 +713,7 @@ sub _read_EMBL_Species {
     my( $sub_species, $species, $genus, $common, @class );
     while (defined( $_ ||= $self->_readline )) {
         
-        if (/^OS\s+(\S+)\s+(\S+)\s+(\S+)?(?:\s+\((.*)\))?/) {
+        if (/^OS\s+(\S+)(?:\s+([^\(]\S*))?(?:\s+([^\(]\S*))?(?:\s+\((.*)\))?/) {
             $genus   = $1;
 	    if ($2) {
 		$species = $2
@@ -723,7 +722,7 @@ sub _read_EMBL_Species {
 		$species = "sp.";
 	    }
 	    $sub_species = $3 if $3;
-            $common  = $4 if $4;
+            $common      = $4 if $4;
         }
         elsif (s/^OC\s+//) {
             push(@class, split /[\;\s\.]+/);
@@ -744,18 +743,18 @@ sub _read_EMBL_Species {
     return if $genus =~ /^(Unknown|None)$/i;
 
     # Bio::Species array needs array in Species -> Kingdom direction
-    if ($sub_species) {
-	push( @class, $genus, $species, $sub_species);
-    }
-    else {
-	push( @class, $genus, $species, "");
+    if ($class[$#class] eq $genus) {
+        push( @class, $species );
+    } else {
+        push( @class, $genus, $species );
     }
     @class = reverse @class;
     
     my $make = Bio::Species->new();
     $make->classification( @class );
-    $make->common_name( $common ) if $common;
-    $make->organelle($org) if $org;
+    $make->common_name( $common      ) if $common;
+    $make->sub_species( $sub_species ) if $sub_species;
+    $make->organelle  ( $org         ) if $org;
     return $make;
 }
 
@@ -831,6 +830,100 @@ sub _filehandle{
 =cut
 
 sub _read_FTHelper_EMBL {
+    my ($self,$buffer) = @_;
+    
+    my ($key,   # The key of the feature
+        $loc,   # The location line from the feature
+        @qual,  # An arrray of lines making up the qualifiers
+        );
+    
+    if ($$buffer =~ /^FT   (\S+)\s+(\S+)/) {
+        $key = $1;
+        $loc = $2;
+        # Read all the lines up to the next feature
+        while ( defined($_ = $self->_readline) ) {
+            if (/^FT(\s+)(.+?)\s*$/) {
+                # Lines inside features are preceeded by 19 spaces
+                # A new feature is preceeded by 3 spaces
+                if (length($1) > 4) {
+                    # Add to qualifiers if we're in the qualifiers
+                    if (@qual) {
+                        push(@qual, $2);
+                    }
+                    # Start the qualifier list if it's the first qualifier
+                    elsif (substr($2, 0, 1) eq '/') {
+                        @qual = ($2);
+                    }
+                    # We're still in the location line, so append to location
+                    else {
+                        $loc .= $2;
+                    }
+                } else {
+                    # We've reached the start of the next feature
+                    last;
+                }
+            } else {
+                # We're at the end of the feature table
+                last;
+            }
+        }
+    } else {
+        # No feature key
+        return;
+    } 
+    
+    # Put the first line of the next feature into the buffer
+    $$buffer = $_;
+
+    # Make the new FTHelper object
+    my $out = new Bio::SeqIO::FTHelper();
+    $out->key($key);
+    $loc =~ s/<//;
+    $loc =~ s/>//;
+    $out->loc($loc);
+
+    # Now parse and add any qualifiers.  (@qual is kept
+    # intact to provide informative error messages.)
+  QUAL: for (my $i = 0; $i < @qual; $i++) {
+        $_ = $qual[$i];
+        my( $qualifier, $value ) = m{^/([^=]+)(?:=(.+))?}
+            or $self->throw("Can't see new qualifier in: $_\nfrom:\n"
+                . join('', map "$_\n", @qual));
+        if (defined $value) {
+            # Do we have a quoted value?
+            if (substr($value, 0, 1) eq '"') {
+                # Keep adding to value until we find the trailing quote
+                # and the quotes are balanced
+                while ($value !~ /"$/ or $value =~ tr/"/"/ % 2) {
+                    $i++;
+                    my $next = $qual[$i];
+                    unless (defined($next)) {
+                        warn("Unbalanced quote in:\n", map("$_\n", @qual),
+                            "No further qualifiers will be added for this feature");
+                        last QUAL;
+                    }
+
+                    # Join to value with space if value or next line contains a space
+                    $value .= (grep /\s/, ($value, $next)) ? " $next" : $next;
+                }
+                # Trim leading and trailing quotes
+                $value =~ s/^"|"$//g;
+                # Undouble internal quotes
+                $value =~ s/""/"/g;
+            }
+        } else {
+            $value = '_no_value';
+        }
+
+        # Store the qualifier
+        $out->field->{$qualifier} ||= [];
+        push(@{$out->field->{$qualifier}},$value);
+    }   
+
+    return $out;
+}
+
+sub _read_FTHelper_EMBL_old {
    my ($self,$buffer) = @_;
    my ($key,$loc,$out);
 
