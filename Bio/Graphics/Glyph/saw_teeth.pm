@@ -29,7 +29,7 @@ Bio::Graphics::Glyph::saw_teeth - The "saw teeth" glyph
 
 =head1 DESCRIPTION
 
-This glyph draws a line of saw weeth.
+This glyph draws a line of saw teeth.
 
 =head2 OPTIONS
 
