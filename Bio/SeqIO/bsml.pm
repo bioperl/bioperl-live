@@ -178,7 +178,7 @@ my $nvtoken = ": ";  # The token used if a name/value pair has to be stuffed
 sub next_seq {
     my $self = shift;
     my ($desc);
-    my $bioSeq = $self->sequence_factory->create_sequence(-verbose =>$self->verbose());
+    my $bioSeq = $self->sequence_factory->create(-verbose =>$self->verbose());
     
     unless (exists $self->{'domtree'}) {
 	$self->throw("A BSML document has not yet been parsed.");
