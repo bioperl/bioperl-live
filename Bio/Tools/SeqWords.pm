@@ -38,12 +38,12 @@ Creating the SeqWords object, eg:
 	my $inputstream = Bio::SeqIO->new( -file => "seqfile", -format =>
 'Fasta');
 	my $seqobj = $inputstream->next_seq();
-	my $seq_word = Bio::Tools::SeqWords->new($seqobj);
+	my $seq_word = Bio::Tools::SeqWords->new(-seq => $seqobj);
 
 or:
 	my $seqobj = Bio::PrimarySeq->new(-seq=>'[cut and paste a sequence
 here]', -moltype = 'dna', -id = 'test');
-	my $seq_word  =  Bio::Tools::SeqWords->new($seqobj);
+	my $seq_word  =  Bio::Tools::SeqWords->new(-seq => $seqobj);
 
 obtain a hash of word counts, eg:
 
@@ -91,9 +91,7 @@ and other Bioperl modules. Send your comments and suggestions preferably
 to one of the Bioperl mailing lists.
 Your participation is much appreciated.
 
-  vsns-bcd-perl@lists.uni-bielefeld.de          - General discussion
-  vsns-bcd-perl-guts@lists.uni-bielefeld.de     - Technically-oriented
-discussion
+  bioperl-l@bioperl.org                 - General discussion
   http://bio.perl.org/MailList.html             - About the mailing lists
 
 =head2 Reporting Bugs
@@ -126,29 +124,30 @@ package Bio::Tools::SeqWords;
 use vars qw(@ISA);
 use strict;
 
+use Bio::Root::RootI;
 
-@ISA = qw(Bio::Root::Object);
+@ISA = qw(Bio::Root::RootI);
 
-# new() is inherited from Bio::Root::Object
 
-# _initialize is is called from within new()
+sub new {
+    my($class,@args) = @_;
+    # our new standard way of instantiation
+    my $self = $class->SUPER::new(@args);
 
-sub _initialize 
-{
-    	my($self,@args) = @_;
-    	$self->SUPER::_initialize;
-
-	my $seqobj = shift (@args);
-    	unless  ($seqobj->isa("Bio::PrimarySeqI")) 
-	{
-		die("die in _init, SeqWords works only on PrimarySeqI
-objects\n");
-    	}
+    my ($seqobj) = $self->_rearrange([qw(SEQ)],@args);
+    if((! defined($seqobj)) && @args && ref($args[0])) {
+	# parameter not passed as named parameter?
+	$seqobj = $args[0];
+    }
+    
+    if(! $seqobj->isa("Bio::PrimarySeqI")) { 
+	$self->throw(ref($self) . " works only on PrimarySeqI objects\n");
+    }
 	
-    	$self->{'_seqref'} = $seqobj;
-   
-    	return $self;
+    $self->{'_seqref'} = $seqobj;
+    return $self; 
 }
+
 
 =head2 count_words
 
@@ -174,32 +173,37 @@ required
 
 sub count_words
 {
-	my ($self,$word_length) = @_;
+	my ($self,$seqobj,$word_length) = @_;
+
+	# check how we were called, and if necessary rearrange arguments
+	if(ref($seqobj)) {
+	    # call as SeqWords->count_words($seq, $wordlen)
+	    if(! $seqobj->isa("Bio::PrimarySeqI")) { 
+		$self->throw("SeqWords works only on PrimarySeqI objects\n");
+	    }
+	} else {
+	    # call as $obj->count_words($wordlen)
+	    $word_length = $seqobj;
+	    $seqobj = undef;
+	}
 
 	if($word_length eq "" || $word_length =~ /[a-z]/i)
 	{
-		die("SeqWords cannot accept non-numeric characters or a null
-value in the \$word_length variable\n");
+		$self->throw("SeqWords cannot accept non-numeric characters or a null value in the \$word_length variable\n");
 	}
 	elsif ($word_length <1 || ($word_length - int($word_length)) >0)
 	{
-		die("SeqWords requires the word length to be a positive
-integer\n");
+		$self->throw("SeqWords requires the word length to be a positive integer\n");
     	}
 	
-	my $seqobj =  $self->{'_seqref'};
-
-	unless  ($seqobj->isa("Bio::PrimarySeqI")) 
-	{
-		die("die in count words, SeqWords works only on PrimarySeqI
-objects\n");
-    	}
-
+	if(! defined($seqobj)) {
+	    $seqobj =  $self->{'_seqref'};
+	}
 	my $seqstring = uc $seqobj->seq();
+
 	if($word_length > length($seqstring))
 	{
-		die("die in count words, \$word_length is bigger than
-sequence length\n");
+	    $self->throw("die in count words, \$word_length is bigger than sequence length\n");
 	}
 	
 	my %codon = ();
