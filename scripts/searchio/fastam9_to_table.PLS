@@ -89,7 +89,7 @@ while(<>) {
 	if( /\-\s+(\d+)\s+aa\s+$/ ){
 	    $data{'qlen'} = $1;
 	}
-    } elsif( $hitsection && /^>>>$data{'qname'}/ ) {	
+    } elsif( $hitsection && /^>>>\Q$data{'qname'}/ ) {	
 	$hitsection = 0;
     } elsif( /^The best scores are:/ ) {	       
 	$hitsection = 1;
