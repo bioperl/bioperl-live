@@ -350,10 +350,10 @@ This is the method that should be overridden in aggregator subclasses.
 
 =cut
 
-# no default method
+# default method - override in subclasses
 sub method {
   my $self = shift;
-  return;
+  $self->{method};
 }
 
 =head2 main_name
