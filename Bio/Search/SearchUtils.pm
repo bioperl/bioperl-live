@@ -325,11 +325,11 @@ sub _adjust_length_aln {
 sub logical_length {
     my ($algo, $type, $len) = @_;
     my $logical = $len;
-    if($algo =~ /^(PSI)?T(BLAST|FAST)[NY]/oi ) {
+    if($algo =~ /^(?:PSI)?T(?:BLASTN|FAST(?:X|Y|XY))/oi ) {
         $logical = $len/3 if $type =~ /sbjct|hit|tot/i;
-    } elsif($algo =~ /^(BLAST|FAST)(X|Y|XY)/oi ) {
+    } elsif($algo =~ /^(?:BLASTX|FAST(?:X|Y|XY))/oi ) {
         $logical = $len/3 if $type =~ /query|tot/i;
-    } elsif($algo =~ /^T(BLAST|FAST)(X|Y|XY)/oi ) {
+    } elsif($algo =~ /^TBLASTX/oi ) {
         $logical = $len/3;
     }
     return $logical;
