@@ -57,7 +57,7 @@
       <answer><p>A good list of the documentation can be found at <a href="http://bio.perl.org/Core/Latest/modules.html">http://bio.perl.org/Core/Latest/modules.html</a>. Read the embedded perl documentation (Plain Old Documentation - POD) that is part of every modules.  Do:</p>
 	<code>% perldoc MODULE
 	</code>
-	<p>Careful - spelling and case counts!</p>
+	<p>Careful - spelling and case count!</p>
 	<p>The bioperl tutorial - bptutorial.pl - provided in the root directory of the bioperl release will also provide a good introduction.  You may also find useful documentation in the form of a HOWTO in the bioperl package or at <a href="http://www.bioperl.org/HOWTOs">http://www.bioperl.org/HOWTOs</a>. There are links to tutorials off the bioperl website that may provide some additional help.</p>
 	<p>There are also many scripts in the examples/ and scripts/ directories that could be useful - see bioscripts.pod for a brief description of all of them.</p>
 	<p>Additionally we have written many tests for our modules, you can see test data and example usage of the modules in these tests - look in the test dir (called 't').</p>
@@ -237,7 +237,7 @@ href="http://bioperl.org/pipermail/bioperl-l/2003-December/014406.html">http://b
       <question>I want to parse BLAST, how do I do this?</question>
       <answer>
 	<p>Bioperl only supports one approach, Bio::SearchIO, as of version 1.1. There are other Blast parsing modules in the package but they remain just to support older code.</p>
-	<p>SearchIO supports BLAST, PSIBLAST, HMMER, WABA, and fasta report parsing.  The bptutorial provides an example of how to use this system as well as the documentation in the Bio::SearchIO system. There is also a <a href="http://www.bioperl.org/HOWTOs/html/SearchIO.html">SearchIO HOWTO</a>.</p>
+	<p>SearchIO supports BLAST, PSIBLAST, HMMER, WABA, BLASTZ (AXT), exonerate, Megablast, PSL, SIM4, WISE, and fasta report parsing.  The bptutorial provides an example of how to use this system as well as the documentation in the Bio::SearchIO system. There is also a <a href="http://www.bioperl.org/HOWTOs/html/SearchIO.html">SearchIO HOWTO</a>.</p>
       </answer>
     </q>
     <q id="2">

@@ -204,7 +204,7 @@ Contents
 
 	 % perldoc MODULE
 
-	 Careful - spelling and case counts!
+	 Careful - spelling and case count!
 
 	 The bioperl tutorial - bptutorial.pl - provided in the root
 	 directory of the bioperl release will also provide a good
@@ -492,14 +492,15 @@ Contents
 
    Q3.1: I want to parse BLAST, how do I do this?
 
-      A: Bioperl only supports one approach, Bio::SearchIO, as of verion
+      A: Bioperl only supports one approach, Bio::SearchIO, as of version
 	 1.1. There are other Blast parsing modules in the package but they
 	 remain just to support older code.
 
-	 SearchIO supports BLAST, PSIBLAST, HMMER, WABA, and fasta report
-	 parsing.  The bptutorial provides an example of how to use this
-	 system as well as the documentation in the Bio::SearchIO system.
-	 There is also a SearchIO HOWTO.
+	 SearchIO supports BLAST, PSIBLAST, HMMER, WABA, BLASTZ (AXT),
+	 exonerate, Megablast, PSL, SIM4, WISE, and fasta report parsing. 
+	 The bptutorial provides an example of how to use this system as
+	 well as the documentation in the Bio::SearchIO system. There is
+	 also a SearchIO HOWTO.
 
 
    Q3.2: What was wrong with Bio::Tools::Blast?
@@ -529,12 +530,9 @@ Contents
       A: Look at Bio::Factory::EMBOSS to see how to use the 'water' and
 	 'needle' alignment programs that are part of the EMBOSS suite.
 
-	 Additionally you can use the pSW module that is part of the
-	 bioperl-ext package (distributed separated at
-	 ftp://bioperl.org/pub/DIST). However note this only does protein
-	 alignments and is no longer a supported module.  Instead the
-	 EMBOSS implementation is the the best path ahead unless someone
-	 else wants to provide an Inline::C implementation.
+	 Or you can use the pSW module for DNA alignments or the dpAlign
+	 module for protein alignments. These are part of the bioperl-ext
+	 package (distributed separated at ftp://bioperl.org/pub/DIST).
 
 
    Q3.5: I'm using Bio::Search* and its frame() to parse Blast but I'm
