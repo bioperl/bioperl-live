@@ -31,8 +31,7 @@ and other Bioperl modules. Send your comments and suggestions preferably
  to one of the Bioperl mailing lists.
 Your participation is much appreciated.
 
-  vsns-bcd-perl@lists.uni-bielefeld.de          - General discussion
-  vsns-bcd-perl-guts@lists.uni-bielefeld.de     - Technically-oriented discussion
+  bioperl-l@bioperl.org                 - General discussion
   http://bio.perl.org/MailList.html             - About the mailing lists
 
 =head2 Reporting Bugs
@@ -278,19 +277,11 @@ sub keywords {
 
 }
 
-=head2 Deprecated methods kept for ease of transtion
-
-=head2 each_date
-
- Title   : each_date
- Usage   : foreach $dt ( $self->each_date() )
- Function: gets an array of dates
- Example :
- Returns : 
- Args    :
-
-
-=cut
+#
+##
+### Deprecated methods kept for ease of transtion
+##
+#
 
 sub each_date {
    my ($self) = @_;
@@ -299,36 +290,12 @@ sub each_date {
 }
 
 
-=head2 each_secondary_accession
-
- Title   : each_secondary_accession
- Usage   : foreach $dt ( $self->each_secondary_accession() )
- Function: gets an array of secondary_accessions
- Example :
- Returns : 
- Args    :
-
-
-=cut
-
 sub each_secondary_accession {
    my ($self) = @_;
    $self->warn("each_secondary_accession - deprecated method. use get_secondary_accessions");
    return $self->get_secondary_accessions;
 
 }
-
-
-=head2 sv
-
- Title   : sv
- Usage   : $obj->sv($newval)
- Function: 
- Returns : value of sv
- Args    : newvalue (optional)
-
-
-=cut
 
 sub sv {
    my ($obj,$value) = @_;
@@ -338,9 +305,3 @@ sub sv {
 
 
 1;
-
-
-
-
-
-
