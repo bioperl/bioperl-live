@@ -77,11 +77,20 @@ use strict;
 # Object preamble - inherits from Bio::Root::Object
 
 use Bio::SeqIO;
-use Bio::Seq::LargePrimarySeq;
-use Bio::Seq::LargeSeq;
+use Bio::Seq::SeqFactory;
 
 $FASTALINELEN = 60;
 @ISA = qw(Bio::SeqIO);
+
+sub _initialize {
+  my($self,@args) = @_;
+  $self->SUPER::_initialize(@args);    
+  if( ! defined $self->sequence_factory ) {
+      $self->sequence_factory(new Bio::Seq::SeqFactory
+			      (-verbose => $self->verbose(), 
+			       -type => 'Bio::Seq::LargePrimarySeq'));      
+  }
+}
 
 =head2 next_seq
 
@@ -94,52 +103,33 @@ $FASTALINELEN = 60;
 =cut
 
 sub next_seq {
-    return next_primary_seq( $_[0], 1 );
-}
-
-=head2 next_primary_seq
-
- Title   : next_seq
- Usage   : $seq = $stream->next_seq()
- Function: returns the next sequence in the stream
- Returns : Bio::PrimarySeq object
- Args    : NONE
-
-=cut
-
-sub next_primary_seq {
-  my( $self, $as_next_seq ) = @_;
-
+    my ($self) = @_;
 #  local $/ = "\n";
-  my $largepseq = new Bio::Seq::LargePrimarySeq();
-  my ($id,$fulldesc,$entry);
-  my $count = 0;
-  my $seen = 0;
-  while( defined ($entry = $self->_readline) ) {
-      if( $seen == 1 && $entry =~ /^\s*>/ ) {
-	  $self->_pushback($entry);
-	  return $largepseq;
-      }
-      if ( $entry eq '>' ) { $seen = 1; next; }      
-      elsif( $entry =~ /\s*>(.+?)$/ ) {
-	  $seen = 1;
-	  ($id,$fulldesc) = ($1 =~ /^\s*(\S+)\s*(.*)$/)
-	      or $self->warn("Can't parse fasta header");
-	  $largepseq->display_id($id);
-	  $largepseq->primary_id($id);	  
-	  $largepseq->desc($fulldesc);
-      } else {
-	  $entry =~ s/\s+//g;
-	  $largepseq->add_sequence_as_string($entry);
-      }
-      (++$count % 1000 == 0 && $self->verbose() > 0) && print "line $count\n";
-  }
-  if( ! $seen ) { return undef; } 
-  if( $as_next_seq ) {
-      return new Bio::Seq::LargeSeq(-primaryseq => $largepseq );      
-  } else {
-      return $largepseq;
-  }
+    my $largeseq = $self->sequence_factory->create_sequence();
+    my ($id,$fulldesc,$entry);
+    my $count = 0;
+    my $seen = 0;
+    while( defined ($entry = $self->_readline) ) {
+	if( $seen == 1 && $entry =~ /^\s*>/ ) {
+	    $self->_pushback($entry);
+	    return $largeseq;
+	}
+	if ( $entry eq '>' ) { $seen = 1; next; }      
+	elsif( $entry =~ /\s*>(.+?)$/ ) {
+	    $seen = 1;
+	    ($id,$fulldesc) = ($1 =~ /^\s*(\S+)\s*(.*)$/)
+		or $self->warn("Can't parse fasta header");
+	    $largeseq->display_id($id);
+	    $largeseq->primary_id($id);	  
+	    $largeseq->desc($fulldesc);
+	} else {
+	    $entry =~ s/\s+//g;
+	    $largeseq->add_sequence_as_string($entry);
+	}
+	(++$count % 1000 == 0 && $self->verbose() > 0) && print "line $count\n";
+    }
+    if( ! $seen ) { return undef; } 
+    return $largeseq;
 }
 
 =head2 write_seq

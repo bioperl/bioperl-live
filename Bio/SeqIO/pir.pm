@@ -55,8 +55,7 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 
 Aaron Mackey E<lt>amackey@virginia.eduE<gt>
 Lincoln Stein E<lt>lstein@cshl.orgE<gt>
-Jason Stajich E<lt>jason@chg.mc.duke.eduE<gt>
-
+Jason Stajich E<lt>jason@bioperl.orgE<gt>
 
 =head1 APPENDIX
 
@@ -72,11 +71,19 @@ use vars qw(@ISA);
 use strict;
 
 use Bio::SeqIO;
-use Bio::PrimarySeq;
-use Bio::Seq;
+use Bio::Seq::SeqFactory;
 
 @ISA = qw(Bio::SeqIO);
 
+sub _initialize {
+  my($self,@args) = @_;
+  $self->SUPER::_initialize(@args);    
+  if( ! defined $self->sequence_factory ) {
+      $self->sequence_factory(new Bio::Seq::SeqFactory
+			      (-verbose => $self->verbose(), 
+			       -type => 'Bio::Seq'));      
+  }
+}
 
 =head2 next_seq
 
@@ -89,22 +96,7 @@ use Bio::Seq;
 =cut
 
 sub next_seq {
-    return next_primary_seq( $_[0], 1 );
-}
-
-=head2 next_primary_seq
-
- Title   : next_primary_seq
- Usage   : $seq = $stream->next_primary_seq()
- Function: returns the next sequence in the stream as a Bio::PrimarySeq
- Returns : Bio::Seq object
- Args    :
-
-
-=cut
-
-sub next_primary_seq {
-    my ($self,$as_next_seq) = @_;
+    my ($self) = @_;
     local $/ = "\n>";
     return unless my $line = $self->_readline;
     if( $line eq '>' ) {	# handle the very first one having no comment
@@ -113,7 +105,7 @@ sub next_primary_seq {
     my ($top, $desc,$seq) = ( $line =~ /^(.+?)\n(.+?)\n([^>]*)/s )  or
 	$self->throw("Cannot parse entry PIR entry [$line]");
 
-    
+
     my ( $type,$id ) = ( $top =~ /^>?([PF])1;(\S+)\s*$/ ) or
 	$self->throw("PIR stream read attempted without leading '>P1;' [ $line ]");
 
@@ -125,25 +117,15 @@ sub next_primary_seq {
     $seq =~ s/[\(\)\.\/\=\,]//g;
     $seq =~ s/\s+//g;		# get rid of whitespace
 
-    my ($alphabet,$seqobj) = ('protein',undef);
+    my ($alphabet) = ('protein');
     # TODO - not processing SFS data
-    if ($as_next_seq) {
-	# Return a Bio::Seq if asked for
-	$seqobj = Bio::Seq->new(-seq        => $seq,
-				-primary_id => $id,
-				-id         => $type. '1;' . $id,
-				-desc       => $desc,
-				-alphabet    => $alphabet
-				);
-    } else {
-	$seqobj = Bio::PrimarySeq->new(-seq        => $seq,
-				       -primary_id => $id,
-				       -id         => $type. '1;' . $id,
-				       -desc       => $desc,
-				       -alphabet    => $alphabet
-				       );
-    }
-    return $seqobj;
+    return $self->sequence_factory->create_sequence
+	(-seq        => $seq,
+	 -primary_id => $id,
+	 -id         => $type. '1;' . $id,
+	 -desc       => $desc,
+	 -alphabet    => $alphabet
+	 );
 }
 
 =head2 write_seq
@@ -158,14 +140,14 @@ sub next_primary_seq {
 =cut
 
 sub write_seq {
-   my ($self, @seq) = @_;
-   for my $seq (@seq) {
-     my $str = $seq->seq();
-     return unless $self->_print(">".$seq->id(), 
-				 "\n", $seq->desc(), "\n", 
-				 $str, "*\n");
-   }
-   return 1;
+    my ($self, @seq) = @_;
+    for my $seq (@seq) {
+	my $str = $seq->seq();
+	return unless $self->_print(">".$seq->id(), 
+				    "\n", $seq->desc(), "\n", 
+				    $str, "*\n");
+    }
+    return 1;
 }
 
 1;

@@ -53,6 +53,10 @@ or the web:
 Email: E<lt>birney@ebi.ac.ukE<gt>
        E<lt>lstein@cshl.orgE<gt>       
 
+=head1 CONTRIBUTORS
+
+Jason Stajich, jason@bioperl.org
+
 =head1 APPENDIX
 
 The rest of the documentation details each of the object
@@ -67,10 +71,19 @@ use vars qw(@ISA);
 use strict;
 
 use Bio::SeqIO;
-use Bio::Seq;
-use Bio::Seq::RichSeq;
+use Bio::Seq::SeqFactory;
 
 @ISA = qw(Bio::SeqIO);
+
+sub _initialize {
+  my($self,@args) = @_;
+  $self->SUPER::_initialize(@args);    
+  if( ! defined $self->sequence_factory ) {
+      $self->sequence_factory(new Bio::Seq::SeqFactory
+			      (-verbose => $self->verbose(), 
+			       -type => 'Bio::Seq::RichSeq'));      
+   }
+}
 
 =head2 next_seq
 
@@ -79,7 +92,6 @@ use Bio::Seq::RichSeq;
  Function: returns the next sequence in the stream
  Returns : Bio::Seq object
  Args    :
-
 
 =cut
 
@@ -137,12 +149,12 @@ sub next_seq {
        if($type eq "P") { $type = "prot";    }
    }
 
-   return Bio::Seq::RichSeq->new(-seq  => $sequence, 
-				 -id   => $id, 
-				 -desc => $desc, 
-				 -type => $type,
-				 -dates => [ $date ]
-				 );
+   return $self->sequence_factory->create_sequence(-seq  => $sequence, 
+						   -id   => $id, 
+						   -desc => $desc, 
+						   -type => $type,
+						   -dates => [ $date ]
+						   );
 }
 
 =head2 write_seq

@@ -103,21 +103,27 @@ package Bio::SeqIO::genbank;
 use vars qw(@ISA);
 use strict;
 
-use Bio::Seq::RichSeq;
 use Bio::SeqIO;
 use Bio::SeqIO::FTHelper;
 use Bio::SeqFeature::Generic;
 use Bio::Species;
+use Bio::Seq::SeqFactory;
+use Bio::Annotation::Collection;
 
 @ISA = qw(Bio::SeqIO);
  
 sub _initialize {
     my($self,@args) = @_;
-    $self->SUPER::_initialize(@args);
- 
+    
+    $self->SUPER::_initialize(@args); 
     # hash for functions for decoding keys.
     $self->{'_func_ftunit_hash'} = {}; 
     $self->_show_dna(1); # sets this to one by default. People can change it
+    if( ! defined $self->sequence_factory ) {
+	$self->sequence_factory(new Bio::Seq::SeqFactory
+				(-verbose => $self->verbose(), 
+				 -type => 'Bio::Seq::RichSeq'));
+    }
 }
 
 =head2 next_seq
@@ -135,8 +141,8 @@ sub next_seq {
     my ($pseq,$c,$name,@desc,$seqc,$mol,$div,$date);
     my $line;
     my @acc = ();
-    my $seq = Bio::Seq::RichSeq->new('-verbose' =>$self->verbose());
-    
+    my ($annotation,%params,@features) = (new Bio::Annotation::Collection);
+
     while(defined($line = $self->_readline())) {
 	$line =~ /^LOCUS\s+\S+/ && last;
     }
@@ -156,36 +162,28 @@ sub next_seq {
     $name = $1;
     # this is important to have the id for display in e.g. FTHelper, otherwise
     # you won't know which entry caused an error
-    $seq->display_id($name);
+    $params{'-display_id'} = $name;
     # the alphabet of the entry
-    if($2 eq 'bp') {
-	$seq->alphabet('dna');
-    } else {
-	# $2 eq 'aa'
-	$seq->alphabet('protein');
-    }
+    $params{'-alphabet'} = ($2 eq 'bp') ? 'dna' : 'protein';
+
     # for aa there is usually no 'molecule' (mRNA etc)
-    if (($2 eq 'bp') || defined($5)) {
+    if (($2 eq 'bp') || defined($5)) {	
 	if ($4 eq 'circular') {
-	    $seq->molecule($3);
-	    $seq->is_circular($4);
-	    $seq->division($5);
+	    $params{'-molecule'} = $3; 
+	    $params{'-is_circular'} = 1;
+	    $params{'-division'} = $5;
 	} else {
-	    $seq->molecule($3);
-	    if (CORE::length($4) == 3 ) { 
-		$seq->division($4);
-	    } else {
-		$seq->division($5);
-	    }
+	    $params{'-division'} = (CORE::length($4) == 3 ) ? $4 : $5;
+	    $params{'-molecule'} = $3;
       	}
     } else {
-	$seq->molecule('PRT') if($2 eq 'aa');
-	$seq->division($3);
+	$params{'-molecule'} = 'PRT' if($2 eq 'aa');
+	$params{'-division'} = $3;
 	$date = $4;
     }
     ($date) = ($line =~ /.*(\d\d-\w\w\w-\d\d\d\d)/);
     if ($date) {
-	$seq->add_date($date);
+	push @{$params{'date'}}, $date;
     }
     my $buffer = $self->_readline();
         
@@ -207,26 +205,26 @@ sub next_seq {
 	
 	# PID
 	if( /^PID\s+(\S+)/ ) {
-	    $seq->pid($1);
+	    $params{'pid'} = $1;
 	}
 
 	#Version number
 	if( /^VERSION\s+(\S+)\.(\d+)\s*(GI:\d+)?/ ) {
-	    $seq->seq_version($2);
-	    $seq->primary_id(substr($3, 3)) if($3);
+	    $params{'-seq_version'} = $2;
+	    $params{'-primary_id'} = substr($3, 3) if( $3);
 	}
 
 	#Keywords
 	if( /^KEYWORDS\s+(.*)/ ) {
 	    my $keywords = $1;
 	    $keywords =~ s/\;//g;
-	    $seq->keywords($keywords);
+	    $params{'-keywords'} = $keywords;
 	}
 	
 	# Organism name and phylogenetic information
 	if (/^SOURCE/) {
 	    my $species = $self->_read_GenBank_Species(\$buffer);
-	    $seq->species( $species );
+	    $params{'-species'} = $species;
 	    next;
 	}
 	
@@ -234,7 +232,7 @@ sub next_seq {
 	if (/^REFERENCE/) {
 	    my @refs = $self->_read_GenBank_References(\$buffer);
 	    foreach my $ref ( @refs ) {
-		$seq->annotation->add_Annotation('reference',$ref);
+		$annotation->add_Annotation('reference',$ref);
 	    }
 	    next;
 	}
@@ -248,7 +246,7 @@ sub next_seq {
 		    $comment =~ s/  +/ /g;
 		    my $commobj = Bio::Annotation::Comment->new();
 		    $commobj->text($comment);
-		    $seq->annotation->add_Annotation('comment',$commobj);
+		    $annotation->add_Annotation('comment',$commobj);
 		    last;
 		}
 		$comment .= $_; 
@@ -262,9 +260,9 @@ sub next_seq {
 	$buffer = $self->_readline;
     }
     return undef if(! defined($buffer));
-    $seq->desc(join(' ', @desc)); # don't forget!
-    $seq->accession_number(shift(@acc));
-    $seq->add_secondary_accession(@acc);
+    $params{'-desc'} = join(' ', @desc); # don't forget!
+    $params{'-accession_number'} = shift(@acc);
+    $params{'-secondary_accessions'} = \@acc;
     
     # some "minimal" formats may not necessarily have a feature table
     if(defined($_) && /^FEATURES/) {
@@ -290,7 +288,7 @@ sub next_seq {
 
 	    if( !defined $ftunit ) {
 		# GRRRR. We have fallen over. Try to recover
-		$self->warn("Unexpected error in feature table for ".$seq->id." Skipping feature, attempting to recover");
+		$self->warn("Unexpected error in feature table for ".$params{'-display_id'}." Skipping feature, attempting to recover");
 		unless( ($buffer =~ /^\s{5,5}\S+/) or ($buffer =~ /^\S+/)) {
 		    $buffer = $self->_readline();
 		}
@@ -298,7 +296,7 @@ sub next_seq {
 	    }
 		
 	    # process ftunit
-	    $ftunit->_generic_seqfeature($seq);
+	    push @features, $ftunit->_generic_seqfeature($params{'-display_id'});
 	}
 	$_ = $buffer;
     }
@@ -309,7 +307,7 @@ sub next_seq {
 	    if( ! defined $ftunit ) {
 		$self->warn("unable to parse the CONTIG feature\n");
 	    } else { 
-		$ftunit->_generic_seqfeature($seq);
+		push @features, $ftunit->_generic_seqfeature($params{'-display_id'});
 	    }	
 	} elsif(! /^ORIGIN/) {     # advance to the section with the sequence
 	    $seqc = "";	
@@ -324,8 +322,12 @@ sub next_seq {
 	s/[^A-Za-z]//g;
 	$seqc .= $_;
     }
-    $seq->seq($seqc);
-
+    my $seq = $self->sequence_factory->create_sequence
+	('-verbose' =>$self->verbose(), 
+	 %params,
+	 -seq => $seqc,
+	 -annotation => $annotation,
+	 -features => \@features);
     return $seq;
 }
 

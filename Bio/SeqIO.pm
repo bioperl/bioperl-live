@@ -282,7 +282,6 @@ use vars qw(@ISA);
 
 use Bio::Root::Root;
 use Bio::Root::IO;
-use Bio::PrimarySeq;
 use Symbol();
 
 @ISA = qw(Bio::Root::Root Bio::Root::IO);
@@ -377,6 +376,8 @@ sub fh {
 
 sub _initialize {
     my($self, @args) = @_;
+    my ($seqfact) = $self->_rearrange([qw(SEQFACTORY)], @args);
+    $seqfact && $self->sequence_factory($seqfact);
     # initialize the IO part
     $self->_initialize_io(@args);
 }
@@ -466,6 +467,7 @@ sub alphabet {
        # instead of hard-coding the allowed values once more, we check by
        # creating a dummy sequence object
        eval {
+	   require Bio::PrimarySeq;
 	   my $seq = Bio::PrimarySeq->new('-alphabet' => $value);
        };
        if($@) {
@@ -602,6 +604,28 @@ sub READLINE {
 sub PRINT {
   my $self = shift;
   $self->{'seqio'}->write_seq(@_);
+}
+
+=head2 sequence_factory
+
+ Title   : sequence_factory
+ Usage   : $seqio->sequence_factory($seqfactory)
+ Function: Get/Set the Bio::Factory::SequenceFactoryI
+ Returns : Bio::Factory::SequenceFactoryI
+ Args    : [optional] Bio::Factory::SequenceFactoryI
+
+
+=cut
+
+sub sequence_factory{
+   my ($self,$obj) = @_;   
+   if( defined $obj ) {
+       if( ! ref($obj) || ! $obj->isa('Bio::Factory::SequenceFactoryI') ) {
+	   $self->throw("Must provide a valid Bio::Factory::SequenceFactoryI object to ".ref($self)." sequence_factory()");
+       }
+       $self->{'_seqio_seqfactory'} = $obj;
+   }
+   return $self->{'_seqio_seqfactory'};
 }
 
 1;

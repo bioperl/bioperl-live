@@ -72,18 +72,18 @@ use strict;
 use vars qw(@ISA);
 
 use Bio::SeqIO;
-use Bio::PrimarySeq;
 use Bio::Seq;
+use Bio::Seq::SeqFactory;
 
 @ISA = qw(Bio::SeqIO);
 
-=head2 next_primary_seq
-
- Title   : next_primary_seq
- Usage   : $seq = $stream->next_primary_seq()
- Function: returns the next sequence in the stream
- Returns : Bio::PrimarySeq object
- Args    : NONE
+sub _initialize {
+  my($self,@args) = @_;
+  $self->SUPER::_initialize(@args);   
+  if( ! defined $self->sequence_factory ) {
+      $self->sequence_factory(new Bio::Seq::SeqFactory(-verbose => $self->verbose(), -type => 'Bio::PrimarySeq'));      
+  }
+}
 
 =head2 next_seq
 
@@ -101,8 +101,8 @@ use Bio::Seq;
         'peptide'   => 'protein',
     );
     
-    sub next_primary_seq {
-        my( $self, $as_next_seq ) = @_;
+    sub next_seq {
+        my( $self ) = @_;
         local $/ = "";  # Split input on blank lines
 
         my $fh = $self->_filehandle;
@@ -128,30 +128,16 @@ use Bio::Seq;
         # semi-colons, tabs, and backslashes (if you're mad enough
         # to have any of these as part of object names in your acedb
         # database).
-        $id =~ s/\\([\/"%;\t\\])/$1/g;
+	$id =~ s/\\([\/"%;\t\\])/$1/g;
 #"
-        if ($as_next_seq) {
-            # Called as next_seq(), so give back a Bio::Seq
-            return Bio::Seq->new(
-                -seq        => $_,
-	        -primary_id => $id,
-	        -display_id => $id,
-                -alphabet    => $mol_type,
-	        );
-        } else {
-            return Bio::PrimarySeq->new(
-                -seq        => $_,
-	        -primary_id => $id,
-	        -display_id => $id,
-                -alphabet    => $mol_type,
-	        );
-        }
+	# Called as next_seq(), so give back a Bio::Seq
+	return $self->sequence_factory->create_sequence(
+						     -seq        => $_,
+						     -primary_id => $id,
+						     -display_id => $id,
+						     -alphabet    => $mol_type,
+						     );        
     }
-    
-}
-
-sub next_seq {
-    return next_primary_seq($_[0], 1);
 }
 
 =head2 write_seq

@@ -99,12 +99,12 @@ The rest of the documentation details each of the object methods. Internal metho
 package Bio::SeqIO::swiss;
 use vars qw(@ISA);
 use strict;
-use Bio::Seq::RichSeq;
 use Bio::SeqIO;
 use Bio::SeqIO::FTHelper;
 use Bio::SeqFeature::Generic;
 use Bio::Species;
 use Bio::Tools::SeqStats;
+use Bio::Seq::SeqFactory;
 
 @ISA = qw(Bio::SeqIO);
 
@@ -116,6 +116,11 @@ sub _initialize {
   # hash for functions for decoding keys.
   $self->{'_func_ftunit_hash'} = {};
   $self->_show_dna(1); # sets this to one by default. People can change it
+  if( ! defined $self->sequence_factory ) {
+      $self->sequence_factory(new Bio::Seq::SeqFactory
+			      (-verbose => $self->verbose(), 
+			       -type => 'Bio::Seq::RichSeq'));      
+  }
 }
 
 =head2 next_seq
@@ -134,7 +139,7 @@ sub next_seq {
    my ($pseq,$c,$line,$name,$desc,$acc,$seqc,$mol,$div,
        $date,$comment,@date_arr, @sec);
    my ($keywords,$acc_string);
-   my $seq = Bio::Seq::RichSeq->new(-verbose =>$self->verbose());
+   my ($annotation, %params, @features) = ( new Bio::Annotation::Collection);
    $line = $self->_readline;
 
    if( !defined $line) {
@@ -154,19 +159,19 @@ sub next_seq {
    # see bug report for more information
    $line =~ /^ID\s+([^\s_]+)(_([^\s_]+))?\s+([^\s;]+);\s+([^\s;]+);/ 
      || $self->throw("swissprot stream with no ID. Not swissprot in my book");
+   
    if( $3 ) {
        $name = "$1$2";
-       $seq->division($3);
+       $params{'-division'} = $3;
    } else {
        $name = $1;
-       $seq->division('UNK');       
+       $params{'-division'} = 'UNK';
    }
-   
-   $seq->primary_id($1);
-   $seq->alphabet('protein');
+   $params{'-primary_id'} = $1;
+   $params{'-alphabet'} = 'protein';
     # this is important to have the id for display in e.g. FTHelper, otherwise
     # you won't know which entry caused an error
-   $seq->display_id($name);
+   $params{'-display_id'} = $name;
    
    my $buffer = $line;
 
@@ -190,8 +195,8 @@ sub next_seq {
            if (/^GN\s+(.*)/) {
                foreach my $gn (split(/ OR /,$1)) {
                    my $sim = Bio::Annotation::SimpleValue->new();
-                   $sim->value($gn);
-                   $seq->annotation->add_Annotation('gene_name',$sim);
+                   $sim->value($gn);		   
+                   $annotation->add_Annotation('gene_name',$sim);
                }
            }
        }
@@ -203,19 +208,19 @@ sub next_seq {
        elsif( /^SV\s+(\S+);?/ ) {
 	   my $sv = $1;
 	   $sv =~ s/\;//;
-	   $seq->seq_version($sv);
+	   $params{'-seq_version'} = $sv;
        }
        #date
        elsif( /^DT\s+(.*)/ ) {
 	   my $date = $1;
 	   $date =~ s/\;//;
 	   $date =~ s/\s+$//;
-	   $seq->add_date($date);
+	   push @{$params{'-dates'}}, $date;
        }
        # Organism name and phylogenetic information
        elsif (/^O[SCG]/) {
            my $species = $self->_read_swissprot_Species(\$buffer);
-           $seq->species( $species );
+           $params{'-species'}= $species;
 	   # now we are one line ahead -- so continue without reading the next
 	   # line   HL 05/11/2000
 	   next;
@@ -225,7 +230,7 @@ sub next_seq {
 	   my $refs = $self->_read_swissprot_References(\$buffer);
 
 	   foreach my $r (@$refs) {
-	       $seq->annotation->add_Annotation('reference',$r);
+	       $annotation->add_Annotation('reference',$r);
 	   }
 	   # now we are one line ahead -- so continue without reading the next
 	   # line   HL 05/11/2000
@@ -248,7 +253,7 @@ sub next_seq {
 	   # note: don't try to process comments here -- they may contain
            # structure. LP 07/30/2000
 	   $commobj->text($comment);
-	   $seq->annotation->add_Annotation('comment',$commobj);
+	   $annotation->add_Annotation('comment',$commobj);
 	   $comment = "";
 	   # now we are one line ahead -- so continue without reading the next
 	   # line   HL 05/11/2000
@@ -269,7 +274,7 @@ sub next_seq {
 		   $dblinkobj->comment($comment);
 	       }
 	   }
-	   $seq->annotation->add_Annotation('dblink',$dblinkobj);
+	   $annotation->add_Annotation('dblink',$dblinkobj);
        }
        #keywords
        elsif( /^KW\s+(.*)$/ ) {
@@ -292,10 +297,11 @@ sub next_seq {
        # process ftunit
        # when parsing of the line fails we get undef returned
        if($ftunit) {
-	   $ftunit->_generic_seqfeature($seq, "SwissProt");
+	   push @features, $ftunit->_generic_seqfeature($params{'-seqid'}, 
+							"SwissProt");
        } else {
 	   $self->warn("failed to parse feature table line for seq " .
-		       $seq->display_id());
+		       $params{'-display_id'});
        }
    }
    if( $buffer !~ /^SQ/  ) {
@@ -310,17 +316,21 @@ sub next_seq {
        s/[^A-Za-z]//g;
        $seqc .= $_;
    }
-   $seq->seq($seqc);
-   $seq->desc($desc);
-   $seq->keywords($keywords);
    $acc_string =~ s/\;\s*/ /g;
    ( $acc, @sec ) = split " ",$acc_string;
-   $seq->accession_number($acc);
-   foreach my $s (@sec) {
-     $seq->add_secondary_accession($s);
-   }
 
-   return $seq;
+   my $seq=  $self->sequence_factory->create_sequence
+       (-verbose  => $self->verbose,
+	%params,
+	-seq      => $seqc,
+	-desc     => $desc,
+	-keywords => $keywords,
+	-accession_number => $acc,
+	-secondardy_accessions => \@sec,
+	-features => \@features,
+	-annotation => $annotation,
+	);
+
 }
 
 =head2 write_seq

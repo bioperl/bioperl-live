@@ -79,11 +79,18 @@ use strict;
 # Object preamble - inherits from Bio::Root::Object
 
 use Bio::SeqIO;
-use Bio::Seq;
-use Bio::Seq::SeqWithQuality;
-use Bio::Seq::PrimaryQual;
+use Bio::Seq::SeqFactory;
 
 @ISA = qw(Bio::SeqIO);
+
+sub _initialize {
+  my($self,@args) = @_;
+  $self->SUPER::_initialize(@args);  
+  if( ! defined $self->sequence_factory ) {
+      $self->sequence_factory(new Bio::Seq::SeqFactory(-verbose => $self->verbose(), -type => 'Bio::Seq::SeqWithQuality'));      
+  }
+}
+
 
 =head2 next_seq
 
@@ -96,20 +103,7 @@ use Bio::Seq::PrimaryQual;
 =cut
 
 sub next_seq {
-    return next_primary_seq( $_[0], 1 );
-}
 
-=head2 next_primary_seq
-
- Title   : next_primary_seq
- Usage   : $seq = $stream->next_primary_seq()
- Function: returns the next sequence in the stream
- Returns : Bio::Seq::SeqWithQuality object
- Args    : NONE
-
-=cut
-
-sub next_primary_seq {
   my( $self ) = @_;
   my $seq;
   my $alphabet;
@@ -160,15 +154,15 @@ sub next_primary_seq {
   }
 
   # create the SeqWithQuality object
-  $seq = Bio::Seq::SeqWithQuality->new(
-                      -qual         => $qual,
-                      -seq          => $sequence,
-		              -id           => $id,
-		              -primary_id   => $id,
-		              -desc         => $fulldesc,
-			          -alphabet     => $alphabet
-		              );
-
+  $seq = $self->sequence_factory->create_sequence(
+					       -qual         => $qual,
+					       -seq          => $sequence,
+					       -id           => $id,
+					       -primary_id   => $id,
+					       -desc         => $fulldesc,
+					       -alphabet     => $alphabet
+					       );
+  
   # if there wasn't one before, set the guessed type
   $self->alphabet($seq->alphabet());
   

@@ -103,7 +103,7 @@ sub new {
 =cut
 
 sub _generic_seqfeature {
-    my ($fth, $annseq, $source) = @_;
+    my ($fth, $seqid, $source) = @_;
     my ($sf);
 
 
@@ -128,14 +128,13 @@ sub _generic_seqfeature {
 	$sf->primary_tag($fth->key);
 	$sf->source_tag($source);
 	my $splitlocation = new Bio::Location::Split(-strand=>$strand, 
-						     -seqid => $annseq->id,
+						     -seqid => $seqid,
 						     -splittype => $combotype);
 	# we need to make sub features
 	my $loc = $fth->loc;
 	$loc =~ s/^.*$combotype\((\S+)\)/$1/;
 	foreach my $next_loc ( split(/\s*,\s*/, $loc) ) {
 	    my $remote=0;
-	    my $seqid = $annseq->id;
 	    if ( $next_loc =~ s/\(?\s*([A-Za-z\d\_]+(\.\d+)?):// ) {
 		$seqid = $1;
 		$remote=1;
@@ -154,7 +153,7 @@ sub _generic_seqfeature {
 	    } else {
 		$fth->warn("unable to parse location successfully out of " .
 			   $next_loc . ", ignoring feature (seqid=" .
-			   $annseq->id() . ")");		
+			   $seqid . ")");		
                 $sf = undef;
 		last;
 	    }
@@ -207,9 +206,9 @@ sub _generic_seqfeature {
 	  $location->seq_id($seqid) if ( $seqid);
 	  $sf->location($location);
 	} else {
-	  $annseq->warn("unexpected location line [" . $loc .
-			"] in reading $source, ignoring feature " .
-			$fth->key() . " (seqid=" . $annseq->id() . ")");
+	  $fth->warn("unexpected location line [" . $loc .
+		      "] in reading $source, ignoring feature " .
+		      $fth->key() . " (seqid=" . $seqid . ")");
 	  $sf = undef;
 	}
 
@@ -226,15 +225,12 @@ sub _generic_seqfeature {
 		$sf->add_tag_value($key,$value);
 	    }
 	}
-
-	$annseq->add_SeqFeature($sf);
-
-	return 1;
+	return $sf;
     } else {
 	$fth->warn("unable to parse feature " . $fth->key() .
 		   " in $source sequence entry (id=" .
-		   $annseq->id() . "), ignoring");
-	return 0;
+		   $seqid . "), ignoring");
+	return ();
     }
 }
 

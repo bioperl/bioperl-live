@@ -52,18 +52,45 @@ package Bio::SeqIO::game::seqHandler;
 use vars qw{ $AUTOLOAD @ISA };
 
 use XML::Handler::Subs;
-use Bio::PrimarySeq;
+use Bio::Root::Root;
+use Bio::Seq::SeqFactory;
 
-@ISA = qw(XML::Handler::Subs);
+@ISA = qw(Bio::Root::Root XML::Handler::Subs);
 
 sub new {
-    my ($caller,$seq) = @_;
-    my $class = ref($caller) || $caller;
-    my $self = bless ( {
-	string => '',
-	seq  => $seq,
-    }, $class);
+    my ($class,@args) = @_;
+    my $self = $class->SUPER::new(@args);
+    my ($seq,$sb) = $self->_rearrange([qw(SEQ SEQBUILDER)], @args);
+    $self->{'string'} = '';
+    $self->{'seq'} = $seq;
+    $self->sequence_factory($sb || new Bio::Seq::SeqFactory(-type => 'Bio::Seq'));
     return $self;
+}
+
+=head2 sequence_factory
+
+ Title   : sequence_factory
+ Usage   : $seqio->sequence_factory($builder)
+ Function: Get/Set the Bio::Factory::SequenceFactoryI
+ Returns : Bio::Factory::SequenceFactoryI
+ Args    : [optional] Bio::Factory::SequenceFactoryI
+
+
+=cut
+
+sub sequence_factory{
+   my ($self,$obj) = @_;   
+   if( defined $obj ) {
+       if( ! ref($obj) || ! $obj->isa('Bio::Factory::SequenceFactoryI') ) {
+	   $self->throw("Must provide a valid Bio::Factory::SequenceFactoryI object to ".ref($self)." sequence_factory()");
+       }
+       $self->{'_seqio_seqfactory'} = $obj;
+   }
+   if( ! defined $self->{'_seqio_seqfactory'} ) {
+       $self->throw("No SequenceBuilder defined for SeqIO::game::seqHandler object");
+   }
+
+   return $self->{'_seqio_seqfactory'};
 }
 
 =head2 start_document
@@ -94,17 +121,17 @@ sub start_document            {
 
 =cut
 
-sub end_document              {
+sub end_document     {
     my ($self, $document) = @_;
     delete $self->{'Names'};
-    return new Bio::PrimarySeq( -seq => $self->{'residues'},
-				-alphabet => $self->{'alphabet'},
-				-id => $self->{'seq'},
-				-accession => $self->{'accession'},
-				-desc => $self->{'desc'},
-				-length => $self->{'length'},
-				);
-
+    return  $self->sequence_factory->create_sequence
+	( -seq => $self->{'residues'},
+	  -alphabet => $self->{'alphabet'},
+	  -id => $self->{'seq'},
+	  -accession => $self->{'accession'},
+	  -desc => $self->{'desc'},
+	  -length => $self->{'length'},
+	  );
 }
 
 

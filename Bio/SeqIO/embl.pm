@@ -100,13 +100,10 @@ The rest of the documentation details each of the object methods. Internal metho
 package Bio::SeqIO::embl;
 use vars qw(@ISA);
 use strict;
-use Bio::Seq::RichSeq;
 use Bio::SeqIO::FTHelper;
 use Bio::SeqFeature::Generic;
 use Bio::Species;
-
-
-
+use Bio::Seq::SeqFactory;
 
 @ISA = qw(Bio::SeqIO);
 
@@ -117,9 +114,13 @@ sub _initialize {
   # hash for functions for decoding keys.
   $self->{'_func_ftunit_hash'} = {}; 
   $self->_show_dna(1); # sets this to one by default. People can change it 
+  if( ! defined $self->sequence_factory ) {
+      $self->sequence_factory(new Bio::Seq::SeqFactory
+			      (-verbose => $self->verbose(), 
+			       -type => 'Bio::Seq::RichSeq'));
+  }
 }
-
-
+ 
 =head2 next_seq
 
  Title   : next_seq
@@ -128,15 +129,14 @@ sub _initialize {
  Returns : Bio::Seq object
  Args    :
 
-
 =cut
 
 sub next_seq {
    my ($self,@args) = @_;
    my ($pseq,$c,$line,$name,$desc,$acc,$seqc,$mol,$div, 
        $date, $comment, @date_arr);
-   my $seq = Bio::Seq::RichSeq->new(-verbose =>$self->verbose());
 
+   my ($annotation, %params, @features) = ( new Bio::Annotation::Collection);
 
    $line = $self->_readline;   # This needs to be before the first eof() test
 
@@ -160,18 +160,16 @@ sub next_seq {
    if(! $name) {
        $name = "unknown id";
    }
+   my $alphabet;
+
     # this is important to have the id for display in e.g. FTHelper, otherwise
     # you won't know which entry caused an error
-   $seq->display_id($name);
    if($mol) {
        if ( $mol =~ /circular/ ) {
-	   $seq->is_circular(1);
+	   $params{'-is_circular'} = 1;
 	   $mol =~  s|circular ||;
        }
-       $seq->molecule($mol);
-       my $alphabet;
-       if (defined $seq->molecule) {
-	   my $mol =$seq->molecule;
+       if (defined $mol ) {	   
 	   if ($mol =~ /DNA/) {
 	       $alphabet='dna';
 	   }
@@ -182,13 +180,7 @@ sub next_seq {
 	       $alphabet='protein';
 	   }
        }
-       if ($alphabet) {
-	   $seq->primary_seq->alphabet($alphabet);
-       }
 
-   }
-   if ($div) {
-       $seq->division($div);
    }
    
 #   $self->warn("not parsing upper annotation in EMBL file yet!");
@@ -212,42 +204,40 @@ sub next_seq {
        #accession number
        if( /^AC\s+(.*)?/ ) {
 	   my @accs = split(/[; ]+/, $1); # allow space in addition
-	   $seq->accession_number(shift(@accs))
-	       if($seq->accession_number eq  "unknown");
-	   $seq->add_secondary_accession($_) foreach @accs;
+	   $params{'-accession_number'} = shift @accs;
+	   $params{'-secondary_accessions'} = \@accs;
        }
        
        #version number
        if( /^SV\s+\S+\.(\d+);?/ ) {
 	   my $sv = $1;
 	   $sv =~ s/\;//;
-	   $seq->seq_version($sv);
+	   $params{'-sequence_version'} = $sv;
        }
 
        #date (NOTE: takes last date line)
        if( /^DT\s+(.+)$/ ) {
 	   my $date = $1;
-	   $date =~ s/\;$//;
-	   $seq->add_date($date);
+	   $params{'-dates'} = [ $date];
        }
        
        #keywords
        if( /^KW   (.*)\S*$/ ) {
 	   my $keywords = $1;
-	   $seq->keywords($keywords);
+	   $params{'-keywords'} = $keywords;
        }
 
        # Organism name and phylogenetic information
        elsif (/^O[SC]/) {
            my $species = $self->_read_EMBL_Species(\$buffer);
-           $seq->species( $species );
+           $params{'-species'}= $species;
        }
 
        # References
        elsif (/^R/) {
 	   my @refs = $self->_read_EMBL_References(\$buffer);
 	   foreach my $ref ( @refs ) {
-	       $seq->annotation->add_Annotation('reference',$ref);
+	       $annotation->add_Annotation('reference',$ref);
 	   }
        }
        
@@ -255,7 +245,7 @@ sub next_seq {
        elsif (/^DR/) {
 	   my @links = $self->_read_EMBL_DBLink(\$buffer);
 	   foreach my $dblink ( @links ) {
-	       $seq->annotation->add_Annotation('dblink',$dblink);
+	       $annotation->add_Annotation('dblink',$dblink);
 	   }
        }
        
@@ -274,14 +264,13 @@ sub next_seq {
 	   }
 	   my $commobj = Bio::Annotation::Comment->new();
 	   $commobj->text($comment);
-	   $seq->annotation->add_Annotation('comment',$commobj);
+	   $annotation->add_Annotation('comment',$commobj);
 	   $comment = "";
        }
 
        # Get next line.
        $buffer = $self->_readline;
    }
-    $seq->desc($desc);
 
    while( defined ($_ = $self->_readline) ) {
        /^FT   \w/ && last;
@@ -295,7 +284,7 @@ sub next_seq {
 	 my $ftunit = $self->_read_FTHelper_EMBL(\$buffer);
 	 # process ftunit
 
-	 $ftunit->_generic_seqfeature($seq);
+	 push @features, $ftunit->_generic_seqfeature($name);
 
 	 if( $buffer !~ /^FT/ ) {
 	     last;
@@ -313,7 +302,7 @@ sub next_seq {
        until( !defined ($buffer) ) {
 	   my $ftunit = $self->_read_FTHelper_EMBL(\$buffer);
 	   # process ftunit
-	   $ftunit->_generic_seqfeature($seq);
+	   push @features, $ftunit->_generic_seqfeature($name);
 	   
 	   if( $buffer !~ /^CO/ ) {
 	       last;
@@ -333,9 +322,16 @@ sub next_seq {
        s/[^A-Za-z]//g;
        $seqc .= $_;
    }
-
-   $seq->seq($seqc);
-
+   my $seq = $self->sequence_factory->create_sequence
+       (-verbose => $self->verbose(),
+	-division => $div,
+	-seq => $seqc,
+	-display_id => $name,
+	-annotation => $annotation,
+	-molecule => $mol,
+	-alphabet => $alphabet,
+	-features => \@features,
+	%params);
    return $seq;
 }
 

@@ -65,11 +65,19 @@ package Bio::SeqIO::phd;
 use vars qw(@ISA);
 use strict;
 use Bio::SeqIO;
-use Bio::Seq::PrimaryQual;
-use Bio::PrimarySeq;
-use Bio::Seq::SeqWithQuality;
+use Bio::Seq::SeqFactory;
 
 @ISA = qw(Bio::SeqIO);
+
+sub _initialize {
+  my($self,@args) = @_;
+  $self->SUPER::_initialize(@args);    
+  if( ! defined $self->sequence_factory ) {
+      $self->sequence_factory(new Bio::Seq::SeqFactory
+			      (-verbose => $self->verbose(), 
+			       -type => 'Bio::Seq::SeqWithQuality'));      
+  }
+}
 
 =head2 next_seq()
 
@@ -85,50 +93,14 @@ use Bio::Seq::SeqWithQuality;
 =cut
 
 sub next_seq {
-	my ($self,@args) = @_;
-	my $messenger = $self->_next_phd(@_);
-	return $messenger;
-
-}
-
-
-=head2 _next_phd()
-
- Title   : _next_phd()
- Usage   : $seq = $stream->_next_phd() (but do not do this. use next_seq()
-	instead.)
- Function: returns the next phred sequence in the stream
- Returns : Bio::Seq::SeqWithQuality object
- Args    : NONE
- Notes   : An internal method. Use next_seq.
-
-=cut
-
-sub _next_phd {
-    my $something = next_primary_phd( $_[0], 1 );
-    return $something;    
-}
-
-=head2 next_primary_phd()
-
- Title   : next_primary_phd()
- Usage   : $seq = $stream->next_primary_phd()
- Function: returns the next phred sequence in the stream
- Returns : Bio::Seq::SeqWithQuality object
- Args    : NONE (huh?)
-
-=cut
-
-sub next_primary_phd {
-    # print("CSM next_primary_phd!\n");
-    my( $self, $as_next_qual ) = @_;
+    my ($self,@args) = @_;
     my $entry;
-    # if (!($entry = $self->_readline)) { return; }
+    if (!($entry = $self->_readline)) { return; }
     my ($qual,$seq);
     my $in_dna = 0;
     my $base_number = 0;
     my $done;
-    my (@lines, @bases, @qualities,$id);
+    my ($id,@lines, @bases, @qualities) = ('');
     while ($entry = $self->_readline) {
 	return if (!$entry);
 	chomp($entry);
@@ -154,13 +126,13 @@ sub next_primary_phd {
 	push(@lines,$entry);
     }
     $self->debug("Creating objects with id = $id\n");
-    my $swq = Bio::Seq::SeqWithQuality->new(
-					    -seq        => join('',@bases),
-					    -qual       => \@qualities,
-					    -id         => $id,
-					    -primary_id => $id,
-					    -display_id => $id,
-					    );
+    my $swq = $self->sequence_factory->create_sequence
+	(-seq        => join('',@bases),
+	 -qual       => \@qualities,
+	 -id         => $id,
+	 -primary_id => $id,
+	 -display_id => $id,
+	 );
     return $swq;
 }
 

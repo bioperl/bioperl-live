@@ -67,11 +67,21 @@ package Bio::SeqIO::qual;
 use vars qw(@ISA);
 use strict;
 use Bio::SeqIO;
-use Bio::Seq::PrimaryQual;
-use Bio::Seq::SeqWithQuality;
+use Bio::Seq::SeqFactory;
 require 'dumpvar.pl';
 
 @ISA = qw(Bio::SeqIO);
+
+
+sub _initialize {
+  my($self,@args) = @_;
+  $self->SUPER::_initialize(@args);    
+  if( ! defined $self->sequence_factory ) {
+      $self->sequence_factory(new Bio::Seq::SeqFactory
+			      (-verbose => $self->verbose(), 
+			       -type => 'Bio::Seq::PrimaryQual'));      
+  }
+}
 
 =head2 next_seq()
 
@@ -84,91 +94,49 @@ require 'dumpvar.pl';
 =cut
 
 sub next_seq {
-        my ($self,@args) = @_;
-        my $qual = $self->_next_qual(@args);
-        return $qual;
-}
+    my ($self,@args) = @_;
+    my ($qual,$seq);
+    my $alphabet;
+    local $/ = "\n>";
 
-=head2 _next_qual
+    return unless my $entry = $self->_readline;
 
- Title   : _next_qual
- Usage   : $seq = $stream->_next_qual() (but do not do
-	   that. Use $stream->next_seq() instead)
- Function: returns the next quality in the stream
- Returns : Bio::Seq::PrimaryQual object
- Args    : NONE
- Notes	 : An internal method. Gets the next quality in
-	the stream.
+    if ($entry eq '>')  {	# very first one
+	return unless $entry = $self->_readline;
+    }
 
-=cut
-
-sub _next_qual {
-	my $qual = next_primary_qual( $_[0], 1 );
-	return $qual;    
-}
-
-=head2 next_primary_qual()
-
- Title   : next_primary_qual()
- Usage   : $seq = $stream->next_primary_qual()
- Function: returns the next sequence in the stream
- Returns : Bio::PrimaryQual object
- Args    : NONE
-
-=cut
-
-sub next_primary_qual {
-	# print("CSM next_primary_qual!\n");
-  my( $self, $as_next_qual ) = @_;
-  my ($qual,$seq);
-  my $alphabet;
-  local $/ = "\n>";
-
-  return unless my $entry = $self->_readline;
-
-  if ($entry eq '>')  {  # very first one
-    return unless $entry = $self->_readline;
-  }
-
-  	# original: my ($top,$sequence) = $entry =~ /^(.+?)\n([^>]*)/s
-  my ($top,$sequence) = $entry =~ /^(.+?)\n([^>]*)/s
-    or $self->throw("Can't parse entry [$entry]");
-  my ($id,$fulldesc) = $top =~ /^\s*(\S+)\s*(.*)/
-    or $self->throw("Can't parse fasta header");
-  $id =~ s/^>//;
-  	# $sequence =~ s/\s//g; # Remove whitespace
-  # for empty sequences we need to know the mol.type
-	# no we don't, not for PrimaryQuals because... well just because.
-	# $alphabet = $self->alphabet();
-	# print("CSM \$alphabet is $alphabet\n");
-  if(length($sequence) == 0) {
-      if(! defined($alphabet)) {
-          # let's default to dna
-		# lets not.
-		# $alphabet = "dna";
-      }
-  } else {
-      # we don't need it really, so disable
+    # original: my ($top,$sequence) = $entry =~ /^(.+?)\n([^>]*)/s
+    my ($top,$sequence) = $entry =~ /^(.+?)\n([^>]*)/s
+	or $self->throw("Can't parse entry [$entry]");
+    my ($id,$fulldesc) = $top =~ /^\s*(\S+)\s*(.*)/
+	or $self->throw("Can't parse fasta header");
+    $id =~ s/^>//;
+    # $sequence =~ s/\s//g; # Remove whitespace
+    # for empty sequences we need to know the mol.type
+    # no we don't, not for PrimaryQuals because... well just because.
+    # $alphabet = $self->alphabet();
+    # print("CSM \$alphabet is $alphabet\n");
+    if(length($sequence) == 0) {
+	if(! defined($alphabet)) {
+	    # let's default to dna
+	    # lets not.
+	    # $alphabet = "dna";
+	}
+    } else {
+	# we don't need it really, so disable
 	# you bet we don't need it because PrimaryQual doesn't pay it any mind anyway
 	# $alphabet = undef;
-  }
+    }
 
-  # create the seq object
-	$sequence =~ s/\n//g;
-  if ($as_next_qual) {
-	# print("CSM qual.pm: creating a primaryqual object with $sequence\n");
-      $qual = Bio::Seq::PrimaryQual->new(-qual        => $sequence,
-					 -id         => $id,
-					 -primary_id => $id,
-					 -display_id => $id,
-					 -desc       => $fulldesc
-					 );
-  }
-  # if there wasn't one before, set the guessed type
-	# no, don't.
-  	# $self->alphabet($qual->alphabet());
-  	# print("CSM next_primary_qual: returning $qual.\n");
-  return $qual;
+    # create the seq object
+    $sequence =~ s/\n//g;
+    return $self->sequence_factory->create_sequence
+	(-qual        => $sequence,
+	 -id         => $id,
+	 -primary_id => $id,
+	 -display_id => $id,
+	 -desc       => $fulldesc
+	 );
 }
 
 =head2 write_qual

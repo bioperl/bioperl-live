@@ -63,8 +63,12 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 
 =head1 AUTHORS
 
-  Ewan Birney  <birney@ebi.ac.uk>
-  Lincoln Stein <lstein@cshl.org>
+  Ewan Birney   E<lt>birney@ebi.ac.ukE<gt>
+  Lincoln Stein E<lt>lstein@cshl.orgE<gt>
+
+=head1 CONTRIBUTORS
+
+  Jason Stajich E<lt>jason@bioperl.org<gt>
 
 =head1 APPENDIX
 
@@ -81,9 +85,19 @@ use strict;
 use vars qw(@ISA);
 
 use Bio::SeqIO;
-use Bio::Seq;
+use Bio::Seq::SeqFactory;
 
 @ISA = qw(Bio::SeqIO);
+
+sub _initialize {
+  my($self,@args) = @_;
+  $self->SUPER::_initialize(@args);    
+  if( ! defined $self->sequence_factory ) {
+      $self->sequence_factory(new Bio::Seq::SeqFactory
+			      (-verbose => $self->verbose(), 
+			       -type => 'Bio::Seq'));      
+  }
+}
 
 =head2 next_seq
 
@@ -107,8 +121,7 @@ sub next_seq{
    my $sequence = uc($nextline);
    $sequence =~ s/\W//g;
 
-   return  Bio::Seq->new(-seq => $sequence);
-
+   return  $self->sequence_factory->create_sequence(-seq => $sequence);
 }
 
 =head2 write_seq

@@ -66,10 +66,18 @@ use strict;
 # Object preamble - inherits from Bio::Root::Object
 
 use Bio::SeqIO;
-use Bio::Seq;
-use Bio::PrimarySeq;
+use Bio::Seq::SeqFactory;
 
 @ISA = qw(Bio::SeqIO);
+
+sub _initialize {
+  my($self,@args) = @_;
+
+  $self->SUPER::_initialize(@args);  
+  if( ! defined $self->sequence_factory ) {
+      $self->sequence_factory(new Bio::Seq::SeqFactory(-verbose => $self->verbose(), -type => 'Bio::Seq'));      
+  }
+}
 
 =head2 next_seq
 
@@ -82,71 +90,46 @@ use Bio::PrimarySeq;
 =cut
 
 sub next_seq {
-    return next_primary_seq( $_[0], 1 );
-}
+    my( $self ) = @_;
+    my $seq;
+    my $alphabet;
+    local $/ = "\n>";
+    return unless my $entry = $self->_readline;
 
-=head2 next_primary_seq
+    if ($entry eq '>')  {	# very first one
+	return unless $entry = $self->_readline;
+    }
 
- Title   : next_primary_seq
- Usage   : $seq = $stream->next_primary_seq()
- Function: returns the next sequence in the stream
- Returns : Bio::PrimarySeq object
- Args    : NONE
+    my ($top,$sequence) = $entry =~ /^>?(.+?)\n([^>]*)/s
+	or $self->throw("Can't parse fasta entry");
+    my ($id,$fulldesc) = $top =~ /^\s*(\S+)\s*(.*)/
+	or $self->throw("Can't parse fasta header");
+    if ($id eq '') {$id=$fulldesc;} # FIX incase no space between > and name \AE
+    $sequence =~ s/\s//g;	# Remove whitespace
 
-=cut
+    # for empty sequences we need to know the mol.type
+    $alphabet = $self->alphabet();
+    if(length($sequence) == 0) {
+	if(! defined($alphabet)) {
+	    # let's default to dna
+	    $alphabet = "dna";
+	}
+    } else {
+	# we don't need it really, so disable
+	$alphabet = undef;
+    }
 
-sub next_primary_seq {
-  my( $self, $as_next_seq ) = @_;
-  my $seq;
-  my $alphabet;
-  local $/ = "\n>";
+    # create the seq object
+    $seq = $self->sequence_factory->create_sequence(-seq        => $sequence,
+						 -id         => $id,
+						 -primary_id => $id,
+						 -desc       => $fulldesc,
+						 -alphabet    => $alphabet
+						 );
+    # if there wasn't one before, set the guessed type
+    $self->alphabet($seq->alphabet());
 
-  return unless my $entry = $self->_readline;
-
-  if ($entry eq '>')  {  # very first one
-    return unless $entry = $self->_readline;
-  }
-
-  my ($top,$sequence) = $entry =~ /^>?(.+?)\n([^>]*)/s
-    or $self->throw("Can't parse fasta entry");
-  my ($id,$fulldesc) = $top =~ /^\s*(\S+)\s*(.*)/
-    or $self->throw("Can't parse fasta header");
-  if ($id eq '') {$id=$fulldesc;} # FIX incase no space between > and name \AE
-  $sequence =~ s/\s//g; # Remove whitespace
-
-  # for empty sequences we need to know the mol.type
-  $alphabet = $self->alphabet();
-  if(length($sequence) == 0) {
-      if(! defined($alphabet)) {
-	  # let's default to dna
-	  $alphabet = "dna";
-      }
-  } else {
-      # we don't need it really, so disable
-      $alphabet = undef;
-  }
-
-  # create the seq object
-  if ($as_next_seq) {
-    # Return a Bio::Seq if asked for
-    $seq = Bio::Seq->new(-seq        => $sequence,
-		         -id         => $id,
-		         -primary_id => $id,
-		         -desc       => $fulldesc,
-			 -alphabet    => $alphabet
-		         );
-  } else {
-    $seq = Bio::PrimarySeq->new(-seq        => $sequence,
-		                -id         => $id,
-		                -primary_id => $id,
-		                -desc       => $fulldesc,
-				-alphabet    => $alphabet
-		                );
-  }
-  # if there wasn't one before, set the guessed type
-  $self->alphabet($seq->alphabet());
-  
-  return $seq;
+    return $seq;
 }
 
 =head2 write_seq

@@ -135,11 +135,11 @@ package Bio::SeqIO::bsml;
 use vars qw(@ISA);
 use strict;
 
-use Bio::Seq::RichSeq;
 use Bio::SeqIO;
 use Bio::SeqFeature::Generic;
 use Bio::Species;
 use XML::DOM;
+use Bio::Seq::SeqFactory;
 
 @ISA = qw(Bio::SeqIO);
 
@@ -149,6 +149,14 @@ my $nvtoken = ": ";  # The token used if a name/value pair has to be stuffed
 
 =head1 METHODS
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-
+
+sub _initialize {
+  my($self,@args) = @_;
+  $self->SUPER::_initialize(@args);  
+  if( ! defined $self->sequence_factory ) {
+      $self->sequence_factory(new Bio::Seq::SeqFactory(-verbose => $self->verbose(), -type => 'Bio::Seq::RichSeq'));
+  }
+}
 
 =head2 next_seq
 
@@ -163,7 +171,7 @@ my $nvtoken = ": ";  # The token used if a name/value pair has to be stuffed
 sub next_seq {
     my $self = shift;
     my ($desc);
-    my $bioSeq = Bio::Seq::RichSeq->new(-verbose =>$self->verbose());
+    my $bioSeq = $self->sequence_factory->create_sequence(-verbose =>$self->verbose());
     
     unless (exists $self->{'domtree'}) {
 	$self->throw("A BSML document has not yet been parsed.");
