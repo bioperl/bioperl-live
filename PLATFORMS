@@ -1,4 +1,4 @@
-# $Id: PLATFORMS,v 1.8 2001-03-02 18:24:58 jason Exp $
+# $Id: PLATFORMS,v 1.9 2001-04-13 22:21:39 jason Exp $
 
 Perl general comments:
 
@@ -64,5 +64,7 @@ Perl    : MacPerl
 Comments: Issues and possible ways to fix them summarized by Todd Richmond
           on the bioperl.org Wiki.
 
-
-
+Machine : MacOS X
+Compiler: gcc
+Perl    : 5.6.0
+Comments: none
