@@ -78,7 +78,7 @@ sub part_names {
  Title   : main_name
  Usage   : $aggregator->main_name
  Function: return the method for the main component
- Returns : the string "Sequence"
+ Returns : the string "transcript"
  Args    : none
  Status  : Public
 

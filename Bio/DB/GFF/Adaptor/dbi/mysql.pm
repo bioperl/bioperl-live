@@ -329,6 +329,42 @@ sub make_features_byname_where_part {
   return ("fgroup.gclass=? AND fgroup.gname=?",$class,$name);
 }
 
+=head2 make_features_by_id_where_part
+
+ Title   : make_features_by_id_where_part
+ Usage   : $db->make_features_by_id_where_part($ids)
+ Function: create the SQL fragment needed to select a set of features by their ids
+ Returns : a SQL fragment and bind arguments
+ Args    : arrayref of IDs
+ Status  : Protected
+
+=cut
+
+sub make_features_by_id_where_part {
+  my $self = shift;
+  my $ids = shift;
+  my $set = join ",",@$ids;
+  return ("fdata.fid IN ($set)");
+}
+
+=head2 make_features_by_gid_where_part
+
+ Title   : make_features_by_id_where_part
+ Usage   : $db->make_features_by_gid_where_part($ids)
+ Function: create the SQL fragment needed to select a set of features by their ids
+ Returns : a SQL fragment and bind arguments
+ Args    : arrayref of IDs
+ Status  : Protected
+
+=cut
+
+sub make_features_by_gid_where_part {
+  my $self = shift;
+  my $ids = shift;
+  my $set = join ",",@$ids;
+  return ("fgroup.gid IN ($set)");
+}
+
 =head2 make_features_select_part
 
  Title   : make_features_select_part
@@ -346,7 +382,7 @@ follows the SELECT keyword.
 sub make_features_select_part {
   my $self = shift;
   return <<END;
-fref,fstart,fstop,fsource,fmethod,fscore,fstrand,fphase,gclass,gname,ftarget_start,ftarget_stop,fid
+fref,fstart,fstop,fsource,fmethod,fscore,fstrand,fphase,gclass,gname,ftarget_start,ftarget_stop,fid,fdata.gid
 END
 }
 

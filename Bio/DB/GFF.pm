@@ -432,6 +432,8 @@ my %valid_range_types = (overlaps     => 1,
 			 contains     => 1,
 			 contained_in => 1);
 
+=head1 Querying GFF Databases
+
 =head2 new
 
  Title   : new
@@ -543,333 +545,58 @@ sub new {
   $self;
 }
 
-=head2 load_gff
 
- Title   : load_gff
- Usage   : $db->load_gff($file|$directory|$filehandle);
- Function: load GFF data into database
- Returns : count of records loaded
- Args    : a directory, a file, a list of files, 
-           or a filehandle
- Status  : Public
+=head2 types
 
-This method takes a single overloaded argument, which can be any of:
+ Title   : types
+ Usage   : $db->types(@args)
+ Function: return list of feature types in range or database
+ Returns : a list of Bio::DB::GFF::Typename objects
+ Args    : see below
+ Status  : public
 
-=over 4
+This routine returns a list of feature types known to the database.
+The list can be database-wide or restricted to a region.  It is also
+possible to find out how many times each feature occurs.
 
-=item 1. a scalar corresponding to a GFF file on the system
+For range queries, it is usually more convenient to create a
+Bio::DB::GFF::Segment object, and then invoke it's types() method.
 
-A pathname to a local GFF file.  Any files ending with the .gz, .Z, or
-.bz2 suffixes will be transparently decompressed with the appropriate
-command-line utility.
+Arguments are as follows:
 
-=item 2. an array reference containing a list of GFF files on the
-system
+  -ref        ID of reference sequence
+  -class      class of reference sequence
+  -start      start of segment
+  -stop       stop of segment
+  -enumerate  if true, count the features
 
-For example ['/home/gff/gff1.gz','/home/gff/gff2.gz']
+The returned value will be a list of Bio::DB::GFF::Typename objects,
+which if evaluated in a string context will return the feature type in 
+"method:source" format.  This object class also has method() and
+source() methods for retrieving the like-named fields.
 
-=item 3. path to a directory
+If -enumerate is true, then the function returns a hash (not a hash
+reference) in which the keys are type names in "method:source" format
+and the values are the number of times each feature appears in the
+database or segment.
 
-The indicated directory will be searched for all files ending in the
-suffixes .gff, .gff.gz, .gff.Z or .gff.bz2.
-
-=item 4. a filehandle
-
-An open filehandle from which to read the GFF data.
-
-=item 5. a pipe expression
-
-A pipe expression will also work. For example, a GFF file on a remote
-web server can be loaded with an expression like this:
-
-  $db->load_gff("lynx -dump -source http://stein.cshl.org/gff_test |");
-
-=back
-
-If successful, the method will return the number of GFF lines
-successfully loaded.
-
-NOTE:this method used to be called load(), but has been changed.  The
-old method name is also recognized.
+The argument -end is a synonum for -stop, and -count is a synonym for
+-enumerate.
 
 =cut
 
-sub load_gff {
-  my $self              = shift;
-  my $file_or_directory = shift || '.';
-  open SAVEIN,"<&STDIN";
-  local @ARGV = $self->setup_argv($file_or_directory,'gff') or return;  # to play tricks with reader
-  my $result = $self->do_load_gff;
-  open STDIN,"<&SAVEIN";  # restore STDIN
-  return $result;
-}
-
-*load = \&load_gff;
-
-=head2 load_fasta
-
- Title   : load_fasta
- Usage   : $db->load_fasta($file|$directory|$filehandle);
- Function: load FASTA data into database
- Returns : count of records loaded
- Args    : a directory, a file, a list of files, 
-           or a filehandle
- Status  : Public
-
-This method takes a single overloaded argument, which can be any of:
-
-=over 4
-
-=item 1. a scalar corresponding to a FASTA file on the system
-
-A pathname to a local FASTA file.  Any files ending with the .gz, .Z, or
-.bz2 suffixes will be transparently decompressed with the appropriate
-command-line utility.
-
-=item 2. an array reference containing a list of FASTA files on the
-system
-
-For example ['/home/fasta/genomic.fa.gz','/home/fasta/genomic.fa.gz']
-
-=item 3. path to a directory
-
-The indicated directory will be searched for all files ending in the
-suffixes .fa, .fa.gz, .fa.Z or .fa.bz2.
-
-=item 4. a filehandle
-
-An open filehandle from which to read the FASTA data.
-
-=item 5. a pipe expression
-
-A pipe expression will also work. For example, a FASTA file on a remote
-web server can be loaded with an expression like this:
-
-  $db->load_gff("lynx -dump -source http://stein.cshl.org/fasta_test.fa |");
-
-=back
-
-=cut
-
-sub load_fasta {
-  my $self              = shift;
-  my $file_or_directory = shift || '.';
-  open SAVEIN,"<&STDIN";
-  local @ARGV = $self->setup_argv($file_or_directory,'fa') or return;  # to play tricks with reader
-  my $result = $self->load_sequence();
-  open STDIN,"<&SAVEIN";  # restore STDIN
-  return $result;
-}
-
-sub setup_argv {
+sub types {
   my $self = shift;
-  my $file_or_directory = shift;
-  my $suffix = shift;
-
-  my @argv;
-
-  if (-d $file_or_directory) {
-    @argv = glob("$file_or_directory/*.{$suffix,$suffix.gz,$suffix.Z,$suffix.bz2}");
-  } elsif (my $fd = fileno($file_or_directory)) {
-    open STDIN,"<&=$fd" or $self->throw("Can't dup STDIN");
-    @argv = '-';
-  } elsif (ref $file_or_directory) {
-    @argv = @$file_or_directory;
-  } else {
-    @argv = $file_or_directory;
-  }
-
-  foreach (@argv) {
-    if (/\.gz$/) {
-      $_ = "gunzip -c $_ |";
-    } elsif (/\.Z$/) {
-      $_ = "uncompress -c $_ |";
-    } elsif (/\.bz2$/) {
-      $_ = "bunzip2 -c $_ |";
-    }
-  }
-  @argv;
-}
-
-=head2 lock_on_load
-
- Title   : lock_on_load
- Usage   : $lock = $db->lock_on_load([$lock])
- Function: set write locking during load
- Returns : current value of lock-on-load flag
- Args    : new value of lock-on-load-flag
- Status  : Public
-
-This method is honored by some of the adaptors.  If the value is true,
-the tables used by the GFF modules will be locked for writing during
-loads and inaccessible to other processes.
-
-=cut
-
-sub lock_on_load {
-  my $self = shift;
-  my $d = $self->{lock};
-  $self->{lock} = shift if @_;
-  $d;
-}
-
-=head2 initialize
-
- Title   : initialize
- Usage   : $db->initialize(-erase=>$erase,-option1=>value1,-option2=>value2);
- Function: initialize a GFF database
- Returns : true if initialization successful
- Args    : a set of named parameters
- Status  : Public
-
-This method can be used to initialize an empty database.  It takes the following
-named arguments:
-
-  -erase     A boolean value.  If true the database will be wiped clean if it
-             already contains data.
-
-Other named arguments may be recognized by subclasses.  They become database
-meta values that control various settable options.
-
-As a shortcut (and for backward compatibility) a single true argument
-is the same as initialize(-erase=E<gt>1).
-
-=cut
-
-sub initialize {
-  my $self = shift;
-  $self->do_initialize(1) if @_ == 1 && $_[0];
-  my ($erase,$meta) = rearrange(['ERASE'],@_);
-  $meta ||= {};
-
-  # initialize (possibly erasing)
-  return unless $self->do_initialize($erase);
-  my @default = $self->default_meta_values;
-
-  # this is an awkward way of uppercasing the 
-  # even-numbered values (necessary for case-insensitive SQL databases)
-  for (my $i=0; $i<@default; $i++) {
-    $default[$i] = uc $default[$i] if !($i % 2);
-  }
-
-  my %values = (@default,%$meta);
-  foreach (keys %values) {
-    $self->meta($_ => $values{$_});
-  }
-  1;
-}
-
-
-=head2 meta
-
- Title   : meta
- Usage   : $value = $db->meta($name [,$newval])
- Function: get or set a meta variable
- Returns : a string
- Args    : meta variable name and optionally value
- Status  : abstract
-
-Get or set a named metavalues for the database.  Metavalues can be
-used for database-specific settings.
-
-By default, this method does nothing!
-
-=cut
-
-sub meta {
-  my $self = shift;
-  my ($name,$value) = @_;
-  return;
-}
-
-=head2 default_meta_values
-
- Title   : default_meta_values
- Usage   : %values = $db->default_meta_values
- Function: empty the database
- Returns : a list of tag=>value pairs
- Args    : none
- Status  : protected
-
-This method returns a list of tag=E<gt>value pairs that contain default
-meta information about the database.  It is invoked by initialize() to
-write out the default meta values.  The base class version returns an
-empty list.
-
-For things to work properly, meta value names must be UPPERCASE.
-
-=cut
-
-sub default_meta_values {
-  my $self = shift;
-  return ();
-}
-
-
-=head2 error
-
- Title   : error
- Usage   : $db->error( [$new error] );
- Function: read or set error message
- Returns : error message
- Args    : an optional argument to set the error message
- Status  : Public
-
-This method can be used to retrieve the last error message.  Errors
-are not reset to empty by successful calls, so contents are only valid
-immediately after an error condition has been detected.
-
-=cut
-
-sub error {
-  my $self = shift;
-  my $g = $self->{error};
-  $self->{error} = join '',@_ if @_;
-  $g;
-}
-
-=head2 debug
-
- Title   : debug
- Usage   : $db->debug( [$flag] );
- Function: read or set debug flag
- Returns : current value of debug flag
- Args    : new debug flag (optional)
- Status  : Public
-
-This method can be used to turn on debug messages.  The exact nature
-of those messages depends on the adaptor in use.
-
-=cut
-
-sub debug {
-  my $self = shift;
-  my $g = $self->{debug};
-  $self->{debug} = shift if @_;
-  $g;
-}
-
-
-=head2 automerge
-
- Title   : automerge
- Usage   : $db->automerge( [$new automerge] );
- Function: get or set automerge value
- Returns : current value (boolean)
- Args    : an optional argument to set the automerge value
- Status  : Public
-
-By default, this module will use the aggregators to merge groups into
-single composite objects.  This default can be changed to false by
-calling automerge(0).
-
-=cut
-
-sub automerge {
-  my $self = shift;
-  my $g = $self->{automerge};
-  $self->{automerge} = shift if @_;
-  $g;
+  my ($refseq,$start,$stop,$enumerate,$refclass,$types) = rearrange ([
+								      [qw(REF REFSEQ)],
+								      qw(START),
+								      [qw(STOP END)],
+								      [qw(ENUMERATE COUNT)],
+								      [qw(CLASS SEQCLASS)],
+								      [qw(TYPE TYPES)],
+								     ],@_);
+  $types = $self->parse_types($types) if defined $types;
+  $self->get_types($refseq,$refclass,$start,$stop,$enumerate,$types);
 }
 
 =head2 segment
@@ -1033,248 +760,6 @@ sub setup_segment_args {
   return (-name=>$_[0])                            if @_ == 1;
 }
 
-=head2 absolute
-
- Title   : absolute
- Usage   : $abs = $db->absolute([$abs]);
- Function: gets/sets absolute mode
- Returns : current setting of absolute mode boolean
- Args    : new setting for absolute mode boolean
- Status  : public
-
-$db-E<gt>absolute(1) will turn on absolute mode for the entire database.
-All segments retrieved will use absolute coordinates by default,
-rather than relative coordinates.  You can still set them to use
-relative coordinates by calling $segment-E<gt>absolute(0).
-
-Note that this is not the same as calling abs_segment(); it continues
-to allow you to look up groups that are not used directly as reference
-sequences.
-
-=cut
-
-sub absolute {
-  my $self = shift;
-  my $d = $self->{absolute};
-  $self->{absolute} = shift if @_;
-  $d;
-}
-
-=head2 types
-
- Title   : types
- Usage   : $db->types(@args)
- Function: return list of feature types in range or database
- Returns : a list of Bio::DB::GFF::Typename objects
- Args    : see below
- Status  : public
-
-This routine returns a list of feature types known to the database.
-The list can be database-wide or restricted to a region.  It is also
-possible to find out how many times each feature occurs.
-
-For range queries, it is usually more convenient to create a
-Bio::DB::GFF::Segment object, and then invoke it's types() method.
-
-Arguments are as follows:
-
-  -ref        ID of reference sequence
-  -class      class of reference sequence
-  -start      start of segment
-  -stop       stop of segment
-  -enumerate  if true, count the features
-
-The returned value will be a list of Bio::DB::GFF::Typename objects,
-which if evaluated in a string context will return the feature type in 
-"method:source" format.  This object class also has method() and
-source() methods for retrieving the like-named fields.
-
-If -enumerate is true, then the function returns a hash (not a hash
-reference) in which the keys are type names in "method:source" format
-and the values are the number of times each feature appears in the
-database or segment.
-
-The argument -end is a synonum for -stop, and -count is a synonym for
--enumerate.
-
-=cut
-
-sub types {
-  my $self = shift;
-  my ($refseq,$start,$stop,$enumerate,$refclass,$types) = rearrange ([
-								      [qw(REF REFSEQ)],
-								      qw(START),
-								      [qw(STOP END)],
-								      [qw(ENUMERATE COUNT)],
-								      [qw(CLASS SEQCLASS)],
-								      [qw(TYPE TYPES)],
-								     ],@_);
-  $types = $self->parse_types($types) if defined $types;
-  $self->get_types($refseq,$refclass,$start,$stop,$enumerate,$types);
-}
-
-=head2 dna
-
- Title   : dna
- Usage   : $db->dna($id,$class,$start,$stop)
- Function: return the raw DNA string for a segment
- Returns : a raw DNA string
- Args    : id of the sequence, its class, start and stop positions
- Status  : public
-
-This method is invoked by Bio::DB::GFF::Segment to fetch the raw DNA
-sequence.
-
-NOTE: you will probably prefer to create a Segment and then invoke its
-dna() method.
-
-=cut
-
-# call to return the DNA string for the indicated region
-# real work is done by get_dna()
-sub dna {
-  my $self = shift;
-  my ($id,$start,$stop,$class)  = rearrange([
-					     [qw(NAME ID REF REFSEQ)],
-					     qw(START),
-					     [qw(STOP END)],
-    					    'CLASS',
-					   ],@_);
-  return unless defined $start && defined $stop;
-  $self->get_dna($id,$start,$stop,$class);
-}
-
-sub features_in_range {
-  my $self = shift;
-  my ($range_type,$refseq,$class,$start,$stop,$types,$parent,$sparse,$automerge,$iterator) =
-    rearrange([
-	       [qw(RANGE_TYPE)],
-	       [qw(REF REFSEQ)],
-	       qw(CLASS),
-	       qw(START),
-	       [qw(STOP END)],
-	       [qw(TYPE TYPES)],
-	       qw(PARENT),
-	       [qw(RARE SPARSE)],
-	       [qw(MERGE AUTOMERGE)],
-	       'ITERATOR'
-	      ],@_);
-  $automerge = $self->automerge unless defined $automerge;
-  $self->throw("range type must be one of {".
-	       join(',',keys %valid_range_types).
-	       "}\n")
-    unless $valid_range_types{lc $range_type};
-  $self->_features({
-		    rangetype => lc $range_type,
-		    refseq    => $refseq,
-		    refclass  => $class,
-		    start     => $start,
-		    stop      => $stop,
-		    types     => $types },
-		   {
-		    sparse    => $sparse,
-		    automerge => $automerge,
-		    iterator  => $iterator
-		   },
-		   $parent);
-}
-
-=head2 overlapping_features
-
- Title   : overlapping_features
- Usage   : $db->overlapping_features(@args)
- Function: get features that overlap the indicated range
- Returns : a list of Bio::DB::GFF::Feature objects
- Args    : see below
- Status  : public
-
-This method is invoked by Bio::DB::GFF::Segment-E<gt>features() to find
-the list of features that overlap a given range.  It is generally
-preferable to create the Segment first, and then fetch the features.
-
-This method takes set of named arguments:
-
-  -refseq    ID of the reference sequence
-  -class     Class of the reference sequence
-  -start     Start of the desired range in refseq coordinates
-  -stop      Stop of the desired range in refseq coordinates
-  -types     List of feature types to return.  Argument is an array
-	     reference containing strings of the format "method:source"
-  -parent    A parent Bio::DB::GFF::Segment object, used to create
-	     relative coordinates in the generated features.
-  -rare      Turn on an optimization suitable for a relatively rare feature type,
-             where it will be faster to filter by feature type first
-             and then by position, rather than vice versa.
-  -merge     Whether to apply aggregators to the generated features.
-  -iterator  Whether to return an iterator across the features.
-
-If -iterator is true, then the method returns a single scalar value
-consisting of a Bio::SeqIO object.  You can call next_seq() repeatedly
-on this object to fetch each of the features in turn.  If iterator is
-false or absent, then all the features are returned as a list.
-
-Currently aggregation is disabled when iterating over a series of
-features.
-
-Types are indicated using the nomenclature "method:source".  Either of
-these fields can be omitted, in which case a wildcard is used for the
-missing field.  Type names without the colon (e.g. "exon") are
-interpreted as the method name and a source wild card.  Regular
-expressions are allowed in either field, as in: "similarity:BLAST.*".
-
-=cut
-
-# call to return the features that overlap the named region
-# real work is done by get_features
-sub overlapping_features {
-  my $self = shift;
-  $self->features_in_range(-range_type=>'overlaps',@_);
-}
-
-=head2 contained_features
-
- Title   : contained_features
- Usage   : $db->contained_features(@args)
- Function: get features that are contained within the indicated range
- Returns : a list of Bio::DB::GFF::Feature objects
- Args    : see overlapping_features()
- Status  : public
-
-This call is similar to overlapping_features(), except that it only
-retrieves features whose end points are completely contained within
-the specified range.
-
-Generally you will want to fetch a Bio::DB::GFF::Segment object and
-call its contained_features() method rather than call this directly.
-
-=cut
-
-# The same, except that it only returns features that are completely contained within the
-# range (much faster usually)
-sub contained_features {
-  my $self = shift;
-  $self->features_in_range(-range_type=>'contains',@_);
-}
-
-=head2 contained_in
-
- Title   : contained_in
- Usage   : @features = $s->contained_in(@args)
- Function: get features that contain this segment
- Returns : a list of Bio::DB::GFF::Feature objects
- Args    : see features()
- Status  : Public
-
-This is identical in behavior to features() except that it returns
-only those features that completely contain the segment.
-
-=cut
-
-sub contained_in {
-  my $self = shift;
-  $self->features_in_range(-range_type=>'contained_in',@_);
-}
-
 =head2 features
 
  Title   : features
@@ -1341,10 +826,36 @@ sub features {
 		   );
 }
 
-=head2 fetch_feature
+=head2 feature_stream
 
- Title   : fetch_feature
- Usage   : $db->fetch_feature($class => $name)
+ Title   : features
+ Usage   : $db->feature_stream(@args)
+ Function: get a stream on features, possibly filtered by type
+  Returns : a Bio::SeqIO::Stream
+ Args    : As in features()
+ Status  : public
+
+This routine takes the same arguments as features(), but returns a
+Bio::SeqIO::Stream-compliant object.  Use it like this:
+
+  $stream = $db->feature_stream('exon');
+  while (my $exon = $stream->next_seq) {
+     print $exon,"\n";  
+  }
+
+=cut
+
+sub feature_stream {
+  my $self = shift;
+  my @args = $_[0] !~ /^-/ ? (-iterator=>1,-types=>\@_)
+                           : (-iterator=>1,@_);
+  $self->features(@args);
+}
+
+=head2 fetch_feature_by_name
+
+ Title   : fetch_feature_by_name
+ Usage   : $db->fetch_feature_by_name($class => $name)
  Function: fetch segments by feature (group) name
  Returns : a list of Bio::DB::GFF::Feature objects
  Args    : the class and name of the desired feature
@@ -1361,12 +872,13 @@ objects.
 
 Aggregation is performed on features as usual.
 
-NOTE: this function used to be called fetch_group(), and this synonym
-is preserved for backward compatibility.
+NOTE: At various times, this function was called fetch_group() and
+fetch_feature(), and these names are preserved for backward
+compatibility.
 
 =cut
 
-sub fetch_feature {
+sub fetch_feature_by_name {
   my $self = shift;
   my ($gclass,$gname);
   if (@_ == 1) {
@@ -1383,12 +895,91 @@ sub fetch_feature {
   @$features;
 }
 
-*fetch_group = \&fetch_feature;
+# horrible indecision regarding proper names!
+*fetch_feature = *fetch_group = \&fetch_feature;
 *segments    = \&segment;
 
-=head2 get_seq_stream()
+=head2 fetch_feature_by_id
 
-Bioperl compatibility.
+ Title   : fetch_feature_by_id
+ Usage   : $db->fetch_feature_by_id($id)
+ Function: fetch segments by feature ID
+ Returns : a Bio::DB::GFF::Feature object
+ Args    : the feature ID
+ Status  : public
+
+This method can be used to fetch a feature from the database using its
+ID.  Not all GFF databases support IDs, so be careful with this.
+
+=cut
+
+sub fetch_feature_by_id {
+  my $self = shift;
+  my $id   = ref($_[0]) eq 'ARRAY' ? $_[0] : \@_;
+  my %groups;         # cache the groups we create to avoid consuming too much unecessary memory
+  my $features = [];
+  my $callback = sub { push @$features,$self->make_feature(undef,\%groups,@_) };
+  $self->get_feature_by_id($id,'feature',$callback);
+  return wantarray ? @$features : $features->[0];
+}
+
+=head2 fetch_feature_by_gid
+
+ Title   : fetch_feature_by_gid
+ Usage   : $db->fetch_feature_by_gid($id)
+ Function: fetch segments by feature ID
+ Returns : a Bio::DB::GFF::Feature object
+ Args    : the feature ID
+ Status  : public
+
+This method can be used to fetch a feature from the database using its
+group ID.  Not all GFF databases support IDs, so be careful with this.
+
+The group ID is often more interesting than the feature ID, since
+groups can be complex objects containing subobjects.
+
+=cut
+
+sub fetch_feature_by_gid {
+  my $self = shift;
+  my $id   = ref($_[0]) eq 'ARRAY' ? $_[0] : \@_;
+  my %groups;         # cache the groups we create to avoid consuming too much unecessary memory
+  my $features = [];
+  my $callback = sub { push @$features,$self->make_feature(undef,\%groups,@_) };
+  $self->get_feature_by_id($id,'group',$callback);
+  return wantarray ? @$features : $features->[0];
+}
+
+=head2 absolute
+
+ Title   : absolute
+ Usage   : $abs = $db->absolute([$abs]);
+ Function: gets/sets absolute mode
+ Returns : current setting of absolute mode boolean
+ Args    : new setting for absolute mode boolean
+ Status  : public
+
+$db-E<gt>absolute(1) will turn on absolute mode for the entire database.
+All segments retrieved will use absolute coordinates by default,
+rather than relative coordinates.  You can still set them to use
+relative coordinates by calling $segment-E<gt>absolute(0).
+
+Note that this is not the same as calling abs_segment(); it continues
+to allow you to look up groups that are not used directly as reference
+sequences.
+
+=cut
+
+sub absolute {
+  my $self = shift;
+  my $d = $self->{absolute};
+  $self->{absolute} = shift if @_;
+  $d;
+}
+
+=head2 get_seq_stream
+
+Bioperl compatibility.  See Bio::SeqIO.
 
 =cut
 
@@ -1400,6 +991,46 @@ sub get_seq_stream {
   $self->features(@args);
 }
 
+=head2 get_Seq_by_id
+
+Bio::DB::RandomAccessI compatibility
+
+=cut
+
+sub  get_Seq_by_id {
+  my $self = shift;
+  my $id = shift;
+  my $stream = $self->get_Stream_by_id($id);
+  return $stream->next_seq;
+}
+
+
+=head2 get_Seq_by_accession
+
+Bio::DB::RandomAccessI compatibility
+
+=cut
+
+sub  get_Seq_by_accession {
+  my $self = shift;
+  my $id = shift;
+  my $stream = $self->get_Stream_by_accession($id);
+  return $stream->next_seq;
+}
+
+=head2 get_Stream_by_accession ()
+
+Bioperl compatibility.
+
+=cut
+
+sub get_Stream_by_name {
+  my $self = shift;
+  my @ids  = @_;
+  my $id = ref($ids[0]) ? $ids[0] : \@ids;
+  Bio::DB::GFF::ID_Iterator->new($self,$id,'name');
+}
+
 =head2 get_Stream_by_id ()
 
 Bioperl compatibility.
@@ -1409,8 +1040,30 @@ Bioperl compatibility.
 sub get_Stream_by_id {
   my $self = shift;
   my @ids  = @_;
-  Bio::DB::GFF::ID_Iterator->new($self,\@ids);
+  my $id = ref($ids[0]) ? $ids[0] : \@ids;
+  Bio::DB::GFF::ID_Iterator->new($self,$id,'feature');
 }
+
+=head2 get_Stream_by_group ()
+
+Bioperl compatibility.
+
+=cut
+
+sub get_Stream_by_id {
+  my $self = shift;
+  my @ids  = @_;
+  my $id = ref($ids[0]) ? $ids[0] : \@ids;
+  Bio::DB::GFF::ID_Iterator->new($self,$id,'group');
+}
+
+=head2 get_Stream_by_batch ()
+
+Bioperl compatibility.
+
+=cut
+
+*get_Stream_by_batch = \&get_Stream_by_id;
 
 =head2 all_seqfeatures
 
@@ -1439,6 +1092,337 @@ sub all_seqfeatures {
   push @args,(-iterator=>$iterator) if defined $iterator;
   $self->features(@args);
 }
+
+=head1 Creating and Loading GFF Databases
+
+=head2 initialize
+
+ Title   : initialize
+ Usage   : $db->initialize(-erase=>$erase,-option1=>value1,-option2=>value2);
+ Function: initialize a GFF database
+ Returns : true if initialization successful
+ Args    : a set of named parameters
+ Status  : Public
+
+This method can be used to initialize an empty database.  It takes the following
+named arguments:
+
+  -erase     A boolean value.  If true the database will be wiped clean if it
+             already contains data.
+
+Other named arguments may be recognized by subclasses.  They become database
+meta values that control various settable options.
+
+As a shortcut (and for backward compatibility) a single true argument
+is the same as initialize(-erase=E<gt>1).
+
+=cut
+
+sub initialize {
+  my $self = shift;
+  $self->do_initialize(1) if @_ == 1 && $_[0];
+  my ($erase,$meta) = rearrange(['ERASE'],@_);
+  $meta ||= {};
+
+  # initialize (possibly erasing)
+  return unless $self->do_initialize($erase);
+  my @default = $self->default_meta_values;
+
+  # this is an awkward way of uppercasing the 
+  # even-numbered values (necessary for case-insensitive SQL databases)
+  for (my $i=0; $i<@default; $i++) {
+    $default[$i] = uc $default[$i] if !($i % 2);
+  }
+
+  my %values = (@default,%$meta);
+  foreach (keys %values) {
+    $self->meta($_ => $values{$_});
+  }
+  1;
+}
+
+
+=head2 load_gff
+
+ Title   : load_gff
+ Usage   : $db->load_gff($file|$directory|$filehandle);
+ Function: load GFF data into database
+ Returns : count of records loaded
+ Args    : a directory, a file, a list of files, 
+           or a filehandle
+ Status  : Public
+
+This method takes a single overloaded argument, which can be any of:
+
+=over 4
+
+=item 1. a scalar corresponding to a GFF file on the system
+
+A pathname to a local GFF file.  Any files ending with the .gz, .Z, or
+.bz2 suffixes will be transparently decompressed with the appropriate
+command-line utility.
+
+=item 2. an array reference containing a list of GFF files on the system
+
+For example ['/home/gff/gff1.gz','/home/gff/gff2.gz']
+
+=item 3. directory path
+
+The indicated directory will be searched for all files ending in the
+suffixes .gff, .gff.gz, .gff.Z or .gff.bz2.
+
+=item 4. filehandle
+
+An open filehandle from which to read the GFF data.
+
+=item 5. a pipe expression
+
+A pipe expression will also work. For example, a GFF file on a remote
+web server can be loaded with an expression like this:
+
+  $db->load_gff("lynx -dump -source http://stein.cshl.org/gff_test |");
+
+=back
+
+If successful, the method will return the number of GFF lines
+successfully loaded.
+
+NOTE:this method used to be called load(), but has been changed.  The
+old method name is also recognized.
+
+=cut
+
+sub load_gff {
+  my $self              = shift;
+  my $file_or_directory = shift || '.';
+  open SAVEIN,"<&STDIN";
+  local @ARGV = $self->setup_argv($file_or_directory,'gff') or return;  # to play tricks with reader
+  my $result = $self->do_load_gff;
+  open STDIN,"<&SAVEIN";  # restore STDIN
+  return $result;
+}
+
+*load = \&load_gff;
+
+=head2 load_fasta
+
+ Title   : load_fasta
+ Usage   : $db->load_fasta($file|$directory|$filehandle);
+ Function: load FASTA data into database
+ Returns : count of records loaded
+ Args    : a directory, a file, a list of files, 
+           or a filehandle
+ Status  : Public
+
+This method takes a single overloaded argument, which can be any of:
+
+=over 4
+
+=item 1. scalar corresponding to a FASTA file on the system
+
+A pathname to a local FASTA file.  Any files ending with the .gz, .Z, or
+.bz2 suffixes will be transparently decompressed with the appropriate
+command-line utility.
+
+=item 2. array reference containing a list of FASTA files on the
+system
+
+For example ['/home/fasta/genomic.fa.gz','/home/fasta/genomic.fa.gz']
+
+=item 3. path to a directory
+
+The indicated directory will be searched for all files ending in the
+suffixes .fa, .fa.gz, .fa.Z or .fa.bz2.
+
+a=item 4. filehandle
+
+An open filehandle from which to read the FASTA data.
+
+=item 5. pipe expression
+
+A pipe expression will also work. For example, a FASTA file on a remote
+web server can be loaded with an expression like this:
+
+  $db->load_gff("lynx -dump -source http://stein.cshl.org/fasta_test.fa |");
+
+=back
+
+=cut
+
+sub load_fasta {
+  my $self              = shift;
+  my $file_or_directory = shift || '.';
+  open SAVEIN,"<&STDIN";
+  local @ARGV = $self->setup_argv($file_or_directory,'fa') or return;  # to play tricks with reader
+  my $result = $self->load_sequence();
+  open STDIN,"<&SAVEIN";  # restore STDIN
+  return $result;
+}
+
+sub setup_argv {
+  my $self = shift;
+  my $file_or_directory = shift;
+  my $suffix = shift;
+
+  my @argv;
+
+  if (-d $file_or_directory) {
+    @argv = glob("$file_or_directory/*.{$suffix,$suffix.gz,$suffix.Z,$suffix.bz2}");
+  } elsif (my $fd = fileno($file_or_directory)) {
+    open STDIN,"<&=$fd" or $self->throw("Can't dup STDIN");
+    @argv = '-';
+  } elsif (ref $file_or_directory) {
+    @argv = @$file_or_directory;
+  } else {
+    @argv = $file_or_directory;
+  }
+
+  foreach (@argv) {
+    if (/\.gz$/) {
+      $_ = "gunzip -c $_ |";
+    } elsif (/\.Z$/) {
+      $_ = "uncompress -c $_ |";
+    } elsif (/\.bz2$/) {
+      $_ = "bunzip2 -c $_ |";
+    }
+  }
+  @argv;
+}
+
+=head2 lock_on_load
+
+ Title   : lock_on_load
+ Usage   : $lock = $db->lock_on_load([$lock])
+ Function: set write locking during load
+ Returns : current value of lock-on-load flag
+ Args    : new value of lock-on-load-flag
+ Status  : Public
+
+This method is honored by some of the adaptors.  If the value is true,
+the tables used by the GFF modules will be locked for writing during
+loads and inaccessible to other processes.
+
+=cut
+
+sub lock_on_load {
+  my $self = shift;
+  my $d = $self->{lock};
+  $self->{lock} = shift if @_;
+  $d;
+}
+
+=head2 meta
+
+ Title   : meta
+ Usage   : $value = $db->meta($name [,$newval])
+ Function: get or set a meta variable
+ Returns : a string
+ Args    : meta variable name and optionally value
+ Status  : abstract
+
+Get or set a named metavalues for the database.  Metavalues can be
+used for database-specific settings.
+
+By default, this method does nothing!
+
+=cut
+
+sub meta {
+  my $self = shift;
+  my ($name,$value) = @_;
+  return;
+}
+
+=head2 default_meta_values
+
+ Title   : default_meta_values
+ Usage   : %values = $db->default_meta_values
+ Function: empty the database
+ Returns : a list of tag=>value pairs
+ Args    : none
+ Status  : protected
+
+This method returns a list of tag=E<gt>value pairs that contain default
+meta information about the database.  It is invoked by initialize() to
+write out the default meta values.  The base class version returns an
+empty list.
+
+For things to work properly, meta value names must be UPPERCASE.
+
+=cut
+
+sub default_meta_values {
+  my $self = shift;
+  return ();
+}
+
+
+=head2 error
+
+ Title   : error
+ Usage   : $db->error( [$new error] );
+ Function: read or set error message
+ Returns : error message
+ Args    : an optional argument to set the error message
+ Status  : Public
+
+This method can be used to retrieve the last error message.  Errors
+are not reset to empty by successful calls, so contents are only valid
+immediately after an error condition has been detected.
+
+=cut
+
+sub error {
+  my $self = shift;
+  my $g = $self->{error};
+  $self->{error} = join '',@_ if @_;
+  $g;
+}
+
+=head2 debug
+
+ Title   : debug
+ Usage   : $db->debug( [$flag] );
+ Function: read or set debug flag
+ Returns : current value of debug flag
+ Args    : new debug flag (optional)
+ Status  : Public
+
+This method can be used to turn on debug messages.  The exact nature
+of those messages depends on the adaptor in use.
+
+=cut
+
+sub debug {
+  my $self = shift;
+  my $g = $self->{debug};
+  $self->{debug} = shift if @_;
+  $g;
+}
+
+
+=head2 automerge
+
+ Title   : automerge
+ Usage   : $db->automerge( [$new automerge] );
+ Function: get or set automerge value
+ Returns : current value (boolean)
+ Args    : an optional argument to set the automerge value
+ Status  : Public
+
+By default, this module will use the aggregators to merge groups into
+single composite objects.  This default can be changed to false by
+calling automerge(0).
+
+=cut
+
+sub automerge {
+  my $self = shift;
+  my $g = $self->{automerge};
+  $self->{automerge} = shift if @_;
+  $g;
+}
+
 
 =head2 notes
 
@@ -1561,6 +1545,11 @@ Use aggregators() or add_aggregator() to add some back.
 =cut
 
 sub clear_aggregators { shift->{aggregators} = [] }
+
+=head1 Methods for use by Subclasses
+
+The following methods are chiefly of interest to subclasses and are
+not intended for use by end programmers.
 
 =head2 abscoords
 
@@ -1855,6 +1844,72 @@ sub do_initialize {
     shift->throw('do_initialize(): must be implemented by an adaptor');
 }
 
+=head2 dna
+
+ Title   : dna
+ Usage   : $db->dna($id,$class,$start,$stop)
+ Function: return the raw DNA string for a segment
+ Returns : a raw DNA string
+ Args    : id of the sequence, its class, start and stop positions
+ Status  : public
+
+This method is invoked by Bio::DB::GFF::Segment to fetch the raw DNA
+sequence.
+
+NOTE: you will probably prefer to create a Segment and then invoke its
+dna() method.
+
+=cut
+
+# call to return the DNA string for the indicated region
+# real work is done by get_dna()
+sub dna {
+  my $self = shift;
+  my ($id,$start,$stop,$class)  = rearrange([
+					     [qw(NAME ID REF REFSEQ)],
+					     qw(START),
+					     [qw(STOP END)],
+    					    'CLASS',
+					   ],@_);
+  return unless defined $start && defined $stop;
+  $self->get_dna($id,$start,$stop,$class);
+}
+
+sub features_in_range {
+  my $self = shift;
+  my ($range_type,$refseq,$class,$start,$stop,$types,$parent,$sparse,$automerge,$iterator) =
+    rearrange([
+	       [qw(RANGE_TYPE)],
+	       [qw(REF REFSEQ)],
+	       qw(CLASS),
+	       qw(START),
+	       [qw(STOP END)],
+	       [qw(TYPE TYPES)],
+	       qw(PARENT),
+	       [qw(RARE SPARSE)],
+	       [qw(MERGE AUTOMERGE)],
+	       'ITERATOR'
+	      ],@_);
+  $automerge = $self->automerge unless defined $automerge;
+  $self->throw("range type must be one of {".
+	       join(',',keys %valid_range_types).
+	       "}\n")
+    unless $valid_range_types{lc $range_type};
+  $self->_features({
+		    rangetype => lc $range_type,
+		    refseq    => $refseq,
+		    refclass  => $class,
+		    start     => $start,
+		    stop      => $stop,
+		    types     => $types },
+		   {
+		    sparse    => $sparse,
+		    automerge => $automerge,
+		    iterator  => $iterator
+		   },
+		   $parent);
+}
+
 =head2 get_dna
 
  Title   : get_dna
@@ -1977,6 +2032,125 @@ sub get_feature_by_name {
   my $self = shift;
   my ($class,$name,$callback) = @_;
   $self->throw("get_feature_by_name() must be implemented by an adaptor");
+}
+
+=head2 get_feature_by_id
+
+ Title   : get_feature_by_id
+ Usage   : $db->get_feature_by_id($ids,$type,$callback)
+ Function: get a feature based
+ Returns : count of number of features retrieved
+ Args    : arrayref to feature IDs to fetch
+ Status  : abstract
+
+This method is used internally to fetch features either by their ID or
+their group ID.  $ids is a arrayref containing a list of IDs, $type is
+one of "feature" or "group", and $callback is a callback.  The
+callback arguments are the same as those used by make_feature().  This
+method must be overidden by subclasses.
+
+=cut
+
+sub get_feature_by_id {
+  my $self = shift;
+  my ($ids,$type,$callback) = @_;
+  $self->throw("get_feature_by_id() must be implemented by an adaptor");
+}
+
+=head2 overlapping_features
+
+ Title   : overlapping_features
+ Usage   : $db->overlapping_features(@args)
+ Function: get features that overlap the indicated range
+ Returns : a list of Bio::DB::GFF::Feature objects
+ Args    : see below
+ Status  : public
+
+This method is invoked by Bio::DB::GFF::Segment-E<gt>features() to find
+the list of features that overlap a given range.  It is generally
+preferable to create the Segment first, and then fetch the features.
+
+This method takes set of named arguments:
+
+  -refseq    ID of the reference sequence
+  -class     Class of the reference sequence
+  -start     Start of the desired range in refseq coordinates
+  -stop      Stop of the desired range in refseq coordinates
+  -types     List of feature types to return.  Argument is an array
+	     reference containing strings of the format "method:source"
+  -parent    A parent Bio::DB::GFF::Segment object, used to create
+	     relative coordinates in the generated features.
+  -rare      Turn on an optimization suitable for a relatively rare feature type,
+             where it will be faster to filter by feature type first
+             and then by position, rather than vice versa.
+  -merge     Whether to apply aggregators to the generated features.
+  -iterator  Whether to return an iterator across the features.
+
+If -iterator is true, then the method returns a single scalar value
+consisting of a Bio::SeqIO object.  You can call next_seq() repeatedly
+on this object to fetch each of the features in turn.  If iterator is
+false or absent, then all the features are returned as a list.
+
+Currently aggregation is disabled when iterating over a series of
+features.
+
+Types are indicated using the nomenclature "method:source".  Either of
+these fields can be omitted, in which case a wildcard is used for the
+missing field.  Type names without the colon (e.g. "exon") are
+interpreted as the method name and a source wild card.  Regular
+expressions are allowed in either field, as in: "similarity:BLAST.*".
+
+=cut
+
+# call to return the features that overlap the named region
+# real work is done by get_features
+sub overlapping_features {
+  my $self = shift;
+  $self->features_in_range(-range_type=>'overlaps',@_);
+}
+
+=head2 contained_features
+
+ Title   : contained_features
+ Usage   : $db->contained_features(@args)
+ Function: get features that are contained within the indicated range
+ Returns : a list of Bio::DB::GFF::Feature objects
+ Args    : see overlapping_features()
+ Status  : public
+
+This call is similar to overlapping_features(), except that it only
+retrieves features whose end points are completely contained within
+the specified range.
+
+Generally you will want to fetch a Bio::DB::GFF::Segment object and
+call its contained_features() method rather than call this directly.
+
+=cut
+
+# The same, except that it only returns features that are completely contained within the
+# range (much faster usually)
+sub contained_features {
+  my $self = shift;
+  $self->features_in_range(-range_type=>'contains',@_);
+}
+
+=head2 contained_in
+
+ Title   : contained_in
+ Usage   : @features = $s->contained_in(@args)
+ Function: get features that contain this segment
+ Returns : a list of Bio::DB::GFF::Feature objects
+ Args    : see features()
+ Status  : Public
+
+This is identical in behavior to features() except that it returns
+only those features that completely contain the segment.
+
+=cut
+
+sub contained_in {
+  my $self = shift;
+  $self->features_in_range(-range_type=>'contained_in',@_);
 }
 
 =head2 get_abscoords
@@ -2102,7 +2276,8 @@ sub make_feature {
       $source,$method,
       $score,$strand,$phase,
       $group_class,$group_name,
-      $tstart,$tstop,$db_id) = @_;
+      $tstart,$tstop,
+      $db_id,$group_id) = @_;
 
   return unless $srcseq;            # return undef if called with no arguments.  This behavior is used for
                                     # on-the-fly aggregation.
@@ -2123,13 +2298,14 @@ sub make_feature {
     return Bio::DB::GFF::Feature->new_from_parent($parent,$start,$stop,
 						  $method,$source,
 						  $score,$strand,$phase,
-						  $group,$db_id);
+						  $group,$db_id,$group_id,
+						  $tstart,$tstop);
   } else {
     return Bio::DB::GFF::Feature->new($self,$srcseq,
 				      $start,$stop,
 				      $method,$source,
 				      $score,$strand,$phase,
-				      $group,$db_id,
+				      $group,$db_id,$group_id,
 				      $tstart,$tstop);
   }
 }
@@ -2453,11 +2629,13 @@ sub _split_group {
 package Bio::DB::GFF::ID_Iterator;
 use strict;
 use Bio::Root::Root;
+use vars '@ISA';
+@ISA = 'Bio::Root::Root';
 
 sub new {
-  my $class        = shift;
-  my ($db,$ids)    = @_;
-  return bless {ids=>$ids,db=>$db},$class;
+  my $class            = shift;
+  my ($db,$ids,$type)  = @_;
+  return bless {ids=>$ids,db=>$db,type=>$type},$class;
 }
 
 sub next_seq {
@@ -2465,7 +2643,10 @@ sub next_seq {
   my $next = shift @{$self->{ids}};
   return unless $next;
   my $name = ref($next) eq 'ARRAY' ? Bio::DB::GFF::Featname->new(@$next) : $next;
-  my $segment = $self->{db}->segment($name);
+  my $segment = $self->{type} eq 'name'      ? $self->{db}->segment($name)
+                : $self->{type} eq 'feature' ? $self->{db}->fetch_feature_by_id($name)
+                : $self->{type} eq 'group'   ? $self->{db}->fetch_feature_by_gid($name)
+                : $self->throw("Bio::DB::GFF::ID_Iterator called to fetch an unknown type of identifier");
   $self->throw("id does not exist") unless $segment;
   return $segment;
 }

@@ -511,13 +511,51 @@ sub features {
   return $self->factory->overlapping_features(@args);
 }
 
-# same as $segment->features(...,-iterator=>1);
+=head2 feature_stream
 
-sub get_seq_stream {
+ Title   : features
+ Usage   : $stream = $s->feature_stream(@args)
+ Function: get a stream of features that overlap this segment
+ Returns : a Bio::SeqIO::Stream-compliant stream
+ Args    : see below
+ Status  : Public
+
+This is the same as features(), but returns a stream.  Use like this:
+
+ $stream = $s->feature_stream('exon');
+ while (my $exon = $stream->next_seq) {
+    print $exon->start,"\n";
+ }
+
+=cut
+
+sub get_feature_stream {
   my $self = shift;
   my @args = $_[0] =~ /^-/ ? (@_,-iterator=>1) : (-types=>\@_,-iterator=>1);
   $self->features(@args);
 }
+
+=head2 get_seq_stream
+
+ Title   : get_seq_stream
+ Usage   : $stream = $s->get_seq_stream(@args)
+ Function: get a stream of features that overlap this segment
+ Returns : a Bio::SeqIO::Stream-compliant stream
+ Args    : see below
+ Status  : Public
+
+This is the same as feature_stream(), and is provided for Bioperl
+compatibility.  Use like this:
+
+ $stream = $s->get_seq_stream('exon');
+ while (my $exon = $stream->next_seq) {
+    print $exon->start,"\n";
+ }
+
+=cut
+
+*get_seq_stream = \&get_feature_stream;
+
 
 =head2 overlapping_features
 

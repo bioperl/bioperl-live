@@ -133,7 +133,7 @@ while (<>) {
   my @groups = split(/\s*;\s*/,$group);
   foreach (@groups) { s/$;/;/g }
 
-  my ($group_class,$group_name,$target_start,$target_stop,$notes) = split_group(@groups);
+  my ($group_class,$group_name,$target_start,$target_stop,$notes) = Bio::DB::GFF->_split_group(@groups);
   $group_class  ||= '\N';
   $group_name   ||= '\N';
   $target_start ||= '\N';
@@ -190,44 +190,6 @@ if ($success) {
 } else {
   print "FAILURE: Please see standard error for details\n";
   exit -1;
-}
-
-sub split_group {
-  my ($gclass,$gname,$tstart,$tstop,@notes);
-
-  for (@_) {
-
-    my ($tag,$value) = /^(\S+)\s*(.*)/;
-    $value =~ s/\\t/\t/g;
-    $value =~ s/\\r/\r/g;
-    $value =~ s/^"//;
-    $value =~ s/"$//;
-
-    # if the tag is "Note", then we add this to the
-    # notes array
-   if ($tag eq 'Note') {  # just a note, not a group!
-     push @notes,$value;
-   }
-
-    # if the tag eq 'Target' then the class name is embedded in the ID
-    # (the GFF format is obviously screwed up here)
-    elsif ($tag eq 'Target' && $value =~ /([^:\"]+):([^\"]+)/) {
-      ($gclass,$gname) = ($1,$2);
-      ($tstart,$tstop) = /(\d+) (\d+)/;
-    }
-
-    elsif (!$value) {
-      push @notes,$tag;  # e.g. "Confirmed_by_EST"
-    }
-
-    # otherwise, the tag and value correspond to the
-    # group class and name
-    else {
-      ($gclass,$gname) = ($tag,$value);
-    }
-  }
-
-  return ($gclass,$gname,$tstart,$tstop,\@notes);
 }
 
 __END__

@@ -277,6 +277,49 @@ sub get_feature_by_name {
   return $count;
 }
 
+=head2 get_feature_by_id
+
+ Title   : get_feature_by_id
+ Usage   : $db->get_feature_by_id($ids,$type,$callback)
+ Function: get a list of features by ID
+ Returns : count of number of features retrieved
+ Args    : arrayref containing list of IDs to fetch and a callback
+ Status  : protected
+
+This method is used internally.  The $type selector is one of
+"feature" or "group".  The callback arguments are those used by
+make_feature().  Internally, it invokes the following abstract
+procedures:
+
+ make_features_select_part
+ make_features_from_part
+ make_features_by_id_where_part
+ make_features_join_part
+
+=cut
+
+sub get_feature_by_id {
+  my $self = shift;
+  my ($ids,$type,$callback) = @_;
+  $callback || $self->throw('must provide a callback argument');
+
+  my $select         = $self->make_features_select_part;
+  my $from           = $self->make_features_from_part;
+  my ($where,@args)  = $type eq 'feature' ? $self->make_features_by_id_where_part($ids)
+                                          : $self->make_features_by_gid_where_part($ids);
+  my $join           = $self->make_features_join_part;
+  my $query          = "SELECT $select FROM $from WHERE $where AND $join";
+  my $sth            = $self->dbh->do_query($query,@args);
+
+  my $count = 0;
+  while (my @row = $sth->fetchrow_array) {
+    $callback->(@row);
+    $count++;
+  }
+  $sth->finish;
+  return $count;
+}
+
 =head2 get_types
 
  Title   : get_types
@@ -848,6 +891,40 @@ sub make_features_byname_where_part {
   my $self = shift;
   my ($class,$name) = @_;
   shift->throw('make_features_byname_where_part(): must be implemented by subclass');
+}
+
+=head2 make_features_by_id_where_part
+
+ Title   : make_features_by_id_where_part
+ Usage   : $db->make_features_by_id_where_part($ids)
+ Function: create the SQL fragment needed to select a set of features by their ids
+ Returns : a SQL fragment and bind arguments
+ Args    : arrayref of IDs
+ Status  : Protected
+
+=cut
+
+sub make_features_by_id_where_part {
+  my $self = shift;
+  my $ids  = shift;
+  shift->throw('make_features_by_id_where_part(): must be implemented by subclass');
+}
+
+=head2 make_features_by_gid_where_part
+
+ Title   : make_features_by_gid_where_part
+ Usage   : $db->make_features_by_gid_where_part($ids)
+ Function: create the SQL fragment needed to select a set of features by their group ids
+ Returns : a SQL fragment and bind arguments
+ Args    : arrayref of IDs
+ Status  : Protected
+
+=cut
+
+sub make_features_by_gid_where_part {
+  my $self = shift;
+  my $ids  = shift;
+  shift->throw('make_features_by_gid_where_part(): must be implemented by subclass');
 }
 
 =head2 make_dna_query

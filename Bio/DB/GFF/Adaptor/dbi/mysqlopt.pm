@@ -426,8 +426,8 @@ create table fnote (
 
 create table ftype (
     ftypeid      int not null  auto_increment,
-    fmethod       varchar(100) not null,
-    fsource       varchar(100),
+    fmethod      varchar(100) not null,
+    fsource      varchar(100),
     primary key(ftypeid),
     index(fmethod),
     index(fsource),
@@ -446,6 +446,19 @@ create table fmeta (
 	        fvalue  varchar(255) not null,
 		primary key(fname)
 )
+
+create table fattribute (
+	faid    int(10) not null unsigned auto_increment,
+        faname  varchar(255)    not null,
+	primary key(faid)
+)
+
+create table fgroup_to_fattribute (
+        gid  int(10) not null,
+        faid int(10) not null,
+	favalue varchar(1024)
+)
+
 END
 ;
 }

@@ -86,11 +86,12 @@ my %CONSTANT_TAGS = (method=>1, source=>1, score=>1, phase=>1, notes=>1, id=>1, 
  Status  : Internal
 
 This method is called by Bio::DB::GFF to create a new feature using
+
 information obtained from the GFF database.  It is one of two similar
 constructors.  This one is called when the feature is generated from a
 RelSegment object, and should inherit that object's coordinate system.
 
-The 10 arguments are positional:
+The 13 arguments are positional (sorry):
 
   $parent       a Bio::DB::GFF::RelSegment object (or descendent)
   $start        start of this feature
@@ -103,6 +104,12 @@ The 10 arguments are positional:
   $phase        this feature's phase
   $group        this feature's group (a Bio::DB::GFF::Featname object)
   $db_id        this feature's internal database ID
+  $group_id     this feature's internal group database ID
+  $tstart       this feature's target start
+  $tstop        this feature's target stop
+
+tstart and tstop aren't used for anything at the moment, since the
+information is embedded in the group object.
 
 =cut
 
@@ -114,7 +121,8 @@ sub new_from_parent {
       $start,$stop,
       $method,$source,$score,
       $fstrand,$phase,
-      $group,$db_id) = @_;
+      $group,$db_id,$group_id,
+      $tstart,$tstop) = @_;
 
   ($start,$stop) = ($stop,$start) if defined($fstrand) and $fstrand eq '-';
   my $class = $group ? $group->class : $parent->class;
@@ -126,16 +134,17 @@ sub new_from_parent {
 		     ref       => $parent->{ref},
 		     refstart  => $parent->{refstart},
 		     refstrand => $parent->{refstrand},
-		     absolute => $parent->{absolute},
-		     start  => $start,
-		     stop   => $stop,
-		     type   => Bio::DB::GFF::Typename->new($method,$source),
-		     fstrand => $fstrand,
-		     score  => $score,
-		     phase  => $phase,
-		     group  => $group,
-		     db_id  => $db_id,
-		     class  => $class,
+		     absolute  => $parent->{absolute},
+		     start     => $start,
+		     stop      => $stop,
+		     type      => Bio::DB::GFF::Typename->new($method,$source),
+		     fstrand   => $fstrand,
+		     score     => $score,
+		     phase     => $phase,
+		     group     => $group,
+		     db_id     => $db_id,
+		     group_id  => $group_id,
+		     class     => $class,
 		    },$package;
   $self;
 }
@@ -181,10 +190,8 @@ sub new {
       $start,$stop,
       $method,$source,
       $score,$fstrand,$phase,
-      $group,
-      $db_id,
-      $tstart,$tstop,
-     ) = @_;
+      $group,$db_id,$group_id,
+      $tstart,$tstop) = @_;
 
   my $self = bless { },$package;
   ($start,$stop) = ($stop,$start) if defined($fstrand) and $fstrand eq '-';
@@ -209,8 +216,8 @@ sub new {
     @{$self}{qw(ref refstart refstrand)} = ($srcseq,1,'+');
   }
 
-  @{$self}{qw(type fstrand score phase group db_id)} =
-    (Bio::DB::GFF::Typename->new($method,$source),$fstrand,$score,$phase,$group,$db_id);
+  @{$self}{qw(type fstrand score phase group db_id group_id)} =
+    (Bio::DB::GFF::Typename->new($method,$source),$fstrand,$score,$phase,$group,$db_id,$group_id);
 
   $self;
 }
@@ -422,7 +429,25 @@ cannot be changed.
 
 =cut
 
-sub id     { shift->{db_id}   }
+sub id        { shift->{db_id}   }
+
+=head2 group_id
+
+ Title   : group_id
+ Usage   : $id = $f->group_id
+ Function: get the feature ID
+ Returns : a database identifier
+ Args    : none
+ Status  : Public
+
+This method retrieves the database group identifier for the feature.
+It cannot be changed.  Often the group identifier is more useful than
+the feature identifier, since it is used to refer to a complex object
+containing subparts.
+
+=cut
+
+sub group_id  { shift->{group_id}   }
 
 =head2 clone
 

@@ -272,6 +272,16 @@ ok($overlap[1]->name,'trans-4');
 ok($overlap[0]->strand,1);
 ok($overlap[1]->strand,-1);
 
+# testing feature id and group_id
+my $tf = $overlap[0];
+ok(defined $tf->id);
+ok(defined $tf->group_id);
+my $t1 = $db->fetch_feature_by_id($tf->id);
+ok($t1->id,$tf->id);
+my $t2 = $db->fetch_feature_by_gid($tf->group_id);
+ok($t2->group_id,$tf->group_id);
+ok($t2->group_id,$t1->group_id);
+
 $segment1 = $db->segment('-class' => 'Transcript',
 			 '-name'  => 'trans-4',
 			 '-start' => 1,
