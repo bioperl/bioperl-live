@@ -148,6 +148,9 @@ ambiguous codons together and issuing a warning to that effect.
 
 Ewan moved it from Bio::SeqStats to Bio::Tools::SeqStats
 
+Heikki made tiny adjustments (+/- 0.01 daltons) to amino acid
+molecular weights to have the output match values in SWISS-PROT.
+
 =head1 FEEDBACK
 
 =head2 Mailing Lists
@@ -162,8 +165,8 @@ of the Bioperl mailing lists.  Your participation is much appreciated.
 =head2 Reporting Bugs
 
 Report bugs to the Bioperl bug tracking system to help us keep track
- the bugs and their resolution.
- Bug reports can be submitted via email or the web:
+the bugs and their resolution.  Bug reports can be submitted via email
+or the web:
 
   bioperl-bugs@bio.perl.org
   http://bugzilla.bioperl.org/
@@ -221,19 +224,19 @@ BEGIN {
     my $amino_F_wt = 165.19;
     my $amino_G_wt = 75.07;
     my $amino_H_wt = 155.16;
-    my $amino_I_wt = 131.18;
+    my $amino_I_wt = 131.17;
     my $amino_K_wt = 146.19;
-    my $amino_L_wt = 131.18;
-    my $amino_M_wt = 149.22;
+    my $amino_L_wt = 131.17;
+    my $amino_M_wt = 149.21;
     my $amino_N_wt = 132.12;
     my $amino_P_wt = 115.13;
     my $amino_Q_wt = 146.15;
-    my $amino_R_wt = 174.21;
+    my $amino_R_wt = 174.20;
     my $amino_S_wt = 105.09;
     my $amino_T_wt = 119.12;
     my $amino_U_wt = 168.06;
     my $amino_V_wt = 117.15;
-    my $amino_W_wt = 204.22;
+    my $amino_W_wt = 204.23;
     my $amino_Y_wt = 181.19;
 
 
