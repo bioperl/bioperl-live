@@ -18,6 +18,14 @@ of the bug are at http://bugzilla.bioperl.org/.
       Added a new initialization option -nodelete which
       won't try and cleanup the containing nodes if this
       is true.
+     o Bug with parsing labeled nodes with Bio::TreeIO::newick fixed
+       this was only present on the branch for the 1.2.1 and 1.2.2 series
+       - Also merged main trunk changes to the branch which make
+         newick -> nhx round tripping more effective (storing branch length
+         and bootstrap values in same locate for NodeNHX and Node 
+         implementations.)  Fixes to TreeIO parsing for labeled internal
+         also required small changes to TreeIO::nhx.  Improved
+         tests for this module as well.
     o Bio::SearchIO
       - Fixed bugs in BLAST parsing which couldn't parse NCBI
         gapped blast properly (was losing hit significance values due to
@@ -45,8 +53,6 @@ of the bug are at http://bugzilla.bioperl.org/.
      o Bio::Graphics
       - Updated tutorial.
       - Added a 1.2003 version number.
-     o Bug with parsing labeled nodes with Bio::TreeIO::newick fixed
-       this was only present on the branch for the 1.2.1 and 1.2.2 series
      o SeqIO::swiss Bug #1504 fixed with swiss writing which was not
        properly writing keywords out.
      o Bio::SeqIO::genbank 
@@ -57,6 +63,10 @@ of the bug are at http://bugzilla.bioperl.org/.
       - Bug/enhancement #1517 fixed so that SEGMENT line can be parsed 
         and written with Genbank format.  Similarly bug #1515 is fixed to
         parse in the ORIGIN text.
+     o Bio::SeqIO::fasta, a new method called preferred_id_type allows you
+       to specify the ID type, one of (accession accession.version 
+       display primary).  See Bio::SeqIO::preferred_id_type method
+       documentation for more information.
      o Unigene parsing updated to handle file format changes by NCBI
 
 1.2.2 Stable release update
