@@ -42,7 +42,7 @@ QueryDb($cfg,{'prompt'=>1,'verbose'=>1});
 
 my @args = ( '-adaptor' => 'dbi::mysqlopt',         # the "mysqlopt" adaptor *might* work with other databases....
 	     '-dsn'     => $cfg->{test_dsn},
-	     '-fasta'   => FASTA_FILES);
+	   );
 push @args,('-user' => $cfg->{test_user}) if $cfg->{test_user};
 push @args,('-pass' => $cfg->{test_pass}) if $cfg->{test_pass};
 
@@ -52,7 +52,8 @@ fail(TEST_COUNT - 2) unless $db;
 
 # exercise the loader
 ok($db->initialize(1));
-ok($db->load(GFF_FILE));
+ok($db->load_gff(GFF_FILE));
+ok($db->load_fasta(FASTA_FILES));
 
 # exercise db->types
 my @types = sort $db->types;

@@ -416,7 +416,7 @@ use Bio::Root::Root;
 use vars qw($VERSION @ISA);
 @ISA = qw(Bio::Root::Root);
 
-$VERSION = '1.00';
+$VERSION = '1.01';
 my %valid_range_types = (overlaps     => 1,
 			 contains     => 1,
 			 contained_in => 1);
@@ -532,10 +532,10 @@ sub new {
   $self;
 }
 
-=head2 load
+=head2 load_gff
 
- Title   : load
- Usage   : $db->load($file|$directory|$filehandle);
+ Title   : load_gff
+ Usage   : $db->load_gff($file|$directory|$filehandle);
  Function: load GFF data into database
  Returns : count of records loaded
  Args    : a directory, a file, a list of files, 
@@ -571,35 +571,60 @@ An open filehandle from which to read the GFF data.
 A pipe expression will also work. For example, a GFF file on a remote
 web server can be loaded with an expression like this:
 
-  $db->load("lynx -dump -source http://stein.cshl.org/gff_test |");
+  $db->load_gff("lynx -dump -source http://stein.cshl.org/gff_test |");
 
 =back
 
 If successful, the method will return the number of GFF lines
 successfully loaded.
 
+NOTE:this method used to be called load(), but has been changed.  The
+old method name is also recognized.
+
 =cut
 
-sub load {
+sub load_gff {
   my $self              = shift;
   my $file_or_directory = shift || '.';
 
-  local @ARGV;  # to play tricks with reader
+  open SAVEIN,"<&STDIN";
+  local @ARGV = $self->setup_argv($file_or_directory,'gff') or return;  # to play tricks with reader
+  my $result = $self->do_load_gff;
+  open STDIN,"<&SAVEIN";  # restore STDIN
+  return $result;
+}
+
+*load = \&load_gff;
+
+sub load_fasta {
+  my $self              = shift;
+  my $file_or_directory = shift || '.';
+  open SAVEIN,"<&STDIN";
+  local @ARGV = $self->setup_argv($file_or_directory,'fa') or return;  # to play tricks with reader
+  my $result = $self->load_sequence();
+  open STDIN,"<&SAVEIN";  # restore STDIN
+  return $result;
+}
+
+sub setup_argv {
+  my $self = shift;
+  my $file_or_directory = shift;
+  my $suffix = shift;
+
+  my @argv;
 
   if (-d $file_or_directory) {
-    @ARGV = glob("$file_or_directory/*.{gff,gff.gz,gff.Z,gff,bz2}");
+    @argv = glob("$file_or_directory/*.{$suffix,$suffix.gz,$suffix.Z,$suffix.bz2}");
   } elsif (my $fd = fileno($file_or_directory)) {
-    open SAVEIN,"<&STDIN";
     open STDIN,"<&=$fd" or $self->throw("Can't dup STDIN");
-    @ARGV = '-';
+    @argv = '-';
   } elsif (ref $file_or_directory) {
-    @ARGV = @$file_or_directory;
+    @argv = @$file_or_directory;
   } else {
-    @ARGV = $file_or_directory;
+    @argv = $file_or_directory;
   }
 
-  return unless @ARGV;
-  foreach (@ARGV) {
+  foreach (@argv) {
     if (/\.gz$/) {
       $_ = "gunzip -c $_ |";
     } elsif (/\.Z$/) {
@@ -608,13 +633,7 @@ sub load {
       $_ = "bunzip2 -c $_ |";
     }
   }
-
-  my $result = $self->load_gff;
-
-  my $junk = fileno(SAVEIN);  # avoids "possible typo" warning in next line
-
-  open STDIN,"<&SAVEIN";  # restore STDIN
-  return $result;
+  @argv;
 }
 
 =head2 lock_on_load
@@ -642,21 +661,95 @@ sub lock_on_load {
 =head2 initialize
 
  Title   : initialize
- Usage   : $db->initialize($erase);
+ Usage   : $db->initialize(-erase=>$erase,-option1=>value1,-option2=>value2);
  Function: initialize a GFF database
  Returns : true if initialization successful
- Args    : an optional flag indicating that existing
-           contents should be wiped clean
+ Args    : a set of named parameters
  Status  : Public
 
-This method can be used to initialize an empty database.  It will not
-overwrite existing data unless a true $erase flag is present.
+This method can be used to initialize an empty database.  It takes the following
+named arguments:
+
+  -erase     A boolean value.  If true the database will be wiped clean if it
+             already contains data.
+
+Other named arguments may be recognized by subclasses.  They become database
+meta values that control various settable options.
+
+As a shortcut (and for backward compatibility) a single true argument
+is the same as initialize(-erase=>1).
 
 =cut
 
 sub initialize {
-    shift->do_initialize(@_);
+  my $self = shift;
+  $self->do_initialize(1) if @_ == 1 && $_[0];
+  my ($erase,$meta) = rearrange(['ERASE'],@_);
+  $meta ||= {};
+
+  # initialize (possibly erasing)
+  return unless $self->do_initialize($erase);
+  my @default = $self->default_meta_values;
+
+  # this is an awkward way of uppercasing the 
+  # even-numbered values (necessary for case-insensitive SQL databases)
+  for (my $i=0; $i<@default; $i++) {
+    $default[$i] = uc $default[$i] if !($i % 2);
+  }
+
+  my %values = (@default,%$meta);
+  foreach (keys %values) {
+    $self->meta($_ => $values{$_});
+  }
+  1;
 }
+
+
+=head2 meta
+
+ Title   : meta
+ Usage   : $value = $db->meta($name [,$newval])
+ Function: get or set a meta variable
+ Returns : a string
+ Args    : meta variable name and optionally value
+ Status  : abstract
+
+Get or set a named metavalues for the database.  Metavalues can be
+used for database-specific settings.
+
+By default, this method does nothing!
+
+=cut
+
+sub meta {
+  my $self = shift;
+  my ($name,$value) = @_;
+  return;
+}
+
+=head2 default_meta_values
+
+ Title   : default_meta_values
+ Usage   : %values = $db->default_meta_values
+ Function: empty the database
+ Returns : a list of tag=>value pairs
+ Args    : none
+ Status  : protected
+
+This method returns a list of tag=>value pairs that contain default
+meta information about the database.  It is invoked by initialize() to
+write out the default meta values.  The base class version returns an
+empty list.
+
+For things to work properly, meta value names must be UPPERCASE.
+
+=cut
+
+sub default_meta_values {
+  my $self = shift;
+  return ();
+}
+
 
 =head2 error
 
@@ -777,6 +870,10 @@ Arguments:
  -refclass     Specifies the class of the reference landmark, for those databases
                that distinguish different object classes.  Defaults to "Sequence".
 
+ -absolute,-force_absolute
+               Return features in absolute coordinates rather than relative to the
+               parent segment.
+
  -name,-sequence,-sourceseq   Aliases for -seq.
 
  -begin,-end   Aliases for -start and -stop
@@ -827,11 +924,8 @@ at multiple locations on the genome, for example an EST that maps to
 multiple locations, then, provided that all locations reside on the
 same physical segment, the method will return a segment that spans the
 minimum and maximum positions.  If the reference sequence occupies
-ranges on different physical segments, then it returns undef.
-
-The segments() method, described below, can be used to retrieve all
-the segments spanned by a named feature, regardless of whether it is
-on a contiguous physical segment.
+ranges on different physical segments, then it returns them all in an
+array context, and raises an exception in a scalar context.
 
 Note that if the given landmark is in the database more than once
 under different references sequences, segment() will return several
@@ -873,42 +967,6 @@ sub segment {
   }
 }
 
-=head2 abs_segment
-
- Title   : abs_segment
- Usage   : $db->abs_segment(@args);
- Function: create an absolute segment object
- Returns : a segment object
- Args    : numerous, see below
- Status  : public
-
-This method behaves in the same way as segment(), but it forces the
-method to return the segment in absolute coordinates.
-
-=cut
-
-sub abs_segment {
-  my $self = shift;
-  if ($_[0] !~ /^-/) {
-    @_ = (-name=> $_[0], -start=>$_[1],-stop=>$_[2]) if @_ == 3;
-    @_ = (-class=>$_[0],-name=>$_[1]) if @_ == 2;
-    @_ = (-name=> $_[0])              if @_ == 1;
-  }
-  push @_,('-force_absolute'=>1);
-  my @segments = Bio::DB::GFF::RelSegment->new(-factory => $self,@_);
-
-  # handle expectations of caller
-  if (@segments == 0) {
-    return;
-  } elsif (@segments == 1) {
-    return $segments[0];
-  } elsif (wantarray) { # more than one reference sequence
-    return @segments;
-  } else {
-    $self->error($segments[0]->name," has more than one reference sequence in database");
-    return;
-  }
-}
 
 =head2 absolute
 
@@ -1218,29 +1276,32 @@ sub features {
 		   );
 }
 
-=head2 fetch_group
+=head2 fetch_feature
 
- Title   : fetch_group
- Usage   : $db->fetch_group($class => $name)
- Function: fetch segments by group name
+ Title   : fetch_feature
+ Usage   : $db->fetch_feature($class => $name)
+ Function: fetch segments by feature (group) name
  Returns : a list of Bio::DB::GFF::Feature objects
  Args    : the class and name of the desired feature
  Status  : public
 
-This method can be used to fetch a set of one or more named features
-from the database.  GFF annotations are named using the group class
-and name fields, so for features that belong to a group of size one,
-this method can be used to retrieve that group (and is equivalent to
-the segment() method).
+This method can be used to fetch a named feature from the database.
+GFF annotations are named using the group class and name fields, so
+for features that belong to a group of size one, this method can be
+used to retrieve that group (and is equivalent to the segment()
+method).
 
 This method may return zero, one, or several Bio::DB::GFF::Feature
 objects.
 
 Aggregation is performed on features as usual.
 
+NOTE: this function used to be called fetch_group(), and this synonym
+is preserved for backward compatibility.
+
 =cut
 
-sub fetch_group {
+sub fetch_feature {
   my $self = shift;
   my ($gclass,$gname);
   if (@_ == 1) {
@@ -1257,7 +1318,8 @@ sub fetch_group {
   @$features;
 }
 
-*segments = \&segment;
+*fetch_group = \&fetch_feature;
+*segments    = \&segment;
 
 =head2 get_seq_stream()
 
@@ -1488,10 +1550,10 @@ sub default_aggregators {
   return ['transcript','clone','alignment'];
 }
 
-=head2 load_gff
+=head2 do_load_gff
 
- Title   : load_gff
- Usage   : $db->load_gff
+ Title   : do_load_gff
+ Usage   : $db->do_load_gff
  Function: load a GFF input stream
  Returns : number of features loaded
  Args    : none
@@ -1508,7 +1570,7 @@ field, which are legion.
 =cut
 
 # load from <>
-sub load_gff {
+sub do_load_gff {
   my $self = shift;
   $self->setup_load();
 
@@ -1578,6 +1640,51 @@ sub load_gff {
   }
 
   $self->finish_load();
+}
+
+sub load_sequence {
+  my $self = shift;
+  # read fasta file(s) from ARGV
+  my ($id,$seq,$offset,$loaded);
+  while (<>) {
+    chomp;
+    if (/^>(\S+)/) {
+      $self->insert_sequence($id,$offset,$seq) if $id;
+      $id     = $1;
+      $offset = 0;
+      $seq    = '';
+      $loaded++;
+    } else {
+      $seq .= $_;
+      $self->insert_sequence_chunk($id,\$offset,\$seq);
+    }
+  }
+  $self->insert_sequence($id,$offset,$seq) if $id;
+  $loaded+0;
+}
+
+sub insert_sequence_chunk {
+  my $self = shift;
+  my ($id,$offsetp,$seqp) = @_;
+  if (my $cs = $self->dna_chunk_size) {
+    while (length($$seqp) >= $cs) {
+      my $chunk = substr($$seqp,0,$cs);
+      $self->insert_sequence($id,$$offsetp,$chunk);
+      $$offsetp += length($chunk);
+      substr($$seqp,0,$cs) = '';
+    }
+  }
+}
+
+# used to store big pieces of DNA in itty bitty pieces
+sub dna_chunk_size {
+  return 0;
+}
+
+sub insert_sequence {
+  my $self = shift;
+  my($id,$offset,$seq) = @_;
+  $self->throw('insert_sequence(): must be defined in subclass');
 }
 
 # default is to return 'Sequence' as the class of all references
@@ -1793,10 +1900,11 @@ sub get_features{
  Function: get a list of features by name and class
  Returns : count of number of features retrieved
  Args    : name of feature, class of feature, and a callback
- Status  : protected
+ Status  : abstract
 
-This method is used internally.  The callback arguments are those used
-by make_feature().
+This method is used internally.  The callback arguments are the same
+as those used by make_feature().  This method must be overidden by
+subclasses.
 
 =cut
 

@@ -138,6 +138,7 @@ sub dbh {
   # if we get here, we must create a new one
   warn "(Re)connecting to database\n" if $self->debug;
   my $dbh = DBI->connect(@{$self->{args}}) or return;
+  $dbh->{PrintError} = 0;
   my $wrapper = Bio::DB::GFF::Adaptor::dbi::faux_dbh->new($dbh);
   push @{$self->{dbh}},$wrapper;
   $wrapper;

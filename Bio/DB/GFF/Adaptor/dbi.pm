@@ -567,6 +567,101 @@ sub exact_match {
   return qq($field = ?);
 }
 
+=head2 meta
+
+ Title   : meta
+ Usage   : $value = $db->meta($name [,$newval])
+ Function: get or set a meta variable
+ Returns : a string
+ Args    : meta variable name and optionally value
+ Status  : public
+
+Get or set a named metavariable for the database.  Metavariables can
+be used for database-specific settings.  This method calls two
+class-specific methods which must be implemented:
+
+  make_meta_get_query()   Returns a sql fragment which given a meta
+                          parameter name, returns its value.  One bind
+                          variable.
+  make_meta_set_query()   Returns a sql fragment which takes two bind
+                          arguments, the parameter name and its value
+
+
+Don't make changes unless you know what you're doing!  It will affect the
+persistent database.
+
+=cut
+
+sub meta {
+  my $self = shift;
+  my $param_name = uc shift;
+
+  # getting
+  if (@_) {
+    my $value = shift;
+    my $sql = $self->make_meta_set_query() or return;
+    my $sth = $self->dbh->prepare_delayed($sql) 
+              or $self->error("Can't prepare $sql: ",$self->dbh->errstr), return;
+    $sth->execute($param_name,$value)
+              or $self->error("Can't execute $sql: ",$self->dbh->errstr), return;
+    $sth->finish;
+    return $self->{meta}{$param_name} = $value;
+  }
+
+  elsif (exists $self->{meta}{$param_name}) {
+    return $self->{meta}{$param_name};
+  }
+
+  else {
+    undef $self->{meta}{$param_name};  # so that we don't check again
+    my $sql = $self->make_meta_get_query() or return;
+    my $sth  = $self->dbh->prepare_delayed($sql)
+            or $self->error("Can't prepare $sql: ",$self->dbh->errstr), return;
+    $sth->execute($param_name)
+            or $self->error("Can't execute $sql: ",$sth->errstr),return;
+    my ($value) = $sth->fetchrow_array;
+    $sth->finish;
+    return $self->{meta}{$param_name} = $value;
+  }
+
+}
+
+=head2 make_meta_get_query
+
+ Title   : make_meta_get_query
+ Usage   : $sql = $db->make_meta_get_query
+ Function: return SQL fragment for getting a meta parameter
+ Returns : SQL fragment
+ Args    : none
+ Status  : public
+
+By default this does nothing; meta parameters are not stored or
+retrieved.
+
+=cut
+
+sub make_meta_get_query {
+  return;
+}
+
+=head2 make_meta_set_query
+
+ Title   : make_meta_set_query
+ Usage   : $sql = $db->make_meta_set_query
+ Function: return SQL fragment for setting a meta parameter
+ Returns : SQL fragment
+ Args    : none
+ Status  : public
+
+By default this does nothing; meta parameters are not stored or
+retrieved.
+
+=cut
+
+sub make_meta_set_query {
+  return;
+}
+
 =head2 get_features_iterator
 
  Title   : get_features_iterator
@@ -621,17 +716,12 @@ Internally, this method calls schema() to get the schema data.
 # You will need create privileges for this.
 sub do_initialize {
   my $self = shift;
-  my $drop_all = shift;
-  $self->drop_all if $drop_all;
+  my $erase = shift;
+  $self->drop_all if $erase;
 
   my $dbh = $self->features_db;
-  my @statements = split "\n\n",$self->schema;
-  foreach (@statements) {
-    s/;.*\Z//s;
-    unless ($dbh->do($_)) {
-      warn $dbh->errstr;
-      return;
-    }
+  foreach ($self->schema) {
+    $dbh->do($_) || warn $dbh->errstr;
   }
   1;
 }
@@ -1146,7 +1236,7 @@ sub tables {
  Title   : schema
  Usage   : $schema = $db->schema
  Function: return the CREATE script for the schema
- Returns : a string
+ Returns : a list of create statements
  Args    : none
  Status  : abstract
 
@@ -1160,7 +1250,7 @@ there must be a blank line between each of the CREATE statements:
      gname   varchar(100),
      primary key(gid),
      unique(gclass,gname)
- );
+ )
 
  create table ftype (
      ftypeid      int not null   auto_increment,
@@ -1170,13 +1260,13 @@ there must be a blank line between each of the CREATE statements:
      index(fmethod),
      index(fsource),
      unique ftype (fmethod,fsource)
- );
+ )
 
  create table fdna (
      fref          varchar(20) not null,
      fdna          longblob not null,
      primary key(fref)
- );
+ )
 
 =cut
 

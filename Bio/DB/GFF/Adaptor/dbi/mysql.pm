@@ -14,13 +14,12 @@ See L<Bio::DB::GFF>
 use strict;
 use Bio::DB::GFF::Adaptor::dbi;
 use Bio::DB::GFF::Util::Rearrange; # for rearrange()
-use vars qw($VERSION @ISA $IN_ITERATOR);
+use vars qw($VERSION @ISA);
 @ISA = qw(Bio::DB::GFF::Adaptor::dbi);
 $VERSION = '0.30';
 
-$IN_ITERATOR = 0;
-
 use constant MAX_SEGMENT => 100_000_000;  # the largest a segment can get
+use constant DEFAULT_CHUNK => 2000;
 
 use constant GETSEQCOORDS =><<END;
 SELECT fref,
@@ -66,7 +65,7 @@ This adaptor implements a specific mysql database schema that is
 compatible with Bio::DB::GFF.  It inherits from
 Bio::DB::GFF::Adaptor::dbi, which itself inherits from Bio::DB::GFF.
 
-The schema uses four tables:
+The schema uses several tables:
 
 =over 4
 
@@ -153,14 +152,17 @@ The ftype.ftypeid field joins with the fdata.ftypeid field.  Example:
 
 =item fdna
 
-This table holds the raw DNA of the reference sequences.  It has two
+This table holds the raw DNA of the reference sequences.  It has three
 columns:
 
     fref          reference sequence name (string)
+    foffset       offset of this sequence
     fdna          the DNA sequence (longblob)
 
-Note that the GFF module will not help you load this table.  You must
-load it yourself.
+To overcome problems loading large blobs, DNA is automatically
+fragmented into multiple segments when loading, and the position of
+each segment is stored in foffset.  The fragment size is controlled by
+the -clump_size argument during initialization.
 
 =item fnote
 
@@ -219,33 +221,65 @@ automatically if it is not there already.
 sub new {
   my $class = shift;
   my ($dsn,$other) = rearrange([
-                                  [qw(FEATUREDB DB DSN)],
-				],@_);
-  if (!ref($dsn) && $dsn !~ /^(?:dbi|DBI):mysql/) {
-      $dsn = "dbi:mysql:$dsn";
-  }
-  $class->SUPER::new(-dsn=>$dsn,%$other);
+				[qw(FEATUREDB DB DSN)],
+			       ],@_);
+  $dsn = "dbi:mysql:$dsn" if !ref($dsn) && $dsn !~ /^(?:dbi|DBI):mysql/;
+  my $self = $class->SUPER::new(-dsn=>$dsn,%$other);
+  $self;
 }
 
-=head2 make_dna_query
+=head2 get_dna
 
- Title   : make_dna_query
- Usage   : $sth = $db->make_dna_query($name,$class,$start,$stop);
- Function: create query that returns raw DNA sequence from database
- Returns : a DBI statement handle
- Args    : reference sequence name and class, and a range
- Status  : protected
+ Title   : get_dna
+ Usage   : $string = $db->get_dna($name,$start,$stop,$class)
+ Function: get DNA string
+ Returns : a string
+ Args    : name, class, start and stop of desired segment
+ Status  : Public
 
-The statement handler should return rows containing just one field,
-the extracted DNA string.
+This method performs the low-level fetch of a DNA substring given its
+name, class and the desired range.  This should probably be moved to
+the parent class.
 
 =cut
 
-sub make_dna_query {
+sub get_dna {
   my $self = shift;
-  my ($name,$start,$stop,$class) = @_;
-  # simply ignore class for now
-  $self->dbh->do_query('SELECT substring(fdna.fdna,?,?) FROM fdna WHERE fref=?',$name,$start,$stop);
+  my ($ref,$start,$stop,$class) = @_;
+  my ($offset_start,$offset_stop);
+
+  my $reversed;
+  if ($start > $stop) {
+    $reversed++;
+    ($start,$stop) = ($stop,$start);
+  }
+
+  # turn start and stop into 0-based offsets
+  my $cs = $self->chunk_size;
+  $start -= 1;  $stop -= 1;
+  $offset_start = int($start/$cs)*$cs;
+  $offset_stop  = int($stop/$cs)*$cs;
+
+  my $sth = $self->dbh->do_query('select fdna,foffset from fdna where fref=? and foffset>=? and foffset<=?',
+				 $ref,$offset_start,$offset_stop);
+  my $dna;
+  while (my($frag,$offset) = $sth->fetchrow_array) {
+    substr($frag,0,$start-$offset) = '' if $start > $offset;
+    $dna .= $frag;
+  }
+  substr($dna,$stop-$start+1)  = '' if defined($stop) && $stop-$start+1 < length $dna;
+  if ($reversed) {
+    $dna = reverse $dna;
+    $dna =~ tr/gatcGATC/ctagCTAG/;
+  }
+
+  $sth->finish;
+  $dna;
+}
+
+sub chunk_size {
+  my $self = shift;
+  $self->meta('chunk_size') || DEFAULT_CHUNK;
 }
 
 =head2 make_abscoord_query
@@ -758,7 +792,6 @@ sub make_types_group_part {
 
 sub get_features_iterator {
   my $self = shift;
-  local $IN_ITERATOR = 1;
   $self->SUPER::get_features_iterator(@_);
 }
 
@@ -775,13 +808,13 @@ sub get_features_iterator {
  Status  : protected
 
 This method lists the tables known to the module, namely qw(fdata fref
-fgroup ftype fdna fnote).
+fgroup ftype fdna fnote fmeta).
 
 =cut
 
 # return list of tables that "belong" to us.
 sub tables {
-  qw(fdata fref fgroup ftype fdna fnote);
+  qw(fdata fref fgroup ftype fdna fnote fmeta);
 }
 
 =head2 schema
@@ -789,17 +822,17 @@ sub tables {
  Title   : schema
  Usage   : $schema = $db->schema
  Function: return the CREATE script for the schema
- Returns : a string
+ Returns : a list of CREATE statemetns
  Args    : none
  Status  : protected
 
-This method returns a string containing the various CREATE statements
+This method returns a list containing the various CREATE statements
 needed to initialize the database tables.
 
 =cut
 
 sub schema {
-  return <<END;
+  return split "\n\n",<<END;
 create table fdata (
     fid	         int not null  auto_increment,
     fref         varchar(20)    not null,
@@ -816,7 +849,7 @@ create table fdata (
     unique index(fref,fstart,fstop,ftypeid,gid),
     index(ftypeid),
     index(gid)
-);
+)
 
 create table fgroup (
     gid	    int not null  auto_increment,
@@ -824,7 +857,7 @@ create table fgroup (
     gname   varchar(100),
     primary key(gid),
     unique(gclass,gname)
-);
+)
 
 create table ftype (
     ftypeid      int not null   auto_increment,
@@ -834,23 +867,94 @@ create table ftype (
     index(fmethod),
     index(fsource),
     unique ftype (fmethod,fsource)
-);
+)
 
 create table fdna (
-    fref          varchar(20) not null,
-    fdna          longblob not null,
-    primary key(fref)
-);
-
+		fref    varchar(20) not null,
+	        foffset int(10) unsigned not null,
+	        fdna    longblob,
+		primary key(fref,foffset)
+)
 
 create table fnote (
     fid      int not null,
     fnote    text,
     index(fid),
     fulltext(fnote)
-);
+)
+
+create table fmeta (
+		fname   char(255) not null,
+	        fvalue  char(255) not null,
+		primary key(fname)
+)
 
 END
+}
+
+=head2 default_meta_values
+
+ Title   : default_meta_values
+ Usage   : %values = $db->default_meta_values
+ Function: empty the database
+ Returns : a list of tag=>value pairs
+ Args    : none
+ Status  : protected
+
+This method returns a list of tag=>value pairs that contain default
+meta information about the database.  It is invoked by initialize() to
+write out the default meta values.  The base class version returns an
+empty list.
+
+For things to work properly, meta value names must be UPPERCASE.
+
+=cut
+
+sub default_meta_values {
+  my $self = shift;
+  return (
+	  chunk_size => DEFAULT_CHUNK,
+	 );
+}
+
+sub dna_chunk_size {
+  shift->meta('chunk_size');
+}
+
+=head2 make_meta_set_query
+
+ Title   : make_meta_set_query
+ Usage   : $sql = $db->make_meta_set_query
+ Function: return SQL fragment for setting a meta parameter
+ Returns : SQL fragment
+ Args    : none
+ Status  : public
+
+By default this does nothing; meta parameters are not stored or
+retrieved.
+
+=cut
+
+sub make_meta_set_query {
+   return 'REPLACE INTO fmeta VALUES (?,?)';
+}
+
+=head2 make_meta_get_query
+
+ Title   : make_meta_get_query
+ Usage   : $sql = $db->make_meta_get_query
+ Function: return SQL fragment for getting a meta parameter
+ Returns : SQL fragment
+ Args    : none
+ Status  : public
+
+By default this does nothing; meta parameters are not stored or
+retrieved.
+
+=cut
+
+sub make_meta_get_query {
+   return 'SELECT fvalue FROM fmeta WHERE fname=?';
 }
 
 =head2 setup_load
@@ -965,6 +1069,14 @@ sub load_gff_line {
   }
 
   $fid;
+}
+
+sub insert_sequence {
+  my $self = shift;
+  my($id,$offset,$seq) = @_;
+  my $sth = $self->{_insert_sequence}
+    ||= $self->dbh->prepare_delayed('replace into fdna values (?,?,?)');
+  $sth->execute($id,$offset,$seq) or die $sth->errstr;
 }
 
 =head2 finish_load

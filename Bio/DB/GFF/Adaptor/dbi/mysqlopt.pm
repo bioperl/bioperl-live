@@ -52,6 +52,21 @@ in which the feature is contained.  This module uses a hierarchical
 set of bins, the smallest of which are 1 kb, and the largest is 100
 megabases.
 
+In the call to initialize() you can set the following options:
+
+  -minbin        minimum value to use for binning
+
+  -maxbin        maximum value to use for binning
+
+  -straight_join_limit
+                 size of range over which it is faster to force mysql to use the range for indexing
+
+-minbin and -maxbin indicate the minimum and maximum sizes of
+features, and are important for range query optimization.  They are
+set at reasonable values -- in particular, the maximum bin size is set
+to 100 megabases. Do not change them unless you know what you are
+doing.
+
 =cut
 
 package Bio::DB::GFF::Adaptor::dbi::mysqlopt;
@@ -70,7 +85,7 @@ use Bio::DB::GFF::Util::Rearrange;
 
 use vars qw($VERSION @ISA);
 @ISA = qw(Bio::DB::GFF::Adaptor::dbi::mysql);
-$VERSION = 0.33;
+$VERSION = 0.50;
 
 # this is the largest that any reference sequence can be (100 megabases)
 use constant MAX_BIN    => 100_000_000;
@@ -127,14 +142,9 @@ doing.
 
 sub new {
   my $class = shift;
-  my ($dna_db,$acedb,
-      $minbin,$maxbin,
-      $join_limit,$other) =  rearrange([
+  my ($dna_db,$acedb,$other) =  rearrange([
 					[qw(DNADB DNA FASTA FASTA_DIR)],
-					'ACEDB',
-					'MINBIN',
-					'MAXBIN',
-					[qw(STRAIGHT_JOIN_LIMIT JOIN_LIMIT)],
+					'ACEDB'
 				       ],@_);
   my $self = $class->SUPER::new($other);
 
@@ -154,16 +164,23 @@ sub new {
     $self->{acedb} = $acedb;
   }
 
-  $self->{minbin} = defined($minbin) ? $minbin : MIN_BIN;
-  $self->{maxbin} = defined($maxbin) ? $maxbin : MAX_BIN;
-  $self->{straight_join_limit} =  defined($join_limit) ? $join_limit : STRAIGHT_JOIN_LIMIT;
-
   $self;
 }
 
 sub dna_db      { shift->{dna_db}      }
 sub acedb       { shift->{acedb}       }
 
+# meta values
+sub default_meta_values {
+  my $self = shift;
+  my @values = $self->SUPER::default_meta_values;
+  return (
+	  @values,
+	  max_bin => MAX_BIN,
+	  min_bin => MIN_BIN,
+	  straight_join_limit => STRAIGHT_JOIN_LIMIT,
+	 );
+}
 
 # given sequence name, and optional (start,stop) give raw dna
 sub get_dna {
@@ -189,7 +206,8 @@ sub do_straight_join {
   # and !grep {$_->[0] =~ /similarity/ } @$types;
 
   # if no types are specified then it is faster to do a range search, up to a point.
-  return $srcseq && defined($start) && defined($stop) && abs($stop-$start) < $self->{straight_join_limit};
+  return $srcseq && defined($start) && defined($stop) && 
+    abs($stop-$start) < $self->straight_join_limit;
 }
 
 
@@ -210,11 +228,24 @@ sub overlap_query {
 sub contains_query {
   my $self = shift;
   my ($start,$stop) = @_;
-  my ($bq,@bargs)   = $self->bin_query($start,$stop,undef,bin($start,$stop,$self->{minbin}));
+  my ($bq,@bargs)   = $self->bin_query($start,$stop,undef,bin($start,$stop,$self->min_bin));
   my ($iq,@iargs)   = $self->SUPER::contains_query($start,$stop);
   my $query = "($bq)\n\tAND $iq";
   my @args  = (@bargs,@iargs);
   return wantarray ? ($query,@args) : $self->dbh->dbi_quote($query,@args);
+}
+
+sub min_bin {
+  my $self = shift;
+  return $self->meta('min_bin') || MIN_BIN;
+}
+sub max_bin {
+  my $self = shift;
+  return $self->meta('max_bin') || MAX_BIN;
+}
+sub straight_join_limit {
+  my $self = shift;
+  return $self->meta('straight_join_limit') || STRAIGHT_JOIN_LIMIT;
 }
 
 # find features that are completely contained within a range
@@ -271,11 +302,11 @@ sub bin_query {
   my ($query,@args);
 
   $start = 0               unless defined($start);
-  $stop  = $self->{maxbin} unless defined($stop);
+  $stop  = $self->meta('max_bin') unless defined($stop);
 
   my @bins;
-  $minbin = defined $minbin ? $minbin : $self->{minbin};
-  $maxbin = defined $maxbin ? $maxbin : $self->{maxbin};
+  $minbin = defined $minbin ? $minbin : $self->min_bin;
+  $maxbin = defined $maxbin ? $maxbin : $self->max_bin;
   my $tier = $maxbin;
   while ($tier >= $minbin) {
     push @bins,'fbin between ? and ?';
@@ -354,11 +385,11 @@ sub finish_load {
 }
 
 sub tables {
-  qw(fdata fgroup ftype fdna fnote)
+  qw(fdata fgroup ftype fdna fnote fmeta)
 }
 
 sub schema {
-  return <<END;
+  return split "\n\n",<<END;
 create table fdata (
     fid	                int not null  auto_increment,
     fref                varchar(20) not null,
@@ -376,7 +407,7 @@ create table fdata (
     unique index(fref,fbin,fstart,fstop,ftypeid,gid),
     index(ftypeid),
     index(gid)
-);
+)
 
 create table fgroup (
     gid	    int not null auto_increment,
@@ -384,14 +415,14 @@ create table fgroup (
     gname   varchar(100),
     primary key(gid),
     unique(gclass,gname)
-);
+)
 
 create table fnote (
     fid      int not null,
     fnote    text,
     index(fid),
     fulltext(fnote)
-);
+)
 
 create table ftype (
     ftypeid      int not null  auto_increment,
@@ -401,13 +432,20 @@ create table ftype (
     index(fmethod),
     index(fsource),
     unique ftype (fmethod,fsource)
-);
+)
 
 create table fdna (
-    fref          varchar(20) not null,
-    fdna          longblob not null,
-    primary key(fref)
-);
+		fref    varchar(20) not null,
+	        foffset int(10) unsigned not null,
+	        fdna    longblob,
+		primary key(fref,foffset)
+)
+
+create table fmeta (
+		fname   char(255) not null,
+	        fvalue  char(255) not null,
+		primary key(fname)
+)
 END
 ;
 }

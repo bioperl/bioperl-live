@@ -18,7 +18,9 @@ Revision history for Bioperl core modules
       and PDB parser to retrieve and write these structures from data files. 
 
     o Several important Bio::DB::GFF bug fixes for handling features that
-      are mapped to multiple reference points.
+      are mapped to multiple reference points.  Updated mysql adaptor
+      so as to be able to store large (>100 megabase) chunks of DNA into
+      Bio::DB::GFF databases.
 
 0.9.2 Developer's release
 

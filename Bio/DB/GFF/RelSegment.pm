@@ -152,7 +152,9 @@ This function uses a named-argument style:
  -refclass     class of the reference sequence
  -offset       0-based offset from source sequence to start of segment
  -length       length of desired segment
- -force_absolute     don't look up the sequence coordinates in database
+ -absolute, -force_absolute
+               use absolute coordinates, rather than coordinates relative
+               to the start of self or the reference sequence
 
 The -seq argument accepts the ID of any landmark in the database.  The
 stored source sequence becomes whatever the GFF file indicates is the
@@ -204,7 +206,7 @@ sub new {
 	       qw(REFCLASS),
 	       [qw(OFFSET OFF)],
 	       [qw(LENGTH LEN)],
-	       [qw(FORCE_ABSOLUTE)],
+	       [qw(ABSOLUTE FORCE_ABSOLUTE)],
 	     ],@_);
 
   $package = ref $package if ref $package;
