@@ -327,6 +327,7 @@ sub encoding {
 
 	    if ($currseq) {
 		# strip any gaps in sequence spanned by this location:
+		($spanstart, $spanend) = ($spanend, $spanstart) if $self->strand < 0;
 		my ($before, $in, $after) = $currseq =~ m/(.{@{[ $spanstart - ($loc->location_type eq 'IN-BETWEEN' ? 0 : 1) ]}})
                                                           (.{@{[ $spanend - $spanstart + ($loc->location_type eq 'IN-BETWEEN' ? -1 : 1) ]}})
                                                           (.*)
