@@ -97,7 +97,7 @@ undef $db;
 &maketmpdir();
 $db = Bio::DB::Flat->new(-directory  => $tmpdir,
 			 -index      => 'binarysearch',
-			 -format     => 'swissprot',
+			 -format     => 'swiss',
 			 -dbname     => 'mybinswiss',
 			 -verbose    => $verbose,
 			 -write_flag => 1
