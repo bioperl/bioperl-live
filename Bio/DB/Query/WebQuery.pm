@@ -87,6 +87,7 @@ $VERSION = '0.1';
  Returns : new query object
  Args    : -db       database (e.g. 'protein')
            -ids      array ref of ids (overrides query)
+           -verbose  turn on verbose debugging
 
 This method creates a new query object.  Typically you will specify a
 -db and a -query argument.  The value of -query is a database-specific
@@ -104,11 +105,12 @@ sub new {
   my $class = shift;
   my $self  = $class->SUPER::new(@_);
 
-  my ($query,$ids) = $self->_rearrange(['QUERY','IDS'],@_);
+  my ($query,$ids,$verbose) = $self->_rearrange(['QUERY','IDS','VERBOSE'],@_);
   $self->throw('must provide one of the the -query or -ids arguments')
     unless defined($query) || defined($ids);
   $query ||= join ',',ref($ids) ? @$ids : $ids;
   $query && $self->query($query);
+  $verbose && $self->verbose($verbose);
 
   my $ua = new LWP::UserAgent;
   $ua->agent(ref($self) ."/$VERSION");
@@ -256,8 +258,10 @@ sub _run_query {
   return $self->{'_ran_query'} if $self->{'_ran_query'}++ && !$force;
 
   my $request = $self->_get_request;
+  $self->debug("request is ".$request->url)     if $self->verbose;
   my $response = $self->ua->request($request);
   return unless $response->is_success;
+  $self->debug("response is ".$response->content) if $self->verbose;
   $self->_parse_response($response->content);
   1;
 }

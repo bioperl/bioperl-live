@@ -405,7 +405,7 @@ sub get_seq_stream {
     # because we can return the first entry while transmission is still in progress.
     # Also, no need to keep sequence in memory or in a temporary file.
     # If this fails (Windows, MacOS 9), we fall back to non-pipelined access.
-    my $result = eval {open(STREAM,"-|")}; # fork and pipe: _stream_request()=><STREAM>
+    my $result = $^O !~ /^MSWin/ && eval {open(STREAM,"-|")}; # fork and pipe: _stream_request()=><STREAM>
     if (defined $result) {
       $DB::fork_TTY = '/dev/null';  # prevents complaints from debugger
       if (!$result) { # in child process
@@ -668,6 +668,7 @@ sub _stream_request {
     }
     close STDOUT; close STDERR;
     kill 9=>$$;  # to prevent END{} blocks from executing in forked children
+    sleep;
   }
   else {
 
@@ -681,7 +682,9 @@ sub _stream_request {
 
     close STDOUT; close STDERR;
     kill 9=>$$;  # to prevent END{} blocks from executing in forked children
+    sleep;
   }
+  exit 0;
 }
 
 sub io {
