@@ -90,7 +90,7 @@ use vars qw(@ISA $VERSION);
 $VERSION = '1.0';
 
 # warning: names used here must map into Bio::SeqIO::* space
-use constant DEFAULT_FORMAT   => 'embl';
+use constant DEFAULT_FORMAT   => 'fasta';
 use constant DEFAULT_LOCATION => 'http://www.ebi.ac.uk/cgi-bin/dbfetch';
 
 my %SUPPORTED_FORMATS = map {$_=>1} qw(fasta embl);
@@ -106,7 +106,7 @@ my %SUPPORTED_DBS     = map {$_=>1} qw(embl genbank swall);
  Throws  :
 
 @args are standard -name=E<gt>value options as listed in the following
-table. If you don't provide any options, the module assumes reasonable
+table. If you do not provide any options, the module assumes reasonable
 defaults.
 
    Option         Value                        Default
@@ -129,6 +129,28 @@ sub new {
   $self;
 }
 
+=head2 new_from_registry
+
+ Title   : new_from_registry
+ Usage   : $biofetch = $db->new_from_registry(%config)
+ Function: Creates a BioFetch object from the registry config hash
+ Returns : itself
+ Args    : A configuration hash (see Registry.pm)
+ Throws  : 
+
+
+=cut
+
+sub new_from_registry {
+    my ($class,%config)=@_;
+
+    my $self = $class->SUPER::new(
+				  -BASEADDRESS=>$config{'location'}
+				  );
+    $self->db($config{'biodbname'});
+    return $self;
+}
+    
 # from Bio::DB::RandomAccessI
 
 =head2 get_Seq_by_id
@@ -276,7 +298,7 @@ sub get_request {
 
 =cut
 
-sub default_format { 'embl' }
+sub default_format { DEFAULT_FORMAT }
 
 =head2 default_db
 
@@ -317,7 +339,6 @@ sub db {
  Args    : hash with two keys - 'type' can be 'string' or 'file'
                               - 'location' either file location or string 
                                            reference containing data
-
 =cut
 
 sub postprocess_data {

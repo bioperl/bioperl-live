@@ -54,9 +54,11 @@ use Bio::Root::Root;
 @ISA = qw(Bio::Root::Root);
 
 my %implement = (
-		 'biocorba'      => 'Bio::CorbaClient::SeqDB',
+		 'biocorba'      => 'Bio::CorbaClient::Client',
 		 'index-berkeleydb' => 'XYZ',
-		 'biosql' => 'Bio::DB::SQL::BioSeqDatabaseFetcher');
+		 'biosql' => 'Bio::DB::SQL::BioDatabaseAdaptor',
+		 'biofetch' => 'Bio::DB::BioFetch'
+		 );
 
 sub new {
     my ($class) = shift;
@@ -101,16 +103,16 @@ sub _load_registry {
 	    $db = $1;
 	    my $hash = {};
 	    while( <F> ) {
+		chomp();
 		/^#/ && next;
-		/^\s/ && last;
-		my ($tag,$value) = split;
+		/^$/ && last;
+		my ($tag,$value) = split('=',$_);
 		$hash->{$tag} = $value;
 	    }
 	    if( !exists $self->{$db} ) {
 		$self->{$db} = {};
 		$self->{$db}->{'services'} = [];
 	    }
-	    
 	    push(@{$self->{$db}->{'services'}},$hash);
 	    next; # back to main loop
 	}
@@ -140,12 +142,17 @@ sub get_database {
     }
 
     my ($config) = @{$self->{$dbname}->{'services'}};
+    print 
+
     my $class;
     unless ($class = $implement{$config->{'protocol'}}) {
 	$self->throw("Registry does not support protocol ".$config->{'protocol'});
     }
     eval "require $class";
-    my $db = $class->new(%$config);
+    if ($@) {
+	$self->throw("Trying to use protocol ".$config->{'protocol'}." but require $class fails, check that $class is in your PERL5LIB, got error\n$@");
+    }
+    my $db = $class->new_from_registry(%$config);
 
     $self->{$db}->{'active'} = $db;
 
