@@ -21,7 +21,8 @@ BEGIN {
 }
 
 END { 
-    unlink qw(batch_write_qual.qual);
+    unlink qw(batch_write_qual.qual write_qual.qual);
+	
 }
 # redirect STDERR to STDOUT
 #open (STDERR, ">&STDOUT");
@@ -182,7 +183,7 @@ my $pq = $in_qual->next_qual();
 
 
 print("Trying to write a primary qual object to a file...\n") if $DEBUG;
-my $out_qual = Bio::SeqIO->new('-file' => ">t/data/write_qual.qual",
+my $out_qual = Bio::SeqIO->new('-file' => ">write_qual.qual",
 			       '-format' => 'qual');
 $out_qual->write_qual(-source	=>	$pq);
 
