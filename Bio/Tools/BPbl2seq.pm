@@ -1,4 +1,5 @@
 # $Id$
+#
 # Bioperl module Bio::Tools::BPbl2seq
 #	based closely on the Bio::Tools::BPlite modules
 #	Ian Korf (ikorf@sapiens.wustl.edu, http://sapiens.wustl.edu/~ikorf), 
@@ -14,8 +15,8 @@
 
 =head1 NAME
 
-Bio::Tools::BPbl2seq - Lightweight BLAST parser for (iterated)
-psiblast reports
+Bio::Tools::BPbl2seq - Lightweight BLAST parser for pair-wise sequence 
+alignment using the BLAST algorithm.
 
 =head1 SYNOPSIS
 
