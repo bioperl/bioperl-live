@@ -2,6 +2,93 @@
 
 Bioperl Install Directions
 
+o System requirements
+
+ - Tested on all common forms of Unix, Win9X/NT/2000, Mac OS X 
+   (see the PLATFORMS file for more details)
+
+ - perl 5.004 or later *.
+
+ - ANSI C or Gnu C compiler for XS extensions
+
+ - External modules: Bioperl uses functionality provided in other
+   Perl modules.  Some of these are included in the standard perl
+   install and some need to be obtained from the CPAN (www.cpan.org)
+   site.  The list of external modules is included at the bottom of
+   the INSTALL document and in the bptutorial.pl tutorial.  The
+   Bioperl Bundle (Bundle::BioPerl) available through CPAN can make
+   this process even easier.  Simply install the bundle in your CPAN
+   shell and all necessary modules will be installed.
+
+ - Bioperl on ActiveState for Windows - An ActiveState PPM distribution is
+   available for bioperl.  Issue the following command in your PPM
+   shell to install the Bioperl PPD.
+   PPM> set repository Bioperl ftp://bioperl.org/pub/DIST/
+   PPM> install bioperl
+
+ - Additional information using Bioperl with MacOS can be 
+   found at http://bioperl.org/Core/mac-bioperl.html
+
+ - Additional information using Bioperl with OS X can be 
+   found at http://www.tc.umn.edu/~cann0010/Bioperl_OSX_install.html
+
+ - External programs
+   Bioperl can interface with some external programs for executing
+   analyses.  These include clustalw and t_coffee for Multiple
+   Sequence Alignments (Bio::Tools::Run::Alignment::Clustalw and
+   Bio::Tools::Run::TCoffee) and blastall,blastpgp, & bl2seq for BLAST
+   analyses (Bio::Tools::Run::StandAloneBlast), and to all the
+   programs in the EMBOSS suite (Bio::Factory::EMBOSS).
+
+   Additionally Bioperl can submit and retrieve jobs from the NCBI
+   Blast queue via the Bio::Tools::Run::RemoteBlast module.
+  
+   See the documentation for these modules for more information
+
+ - Environment Variables
+
+   [optional]
+
+   Some modules which run external programs need certain environment
+   variables set.  If you do not have a local copy of the specific
+   executeable you do not need to set these variables.  Additionally
+   the modules will attempt to locate the specific applications in
+   your runtime PATH variable.  
+
+   Setting environment variables on unix means adding a line like the
+   following to your shell initialization:
+
+   (for bash,sh)  export BLASTDIR=/data1/blast
+   (for csh,tcsh) setenv BLASTDIR /data1/blast
+
+   The environment variables include:
+   Bio::Tools::Run::StandAloneBlast
+   o BLASTDIR - which specifies where the NCBI blastall, blastpgp,
+                bl2seq, etc.. are located.  A 'data' directory is
+		assumed to be present in this dir as well where the
+		blastable databases are located as well as 
+		substitution matricies.
+
+   o BLASTDATADIR or 
+     BLASTDB - (either is optional) if one does not want to locate the data dir
+	       within the same dir as where the BLASTDIR variable
+	       points, a BLASTDATADIR or BLASTDB variable can be set to 
+	       point to a dir where BLAST database indexes are located.
+   Bio::Tools::Run::Alignment::Clustalw
+   o CLUSTALDIR - points to the directory where the clustalw
+                  executable is located.
+   Bio::Tools::Run::Alignment::TCoffee
+   o TCOFFEEDIR - points to the directory where the t_coffee
+                  executable is located.
+		 
+
+ * Note that most modules will work with earlier versions of Perl. 
+   The only ones that will not are Bio::SimpleAlign.pm and 
+   the Bio::Index::* modules. If you don't need these modules
+   and you want to install bioperl using an earlier version of Perl,
+   edit the "require 5.004;" line in Makefile.PL as necessary.
+
+ o Installing Bioperl
 
  THE EASY WAY
 
@@ -44,9 +131,8 @@ Bioperl Install Directions
 
  To install the Compiled extension for pSW you will need to read the
  next section of the manual.
-
-
- INSTALLING THE COMPILED EXTENSIONS
+ 
+ INSTALLING THE OPTIONAL COMPILED EXTENSIONS (bioperl-ext package)
 
  This Installation works out-of-the box for all platforms except *BSD
  and Solaris boxes. For notes on this, read on. For other platforms,
@@ -162,7 +248,7 @@ Bioperl Install Directions
 
     <...insert whizzy perl code here...>
 
-The Test System
+THE TEST SYSTEM
 
  The Bioperl test system is located in the t/ directory and is
  automatically run whenever you execute the 'make test' command.
@@ -183,7 +269,6 @@ The Test System
  tell Perl to skip tests.  This is useful when, for example, your test
  detects that the network is not present and thus should skip, not
  fail, any tests that require a network connection.
-
 
 DEPENDANCIES
 
@@ -261,3 +346,5 @@ srsperl.pm		 Sequence Retrieval System (SRS)
 			 See README in Bio/LiveSeq/IO
 Storable		 Persistent object storage & retrieval 
 			 Bio::DB::FileCache
+
+

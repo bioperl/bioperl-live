@@ -43,6 +43,10 @@ o Survey
  bioperl project and its ability to expand towards new problems in
  bioinformatics and computational biology.  
 
+ You can access the survey at http://www.bioperl.org/survey.html
+ or follow the links to the Bioperl Survey from the bioperl website at
+ http://bioperl.org.
+
 o Contact info
 
  Bioperl developers: bioperl-l@bioperl.org
@@ -65,84 +69,6 @@ o Contact info
  developers and contributors.
 
  Please see the INSTALL document for installation instructions.
-
-o System requirements
-
- - Tested on all common forms of Unix, Win9X/NT/2000, Mac OS X 
-   (see the PLATFORMS file for more details)
-
- - perl 5.004 or later *.
-
- - ANSI C or Gnu C compiler for XS extensions
-
- - LWP (libwww-perl) modules for running network BLAST analyses
-   (available from CPAN http://www.perl.com/CPAN/).
-
- - Additional perl module and application dependencies listed at
-   http://bioperl.org/Core/external.shtml, and in the INSTALL document,
-   and in bptutorial.pl
-
- - Additional information using Bioperl with MacOS can be 
-   found at http://bioperl.org/Core/mac-bioperl.html
-
- - Additional information using Bioperl with OS X can be 
-   found at http://www.tc.umn.edu/~cann0010/Bioperl_OSX_install.html
-
- - External programs
-   Bioperl can interface with some external programs for executing
-   analyses.  These include clustalw and t_coffee for Multiple
-   Sequence Alignments (Bio::Tools::Run::Alignment::Clustalw and
-   Bio::Tools::Run::TCoffee) and blastall,blastpgp, & bl2seq for BLAST
-   analyses (Bio::Tools::Run::StandAloneBlast), and to all the
-   programs in the EMBOSS suite (Bio::Factory::EMBOSS).
-
-   Additionally Bioperl can submit and retrieve jobs from the NCBI
-   Blast queue via the Bio::Tools::Run::RemoteBlast module.
-  
-   See the documentation for these modules for more information
-
- - Environment Variables
-
-   [optional]
-
-   Some modules which run external programs need certain environment
-   variables set.  If you do not have a local copy of the specific
-   executeable you do not need to set these variables.  Additionally
-   the modules will attempt to locate the specific applications in
-   your runtime PATH variable.  
-
-   Setting environment variables on unix means adding a line like the
-   following to your shell initialization:
-
-   (for bash,sh)  export BLASTDIR=/data1/blast
-   (for csh,tcsh) setenv BLASTDIR /data1/blast
-
-   The environment variables include:
-   Bio::Tools::Run::StandAloneBlast
-   o BLASTDIR - which specifies where the NCBI blastall, blastpgp,
-                bl2seq, etc.. are located.  A 'data' directory is
-		assumed to be present in this dir as well where the
-		blastable databases are located as well as 
-		substitution matricies.
-
-   o BLASTDATADIR or 
-     BLASTDB - (either is optional) if one does not want to locate the data dir
-	       within the same dir as where the BLASTDIR variable
-	       points, a BLASTDATADIR or BLASTDB variable can be set to 
-	       point to a dir where BLAST database indexes are located.
-   Bio::Tools::Run::Alignment::Clustalw
-   o CLUSTALDIR - points to the directory where the clustalw
-                  executable is located.
-   Bio::Tools::Run::Alignment::TCoffee
-   o TCOFFEEDIR - points to the directory where the t_coffee
-                  executable is located.
-		 
-
- * Note that most modules will work with earlier versions of Perl. 
-   The only ones that will not are Bio::SimpleAlign.pm and 
-   the Bio::Index::* modules. If you don't need these modules
-   and you want to install bioperl using an earlier version of Perl,
-   edit the "require 5.004;" line in Makefile.PL as necessary.
 
 o About the directory structure
 
