@@ -3,7 +3,7 @@
 <faq>
    <header>
       <title>Bioperl FAQ</title>
-      <version>1.2.1</version>
+      <version>1.2.2</version>
       <author>Jason Stajich &lt;jason@bioperl.org&gt;</author>
       <author>Brian Osborne &lt;brian_osborne@cognia.com&gt;</author>
       <author>Heikki Lehvaslaiho &lt;heikki@ebi.ac.uk&gt;</author>
@@ -334,24 +334,27 @@ $factory->blastall($seqobj);
        </answer>
       </q>
       <q id="3">
-      <question>How do I parse the CDS join() statements in Genbank or EMBL files so I can reconstruct the CDS sequence?
+      <question>How do I parse the CDS join() or complement() statements in Genbank or EMBL files to get the sub-locations, like the coordinates "45" and "122" in "join(45..122,233..267)"?
       </question>
       <answer>
-      <p>You need to use a Location::SplitLocationI object to get the coordinates and primary_tag() to find the CDS features:</p>
-<code>if ( $feature-&gt;location-&gt;isa('Bio::Location::SplitLocationI') 
-	         &amp;&amp; $feature-&gt;primary_tag eq 'CDS' )  {
-  foreach $location ( $feature-&gt;location-&gt;sub_Location ) {
-    print $location-&gt;start . ".." . $location-&gt;end . "\n";
+      <p>You could use primary_tag() to find the CDS features and the Location::SplitLocationI object to get the coordinates:</p>
+<code>
+foreach my $feature ($seqobj->top_SeqFeatures){
+  if ( $feature-&gt;location-&gt;isa('Bio::Location::SplitLocationI') 
+  	         &amp;&amp; $feature-&gt;primary_tag eq 'CDS' )  {
+    foreach my $location ( $feature-&gt;location-&gt;sub_Location ) {
+      print $location-&gt;start . ".." . $location-&gt;end . "\n";
+    }
   }
-}
-      </code>
+}  
+    </code>
        </answer>
       </q>
       <q id="4">
       <question>How do I retrieve a nucleotide coding sequence when I have a protein gi number?
       </question>
       <answer>
-      <p>You will go through the protein's feature table and find the 'coded_by' value. The trick is to associate the coded_by nucleotide coordinates to the nucleotide entry, which you'll retrieve using the accession number from the same feature.
+      <p>You could go through the protein's feature table and find the 'coded_by' value. The trick is to associate the coded_by nucleotide coordinates to the nucleotide entry, which you'll retrieve using the accession number from the same feature.
 </p>
 <code>
 my $gp = new Bio::DB::GenPept;
@@ -373,6 +376,22 @@ foreach my $feat ( $prot_obj->top_SeqFeatures ) {
       # associate the Feature object with the nucleotide Seq object
       $nuc_obj->add_SeqFeature($feat_obj);
       my $cds_obj = $feat_obj->spliced_seq;
+      print "CDS sequence is ",$cds_obj->seq,"\n";
+   }
+}
+      </code>
+       </answer>
+      </q>
+     <q id="5">
+      <question>How do I get the complete spliced nucleotide sequence from the CDS section?
+      </question>
+      <answer>
+      <p>You can use the spliced_seq() method. For example:</p>
+<code>
+my $seq_obj = $db->get_Seq_by_id($gi);
+foreach my $feat ( $seq_obj->top_SeqFeatures ) {
+   if ( $feat->primary_tag eq 'CDS' ) {\
+      my $cds_obj = $feat->spliced_seq;
       print "CDS sequence is ",$cds_obj->seq,"\n";
    }
 }
