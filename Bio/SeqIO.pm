@@ -373,10 +373,7 @@ sub fh {
 
 sub _initialize {
     my($self, @args) = @_;
-    
-    # not really necessary unless we put more in RootI
-    $self->SUPER::_initialize(@args);
-    
+        
     # initialize the IO part
     $self->_initialize_io(@args);
 }
