@@ -288,6 +288,7 @@ eval {
   ok($seqio->next_seq->length, 408);
   ok($seqio->next_seq->length, 1611);
   ok($seqio->next_seq->length, 1156);
+  $seqio->close(); # the key to preventing errors during make test, no idea why
 };
 
 if ($@) {
