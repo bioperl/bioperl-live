@@ -393,7 +393,8 @@ sub next_result{
 	   	   
 	   $self->element({'Name' => 'Hsp_hit-frame',
 			   'Data' => $hitframe});
-       } elsif(  /^Parameters:/ || /^\s+Database:/ ) {
+       } elsif(  /^Parameters:/ || /^\s+Database:/ || 
+		 ( $self->in_element('hsp') && (/WARNING/ || /NOTE/)) ) {
 	   $self->in_element('hsp') && $self->end_element({'Name' => 'Hsp'});
 	   $self->in_element('hit') && $self->end_element({'Name' => 'Hit'});
 	   my $blast = ( /Parameters/ ) ? 'wublast' : 'ncbi'; 
@@ -495,7 +496,7 @@ sub next_result{
 	   my $len;
 	   for( my $i = 0; 
 		defined($_) && $i < 3; 
-		$i++ ){
+		$i++ ){	       
 	       chomp;		       
 	       if( /^((Query|Sbjct):\s+(\d+)\s*)(\S+)\s+(\d+)/ ) {
 		   $data{$2} = $4;
@@ -503,7 +504,8 @@ sub next_result{
 		   $self->{"\_$2"}->{'begin'} = $3 unless $self->{"_$2"}->{'begin'};
 		   $self->{"\_$2"}->{'end'} = $5;
 	       } else { 
-		   $self->throw("no data for midline $_") unless defined $_ && defined $len;
+		   $self->throw("no data for midline $_") 
+		       unless (defined $_ && defined $len);
 		   $data{'Mid'} = substr($_,$len);
 	       }
 	       $_ = $self->_readline();	       
