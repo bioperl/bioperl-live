@@ -644,8 +644,7 @@ sub  length {
 =cut
 
 sub desc {
-   my ($self,$value) = @_;
-   $self->throw_not_implemented();
+   shift->throw_not_implemented();
 }
 
 
@@ -660,11 +659,7 @@ sub desc {
 =cut
 
 sub is_circular{
-    my ($self,$value) = @_;
-    if (defined $value) {
-	$self->{'_is_circular'} = $value;
-    }
-    return $self->{'_is_circular'};
+    shif->throw_not_implemented;
 }
 
 =head1 Private functions

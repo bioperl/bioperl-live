@@ -614,6 +614,23 @@ sub  id {
    return shift->display_id(@_);
 }
 
+=head2 is_circular
+
+ Title   : is_circular
+ Usage   : if( $obj->is_circular) { /Do Something/ }
+ Function: Returns true if the molecule is circular
+ Returns : Boolean value
+ Args    : none
+
+=cut
+
+sub is_circular{
+    my $self = shift;
+
+    return $self->{'is_circular'} = shift if @_;
+    return $self->{'is_circular'};
+}
+
 =head1 Methods for Bio::IdentifiableI compliance
 
 =cut
