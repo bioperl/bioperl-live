@@ -42,12 +42,14 @@ sub new {
 
     my $self = $class->SUPER::new(%newargs);
     
-    my ($score,$bits,$match,$positive,$p,$qb,$qe,$sb,$se,$qs,
+    my ($score,$bits,$match,$hsplength,$positive,$gaps,$p,$qb,$qe,$sb,$se,$qs,
 	$ss,$hs,$qname,$sname,$qlength,$slength, $frame) = 
 	    $self->_rearrange([qw(SCORE
 				  BITS
 				  MATCH
+				  HSPLENGTH
 				  POSITIVE
+				  GAPS				  
 				  P
 				  QUERYBEGIN
 				  QUERYEND
@@ -57,7 +59,7 @@ sub new {
 				  SBJCTSEQ
 				  HOMOLOGYSEQ
 				  QUERYNAME
-				  SBJCTNAME			    
+				  SBJCTNAME
 				  QUERYLENGTH
 				  SBJCTLENGTH
 				  FRAME
@@ -96,9 +98,10 @@ sub new {
     $self->significance($p);
     $self->query->frac_identical($match);
     $self->subject->frac_identical($match);
-    $self->{'PERCENT'} = int((1000 * $match)/
-			     $self->query->length)/10;
+    $self->{'HSPLENGTH'} = $hsplength;
+    $self->{'PERCENT'} = int((1000 * $match)/$hsplength)/10;
     $self->{'POSITIVE'} = $positive;
+    $self->{'GAPS'} = $gaps;
     $self->{'QS'} = $qs;
     $self->{'SS'} = $ss;
     $self->{'HS'} = $hs;
@@ -166,6 +169,18 @@ sub percent         {shift->{'PERCENT'}}
 
 sub match           {shift->query->frac_identical(@_)}
 
+=head2 hsplength
+
+ Title    : hsplength
+ Usage    : $hsp->hsplength();
+ Function : returns the HSP length (including gaps)
+ Returns  : (integer) HSP length
+ Args     : none
+
+=cut
+
+sub hsplength              {shift->{'HSPLENGTH'}}
+
 =head2 positive
 
  Title    : positive
@@ -177,6 +192,18 @@ sub match           {shift->query->frac_identical(@_)}
 =cut
 
 sub positive        {shift->{'POSITIVE'}}
+
+=head2 gaps
+
+ Title    : gaps
+ Usage    : $hsp->gaps();
+ Function : returns the number of gaps or 0 if none
+ Returns  : (int) number of gaps or 0 if none
+ Args     : none
+
+=cut
+
+sub gaps        {shift->{'GAPS'}}
 
 =head2 querySeq
 

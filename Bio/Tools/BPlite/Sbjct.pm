@@ -97,12 +97,14 @@ sub nextHSP {
       /Score =\s+(\S+) bits \((\d+)/; # NCBI-BLAST
   }
   
-  my ($match, $length) = $scoreline =~ /Identities = (\d+)\/(\d+)/;
-  my ($positive) = $scoreline =~ /Positives = (\d+)/;
+  my ($match, $hsplength) = ($scoreline =~ /Identities = (\d+)\/(\d+)/);
+  my ($positive) = ($scoreline =~ /Positives = (\d+)/);
+  my ($gaps) = ($scoreline =~ /Gaps = (\d+)/);  
   my $frame = '0';
   $positive = $match if not defined $positive;
+  $gaps = '0' if not defined $gaps;
   my ($p)        = $scoreline =~ /[Sum ]*P[\(\d+\)]* = (\S+)/;
-  if (not defined $p) {($p) = $scoreline =~ /Expect = (\S+)/}
+  if (not defined $p) {($p) = $scoreline =~ /Expect =\s+(\S+)/}
   
   $self->throw("Unable to parse '$scoreline'") if not defined $score;
   
@@ -174,25 +176,28 @@ sub nextHSP {
 	$qname = $self->{'PARENT'}->query;
 	$qlength = $self->{'PARENT'}->qlength;
   }	
-  my $hsp = new Bio::Tools::BPlite::HSP('-score'=>$score, 
-					'-bits'=>$bits, 
-					'-match'=>$match,
-					'-positive'=>$positive, 
-					'-p'=>$p,
-					'-queryBegin'=>$qb, 
-					'-queryEnd'=>$qe, 
-					'-sbjctBegin'=>$sb,
-					'-sbjctEnd'=>$se, 
-					'-querySeq'=>$ql, 
-					'-sbjctSeq'=>$sl,
-					'-homologySeq'=>$as, 
-					'-queryName'=>$qname,
+  my $hsp = new Bio::Tools::BPlite::HSP
+      ('-score'      => $score, 
+       '-bits'       => $bits, 
+       '-match'      => $match,
+       '-positive'   => $positive, 
+       '-gaps'       => $gaps,
+       '-hsplength'  => $hsplength + $gaps,
+       '-p'          => $p,
+       '-queryBegin' => $qb, 
+       '-queryEnd'   => $qe, 
+       '-sbjctBegin' => $sb,
+       '-sbjctEnd'   => $se, 
+       '-querySeq'   => $ql, 
+       '-sbjctSeq'   => $sl,
+       '-homologySeq'=> $as, 
+       '-queryName'  => $qname,
 #					'-queryName'=>$self->{'PARENT'}->query,
-					'-sbjctName'=>$self->{'NAME'},
-					'-queryLength'=>$qlength,
+       '-sbjctName'  => $self->{'NAME'},
+       '-queryLength'=> $qlength,
 #					'-queryLength'=>$self->{'PARENT'}->qlength,
-					'-sbjctLength'=>$self->{'LENGTH'},
-					'-frame'   => $frame);
+       '-sbjctLength'=> $self->{'LENGTH'},
+       '-frame'      => $frame);
   return $hsp;
 }
 
