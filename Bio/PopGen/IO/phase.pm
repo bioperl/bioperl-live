@@ -1,10 +1,10 @@
 # $Id$
 #
-# BioPerl module for Bio::PopGen::IO::csv
+# BioPerl module for Bio::PopGen::IO::phase
 #
-# Cared for by Jason Stajich <jason-at-bioperl.org>
+# Cared for by Rich <dobbo@thevillas.eclipse.co.uk>
 #
-# Copyright Jason Stajich
+# Copyright Rich
 #
 # You may distribute this module under the same terms as perl itself
 
@@ -12,15 +12,15 @@
 
 =head1 NAME
 
-Bio::PopGen::IO::csv -Extract individual allele data from a CSV parser 
+Bio::PopGen::IO::phase - A parser for Phase format data
 
 =head1 SYNOPSIS
 
-#Do not use directly, use through the Bio::PopGen::IO driver
+# Do not use directly, use through the Bio::PopGen::IO driver
 
   use Bio::PopGen::IO;
-  my $io = new Bio::PopGen::IO(-format => 'csv',
-                               -file   => 'data.csv');
+  my $io = new Bio::PopGen::IO(-format => 'phase',
+                               -file   => 'data.phase');
 
   # Some IO might support reading in a population at a time
 
@@ -29,23 +29,10 @@ Bio::PopGen::IO::csv -Extract individual allele data from a CSV parser
       push @population, $ind;
   }
 
+
 =head1 DESCRIPTION
 
-This object will parse comma delimited format (CSV) or whatever
-delimiter you specify. It currently doesn't handle the more complex
-quote escaped CSV format.  There are 3 initialization parameters, 
-the delimiter (-field_delimiter) [default ','], (-allele_delimiter) 
-[default ' '].    The third initialization parameter is a boolean 
--no_header which specifies if there is no header line to read in.  All lines starting with '#' will be skipped
-
-When no_header is not specific the data is assumed to be of the following form.
-Having a header line this
-SAMPLE,MARKERNAME1,MARKERNAME2,...
-
-and each data line having the form (diploid data)
-SAMP1,101 102,100 90,a b
-or for haploid data
-SAMP1,101,100,a
+Describe the object here
 
 =head1 FEEDBACK
 
@@ -66,13 +53,13 @@ the web:
 
   http://bugzilla.bioperl.org/
 
-=head1 AUTHOR - Jason Stajich
+=head1 AUTHOR - Rich
 
-Email jason-at-bioperl.org
+Email dobbo@thevillas.eclipse.co.uk
 
 =head1 CONTRIBUTORS
 
-Matthew Hahn, matthew.hahn-at-duke.edu
+Jason Stajich, jason-at-bioperl.org
 
 =head1 APPENDIX
 
@@ -85,13 +72,13 @@ Internal methods are usually preceded with a _
 # Let the code begin...
 
 
-package Bio::PopGen::IO::csv;
+package Bio::PopGen::IO::phase;
 use vars qw(@ISA $FieldDelim $AlleleDelim $NoHeader);
 use strict;
 
 ($FieldDelim,$AlleleDelim,$NoHeader) =( ',', '\s+',0);
 
-# Object preamble - inherits from Bio::Root::Root
+
 
 use Bio::PopGen::IO;
 
@@ -104,9 +91,9 @@ use Bio::PopGen::Genotype;
 =head2 new
 
  Title   : new
- Usage   : my $obj = new Bio::PopGen::IO::csv();
- Function: Builds a new Bio::PopGen::IO::csv object 
- Returns : an instance of Bio::PopGen::IO::csv
+ Usage   : my $obj = new Bio::PopGen::IO::hapmap();
+ Function: Builds a new Bio::PopGen::IO::hapmap object 
+ Returns : an instance of Bio::PopGen::IO::hapmap
  Args    : [optional, these are the current defaults] 
            -field_delimiter => ','
            -allele_delimiter=> '\s+'
@@ -115,13 +102,17 @@ use Bio::PopGen::Genotype;
 
 =cut
 
-sub _initialize {
+
+sub _initialize  {
+
     my($self, @args) = @_;
+
+    $Bio::PopGen::Genotype::BlankAlleles='';
+
     my ($fieldsep,$all_sep, 
 	$noheader) = $self->_rearrange([qw(FIELD_DELIMITER
 					   ALLELE_DELIMITER
 					   NO_HEADER)],@args);
-
 
     $self->flag('no_header', defined $noheader ? $noheader : $NoHeader);
     $self->flag('field_delimiter',defined $fieldsep ? $fieldsep : $FieldDelim);
@@ -129,6 +120,7 @@ sub _initialize {
 
     $self->{'_header'} = undef;
     return 1;
+
 }
 
 =head2 flag
@@ -144,15 +136,16 @@ sub _initialize {
 
 =cut
 
-sub flag{
+sub flag  {
+
     my $self = shift;
     my $fieldname = shift;
     return unless defined $fieldname;
-    
+
     return $self->{'_flag'}->{$fieldname} = shift if @_;
     return $self->{'_flag'}->{$fieldname};
-}
 
+}
 
 =head2 next_individual
 
@@ -165,59 +158,95 @@ sub flag{
 
 =cut
 
-sub next_individual{
+sub next_individual  {
     my ($self) = @_;
+
+    my ($sam,@marker_results,$number_of_ids,$number_of_markers,
+	$marker_positions,$micro_snp);
+
     while( defined( $_ = $self->_readline) ) {
-	next if( /^\s*\#/ || /^\s+$/ || ! length($_) );
+	next if( /^\s+$/ || ! length($_) );
 	last;
     }
-    return if ! defined $_; 
-    if( $self->flag('no_header') || 
-	defined $self->{'_header'} ) {
+    
+    return unless defined $_; 
+    if( $self->flag('no_header') || defined $self->{'_header'} ) {
 
-	#########new (allows field delim to be the same as the allele delim
+	####### sometimes there is some marker info at the start of a phase input file
+	####### we collect it in the next few lines if there is. Should this info be held in a marker object?
 
-	my ($samp,@marker_results);
+	if(!$self->{'_count'} && /^\s*\d+$/){
+	    $self->flag('number_of_ids',$_);
+	    #print "number_of_ids : $number_of_ids\n";
+	    $self->{'_count'}++;
+	    return $self->next_individual;
+	} elsif($self->{'_count'} == 1 && /^\s*\d+$/){
+	    $self->flag('number_of_markers',$_);
+	    #print "number_of_markers : $number_of_markers\n";
+	    $self->{'_count'}++;
+	    return $self->next_individual;
+	} elsif($self->{'_count'} == 2 && /^\s*P\s\d/){
+	    $self->flag('marker_positions',$_);
+	    #print "marker_position : $marker_positions\n";
+	    $self->{'_count'}++;
+	    return $self->next_individual;
+	} elsif($self->{'_count'} == 3 && /^\s*(M|S)+\s*$/i){
+	    $self->flag('micro_snp',$_);
+	    #print "microsat or snp : $micro_snp\n";
+	    $self->{'_count'}++;
+	    return $self->next_individual;
+	} elsif(/^\s*\#/){
+	    ($self->{'_sam'}) = /^\s*\#(.+)/;
+	    #print "sample : $self->{'_sam'}\n";
+	    $self->{'_count'}++;
+	    return $self->next_individual;
+	} else {
+	    chomp $_;
+	    if( $self->{'_row1'} ) {
+		# if we are looking at the 2nd row of alleles for this id
 
-	if($self->flag('field_delimiter') ne $self->flag('allele_delimiter')){
+		@{$self->{'_second_row'}} = 
+		    split($self->flag('field_delimiter'),$_);
 
-		($samp,@marker_results) = split($self->flag('field_delimiter'),$_);
+		for my $i(0 .. $#{$self->{'_first_row'}}){
+
+		    push(@{$self->{'_marker_results'}},
+			 $self->{'_first_row'}->[$i].
+			 $self->flag('field_delimiter').
+			 $self->{'_second_row'}->[$i]);
+		}
+		$self->{'_row1'} = 0;
+	    } else {
+		# if we are looking at the first row of alleles for this id
+		@{$self->{'_marker_results'}} = ();
+		@{$self->{'_first_row'}} = split($self->flag('field_delimiter'),$_);
+		$self->{'_row1'} = 1;
+		return $self->next_individual;
+	    }
 	}
-	else{
-
-		my $fielddelim = $self->flag('field_delimiter');
-		my $alleledelim = $self->flag('allele_delimiter');
-
-		($samp) = /(^.+?)$fielddelim/;
-		s/^.+?$fielddelim//;
-	
-		(@marker_results) = /([\d|\w]+$alleledelim[\d|\w]+)/g;
-	
-	}
-
-	#########end new
 
 	my $i = 1;
-	foreach my $m ( @marker_results ) {
+	foreach my $m ( @{$self->{'_marker_results'}} ) {
 	    $m =~ s/^\s+//;
 	    $m =~ s/\s+$//;
 	    my $markername;
 	    if( defined $self->{'_header'} ) {
-		$markername = $self->{'_header'}->[$i];
+		$markername = $self->{'_header'}->[$i] || "Marker$i";
 	    } else { 
 		$markername = "Marker$i";
 	    }
 	    $self->debug( "markername is $markername alleles are $m\n");
+	    my @alleles = split($self->flag('allele_delimiter'), $m);	
 
-	    my @alleles = split($self->flag('allele_delimiter'), $m);
-		
-	    $m = new Bio::PopGen::Genotype(-alleles      => \@alleles,
+	    $m = new Bio::PopGen::Genotype(-alleles      =>\@alleles,
 					   -marker_name  => $markername,
-					   -individual_id=> $samp); 
+					   -individual_id=> $self->{'_sam'}); 
 	    $i++; 
 	}
-	return new Bio::PopGen::Individual(-unique_id => $samp,
-					   -genotypes => \@marker_results);
+	return new Bio::PopGen::Individual(-unique_id => $self->{'_sam'},
+					   -genotypes =>\@{$self->{'_marker_results'}},
+					   );
+
     } else {
 	chomp;
 	$self->{'_header'} = [split($self->flag('field_delimiter'),$_)];
@@ -225,7 +254,6 @@ sub next_individual{
     }
     return undef;
 }
-
 
 =head2 next_population
 
@@ -238,10 +266,6 @@ sub next_individual{
 
 =cut
 
-# Plan is to just return the whole dataset as a single population by 
-# default I think - people would then have each population in a separate
-# file.
-
 sub next_population{
     my ($self) = @_;
     my @inds;
@@ -250,9 +274,6 @@ sub next_population{
     }
     Bio::PopGen::Population->new(-individuals => \@inds);
 }
-
-
-
 
 =head2 write_individual
 
@@ -264,11 +285,12 @@ sub next_population{
 
 =cut
 
-sub write_individual{
+
+sub write_individual {
     my ($self,@inds) = @_;
     my $fielddelim  = $self->flag('field_delimiter');
-    my $alleledelim= $self->flag('allele_delimiter');
-    
+    my $alleledelim = $self->flag('allele_delimiter');
+
     foreach my $ind ( @inds ) {
 	if (! ref($ind) || ! $ind->isa('Bio::PopGen::IndividualI') ) {
 	    $self->warn("Cannot write an object that is not a Bio::PopGen::IndividualI object ($ind)");
@@ -279,24 +301,22 @@ sub write_individual{
 	my @marker_names = sort $ind->get_marker_names;
 	if( ! $self->flag('no_header') && 
 	    ! $self->flag('header_written') ) {
-	    $self->_print(join($fielddelim, ('SAMPLE', @marker_names)), "\n");
+	    $self->_print(join($fielddelim, ('SAM', @marker_names)), "\n");
 	    $self->flag('header_written',1);
 	}
-	$self->_print( join($fielddelim, $ind->unique_id, 
-			    # we're chaining map here, pay attention and read
-			    # starting with the last map
-			    
-			    # we'll turn genotypes into allele pairs
-			    # which will be separated by the allele delimiter
-			    map { join($alleledelim,$_->get_Alleles) } 
-			    # marker names will be sorted so we don't
-			    # have to worry about this between individuals
-			    # unless the individual set you pass in has 
-			    # a mixed set of markers...
-			    # this will turn marker names into Genotypes
-			    map {$ind->get_Genotypes(-marker => $_)} 
-			    @marker_names), "\n")
-    }    
+
+	my(@row1,@row2);
+
+	for (@marker_names){
+	    my $geno = $ind->get_Genotypes(-marker => $_);
+	    my @alleles = $geno->get_Alleles();
+	    push(@row1,$alleles[0]);
+	    push(@row2,$alleles[1]);
+	}
+	$self->_print("#",$ind->unique_id,"\n",
+		      join($fielddelim,@row1),"\n",
+		      join($fielddelim,@row2),"\n");
+    }
 }
 
 =head2 write_population
@@ -310,11 +330,12 @@ sub write_individual{
 
 =cut
 
-sub write_population{
+
+sub write_population {
     my ($self,@pops) = @_;
     my $fielddelim  = $self->flag('field_delimiter');
-    my $alleledelim= $self->flag('allele_delimiter');
-    
+    my $alleledelim = $self->flag('allele_delimiter');
+
     foreach my $pop ( @pops ) {
 	if (! ref($pop) || ! $pop->isa('Bio::PopGen::PopulationI') ) {
 	    $self->warn("Cannot write an object that is not a Bio::PopGen::PopulationI object");
@@ -325,27 +346,22 @@ sub write_population{
 	my @marker_names = sort $pop->get_marker_names;
 	if( ! $self->flag('no_header') && 
 	    ! $self->flag('header_written') ) {
-	    $self->_print( join($fielddelim, ('SAMPLE', @marker_names)), 
+	    $self->_print( join($fielddelim, ('SAM', @marker_names)), 
 			   "\n");
 	    $self->flag('header_written',1);
 	}
 	foreach my $ind ( $pop->get_Individuals ) {
-	   $self->_print( join($fielddelim, $ind->unique_id, 
-			       # we're chaining map here, pay attention 
-			       # and read starting with the last map
-			       
-			       # we'll turn genotypes into allele pairs
-			       # which will be separated by the allele 
-			       # delimiter
-			       map { join($alleledelim,$_->get_Alleles) } 
-			       # marker names will be sorted so we don't
-			       # have to worry about this between individuals
-			       # unless the individual set you pass in has 
-			       # a mixed set of markers...
-			       # this will turn marker names into Genotypes
-			       map {$ind->get_Genotypes(-marker => $_)} 
-			       @marker_names), "\n");
-       }    
+	    my(@row1,@row2);
+	    for (@marker_names){
+		my $geno = $ind->get_Genotypes(-marker => $_);
+		my @alleles = $geno->get_Alleles();
+		push (@row1,$alleles[0]);
+		push (@row2,$alleles[1]);
+	    }
+	    $self->_print("#",$ind->unique_id,"\n",
+			  join($fielddelim,@row1),"\n",
+			  join($fielddelim,@row2),"\n");
+	} 
     }
 }
 
