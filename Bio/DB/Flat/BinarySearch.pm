@@ -197,7 +197,7 @@ use Bio::Seq;
 
 use constant CONFIG_FILE_NAME => 'config.dat';
 use constant HEADER_SIZE      => 4;
-
+use constant DEFAULT_FORMAT   => 'fasta';
 my @formats = ['FASTA','SWISSPROT','EMBL'];
 
 =head2 new
@@ -266,7 +266,7 @@ sub new {
         my $record_width = $self->read_header($fh);
         $self->record_size($record_width);
     }
-
+    $format ||= DEFAULT_FORMAT;
     $self->format            ($format);
     $self->write_flag        ($write_flag);
 
@@ -740,7 +740,7 @@ sub build_index {
 
 sub _index_file {
     my ($self,$file) = @_;
-
+    my $v = $self->verbose;
     open(FILE,"<$file") || $self->throw("Can't open file [$file]");
 
     my $recstart = 0;
@@ -796,7 +796,7 @@ sub _index_file {
 	  $pos   = $tmplen;
 		
 	  if ($count > 0 && $count%1000 == 0) {
-	    print STDERR "Indexed $count ids\n";
+	    $self->debug( "Indexed $count ids\n") if $v > 0;
 	  }
 	    
 	  $count++;
