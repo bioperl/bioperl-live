@@ -2,7 +2,7 @@
 
 use lib '.';
 
-# $Id: bp_genbank2gff.PLS,v 1.13 2003-12-18 21:47:21 lstein Exp $
+# $Id: bp_genbank2gff.PLS,v 1.14 2004-05-05 13:37:12 scain Exp $
 use strict;
 use Bio::DB::GFF;
 use Getopt::Long;
@@ -25,10 +25,6 @@ genbank.  Various command-line options allow you to control which
 database to load and whether to allow an existing database to be
 overwritten.
 
-This script currently only uses MySQL, though it is a proof-of-
-principle and could easily be extended to work with other RDMS
-that are supported by GFF through adaptors.
-
 The database must already have been created and the current user must
 have appropriate INSERT and UPDATE privileges.  The --create option
 will initialize a new database with the appropriate schema, deleting
@@ -39,17 +35,22 @@ any tables that were already there.
 Command-line options can be abbreviated to single-letter options.
 e.g. -d instead of --database.
 
-   --create                  Initialize database schema
-   --dsn       <dsn>         Data source (default dbi:mysql:test)
-   --user      <user>        Username for mysql authentication
-   --pass      <password>    Password for mysql authentication
-   --stdout                  Write converted GFF file to stdout rather than loading
-   --proxy     <proxy>       Proxy server to use for remote access
-   --source    <source>      Specify source field for features ['genbank']
-    EITHER --file            Arguments that follow are Genbank/EMBL file names
-    OR --accession           Arguments that follow are genbank accession numbers
-    OR --acc_file            accession numbers in a file (one per line, no punc.) 
-    OR --acc_pipe            accession numbers from a STDIN pipe (one per line)   
+   --create                 Force creation and initialization of database
+   --dsn       <dsn>        Data source (default dbi:mysql:test)
+   --user      <user>       Username for mysql authentication
+   --pass      <password>   Password for mysql authentication
+   --proxy     <proxy>      Proxy server to use for remote access
+   --stdout                 direct output to STDOUT
+   --adaptor   <adaptor>    adaptor to use (eg dbi::mysql, dbi::pg, dbi::oracle)   --viral                  the genome you are loading is viral (changes tag
+                                 choices)
+   --source    <source>     source field for features ['genbank']
+    EITHER --file           Arguments that follow are Genbank/EMBL file names
+    OR --gb_folder          What follows is a folder full of gb files to process    OR --accession          Arguments that follow are genbank accession numbers
+                                 (not gi!)
+    OR --acc_file           Accession numbers (not gi!) in a file (one per line,                                 no punc.)
+    OR --acc_pipe           Accession numbers (not gi!) from a STDIN pipe (one
+                                 per line)
+
 
 =head1 SEE ALSO
 
@@ -134,20 +135,24 @@ Usage: $0 [options] [<gff file 1> <gff file 2>] ...
 Load a Bio::DB::GFF database from GFF files.
 
  Options:
-   --create                  Force creation and initialization of database
-   --dsn       <dsn>         Data source (default dbi:mysql:test)
-   --user      <user>        Username for mysql authentication
-   --pass      <password>    Password for mysql authentication
-   --proxy     <proxy>       Proxy server to use for remote access
-   --stdout                  direct output to STDOUT
-   --adaptor   <adaptor>     adaptor to use (e.g. dbi::mysql, dbi::pg, dbi::oracle)
-   --viral                   the genome you are loading is viral (changes tag choices)
-   --source    <source>      source field for features ['genbank']
-    EITHER --file            Arguments that follow are Genbank/EMBL file names
-    OR --gb_folder           What follows is a folder full of gb files to process
-    OR --accession           Arguments that follow are genbank accession numbers (not gi!)
-    OR --acc_file            accession numbers (not gi!) in a file (one per line, no punc.) 
-    OR --acc_pipe            accession numbers (not gi!) from a STDIN pipe (one per line)   
+   --create                 Force creation and initialization of database
+   --dsn       <dsn>        Data source (default dbi:mysql:test)
+   --user      <user>       Username for mysql authentication
+   --pass      <password>   Password for mysql authentication
+   --proxy     <proxy>      Proxy server to use for remote access
+   --stdout                 direct output to STDOUT
+   --adaptor   <adaptor>    adaptor to use (eg dbi::mysql, dbi::pg, dbi::oracle)
+   --viral                  the genome you are loading is viral (changes tag
+                                 choices)
+   --source    <source>     source field for features ['genbank']
+    EITHER --file           Arguments that follow are Genbank/EMBL file names
+    OR --gb_folder          What follows is a folder full of gb files to process
+    OR --accession          Arguments that follow are genbank accession numbers
+                                 (not gi!)
+    OR --acc_file           Accession numbers (not gi!) in a file (one per line,
+                                 no punc.) 
+    OR --acc_pipe           Accession numbers (not gi!) from a STDIN pipe (one
+                                 per line)   
 
 
 This script loads a Bio::DB::GFF database with the features contained
@@ -155,10 +160,6 @@ in a either a local genbank file or an accession that is fetched from
 genbank.  Various command-line options allow you to control which
 database to load and whether to allow an existing database to be
 overwritten.
-
-This script currently only uses MySQL, though it is a proof-of-
-principle and could easily be extended to work with other RDMS
-that are supported by GFF through adaptors.
 
 USAGE
 ;
