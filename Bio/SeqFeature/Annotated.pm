@@ -46,8 +46,8 @@ sub _initialize {
   my (
       $start, $end, $strand, $frame, $phase, $score,
       $name, $id, $annot, $location,
-
       $display_name, $seq_id, #deprecated
+      $type,$source
      ) =
         $self->_rearrange([qw(START
                               END
@@ -61,14 +61,17 @@ sub _initialize {
                               LOCATION
                               DISPLAY_NAME
                               SEQ_ID
+                              TYPE
+                              SOURCE
                              )], @args);
-
   defined $start        && $self->start($start);
   defined $end          && $self->end($end);
   defined $strand       && $self->strand($strand);
   defined $frame        && $self->frame($frame);
   defined $phase        && $self->phase($phase);
   defined $score        && $self->score($score);
+  defined $source       && $self->source($source);
+  defined $type         && $self->type($type);
   defined $location     && $self->location($location);
   defined $annot        && $self->annotation($annot);
 
@@ -78,7 +81,7 @@ sub _initialize {
     ){
     $self->throw('cannot define ((-id and -seq_id) or (-name and -display_name)) attributes');
   }
-
+  defined $seq_id        && $self->seqid($seq_id);
   defined $id           && $self->id($id || $seq_id);
   defined $name         && $self->name($name || $display_name);
 }
@@ -116,7 +119,6 @@ sub id {
 
 sub seqid {
   my($self,$val) = @_;
-
   if (defined($val)) {
       my $term = undef;
       if (!ref($val)) {
@@ -162,8 +164,8 @@ sub name {
 
 sub type {
   my($self,$val) = @_;
-
   if(defined($val)){
+    # print("Trying to set annotated->type to $val\n");
     my $term = undef;
 
     if(!ref($val)){
@@ -173,12 +175,14 @@ sub type {
         ($term) = $self->so->find_terms(-identifier => $val);
       } else {
         #looks like a name
-        ($term) = $self->so->find_terms(-name => $val);
+        # sorry, but chad noticed that so() is not a method of this class 
+        # is this a work in progress? scain? grossman?
+        # ($term) = $self->so->find_terms(-name => $val);
       }
 
-      if(!$term){
-        $self->throw("couldn't find ontology term for '$val'.");
-      }
+      # if(!$term){
+      #  $self->throw("couldn't find ontology term for '$val'.");
+      # }
     }
     elsif(ref($val) && $val->isa('Bio::Annotation::OntologyTerm')){
       $term = $val;
@@ -187,12 +191,13 @@ sub type {
       #we have the wrong type of object
       $self->throw('give type() a SOFA term name, identifier, or Bio::Annotation::OntologyTerm object, not '.$val);
     }
-
     $self->remove_Annotations('type');
     $self->add_Annotation('type',$term);
+    $self->add_Annotation('chad',new Bio::Annotation::Comment("tanya"));
   }
-
-  return $self->get_Annotations('type');
+  else {
+    return $self->get_Annotations('type');
+  }
 }
 
 =head2 source()
@@ -218,11 +223,14 @@ sub source {
       }
       $self->remove_Annotations('source');
       $self->add_Annotation('source', $term);
+     
   }
-
-  $self->source('.') unless ($self->get_Annotations('source')); # make sure we always have something
-
-  return $self->get_Annotations('source');
+  else {
+    if (!$self->get_Annotations('source')) {
+        $self->source('.');
+    }
+    return $self->get_Annotations('source');
+  }
 }
 
 =head2 score()

@@ -65,6 +65,9 @@ package Bio::FeatureIO::gff;
 
 use strict;
 use base qw(Bio::FeatureIO);
+
+use Bio::FeatureIO;
+
 use Bio::SeqFeature::Annotated;
 use Bio::OntologyIO;
 
@@ -106,6 +109,9 @@ sub _initialize {
 
 sub write_feature {
   my($self,$feature) = @_;
+  if (!$feature) {
+    $self->throw("gff.pm cannot write_feature unless you give a feature to write.\n");
+  }
   $self->throw("only Bio::SeqFeature::Annotated objects are writeable") unless $feature->isa('Bio::SeqFeature::Annotated');
 
   if($self->version == 1){
@@ -166,10 +172,21 @@ sub _write_feature_25 {
 
 sub _write_feature_3 {
   my($self,$feature) = @_;
-
-  my $seq    = $feature->seqid->value;
-  my $source = $feature->source->value;
-  my $type   = $feature->type->name;
+     # it is a mystery to Chad which applies here: id(), seqid() (deprecated), seqid(), ???
+     # it is also a mystery why calls violating Demeter would be made when there are no assurances
+     # the first call in the chain will succeed
+     # I fixed those.
+  my $seq    = $feature->seqid->value || $feature->id;
+  my $source;
+  if ($feature->source()) {
+    $source = $feature->source->value;
+  }
+  else {
+    $source = $feature->source() || "unknownsource";
+  }
+  my $type;
+  if ($feature->type()) { $type = $feature->type->name; }
+  else { $type = "unknowntype"; }
   my $min    = $feature->start   || '.';
   my $max    = $feature->end     || '.';
   my $strand = $feature->strand == 1 ? '+' : $feature->strand == -1 ? '-' : '.';
@@ -188,7 +205,6 @@ sub _write_feature_3 {
   }
   if(my @v = ($feature->get_Annotations('Parent'))){
     my $vstring = join ',', map {$_->value} @v;
-    push @attr, "Parent=$vstring";
   }
 
   my $attr = join ';', @attr;
