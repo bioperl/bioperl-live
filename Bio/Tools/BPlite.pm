@@ -296,6 +296,7 @@ sub nextSbjct {
   return $sbjct;
 }
 
+
 sub _parseHeader {
   my ($self) = @_;
   my $FH = $self->{FH};
@@ -315,11 +316,12 @@ sub _parseHeader {
       $self->{LENGTH} = $length;
     }
     elsif ($_ =~ /^Database:\s+(.+)/) {$self->{DATABASE} = $1}
-    elsif ($_ =~ /^\s*pattern\s+(\S+).*position\s+(\d+)\D/) {   # For PHIBLAST reports
-			$self->{PATTERN} = $1;
-			push (@{$self->{QPATLOCATION}}, $2);
+    elsif ($_ =~ /^\s*pattern\s+(\S+).*position\s+(\d+)\D/) {   
+# For PHIBLAST reports
+	$self->{PATTERN} = $1;
+	push (@{$self->{QPATLOCATION}}, $2);
 #			$self->{QPATLOCATION} = $2;
-			}
+    } 
     elsif ($_ =~ /^>/) {$self->{LASTLINE} = $_; return 1}
     elsif ($_ =~ /^Parameters|^\s+Database:/) {
       $self->{LASTLINE} = $_;
@@ -327,20 +329,21 @@ sub _parseHeader {
     }
   }
 }
-
 sub _fastForward {
-  my ($self) = @_;
-  return 0 if $self->{REPORT_DONE}; # empty report
-  return 1 if $self->{LASTLINE} =~ /^>/;
+    my ($self) = @_;
+    return 0 if $self->{REPORT_DONE}; # empty report
+    return 1 if $self->{LASTLINE} =~ /^>/;
 
-  my $FH = $self->{FH};
-  while(<$FH>) {
-    if ($_ =~ /^>|^Parameters|^\s+Database:/) {
-      $self->{LASTLINE} = $_;
-      return 1;
+    my $FH = $self->{FH};
+    my $capture;
+    while(<$FH>) {
+	if ($_ =~ /^>|^Parameters|^\s+Database:|^\s+Posted date:/) {
+	    $self->{LASTLINE} = $_;
+	    return 1;
+	}
     }
-  }
-  $self->warn("Possible error while parsing BLAST report!");
+
+    $self->warn("Possible error while parsing BLAST report!");
 }
 
 1;
