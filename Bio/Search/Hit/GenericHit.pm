@@ -57,20 +57,15 @@ the Bioperl mailing list.  Your participation is much appreciated.
 =head2 Reporting Bugs
 
 Report bugs to the Bioperl bug tracking system to help us keep track
-of the bugs and their resolution. Bug reports can be submitted via
-email or the web:
+of the bugs and their resolution. Bug reports can be submitted via the
+web:
 
-  bioperl-bugs@bioperl.org
   http://bugzilla.bioperl.org/
 
 =head1 AUTHOR - Jason Stajich and Steve Chervitz
 
-Email jason@bioperl.org
-Email sac@bioperl.org
-
-=head1 CONTRIBUTORS
-
-Additional contributors names and emails here
+Email jason-at-bioperl-dot-org
+Email sac-at-bioperl-dot-org
 
 =head1 APPENDIX
 
@@ -148,7 +143,6 @@ sub new {
   defined $rank   && $self->rank($rank);
 
   $self->{'_iterator'} = 0;
-  #$self->{'_hsps'} = [];
   if( defined $hsps  ) {
       if( ref($hsps) !~ /array/i ) {
           $self->warn("Did not specify a valid array ref for the param HSPS ($hsps)");
@@ -435,15 +429,11 @@ sub hsps {
 #---------
    my $self = shift;
    
-   if (not ref $self->{'_hsps'}) {
-       $self->throw("Can't get HSPs: data not collected.");
-   }
-   
    return wantarray 
        #  returning list containing all HSPs.
-       ? @{$self->{'_hsps'}}
+       ? @{$self->{'_hsps'} || []}
    #  returning number of HSPs.
-   : scalar(@{$self->{'_hsps'}});
+   : scalar(@{$self->{'_hsps'} || []});
 }
 
 =head2 num_hsps
