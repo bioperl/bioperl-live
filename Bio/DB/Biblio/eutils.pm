@@ -18,6 +18,7 @@ it through the I<Bio::Biblio> module:
 
   use Bio::Biblio;
   my $biblio = new Bio::Biblio (-access => 'eutils');
+  $biblio->db('PMC'); #optional, default is PubMed.
 
 =head1 DESCRIPTION
 
@@ -167,6 +168,40 @@ sub _initialize {
     return 1;
 }
 
+=head2 db
+
+ Title   : db
+ Usage   : $obj->db($newval)
+ Function: specifies the database to search.  valid values are:
+
+           pubmed, pmc, journals
+
+           it is also possible to add the following, and i will do
+           so on request:
+
+           genome, nucleotide, protein, popset, snp, sequence, taxonomy
+
+ Returns : value of db (a scalar)
+ Args    : on set, new value (a scalar or undef, optional)
+
+
+=cut
+
+sub db{
+    my($self,$arg) = shift;
+
+    if($arg){
+      my %ok = map {$_=>1} qw(pubmed pmc journals);
+      if($ok{lc($arg)}){
+        $self->{'db'} = lc($arg);
+      } else {
+        $self->warn("invalid db $arg, keeping value as ".$self->{'db'} || 'pubmed');
+      }
+    }
+    return $self->{'db'};
+}
+
+
 =head1 Methods implementing Bio::DB::BiblioI interface
 
 =head2 get_collection_id
@@ -191,8 +226,9 @@ sub get_count {
 sub get_by_id {
   my $self = shift;
   my $id = shift;
+  my $db = $self->db || 'pubmed';
   $self->throw("must provide valid ID, not undef") unless defined($id);
-  my $xml = get($EFETCH.'?rettype=abstract&retmode=xml&db=PubMed&id='.$id);
+  my $xml = get($EFETCH.'?rettype=abstract&retmode=xml&db=$db&id='.$id);
   return $xml;
 }
 
@@ -295,7 +331,9 @@ sub find {
 
   $query = uri_escape($query);
 
-  my $url = $ESEARCH."?usehistory=y&db=PubMed&retmax=$MAX_RECORDS&term=$query";
+  my $db = $self->db || 'pubmed';
+
+  my $url = $ESEARCH."?usehistory=y&db=$db&retmax=$MAX_RECORDS&term=$query";
 
   my $xml = get($url) or $self->throw("couldn't retrieve results from $ESEARCH: $!");
 
@@ -360,7 +398,9 @@ sub get_all_ids {
 sub get_all {
   my ($self) = shift;
 
-  my $xml = get($EFETCH.'?rettype=abstract&retmode=xml&db=PubMed&query_key='.
+  my $db = $self->db || 'pubmed';
+
+  my $xml = get($EFETCH.'?rettype=abstract&retmode=xml&db=pubmed&query_key='.
                 $self->query_key.'&WebEnv='.$self->collection_id.
                 '&retstart=1&retmax='.$MAX_RECORDS
                );
