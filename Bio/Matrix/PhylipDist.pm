@@ -122,43 +122,6 @@ sub new {
     return $self;
 }
 
-=head2 _parse
-
- Title   : _parse
- Usage   : $matrix->_parse();
- Function: internal method that parses the distance matrix file. 
- Returns : 
- Arguments: 
-
-=cut
-
-sub _parse {
-  my ($self) = @_;
-  my @names;
-  my @values;
-  while (my $entry = $self->_readline){
-    next if ($entry=~/^\s+\d+$/);
-    my ($n,@line) = split( /\s+/,$entry);
-    push @names, $n;
-    push @values, [@line];
-  }
-
-  my %dist;
-  my $i=0;
-  foreach my $name(@names){
-    my $j=0;
-    foreach my $n(@names) {
-      $dist{$name}{$n} = [$i,$j];
-      $j++;
-    }
-    $i++;
-  }
-
-  $self->_matrix(\%dist);
-  $self->names(\@names);
-  $self->_values(\@values);
-}
-
 =head2 get_entry
 
  Title   : get_entry
@@ -175,8 +138,8 @@ sub get_entry {
   my %matrix = %{$self->_matrix};
   my @values = @{$self->_values};
   if(ref $matrix{$row}{$column}){
-    my ($i,$j) = @{$matrix{$row}{$column}};
-    return $values[$i][$j];
+      my ($i,$j) = @{$matrix{$row}{$column}};
+      return $values[$i][$j];
   }
   return;
 
