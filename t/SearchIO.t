@@ -15,16 +15,17 @@ BEGIN {
 	use lib 't';
     }
     use Test;
-    plan tests => 11; 
+    plan tests => 43; 
 }
 
 use Bio::SearchIO;
+use Bio::Root::IO;
 
 ok(1);
 
 # test with RPSBLAST data first 
-my $searchio = new Bio::SearchIO('-format' => 'blastxml',
-				 '-file'   => 't/data/ecoli_domains.rps.xml');
+my $searchio = new Bio::SearchIO ('-format' => 'blastxml',
+     '-file'   => Bio::Root::IO->catfile('t','data','ecoli_domains.rps.xml'));
 
 my $report = $searchio->next_report;
 ok($report);
@@ -68,9 +69,16 @@ ok($hsp->homology_seq, '  V G+ +S+ +L +  GL LE W+  L   ++P  +LG+L      + +++    
 $subject = $report->next_subject;
 ok($subject);
 
-while( $report = $searchio->next_report )
-{
-    ok($report);
-}
+while( $report = $searchio->next_report ) { ok($report); }
 
+     
+$searchio = new Bio::SearchIO(-format => 'blastxml', -file => Bio::Root::IO->catfile('t','data','plague_yeast.bls.xml'));
 
+$report = $searchio->next_report;
+
+ok($report->database_name, 'yeast.aa');
+ok($report->query_name, 'gi|5763811|emb|CAB53164.1| putative transposase [Yersinia pestis]');
+ok($report->query_size, 340);
+
+$subject = $report->next_subject;
+ok(! $subject);
