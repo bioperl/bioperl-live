@@ -7,7 +7,7 @@
 # `make test'. After `make install' it should work as `perl test.t'
 use strict;
 use vars qw($NUMTESTS $DEBUG $ERROR $METAERROR);
-$DEBUG = $ENV{'BIOPERLDEBUG'} || 0;
+$DEBUG = 1;$ENV{'BIOPERLDEBUG'} || 0;
 BEGIN {
     # to handle systems with no installed Test module
     # we include the t dir (where a copy of Test.pm is located)
