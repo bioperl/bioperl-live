@@ -197,15 +197,15 @@ sub write_aln {
     
     foreach my $aln (@aln) {
 	$self->throw("All sequences in the alignment must be the same length") 
-	    unless $aln->is_flush ;
+	    unless $aln->is_flush(1) ;
 
+	$aln->set_displayname_flat(); # plain
 	$length  = $aln->length();
 	$self->_print (sprintf(" %s %s\n", $aln->no_sequences, $aln->length));
 	
 	$aln->set_displayname_flat();
 	foreach $seq ( $aln->each_seq() ) {
-	    $name = $aln->displayname($seq->get_nse());	     
-	    ($name) = substr($name,0,10);
+	    ($name) = $seq->id =~ /(.{10})/;
 	    $name = sprintf("%-10s",$name);
 	    $name .= '   ' if( $self->interleaved());
 	    $hash{$name} = $seq->seq();
@@ -235,7 +235,7 @@ sub write_aln {
 		    }
 		    $self->_print ("\n");
 		}
-		$self->_print ("\n\n");
+		$self->_print ("\n");
 		$count = $tempcount;
 		$wrapped = 1;
 	    } 			
