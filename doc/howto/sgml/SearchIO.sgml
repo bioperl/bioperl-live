@@ -59,6 +59,18 @@
 	<authorinitials>js</authorinitials>
 	<revremark>added info on extending Search objects</revremark>
       </revision>
+      <revision>
+	<revnumber>0.3</revnumber>
+	<date>2003-02-13</date>
+	<authorinitials>BIO</authorinitials>
+	<revremark>added table and text to Parsing section</revremark>
+      </revision>
+      <revision>
+	<revnumber>0.4</revnumber>
+	<date>2003-09-10</date>
+	<authorinitials>BIO</authorinitials>
+	<revremark>updated Parsing section</revremark>
+      </revision>
     </revhistory>
     <legalnotice>
       <para>This document is copyright Jason Stajich, 2002.  For
@@ -78,8 +90,7 @@
   </articleinfo>
   
   <section id="background">
-    <title>Background</title>
-    
+    <title>Background</title>    
     <para>
       One of the most common and necessary tasks in bioinformatics is
       parsing analysis reports so that one can write programs which can
@@ -113,7 +124,7 @@
     <title>Design</title>
     <para>
       The Bio::SearchIO system was designed with the following
-      assumptions.  That all reports parsed with it could be separated
+      assumptions:  That all reports parsed with it could be separated
       into a hierarchy of components. The Result which is the entire
       analysis for a single query sequence.  Multiple results can be
       concatenated together into a single file (i.e. running blastall
@@ -123,8 +134,8 @@
       aligned to the query sequence and met the minimal search
       parameters such as e-value threshold.  Each Hit has one or more
       High-scoring segment Pairs (HSPs) which are the alignments of the
-      query and hit sequence.  So each Result has a set of one or more
-      Hits and each Hit has a set of one or more HSPs.  This
+      query and hit sequence.  Each Result has a set of one or more
+      Hits and each Hit has a set of one or more HSPs, and this
       relationship can be used to describe results from all pairwise
       alignment programs including BLAST, FastA,
       and implementations of the Smith-Waterman and Needleman-Wunsch
@@ -149,12 +160,23 @@
       found for the query.
     </para>
   </section>
-
+  <section id="functionality">
+    <title>New Functionality</title>    
+    <para>
+      The generality of the SearchIO approach is demonstrated by large number
+      of report formats that have appeared since its introduction. These
+      formats include AXT format reports (BLAT, BLASTZ), NCBI tabular output (-m 8 or -m 9
+      options), NCBI Blast XML, chadosxpr format flat databases,
+      Exonerate output, FASTA output, hmmsearch output (HMMER),
+      megablast output, PSL format output (BLAT), sim4 output, WABA
+      output, and output from Wise.
+    </para>
+  </section>
   <section id="use">
     <title>Parsing with Bio::SearchIO</title>
     <para>
       This section is going to describe how to use the SearchIO system
-      to process reports.  We'll describe BLAST and FastA reports.  The
+      to process reports.  We'll describe BLAST reports but the
       idea is that once you understand the methods associated with the
       objects you won't need to know anything special about other SearchIO parsers.
     </para>
@@ -184,10 +206,10 @@
       objects, though we'll use the terms 'hit', 'HSP', and 'result'. 
     </para>  
     <para>
-      Here's an example which processes a BLAST report finding all the
+      Here's example code which processes a BLAST report finding all the
       hits where the HSPs are greater than 100 residues and the percent
       identity is less than 75 percent. This code demonstrates
-      that a result, in this case a BLAST report, contains one or more hits,
+      that a result, in this case from a BLAST report, contains one or more hits,
       and a hit contains one or HSPs.
       <programlisting>
     use strict;
