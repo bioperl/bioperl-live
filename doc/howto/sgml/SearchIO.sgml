@@ -78,11 +78,18 @@
 	<revremark>Fixed some missing table entries for Hit
 	functions, typo fixes.</revremark>
       </revision>
+      <revision>
+	<revnumber>0.6</revnumber>
+	<date>2004-06-21</date>
+	<authorinitials>JES</authorinitials>
+	<revremark>Made document redistributable under Perl Artistic.</revremark>
+      </revision>
     </revhistory>
     <legalnotice>
       <para>This document is copyright Jason Stajich, Brian Osborne,
-	2002-2004. For reproduction other than personal use please contact jason-at-bioperl.org.
-      </para>      
+	2002-2004.  It can be copied and distributed under the terms
+	of the Perl Artistic License.
+	</para>
     </legalnotice>
     
     <abstract>
@@ -771,6 +778,13 @@ Bio::SimpleAlign</ulink> object and use it like this:
 	   push @conserved,$str_array[$_ - 1];
 	}
     </programlisting>
+    </para>
+    <para>
+      seq_inds() can be very useful for extracting the mismatch bases
+      in an alignment  If you wanted to figure out which bases are
+      not matching in an alignment you could use seq_inds to get
+      these positions and then extract out these specific bases from
+      the alignment.
     </para>
     <para>
       In most cases the SearchIO methods extract data directly from
