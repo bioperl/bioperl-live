@@ -225,7 +225,6 @@ sub seq {
        $obj->{'seq'} = $value;
        $obj->_guess_type();
     }
-   my $v = $obj->{'seq'};
    return $obj->{'seq'};
 }
 
@@ -249,16 +248,38 @@ sub subseq {
        $self->throw("in subseq, start [$start] has to be greater than end [$end]");
    }
 
-   if( $start <= 0 || $end > $self->length ) {
-       $self->throw("You have to have start positive and length less than the total length of sequence");
+   if( $start <= 0 ) {
+       $self->throw("Can't get subseq: Start must be positive (start = $start)");
+   }
+
+   my $len = $self->length;
+   if( $end > $len ) {
+       $self->throw("Can't get subseq: End must be less than the total length of sequence: (end = $end, length = $len)");
    }
 
    # remove one from start, and then length is end-start
 
    $start--;
 
-   return substr $self->seq, $start, ($end-$start);
+   return substr $self->{'seq'}, $start, ($end-$start);
 
+}
+
+=head2 length
+
+ Title   : length
+ Usage   : $len = $seq->length()
+ Function:
+ Example :
+ Returns : integer representing the length of the sequence.
+ Args    :
+
+=cut
+
+sub length {
+   my ($self)= @_;
+
+   return CORE::length($self->{'seq'});
 }
 
 =head2 display_id
@@ -493,7 +514,7 @@ sub _guess_type {
    my ($self) = @_;
    my ($str,$str2,$total,$atgc,$u,$type);
 
-   $str = $self->seq();
+   $str = $self->{'seq'};
    $str =~ s/\-\.//g;
 
    $total = CORE::length($str);
