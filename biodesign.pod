@@ -53,7 +53,7 @@ tremendously wrong thing to do.
 
 =head2 Learn how to provide good feedback
 
-This ranges from giving very accurate bug reports (this script -->
+This ranges from giving very accurate bug reports (this script --E<gt>
 makes this error, giving all data), through to pointing out design
 issues in a constructive manner (not - this *sucks*). If you find
 a problem, then providing a patch using diff or work around is
@@ -109,7 +109,7 @@ All objects in bioperl (but for interfaces - see the next section) inheriet
 from the Root Object. The bioperl root object allows a number of very useful
 concepts to be provided. In particular.
 
-=over
+=over 3
 
 =item exceptions
 
@@ -133,7 +133,7 @@ help functions which take hash inputs.
 To use the root object, the object has to inheriet from it. This means
 the @ISA array should have (Bio::Roo::Object) in it and that the
 module goes "use Bio::Root::Object". The root object provides the
-->new function. This new function builds a hash, sets some root object
+-E<gt>new function. This new function builds a hash, sets some root object
 management issues and then calls the _initialize function. It is this
 function which your object needs to implement.  The full code is given
 below.
@@ -156,7 +156,7 @@ below.
      # call superclasses initialize
 
      my $make = $self->SUPER::_initialize(@args);
- 
+
      # do your own argument processing here
      # set default attributes etc...
 
@@ -167,14 +167,14 @@ below.
 
  Exceptions are die functions, in which the $@ variable (a scalar) is
 used to indicate how it died. The exceptions can be caught using the
-eval {} system. The bioperl root object has a method called "->throw"
+eval {} system. The bioperl root object has a method called "-E<gt>throw"
 which calls die but also provides a full stack trace of where this
 throw happened on (and also which object the exception was thrown -
 see the context section). So an exception like
 
   $obj->throw("I am throwing an exception");
 
-Provides the following output on STDERR if is not caught. 
+Provides the following output on STDERR if is not caught.
 
   -------------------- EXCEPTION --------------------
   MSG: I am throwing an exception
@@ -201,7 +201,7 @@ Exceptions can be caught using an eval block, such as
    # exception was thrown
    &tell_user("Exception was thrown, preventing whatever I wanted to do. Actual exception $@");
    exit(0);
- } 
+ }
 
  # else - use $obj2
 
@@ -211,7 +211,7 @@ must be declared with my outside of the eval block (you are planning
 to use strict in your scripts, aren't you!).
 
 
-=head2 context
+=head2 object context
 
 Each bioperl object has a context, which is given by the name
 attribute (name is a method defined in the Bio::Root::Object
@@ -240,7 +240,7 @@ Produces the following exception
   main::test2.pl(6)
   ---------------------------------------------------
 
-Notice that the Object nows says that it is Context-A. 
+Notice that the Object nows says that it is Context-A.
 
 This context is particularly useful when objects are produced from a
 database. This is because some exceptions are really due to problems
@@ -248,10 +248,10 @@ with the data in an object rather than the code. These sort of
 exceptions are better tracked down when you know where the object came
 from, not where in the code the exception is thrown.
 
-One of the drawbacks to this scheme is that the attribute ->name is
+One of the drawbacks to this scheme is that the attribute -E<gt>name is
 "special" from bioperl's perspective. I believe it is best to stay
-away from using $obj->name() to mean anything from the object's
-perspective (for example ->id() ), leaving it free to be used as a
+away from using $obj-E<gt>name() to mean anything from the object's
+perspective (for example -E<gt>id() ), leaving it free to be used as a
 context for debugging purposes. You might prefer to overload the name
 attribute to be "useful" for the object.
 
@@ -288,25 +288,25 @@ the implementation. for example
 
   sub my_sequence_routine {
     my($seq,$other_argument) = @_;
-    
+
     $seq->isa('Bio::SeqI') || die "[$seq] is not a sequence. Cannot process";
 
     # do stuff
 
   }
 
-This is in contrast to 
+This is in contrast to
 
   sub my_incorrect_sequence_routine {
     my($seq,$other_argument) = @_;
-    
+
     # this line is INCORRECT
     $seq->isa('Bio::Seq') || die "[$seq] is not a sequence. Cannot process";
 
     # do stuff
 
   }
-  
+
 
 =head2 Rationale of interface design
 
@@ -327,9 +327,9 @@ could pass in your object into bioperl routines and eh voila - you
 B<are> a bioperl sequence object.
 
 (A problem might arise if your object has the same methods as the
-Bio::SeqI methods but use them differently - your $obj->id() might
+Bio::SeqI methods but use them differently - your $obj-E<gt>id() might
 mean provide the raw memory location of the object, whereas the
-documentation for Bio::SeqI $obj->id() says it should return the
+documentation for Bio::SeqI $obj-E<gt>id() says it should return the
 human-readable name. If so you need to look into providing an
 'Adaptor' class, as suggested in the Gang-of-four).
 
@@ -362,9 +362,9 @@ a "Range" interface, which might define the following methods
    $obj->start()
    $obj->end()
 
-Now a client to the object might want to use a $obj->length() method.
+Now a client to the object might want to use a $obj-E<gt>length() method.
 because it is much easier than retrieving the two attributes and
-substracting them. However, the ->length() method is just a pain for
+substracting them. However, the -E<gt>length() method is just a pain for
 someone providing the implementation to provide - once start() and
 end() is defined, length is. There seems to be a catch-22 here: to
 make an object definition good for a B<client> one needs to have
@@ -377,12 +377,13 @@ In the Range interface this became more than annoyance, as alot of the
 "smarts" of the Range system was that we wanted to have the ability to
 say
 
-  if( $range->intersection($someother_range) ) 
+  if( $range->intersection($someother_range) )
 
 We wanted a generic RangeI interface that we could apply to many
-objects, with definitions required only for ->start, ->end and
-->strand. However we wanted the ->intersection, and ->union methods to
-be on all ranges, without us having to reimplement this every time.
+objects, with definitions required only for -E<gt>start, -E<gt>end and
+-E<gt>strand. However we wanted the -E<gt>intersection, and
+-E<gt>union methods to be on all ranges, without us having to
+reimplement this every time.
 
 Our (Matt Pocock and Ewan Birney's) solution was to allow
 implementation into the RangeI interface file, but only when these

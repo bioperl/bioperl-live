@@ -1,4 +1,4 @@
-## $Id: bioperl.pod,v 1.10 2001-02-23 15:49:09 birney Exp $
+## $Id: bioperl.pod,v 1.10.2.1 2001-03-03 08:45:30 heikki Exp $
 
 ## Should contain general info about the distribution including
 ## links to all the various modules.
@@ -66,7 +66,7 @@ The best place to start is by reading and running the cookbook script,
 bptutorial.pl
 
 The directory scripts/ have fully working, industrial strength scripts
-for use with bioperl. These are documented (perldoc <scriptname> will
+for use with bioperl. These are documented ('perldoc scriptname' will
 work). This area only started in the 0.05 distribution, and so not
 that many scripts have been written (you are more than welcome to
 contribute!)
