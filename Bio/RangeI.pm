@@ -120,7 +120,7 @@ sub _ignore {
 
 # works out what test to use for the strictness and returns true/false
 # e.g. $r1->_testStrand($r2, STRONG)
-sub _testSrand() {
+sub _testStrand() {
   my ($r1, $r2, $comp) = @_;
   return 1 unless $comp;
   my $func = $STRAND_OPTIONS{$comp};
@@ -327,7 +327,7 @@ sub union {
                    map( { $_->end()   } @ranges);
 
   my $start = shift @start;
-  if( !defined $start ) {
+  while( !defined $start ) {
       $start = shift @start;
   }
 
