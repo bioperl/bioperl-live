@@ -1,0 +1,40 @@
+LOCUS       BAB68554                 141 aa            linear   VRT 11-APR-2002
+DEFINITION  alpha D-globin [Aldabrachelys elephantina].
+ACCESSION   BAB68554
+PID         g15824047
+VERSION     BAB68554.1  GI:15824047
+DBSOURCE    accession AB072353.1
+KEYWORDS    .
+SOURCE      Aldabra giant tortoise.
+  ORGANISM  Aldabrachelys elephantina
+            Eukaryota; Metazoa; Chordata; Craniata; Vertebrata; Euteleostomi;
+            Testudines; Cryptodira; Testudinoidea; Testudinidae; Aldabrachelys.
+REFERENCE   1
+  AUTHORS   Shishikura,F.
+  TITLE     The primary structure of hemoglobin D from the Aldabra giant
+            tortoise, Geochelone gigantea
+  JOURNAL   Zoolog. Sci. 19, 197-206 (2002)
+REFERENCE   2  (residues 1 to 141)
+  AUTHORS   Shishikura,F.
+  TITLE     Direct Submission
+  JOURNAL   Submitted (29-SEP-2001) Fumio Shishikura, Nihon University School
+            of Medicine, Biology; Oyaguchi-kamimachi, 30-1, Itabashi-ku, Tokyo
+            173-8610, Japan (E-mail:fshishi@med.nihon-u.ac.jp,
+            Tel:81-3-3972-8111(ex.2291), Fax:81-3-3972-0027)
+FEATURES             Location/Qualifiers
+     source          1..141
+                     /organism="Aldabrachelys elephantina"
+                     /db_xref="taxon:167804"
+                     /note="synonym:Dipsochelys dussumieri~synonym:Geochelone
+                     gigantea"
+     Protein         1..141
+                     /product="alpha D-globin"
+     CDS             1..141
+                     /coded_by="join(AB072353.1:1..92,AB072353.1:307..511,
+                     AB072353.1:739..>864)"
+                     /note="hemoglobin D"
+ORIGIN      
+        1 mlteddkqli qhvwekvleh qedfgaeale rmfivypstk tyfphfdlhh dseqirhhgk
+       61 kvvgalgdav khidnlsatl selsnlhayn lrvdpvnfkl lshcfqvvlg ahlgreytpq
+      121 vqvaydkfla avsavlaeky r
+//
