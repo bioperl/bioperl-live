@@ -196,5 +196,7 @@ sub get_params {
                    the desired sequence entries
   Note    : For GenBank, this just calls the same code for get_Stream_by_id()
 
+=cut
+
 1;
 __END__
