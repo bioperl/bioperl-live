@@ -781,6 +781,7 @@ sub annotation {
  Args    : 
 
 =cut
+#'
 
 sub _remove_models {
 	my ($self) = shift;
@@ -848,23 +849,25 @@ sub _create_default_chain {
 # manipulating the c_p hash
 
 sub _parent {
-	no strict "refs";
-	my ($self, $key, $value) = @_;
-	
-	if ( (!defined $key) || (ref($key) !~ /^Bio::/) ) {
-		$self->throw("First argument to _parent needs to be a reference to a Bio:: object ($key)\n");
-	}
-	if ( (defined $value) && (ref($value) !~ /^Bio::/) ) {
-		$self->throw("Second argument to _parent needs to be a reference to a Bio:: object\n");
-	}
-	# no checking here for consistency of key and value, needs to happen in caller
-	
-	if (defined $value) {
-		# is this value already in, shout
-		if (exists( ${ $self->{'c_p'} }{$key} ) ) {
-			$self->throw("_parent: $key already has a parent ${$self->{'c_p'}}{$key}\n");
-		}
-		${$self->{'c_p'}}{$key} = $value;
+    no strict "refs";
+    my ($self, $key, $value) = @_;
+
+    if ( (!defined $key) || (ref($key) !~ /^Bio::/) ) {
+	$self->throw("First argument to _parent needs to be a reference to a Bio:: object ($key)\n");
+    }
+    if ( (defined $value) && (ref($value) !~ /^Bio::/) ) {
+	$self->throw("Second argument to _parent needs to be a reference to a Bio:: object\n");
+    }
+    # no checking here for consistency of key and value, needs to happen in caller
+
+    if (defined $value) {
+	# is this value already in, shout
+	if (defined ( $self->{'c_p'}->{$key}) && 
+	    exists ( $self->{'c_p'}->{$key})
+	    ) {
+	    $self->throw("_parent: $key already has a parent ${$self->{'c_p'}}{$key}\n");
+    }
+    ${$self->{'c_p'}}{$key} = $value;
 	}
 	return ${$self->{'c_p'}}{$key}; 
 }
