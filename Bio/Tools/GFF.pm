@@ -265,16 +265,34 @@ sub _from_gff2_string {
    if ( $strand eq '+' ) { $feat->strand(1); }
    if ( $strand eq '.' ) { $feat->strand(0); }
 
+   #  <Begin Inefficient Code from Mark Wilkinson>
+   # this routine is necessay to allow the presence of semicolons in quoted text
+   # Semicolons are the delimiting character for new tag/value attributes.
+
    $attribs =~ s/\#(.*)$//;				 # remove comments field (format:  #blah blah blah...  at the end of the GFF line)
+   my @att = split //, $attribs;         # split into individual characters
+   my $num = $#att;                 # count them
+   my $flag = 0;
+	
+	for (0; $a <= $num ; $a +=1){   # run through each character one at a time and check it
+		if ($att[$a] eq "\""){$flag=($flag==0)?1:0}  # flag up on entering quoted text, down on leaving it
+		if (($att[$a] eq ";") && $flag){$att[$a] = "INSERT_SEMICOLON_HERE"}  # replace semicolon with an unusual message if the quoted text flag is up
+	}
+
+	$attribs = join "", @att; # rejoin into a single string
+
+   # <End Inefficient Code>   Please feel free to fix this and make it more "perlish"
+
    my @key_vals = split /;/, $attribs;   # attributes are semicolon-delimited
 
    foreach my $pair ( @key_vals ) {
+       $pair =~ s/INSERT_SEMICOLON_HERE/;/g;  # replace semicolons that was removed from free-text above.
        my ($blank, $key, $values) = split  /^\s*([\w\d]+)\s/, $pair;	# separate the key from the value
 
        my @values;								
 
        while ($values =~ s/"(.*?)"//){          # free text is quoted, so match each free-text block
-       		if ($1){push @values, $1};           # and push it on to the list of values (tags may have more than one value...)
+       		if ($1){push @values, $1};          # and push it on to the list of values (tags may have more than one value...)
        }
 
        my @othervals = split /\s+/, $values;  # and what is left over should be space-separated non-free-text values
