@@ -1732,8 +1732,8 @@ $seq_obj = $inx->fetch($id)
 	 <para></para>
 	 <para>
 		By default the indexing code will use the string following the 
-		<emphasis>&gt;</emphasis> character as a key, meaning that fasta header line
-		should look something like this:
+		<emphasis>&gt;</emphasis> character as a key, meaning that 
+		fasta header line should look something like this:
 	 </para>
 	 <para>
 		<programlisting>
@@ -1793,7 +1793,9 @@ sub get_id {
 		<orderedlist>
 		  <listitem><para>
 			 The 
-	<ulink url="http://bioperl.org/Core/Latest/bptutorial.html">bptutorial</ulink>. This gives a good overview of many
+	<ulink 
+url="http://bioperl.org/Core/Latest/bptutorial.html">bptutorial</ulink>
+			 gives a good overview of many
 			 different topics. Few topics are covered in detail but many
 			 of the most important modules and concepts are covered.
 		  </para></listitem>
@@ -1810,15 +1812,15 @@ sub get_id {
 			 but the quality and quantity varies by module. 
 		  </para></listitem>
 		  <listitem><para>
-			 Bioperl scripts. You'll find them in the scripts/ directory
-			 and in the examples/ directory of the Bioperl package.
-			 The former contains more carefully written and documented
-			 scripts that can be installed along with Bioperl. 
+				Bioperl scripts. You'll find them in the scripts/ directory
+				and in the examples/ directory of the Bioperl package.
+				The former contains more carefully written and documented
+				scripts that can be installed along with Bioperl. You should
+				feel free to contribute scripts to either of these 
+				directories.
 		  </para></listitem>
 		  <listitem><para>
-			 <ulink url="http://bioperl.org/Core/Latest/modules.html#user">User-contributed documentation</ulink>. If you look on the
-			 documentation page will you will see this section,
-			 there's some very good material here.
+			 <ulink url="http://bioperl.org/Core/Latest/modules.html#user">User-contributed documentation</ulink>. There's some very good material here.
 		  </para></listitem>
 		</orderedlist>
 	 </para>
@@ -1836,25 +1838,25 @@ sub get_id {
 >perldoc perldoc
 		</programlisting>
 	 </para>
-	 <para>
-		Bioperl is also documented using POD, and perldoc can be an easy way to
-		obtain usage information on any of the Bioperl modules:
-		<programlisting>
->perldoc Bio::SeqIO
-		</programlisting>
-	 </para>
   
 	 <para>
 		Perldoc is a very useful and versatile tool, shown below are some more
-		examples on how to use perldoc:
+		examples on how to use perldoc.
 	 </para>
   
 	 <para>
-		Read about Perl's built-in "print" function:
+		Read about Perl's built-in <function>print</function> function:
 		<programlisting>
 >perldoc -f print
 		</programlisting>
 	 </para>
+	 <para>
+		Read about any module, including any of the Bioperl modules:
+		<programlisting>
+>perldoc Bio::SeqIO
+		</programlisting>
+	 </para>
+
   </section> 
 
   <section id="objects">
@@ -1933,14 +1935,14 @@ $reversed_obj = $seq_obj->revcom;
 
 	 <para>
 		That's the sort of explanation you'll get in programming
-		books, but what is an object really? Usually a hash.
-		In Perl the data that the object contains is stored in a 
+		books, but what is a Perl object really? Usually a hash.
+		In Bioperl the data that the object contains is stored in a 
 		single, complex hash and the object, like 
 		<varname>$seq_obj</varname>,
 		is a reference to this hash. In addition, the methods
 		that the object can use are also stored in this hash as
 		particular kinds of references. You could say that an
-		object in Perl is a special kind of hash reference.
+		object in Bioperl is a special kind of hash reference.
 	 </para>
 
 	 <para>
