@@ -1,9 +1,9 @@
 # $Id$
-# placeholder for Bio::StructureI
+# placeholder for Bio::Structure::StructureI
 
 # $Id$
 #
-# BioPerl module for Bio::StructureI
+# BioPerl module for Bio::Structure::StructureI
 #
 # Cared for by Kris Boulez <kris.boulez@algonomics.com>
 #
@@ -15,7 +15,7 @@
 
 =head1 NAME
 
-Bio::StructureI - Abstract Interface for a Structure objects
+Bio::Structure::StructureI - Abstract Interface for a Structure objects
 
 =head1 SYNOPSIS
 
@@ -66,7 +66,8 @@ Internal methods are usually preceded with a _
 # Let the code begin...
 
 
-package Bio::StructureI;
+package Bio::Structure::StructureI;
+use Bio::Root::RootI;
 use vars qw(@ISA);
 use strict;
 
