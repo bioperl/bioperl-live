@@ -27,7 +27,7 @@ Bio::SearchIO::Writer::BSMLResultWriter - DESCRIPTION of Object
 
 =head1 DESCRIPTION
 
-Describe the object here
+This is a writer to produce BSML for a search result.
 
 =head1 FEEDBACK
 
@@ -114,13 +114,15 @@ sub new {
 
 =cut
 
+# this implementation is largely adapted from the Incogen XSLT stylesheet
+# to convert NCBI BLAST XML to BSML
 
 sub to_string {
     my ($self,$result,$num) = @_;
     my $str = new IO::String();
-    my $newlines = 1; # can parameterize this later
     my $writer = new XML::Writer(OUTPUT     => $str,
-				 NEWLINES   => $newlines);
+				 DATA_INDENT => 1,
+				 DATA_MODE   => 1);
     $writer->xmlDecl('UTF-8');
     $writer->doctype('Bsml','-//EBI//Labbook, Inc. BSML DTD//EN',
 		     'http://www.labbook.com/dtd/bsml3_1.dtd');
@@ -139,70 +141,209 @@ sub to_string {
 	
     $writer->startTag('Sequence',
 		      'length' => $result->query_length,
-		      'title'  => $result->query_name,
+		      'title'  => $result->query_name . " ". $result->query_description,
 		      'molecule' => $qmoltype,
+		      'representation' => 'virtual',
 		      'id'     => $result->query_name
 		      );
-    $writer->endTag('Sequence');
-    foreach my $hit ( $result->hits ) {
-	$writer->startTag('Sequence',
-			  'length' => $hit->length,
-			  'title'  => $hit->name,
-			  'molecule' => $hmoltype,
-			  'id'     => $hit->name
-		      );
-	$writer->endTag('Sequence');
+    # Here we're annotating the Query sequence with hits
+    # hence the Feature-table
+    $writer->startTag('Feature-tables');
+    $writer->startTag('Feature-table',
+		      'title' => "$reporttype Result", 
+		      'class' => $reporttype);
+    my ($hitnum,$hspnum) = (1,1);
+    foreach my $hit ( $result->hits ) {	
+	$hspnum = 1;
+	foreach my $hsp ( $hit->hsps ) {
+	    $writer->startTag('Feature',
+			      'class'  => $reporttype,
+			      'value-type' => 'alignment',
+			      'title'  => $hit->name. " ". $hit->description,
+			      );
+
+	    $writer->emptyTag('Interval-loc',
+			      'startpos' => $hsp->query->start,
+			      'endpos'   => $hsp->query->end);
+	    $writer->emptyTag('Qualifier',
+			      'value-type' => 'score',
+			      'value'      => $hsp->score,
+			      );
+	    
+	    $writer->emptyTag('Qualifier',
+			      'value-type' => 'target-start',
+			      'value'      => $hsp->hit->start,
+			      );
+	    $writer->emptyTag('Qualifier',
+			      'value-type' => 'target-end',
+			      'value'      => $hsp->hit->end,
+			      );
+	    $writer->emptyTag('Link',
+			      'title' => 'alignment',
+			      'href'  => sprintf("#SPA%d.%d",$hitnum,$hspnum)
+			      );
+	    
+	    if( $hsp->hit->strand < 0 ) {
+		$writer->emptyTag('Qualifier',
+				  'value-type' => 'target-on-complement',
+				  'value'      => 1,
+				  );
+	    }
+	    $hspnum++;
+	    $writer->endTag('Feature');
+	}
+	$hitnum++;
     }
+    $writer->endTag('Feature-table');
+    $writer->endTag('Feature-tables');
+    $writer->endTag('Sequence');
     $writer->endTag('Sequences');
 
     $writer->startTag('Tables');
     $writer->startTag('Sequence-search-table',
-		      'searcg-type' => $result->algorithm,
-		      'query-start' => 0,
+		      'search-type' => $reporttype,
 		      'query-length' => $result->query_length);
-		      
+    $hitnum = $hspnum = 1;
     foreach my $hit ( $result->hits ) {
-	$writer->startTag('Seq-pair-alignment',
-			  'compxref' => sprintf("%s:%s",
-						'',$result->query_name),
-			  'compseq' => $result->query_name,
-			  'method'  => join(' ',$result->algorithm, 
-					    $result->algorithm_version),
-			  'refxref'  => sprintf("%s:%s",
-						$result->database_name,
-						$hit->name),
-			  'refseq'  => $hit->name,
-			  'refstart' => 0,
-			  'refend'   => $hit->length -1,
-			  'reflength' => $hit->length);
+	$hspnum = 1;
 	foreach my $hsp ( $hit->hsps ) {
-	    $writer->startTag('Seq-pair-run',
-			      'runlength' => $hit->hit->length,
-			      'runprob' => '0',
-			      'translated' => $result->query_algorithm =~ /[TX]/,
-			      'comprunlength' => $hsp->hsp_length,
-			      'comppos' => $hsp->query->start,
-			      'compcomplement' => '0',
-			      'complength' => $hsp->hit->length,
-			      'refpos' => $hsp->hit->start, 
-			      'runscore' => $hsp->score,
-			      'refcomplement' => '0');
+	    $writer->startTag('Seq-pair-alignment',
+			      'id' => sprintf("SPA%d.%d",$hitnum,$hspnum),
+			      'method'       => join(' ',$result->algorithm), 
+			      'compxref'     => sprintf("%s:%s",
+						'',$result->query_name),
+			      'refxref'      => sprintf("%s:%s",
+							$result->database_name,
+							$hit->name),
+			      'refseq'       => $hit->name,
+			      'title'        => $result->query_name,
+			      'compseq'      => $result->query_name,
+			      'compcaption'  => $result->query_name . ' ' .
+			                         $result->query_description,
+			      'refcaption'   => $hit->name . " ". 
+                                                 $hit->description,
+			      'totalscore'   => $hsp->score,
+			      'refstart'     => $hsp->query->start,
+			      'refend'       => $hsp->query->end,
+			      'compstart'    => $hsp->hit->start,
+			      'compend'      => $hsp->hit->end,
+			      'complength'   => $hit->length,
+			      'reflength'    => $result->query_length);
+
+	    $writer->emptyTag('Attribute',
+			      'name'    => 'hit-num',
+			      'content' => $hitnum);
+	    $writer->emptyTag('Attribute',
+			      'name'    => 'hit-id',
+			      'content' => $hit->name);
+	    $writer->emptyTag('Attribute',
+			      'name'    => 'hsp-num',
+			      'content' => $hspnum);
+	    $writer->emptyTag('Attribute',
+			      'name'    => 'hsp-bit-score',
+			      'content' => $hsp->bits);
+	    $writer->emptyTag('Attribute',
+			      'name'    => 'hsp-evalue',
+			      'content' => $hsp->evalue);
+	    $writer->emptyTag('Attribute',
+			      'name'    => 'pattern-from',
+			      'content' => 0);
+	    $writer->emptyTag('Attribute',
+			      'name'    => 'pattern-to',
+			      'content' => 0);
+	    $writer->emptyTag('Attribute',
+			      'name'    => 'query-frame',
+			      'content' => $hsp->query->frame);
+	    $writer->emptyTag('Attribute',
+			      'name'    => 'hit-frame',
+			      'content' => $hsp->hit->frame * $hsp->hit->strand);
 	    $writer->emptyTag('Attribute',
 			      'name'    => 'percent_identity',
-			      'content' => $hsp->percent_identity);
+			      'content' => sprintf("%.2f",$hsp->percent_identity));
 	    $writer->emptyTag('Attribute',
 			      'name'    => 'percent_similarity',
-			      'content' => $hsp->frac_conserved * 100);	    
+			      'content' => sprintf("%.2f",$hsp->frac_conserved('total') * 100));	    
+	    my $cons = $hsp->frac_conserved('total') * $hsp->length('total');
+	    my $ident = $hsp->frac_identical('total') * $hsp->length('total');
+	    
 	    $writer->emptyTag('Attribute',
-			      'name'    => 'e_value',
-			      'content' => $hsp->evalue);
+			      'name'    => 'identity',
+			      'content' => $ident);
+	    $writer->emptyTag('Attribute',
+			      'name'    => 'positive',
+			      'content' => $cons);
+	    $writer->emptyTag('Attribute',
+			      'name'    => 'gaps',
+			      'content' => $hsp->gaps('total'));
+	    $writer->emptyTag('Attribute',
+			      'name'    => 'align-len',
+			      'content' => $hsp->length('total'));
+	    $writer->emptyTag('Attribute',
+			      'name'    => 'density',
+			      'content' => 0);
+	    $writer->emptyTag('Attribute',
+			      'name'    => 'hit-len',
+			      'content' => $hit->length);
+	    my @extrafields;
+
+	    $writer->emptyTag('Seq-pair-run',
+			      'runlength'     => $hsp->hit->length,
+			      'comprunlength' => $hsp->hsp_length,
+			      'complength'    => $hsp->hit->length,
+			      'compcomplement'=> $hsp->hit->strand < 0 ? 1 :0,
+			      'refcomplement' => $hsp->query->strand < 0 ? 1 :0,
+			      'refdata'       => $hsp->query_string,
+			      'compdata'      => $hsp->hit_string,
+			      'alignment'     => $hsp->homology_string,
+			      );
+	    $hspnum++;
+	    $writer->endTag('Seq-pair-alignment');
 	}
-	$writer->endTag('Seq-pair-alignment');
+	$hitnum++;
     }
-    $writer->endTag('Sequence-search-tables');
+    $writer->endTag('Sequence-search-table');
     $writer->endTag('Tables');
     
-    $writer->endTag('Definitions');    
+    $writer->startTag('Research');
+    $writer->startTag('Analyses');
+    $writer->startTag('Analysis');
+    $writer->emptyTag('Attribute',
+		      'name'    => 'program',
+		      'content' => $reporttype);
+    $writer->emptyTag('Attribute',
+		      'name'    => 'version',
+		      'content' => join(' ',$reporttype, 
+					$result->algorithm_version));
+    $writer->emptyTag('Attribute',
+		      'name'     => 'reference',
+		      'content'  => $result->algorithm_reference);
+    $writer->emptyTag('Attribute',
+		      'name'     => 'db',
+		      'content'  => $result->database_name);
+    $writer->emptyTag('Attribute',
+		      'name'     => 'db-size',
+		      'content'  => $result->database_entries);
+    $writer->emptyTag('Attribute',
+		      'name'     => 'db-length',
+		      'content'  => $result->database_letters);
+    # $writer->emptyTag('Attribute',
+    # 'name'     => 'iter-num',
+    # 'content'  => $result->iteration_num);
+    foreach my $attr ( $result->available_parameters ) {
+	$writer->emptyTag('Attribute',
+			  'name'     => $attr,
+			  'content'  => $result->get_parameter($attr));
+    }
+    foreach my $attr ( $result->available_statistics ) {
+	$writer->emptyTag('Attribute',
+			  'name'     => $attr,
+			  'content'  => $result->get_statistic($attr));
+    }
+    $writer->endTag('Analysis');    
+    $writer->endTag('Analyses');    
+    $writer->endTag('Research');
+    
+    $writer->endTag('Definitions');   
     $writer->endTag('Bsml');   
     $writer->end();
     return ${$str->string_ref};
