@@ -261,35 +261,15 @@ sub trim_singlet {
           # discarded? I don't think that this should be the decision of this
           # module.
           # removed, 020926
-          # if ($start_base > ($sequence_length - 100) && 1==2) {
-               # print("The start base starts with less then 100 bases to go. Bummer!\n");
-	          # $new_points[0] = ("FAILED");
-	          # $new_points[1] = ("FAILED");
-     	     # return @points;
-               # }
-          # else {
       $points[0] = $start_base;
-                  #
                   # whew! now for the end base
-                  # 
                   # required parameters: reference_to_windows,windowsize,$phredvalue,start_base
-      my $end_base = &_get_end($r_windows,20,20,$start_base);
+      my $end_base = &_get_end($r_windows,$self->{windowsize},$self->{phreds},$start_base);
       $points[1] = $end_base;
                # now do the actual trimming
                # CHAD : I don't think that it is a good idea to call chop_sequence here
                # because chop_sequence also removes X's and N's and things
                # and that is not always what is wanted
-     
-     #### that changed from this:
-     # my @new_points = $self->chop_sequence($name,$class,$sequence,@points);
-     # my $trimmed_sequence = pop(@new_points);
-     # return @new_points,$trimmed_sequence;
-     #### to this:
-               # $trimmed_sequence = pop(@new_points);
-               # }
-               # if (!$trimmed_sequence) { $trimmed_sequence = "FAILED"; }
-               # push(@new_points,$trimmed_sequence);
-          # push(@return_array,$trimmed_sequence);
      return \@points;
 }
 
@@ -321,26 +301,23 @@ sub trim_doublet {
     my @points;
     my $sequence_length = length($sequence);
     my ($returnstring,$processed_sequence);
-    # find out the leading and trailing trimpoints
-    # for now, the rule for trailing points will be a run of $windowsize each less then 10phreds
-    my $windowsize = 10;
-    my $r_windows = &_sliding_window(\@qual,$windowsize);
-    my $phreds = 20;
-    # determine where the consensus sequence starts
+          # smooth out the qualities
+    my $r_windows = &_sliding_window(\@qual,$self->{windowsize});
+          # determine where the consensus sequence starts
     my $offset = 0;
     for (my $current = 0; $current<$sequence_length;$current++) {
-	if ($qual[$current] != 0) {
-	    $offset = $current;
-	    last;
-	}
+          if ($qual[$current] != 0) {
+               $offset = $current;
+               last;
+          }
     }
-    # start_base required: r_quality,$windowsize,$phredvalue
-    my $start_base = $self->_get_start($r_windows,5,20,$offset);
+          # start_base required: r_quality,$windowsize,$phredvalue
+    my $start_base = $self->_get_start($r_windows,$self->{windowsize},$self->{phreds},$offset);
     if ($start_base > ($sequence_length - 100)) {
-	$points[0] = ("FAILED");
-	$points[1] = ("FAILED");
-	return @points;
-    }
+          $points[0] = ("FAILED");
+	     $points[1] = ("FAILED");
+          return @points;
+     }
     $points[0] = $start_base;
          #
          # whew! now for the end base
@@ -351,16 +328,9 @@ sub trim_doublet {
     my $end_base = $sequence_length;
     my $start_of_trailing_zeros = &count_doublet_trailing_zeros(\@qual);
     $points[1] = $end_base;
-    # now do the actual trimming
           # CHAD : I don't think that it is a good idea to call chop_sequence here
           # because chop_sequence also removes X's and N's and things
           # and that is not always what is wanted
-     
-     #### that changed from this:
-     # my @new_points = $self->chop_sequence($name,$class,$sequence,@points);
-     # my $trimmed_sequence = pop(@new_points);
-     # return @new_points,$trimmed_sequence;
-     #### to this:
      return @points;
 }				# end trim_doublet
 

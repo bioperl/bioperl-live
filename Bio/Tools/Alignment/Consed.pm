@@ -741,7 +741,7 @@ sub set_trim_points_singlets_and_singletons {
 	    (@points) = $self->{'o_trim'}->trim_singlet($sequence,$quality,$name,$class);
 	    $self->{'contigs'}->{$_}->{'start_point'} = $points[0];
 	    $self->{'contigs'}->{$_}->{'end_point'} = $points[1];
-	    $self->{'contigs'}->{$_}->{'sequence_trimmed'} = $points[2];
+	    $self->{'contigs'}->{$_}->{'sequence_trimmed'} = substr($self->{contigs}->{$_}->{'consensus'},$points[0],$points[1]-$points[0]);
 	}
     }
     $self->debug("Bio::Tools::Alignment::Consed::set_trim_points_singlets_and_singletons: Done setting the quality trimpoints.\n");
@@ -774,16 +774,14 @@ sub set_trim_points_doublets {
     $self->debug("Bio::Tools::Alignment::Consed::set_trim_points_doublets: Setting doublet trim points.\n");
     foreach (sort keys %{$self->{'contigs'}}) {
 	if ($self->{'contigs'}->{$_}->{'class'} eq "doublet") {
-	    $self->debug("Bio::Tools::Alignment::Consed::set_trim_points_doublets: Setting trimpoints for doublet $_\n" .
-			 "The qualities for this doublet are $self->{'contigs'}->{$_}->{'quality'}\n".
-			 "Consed::set_trim_points_doublets: there are ".length($self->{'contigs'}->{$_}->{consensus})." bases in $_\n");
-	    # my ($self,$sequence,$quality,$name,$class) = @_;
+	          # my ($self,$sequence,$quality,$name,$class) = @_;
           my @quals = split(' ',$self->{'contigs'}->{$_}->{'quality'});
           
 	    (@points) = $self->{o_trim}->trim_doublet($self->{'contigs'}->{$_}->{'consensus'},$self->{'contigs'}->{$_}->{'quality'},$self->{'contigs'}->{$_}->{name},$self->{'contigs'}->{$_}->{'class'});
 	    $self->{'contigs'}->{$_}->{'start_point'} = $points[0];
 	    $self->{'contigs'}->{$_}->{'end_point'} = $points[1];
-	    $self->{'contigs'}->{$_}->{'sequence_trimmed'} = $points[2];
+               # now set this
+	    $self->{'contigs'}->{$_}->{'sequence_trimmed'} = substr($self->{contigs}->{$_}->{'consensus'},$points[0],$points[1]-$points[0]);
 	    # 010102 the deprecated way to do things:
 	}
     }
