@@ -24,7 +24,7 @@
 # Revision: $Id$
 
 use strict;
-use lib '../../../';
+use lib '../../';
 use Bio::SearchIO;
 
 my $in = Bio::SearchIO->new( -format => 'psiblast',
