@@ -942,6 +942,7 @@ based on actual content. Here is the current set of suffixes:
    genbank    gb|gbank|genbank|gbs|gbk     Genbank
    gcg        gcg                          GCG
    game                                    GAME XML
+   interpro                                InterProScan XML
    kegg                                    KEGG genes
    locuslink                               LL_tmpl format
    pir        pir                          PIR
