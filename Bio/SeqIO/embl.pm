@@ -104,8 +104,9 @@ use Bio::Seq::RichSeq;
 use Bio::SeqIO::FTHelper;
 use Bio::SeqFeature::Generic;
 use Bio::Species;
-
-
+use Bio::Annotation::Comment;
+use Bio::Annotation::Reference;
+use Bio::Annotation::DBLink;
 
 
 @ISA = qw(Bio::SeqIO);

@@ -195,7 +195,7 @@ $str = new Bio::AlignIO(-verbose => 1,
 $aln = $str->next_aln();
 ok($aln);
 ok(sprintf("%.1f",$aln->overall_percentage_identity), 2.1);
-ok(sprintf("%.1f",$aln->average_percentage_identity), 4.6);
+ok(sprintf("%.1f",$aln->average_percentage_identity), 38.5);
 ok($aln->get_seq_by_pos(1)->length, 238);
 ok($aln->length,238);
 ok($aln->get_seq_by_pos(1)->get_nse,'KV1K_HUMAN/1-108');

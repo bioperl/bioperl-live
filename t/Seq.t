@@ -20,8 +20,9 @@ BEGIN {
 use Bio::Seq;
 use Bio::Seq::RichSeq;
 use Bio::SeqFeature::Generic;
-use Bio::Annotation;
 use Bio::Species;
+use Bio::Annotation::SimpleValue;
+
 ok(1);
 
 my $seq = Bio::Seq->new(-seq=>'ACTGTGGCGTCAACT',
@@ -68,9 +69,10 @@ my $species = new Bio::Species
 			      Metazoa Eukaryota )]);
 $seq->species($species);
 ok $seq->species->binomial, 'Homo sapiens';
-$seq->annotation(new Bio::Annotation('-description' => 'desc-here'));
-ok $seq->annotation->description, 'desc-here', 
-		 'annotation was ' . $seq->annotation();
+$seq->annotation->add_Annotation('description',
+		 Bio::Annotation::SimpleValue->new(-value => 'desc-here'));
+my ($descr) = $seq->annotation->get_Annotations('description');
+ok $descr->value(), 'desc-here';
 
 #
 #  translation tests

@@ -108,6 +108,8 @@ use Bio::SeqIO;
 use Bio::SeqIO::FTHelper;
 use Bio::SeqFeature::Generic;
 use Bio::Species;
+use Bio::Annotation::Comment;
+use Bio::Annotation::Reference;
 
 @ISA = qw(Bio::SeqIO);
  

@@ -1049,12 +1049,14 @@ See L<Bio::AnnotationCollectionI> and L<Bio::Annotation::Collection> for more in
 =cut
 
 sub annotation {
-   my ($obj,$value) = @_;
-   if( defined $value) {
-      $obj->{'annotation'} = $value;
+    my ($obj,$value) = @_;
+    if( defined $value) {
+	$obj->throw("object of class ".ref($value)." does not implement ".
+		    "Bio::AnnotationCollectionI. Too bad.")
+	    unless $value->isa("Bio::AnnotationCollectionI");
+	$obj->{'annotation'} = $value;
     }
     return $obj->{'annotation'};
-
 }
 
 # keep AUTOLOAD happy
