@@ -266,7 +266,7 @@ sub seq {
 		       "which does not look healthy");
        }
        # if a sequence was already set we make sure that we re-adjust the
-       # mol.type, otherwise we skip guessing if mol.type is already set
+       # alphabet, otherwise we skip guessing if alphabet is already set
        # note: if the new seq is empty or undef, we don't consider that a
        # change (we wouldn't have anything to guess on anyway)
        my $is_changed_seq =
@@ -293,8 +293,8 @@ sub seq {
 
  Title   : validate_seq
  Usage   : if(! $seq->validate_seq($seq_str) ) {
-                print "sequence $seq_str is not valid for an object of type ",
-		      ref($seq), "\n";
+                print "sequence $seq_str is not valid for an object of 
+                alphabet ",$seq->alphabet, "\n";
 	   }
  Function: Validates a given sequence string. A validating sequence string
            must be accepted by seq(). A string that does not validate will
@@ -527,14 +527,14 @@ sub primary_id {
 
  Title   : alphabet
  Usage   : if( $obj->alphabet eq 'dna' ) { /Do Something/ }
- Function: Returns the type of sequence being one of
+ Function: Returns the alphabet of sequence, one of
            'dna', 'rna' or 'protein'. This is case sensitive.
 
            This is not called <type> because this would cause
            upgrade problems from the 0.5 and earlier Seq objects.
 
  Returns : a string either 'dna','rna','protein'. NB - the object must
-           make a call of the type - if there is no type specified it
+           make a call of the type - if there is no alphabet specified it
            has to guess.
  Args    : none
 
@@ -546,7 +546,7 @@ sub alphabet {
     if (defined $value) {
 	$value = lc $value;
 	unless ( $valid_type{$value} ) {
-	    $obj->throw("Molecular type '$value' is not a valid type (".
+	    $obj->throw("Alphabet '$value' is not a valid alphabet (".
 			join(',', map "'$_'", sort keys %valid_type) .
 			") lowercase");
 	}
