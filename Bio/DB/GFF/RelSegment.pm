@@ -1072,7 +1072,7 @@ sub rel2abs {
 =head2 abs2rel
 
  Title   : abs2rel
- Usage   : @rel_coords = $s-abs2rel(@abs_coords)
+ Usage   : @rel_coords = $s->abs2rel(@abs_coords)
  Function: convert absolute coordinates into relative coordinates
  Returns : a list of relative coordinates
  Args    : a list of absolute coordinates
@@ -1194,6 +1194,8 @@ sub union {
 	     -start  => $low,
 	     -stop   => $high);
 }
+
+sub version { 0 }
 
 
 1;

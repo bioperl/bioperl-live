@@ -488,6 +488,28 @@ sub location {
    $location;
 }
 
+=head2 location_string
+
+ Title   : location_string
+ Usage   : my $string = $seqfeature->location_string()
+ Function: Returns a location string in a format recognized by gbrowse
+ Returns : a string
+ Args    : none
+
+This is a convenience function used by the generic genome browser. It
+returns the location of the feature and its subfeatures in the compact
+form "start1..end1,start2..end2,...".  Use
+$seqfeature->location()->toFTString() to obtain a standard
+GenBank/EMBL location representation.
+
+=cut
+
+sub location_string {
+  my $self = shift;
+  my @segments = $self->segments or return $self->to_FTstring;
+  join ',',map {$_->to_FTstring} @segments;
+}
+
 sub coordinate_policy {
    require Bio::Location::WidestCoordPolicy unless Bio::Location::WidestCoordPolicy->can('new');
    return Bio::Location::WidestCoordPolicy->new();
