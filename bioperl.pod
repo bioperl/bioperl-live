@@ -2,10 +2,35 @@
 
 Bioperl 1.4 - Perl Modules for Biology
 
-=head1 SYNOPSIS
+=head1 DESCRIPTION
 
-If you're new to Bioperl, you should start reading F<bptutorial.pl>, an
-overview of the Bioperl toolkit.
+Bioperl is the product of a community effort to produce Perl code 
+which is useful in biology.  Examples include Sequence objects, 
+Alignment objects and database searching objects. These objects not 
+only do what they are advertised to do in the documentation, but 
+they also interact - Alignment objects are made from the Sequence 
+objects, Sequence objects have access to Annotation and SeqFeature 
+objects and databases, Blast objects can be converted to Alignment 
+objects, and so on. This means that the objects provide a coordinated 
+and extensible framework to do computational biology.
+
+Bioperl development focuses on Perl classes, or code that is used to
+create objects representing biological entities. There are scripts
+provided in the scripts/ and examples/ directories but scripts are 
+not the main focus of the Bioperl developers. Of course, as the 
+objects do most of the hard work for you, all you have to do is 
+combine a number of objects together sensibly to make useful scripts.
+
+The intent of the Bioperl development effort is to make reusable tools
+that aid people in creating their own sites or job-specific applications.
+
+
+=head1 DOCUMENTATION
+
+If you're new to Bioperl, you might want to read the F<bptutorial.pl>, 
+an overview of the Bioperl toolkit. You may also find the HOWTOs 
+useful, these are booklets focused on specific topics 
+(http://bioperl.org/HOWTOs, or in doc/howto).
 
 In the style of the perl documentation, core Bioperl documentation has
 been split up into the following sections:
@@ -31,56 +56,13 @@ C<perldoc Bio::Seq>
 
 to get documentation for the Bio::Seq object.
 
-=head1 DESCRIPTION
-
-Bioperl is the product of a community effort to produce Perl code which is
-useful in biology.  Examples include Sequence objects, Alignment objects
-and database searching objects. These objects not only do what they are
-advertised to do in the documentation, but they also interact - Alignment
-objects are made from the Sequence objects, Sequence objects have access
-to Annotation and SeqFeature objects and databases, Blast objects can be
-converted to Alignment objects, and so on. This means that the objects
-provide a coordinated and extensible framework to do computational
-biology.
-
-Bioperl development focuses on Perl classes, or code that is used to
-create objects representing biological entities. There are scripts
-provided in the scripts/ and examples/ directories but scripts are not the 
-main focus of the Bioperl developers. Of course, as the objects do most of 
-the hard work for you, all you have to do is combine a number of objects 
-together sensibly to make useful scripts.
-
-The intent of the Bioperl development effort is to make reusable tools
-that aid people in creating their own sites or job-specific applications.
-
-The bioperl.org website at http://bioperl.org also attempts to maintain 
-links and archives of standalone bio-related Perl tools that are not
-affiliated or related to the core Bioperl effort. Check the site for
-useful code ideas and contribute your own if possible.
-
-
-=head1 DOCUMENTATION
-
-The Bio::Perl module is designed to flatten the learning curve for
-newcomers to Perl/Bioperl. This is a good place to start if you want
-some simple functionality. We have a cookbook tutorial in
-bptutorial.pl which has embedded documentation. Start there if
-learning-by-example suits you most, or examine the Bioperl online
-course at
-http://www.pasteur.fr/recherche/unites/sis/formation/bioperl. Make
-sure to check the documentation in the modules as well - there are
-over 900 modules in Bioperl, and counting, and there's detail in the
-modules' documentation that will not appear in the general
-documentation. You may also find the HOWTOs useful, these are 
-booklets focussed on specific topics (http://bioperl.org/HOWTOs).
-
 
 =head1 INSTALLATION
 
 The Bioperl modules are distributed as a tar file that expands into a
-standard perl CPAN distribution.  Detailed installation directions 
-can be found in the distribution INSTALL file. Installing on windows
-using ActiveState Perl is covered in the INSTALL.WIN file.
+standard perl CPAN distribution. Detailed installation directions 
+can be found in the distribution INSTALL file. Installing on Windows
+using ActiveState Perl or Cygwin is covered in the INSTALL.WIN file.
 
 The Bioperl modules can now interact with local flat file and relational
 databases. To learn how to set this up, look at the biodatabases.pod
@@ -93,10 +75,7 @@ installed separately from Bioperl. Please refer to their respective
 documentation for more information.
 
 
-=head1 GETTING STARTED
-
-A good place to start is by reading and running the cookbook script,
-bptutorial.pl.
+=head1 BIOPERL SCRIPTS
 
 The distribution I<scripts/> directory has working scripts for use
 with Bioperl, check the self-described examples/ directory as well. 
