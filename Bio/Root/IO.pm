@@ -93,7 +93,7 @@ The rest of the documentation details each of the object methods. Internal metho
 
 
 package Bio::Root::IO;
-use vars qw(@ISA $FILESPECLOADED $FILETEMPLOADED
+use vars qw(@ISA $FILESPECLOADED $FILETEMPLOADED $FILEPATHLOADED
 	    $TEMPDIR $PATHSEP $ROOTDIR $OPENFLAGS);
 use strict;
 
@@ -108,7 +108,16 @@ BEGIN {
     $TEMPCOUNTER = 0;
     $FILESPECLOADED = 0;
     $FILETEMPLOADED = 0;
+    $FILEPATHLOADED = 0;
+
     # try to load those modules that may cause trouble on some systems
+    eval { 
+	require File::Path;
+	$FILEPATHLOADED = 1;
+    }; 
+    if( $@ ) {
+	# do nothing
+    }
     eval {
 	require File::Spec;
 	$FILESPECLOADED = 1;
@@ -361,7 +370,7 @@ sub _io_cleanup {
 	    join(",",  @{$self->{'_rootio_tempdirs'}}), "\n";
 	}
 	foreach ( @{$self->{'_rootio_tempdirs'}} ) {
-	    rmdir($_); 
+	    rmtree($_); 
 	}
     }
 }
@@ -504,6 +513,140 @@ sub catfile {
 	$args[0] = $ROOTDIR;
     }
     return join($PATHSEP, @args);
+}
+
+=head2 rmtree
+
+ Title   : rmtree
+ Usage   : Bio::Root::IO->rmtree($dirname );
+ Function: Remove a full directory tree
+
+           If File::Path exists on your system, this routine will merely
+           delegate to it. Otherwise it runs a local version of that code.
+
+           You should use this method to remove directories which contain 
+           files.
+
+           You can call this method both as a class and an instance method.
+
+ Returns : number of files successfully deleted
+ Args    : roots - rootdir to delete or reference to list of dirs
+
+           verbose - a boolean value, which if TRUE will cause
+                     C<rmtree> to print a message each time it
+                     examines a file, giving the name of the file, and
+                     indicating whether it's using C<rmdir> or
+                     C<unlink> to remove it, or that it's skipping it.
+                     (defaults to FALSE)
+
+          safe - a boolean value, which if TRUE will cause C<rmtree>
+                 to skip any files to which you do not have delete
+                 access (if running under VMS) or write access (if
+                 running under another OS).  This will change in the
+                 future when a criterion for 'delete permission' under
+                 OSs other than VMS is settled.  (defaults to FALSE)
+
+=cut
+
+# taken straight from File::Path VERSION = "1.0403"
+sub rmtree {
+    my($self, $roots, $verbose, $safe) = @_;
+    File::Path::rmtree ($roots, $verbose, $safe) if( $FILEPATHLOADED );
+    my $force_writeable = ($^O eq 'os2' || $^O eq 'dos' || $^O eq 'MSWin32'
+		       || $^O eq 'amigaos');
+    my $Is_VMS = $^O eq 'VMS';
+
+    my(@files);
+    my($count) = 0;
+    $verbose ||= 0;
+    $safe ||= 0;
+
+    if ( defined($roots) && length($roots) ) {
+      $roots = [$roots] unless ref $roots;
+    }
+    else {
+	$self->warn("No root path(s) specified\n");
+      return 0;
+    }
+
+    my($root);
+    foreach $root (@{$roots}) {
+	$root =~ s#/\z##;
+	(undef, undef, my $rp) = lstat $root or next;
+	$rp &= 07777;	# don't forget setuid, setgid, sticky bits
+	if ( -d _ ) {
+	    # notabene: 0777 is for making readable in the first place,
+	    # it's also intended to change it to writable in case we have
+	    # to recurse in which case we are better than rm -rf for 
+	    # subtrees with strange permissions
+	    chmod(0777, ($Is_VMS ? VMS::Filespec::fileify($root) : $root))
+	      or $self->warn("Can't make directory $root read+writeable: $!")
+		unless $safe;
+
+	    if (opendir my $d, $root) {
+		@files = readdir $d;
+		closedir $d;
+	    }
+	    else {
+	        $self->warn( "Can't read $root: $!");
+		@files = ();
+	    }
+
+	    # Deleting large numbers of files from VMS Files-11 filesystems
+	    # is faster if done in reverse ASCIIbetical order 
+	    @files = reverse @files if $Is_VMS;
+	    ($root = VMS::Filespec::unixify($root)) =~ s#\.dir\z## if $Is_VMS;
+	    @files = map("$root/$_", grep $_!~/^\.{1,2}\z/s,@files);
+	    $count += rmtree(\@files,$verbose,$safe);
+	    if ($safe &&
+		($Is_VMS ? !&VMS::Filespec::candelete($root) : !-w $root)) {
+		print "skipped $root\n" if $verbose;
+		next;
+	    }
+	    chmod 0777, $root
+	      or $self->warn( "Can't make directory $root writeable: $!")
+		if $force_writeable;
+	    print "rmdir $root\n" if $verbose;
+	    if (rmdir $root) {
+		++$count;
+	    }
+	    else {
+		$self->warn( "Can't remove directory $root: $!");
+		chmod($rp, ($Is_VMS ? VMS::Filespec::fileify($root) : $root))
+		    or $self->warn("and can't restore permissions to "
+		            . sprintf("0%o",$rp) . "\n");
+	    }
+	}
+	else { 
+	    if ($safe &&
+		($Is_VMS ? !&VMS::Filespec::candelete($root)
+		         : !(-l $root || -w $root)))
+	    {
+		print "skipped $root\n" if $verbose;
+		next;
+	    }
+	    chmod 0666, $root
+	      or $self->warn( "Can't make file $root writeable: $!")
+		if $force_writeable;
+	    print "unlink $root\n" if $verbose;
+	    # delete all versions under VMS
+	    for (;;) {
+		unless (unlink $root) {
+		    $self->warn( "Can't unlink file $root: $!");
+		    if ($force_writeable) {
+			chmod $rp, $root
+			    or $self->warn("and can't restore permissions to "
+			            . sprintf("0%o",$rp) . "\n");
+		    }
+		    last;
+		}
+		++$count;
+		last unless $Is_VMS && lstat $root;
+	    }
+	}
+    }
+
+    $count;
 }
 
 1;
