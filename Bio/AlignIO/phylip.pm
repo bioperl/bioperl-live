@@ -153,8 +153,8 @@ sub next_aln {
     my $idlen = $self->idlength;
     $count = 0;
     while( $entry = $self->_readline) {
-	$entry =~ /^\s$/ and last;
-	$entry =~ /^(.{$idlen})\s+(.*)\s$/ && do {
+    	$entry =~ /^\s$/ and last;
+    	$entry =~ /^(.{$idlen})\s+(.*)\s$/ && do {
 	    $name = $1;
 	    $str = $2;
 	    $name =~ s/[\s\/]/_/g;
@@ -171,8 +171,13 @@ sub next_aln {
     # interleaved sections
     $count = 0;
     while( $entry = $self->_readline) {
-	$count = 0, next if $entry =~ /^\s$/;
-	$entry =~ /\s*(.*)$/ && do {
+      #finish current entry
+      if($entry =~/\s*\d+\s+\d+/){
+          $self->_pushback($entry);
+          last;
+      }
+    	$count = 0, next if $entry =~ /^\s$/;
+    	$entry =~ /\s*(.*)$/ && do {
 	    $str = $1;
 	    $str =~ s/\s//g;
 	    $count++;
