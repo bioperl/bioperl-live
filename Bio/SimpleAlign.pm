@@ -201,8 +201,9 @@ sub new {
 
   my $self = $class->SUPER::new(@args);
 
-  my ($src) = $self->_rearrange([qw(SOURCE)], @args);
+  my ($src,$score) = $self->_rearrange([qw(SOURCE SCORE)], @args);
   $src && $self->source($src);
+  defined $score && $self->score($score);
   # we need to set up internal hashs first!
 
   $self->{'_seq'} = {};
@@ -778,9 +779,15 @@ sub slice {
 
 	my $new_seq = new Bio::LocatableSeq (-id => $seq->id);
 
+
 	# seq
 	my $seq_end = $end;
-	$seq_end = $seq->length if $end > $seq->length;
+	if( $end > $seq->length ) {
+	    $seq_end = $seq->length;
+	} elsif ($end == $start ) {
+	    $end++;
+	}
+	
 	my $slice_seq = $seq->subseq($start, $seq_end);
 	$new_seq->seq( $slice_seq );
 
@@ -825,7 +832,10 @@ sub slice {
 sub remove_columns{
     my ($self,$type) = @_;
     $type || return $self;
-    my $gap = $self->gap_char if (grep $_ eq 'gaps', @{$type});
+    if( !ref($type) ) { 
+	$type = [$type];
+    }
+    my $gap = $self->gap_char if (grep { $_ eq 'gaps'} @{$type});
     my $all_gaps_columns = $self->gap_char if (grep /all_gaps_columns/,@{$type});
     my %matchchars = ( 'match'  => '\*',
                        'weak'   => '\.',
@@ -945,7 +955,7 @@ sub _remove_col {
              $new_seq->end($seq->end);
             }
         }
-        $new_seq->seq($sequence);
+        $new_seq->seq($sequence) if $sequence;
         push @new, $new_seq;
     }
     #add the new seqs to the alignment
@@ -1145,9 +1155,10 @@ sub match_line {
 	my %col = ($refchar => 1);
 	my $dash = ($refchar eq '-' || $refchar eq '.' || $refchar eq ' ');
 	foreach my $seq ( @seqchars ) {
+	    next if $pos >= scalar @$seq;
 	    $dash = 1 if( $seq->[$pos] eq '-' || $seq->[$pos] eq '.' || 
 			  $seq->[$pos] eq ' ' );
-	    $col{$seq->[$pos]}++;
+	    $col{$seq->[$pos]}++ if defined $seq->[$pos];
 	}
 	my @colresidues = sort keys %col;
 	my $char = $matchchars{'mismatch'};
@@ -1717,7 +1728,7 @@ sub length {
         if ($self->isa("Bio::Seq::LargeSeqI")) {
             $temp = $seq->length();
         } else {
-            $temp = CORE::length($seq->seq());
+	    $temp = $seq->length;
         }
 	if( $temp > $length ) {
 	    $length = $temp;
