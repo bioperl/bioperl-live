@@ -882,7 +882,7 @@ sub next_result{
                    
                } elsif ( $blast eq 'ncbi' ) {
 
-                   if( /^Matrix:\s+(\S+)/i ) {
+                   if( /^Matrix:\s+(.+)\s*$/i ) {
                        $self->element({'Name' => 'Parameters_matrix',
                                        'Data' => $1});                       
                    } elsif( /Lambda/ ) {
@@ -951,7 +951,7 @@ sub next_result{
                    $self->end_element({'Name' => 'Hsp'});
                    last; 
                }
-               if( /^((Query|Sbjct):\s+(\d+)\s*)(\S+)\s+(\d+)/ ) {
+               if( /^((Query|Sbjct):\s+(\-?\d+)\s*)(\S+)\s+(\-?\d+)/ ) {
                    $data{$2} = $4;
                    $len = length($1);
                    $self->{"\_$2"}->{'begin'} = $3 unless $self->{"_$2"}->{'begin'};
