@@ -128,7 +128,7 @@ sub _generic_seqfeature {
 		$remote=1;
 	    }
 	    if( my $location = $fth->_parse_loc($sf,$next_loc)) {
-		$self->debug( "I got remote: ". 
+		$fth->debug( "I got remote: ". 
 			      join(",", ($location->start(), 
 					 $location->end(), 
 					 $location->strand()))
