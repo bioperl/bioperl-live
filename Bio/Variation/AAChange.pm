@@ -16,13 +16,13 @@ Bio::Variation::AAChange - Sequence change class for polypeptides
 
 =head1 SYNOPSIS
 
-   $aamut = Bio::Variation::AAChange->new 
+   $aamut = Bio::Variation::AAChange->new
        ('-start'         => $start,
  	'-end'           => $end,
  	'-length'        => $len,
  	'-proof'         => $proof,
  	'-isMutation'    => 1,
- 	'-mut_number'    => $mut_number             
+ 	'-mut_number'    => $mut_number
  	);
 
    my $a1 = Bio::Variation::Allele->new;
@@ -33,7 +33,7 @@ Bio::Variation::AAChange - Sequence change class for polypeptides
    $aachange->add_Allele($a2);
    $aachange->allele_mut($a2);
 
-   print  "\n"; 
+   print  "\n";
 
    # add it to a SeqDiff container object
    $seqdiff->add_Variant($rnachange);
@@ -58,7 +58,7 @@ AAChange(). See L<Bio::Variation::AAChange> for more information.
 =head2 Mailing Lists
 
 User feedback is an integral part of the evolution of this and other
-Bioperl modules. Send your comments and suggestions preferably to the 
+Bioperl modules. Send your comments and suggestions preferably to the
 Bioperl mailing lists  Your participation is much appreciated.
 
   bioperl-l@bioperl.org                         - General discussion
@@ -77,11 +77,11 @@ report bugs to the Bioperl bug tracking system to help us keep track
 
 Email:  heikki@ebi.ac.uk
 
-Address: 
+Address:
 
      EMBL Outstation, European Bioinformatics Institute
      Wellcome Trust Genome Campus, Hinxton
-     Cambs. CB10 1SD, United Kingdom 
+     Cambs. CB10 1SD, United Kingdom
 
 =head1 APPENDIX
 
@@ -162,11 +162,11 @@ sub new {
     my($class,@args) = @_;
     my $self = $class->SUPER::new(@args);
 
-    my ($start, $end, $length, $strand, $primary, $source, 
+    my ($start, $end, $length, $strand, $primary, $source,
 	$frame, $score, $gff_string,
-	$allele_ori,  $allele_mut,  $upstreamseq,  $dnstreamseq,  
-	$label,  $status,  $proof,  $re_changes,  $region, $region_value, 
-        $region_dist, 
+	$allele_ori,  $allele_mut,  $upstreamseq,  $dnstreamseq,
+	$label,  $status,  $proof,  $re_changes,  $region, $region_value,
+        $region_dist,
 	$numbering,  $mut_number,  $ismutation) =
 	    $self->_rearrange([qw(START
 				  END
@@ -192,7 +192,7 @@ sub new {
 				  MUT_NUMBER
 				  ISMUTATION
 				  )],@args);
-    
+
     $self->primary_tag("Variation");
 
     $self->{ 'alleles' } = [];
@@ -260,7 +260,7 @@ sub RNAChange {
 
  Title   : label
  Usage   : $obj->label();
- Function: 
+ Function:
 
             Sets and returns mutation event label(s).  If value is not
             set, or no argument is given returns false.  Each
@@ -308,23 +308,23 @@ sub label {
     elsif ($o and $m and $o eq $m) {
 	$type = 'silent, conservative';
     }
-    elsif (not $m or 
-	   ($o and $m and  length($o) > length($m) and 
+    elsif (not $m or
+	   ($o and $m and  length($o) > length($m) and
 	    substr($m, -1, 1) ne '*')) {
 	$type = 'deletion';
 	if ($o and $m and $o !~ $m and $o !~ $m) {
-	    $type .= ', complex'; 
+	    $type .= ', complex';
 	}
     }
-    elsif (not $o or 
-	   ($o and $m and length($o) < length($m) and 
+    elsif (not $o or
+	   ($o and $m and length($o) < length($m) and
 	    substr($m, -1, 1) ne '*' ) ) {
-	$type = 'insertion';	
+	$type = 'insertion';
 	if ($o and $m and $o !~ $m and $o !~ $m) {
-	    $type .= ', complex'; 
+	    $type .= ', complex';
 	}
     }
-    elsif  ($o and $m and $o ne $m and 
+    elsif  ($o and $m and $o ne $m and
 	    length $o == 1 and  length $m  == 1 ) {
 	$type = 'substitution';
 	my $value = $self->similarity_score;
@@ -357,7 +357,8 @@ sub similarity_score {
     $o = $self->allele_ori->seq if $self->allele_ori and $self->allele_ori->seq;
     $m = $self->allele_mut->seq if $self->allele_mut and $self->allele_mut->seq;
     return undef unless $o and $m and length $o == 1 and length $m == 1;
-    return undef unless $o =~ /[ARNDCQEGHILKMFPSTWYVBZX*]/i and $m =~ /[ARNDCQEGHILKMFPSTWYVBZX*]/i;
+    return undef unless $o =~ /[ARNDCQEGHILKMFPSTWYVBZX*]/i and
+	$m =~ /[ARNDCQEGHILKMFPSTWYVBZX*]/i;
     return $MATRIX->{"\U$o"}->{"\U$m"};
 }
 
@@ -385,7 +386,7 @@ sub trivname {
     if( defined $value) {
 	$self->{'trivname'} = $value;
     } else {
-	my ( $aaori, $aamut,$aamutsymbol, $aatermnumber, $aamutterm) = 
+	my ( $aaori, $aamut,$aamutsymbol, $aatermnumber, $aamutterm) =
 	    ('', '', '', '', '');
 	my $o = $self->allele_ori->seq if $self->allele_ori and $self->allele_ori->seq;
 	#my $m = $self->allele_mut->seq if $self->allele_mut and $self->allele_mut->seq;
@@ -407,49 +408,64 @@ sub trivname {
 	    my $m = $allele->seq if $allele->seq;
 
 	    $self->allele_mut($allele);
-	    #$trivname .=  $sep. uc $m if $m;	    
-	    
+	    #$trivname .=  $sep. uc $m if $m;
+
 	    $aamutterm = substr ($m, -1, 1) if $m;
-	    if ($self->RNAChange->label =~ /initiation codon/ and 
+	    if ($self->RNAChange->label =~ /initiation codon/ and
 		( $o and $m and $o ne $m)) {
 		$aamut = 'X';
-	    } 
+	    }
 	    elsif (CORE::length($o) == 1 and CORE::length($m) == 1 ) {
 		$aamutsymbol = '';
 		$aamut = $aamutterm;
 	    }
 	    elsif ($self->RNAChange->label =~ /deletion/) {
-		$aamutsymbol = 'del';	    
+		$aamutsymbol = 'del';
 		if ($aamutterm eq '*') {
 		    $aatermnumber = $self->start + length($m) -1;
 		    $aamut = 'X'. $aatermnumber;
-		}	 
+		}
 		if ($self->RNAChange  && $self->RNAChange->label =~ /inframe/){
 		    $aamut = '-'. length($self->RNAChange->allele_ori->seq)/3 ;
-		}		
+		}
 	    }
-	    elsif ($self->RNAChange->label =~ /insertion/ or 
-		   $self->RNAChange->label =~ /complex/) {
+	    elsif ($self->RNAChange->label =~ /insertion/) {
 		$aamutsymbol = 'ins';
 		if (($aamutterm eq '*') && (length($m)-1 != 0)) {
 		    $aatermnumber = $self->start + length($m)-1;
 		    $aamut =  $aatermnumber. 'X';
 		}
 		if ($self->RNAChange->label =~ /inframe/){
-		    $aamut = '+'. length($self->RNAChange->allele_mut->seq)/3 ;
+		    $aamut = '+'. int length($self->RNAChange->allele_mut->seq)/3 ;
+		}
+	    }
+	    elsif ($self->RNAChange->label =~ /complex/ and $self->label !~ /truncation/) {
+		if (($aamutterm eq '*') && (length($m)-1 != 0)) {
+		    $aatermnumber = $self->start + length($m)-1;
+		    $aamut =  $aatermnumber. 'X';
+		}
+		if ($self->RNAChange->label =~ /inframe/){
+		    my $diff = length($m) - length($o);
+		    if ($diff >= 0 ) {
+			$aamutsymbol = 'insx';
+			$aamut = '+'. $diff ;
+		    } else {
+			$aamutsymbol = 'delx' ;
+			$aamut =  $diff ;
+		    }
 		}
 	    }
 	    elsif ($self->label =~ /truncation/) {
-		$aamut = $m; 
+		$aamut = $m;
 	    } else {
 		$aamutsymbol = '';
 		$aamut = $aamutterm;
-	    }	
+	    }
 	    $aamut =~ tr/\*/X/;
 	    $trivname .= $aamutsymbol. $aamut. $sep;
 	}
 	chop $trivname;
-	$self->{'trivname'} = $trivname; 
+	$self->{'trivname'} = $trivname;
     }
     return $self->{'trivname'};
 }
