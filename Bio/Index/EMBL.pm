@@ -11,7 +11,7 @@
 =head1 NAME
 
 Bio::Index::EMBL - Interface for indexing (multiple) EMBL/Swissprot
-.dat files (ie flat file embl/swissprot format).
+.dat files (i.e. flat file EMBL/Swissprot format).
 
 =head1 SYNOPSIS
 
@@ -21,8 +21,8 @@ Bio::Index::EMBL - Interface for indexing (multiple) EMBL/Swissprot
     use strict;
 
     my $Index_File_Name = shift;
-    my $inx = Bio::Index::EMBL->new('-filename' => $Index_File_Name,
-				    '-write_flag' => 'WRITE');
+    my $inx = Bio::Index::EMBL->new(-filename => $Index_File_Name,
+				    -write_flag => 'WRITE');
     $inx->make_index(@ARGV);
 
     # Print out several sequences present in the index
@@ -31,8 +31,8 @@ Bio::Index::EMBL - Interface for indexing (multiple) EMBL/Swissprot
     use strict;
 
     my $Index_File_Name = shift;
-    my $inx = Bio::Index::EMBL->new('-filename' => $Index_File_Name);
-    my $out = Bio::SeqIO->new('-format' => 'Fasta','-fh' => \*STDOUT);
+    my $inx = Bio::Index::EMBL->new(-filename => $Index_File_Name);
+    my $out = Bio::SeqIO->new(-format => 'Fasta',-fh => \*STDOUT);
 
     foreach my $id (@ARGV) {
         my $seq = $inx->fetch($id); # Returns Bio::Seq object
@@ -51,7 +51,8 @@ and provides the basic funtionallity for indexing EMBL files, and
 retrieving the sequence from them. Heavily snaffled from James Gilbert's
 Fasta system. Note: for best results 'use strict'.
 
-Details on configuration and additional example code are available in the
+The keys are the identifiers in the ID and AC lines. Details on 
+configuration and additional example code are available in the
 biodatabases.pod file.
 
 

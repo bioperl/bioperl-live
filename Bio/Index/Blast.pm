@@ -27,12 +27,12 @@ based on query accession(s)
     my $id;
     my $data = $index->get_stream($id);
 
-    my $bplite_report = $index->fetch_report($id);
-    print "query is ", $bplite_report->query, "\n";
-    while( my $sbjct = $bplite_report->nextSbjct ) {
-  	    print $sbjct->name, "\n";
-	    while( my $hsp = $sbjct->nextHSP ) {
-	      print "\t e-value ", $hsp->P,
+    my $blast_report = $index->fetch_report($id);
+    print "query is ", $blast_report->query, "\n";
+    while( my $result = $blast_report->next_result ) {
+  	    print $result->algorithm, "\n";
+	    while( my $hit = $result->next_hit ) {
+	      print "\t name ", $hsp->name,
 	    }
 	    print "\n";
     }
@@ -43,6 +43,7 @@ This object allows one to build an index on a blast file (or files)
 and provide quick access to the blast report for that accession.
 Note: for best results 'use strict'.
 
+The default key is the word after the ">" character (/^\s*(\S+)/).
 You can also set or customize the unique key used to retrieve by 
 writing your own function and calling the id_parser() method.
 For example:
@@ -112,7 +113,7 @@ sub _version {
 
   Usage   : $index = Bio::Index::Abstract->new(
                 -filename    => $dbm_file,
-                -write_flag  => 0,  
+                -write_flag  => 0,
                 -dbm_package => 'DB_File',
                 -verbose     => 0);
   Function: Returns a new index object.  If filename is
@@ -207,7 +208,7 @@ sub id_parser {
 =cut
 
 sub default_id_parser {
-	if ($_[0] =~ /^\s*(\S+)/) {
+	if ($_[0] =~ /^>\s*(\S+)/) {
 		return $1;
 	} else {
 		return;
@@ -259,7 +260,7 @@ sub _index_file {
 	      # by skipping here when empty
 
 			# since we are at the beginning of a new report
-			# store this begin location for the next index	   
+			# store this begin location for the next index
 			$indexpoint = $lastline;
 			@data = ();
 		}
