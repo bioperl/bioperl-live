@@ -88,7 +88,7 @@ ok($seq->length,12850);
 
 
 sub maketmpdir {
-    mkdir $tmpdir;
+    mkdir ($tmpdir,0777);
 }
 sub cleanup {    
     eval { 
