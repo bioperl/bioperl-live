@@ -323,6 +323,87 @@ sub gff_string{
    return $str;
 }
 
+=head2 gff2_string
+
+ Title   : gff2_string
+ Usage   : $str = $feat->gff_string
+ Function: provides the feature information in GFF
+           version 2 format (semicolon-separated attributes
+           with quoted free-text-translated values).
+ Returns : A string
+ Args    : None
+
+
+=cut
+
+sub gff2_string{
+   my ($feat) = @_;
+   my ($str,$score,$frame,$name,$strand);
+
+   if( $feat->can('score') ) {
+       $score = $feat->score();
+   }
+   $score = '.' unless defined $score;
+
+   if( $feat->can('frame') ) {
+       $frame = $feat->frame();
+   }
+   $frame = '.' unless defined $frame;
+
+   $strand = $feat->strand();
+   if(! $strand) {
+       $strand = ".";
+   } elsif( $strand == 1 ) {
+       $strand = '+';
+   } elsif ( $feat->strand == -1 ) {
+       $strand = '-';
+   }
+
+   if( $feat->can('seqname') ) {
+       $name = $feat->seqname();
+       $name ||= 'SEQ';
+   } else {
+       $name = 'SEQ';
+   }
+
+
+   $str = join("\t",
+                 $name,
+		 $feat->source_tag(),
+		 $feat->primary_tag(),
+		 $feat->start(),
+		 $feat->end(),
+		 $score,
+		 $strand,
+		 $frame);
+
+   # the routine below is the only modification I made to the original ->gff_string routine (above)
+   # as on November 17th, 2000, the Sanger webpage describing GFF2 format reads:
+   # From version 2 onwards, the attribute field must have a tag value structure following
+   # the syntax used within objects in a .ace file, flattened onto one line
+   # by semicolon separators. Tags must be standard identifiers ([A-Za-z][A-Za-z0-9_]*).
+   # Free text values must be quoted with double quotes.
+   # MW
+   my $valuestr;
+   if ($feat->all_tags){  # only play this game if it is worth playing...
+        $str .= "\t";     # my interpretation of the GFF2 specification suggests the need for this additional TAB character...??
+        foreach my $tag ( $feat->all_tags ) {
+            my $valuestr; # a string which will hold one or more values for this tag, with quoted free text and space-separated individual values.
+            foreach my $value ( $feat->each_tag_value($tag) ) {
+         		if ($value =~ /[^A-Za-z0-9_]/){
+         			$value =~ s/\t/\\t/g;         # substitute tab and newline characters
+         			$value =~ s/\n/\\n/g;          # to their UNIX equivalents
+         			$value = '"' . $value . '" '}  # if the value contains anything other than valid tag/value characters, then quote it
+         		$valuestr .= $value;								# with a trailing space in case there are multiple values
+         															# for this tag (allowed in GFF2 and .ace format)		
+            }
+            $str .= "$tag=$valuestr ; ";                              # semicolon delimited
+        }
+   		chop $str; chop $str  # remove the trailing semicolon and space
+    }
+   return $str;
+}
+
 =head1 RangeI methods
 
 These methods are inherited from RangeI and can be used
