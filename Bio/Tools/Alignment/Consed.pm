@@ -738,7 +738,7 @@ sub set_trim_points_singlets_and_singletons {
 	    else { $quality = $self->{'contigs'}->{$_}->{'quality'}; }
 	    $name = $self->{'contigs'}->{$_}->{'name'};
 	    $class = $self->{'contigs'}->{$_}->{'class'};	    
-	    (@points) = $self->{'o_trim'}->trim_singlet($sequence,$quality,$name,$class);
+	    (@points) = @{$self->{'o_trim'}->trim_singlet($sequence,$quality,$name,$class)};
 	    $self->{'contigs'}->{$_}->{'start_point'} = $points[0];
 	    $self->{'contigs'}->{$_}->{'end_point'} = $points[1];
 	    $self->{'contigs'}->{$_}->{'sequence_trimmed'} = substr($self->{contigs}->{$_}->{'consensus'},$points[0],$points[1]-$points[0]);
