@@ -1906,7 +1906,7 @@ specified in the constructor.
 
 sub default_aggregators {
   my $self = shift;
-  return ['processed_transcript','clone','alignment'];
+  return ['processed_transcript','alignment'];
 }
 
 =head2 do_load_gff

@@ -14,8 +14,8 @@ Bio::DB::GFF::Aggregator::alignment -- Alignment aggregator
 
  -----------------------------
  Aggregator method: alignment
- Main method:       match
- Sub methods:       similarity
+ Main method:       (none)
+ Sub methods:       similarity, HSP
  -----------------------------
 
 =head1 DESCRIPTION
@@ -25,6 +25,11 @@ and was written to be compatible with the C elegans GFF files.  It
 aggregates raw "similarity" features into composite features of type
 "alignment".  A better name for this class might be
 "gapped_alignment."
+
+This aggregator does not insist that there be a single top-level
+feature that spans one end of the alignment to the other.  As a
+result, it can produce truncated alignments if the entire alignment is
+not contained within the segment of interest.
 
 =cut
 
@@ -117,7 +122,7 @@ sub method { 'alignment' }
  Title   : part_names
  Usage   : $aggregator->part_names
  Function: return the methods for the sub-parts
- Returns : the list ("similarity")
+ Returns : the list ("similarity","HSP")
  Args    : none
  Status  : Public
 
@@ -125,22 +130,7 @@ sub method { 'alignment' }
 
 sub part_names {
   my $self = shift;
-  return qw(similarity);
-}
-
-=head2 main_name
-
- Title   : main_name
- Usage   : $aggregator->main_name
- Function: return the method for the main component
- Returns : the string "match"
- Args    : none
- Status  : Public
-
-=cut
-
-sub main_name {
-  return 'match';
+  return qw(similarity HSP);
 }
 
 1;
