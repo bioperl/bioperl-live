@@ -196,7 +196,7 @@ sub new {
     } elsif ($algo eq 'TBLASTX' ||$algo eq 'TFASTX' ||
 	     $algo eq 'TFASTXY' || $algo eq 'TFASTY' || 
 	     $algo eq 'BLASTN' || 
-	     $algo eq 'FASTN' || 'WABA')  {
+	     $algo eq 'FASTN' || $algo eq 'WABA')  {
 	$hitfactor = 1;
 	$queryfactor = 1;
     } elsif( $algo eq 'RPSBLAST' ) {
