@@ -623,7 +623,8 @@ sub _print_EMBL_FTHelper {
 	       &_write_line_EMBL_regex($fh,"FT                   ","FT                   ","/$tag",'.|$',80);
 	   }
            elsif( $always_quote == 1 || $value !~ /^\d+$/ ) {
-	      &_write_line_EMBL_regex($fh,"FT                   ","FT                   ","/$tag=\"$value\"",'.|$',80);
+                my $pat = $value =~ /\s/ ? '\s|$' : '.|$';
+	      &_write_line_EMBL_regex($fh,"FT                   ","FT                   ","/$tag=\"$value\"",$pat,80);
            }
            else {
               &_write_line_EMBL_regex($fh,"FT                   ","FT                   ","/$tag=$value",'.|$',80);
@@ -983,10 +984,10 @@ sub _write_line_EMBL_regex {
 
     #print STDOUT "Going to print with $line!\n";
 
-    $length || die "Miscalled write_line_EMBL without length. Programming error!";
+    $length || die "Programming error - called write_line_EMBL_regex without length.";
 
     if( length $pre1 != length $pre2 ) {
-        die "Programming error - cannot called write_line_EMBL_regex with different length pre1 and pre2 tags!";
+        die "Programming error - called write_line_EMBL_regex with different length pre1 and pre2 tags!";
     }
 
     my $subl = $length - (length $pre1) -1 ;
