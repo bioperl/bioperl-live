@@ -82,15 +82,18 @@ several pre-requisites for the alignment.
 
 =item 1
 
-DNA alignment must be based on protein alignment. Use the subroutine aa_to_dna_aln in Bio::Align::Utilities to achieve this.
+DNA alignment must be based on protein alignment. Use the subroutine
+L<aa_to_dna_aln> in Bio::Align::Utilities to achieve this.
 
 =item 2
 
-Therefore alignment  gaps must be in multiples of 3 (representing an aa deletion/insertion) and at present must be indicated by a '-' symbol.
+Therefore alignment gaps must be in multiples of 3 (representing an aa
+deletion/insertion) and at present must be indicated by a '-' symbol.
 
 =item 3
 
-Alignment must be solely of coding region and be in reading frame 0 to achieve meaningful results
+Alignment must be solely of coding region and be in reading frame 0 to
+achieve meaningful results
 
 =item 4
 
@@ -106,9 +109,11 @@ Only the standard codon alphabet is supported at present.
 
 =back
 
-calc_KaKs_pair() calculates a number of statistics for a named pair of sequences in the alignment.
-calc_all_KaKs_pairs() calculates these statistics for all  pairwise comparisons in an MSA.
-The statistics returned are:
+calc_KaKs_pair() calculates a number of statistics for a named pair of
+sequences in the alignment.  
+
+calc_all_KaKs_pairs() calculates these statistics for all pairwise
+comparisons in an MSA.  The statistics returned are:
 
 =over 3
 
@@ -859,20 +864,20 @@ sub pairwise_stats{
 =cut
 
 sub calc_KaKs_pair {
-	my ( $self, $aln, $seq1_id, $seq2_id) = @_;
-	$self->throw("Needs 3 arguments - an alignment object, and 2 sequence ids") 
-			if @_!= 4;
-	$self->throw ("This calculation needs a Bio::Align::AlignI compatible object, not a [ " . ref($aln) . " ]object") unless $aln->isa('Bio::Align::AlignI');
-	my @seqs = (
-				{id => $seq1_id, seq =>($aln->each_seq_with_id($seq1_id))[0]->seq},
-				{id => $seq2_id, seq =>($aln->each_seq_with_id($seq2_id))[0]->seq}
-				) ;
-	if (length($seqs[0]{'seq'}) != length($seqs[1]{'seq'})) {
-		$self->throw(" aligned sequences must be of equal length!");
-		}
-	my $results = [];
-	$self->_get_av_ds_dn(\@seqs, $results);
-	return $results;
+    my ( $self, $aln, $seq1_id, $seq2_id) = @_;
+    $self->throw("Needs 3 arguments - an alignment object, and 2 sequence ids") 
+	if @_!= 4;
+    $self->throw ("This calculation needs a Bio::Align::AlignI compatible object, not a [ " . ref($aln) . " ]object") unless $aln->isa('Bio::Align::AlignI');
+    my @seqs = (
+		{id => $seq1_id, seq =>($aln->each_seq_with_id($seq1_id))[0]->seq},
+		{id => $seq2_id, seq =>($aln->each_seq_with_id($seq2_id))[0]->seq}
+		) ;
+    if (length($seqs[0]{'seq'}) != length($seqs[1]{'seq'})) {
+	$self->throw(" aligned sequences must be of equal length!");
+    }
+    my $results = [];
+    $self->_get_av_ds_dn(\@seqs, $results);
+    return $results;
 
 }
 
@@ -920,55 +925,55 @@ sub calc_all_KaKs_pairs {
 sub calc_average_KaKs {
 #calculates global value for sequences in alignment using bootstrapping
 #this is quite slow (~10 sexonds per  3 X 200nt seqs); 
-	my ($self, $aln, $bootstrap_rpt) = @_;
-	$bootstrap_rpt ||= 1000;
-	$self->throw ("This calculation needs a Bio::Align::AlignI compatible object, not a [ " . ref($aln) . " ]object") unless $aln->isa('Bio::Align::AlignI');
-	my @seqs;
-	for my $seq ($aln->each_seq) {
-		push @seqs, {id => $seq->display_id, seq=>$seq->seq};
-		}
-	my $results ;
-	my ($ds_orig, $dn_orig) = $self->_get_av_ds_dn(\@seqs);
-	#print "ds = $ds_orig, dn = $dn_orig\n";
-	$results = {D_s => $ds_orig, D_n => $dn_orig};
-	$self->_run_bootstrap(\@seqs, $results, $bootstrap_rpt);
-	return $results;
-	}
+    my ($self, $aln, $bootstrap_rpt) = @_;
+    $bootstrap_rpt ||= 1000;
+    $self->throw ("This calculation needs a Bio::Align::AlignI compatible object, not a [ " . ref($aln) . " ]object") unless $aln->isa('Bio::Align::AlignI');
+    my @seqs;
+    for my $seq ($aln->each_seq) {
+	push @seqs, {id => $seq->display_id, seq=>$seq->seq};
+    }
+    my $results ;
+    my ($ds_orig, $dn_orig) = $self->_get_av_ds_dn(\@seqs);
+    #print "ds = $ds_orig, dn = $dn_orig\n";
+    $results = {D_s => $ds_orig, D_n => $dn_orig};
+    $self->_run_bootstrap(\@seqs, $results, $bootstrap_rpt);
+    return $results;
+}
 
 ############## primary internal subs for alignment comparisons ########################
 
 sub _run_bootstrap {
-	### generates sampled sequences, calculates Ds and Dn values,
-	### then calculates variance of sampled sequences and add results to results hash
-	### 
-	my ($self,$seq_ref, $results, $bootstrap_rpt) = @_;	
-	my @seqs = @$seq_ref;
-	my @btstrp_aoa; # to hold array of array of nucleotides for resampling
-	my %bootstrap_values = (ds => [], dn =>[]); # to hold list of av values 
-	
-	#1st make alternative array of codons;
-	my $c = 0;
-	while ($c < length $seqs[0]{'seq'}) {
-		for (0..$#seqs) {
-			push @{$btstrp_aoa[$_]}, substr ($seqs[$_]{'seq'}, $c, 3);
-		}
-		$c+=3;
-	}
+    ### generates sampled sequences, calculates Ds and Dn values,
+    ### then calculates variance of sampled sequences and add results to results hash
+    ### 
+    my ($self,$seq_ref, $results, $bootstrap_rpt) = @_;	
+    my @seqs = @$seq_ref;
+    my @btstrp_aoa; # to hold array of array of nucleotides for resampling
+    my %bootstrap_values = (ds => [], dn =>[]);	# to hold list of av values 
 
-	for (1..$bootstrap_rpt) {
-		my $sampled = _resample (\@btstrp_aoa);
-		my ($ds, $dn) = $self->_get_av_ds_dn ($sampled) ; # is array ref
-		push @{$bootstrap_values{'ds'}}, $ds;
-		push @{$bootstrap_values{'dn'}}, $dn;
-	   }	
-	
-	$results->{'D_s_var'} = sampling_variance($bootstrap_values{'ds'});
-	$results->{'D_n_var'} = sampling_variance($bootstrap_values{'dn'});
-	$results->{'z_score'} = 	($results->{'D_n'} - $results->{'D_s'}) / 
-							sqrt($results->{'D_s_var'} + $results->{'D_n_var'} ); 
-	#print "bootstrapped var_syn = 	$results->{'D_s_var'} \n" ;
-	#print "bootstrapped var_nc = 	$results->{'D_n_var'} \n"; 
-	#print "z is $results->{'z_score'}\n";	### end of global set up of/perm look up data
+    #1st make alternative array of codons;
+    my $c = 0;
+    while ($c < length $seqs[0]{'seq'}) {
+	for (0..$#seqs) {
+	    push @{$btstrp_aoa[$_]}, substr ($seqs[$_]{'seq'}, $c, 3);
+	}
+	$c+=3;
+    }
+
+    for (1..$bootstrap_rpt) {
+	my $sampled = _resample (\@btstrp_aoa);
+	my ($ds, $dn) = $self->_get_av_ds_dn ($sampled) ; # is array ref
+	push @{$bootstrap_values{'ds'}}, $ds;
+	push @{$bootstrap_values{'dn'}}, $dn;
+    }	
+
+    $results->{'D_s_var'} = sampling_variance($bootstrap_values{'ds'});
+    $results->{'D_n_var'} = sampling_variance($bootstrap_values{'dn'});
+    $results->{'z_score'} = 	($results->{'D_n'} - $results->{'D_s'}) / 
+	sqrt($results->{'D_s_var'} + $results->{'D_n_var'} ); 
+    #print "bootstrapped var_syn = 	$results->{'D_s_var'} \n" ;
+    #print "bootstrapped var_nc = 	$results->{'D_n_var'} \n"; 
+    #print "z is $results->{'z_score'}\n";	### end of global set up of/perm look up data
 }
 
 sub _resample {
@@ -989,82 +994,82 @@ sub _resample {
 		}
 	return \@return;
 }
+
 sub _get_av_ds_dn {
-
-	# takes array of hashes of sequence strings and ids   #
-	my $self = shift;
-	my $seq_ref = shift;
-	my $result = shift if @_;
-	my @caller = caller(1);
-	my @seqarray = @$seq_ref;
-	my $bootstrap_score_list;
-	#for a multiple alignment considers all pairwise combinations#
-	my %dsfor_average = (ds => [], dn => []); 
-	for (my $i = 0; $i < scalar @seqarray; $i++) {
-		for (my $j = $i +1; $j<scalar @seqarray; $j++ ){
+    # takes array of hashes of sequence strings and ids   #
+    my $self = shift;
+    my $seq_ref = shift;
+    my $result = shift if @_;
+    my @caller = caller(1);
+    my @seqarray = @$seq_ref;
+    my $bootstrap_score_list;
+    #for a multiple alignment considers all pairwise combinations#
+    my %dsfor_average = (ds => [], dn => []); 
+    for (my $i = 0; $i < scalar @seqarray; $i++) {
+	for (my $j = $i +1; $j<scalar @seqarray; $j++ ){
 #			print "comparing $i and $j\n";
-			if (length($seqarray[$i]{'seq'}) != length($seqarray[$j]{'seq'})) {
-				$self->warn(" aligned sequences must be of equal length!");
-				next;
-				}
-			
-			my $syn_site_count = count_syn_sites($seqarray[$i]{'seq'}, $synsites);
-			my $syn_site_count2 = count_syn_sites($seqarray[$j]{'seq'}, $synsites);
+	    if (length($seqarray[$i]{'seq'}) != length($seqarray[$j]{'seq'})) {
+		$self->warn(" aligned sequences must be of equal length!");
+		next;
+	    }
+
+	    my $syn_site_count = count_syn_sites($seqarray[$i]{'seq'}, $synsites);
+	    my $syn_site_count2 = count_syn_sites($seqarray[$j]{'seq'}, $synsites);
 #			print "syn 1 is $syn_site_count , syn2 is $syn_site_count2\n";
-			my ($syn_count, $non_syn_count, $gap_cnt) = analyse_mutations($seqarray[$i]{'seq'}, $seqarray[$j]{'seq'});	
-			#get averages
-			my $av_s_site = ($syn_site_count + $syn_site_count2)/2;
-			my $av_ns_syn_site = length($seqarray[$i]{'seq'}) - $gap_cnt- $av_s_site ;
+	    my ($syn_count, $non_syn_count, $gap_cnt) = analyse_mutations($seqarray[$i]{'seq'}, $seqarray[$j]{'seq'});	
+	    #get averages
+	    my $av_s_site = ($syn_site_count + $syn_site_count2)/2;
+	    my $av_ns_syn_site = length($seqarray[$i]{'seq'}) - $gap_cnt- $av_s_site ;
 
-			#calculate ps and pn  (p54)
-			my $syn_prop = $syn_count / $av_s_site;
-			my $nc_prop = $non_syn_count / $av_ns_syn_site	;
+	    #calculate ps and pn  (p54)
+	    my $syn_prop = $syn_count / $av_s_site;
+	    my $nc_prop = $non_syn_count / $av_ns_syn_site	;
 
-			#now use jukes/cantor to calculate D_s and D_n, would alter here if needed a different method
-			my $d_syn = $self->jk($syn_prop);
-			my $d_nc = $self->jk($nc_prop);
+	    #now use jukes/cantor to calculate D_s and D_n, would alter here if needed a different method
+	    my $d_syn = $self->jk($syn_prop);
+	    my $d_nc = $self->jk($nc_prop);
 
-			#JK calculation must succeed for continuation of calculation
-			#ret_value = -1 if error
-			next unless $d_nc >=0 && $d_syn >=0;
+	    #JK calculation must succeed for continuation of calculation
+	    #ret_value = -1 if error
+	    next unless $d_nc >=0 && $d_syn >=0;
 
 
-			push @{$dsfor_average{'ds'}}, $d_syn;
-			push @{$dsfor_average{'dn'}}, $d_nc;
+	    push @{$dsfor_average{'ds'}}, $d_syn;
+	    push @{$dsfor_average{'dn'}}, $d_nc;
 
-			#if not doing bootstrap, calculate the pairwise comparisin stats
-			if ($caller[3] =~ /calc_KaKs_pair/ || $caller[3] =~ /calc_all_KaKs_pairs/) {
+	    #if not doing bootstrap, calculate the pairwise comparisin stats
+	    if ($caller[3] =~ /calc_KaKs_pair/ || $caller[3] =~ /calc_all_KaKs_pairs/) {
 				#now calculate variances assuming large sample
-				my $d_syn_var =  jk_var($syn_prop, length($seqarray[$i]{'seq'})  - $gap_cnt );
-				my $d_nc_var =  jk_var($nc_prop, length ($seqarray[$i]{'seq'}) - $gap_cnt);
-			    #now calculate z_value
-		    	#print "d_syn_var is  $d_syn_var,and d_nc_var is $d_nc_var\n";
-			    my $z = ($d_nc - $d_syn) / sqrt($d_syn_var + $d_nc_var);
-			    #	print "z is $z\n";
-				push @$result , {S => $av_s_site, N=>$av_ns_syn_site,
-					S_d => $syn_count, N_d =>$non_syn_count,
-					P_s => $syn_prop, P_n=>$nc_prop,
-					D_s => @{$dsfor_average{'ds'}}[-1],
-					D_n => @{$dsfor_average{'dn'}}[-1],
-					D_n_var =>$d_nc_var, D_s_var => $d_syn_var,
-					Seq1 => $seqarray[$i]{'id'},
-					Seq2 => $seqarray[$j]{'id'},
-					z_score => $z,
-					};
-				$self->warn (" number of mutations too small to justify normal test for  $seqarray[$i]{'id'} and $seqarray[$j]{'id'}\n- use Fisher's exact, or bootstrap a MSA")
-					if ($syn_count < 10 || $non_syn_count < 10 ) && $self->verbose > -1 ;
-				}#endif
-			}
-	}
+		my $d_syn_var =  jk_var($syn_prop, length($seqarray[$i]{'seq'})  - $gap_cnt );
+		my $d_nc_var =  jk_var($nc_prop, length ($seqarray[$i]{'seq'}) - $gap_cnt);
+		#now calculate z_value
+		#print "d_syn_var is  $d_syn_var,and d_nc_var is $d_nc_var\n";
+		my $z = ($d_nc - $d_syn) / sqrt($d_syn_var + $d_nc_var);
+		#	print "z is $z\n";
+		push @$result , {S => $av_s_site, N=>$av_ns_syn_site,
+				 S_d => $syn_count, N_d =>$non_syn_count,
+				 P_s => $syn_prop, P_n=>$nc_prop,
+				 D_s => @{$dsfor_average{'ds'}}[-1],
+				 D_n => @{$dsfor_average{'dn'}}[-1],
+				 D_n_var =>$d_nc_var, D_s_var => $d_syn_var,
+				 Seq1 => $seqarray[$i]{'id'},
+				 Seq2 => $seqarray[$j]{'id'},
+				 z_score => $z,
+			     };
+		$self->warn (" number of mutations too small to justify normal test for  $seqarray[$i]{'id'} and $seqarray[$j]{'id'}\n- use Fisher's exact, or bootstrap a MSA")
+		    if ($syn_count < 10 || $non_syn_count < 10 ) && $self->verbose > -1 ;
+	    }#endif
+	    }
+    }
 
-	#warn of failure if no results hashes are present
-	#will fail if Jukes Cantor has failed for all pairwise combinations
-	#$self->warn("calculation failed!") if scalar @$result ==0;
+    #warn of failure if no results hashes are present
+    #will fail if Jukes Cantor has failed for all pairwise combinations
+    #$self->warn("calculation failed!") if scalar @$result ==0;
 
-	#return results unless bootstrapping
-	return $result if $caller[3]=~ /calc_all_KaKs/ || $caller[3] =~ /calc_KaKs_pair/; 
-	#else if getting average for bootstrap
-	return( mean ($dsfor_average{'ds'}),mean ($dsfor_average{'dn'})) ;
+    #return results unless bootstrapping
+    return $result if $caller[3]=~ /calc_all_KaKs/ || $caller[3] =~ /calc_KaKs_pair/; 
+    #else if getting average for bootstrap
+    return( mean ($dsfor_average{'ds'}),mean ($dsfor_average{'dn'})) ;
 }
 
 
@@ -1216,98 +1221,115 @@ sub count_diffs {
 	return ($cnt, $same);
 }
 
+=head2 get_syn_changes
+
+ Title   : get_syn_changes
+ Usage   : Bio::Align::DNAStatitics->get_syn_chnages
+ Function: Generate a hashref of all pairwise combinations of codns
+           differing by 1
+ Returns : Symetic matrix using hashes
+           First key is codon
+           and each codon points to a hashref of codons
+           the values of which describe type of change.
+           my $type = $hash{$codon1}->{$codon2};
+           values are :
+             1   synonomous
+             0   non-syn
+            -1   either codon is a stop codon
+ Args    : none
+
+=cut
+
 sub get_syn_changes {
 #hash of all pairwise combinations of codons differing by 1
 # 1 = syn, 0 = non-syn, -1 = stop
-my %results;
-my @codons = _make_codons ();
-my $arr_len = scalar @codons;
-for (my $i = 0; $i < $arr_len -1; $i++) {
+    my %results;
+    my @codons = _make_codons ();
+    my $arr_len = scalar @codons;
+    for (my $i = 0; $i < $arr_len -1; $i++) {
 	my $cod1 = $codons[$i];
 	for (my $j = $i +1; $j < $arr_len; $j++) {
-		my $diff_cnt = 0;
-		for my $pos(0..2) {
-			$diff_cnt++ if substr($cod1, $pos, 1) ne substr($codons[$j], $pos, 1);
-			}
-		next if $diff_cnt !=1;
-	
-		#synon change
-		if($t[$CODONS->{$cod1}] eq $t[$CODONS->{$codons[$j]}]) {
-			$results{$cod1}{$codons[$j]} =1;
-			$results{$codons[$j]}{$cod1} = 1;
-			}
-			#stop codon
-		elsif ($t[$CODONS->{$cod1}] eq '*' or $t[$CODONS->{$codons[$j]}] eq '*') {
-			$results{$cod1}{$codons[$j]} =-1;
-			$results{$codons[$j]}{$cod1} = -1;
-			}
-		# nc change
-		else {
-			$results{$cod1}{$codons[$j]} = 0;
-			$results{$codons[$j]}{$cod1} = 0;
-			}
-		}
+	    my $diff_cnt = 0;
+	    for my $pos(0..2) {
+		$diff_cnt++ if substr($cod1, $pos, 1) ne substr($codons[$j], $pos, 1);
+	    }
+	    next if $diff_cnt !=1;
+
+	    #synon change
+	    if($t[$CODONS->{$cod1}] eq $t[$CODONS->{$codons[$j]}]) {
+		$results{$cod1}{$codons[$j]} =1;
+		$results{$codons[$j]}{$cod1} = 1;
+	    }
+	    #stop codon
+	    elsif ($t[$CODONS->{$cod1}] eq '*' or $t[$CODONS->{$codons[$j]}] eq '*') {
+		$results{$cod1}{$codons[$j]} = -1;
+		$results{$codons[$j]}{$cod1} = -1;
+	    }
+	    # nc change
+	    else {
+		$results{$cod1}{$codons[$j]} = 0;
+		$results{$codons[$j]}{$cod1} = 0;
+	    }
 	}
-	return %results;
+    }
+    return %results;
 }			
 
 sub count_syn_sites {
-
-	#counts the number of possible synonymous changes for sequence
-	my ($seq, $synsite) = @_;
-	die "not integral number of codons" if length($seq) % 3 != 0;
-	my $S = 0;
-	for (my $i = 0; $i< length($seq); $i+=3) {
-		my $cod = substr($seq, $i, 3);
-		next if $cod =~ /\-/; #deal with alignment gaps
-		$S +=  $synsite->{$cod}{'s'};
-		}
-	#print "S is $S\n";
-	return $S;
+    #counts the number of possible synonymous changes for sequence
+    my ($seq, $synsite) = @_;
+    die "not integral number of codons" if length($seq) % 3 != 0;
+    my $S = 0;
+    for (my $i = 0; $i< length($seq); $i+=3) {
+	my $cod = substr($seq, $i, 3);
+	next if $cod =~ /\-/;	#deal with alignment gaps
+	$S +=  $synsite->{$cod}{'s'};
+    }
+    #print "S is $S\n";
+    return $S;
 }
 
 	
 
 sub get_syn_sites {
-	#sub to generate lookup hash for the number of synonymous changes per codon
-	my @nucs = qw(T C A G);
+    #sub to generate lookup hash for the number of synonymous changes per codon
+    my @nucs = qw(T C A G);
     my %raw_results;
     for my $i (@nucs) {
-      for my $j (@nucs) {
-         for my $k (@nucs) {
+	for my $j (@nucs) {
+	    for my $k (@nucs) {
 		# for each possible codon
           	my $cod = "$i$j$k";
            	my $aa = $t[$CODONS->{$cod}];
-            	
-				#calculate number of synonymous mutations vs non syn mutations
+		#calculate number of synonymous mutations vs non syn mutations
             	for my $i (qw(0 1 2)){
-            		 my $s = 0;
-            		 my $n = 3;
-            		 for my $nuc (qw(A T C G)) {
-            		 	next if substr ($cod, $i,1) eq $nuc;
-            		 	my $test = $cod;
-            		 	 substr($test, $i, 1) = $nuc ;
-            		 	if ($t[$CODONS->{$test}] eq $aa) {
-            		 		$s++;
-            		 		}
-            		 	if ($t[$CODONS->{$test}] eq '*') {
-            		 		$n--;
-            		 		}	
-            		 	}
-            		 $raw_results{$cod}[$i] = {'s' => $s ,
-            		 						 'n' => $n };
-            		}
-            		
-            	}#end analysis of single codon
-           }
-     }#end analysis of all codons
-     my %final_results;
+		    my $s = 0;
+		    my $n = 3;
+		    for my $nuc (qw(A T C G)) {
+			next if substr ($cod, $i,1) eq $nuc;
+			my $test = $cod;
+			substr($test, $i, 1) = $nuc ;
+			if ($t[$CODONS->{$test}] eq $aa) {
+			    $s++;
+			}
+			if ($t[$CODONS->{$test}] eq '*') {
+			    $n--;
+			}	
+		    }
+		    $raw_results{$cod}[$i] = {'s' => $s ,
+					      'n' => $n };
+		}
 		
+	    } #end analysis of single codon
+	}
+    } #end analysis of all codons
+    my %final_results;
+    
     for my $cod (sort keys %raw_results) {
     	my $t = 0;
     	map{$t += ($_->{'s'} /$_->{'n'})} @{$raw_results{$cod}};
     	$final_results{$cod} = { 's'=>$t, 'n' => 3 -$t};
-    	}
+    }
     return \%final_results;
 }
 
