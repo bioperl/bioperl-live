@@ -58,6 +58,9 @@ Revision history for Bioperl core modules
     o Bio::SeqIO::swiss
       - fix bug #1393; multiple keywords now handled properly
 
+    o Bio::Graphics
+      - added a few new glyphs
+
 1.2.1 Stable release update
 
     o Inclusion of WrapperBase, a needed component for StandAloneBlast

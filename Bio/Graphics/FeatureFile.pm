@@ -39,7 +39,9 @@ Bio::Graphics::FeatureFile -- A set of Bio::Graphics features, stored in a file
  $data->add_type(EST => {fgcolor=>'blue',height=>12});
 
  # add a feature
- my $feature = Bio::Graphics::Feature->new(....); # or some other SeqI
+ my $feature = Bio::Graphics::Feature->new(
+                                             # params
+                                          ); # or some other SeqI
  $data->add_feature($feature=>'EST');
 
 =head1 DESCRIPTION
@@ -118,8 +120,6 @@ use Bio::Graphics::Panel;
 use Carp;
 use IO::File;
 use Text::Shellwords;
-use vars '$VERSION';
-$VERSION = '1.04';
 
 # default colors for unconfigured features
 my @COLORS = qw(cyan blue red yellow green wheat turquoise orange);
@@ -151,7 +151,7 @@ object.  Arguments are -name=E<gt>value pairs:
 
    -safe           Indicates that the contents of this file is trusted.
                    Any option value that begins with the string "sub {"
-                   will be evaluated as a code reference.
+                   or \&subname will be evaluated as a code reference.
 
 The -file and -text arguments are mutually exclusive, and -file will
 supersede the other if both are present.
@@ -167,6 +167,11 @@ package) for an illustration of how to use this to do wonderful stuff.
 The -smart_features flag is used by the generic genome browser to
 provide features with a way to access the link-generation code.  See
 gbrowse for how this works.
+
+If the file is trusted, and there is an option named "init_code" in
+the [GENERAL] section of the file, it will be evaluated as perl code
+immediately after parsing.  You can use this to declare global
+variables and subroutines for use in option values.
 
 =back
 
@@ -238,6 +243,8 @@ for you.
 =back
 
 =cut
+
+#"
 
 sub render {
   my $self = shift;
@@ -370,7 +377,7 @@ sub parse_text {
   my $text = shift;
 
   $self->init_parse;
-  foreach (split /\r?\n|\r\n?/,$text) {
+  foreach (split /\015?\012|\015\012?/,$text) {
     $self->parse_line($_);
   }
   $self->finish_parse;
@@ -380,25 +387,26 @@ sub parse_line {
   my $self = shift;
   local $_ = shift;
 
-  s/\r//g;  # get rid of carriage returns left over by MS-DOS/Windows systems
+  s/\015//g;  # get rid of carriage returns left over by MS-DOS/Windows systems
 
   return if /^\s*[\#]/;
 
   if (/^\s+(.+)/ && $self->{current_tag}) { # continuation line
-      my $value = $1;
-      my $cc = $self->{current_config} ||= 'general';       # in case no configuration named
-      $self->{config}{$cc}{$self->{current_tag}} .= ' ' . $value;
-      # respect newlines in code subs
-      $self->{config}{$cc}{$self->{current_tag}} .= "\n" if $self->{config}{$cc}{$self->{current_tag}}=~ /^sub\s*{/;
-      return;
+    my $value = $1;
+    my $cc = $self->{current_config} ||= 'general';       # in case no configuration named
+    $self->{config}{$cc}{$self->{current_tag}} .= ' ' . $value;
+    # respect newlines in code subs
+    $self->{config}{$cc}{$self->{current_tag}} .= "\n"
+      if $self->{config}{$cc}{$self->{current_tag}}=~ /^sub\s*\{/;
+    return;
   }
 
   if (/^\s*\[([^\]]+)\]/) {  # beginning of a configuration section
-     my $label = $1;
-     my $cc = $label =~ /^(general|default)$/i ? 'general' : $label;  # normalize
-     push @{$self->{types}},$cc unless $cc eq 'general';
-     $self->{current_config} = $cc;
-     return;
+    my $label = $1;
+    my $cc = $label =~ /^(general|default)$/i ? 'general' : $label;  # normalize
+    push @{$self->{types}},$cc unless $cc eq 'general';
+    $self->{current_config} = $cc;
+    return;
   }
 
   if (/^([\w: -]+?)\s*=\s*(.*)/) {   # key value pair within a configuration section
@@ -483,17 +491,42 @@ sub parse_line {
   $type = '' unless defined $type;
   $name = '' unless defined $name;
 
+  # attribute handling
+  my %attributes;
+  my $score;
+  if (defined $description && $description =~ /\w+=\w+/) { # attribute line
+    my @attributes = split /;\s*/,$description;
+    foreach (@attributes) {
+      my ($name,$value) = split /=/,$_,2;
+      Bio::Root::Root->throw(qq("$_" is not a valid attribute=value pair)) unless defined $value;
+      _unescape($name);
+      my @values = split /,/,$value;
+      _unescape(@values);
+      if ($name =~ /^(note|description)/) {
+	$description = "@values";
+      } elsif ($name eq 'url') {
+	$url = $value;
+      } elsif ($name eq 'score') {
+	$score = $value;
+      } else {
+	push @{$attributes{$name}},@values;
+      }
+    }
+  }
+
   # either create a new feature or add a segment to it
   if (my $feature = $self->{seenit}{$type,$name}) {
     $feature->add_segment(@parts);
   } else {
     $feature = $self->{seenit}{$type,$name} = 
-      Bio::Graphics::Feature->new(-name     => $name,
-				  -type     => $type,
+      Bio::Graphics::Feature->new(-name       => $name,
+				  -type       => $type,
 				  $strand ? (-strand   => make_strand($strand)) : (),
-				  -segments => \@parts,
-				  -desc     => $description,
-				  -ref      => $ref,
+				  defined $score ? (-score=>$score) : (),
+				  -segments   => \@parts,
+				  -desc       => $description,
+				  -ref        => $ref,
+				  -attributes => \%attributes,
 				  defined($url) ? (-url      => $url) : (),
 				 );
     $feature->configurator($self) if $self->smart_features;
@@ -505,6 +538,13 @@ sub parse_line {
   }
 }
 
+sub _unescape {
+  foreach (@_) {
+    tr/+/ /;       # pluses become spaces
+    s/%([0-9a-fA-F]{2})/chr hex($1)/g;
+  }
+  @_;
+}
 
 =over 4
 
@@ -662,11 +702,23 @@ sub code_setting {
   my $setting = $self->_setting($section=>$option);
   return unless defined $setting;
   return $setting if ref($setting) eq 'CODE';
-  return $setting unless $setting =~ /^sub\s*\{/;
-  my $coderef = eval $setting;
-  warn $@ if $@;
-  $self->set($section,$option,$coderef);
-  return $coderef;
+  if ($setting =~ /^\\&(\w+)/) {  # coderef in string form
+    my $subroutine_name = $1;
+    my $package         = $self->base2package;
+    my $codestring      = "\\&${package}\:\:${subroutine_name}";
+    my $coderef         = eval $codestring;
+    warn $@ if $@;
+    $self->set($section,$option,$coderef);
+    return $coderef;
+  }
+  elsif ($setting =~ /^sub\s*\{/) {
+    my $coderef   = eval $setting;
+    warn $@ if $@;
+    $self->set($section,$option,$coderef);
+    return $coderef;
+  } else {
+    return $setting;
+  }
 }
 
 =over 4
@@ -876,11 +928,28 @@ sub consolidate_groups {
 
 sub evaluate_coderefs {
   my $self = shift;
+  $self->initialize_code();
   for my $s ($self->_setting) {
     for my $o ($self->_setting($s)) {
       $self->code_setting($s,$o);
     }
   }
+}
+
+sub initialize_code {
+  my $self       = shift;
+  my $package = $self->base2package;
+  my $init_code = $self->_setting(general => 'init_code') or return;
+  my $code = "package $package; $init_code; 1;";
+  eval $code;
+  warn $@ if $@;
+}
+
+sub base2package {
+  my $self = shift;
+  (my $package = overload::StrVal($self)) =~ s/[^a-z0-9A-Z_]/_/g;
+  $package     =~ s/^[^a-zA-Z_]/_/g;
+  $package;
 }
 
 sub split_group {
@@ -1001,8 +1070,10 @@ sub feature2label {
   my $feature = shift;
   my $type  = eval {$feature->type} || $feature->primary_tag or return;
   (my $basetype = $type) =~ s/:.+$//;
-  my $label = $self->type2label($type) || $self->type2label($basetype) || $type;
-  $label;
+  my @labels = $self->type2label($type);
+  @labels = $self->type2label($basetype) unless @labels;
+  @labels = ($type) unless @labels;;
+  wantarray ? @labels : $labels[0];
 }
 
 =over 4
@@ -1020,38 +1091,47 @@ convenience for the generic genome browser.
 sub make_link {
   my $self     = shift;
   my $feature  = shift;
-  my $label    = $self->feature2label($feature) or return;
-  my $link     = $self->setting($label,'link');
-  $link        = $self->setting(general=>'link') unless defined $link;
-  return unless $link;
-  return $self->link_pattern($link,$feature);
+  for my $label ($self->feature2label($feature)) {
+    my $link     = $self->setting($label,'link');
+    $link        = $self->setting(general=>'link') unless defined $link;
+    next unless $link;
+    return $self->link_pattern($link,$feature);
+  }
+  return;
 }
 
 sub link_pattern {
   my $self = shift;
   my ($pattern,$feature,$panel) = @_;
+  require CGI unless defined &CGI::escape;
+  my $n;
   $pattern =~ s/\$(\w+)/
-    $1 eq 'ref'           ? $feature->location->seq_id
-      : $1 eq 'name'      ? $feature->display_name
-      : $1 eq 'class'     ? $feature->class
-      : $1 eq 'type'      ? $feature->method
-      : $1 eq 'method'    ? $feature->method
-      : $1 eq 'source'    ? $feature->source
-      : $1 eq 'start'     ? $feature->start
-      : $1 eq 'end'       ? $feature->end
-      : $1 eq 'segstart'  ? $panel->start
-      : $1 eq 'segend'    ? $panel->end
+    CGI::escape(
+    $1 eq 'ref'              ? ($n = $feature->location->seq_id) && "$n"
+      : $1 eq 'name'         ? ($n = $feature->display_name) && "$n"  # workaround broken CGI.pm
+      : $1 eq 'class'        ? eval {$feature->class}  || ''
+      : $1 eq 'type'         ? eval {$feature->method} || $feature->primary_tag
+      : $1 eq 'method'       ? eval {$feature->method} || $feature->primary_tag
+      : $1 eq 'source'       ? eval {$feature->source} || $feature->source_tag
+      : $1 eq 'start'        ? $feature->start
+      : $1 eq 'end'          ? $feature->end
+      : $1 eq 'stop'         ? $feature->end
+      : $1 eq 'segstart'     ? $panel->start
+      : $1 eq 'segend'       ? $panel->end
+      : $1 eq 'description'  ? eval {join '',$feature->notes} || ''
       : $1
+	       )
        /exg;
   return $pattern;
 }
 
-# given a feature type, return its label
+# given a feature type, return its label(s)
 sub type2label {
   my $self = shift;
   my $type = shift;
   $self->{_type2label} ||= $self->invert_types;
-  $self->{_type2label}{$type};
+  my @labels = keys %{$self->{_type2label}{$type}};
+  wantarray ? @labels : $labels[0]
 }
 
 sub invert_types {
@@ -1061,7 +1141,7 @@ sub invert_types {
   for my $label (keys %{$config}) {
     my $feature = $config->{$label}{feature} or next;
     foreach (shellwords($feature||'')) {
-      $inverted{$_} = $label;
+      $inverted{$_}{$label}++;
     }
   }
   \%inverted;

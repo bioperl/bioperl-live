@@ -60,6 +60,10 @@ Arguments are as follows:
   -primary_id  an alias for -name
   -display_id  an alias for -name
   -display_name an alias for -name  (do you get the idea the API has changed?)
+  -attributes  a hashref of tag value attributes, in which the key is the tag
+               and the value is an array reference of values
+  -factory     a reference to a feature factory, used for compatibility with
+               more obscure parts of Bio::DB::GFF
 
 The subfeatures passed in -segments may be an array of
 Bio::Graphics::Feature objects, or an array of [$start,$stop]
@@ -112,8 +116,7 @@ use Bio::SeqFeatureI;
 use Bio::SeqI;
 use Bio::LocationI;
 
-use vars '$VERSION','@ISA';
-$VERSION = '1.41';
+use vars '@ISA';
 @ISA  = qw(Bio::Root::Root Bio::SeqFeatureI Bio::LocationI Bio::SeqI);
 
 *stop        = \&end;
@@ -159,6 +162,8 @@ sub new {
   $self->{seq}     = $arg{-seq}   if exists $arg{-seq};
   $self->{phase}   = $arg{-phase} if exists $arg{-phase};
   $self->{desc}    = $arg{-desc}  if exists $arg{-desc};
+  $self->{attrib}  = $arg{-attributes} if exists $arg{-attributes};
+  $self->{factory} = $arg{-factory} if exists $arg{-factory};
 
   # fix start, stop
   if (defined $self->{stop} && defined $self->{start}
@@ -264,6 +269,24 @@ sub seq {
 }
 *dna = \&seq;
 
+=head2 factory
+
+ Title   : factory
+ Usage   : $factory = $obj->factory([$new_factory])
+ Function: Returns the feature factory from which this feature was generated.
+           Mostly for compatibility with weird dependencies in gbrowse.
+ Returns : A feature factory
+ Args    : None
+
+=cut
+
+sub factory {
+  my $self = shift;
+  my $d = $self->{factory};
+  $self->{factory} = shift if @_;
+  $d;
+}
+
 =head2 display_name
 
  Title   : display_name
@@ -359,6 +382,10 @@ sub desc {
   my $d    = $self->{desc};
   $self->{desc} = shift if @_;
   $d;
+}
+
+sub notes {
+  return shift->desc;
 }
 
 sub low {
@@ -494,8 +521,17 @@ sub make_link {
   }
 }
 
-sub each_tag_value { return }
-sub all_tags { return }
+sub all_tags {
+  my $self = shift;
+  return keys %{$self->{attrib}};
+}
+sub each_tag_value {
+  my $self = shift;
+  my $tag  = shift;
+  my $value = $self->{attrib}{$tag} or return;
+  return CORE::ref $value ? @{$self->{attrib}{$tag}}
+                          : $self->{attrib}{$tag};
+}
 
 sub DESTROY { }
 

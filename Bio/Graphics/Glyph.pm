@@ -4,8 +4,7 @@ use GD;
 use strict;
 use Carp 'croak';
 use constant BUMP_SPACING => 2; # vertical distance between bumped glyphs
-use vars '$VERSION';
-$VERSION = '1.02';
+use Bio::Root::Version;
 
 my %LAYOUT_COUNT;
 
@@ -15,6 +14,8 @@ use constant CM1 => 200; # big bin, x axis
 use constant CM2 => 50;  # big bin, y axis
 use constant CM3 => 50;  # small bin, x axis
 use constant CM4 => 50;  # small bin, y axis
+
+use constant QUILL_INTERVAL => 8;  # number of pixels between Jim Kent style intron "quills"
 
 # a bumpable graphical object that has bumpable graphical subparts
 
@@ -29,11 +30,13 @@ sub new {
   my $feature = $arg{-feature} or die "No feature";
   my $factory = $arg{-factory} || $class->default_factory;
   my $level   = $arg{-level} || 0;
+  my $flip    = $arg{-flip};
 
   my $self = bless {},$class;
   $self->{feature} = $feature;
   $self->{factory} = $factory;
   $self->{level}   = $level;
+  $self->{flip}++  if $flip;
   $self->{top} = 0;
 
   my @subglyphs;
@@ -43,8 +46,8 @@ sub new {
 
     # dynamic glyph resolution
     @subglyphs = map { $_->[0] }
-    sort { $a->[1] <=> $b->[1] }
-    map { [$_, $_->left ] } 
+          sort { $a->[1] <=> $b->[1] }
+             map { [$_, $_->left ] } 
     $factory->make_glyph($level+1,@subfeatures);
 
     $self->{parts}   = \@subglyphs;
@@ -61,7 +64,9 @@ sub new {
   if (@subglyphs) {
       my $l            = $subglyphs[0]->left;
       $self->{left}    = $l if !defined($self->{left}) || $l < $self->{left};
-      my $right        = (sort { $b<=>$a } map {$_->right} @subglyphs)[0];
+      my $right        = (
+			  sort { $b<=>$a } 
+			  map {$_->right} @subglyphs)[0];
       my $w            = $right - $self->{left} + 1;
       $self->{width}   = $w if !defined($self->{width}) || $w > $self->{width};
   }
@@ -98,7 +103,7 @@ sub scale   { shift->factory->scale }
 sub start   {
   my $self = shift;
   return $self->{start} if exists $self->{start};
-  $self->{start} = $self->{feature}->start;
+  $self->{start} = $self->{flip} ? $self->panel->end + 1 - $self->{feature}->end : $self->{feature}->start;
 
   # handle the case of features whose endpoints are undef
   # (this happens with wormbase clones where one or more clone end is not defined)
@@ -110,7 +115,7 @@ sub start   {
 sub stop    {
   my $self = shift;
   return $self->{stop} if exists $self->{stop};
-  $self->{stop} = $self->{feature}->end;
+  $self->{stop} = $self->{flip} ?  $self->panel->end + 1 - $self->{feature}->start : $self->{feature}->end;
 
   # handle the case of features whose endpoints are undef
   # (this happens with wormbase clones where one or more clone end is not defined)
@@ -210,7 +215,6 @@ sub bounds {
    $dx + $self->{left} + $self->{width} - 1,
    $dy + $self->bottom - $self->pad_bottom);
 }
-
 
 
 sub box {
@@ -383,7 +387,20 @@ sub bgcolor {
   $self->factory->translate_color($index);
 }
 sub font {
-  shift->option('font');
+  my $self = shift;
+  my $font = $self->option('font');
+  unless (UNIVERSAL::isa($font,'GD::Font')) {
+    my $ref    = {
+		  gdTinyFont  => gdTinyFont,
+		  gdSmallFont => gdSmallFont,
+		  gdMediumBoldFont => gdMediumBoldFont,
+		  gdLargeFont => gdLargeFont,
+		  gdGiantFont => gdGiantFont};
+    my $gdfont = $ref->{$font} || $font;
+    $self->configure(font=>$gdfont);
+    return $gdfont;
+  }
+  return $font;
 }
 sub fontcolor {
   my $self = shift;
@@ -425,22 +442,24 @@ sub layout_sort {
 
        # not sure I can make this schwartzian transfored
        for my $sortby (@sortbys) {
-           if ($sortby eq "left" || $sortby eq "default") {
-               $sortfunc .= '($a->left <=> $b->left) || ';
-               $sawleft++;
-           } elsif ($sortby eq "right") {
-               $sortfunc .= '($a->right <=> $b->right) || ';
-           } elsif ($sortby eq "low_score") {
-               $sortfunc .= '($a->score <=> $b->score) || ';
-           } elsif ($sortby eq "high_score") {
-               $sortfunc .= '($b->score <=> $a->score) || ';
-           } elsif ($sortby eq "longest") {
-               $sortfunc .= '(($b->length) <=> ($a->length)) || ';
-           } elsif ($sortby eq "shortest") {
-               $sortfunc .= '(($a->length) <=> ($b->length)) || ';
-           } elsif ($sortby eq "strand") {
-               $sortfunc .= '($b->strand <=> $a->strand) || ';
-           }
+	 if ($sortby eq "left" || $sortby eq "default") {
+	   $sortfunc .= '($a->left <=> $b->left) || ';
+	   $sawleft++;
+	 } elsif ($sortby eq "right") {
+	   $sortfunc .= '($a->right <=> $b->right) || ';
+	 } elsif ($sortby eq "low_score") {
+	   $sortfunc .= '($a->score <=> $b->score) || ';
+	 } elsif ($sortby eq "high_score") {
+	   $sortfunc .= '($b->score <=> $a->score) || ';
+	 } elsif ($sortby eq "longest") {
+	   $sortfunc .= '(($b->length) <=> ($a->length)) || ';
+	 } elsif ($sortby eq "shortest") {
+	   $sortfunc .= '(($a->length) <=> ($b->length)) || ';
+	 } elsif ($sortby eq "strand") {
+	   $sortfunc .= '($b->strand <=> $a->strand) || ';
+	 } elsif ($sortby eq "name") {
+	   $sortfunc .= '($a->feature->display_name cmp $b->feature->display_name) || ';
+	 }
        }
        unless ($sawleft) {
            $sortfunc .= ' ($a->left <=> $b->left) ';
@@ -451,8 +470,7 @@ sub layout_sort {
        $sortfunc = eval $sortfunc;
     }
 
-    # would be nice to cache this somehow, but won't this override the
-    # settings for other tracks?
+    # cache this
     # $self->factory->set_option(sort_order => $sortfunc);
 
     return sort $sortfunc @_;
@@ -592,6 +610,11 @@ sub draw {
 
   my $connector =  $self->connector;
   if (my @parts = $self->parts) {
+
+    # invoke sorter if use wants to sort always and we haven't already sorted
+    # during bumping.
+    @parts = $self->layout_sort(@parts) if !$self->bump && $self->option('always_sort');
+
     my $x = $left;
     my $y = $top  + $self->top + $self->pad_top;
     $self->draw_connectors($gd,$x,$y) if $connector && $connector ne 'none';
@@ -634,9 +657,9 @@ sub draw_connectors {
   if (@parts) {
     my($x1,$y1,$x2,$y2) = $self->bounds(0,0);
     my($xl,$xt,$xr,$xb) = $parts[0]->bounds;
-    $self->_connector($gd,$dx,$dy,$x1,$xt,$x1,$xb,$xl,$xt,$xr,$xb)      if $x1 <= $self->panel->left;
+    $self->_connector($gd,$dx,$dy,$x1,$xt,$x1,$xb,$xl,$xt,$xr,$xb)      if $x1 < $xl;
     my ($xl2,$xt2,$xr2,$xb2) = $parts[-1]->bounds;
-    $self->_connector($gd,$dx,$dy,$parts[-1]->bounds,$x2,$xt2,$x2,$xb2) if $x2 >= $self->panel->right;
+    $self->_connector($gd,$dx,$dy,$parts[-1]->bounds,$x2,$xt2,$x2,$xb2) if $x2 > $xr;
   }
 
 }
@@ -655,7 +678,7 @@ sub _connector {
   my $bottom2  = $dy + $yb;
   # restore this comment if you don't like the group dash working
   # its way backwards.
-  #    return unless $right-$left > 1;
+  return if $right-$left < 1 && !$self->isa('Bio::Graphics::Glyph::group');
 
   $self->draw_connector($gd,
 			$top1,$bottom1,$left,
@@ -676,6 +699,8 @@ sub draw_connector {
     $self->draw_solid_connector($gd,$color,@_);
   } elsif ($connector_type eq 'dashed') {
     $self->draw_dashed_connector($gd,$color,@_);
+  } elsif ($connector_type eq 'quill') {
+    $self->draw_quill_connector($gd,$color,@_);
   } else {
     ; # draw nothing
   }
@@ -730,6 +755,36 @@ sub draw_dashed_connector {
 
   $gd->setStyle($color,$color,gdTransparent,gdTransparent,);
   $gd->line($left,$center1,$right,$center2,gdStyled);
+}
+
+sub draw_quill_connector {
+  my $self = shift;
+  my $gd   = shift;
+  my $color = shift;
+  my ($top1,$bottom1,$left,$top2,$bottom2,$right) = @_;
+
+  my $center1  = ($top1 + $bottom1)/2;
+  my $center2  = ($top2 + $bottom2)/2;
+
+  $gd->line($left,$center1,$right,$center2,$color);
+  my $direction = $self->feature->strand;
+  return unless $direction;
+
+  if ($direction > 0) {
+    my $start = $left+4;
+    my $end   = $right-1;
+    for (my $position=$start; $position <= $end; $position += QUILL_INTERVAL) {
+      $gd->line($position,$center1,$position-2,$center1-2,$color);
+      $gd->line($position,$center1,$position-2,$center1+2,$color);
+    }
+  } else {
+    my $start = $left+1;
+    my $end   = $right-4;
+    for (my $position=$start; $position <= $end; $position += QUILL_INTERVAL) {
+      $gd->line($position,$center1,$position+2,$center1-2,$color);
+      $gd->line($position,$center1,$position+2,$center1+2,$color);
+    }
+  }
 }
 
 sub filled_box {
@@ -797,6 +852,7 @@ sub filled_arrow {
   my $self = shift;
   my $gd  = shift;
   my $orientation = shift;
+  $orientation *= -1 if $self->{flip};
 
   my ($x1,$y1,$x2,$y2) = @_;
 
@@ -1241,43 +1297,51 @@ glyph pages for more options.
 
   -font         Glyph font		       gdSmallFont
 
-  -connector    Connector type                 0 (false)
+  -connector    Connector type                 undef (false)
 
   -connector_color
                 Connector color                black
 
-  -strand_arrow Whether to indicate            0 (false)
+  -strand_arrow Whether to indicate            undef (false)
                  strandedness
 
-  -label        Whether to draw a label	       0 (false)
+  -label        Whether to draw a label	       undef (false)
 
-  -description  Whether to draw a description  0 (false)
+  -description  Whether to draw a description  undef (false)
 
   -sort_order   Specify layout sort order      "default"
 
-  -bump_limit   Maximum number of levels to bump 0 (unlimited)
+  -always_sort  Sort even when bumping is off  undef (false)
 
-For glyphs that consist of multiple segments, the -connector option
-controls what's drawn between the segments.  The default is 0 (no
-connector).  Options include "hat", an upward-angling conector,
-"solid", a straight horizontal connector, and "dashed", for a
-horizontal dashed line.  The -connector_color option controls the
-color of the connector, if any.
+  -bump_limit   Maximum number of levels to bump undef (unlimited)
+
+For glyphs that consist of multiple segments, the B<-connector> option
+controls what's drawn between the segments.  The default is undef (no
+connector).  Options include:
+
+   "hat"     an upward-angling conector
+   "solid"   a straight horizontal connector
+   "quill"   a decorated line with small arrows indicating strandedness
+             (like the UCSC Genome Browser uses)
+   "dashed"  a horizontal dashed line.  
+
+The B<-connector_color> option controls the color of the connector, if
+any.
 
 The label is printed above the glyph.  You may pass an anonymous
-subroutine to -label, in which case the subroutine will be invoked
+subroutine to B<-label>, in which case the subroutine will be invoked
 with the feature as its single argument.  and is expected to return
 the string to use as the description.  If you provide the numeric
-value "1" to -description, the description will be read off the
+value "1" to B<-description>, the description will be read off the
 feature's seqname(), info() and primary_tag() methods will be called
 until a suitable name is found.  To create a label with the
 text "1", pass the string "1 ".  (A 1 followed by a space).
 
 The description is printed below the glyph.  You may pass an anonymous
-subroutine to -description, in which case the subroutine will be
+subroutine to B<-description>, in which case the subroutine will be
 invoked with the feature as its single argument and is expected to
 return the string to use as the description.  If you provide the
-numeric value "1" to -description, the description will be read off
+numeric value "1" to B<-description>, the description will be read off
 the feature's source_tag() method.  To create a description with the
 text "1", pass the string "1 ".  (A 1 followed by a space).
 
@@ -1285,9 +1349,10 @@ In the case of ACEDB Ace::Sequence feature objects, the feature's
 info(), Brief_identification() and Locus() methods will be called to
 create a suitable description.
 
-The -strand_arrow option, if true, requests that the glyph indicate
+The B<-strand_arrow> option, if true, requests that the glyph indicate
 which strand it is on, usually by drawing an arrowhead.  Not all
-glyphs can respond appropriately to this request.
+glyphs will respond to this request.  For historical reasons,
+B<-stranded> is a synonym for this option.
 
 By default, features are drawn with a layout based only on the
 position of the feature, assuring a maximal "packing" of the glyphs
@@ -1302,7 +1367,9 @@ features to be sorted from lowest to highest score (or vice versa).
 sorted by their position in the sequence.  "longer" (or "shorter")
 will cause the longest (or shortest) features to be sorted first, and
 "strand" will cause the features to be sorted by strand: "+1"
-(forward) then "0" (unknown, or NA) then "-1" (reverse).
+(forward) then "0" (unknown, or NA) then "-1" (reverse).  Lastly,
+"name" will sort features alphabetically by their display_name()
+attribute.
 
 In all cases, the "left" position will be used to break any ties.  To
 break ties using another field, options may be strung together using a
@@ -1324,6 +1391,10 @@ to sort a set of database search hits by bits (stored in the features'
                      ( $a->start <=> $b->start )
                    }
 
+The -always_sort option, if true, will sort features even if bumping
+is turned off.  This is useful if you would like overlapping features
+to stack in a particular order.  Features towards the end of the list
+will overlay those towards the beginning of the sort order.
 
 =head1 SUBCLASSING Bio::Graphics::Glyph
 

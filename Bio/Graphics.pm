@@ -3,9 +3,6 @@ package Bio::Graphics;
 use Bio::Graphics::Panel;
 use strict;
 
-use vars '$VERSION';
-$VERSION = '1.06';
-
 1;
 
 =head1 NAME
@@ -13,6 +10,12 @@ $VERSION = '1.06';
 Bio::Graphics - Generate GD images of Bio::Seq objects
 
 =head1 SYNOPSIS
+
+ # This script generates a PNG picture of a 10K region containing a
+ # set of red features and a set of blue features. Call it like this:
+ #         red_and_blue.pl > redblue.png
+ # you can now view the picture with your favorite image application
+
 
  # This script parses a GenBank or EMBL file named on the command
  # line and produces a PNG rendering of it.  Call it like this:
@@ -23,8 +26,8 @@ Bio::Graphics - Generate GD images of Bio::Seq objects
  use Bio::SeqIO;
 
  my $file = shift                       or die "provide a sequence file as the argument";
- my $io = Bio::SeqIO->new(-file=>$file) or die "couldn't create Bio::SeqIO";
- my $seq = $io->next_seq                or die "couldn't find a sequence in the file";
+ my $io = Bio::SeqIO->new(-file=>$file) or die "could not create Bio::SeqIO";
+ my $seq = $io->next_seq                or die "could not find a sequence in the file";
 
  my @features = $seq->all_SeqFeatures;
 
@@ -35,14 +38,16 @@ Bio::Graphics - Generate GD images of Bio::Seq objects
    push @{$sorted_features{$tag}},$f;
  }
 
+ my $wholeseq = Bio::SeqFeature::Generic->new(-start=>1,-end=>$seq->length);
+
  my $panel = Bio::Graphics::Panel->new(
- 				      -segment   => $seq,
+				      -length    => $seq->length,
  				      -key_style => 'between',
  				      -width     => 800,
  				      -pad_left  => 10,
  				      -pad_right => 10,
  				      );
- $panel->add_track($seq,
+ $panel->add_track($wholeseq,
  		  -glyph => 'arrow',
  		  -bump => 0,
  		  -double=>1,
@@ -77,7 +82,7 @@ Bio::Graphics - Generate GD images of Bio::Seq objects
 
 =head1 DESCRIPTION
 
-Please see L<Bio::Graphics::Panel> for the full API.
+Please see L<Bio::Graphics::Panel> for the full interface.
 
 =head1 SEE ALSO
 
