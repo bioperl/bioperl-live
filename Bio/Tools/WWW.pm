@@ -432,9 +432,9 @@ for documentation purposes only.
 
 =cut
 
-##########################################################################################
-##                               ACCESSOR METHODS                                       ##
-##########################################################################################
+#########################################################################
+##                          ACCESSOR METHODS                            
+#########################################################################
 
 
 =head2 home_url
@@ -447,7 +447,7 @@ for documentation purposes only.
            :    bioperl  bioperl-schema  biomoo  bsm  ebi  emotif  entrez 
            :    expasy  mips  mmdb  ncbi  pir  pfam  pdb  geneQuiz  
            :    molMov  pubmed  sacch3d  sgd  scop  swissProt  webmol  ypd
- Throws    : n/a
+ Throws    : Warns if argument cannot be resolved to a URL.
  Comments  : The URLs listed here do not represent a complete list.
            : Expect this to evolve and grow with time.
 
@@ -460,7 +460,9 @@ sub home_url {
 #-------------
     my($self,$arg) = @_; 
     $arg eq 'all' and return %Home_url;
-    (exists $Home_url{$arg}) ? $Home_url{$arg} : $Not_found_url;
+    (exists $Home_url{$arg}) ? $Home_url{$arg} 
+                             : ($self->warn("Can't resolve argument to URL: $arg"), 
+				$Not_found_url);
 }
 
 
@@ -477,7 +479,7 @@ sub home_url {
            :   gb3  gb4  gb5  pdb  medline  mmdb  pdb  pdb_coord  pfam  pir_acc  
            :   pdbSum  molMov  swpr  swModel  swprSearch  scop  scop_pdb  scop_data 
            :   ypd
- Throws    : n/a
+ Throws    : Warns if argument cannot be resolved to a URL.
  Comments  : Unlike the homepage URLs, this method does not return a complete
            : URL but a stem which must be further modified, typically by
            : appending data to it, before it can be used. The data appended
@@ -502,7 +504,9 @@ sub search_url {
 #--------------
     my($self,$arg) = @_; 
     $arg eq 'all' and return %Search_url;
-    (exists $Search_url{$arg}) ? $Search_url{$arg} : $Not_found_url;
+    (exists $Search_url{$arg}) ? $Search_url{$arg} 
+                             : ($self->warn("Can't resolve argument to URL: $arg"), 
+				$Not_found_url);
 }
 
 
@@ -515,7 +519,7 @@ sub search_url {
  Argument  : String
            : Currently acceptable arguments are:
            :    emotif  entrez  pdb
- Throws    : n/a
+ Throws    : Warns if argument cannot be resolved to a URL.
  Comments  : The URLs stems returned by this method are much more minimal than
            : this provided by search_url(). Use of these stems requires knowledge
            : of the CGI scripts which they invoke.
@@ -529,7 +533,9 @@ sub stem_url {
 #--------------
     my($self,$arg) = @_; 
     $arg eq 'all' and return %Stem_url;
-    (exists $Stem_url{$arg}) ? $Stem_url{$arg} : $Not_found_url;
+    (exists $Stem_url{$arg}) ? $Stem_url{$arg}
+                             : ($self->warn("Can't resolve argument to URL: $arg"), 
+				$Not_found_url);
 }
 
 	      
@@ -542,7 +548,7 @@ sub stem_url {
  Argument  : String
            : Currently acceptable arguments are:
            :    rasmol webmol cn3d java  (java is an alias for webmol)
- Throws    : n/a
+ Throws    : Warns if argument cannot be resolved to a URL.
  Comments  : The 4-letter Brookhaven PDB identifier must be appended to the
            : URL provided by this method.
            : The URLs listed here do not represent a complete list.
@@ -555,7 +561,9 @@ sub viewer_url {
 #---------------
     my($self,$arg) = @_; 
     $arg eq 'all' and return %Viewer_url;
-    (exists $Viewer_url{$arg}) ? $Viewer_url{$arg} : $Not_found_url;
+    (exists $Viewer_url{$arg}) ? $Viewer_url{$arg} 
+                             : ($self->warn("Can't resolve argument to URL: $arg"), 
+				$Not_found_url);
 }
 
 
@@ -686,7 +694,7 @@ sub html {
  Returns   : String containing the URL (including "http://")
  Argument  : String
            : Currently acceptable arguments (TODO).
- Throws    : n/a
+ Throws    : Warns if argument cannot be resolved to a URL.
  Comments  : This accessor is specialized for the Saccharomyces Genome Database.
            : It is possible that it will be moved to SGD::WWW.pm in the future.
 
@@ -699,7 +707,9 @@ sub sgd_url {
 #------------
     my($self,$arg) = @_; 
     $arg eq 'all' and return %SGD_url;
-    (exists $SGD_url{$arg}) ? $SGD_url{$arg} : $Not_found_url;
+    (exists $SGD_url{$arg}) ? $SGD_url{$arg} 
+                             : ($self->warn("Can't resolve argument to URL: $arg"), 
+				$Not_found_url);
 }
 
 
@@ -711,7 +721,7 @@ sub sgd_url {
  Returns   : String containing the URL (including "http://")
  Argument  : String
            : Currently acceptable arguments (TODO).
- Throws    : n/a
+ Throws    : Warns if argument cannot be resolved to a URL.
  Comments  : This accessor is specialized for the Saccharomyces Genome Database.
            : It is possible that it will be moved to SGD::WWW.pm in the future.
 
@@ -724,7 +734,9 @@ sub s3d_url {
 #-----------
     my($self,$arg) = @_; 
     $arg eq 'all' and return %S3d_url;
-    (exists $S3d_url{$arg}) ? $S3d_url{$arg} : $Not_found_url;
+    (exists $S3d_url{$arg}) ? $S3d_url{$arg} 
+                             : ($self->warn("Can't resolve argument to URL: $arg"), 
+				$Not_found_url);
 }
 
 
@@ -736,7 +748,7 @@ sub s3d_url {
  Returns   : String containing the URL (including "http://")
  Argument  : String
            : Currently acceptable arguments (TODO).
- Throws    : n/a
+ Throws    : Warns if argument cannot be resolved to a URL.
  Comments  : This accessor is specialized for the Saccharomyces Genome Database.
            : It is possible that it will be moved to SGD::WWW.pm in the future.
 
@@ -749,7 +761,9 @@ sub sgd_stem_url {
 #-----------------
     my($self,$arg) = @_; 
     $arg eq 'all' and return %SGD_stem_url;
-    (exists $SGD_stem_url{$arg}) ? $SGD_stem_url{$arg} : $Not_found_url;
+    (exists $SGD_stem_url{$arg}) ? $SGD_stem_url{$arg} 
+                             : ($self->warn("Can't resolve argument to URL: $arg"), 
+				$Not_found_url);
 }
 
 
@@ -809,9 +823,9 @@ sub sgd_link {
 }
 
 
-##########################################################################################
-##                               INSTANCE METHODS                                       ##
-##########################################################################################
+#########################################################################
+##                        INSTANCE METHODS                              
+#########################################################################
 
 ## Note that similar functions to those presented below are also availble 
 ## via L. Stein's CGI.pm. These are more experimental versions.
@@ -992,9 +1006,9 @@ sub strip_html {
 1;
 __END__
 
-#####################################################################################
-#                                END OF CLASS                                       #
-#####################################################################################
+########################################################################
+##                            END OF CLASS                             
+########################################################################
  
 =head1 FOR DEVELOPERS ONLY
 
