@@ -51,14 +51,14 @@ ok( $stats->pairwise_stats->number_of_differences($aln),13);
 
 my $d = $stats->distance(-align=> $aln,
 			 -method => 'JC');
-ok( sprintf("%.5f",$d->[1]->[2]), 0.07918);
+ok( $d->get_entry('hs_insulin','seq2'), '0.07918');
 $d = $stats->distance(-align=> $aln,
 			 -method => 'Kimura');
-ok( sprintf("%.5f",$d->[1]->[2]), 0.07984);
-#$d = $stats->distance(-align=> $aln,
-#			 -method => 'TajimaNei');
+ok( $d->get_entry('hs_insulin','seq2'), '0.07984');
+$d = $stats->distance(-align=> $aln,
+			 -method => 'TajimaNei');
 
-#ok( sprintf("%.5f",$d->[1]->[2]), 0.0780);
+#ok( $d->get_entry('seq2','hs_insulin'), '0.0780');
 
 $aln = $in->next_aln();
 ok(! defined $aln);

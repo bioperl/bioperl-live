@@ -23,22 +23,17 @@ Bio::Align::DNAStatistics - Calculate some statistics for a DNA alignment
   my $alignin = new Bio::AlignIO(-format => 'emboss',
                                  -file   => 't/data/insulin.water');
   my $aln = $alignin->next_aln;
-  my $jc = $stats->distance(-align => $aln, 
-                            -method => 'Jukes-Cantor');
-  foreach my $d ( @$jc )  {
-      print "\t";
-      foreach my $r ( @$d ) {
-	  print "$r\t";
-      } 
-      print "\n";
-  }
+  my $jcmatrix = $stats->distance(-align => $aln, 
+                                  -method => 'Jukes-Cantor');
+
+  print $jcmatrix->print_matrix;
   ## and for measurements of synonymous /nonsynonymous substitutions ##
 
   my $in = new Bio::AlignIO(-format => 'fasta',
                             -file   => 't/data/nei_gojobori_test.aln');
   my $alnobj = $in->next_aln;
-  my ($seqid,$seq2id) = map { $_->display_id } $alnobj->each_seq;
-  my $results = $stats->calc_KaKs_pair($alnobj, $seqid, $seq2id);
+  my ($seq1id,$seq2id) = map { $_->display_id } $alnobj->each_seq;
+  my $results = $stats->calc_KaKs_pair($alnobj, $seq1id, $seq2id);
   print "comparing ".$results->[0]{'Seq1'}." and ".$results->[0]{'Seq2'}."\n";
   for (sort keys %{$results->[0]} ){
       next if /Seq/;
@@ -249,15 +244,17 @@ Internal methods are usually preceded with a _
 package Bio::Align::DNAStatistics;
 use vars qw(@ISA %DNAChanges @Nucleotides %NucleotideIndexes
 	    $GapChars $SeqCount $DefaultGapPenalty %DistanceMethods
-            $CODONS %synchanges $synsites);
+            $CODONS %synchanges $synsites $Precision);
 use strict;
 use Bio::Align::PairwiseStatistics;
 use Bio::Root::Root;
+use Bio::Matrix::PhylipDist;
 
 BEGIN {
     $GapChars = '(\.|\-)';
     @Nucleotides = qw(A G T C);
     $SeqCount = 2;
+    $Precision = 5;
     # these values come from EMBOSS distmat implementation
     %NucleotideIndexes = ( 'A' => 0,
 			   'T' => 1,
@@ -410,26 +407,40 @@ sub D_JukesCantor{
    return 0 unless $self->_check_arg($aln);
    $gappenalty = $DefaultGapPenalty unless defined $gappenalty;
    # ambiguities ignored at this point
-   
-   my (@seqs);
+   my (@seqs,@names,@values,%dist);
+   my $seqct = 0;
    foreach my $seq ( $aln->each_seq) {
+       push @names, $seq->display_id;;
        push @seqs, [ split(//,uc $seq->seq())];
+       $seqct++;
    }
-   my $seqct = scalar @seqs;
-   my @DVals; 
-   for(my $i = 1; $i <= $seqct; $i++ ) {
-       for( my $j = $i+1; $j <= $seqct; $j++ ) {
-	   my ($matrix,$pfreq,$gaps) = $self->_build_nt_matrix($seqs[$i-1],
-							       $seqs[$j-1]);
+   my $precisionstr = "%.$Precision"."f";
+   for(my $i = 0; $i < $seqct-1; $i++ ) {
+       # (diagonals) distance is 0 for same sequence
+       $dist{$names[$i]}->{$names[$i]} = [$i,$i];
+       $values[$i][$i] = sprintf($precisionstr,0);        
+
+       for( my $j = $i+1; $j < $seqct; $j++ ) {
+	   my ($matrix,$pfreq,$gaps) = $self->_build_nt_matrix($seqs[$i],
+							       $seqs[$j]);
 	   # just want diagonals
 	   my $m = ( $matrix->[0]->[0] + $matrix->[1]->[1] + 
 		     $matrix->[2]->[2] + $matrix->[3]->[3] );
 	   my $D = 1 - ( $m / ($aln->length - $gaps + ( $gaps * $gappenalty)));
 	   my $d = (- 3 / 4) * log ( 1 - (4 * $D/ 3));
-	   $DVals[$i]->[$j] = $DVals[$j]->[$i] = $d;
+	   # fwd and rev lookup
+	   $dist{$names[$i]}->{$names[$j]} = [$i,$j];
+	   $dist{$names[$j]}->{$names[$i]} = [$i,$j];	   
+	   $values[$j][$i] = $values[$i][$j] = sprintf($precisionstr,$d);
+           # (diagonals) distance is 0 for same sequence
+	   $dist{$names[$j]}->{$names[$j]} = [$j,$j];	   
+	   $values[$j][$j] = sprintf($precisionstr,0); 
        }
    }
-   return \@DVals;
+   return Bio::Matrix::PhylipDist->new(-program => 'bioperl_DNAstats',
+				       -matrix  => \%dist,
+				       -names   => \@names,
+				       -values  => \@values);   
 }
 
 =head2 D_F81
@@ -468,11 +479,24 @@ sub D_F81{
 sub D_Kimura{
    my ($self,$aln) = @_;
    return 0 unless $self->_check_arg($aln);
-   my $seqct = $aln->no_sequences;
-   my @KVals;
-   for( my $i = 1; $i <= $seqct; $i++ ) {
-       for( my $j = $i+1; $j <= $seqct; $j++ ) {
-	   my $pairwise = $aln->select_noncont($i,$j);
+   # ambiguities ignored at this point
+   my (@seqs,@names,@values,%dist);
+   my $seqct = 0;
+   foreach my $seq ( $aln->each_seq) {
+       push @names, $seq->display_id;
+       push @seqs, [ split(//,uc $seq->seq())];
+       $seqct++;
+   }
+
+   my $precisionstr = "%.$Precision"."f";
+
+   for( my $i = 0; $i < $seqct-1; $i++ ) {
+       # (diagonals) distance is 0 for same sequence
+       $dist{$names[$i]}->{$names[$i]} = [$i,$i];
+       $values[$i][$i] = sprintf($precisionstr,0);
+
+       for( my $j = $i+1; $j < $seqct; $j++ ) {
+	   my $pairwise = $aln->select_noncont($i+1,$j+1);
 	   my $L = $self->pairwise_stats->number_of_comparable_bases($pairwise);
 	   my $P = $self->transitions($pairwise) / $L;
 	   my $Q = $self->transversions($pairwise) / $L;
@@ -480,11 +504,20 @@ sub D_Kimura{
 	   my $a = 1 / ( 1 - (2 * $P) - $Q);
 	   my $b = 1 / ( 1 - 2 * $Q );
 	   my $K = (1/2) * log ( $a ) + (1/4) * log($b);
-	   $KVals[$i]->[$j] = $K;
-	   $KVals[$j]->[$i] = $K;
+
+	   # fwd and rev lookup
+	   $dist{$names[$i]}->{$names[$j]} = [$i,$j];
+	   $dist{$names[$j]}->{$names[$i]} = [$i,$j];	   
+	   $values[$j][$i] = $values[$i][$j] = sprintf($precisionstr,$K);
+           # (diagonals) distance is 0 for same sequence
+	   $dist{$names[$j]}->{$names[$j]} = [$j,$j];	   
+	   $values[$j][$j] = sprintf($precisionstr,0); 
        }
    }
-   return \@KVals;
+   return Bio::Matrix::PhylipDist->new(-program => 'bioperl_DNAstats',
+				       -matrix  => \%dist,
+				       -names   => \@names,
+				       -values  => \@values); 
 }
 
 #  K Tamura, Mol. Biol. Evol. 1992, 9, 678.
@@ -502,16 +535,30 @@ sub D_Kimura{
 
 sub D_Tamura{
    my ($self,$aln) = @_;
-   my $seqct = $aln->no_sequences;
-   my @KVals;
-   for( my $i = 1; $i <= $seqct; $i++ ) {
-       for( my $j = $i+1; $j <= $seqct; $j++ ) {
-       }
+   return 0 unless $self->_check_arg($aln);
+   # ambiguities ignored at this point
+   my (@seqs,@names,@values,%dist);
+   my $seqct = 0;
+   foreach my $seq ( $aln->each_seq) {
+       push @names, $seq->display_id;;
+       push @seqs, [ split(//,uc $seq->seq())];
+       $seqct++;
    }
-	   my $O = 0.25;
+
+   my $precisionstr = "%.$Precision"."f";
+   my $O = 0.25;
    my $t = 0;
    my $a = 0;
    my $b = 0;
+
+   for( my $i = 0; $i < $seqct-1; $i++ ) {
+       # (diagonals) distance is 0 for same sequence
+       $dist{$names[$i]}->{$names[$i]} = [$i,$i];
+       $values[$i][$i] = sprintf($precisionstr,0);
+
+       for( my $j = $i+1; $j < $seqct; $j++ ) {
+       }
+   }
    
 
    my $d = 4 * $O * ( 1 - $O ) * $a * $t  + 2 * $b * $t;
@@ -533,6 +580,31 @@ sub D_Tamura{
 sub D_F84{
    my ($self,$aln) = @_;
    return 0 unless $self->_check_arg($aln);
+   # ambiguities ignored at this point
+   my (@seqs,@names,@values,%dist);
+   my $seqct = 0;
+   foreach my $seq ( $aln->each_seq) {
+       # if there is no name, 
+       my $id = $seq->display_id;
+       if( ! length($id) ||       # deal with empty names
+	   $id =~ /^\s+$/ ) {
+	   $id = $seqct+1;
+       }
+       push @names, $id;
+       push @seqs, [ split(//,uc $seq->seq())];
+       $seqct++;
+   }
+
+   my $precisionstr = "%.$Precision"."f";
+
+   for( my $i = 0; $i < $seqct-1; $i++ ) {
+       # (diagonals) distance is 0 for same sequence
+       $dist{$names[$i]}->{$names[$i]} = [$i,$i];
+       $values[$i][$i] = sprintf($precisionstr,0);
+
+       for( my $j = $i+1; $j < $seqct; $j++ ) {
+       }
+   }   
 }
 
 # Tajima and Nei, Mol. Biol. Evol. 1984, 1, 269.
@@ -551,23 +623,35 @@ sub D_F84{
 
 sub D_TajimaNei{
    my ($self,$aln) = @_;
-   $self->warn("The result from this method is not correct right now");
-   my (@seqs);
+   return 0 unless $self->_check_arg($aln);
+   # ambiguities ignored at this point
+   my (@seqs,@names,@values,%dist);
+   my $seqct = 0;
    foreach my $seq ( $aln->each_seq) {
+       # if there is no name, 
+       push @names, $seq->display_id;
        push @seqs, [ split(//,uc $seq->seq())];
+       $seqct++;
    }
-   my $seqct = scalar @seqs;
-   my @DVals; 
-   for(my $i = 1; $i <= $seqct; $i++ ) {
-       for( my $j = $i+1; $j <= $seqct; $j++ ) {
-	   my ($matrix,$pfreq,$gaps) = $self->_build_nt_matrix($seqs[$i-1],
-							       $seqs[$j-1]);
+   my $precisionstr = "%.$Precision"."f";
+   $self->warn("The result from this distance method (TajimaNei) is not correct right now");
+
+   for( my $i = 0; $i < $seqct-1; $i++ ) {
+       # (diagonals) distance is 0 for same sequence
+       $dist{$names[$i]}->{$names[$i]} = [$i,$i];
+       $values[$i][$i] = sprintf($precisionstr,0);
+
+       for( my $j = $i+1; $j < $seqct; $j++ ) {
+	   
+	   my ($matrix,$pfreq,$gaps) = $self->_build_nt_matrix($seqs[$i],
+							       $seqs[$j]);
 	   my $fij2;
 	   my $slen = $aln->length - $gaps;
 	   for( my $bs = 0; $bs < 4; $bs++ ) {
 	       my $fi = 0;
 	       map {$fi += $matrix->[$bs]->[$_] } 0..3;
 	       my $fj = 0;
+	       # summation 
 	       map { $fj += $matrix->[$_]->[$bs] } 0..3;
 	       my $fij = ( $fi && $fj ) ? ($fi + $fj) /( 2 * $slen) : 0;
 	       $fij2 += $fij**2;
@@ -589,6 +673,7 @@ sub D_TajimaNei{
 			   (  ( ( $ci1 + $cj1 ) / 2 * $slen ) *
 			      ( ( $ci2 + $cj2 ) /2 * $slen ) 
 			      );
+
 		       $self->debug( "h is $h fij = $fij ci1 =$ci1 cj1=$cj1 ci2=$ci2 cj2=$cj2\n");
 		   }
 	       }
@@ -603,11 +688,21 @@ sub D_TajimaNei{
 	   $self->debug("h is $h fij2 is $fij2 b is $b\n");
 
 	   my $d = (-1 * $b) * log ( 1 - $D/ $b);
-	   $DVals[$i]->[$j] = $DVals[$j]->[$i] = $d;
+	   
+	   # fwd and rev lookup
+	   $dist{$names[$i]}->{$names[$j]} = [$i,$j];
+	   $dist{$names[$j]}->{$names[$i]} = [$i,$j];	   
+	   $values[$j][$i] = $values[$i][$j] = sprintf($precisionstr,$d);
+
+           # (diagonals) distance is 0 for same sequence
+	   $dist{$names[$j]}->{$names[$j]} = [$j,$j];	   
+	   $values[$j][$j] = sprintf($precisionstr,0); 
        }
    }
-   return \@DVals;
-
+   return Bio::Matrix::PhylipDist->new(-program => 'bioperl_DNAstats',
+				       -matrix  => \%dist,
+				       -names   => \@names,
+				       -values  => \@values); 
 
 }
 
