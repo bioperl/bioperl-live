@@ -454,7 +454,7 @@ Contents
    Q5.1: I get the warning "(old style Annotation) on new style
 	 Annotation::Collection".  What is wrong?
 
-      A: This is because we have transitioned from a the
+      A: This is because we have transitioned from the
 	 add_Comment/each_Comment, add_Reference/each_Reference style to
 	 add_Annotation('comment', $ann)/get_Annotations('comment). Please
 	 update your code in order to avoid seeing these warning messages.
@@ -474,24 +474,25 @@ Contents
       A: To get all the features:
 
 	 
-	       my @features = $seq->all_SeqFeatures();
+	   my @features = $seq->all_SeqFeatures();
 
 	 To get all the features filtering on only those which have the
 	 primary tag 'exon'.
 
 	 
-	       my @genes    = grep { $_->primary_tag eq 'exon'}
-	 $seq->all_SeqFeatures();
+	   my @genes = grep { $_->primary_tag eq 'exon'} 
+		       $seq->all_SeqFeatures();
 
 	 To get all the features filtering on this which have the tag
 	 'note' and within the note field contain the requested string
 	 $noteval.
 
 	 
-	       my @f_with_note = grep { my @a = $_->has_tag('note') ?
-					$_->each_tag_value('note') : ();
-					grep { /$noteval/ } @a; }
-				 $seq->all_SeqFeatures(); 
+	   my @f_with_note = grep { 
+				    my @a = $_->has_tag('note') ?
+				    $_->each_tag_value('note') : (); 
+				    grep { /$noteval/ } @a; 
+				  }  $seq->all_SeqFeatures(); 
 
 ---------------------------------------------------------------------------
 Copyright (c)2002 Open Bioinformatics Foundation. You may distribute this
