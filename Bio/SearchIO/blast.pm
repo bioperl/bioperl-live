@@ -204,7 +204,7 @@ sub next_result{
    while( defined ($_ = $self->_readline )) {
        next if( /^\s+$/); # skip empty lines
        next if( /CPU time:/);
-       if( /^([T]?BLAST[NPX])\s*(\S+)/i ) {
+       if( /^([T]?BLAST[NPX])\s*(.+)$/i ) {
 	   if( $seentop ) {
 	       $self->_pushback($_);
 	       $self->end_element({ 'Name' => 'BlastOutput'});
