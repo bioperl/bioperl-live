@@ -18,7 +18,7 @@ BEGIN {
     plan tests => 41;
 }
 
-use Bio::Ontology::GOterm;
+use Bio::Ontology::Term;
   
 my $obj = Bio::Ontology::Term->new();
 
@@ -76,11 +76,11 @@ ok( $obj->add_synonyms( ( "AA", "AB" ) ) );
 
 
 $obj->init();
-ok( $obj->identifier(), "" );
-ok( $obj->name(), "" );
-ok( $obj->definition(), "" );
+ok( $obj->identifier(), undef );
+ok( $obj->name(), undef );
+ok( $obj->definition(), undef );
 ok( $obj->is_obsolete(), 0 );
-ok( $obj->comment(), "" );
+ok( $obj->comment(), undef );
 
 
 $obj = Bio::Ontology::Term->new( -identifier  => "0016847",

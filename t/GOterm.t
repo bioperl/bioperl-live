@@ -120,10 +120,10 @@ ok( $obj->add_secondary_GO_ids( ( "GO:1234567", "GO:1234567" ) ) );
 
 $obj->init();
 ok( $obj->identifier(), "GO:-------" );
-ok( $obj->name(), "" );
-ok( $obj->definition(), "" );
+ok( $obj->name(), undef );
+ok( $obj->definition(), undef );
 ok( $obj->is_obsolete(), 0 );
-ok( $obj->comment(), "" );
+ok( $obj->comment(), undef );
 
 
 $obj = Bio::Ontology::GOterm->new( -go_id       => "0016847",

@@ -135,13 +135,13 @@ sub new {
          $version,     
          $is_obsolete,       
          $comment )
-    = $self->_rearrange( [ qw( IDENTIFIER
-                               NAME
-                               DEFINITION
-                               CATEGORY 
-                               VERSION    
-                               IS_OBSOLETE      
-                               COMMENT ) ], @args );
+	= $self->_rearrange( [ qw( IDENTIFIER
+				   NAME
+				   DEFINITION
+				   CATEGORY 
+				   VERSION    
+				   IS_OBSOLETE      
+				   COMMENT ) ], @args );
    
     $self->init(); 
     
@@ -192,7 +192,7 @@ sub identifier {
     my ( $self, $value ) = @_;
 
     if ( defined $value ) {
-        $self->{ "_identifier" } = $value;
+        $self->{ "_identifier" } = $value ? $value : undef; # no empty string
     }
 
     return $self->{ "_identifier" };
@@ -218,7 +218,7 @@ sub name {
     my ( $self, $value ) = @_;
 
     if ( defined $value ) {
-        $self->{ "_name" } = $value;
+        $self->{ "_name" } = $value ? $value : undef; # no empty string
     }
 
     return $self->{ "_name" };
@@ -245,7 +245,7 @@ sub definition {
     my ( $self, $value ) = @_;
 
     if ( defined $value ) {
-        $self->{ "_definition" } = $value;
+        $self->{ "_definition" } = $value ? $value : undef; # no empty string
     }
 
     return $self->{ "_definition" };
@@ -272,7 +272,11 @@ sub category {
      my ( $self, $value ) = @_;
     
     if ( defined $value ) {
-        if ( ! ref( $value ) ) {
+	if(! $value) {
+            # no empty string here
+	    $self->{"_category"} = undef;
+	}
+	elsif ( ! ref( $value ) ) {
             my $term = $self->new();
             $term->name( $value );
             $self->{ "_category" } = $term; 
@@ -308,7 +312,7 @@ sub version {
     my ( $self, $value ) = @_;
 
     if ( defined $value ) {
-        $self->{ "_version" } = $value;
+        $self->{ "_version" } = $value ? $value : undef; # no empty string
     }
 
     return $self->{ "_version" };
@@ -361,7 +365,7 @@ sub comment {
     my ( $self, $value ) = @_;
 
     if ( defined $value ) {
-        $self->{ "_comment" } = $value;
+        $self->{ "_comment" } = $value ? $value : undef; # no empty string
     }
    
     return $self->{ "_comment" };

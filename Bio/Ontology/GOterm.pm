@@ -1,4 +1,4 @@
-# $Id Exp $
+# $Id$
 #
 # BioPerl module for Bio::Ontology::GOterm
 #
@@ -142,13 +142,13 @@ sub new {
          $version,     
          $is_obsolete,       
          $comment )
-    = $self->_rearrange( [ qw( GO_ID
-                               NAME
-                               DEFINITION
-                               CATEGORY 
-                               VERSION    
-                               IS_OBSOLETE      
-                               COMMENT ) ], @args );
+	= $self->_rearrange( [ qw( GO_ID
+				   NAME
+				   DEFINITION
+				   CATEGORY 
+				   VERSION    
+				   IS_OBSOLETE      
+				   COMMENT ) ], @args );
    
     $self->init(); 
     
