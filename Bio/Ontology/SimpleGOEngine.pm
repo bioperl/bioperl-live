@@ -805,9 +805,9 @@ sub _get_id {
 	$term = $term->identifier();
     }
     # don't fuss if it looks remotely standard
-    return $term if $term =~ /^[A-Z]{1,8}:\d{7}$/;
+    return $term if $term =~ /^[A-Z]{1,8}:\d{3,}$/;
     # prefix with something if only numbers
-    if($term =~ /^\d{7}$/) {
+    if($term =~ /^\d+$/) {
 	$self->warn(ref($self).": identifier [$term] is only numbers - ".
 		    "prefixing with 'GO:'");
 	return "GO:" . $term;

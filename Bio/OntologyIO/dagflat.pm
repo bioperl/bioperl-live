@@ -221,7 +221,12 @@ sub ontology_name{
 
 sub parse {
     my $self = shift;
-    
+
+    # setup the default term factory if not done by anyone yet
+    $self->term_factory(Bio::Ontology::TermFactory->new(
+					     -type => "Bio::Ontology::Term"))
+	unless $self->term_factory();
+
     # create the ontology object itself
     my $ont = Bio::Ontology::Ontology->new(-name => $self->ontology_name(),
 					   -engine => $self->_ont_engine());
@@ -545,8 +550,8 @@ warn $line;
 # Parses the 1st term id number out of line.
 sub _get_first_termid {
     my ( $self, $line ) = @_;
-
-    if ( $line =~ /;\s*([A-Z_]{1,8}:\d{1,7})/ ) {
+    
+    if ( $line =~ /;\s*([A-Z]{1,8}:\d{3,})/ ) {
         return $1;
     }
     else {
@@ -609,7 +614,7 @@ sub _get_db_cross_refs {
    
     while ( $line =~ /;([^;^<^%^:]+:[^;^<^%^:]+)/g ) {
         my $ref = $1;
-        if ( $ref =~ /synonym/ || $ref =~ /[A-Z]{1,8}:\d{1,7}/ ) {
+        if ( $ref =~ /synonym/ || $ref =~ /[A-Z]{1,8}:\d{3,}/ ) {
             next;
         }
         $ref =~ s/\s+$//;
@@ -626,7 +631,7 @@ sub _get_secondary_termids {
     my ( $self, $line ) = @_;
     my @secs = ();
    
-    while ( $line =~ /,\s*([A-Z]{1,8}:\d{1,7})/g ) {
+    while ( $line =~ /,\s*([A-Z]{1,8}:\d{3,})/g ) {
         my $sec = $1;
         push( @secs, $sec );
     }
@@ -642,9 +647,9 @@ sub _get_isa_termids {
     
     my @ids = ();
     
-    $line =~ s/[A-Z]{1,8}:\d{1,7}//;
+    $line =~ s/[A-Z]{1,8}:\d{3,}//;
     
-    while ( $line =~ /%[^<^,]*?([A-Z]{1,8}:\d{1,7})/g ) {
+    while ( $line =~ /%[^<^,]*?([A-Z]{1,8}:\d{3,})/g ) {
         push( @ids, $1 );
     }
     return @ids; 
@@ -658,9 +663,9 @@ sub _get_partof_termids {
     
     my @ids = ();
     
-    $line =~ s/[A-Z]{1,8}:\d{1,7}//;
+    $line =~ s/[A-Z]{1,8}:\d{3,}//;
     
-    while ( $line =~ /<[^%^,]*?([A-Z]{1,8}:\d{1,7})/g ) {
+    while ( $line =~ /<[^%^,]*?([A-Z]{1,8}:\d{3,})/g ) {
         push( @ids, $1 );
     }
     return @ids; 
