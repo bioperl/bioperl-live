@@ -11,7 +11,7 @@ BEGIN {
         use lib 't';
     }
     use Test;
-    $TESTCOUNT = 284;
+    $TESTCOUNT = 353;
     # interpro uses XML::DOM
     eval {require XML::DOM::XPath};
     if ($@) {
@@ -94,7 +94,8 @@ END {
 my ($str, $seq,$ast,$temp,$mf,$ent,$out); # predeclare variables for strict
 # PIR testing
 
-$str = Bio::SeqIO->new('-file' => Bio::Root::IO->catfile("t","data","seqfile.pir"),
+$str = Bio::SeqIO->new('-file' => Bio::Root::IO->catfile("t","data",
+                                                         "seqfile.pir"),
                        '-format' => 'pir');
 ok $str;
 $out = new Bio::SeqIO(-format => 'pir', -fh => \*STDOUT);
@@ -106,7 +107,8 @@ while( $seq = $str->next_seq()) {
 }
 $out = undef;
 $ast = Bio::SeqIO->new( '-format' => 'GenBank' ,
-'-file' => Bio::Root::IO->catfile("t","data","roa1.genbank"));
+                        '-file' => Bio::Root::IO->catfile("t","data",
+                                                          "roa1.genbank"));
 $ast->verbose($verbosity);
 my $as = $ast->next_seq();
 ok $as->molecule, 'mRNA';
@@ -115,8 +117,8 @@ ok($as->primary_id, 3598416);
 
 
 $ast = Bio::SeqIO->new( '-format' => 'genbank' ,
-'-file' => Bio::Root::IO->catfile("t","data",
-  "NT_021877.gbk"));
+                        '-file' => Bio::Root::IO->catfile("t","data",
+                                                          "NT_021877.gbk"));
 $ast->verbose($verbosity);
 $as = $ast->next_seq();
 ok $as->molecule, 'DNA';
@@ -129,7 +131,8 @@ ok(($cds->get_tag_values('transl_except'))[1],
    '(pos:complement(4224..4226),aa:OTHER)');
 # embl
 $ast = Bio::SeqIO->new( '-format' => 'embl' ,
-'-file' => Bio::Root::IO->catfile("t","data","roa1.dat"));
+                        '-file' => Bio::Root::IO->catfile("t","data",
+                                                          "roa1.dat"));
 $ast->verbose($verbosity);
 $as = $ast->next_seq();
 ok defined $as->seq;
@@ -213,13 +216,14 @@ $temp = undef;
 
 # swissprot
 $ast = Bio::SeqIO->new( '-verbosity' => $verbosity,
-'-format' => 'swiss' ,
-'-file' => Bio::Root::IO->catfile("t","data","roa1.swiss"));
+                        '-format' => 'swiss' ,
+                        '-file' => Bio::Root::IO->catfile("t","data",
+                                                          "roa1.swiss"));
 $as = $ast->next_seq();
 
 ok defined $as->seq;
 ok($as->id, 'ROA1_HUMAN', "id is ".$as->id);
-ok($as->primary_id =~ /^Bio::PrimarySeq/);
+ok($as->primary_id =~ /^Bio::(Primary)?Seq/);
 ok($as->length, 371);
 ok($as->alphabet, 'protein');
 ok($as->division, 'HUMAN');
@@ -272,7 +276,7 @@ unless ($NODOM) {
 
     my $esc_name = $a_seq[1]->display_id;
     ok( $esc_name , 'Name; 4% strewn with \ various / escaped characters',
-"bad unescaping of characters, $esc_name");
+        "bad unescaping of characters, $esc_name");
 
     ok $a_seq[0]->alphabet, 'protein', 'alphabets incorrectly detected';
     ok $a_seq[1]->alphabet, 'dna', 'alphabets incorrectly detected';
@@ -304,8 +308,9 @@ unless ($NODOM) {
 # streaming & Bio::RichSeq creation
 #
 
-my $stream = Bio::SeqIO->new('-file' => Bio::Root::IO->catfile("t","data","test.genbank"),
-     '-format' => 'GenBank');
+my $stream = Bio::SeqIO->new('-file' => Bio::Root::IO->catfile("t","data",
+                                                               "test.genbank"),
+                             '-format' => 'GenBank');
 $stream->verbose($verbosity);
 my $seqnum = 0;
 my $species;
@@ -342,14 +347,15 @@ while($seq = $stream->next_seq()) {
     if($seqnum < 3) {
         ok $seq->display_id(), $ids[$seqnum];
     } elsif( $seq->display_id eq 'M37762') {
-ok( ($seq->get_keywords())[0], 'neurotrophic factor');
+        ok( ($seq->get_keywords())[0], 'neurotrophic factor');
     }
     $seqnum++;
 }
 ok $seqnum, 5, "Total number of sequences in test file";
 
-$ent = Bio::SeqIO->new( '-file' => Bio::Root::IO->catfile("t","data","test.embl"),
-'-format' => 'embl');
+$ent = Bio::SeqIO->new( '-file' => Bio::Root::IO->catfile("t","data",
+                                                          "test.embl"),
+                        '-format' => 'embl');
 $ent->verbose($verbosity);
 $seq = $ent->next_seq();
 $species = $seq->species();
@@ -358,7 +364,8 @@ ok( $cl[3] ne $species->genus(), 1, 'genus duplicated in EMBL parsing');
 $ent->close();
 
 $seq = Bio::SeqIO->new( '-format' => 'GenBank' ,
--file => Bio::Root::IO->catfile("t","data","testfuzzy.genbank"));
+                        '-file' =>Bio::Root::IO->catfile("t","data",
+                                                         "testfuzzy.genbank"));
 $seq->verbose($verbosity);
 ok(defined($as = $seq->next_seq()));
 
@@ -388,19 +395,21 @@ ok($loc->start, 84248);
 ok($loc->end, 84996);
 ok($loc->strand,1);
 
-$seq = Bio::SeqIO->new( '-format' => 'GenBank' ,
--file => ">".Bio::Root::IO->catfile("t","data","genbank.fuzzyout"));
+$seq = Bio::SeqIO->new(-format => 'GenBank' ,
+                       -file=> ">".Bio::Root::IO->catfile("t","data",
+                                                          "genbank.fuzzyout"));
 $seq->verbose($verbosity);
 ok($seq->write_seq($as));
 unlink(Bio::Root::IO->catfile("t","data","genbank.fuzzyout"));
 
 my $seqio = Bio::SeqIO->new( '-format' => 'swiss' ,
-  -file => Bio::Root::IO->catfile("t","data","swiss.dat"));
+                             '-file' => Bio::Root::IO->catfile("t","data",
+                                                             "swiss.dat"));
 
 ok(defined( $seq = $seqio->next_seq));
 
 # more tests to verify we are actually parsing correctly
-ok($seq->primary_id =~ /^Bio::PrimarySeq/);
+ok($seq->primary_id =~ /^Bio::(Primary)?Seq/);
 ok($seq->display_id, 'MA32_HUMAN');
 ok($seq->length, 282);
 ok($seq->division, 'HUMAN');
@@ -420,7 +429,7 @@ ok $ann->value(-joins => [" AND "," OR "]), "GC1QBP OR HABP1 OR SF2P32 OR C1QBP"
 # test for feature locations like ?..N
 ok(defined( $seq = $seqio->next_seq));
 
-ok($seq->primary_id =~ /^Bio::PrimarySeq/);
+ok($seq->primary_id =~ /^Bio::(Primary)?Seq/);
 ok($seq->display_id, 'ACON_CAEEL');
 ok($seq->length, 788);
 ok($seq->division, 'CAEEL');
@@ -481,6 +490,77 @@ foreach my $gn (@ann_names2) {
 }
 ok ($ann->value(-joins => [" AND "," OR "]), $flatnames);
 
+# test proper parsing of references
+my @litrefs = $seq->annotation->get_Annotations('reference');
+ok (scalar(@litrefs), 17);
+
+my @titles = (
+    '"Complete amino acid sequence of human brain calmodulin."',
+    '"Multiple divergent mRNAs code for a single human calmodulin."',
+    '"Molecular analysis of human and rat calmodulin complementary DNA clones. Evidence for additional active genes in these species."',
+    '"Isolation and nucleotide sequence of a cDNA encoding human calmodulin."',
+    '"Structure of the human CALM1 calmodulin gene and identification of two CALM1-related pseudogenes CALM1P1 and CALM1P2."',
+    undef,
+    '"Characterization of the human CALM2 calmodulin gene and comparison of the transcriptional activity of CALM1, CALM2 and CALM3."',
+    '"Cloning of human full-length CDSs in BD Creator(TM) system donor vector."',
+    '"The DNA sequence and analysis of human chromosome 14."',
+    '"Generation and initial analysis of more than 15,000 full-length human and mouse cDNA sequences."',
+    '"Alpha-helix nucleation by a calcium-binding peptide loop."',
+    '"Solution structure of Ca(2+)-calmodulin reveals flexible hand-like properties of its domains."',
+    '"Calmodulin structure refined at 1.7 A resolution."',
+    '"Drug binding by calmodulin: crystal structure of a calmodulin-trifluoperazine complex."',
+    '"Structural basis for the activation of anthrax adenylyl cyclase exotoxin by calmodulin."',
+    '"Physiological calcium concentrations regulate calmodulin binding and catalysis of adenylyl cyclase exotoxins."',
+    '"Crystal structure of a MARCKS peptide containing the calmodulin-binding domain in complex with Ca2+-calmodulin."',
+);
+
+my @locs = (
+    "Biochemistry 21:2565-2569(1982).",
+    "J. Biol. Chem. 263:17055-17062(1988).",
+    "J. Biol. Chem. 262:16663-16670(1987).",
+    "Biochem. Int. 9:177-185(1984).",
+    "Eur. J. Biochem. 225:71-82(1994).",
+    "Submitted (FEB-1995) to the EMBL/GenBank/DDBJ databases.",
+    "Cell Calcium 23:323-338(1998).",
+    "Submitted (MAY-2003) to the EMBL/GenBank/DDBJ databases.",
+    "Nature 421:601-607(2003).",
+    "Proc. Natl. Acad. Sci. U.S.A. 99:16899-16903(2002).",
+    "Proc. Natl. Acad. Sci. U.S.A. 96:903-908(1999).",
+    "Nat. Struct. Biol. 8:990-997(2001).",
+    "J. Mol. Biol. 228:1177-1192(1992).",
+    "Biochemistry 33:15259-15265(1994).",
+    "Nature 415:396-402(2002).",
+    "EMBO J. 21:6721-6732(2002).",
+    "Nat. Struct. Biol. 10:226-231(2003).",
+);
+
+my @positions = (
+    undef, undef,
+    undef, undef,
+    undef, undef,
+    undef, undef,
+    undef, undef,
+    undef, undef,
+    undef, undef,
+    undef, undef,
+    undef, undef,
+    undef, undef,
+    94, 103,
+    1, 76,
+    undef, undef,
+    undef, undef,
+    5, 148,
+    1, 148,
+    undef, undef,
+);
+
+foreach my $litref (@litrefs) {
+    ok ($litref->title, shift(@titles));
+    ok ($litref->location, shift(@locs));
+    ok ($litref->start, shift(@positions));
+    ok ($litref->end, shift(@positions));
+}
+
 # test dos Linefeeds in gcg parser
 $str = Bio::SeqIO->new('-file' => Bio::Root::IO->catfile("t","data","test_badlf.gcg"),
        '-format' => 'GCG');
@@ -492,8 +572,7 @@ print "Sequence 1 of 1 from GCG stream:\n", $seq->seq, "\n" if( $DEBUG);
 
 
 $str  = new Bio::SeqIO(-format => 'genbank',
-       -file   => Bio::Root::IO->catfile("t","data",
-"AF165282.gb"),
+       -file   => Bio::Root::IO->catfile("t","data","AF165282.gb"),
        -verbose => $verbosity);
 
 $seq = $str->next_seq;
@@ -536,12 +615,12 @@ unlink("primaryseq.embl");
 
 # revcomp split location
 my $gb = new Bio::SeqIO(-format => 'genbank',
-    -file   => Bio::Root::IO->catfile(qw(t data revcomp_mrna.gb)));
+                        -file   => Bio::Root::IO->catfile(qw(t data revcomp_mrna.gb)));
 
 $seq = $gb->next_seq();
 
 $gb = new Bio::SeqIO(-format => 'genbank',
-    -file   => ">tmp_revcomp_mrna.gb");
+                     -file   => ">tmp_revcomp_mrna.gb");
 
 $gb->write_seq($seq);
 undef $gb;
@@ -554,8 +633,8 @@ unlink("tmp_revcomp_mrna.gb");
 
 # test secondary accessions in EMBL (bug #1332)
 
-$seqio = new Bio::SeqIO(-format =>'embl', -file => Bio::Root::IO->catfile
-( qw(t data ECAPAH02.embl)));
+$seqio = new Bio::SeqIO(-format =>'embl', 
+                        -file => Bio::Root::IO->catfile( qw(t data ECAPAH02.embl)));
 $seq = $seqio->next_seq;
 
 ok($seq->accession_number, 'D10483');
@@ -565,8 +644,7 @@ ok($accs[0], 'J01597');
 ok($accs[-1], 'X56742');
 
 $seqio = new Bio::SeqIO(-format => 'genbank',
--file   => Bio::Root::IO->catfile(qw(t data
-     D10483.gbk)));
+                        -file=> Bio::Root::IO->catfile(qw(t data D10483.gbk)));
 
 $seq = $seqio->next_seq;
 @kw =  $seq->get_keywords;
