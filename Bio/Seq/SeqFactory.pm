@@ -18,8 +18,8 @@ Bio::Seq::SeqFactory - Instantiates a new Bio::PrimarySeqI (or derived class) th
 
     use Bio::Seq::SeqFactory;
     my $factory = new Bio::Seq::SeqFactory(-type => 'Bio::PrimarySeq');
-    my $seq = $factory->create_sequence(-seq => 'WYRAVLC',
-				     -id  => 'name');
+    my $seq = $factory->create(-seq => 'WYRAVLC',
+			       -id  => 'name');
 
 =head1 DESCRIPTION
 
@@ -70,8 +70,6 @@ package Bio::Seq::SeqFactory;
 use vars qw(@ISA);
 use strict;
 
-# Object preamble - inherits from Bio::Root::Root
-
 use Bio::Root::Root;
 use Bio::Factory::SequenceFactoryI;
 
@@ -102,9 +100,9 @@ sub new {
 }
 
 
-=head2 create_sequence
+=head2 create
 
- Title   : create_sequence
+ Title   : create
  Usage   : my $seq = $seqbuilder->create_sequence(-seq => 'CAGT', -id => 'name');
  Function: Instantiates new Bio::SeqI (or one of its child classes)
            This object allows us to genericize the instantiation of sequence
@@ -117,7 +115,7 @@ sub new {
 
 =cut
 
-sub create_sequence{
+sub create {
    my ($self,@args) = @_;
    return $self->type->new(-verbose => $self->verbose, @args);
 }

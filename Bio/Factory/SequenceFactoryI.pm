@@ -77,11 +77,11 @@ use vars qw(@ISA);
 use strict;
 @ISA = qw(Bio::Root::RootI);
 
-=head2 create_sequence
+=head2 create
 
- Title   : create_sequence
- Usage   : my $seq = $seqbuilder->create_sequence(-seq => 'CAGT', 
-						  -id => 'name');
+ Title   : create
+ Usage   : my $seq = $seqbuilder->create(-seq => 'CAGT', 
+					 -id => 'name');
  Function: Instantiates new Bio::PrimarySeqI (or one of its child classes)
            This object allows us to genericize the instantiation of sequence
            objects.
@@ -92,10 +92,5 @@ use strict;
            -display_id => $name
 
 =cut
-
-sub create_sequence{
-   my ($self,@args) = @_;
-   $self->throw_not_implemented();
-}
 
 1;
