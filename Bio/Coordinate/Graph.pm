@@ -372,7 +372,7 @@ sub dijkstra {
 	#select the node closest to current one, or root node
 	my $min_node;
 	my $min = $maxdist;
-	foreach my $node (keys %est) {
+	foreach my $node (reverse sort keys %est) {
 	    if ( $est{$node}{'dist'} < $min ) {
 		$min = $est{$node}{'dist'};
 		$min_node = $node;
