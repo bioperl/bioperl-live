@@ -79,7 +79,10 @@ sub new {
  Title   : register_driver
  Usage   : $factory->register_driver("genscan", "Bio::Tools::Genscan");
  Function: Registers a driver a factory class should be able to instantiate.
- Example : 
+
+           This method can be called both as an instance and as a class
+           method.
+
  Returns : 
  Args    : Key of the driver (string) and the module implementing the driver
            (string).
@@ -91,8 +94,41 @@ sub register_driver {
     my %drivers = @args;
 
     foreach my $drv (keys(%drivers)) {
-	$DRIVERS{$drv} = $drivers{$drv};
+	# note that this doesn't care whether $self is the class or the object
+	$self->driver_table()->{$drv} = $drivers{$drv};
     }
+}
+
+=head2 driver_table
+
+ Title   : driver_table
+ Usage   : $table = $factory->driver_table();
+ Function: Returns a reference to the hash table storing associations of
+           methods with drivers.
+
+           You use this table to look up registered methods (keys) and
+           drivers (values).
+
+           In this implementation the table is class-specific and therefore
+           shared by all instances. You can override this in a derived class,
+           but note that this method can be called both as an instance and a
+           class method.
+
+           This will be the table used by the object internally. You should
+           definitely know what you're doing if you modify the table's
+           contents. Modifications are shared by _all_ instances, those present
+           and those yet to be created.
+
+ Returns : A reference to a hash table.
+ Args    : 
+
+
+=cut
+
+sub driver_table {
+    my ($self, @args) = @_;
+
+    return \%DRIVERS;
 }
 
 =head2 get_driver
@@ -109,7 +145,10 @@ sub register_driver {
 
 sub get_driver {
     my ($self, $key) = @_;
-    return $DRIVERS{$key} if(exists($DRIVERS{$key}));
+
+    if(exists($self->driver_table()->{$key})) {
+	return $self->driver_table()->{$key};
+    }
     return undef;
 }
 
