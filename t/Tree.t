@@ -14,7 +14,9 @@ BEGIN {
 	use lib 't';
     }
     use Test;
-    plan tests => 3;
+    use vars qw($TESTCOUNT);
+    $TESTCOUNT = 7;
+    plan tests => $TESTCOUNT;
 }
 
 use Bio::TreeIO;
@@ -62,3 +64,42 @@ my ($iADHX) = $tree->find_node('iADHX');
 
 ok(! $tree->is_monophyletic(-nodes   => \@mixgroup,
 			    -outgroup=> $iADHX));
+
+my $in = new Bio::TreeIO(-format => 'newick',
+			 -fh     => \*DATA);
+$tree = $in->next_tree;
+
+my ($a,$b,$c,$d,$f,$i) = ( $tree->find_node('A'),
+			   $tree->find_node('B'),
+			   $tree->find_node('C'),
+			   $tree->find_node('D'));
+
+ok($tree->is_monophyletic(-nodes => [$b,$c],
+			  -outgroup => $d));
+
+ok($tree->is_monophyletic(-nodes => [$b,$a],
+			  -outgroup => $d) );
+
+$tree = $in->next_tree;
+($a,$b,$c,$d,$f,$i) = ( $tree->find_node('A'),
+			$tree->find_node('B'),
+			$tree->find_node('C'),
+			$tree->find_node('D'),
+			$tree->find_node('F'),
+			$tree->find_node('I'),
+			);
+ok(! $tree->is_monophyletic(-nodes => [$b,$f],
+			    -outgroup => $d) );
+
+ok($tree->is_monophyletic(-nodes => [$b,$a],
+			  -outgroup => $f));
+
+# test for paraphyly
+
+#ok(  $tree->is_paraphyletic(-nodes => [$a,$b,$c],
+#			   -outgroup => $d) );
+    
+
+__DATA__
+(D,(C,(A,B)));
+(I,((D,(C,(A,B))),(E,(F,G))));
