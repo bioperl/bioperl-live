@@ -1,4 +1,4 @@
-## $Id: bioperl.pod,v 1.26 2002-05-17 16:01:35 bosborne Exp $
+## $Id: bioperl.pod,v 1.27 2002-05-31 16:47:55 bosborne Exp $
 
 ## Should contain general info about the distribution including
 ## links to many modules.
@@ -126,6 +126,11 @@ I<examples/gsequence> - create a Protein Sequence Control Panel GUI with Gtk
 
 I<examples/hitdisplay.pl> - create a GUI for displaying Blast results using
 Tk::HitDisplay. Please see L<Bio::Tk::HitDisplay> for more information
+
+I<examples/pise/*> - scripts that demonstrate how to use Pise to run 
+bioinformatic applications and parse their output (Pise integrates
+with more than 250 different apps, including EMBOSS!) See 
+L<Bio::Tools::Run::PiseApplication> for more information.
 
 I<examples/psw.pl> - example code for using the XS extensions for a protein
 Smith-Waterman comparison
