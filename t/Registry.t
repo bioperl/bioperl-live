@@ -5,10 +5,7 @@
 
 use strict;
 my $old_search_path;
-
-eval {require DB_File;
-      require BerkeleyDB; };
-my $have_DB_File = 1 unless $@;
+use vars qw($old_search_path $have_DB_File);
 
 BEGIN {
    eval { require Test; };
@@ -16,9 +13,8 @@ BEGIN {
       use lib 't','..';
    }
    use Test;
-
+   $have_DB_File = 0;
    $old_search_path = $ENV{OBDA_SEARCH_PATH} if defined $ENV{OBDA_SEARCH_PATH};
-
    eval {require DB_File;
          require BerkeleyDB;};
    if ($@) {
@@ -26,6 +22,7 @@ BEGIN {
       print STDERR "DB_File and BerkeleyDB not found. Skipping DB_File tests\n";
       plan tests => 6;
    } else {
+      $have_DB_File = 1;
       $ENV{OBDA_SEARCH_PATH} = 't/data/registry/flat;t/data/registry/bdb';
       plan tests => 11;
    }
