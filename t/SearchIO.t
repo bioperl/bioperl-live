@@ -20,7 +20,7 @@ BEGIN {
 	use lib 't';
     }
     use vars qw($NTESTS);
-    $NTESTS = 1031;
+    $NTESTS = 1032;
     $LASTXMLTEST = 54;
     $error = 0;
 
@@ -1476,6 +1476,7 @@ my %pair = ( 'filename.blast'  => 'blast',
 	     'f.fy'            => 'fasta',
 	     'f.ssearch'       => 'fasta',
 	     'f.SSEARCH.m9'    => 'fasta',
+	     'f.m9'            => 'fasta',
 	     'f.psearch'       => 'fasta',
 	     'f.osearch'       => 'fasta',
 	     'f.exon'          => 'exonerate',

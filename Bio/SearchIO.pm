@@ -419,7 +419,7 @@ sub _guess_format {
 		       m\d+ |
 		       (?: t? (?: fa |  fx |  fy |  ff |  fs ) ) |
 		       (?: (?:ss | os | ps) (?:earch)? ))
-		      $/ix || /\.m9$/ );
+		      $/ix );
    return 'blastxml' if ( /\.(blast)?xml$/i);
    return 'exonerate' if ( /\.exon(erate)?/i );
 }
