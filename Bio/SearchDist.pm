@@ -91,7 +91,7 @@ methods. Internal methods are usually preceded with a _
 
 
 package Bio::SearchDist;
-use vars qw($AUTOLOAD @ISA);
+use vars qw(@ISA);
 use strict;
 
 # Object preamble - inheriets from Bio::Root::Object
@@ -109,8 +109,7 @@ BEGIN {
 }
 
 
-@ISA = qw(Bio::Root::Object Exporter);
-@EXPORT_OK = qw();
+@ISA = qw(Bio::Root::Object);
 # new() is inherited from Bio::Root::Object
 
 # _initialize is where the heavy stuff will happen when new is called

@@ -81,14 +81,13 @@ The rest of the documentation details each of the object methods. Internal metho
 
 package Bio::Index::SwissPfam;
 
-use vars qw($VERSION @ISA @EXPORT_OK);
+use vars qw($VERSION @ISA);
 use strict;
 
 use Bio::Index::Abstract;
 use Bio::Seq;
 
-@ISA = qw(Bio::Index::Abstract Exporter);
-@EXPORT_OK = qw();
+@ISA = qw(Bio::Index::Abstract);
 
 sub _type_stamp {
     return '__SWISSPFAM__'; # What kind of index are we?

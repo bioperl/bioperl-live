@@ -114,7 +114,7 @@ The rest of the documentation details each of the object methods. Internal metho
 
 
 package Bio::Tools::pSW;
-use vars qw($AUTOLOAD @ISA);
+use vars qw(@ISA);
 use strict;
 no strict ( 'refs');
 
@@ -122,7 +122,7 @@ use Bio::Tools::AlignFactory;
 use Bio::SimpleAlign;
 
 
-@ISA = qw(Bio::Tools::AlignFactory Exporter);
+@ISA = qw(Bio::Tools::AlignFactory);
 
 BEGIN {
     eval {

@@ -25,6 +25,7 @@
 #------------------------------------------------------------------------
 
 package Bio::Tools::Blast::Run::Webblast;
+use strict;
 
 # rnc: now uses HTTP and LWP.
 # sac: Make sure HTTP and LWP are available.
@@ -53,6 +54,8 @@ use Bio::Root::Utilities qw(:obj);
 use Bio::Tools::Blast::HTML qw(&strip_html);
 use Carp;
 
+use Exporter;
+use vars qw(@ISA @EXPORT @EXPORT_OK %EXPORT_TAGS);
 @ISA        = qw(Exporter);
 @EXPORT     = qw();
 @EXPORT_OK  = qw(&blast_remote @Blast_dbp_remote @Blast_dbn_remote 

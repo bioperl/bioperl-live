@@ -14,16 +14,11 @@ package Bio::Tools::SeqAnal;
 
 use Bio::Root::Object ();
 use Bio::Root::Global qw(:std);
-use Exporter          ();
-
-@ISA        = qw( Bio::Root::Object Exporter );
-@EXPORT     = qw();
-@EXPORT_OK  = qw();
-%EXPORT_TAGS = ();
 
 use strict;
-use vars qw($ID $VERSION);
+use vars qw($ID $VERSION @ISA);
 
+@ISA        = qw( Bio::Root::Object );
 $ID = 'Bio::Tools::SeqAnal';
 $VERSION  = 0.011;  
 

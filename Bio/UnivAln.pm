@@ -3,6 +3,7 @@
 # http://www.techfak.uni-bielefeld.de/bcd/Perl/Bio/welcome.html
 
 package Bio::UnivAln;
+use strict;
 
 use vars qw ($VERSION $Revision);
 
@@ -926,14 +927,14 @@ doing :-)
 
 =cut
 
-require Exporter;
+use Exporter;
+use vars qw( @ISA  @EXPORT @EXPORT_OK );
 @ISA         = qw(Exporter);
 @EXPORT      = qw();
 @EXPORT_OK   = qw($VERSION %UnivAlnType @UnivAlnType %UnivAlnForm @UnivAlnForm %UnivAlnAlphs @UnivAlnAlphs);
 require 5.002;
 use Carp;
 #if ($] < 5.005) {carp "Not tested for Perl 5.002 or 5.003";}
-use strict;
 use POSIX;
 use File::Basename;
 

@@ -73,7 +73,7 @@ use strict;
 use Bio::Root::Object;
 
 
-@ISA = qw(Bio::Root::Object Exporter);
+@ISA = qw(Bio::Root::Object);
 # new() is inherited from Bio::Root::Object
 
 # _initialize is where the heavy stuff will happen when new is called

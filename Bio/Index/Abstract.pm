@@ -72,8 +72,8 @@ package Bio::Index::Abstract;
 
 use strict;
 use Fcntl qw( O_RDWR O_CREAT O_RDONLY );
-use vars qw( $TYPE_AND_VERSION_KEY $AUTOLOAD
-             @ISA @EXPORT_OK $USE_DBM_TYPE $DB_HASH );
+use vars qw( $TYPE_AND_VERSION_KEY
+             @ISA $USE_DBM_TYPE $DB_HASH );
 
 $USE_DBM_TYPE = 'SDBM_File'; # Choose 'DB_File' or 'SDMB_File'
 
@@ -81,8 +81,7 @@ $USE_DBM_TYPE = 'SDBM_File'; # Choose 'DB_File' or 'SDMB_File'
 
 use Bio::Root::Object;
 
-@ISA = qw(Bio::Root::Object Exporter);
-@EXPORT_OK = qw();
+@ISA = qw(Bio::Root::Object);
 
 # new() is inherited from Bio::Root::Object
 

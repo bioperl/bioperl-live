@@ -19,6 +19,8 @@
 #----------------------------------------------------------------------------
 
 package Bio::Tools::Blast;
+use strict;
+use Exporter;
 
 use Bio::Tools::SeqAnal;
 use Bio::Root::Global     qw(:std);
@@ -27,14 +29,15 @@ use Bio::Root::Utilities  qw(:obj);
 require 5.002;
 use Carp;
 
+use vars qw(@ISA @EXPORT @EXPORT_OK %EXPORT_TAGS
+            $ID $VERSION $Blast @Blast_programs $Revision $Newline);
+
 @ISA        = qw( Bio::Tools::SeqAnal Exporter);
 @EXPORT     = qw();
 @EXPORT_OK  = qw($VERSION $Blast);
 %EXPORT_TAGS = ( obj => [qw($Blast)],
 		 std => [qw($Blast)]);
 
-use strict;
-use vars qw($ID $VERSION $Blast @Blast_programs $Revision $Newline);
 
 $ID = 'Bio::Tools::Blast';
 $VERSION  = 0.080; 

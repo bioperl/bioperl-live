@@ -17,6 +17,7 @@
 #-----------------------------------------------------------------------------
 
 package Bio::Root::Object;
+use strict;
 
 require 5.002;
 use Bio::Root::Global qw(:devel $AUTHORITY $CGI);
@@ -27,10 +28,10 @@ use Exporter ();
 #use AutoLoader; 
 #*AUTOLOAD = \&AutoLoader::AUTOLOAD;
 
+use vars qw(@EXPORT_OK %EXPORT_TAGS);
 @EXPORT_OK = qw($VERSION &find_object &stack_trace &containment &_rearrange);  
 %EXPORT_TAGS = ( std => [qw(&stack_trace &containment)] );
 
-use strict;
 use vars qw($ID $VERSION %Objects_created $Revision @ISA);
 
 @ISA = qw(Bio::Root::RootI);

@@ -15,25 +15,25 @@
 #-------------------------------------------------------------------------------
 
 package Bio::Tools::Fasta;
+use strict;
 
 BEGIN {
    warn "Deprecation Warning: $0 uses Bio::Tools::Fasta.pm.\n" .
         "This module has been deprecated. Use the Bio::SeqIO system instead.\n\n";
 }
 
-
 use Bio::Tools::SeqAnal;
 use Bio::Root::Global     qw(:std);
 use Bio::Root::Utilities  qw(:obj); 
+
+use vars qw(@ISA @EXPORT @EXPORT_OK %EXPORT_TAGS
+            $ID $VERSION $Fasta $RawData $Newline);
 
 @ISA        = qw( Bio::Tools::SeqAnal Exporter);
 @EXPORT     = qw();
 @EXPORT_OK  = qw($VERSION $Fasta);
 %EXPORT_TAGS = ( obj => [qw($Fasta)],
 		 std => [qw($Fasta)]);
-
-use strict;
-use vars qw($ID $VERSION $Fasta $RawData $Newline);
 
 $ID = 'Bio::Tools::Fasta';
 $VERSION  = 0.014; 

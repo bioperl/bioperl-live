@@ -18,12 +18,15 @@
 #-------------------------------------------------------------------------------
 
 package Bio::Tools::Blast::Run::LocalBlast;
+use strict;
 
 use Bio::Root::Object    qw(&_rearrange);
 use Bio::Root::Global    qw(:devel);
 use Bio::Root::Utilities qw(:obj);
 use Carp;
 
+use Exporter;
+use vars qw( @ISA @EXPORT @EXPORT_OK );
 @ISA        = qw(Exporter);
 @EXPORT     = qw();
 @EXPORT_OK  = qw(&blast_local @Blast_dbp_local @Blast_dbn_local 

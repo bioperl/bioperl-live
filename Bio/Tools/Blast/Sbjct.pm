@@ -20,10 +20,8 @@ package Bio::Tools::Blast::Sbjct;
 
 use Bio::Root::Global  qw(:devel);
 use Bio::Root::Object  ();
-use Exporter           ();
 
-@ISA        = qw( Bio::Root::Object Exporter);
-@EXPORT_OK  = qw( );
+@ISA        = qw( Bio::Root::Object );
 
 use strict;
 use vars qw($ID $VERSION %SUMMARY_OFFSET $Revision);

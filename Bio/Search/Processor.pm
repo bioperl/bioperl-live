@@ -60,12 +60,8 @@ The rest of the documentation details each of the object methods. Internal metho
 
 package Bio::Search::Processor;
 
-use Exporter; # isa
-
 use strict;
-use vars qw($AUTOLOAD @ISA);
-
-@ISA = qw(Exporter);
+use vars qw(@ISA);
 
 =head2 new
 

@@ -56,7 +56,7 @@ The rest of the documentation details each of the object methods. Internal metho
 
 
 package Bio::SeqFeatureI;
-use vars qw($AUTOLOAD @ISA);
+use vars qw(@ISA);
 use strict;
 
 # Object preamble - inheriets from Bio::Root::Object
@@ -64,7 +64,7 @@ use strict;
 use Bio::RangeI;
 use Carp;
 
-@ISA = qw(Bio::RangeI Exporter);
+@ISA = qw(Bio::RangeI);
 
 # utility method
 #

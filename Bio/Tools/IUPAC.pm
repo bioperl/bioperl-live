@@ -132,15 +132,13 @@ The rest of the documentation details each of the object methods. Internal metho
 package Bio::Tools::IUPAC;
 
 use strict;
-use vars qw(@ISA @EXPORT_OK $AUTOLOAD);
+use vars qw(@ISA $AUTOLOAD);
 
 # Object preamble - inherits from Bio::Root::Object
 
 use Bio::Root::Object;
-use Exporter;
 
-@ISA = qw(Bio::Root::Object Exporter);
-@EXPORT_OK = qw();
+@ISA = qw(Bio::Root::Object);
 
 =head2 new
 

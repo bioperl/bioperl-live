@@ -64,14 +64,14 @@ The rest of the documentation details each of the object methods. Internal metho
 
 package Bio::Search::Hit::Fasta;
 
-use vars qw($AUTOLOAD @ISA @EXPORT_OK);
+use vars qw($AUTOLOAD @ISA);
 use strict;
 
 # Object preamble - inherits from Bio::Root::Object
 
 use Bio::Search::Hit::HitI;
 
-@ISA = qw(Bio::Search::Hit::HitI Exporter);
+@ISA = qw(Bio::Search::Hit::HitI);
 
 my @AUTOLOAD_OK = qw(        _ID
                              _DESC

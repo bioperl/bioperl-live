@@ -15,12 +15,14 @@
 #-----------------------------------------------------------------------------
 
 package Bio::Root::Err;
+use strict;
 
 use Bio::Root::Global  qw(:devel $CGI);
 use Bio::Root::Vector  ();
 use Bio::Root::Object  qw(:std);
 use Exporter           ();
 
+use vars qw(@ISA @EXPORT @EXPORT_OK %EXPORT_TAGS);
 @ISA         = qw( Bio::Root::Object Bio::Root::Vector Exporter );
 @EXPORT      = qw();
 @EXPORT_OK   = qw( %ERR_FIELDS @ERR_TYPES &format_stack_entry &throw &warning);
@@ -32,8 +34,6 @@ use Exporter           ();
 use vars qw($ID $VERSION);
 $ID = 'Bio::Root::Err';
 $VERSION = 0.041;
-
-use strict;
 
 %Bio::Root::Err::ERR_FIELDS = (TYPE=>1, MSG=>1, NOTE=>1, CONTEXT=>1,
 			       TECH=>1, STACK=>1 );

@@ -56,7 +56,7 @@ methods. Internal methods are usually preceded with a _
 
 
 package Bio::Root::RootI;
-use vars qw($AUTOLOAD @ISA);
+use vars qw(@ISA);
 use strict;
 use Bio::Root::Err;
 

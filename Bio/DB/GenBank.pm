@@ -68,8 +68,8 @@ The rest of the documentation details each of the object methods. Internal metho
 # Let the code begin...
 
 package Bio::DB::GenBank;
-use vars qw($AUTOLOAD @ISA @EXPORT_OK);
 use strict;
+use vars qw(@ISA);
 
 # Object preamble - inherits from Bio::DB::Abstract
 

@@ -83,7 +83,7 @@ use Bio::Search::Result::Fasta;
 use Bio::Search::Hit::Fasta; # will be contained in Result::Fasta
 use Bio::SimpleAlign; # will be contained in Hit::Fasta
 
-@ISA = qw(Bio::Search::Processor::ProcessorI Exporter);
+@ISA = qw(Bio::Search::Processor::ProcessorI);
 
 my @AUTOLOAD_OK = qw(
 		     _FILEHANDLE

@@ -17,18 +17,18 @@
 #-----------------------------------------------------------------------------
 
 package	 Bio::Tools::WWW;
-             
+use strict;  
+
 use Bio::Root::Object   ();
 use Bio::Root::Global  qw($AUTHORITY);
 use Exporter      ();
+
+use vars qw(@ISA @EXPORT_OK %EXPORT_TAGS $ID $VERSION $BioWWW $Revision);
 
 @ISA         = qw( Bio::Root::Object Exporter);
 @EXPORT_OK   = qw($BioWWW);
 %EXPORT_TAGS = ( obj => [qw($BioWWW)],
 		 std => [qw($BioWWW)]);
-
-use strict;  
-use vars qw($ID $VERSION $BioWWW $Revision);
 
 $ID = 'Bio::Tools::WWW';
 $VERSION = 0.014;

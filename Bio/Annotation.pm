@@ -86,7 +86,7 @@ The rest of the documentation details each of the object methods. Internal metho
 
 
 package Bio::Annotation;
-use vars qw($AUTOLOAD @ISA @EXPORT_OK);
+use vars qw(@ISA);
 use strict;
 
 # Object preamble - inherits from Bio::Root::Object

@@ -38,7 +38,7 @@ The rest of the documentation details each of the object methods. Internal metho
 
 
 package Bio::Tools::AlignFactory;
-use vars qw($AUTOLOAD @ISA);
+use vars qw(@ISA);
 use strict;
 
 # Object preamble - inheriets from Bio::Root::Object
@@ -56,7 +56,7 @@ BEGIN {
 }
 
 
-@ISA = qw(Bio::Root::Object Exporter);
+@ISA = qw(Bio::Root::Object);
 # new() is inherited from Bio::Root::Object
 
 # _initialize is where the heavy stuff will happen when new is called

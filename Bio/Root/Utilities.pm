@@ -29,6 +29,7 @@
 #-----------------------------------------------------------------------------
 
 package	Bio::Root::Utilities;
+use strict;
 
 use Bio::Root::Global  qw(:data :std $TIMEOUT_SECS);
 use Bio::Root::Object  ();
@@ -37,12 +38,12 @@ use POSIX;
 #use AutoLoader;
 #*AUTOLOAD = \&AutoLoader::AUTOLOAD;
 
+use vars qw( @ISA @EXPORT_OK %EXPORT_TAGS );
 @ISA         = qw( Bio::Root::Object Exporter);
 @EXPORT_OK   = qw($Util);
 %EXPORT_TAGS = ( obj => [qw($Util)],
 		 std => [qw($Util)],);
 
-use strict;  
 use vars qw($ID $VERSION $Util $GNU_PATH);
 
 $ID        = 'Bio::Root::Utilities';

@@ -62,7 +62,7 @@ The rest of the documentation details each of the object methods. Internal metho
 
 
 package Bio::Index::MultiFileSeq;
-use vars qw($AUTOLOAD @ISA);
+use vars qw(@ISA);
 use strict;
 
 use Bio::SeqIO;
@@ -206,7 +206,7 @@ sub get_PrimarySeq_stream{
 	push(@file,$file);
     }
    
-    my $out = Bio::SeqIO::MultiFile->new( -format => $self->_file_format , -files => \@file);
+    my $out = Bio::SeqIO::MultiFile->new( '-format' => $self->_file_format , -files => \@file);
     return $out;
 }
 

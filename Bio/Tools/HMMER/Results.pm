@@ -79,7 +79,6 @@ The rest of the documentation details each of the object methods. Internal metho
 package Bio::Tools::HMMER::Results;
 
 use vars qw(@ISA);
-use Exporter;
 use Carp;
 use strict;
 

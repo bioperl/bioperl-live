@@ -24,18 +24,20 @@
 #-------------------------------------------------------------------------------
 
 package Bio::Tools::Blast::HTML;
+use strict;
+use Exporter;
 
 use Bio::Tools::WWW  qw(:obj); 
 use Carp;
+
+use vars qw( @ISA @EXPORT @EXPORT_OK %EXPORT_TAGS
+             $ID $VERSION %DbUrl %SGDUrl $Revision
+	     $Acc $Pir_acc $Word $Signif $Int $Descrip);
 
 @ISA        = qw(Exporter);
 @EXPORT     = qw();
 @EXPORT_OK  = qw(&get_html_func &strip_html);
 %EXPORT_TAGS = ( std => [qw(&get_html_func  &strip_html)] );
-
-use strict;
-use vars qw( $ID $VERSION %DbUrl %SGDUrl $Revision
-	     $Acc $Pir_acc $Word $Signif $Int $Descrip);
 
 $ID = 'Bio::Tools::Blast::HTML';
 $VERSION  = 0.075; 

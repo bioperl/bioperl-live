@@ -66,7 +66,7 @@ The rest of the documentation details each of the object methods. Internal metho
 
 
 package Bio::SeqIO::MultiFile;
-use vars qw($AUTOLOAD @ISA);
+use vars qw(@ISA);
 use strict;
 use Bio::SeqIO;
 

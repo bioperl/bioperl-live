@@ -61,6 +61,7 @@ Follow the installation instructions included in the README file.
 =cut
 
 package	 Bio::Root::Global;
+use strict;
 
 BEGIN {
     use vars qw($CGI $TIMEOUT_SECS);
@@ -75,6 +76,7 @@ BEGIN {
 use Exporter ();
 use vars qw($BASE_YEAR @DAYS @MONTHS);
 
+use vars qw(@ISA @EXPORT_OK %EXPORT_TAGS);
 @ISA       = qw( Exporter );
 @EXPORT_OK = qw($AUTHORITY $NEWLINE
 		$DEBUG $MONITOR $TESTING 
@@ -115,6 +117,10 @@ use vars qw($BASE_YEAR @DAYS @MONTHS);
 ######################################
 ##             Data                 ##
 ######################################
+
+use vars qw($AUTHORITY $DEBUG $MONITOR $TESTING $DONT_WARN $WARN_ON_FATAL
+            $FATAL_ON_WARN $RECORD_ERR $STRICTNESS $VERBOSITY $NEWLINE
+            %ROMAN_NUMS $GLOBAL);
 
 # Who should receive feedback from users and possibly automatic error messages.
 $AUTHORITY     = 'sac@genome.stanford.edu';
