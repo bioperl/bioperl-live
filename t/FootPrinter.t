@@ -27,14 +27,16 @@ my $inputfilename= Bio::Root::IO->catfile("t","data","footprinter.out");
 my $parser = Bio::Tools::FootPrinter->new(-file => $inputfilename);
 my @sub;
 while (my $feat = $parser->next_feature){
-    foreach my $sub ($feat->sub_SeqFeature){
-      push @sub,$sub;
-    }
+  $feat->sorted( 1 ); # Sort them.
+  foreach my $sub ($feat->sub_SeqFeature( '-absolute' => 1 ) ){
+    push @sub,$sub;
+  }
 }
 ok $sub[0]->seq_id, 'TETRAODON';
 ok $sub[0]->start,352;
 ok $sub[0]->end,362;
 ok $sub[0]->seq->seq,'tacaggatgca';
+
 ok $sub[1]->seq_id, 'TETRAODON';
 ok $sub[1]->start,363;
 ok $sub[1]->end,373;

@@ -24,7 +24,8 @@ ok $sim4;
 
 
 my $exonset = $sim4->next_exonset;
-my @exons = $exonset->sub_SeqFeature(); 
+# We reverse them because as-is they'll be sorted along the negative strand.
+my @exons = reverse $exonset->sub_SeqFeature( -absolute => 1, -sorted => 1 );
 
 ok @exons, 10;
 my $exon = 1;
@@ -41,7 +42,7 @@ $sim4 = new Bio::Tools::Sim4::Results(-file=> Bio::Root::IO->catfile("t","data",
 ok $sim4;
 
 $exonset = $sim4->next_exonset;
-@exons = $exonset->sub_SeqFeature(); 
+my @exons = $exonset->sub_SeqFeature( -absolute => 1, -sorted => 1 );
 
 ok @exons, 4;
 $exon = 1;
@@ -54,7 +55,7 @@ ok $exons[$exon]->score, 99;
 ok $exons[$exon]->est_hit()->seqlength(), 479;
 
 ok($sim4->next_exonset);
-@exons = $exonset->sub_SeqFeature();
+my @exons = $exonset->sub_SeqFeature( -absolute => 1, -sorted => 1 );
 
 ok $exons[$exon]->est_hit()->seq_id(), 'hs_est';
 ok $exons[$exon]->seq_id(), 'human';
