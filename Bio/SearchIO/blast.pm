@@ -309,8 +309,10 @@ sub next_result{
 	       next if( /^\s+$/ );
 	       chomp;
 	       if(  /Length\s*=\s*([\d,]+)/ ) {
+		   my $l = $1;
+		   $l =~ s/\,//g;
 		   $self->element({ 'Name' => 'Hit_len',
-				    'Data' => $1 });
+				    'Data' => $l });
 		   last;
 	       }  elsif ( /Score/ ) {
 		   $self->_pushback($_);
@@ -363,27 +365,29 @@ sub next_result{
 	   if( defined $6 ) { 
 	       $self->element( { 'Name' => 'Hsp_gaps',
 				 'Data' => $7});	   
-	   } else { 
-	       $self->element( { 'Name' => 'Hsp_gaps',
-				 'Data' => 0});
-	   }
-	   $self->{'_Query'} = {'begin' => 0, 'end' => 0};
+	   } 
+	   $self->{'_Query'} = { 'begin' => 0, 'end' => 0};
 	   $self->{'_Sbjct'} = { 'begin' => 0, 'end' => 0};
+
+	   if( /(Frame\s*=\s*.+)$/ ) {
+	       # handle wu-blast Frame listing on same line
+	       $self->_pushback($1);
+	   }	   
        } elsif( $self->in_element('hsp') &&
 		/Strand\s*=\s*(Plus|Minus)\s*\/\s*(Plus|Minus)/i ) {
+	   # consume this event
 	   next;
        } elsif( $self->in_element('hsp') &&
 		/Frame\s*=\s*([\+\-][1-3])\s*(\/\s*([\+\-][1-3]))?/ ){
-
 	   my ($queryframe,$hitframe);
 	   if( $reporttype eq 'TBLASTX' ) {
 	       ($queryframe,$hitframe) = ($1,$2);
 	       $hitframe =~ s/\/\s*//g;
 	   } elsif( $reporttype eq 'TBLASTN' ) {
-	       ($hitframe,$queryframe) = ($1,0);
-	   } else { 
+	       ($hitframe,$queryframe) = ($1,0);	       
+	   } elsif( $reporttype eq 'BLASTX' ) {	       
 	       ($queryframe,$hitframe) = ($1,0);
-	   }
+	   } 
 	   $self->element({'Name' => 'Hsp_query-frame',
 			   'Data' => $queryframe});
 	   	   
