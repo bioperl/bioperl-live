@@ -251,9 +251,7 @@ sub add_term {
 
 sub has_term {
     my ( $self, $term ) = @_;
-
     $term = $self->_get_id( $term );
-
     if ( $self->graph()->has_vertex( $term ) ) {
         return TRUE;
     }
@@ -817,9 +815,12 @@ sub _get_id {
 		    "prefixing with 'GO:'");
 	return "GO:" . $term;
     }
-    $self->warn(ref($self).": Are you sure '$term' is a valid identifier? ".
-		"If you see problems, this may be the cause.");
-    return $term;
+
+	if($self->verbose > 0){
+	  $self->warn(ref($self).": Are you sure '$term' is a valid identifier? ".
+				  "If you see problems, this may be the cause.");
+	}
+	return $term;
 } # _get_id
 
 
