@@ -2644,7 +2644,7 @@ $sequence_manipulations = sub {
     $seqobj->trunc(5,10)->seq(), " \n";
     # reverse complements sequence
     print "Reverse complemented sequence 5 to 10  is ",
-    $seqobj->revcom->subseq(5,10), "  \n";
+    $seqobj->trunc(5,10)->revcom->seq, "  \n";
     # translation of the sequence
     print "Translated sequence 6 to 15 is ",
     $seqobj->translate->subseq(6,15), " \n";
@@ -2872,7 +2872,7 @@ $run_remoteblast = sub {
       while ( my @rids = $remote_blast_object->each_rid ) {
         foreach my $rid ( @rids ) {
           $rc = $remote_blast_object->retrieve_blast($rid);
-          "retrieving results...\n";
+          print "retrieving results...\n";
           if( !ref($rc) ) {   # $rc not a reference => either error 
                               # or job not yet finished
             if( $rc < 0 ) {
