@@ -97,10 +97,10 @@ sub new {
   return $self;
 }
 
-=head2 next_result
+=head2 next_matrix
 
- Title   : next_result
- Usage   : my $matrix = $parser->next_result
+ Title   : next_matrix
+ Usage   : my $matrix = $parser->next_matrix
  Function: Get the next result set from parser data
  Returns : L<Bio::Matrix::PhylipDist>
  Args    : none
