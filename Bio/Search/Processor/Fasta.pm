@@ -91,8 +91,8 @@ use Bio::SimpleAlign; # will be contained in Hit::Fasta
 sub _initialize {
   my($self,@args) = @_;
 
-# do any Fasta-specific stuff with @args,
-# then pass the rest back to ProcessorI !
+  # do any Fasta-specific stuff with @args,
+  # then pass the rest back to ProcessorI !
   my $make = $self->SUPER::_initialize(@args);
 
  return $make; # success - we hope!
