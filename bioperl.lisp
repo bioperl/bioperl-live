@@ -17,7 +17,7 @@
 (defun bioperl-object-start (perl-object-name perl-caretaker-name caretaker-email)
   "Places standard bioperl object notation headers and footers"
   (interactive "sName of Object: \nsName of caretaker: \nsEmail: ")
-  (insert "# $Id: bioperl.lisp,v 1.13 2001-10-15 14:33:02 jason Exp $\n#\n# BioPerl module for " perl-object-name "\n#\n# Cared for by " perl-caretaker-name " <" caretaker-email ">\n#\n# Copyright " perl-caretaker-name "\n#\n# You may distribute this module under the same terms as perl itself\n\n")
+  (insert "# $Id: bioperl.lisp,v 1.14 2001-10-15 14:36:32 jason Exp $\n#\n# BioPerl module for " perl-object-name "\n#\n# Cared for by " perl-caretaker-name " <" caretaker-email ">\n#\n# Copyright " perl-caretaker-name "\n#\n# You may distribute this module under the same terms as perl itself\n\n")
   (insert "# POD documentation - main docs before the code\n\n")
   (insert "=head1 NAME\n\n" perl-object-name " - DESCRIPTION of Object\n\n")
   (insert "=head1 SYNOPSIS\n\nGive standard usage here\n\n")
@@ -49,7 +49,7 @@
 						 caretaker-email)
   "Places standard bioperl object notation headers and footers"
   (interactive "sName of Object: \nsName of caretaker: \nsEmail: ")
-  (insert "# $Id: bioperl.lisp,v 1.13 2001-10-15 14:33:02 jason Exp $\n#\n# BioPerl module for " perl-object-name "\n#\n# Cared for by " perl-caretaker-name " <" caretaker-email ">\n#\n# Copyright " perl-caretaker-name "\n#\n# You may distribute this module under the same terms as perl itself\n\n")
+  (insert "# $Id: bioperl.lisp,v 1.14 2001-10-15 14:36:32 jason Exp $\n#\n# BioPerl module for " perl-object-name "\n#\n# Cared for by " perl-caretaker-name " <" caretaker-email ">\n#\n# Copyright " perl-caretaker-name "\n#\n# You may distribute this module under the same terms as perl itself\n\n")
   (insert "# POD documentation - main docs before the code\n\n")
   (insert "=head1 NAME\n\n" perl-object-name " - DESCRIPTION of Interface\n\n")
   (insert "=head1 SYNOPSIS\n\nGive standard usage here\n\n")
@@ -65,7 +65,7 @@
   (insert "\n# Let the code begin...\n\n")
   (insert "\npackage " perl-object-name ";\n")
   (insert "use vars qw(@ISA);\n")
-  (insert "use strict;\nuse Carp;")
+  (insert "use strict;\nuse Carp;\n\n")
   (insert "sub _abstractDeath {\n  my $self = shift;\n  my $package = ref $self;\n  my $caller = (caller)[1];\n")
   (insert "  confess \"Abstract method '$caller' defined in interface" 
 	  perl-object-name " not implemented by pacakge $package. Not your fault - author of $package should be blamed!\";\n}")
