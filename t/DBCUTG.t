@@ -20,7 +20,7 @@ BEGIN {
     }
     use Test;
 
-    $NUMTESTS = 15;
+    $NUMTESTS = 14;
     plan tests => $NUMTESTS;
 
     eval {
@@ -44,6 +44,7 @@ exit 0 if $ERROR ==  1;
 use Data::Dumper;
 require Bio::DB::CUTG;
 require Bio::CodonUsage::Table;
+require Bio::CodonUsage::IO;
 ok 1;
 
 my $verbose = 0;
@@ -55,13 +56,13 @@ ok $tool->sleep;
 ok $tool->delay(1), 1;
 ok $tool->sleep;
 ok my $db = Bio::DB::CUTG->new();
-ok $db->get_web_request(-sp =>'Pan troglodytes');
-ok my $cdtable = $db->next_data;
+ok my $cdtable =  $db->get_request(-sp =>'Pan troglodytes');
 ok $cdtable->cds_count(), 325;
 ok $cdtable->aa_frequency('LEU'), "10.065";
 ok $cdtable->get_coding_gc('all');
 ok $cdtable->codon_rel_frequency('ttc'), "0.70"; 
-ok $db->get_local_request(-file=> Bio::Root::IO->catfile("t", "data", "MmCT")), 1;
-ok my $cdtable2 = $db->next_data;
-ok $cdtable2->cds_count(), 0;
+ok my $io = Bio::CodonUsage::IO->new
+       (-file=> Bio::Root::IO->catfile("t", "data", "MmCT"));
+ok  my $cut2 = $io->next_data();
+ok $cut2->aa_frequency('LEU'), "10.065";
 
