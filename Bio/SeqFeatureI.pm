@@ -721,7 +721,9 @@ sub generate_unique_persistent_id{
    my ($self,@args) = @_;
 
    my $seq_id = $self->seq_id || $self->throw("seq_id must be set");
+   #my $seq_id = $self->seq_id || 'unknown_seq';
    my $source = $self->source_tag || $self->throw("source tag must be set");
+   #my $source = $self->source_tag || 'unknown_source';
    my $start = $self->start || $self->throw("start must be set");
    my $end = $self->end || $self->throw("end must be set");
    my $type = $self->primary_tag || $self->throw("primary_tag must be set");

@@ -2559,6 +2559,10 @@ sub infer_mRNA_from_CDS{
 		 Bio::SeqFeature::Generic->new(-location=>$loc,
 					       -primary_tag=>'mRNA');
 	       
+               ## Provide seq_id to new feature:
+               $mrna->seq_id($cds->seq_id) if $cds->seq_id;
+               $mrna->source_tag($cds->source_tag) if $cds->source_tag;
+
 	       $ok =
 		 $self->_check_order_is_consistent($mrna->location->each_Location);
 	       if (!$ok) {
