@@ -124,6 +124,59 @@ sub new {
   return $self;
 }
 
+=head2 unions
+
+ Title   : unions
+ Usage   : @unions = Bio::Range->unions(@ranges);
+ Function: generate a list of non-intersecting Bio::Range objects
+           from a list of Bio::Range objects which may intersect
+ Returns : a list of Bio::Range objects
+ Args    : a list of Bio::Range objects
+
+
+=cut
+
+sub unions {
+  my ($class,@i) = @_;
+
+  my $i = 0;
+  my %i = map { $i++ => $_ } @i;
+
+  my $lastsize = scalar(keys %i);
+
+  do {
+
+    foreach my $j (sort { $i{$a}->start <=> $i{$b}->start } keys %i){
+      foreach my $k (sort { $i{$a}->start <=> $i{$b}->start } keys %i){
+
+        #it may have been replaced by a union under the key of
+        #the overlapping range, we are altering the hash in-place
+        next unless $i{$j};
+
+        next if $i{$k}->end   < $i{$j}->start;
+        last if $i{$k}->start > $i{$j}->end;
+
+        if($i{$j}->overlaps($i{$k})){
+          my($start,$end,$strand) = $i{$j}->union($i{$k});
+          delete($i{$k});
+          $i{$j} = Bio::Range->new( -start => $start , -end => $end , -strand => $strand );
+        }
+      }
+    }
+
+    goto DONE if scalar(keys %i) == $lastsize;
+    $lastsize = scalar(keys %i);
+
+warn $lastsize;
+
+  } while(1);
+
+  DONE: {};
+
+  return values %i;
+}
+
+
 =head1 Member variable access
 
 These methods let you get at and set the member variables
