@@ -131,7 +131,7 @@ sub new {
 sub in {
    my ($self,$value) = @_;
    if( defined $value) {
-       $self->throw("Not a valid input coordinate system name [$value] ")
+       $self->throw("Not a valid input Bio::Location [$value] ")
 	   unless $value->isa('Bio::LocationI');
        $self->{'_in'} = $value;
    }
@@ -153,7 +153,7 @@ sub in {
 sub out {
    my ($self,$value) = @_;
    if( defined $value) {
-       $self->throw("Not a valid output coordinate system name [$value] ")
+       $self->throw("Not a valid output coordinate Bio::Location [$value] ")
 	   unless $value->isa('Bio::LocationI');
        $self->{'_out'} = $value;
    }
