@@ -149,6 +149,10 @@ sub next_aln {
 	    ($seqname,$aln_line) = ("$1:$2-$3",$4);
 	} elsif( /^\s*(\S+)\s+(\S+)\s*$/ox ) {
 	    ($seqname,$aln_line) = ($1,$2);
+	    if( $seqname =~ /^[\*\.\+\:]+$/ ) {
+		$self->{_lastline} = $_;
+		next;
+	    }
 	} else { $self->{_lastline} = $_; next }
 	
 	if( !exists $order{$seqname} ) {
