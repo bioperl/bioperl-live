@@ -16,6 +16,8 @@ Bio::Tools::BPlite - Lightweight BLAST parser
 
  use Bio::Tools::BPlite;
  my $report = new Bio::Tools::BPlite(-fh=>\*STDIN);
+
+ {
  $report->query;
  $report->database;
  while(my $sbjct = $report->nextSbjct) {
@@ -40,6 +42,18 @@ Bio::Tools::BPlite - Lightweight BLAST parser
      }
  }
 
+ # the following line takes you to the next report in the stream/file
+ # it will return 0 if that report is empty,
+ # but that is valid for an empty blast report.
+ # Returns -1 for EOF.
+
+ last if ($report->_parseHeader == -1));
+
+ redo
+
+ }
+
+
 =head1 DESCRIPTION
 
 BPlite is a package for parsing BLAST reports. The BLAST programs are a family
@@ -59,7 +73,7 @@ in pipes.
 BPlite has three kinds of objects, the report, the subject, and the HSP. To
 create a new report, you pass a filehandle reference to the BPlite constructor.
 
- my $report = new BPlite(-fh=>\*STDIN); # or any other filehandle
+ my $report = new Bio::Tools::BPlite(-fh=>\*STDIN); # or any other filehandle
 
 The report has two attributes (query and database), and one method (nextSbjct).
 
@@ -320,6 +334,7 @@ sub nextSbjct {
     if    ($_ !~ /\w/)            {next}
     elsif ($_ =~ /Strand HSP/)    {next} # WU-BLAST non-data
     elsif ($_ =~ /^\s{0,2}Score/) {$self->{'LASTLINE'} = $_; last}
+    elsif ($_ =~ /^Parameters|^\s+Database:|^\s+Posted date:/) {$self->{'LASTLINE'} = $_; last}
     else                          {$def .= $_}
   }
   $def =~ s/\s+/ /g;
@@ -345,13 +360,18 @@ sub nextSbjct {
 sub _parseHeader {
   my ($self) = @_;
   my $FH = $self->_fh();
-  
+  # normally, _parseHeader will break out of the parse as soon as it reaches a new Subject (i.e. the first one after the header)
+  # if you call _parseHeader twice in a row, with nothing in between, all you accomplish is a ->nextSubject call..
+  # so we need a flag to indicate that we have *entered* a header, before we are allowed to leave it!
+  my $header_flag = 0;	# here is the flag/  It is "false" at first, and is set to "true" when any valid header element is encountered
+  $self->{'REPORT_DONE'} = 0;  # reset this bit for a new report
   while(<$FH>) {
-    if ($_ =~ /^Query=\s+([^\(]+)/)    {
+    if ($_ =~ /^Query=\s+([^\(]+)/){
+      $header_flag = 1;   # valid header element found
       my $query = $1;
       while(<$FH>) {
         last if $_ !~ /\S/;
-	$query .= $_;
+		$query .= $_;
       }
       $query =~ s/\s+/ /g;
       $query =~ s/^>//;
@@ -360,24 +380,27 @@ sub _parseHeader {
       $self->{'QUERY'} = $query;
       $self->{'LENGTH'} = $length;
     }
-    elsif ($_ =~ /^Database:\s+(.+)/) {$self->{'DATABASE'} = $1}
+    elsif ($_ =~ /^Database:\s+(.+)/) {$header_flag = 1;$self->{'DATABASE'} = $1}   # valid header element found
     elsif ($_ =~ /^\s*pattern\s+(\S+).*position\s+(\d+)\D/) {   
 # For PHIBLAST reports
-	$self->{'PATTERN'} = $1;
-	push (@{$self->{'QPATLOCATION'}}, $2);
+		$header_flag = 1;    # valid header element found
+		$self->{'PATTERN'} = $1;
+		push (@{$self->{'QPATLOCATION'}}, $2);
 #			$self->{'QPATLOCATION'} = $2;
     } 
-    elsif ($_ =~ /^>/) {$self->{'LASTLINE'} = $_; return 1}
-    elsif ($_ =~ /^Parameters|^\s+Database:/) {
+    elsif (($_ =~ /^>/) && ($header_flag==1)) {$self->{'LASTLINE'} = $_; return 1} # only leave if we have actually parsed a valid header!
+    elsif (($_ =~ /^Parameters|^\s+Database:/) && ($header_flag==1)) {  # if we entered a header, and saw nothing before the stats at the end, then it was empty
       $self->{'LASTLINE'} = $_;
       return 0; # there's nothing in the report
     }
   }
+  return -1; # EOF
 }
 sub _fastForward {
     my ($self) = @_;
     return 0 if $self->{'REPORT_DONE'}; # empty report
-    return 1 if $self->{'LASTLINE'} =~ /^>/;
+    return 0 if $self->{'LASTLINE'} =~ /^Parameters|^\s+Database:|^\s+Posted date:/;
+	return 1 if $self->{'LASTLINE'} =~ /^>/;
 
     my $FH = $self->_fh();
     my $capture;
