@@ -28,7 +28,7 @@ use Exporter           ();
 use strict;
 use vars qw($ID $VERSION %SUMMARY_OFFSET $Revision);
 $ID = 'Bio::Tools::Blast::Sbjct';
-$VERSION = 0.073;
+$VERSION = 0.074;
 $Revision = '$Id$';  #'
 
 my $_layout     = '';
@@ -227,7 +227,7 @@ See the L<FEEDBACK> section for where to send bug reports and comments.
 
 =head1 VERSION
 
-Bio::Tools::Blast::Sbjct.pm, 0.073
+Bio::Tools::Blast::Sbjct.pm, 0.074
 
 =head1 COPYRIGHT
 
@@ -2085,7 +2085,8 @@ sub seq_inds {
  Argument  : Named parameters: -SHOW  => 'hsp',
            :                   -WHERE => filehandle (default = STDOUT)
  Returns   : n/a
- Status    : Experimental
+ Status    : Deprecated, Buggy.
+           : Use Blast::table() or Blast::table_tiled() instead.
 
 See Also   : L<_display_stats>(), L<_display_hsps>(), B<Bio::Root::Object.pm>::display
 
@@ -2115,7 +2116,8 @@ sub display {
  Example   : n/a
  Argument  : one argument = filehandle object.
  Returns   : printf call.
- Status    : Experimental
+ Status    : Deprecated, Buggy.
+           : Use Blast::table() or Blast::table_tiled() instead.
 
 See Also   : L<display>()  
 
@@ -2130,7 +2132,8 @@ sub _display_stats {
     if($layout == 1) {
 	printf( $OUT "%-3d %-20s %-11s %-5d %-5d %-9.1e %-9.1e %-4d %-3d %-5d %-5d %-5s %-6.2f %-6.2f  %-4d(%.2f)  %-4d(%.2f)\n",
 		$self->rank(), $self->name(),
-		$self->database() || 'UNKNOWN DB' ,$self->score(),$self->bits(),$self->p(),$self->expect(),
+		($self->database() || 'UNKNOWN DB') ,
+		$self->score(),$self->bits(),$self->p(),$self->expect(),
 		$self->gaps(), $self->n(), 
 		$self->length(), $self->length_aln('query'),
 		$self->ambiguous_aln(),
@@ -2140,7 +2143,8 @@ sub _display_stats {
     } else {
 	printf( $OUT "%-3d %-20s %-11s %-5d %-5d %-9.1e %-4d %-3d %-5d %-5d %-5s %-6.2f %-6.2f  %-4d(%.2f)  %-4d(%.2f)\n",
 		$self->rank(), $self->name(),
-		$self->database()  || 'UNKNOWN DB' ,$self->score(),$self->bits(),$self->expect(),
+		($self->database()  || 'UNKNOWN DB'),
+		$self->score(),$self->bits(),$self->expect(),
 		$self->gaps(), $self->num_hsps, 
 		$self->length(), $self->length_aln('query'),
 		$self->ambiguous_aln(),

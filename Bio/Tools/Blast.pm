@@ -34,7 +34,7 @@ use strict;
 use vars qw($ID $VERSION $Blast @Blast_programs $Revision);
 
 $ID = 'Bio::Tools::Blast';
-$VERSION  = 0.073; 
+$VERSION  = 0.074; 
 $Revision = '$Id$';  #'
 
 ## Static Blast object. 
@@ -877,7 +877,7 @@ for use with "make test" during installation.
 
 =head1 VERSION
 
-Bio::Tools::Blast.pm, 0.073
+Bio::Tools::Blast.pm, 0.074
 
 
 =head1 FEEDBACK
@@ -2248,9 +2248,9 @@ See Also   : L<signif>(), L<min_length>()
 
 =cut
 
-#--------------------
+#---------------------------
 sub _confirm_significance {
-#--------------------
+#---------------------------
     my $self = shift;  
 
 #    if(defined($self->{'_confirm_significance'})) {
@@ -2706,9 +2706,9 @@ sub _parse_hsp_data {
 
     ## Using single-line mode pattern matching //s to avoid using $' and $`.
     
-    if($HspString =~ /\n?$separator(.+?)(\n>|\nParameters:|\nCPU|\n\s+Database:)/s) {
+    if($HspString =~ /\n?$separator\b(.+?)(\n>|\nParameters:|\nCPU|\n\s+Database:)/s) {
 	$hsps = $1;
-    } elsif($HspString =~ /\n?$separator(.+?)(\n\n\n)/s) {
+    } elsif($HspString =~ /\n?$separator\b(.+?)(\n\n\n)/s) {
 	# Last ditch attempt to find the alignment chunk.
 	$hsps = $1;
     } else {
@@ -3955,25 +3955,8 @@ sub _display_hits {
     print "(This table requires a wide display.)\n";
     print $OUT '-'x80,"\n";
 
-    if($self->_layout == 1) {
-	printf( $OUT "%-3s %-20s %-11s %-5s %-5s %-9s %-9s %-4s %-3s %-5s %-5s %-5s %-6s %-6s %-12s %-12s\n",
-		'#','SEQUENCE','DATABASE','SCORE','BITS','   P','EXPECT','GAPS','N','LEN','L_ALN','AMBIG','F_ALQ','F_ALS','IDEN (frac)','CONSVD (frac)');
-	printf( $OUT "%-3s %-20s %-11s %-5s %-5s %-9s %-9s %-4s %-3s %-5s %-5s %-5s %-6s %-6s %-12s %-12s\n",'---','--------','--------','-----','-----','--------','--------','----','--', '-----', '-----','-----','-----','-----','-----------','-----------');
-
-    } else {
-	## Blast2: No 'P-value' is given.
-	printf( $OUT "%-3s %-20s %-11s %-5s %-5s %-9s %-4s %-3s %-5s %-5s %-5s %-6s %-6s %-12s %-12s\n",
-		'#','SEQUENCE','DATABASE','SCORE','BITS','EXPECT','GAPS','N','LEN','L_ALN','AMBIG','F_ALQ','F_ALS','IDEN (frac)','CONSVD (frac)');
-	printf( $OUT "%-3s %-20s %-11s %-5s %-5s %-9s %-4s %-3s %-5s %-5s %-5s %-6s %-6s %-12s %-12s\n",'---','--------','--------','-----','-----','--------','----','--', '-----', '-----','-----','-----','-----','-----------','-----------');
-    }
-    
-    # Here is where case-insensitive named parameters can be troublesome.
-    defined($param{-SHOW}) and $param{-SHOW} .= 'stats';
-    defined($param{-show}) and $param{-show} .= 'stats';
-
-    foreach ( @hits ) {
-	$_->display( %param );
-    }
+    print $self->table_labels_tiled(0);
+    print $self->table_tiled(0);
 
     ## Doing this interactively since there is potentially a lot of data here.
     ## Not quite satisfied with this approach.
