@@ -16,7 +16,7 @@ BEGIN {
     }
     use Test;
 
-    plan tests => 27 }
+    plan tests => 28 }
 
 use Bio::Variation::DNAMutation;
 use Bio::Variation::Allele;
@@ -97,6 +97,9 @@ ok $obj->region, 'region';
 
 $obj->region_value('region_value'); 
 ok $obj->region_value, 'region_value';
+
+$obj->region_dist(-5); 
+ok $obj->region_dist, -5;
 
 $obj->numbering('coding'); 
 ok $obj->numbering, 'coding';
