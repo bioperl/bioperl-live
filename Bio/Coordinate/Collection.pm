@@ -12,7 +12,7 @@
 
 =head1 NAME
 
-Bio::Coordinate::Collection - Continuous match between two coordinate sets
+Bio::Coordinate::Collection - Noncontinuous match between two coordinate sets
 
 =head1 SYNOPSIS
 
@@ -113,16 +113,20 @@ sub new {
 
     $self->{'_mappers'} = [];
 
-    my($in, $out) =
+    my($in, $out, $strict, $mappers) =
 	$self->_rearrange([qw(IN
                               OUT
+                              STRICT
+                              MAPPERS
 			     )],
 			 @args);
 
     $in  && $self->in($in);
     $out  && $self->out($out);
+    $mappers && $self->mappers($mappers);
     return $self; # success - we hope!
 }
+
 
 =head2 add_mapper
 
@@ -152,6 +156,30 @@ sub add_mapper {
   push(@{$self->{'_mappers'}},$value);
 }
 
+=head2 mappers
+
+ Title   : mappers
+ Usage   : $obj->mappers();
+ Function: Returns or sets a list of mappers.
+ Example : 
+ Returns : array of mappers
+ Args    : array of mappers
+
+=cut
+
+sub mappers{
+   my ($self,@args) = @_;
+
+   if (@args) {
+
+       $self->throw("Is not a Bio::Coordinate::MapperI but a [$self]")
+	   unless defined $args[0] && $args[0]->isa('Bio::Coordinate::MapperI');
+       push(@{$self->{'_mappers'}}, @args);
+   }
+
+   return @{$self->{'_mappers'}};
+}
+
 
 =head2 each_mapper
 
@@ -165,7 +193,7 @@ sub add_mapper {
 =cut
 
 sub each_mapper{
-   my ($self,@args) = @_;
+   my ($self) = @_;
    return @{$self->{'_mappers'}};
 }
 
