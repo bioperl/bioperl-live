@@ -35,6 +35,7 @@ Bio/Biblio/BookArticle.pm
 Bio/Biblio/IO.pm
 Bio/Biblio/IO/medline2ref.pm
 Bio/Biblio/IO/medlinexml.pm
+Bio/Biblio/IO/pubmed2ref.pm
 Bio/Biblio/IO/pubmedxml.pm
 Bio/Biblio/Journal.pm
 Bio/Biblio/JournalArticle.pm
@@ -48,6 +49,8 @@ Bio/Biblio/Patent.pm
 Bio/Biblio/Person.pm
 Bio/Biblio/Proceeding.pm
 Bio/Biblio/Provider.pm
+Bio/Biblio/PubmedArticle.pm
+Bio/Biblio/PubmedBookArticle.pm
 Bio/Biblio/PubmedJournalArticle.pm
 Bio/Biblio/Ref.pm
 Bio/Biblio/Service.pm
@@ -349,7 +352,6 @@ Bio/Tools/Blast/Sbjct.pm
 Bio/Tools/CodonTable.pm
 Bio/Tools/EPCR.pm
 Bio/Tools/ESTScan.pm
-Bio/Tools/FASTAParser.pm
 Bio/Tools/GFF.pm
 Bio/Tools/Gel.pm
 Bio/Tools/Genemark.pm
@@ -379,13 +381,11 @@ Bio/Tools/Sim4/Exon.pm
 Bio/Tools/Sim4/Results.pm
 Bio/Tools/StateMachine/AbstractStateMachine.pm
 Bio/Tools/StateMachine/IOStateMachine.pm
-Bio/Tools/SwissProtParser.pm
 Bio/Tools/WWW.pm
 Bio/Tools/pSW.pm
 Bio/Tree/AlleleNode.pm
 Bio/Tree/Node.pm
 Bio/Tree/NodeI.pm
-Bio/Tree/PhyloNode.pm
 Bio/Tree/RandomFactory.pm
 Bio/Tree/Statistics.pm
 Bio/Tree/Tree.pm
@@ -393,7 +393,6 @@ Bio/Tree/TreeI.pm
 Bio/TreeIO.pm
 Bio/TreeIO/TreeEventBuilder.pm
 Bio/TreeIO/newick.pm
-Bio/UnivAln.pm
 Bio/UpdateableSeqI.pm
 Bio/Variation/AAChange.pm
 Bio/Variation/AAReverseMutate.pm
@@ -538,6 +537,7 @@ examples/structure/struct_example1.pl
 examples/structure/struct_example2.pl
 examples/test-genscan.pl
 models/README
+models/biblio.dia
 models/bio_liveseq_variation.dia
 models/bio_map.dia
 models/bioperl.dia
@@ -619,7 +619,6 @@ t/EMBOSS.t
 t/GDB.t
 t/GFF.t
 t/Genpred.t
-t/HTML.t
 t/Index.t
 t/LinkageMap.t
 t/LiveSeq.t
@@ -663,7 +662,6 @@ t/StateMachine.t
 t/StructIO.t
 t/Structure.t
 t/Swiss.t
-t/SwissProtParser.t
 t/Symbol.t
 t/TCoffee.t
 t/Tempfile.t
@@ -790,6 +788,7 @@ t/data/sim4.for.for
 t/data/sim4.for.rev
 t/data/sim4.rev
 t/data/stress_test_medline.xml
+t/data/stress_test_pubmed.xml
 t/data/swiss.dat
 t/data/swiss_unk.dat
 t/data/swisspfam.data
