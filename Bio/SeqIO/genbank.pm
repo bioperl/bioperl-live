@@ -1369,10 +1369,6 @@ sub _write_line_GenBank_regex {
 
    $length || $self->throw( "Miscalled write_line_GenBank without length. Programming error!");
 
-#   if( length $pre1 != length $pre2 ) {
-#       $self->throw( "Programming error - cannot called write_line_GenBank_regex with different length pre1 and pre2 tags!");
-#   }
-
    my $subl = $length - (length $pre1) - 2;
    my @lines = ();
 
@@ -1390,7 +1386,7 @@ sub _write_line_GenBank_regex {
 	   }
        }
        # if we get here none of the patterns matched $subl or less chars
-       $self->warn("trouble dissecting \"$line\" into chunks ".
+       $self->warn("trouble dissecting \"$line\"\n     into chunks ".
 		   "of $subl chars or less - this tag won't print right");
        # insert a space char to prevent infinite loops
        $line = substr($line,0,$subl) . " " . substr($line,$subl);

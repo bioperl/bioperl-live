@@ -1128,33 +1128,32 @@ sub _write_line_EMBL_regex {
 
     $length || die "Programming error - called write_line_EMBL_regex without length.";
 
-#    if( length $pre1 != length $pre2 ) {
-#      $self->throw(<<END);
-#Programming error - called write_line_EMBL_regex with different length pre1 and pre2 tags!
-#pre1 = $pre1
-#pre2 = $pre2
-#END
-#    }
-
     my $subl = $length - (length $pre1) -1 ;
-
-
-
     my( @lines );
-    while(defined $line && 
-	  $line =~ m/(.{1,$subl})($regex)/g) {
-	push(@lines, $1.$2);
+
+  CHUNK: while($line) {
+        foreach my $pat ($regex, '[,;\.\/-]\s|'.$regex, '[,;\.\/-]|'.$regex) {
+            if($line =~ m/^(.{1,$subl})($pat)(.*)/ ) {	
+                my $l = $1.$2;
+                my $newl = $3;
+                $line = substr($line,length($l));
+                # be strict about not padding spaces according to 
+                # genbank format
+                $l =~ s/\s+$//;
+                push(@lines, $l);
+                next CHUNK;
+            }
+        }
+        # if we get here none of the patterns matched $subl or less chars
+        $self->warn("trouble dissecting \"$line\"\n     into chunks ".
+                    "of $subl chars or less - this tag won't print right");
+        # insert a space char to prevent infinite loops
+        $line = substr($line,0,$subl) . " " . substr($line,$subl);
     }
-    foreach (@lines) { s/\s+$//; }
-    
-    # Print first line
-    my $s = shift(@lines) || '';    
-    $self->_print( "$pre1$s\n");
-    
-    # Print the rest
+    my $s = shift @lines;
+    $self->_print("$pre1$s\n");
     foreach my $s ( @lines ) {
-	$s = '' if( !defined $s );
-        $self->_print( "$pre2$s\n");
+        $self->_print("$pre2$s\n");
     }
 }
 
