@@ -193,17 +193,19 @@ BEGIN {
 =cut
 
 sub new {
-    my ($class, %param) = @_;
-
-    $class = ref($class) if ref($class);
-
+#    my ($class, %param) = @_;
+    my $class = shift;
     my $self = {};
-    bless $self, $class;
+    bless $self, ref($class) || $class;
 
-    my $verbose =  $param{'-VERBOSE'} || $param{'-verbose'};
-
-    ## See "Comments" above regarding use of _rearrange().
-    $self->verbose($verbose);
+    if(@_ > 1) {
+	# if the number of arguments is odd but at least 3, we'll give
+	# it a try to find -verbose
+	shift if @_ % 2;
+	my %param = @_;
+	## See "Comments" above regarding use of _rearrange().
+	$self->verbose($param{'-VERBOSE'} || $param{'-verbose'});
+    }
     return $self;
 }
 

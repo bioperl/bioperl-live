@@ -1193,7 +1193,9 @@ sub next_seq {
     my $seqobj = $obj->sequence_factory->create(
 	  -accession_number => $seq_h->{acc},
 	  -pid              => $seq_h->{pid},
-	  -primary_id       => $seq_h->{nid},
+	  # why does NCBI prepend a 'g' to its own identifiers??
+	  -primary_id       => $seq_h->{nid} && $seq_h->{nid} =~ /^g\d+$/ ?
+				     substr($seq_h->{nid},1) : $seq_h->{nid},
 	  -display_id       => $seq_h->{acc},
 	  -alphabet         => $obj->{'_alphabet'},
 	  -namespace        => $seq_h->{acc} =~ /^NM_/ ? 'RefSeq' : 'GenBank',
