@@ -668,7 +668,8 @@ create table cmap_next_number (
   next_number int(11) NOT NULL default '0',
   PRIMARY KEY  (table_name)
 ) TYPE=MyISAM;
-} # table
+}, # table
+insert=>{next_num=>q[ insert into cmap_next_number (table_name,next_number) VALUES ('cmap_feature',82);]}
 },
 
 
@@ -752,11 +753,14 @@ sub setup_load {
     $dbh->do("LOCK TABLES $tables");
   }
 
+#xx1
   my $lookup_type = $dbh->prepare_delayed('SELECT ftypeid FROM ftype WHERE fmethod=? AND fsource=?');
   my $insert_type = $dbh->prepare_delayed('INSERT INTO ftype (fmethod,fsource) VALUES (?,?)');
 
   my $lookup_group = $dbh->prepare_delayed('SELECT feature_id FROM cmap_feature WHERE feature_name=? AND gclass=?');
-  my $insert_group = $dbh->prepare_delayed(' insert into cmap_feature (feature_id, feature_name, gclass )  select next_number , ?,? from cmap_next_number where table_name=\'cmap_feature\';update cmap_next_number set next_number = next_number +1 where table_name=\'cmap_feature\'');
+  my $insert_group = $dbh->prepare_delayed(' INSERT into cmap_feature (feature_id, accession_id,feature_name, gclass ) VALUES (?,feature_id,?,?)');
+  my $aux_insert_group = $dbh->prepare_delayed(' update cmap_next_number set next_number = next_number +1 where table_name=\'cmap_feature\'');
+  my $next_id_group = $dbh->prepare_delayed('select next_number from cmap_next_number where table_name=\'cmap_feature\'');
 
   my $lookup_attribute = $dbh->prepare_delayed('SELECT fattribute_id FROM fattribute WHERE fattribute_name=?');
   my $insert_attribute = $dbh->prepare_delayed('INSERT INTO fattribute (fattribute_name) VALUES (?)');
@@ -772,8 +776,12 @@ END
 
   $self->{load_stuff}{sth}{lookup_ftype}     = $lookup_type;
   $self->{load_stuff}{sth}{insert_ftype}     = $insert_type;
-  $self->{load_stuff}{sth}{lookup_fgroup}    = $lookup_group;
-  $self->{load_stuff}{sth}{insert_fgroup}    = $insert_group;
+  #$self->{load_stuff}{sth}{lookup_fgroup}    = $lookup_group;
+  #$self->{load_stuff}{sth}{insert_fgroup}    = $insert_group;
+  $self->{load_stuff}{sth}{lookup_cmap_feature}     = $lookup_group;
+  $self->{load_stuff}{sth}{insert_cmap_feature}     = $insert_group;
+  $self->{load_stuff}{sth}{aux_insert_cmap_feature} = $aux_insert_group;
+  $self->{load_stuff}{sth}{next_id_cmap_feature}   = $next_id_group;
   $self->{load_stuff}{sth}{insert_fdata}     = $insert_data;
   $self->{load_stuff}{sth}{lookup_fattribute} = $lookup_attribute;
   $self->{load_stuff}{sth}{insert_fattribute} = $insert_attribute;
@@ -886,6 +894,82 @@ sub get_feature_id {
   my ($fid) = $sth->fetchrow_array;
   return $fid;
 }
+
+=head2 get_table_id
+
+ Title   : get_table_id
+ Usage   : $integer = $db->get_table_id($table,@ids)
+ Function: get the ID of a group or type
+ Returns : an integer ID or undef
+ Args    : none
+ Status  : private
+
+This internal method is called by load_gff_line to look up the integer
+ID of an existing feature type or group.  The arguments are the name
+of the table, and two string identifiers.  For feature types, the
+identifiers are the method and source.  For groups, the identifiers
+are group name and class.
+
+This method requires that a statement handler named I<lookup_$table>,
+have been created previously by setup_load().  It is here to overcome
+deficiencies in mysql's INSERT syntax.
+
+=cut
+
+#'
+# get the object ID from a named table
+sub get_table_id {
+  my $self   = shift;
+  my $table  = shift;
+  my @ids    = @_;
+
+  # irritating warning for null id
+  my $id_key;
+  {
+    local $^W=0;
+    $id_key = join ':',@ids;
+  }
+
+  my $s   = $self->{load_stuff};
+  my $sth = $s->{sth};
+  my $dbh = $self->features_db;
+
+  unless (defined($s->{$table}{$id_key})) {
+
+    #########################################
+    # retrieval of the last inserted id is now located at the adaptor and not in caching_handle
+    #######################################
+    if ( (my $result = $sth->{"lookup_$table"}->execute(@ids)) > 0) {
+      $s->{$table}{$id_key} = ($sth->{"lookup_$table"}->fetchrow_array)[0];
+    } else {
+      if (defined($sth->{"next_id_$table"})){
+
+        $sth->{"insert_$table"}->execute(3,'string1','string2');
+        # Can't use auto incrementing
+        $sth->{"next_id_$table"}->execute();
+        $s->{$table}{$id_key} = ($sth->{"next_id_$table"}->fetchrow_array)[0];
+        if ($s->{$table}{$id_key}){
+            $sth->{"insert_$table"}->execute($s->{$table}{$id_key},@ids);
+            $sth->{"aux_insert_$table"}->execute() if $sth->{"aux_insert_$table"};
+        }
+      }
+      else{
+          $sth->{"insert_$table"}->execute(@ids);
+          $s->{$table}{$id_key} = $self->insertid($sth->{"insert_$table"}) unless $s->{$table}{$id_key};
+          $sth->{"aux_insert_$table"}->execute() if $sth->{"aux_insert_$table"};
+      }
+    }
+  }
+
+  my $id = $s->{$table}{$id_key};
+  unless (defined $id) {
+    warn "No $table id for $id_key ",$dbh->errstr," Record skipped.\n";
+    return;
+  }
+  $id;
+}
+
+
 
 #-----------------------------------
 =head2 make_features_by_name_where_part
