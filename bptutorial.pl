@@ -1315,9 +1315,9 @@ The object $rc would contain the blast report that could then be parsed with
 Bio::Tools::BPlite or Bio::Tools::Blast. Note that to make this script
 actually useful, one should add details such as checking return codes from
 the Blast to see if it succeeded and and a "sleep" loop to wait between
-consecutive requests to the NCBI server. See example 21 in the demonstration
-script in the appendix to see some working code you could use, or
-L<Bio::Tools::Run::RemoteBlast> for details.
+consecutive requests to the NCBI server. See example 26 in the
+demonstration script in the appendix to see some working code you could
+use, or L<Bio::Tools::Run::RemoteBlast> for details.
 
 It should also be noted that the syntax for creating a remote blast factory
 is slightly different from that used in creating StandAloneBlast, Clustalw,
@@ -2953,7 +2953,7 @@ $run_remoteblast = sub {
     print "\nBeginning run_remoteblast example... \n";
     eval { require Bio::Tools::Run::RemoteBlast; };
 
-    if ( $@ ){
+    if ( $@ ) {
       print STDERR "Cannot load Bio::Tools::Run::RemoteBlast\n";
       print STDERR "Cannot run run_remoteblast example:\n$@\n";
     } else {
@@ -2963,13 +2963,17 @@ $run_remoteblast = sub {
       $database =  'ecoli';
       @params = ('-prog'   => 'blastp', 
                  '-data'   => $database,
-                 '-expect' => '1e-10');
+                 '-expect' => '1e-10',
+                 '-readmethod' => 'BPlite' );
+   
       $remote_blast_object = Bio::Tools::Run::RemoteBlast->new(@params);
       $blast_file = Bio::Root::IO->catfile("t","data","ecolitst.fa");
       $r = $remote_blast_object->submit_blast( $blast_file);
+      print "submitted Blast job\n";
       while ( my @rids = $remote_blast_object->each_rid ) {
         foreach my $rid ( @rids ) {
           $rc = $remote_blast_object->retrieve_blast($rid);
+          "retrieving results...\n";
           if( !ref($rc) ) {   # $rc not a reference => either error 
                               # or job not yet finished
             if( $rc < 0 ) {
@@ -2979,12 +2983,11 @@ $run_remoteblast = sub {
             sleep 5;
           } else {
             $remote_blast_object->remove_rid($rid);
-            my $count = 0;
-            while( my $sbjct = $rc->nextSbjct ) {
-              $count++;
+            while ( my $sbjct = $rc->nextSbjct ) {
               print "sbjct name is ", $sbjct->name, "\n";
-              while( my $hsp = $sbjct->nextHSP ) {
-                print "score is ", $hsp->score, "\n"; }
+              while ( my $hsp = $sbjct->nextHSP ) {
+                print "score is ", $hsp->score, "\n"; 
+              }
             }
           }
         }
@@ -3016,7 +3019,7 @@ $searchio = new Bio::SearchIO ('-format' => 'blast',
 
 $result = $searchio->next_result;
 
-print "Database  name is ", $result->database_name , "\n";
+print "Database name is ", $result->database_name , "\n";
 print "Algorithm is ", $result->algorithm , "\n";
 print "Query length used is ", $result->query_length , "\n";
 print "Kappa value is ", $result->get_statistic('kappa') , "\n";
@@ -3024,9 +3027,9 @@ print "Name of matrix used is ", $result->get_parameter('matrix') , "\n";
 
 
 $hit = $result->next_hit;
-print "First hit  name is ", $hit->name , "\n";
-print "First hit  length is ", $hit->length , "\n";
-print "First hit  accession number is ", $hit->accession , "\n";
+print "First hit name is ", $hit->name , "\n";
+print "First hit length is ", $hit->length , "\n";
+print "First hit accession number is ", $hit->accession , "\n";
 
 $hsp = $hit->next_hsp;
 print "First hsp query start is ", $hsp->query->start , "\n";
