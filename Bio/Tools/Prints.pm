@@ -1,5 +1,5 @@
 #BioPerl module for Bio::Tools::Prints
-
+#
 # Cared for by  Balamurugan Kumarasamy
 #
 # You may distribute this module under the same terms as perl itself
@@ -8,8 +8,7 @@
 
 =head1 NAME
 
- Bio::Tools::Prints - Parser for FingerPRINTScanII program 
- 
+Bio::Tools::Prints - Parser for FingerPRINTScanII program 
 
 =head1 SYNOPSIS
 
@@ -78,6 +77,7 @@ use Bio::SeqFeature::Generic;
            -fh (filehandle)
 
 =cut
+
 sub new {
       my($class,@args) = @_;
 
@@ -174,6 +174,7 @@ sub next_result {
 
 
 =cut
+
 sub create_feature {
        my ($self, $feat,$sequenceId) = @_;
 
@@ -206,6 +207,7 @@ sub create_feature {
 
 
 =cut
+
 sub print_sac{
     my($self,$printsac)=@_;
  
@@ -227,6 +229,7 @@ sub print_sac{
 
 
 =cut
+
 sub seqname{
     my($self,$seqname)=@_;
 

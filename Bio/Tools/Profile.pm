@@ -7,7 +7,7 @@
 
 =head1 NAME
 
- Bio::Tools::Profile
+Bio::Tools::Profile
 
 =head1 SYNOPSIS
 
@@ -40,7 +40,6 @@
 
  bioperl-bugs@bioperl.org
  http://bioperl.org/bioperl-bugs/
- 
 =head1 AUTHOR - Balamurugan Kumarasamy
 
  Email: fugui@worf.fugu-sg.org
@@ -76,8 +75,8 @@ use Bio::SeqFeature::Generic;
  Args    : -filename
            -fh ($filehandle)
 
-
 =cut
+
 sub new {
     my($class,@args) = @_;
 
@@ -97,6 +96,7 @@ sub new {
 
 
 =cut
+
 sub next_result {
         my ($self) = @_;
 
@@ -134,6 +134,7 @@ sub next_result {
 
 
 =cut
+
 sub create_feature {
         my ($self, $feat) = @_;
 
