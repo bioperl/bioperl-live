@@ -52,8 +52,6 @@ email or the web:
 
 Email jason@bioperl.org
 
-Describe contact details here
-
 =head1 CONTRIBUTORS
 
 Elia Stupka, elia@ebi.ac.uk
@@ -89,7 +87,8 @@ sub _abstractDeath {
  Usage   : my @nodes = $tree->get_nodes()
  Function: Return list of Tree::NodeI objects
  Returns : array of Tree::NodeI objects
- Args    : order => 'b|breadth' first order or 'd|depth' first order
+ Args    : (named values) hash with one value 
+           order => 'b|breadth' first order or 'd|depth' first order
 
 =cut
 
@@ -101,17 +100,16 @@ sub get_nodes{
 =head2 get_root_node
 
  Title   : get_root_node
- Usage   :
- Function:
- Example :
- Returns : 
- Args    :
-
+ Usage   : my $node = $tree->get_root_node();
+ Function: Get the Top Node in the tree, in this implementation
+           Trees only have one top node.
+ Returns : Bio::Tree::NodeI object
+ Args    : none
 
 =cut
 
-sub get_root_nodes{
-   my ($self,@args) = @_;
+sub get_root_node{
+   my ($self) = @_;
    $self->_abstractDeath;
 }
 

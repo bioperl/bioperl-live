@@ -101,6 +101,49 @@ sub new {
   return $self;
 }
 
+=head2 add_child
+
+ Title   : add_child
+ Usage   : $node->add_child
+ Function: Adds a node that is a child of a node,
+           If this node already has a child will call add_child to its 
+           child node
+ Returns : integer - depth of the tree from this node to a leaf
+ Args    : Bio::Tree::NodeI
+
+=cut
+
+sub add_child{
+   my ($self,$node) = @_;   
+   if( !defined $node || ! $node->isa('Bio::Tree::NodeI') ) {
+       $self->throw("Must specify a Bio::Tree::NodeI to add_child");
+   }
+   my $r = 0;
+   if( $self->is_leaf ) {
+       $node->set_parent($self);
+       $self->{'_child'} = $node;
+   } else {
+       $r = $self->{'_child'}->add_child($node);
+   }
+   return $r + 1;
+}
+
+=head2 get_child
+
+ Title   : get_child
+ Usage   : my $nodechild = $node->get_child
+ Function: Retrieves the node child at this point
+ Returns : Bio::Node::NodeI
+ Args    : none
+
+
+=cut
+
+sub get_child{
+   my ($self) = @_;
+   return $self->{'_child'};
+}
+
 =head2 get_parent
 
  Title   : get_parent
@@ -144,13 +187,6 @@ sub set_parent{
 
 =cut
 
-sub is_leaf{
-   my ($self,$value) = @_;
-   if(defined $value || ! defined $self->{'_leaf'} ) {
-       $value = 0 unless defined $value;
-       $self->{'_leaf'} = $value;
-   }
-   return $self->{'_leaf'};
-}
+# implemented by NodeI decorated interface
 
 1;

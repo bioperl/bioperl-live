@@ -12,7 +12,7 @@
 
 =head1 NAME
 
-Bio::Tree::NodeI - DESCRIPTION of Interface
+Bio::Tree::NodeI - Interface describing a Tree Node
 
 =head1 SYNOPSIS
 
@@ -75,6 +75,41 @@ sub _abstractDeath {
   confess "Abstract method '$caller' defined in interfaceBio::Tree::NodeI not implemented by pacakge $package. Not your fault - author of $package should be blamed!";
 }
 
+=head2 add_child
+
+ Title   : add_child
+ Usage   : $node->add_child
+ Function: Adds a node that is a child of a node,
+           If this node already has a child will call add_child to its 
+           child node
+ Returns : integer - depth of the tree from this node to a leaf
+ Args    : Bio::Tree::NodeI
+
+
+=cut
+
+sub add_child{
+   my ($self,@args) = @_;   
+   $self->_abstractDeath;
+}
+
+=head2 get_child
+
+ Title   : get_child
+ Usage   :
+ Function:
+ Example :
+ Returns : 
+ Args    :
+
+
+=cut
+
+sub get_child{
+   my ($self,@args) = @_;
+   $self->_abstractDeath;
+}
+
 =head2 get_parent
 
  Title   : get_parent
@@ -102,6 +137,7 @@ sub get_parent{
 
 sub is_leaf{
    my ($self) = @_;
+   return ( ! defined $self->get_child); 
    $self->_abstractDeath();
 }
 

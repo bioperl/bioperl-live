@@ -12,15 +12,20 @@
 
 =head1 NAME
 
-Bio::Tree::Tree - DESCRIPTION of Object
+Bio::Tree::Tree - An Implementation of TreeI interface.
 
 =head1 SYNOPSIS
 
-Give standard usage here
+    # like from a TreeIO
+    my $treeio = new Bio::TreeIO(-format => 'newick', -file => 'treefile.dnd');
+    my $tree = $treeio->next_tree;
+    my @nodes = $tree->get_nodes;
+    my $root = $tree->get_root_node;
+
 
 =head1 DESCRIPTION
 
-Describe the object here
+This object holds handles to Nodes which make up a tree.
 
 =head1 FEEDBACK
 
@@ -87,10 +92,118 @@ use Bio::Tree::TreeI;
 
 sub new {
   my($class,@args) = @_;
-
+  
   my $self = $class->SUPER::new(@args);
-
+  $self->{'_rootnode'} = undef;
+  $self->{'_nodect'} = 0;
+  $self->{'_maxbranchlen'} = 0;
   return $self;
+}
+
+
+=head2 add_node
+
+ Title   : add_node
+ Usage   : my $tree->add_node($node)
+ Function: Adds a node to the tree by adding it to the Root Node
+ Returns : Tree size
+ Args    : Bio::Tree::NodeI
+
+
+=cut
+
+sub add_node{
+   my ($self,$node) = @_;
+   $self->throw("Must provide a valid Bio::Tree::NodeI object") 
+       unless (defined $node && $node->isa('Bio::Tree::NodeI'));
+   if( ! defined $self->{'_rootnode'} ) {
+       $self->{'_rootnode'} = $node;
+   } else { 
+       my $s = $self->{'_rootnode'}->add_child($node);
+       if( $s > $self->{'_maxbranchlen'} ) { 
+	   $self->{'_maxbranchlen'} = $s;
+       }
+   }
+   $self->{'_nodect'}++;
+}
+
+
+=head2 get_nodes
+
+ Title   : get_nodes
+ Usage   : my @nodes = $tree->get_nodes()
+ Function: Return list of Tree::NodeI objects
+ Returns : array of Tree::NodeI objects
+ Args    : (named values) hash with one value 
+           order => 'b|breadth' first order or 'd|depth' first order
+
+=cut
+
+sub get_nodes{
+   my ($self, @args) = @_;
+   
+   my ($order) = $self->_rearrange([qw(ORDER)],@args);
+
+   # this is depth search I believe
+   my $node = $self->get_root_node;
+   my @nodes;
+   while( defined $node ) {
+       push @nodes, $node;
+       my $child = $node->get_child;       
+       $node = $child;
+   }
+
+   return @nodes;
+}
+
+=head2 get_root_node
+
+ Title   : get_root_node
+ Usage   : my $node = $tree->get_root_node();
+ Function: Get the Top Node in the tree, in this implementation
+           Trees only have one top node.
+ Returns : Bio::Tree::NodeI object
+ Args    : none
+
+=cut
+
+
+sub get_root_node{
+   my ($self) = @_;
+   return $self->{'_rootnode'};
+}
+
+=head2 length
+
+ Title   : length
+ Usage   : my $size = $tree->length
+ Function: Returns the size of the tree 
+           (length of largest path from root to leaf)
+ Returns : integer
+ Args    : none
+
+=cut
+
+sub size{
+   my ($self) = @_;
+   return $self->{'_maxbranchlen'};
+}
+
+=head2 number_nodes
+
+ Title   : number_nodes
+ Usage   : my $size = $tree->number_nodes
+ Function: Returns the number of nodes
+ Example :
+ Returns : 
+ Args    :
+
+
+=cut
+
+sub number_nodes{
+   my ($self) = @_;
+   return $self->{'_size'};
 }
 
 1;
