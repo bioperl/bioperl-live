@@ -308,7 +308,9 @@ sub stack_trace{
            : Stein, and adapted for use in Bio::Seq by Richard Resnick and
            : then adapted for use in Bio::Root::Object.pm by Steve Chervitz,
            : then migrated into Bio::Root::RootI.pm by Ewan Birney.
- Comments  : (SAC)
+ Comments  :
+           : Uppercase tags are the norm, 
+           : (SAC)
            : This method may not be appropriate for method calls that are
            : within in an inner loop if efficiency is a concern.
            :
@@ -334,7 +336,8 @@ sub stack_trace{
 	   :
            : Personal note (SAC): I have found all uppercase tags to
            : be more managable: it involves less single-quoting,
-           : the key names stand out better, and there are no method naming conlicts.
+           : the key names stand out better, and there are no method naming 
+           : conflicts.
            : The drawbacks are that it's not as easy to type as lowercase,
            : and lots of uppercase can be hard to read.
            :
@@ -351,6 +354,7 @@ sub _rearrange {
 	(my $key = shift) =~ tr/a-z\055/A-Z/d; #deletes all dashes!
 	$param{$key} = shift;
     }
+    map { $_ = uc($_) } @$order; # for bug #1343, but is there perf hit here?
     return @param{@$order};
 }
 
