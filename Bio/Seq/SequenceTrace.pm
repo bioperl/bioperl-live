@@ -1,6 +1,6 @@
 # $Id$
 #
-# BioPerl module for Bio::Seq::SeqWithQuality
+# BioPerl module for Bio::Seq::SequenceTrace
 #
 # Cared for by Chad Matsalla <bioinformatics@dieselwurks.com
 #
@@ -401,7 +401,7 @@ sub primary_id {
 =cut
 
 sub desc {
-	# a mechanism to set the disc for the SeqWithQuality object.
+	# a mechanism to set the desc for the SeqWithQuality object.
 	# probably will be used most often by set_common_features()
    my ($self,$value) = @_;
    if( defined $value) {

@@ -125,10 +125,10 @@ use Bio::Seq::PrimaryQual;
 		  -seq => 'ATCGATCG',
 		  -id  => 'human_id',
 		  -accession_number => 'AL000012',
-            -trace_indices    => '0 5 10 15 20 25 30 35'
+                  -trace_indices    => '0 5 10 15 20 25 30 35'
 		);
  Function: Returns a new Bio::Seq::SeqWithQual object from basic
-        constructors.
+           constructors.
  Returns : a new Bio::Seq::PrimaryQual object
  Notes   : Arguments:
 	-qual can be a quality string (see Bio::Seq::PrimaryQual for more
@@ -175,7 +175,7 @@ sub new {
 			      DESC
 			      ID
 			      ALPHABET
-                    TRACE_INDICES 
+                              TRACE_INDICES
 			      )],
 			  @args);
     # first, deal with the sequence and quality information

@@ -20,14 +20,16 @@ Bio::Seq::QualI - Interface definition for a Bio::Seq::Qual
 
     # to test this is a seq object
 
-    $obj->isa("Bio::Seq::QualI") || $obj->throw("$obj does not implement the Bio::Seq::QualI interface");
+    $obj->isa("Bio::Seq::QualI") 
+       || $obj->throw("$obj does not implement the Bio::Seq::QualI interface");
 
     # accessors
 
     $string    = $obj->qual();
     $substring = $obj->subqual(12,50);
     $display   = $obj->display_id(); # for human display
-    $id        = $obj->primary_id(); # unique id for this object, implementation defined
+    $id        = $obj->primary_id(); # unique id for this object,
+                                     # implementation defined
     $unique_key= $obj->accession_number();
                        # unique biological id
 
@@ -40,19 +42,21 @@ information. PrimaryQual is an object just for the quality and its
 name(s), nothing more. There is a pure perl implementation of this in
 Bio::Seq::PrimaryQual. If you just want to use Bio::Seq::PrimaryQual
 objects, then please read that module first. This module defines the
-interface, and is of more interest to people who want to wrap their own
-Perl Objects/RDBs/FileSystems etc in way that they "are" bioperl quality
-objects, even though it is not using Perl to store the sequence etc.
+interface, and is of more interest to people who want to wrap their
+own Perl Objects/RDBs/FileSystems etc in way that they "are" bioperl
+quality objects, even though it is not using Perl to store the
+sequence etc.
 
 This interface defines what bioperl consideres necessary to "be" a
-sequence of qualities, without providing an implementation of this. (An
-implementation is provided in Bio::Seq::PrimaryQual). If you want to
-provide a Bio::Seq::PrimaryQual 'compliant' object which in fact wraps
-another object/database/out-of-perl experience, then this is the correct
-thing to wrap, generally by providing a wrapper class which would inheriet
-from your object and this Bio::Seq::QualI interface. The wrapper
-class then would have methods lists in the "Implementation Specific
-Functions" which would provide these methods for your object.
+sequence of qualities, without providing an implementation of
+this. (An implementation is provided in Bio::Seq::PrimaryQual). If you
+want to provide a Bio::Seq::PrimaryQual 'compliant' object which in
+fact wraps another object/database/out-of-perl experience, then this
+is the correct thing to wrap, generally by providing a wrapper class
+which would inherit from your object and this Bio::Seq::QualI
+interface. The wrapper class then would have methods lists in the
+"Implementation Specific Functions" which would provide these methods
+for your object.
 
 
 =head1 FEEDBACK
@@ -63,8 +67,8 @@ User feedback is an integral part of the evolution of this and other
 Bioperl modules. Send your comments and suggestions preferably to one
 of the Bioperl mailing lists.  Your participation is much appreciated.
 
-  bioperl-l@bioperl.org          - General discussion
-  http://bio.perl.org/MailList.html             - About the mailing lists
+  bioperl-l@bioperl.org                      - General discussion
+  http://bio.perl.org/MailList.html          - About the mailing lists
 
 =head2 Reporting Bugs
 
@@ -97,6 +101,8 @@ package Bio::Seq::QualI;
 use vars qw(@ISA);
 use strict;
 use Carp;
+
+@ISA = qw(Bio::Root::RootI );
 
 =head1 Implementation Specific Functions
 
