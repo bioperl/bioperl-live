@@ -13,13 +13,14 @@ use Text::Wrap;
 use Getopt::Long;
 
 my $text = '';
-my $html = '';
+my $html = ''; 
 GetOptions('text' => \$text, 'html' => \$html);
-$text || $html || die "Usage: faq.pl [-text|-html] <xml_file>";
+$text || $html || die "Usage: faq.pl (-t[ext] | -h[tml) <xml_file>";
+$html and $text = ''; #preference for HTML output
 
-my $file= shift || die "usage [-text|-html] faq.pl <xml_file>";
+my $file= shift || die "Usage faq.pl (-t[ext] | -h[tml) <xml_file>";
 
-# those 2 globals are grabed from the xml header and used to
+# those 2 globals are grabbed from the xml header and used to
 # generate the html header
 my $G_TITLE;   # title
 my $G_VERSION; # version
