@@ -206,6 +206,7 @@ See Also   : B<Bio::SeqFeature::SimilarityPair::new()>, B<Bio::SeqFeature::Simil
 sub new {
 #----------------
     my ($class, @args ) = @_;
+
     my $self = $class->SUPER::new( @args );
 
     my ($raw_data, $qname, $hname, $qlen, $hlen);
@@ -684,8 +685,11 @@ sub _set_data {
 	} elsif( $line =~ /^ ?(Identities|Positives|Strand)/ ) {
 	    $self->_set_match_stats( $line );
 	} elsif( $line =~ /^ ?Frame = ([\d+-]+)/ ) {
-	    # Version 2.0.8 has Frame information on a separate line.
-	   $self->frame( $1 );
+	  # Version 2.0.8 has Frame information on a separate line.
+	  # Storing frame according to SeqFeature::Generic::frame()
+	  # which does not contain strand info (use strand()).
+	  my $frame = abs($1) - 1;
+	  $self->frame( $frame );
 	} elsif( $line =~ /^(Query:?[\s\d]+)([^\s\d]+)/ ) {
 	    push @queryList, $line;
 	    $self->{'_match_indent'} = CORE::length $1;
@@ -1392,6 +1396,12 @@ See Also   : L<_set_seq>(), L<_set_match_stats>()
 sub strand {
 #-----------
     my( $self, $seqType ) = @_;
+
+    # Hack to deal with the fact that SimilarityPair calls strand()
+    # which will lead to an error because parsing hasn't yet occurred.
+    # See SimilarityPair::new().
+    return if $self->{'_initializing'};
+
     $seqType  ||= (wantarray ? 'list' : 'query');
     $seqType = 'sbjct' if $seqType eq 'hit';
 
