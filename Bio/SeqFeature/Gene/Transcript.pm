@@ -658,7 +658,7 @@ sub _make_cds {
  Title   : features
  Usage   : my @features=$transcript->features;
  Function: returns all the features associated with this transcript
- Returns : a list of features
+ Returns : a list of SeqFeatureI implementing objects
  Args    : none
 
 
@@ -673,11 +673,11 @@ sub features {
 =head2 features_ordered
 
  Title   : features_ordered
- Usage   :
- Function:
- Example :
- Returns : 
- Args    :
+ Usage   : my @features=$transcript->features_ordered;
+ Function: returns all the features associated with this transcript,
+           in order by feature start, according to strand
+ Returns : a list of SeqFeatureI implementing objects
+ Args    : none
 
 
 =cut
@@ -771,19 +771,13 @@ sub _new_of_type {
     my ($self, $fea, $type, $pri)= @_;
     my $primary;
     if ($pri) {
-	$primary = $pri;
+	$primary = $pri;    #can set new primary tag if desired
     } else {
-	($primary) = $type =~ /.*::(.+)/;
+	($primary) = $type =~ /.*::(.+)/;  #or else primary is just end of type string
     }
-    
-    my %args=(
-	      '-start'   => $fea->start,
-	      '-end'     => $fea->end,
-	      '-strand'  => $fea->strand,
-	      '-score'   => $fea->score,
-	      '-primary' => $primary,
-	      '-source'  => ref($self));
-    return $fea=$type->new(%args);
+    bless $fea,$type;
+    $fea->primary_tag($primary);
+    return $fea;
 }
 
 1;
