@@ -75,15 +75,15 @@ use vars '%STRAND_OPTIONS';
 
 BEGIN {
 # STRAND_OPTIONS contains the legal values for the strand options
-  %STRAND_OPTIONS = map { $_,$_ }
+  %STRAND_OPTIONS = map { $_, '_'.$_ }
     (
-       'STRONG', # ranges must have the same strand
-       'WEAK',   # ranges must have the same strand or no strand
-       'IGNORE', # ignore strand information
+       'strong', # ranges must have the same strand
+       'weak',   # ranges must have the same strand or no strand
+       'ignore', # ignore strand information
      );
 }
 
-# utility method
+# utility methods
 #
 # Prints out a method like:
 # Abstract method stop defined in interface Bio::RangeI not implemented by package You::BadRange
@@ -94,7 +94,39 @@ sub _abstractDeath {
   
   confess "Abstract method '$caller' defined in interface Bio::RangeI not implemented by pacakge $package";
 }
+
+# returns true if strands are equal and non-zero
+sub _strong {
+  my ($r1, $r2) = @_;
+  my ($s1, $s2) = ($r1->strand(), $r2->strand());
   
+  return $s1 != 0 and $s2 != 0 and
+         $s1 = $s2;
+}
+
+# returns true if strands are equal or either is zero
+sub _weak {
+  my ($r1, $f2) = @_;
+  my ($s1, $s2) = ($r1->strand(), $r2->strand());
+
+  return $s1 == 0 or $s2 == 0 or
+         $s1 == $s2;
+}
+
+# returns true for any strandedness
+sub _ignore {
+  return 1;
+}
+
+# works out what test to use for the strictness and returns true/false
+# e.g. $r1->_testStrand($r2, STRONG)
+sub _testSrand() {
+  my ($r1, $r2, $comp) = @_;
+  return 1 unless $comp;
+  my $func = $STRAND_OPTIONS{$comp};
+  return $r1->$func($r2);
+}
+
 =head1 Abstract methods
 
 These methods must be implemented in all subclasses.
@@ -190,9 +222,13 @@ These methods return true or false.
 =cut
 
 sub overlaps {
-  my ($self, $other) = @_;
-  return ($self->start() < $other->strand() or
-              $self->end() > $other->start());
+  my ($self, $other, $so) = @_;
+  return
+    $self->_testStrand($other, $so) and 
+    not (
+      ($self->start() > $other->end() or
+       $self->end() < $other->start()   )
+        );
 }
 
 =head2 contains
@@ -206,10 +242,11 @@ sub overlaps {
 =cut
 
 sub contains {
-  my $self = shift;
-  my $other = shift;
+  my ($self, $other, $so) = @_;
   if(ref $other) { # a range object?
-    return $other->start() >= $self->start() && $other->end() <= $self->end();
+    return $self->_testStrand($so)      and
+      $other->start() >= $self->start() and
+      $other->end() <= $self->end();
   } else { # a scalar?
     return $other >= $self->start() and $other <= $self->end();
   }
@@ -226,9 +263,10 @@ sub contains {
 =cut
 
 sub equals {
-  my ($self, $other) = @_;
-  return $self->start() == $other->start() and
-         $self->end() == $other->end();
+  my ($self, $other, $so) = @_;
+  return $self->_testStrand($so)           and
+         $self->start() == $other->start() and
+         $self->end()   == $other->end();
 }
 
 =head1 Geometrical methods
@@ -247,8 +285,8 @@ triplets (start, stop, strand) from which new ranges could be built.
 =cut
 
 sub intersection {
-  my $self = shift;
-  my $other = shift;
+  my ($self, $other, $so) = @_;
+  return unless $self->_testStrand($so);
 
   my @start = sort {$a<=>$b}
                    ($self->start(), $other->start());
