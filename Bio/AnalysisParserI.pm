@@ -21,11 +21,11 @@ Bio::AnalysisParserI - Generic analysis output parser interface
     # For now a SearchIO object, an implementation of AnalysisParserI, can be created 
     # directly, as in the following:
     my $parser = Bio::SearchIO->new(
-				    '-file'   => 'inputfile',
-				    '-format' => 'blast'); 
+                                    '-file'   => 'inputfile',
+                                    '-format' => 'blast'); 
 
     while( my $result = $parser->next_result() ) {
-	print "Result:  ", $result->analysis_method, 
+        print "Result:  ", $result->analysis_method, 
               ", Query:  ", $result->query_name, "\n";
 
           while( my $feature = $result->next_feature() ) {
@@ -149,47 +149,9 @@ sub next_result {
 }
 
 
-
-=head2 result_factory
-
- Title   : result_factory
- Usage   : $res_fact = $obj->result_factory;     (get)
-         : $obj->result_factory( $factory );      (set)
- Function: Sets/Gets a factory object to create result objects for this AnalysisParser.
- Returns : Bio::Factory::ResultFactoryI object 
- Args    : Bio::Factory::ResultFactoryI object (when setting)
- Comments: A AnalysisParserI implementation should provide a default result factory.
-           obtainable by the  default_result_factory_class() method.
-
-=cut
-
-sub result_factory {
-  my $self = shift;
-  $self->throw_not_implemented;
-}
-
-=head2 default_result_factory_class
-
- Title   : default_result_factory_class
- Usage   : $res_factory = $obj->default_result_factory_class()->new( @args )
- Function: Returns the name of the default class to be used for creating
-           Bio::AnalysisResultI objects.
- Example :
- Returns : A string containing the name of a class that implements 
-           the Bio::Factory::ResultFactoryI interface.
- Args    : none
-
-=cut
-
-sub default_result_factory_class {
-  my $self = shift;
-# TODO: Uncomment this when Jason's SearchIO code conforms
-#  $self->throw_not_implemented;
-}
-
 1;
 __END__
 
-NOTE: My ten-month old son Russell added the following line.
+NOTE (sac): My ten-month old son Russell added the following line.
 It doesn't look like it will compile so I'm putting it here:
 mt6 j7qa
