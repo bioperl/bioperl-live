@@ -1,16 +1,18 @@
 #!/usr/local/bin/perl -w
 
 # this script assumes you have a directory which you have downloaded
-# gbestXX.seq.gz from ncbi genbank release (leave them compressed)
-#
-# the script is unix centric for the time being, could use Compress::Gzip to
-# uncompress the files in a platform indepedent way
-#
+# gbestXX.seq.gz from ncbi genbank release.  This will run faster if 
+# they are uncompressed already, but if will uncompress the files 
+# on demand.  Be sure that there is sufficient space and the uid
+# has write permission on the files and in that directory if you
+# plan to run this script on compressed files.
+##
 # cmd line options are
 # -i/--index=indexname
 # -d/--dir=dir where gbest data files are located
 # -b/--blast=filename blast filename which compared against an EST db
-# -p=pvalue pvalue to limit search to
+# -c/--cache=filename cache for accession number to tissue
+# -p/pvalue=pvalue pvalue to limit search to
 # -r/--remote=[GenBank|EMBL] use remote db for searching
 
 use strict;
@@ -19,69 +21,58 @@ use Bio::SeqIO;
 use Bio::Tools::BPlite;
 use Bio::DB::EMBL;
 use Bio::DB::GenBank;
+use Bio::Index::GenBank;
 
 use Getopt::Long;
+my $GZIP = '/usr/bin/gzip';
+my $GUNZIP = '/usr/bin/gunzip';
 
-my $dir = '/home/data/libs/gbest';
-my $index = 'dbest_tissue.idx';
-my $VERBOSE = 0;
-my $blastfile;
-my $pvalue;
-my $remote;
-my %accessions;
+my $dir = '/home/data/libs/gbest'; # local dir for gbest files
+my $index = 'dbest_tissue.idx';    # local index filename
+my $cache;      # filename to create cache of accession->tissue
+my $VERBOSE = 0;# verbosity option
+my $blastfile;  # blastfile to parse
+my $pvalue;     # Max P-Value allowed when parsing blastfile
+my $remote;     # flag for remote database 
+my $db;         # generic database handle
+my %accessions; # cache results
 
 &GetOptions( 'd|dir:s'   => \$dir,
 	     'i|index:s' => \$index,
 	     'v|verbose' => \$VERBOSE,
 	     'b|blast:s' => \$blastfile,
-	     'p:s'       => \$pvalue,
+	     'c|cache:s' => \$cache,
+	     'p|pvalue:s'       => \$pvalue,
 	     'r|remote:s'=> \$remote);
 
+if( $cache && -w $cache ) {
+    print "creating cache file\n";
+    tie %accessions, "DB_File", $cache,  O_RDWR|O_CREAT,0660, $DB_HASH;
+}
 
 if( ! $remote ) {
     opendir(GBEST, $dir) or die("cannot open $dir");
-
-
-    my $already = ( -r $index); 
-    tie %accessions, "DB_File", $index,  O_RDWR|O_CREAT,0640, $DB_HASH;
-
-    unless( $already ) {
-	foreach my $file  ( readdir(GBEST) ) {
+    
+    my $indexfile = new Bio::Index::GenBank(-filename   => $index,
+					    -write_flag => 'WRITE');
+    foreach my $file  ( readdir(GBEST) ) {
 #	print "file is $file\n";
-	    next unless ( $file =~ /gbest\d+\.seq\.gz$/ );
-	    open(IN, "gunzip -c $dir/$file |") or 
-		die("Cannot open file $dir/$file");
-	    my $seqio = new Bio::SeqIO(-format => 'genbank', -fh => \*IN);
-
-	    while( my $seq = $seqio->next_seq ) {
-		my $tissue ='';
-	      FEATURE: foreach my $feature ( $seq->all_SeqFeatures ) {
-		  if( $feature->primary_tag eq 'source' ) {
-		      foreach my $tag ( sort { $b cmp $a }
-					$feature->all_tags ) {
-			  if( $tag =~ /tissue/i  || 
-			      ( ! $tissue && 
-				$tag =~ /clone_lib/i ) ){
-			      ($tissue) = $feature->each_tag_value($tag);
-			      $accessions{$seq->display_id} = $tissue;
-			      last FEATURE;
-			  }
-		      }
-		  }
-	      }
-		if( ! defined $accessions{$seq->display_id} ) {
-		    print STDERR "accession ", $seq->display_id, " skipped no tissue information\n" if $VERBOSE;
-		}
+	    next unless ( $file =~ /(gbest\d+\.seq)(.gz)?$/ );
+	    if( $2 ) {		
+		`$GUNZIP $dir/$file`;
 	    }
-	} 
+	    $indexfile->make_index("$dir/$1");
     }
-    print "there are ", scalar keys %accessions, " accessions in the db\n";
+
+    $indexfile = undef;
+    $db = new Bio::Index::GenBank(-filename => $index);
+    
 } else { 
     if( $remote =~ /(ncbi)|(genbank)/i ) {
 
-	$remote = new Bio::DB::GenBank;
+	$db = new Bio::DB::GenBank;
     } elsif( $remote =~ /embl/i ) {
-	$remote = new Bio::DB::EMBL;
+	$db = new Bio::DB::EMBL;
     } else { 
 	die("remote must be either 'NCBI' or 'EMBL'");
     }
@@ -93,12 +84,8 @@ if(! $blastfile || ! -r $blastfile ) {
 }
 
 my $parser = new Bio::Tools::BPlite(-file => $blastfile);
-if( $parser->database !~ /est/i ) {
-    print "BLAST db was '", $parser->database, "'\n which does not appear to be an EST database.  Proceeding anyways.\n"; 
-}
 
-
-my %tissues_seen;
+my %tissues_seen = ();
 SUBJECT: while( my $sbjct = $parser->nextSbjct ) {
     if( defined $pvalue ) {
 	while( my $hsp = $sbjct->nextHSP ) {
@@ -117,15 +104,21 @@ SUBJECT: while( my $sbjct = $parser->nextSbjct ) {
     if( defined $tissuetype ) {
 	push @{$tissues_seen{$tissuetype}}, $sbjct->name;
     } else { 
-	print STDERR "could not find tissue for $id\n";
+	print STDERR "could not find tissue for $id\n" if( $VERBOSE);
     }
 }
 
 print "tissues seen for: ", $parser->query, "\n";
+
 foreach my $tissue ( sort keys %tissues_seen ) {
     print "* $tissue\n-----------\n\t", 
     join("\n\t",@{$tissues_seen{$tissue}}), "\n\n";
 }
+
+# cleanup -- avoid segfault here
+$db = undef;
+
+# subroutines
 
 sub get_tissue {
     my ($id) = @_;
@@ -134,16 +127,13 @@ sub get_tissue {
 	return $tissue;
     }
     
-    if( $remote ) {
-	my $seq = $remote->get_Seq_by_acc($id);
-	if( ! $seq ) {
-	    print STDERR "unable to find seq for id $id\n";
-	    return '';
-	}
-	foreach my $feature ( $seq->all_SeqFeatures ) {
-	    if( $feature->primary_tag eq 'source' ) {
-		foreach my $tag ( sort { $b cmp $a }
-				  $feature->all_tags ) {
+    my $seq = $db->get_Seq_by_acc($id);
+    return undef unless(  $seq );
+
+    foreach my $feature ( $seq->all_SeqFeatures ) {
+	if( $feature->primary_tag eq 'source' ) {
+	    foreach my $tag ( sort { $b cmp $a }
+			      $feature->all_tags ) {
 		    if( $tag =~ /tissue/i  || 
 			( ! $tissue && 
 			  $tag =~ /clone_lib/i ) ){
@@ -153,7 +143,6 @@ sub get_tissue {
 		    }
 		}
 	    }
-	}	
-    }
+	}	    
     return undef;
 }
