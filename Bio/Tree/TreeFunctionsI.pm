@@ -441,7 +441,7 @@ sub is_paraphyletic{
 
 =head2 reroot
 
- Title   : reroot_tree
+ Title   : reroot
  Usage   : $tree->reroot($node);
  Function: Reroots a tree either making a new node the root
  Returns : 1 on success, 0 on failure
