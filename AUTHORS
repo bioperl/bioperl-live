@@ -37,6 +37,8 @@ for if you see fit)
 
 =over
 
+=item * Richard Adams <Richard.Adams at ed.ac.uk>
+
 =item * Kris Boulez <kris.boulez at algonomics.com>
 
 =item * David Block <dblock at gnf.org>
@@ -58,6 +60,8 @@ for if you see fit)
 =item * Allen Day <allenday at ucla.edu>
 
 =item * James Diggans <JDiggans at genelogic.com>
+
+=item * Paul Edlefsen <pedlefsen at systemsbiology.org>
 
 =item * Arne Elofsson <arne at sbc.su.se>
 
@@ -131,6 +135,7 @@ for if you see fit)
 
 =item * Helge Weissig <helgew at sdsc.edu>
 
+=item * Juguang Xiao <juguang at tll.org.sg>
 =item * Alex Zelensky <alex_zelensky at mac.com> - Bioperl-DB 
 
 =back
