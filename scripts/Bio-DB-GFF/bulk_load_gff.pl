@@ -127,8 +127,16 @@ my $FEATURES    = 0;
 my $count;
 while (<>) {
   chomp;
-  next if /^\#/;
-  my ($ref,$source,$method,$start,$stop,$score,$strand,$phase,$group) = split "\t";
+  my ($ref,$source,$method,$start,$stop,$score,$strand,$phase,$group);
+  if (/^\#\#\s*sequence-region\s+(\S+)\s+(\d+)\s+(\d+)/i) { # header line
+    ($ref,$source,$method,$start,$stop,$score,$strand,$phase,$group) = 
+      ($1,'reference','Component',$2,$3,'.','.','.',qq(Sequence "$1"));
+  } elsif (/^\#/) {
+    next;
+  } else {
+    ($ref,$source,$method,$start,$stop,$score,$strand,$phase,$group) = split "\t";
+  }
+  next unless defined $ref;
   $FEATURES++;
 
   $source = '\N' unless defined $source;
