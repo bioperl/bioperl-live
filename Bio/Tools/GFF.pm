@@ -567,37 +567,33 @@ sub _gff2_string{
 
    # MW
 
-   my $valuestr;
+   
    my @all_tags = $feat->all_tags;
+   my @group;
    if (@all_tags) {  # only play this game if it is worth playing...
-       $str .= "\t"; # my interpretation of the GFF2
-                     # specification suggests the need 
-                     # for this additional TAB character...??
        foreach my $tag ( @all_tags ) {
-	   my $valuestr; # a string which will hold one or more values 
-	                 # for this tag, with quoted free text and 
-	                 # space-separated individual values.
+	   my @v;
 	   foreach my $value ( $feat->each_tag_value($tag) ) {
 	       if ($value =~ /[^A-Za-z0-9_]/){
 		   $value =~ s/\t/\\t/g; # substitute tab and newline 
 		                         # characters
 		   $value =~ s/\n/\\n/g; # to their UNIX equivalents
-		   $value = '"' . $value . '" '} # if the value contains 
+		   $value = '"' . $value . '" ';
+	       }                                 # if the value contains 
 	                                         # anything other than valid 
 	                                         # tag/value characters, then 
 	                                         # quote it
-	       $value = "\"\"" unless defined $value; 
+	       $value = '\""' unless defined $value; 
                                               # if it is completely empty, 
 	                                      # then just make empty double 
 	                                      # quotes
-	       $valuestr .=  $value . " "; # with a trailing space in case 
-	                                   # there are multiple values
-	       # for this tag (allowed in GFF2 and .ace format)		
+	       push @v, $value;
+	       # for this tag (allowed in GFF2 and .ace format)
 	   }
-	   $str .= "$tag $valuestr ; ";	# semicolon delimited with no '=' sign
+	   push @group, "$tag ".join(" ", @v);
        }
-       chop $str; chop $str;  # remove the trailing semicolon and space
    }
+   $str .= "\t" . join(' ; ', @group);
    # Add Target information for Feature Pairs
    if( ! $feat->has_tag('Target') && # This is a bad hack IMHO
        ! $feat->has_tag('Group') &&
