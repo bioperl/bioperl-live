@@ -331,6 +331,10 @@ sub next_seq {
 	-annotation => $annotation,
 	);
 
+   # The annotation doesn't get added by the contructor
+   $seq->annotation($annotation);
+
+   return $seq;
 }
 
 =head2 write_seq
