@@ -428,8 +428,10 @@ sub overlap_extent{
     } else {
 	$bu += $b->end - $a->end;
     }
+    my $intersect = $a->intersection($b);
+    $ie = $intersect->end;
+    $is = $intersect->start;
 
-    ($is,$ie) = $a->intersection($b);
     return ($au,$ie-$is+1,$bu);
 }
 
