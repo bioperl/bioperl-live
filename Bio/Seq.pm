@@ -723,6 +723,8 @@ sub desc {
            Also notice that this method is not delegated to the
            internal Bio::PrimarySeq object
 
+           [Note this method name is likely to change in 1.3]
+
  Example : $id = $seq->primary_id or $seq->primary_id($id)
  Returns : A string
  Args    : None or an id

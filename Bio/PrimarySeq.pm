@@ -471,6 +471,8 @@ sub display_id {
            For sequences with no accession number, this method should
            return "unknown".
 
+           [Note this method name is likely to change in 1.3]
+
            With the new Bio::IdentifiableI interface, this is aliased 
            to object_id
 

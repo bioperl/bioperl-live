@@ -246,6 +246,8 @@ sub accession_number {
            For sequences with no accession number, this method should
            return a stringified memory location.
 
+           [Note this method name is likely to change in 1.3]
+
  Returns : A string
  Args    : None
  Status  : Virtual

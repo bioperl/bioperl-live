@@ -129,7 +129,9 @@ sub next_seq {
     $seq = $self->sequence_factory->create(
 					   -seq         => $sequence,
 					   -id          => $id,
-					   -primary_id  => $id,
+					   # Ewan's note - I don't think this healthy
+					   # but obviously to taste.
+					   #-primary_id  => $id,
 					   -desc        => $fulldesc,
 					   -alphabet    => $alphabet,
 					   -direct      => 1,

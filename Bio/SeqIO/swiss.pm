@@ -772,7 +772,7 @@ sub _print_swissprot_FTHelper {
 		  "Attempting to print, but there could be tears!");
    }
 
-   if( $fth->loc =~ /(\?|\d+)?\.\.(\?|\d+)?/ ) {
+   if( $fth->loc =~ /(\?|\d+|\>\d+|<\d+)?\.\.(\?|\d+|<\d+|>\d+)?/ ) {
        $start = $1 if defined $1;
        $end = $2 if defined $2;
 
