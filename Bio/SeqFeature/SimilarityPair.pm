@@ -119,7 +119,7 @@ sub new {
 			      )],@args);
     
     if( $sbjct ) { 
-	$self->deprecated("use of -subject deprecated: SimilarityPair now uses 'hit'");
+#	$self->deprecated("use of -subject deprecated: SimilarityPair now uses 'hit'");
 	if(! $hit) { $hit = $sbjct } 
 	else { 
 	    $self->warn("-hit and -subject were specified, using -hit and ignoring -subject");
@@ -203,7 +203,7 @@ sub query {
 
 sub subject { 
     my $self = shift;
-    $self->deprecated("Method subject deprecated: use hit() instead");
+#    $self->deprecated("Method subject deprecated: use hit() instead");
     $self->hit(@_); 
 }
 
@@ -252,9 +252,9 @@ sub hit {
  Title   : source_tag
  Usage   : $source = $obj->source_tag(); # i.e., program
            $obj->source_tag($evalue);
- Function: 
- Returns : 
- Args    : 
+ Function: Gets the source tag (program name typically) for a feature 
+ Returns : string
+ Args    : [optional] string
 
 
 =cut
