@@ -116,7 +116,7 @@ sub name {
 =head2 description
 
  Title   : description
- Usage   : $desc = $hit->get_hit_desc();
+ Usage   : $desc = $hit->description();
  Function: Retrieve the description for the hit
  Returns : a scalar string
  Args    : none
@@ -124,6 +124,21 @@ sub name {
 =cut
 
 sub description {
+    my ($self,@args) = @_;
+    $self->throw_not_implemented;
+}
+
+=head2 accession
+
+ Title   : accession
+ Usage   : $acc = $hit->accession();
+ Function: Retrieve the accession (if available) for the hit
+ Returns : a scalar string (empty string if not set)
+ Args    : none
+
+=cut
+
+sub accession {
     my ($self,@args) = @_;
     $self->throw_not_implemented;
 }
