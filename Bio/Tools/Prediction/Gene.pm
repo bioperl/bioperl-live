@@ -12,7 +12,7 @@
 
 =head1 NAME
 
-Bio::Tools::Prediction::Gene
+Bio::Tools::Prediction::Gene - a predicted gene structure feature
 
 =head1 SYNOPSIS
 
@@ -99,10 +99,6 @@ sub _initialize {
     return $make; # success - we hope!
 }
 
-#
-# Everything else is just inherited from SeqFeature::GeneStructure.
-#
-
 
 =head2 predicted_cds
 
@@ -162,5 +158,9 @@ sub predicted_protein {
     }
     return $self->{'_predicted_aa'};
 }
+
+#
+# Everything else is just inherited from SeqFeature::GeneStructure.
+#
 
 1;
