@@ -52,7 +52,8 @@ This DESCRIPTION only documents Bio::Tools::Run::StandAloneBlast.pm: - a
 Bioperl object for running the NCBI standAlone BLAST package.  Blast,
 itself, is a large & complex program - for more information regarding
 BLAST, please see the BLAST documentation which accompanies the BLAST
-distribution. BLAST is available from ftp://ncbi.nlm.nih.gov/blast/.
+distribution. BLAST is available from:
+ftp://ftp.ncbi.nlm.nih.gov/blast/server/current_release/.
 
 (A source of confusion in documenting a BLAST interface is that the
 term "program" is used in - at least - three different ways in the
@@ -344,7 +345,7 @@ sub new {
     # to facilitiate tempfile cleanup
     $self->_initialize_io();
     unless (&Bio::Tools::Run::StandAloneBlast::exists_blast()) {
-	$self->debug( "Blast program not found or not executable. \n  Blast can be obtained from ftp://ncbi.nlm.nih.gov/blast\n");    
+	$self->debug( "Blast program not found or not executable. \n  Blast can be obtained from ftp://ftp.ncbi.nlm.nih.gov/blast/server/current_release/\n");    
     } 
     # to facilitiate tempfile cleanup
     $self->_initialize_io();

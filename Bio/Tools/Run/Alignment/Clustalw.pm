@@ -47,7 +47,7 @@ Note: this DESCRIPTION only documents the (Bio)perl interface to
 Clustalw.  Clustalw, itself, is a large & complex program - for more
 information regarding clustalw, please see the clustalw documentation
 which accompanies the clustalw distribution. Clustalw is available
-from (among others) ftp://ftp.ebi.ac.uk/pub/software/. Clustalw.pm has
+from e.g. ftp://ftp-igbmc.u-strasbg.fr/pub/ClustalW/. Clustalw.pm has
 been tested so far only under Linux. I expect that it should also work
 under other Unix systems.  However, since the module is currently
 implemented using (unix) system calls, extensive modification may be
@@ -384,7 +384,7 @@ sub new {
      }
     unless ($self->exists_clustal()) {
 	if( $self->verbose >= 0 ) {
-	    warn "Clustalw program not found as ".$self->program." or not executable. \n  Clustalw can be obtained from eg- http://corba.ebi.ac.uk/Biocatalog/Alignment_Search_software.html/ \n";
+	    warn "Clustalw program not found as ".$self->program." or not executable. \n  Clustalw can be obtained from eg- ftp://ftp-igbmc.u-strasbg.fr/pub/ClustalW/ \n";
 	}
     }
   
