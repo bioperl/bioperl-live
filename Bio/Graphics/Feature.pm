@@ -60,6 +60,8 @@ Arguments are as follows:
   -primary_id  an alias for -name
   -display_id  an alias for -name
   -display_name an alias for -name  (do you get the idea the API has changed?)
+  -attributes  a hashref of tag value attributes, in which the key is the tag
+               and the value is an array reference of values
 
 The subfeatures passed in -segments may be an array of
 Bio::Graphics::Feature objects, or an array of [$start,$stop]
@@ -159,6 +161,7 @@ sub new {
   $self->{seq}     = $arg{-seq}   if exists $arg{-seq};
   $self->{phase}   = $arg{-phase} if exists $arg{-phase};
   $self->{desc}    = $arg{-desc}  if exists $arg{-desc};
+  $self->{attrib}  = $arg{-attributes} if exists $arg{-attributes};
 
   # fix start, stop
   if (defined $self->{stop} && defined $self->{start}
@@ -494,8 +497,17 @@ sub make_link {
   }
 }
 
-sub each_tag_value { return }
-sub all_tags { return }
+sub all_tags {
+  my $self = shift;
+  return keys %{$self->{attrib}};
+}
+sub each_tag_value {
+  my $self = shift;
+  my $tag  = shift;
+  my $value = $self->{attrib}{$tag} or return;
+  return CORE::ref $value ? @{$self->{attrib}{$tag}}
+                          : $self->{attrib}{$tag};
+}
 
 sub DESTROY { }
 
