@@ -16,16 +16,25 @@ BEGIN {
 	use lib 't';
     }
     use Test;
-    $NTESTS = 4;
+    $NTESTS = 14;
     plan tests => $NTESTS }
 
 use Bio::Factory::EMBOSS;
 use Bio::Root::IO;
-
-my $compseqoutfile = '/tmp/dna1.4.compseq';
+use Bio::SeqIO;
+use Bio::AlignIO;
+my $compseqoutfile = 'dna1.4.compseq';
+my $wateroutfile   = 'cysprot.water';
 END { 
-    foreach ( $Test::ntest..$NTESTS ) { skip("EMBOSS not installed locally",1);}
-    unlink($compseqoutfile) }
+
+    foreach ( $Test::ntest..$NTESTS ) { 
+	skip("EMBOSS not installed locally",1);
+    }
+    unlink($compseqoutfile);
+    unlink($wateroutfile);
+}
+
+    
 my $verbose = $ENV{'BIOPERLDEBUG'} || -1;
 ok(1);
 
@@ -56,4 +65,42 @@ ok(-e $compseqoutfile);
 #    while(<IN>) { print }
 #}
 
-		       
+my $water = $factory->program('water');
+
+ok ($water);
+
+# testing in-memory use of 
+my $in = new Bio::SeqIO(-format => 'fasta', 
+			-file =>  Bio::Root::IO->catfile('t',
+						   'data',
+							 'cysprot1a.fa'));
+my $seq = $in->next_seq();
+ok($seq);
+my @amino;
+$in = new Bio::SeqIO(-format => 'fasta', 
+			-file =>  Bio::Root::IO->catfile('t',
+							 'data',
+							 'amino.fa'));
+while( my $s = $in->next_seq) {
+    push @amino, $s;
+}
+$water->run({ '-sequencea' => $seq,
+	      '-seqall'    => \@amino,
+	      '-gapopen'   => '10.0',
+	      '-gapextend' => '0.5',
+	      '-outfile'   => $wateroutfile});
+
+ok(-e $wateroutfile);
+
+my $alnin =new Bio::AlignIO(-format => 'emboss',
+			    -file   => $wateroutfile);
+
+ok( $alnin);
+my $aln = $alnin->next_aln;
+ok($aln);
+ok($aln->length, 43);
+ok($aln->percentage_identity, 100);
+$aln = $alnin->next_aln;
+ok($aln);
+ok($aln->length, 339);
+ok(sprintf("%.2f",$aln->percentage_identity), 40.58);
