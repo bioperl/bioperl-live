@@ -29,7 +29,7 @@ if( $error == 1 ) {
     exit(0);
 }
 
-require "Bio::SearchDist";
+use Bio::SearchDist;
 ok(1);
 
 my $dist = new Bio::SearchDist;

@@ -38,9 +38,10 @@ if( $error ==  1 ) {
     exit(0);
 }
 
-require "Bio::DB::GenBank";
-require "Bio::DB::GenPept";
-require "Bio::DB::SwissProt";
+use Bio::DB::GenBank;
+use Bio::DB::GenPept;
+use Bio::DB::SwissProt;
+
 my $testnum;
 my $verbose = 0;
 
