@@ -578,7 +578,7 @@ warn $line;
 sub _get_first_termid {
     my ( $self, $line ) = @_;
     
-    if ( $line =~ /;\s*([A-Z_]{1,8}:\d{3,})/ ) {
+    if ( $line =~ /;\s*([A-Z_]{1,8}:\d{1,})/ ) {
         return $1;
     }
     else {
@@ -641,7 +641,7 @@ sub _get_db_cross_refs {
    
     while ( $line =~ /;([^;^<^%^:]+:[^;^<^%^:]+)/g ) {
         my $ref = $1;
-        if ( $ref =~ /synonym/ || $ref =~ /[A-Z]{1,8}:\d{3,}/ ) {
+        if ( $ref =~ /synonym/ || $ref =~ /[A-Z]{1,8}:\d{1,}/ ) {
             next;
         }
         $ref =~ s/\s+$//;
@@ -658,7 +658,7 @@ sub _get_secondary_termids {
     my ( $self, $line ) = @_;
     my @secs = ();
    
-    while ( $line =~ /,\s*([A-Z]{1,8}:\d{3,})/g ) {
+    while ( $line =~ /,\s*([A-Z]{1,8}:\d{1,})/g ) {
         my $sec = $1;
         push( @secs, $sec );
     }
@@ -674,9 +674,9 @@ sub _get_isa_termids {
     
     my @ids = ();
     
-    $line =~ s/[A-Z]{1,8}:\d{3,}//;
+    $line =~ s/[A-Z]{1,8}:\d{1,}//;
     
-    while ( $line =~ /%[^<^,]*?([A-Z]{1,8}:\d{3,})/g ) {
+    while ( $line =~ /%[^<^,]*?([A-Z]{1,8}:\d{1,})/g ) {
         push( @ids, $1 );
     }
     return @ids; 
@@ -690,9 +690,9 @@ sub _get_partof_termids {
     
     my @ids = ();
     
-    $line =~ s/[A-Z]{1,8}:\d{3,}//;
+    $line =~ s/[A-Z]{1,8}:\d{1,}//;
     
-    while ( $line =~ /<[^%^,]*?([A-Z]{1,8}:\d{3,})/g ) {
+    while ( $line =~ /<[^%^,]*?([A-Z]{1,8}:\d{1,})/g ) {
         push( @ids, $1 );
     }
     return @ids; 
