@@ -2,7 +2,7 @@
 ## Bioperl Test Harness Script for Modules
 ## $Id$
 use strict;
-use constant NUMTESTS => 49;
+use constant NUMTESTS => 52;
 
 BEGIN {     
     eval { require Test; };
@@ -29,6 +29,11 @@ ok $aln->get_seq_by_pos(1)->get_nse, '1433_LYCES/9-246', " failed pfam input tes
 my $aln2 = $aln->select(1,3);
 ok $aln2;
 ok $aln2->no_sequences, 3;
+
+# test select non continous
+$aln2 = $aln->select_noncont(2,7,8);
+ok($aln2->no_sequences, 3);
+ok($aln2->get_seq_by_pos(2)->id, $aln->get_seq_by_pos(7)->id);
 
 @seqs = $aln->each_seq();
 ok scalar @seqs, 16;
@@ -77,7 +82,7 @@ ok $aln->no_sequences, 15;
 ok $aln->add_seq($seqs[0]);
 ok $aln->no_sequences, 16;
 ok $seq = $aln->get_seq_by_pos(1);
-
+ok( $seq->id, '1433_LYCES');
 ok (($aln->missing_char(), 'P') and  ($aln->missing_char('X'), 'X')) ;
 ok (($aln->match_char(), '.') and  ($aln->match_char('-'), '-')) ;
 ok (($aln->gap_char(), '-') and  ($aln->gap_char('.'), '.')) ;
@@ -157,7 +162,6 @@ ok $string, "AAA/10-10    t\n";
 
 eval {
     $b = $a->slice(11,13);
-
 };
 
 ok ($@ =~ /EX/ );

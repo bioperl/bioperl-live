@@ -259,6 +259,27 @@ sub select {
     $self->throw_not_implemented();
 }
 
+
+=head2 select_noncont
+
+ Title     : select_noncont
+ Usage     : $aln2 = $aln->select_noncont(1, 3) # first and 3rd sequences
+ Function  : 
+
+             Creates a new alignment from a subset of
+             sequences.  Numbering starts from 1.  Sequence positions
+             larger than no_sequences() will thow an error.
+
+ Returns   : a Bio::SimpleAlign object
+ Args      : array of integers for the sequences
+
+=cut
+
+sub select_noncont {
+    my ($self) = @_;
+    $self->throw_not_implemented();
+}
+    
 =head2 slice
 
  Title     : slice

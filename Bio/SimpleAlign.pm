@@ -616,11 +616,11 @@ sub select {
     my $self = shift;
     my ($start, $end) = @_;
 
-    $self->throw("Slice start has to be a positive integer, not [$start]") 
+    $self->throw("Select start has to be a positive integer, not [$start]") 
 	unless $start =~ /^\d+$/ and $start > 0;
-    $self->throw("Slice end has to be a positive integer, not [$end]") 
+    $self->throw("Select end has to be a positive integer, not [$end]") 
 	unless $end  =~ /^\d+$/ and $end > 0;
-    $self->throw("Slice $start [$start] has to be smaller than or equal to end [$end]") 
+    $self->throw("Select $start [$start] has to be smaller than or equal to end [$end]") 
 	unless $start <= $end;
     
     my $aln = new $self;
@@ -631,6 +631,36 @@ sub select {
     return $aln;
 }
 
+=head2 select_noncont
+
+ Title     : select_noncont
+ Usage     : $aln2 = $aln->select_noncont(1, 3) # first and 3rd sequences
+ Function  : 
+
+             Creates a new alignment from a subset of
+             sequences.  Numbering starts from 1.  Sequence positions
+             larger than no_sequences() will thow an error.
+
+ Returns   : a Bio::SimpleAlign object
+ Args      : array of integers for the sequences
+
+=cut
+
+sub select_noncont {
+    my $self = shift;
+    my (@pos) = @_;
+    my $end = $self->no_sequences;
+    foreach ( @pos ) {
+	$self->throw("position must be a positive integer, > 0 and <= $end not [$_]") 
+	    unless( /^\d+$/ && $_ > 0 && $_ <= $end );
+    }
+    my $aln = new $self;
+    foreach my $p (@pos) {
+	$aln->add_seq($self->get_seq_by_pos($p));
+    }
+    $aln->id($self->id);
+    return $aln;
+}
 
 =head2 slice
 
