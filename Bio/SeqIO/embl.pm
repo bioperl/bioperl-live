@@ -594,7 +594,7 @@ sub write_seq {
 		    my $prim    = $dr->primary_id;
 		    my $opt     = $dr->optional_id || '';
 
-		    my $line = "$db_name; $prim; $opt.";
+		    my $line = $opt ? "$db_name; $prim; $opt." : "$db_name; $prim.";
 		    $self->_write_line_EMBL_regex("DR   ", "DR   ", $line, '\s+|$', 80); #'
 		}
 		$self->_print("XX\n");
@@ -919,7 +919,7 @@ sub _read_EMBL_DBLink {
     while (defined( $_ ||= $self->_readline )) {
         
         if (my($databse, $prim_id, $sec_id)
-                = /^DR   ([^\s;]+);\s*([^\s;]+);\s*([^\s;]+)?\.$/) {
+                = /^DR   ([^\s;]+);\s*([^\s;]+);?\s*([^\s;]+)?\.$/) {
             my $link = Bio::Annotation::DBLink->new();
             $link->database   ( $databse );
             $link->primary_id ( $prim_id );
