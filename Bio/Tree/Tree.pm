@@ -243,6 +243,9 @@ sub score{
  Title   : height
  Usage   : my $height = $tree->height
  Function: Gets the height of tree - this LOG_2($number_nodes)
+           WARNING: this is only true for strict binary trees.  The TreeIO
+           system is capable of building non-binary trees, for which this
+           method will currently return an incorrect value!!
  Returns : integer
  Args    : none
 
