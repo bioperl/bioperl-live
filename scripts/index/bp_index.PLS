@@ -156,15 +156,15 @@ if( $type ) {
 my $index;
 $_ = $fmt;
 SWITCH : {
-    /Fasta/ && do {
+    /Fasta/i && do {
 	$index = Bio::Index::Fasta->new("$dir/$name", 'WRITE');
 	last;
     };
-    /EMBL/ && do {
+    /EMBL/i && do {
 	$index = Bio::Index::EMBL->new("$dir/$name", 'WRITE');
 	last;
     };
-    /swiss/ && do {
+    /swiss/i && do {
 	$index = Bio::Index::Swissprot->new("$dir/$name", 'WRITE');
 	last;
     };
