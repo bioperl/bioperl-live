@@ -112,8 +112,8 @@ sub new {
 	    $self->_readline;
 	    %instances=_get_genes($self);
 	    $self->{instances}=\%instances;
-      	if !(%instances) {
-        	$self->warn "Your MAST analysis did not find any matches satisfying the current thershold.\nSee MAST documentation for more information.\n";
+      	if (!(%instances)) {
+        	$self->warn ("Your MAST analysis did not find any matches satisfying the current thershold.\nSee MAST documentation for more information.\n");
         	return $self; #The header might be useful so we return the object, not undef
       	}
 	    next;
