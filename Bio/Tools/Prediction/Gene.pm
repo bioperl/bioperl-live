@@ -1,0 +1,163 @@
+
+#
+# BioPerl module for Bio::Tools::Prediction::Gene
+#
+# Cared for by Hilmar Lapp <hlapp@gmx.net>
+#
+# Copyright Hilmar Lapp
+#
+# You may distribute this module under the same terms as perl itself
+
+# POD documentation - main docs before the code
+
+=head1 NAME
+
+Bio::Tools::Prediction::Gene
+
+=head1 SYNOPSIS
+
+See documentation of methods.
+
+=head1 DESCRIPTION
+
+A feature representing a predicted gene structure. This class actually
+inherits off Bio::SeqFeature::GeneStructure and therefore has all that
+functionality, plus a few methods supporting predicted sequence features,
+like a predicted CDS and a predicted translation.
+
+Exons held by an instance of this class will usually be instances of
+Bio::Tools::Prediction::Exon, although they do not have to be. Refer to the
+documentation of the class that produced the instance.
+
+Normally, you will not want to create an instance of this class yourself.
+Instead, classes representing the results of gene structure prediction
+programs will do that.
+
+=head1 FEEDBACK
+
+=head2 Mailing Lists
+
+User feedback is an integral part of the evolution of this
+and other Bioperl modules. Send your comments and suggestions preferably
+ to one of the Bioperl mailing lists.
+Your participation is much appreciated.
+
+  bioperl-l@bioperl.org          - General discussion
+  http://bio.perl.org/MailList.html             - About the mailing lists
+
+=head2 Reporting Bugs
+
+Report bugs to the Bioperl bug tracking system to help us keep track
+ the bugs and their resolution.
+ Bug reports can be submitted via email or the web:
+
+  bioperl-bugs@bio.perl.org
+  http://bio.perl.org/bioperl-bugs/
+
+=head1 AUTHOR - Hilmar Lapp
+
+Email hlapp@gmx.net or hilmar.lapp@pharma.novartis.com
+
+Describe contact details here
+
+=head1 APPENDIX
+
+The rest of the documentation details each of the object methods. Internal methods are usually preceded with a _
+
+=cut
+
+
+# Let the code begin...
+
+
+package Bio::Tools::Prediction::Gene;
+use vars qw(@ISA);
+use strict;
+
+# Object preamble - inherits from Bio::Root::Object
+
+use Bio::SeqFeature::GeneStructure;
+
+
+@ISA = qw(Bio::SeqFeature::GeneStructure);
+# new() is inherited from Bio::Root::Object
+
+# _initialize is where the heavy stuff will happen when new is called
+
+sub _initialize {
+    my($self,@args) = @_;
+    
+    my $make = $self->SUPER::_initialize(@args);
+
+    my ($primary) =
+	$self->_rearrange([qw(PRIMARY
+			      )],@args);
+
+    $primary = 'predicted_gene' unless $primary;
+    $self->primary_tag($primary);
+    # set stuff in self from @args
+    return $make; # success - we hope!
+}
+
+#
+# Everything else is just inherited from SeqFeature::GeneStructure.
+#
+
+
+=head2 predicted_cds
+
+ Title   : predicted_cds
+ Usage   : $predicted_cds_dna = $gene->predicted_cds();
+           $gene->predicted_cds($predicted_cds_dna);
+ Function: Get/Set the CDS (coding sequence) as predicted by a program.
+
+           This method is independent of an attached_seq. There is no
+           guarantee whatsoever that the returned CDS has anything to do
+           (e.g., matches) with the sequence covered by the exons as annotated
+           through this object.
+
+ Example :
+ Returns : A string holding the DNA sequence defined as coding by a prediction
+           of a program.
+ Args    :
+
+=cut
+
+sub predicted_cds {
+    my ($self, $cds) = @_;
+
+    if(defined($cds)) {
+	$self->{'_predicted_cds'} = $cds;
+    }
+    return $self->{'_predicted_cds'};
+}
+
+=head2 predicted_protein
+
+ Title   : predicted_protein
+ Usage   : $predicted_protein_seq = $gene->predicted_protein();
+           $gene->predicted_protein($predicted_protein_seq);
+ Function: Get/Set the protein translation as predicted by a program.
+
+           This method is independent of an attached_seq. There is no
+           guarantee whatsoever that the returned translation has anything to
+           do with the sequence covered by the exons as annotated
+           through this object, or the sequence returned by predicted_cds(),
+           although it should usually be just the standard translation.
+
+ Example :
+ Returns : A string holding the protein translation as predicted by a program.
+ Args    :
+
+=cut
+
+sub predicted_protein {
+    my ($self, $aa) = @_;
+
+    if(defined($aa)) {
+	$self->{'_predicted_aa'} = $aa;
+    }
+    return $self->{'_predicted_aa'};
+}
+
+1;
