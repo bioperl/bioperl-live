@@ -4,44 +4,53 @@ PRIMARY AUTHORS AND MAJOR CONTRIBUTORS TO BIOPERL
 
 Releases co-ordinated and submitted by bioperl core devs. 
 
-* Ewan Birney <birney@ebi.ac.uk>
-* Chris Dagdigian <dag@sonsorol.org>
-* Hilmar Lapp <hilmarl@yahoo.com>
-* Heikki Lehvaslaiho <heikki@ebi.ac.uk>
-* Jason Stajich <jason@bioperl.org>
+* Ewan Birney <birney at ebi.ac.uk>
+* Chris Dagdigian <dag at sonsorol.org>
+* Hilmar Lapp <hilmarl at yahoo.com>
+* Heikki Lehvaslaiho <heikki at ebi.ac.uk>
+* Jason Stajich <jason at bioperl.org>
 
 Major Contributors
 (Feel free to add descriptions of which modules you are responsible
 for if you see fit)
 
-Kris Boulez <Kris.Boulez@pandora.be>
-David Block <dblock@gene.pbi.nrc.ca>
-Brad Chapman <chapmanb@arches.uga.edu>
-Steve Chervitz <sac@bioperl.org>
-Michele Clamp <michele@sanger.ac.uk>
-Tony Cox <avc@sanger.ac.uk>
-Andrew Dalke <dalke@acm.org>
-Allen Day <allenday@ucla.edu>
-Arne Elofsson <arne@sbc.su.se>
-Mark Fiers <M.W.E.J.Fiers@plant.wag-ur.nl>
-Georg Fuellen <fullen@bioperl.org>
-James Gilbert <jgrg@sanger.ac.uk>
-Roger Hall <roger@iosea.com>
-Ian Holmes <ihn@fruitfly.org>
-Joseph Insana <insana@ebi.ac.uk> - Bio::LiveSeq
-Nicolas Joly <njoly@pasteur.fr> 
-Ian Korf <ikorf@sapiens.wustl.edu>
-Aaron Mackey <amackey@virginia.edu>
-Brad Marshall <bradmars@yahoo.com>
-Chad Matsalla <bioinformatics1@dieselwurks.com>
-Chris Mungall <cjm@fruitfly.bdgp.berkeley.edu>
-Brian Osborne <b_i_osborne@hotmail.com>
-Matthew Pockock <mrp@sanger.ac.uk>
-Todd Richmond <todd@andrew2.stanford.edu>
-Peter Schattner <schattner@alum.mit.edu>
-Lincoln Stein <lstein@cshl.org>
-Elia Stupka <elia@ebi.ac.uk>
-Gert Thijs <gert.thijs@esat.kuleuven.ac.be> 
-Mark Wilkinson <mwilkinson@gene.pbi.nrc.ca>
-Helge Weissig <helgew@sdsc.edu>
-Alex Zelensky <alex_zelensky@mac.com> - Bioperl-DB 
+Kris Boulez <Kris.Boulez at pandora.be>
+David Block <dblock at gene.pbi.nrc.ca>
+Brad Chapman <chapmanb at arches.uga.edu>
+Steve Chervitz <sac at bioperl.org>
+Michele Clamp <michele at sanger.ac.uk>
+Tony Cox <avc at sanger.ac.uk>
+Jame Cuff <james at sanger.ac.uk>
+Andrew Dalke <dalke at acm.org>
+Allen Day <allenday at ucla.edu>
+Arne Elofsson <arne at sbc.su.se>
+Mark Fiers <M.W.E.J.Fiers at plant.wag-ur.nl>
+Georg Fuellen <fullen at bioperl.org>
+James Gilbert <jgrg at sanger.ac.uk>
+Ed Green <ed at compbio.berkeley.edu>
+Roger Hall <roger at iosea.com>
+Ian Holmes <ihn at fruitfly.org>
+Joseph Insana <insana at ebi.ac.uk> - Bio::LiveSeq
+Nicolas Joly <njoly at pasteur.fr> 
+Ian Korf <ikorf at sapiens.wustl.edu>
+Arek Kasprzyk <arek at ebi.ac.uk>
+Aaron Mackey <amackey at virginia.edu>
+Brad Marshall <bradmars at yahoo.com>
+Chad Matsalla <bioinformatics1 at dieselwurks.com>
+Chris Mungall <cjm at fruitfly.bdgp.berkeley.edu>
+Brian Osborne <b_i_osborne at hotmail.com>
+Matthew Pockock <mrp at sanger.ac.uk>
+Lorenz Pollack <lorenz at ist.org> -- BPlite porting
+Todd Richmond <todd at andrew2.stanford.edu>
+Peter Schattner <schattner at alum.mit.edu>
+Arne Stabenau <stabenau at ebi.ac.uk>
+Lincoln Stein <lstein at cshl.org>
+Elia Stupka <elia at ebi.ac.uk>
+Gert Thijs <gert.thijs at esat.kuleuven.ac.be> 
+Charles Tilford <tilfordc at bms.com>
+Paul-Christophe Varoutas 
+Andrew G. Walsh <paeruginosa at hotmail.com>
+Kai Wang <tumorimmunology at yahoo.com>
+Mark Wilkinson <mwilkinson at gene.pbi.nrc.ca>
+Helge Weissig <helgew at sdsc.edu>
+Alex Zelensky <alex_zelensky at mac.com> - Bioperl-DB 
