@@ -1,8 +1,7 @@
-
 #
 # $Id$
 #
-# BioPerl module for Bio::Index::Abstract
+# BioPerl module for Bio::Index::Fasta
 #
 # Cared for by James Gilbert <jgrg@sanger.ac.uk>
 #
@@ -145,7 +144,6 @@ sub _index_file {
     
     my( $begin,     # Offset from start of file of the start
                     # of the last found record.
-        @id_list,   # List of ids from last record
         );
 
     $begin = 0;
@@ -221,6 +219,3 @@ sub default_id_parser {
 }
 
 1;
-
-
-
