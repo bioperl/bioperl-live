@@ -215,6 +215,11 @@ sub next_psm {
 	    $self->{end}=1;
 	    return undef;
 	}
+	if ($line=~/^Time\s/) {
+	    $self->{end}=1;
+		warn "This MEME analysis was terminated prematurely, you may have less motifs than you requested\n";
+	    return undef;
+	}
     }
     $self->throw("Wrong format\n"); # Should be able to find the SUMMARY part, not that we parse it really
 }
