@@ -400,3 +400,6 @@ DB_File                  Perl access to Berkeley DB
 			 Bio::Index::*
                          Requires Berkeley DB, from Linux RPM
 			 or from www.sleepycat.com
+
+Graph::Directed          generic graph data and algoithms
+                         Bio::Ontology::SimpleOntologyEngine
