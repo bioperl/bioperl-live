@@ -78,7 +78,7 @@ $status = print $out2 $al;
 my ($seq, $id, %hash) ;
 
 # loop over the alignment
-foreach  $seq ( $al->eachSeq() ) {
+foreach  $seq ( $al->each_seq() ) {
     # increment a hash on the name by one each time
     $hash{$seq->id()}++;
 }

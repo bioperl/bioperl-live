@@ -430,7 +430,7 @@ sub sort_alphabetically {
     my ($seq,$nse,@arr,%hash,$count);
 
     foreach $seq ( $self->each_seq() ) {
-	$nse = $seq->get_nse("-","-");
+	$nse = $seq->get_nse();
 	$hash{$nse} = $seq;
     }
 
