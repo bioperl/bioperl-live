@@ -604,7 +604,7 @@ sub add_SeqFeature {
        
        if( $feat->can("seq") ) {
 	   $fseq = $feat->seq;
-	   $aseq = $self->seq;
+	   $aseq = $self->primary_seq;
 	   
 	   if( defined $aseq ) {
 	       if( defined $fseq ) {
