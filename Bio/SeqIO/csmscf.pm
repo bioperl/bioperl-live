@@ -126,7 +126,7 @@ sub _next_scf {
     return unless read $fh, $buffer, 128; # no exception; probably end of file
     $self->_parse_header($buffer);
     $self->warn("After getting the header information, the read position is ".tell($fh)) if( $self->verbose > 0 );
-    # gather the trace information
+	    # gather the trace information
     $length = $self->{samples}*$self->{sample_size}*4;
     $self->warn("Going to read trace sample information. Current file position is: ".tell($fh).". Read length is: $length") if( $self->verbose > 0 );
     read $fh,$buffer,$length;
@@ -140,8 +140,10 @@ sub _next_scf {
     # now go and get the base information
     $offset = $self->{bases_offset};
     $length = ($self->{bases} * 12);
+	# this message is unnecessary. delete it. csm
     $self->warn("Reading the bases: Going to $offset to read $length bytes which is ".$self->{bases}." times 12.\n") if( $self->verbose > 0);
     seek $fh,$offset,0;
+	# this is absolutely unnecessary. delete it. csm
     $self->warn("Just before the read, the curent filehandle position is: ".
 		tell($fh)) if( $self->verbose > 0 );
     read $fh, $buffer, $length;
@@ -153,8 +155,10 @@ sub _next_scf {
     # now go and get the base information
     $offset = $self->{comments_offset};
     $length = $self->{comment_size};
+	# this is absolutely unnecessary. delete it. csm
     $self->warn("Reading the comments: Going to $offset to read $length bytes.") if( $self->verbose > 0 );
     seek $fh,$offset,0;
+	# this is absolutely unnecessary. delete it. csm
     $self->warn("Just before the read, the curent filehandle position is: ".
 	  tell($fh)) if( $self->verbose > 0);
     read $fh, $buffer, $length;
@@ -162,8 +166,6 @@ sub _next_scf {
 	$self->throw('Unexpected end of file while reading from SCF file');
     }
     $self->_parse_comments($buffer);
-    # my @qualities = @{$self->{qualities}};
-    # print("The ref for selfqualities is ".ref($self->{qualities})." while the ref for \@qualities is ".ref(@qualities)."\n");
     my $swq = Bio::Seq::SeqWithQuality->new(-seq  =>	$self->{'parsed'}->{'sequence'},
 					    -qual =>	$self->{'parsed'}->{'qualities'},
 					    -id	  =>	$self->{'comments'}->{'NAME'});
@@ -251,7 +253,6 @@ sub _parse_bases {
     my @read;
     for ($offset2=0;$offset2<$length;$offset2+=12) {
 	@read = unpack "N C C C C a C3", substr($buffer,$offset2,$length);
-	# print("\@read is @read\n");
 	$currbase = uc($read[5]);
 	if ($currbase eq "A") { $currqual = $read[1]; }
 	if ($currbase eq "C") { $currqual = $read[2]; }
@@ -302,8 +303,6 @@ sub _split_traces {
 	my @read = @$rread;
 	my $array = 0;
 	for (my $offset2 = 0; $offset2< scalar(@read); $offset2+=4) {
-		# print("\$offset2 is $offset2\n");
-		# print(int($offset2/4)."\t$read[$offset2] $read[$offset2+1] $read[$offset2+2] $read[$offset2+3]\n");
 		if ($array) {
 			push @{$self->{'traces'}->{'A'}},$read[$offset2];
 			push @{$self->{'traces'}->{'C'}},$read[$offset2+1];
@@ -316,12 +315,6 @@ sub _split_traces {
 			$self->{'traces'}->{'T'} .= " ".$read[$offset2+3];
 		}
 	}
-	# my @ta = split(' ',$self->{'traces'}->{A});
-	# my @tc = split(' ',$self->{'traces'}->{C});
-	# my @tg = split(' ',$self->{'traces'}->{G});
-	# my @tt = split(' ',$self->{'traces'}->{T});
-	# print("Total number of samples is ".(scalar(@ta)+scalar(@tc)+scalar(@tg)+scalar(@tt))."\n");
-	# &_dump_traces(\@ta,\@tc,\@tg,\@tt);
 	return;
 }
 
@@ -340,6 +333,7 @@ sub _split_traces {
 sub get_trace {
 	my ($self,$base_channel) = @_;
 	$base_channel =~ tr/a-z/A-Z/;
+		# this is unnecessary. delete it. csm
 		# $self->warn("get_trace: you asked for the colour channel for $base_channel\n") if( $self->verbose > 0 );
 	if ($base_channel !~ /A|T|G|C/) {
 		$self->throw("You tried to ask for a base channel that wasn't A,T,G, or C. Ask for one of those next time.");
@@ -392,7 +386,6 @@ sub _dump_traces {
 =cut
 
 sub write_scf {
-    # modeled a bit after SeqIO::fasta.pm, but...
     my ($self,%args) = @_;
     my %comments;
     my ($label,$arg);
@@ -400,21 +393,16 @@ sub write_scf {
     unless (ref($swq) eq "Bio::Seq::SeqWithQuality") {
 	$self->throw("You must pass a Bio::Seq::SeqWithQuality object to write_scf as a parameter named \"SeqWithQuality\"");
     }
-	# verify that there is some sequence or some qualities
+		# verify that there is some sequence or some qualities
 	$self->_fill_missing_data($swq);
-
-
-
-    # print("write_scf!!! Woowoo. Received a swq object. It is $swq\n");
-    # print("Here are the args:\n");
-    # all of the rest of the arguments are comments, at the moment
+		# all of the rest of the arguments are comments for the scf
     foreach $arg (sort keys %args) {
 	next if ($arg =~ /SeqWithQuality/);
 	($label = $arg) =~ s/^\-//;
 	$comments{$label} = %args->{$arg};
     }
     if (!$comments{'NAME'}) { $comments{'NAME'} = $swq->id(); }
-    # HA! Bwahahahaha.
+	    # HA! Bwahahahaha.
     $comments{'CONV'} = "Bioperl-Chads Mighty SCF writer.";
 
     # set a few things in the header
@@ -441,6 +429,7 @@ sub write_scf {
     $self->{'header'}->{'private_offset'} = 128 + $samples_size + $bases_size + $self->{'header'}->{'comments_size'};
 
     my $b_header = $self->_give_header_binary();
+	# this is unnecssary. delete it. csm.
     if( $self->verbose > 0 ) {
 	$self->warn(join('', ("Lengths:\n",
 			      "Header  : ".length($b_header)."\n",
@@ -449,6 +438,8 @@ sub write_scf {
 			      "Comments: ".length($b_comments)."\n")));
     }
     my $fh = $self->_filehandle();
+	# should something better be done rather then returning after writing? I don't do any
+	# exception trapping here
     print $fh ($b_header) or return;
     print $fh ($b_traces) or return;
     print $fh ($b_bases) or return;
@@ -538,15 +529,11 @@ sub _give_tracesbases_binary {
     my $half_ramp = int($samples->{'ramp_width'}/2);
     for ($pos = 0; $pos<$sequence_length;$pos++) {
 	$current_base = substr($samples->{'sequence'},$pos,1);
-	# print("Current base is $current_base\n");
 	# where should the peak for this base be placed? Modeled after a mktrace scf
 	$place_base_at = ($pos * $samples->{'ramp_width'}) - 
 	                 ($pos * $samples->{overlap}) - 
 		         $half_ramp + $samples->{'ramp_width'} - 1;
-	# print("Placing base $current_base at $place_base_at.\n");
-	# next;
 	$peak_quality = $quals[$pos];
-	# print("$current_base has a quality $peak_quality\n");
 	if ($current_base eq "A") {
 	    $ramp_position = $place_base_at - $half_ramp;
 	    for ($current_ramp = 0; 
@@ -554,14 +541,12 @@ sub _give_tracesbases_binary {
 		 $current_ramp++) {
 		$samples->{'arrays'}->{'sam_a'}[$ramp_position+$current_ramp] = $peak_quality * $samples->{'ramp'}[$current_ramp];
 	    }
-				# print(($pos+12)."\t".$peak_quality."\t0\t0\t0\t".$current_base."\t0\t0\t0\n");
 	    push @{$samples->{'arrays'}->{all_bases}},($place_base_at+1,$peak_quality,0,0,0,$current_base,0,0,0);
 	} elsif ($current_base eq "C") {
 	    $ramp_position = $place_base_at - $half_ramp;
 	    for ($current_ramp = 0; $current_ramp < $samples->{'ramp_width'}; $current_ramp++) {
 		$samples->{'arrays'}->{'sam_c'}[$ramp_position+$current_ramp] = $peak_quality * $samples->{'ramp'}[$current_ramp];
 	    }
-				# print(($pos+12)."\t0\t".$peak_quality."\t0\t0\t".$current_base."\t0\t0\t0\n");
 	    push @{$samples->{'arrays'}->{'all_bases'}},($place_base_at+1,0,$peak_quality,0,0,$current_base,0,0,0);
 	} elsif ($current_base eq "G") {
 	    $ramp_position = $place_base_at - $half_ramp;
@@ -571,7 +556,6 @@ sub _give_tracesbases_binary {
 	    {
 		$samples->{'arrays'}->{'sam_g'}[$ramp_position+$current_ramp] = $peak_quality * $samples->{'ramp'}[$current_ramp];
 	    }
-				# print(($pos+12)."\t0\t0\t".$peak_quality."\t0\t".$current_base."\t0\t0\t0\n");
 	    push @{$samples->{'arrays'}->{'all_bases'}},($place_base_at+1,0,0,$peak_quality,0,$current_base,0,0,0);
 	}
 	elsif ($current_base eq "N") {
@@ -581,7 +565,6 @@ sub _give_tracesbases_binary {
 		 $current_ramp++) {
 		$samples->{'arrays'}->{'sam_a'}[$ramp_position+$current_ramp] = $peak_quality * $samples->{'ramp'}[$current_ramp];
 	    }
-				# print(($pos+12)."\t0\t0\t0\t".$peak_quality."\t".$current_base."\t0\t0\t0\n");
 	    push @{$samples->{'arrays'}->{'all_bases'}},($place_base_at+1,0,0,0,$peak_quality,$current_base,0,0,0);
 	}
 	else {
@@ -589,9 +572,6 @@ sub _give_tracesbases_binary {
 	    # print("The current base is not a base. Hmmm.\n");
 	}
     }
-    # dumpValue($samples);
-    # &dump_traces(\@sam_a,\@sam_c,\@sam_g,\@sam_t);
-    # return $trace_string,\@traces_view,$length,\@traces;
     ($samples->{'strings'}->{'trace_string'}->{'string'},
      $samples->{'arrays'}->{'samples_view'},
      $samples->{'strings'}->{'trace_string'}->{'length'},
@@ -601,29 +581,18 @@ sub _give_tracesbases_binary {
 			     $samples->{'arrays'}->{'sam_g'},
 			     $samples->{'arrays'}->{'sam_t'});
     $samples->{'strings'}->{'bases'} = join(' ',@{$samples->{'arrays'}->{'all_bases'}});
-    # $self->{'strings'}->{bases} = $samples->{'strings'}->{bases};
-    # my @traces_to_bin = split(' ',$trace_string);
     @{$samples->{'arrays'}->{'all_traces'}} = split(' ',$samples->{'strings'}->{trace_string}->{string});
-    # print("There are ".scalar(@{$samples->{bases}})." bases in the base string.\n")
     my ($packstring,@pack_array,$pos2,$tester,@unpacked);
     for ($pos = 0; $pos<$sequence_length;$pos++) {
 	my @pack_array = @{$samples->{'arrays'}->{'all_bases'}}[$pos*9..$pos*9+8];
-	# print("Trying to pack @pack_array\n");
-	# $tester = pack "N C C C C a C3",@pack_array;
-	# print("Now trying to _un_pack the same string.\n");
-	# @unpacked = unpack "N C C C C a C3",$tester;
-	# print("The unpacked string is @unpacked\n");
-
 	$samples->{'binaries'}->{'bases'} .= pack "N C C C C a C3",@pack_array;
     }
-
+	# this is unnecessary. delete it. csm
     $self->warn("binary bases string has length ".length($samples->{'binaries'}->{'bases'})."\n") if( $self->verbose > 0 );
-    # $samples->{bases} = undef;
     my $trace_pack_length = $samples->{'strings'}->{'trace_string'}->{'length'} * 4 * $self->{'header'}->{'sample_size'};
     $self->warn("\$length of trace pack is ".$trace_pack_length."\n") if($self->verbose > 0 );
-    # $samples->{binaries}->{'traces'} = pack "n
     $samples->{'binaries'}->{'traces'} .= pack "n$trace_pack_length",@{$samples->{'arrays'}->{'all_traces'}};
-    # print("\$trace_string is $trace_string.\n");	
+	# this is unnecessary. delete it. csm
     $self->warn("Length of binary bases is ".length($samples->{'binaries'}->{'bases'})."\n") if( $self->verbose > 0 );
     return ($samples->{'binaries'}->{'traces'},
 	    $samples->{'binaries'}->{'bases'},
@@ -684,7 +653,6 @@ sub _give_comments_binary {
 	$comments_string .= "$_=".$comments{$_}."\n";
     }
     $comments_string .= "\n\0";
-    # print("Comments string is $comments_string\n");
     my $length = length($comments_string);
     my $binary .= pack "A$length",$comments_string;
     return $binary;
