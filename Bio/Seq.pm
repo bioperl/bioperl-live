@@ -722,30 +722,31 @@ sub desc {
            For sequences with no natural id, this method should return
            a stringified memory location.
 
-           Can also be used to set the primary_id.
-
-           Also notice that this method is not delegated to the
-           internal Bio::PrimarySeq object
+           Can also be used to set the primary_id (or unset to undef).
 
            [Note this method name is likely to change in 1.3]
 
  Example : $id = $seq->primary_id or $seq->primary_id($id)
  Returns : A string
- Args    : None or an id
+ Args    : None or an id, or undef to unset the primary id.
 
 
 =cut
 
 sub primary_id {
-    my $obj = shift;
+    # Note: this used to not delegate to the primary seq. This is
+    # really bad in very subtle ways. E.g., if you created the object
+    # with a primary id given to the constructor and then later you
+    # change the primary id, if this method wouldn't delegate you'd
+    # have different values for primary id in the PrimarySeq object
+    # compared to this instance. Not good.
 
-    if(@_) {
-	$obj->{'primary_id'} = shift;
-    }
-    if( ! defined($obj->{'primary_id'}) ) {
-	return "$obj";
-    }
-    return $obj->{'primary_id'};
+    # I can't remember why not delegating was ever deemed
+    # advantageous, but I hereby claim that its problems far outweigh
+    # its advantages, if there are any. Convince me otherwise if you
+    # disagree. HL 2004/08/05
+
+    return shift->primary_seq->primary_id(@_);
 }
 
 =head2 can_call_new
