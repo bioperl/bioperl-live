@@ -731,8 +731,8 @@ L<Bio::LocatableSeq::location_from_column>:
            outside the length of the aligment
            (e.g. column_from_residue_number( "Seq2", 22 )
 
-	  Note: If the the parent sequence is represented by more than
-	  one alignment sequence and the residue number is present in
+	  Note: If the parent sequence is represented by more than one
+	  alignment sequence and the residue number is present in
 	  them, this method finds only the first one.
 
  Returns : A column number for the position in the alignment of the
