@@ -153,6 +153,20 @@ BEGIN {
 
 # helper method to get db specific options
 
+=head2 new
+
+ Title   : new
+ Usage   : $gb = Bio::DB::GenBank->new(@options)
+ Function: Creates a new genbank handle
+ Returns : New genbank handle
+ Args    : -delay   number of seconds to delay between fetches (3s)
+
+NOTE:  There are other options that are used internally.  By NCBI policy, this
+module introduces a 3s delay between fetches.  If you are fetching multiple genbank
+ids, it is a good idea to use get
+
+=cut
+
 =head2 get_params
 
  Title   : get_params
@@ -212,26 +226,6 @@ sub get_params {
 
 =head1 Routines implemented by Bio::DB::NCBIHelper
 
-=head2 get_request
-
- Title   : get_request
- Usage   : my $url = $self->get_request
- Function: HTTP::Request
- Returns : 
- Args    : %qualifiers = a hash of qualifiers (ids, format, etc)
-
-=head2 get_Stream_by_batch
-
-  Title   : get_Stream_by_batch
-  Usage   : $seq = $db->get_Stream_by_batch($ref);
-  Function: Retrieves Seq objects from Entrez 'en masse', rather than one
-            at a time.  For large numbers of sequences, this is far superior
-            than get_Stream_by_[id/acc]().
-  Example :
-  Returns : a Bio::SeqIO stream object
-  Args    : $ref : either an array reference, a filename, or a filehandle
-            from which to get the list of unique ids/accession numbers.
-
 =head2 get_Stream_by_query
 
   Title   : get_Stream_by_query
@@ -278,6 +272,28 @@ sub get_params {
   Args    : $ref : a reference to an array of gi numbers for
                    the desired sequence entries
   Note    : For GenBank, this just calls the same code for get_Stream_by_id()
+
+=head2 get_Stream_by_batch
+
+  Title   : get_Stream_by_batch
+  Usage   : $seq = $db->get_Stream_by_batch($ref);
+  Function: Retrieves Seq objects from Entrez 'en masse', rather than one
+            at a time.
+  Example :
+  Returns : a Bio::SeqIO stream object
+  Args    : $ref : either an array reference, a filename, or a filehandle
+            from which to get the list of unique ids/accession numbers.
+
+NOTE: This method is redundant and deprecated.  Use get_Stream_by_id()
+instead.
+
+=head2 get_request
+
+ Title   : get_request
+ Usage   : my $url = $self->get_request
+ Function: HTTP::Request
+ Returns : 
+ Args    : %qualifiers = a hash of qualifiers (ids, format, etc)
 
 1;
 __END__

@@ -121,6 +121,18 @@ BEGIN {
     $DEFAULTFORMAT = 'embl';
 }
 
+=head2 new
+
+ Title   : new
+ Usage   : $gb = Bio::DB::GenBank->new(@options)
+ Function: Creates a new genbank handle
+ Returns : New genbank handle
+ Args    : -delay   number of seconds to delay between fetches (3s)
+
+NOTE:  There are other options that are used internally.
+
+=cut
+
 sub new {
     my ($class, @args ) = @_;
     my $self = $class->SUPER::new(@args);

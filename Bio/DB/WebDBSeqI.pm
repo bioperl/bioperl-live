@@ -106,14 +106,16 @@ BEGIN {
 sub new {
     my ($class, @args) = @_;
     my $self = $class->SUPER::new(@args);
-    my ($baseaddress, $params, $ret_type, $format) = 
-	$self->_rearrange([qw(BASEADDRESS PARAMS RETRIEVALTYPE FORMAT)],
+    my ($baseaddress, $params, $ret_type, $format,$delay) =
+	$self->_rearrange([qw(BASEADDRESS PARAMS RETRIEVALTYPE FORMAT DELAY)],
 			  @args);
 
     $ret_type = $DEFAULT_RETRIEVAL_TYPE unless ( $ret_type);
-    $baseaddress && $self->url_base_address($baseaddress);
-    $params      && $self->url_params($params);
-    $ret_type    && $self->retrieval_type($ret_type);
+    $baseaddress   && $self->url_base_address($baseaddress);
+    $params        && $self->url_params($params);
+    $ret_type      && $self->retrieval_type($ret_type);
+    $delay          = $self->delay_policy unless defined $delay;
+    $self->delay($delay);
 
     # insure we always have a default format set for retrieval
     # even though this will be immedietly overwritten by most sub classes
@@ -691,6 +693,27 @@ sub io {
 }
 
 
+=head2 delay
+
+ Title   : delay
+ Usage   : $secs = $self->delay([$secs])
+ Function: get/set number of seconds to delay between fetches
+ Returns : number of seconds to delay
+ Args    : new value
+
+NOTE: the default is to use the value specified by delay_policy().
+This can be overridden by calling this method, or by passing the
+-delay argument to new().
+
+=cut
+
+sub delay {
+   my $self = shift;
+   my $d = $self->{'_delay'};
+   $self->{'_delay'} = shift if @_;
+   $d;
+}
+
 =head2 delay_policy
 
  Title   : delay_policy
@@ -727,8 +750,8 @@ allows.
 sub _sleep {
    my $self = shift;
    my $last_invocation = $LAST_INVOCATION_TIME;
-   if (time - $LAST_INVOCATION_TIME < $self->delay_policy) {
-      my $delay = $self->delay_policy - (time - $LAST_INVOCATION_TIME);
+   if (time - $LAST_INVOCATION_TIME < $self->delay) {
+      my $delay = $self->delay - (time - $LAST_INVOCATION_TIME);
       warn "sleeping for $delay seconds\n" if $self->verbose;
       sleep $delay;
    }
