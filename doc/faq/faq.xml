@@ -2,7 +2,7 @@
 <faq>
    <header>
       <title>Bioperl FAQ</title>
-      <version>1.0.1</version>
+      <version>1.0.2</version>
       <author>Jason Stajich &lt;jason@bioperl.org&gt;</author>
       <author>Brian Osborne &lt;brian_osborne@cognia.com&gt;</author>
       <author>Heikki Lehvaslaiho &lt;heikki@ebi.ac.uk&gt;</author>
@@ -41,8 +41,7 @@
       </q>
       <q id="3">
          <question>What is the difference between 0.9.x and 0.7.x? What do you mean developer release?</question>
-         <answer>
-            <p>0.7.X series (0.7.0, 0.7.2) were all released in 2001 and were stable releases on 0.7 branch.  This means they had a set of functionality that is maintained throughout (no experimental modules) and were guaranteed to have all tests and subsequent bug fix releases with the 0.7 designation would not have any API changes.</p>
+         <answer><p>0.7.X series (0.7.0, 0.7.2) were all released in 2001 and were stable releases on 0.7 branch.  This means they had a set of functionality that is maintained throughout (no experimental modules) and were guaranteed to have all tests and subsequent bug fix releases with the 0.7 designation would not have any API changes.</p>
             <p>The 0.9.X series was our first attempt at releasing so called developer releases.  These are snapshots of the actively developed code that at a minimum pass all our tests.</p>
             <p>But really, you should be using version 1.*!</p>
          </answer>
@@ -54,8 +53,7 @@
       </q>
       <q id="2">
          <question>How do I figure out how to use a module?</question>
-         <answer>
-            <p>Read the embedded perl documentation (Plain Old Documentation - POD) that is part of every modules.  Do: </p>
+         <answer><p>Read the embedded perl documentation (Plain Old Documentation - POD) that is part of every modules.  Do: </p>
             <code>  % perldoc MODULE
             </code>
             <p>(careful - spelling and case counts!).</p>
@@ -264,6 +262,21 @@ Bio::DB::GenPept when you are retrieving these accessions. This is still an area
                            $_-&gt;each_tag_value('note') : (); 
                            grep { /$noteval/ } @a; 
                          }  $seq-&gt;all_SeqFeatures(); 
+      </code>
+       </answer>
+      </q>
+      <q id="3">
+      <question>How do I parse the CDS join() statements in Genbank or EMBL files so I can reconstruct the CDS sequence?
+      </question>
+      <answer>
+      <p>You need to use a Location::SplitLocationI object to get the coordinates and primary_tag() to find the CDS features:</p>
+      <code>
+  if ( $feature-&gt;location-&gt;isa('Bio::Location::SplitLocationI') 
+	&amp;&amp; $feature-&gt;primary_tag eq 'CDS' )  {
+    foreach $location ( $feature-&gt;location-&gt;sub_Location ) {
+      print $location-&gt;start . ".." . $location-&gt;end . "\n";
+    }
+  }
       </code>
        </answer>
       </q>

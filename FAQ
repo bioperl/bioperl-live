@@ -73,6 +73,8 @@ Contents
    Q5.2: How do I retrieve all the features from a Sequence?  How about all
 	 the features which are exons or have a /note field that contains a
 	 certain gene name?
+   Q5.3: How do I parse the CDS join() statements in Genbank or EMBL files
+	 so I can reconstruct the CDS sequence?
 
 
 ---------------------------------------------------------------------------
@@ -493,6 +495,21 @@ Contents
 				    $_->each_tag_value('note') : (); 
 				    grep { /$noteval/ } @a; 
 				  }  $seq->all_SeqFeatures(); 
+
+
+   Q5.3: How do I parse the CDS join() statements in Genbank or EMBL files
+	 so I can reconstruct the CDS sequence?
+
+      A: You need to use a Location::SplitLocationI object to get the
+	 coordinates and primary_tag() to find the CDS features:
+
+	 
+	   if ( $feature->location->isa('Bio::Location::SplitLocationI') 
+		 && $feature->primary_tag eq 'CDS' )  {
+	     foreach $location ( $feature->location->sub_Location ) {
+	       print $location->start . ".." . $location->end . "\n";
+	     }
+	   }
 
 ---------------------------------------------------------------------------
 Copyright (c)2002 Open Bioinformatics Foundation. You may distribute this
