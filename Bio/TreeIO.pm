@@ -55,11 +55,9 @@ email or the web:
 
 Email jason@bioperl.org
 
-Describe contact details here
-
 =head1 CONTRIBUTORS
 
-Additional contributors names and emails here
+Allen Day E<lt>allenday@ucla.eduE<gt>
 
 =head1 APPENDIX
 
@@ -93,7 +91,15 @@ use Bio::Factory::TreeFactoryI;
  Usage   : my $obj = new Bio::TreeIO();
  Function: Builds a new Bio::TreeIO object 
  Returns : Bio::TreeIO
- Args    :
+ Args    : a hash.  useful keys:
+
+   -format : Specify the format of the file.  Supported formats:
+
+     newick             Newick tree format
+     nexus              Nexus tree format
+     nhx                NHX tree format
+     svggraph           SVG graphical representation of tree
+     tabtree            ASCII text representation of tree
 
 
 =cut
@@ -251,6 +257,7 @@ sub _guess_format {
    return 'newick'   if /\.(dnd|newick|nh)$/i;
    return 'nhx'   if /\.(nhx)$/i;
    return 'phyloxml' if /\.(xml)$/i;
+   return 'svggraph' if /\.svg$/i;
 }
 
 sub DESTROY {

@@ -18,7 +18,7 @@ BEGIN {
     }
 
     use Test;
-    plan tests => 17; 
+    plan tests => 19; 
 
 #    eval { require XML::Parser::PerlSAX; };
 #    if( $@ ) {
@@ -150,6 +150,19 @@ if( $verbose > 0  ) {
 $treeio = new Bio::TreeIO(-verbose => $verbose,
 			  -file   => Bio::Root::IO->catfile('t','data', 
 							    'test.nhx'));
+
+if( eval "require SVG::Graph; 1;" ) {
+  my $treeout3 = new Bio::TreeIO(-format => 'svggraph');
+  ok($treeout3);
+  if( $verbose > 0 ){
+    $treeout3->write_tree($tree);
+    ok(1);
+  } else {
+    skip("skipping SVG::Graph output, verbosity flag too low",1);
+  }
+} else {
+    skip("skipping SVG::Graph output, SVG::Graph not installed",2);
+}
 
 ok($treeio);
 $tree = $treeio->next_tree;
