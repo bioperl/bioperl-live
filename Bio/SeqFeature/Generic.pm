@@ -688,7 +688,7 @@ sub annotation {
  Usage   : # get:
            $gffio = $feature->gff_format();
            # set (change the default version of GFF2):
-           $feature->gff_format(Bio::Tools::GFF(-gff_version => 1));
+           $feature->gff_format(Bio::Tools::GFF->new(-gff_version => 1));
  Function: Get/set the GFF format interpreter. This object is supposed to 
            format and parse GFF. See Bio::Tools::GFF for the interface.
 
