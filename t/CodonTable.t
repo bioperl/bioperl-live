@@ -16,7 +16,7 @@ BEGIN {
     }
     use Test;
 
-    plan tests => 38;
+    plan tests => 40;
 }
 use Bio::Tools::CodonTable;
 use vars qw($DEBUG);
@@ -174,3 +174,8 @@ ok $seq = Bio::PrimarySeq->new(-seq=>'atgaaraayacmacracwacka', -alphabet=>'dna')
 ok $seq->translate()->seq, 'MKNTTTT';
 ok $seq->translate(undef, undef, undef, undef, undef, undef, $myCodonTable)->seq, 'MKXXTTT';
 
+# test gapped translated
+
+ok $seq = Bio::PrimarySeq->new(-seq      => 'atg---aar------aay',
+			       -alphabet => 'dna');
+ok $seq->translate->seq, 'M-K--N';
