@@ -36,7 +36,7 @@ use vars qw($ID $VERSION $DESC %runParam %blastParam
 @blast_opts = qw(prog=s vers=s db=s html! v=s b=s expect=s gap!
 		 filt=s mat=s gap_c=s gap_e=s email=s word=s
 		 parse! signif=s strict! stats! best!    
-		 table=s compress! rem! loc! check_all!
+		 table=s compress! rem! loc! check_all! desc!
 		 );
 $ID      = 'blast_seq.pl';
 $VERSION = 0.1;
