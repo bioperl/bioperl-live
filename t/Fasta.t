@@ -21,11 +21,15 @@
 ## etc. etc. etc. (continue on for each tested function in the .t file)
 #-----------------------------------------------------------------------
 
-BEGIN { $| = 1; print "1..4\n"; }
-END {  }
+## We start with some black magic to print on failure.
+BEGIN { $| = 1; print "1..5\n"; }
+END {print "not ok 1\n" unless $loaded;}
 
 use lib '../';
 use Bio::Tools::Fasta;
+
+$loaded = 1;
+print "ok 1\n";    # 1st test passes.
 
 sub test ($$;$) {
     my($num, $true,$msg) = @_;
@@ -34,20 +38,20 @@ sub test ($$;$) {
 
 my @seqs;
 
-test 1, $fasta = new Bio::Tools::Fasta (-file => 't/seqs.fas',
+test 2, $fasta = new Bio::Tools::Fasta (-file => 't/seqs.fas',
 	                                -seqs => 1,
 		                        -save_array => \@seqs,
 		                        -parse => 1,
 	                                -edit_id => 1,
 	                               );
 
-test 2, scalar(@seqs) == 6, "Number of seqs = ${\scalar(@seqs)}";
+test 3, scalar(@seqs) == 6, "Number of seqs = ${\scalar(@seqs)}";
 
-test 3, $fasta->num_seqs == 6, "Number of seqs = ${\$fasta->num_seqs}";
+test 4, $fasta->num_seqs == 6, "Number of seqs = ${\$fasta->num_seqs}";
 
 print "First sequence:\n";
 
-test 4, print $seqs[0]->layout('fasta');
+test 5, print $seqs[0]->layout('fasta');
 
 
 
