@@ -180,7 +180,10 @@ sub source {
                          );
   }
 
-  return $self->get_Annotations('source');
+  my $source_anno = $self->get_Annotations('source');
+  
+  return $source_anno->value if ($source_anno);
+  return undef;
 }
 
 =head2 score()
