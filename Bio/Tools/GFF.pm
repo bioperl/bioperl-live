@@ -116,6 +116,20 @@ use Bio::SeqFeature::Generic;
 
 =cut
 
+
+{   # make a class variable such that we can generate unique ID's over
+    # a session, no matter how many instances of GFF.pm we make
+    # since these have to be unique within the scope of a GFF file.
+    
+    my $gff3_featureID = 0;
+    
+    sub _incrementGFF3ID {
+        my ($self) = @_;
+        return ++ $gff3_featureID;
+    }
+}
+
+
 sub new {
   my ($class, @args) = @_;
   my $self = $class->SUPER::new(@args);
@@ -528,11 +542,13 @@ sub gff_string{
     my ($self, $feature) = @_;
 
     if($self->gff_version() == 1) {
-	return $self->_gff1_string($feature);
+    	return $self->_gff1_string($feature);
     } elsif( $self->gff_version() == 3 ) {
-	return $self->_gff3_string($feature);
+    	return $self->_gff3_string($feature);
+    } elsif( $self->gff_version() == 2.5 ) {
+    	return $self->_gff25_string($feature);
     } else {
-	return $self->_gff2_string($feature);
+    	return $self->_gff2_string($feature);
     }
 }
 
@@ -610,8 +626,14 @@ sub _gff1_string{
 =cut
 
 sub _gff2_string{
-   my ($gff, $feat) = @_;
-   my ($str,$score,$frame,$name,$strand);
+   my ($gff, $origfeat) = @_;
+    my $feat;
+   if ($origfeat->isa('Bio::SeqFeature::FeaturePair')){
+       $feat = $origfeat->feature2;
+   } else {
+       $feat = $origfeat;
+   }
+   my ($str1, $str2,$score,$frame,$name,$strand);
 
    if( $feat->can('score') ) {
        $score = $feat->score();
@@ -638,7 +660,7 @@ sub _gff2_string{
    } else {
        $name = 'SEQ';
    }
-   $str = join("\t",
+   $str1 = join("\t",
                  $name,
 		 $feat->source_tag(),
 		 $feat->primary_tag(),
@@ -647,7 +669,6 @@ sub _gff2_string{
 		 $score,
 		 $strand,
 		 $frame);
-
    # the routine below is the only modification I made to the original
    # ->gff_string routine (above) as on November 17th, 2000, the
    # Sanger webpage describing GFF2 format reads: "From version 2
@@ -685,21 +706,125 @@ sub _gff2_string{
 	   push @group, "$tag ".join(" ", @v);
        }
    }
-   $str .= "\t" . join(' ; ', @group);
+   $str2 .= join(' ; ', @group);
    # Add Target information for Feature Pairs
    if( ! $feat->has_tag('Target') && # This is a bad hack IMHO
        ! $feat->has_tag('Group') &&
-       $feat->isa('Bio::SeqFeature::FeaturePair') ) {
-       $str .= sprintf("\tTarget %s %d %d", $feat->feature2->seq_id,
-		       ( $feat->feature2->strand < 0 ? 
-			 ( $feat->feature2->end,
-			   $feat->feature2->start) :
-			 ( $feat->feature2->start,
-			   $feat->feature2->end) 
-			 ));
+       $origfeat->isa('Bio::SeqFeature::FeaturePair') ) {
+       $str2 = sprintf("Target %s %d %d", $origfeat->feature1->seq_id,
+		       ( $origfeat->feature1->strand < 0 ? 
+			 ( $origfeat->feature1->end,
+			   $origfeat->feature1->start) :
+			 ( $origfeat->feature1->start,
+			   $origfeat->feature1->end) 
+			 )) . ($str2?" ; ".$str2:"");  # need to put Target information before other tag/value pairs - mw
    }
-   return $str;
+   return $str1."\t".$str2;
 }
+
+
+
+=head2 _gff25_string
+
+ Title   : _gff25_string
+ Usage   : $gffstr = $gffio->_gff2_string
+ Function: Too get a format of GFF that is peculiar to Gbrowse/Bio::DB::GFF
+ Example :
+ Returns : A GFF2.5-formatted string representation of the SeqFeature
+ Args    : A Bio::SeqFeatureI implementing object to be GFF2.5-stringified
+
+=cut
+
+sub _gff25_string{
+   my ($gff, $origfeat) = @_;
+   my $feat;
+   if ($origfeat->isa('Bio::SeqFeature::FeaturePair')){
+       $feat = $origfeat->feature2;
+   } else {
+       $feat = $origfeat;
+   }
+   my ($str1, $str2,$score,$frame,$name,$strand);
+
+   if( $feat->can('score') ) {
+       $score = $feat->score();
+   }
+   $score = '.' unless defined $score;
+
+   if( $feat->can('frame') ) {
+       $frame = $feat->frame();
+   }
+   $frame = '.' unless defined $frame;
+
+   $strand = $feat->strand();
+   if(! $strand) {
+       $strand = ".";
+   } elsif( $strand == 1 ) {
+       $strand = '+';
+   } elsif ( $feat->strand == -1 ) {
+       $strand = '-';
+   }
+
+   if( $feat->can('seqname') ) {
+       $name = $feat->seq_id();
+       $name ||= 'SEQ';
+   } else {
+       $name = 'SEQ';
+   }
+   $str1 = join("\t",
+                 $name,
+		 $feat->source_tag(),
+		 $feat->primary_tag(),
+		 $feat->start(),
+		 $feat->end(),
+		 $score,
+		 $strand,
+		 $frame);
+   
+   my @all_tags = $feat->all_tags;
+   my @group; my @firstgroup;
+   if (@all_tags) {  # only play this game if it is worth playing...
+        foreach my $tag ( @all_tags ) {
+            my @v;
+            foreach my $value ( $feat->each_tag_value($tag) ) {
+               if ($value =~ /[^A-Za-z0-9_]/){
+               $value =~ s/\t/\\t/g; # substitute tab and newline 
+                                     # characters
+               $value =~ s/\n/\\n/g; # to their UNIX equivalents
+               $value = '"' . $value . '" ';
+               }                                 # if the value contains 
+                                                 # anything other than valid 
+                                                 # tag/value characters, then 
+                                                 # quote it
+               $value = '\""' unless defined $value; 
+                                                  # if it is completely empty, 
+                                              # then just make empty double 
+                                              # quotes
+               push @v, $value;
+               # for this tag (allowed in GFF2 and .ace format)
+            }
+            if (($tag eq 'Group') || ($tag eq 'Target')){  # hopefully we wont get both...
+                push @firstgroup, "$tag ",join(" ", @v);
+            } else {
+                push @group, "$tag ".join(" ", @v);
+            }
+        }
+   }
+   $str2 = join(' ; ', (@firstgroup, @group));
+   # Add Target information for Feature Pairs
+   if( ! $feat->has_tag('Target') && # This is a bad hack IMHO
+       ! $feat->has_tag('Group') &&
+       $origfeat->isa('Bio::SeqFeature::FeaturePair') ) {
+       $str2 = sprintf("Target %s ; tstart %d ; tend %d", $origfeat->feature1->seq_id,
+		       ( $origfeat->feature1->strand < 0 ? 
+			 ( $origfeat->feature1->end,
+			   $origfeat->feature1->start) :
+			 ( $origfeat->feature1->start,
+			   $origfeat->feature1->end) 
+			 )) . ($str2?" ; ".$str2:"");  # need to put the target info before other tag/value pairs - mw
+   }
+   return $str1 . "\t".  $str2;
+}
+
 
 =head2 _gff3_string
 
@@ -713,7 +838,16 @@ sub _gff2_string{
 =cut
 
 sub _gff3_string {
-    my ($gff, $feat) = @_;
+    my ($gff, $origfeat) = @_;
+    my $feat;
+    if ($origfeat->isa('Bio::SeqFeature::FeaturePair')){
+       $feat = $origfeat->feature2;
+    } else {
+       $feat = $origfeat;
+    }
+
+    my $ID = $gff->_incrementGFF3ID();
+    
     my ($score,$frame,$name,$strand);
 
     if( $feat->can('score') ) {
@@ -764,24 +898,29 @@ sub _gff3_string {
 		# then just make empty double 
 		# quotes
 		$value = "\"\"";
-	    } 	    
+	    }
 	    push @v, $value;
 	}
+    
+    $tag=lcfirst($tag) unless ($tag =~/^[ID|Name|Alias|Parent|Gap|Target]$/);
+
 	push @groups, "$tag=".join(",",@v);
     }
     # Add Target information for Feature Pairs
     if( ! $feat->has_tag('Target') && 
 	! $feat->has_tag('Group') &&
-	$feat->isa('Bio::SeqFeature::FeaturePair') ) {
-	push @groups, sprintf("Target=%s:%d..%d", 
-			      $feat->feature2->seq_id,
-			      ( $feat->feature2->strand < 0 ? 
-				( $feat->feature2->end,
-				  $feat->feature2->start) :
-				( $feat->feature2->start,
-				      $feat->feature2->end) 
-				));
+	$origfeat->isa('Bio::SeqFeature::FeaturePair') ) {
+        push @groups, sprintf("Target=%s+%d+%d", 
+                      $origfeat->feature1->seq_id,
+                      ( $origfeat->feature1->strand < 0 ? 
+                    ( $origfeat->feature1->end,
+                      $origfeat->feature1->start) :
+                    ( $origfeat->feature1->start,
+                          $origfeat->feature1->end) 
+                    ));
     }
+
+    unshift @groups, "ID=autogenerated$ID" unless ($feat->has_tag('ID'));
 
     my $gff_string = "";
     if ($feat->location->isa("Bio::Location::SplitLocationI")) {
@@ -828,7 +967,7 @@ sub _gff3_string {
 
 sub gff_version {
   my ($self, $value) = @_;
-  if(defined $value && grep {$value == $_ } ( 1, 2, 3)) {
+  if(defined $value && grep {$value == $_ } ( 1, 2, 2.5, 3)) {
     $self->{'GFF_VERSION'} = $value;
   }
   return $self->{'GFF_VERSION'};
