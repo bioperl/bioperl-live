@@ -90,12 +90,12 @@ methods. Internal methods are usually preceded with a _
 
 package Bio::Search::Hit::HitI;
 
-use Bio::Root::Interface;
+use Bio::Root::RootI;
 
 use vars qw(@ISA);
 use strict;
 
-@ISA = qw( Bio::Root::Interface );
+@ISA = qw( Bio::Root::RootI );
 
 
 =head2 name

@@ -223,11 +223,11 @@ Internal methods are usually preceded with a _
 package Bio::Tools::StateMachine::AbstractStateMachine;
 
 use strict;
-use Bio::Root::Interface;
+use Bio::Root::RootI;
 use Exporter ();
 
 use vars qw( @ISA @EXPORT_OK $INITIAL_STATE $FINAL_STATE $PAUSE_STATE $ERROR_STATE );
-@ISA = qw( Bio::Root::Interface  Exporter );
+@ISA = qw( Bio::Root::RootI  Exporter );
 @EXPORT_OK = qw( $INITIAL_STATE $FINAL_STATE $PAUSE_STATE $ERROR_STATE );
 
 @Bio::Tools::StateMachine::StateException::ISA = qw( Bio::Root::Exception );

@@ -81,8 +81,7 @@ use vars qw(@ISA);
 use integer;
 use vars qw( @ISA %STRAND_OPTIONS );
 
-use Bio::Root::Interface;
-@ISA = qw( Bio::Root::Interface );
+@ISA = qw( Bio::Root::RootI );
 
 BEGIN {
 # STRAND_OPTIONS contains the legal values for the strand options

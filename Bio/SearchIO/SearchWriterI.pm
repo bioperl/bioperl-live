@@ -44,9 +44,9 @@ The rest of the documentation details each of the object methods.
 
 package Bio::SearchIO::SearchWriterI;
 
-use Bio::Root::Interface;
+use Bio::Root::RootI;
 
-@ISA = qw( Bio::Root::Interface );
+@ISA = qw( Bio::Root::RootI );
 
 =head2 to_string
 

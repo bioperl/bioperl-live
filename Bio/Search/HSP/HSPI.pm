@@ -103,13 +103,13 @@ Internal methods are usually preceded with a _
 package Bio::Search::HSP::HSPI;
 use vars qw(@ISA);
 
-use Bio::Root::Interface;
+use Bio::Root::RootI;
 use Bio::SeqFeature::SimilarityPair;
 
 use strict;
 use Carp;
 
-@ISA = qw(Bio::SeqFeature::SimilarityPair Bio::Root::Interface);
+@ISA = qw(Bio::SeqFeature::SimilarityPair Bio::Root::RootI);
 
 
 =head2 algorithm

@@ -64,21 +64,8 @@ package Bio::Factory::ApplicationFactoryI;
 use vars qw(@ISA);
 use strict;
 
-use Bio::Root::Root;
-use Bio::Root::Interface;
-@ISA = qw(Bio::Root::Root Bio::Root::Interface);
-
-
-sub new {
-  my($class,@args) = @_;
-  my $self = $class->SUPER::new(@args);
-  $self->_initialize(@args);
-  # set up defaults
-  
-  return $self;
-}
-
-
+use Bio::Root::RootI;
+@ISA = qw(Bio::Root::RootI);
 
 =head2  version
 
