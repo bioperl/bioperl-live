@@ -14,10 +14,32 @@ Bio::Index::Fasta - Interface for indexing (multiple) fasta files
 
 =head1 SYNOPSIS
 
-Provides methods 
+    # Complete code for making an index for several
+    # fasta files
+    use Bio::Index::Fasta;
+
+    my $Index_File_Name = shift;
+    my $inx = Bio::Index::Fasta->new($Index_File_Name, 'WRITE');
+    $inx->make_index(@ARGV);
+
+    # Print out several sequences present in the index
+    # in gcg format
+    use Bio::Index::Fasta;
+
+    my $Index_File_Name = shift;
+    my $inx = Bio::Index::Fasta->new($Index_File_Name);
+
+    foreach my $id (@ARGV) {
+        my $seq = $inx->fetch($id); # Returns Bio::Seq object
+        print $seq->layout('GCG');
+    }
+   
 
 =head1 DESCRIPTION
 
+Inherits functions for managing dbm files from Bio::Index::Abstract.pm,
+and provides the basic funtionallity for indexing fasta files, and
+retrieving the sequence from them.
 
 =head1 FEE_DBACK
 
@@ -74,77 +96,58 @@ sub _version {
 }
 $VERSION = _version();
 
-# new() is inherited from Bio::Root::Object
+
+
+=head2 _initialize
+
+  Title   : _initialize
+  Usage   : $index->_initialize
+  Function: Calls $index->SUPER::_initialize(), and then adds
+            the default id parser for fasta files.
+  Example : 
+  Returns : 
+  Args    : 
+
+=cut
 
 sub _initialize {
     my($self, $index_file, $write_flag) = @_;
     
-    $index_file           or $self->throw("Index file name not given");
-    #$index_file !~ m|^/| and $self->throw("Index file name not fully qualified : $index_file");
-
-    $self->{'_filename'}   = $index_file;
-    $self->{'_filehandle'} = []; # Array in which to cache open filehandles
-    $self->{'_DB'}         = {}; # Gets tied to the DBM file
-    $self->{'_id_parser'}  = \&default_id_parser;
-    
-    # Open database
-    $self->_open_dbm($write_flag);
-    
-    # Check or set this is the right kind and version of index
-    $self->_type_and_version();
-    
-    # Check files haven't changed size since they were indexed
-    $self->_check_file_sizes();
+    $self->SUPER::_initialize($index_file, $write_flag);
+    $self->id_parser( \&default_id_parser );
 }
 
-# Build an index from a list of fasta files
-sub create_index {
-    my($self, @files) = @_;
 
-    # We're really fussy/lazy, expecting all file names to be fully qualified
-    $self->throw("No files to index provided") unless @files;
-    foreach my $file (@files) {
-        $self->throw("File name not fully qualified : $file") unless $file =~ m|^/|;
-        $self->throw("File does not exist: $file")            unless -e $file;
-    }
+=head2 _index_file
 
-    # Add each file to the index
-    foreach my $file (@files) {
-        $self->index_file( $file );
-    }
-    return 1;
-}
+  Title   : _index_file
+  Usage   : $index->_index_file( $file_name, $i )
+  Function: Specialist function to index FASTA format files.
+            Is provided with a filename and an integer
+            by make_index in its SUPER class.
+  Example : 
+  Returns : 
+  Args    : 
 
-# Index a fasta file
-sub index_file {
-    my( $self, $file ) = @_;
+=cut
+
+sub _index_file {
+    my( $self,
+        $file, # File name
+        $i     # Index-number of file being indexed
+        ) = @_;
     
     my( $begin, # Offset from start of file of the start
-                # of the last found record
+                # of the last found record.
         $end,   # Offset from start of file of the end
-                # of the last found record
-        $id,    # ID of last found record
-        $i,     # Index-number of file being indexed
+                # of the last found record.
+        $id,    # ID of last found record.
         );
 
     $begin = 0;
     $end   = 0;
 
-    $self->throw("File name not fully qualified : $file") unless $file =~ m|^/|;
     open FASTA, $file or $self->throw("Can't open file for read : $file");
-
-    # Get new index for this file and increment file count
-    if ( defined(my $count = $self->_file_count) ) {
-        $i = $count; $count++; $self->_file_count($count);
-    } else {
-        $i = 0;                $self->_file_count(1);
-    }
-
-    # Save file name and size for this index
-    $self->add_record("__FILE_$i", $file, -s $file)
-        or $self->throw("Can't add data to file: $file");
-
-    #my $debug = 0;
 
     # Main indexing loop
     while (<FASTA>) {
@@ -156,12 +159,9 @@ sub index_file {
 
             $begin = $new_begin;
             ($id) = $self->record_id( $_ );
-            
-            #$debug++; last if $debug > 20;
         }
     }
     # Don't forget to add the last record
-    seek(FASTA, 0, 2); # Go to end of file - already there?
     $end = tell(FASTA);
     $self->add_record($id, $i, $begin, $end) if $id;
 
@@ -169,14 +169,90 @@ sub index_file {
     return 1;
 }
 
+
+# Should there be a prototype for this method in Index::Absract.pm?
+=head2 record_id
+
+  Title   : record_id
+  Usage   : $index->record_id( STRING );
+  Function: Parses the ID for an entry from the string
+            supplied, using the code in $index->{'_id_parser'}
+  Example : 
+  Returns : scalar or exception
+  Args    : STRING
+
+
+=cut
+
+sub record_id {
+    my ($self, $line) = @_;
+
+    if (my $id = $self->{'_id_parser'}->( $line )) {
+        return $id;
+    } else {
+        $self->throw("Can't parse ID from line : $line");
+    }
+}
+
+
+=head2 id_parser
+
+  Title   : id_parser
+  Usage   : $index->id_parser( CODE )
+  Function: Stores or returns the code used by record_id
+            to parse the ID for record from a string.  Useful
+            for (for instance) specifying a different parser
+            for different flavours of FASTA file.
+  Example : $index->id_parser( \&my_id_parser )
+  Returns : ref to CODE if called without arguments
+  Args    : CODE
+
+=cut
+
+sub id_parser {
+    my( $self, $code ) = @_;
+    
+    if ($code) {
+        $self->{'_id_parser'} = $code;
+    } else {
+        return $self->{'_id_parser'};
+    }
+}
+
+
+
+=head2 default_id_parser
+
+  Title   : default_id_parser
+  Usage   : $id = default_id_parser( $header )
+  Function: The default Fasta ID parser for Fasta.pm
+            Returns $1 from applying the regexp /^>\s*(\S+)/
+            to $header.
+  Example : 
+  Returns : ID string
+  Args    : a fasta header line string
+
+=cut
+
 sub default_id_parser {
     my $line = shift;
     $line =~ /^>\s*(\S+)/;
     return $1;
 }
 
-# Return the full entry from the database for the given record
-sub get_seq {
+
+=head2 fetch
+
+  Title   : fetch
+  Usage   : $index->fetch( $id )
+  Function: Returns a Bio::Seq object from the index
+  Example : $seq = $index->fetch( 'dJ67B12' )
+  Returns : Bio::Seq object
+  Args    : ID
+
+=cut
+
+sub fetch {
     my( $self, $id ) = @_;
     
     my $db = $self->db();
@@ -195,14 +271,18 @@ sub get_seq {
             last if tell($fh) > $end;
         }
         
+        $self->throw("Can't fetch sequence for record : $id")
+            unless @record;
+        
         # Parse record
         my $firstLine = shift @record;
         my ($name, $desc) = $firstLine =~ /^>\s*(\S+)\s*(.*?)\s*$/;
         chomp( @record );
         
         # Return a shiny Bio::Seq object
-        return Bio::Seq->new(-id => $name, -desc => $desc,
-                             -seq => uc(join('', @record)) );
+        return Bio::Seq->new( -ID   => $name,
+                              -DESC => $desc,
+                              -SEQ  => uc(join('', @record)) );
     } else {
         return;
     }
@@ -210,17 +290,3 @@ sub get_seq {
 
 
 1;
-
-__END__
-
-=head2 
-
-  Title   : 
-  Usage   : $obj->
-  Function: 
-  Example : 
-  Returns : 
-  Args    : 
-
-=cut
-
