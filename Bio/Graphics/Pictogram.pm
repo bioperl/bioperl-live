@@ -105,6 +105,8 @@ use Bio::Root::Root;
 use vars qw(@ISA);
 @ISA = qw(Bio::Root::Root);
 
+use constant MAXBITS => 2;
+
 =head2 new
 
  Title   : new
@@ -214,9 +216,19 @@ sub make_svg {
 
     #draw each letter at each position
     foreach my $letter(@array){
-      my $scale = $letter->[1];
+	  my $scale;
+	  if($self->normalize){
+		$scale = $letter->[1];
+	  } else {
+		$scale = $letter->[1] * ($bits / MAXBITS);
+	  }
+
       if($count == 1){
-        $y_trans = 0;
+		if($self->normalize){
+		  $y_trans = 0;
+		} else {
+		  $y_trans = (1 - ($bits / MAXBITS)) * $size;
+		}
       }
       else {
         $y_trans += $prev_size;
@@ -380,6 +392,26 @@ sub plot_bits {
     $self->{'_plot_bits'} = $obj;
   }
   return   $self->{'_plot_bits'};
+}
+
+=head2 normalize
+
+ Title   : normalize
+ Usage   : $picto->normalize($newval)
+ Function: get/set to make all columns the same height.
+           default is to scale height with information
+           content.
+ Returns : value of normalize (a scalar)
+ Args    : on set, new value (a scalar or undef, optional)
+
+
+=cut
+
+sub normalize{
+    my $self = shift;
+
+    return $self->{'normalize'} = shift if @_;
+    return $self->{'normalize'};
 }
 
 =head2 background
