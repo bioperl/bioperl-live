@@ -1,7 +1,5 @@
 # $Id$
 #
-# $GNF: projects/gi/symgene/src/perl/seqproc/Bio/SeqIO/locuslink.pm,v 1.6 2002/11/07 11:14:34 hlapp Exp $
-#
 # BioPerl module for Bio::SeqIO::locuslink
 #
 # Cared for by Keith Ching <kching at gnf.org>
@@ -483,7 +481,7 @@ sub next_seq{
 	# modify CDD references	@=();
 	if($record{CDD}) {
 	    @keep=();
-	    foreach my $cdd ($record{CDD}) {
+	    foreach my $cdd (@{$record{CDD}}) {
 		$PRESENT = undef;
 		foreach my $key (keys %cddprefix) {
 		    if ($cdd=~/$key/){
