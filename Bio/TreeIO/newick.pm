@@ -209,7 +209,13 @@ sub _write_tree_Helper {
     if( @data > 1 ) {
 	$data[0] = "(" . $data[0];
 	$data[-1] .= ")";
-	$data[-1] .= $node->id if defined $node->id;
+	# let's explicitly write out the bootstrap if we've got it
+	my $b;
+	if( defined ($b = $node->bootstrap) ) {
+	    $data[-1] .= $b;
+	} elsif( defined ($b = $node->id) ) {
+	    $data[-1] .= $b;
+	}
 	$data[-1] .= ":". $node->branch_length if( $node->branch_length);
 	
     } else {
