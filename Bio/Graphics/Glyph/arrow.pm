@@ -195,7 +195,7 @@ sub calculate_units {
   my ($start,$length) = @_;
   return 'G' if $length >= 1e9;
   return 'M' if $length >= 1e6;
-  return 'K' if $length >= 1e3;
+  return 'k' if $length >= 1e3;
   return ''  if $length >= 1;
   return 'c' if $length >= 1e-2;
   return 'm' if $length >= 1e-3;
