@@ -217,7 +217,7 @@ sub new {
 	     $algo =~ /^(BLAST|FAST|SW)N/oi ||
 	     $algo eq 'WABA' || $algo eq 'AXT' ||  
 	     $algo eq 'EXONERATE' || $algo eq 'MEGABLAST' ||
-	     $algo eq 'SMITH-WATERMAN' ){
+	     $algo eq 'SMITH-WATERMAN' || $algo eq 'SIM4' ){
 	$hitfactor = 1;
 	$queryfactor = 1;
     } elsif( $algo eq 'RPSBLAST' ) {	
@@ -300,7 +300,7 @@ sub new {
     } 
     if( ! defined $conserved ) {
 	$self->warn("Did not defined the number of conserved matches in the HSP assuming conserved == identical ($identical)") 
-	    if( $algo !~ /^((FAST|BLAST)N)|Exonerate/oi);
+	    if( $algo !~ /^((FAST|BLAST)N)|Exonerate|SIM4/oi);
 	$conserved = $identical;
     } 
     # protect for divide by zero if user does not specify 
