@@ -26,8 +26,8 @@ Bio::SeqI - Interface definition for a Bio::SeqI
 
     $string = $obj->seq();
     $substring = $obj->seq(12,50);
-    $name   = $obj->name();
-    $id     = $obj->identifier(); # unique idenitifer assign to the sequence by the system
+    $id        = $obj->id();
+    $unique_key= $obj->accession(); # unique idenitifer assign to the sequence by the system
     
     # object manipulation
    
@@ -51,7 +51,10 @@ pure perl implementation of this in Bio::Seq. If you just want to use
 Bio::Seq objects, then please read that module first.
 
 This interface defines what bioperl consideres necessary to "be" a sequence,
-without 
+without providing an implementation of this. (An implementation is provided in
+Bio::Seq). If you want to provide a Bio::Seq 'compliant' object which in fact
+wraps another object/database/out-of-perl experience, then this is the correct
+thing to wrap.
 
 =head1 FEEDBACK
 
@@ -77,7 +80,7 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 
 =head1 AUTHOR - Ewan Birney
 
-Email birney@sanger.ac.ul
+Email birney@sanger.ac.uk
 
 Describe contact details here
 
@@ -94,24 +97,150 @@ The rest of the documentation details each of the object methods. Internal metho
 package Bio::SeqI;
 use vars qw($AUTOLOAD @ISA);
 use strict;
+use Carp;
 
-# Object preamble - inheriets from Bio::Root::Object
+=head1 Implementation Specific Functions
 
-use Bio::Root::Object;
+These functions are the ones that a specific implementation must
+define.
+
+=head2 seq
+
+ Title   : seq
+ Usage   : $string    = $obj->seq()
+           $substring = $obj->seq(10,40)
+ Function: Returns the sequence as a string of letters. The
+           case of the letters is left up to the implementer.
+           Suggested cases are upper case at all times (IUPAC standard),
+           but implementations are suggested to keep an open mind about
+           case (some users... want lower case!)
+ Returns : A scalar
+ Args    : Optional start,end paramters. This start,end is in absolute
+           coordinates.
 
 
-use AutoLoader;
-@ISA = qw(Bio::Root::Object Exporter);
-@EXPORT_OK = qw();
-# new() is inherited from Bio::Root::Object
+=cut
 
-# _initialize is where the heavy stuff will happen when new is called
+sub seq{
+   my ($self) = @_;
 
-sub _initialize {
-  my($self,@args) = @_;
-
-  my $make = $self->SUPER::_initialize;
-
-# set stuff in self from @args
- return $make; # success - we hope!
+   if( $self->can('throw') ) {
+       $self->throw("Bio::SeqI definition of seq - implementing class did not provide this method");
+   } else {
+       confess("Bio::SeqI definition of seq - implementing class did not provide this method");
+   }
 }
+
+
+=head2 id
+
+ Title   : id
+ Usage   : $id_string = $obj->id();
+ Function: returns the id, aka the common name of the Sequence object.
+           
+         The semantics of this is that it is the most likely string to be
+         used as an identifier of the sequence, and likely to have "human" readability.
+         The id is equivalent to the ID field of the GenBank/EMBL databanks and
+         the id field of the Swissprot/sptrembl database. In fasta format, the >(\S+)
+         is presumed to be the id, though some people overload the id to embed other 
+         information. Bioperl does not use any embedded information in the ID field,
+         and people are encouraged to use other mechanisms (accession field for example)
+         to solve this. 
+
+ Returns : A string
+ Args    : None
+
+
+=cut
+
+sub id{
+   my ($self) = @_;
+
+   if( $self->can('throw') ) {
+       $self->throw("Bio::SeqI definition of id - implementing class did not provide this method");
+   } else {
+       confess("Bio::SeqI definition of id - implementing class did not provide this method");
+   }
+
+}
+
+
+=head2 accession
+
+ Title   : accession
+ Usage   : $unique_key = $obj->accession;
+ Function: Returns a computer defined unique key for this sequence. The
+           accession field name was chosen as in bioinformatics accession
+           numbers are a known concept and well understood.
+
+           The aim of this field is that it provides a unique placeholder
+           of where this sequence came from. This allows the rest of the
+           bioperl system to retrieve additional information on the sequence
+           that it might want to store. Effectively it is the computer's unique id.
+
+           The semantics for this should follow the URL type system (or interoperable
+           name service from the OMG standard) being
+   
+           /xxx/yyy/zzz/unique_key.<version_number>
+
+           any of these portions can be omitted except for unique key.
+
+           The unique key indicates the actual unique key for this sequence object.
+           For sequences from the public databases these should be the accession
+           numbers from GenBank/EMBL/DDBJ and accession numbers from swissprot/sptrembl.
+           For internal databases, the natural thing is to use your own database's
+           primary key for the sequence.
+
+           The version number is optional, and indicates a version which changes on
+           the semantics for the underlying database. The only semantics which is
+           enforced about version numbers is that higher numbers are more up to date
+           than smaller numbers. 
+
+           The information before the unique_key is also optional but indicates
+           the database (also called 'context') of the key. For example,
+ 
+           /mycompany/dna/DID138338 
+
+           would have a unique id of DID138338 and a context of /mycompany/dna
+
+           For public databases, we suggest the following contexts are used:
+
+           /bio/dna/X12671 - accession number X12671 from GenBank/EMBL/DDBJ
+           /bio/pid/g496898 - protein pid number
+           /bio/protein/P09651 - accession number from swissprot/sptrembl
+           /bio/pdb/1HA1   - PDB identifier for protein structures
+
+          Sequence From Files:
+
+          A number of times in bioinformatics, one doesn't have a database but rather
+          a sequence from a file. Here there is some ambiguity of what happens to this
+          field. Should it represent
+
+
+          Sequence From Raw Memory:
+
+          Sequences created inside bioperl should have the following accession field:
+
+          /bioperl/<scalar_memory_location>
+  
+ Returns : A string
+ Args    : None
+
+
+=cut
+
+sub accession{
+   my ($self,@args) = @_;
+
+   if( $self->can('throw') ) {
+       $self->throw("Bio::SeqI definition of seq - implementing class did not provide this method");
+   } else {
+       confess("Bio::SeqI definition of seq - implementing class did not provide this method");
+   }
+
+}
+
+
+1;
+
+

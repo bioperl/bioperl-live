@@ -31,6 +31,21 @@ rather go through the AnnSeqIO handler system. Go:
 This object can transform Bio::AnnSeq objects to and from EMBL flat
 file databases.
 
+=head2 Optional functions
+
+=over
+
+=item _show_dna()
+
+(output only) shows the dna or not
+
+=item _post_sort
+
+(output only) provides a sorting func which is applied to the FTHelpers
+before printing
+ 
+=end
+
 =head1 FEEDBACK
 
 =head2 Mailing Lists
@@ -114,7 +129,7 @@ sub _initialize {
   # hash for functions for decoding keys.
   $self->{'_func_ftunit_hash'} = {}; 
   $self->_filehandle($fh);
-      
+  $self->_show_dna(1); # sets this to one by default. People can change it
 
 # set stuff in self from @args
  return $make; # success - we hope!
@@ -286,12 +301,39 @@ sub write_annseq {
    print $fh "FH   Key             Location/Qualifiers\n";
    print $fh "FH   \n";
 
-   foreach my $sf ( $annseq->top_SeqFeatures ) {
-       my @fth = Bio::AnnSeqIO::FTHelper::from_SeqFeature($sf,$annseq);
+
+   if( defined $self->_post_sort ) {
+       # we need to read things into an array. Process. Sort them. Print 'em
+
+       my $post_sort_func = $self->_post_sort();
+       my @fth;
+
+       foreach my $sf ( $annseq->top_SeqFeatures ) {
+	   push(@fth,Bio::AnnSeqIO::FTHelper::from_SeqFeature($sf,$annseq));
+       }
+
+       @fth = sort { &$post_sort_func($a,$b) } @fth;
+       
        foreach my $fth ( @fth ) {
 	   &_print_EMBL_FTHelper($fth,$fh);
        }
+   } else {
+       # not post sorted. And so we can print as we get them.
+       # lower memory load...
+       
+       foreach my $sf ( $annseq->top_SeqFeatures ) {
+	   my @fth = Bio::AnnSeqIO::FTHelper::from_SeqFeature($sf,$annseq);
+	   foreach my $fth ( @fth ) {
+	       &_print_EMBL_FTHelper($fth,$fh);
+	   }
+       }
    }
+
+   if( $self->_show_dna() == 0 ) {
+       return;
+   }
+
+   # finished printing features.
 
    $str =~ tr/A-Z/a-z/;
    print $fh "SQ   \n";
@@ -700,6 +742,48 @@ sub _write_line_EMBL_regex {
    foreach my $s ( @lines ) {
        print $fh "$pre2$s\n";
    }
+}
+
+=head2 _post_sort
+
+ Title   : _post_sort
+ Usage   : $obj->_post_sort($newval)
+ Function: 
+ Returns : value of _post_sort
+ Args    : newvalue (optional)
+
+
+=cut
+
+sub _post_sort{
+   my $obj = shift;
+   if( @_ ) {
+      my $value = shift;
+      $obj->{'_post_sort'} = $value;
+    }
+    return $obj->{'_post_sort'};
+
+}
+
+=head2 _show_dna
+
+ Title   : _show_dna
+ Usage   : $obj->_show_dna($newval)
+ Function: 
+ Returns : value of _show_dna
+ Args    : newvalue (optional)
+
+
+=cut
+
+sub _show_dna{
+   my $obj = shift;
+   if( @_ ) {
+      my $value = shift;
+      $obj->{'_show_dna'} = $value;
+    }
+    return $obj->{'_show_dna'};
+
 }
 
     
