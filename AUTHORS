@@ -75,6 +75,8 @@ for if you see fit)
 
 =item * Peter Dimitrov <dimitrov at gnf.org> - Bio::Ontology
 
+=item * Rich Dobson <r.j.dobson at qmul.ac.uk> - Bio::PopGen::IO::hapmap,phase
+
 =item * Paul Edlefsen <pedlefsen at systemsbiology.org>
 
 =item * Rob Edwards <redwards at utmem.edu> - Bio::Restriction
