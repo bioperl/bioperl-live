@@ -111,6 +111,7 @@ use Bio::Search::HSP::HSPI;
            -bits      => bit value for HSP
            -score     => score value for HSP (typically z-score but depends on
 					      analysis)
+           -hsp_length=> Length of the HSP (including gaps)
            -identical => # of residues that that matched identically
            -conserved => # of residues that matched conservatively 
                            (only protein comparisions; 
@@ -118,8 +119,10 @@ use Bio::Search::HSP::HSPI;
            -hsp_gaps   => # of gaps in the HSP
            -query_gaps => # of gaps in the query in the alignment
            -hit_gaps   => # of gaps in the subject in the alignment    
+           -query_name  => HSP Query sequence name (if available)
            -query_start => HSP Query start (in original query sequence coords)
            -query_end   => HSP Query end (in original query sequence coords)
+           -hit_name    => HSP Hit sequence name (if available)
            -hit_start   => HSP Hit start (in original hit sequence coords)
            -hit_end     => HSP Hit end (in original hit sequence coords)
            -hit_length  => total length of the hit sequence
@@ -136,7 +139,7 @@ sub new {
 
     my $self = $class->SUPER::new(@args);
     my ($algo, $evalue, $identical, $conserved, 
-	$gaps,
+	$gaps, $query_gaps, $hit_gaps,
 	$hit_seq, $query_seq, $homology_seq,
 	$hsp_len, $query_len,$hit_len,
 	$hit_name,$query_name,$bits,$score,
@@ -146,6 +149,8 @@ sub new {
 						 IDENTICAL
 						 CONSERVED
 						 HSP_GAPS
+						 QUERY_GAPS
+						 HIT_GAPS
 						 HIT_SEQ
 						 QUERY_SEQ
 						 HOMOLOGY_SEQ
@@ -231,6 +236,7 @@ sub new {
 		     '-strand'=> $strand,
 		     '-source'=> $algo) );
     }
+
     if( defined $strand && ! defined $hframe && $hitfactor ) {
 	$hframe = ( $self->hit->start % 3 ) * $strand;
     } elsif( ! defined $strand ) { 
@@ -275,9 +281,21 @@ sub new {
 	$self->frac_identical( 'query', $identical / $self->length('query')) ;
 	$self->frac_conserved( 'query', $conserved / $self->length('query'));
     }
+    $self->query_string($query_seq);
+    $self->hit_string($hit_seq);
+    $self->homology_string($homology_seq);
 
-    $self->gaps('query', scalar grep(/\-/, $query_seq));
-    $self->gaps('hit', scalar grep(/\-/, $hit_seq));
+    if( defined $query_gaps ) {
+	$self->gaps('query', $query_gaps);
+    } else {
+	$self->gaps('query', scalar ( $query_seq =~ tr/\-//));
+    } 
+    if( defined $hit_gaps ) {
+	$self->gaps('hit', $hit_gaps);
+    } else {
+	$self->gaps('hit', scalar ( $hit_seq =~ tr/\-//));
+    }
+
     if(! defined $gaps ) {
 	$self->warn("Did not defined the number of gaps in the HSP calculating");
 	$gaps = $self->gaps("query") + $self->gaps("hit");
@@ -285,9 +303,7 @@ sub new {
     $self->gaps('total', $gaps);
 
     $self->percent_identity($identical / $hsp_len ) if( $hsp_len > 0 );
-    $self->query_string($query_seq);
-    $self->hit_string($hit_seq);
-    $self->homology_string($homology_seq);
+
 
     return $self;
 }
