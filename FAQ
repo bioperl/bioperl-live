@@ -76,6 +76,10 @@ Contents
    Q5.3: How do I parse the CDS join() statements in Genbank or EMBL files
 	 so I can reconstruct the CDS sequence?
 
+6. Running external programs
+
+   Q6.1: I want to run StandAloneBlast within bioperl - where did it go? 
+   Q6.2: What does the future hold for running applications within Bioperl? 
 
 ---------------------------------------------------------------------------
 
@@ -506,6 +510,40 @@ Contents
 	     print $location->start . ".." . $location->end . "\n";
 	   }
 	 }
+
+
+---------------------------------------------------------------------------
+
+6. Running external programs
+
+---------------------------------------------------------------------------
+
+
+
+   Q6.1: I want to run StandAloneBlast within bioperl - where did it go? 
+
+      A: The Bio::Tools::Run directory was moved to a new package to help
+	 make the size of the core code smaller and separate out the more
+	 specialized nature of application running from the rest of
+	 Bioperl.  You can get these modules by installing the bioperl-run
+	 package.  This is either available from CVS under the same name or
+	 available in the http://bioperl.org/DIST directory and on CPAN. 
+	 This changeover began in the bioperl 1.1 developer release.
+
+
+   Q6.2: What does the future hold for running applications within Bioperl? 
+      A: We are trying to build a standard starting point for analysis
+	 application which will probably look like
+	 Bio::Tools::Run::AnalysisFactory which will allow the user to
+	 request which type of remote or local server they want to use to
+	 run their analyses.  This will connect to the Pasteur's PISE
+	 server, the EBI's Novella server, as well as be aware of wrappers
+	 to run applications locally. 
+
+	 Additionally we suggest investigating the BioPipe
+	 project(http://www.biopipe.org) which is making it easier to chain
+	 together various sets of analyses and build rules for peforming
+	 these computes.
 
 ---------------------------------------------------------------------------
 Copyright (c)2002 Open Bioinformatics Foundation. You may distribute this
