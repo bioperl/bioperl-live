@@ -394,10 +394,10 @@ additional examples.
 To run a Blast, create a new Blast object with a C<-run =E<gt>
 \%runParams> parameter.  Remote Blasts are performed by including a
 C<-method =E<gt> 'remote'> parameter; local Blasts are performed by
-including a C<-method =E<gt> 'local'> parameter.  See L<Running Blast
-reports> as well as the L<the DEMO SCRIPTS section | DEMO> for
-examples.  Note that running local Blasts is not yet supported, see
-below.
+including a C<-method =E<gt> 'local'> parameter.  See 
+L<Running Blast reports> as well as the
+L<the DEMO SCRIPTS section | DEMO> for examples.  
+Note that running local Blasts is not yet supported, see below.
 
 Note that the C<-seqs =E<gt> [ $seqs ]> run parameter must contain a
 reference to an array of B<Bio::Seq.pm> objects 
