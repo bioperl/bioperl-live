@@ -27,12 +27,12 @@ BEGIN {
 	 };
     if( $@ ) {
 	print STDERR "Cannot load LWP::UserAgent or HTML::Parser, skipping tests\n";
-	foreach ( 1..$NUMTESTS) { skip(1,1); }
+	foreach ( 1..$NUMTESTS) { skip('LWP::UserAgent or HTML::Parser not installed',1); }
 	$error = 1;
     } 
     if( $] < 5.005 ) {
 	print STDERR "GDB parsing does not work with 5.005 or lower Perl versions.\n";
-	foreach ( 1..$NUMTESTS) { skip(1,1); }
+	foreach ( 1..$NUMTESTS) { skip('need perl > 5.005',1); }
 	$error = 1;
     }
 }
@@ -42,7 +42,7 @@ if( $error == 1 ) {
 }
 
 require Bio::DB::GDB;
-my $verbose = 0;
+my $verbose = -1;
 
 my ($gdb, $marker, $info);
 # get a single seq
@@ -54,7 +54,7 @@ eval {
 };
 if( $@ || ! defined $info) {
     warn "Warning: Couldn't connect to GDB website with Bio::DB::GDB.pm!\nError: Do you have network access? Skipping all other tests";
-    foreach ( $Test::ntest..$NUMTESTS ) { skip(1,1, 'no network access'); }
+    foreach ( $Test::ntest..$NUMTESTS ) { skip('no network access',1); }
     exit(0);
 }
 
@@ -72,7 +72,7 @@ ok ($info = $gdb->get_info(-type=>'marker',
 };
 if( $@ || ! defined $info ) {
     warn "Warning: Couldn't connect to GDB website with Bio::DB::GDB.pm!\nError: Do you have network access? Skipping all other tests";
-    foreach ( $Test::ntest..$NUMTESTS ) { skip(1,1, 'no network access'); }
+    foreach ( $Test::ntest..$NUMTESTS ) { skip('no network access',1); }
     exit(0);
 }
 ok $info->{gdbid}, 'GDB:198271', 'value was ' . $info->{gdbid};

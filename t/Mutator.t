@@ -18,15 +18,14 @@ BEGIN {
     use Test;
     $NUMTESTS=13;
     plan tests => $NUMTESTS;
-    eval { require 'IO/String.pm' };
+    eval { require IO::String; };
     if( $@ ) {
 	print STDERR "IO::String not installed. This means the Bio::DB::* modules are not usable. Skipping tests.\n";
 	for( 1..$NUMTESTS ) {
-	    skip(1,"IO::String not installed. This means the Bio::DB::* modules are not usable. Skipping tests");
+	    skip("IO::String not installed",1);
 	}
 	$error = 1; 
     }
-
 }
 
 if( $error ==  1 ) {
@@ -67,17 +66,15 @@ my $results = $a->change_gene();
 ok($results);
 
 
-eval { require 'IO/String.pm' };
+eval { require IO::String };
 if( $@ ) {
-
     print STDERR "IO::String not installed. Skipping output test.\n";
-    skip(12,"IO::String not installed. Skipping output test.");
+    skip("IO::String not installed",1);
 
 } else {
 
     use Bio::Variation::IO;
-    use IO::String;
-    
+    require IO::String;    
     my $s;
     my $io = IO::String->new($s);
     my $out = Bio::Variation::IO->new('-fh'   => $io,

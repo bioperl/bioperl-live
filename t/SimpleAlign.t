@@ -88,7 +88,7 @@ eval { require 'IO/String.pm' };
 if( $@ ) {
     print STDERR "IO::String not installed.  Skipping tests.\n";
     for( $Test::ntest..NUMTESTS ) {
-	skip(1,"IO::String not installed. Skipping tests");
+	skip("IO::String not installed. Skipping tests",1);
     }
     exit;
 }

@@ -24,11 +24,11 @@ BEGIN {
 
     $NUMTESTS =46; #51;
     plan tests => $NUMTESTS;
-    eval { require 'IO/String.pm' };
+    eval { require IO::String };
     if( $@ ) {
 	print STDERR "IO::String not installed. This means the Bio::DB::* modules are not usable. Skipping tests.\n";
 	for( 1..$NUMTESTS ) {
-	    skip(1,"IO::String not installed. This means the Bio::DB::* modules are not usable. Skipping tests");
+	    skip("IO::String not installed",1);
 	}
        $error = 1; 
     }
@@ -69,7 +69,7 @@ eval {
 };
 if ($@) {
     warn "Warning: Couldn't connect to Genbank with Bio::DB::GenBank.pm!\nError: $@\nDo you have network access? Skipping all other tests";
-    foreach ( $Test::ntest..$NUMTESTS ) { skip(1,1, 'no network access'); }
+    foreach ( $Test::ntest..$NUMTESTS ) { skip('no network access',1); }
     exit(0);
 }
 
@@ -86,7 +86,7 @@ eval {
 
 if ($@) {
     warn "Batch access test failed.\nError: $@\n";
-    foreach ( $Test::ntest..$NUMTESTS ) { skip(1,1,'no network access'); }
+    foreach ( $Test::ntest..$NUMTESTS ) { skip('no network access',1); }
     exit(0);
 }
 $seq = $seqio = undef;
@@ -108,7 +108,7 @@ eval {
 if ($@) {
     warn "Warning: Couldn't connect to Genbank with Bio::DB::GenPept.pm!\n$@";
     foreach( $Test::ntest..$NUMTESTS ) { 
-	skip(1,1,1,'could not connect with GenPept'); 
+	skip('could not connect with GenPept',1); 
     }
     exit(0);
 }
@@ -148,7 +148,7 @@ eval {
 if ($@) {
     print STDERR "Warning: Couldn't connect to SwissProt with Bio::DB::Swiss.pm!\n$@";
     foreach ( $Test::ntest..$NUMTESTS) { 
-	skip(1,1,'could not connect to swissprot');
+	skip('could not connect to swissprot',1);
     }
     exit(0);
 }
@@ -179,7 +179,7 @@ eval {
 if ($@) {
     warn "Warning: Couldn't connect to complete GenBank tests with a tempfile with Bio::DB::GenBank.pm!\n $@\n";
     foreach ( $Test::ntest..$NUMTESTS ) { 
-	skip(1,1,'could not connect to Genbank'); 
+	skip('could not connect to Genbank',1); 
     }
 }
 $seq = $seqio = undef;

@@ -25,17 +25,21 @@ BEGIN {
     $NUMTESTS = 9;
     $BIODBTESTS = 4;
     plan tests => $NUMTESTS;
-    eval { require 'IO/String.pm' };
+    eval { require IO::String };
     if( $@ ) {
 	print STDERR "IO::String not installed. This means the Bio::DB::* modules are not usable. Skipping some tests.\n";
 	for( 1..$BIODBTESTS ) {
-	    skip(1,"IO::String not installed. This means the Bio::DB::* modules are not usable. Skipping some tests");
+	    skip("IO::String not installed. This means the Bio::DB::* modules are not usable. Skipping some tests",1);
 	}
        $error = 1; 
     }
 }
 
-use Bio::Perl qw( read_sequence read_all_sequences write_sequence new_sequence get_sequence );
+use Bio::Perl qw( read_sequence 
+		  read_all_sequences 
+		  write_sequence 
+		  new_sequence 
+		  get_sequence );
 
 ## End of black magic.
 ##
