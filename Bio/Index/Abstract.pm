@@ -123,7 +123,11 @@ sub _initialize {
 	my $type = $self->_code_base();
 	bless $self, $type;
     }
-	
+
+    # set verbose to 0 
+
+    $self->verbose(0);
+
     # Check or set this is the right kind and version of index
     $self->_type_and_version();
     
@@ -173,7 +177,27 @@ sub db {
  Title   : get_stream
  Usage   : $stream = $index->get_stream( $id );
  Function: Returns a file handle with the file pointer
-    at the approprite place
+           at the approprite place
+
+           This provides for a way to get the actual
+           file contents and not an object 
+
+           WARNING: you must parse the record deliminter
+           *yourself*. Abstract wont do this for you 
+           So this code
+ 
+           $fh = $index->get_stream($myid);
+           while( <$fh> ) {
+              # do something
+           }
+           will parse the entire file if you don't put in
+           a last statement in, like
+
+           while( <$fh> ) {
+              /^\/\// && last; # end of record
+              # do something
+           }
+
  Returns : A filehandle object
  Args    : string represents the accession number
  Notes   : 
@@ -551,6 +575,10 @@ sub _file_count {
 
 sub add_record {
     my( $self, $id, @rec ) = @_;
+    if( $self->verbose != 0 ) {
+	print STDERR "Adding key $id\n";
+    }
+
     $self->db->{$id} = $self->pack_record( @rec );
 }
 
@@ -588,6 +616,28 @@ sub pack_record {
 sub unpack_record {
     my( $self, @args ) = @_;
     return split /\034/, $args[0];
+}
+
+=head2 verbose
+
+ Title   : verbose
+ Usage   : $obj->verbose($newval)
+ Function: sets whether a report to STDERR should be issued or not
+           for each sequence indexed. Helps track errors
+ Example : 
+ Returns : value of verbose
+ Args    : newvalue (optional)
+
+
+=cut
+
+sub verbose{
+   my ($obj,$value) = @_;
+   if( defined $value) {
+      $obj->{'verbose'} = $value;
+    }
+    return $obj->{'verbose'};
+
 }
 
 

@@ -37,6 +37,7 @@ fasta format on stdout
 =head1 OPTIONS
 
   -fmt  <format>   - Fasta (default), or EMBL
+  -v               - report every index addition (debugging)
 
 options only for expert use
 
@@ -126,9 +127,10 @@ BEGIN {
 my $dir = $ENV{'BIOPERL_INDEX'};
 my $type = $ENV{'BIOPER_INDEX_TYPE'};
 my $fmt = 'Fasta';
+my $verbose = 0;
 
 use Getopt::Long;
-&GetOptions("fmt=s" => \$fmt,"dir=s" => \$dir,"type=s" => \$type);
+&GetOptions("fmt=s" => \$fmt,"dir=s" => \$dir,"type=s" => \$type, "v!" => \$verbose);
 
 exec('perldoc',$0) unless @ARGV;
 
@@ -162,6 +164,10 @@ SWITCH : {
 	last;
     };
     die("No index format called $fmt");
+}
+
+if( $verbose != 0 ) {
+  $index->verbose(1);
 }
 
 $index->make_index(@ARGV);

@@ -70,7 +70,7 @@ if( $do_autoload_finesse ) {
 unless( eval "require HTTP::Request::Common" and
 	eval "require LWP::UserAgent") {
 
-print STDERR << "QQ_MISSING_LWP_QQ;
+print STDERR <<QQ_MISSING_LWP_QQ;
 
 ======================================================
 WARNING: LWP IS NOT INSTALLED.
@@ -83,7 +83,7 @@ WARNING: LWP IS NOT INSTALLED.
 ======================================================
 
 QQ_MISSING_LWP_QQ
-
+}
 
 WriteMakefile(
     NAME	=> $NAME,

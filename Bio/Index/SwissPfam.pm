@@ -35,11 +35,14 @@ Bio::Index::SwissPfam - Interface for indexing swisspfam files
 
 =head1 DESCRIPTION
 
-Inherits functions for managing dbm files from Bio::Index::Abstract.pm,
-and provides the basic funtionallity for indexing SwissPfam files.
-Only retrieves FileStreams at the moment. Once we have something better,
-will use that. Heavily snaffled from James Gilbert's
-Fasta system.
+SwissPfam is one of the flat files released with Pfam. This modules
+provides a way of indexing this module.
+
+Inherits functions for managing dbm files from
+Bio::Index::Abstract.pm, and provides the basic funtionallity for
+indexing SwissPfam files.  Only retrieves FileStreams at the
+moment. Once we have something better (ie, an object!), will use
+that. Heavily snaffled from James Gilbert's Fasta system.
 
 =head1 FEED_BACK
 
@@ -120,7 +123,7 @@ sub _initialize {
 
   Title   : _index_file
   Usage   : $index->_index_file( $file_name, $i )
-  Function: Specialist function to index EMBL format files.
+  Function: Specialist function to index swisspfam format files.
             Is provided with a filename and an integer
             by make_index in its SUPER class.
   Example : 
@@ -162,11 +165,8 @@ sub _index_file {
 		if( $acc ne $id ) {
 		    $self->add_record($acc, $i, $begin, $end);
 		}
-		print STDERR "Added $id\n";
 	    }
-
             $begin = $new_begin;
-
 	    $id = $nid;
 	    $acc = $nacc;
         }
@@ -174,7 +174,6 @@ sub _index_file {
     # Don't forget to add the last record
     $end = tell(SP);
     $self->add_record($id, $i, $begin, $end) if $id;
-    print STDERR "Added $id\n";
 
     close SP;
     return 1;
@@ -209,7 +208,7 @@ sub fetch {
 
         return $fh;
     } else {
-	$self->throw("Unable to find a record for $id in EMBL flat file index");
+	$self->throw("Unable to find a record for $id in SwissPfam flat file index");
     }
 }
 
