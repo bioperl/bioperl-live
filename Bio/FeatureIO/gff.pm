@@ -402,6 +402,46 @@ sub _handle_feature {
 
   $ac->add_Annotation('feature_type',$fta);
 
+  my @non_reserved_tags = grep {/^[a-z]/} keys %attr;
+  foreach my $non_reserved_tag (@non_reserved_tags) {
+    foreach my $value (@{ $attr{$non_reserved_tag} }){
+      $feat = $self->_handle_non_reserved_tag($feat,$non_reserved_tag,$value);
+    }
+  }
+
+  return $feat;
+}
+
+=head2 _handle_non_reserved_tag
+
+ Title   : _handle_non_reserved_tag
+ Usage   : $self->_handle_non_reserved_tag($feature,$tag,$value)
+ Function: Deal with non-reserved word tags in the ninth column
+ Example :
+ Returns : An updated Bio::SeqFeature::Annotated object
+ Args    : A Bio::SeqFeature::Annotated and a tag/value pair
+
+Note that this method can be overridden in a subclass to provide
+special handling of non-reserved word tags.
+
+=cut
+
+sub _handle_non_reserved_tag {
+  my $self = shift;
+  my ($feat,$tag,$value) = @_;
+
+  my $ac = $feat->annotation();
+
+# to customize through subclassing and overriding:
+#if ($tag eq 'someTagOfInterest') {
+#  do something different
+# else { do what is below
+
+
+  my $a = Bio::Annotation::SimpleValue->new();
+  $a->value($value);
+  $ac->add_Annotation($tag,$a);
+
   return $feat;
 }
 
