@@ -322,6 +322,11 @@ A set of scripts that accept microarray data as input and perform
 statistical analyses, including t test, U test, Mann-Whitney,
 and Pearson correlation coefficent.
 
+=head2 examples/db/bioflat_index.pl
+
+Create or update a biological sequence database indexed with the
+Bio::DB::Flat indexing scheme.
+
 =head2 examples/db/dbfetch
 
 Creates a Web page to query a local SRS server and fetch sequences.
