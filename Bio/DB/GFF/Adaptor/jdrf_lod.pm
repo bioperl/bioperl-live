@@ -358,13 +358,12 @@ sub get_features {
     while( my ( $mrk_name, $mrk_lod, $chrom_start, $chrom_end, $fuzzy ) =
            $sth->fetchrow_array() ) {
 
-      ## TODO: Use $fuzzy.
       if( $chrom_start ) { # If there's a definite start position
         $markers{ $mrk_name }{ 'lod' }   = $mrk_lod;
         $markers{ $mrk_name }{ 'score' } = int( $mrk_lod * 100 );
         $markers{ $mrk_name }{ 'start' } = $chrom_start;
         $markers{ $mrk_name }{ 'end' }   = $chrom_end;
-        $markers{ $mrk_name }{ 'fuzzy' } = 0;
+        $markers{ $mrk_name }{ 'fuzzy' } = $fuzzy;
         $markers{ $mrk_name }{ 'order' } = $marker_order;
         foreach my $fuzzy_marker ( @last_fuzzy ) {
           $markers{ $fuzzy_marker }{ 'end' } = $chrom_start;
@@ -437,6 +436,7 @@ sub get_features {
 sub _do_callback {
   my $self = shift;
   my ( $callback, $mrk_name, $chr, $str_id, $method, $markers ) = @_;
+
   ## TODO: REMOVE
   #warn "This next one has a score of ".$markers->{ $mrk_name }{ 'score' }.".";
   $callback->( # 13 arguments, plus a hash of gsf tag values (ala Bio::SeqFeature::Generic)
@@ -455,7 +455,10 @@ sub _do_callback {
     $mrk_name,                        # $feature_id  A unique feature ID (may be undef)
     'lod:$str_id',                    # $group_id    The group id..
     ## Tags and their values
-    'fuzzy' => $markers->{ $mrk_name }{ 'fuzzy' },
+    ## TODO: We shouldn't have to do this, but we're in a bind elsewhere.
+    ( $markers->{ $mrk_name }{ 'fuzzy' } ?
+      ( 'fuzzy' => $markers->{ $mrk_name }{ 'fuzzy' } ) :
+      () ),
     'link'  => "http://jdrfdev.systemsbiology.net/cgi-bin/jdrf_publication.cgi?str_id=$str_id",
     'description'  => ( $mrk_name.': '.$markers->{ $mrk_name }{ 'lod' } )
   );

@@ -298,10 +298,8 @@ sub draw_microsatellite {
   ## TODO: Make the fuzzy & regular fillcolors options from the .conf file.
 
   my $fill_color;
-  my @fuzzy;
   if( $self->feature->has_tag( 'fuzzy' ) &&
-      ( @fuzzy = $self->feature->get_tag_values( 'fuzzy' ) ) &&
-      $fuzzy[ 0 ] ) {
+      $self->feature->get_tag_values( 'fuzzy' ) ) {
     $fill_color = $self->factory->translate_color('white');
   } else {
     $fill_color = $self->factory->translate_color('red'); #= $self->bgcolor;
