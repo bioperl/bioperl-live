@@ -429,7 +429,7 @@ sub write_annseq {
    $a =~ s/[^a]//g;
    my $alen = length $a;
 
-   my $t = $str; 
+   $t = $str;   # $t already defined above
    $t =~ s/[^t]//g;
    my $tlen = length $t;
 

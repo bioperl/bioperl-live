@@ -25,12 +25,6 @@ BEGIN { $| = 1; print "1..12\n";
 END {print "not ok 1\n" unless $loaded;}
 
 use Bio::SeqIO;
-use Bio::SeqIO::Fasta;
-use Bio::SeqIO::EMBL;
-use Bio::SeqIO::Raw;
-use Bio::SeqIO::GCG;
-use Bio::SeqIO::GenBank;
-
 
 $loaded = 1;
 print "ok 1\n";    # 1st test passes.

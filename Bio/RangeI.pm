@@ -13,6 +13,10 @@
 
 Bio::RangeI - Range interface
 
+=head1 SYNOPSIS
+
+None.
+
 =head1 DESCRIPTION
 
 This provides a standard BioPerl range interface that should be

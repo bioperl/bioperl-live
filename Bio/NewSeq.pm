@@ -108,7 +108,7 @@ provide a warning that someone has called a deprecated method.
 
 =item type - use moltype, but notice that moltype returns different values (lowercase)
 
-=end
+=back
 
 =head1 FEEDBACK
 

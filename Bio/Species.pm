@@ -8,9 +8,9 @@
 
 # POD documentation - main docs before the code
 
-=head1 NAME - Bio::Species
+=head1 NAME
 
-Generic species object
+Bio::Species - Generic species object
 
 =head1 SYNOPSIS
 
