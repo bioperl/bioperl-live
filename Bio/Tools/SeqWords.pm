@@ -110,7 +110,7 @@ query on the bioperl mailing list.  At least 2 other people provided
 alternative means (equally good but not used in the end) of performing
 the same calculation.  Thanks to all for your assistance.
 
-=head1 CONTRUBITORS
+=head1 CONTRIBUTORS
 
 Jason Stajich, jason-at-bioperl.org
 
