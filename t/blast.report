@@ -11,7 +11,8 @@ Sch&auml;ffer, Jinghui Zhang, Zheng Zhang, Webb Miller, and David J. Lipman
 (1997), "Gapped BLAST and PSI-BLAST: a new generation of protein database search
  programs", Nucleic Acids Res. 25:3389-3402.
 
-Query= gi|1401126 
+Query=
+gi|1401126 
          (504 letters)
 
 Database: Non-redundant GenBank+EMBL+DDBJ+PDB sequences
