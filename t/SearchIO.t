@@ -20,7 +20,7 @@ BEGIN {
 	use lib 't';
     }
     use vars qw($NTESTS);
-    $NTESTS = 543;
+    $NTESTS = 545;
     $LASTXMLTEST = 49;
     $error = 0;
 
@@ -769,8 +769,10 @@ $searchio = new Bio::SearchIO ('-format' => 'blast',
 			       '-file'   => Bio::Root::IO->catfile('t','data','multi_blast.bls'));
 
 my @expected = qw(CATH_RAT CATL_HUMAN CATL_RAT PAPA_CARPA);
+my $keepmulti;
 while( my $result = $searchio->next_result ) {
     ok($result->query_name, shift @expected, "Multiblast query test");
+    $keepmulti = $result;
 }
 
 # TODO: Flesh this test out!
@@ -794,14 +796,37 @@ my $writer = Bio::SearchIO::Writer::HitTableWriter->new(
                                                   expect
                                                   )]  );
 
-my $out = new Bio::SearchIO(-writer => $writer,
+my $out = new Bio::SearchIO(-verbose => 1,
+			    -writer => $writer,
 			    -file   => ">searchio.out");
+
+$out->write_result($keepmulti, 1);
+$out = undef;
+ok(-e 'searchio.out' && ! -z 'searchio.out');
+
+unlink( 'searchio.out');
+$out = new Bio::SearchIO(-writer => $writer,
+			 -file   => ">searchio.out");
 $out->write_result($result, 1);
-ok(-e 'searchio.out');
+$out = undef;
+ok(-e 'searchio.out' && ! -z 'searchio.out');
+
 my $writerhtml = new Bio::SearchIO::Writer::HTMLResultWriter();
 my $outhtml = new Bio::SearchIO(-writer => $writerhtml,
 				-file   => ">searchio.html");
-ok(-e "searchio.html");
+$outhtml->write_result($result,1);
+undef $outhtml;
+ok(-e "searchio.html" && ! -z 'searchio.html');
+unlink( 'searchio.html');
+
+$outhtml = new Bio::SearchIO(-writer => $writerhtml,
+				-file   => ">searchio.html");
+$outhtml->write_result($result,1);
+
+$keepmulti->rewind();
+$outhtml->write_result($keepmulti,1);
+undef $outhtml;
+ok(-e "searchio.html" && ! -z 'searchio.html');
 
 END { 
     unlink 'searchio.out';
