@@ -44,9 +44,12 @@ Bio::Tools::Sigcleave.pm - Bioperl object for sigcleave analysis
 
     use Bio::Tools::Sigcleave ();
 
-    $sigcleave_object = new Bio::Tools::Sigcleave(-file=>'sigtest.aa',
-                                                  -desc=>'test sigcleave protein seq',
-                                                  -type=>'AMINO',
+    # sequences are used as input, but not Seq objects currently
+    $seq = "AAALLLLLLLLLLKTHHHVSSSSQWWWWWWWWWFFF";
+    $sigcleave_object = new Bio::Tools::Sigcleave(-seq  => $seq,
+                                                  -desc => 'test
+protein',
+                                                  -type => 'AMINO',
                                                   -threshold=>'3.5',
                                                  );
 
