@@ -40,8 +40,10 @@ use vars qw($FILE1 $FILE2);
 
 $FILE1= 'testnewick.phylip';
 $FILE2= 'testlarge.phy';
+
 END { 
-    unlink qw($FILE1 $FILE2);
+	unlink $FILE1;
+	unlink $FILE2;
 }
 use Bio::TreeIO;
 use Bio::Root::IO;

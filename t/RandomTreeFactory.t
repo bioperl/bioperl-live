@@ -23,7 +23,7 @@ ok(1);
 
 use vars qw($FILE1);
 $FILE1 = 'out.tre';
-END { unlink qw($FILE1) }
+END { unlink $FILE1; }
  
 my $ssize = 25;
 my $factory = new Bio::Tree::RandomFactory(-sample_size => $ssize);
