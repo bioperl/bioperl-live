@@ -94,8 +94,8 @@ use vars qw(@ISA);
   Usage   : $range = Bio::Range->new(-start => 100, -end=> 200, -strand = +1);
   Function: generates a new Bio::Range
   Returns : a new range
-  Args    : two of (-start, -end, '-length') - the third is calculated
-          : -strand (defaults to 0)
+  Args    : -strand (defaults to 0) and any two of (-start, -end, -length),
+            the third will be calculated
 
 =cut
 
@@ -174,10 +174,10 @@ sub end {
 =head2 strand
 
   Title    : strand
-  Function : return or set the strandidness
+  Function : return or set the strandedness
   Example  : $st = $range->strand(); $range->strand(-1);
   Returns  : the value of the strandedness (-1, 0 or 1)
-  Args     : optionaly, the new strand - (-1, 0, 1) or (-, ., +).
+  Args     : optionally, the new strand - (-1, 0, 1) or (-, ., +).
   Overrides: Bio::RangeI::Strand
 
 =cut
@@ -202,7 +202,7 @@ sub strand {
   Function : returns the length of this range
   Example  : $length = $range->length();
   Returns  : the length of this range, equal to end - start + 1
-  Args     : if you attempt to set the length, and exeption will be thrown
+  Args     : if you attempt to set the length an exception will be thrown
   Overrides: Bio::RangeI::Length
 
 =cut
@@ -248,9 +248,9 @@ These methods return true or false.
 
   Title    : contains
   Usage    : if($r1->contains($r2) { do stuff }
-  Function : tests wether $r1 totaly contains $r2
+  Function : tests wether $r1 totally contains $r2
   Args     : a range to test for being contained
-  Returns  : true if the argument is totaly contained within this range
+  Returns  : true if the argument is totally contained within this range
   Inherited: Bio::RangeI
 
 =head2 equals
@@ -284,7 +284,7 @@ triplets (start, end, strand) from which new ranges could be built.
   Usage    : ($start, $stop, $strand) = $r1->union($r2);
            : ($start, $stop, $strand) = Bio::Range->union(@ranges);
   Function : finds the minimal range that contains all of the ranges
-  Args     : a range or list of ranges to find the union of
+  Args     : a range or list of ranges
   Returns  : the range containing all of the ranges
   Inherited: Bio::RangeI::union
 

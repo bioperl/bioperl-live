@@ -28,7 +28,7 @@ be instantiated.
 Ranges are modeled as having (start, end, length, strand). They use
 Bio-coordinates - all points E<gt>= start and E<lt>= end are within the
 range. End is always greater-than or equal-to start, and length is
-greather than or equal to 1. The behaviour of a range is undefined if
+greater than or equal to 1. The behaviour of a range is undefined if
 ranges with negative numbers or zero are used.
 
 So, in summary:
@@ -135,8 +135,8 @@ These methods must be implemented in all subclasses.
   Usage   : $start = $range->start();
   Function: get/set the start of this range
   Returns : the start of this range
-  Args    : optionaly allows the start to be set
-           using $range->start($start)
+  Args    : optionally allows the start to be set
+            using $range->start($start)
 
 =cut
 
@@ -150,7 +150,7 @@ sub start {
   Usage   : $end = $range->end();
   Function: get/set the end of this range
   Returns : the end of this range
-  Args    : optionaly allows the end to be set
+  Args    : optionally allows the end to be set
             using $range->end($end)
 
 =cut
@@ -165,7 +165,7 @@ sub end {
   Usage   : $length = $range->length();
   Function: get/set the length of this range
   Returns : the length of this range
-  Args    : optionaly allows the length to be set
+  Args    : optionally allows the length to be set
              using $range->length($length)
 
 =cut
@@ -180,7 +180,7 @@ sub length {
   Usage   : $strand = $range->strand();
   Function: get/set the strand of this range
   Returns : the strandidness (-1, 0, +1)
-  Args    : optionaly allows the strand to be set
+  Args    : optionally allows the strand to be set
             using $range->strand($strand)
 
 =cut
@@ -233,7 +233,7 @@ sub overlaps {
   Args    : arg #1 = a range to compare this one to (mandatory)
 	             alternatively, integer scalar to test
             arg #2 = strand option ('strong', 'weak', 'ignore') (optional)
-  Returns : true if the argument is totaly contained within this range
+  Returns : true if the argument is totally contained within this range
 
 =cut
 
@@ -296,8 +296,8 @@ which new ranges could be built.
   Args    : arg #1 = a range to compare this one to (mandatory)
             arg #2 = strand option ('strong', 'weak', 'ignore') (optional)
   Returns : undef if they do not overlap, 
-            or the range that they do overlap 
-            (in an objectlike the calling one, OR a three element array)
+            or a range if they do overlap (in the form of an object 
+            like the calling one, OR a three element array)
 
 =cut
 
@@ -352,9 +352,10 @@ sub intersection {
             : ($start, $stop, $strand) = Bio::RangeI->union(@ranges);
               my $newrange = Bio::RangeI->union(@ranges);
     Function: finds the minimal range that contains all of the ranges
-    Args    : a range or list of ranges to find the union of
+    Args    : a range or list of ranges
     Returns : the range object containing all of the ranges
-              (in an objectlike the calling one, OR a three element array)
+              (in the form of an object like the calling one, OR 
+              a three element array)
 =cut
 
 sub union {
@@ -456,7 +457,8 @@ sub overlap_extent{
               is fully contained by at least one output range, and none of
               the output ranges overlap
     Args    : a list of ranges
-    Returns : a list of objects of the same type as the input (conforms to RangeI)
+    Returns : a list of objects of the same type as the input 
+              (conforms to RangeI)
 
 =cut
 
