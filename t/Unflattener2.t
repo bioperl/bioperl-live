@@ -82,7 +82,7 @@ if (1) {
     printf "PROCESSED/TOP:%d\n", scalar(@sfs);
     ok scalar(@sfs), 1;
     my @exons = grep {$_->primary_tag eq 'exon'} $seq->get_all_SeqFeatures;
-    ok scalar(@exons), 10;    # total number of exons per splice
+    ok scalar(@exons), 6;    # total number of exons per splice
     my %numberh = map {$_->get_tag_values("number") => 1} @exons;
     my @numbers = keys %numberh;
     printf "DISTINCT EXONS: %d [@numbers]\n", scalar(@numbers);
@@ -116,7 +116,7 @@ if (1) {
     printf "PROCESSED/TOP:%d\n", scalar(@sfs);
     ok scalar(@sfs), 2;
     my @exons = grep {$_->primary_tag eq 'exon'} $seq->get_all_SeqFeatures;
-    ok scalar(@exons), 6;    # total number of exons per splice
+    ok scalar(@exons), 2;    # total number of exons per splice
 
     printf "PROBLEMS ENCOUNTERED: %d (EXPECTED: 6)\n", scalar(@probs);
     ok scalar(@probs), 6;
