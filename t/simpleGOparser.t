@@ -25,7 +25,7 @@ BEGIN {
 	    exit( 0 );
     }
 
-    plan tests => 98;
+    plan tests => 101;
 }
 
 
@@ -71,9 +71,6 @@ ok( $term->ontology()->name(), "Gene Ontology" );
 ok( $term->name(), "dibenzothiophene desulfurization" );
 
 
-@dblinks = ();
-@synos = ();
-
 $term = $engine->get_terms( "GO:0004796" );
 @dblinks = sort ( $term->get_dblinks() );
 @synos = sort ( $term->get_synonyms() );
@@ -85,48 +82,29 @@ ok( $sec[ 0 ], "GO:0008400" );
 ok( $term->ontology()->name(), "Gene Ontology" );
 ok( $term->name(), "thromboxane-A synthase" );
 
-
-
 my @parents = sort goid ( $ont->get_parent_terms( $term ) );
-
 ok( @parents == 2 );
-
 ok( $parents[ 0 ]->GO_id(), "GO:0015034" );
 ok( $parents[ 1 ]->GO_id(), "GO:0018895" );
 
-
-@parents = ();
 
 @parents = sort goid ( $ont->get_parent_terms( $term, $PART_OF, $IS_A) );
 
 ok( @parents == 2 );
-
 ok( $parents[ 0 ]->GO_id(), "GO:0015034" );
 ok( $parents[ 1 ]->GO_id(), "GO:0018895" );
 
-
-
-
-@parents = ();
 
 @parents = sort goid ( $ont->get_parent_terms( "GO:0004796", $IS_A ) );
-
 ok( @parents == 2 );
-
 ok( $parents[ 0 ]->GO_id(), "GO:0015034" );
 ok( $parents[ 1 ]->GO_id(), "GO:0018895" );
 
 
-
-@parents = ();
-
 @parents = sort goid ( $ont->get_parent_terms( "GO:0004796", $PART_OF ) );
-
 ok( scalar(@parents), 0 );
-
 my @anc = sort goid ( $ont->get_ancestor_terms( $term ) );
 ok( scalar(@anc), 3 );
-
 ok( $anc[ 0 ]->GO_id(), "GO:0003673" );
 ok( $anc[ 1 ]->GO_id(), "GO:0015034" );
 ok( $anc[ 2 ]->GO_id(), "GO:0018895" );
@@ -134,34 +112,21 @@ ok( $anc[ 2 ]->GO_id(), "GO:0018895" );
 
 @anc = sort goid ( $ont->get_ancestor_terms( "GO:0004796", $IS_A ) );
 ok( scalar(@anc), 3 );
-
 ok( $anc[ 0 ]->GO_id(), "GO:0003673" );
 ok( $anc[ 1 ]->GO_id(), "GO:0015034" );
 ok( $anc[ 2 ]->GO_id(), "GO:0018895" );
 
 
 @anc = sort goid ( $ont->get_ancestor_terms( "GO:0000666" ) );
-
 ok( @anc == 12 );
 
-
-
 @anc = sort goid ( $ont->get_ancestor_terms( "GO:0000666", $IS_A ) );
-
 ok( @anc == 2 );
-
 ok( $anc[ 0 ]->GO_id(), "GO:0005811" );
 ok( $anc[ 1 ]->GO_id(), "GO:0030481" );
 
-
-
-
-
-
 @anc = sort goid ( $ont->get_ancestor_terms( "GO:0000666", $PART_OF ) );
-
 ok( @anc == 6 );
-
 ok( $anc[ 0 ]->GO_id(), "GO:0005623" );
 ok( $anc[ 1 ]->GO_id(), "GO:0005625" );
 ok( $anc[ 2 ]->GO_id(), "GO:0005933" );
@@ -170,12 +135,8 @@ ok( $anc[ 4 ]->GO_id(), "GO:0005937" );
 ok( $anc[ 5 ]->GO_id(), "GO:0005938" );
 
 
-
-
 my @childs = sort goid ( $ont->get_child_terms( "GO:0005625", $PART_OF ) );
-
 ok( @childs == 2 );
-
 ok( $childs[ 0 ]->GO_id(), "GO:0000666" );
 ok( $childs[ 0 ]->name(), "polarisomeX" );
 ok( $childs[ 1 ]->GO_id(), "GO:0000667" );
@@ -183,17 +144,11 @@ ok( $childs[ 1 ]->name(), "polarisomeY" );
 ok( $childs[ 1 ]->ontology()->name(), "Gene Ontology" );
 
 
-
 ok( $engine->get_terms( "GO:0005625" )->name(), "soluble fraction" ); 
 
 
-
 @childs = sort goid ( $ont->get_descendant_terms( "GO:0005624", $IS_A ) );
-
-
-
 ok( @childs == 6 );
-
 ok( $childs[ 0 ]->GO_id(), "GO:0000299" );
 ok( $childs[ 0 ]->name(), "integral membrane protein of membrane fraction" );
 ok( $childs[ 1 ]->GO_id(), "GO:0000300" );
@@ -207,10 +162,6 @@ ok( $childs[ 4 ]->name(), "rough microsome" );
 ok( $childs[ 5 ]->GO_id(), "GO:0019719" );
 ok( $childs[ 5 ]->name(), "smooth microsome" );
 
-
-
-
-
 @childs = sort goid ( $ont->get_descendant_terms( "GO:0005625", $IS_A ) );
 ok( @childs == 0 );
 
@@ -218,13 +169,8 @@ ok( @childs == 0 );
 @childs = sort goid ( $ont->get_descendant_terms( "GO:0005625", $PART_OF ) );
 ok( @childs == 2 );
 
-
-
-
 my @rels = sort child_goid ( $ont->get_relationships( "GO:0005625" ) );
-
 ok( @rels == 3 );
-
 ok( $rels[ 0 ]->object_term()->GO_id(), "GO:0005625" );
 ok( $rels[ 0 ]->subject_term()->GO_id(), "GO:0000666" );
 ok( $rels[ 0 ]->predicate_term()->equals( $PART_OF ) );
@@ -237,6 +183,16 @@ ok( $rels[ 2 ]->object_term()->GO_id(), "GO:0000267" );
 ok( $rels[ 2 ]->subject_term()->GO_id(), "GO:0005625" );
 ok( $rels[ 2 ]->predicate_term()->equals( $IS_A ) );
 
+# dbxrefs and synonyms are candidates for being falsely picked up by
+# overly promiscuous regular expressions as related terms, so we test for
+# that here
+my @terms = $engine->get_terms( "EC:5.3.99.5" );
+ok (scalar(@terms), 0);
+@terms = $engine->get_terms("MetaCyc:PWY-681","MetaCyc:PWY");
+ok (scalar(@terms), 0);
+@terms = $engine->get_terms("UM-BBD_pathwayID:dbt","BBD_pathwayID:dbt",
+                            "UM-BBD_pathwayID:dbt2","BBD_pathwayID:dbt2");
+ok (scalar(@terms), 0);
 
 
 ok( $engine->graph() );
@@ -245,7 +201,7 @@ ok( $ont->add_term( Bio::Ontology::GOterm->new(-identifier => "GO:0000000")));
 
 ok( $engine->has_term( "GO:0000300" ) );
 
-ok( scalar $ont->get_all_terms(), 46 );
+ok( scalar $ont->get_all_terms(), 44 );
 ok( scalar $ont->get_relationship_types(), 2 );
 
 ok( ! $ont->add_relationship( $rels[ 2 ] ) ); # this edge already exists, cannot add
@@ -255,7 +211,7 @@ ok( $ont->add_relationship( $rels[ 2 ] ) ); # now it's changed, can add
  
 
 my @roots = $ont->get_root_terms();
-ok( scalar(@roots), 12 );
+ok( scalar(@roots), 10 );
 
 my @leafs = $ont->get_leaf_terms();
 ok( scalar(@leafs), 19 );

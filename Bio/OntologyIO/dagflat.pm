@@ -462,19 +462,36 @@ sub _parse_flat_file {
 	if ( $line =~ /^!/ ) {
 	  next;
 	}
+
+        # split into term specifications
+        my @termspecs = split(/ (?=[%<])/, $line);
+        # the first element is whitespace only
+        shift(@termspecs) if $termspecs[0] =~ /^\s*$/;
         
-	my $current_term   = $self->_get_first_termid( $line );
-	my @isa_parents    = $self->_get_isa_termids( $line );
-	my @partof_parents = $self->_get_partof_termids( $line );
-	my @syns           = $self->_get_synonyms( $line );
-	my @sec_go_ids     = $self->_get_secondary_termids( $line );
-	my @cross_refs     = $self->_get_db_cross_refs( $line );
-        
+        # parse out the focus term
+	my $current_term   = $self->_get_first_termid( $termspecs[0] );
+	my @syns           = $self->_get_synonyms( $termspecs[0] );
+	my @sec_go_ids     = $self->_get_secondary_termids( $termspecs[0] );
+	my @cross_refs     = $self->_get_db_cross_refs( $termspecs[0] );
+
+        # parse out the parents of the focus term
+        shift(@termspecs);
+        my @isa_parents = ();
+        my @partof_parents = ();
+        foreach my $parent (@termspecs) {
+            if (index($parent, "%") == 0) {
+                push(@isa_parents, $self->_get_first_termid($parent));
+            } elsif (index($parent, "<") == 0) {
+                push(@partof_parents, $self->_get_first_termid($parent));
+            } else {
+                $self->warn("unhandled relationship type in '".$parent."'");
+            }
+        }
         
 	if ( ! $self->_has_term( $current_term ) ) {
 	  my $term =$self->_create_ont_entry($self->_get_name($line,
-														  $current_term),
-										 $current_term );
+                                                              $current_term),
+                                             $current_term );
 	  $self->_add_term( $term, $ont );
 	}
         
@@ -489,29 +506,29 @@ sub _parse_flat_file {
 	foreach my $parent ( @isa_parents ) {
 	  if ( ! $self->_has_term( $parent ) ) {
 		my $term = $self->_create_ont_entry($self->_get_name($line,
-															 $parent),
-											$parent );
+                                                                     $parent),
+                                                    $parent );
 		$self->_add_term( $term, $ont );
 	  }
             
 	  $self->_add_relationship( $parent,
-								$current_term,
-								$self->_is_a_relationship(),
-								$ont);
-             
+                                    $current_term,
+                                    $self->_is_a_relationship(),
+                                    $ont);
+          
 	}
 	foreach my $parent ( @partof_parents ) {
 	  if ( ! $self->_has_term( $parent ) ) {
 		my $term = $self->_create_ont_entry($self->_get_name($line,
-															 $parent),
-											$parent );
+                                                                     $parent),
+                                                    $parent );
 		$self->_add_term( $term, $ont );
 	  }
            
 	  $self->_add_relationship( $parent,
-								$current_term,
-								$self->_part_of_relationship(),
-								$ont);
+                                    $current_term,
+                                    $self->_part_of_relationship(),
+                                    $ont);
 	}
         
 	my $current_spaces = $self->_count_spaces( $line );
@@ -575,9 +592,8 @@ sub _parse_flat_file {
 # Parses the 1st term id number out of line.
 sub _get_first_termid {
     my ( $self, $line ) = @_;
-#    if ( $line =~ /;\s*([A-Z_]{1,8}:\d{3,})/ ) {
+    if ( $line =~ /;\s*([A-Z_]{1,8}:\d{1,})/ ) {
 #    if ( $line =~ /;\s*(\w+:\w+)/ ) {
-    if ( $line =~ /;\s*(\w+:\w+)/ ) {
         return $1;
     }
     else {
@@ -597,9 +613,9 @@ sub _get_name {
 	# remove trailing and leading whitespace
         $name =~ s/\s+$//;
         $name =~ s/^\s+//;
-		$name =~ s/\@.+?\@//;
+        $name =~ s/\@.+?\@//;
 	# remove leading dollar character; also we default the name of the
-	# ontology to this name if preset to something else
+	# ontology to this name unless it is preset to something else
 	if(index($name,'$') == 0) {
 	    $name = substr($name,1);
 	    # replace underscores by spaces for setting the ontology name
@@ -620,7 +636,7 @@ sub _get_synonyms {
    
     my @synonyms = ();
    
-    while ( $line =~ /synonym\s*:\s*([^;^<^%]+)/g ) {
+    while ( $line =~ /synonym\s*:\s*([^;<%]+)/g ) {
         my $syn = $1;
         $syn =~ s/\s+$//;
         $syn =~ s/^\s+//;
@@ -638,7 +654,7 @@ sub _get_db_cross_refs {
    
     my @refs = ();
    
-    while ( $line =~ /;([^;^<^%^:]+:[^;^<^%^:]+)/g ) {
+    while ( $line =~ /;([^;<%:]+:[^;<%:]+)/g ) {
         my $ref = $1;
         if ( $ref =~ /synonym/ || $ref =~ /[A-Z]{1,8}:\d{3,}/ ) {
             next;
@@ -670,47 +686,6 @@ sub _get_secondary_termids {
 } # _get_secondary_termids 
 
 
-
-# Parses the is a ids out of a line
-sub _get_isa_termids {
-    my ( $self, $line ) = @_;
-    
-    my @ids = ();
-
-#    $line =~ s/[A-Z]{1,8}:\d{3,}//;
-    $line =~ s/\w+:\w+//;
-
-#    while ( $line =~ /%[^<^,]*?([A-Z]{1,8}:\d{3,})/g ) {
-    while ( $line =~ /%[^<^,]*?(\w+:\w+)/g ) {
-	  next if $1 =~ /^synonym/;
-        push( @ids, $1 );
-    }
-    return @ids; 
-} # _get_isa_termids
-
-
-
-# Parses the part of ids out of a line
-sub _get_partof_termids {
-    my ( $self, $line ) = @_;
-    
-    my @ids = ();
-    
-    $line =~ s/[A-Z]{1,8}:\d{3,}//;
-    
-#    while ( $line =~ /<[^%^,]*?([A-Z]{1,8}:\d{3,})/g ) {
-    while ( $line =~ /<[^%^,]*?(\w+:\w+)/g ) {
-	  next if $1 =~ /^synonym/;
-        push( @ids, $1 );
-    }
-    return @ids; 
-    
-    
-} # _get_partof_termids
-
-
-
-
 # Counts the spaces at the beginning of a line in the relationships files
 sub _count_spaces {
     my ( $self, $line ) = @_;
@@ -722,8 +697,6 @@ sub _count_spaces {
          return 0;
     }
 } # _count_spaces
-
-
 
 
 # "next" method for parsing the defintions file
@@ -745,7 +718,7 @@ sub _next_term {
     while( $line = ( $self->_defs_io->_readline() ) ) {
     
         if ( $line !~ /\S/ 
-        ||   $line =~ /^\s*!/ ) {
+             ||   $line =~ /^\s*!/ ) {
             next;
         }
         elsif ( $line =~ /^\s*term:\s*(.+)/ ) {
@@ -849,3 +822,4 @@ sub _term {
 } # _term  
   
   
+1;
