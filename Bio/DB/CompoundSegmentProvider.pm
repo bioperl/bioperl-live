@@ -336,10 +336,14 @@ sub get_collection {
         if( !defined( $low ) or ( $low > $segment->abs_low() ) ) {
           $low = $segment->abs_low();
         }
+        # Relativize low
+        $low = $abs_range->abs2rel( $low );
         my $high = $existing_segment->abs_high();
         if( !defined( $high ) or ( $high < $segment->abs_high() ) ) {
           $high = $segment->abs_high();
         }
+        # Relativize high
+        $high = $abs_range->abs2rel( $high );
         if( $existing_segment->isa( 'Bio::SeqFeature::CompoundSegment' ) ) {
           $existing_segment->seq_id( $abs_range );
           $existing_segment->strand( $union_strand );

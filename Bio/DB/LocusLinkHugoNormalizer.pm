@@ -175,8 +175,10 @@ sub normalize {
 
     next unless defined( $name );
 
+    $name = uc( $name );
+
     ## TODO: REMOVE
-    #warn "Hey, got current name '$name'.";
+    warn "Hey, got current name '$name'.";
 
     if( my $hugo_name = $self->{ '_hugo_names' }->{ $name } ) {
       ## TODO: REMOVE.  This is a hack.
@@ -188,11 +190,16 @@ sub normalize {
     my $q_name = $dbh->quote( $name );
 
     my $sth		= $dbh->prepare("
-    	SELECT	        gi.hugo_name
-    	FROM            gene_information gi LEFT OUTER JOIN gene_refseq gr
-           ON             ( gi.locus_link_id = gr.locus_link_id )
-    	WHERE	        gr.refseq_id     = $q_name
+    	SELECT	        gnh.hugo_name
+    	FROM            genename_hugoII gnh
+    	WHERE	        gnh.field_name     = $q_name
     ");
+    ####
+    #    SELECT	        gi.hugo_name
+    #    FROM            gene_information gi LEFT OUTER JOIN gene_refseq gr
+    #       ON             ( gi.locus_link_id = gr.locus_link_id )
+    #    WHERE	        gr.refseq_id     = $q_name
+    ####
     #    SELECT	        gi.hugo_name
     #    FROM            gene_information gi LEFT OUTER JOIN gene_refseq gr
     #       ON             ( gi.locus_link_id = gr.locus_link_id )
@@ -237,6 +244,87 @@ sub normalize {
 
   return $seq_feature;
 } # normalize()
+
+=head2 locate
+
+ Title   : locate
+ Usage   : $normalizer->locate( $feature_string );
+ Function: If the given string corresponds to a known location, return that location.
+ Returns : the location corresponding to the given string.
+ Args    : A string like 'ccr5' or 'NM_000567'
+ Status  : Public
+
+=cut
+
+sub locate {
+  my $self = shift;
+  my ( $feature_string ) = @_;
+
+  $feature_string = uc( $feature_string );
+
+  my $dbh = $self->db_handle();
+  my $hugo_name;
+  $hugo_name = $self->{ '_hugo_names' }->{ $feature_string };
+  unless( defined $hugo_name ) {
+    ## TODO: REMOVE
+    #warn "Looking up feature string '$feature_string'";
+
+    my $q_feature_string = $dbh->quote( $feature_string );
+    my $sth		= $dbh->prepare("
+    	SELECT	        gnh.hugo_name
+    	FROM            genename_hugoII gnh
+    	WHERE	        gnh.field_name     = $q_feature_string
+    ");
+    $sth->execute() || warn "Got SQL problem: ".$sth->errstr();
+    ## TODO: Deal with the fact that there could be multiple of these.
+    my $found_it;
+    while( my ( $a_hugo_name ) = $sth->fetchrow_array() ) {
+      if( defined $found_it ) {
+        ## TODO: REMOVE
+        warn "****!!!!***** Yo yo yo, there's multiple hugo names for this string: $feature_string.  Earlier we got $found_it, and now we have $a_hugo_name.";
+      } else {
+        ## TODO: REMOVE
+        #warn "Found hugo name $a_hugo_name";
+      }
+      $hugo_name = $found_it = $a_hugo_name;
+      ## Save it for later.
+      $self->{ '_hugo_names' }->{ $feature_string } = $a_hugo_name;
+    }
+  }
+  ## TODO: REMOVE?
+  unless( defined $hugo_name ) {
+    return undef;
+  }
+  ## TODO: REMOVE
+  #warn "Looking up hugo name $hugo_name";
+  if( defined( $hugo_name ) ) {
+    my $q_hugo_name = $dbh->quote( uc( $hugo_name ) );
+    
+    my $sth		= $dbh->prepare("
+        SELECT	        srh.location_string
+        FROM            single_region_hugo srh
+        WHERE	        srh.hugo_name     = $q_hugo_name
+    ");
+    $sth->execute() || warn "Got SQL problem: ".$sth->errstr();
+    
+    ## TODO: Deal with the fact that there could be multiple of these.
+    my $location;
+    while( my ( $a_location ) = $sth->fetchrow_array() ) {
+      if( defined $location ) {
+        ## TODO: REMOVE
+        warn "****!!!!***** Yo yo yo, there's multiple locations for this string: $feature_string.  Earlier we got $location, and now we have $a_location.";
+      }
+      $location = $a_location;
+    }
+    if( defined $location ) {
+      return $location;
+    }
+  }
+
+  ## If we got to here then there's a hugo name for the
+  ## feature_string, but there's no corresponding location.
+  return 'none';
+} # locate()
 
 sub DESTROY {
   my $self = shift;

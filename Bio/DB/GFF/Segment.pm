@@ -334,6 +334,8 @@ sub new {
     if( ref( $a_possible_seq_id ) &&
         $a_possible_seq_id->isa( 'Bio::DB::GFF::Segment_NamedRelRange' ) &&
         ( $a_possible_seq_id->name() ne $a_possible_seq_id->seq_id() )
+        ## TODO: REMOVE.  Paul's hack to deal with Luc Smink's 2q33 stuff:
+        && ( $a_possible_seq_id->name() ne '2q33' )
       ) {
       my $a =
         $parent->abscoords( $a_possible_seq_id->seq_id(), 'Sequence' );
@@ -408,7 +410,13 @@ sub new {
       }
     }
     if( defined( $new_seq_id ) ) {
-      $a_possible_self->seq_id( $new_seq_id );
+      ## TODO: REMOVE.  Paul's hack to deal with Luc Smink's 2q33 stuff:
+      if( $a_possible_seq_id->name() eq '2q33' ) {
+        warn "Excersizing Luc Smink hack:  Ignoring given \$new_seq_id $new_seq_id, but setting \$self->class to 'LucSmink'";
+        $a_possible_self->class( 'LucSmink' );
+      } else {
+        $a_possible_self->seq_id( $new_seq_id );
+      }
     }
 
     if( $force_absolute ) {
@@ -1013,7 +1021,15 @@ sub get_collection {
     $force = $closure_options->{ 'force' };
   }
 
-  ## TODO: REMOVE.  Testing.
+  ## TODO: REMOVE.  Paul's hack to deal with Luc Smink's 2q33 stuff:
+  if( $self->class() eq 'LucSmink' ) {
+    $ranges = [ Bio::RelRange->new(
+                   -seq_id => '2q33',
+                   -start =>  1,
+                   -end =>    477366,
+                   -strand => '.' ) ];
+    undef $names;
+  }
   ## TODO: Fix this up a bit.
   my %args = (
     '-seq' => ( $ranges && @$ranges ? $ranges->[ 0 ]->seq_id() : undef ) ||
@@ -1708,13 +1724,27 @@ sub features {
   ## Do a reverse sort iff the baserange has a negative strand.
   my $reverse_sort = ( $baserange && ( $baserange->strand() < 0 ) );
 
+  ## TODO: REMOVE.  Paul's hack to deal with Luc Smink's 2q33 stuff:
+  my $parent = $self;
+  my $class = $namespace || $self->class();
+  my $hack_ranges = $ranges;
+  if( $self->class() eq 'LucSmink' ) {
+    $hack_ranges = [ Bio::RelRange->new(
+                   -seq_id => '2q33',
+                   -start =>  1,
+                   -end =>    477366,
+                   -strand => '.' ) ];
+    undef $names;
+    undef $parent;
+    undef $class;
+  }
   my %args = (
-    '-ref' => ( $ranges && @$ranges ? $ranges->[ 0 ]->seq_id() : undef ) ||
+    '-ref' => ( $hack_ranges && @$hack_ranges ? $hack_ranges->[ 0 ]->seq_id() : undef ) ||
       $self->abs_seq_id() || ( $names ? shift @$names : undef ),
-    '-class' => $namespace || $self->class(),
-    '-start' => ( $ranges && @$ranges ? $ranges->[ 0 ]->low( 'plus' ) : undef ) ||
+    '-class' => $class,
+    '-start' => ( $hack_ranges && @$hack_ranges ? $hack_ranges->[ 0 ]->low( 'plus' ) : undef ) ||
       ( $self->{ 'whole' } ? undef : $self->abs_start( 'plus' ) ),
-    '-end' => ( $ranges && @$ranges ? $ranges->[ 0 ]->high( 'plus' ) : undef ) ||
+    '-end' => ( $hack_ranges && @$hack_ranges ? $hack_ranges->[ 0 ]->high( 'plus' ) : undef ) ||
       ( $self->{ 'whole' } ? undef : $self->abs_end( 'plus' ) ),
     '-range_type' => $rangetype,
     '-types' => $types,
@@ -1725,10 +1755,12 @@ sub features {
     '-merge' => $merge,
     '-iterator' => $iterator,
     '-callback' => $callback,
-    '-parent' => $self
+    '-parent' => $parent
   );
   ## TODO: REMOVE
   #warn "Args to features_in_range() of ".$self->factory(). " are ( ".join( ', ', ( my @args = %args ) )." ).  names are { ".($names?join( ', ', @$names ):'')." }.  types are { ".($types?join( ', ', @$types ):''). " }.";
+  ## TODO: REMOVE!
+  #warn $self->stack_trace_dump();
   #eval { $self->throw( "Args to features_in_range() of ".$self->factory(). " are ( ".join( ', ', ( my @args = %args ) )." )"."-names are ".($names&&@$names?'[ '.join( ', ', @$names ).' ]':'undef')."." ) };
   #warn $@ if $@;
   if( $iterator ) {
@@ -1745,6 +1777,9 @@ sub features {
   ## TODO: This doesn't account for the whole picture.  Update.
   my @features = $self->factory()->features_in_range( %args );
 
+  ## TODO: REMOVE.  Paul's hack to deal with Luc Smink's 2q33 stuff:
+  $class = $self->class();
+
   ## The implementation may not do the filtering correctly, so we have
   ## to do it again, alas.
   my @features_to_return;
@@ -1754,6 +1789,25 @@ sub features {
     ## TODO: REMOVE
     unless( ref( $feature ) && $feature->isa( 'Bio::SeqFeature::SegmentI' ) ) {
       print STDERR "--------------Hey, man.  $feature ain't a feature!=======\n";
+    }
+
+    ## TODO: REMOVE.  Paul's hack to deal with Luc Smink's 2q33 stuff:
+    if( $class eq 'LucSmink' ) {
+      #warn "Before, feature is $feature";
+      if( my @sub_features = $feature->features() ) {
+        #warn "Doing its subfeatures too";
+        foreach my $sub_feature ( @sub_features ) {
+          if( $sub_feature->isa( 'Bio::SeqFeature::PositionProxy' ) ) {
+            $sub_feature = $sub_feature->peer();
+          }
+          #warn "Before, subfeature is $sub_feature.  It's a ".ref( $sub_feature ).", its abs_seq_id is ".$sub_feature->abs_seq_id().".  Its start is ".$sub_feature->start().".";
+          $sub_feature->seq_id( $self );
+          #warn "After, subfeature is $sub_feature.  Its seq_id is ".$sub_feature->seq_id().", its abs_seq_id is ".$sub_feature->abs_seq_id().".  Its start is ".$sub_feature->start();
+        }
+      }
+      ## Hey, remove this:
+      $feature->seq_id( $self );
+      #warn "After, feature is $feature";
     }
 
     ## Filter them:
@@ -1870,6 +1924,11 @@ sub features {
     ## Filter on range
     if( $passes_filter && $ranges ) {
       foreach my $range ( @$ranges ) {
+        ## TODO: REMOVE.  Paul's hack to deal with Luc Smink's 2q33 stuff:
+        if( ( $class eq 'LucSmink' ) && ( $range->seq_id() eq '2q33' ) ) {
+          $range->absolute( 0 );
+          $range->seq_id( $self );
+        }
         if( $range->seq_id() &&
             $feature->seq_id() &&
             !( $feature->seq_id() eq $range->seq_id() )
@@ -1953,6 +2012,10 @@ sub types {
 sub feature_count {
   my $self = shift;
 
+  ## TODO: REMOVE.  Paul's hack to deal with Luc Smink's 2q33 stuff:
+  if( $self->class() eq 'LucSmink' ) {
+    return 1;
+  }
   # count all feature types in the segment
   my %type_counts = $self->types( '-enumerate' => 1 );
 
@@ -2342,7 +2405,6 @@ sub _seq_id {
     }
 
     $self->{ '_seq_id' } = $new_seq_id;
-    ## TODO: ERE I AM.  If we're going to make it so that segments with string seq_ids have 'plus' position_policies (we've added code to new(..) for this, BTW), then we're going to want to switch now if the new seq_id is not a string and the old one was a string.  Actually we're going to want to make GFF work in a plus mode at all times, I think.  We're going to want to be able to know that from outside I think, so that the constructors are compatible... or something.  Actually the constructor should only be called from _create_segment(..) in other non-GFF classes, so then it's just a matter of making GFF's methods obey the contract, which should explicitly state a stranded assumption.  Anyways we're going to have to alter RelRange and RelRangeI so that you can be sure that the stored values are always stranded (or better, always 'plus' so that we don't need to know the length of the parent sequence), and also to do the right thing on setting the values as well as on retrieving them.
   }
   ## TODO: This is what this was from RelSegment::refseq(..):  why sourceseq?
   ## TODO: Note that presently we won't allow setting in absolute mode anyways.
@@ -2574,6 +2636,12 @@ sub annotation {
     }
     return $obj->{'annotation'};
 
+}
+
+sub _create_collection {
+  my $self = shift;
+  my $args = shift;
+  return $self->get_collection( @$args );
 }
 
 ## Inner class ##############################################################

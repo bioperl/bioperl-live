@@ -491,7 +491,7 @@ sub features {
     $compound_iterator->add_next_iterator( $self->SUPER::features( @_ ) );
     foreach my $next_segment ( $self->get_next_segments() ) {
       ## TODO: REMOVE
-      warn "CompoundSegment: next_segment is $next_segment, a ".ref( $next_segment )."\n";
+      #warn "CompoundSegment: next_segment is $next_segment, a ".ref( $next_segment )."\n";
       $compound_iterator->add_next_iterator( $next_segment->features( @_ ) );
     }
     return $compound_iterator;
@@ -509,7 +509,7 @@ sub features {
     my @features;# = $self->SUPER::features( @_ );
     foreach my $next_segment ( $self->get_next_segments() ) {
       ## TODO: REMOVE
-      warn "CompoundSegment: next_segment is $next_segment, a ".ref( $next_segment )."\n";
+      #warn "CompoundSegment: next_segment is $next_segment, a ".ref( $next_segment )."\n";
       push( @features, $next_segment->features( @_ ) );
     }
     return @features;
@@ -1171,6 +1171,8 @@ sub _create_segment {
 
   ## TODO: Add _create_collection to the interface def for CollectionProviderI.
   foreach my $next_provider ( $self->get_next_providers() ) {
+    ## TODO: REMOVE
+    #warn "CompoundSegment->_create_segment(..): \$next_provider is $next_provider, a ".ref( $next_provider ).".";
     $new_segment->add_next_provider(
       $next_provider->_create_collection( @_ )
     );
