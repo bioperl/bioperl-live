@@ -155,7 +155,9 @@ sub _initialize {
 sub _create_object {
   my $class = shift;
   my @args = @_;
-  carp("Use of Bio::Root::RootI is deprecated.  Please use Bio::Root::Root instead");
+  unless ( $ENV{'BIOPERLDEBUG'} ) {
+      carp("Use of Bio::Root::RootI is deprecated.  Please use Bio::Root::Root instead");
+  }
   eval "require Bio::Root::Root";
   return Bio::Root::Root->new(@args);
 }
