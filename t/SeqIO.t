@@ -3,6 +3,7 @@
 
 use strict;
 use vars qw($DEBUG $TESTCOUNT);
+$DEBUG = $ENV{BIOPERLDEBUG} || 0;
 BEGIN {     
     eval { require Test; };
     if( $@ ) {
@@ -21,7 +22,8 @@ use Bio::Annotation::Collection;
 
 ok(1);
 
-my $verbosity = -1;   # Set to -1 for release version, so warnings aren't printed
+# Set to -1 for release version, so warnings aren't printed
+my $verbosity = $DEBUG ? 0 : -1; 
 
 my ($str, $seq,$ast,$temp,$mf,$ent,$out); # predeclare variables for strict
 $str = Bio::SeqIO->new('-file' => Bio::Root::IO->catfile("t","data","test.fasta"), 
@@ -260,7 +262,7 @@ my $lastfeature = pop @features;
 # this is a split location; the root doesn't have strand
 ok($lastfeature->strand, undef);
 my $location = $lastfeature->location;
-$location->verbose(-1); # silence the warning of undef seq_id()
+$location->verbose($verbosity); # silence the warning of undef seq_id()
 # see above; splitlocs roots do not have a strand really
 ok($location->strand, undef);
 ok($location->start, 83202);
@@ -392,7 +394,7 @@ my $primaryseq = new Bio::PrimarySeq( -seq => 'AGAGAGAGATA',
 				      -accession_number => 'myaccession');
 
 my $embl = new Bio::SeqIO(-format => 'embl', 
-			  -verbose => $verbosity -1,
+			  -verbose => $verbosity,
 			  -file => ">primaryseq.embl");
 
 ok($embl->write_seq($primaryseq));
@@ -496,8 +498,8 @@ ok ($reference->medline, '21372465');
 unlink($testfile);
 
 # bug #1487
-
-$str = new Bio::SeqIO(-file => Bio::Root::IO->catfile
+$str = new Bio::SeqIO(-verbose => $verbosity,
+		      -file => Bio::Root::IO->catfile
 		      (qw(t data D12555.gbk)));
 eval { 
     $seq = $str->next_seq;    

@@ -425,8 +425,8 @@ sub _initialize {
 			      OBJBUILDER)
 			   ], @args);
 
-    $locfact = Bio::Factory::FTLocationFactory->new() if ! $locfact;
-    $objbuilder = Bio::Seq::SeqBuilder->new() unless $objbuilder;
+    $locfact = Bio::Factory::FTLocationFactory->new(-verbose => $self->verbose) if ! $locfact;
+    $objbuilder = Bio::Seq::SeqBuilder->new(-verbose => $self->verbose) unless $objbuilder;
     $self->sequence_builder($objbuilder);
     $self->location_factory($locfact);
     # note that this should come last because it propagates the sequence

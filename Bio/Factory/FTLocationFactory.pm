@@ -103,14 +103,6 @@ use Bio::Location::Fuzzy;
 
 =cut
 
-sub new {
-  my($class,@args) = @_;
-
-  my $self = $class->SUPER::new(@args);
-
-  return $self;
-}
-
 =head2 from_string
 
  Title   : from_string
@@ -223,7 +215,10 @@ sub _parse_location {
     } 
 
     # instantiate location and initialize
-    $loc = $locclass->new(-start => $start, -end  => $end, -strand => 1,
+    $loc = $locclass->new(-verbose => $self->verbose,
+			  -start   => $start, 
+			  -end     => $end, 
+			  -strand  => 1,
 			  -location_type => $loctype);
     # set remote ID if remote location
     if($seqid) {
