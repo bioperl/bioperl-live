@@ -385,6 +385,10 @@ sub desc {
   $d;
 }
 
+sub notes {
+  return shift->desc;
+}
+
 sub low {
   my $self = shift;
   return $self->start < $self->end ? $self->start : $self->end;
