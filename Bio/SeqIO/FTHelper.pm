@@ -324,7 +324,7 @@ sub _parse_loc {
 	 $delim =~ /^[\.^]$/ )
     {
 	$type = 'Bio::Location::Fuzzy';
-	push @args, ('-loc_type' => $delim); 
+	push @args, ('-location_type' => $delim); 
     } 
     my $location = $type->new(@args);
     if(defined($tagval) && $tagval ne '') {
