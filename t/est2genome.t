@@ -16,7 +16,7 @@ BEGIN {
     }
     use Test;
     use vars qw($TESTCOUNT);
-    $TESTCOUNT = 38;
+    $TESTCOUNT = 60;
     plan tests => $TESTCOUNT;
 }
 
@@ -62,3 +62,36 @@ foreach my $intron ( @introns ) {
     ok($intron->strand, $test_i->[$i++]);
 }
 ok(! @expected_introns);
+
+$parser = new Bio::Tools::Est2Genome(-file   => Bio::Root::IO->catfile
+					('t','data', 'hs_est.est2genome'));
+
+ok($parser);
+my $gene = $parser->parse_next_gene(1);
+@expected_exons = ( [695,813,1,1,119,1],
+		       [1377,1493,1,120,236,1],
+		       [1789,1935,1,237,382,1],
+		       [2084,2180,1,383,479,1]);
+@expected_introns = ( [814,1376,1],
+			 [1494,1788,1],
+			 [1936,2083,1] );
+
+foreach my $trans($gene->transcripts){
+   my @exons = $trans->exons;
+   foreach my $e(@exons){
+    my $test_e = shift @expected_exons;
+    my $i = 0;
+    ok($e->start, $test_e->[$i++]);
+    ok($e->end, $test_e->[$i++]);
+    ok($e->strand, $test_e->[$i++]);
+  }
+  my @introns = $trans->introns;
+  foreach my $intron ( @introns ) {
+    my $test_i = shift @expected_introns;
+    my $i = 0;
+    ok($intron->start, $test_i->[$i++]);
+    ok($intron->end, $test_i->[$i++]);
+    ok($intron->strand, $test_i->[$i++]);
+  }
+}
+
