@@ -88,7 +88,8 @@ use Carp;
 
 =head2 Bio::RangeI methods
 
-List of interfaces inherited from  L<Bio::RangeI>.
+List of interfaces inherited from Bio::RangeI (see L<Bio::RangeI>
+for details).
 
 =head2 start
 
