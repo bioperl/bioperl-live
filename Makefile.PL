@@ -82,7 +82,7 @@ use ExtUtils::MakeMaker;
 $do_autoload_finesse = 0;
 $NAME     = 'Bio';
 $DISTNAME = "bioperl";
-$VERSION  = "0.06.0";
+$VERSION  = "0.07.0";
 
 if( $do_autoload_finesse == 1 ) {
     fatal("Autoload finessing does not work at the moment!");
@@ -115,20 +115,14 @@ if( $error == 1 ) {
 
 Warning:
 
-   There are some external packages, listed above, which bioperl 
-   uses. This only effects the functionality which is listed above:
+   There are some external packages and perl modules, listed above, which 
+   bioperl uses. This only effects the functionality which is listed above:
    the rest of bioperl will work fine.
 
    The installation of these external packages is very simple. You
-   can read more about the external packages at
+   can read more about bioperl external dependencies at
 
    http://bioperl.org/Core/external.shtml
-
-   The ftp site
-
-   ftp://bioperl.org/pub/external/
-
-   has all the external packages for easy retrieval, or you can use CPAN
 
    Enjoy the rest of bioperl, which you can use after going 'make install'
 

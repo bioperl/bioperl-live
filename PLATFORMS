@@ -1,4 +1,4 @@
-# $Id: PLATFORMS,v 1.5 2001-03-01 09:32:45 birney Exp $
+# $Id: PLATFORMS,v 1.6 2001-03-02 03:44:12 dag Exp $
 
 Perl general comments:
 
@@ -7,7 +7,7 @@ Perl 5.000404 and lower often have problems with GDB.t
 Perl on Digital Unix has been reported to have problems
 with GDB.t. This maybe something to do with the LWP version
 
-DB.t has intermitten time-out failures
+DB.t has intermittent time-out failures
 
 Index.t will fail if you have an out-of-date DBM file
 installation
@@ -21,13 +21,15 @@ Compiler: cc
 Perl    : 5.004-5.6.0
 Comments: none
 
-
 Machine : Digital Unix
 Compiler: cc
 Perl    : 5.004
 Comments: Failure on GDB.t, possibly due to LWP issues
 
-
+Machine : OpenBSD 2.8 i386
+Compiler: cc
+Perl    : 5.6.0
+Comments: none
 
 
 

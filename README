@@ -40,7 +40,7 @@ o System requirements
   - LWP (libwww-perl) modules for running network BLAST analyses
     (available from CPAN http://www.perl.com/CPAN/).
 
-  - Some external perl modules that are listed at
+  - Additional perl module and application dependencies listed at
     http://bioperl.org/Core/external.shtml
 
   * Note that most modules will work with earlier versions of perl. 
@@ -265,6 +265,8 @@ Example:
    use Bio::Seq;
 
    <...insert whizzy perl code here...>
+
+
 
 
 
