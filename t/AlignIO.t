@@ -9,7 +9,7 @@ BEGIN {
 	use lib 't';
     }
     use Test;
-    plan tests => 94;
+    plan tests => 98;
 }
 
 use Bio::SimpleAlign;
@@ -191,6 +191,7 @@ $str = new Bio::AlignIO('-format' => 'emboss',
 			'-file'   => Bio::Root::IO->catfile("t", "data", 'cysprot.water'));
 $aln = $str->next_aln();
 ok($aln);
+ok($aln->score,'501.50');
 ok($aln->get_seq_by_pos(1)->get_nse,'PAPA_CARPA/3-342');
 ok($aln->get_seq_by_pos(2)->get_nse,'CATL_HUMAN/1-331');
 ok(sprintf("%.1f",$aln->overall_percentage_identity),33.8);
@@ -205,6 +206,7 @@ $str = new Bio::AlignIO('-format' => 'emboss',
 			'-file'   => Bio::Root::IO->catfile("t", "data", 'cysprot.needle'));
 $aln = $str->next_aln();
 ok($aln);
+ok($aln->score,'499.50');
 ok($aln->get_seq_by_pos(1)->get_nse,'PAPA_CARPA/1-345');
 ok($aln->get_seq_by_pos(2)->get_nse,'CATL_HUMAN/1-333');
 
@@ -217,7 +219,7 @@ $aln = $str->next_aln();
 ok($aln);
 ok($aln->get_seq_by_pos(1)->get_nse,'CYS1_DICDI/1-343');
 ok($aln->get_seq_by_pos(2)->get_nse,'CYS1_DICDI-1/1-343');
-
+ok($aln->score,'1841.0');
 $aln = $str->next_aln();
 ok($aln);
 ok($aln->get_seq_by_pos(1)->get_nse,'CYS1_DICDI/29-343');
@@ -230,6 +232,7 @@ $str = new Bio::AlignIO(-verbose => $DEBUG,
 			'-file'   => Bio::Root::IO->catfile("t", "data", 'sparsealn.needle'));
 $aln = $str->next_aln();
 ok($aln);
+ok($aln->score,'18.0');
 ok(sprintf("%.1f",$aln->overall_percentage_identity), 2.1);
 ok(sprintf("%.1f",$aln->average_percentage_identity), 38.5);
 ok($aln->get_seq_by_pos(1)->length, 238);
