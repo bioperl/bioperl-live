@@ -1,7 +1,7 @@
 
 Bioperl FAQ
 -----------
-v. 1.2.0
+v. 1.2
 
 This FAQ maintained by:
 * Jason Stajich <jason@bioperl.org>
@@ -78,8 +78,10 @@ Contents
 
 6. Running external programs
 
-   Q6.1: I want to run StandAloneBlast within bioperl - where did it go? 
-   Q6.2: What does the future hold for running applications within Bioperl? 
+   Q6.1: How do I run Blast from within Bioperl?
+   Q6.2: Hey, I want to run clustalw within Bioperl, I used
+	 Bio::Tools::Run::Alignment::Clustalw before - where did it go?
+   Q6.3: What does the future hold for running applications within Bioperl? 
 
 ---------------------------------------------------------------------------
 
@@ -527,7 +529,24 @@ Contents
 
 
 
-   Q6.1: I want to run StandAloneBlast within bioperl - where did it go? 
+   Q6.1: How do I run Blast from within Bioperl?
+
+      A:  Use the module Bio::Tools::Run::StandAloneBlast.  It will give
+	 you access to many of the search tools in the NCBI blast suite
+	 including blastll, bl2seq, blastpgp.  The basic structure is like
+	 this.
+	 
+	 use Bio::Tools::Run::StandAloneBlast;
+	 my $factory = Bio::Tools::Run::StandAloneBlast->new(p => 'blastn',
+							     d => 'nt',
+							     e => '1e-5');
+	 my $seq = new Bio::PrimarySeq(-id => 'test1',
+				       -seq => 'AGATCAGTAGATGATAGGGGTAGA');
+	 my $report = $factory->blastall($seq);
+
+
+   Q6.2: Hey, I want to run clustalw within Bioperl, I used
+	 Bio::Tools::Run::Alignment::Clustalw before - where did it go?
 
       A: The Bio::Tools::Run directory was moved to a new package to help
 	 make the size of the core code smaller and separate out the more
@@ -538,7 +557,7 @@ Contents
 	 This changeover began in the bioperl 1.1 developer release.
 
 
-   Q6.2: What does the future hold for running applications within Bioperl? 
+   Q6.3: What does the future hold for running applications within Bioperl? 
       A: We are trying to build a standard starting point for analysis
 	 application which will probably look like
 	 Bio::Tools::Run::AnalysisFactory which will allow the user to
@@ -553,6 +572,6 @@ Contents
 	 these computes.
 
 ---------------------------------------------------------------------------
-Copyright (c)2002 Open Bioinformatics Foundation. You may distribute this
-FAQ under the same terms as perl itself.
+Copyright (c)2002-2003 Open Bioinformatics Foundation. You may distribute
+this FAQ under the same terms as perl itself.
 

@@ -2,7 +2,7 @@
 <faq>
    <header>
       <title>Bioperl FAQ</title>
-      <version>1.0.2</version>
+      <version>1.2</version>
       <author>Jason Stajich &lt;jason@bioperl.org&gt;</author>
       <author>Brian Osborne &lt;brian_osborne@cognia.com&gt;</author>
       <author>Heikki Lehvaslaiho &lt;heikki@ebi.ac.uk&gt;</author>
@@ -284,13 +284,26 @@ $hsp-&gt;query-&gt;frame();
    <section>
    <section_name>Running external programs</section_name>
      <q id="1">
-     <question>Hey, I want to run blast or clusatlw within Bioperl, I
-      used Bio::Tools::Run::StandAloneBlast before - where did it go?</question>
+     <question>How do I run Blast from within Bioperl?</question>
+     <answer> Use the module Bio::Tools::Run::StandAloneBlast.  It will give you access to many of the search tools in the NCBI blast suite including blastll, bl2seq, blastpgp.  The basic structure is like this.
+
+<code>use Bio::Tools::Run::StandAloneBlast;
+my $factory = Bio::Tools::Run::StandAloneBlast->new(p => 'blastn',
+                                                    d => 'nt',
+                                                    e => '1e-5');
+my $seq = new Bio::PrimarySeq(-id => 'test1',
+                              -seq => 'AGATCAGTAGATGATAGGGGTAGA');
+my $report = $factory->blastall($seq);
+</code>
+     </answer>
+     </q>
+     <q id="2">
+     <question>Hey, I want to run clustalw within Bioperl, I used Bio::Tools::Run::Alignment::Clustalw before - where did it go?</question>
       <answer>The Bio::Tools::Run directory was moved to a new package to help make the size of the core code smaller and separate out the more specialized nature of application running from the rest of Bioperl.  You can get these modules by installing the bioperl-run package.  This is either available from CVS under the same name or available in the http://bioperl.org/DIST directory and on CPAN.  This changeover began in the bioperl 1.1 developer release.
      </answer>
 
      </q>
-     <q id="2">
+     <q id="3">
      <question>What does the future hold for running applications within Bioperl? </question>
      <answer>
 <p>We are trying to build a standard starting point for analysis application which will probably look like Bio::Tools::Run::AnalysisFactory which will allow the user to request which type of remote or local server they want to use to run their analyses.  This will connect to the Pasteur's PISE server, the EBI's Novella server, as well as be aware of wrappers to run applications locally. </p>
