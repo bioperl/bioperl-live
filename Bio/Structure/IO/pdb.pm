@@ -4,7 +4,7 @@
 #
 # Cared for by Kris Boulez <kris.boulez@algonomics.com>
 #
-# Copyright 2001 Kris Boulez
+# Copyright 2001, 2002 Kris Boulez
 #
 # Framework is a copy of Bio::SeqIO::embl.pm
 # 
@@ -14,14 +14,15 @@
 
 =head1 NAME
 
-Bio::Structure::IO::embl - PDB input/output stream
+Bio::Structure::IO::pdb - PDB input/output stream
 
 =head1 SYNOPSIS
 
 It is probably best not to use this object directly, but
 rather go through the Bio::Structure::IO handler system. Go:
 
-    $stream = Bio::Structure::IO->new(-file => $filename, -format => 'PDB');
+    $stream = Bio::Structure::IO->new(-file => $filename, 
+    				      -format => 'PDB');
 
     while ( (my $structure = $stream->next_structure()) ) {
 	# do something with $structure
@@ -30,8 +31,7 @@ rather go through the Bio::Structure::IO handler system. Go:
 =head1 DESCRIPTION
 
 This object can transform Bio::Structure objects to and from PDB flat
-file databases (at this time only reading is supported, most of the
-framework for writing is in place).
+file databases. The working is similar to that of the Bio::SeqIO handlers. 
 
 =head1 FEEDBACK
 
@@ -39,7 +39,7 @@ framework for writing is in place).
 
 User feedback is an integral part of the evolution of this
 and other Bioperl modules. Send your comments and suggestions preferably
- to one of the Bioperl mailing lists.
+to one of the Bioperl mailing lists.
 Your participation is much appreciated.
 
   bioperl-l@bioperl.org                 - General discussion
@@ -57,8 +57,6 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 =head1 AUTHOR - Kris Boulez
 
 Email kris.boulez@algonomics.com
-
-Describe contact details here
 
 =head1 APPENDIX
 
@@ -102,9 +100,9 @@ sub _initialize {
 =head2 next_structure;
 
  Title   : next_structure
- Usage   : $seq = $stream->next_seq()
+ Usage   : $struc = $stream->next_structure()
  Function: returns the next structure in the stream
- Returns : Bio::Seq object
+ Returns : Bio::Structure object
  Args    :
 
 
@@ -525,10 +523,10 @@ $self->debug("get COMPND $compnd\n");
 =head2 write_structure
 
  Title   : write_structure
- Usage   : $stream->write_seq($seq)
- Function: writes the $seq object (must be seq) to the stream
+ Usage   : $stream->write_structure($struc)
+ Function: writes the $struc object (must be a Bio::Structure) to the stream
  Returns : 1 for success and 0 for error
- Args    : Bio::Seq
+ Args    : Bio::Structure object
 
 
 =cut
