@@ -117,7 +117,7 @@ sub from_align {
    # take the ref
    #foreach remaining seq in aln, do:
 
-   my $cs = $aln->consensus_string(49);
+   my $cs = $aln->gap_line;
    while ( $cs =~ /([^-]+)/g) {
 
        # alignment coordinates
