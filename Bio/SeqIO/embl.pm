@@ -217,7 +217,7 @@ sub next_seq {
        if( /^AC\s+(\S+);?/ ) {
 	   $acc = $1;
 	   $acc =~ s/\;//;
-	   $seq->accession($acc);
+	   $seq->accession_number($acc);
        }
        
        #version number
@@ -311,8 +311,7 @@ sub next_seq {
        $seqc .= $_;
    }
 
-   $pseq = Bio::PrimarySeq->new(-seq => $seqc , -id => $name, -desc => $desc);
-   $seq->primary_seq($pseq);
+   $seq->seq($seqc);
    return $seq;
 }
 
@@ -368,8 +367,8 @@ sub write_seq {
         my( $acc );
         if( my $func = $self->_ac_generation_func ) {
             $acc = &{$func}($seq);
-        } elsif( $seq->can('accession')) {
-            $acc = $seq->accession;
+        } elsif( $seq->can('accession_number')) {
+            $acc = $seq->accession_number;
         }
         if (defined $acc) {
             $self->_print("AC   $acc;\n",
