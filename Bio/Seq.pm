@@ -392,7 +392,7 @@ sub moltype {
 
 =head1 Methods provided in the Bio::PrimarySeqI interface
 
-These methods are inherieted from the PrimarySeq interface
+These methods are inherited from the PrimarySeq interface
 and work as one expects, building new Bio::Seq objects 
 or other information as expected.
 
@@ -526,11 +526,15 @@ sub annotation {
 =head2 add_SeqFeature
 
  Title   : add_SeqFeature
- Usage   : $annseq->add_SeqFeature($feat);
- Function: Adds t
+ Usage   : $seq->add_SeqFeature($feat);
+           $seq->add_SeqFeature(@feat);
+ Function: Adds the given feature object (or each of an array of feature
+           objects to the feature array of this
+           sequence. The object passed is required to implement the
+           Bio::SeqFeatureI interface.
  Example :
  Returns : TRUE on success
- Args    :
+ Args    : A Bio::SeqFeatureI implementing object, or an array of such objects.
 
 
 =cut
@@ -571,10 +575,17 @@ sub add_SeqFeature {
 =head2 top_SeqFeatures
 
  Title   : top_SeqFeatures
- Usage   :
- Function:
+ Usage   : @feat_ary = $seq->top_SeqFeatures();
+ Function: Returns the array of top-level features for this sequence object.
+           Features which are not top-level are subfeatures of one or more
+           of the returned feature objects, which means that you must
+           traverse the subfeature arrays of each top-level feature object
+           in order to traverse all features associated with this sequence.
+
+           Use all_SeqFeatures() if you want the feature tree flattened into
+           one single array.
  Example :
- Returns : 
+ Returns : An array of Bio::SeqFeatureI implementing objects.
  Args    :
 
 
@@ -582,7 +593,6 @@ sub add_SeqFeature {
 
 sub top_SeqFeatures {
    my ($self) = @_;
-   my ($p,$f,$l) = caller;
 
    return @{$self->{'_as_feat'}};
 }
@@ -590,10 +600,17 @@ sub top_SeqFeatures {
 =head2 all_SeqFeatures
 
  Title   : all_SeqFeatures
- Usage   :
- Function:
+ Usage   : @feat_ary = $seq->all_SeqFeatures();
+ Function: Returns the tree of feature objects attached to this sequence
+           object flattened into one single array. Top-level features will
+           still contain their subfeature-arrays, which means that you
+           will encounter subfeatures twice if you traverse the subfeature
+           tree of the returned objects.
+
+           Use top_SeqFeatures() if you want the array to contain only the
+           top-level features.
  Example :
- Returns : 
+ Returns : An array of Bio::SeqFeatureI implementing objects.
  Args    :
 
 
@@ -642,25 +659,6 @@ sub _retrieve_subSeqFeature {
 
 }
 
-#Who needs this? It's not in any interface, and it's not implemented.
-#  =head2 fetch_SeqFeatures
-
-#   Title   : fetch_SeqFeatures
-#   Usage   :
-#   Function:
-#   Example :
-#   Returns : 
-#   Args    :
-
-
-#  =cut
-
-#  sub fetch_SeqFeatures {
-#     my ($self,@args) = @_;
-
-#     $self->throw("Not implemented yet");
-#  }
-
 
 =head2 species
 
@@ -683,62 +681,6 @@ sub species {
         return $self->{'species'}
     }
 }
-
-=head1 Methods for Backward Compatibility
-
-These methods are here for backward compatibility with the old, 0.5
-Seq objects. They all throw warnings that someone is using a 
-deprecated method, and may eventually be removed completely from
-this object. However, they are important to ease the transition from
-the old system.
-
-=head2 str
-
- Title   : str
- Usage   :
- Function:
- Example :
- Returns : 
- Args    :
-
-
-=cut
-
-=head2 ary
-
- Title   : ary
- Usage   :
- Function:
- Example :
- Returns : 
- Args    :
-
-
-=cut
-
-=head2 getseq
-
- Title   : getseq
- Usage   :
- Function:
- Example :
- Returns : 
- Args    :
-
-
-=cut
-
-=head2 type
-
- Title   : type
- Usage   :
- Function:
- Example :
- Returns :
- Args    :
-
-
-=cut
 
 =head1 EMBL/GenBank/DDBJ methods
 
