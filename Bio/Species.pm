@@ -272,14 +272,14 @@ sub binomial {
 sub validate_species_name {
     my( $self, $string ) = @_;
 
-    return 1 if $string =~ /^[a-z]+$/;
+    return 1 if $string =~ /^[a-z][\w\s]+$/;
     $self->throw("Invalid species name '$string'");
 }
 
 sub validate_name {
     my( $self, $string ) = @_;
 
-    return 1 if $string =~ /^\w+$/ or
+    return 1 if $string =~ /^[\w\s]+$/ or
         $self->throw("Invalid name '$string'");
 }
 
