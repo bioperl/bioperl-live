@@ -14,12 +14,20 @@
 
 use strict;
 use Text::Wrap qw(wrap $columns);
-use Tk;
 
 use Bio::Tools::BPlite;
-use Bio::Tk::HitDisplay;
+BEGIN { 
+    eval { 
+	require 'Tk.pm';
+	require 'Bio/Tk/HitDisplay.pm'; 
+    };
+    if( $@ ) {
+	print STDERR "Must have bioperl-gui and Tk installed to run this test, see bioperl website www.bioperl.org for instructions on how to installed bioperl-gui modules\n";    
+	exit;
+    }
 
-$columns = 80;
+}
+    $columns = 80;
 
 my $report = Bio::Tools::BPlite->new(-fh => \*STDIN);
 
