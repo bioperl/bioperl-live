@@ -1,0 +1,10 @@
+Author: jwfang1999@yahoo.com
+Description: THis program returns reverse complement sequences of all sequences in the current directory and save them in the same directory, using the same names with extension changed from "seq" to "rev".
+
+It allows user to choose from five formats for input or output files:
+   #Fasta       FASTA format
+   #EMBL        EMBL format
+   #GenBank     GenBank format
+   #GCG         GCG format
+   #raw         Raw format
+It is a simple script; however, I use it quite frequently for my own research.
