@@ -173,7 +173,7 @@ sub modules {
         if (/^package\s+([\w:]+)\s*;/) {
             print $1, "\n" if $verbose;
             $_ = $1;
-            $class = new BioClass($_); 
+            $class = new BioClass($_);
             $MODULES{$_} = $class;
             if (/.*:[a-z]/) {
                 $class->type('component');
@@ -187,6 +187,7 @@ sub modules {
             $class->path($File::Find::name);
         }
         if (/^\w*use/ && /(Bio[\w:]+)\W*;/) {
+	    next unless $class;
             print "\t$1\n" if $verbose;
             $class->add_used_class($1);
         }
@@ -398,7 +399,7 @@ sub version {
         {
             eval "require $n";
             printf "%50s ", $n;
-            my $v = eval '$'. $n. '::VERSION';
+            my $v = eval "\$${n}::VERSION";
             if (defined $v) {
                 #print $v unless $v eq $version;
                 print "$v\n";
