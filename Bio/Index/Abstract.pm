@@ -270,8 +270,6 @@ sub db {
 
 =cut
 
-#'
-
 sub get_stream {
    my ($self,$id) = @_;
 
