@@ -16,7 +16,7 @@ Bio::Tools::GFF - A Bio::SeqAnalysisParserI compliant GFF format parser
 
 =head1 SYNOPSIS
 
-    use Bio::Tool::GFF;
+    use Bio::Tools::GFF;
 
     # specify input via -fh or -file
     my $gffio = Bio::Tools::GFF->new(-fh => \*STDIN, -gff_version => 2);
