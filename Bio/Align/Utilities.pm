@@ -28,7 +28,7 @@ and manipulating alignment objects
   #
   my $dna_aln = &aa_to_dna_aln($aa_aln,\%dnaseqs);
 
-  
+
   # generate bootstraps
   my $replicates = &bootstrap_replicates($aln,$count);
 

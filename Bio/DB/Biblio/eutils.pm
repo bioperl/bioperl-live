@@ -72,19 +72,17 @@ This software is provided "as is" without warranty of any kind.
 More testing and debugging needed to ensure that returned citations
 are properly transferred even if they contain foreign characters.
 
-=back
-
 =item *
 
 Maximum record count (MAX_RECORDS) returned currently hard coded to
 100K.
 
-=back
-
 =item *
 
 Biblio retrieval methods should be more tightly integrated with
 L<Bio::Biblio::Ref> and L<Bio::DB::MeSH>.
+
+=back
 
 =head1 SEE ALSO
 

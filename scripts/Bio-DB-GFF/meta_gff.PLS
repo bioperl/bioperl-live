@@ -13,7 +13,7 @@ bp_meta_gff.pl - Get/set Bio::DB::GFF meta-data
 
   # set the following meta data values
   % bp_meta_gff.pl -d testdb tag1=value1 tag2=value2
-  
+
   # get the indicated meta data value
   % bp_meta_gff.pl -d testdb tag1 tag2
 

@@ -325,7 +325,7 @@ Bio::Root::Object.pm, 0.041
 
 =head1 TODO
 
-=over 0
+=over 2
 
 =item * Experiment with other Exception classes.
 

@@ -83,7 +83,7 @@ sub new {
     $self->_initialize;
     return $self;
 }
-   
+
 
 =head2 next_psm
 
@@ -94,7 +94,7 @@ sub new {
             are not defined, see _make_matrix
  Returns : Bio::Matrix::PSM::Psm object
  Args    : none
-                             '
+
 =cut
 
 sub next_psm {

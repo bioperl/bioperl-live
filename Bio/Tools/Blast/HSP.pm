@@ -79,7 +79,7 @@ and is not intended for separate use. Please see documentation for
 B<Bio::Tools::Blast.pm> for some basic information about using
 HSP objects (L<Links:>).
 
-=over 0
+=over 1
 
 =item * Supports BLAST versions 1.x and 2.x, gapped and ungapped.
 

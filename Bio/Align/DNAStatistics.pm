@@ -252,7 +252,7 @@ M Kimura, J. Mol. Evol., 1980, 16, 111.
 Jin and Nei, Mol. Biol. Evol. 82, 7, 1990.
 
 =item D_TajimaNei
- 
+
 Tajima and Nei, Mol. Biol. Evol. 1984, 1, 269.
 
 =back

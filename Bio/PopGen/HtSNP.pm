@@ -32,62 +32,64 @@ Take as input the followin values:
 
 =back
 
-The final haplotype is generated in a numerical format and the SNP's sets can
-be retrieve from the module.
+The final haplotype is generated in a numerical format and the SNP's
+sets can be retrieve from the module.
 
 B<considerations:>
 
 
-- If you force to include a family with indetermination, the SNP's with
-indetermination will be removed from the analysis, so consider before
-to place your data set what do you really want to do.
+- If you force to include a family with indetermination, the SNP's
+with indetermination will be removed from the analysis, so consider
+before to place your data set what do you really want to do.
 
-- If two families have the same information (identical haplotype), one of them
-will be removed and the removed files will be stored classify as removed.
+- If two families have the same information (identical haplotype), one
+of them will be removed and the removed files will be stored classify
+as removed.
 
-- Only are accepted for calculation A, C, G, T and - (as deletion) and their
-combinations. Any other value as n or ? will be considered as degenerations due
-to lack of information.
+- Only are accepted for calculation A, C, G, T and - (as deletion) and
+their combinations. Any other value as n or ? will be considered as
+degenerations due to lack of information.
 
 =head2 RATIONALE
 
-On a haplotype set is expected that some of the SNP and their variations
-contribute in the same way to the haplotype. Eliminating redundancies will
-produce a minimal set of SNP's that can be used as input for a taging
-selection process. On the process SNP's with the same variation are clustered
-on the same group.
+On a haplotype set is expected that some of the SNP and their
+variations contribute in the same way to the haplotype. Eliminating
+redundancies will produce a minimal set of SNP's that can be used as
+input for a taging selection process. On the process SNP's with the
+same variation are clustered on the same group.
 
-The idea is that because the tagging haplotype process is exponential. All
-redundant information we could eliminate on the tagging process will help to
-find a quick result.
+The idea is that because the tagging haplotype process is
+exponential. All redundant information we could eliminate on the
+tagging process will help to find a quick result.
 
 =head2 CONSTRUCTORS
 
-my $obj = Bio::PopGen::HtSNP->new(-haplotype_block => \@haplotype_patterns,
-                                  -snp_ids         => \@snp_ids,
-                                  -pattern_freq    => \@pattern_name_and_freq);
+  my $obj = Bio::PopGen::HtSNP->new
+    (-haplotype_block => \@haplotype_patterns,
+     -snp_ids         => \@snp_ids,
+     -pattern_freq    => \@pattern_name_and_freq);
 
-# where  $hap, $snp and $pop are in the format:
+where  $hap, $snp and $pop are in the format:
 
-my $hap = [
-           'acgt',
-           'agtc',
-           'cgtc'
-          ];                     # haplotype patterns' id
+  my $hap = [
+             'acgt',
+             'agtc',
+             'cgtc'
+            ];                     # haplotype patterns' id
 
-my $snp = [qw/s1 s2 s3 s4/];     # snps' Id's
+  my $snp = [qw/s1 s2 s3 s4/];     # snps' Id's
 
-my $pop = [
-           [qw/ uno    0.20/],
-           [qw/ dos    0.20/],
-           [qw/ tres   0.15/],
-          ];                     # haplotype_pattern_id    Frequency
+  my $pop = [
+             [qw/ uno    0.20/],
+             [qw/ dos    0.20/],
+             [qw/ tres   0.15/],
+            ];                     # haplotype_pattern_id    Frequency
 
 =head2 OBJECT METHODS
 
     See Below for more detailed summaries.
 
-=head2 FEEDBACK
+=head1 FEEDBACK
 
 =head2 Mailing Lists
 
@@ -106,11 +108,11 @@ the web:
 
   http://bugzilla.bioperl.org/
 
-=head2 AUTHOR - Pedro M. Gomez-Fabre
+=head1 AUTHOR - Pedro M. Gomez-Fabre
 
 Email pgf18872-at-gsk-dot-com
 
-=head2 APPENDIX
+=head1 APPENDIX
 
 See at the end of the POD.
 
@@ -229,7 +231,8 @@ sub snp_ids{
 
  Title   : pattern_freq
  Usage   : my $pattern_freq = $HtSNP->pattern_freq();
- Function: Get the pattern id and frequency  for a haplotype tagging selection
+ Function: Get the pattern id and frequency  for a haplotype
+           tagging selection
  Returns : reference of array
  Args    : reference of array with SNP ids
 
@@ -1512,7 +1515,7 @@ sub _snp_and_code_summary{
 
 =head2 How the process is working with one example
 
-let's begin with one general example of the code.
+Let's begin with one general example of the code.
 
 Input haplotype:
 
@@ -1521,7 +1524,7 @@ Input haplotype:
   cccccgtgc
   cgctcgtgc
 
-the first thing to to is to B<split the haplotype> into characters.
+The first thing to to is to B<split the haplotype> into characters.
 
   a       c       g       t       c       c       a       -       t
   c       g       g       t       a       g       t       g       c
@@ -1548,11 +1551,8 @@ as zero and the alternate value as 1 (see expanded description below).
 Once we have the haplotype converted to numbers we have to generate the
 snp type information for the haplotype.
 
-=over 4
 
 B<SNP code = SUM ( value * multiplicity ^ position );>
-
-=back
 
     where:
       SUM is the sum of the values for the SNP

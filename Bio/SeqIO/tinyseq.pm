@@ -5,12 +5,13 @@
 # Copyright Bristol-Myers Squibb
 #
 # You may distribute this module under the same terms as perl itself
- 
+
 # POD documentation - main docs before the code
- 
+
 =head1 NAME
 
-Bio::SeqIO::tinyseq - Perl extension for reading/writing sequences in NCBI TinySeq format
+Bio::SeqIO::tinyseq - Perl extension for reading/writing sequences in
+NCBI TinySeq format
 
 =head1 SYNOPSIS
 
@@ -24,8 +25,9 @@ Do not use this module directly; use the SeqIO handler system:
 
 =head1 DESCRIPTION
 
-This object reads and writes Bio::Seq objects to and from TinySeq XML format.
-A TinySeq is a lightweight XML file of sequence information, analgous to FASTA format.
+This object reads and writes Bio::Seq objects to and from TinySeq XML
+format.  A TinySeq is a lightweight XML file of sequence information,
+analgous to FASTA format.
 
 See http://www.ncbi.nih.gov/dtd/NCBI_TSeq.mod for the DTD.
 
@@ -34,46 +36,47 @@ See http://www.ncbi.nih.gov/dtd/NCBI_TSeq.mod for the DTD.
 None by default.
 
 =head1 FEEDBACK
- 
+
 =head2 Mailing Lists
- 
+
 User feedback is an integral part of the evolution of this and other
 Bioperl modules. Send your comments and suggestions preferably to
 the Bioperl mailing list.  Your participation is much appreciated.
- 
+
   bioperl-l@bioperl.org              - General discussion
   http://bioperl.org/MailList.shtml  - About the mailing lists
- 
+
 =head2 Reporting Bugs
- 
+
 Report bugs to the Bioperl bug tracking system to help us keep track
 of the bugs and their resolution. Bug reports can be submitted via
 the web:
- 
+
   http://bugzilla.bioperl.org/
- 
+
 
 =head1 SEE ALSO
 
-L<Bio::SeqIO, L<Bio::Seq>, L<perl>.
- 
+L<Bio::SeqIO>, L<Bio::Seq>, L<perl>.
+
 =head1 AUTHOR
 
-Donald Jackson, E<lt>donald.jackson@bms.com<gt>
+Donald Jackson, E<lt>donald.jackson@bms.comE<gt>
 
 
 =head1 CONTRIBUTORS
-                                                                                                                                       
+
 Additional contributors names and emails here
 
-Parts of this module  and the test script were patterned after Sheldon McKay's Bio::SeqIO::game.  If it breaks, however, it's my fault not his ;).
+Parts of this module and the test script were patterned after Sheldon
+McKay's Bio::SeqIO::game.  If it breaks, however, it's my fault not
+his ;).
 
-                                                                                                                                       
 =head1 APPENDIX
-                                                                                                                                       
+
 The rest of the documentation details each of the object methods.
 Internal methods are usually preceded with a _
-                                                                                                                                   
+
 =cut
 
 package Bio::SeqIO::tinyseq;
@@ -119,7 +122,7 @@ sub next_seq {
     my ($self) = @_;
 
     $self->_get_seqs() unless ($self->{_parsed});
-    
+
     return shift @{$self->{_seqlist}};
 }
 
@@ -130,10 +133,11 @@ sub next_seq {
   Function	: outputs one or more sequence objects as TinySeq XML
   Returns	: 1 on success
   Args		: one or more sequence objects as TinySeq XML
-  Note		: because the TSeq dtd includes closing tags after all sets are written, the output
-                  will not be complete until the program terminates or the object is forced out of
-                  scope (see close_writer()).
-                  May not perfectly reproduce TSeq_sid element for all sequences
+
+Because the TSeq dtd includes closing tags after all sets are written,
+the output will not be complete until the program terminates or the
+object is forced out of scope (see close_writer()).  May not perfectly
+reproduce TSeq_sid element for all sequences
 
 =cut
 
@@ -172,8 +176,9 @@ sub write_seq {
   Function	: parses the XML and creates Bio::Seq objects
   Returns	: 1 on success
   Args		: NONE
-  Note		: Currently stores all sequence objects into memory.  I will work on
-                  do more of a stream-based approach
+
+Currently stores all sequence objects into memory.  I will work on do
+more of a stream-based approach
 
 =cut
 
@@ -184,12 +189,11 @@ sub _get_seqs {
 
     my $handler = Bio::SeqIO::tinyseq::tinyseqHandler->new();
     my $parser = XML::Parser::PerlSAX->new( Handler => $handler );
-    
 
     my @seqatts = $parser->parse( Source => { ByteStream => $fh });
-    
+
     my $factory = $self->sequence_factory;
-    
+
     $self->{_seqlist} ||= [];
     foreach my $seqatt(@seqatts) {
 	foreach my $subatt(@$seqatt) { # why are there two hashes?
@@ -211,13 +215,15 @@ sub _get_seqs {
 }
 
 =head2 _get_species
-   
+
   Title		: _get_species
   Usage		: Internal function
   Function	: gets a Bio::Species object from cache or creates as needed
   Returns	: a Bio::Species object on success, undef on failure
-  Args		: a classification string (eg 'Homo sapiens') and a NCBI taxon id (optional)
-  Note		: species objects are cached for parsing multiple sequence files
+  Args		: a classification string (eg 'Homo sapiens') and
+                  a NCBI taxon id (optional)
+
+Objects are cached for parsing multiple sequence files.
 
 =cut
 
@@ -229,26 +235,27 @@ sub _get_species {
 	 $self->{'_species_objects'}->{$orgname} = $species;
      }
      return $self->{'_species_objects'}->{$orgname};
-}    
+}
 
 =head2 _create_species
-   
+
   Title		: _create_species
   Usage		: Internal function
   Function	: creates a Bio::Species object
   Returns	: a Bio::Species object on success, undef on failure
-  Args		: a classification string (eg 'Homo sapiens') and a NCBI taxon id (optional)
+  Args		: a classification string (eg 'Homo sapiens') and
+                  a NCBI taxon id (optional)
 
 =cut
 
 sub _create_species {
     my ($self, $orgname, $taxid) = @_;
     return undef unless ($orgname); # not required in TinySeq dtd so don't throw an error
-    	
+
     my %params;
     $params{'-classification'} = [reverse(split(/ /, $orgname))];
     $params{'-ncbi_taxid'} = $taxid if ($taxid);
-    
+
     my $species = Bio::Species->new(%params)
 	or return undef;
 
@@ -263,14 +270,15 @@ sub _create_species {
   Function	: looks for sequence accession
   Returns	: 1 on success
   Args		: NONE
-  Note		: NCBI puts refseq accessions in TSeq_sid, others in TSeq_accver
+
+NCBI puts refseq accessions in TSeq_sid, others in TSeq_accver.
 
 =cut
 
 sub _assign_identifier {
     my ($self, $seqobj, $atts) = @_;
     my ($accession, $version);
- 
+
    if ($atts->{'-accver'}) {
 	($accession, $version) = split(/\./, $atts->{'-accver'});;
     }
@@ -292,8 +300,8 @@ sub _assign_identifier {
 
   Title		: _convert_seqtype
   Usage		: Internal function
-  Function	: maps Bio::Seq::alphabet() values [dna/rna/protein] onto TSeq_seqtype
-                  values [protein/nucleotide]
+  Function	: maps Bio::Seq::alphabet() values [dna/rna/protein] onto
+                  TSeq_seqtype values [protein/nucleotide]
 
 =cut
 
@@ -303,7 +311,7 @@ sub _convert_seqtype {
     return 'protein' 	if ($seqobj->alphabet eq 'protein');
     return 'nucleotide' if ($seqobj->alphabet eq 'dna');
     return 'nucleotide' if ($seqobj->alphabet eq 'rna');
-    
+
     # if we get here there's a problem!
     $self->throw("Alphabet not defined, can't assign type for $seqobj");
 }
@@ -312,7 +320,8 @@ sub _convert_seqtype {
 
   Title		: _get_idstring
   Usage		: Internal function
-  Function	: parse accession and version info from TSeq_accver or TSeq_sid
+  Function	: parse accession and version info from TSeq_accver
+                  or TSeq_sid
 
 =cut
 
@@ -333,7 +342,8 @@ sub _get_idstring {
 
   Title		: _get_writer
   Usage		: Internal function
-  Function	: instantiate XML::Writer object if needed, output initial XML
+  Function	: instantiate XML::Writer object if needed,
+                  output initial XML
 
 =cut
 
@@ -366,7 +376,8 @@ sub _get_writer {
   Function	: terminate XML output
   Args		: NONE
   Returns	: 1 on success
-  Note		: Called automatically by DESTROY when object goes out of scope
+
+Called automatically by DESTROY when object goes out of scope
 
 =cut
 

@@ -5,12 +5,13 @@
 # Copyright Bristol-Myers Squibb
 #
 # You may distribute this module under the same terms as perl itself
- 
+
 # POD documentation - main docs before the code
- 
+
 =head1 NAME
 
-Bio::SeqIO::tinyseq::tinyseqHandler - Perl extension for XML event handlers to support NCBI TinySeq XML parsint
+Bio::SeqIO::tinyseq::tinyseqHandler - Perl extension for XML event
+handlers to support NCBI TinySeq XML parsint
 
 =head1 SYNOPSIS
 
@@ -24,8 +25,10 @@ Do not use this module directly; use the SeqIO handler system:
 
 =head1 DESCRIPTION
 
-This object provides event handler methods for parsing sequence files in the NCBI  TinySeq XML format.
-A TinySeq is a lightweight XML file of sequence information on one or more sequences, analgous to FASTA format.
+This object provides event handler methods for parsing sequence files
+in the NCBI TinySeq XML format.  A TinySeq is a lightweight XML file
+of sequence information on one or more sequences, analgous to FASTA
+format.
 
 See http://www.ncbi.nih.gov/dtd/NCBI_TSeq.mod for the DTD.
 
@@ -34,43 +37,43 @@ See http://www.ncbi.nih.gov/dtd/NCBI_TSeq.mod for the DTD.
 None by default.
 
 =head1 FEEDBACK
- 
+
 =head2 Mailing Lists
- 
+
 User feedback is an integral part of the evolution of this and other
 Bioperl modules. Send your comments and suggestions preferably to
 the Bioperl mailing list.  Your participation is much appreciated.
- 
+
   bioperl-l@bioperl.org              - General discussion
   http://bioperl.org/MailList.shtml  - About the mailing lists
- 
+
 =head2 Reporting Bugs
- 
+
 Report bugs to the Bioperl bug tracking system to help us keep track
 of the bugs and their resolution. Bug reports can be submitted via
 the web:
- 
+
   http://bugzilla.bioperl.org/
- 
+
 
 =head1 SEE ALSO
 
-L<Bio::SeqIO, L<Bio::Seq>, L<perl>.
- 
+L<Bio::SeqIO>, L<Bio::Seq>, L<perl>.
+
 =head1 AUTHOR
 
-Donald Jackson, E<lt>donald.jackson@bms.com<gt>
+Donald Jackson, E<lt>donald.jackson@bms.comE<gt>
 
 
 =head1 CONTRIBUTORS
-                                                                                                                                       
+
 Additional contributors names and emails here
-                                                                                                                                       
+
 =head1 APPENDIX
-                                                                                                                                       
+
 The rest of the documentation details each of the object methods.
 Internal methods are usually preceded with a _
-                                                                                                                                   
+
 =cut
 
 package Bio::SeqIO::tinyseq::tinyseqHandler;
@@ -98,10 +101,11 @@ $VERSION = '0.01';
 	   );
 
 =head2 new
- 
+
   Title		: new
   Usage		: $handler = Bio::SeqIO::tinyseq::tinyseqHandler->new()
-  Function	: instantiates a tinyseqHandler for use by XML::Parser::PerlSAX
+  Function	: instantiates a tinyseqHandler for use by 
+                  XML::Parser::PerlSAX
   Returns	: Bio::SeqIO::tinyseq::tinyseqHandler object
   Args		: NONE
 
@@ -130,7 +134,7 @@ sub doctype_decl {
 }
 
 =head2 start_document
- 
+
   Title		: start_document
   Usage		: NONE
   Function	: start_document handler for use by XML::Parser::PerlSAX
@@ -147,7 +151,7 @@ sub start_document {
 }
 
 =head2 end_document
- 
+
   Title		: end_document
   Usage		: NONE
   Function	: end_document handler for use by XML::Parser::PerlSAX
@@ -162,7 +166,7 @@ sub end_document {
 }
 
 =head2 start_element
- 
+
   Title		: start_element
   Usage		: NONE
   Function	: start_element handler for use by XML::Parser::PerlSAX
@@ -178,7 +182,7 @@ sub start_element {
 }
 
 =head2 end_element
- 
+
   Title		: end_element
   Usage		: NONE
   Function	: end_element handler for use by XML::Parser::PerlSAX
@@ -189,14 +193,14 @@ sub start_element {
 
 sub end_element {
     my ($self, $ending) = @_;
-    
+
     # do I have a handler for this element?
     my $ename = $ending->{'Name'};
     $self->$ename if ($self->can($ename));
 }
 
 =head2 characters
- 
+
   Title		: characters
   Usage		: NONE
   Function	: characters handler for use by XML::Parser::PerlSAX
@@ -209,7 +213,7 @@ sub characters {
     my ($self, $characters) = @_;
 
     my $data = $characters->{'Data'};
- 
+
     return unless (defined($data) and $data =~ /\S/);
 
     my $current = $self->_current_element;
@@ -223,7 +227,7 @@ sub characters {
 ##########################################
 
 =head2 TSeq
- 
+
   Title		: TSeq
   Usage		: NONE
   Function	: event handler for END of a TSeq element
@@ -256,8 +260,9 @@ sub TSeq {
 #############################################
 # Utility method to return current element info
 ##############################################
+
 =head2 _current_element
- 
+
   Title		: _current_element
   Usage		: Internal method
   Function	: Utility method to return current element info

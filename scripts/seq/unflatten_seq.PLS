@@ -1,6 +1,6 @@
 #!perl -w
 use strict;
-# $Id: unflatten_seq.PLS,v 1.2 2004-03-13 01:30:02 cjm Exp $
+# $Id: unflatten_seq.PLS,v 1.3 2004-04-17 09:31:11 heikki Exp $
 # Author Chris Mungall <cjm@bioperl.org>
 
 =head1 NAME
@@ -163,7 +163,7 @@ email or the web:
  Chris Mungall <cjm@bioperl.org>
 
 =cut
-                       
+
 use Bio::SeqIO;
 use Bio::SeqFeature::Tools::Unflattener;
 use Bio::SeqFeature::Tools::TypeMapper;

@@ -163,7 +163,6 @@ sub make_tree{
            negative branch lengths
  Returns : L<Bio::Tree::TreeI>
  Args    : L<Bio::Matrix::MatrixI> object
- 
 
 =cut
 

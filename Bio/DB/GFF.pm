@@ -318,7 +318,7 @@ specifying which tag to group on:
 
 =item Using -preferred_groups
 
-When you create a Bio::DB::GFF object, pass it a -preferred_groups=>
+When you create a Bio::DB::GFF object, pass it a -preferred_groups=E<gt>
 argument.  This specifies a tag that will be used for grouping.  You
 can pass an array reference to specify a list of such tags.
 

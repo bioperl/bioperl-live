@@ -12,23 +12,22 @@ Bio::Graph::ProteinGraph - a representation of a protein interaction graph.
 
 =head1     SYNOPSIS
 
-     ## read in from file
-
+    ## read in from file
     my $graphio = Bio::Graph::IO->new(-file=>'myfile.dat', -format=>'dip');
     my $graph   = $graphio->next_network();
 
-	## remove duplicate interactions from within a dataset
+    ## remove duplicate interactions from within a dataset
 
-	$graph->remove_dup_edges();
+        $graph->remove_dup_edges();
 
     ## get a node (represented by a sequence object) from the graph.
     my $seqobj = $gr->nodes_by_id('P12345');
 
-	## get clustering coefficient of a given node 
-	my $cc = $gr->clustering_coefficient($graph->nodes_by_id('NP_023232'));
-	if ($cc != -1) {  ## result is -1 if cannot be calculated
-		print "CC for NP_023232 is $cc";
-		}
+        ## get clustering coefficient of a given node 
+        my $cc = $gr->clustering_coefficient($graph->nodes_by_id('NP_023232'));
+        if ($cc != -1) {  ## result is -1 if cannot be calculated
+                print "CC for NP_023232 is $cc";
+                }
 
     ## get grqph density
     my $density = $gr->density();
@@ -39,7 +38,6 @@ Bio::Graph::ProteinGraph - a representation of a protein interaction graph.
    ## remove a node
    $gr->remove_nodes($gr->nodes_by_id('P12345'));
 
-   
 
 
     ## get interactors of your favourite protein
@@ -54,7 +52,7 @@ Bio::Graph::ProteinGraph - a representation of a protein interaction graph.
 
     my @my_seqs; ##array of sequence objects
     for my $seq(@seqs) {
-		if ($graph->has_node($seq->accession_number)) {
+                if ($graph->has_node($seq->accession_number)) {
           my $node      = $graph->nodes_by_id(
                                     $seq->accession_number);
           my @neighbors = $graph->neighbors($node);
@@ -74,12 +72,12 @@ Bio::Graph::ProteinGraph - a representation of a protein interaction graph.
     my @nodes = $graph->nodes();
     my @hubs;
     for my $node (@nodes) {
-		my @interactors = $graph->neighbors($node);
-        if ($#interactors > 10) {	
-				push @hubs, $node;
-		}
-	}
-	print "the following proteins have > 10 interactors:\n"
+                my @interactors = $graph->neighbors($node);
+        if ($#interactors > 10) {       
+                                push @hubs, $node;
+                }
+        }
+        print "the following proteins have > 10 interactors:\n"
     print join "\n", map{$_->object_id()} @hubs;
 
     ## merge 2 graphs, flag duplicate edges ##
@@ -94,36 +92,37 @@ Bio::Graph::ProteinGraph - a representation of a protein interaction graph.
 
 =head1          DESCRIPTION
 
- A Protein graph is a representation of a protein interaction network.
- It derives most of its functionality from Nat Goodman's SimpleGraph module,
- but is adapted to be able to use protein identifiers to identify the nodes.
+A Protein graph is a representation of a protein interaction network.
+It derives most of its functionality from Nat Goodman's SimpleGraph
+module, but is adapted to be able to use protein identifiers to
+identify the nodes.
 
- At present it is fairly 'lightweight' in that it represents nodes and edges
- but does not contain all the data about experiment ids etc found in the 
- Protein Standards Initiative schema. Hopefully that will be available 
- soon.  
+At present it is fairly 'lightweight' in that it represents nodes and
+edges but does not contain all the data about experiment ids etc found
+in the Protein Standards Initiative schema. Hopefully that will be
+available soon.
 
- For developers:
+For developers:
 
- In this module, nodes are represented by Bio::Seq::RichSeq objects containing 
- all possible database identifiers but no sequence, as parsed from the
- interaction files. However, a node represented by a Bio::PrimarySeq object 
- should work fine too. 
+In this module, nodes are represented by Bio::Seq::RichSeq objects
+containing all possible database identifiers but no sequence, as
+parsed from the interaction files. However, a node represented by a
+Bio::PrimarySeq object should work fine too.
 
- Edges are represented by Bio::Graph::ProteinEdge objects. IN order to 
- work with SimpleGraph these objects must be array references, with the 
- first 2 elements being references to the 2 nodes. More data can be added
- in $e[2]. etc. Edges should implement the Bio::Graph::ProteinEdgeI interface
- which basically just demands an object_id() method. At present edges only
- have an identifier and a weight() method, to hold confidence data, but
- subclasses of this could hold all the interaction data  held in 
- an XML document.
- 
+Edges are represented by Bio::Graph::ProteinEdge objects. IN order to
+work with SimpleGraph these objects must be array references, with the
+first 2 elements being references to the 2 nodes. More data can be
+added in $e[2]. etc. Edges should implement the
+Bio::Graph::ProteinEdgeI interface which basically just demands an
+object_id() method. At present edges only have an identifier and a
+weight() method, to hold confidence data, but subclasses of this could
+hold all the interaction data held in an XML document.
+
 =head1  REQUIREMENTS
 
 To use this code you will need the Clone.pm module availabe from CPAN.
-You also need Class::AutoClass availabe from CPAN as well.
-To read in XML data you will need XML::Twig available from CPAN too. 
+You also need Class::AutoClass availabe from CPAN as well.  To read in
+XML data you will need XML::Twig available from CPAN too.
 
 =head1 SEE ALSO
 
@@ -261,7 +260,6 @@ sub nodes_by_id {
                         X3     P2  P3 - new edge links existing proteins in G1
                         X4     Z4  Z5 - not added to Graph1. Are these different
                                        proteins or synonyms for proteins in G1?
-                         
 
 
 
@@ -375,10 +373,10 @@ sub union {
 }
 	
 =head2      _get_ids
- 
+
  name     : _get_ids
  purpose  : gets all ids for a node, assuming its Bio::Seq object
- arguments : A Bio::PrimarySeqI object
+ arguments: A Bio::PrimarySeqI object
  returns  : A hash: Keys are sequence ids, values are undef
  usage    : my %ids = _get_ids($seqobj);
 
@@ -450,12 +448,12 @@ sub add_edge {
  returns    : 1 on successful addition, 0 on there being an existing duplicate. 
  usage      : $gr->add_dup_edge(edge->new (-nodes => [$n1, $n2],
                                            -score => $score
-									       -id    => $id);
+                                           -id    => $id);
  arguments  : an edgeI implementing object.
  descripton : 
  );
 
-=cut 
+=cut
 
 sub add_dup_edge {
 
@@ -523,8 +521,6 @@ sub  remove_dup_edges{
              my $cc   = $gr->clustering_coefficient($node);
 
 =cut
- 
- 
 
 sub clustering_coefficient {
 	my  ($self, $val)  = @_;
@@ -644,7 +640,7 @@ sub unconnected_nodes {
                    $e->[1]->accession_number ."\n";
              }
  arguments : none
- returns  : a Hash reference where values are edge array refernces.
+ returns   : a Hash reference where values are edge array refernces.
  description : This is a "slow but sure" method that works with graphs
                up to a few hundred nodes reasonably fast. 
 

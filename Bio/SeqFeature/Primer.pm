@@ -354,6 +354,7 @@ sub display_id {
 
             This was suggested by Barry Moore (thanks!). See the discussion on the bioperl-l
             with the subject "Bio::SeqFeature::Primer Calculating the PrimerTM"
+
 =cut
 
 sub Tm  {
@@ -441,7 +442,7 @@ sub Tm  {
  Args    : -salt set the Na+ concentration on which to base the calculation.
  Notes   : This is an estimate of the Tm that is kept in for comparative reasons.
            You should probably use Tm instead!
-           
+
 	   This Tm calculations are taken from the Primer3 docs: They are
 	   based on Bolton and McCarthy, PNAS 84:1390 (1962) 
 	   as presented in Sambrook, Fritsch and Maniatis,

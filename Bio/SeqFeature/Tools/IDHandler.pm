@@ -22,6 +22,8 @@ Bio::SeqFeature::Tools::IDHandler - maps $seq_feature-E<gt>primary_tag
 
 =head1 DESCRIPTION
 
+Class to map $seq_feature-E<gt>primary_tag
+
 
 =head1 FEEDBACK
 

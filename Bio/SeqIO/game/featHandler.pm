@@ -22,8 +22,9 @@ This module is not used directly
 
 =head1 DESCRIPTION
 
-Bio::SeqIO::game::featHandler converts game XML <annotation> elements into
-flattened Bio::SeqFeature::Generic objects to be added to the sequence
+Bio::SeqIO::game::featHandler converts game XML E<lt>annotationE<gt>
+elements into flattened Bio::SeqFeature::Generic objects to be added
+to the sequence
 
 =head1 FEEDBACK
 
@@ -644,7 +645,7 @@ sub _add_feature_span {
     # identify the translation product     
     my $tscript = $el->{Attributes}->{produces_seq};
     if ( $tscript && $tscript ne 'null') {
-	my $subseq = $self->{seq_h}->{$el->{Attributes}->{produces_seq}};                       
+	my $subseq = $self->{seq_h}->{$el->{Attributes}->{produces_seq}};
         $self->{curr_tags}->{product} = [$el->{Attributes}->{produces_seq}];
 	$self->{curr_tags}->{translation} = [$subseq->seq] if $subseq;
     }      
@@ -660,7 +661,7 @@ sub _add_feature_span {
  Returns : a Bio::SeqFeature::Generic object
  Args    : $transcript -- a Bio::SeqFeature::Generic object for a transcript
            $tags       -- ref. to a hash of tag/value attributes
-           
+
 =cut
 
 sub _add_CDS {

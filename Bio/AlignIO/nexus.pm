@@ -82,6 +82,7 @@ BEGIN {
            -show_endblock => print an 'endblock;' at the end of the data
                             (MyBayes does not like this)
                             boolean [default is 1] 
+
 =cut
 
 sub _initialize {

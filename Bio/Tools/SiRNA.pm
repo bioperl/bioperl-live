@@ -59,7 +59,7 @@ I use this with Bio::Tools::Run::Mdust to avoid low-complexity
 regions (must be run separately), but other programs could also be used.
 
 3. SiRNAs may also be selected in the 3 prime UTR of a gene
-by setting $sirna_designer->include_3pr() to true.
+by setting $sirna_designer-E<gt>include_3pr() to true.
 
 =head2 EXPORT
 

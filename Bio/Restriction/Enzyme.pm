@@ -815,8 +815,6 @@ sub cutter {
     return $cutter;
 }
 
-=cut
-
 
 =head2 is_palindromic
 

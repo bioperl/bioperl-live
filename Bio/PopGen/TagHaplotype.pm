@@ -21,12 +21,12 @@ Bio::PopGen::TagHaplotype.pm - Haplotype tag object.
 
 =head1 DESCRIPTION
 
-    This module take as input a haplotype and try toe get the minimal
-set of SNP that define the haplotype. This module can be use alone.
-But due to the tagging haplotype process is exponential one. My
-suggestion is that before to use this module you pass your data under
-Select.mp module also on this folder.  In any case if, you provide an
-haplotype the module will try to find the answer to your question.
+This module take as input a haplotype and try toe get the minimal set
+of SNP that define the haplotype. This module can be use alone.  But
+due to the tagging haplotype process is exponential one. My suggestion
+is that before to use this module you pass your data under Select.mp
+module also on this folder.  In any case if, you provide an haplotype
+the module will try to find the answer to your question.
 
 =head1 CONSTRUCTORS
 
@@ -38,7 +38,7 @@ haplotype the module will try to find the answer to your question.
            [1, 0, 0],
            [0, 1, 1]
           ];
- 
+
 =head1 FEEDBACK
 
 =head2 Mailing Lists
@@ -310,7 +310,7 @@ sub _gen_comb{
            1, 2, 4
            1, 3, 4
            2, 3, 4
- 
+
  Returns :
  Args    : none
  Status  : private

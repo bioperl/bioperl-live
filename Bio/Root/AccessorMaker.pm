@@ -151,7 +151,7 @@ Bio::Root::AccessorMaker -- making the accessors directly in symbol table.
 
     Bio::Root::AccessorMaker->make_scalar_accessor('last_name', __PACKAGE__);
     # If the second argument is omitted, the caller is regarded as default
-    
+
     Bio::Root::AccessorMaker->make_array_accessor([qw(child children)]);
 
 =head1 DESCRIPTION
@@ -161,7 +161,7 @@ day in and day out.
 
 There are two non-exclusive ways to generate the accessors for a module.
 
-=over 
+=over 2
 
 =item 1 using import method
 

@@ -177,7 +177,7 @@ sub available_distance_methods{
            D = -ln ( 1 - p - 0.2 * p^2 )
  Returns : L<Bio::Matrix::PhylipDist>
  Args    : L<Bio::Align::AlignI>
- 
+
 
 =cut
 

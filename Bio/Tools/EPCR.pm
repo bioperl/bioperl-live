@@ -106,7 +106,7 @@ use Bio::SeqFeature::Generic;
                        each features '-primary' tag.  Defaults to
                        'sts'.  (This in turn maps to the GFF 'type'
                        tag (aka 'method')).
- 
+
             -source => a string to be used as the common value for
                        each features '-source' tag.  Defaults to
                        'e-PCR'. (This in turn maps to the GFF 'source'

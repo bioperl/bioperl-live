@@ -21,26 +21,26 @@ Bio::PopGen::Population - A population of individuals
   my $population = Bio::PopGen::Population->new();
   my $ind = Bio::PopGen::Individual->new(-unique_id => 'id');
   $population->add_Individual($ind);
-                                        
+
   for my $ind ( $population->get_Individuals ) {
     # iterate through the individuals
-  } 
+  }
 
   for my $name ( $population->get_marker_names ) {
     my $marker = $population->get_Marker();
-  } 
+  }
 
   my $num_inds = $population->get_number_individuals;
 
   my $homozygote_f   = $population->get_Frequency_Homozygotes;
   my $heterozygote_f = $population->get_Frequency_Heterozygotes;
- 
+
   # make a population haploid by making fake chromosomes through
   # haplotypes -- ala allele 1 is on chrom 1 and allele 2 is on chrom 2 
   # the number of individuals created will thus be 2 x number in
   # population
   my $happop = $population->haploid_population;
- 
+
 
 =head1 DESCRIPTION
 

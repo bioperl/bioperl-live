@@ -34,7 +34,7 @@ Bio::PopGen::Utilities - Utilities for working with PopGen data and objects
   my $synpop = Bio::PopGen::Utilities->aln_to_population(-site_model => 'syn',
                                                          -alignment  => $aln);
 
- 
+
 =head1 DESCRIPTION
 
 This object provides some convience function to turn sequence
@@ -114,7 +114,7 @@ use Bio::PopGen::Individual;
                     in the alignment]
            'non' -- Non-Synonomous sites.  Those where a substitution changes
                     the encoded amino acid.
-                       
+
            The option -site_model
                 for Non-synonymous: 'non' or 'non-synonomous' or 'NS' or 'Ka'
 		    Synonymous	  : 'synonomous' or 'syn' or 'S' or 'Ks'
@@ -133,7 +133,8 @@ use Bio::PopGen::Individual;
                              for
                             [default is all]
            -alignment      => provide a L<Bio::SimpleAlign> object [required]
-=cut 
+
+=cut
 
 sub aln_to_population{
    my ($self,@args) = @_;

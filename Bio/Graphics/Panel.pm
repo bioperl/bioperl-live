@@ -2097,7 +2097,7 @@ E<lt>imageE<gt> tag.  Lastly, we print out the map itself.
 
 =over 4
 
-=item ($url,$map,$mapname) = $panel->image_and_map(@options)
+=item ($url,$map,$mapname) = $panel-E<gt>image_and_map(@options)
 
 Create the image in a web-accessible directory and return its URL, its
 clickable imagemap, and the name of the imagemap.  The following
@@ -2137,12 +2137,12 @@ HTML document like so:
   print qq(<img src="$url" usemap="#$map">),"\n";
   print $map,"\n";
 
-=item $url = $panel->create_web_image($url,$root)
+=item $url = $panel-E<gt>create_web_image($url,$root)
 
 Create the image, write it into the directory indicated by
 concatenating $root and $url (i.e. "$root/$url"), and return $url.
 
-=item $map = $panel->create_web_map('mapname',$linkrule,$titlerule,$targetrule)
+=item $map = $panel-E<gt>create_web_map('mapname',$linkrule,$titlerule,$targetrule)
 
 Create a clickable imagemap named "mapname" using the indicated rules
 to generate the hypertext links, the element titles, and the window
@@ -2255,7 +2255,7 @@ simple example:
 The -link argument cascades. image_and_map() will first look for a
 -link option in the track configuration, and if that's not found, it
 will look in the Panel configuration (created during
-Bio::Graphics::Panel->new). If no -link configuration option is found
+Bio::Graphics::Panel-E<gt>new). If no -link configuration option is found
 in either location, then image_and_map() will use the value of -link
 passed in its argument list, if any.
 
@@ -2270,7 +2270,7 @@ option can be set in the track, the panel, or the method call itself
 in that order of priority.
 
 If not provided, image_and_map() will autogenerate its own title in
-the form "<method> <display_name> <seqid>:start..end".
+the form "E<lt>methodE<gt> E<lt>display_nameE<gt> E<lt>seqidE<gt>:start..end".
 
 The -target option can be used to specify the window or frame that
 clicked features will link to.  By default, when the user clicks on a

@@ -17,30 +17,32 @@ Bio::SeqIO::game::gameWriter -- a class for writing game-XML
 
 =head1 SYNOPSIS
 
-use Bio::SeqIO;
+  use Bio::SeqIO;
 
+  my $in  = Bio::SeqIO->new( -format => 'genbank',
+                             -file => 'myfile.gbk' );
+  my $out = Bio::SeqIO->new( -format => 'game',
+                             -file => 'myfile.xml' );
 
-my $in  = Bio::SeqIO->new( -format => 'genbank', -file => 'myfile.gbk' );
-my $out = Bio::SeqIO->new( -format => 'game',    -file => 'myfile.xml' );
+  # get a sequence object
+  my $seq = $in->next_seq;
 
-# get a sequence object
-my $seq = $in->next_seq;
-
-#write it in GAME format
-$out->write_seq($seq);
+  #write it in GAME format
+  $out->write_seq($seq);
 
 =head1 DESCRIPTION
 
-Bio::SeqIO::game::gameWriter writes GAME-XML (v. 1.2) that is readable by Apollo.  
-It is best not used directly.  It is accessed via Bio::SeqIO.
+Bio::SeqIO::game::gameWriter writes GAME-XML (v. 1.2) that is readable
+by Apollo.  It is best not used directly.  It is accessed via
+Bio::SeqIO.
 
 =head1 FEEDBACK
 
 =head2 Mailing Lists
 
-User feedback is an integral part of the evolution of this
-and other Bioperl modules. Send your comments and suggestions preferably
-to one of the Bioperl mailing lists.
+User feedback is an integral part of the evolution of this and other
+Bioperl modules. Send your comments and suggestions preferably to one
+of the Bioperl mailing lists.
 
 Your participation is much appreciated.
 

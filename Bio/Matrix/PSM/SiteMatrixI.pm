@@ -88,14 +88,21 @@ New methods, which might be of interest to anyone who wants to store PSM in a re
 database without creating an entry for each position is the ability to compress the
 PSM vector into a string with losing usually less than 1% of the data.
 this can be done with:
-my $str=$matrix->get_compressed_freq('A');
+
+  my $str=$matrix->get_compressed_freq('A');
+
 or
-my $str=$matrix->get_compressed_logs('A');
+
+  my $str=$matrix->get_compressed_logs('A');
+
 Loading from a database should be done with new, but is not yest implemented.
 However you can still uncompress such string with:
-my @arr=Bio::Matrix::PSM::_uncompress_string ($str,1,1); for PSM
+
+  my @arr=Bio::Matrix::PSM::_uncompress_string ($str,1,1); for PSM
+
 or
-my @arr=Bio::Matrix::PSM::_uncompress_string ($str,1000,2); for log odds
+
+  my @arr=Bio::Matrix::PSM::_uncompress_string ($str,1000,2); for log odds
 
 =head1 FEEDBACK
 

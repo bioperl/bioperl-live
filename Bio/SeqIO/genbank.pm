@@ -1054,18 +1054,20 @@ sub _add_ref_to_array {
  Title   : _read_GenBank_Species
  Usage   :
  Function: Reads the GenBank Organism species and classification
-           lines.
-		   Able to deal with unconvential Organism naming formats,
-		   and varietas in plants
+           lines. Able to deal with unconvential Organism naming
+           formats, and varietas in plants
  Example : ORGANISM  unknown marine gamma proteobacterium NOR5
-           $genus = undef; $species = unknown marine gamma proteobacterium NOR5
-		   
-		   ORGANISM  Drosophila sp. 'white tip scutellum'
-		   $genus = Drosophila; $species = sp.; $subspecies = 'white tip scutellum'
-		   
-		   ORGANISM  Ajellomyces capsulatus var. farciminosus
-		   $genus = Ajellomyces; $species = capsulatus var.; $subspecies = farciminosus
-		    
+           $genus = undef;
+           $species = unknown marine gamma proteobacterium NOR5
+
+           ORGANISM  Drosophila sp. 'white tip scutellum'
+           $genus = Drosophila; $species = sp.;
+           $subspecies = 'white tip scutellum'
+
+           ORGANISM  Ajellomyces capsulatus var. farciminosus
+           $genus = Ajellomyces; $species = capsulatus var.;
+           $subspecies = farciminosus
+
  Returns : A Bio::Species object
  Args    : a reference to the current line buffer
 

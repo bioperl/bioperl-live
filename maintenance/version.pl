@@ -7,7 +7,7 @@ This script is to add or modify version declaration for each bioperl pm.
 
 =head1 USAGE
 
-perl version.pl <module directory> <version>
+  perl version.pl <module directory> <version>
 
 =cut
 

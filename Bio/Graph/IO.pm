@@ -11,20 +11,23 @@ Bio::Graph::IO - Class for reading /writing biological graph data.
 
 =head1  SYNOPSIS
 
-# This is a class for reading /writing biological data that can 
-# be represented by graphs e.g., protein interaction data. 
+  # This is a class for reading /writing biological data that can 
+  # be represented by graphs e.g., protein interaction data. 
 
-#e.g., a graph reformatter..
-  my $graph_in = Bio::Graph::IO->new(-file =>'myfile.dat', -format=>'dip' );
-  my $graph    = $graph_in->next_graph();
-  my $graph_out = Bio::Graph::IO->new(-file =>'outfile.dat', -format=>'psixml') ;
+  #e.g., a graph reformatter..
+  my $graph_in = Bio::Graph::IO->new(-file =>'myfile.dat',
+                                     -format=>'dip' );
+  my $graph = $graph_in->next_graph();
+  my $graph_out = Bio::Graph::IO->new(-file =>'outfile.dat',
+                                      -format=>'psixml') ;
   $graph_out->write_graph($graph);
 
 =head1  DESCRIPTION
 
-This class is analagous to the SeqIO and AlignIO classes. To read in a file 
-of a particular format, file and format are given as key/value pairs aas arguments.
-The Bio::Graph::IO checks that the appropriate module is available and loads it. 
+This class is analagous to the SeqIO and AlignIO classes. To read in a
+file of a particular format, file and format are given as key/value
+pairs aas arguments.  The Bio::Graph::IO checks that the appropriate
+module is available and loads it.
 
 At present only the DIP tab delimited format and psi-XML is supported
 
@@ -32,28 +35,29 @@ At present only the DIP tab delimited format and psi-XML is supported
 
 The main methods are:
 
-=head2  $graph = $io->next_graph()
+=head2  $graph = $io-E<gt>next_graph()
 
-The next_graph method does not imply that multiple graphs are contained in a
-file, more to maintain the consistency of nomenclature with the 
-$seqio->next_seq() and $alnio->next_aln() methods. 
+The next_graph method does not imply that multiple graphs are
+contained in a file, more to maintain the consistency of nomenclature
+with the $seqio-E<gt>next_seq() and $alnio-E<gt>next_aln() methods.
 
-=head2  $io->write_graph($graph) (not implemented yet).
+=head2  $io-E<gt>write_graph($graph) (not implemented yet).
 
 Writes the graph data to file in requested format.
 
 
 =head1   REQUIREMENTS
 
-To read write from XML you will need the XML::Twig module available from CPAN.
+To read write from XML you will need the XML::Twig module available
+from CPAN.
 
 =head1 FEEDBACK
 
 =head2 Mailing Lists
 
-User feedback is an integral part of the evolution of this
-and other Bioperl modules. Send your comments and suggestions preferably
-to one of the Bioperl mailing lists.
+User feedback is an integral part of the evolution of this and other
+Bioperl modules. Send your comments and suggestions preferably to one
+of the Bioperl mailing lists.
 
 Your participation is much appreciated.
 

@@ -505,7 +505,7 @@ ARRAY ref.  We're not 100% consistent in this (sorry), so check the
 code if you have doubts.
 
 The rest of the documentation describes the methods.
-  
+
 =head2 Constructors
 
  Title   : new (inherited from Class::AutoClass)
