@@ -6,6 +6,7 @@
 # `make test'. After `make install' it should work as `perl test.t'
 use strict;
 use vars qw($NUMTESTS $DEBUG $ERROR $METAERROR);
+use lib '../';
 $DEBUG = $ENV{'BIOPERLDEBUG'} || 0;
 BEGIN {
     # to handle systems with no installed Test module
@@ -18,7 +19,7 @@ BEGIN {
     }
     use Test;
 
-    $NUMTESTS = 11;
+    $NUMTESTS = 21;
     plan tests => $NUMTESTS;
 
     eval {
@@ -81,4 +82,28 @@ ok my $meta = $tool->result('all');
 if (!$METAERROR) { #if Bio::Seq::Meta::Array available
 	ok($meta->named_submeta_text('Domcut', 1,2), "0.068 0.053");
 	ok ($meta->seq, "MSADQRWRQDSQDSFGDSFDGDPPPPPPPPFGDSFGDGFSDRSRQDQRS");
+	}
+ok my $tool2 = Bio::WebAgent->new(-verbose =>$verbose);
+
+
+
+my $seq2 = Bio::PrimarySeq->new(-seq => 'MSADQRWRQDSQDSFGDSFDGDPPPPPPPPFGDSFGDGFSDRSRQDQRS',
+						-display_id => 'test2');
+
+ok $tool2 = Bio::Tools::Analysis::Protein::Domcut->new( -seq=>$seq2);
+ok $tool2->run ();
+ok my $raw2 = $tool2->result('');
+ok my $parsed2 = $tool2->result('parsed');
+ok ($parsed2->[23]{'score'}, '-0.209');
+my @res = $tool2->result('Bio::SeqFeatureI');
+if (scalar @res > 0) {
+    ok 1;
+} else {
+    skip('No network access - could not connect to NetPhos server', 1);
+}
+ok my $meta2 = $tool2->result('all');
+
+if (!$METAERROR) { #if Bio::Seq::Meta::Array available
+	ok($meta2->named_submeta_text('Domcut', 1,2), "0.068 0.053");
+	ok ($meta2->seq, "MSADQRWRQDSQDSFGDSFDGDPPPPPPPPFGDSFGDGFSDRSRQDQRS");
 	}
