@@ -121,7 +121,7 @@ sub strict {
            to a new value in the output coordinate system.
 
            In extrapolating coodinate system there is no location zero.
-           Locations are  
+           Locations are...
  Example :
  Returns : new value in the output coordinate system
  Args    : integer
@@ -142,12 +142,18 @@ sub map {
 
    my $result = new Bio::Coordinate::Result;
 
-   my $offset = $self->in->start - $self->out->start;
-   my $start = $value->start - $offset;
-   my $end = $value->end - $offset;
+   my ($offset, $start, $end);
+   if ($self->strand == -1) {
+       $start = -1 * ($value->end - $self->in->end  - 1);
+       $end = -1* ($value->start - $self->in->end  - 1);
+   } else { # undef, 0 or 1
+       $offset = $self->in->start - $self->out->start;
+       $start = $value->start - $offset;
+       $end = $value->end - $offset;
+   }
 
-   $start-- if $start < 1;
-   $end-- if $end < 1;
+#   $start-- if $start < 1;
+#   $end-- if $end < 1;
 
    # strict prevents matches outside stated range
    if ($self->strict) {
