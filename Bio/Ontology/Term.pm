@@ -151,7 +151,6 @@ sub new {
     $version               && $self->version( $version );   
     $is_obsolete           && $self->is_obsolete( $is_obsolete );      
     $comment               && $self->comment( $comment  ); 
-  
                                                     
     return $self;
     

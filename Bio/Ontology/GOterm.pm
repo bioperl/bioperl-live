@@ -135,30 +135,10 @@ sub new {
     
     my $self = $class->SUPER::new( @args );
    
-    my ( $GO_id,
-         $name,
-         $definition,
-         $category,
-         $version,     
-         $is_obsolete,       
-         $comment )
-	= $self->_rearrange( [ qw( GO_ID
-				   NAME
-				   DEFINITION
-				   CATEGORY 
-				   VERSION    
-				   IS_OBSOLETE      
-				   COMMENT ) ], @args );
+    my ( $GO_id )
+	= $self->_rearrange( [ qw( GO_ID ) ], @args );
    
-    $self->init(); 
-    
     $GO_id                 && $self->GO_id( $GO_id );
-    $name                  && $self->name( $name );
-    $definition            && $self->definition( $definition );
-    $category              && $self->category( $category );   
-    $version               && $self->version( $version );   
-    $is_obsolete           && $self->is_obsolete( $is_obsolete );      
-    $comment               && $self->comment( $comment  ); 
   
                                                     
     return $self;
@@ -181,14 +161,11 @@ sub new {
 
 sub init {
 
-    my( $self ) = @_;
+    my $self = shift;
+
+    $self->SUPER::init(@_);
 
     $self->GO_id( GOID_DEFAULT );
-    $self->name( "" );
-    $self->definition( "" );
-    $self->version( "" );
-    $self->is_obsolete( FALSE );
-    $self->comment( "" );
     $self->remove_dblinks();
     $self->remove_secondary_GO_ids();
     $self->remove_synonyms();
@@ -212,13 +189,15 @@ sub init {
 =cut
 
 sub GO_id {
-    my ( $self, $value ) = @_;
+    my $self = shift;
+    my $value;
 
-    if ( defined $value ) {
-        $value = $self->_check_go_id( $value );
+    if ( @_ ) {
+        $value = $self->_check_go_id( shift );
+	unshift(@_, $value);
     }
 
-    return $self->identifier( $value );
+    return $self->identifier( @_ );
 
 } # GO_id
 

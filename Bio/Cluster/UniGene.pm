@@ -155,6 +155,8 @@ use strict;
 
 
 use Bio::Root::Root;
+use Bio::IdentifiableI;
+use Bio::DescribableI;
 use Bio::Annotation::Collection;
 use Bio::Annotation::DBLink;
 use Bio::Annotation::SimpleValue;
@@ -216,7 +218,6 @@ sub new {
 			      )], @args);
 
     $self->{'_alphabet'} = 'dna';
-    $self->{'sequences'} = [];
 
     $self->unigene_id($ugid) if $ugid;
     $self->description($desc) if $desc;
@@ -413,7 +414,9 @@ sub gnm_terminus {
 sub scount {
 	my ($obj,$value) = @_;
 	if( defined $value) {
-		$obj->{'scount'} = $value;
+	    $obj->{'scount'} = $value;
+	} elsif((! defined($obj->{'scount'})) && defined($obj->sequences())) {
+	    $obj->{'scount'} = $obj->size();
 	}
 	return $obj->{'scount'};
 }
@@ -513,19 +516,23 @@ sub protsim {
 
  Title   : sequences
  Usage   : sequences();
- Function: Returns or stores a reference to an array containing sequence data
- 	   This should really only be used by ClusterIO, not directly
- Returns : An array reference
- Args    : None or an array reference
+ Function: Returns or stores a reference to an array containing
+           sequence data.
+
+           This is mostly reserved for ClusterIO parsers. You should
+           use get_members() for get and add_member()/remove_members()
+           for set.
+
+ Returns : An array reference, or undef
+ Args    : None or an array reference or undef
 
 =cut
 
 sub sequences {
-	my ($obj,$value) = @_;
-	if( defined $value) {
-		$obj->{'sequences'} = $value;
-	}
-	return $obj->{'sequences'};
+    my $self = shift;
+
+    return $self->{'members'} = shift if @_;
+    return $self->{'members'};
 }
 
 =head2 species
@@ -535,7 +542,8 @@ sub sequences {
  Function: Get/set the species object for this Unigene cluster.
  Example : 
  Returns : value of species (a L<Bio::Species> object)
- Args    : on set, new value (a L<Bio::Species> object or undef, optional)
+ Args    : on set, new value (a L<Bio::Species> object or 
+           the binomial name, or undef, optional)
 
 
 =cut
@@ -608,7 +616,17 @@ sub description{
 =cut
 
 sub size {
-    return shift->scount(@_);
+    my $self = shift;
+
+    # hard-wiring the size is allowed if there are no sequences
+    return $self->scount(@_) unless defined($self->sequences());
+    # but we can't change the number of members through this method
+    my $n = scalar(@{$self->sequences()});
+    if(@_ && ($n != $_[0])) {
+	$self->throw("Cannot change cluster size using size() from $n to ".
+		     $_[0]);
+    }
+    return $n;
 }
 
 =head2 cluster_score
@@ -655,11 +673,20 @@ sub cluster_score{
 sub get_members {
     my $self = shift;
 
-    my @seqs = ();
-    while(my $seq = $self->next_seq()) {
-	push(@seqs, $seq);
+    my $mems = $self->sequences() || [];
+    # already objects?
+    if(@$mems && (ref($mems->[0]) eq "HASH")) {
+	# nope, we need to build the object list from scratch
+	my @memlist = ();
+	while(my $seq = $self->next_seq()) {
+	    push(@memlist, $seq);
+	}
+	# we cache this array of objects as the new member list
+	$mems = \@memlist;
+	$self->sequences($mems);
     }
-    return @seqs;
+    # done
+    return @$mems;
 }
 
 
@@ -710,6 +737,58 @@ sub annotation{
  methods with special functionality.
 
 =cut
+
+=head2 add_member
+
+ Title   : add_member
+ Usage   :
+ Function: Adds a member object to the list of members.
+ Example :
+ Returns : TRUE if the new member was successfuly added, and FALSE
+           otherwise.
+ Args    : The member to add.
+
+
+=cut
+
+sub add_member{
+    my ($self,@mems) = @_;
+
+    my $memlist = $self->{'members'} || [];
+    # this is an object interface; is the member list already objects?
+    if(@$memlist && (ref($memlist->[0]) eq "HASH")) {
+	# nope, convert to objects
+        $memlist = [$self->get_members()];
+    }
+    # add new member(s)
+    push(@$memlist, @mems);
+    # store if we created this array ref ourselves
+    $self->sequences($memlist);
+    # done
+    return 1;
+}
+
+=head2 remove_members
+
+ Title   : remove_members
+ Usage   :
+ Function: Remove the list of members for this cluster such that the
+           member list is undefined afterwards (as opposed to zero members).
+ Example :
+ Returns : the previous list of members
+ Args    : none
+
+
+=cut
+
+sub remove_members{
+    my $self = shift;
+
+    my @mems = $self->get_members();
+    $self->sequences(undef);
+    return @mems;
+}
+
 
 =head2 next_locuslink
 
@@ -879,18 +958,18 @@ sub next_txmap {
 # returns: the next element from that queue, or undef if the queue is empty
 ###############################
 sub _next_element{
-    my ($self,$queue,$meth) = @_;
+    my ($self,$queuename,$meth) = @_;
 
-    my $queue = "_".$queue."_queue";
-    if(! exists($self->{$queue})) {
+    $queuename = "_".$queuename."_queue";
+    if(! exists($self->{$queuename})) {
 	# re-initialize from array of sequence data
-	$self->{$queue} = [@{$self->$meth}];
+	$self->{$queuename} = [@{$self->$meth}];
     }
-    my $queue = $self->{$queue};
+    my $queue = $self->{$queuename};
     # is queue exhausted (equivalent to end of stream)?
     if(! @$queue) {
 	# yes, remove queue and signal to the caller
-	delete $self->{$queue};
+	delete $self->{$queuename};
 	return undef;
     }
     return shift(@$queue);
@@ -1074,17 +1153,32 @@ sub next_seq {
 	delete $obj->{'_seq_queue'};
 	return undef;
     }
-    # no, still data in the queue
+    # no, still data in the queue: get the next one from the queue
     my $seq_h = shift(@$queue);
-    my $seqobj = $obj->sequence_factory->create
-	( -accession_number => $seq_h->{acc},
+    # if this is not a simple hash ref, it's an object already, and we'll
+    # return just that
+    return $seq_h if(ref($seq_h) ne 'HASH');
+    # nope, we need to assemble this object from scratch
+    #
+    # assemble the annotation collection
+    my $ac = Bio::Annotation::Collection->new();
+    foreach my $k (keys %$seq_h) {
+	next if $k =~ /acc|pid|nid/;
+	my $ann = Bio::Annotation::SimpleValue->new(-tagname => $k,
+						    -value   => $seq_h->{$k});
+	$ac->add_Annotation($ann);
+    }
+    # assemble the initialization parameters and create object
+    my $seqobj = $obj->sequence_factory->create(
+	  -accession_number => $seq_h->{acc},
 	  -pid              => $seq_h->{pid},
+	  -primary_id       => $seq_h->{nid},
 	  -display_id       => $seq_h->{acc},
 	  -alphabet         => $obj->{'_alphabet'},
 	  -namespace        => 'GenBank',
 	  -authority        => $obj->authority(), # default is NCBI
-	  -desc => join(' ',
-			map { uc($_) ."=". $seq_h->{$_}} sort keys %{$seq_h})
+	  -species          => $obj->species(),
+	  -annotation       => $ac
 	  );
     return $seqobj;
 }

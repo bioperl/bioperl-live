@@ -1,6 +1,6 @@
 # $Id$
 #
-# BioPerl module for Bio::Cluster::ClusterFactory
+# BioPerl module for Bio::Ontology::TermFactory
 #
 # Cared for by Hilmar Lapp <hlapp at gmx.net>
 #
@@ -26,21 +26,21 @@
 
 =head1 NAME
 
-Bio::Cluster::ClusterFactory - Instantiates a new Bio::ClusterI (or derived class) through a factory
+Bio::Ontology::TermFactory - Instantiates a new Bio::Ontology::TermI (or derived class) through a factory
 
 =head1 SYNOPSIS
 
-    use Bio::Cluster::ClusterFactory;
-    # if you don't provide a default type, the factory will try
-    # some guesswork based on display_id and namespace
-    my $factory = new Bio::Cluster::ClusterFactory(-type => 'Bio::Cluster::UniGene');
-    my $clu = $factory->create_object(-description => 'NAT',
-                                      -display_id  => 'Hs.2');
+    use Bio::Ontology::TermFactory;
+    # the default type is Bio::Ontology::Term
+    my $factory = new Bio::Ontology::TermFactory(-type => 'Bio::Ontology::GOterm');
+    my $clu = $factory->create_object(-name => 'peroxisome',
+                                      -category => 'cellular component',
+                                      -identifier => 'GO:0005777');
 
 
 =head1 DESCRIPTION
 
-This object will build L<Bio::ClusterI> objects generically.
+This object will build L<Bio::Ontology::TermI> objects generically.
 
 =head1 FEEDBACK
 
@@ -84,7 +84,7 @@ Internal methods are usually preceded with a _
 # Let the code begin...
 
 
-package Bio::Cluster::ClusterFactory;
+package Bio::Ontology::TermFactory;
 use vars qw(@ISA);
 use strict;
 
@@ -96,13 +96,11 @@ use Bio::Factory::ObjectFactoryI;
 =head2 new
 
  Title   : new
- Usage   : my $obj = new Bio::Cluster::ClusterFactory();
- Function: Builds a new Bio::Cluster::ClusterFactory object 
- Returns : Bio::Cluster::ClusterFactory
- Args    : -type => string, name of a ClusterI derived class.
-                    If not provided, the factory will have to guess
-                    from ID and namespace, which may or may not be
-                    successful.
+ Usage   : my $obj = new Bio::Ontology::TermFactory();
+ Function: Builds a new Bio::Ontology::TermFactory object 
+ Returns : Bio::Ontology::TermFactory
+ Args    : -type => string, name of a L<Bio::Ontology::TermI> derived class.
+                    The default is L<Bio::Ontology::Term>.
 
 =cut
 
@@ -114,6 +112,7 @@ sub new {
     my ($type) = $self->_rearrange([qw(TYPE)], @args);
 
     $self->{'_loaded_types'} = {};
+    $type = "Bio::Ontology::Term" unless $type;
     $self->type($type) if $type;
 
     return $self;
@@ -124,43 +123,25 @@ sub new {
 
  Title   : create_object
  Usage   : my $seq = $factory->create_object(<named parameters>);
- Function: Instantiates new Bio::ClusterI (or one of its child classes)
+ Function: Instantiates new Bio::Ontology::TermI (or one of its child classes)
 
            This object allows us to genericize the instantiation of
            cluster objects.
 
- Returns : L<Bio::ClusterI> compliant object
+ Returns : L<Bio::Ontology::TermI> compliant object
            The return type is configurable using new(-type =>"...").
- Args    : initialization parameters specific to the type of cluster
+ Args    : initialization parameters specific to the type of term
            object we want.  Typically 
-           -display_id  => $name
-           -description => description of the cluster
-           -members     => arrayref, members of the cluster
+           -name  => $name
+           -identifier => identifier for the term
+           -category     => category for the term
 
 =cut
 
 sub create_object {
    my ($self,@args) = @_;
 
-   my $type = $self->type();
-   if(! $type) {
-       # we need to guess this
-       $type = $self->_guess_type(@args);
-       if(! $type) {
-	   $self->throw("No cluster type set and unable to guess.");
-       }
-       # load dynamically if it hasn't been loaded yet
-       if(! $self->{'_loaded_types'}->{$type}) {
-	   eval {
-	       $self->_load_module($type);
-	       $self->{'_loaded_types'}->{$type} = 1;
-	   };
-	   if($@) {
-	       $self->throw("Bio::ClusterI implementation $type ".
-			    "failed to load: ".$@);
-	   }
-       }
-   }
+   my $type = $self->type(); # type has already been loaded upon set
    return $type->new(-verbose => $self->verbose, @args);
 }
 
@@ -168,7 +149,7 @@ sub create_object {
 
  Title   : type
  Usage   : $obj->type($newval)
- Function: Get/set the type of L<Bio::ClusterI> object to be created.
+ Function: Get/set the type of L<Bio::AnnotationI> object to be created.
 
            This may be changed at any time during the lifetime of this
            factory.
@@ -189,12 +170,12 @@ sub type{
 		$self->_load_module($type);
 	    };
 	    if( $@ ) {
-		$self->throw("Cluster implementation '$type' failed to load: ".
+		$self->throw("Term implementation '$type' failed to load: ".
 			     $@);
 	    }
 	    my $a = bless {},$type;
-	    if( ! $a->isa('Bio::ClusterI') ) {
-		$self->throw("'$type' does not implement Bio::ClusterI. ".
+	    if( ! $a->isa('Bio::Ontology::TermI') ) {
+		$self->throw("'$type' does not implement Bio::Ontology::TermI. ".
 			     "Too bad.");
 	    }
 	    $self->{'_loaded_types'}->{$type} = 1;
@@ -202,41 +183,6 @@ sub type{
 	return $self->{'type'} = $type;
     }
     return $self->{'type'};
-}
-
-=head2 _guess_type
-
- Title   : _guess_type
- Usage   :
- Function: Guesses the right type of L<Bio::ClusterI> implementation
-           based on initialization parameters for the prospective
-           object.
- Example :
- Returns : the type (a string, the module name)
- Args    : initialization parameters to be passed to the prospective
-           cluster object
-
-
-=cut
-
-sub _guess_type{
-    my ($self,@args) = @_;
-    my $type;
-
-    # we can only guess from a certain number of arguments
-    my ($dispid, $ns, $members) =
-	$self->_rearrange([qw(DISPLAY_ID
-			      NAMESPACE
-			      MEMBERS
-			      )], @args);
-    # Unigene namespace or ID?
-    if($ns && (lc($ns) eq "unigene")) {
-	$type = 'Bio::Cluster::UniGene';
-    } elsif($dispid && ($dispid =~ /^Hs\.[0-9]/)) {
-	$type = 'Bio::Cluster::UniGene';
-    }
-    # what else could we look for?
-    return $type;
 }
 
 #####################################################################

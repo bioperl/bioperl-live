@@ -99,6 +99,7 @@ use strict;
 
 use Bio::AnnotationI;
 use Bio::Ontology::TermI;
+use Bio::Ontology::Term;
 use Bio::Root::Root;
 
 @ISA = qw(Bio::Root::Root Bio::AnnotationI Bio::Ontology::TermI);
@@ -161,7 +162,7 @@ sub new{
 sub as_text{
    my ($self) = @_;
 
-   return "Name: ".$self->name();
+   return $self->tagname()."|".$self->name()."|".$self->identifier();
 }
 
 =head2 hash_tree
@@ -205,7 +206,12 @@ sub hash_tree{
 =cut
 
 sub tagname{
-    return shift->category(@_);
+    my $self = shift;
+
+    return $self->category(@_) if @_;
+    # if in get mode we need to get the name from the category term
+    my $cat = $self->category();
+    return ref($cat) ? $cat->name() : $cat;
 }
 
 =head1 Methods for Bio::Ontology::TermI compliance
@@ -286,6 +292,24 @@ sub name {
 sub definition {
     return shift->term()->definition(@_);
 } # definition
+
+=head2 category
+
+ Title   : category
+ Usage   : $term->category( $top );
+           or 
+           $top = $term->category();
+ Function: Set/get for a relationship between this Term and
+           another Term (e.g. the top level of the ontology).
+ Returns : The category of this Term [TermI].
+ Args    : The category of this Term [TermI or scalar -- which
+           becomes the name of the catagory term] (optional).
+
+=cut
+
+sub category {
+    return shift->term()->category(@_);
+}
 
 =head2 is_obsolete
 

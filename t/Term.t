@@ -15,10 +15,11 @@ BEGIN {
         use lib 't';
     }
     use Test;
-    plan tests => 41;
+    plan tests => 52;
 }
 
 use Bio::Ontology::Term;
+use Bio::Ontology::TermFactory;
   
 my $obj = Bio::Ontology::Term->new();
 
@@ -99,3 +100,26 @@ ok( $obj->comment(), "X" );
 ok( $obj->version(), "6.6.6" );
 ok( $obj->category()->name(), "cat" );
 
+# test object factory for terms
+my $fact = Bio::Ontology::TermFactory->new();
+$obj = $fact->create_object(-name => "some ontology term");
+ok $obj->isa("Bio::Ontology::TermI");
+ok ($obj->name, "some ontology term");
+
+$fact->type("Bio::Ontology::GOterm");
+$obj = $fact->create_object(-name => "some ontology term",
+			    -identifier => "GO:987654");
+ok $obj->isa("Bio::Ontology::TermI");
+ok (ref($obj), "Bio::Ontology::GOterm");
+ok ($obj->name, "some ontology term");
+ok ($obj->identifier, "GO:987654");
+
+$fact->type("Bio::Annotation::OntologyTerm");
+$obj = $fact->create_object(-name => "some ontology term",
+			    -identifier => "GO:987654",
+			    -category => "nonsense");
+ok $obj->isa("Bio::Ontology::TermI");
+ok $obj->isa("Bio::AnnotationI");
+ok ($obj->name, "some ontology term");
+ok ($obj->identifier, "GO:987654");
+ok ($obj->tagname, "nonsense");

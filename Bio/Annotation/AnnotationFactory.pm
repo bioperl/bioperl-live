@@ -1,6 +1,6 @@
 # $Id$
 #
-# BioPerl module for Bio::Cluster::ClusterFactory
+# BioPerl module for Bio::Annotation::AnnotationFactory
 #
 # Cared for by Hilmar Lapp <hlapp at gmx.net>
 #
@@ -26,21 +26,20 @@
 
 =head1 NAME
 
-Bio::Cluster::ClusterFactory - Instantiates a new Bio::ClusterI (or derived class) through a factory
+Bio::Annotation::AnnotationFactory - Instantiates a new Bio::AnnotationI (or derived class) through a factory
 
 =head1 SYNOPSIS
 
-    use Bio::Cluster::ClusterFactory;
-    # if you don't provide a default type, the factory will try
-    # some guesswork based on display_id and namespace
-    my $factory = new Bio::Cluster::ClusterFactory(-type => 'Bio::Cluster::UniGene');
-    my $clu = $factory->create_object(-description => 'NAT',
-                                      -display_id  => 'Hs.2');
+    use Bio::Annotation::AnnotationFactory;
+    # 
+    my $factory = new Bio::Annotation::AnnotationFactory(-type => 'Bio::Annotation::SimpleValue');
+    my $ann = $factory->create_object(-value => 'peroxisome',
+                                      -tagname => 'cellular component');
 
 
 =head1 DESCRIPTION
 
-This object will build L<Bio::ClusterI> objects generically.
+This object will build L<Bio::AnnotationI> objects generically.
 
 =head1 FEEDBACK
 
@@ -84,7 +83,7 @@ Internal methods are usually preceded with a _
 # Let the code begin...
 
 
-package Bio::Cluster::ClusterFactory;
+package Bio::Annotation::AnnotationFactory;
 use vars qw(@ISA);
 use strict;
 
@@ -96,13 +95,11 @@ use Bio::Factory::ObjectFactoryI;
 =head2 new
 
  Title   : new
- Usage   : my $obj = new Bio::Cluster::ClusterFactory();
- Function: Builds a new Bio::Cluster::ClusterFactory object 
- Returns : Bio::Cluster::ClusterFactory
- Args    : -type => string, name of a ClusterI derived class.
-                    If not provided, the factory will have to guess
-                    from ID and namespace, which may or may not be
-                    successful.
+ Usage   : my $obj = new Bio::Annotation::AnnotationFactory();
+ Function: Builds a new Bio::Annotation::AnnotationFactory object 
+ Returns : Bio::Annotation::AnnotationFactory
+ Args    : -type => string, name of a L<Bio::AnnotationI> derived class.
+                    The default is L<Bio::Ontology::Term>.
 
 =cut
 
@@ -124,30 +121,27 @@ sub new {
 
  Title   : create_object
  Usage   : my $seq = $factory->create_object(<named parameters>);
- Function: Instantiates new Bio::ClusterI (or one of its child classes)
+ Function: Instantiates new Bio::AnnotationI (or one of its child classes)
 
            This object allows us to genericize the instantiation of
            cluster objects.
 
- Returns : L<Bio::ClusterI> compliant object
+ Returns : L<Bio::AnnotationI> compliant object
            The return type is configurable using new(-type =>"...").
- Args    : initialization parameters specific to the type of cluster
-           object we want.  Typically 
-           -display_id  => $name
-           -description => description of the cluster
-           -members     => arrayref, members of the cluster
+ Args    : initialization parameters specific to the type of annotation
+           object we want.
 
 =cut
 
 sub create_object {
    my ($self,@args) = @_;
 
-   my $type = $self->type();
+   my $type = $self->type(); 
    if(! $type) {
        # we need to guess this
        $type = $self->_guess_type(@args);
        if(! $type) {
-	   $self->throw("No cluster type set and unable to guess.");
+	   $self->throw("No annotation type set and unable to guess.");
        }
        # load dynamically if it hasn't been loaded yet
        if(! $self->{'_loaded_types'}->{$type}) {
@@ -156,7 +150,7 @@ sub create_object {
 	       $self->{'_loaded_types'}->{$type} = 1;
 	   };
 	   if($@) {
-	       $self->throw("Bio::ClusterI implementation $type ".
+	       $self->throw("Bio::AnnotationI implementation $type ".
 			    "failed to load: ".$@);
 	   }
        }
@@ -168,7 +162,7 @@ sub create_object {
 
  Title   : type
  Usage   : $obj->type($newval)
- Function: Get/set the type of L<Bio::ClusterI> object to be created.
+ Function: Get/set the type of L<Bio::AnnotationI> object to be created.
 
            This may be changed at any time during the lifetime of this
            factory.
@@ -189,12 +183,12 @@ sub type{
 		$self->_load_module($type);
 	    };
 	    if( $@ ) {
-		$self->throw("Cluster implementation '$type' failed to load: ".
+		$self->throw("Annotation class '$type' failed to load: ".
 			     $@);
 	    }
 	    my $a = bless {},$type;
-	    if( ! $a->isa('Bio::ClusterI') ) {
-		$self->throw("'$type' does not implement Bio::ClusterI. ".
+	    if( ! $a->isa('Bio::AnnotationI') ) {
+		$self->throw("'$type' does not implement Bio::AnnotationI. ".
 			     "Too bad.");
 	    }
 	    $self->{'_loaded_types'}->{$type} = 1;
@@ -208,7 +202,7 @@ sub type{
 
  Title   : _guess_type
  Usage   :
- Function: Guesses the right type of L<Bio::ClusterI> implementation
+ Function: Guesses the right type of L<Bio::AnnotationI> implementation
            based on initialization parameters for the prospective
            object.
  Example :
@@ -224,18 +218,23 @@ sub _guess_type{
     my $type;
 
     # we can only guess from a certain number of arguments
-    my ($dispid, $ns, $members) =
-	$self->_rearrange([qw(DISPLAY_ID
-			      NAMESPACE
-			      MEMBERS
+    my ($val,$db,$text,$name,$authors) =
+	$self->_rearrange([qw(VALUE
+			      DATABASE
+			      TEXT
+			      NAME
+			      AUTHORS
 			      )], @args);
-    # Unigene namespace or ID?
-    if($ns && (lc($ns) eq "unigene")) {
-	$type = 'Bio::Cluster::UniGene';
-    } elsif($dispid && ($dispid =~ /^Hs\.[0-9]/)) {
-	$type = 'Bio::Cluster::UniGene';
-    }
-    # what else could we look for?
+  SWITCH: {
+      $val        && do { $type = "SimpleValue"; last SWITCH; };
+      $authors    && do { $type = "Reference"; last SWITCH; };
+      $db         && do { $type = "DBLink"; last SWITCH; };
+      $text       && do { $type = "Comment"; last SWITCH; };
+      $name       && do { $type = "OntologyTerm"; last SWITCH; };
+      # what else could we look for?
+  }
+    $type = "Bio::Annotation::".$type;
+
     return $type;
 }
 

@@ -190,7 +190,7 @@ sub next_cluster {
 			# parse into each sequence line
 			my $seq = {};
 			# add unigene id to each seq
-			$seq->{unigene_id} = $unigene{ID}; 
+			#$seq->{unigene_id} = $unigene{ID}; 
 			my @items = split /;/,$1;
 			foreach (@items) {
 				if (/$line_is{ACC}/gcx) {
