@@ -109,23 +109,13 @@ use Bio::Species;
 
 @ISA = qw(Bio::SeqIO);
 
-# SeqIO is special - override new here to insure we instantiate this class 
-
-sub new {
-    my ($class,@args) = @_;
-    my $self = bless {}, $class;
-    $self->_initialize(@args);
-    return $self;
-}
-
 sub _initialize {
   my($self,@args) = @_;
 
-  my $make = $self->SUPER::_initialize(@args);  
+  $self->SUPER::_initialize(@args);  
   # hash for functions for decoding keys.
   $self->{'_func_ftunit_hash'} = {}; 
-  $self->_show_dna(1); # sets this to one by default. People can change it
- return $make; # success - we hope!
+  $self->_show_dna(1); # sets this to one by default. People can change it 
 }
 
 

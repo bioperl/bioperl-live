@@ -112,14 +112,7 @@ $DEFAULTLOCATION = 'switzerland';
 # should use Bio::Root::RootI
 sub new {
     my ($class, @args) = @_;
-    my $self = bless {}, $class;
-    my $make = $self->_initialize(@args);
-    return $self;
-}
-
-sub _initialize {
-    my ($self, @args) = @_;
-    $self->SUPER::_initialize(@args);
+    my $self = $class->SUPER::new(@args);
 
     my ($format, $hostlocation,$servertype) = 
 	$self->_rearrange([qw(fFORMAT HOSTLOCATION SERVERTYPE)],

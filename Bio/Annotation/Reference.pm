@@ -50,14 +50,11 @@ The rest of the documentation details each of the object methods. Internal metho
 
 # Let the code begin...
 
-
 package Bio::Annotation::Reference;
 use vars qw(@ISA);
 use strict;
 
-
 use Bio::Annotation::DBLink;
-
 
 @ISA = qw(Bio::Annotation::DBLink);
 
@@ -78,36 +75,28 @@ use Bio::Annotation::DBLink;
 =cut
 
 sub new{
-   my ($class,@args) = @_;
+    my ($class,@args) = @_;
 
-   # make myself from super class with explicit call. Not pretty. 
-   # but that's perl.
+    my $self = $class->SUPER::new(@args);
 
-   my $self = Bio::Annotation::DBLink->new(@args);
-   
-   # rebless into my own class.
+    my ($start,$end,$authors,
+	$location,$title,$medline) = $self->_rearrange([qw(START
+							   END
+							   AUTHORS
+							   LOCATION
+							   TITLE
+							   MEDLINE
+							   )],@args);
 
-   bless $self,$class;
+    defined $start    && $self->start($start);
+    defined $end      && $self->end($end);
+    defined $authors  && $self->authors($authors);
+    defined $location && $self->location($location);
+    defined $title    && $self->title($title);
+    defined $medline  && $self->medline($medline);
 
-   my ($start,$end,$authors,$location,$title,$medline) = $self->_rearrange(
-									   [qw(START
-									       END
-									       AUTHORS
-									       LOCATION
-									       TITLE
-									       MEDLINE
-									       )],@args);
-
-   defined $start && $self->start($start);
-   defined $end && $self->end($end);
-   defined $authors && $self->authors($authors);
-   defined $location && $self->location($location);
-   defined $title    && $self->title($title);
-   defined $medline  && $self->medline($medline);
-
-   return $self;
+    return $self;
 }
-
 
 =head2 start
 
@@ -121,10 +110,10 @@ sub new{
 
 =cut
 
-sub start{
-   my ($self,$value) = @_;
-   if( defined $value) {
-      $self->{'start'} = $value;
+sub start {
+    my ($self,$value) = @_;
+    if( defined $value) {
+	$self->{'start'} = $value;
     }
     return $self->{'start'};
 
@@ -141,13 +130,12 @@ sub start{
 
 =cut
 
-sub end{
-   my ($self,$value) = @_;
-   if( defined $value) {
-      $self->{'end'} = $value;
+sub end {
+    my ($self,$value) = @_;
+    if( defined $value) {
+	$self->{'end'} = $value;
     }
     return $self->{'end'};
-
 }
 
 =head2 rp

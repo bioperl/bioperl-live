@@ -79,13 +79,6 @@ use XML::Handler::BuildDOM;
 
 @ISA = qw(Bio::SeqIO Bio::Root::Object);
 
-sub new {
-    my ($class,@args) = @_;    
-    my $self = bless {}, $class;
-    $self->_initialize(@args);
-    return $self;
-}
-
 sub _initialize {
     my($self,@args) = @_;
     $self->SUPER::_initialize(@args);

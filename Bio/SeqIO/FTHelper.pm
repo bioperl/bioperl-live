@@ -73,30 +73,12 @@ use Bio::Root::RootI;
 
 @ISA = qw(Bio::Root::RootI);
 
-# new() is inherited from Bio::Root::RootI
-
-sub _initialize {
-  my ($self, @args) = @_;
-  my $make = $self->SUPER::_initialize(@args);
-  $self->{'_field'} = {};
-  return 1; # success - we hope!
+sub new {
+    my ($class, @args) = @_;
+    my $self = $class->SUPER::new(@args);
+    $self->{'_field'} = {};
+    return $self; 
 }
-
-=head2 from_SeqFeature
-
- Title   : from_SeqFeature
- Usage   : @fthelperlist = Bio::SeqIO::FTHelper::from_SeqFeature($sf,
-						     $context_annseq);
- Function: constructor of fthelpers from SeqFeatures
-         :
-         : The additional annseq argument is to allow the building of FTHelper
-         : lines relevant to particular sequences (ie, when features are spread over
-         : enteries, knowing how to build this)
- Returns : an array of FThelpers
- Args    : seq features
-
-
-=cut
 
 =head2 _generic_seqfeature
 
@@ -299,6 +281,22 @@ sub _parse_loc {
     }
     return 1;
 }
+
+=head2 from_SeqFeature
+
+ Title   : from_SeqFeature
+ Usage   : @fthelperlist = Bio::SeqIO::FTHelper::from_SeqFeature($sf,
+						     $context_annseq);
+ Function: constructor of fthelpers from SeqFeatures
+         :
+         : The additional annseq argument is to allow the building of FTHelper
+         : lines relevant to particular sequences (ie, when features are spread over
+         : enteries, knowing how to build this)
+ Returns : an array of FThelpers
+ Args    : seq features
+
+
+=cut
 
 sub from_SeqFeature {
     my ($sf, $context_annseq) = @_;

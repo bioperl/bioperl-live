@@ -104,19 +104,10 @@ BEGIN {
 
 # the new way to make modules a little more lightweight
 sub new {
-  my($class,@args) = @_;
-  my $self = bless({}, $class);    
-  $self->_initialize(@args);  
+  my($class, @args) = @_;
+  my $self = $class->SUPER::new(@args);
+  $self->request_format($self->default_format);
   return $self;
-}
-
-sub _initialize {
-    my ($self, @args) = @_;    
-    my $make = $self->SUPER::_initialize(@args);
-    # force format to GenPept at this point in time, NCBI entrez
-    # will only return that type
-    $self->request_format($self->default_format);
-    return $make;
 }
 
 =head2 get_params

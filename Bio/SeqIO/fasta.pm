@@ -70,20 +70,6 @@ use Bio::SeqIO;
 
 @ISA = qw(Bio::SeqIO);
 
-# override new here to insure we instantiate this class 
-
-sub new {
-    my ($class,@args) = @_;    
-    my $self = bless {}, $class;
-    $self->_initialize(@args);
-    return $self;
-}
-
-sub _initialize {
-  my($self,@args) = @_;
-  return unless $self->SUPER::_initialize(@args);
-}
-
 =head2 next_seq
 
  Title   : next_seq
@@ -118,7 +104,7 @@ sub next_primary_seq {
     return unless $entry = $self->_readline;
   }
 
-  my $next_rec = $entry;
+  #  my $next_rec = $entry;
   #while($next_rec =~ /(^|.)>$/) {
       # HL 05/25/2000
       # a greater sign not preceded by a newline indicates that there is a
@@ -170,7 +156,7 @@ sub write_seq {
 	 $desc =~ s/\n//g;
         $top .= " $desc";
      }
-     $str=~ s/(.{1,60})/$1\n/g;
+     $str =~ s/(.{1,60})/$1\n/g;
      $self->_print (">",$top,"\n",$str) or return;
    }
    return 1;

@@ -108,9 +108,9 @@ BEGIN {
 
 # _initialize is where the heavy stuff will happen when new is called
 
-sub _initialize {
-  my($self,@args) = @_;
-  my $make = $self->SUPER::_initialize;
+sub new {
+  my($class,@args) = @_;
+  my $sekf = $class->SUPER::new(@args);
   my ($host,$port) = $self->_rearrange([qw(
 					 HOST
 					 PORT
@@ -129,7 +129,7 @@ sub _initialize {
   $self->_aceobj($aceobj);
 
 
-  return $make; # success - we hope!
+  return $self;
 }
 
 =head2 get_Seq_by_id

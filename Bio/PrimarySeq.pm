@@ -158,7 +158,6 @@ use strict;
 use Bio::Root::RootI;
 use Bio::PrimarySeqI;
 
-
 @ISA = qw(Bio::Root::RootI Bio::PrimarySeqI);
 
 =head2 new
@@ -177,14 +176,10 @@ use Bio::PrimarySeqI;
 =cut
 
 
-
-sub new {
-    # standard new call..
-    my($caller,@args) = @_;
-    my $class = ref($caller) || $caller;
-    my $self = {};
-    bless $self,$class;
-
+sub new {    
+    my ($class, @args) = @_;
+    my $self = $class->SUPER::new(@args);
+    
     my($seq,$id,$acc,$pid,$desc,$moltype,$given_id) =
 	$self->_rearrange([qw(SEQ
 			      DISPLAY_ID
@@ -199,7 +194,7 @@ sub new {
     
     if( defined $id && defined $given_id ) {
 	if( $id ne $given_id ) {
-	    $self->throw("Provided both id and display_id constructor functions. [$id] [$given_id]");
+	    $self->throw("Provided both id and display_id constructor functions. [$id] [$given_id]");	    
 	}
     }
     if( defined $given_id ) { $id = $given_id; }
@@ -211,8 +206,7 @@ sub new {
     $desc    && $self->desc($desc);
     $moltype && $self->moltype($moltype);
     
-# set stuff in self from @args
-    return $self; # success - we hope!
+    return $self;
 }
 
 =head2 seq

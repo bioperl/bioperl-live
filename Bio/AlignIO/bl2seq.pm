@@ -101,26 +101,6 @@ use Bio::Tools::BPbl2seq;
 
 @ISA = qw(Bio::AlignIO);
 
-# AlignIO is special new must be explict 
-sub new {
-    my ($class, @args) = @_;
-    my $self = bless {}, $class;
-    $self->_initialize(@args);
-    return $self;
-}
-
-# _initialize is where the heavy stuff will happen when new is called
-
-sub _initialize {
-  my($self,@args) = @_;
-
-# grab the filename
-  my ($file) = $self->_rearrange([qw(FILE)],@args);
-  $self->{'_filename'}= $file;
-
-  return unless my $make = $self->SUPER::_initialize(@args);
-}
-
 =head2 next_aln
 
  Title   : next_aln
@@ -136,37 +116,37 @@ sub next_aln {
     my $self = shift;
     my ($start,$end,$name,$seqname,$seq,$seqchar);
     my $aln =  Bio::SimpleAlign->new();
-
-	open FH, $self->{'_filename'};
- 	my $bl2seqobj = Bio::Tools::BPbl2seq->new(\*FH);
-
-	$seqchar = $bl2seqobj->querySeq ;
-	$start = $bl2seqobj->query->start;
-	$end = $bl2seqobj->query->end;
-	$seqname = $bl2seqobj->query->seqname;
+    my $bl2seqobj = Bio::Tools::BPbl2seq->new($self->_filehandle);
+					     
 	
-	unless ($seqchar && $start && $end  && $seqname) {return 0} ;	
 
-	$seq = new Bio::LocatableSeq('-seq'=>$seqchar,
-				    '-id'=>$seqname,
-				    '-start'=>$start,
-				    '-end'=>$end,
-				    );
+    $seqchar = $bl2seqobj->querySeq ;
+    $start = $bl2seqobj->query->start;
+    $end = $bl2seqobj->query->end;
+    $seqname = $bl2seqobj->query->seqname;
 
-	$aln->addSeq($seq);
+    unless ($seqchar && $start && $end  && $seqname) {return 0} ;	
 
-	$seqchar = $bl2seqobj->sbjctSeq;
-	$start = $bl2seqobj->subject->start;
-	$end = $bl2seqobj->subject->end;
-	$seqname = $bl2seqobj->subject->seqname;
+    $seq = new Bio::LocatableSeq('-seq'=>$seqchar,
+				 '-id'=>$seqname,
+				 '-start'=>$start,
+				 '-end'=>$end,
+				 );
 
-	unless ($seqchar && $start && $end  && $seqname) {return 0} ;	
+    $aln->addSeq($seq);
 
-    	$seq = new Bio::LocatableSeq('-seq'=>$seqchar,
-			'-id'=>$seqname,
-			'-start'=>$start,
-			'-end'=>$end,
-			);
+    $seqchar = $bl2seqobj->sbjctSeq;
+    $start = $bl2seqobj->subject->start;
+    $end = $bl2seqobj->subject->end;
+    $seqname = $bl2seqobj->subject->seqname;
+
+    unless ($seqchar && $start && $end  && $seqname) {return 0} ;	
+
+    $seq = new Bio::LocatableSeq('-seq'=>$seqchar,
+				 '-id'=>$seqname,
+				 '-start'=>$start,
+				 '-end'=>$end,
+				 );
 
     $aln->addSeq($seq);
 

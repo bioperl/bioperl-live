@@ -12,7 +12,7 @@
 
 =head1 NAME
 
-Bio::Index::AbstractSeq - Base class for AbstractSeq's 
+Bio::Index::AbstractSeq - Base class for AbstractSeq s 
 
 =head1 SYNOPSIS
 
@@ -73,8 +73,6 @@ not necessarily sequence files).
 
 =cut
 
-#'
-
 # Let's begin the code ...
 
 
@@ -89,18 +87,11 @@ use Bio::DB::SeqI;
 
 @ISA = qw(Bio::Index::Abstract Bio::DB::SeqI);
 
-# new() is inherited from Bio::Root::Object
-
-# _initialize is where the heavy stuff will happen when new is called
-
 sub _initialize {
-  my($self,@args) = @_;
-
-  my $make = $self->SUPER::_initialize(@args);
-
+    my ($self, @args) = @_;
+    $self->SUPER::_initialize(@args);
+    
     $self->{'_seqio_cache'} = [];
-
- return $make; # success - we hope!
 }
 
 =head2 _file_format

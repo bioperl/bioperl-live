@@ -14,8 +14,9 @@ use strict;
 @ISA = qw(XML::Handler::Subs);
 
 sub new {
-    my ($class,$seq,$length,$type) = @_;
-    my $self = bless {
+    my ($caller,$seq,$length,$type) = @_;
+    my $class = ref($caller) || $caller;
+    my $self = bless ({
 	seq      => $seq,
 	type     => $type,
 	length   => $length,
@@ -23,7 +24,7 @@ sub new {
 	feat     => {},
 	feats    => [],
 	comp_id  => 1,
-    }, $class;
+    }, $class);
     return $self;
 }
 

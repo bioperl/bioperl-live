@@ -11,7 +11,8 @@ use XML::Handler::Subs;
 @ISA = qw(XML::Handler::Subs);
 
 sub new {
-    my ($class,$seq) = @_;
+    my ($caller,$seq) = @_;
+    my $class = ref($caller) || $caller;
     my $self = bless ( {
 	string => '',
 	seq  => $seq,

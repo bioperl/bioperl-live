@@ -73,20 +73,12 @@ use Bio::SeqIO;
 @ISA = qw(Bio::SeqIO);
 
 
-# SeqIO is special - override new here to insure we instantiate this class 
-sub new {
-    my ($class, @args) = @_;
-    my $self = bless {}, $class;
-    $self->_initialize(@args);
-    return $self;
-}
-
 # _initialize is where the heavy stuff will happen when new is called
 
 sub _initialize {
   my($self,@args) = @_;
 
-  my $make = $self->SUPER::_initialize(@args);
+  $self->SUPER::_initialize(@args);
 
   my ($file_array,$format) = $self->_rearrange([qw(
 					 FILES
@@ -109,9 +101,6 @@ sub _initialize {
   if( $self->_load_file() == 0 ) {
      $self->throw("Unable even to initialise the first file");
   }
-
-# set stuff in self from @args
- return $make; # success - we hope!
 }
 
 =head2 next_seq

@@ -9,18 +9,19 @@ use vars qw{ $AUTOLOAD };
 use strict;
 
 sub new {
-    my $class = shift;
-    my $self = {};
-    $self->{'ids'} = [];
-    return bless ($self, $class);
+    my ($caller,@args) = @_;
+    my $class = ref($caller) || $caller;
+    my $self = bless( {
+	'ids'          =>  [],
+    }, $class);
+    return $self;
 }
 
 # Basic PerlSAX
 sub start_document            {
     my ($self, $document) = @_;
-
-
 }
+
 sub end_document              {
     my ($self, $document) = @_;
     return $self->{'ids'};

@@ -126,11 +126,7 @@ use Bio::PrimarySeq;
 sub new {
     # standard new call..
     my($caller,@args) = @_;
-    my $class = ref($caller) || $caller;
-    my $self = {};
-    bless $self,$class;
-
-
+    my $self = $caller->SUPER::new(@args);
     # this is way too sneaky probably. We delegate the construction of
     # the Seq object onto PrimarySeq and then pop primary_seq into
     # our primary_seq slot
@@ -143,7 +139,6 @@ sub new {
     my $ann = new Bio::Annotation;
     $self->annotation($ann);
     $self->primary_seq($pseq);
-
 
     return $self;
 }

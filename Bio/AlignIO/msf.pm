@@ -62,20 +62,6 @@ use Bio::AlignIO;
 
 @ISA = qw(Bio::AlignIO);
 
-# AlignIO is special new must be explict 
-sub new {
-    my ($class, @args) = @_;
-    my $self = bless {}, $class;
-    $self->_initialize(@args);
-    return $self;
-}
-
-# _initialize is where the heavy stuff will happen when new is called
-
-sub _initialize {
-  my($self,@args) = @_;
-  return unless my $make = $self->SUPER::_initialize(@args);
-}
 
 =head2 next_aln
 

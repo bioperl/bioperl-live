@@ -77,28 +77,12 @@ Internal methods are usually preceded with a _
 
 # Let the code begin...
 
-
 package Bio::SeqIO::raw;
 use strict;
 use vars qw(@ISA);
 use Bio::SeqIO;
 
 @ISA = qw(Bio::SeqIO);
-
-# SeqIO is special - override new here to insure we instantiate this class 
-
-sub new {
-    my ($class,@args) = @_;    
-    my $self = bless {}, $class;
-    $self->_initialize(@args);
-    return $self;
-}
-
-sub _initialize {
-  my($self,@args) = @_;
-  return unless $self->SUPER::_initialize(@args);
-}
-
 
 =head2 next_seq
 

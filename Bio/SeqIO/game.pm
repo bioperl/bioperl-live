@@ -88,23 +88,11 @@ use XML::Writer;
 use Bio::Seq;
 
 @ISA = qw(Bio::SeqIO);
-# new() is inherited from Bio::Root::Object
-
-# _initialize is where the heavy stuff will happen when new is called
-
-#----------
-sub new {
-#----------
-    my($class, @param) = @_;
-    my $self = {};
-    bless $self, ref($class) || $class;
-    $self->_initialize(@param);
-    $self;
-}
 
 
-sub _initialize {
+sub _initialize {        
   my($self,@args) = @_;
+  $self->SUPER::_initialize(@args);
   my $xmlfile ="";
   
   $self->{'counter'} = 0;
@@ -118,9 +106,7 @@ sub _initialize {
   $self->_group_subfeatures(1);
   $self->_subfeature_types('exons', 'promoters','poly_A_sites','utrs','introns','sub_SeqFeature');
   
-  ($self->{'file'}, $self->{'fh'} ) = $self->_rearrange( [ qw(FILE FH) ], @args);
-#  $self->throw("did not specify a file to read, Filehandle suport is not implemented currently") if( !defined $self->{'file'});
-  return unless my $make = $self->SUPER::_initialize(@args);
+  # filehandle is stored by superclass _initialize
 }
 
 

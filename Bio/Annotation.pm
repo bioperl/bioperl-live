@@ -111,7 +111,7 @@ use strict;
 
 use Bio::Root::RootI;
 
-# we don't really need these object but we should do.
+# we don't really need these object but we should 
 # declare them here to prevent tears later.
 
 use Bio::Annotation::Reference;
@@ -140,18 +140,17 @@ use Bio::Annotation::Comment;
 
 
 sub new {
-  my($class,%params) = @_;
-
-  my( $text ) = ( $params{'-DESCRIPTION'}||$params{'-description'} );
-
-  my $self = {};
-  bless $self,$class;
-
-  $self->{ 'description' } = $text;
+  my($class,@args) = @_;
+  my $self = $class->SUPER::new(@args);
+  
+  my ($text ) = $self->_rearrange([qw(DESCRIPTION)], @args);
+  
+  defined $text && $self->description($text);
   $self->{ 'refs' } = [];
   $self->{ 'comment' } = [];
   $self->{ 'link' } = [];
-  return $self; # success - we hope!
+
+  return $self; 
 }
 
 
@@ -167,7 +166,7 @@ sub new {
 
 =cut
 
-sub description{
+sub description {
    my ($self,$value) = @_;
    if( defined $value) {
       $self->{'description'} = $value;

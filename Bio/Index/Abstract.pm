@@ -110,11 +110,15 @@ use Symbol();
 
 =cut
 
-sub _initialize {
-    my($self, @args) = @_;
-    
+sub new {
+    my($class, @args) = @_;
+    my $self = $class->SUPER::new(@args);
+
     my( $filename, $write_flag, $dbm_package, $verbose ) =
-        $self->_rearrange(['FILENAME','WRITE_FLAG','DBM_PACKAGE','VERBOSE'], @args);
+        $self->_rearrange([qw(FILENAME 
+			      WRITE_FLAG
+			      DBM_PACKAGE
+			      VERBOSE)], @args);
     
     # Store any parameters passed
     $self->filename($filename)       if $filename;
@@ -127,9 +131,8 @@ sub _initialize {
     
     # Open database
     $self->open_dbm() if $filename;
+    return $self;
 }
-
-
 
 =pod
 

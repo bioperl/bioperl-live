@@ -111,26 +111,6 @@ sub _version {
     return $VERSION;
 }
 
-
-=head2 _initialize
-
-  Title   : _initialize
-  Usage   : $index->_initialize
-  Function: Calls $index->SUPER::_initialize(), and then adds
-            the default id parser for GenBank files.
-  Example : 
-  Returns : 
-  Args    : 
-
-=cut
-
-sub _initialize {
-    my($self, $index_file, $write_flag) = @_;
-    
-    $self->SUPER::_initialize($index_file, $write_flag);
-}
-
-
 =head2 _index_file
 
   Title   : _index_file

@@ -93,10 +93,9 @@ BEGIN {
 
 # the new way to make modules a little more lightweight
 
-sub _initialize {
-    my ($self, @args ) = @_;
-    my $make = $self->SUPER::_initialize(@args);
-    return $make;
+sub new {
+    my ($class, @args ) = @_;
+    return $class->SUPER::new(@args);
 }
 
 
@@ -180,11 +179,9 @@ sub get_request {
     } elsif( $mode eq 'single' ) {
 	$params{'dopt'} = $format;
 	my $querystr = '?' . join("&", map { "$_=$params{$_}" } keys %params);
-	print STDERR "url is ", $HOSTBASE . 
-	    $CGILOCATION{$mode} . $querystr, "\n"
-	    unless ( $self->verbose == 0 ); 
-	
-	return GET $HOSTBASE . $CGILOCATION{$mode} . $querystr;
+	print STDERR "url is ", $url . $querystr, "\n"
+	    unless ( $self->verbose == 0 );	
+	return GET $url . $querystr;
     }  else { 
 	return undef;
     }

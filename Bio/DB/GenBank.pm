@@ -107,16 +107,7 @@ BEGIN {
 		     );
 }
 
-# the new way to make modules a little more lightweight
-sub new {
-  my($class,@args) = @_;
-  my $self = bless({}, $class);  
-  $self->_initialize(@args);
-  
-  return $self;
-}
-
-# let's use the initialize from the NCBI module
+# new is in NCBIHelper
 
 # helper method to get db specific options
 

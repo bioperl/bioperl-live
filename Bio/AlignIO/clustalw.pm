@@ -58,39 +58,60 @@ use vars qw(@ISA);
 use strict;
 
 use Bio::AlignIO;
+use Bio::LocatableSeq;
 
 @ISA = qw(Bio::AlignIO);
-
-# AlignIO is special new must be explict 
-sub new {
-    my ($class, @args) = @_;
-    my $self = bless {}, $class;
-    $self->_initialize(@args);
-    return $self;
-}
-
-# _initialize is where the heavy stuff will happen when new is called
-
-sub _initialize {
-  my($self,@args) = @_;
-  return unless my $make = $self->SUPER::_initialize(@args);
-}
 
 =head2 next_aln
 
  Title   : next_aln
  Usage   : $aln = $stream->next_aln()
- Function: returns the next alignment in the stream  ###Not yet implemented!###
+ Function: returns the next alignment in the stream
  Returns : SimpleAlign object
  Args    : NONE
 
 =cut
 
 sub next_aln {
-    my $self = shift;
-    my $entry;
+    my ($self) = @_;
 
-    $self->throw("Sorry: clustalw-format input, not yet implemented! /n");
+    my $first_line;
+    if( defined ($first_line  = $self->_readline ) 
+	&& $first_line !~ /CLUSTAL/ ) {	
+	$self->warn("trying to parse a file which does not start with a CLUSTAL header");
+    }
+    my %alignments;
+    my $aln =  Bio::SimpleAlign->new();
+    while( defined ($_ = $self->_readline) ) {
+	next if ( /^\s+$/ );	
+
+	my ($seqname, $aln_line) = ('', '');	
+	if( /^\s*(\S+)\s*\/\s*(\d+)-(\d+)\s+(\S+)\s*$/ ) {
+	    # clustal 1.4 format
+	    ($seqname,$aln_line) = ("$1:$2-$3",$4);
+	} elsif( /^(\S+)\s+([A-Z\-]+)\s*$/ ) {
+	    ($seqname,$aln_line) = ($1,$2);
+	} else { next }
+	$alignments{$seqname} .= $aln_line;  
+    }
+    my ($sname,$start,$end);
+    foreach my $name ( keys %alignments ) {
+	if( $name =~ /(\S+):(\d+)-(\d+)/ ) {
+	    ($sname,$start,$end) = ($1,$2,$3);	    
+	} else {
+	    ($sname, $start) = ($name,1);
+	    my $str  = $alignments{$name};
+	    $str =~ s/[^A-Za-z]//g;
+	    $end = length($str);
+	}
+	my $seq = new Bio::LocatableSeq('-seq'   => $alignments{$name},
+					 '-id'    => $sname,
+					 '-start' => $start,
+					 '-end'   => $end);
+	$aln->addSeq($seq);
+    }
+    undef $aln if( !defined $end || $end <= 0);
+    return $aln;
 }
 
 

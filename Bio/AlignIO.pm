@@ -267,27 +267,30 @@ use Symbol();
 
 =cut
 
-my $entry = 0;
-
 sub new {
-   my ($class,%param) = @_;
-   my ($format);
-   my ($handler,$stream);
+    my ($caller,@args) = @_;
+    my $class = ref($caller) || $caller;
+    
+    # or do we want to call SUPER on an object if $caller is an
+    # object?
+    if( $class =~ /Bio::AlignIO::(\S+)/ ) {
+	my ($self) = $class->SUPER::new(@args);	
+	$self->_initialize(@args);
+	return $self;
+    } else { 
 
-   @param{ map { lc $_ } keys %param } = values %param;  # lowercase keys
-   $format = $param{'-format'} 
-             || $class->_guess_format( $param{-file} || $ARGV[0] )
-             || 'Fasta';
-   $format = "\L$format"; # normalize capitalization to lower case
+	my %param = @args;
+	@param{ map { lc $_ } keys %param } = values %param; # lowercase keys
+	my $format = $param{'-format'} || 
+	    $class->_guess_format( $param{-file} || $ARGV[0] ) ||
+		'fasta';
+	$format = "\L$format";	# normalize capitalization to lower case
 
-   if( &_load_format_module($format) == 0 ) { # normalize capitalization
-       return undef;
-   }
-
-   $stream = "Bio::AlignIO::$format"->_new(%param);
-   return $stream;
+	# normalize capitalization
+	return undef unless( &_load_format_module($format) );
+	return "Bio::AlignIO::$format"->new(@args);
+    }
 }
-
 
 
 =head2 newFh
@@ -331,24 +334,16 @@ sub fh {
   return $s;
 }
 
-
-
-sub _new {
-  my $self = shift;
-  $self->SUPER::new(@_);
-}
-
 # _initialize is where the heavy stuff will happen when new is called
 
 sub _initialize {
   my($self,@args) = @_;
 
-  my $make = $self->SUPER::_initialize;  # exception handling code
+#  my $make = $self->SUPER::_initialize(@args);  # exception handling code
 
-  my ($file,$fh) = $self->_rearrange([qw(
-					 FILE
+  my ($file,$fh) = $self->_rearrange([qw(FILE
 					 FH
-					)],
+					 )],
 				     @args,
 				     );
   if( defined $file and defined $fh ) {
@@ -360,7 +355,7 @@ sub _initialize {
     open ($fh,$file) || $self->throw("Could not open $file for Fasta stream reading $!");
   }
   $self->_filehandle($fh) if defined $fh;
-  return $make; # success - we hope!
+  1;
 }
 
 =head2 _load_format_module

@@ -82,19 +82,6 @@ use Bio::Seq::LargeSeq;
 
 $FASTALINELEN = 60;
 @ISA = qw(Bio::SeqIO);
-# override new here to insure we instantiate this class 
-
-sub new {
-    my ($class,@args) = @_;    
-    my $self = bless {}, $class;
-    $self->_initialize(@args);
-    return $self;
-}
-
-sub _initialize {
-  my($self,@args) = @_;
-  return unless $self->SUPER::_initialize(@args);
-}
 
 =head2 next_seq
 

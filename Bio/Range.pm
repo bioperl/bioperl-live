@@ -87,10 +87,11 @@ use strict;
 use Carp;
 
 use Bio::RangeI;
+use Bio::Root::RootI;
 
 use vars qw(@ISA);
 
-@ISA = qw(Bio::RangeI);
+@ISA = qw(Bio::Root::RootI Bio::RangeI);
 
 =head1 Constructors
 
@@ -106,32 +107,32 @@ use vars qw(@ISA);
 =cut
 
 sub new {
-  my $thingy = shift;
-  my $package = ref($thingy) || $thingy;
-  my $self = bless {}, $package;
+  my ($caller, @args) = @_;
+  my $self = $caller->SUPER::new(@args);
   my $usageMessage = "Specify exactly two of -start, -end, '-length'";
-  my %args = @_;
-  $self->strand($args{-strand} || 0);
+  my ($strand, $start, 
+      $end, $length) = $self->_rearrange([qw(STRAND START
+					     END LENGTH)],@args);
+  $self->strand($strand || 0);
   
-  if(exists($args{'-start'}) && exists($args{'-end'}) &&
-     exists($args{'-length'})) {
-      confess $usageMessage;
+  if(defined $start && defined $end && defined $length ) {
+      $self->throw($usageMessage);
   }
   
-  if(exists($args{'-start'})) {
-      $self->start($args{'-start'});
-      if(exists($args{'-end'})) {
-	  $self->end($args{'-end'});
-      } elsif($args{'-length'}) {
-	  $self->end($self->start()+$args{'-length'}-1);
+  if(defined $start ) {      
+      $self->start($start);
+      if(defined $end) {
+	  $self->end($end);
+      } elsif(defined $length) {
+	  $self->end($self->start()+ $length - 1);
       } else {
-	  confess $usageMessage;
+	  $self->throw( $usageMessage);
       }
-  } elsif(exists($args{'-end'}) && exists($args{'-length'})) {
-      $self->end($args{'-end'});
-      $self->start($self->end() - $args{'-length'} + 1);
+  } elsif(defined $end && defined $length ) {      
+      $self->end($end);
+      $self->start($self->end() - $length + 1);
   } else {
-      confess $usageMessage;
+      $self->throw($usageMessage);
   }
   return $self;
 }

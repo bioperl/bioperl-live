@@ -41,13 +41,11 @@ methods. Internal methods are usually preceded with a _
 
 # Let the code begin...
 
-
 package Bio::Annotation::Comment;
 use vars qw(@ISA);
 use strict;
 
 use Bio::Root::RootI;
-
 
 @ISA = qw(Bio::Root::RootI);
 
@@ -68,14 +66,12 @@ use Bio::Root::RootI;
 sub new {
   my($class,@args) = @_;
 
-  my $self = {};
-  bless $self,$class;
+  my $self = $class->SUPER::new(@args);
   my ($text) = $self->_rearrange([qw( TEXT )], @args);
-  if( defined $text ) {
-      $self->text($text);
-  }
 
-  return $self; # success - we hope!
+  defined $text && $self->text($text);
+
+  return $self;
 }
 
 =head2 text

@@ -104,26 +104,6 @@ sub _version {
     return $VERSION;
 }
 
-
-
-=head2 _initialize
-
-  Title   : _initialize
-  Usage   : $index->_initialize
-  Function: Calls $index->SUPER::_initialize(), and then adds
-  Example : 
-  Returns : 
-  Args    : 
-
-=cut
-
-sub _initialize {
-    my $self = shift;
-    
-    $self->SUPER::_initialize(@_);
-}
-
-
 =head2 _index_file
 
   Title   : _index_file

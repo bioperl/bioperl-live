@@ -54,8 +54,6 @@ package Bio::Annotation::DBLink;
 use vars qw(@ISA);
 use strict;
 
-# Object preamble - inheriets from Bio::Root::Object
-
 use Bio::Root::RootI;
 
 @ISA = qw(Bio::Root::RootI);
@@ -64,13 +62,12 @@ use Bio::Root::RootI;
 sub new {
   my($class,@args) = @_;
 
-  my $self= {};
-  bless $self,$class;
+  my $self = $class->SUPER::new(@args);
 
   my ($database, $primary_id, $optional_id, $comment) =
       $self->_rearrange([qw(DATABASE
 			    PRIMARY_ID
-			    OPTIONAL_ID 
+			    OPTIONAL_ID
 			    COMMENT
 			    )], @args);
   
@@ -79,8 +76,7 @@ sub new {
   $optional_id && $self->optional_id($optional_id);
   $comment     && $self->comment($comment);
   
-# set stuff in self from @args
-  return $self; # success - we hope!
+  return $self;
 }
 
 =head2 database

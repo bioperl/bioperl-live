@@ -94,9 +94,9 @@ $MODVERSION = '0.8';
 $DEFAULT_RETRIEVAL_TYPE = 'io_string';
 $DEFAULTFORMAT = 'fasta';
 
-sub _initialize {
-    my ($self, @args) = @_;
-    my $make = $self->SUPER::_initialize(@args);
+sub new {
+    my ($class, @args) = @_;
+    my $self = $class->SUPER::new(@args);
     my ($baseaddress, $params, $ret_type, $format) = 
 	$self->_rearrange([qw(BASEADDRESS PARAMS RETRIEVALTYPE FORMAT)],
 			  @args);
@@ -114,9 +114,8 @@ sub _initialize {
     $self->request_format($format);
     my $ua = new LWP::UserAgent;
     $ua->agent(ref($self) ."/$MODVERSION");
-    $self->ua($ua);    
-
-    return $make;
+    $self->ua($ua);  
+    return $self;
 }
 
 # from Bio::DB::RandomAccessI
