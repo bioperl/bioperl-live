@@ -18,12 +18,12 @@ BEGIN {
     use Test;
 
     plan tests => 2 }
-use Bio::Root::RootI;
+use Bio::Root::Root;
 
 ok(1);
 package MyObject;
 use vars qw(@ISA);
-@ISA = qw (Bio::Root::RootI);
+@ISA = qw (Bio::Root::Root);
 
 package main;
 
