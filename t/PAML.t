@@ -46,7 +46,7 @@ my $verbose = 0;
 
 use Bio::Tools::Run::Phylo::PAML::Codeml;
 use Bio::AlignIO;
-my $codeml = new Bio::Tools::Run::Phylo::PAML::Codeml();
+my $codeml = new Bio::Tools::Run::Phylo::PAML::Codeml(-verbose => -1);
 exit(0) unless( $codeml->executable );
 
 my $in = new Bio::AlignIO(-format => 'phylip',
