@@ -8,7 +8,7 @@ use Bio::Tools::GFF;
 
 use Getopt::Long;
 
-our $USAGE = 'validate_gff_via_ontology.pl [-trace|t] [-type_only] [-mapping|m MYTYPE=REALTYPE] GFF-FILE ONTOLOGY-FILE';
+our $USAGE = 'validate_gff_via_ontology.pl [-help] [-trace|t] [-type_only] [-mapping|m MYTYPE=REALTYPE] GFF-FILE ONTOLOGY-FILE';
 
 
 eval { 
@@ -205,10 +205,6 @@ ontology file the script will notify you with a message like:
 
   BAD:  locus transcrpt geme
 
-You can obtain the canonical SOFA ontology here:
-
- http://sofa.sf.net/
-
 The second part of the validation checks to see if the 'subfeature'
 relationships specified in the GFF (using Parent and ID attributes in
 GFF3) are valid. For instance, making 'transcript' a subfeature of
@@ -217,13 +213,63 @@ GFF3) are valid. For instance, making 'transcript' a subfeature of
 SOFA ontology. The rules are a bit more subtle than this, as we also
 have to traverse the subsumption hierarchy.
 
+If a feature/subfeature containment is not allowed, you will get a
+message like:
+
+  BAD PARTOF: [coding_start PARTOF exon]
+
+To get a full explanation of why the partof link is bad, run with the
+trace switch [-trace]
+
+=head2 REQUIREMENTS
+
+(1) An ontology file
+
+You can obtain the canonical SOFA ontology here:
+
+ http://sofa.sf.net/
+
+(2) The go-dev perl objects
+
+ http://geneontology.sf.net/
+
+Plus some files in GFF format!
+
 =head2 RULES
 
 a subfeature can only be part of a superfeature
 if there is a direct part-of link for the relevant feature types
 OR such a link can be obtained by traversing either of the
-two graphs upwards
+two graphs upwards.
 
+the part-of links must be direct; we do not use the closure of the
+part-of relationship. This means that you can *not* make an exon a
+subfeature of gene, you need the intermediate object (of some kind of
+transcripty type, eg mRNA).
+
+=head2 EXAMPLES
+
+(these depend on an imaginary version of a SO-style ontology):
+
+=head3 Example 1
+
+  can I make a 'mRNA' feature a subfeature of noncoding gene ('nc_gene')?
+
+YES! 'mRNA' is a subclass of 'processed_transcript' is a subclass of 'transcript'
+     'nc_gene' is a subclass of 'gene'
+     'mRNA' is a part of 'gene' ** RESOLVED **
+
+=head3 Example 2
+
+  can I make 'exon' a subfeature of 'mRNA'?
+
+NO! 'exon' is a subclass of only the root term
+    'mRNA' is a subclass of 'processed_transcript' is a subclass of 'transcript'
+    'exon' is ONLY a part of 'primary_transcript',
+         which is NOT in the 'mRNA' subsumption hierarchy above
+    therefore this is invalid
+
+=head2 SPECIFICATION
 
  notes: R* is the reflexive transitive closure of R
  notes: R+ is the transitive closure of R
@@ -251,10 +297,28 @@ two graphs upwards
   # which would mean we could attach exons directly to genes
 
   ChildTypeAllPossible part-of ParentTypeAllPossible
+
+=head2 FORMAL SPECIFICATION
+
+These rules can be implemented easily in prolog - I have resisted the
+temptation to do so. The rules below are implemented imperatively in
+the perl script. They are included below as a formal specification of
+the rules.
   
   ;;;; RULES IN PROLOG:
-  ;;;; (making predicates arguments so we can reason over preds)
-  
+  ;;;; 
+  ;;;; we assume an ontology (eg SOFA) that produces 'stmt' predicates of
+  ;;;; of arity-3 [CHILD REL-TYPE PARENT]
+  ;;;;
+  ;;;; the bioperl feature containment hierarchy can be verified
+  ;;;; by the predicate [SUBFEATURE 'part-of' SUPERFEATURE]
+  ;;;; the type field of the feature is assumed to be
+  ;;;; stmt predicates [FEATURE 'instance-of' FEATURE-TYPE]
+
+  ;; ========================================
+  ;; general rules: closure / graph traversal
+  ;; ========================================
+
   ;; closure of R is R+
   stmt(X, 'is-a+', Y):-
     stmt(X, 'is-a', Y).
@@ -267,11 +331,17 @@ two graphs upwards
   stmt(X, 'is-a*', X).
   stmt(X, 'is-a*', Y):-
     stmt(X, 'is-a+', Y).
+
+  ;; ========================================
+  ;; core rule - checks if a feat/subfeat 
+  ;; link is alllowed
+  ;; ========================================
   
   ;; a subfeature can only be part of a superfeature
   ;; if there is a direct part-of link for the relevant feature types
   ;; OR such a link can be obtained by traversing either of the
   ;; two graphs upwards
+
   stmt(ChildFeat, 'part-of', ParentFeat):-
     stmt(ChildFeat, 'instance-of', ChildType),
     stmt(ParentFeat, 'instance-of', ParentType),
@@ -281,5 +351,8 @@ two graphs upwards
   
     stmt(ChildTypeAllPossible, 'is-a*', ParentTypeAllPossible).
 
+=head1 AUTHOR - Chris Mungall
+
+Email cjm@fruitfly.org
 
 =cut
