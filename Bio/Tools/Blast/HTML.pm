@@ -460,19 +460,21 @@ sub _markup_report {
     local($^W) = 0;
 
   # GenBank/EMBL, DDBJ hits (GenBank Format):
-  s@^>(gb|emb|dbj)\|($Word)(\|$Word)?(.*)$@<a name=$2_A></a><b>$1:<a href="$DbUrl{'gb_n'}$2">$2$3</a></b>$4<br>(<a href="\#$2_H">Back|<a href="\#top">Top</a>)@o;
+  s@^>(gb|emb|dbj|ref)\|($Word)(\|$Word)?(.*)$@<a name=$2_A></a><b>$1:<a href="$_gi_link$2">$2$3</a></b>$4<br>(<a href="\#$2_H">Back|<a href="\#top">Top</a>)@o;
+
+  s@^>(gb|emb|dbj|ref)\|($Word)(\| \(?$Word\)?)(.*)$@<a name=$2_A></a><b>$1:<a href="$_gi_link$2">$2</a></b>$3$4<br>(<a href="\#$2_H">Back|<a href="\#top">Top</a>)@o;
 
   # PIR hits
   s@^>pir\|\|($Word)( .*)$@<a name=$1_A></a><b><a href=\"$DbUrl{'pir_acc'}$1\">pir</a>:<a href="$DbUrl{'gb_p'}$1">$1</a></b> $2 <br>(<a href="\#$1_H">Back|<a href="\#top">Top</a>)@o;
 
   # GI hits (GenBank Format):  using a nested (())
-  s@^>(gi)\|($Word)( +\(($Word)\))( .*)$@<a name=$4_A></a><b>$1:<a href="$DbUrl{'gb_n'}$4">$2</a></b>$3$5<br>(<a href="\#$4_H">Back|<a href="\#top">Top</a>)@o;
+  s@^>(gi)\|($Word)( +\(($Word)\))( .*)$@<a name=$4_A></a><b>$1:<a href="$_gi_link$4">$2</a></b>$3$5<br>(<a href="\#$4_H">Back|<a href="\#top">Top</a>)@o;
 
   # GNL PID hits (GenBank Format):
-  s@^>(gnl)\|($Word)?(\|$Word) +\(($Word)\)( .*)$@<a name=$4_A></a><b>$1:<a href="$DbUrl{'gb_n'}$4">$2$3</a></b>($4)$5<br>(<a href="\#$4_H">Back|<a href="\#top">Top</a>)@o;
+  s@^>(gnl)\|($Word)?(\|$Word) +\(($Word)\)( .*)$@<a name=$4_A></a><b>$1:<a href="$_gi_link$4">$2$3</a></b>($4)$5<br>(<a href="\#$4_H">Back|<a href="\#top">Top</a>)@o;
 
   # BBS and PRF hits (what db?) (GenBank Format):
-  s@^>(bbs|prf)\|\|?($Word)( .*)$@<a name=$2_A></a><b>$1:<a href="$DbUrl{'gb_n'}$2">$2</a></b>$3<br>(<a href="\#$2_H">Back|<a href="\#top">Top</a>)@o;
+  s@^>(bbs|prf)\|\|?($Word)( .*)$@<a name=$2_A></a><b>$1:<a href="$_gi_link$2">$2</a></b>$3<br>(<a href="\#$2_H">Back|<a href="\#top">Top</a>)@o;
 
     # SwissProt hits:
   s@^>sp\|($Word)\|($Word)?( .*)$@<a name=$1_A></a><b><a href="$DbUrl{'swpr'}$1">sp</a>:<a href="$DbUrl{'gb_p'}$1">$1|$2</a></b>$3<br>(<a href="\#$1_H">Back|<a href="\#top">Top</a>)@o;
@@ -498,7 +500,7 @@ sub _markup_report {
 
   s@^>WORMPEPT:(\S+)(.*)$@<a name=$1_A></a><b>WORMPEP:<A HREF="$DbUrl{'wormace'}$1">$1</a></b> $2 <br>(<a href="\#$1_H">Back|<a href="\#top">Top</a>)@o;
 
-  s#^>(GB_$Word):($Word) ($Acc) (.*$)#<a name=$2_$3_A></A><a href=\#$2_$3_H>$2|$3</A>$4\t<b>[<A HREF=$DbUrl{'gb_n'}$3>GenBank</A> / <A HREF=$DbUrl{'embl'}$3>EMBL</A> / <A HREF=\"$SGDUrl{'seq_an'}$2\*\">SGD</A>]</b> #o;
+  s#^>(GB_$Word):($Word) ($Acc) (.*$)#<a name=$2_$3_A></A><a href=\#$2_$3_H>$2|$3</A>$4\t<b>[<A HREF=$_gi_link$3>GenBank</A> / <A HREF=$DbUrl{'embl'}$3>EMBL</A> / <A HREF=\"$SGDUrl{'seq_an'}$2\*\">SGD</A>]</b> #o;
 
    # Sac's version: ORF name is an external link into SGD:
   s@^>ORFP:(\S*) +([\w-]+)(.*$)@<a name=$1_A></A>ORFP:<a href=\"$SGDUrl{'locus'}$2\">$1 $2</A>$3<br>&nbsp&nbsp&nbsp&nbsp&nbsp<b>[<A HREF=\"$SGDUrl{'seq_an'}$2\">Gene/Sequence Resources</a> / <a href=\"$SGDUrl{'map_orf'}$2\">ORF Map</a></b>] <a href="\#$1_H">Back</a>|<a href="\#top">Top</a>@o;
@@ -536,18 +538,20 @@ sub _markup_report {
     ### NCBI-specific markups for description lines:
 
   # GenBank/EMBL, DDBJ hits (GenBank Format):
-  s@^ ?(gb|emb|dbj)\|($Word)(\|$Word)?($Descrip)($Int +)($Signif)(.*)$@$1:<a href="$DbUrl{'gb_n'}$2">$2$3</a>$4$5<A href="\#$2_A">$6</a>$7<a name="$2_H"></a>@o;
+  s@^ ?(gb|emb|dbj|ref)\|($Word)(\|$Word)?($Descrip)($Int +)($Signif)(.*)$@$1:<a href="$_gi_link$2">$2$3</a>$4$5<A href="\#$2_A">$6</a>$7<a name="$2_H"></a>@o;
+
+  s@^ ?(gb|emb|dbj|ref)\|($Word)(\| \(?$Word\)?)($Descrip)($Int +)($Signif)(.*)$@$1:<a href="$_gi_link$2">$2</a>$3$4$5<A href="\#$2_A">$6</a>$7<a name="$2_H"></a>@o;
 
     # Missing inner ID
   s@^ ?pir\|\|($Word)?($Descrip)($Int)  ($Signif)(.*)$@<a href="$DbUrl{'pir_acc'}$1">pir</a>:<a href="$DbUrl{'gb_p'}$1">$1</a> $2$3  <A href="\#$1_A">$4</a>$5<a name="$1_H"></a>@o;
 
   # GI hits (GenBank Format):  using a nested (())
-  s@^ ?gi\|($Word)( +\(($Word)\))($Descrip)($Int)  ($Signif)(.*)$@gi:<a href="$DbUrl{'gb_n'}$3">$1</a>$2$4$5  <A href="\#$3_A">$6</a>$7<a name="$3_H"></a>@o;
+  s@^ ?gi\|($Word)( +\(($Word)\))($Descrip)($Int)  ($Signif)(.*)$@gi:<a href="$_gi_link$3">$1</a>$2$4$5  <A href="\#$3_A">$6</a>$7<a name="$3_H"></a>@o;
 
-  s@^ ?(gnl)\|($Word)?(\|$Word +)\(($Word)\)($Descrip)($Int)  ($Signif)(.*)$@$1:<a href="$DbUrl{'gb_n'}$4">$2$3</a>($4)$5$6  <A href="\#$4_A">$7</a>$8<a name="$4_H"></a>@o;
+  s@^ ?(gnl)\|($Word)?(\|$Word +)\(($Word)\)($Descrip)($Int)  ($Signif)(.*)$@$1:<a href="$_gi_link$4">$2$3</a>($4)$5$6  <A href="\#$4_A">$7</a>$8<a name="$4_H"></a>@o;
 
 
-  s@^ ?(bbs|prf)\|\|?($Word)($Descrip)($Int)  ($Signif)(.*)$@$1:<a href="$DbUrl{'gb_n'}$2">$2</a> $3$4  <A href="\#$2_A">$5</a>$6<a name="$2_H"></a>@o;
+  s@^ ?(bbs|prf)\|\|?($Word)($Descrip)($Int)  ($Signif)(.*)$@$1:<a href="$_gi_link$2">$2</a> $3$4  <A href="\#$2_A">$5</a>$6<a name="$2_H"></a>@o;
 
 
   ## SwissProt accessions (GenBank format)
@@ -574,7 +578,7 @@ sub _markup_report {
     ## Mike Cherry's markups. SAC note: added back database name to allow
     ## the HTML-formatted version to be parsable by Blast.pm.
     
-  s#^ ?(GB_$Word:)($Word)( *)($Acc)($Descrip)($Int)  ( *$Signif) ( *\d*)$#GenBank\|<a href="$DbUrl{'gb_n'}$4">$2</A>\|$4 $3$5$6 <a href="\#$2_$4_A">$7</A> $8<a name="$2_$4_H"></A>#o;
+  s#^ ?(GB_$Word:)($Word)( *)($Acc)($Descrip)($Int)  ( *$Signif) ( *\d*)$#GenBank\|<a href="$_gi_link$4">$2</A>\|$4 $3$5$6 <a href="\#$2_$4_A">$7</A> $8<a name="$2_$4_H"></A>#o;
 
 # Mike's version:
 #  s#^ ?(ORFP:)(\S*)($Descrip)($Int)  ($Signif) ($Int)$#$1<b>$2</b> $3 $4 <a href="\#$2_A">$5</a> $6<a name="$2_H"></a>#o;
