@@ -15,6 +15,8 @@ BEGIN {
     plan tests => NUMTESTS;
 }
 use Bio::Seq::EncodedSeq;
+
+
 ok(1);
 use Bio::SimpleAlign;
 use Bio::AlignIO;

@@ -689,7 +689,7 @@ sub write_seq {
 
     # kinda unnecessary, given the close() below, but maybe that'll go
     # away someday.
-    $self->_fh->flush if $self->_flush_on_write && defined $self->_fh;
+    $self->flush if $self->_flush_on_write && defined $self->_fh;
 
     $self->close();
 }

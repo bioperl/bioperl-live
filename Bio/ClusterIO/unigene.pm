@@ -93,47 +93,52 @@ sub next_cluster {
 my (%unigene,@express,@locuslink,@chromosome,@sts,@txmap,@protsim,@sequence);
 
 # set up the regexes
-my $data = qr/(?:.+)/;
-my $num  = qr/(?:\d+)/;
-my $organism = qr/(?:At|Bt|Dm|Dr|Hs|Hv|Mm|Os|Rn|Ta|Xl|Zm)/;
+my $data = "\\S.+";
+my $num  = "\d+";
+my $organism = "At|Bt|Dm|Dr|Hs|Hv|Mm|Os|Rn|Ta|Xl|Zm";
 
 my %line_is = (
-			ID				=> 	qq/ID ($organism\.$num)/,
-			TITLE			=>	qq/TITLE ($data)/,
-			GENE			=>	qq/GENE ($data)/,
-			CYTOBAND		=>	qq/CYTOBAND ($data)/,
-			MGI				=>	qq/MGI ($data)/,
-			LOCUSLINK		=>	qq/LOCUSLINK ($data)/,
-			EXPRESS			=>	qq/EXPRESS ($data)/,
-			GNM_TERMINUS	=>	qq/GNM_TERMINUS ($data)/,
-			CHROMOSOME		=>	qq/CHROMOSOME ($data)/,
-			STS				=>	qq/STS ($data)/,
-			TXMAP			=>	qq/TXMAP ($data)/,
-			PROTSIM			=>	qq/PROTSIM ($data)/,
-			SCOUNT			=>	qq/SCOUNT ($num)/,
-			SEQUENCE		=>	qq/SEQUENCE ($data)/,
-			ACC				=>	qq/ACC=($data)/,
-			NID				=>	qq/NID=($data)/,
-			PID				=>	qq/PID=($data)/,
-			CLONE			=>	qq/CLONE=($data)/,
-			END				=>	qq/END=($data)/,
-			LID				=>	qq/LID=($data)/,
-			MGC				=>	qq/MGC=($data)/,
+			ID				=> 	q/ID\s+(\w\w\.\d+)/,
+			TITLE			=>	q/TITLE\s+(\S.*)/,
+			GENE			=>	q/GENE\s+(\S.*)/,
+			CYTOBAND		=>	q/CYTOBAND\s+(\S.*)/,
+			MGI				=>	q/MGI\s+(\S.*)/,
+			LOCUSLINK		=>	q/LOCUSLINK\s+(\S.*)/,
+			EXPRESS			=>	q/EXPRESS\s+(\S.*)/,
+			GNM_TERMINUS	=>	q/GNM_TERMINUS\s+(\S.*)/,
+			CHROMOSOME		=>	q/CHROMOSOME\s+(\S.*)/,
+			STS				=>	q/STS\s+(\S.*)/,
+			TXMAP			=>	q/TXMAP\s+(\S.*)/,
+			PROTSIM			=>	q/PROTSIM\s+(\S.*)/,
+			SCOUNT			=>	q/SCOUNT\s+(\S.*)/,
+			SEQUENCE		=>	q/SEQUENCE\s+(\S.*)/,
+			ACC				=>	q/ACC=\s+(\S.*)/,
+			NID				=>	q/NID=\s+(\S.*)/,
+			PID				=>	q/PID=\s+(\S.*)/,
+			CLONE			=>	q/CLONE=\s+(\S.*)/,
+			END				=>	q/END=\s+(\S.*)/,
+			LID				=>	q/LID=\s+(\S.*)/,
+			MGC				=>	q/MGC=\s+(\S.*)/,
 			DELIMITER		=>	q/^\/\//
 );
 
 # add whitespace parsing and precompile regexes
-foreach (values %line_is) {
-	$_ =~ s/\s+/\\s+/g;
-	$_ = qr/$_/x;
-}
+#foreach (values %line_is) {
+#	$_ =~ s/\s+/\\s+/g;
+#	print STDERR "Regex is $_\n";
+#	#$_ = qr/$_/x;
+#}
+
+#$line_is{'TITLE'} = qq/TITLE\\s+(\\S.+)/;
 
 # run each line in an entry against the regexes
 	foreach my $line (split /\n/, $entry) {
+	  #print STDERR "Wanting to match $line\n";
 		if ($line =~ /$line_is{ID}/gcx) {
 				$unigene{ID} = $1;
 		}
-		elsif ($line =~ /$line_is{TITLE}/gcx) {
+		elsif ($line =~ /$line_is{TITLE}/gcx ) {
+		  #print STDERR "MATCHED with [$1]\n";
 				$unigene{TITLE} = $1;
 		}
 		elsif ($line =~ /$line_is{GENE}/gcx) {

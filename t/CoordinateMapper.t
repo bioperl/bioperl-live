@@ -435,7 +435,7 @@ exit; # end of tests
 
 sub compare_arrays {
     my ($first, $second) = @_;
-    no warnings;  # silence spurious -w undef complaints
+
     return 0 unless @$first == @$second;
     for (my $i = 0; $i < @$first; $i++) {
 	return 0 if $first->[$i] ne $second->[$i];

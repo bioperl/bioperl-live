@@ -422,16 +422,19 @@ sub _recheck_encoding {
 	}
     }
 
+    my @cde_array = qw(C D E);
+    my @ijk_array = qw(I J K);
     # convert any leftover implicit coding into explicit coding
     my ($Cct, $Ict, $Uct, $Vct, $Vwarned) = (0, 0, 0, 0);
     for ($i = 0 ; $i < @enc ; $i++) {
 	if ($enc[$i] =~ m/[CDE]/o) {
-	    $enc[$i] = qw(C D E)[$Cct % 3];
+	    my  $temp_index = $Cct %3;
+	    $enc[$i] = $cde_array[$temp_index];
 	    $Cct++; $Ict = 0; $Uct = 1;
 	    $self->warn("3' untranslated encoding (V) seen prior to other coding symbols")
 		if ($Vct && !$Vwarned++);
 	} elsif ($enc[$i] =~ m/[IJK]/o) {
-	    $enc[$i] = qw(I J K)[$Ict % 3];
+	    $enc[$i] = $ijk_array[$Ict % 3];
 	    $Ict++; $Uct = 1;
 	    $self->warn("3' untranslated encoding (V) seen before other coding symbols")
 		if ($Vct && !$Vwarned++);
