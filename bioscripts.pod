@@ -192,6 +192,11 @@ Retrieve the NCBI Tada ID for a given species.
 Builds a phylogenetic tree based on a sequence search (Fasta,
 BLAST, HMMER).
 
+=head2 scripts/tree/nexus2nh.pl
+
+Convert Nexus trees to New Hampshire format, but maintain long taxon 
+names.
+
 =head2 scripts/utilities/bp_mrtrans.PLS
 
 Perl implementation of Bill Pearson's mrtrans to project protein 
