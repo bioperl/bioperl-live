@@ -98,7 +98,6 @@ sub new {
 					       CLASSIFICATION)], @args);
   if( defined $classification &&
       (ref($classification) eq "ARRAY") ) {
-      print "classification was @$classification\n";
       $self->classification(@$classification);
   }
   defined $id  && $self->ncbi_taxid($id);
