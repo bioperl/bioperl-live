@@ -3,7 +3,7 @@
 #
 # BioPerl module for Bio::DB::SwissProt
 #
-# Cared for by Jason Stajich <jason@chg.mc.duke.edu>
+# Cared for by Jason Stajich <jason@bioperl.org>
 #
 # Copyright Jason Stajich
 #
@@ -80,7 +80,7 @@ or the web:
 
 =head1 AUTHOR - Jason Stajich
 
-Email Jason Stajich  E<lt>jason@chg.mc.duke.edu E<lt>
+Email Jason Stajich  E<lt>jason@bioperl.org E<lt>
 
 Thanks go to Alexandre Gattiker E<lt>gattiker@isb-sib.chE<gt> of Swiss
 Institute of Bioinformatics for helping point us in the direction of

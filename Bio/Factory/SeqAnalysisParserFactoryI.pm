@@ -2,7 +2,7 @@
 #
 # BioPerl module for Bio::Factory::SeqAnalysisParserFactoryI
 #
-# Cared for by Jason Stajich <jason@chg.mc.duke.edu>,
+# Cared for by Jason Stajich <jason@bioperl.org>,
 # and Hilmar Lapp <hlapp@gmx.net>
 #
 # Copyright Jason Stajich, Hilmar Lapp

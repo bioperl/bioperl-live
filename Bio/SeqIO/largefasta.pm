@@ -60,7 +60,7 @@ or the web:
 
 =head1 AUTHORS - Jason Stajich
 
-Email: jason@chg.mc.duke.edu
+Email: jason@bioperl.org
 
 =head1 APPENDIX
 

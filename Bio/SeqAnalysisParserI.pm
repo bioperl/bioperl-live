@@ -2,7 +2,7 @@
 #
 # BioPerl module for Bio::SeqAnalysisParserI
 #
-# Cared for by Jason Stajich <jason@chg.mc.duke.edu>,
+# Cared for by Jason Stajich <jason@bioperl.org>,
 # and Hilmar Lapp <hlapp@gmx.net>
 #
 # Copyright Jason Stajich, Hilmar Lapp
@@ -67,7 +67,7 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 
 =head1 AUTHOR - Hilmar Lapp, Jason Stajich
 
-Email Hilmar Lapp E<lt>hlapp@gmx.netE<gt>, Jason Stajich E<lt>jason@chg.mc.duke.eduE<gt>
+Email Hilmar Lapp E<lt>hlapp@gmx.netE<gt>, Jason Stajich E<lt>jason@bioperl.orgE<gt>
 
 =head1 APPENDIX
 

@@ -2,7 +2,7 @@
 #
 # BioPerl module for Bio::Factory::DriverFactory
 #
-# Cared for by Jason Stajich <jason@chg.mc.duke.edu> and
+# Cared for by Jason Stajich <jason@bioperl.org> and
 #              Hilmar Lapp <hlapp@gmx.net>
 #
 # Copyright Jason Stajich, Hilmar Lapp
@@ -47,7 +47,7 @@ or the web:
 
 =head1 AUTHOR - Jason Stajich
 
-Email Jason Stajich E<lt>jason@chg.mc.duke.eduE<gt>
+Email Jason Stajich E<lt>jason@bioperl.orgE<gt>
 
 =head1 APPENDIX
 

@@ -58,7 +58,7 @@ or the web:
 =head1 AUTHOR - Ewan Birney, Jason Stajich
 
 Email birney@ebi.ac.uk
-Email jason@chg.mc.duke.edu
+Email jason@bioperl.org
 
 =head1 APPENDIX
 

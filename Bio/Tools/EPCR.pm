@@ -2,7 +2,7 @@
 #
 # BioPerl module for Bio::Tools::EPCR
 #
-# Cared for by Jason Stajich <jason@chg.mc.duke.edu>
+# Cared for by Jason Stajich <jason@bioperl.org>
 #
 # Copyright Jason Stajich
 #
@@ -63,7 +63,7 @@ email or the web:
 
 =head1 AUTHOR - Jason Stajich
 
-Email jason@chg.mc.duke.edu
+Email jason@bioperl.org
 
 Describe contact details here
 

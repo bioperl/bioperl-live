@@ -1,7 +1,7 @@
 # $Id$
 #
 # BioPerl module for Bio::LocationI
-# Cared for by Jason Stajich <jason@chg.mc.duke.edu>
+# Cared for by Jason Stajich <jason@bioperl.org>
 #
 # Copyright Jason Stajich
 #

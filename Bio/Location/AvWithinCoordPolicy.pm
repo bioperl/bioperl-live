@@ -3,7 +3,7 @@
 # BioPerl module for Bio::Location::AvWithinCoordPolicy
 #
 # Cared for by Hilmar Lapp <hlapp@gmx.net>
-#          and Jason Stajich <jason@chg.mc.duke.edu>
+#          and Jason Stajich <jason@bioperl.org>
 #
 # Copyright Hilmar Lapp, Jason Stajich
 #
@@ -52,7 +52,7 @@ or the web:
 
 =head1 AUTHOR - Hilmar Lapp, Jason Stajich
 
-Email hlapp@gmx.net, jason@chg.mc.duke.edu
+Email E<lt>hlapp@gmx.netE<gt>, E<lt>jason@bioperl.orgE<gt>
 
 =head1 APPENDIX
 

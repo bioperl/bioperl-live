@@ -1,7 +1,7 @@
 # $Id$
 #
 # BioPerl module for Bio::Location::SplitLocationI
-# Cared for by Jason Stajich <jason@chg.mc.duke.edu>
+# Cared for by Jason Stajich <jason@bioperl.org>
 #
 # Copyright Jason Stajich
 #
@@ -54,7 +54,7 @@ or the web:
 
 =head1 AUTHOR - Jason Stajich
 
-Email jason@chg.mc.duke.edu
+Email jason@bioperl.org
 
 =head1 APPENDIX
 

@@ -104,7 +104,7 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 Email sac@bioperl.org
 
 Authors of Bio::SeqAnalysisParserI on which this module is based:
-Email jason@chg.mc.duke.edu 
+Email jason@bioperl.org 
 Email hlapp@gmx.net
 
 =head1 COPYRIGHT

@@ -3,7 +3,7 @@
 #
 # BioPerl module for Bio::DB::UpdateableSeqI
 #
-# Cared for by Jason Stajich <jason@chg.mc.duke.edu>
+# Cared for by Jason Stajich <jason@bioperl.org>
 #
 # Copyright Jason Stajich
 #
@@ -42,15 +42,16 @@ based database, AceDB, etc.
 
 =head1 AUTHOR
 
-Jason Stajich E<lt>jason@chg.mc.duke.eduE<gt>
+Jason Stajich E<lt>jason@bioperl.orgE<gt>
 
 =head2 Reporting Bugs
 
-Report bugs to the Bioperl bug tracking system to help us keep track the bugs and 
-their resolution. Bug reports can be submitted via email or the web:
+Report bugs to the Bioperl bug tracking system to help us keep track
+the bugs and their resolution. Bug reports can be submitted via email
+or the web:
 
     bioperl-bugs@bioperl.org                   
-    http://www.bugzilla.bioperl.org/           
+    http://bugzilla.bioperl.org/           
 
 =head1 APPENDIX
 
