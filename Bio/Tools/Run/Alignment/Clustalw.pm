@@ -323,8 +323,6 @@ use Bio::Root::IO;
 
 @ISA = qw(Bio::Root::RootI Bio::Root::IO);
 
-BEGIN {
-
 # You will need to enable Clustalw to find the clustalw program. This
 # can be done in (at least) two ways:
 #
@@ -334,6 +332,8 @@ BEGIN {
 # 2. include a definition of an environmental variable CLUSTALDIR in
 # every script that will use Clustal.pm.
 # $ENV{CLUSTALDIR} = '/home/peter/clustalw1.8/';
+
+BEGIN {
 
     $PROGRAMDIR = $ENV{CLUSTALDIR} || '';
     $PROGRAM = Bio::Root::IO->catfile($PROGRAMDIR,'clustalw');
@@ -359,6 +359,10 @@ sub new {
     my $self = $class->SUPER::new(@args);
     # to facilitiate tempfile cleanup
     $self->_initialize_io();
+
+    $PROGRAMDIR = $ENV{CLUSTALDIR} || '';
+    $PROGRAM = Bio::Root::IO->catfile($PROGRAMDIR,'clustalw');
+
     unless (&exists_clustal()) {
 	warn "Clustalw program not found as $PROGRAM or not executable. \n  Clustalw can be obtained from eg- http://corba.ebi.ac.uk/Biocatalog/Alignment_Search_software.html/ \n";
     }
