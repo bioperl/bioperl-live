@@ -853,7 +853,7 @@ is equivalent to this call:
 
 The following Bio::SeqFeatureI methods are implemented:
 
-primary_tag(), source_tag(), all_tags(), has_tag(), each_tag_value().
+primary_tag(), source_tag(), all_tags(), has_tag(), each_tag_value() [renamed get_tag_values()].
 
 =cut
 
@@ -876,7 +876,10 @@ sub has_tag {
   my %tags = map {$_=>1} $self->all_tags;
   return $tags{$tag};
 }
-sub each_tag_value {
+
+*each_tag_value = \&get_tag_values;
+
+sub get_tag_values {
   my $self = shift;
   my $tag  = shift;
   return $self->$tag() if $CONSTANT_TAGS{$tag};
