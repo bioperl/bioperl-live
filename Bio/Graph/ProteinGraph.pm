@@ -87,8 +87,7 @@ Bio::Graph::ProteinGraph - a representation of a protein interaction graph.
     my @nodes = $graph->nodes();
     my @hubs;
     for my $node (@nodes) {
-       my @interactors = $graph->neighbors($node);
-       if ($#interactors > 10) {       
+       if ($graph->neighbor_count($node) > 10) {       
            push @hubs, $node;
           }
       }
@@ -462,6 +461,28 @@ sub node_count {
     return scalar keys %{$self->_nodes};
 
 }	
+
+
+=head2     neighbor_count
+
+ name      : neighbor_count
+ purpose   : returns number of neighbors of a given node
+ use       : my $count = $gr->neighbor_count($node)
+ arguments : a node object
+ returns   :  an integer
+
+=cut
+
+sub neighbor_count{
+
+ my ($self, $node) = @_;
+ if (!$node->isa('Bio::SeqI')) {
+	$self->throw ("I need a Bio::SeqI object here , not a " . ref($node) . ".");
+	}
+ my @nbors = $self->neighbors($node);
+ return scalar @nbors;
+}
+
 =head2      _get_ids_by_db
 
  name     : _get_ids_by_db
