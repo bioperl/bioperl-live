@@ -162,11 +162,11 @@ sub next_seq{
     }
     # for aa there is usually no 'molecule' (mRNA etc)
     if (($2 eq 'bp') || defined($5)) {
-	$seq->moltype($3);
+	$seq->molecule($3);
 	$seq->division($4);
 	$date = $5;
     } else {
-	$seq->moltype('PRT') if($2 eq 'aa');
+	$seq->molecule('PRT') if($2 eq 'aa');
 	$seq->division($3);
 	$date = $4;
     }
@@ -325,10 +325,7 @@ sub write_seq {
     } 
     if( !defined $div || ! $div ) { $div = 'UNK'; }
 
-    if( !$seq->can('moltype') || ! defined ($mol = $seq->moltype()) ) {
-	$mol = 'DNA';
-    }
-    else {
+    if( !$seq->can('molecule') || ! defined ($mol = $seq->molecule()) ) {
 	$mol = $seq->moltype;
     }
     
@@ -344,7 +341,7 @@ sub write_seq {
 	}
 	$temp_line = sprintf ("%-12s%-10s%7s %s%4s%-5s%-11s%-3s%7s%-s", 
 			      'LOCUS', $seq->id(),$len,
-			      ($mol eq 'protein') ? ('aa','', '') : 
+			      ($mol eq 'protein' || uc($mol) eq  'PRT') ? ('aa','', '') : 
 			      ('bp', '',$mol),'',
 			      $div,'',$date);
     }
