@@ -719,7 +719,7 @@ sub _read_FTHelper_swissprot {
         my $loc2 = $3;
 	$loc = "$loc1..$loc2";
 	if($4 && (length($4) > 0)) {
-	    $desc = 4;
+	    $desc = $4;
 	    chomp($desc);
 	} else {
 	    $desc = "";
