@@ -439,18 +439,22 @@ sub trivname {
 		    $aamut = '+'. int length($self->RNAChange->allele_mut->seq)/3 ;
 		}
 	    }
-	    elsif ($self->RNAChange->label =~ /complex/ and $self->label !~ /truncation/) {
+	    elsif ($self->RNAChange->label =~ /complex/ ) {
+		my $diff = length($m) - length($o);
+		if ($diff >= 0 ) {
+		    $aamutsymbol = 'ins';
+		} else {
+		    $aamutsymbol = 'del' ;
+		}
 		if (($aamutterm eq '*') && (length($m)-1 != 0)) {
 		    $aatermnumber = $self->start + length($m)-1;
 		    $aamut =  $aatermnumber. 'X';
 		}
 		if ($self->RNAChange->label =~ /inframe/){
-		    my $diff = length($m) - length($o);
+
 		    if ($diff >= 0 ) {
-			$aamutsymbol = 'insx';
 			$aamut = '+'. $diff ;
 		    } else {
-			$aamutsymbol = 'delx' ;
 			$aamut =  $diff ;
 		    }
 		}
