@@ -231,6 +231,29 @@ $seq = Bio::SeqIO->new( '-format' => 'GenBank' ,
 $seq->verbose($verbosity);
 ok(defined($as = $seq->next_seq()));
 
+my @features = $as->all_SeqFeatures();
+ok(@features,21);
+my $lastfeature = pop @features;
+
+ok($lastfeature->strand, -1);
+my $location = $lastfeature->location;
+ok($location->strand, -1);
+ok($location->start, 83202);
+ok($location->end, 84996);
+
+my @sublocs = $location->sub_Location();
+
+ok(@sublocs, 2);
+my $loc = shift @sublocs;
+ok($loc->start, 83202);
+ok($loc->end, 83329);
+ok($loc->strand, -1);
+
+$loc = shift @sublocs;
+ok($loc->start, 84248);
+ok($loc->end, 84996);
+ok($loc->strand,1);
+
 $seq = Bio::SeqIO->new( '-format' => 'GenBank' , 
 			-file => ">".Bio::Root::IO->catfile("t","genbank.fuzzyout"));
 $seq->verbose($verbosity);
@@ -259,3 +282,28 @@ foreach my $gn ( $seq->annotation->each_gene_name() ) {
 }
 
 ok $seen;
+
+# test dos Linefeeds in gcg parser
+$str = Bio::SeqIO->new('-file' => Bio::Root::IO->catfile("t",
+							 "test_badlf.gcg"), 
+		       '-format' => 'GCG');
+
+ok($str);
+ok ( $seq = $str->next_seq());
+ok(length($seq->seq()) > 0 );
+print "Sequence 1 of 1 from GCG stream:\n", $seq->seq, "\n" if( $DEBUG);
+
+
+$str  = new Bio::SeqIO(-format => 'genbank',
+			    -file   => Bio::Root::IO->catfile("t","AF165282.gb"),
+			    -verbose => $verbosity);
+
+$seq = $str->next_seq;
+@features = $seq->all_SeqFeatures();
+ok(@features, 5);
+ok($features[0]->start, 1);
+ok($features[0]->end, 226);
+$location = $features[1]->location;
+ok($location->isa('Bio::Location::SplitLocationI'));
+@sublocs = $location->sub_Location();
+ok(@sublocs, 29);
