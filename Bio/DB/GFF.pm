@@ -790,7 +790,7 @@ sub get_collection {
   my $self = shift;
 
   ## TODO: REMOVE
-  warn "GFF::get_collection( ".join( ', ', @_ )." )";
+  #warn "GFF::get_collection( ".join( ', ', @_ )." )";
 
   ## TODO: Add offset stuff...  See the segment() method.
   my ( $types, $unique_ids, $namespace, $names, $attributes, $baserange, $ranges, $strandmatch, $rangetype, $sort, $sparse, $merge, $seq_id, $start, $end, $refclass, $absolute, $force );
@@ -951,21 +951,22 @@ sub get_collection {
   my $seq;
   if( $ranges && @$ranges ) {
     $seq = $ranges->[ 0 ]->seq_id();
-  } elsif( $names && @$names ) {
+  }
+  if( !$seq && $names && @$names ) {
     $seq = shift( @$names );
   }
   ## TODO: REMOVE.  Paul's hack to deal with Luc Smink's 2q33 stuff:
-  if( ( $ranges && @$ranges && $ranges->[ 0 ]->overlaps( Bio::RelRange->new(
-                   -seq_id => '2',
-                   -start =>  197400001,
-                   -end =>    197877366,
-                   -strand => '.'
-    ) ) ) ) {
-    warn "Excersizing Luc Smink hack: Converting to 2q33 coordinates.";
-    ## TODO: ERE I AM. Gotta make the old range relative to 2q33's coords.
-    $seq = '2q33';
-    undef $ranges;
-  }
+  #if( ( $ranges && @$ranges && $ranges->[ 0 ]->overlaps( Bio::RelRange->new(
+  #                 -seq_id => '2',
+  #                 -start =>  197400001,
+  #                 -end =>    197877366,
+  #                 -strand => '.'
+  #  ) ) ) ) {
+  #  warn "Excersizing Luc Smink hack: Converting to 2q33 coordinates.";
+  #  ## TODO: ERE I AM. Gotta make the old range relative to 2q33's coords.
+  #  $seq = '2q33';
+  #  undef $ranges;
+  #}
 
   ## TODO: Fix this up a bit.
   my %args = (
@@ -2552,15 +2553,18 @@ sub abscoords {
   ## Uh-oh.  Luc's data says 1-477366, but that's way to small to be 2q33!
   ## Erp. Michelle's website says 202980000..213140000!
   #We want to hack in 2q33 => chr2:197400001-209000000
-  if( $name eq '2q33' ) {
-    return [ [ 2, 'Sequence', 197400001, 197877366, '+', '2q33' ] ];
-  }
-  warn "abscoords( $name, $class, $refseq ):";
+  #if( $name eq '2q33' ) {
+  #  return [ [ 2, 'Sequence', 197400001, 197877366, '+', '2q33' ] ];
+  #}
+  ## TODO: REMOVE
+  #warn "abscoords( $name, $class, $refseq ):";
   my $rv = $self->get_abscoords($name,$class,$refseq);
   if( $rv && ref( $rv ) && @$rv ) {
-    warn "  Got ( ".join( ', ', @{ $rv->[ 0 ] } )." ).";
+    ## TODO: REMOVE
+    #warn "  Got ( ".join( ', ', @{ $rv->[ 0 ] } )." ).";
   } else {
-    warn "  Got nothing.";
+    ## TODO: REMOVE
+    #warn "  Got nothing.";
   }
   ## Cache it.
   $self->{ '__abscoords_cache' }->{ $name, $class, $refseq } = $rv;

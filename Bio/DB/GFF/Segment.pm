@@ -304,6 +304,7 @@ sub new {
   # So we get to return one $self for each possible $seq_id.
   my @object_results;
   foreach my $a_possible_seq_id ( @seq_ids ) {
+
     # Localize, man.
     my $a_possible_start = $start;
     my $a_possible_stop = $stop;
@@ -335,7 +336,7 @@ sub new {
         $a_possible_seq_id->isa( 'Bio::DB::GFF::Segment_NamedRelRange' ) &&
         ( $a_possible_seq_id->name() ne $a_possible_seq_id->seq_id() )
         ## TODO: REMOVE.  Paul's hack to deal with Luc Smink's 2q33 stuff:
-        && ( $a_possible_seq_id->name() ne '2q33' )
+        #&& ( $a_possible_seq_id->name() ne '2q33' )
       ) {
       my $a =
         $parent->abscoords( $a_possible_seq_id->seq_id(), 'Sequence' );
@@ -411,12 +412,12 @@ sub new {
     }
     if( defined( $new_seq_id ) ) {
       ## TODO: REMOVE.  Paul's hack to deal with Luc Smink's 2q33 stuff:
-      if( $a_possible_seq_id->name() eq '2q33' ) {
-        warn "Excersizing Luc Smink hack:  Ignoring given \$new_seq_id $new_seq_id, but setting \$self->class to 'LucSmink'";
-        $a_possible_self->class( 'LucSmink' );
-      } else {
+      #if( $a_possible_seq_id->name() eq '2q33' ) {
+      #  warn "Excersizing Luc Smink hack:  Ignoring given \$new_seq_id $new_seq_id, but setting \$self->class to 'LucSmink'";
+      #  $a_possible_self->class( 'LucSmink' );
+      #} else {
         $a_possible_self->seq_id( $new_seq_id );
-      }
+      #}
     }
 
     if( $force_absolute ) {
@@ -584,6 +585,9 @@ sub new {
 
       #warn "!+++++++ Adding closure options.";
       $a_possible_self->{ '_closure_options' } = $closure_options;
+
+      ## TODO: REMOVE
+      #warn "\$a_possible_seq_id is $a_possible_seq_id; \$a_possible_self is $a_possible_self";
     }
     push( @object_results, $a_possible_self );
   } # End creating all of the possible $selfs.
@@ -943,13 +947,13 @@ sub get_collection {
                 ) ];
   }
 
-  if( $closure_options->{ 'ranges' } ) {
-    if( $ranges ) {
-      unshift( @$ranges, @$closure_options->{ 'ranges' } );
-    } else {
-      $ranges = $closure_options->{ 'ranges' };
-    }
-  }
+  #if( $closure_options->{ 'ranges' } ) {
+  #  if( $ranges ) {
+  #    unshift( @$ranges, @$closure_options->{ 'ranges' } );
+  #  } else {
+  #    $ranges = $closure_options->{ 'ranges' };
+  #  }
+  #}
 
   if( !$baserange && $closure_options->{ 'baserange' } ) {
     $baserange = $closure_options->{ 'baserange' };
@@ -959,6 +963,9 @@ sub get_collection {
   if( $self->isa( 'Bio::RangeI' ) && !$baserange ) {
     $baserange = $self;
   }
+
+  ## TODO: REMOVE
+  #warn "Segment::get_collection( ".join( ', ', @_ )." ): baserange is $baserange.";
 
   ## Derelativize, man.
   if( $ranges && @$ranges && $baserange ) {
@@ -1022,14 +1029,14 @@ sub get_collection {
   }
 
   ## TODO: REMOVE.  Paul's hack to deal with Luc Smink's 2q33 stuff:
-  if( $self->class() eq 'LucSmink' ) {
-    $ranges = [ Bio::RelRange->new(
-                   -seq_id => '2q33',
-                   -start =>  1,
-                   -end =>    477366,
-                   -strand => '.' ) ];
-    undef $names;
-  }
+  #if( $self->class() eq 'LucSmink' ) {
+  #  $ranges = [ Bio::RelRange->new(
+  #                 -seq_id => '2q33',
+  #                 -start =>  1,
+  #                 -end =>    477366,
+  #                 -strand => '.' ) ];
+  #  undef $names;
+  #}
   ## TODO: Fix this up a bit.
   my %args = (
     '-seq' => ( $ranges && @$ranges ? $ranges->[ 0 ]->seq_id() : undef ) ||
@@ -1631,13 +1638,13 @@ sub features {
                 ) ];
   }
 
-  if( $closure_options->{ 'ranges' } ) {
-    if( $ranges ) {
-      unshift( @$ranges, @$closure_options->{ 'ranges' } );
-    } else {
-      $ranges = $closure_options->{ 'ranges' };
-    }
-  }
+  #if( $closure_options->{ 'ranges' } ) {
+  #  if( $ranges ) {
+  #    unshift( @$ranges, @$closure_options->{ 'ranges' } );
+  #  } else {
+  #    $ranges = $closure_options->{ 'ranges' };
+  #  }
+  #}
 
   if( !$baserange && $closure_options->{ 'baserange' } ) {
     $baserange = $closure_options->{ 'baserange' };
@@ -1728,16 +1735,16 @@ sub features {
   my $parent = $self;
   my $class = $namespace || $self->class();
   my $hack_ranges = $ranges;
-  if( $self->class() eq 'LucSmink' ) {
-    $hack_ranges = [ Bio::RelRange->new(
-                   -seq_id => '2q33',
-                   -start =>  1,
-                   -end =>    477366,
-                   -strand => '.' ) ];
-    undef $names;
-    undef $parent;
-    undef $class;
-  }
+  #if( $self->class() eq 'LucSmink' ) {
+  #  $hack_ranges = [ Bio::RelRange->new(
+  #                 -seq_id => '2q33',
+  #                 -start =>  1,
+  #                 -end =>    477366,
+  #                 -strand => '.' ) ];
+  #  undef $names;
+  #  undef $parent;
+  #  undef $class;
+  #}
   my %args = (
     '-ref' => ( $hack_ranges && @$hack_ranges ? $hack_ranges->[ 0 ]->seq_id() : undef ) ||
       $self->abs_seq_id() || ( $names ? shift @$names : undef ),
@@ -1792,23 +1799,23 @@ sub features {
     }
 
     ## TODO: REMOVE.  Paul's hack to deal with Luc Smink's 2q33 stuff:
-    if( $class eq 'LucSmink' ) {
-      #warn "Before, feature is $feature";
-      if( my @sub_features = $feature->features() ) {
-        #warn "Doing its subfeatures too";
-        foreach my $sub_feature ( @sub_features ) {
-          if( $sub_feature->isa( 'Bio::SeqFeature::PositionProxy' ) ) {
-            $sub_feature = $sub_feature->peer();
-          }
-          #warn "Before, subfeature is $sub_feature.  It's a ".ref( $sub_feature ).", its abs_seq_id is ".$sub_feature->abs_seq_id().".  Its start is ".$sub_feature->start().".";
-          $sub_feature->seq_id( $self );
-          #warn "After, subfeature is $sub_feature.  Its seq_id is ".$sub_feature->seq_id().", its abs_seq_id is ".$sub_feature->abs_seq_id().".  Its start is ".$sub_feature->start();
-        }
-      }
-      ## Hey, remove this:
-      $feature->seq_id( $self );
-      #warn "After, feature is $feature";
-    }
+    #if( $class eq 'LucSmink' ) {
+    #  #warn "Before, feature is $feature";
+    #  if( my @sub_features = $feature->features() ) {
+    #    #warn "Doing its subfeatures too";
+    #    foreach my $sub_feature ( @sub_features ) {
+    #      if( $sub_feature->isa( 'Bio::SeqFeature::PositionProxy' ) ) {
+    #        $sub_feature = $sub_feature->peer();
+    #      }
+    #      #warn "Before, subfeature is $sub_feature.  It's a ".ref( $sub_feature ).", its abs_seq_id is ".$sub_feature->abs_seq_id().".  Its start is ".$sub_feature->start().".";
+    #      $sub_feature->seq_id( $self );
+    #      #warn "After, subfeature is $sub_feature.  Its seq_id is ".$sub_feature->seq_id().", its abs_seq_id is ".$sub_feature->abs_seq_id().".  Its start is ".$sub_feature->start();
+    #    }
+    #  }
+    #  ## Hey, remove this:
+    #  $feature->seq_id( $self );
+    #  #warn "After, feature is $feature";
+    #}
 
     ## Filter them:
     my $passes_filter = 1;
@@ -1925,10 +1932,10 @@ sub features {
     if( $passes_filter && $ranges ) {
       foreach my $range ( @$ranges ) {
         ## TODO: REMOVE.  Paul's hack to deal with Luc Smink's 2q33 stuff:
-        if( ( $class eq 'LucSmink' ) && ( $range->seq_id() eq '2q33' ) ) {
-          $range->absolute( 0 );
-          $range->seq_id( $self );
-        }
+        #if( ( $class eq 'LucSmink' ) && ( $range->seq_id() eq '2q33' ) ) {
+        #  $range->absolute( 0 );
+        #  $range->seq_id( $self );
+        #}
         if( $range->seq_id() &&
             $feature->seq_id() &&
             !( $feature->seq_id() eq $range->seq_id() )
@@ -2013,9 +2020,9 @@ sub feature_count {
   my $self = shift;
 
   ## TODO: REMOVE.  Paul's hack to deal with Luc Smink's 2q33 stuff:
-  if( $self->class() eq 'LucSmink' ) {
-    return 1;
-  }
+  #if( $self->class() eq 'LucSmink' ) {
+  #  return 1;
+  #}
   # count all feature types in the segment
   my %type_counts = $self->types( '-enumerate' => 1 );
 
