@@ -78,7 +78,6 @@ BEGIN {
     $OBDA_SPEC_VERSION = 1.0;
     if (defined $ENV{OBDA_SEARCH_PATH}) {
         $OBDA_SEARCH_PATH = $ENV{OBDA_SEARCH_PATH} || '';
-
     }
 }
 
@@ -118,7 +117,7 @@ sub _load_registry {
 	if ($@) {
 		warn "This Perl doesn't implement function getpwuid(). Skipping...\n"
 	}
-	my @ini_files = _get_ini_files($home) if (-d $home);
+	my @ini_files = _get_ini_files($home);
 
    unless (@ini_files) {
       $self->warn("No seqdatabase.ini file found in ~/.bioinformatics/\nnor in /etc/bioinformatics/ nor in directory specified by\n$OBDA_SEARCH_PATH. Using web to get database registry from\n$fallbackRegistryURL");
@@ -246,18 +245,17 @@ sub services {
 sub _get_ini_files {
    my $home = shift;
    my @ini_files = ();
-   my $file = "";
    if ( $OBDA_SEARCH_PATH ) {
       foreach my $dir ( split /;/,$OBDA_SEARCH_PATH ) {
-			$file = $dir . "/" . "seqdatabase.ini";
+			my $file = $dir . "/" . "seqdatabase.ini";
 			next unless -e $file;
 			push @ini_files,$file;
       }
    }
    push @ini_files,"$home/.bioinformatics/seqdatabase.ini" 
-     if ( -e "$home/.bioinformatics/seqdatabase.ini" );
+     if ( $home && -e "$home/.bioinformatics/seqdatabase.ini" );
    push @ini_files,"/etc/bioinformatics/seqdatabase.ini"
-     if ( -e "/etc/bioinformatics/seqdatabase.ini" );
+     if ( $home && -e "/etc/bioinformatics/seqdatabase.ini" );
    @ini_files;
 }
 
