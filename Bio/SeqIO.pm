@@ -506,6 +506,28 @@ sub _readline {
   return $line;
 }
 
+=head2 _concatenate_lines
+
+ Title   : _concatenate_lines
+ Usage   : $s = _concatenate_lines($line, $continuation_line)
+ Function: Private. Concatenates two strings assuming that the second stems
+           from a continuation line of the first. Adds a space between both
+           unless the first ends with a dash.
+
+           Takes care of either arg being empty.
+ Example :
+ Returns : A string.
+ Args    :
+
+=cut
+
+sub _concatenate_lines {
+    my ($self, $s1, $s2) = @_;
+
+    $s1 .= " " if($s1 && ($s1 !~ /-$/) && $s2);
+    return ($s1 ? $s1 : "") . ($s2 ? $s2 : "");
+}
+
 =head2 _filehandle
 
  Title   : _filehandle
