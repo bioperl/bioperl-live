@@ -42,12 +42,12 @@ to document fully.
 
 (output only) shows the dna or not
 
-=item _post_sort
+=item _post_sort()
 
 (output only) provides a sorting func which is applied to the FTHelpers
 before printing
 
-=item _id_generation_func
+=item _id_generation_func()
 
 This is function which is called as 
 
@@ -155,7 +155,7 @@ sub next_seq {
    $line =~ /^ID\s+([^\s_]+)(_([^\s_]+))?\s+([^\s;]+);\s+([^\s;]+);/ 
      || $self->throw("swissprot stream with no ID. Not swissprot in my book");
    if( $3 ) {
-       $name = $1.$2;
+       $name = "$1$2";
        $seq->division($3);
    } else {
        $name = $1;
