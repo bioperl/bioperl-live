@@ -222,7 +222,7 @@ sub next_seq {
 	   $sv =~ s/\;//;
 	   $seq->sv($sv);
        }
-       #date (NOTE: takes last date line)
+       #date
        elsif( /^DT\s+(.*)/ ) {
 	   my $date = $1;
 	   $date =~ s/\;//;
