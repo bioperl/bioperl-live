@@ -268,8 +268,8 @@ sub _parse_predictions {
 	    my @flds = split(' ', $_);
 	    # create the feature object depending on the type of signal
 	    my $predobj;
-	    if(grep {$_ eq $flds[1];} (keys(%exontags))) {
-		# an exon
+	    my $is_exon = grep {$_ eq $flds[1];} (keys(%exontags));
+	    if($is_exon) {
 		$predobj = Bio::Tools::Prediction::Exon->new();
 	    } else {
 		# PolyA site, or Promoter
@@ -289,14 +289,42 @@ sub _parse_predictions {
 	    }
 	    # add to gene structure (should be done only when start and end
 	    # are set, in order to allow for proper expansion of the range)
-	    if(grep {$_ eq $flds[1];} (keys(%exontags))) {
+	    if($is_exon) {
 		# first, set fields unique to exons
 		$predobj->start_signal_score($flds[8]);
 		$predobj->end_signal_score($flds[9]);
 		$predobj->coding_signal_score($flds[10]);
 		$predobj->significance($flds[11]);
 		$predobj->primary_tag($exontags{$flds[1]});
-		# add
+		# Figure out the frame of this exon. This is NOT the frame
+		# given by Genscan, which is the absolute frame of the base
+		# starting the first predicted complete codon. By comparing
+		# to the absolute frame of the first base we can compute the
+		# offset of the first complete codon to the first base of the
+		# exon, which determines the frame of the exon.
+		my $cod_offset;
+		if($predobj->strand() == 1) {
+		    $cod_offset = $flds[6] - (($predobj->start()-1) % 3);
+		    # Possible values are -2, -1, 0, 1, 2. -1 and -2 correspond
+		    # to offsets 2 and 1, resp. Offset 3 is the same as 0.
+		    $cod_offset += 3 if($cod_offset < 1);		    
+		} else {
+		    # On the reverse strand the Genscan frame also refers to
+		    # the first base of the first complete codon, but viewed
+		    # from forward, which is the third base viewed from
+		    # reverse.
+		    $cod_offset = $flds[6] - (($predobj->end()-3) % 3);
+		    # Possible values are -2, -1, 0, 1, 2. Due to the reverse
+		    # situation, {2,-1} and {1,-2} correspond to offsets
+		    # 1 and 2, resp. Offset 3 is the same as 0.
+		    $cod_offset -= 3 if($cod_offset >= 0);
+		    $cod_offset = -$cod_offset;
+		}
+		# Offsets 2 and 1 correspond to frame 1 and 2 (frame of exon
+		# is the frame of the first base relative to the exon, or the
+		# number of bases the first codon is missing).
+		$predobj->frame(3 - $cod_offset);
+		# then add to gene structure object
 		$gene->add_exon($predobj);		
 	    } elsif($flds[1] eq 'PlyA') {
 		$predobj->primary_tag("PolyAsite");
