@@ -16,7 +16,7 @@ BEGIN {
 	use lib 't';
     }
     use Test;
-    plan test => 83;
+    plan test => 134;
 }
 
 use Bio::SearchIO;
@@ -102,9 +102,82 @@ while( my $result = $searchio->next_result ) {
     ok($hsp->hit->start, 1);
     ok($hsp->hit->end, 77);
     ok($hsp->query->seqname(), 'SEED');
-    ok($hsp->hit->seqname(), 'Q91581');
+    ok($hsp->hit->seqname(), 'Q91581');   
 }
 
+$searchio = new Bio::SearchIO(-format => 'hmmer',
+			      -file   => Bio::Root::IO->catfile("t","data",
+								"L77119.hmmer"));
+
+while( my $result = $searchio->next_result ) {
+    ok(ref($result),'Bio::Search::Result::HMMERResult');
+    ok($result->algorithm, 'HMMPFAM');
+    ok($result->algorithm_version, '2.2g');
+    ok($result->hmm_name, 'Pfam');
+    ok($result->sequence_file, 'L77119.faa');
+    ok($result->query_name, 'gi|1522636|gb|AAC37060.1|');
+    ok($result->query_description, 'M. jannaschii predicted coding region MJECS02 [Methanococcus jannaschii]');
+    ok($result->num_hits(), 1);
+    my $hit = $result->next_hit;
+    ok($hit->name, 'Methylase_M');
+    ok($hit->description,'Type I restriction modification system, M');
+    ok($hit->significance, '0.0022');
+    ok($hit->raw_score, -105.2);
+    my $hsp = $hit->next_hsp;
+    ok($hsp->score,-105.2);
+    ok($hsp->evalue, '0.0022');
+    ok($hsp->query->start, 280);
+    ok($hsp->query->end, 481);
+    ok($hsp->hit->start, 1);
+    ok($hsp->hit->end, 279);
+    ok($hsp->query->seqname(), 'gi|1522636|gb|AAC37060.1|');
+    ok($hsp->hit->seqname(), 'Methylase_M');
+    ok($hsp->hit_string, 'lrnELentLWavADkLRGsmDaseYKdyVLGLlFlKYiSdkFlerrieieerktdtesepsldyakledqyeqlededlekedfyqkkGvFilPsqlFwdfikeaeknkldedigtdldkifseledqialgypaSeedfkGlfpdldfnsnkLgskaqarnetLtelidlfselelgtPmHNG.dfeelgikDlfGDaYEYLLgkFAeneGKsGGeFYTPqeVSkLiaeiLtigqpsegdfsIYDPAcGSGSLllqaskflgehdgkrnaisyYGQEsn');
+    ok($hsp->query_string, 'NTSELDKKKFAVLLMNR--------------LIFIKFLEDK------GIV---------PRDLLRRTYEDY---KKSNVLI-NYYDAY-L----KPLFYEVLNTPEDER--KENIRT-NPYYKDIPYL---N-G-------GLFRSNNV--PNELSFTIKDNEIIGEVINFLERYKFTLSTSEGsEEVELNP-DILGYVYEKLINILAEKGQKGLGAYYTPDEITSYIAKNT-IEPIVVE----------------RFKEIIK--NWKINDINF----ST');
+    ok($hsp->homology_string, ' ++EL+++  av+   R              L+F K++ dk      +i+         p +   + +++y   ++   ++ ++y ++      + lF++++   e ++  ++++ + +    ++      + +       Glf ++++  ++ +s+   +ne ++e+i+ +++ +++     G++ +el   D++G +YE L+   Ae   K+ G +YTP e++  ia+ + i+  ++                  +++ ++    k+n+i +    s+');
+    
+}
+
+
+$searchio = new Bio::SearchIO(-format => 'hmmer',
+			      -file   => Bio::Root::IO->catfile("t","data",
+								"cysprot1b.hmmsearch"));
+
+
+while( my $result = $searchio->next_result ) {
+    ok(ref($result),'Bio::Search::Result::HMMERResult');
+    ok($result->algorithm, 'HMMSEARCH');
+    ok($result->algorithm_version, '2.2g');
+    ok($result->hmm_name, 'Peptidase_C1.hmm [Peptidase_C1]');
+    ok($result->sequence_file, 'cysprot1b.fa');
+    ok($result->query_name, 'Peptidase_C1');
+    ok($result->query_accession, 'PF00112');
+    ok($result->query_description, 'Papain family cysteine protease');
+    ok($result->num_hits(), 4);
+    my $hit = $result->next_hit;
+    ok($hit->name, 'CATL_RAT');
+    ok($hit->description,'');
+    ok($hit->significance, '2e-135');
+    ok($hit->raw_score, 449.4);
+    my $hsp = $hit->next_hsp;
+    ok($hsp->score,449.4);
+    ok($hsp->evalue, '2e-135');
+    ok($hsp->query->start, 1);
+    ok($hsp->query->end, 337);
+    ok($hsp->hit->start, 114);
+    ok($hsp->hit->end, 332);
+    ok($hsp->query->seqname(), 'Peptidase_C1');
+    ok($hsp->hit->seqname(), 'CATL_RAT');
+    ok($hsp->hit_string, 'IPKTVDWRE-KG-CVTPVKNQG-QCGSCWAFSASGCLEGQMFLKT------GKLISLSEQNLVDCSH-DQGNQ------GCNG-GLMDFAFQYIKE-----NGGLDSEESY-----PYE----AKD-------------------GSCKYR-AEYAV-----ANDTGFVDIPQQ-----EKALMKAVATVGPISVAMDASHPS---LQFYSSG-------IYYEP---NCSSK---DLDHGVLVVGYGYEG-T------------------------------------DSNKDKYWLVKNSWGKEWGMDGYIKIAKDRN----NHCGLATAASYPI');
+    ok($hsp->homology_string, '+P+++DWRe kg  VtpVK+QG qCGSCWAFSa g lEg+ ++kt      gkl+sLSEQ+LvDC++ d gn+      GCnG Glmd Af+Yik+     NgGl++E++Y     PY+    +kd                   g+Cky+  + ++     a+++g++d+p++     E+al+ka+a++GP+sVa+das+ s    q+Y+sG       +Y+++    C+++   +LdH+Vl+VGYG e+                                      ++++ +YW+VKNSWG++WG++GY++ia+++n    n+CG+a+ asypi');
+    ok($hsp->query_string, 'lPesfDWReWkggaVtpVKdQGiqCGSCWAFSavgalEgryciktgtkawggklvsLSEQqLvDCdgedygnngesCGyGCnGGGlmdnAfeYikkeqIsnNgGlvtEsdYekgCkPYtdfPCgkdggndtyypCpgkaydpndTgtCkynckknskypktyakikgygdvpynvsTydEealqkalaknGPvsVaidasedskgDFqlYksGendvgyGvYkhtsageCggtpfteLdHAVliVGYGteneggtfdetssskksesgiqvssgsngssgSSgssgapiedkgkdYWIVKNSWGtdWGEnGYfriaRgknksgkneCGIaseasypi');
+    $hit = $result->next_hit;
+    ok($hit->name, 'CATL_HUMAN');
+    ok($hit->description,'');
+    ok($hit->significance, '6.1e-134');
+    ok($hit->raw_score, 444.5);
+}
+			      
 my ($domain,$set,$homol,$rev,$res,$dom,@doms);
     $domain = Bio::Tools::HMMER::Domain->new(-verbose=>1);
 
