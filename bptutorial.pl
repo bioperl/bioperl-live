@@ -1205,12 +1205,18 @@ NCBI Blast is being heavily used, the interval between when a Blast
 submission is made and when the results are available can be substantial.
 
 The object $rc would contain the blast report that could then be parsed with
-Bio::Tools::BPlite or Bio::Tools::Blast. Note that to make this script
-actually useful, one should add details such as checking return codes from
-the Blast to see if it succeeded and and a "sleep" loop to wait between
-consecutive requests to the NCBI server. See example 26 in the
-demonstration script in the appendix to see some working code you could
-use, or L<Bio::Tools::Run::RemoteBlast> for details.
+Bio::Tools::BPlite or Bio::SearchIO. The default object is BPlite
+in version 1.0 or earlier and it's SearchIO after version 1.0. The
+object type can be changed using the -readmethod parameter but bear
+in mind that the favored Blast parser is Bio::SearchIO, others won't be
+supported in later versions.
+
+Note that to make this script actually useful, one should add details
+such as checking return codes from the Blast to see if it succeeded and
+a "sleep" loop to wait between consecutive requests to the NCBI server.
+See example 26 in the demonstration script in the appendix to see some
+working code you could use, or L<Bio::Tools::Run::RemoteBlast> for
+details.
 
 It should also be noted that the syntax for creating a remote blast factory
 is slightly different from that used in creating StandAloneBlast, Clustalw,
