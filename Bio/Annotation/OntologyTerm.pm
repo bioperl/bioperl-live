@@ -124,22 +124,22 @@ sub new{
     
     my ($term,$name,$label,$identifier,$definition,$ont,$tag) =
 	$self->_rearrange([qw(TERM
-			      NAME
-			      LABEL
-			      IDENTIFIER
-			      DEFINITION
-			      ONTOLOGY
-			      TAGNAME)],
-			  @args);
+                          NAME
+                          LABEL
+                          IDENTIFIER
+                          DEFINITION
+                          ONTOLOGY
+                          TAGNAME)],
+                      @args);
     if($term) {
-	$self->term($term);
+        $self->term($term);
     } else {
-	$self->name($name || $label) if $name || $label;
-	$self->identifier($identifier) if $identifier;
-	$self->definition($definition) if $definition;
+        $self->name($name || $label) if $name || $label;
+        $self->identifier($identifier) if $identifier;
+        $self->definition($definition) if $definition;
     }
     $self->ontology($ont || $tag) if $ont || $tag;
-
+    
     return $self;
 }
 
@@ -184,7 +184,7 @@ sub hash_tree{
    $h->{'name'} = $self->name();
    $h->{'identifier'} = $self->identifier();
    $h->{'definition'} = $self->definition();
-   $h->{'synonyms'} = [$self->term()->each_synonym()];
+   $h->{'synonyms'} = [$self->get_synonyms()];
 }
 
 
@@ -236,10 +236,10 @@ sub tagname{
 sub term{
     my ($self,$value) = @_;
     if( defined $value) {
-	$self->{'term'} = $value;
+        $self->{'term'} = $value;
     }
     if(! exists($self->{'term'})) {
-	$self->{'term'} = Bio::Ontology::Term->new();
+        $self->{'term'} = Bio::Ontology::Term->new();
     }
     return $self->{'term'};
 }
