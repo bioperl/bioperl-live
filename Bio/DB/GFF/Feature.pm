@@ -532,6 +532,8 @@ sorted order by their start tposition.
 
 =cut
 
+#'
+
 sub merged_segments {
   my $self = shift;
   my $type = shift;
@@ -540,13 +542,17 @@ sub merged_segments {
   my $truename = overload::StrVal($self);
 
   return @{$self->{merged_segs}{$type}} if exists $self->{merged_segs}{$type};
-  my @segs = sort {$a->start <=> $b->start} $self->sub_SeqFeature($type);
+  my @segs = sort {
+                $a->start <=> $b->start
+		  ||
+                $a->type cmp  $b->type
+		 } $self->sub_SeqFeature($type);
 
   # attempt to merge overlapping segments
   my @merged = ();
   for my $s (@segs) {
     my $previous = $merged[-1] if @merged;
-    if (defined($previous) && $previous->stop+1 >= $s->start) {
+    if (defined($previous) && $previous->stop+1 >= $s->start){
       $previous->{stop} = $s->{stop};
       # fix up the target too
       my $g = $previous->{group};
@@ -554,6 +560,8 @@ sub merged_segments {
 	my $cg = $s->{group};
 	$g->{stop} = $cg->{stop};
       }
+    } elsif (defined($previous) && $previous->start == $s->start && $previous->stop == $s->stop) {
+      next;
     } else {
       my $copy = $s->clone;
       push @merged,$copy;
@@ -828,8 +836,8 @@ sub gff_string {
   my $group_field = join ' ; ',@group;
   my $strand = ('-','.','+')[$self->strand+1];
   my $ref = $self->ref;
-  my $name = ref($ref) ? $ref->name : $ref;
-  return join("\t",$name,$self->source,$self->method,$start||'.',$stop||'.',$self->score||'.',$strand||'.',$self->phase||'.',$group_field);
+  my $n   = ref($ref) ? $ref->name : $ref;
+  return join("\t",$n,$self->source,$self->method,$start||'.',$stop||'.',$self->score||'.',$strand||'.',$self->phase||'.',$group_field);
 }
 
 =head1 A Note About Similarities
