@@ -927,9 +927,10 @@ sub _set_seq {
     my $numGaps   = 0;
 
     foreach( @data ) {
-	if( m/(\d+) *(\D+) *(\d+)/) {
+	if( m/(\d+) *([^\d\s]+) *(\d+)/) {
 	    push @ranges, ( $1, $3 ) ;
 	    push @sequence, $2;
+      #print STDERR "_set_seq found sequence \"$2\"\n";
 	} else {
 	    $self->warn("Bad sequence data: $_");
 	}
