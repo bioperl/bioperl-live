@@ -16,11 +16,43 @@ Bio::Seq::PrimaryQual - Bioperl lightweight Quality Object
 
 =head1 SYNOPSIS
 
-  # add synopsis here
+ use Bio::Seq::PrimaryQual;
+
+ # you can use either a space-delimited string for quality
+
+ my $string_quals = "10 20 30 40 50 40 30 20 10";
+ my $qualobj = Bio::Seq::PrimaryQual->new
+ 	      ( '-qual' => $string_quals,
+ 		'-id'  => 'QualityFragment-12',
+ 		'-accession_number' => 'X78121',
+ 		);
+
+ # _or_ you can use an array of quality values
+
+ my @q2 = split/ /,$string_quals;
+ $qualobj = Bio::Seq::PrimaryQual->new( '-qual' => \@q2,
+       '-primary_id'     =>      'chads primary_id',
+       '-desc'           =>      'chads desc',
+       '-accession_number' => 'chads accession_number',
+      '-id'             =>      'chads id'
+      );
+
+ # to get the quality values out:
+
+ my @quals = @{$qualobj->qual()};
+
+ # to give _new_ quality values
+
+ my $newqualstring = "50 90 1000 20 12 0 0";
+ $qualobj->qual($newqualstring);
+
 
 =head1 DESCRIPTION
 
-  # add  description here
+This module provides a mechanism for storing quality
+values. Much more useful as part of
+Bio::Seq::SeqWithQuality where these quality values
+are associated with the sequence information.
 
 =head1 FEEDBACK
 
@@ -67,10 +99,11 @@ use Bio::Seq::QualI;
 =head2 new()
 
  Title   : new()
- Usage   : $qual = Bio::Seq::PrimaryQual->new( -qual => '10 20 30 40 50 50 20 10',
-                                           -id  => 'human_id',
-                                           -accession_number => 'AL000012',
-                                           );
+ Usage   : $qual = Bio::Seq::PrimaryQual->new
+	( -qual => '10 20 30 40 50 50 20 10',
+	  -id  => 'human_id',
+	  -accession_number => 'AL000012',
+	);
 
  Function: Returns a new Bio::Seq::PrimaryQual object from basic 
 	constructors, being a string _or_ a reference to an array for the
@@ -86,7 +119,8 @@ use Bio::Seq::QualI;
 sub new {
     my ($class, @args) = @_;
     my $self = $class->SUPER::new(@args);
-
+        # default: turn OFF the warnings (duh)
+	$self->{supress_warnings} = 1;
     my($qual,$id,$acc,$pid,$desc,$given_id) =
         $self->_rearrange([qw(QUAL
                               DISPLAY_ID
@@ -142,35 +176,36 @@ sub alphabet {
         quality values. The individual elements of the quality array are
         not validated and can be any numeric value.
  Returns : A reference to an array.
- Status  :
 
 =cut
 
 sub qual {
-    my ($obj,$value) = @_;
+    my ($self,$value) = @_;
     if( defined $value) {
 	if (!$value) {
-	    $obj->warn("Setting quality to an empty value (NOT $value).");
-	    my @foo = [];
-	    $obj->{'qual'} = \@foo;
+	unless ($self->{supress_warnings} == 1) {
+	    $self->warn("Setting quality to an empty value (NOT $value).");
 	}
-	elsif(! $obj->validate_qual($value)) {
-	    $obj->throw("Attempting to set the quality to [$value] which does not look healthy");
+	    my @foo = [];
+	    $self->{'qual'} = \@foo;
+	}
+	elsif(! $self->validate_qual($value)) {
+	    $self->throw("Attempting to set the quality to [$value] which does not look healthy");
 	}
 	elsif (ref($value) eq "ARRAY") {
 	    # if the user passed in a reference to an array
-	    $obj->{'qual'} = $value;
+	    $self->{'qual'} = $value;
 	}
 	else {
 	    my @quality_array = split/\s+/,$value;
-	    $obj->{'qual'} = \@quality_array;
+	    $self->{'qual'} = \@quality_array;
 	}
 	# if(($is_changed_qual && (CORE::length($value) > 0)) ||
 	# (! defined($obj->alphabet()))) {
 	#	$obj->_guess_type();
 	# }
     }
-    return $obj->{'qual'};
+    return $self->{'qual'};
 }
 
 =head2 validate_qual($qualstring)
@@ -207,9 +242,9 @@ sub validate_qual {
  Title   : subqual($start,$end)
  Usage   : @subset_of_quality_values = @{$obj->subqual(10,40)};
  Function: returns the quality values from $start to $end, where the
-        first value is 1 and the number is inclusive, ie 1-2 are the first
-        two bases of the sequence. Start cannot be larger than end but can
-        be equal.
+        first value is 1 and the number is inclusive, ie 1-2 are the
+	first two bases of the sequence. Start cannot be larger than
+	end but can be equal.
  Returns : A reference to an array.
  Args    : a start position and an end position
 
@@ -251,13 +286,12 @@ sub subqual {
         database. In fasta format, the >(\S+) is presumed to be the id,
         though some people overload the id to embed other information.
         Bioperl does not use any embedded information in the ID field,
-        and people are encouraged to use other mechanisms (accession field
-        for example, or extending the sequence object) to solve this.
-        Notice that $seq->id() maps to this function, mainly for
+        and people are encouraged to use other mechanisms (accession
+	field for example, or extending the sequence object) to solve
+	this. Notice that $seq->id() maps to this function, mainly for
         legacy/convience issues
  Returns : A string
  Args    : None
- Status  : Virtual
 
 =cut
 
@@ -283,8 +317,6 @@ sub display_id {
         with no accession number, this method should return "unknown".
  Returns : A string
  Args    : None
- Status  : Virtual
-
 
 =cut
 
@@ -371,8 +403,8 @@ sub id {
  Function: Return the length of the array holding the quality values.
 	Under most circumstances, this should match the number of quality
 	values but no validation is done when the PrimaryQual object is
-	constructed and non-digits could be put into this array. Is this a
-	bug? Just enough rope...
+	constructed and non-digits could be put into this array. Is this
+	a bug? Just enough rope...
  Returns : A scalar (the number of elements in the quality array).
  Args    : None.
 
@@ -381,7 +413,9 @@ sub id {
 sub length {
 	my $self = shift;
 	if (ref($self->{qual}) ne "ARRAY") {
-		$self->warn("{qual} is not an array here. Why? It appears to be ".ref($self->{qual})."(".$self->{qual}."). Good thing this can _never_ happen.");
+		unless ($self->{supress_warnings} == 1) {
+			$self->warn("{qual} is not an array here. Why? It appears to be ".ref($self->{qual})."(".$self->{qual}."). Good thing this can _never_ happen.");
+		}
 	}
 	return scalar(@{$self->{qual}});
 }
@@ -414,8 +448,8 @@ sub qualat {
 
  Title   : to_string()
  Usage   : $quality = $obj->to_string();
- Function: Return a textual representation of what the object contains. For
-	this module, this function will return:
+ Function: Return a textual representation of what the object contains.
+	For this module, this function will return:
 		qual
 		display_id
 		accession_number

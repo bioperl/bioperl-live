@@ -204,7 +204,7 @@ sub write_seq {
 	my (@slice,$max,$length);
 	$length = $source->length();
 	if ($length eq "DIFFERENT") {
-		$self->warn("You passed a SeqWithQuality object that contains a sequence and quality of differing lengths. Using the length of the PrimaryQual component of the SeqWithQuality object.");
+		print("You passed a SeqWithQuality object that contains a sequence and quality of differing lengths. Using the length of the PrimaryQual component of the SeqWithQuality object.");
 		$length = $source->qual_obj()->length();
 	}
 		# print("Printing $header to a file.\n");
