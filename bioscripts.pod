@@ -46,6 +46,12 @@ accessing and querying bibliographic repositories like Medline.
 This script loads a mySQL Bio::DB::GFF database with the features 
 contained in a list of GFF files, it cannot do incremental loads.
 
+=head2 scripts/Bio-DB-GFF/bp_genbank2gff.PLS
+
+This script loads a Bio::DB::GFF database with the features contained
+in a either a local Genbank file or an accession that is fetched from
+Genbank.
+
 =head2 scripts/Bio-DB-GFF/fast_load_gff.PLS
 
 This script does a rapid load of a mySQL Bio::DB::GFF database
