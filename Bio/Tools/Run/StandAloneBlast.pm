@@ -74,7 +74,7 @@ operating systems (eg Windows, MacOS).  Before running
 StandAloneBlast.pm it is necessary: to install BLAST on your system,
 to edit set the environmental variable $BLASTDIR or your $PATH
 variable to point to the BLAST directory, and to ensure that users
-have execute privilieges for the BLAST program.  If the databases
+have execute privileges for the BLAST program.  If the databases
 which will be searched by BLAST are located in the data subdirectory
 of the blast program directory (the default installation location),
 StandAloneBlast.pm will find them; however, if the database files are
@@ -273,12 +273,10 @@ BEGIN {
      { $OK_FIELD{$attr}++; }
 
 # You will need to enable Blast to find the Blast program. This can be done
-# in (at least) three ways:
-#  1. Modify your $PATH variable to include your Blast directory as in (for Linux):
-#	export PATH=$PATH:/home/peter/blast   or
-#  2. define an environmental variable blastDIR:
+# in (at least) two different ways:
+#  1. define an environmental variable blastDIR:
 #	export BLASTDIR=/home/peter/blast   or
-#  3. include a definition of an environmental variable BLASTDIR in every script that will
+#  2. include a definition of an environmental variable BLASTDIR in every script that will
 #     use StandAloneBlast.pm.
 #	BEGIN {$ENV{BLASTDIR} = '/home/peter/blast/'; }
      $BLASTDIR = $ENV{'BLASTDIR'} || '';
@@ -286,7 +284,7 @@ BEGIN {
 # If local BLAST databases are not stored in the standard
 # /data directory, the variable BLASTDATADIR will need to be set explicitly 
      $DATADIR =  $ENV{'BLASTDATADIR'} ||
-       Bio::Root::IO->catfile($BLASTDIR,'data');
+	 ($BLASTDIR ? Bio::Root::IO->catfile($BLASTDIR,'data') : undef);
 }
 
 @ISA = qw(Bio::Root::RootI Bio::Root::IO);
@@ -349,7 +347,8 @@ sub new {
     unless (&Bio::Tools::Run::StandAloneBlast::exists_blast()) {
 	warn "Blast program not found or not executable. \n  Blast can be obtained from ftp://ncbi.nlm.nih.gov/blast\n";
     }
-
+    # to facilitiate tempfile cleanup
+    $self->_initialize_io();
     my ($fh,$tempfile) = $self->tempfile();
     $self->outfile($tempfile);
     $self->_READMETHOD('BPlite');
@@ -384,14 +383,39 @@ sub AUTOLOAD {
 
  Title   : exists_blast
  Usage   : $blastfound = Bio::Tools::Run::StandAloneBlast->exists_blast()
- Function: Determine whether Blast program can be found on current host
+ Function: Determine whether Blast program can be found on current host.
+           Cf. the DESCRIPTION section of this POD for how to make sure
+           for your BLAST installation to be found. This method checks for
+           existence of the blastall executable either in BLASTDIR or in
+           the path.
+           Side effects: if BLASTDATADIR is not set, checks whether data is a
+           subdirectory of the directory where blastall is found, and if so,
+           sets DATADIR accordingly.
  Returns : 1 if Blast program found at expected location, 0 otherwise.
  Args    :  none
 
 =cut
 
 sub exists_blast {
-    return (-e Bio::Root::IO->catfile($BLASTDIR, 'blastall'));
+    my $exe = ($^O =~ /mswin/i) ? 'blastall.exe' : 'blastall';
+
+    if($BLASTDIR) {
+	if((! $DATADIR) && (-d Bio::Root::IO->catfile($BLASTDIR, "data"))) {
+	    $DATADIR = Bio::Root::IO->catfile($BLASTDIR, "data");
+	}
+	return (-e Bio::Root::IO->catfile($BLASTDIR, $exe));
+    }
+    # BLASTDIR not set. Let's see whether blastall is in the path.
+    foreach my $dir (File::Spec->path()) {
+	if(-e Bio::Root::IO->catfile($dir, $exe)) {
+	    $BLASTDIR = $dir;
+	    if((! $DATADIR) && (-d Bio::Root::IO->catfile($dir, "data"))) {
+		$DATADIR = Bio::Root::IO->catfile($dir, "data");
+	    }
+	    return 1;
+	}
+    }
+    return 0;
 }
 
 =head2  blastall
@@ -731,7 +755,10 @@ sub _setparams {
 	next unless (defined $value);
 # Need to prepend datadirectory to database name
 	if ($attr  eq 'd' && ($executable ne 'bl2seq')) { 
+# This is added so that you can specify a DB with a full path
+	  if (! (-e $value.".nin" || -e $value.".pin")){ 
 	    $value = File::Spec->catdir($DATADIR,$value);
+	  }
 	}
 # put params in format expected by Blast
 	$attr  = '-'. $attr ;       
