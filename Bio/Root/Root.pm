@@ -112,7 +112,7 @@ other pre-defined exception types:
 
    try {
     open( IN, $file) || $obj->throw( -class => 'Bio::Root::FileOpenException',
-                                     -text => "Can't open file $file for reading",
+                                     -text => "Cannot open file $file for reading",
                                      -value => $!);
    }
    catch Bio::Root::BadParameter with {
@@ -144,6 +144,8 @@ The rest of the documentation details each of the object
 methods. Internal methods are usually preceded with a _
 
 =cut
+
+#'
 
 use vars qw(@ISA $DEBUG $ID $Revision $VERSION $VERBOSITY $ERRORLOADED);
 use strict;
@@ -273,6 +275,9 @@ sub _cleanup_methods {
 
 sub throw{
    my ($self,@args) = @_;
+   if( @args % 2 != 0 ) { 
+       unshift @args, '-text';
+   }
    my ( $text, $class ) = $self->_rearrange( [qw(TEXT CLASS)], @args);
 
    if( $ERRORLOADED ) {
@@ -286,11 +291,11 @@ sub throw{
        else {
            $class = "Bio::Root::Exception";
        }
-
+       
        my %args = @args;
        $args{-text} = $text;
        $args{-object} = $self;
-
+       
        #unshift (@args, '-object', $self);
        throw $class ( %args );
    }
