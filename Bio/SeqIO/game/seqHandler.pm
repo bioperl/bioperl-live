@@ -51,10 +51,6 @@ sub start_element             {
 	 $self->{in_current_seq} = 'true';
 	 $self->{moltype} = $element->{Attributes}->{'bx-seq:type'};
 	 $self->{length} =  $element->{Attributes}->{'bx-seq:length'};
-	 if( !$self->{length} ) {
-	     print STDERR "seq ", $self->{seq}, " does not have length\n";
-	     $self->{length} = length($self->{resoidues});
-	 }
      } else {
 	 if ($self->can('warn')) {
 	   $self->warn('WARNING: Attribute bx-seq:id is required on bx-seq:seq. Sequence will not be parsed.');
