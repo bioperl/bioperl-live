@@ -16,7 +16,7 @@ BEGIN {
 	use lib 't';
     }
     use Test;
-    plan test => 134;
+    plan test => 136;
 }
 
 use Bio::SearchIO;
@@ -86,6 +86,7 @@ while( my $result = $searchio->next_result ) {
     ok($result->algorithm_version, '2.0');
     ok($result->hmm_name, 'HMM [SEED]');
     ok($result->sequence_file, 'HMM.dbtemp.29591');
+    ok($result->database_name, 'HMM.dbtemp.29591');
     ok($result->query_name, 'SEED');
     ok($result->query_description, '');
     ok($result->num_hits(), 1215);
@@ -149,6 +150,7 @@ while( my $result = $searchio->next_result ) {
     ok($result->algorithm, 'HMMSEARCH');
     ok($result->algorithm_version, '2.2g');
     ok($result->hmm_name, 'Peptidase_C1.hmm [Peptidase_C1]');
+    ok($result->database_name, 'cysprot1b.fa');
     ok($result->sequence_file, 'cysprot1b.fa');
     ok($result->query_name, 'Peptidase_C1');
     ok($result->query_accession, 'PF00112');
