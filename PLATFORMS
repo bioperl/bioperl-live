@@ -1,4 +1,4 @@
-# $Id: PLATFORMS,v 1.1.1.1 1998-12-11 15:24:21 birney Exp $
+# $Id: PLATFORMS,v 1.2 1999-02-02 19:19:59 dag Exp $
 
 
 Tested systems & OS Specific Comments or Warnings
@@ -35,6 +35,18 @@ Compiler: cc
 Perl    : 5.003, 5.004
 Comments: RestrictionEnzyme.t and Seq.t tests all fail under
           Perl 5.003 for as of yet unknown reasons.
+
+Machine : Apple PowerMac 7600/180 running LinuxPPC
+        : Based on Red Hat Linux release 5.0 (Hurricane)
+        : Kernel 2.1.125 on a PowerPC 604e
+Compiler: cc
+Perl    : 5.004_01
+Comments: BLAST test #29 failed during 'make test' because system was
+          missing the 'diff' utility. Once diff was installed, 'make
+          test' works perfectly. Ewan's XS extensions compile without
+          error and pass 'make test' as well. 
+
+
 
 
 
