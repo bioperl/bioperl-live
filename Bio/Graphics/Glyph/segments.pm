@@ -40,7 +40,7 @@ sub draw_component {
   return $self->SUPER::draw_component(@_) unless $self->dna_fits;
 
 
-  my $dna = $draw_target ? eval {$self->feature->target->seq}
+  my $dna = $draw_target ? eval {$self->feature->hit->seq}
                          : eval {$self->feature->seq};
   my $show_mismatch = $draw_target && $self->option('show_mismatch');
   my $genomic = eval {$self->feature->seq} if $show_mismatch;
@@ -55,7 +55,7 @@ sub draw_component {
   my $offset = 0;
   eval {  # protect against data structures that don't implement the target() method.
     if ($draw_target && $self->option('ragged_start')){
-      my $target = $self->feature->target;
+      my $target = $self->feature->hit;
       if ($target->start < $target->end && $target->start < RAGGED_START_FUZZ) {
 	$offset = $target->start - 1;
 	if ($offset > 0) {
@@ -188,6 +188,24 @@ L<Bio::Graphics::Glyph> for a full explanation.
 
   -strand_arrow Whether to indicate            0 (false)
                  strandedness
+
+  -draw_dna     If true, draw the dna residues 0 (false)
+                 when magnification level
+                 allows.
+
+  -draw_target  If true, draw the dna residues 0 (false)
+                 of the TARGET sequence when
+                 magnification level allows.
+                 SEE NOTE.
+
+  -ragged_start When combined with -draw_target, 0 (false)
+                 draw a few bases beyond the end
+                 of the alignment.  SEE NOTE.
+
+The -draw_target and -ragged_start options only work with seqfeatures
+that implement the hit() method (Bio::SeqFeature::SimilarityPair).
+The -ragged_start option is mostly useful for looking for polyAs and
+cloning sites at the beginning of ESTs and cDNAs.
 
 =head1 BUGS
 

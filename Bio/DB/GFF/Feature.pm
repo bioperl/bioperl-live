@@ -438,6 +438,22 @@ sub target {
   $group;
 }
 
+=head2 hit
+
+ Title   : hit
+ Usage   : $hit = $f->hit([$new_hit])
+ Function: get or set the feature hit
+ Returns : a Bio::DB::GFF::Featname object
+ Args    : a new group (optional)
+ Status  : Public
+
+This is the same as target(), for compatibility with
+Bio::SeqFeature::SimilarityPair.
+
+=cut
+
+*hit = \&target;
+
 =head2 id
 
  Title   : id
