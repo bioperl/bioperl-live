@@ -434,7 +434,10 @@ sub _register_for_cleanup {
 
 sub DESTROY {
     my ($self) = shift;
-    if(ref($self) eq 'HASH' && exists($self->{'_cleanup_methods'})) {
+
+    if(ref($self) && $self->isa('HASH') &&
+       exists($self->{'_cleanup_methods'}) &&
+       ref($self->{'_cleanup_methods'}) =~ /array/i ) {
 	foreach my $method (@{$self->{'_cleanup_methods'}}) {
 	    &$method($self);
 	}
