@@ -17,11 +17,17 @@ Bio::Tools::Run::EMBOSSApplication -  class for EMBOSS Applications
 
 =head1 SYNOPSIS
 
-#
+  # get an EMBOSS application object from the EMBOSS factory
+  # $f is a  Bio::Factory::EMBOSS object
+  $application = $factory->program('embossversion');
+  # run the appiation with an optional hash containing parameters
+  $application->run();
 
 =head1 DESCRIPTION
 
-#
+The EMBOSSApplication class can represent EMBOSS any program. It is
+created by a L<Bio::Factory::EMBOSS> object which primes it by reading
+in the ADC description of the command line options.
 
 =head1 FEEDBACK
 
@@ -64,7 +70,7 @@ methods. Internal methods are usually preceded with a _
 package Bio::Tools::Run::EMBOSSApplication;
 use vars qw(@ISA);
 use strict;
-
+use Data::Dumper;
 use Bio::Root::RootI;
 @ISA = qw(Bio::Root::RootI);
 
@@ -72,7 +78,6 @@ use Bio::Root::RootI;
 sub new {
   my($class, $args) = @_;
   my $self = $class->SUPER::new();
-  #print join( " ", @args), "\n";
   $self->{ '_attributes' } = $args;
 
   $self->name($self->{ '_attributes' }->{'name'});
@@ -80,11 +85,9 @@ sub new {
 
   $self->descr($self->{ '_attributes' }->{'documentation'});
   delete $self->{ '_attributes' }->{'documentation'};
-#reorganize into group and subgroup
-  $self->groups($self->{ '_attributes' }->{'groups'});
-  delete $self->{ '_attributes' }->{'groups'};
 
-#  $self-> test_input;
+  $self->group($self->{ '_attributes' }->{'groups'});
+  delete $self->{ '_attributes' }->{'groups'};
 
   return $self;
 }
@@ -92,47 +95,34 @@ sub new {
 =head2 run
 
  Title   : run
- Usage   : $embossapplication->run
+ Usage   : $embossapplication->run($attribute_hash)
  Function: Runs the EMBOSS program.
- Returns : string only, will return objects!
+ Returns : string only for now; will return objects!
  Args    : hash of input to the program
 
 =cut
 
 sub run {
     my ($self, $input) = @_;
+
     # test input
-    use Data::Dumper;
-    print Dumper($input);
-
-    # match acd attributes against the input
-    foreach my $attr (keys %{$self->{'_attributes'}}) {
-	print $attr, "\n";
-	 my $attr_name = substr($attr, 1) if substr($attr, 0, 1) =~ /\W/;
-	 my $input_value = '';
-	 $input_value = %{$input}->{$attr} if defined %{$input}->{$attr};
-	 $self->throw('Attribute [$attr] not set') if 
-	     defined %{$self}->{'_attributes'}->{$attr_name}->{optional} and $input_value ;
-
-	 $self->throw('Attribute [$attr] not set')
-	     if ( %{$self}->{'_attributes'}->{$attr}->{optional} eq 'N' and defined %{$input}->{$attr_name} and %{$input}->{$attr_name} eq '' ) or 
-
-		( %{$self}->{'_attributes'}->{$attr}->{required} eq 'Y' and not exists %{$input}->{$attr_name})  ;
-    }
+    print Dumper($input) if $self->verbose > 0;
+    $self->_acd2input($input);
 
     # collect the options into a string 
     my $option_string = '';
     foreach my $attr (keys %{$input}) {
 	my $attr_name = substr($attr, 1) if substr($attr, 0, 1) =~ /\W/;
 
-	# validate the values against acd
+	# ADD: validate the values against acd
 
-	print $attr_name, " ", %{$input}->{$attr}, "\n";
+	print "Input attr: ", $attr_name, " => ", %{$input}->{$attr}, "\n" 
+	    if $self->verbose > 1;;
 	$option_string .= $attr;
 	$option_string .= " ". %{$input}->{$attr} 
 	   if %{$input}->{$attr};
     }
-#    print $option_string, "\n";
+
     my $runstring = join (' ', $self->name, $option_string, '-auto');
     print STDERR "Command line: ", $runstring, "\n" if $self->verbose > 0;
     return `$runstring`;
@@ -154,9 +144,9 @@ sub run {
 sub name {
     my ($self,$value) = @_;
     if (defined $value) {
-	$self->{'name'} = $value;
+	$self->{'_name'} = $value;
     }
-    return $self->{'name'};
+    return $self->{'_name'};
 }
 
 
@@ -176,34 +166,97 @@ sub name {
 sub descr {
     my ($self,$value) = @_;
     if (defined $value) {
-	$self->{'descr'} = $value;
+	$self->{'_descr'} = $value;
     }
-    return $self->{'descr'};
+    return $self->{'_descr'};
 }
 
 
-=head2 groups
+=head2 group
 
- Title   : groups
- Usage   : $embossprogram->groups
- Function: sets/gets the groups of the EMBOSS program
+ Title   : group
+ Usage   : $embossprogram->group
+ Function: sets/gets the group of the EMBOSS program
            Setting is done by the EMBOSSFactory object,
            you should only get it.
 
-           There can be more than one group in which case 
-           names are separated by ':'character.
+           If the application is assigned into a subgroup
+           use l<subgroup> to get it.
+
  Throws  : 
- Returns : groups string
+ Returns : string, group name
+ Args    : group string
+
+=cut
+
+sub group {
+    my ($self,$value) = @_;
+    if (defined $value) {
+	my ($group, $subgroup) = split ':', $value;
+	$self->{'_group'} = $group;
+	$self->{'_subgroup'} = $subgroup;
+    }
+    return $self->{'_group'};
+}
+
+
+=head2 subgroup
+
+ Title   : subgroup
+ Usage   : $embossprogram->subgroup
+ Function: sets/gets the subgroup of the EMBOSS program
+           Setting is done by the EMBOSSFactory object,
+           you should only get it.
+ Throws  : 
+ Returns : string, subgroup name; undef if not defined
  Args    : None
 
 =cut
 
-sub groups {
-    my ($self,$value) = @_;
-    if (defined $value) {
-	$self->{'groups'} = $value;
+sub subgroup {
+    my ($self) = @_;
+    return $self->{'_subgroup'};
+}
+
+
+
+
+=head2 Internal methods
+
+Do not call these methods directly
+
+=head2 _acd2input
+
+ Title   : _acd2input
+ Usage   : $embossfactory->_acd2input()
+ Function: compares ACD file requirements to input hash
+ Returns : 
+ Throws  : if requirements are not met 
+ Args    : None
+
+=cut
+
+sub _acd2input($input) {
+    my ($self, $input) = @_;
+    # match acd attributes against the input
+    foreach my $attr (keys %{$self->{'_attributes'}}) {
+	print "ACD Attr: |", $attr, "|\n" if $self->verbose > 1;
+	my $input_value = '';
+	my $input_key = '';
+	$input_key = 1, $input_value = %{$input}->{"-$attr"} if defined %{$input}->{"-$attr"};
+#	my $input_name = substr($input_value, 1) if substr($input_value, 0, 1) =~ /\W/;
+	print "--------------$input_value, $attr\n" if $input_key;
+
+
+#	 $self->throw('Attribute [$attr] not set') if 
+#	     defined %{$self}->{'_attributes'}->{$attr_name}->{optional} and $input_value ;
+#	 
+#	 $self->throw('Attribute [$attr] not set')
+#	     if ( %{$self}->{'_attributes'}->{$attr}->{optional} eq 'N' and defined %{$input}->{$attr_name} and %{$input}->{$attr_name} eq '' ) or 
+#		 
+##
+#		 ( %{$self}->{'_attributes'}->{$attr}->{required} eq 'Y' and not exists %{$input}->{$attr_name})  ;
     }
-    return $self->{'groups'};
 }
 
 
