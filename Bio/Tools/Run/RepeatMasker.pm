@@ -224,7 +224,7 @@ sub version {
     my ($self) = @_;
 
     return undef unless $self->exists_rm;
-    my $string = `RepeatMasker -- ` ;
+    my $string = `$PROGRAM -- ` ;
     $string =~ /\(([\d.]+)\)/;
     return $1 || undef;
 
