@@ -180,8 +180,10 @@ sub start_document {
 =cut
 
 sub end_document {
-    my ($self) = @_; 
-    my $root = $self->nodetype->new(-verbose => $self->verbose);
+    my ($self,$label) = @_; 
+    my $root = $self->nodetype->new(
+	-id => $label,
+	-verbose => $self->verbose);
     # aggregate the nodes into trees basically ad-hoc.
     while ( @{$self->{'_currentnodes'}} ) {	
 	my ($node) = ( shift @{$self->{'_currentnodes'}});
