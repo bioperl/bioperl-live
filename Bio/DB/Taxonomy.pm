@@ -17,7 +17,8 @@ Bio::DB::Taxonomy - Access to a taxonomy database
 =head1 SYNOPSIS
 
   use Bio::DB::Taxonomy;
-  my $db = new Bio::DB::Taxonomy(-source => 'entrez'); # use NCBI Entrez over HTTP
+  my $db = new Bio::DB::Taxonomy(-source => 'entrez');
+  # use NCBI Entrez over HTTP
   my $taxaid = $db->get_taxonid('Homo sapiens');
 
 =head1 DESCRIPTION
@@ -77,11 +78,9 @@ $DefaultSource = 'entrez';
 
  Title   : new
  Usage   : my $obj = new Bio::DB::Taxonomy(-source => 'entrez');
- Function: Builds a new Bio::DB::Taxonomy object 
+ Function: Builds a new Bio::DB::Taxonomy object
  Returns : an instance of Bio::DB::Taxonomy
- Args    : -source => which database source 'entrez' or 'localfile'
-
-
+ Args    : -source => which database source 'entrez' or 'flatfile'
 
 =cut
 
@@ -96,13 +95,13 @@ sub new {
       my %param = @args;
       @param{ map { lc $_ } keys %param } = values %param; # lowercase keys
       my $source = $param{'-source'} || $DefaultSource;
-      
+
       $source = "\L$source";	# normalize capitalization to lower case
-      
+
       # normalize capitalization
       return undef unless( $class->_load_tax_module($source) );
       return "Bio::DB::Taxonomy::$source"->new(@args);
-  } 
+  }
 }
 
 # empty for now
@@ -120,13 +119,12 @@ sub _initialize { }
            -name   => string (to query by a taxonomy name: common name, 
                               species, genus, etc)
 
-
 =cut
 
 sub get_Taxonomy_Node{
    my ($self) = @_;
 
-    $self->throw_not_implemented();
+	$self->throw_not_implemented();
 }
 
 
@@ -147,7 +145,7 @@ sub get_Taxonomy_Node{
 sub get_taxonid {
    my ($self) = @_;
 
-    $self->throw_not_implemented();
+	$self->throw_not_implemented();
 }
 
 =head2 get_Children_Taxids
@@ -156,8 +154,7 @@ sub get_taxonid {
  Usage   : my @childrenids = $db->get_Children_Taxids 
  Function: Get the children of a node in the taxonomy
  Returns : Array of Ids
- Args    : L<Bio::Taxonomy::Node> or a taxon_id
-
+ Args    : Bio::Taxonomy::Node or a taxon_id
 
 =cut
 
