@@ -57,13 +57,18 @@ methods. Internal methods are usually preceded with a _
 
 
 package Bio::LocationI;
-use vars qw(@ISA);
+use vars qw(@ISA $coord_policy);
 use strict;
 
 use Bio::RangeI;
+use Bio::Location::WidestCoordPolicy;
 use Carp;
 
 @ISA = qw(Bio::RangeI);
+
+BEGIN {
+    $coord_policy = Bio::Location::WidestCoordPolicy->new();
+}
 
 # utility method Prints out a method like: 
 # Abstract method stop defined in interface Bio::LocationI not
@@ -82,12 +87,71 @@ sub _abstractDeath {
   }
 }
 
+=head2 start
+
+  Title   : start
+  Usage   : $start = $location->start();
+  Function: Get the start coordinate of this location as defined by the
+            currently active coordinate computation policy. In simple cases,
+            this will return the same number as min_start() and max_start(),
+            in more ambiguous cases like fuzzy locations the number may be
+            equal to one or neither of both.
+
+            We override this here from RangeI in order to delegate 'get' to
+            a Bio::Location::CoordinatePolicy implementing object. Implementing
+            classes may also wish to provide 'set' functionality, in which
+            case they *must* override this method. The implementation
+            provided here will throw an exception if called with arguments.
+
+  Returns : A positive integer value.
+  Args    : none
+
+=cut
+
+sub start {
+    my ($self,@args) = @_;
+
+    $self->_abstractDeath() if @args;
+    return $self->coordinate_policy()->start($self);
+}
+
+=head2 end
+
+  Title   : end
+  Usage   : $end = $location->end();
+  Function: Get the end coordinate of this location as defined by the
+            currently active coordinate computation policy. In simple cases,
+            this will return the same number as min_end() and max_end(),
+            in more ambiguous cases like fuzzy locations the number may be
+            equal to one or neither of both.
+
+            We override this here from RangeI in order to delegate 'get' to
+            a Bio::Location::CoordinatePolicy implementing object. Implementing
+            classes may also wish to provide 'set' functionality, in which
+            case they *must* override this method. The implementation
+            provided here will throw an exception if called with arguments.
+
+  Returns : A positive integer value.
+  Args    : none
+
+=cut
+
+sub end {
+    my ($self,@args) = @_;
+
+    $self->_abstractDeath() if @args;
+    return $self->coordinate_policy()->end($self);
+}
+
 =head2 min_start
 
   Title   : min_start
   Usage   : my $minstart = $location->min_start();
-  Function: Get minimum starting location of feature startpoint   
-  Returns : integer or undef if no maximum starting point.
+  Function: Get minimum starting point of feature.
+
+            Note that an implementation must not call start() in this method.
+
+  Returns : integer or undef if no minimum starting point.
   Args    : none
 
 =cut
@@ -101,7 +165,12 @@ sub min_start {
 
   Title   : max_start
   Usage   : my $maxstart = $location->max_start();
-  Function: Get maximum starting location of feature startpoint  
+  Function: Get maximum starting point of feature.
+
+            Note that an implementation must not call start() in this method
+            unless start() is overridden such as not to delegate to the
+            coordinate computation policy object.
+
   Returns : integer or undef if no maximum starting point.
   Args    : none
 
@@ -117,6 +186,12 @@ sub max_start {
   Title   : start_pos_type
   Usage   : my $start_pos_type = $location->start_pos_type();
   Function: Get start position type encoded as text
+
+            Known valid values are 'BEFORE' (<5..100), 'AFTER' (>5..100), 
+            'EXACT' (5..100), 'WITHIN' ((5.10)..100), 'BETWEEN', (5^6), with
+            their meaning best explained by their GenBank/EMBL location string
+            encoding in brackets.
+
   Returns : string ('BEFORE', 'AFTER', 'EXACT','WITHIN', 'BETWEEN')
   Args    : none
 
@@ -131,7 +206,12 @@ sub start_pos_type {
 
   Title   : min_end
   Usage   : my $minend = $location->min_end();
-  Function: Get minimum ending location of feature endpoint 
+  Function: Get minimum ending point of feature. 
+
+            Note that an implementation must not call end() in this method
+            unless end() is overridden such as not to delegate to the
+            coordinate computation policy object.
+
   Returns : integer or undef if no minimum ending point.
   Args    : none
 
@@ -146,7 +226,12 @@ sub min_end {
 
   Title   : max_end
   Usage   : my $maxend = $location->max_end();
-  Function: Get maximum ending location of feature endpoint 
+  Function: Get maximum ending point of feature.
+
+            Note that an implementation must not call end() in this method
+            unless end() is overridden such as not to delegate to the
+            coordinate computation policy object.
+
   Returns : integer or undef if no maximum ending point.
   Args    : none
 
@@ -161,7 +246,13 @@ sub max_end {
 
   Title   : end_pos_type
   Usage   : my $end_pos_type = $location->end_pos_type();
-  Function: Get end position encoded as text 
+  Function: Get end position encoded as text.
+
+            Known valid values are 'BEFORE' (5..<100), 'AFTER' (5..>100), 
+            'EXACT' (5..100), 'WITHIN' (5..(90.100)), 'BETWEEN', (5^6), with
+            their meaning best explained by their GenBank/EMBL location string
+            encoding in brackets.
+
   Returns : string ('BEFORE', 'AFTER', 'EXACT','WITHIN', 'BETWEEN')
   Args    : none
 
@@ -177,7 +268,7 @@ sub end_pos_type {
   Title   : seq_id
   Usage   : my $seqid = $location->seq_id();
   Function: Get/Set seq_id that location refers to
-  Returns : seq_id
+  Returns : seq_id (a string)
   Args    : [optional] seq_id value to set
 
 =cut
@@ -204,6 +295,14 @@ sub seq_id {
             setting of a different policy. The implementation provided here
             does, however, allow to do so.
 
+            Implementors of this interface are expected to initialize every
+            new instance with a CoordinatePolicyI object. The implementation
+            provided here will return a default policy object if none has
+            been set yet. To change this default policy object call this
+            method as a class method with an appropriate argument. Note that
+            in this case only subsequently created Location objects will be
+            affected.
+            
   Returns : A Bio::Location::CoordinatePolicyI implementing object.
   Args    : On set, a Bio::Location::CoordinatePolicyI implementing object.
 
@@ -217,9 +316,15 @@ sub coordinate_policy {
 	    $self->throw("Object of class ".ref($policy)." does not implement".
 			 " Bio::Location::CoordinatePolicyI");
 	}
-	$self->{'_coordpolicy'} = $policy;
+	if(ref($self)) {
+	    $self->{'_coordpolicy'} = $policy;
+	} else {
+	    # called as class method
+	    $coord_policy = $policy;
+	}
     }
-    return $self->{'_coordpolicy'};
+    return (ref($self) && exists($self->{'_coordpolicy'}) ?
+	    $self->{'_coordpolicy'} : $coord_policy);
 }
 
 =head2 to_FTstring
