@@ -32,8 +32,6 @@ my @params = ('ktuple' => 2, 'matrix' => 'BLOSUM',
 	      -verbose => -1);
 my  $factory = Bio::Tools::Run::Alignment::Clustalw->new(@params);
 
-ok ($factory->version >= 1.8, 1, "Code tested only on ClustalW versions > 1.8 ");
-
 ok $factory->isa('Bio::Tools::Run::Alignment::Clustalw');
 
 my $ktuple = 3;
@@ -58,6 +56,9 @@ unless ($clustal_present) {
     warn("Clustalw program not found. Skipping tests $Test::ntest to $NTESTS.\n");    
     exit 0;
 }
+
+ok ($factory->version >= 1.8, 1, "Code tested only on ClustalW versions > 1.8 ");
+
 $aln = $factory->align($inputfilename);
 
 ok ($aln->get_seq_by_pos(1)->get_nse, 'CATH_HUMAN/1-335', 
