@@ -2160,23 +2160,7 @@ sub do_load_gff {
       undef $$_ if $$_ eq '.';
     }
 
-    my ($gclass,$gname,$tstart,$tstop,$attributes);
-    if ($self->{gff3_flag}) {
-      my @groups = split /[;&]/,$group;  # so easy!
-      ($gclass,$gname,$tstart,$tstop,$attributes) = $self->_split_gff3_group(@groups);
-    }
-
-    else { #gff2 parsing
-      # handle group parsing
-      # protect embedded semicolons in the group; there must be faster/more elegant way
-      # to do this.
-      $group =~ s/\\;/$;/g;
-      while ($group =~ s/( \"[^\"]*);([^\"]*\")/$1$;$2/) { 1 }
-      my @groups = split(/\s*;\s*/,$group);
-      foreach (@groups) { s/$;/;/g }
-
-      ($gclass,$gname,$tstart,$tstop,$attributes) = $self->_split_group(@groups);
-    }
+    my ($gclass,$gname,$tstart,$tstop,$attributes) = $self->split_group($group,$self->{gff3_flag});
 
     # no standard way in the GFF file to denote the class of the reference sequence -- drat!
     # so we invoke the factory to do it
@@ -3163,24 +3147,48 @@ sub get_features_iterator {
   $self->throw('feature iteration is not implemented in this adaptor');
 }
 
-=head2 _split_group
+=head2 split_group
 
- Title   : _split_group
- Usage   : $db->_split_group(@groups)
+ Title   : split_group
+ Usage   : $db->split_group($group_field,$gff3_flag)
  Function: parse GFF group field
  Returns : ($gclass,$gname,$tstart,$tstop,$attributes)
- Args    : a list of group fields from a GFF line
+ Args    : the gff group column and a flag indicating gff3 compatibility
  Status  : internal
 
-This is an internal method that is called by load_gff_line to parse
-out the contents of one or more group fields.  It returns the class of
-the group, its name, the start and stop of the target, if any, and an
+This is a method that is called by load_gff_line to parse out the
+contents of one or more group fields.  It returns the class of the
+group, its name, the start and stop of the target, if any, and an
 array reference containing any attributes that were stuck into the
 group field, in [attribute_name,attribute_value] format.
 
 =cut
 
-sub _split_group {
+sub split_group {
+  my $self = shift;
+  my ($group,$gff3) = @_;
+  if ($gff3) {
+    my @groups = split /[;&]/,$group;  # so easy!
+    return $self->_split_gff3_group(@groups);
+  } else {
+    # handle group parsing
+    # protect embedded semicolons in the group; there must be faster/more elegant way
+    # to do this.
+    $group =~ s/\\;/$;/g;
+    while ($group =~ s/( \"[^\"]*);([^\"]*\")/$1$;$2/) { 1 }
+    my @groups = split(/\s*;\s*/,$group);
+    foreach (@groups) { s/$;/;/g }
+    return $self->_split_gff2_group(@groups);
+  }
+}
+
+=head2 _split_gff2_group
+
+This is an internal method called by split_group().
+
+=cut
+
+sub _split_gff2_group {
   my $self = shift;
   my @groups = @_;
 
@@ -3227,20 +3235,7 @@ sub _split_group {
 
 =head2 _split_gff3_group
 
- Title   : _split_gff3_group
- Usage   : $db->_split_gff3_group(@groups)
- Function: parse GFF3 group field
- Returns : ($gclass,$gname,$tstart,$tstop,$attributes)
- Args    : a list of group fields from a GFF line
- Status  : internal
-
-This is an internal method that is called by load_gff_line to parse
-out the contents of one or more group fields.  It returns the class of
-the group, its name, the start and stop of the target, if any, and an
-array reference containing any attributes that were stuck into the
-group field, in [attribute_name,attribute_value] format.
-
-It is used for lines from GFF3 files.
+This is called internally from split_group().
 
 =cut
 

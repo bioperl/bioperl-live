@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 
 use strict;
-use lib './blib/lib';
+# use lib './blib/lib';
 use DBI;
 use IO::File;
 use Getopt::Long;
@@ -222,15 +222,7 @@ while (<>) {
   $strand = '\N' if $strand eq '.';
   $phase  = '\N' if $phase  eq '.';
 
-  # handle group parsing
-  $group =~ s/\\;/$;/g;  # protect embedded semicolons in the group
-  $group =~ s/( \"[^\"]*);([^\"]*\")/$1$;$2/g;
-  my @groups = split(/\s*;\s*/,$group);
-  foreach (@groups) { s/$;/;/g }
-
-  my ($group_class,$group_name,$target_start,$target_stop,$attributes) = 
-    $gff3 ? Bio::DB::GFF->_split_gff3_group(@groups)
-          : Bio::DB::GFF->_split_group(@groups);
+  my ($group_class,$group_name,$target_start,$target_stop,$attributes) = Bio::DB::GFF->split_group($group,$gff3);
   $group_class  ||= '\N';
   $group_name   ||= '\N';
   $target_start ||= '\N';

@@ -1,8 +1,8 @@
 #!/usr/bin/perl
-# $Id: fast_load_gff.PLS,v 1.6 2003-09-11 23:49:13 lstein Exp $
+# $Id: fast_load_gff.PLS,v 1.7 2003-09-12 02:36:40 lstein Exp $
 
 use strict;
-use lib './blib/lib';
+# use lib './blib/lib';
 use DBI;
 use IO::File;
 use Getopt::Long;
@@ -218,7 +218,7 @@ END
 
 print STDERR "Fast loading enabled\n" if $DO_FAST;
 
-my ($count,$fasta_sequence_id);
+my ($count,$fasta_sequence_id,$gff3);
 while (<>) {
   chomp;
   my ($ref,$source,$method,$start,$stop,$score,$strand,$phase,$group);
@@ -226,6 +226,10 @@ while (<>) {
       $fasta_sequence_id = $1;
       last;
     }
+
+  elsif (/^\#\#gff-version\s+3/) {
+    $gff3++;
+  }
 
   elsif (/^\#\#\s*sequence-region\s+(\S+)\s+(\d+)\s+(\d+)/i) { # header line
     ($ref,$source,$method,$start,$stop,$score,$strand,$phase,$group) = 
@@ -247,13 +251,7 @@ while (<>) {
   $strand = '\N' if $strand eq '.';
   $phase  = '\N' if $phase  eq '.';
 
-  # handle group parsing
-  $group =~ s/\\;/$;/g;  # protect embedded semicolons in the group
-  $group =~ s/( \"[^\"]*);([^\"]*\")/$1$;$2/g;
-  my @groups = split(/\s*;\s*/,$group);
-  foreach (@groups) { s/$;/;/g }
-
-  my ($group_class,$group_name,$target_start,$target_stop,$attributes) = Bio::DB::GFF->_split_group(@groups);
+  my ($group_class,$group_name,$target_start,$target_stop,$attributes) = Bio::DB::GFF->split_group($group,$gff3);
   $group_class  ||= '\N';
   $group_name   ||= '\N';
   $target_start ||= '\N';
