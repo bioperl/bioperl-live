@@ -49,7 +49,7 @@ repository but there are also supporting modules for converting them
 into Perl objects.
 
 The detailed descriptions of all query and retrieval methods are in
-L<Bio::Factory::BiblioI> (an interface). All those methods should be
+L<Bio::DB::BiblioI> (an interface). All those methods should be
 called on instances of this (Bio::Biblio) module.
 
 The module complies (with some simplifications) with the specification
@@ -78,19 +78,19 @@ there is only one available access method:
    -access => soap
 
 This module implements all methods defined in the interface
-I<Bio::Factory::BiblioI> (see L<Bio::Factory::BiblioI>) by delegating
+I<Bio::DB::BiblioI> (see L<Bio::DB::BiblioI>) by delegating
 calls to a loaded low-level module (e.g. see
-L<Bio::Factory::Biblio::soap>).
+L<Bio::DB::Biblio::soap>).
 
-=item B<Bio::Factory::BiblioI>
+=item B<Bio::DB::BiblioI>
 
 This is an interface defining all methods that can be called on
 I<Bio::Biblio> instances.
 
-=item B<Bio::Factory::Biblio::soap>
+=item B<Bio::DB::Biblio::soap>
 
 This is a real implementation of all methods defined in
-L<Bio::Factory::BiblioI> using SOAP protocol (calling a WebService
+L<Bio::DB::BiblioI> using SOAP protocol (calling a WebService
 based on SOAP). This class should not be instantiated directly (use
 I<Bio::Biblio> instead).
 
@@ -158,7 +158,7 @@ Comments to the Perl client: http://industry.ebi.ac.uk/openBQS/Client_perl.html
 =head1 APPENDIX
 
 The main documentation details are to be found in
-L<Bio::Factory::BiblioI>.
+L<Bio::DB::BiblioI>.
 
 Here is the rest of the object methods.  Internal methods are preceded
 with an underscore _.
@@ -174,9 +174,9 @@ use vars qw(@ISA $VERSION $Revision);
 use strict;
 
 use Bio::Root::Root;
-use Bio::Factory::BiblioI;
+use Bio::DB::BiblioI;
 
-@ISA = qw(Bio::Root::Root Bio::Factory::BiblioI);
+@ISA = qw(Bio::Root::Root Bio::DB::BiblioI);
 
 
 BEGIN { 
@@ -207,12 +207,12 @@ BEGIN {
 
            Other arguments can be given here but they are
            recognized by the lower-level module
-           (e.g. see Bio::Factory::Biblio::soap).
+           (e.g. see Bio::DB::Biblio::soap).
 
 It builds, populates and returns a new I<Bio::Biblio> object. This is
 how it is seen from the outside. But in fact, it builds, populates and
 returns a more specific lower-level object, for example
-I<Bio::Factory::Biblio::soap> object - which one it is depends on the
+I<Bio::DB::Biblio::soap> object - which one it is depends on the
 parameter I<-access>.
 
 The real initialization is done in the method I<_initialize> of the
@@ -221,7 +221,7 @@ lower-level object.
 This method can also be used for I<cloning> an existing object and
 changing or adding new attributes to it in the same time. This is,
 however, not particulary useful for the casual users of this module,
-because the query methods (see L<Bio::Factory::BiblioI>) themselves
+because the query methods (see L<Bio::DB::BiblioI>) themselves
 already return cloned objects with more refined query
 collections. Anyway this is how the cloning can be done:
 
@@ -239,10 +239,10 @@ sub new {
     my $class = ref($caller) || $caller;
   
     # if $caller is an object, or if it is an underlying
-    # 'real-work-doing' class (e.g. Bio::Factory::Biblio::soap) then
+    # 'real-work-doing' class (e.g. Bio::DB::Biblio::soap) then
     # we want to call SUPER to create and bless an object
 
-    if ($class =~ /Bio::Factory::Biblio::(\S+)/) {
+    if ($class =~ /Bio::DB::Biblio::(\S+)/) {
 	my ($self) = $class->SUPER::new (@args);
 
 	# now the $self is an empty object - we will populate it from
@@ -277,7 +277,7 @@ sub new {
 
 	# this will call this same method new() - but rather its the
 	# upper (object) branche
-	return "Bio::Factory::Biblio::$access"->new (@args);
+	return "Bio::DB::Biblio::$access"->new (@args);
     }
 }
 
@@ -292,7 +292,7 @@ sub new {
 
 It does (in run-time) a similar thing as
 
-   require Bio::Factory::Biblio::$access
+   require Bio::DB::Biblio::$access
 
 It prints an error on STDERR if it fails to find and load the module
 (for example, because of the compilation errors in the module).
@@ -303,8 +303,8 @@ sub _load_access_module {
   my ($access) = @_;
   my ($module, $load, $m);
 
-  $module = "_<Bio/Factory/Biblio/$access.pm";
-  $load = "Bio/Factory/Biblio/$access.pm";
+  $module = "_<Bio/DB/Biblio/$access.pm";
+  $load = "Bio/DB/Biblio/$access.pm";
 
   return 1 if $main::{$module};
   eval {

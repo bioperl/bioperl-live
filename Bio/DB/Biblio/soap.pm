@@ -1,6 +1,6 @@
 # $Id$
 #
-# BioPerl module Bio::Factory::Biblio::soap.pm
+# BioPerl module Bio::DB::Biblio::soap.pm
 #
 # Cared for by Martin Senger <senger@ebi.ac.uk>
 # For copyright and disclaimer see below.
@@ -9,7 +9,7 @@
 
 =head1 NAME
 
-Bio::Factory::Biblio::soap - A SOAP-based access to a bibliographic query service
+Bio::DB::Biblio::soap - A SOAP-based access to a bibliographic query service
 
 =head1 SYNOPSIS
 
@@ -22,7 +22,7 @@ it through the I<Bio::Biblio> module:
 =head1 DESCRIPTION
 
 This object contains the real implementation of a Bibliographic Query
-Service as defined in L<Bio::Factory::BiblioI> - using a SOAP protocol
+Service as defined in L<Bio::DB::BiblioI> - using a SOAP protocol
 to access a WebService (a remote server) that represents a
 bibliographic repository.
 
@@ -93,7 +93,7 @@ are properly transferred even if they contain foreign characters.
 =head1 APPENDIX
 
 The main documentation details are to be found in
-L<Bio::Factory::BiblioI>.
+L<Bio::DB::BiblioI>.
 
 Here is the rest of the object methods.  Internal methods are preceded
 with an underscore _.
@@ -104,7 +104,7 @@ with an underscore _.
 # Let the code begin...
 
 
-package Bio::Factory::Biblio::soap;
+package Bio::DB::Biblio::soap;
 use vars qw(@ISA $VERSION $Revision $DEFAULT_SERVICE $DEFAULT_NAMESPACE);
 use strict;
 
@@ -116,7 +116,7 @@ use SOAP::Lite
 	my $msg =
 	    ref $res ? "--- SOAP FAULT ---\n" . $res->faultcode . " " . $res->faultstring
 		     : "--- TRANSPORT ERROR ---\n" . $soap->transport->status;
-        Bio::Factory::Biblio::soap->throw ( -text => $msg );
+        Bio::DB::Biblio::soap->throw ( -text => $msg );
     }
 ;
 
@@ -187,7 +187,7 @@ BEGIN {
                 See the code for attributes of the default SOAP::Lite
                 object.
 
-	   Additionally, the factory module Bio::Biblio recognises
+	   Additionally, the main module Bio::Biblio recognises
 	   also:
              -access => '...'
              -location => '...'
@@ -318,8 +318,8 @@ END_OF_MSG
     
 # ---------------------------------------------------------------------
 #
-#   Here are the methods implementing Bio::Factory::BiblioI interface
-#   (documentation is in Bio::Factory::BiblioI)
+#   Here are the methods implementing Bio::DB::BiblioI interface
+#   (documentation is in Bio::DB::BiblioI)
 #
 # ---------------------------------------------------------------------
 
@@ -510,15 +510,15 @@ sub get_all_entries {
 
 =head2 VERSION and Revision
 
- Usage   : print $Bio::Factory::Biblio::soap::VERSION;
-           print $Bio::Factory::Biblio::soap::Revision;
+ Usage   : print $Bio::DB::Biblio::soap::VERSION;
+           print $Bio::DB::Biblio::soap::Revision;
 
 =cut
 
 =head2 Defaults
 
- Usage   : print $Bio::Factory::Biblio::soap::DEFAULT_SERVICE;
-           print $Bio::Factory::Biblio::soap::DEFAULT_NAMESPACE;
+ Usage   : print $Bio::DB::Biblio::soap::DEFAULT_SERVICE;
+           print $Bio::DB::Biblio::soap::DEFAULT_NAMESPACE;
 
 =cut
 

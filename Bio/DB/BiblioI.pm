@@ -1,6 +1,6 @@
 # $Id$
 #
-# BioPerl module for Bio::Factory::BiblioI
+# BioPerl module for Bio::DB::BiblioI
 #
 # Cared for by Martin Senger <senger@ebi.ac.uk>
 # For copyright and disclaimer see below.
@@ -10,7 +10,7 @@
 
 =head1 NAME
 
-Bio::Factory::BiblioI - An interface to a Bibliographic Query Service
+Bio::DB::BiblioI - An interface to a Bibliographic Query Service
 
 =head1 SYNOPSIS
 
@@ -71,7 +71,7 @@ This software is provided "as is" without warranty of any kind.
 This is actually the main documentation...
 
 If you try to call any of these methods directly on this
-Bio::Factory::BiblioI object you will get a I<not implemented> error
+Bio::DB::BiblioI object you will get a I<not implemented> error
 message. You need to call them on a Bio::Biblio object.
 
 =cut
@@ -80,7 +80,7 @@ message. You need to call them on a Bio::Biblio object.
 # Let the code begin...
 
 
-package Bio::Factory::BiblioI;
+package Bio::DB::BiblioI;
 use vars qw(@ISA $VERSION $Revision);
 use strict;
 use Bio::Root::Root;
@@ -495,8 +495,8 @@ sub get_all_entries { shift->_abstractDeath; }
 
 =head2 VERSION and Revision
 
- Usage   : print $Bio::Factory::BiblioI::VERSION;
-           print $Bio::Factory::BiblioI::Revision;
+ Usage   : print $Bio::DB::BiblioI::VERSION;
+           print $Bio::DB::BiblioI::Revision;
 
 =cut
 
