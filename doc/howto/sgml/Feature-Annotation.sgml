@@ -121,7 +121,7 @@
     </para>
     <para>
       I mentioned locations, above. Describing locations can be
-      complicated in certain situations, say when some marker is
+      complicated in certain situations, say when some feature is
       located on different sequences with varying degrees of
       precision. One location could also be shared
       between disparate objects, such as two different kinds of 
@@ -340,7 +340,7 @@ SOURCE      human.
     <title>Annotations from Genbank</title>
     <para>
       There's still quite a bit of data left in the Genbank file that's
-      not a SeqFeature, and much of it can be parsed into Annotation objects. 
+      not a SeqFeature, and much of it is parsed into Annotation objects. 
       In order to get access to these objects we have to get an
       AnnotationCollection object, which is exactly what it sounds like:
       <programlisting>
@@ -519,7 +519,7 @@ start: 1
       <programlisting>
        foreach my $feature ($seqobj->top_SeqFeatures){
          if ( $feature->location->isa('Bio::Location::SplitLocationI')
-                        && $feature->primary_tag eq 'CDS' )  {
+                        &amp;&amp; $feature->primary_tag eq 'CDS' )  {
            foreach my $location ( $feature->location->sub_Location ) {
              print $location->start . ".." . $location->end . "\n";
            }
