@@ -45,7 +45,7 @@ $VERSION = 0.041;
 
 =head1 NAME
 
-Bio::Root::Err.pm -  Exception class for Perl 5 objects
+Bio::Root::Err -  Exception class for Perl 5 objects
 
 =head1 SYNOPSIS
 
