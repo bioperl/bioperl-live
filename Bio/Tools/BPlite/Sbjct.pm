@@ -76,8 +76,8 @@ sub nextFeaturePair {shift->nextHSP}; # just another name
 
 sub nextHSP {
   my ($self) = @_;
-  return undef if $self->{'HSP_ALL_PARSED'};
-  
+  return undef if ($self->{'HSP_ALL_PARSED'});
+
   ############################
   # get and parse scorelines #
   ############################

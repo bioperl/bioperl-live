@@ -169,6 +169,7 @@ sub nextSbjct {
     if    ($_ !~ /\w/)            {next}
     elsif ($_ =~ /Strand HSP/)    {next} # WU-BLAST non-data
     elsif ($_ =~ /^\s{0,2}Score/) {$self->{'LASTLINE'} = $_; last}
+	elsif ($_ =~ /^Parameters|^\s+Database:|^\s+Posted date:/) {$self->{'LASTLINE'} = $_; last}
     else                          {$def .= $_}
   }
   $def =~ s/\s+/ /g;

@@ -16,6 +16,8 @@ Bio::Tools::BPlite - Lightweight BLAST parser
 
  use Bio::Tools::BPlite;
  my $report = new Bio::Tools::BPlite(-fh=>\*STDIN);
+
+ {
  $report->query;
  $report->database;
  while(my $sbjct = $report->nextSbjct) {
@@ -39,7 +41,10 @@ Bio::Tools::BPlite - Lightweight BLAST parser
 	 $hsp->sbjct->overlaps($exon);
      }
  }
+ last if (!($report->_parseHeader));  # this takes you to the next report
+ redo
 
+ }
 =head1 DESCRIPTION
 
 BPlite is a package for parsing BLAST reports. The BLAST programs are a family
@@ -318,6 +323,7 @@ sub nextSbjct {
     if    ($_ !~ /\w/)            {next}
     elsif ($_ =~ /Strand HSP/)    {next} # WU-BLAST non-data
     elsif ($_ =~ /^\s{0,2}Score/) {$self->{'LASTLINE'} = $_; last}
+	elsif ($_ =~ /^Parameters|^\s+Database:|^\s+Posted date:/) {$self->{'LASTLINE'} = $_; last}
     else                          {$def .= $_}
   }
   $def =~ s/\s+/ /g;
@@ -349,7 +355,7 @@ sub _parseHeader {
       my $query = $1;
       while(<$FH>) {
         last if $_ !~ /\S/;
-	$query .= $_;
+		$query .= $_;
       }
       $query =~ s/\s+/ /g;
       $query =~ s/^>//;
@@ -361,8 +367,8 @@ sub _parseHeader {
     elsif ($_ =~ /^Database:\s+(.+)/) {$self->{'DATABASE'} = $1}
     elsif ($_ =~ /^\s*pattern\s+(\S+).*position\s+(\d+)\D/) {   
 # For PHIBLAST reports
-	$self->{'PATTERN'} = $1;
-	push (@{$self->{'QPATLOCATION'}}, $2);
+		$self->{'PATTERN'} = $1;
+		push (@{$self->{'QPATLOCATION'}}, $2);
 #			$self->{'QPATLOCATION'} = $2;
     } 
     elsif ($_ =~ /^>/) {$self->{'LASTLINE'} = $_; return 1}
@@ -375,7 +381,8 @@ sub _parseHeader {
 sub _fastForward {
     my ($self) = @_;
     return 0 if $self->{'REPORT_DONE'}; # empty report
-    return 1 if $self->{'LASTLINE'} =~ /^>/;
+    return 0 if $self->{'LASTLINE'} =~ /^Parameters|^\s+Database:|^\s+Posted date:/;
+	return 1 if $self->{'LASTLINE'} =~ /^>/;
 
     my $FH = $self->_fh();
     my $capture;
