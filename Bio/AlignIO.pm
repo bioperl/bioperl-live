@@ -25,8 +25,10 @@ Bio::AlignIO - Handler for AlignIO Formats
     use Bio::AlignIO;
 
     $inputfilename = "testaln.fasta";
-    $in  = Bio::AlignIO->new(-file => $inputfilename , '-format' => 'fasta');
-    $out = Bio::AlignIO->new(-file => ">out.aln.pfam" , '-format' => 'pfam');
+    $in  = Bio::AlignIO->new(-file => $inputfilename ,
+                             '-format' => 'fasta');
+    $out = Bio::AlignIO->new(-file => ">out.aln.pfam" ,
+                             '-format' => 'pfam');
     # note: we quote -format to keep older perl's from complaining.
 
     while ( my $aln = $in->next_aln() ) {
@@ -38,7 +40,8 @@ or
     use Bio::AlignIO;
 
     $inputfilename = "testaln.fasta";
-    $in  = Bio::AlignIO->newFh(-file => $inputfilename , '-format' => 'fasta');
+    $in  = Bio::AlignIO->newFh(-file => $inputfilename ,
+                               '-format' => 'fasta');
     $out = Bio::AlignIO->newFh('-format' => 'pfam');
 
     # World's shortest Fasta<->pfam format converter:
@@ -76,7 +79,8 @@ operations to read and write sequence objects:
 
     use Bio::AlignIO;
 
-    $stream = Bio::AlignIO->newFh(-format => 'Fasta'); # read from standard input
+     # read from standard input
+    $stream = Bio::AlignIO->newFh(-format => 'Fasta');
 
     while ( $aln = <$stream> ) {
 	# do something with $aln
@@ -91,13 +95,15 @@ This makes the simplest ever reformatter
     #!/usr/local/bin/perl
 
     $format1 = shift;
-    $format2 = shift || die "Usage: reformat format1 format2 < input > output";
+    $format2 = shift ||
+        die "Usage: reformat format1 format2 < input > output";
 
     use Bio::AlignIO;
 
     $in  = Bio::AlignIO->newFh(-format => $format1 );
     $out = Bio::AlignIO->newFh(-format => $format2 );
-    #note: you might want to quote -format to keep older perl's from complaining.
+    # note: you might want to quote -format to keep 
+    #  older perl's from complaining.
 
     print $out $_ while <$in>;
 
@@ -297,9 +303,11 @@ use Bio::Root::IO;
 =head2 new
 
  Title   : new
- Usage   : $stream = Bio::AlignIO->new(-file => $filename, -format => 'Format')
+ Usage   : $stream = Bio::AlignIO->new(-file => $filename,
+                                       '-format' => 'Format')
  Function: Returns a new seqstream
- Returns : A Bio::AlignIO::Handler initialised with the appropriate format
+ Returns : A Bio::AlignIO::Handler initialised with 
+           the appropriate format
  Args    : -file => $filename 
            -format => format
            -fh => filehandle to attach to
