@@ -1,15 +1,19 @@
 #!/usr/bin/perl
-use strict;
+#use strict;
 use LocalConfig;
 use File::Basename qw(basename dirname);
 my $file;
 ($file = basename($0)) =~ s/\.PL$/\.pod/;
 open OUT,">$file" or die "Can't create $file: $!";
 
-print OUT<<"!GROK!THIS!";
+print OUT<<GROK;
 =head1 NAME
 
 Bioperl v$Local{VERSION} - Perl Modules for Biology
+
+GROK
+;
+print OUT<<'NOGROK'
 
 =head1 SYNOPSIS
 
@@ -241,6 +245,10 @@ Rich DiNunno have made significant efforts on our behalf.
 Finally, this document is maintained by Allen Day.  Contact
 <allenday\@ucla.edu> for comments/corrections.
 
+NOGROK
+;
+print <<GROK
+
 $Local{AUTHORS}
 
 =head1 COPYRIGHT
@@ -251,4 +259,4 @@ and others. All Rights Reserved. This module is free software;  you can
 redistribute it and/or modify it under the same terms as Perl itself.
 
 =cut
-!GROK!THIS!
+GROK

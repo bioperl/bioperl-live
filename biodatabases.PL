@@ -6,10 +6,14 @@ my $file;
 ($file = basename($0)) =~ s/\.PL$/\.pod/;
 open OUT,">$file" or die "Can't create $file: $!";
 
-print OUT<<"THEEND"
+print OUT<<"GROK"
 =head1 NAME
 
 Bioperl databases $Local{VERSION} - how to use databases with Bioperl
+
+GROK
+;
+print OUT<<'NOGROK'
 
 =head1 SYNOPSIS
 
@@ -224,4 +228,4 @@ See L<Bio::DB::GFF>, L<Bio::DB::GFF::RelSegment>,
 L<Bio::DB::GFF::Feature>, and L<Bio::DB::GFF::Adaptor::dbi>.
 
 =cut
-THEEND
+NOGROK

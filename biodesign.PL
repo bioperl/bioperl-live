@@ -6,10 +6,14 @@ my $file;
 ($file = basename($0)) =~ s/\.PL$/\.pod/;
 open OUT,">$file" or die "Can't create $file: $!";
 
-print OUT<<"THEEND";
+print OUT<<GROK;
 =head1 NAME
 
 Biodesign v$Local{VERSION} - Bioperl Design Documentation
+
+GROK
+;
+print OUT<<'NOGROK'
 
 =head1 SYNOPSIS
 
@@ -429,4 +433,4 @@ creativity and imagination. In this spirit of open-mindedness we invite
 you to share your ideas with us at bioperl-l at bioperl.org.
 
 =cut
-THEEND
+NOGROK
