@@ -77,17 +77,17 @@ preceded with a _
 package Bio::DB::NCBIHelper;
 use strict;
 use vars qw(@ISA $HOSTBASE %CGILOCATION %FORMATMAP 
-	    $BOUNDARY $DEFAULTFORMAT $MAX_ENTRIES);
+	    $DEFAULTFORMAT $MAX_ENTRIES);
 
 use Bio::DB::WebDBSeqI;
 use HTTP::Request::Common;
 use Bio::Root::IO;
 use Bio::DB::RefSeq;
+use Bio::Root::Root;
 
-@ISA = qw(Bio::DB::WebDBSeqI);
+@ISA = qw(Bio::DB::WebDBSeqI Bio::Root::Root);
 
 BEGIN {
-    $BOUNDARY = '-' x 30 . int rand(10E14); 	    
     $MAX_ENTRIES = 19000;
     $HOSTBASE = 'http://www.ncbi.nlm.nih.gov';
     %CGILOCATION = ( 

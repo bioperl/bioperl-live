@@ -79,27 +79,16 @@ message. You need to call them on a Bio::Biblio object.
 
 # Let the code begin...
 
-
 package Bio::DB::BiblioI;
 use vars qw(@ISA $VERSION $Revision);
 use strict;
-use Bio::Root::Root;
+use Bio::Root::RootI;
 
-@ISA = qw(Bio::Root::Root);
+@ISA = qw(Bio::Root::RootI);
 
 BEGIN { 
     $VERSION = do { my @r = (q$Revision$ =~ /\d+/g); sprintf "%d.%-02d", @r };
     $Revision = q$Id$;
-}
-
-sub _abstractDeath {
-  my $self = shift;
-  my $package = ref $self;
-  my $caller = (caller(1))[3];
-
-  $self->throw ("Abstract method '$caller' not implemented.\n" .
-		"Not your fault - author of $package should be blamed!");
-
 }
 
 # -----------------------------------------------------------------------------
@@ -119,7 +108,7 @@ and then to access that collection.
 
 sub get_collection_id {
    my ($self,@args) = @_;
-   $self->_abstractDeath ('get_collection_id');
+   $self->throw_not_implemented();
 }
 
 
@@ -137,7 +126,7 @@ as an argument.
 
 =cut
 
-sub get_count { shift->_abstractDeath; }
+sub get_count { shift->throw_not_implemented(); }
 
 # -----------------------------------------------------------------------------
 
@@ -166,7 +155,7 @@ it is possible to chain together several invocations:
 
 =cut
 
-sub find { shift->_abstractDeath; }
+sub find { shift->throw_not_implemented; }
 
 # -----------------------------------------------------------------------------
 
@@ -195,7 +184,7 @@ argument I<-collection_id>.
 
 =cut
 
-sub reset_retrieval { shift->_abstractDeath; }
+sub reset_retrieval { shift->throw_not_implemented; }
 
 # -----------------------------------------------------------------------------
 
@@ -220,7 +209,7 @@ this document.
 
 =cut
 
-sub get_next { shift->_abstractDeath; }
+sub get_next { shift->throw_not_implemented; }
 
 # -----------------------------------------------------------------------------
 
@@ -244,7 +233,7 @@ in this document.
 
 =cut
 
-sub get_more { shift->_abstractDeath; }
+sub get_more { shift->throw_not_implemented; }
 
 # -----------------------------------------------------------------------------
 
@@ -263,7 +252,7 @@ this document.
 
 =cut
 
-sub has_next { shift->_abstractDeath; }
+sub has_next { shift->throw_not_implemented; }
 
 # -----------------------------------------------------------------------------
 
@@ -290,7 +279,7 @@ this document.
 
 =cut
 
-sub get_all_ids { shift->_abstractDeath; }
+sub get_all_ids { shift->throw_not_implemented; }
 
 # -----------------------------------------------------------------------------
 
@@ -308,7 +297,7 @@ repository).
 
 =cut
 
-sub get_by_id { shift->_abstractDeath; }
+sub get_by_id { shift->throw_not_implemented; }
 
 # -----------------------------------------------------------------------------
 
@@ -333,7 +322,7 @@ this document.
 
 =cut
 
-sub get_all { shift->_abstractDeath; }
+sub get_all { shift->throw_not_implemented; }
 
 # -----------------------------------------------------------------------------
 
@@ -360,7 +349,7 @@ this document.
 
 =cut
 
-sub exists { shift->_abstractDeath; }
+sub exists { shift->throw_not_implemented; }
 
 # -----------------------------------------------------------------------------
 
@@ -379,7 +368,7 @@ collection.
 
 =cut
 
-sub destroy { shift->_abstractDeath; }
+sub destroy { shift->throw_not_implemented; }
 
 # -----------------------------------------------------------------------------
 
@@ -403,7 +392,7 @@ I<get_all_values>, and I<get_all_entries>.
 
 =cut
 
-sub get_vocabulary_names { shift->_abstractDeath; }
+sub get_vocabulary_names { shift->throw_not_implemented; }
 
 # -----------------------------------------------------------------------------
 
@@ -425,7 +414,7 @@ use it in the I<find> method:
 
 =cut
 
-sub contains { shift->_abstractDeath; }
+sub contains { shift->throw_not_implemented; }
 
 # -----------------------------------------------------------------------------
 
@@ -448,7 +437,7 @@ It throws an exception if either vocabulary or value do not exist.
 
 =cut
 
-sub get_entry_description { shift->_abstractDeath; }
+sub get_entry_description { shift->throw_not_implemented; }
 
 # -----------------------------------------------------------------------------
 
@@ -465,7 +454,7 @@ if the vocabulary does not exist.
 
 =cut
 
-sub get_all_values { shift->_abstractDeath; }
+sub get_all_values { shift->throw_not_implemented; }
 
 # -----------------------------------------------------------------------------
 
@@ -489,7 +478,7 @@ This is one way how to get it and print it:
 
 =cut
 
-sub get_all_entries { shift->_abstractDeath; }
+sub get_all_entries { shift->throw_not_implemented; }
 
 # -----------------------------------------------------------------------------
 

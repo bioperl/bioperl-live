@@ -302,18 +302,20 @@ sub next_seq {
 	}
 	$_ = $buffer;
     }
-    if( /^CONTIG/ ) {
-	$b = "     $_"; # need 5 spaces to treat it like a feature
-	my $ftunit = $self->_read_FTHelper_GenBank(\$b);
-	if( ! defined $ftunit ) {
-	    $self->warn("unable to parse the CONTIG feature\n");
-	} else { 
-	    $ftunit->_generic_seqfeature($seq);
-	}	
-    } elsif(! /^ORIGIN/) {     # advance to the section with the sequence
-	$seqc = "";	
-	while (defined( $_ = $self->_readline) ) {
-	    last if /^ORIGIN/;
+    if( defined ($_) ) {
+	if( /^CONTIG/ ) {
+	    $b = "     $_"; # need 5 spaces to treat it like a feature
+	    my $ftunit = $self->_read_FTHelper_GenBank(\$b);
+	    if( ! defined $ftunit ) {
+		$self->warn("unable to parse the CONTIG feature\n");
+	    } else { 
+		$ftunit->_generic_seqfeature($seq);
+	    }	
+	} elsif(! /^ORIGIN/) {     # advance to the section with the sequence
+	    $seqc = "";	
+	    while (defined( $_ = $self->_readline) ) {
+		last if /^ORIGIN/;
+	    }
 	}
     }
     while( defined($_ = $self->_readline) ) {

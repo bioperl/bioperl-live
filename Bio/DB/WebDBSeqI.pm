@@ -88,6 +88,7 @@ use HTTP::Request::Common;
 use HTTP::Response;
 use File::Spec;
 use IO::String;
+use Bio::Root::Root;
 
 @ISA = qw(Bio::DB::RandomAccessI);
 
