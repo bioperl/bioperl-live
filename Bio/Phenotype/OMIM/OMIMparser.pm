@@ -495,6 +495,7 @@ sub _createOMIMentry {
             $omim_entry->add_References( @refs );
         }
         elsif ( $key == SYMPT_STATE ) {
+            $val = '' if($val eq 'clinical symptoms');
             $omim_entry->clinical_symptoms_raw( $val );
         }
         elsif ( $key == CONTRIBUTORS_STATE ) {
