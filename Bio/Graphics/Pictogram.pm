@@ -41,6 +41,29 @@ Bio::Graphics::Pictogram
 
   print $svg->xmlify."\n";
 
+  #Support for Bio::Matrix::PSM::SiteMatrix now included
+  
+   use Bio::Matrix::PSM::IO;
+
+   my $picto = Bio::Graphics::Pictogram->new(-width=>"800",
+                                            -height=>"500",
+                                            -fontsize=>"60",
+                                            -plot_bits=>1,
+                                            -background=>{
+                                                          'A'=>0.25,
+                                                          'C'=>0.18,
+                                                          'T'=>0.32,
+                                                          'G'=>0.25},
+                                            -color=>{'A'=>'red',
+                                                     'G'=>'blue',
+                                                     'C'=>'green',
+                                                     'T'=>'magenta'});
+   
+  my $psm = $psmIO->next_psm;
+  my $svg = $picto->make_svg($psm);
+  print $svg->xmlify;
+
+
 =head1 DESCRIPTION
 
 A module for generating SVG output of Pictogram display for consensus
@@ -154,7 +177,7 @@ sub new {
  Usage   : $picto->make_svg();
  Function: make the SVG object 
  Returns : L<SVG> 
- Arguments: A fasta file or array ref of L<Bio::Seq> objects
+ Arguments: A fasta file or array ref of L<Bio::Seq> objects or a L<Bio::Matrix::PSM::SiteMatrixI>
 
 =cut
 
@@ -177,6 +200,9 @@ sub make_svg {
   #input can be file or array ref of sequences 
   if(ref($input) eq 'ARRAY'){
     @pwm = @{$self->_make_pwm($input)};
+  }  
+  elsif(ref($input) && $input->isa("Bio::Matrix::PSM::SiteMatrixI")){
+    @pwm = $self->_make_pwm_from_site_matrix($input);
   }  
   else {
     my $sio = Bio::SeqIO->new(-file=>$input,-format=>"fasta");
@@ -276,6 +302,23 @@ sub make_svg {
   return $self->svg_obj($svg);
 }
 
+sub _make_pwm_from_site_matrix{
+  my ($self,$matrix) = @_;
+  my $bgd = $self->background;
+  my @pwm;
+  my $consensus = $matrix->consensus;
+  foreach my $i(1..length($consensus)){
+    my %base = $matrix->next_pos;
+    my $bits; 
+    $bits+=($base{pA} * log2($base{pA}/$bgd->{'A'}));
+    $bits+=($base{pC} * log2($base{pC}/$bgd->{'C'}));
+    $bits+=($base{pG} * log2($base{pG}/$bgd->{'G'}));
+    $bits+=($base{pT} * log2($base{pT}/$bgd->{'T'}));
+    push @pwm, [$base{pA},$base{pC},$base{pG},$base{pT},abs(sprintf("%.3f",$bits))];
+  }
+  return @pwm;
+}
+  
 sub _make_pwm {
   my ($self,$input) = @_;
   my $count = 1;
