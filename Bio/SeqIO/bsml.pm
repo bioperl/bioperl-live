@@ -81,9 +81,9 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 
 =head2 Things Still to Do
 
- * DOES NOT WORK with new Annotation::Collection. I am going to modify
-   the code to conform to the new method calls, but will commit this
-   for now as is, which will function with older Annotation modules.
+ * Should work with Annotation::Collection.pm version 1.3. This will be
+   my last commit that uses the old Annotation method calls - the next
+   version will utilize the new tag/value system.
 
  * Generate Seq objects with no sequence data but an assigned
    length. This appears to be an issue with Bio::Seq. It is possible
@@ -91,16 +91,6 @@ Report bugs to the Bioperl bug tracking system to help us keep track
    sequence data.
 
  * Support <Seq-data-import>. Do not know how commonly this is used.
-
- * Better standardization of generic "name = value"-type mappings (for
-   example, Similarity = Proteases). Because different formats have
-   schemas of various detail, this is not 100% soluble, but it can
-   probably be better than it is now.
-
- * More advanced DBLink mapping? I am suspicious there may be a bug in
-   the DBLink.pm module, but have not carefully investigated.
-
- * More sophisticated mapping of species data
 
  * Some features are awaiting implementation in later versions of
    BSML. These include: Nested feature support; Complex feature (ie
@@ -273,6 +263,17 @@ sub next_seq {
 	    $species->sub_species( $content );
 	    next;
 	}
+	if ($name =~ /classification/i) {  # Should be species classification
+	    # We will assume that there are spaces separating the terms:
+	    my @bits = split " ", $content;
+	    # Now make sure there is not other cruft as well (eg semi-colons)
+	    for my $i (0..$#bits) {
+		$bits[$i] =~ /(\w+)/;
+		$bits[$i] = $1;
+	    }
+	    $species->classification( @bits );
+	    next;
+	}
 	if ($name =~ /comment/) {
 	    my $com = Bio::Annotation::Comment->new('-text' => $content);
 	    $bioSeq->annotation->add_Comment($com);
@@ -398,14 +399,12 @@ sub FLOPPYVALS {
 	$name  = $obj->getAttribute('name');
 	$value = $obj->getAttribute('content');
     } elsif ($obj->getNodeName eq "Qualifier") {
-	# Wheras <Attribute>s require both name and content attributes,
+	# Wheras <Attribute>s require both 'name' and 'content' attributes,
 	# <Qualifier>s can technically have either blank (and sometimes do)
-	if (my $val =  $obj->getAttribute('value-type')) {
-	    $name = $val;
-	}
-	if (my $val =  $obj->getAttribute('value')) {
-	    $value = $val;
-	}
+	my $n =  $obj->getAttribute('value-type');
+	$name = $n if ($n ne "");
+	my $v =  $obj->getAttribute('value');
+	$value = $v if ($v ne "");
     }
     return ($name, $value);
 }
@@ -574,6 +573,7 @@ sub to_bsml {
 	my $seqRefs = []; my $featRefs = [];
 	# Array references to hold <Attribute> values (not objects):
 	my $seqDesc = [];
+	push @{$seqDesc}, ["comment" , "This file generated to BSML 2.2 standards - joins will be collapsed to a single feature enclosing all members of the join"];
 	push @{$seqDesc}, ["description" , $bioSeq->desc];
 	push @{$seqDesc}, ["keyword" , $bioSeq->keywords];
 	push @{$seqDesc}, ["version" , $bioSeq->seq_version];
@@ -635,6 +635,8 @@ sub to_bsml {
 		next unless (my $val = $bioSeq->species()->$sp());
 		push @{$seqDesc}, [$sp , $val];
 	    }
+	    push @{$seqDesc}, ['classification', 
+			       (join " ", $bioSeq->species->classification) ];
 	    # Species::binomial will return "genus species sub_species" ...
 	} elsif (my $val = $bioSeq->species) {
 	    # Ok, no idea what it is, just dump it in there...
