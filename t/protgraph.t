@@ -14,7 +14,7 @@ BEGIN {
         use lib 't';
     }
     use Test;
-    $NUMTESTS  = 52;
+    $NUMTESTS  = 57;
     plan tests => $NUMTESTS;
     eval {	require Class::AutoClass;	
          	require Clone;
@@ -60,18 +60,8 @@ ok my $io = Bio::Graph::IO->new(-format => 'dip',
 ok  $gr = $io->next_network();
 #ok my @conns = $gr->components();
 #print STDERR scalar @conns, "s\n";
- my @nodes = $gr->articulation_points();
- for my $node(@nodes){
-		my $n   = $gr->_nodes($node);
-		my $ac  = $n->annotation();
-		my @dbs = $ac->get_Annotations('dblink');
-		my $id  = (map{$_->primary_id}grep{$_->database eq 'DIP'} @dbs)[0];
-		$ids{$id}++;
-	}
 
-for (sort keys %ids) {
-	print "$_ : $ids{$_}\n";
-}		
+
 ok my $node   = $gr->nodes_by_id('A64696');
 ok $node->accession_number, 'A64696';
 
@@ -80,6 +70,20 @@ ok $node->accession_number, 'A64696';
 ok my $out =  Bio::Graph::IO->new(-format => 'dip',
                                   -file   =>">". Bio::Root::IO->catfile("t","data","out.mif"));
 ok $out->write_network($gr);
+
+## get articulation_points. 
+my @nodes = $gr->articulation_points();
+
+##now remove 2 nodes: this removes 4 edges and  3087 should be a new artic point
+ok $gr->edge_count, 72;
+$gr->remove_nodes($gr->nodes_by_id('3082N'), $gr->nodes_by_id('3083N'));
+ok $gr->edge_count, 68;
+ @nodes = $gr->articulation_points();
+ok grep {$_->object_id eq 'B64701'} @nodes;
+
+ok my $node   = $gr->nodes_by_id('A64696');
+ok $node->accession_number, 'A64696';
+
 
 ## can we round trip, is out format same as original format?
 ok my $io2 = Bio::Graph::IO->new(-format    => 'dip',
@@ -93,8 +97,6 @@ if (!$XML_ERROR){
 
 
 }
-
-
 
 ##### now lets test some graph properties.....##
 ## basic properties from SImpleGraph.
