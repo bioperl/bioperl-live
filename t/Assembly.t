@@ -25,15 +25,33 @@ BEGIN {
 
     $NUMTESTS = 13;
     plan tests => $NUMTESTS;
+    eval { require DB_File };
+    if( $@ ) {
+	print STDERR "DB_File not installed. This means the Assembly modules are not available.  Skipping tests.\n";
+	for( 1..$NUMTESTS ) {
+	    skip("DB_File not installed",1);
+	}
+	$error = 1; 
+    }
+}
 
+
+END { 
+    foreach ( $Test::ntest..$NUMTESTS) {
+	skip('unable to run all of the DB tests',1);
+    }
+}
+
+if( $error ==  1 ) {
+    exit(0);
 }
 
 #syntax test
 
-use Bio::Assembly::IO;
-use Bio::Assembly::Scaffold;
-use Bio::Assembly::Contig;
-use Bio::Assembly::ContigAnalysis;
+require Bio::Assembly::IO;
+require Bio::Assembly::Scaffold;
+require Bio::Assembly::Contig;
+require Bio::Assembly::ContigAnalysis;
 
 use Data::Dumper;
 
