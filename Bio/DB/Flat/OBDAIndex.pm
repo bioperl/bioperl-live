@@ -140,10 +140,11 @@ To access the secondary indices the secondary namespace needs to be known
 
 =head1 DESCRIPTION
 
-This object allows indexing of sequence files both by a primary key 
-(say accession) and multiple secondary keys (say ids).  This is different
-from the Bio::Index::Abstract (see L<Bio::Index::Abstract) which uses 
-DBM files as storage.  This module uses a binary search to retrieve sequences which is more efficient for large datasets.  
+This object allows indexing of sequence files both by a primary key
+(say accession) and multiple secondary keys (say ids).  This is
+different from the Bio::Index::Abstract (see L<Bio::Index::Abstract>)
+which uses DBM files as storage.  This module uses a binary search to
+retrieve sequences which is more efficient for large datasets.
 
 
 =head1 FEEDBACK
