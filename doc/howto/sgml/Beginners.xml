@@ -52,7 +52,7 @@
     
     <abstract>
       <para>
-		  This is a HOWTO written in DocBook (SGML) that talks about using
+		  This is a HOWTO written in DocBook (XML) that talks about using
 		  Bioperl, for biologists who would like to learn more
 		  about writing their own bioinformatics scripts using Bioperl. 
       </para>
@@ -75,11 +75,11 @@
 		how you'll be able to do really powerful things with Bioperl.
     </para>
     <para>
-		You will also see some discussions of software concepts, it
-		can't be avoided, and the more you understand about
-		programming the better. All efforts will be made
-		not to introduce too much unfamiliar material but 
-		there is an introducton to modularity, or objects. This is 
+		You will also see some discussions of software concepts, this
+		can't be avoided. The more you understand about
+		programming the better but all efforts will be made
+		not to introduce too much unfamiliar material. 
+		However, there is an introducton to modularity, or objects. This is 
 		one of the aspects of the Bioperl package that you'll have
 		to come to grips with as you attempt more complex tasks with
 		your scripts.
@@ -175,13 +175,6 @@
 		</simplelist>
 	 </para>
     <para>
-		<tip>
-		  If you decide to use Unix there are many Web pages that can 
-		  give you a good introduction, google "introduction unix" to
-		  see more than a few.
-		</tip>
-    </para>
-    <para>
 		The instructions for Unix and Windows installations are found
 		on the 
 		<ulink url="http://bioperl.org/Core/Latest/index.shtml">download page</ulink>.
@@ -189,6 +182,13 @@
 		this is the main mailing list, and installation issues are
 		discussed frequently.
 	 </para>
+	 <tip>
+		<para>
+		  If you decide to use Unix there are many Web pages that can 
+		  give you a good introduction, google "introduction unix" to
+		  see more than a few.
+		</para>
+	 </tip>
   </section>
   
   <section id="help">
@@ -199,7 +199,10 @@
 		assistance the way to get it is to mail bioperl-l@bioperl.org.
 		There are a good number of helpful people who regularly read
 		this list and if you want their advice it's best to give
-		sufficent detail. Your letter should probably include:
+		sufficent detail.
+	 </para>
+	 <para>
+		<emphasis>Please include:</emphasis>
 		<simplelist type="horiz" columns="1">
 		  <member>
 			 The version of Bioperl you're working with. 
@@ -219,11 +222,12 @@
 		</simplelist>
     </para>    
     <para>
-		Every once in a while a message will appear in bioperl-l coming from someone
-		in distress that goes unanswered. The explanation is simple:
+		Every once in a while a message will appear in bioperl-l 
+		coming from someone
+		in distress that goes unanswered. The explanation is simple,
 		the person neglected to include 1 or more of the details above,
 		usually the script or the error messages. If you give enough 
-		information you'll always get help.
+		information you will get help.
     </para>
   </section>
 
@@ -254,8 +258,7 @@
     </para>
   </section>
 
-
-  <section id="starting">
+  <section id="starting_unix">
 	 <title>Starting to write a script on Unix</title>
 	 <para>
 		Sometimes the trickiest part is this step, writing something and
@@ -300,7 +303,9 @@ Internet, point your browser at http://www.perl.com/, the Perl Home Page.
 			 >which perl
 		</programlisting>
 	 </para>
-	 This will give you something like:
+	 <para>
+		This will give you something like:
+	 </para>
 	 <para>
 		<programlisting>
 		  >/bin/perl
@@ -350,9 +355,9 @@ Internet, point your browser at http://www.perl.com/, the Perl Home Page.
 	 <para>
 		One way to think about an object in software is that it is a container
 		for data. The typical sequence entry contains
-		differents sorts of data as well (sequence, identifiers, etc.)
+		differents sorts of data (a sequence, one or more identifiers, etc.)
 		so it will serve as a nice example of what
-		an object can be. All objects in Bioperl are associated with specific
+		an object can be. All objects in Bioperl are created by specific
 		Bioperl modules, so if you want to create an object you're also going
 		to have to tell Perl which module to use. Let's add another line:
     </para>	
@@ -365,10 +370,10 @@ Internet, point your browser at http://www.perl.com/, the Perl Home Page.
     </para>
 	 <para>
 		This line says that there's module file on your machine called
-		"Seq.pm", and it's in the Bio/ directory.
-		We will "use" the Bio::Seq module in order to create a Bio::Seq object.
+		"Bio/Seq.pm".
+		We will "use" this Bio::Seq module in to create a Bio::Seq object.
 		The Bio::Seq module is one of the central modules in
-		Bioperl. The analogous Bio::Seq object, or "sequence object", or
+		Bioperl. The analogous Bio::Seq object, or "Sequence object", or
 		"Seq object", is ubiquitous in Bioperl, it contains 
 		a single sequence and associated names, identifiers, and
 		properties. Let's create a very simple sequence object at
@@ -384,6 +389,8 @@ Internet, point your browser at http://www.perl.com/, the Perl Home Page.
 		</programlisting>
     </para>
 	 <para>
+		That's it! The variable $seq_obj is the Sequence object, a
+		very simple one, containing just a sequence.
 		When you assign a value to an object, as we just did, it's
 		said that you that 
 		you have <emphasis>set</emphasis> a value.
@@ -400,7 +407,7 @@ Internet, point your browser at http://www.perl.com/, the Perl Home Page.
 	 </para>
 	 <para>
 		An object, like our $seq_obj above, is a specialized kind of a variable.
-		Any time you explicitly create or intitialize the variable, you
+		Any time you explicitly create an object, you
 		will use this <function>new()</function> method. The syntax of this
 		line is one you'll see again and again in Bioperl: the name
 		of the object or variable, the module name, the
@@ -470,7 +477,7 @@ Internet, point your browser at http://www.perl.com/, the Perl Home Page.
 		"aaaatgggggggggggccccgtt", "#12345", and "example 1" are called
 		"arguments" in programming jargon. You could say that
 		this example shows how to pass arguments to the
-		<function>new()</function> method.
+		<function>new</function> method.
 	 </para>
   </section>
 
@@ -482,7 +489,8 @@ Internet, point your browser at http://www.perl.com/, the Perl Home Page.
 		We already have a sequence object, $seq_obj, and we will create an
 		additional object whose responsibility it is to read from and write
 		to files. This object is the <classname>Bio::SeqIO</classname> object, 
-		where IO stands for <emphasis>I</emphasis>nput-<emphasis>O</emphasis>utput.
+		where IO stands for 
+		<emphasis>I</emphasis>nput-<emphasis>O</emphasis>utput.
 		By using Bio::SeqIO in this manner you will be able to get input
 		and output from all of the sequence file formats supported by Bioperl
 		(the <ulink url="http://bioperl.org/HOWTOs/SeqIO/index.html">
@@ -505,8 +513,8 @@ Internet, point your browser at http://www.perl.com/, the Perl Home Page.
 		<emphasis>write</emphasis> to the file named
 		"sequence.fasta", the same character we'd use if we were using Perl's
 		<function>open()</function> function to write to a file. The
-		"-format" argument, "fasta", tells the SeqIO object that is
-		should create a file in fasta format.
+		"-format" argument, "fasta", tells the SeqIO object that it
+		should create the file in fasta format.
     </para>
     <para>
 		Let's put our 2 examples together:
@@ -534,7 +542,7 @@ Internet, point your browser at http://www.perl.com/, the Perl Home Page.
 		line we handed or passed the Sequence object to the SeqIO object as an
 		argument to its <function>write_seq</function> method. Another
 		way to think about this is that the SeqIO object understands how
-		to take the information in the Sequence object and create a file
+		to take the information from the Sequence object and create a file
 		using that information, in this case in fasta format. If you
 		run this script like this:
 	 </para>
@@ -555,7 +563,7 @@ aaaatgggggggggggccccgtt
 	 </para>
   </section>
 
-  <section id="retrieving_gb">
+  <section id="reading">
 	 <title>Retrieving a sequence from a file</title>
 	 <para>
 		A common beginner's mistake is to not use
@@ -564,10 +572,10 @@ aaaatgggggggggggccccgtt
 		may have read about Perl's <function>open</function>
 		function, and Bioperl's way of retrieving sequences may look odd
 		and overly complicated, at first. But don't use
-		<function>open()</function>! Using <function>open</function> 
+		<function>open</function>! Using <function>open</function> 
 		immediately forces you to do the parsing of the sequence
 		file and this can get complicated very quickly. Trust
-		SeqIO, it's built to open and parse all
+		the SeqIO object, it's built to open and parse all
 		the common sequence formats, it can read and write to files,
 		and it's built to operate with all the other Bioperl 
 		modules that you will want to use. 
@@ -654,7 +662,7 @@ while( my $seq = $seq_in->next_seq() ) {
     </para>
   </section>
 
-  <section id="">
+  <section id="blank1">
     <title></title>
     <para>
     </para>
@@ -691,13 +699,9 @@ while( my $seq = $seq_in->next_seq() ) {
     </para>
     <para>
     </para>
-    <para>
-      <important>
-      </important>
-    </para>
   </section>
 
-  <section id="">
+  <section id="blank2">
     <title></title>
     <para>
 	 </para>
