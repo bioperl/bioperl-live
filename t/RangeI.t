@@ -16,8 +16,9 @@ BEGIN {
 	use lib 't';
     }
     use Test;
-    @funcs = qw(start end length strand);
-    plan tests => 8;
+    @funcs = qw(start end length strand overlaps contains 
+		equals intersection union overlap_extent);
+    plan tests => 19;
 }
 
 use Bio::RangeI;
@@ -25,9 +26,10 @@ use Bio::RangeI;
 my $i = 1;
 my $func;
 while ($func = shift @funcs) {
-  $i++;
+    $i++;
   if(exists $Bio::RangeI::{$func}) {
     ok(1);
+    next if $func eq 'union';
     eval {
       $Bio::RangeI::{$func}->();
     };

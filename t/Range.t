@@ -15,7 +15,7 @@ BEGIN {
 	use lib 't';
     }
     use Test;
-    plan tests => 17;
+    plan tests => 32;
 }
 
 use Bio::Range;
@@ -55,4 +55,40 @@ ok !($range2->contains($range));
 ok ($range->overlaps($range2));
 ok ($range2->overlaps($range));
 
+
+
+# testing strand
+
+
+my $range3 = Bio::Range->new(-start=>15,
+                             -end=>25,
+			     -strand=>1);
+
+my $range4 = Bio::Range->new(-start=>15,
+			      -end=>25,
+			      -strand=>-1);
+
+my $range5 = Bio::Range->new(-start=>15,
+                             -end=>25,
+			     -strand=>0);
+
+ok $range3->_ignore($range4);   # 1 & -1
+ok $range3->_weak($range3);     # 1 & 1 true
+ok $range3->_weak($range5);     # 1 & 0 true
+ok ! ($range3->_weak($range4)); # 1 & -1 false
+ok $range3->_strong($range3);     # 1 & 1 true
+ok ! ($range3->_strong($range5));     # 1 & 0 false
+ok ! ($range3->_strong($range4)); # 1 & -1 false
+
+
+ok ! ( $range3->overlaps($range4,'weak'));
+ok ! ( $range4->overlaps($range3,'weak'));
+ok ! ( $range3->overlaps($range4,'strong')); 
+ok ! ( $range4->overlaps($range3,'strong')); 
+
+$range3->strand(0);
+ok  ( $range3->overlaps($range4,'weak'));
+ok  ( $range4->overlaps($range3,'weak')); 
+ok ! ( $range3->overlaps($range4,'strong'));
+ok ! ( $range4->overlaps($range3,'strong')); 
 
