@@ -23,10 +23,7 @@ use Bio::Coordinate::Pair;
 use Bio::Coordinate::Result;
 use Bio::Coordinate::Result::Match;
 use Bio::Coordinate::Result::Gap;
-use Bio::Coordinate::ExtrapolatingPair;
 use Bio::Coordinate::Collection;
-
-use Data::Dumper;
 
 use vars qw($DEBUG);
 ok(1);
@@ -91,7 +88,6 @@ ok $pair->swap;
 #
 # match outside = Gap
 #
-# note that strand defaults to 1
 $pos = Bio::Location::Simple->new (-start => 5, -end => 5 );
 
 ok $res = $pair->map($pos);
@@ -108,7 +104,7 @@ ok $res->gap->seq_id, 'propeptide';
 
 
 #
-# partial match1 = gap & match
+# partial match = gap & match
 #
 $pos2 = Bio::Location::Simple->new
     (-start => 20, -end => 22, -strand=> -1 );
@@ -131,7 +127,7 @@ ok $res->gap->seq_id, 'propeptide';
 ok $res->gap->strand, -1;
 
 #
-# partial match2 =  match & gap
+# partial match =  match & gap
 #
 $pos2 = Bio::Location::Simple->new (-start => 40, -end => 41, -strand=> 1 );
 ok $res = $pair->map($pos2);
@@ -400,10 +396,8 @@ my @testres = (
 	     [341, 126, 59773, -1],
 	     [315843, 5332, 5963, +1]
 );
-#print Dumper \@testres;
 $pos = Bio::Location::Simple->new (-start => 383700, -end => 444000, -strand => 1);
 $res = $mapper->map($pos);
-#print Dumper $res;
  @res =  $res->each_match;
 compare (shift @res, shift @testres);
 compare (shift @res, shift @testres);
@@ -419,7 +413,6 @@ $pos = Bio::Location::Simple->new (-start => 273701, -end => 273781, -strand => 
 $res = $mapper->map($pos);
 ok $res->each_match, 1;
 ok $res->each_gap, 1;
-#print Dumper $res;
 @res =  $res->each_location;
 compare (shift @res, shift @testres);
 compare (shift @res, shift @testres);
@@ -432,13 +425,6 @@ ok $res->match->start, 2;
 ok $res->match->end, 5;
 ok $res->match->strand, -1;
 ok $res->match->seq_id, 'chr1';
-
-
-#
-# Extrapolating pairs
-#
-#    No gaps returned, matches extrapolated
-#     returns always a match or undef
 
 
 
@@ -460,7 +446,6 @@ sub compare_arrays {
 
 sub compare {
     my ($match, $test) = @_;
-#    print Dumper ($match, $test);
     ok $match->seq_id eq $test->[0];
     ok $match->start  == $test->[1];
     ok $match->end == $test->[2];
