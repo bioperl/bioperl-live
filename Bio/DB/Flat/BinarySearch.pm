@@ -19,7 +19,6 @@ sequence files
 
 =head1 DESCRIPTION
 
-
 This module can be used both to index sequence files and also to
 retrieve sequences from existing sequence files.
 
@@ -39,9 +38,8 @@ and also where the start of each record.  E.g. for fasta
     my $start_pattern   = "^>";
     my $primary_pattern = "^>(\\S+)";
 
-
 So the start of a record is a line starting with a E<gt> and the
-primary key is all characters up to the first space afterf the E<gt>
+primary key is all characters up to the first space after the E<gt>
 
 A string also has to be entered to defined what the primary key
 (primary_namespace) is called.
@@ -112,7 +110,6 @@ id (1433_CAEEL) as the secondary id.  The index is created as follows
 Of course having secondary indices makes indexing slower and more 
 of a memory hog.
 
-
 =head2 Index reading
 
 To fetch sequences using an existing index first of all create your sequence 
@@ -144,12 +141,14 @@ slowest way of extracting as the sequence objects need to be made.
     my $seq = $index->get_Seq_by_id('HBA_HUMAN');
 
 To access the secondary indices the secondary namespace needs to be known
-(use $index-E<gt>secondary_namespaces) and the following call used
 
-    my $seq   = $index->get_Seq_by_secondary('ACC','Q21973');
-    my $fh    = $index->get_stream_by_secondary('ACC','Q21973');
-    my $entry = $index->get_entry_by_secondary('ACC','Q21973');
+    $index->secondary_namespaces("ID");
 
+Then the following calls can be used
+
+    my $seq   = $index->get_Seq_by_secondary('ID','1433_CAEEL');
+    my $fh    = $index->get_stream_by_secondary('ID','1433_CAEEL');
+    my $entry = $index->get_entry_by_secondary('ID','1433_CAEEL');
 
 =head1 FEEDBACK
 
