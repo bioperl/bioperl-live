@@ -213,6 +213,7 @@ sub next_result{
 	   }
 	   $self->{'_reporttype'} = $1;
 	   $self->start_element({ 'Name' => 'FastaOutput' } );
+	   $self->{'_result_count'}++;
 	   $seentop = 1;
 	   
 	   $self->element({ 'Name' => 'FastaOutput_program',
@@ -671,6 +672,7 @@ sub next_result{
 	       return $self->end_document();
 	   } else {
 	       $self->start_element({ 'Name' => 'FastaOutput' });
+	       $self->{'_result_count'}++;
 	       $seentop = 1;
 	       $self->element({ 'Name' => 'FastaOutput_program',
 				'Data' => $self->{'_reporttype'} });
@@ -1037,6 +1039,23 @@ sub idlength{
       $self->{'_idlength'} = $value;
     }
     return $self->{'_idlength'} || $IDLENGTH;
+}
+
+
+=head2 result_count
+
+ Title   : result_count
+ Usage   : my $count = $searchio->result_count
+ Function: Returns the number of results we have processed
+ Returns : integer
+ Args    : none
+
+
+=cut
+
+sub result_count {
+    my $self = shift;
+    return $self->{'_result_count'};
 }
 
 1;

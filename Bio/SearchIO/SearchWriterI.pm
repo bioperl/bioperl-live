@@ -68,6 +68,60 @@ sub to_string {
     $self->throw_not_implemented;
 }
 
+=head2 end_report
+
+ Title   : end_report
+ Usage   : $self->end_report()
+ Function: The method to call when ending a report, this is
+           mostly for cleanup for formats which require you to 
+           have something at the end of the document (</BODY></HTML>)
+           for HTML
+ Returns : string
+ Args    : none
+
+
+=cut
+
+sub end_report { 
+    my $self = shift;
+    $self->warn_not_implemented();
+    return '';
+}
+
+=head2 filter
+
+ Title   : filter
+ Usage   : $writer->filter('hsp', \&hsp_filter);
+ Function: Filter out either at HSP,Hit,or Result level
+ Returns : none
+ Args    : string => data type,
+           CODE reference
+
+
+=cut
+
+# yes this is an implementation in the interface, 
+# yes it assumes that the underlying class is hash-based
+# yes that might not be a good idea, but until people
+# start extending the SearchWriterI interface I think
+# this is an okay way to go
+
+sub filter {
+    my ($self,$method,$code) = @_;    
+    return undef unless $method;
+    $method = uc($method);
+    if( $method ne 'HSP' &&
+	$method ne 'HIT' &&
+	$method ne 'RESULT' ) {
+	$self->warn("Unknown method $method");
+	return undef;
+    }
+    if( $code )  {
+	$self->throw("Must provide a valid code reference") unless ref($code) =~ /CODE/;
+	$self->{$method} = $code;
+    }
+    return $self->{$method};
+}
 
 1;
 

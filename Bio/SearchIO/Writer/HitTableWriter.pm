@@ -1,3 +1,5 @@
+# $Id$
+
 =head1 NAME
 
 Bio::SearchIO::Writer::HitTableWriter - Tab-delimited data for Bio::Search::Hit::HitI objects
@@ -179,12 +181,15 @@ use vars qw( @ISA );
 @ISA = qw( Bio::SearchIO::Writer::ResultTableWriter );
 
 
-# Array fields: column, object, method[/argument], printf format, column label
-# Methods for result object are defined in Bio::Search::Result::ResultI.
-# Methods for hit object are defined in Bio::Search::Hit::HitI.
-# Tech note: If a bogus method is supplied, it will result in all values to be zero.
-#            Don't know why this is.
-# TODO (maybe): Allow specification of separate mantissa/exponent for significance data.
+# Array fields: column, object, method[/argument], printf format,
+# column label Methods for result object are defined in
+# Bio::Search::Result::ResultI.  Methods for hit object are defined in
+# Bio::Search::Hit::HitI.  Tech note: If a bogus method is supplied,
+# it will result in all values to be zero.  Don't know why this is.
+
+# TODO (maybe): Allow specification of separate mantissa/exponent for
+# significance data.
+
 my %column_map = (
                   'query_name'            => ['1', 'result', 'query_name', 's', 'QUERY' ],
                   'query_length'          => ['2', 'result', 'query_length', 'd', 'LEN_Q'],
@@ -250,14 +255,51 @@ sub to_string {
     my $str = $include_labels ? $self->column_labels() : '';
     my $func_ref = $self->row_data_func;
     my $printf_fmt = $self->printf_fmt;
-
-    foreach my $hit($result->hits) {
-        my @row_data  = &{$func_ref}($result, $hit);
-        $str .= sprintf "$printf_fmt\n", @row_data;
+    
+    my ($resultfilter,$hitfilter) = ( $self->filter('RESULT'),
+				      $self->filter('HIT') );
+    if( ! defined $resultfilter ||
+        &{$resultfilter}($result) ) {
+	$result->can('rewind') && 
+	    $result->rewind(); # insure we're at the beginning
+	foreach my $hit($result->hits) {	    
+	    next if( defined $hitfilter && ! &{$hitfilter}($hit));
+	    my @row_data  = &{$func_ref}($result, $hit);
+	    $str .= sprintf "$printf_fmt\n", @row_data;
+	}
     }
     $str =~ s/\t\n/\n/gs;
     return $str;
 }
 
+=head2 end_report
+
+ Title   : end_report
+ Usage   : $self->end_report()
+ Function: The method to call when ending a report, this is
+           mostly for cleanup for formats which require you to 
+           have something at the end of the document.  Nothing for
+           a text message.
+ Returns : string
+ Args    : none
+
+=cut
+ 
+sub end_report {
+    return '';
+}
+
+
+=head2 filter
+
+ Title   : filter
+ Usage   : $writer->filter('hsp', \&hsp_filter);
+ Function: Filter out either at HSP,Hit,or Result level
+ Returns : none
+ Args    : string => data type,
+           CODE reference
+
+
+=cut
 
 1;

@@ -104,6 +104,17 @@ sub new {
   my($class,@args) = @_;
 
   my $self = $class->SUPER::new(@args);
+  my ($filters) = $self->_rearrange([qw(FILTERS)],@args);
+  if( defined $filters ) {
+      if( !ref($filters) =~ /HASH/i ) { 
+	  $self->warn("Did not provide a hashref for the FILTERS option, ignoring.");
+      } else { 
+	  while( my ($type,$code) = each %{$filters} ) {
+	      $self->filter($type,$code);
+	  }
+      }
+  }
+
   return $self;
 }
 
@@ -125,7 +136,13 @@ sub new {
 
 sub to_string {
     my ($self,$result) = @_; 
-    return unless defined $result;
+    return '' unless defined $result;
+    my ($resultfilter,$hitfilter,
+	$hspfilter) = ( $self->filter('RESULT'),
+			$self->filter('HIT'),
+			$self->filter('HSP'));
+    return '' if( defined $resultfilter && ! &{$resultfilter}($result) );
+    
     my $type = ( $result->algorithm =~ /(P|X|Y)$/i ) ? 'PROTEIN' : 'NUCLEOTIDE';
     my $str = sprintf(
 qq{%s %s 
@@ -156,9 +173,10 @@ Sequences producing significant alignments:         Score       E
     my $hspstr = '';
     $result->rewind();
     while( my $hit = $result->next_hit ) {
+	next if( defined $hitfilter && ! &{$hitfilter} );
 	my $nm = $hit->name();
 	my $id_parser = $self->id_parser;
-	print STDERR "no $nm for name (",$hit->description(), "\n" unless $nm;
+	print STDERR "no $nm for name (",$hit->description(), ")\n" unless $nm;
 	my ($gi,$acc) = &$id_parser($nm);
 	my $p = "%-".$MaxDescLen. "s";
 	my $descsub = $hit->name . " " . $hit->description;
@@ -178,6 +196,7 @@ Sequences producing significant alignments:         Score       E
 			   $hit->length);
 	$hit->rewind(); # make sure we are at the beginning of the list
 	while( my $hsp = $hit->next_hsp ) {
+	    next if( defined $hspfilter && ! &{$hspfilter}($hsp) );
 	    $hspstr .= sprintf(" Score = %4s bits (%s), Expect = %s",
 			       $hsp->bits, $hsp->score, $hsp->evalue);
 	    if( $hsp->pvalue ) {
@@ -412,5 +431,18 @@ programs",  Nucleic Acids Res. 25:3389-3402.
        return '';
    }
 }
+
+=head2 filter
+
+ Title   : filter
+ Usage   : $writer->filter('hsp', \&hsp_filter);
+ Function: Filter out either at HSP,Hit,or Result level
+ Returns : none
+ Args    : string => data type,
+           CODE reference
+
+
+=cut
+
 
 1;

@@ -1,3 +1,5 @@
+# $Id$
+
 =head1 NAME
 
 Bio::SearchIO::Writer::ResultTableWriter - Outputs tab-delimited data for each Bio::Search::Result::ResultI object.
@@ -142,25 +144,38 @@ use vars qw( @ISA );
 # Tech note: If a bogus method is supplied, it will result in all values to be zero.
 #            Don't know why this is.
 my %column_map = (
-                  'query_name'            => ['1', 'result', 'query_name', 's', 'QUERY' ],
-                  'query_length'          => ['2', 'result', 'query_length', 'd', 'LEN_Q'],
-                  'query_description'     => ['3', 'result', 'query_description', 's', 'DESC_Q'],
+                  'query_name'        => ['1', 'result', 'query_name', 's', 'QUERY' ],
+                  'query_length'      => ['2', 'result', 'query_length', 'd', 'LEN_Q'],
+                  'query_description' => ['3', 'result', 'query_description', 's', 'DESC_Q'],
                  );
 
 sub column_map { return %column_map }
-
 
 sub new {
     my ($class, @args) = @_; 
     my $self = $class->SUPER::new(@args);
 
-    my( $col_spec, $label_spec ) = $self->_rearrange( [qw(COLUMNS LABELS)], @args);
-
+    my( $col_spec, $label_spec,
+	$filters ) = $self->_rearrange( [qw(COLUMNS 
+					    LABELS
+					    FILTERS)], @args);
+    
     $self->_set_cols( $col_spec );
     $self->_set_labels( $label_spec ) if $label_spec;
     $self->_set_printf_fmt();
     $self->_set_row_data_func();
     $self->_set_column_labels();
+    
+    if( defined $filters ) {
+	if( !ref($filters) =~ /HASH/i ) { 
+	    $self->warn("Did not provide a hashref for the FILTERS option, ignoring.");
+	} else { 
+	    while( my ($type,$code) = each %{$filters} ) {
+		$self->filter($type,$code);
+	    }
+	}
+    }
+
 
     return $self;
 }
@@ -347,12 +362,13 @@ sub to_string {
     my ($self, $result, $include_labels) = @_;
 
     my $str = $include_labels ? $self->column_labels() : '';
-
-    my @row_data  = &{$self->{'_row_data_func'}}( $result );
-
-    $str .= sprintf "$self->{'_printf_fmt'}\n", @row_data;
-
-    $str =~ s/\t\n/\n/gs;
+    my $resultfilter = $self->filter('RESULT');
+    if( ! defined $resultfilter ||
+        &{$resultfilter}($result) ) {	
+	my @row_data  = &{$self->{'_row_data_func'}}( $result );
+	$str .= sprintf "$self->{'_printf_fmt'}\n", @row_data;
+	$str =~ s/\t\n/\n/gs;
+    }
     return $str;
 }
 
@@ -384,7 +400,34 @@ sub columns {
 
 sub column_labels { shift->{'_column_labels'} }
 
+=head2 end_report
 
+ Title   : end_report
+ Usage   : $self->end_report()
+ Function: The method to call when ending a report, this is
+           mostly for cleanup for formats which require you to 
+           have something at the end of the document.  Nothing for
+           a text message.
+ Returns : string
+ Args    : none
+
+=cut
+ 
+sub end_report {
+    return '';
+}
+
+=head2 filter
+
+ Title   : filter
+ Usage   : $writer->filter('hsp', \&hsp_filter);
+ Function: Filter out either at HSP,Hit,or Result level
+ Returns : none
+ Args    : string => data type,
+           CODE reference
+
+
+=cut
 
 
 # Is this really needed?

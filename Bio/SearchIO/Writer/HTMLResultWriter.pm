@@ -108,10 +108,22 @@ sub new {
   my($class,@args) = @_;
 
   my $self = $class->SUPER::new(@args);
-  my ($p,$n) = $self->_rearrange([qw(PROTEIN_URL 
-				     NUCLEOTIDE_URL)],@args);
+  my ($p,$n,$filters) = $self->_rearrange([qw(PROTEIN_URL 
+					     NUCLEOTIDE_URL 
+					     FILTERS)],@args);
   $self->remote_database_url('p',$p || $RemoteURLDefault{'PROTEIN'});
   $self->remote_database_url('n',$n || $RemoteURLDefault{'NUCLEOTIDE'});
+
+  if( defined $filters ) {
+      if( !ref($filters) =~ /HASH/i ) { 
+	  $self->warn("Did not provide a hashref for the FILTERS option, ignoring.");
+      } else { 
+	  while( my ($type,$code) = each %{$filters} ) {
+	      $self->filter($type,$code);
+	  }
+      }
+  }
+
   return $self;
 }
 
@@ -158,15 +170,27 @@ sub remote_database_url{
 =cut
 
 sub to_string {
-    my ($self,$result) = @_; 
+    my ($self,$result,$num) = @_; 
     return unless defined $result;
+    my ($resultfilter,$hitfilter, $hspfilter) = ( $self->filter('RESULT'),
+						  $self->filter('HIT'),
+						  $self->filter('HSP') );
+    return '' if( defined $resultfilter && ! &{$resultfilter}($result) );    
+
     my $type = ( $result->algorithm =~ /(P|X|Y)$/i ) ? 'PROTEIN' : 'NUCLEOTIDE';
     my $reference = $result->algorithm_reference || $self->algorithm_reference($result);
     $reference =~ s/\~/\n/g;
-    my $str = sprintf(
+    my $str;
+    if( $num <= 1 ) { 
+	$str = sprintf(
 qq{<HTML>
     <HEAD><CENTER><TITLE>Bioperl Reformatted HTML of %s Search output with Bioperl Bio::SearchIO system</TITLE></CENTER></HEAD>
     <BODY BGCOLOR="WHITE">
+},$result->algorithm);
+
+    }
+    $str .= sprintf(	    
+qq{
     <CENTER><H1>Bioperl Reformatted HTML of %s Search Report<br> for %s</H1></CENTER>
     <hr>
 	<pre>%s</pre>
@@ -178,19 +202,21 @@ qq{<HTML>
     <tr><th>Sequences producing significant alignments:</th>
 	<th>Score<br>(bits)</th><th>E<br>value</th></tr>
   }, 
-		      $result->algorithm, $result->algorithm,		      
-		      $result->query_name(), 
-		      $reference,
-		      $result->query_name, 
-		      $result->query_description, $result->query_length, 
-		      $result->database_name(),
-		      $result->database_entries(),$result->database_letters(),
-		      );
+		    $result->algorithm,		      
+		    $result->query_name(), 
+		    $reference,
+		    $result->query_name, 
+		    $result->query_description, $result->query_length, 
+		    $result->database_name(),
+		    $result->database_entries(),$result->database_letters(),
+		    );
     my $hspstr = '<p><p>';
     if( $result->can('rewind')) {
         $result->rewind(); # support stream based parsing routines
     }
+    
     while( my $hit = $result->next_hit ) {
+	next if( $hitfilter && ! &{$hitfilter}($hit) );
 	my $nm = $hit->name();
 	my $id_parser = $self->id_parser;
 	print STDERR "no $nm for name (",$hit->description(), "\n" unless $nm;
@@ -229,6 +255,7 @@ qq{<HTML>
 		    $hit->length);
 	
 	foreach my $hsp (@hsps ) {
+	    next if( $hspfilter && ! &{$hspfilter}($hsp) );
 	    $hspstr .= sprintf(" Score = %s bits (%s), Expect = %s",
 			       $hsp->bits, $hsp->score, $hsp->evalue);
 	    if( $hsp->pvalue ) {
@@ -357,6 +384,23 @@ qq{<HTML>
     return $str;
 }
 
+=head2 end_report
+
+ Title   : end_report
+ Usage   : $self->end_report()
+ Function: The method to call when ending a report, this is
+           mostly for cleanup for formats which require you to 
+           have something at the end of the document (</BODY></HTML>)
+           for HTML
+ Returns : string
+ Args    : none
+
+=cut
+
+sub end_report {
+    return "</BODY>\n</HTML>\n";
+}
+
 # copied from Bio::Index::Fasta
 # useful here as well
 
@@ -466,5 +510,17 @@ programs\",  Nucleic Acids Res. 25:3389-3402.\n";
        return '';
    }
 }
+
+=head2 filter
+
+ Title   : filter
+ Usage   : $writer->filter('hsp', \&hsp_filter);
+ Function: Filter out either at HSP,Hit,or Result level
+ Returns : none
+ Args    : string => data type,
+           CODE reference
+
+
+=cut
 
 1;

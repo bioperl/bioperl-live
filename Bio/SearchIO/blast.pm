@@ -211,7 +211,6 @@ sub next_result{
    my $data = '';
    my $seentop = 0;
    my ($reporttype,$seenquery,$reportline);
-   
    $self->start_document();
    my @hit_signifs;
    
@@ -231,8 +230,8 @@ sub next_result{
 	       $self->end_element({ 'Name' => 'BlastOutput'});
 	       return $self->end_document();
 	   }
-           $self->{'_result_count'}++;
 	   $self->start_element({ 'Name' => 'BlastOutput' } );
+	   $self->{'_result_count'}++;
 	   $seentop = 1;
 	   $reporttype = $1;
 	   $reportline = $_; # to fix the fact that RPS-BLAST output is wrong
@@ -252,6 +251,8 @@ sub next_result{
 	   } else { 
 	       if( ! defined $reporttype ) {
 		   $self->start_element({'Name' => 'BlastOutput'});
+		   $seentop = 1;
+		   $self->{'_result_count'}++;
 	       }
 	   }
 	   $seenquery = $q;

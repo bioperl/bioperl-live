@@ -186,6 +186,7 @@ sub next_result{
 	   }
 	   $self->{'_hmmidline'} = $_;
 	   $self->start_element({'Name' => 'HMMER_Output'});
+	   $self->{'_result_count'}++;
 	   $seentop = 1;
 	   ($reporttype) = split(/\s+/,$last);
 	   $self->element({'Name' => 'HMMER_program',
@@ -781,6 +782,22 @@ sub start_document{
 sub end_document{
    my ($self) = @_;
    return $self->{'_result'};
+}
+
+=head2 result_count
+
+ Title   : result_count
+ Usage   : my $count = $searchio->result_count
+ Function: Returns the number of results we have processed
+ Returns : integer
+ Args    : none
+
+
+=cut
+
+sub result_count {
+    my $self = shift;
+    return $self->{'_result_count'};
 }
 
 1;

@@ -1,3 +1,5 @@
+# $Id$
+
 =head1 NAME
 
 Bio::SearchIO::Writer::HSPTableWriter - Tab-delimited data for Bio::Search::HSP::HSPI objects
@@ -230,20 +232,59 @@ L<the SYNOPSIS section | SYNOPSIS>.
 
 sub to_string {
     my ($self, $result, $include_labels) = @_;
-
+    
     my $str = $include_labels ? $self->column_labels() : '';
-    my $func_ref = $self->row_data_func;
-    my $printf_fmt = $self->printf_fmt;
-
-    while( my $hit = $result->next_hit) {
-	while(my $hsp = $hit->next_hsp) {
-	    my @row_data  = &{$func_ref}($result, $hit, $hsp);
-	    $str .= sprintf "$printf_fmt\n", @row_data;
+    my ($resultfilter,$hitfilter,
+	$hspfilter) = ( $self->filter('RESULT'),
+			$self->filter('HIT'),
+			$self->filter('HSP'));
+    if( ! defined $resultfilter || &{$resultfilter}($result) ) {
+	my $func_ref = $self->row_data_func;
+	my $printf_fmt = $self->printf_fmt;
+	$result->can('rewind') && 
+	    $result->rewind(); # insure we're at the beginning
+	while( my $hit = $result->next_hit) {
+	    next if( defined $hitfilter && ! &{$hitfilter}($hit) );
+	    $hit->can('rewind') && $hit->rewind;# insure we're at the beginning
+	    while(my $hsp = $hit->next_hsp) {
+		next if ( defined $hspfilter && ! &{$hspfilter}($hsp));
+		my @row_data  = &{$func_ref}($result, $hit, $hsp);
+		$str .= sprintf "$printf_fmt\n", @row_data;
+	    }
 	}
     }
     $str =~ s/\t\n/\n/gs;
     return $str;
 }
+
+=head2 end_report
+
+ Title   : end_report
+ Usage   : $self->end_report()
+ Function: The method to call when ending a report, this is
+           mostly for cleanup for formats which require you to 
+           have something at the end of the document.  Nothing for
+           a text message.
+ Returns : string
+ Args    : none
+
+=cut
+
+sub end_report {
+    return '';
+}
+
+=head2 filter
+
+ Title   : filter
+ Usage   : $writer->filter('hsp', \&hsp_filter);
+ Function: Filter out either at HSP,Hit,or Result level
+ Returns : none
+ Args    : string => data type,
+           CODE reference
+
+
+=cut
 
 
 1;

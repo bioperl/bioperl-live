@@ -201,6 +201,7 @@ sub next_result{
 
 	    } elsif ( ! defined $curquery ) {
 		$self->start_element({'Name' => 'WABAOutput'});
+		$self->{'_result_count'}++;
 		$self->element({'Name' => 'WABAOutput_query-def',
 				'Data' => $qid });
 		$self->element({'Name' => 'WABAOutput_program',
@@ -493,6 +494,22 @@ sub start_document{
 sub end_document{
    my ($self,@args) = @_;
    return $self->{'_result'};
+}
+
+=head2 result_count
+
+ Title   : result_count
+ Usage   : my $count = $searchio->result_count
+ Function: Returns the number of results we have processed
+ Returns : integer
+ Args    : none
+
+
+=cut
+
+sub result_count {
+    my $self = shift;
+    return $self->{'_result_count'};
 }
 
 1;
