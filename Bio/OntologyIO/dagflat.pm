@@ -154,11 +154,13 @@ sub _initialize {
     
     $self->SUPER::_initialize( @args );
 
-    my ( $defs_file_name,$files,$name,$eng ) =
+    my ( $defs_file_name,$files,$defs_url,$url,$name,$eng ) =
 	$self->_rearrange([qw( DEFS_FILE
-			       FILES
-			       ONTOLOGY_NAME
-			       ENGINE)
+                           FILES
+                           DEFS_URL
+                           URL
+                           ONTOLOGY_NAME
+                           ENGINE)
 			   ],
 			  @args );
     
@@ -174,10 +176,21 @@ sub _initialize {
 	$eng = $eng->engine() if $eng->can('engine');
     }
     $self->_ont_engine($eng);
-    
+
     # flat files to parse
-    $self->defs_file( $defs_file_name );
-    $self->{_flat_files} = $files ? ref($files) ? $files : [$files] : [];
+    if(defined($defs_file_name) && defined($defs_url)){
+      $self->throw('cannot provide both -defs_file and -defs_url');
+    } else {
+      defined($defs_file_name) && $self->defs_file( $defs_file_name );
+      defined($defs_url)       && $self->defs_url( $defs_url );
+    }
+
+    if(defined($files) && defined($url)){
+    } elsif(defined($files)){
+      $self->{_flat_files} = $files ? ref($files) ? $files : [$files] : [];
+    } elsif(defined($url)){
+      $self->url($url);
+    }
 
     # ontology name (overrides implicit one through OntologyI engine)
     $self->ontology_name($name) if $name;
@@ -244,18 +257,22 @@ sub parse {
 
     # pre-seed the IO system with the first flat file if -file wasn't provided
     if(! $self->_fh) {
-	$self->_initialize_io(-file => shift(@{$self->_flat_files()}));
+      if($self->_flat_files){
+        $self->_initialize_io(-file => shift(@{$self->_flat_files()}));
+      } else {
+        $self->_initialize_io(-url  => $self->url);
+      }
     }
 
     while($self->_fh) {
-	$self->_parse_flat_file($ont);
-	# advance to next flat file if more are available
-	if(@{$self->_flat_files()}) {
-	    $self->close();
-	    $self->_initialize_io(-file => shift(@{$self->_flat_files()}));
-	} else {
+      $self->_parse_flat_file($ont);
+      # advance to next flat file if more are available
+      if(@{$self->_flat_files()}) {
+        $self->close();
+        $self->_initialize_io(-file => shift(@{$self->_flat_files()}));
+      } else {
 	    last; # nothing else to parse so terminate the loop
-	}
+      }
     }
     $self->_add_ontology($ont);
     
@@ -300,18 +317,39 @@ sub next_ontology{
 =cut
 
 sub defs_file {
-    my $self = shift;
+  my $self = shift;
 
-    if ( @_ ) {
+  if ( @_ ) {
 	my $f = shift;
-        $self->{ "_defs_file_name" } = $f;
+    $self->{ "_defs_file_name" } = $f;
 	$self->_defs_io->close() if $self->_defs_io();
 	if(defined($f)) {
-            $self->_defs_io( Bio::Root::IO->new( -input => $f ) );
-        }
+      $self->_defs_io( Bio::Root::IO->new( -input => $f ) );
     }
-    return $self->{ "_defs_file_name" };
+  }
+  return $self->{ "_defs_file_name" };
 } # defs_file
+
+sub defs_url {
+  my $self = shift;
+  my $val = shift;
+  if(defined($val)){
+    $self->{'_defs_url'} = $val;
+
+	$self->_defs_io->close() if $self->_defs_io();
+    $self->_defs_io( Bio::Root::IO->new( -url => $val ) );
+  }
+  return $self->{'_defs_url'};
+}
+
+sub url {
+  my $self = shift;
+  my $val = shift;
+  if(defined($val)){
+    $self->{'_url'} = $val;
+  }
+  return $self->{'_url'};
+}
 
 =head2 close
 
@@ -711,50 +749,49 @@ sub _count_spaces {
 
 # "next" method for parsing the defintions file
 sub _next_term {
-    my ( $self ) = @_;
+  my ( $self ) = @_;
 
-    if ( ($self->_done() == TRUE) || (! $self->_defs_io())) {
-        return undef;
+  if ( ($self->_done() == TRUE) || (! $self->_defs_io())) {
+    return undef;
+  }
+
+  my $line      = "";
+  my $termid    = "";
+  my $next_term = $self->_term();
+  my $def       = "";
+  my $comment   = "";
+  my @def_refs  = ();
+  my $isobsolete;
+
+  while( $line = ( $self->_defs_io->_readline() ) ) {
+    if ( $line !~ /\S/ 
+         ||   $line =~ /^\s*!/ ) {
+      next;
     }
-    
-    my $line      = "";
-    my $termid    = "";
-    my $next_term = $self->_term();
-    my $def       = "";
-    my $comment   = "";
-    my @def_refs  = ();
-    my $isobsolete;
-    
-    while( $line = ( $self->_defs_io->_readline() ) ) {
-    
-        if ( $line !~ /\S/ 
-             ||   $line =~ /^\s*!/ ) {
-            next;
-        }
-        elsif ( $line =~ /^\s*term:\s*(.+)/ ) {
-	    $self->_term( $1 );
-            last if $self->_not_first_record();
-            $next_term = $1;
-	    $self->_not_first_record( TRUE );
-        }
-        elsif ( $line =~ /^\s*[a-z]{1,8}id:\s*(.+)/ ) {
-            $termid = $1;
-        }
-        elsif ( $line =~ /^\s*definition:\s*(.+)/ ) {
-            $def = $self->unescape($1);   
-	    $isobsolete = 1 if index($def,"OBSOLETE") == 0;
-        }
-        elsif ( $line =~ /^\s*definition_reference:\s*(.+)/ ) {
-            push( @def_refs, $self->unescape($1) );  
-        }
-        elsif ( $line =~ /^\s*comment:\s*(.+)/ ) {
-            $comment = $self->unescape($1);  
-        }
+    elsif ( $line =~ /^\s*term:\s*(.+)/ ) {
+      $self->_term( $1 );
+      last if $self->_not_first_record();
+      $next_term = $1;
+      $self->_not_first_record( TRUE );
     }
-    $self->_done( TRUE ) unless $line; # we'll come back until done
-    
-    return $self->_create_ont_entry( $next_term, $termid, $def,
-				     $comment, \@def_refs, $isobsolete);
+    elsif ( $line =~ /^\s*[a-z]{0,8}id:\s*(.+)/ ) {
+      $termid = $1;
+    }
+    elsif ( $line =~ /^\s*definition:\s*(.+)/ ) {
+      $def = $self->unescape($1);
+      $isobsolete = 1 if index($def,"OBSOLETE") == 0;
+    }
+    elsif ( $line =~ /^\s*definition_reference:\s*(.+)/ ) {
+      push( @def_refs, $self->unescape($1) );  
+    }
+    elsif ( $line =~ /^\s*comment:\s*(.+)/ ) {
+      $comment = $self->unescape($1);  
+    }
+  }
+  $self->_done( TRUE ) unless $line; # we'll come back until done
+
+  return $self->_create_ont_entry( $next_term, $termid, $def,
+                                   $comment, \@def_refs, $isobsolete);
 } # _next_term
 
 
@@ -781,8 +818,9 @@ sub _create_ont_entry {
     my ( $self, $name, $termid, $def, $cmt, $dbxrefs, $obsolete ) = @_;
 
     if((!defined($obsolete)) && (index(lc($name),"obsolete") == 0)) {
-	$obsolete = 1;
+      $obsolete = 1;
     }
+
     my $term = $self->term_factory->create_object(-name => $name,
 						  -identifier => $termid,
 						  -definition => $def,
