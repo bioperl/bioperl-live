@@ -169,7 +169,7 @@ sub next_seq {
 	       $moltype='dna';
 	   }
 	   elsif ($mol =~ /RNA/) {
-	       $moltype='rna';
+	       $moltype='dna';
 	   }
 	   elsif ($mol =~ /AA/) {
 	       $moltype='protein';
