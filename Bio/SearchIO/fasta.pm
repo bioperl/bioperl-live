@@ -326,11 +326,12 @@ sub next_result{
 	       $self->element({'Name' => 'Hsp_sw-score',
 			       'Data' => $1});
 	   }
-	   if( /(\d+\.\d+)\%\s*identity\s*\((\d+\.\d+)\%\s*ungapped\)\s*in\s*(\d+)\s+(aa|nt)\s+overlap\s*\((\d+)\-(\d+):(\d+)\-(\d+)\)/ ) {
+	   if( /(\d+(\.\d+)?)\%\s*identity(\s*\((\d+(\.\d+)?)\%\s*ungapped\))?\s*in\s*(\d+)\s+(aa|nt)\s+overlap\s*\((\d+)\-(\d+):(\d+)\-(\d+)\)/ ) {
 	       my ($identper,$gapper,$len,$querystart,
-		   $queryend,$hitstart,$hitend) = ($1,$2,$3,$5,$6,$7,$8);
+		   $queryend,$hitstart,$hitend) = ($1,$4,$6,$8,$9,$10,$11);
+	       
 	       my $ident = POSIX::ceil(($identper/100) * $len);
-	       my $gaps = POSIX::ceil ( ($gapper/100) * $len);
+	       my $gaps = ( defined $gapper ) ? POSIX::ceil ( ($gapper/100) * $len) : undef;
 	       
 	       $self->element({'Name' => 'Hsp_gaps',
 			       'Data' => $gaps});
