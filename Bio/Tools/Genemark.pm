@@ -220,21 +220,25 @@ sub _parse_predictions {
     my $exontag;
     my $gene;
     my $seqname;
+    my $exontype;
+    my $current_gene_no = -1;
 
     while(defined($_ = $self->_readline())) {
 	if( (/^\s*(\d+)\s+(\d+)/) || (/^\s*(\d+)\s+[\+\-]/)) {
 
-	    #  this is an exon, Genemark doesn't predict anything else.
+	    #  this is an exon, Genemark doesn't predict anything else
+	    # $prednr corresponds to geneno.
 	    my $prednr = $1;
+
+	    #exon no:
 	    my $signalnr = 0;
 	    if ($2) { my $signalnr = $2; } # used in tag: exon_no
-
 	    
 	    # split into fields
 	    chomp();
 	    my @flds = split(' ', $_);
 
-	    # create the feature object
+	    # create the feature (an exon) object
 	    my $predobj = Bio::Tools::Prediction::Exon->new();
 
 		 
@@ -246,7 +250,6 @@ sub _parse_predictions {
 	       	$orientation = ($flds[1] eq '+') ? 1 : -1;
 	        ($start, $end) = @flds[(2,3)];
 		$exontag = "_na_";
-		# print "$start $end $orientation \n";
 
 	    } else {		   
 	        $prediction_source = "Genemark.hmm.eu";
@@ -255,56 +258,50 @@ sub _parse_predictions {
 		$exontag = $flds[3];
 	    }
 
-	  
-	    if(! defined($gene)) {
-		$gene = Bio::Tools::Prediction::Gene->new(
-                                       '-primary' => "GenePrediction$prednr",
-				       '-source' => $prediction_source);
-	    }  
-       
+	    #store the data in the exon object
             $predobj->source_tag($prediction_source);
 	    $predobj->start($start);		
 	    $predobj->end($end);
 	    $predobj->strand($orientation);
-	    
+
 	    $predobj->primary_tag($exontags{$exontag} . "Exon");
+
 	    $predobj->add_tag_value('exon_no',"$signalnr") if ($signalnr);
 
     	    $predobj->is_coding(1);
 		
+		
 	    # frame calculation as in the genscan module
 	    # is to be implemented...
+	    
+	    #If the $prednr is not equal to the current gene, we
+	    #need to make a new gene and close the old one
+	    if($prednr != $current_gene_no) {
+ 	        # a new gene, store the old one if it exists
+		if (defined ($gene)) {
+		    $gene->seqname($seqname);
+		    $self->_add_prediction($gene);	    
+		    $gene = undef ;
+		}
+		#and make a new one
+		$gene = Bio::Tools::Prediction::Gene->new(
+                                '-primary' => "GenePrediction$prednr",
+				'-source' => $prediction_source);
+
+		$current_gene_no = $prednr;
+	    }  
 	    
 	    # Add the exon to the gene
 	    $gene->add_exon($predobj, ($exontag eq "_na_" ?
 				       undef : $exontags{$exontag}));
 
-	    # and, if it is a prokaryot, the gene will have only one exon, 
-	    # close it right away:
-	    if ($prediction_source eq "Genemark.hmm.pro") {
-		    $gene->seqname($seqname);
-		    $self->_add_prediction($gene);	    
-		    $gene = undef ;
-	    }
-	    next;
-	}
-
-	if(/^\s*$/ && defined($gene)) {
-	    # current gene is completed (emtpy line)
-	    # this does not apply to prokaryots, but since they allways
-	    # contain only one line in the prediction, the gene object
-	    # is close right away, and so it will never be open when
-	    # getting here. 
-	    $gene->seqname($seqname);
-	    $self->_add_prediction($gene);
-	    $gene = undef;
-	    next;
 	}
 
 	if(/^(Genemark\.hmm\s*[PROKARYOTIC]*)\s+\(Version (.*)\)$/i) {
 	    $self->analysis_method($1);
-	    my $gm_version = $2;
-  	    #print "prog: $1 \nversion: $2 \n";
+
+	    my $gm_version = $2; 
+
 	    $self->analysis_method_version($gm_version);
 	    next;
 	}
