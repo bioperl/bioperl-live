@@ -255,20 +255,25 @@ sub _do_add_track {
   $glyph_name = $map if defined $map;
   $glyph_name ||= 'generic';
 
-  my $panel_map = ref($map) eq 'CODE'
-    ?  sub {
-          my $feature = shift;
-	  return 'track' if eval { $feature->primary_tag  eq 'track' };
-	  return 'group' if eval { $feature->primary_tag  eq 'group' };
-	  return $map->($feature);
-	}
-      :
-	sub {
-	  my $feature = shift;
-	  return 'track' if eval { $feature->primary_tag  eq 'track' };
-	  return 'group' if eval { $feature->primary_tag  eq 'group' };
-	  return $glyph_name;
-	};
+  my $panel_map =
+    ref($map) eq 'CODE' ?  sub {
+      my $feature = shift;
+      return 'track' if eval { $feature->primary_tag  eq 'track' };
+      return 'group' if eval { $feature->primary_tag  eq 'group' };
+      return $map->($feature);
+    }
+   : ref($map) eq 'HASH' ? sub {
+     my $feature = shift;
+     return 'track' if eval { $feature->primary_tag  eq 'track' };
+     return 'group' if eval { $feature->primary_tag  eq 'group' };
+     return eval {$map->{$feature->primary_tag}} || 'generic';
+   }
+   : sub {
+     my $feature = shift;
+     return 'track' if eval { $feature->primary_tag  eq 'track' };
+     return 'group' if eval { $feature->primary_tag  eq 'group' };
+     return $glyph_name;
+   };
 
   $self->_add_track($position,$features,-map=>$panel_map,-stylesheet=>$ss,-options=>\%options);
 }
