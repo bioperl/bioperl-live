@@ -294,8 +294,10 @@ IDMATCH: {
 sub sort{
    my ($self) = @_;
 
-   @{$self->{'_mappers'}} =
-       sort { $a->in->start <=> $b->in->start } @{$self->{'_mappers'}};
+   @{$self->{'_mappers'}} = map { $_->[0] }
+                            sort { $a->[1] <=> $b->[1] }
+                            map { [ $_, $_->in->start] } 
+                            @{$self->{'_mappers'}};
 
    #create hashes for sequence ids
    $self->{'_in_ids'} = ();
