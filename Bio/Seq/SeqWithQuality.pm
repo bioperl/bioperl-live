@@ -45,7 +45,7 @@ Bio::Seq::SeqWithQuality - Bioperl object packaging a sequence with its quality
 		);
 
 		# now make the SeqWithQuality object
-	my $swqobj = Bio::Seq::SeqQithQuality->new
+	my $swqobj = Bio::Seq::SeqWithQuality->new
 		( -seq  => $seqobj,
 		  -qual => $qualobj
 		);
