@@ -220,7 +220,7 @@ sub write_seq {
     $trace_min_index = 0 unless defined $trace_min_index;
     push @phredstack,"TRACE_ARRAY_MIN_INDEX: $trace_min_index";
 
-    $trace_max_index = '10000' unless defined $trace_max_index;
+    $trace_max_index = '10000'  unless defined $trace_max_index;
     push @phredstack,"TRACE_ARRAY_MAX_INDEX: $trace_max_index";
 
     $chem = 'unknown' unless defined $chem;
