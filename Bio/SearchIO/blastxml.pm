@@ -225,11 +225,11 @@ sub start_element{
     my ($self,$data) = @_;
     # we currently don't care about attributes
     my $nm = $data->{'Name'};
+
     if( my $type = $MODEMAP{$nm} ) {
 	if( $self->_eventHandler->will_handle($type) ) {
 	    my $func = sprintf("start_%s",lc $type);
-	    $self->_eventHandler->$func($self->{'_reporttype'},
-					$data->{'Attributes'});
+	    $self->_eventHandler->$func($data->{'Attributes'});
 	}						 
     }
 }
@@ -251,10 +251,16 @@ sub end_element{
     
     my $nm = $data->{'Name'};
     my $rc;
+    if($nm eq 'BlastOutput_program' &&
+       $self->{'_last_data'} =~ /(t?blast[npx])/i ) {
+	    $self->{'_reporttype'} = uc $1; 
+    }
+
     if( my $type = $MODEMAP{$nm} ) {
 	if( $self->_eventHandler->will_handle($type) ) {
 	    my $func = sprintf("end_%s",lc $type);
-	    $rc = $self->_eventHandler->$func($type,$self->{'_values'});
+	    $rc = $self->_eventHandler->$func($self->{'_reporttype'},
+					      $self->{'_values'});
 	}
     } elsif( $MAPPING{$nm} ) { 
 	$self->{'_values'}->{$MAPPING{$nm}} = $self->{'_last_data'};

@@ -109,7 +109,7 @@ sub new {
   $self->{'_hsps'} = [];
   if( defined $hsps  ) {
       $self->throw("Must define arrayref of HSPIs when initializing a $class\n") unless ref($hsps) =~ /array/i;
-
+      
       foreach my $h ( @$hsps ) {
 	  $self->add_hsp($h);
       }
@@ -229,8 +229,9 @@ sub nextFeaturePair { shift->next_hsp } # just another name
 
 sub next_hsp {
     my ($self) = @_;
-    return undef if ($self->_nexthspindex > @{$self->{'_hsps'}} ); 
-    return $self->{'_hsps'}->[$self->_nexthspindex];
+    my $index = $self->_nexthspindex;
+    return undef if ($index > @{$self->{'_hsps'}} ); 
+    return $self->{'_hsps'}->[$index];
 }
 
 =head2 Bio::Search::Subject methods

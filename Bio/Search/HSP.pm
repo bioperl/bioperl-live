@@ -135,6 +135,7 @@ sub new {
 
     $reporttype = 'SEARCHREPORT' unless $reporttype;
     $self->{'_reporttype'} = $reporttype;
+    
     # Determine strand meanings
     my ($queryfactor, $sbjctfactor) = (1,0); # default
     if ($reporttype eq 'BLASTP' || $reporttype eq 'TBLASTN' ) {
@@ -143,6 +144,11 @@ sub new {
     if ($reporttype eq 'TBLASTN' || $reporttype eq 'TBLASTX' || 
 	$reporttype eq 'BLASTN' )  {
 	$sbjctfactor = 1;
+    }
+    if( $reporttype eq 'RPSBLAST' ) {
+	$queryfactor = $sbjctfactor = 0;
+	$qframe = $sframe = 0;
+	
     }
 
     # Store the aligned query as sequence feature
@@ -161,8 +167,9 @@ sub new {
 		      ('-start' => $qe, 
 		       '-end'   => $qb, 
 		       '-strand'=> $strand,
-		       '-source'=> $reporttype ) ) }
-
+		       '-source'=> $reporttype ) ); 
+    }
+    $qframe = 0 unless defined $strand;
     # store the aligned subject as sequence feature
     if ($se > $sb) {		# normal subject
 	if ($sbjctfactor) { $strand = 1; } else { $strand = undef; }
@@ -177,7 +184,9 @@ sub new {
 			('-start' => $se, 
 			 '-end'   => $sb, 
 			 '-strand'=> $strand,
-			 '-source'=> $reporttype ) ) }
+			 '-source'=> $reporttype ) );
+    }
+    $sframe = 0 unless defined $strand;
 
     # name the sequences
     $self->query->seqname($qname); # query
@@ -258,6 +267,20 @@ sub evalue {
 		return 0;
 	}
 }
+
+=head2 percent_identity
+
+ Title   : percent_identity (alias for percent_identical)
+
+ Usage   : my $perc_id = $hsp->percent_identity();
+ Function: Returns the Percent Identity (num positive / total HSP len) 
+           for this HSP 
+ Returns : Float in range 0 -> 100
+ Args    : none
+
+=cut 
+
+sub percent_identity { $_[0]->percent_identical }
 
 =head2 percent_identical
 
@@ -340,6 +363,7 @@ sub subject_seq{
 
 =head2 homology_seq
 
+
  Title   : homology_seq
  Usage   : my $homo_seq = $hsp->homology_seq;
  Function: Retrieves the homology sequence for this HSP
@@ -367,6 +391,76 @@ sub homology_seq{
 sub hsp_length{
    my ($self,@args) = @_;
    return $self->{'_hsp_length'};
+}
+
+=head2 frame
+
+ Title   : frame
+ Usage   : $hsp->frame($queryframe,$subjectframe)
+ Function: Set the Frame for both query and subject and insure that
+           they agree.
+           This overrides the frame() method implementation in 
+           FeaturePair.
+ Returns : array of query and subjects if return type wants an array
+           or query frame if defined or subject frame
+ Args    : none
+
+=cut
+
+
+sub frame {
+    my ($self, $qframe, $sframe) = @_;
+    if( defined $qframe ) {
+	if( $qframe == 0 ) {
+	    $qframe = 0;
+	} elsif( $qframe !~ /^([+-])?([1-3])/ ) {	    
+	    $self->warn("Specifying an invalid query frame ($qframe)");
+	    $qframe = undef;
+	} else { 
+	    print "qframe is $qframe\n";
+	    if( ($1 eq '-' && $self->query->strand >= 0) || 
+		($1 eq '+' && $self->query->strand <= 0) ) {
+		$self->warn("Query frame ($qframe) did not match strand of query (". $self->query->strand() . ")");
+	    }
+	    # Set frame to GFF [0-2]
+	    $qframe = $2 - 1;
+	}
+	$self->query->frame($qframe);
+    }
+    if( defined $sframe ) {
+	  if( $sframe == 0 ) {
+	    $sframe = 0;
+	  } elsif( $sframe !~ /^([+-])?([1-3])/ ) {	    
+	    $self->warn("Specifying an invalid subject frame ($sframe)");
+	    $sframe = undef;
+	  } else { 
+	      if( ($1 eq '-' && $self->subject->strand >= 0) || 
+		  ($1 eq '+' && $self->subject->strand <= 0) ) 
+	      {
+		  $self->warn("Subject frame ($sframe) did not match strand of subject (". $self->subject->strand() . ")");
+	      }
+	      
+	      # Set frame to GFF [0-2]
+	      $sframe = $2 - 1;
+	  }
+	  $self->subject->frame($sframe);
+      }
+    
+    if (wantarray() && 
+	$self->report_type eq 'TBLASTX') 
+    { 
+	return ($self->query->frame, $self->subject->frame); 
+    } elsif (wantarray())  { 
+	($self->query->frame && 
+	 return ($self->query->frame, undef)) || 
+	     ($self->subject->frame && 
+	      return (undef, $self->subject->frame)); 
+    } else { 
+	($self->query->frame && 
+	 return $self->query->frame) || 
+	($self->subject->frame && 
+	 return $self->subject->frame); 
+    }
 }
 
 =head2 Bio::SeqFeature::SimilarityPair methods

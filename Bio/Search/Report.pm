@@ -133,7 +133,10 @@ sub new {
 
 sub next_subject{
    my ($self) = @_;   
-   return $self->{'_subjects'}->[$self->_nextsubjectindex];
+
+   my $index = $self->_nextsubjectindex;
+   return undef if ( $index > @{$self->{'_subjects'}} );
+   return $self->{'_subjects'}->[$index];
 }
 
 

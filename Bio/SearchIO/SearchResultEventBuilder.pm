@@ -146,12 +146,12 @@ sub end_report {
 	('-db_name'     => $data->{'dbname'},
 	 '-db_size'     => $data->{'dbsize'},
 	 '-query_name'  => $data->{'queryname'},
-	 '-query_size'  => $data->{'querysize'},
+	 '-query_size'  => $data->{'querylen'},
 	 '-program_name'=> $data->{'programname'},
 	 '-program_version'=> $data->{'programver'},
 	 '-report_type' => $type,
 	 '-subjects'    => $self->{'_subjects'} );
-
+    $self->{'_subjects'} = [];
     return $report;
 }
 
@@ -168,6 +168,7 @@ sub end_report {
 
 sub start_hsp {
     my ($self,@args) = @_;
+   return;
 }
 
 =head2 end_hsp
@@ -210,6 +211,7 @@ sub end_hsp{
 	'-subject_frame' => $data->{'subjectframe'},
 	);
    push @{$self->{'_hsps'}}, $hsp;
+   return;
 }
 
 =head2 start_subject
@@ -227,6 +229,7 @@ sub end_hsp{
 sub start_subject{
     my ($self,$type) = @_;
     $self->{'_hsps'} = [];    
+    return;
 }
 
 =head2 end_subject
@@ -250,6 +253,9 @@ sub end_subject{
 	  '-accession'   => $data->{'subjectacc'},
 	  '-desc'        => $data->{'subjectdesc'},
 	  '-hsps'        => $self->{'_hsps'});
+   push @{$self->{'_subjects'}}, $subject;
+   $self->{'_hsps'} = [];
+   return;
 }
 
 1;
