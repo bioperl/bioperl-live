@@ -424,7 +424,7 @@ but can be validly overwritten by subclasses
 =cut
 
 sub spliced_seq {
-    my ($self,$db) = shift;
+    my ($self,$db) = @_;
 
     if( ! $self->location->isa("Bio::Location::SplitLocationI") ) {
 	return $self->seq(); # nice and easy!
