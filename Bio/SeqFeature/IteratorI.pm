@@ -14,13 +14,13 @@ Bio::SeqFeature::IteratorI - An iterator over Bio::SeqFeatureI objects.
 
 =head1 DESCRIPTION
 
-  An iterator over Bio::SeqFeatureI objects.  This is an autodeleting
+  An iterator over L<Bio::SeqFeatureI> objects.  This is an autodeleting
   list, aka a stream.  Reading from the iterator (using
   $iterator->next_feature) removes the returned feature from the
   iterator.  An iterator may return new objects or it may return
   preexisting objects.  In some circumstances it may return the same
   object twice (eg. if it is iterating over a list that contains that
-  object twice).  See Bio::SeqFeature::CollectionI.
+  object twice).  See L<Bio::SeqFeature::CollectionI>.
 
 =head1 FEEDBACK
 
@@ -76,7 +76,7 @@ $VERSION = '0.01';
  Title   : next_feature
  Usage   : $seq_feature = $iterator->next_feature()
  Function: returns and removes the next feature from this iterator
- Returns : a Bio::SeqFeatureI, or undef if there are no more
+ Returns : a L<Bio::SeqFeatureI>, or undef if there are no more
  Args    : none
  Status  : Public
 
@@ -91,7 +91,7 @@ sub next_feature {
  Title   : next_seq
  Usage   : $seq_feature = $iterator->next_seq()
  Function: returns and removes the next feature from this iterator
- Returns : a Bio::SeqFeatureI, or undef if there are no more
+ Returns : a L<Bio::SeqFeatureI>, or undef if there are no more
  Args    : none
  Status  : Public
 
