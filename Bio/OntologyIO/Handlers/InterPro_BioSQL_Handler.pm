@@ -1,4 +1,28 @@
+#
+#
+#
+#
 
+=head1 NAME
+
+Bio::OntologyIO::Handlers::InterPro_BioSQL_Handler
+
+=head1 SYNOPSIS
+
+    see load_interpro.pl in bioperl-db/scripts/biosql/
+
+=head1 DESCRIPTION
+
+This module take the advantage of SAX, a stream-based XML parser technology, to
+keep the used memory as small as possible. InterProHandler in the same 
+directory use another scheme to keep all interpro record in the engine and keep
+the ontology data in memory, almost impossible to operate it! 
+
+=head1 AUTHOR
+
+Juguang Xiao, juguang@tll.org.sg
+
+=cut
 
 package Bio::OntologyIO::Handlers::InterPro_BioSQL_Handler;
 use strict;
