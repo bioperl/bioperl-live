@@ -614,7 +614,7 @@ sub regexp {
 			if ($letter eq 'H') { $reg='AaCcTt'; last LETTER; }
 			if ($letter eq 'D') { $reg='AaGgTt'; last LETTER; }
 			if ($letter eq 'B') { $reg='CcGgTt'; last LETTER; }
-			if ($letter=~"AGCT-XN\.")  { $reg="\."; last LETTER; }
+			 $reg="\.";
 		}
 		$regexp .= "[$reg]";
 	}
@@ -657,7 +657,7 @@ sub regexp_array {
 			if ($letter eq 'H') { $reg='AaCcTt'; last LETTER; }
 			if ($letter eq 'D') { $reg='AaGgTt'; last LETTER; }
 			if ($letter eq 'B') { $reg='CcGgTt'; last LETTER; }
-			if ($letter=~"-XN\.")  { $reg="\."; last LETTER; }
+			$reg="\."; 
 		}
 		push @regexp,$reg;
 	}
