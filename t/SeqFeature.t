@@ -336,27 +336,37 @@ ok  $seqio = new Bio::SeqIO(-file => Bio::Root::IO->catfile
 
 ok $geneseq = $seqio->next_seq();
 my ($CDS) = grep { $_->primary_tag eq 'CDS' } $geneseq->get_SeqFeatures;
-my $db = new Bio::DB::GenBank();
-$CDS->verbose(-1);
-my $cdsseq = $CDS->spliced_seq($db,1);
+my $db;
 
-ok($cdsseq->subseq(1,60, 'ATGCAGCCATACGCTTCCGTGAGCGGGCGATGTCTATC'.
-                   'TAGACCAGATGCATTGCATGTGATACCGTTTGGGCGAC'));
-ok($cdsseq->translate->subseq(1,100), 'MQPYASVSGRCLSRPDALHVIPFGRP'.
-   'LQAIAGRRFVRCFAKGGQPGDKKKLNVTDKLRLGNTPPTLDVLKAPRPTDAPSAIDDAPSTSGLGLGGGVASPR');
+unless( $skipdbtests ) {
+ $db = new Bio::DB::GenBank();
+ $CDS->verbose(-1);
+ my $cdsseq = $CDS->spliced_seq($db,1);
+ 
+ ok($cdsseq->subseq(1,60, 'ATGCAGCCATACGCTTCCGTGAGCGGGCGATGTCTATC'.
+		    'TAGACCAGATGCATTGCATGTGATACCGTTTGGGCGAC'));
+ ok($cdsseq->translate->subseq(1,100), 'MQPYASVSGRCLSRPDALHVIPFGRP'.
+    'LQAIAGRRFVRCFAKGGQPGDKKKLNVTDKLRLGNTPPTLDVLKAPRPTDAPSAIDDAPSTSGLGLGGGVASPR');
+} else {
+    skip('Cannot test for remote loc with spliced_seq w/o LWP installed',1);
+    skip('Cannot test for remote loc with spliced_seq w/o LWP installed',1);
 
+}
 ok  $seqio = new Bio::SeqIO(-file => Bio::Root::IO->catfile
 			    (qw(t data AF032047.gbk)),
                             -format  => 'genbank');
 ok $geneseq = $seqio->next_seq();
 ($CDS) = grep { $_->primary_tag eq 'CDS' } $geneseq->get_SeqFeatures;
-
-$cdsseq = $CDS->spliced_seq($db,1);
-ok($cdsseq->subseq(1,60, 'ATGGCTCGCTTCGTGGTGGTAGCCCTGCTCGCGCTACTCTCTCTG'.
-                   'TCTGGCCTGGAGGCTATCCAGCATG'));
-ok($cdsseq->translate->seq, 'MARFVVVALLALLSLSGLEAIQHAPKIQVYSRHPAENGKPNFL'.
-   'NCYVSGFHPSDIEVDLLKNGKKIEKVEHSDLSFSKDWSFYLLYYTEFTPNEKDEYACRVSHVTFPTPKTVKWDRTM*');
-
+unless ($skipdbtests ) {
+    my $cdsseq = $CDS->spliced_seq($db,1);
+    ok($cdsseq->subseq(1,60, 'ATGGCTCGCTTCGTGGTGGTAGCCCTGCTCGCGCTACTCTCTCTG'.
+		       'TCTGGCCTGGAGGCTATCCAGCATG'));
+    ok($cdsseq->translate->seq, 'MARFVVVALLALLSLSGLEAIQHAPKIQVYSRHPAENGKPNFL'.
+       'NCYVSGFHPSDIEVDLLKNGKKIEKVEHSDLSFSKDWSFYLLYYTEFTPNEKDEYACRVSHVTFPTPKTVKWDRTM*');
+} else {
+    skip('Cannot test for remote loc with spliced_seq w/o LWP installed',1);
+    skip('Cannot test for remote loc with spliced_seq w/o LWP installed',1);
+}
 
 
 # trans-spliced 
