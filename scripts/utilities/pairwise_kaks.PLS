@@ -1,5 +1,5 @@
 #!perl -w
-# $Id: pairwise_kaks.PLS,v 1.4 2003-02-25 10:45:22 jason Exp $
+# $Id: pairwise_kaks.PLS,v 1.5 2003-03-03 11:44:32 jason Exp $
 use strict;
 # Author Jason Stajich <jason@bioperl.org>
 
@@ -126,6 +126,7 @@ unless ( $kaks_factory->executable ) {
 
 unless ( $cdna && -f $cdna && -r $cdna &&  ! -z $cdna ) {
     warn("Did not specify a valid cDNA sequence file as input"); 
+    exit(0);
 }
 
 my $seqin = new Bio::SeqIO(-file   => $cdna, 
@@ -156,7 +157,7 @@ local * OUT;
 if( $output ) {
     open(OUT, ">$output") || die("cannot open output $output for writing");
 } else { 
-    OUT = \*STDOUT;
+    *OUT = *STDOUT;
 }
 
 my $aa_aln = $aln_factory->align(\@prots);
