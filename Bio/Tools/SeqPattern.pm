@@ -11,10 +11,8 @@
 
 package Bio::Tools::SeqPattern;
 
-use Bio::Root::Global qw(:devel);
-use Bio::Root::Object;
-
-@ISA = qw(Bio::Root::Object);
+use Bio::Root::RootI;
+@ISA = qw(Bio::Root::RootI);
 use strict;
 use vars qw ($ID $VERSION);
 $ID  = 'Bio::Tools::SeqPattern';
@@ -198,14 +196,14 @@ User feedback is an integral part of the evolution of this and other
 Bioperl modules.  Send your comments and suggestions preferably to one
 of the Bioperl mailing lists.  Your participation is much appreciated.
 
-    vsns-bcd-perl@lists.uni-bielefeld.de          - General discussion
-    vsns-bcd-perl-guts@lists.uni-bielefeld.de     - Technically-oriented discussion
-    http://bio.perl.org/MailList.html             - About the mailing lists
+    bioperl-l@bioperl.org              - General discussion
+    http://bio.perl.org/MailList.html  - About the mailing lists
 
 =head2 Reporting Bugs
 
-Report bugs to the Bioperl bug tracking system to help us keep track the bugs and 
-their resolution. Bug reports can be submitted via email or the web:
+Report bugs to the Bioperl bug tracking system to help us keep track
+the bugs and their resolution. Bug reports can be submitted via email
+or the web:
 
     bioperl-bugs@bio.perl.org                   
     http://bio.perl.org/bioperl-bugs/           
@@ -243,10 +241,10 @@ modify it under the same terms as Perl itself.
 #####################################################################################
 
 
-=head1 _initialize
+=head1 new
 
- Title     : _initialize
- Usage     : n/a; automatically called by Bio::Root::Object::new()
+ Title     : new
+ Usage     : my $seqpat = new Bio::Tools::SeqPattern();
  Purpose   : Verifies that the type is correct for superclass (Bio::Seq.pm)
            : and calls superclass constructor last.
  Returns   : n/a
@@ -255,16 +253,18 @@ modify it under the same terms as Perl itself.
  Comments  : The process of creating a new SeqPattern.pm object
            : ensures that the pattern string is untained.
 
-See Also   : L<_untaint_pat>(), B<Bio::Root::Object::new()>, B<Bio::Seq::_initialize()>
+See Also   : L<_untaint_pat>(), B<Bio::Root::RootI::new()>, 
+             B<Bio::Seq::_initialize()>
 
 =cut
 
 #----------------
-sub _initialize {
+sub new {
 #----------------
-    my($self, %param) = @_;
+    my($class, %param) = @_;
     
-    my($seq, $type) = $self->_rearrange([qw(SEQ TYPE)], %param);
+    my $self = $class->SUPER::new(%param);
+    my ($seq,$type) = $self->_rearrange([qw(SEQ TYPE)], %param);
 
     $seq || $self->throw("Empty pattern.");
     my $t;
@@ -325,9 +325,6 @@ sub alphabet_ok {
 #    print STDERR "\npattern ok: $pat\n";
     1;
 }
-
-
-
 
 =head1 expand
 
@@ -492,7 +489,7 @@ See Also   : B<Bio::Seq::revcom()>, L<_fixpat_1>(), L<_fixpat_2>(), L<_fixpat_3>
 
 =cut
 
-#-----------
+#-----------'
 sub revcom {
 #-----------
     my($self,$expand) = @_;
@@ -908,26 +905,29 @@ __END__
 
 =head2 Data Members
 
-Information about the various data members of this module is provided for those 
-wishing to modify or understand the code. Two things to bear in mind: 
+Information about the various data members of this module is provided
+for those wishing to modify or understand the code. Two things to bear
+in mind:
 
 =over 4
 
 =item 1 Do NOT rely on these in any code outside of this module. 
 
-All data members are prefixed with an underscore to signify that they are private.
-Always use accessor methods. If the accessor doesn't exist or is inadequate, 
-create or modify an accessor (and let me know, too!). 
+All data members are prefixed with an underscore to signify that they
+are private.  Always use accessor methods. If the accessor doesn't
+exist or is inadequate, create or modify an accessor (and let me know,
+too!).
 
 =item 2 This documentation may be incomplete and out of date.
 
-It is easy for this documentation to become obsolete as this module is still evolving. 
-Always double check this info and search for members not described here.
+It is easy for this documentation to become obsolete as this module is
+still evolving.  Always double check this info and search for members
+not described here.
 
 =back
 
-An instance of Bio::Tools::RestrictionEnzyme.pm is a blessed reference to a hash
-containing all or some of the following fields:
+An instance of Bio::Tools::RestrictionEnzyme.pm is a blessed reference
+to a hash containing all or some of the following fields:
 
  FIELD          VALUE
  ------------------------------------------------------------------------
@@ -943,3 +943,4 @@ containing all or some of the following fields:
 
 
 
+1;

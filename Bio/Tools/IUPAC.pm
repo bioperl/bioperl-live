@@ -133,11 +133,8 @@ package Bio::Tools::IUPAC;
 use strict;
 use vars qw(@ISA $AUTOLOAD);
 
-# Object preamble - inherits from Bio::Root::Object
-
-use Bio::Root::Object;
-
-@ISA = qw(Bio::Root::Object);
+use Bio::Root::RootI;
+@ISA = qw(Bio::Root::RootI);
 
 =head2 new
 
@@ -154,7 +151,6 @@ use Bio::Root::Object;
 
 sub new {
     my($class,@args) = @_;
-
     my $self = $class->SUPER::new(@args);    
 
     my $seq = shift @args;

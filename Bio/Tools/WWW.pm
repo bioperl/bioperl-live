@@ -18,14 +18,12 @@
 
 package	 Bio::Tools::WWW;
 use strict;  
-
-use Bio::Root::Object   ();
-use Bio::Root::Global  qw($AUTHORITY);
+use Bio::Root::RootI;
 use Exporter      ();
-
-use vars qw(@ISA @EXPORT_OK %EXPORT_TAGS $ID $VERSION $BioWWW $Revision);
-
-@ISA         = qw( Bio::Root::Object Exporter);
+use vars qw(@ISA @EXPORT_OK %EXPORT_TAGS $ID $VERSION $BioWWW $Revision 
+	    $AUTHORITY);
+$AUTHORITY = 'nobody@localhost';
+@ISA         = qw( Bio::Root::RootI Exporter);
 @EXPORT_OK   = qw($BioWWW);
 %EXPORT_TAGS = ( obj => [qw($BioWWW)],
 		 std => [qw($BioWWW)]);
