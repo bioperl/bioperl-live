@@ -141,34 +141,39 @@ sub get_abscoords {
   my $self = shift;
   my ($name,$class,$refseq) = @_;
   my %refs;
+  my $regexp;
+
+  if ($name =~ /[*?]/) {  # uh oh regexp time
+    $name =~ quotemeta($name);
+    $name =~ s/\\\*/.*/g;
+    $name =~ s/\\\?/.?/g;
+    $regexp++;
+  }
 
   # Find all features that have the requested name and class.
   # Sort them by reference point.
   for my $feature (@{$self->{data}}) {
-    #next unless $feature->{gname} eq $name;
-    #next unless $feature->{gclass} eq $class;
-    
+
     my $no_match_class_name;
     my $empty_class_name;
-    if ($feature->{gname} and $feature->{gclass}){
-      $no_match_class_name = 1 
-	if ($feature->{gname} ne $name || $feature->{gclass} ne $class);
+    if (defined $feature->{gname} and defined $feature->{gclass}){
+      my $matches = $feature->{gclass} eq $class
+	&& ($regexp ? $feature->{gname} =~ /$name/i : $feature->{gname} eq $name);
+      $no_match_class_name = !$matches;  # to accomodate Shuly's interesting logic
     }
+
     else{
       $empty_class_name = 1;
     }
 
     if ($no_match_class_name || $empty_class_name){
-    #if ($feature->{gname} ne $name || $feature->{gclass} ne $class){
 
       my $feature_attributes = $feature->{attributes};
       my $attributes = {Alias => $name};
       if (!_matching_attributes($feature_attributes,$attributes)){
          next;
       }
-    
     }
-    
     push @{$refs{$feature->{ref}}},$feature;
   }
 
@@ -208,6 +213,36 @@ sub get_abscoords {
   }
   return \@found_segments;
 }
+
+sub search_notes {
+  my $self = shift;
+  my ($search_string,$limit) = @_;
+  my @results;
+  my @words = map {quotemeta($_)} $search_string =~ /(\w+)/g;
+
+  for my $feature (@{$self->{data}}) {
+    next unless defined $feature->{gclass} && defined $feature->{gname}; # ignore NULL objects
+    next unless $feature->{attributes};
+    my @attributes = @{$feature->{attributes}};
+    my @values     = map {$_->[1]} @attributes;
+    my $value      = "@values";
+    my $matches    = 0;
+    my $note;
+    for my $w (@words) {
+      my @hits = $value =~ /($w)/g;
+      $note ||= $value if @hits;
+      $matches += @hits;
+    }
+    next unless $matches;
+
+    my $relevance = 10 * $matches;
+    my $featname = Bio::DB::GFF::Featname->new($feature->{gclass}=>$feature->{gname});
+    push @results,[$featname,$note,$relevance];
+    last if @results >= $limit;
+  }
+  @results;
+}
+
 
 
 # attributes -
@@ -337,10 +372,19 @@ sub _feature_by_name {
   $callback || $self->throw('must provide a callback argument');
   my $count = 0;
   my $id    = -1;
+  my $regexp;
+
+  if ($name =~ /[*?]/) {  # uh oh regexp time
+    $name =~ quotemeta($name);
+    $name =~ s/\\\*/.*/g;
+    $name =~ s/\\\?/.?/g;
+    $regexp++;
+  }
+
 
   for my $feature (@{$self->{data}}) {
     $id++;
-    next unless $feature->{gname} eq $name;
+    next unless ($regexp && $feature->{gname} =~ /$name/i) || $feature->{gname}  eq $name;
     next unless $feature->{gclass} eq $class;
     $count++;
     $callback->(@{$feature}{qw(
@@ -476,11 +520,8 @@ sub get_types {
 # Internal method that performs a search on the features array, 
 # sequentialy retrieves the features, and performs a check on each feature
 # according to the search options.
- 
 sub _get_features_by_search_options{
- 
   my $count = 0;
-  
   my ($data,$search,$options) = @_;
   my ($rangetype,$refseq,$class,$start,$stop,$types,$sparse,$order_by_group,$attributes) = 
     (@{$search}{qw(rangetype refseq refclass start stop types)},
@@ -595,10 +636,6 @@ sub _convert_feature_hash_to_array{
   }
   return \@features_array_array;
 }
-
-
-
-
 
 sub _matching_typelist{ 
   my ($feature_method,$feature_source,$typelist) = @_; 

@@ -58,29 +58,26 @@ sub new {
 sub next_feature {
   my $self = shift;
   return shift @{$self->{cache}} if @{$self->{cache}};
-  my $data = $self->{data} or return;
-  my $next_feature_pos = $self->{pos}; 
+
+  my $data     = $self->{data} or return;
   my $callback = $self->{callback};
 
   my $features;
   while (1) {
-    #if (my $feature = $self->{data}[$next_feature_pos]) {
-    if ($next_feature_pos < @{$self->{data}}){
-      my $feature = $self->{data}[$next_feature_pos];
-      $features = $callback->(@{$feature});
-      $self->{pos}++;
+    my $feature = $data->[$self->{pos}++];
+    if ($feature) {
+      $features   = $callback->(@{$feature});
       last if $features;
     } else {
+      $features = $callback->();
       undef $self->{pos};
       undef $self->{data};
-      $features = $callback->();
-      #last;
-      return;
+      undef $self->{cache};
+      last;
     }
   }
-  #return $features;
   $self->{cache} = $features or return;
-  shift @{$self->{cache}}; 
+  shift @{$self->{cache}};
 }
 
 1;
