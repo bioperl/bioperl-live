@@ -524,7 +524,7 @@ overhead of adding annotations to each sequence can be significant.
 For such applications, you will want to use the PrimarySeq
 object. PrimarySeq is basically a "stripped down" version of Seq.
 It contains just the sequence data itself and a few identifying labels
-(id, accession number, molecule type = dna, rna, or protein).  For
+(id, accession number, alphabet = dna, rna, or protein).  For
 applications with hundreds or thousands or sequences, using PrimarySeq
 objects can significantly speed up program execution and decrease the
 amount of RAM the program requires. See L<Bio::PrimarySeq> for more
@@ -1063,7 +1063,7 @@ can mean two slightly different things:
 =back
 
 The bioperl implementation of sequence-translation does the first of
-these tasks easily. Any sequence object which is not of type 'protein'
+these tasks easily. Any sequence object which is not of alphabet 'protein'
 can be translated by simply calling the method which returns a protein
 sequence object:
 
@@ -2934,7 +2934,7 @@ $sequence_manipulations = sub {
     $seqobj->subseq(5,10)," \n"; # part of the sequence as a string
     print $outputfh "Acc num is ",
     $seqobj->accession_number(), " \n"; # when there, the accession number
-    print $outputfh "Moltype is ",
+    print "Alphabet is ",
     $seqobj->alphabet(), " \n";    # one of 'dna','rna','protein'
     print $outputfh "Primary id is ", $seqobj->primary_seq->primary_id()," \n";
     # a unique id for this sequence irregardless
@@ -3926,7 +3926,7 @@ $demo_xml = sub {
       print $outputfh "   ", $seqobj->desc(), " \n";
       print $outputfh "Acc num is ", $seqobj->accession_number(),
       " \n"; # when there, the accession number
-      print $outputfh "Moltype is ", $seqobj->alphabet(),
+      print "Alphabet is ", $seqobj->alphabet(),
       " \n";    # one of 'dna','rna','protein'
 
       @feats = $seqobj->all_SeqFeatures();
