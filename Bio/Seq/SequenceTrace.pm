@@ -44,11 +44,6 @@ or the web:
 
 Email bioinformatics@dieselwurks.com
 
-=head1 CONTRIBUTORS 
-
-Jason Stajich, jason@bioperl.org
-
-=head1 APPENDIX
 
 The rest of the documentation details each of the object methods.
 Internal methods are usually preceded with a _
@@ -67,6 +62,10 @@ use Bio::PrimarySeqI;
 use Bio::PrimarySeq;
 use Bio::Seq::PrimaryQual;
 use Bio::Seq::TraceI;
+use Bio::Seq::SeqWithQuality;
+use Dumpvalue();
+
+my $dumper = new Dumpvalue();
 
 @ISA = qw(Bio::Root::Root Bio::Seq::SeqWithQuality Bio::Seq::TraceI);
 
@@ -74,12 +73,12 @@ use Bio::Seq::TraceI;
 
  Title   : new()
  Usage   : $st = Bio::Seq::SequenceTrace->new
-     (    -sequencewithquality =>   Bio::Seq::SequenceWithQuality,
+     (    -swq =>   Bio::Seq::SequenceWithQuality,
           -trace_a  =>   \@trace_values_for_a_channel,
           -trace_t  =>   \@trace_values_for_t_channel,
           -trace_g  =>   \@trace_values_for_g_channel,
           -trace_c  =>   \@trace_values_for_c_channel,
-          -trace_indices    => '0 5 10 15 20 25 30 35'
+          -peak_indices    => '0 5 10 15 20 25 30 35'
      );
  Function: Returns a new Bio::Seq::SequenceTrace object from basic
         constructors.
@@ -93,29 +92,59 @@ sub new {
     my $self = $class->SUPER::new(@args);
 	# default: turn OFF the warnings
 	$self->{supress_warnings} = 1;
-    my($sequence_with_quality,$trace_indices,$trace_a,$trace_t,
-          $trace_g,$trace_c) =
+    my($swq,$peak_indices,$trace_a,$trace_t,
+          $trace_g,$trace_c,$acc_a,$acc_t,$acc_g,$acc_c) =
           $self->_rearrange([qw(
-               SEQUENCEWITHQUALITY
-               TRACE_INDICES
+               SWQ
+               PEAK_INDICES
                TRACE_A
                TRACE_T
-               TRACE_G)], @args);
+               TRACE_G
+               TRACE_C
+               ACCURACY_A
+               ACCURACY_T
+               ACCURACY_G
+               ACCURACY_C )], @args);
           # first, deal with the sequence and quality information
-     if ($sequence_with_quality && ref($sequence_with_quality) eq "Bio::Seq::SeqWithQuality") {
-          $self->{swq} = $sequence_with_quality;
+     if ($swq && ref($swq) eq "Bio::Seq::SeqWithQuality") {
+          $self->{swq} = $swq;
      }
      else {
           $self->throw("A Bio::Seq::SequenceTrace object must be created with a
-               Bio::Seq::SeqWithQuality object.");
+               Bio::Seq::SeqWithQuality object. You provided this type of object: "
+               .ref($swq));
      }
-     $self->{trace_a} = $trace_a ? $trace_a : undef;
-     $self->{trace_t} = $trace_t ? $trace_t : undef;
-     $self->{trace_g} = $trace_g ? $trace_g : undef;
-     $self->{trace_c} = $trace_c ? $trace_c : undef;
-     $self->{trace_indices} = $trace_indices ? $trace_indices : undef;
+     if (!$acc_a) {
+          # this means that you probably did not provide traces and accuracies
+          # and that they need to be synthesized
+          $self->set_accuracies();
+     }
+     else {
+          $self->accuracies('a',$acc_a);
+          $self->accuracies('t',$acc_t);
+          $self->accuracies('g',$acc_g);
+          $self->accuracies('c',$acc_c);
+     }
+     if (!$trace_a) {
+          $self->_synthesize_traces();
+     }
+     else {
+          $self->trace('a',$trace_a);
+          $self->trace('t',$trace_t);
+          $self->trace('g',$trace_g);
+          $self->trace('c',$trace_c);
+          $self->peak_indices($peak_indices);
+     }
+     $self->id($self->swq_obj()->id());
     return $self;
 }
+
+sub swq_obj {
+     my $self = shift;
+     return $self->{swq};
+}
+
+
 
 =head2 trace($base,\@new_values)
 
@@ -135,181 +164,88 @@ Arguments: $base : which color channel would you like the trace values for?
 
 sub trace {
    my ($self,$base_channel,$values) = @_;
+     if (!$base_channel) {
+          $self->throw('You must provide a valid base channel (atgc) to use trace()');
+     }
      $base_channel =~ tr/A-Z/a-z/;
-     if (length($base_channel) > 1 && $base_channel !~ /a|t|g|c/) {
-          $self->throw("The base channel must be a, t, g, or c");
+     if ($base_channel !~ /a|t|g|c/) {
+          $self->throw('You must provide a valid base channel (atgc) to use trace()');
      }
-     if ( $values && ref($values) eq "ARRAY") {
-          $self->{trace_$base_channel} = $values;
+     if ($values) {
+             if (ref($values) eq "ARRAY") {
+                  $self->{trace}->{$base_channel} = $values;
+             }
+             else {
+                    my @trace = split(' ',$values);
+                  $self->{trace}->{$base_channel} = \@trace;
+             }
      }
-     elsif ($values) {
-          $self->warn("You tried to change the traces for the $base_channel but
-               the values you wave were not a reference to an array.");
+     if ($self->{trace}->{$base_channel}) {
+          return $self->{trace}->{$base_channel};
      }
-     return $self->{trace_$base_channel};
+     else {
+          return undef;
+     }
 }
 
 
-=head2 trace_indices($new_indices)
+=head2 peak_indices($new_indices)
 
- Title   : trace_indices($new_indices)
- Usage   : $indices = $obj->trace_indices($new_indices);
+ Title   : peak_indices($new_indices)
+ Usage   : $indices = $obj->peak_indices($new_indices);
  Function: Return the trace iindex points for this object.
  Returns : A scalar
  Args    : If used, the trace indices will be set to the provided value.
 
 =cut
 
-sub trace_indices {
-   my ($self,$trace_indices)= @_;
-     if ($trace_indices) { $self->{trace_indices} = $trace_indices; }
-     return $self->{trace_indices};
+sub peak_indices {
+   my ($self,$peak_indices)= @_;
+     if ($peak_indices) {
+          if (ref($peak_indices) eq "ARRAY") {
+               $self->{peak_indices} = $peak_indices;
+          }
+          else {
+               my @indices = split(' ',$peak_indices);
+               $self->{peak_indices} = \@indices;
+         } 
+     }
+     if (!$self->{peak_indices}) {
+          my @temp = ();
+          $self->{peak_indices} = \@temp;
+     }
+     return $self->{peak_indices};
 }
 
 
+=head2 peak_index_at($position)
 
-
-
-
-
-
-
-
-
-
-
-=head2 _common_id()
-
- Title   : _common_id()
- Usage   : $common_id = $self->_common_id();
- Function: Compare the display_id of {qual_ref} and {seq_ref}.
- Returns : Nothing if they don't match. If they do return
-	   {seq_ref}->display_id()
- Args    : None.
+ Title   : peak_index_at($position)
+ Usage   : $peak_index = $obj->peak_index_at($postition);
+ Function: Return the trace iindex point at this position
+ Returns : A scalar
+ Args    : If used, the trace index at this position will be 
+     set to the provided value.
 
 =cut
 
-#'
-sub _common_id {
-	my $self = shift;
-	return if (!$self->{seq_ref} || !$self->{qual_ref});
-	my $sid = $self->{seq_ref}->display_id();
-	return if (!$sid);
-	return if (!$self->{qual_ref}->display_id());
-	return $sid if ($sid eq $self->{qual_ref}->display_id());
-		# should this become a warning?
-		# print("ids $sid and $self->{qual_ref}->display_id() do not match. Bummer.\n");
+sub peak_index_at {
+   my ($self,$position,$value)= @_;
+   if ($value) {
+          $self->peak_indices->[$position-1] = $value;
+   }
+    return $self->peak_indices()->[$position-1];
 }
 
-=head2 _common_display_id()
 
- Title   : _common_id()
- Usage   : $common_id = $self->_common_display_id();
- Function: Compare the display_id of {qual_ref} and {seq_ref}.
- Returns : Nothing if they don't match. If they do return
-	   {seq_ref}->display_id()
- Args    : None.
 
-=cut
 
-#'
-sub _common_display_id {
-	my $self = shift;
-	$self->common_id();
-}
 
-=head2 _common_accession_number()
 
- Title   : _common_accession_number()
- Usage   : $common_id = $self->_common_accession_number();
- Function: Compare the accession_number() of {qual_ref} and {seq_ref}.
- Returns : Nothing if they don't match. If they do return
-	   {seq_ref}->accession_number()
- Args    : None.
 
-=cut
 
-#'
-sub _common_accession_number {
-	my $self = shift;
-	return if ($self->{seq_ref} || $self->{qual_ref});
-	my $acc = $self->{seq_ref}->accession_number();
-		# if (!$acc) { print("the seqref has no acc.\n"); }
-	return if (!$acc);
-		# if ($acc eq $self->{qual_ref}->accession_number()) { print("$acc matches ".$self->{qual_ref}->accession_number()."\n"); }
-	return $acc if ($acc eq $self->{qual_ref}->accession_number());
-		# should this become a warning?
-		# print("accession numbers $acc and $self->{qual_ref}->accession_number() do not match. Bummer.\n");
-}
 
-=head2 _common_primary_id()
 
- Title   : _common_primary_id()
- Usage   : $common_primard_id = $self->_common_primary_id();
- Function: Compare the primary_id of {qual_ref} and {seq_ref}.
- Returns : Nothing if they don't match. If they do return
-	   {seq_ref}->primary_id()
- Args    : None.
-
-=cut
-
-#'
-sub _common_primary_id {
-	my $self = shift;
-	return if ($self->{seq_ref} || $self->{qual_ref});
-	my $pid = $self->{seq_ref}->primary_id();
-	return if (!$pid);
-	return $pid if ($pid eq $self->{qual_ref}->primary_id());
-		# should this become a warning?
-		# print("primary_ids $pid and $self->{qual_ref}->primary_id() do not match. Bummer.\n");
-
-}
-
-=head2 _common_desc()
-
- Title   : _common_desc()
- Usage   : $common_desc = $self->_common_desc();
- Function: Compare the desc of {qual_ref} and {seq_ref}.
- Returns : Nothing if they don't match. If they do return
-	   {seq_ref}->desc()
- Args    : None.
-
-=cut
-
-#'
-sub _common_desc {
-	my $self = shift;
-	return if ($self->{seq_ref} || $self->{qual_ref});
-	my $des = $self->{seq_ref}->desc();
-	return if (!$des);
-	return $des if ($des eq $self->{qual_ref}->desc());
-		# should this become a warning?
-		# print("descriptions $des and $self->{qual_ref}->desc() do not match. Bummer.\n");
-
-}
-
-=head2 set_common_descriptors()
-
- Title   : set_common_descriptors()
- Usage   : $self->set_common_descriptors();
- Function: Compare the descriptors (id,accession_number,display_id,
-	primary_id, desc) for the PrimarySeq and PrimaryQual objects
-	within the SeqWithQuality object. If they match, make that
-	descriptor the descriptor for the SeqWithQuality object.
- Returns : Nothing.
- Args    : None.
-
-=cut
-
-sub set_common_descriptors {
-	my $self = shift;
-	return if ($self->{seq_ref} || $self->{qual_ref});
-	&_common_id();
-	&_common_display_id();
-	&_common_accession_number();
-	&_common_primary_id();
-	&_common_desc();
-}
 
 =head2 alphabet()
 
@@ -323,7 +259,7 @@ sub set_common_descriptors {
 
 sub alphabet {
 	my $self = shift;
-	return $self->{seq_ref}->alphabet();	
+	return $self->{swq}->{seq_ref}->alphabet();	
 }
 
 =head2 display_id()
@@ -352,11 +288,11 @@ sub alphabet {
 =cut
 
 sub display_id {
-   my ($obj,$value) = @_;
+   my ($self,$value) = @_;
    if( defined $value) {
-      $obj->{'display_id'} = $value;
+      $self->{swq}->display_id($value);
     }
-    return $obj->{'display_id'};
+    return $self->{swq}->display_id();
 
 }
 
@@ -382,12 +318,11 @@ sub display_id {
 =cut
 
 sub accession_number {
-    my( $obj, $acc ) = @_;
-
+    my( $self, $acc ) = @_;
     if (defined $acc) {
-        $obj->{'accession_number'} = $acc;
+        $self->{swq}->accession_number($acc);
     } else {
-        $acc = $obj->{'accession_number'};
+        $acc = $self->{swq}->accession_number();
         $acc = 'unknown' unless defined $acc;
     }
     return $acc;
@@ -411,11 +346,11 @@ sub accession_number {
 =cut
 
 sub primary_id {
-   my ($obj,$value) = @_;
+   my ($self,$value) = @_;
    if ($value) {
-      $obj->{'primary_id'} = $value;
+      $self->{swq}->primary_id($value);
     }
-   return $obj->{'primary_id'};
+   return $self->{swq}->primary_id();
 
 }
 
@@ -434,11 +369,11 @@ sub primary_id {
 sub desc {
 	# a mechanism to set the disc for the SeqWithQuality object.
 	# probably will be used most often by set_common_features()
-   my ($obj,$value) = @_;
+   my ($self,$value) = @_;
    if( defined $value) {
-      $obj->{'desc'} = $value;
+      $self->{swq}->desc($value);
     }
-    return $obj->{'desc'};
+      return $self->{swq}->desc();
 }
 
 =head2 id()
@@ -458,9 +393,9 @@ sub id {
    my ($self,$value) = @_;
    if (!$self) { $self->throw("no value for self in $value"); }
    if( defined $value ) {
-       return $self->display_id($value);
+       $self->{swq}->display_id($value);
    }
-   return $self->display_id();
+   return $self->{swq}->display_id();
 }
 
 =head2 seq
@@ -487,10 +422,9 @@ sub id {
 sub seq {
 	my ($self,$value) = @_;
 	if( defined $value) {
-		$self->{seq_ref}->seq($value);
-		$self->length();
+		$self->{swq}->{seq_ref}->seq($value);
 	}
-	return $self->{seq_ref}->seq();
+	return $self->{swq}->{seq_ref}->seq();
 }
 
 =head2 qual()
@@ -518,11 +452,9 @@ sub qual {
 	my ($self,$value) = @_;
 
 	if( defined $value) {
-		$self->{qual_ref}->qual($value);
-			# update the lengths
-		$self->length();
+		$self->{swq}->{qual_ref}->qual($value);
 	}
-	return $self->{qual_ref}->qual();
+	return $self->{swq}->{qual_ref}->qual();
 }
 
 
@@ -541,8 +473,7 @@ sub qual {
 
 sub length {
     my $self = shift;
-     # what do I return here? Whew. Ambiguity...
-     ########
+     return $self->seq_obj()->length();
 
 }
 
@@ -679,24 +610,23 @@ sub qualat {
     return $self->{swq}->qualat($val);
 }
 
-=head2 sub_trace_index($start,$end)
+=head2 sub_peak_index($start,$end)
 
- Title   : sub_trace_index($start,$end)
- Usage   : @trace_indices = @{$obj->sub_trace_index(10,20);
+ Title   : sub_peak_index($start,$end)
+ Usage   : @peak_indices = @{$obj->sub_peak_index(10,20);
  Function: returns the trace index values from $start to $end, where the
         first value is 1 and the number is inclusive, ie 1-2 are the
 	first two bases of the sequence. Start cannot be larger than
-	end but can be e_trace_index.
+	end but can be e_peak_index.
  Returns : A reference to an array.
  Args    : a start position and an end position
 
 =cut
 
-sub sub_trace_index {
+sub sub_peak_index {
    my ($self,$start,$end) = @_;
-
    if( $start > $end ){
-       $self->throw("in sub_trace_index, start [$start] has to be greater than end [$end]");
+       $self->throw("in sub_peak_index, start [$start] has to be greater than end [$end]");
    }
 
    if( $start <= 0 || $end > $self->length ) {
@@ -707,39 +637,422 @@ sub sub_trace_index {
 
    $start--;
      $end--;
-     my @sub_trace_index_array = @{$self->{trace_indices}}[$start..$end];
+     my @sub_peak_index_array = @{$self->{peak_indices}}[$start..$end];
 
      #   return substr $self->seq(), $start, ($end-$start);
-     return \@sub_trace_index_array;
+     return \@sub_peak_index_array;
 
 }
 
 
+=head2 sub_trace($start,$end)
 
-
-=head2 trace_index_at($position)
-
- Title   : trace_index_at($position)
- Usage   : $trace_index = $obj->trace_index_at(10);
- Function: Return the trace_index value at the given location, where the
+ Title   : sub_trace($base_channel,$start,$end)
+ Usage   : @peak_indices = @{$obj->sub_trace('a',10,20);
+ Function: returns the trace values from $start to $end, where the
         first value is 1 and the number is inclusive, ie 1-2 are the
 	first two bases of the sequence. Start cannot be larger than
-	end but can be etrace_index_.
- Returns : A scalar.
- Args    : A position.
+	end but can be e_peak_index.
+ Returns : A reference to an array.
+ Args    : a start position and an end position
 
 =cut
 
-sub trace_index_at {
-    my ($self,$val) = @_;
-    my @trace_index_at = @{$self->sub_trace_index($val,$val)};
-    if (scalar(@trace_index_at) == 1) {
-	return $trace_index_at[0];
-    }
-    else {
-	$self->throw("AAAH! trace_index_at provided more then one quality.");
+sub sub_trace {
+   my ($self,$base_channel,$start,$end) = @_;
+   if( $start > $end ){
+       $self->throw("in sub_trace, start [$start] has to be greater than end [$end]");
+   }
+
+   if( $start <= 0 || $end > $self->trace_length() ) {
+       $self->throw("You have to have start positive and length less than the total length of traces [$start:$end] Total ".$self->trace_length."");
+   }
+
+   # remove one from start, and then length is end-start
+
+   $start--;
+     $end--;
+     my @sub_peak_index_array = @{$self->trace($base_channel)}[$start..$end];
+
+     #   return substr $self->seq(), $start, ($end-$start);
+     return \@sub_peak_index_array;
+
+}
+
+=head2 trace_length()
+
+ Title   : peak_index_length()
+ Usage   : $peak_index_length = $obj->peak_index_length();
+ Function: Return the peak_index if all four traces (atgc)
+     are the same. Otherwise, throw an error.
+ Returns : A scalar.
+ Args    : none
+
+=cut
+
+sub trace_length {
+    my $self = shift;
+     if ( !$self->trace('a') || !$self->trace('t') || !$self->trace('g') || !$self->trace('c') ) {
+           $self->warn("One or more of the trace channels are missing. Cannot give you a length.");
+
+     } 
+     my $lengtha = scalar(@{$self->trace('a')});
+     my $lengtht = scalar(@{$self->trace('t')});
+     my $lengthg = scalar(@{$self->trace('g')});
+     my $lengthc = scalar(@{$self->trace('c')});
+     if (($lengtha == $lengtht) && ($lengtha == $lengthg) && ($lengtha == $lengthc) ) {
+          return $lengtha;
+     }
+     $self->warn("Not all of the trace indices are the same length".
+          " Here are their lengths: a: $lengtha t:$lengtht ".
+          " g: $lengthg c: $lengthc");
+}
+
+
+
+=head2 sub_trace_object($start,$end)
+
+ Title   : sub_trace_object($start,$end)
+ Usage   : $smaller_object = $object->sub_trace_object('1','100');
+ Function: Get a subset of the sequence, its quality, and its trace.
+ Returns : A reference to a Bio::Seq::SequenceTrace object
+ Args    : a start position and an end position
+ Notes   : 
+     - the start and end position refer to the positions of _bases_.
+     - for example, to get a sub SequenceTrace for bases 5-10,
+          use this routine.
+          - you will get the bases, qualities, and the trace values
+          - you can then use this object to synthesize a new scf
+               using seqIO::scf.
+
+=cut
+
+sub sub_trace_object {
+     my ($self,$start,$end) = @_;
+          my ($start2,$end2);
+        my @subs = @{$self->sub_peak_index($start,$end)};
+        $start2 = shift(@subs);
+        $end2 =  pop(@subs);
+     my $new_object =  new Bio::Seq::SequenceTrace(
+               -swq =>   new Bio::Seq::SeqWithQuality(
+                             -seq => $self->subseq($start,$end),
+                             -qual     =>   $self->subqual($start,$end),
+                             -id    =>   $self->id()
+                         ),
+             -trace_a  => $self->sub_trace('a',$start2,$end2),
+             -trace_t  => $self->sub_trace('t',$start2,$end2),
+             -trace_g  => $self->sub_trace('g',$start2,$end2),
+             -trace_c  => $self->sub_trace('c',$start2,$end2),
+             -peak_indices =>   $self->sub_peak_index($start,$end)
+
+        );
+     $new_object->set_accuracies();
+     return $new_object;
+}
+
+
+
+sub _synthesize_traces {
+     my ($self) = shift;
+     $self->peak_indices(qw());
+     my $version = 2;
+          # the user should be warned if traces already exist
+          #
+          #
+     ( my $sequence = $self->seq() ) =~ tr/a-z/A-Z/;
+     my @quals = @{$self->qual()};
+     my $info;
+         # build the ramp for the first base.
+         # a ramp looks like this "1 4 13 29 51 71 80 71 51 29 13 4 1" times the quality score.
+         # REMEMBER: A C G T
+         # note to self-> smooth this thing out a bit later
+     my $ramp_data;
+    @{$ramp_data->{'ramp'}} = qw( 1 4 13 29 51 75 80 75 51 29 13 4 1 );
+         # the width of the ramp
+    $ramp_data->{'ramp_width'} = scalar(@{$ramp_data->{'ramp'}});
+         # how far should the peaks overlap?
+    $ramp_data->{'ramp_overlap'} = 1;
+          # where should the peaks be located?
+    $ramp_data->{'peak_at'} = 7;
+    $ramp_data->{'ramp_total_length'} =
+          $self->seq_obj()->length() * $ramp_data->{'ramp_width'}
+          - $self->seq_obj()->length() * $ramp_data->{'ramp_overlap'};
+    my $pos;
+    my $total_length = $ramp_data->{ramp_total_length};
+     $self->initialize_traces("0",$total_length+2);
+         # now populate them
+    my ($current_base,$place_base_at,$peak_quality,$ramp_counter,$current_ramp,$ramp_position);
+    my $sequence_length = $self->length();
+    my $half_ramp = int($ramp_data->{'ramp_width'}/2);
+    for ($pos = 0; $pos<$self->length();$pos++) {
+          $current_base = $self->seq_obj()->subseq($pos+1,$pos+1);
+               # print("Synthesizing the ramp for $current_base\n");
+          my $all_bases = "ATGC";
+          $peak_quality = $self->qual_obj()->qualat($pos+1);
+                    # where should the peak for this base be placed? Modeled after a mktrace scf
+          $place_base_at = ($pos * $ramp_data->{'ramp_width'}) -
+                      ($pos * $ramp_data->{'ramp_overlap'}) -
+                   $half_ramp + $ramp_data->{'ramp_width'} - 1;
+               # print("Placing this base at this position: $place_base_at\n");
+          push @{$self->peak_indices()},$place_base_at;
+          $ramp_position = $place_base_at - $half_ramp;
+          if ($current_base =~ "N" ) {
+               $current_base = "A";
+          }
+          for ($current_ramp = 0; $current_ramp < $ramp_data->{'ramp_width'};  $current_ramp++) {
+                    # print("Placing a trace value here: $current_base ".($ramp_position+$current_ramp+1)." ".$peak_quality*$ramp_data->{'ramp'}->[$current_ramp]."\n");
+             $self->trace_value_at($current_base,$ramp_position+$current_ramp+1,$peak_quality*$ramp_data->{'ramp'}->[$current_ramp]);
+          }
+          $self->peak_index_at($pos+1,
+              $place_base_at+1
+          );
+          my $other_bases = $self->_get_other_bases($current_base);
+          # foreach ( split('',$other_bases) ) {
+          #          push @{$self->{'text'}->{"v3_base_accuracy"}->{$_}},0;
+          #}
     }
 }
 
 
+
+
+
+=head2 _dump_traces($transformed)
+
+ Title   : _dump_traces("transformed")
+ Usage   : &_dump_traces($ra,$rc,$rg,$rt);
+ Function: Used in debugging. Prints all traces one beside each other.
+ Returns : Nothing.
+ Args    : References to the arrays containing the traces for A,C,G,T.
+ Notes   : Beats using dumpValue, I'll tell ya. Much better then using
+           join' ' too.
+     - if a scalar is included as an argument (any scalar), this
+     procedure will dump the _delta'd trace. If you don't know what
+     that means you should not be using this.
+
+=cut
+
+#'
+sub _dump_traces {
+    my ($self) = @_;
+    my (@sA,@sT,@sG,@sC);
+    print ("Count\ta\tc\tg\tt\n");
+     my $length = $self->trace_length();
+    for (my $curr=1; $curr <= $length; $curr++) {
+     print(($curr-1)."\t".$self->trace_value_at('a',$curr).
+                "\t".$self->trace_value_at('c',$curr).
+                "\t".$self->trace_value_at('g',$curr).
+                "\t".$self->trace_value_at('t',$curr)."\n");
+    }
+    return;
+}
+
+=head2 _initialize_traces()
+
+ Title   : _initialize_traces()
+ Usage   : $trace_object->_initialize_traces();
+ Function: Creates empty arrays to hold synthetic trace values.
+ Returns : Nothing.
+ Args    : None.
+
+=cut
+
+sub initialize_traces {
+     my ($self,$value,$length) = @_;
+     foreach (qw(a t g c)) {
+          my @temp;
+          for (my $count=0; $count<$length; $count++) {
+               @temp->[$count] = $value;
+          }
+          $self->trace($_,\@temp);
+     }
+}
+
+=head2 trace_value_at($channel,$position)
+
+ Title   : trace_value_at($channel,$position)
+ Usage   : $value = $trace_object->trace_value_at($channel,$position);
+ Function: What is the value of the trace for this base at this position?
+ Returns : A scalar represnting the trace value here.
+ Args    : a base channel (a,t,g,c)
+           a position ( < $trace_object->trace_length() )
+
+=cut
+
+sub trace_value_at {
+     my ($self,$channel,$position,$value) = @_;
+     if ($value) {
+          $self->trace($channel)->[$position] = $value;
+     }
+     return $self->sub_trace($channel,($position),($position))->[0];
+}
+
+sub _deprecated_get_scf_version_2_base_structure {
+          # this sub is deprecated- check inside SeqIO::scf
+     my $self = shift;
+     my (@structure,$current);
+     my $length = $self->length();
+     for ($current=1; $current <= $self->length() ; $current++) {
+           my $base_here = $self->seq_obj()->subseq($current,$current);
+          $base_here = lc($base_here);
+          my $probabilities;
+          $probabilities->{$base_here} = $self->qual_obj()->qualat($current);
+          my $other_bases = "atgc";
+          my $empty = "";
+          $other_bases =~ s/$base_here/$empty/e;
+          foreach ( split('',$other_bases) ) {
+               $probabilities->{$_} = "0";
+          }
+          @structure = (
+               @structure,
+              $self->peak_index_at($current),
+              $probabilities->{'a'},
+              $probabilities->{'t'},
+              $probabilities->{'g'},
+              $probabilities->{'c'}
+         ); 
+          
+     }
+     return \@structure;
+}
+
+sub _deprecated_get_scf_version_3_base_structure {
+     my $self = shift;
+     my $structure;
+     $structure = join('',$self->peak_indices());
+     return $structure;
+}
+
+
+=head2 accuracies($channel,$position)
+
+ Title   : trace_value_at($channel,$position)
+ Usage   : $value = $trace_object->trace_value_at($channel,$position);
+ Function: What is the value of the trace for this base at this position?
+ Returns : A scalar represnting the trace value here.
+ Args    : a base channel (a,t,g,c)
+           a position ( < $trace_object->trace_length() )
+
+=cut
+
+
+sub accuracies {
+     my ($self,$channel,$value) = @_;
+     if ($value) {
+          if (ref($value) eq "ARRAY") {
+               $self->{accuracies}->{$channel} = $value;
+          }
+          else {
+               my @acc = split(' ',$value);
+               $self->{accuracies}->{$channel} = \@acc;
+          }
+     }
+     return $self->{accuracies}->{$channel};
+}
+
+
+=head2 set_accuracies()
+
+ Title   : set_sccuracies()
+ Usage   : $trace_object->set_accuracies();
+ Function: Take a sequence's quality and synthesize proper scf-style
+     base accuracies that can then be accessed with
+     accuracies("a") or something like it.
+ Returns : Nothing.
+ Args    : None.
+
+=cut
+
+sub set_accuracies {
+     my $self = shift;
+     my $count = 0;
+     my $length = $self->length();
+     for ($count=1; $count <= $length; $count++) {
+          my $base_here = $self->seq_obj()->subseq($count,$count);
+          my $qual_here = $self->qual_obj()->qualat($count);
+          $self->accuracy_at($base_here,$count,$qual_here);
+          my $other_bases = $self->_get_other_bases($base_here);
+          foreach (split('',$other_bases)) {
+               $self->accuracy_at($_,$count,"null");
+          }
+     }
+}
+
+
+=head2 scf_dump()
+
+ Title   : scf_dump()
+ Usage   : $trace_object->scf_dump();
+ Function: Prints out the contents of the structures representing
+     the SequenceTrace in a manner similar to io_lib's scf_dump.
+ Returns : Nothing. Prints out the contents of the structures
+     used to represent the sequence and its trace.
+ Args    : None.
+ Notes   : Used in debugging, obviously.
+
+=cut
+
+sub scf_dump {
+     my $self = shift;
+     my $count;
+     for ($count=1;$count<=$self->length();$count++) {
+          my $base_here = lc($self->seq_obj()->subseq($count,$count));
+          print($base_here." ".sprintf("%05d",$self->peak_index_at($count))."\t");
+          foreach (sort qw(a c g t)) {
+               print(sprintf("%03d",$self->accuracy_at($_,$count))."\t");
+          }
+          print("\n");
+     }
+     $self->_dump_traces();
+}
+
+=head2 _get_other_bases($this_base)
+
+ Title   : _get_other_bases($this_base)
+ Usage   : $other_bases = $trace_object->_get_other_bases($this_base);
+ Function: A utility routine to return bases other then the one provided.
+     I was doing this over and over so I put it here.
+ Returns : Three of a,t,g and c.
+ Args    : A base (atgc)
+ Notes   : $obj->_get_other_bases("a") returns "tgc"
+
+=cut
+
+sub _get_other_bases {
+     my ($self,$this_base) = @_;
+     $this_base = lc($this_base);
+     my $all_bases = "atgc";
+     my $empty = "";
+     $all_bases =~ s/$this_base/$empty/e;
+     return $all_bases;
+}
+
+
+=head2 accuracy_at($base,$position)
+
+ Title   : accuracy_at($base,$position)
+ Usage   : $accuracy = $trace_object->accuracy_at($base,$position);
+ Function: 
+ Returns : Returns the accuracy of finding $base at $position.
+ Args    : 1. a base channel (atgc) 2. a value to _set_ the accuracy
+ Notes   : $obj->_get_other_bases("a") returns "tgc"
+
+=cut
+
+
+sub accuracy_at {
+     my ($self,$base,$position,$value) = @_;
+     $base = lc($base);
+     if ($value) {
+          if ($value eq "null") {
+               $self->{accuracies}->{$base}->[$position-1] = "0";
+          }
+          else {
+               $self->{accuracies}->{$base}->[$position-1] = $value;
+          }
+     }
+     return $self->{accuracies}->{$base}->[$position-1];
+}
+
 1;
+

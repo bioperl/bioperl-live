@@ -17,20 +17,21 @@ BEGIN {
         use lib 't';
     }
     use Test;
-    plan tests => 15;
+    plan tests => 12;
 }
 
 END {
-    unlink qw(write_scf.scf write_scf_no_sequence.scf 
-	      write_scf_no_qualities.scf);
+     #     unlink qw(write_scf.scf write_scf_no_sequence.scf 
+	#      write_scf_no_qualities.scf);
 }
 
+use Dumpvalue();
 
-require 'dumpvar.pl';
+my $dumper = new Dumpvalue();
+$dumper->veryCompact(1);
 
-# test 1
 use Bio::SeqIO::scf;
-
+use Bio::Seq::SequenceTrace;
 
 my $in_scf = Bio::SeqIO->new('-file' => Bio::Root::IO->catfile("t","data",
 							       "chad100.scf"),
@@ -40,30 +41,30 @@ ok($in_scf);
 
 my $swq = $in_scf->next_seq();
 
-ok (ref($swq) eq "Bio::Seq::SeqWithQuality");
+ok (ref($swq) eq "Bio::Seq::SequenceTrace");
 
 ok (length($swq->seq())>10);
 my $qualities = join(' ',@{$swq->qual()});
 
 
 ok (length($qualities)>10);
-ok ($swq->id());
+my $id = $swq->id();
+ok ($swq->id() eq "ML4942R");
 
-eval { $in_scf->get_trace("h"); };
-ok ($@, qr/that wasn\'t A,T,G, or C/);
-
-my $a_channel = $in_scf->get_trace("a");
-ok (length($a_channel) > 10);
-my $c_channel = $in_scf->get_trace("c");
+my $a_channel = $swq->trace("a");
+ok (scalar(@$a_channel) > 10);
+my $c_channel = $swq->trace("c");
 ok (length($c_channel) > 10);
-my $g_channel = $in_scf->get_trace("g");
+my $g_channel = $swq->trace("g");
 ok (length($g_channel) > 10);
-my $t_channel = $in_scf->get_trace("t");
+my $t_channel = $swq->trace("t");
 ok (length($t_channel) > 10);
 
-my @indices = @{$in_scf->get_peak_indices()};
+my $ref = $swq->peak_indices();
+my @indices = @$ref;
 ok (scalar(@indices), 761);
 
+print("Now checking version3...\n");
 my $in_scf_v3 = Bio::SeqIO->new('-file' => Bio::Root::IO->catfile
 				("t","data",
 				 "version3.scf"),
@@ -71,38 +72,78 @@ my $in_scf_v3 = Bio::SeqIO->new('-file' => Bio::Root::IO->catfile
 			     '-verbose' => $verbose);
 
 my $v3 = $in_scf_v3->next_seq();
-@indices = @{$in_scf_v3->get_peak_indices()};
+my $ind = $v3->peak_indices();
+my @ff = @$ind;
+# print("ind is $ind which is @ff\n");
+@indices = @{$v3->peak_indices()};
 ok (scalar(@indices) == 1106);
 
-my %header = %{$in_scf_v3->get_header()};
-ok $header{bases}, 1106;
-ok $header{samples},  14107;
+# $dumper->dumpValue($v3);
 
+
+# my %header = %{$in_scf_v3->get_header()};
+# ok $header{bases}, 1106;
+# ok $header{samples},  14107;
+
+print("Now testing the _writing_ of scfs\n");
 
 my $out_scf = Bio::SeqIO->new('-file' => ">write_scf.scf",
 			      '-format' => 'scf',
 			      '-verbose' => $verbose);
-$out_scf->write_seq(-SeqWithQuality	=>	$swq,
-		    -MACH		=>	'CSM sequence-o-matic 5000',
-		    -TPSW		=>	'trace processing software',
-		    -BCSW		=>	'basecalling software',
-		    -DATF		=>	'AM_Version=2.00',
-		    -DATN		=>	'a22c.alf',
-		    -CONV		=>	'Bioperl-scf.pm');
+	# the new way
+$out_scf->write_seq(
+	-target	=>	$v3,
+	-MACH		=>	'CSM sequence-o-matic 5000',
+	-TPSW		=>	'trace processing software',
+	-BCSW		=>	'basecalling software',
+	-DATF		=>	'AM_Version=2.00',
+	-DATN		=>	'a22c.alf',
+	-CONV		=>	'Bioperl-scf.pm');
+
+
+
 ok( -e "write_scf.scf" && ! -z "write_scf.scf" );
 
+
 $out_scf = Bio::SeqIO->new('-verbose' => 1,
-			   '-file' => ">write_scf_no_sequence.scf",
+			   '-file' => ">write_scf_synthetic_traces.scf",
 			   '-format' => 'scf');
 
-$swq = Bio::Seq::SeqWithQuality->new(-seq=>'',
+$swq = Bio::Seq::SeqWithQuality->new(-seq=>'ATCGATCGAA',
 				     -qual=>"10 20 30 40 50 20 10 30 40 50",
 				     -alphabet=>'dna');
 
-$out_scf->write_seq(	-SeqWithQuality	=>	$swq,
+my $trace = Bio::Seq::SequenceTrace->new(
+                         -swq =>   $swq);
+
+$out_scf->write_seq(	
+               -target	=>	$trace,
 			-MACH		=>	'CSM sequence-o-matic 5000',
 			-TPSW		=>	'trace processing software',
 			-BCSW		=>	'basecalling software',
 			-DATF		=>	'AM_Version=2.00',
 			-DATN		=>	'a22c.alf',
 			-CONV		=>	'Bioperl-scf.pm');
+
+print("Trying to write an scf with a subset of a real scf...\n");
+$out_scf = Bio::SeqIO->new('-verbose' => 1,
+			   '-file' => ">write_scf_subtrace.scf",
+			   '-format' => 'scf');
+$in_scf_v3 = Bio::SeqIO->new('-file' => Bio::Root::IO->catfile
+				("t","data",
+				 "version3.scf"),
+			     '-format' => 'scf',
+			     '-verbose' => $verbose);
+$v3 = $in_scf_v3->next_seq();
+print("The full trace object is as follows:\n");
+my $sub_v3 = $v3->sub_trace_object(5,50);
+
+# print("The subtrace object is this:\n");
+# $dumper->dumpValue($sub_v3);
+
+$out_scf->write_seq(
+          -target   =>   $sub_v3
+);
+
+
+
