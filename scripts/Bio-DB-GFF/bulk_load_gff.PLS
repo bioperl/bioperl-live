@@ -95,7 +95,7 @@ use vars '@ISA';
 sub insert_sequence {
   my $self = shift;
   my ($id,$offset,$seq) = @_;
-  print join "\t",$id,$offset,$seq,"\n";
+  print join("\t",$id,$offset,$seq),"\n";
 }
 
 package main;
@@ -271,7 +271,7 @@ $_->close foreach values %FH;
 warn "Loading feature data.  You may see duplicate key warnings here...\n";
 
 my $success = 1;
-my $TERMINATEDBY = $bWINDOWS ? " LINES TERMINATED BY '\r\l'" : ''; 
+my $TERMINATEDBY = $bWINDOWS ? q( LINES TERMINATED BY '\r\n') : ''; 
 foreach (@files) {
   my $command =<<END;
 ${\MYSQL} $AUTH
