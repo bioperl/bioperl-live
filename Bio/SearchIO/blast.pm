@@ -224,6 +224,10 @@ sub next_result{
 	   /^(RPS-BLAST)\s*(.+)$/i ) {
 	   if( $seentop ) {	    
 	       $self->_pushback($_);
+	       $self->in_element('hsp') && 
+		   $self->end_element({ 'Name' => 'Hsp'});
+	       $self->in_element('hit') && 
+		   $self->end_element({ 'Name' => 'Hit'});
 	       $self->end_element({ 'Name' => 'BlastOutput'});
 	       return $self->end_document();
 	   }
@@ -322,6 +326,7 @@ sub next_result{
 			   'Data' => $db});
        } elsif( /^>(\S+)\s*(.*)?/ ) {
 	   chomp;
+
 	   $self->in_element('hsp') && $self->end_element({ 'Name' => 'Hsp'});
 	   $self->in_element('hit') && $self->end_element({ 'Name' => 'Hit'});
 	   
@@ -384,7 +389,12 @@ sub next_result{
 	   next;
        } elsif( ($self->in_element('hit') || 
 		 $self->in_element('hsp')) && # wublast
-	       /Score\s*=\s*(\S+)\s*\(([\d\.]+)\s*bits\),\s*Expect\s*=\s*([^,\s]+),\s*(Sum)?\s*P(\(\d+\))?\s*=\s*([^,\s]+)/ 
+	       m/Score\s*=\s*(\S+)\s*       # Bit score
+		\(([\d\.]+)\s*bits\),       # Raw score
+		\s*Expect\s*=\s*([^,\s]+),  # E-value
+		\s*(Sum)?\s*                # SUM
+		P(\(\d+\))?\s*=\s*([^,\s]+) # P-value
+		/ox 
 		  ) {
 	   $self->in_element('hsp') && $self->end_element({'Name' => 'Hsp'});
 	   $self->start_element({'Name' => 'Hsp'});
@@ -396,20 +406,27 @@ sub next_result{
 			     'Data' => $3});
 	   $self->element( {'Name'  => 'Hsp_pvalue',
 			    'Data'  =>$6});       
-       } elsif( ($self->in_element('hit') || $self->in_element('hsp')) && # ncbi blast
-		/Score\s*=\s*(\S+)\s*bits\s*\((\d+)\),\s*Expect(\(\d+\))?\s*=\s*(\S+)/) {
+       } elsif( ($self->in_element('hit') || 
+		 $self->in_element('hsp')) && # ncbi blast
+		m/Score\s*=\s*(\S+)\s*bits\s* # Bit score
+		(\((\d+)\))?,                 # Missing for BLAT pseudo-BLAST fmt 
+		\s*Expect(\(\d+\))?\s*=\s*(\S+) # E-value
+		/ox) {
 	   $self->in_element('hsp') && $self->end_element({ 'Name' => 'Hsp'});
 	   
 	   $self->start_element({'Name' => 'Hsp'});
 	   $self->element( { 'Name' => 'Hsp_score',
-			     'Data' => $2});
+			     'Data' => $3});
 	   $self->element( { 'Name' => 'Hsp_bit-score',
 			     'Data' => $1});
 	   $self->element( { 'Name' => 'Hsp_evalue',
-			     'Data' => $4});
+			     'Data' => $5});
        } elsif( $self->in_element('hsp') &&
-		/Identities\s*=\s*(\d+)\s*\/\s*(\d+)\s*[\d\%\(\)]+\s*(,\s*Positives\s*=\s*(\d+)\/(\d+)\s*[\d\%\(\)]+\s*)?(\,\s*Gaps\s*=\s*(\d+)\/(\d+))?/i ) {
-	   
+		m/Identities\s*=\s*(\d+)\s*\/\s*(\d+)\s*[\d\%\(\)]+\s*
+		(,\s*Positives\s*=\s*(\d+)\/(\d+)\s*[\d\%\(\)]+\s*)? # pos only valid for Protein alignments
+		(\,\s*Gaps\s*=\s*(\d+)\/(\d+))? # Gaps
+		/oxi 
+		) {
 	   $self->element( { 'Name' => 'Hsp_identity',
 			     'Data' => $1});
 	   $self->element( {'Name' => 'Hsp_align-len',
@@ -431,7 +448,7 @@ sub next_result{
 	   }	   
        } elsif( $self->in_element('hsp') &&
 		/Strand\s*=\s*(Plus|Minus)\s*\/\s*(Plus|Minus)/i ) {
-	   # consume this event
+	   # consume this event ( we infer strand from start/end)
 	   next;
        } elsif( $self->in_element('hsp') &&
 		/Frame\s*=\s*([\+\-][1-3])\s*(\/\s*([\+\-][1-3]))?/ ){
@@ -460,7 +477,6 @@ sub next_result{
 	   $self->element({'Name' => 'Parameters_allowgaps',
 			   'Data' => 'yes'});
 	   while( defined ($_ = $self->_readline ) ) {
-
 	       if( /^([T]?BLAST[NPX])\s*([\d\.]+)/i ) {
 		   $self->_pushback($_);
 		   # let's handle this in the loop
