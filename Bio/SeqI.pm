@@ -159,6 +159,24 @@ sub seq{
 
 }
 
+=head2 annotation
+
+ Title   : annotation
+ Usage   :
+ Function:
+ Example :
+ Returns : 
+ Args    :
+
+
+=cut
+
+sub annotation{
+   my ($self,@args) = @_;
+
+   $self->throw("Did not provide annotation method call in SeqI interface");
+}
+
 =head2 write_GFF
 
  Title   : write_GFF

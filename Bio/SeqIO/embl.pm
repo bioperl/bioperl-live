@@ -397,12 +397,14 @@ sub write_seq {
 
     # Date lines
     my $switch=0;
-    foreach my $dt ( $seq->each_date() ) {
-        $self->_write_line_EMBL_regex("DT   ","DT   ",$dt,'\s+|$',80);
-        $switch=1;
-    }
-    if ($switch == 1) {
-        $self->_print("XX\n");
+    if( $seq->can('each_date') ) {
+	foreach my $dt ( $seq->each_date() ) {
+	    $self->_write_line_EMBL_regex("DT   ","DT   ",$dt,'\s+|$',80);
+            $switch=1;
+        }
+        if ($switch == 1) {
+            $self->_print("XX\n");
+        }
     }
 
     # Description lines
@@ -424,7 +426,8 @@ sub write_seq {
     }
    
     # Organism lines
-    if (my $spec = $seq->species) {
+
+    if ($seq->can('species') && (my $spec = $seq->species)) {
         my($species, $genus, @class) = $spec->classification();
         my $OS = "$genus $species";
 	if (my $sub_species = $spec->sub_species) {
@@ -446,58 +449,61 @@ sub write_seq {
    
     # Reference lines
     my $t = 1;
-    foreach my $ref ( $seq->annotation->each_Reference() ) {
-        $self->_print( "RN   [$t]\n");
+    if ( defined $seq->annotation ) {
+	foreach my $ref ( $seq->annotation->each_Reference() ) {
+	    $self->_print( "RN   [$t]\n");
+	    
+	    # Having no RP line is legal, but we need both
+	    # start and end for a valid location.
+	    my $start = $ref->start;
+	    my $end   = $ref->end;
+	    if ($start and $end) {
+		$self->_print( "RP   $start-$end\n");
+	    } elsif ($start or $end) {
+		$self->throw("Both start and end are needed for a valid RP line.  Got: start='$start' end='$end'");
+	    }
+	    
+	    if (my $med = $ref->medline) {
+		$self->_print( "RX   MEDLINE; $med\n");
+	    }
+	    
+	    $self->_write_line_EMBL_regex("RA   ", "RA   ", 
+					  $ref->authors,  '\s+|$', 80);       
+
+           # If there is no title to the reference, it appears
+           # as a single semi-colon.  All titles must end in
+           # a semi-colon.
+           my $ref_title = $ref->title || '';
+           $ref_title =~ s/[\s;]*$/;/;
+           $self->_write_line_EMBL_regex("RT   ", "RT   ", $ref_title,    '\s+|$', 80);       
+	    
+	   $self->_write_line_EMBL_regex("RL   ", "RL   ", $ref->location, '\s+|$', 80);
+           if ($ref->comment) {
+	       $self->_write_line_EMBL_regex("RC   ", "RC   ", $ref->comment, '\s+|$', 80); 
+           }
+           $self->_print("XX\n");
+           $t++;
+       }
         
-        # Having no RP line is legal, but we need both
-        # start and end for a valid location.
-        my $start = $ref->start;
-        my $end   = $ref->end;
-        if ($start and $end) {
-            $self->_print( "RP   $start-$end\n");
-        } elsif ($start or $end) {
-            $self->throw("Both start and end are needed for a valid RP line.  Got: start='$start' end='$end'");
-        }
 
-        if (my $med = $ref->medline) {
-            $self->_print( "RX   MEDLINE; $med\n");
-        }
-
-        $self->_write_line_EMBL_regex("RA   ", "RA   ", 
-				      $ref->authors,  '\s+|$', 80);       
-
-        # If there is no title to the reference, it appears
-        # as a single semi-colon.  All titles must end in
-        # a semi-colon.
-        my $ref_title = $ref->title || '';
-        $ref_title =~ s/[\s;]*$/;/;
-        $self->_write_line_EMBL_regex("RT   ", "RT   ", $ref_title,    '\s+|$', 80);       
-
-        $self->_write_line_EMBL_regex("RL   ", "RL   ", $ref->location, '\s+|$', 80);
-        if ($ref->comment) {
-	    $self->_write_line_EMBL_regex("RC   ", "RC   ", $ref->comment, '\s+|$', 80); 
-        }
-        $self->_print("XX\n");
-        $t++;
-    }
-
-    # DB Xref lines
-    if (my @db_xref = $seq->annotation->each_DBLink) {
-        foreach my $dr (@db_xref) {
-            my $db_name = $dr->database;
-            my $prim    = $dr->primary_id;
-            my $opt     = $dr->optional_id || '';
+       # DB Xref lines
+       if (my @db_xref = $seq->annotation->each_DBLink) {
+           foreach my $dr (@db_xref) {
+              my $db_name = $dr->database;
+              my $prim    = $dr->primary_id;
+              my $opt     = $dr->optional_id || '';
             
-            my $line = "$db_name; $prim; $opt.";
-            $self->_write_line_EMBL_regex("DR   ", "DR   ", $line, '\s+|$', 80);
-        }
-        $self->_print("XX\n");
-    }
+              my $line = "$db_name; $prim; $opt.";
+              $self->_write_line_EMBL_regex("DR   ", "DR   ", $line, '\s+|$', 80);
+          }
+          $self->_print("XX\n");
+       }
 
-    # Comment lines
-    foreach my $comment ( $seq->annotation->each_Comment() ) {
-        $self->_write_line_EMBL_regex("CC   ", "CC   ", $comment->text, '\s+|$', 80);
-        $self->_print("XX\n");
+       # Comment lines
+       foreach my $comment ( $seq->annotation->each_Comment() ) {
+           $self->_write_line_EMBL_regex("CC   ", "CC   ", $comment->text, '\s+|$', 80);
+           $self->_print("XX\n");
+       }
     }
     # "\\s\+\|\$"
 
@@ -570,7 +576,7 @@ sub write_seq {
         my $blocks = pack $out_pat,
                      unpack $whole_pat,
                      substr($str, $i, $nuc);
-        $self->_print( "     $blocks%9d\n", $i + $nuc);
+        $self->_print(sprintf("     $blocks%9d\n", $i + $nuc));
     }
 
     # Print the last line
@@ -579,7 +585,7 @@ sub write_seq {
         my $last_pat = 'a10' x int($last_len / 10) .'a'. $last_len % 10;
         my $blocks = pack $out_pat,
                      unpack($last_pat, $last);
-        $self->_print( "     $blocks%9d\n", $length);    # Add the length to the end
+        $self->_print(sprintf("     $blocks%9d\n", $length));    # Add the length to the end
     }
 
     $self->_print( "//\n");
