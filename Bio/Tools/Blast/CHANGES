@@ -1,5 +1,21 @@
 Revision history for Perl extension Bio::Tools::Blast.pm and related modules.
 
+0.073  Mon Dec 28 15:18:29 1998
+        - Made changes in Sbjct.pm and HSP.pm to allow parsing of older
+          versions of Blast. This affected HSP::_set_data() ("Query:?")
+          and Sbjct::_set_hsps() ("\s*Score").
+        - Improved error handling in Sbjct::_set_hsps() and error
+          detection in HSP_set_data().
+        - Added methods for obtaining the number of identical and conserved
+          residues (sans gaps) sequences in HSP.pm (num_identical, num_conserved).
+        - Modified the default behavior of frac_identical() and frac_conserved()
+          to use the procedure used in the BLAST report:
+             BLAST-GP: uses total length of alignment in denominator
+             WU-BLAST: uses length of query sequence (sans gaps) in denominator.
+          When these methods are called with an argument ('sbjct' or 'query'),
+          the length of the sbjct or query sequence (sans gaps) is used in 
+          the denominator (recommended).
+
 0.072  Wed Dec 16 05:05:21 1998
         - Fixed out of range exception in HSP::matches() as suggested by
           Michael Lonetto in bio.perl.org bug report #11.
