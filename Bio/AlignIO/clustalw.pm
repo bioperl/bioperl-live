@@ -158,7 +158,11 @@ sub write_aln {
 	$length = $aln->length();
 	$count = $tempcount = 0;
 	@seq = $aln->each_seq();
-
+	my $max = 22;
+	foreach $seq ( @seq ) {
+	    $max = length ($aln->displayname($seq->get_nse())) 
+		if( length ($aln->displayname($seq->get_nse())) > $max );
+	}
 	while( $count < $length ) {
 	    foreach $seq ( @seq ) {
 #
@@ -166,8 +170,7 @@ sub write_aln {
 #  if some sequences in the alignment are much longer than others.
 
 		my ($substring);
-		my $seqchars = $seq->seq();
-
+		my $seqchars = $seq->seq();		
 	      SWITCH: {
 		  if (length($seqchars) >= ($count + $LINELENGTH)) {
 		      $substring = substr($seqchars,$count,$LINELENGTH); 
@@ -178,14 +181,12 @@ sub write_aln {
 		  }
 		  $substring = "";
 	      }
-		
-		$self->_print (sprintf("%-22s %s\n",
+		$self->_print (sprintf("%-".$max."s %s\n",
 				       $aln->displayname($seq->get_nse()),
 				       $substring)) or return;		
 	    }
 	    my $linesubstr = substr($matchline, $count,$LINELENGTH);
-
-	    $self->_print (sprintf("%-22s %s\n", '', $linesubstr));
+	    $self->_print (sprintf("%-".$max."s %s\n", '', $linesubstr));
 	    $self->_print (sprintf("\n\n")) or return;
 	    $count += $LINELENGTH;
 	}
