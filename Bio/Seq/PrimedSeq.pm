@@ -1,4 +1,4 @@
-# BioPerl module for Bio::SeqFeatureI
+# BioPerl module for Bio::PrimedSeq
 #
 # Cared for by Chad Matsalla <bioinformatics1@dieselwurks.com>
 #
@@ -83,6 +83,9 @@ use strict;
 use Bio::RangeI;
 
 use Carp;
+use Dumpvalue qw(dumpValue);
+
+my $dumper = new Dumpvalue();
 
 @ISA = qw(Bio::Seq);
 
@@ -106,32 +109,34 @@ for details).
      -right_primer => a Bio::SeqFeature::Primer object
      Many other parameters can be included including all of the output
      parameters from the primer3 program.
-Developer Notes: This is imcomplete and doesn't work. As of ISMB2002 I am working on it.
+Developer Notes: This is incomplete and doesn't work. As of ISMB2002 I am working on it.
 
 
 =cut
 
 sub new {
-          # this is a placeholder until I devide what i want to happen in the constructor
-          # one thing I know is that I need all of these things to store a primer3
-          # primer design, which at the moment is the point
-          my %placeholder = (
-                                           -seq => "a Bio::Seq object",
-                                           -left_primer => "a Bio::SeqFeature::Primer object",
-                                           -right_primer => "a Bio::SeqFeature::Primer object",
-                                           -TARGET => '513,26',
-                                           -PRIMER_PRODUCT_SIZE_RANGE => '100-500',
-                                           -PRIMER_FILE_FLAG => '0',
-                                           -PRIMER_LIBERAL_BASE => '1',
-                                           -PRIMER_NUM_RETURN => '1',
-                                           -PRIMER_FIRST_BASE_INDEX => '1',
-                                           -PRIMER_EXPLAIN_FLAG => '1',
-                                           -PRIMER_PRODUCT_SIZE => '185'
-                                        );
-
-
-
-
+     my($class,@args) = @_;
+     my %arguments = @args;
+     my $self = $class->SUPER::new(@args);
+          # these are the absolute minimum components required to make
+          # a primedseq
+     my $newkey;
+     foreach my $key (sort keys %arguments) {
+          ($newkey = $key) =~ s/-//;
+          $self->{$newkey} = %arguments->{$key};
+          push @{$self->{arguments}},$newkey;
+     }
+          # and now the insurance- make sure that things are ok
+     if (!$self->{target_sequence} || !$self->{left_primer} || !$self->{right_primer} ) {
+          $self->throw("You must provide a target_sequence, left_primer, and right_primer to create this object.");
+     }
+     if (ref($self->{target_sequence}) ne "Bio::Seq") {
+          $self->throw("The target_sequence must be a Bio::Seq to create this object.");
+     }
+     if (ref($self->{left_primer}) ne "Bio::SeqFeature::Primer" || ref($self->{right_primer}) ne "Bio::SeqFeature::Primer") {
+          $self->throw("You must provide a left_primer and right_primer, both as Bio::SeqFeature::Primer to create this object.");
+     }
+     return $self;
 }
 
 

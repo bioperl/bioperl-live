@@ -7,8 +7,6 @@
 use ExtUtils::testlib;
 use strict;
 use Dumpvalue qw(dumpValue);
-use Bio::SeqIO;
-
 
 BEGIN {
     # to handle systems with no installed Test module
@@ -42,13 +40,12 @@ my $primername = "chads_nifty_primer";
 
 
 print("Checking to see if the BSFP object can be constructed with a bio::seq object\n");
-my $seq = new Bio::Seq( -seq => $seqsequence, -display_id =>$seqname);
+my $seq = new Bio::Seq( -seq => $seqsequence, -id =>$seqname);
 my $bsfp_seq = new Bio::SeqFeature::Primer( -sequence => $seq,
                                              -TARGET => '5,3' );
 ok(ref($bsfp_seq) eq "Bio::SeqFeature::Primer");
 
 print("Checking to see if the BSFP object can be constructed with scalars\n");
-     # 
 
 my $bsfp_scalar = new Bio::SeqFeature::Primer( -sequence => $primersequence,
                                         -id => $primername,
@@ -58,13 +55,17 @@ ok(ref($bsfp_scalar) eq "Bio::SeqFeature::Primer");
 print("Checking to see that seq() returns a Bio::Seq object and that the object is the right one.\n");
 ok(ref($bsfp_scalar->seq()) eq "Bio::Seq");
 print("First for the scalar-ily created one.\n");
-ok($bsfp_scalar->seq()->display_id() eq $primername);
+print("id ok?\n");
+ok($bsfp_scalar->seq()->id() eq $primername);
+print("sequence ok?\n");
 ok($bsfp_scalar->seq()->seq() eq $primersequence);
 print("Now for the seq-ily created one\n");
+print("id ok?\n");
 ok($bsfp_seq->seq()->display_id() eq $seqname);
+print("sequence ok?\n");
 ok($bsfp_seq->seq()->seq() eq $seqsequence);
 
 print("Here is the structure of the BSFP_scalar object:\n");
-$dumper->dumpValue($bsfp_scalar);
+# $dumper->dumpValue($bsfp_scalar);
 
 

@@ -44,7 +44,7 @@ my $right_primer = new Bio::SeqFeature::Primer( -sequence => "gggggggggggggcacgt
                                              -id => "right_primer");
 ok (ref($right_primer) eq "Bio::SeqFeature::Primer");
 print("Now create the primedseq object...\n");
-my $ps = new Bio::Seq::PrimedSeq( -seq => $seqobj,
+my $ps = new Bio::Seq::PrimedSeq( -target_sequence => $seqobj,
                                    -left_primer => $left_primer,
                                    -right_primer => $right_primer);
 print("isa $ps\n");

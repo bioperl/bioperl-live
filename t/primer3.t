@@ -7,7 +7,6 @@
 use ExtUtils::testlib;
 use strict;
 use Dumpvalue qw(dumpValue);
-use Bio::SeqIO;
 
 
 BEGIN {
@@ -19,10 +18,14 @@ BEGIN {
         use lib 't';
     }
     use Test;
-    plan tests => 2;
+    plan tests => 4;
 }
 
 my $dumper = new Dumpvalue();
+
+print("Checking to see if Bio::Tools::Primer3 is available.\n");
+use Bio::Tools::Primer3;
+ok(1);
 
 print("Checking to see if Bio::SeqFeature::Primer is available.\n");
 use Bio::SeqFeature::Primer;
@@ -30,19 +33,17 @@ ok(1);
 
 print("Checking to see if a primer outfile can be read...\n");
      # ph = "primer handle"
-my $ph = Bio::SeqIO->new('-file' => Bio::Root::IO->catfile("t","data",
-          "primer3_outfile.txt") ,
-          '-format'  => 'primer3');
-ok(ref($ph) eq "Bio::SeqIO::primer3");
+my $ph = Bio::Tools::Primer3->new('-file' => Bio::Root::IO->catfile("t","data",
+          "primer3_outfile.txt"));
+ok(ref($ph) eq "Bio::Tools::Primer3");
 print("Getting an object from the primer file...\n");
 
-# this will work something like this but at this time it is incomplete
-# my $thingy = $ph->next_seq();
-# print("That thingy isa $thingy\n");
-# ok (ref($thingy) eq "Bio::Seq");
-# 
-#      # print("Here is the primer object that I got back:\n");
-#      # $dumper->dumpValue($thingy);
+     # now get a primer!
+my $thingy = $ph->next_primer();
+print("That thingy isa $thingy\n");
+ok (ref($thingy) eq "Bio::Seq::PrimedSeq");
+# print("Here is the primer object that I got back:\n");
+# $dumper->dumpValue($thingy);
 # 
 # sub feature_things {
 #         my @features = $thingy->all_SeqFeatures();
