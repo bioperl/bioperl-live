@@ -157,7 +157,7 @@ sub _generic_seqfeature {
     #print "Adding B4 ", $sf->primary_tag , "\n";
 
     if(defined($sf)) {
-	print "dogfood location is ", $sf->location->to_FTstring(), "\n";
+	#print "dogfood location is ", $sf->location->to_FTstring(), "\n";
 	foreach my $key ( keys %{$fth->field} ){
 	    foreach my $value ( @{$fth->field->{$key}} ) {
 		$sf->add_tag_value($key,$value);
