@@ -7,7 +7,8 @@ use Bio::AlignIO;
 use Bio::LocatableSeq;
 use Bio::SimpleAlign;
 use Getopt::Long;
-use Data::Dumper;
+use Bio::Tools::CodonTable;
+use Carp;
 
 BEGIN {
     $CODONSIZE = 3; # parametrize everything like a good little programmer
@@ -30,6 +31,7 @@ qq{align_on_codons.pl < file.fa
 		      msf,pfam,mase,meme,prodom,selex,stockholm)
 -ap/--alignprog       ClustalW, TCoffee (currently only support 
 					 local execution) 
+-v/--verbose          Run in verbose mode
 };
 
     %VALIDALIGN = ('clustalw' => 'Bio::Tools::Run::Alignment::Clustalw',
@@ -39,7 +41,7 @@ qq{align_on_codons.pl < file.fa
 my ($help, $input, $output);
 
 my ($alignprog, $sformat, $aformat,$frame,
-    $codontable) = ('clustalw', 'fasta', 'clustalw', 
+    $codontable,$verbose) = ('clustalw', 'fasta', 'clustalw', 
 		    0,0);
 
 GetOptions( 'h|help'            => \$help,
@@ -52,7 +54,7 @@ GetOptions( 'h|help'            => \$help,
 	    # for translate
 	    'f|frame:s'         => \$frame,
 	    'ct|codontable:s'   => \$codontable,
-	    
+	    'v|verbose'         => \$verbose,
 	    );
 
 if( $help ) { 
@@ -85,8 +87,18 @@ if( $input ) {
 			    '-fh'     => \*STDIN);
 }
 
+my $table = new Bio::Tools::CodonTable();
 while( my $seq = $seqio->next_seq ) {
-    push @nucseqs, $seq;
+    
+#    if( $frame == 0 && $alignprog eq 'tcoffee' ) {
+#	print "last codon is ",$seq->subseq($seq->length() -2,
+#					    $seq->length()), "\n";
+#	if( $table->is_ter_codon($seq->subseq($seq->length() -2,
+#					      $seq->length())) ) {
+#	    $seq->seq($seq->subseq(1,$seq->length() - 3));
+#	}
+#    }
+    push @nucseqs, $seq;    
     push @protseqs, $seq->translate(undef,undef,$frame,$codontable,0,0);
 }
 
@@ -97,7 +109,8 @@ if( @nucseqs <= 1 ) {
 # allow these to be tweaked by cmdline parameters at some point
 my @params = ('ktuple' => 2, 'matrix' => 'BLOSUM'); 
 
-my $alignengine = $VALIDALIGN{$alignprog}->new(@params);
+my $alignengine = $VALIDALIGN{$alignprog}->new('-verbose' => $verbose,
+					       @params);
 
 my $aln = $alignengine->align(\@protseqs);
 
@@ -109,16 +122,22 @@ foreach my $seq ( $aln->each_seq ) {
     
     foreach my $pos ( 1..$alnlen ) {
 	my $loc = $seq->location_from_column($pos);
-	my $dna; 
+	my $dna = ''; 
 	if( !defined $loc || $loc->location_type ne 'EXACT' ) {
 	    $dna = '---';
 	} else {
 	    # to readjust to codon boundaries
 	    # end needs to be +1 so we can just multiply by CODONSIZE 
 	    # to get this
-	    $dna = $nucseqs[$seqorder]->subseq
-		((($loc->start - 1)*$CODONSIZE) +1,
-		 ($loc->end)*$CODONSIZE);
+	    my ($start,$end) = ((($loc->start - 1)*$CODONSIZE) +1,
+				($loc->end)*$CODONSIZE);
+	    if( $start <=0 || $end > $nucseqs[$seqorder]->length() ) {
+		print "start is ", $loc->start, " end is ", $loc->end, "\n";
+		warn("codons don't seem to be matching up for $start,$end");
+		$dna = '---';
+	    } else {
+		$dna = $nucseqs[$seqorder]->subseq($start,$end);
+	    }
 	}
 	$newseq .= $dna;
     }
