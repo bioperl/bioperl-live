@@ -49,9 +49,9 @@ use strict;
 
 @ISA = qw(Bio::SeqFeature::FeaturePair);
 
-sub _initialize { 
-  my($self,@args) = @_;
-  my $make = $self->SUPER::_initialize(@args);
+sub new { 
+  my($class,@args) = @_;
+  my $self = $class->SUPER::new(@args);
 
   $self->{'alignlines'} = [];
 
@@ -61,7 +61,7 @@ sub _initialize {
   $self->feature1($hmmf1);
   $self->feature2($hmmf2);
 
-  return $make;
+  return $self;
 }
 
 =head2 add_alignment_line

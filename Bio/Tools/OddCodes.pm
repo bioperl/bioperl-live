@@ -85,19 +85,17 @@ and other Bioperl modules. Send your comments and suggestions preferably
 to one of the Bioperl mailing lists.
 Your participation is much appreciated.
 
-  vsns-bcd-perl@lists.uni-bielefeld.de          - General discussion
-  vsns-bcd-perl-guts@lists.uni-bielefeld.de     - Technically-oriented
-discussion
-  http://bio.perl.org/MailList.html             - About the mailing lists
+  bioperl-l@bioperl.org                - General discussion
+  http://www.bioperl.org/MailList.html - About the mailing lists
 
 =head2 Reporting Bugs
 
 Report bugs to the Bioperl bug tracking system to help us keep track
-the bugs and their resolution.
-Bug reports can be submitted via email or the web:
+the bugs and their resolution.  Bug reports can be submitted via email
+or the web:
 
-  bioperl-bugs@bio.perl.org
-  http://bio.perl.org/bioperl-bugs/
+  bioperl-bugs@bioperl.org
+  http://www.bioperl.org/bioperl-bugs/
 
 =head1 AUTHOR
 
@@ -110,34 +108,33 @@ Internal methods are usually preceded with a _
 
 =cut
 
+#'
+
 package Bio::Tools::OddCodes;
 use vars qw(@ISA);
 use strict;
 
+use Bio::Root::RootI;
+
+@ISA = qw(Bio::Root::RootI);
 
 
-@ISA = qw(Bio::Root::Object);
-
-# new() is inherited from Bio::Root::Object
-
-# _initialize is called from within new()
-
-sub _initialize 
+sub new 
 {
-    	my($self,@args) = @_;
-	
-    	$self->SUPER::_initialize;
+    my($class,@args) = @_;
 
-	my $seqobj = shift (@args);
-    	unless  ($seqobj->isa("Bio::PrimarySeqI")) 
-	{
-		die("die in _init, OddCodes works only on PrimarySeqI
+    $self = $class->SUPER::new(@args);
+
+    my $seqobj = shift (@args);
+    unless  ($seqobj->isa("Bio::PrimarySeqI")) 
+    {
+	die("die in _init, OddCodes works only on PrimarySeqI
 objects\n");
-    	}
-	
-    	$self->{'_seqref'} = $seqobj;
-   
-    	return $self;
+    }
+
+    $self->{'_seqref'} = $seqobj;
+
+    return $self;
 }
 
 =head2 structural

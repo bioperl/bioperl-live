@@ -104,7 +104,7 @@ use Bio::SeqAnalysisParserI;
 
 sub new {
     my ($class, @args) = @_;
-    my $self = bless {}, ref($class) || $class;
+    my $self = $class->SUPER::new(@args);
     $self->_initialize(@args);
     return $self;
 }

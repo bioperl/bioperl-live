@@ -122,15 +122,13 @@ use strict;
 # Object preamble - inherits from Bio::Root::Object
 
 use File::Basename;
-use Bio::Root::Object;
+use Bio::Root::RootI;
 use Bio::Tools::AnalysisResult;
 use Bio::Tools::Sim4::Exon;
 
 @ISA = qw(Bio::Tools::AnalysisResult);
 
-# new() is inherited
-
-# _initialize is where the heavy stuff will happen when new is called
+my $count = 0;
 
 sub _initialize_state {
     my($self,@args) = @_;
@@ -213,7 +211,7 @@ sub parse_next_alignment {
    my $hit_direction = 1;
    my $output_fmt = 3; # same as 0 and 1 (we cannot deal with A=2 produced
                        # output yet)
-
+   
    while(defined($_ = $self->_readline())) {
        #chomp();
 
@@ -307,6 +305,7 @@ sub parse_next_alignment {
 	       $to_reverse->{'end'} = $to_reverse->{'length'} - $tmp + 1;
 	   }
 	   # create and initialize the exon object
+	   $count++;
 	   my $exon = Bio::Tools::Sim4::Exon->new(
 					    '-start' => $genomseq->{'start'},
 					    '-end'   => $genomseq->{'end'},
@@ -341,12 +340,12 @@ sub parse_next_alignment {
 	       # take filename stripped of path as fall back
 	       my ($basename, undef, undef) =
 		   fileparse($estseq->{'filename'}, '\..*');
-	       $exon->seqname($basename);
+	       $fea2->seqname($basename);
 	   }
 	   $fea2->add_tag_value('filename', $estseq->{'filename'});
 	   $fea2->seqlength($estseq->{'length'});
 	   # store
-	   $exon->est_hit($fea2);
+	   $exon->est_hit($fea2);	   
 	   # general properties
 	   $exon->source_tag($self->analysis_method());
 	   $exon->percentage_id($pctid);

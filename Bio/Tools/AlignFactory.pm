@@ -56,21 +56,17 @@ BEGIN {
 }
 
 
-@ISA = qw(Bio::Root::Object);
-# new() is inherited from Bio::Root::Object
+@ISA = qw(Bio::Root::RootI);
 
-# _initialize is where the heavy stuff will happen when new is called
-
-sub _initialize {
-  my($self,@p) = @_;
-  my $make = $self->SUPER::_initialize(@p);
+sub new {
+  my($class,@args) = @_;
+  my $self = $class->SUPER::new(@args);
   
   # set up defaults
 
   $self->{'kbyte'} = 20000;
-  $self->{'report'} = 0;
-# set stuff in self from @args
- return $make; # success - we hope!
+  $self->{'report'} = 0;  
+  return $self;
 }
 
 
@@ -92,7 +88,6 @@ sub kbyte {
     if( defined $value ) {
 	$self->{'kbyte'} = $value;
     } 
-
     return $self->{'kbyte'};
 }
 

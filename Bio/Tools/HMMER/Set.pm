@@ -37,14 +37,12 @@ on the per domain scores, which you can get there).
 
 =head2 Mailing Lists
 
-User feedback is an integral part of the evolution of this
-and other Bioperl modules. Send your comments and suggestions preferably
- to one of the Bioperl mailing lists.
-Your participation is much appreciated.
+User feedback is an integral part of the evolution of this and other
+Bioperl modules. Send your comments and suggestions preferably to one
+of the Bioperl mailing lists.  Your participation is much appreciated.
 
-  vsns-bcd-perl@lists.uni-bielefeld.de          - General discussion
-  vsns-bcd-perl-guts@lists.uni-bielefeld.de     - Technically-oriented discussion
-  http://bio.perl.org/MailList.html             - About the mailing lists
+  bioperl-l@bioperl.org                - General discussion
+  http://www.bioperl.org/MailList.html - About the mailing lists
 
 =head2 Reporting Bugs
 
@@ -53,8 +51,8 @@ the bugs and their resolution.
 
 Bug reports can be submitted via email or the web:
 
-  bioperl-bugs@bio.perl.org
-  http://bio.perl.org/bioperl-bugs/
+  bioperl-bugs@bioperl.org
+  http://www.bioperl.org/bioperl-bugs/
 
 =head1 AUTHOR - Ewan Birney
 
@@ -74,26 +72,18 @@ package Bio::Tools::HMMER::Set;
 use vars qw(@ISA);
 use strict;
 
-# Object preamble - inherits from Bio::Root::Object
 
-use Bio::Root::Object;
+use Bio::Root::RootI;
 use Bio::Tools::HMMER::Domain;
 
-#
-# Place functions/variables you want to *export*, ie be visible from the caller package into @EXPORT_OK
-#
 
-#
-# @ISA has our inheritance.
-#
+@ISA = qw( Bio::Root::RootI );
 
-@ISA = ( 'Bio::Root::Object' );
-
-sub _initialize {
-    my($self,@args) = @_;
-    my $make = $self->SUPER::_initialize(@args);
+sub new {
+    my($class,@args) = @_;
+    my $self = $class->SUPER::new(@args);    
     $self->{'domains'} = [];
-    return $make;
+    return $self;
 }
 
 =head2 add_Domain

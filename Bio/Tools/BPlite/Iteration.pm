@@ -68,35 +68,26 @@ use Bio::Tools::BPlite; #
 
 sub new {
     my ($class, @args) = @_;
-    my $self = bless {}, $class;
-    $self->_initialize(@args);
-    return $self;
-}
-# _initialize is where the heavy stuff will happen when new is called
+    my $self = $class->SUPER::new(@args);
 
-sub _initialize {
-  my ($self, @args) = @_; 
-  my $make = $self->SUPER::_initialize(@args);
-
-  ($self->{'FH'},$self->{'PARENT'},$self->{'ROUND'}) =
-      $self->_rearrange([qw(FH
-			    PARENT
-			    ROUND
-			    )],@args);
-
-  if (ref $self->{'FH'} !~ /GLOB/)
+    ($self->{'FH'},$self->{'PARENT'},$self->{'ROUND'}) =
+	$self->_rearrange([qw(FH
+			      PARENT
+			      ROUND
+			      )],@args);
+    
+    if (ref $self->{'FH'} !~ /GLOB/)
     { $self->throw("Expecting a GLOB reference, not $self->{'FH'} !"); }
+    
+    $self->{'LASTLINE'} = "";
+    $self->{'QUERY'} = $self->{'PARENT'}->{'QUERY'};
+    $self->{'LENGTH'} = $self->{'PARENT'}->{'LENGTH'};
 
-  $self->{'LASTLINE'} = "";
-  $self->{'QUERY'} = $self->{'PARENT'}->{'QUERY'};
-  $self->{'LENGTH'} = $self->{'PARENT'}->{'LENGTH'};
-
-  if ($self->_parseHeader) {$self->{'REPORT_DONE'} = 0} # there are alignments
-  else                     {$self->{'REPORT_DONE'} = 1} # empty report
+    if ($self->_parseHeader) {$self->{'REPORT_DONE'} = 0} # there are alignments
+    else                     {$self->{'REPORT_DONE'} = 1} # empty report
   
-  return $make; # success - we hope!
+    return $self; # success - we hope!
 }
-
 
 =head2 query
 

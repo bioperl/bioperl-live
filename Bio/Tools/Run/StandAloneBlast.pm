@@ -1,4 +1,4 @@
-
+# $Id$
 #
 # BioPerl module for Bio::Tools::StandAloneBlast
 #
@@ -238,11 +238,10 @@ methods. Internal methods are usually preceded with a _
 
 =cut
 
-
-
 package Bio::Tools::Run::StandAloneBlast;
 
-use vars qw($AUTOLOAD @ISA);
+use vars qw($AUTOLOAD @ISA $FILESPECLOADED @BLASTALL_PARAMS @BLASTPGP_PARAMS 
+	    @BL2SEQ_PARAMS @OTHER_PARAMS %OK_FIELD $DATADIR $BLASTDIR);
 use strict;
 use Bio::Seq;
 use Bio::SeqIO;
@@ -251,7 +250,29 @@ use Bio::Tools::BPbl2seq;
 use Bio::Tools::BPpsilite;
 use Bio::Tools::Blast;
 
-@ISA = qw(Bio::Root::RootI);
+ BEGIN {      
+     eval { require 'File/Spec.pm'; 
+	    $FILESPECLOADED = 1; };
+
+     @BLASTALL_PARAMS = qw( p d i e m o F G E X I q r v b f g Q
+			    D a O J M W z K L Y S T l U y Z);
+     @BLASTPGP_PARAMS = qw(d i A f e m o y P F G E X N g S H a I h c
+			   j J Z O M v b C R W z K L Y p k T Q B l U);
+     @BL2SEQ_PARAMS = qw(i j p g o d a G E X W M q r F e S T m);
+
+
+# Non BLAST parameters start with underscore to differentiate them
+# from BLAST parameters
+     @OTHER_PARAMS = qw(_READMETHOD);
+
+# _READMETHOD = 'BPlite' (default) or 'Blast'
+# my @other_switches = qw(QUIET);
+
+
+# Authorize attribute fields
+     foreach my $attr (@BLASTALL_PARAMS,  @BLASTPGP_PARAMS, 
+		       @BL2SEQ_PARAMS, @OTHER_PARAMS )
+     { $OK_FIELD{$attr}++; }
 
 # You will need to enable Blast to find the Blast program. This can be done
 # in (at least) three ways:
@@ -262,18 +283,16 @@ use Bio::Tools::Blast;
 #  3. include a definition of an environmental variable BLASTDIR in every script that will
 #     use StandAloneBlast.pm.
 #	BEGIN {$ENV{BLASTDIR} = '/home/peter/blast/'; }
-
-my $blastdir = $ENV{BLASTDIR} || '';
+     $BLASTDIR = $ENV{'BLASTDIR'} || '';
 
 # If local BLAST databases are not stored in the standard
 # /data directory, the variable BLASTDATADIR will need to be set explicitly 
-my $datadir =  $ENV{BLASTDATADIR} || $blastdir.'data/';        
+     $DATADIR =  $ENV{'BLASTDATADIR'} ||
+	 ($FILESPECLOADED ? File::Spec->catfile($BLASTDIR,'data') : 
+	  $BLASTDIR . '/data');
+ }
 
-unless (exists_blast()) {
-	warn "Blast program not found or not executable. \n  Blast can be obtained from ftp://ncbi.nlm.nih.gov/blast\n";
-}
-# Object preamble - inherits from Bio::Root::Object
-
+@ISA = qw(Bio::Root::RootI);
 
 =head2  BLAST parameters
 
@@ -324,54 +343,42 @@ Bl2seq
 
 =cut
 
-my @blastall_params = qw( p d i e m o F G E X I q r v b f g Q
-			D a O J M W z K L Y S T l U y Z);
-my @blastpgp_params = qw(d i A f e m o y P F G E X N g S H a I h c
-			j J Z O M v b C R W z K L Y p k T Q B l U);
-my @bl2seq_params = qw(i j p g o d a G E X W M q r F e S T m);
+ 
+sub new {
+    my ($caller, @args) = @_;
+    # chained new
+    unless (&Bio::Tools::Run::StandAloneBlast::exists_blast()) {
+	warn "Blast program not found or not executable. \n  Blast can be obtained from ftp://ncbi.nlm.nih.gov/blast\n";
+    }
 
-# Non BLAST parameters start with underscore to differentiate them from BLAST parameters
-my @other_params = qw(_READMETHOD);
-#_READMETHOD = 'BPlite' (default) or 'Blast'
-#my @other_switches = qw(QUIET);
-
-my %ok_field;
-my $attr;
-
-
-# Authorize attribute fields
-foreach $attr (@blastall_params,  @blastpgp_params, @bl2seq_params, @other_params )
- { $ok_field{$attr}++; }
-
-
-sub _initialize {
-    my($self,@args) = @_;
-    my ($attr, $value);
-    my $make = $self->SUPER::_initialize(@args);
-# set default BLAST output file and _READMETHOD
+    my $self = $caller->SUPER::new();
+    
     my ($fh,$tempfile) = $self->tempfile();
     $self->outfile($tempfile);
     $self->_READMETHOD('BPlite');
     while (@args)  {
-	$attr =  shift @args;
-	$value =  shift @args;
+	my $attr =   shift @args;
+	my $value =  shift @args;
 	$self->$attr($value);
     }
-    return $make;		# success - we hope!
+    return $self;
 }
 
 sub AUTOLOAD {
     my $self = shift;
     my $attr = $AUTOLOAD;
-    $attr =~ s/.*:://;
-    my $attr_letter = substr($attr, 0, 1) ; # actual key is first letter of $attr
-#  Unless first attribute letter is underscore (as in _READMETHOD), the $attr
-#  is a BLAST parameter and should be truncated to its first letter only
+    $attr =~ s/.*:://;    
+    my $attr_letter = substr($attr, 0, 1) ; 
+
+    # actual key is first letter of $attr unless first attribute
+    # letter is underscore (as in _READMETHOD), the $attr is a BLAST
+    # parameter and should be truncated to its first letter only
+
     $attr = ($attr_letter eq '_') ? $attr : $attr_letter;
-    $self->throw("Unallowed parameter: $attr !") unless $ok_field{$attr};
+    $self->throw("Unallowed parameter: $attr !") unless $OK_FIELD{$attr};
 #    $self->throw("Unallowed parameter: $attr !") unless $ok_field{$attr_letter};
-    $self->{ $ attr_letter } = shift if @_;
-    return $self->{ $attr_letter} ;
+    $self->{$attr_letter} = shift if @_;
+    return $self->{ $attr_letter};
 }
 
 =head2  exists_blast()
@@ -385,7 +392,7 @@ sub AUTOLOAD {
 =cut
 
 sub exists_blast {
-    my $returnvalue = (-e "$blastdir".'blastall') ;
+    my $returnvalue = (-e $FILESPECLOADED ? File::Spec->catfile($BLASTDIR, 'blastall') : $BLASTDIR. '/blastall' );
 }
 
 =head2  blastall
@@ -554,20 +561,19 @@ sub _runblast {
     my ($self,$executable,$param_string) = @_;
     my $blast_obj;
 
-    my $commandstring = "$blastdir"."$executable "." $param_string";
-# next line for debugging
-# print ("$commandstring \n");
+    my $commandstring = ($FILESPECLOADED ? File::Spec->catfile($BLASTDIR,$executable) : "$BLASTDIR/$executable") . $param_string;
+
+    # next line for debugging
+    print STDERR "$commandstring \n" if ( $self->verbose() > 0 );
 
     my $status = system($commandstring);
 
-    $self->throw("$executable call crashed: $? $commandstring\n")  unless
-($status==0) ;
+    $self->throw("$executable call crashed: $? $commandstring\n")  unless ($status==0) ;
     my $outfile = $self->o() ;	# get outputfilename
     my $signif = $self->e()  || 1e-5  ; 
 
 # set significance cutoff to set expectation value or default value
 # (may want to make this value vary for different executables)
-
 
 # Adjustment of Blast.pm parsing parameters not currently supported 
 #
@@ -577,12 +583,12 @@ sub _runblast {
 # parsers can be selected.
 
     if ($executable eq 'bl2seq')  {
-	open FH, $outfile ;
+	open(FH, $outfile) ;
 	$blast_obj = Bio::Tools::BPbl2seq->new(\*FH);
     }
     elsif ($executable eq 'blastpgp' && defined $self->j() && 
 	   $self->j() > 1)  {
-	open FH, $outfile ;
+	open(FH, $outfile);
 	$blast_obj = Bio::Tools::BPpsilite->new(-fh=>\*FH);
     }
     elsif ($self->_READMETHOD eq 'Blast')  {
@@ -593,7 +599,7 @@ sub _runblast {
 					    -check_all_hits => 1,   )  ;
     }
     elsif ($self->_READMETHOD eq 'BPlite')  {
-	open FH, $outfile ;
+	open(FH, $outfile);
 	$blast_obj = Bio::Tools::BPlite->new(-fh=>\*FH);
     }
 
@@ -719,16 +725,18 @@ sub _setparams {
     my ($self,$executable) = @_;
     my ($attr, $value, @execparams);
 
-    if ($executable eq 'blastall') {@execparams = @blastall_params; }
-    if ($executable eq 'blastpgp') {@execparams = @blastpgp_params; }
-    if ($executable eq 'bl2seq') {@execparams = @bl2seq_params; }
+    if ($executable eq 'blastall') {@execparams = @BLASTALL_PARAMS; }
+    if ($executable eq 'blastpgp') {@execparams = @BLASTPGP_PARAMS; }
+    if ($executable eq 'bl2seq') {@execparams = @BL2SEQ_PARAMS; }
 
     my $param_string = "";
-    for  $attr ( @execparams ) {
+    for $attr ( @execparams ) {
 	$value = $self->$attr();
 	next unless (defined $value);
 # Need to prepend datadirectory to database name
-	if ($attr  eq 'd' && ($executable ne 'bl2seq')) { $value = $datadir.$value ;}
+	if ($attr  eq 'd' && ($executable ne 'bl2seq')) { 
+	    $value = File::Spec->catdir($DATADIR,$value);
+	}
 # put params in format expected by Blast
 	$attr  = '-'. $attr ;       
 	$param_string .= " $attr  $value ";

@@ -97,28 +97,24 @@ package Bio::Tools::Sim4::Exon;
 use vars qw(@ISA);
 use strict;
 
-# Object preamble - inherits from Bio::Root::Object
-
 use Bio::SeqFeature::FeaturePair;
 use Bio::SeqFeature::Generic;
 use Bio::SeqFeature::SimilarityPair;
 
 @ISA = qw(Bio::SeqFeature::SimilarityPair);
-# new() is inherited from Bio::Root::Object
 
-# _initialize is where the heavy stuff will happen when new is called
-
-sub _initialize {
-    my ($self,@args) = @_;
-    my $make = $self->SUPER::_initialize(@args);
+sub new {
+    my ($class,@args) = @_;
+    my %param = @args;
+    my $self = $class->SUPER::new(@args);
 
     my ($prim, $source) = $self->_rearrange([qw(PRIMARY SOURCE)], @args);
 
     $self->primary_tag('exon') unless $prim;
     $self->source_tag('Sim4') unless $source;
     $self->strand(0) unless defined($self->strand());
-    # set stuff in self from @args
-    return $make; # success - we hope!
+    $self->query();
+    return $self; 
 }
 
 =head2 percentage_id

@@ -117,61 +117,65 @@ use Bio::SeqFeature::Similarity;
 
 @ISA = qw(Bio::SeqFeature::SimilarityPair);
 
-sub _initialize {
-  my ($self,$fh,$query,@args) = @_;
-  $query = 'unknown' if( ! defined $query );
-  
-  my $make = $self->SUPER::_initialize(@args);
-  
 
-  if (ref($fh) !~ /GLOB/) {
-      $self->throw("Expecting a GLOB reference, not $fh!");
-  } 
-  $self->{'FH'} = $fh;
-  
-  my ($score,$bits,$match,$positive,$p,$qb,$qe,$sb,$se,$qs,
-      $ss,$hs,$qname,$sname,$qlength,$slength) = $self->_parsebl2seq($query);
-  unless ( $positive ) {
+sub new {
+    my ($class, $fh,$query,@args) = @_;
+    my $self = $class->SUPER::new(@args);
+    $query = 'unknown' if( ! defined $query );
+
+    if (ref($fh) !~ /GLOB/) {
+	$self->throw("Expecting a GLOB reference, not $fh!");
+    } else { 
+	$self->_filehandle($fh);
+    }
+
+    my ($score,$bits,$match,$positive,$p,$qb,$qe,$sb,$se,$qs,
+	$ss,$hs,$qname,$sname,$qlength,$slength) = $self->_parsebl2seq($query);
+    unless ( $positive ) {
 	$self->throw("No match found or other problem parsing bl2seq report");
-  }
+    }
 
-  # Store the aligned query as sequence feature
-  if ($qe > $qb) { # normal query: start < end
-    $self->query( Bio::SeqFeature::Similarity->new
-      (-start=>$qb, -end=>$qe, -strand=>1, -source=>"BLAST" ) ) }
-  else { # reverse query (i dont know if this is possible, but feel free to correct)
-    $self->query( Bio::SeqFeature::Similarity->new
-      (-start=>$qe, -end=>$qb, -strand=>-1, -source=>"BLAST" ) ) }
-  
-  # store the aligned subject as sequence feature
-  if ($se > $sb) { # normal subject
-    $self->subject( Bio::SeqFeature::Similarity->new
-      (-start=>$sb, -end=>$se, -strand=>1, -source=>"BLAST" ) ) }
-  else { # reverse subject: start bigger than end
-    $self->subject( Bio::SeqFeature::Similarity->new
-      (-start=>$se, -end=>$sb, -strand=>-1, -source=>"BLAST" ) ) }
+    # Store the aligned query as sequence feature
+    if ($qe > $qb) {		# normal query: start < end
+	$self->query( Bio::SeqFeature::Similarity->new
+		      (-start=>$qb, -end=>$qe, -strand=>1, 
+		       -source=>"BLAST" ) ) }
+    else {			# reverse query (i dont know if this is possible, but feel free to correct)
+	$self->query( Bio::SeqFeature::Similarity->new
+		      (-start=>$qe, -end=>$qb, -strand=>-1, 
+		       -source=>"BLAST" ) ) }
 
-  # name the sequences
-  $self->query->seqname($qname); # query
-  $self->subject->seqname($sname); # subject
+    # store the aligned subject as sequence feature
+    if ($se > $sb) {		# normal subject
+	$self->subject( Bio::SeqFeature::Similarity->new
+			(-start=>$sb, -end=>$se, -strand=>1, 
+			 -source=>"BLAST" ) ) }
+    else {			# reverse subject: start bigger than end
+	$self->subject( Bio::SeqFeature::Similarity->new
+			(-start=>$se, -end=>$sb, -strand=>-1, 
+			 -source=>"BLAST" ) ) }
 
-  # set lengths
-  $self->query->seqlength($qlength); # query
-  $self->subject->seqlength($slength); # subject
+    # name the sequences
+    $self->query->seqname($qname); # query
+    $self->subject->seqname($sname); # subject
 
-  # set object vars
-  $self->score($score);
-  $self->bits($bits);
-  $self->significance($p);
-  $self->query->frac_identical($match);
-  $self->subject->frac_identical($match);
-  $self->{'PERCENT'} = int((1000 * $match)/ $self->query->length)/10;
-  $self->{'POSITIVE'} = $positive;
-  $self->{'QS'} = $qs;
-  $self->{'SS'} = $ss;
-  $self->{'HS'} = $hs;
+    # set lengths
+    $self->query->seqlength($qlength); # query
+    $self->subject->seqlength($slength); # subject
 
-  return $make; # success - we hope!
+    # set object vars
+    $self->score($score);
+    $self->bits($bits);
+    $self->significance($p);
+    $self->query->frac_identical($match);
+    $self->subject->frac_identical($match);
+    $self->{'PERCENT'} = int((1000 * $match)/ $self->query->length)/10;
+    $self->{'POSITIVE'} = $positive;
+    $self->{'QS'} = $qs;
+    $self->{'SS'} = $ss;
+    $self->{'HS'} = $hs;
+
+    return $self;
 }
 
 # to disable overloading comment this out:
@@ -317,7 +321,7 @@ sub _parsebl2seq {
   ############################
   # get seq2 (the "hit") name & lrngth  
   ############################
-  my $FH = $self->{'FH'};
+  my $FH = $self->_filehandle;
   while(<$FH>) {
     if    ($_ !~ /\w/)            {next}
     elsif ($_ =~ /^\s*Length/) {$def .= $_; last}
@@ -424,4 +428,21 @@ sub _parsebl2seq {
   return @returnarray;
 }
 
+=head2 _filehandle
+
+ Title    : _filehandle
+ Usage    : do not use
+ Function : Get/Set method for filehandle
+ Example  : my $fh = $self->_filehandle();
+ Returns  : filehandle reference
+ Args     : filehandle reference [optional]
+
+=cut
+sub _filehandle {
+    my ($self, $value) = @_;    
+    if( defined $value && ref($value) =~ /GLOB/i ) {
+	$self->{'FH'} = $value;
+    } 
+    return $self->{'FH'};
+}
 1;

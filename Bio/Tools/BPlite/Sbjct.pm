@@ -12,7 +12,7 @@ package Bio::Tools::BPlite::Sbjct;
 
 use strict;
 
-use Bio::Root::Object; # root object to inherit from
+use Bio::Root::RootI;        # root object to inherit from
 use Bio::Tools::BPlite::HSP; # we want to use HSP
 
 #use overload '""' => 'name';
@@ -22,27 +22,20 @@ use vars qw(@ISA);
 
 sub new {
     my ($class, @args) = @_;
-    my $self = bless {}, $class;
-    $self->_initialize(@args);
-    return $self;
-}
-
-sub _initialize {
-  my ($self, @args) = @_; 
-  my $make = $self->SUPER::_initialize(@args);
-  
-  ($self->{'NAME'},$self->{'LENGTH'},$self->{'FH'},
-   $self->{'LASTLINE'},$self->{'PARENT'}) =
-       $self->_rearrange([qw(NAME
-			     LENGTH
-			     FH
-			     LASTLINE
-			     PARENT
-			     )],@args);
-  
-  $self->{'HSP_ALL_PARSED'} = 0;
+    my $self = $class->SUPER::new(@args);
     
-  return $make; # success - we hope!
+    ($self->{'NAME'},$self->{'LENGTH'},$self->{'FH'},
+     $self->{'LASTLINE'},$self->{'PARENT'}) =
+	 $self->_rearrange([qw(NAME
+			       LENGTH
+			       FH
+			       LASTLINE
+			       PARENT
+			       )],@args);
+    
+    $self->{'HSP_ALL_PARSED'} = 0;
+    
+  return $self;
 }
 
 =head2 name

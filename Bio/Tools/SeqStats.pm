@@ -291,14 +291,14 @@ my %Weights =   (
 
 
 
-@ISA = qw(Bio::Root::Object);
+@ISA = qw(Bio::Root::RootI);
 # new() is inherited from Bio::Root::Object
 
 # _initialize is where the heavy stuff will happen when new is called
 
-sub _initialize {
-    my($self,@args) = @_;
-    my $make = $self->SUPER::_initialize;
+sub new {
+    my($class,@args) = @_;
+    my $self = $class->SUPER::new(@args);
 
     my $seqobj = shift (@args);
     unless  ($seqobj->isa("Bio::PrimarySeqI")) {
@@ -306,7 +306,7 @@ sub _initialize {
     }
     $self->{'_seqref'} = $seqobj;
     $self->{'_is_strict'} = _is_alphabet_strict($seqobj);  # check the letters in the sequence
-    return $self; # success - we hope!
+    return $self; 
 }
 
 =head2 count_monomers

@@ -22,12 +22,12 @@
 package Bio::Tools::RestrictionEnzyme;
 use strict;
 
-use Bio::Root::Object ();
+use Bio::Root::RootI;
 use Exporter;
 
 use vars qw (@ISA @EXPORT_OK %EXPORT_TAGS $ID $VERSION @RE_available $Revision);
 
-@ISA         = qw(Bio::Root::Object Exporter);
+@ISA         = qw(Bio::Root::RootI Exporter);
 @EXPORT_OK   = qw(@RE_available);
 %EXPORT_TAGS = ( std => [qw(@RE_available)] );
 
@@ -328,10 +328,9 @@ for documentation purposes only.
 #######################################################
 
 
-=head1 _initialize
+=head1 new
 
- Title     : _initialize
- Usage     : n/a; automatically called by Bio::Root::Object::new()
+ Title     : new
  Purpose   : Initializes the RestrictionEnzyme object and calls
            : superclass constructor last (Bio:Seq.pm).
  Returns   : n/a
@@ -344,26 +343,25 @@ See Also   : L<_make_custom>(), L<_make_standard>(), B<Bio::Seq.pm::_initialize(
 =cut
 
 #---------------
-sub _initialize {
+sub new {
 #---------------
-    my($self, %param) = @_;
+    my($class, @args) = @_;
     
-    my $make = $self->SUPER::_initialize(%param);
+    my $self = $class->SUPER::new(@args);
 
-    my (%data);
     my $name = $self->name;
 
-    if($make eq 'custom') {
-	%data = $self->_make_custom($name); 
-    } else {
-	%data = $self->_make_standard($name);
-    }
+#    if($make eq 'custom') {
+#	%data = $self->_make_custom($name); 
+#    } else {
+    my %data = $self->_make_standard($name);
+#    }
     $self->{'_seq'} = new Bio::Seq(%data, 
 				   -STRICT  =>$self->strict, 
 				   -VERBOSE =>$self->verbose,
 				   -moltype => 'dna',
-				  );
-    $make;
+				   );
+    return $self;
 }
 
 

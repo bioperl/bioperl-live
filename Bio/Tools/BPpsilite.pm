@@ -146,12 +146,9 @@ use Bio::Tools::BPlite;
 #  clean up temporary files when exiting
 END { system('rm -f iteration?.tmp ') ;}
 
-# new comes from a RootI now
-
-# _initialize is where the heavy stuff will happen when new is called
-sub _initialize {
-  my ($self, @args) = @_; 
-  my $make = $self->SUPER::_initialize(@args);
+sub new {
+  my ($class, @args) = @_; 
+  my $self = $class->SUPER::new(@args);
 
   my ($fh) = $self->_rearrange([qw(FH)],@args);
 
@@ -167,7 +164,7 @@ sub _initialize {
   if ($self->_parseHeader) {$self->{'REPORT_DONE'} = 0} # there are alignments
   else                     {$self->{'REPORT_DONE'} = 1} # empty report
   
-  return $make; # success - we hope!
+  return $self; # success - we hope!
 }
 
 =head2 query

@@ -19,7 +19,8 @@ Bio::Tools::HMMER::Results - Object representing HMMER output results
    foreach $seq ( $res->each_Set ) {
        print "Sequence bit score is",$seq->bits,"\n";
        foreach $domain ( $seq->each_Domain ) {
-           print " Domain start ",$domain->start," end ",$domain->end," score ",$domain->bits,"\n";
+           print " Domain start ",$domain->start," end ",$domain->end,
+	   " score ",$domain->bits,"\n";
        }
    }
   
@@ -28,41 +29,42 @@ Bio::Tools::HMMER::Results - Object representing HMMER output results
 
    # alternative way of getting out all domains directly
    foreach $domain ( $res->each_Domain ) {
-       print "Domain on ",$domain->seqname," with score ",$domain->bits," evalue ",$domain->evalue,"\n";
+       print "Domain on ",$domain->seqname," with score ",
+       $domain->bits," evalue ",$domain->evalue,"\n";
    }
 
 =head1 DESCRIPTION
 
-This object represents HMMER output, either from hmmsearch or hmmpfam. For hmmsearch,
-a series of HMMER::Set objects are made, one for each sequence, which have the 
-the bits score for the object. For hmmpfam searches, only one Set object is made.
+This object represents HMMER output, either from hmmsearch or
+hmmpfam. For hmmsearch, a series of HMMER::Set objects are made, one
+for each sequence, which have the the bits score for the object. For
+hmmpfam searches, only one Set object is made.
 
 
-These objects come from the original HMMResults modules used internally in Pfam,
-written by Ewan. Ewan then converted them to bioperl objects in 1999. That conversion
-is meant to be backwardly compatible, but may not be (caveat emptor).
+These objects come from the original HMMResults modules used
+internally in Pfam, written by Ewan. Ewan then converted them to
+bioperl objects in 1999. That conversion is meant to be backwardly
+compatible, but may not be (caveat emptor).
 
 =head1 FEEDBACK
 
 =head2 Mailing Lists
 
-User feedback is an integral part of the evolution of this
-and other Bioperl modules. Send your comments and suggestions preferably
- to one of the Bioperl mailing lists.
-Your participation is much appreciated.
+User feedback is an integral part of the evolution of this and other
+Bioperl modules. Send your comments and suggestions preferably to one
+of the Bioperl mailing lists.  Your participation is much appreciated.
 
-  vsns-bcd-perl@lists.uni-bielefeld.de          - General discussion
-  vsns-bcd-perl-guts@lists.uni-bielefeld.de     - Technically-oriented discussion
-  http://bio.perl.org/MailList.html             - About the mailing lists
+  bioperl-l@bioperl.org                - General discussion
+  http://www.bioperl.org/MailList.html - About the mailing lists
 
 =head2 Reporting Bugs
 
 Report bugs to the Bioperl bug tracking system to help us keep track
- the bugs and their resolution.
- Bug reports can be submitted via email or the web:
+the bugs and their resolution.  Bug reports can be submitted via email
+or the web:
 
   bioperl-bugs@bio.perl.org
-  http://bio.perl.org/bioperl-bugs/
+  http://www.bioperl.org/bioperl-bugs/
 
 =head1 AUTHOR - Ewan Birney
 
@@ -82,21 +84,17 @@ use vars qw(@ISA);
 use Carp;
 use strict;
 
-use Bio::Root::Object;
+use Bio::Root::RootI;
 use Bio::Tools::HMMER::Domain;
 use Bio::Tools::HMMER::Set;
-use FileHandle;
+use Symbol;
 
-#
-# @ISA has our inheritance.
-#
+@ISA = qw(Bio::Root::RootI);
 
-@ISA = ( 'Bio::Root::Object' );
+sub new {
+  my($class,@args) = @_;
 
-sub _initialize {
-  my($self,@args) = @_;
-
-  my $make = $self->SUPER::_initialize();
+  my $self = $class->SUPER::new(@args);
 
   $self->{'domain'} = []; # array of HMMUnits
   $self->{'seq'} = {};
@@ -106,20 +104,21 @@ sub _initialize {
 						   TYPE
 						   )],
 					       @args);
-
+  
   if( !defined $file && ! defined $fh ) {
       $self->throw("No file/filehandle definition to HMMER results");
+  } elsif( defined $file and defined $fh ) {
+      $self->throw("Providing both a file and a filehandle for reading from - only one please!");
   }
 
   if( defined $file ) {
-      $fh = new FileHandle;
-      $fh->open($file) || $self->throw("Could not open file [$file] $!");
+      $fh = Symbol::gensym();
+      open ($fh,$file) || $self->throw("Could not open file [$file] $!");
   }
 
   if( !defined $parsetype ) {
       $self->throw("No parse type provided. should be hmmsearch or hmmpfam");
   }
-
 
   if( $parsetype eq 'hmmsearch' ) {
       $self->_parse_hmmsearch($fh);
@@ -129,7 +128,7 @@ sub _initialize {
       $self->throw("Did not recoginise type $parsetype");
   } 
   
-  return $make; # success - we hope!
+  return $self; # success - we hope!
 }
 
 =head2 number

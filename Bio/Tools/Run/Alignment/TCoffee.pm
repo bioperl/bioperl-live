@@ -57,7 +57,7 @@ http://igs-server.cnrs-mrs.fr/~cnotred/Documentation/t_coffee/t_coffee_doc.html
 These can be specified as paramters when instantiating a new TCoffee
 object, or through get/set methods of the same name (lowercase).
 
-=head2 ALIGNMENT COMPUTATION
+=head2 PARAMETERS FOR ALIGNMENT COMPUTATION
 
 =head2 IN 
  
@@ -303,7 +303,7 @@ object, or through get/set methods of the same name (lowercase).
                However, note that library extension will be carried out 
                on all the sequences.
 
-=head2 TREE COMPUTATION AND OUTPUT
+=head2 PARAMETERS FOR TREE COMPUTATION AND OUTPUT
 
 =head2 NEWTREE
 
@@ -346,7 +346,7 @@ object, or through get/set methods of the same name (lowercase).
  Description : This flag is kept for compatibility with ClustalW. 
                It indicates that:  -tree_mode=very_fast
 
-=head2 ALIGNMENT OUTPUT
+=head2 PARAMETERS FOR ALIGNMENT OUTPUT
 
 =head2 OUTFILE
 
@@ -418,7 +418,7 @@ object, or through get/set methods of the same name (lowercase).
  Description : Causes the output alignment to contain residue numbers
                at the end of each line:
 
-=head2 GENERIC OUTPUT
+=head2 PARAMETERS FOR GENERIC OUTPUT
 
 =head2 RUN_NAME
 
@@ -491,17 +491,20 @@ methods. Internal methods are usually preceded with a _
 
 package Bio::Tools::Run::Alignment::TCoffee;
 
-use vars qw($AUTOLOAD @ISA $TMPOUTFILE $DEBUG $PROGRAM $PROGRAMDIR $FILESPECLOADED);
+use vars qw($AUTOLOAD @ISA $TMPOUTFILE $PROGRAM $PROGRAMDIR $FILESPECLOADED
+            @TCOFFEE_PARAMS @TCOFFEE_SWITCHES @OTHER_SWITCHES %OK_FIELD
+            );
 use strict;
 use Bio::Seq;
 use Bio::SeqIO;
 use Bio::SimpleAlign;
 use Bio::AlignIO;
 use Bio::Root::RootI;
-eval { require 'File/Spec.pm'; $FILESPECLOADED = 0; };
 
 @ISA = qw(Bio::Root::RootI);
 
+
+BEGIN { 
 # You will need to enable TCoffee to find the tcoffee program. This can be done
 # in (at least) three ways:
 #  1. Modify your $PATH variable to include your tcoffee directory as in (for Linux):
@@ -511,57 +514,53 @@ eval { require 'File/Spec.pm'; $FILESPECLOADED = 0; };
 #  3. include a definition of an environmental variable TCOFFEEDIR in every script that will
 #     use Bio::Tools::Run::Alignment::TCoffee.pm.
 #	BEGIN {$ENV{TCOFFEEDIR} = '/home/progs/tcoffee'; }
-$PROGRAMDIR = $ENV{TCOFFEEDIR} || '';
-$PROGRAMDIR .= '/' if( substr($PROGRAMDIR, -1) ne '/' ); 
-$PROGRAM =   $PROGRAMDIR.'t_coffee' ;
-$DEBUG = 0;
-unless (exists_tcoffee()) {
-	warn "TCoffee program not found as $PROGRAM or not executable. \n  TCoffee can be obtained from eg- http://igs-server.cnrs-mrs.fr/~cnotred/Projects_home_page/t_coffee_home_page.html \n";
-}
-# Object preamble - inherits from Bio::Root::RootI
 
-my @tcoffee_params = qw(IN TYPE PARAMETERS DO_NORMALISE EXTEND
-			DP_MODE KTUPLE NDIAGS DIAG_MODE SIM_MATRIX 
-			MATRIX GAPOPEN GAPEXT COSMETIC_PENALTY TG_MODE
-			WEIGHT SEQ_TO_ALIGN NEWTREE USETREE TREE_MODE 
-			OUTFILE OUTPUT CASE CPU OUT_LIB OUTORDER SEQNOS
-			RUN_NAME CONVERT);
+    eval { require 'File/Spec.pm'; $FILESPECLOADED = 1; };
 
-my @tcoffee_switches = qw(QUICKTREE);
+    $PROGRAMDIR = $ENV{TCOFFEEDIR} || '';
+    $PROGRAM =  ($FILESPECLOADED) ? File::Spec->catfile($PROGRAMDIR,'t_coffee') :
+        $PROGRAMDIR.'/t_coffee';
 
-my @other_switches = qw(QUIET ALIGN KEEPDND);
-my %ok_field;
-
-
+    
+    @TCOFFEE_PARAMS = qw(IN TYPE PARAMETERS DO_NORMALISE EXTEND
+			 DP_MODE KTUPLE NDIAGS DIAG_MODE SIM_MATRIX 
+			 MATRIX GAPOPEN GAPEXT COSMETIC_PENALTY TG_MODE
+			 WEIGHT SEQ_TO_ALIGN NEWTREE USETREE TREE_MODE 
+			 OUTFILE OUTPUT CASE CPU OUT_LIB OUTORDER SEQNOS
+			 RUN_NAME CONVERT);
+    
+    @TCOFFEE_SWITCHES = qw(QUICKTREE);
+    
+    @OTHER_SWITCHES = qw(QUIET ALIGN KEEPDND);
+    
 # Authorize attribute fields
-foreach my $attr ( @tcoffee_params, @tcoffee_switches, @other_switches ) { 
-    $ok_field{$attr}++; }
+    foreach my $attr ( @TCOFFEE_PARAMS, @TCOFFEE_SWITCHES, @OTHER_SWITCHES ) { 
+	$OK_FIELD{$attr}++; }
+}
 
-# new comes from RootI
-
-sub _initialize {
-    my($self,@args) = @_;
+sub new {
+    my ($class,@args) = @_;
+    my $self = $class->SUPER::new(@args);
     my ($attr, $value);
-    my $make = $self->SUPER::_initialize(@args);
     (undef,$TMPOUTFILE) = $self->tempfile();
     while (@args)  {
-	$attr =  shift @args;
+	$attr =   shift @args;
 	$value =  shift @args;
+	next if( $attr =~ /^-/); # don't want named parameters 
 	$self->$attr($value);	
     }
-    return $make;		# success - we hope!
+    return $self;
 }
-
 
 sub AUTOLOAD {
     my $self = shift;
     my $attr = $AUTOLOAD;
     $attr =~ s/.*:://;
     $attr = uc $attr;
-    $self->throw("Unallowed parameter: $attr !") unless $ok_field{uc $attr};
+    $self->throw("Unallowed parameter: $attr !") unless $OK_FIELD{$attr};
 
-    $self->{'uc $attr'} = shift if @_;
-    return $self->{'uc $attr'};
+    $self->{$attr} = shift if @_;
+    return $self->{$attr};
 }
 
 
@@ -696,7 +695,7 @@ sub _run {
     my $commandstring = $PROGRAM." $instring".
 	" -output=gcg". " $param_string";    
     # next line is for debugging purposes
-    if( $DEBUG ) {
+    if( $self->verbose > 0 ) {
 	print "tcoffee command = $commandstring \n";
     }
     
@@ -808,7 +807,7 @@ sub _setparams {
     my ($attr, $value,$param_string);
 
     my $laststr;
-    for  $attr ( @tcoffee_params ) {
+    for  $attr ( @TCOFFEE_PARAMS ) {
 	$value = $self->$attr();
 	next unless (defined $value);	
 	my $attr_key = lc $attr;
@@ -819,7 +818,7 @@ sub _setparams {
 	    $param_string .= $attr_key .'='.$value; 
 	}
    }
-    for  $attr ( @tcoffee_switches) {
+    for  $attr ( @TCOFFEE_SWITCHES) {
 	$value = $self->$attr();
 	next unless ($value);
 	my $attr_key = lc $attr; #put switches in format expected by tcoffee

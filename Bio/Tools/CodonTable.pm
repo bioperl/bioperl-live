@@ -308,9 +308,7 @@ my %iupac_aa =
 
 sub new {
     my($class,@args) = @_;
-    my $self;
-    $self = {};
-    bless $self, $class;
+    my $self = $class->SUPER::new(@args);
 
     my($id) =
 	$self->_rearrange([qw(ID

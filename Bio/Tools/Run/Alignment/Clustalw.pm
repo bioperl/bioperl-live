@@ -70,7 +70,7 @@ clustalw program, e.g.:
 Any parameters not explicitly set will remain as the defaults of the
 clustalw program.  Additional parameters and switches (not available
 in clustalw) may also be set.  Currently, the only such parameter is
-"quiet", which when set to a non-zero value, suppresses clustalw's
+"quiet", which when set to a non-zero value, suppresses clustalw
 terminal output. Not all clustalw parameters are supported at this
 stage.
 
@@ -167,11 +167,109 @@ clustalw program have not yet been implemented.  If you would like
 that a specific clustalw feature be added to this perl interface, let
 me know.
 
-=head1 DEVELOPERS NOTES
+These can be specified as paramters when instantiating a new TCoffee
+object, or through get/set methods of the same name (lowercase).
 
+=head2 PARAMETER FOR ALIGNMENT COMPUTATION 
 
-=head1 STILL TO WRITE
+=head2 KTUPLE
 
+ Title       : KTUPLE
+ Description : (optional) set the word size to be used in the alignment
+               This is the size of exactly matching fragment that is used. 
+               INCREASE for speed (max= 2 for proteins; 4 for DNA), 
+               DECREASE for sensitivity.  
+               For longer sequences (e.g. >1000 residues) you may 
+               need to increase the default
+
+=head2 TOPDIAGS
+
+ Title       : TOPDIAGS
+ Description : (optional) number of best diagonals to use
+               The number of k-tuple matches on each diagonal 
+               (in an imaginary dot-matrix plot) is calculated.  
+               Only the best ones (with most matches) are used in 
+               the alignment.  This parameter specifies how many.  
+               Decrease for speed; increase for sensitivity.
+
+=head2 WINDOW
+
+ Title       : WINDOW
+ Description : (optional) window size 
+               This is the number of diagonals around each of the 'best'
+               diagonals that will be used.  Decrease for speed; 
+               increase for sensitivity.
+
+=head2 PAIRGAP
+
+ Title       : PAIRGAP
+ Description : (optional) gap penalty for pairwise alignments
+               This is a penalty for each gap in the fast alignments. 
+               It has little affect on the speed or sensitivity except 
+               for extreme values.
+
+=head2 FIXEDGAP
+
+ Title       : FIXEDGAP
+ Description : (optional) fixed length gap penalty
+
+=head2 FLOATGAP
+
+ Title       : FLOATGAP
+ Description : (optional) variable length gap penalty
+
+=head2 MATRIX
+
+ Title       : MATRIX 
+ Default     : PAM100 for DNA - PAM250 for protein alignment 
+ Description : (optional) substitution matrix used in the multiple
+               alignments. Depends on the version of clustalw as to
+               what default matrix will be used
+
+               PROTEIN WEIGHT MATRIX leads to a new menu where you are
+               offered a choice of weight matrices. The default for
+               proteins in version 1.8 is the PAM series derived by
+               Gonnet and colleagues. Note, a series is used! The
+               actual matrix that is used depends on how similar the
+               sequences to be aligned at this alignment step
+               are. Different matrices work differently at each
+               evolutionary distance.
+
+               DNA WEIGHT MATRIX leads to a new menu where a single
+               matrix (not a series) can be selected. The default is
+               the matrix used by BESTFIT for comparison of nucleic
+               acid sequences.
+
+=head2 TYPE
+
+ Title       : TYPE
+ Description : (optional) sequence type: protein or DNA. This allows
+	       you to explicitly overide the programs attempt at
+	       guessing the type of the sequence.  It is only useful
+	       if you are using sequences with a VERY strange
+	       composition.
+
+=head2 OUTPUT
+
+ Title       : OUTPUT
+ Description : (optional) clustalw supports GCG or PHYLIP or PIR or
+                Clustal format.  See the Bio::AlignIO modules for
+                which formats are supported by bioperl.
+
+=head2 OUTFILE
+
+ Title       : OUTFILE
+ Description : (optional) Name of clustalw output file. If not set
+	       module will erase output file.  In any case alignment will
+	       be returned in the form of SimpleAlign objects
+
+=head2 TRANSMIT
+
+ Title       : TRANSMIT
+ Description : (optional) transitions not weighted.  The default is to
+	       weight transitions as more favourable than other
+	       mismatches in DNA alignments.  This switch makes all
+	       nucleotide mismatches equally weighted.
 
 =head1 FEEDBACK
 
@@ -208,7 +306,9 @@ methods. Internal methods are usually preceded with a _
 
 package Bio::Tools::Run::Alignment::Clustalw;
 
-use vars qw($AUTOLOAD @ISA $DEBUG $PROGRAM $PROGRAMDIR $TMPOUTFILE);
+use vars qw($AUTOLOAD @ISA $DEBUG $PROGRAM $PROGRAMDIR $FILESPECLOADED 
+	    $TMPOUTFILE @CLUSTALW_SWITCHES @CLUSTALW_PARAMS 
+	    @OTHER_SWITCHES %OK_FIELD);
 use strict;
 use Bio::Seq;
 use Bio::SeqIO;
@@ -218,97 +318,73 @@ use Bio::Root::RootI;
 
 @ISA = qw(Bio::Root::RootI);
 
-# You will need to enable Clustalw to find the clustalw program. This can be done
-# in (at least) three ways:
-#  1. Modify your $PATH variable to include your clustalw directory as in (for Linux):
-#	export PATH=$PATH:/home/peter/clustalw1.8   or
-#  2. define an environmental variable CLUSTALDIR:
-#	export CLUSTALDIR=/home/peter/clustalw1.8   or
-#  3. include a definition of an environmental variable CLUSTALDIR in every script that will
-#     use Clustal.pm.
-#	BEGIN {$ENV{CLUSTALDIR} = '/home/peter/clustalw1.8/'; }
-$PROGRAMDIR = $ENV{CLUSTALDIR} || '';
-$PROGRAMDIR .= '/' if( substr($PROGRAMDIR, -1) ne '/' ); 
-$PROGRAM =   $PROGRAMDIR.'clustalw';
+BEGIN {
 
-unless (exists_clustal()) {
-	warn "Clustalw program not found as $PROGRAM or not executable. \n  Clustalw can be obtained from eg- http://corba.ebi.ac.uk/Biocatalog/Alignment_Search_software.html/ \n";
-}
+# You will need to enable Clustalw to find the clustalw program. This
+# can be done in (at least) three ways: 
 
-#***Pairwise alignments:***
-#	KTUPLE      	#:(=n) word size
-#	TOPDIAGS  	#:(=n) number of best diagonals
-#	WINDOW   	#:(=n) window around best diagonals
-#	PAIRGAP   	#:(=n)gap penalty
+# 1. Modify your $PATH variable to include your clustalw directory as
+# in (for Linux): 
+# export PATH=$PATH:/home/peter/clustalw1.8 
+#
+# 2. define an environmental variable CLUSTALDIR: 
+# export CLUSTALDIR=/home/peter/clustalw1.8 
+#
+# 3. include a definition of an environmental variable CLUSTALDIR in
+# every script that will use Clustal.pm.  
+# $ENV{CLUSTALDIR} = '/home/peter/clustalw1.8/';
 
-#**Multiple alignments:***
-#	FIXEDGAP  	#:(=n)fixed length gap pen.
-#	FLOATGAP  	#:(=n)variable length gap pen.
-#	MATRIX     	#:= PAM100 or ID or file name. The default weight matrix
-			#	for proteins is PAM 250.	
-#	TYPE	 	#:(=p or d)type is protein or DNA.   This allows you to 	
-			#	explicitly overide the programs attempt at guessing
-			#	the type of the sequence.  It is only useful if you
-			#	are using sequences with a VERY strange composition.
-#	OUTPUT     	#:= clustalw supports GCG or PHYLIP or PIR or Clustal format.
-			# However currently only GCG format is supported by Clustalw.pm
-			# (because AlignIO input modules haven't been written yet for the
-                        # other formats)
-#	OUTFILE     	#: Name of clustalw's output file. If not set
-			# module will erase output file.  In any case alignment will
-			# be returned in the form of SimpleAlign objects
-#	TRANSIT     	#:transitions not weighted.  The default is to weight
-			#	transitions as more favourable than other mismatches
-			#	in DNA alignments.  This switch makes all nucleotide
-			#	mismatches equally weighted.
+    eval { require 'File/Spec.pm'; 
+	   $FILESPECLOADED = 1; };
 
-my @clustal_params = qw(KTUPLE TOPDIAGS WINDOW PAIRGAP FIXEDGAP
+    $PROGRAMDIR = $ENV{CLUSTALDIR} || '';
+    $PROGRAM = $FILESPECLOADED ? File::Spec->catfile($PROGRAMDIR,'clustalw') :
+	$PROGRAMDIR.'/clustalw';
+    @CLUSTALW_PARAMS = qw(KTUPLE TOPDIAGS WINDOW PAIRGAP FIXEDGAP
                    FLOATGAP MATRIX TYPE	TRANSIT DNAMATRIX OUTFILE
                    GAPOPEN GAPEXT MAXDIV GAPDIST HGAPRESIDUES PWMATRIX
                    PWDNAMATRIX PWGAPOPEN PWGAPEXT SCORE TRANSWEIGHT
                    SEED HELIXGAP OUTORDER STRANDGAP LOOPGAP TERMINALGAP
                    HELIXENDIN HELIXENDOUT STRANDENDIN STRANDENDOUT);
 
-my @clustalw_switches = qw(HELP CHECK OPTIONS NEGATIVE NOWEIGHTS ENDGAPS
+    @CLUSTALW_SWITCHES = qw(HELP CHECK OPTIONS NEGATIVE NOWEIGHTS ENDGAPS
                         NOPGAP NOHGAP NOVGAP KIMURA TOSSGAPS);
 
-my @other_switches = qw(QUIET);
-my %ok_field;
+    @OTHER_SWITCHES = qw(QUIET);
+    # Authorize attribute fields
+    foreach my $attr ( @CLUSTALW_PARAMS, @CLUSTALW_SWITCHES, 
+		       @OTHER_SWITCHES ) { $OK_FIELD{$attr}++; }
 
 
-# Authorize attribute fields
-foreach my $attr ( @clustal_params, @clustalw_switches, @other_switches ) { $ok_field{$attr}++; }
-
-# new() is inherited from Bio::Root::RootI
-
-# _initialize is where the heavy stuff will happen when new is called
-$DEBUG=0;
-sub _initialize {
-    my($self,@args) = @_;
-    my ($attr, $value);
-    my $make = $self->SUPER::_initialize(@args);
-    my ($tfh,$tfile) = $self->tempfile();
-    $TMPOUTFILE = $tfile if ( ! $TMPOUTFILE );
-
-    while (@args)  {
-	$attr =  shift @args;
-	$value =  shift @args;
-	$self->$attr($value);
-    }
-
-    return $make;		# success - we hope!
 }
 
+sub new {
+    my ($class,@args) = @_;
+    my $self = $class->SUPER::new(@args);
+
+    unless (&exists_clustal()) {
+	warn "Clustalw program not found as $PROGRAM or not executable. \n  Clustalw can be obtained from eg- http://corba.ebi.ac.uk/Biocatalog/Alignment_Search_software.html/ \n";
+    }
+    
+    my ($attr, $value);
+    (undef,$TMPOUTFILE) = $self->tempfile();
+    while (@args)  {
+	$attr =   shift @args;
+	$value =  shift @args;
+	next if( $attr =~ /^-/ ); # don't want named parameters 
+	$self->$attr($value);	
+    }
+    return $self;
+}
 
 sub AUTOLOAD {
     my $self = shift;
     my $attr = $AUTOLOAD;
     $attr =~ s/.*:://;
     $attr = uc $attr;
-    $self->throw("Unallowed parameter: $attr !") unless $ok_field{uc $attr};
-
-    $self->{'uc $attr'} = shift if @_;
-    return $self->{'uc $attr'};
+    $self->throw("Unallowed parameter: $attr !") unless $OK_FIELD{$attr};
+    $self->{$attr} = shift if @_;
+    return $self->{$attr};
 }
 
 
@@ -367,7 +443,7 @@ sub align {
     my $param_string = $self->_setparams();
 
 # run clustalw
-    my $aln = $self->_runclustalw('align', $infilename,$param_string);
+    my $aln = $self->_run('align', $infilename,$param_string);
 }
 #################################################
 
@@ -403,26 +479,26 @@ sub profile_align {
     my $param_string = $self->_setparams();
 
 # run clustalw
-    my $aln = $self->_runclustalw('profile-aln', $infilename1, 
-				  $infilename2, $param_string);
+    my $aln = $self->_run('profile-aln', $infilename1, 
+			  $infilename2, $param_string);
 
 }
 #################################################
 
-=head2  _runclustalw
+=head2  _run
 
- Title   :  _runclustalw
+ Title   :  _run
  Usage   :  Internal function, not to be called directly	
  Function:   makes actual system call to clustalw program
  Example :
  Returns : nothing; clustalw output is written to a 
-           temporary file $TEMPOUTFILE
+           temporary file $TMPOUTFILE
  Args    : Name of a file containing a set of unaligned fasta sequences
            and hash of parameters to be passed to clustalw
 
 
 =cut
-sub _runclustalw {
+sub _run {
     my ($self,$command,$infile1,$infile2,$param_string) = @_;
     my $instring;
     if ($command =~ /align/) {
@@ -543,7 +619,7 @@ sub _setparams {
     $self = shift;
 
     my $param_string = "";
-    for  $attr ( @clustal_params ) {
+    for  $attr ( @CLUSTALW_PARAMS ) {
 	$value = $self->$attr();
 	next unless (defined $value);
 	my $attr_key = lc $attr; #put params in format expected by clustalw
@@ -551,7 +627,7 @@ sub _setparams {
 	$param_string .= $attr_key.'='.$value;
     }
 
-    for  $attr ( @clustalw_switches) {
+    for  $attr ( @CLUSTALW_SWITCHES) {
 	$value = $self->$attr();
 	next unless ($value);
 	my $attr_key = lc $attr; #put switches in format expected by clustalw

@@ -97,9 +97,7 @@ use Bio::Tools::Prediction::Gene;
 use Bio::Tools::Prediction::Exon;
 
 @ISA = qw(Bio::Tools::AnalysisResult);
-# new() is inherited from Bio::Root::RootI
 
-# called by the inherited _initialize.
 sub _initialize_state {
     my($self,@args) = @_;
 

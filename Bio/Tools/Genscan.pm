@@ -100,16 +100,6 @@ use Bio::Tools::Prediction::Exon;
 
 @ISA = qw(Bio::Tools::AnalysisResult);
 
-#There's nothing special to do for us here, so just rely on the inherited
-#version.
-#  sub _initialize {
-#    my($self,@args) = @_;
-#
-#    my $make = $self->SUPER::_initialize(@args);
-#
-#    return $make; # success - we hope!
-#  }
-
 sub _initialize_state {
     my ($self,@args) = @_;
 

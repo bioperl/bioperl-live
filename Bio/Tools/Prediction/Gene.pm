@@ -74,20 +74,15 @@ package Bio::Tools::Prediction::Gene;
 use vars qw(@ISA);
 use strict;
 
-# Object preamble - inherits from Bio::Root::Object
-
 use Bio::SeqFeature::GeneStructure;
 
 
 @ISA = qw(Bio::SeqFeature::GeneStructure);
-# new() is inherited from Bio::Root::RootI
 
-# _initialize is where the heavy stuff will happen when new is called
-
-sub _initialize {
-    my($self,@args) = @_;
+sub new {
+    my($class,@args) = @_;
     
-    my $make = $self->SUPER::_initialize(@args);
+    my $self = $class->SUPER::new(@args);
 
     my ($primary) =
 	$self->_rearrange([qw(PRIMARY
@@ -95,8 +90,7 @@ sub _initialize {
 
     $primary = 'predicted_gene' unless $primary;
     $self->primary_tag($primary);
-    # set stuff in self from @args
-    return $make; # success - we hope!
+    return $self; 
 }
 
 
