@@ -310,8 +310,10 @@ sub next_result{
        } elsif(  /Length\s*=\s*([\d,]+)/ ) {
 	   $self->element({ 'Name' => 'Hit_len',
 			    'Data' => $1 });
-       } elsif( ($self->in_element('hit') || $self->in_element('hsp')) && # wublast
-		/Score\s*=\s*(\d+)\s*\(([\d\.]+)\s*bits\),\s*Expect\s*=\s*([^,\s]+),\s*P\s*=\s*([^,\s]+)/ ) {
+       } elsif( ($self->in_element('hit') || 
+		 $self->in_element('hsp')) && # wublast
+	       /Score\s*=\s*(\d+)\s*\(([\d\.]+)\s*bits\),\s*Expect\s*=\s*([^,\s]+),\s*(Sum)?\s*P(\(\d+\))\s*=\s*([^,\s]+)/ 
+		  ) {
 	   $self->in_element('hsp') && $self->end_element({'Name' => 'Hsp'});
 	   $self->start_element({'Name' => 'Hsp'});
        	   $self->element( { 'Name' => 'Hsp_score',
@@ -321,7 +323,7 @@ sub next_result{
 	   $self->element( { 'Name' => 'Hsp_evalue',
 			     'Data' => $3});
 	   $self->element( {'Name'  => 'Hsp_pvalue',
-			    'Data'  =>$4});
+			    'Data'  =>$6});
        } elsif( ($self->in_element('hit') || $self->in_element('hsp')) && # ncbi blast
 		/Score\s*=\s*(\S+)\s*bits\s*\((\d+)\),\s*Expect(\(\d+\))?\s*=\s*(\S+)/) {
 	   $self->in_element('hsp') && $self->end_element({ 'Name' => 'Hsp'});
