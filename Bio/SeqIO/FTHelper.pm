@@ -146,12 +146,12 @@ sub _generic_seqfeature {
 	    $sub->strand($strand);
 
 	    if ( $loc =~ /\<\d+/ ) {
-		$sub->add_tag_value('_part_feature', '3_prime') if $sub->strand == 1;
-		$sub->add_tag_value('_part_feature', '5_prime') if $sub->strand == -1;
+		$sub->add_tag_value('_part_feature', '3_prime_missing') if $sub->strand == 1;
+		$sub->add_tag_value('_part_feature', '5_prime_missing') if $sub->strand == -1;
 	    }
 	    if ( $loc =~ /\>\d+/ ) {
-		$sub->add_tag_value('_part_feature', '5_prime') if $sub->strand == 1;
-		$sub->add_tag_value('_part_feature', '3_prime') if $sub->strand == -1;
+		$sub->add_tag_value('_part_feature', '5_prime_missing') if $sub->strand == 1;
+		$sub->add_tag_value('_part_feature', '3_prime_missing') if $sub->strand == -1;
 	    }
 	    if ( $loc =~ /\d+\^\d+/ ) {
 		if ( $sub->start + 1 == $sub->end ) {
