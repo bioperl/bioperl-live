@@ -229,4 +229,20 @@ sub io{
     return $self->{'io'};
 }
 
+=head2 version
+
+ Title   : version
+ Usage   : $version = $wrapper->version()
+ Function: Returns the program version (if available)
+ Returns : string representing version of the program 
+ Args    : [Optional] value to (re)set version string
+
+
+=cut
+
+sub version{
+   my ($self,@args) = @_;
+   return undef;
+}
+
 1;
