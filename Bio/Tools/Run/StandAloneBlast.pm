@@ -619,7 +619,7 @@ sub blastpgp {
 =head2   bl2seq
 
  Title   : bl2seq
- Usage   : $factory-> blastpgp('t/seq1.fa', 't/seq2.fa');
+ Usage   : $factory-> bl2seq('t/seq1.fa', 't/seq2.fa');
 	or
 	  $input1 = Bio::Seq->new(-id=>"test query1",
 				  -seq=>"ACTADDEEQQPPTCADEEQQQVVGG");
