@@ -184,4 +184,22 @@ sub get_Genotypes{
 sub get_Marker{
     shift->throw_not_implemented();
 }
+
+
+=head2 number_individuals
+
+ Title   : number_individuals
+ Usage   : my $count = $pop->number_individuals;
+ Function: Get the count of the number of individuals
+ Returns : integer >= 0
+ Args    : none
+
+
+=cut
+
+sub get_number_individuals{
+   my ($self) = @_;
+   $self->throw_not_implemented();
+}
+
 1;

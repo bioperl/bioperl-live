@@ -16,7 +16,10 @@ Bio::PopGen::Genotype - An implementation of a genotype which is an allele conta
 
 =head1 SYNOPSIS
 
-Give standard usage here
+use Bio::PopGen::Genotype;
+my $genotype = new Bio::PopGen::Genotype(-marker_name   => $name,
+                                         -individual_id => $indid,
+                                         -alleles       => \@alleles);
 
 =head1 DESCRIPTION
 

@@ -256,10 +256,12 @@ sub get_Genotypes{
 
 sub get_Marker{
    my ($self,$markername) = @_;
+
    my @genotypes = $self->get_Genotypes(-marker => $markername);
-   my $marker = new Bio::PopGen::Marker(-name => $markername);
+   my $marker = new Bio::PopGen::Marker(-name   => $markername);
+
    if( ! @genotypes ) {
-       $self->warn("No genotypes for this Marker in the population");
+       $self->warn("No genotypes for Marker $markername in the population");
    } else { 
        my %alleles;
        my $count;
@@ -272,6 +274,71 @@ sub get_Marker{
 }
 
 
+=head2 number_individuals
 
+ Title   : number_individuals
+ Usage   : my $count = $pop->number_individuals;
+ Function: Get the count of the number of individuals
+ Returns : integer >= 0
+ Args    : none
+
+
+=cut
+
+sub get_number_individuals{
+   my ($self) = @_;
+   return scalar @{$self->{'_individuals'}};
+}
+
+
+=head2 get_Frequency_Homozygotes
+
+ Title   : get_Frequency_Homozygotes
+ Usage   : my $freq = $pop->get_Frequency_Homozygotes;
+ Function: Calculate the frequency of homozygotes in the population
+ Returns : fraction between 0 and 1
+ Args    : $markername
+
+
+=cut
+
+sub get_Frequency_Homozygotes{
+   my ($self,$marker,$allelename) = @_;
+   my ($homozygote_count,$total);
+   foreach my $genotype ( $self->get_Genotypes($marker) ) {
+       my %alleles = map { $_ => 1} $genotype->get_Alleles();
+       # what to do for non-diploid situations?
+       if( $alleles{$allelename} ) {
+	   $homozygote_count++ if( keys %alleles == 1);
+	   $total++;
+       }
+   }
+   return $total ? $homozygote_count / $total : 0;
+}
+
+=head2 get_Frequency_Heterozygotes
+
+ Title   : get_Frequency_Heterozygotes
+ Usage   : my $freq = $pop->get_Frequency_Homozygotes;
+ Function: Calculate the frequency of homozygotes in the population
+ Returns : fraction between 0 and 1
+ Args    : $markername
+
+
+=cut
+
+sub get_Frequency_Heterozygotes{
+   my ($self,$marker,$allelename) = @_;
+   my ($heterozygote_count,$total);
+   foreach my $genotype ( $self->get_Genotypes($marker) ) {
+       my %alleles = map { $_ => 1} $genotype->get_Alleles();
+       # what to do for non-diploid situations?
+       if( $alleles{$allelename} ) {
+	   $heterozygote_count++ if( keys %alleles == 2);
+	   $total++;
+       }
+   }
+   return $total ? $heterozygote_count / $total : 0;
+}
 
 1;
