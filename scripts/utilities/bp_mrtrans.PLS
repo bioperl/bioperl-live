@@ -1,5 +1,5 @@
 #!perl
-# $Id: bp_mrtrans.PLS,v 1.4 2003-03-26 13:55:08 heikki Exp $
+# $Id: bp_mrtrans.PLS,v 1.5 2004-05-12 01:11:47 jason Exp $
 use strict;
 
 # Author:      Jason Stajich <jason@bioperl.org>
@@ -37,7 +37,7 @@ The options are:
 
 =head1 AUTHOR
 
-Jason Stajich, jason@bioperl.org
+Jason Stajich, jason-at-bioperl.org
 
 =cut
 
