@@ -133,7 +133,7 @@ sub next_seq{
    $seqc = '';
    for (0 .. ($bases - 1) ) {
      $self->throw('Unexpected end of file while reading from SCF file')
-       unless 12 == read(STDIN, $buffer, 12);
+       unless 12 == read($fh, $buffer, 12);
      my ($index,
 	 $prob_A,
 	 $prob_C,
