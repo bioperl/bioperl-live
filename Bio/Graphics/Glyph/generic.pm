@@ -152,28 +152,26 @@ sub arrowhead {
 
   my $fg = $self->set_pen;
   my $style = $self->option('arrowstyle') || 'regular';
+  
+  my $img_class = $self->_image_class;
+  my $pkg       = $img_class . '::Polygon';
+  my $polygon   = $pkg->new();
+  
+  my $poly = $pkg->new();
+  if ($orientation >= 0) {
+    $poly->addPt($x-$height,$y-$height);
+    $poly->addPt($x,$y);
+    $poly->addPt($x-$height,$y+$height,$y);
+  } else {
+    $poly->addPt($x+$height,$y-$height);
+    $poly->addPt($x,$y);
+    $poly->addPt($x+$height,$y+$height,$y);
+  }
 
   if ($style eq 'filled') {
-    my $poly = new GD::Polygon;
-    if ($orientation >= 0) {
-      $poly->addPt($x-$height,$y-$height);
-      $poly->addPt($x,$y);
-      $poly->addPt($x-$height,$y+$height,$y);
-    } else {
-      $poly->addPt($x+$height,$y-$height);
-      $poly->addPt($x,$y);
-      $poly->addPt($x+$height,$y+$height,$y);
-    }
     $gd->filledPolygon($poly,$fg);
-  } else {
-    if ($orientation >= 0) {
-      $gd->line($x-$height,$y-$height,$x,$y,$fg);
-      $gd->line($x,$y,$x-$height,$y+$height,$fg);
-    } else {
-      $gd->line($x+$height,$y-$height,$x,$y,$fg);
-      $gd->line($x,$y,$x+$height,$y+$height,$fg);
-    }
   }
+  $gd->polygon($poly,$fg);
 }
 
 sub arrow {
