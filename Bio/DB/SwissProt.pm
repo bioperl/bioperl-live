@@ -126,7 +126,7 @@ sub _initialize {
 			  @args);    
 
     if( $format && $format !~ /swiss/i ) {
-	$self->warn("Requested Format $format is ignored because only SwissPort format is currently supported");
+	$self->warn("Requested Format $format is ignored because only SwissProt format is currently supported");
     } 
     $servertype = $DEFAULTSERVERTYPE unless $servertype;
     $hostlocation = $DEFAULTLOCATION unless( $hostlocation );    
@@ -166,7 +166,9 @@ sub get_request {
     my $uid;
     if( ref($uids) =~ /ARRAY/i ) {
 	$uid = $uids->[0];
-	$self->warn("Currently can only process 1 swiss prot request at a time -- only processing $uid");
+	if(scalar(@$uids) > 1) {
+	    $self->warn("Currently can only process 1 SwissProt request at a time -- only processing $uid");
+	}
     } else {
 	$uid = $uids;
     }
