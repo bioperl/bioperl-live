@@ -9,7 +9,7 @@ BEGIN {
 		use lib 't';
 	}
 	use Test;
-	plan tests => 103;
+	plan tests => 113;
 }
 
 use Bio::SimpleAlign;
@@ -24,15 +24,13 @@ END {
 			 Bio::Root::IO->catfile("t","data","testout.selex"),
 			 Bio::Root::IO->catfile("t","data","testout.pfam"),
 			 Bio::Root::IO->catfile("t","data","testout.msf"),
-			 Bio::Root::IO->catfile("t","data","testout.fasta"), 
+			 Bio::Root::IO->catfile("t","data","testout.fasta"),
 			 Bio::Root::IO->catfile("t","data","testout.clustal"),
 			 Bio::Root::IO->catfile("t","data","testout.phylip"),
 			 Bio::Root::IO->catfile("t","data","testout.nexus"),
 			 Bio::Root::IO->catfile("t","data","testout.mega"),
 			 Bio::Root::IO->catfile("t","data","testout.po"),
-			);
-	unlink(
-			 Bio::Root::IO->catfile("t","data","littleout.largemultifasta")
+			 Bio::Root::IO->catfile("t","data","testout.largemultifasta")
 			);
 }
 
@@ -291,7 +289,7 @@ ok ($aln->get_seq_by_pos(3)->description,
     " failed fasta input test for description");
 
 $strout = Bio::AlignIO->new('-file' => ">".Bio::Root::IO->catfile("t", "data",
-                                                                  "littleout.largemultifasta"),
+                                                                  "testout.largemultifasta"),
                             '-format' => 'largemultifasta');
 $status = $strout->write_aln($aln);
 ok $status, 1,"  failed fasta output test";
@@ -344,6 +342,7 @@ if( $^O ne 'darwin' || $] > 5.006 ) {
 }
 
 # MEME
+# this file has no Strand column
 ok $str = new Bio::AlignIO(
 		-file => Bio::Root::IO->catfile("t", "data", "test.meme"),
 		-format => 'meme'
@@ -352,3 +351,18 @@ ok defined($str) && ref($str) && $str->isa('Bio::AlignIO');
 ok $aln = $str->next_aln();
 ok $aln->length,25;
 ok $aln->no_sequences,4;
+ok $aln->get_seq_by_pos(3)->seq(),"CCTTAAAATAAAATCCCCACCACCA";
+ok $aln->get_seq_by_pos(3)->strand,"1";
+
+# this file has a Strand column
+ok $str = new Bio::AlignIO(
+		-file => Bio::Root::IO->catfile("t", "data", "test.meme2"),
+		-format => 'meme'
+								  );
+ok defined($str) && ref($str) && $str->isa('Bio::AlignIO');
+ok $aln = $str->next_aln();
+ok $aln->length,20;
+ok $aln->no_sequences,8;
+ok $aln->get_seq_by_pos(8)->seq(),"CCAGTCTCCCCTGAATACCC";
+ok $aln->get_seq_by_pos(7)->strand,"-1";
+ok $aln->get_seq_by_pos(6)->strand,"1";
