@@ -361,7 +361,7 @@ sub strand {
   if ($self->absolute) {
     return Bio::DB::GFF::RelSegment::_to_strand($self->{fstrand});
   }
-  return $self->SUPER::strand;
+  return $self->SUPER::strand || Bio::DB::GFF::RelSegment::_to_strand($self->{fstrand});
 }
 
 =head2 group
