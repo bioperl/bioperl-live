@@ -206,7 +206,8 @@ sub new {
     my ($class, @args ) = @_;
 
     my $self = $class->SUPER::new( @args );
-
+    # Initialize placeholders
+    $self->{'_queryGaps'} = $self->{'_sbjctGaps'} = 0;
     my ($raw_data, $qname, $hname, $qlen, $hlen);
 
     ($self->{'_prog'}, $self->{'_rank'}, $raw_data,
@@ -221,29 +222,31 @@ sub new {
     # _set_data() does a fair amount of parsing. 
     # This will likely change (see comment above.)
     $self->_set_data( @{$raw_data} );
-
     # Store the aligned query as sequence feature
-    my ($qb, $hb) = $self->start();
-    my ($qe, $he) = $self->end();
-    my ($qs, $hs) = $self->strand();
-    my ($f) = $self->frame();
+    my ($qb, $hb) = ($self->query->start(),
+		     $self->hit->start);
+    my ($qe, $he) = ($self->query->end,
+		     $self->hit->end());
+    my ($qs, $hs) = ($self->query->strand(),
+		     $self->hit->strand);
+    my ($qf,$hf) = ($self->query->frame(),
+		    $self->hit->frame);
 
-    $self->query( Bio::SeqFeature::Similarity->new (-start=>$qb, 
-						    -end=>$qe, 
-						    -strand=>$qs, 
-						    -frame=>$f, 
-						    -source=>$self->{'_prog'} ));
+    $self->query( Bio::SeqFeature::Similarity->new (-start   =>$qb, 
+						    -end     =>$qe, 
+						    -strand  =>$qs, 
+						    -bits    => $self->bits,
+						    -frame   =>$qf,
+						    -seq_id  => $qname,
+						    -source  =>$self->{'_prog'} ));
 
-    $self->hit( Bio::SeqFeature::Similarity->new (-start=>$hb, 
-						  -end=>$he, 
-						  -strand=>$hs, 
-                                                  -frame=>$f, 
-						  -source=>$self->{'_prog'} ));
-
-
-    # name the sequences
-    $self->query->seq_id($qname); # query
-    $self->hit->seq_id($hname); # subject
+    $self->hit( Bio::SeqFeature::Similarity->new (-start   =>$hb, 
+						  -end     =>$he, 
+						  -strand  =>$hs, 
+						  -bits    =>$self->bits,
+                                                  -frame   =>$hf, 
+						  -seq_id  => $hname,
+						  -source  =>$self->{'_prog'} ));
 
     # set lengths
     $self->query->seqlength($qlen); # query
@@ -251,14 +254,13 @@ sub new {
 
     $self->query->frac_identical($self->frac_identical('query'));
     $self->hit->frac_identical($self->frac_identical('hit'));
-
     return $self;
 }
 
-sub DESTROY {
-    my $self = shift; 
-    #print STDERR "--->DESTROYING $self\n";
-}
+#sub DESTROY {
+#    my $self = shift; 
+#    #print STDERR "--->DESTROYING $self\n";
+#}
 
 
 # Title   : _id_str; 
@@ -434,16 +436,16 @@ See Also   : L<length()|length>, L<matches()|matches>
 sub gaps {
 #---------
     my( $self, $seqType ) = @_;
-
+    
     $self->_set_seq_data() unless $self->{'_set_seq_data'};
 
     $seqType  ||= (wantarray ? 'list' : 'total');
     $seqType = 'sbjct' if $seqType eq 'hit';
-
+    
     if($seqType =~ /list|array/i) {
 	return (($self->{'_queryGaps'} || 0), ($self->{'_sbjctGaps'} || 0));
     }
-
+    
     if($seqType eq 'total') {
 	return ($self->{'_queryGaps'} + $self->{'_sbjctGaps'}) || 0;
     } else {
@@ -731,7 +733,6 @@ sub _set_data {
 	    push @sbjctList, $line;
 	}
     }
-
     # Storing the query and sbjct lists in case they are needed later.
     # We could make this conditional to save memory.
     $self->{'_queryList'} = \@queryList; 
@@ -748,7 +749,7 @@ sub _set_data {
     if(!scalar @queryList or !scalar @sbjctList) {
         my $id_str = $self->_id_str;
         $self->throw( "Can't find query or sbjct alignment lines. Possibly unrecognized Blast format. ($id_str)");
-      }
+    }
 }
 
 
@@ -808,13 +809,11 @@ sub _set_score_stats {
 		     -text => "Can't parse score statistics: unrecognized format. ($id_str)", 
 		     -value => $data);
     }
-
     $expect = "1$expect" if $expect =~ /^e/i;    
     $p      = "1$p"      if defined $p and $p=~ /^e/i; 
 
     $self->{'_expect'} = $expect;
-    $self->{'_p'}      = $p || undef;
-
+    $self->{'_p'}      = $p || undef;    
     $self->significance( $p || $expect );
 }
 
