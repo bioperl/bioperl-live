@@ -116,11 +116,12 @@ use constant FALSE   => 0;
 =head2 new
 
  Title   : new
- Usage   : $term = Bio::Ontology::Term->new( -identifier  => "16847",
-                                             -name        => "1-aminocyclopropane-1-carboxylate synthase",
-                                             -definition  => "Catalysis of ...",
-                                             -is_obsolete => 0,
-                                             -comment     => "" );
+ Usage   : $term = Bio::Ontology::Term->new( 
+                -identifier  => "16847",
+                -name        => "1-aminocyclopropane-1-carboxylate synthase",
+                -definition  => "Catalysis of ...",
+                -is_obsolete => 0,
+                -comment     => "" );
  Function: Creates a new Bio::Ontology::Term.
  Returns : A new Bio::Ontology::Term object.
  Args    : -identifier            => the identifier of this term [scalar]
@@ -131,7 +132,11 @@ use constant FALSE   => 0;
            -version               => version information [scalar]
            -is_obsolete           => the obsoleteness of this term [0 or 1]
            -comment               => a comment [scalar]
-
+           -dblinks               => L<Bio::Annotation::DBLink> objects
+                                     [reference to array] 
+           -references            => L<Bio::Annotation::Reference> objects
+                                     [reference to array]
+                                     
 =cut
 
 sub new {
@@ -139,7 +144,11 @@ sub new {
     my( $class,@args ) = @_;
 
     my $self = $class->SUPER::new( @args );
+#    return $self;
+#}
 
+#sub _initialize {
+#    my ($self, @args) =@_;
     my ( $identifier,
          $name,
          $definition,
@@ -148,7 +157,7 @@ sub new {
          $version,
          $is_obsolete,
          $comment,
-	 $dblinks)
+	 $dblinks, $references)
 	= $self->_rearrange( [ qw( IDENTIFIER
 				   NAME
 				   DEFINITION
@@ -157,7 +166,7 @@ sub new {
 				   VERSION
 				   IS_OBSOLETE
 				   COMMENT
-                                   DBLINKS
+                                   DBLINKS REFERENCES
                                  ) ], @args );
 
     $self->init();
@@ -171,9 +180,9 @@ sub new {
     defined($is_obsolete)  && $self->is_obsolete( $is_obsolete );
     $comment               && $self->comment( $comment  );
     ref($dblinks)          && $self->add_dblink(@$dblinks);
+    ref($references)       && $self->add_reference(@$references);
 
-    return $self;
-
+return $self;
 } # new
 
 
@@ -490,6 +499,60 @@ sub remove_dblinks {
     return @a;
 
 } # remove_dblinks
+
+
+=head2 get_references
+
+  Title   : get_references
+  Usage   : @references = $self->get_references
+  Fuctnion: Returns a list of references
+  Return  : A list of objects
+  Args    : [none]
+
+=cut
+
+sub get_references {
+    my $self=shift;
+    return @{$self->{_references}} if exists $self->{_references};
+    return ();
+}
+
+=head2 add_reference
+
+  Title   : add_reference
+  Usage   : $self->add_reference($reference);
+            $self->add_reference($reference1, $reference2);
+  Fuctnion: Add one or more references
+  Returns : [none]
+  
+=cut
+
+sub add_reference {
+    my ($self, @values) =@_;
+    return unless @values;
+    # Avoid duplicates
+    foreach my $reference (@values){
+        next if grep{$_ eq $reference} @{$self->{_references}};
+        push @{$self->{_references}}, $reference;
+    }
+}
+
+=head2 remove_references
+
+  Title   : remove_references
+  Usage   : $self->remove_references;
+  Function: Deletes (and returns) all references
+  Returns : A list of references
+  Args    : [none]
+
+=cut
+
+sub remove_references {
+    my $self=shift;
+    my @references=$self->get_references;
+    $self->{_references}=[];
+    return @references;
+}
 
 =head2 get_secondary_ids
 
