@@ -836,6 +836,8 @@ sub all_tags {
   }
   @tags;
 }
+*get_all_tags = \&all_tags;
+
 sub has_tag {
   my $self = shift;
   my $tag  = shift;
