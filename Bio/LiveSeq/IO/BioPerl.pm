@@ -62,7 +62,7 @@ methods. Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::LiveSeq::IO::BioPerl;
-$VERSION=2.22;
+$VERSION=2.3;
 
 # Version history:
 # Thu Apr  6 00:25:46 BST 2000 v 1.0 begun
@@ -71,6 +71,7 @@ $VERSION=2.22;
 # Thu Apr 20 02:17:28 BST 2000 v 2.1 mRNA added to valid_feature_names
 # Tue Jul  4 14:07:52 BST 2000 v 2.11 note&number added in val_qual_names
 # Fri Sep 15 15:41:02 BST 2000 v 2.22 novelaasequence2gene now works without SRS
+# Mon Jan 29 17:40:06 EST 2001 v 2.3 made it work with the new split_location of BioPerl 0.7
 
 # TODO->TOCHECK
 # each_secondary_access not working
@@ -230,9 +231,13 @@ sub embl2hash {
       #print "skipping $feature_name\n";
       next;
     }
-    if ($feature_name eq "CDS_span") { # case of CDS with various exons
-      $feature_name="CDS";
-      @subfeat=$feat->sub_SeqFeature;
+# works ok with 0.6.2
+#    if ($feature_name eq "CDS_span") { # case of CDS with various exons 0.6.2
+#      $feature_name="CDS"; # 0.6.2
+    my $featlocation=$feat->location; # 0.7
+    if (($feature_name eq "CDS")&&($featlocation->isa('Bio::Location::SplitLocationI'))) { # case of CDS with various exons BioPerl 0.7
+#      @subfeat=$feat->sub_SeqFeature; # 0.6.2
+      @subfeat=$featlocation->sub_Location(); # 0.7
       my @transcript;
       foreach $subfeat (@subfeat) {
 	my @range;
@@ -251,7 +256,8 @@ sub embl2hash {
       } else {
 	@range=($feat->start,$feat->end,$feat->strand);
       }
-      if ($feature_name eq "CDS") { # case of single exon CDS
+# works ok with 0.6.2
+      if ($feature_name eq "CDS") { # case of single exon CDS (CDS name but not split location)
 	my @transcript=(\@range);
 	$feature{range}=\@transcript;
       } else { # all other range features

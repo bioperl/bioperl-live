@@ -43,8 +43,8 @@ exit;
 
     print STDERR "Now issuing mutations to the gene....\n";
 
-    my $mutation = new Bio::LiveSeq::Mutation (-seq =>'G',
-				       -pos => 100,
+    my $mutation = new Bio::LiveSeq::Mutation (-seq =>'A',
+				       -pos => 64
 				       );
     my $mutate = Bio::LiveSeq::Mutator->new(-gene => $gene,
 					 -numbering => "coding"
