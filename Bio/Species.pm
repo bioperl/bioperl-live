@@ -91,11 +91,18 @@ sub _initialize {
            @classification = $self->classification();
  Function: Fills or returns the classifcation list in
            the object.  The array provided must be in
-           the order SPECIES, GENUS ---> KINGDOM.
-           The first element of the array, the species,
-           must be in lower case, and the rest in title
+           the order SUBSPECIES, SPECIES, GENUS ---> KINGDOM.
+           The first and second element of the array, the subspecies and
+           species, must be in lower case, and the rest in title
            case.  Only species must be present.
- Example : $self->classification(qw( sapiens Homo Hominidae
+
+           Note that the format convention given above has changed after 
+           release 0.60. Formerly, SUBSPECIES was not necessary. In order to
+           break as few scripts as possible, the method tries to recognize
+           whether or not the subspecies is provided, given that the rest
+           is given in correct case. This is the reason that the example given
+           below is still valid.
+ Example : $obj->classification(qw( sapiens Homo Hominidae
            Catarrhini Primates Eutheria Mammalia Vertebrata
            Chordata Metazoa Eukaryota));
  Returns : Classification array
@@ -107,26 +114,40 @@ sub _initialize {
 
 sub classification {
     my $self = shift;
+
     if (@_) {
         my @classification = @_;
         
+	# Try to be smart and check whether someone may have omitted the
+	# supspecies, but provided everything else in correct case spelling.
+	# Likewise, providing the subspecies alone obviously doesn't make
+	# sense, so it's probably the species.
+	# HL <Hilmar.Lapp@pharma.novartis.com>
+	if(scalar(@classification) == 0) {
+	    $self->throw("no elements in classification: " .
+			 "must at least supply species name");
+	} elsif((scalar(@classification) == 1) ||
+		(($classification[0] =~ /^[a-z].*/) &&
+		 ($classification[1] =~ /^[A-Z][a-z].*/))) {
+	    # looks like subspecies has been omitted, so add it
+	    unshift(@classification, '');
+	}
         # Check the names supplied in the classification string
         {
             # Species should be in lower case
-            my $species = $classification[0];
+            my $species = $classification[1];
             $self->validate_species_name( $species );
 
             # All other names must be in title case
-            for (my $i = 1; $i < @classification; $i++) {
+            for (my $i = 2; $i < @classification; $i++) {
                 $self->validate_name( $classification[$i] );
             }
         }
-        
+
         # Store classification
         $self->{'classification'} = [ @classification ];
-    } else {
-        return @{$self->{'classification'}};
     }
+    return @{$self->{'classification'}};
 }
 
 =head2 
@@ -191,9 +212,9 @@ sub species {
     
     if ($species) {
         $self->validate_species_name( $species );
-        $self->{'classification'}[0] = $species;
+        $self->{'classification'}[1] = $species;
     } else {
-        return $self->{'classification'}[0];
+        return $self->{'classification'}[1];
     }
 }
 
@@ -209,13 +230,12 @@ sub species {
 =cut
 
 sub sub_species{
-   my $obj = shift;
+   my $self = shift;
    if( @_ ) {
       my $value = shift;
-      $obj->{'sub_species'} = $value;
+      $self->{'classification'}[0] = $value;
     }
-    return $obj->{'sub_species'};
-
+    return $self->{'classification'}[0];
 }
 
 =head2 genus
@@ -237,9 +257,9 @@ sub genus {
     
     if ($genus) {
         $self->validate_name( $genus );
-        $self->{'classification'}[1] = $genus;
+        $self->{'classification'}[2] = $genus;
     } else {
-        return $self->{'classification'}[1];
+        return $self->{'classification'}[2];
     }
 
 }
@@ -248,17 +268,24 @@ sub genus {
 
  Title   : binomial
  Usage   : $binomial = $self->binomial();
- Function: Returns a string "Genus species"
- Args    : None
+           $binomial = $self->binomial('FULL');
+ Function: Returns a string "Genus species", or "Genus species subspecies",
+           the first argument is 'FULL'.
+ Args    : Optionally the string 'FULL' to get the full name including the
+           the subspecies.
 
 =cut
 
 
 sub binomial {
-    my( $self ) = @_;
+    my( $self, $full ) = @_;
     
-    my( $species, $genus ) = $self->classification();
-    return "$genus $species";
+    my( $ssp, $species, $genus ) = $self->classification();
+    if(defined($full) && ($full eq 'FULL')) {
+	return "$genus $species $ssp";
+    } else {
+	return "$genus $species";
+    }
 }
 
 sub validate_species_name {
