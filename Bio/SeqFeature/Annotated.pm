@@ -323,7 +323,7 @@ sub add_Annotation {
 
 =cut
 
-sub remove_Annotation {
+sub remove_Annotations {
   my ($self,@args) = @_;
   return $self->annotation->remove_Annotations(@args);
 }
