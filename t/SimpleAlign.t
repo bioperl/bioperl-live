@@ -52,7 +52,7 @@ close(IN);
 
 ok ( $aln );
 
-unlink('t/out.pfam');
+unlink('t/out.pfam', 't/out.aln_fasta');
 
 
 
