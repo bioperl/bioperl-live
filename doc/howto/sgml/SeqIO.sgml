@@ -95,7 +95,7 @@ For the most part no, let SeqIO take care of these details.
       <para>
 	Lots of bioinformatics involves processing sequence information in different formats - indeed,
 	there often seems to be about as many formats as there are programs for
-	processing them. The Bio::SeqIO systems handles sequences of many different formats
+	processing them. The Bio::SeqIO system handles sequences of many different formats
 	and is the way Bioperl pushes sequences in and out of objects. You can
 	think of the Bio::SeqIO system as "a smart filehandle for sequences".
       </para>
@@ -124,7 +124,7 @@ For the most part no, let SeqIO take care of these details.
 the sequence information contained within it. What SeqIO does is create a Handle, 
 or take a given Handle, and parse it into SeqI compliant objects, one for each 
 entry at a time. It also knows, for each of the supported formats, things like 
-which record-separator (e.g. "||" for Genbank, ">header" for fasta,
+which record-separator (e.g. "//" for Genbank, ">header" for fasta,
 	etc.) to use, and most importantly, how to parse their key-value based information. SeqIO does all 
 of this for you, so that you can focus on the things you want to do with the 
 information, rather than worrying about how to get the information.
@@ -427,7 +427,7 @@ file into an array:
      # use a lot of memory
  
      my $seq;
-     my @seq_array();
+     my @seq_array;
      while( $seq = $seq_in->next_seq() ) {
         push(@seq_array,$seq);
      }
@@ -479,8 +479,8 @@ file into an array:
                                         '-format' => $outfileformat);
 
           # write each entry in the input file to the output file
-          while (my $inseq = $seqin->next_seq) {
-             $seqout->write_seq($inseq);
+          while (my $inseq = $seq_in->next_seq) {
+             $seq_out->write_seq($inseq);
           }
           exit;
      </programlisting>                          
@@ -537,14 +537,14 @@ STDIN, meaning it could be used like this:
                              
      # create one SeqIO object to read in, and another to write out
      # *STDIN is a 'globbed' filehandle with the contents of Standard In
-     my $seqin = Bio::SeqIO->new('-fh' => *STDIN,
-                                 '-format' => $informat);
-     my $seqout = Bio::SeqIO->new('-file' => ">$outfile",
-                                  '-format' => $outformat);
+     my $seqin = Bio::SeqIO->new(-fh     => *STDIN,
+                                 -format => $informat);
+     my $seqout = Bio::SeqIO->new(-file   => ">$outfile",
+                                  -format => $outformat);
                               
      # write each entry in the input file to the output file
      while (my $inseq = $seqin->next_seq) {
-          $outseq->write_seq($inseq);
+          $seqout->write_seq($inseq);
      }
      exit;
      </programlisting>
@@ -571,10 +571,10 @@ STDIN, meaning it could be used like this:
      my $outformat = shift or die $usage;
      
      # create one SeqIO object to read in, and another to write out
-     my $seqin = Bio::SeqIO->new('-fh' => *STDIN,
-                                 '-format' => $informat);
-     my $seqout = Bio::SeqIO->new('-fh' => *STDOUT,
-                                  '-format' => $outformat);
+     my $seqin = Bio::SeqIO->new(-fh     => *STDIN,
+                                 -format => $informat);
+     my $outseq = Bio::SeqIO->new(-fh     => *STDOUT,
+                                  -format => $outformat);
 
      # write each entry in the input to the output
      while (my $inseq = $seqin->next_seq) {
@@ -606,8 +606,8 @@ a variable, and also pulls the format definition into another variable.
         # get a string into $string somehow, with its format in 
         # $format, say from a web form
         my $stringfh = new IO::String($string);
-        my $seqio = new Bio::SeqIO(-fh => $stringfh,
-                                   -format => $format);
+        my $seqio = Bio::SeqIO-> new(-fh     => $stringfh,
+                                     -format => $format);
 
         while( my $seq = $seqio->next_seq ) {
              # process each seq
@@ -626,8 +626,8 @@ format, to a string. The code would look something like this:
        
        my $str;
        my $io = IO::String->new(\$str);
-       my $seqOut = new Bio::SeqIO(-format =>'swiss', 
-                                   -fh => $io);
+       my $seqOut = Bio::SeqIO->new(-format => 'swiss', 
+                                    -fh     => $io );
        $seqOut->write_seq($seq_obj);
        print $str;
 </programlisting>
@@ -661,7 +661,7 @@ takes a gzipped file of a given format and writes out a FASTA file,
       my $usage = "gzip2fasta.pl infile informat outfile\n";
       my $infile = shift or die $usage;
       my $informat = shift or die $usage;
-      my $outformat = shift or die $usage;
+      my $outfile = shift or die $usage;
                               
       # create one SeqIO object to read in, and another to write out
       my $seqin = Bio::SeqIO->new(-file   => "/usr/local/bin/gunzip -c $infile |",
@@ -672,7 +672,7 @@ takes a gzipped file of a given format and writes out a FASTA file,
 
       # write each entry in the input to the output file
       while (my $inseq = $seqin->next_seq) {
-            $outseq->write_seq($inseq);
+            $seqout->write_seq($inseq);
       }
       exit;
   </programlisting>
@@ -704,15 +704,15 @@ and write it directly to a WashU Blastable Database, without ever
      my $outdbtype = shift or die $usage;
                               
      # create one SeqIO object to read in, and another to write out
-     my $seqin = Bio::SeqIO->new('-file' => "&lt;$infile",
-                                 '-format' => $informat);
-     my $seqout = Bio::SeqIO->new('-file' => 
+     my $seqin = Bio::SeqIO->new(-file   => "&lt;$infile",
+                                 -format => $informat);
+     my $seqout = Bio::SeqIO->new(-file => 
         "| /usr/local/bin/xdformat -o $outdbname -${outdbtype} -- -",
-                                  '-format' => 'Fasta');
+                                  -format => 'Fasta');
 
      # write each entry in the input to the output
      while (my $inseq = $seqin->next_seq) {
-            $outseq->write_seq($inseq);
+            $seqout->write_seq($inseq);
      }
      exit;
 	</programlisting>
@@ -835,10 +835,10 @@ Because Bioperl uses a single, generalized data structure to hold sequences from
 little common sense is necessary when using the system. For example, a person who 
 takes a flat file pulled directly from Genbank, and converts it to another Genbank 
 file with Bioperl, will be surprised to find subtle differences between the two files
-(try "diff origfile newfile" to see what we are talking about).  Just remember when using Bioperl that it was never designed to "round trip" your favorite formats.  Rather, it 
+- try "diff origfile newfile" to see what we are talking about.  Just remember when using Bioperl that it was never designed to "round trip" your favorite formats.  Rather, it 
 was designed to store sequence data from many widely different formats into a common 
-framework, and make that framework available to other sequence manipulation tasks in a
-programmatic fashion.
+object framework and make that framework available to other sequence
+ manipulation tasks in a programmatic fashion.
 </para>
 </section>
 
@@ -847,7 +847,7 @@ programmatic fashion.
       <para>
 	If you gave an impossible filename to the first script, it
 	would have in fact died with an informative error message. In 
-	object-oriented jargon, this is called "throwing an exception".
+	programming jargon, this is called "throwing an exception".
 	An example would look like:
 </para>	
 <para>	
