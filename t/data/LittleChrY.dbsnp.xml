@@ -89,6 +89,62 @@
         <NSE-ss>
           <NSE-ss_handle>OEFNER</NSE-ss_handle>
           <NSE-ss_batch-id>489</NSE-ss_batch-id>
+          <NSE-ss_subsnp-id>3934</NSE-ss_subsnp-id>
+          <NSE-ss_loc-snp-id>M6</NSE-ss_loc-snp-id>
+          <NSE-ss_subsnp-class value="snp"/>
+          <NSE-ss_orient value="forward"/>
+          <NSE-ss_build-id>36</NSE-ss_build-id>
+          <NSE-ss_method-class value="dhplc"/>
+          <NSE-ss_accession>
+            <NSE-ss_accession_E>G12036</NSE-ss_accession_E>
+            <NSE-ss_accession_E>G12036</NSE-ss_accession_E>
+          </NSE-ss_accession>
+          <NSE-ss_comment>
+            <NSE-ss_comment_E>DHPLC Temp. 55#251C; Gradient: 50-56%B in 0.5min, 56-61.5%B in 3 min.</NSE-ss_comment_E>
+          </NSE-ss_comment>
+          <NSE-ss_genename> </NSE-ss_genename>
+          <NSE-ss_assay-5>
+            <NSE-ss_assay-5_E>CACTACCACATTTCTGGTTGGCTTGTAGTTCTTTCT</NSE-ss_assay-5_E>
+          </NSE-ss_assay-5>
+          <NSE-ss_observed>T/C</NSE-ss_observed>
+          <NSE-ss_assay-3>
+            <NSE-ss_assay-3_E>GGAAAAATATTATTCTAATTTCCTTATAGTATTAGCCATCAAAGTAGGGGAAGCAGATCAAATCTACCATAAGACCAAGTCATAGGAAGAAGATCAAATTAAGATGCTAGGCAAAAGTCTCAGCACATATGGATTATGAGAAGCACATTCACACATCCAAACTCAAAGAATGGACTCAGCG</NSE-ss_assay-3_E>
+          </NSE-ss_assay-3>
+          <NSE-ss_pop-info>
+            <NSE-ss-popinfo>
+              <NSE-ss-popinfo_type>ALE</NSE-ss-popinfo_type>
+              <NSE-ss-popinfo_batch-id>490</NSE-ss-popinfo_batch-id>
+              <NSE-ss-popinfo_pop-name>Global</NSE-ss-popinfo_pop-name>
+              <NSE-ss-popinfo_pop-id>481</NSE-ss-popinfo_pop-id>
+              <NSE-ss-popinfo_samplesize>718</NSE-ss-popinfo_samplesize>
+              <NSE-ss-popinfo_est-het>0.0138310398906469</NSE-ss-popinfo_est-het>
+              <NSE-ss-popinfo_est-het-se-sq>0.0000749218233977444</NSE-ss-popinfo_est-het-se-sq>
+            </NSE-ss-popinfo>
+          </NSE-ss_pop-info>
+          <NSE-ss_allele-info>
+            <NSE-ss-alleinfo>
+              <NSE-ss-alleinfo_type>ALE</NSE-ss-alleinfo_type>
+              <NSE-ss-alleinfo_batch-id>490</NSE-ss-alleinfo_batch-id>
+              <NSE-ss-alleinfo_pop-id>481</NSE-ss-alleinfo_pop-id>
+              <NSE-ss-alleinfo_snp-allele>C</NSE-ss-alleinfo_snp-allele>
+              <NSE-ss-alleinfo_other-allele> </NSE-ss-alleinfo_other-allele>
+              <NSE-ss-alleinfo_freq>0.00696399994194508</NSE-ss-alleinfo_freq>
+              <NSE-ss-alleinfo_count>5</NSE-ss-alleinfo_count>
+            </NSE-ss-alleinfo>
+            <NSE-ss-alleinfo>
+              <NSE-ss-alleinfo_type>ALE</NSE-ss-alleinfo_type>
+              <NSE-ss-alleinfo_batch-id>490</NSE-ss-alleinfo_batch-id>
+              <NSE-ss-alleinfo_pop-id>481</NSE-ss-alleinfo_pop-id>
+              <NSE-ss-alleinfo_snp-allele>T</NSE-ss-alleinfo_snp-allele>
+              <NSE-ss-alleinfo_other-allele> </NSE-ss-alleinfo_other-allele>
+              <NSE-ss-alleinfo_freq>0.993035972118378</NSE-ss-alleinfo_freq>
+              <NSE-ss-alleinfo_count>713</NSE-ss-alleinfo_count>
+            </NSE-ss-alleinfo>
+          </NSE-ss_allele-info>
+        </NSE-ss>
+        <NSE-ss>
+          <NSE-ss_handle>ALLENDAY</NSE-ss_handle>
+          <NSE-ss_batch-id>489</NSE-ss_batch-id>
           <NSE-ss_subsnp-id>3931</NSE-ss_subsnp-id>
           <NSE-ss_loc-snp-id>M3</NSE-ss_loc-snp-id>
           <NSE-ss_subsnp-class value="snp"/>
