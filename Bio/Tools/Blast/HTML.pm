@@ -31,7 +31,7 @@ use Bio::Tools::WWW  qw(:obj);
 use Carp;
 
 use vars qw( @ISA @EXPORT @EXPORT_OK %EXPORT_TAGS
-             $ID $VERSION %DbUrl %SGDUrl $Revision
+             $ID %DbUrl %SGDUrl $Revision
 	     $Acc $Pir_acc $Word $Signif $Int $Descrip);
 
 @ISA        = qw(Exporter);
@@ -40,7 +40,6 @@ use vars qw( @ISA @EXPORT @EXPORT_OK %EXPORT_TAGS
 %EXPORT_TAGS = ( std => [qw(&get_html_func  &strip_html)] );
 
 $ID = 'Bio::Tools::Blast::HTML';
-$VERSION  = 0.076; 
 $Revision = '$Id$';  #'
 
 my $_set_markup = 0;
@@ -142,13 +141,9 @@ via email or the web:
 
 Steve A. Chervitz, sac@genome.stanford.edu
 
-=head1 VERSION
-
-Bio::Tools::Blast::HTML.pm, 0.076
-
 =head1 COPYRIGHT
 
-Copyright (c) 1998 Steve A. Chervitz. All Rights Reserved.
+Copyright (c) 1998-2000 Steve A. Chervitz. All Rights Reserved.
 This module is free software; you can redistribute it and/or 
 modify it under the same terms as Perl itself.
 
