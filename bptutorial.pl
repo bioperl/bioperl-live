@@ -948,6 +948,7 @@ based on actual content. Here is the current set of suffixes:
    Locuslink                               LL_tmpl format
    qual                                    Phred quality file
    chado                                   Chado XML
+   tinyseq                                 NCBI TinySeq XML
    exp        exp                          Staden experiment file
    abi*       abi                          ABI tracefile
    alf*       alf                          ALF tracefile

@@ -205,6 +205,7 @@ Specify the format of the file.  Supported formats include:
    swiss       Swissprot format
    tab         tab-delimited
    tigr        TIGR XML format
+   tinyseq     NCBI TinySeq XML
 
 If no format is specified and a filename is given then the module
 will attempt to deduce the format from the filename suffix.  If this

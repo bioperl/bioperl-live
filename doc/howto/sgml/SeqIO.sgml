@@ -264,6 +264,11 @@ Here is a current listing of formats, as of version 1.4.
 		<entry>TIGR XML</entry>
 		<entry></entry>
 	      </row>
+	      <row>
+		<entry>tinyseq</entry>
+		<entry>NCBI TinySeq XML</entry>
+		<entry></entry>
+	      </row>
 	   <row>
 		<entry>ztr</entry>
 		<entry>ZTR tracefile</entry>
