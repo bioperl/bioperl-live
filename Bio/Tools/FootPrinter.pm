@@ -146,26 +146,27 @@ sub _add_feature {
 sub _parse_predictions {
   my ($self) = @_;
   $/="";
-  my ($seq,$third,$name);
+  my ($seq,$second,$third,$name);
   while ($_ = $self->_readline) {
     chomp;
     my @array = split("\n",$_);
     if($#array == 3){
         if($name){
             $name=~s/>//;
-            my $feat = $self->_parse($name,$seq,$third);
+            my $feat = $self->_parse($name,$seq,$second,$third);
             $self->_add_feature($feat);
         }
-        $name = shift @array;
-        $seq=$array[0];
-        $third=$array[2];
+        $name    = shift @array;
+        $seq     = $array[0];
+	$second  = $array[1];
+        $third   = $array[2];
         next;
     }
-    $seq.=$array[0];
-    $third.=$array[2];
+    $seq        .= $array[0];
+    $third      .= $array[2];
   }
   $name=~s/>//;
-  my $feat = $self->_parse($name,$seq,$third);
+  my $feat = $self->_parse($name,$seq,$second,$third);
   $self->_add_feature($feat);
 
   $self->_predictions_parsed(1);
@@ -201,54 +202,71 @@ sub _predictions_parsed {
 =cut
 
 sub _parse {
-  my ($self,$name,$seq,$pattern) = @_;
-    my @char = split('',$pattern);
-    my $prev;
-   my $word;
-    my @words;
-    foreach my $c(@char){
-        if(!$word){
+    my ($self,$name,$seq,$score,$pattern) = @_;
+    my @char  = split('',$pattern);
+    my @score = split('',$score);
+
+    my ($prev,$word,@words,@word_scores,$word_score);
+
+    my $i = 0;
+    for my $c ( @char ) {
+        if( ! $word) {
             $word .= $c;
             $prev = $c;
-            next;
-        }
-        if ($c eq $prev){
-          $word.=$c;
-          $prev = $c;
-        }
-        else {
-            #remove words with only \s
+	    defined $score[$i] && 
+		($score[$i] =~ /\d/) && ($word_score += $score[$i]);
+        } elsif ($c eq $prev){
+	    $word .=$c;
+	    $prev  = $c;
+	    defined $score[$i] && 
+		($score[$i] =~ /\d/) && ($word_score += $score[$i]);
+        } else {
+            # remove words with only \s
             $word=~s/\s+//g;
             if ($word ne ''){
-              push @words, $word;
+		push @words, $word;
+		push @word_scores, ($word_score/length($word));
             }
-            $word=$c;
-           $prev = $c;
-           
+            $word =$c;
+	    $prev = $c;
+	    $word_score = 0;
+	    defined $score[$i] &&
+		($score[$i] =~ /\d/) && ($word_score += $score[$i]);
         }
+	$i++;
     }
-    $word=~s/\s+//g;
-    if($word ne ''){
-      push @words, $word;
+    $word =~s/\s+//g;
+    if( length($word) ){
+	push @words, $word;
     }
     my $last;
     my $feat = new Bio::SeqFeature::Generic(-seq_id=>$name);
-    my $offset=0;
-    foreach my $w(@words){
-        if($w !~ /^$/){
-          my $index = index($pattern,$w,$offset);
-          $offset = $index + length($w);
-          my $subfeat = new Bio::SeqFeature::Generic ( -seq_id=>$name,
-                                                    -start => $index+1, 
-                                                    -end =>$index+length($w),
-                                                    -source=>"FootPrinter");
-          $feat->add_sub_SeqFeature($subfeat,'EXPAND');
+    my $offset = $i = 0;
+    my $count = 1;
+    for my $w (@words){
+        if(length($w) ) { 
+	    my $index = index($pattern,$w,$offset);
+	    $offset = $index + length($w);
+	    my $subfeat = new Bio::SeqFeature::Generic 
+		( -seq_id  =>"$name-motif".$count++,
+		  -start   => $index+1, 
+		  -end     => $index+length($w),
+		  -source  =>"FootPrinter",
+		  -score   => $word_scores[$i]
+		  );
+	    # ugh - not sure the sub_SeqFeature situation will
+	    # be around forever- things should probably be
+	    # grouped by a 'group' tag instead ala GFF3 
+	    # perhaps when Lincoln's API changes are 
+	    # made to SeqFeatures this will get changed
+	    $feat->add_sub_SeqFeature($subfeat,'EXPAND');
         }
+	$i++;
     }
     my $priseq = Bio::PrimarySeq->new(-id=>$name,-seq=>$seq);
     $feat->attach_seq($priseq);
     return $feat;
-    
+
 }
 
 1;
