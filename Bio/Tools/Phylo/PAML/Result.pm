@@ -16,11 +16,11 @@ Bio::Tools::Phylo::PAML::Result - A PAML result set object
 
 =head1 SYNOPSIS
 
-Give standard usage here
+  # see Bio::Tools::Phylo::PAML for example usage
 
 =head1 DESCRIPTION
 
-Describe the object here
+This is a container object for PAML Results.
 
 =head1 FEEDBACK
 
@@ -68,9 +68,9 @@ package Bio::Tools::Phylo::PAML::Result;
 use vars qw(@ISA);
 use strict;
 
-
 use Bio::Root::Root;
 use Bio::AnalysisResultI;
+
 @ISA = qw(Bio::Root::Root Bio::AnalysisResultI);
 
 =head2 new
@@ -91,7 +91,7 @@ use Bio::AnalysisResultI;
            -aafreq    => Hashref of AA frequencies (only for AAML)
            -aadistmat => Bio::Matrix::PhylipDist   (only for AAML)
            -aamldistmat => Bio::Matrix::PhylipDist   (only for pairwise AAML)
-
+           -NSSitesresult => arrayref of PAML::ModelResult 
 =cut
 
 sub new {
@@ -103,12 +103,14 @@ sub new {
       $codonpos,$codonfreq,$version,
       $model,$patterns, $stats,
       $aafreq, $aadistmat, 
-      $aamldistmat ) = $self->_rearrange([qw(TREES MLMATRIX 
-					   SEQS NGMATRIX
-					   CODONPOS CODONFREQ
-					   VERSION MODEL PATTERNS
-					   STATS AAFREQ AADISTMAT
-					   AAMLDISTMAT)], 
+      $aamldistmat,
+      $NSSitesresults ) = $self->_rearrange([qw(TREES MLMATRIX 
+						SEQS NGMATRIX
+						CODONPOS CODONFREQ
+						VERSION MODEL PATTERNS
+						STATS AAFREQ AADISTMAT
+						AAMLDISTMAT 
+						NSSITESRESULTS)], 
 				       @args);
   $self->reset_seqs;
   if( $trees ) {
@@ -150,7 +152,7 @@ sub new {
       if( ref($codonfreq) =~ /ARRAY/i ) {
 	  $self->set_CodonFreqs($codonfreq);
       } else { 
-	  $self->warn("Must have provided a valid hash reference to initialize codonfreq");
+	  $self->warn("Must have provided a valid array reference to initialize codonfreq");
       }
   }
 
@@ -192,6 +194,16 @@ sub new {
   }
   $self->set_AADistMatrix($aadistmat) if defined $aadistmat;
   $self->set_AAMLDistMatrix($aamldistmat) if defined $aamldistmat;
+
+  if( defined $NSSitesresults ) {
+      if( ref($NSSitesresults) !~ /ARRAY/i ) {
+	  $self->warn("expected an arrayref for -NSSitesresults");
+      } else { 
+	  foreach my $m ( @$NSSitesresults ) {
+	      $self->add_NSSite_result($m);
+	  }
+      }
+  }
   return $self;
 }
 
@@ -667,5 +679,76 @@ sub set_AAMLDistMatrix{
    $self->{'_AAMLDistMatix'} = $d;
    return undef;
 }
+
+=head2 add_NSSite_result
+
+ Title   : add_NSSite_result
+ Usage   : $result->add_NSSite_result($model)
+ Function: Add a NSsite result (PAML::ModelResult)
+ Returns : none
+ Args    : Bio::Tools::Phylo::PAML::ModelResult
+
+
+=cut
+
+sub add_NSSite_result{
+   my ($self,$model) = @_;
+   if( defined $model ) {
+       push @{$self->{'_nssiteresult'}}, $model;
+   }
+   return scalar @{$self->{'_nssiteresult'}};
+}
+
+=head2 get_NSSite_results
+
+ Title   : get_NSSite_results
+ Usage   : my @results = @{$self->get_NSSite_results};
+ Function: Get the reference to the array of NSSite_results
+ Returns : Array of PAML::ModelResult results
+ Args    : none
+
+
+=cut
+
+sub get_NSSite_results{
+   my ($self) = @_;
+   return @{$self->{'_nssiteresult'}};
+}
+
+=head2 set_CodonFreqs
+
+ Title   : set_CodonFreqs
+ Usage   : $obj->set_CodonFreqs($newval)
+ Function: 
+ Example : 
+ Returns : value of set_CodonFreqs (a scalar)
+ Args    : on set, new value (a scalar or undef, optional)
+
+
+=cut
+
+sub set_CodonFreqs{
+    my $self = shift;
+
+    return $self->{'_codonfreqs'} = shift if @_;
+    return $self->{'_codonfreqs'};
+}
+
+=head2 get_CodonFreqs
+
+ Title   : get_CodonFreqs
+ Usage   : my @codon_freqs = $result->get_CodonFreqs() 
+ Function: Get the Codon freqs
+ Returns : Array
+ Args    : none
+
+
+=cut
+
+sub get_CodonFreqs{
+   my ($self) = @_;
+   return @{$self->{'_codonfreqs'} || []};
+}
+
 
 1;

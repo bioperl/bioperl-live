@@ -170,6 +170,7 @@ use Bio::TreeIO;
 use Bio::Tools::Phylo::PAML::Result;
 use Bio::PrimarySeq;
 use Bio::Matrix::PhylipDist;
+use Bio::Tools::Phylo::PAML::ModelResult;
 
 =head2 new
 
@@ -226,7 +227,7 @@ sub next_result {
     # OK, depending on seqtype and runmode now, one of a few things can happen:
     my $seqtype = $self->{'_summary'}->{'seqtype'};
     if ($seqtype eq 'CODONML' || $seqtype eq 'AAML') {
-	while (defined ($_ = $self->_readline)) {	    
+	while (defined ($_ = $self->_readline)) {
 	    if ($seqtype eq 'CODONML' && 
 		m/^pairwise comparison, codon frequencies:/o) {
 
@@ -234,7 +235,6 @@ sub next_result {
 		$self->_pushback($_);
 		%data = $self->_parse_PairwiseCodon;
 		last;
-
 	    } elsif ($seqtype eq 'AAML' && m/^ML distances of aa seqs\.$/o) {
 		$self->_pushback($_);
 		# get AA distances
@@ -243,22 +243,14 @@ sub next_result {
 		# $self->_pushback($_);
 		# %data = $self->_parse_PairwiseAA;
 		# last;	    
-	    } elsif (m/^Model \d+: /o) {
-
-		# NSSitesBatch
-		$self->throw( -class => 'Bio::Root::NotImplemented',
-			      -text  => "NSsitesBatch not yet implemented!"
-			      );
-
-		# $self->_pushback($_);
-		# %data = $self->_parse_NSsitesBatch;
-		# last;
-
+	    } elsif (m/^Model\s+(\d+)/o) {
+		$self->_pushback($_);
+		my $model = $self->_parse_NSsitesBatch;
+		push @{$data{'-NSsitesresults'}}, $model;
 	    } elsif (m/^TREE/) {
-
 		# runmode = 0
 		$self->_pushback($_);
-		%data = $self->_parse_Forestry;
+		$data{'-trees'} = [$self->_parse_Forestry];
 		last;
 
 	    } elsif (m/Heuristic tree search by stepwise addition$/o) {
@@ -326,7 +318,6 @@ sub next_result {
 
 
 sub _parse_summary {
-
     my ($self) = @_;
 
     # Depending on whether verbose > 0 or not, and whether the result
@@ -351,12 +342,14 @@ sub _parse_summary {
 	       /ox
 	   ) {
 
-	    @{$self->{_summary}}{qw(seqtype version treefile model)} = ($1, 
+	    @{$self->{'_summary'}}{qw(seqtype version treefile model)} = ($1, 
 									$2,
 									$3,
 									$4);
+	    defined $self->{'_summary'}->{'model'} &&
+		$self->{'_summary'}->{'model'} =~ s/Model:\s+//;
 	    last;
-
+	    
 	} elsif (m/^Data set \d$/o) {
 	    $self->{'_summary'} = {};
 	    $self->{'_summary'}->{'multidata'}++;
@@ -367,8 +360,6 @@ sub _parse_summary {
 	$self->throw( -class => 'Bio::Root::NotImplemented',
 		      -text => 'Unknown format of PAML output');
     }
-
-
     my $seqtype = $self->{'_summary'}->{'seqtype'};
     $self->debug( "seqtype is $seqtype\n");
     if ($seqtype eq "CODONML") {
@@ -510,6 +501,7 @@ sub _parse_aa_dists {
     my ($okay,$seen,$done) = (0,0,0);
     my (%matrix,@names,@values);
     my $numseqs = scalar @{$self->{'_summary'}->{'seqs'} || []};
+    
     while( defined ($_ = $self->_readline ) ) {
 	last if $done;
 	if( /^TREE/ ) { $self->_pushback($_); last; }
@@ -733,14 +725,14 @@ sub _parse_YN_Pairwise {
 sub _parse_Forestry {
     my ($self) = @_;
     my ($instancecount,$loglikelihood,$score,$done,$treelength) = (0,0,0,0,0);
-    my %data;
+    my @trees;
     my $okay = 0;
     while( defined ($_ = $self->_readline) ) {
 	last if $done;	
 	if( /^TREE/ ) {
 	    ($score) = (/MP\s+score\:\s+(\S+)/ );
 	} elsif( /^Node\s+\&/ || /^\s+N37/ || /^(CODONML|AAML|YN00|BASEML)/ ||
-		 /^\*\*/ ) {
+		 /^\*\*/ || /^Detailed output identifying parameters/) {
 	    $self->_pushback($_);
 	    $done = 1;
 	    last;
@@ -758,15 +750,138 @@ sub _parse_Forestry {
 		my $tree = $treeio->next_tree;
 		if( $tree ) {
 		    $tree->score($loglikelihood);
-		    push @{$data{'-trees'}}, $tree;
+		    push @trees, $tree;
 		}
 		last;
 	    }
 	    $okay++;
 	} 
     }
-    return %data
+    return @trees;
 }
 
+sub _parse_NSsitesBatch {
+    my $self = shift;
+    my %data;
+    my ($okay,$done) =(0,0);
+    while( defined($_ = $self->_readline) ) {
+	last if $done;
+	next if /^\s+$/;
+	
+	next unless( $okay || /^Model\s+\d+/ );
+	if( /^Model\s+(\d+)/o ) {
+	    if( $okay ) {
+		# this only happens if $okay was already 1 and 
+		# we hit a Model line
+		$self->_pushback($_);
+		$done = 1;
+	    } else {
+		chomp;
+		$data{'-model_num'}        = $1;
+		($data{'-model_description'}) = ( /\:\s+(.+)/ );
+		$okay = 1;
+	    }
+	} elsif( /^Time used\:\s+(\S+)/o ) {
+	    $data{'-time_used'} = $1;
+	    $done = 1;
+	} elsif( /^kappa\s+\(ts\/tv\)\s+\=\s+(\S+)/ ) { 	    
+	    $data{'-kappa'} = $1;
+	} elsif( /^TREE/ ) {
+	    $data{'-trees'} = [$self->_parse_Forestry];
+	    if( defined $data{'-trees'} && 
+		scalar @{$data{'-trees'}} ) {
+		$data{'-likelihood'}= $data{'-trees'}->[0]->score;
+	    }
+	} elsif( /^Positively selected sites/ ) {
+	    $self->_pushback($_);
+	    my @sites = $self->_parse_Pos_selected_sites;
+	    $data{'-pos_sites'} = [@sites];
+	} elsif( /^dN/oi ) {
+	    if( /K\=(\d+)/ ) {
+		$data{'-num_site_classes'} = $1;   
+		my @p = split(/\s+/,$self->_readline);
+		my @w = split(/\s+/,$self->_readline);
+		shift @p;
+		shift @w;
+		$data{'-dnds_site_classes'} = { 'p' => \@p,
+						'w' => \@w};
+	    } elsif( /for each branch/ ) {
+		my %branch_dnds = $self->_parse_branch_dnds;
+		# These need to be added to the Node/branches
+		$self->_pushback($_);
+	    }
+	} elsif( /^Parameters in beta:/ ) {
+	    $_ = $self->_readline; # need the next line
+	    if ( /p\=\s+(\S+)\s+q\=\s+(\S+)/ ) {
+		$data{'-shape_params'} = { 
+		    'shape' => 'beta',
+		    'p'     => $1,
+		    'q'     => $2 };
+	    } else {
+		$self->warn("unparseable beta paramters: $_");
+	    }
+	}  elsif( /^alpha\s+\(gamma\)\s+\=\s+(\S+)/ ) {
+	    my $gamma = $1;
+	    $_ = $self->_readline;
+	    my (@r,@f);
+	    if( s/^r\s+\(\s*\d+\)\:\s+// ) {
+		@r = split;
+	    }
+	    $_ = $self->_readline;
+	    if( s/^f\s*\:\s+// ) {
+		@f = split;
+	    }
+	    $data{'-shape_params'} = { 
+		'shape' => 'alpha',
+		'gamma' => $gamma,
+		'r'     => \@r,
+		'f'     => \@f };
+	}
+    }
+    return new Bio::Tools::Phylo::PAML::ModelResult(%data);
+}
 
+sub _parse_Pos_selected_sites {
+    my $self = shift;
+    my ($okay,$done) = (0,0);
+    my @sites;
+    while( defined($_ = $self->_readline) ) {
+
+	next if ( /^\s+$/ );
+	last if $done;
+	next unless ( $okay || /^Positively selected sites Prob/);
+	if( /^Positively selected sites Prob/ ) {
+	    $okay = 1;
+	} elsif( /^\s+(\d+)\s+(\S)\s+([\d\.\-\+]+)(\**)/ ) {
+	    my $signif = $4; 
+	    $signif = '' unless defined $signif;
+	    push @sites, [$1,$2,$3,$signif];
+	} else {
+	    $self->_pushback($_);
+	    last;
+	}
+    }
+    return @sites;
+}
+
+sub _parse_branch_dnds { 
+    my $self = shift;
+    my ($okay) = (0);
+    my %branch_dnds;
+    while(defined($_ = $self->_readline ) ) {
+	next if( /^\s+$/);
+	next unless ( $okay || /^\s+branch\s+t/);
+	if( /^\s+branch\s+t/ ) {
+	    $okay = 1;
+	} elsif( /^\s*(\d+)\.\.(\d+)/ ) {
+	    my ($branch,$t,$S,$N,$dNdS,$dN,$dS,$S_dS,$N_dN) = split;
+	    $branch_dnds{$branch} = [$branch,$t,$S,$N,$dNdS,$dN,
+				     $dS,$S_dS,$N_dN];
+	} else { 
+	    $self->_pushback($_);
+	    last;
+	}
+    }
+    return %branch_dnds;
+}
 1;
