@@ -1,5 +1,5 @@
 #----------------------------------------------------------------------------
-# PACKAGE : Bio::Tools::Blast.pm
+# PACKAGE : Bio::Tools::Blast
 # PURPOSE : To encapsulate code for running, parsing, and analyzing
 #           BLAST reports.
 # AUTHOR  : Steve Chervitz (sac@bioperl.org)

@@ -1,5 +1,5 @@
 #-----------------------------------------------------------------------------
-# PACKAGE : Bio::Tools::WWW.pm
+# PACKAGE : Bio::Tools::WWW
 # PURPOSE : To encapsulate commonly used URLs for web key websites in bioinformatics.
 # AUTHOR  : Steve Chervitz
 # CREATED : 27 Aug 1996 

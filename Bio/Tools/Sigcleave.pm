@@ -1,5 +1,5 @@
 #-----------------------------------------------------------------------------
-# PACKAGE : Bio::Tools::Sigcleave.pm
+# PACKAGE : Bio::Tools::Sigcleave
 # AUTHOR  : Chris Dagdigian, dag@sonsorol.org
 # CREATED : Jan 28 1999
 # REVISION: $Id$

@@ -1,5 +1,5 @@
 #-------------------------------------------------------------------------------
-# PACKAGE : Bio::Tools::SeqAnal.pm
+# PACKAGE : Bio::Tools::SeqAnal
 # PURPOSE : To provide a base class for different sequence analysis tools.
 # AUTHOR  : Steve Chervitz (sac@bioperl.org)
 # CREATED : 27 Mar 1998

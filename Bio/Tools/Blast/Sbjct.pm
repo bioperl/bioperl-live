@@ -1,5 +1,5 @@
 #------------------------------------------------------------------------------
-# PACKAGE : Bio::Tools::Blast::Sbjct.pm
+# PACKAGE : Bio::Tools::Blast::Sbjct
 # AUTHOR  : Steve Chervitz (sac@bioperl.org) 
 # CREATED : 7 October 1996
 # STATUS  : Alpha

@@ -1,5 +1,5 @@
 #----------------------------------------------------------------------------
-# PACKAGE : Bio::Tools::Blast::HSP.pm
+# PACKAGE : Bio::Tools::Blast::HSP
 # AUTHOR  : Steve Chervitz (sac@bioperl.org)
 # CREATED : March 1996
 # STATUS  : Alpha

@@ -1,5 +1,5 @@
 #-------------------------------------------------------------------------------
-# PACKAGE : Bio::Tools::Blast::HTML.pm
+# PACKAGE : Bio::Tools::Blast::HTML
 # PURPOSE : To encapsulate code for HTML formatting BLAST reports.
 # AUTHOR  : Steve Chervitz (sac@bioperl.org)
 # CREATED : 28 Apr 1998

@@ -15,8 +15,7 @@
 
 =head1 NAME
 
-Bio::Tools:: BPpsilite - Lightweight BLAST parser for (iterated)
-psiblast reports
+Bio::Tools::BPpsilite - Lightweight BLAST parser for (iterated) psiblast reports
 
 =head1 SYNOPSIS
 
