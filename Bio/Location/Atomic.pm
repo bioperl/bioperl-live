@@ -387,6 +387,17 @@ sub to_FTstring {
     return $str;
 }
 
+# comments, not function added by jason 
+#
+# trunc is untested, and as of now unannounced method for truncating a
+# location.  This is to eventually be part of the procedure to
+# truncate a sequence with annotatioin and properly remap the location
+# of all the features contained within the truncated segment.
+
+# presumably this might do things a little differently for the case 
+# where the truncation splits the location in half
+# 
+# in short- you probably don't want to use  this method.
 
 sub trunc {
   my ($self,$start,$end,$relative_ori) = @_;
