@@ -211,9 +211,13 @@ sub new {
 
  Title   : initialize_io
  Usage   : $self->_initialize_io(@params);
- Function: Initializes filehandle and other properties.
+ Function: Initializes filehandle and other properties from the parameters.
 
-           Currently recognized the following named parameters: -file, -fh
+           Currently recognizes the following named parameters:
+              -file     name of file to open
+              -input    name of file, or GLOB, or IO::Handle object
+              -fh       file handle (mutually exclusive with -file)
+
  Example :
  Returns : TRUE
  Args    : named parameters
@@ -258,7 +262,7 @@ sub _initialize_io {
     if(defined($file) && ($file ne '')) {
 	$fh = Symbol::gensym();
 	open ($fh,$file) ||
-	    $self->throw("Could not open $file for reading: $!");
+	    $self->throw("Could not open $file: $!");
 	$self->file($file);
     }
     $self->_fh($fh) if $fh; # if not provided, defaults to STDIN and STDOUT
@@ -272,7 +276,7 @@ sub _initialize_io {
 
  Title   : _fh
  Usage   : $obj->_fh($newval)
- Function:
+ Function: Get/set the file handle for the stream encapsulated.
  Example :
  Returns : value of _filehandle
  Args    : newvalue (optional)
@@ -359,7 +363,7 @@ sub mode {
 
  Title   : file
  Usage   : $obj->file($newval)
- Function:
+ Function: Get/set the filename, if one has been designated.
  Example :
  Returns : value of file
  Args    : newvalue (optional)
@@ -422,9 +426,9 @@ sub _readline {
 
     # if the buffer been filled by _pushback then return the buffer
     # contents, rather than read from the filehandle
-	$line = shift @{$self->{'_readbuffer'}} || <$fh>;
+    $line = shift @{$self->{'_readbuffer'}} || <$fh>;
 
-    #don't stip line endings if -raw is specified
+    #don't strip line endings if -raw is specified
     $line =~ s/\r\n/\n/g if( (!$param{-raw}) && (defined $line) );
 
     return $line;
