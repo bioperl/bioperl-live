@@ -496,7 +496,9 @@ sub height {
        my $s = $subnode->height;
        if( $s > $max ) { $max = $s; }
    }
-   return ($self->{'_height'} = $max + ($self->branch_length || 1));
+   my $bl = $self->branch_length;
+   $bl = 1 unless (defined $bl && $bl =~ /^\d+(\.\d+)?$/);
+   return ($self->{'_height'} = $max + $bl);
 }
 
 
