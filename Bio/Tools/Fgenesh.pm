@@ -371,7 +371,7 @@ sub _parse_predictions {
 	    next;
 	}
 
-	if(/^Seq name:\s+(\S+)/) {
+	if(/^\s*Seq name:\s+(\S+)/) {
 	    $seqname = $1;
 	    next;
 	}
