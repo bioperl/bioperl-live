@@ -92,7 +92,7 @@ methods.
 package Bio::Ontology::Term;
 use vars qw( @ISA );
 use strict;
-use Bio::Root::Object;
+use Bio::Root::Root;
 use Bio::Ontology::TermI;
 
 use constant TRUE    => 1;

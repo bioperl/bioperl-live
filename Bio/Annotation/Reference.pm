@@ -1,8 +1,8 @@
-
+# $Id$
 #
 # BioPerl module for Bio::Annotation::Reference
 #
-# Cared for by Ewan Birney <pfam@sanger.ac.uk>
+# Cared for by Ewan Birney <birney@ebi.ac.uk>
 #
 # Copyright Ewan Birney
 #
@@ -179,6 +179,7 @@ sub start {
     return $self->{'start'};
 
 }
+
 =head2 end
 
  Title   : end
