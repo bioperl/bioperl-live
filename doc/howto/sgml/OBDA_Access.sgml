@@ -145,7 +145,7 @@ data-access subroutines in one's application code.
 The Open Biological Database Access (OBDA) System was designed so that
 one could use the same application code to access data from all three
 of the database types by simply changing a few lines in a
-"configuration file". This makes application code more portable and
+configuration file. This makes application code more portable and
 easier to maintain. This document shows how to set up the required
 OBDA-registry configuration file and how to access data from the
 databases referred to in the configuration file using a perl script as
@@ -161,7 +161,7 @@ Bio::Index::Fasta.
   <section id="registry">
     <title>Using the OBDA Registry System</title>
     <para>
-The OBDA  BioDirectory Registry is a platform-independent system for 
+The OBDA BioDirectory Registry is a platform-independent system for 
 specifying how BioPerl programs find sequence databases.  It uses a 
 site-wide configuration file, known as the registry, which defines 
 one or more databases and the access methods to use to access them.
@@ -186,7 +186,10 @@ should be installed in one of the following locations:
     </programlisting>
 The Bio{Perl,Java,Python,Ruby} registry-handling code will initialize
 itself from the registry file located in the home directory first,
-followed by the system-wide default in /etc.
+followed by the system-wide default in /etc. ActiveState Perl users
+should make sure to set the $HOME variable, otherwise the
+seqdatabase.ini file will not be found. Unix users need not do this
+since the code will use the getpwuid() method.    
     </para>
     <para>
 If a local registry file cannot be found, the registry-handling code
@@ -195,7 +198,6 @@ will take its configuration from the file located at this URL:
    http://www.open-bio.org/registry/seqdatabase.ini
     </programlisting>    
     </para>
-
   </section>
   
   <section id="modifying">
