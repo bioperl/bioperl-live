@@ -239,10 +239,11 @@ sub map_types_to_SO{
 
 }
 
-=head2 get_relationship_type_between
+=head2 get_relationship_type_by_parent_child
 
- Title   : get_relationship_type_between
- Usage   : $type = $tm->get_relationship_type_between($parent_sf, $child_sf);
+ Title   : get_relationship_type_by_parent_child
+ Usage   : $type = $tm->get_relationship_type_by_parent_child($parent_sf, $child_sf);
+ Usage   : $type = $tm->get_relationship_type_by_parent_child('mRNA', 'protein');
  Function: given two features where the parent contains the child,
            will determine what the relationship between them in
  Example :
@@ -276,7 +277,7 @@ sub get_relationship_type_by_parent_child {
 
    my $type = 'part_of'; # default
 
-   # TODO - do this with metadata
+   # TODO - do this with metadata, or infer via SO itself
    if (lc($child) eq 'protein' or lc($child) eq 'cds') {
        $type = 'produced_by';
    }
