@@ -1,11 +1,11 @@
 
 
 #
-# BioPerl module for Bio::SeqIO::Fasta
+# BioPerl module for Bio::SeqIO::PIR
 #
-# Cared for by Ewan Birney <birney@sanger.ac.uk>
+# Cared for by Aaron Mackey <amackey@virginia.edu>
 #
-# Copyright Ewan Birney
+# Copyright Aaron Mackey
 #
 # You may distribute this module under the same terms as perl itself
 
@@ -13,14 +13,14 @@
 
 =head1 NAME
 
-Bio::SeqIO::Fasta - Fasta sequence input/output stream
+Bio::SeqIO::PIR - PIR sequence input/output stream
 
 =head1 SYNOPSIS
 
 It is probably best not to use this object directly, but
 rather go through the SeqIO handler system. Go:
 
-    $stream = Bio::SeqIO->new(-file => $filename, -format => 'Fasta');
+    $stream = Bio::SeqIO->new(-file => $filename, -format => 'PIR');
 
     while $seq ( <$stream> ) {
 	# $seq is a Bio::Seq object
@@ -29,7 +29,7 @@ rather go through the SeqIO handler system. Go:
 
 =head1 DESCRIPTION
 
-This object can transform Bio::Seq objects to and from fasta flat
+This object can transform Bio::Seq objects to and from PIR flat
 file databases.
 
 =head1 FEEDBACK
@@ -70,11 +70,11 @@ The rest of the documentation details each of the object methods. Internal metho
 # Let the code begin...
 
 
-package Bio::SeqIO::Fasta;
+package Bio::SeqIO::PIR;
 use vars qw($AUTOLOAD @ISA);
 use strict;
 use Bio::Seq;
-# Object preamble - inheriets from Bio::Root::Object
+# Object preamble - inherits from Bio::Root::Object
 
 use Bio::Root::Object;
 use IO::File;
@@ -89,10 +89,9 @@ sub _initialize {
 
   my $make = $self->SUPER::_initialize;
 
-  my ($file,$fh, $sf) = $self->_rearrange([qw(
+  my ($file,$fh) = $self->_rearrange([qw(
 					 FILE
 					 FH
-                                         SUPERFAMILY
 					 )],
 				     @args,
 				     );
@@ -101,14 +100,14 @@ sub _initialize {
   }
 
   if( !$file && !$fh ) {
-      $self->throw("Neither a file (-file) nor a filehandle (-fh) provided to Fasta opening");
+      $self->throw("Neither a file (-file) nor a filehandle (-fh) provided to PIR opening");
   }
 
 
   if( $file ) {
 
       $fh = new IO::File;
-      $fh->open($file) || $self->throw("Could not open $file for Fasta stream reading $!");
+      $fh->open($file) || $self->throw("Could not open $file for PIR stream reading $!");
   }
 
 #  print "Setting filehandle to $fh\n";
@@ -116,8 +115,6 @@ sub _initialize {
 
 # print "Initializing push buffer\n";
   $self->_pushbuffer('');
-
-  $self->_superfamily($sf);
 
 # set stuff in self from @args
   return $make; # success - we hope!
@@ -136,7 +133,7 @@ sub _initialize {
 
 sub next_seq{
    my ($self,@args) = @_;
-   my ($seq,$fh,$c,$line,$name,$desc,$sfs, $seqc, $fulldesc);
+   my ($seq,$fh,$c,$line,$name,$sfs, $desc,$seqc);
 
    $fh = $self->_filehandle();
 
@@ -147,13 +144,12 @@ sub next_seq{
    $line = $self->_popbuffer(); # may be '>' character or undef.
    $line .= <$fh>;
 
-   if( $line !~ /^>\s*(\S+)\s*(\|[^\|]*\|\s*)?(.*?)\s*$/ ) {
-       $self->throw("Fasta stream read attempted with no '>' as first character[ $line ]");
+   if( $line !~ /^>P1;(\S+)\s*(\|.*)?\s*$/ ) {
+       $self->throw("PIR stream read attempted without leading '>P1;' [ $line ]");
    }
    $name = $1;
    $sfs = $2;
-   $desc = $3;
-   $fulldesc = $sfs . $desc;
+   chomp($desc = <$fh>);
 
    while( <$fh> ) {
        $_ = uc($_);
@@ -172,18 +168,10 @@ sub next_seq{
        }
    }
 
-   if ( $self->_superfamily() ) {
-       $seq = Bio::Seq->new(-seq => $seqc,
-			    -id => $name,
-			    -desc => $desc,
-			    -names => defined $sfs ? { 'sfnum' => [ split(/\s+/, substr($sfs, 1, length($sfs) - 3) ) ] } : undef
-		       );
-   } else {
-       $seq = Bio::Seq->new(-seq => $seqc,
-			    -id => $name,
-			    -desc => $fulldesc,
-			   );
-   }
+   $seq = Bio::Seq->new(-seq => $seqc,
+			-id => $name,
+			-desc => $desc,
+			-names => defined $sfs ? { 'sfnum' => [ split(/\s*\|?\s+/, $sfs) ] } : undef );
 
    return $seq;
 
@@ -201,18 +189,12 @@ sub next_seq{
 =cut
 
 sub write_seq {
-   my ($self,$seq) = @_;
+   my ($self, $seq) = @_;
    my $fh = $self->_filehandle();
-   my $i;
-   my $str = $seq->seq;
+   my $str = $seq->seq();
 
-#  for ($i = 60; $i < length($str); $i += 60+1) {
-#      # this is not ideal.
-#      substr($str,$i,0) = "\n";
-#  }
-   $str = join("\n", grep { length } split(/(.{60})/, $str)); # how's that? -AJM
-
-   print $fh ">", $seq->id(), " ", (%{$seq->names()}->{'sfnum'} ? "|" . join(' ', @{%{$seq->names()}->{'sfnum'}}) . ' | ' : '' ), $seq->desc(), "\n", $str, "\n";
+   $str = join("\n", grep { length } split(/(.{75})/, $str));
+   print $fh ">P1;", $seq->id(), (%{$seq->names()}->{'sfnum'} ? " |" . join(' ', @{%{$seq->names()}->{'sfnum'}}) : '' ), "\n", $seq->desc(), "\n", $str, "\n";
    return 1;
 }
 
@@ -256,12 +238,6 @@ sub _popbuffer {
     return undef;
 }
 
-sub _superfamily {
-    my ($self, $sf) = @_;
-    defined $sf and $self->{'_superfamily'} = $sf;
-    return $self->{'_superfamily'};
-}
-
 sub DESTROY {
     my $self = shift;
     my $fh;
@@ -273,6 +249,7 @@ sub DESTROY {
 
     $self->{'_filehandle'} = '';
 }
+    
 
 
 
