@@ -2785,9 +2785,13 @@ exit(0);
 #
 
 $access_remote_db = sub {
-
-    use Bio::DB::GenBank;
-
+    eval { 
+	require Bio::DB::GenBank;
+    };
+    if($@ ) {
+	warn "LWP::UserAgent or HTTP::Request or IO::String doesn't appear to be loaded, cannot run the access_remote_db method";
+	return 0;
+    }
     print $outputfh "Beginning remote database access example... \n";
 
     # III.2.1 Accessing remote databases (Bio::DB::GenBank, etc)
@@ -2822,7 +2826,7 @@ if ($@ || !$seq1) {
 $index_local_db = sub {
 
     use Bio::Index::Fasta; # using fasta file format
-  use strict; # some users have reported that this is required
+    use strict; # some users have reported that this is required
 
     my ( $Index_File_Name, $inx1, $inx2, $id, $dir, $key,
          $keyfound, $seq, $indexhash);
@@ -3710,7 +3714,7 @@ $largeseqs = sub {
 #
 
 $liveseqs = sub {
-
+    
     use Bio::LiveSeq::IO::BioPerl;
     my ($loader, $gene, $id, $maxstart);
 
@@ -3836,31 +3840,35 @@ my @nodes = $tree->get_nodes;
 
 $run_perl = sub {
 
-use Bio::Perl qw( read_sequence 
-		  read_all_sequences 
-		  write_sequence 
-		  new_sequence 
-		  get_sequence );
+    use Bio::Perl qw( read_sequence 
+		      read_all_sequences 
+		      write_sequence 
+		      new_sequence 
+		      get_sequence );
+    
+    print $outputfh "\nBeginning example of sequence manipulation without explicit Seq objects... \n";
+    
+# getting a sequence from a database (assummes internet connection)
+ 
+    my $seq_object;
+    eval { 
+	$seq_object = get_sequence('swissprot',"ROA1_HUMAN");
+    };
+    unless( $seq_object ) { return 0 } # deal with case when
+    # we're missing a necessary module and this returns undef
 
-print $outputfh "\nBeginning example of sequence manipulation without explicit Seq objects... \n";
 
-
-  # getting a sequence from a database (assummes internet connection)
-
-   my $seq_object = get_sequence('swissprot',"ROA1_HUMAN");
-
-   # sequences are Bio::Seq objects, so the following methods work
-   # (for more info see Bio::Seq documentation - try perldoc Bio::Seq)
-
-   print $outputfh "Name of sequence retrieved from swissprot is ",$seq_object->display_id,"\n";
-   print $outputfh "Sequence acc  is ",$seq_object->accession_number,"\n";
-   print $outputfh "First 5 residues are ",$seq_object->subseq(1,5),"\n";
-
+    # sequences are Bio::Seq objects, so the following methods work
+    # (for more info see Bio::Seq documentation - try perldoc Bio::Seq)
+    
+    print $outputfh "Name of sequence retrieved from swissprot is ",$seq_object->display_id,"\n";
+    print $outputfh "Sequence acc  is ",$seq_object->accession_number,"\n";
+    print $outputfh "First 5 residues are ",$seq_object->subseq(1,5),"\n";
+    
   # getting sequence data from disk
-
-   $seq_object = read_sequence($amino_seq_file,'fasta'); 
-   print $outputfh "Name of sequence retrieved from disk is ",$seq_object->display_id,"\n";
-
+    
+    $seq_object = read_sequence($amino_seq_file,'fasta'); 
+    print $outputfh "Name of sequence retrieved from disk is ",$seq_object->display_id,"\n";
    return 1;
 } ;
 
@@ -3928,13 +3936,16 @@ $demo_xml = sub {
     # III.8.4 Sequence XML representations
     # - generation and parsing (SeqIO::game)
 
-    eval { $str = Bio::SeqIO->new('-file'=>
-           Bio::Root::IO->catfile("t","data","test.game"),
-                           '-format' => 'game'); };
-    if ( $@ ){
-      print STDERR "Cannot run demo_xml\n";
-      print STDERR "Problem parsing GAME format:\n";
-      return 0;
+    eval { 
+	require XML::Parser;
+	
+	$str = Bio::SeqIO->new('-file'=>
+			       Bio::Root::IO->catfile("t","data","test.game"),
+			       '-format' => 'game'); };
+    if ( $@ ) {
+	print STDERR "Cannot run demo_xml\n";
+	print STDERR "\tProblem parsing GAME format or missing necessary installed modules XML::Parser XML::Parser::PerlSAX\n";
+	return 0;
     } else {
       $seqobj = $str->next_seq();
       # $seq = $str->next_primary_seq();
