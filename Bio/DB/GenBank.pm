@@ -39,6 +39,7 @@ Bio::DB::GenBank - Database object interface to GenBank
     while( my $clone =  $seqio->next_seq ) {
       print "cloneid is ", $clone->
     }
+
 =head1 DESCRIPTION
 
 Allows the dynamic retrieval of Sequence objects (Bio::Seq) from the GenBank

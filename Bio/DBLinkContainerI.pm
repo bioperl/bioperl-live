@@ -14,6 +14,7 @@
 
 Bio::DBLinkContainerI - Abstract interface for any object wanting to use  
                         database cross references
+
 =head1 SYNOPSIS
 
     # get an objects containing database cross reference

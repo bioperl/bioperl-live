@@ -22,6 +22,7 @@
    # assuming it is a nucleotide db
    my $seq = $db->get_Seq_by_id('ROA1_HUMAN')
   
+
 =head1 DESCRIPTION
 
 Provides core set of functionality for connecting to a web based

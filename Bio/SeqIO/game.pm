@@ -1,5 +1,5 @@
 #
- # BioPerl module for Bio::SeqIO::fasta
+# BioPerl module for Bio::SeqIO::fasta
 #
 # Cared for by Brad Marshall <bradmars@yahoo.com>
 #         
@@ -11,10 +11,10 @@
 # June 25, 2000     written by Brad Marshall
 #
 # POD documentation - main docs before the code
+
 =head1 NAME
 
-Bio::SeqIO::Bioxml  Parses game 0.1 and higher into and out of 
- Bio::Seq objects.  
+	Bio::SeqIO::Bioxml - Parses game 0.1 and higher into and out of Bio::Seq objects.  
 
 =head1 SYNOPSIS
 
@@ -55,7 +55,7 @@ Your participation is much appreciated.
   bioxml-announce@bioxml.org   - General Announcements - Pretty dead
   http://www.bioxml.org/MailingLists/         - About the mailing lists
 
-=head1 AUTHORS - Brad Marshall & Ewan Birney & Lincoln Stein
+=head1 AUTHOR - Brad Marshall & Ewan Birney & Lincoln Stein
 
 Email: bradmars@yahoo.com
        birney@sanger.ac.uk

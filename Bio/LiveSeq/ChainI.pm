@@ -14,6 +14,7 @@
 
   Bio::LiveSeq::ChainI - Double linked chain data structure
     
+
 =head1 SYNOPSIS
 
 
