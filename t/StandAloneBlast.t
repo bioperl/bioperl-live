@@ -4,7 +4,7 @@
 #
 
 use strict;
-use constant NUMTESTS => 10;
+use constant NUMTESTS => 16;
 BEGIN { 
     eval { require Test; };
     if( $@ ) {
@@ -29,9 +29,7 @@ use Bio::Seq;
 use Bio::Root::IO;
 use Bio::SearchIO;
 
-ok(1);
 my $verbose = -1;
-my ($blast_report, $hsp, @testresults);
 
 my $nt_database = 'ecoli.nt';
 my $amino_database = 'swissprot';
@@ -56,85 +54,118 @@ if( ! $blast_present ) {
 }
 if( ! defined $Bio::Tools::Run::StandAloneBlast::DATADIR ) {
     print STDERR "must have BLASTDIR and BLASTDB or BLASTDATADIR env variable set\n";
-    exit();
+    exit(0);
 }
-my $nt_database_file = Bio::Root::IO->catfile($Bio::Tools::Run::StandAloneBlast::DATADIR, $nt_database);
+my $nt_database_file = 
+    Bio::Root::IO->catfile($Bio::Tools::Run::StandAloneBlast::DATADIR, 
+			   $nt_database);
 ok($nt_database_file, qr/$nt_database/);
-my $amino_database_file = Bio::Root::IO->catfile($Bio::Tools::Run::StandAloneBlast::DATADIR, $amino_database);
+my $amino_database_file = 
+    Bio::Root::IO->catfile($Bio::Tools::Run::StandAloneBlast::DATADIR, 
+			   $amino_database);
 my $file_present = -e $nt_database_file;
+
 my $exit;
 unless ($file_present) {
    warn "Blast Database $nt_database not found";
-   $exit=1;
+   $exit = 1;
 }
 my $file_present2 = -e $amino_database_file;
+
 unless ($file_present2) {
     warn "Blast Database $amino_database not found";
     $exit=1;
 }
+
 if ($exit) {
    warn"Blast databases(s) not found, skipping remaining  tests";
    exit(0);
 }
-if ($nt_database eq 'ecoli.nt') {	
-	$testresults[3] = '$blast_report->num_hits == 1' ;
-	$testresults[4] = '$hsp->score == 182';
-	$testresults[5] = '$hsp->score == 182';
-} else {
-	$testresults[3] =  '$blast_report->num_hits';
-	$testresults[4]  =  '$hsp->score';
-	$testresults[5]  =  '$hsp->score';
-}
-if ($amino_database eq 'swissprot') {	
-	$testresults[8]  =  '$blast_report->number_of_iterations == 2';
-} else {
-	$testresults[8] =  '$blast_report->number_of_iterations';
 
-}
- $blast_report = $factory->blastall($inputfilename);
-ok $testresults[3];
+my @testresults = qw(37 182 182  253 167 2);
 
-$factory->_READMETHOD('BPlite');    # Note required leading underscore in _READMETHOD
+my $testcount = 0;
+my $parser = $factory->blastall($inputfilename);
+my $blast_report = $parser->next_result;
+ok($blast_report->num_hits,$testresults[$testcount++]);
 
-my $str = Bio::SeqIO->new(-file=>Bio::Root::IO->catfile("t","data","dna2.fa") , '-format' => 'Fasta', );
+$factory->_READMETHOD('BPlite');  # Note required leading underscore in _READMETHOD
+my $str = Bio::SeqIO->new('-file'  => Bio::Root::IO->catfile(qw(t data
+								dna2.fa)),
+			  '-format' => 'fasta');
 my $seq1 = $str->next_seq();
 my $seq2 = $str->next_seq();
 
 my $BPlite_report = $factory->blastall($seq1);
 my $sbjct = $BPlite_report->nextSbjct;
- $hsp = $sbjct->nextHSP;
-ok $testresults[4];
+my $hsp = $sbjct->nextHSP;
+ok($hsp->score, $testresults[$testcount]);
+
+$factory->_READMETHOD('Blast');
+my $searchio_report = $factory->blastall($seq1);
+$sbjct = $searchio_report->next_result->next_hit;
+$hsp = $sbjct->next_hsp;
+ok($hsp->score, $testresults[$testcount++]);
 
 
 my @seq_array =($seq1,$seq2);
 my $seq_array_ref = \@seq_array;
+$factory->_READMETHOD('BPlite');
+my $BPlite_report2 = $factory->blastall($seq_array_ref);
+$sbjct = $BPlite_report2->nextSbjct;
+$hsp = $sbjct->nextHSP;
+ok($hsp->score, $testresults[$testcount]);
 
-my $BPlite_report2 = $factory->blastall(\@seq_array);
- $sbjct = $BPlite_report2->nextSbjct;
- $hsp = $sbjct->nextHSP;
-ok $testresults[5];
+$factory->_READMETHOD('Blast');
+$searchio_report = $factory->blastall($seq_array_ref);
+$sbjct = $searchio_report->next_result->next_hit;
+$hsp = $sbjct->next_hsp;
+ok($hsp->score, $testresults[$testcount++]);
+
+$sbjct = $searchio_report->next_result->next_hit;
+ok($sbjct);
+$hsp = $sbjct->next_hsp;
+ok($hsp->score, $testresults[$testcount++]);
+
 
 @params = ('-verbose' => $verbose,
 	   'program' => 'blastp'); # This used to be blastp but atleast on my implementation it should be T
 $factory = Bio::Tools::Run::StandAloneBlast->new(@params);
 
-$str = Bio::SeqIO->new(-file=>Bio::Root::IO->catfile("t","data","amino.fa") , '-format' => 'Fasta', );
+$str = Bio::SeqIO->new(-file=>Bio::Root::IO->catfile(qw(t data amino.fa)),
+		       '-format' => 'Fasta' );
 my $seq3 = $str->next_seq();
 my $seq4 = $str->next_seq();
+$factory->_READMETHOD('BPlite');
 my $bl2seq_report = $factory->bl2seq($seq3, $seq4);
 $hsp = $bl2seq_report->next_feature;
-ok $hsp->hit()->start, 167, " failed creating or parsing bl2seq report object";
+ok ($hsp->hit->start, $testresults[$testcount], 
+    " failed creating or parsing BPlite bl2seq report object");
 
+$factory->_READMETHOD('Blast');
+$bl2seq_report = $factory->bl2seq($seq3, $seq4);
+$hsp = $bl2seq_report->next_result->next_hit->next_hsp;
+ok( $hsp->hit->start, $testresults[$testcount++], 
+    " failed creating or parsing SearchIO bl2seq report object");
 
-@params = ('database' => $amino_database);
+@params = ('database' => $amino_database,
+	   '-verbose' => $verbose);
 $factory = Bio::Tools::Run::StandAloneBlast->new(@params);
-
 
 my $iter = 2;
 $factory->j($iter);    # 'j' is blast parameter for # of iterations
 my $new_iter = $factory->j();
 
 ok $new_iter, 2, " failed setting blast parameter";
+$blast_report = $factory->blastpgp($seq3)->next_result;
+ok($blast_report->number_of_iterations, $testresults[$testcount]);
+
+$factory->_READMETHOD('BPlite');
+$iter = 2;
+$factory->j($iter);    # 'j' is blast parameter for # of iterations
+$new_iter = $factory->j();
+
+ok($new_iter, $iter, " failed setting blast parameter");
 
 $blast_report = $factory->blastpgp($seq3);
-ok $testresults[8];
+ok($blast_report->number_of_iterations, $testresults[$testcount]);

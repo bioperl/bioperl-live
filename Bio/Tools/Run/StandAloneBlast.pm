@@ -231,7 +231,8 @@ package Bio::Tools::Run::StandAloneBlast;
 
 use vars qw($AUTOLOAD @ISA $PROGRAMDIR  $DATADIR 
 	    @BLASTALL_PARAMS @BLASTPGP_PARAMS 
-	    @BL2SEQ_PARAMS @OTHER_PARAMS %OK_FIELD
+	    @BL2SEQ_PARAMS @OTHER_PARAMS %OK_FIELD 
+	    $DEFAULTREADMETHOD
 	    );
 use strict;
 use Bio::Root::Root;
@@ -251,7 +252,7 @@ BEGIN {
      @BLASTPGP_PARAMS = qw(d i A f e m o y P F G E X N g S H a I h c
 			   j J Z O M v b C R W z K L Y p k T Q B l U);
      @BL2SEQ_PARAMS = qw(i j p g o d a G E X W M q r F e S T m);
-
+     $DEFAULTREADMETHOD = 'BLAST';
 
 # Non BLAST parameters start with underscore to differentiate them
 # from BLAST parameters
@@ -341,7 +342,7 @@ sub new {
     my ($tfh,$tempfile) = $self->io->tempfile();
     close($tfh); # we don't want the filehandle, just a temporary name
     $self->outfile($tempfile);
-    $self->_READMETHOD('Blast');
+    $self->_READMETHOD($DEFAULTREADMETHOD);
     while (@args)  {
 	my $attr =   shift @args;
 	my $value =  shift @args;
@@ -638,35 +639,37 @@ sub _runblast {
 # set significance cutoff to set expectation value or default value
 # (may want to make this value vary for different executables)
 
-# If running bl2seq or psiblast (blastpgp with multiple iterations),
-# the specific parsers for these programs must be used (ie BPbl2seq or
-# BPpsilite).  Otherwise either the Blast parser or the BPlite
-# parsers can be selected.
-
-    if ($executable =~ /bl2seq/i)  {
-        if( $self->verbose > 0 ) {
-	 open(OUT, $outfile) || $self->throw("cannot open $outfile");
-	 while(<OUT>) { $self->debug($_)}
-	 close(OUT);
-        }
-# Added program info so BPbl2seq can compute strand info
-	$blast_obj = Bio::Tools::BPbl2seq->new(-file => $outfile,
-                                               -REPORT_TYPE => $self->p );
-#	$blast_obj = Bio::Tools::BPbl2seq->new(-file => $outfile);
+    if( $self->verbose > 0 ) {
+	open(OUT, $outfile) || $self->throw("cannot open $outfile");
+	while(<OUT>) { $self->debug($_)}
+	close(OUT);
     }
-    elsif ($executable =~ /blastpgp/i && defined $self->j() && 
-	   $self->j() > 1)  {
-	print "using psilite parser\n";
-	$blast_obj = Bio::Tools::BPpsilite->new(-file => $outfile);
-    }
-    elsif ($self->_READMETHOD =~ /^Blast/i )  {
+    if( $self->_READMETHOD =~ /^Blast|SearchIO/i ) {
+	# Obselete comments below --
+	# If running bl2seq or psiblast (blastpgp with multiple iterations),
+	# the specific parsers for these programs must be used (ie BPbl2seq or
+	# BPpsilite).  Otherwise either the Blast parser or the BPlite
+	# parsers can be selected.
+	# --end obselete comments
+	# Bio::SearchIO can parse bl2seq, blast, and psiblast output
 	$blast_obj = Bio::SearchIO->new(-file=>$outfile,
-					-format => 'blast'   )  ;
-    }
-    elsif ($self->_READMETHOD =~ /^BPlite/i )  {
-	$blast_obj = Bio::Tools::BPlite->new(-file=>$outfile);
+					-format => 'blast'   ) ;
+    } elsif( $self->_READMETHOD =~ /BPlite/ ) {
+	if ($executable =~ /bl2seq/i)  {
+	    # Added program info so BPbl2seq can compute strand info
+	    $blast_obj = Bio::Tools::BPbl2seq->new(-file => $outfile,
+						   -REPORT_TYPE => $self->p );
+	} elsif ($executable =~ /blastpgp/i && defined $self->j() && 
+		 $self->j() > 1)  {
+	    $self->debug( "using psilite parser\n");
+	    $blast_obj = Bio::Tools::BPpsilite->new(-file => $outfile);
+	} elsif( $executable =~ /blastall/i ) { 
+	    $blast_obj = Bio::Tools::BPlite->new(-file=>$outfile);
+	} else { 
+	    $self->warn("Unrecognized executable $executable");
+	}
     } else {
-	$self->warn("Unrecognized readmethod ".$self->_READMETHOD. " or executable $executable\n");
+	$self->warn("Unrecognized readmethod ".$self->_READMETHOD);
     }
     return $blast_obj;
 }
