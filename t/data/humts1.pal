@@ -1,0 +1,107 @@
+Palindromes of:  HUMTS1 
+Sequence length is: 18596 
+Start at position: 1
+End at position: 18596
+Minimum length of Palindromes is: 10 
+Maximum length of Palindromes is: 100 
+Maximum gap between elements is: 100 
+Number of mismatches allowed in Palindrome: 0
+
+
+
+Palindromes:
+126   caaaaaaaaaaaaaaaa   142
+      |||||||||||||||||
+217   gtttttttttttttttt   201
+
+127   aaaaaaaaaaaaaaaa   142
+      ||||||||||||||||
+215   tttttttttttttttt   200
+
+127   aaaaaaaaaaaaaaaa   142
+      ||||||||||||||||
+214   tttttttttttttttt   199
+
+127   aaaaaaaaaaaaaaaa   142
+      ||||||||||||||||
+213   tttttttttttttttt   198
+
+127   aaaaaaaaaaaaaaaa   142
+      ||||||||||||||||
+212   tttttttttttttttt   197
+
+127   aaaaaaaaaaaaaaaa   142
+      ||||||||||||||||
+211   tttttttttttttttt   196
+
+127   aaaaaaaaaaaaaaaa   142
+      ||||||||||||||||
+210   tttttttttttttttt   195
+
+127   aaaaaaaaaaaaaaaa   142
+      ||||||||||||||||
+209   tttttttttttttttt   194
+
+127   aaaaaaaaaaaaaaaa   142
+      ||||||||||||||||
+208   tttttttttttttttt   193
+
+127   aaaaaaaaaaaaaaaa   142
+      ||||||||||||||||
+207   tttttttttttttttt   192
+
+127   aaaaaaaaaaaaaaaa   142
+      ||||||||||||||||
+206   tttttttttttttttt   191
+
+127   aaaaaaaaaaaaaaaa   142
+      ||||||||||||||||
+205   tttttttttttttttt   190
+
+127   aaaaaaaaaaaaaaaagaccgccagggct   155
+      |||||||||||||||||||||||||||||
+204   ttttttttttttttttctggcggtcccga   176
+
+2278  catttttaac  2287
+      ||||||||||
+2351  gtaaaaattg  2342
+
+3960  agcccagacc  3969
+      ||||||||||
+4056  tcgggtctgg  4047
+
+4367  gattgagaaa  4376
+      ||||||||||
+4449  ctaactcttt  4440
+
+4368  attgagaaat  4377
+      ||||||||||
+4399  taactcttta  4390
+
+4387  gaaatttctc  4396
+      ||||||||||
+4411  ctttaaagag  4402
+
+4408  tttctttgatt  4418
+      |||||||||||
+4456  aaagaaactaa  4446
+
+4428  tttctttgatt  4438
+      |||||||||||
+4456  aaagaaactaa  4446
+
+6809  cataggcatg  6818
+      ||||||||||
+6839  gtatccgtac  6830
+
+11270 atgtttccaa 11279
+      ||||||||||
+11339 tacaaaggtt 11330
+
+14171 ttacctgaat 14180
+      ||||||||||
+14208 aatggactta 14199
+
+
+
+
