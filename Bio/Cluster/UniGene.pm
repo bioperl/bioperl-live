@@ -202,6 +202,8 @@ my %species_map = (
 		   'Cfa' => "Canine familiaris",
 		   'Cin' => "Ciona intestinalis",
 		   'Cre' => "Chlamydomonas reinhardtii",
+		   'Csa' => "Ciona savignyi",
+		   'Csi' => "Citrus sinensis",
 		   'Ddi' => "Dictyostelium discoideum",
 		   'Dr'  => "Danio rerio",
 		   'Dm'  => "Drosophila melanogaster",
@@ -215,8 +217,10 @@ my %species_map = (
 		   'Les' => "Lycopersicon esculentum",
 		   'Lsa' => "Lactuca sativa",
 		   'Mdo' => "Malus x domestica",
+           'Mgr' => "Magnaporthe grisea",
 		   'Mm'  => "Mus musculus",
 		   'Mtr' => "Medicago truncatula",
+           'Ncr' => "Neurospora crassa",
 		   'Oar' => "Ovis aries",
 		   'Omy' => "Oncorhynchus mykiss",
 		   'Os'  => "Oryza sativa",
@@ -235,11 +239,12 @@ my %species_map = (
 		   'Stu' => "Solanum tuberosum",
 		   'Ta'  => "Triticum aestivum",
 		   'Tgo' => "Toxoplasma gondii",
+           'Tru' => "Takifugu rubripes",
 		   'Vvi' => "Vitis vinifera",
 		   'Xl'  => "Xenopus laevis",
 		   'Zm'  => "Zea mays",
 		   );
-		 
+
 
 =head2 new
 
@@ -449,6 +454,23 @@ sub locuslink {
 sub homol {
     my $self = shift;
     return $self->_annotation_value('homol', @_);
+}
+
+
+=head2 restr_expr
+
+ Title   : restr_expr
+ Usage   : restr_expr();
+ Function: Returns the restr_expr entry associated with the object.
+ Example : $restr_expr = $unigene->restr_expr or $unigene->restr_expr($restr_expr)
+ Returns : A string
+ Args    : None or a restr_expr entry
+
+=cut
+
+sub restr_expr {
+    my $self = shift;
+    return $self->_annotation_value('restr_expr', @_);
 }
 
 

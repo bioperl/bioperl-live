@@ -82,6 +82,7 @@ my %line_is = (
 		LOCUSLINK		=>	q/LOCUSLINK\s+(\S.*)/,
 		HOMOL		=>	q/HOMOL\s+(\S.*)/,
 		EXPRESS			=>	q/EXPRESS\s+(\S.*)/,
+		RESTR_EXPR		=>	q/RESTR_EXPR\s+(\S.*)/,
 		GNM_TERMINUS		=>	q/GNM_TERMINUS\s+(\S.*)/,
 		CHROMOSOME		=>	q/CHROMOSOME\s+(\S.*)/,
 		STS			=>	q/STS\s+(\S.*)/,
@@ -98,6 +99,7 @@ my %line_is = (
 		MGC			=>	q/MGC=\s*(\S.*)/,
 		SEQTYPE		=>	q/SEQTYPE=\s*(\S.*)/,
 		TRACE			=>	q/TRACE=\s*(\S.*)/,
+		PERIPHERAL		=>	q/PERIPHERAL=\s*(\S.*)/,
 		DELIMITER		=>	q/^\/\//
 );
 
@@ -174,6 +176,9 @@ sub next_cluster {
 			$express =~ s/^;//; 
 			@express = split /\s*;/, $express;
 		}
+		elsif ($line =~ /$line_is{RESTR_EXPR}/gcx) {
+			$unigene{RESTR_EXPR} = $1;
+		}
 		elsif ($line =~ /$line_is{GNM_TERMINUS}/gcx) {
 			$unigene{GNM_TERMINUS} = $1;
 		}
@@ -228,6 +233,9 @@ sub next_cluster {
                             elsif (/$line_is{TRACE}/gcx) {
                                 $seq->{trace} = $1;
                             }
+                            elsif (/$line_is{PERIPHERAL}/gcx) {
+                                $seq->{peripheral} = $1;
+                            }
 			}
 			push @sequence, $seq;			
 		}
@@ -244,6 +252,7 @@ sub next_cluster {
 			$UGobj->locuslink(\@locuslink);
 			$UGobj->homol($unigene{HOMOL}) if defined ($unigene{HOMOL});
 			$UGobj->express(\@express);
+			$UGobj->restr_expr($unigene{RESTR_EXPR}) if defined ($unigene{RESTR_EXPR});
 			$UGobj->gnm_terminus($unigene{GNM_TERMINUS}) if defined ($unigene{GNM_TERMINUS});
 			$UGobj->chromosome(\@chromosome);
 			$UGobj->sts(\@sts);

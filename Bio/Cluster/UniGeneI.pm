@@ -206,6 +206,23 @@ sub homol {
 }
 
 
+=head2 restr_expr
+
+ Title   : restr_expr
+ Usage   : restr_expr();
+ Function: Returns the restr_expr entry associated with the object.
+ Example : $restr_expr = $unigene->restr_expr or $unigene->restr_expr($restr_expr)
+ Returns : A string
+ Args    : None or a restr_expr entry
+
+=cut
+
+sub restr_expr {
+    my ($self) = @_;
+    $self->throw_not_implemented;
+}
+
+
 =head2 gnm_terminus
 
  Title   : gnm_terminus
