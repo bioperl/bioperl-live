@@ -94,24 +94,26 @@ my $thing = $data->features('EST');
 
 sub do_write {
   my $test = shift;
-  my $output_file = IMAGES . "/$test.png";
+  my $cangif = GD::Image->can('gif');
+  my $output_file = IMAGES . ($cangif ? "/$test.gif" : "/$test.png");
   my $test_sub    = $test;
   my $panel       = eval "$test_sub()" or die "Couldn't run test: $@";
   open OUT,">$output_file" or die "Couldn't open $output_file for writing: $!";
-  print OUT $panel->png;
+  print OUT $cangif ? $panel->gd->gif : $panel->gd->png;
   close OUT;
 }
 
 sub do_compare {
   my $test = shift;
-  my $input_file = IMAGES . "/$test.png";
+  my $cangif = GD::Image->can('gif');
+  my $input_file = IMAGES . ($cangif ? "/$test.gif" : "/$test.png");
   my $test_sub    = $test;
   my $panel       = eval "$test_sub()" or die "Couldn't run test";
   open IN,"<$input_file" or die "Couldn't open $input_file for writing: $!";
   my $data = '';
   while (read(IN,$data,1024,length $data)) { 1 }
   close IN;
-  ok($data eq $panel->png);
+  ok($data eq $cangif ? $panel->gd->gif : $panel->gd->png);
 }
 
 
