@@ -203,7 +203,7 @@ sub ids     {
     return $d ? @$d : ();
   } else {
     $self->_fetch_ids;
-    return @{$self->{'_ids'}};
+    return @{$self->{'_ids'} || []};
   }
 }
 
