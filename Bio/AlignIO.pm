@@ -266,9 +266,8 @@ use Bio::Root::Root;
 use Bio::Seq;
 use Bio::LocatableSeq;
 use Bio::SimpleAlign;
-use Symbol();
-
-@ISA = qw(Bio::Root::Root);
+use Bio::Root::IO;
+@ISA = qw(Bio::Root::Root Bio::Root::IO);
 
 =head2 new
 
@@ -354,20 +353,7 @@ sub fh {
 sub _initialize {
   my($self,@args) = @_;
 
-  my ($file,$fh) = $self->_rearrange([qw(FILE
-					 FH
-					 )],
-				     @args,
-				     );
-  if( defined $file and defined $fh ) {
-      $self->throw("Providing both a file and a filehandle for reading from - only one please!");
-  }
-
-  if( defined $file and $file ne '' ) {
-      $fh = Symbol::gensym();
-      open ($fh,$file) || $self->throw("Could not open $file for AlignIO stream reading $!");
-  }
-  $self->_filehandle($fh) if( defined $fh);
+  $self->_initialize_io(@args);
   1;
 }
 
@@ -436,79 +422,6 @@ sub write_aln {
     $self->throw("Sorry, you cannot write to a generic Bio::AlignIO object.");
 }
 
-
-=head2 close
-
- Title   : close
- Usage   : $seqio->close()
- Function: Closes the file handle associated with this seqio system
- Example :
- Returns : 
- Args    :
-
-
-=cut
-
-sub close{
-   my ($self,@args) = @_;
-
-   $self->{'_filehandle'} = undef;
-}
-
-
-=head2 _print
-
- Title   : _print
- Usage   : $obj->_print(@lines)
- Function: 
- Example : 
- Returns : writes output
-
-=cut
-
-sub _print {
-  my $self = shift;
-  my $fh = $self->_filehandle || \*STDOUT;
-  print $fh @_;
-}
-
-=head2 _readline
-
- Title   : _readline
- Usage   : $obj->_readline($newval)
- Function: 
- Example : 
- Returns : reads a line of input
-
-=cut
-
-sub _readline {
-  my $self = shift;
-  my $fh = $self->_filehandle;
-  my $line = defined($fh) ? <$fh> : <>;
-  return $line;
-}
-
-=head2 _filehandle
-
- Title   : _filehandle
- Usage   : $obj->_filehandle($newval)
- Function: 
- Example : 
- Returns : value of _filehandle
- Args    : newvalue (optional)
-
-
-=cut
-
-sub _filehandle {
-   my ($obj,$value) = @_;
-   if( defined $value) {
-       $obj->{'_filehandle'} = $value;
-   }
-   return $obj->{'_filehandle'};
-}
-
 =head2 _guess_format
 
  Title   : _guess_format
@@ -533,13 +446,12 @@ sub _guess_format {
 
 sub DESTROY {
     my $self = shift;
-
     $self->close();
 }
 
 sub TIEHANDLE {
   my $class = shift;
-  return bless {alignio => shift},$class;
+  return bless {'alignio' => shift},$class;
 }
 
 sub READLINE {
