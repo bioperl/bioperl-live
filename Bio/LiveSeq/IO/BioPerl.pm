@@ -185,7 +185,7 @@ sub embl2hash {
   my $entry_ID = $seqobj->display_id;
   my $entry_AccNumber = $seqobj->accession; # or maybe accession_number ?
   my $secondary_acc; # to fetch the other acc numbers
-  foreach $secondary_acc ($seqobj->each_secondary_accession) { # not working!
+  foreach $secondary_acc ($seqobj->get_secondary_accessions) { # not working!
     $entry_AccNumber .= " $secondary_acc";
   }
   my $entry_Molecule = $seqobj->molecule; # this alone returns molec+division
