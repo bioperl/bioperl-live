@@ -2,7 +2,7 @@
 #
 # BioPerl module for Bio::SearchIO::sim4
 #
-# Cared for by Jason Stajich <jason@bioperl.org>
+# Cared for by Jason Stajich <jason-at-bioperl-dot-org>
 #
 # Copyright Jason Stajich
 #
@@ -17,13 +17,16 @@ Bio::SearchIO::sim4 - parser for Sim4 alignments
 =head1 SYNOPSIS
 
   # do not use this module directly, it is a driver for SearchIO
-
   use Bio::SearchIO;
   my $searchio = new Bio::SearchIO(-file => 'results.sim4',
                                    -format => 'sim4');
 
-  while( my $r = $searchio->next_result ) {
-    print $r->query_name, "\n";
+  while ( my $result = $searchio->next_result ) {
+      while ( my $hit = $result->next_hit ) {
+	  while ( my $hsp = $hit->next_hsp ) {
+              # ...
+	  }
+      }
   }
 
 =head1 DESCRIPTION
@@ -53,11 +56,11 @@ email or the web:
 
 =head1 AUTHOR - Jason Stajich
 
-Email jason@bioperl.org
+Email jason-at-bioperl-dot-org
 
 =head1 CONTRIBUTORS
 
-Additional contributors names and emails here
+Luc Gauthier (lgauthie@hotmail.com)
 
 =head1 APPENDIX
 
@@ -71,54 +74,60 @@ Internal methods are usually preceded with a _
 
 
 package Bio::SearchIO::sim4;
+
 use strict;
-use vars qw(@ISA $DEFAULTFORMAT 
-	    @STATES %MAPPING %MODEMAP $DEFAULT_WRITER_CLASS $MIN_INTRON);
-use Bio::SearchIO;
-use Bio::SearchIO::SearchResultEventBuilder;
-$DEFAULTFORMAT = 'SIM4';
-@ISA = qw(Bio::SearchIO );
+use vars qw(@ISA $DEFAULTFORMAT %ALIGN_TYPES
+            %MAPPING %MODEMAP $DEFAULT_WRITER_CLASS);
 
 use POSIX;
+use Bio::SearchIO;
+use Bio::SearchIO::SearchResultEventBuilder;
 
-my %align_types = ( 1 => 'Query', 
-		    2 => 'Mid', 
-		    3 => 'Sbjct');
+@ISA = qw(Bio::SearchIO );
 
-%MODEMAP = ('Sim4Output' => 'result',
-	    'Hit'             => 'hit',
-	    'Hsp'             => 'hsp'
-	    );
-%MAPPING =
-    (
+$DEFAULTFORMAT = 'SIM4';
+$DEFAULT_WRITER_CLASS = 'Bio::Search::Writer::HitTableWriter';
+
+%ALIGN_TYPES = (
+    0 => 'Ruler',
+    1 => 'Query', 
+    2 => 'Mid', 
+    3 => 'Sbjct'
+);
+
+%MODEMAP = (
+    'Sim4Output' => 'result',
+    'Hit'        => 'hit',
+    'Hsp'        => 'hsp'
+);
+
+%MAPPING = (
     'Hsp_query-from'=>  'HSP-query_start',
     'Hsp_query-to'  =>  'HSP-query_end',
+    'Hsp_qseq'      =>  'HSP-query_seq',
+    'Hsp_qlength'   =>  'HSP-query_length',
+    'Hsp_querygaps'  => 'HSP-query_gaps',
     'Hsp_hit-from'  =>  'HSP-hit_start',
     'Hsp_hit-to'    =>  'HSP-hit_end',
-    'Hsp_qseq'      =>  'HSP-query_seq',
     'Hsp_hseq'      =>  'HSP-hit_seq',
+    'Hsp_hlength'   =>  'HSP-hit_length',
+    'Hsp_hitgaps'    => 'HSP-hit_gaps',
     'Hsp_midline'   =>  'HSP-homology_seq',
     'Hsp_score'     =>  'HSP-score',
-    'Hsp_qlength'   =>  'HSP-query_length',
-    'Hsp_hlength'   =>  'HSP-hit_length',
     'Hsp_align-len' =>  'HSP-hsp_length',
     'Hsp_identity'  =>  'HSP-identical',
-    'Hsp_gaps'       => 'HSP-hsp_gaps',
-    'Hsp_hitgaps'    => 'HSP-hit_gaps',
-    'Hsp_querygaps'  => 'HSP-query_gaps',
 
     'Hit_id'        => 'HIT-name',
     'Hit_desc'      => 'HIT-description',
     'Hit_len'       => 'HIT-length',
-    'Hit_score'     => 'HIT-score',
 
     'Sim4Output_program'   => 'RESULT-algorithm_name',
     'Sim4Output_query-def' => 'RESULT-query_name',
     'Sim4Output_query-desc'=> 'RESULT-query_description',
     'Sim4Output_query-len' => 'RESULT-query_length',
-    );
+);
 
-$DEFAULT_WRITER_CLASS = 'Bio::Search::Writer::HitTableWriter';
+
 
 =head2 new
 
@@ -131,24 +140,11 @@ $DEFAULT_WRITER_CLASS = 'Bio::Search::Writer::HitTableWriter';
 
 =cut
 
-sub _initialize {
-    my ($self,@args) = @_;
-    $self->SUPER::_initialize(@args);
-    
-    my($rpttype,$fmt ) = $self->_rearrange([qw(REPORT_TYPE
-					       SIM4_FORMAT)], @args);
-    $fmt ||= 0;
-    if( $fmt == 2 ) {
-	$self->throw("Cannot parse Sim4 format $fmt, only 0, 1, 3, and 4 allowed");
-    }
-    defined $fmt && ($self->{'_sim4format'} = $fmt);
-    defined $rpttype && ($self->{'_reporttype'} = $rpttype);
-}
 
 =head2 next_result
 
  Title   : next_result
- Usage   : my $hit = $searchio->next_result;
+ Usage   : my $result = $searchio->next_result;
  Function: Returns the next Result from a search
  Returns : Bio::Search::Result::ResultI object
  Args    : none
@@ -157,140 +153,196 @@ sub _initialize {
 
 sub next_result {
     my ($self) = @_;
+
+    # Declare/adjust needed variables
     $self->{'_last_data'} = '';
-    my ($reporttype,$seenquery,$reportline);
-    $self->start_document();
-    my ($qfull,$seentop);
-    $reporttype = $DEFAULTFORMAT;
-    # let's parse very basic Sim4
-
-    my $sim4fmt = $self->{'_sim4format'};
+    my ($seentop, $qfull, @hsps, %alignment, $format);
     my $hit_direction = 1;
-    while( defined($_ = $self->_readline) ) {       
-	next if( /^\s+$/);
-	chomp;
-	if( /^seq1\s*=\s*(.+),\s+(\d+)\s*bp/ ) {
-	    if( $seentop ) {
-		$self->_pushback($_);
-		$self->end_element({'Name' => 'Hit'});
-		$self->end_element({'Name' => 'Sim4Output'});
-		return $self->end_document();
-	    }
-	    $seentop = 1;
-	    $self->{'_result_count'}++;
-	    $self->start_element({'Name' => 'Sim4Output'});
-	    $self->element({'Name' => 'Sim4Output_query-def',
-			    'Data' => $1 });
-	    $self->element({'Name' => 'Sim4Output_query-len',
-			    'Data' => $2 });
-	} elsif( /^seq2\s*=\s*(.+),\s+(\d+)\s*bp/ ) {
-	    my $len = $2;
-	    my ($filename,$hitname) = split(/\s+/,$1);
 
-	    $hitname =~ s/[\(\)\>]//g;
-	    $self->start_element({'Name' => 'Hit'});
-	    $self->element({'Name' => 'Hit_id',
-			    'Data' => $hitname});
-	    $self->element({'Name' => 'Hit_desc',
-			    'Data' => $filename});
-	    $self->element({'Name' => 'Hit_len',
-			    'Data' => $len});
-	} elsif( /^>(\S+)\s+(.+)?/ ) {
+    # Start document and main element
+    $self->start_document();
+    $self->start_element({'Name' => 'Sim4Output'});
+
+    # Read output report until EOF
+    while( defined($_ = $self->_readline) ) {       
+        # Skip empty lines, chomp filled ones
+	next if( /^\s+$/); chomp;
+
+        # Make sure sim4 output format is not 2 or 5
+        if (!$seentop) {
+	    if ( /^#:lav/ ) { $format = 2; }
+            elsif ( /^<|>/ ) { $format = 5; }
+            $self->throw("Bio::SearchIO::sim4 module cannot parse 'type $format' outputs.") if $format;
+	}
+
+        # This line indicates the start of a new hit
+	if( /^seq1\s*=\s*(\S+),\s+(\d+)/ ) {
+            # First hit? Adjust some parameters if so
+	    if ( !$seentop ) {
+	        $self->element( {'Name' => 'Sim4Output_query-def', 
+				 'Data' => $1} );
+	        $self->element( {'Name' => 'Sim4Output_query-len', 
+				 'Data' => $2} );
+                $seentop = 1;
+	    }
+            # A previous HSP may need to be ended
+            $self->end_element({'Name' => 'Hsp'}) if ( $self->in_element('hsp') );
+            # A previous hit exists? End it and reset needed variables
+            if ( $self->in_element('hit') ) {
+	        foreach (@hsps) {
+                    $self->start_element({'Name' => 'Hsp'});
+                    while (my ($name, $data) = each %$_) {
+                        $self->{'_currentHSP'}{$name} = $data;
+		    }
+		    $self->end_element({'Name' => 'Hsp'});
+                    $self->{'_currentHSP'} = {};
+	        }
+                $format = 0 if @hsps;
+                @hsps = ();
+                %alignment = ();
+                $qfull = 0;
+                $hit_direction = 1;
+                $self->end_element({'Name' => 'Hit'});
+	    }
+
+        # This line describes the current hit... so let's start it
+	} elsif( /^seq2\s*=\s*(\S+)\s+\(>?(\S+)\s*\),\s*(\d+)/ ) {
+            $self->start_element({'Name' => 'Hit'});
+	    $self->element( {'Name' => 'Hit_id', 'Data' => $2} );
+	    $self->element( {'Name' => 'Hit_desc', 'Data' => $1} );
+	    $self->element( {'Name' => 'Hit_len', 'Data' => $3} );
+
+        # This line may give additional details about query or subject
+	} elsif( /^>(\S+)\s*(.*)?/ ) {
+            # Previous line was query details... this time subject details
 	    if( $qfull )  {
-		$self->element({'Name' => 'Hit_desc',
-				'Data' => $2});
+                $format = 4 if !$format;
+		$self->element({'Name' => 'Hit_desc', 'Data' => $2});
+            # First line of this type is always query details for a given hit
 	    } else { 
-		$self->element({'Name'  => 'Sim4Output_query-desc',
-				'Data'  => $2});
+		$self->element({'Name' => 'Sim4Output_query-desc', 'Data' => $2});
 		$qfull = 1;
 	    }
+
+        # This line indicates that subject is on reverse strand
 	} elsif( /^\(complement\)/ ) {
 	    $hit_direction = -1;
-	} elsif( $seentop ) { 
-	    if( /^\(?(\d+)\-(\d+)\)?\s+\(?(\d+)\-(\d+)\)?\s+(\S+)/ ) {
-		next if( $sim4fmt >= 3 );
-		if( $self->in_element('hsp') ) {
-		    $self->end_element({'Name' => 'Hsp'});
-		}
+
+        # This line describes the current HSP... so add it to @hsps array
+	} elsif( /^\(?(\d+)\-(\d+)\)?\s+\(?(\d+)\-(\d+)\)?\s+(\d+)/ ) {
 		my ($qs,$qe,$hs,$he,$pid) = ($1,$2,$3,$4,$5);
-		$pid =~ s/\%//;
-		$self->start_element({'Name' => 'Hsp'});
-		$self->element({'Name' => 'Hsp_query-from',
-				'Data' => $qs});
-		$self->element({'Name' => 'Hsp_query-to',
-				'Data' => $qe});
+                push @hsps, {
+                    'Hsp_query-from' => $qs,
+                    'Hsp_query-to' => $qe,
+                    'Hsp_hit-from' => $hit_direction >= 0 ? $hs : $he,
+                    'Hsp_hit-to' => $hit_direction >= 0 ? $he : $hs,
+                    'Hsp_identity' => 0, #can't determine correctly from raw pct
+                    'Hsp_qlength' => abs($qe - $qs) + 1,
+                    'Hsp_hlength' => abs($he - $hs) + 1,
+                    'Hsp_align-len' => abs($qe - $qs) + 1,
+	        };
 
-		if( $hit_direction < 0 ) {
-		    $self->element({'Name' => 'Hsp_hit-from',
-				    'Data' => $he});
-		    $self->element({'Name' => 'Hsp_hit-to',
-				    'Data' => $hs});
-		} else { 
-		    $self->element({'Name' => 'Hsp_hit-from',
-				    'Data' => $hs});
-		    $self->element({'Name' => 'Hsp_hit-to',
-				    'Data' => $he});
-		}
+        # This line indicates the start of an alignment block
+        } elsif( /^\s+(\d+)\s/ ) {
+            # Store the current alignment block in a hash
+	    for( my $i = 0; defined($_) && $i < 4; $i++ ) {
+                my ($start, $string) = /^\s+(\d*)\s(.*)/;
+                $alignment{$ALIGN_TYPES{$i}} = { start => $start, string => $i != 2
+                    ? $string
+                    : (' ' x (length($alignment{$ALIGN_TYPES{$i-1}}{string}) - length($string))) . $string
+                };
+                $_ = $self->_readline();
+	    }
 
-		my $numiden = int(($pid / 100) * abs($qe - $qs));
-		$self->element({'Name' => 'Hsp_identity',
-				'Data' => $numiden});
-		$self->element({'Name' => 'Hsp_qlength',
-				'Data' => abs($qe - $qs)});
-		$self->element({'Name' => 'Hsp_hlength',
-				'Data' => abs($he - $hs)});
-		$self->element({'Name' => 'Hsp_align-len',
-				'Data' => abs($qe - $qs)});
-		
-		$self->end_element({'Name' => 'Hsp'});
-	    } elsif( /^\s+(\d+)\s/ ) {
-		unless( $sim4fmt ) { $sim4fmt = $self->{'_sim4format'} = 1 }
-		unless( $self->in_element('hsp') ) {
-		    $self->start_element({'Name' => 'Hsp'});
-		}
-		my (%data,$len);
-		for( my $i = 0; defined($_) && $i < 4; $i++ ) {
-		    chomp;
-		    $self->debug("i is $i for $_\n");
-		    if( $i == 0 && /^\s+$/ ) {
-			$self->_pushback($_) if defined $_;
-			$self->end_element({'Name' => 'Hsp'});
-			last;
-		    } elsif( ($i == 1 || $i == 3) && 
-			     s/^(\s+(\d+)\s)// ) {
-			my $type = $align_types{$i};       
-			my $num = $2;
-			$len = CORE::length($1) unless $len;
-			$data{$type} = $_;
-			my $ungapped = $_;
-			$ungapped =~ s/[\s\.]//g;
-			if( $num ) {
-			    $self->{"\_$type"}->{'begin'} ||= $num;
-			    $self->{"\_$type"}->{'end'} = 
-				$num + CORE::length($ungapped);
-			}
-		    } elsif( $i == 2 ) {
-			$self->throw("no data for midline $_") 
-			    unless (defined $_ && defined $len);
-			my $mid = substr($_,$len);
-			# $mid =~ s/[\>\<\.]//g;
-			$data{'Mid'} = $mid;
+            # 'Ruler' line indicates the start of a new HSP
+            if ($alignment{Ruler}{start} == 0) {
+                $format = @hsps ? 3 : 1 if !$format;
+                # A previous HSP may need to be ended
+                $self->end_element({'Name' => 'Hsp'}) if ( $self->in_element('hsp') );
+                # Start the new HSP and fill the '_currentHSP' property with available details
+     	        $self->start_element({'Name' => 'Hsp'});
+                $self->{'_currentHSP'} = @hsps ? shift @hsps : {
+                    'Hsp_query-from' => $alignment{Query}{start},
+                    'Hsp_hit-from' => $alignment{Sbjct}{start},
+     	        }
+	    }
+
+            # Midline indicates a boundary between two HSPs
+	    if ( $alignment{Mid}{string} =~ /<|>/g ) {
+                my ($hsp_start, $hsp_end);
+                # Are we currently in an open HSP?
+    	        if ( $self->in_element('hsp') ) {
+                    # Find end pos, adjust 'gaps', 'seq' and 'midline' properties... then close HSP
+                    $hsp_end = (pos $alignment{Mid}{string}) - 1;
+                    $self->{'_currentHSP'}{'Hsp_querygaps'} +=
+                        ($self->{'_currentHSP'}{'Hsp_qseq'} .= substr($alignment{Query}{string}, 0, $hsp_end)) =~ s/ /-/g;
+                    $self->{'_currentHSP'}{'Hsp_hitgaps'} +=
+                        ($self->{'_currentHSP'}{'Hsp_hseq'} .= substr($alignment{Sbjct}{string}, 0, $hsp_end)) =~ s/ /-/g;
+                    ($self->{'_currentHSP'}{'Hsp_midline'} .= substr($alignment{Mid}{string}, 0, $hsp_end)) =~ s/-/ /g;
+                    $self->end_element({'Name' => 'Hsp'});
+
+                    # Does a new HSP start in the current alignment block?
+                    if ( $alignment{Mid}{string} =~ /\|/g ) {
+                        # Find start pos, start new HSP and fill it with available details
+                        $hsp_start = (pos $alignment{Mid}{string}) - 1;
+                        $self->start_element({'Name' => 'Hsp'});
+                        $self->{'_currentHSP'} = @hsps ? shift @hsps : {};
+                        $self->{'_currentHSP'}{'Hsp_querygaps'} +=
+                            ($self->{'_currentHSP'}{'Hsp_qseq'} = substr($alignment{Query}{string}, $hsp_start)) =~ s/ /-/g;
+                        $self->{'_currentHSP'}{'Hsp_hitgaps'} +=
+                            ($self->{'_currentHSP'}{'Hsp_hseq'} = substr($alignment{Sbjct}{string}, $hsp_start)) =~ s/ /-/g;
+                        ($self->{'_currentHSP'}{'Hsp_midline'} = substr($alignment{Mid}{string}, $hsp_start)) =~ s/-/ /g;
 		    }
-		    $_ = $self->_readline();
 		}
-		$self->characters({'Name' => 'Hsp_qseq',
-				   'Data' => $data{'Query'} });
-		$self->characters({'Name' => 'Hsp_hseq',
-				   'Data' => $data{'Sbjct'}});
-		$self->characters({'Name' => 'Hsp_midline',
-				   'Data' => $data{'Mid'} });
+                # No HSP is currently open...
+                else {
+                    # Find start pos, start new HSP and fill it with available
+                    # details then skip to next alignment block
+		    $hsp_start = index($alignment{Mid}{string}, '|');
+	            $self->start_element({'Name' => 'Hsp'});
+                    $self->{'_currentHSP'} = @hsps ? shift @hsps : {
+                        'Hsp_query-from' => $alignment{Query}{start},
+    	            };
+                    $self->{'_currentHSP'}{'Hsp_querygaps'} +=
+                        ($self->{'_currentHSP'}{'Hsp_qseq'} = substr($alignment{Query}{string}, $hsp_start)) =~ s/ /-/g;
+                    $self->{'_currentHSP'}{'Hsp_hitgaps'} +=
+                        ($self->{'_currentHSP'}{'Hsp_hseq'} = substr($alignment{Sbjct}{string}, $hsp_start)) =~ s/ /-/g;
+                    ($self->{'_currentHSP'}{'Hsp_midline'} = substr($alignment{Mid}{string}, $hsp_start)) =~ s/-/ /g;
+                    next;
+		}
+	    }
+            # Current alignment block does not contain HSPs boundary
+            # We only need to adjust details of the current HSP
+            else {
+                $self->{'_currentHSP'}{'Hsp_query-from'} ||= $alignment{Query}{start} - length($self->{'_currentHSP'}{'Hsp_qseq'});
+                $self->{'_currentHSP'}{'Hsp_hit-from'} ||= $alignment{Sbjct}{start} - length($self->{'_currentHSP'}{'Hsp_hseq'});
+                $self->{'_currentHSP'}{'Hsp_querygaps'} +=
+                    ($self->{'_currentHSP'}{'Hsp_qseq'} .= $alignment{Query}{string}) =~ s/ /-/g;
+                $self->{'_currentHSP'}{'Hsp_hitgaps'} +=
+                    ($self->{'_currentHSP'}{'Hsp_hseq'} .= $alignment{Sbjct}{string}) =~ s/ /-/g;
+                ($self->{'_currentHSP'}{'Hsp_midline'} .= $alignment{Mid}{string}) =~ s/-/ /g;
 	    }
 	}
     }
 
+    # We are done reading the sim4 report, end everything and return
     if( $seentop ) {
-	$self->end_element({'Name' => 'Hsp'}) if $self->in_element('hsp');
-	$self->end_element({'Name' => 'Hit'});
+        # end HSP if needed
+        $self->end_element({'Name' => 'Hsp'}) if ( $self->in_element('hsp') );
+        # end Hit if needed
+        if ( $self->in_element('hit') ) {
+            foreach (@hsps) {
+                $self->start_element({'Name' => 'Hsp'});
+                while (my ($name, $data) = each %$_) {
+                    $self->{'_currentHSP'}{$name} = $data;
+    	        }
+    	        $self->end_element({'Name' => 'Hsp'});
+            }
+            $self->end_element({'Name' => 'Hit'});
+	}
+        # adjust result's algorithm name, end output and return
+        $self->element({'Name' => 'Sim4Output_program',
+                        'Data' => $DEFAULTFORMAT . ' (A=' . (defined $format ? $format : '?') . ')'});
 	$self->end_element({'Name' => 'Sim4Output'});
 	return $self->end_document();
     } 
@@ -345,29 +397,24 @@ sub end_element {
     my $nm = $data->{'Name'};
     my $type = $MODEMAP{$nm};
     my $rc;
-
-    if( $nm eq 'Hsp' && $self->{'_sim4format'} > 0 ) {	
-	foreach ( qw(Hsp_qseq Hsp_midline Hsp_hseq) ) {
-            $self->element({'Name' => $_,
-                            'Data' => $self->{'_last_hspdata'}->{$_}});
-        }
-	my $ident = ( $self->{'_last_hspdata'}->{'Hsp_midline'} =~ s/\|//g);
-	$self->element({'Name' => 'Hsp_identity',
-                        'Data' => $ident});
-        $self->{'_last_hspdata'} = {};
-        $self->element({'Name' => 'Hsp_query-from',
-                        'Data' => $self->{'_Query'}->{'begin'}});
-        $self->element({'Name' => 'Hsp_query-to',
-                        'Data' => $self->{'_Query'}->{'end'}});
-        
-        $self->element({'Name' => 'Hsp_hit-from',
-                        'Data' => $self->{'_Sbjct'}->{'begin'}});
-        $self->element({'Name' => 'Hsp_hit-to',
-                        'Data' => $self->{'_Sbjct'}->{'end'}});
-
-#    } elsif( $nm eq 'Iteration' ) {
-# Nothing special needs to be done here.
+    
+    if( $nm eq 'Hsp' ) {
+        $self->{'_currentHSP'}{'Hsp_midline'} ||= '';
+	$self->{'_currentHSP'}{'Hsp_query-to'} ||=
+            $self->{'_currentHSP'}{'Hsp_query-from'} + length($self->{'_currentHSP'}{'Hsp_qseq'}) - 1 - $self->{'_currentHSP'}{'Hsp_querygaps'};
+        $self->{'_currentHSP'}{'Hsp_hit-to'} ||=
+            $self->{'_currentHSP'}{'Hsp_hit-from'} + length($self->{'_currentHSP'}{'Hsp_hseq'}) - 1 - $self->{'_currentHSP'}{'Hsp_hitgaps'};
+        $self->{'_currentHSP'}{'Hsp_identity'} ||= 
+	    ($self->{'_currentHSP'}{'Hsp_midline'} =~ tr/\|//);
+        $self->{'_currentHSP'}{'Hsp_qlength'} ||= abs($self->{'_currentHSP'}{'Hsp_query-to'} - $self->{'_currentHSP'}{'Hsp_query-from'}) + 1;
+        $self->{'_currentHSP'}{'Hsp_hlength'} ||= abs($self->{'_currentHSP'}{'Hsp_hit-to'} - $self->{'_currentHSP'}{'Hsp_hit-from'}) + 1;
+        $self->{'_currentHSP'}{'Hsp_align-len'} ||= abs($self->{'_currentHSP'}{'Hsp_query-to'} - $self->{'_currentHSP'}{'Hsp_query-from'}) + 1;
+        $self->{'_currentHSP'}{'Hsp_score'} ||= int(100 * ($self->{'_currentHSP'}{'Hsp_identity'} / $self->{'_currentHSP'}{'Hsp_align-len'}));
+        foreach (keys %{$self->{'_currentHSP'}}) {
+            $self->element({'Name' => $_, 'Data' => delete ${$self->{'_currentHSP'}}{$_}});
+	}
     }
+
     if( $type = $MODEMAP{$nm} ) {
 	if( $self->_will_handle($type) ) {
 	    my $func = sprintf("end_%s",lc $type);
@@ -529,8 +576,7 @@ sub write_result {
 }
 
 sub result_count {
-    my $self = shift;
-    return $self->{'_result_count'};
+    return 1; # can a sim4 report contain more than one result?
 }
 
 sub report_count { shift->result_count }
@@ -575,4 +621,3 @@ sub _will_handle {
 }
 
 1;
-

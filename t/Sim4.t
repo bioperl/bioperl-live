@@ -12,7 +12,7 @@ BEGIN {
 	use lib 't';
     }
     use Test;
-    plan tests => 129;
+    plan tests => 128;
 }
 
 use Bio::Tools::Sim4::Results;
@@ -138,7 +138,6 @@ ok($r->query_length, 630);
 
 $hit = $r->next_hit;
 ok($hit->name, 'Contig147');
-ok($hit->description, 'Contig147.fa');
 ok($hit->length, 1086);
 
 $hsp = $hit->next_hsp;
