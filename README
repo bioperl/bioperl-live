@@ -12,7 +12,8 @@ o Getting Started
  information on databases and Bioperl see biodatabases.pod. To look at
  example code browse the examples/ and scripts/ directories, and look at
  bioperl.pod for a descriptions of all these scripts. The bioperl.pod file
- also gives a overview of the history and purpose of Bioperl.
+ also gives a overview of the history and purpose of Bioperl.  To see
+ the online version of the documentation go to http://doc.bioperl.org.
 
  For a discussion of issues in design and development please see
  biodesign.pod, recommended for those who want to contribute code. And for
@@ -82,7 +83,7 @@ o About the directory structure
 
  The bioperl directory structure is organised as follows:
 
- Bio/      - Bioperl modules  
+ Bio/      - Bioperl module code
  models/   - DIA drawing program generated OO UML for bioperl classes
  t/        - Perl built-in tests
  t/data/   - Data files used for the tests - provides good data
@@ -149,12 +150,6 @@ o Releases
  package, however any known bugs in a release will be documented in the
  BUGS file.  See the Changes file for a listing of what features have
  been added or what APIs have changed between releases.
-
- The 0.9.x developer series releases are intended to be quick
- releases off the main trunk to provided FTPable code that has been
- test that it will compile and all tests pass reasonably.  In the
- future all odd numbered point releases will be developer releases and
- even point releases will be stable releases.
 
 o Install directions
 
@@ -301,7 +296,6 @@ o Install directions
  for you. You can always execute perl scripts in the same directory 
  as the location of the modules (Bio/ in the distribution) since perl 
  always checks the current working directory when looking for modules.
-
 
  USING MODULES NOT INSTALLED IN THE STANDARD PERL LOCATION
 

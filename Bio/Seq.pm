@@ -358,7 +358,7 @@ use Bio::RangeI;
 use Bio::Annotation::Collection;
 use Bio::PrimarySeq;
 
-$VERSION = '0.9';
+$VERSION = '1.0';
 @ISA = qw(Bio::Root::Root Bio::SeqI Bio::RangeI);
 
 =head2 new
