@@ -207,7 +207,13 @@ sub from_SeqFeature {
     # if the parent homogenous flag is set, build things from the
     # sub level
     my $loc;
-    my $ph_flag = $sf->_parse->{'parent_homogenous'} || 0;
+    my $ph_flag;
+    if( $sf->can('_parse') ) {
+	$ph_flag = $sf->_parse->{'parent_homogenous'} || 0;
+    } else {
+	$ph_flag = 0;
+    }
+
     if( $ph_flag == 1 ) {
 	$key = $sf->primary_tag();
 	$key =~ s/_span//g;

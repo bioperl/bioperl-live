@@ -137,7 +137,7 @@ sub feature1 {
     my ($self,$arg) = @_;
 
     if (defined($arg)) {
-	$self->throw("Argument must be a Bio::SeqFeatureI") unless (ref($arg) ne "" && $arg->isa("Bio::SeqFeatureI"));
+	$self->throw("Argument [$arg] must be a Bio::SeqFeatureI") unless (ref($arg) ne "" && $arg->isa("Bio::SeqFeatureI"));
 	$self->{_feature1} = $arg;
     } 
 
@@ -160,7 +160,7 @@ sub feature2 {
     my ($self,$arg) = @_;
 
     if (defined($arg)) {
-	$self->throw("Argument must be a Bio::SeqFeatureI") unless (ref($arg) ne "" && $arg->isa("Bio::SeqFeatureI"));
+	$self->throw("Argument [$arg] must be a Bio::SeqFeatureI") unless (ref($arg) ne "" && $arg->isa("Bio::SeqFeatureI"));
 	$self->{_feature2} = $arg;
     } 
     return $self->{_feature2};
@@ -560,6 +560,42 @@ sub invert {
     
     $self->feature1($self->feature2);
     $self->feature2($tmp);
+
+}
+
+=head2 sub_SeqFeature
+
+ Title   : sub_SeqFeature
+ Usage   : Function just for complying with SeqFeatureI
+ Function:
+ Example :
+ Returns : an empty list
+ Args    :
+
+
+=cut
+
+sub sub_SeqFeature{
+   my ($self,@args) = @_;
+
+   return ();
+}
+
+=head2 all_tags
+
+ Title   : all_tags
+ Usage   : Function just for complying with SeqFeatureI
+ Function:
+ Example :
+ Returns : an empty list
+ Args    :
+
+
+=cut
+
+sub all_tags{
+   my ($self,@args) = @_;
+   return ();
 
 }
 
