@@ -63,10 +63,9 @@ of the Bioperl mailing lists.  Your participation is much appreciated.
 =head2 Reporting Bugs
 
 Report bugs to the Bioperl bug tracking system to help us keep track
-the bugs and their resolution.  Bug reports can be submitted via email
-or the web:
+the bugs and their resolution.  Bug reports can be submitted via the
+web:
 
-  bioperl-bugs@bio.perl.org
   http://bugzilla.bioperl.org/
 
 =head1 APPENDIX
@@ -453,18 +452,21 @@ but can be validly overwritten by subclasses
             number of N's (DNA) or X's (protein, though this is unlikely).
 
             This function is deliberately "magical" attempting to second guess
-            what a user wants as "the" sequence for this feature
+            what a user wants as "the" sequence for this feature.
 
             Implementing classes are free to override this method with their
-            own magic if they have a better idea what the user wants
+            own magic if they have a better idea what the user wants.
 
-  Args    : [optional] A Bio::DB::RandomAccessI compliant object
-  Returns : A Bio::Seq
+  Args    : [optional] A L<Bio::DB::RandomAccessI> compliant object if 
+                       one needs to retrieve remote seqs. 
+            [optional] boolean if the locations should not be sorted 
+                       by start location.
+  Returns : A L<Bio::PrimarySeqI> object
 
 =cut
 
 sub spliced_seq {
-    my ($self,$db) = @_;
+    my ($self,$db,$nosort) = @_;
    
     if( ! $self->location->isa("Bio::Location::SplitLocationI") ) {
 	return $self->seq(); # nice and easy!
@@ -475,7 +477,7 @@ sub spliced_seq {
 	$self->throw("not atomic, not split, yikes, in trouble!");
     }
 
-    my $seqstr;
+    my $seqstr = '';
     my $seqid = $self->entire_seq->display_id;
     # This is to deal with reverse strand features
     # so we are really sorting features 5' -> 3' on their strand
@@ -497,30 +499,35 @@ sub spliced_seq {
 	$self->warn("Calling spliced_seq with a Bio::Das::SegmentI which does have absolute set to 1 -- be warned you may not be getting things on the correct strand");
     }
     
-    my @locs = map { $_->[0] }
-    # sort so that most negative is first basically to order
-    # the features on the opposite strand 5'->3' on their strand
-    # rather than they way most are input which is on the fwd strand
+    my @locset = $self->location->each_Location;
+    my @locs;
+    if( ! $nosort ) {
+	@locs = map { $_->[0] }
+	# sort so that most negative is first basically to order
+	# the features on the opposite strand 5'->3' on their strand
+	# rather than they way most are input which is on the fwd strand
 
-    sort { $a->[1] <=> $b->[1] } # Yes Tim, Schwartzian transformation
-    map { 
-	$fstrand = $_->strand unless defined $fstrand;
-	$mixed = 1 if defined $_->strand && $fstrand != $_->strand;
-	if( defined $_->seq_id ) {
-	    $mixedloc = 1 if( $_->seq_id ne $seqid );
+	sort { $a->[1] <=> $b->[1] } # Yes Tim, Schwartzian transformation
+	map { 
+	    $fstrand = $_->strand unless defined $fstrand;
+	    $mixed = 1 if defined $_->strand && $fstrand != $_->strand;
+	    if( defined $_->seq_id ) {
+		$mixedloc = 1 if( $_->seq_id ne $seqid );
+	    }
+	    [ $_, $_->start* ($_->strand || 1)];	    
+	} @locset; 
+
+	if ( $mixed ) { 
+	    $self->warn("Mixed strand locations, spliced seq using the input order rather than trying to sort");    
+	    @locs = @locset;
 	}
-	[ $_, $_->start* ($_->strand || 1)];	    
-    } $self->location->each_Location; 
-   
-    if ( $mixed ) { 
-	$self->warn("Mixed strand locations, spliced seq using the input order rather than trying to sort");    
-	@locs = $self->location->each_Location; 
-    } elsif( $mixedloc ) {
-	# we'll use the prescribed location order
-	@locs = $self->location->each_Location; 
-    }
+    } else { 
+	# use the original order instead of trying to sort
+	@locs = @locset;
+	$fstrand = $locs[0]->strand;
+    } 
 
-    foreach my $loc ( @locs  ) {
+    foreach my $loc ( @locs ) {
 	if( ! $loc->isa("Bio::Location::Atomic") ) {
 	    $self->throw("Can only deal with one level deep locations");
 	}
@@ -558,15 +565,16 @@ sub spliced_seq {
 	    my ($s,$e) = ($loc->start,$loc->end);	    
 	    $seqstr .= $called_seq->subseq($s,$e)->seq();
 	} else { 
-	    # This is dumb subseq should work on locations...
+	    # This is dumb, subseq should work on locations...
 	    if( $loc->strand == 1 ) {
 		$seqstr .= $called_seq->subseq($loc->start,$loc->end);
 	    } else {
-		$seqstr .= $called_seq->trunc($loc->start,$loc->end)->revcom->seq();
+		$seqstr = $called_seq->trunc($loc->start,$loc->end)->revcom->seq() . $seqstr;
 	    }
 	}
     }
-    my $out = Bio::Seq->new( -id => $self->entire_seq->display_id . "_spliced_feat",
+    my $out = Bio::Seq->new( -id => $self->entire_seq->display_id 
+			            . "_spliced_feat",
 			     -seq => $seqstr);
     
     return $out;
