@@ -56,7 +56,8 @@ o Contact info
  Please see the AUTHORS file for the complete list of bioperl
  developers and contributors.
 
- Please see the INSTALL document for installation instructions.
+ Please see the the INSTALL or INSTALL.WIN documents for installation 
+ instructions.
 
 o About the directory structure
 
@@ -67,12 +68,9 @@ o About the directory structure
  t/        - Perl built-in tests
  t/data/   - Data files used for the tests - provides good data
 	     examples for those new to bioinformatics data.	     
- scripts/  - Resuable scripts that use bioperl, some organisation in 
-	     attempted here (i.e. das contains das related scripts) 
- scripts/contributed - User submissions of useful scripts not necessarily 
-		       integrated into bioperl.  Please see the README
-		       in this directory.
- doc/ - "How To" files and the FAQ as XML
+ scripts/  - Useful production-quality scripts with POD documentation 
+ examples/ - Scripts demonstrating the many uses of Bioperl
+ doc/      - "How To" files and the FAQ as XML
 
 o Documentation
 
@@ -113,7 +111,7 @@ o Documentation
  http://www.pasteur.fr/recherche/unites/sis/formation/bioperl.
 
  Useful documentation in the form of example code can also be found
- in the scripts/ directory. The current collection includes scripts
+ in the examples/ directory. The current collection includes scripts
  that run BLAST, index flat files, parse PDB structure files, make primers,
  retrieve ESTs based on tissue, align protein to nucleotide
  sequence, run GENSCAN on multiple sequences, and much more! See
@@ -167,7 +165,7 @@ o Caveats, warnings, etc
  supposed to do.  If you wanted to run this program you'd need to
  install it first.
  
- Not all scripts in the scripts directory are correct and up-to-date.
+ Not all scripts in the examples/ directory are correct and up-to-date.
  We need volunteers to help maintain these so if you find they do not
  work, submit a bug report http://bugzilla.bioperl.org and/or consider
  helping out in their maintence.  Don't be disuaded by a script not
