@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# $Id: fast_load_gff.PLS,v 1.13 2004-03-19 16:36:29 lstein Exp $
+# $Id: fast_load_gff.PLS,v 1.14 2004-07-20 17:54:07 lstein Exp $
 
 use strict;
 # use lib './blib/lib';
@@ -65,7 +65,7 @@ If your MySQL is version 3.22.6 and was compiled using the "load local
 file" option, then you may be able to load remote databases with local
 data using the --local option.
 
-About maxbin: the default value is 100,000,000 bases.  If you have
+About maxfeature: the default value is 100,000,000 bases.  If you have
 features that are close to or greater that 100Mb in length, then the
 value of maxbin should be increased to 1,000,000,000.
 
@@ -83,7 +83,7 @@ e.g. -d instead of --database.
    --user                Username to log in as
    --fasta               File or directory containing fasta files to load
    --password            Password to use for authentication
-   --maxbin              Set the value of the maximum bin size
+   --maxfeature         Set the value of the maximum featuer size (default 100Mb)
    --group               A list of one or more tag names (comma or space separated)
                           to be used for grouping in the 9th column.
 
@@ -141,6 +141,7 @@ GetOptions ('database:s'    => \$DSN,
 	    'fasta:s'       => \$FASTA,
 	    'group:s'       => \$GROUP_TAG,
             'maxbin:s'      => \$MAX_BIN
+            'maxfeature:s'  => \$MAX_BIN
 	   ) or (system('pod2text',$0), exit -1);
 
 $DSN ||= 'test';
@@ -270,6 +271,8 @@ while (<>) {
   }
   next unless defined $ref;
   $FEATURES++;
+
+  warn "Feature $group is larger than $MAX_BIN. You will have trouble retrieving this feature.\nRerun script with --maxfeature set to a higher value.\n" if $stop-$start+1 > $MAX_BIN;
 
   $source = '\N' unless defined $source;
   $score  = '\N' if $score  eq '.';

@@ -65,7 +65,7 @@ with the database host specified in the dsn, e.g. dbi:mysql:test:db_host
 The adaptor used is dbi::mysqlopt.  There is currently no way to
 change this.
 
-About maxbin: the default value is 100,000,000 bases.  If you have
+About maxfeature: the default value is 100,000,000 bases.  If you have
 features that are close to or greater that 100Mb in length, then the
 value of maxbin should be increased to 1,000,000,000.
 
@@ -89,7 +89,7 @@ e.g. -d instead of --database.
                          GFF and/or FASTA files
    --password            Password to use for authentication
    --local               Flag to indicate that the data source is local
-   --maxbin              Set the value of the maximum bin size
+   --maxfeature          Set the value of the maximum feature size
    --group               A list of one or more tag names (comma or space separated)
                          to be used for grouping in the 9th column.
 
@@ -140,6 +140,7 @@ GetOptions ('database:s'    => \$DSN,
 	    'fasta:s'       => \$FASTA,
             'local'         => \$LOCAL,
             'maxbin:s'      => \$MAX_BIN,
+            'maxfeature:s'  => \$MAX_BIN,
 	    'group:s'       => \$GROUP_TAG,
 	    'long_list:s'   => \$LONG_LIST
 	   ) or (system('pod2text', $0), exit -1);
@@ -304,6 +305,8 @@ while (<>) {
   }
   next unless defined $ref;
   $FEATURES++;
+
+  warn "Feature $group is larger than $MAX_BIN. You will have trouble retrieving this feature.\nRerun script with --maxfeature set to a higher value.\n" if $stop-$start+1 > $MAX_BIN;
 
   $source = '\N' unless defined $source;
   $score  = '\N' if $score  eq '.';

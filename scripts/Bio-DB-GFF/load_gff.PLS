@@ -43,7 +43,7 @@ then use the -f command-line swith with an argument of '-', as in
 On the first load of a database, you will see a number of "unknown
 table" errors.  This is normal.
 
-About maxbin: the default value is 100,000,000 bases.  If you have
+About maxfeature: the default value is 100,000,000 bases.  If you have
 features that are close to or greater that 100Mb in length, then the
 value of maxbin should be increased to 1,000,000,000.
 
@@ -58,7 +58,7 @@ e.g. -d instead of --database.
    --pass    <password>  Password for mysql authentication
    --fasta   <path>      Fasta file or directory containing fasta files for the DNA
    --create              Force creation and initialization of database
-   --maxbin              Set the value of the maximum bin size
+   --maxfeature          Set the value of the maximum feature size (default 100 Mb)
    --group               A list of one or more tag names (comma or space separated)
                           to be used for grouping in the 9th column.
    --upgrade             Upgrade existing database to current schema
@@ -89,6 +89,7 @@ GetOptions ('dsn:s'       => \$DSN,
             'fasta:s'     => \$FASTA,
             'upgrade'     => \$UPGRADE,
             'maxbin:s'    => \$MAX_BIN,
+            'maxfeature:s'=> \$MAX_FEATURE,
 	    'group:s'     => \$GROUP_TAG,
 	    create        => \$CREATE) or (system('pod2text',$0), exit -1);
 

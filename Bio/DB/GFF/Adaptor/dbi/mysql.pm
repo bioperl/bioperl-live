@@ -683,6 +683,12 @@ sub load_gff_line {
   defined(my $typeid  = $self->get_table_id('ftype', $gff->{method} => $gff->{source})) or return;
   defined(my $groupid = $self->get_table_id('fgroup',$gff->{gname}  => $gff->{gclass})) or return;
 
+  if ($gff->{stop}-$gff->{start}+1 > $self->max_bin) {
+    warn "$gff->{gclass}:$gff->{gname} is longer than ",$self->_maxbin,".\n";
+    warn "Please set the maxbin value to a larger length than the largest feature you wish to store.\n";
+    warn "With the command-line tools you do with this with --maxfeature option.\n";
+  }
+
   my $bin =  bin($gff->{start},$gff->{stop},$self->min_bin);
   my $result = $s->{sth}{insert_fdata}->execute($gff->{ref},
 					       $gff->{start},$gff->{stop},$bin,
