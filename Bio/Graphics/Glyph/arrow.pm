@@ -96,11 +96,13 @@ sub draw_parallel {
     my $height     = $self->height;
 
     my $relative = $self->option('relative_coords');
+    my $relative_coords_offset = $self->option('relative_coords_offset');
+    $relative_coords_offset = 1 unless ($relative_coords_offset);
 
-    my $start    = $relative ? 1 : $self->feature->start;
+    my $start    = $relative ? $relative_coords_offset : $self->feature->start-1;
     my $stop     = $start + $self->feature->length - 1;
 
-    my $offset   = $relative ? $self->feature->start-1 : 0;
+    my $offset   = $relative ? ($self->feature->start - $relative_coords_offset) : 0;
     my $reversed = exists $self->{flip} || ($relative && $self->feature->strand < 0);
 
     my $unit_label   = $self->option('units') || '';
