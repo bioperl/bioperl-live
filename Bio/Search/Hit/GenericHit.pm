@@ -922,7 +922,7 @@ sub start {
            : normalized so that start < end. Strand information can be
            : obtained by calling $hit->strand().
 
-See Also   : L<start()|start>, L<range()|range>, L<strand()|strand>, L<HSP Tiling and Ambiguous Alignments>, L<Bio::Search::HSP::BlastHSP::end|Bio::Search::HSP::BlastHSP>
+See Also   : L<start()|start>, L<range()|range>, L<strand()|strand>
 
 =cut
 
