@@ -48,25 +48,25 @@ Bio::SimpleAlign - Multiple alignments held as a set of sequences
 =head1 DESCRIPTION
 
 SimpleAlign handles multiple alignments of sequences. It is very
-permissive of types (it won't insist on things being all same length
-etc): really it is a SequenceSet explicitly held in memory with a
-whole series of built in manipulations and especially file format
-systems for read/writing alignments.
+permissive of types (it won't insist on things being all same length,
+for example). Think of it as a set of sequences held in memory with a
+whole series of built-in manipulations and methods for reading and 
+writing alignments.
 
 SimpleAlign basically views an alignment as an immutable block of
 text.  SimpleAlign *is not* the object to be using if you want to
 perform complex alignment manipulations.
 
-However for lightweight display/formatting and minimal manipulation
-(e.g. removing all-gaps columns) - this is the one to use.
+However for lightweight displaying and formatting and minimal manipulation
+(e.g. removing all-gaps columns) this is the one to use.
 
-SimpleAlign uses a subclass of L<Bio::PrimarySeq> class
-L<Bio::LocatableSeq> to store its sequences. These are subsequences
+SimpleAlign uses L<Bio::LocatableSeq>, a subclass of L<Bio::PrimarySeq>,
+to store its sequences. These are subsequences
 with a start and end positions in the parent reference sequence.
 
-Tricky concepts. SimpleAlign expects name,start,end to be 'unique' in
-the alignment, and this is the key for the internal hashes.
-(name,start,end is abbreviated nse in the code). However, in many
+Tricky concepts. SimpleAlign expects name, start, and end to be 'unique'
+in the alignment, and this is the key for the internal hashes
+(name, start, end are abbreviated 'nse' in the code). However, in many
 cases people don't want the name/start-end to be displayed: either
 multiple names in an alignment or names specific to the alignment
 (ROA1_HUMAN_1, ROA1_HUMAN_2 etc). These names are called
@@ -342,9 +342,14 @@ sub remove_seq {
     else {
 	$self->throw("There is no seq list for the name $id");
     }
+    # we need to shift order hash
+    my %rev_order = reverse %{$self->{'_order'}};
+    my $no = $rev_order{$name};
+    for (; $no < $self->no_sequences - 1; $no++) {
+       $self->{'_order'}->{$no} = $self->{'_order'}->{$no+1};
+    }
+    delete $self->{'_order'}->{$no};
     return 1;
-    # we can't do anything about the order hash but that is ok
-    # because each_seq will handle it
 }
 
 
@@ -352,11 +357,8 @@ sub remove_seq {
 
  Title   : purge
  Usage   : $aln->purge(0.7);
- Function:
-
-           Removes sequences above given sequence similarity
+ Function: Removes sequences above given sequence similarity
            This function will grind on large alignments. Beware!
-
  Example :
  Returns : An array of the removed sequences
  Args    : float, threshold for similarity
@@ -422,11 +424,8 @@ sub purge {
 
  Title     : sort_alphabetically
  Usage     : $ali->sort_alphabetically
- Function  : 
-
-             Changes the order of the alignemnt to alphabetical on name
+ Function  : Changes the order of the alignemnt to alphabetical on name
              followed by numerical by number.
-
  Returns   : 
  Argument  : 
 
@@ -491,12 +490,9 @@ sub each_seq {
 
  Title     : each_alphabetically
  Usage     : foreach $seq ( $ali->each_alphabetically() )
- Function  :
-
-             Returns an array of sequence object sorted alphabetically 
+ Function  : Returns an array of sequence object sorted alphabetically 
              by name and then by start point.
              Does not change the order of the alignment
-
  Returns   : 
  Argument  : 
 
@@ -537,12 +533,9 @@ sub _alpha_startend {
 
  Title     : each_seq_with_id
  Usage     : foreach $seq ( $align->each_seq_with_id() )
- Function  : 
-
-             Gets an array of Seq objects from the
+ Function  : Gets an array of Seq objects from the
              alignment, the contents being those sequences
              with the given name (there may be more than one)
-
  Returns   : an array
  Argument  : a seq name
 
@@ -573,12 +566,9 @@ sub each_seq_with_id {
 
  Title     : get_seq_by_pos
  Usage     : $seq = $aln->get_seq_by_pos(3) # third sequence from the alignment
- Function  : 
-
-             Gets a sequence based on its position in the alignment.
+ Function  : Gets a sequence based on its position in the alignment.
              Numbering starts from 1.  Sequence positions larger than
              no_sequences() will thow an error.
-
  Returns   : a Bio::LocatableSeq object
  Args      : positive integer for the sequence osition
 
@@ -695,12 +685,9 @@ current MSE.
 
  Title     : select
  Usage     : $aln2 = $aln->select(1, 3) # three first sequences
- Function  : 
-
-             Creates a new alignment from a continuous subset of
+ Function  : Creates a new alignment from a continuous subset of
              sequences.  Numbering starts from 1.  Sequence positions
              larger than no_sequences() will thow an error.
-
  Returns   : a Bio::SimpleAlign object
  Args      : positive integer for the first sequence
              positive integer for the last sequence to include (optional)
@@ -730,12 +717,9 @@ sub select {
 
  Title     : select_noncont
  Usage     : $aln2 = $aln->select_noncont(1, 3) # first and 3rd sequences
- Function  : 
-
-             Creates a new alignment from a subset of
+ Function  : Creates a new alignment from a subset of
              sequences.  Numbering starts from 1.  Sequence positions
              larger than no_sequences() will thow an error.
-
  Returns   : a Bio::SimpleAlign object
  Args      : array of integers for the sequences
 
@@ -761,14 +745,11 @@ sub select_noncont {
 
  Title     : slice
  Usage     : $aln2 = $aln->slice(20, 30)
- Function  : 
-
-             Creates a slice from the alignment inclusive of start and
+ Function  : Creates a slice from the alignment inclusive of start and
              end columns.  Sequences with no residues in the slice are
              excluded from the new alignment and a warning is printed.
              Slice beyond the length of the sequence does not do
              padding.
-
  Returns   : a Bio::SimpleAlign object
  Args      : positive integer for start column
              positive integer for end column
@@ -832,10 +813,9 @@ sub slice {
 
  Title     : remove_column
  Usage     : $aln2 = $aln->remove_columns(['mismatch','weak'])
- Function  :
-             Creates an aligment with columns removed corresponding to
+ Function  : Creates an aligment with columns removed corresponding to
              the specified criteria.
- Returns   : a L<Bio::SimpleAlign> object
+ Returns   : a Bio::SimpleAlign object
  Args      : array ref of types, 'match'|'weak'|'strong'|'mismatch'|'gaps'
 
 =cut
@@ -889,9 +869,8 @@ sub remove_columns{
 
  Title     : remove_gaps
  Usage     : $aln2 = $aln->remove_gaps('-')
- Function  :
-             Creates an aligment with gaps removed 
- Returns   : a L<Bio::SimpleAlign> object
+ Function  : Creates an aligment with gaps removed 
+ Returns   : a Bio::SimpleAlign object
  Args      : a gap character(optional) if no specified, 
              taken from $self->gap_char
 
@@ -901,7 +880,7 @@ sub remove_gaps {
   my ($self,$gapchar) = @_;
   my $gap_line = $self->gap_line;
   my $aln = new $self;
-    
+
    my @remove;
    my $length = 0;
    my $del_char = $gapchar || $self->gap_char;
@@ -910,17 +889,17 @@ sub remove_gaps {
        my $start = pos($gap_line)-1;
        $gap_line=~/\G[$del_char]+/gc;
        my $end = pos($gap_line)-1;
-       
+
        #have to offset the start and end for subsequent removes  
        $start-=$length;
-       $end  -=$length;                                          
-       $length += ($end-$start+1);                               
-       push @remove, [$start,$end];                              
+       $end  -=$length;
+       $length += ($end-$start+1);
+       push @remove, [$start,$end];
    }
 
-  #remove the segments                                        
+  #remove the segments
   $aln = $#remove >= 0 ? $self->_remove_col($aln,\@remove) : $self;
-  return $aln;                                                
+  return $aln;
 }
 
 
@@ -1012,15 +991,12 @@ sub splice_by_seq_pos{
 
  Title     : map_chars
  Usage     : $ali->map_chars('\.','-')
- Function  : 
-
-             Does a s/$arg1/$arg2/ on the sequences. Useful for gap
+ Function  : Does a s/$arg1/$arg2/ on the sequences. Useful for gap
              characters
 
              Notice that the from (arg1) is interpretted as a regex,
              so be careful about quoting meta characters (eg
              $ali->map_chars('.','-') wont do what you want)
-
  Returns   : 
  Argument  : 'from' rexexp
              'to' string
@@ -1242,9 +1218,7 @@ sub gap_line {
 
  Title     : match()
  Usage     : $ali->match()
- Function  : 
-
-             Goes through all columns and changes residues that are
+ Function  : Goes through all columns and changes residues that are
              identical to residue in first sequence to match '.'
              character. Sets match_char.
 
@@ -1252,7 +1226,6 @@ sub gap_line {
              characters in sequences, so this is mostly for output
              only. NEXUS format (Bio::AlignIO::nexus) can handle
              it.
-
  Returns   : 1
  Argument  : a match character, optional, defaults to '.'
 
@@ -1293,7 +1266,6 @@ sub match {
  Title     : unmatch()
  Usage     : $ali->unmatch()
  Function  : Undoes the effect of method match. Unsets match_char.
-
  Returns   : 1
  Argument  : a match character, optional, defaults to '.'
 
@@ -1528,9 +1500,7 @@ sub _consensus_aa {
 
  Title     : consensus_iupac
  Usage     : $str = $ali->consensus_iupac()
- Function  : 
-
-             Makes a consensus using IUPAC ambiguity codes from DNA
+ Function  : Makes a consensus using IUPAC ambiguity codes from DNA
              and RNA. The output is in upper case except when gaps in
              a column force output to be in lower case.
 
@@ -1538,7 +1508,6 @@ sub _consensus_aa {
              IUPAC ambiquity codes you often have to manually set
              alphabet.  Bio::PrimarySeq::_guess_type thinks they
              indicate a protein sequence.
-
  Returns   : consensus string
  Argument  : none
  Throws    : on protein sequences
@@ -1656,13 +1625,9 @@ sub _consensus_iupac {
 =head2 is_flush
 
  Title     : is_flush
- Usage     : if( $ali->is_flush() )
-           : 
-           :
+ Usage     : if ( $ali->is_flush() )
  Function  : Tells you whether the alignment 
-           : is flush, ie all of the same length
-           : 
-           :
+           : is flush, i.e. all of the same length
  Returns   : 1 or 0
  Argument  : 
 
@@ -1737,11 +1702,8 @@ sub length {
 
  Title     : maxdisplayname_length
  Usage     : $ali->maxdisplayname_length()
- Function  : 
-
-             Gets the maximum length of the displayname in the
+ Function  : Gets the maximum length of the displayname in the
              alignment. Used in writing out various MSE formats.
-
  Returns   : integer
  Argument  : 
 
@@ -1884,7 +1846,7 @@ sub average_percentage_identity{
  Title   : percentage_identity
  Usage   : $id = $align->percentage_identity
  Function: The function calculates the average percentage identity
-           (aliased for average_percentage_identity)
+           (aliased to average_percentage_identity)
  Returns : The average percentage identity
  Args    : None
 
@@ -1966,9 +1928,7 @@ L<Bio::LocatableSeq::location_from_column>:
 
  Title   : column_from_residue_number
  Usage   : $col = $ali->column_from_residue_number( $seqname, $resnumber)
- Function:
-
-           This function gives the position in the alignment
+ Function: This function gives the position in the alignment
            (i.e. column number) of the given residue number in the
            sequence with the given name. For example, for the
            alignment
@@ -2028,7 +1988,6 @@ ways.
  Title     : displayname
  Usage     : $myalign->displayname("Ig", "IgA")
  Function  : Gets/sets the display name of a sequence in the alignment
-           :
  Returns   : A display name string
  Argument  : name of the sequence
              displayname of the sequence (optional)
@@ -2068,11 +2027,8 @@ sub displayname {
 
  Title     : set_displayname_count
  Usage     : $ali->set_displayname_count
- Function  : 
-
-             Sets the names to be name_# where # is the number of
+ Function  : Sets the names to be name_# where # is the number of
              times this name has been used.
-
  Returns   : 
  Argument  : 
 
