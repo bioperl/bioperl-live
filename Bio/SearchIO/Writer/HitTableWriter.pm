@@ -47,7 +47,7 @@ Bio::SearchIO::Writer::HitTableWriter - Tab-delimited data for Bio::Search::Hit:
 
 You can also specify different column labels if you don't want to use
 the defaults.  Do this by specifying a C<-labels> hash reference
-parameter when creating the HitTableWriter object.  The keys of the
+parameter when creating the HitTableWriter object. The keys of the
 hash should be the column number (left-most column = 1) for the label(s)
 you want to specify. Here's an example:
 
@@ -120,7 +120,7 @@ corresponding method in Bio::Search::Result::BlastHit.
 =head1 TODO
 
 Figure out the best way to incorporate algorithm-specific score columns.
-The best route is probably to have algorith-specific subclasses 
+The best route is probably to have algorithm-specific subclasses 
 (e.g., BlastHitTableWriter, FastaHitTableWriter).
 
 =head1 FEEDBACK
@@ -152,7 +152,7 @@ and comments.
 
 =head1 COPYRIGHT
 
-Copyright (c) 2001 Steve Chervitz. All Rights Reserved.
+Copyright (c) 2001, 2002 Steve Chervitz. All Rights Reserved.
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.
