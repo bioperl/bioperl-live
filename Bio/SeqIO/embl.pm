@@ -1078,9 +1078,13 @@ sub _write_line_EMBL_regex {
 
     $length || die "Programming error - called write_line_EMBL_regex without length.";
 
-    if( length $pre1 != length $pre2 ) {
-        die "Programming error - called write_line_EMBL_regex with different length pre1 and pre2 tags!";
-    }
+#    if( length $pre1 != length $pre2 ) {
+#      $self->throw(<<END);
+#Programming error - called write_line_EMBL_regex with different length pre1 and pre2 tags!
+#pre1 = $pre1
+#pre2 = $pre2
+#END
+#    }
 
     my $subl = $length - (length $pre1) -1 ;
 

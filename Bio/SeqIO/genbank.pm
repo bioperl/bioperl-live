@@ -1178,9 +1178,9 @@ sub _write_line_GenBank_regex {
 
    $length || $self->throw( "Miscalled write_line_GenBank without length. Programming error!");
 
-   if( length $pre1 != length $pre2 ) {
-       $self->throw( "Programming error - cannot called write_line_GenBank_regex with different length pre1 and pre2 tags!");
-   }
+#   if( length $pre1 != length $pre2 ) {
+#       $self->throw( "Programming error - cannot called write_line_GenBank_regex with different length pre1 and pre2 tags!");
+#   }
 
    my $subl = $length - (length $pre1) - 2;
    my @lines = ();
