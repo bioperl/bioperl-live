@@ -73,6 +73,8 @@ for if you see fit)
 
 =item * Jared Fox <jaredfox at ucla.edu> - Bio::SeqIO::interpro
 
+=item * Brian O'Connor <boconnor at ucla.edu> - Bio::TreeIO::svggraph
+
 =item * James Diggans <JDiggans at genelogic.com>
 
 =item * Peter Dimitrov <dimitrov at gnf.org> - Bio::Ontology
