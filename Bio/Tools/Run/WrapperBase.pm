@@ -204,7 +204,8 @@ sub tempdir{
 sub cleanup{
    my ($self) = @_;
    $self->io->_io_cleanup();
-   if( -d $self->{'_tmpdir'} ) {
+   if( defined $self->{'_tmpdir'} &&
+       -d $self->{'_tmpdir'} ) {
        $self->io->rmtree($self->{'_tmpdir'});
    }
 }
