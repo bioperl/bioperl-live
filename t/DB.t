@@ -22,7 +22,7 @@ BEGIN {
     }
     use Test;
 
-    $NUMTESTS = 37;
+    $NUMTESTS = 42;
     plan tests => $NUMTESTS;
     eval { require 'IO/String.pm' };
     if( $@ ) {
@@ -108,8 +108,13 @@ eval {
     ok defined($gb = new Bio::DB::SwissProt('-verbose'=>$verbose)); 
     ok(defined($seq = $gb->get_Seq_by_id('YNB3_YEAST')));
     ok( $seq->length, 125);
+    ok($seq->division, 'YEAST');
     ok(defined($seq = $gb->get_Seq_by_acc('P43780')));
     ok( $seq->length, 103); 
+    ok( defined( $seq = $gb->get_Seq_by_acc('O39869')));
+    ok( $seq->length, 56);
+    ok($seq->primary_id, 'O39869');
+    ok($seq->division, 'UNK');
     ok( defined($gb = new Bio::DB::SwissProt('-verbose'=>$verbose, 
 					     '-retrievaltype' => 'tempfile')));
     ok(defined($seqio = $gb->get_Stream_by_id(['KPY1_ECOLI', 'KPY1_HUMAN'])));
