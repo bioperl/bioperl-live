@@ -150,34 +150,39 @@ sub next_tree{
 =cut
 
 sub write_tree{
-   my ($self,$tree) = @_;
+   my ($self,$tree) = @_;      
    my @data = _write_tree_Helper($tree->get_root_node);
-   $self->_print('(', join(',', @data), ");\n");   
+   if($data[-1] !~ /\)$/ ) {
+       $data[0] = "(".$data[0];
+       $data[-1] .= ")";
+   }
+   $self->_print(join(',', @data), ";\n");   
    return;
 }
 
 sub _write_tree_Helper {
     my ($node) = @_;
     return () if (!defined $node);
+
     my @data;
-    foreach my $node ( $node->each_Descendent() ) {
-	push @data, _write_tree_Helper($node);
-    }
-    if( @data > 1 ) {
-	$data[0] = "(" . $data[0];
-	$data[-1] .= ")";
+    
+    foreach my $n ( $node->each_Descendent() ) {
+	push @data, _write_tree_Helper($n);
     }
 
-    if( defined $node->id || defined $node->branch_length) {
-	push @data, sprintf("%s%s",$node->id || '', 
-			    defined $node->branch_length ? ":" .
-			    $node->branch_length : '');
-    }    
-    if( @data > 1 ) {
+    if( @data > 1 && 
+	$node->branch_length) {
 	$data[0] = "(" . $data[0];
 	$data[-1] .= ")";
+	$data[-1] .= ":". $node->branch_length;
+    } else {
+	if( defined $node->id || defined $node->branch_length ) { 
+	    push @data, sprintf("%s%s",
+				defined $node->id ? $node->id : '', 
+				defined $node->branch_length ? ":" .
+				$node->branch_length : '');
+	}
     }
-
     return @data;
 }
 
