@@ -151,6 +151,7 @@ sub next_aln {
     
     # first alignment section
     my $idlen = $self->idlength;
+    $count = 0;
     while( $entry = $self->_readline) {
 	$entry =~ /^\s$/ and last;
 	$entry =~ /^(.{$idlen})\s+(.*)\s$/ && do {
