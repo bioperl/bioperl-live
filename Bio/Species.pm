@@ -1,6 +1,6 @@
 
 #
-# BioPerl module for Bio::Pfam::Annotation::Comment
+# BioPerl module for Bio::Species
 #
 # Cared for by James Gilbert <jgrg@sanger.ac.uk>
 #
@@ -39,7 +39,7 @@ Provides a very simple object for storing phylogenetic
 information.  The classification is stored in an array,
 which is a list of nodes in a phylogenetic tree.  Access to
 getting and setting species and genus is provided, but not
-to any of the other node types (eg: "phlum", "class",
+to any of the other node types (eg: "phylum", "class",
 "order", "family").  There's plenty of scope for making the
 model more sophisticated, if this is ever needed.
 
@@ -65,7 +65,7 @@ package Bio::Species;
 use vars qw(@ISA);
 use strict;
 
-# Object preamble - inheriets from Bio::Root::Object
+# Object preamble - inherits from Bio::Root::Object
 
 use Bio::Root::Root;
 
@@ -92,7 +92,7 @@ sub new {
  Title   : classification
  Usage   : $self->classification(@class_array);
            @classification = $self->classification();
- Function: Fills or returns the classifcation list in
+ Function: Fills or returns the classification list in
            the object.  The array provided must be in
            the order SPECIES, GENUS ---> KINGDOM.
            Checks are made that species is in lower case,
@@ -134,7 +134,7 @@ sub classification {
  Title   : common_name
  Usage   : $self->common_name( $common_name );
            $common_name = $self->common_name();
- Function: Get or set the commonn name of the species
+ Function: Get or set the common name of the species
  Example : $self->common_name('human')
  Returns : The common name in a string
  Args    : String, which is the common name
