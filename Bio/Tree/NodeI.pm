@@ -181,7 +181,8 @@ sub descendent_count{
    my $count = 0;
    
    foreach my $node ( $self->each_Descendent ) { 
-       $count += 1 + $node->descendent_count;
+       $count += 1;
+       $node->can(descendent_count) ? $count += $node->descendent_count : next;
    }
    return $count;
 }

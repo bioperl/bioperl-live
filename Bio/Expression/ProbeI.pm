@@ -18,7 +18,7 @@ Do not use this module directly
 
 This provides a standard bioperl interface class for representing
 DNA and RNA probes.  It cannot be instantiated directly, but serves
-as an abstract base class for implementers.
+as an abstract base class for implementors.
 
 =head1 FEEDBACK
 
