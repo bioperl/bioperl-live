@@ -1,7 +1,7 @@
 
 Bioperl FAQ
 -----------
-v. 1.2.0
+v. 1.2.1
 
 This FAQ maintained by:
 * Jason Stajich <jason@bioperl.org>
@@ -35,6 +35,8 @@ Contents
    Q1.9: What are the license terms for Bioperl?
   Q1.10: I want to help, where do I start?
   Q1.11: I've got an idea for a module how do I contribute it?
+  Q1.12: Why can't I easily get a list of all the methods a object can
+	 call?
 
 2. Sequences
 
@@ -42,19 +44,25 @@ Contents
    Q2.2: I can't get sequences with Bio::DB::GenBank any more, why not?
    Q2.3: How can I get NT_ or NM_ or NP_ accessions from NCBI
 	 (Reference Sequences)?
-   Q2.4: How can I use SeqIO to parse sequence data from a string?
+   Q2.4: How can I use SeqIO to parse sequence data to or from a string?
+   Q2.5: I'm using Bio::Index::Fasta in order to retrieve sequences from my
+	 indexed fasta file but I keep seeing ">> MSG: Did not provide a
+	 valid Bio::PrimarySeqI object" when I call fetch() followed by
+	 SeqIO::write_seq(). Why?
 
 3. Report parsing
 
    Q3.1: I want to parse BLAST, how do I do this?
    Q3.2: What's wrong with Bio::Tools::Blast?
    Q3.3: I want to parse FastA or NCBI -m7 (XML) format, how do I do this?
-   Q3.4: Let's say I want to do pairwise alignments of 2 sequences how can
+   Q3.4: Let's say I want to do pairwise alignments of 2 sequences. How can
 	 I do this?
    Q3.5: I'm using BPLite.pm and its frame() to parse Blast but I'm seeing
 	 0, 1, or 2 instead of the expected -3, -2, -1, +1, +2, +3. Why am
 	 I seeing these different numbers and how do I get the frame
 	 according to Blast?
+   Q3.6: How do I tell BLAST to search multiple database using
+	 Bio::Tools::Run::StandAloneBlast?
 
 4. Utilities
 
@@ -73,13 +81,24 @@ Contents
    Q5.2: How do I retrieve all the features from a Sequence?  How about all
 	 the features which are exons or have a /note field that contains a
 	 certain gene name?
-   Q5.3: How do I parse the CDS join() statements in Genbank or EMBL files
-	 so I can reconstruct the CDS sequence?
+   Q5.3: How do I parse the CDS join() or complement() statements in
+	 Genbank or EMBL files to get the sub-locations, like the
+	 coordinates "45" and "122" in "join(45..122,233..267)"?
+   Q5.4: How do I retrieve a nucleotide coding sequence when I have a
+	 protein gi number?
+   Q5.5: How do I get the complete spliced nucleotide sequence from the CDS
+	 section?
 
 6. Running external programs
 
-   Q6.1: I want to run StandAloneBlast within bioperl - where did it go? 
-   Q6.2: What does the future hold for running applications within Bioperl? 
+   Q6.1: How do I run Blast from within Bioperl?
+   Q6.2: Hey, I want to run clustalw within Bioperl, I used
+	 Bio::Tools::Run::Alignment::Clustalw before - where did it go?
+   Q6.3: What does the future hold for running applications within Bioperl?
+   Q6.4: I'm trying to run StandAloneBlast and I'm seeing error messages
+	 like "Can't locate Bio/Tools/Run/WrapperBase.pm". How do I fix
+	 this?
+
 
 ---------------------------------------------------------------------------
 
@@ -100,7 +119,7 @@ Contents
 	 the files are in the Bioperl distribution directory doc/faq. So do
 	 not edit this file! Edit file faq.xml and run:
 
-	   % faq.pl -text faq.xml
+	 % faq.pl -text faq.xml
 
 	 The XML structure was originally used by the Perl XML project.
 	 Their website seems to have vanished, though. The XML and
@@ -120,15 +139,18 @@ Contents
    Q1.1: What is Bioperl?
 
       A: Bioperl is a tookit of perl modules useful in building
-	 bioinformatics solutions in perl.  It is built in an
+	 bioinformatics solutions in perl. It is built in an
 	 object-oriented manner so that many modules depend on each other
 	 to achieve a task. The collection of modules in the bioperl-live
-	 repository consist of the core of the functionality of bioperl. 
+	 repository consist of the core of the functionality of bioperl.
 	 Additionally auxiliary modules for creating graphical interfaces
-	 (bioperl-gui), persistent storage in RDMBS (bioperl-db), and CORBA
-	 bridges to the BioCORBA (http://www.biocorba.org) specification
-	 (bioperl-corba-server and bioperl-corba-client) are all available
-	 as CVS modules in our repository.
+	 (bioperl-gui), persistent storage in RDMBS (bioperl-db), running
+	 and parsing the results from hundreds of bioinformatics
+	 applications (bioperl-run), software to automate bioinformatic
+	 analyses (bioperl-pipeline), and CORBA bridges to the BioCORBA
+	 (http://www.biocorba.org) specification (bioperl-corba-server and
+	 bioperl-corba-client) are all available as CVS modules in our
+	 repository.
 
 
    Q1.2: Where do I go to get the latest release?
@@ -151,7 +173,7 @@ Contents
 	 developer releases.  These are snapshots of the actively developed
 	 code that at a minimum pass all our tests.
 
-	 But really, you should be using version 1.*!
+	 But really, you should be using version 1.21 or greater!
 
 
    Q1.4: Is it BioPerl, bioperl, bio.perl.org, Bioperl?  What's the deal?
@@ -165,20 +187,24 @@ Contents
 
    Q1.5: How do I figure out how to use a module?
 
-      A: Read the embedded perl documentation (Plain Old Documentation -
-	 POD) that is part of every modules.  Do: 
+      A: A good list of the documentation can be found at
+	 http://bio.perl.org/Core/Latest/modules.html. Read the embedded
+	 perl documentation (Plain Old Documentation - POD) that is part of
+	 every modules.  Do:
 
-	   % perldoc MODULE
+	 % perldoc MODULE
 
-	 (careful - spelling and case counts!).
+	 Careful - spelling and case counts!
 
 	 The bioperl tutorial - bptutorial.pl - provided in the root
 	 directory of the bioperl release will also provide a good
-	 introduction.	There are links to tutorials off the bioperl
-	 website that may provide some additional help.
+	 introduction.	You may also find useful documentation in the form
+	 of a HOWTO in the bioperl package or at
+	 http://www.bioperl.org/HOWTOs. There are links to tutorials off
+	 the bioperl website that may provide some additional help.
 
 	 There are also many scripts in the examples/ and scripts/
-	 directories that could be useful - see bioperl.pod for a brief
+	 directories that could be useful - see bioscripts.pod for a brief
 	 description of all of them.
 
 	 Additionally we have written many tests for our modules, you can
@@ -194,19 +220,18 @@ Contents
 
 	 Basically:
 
-	   % cvs -d :pserver:cvs@cvs.bioperl.org:/home/repository/bioperl
+	 % cvs -d :pserver:cvs@cvs.bioperl.org:/home/repository/bioperl
 	 login
 
-	 enter 'cvs' for the password
+	 Enter 'cvs' for the password
 
-	 
-	   % cvs -d :pserver:cvs@cvs.bioperl.org:/home/repository/bioperl
-	 co bioperl_all
+	 % cvs -d :pserver:cvs@cvs.bioperl.org:/home/repository/bioperl co
+	 bioperl_all
 
 
    Q1.7: Who uses this toolkit?
 
-      A: Lots of people.  Sanger Centre, EBI, many large and small academic
+      A: Lots of people. Sanger Centre, EBI, many large and small academic
 	 laboratories, large and small pharmaceutical companies. All the
 	 developers on the bioperl list use the toolkit in some capacity on
 	 a regular basis.
@@ -219,7 +244,9 @@ Contents
 
    Q1.8: How should I cite Bioperl?
 
-      A: Please cite it as.
+      A: Please cite it as:
+
+	 
 	 Stajich JE, Block D, Boulez K, Brenner SE, Chervitz SA,  
 	 Dagdigian C, Fuellen G, Gilbert JGR, Korf I, Lapp H, 
 	 Lehvaslaiho H, Matsalla C, Mungall CJ, Osborne BI,
@@ -249,9 +276,8 @@ Contents
 	 institution do routinely that a shortcut can be developed for. 
 	 Identify modules in bioperl that need easy intefaces and write
 	 that wrapper - you'll learn how to use the module inside and out.
-	 We always need people to help fix bugs - read the jitterbug bug
-	 tracking system (webpage linked from bioperl website sidebar 
-	 under "Bugs").
+	 We always need people to help fix bugs - check the Bugzilla bug
+	 tracking system (http://www.bioperl.org/bugs).
 
 
   Q1.11: I've got an idea for a module how do I contribute it?
@@ -268,6 +294,26 @@ Contents
 	 directory to insure that your module is tested.
 
 
+  Q1.12: Why can't I easily get a list of all the methods a object can
+	 call?
+
+      A: This a problem with perl, not only with bioperl. To list all the
+	 methods, you have to walk the inheritance tree and standard perl
+	 is not able to do it. As usual, help can be found in the CPAN.
+	 Install the CPAN module Class::Inspector and put the following
+	 script 'perlmethods' into your path and run it, e.g, >perlmethods
+	 Bio::Seq.
+
+	 
+	 #!/usr/bin/perl -w
+	 use Class::Inspector;
+	 $class = shift || die "Usage: methods perl_class_name\n";
+	 eval "require $class";
+	 print join ("\n", sort
+	 @{Class::Inspector->methods($class,'full','public')}),
+		     "\n";
+
+
 ---------------------------------------------------------------------------
 
 2. Sequences
@@ -280,7 +326,8 @@ Contents
 
       A: Use the Bio::SeqIO system.  This will create Bio::Seq objects for
 	 you.  See the tutorial bptutorial.pl for more information or the
-	 documentation for Bio::SeqIO (e.g. 'perldoc SeqIO.pm').
+	 SeqIO HOWTO or the documentation for Bio::SeqIO (e.g. 'perldoc
+	 SeqIO.pm').
 
 
    Q2.2: I can't get sequences with Bio::DB::GenBank any more, why not?
@@ -302,17 +349,63 @@ Contents
 	 accessions will not be retrievable.
 
 
-   Q2.4: How can I use SeqIO to parse sequence data from a string?
+   Q2.4: How can I use SeqIO to parse sequence data to or from a string?
 
-      A: 
+      A: From a string:
+
+	 
 	   use IO::String;
 	   use Bio::SeqIO;
 	   my $stringfh = new IO::String($string);
 	 
 	   my $seqio = new Bio::SeqIO(-fh => $stringfh, 
 				      -format => 'fasta');
-	   while( my $seq = $seqio->next_seq ) { # process each seq
+	   while( my $seq = $seqio->next_seq ) { 
+	       # process each seq
 	   }
+
+	 And here is how to write to a string:
+
+	 
+	 use IO::String;
+	 use Bio::SeqIO;
+	 my $s;
+	 my $io = IO::String->new(\$s);
+	 my $seqOut = new Bio::SeqIO(-format =>'swiss', -fh => $io);
+	 $seqOut->write_seq($seq1);
+	 print $s; # $s contains the record
+
+
+   Q2.5: I'm using Bio::Index::Fasta in order to retrieve sequences from my
+	 indexed fasta file but I keep seeing ">> MSG: Did not provide a
+	 valid Bio::PrimarySeqI object" when I call fetch() followed by
+	 SeqIO::write_seq(). Why?
+
+      A: It's likely that fetch() didn't retrieve a Bio::Seq object. There
+	 are few possible explanations but the most common cause is that
+	 the id you're passing to fetch() is not the key to that sequence
+	 in the index. For example, if the fasta header is ">gi|12366" and
+	 your id is "12366" fetch() won't find the sequence, it expects to
+	 see "gi|12366". You need to use the get_id() method to specify the
+	 key, like this:
+
+	 
+	 $inx = Bio::Index::Fasta->new(-filename =>$indexname);
+	 $inx = id_parser(\&get_id);
+	 $inx->make_index($fastaname);
+	 
+	 sub get_id {
+	     my $header = shift;
+	     $header =~ /^>gi\|(\d+)/;
+	     $1;
+	 }
+
+	 
+	 The same issue arises when you use Bio::DB::Fasta, but in that
+	 case the code might look like this:
+
+	 
+	   $inx = Bio::DB::Fasta->new($fastaname,-makeid =>\&get_id);
 
 
 ---------------------------------------------------------------------------
@@ -331,7 +424,8 @@ Contents
 	 Currently the best way to parse a report is to use the SearchIO
 	 system.  This supports blast and fasta report parsing.  The
 	 bptutorial provides an example of how to use this system as well
-	 as the documentation in the Bio::SearchIO system.
+	 as the documentation in the Bio::SearchIO system. There is also a
+	 SearchIO HOWTO.
 
 
    Q3.2: What's wrong with Bio::Tools::Blast?
@@ -353,7 +447,7 @@ Contents
 	 modules for sequence database searching.
 
 
-   Q3.4: Let's say I want to do pairwise alignments of 2 sequences how can
+   Q3.4: Let's say I want to do pairwise alignments of 2 sequences. How can
 	 I do this?
 
       A: Look at Bio::Factory::EMBOSS to see how to use the 'water' and
@@ -391,6 +485,25 @@ Contents
 	 as:
 
 	 my $blastvalue = ($hsp->query->frame + 1) * $hsp->query->strand;
+
+
+   Q3.6: How do I tell BLAST to search multiple database using
+	 Bio::Tools::Run::StandAloneBlast?
+
+      A: Put the names of the databases in a variable. like so:
+
+	 
+	 my $dbs = '"/dba/BMC.fsa /dba/ALC.fsa /dba/HCC.fsa"';
+	 my @params = ( d	    => "$dbs",
+			    program	=> "BLASTN",
+			    _READMETHOD => "Blast",
+			    outfile	=> "$dir/est.bls" );
+	 
+	 my $factory = Bio::Tools::Run::StandAloneBlast->new(@params);
+	 my $seqio = Bio::SeqIO->new(-file=>'t/amino.fa',-format => 'Fasta'
+	 );
+	 my $seqobj = $seqio->next_seq();
+	 $factory->blastall($seqobj);
 
 
 ---------------------------------------------------------------------------
@@ -432,9 +545,9 @@ Contents
 
       A: There are a number of approaches. Within Bioperl take a look at
 	 Bio::Tools::SeqPattern. Or, take a look at the TFBS package, at
-	 http://forkhead.cgb.ki.se/TFBS(Transcription Factor Binding Site).
-	 This Bioperl-compliant package specializes in pattern searching of
-	 nucleotide sequence using matrices.
+	 http://forkhead.cgb.ki.se/TFBS (Transcription Factor Binding
+	 Site). This Bioperl-compliant package specializes in pattern
+	 searching of nucleotide sequence using matrices.
 
 	 It's also conceivable that the combination of Bioperl and Perl's
 	 regular expressions could do the trick. You might also consider
@@ -452,8 +565,8 @@ Contents
 
       A: Yes! The solution lies in Bio::Biblio*, a set of modules that
 	 provide access to MEDLINE and OpenBQS-compliant servers using
-	 SOAP. See Bio/Biblio.pm or examples/biblio.pl for details and
-	 example code.
+	 SOAP. See Bio/Biblio.pm, scripts/biblio.PLS, or examples/biblio/*
+	 for details and example code.
 
 
 ---------------------------------------------------------------------------
@@ -472,12 +585,11 @@ Contents
 	 add_Annotation('comment', $ann)/get_Annotations('comment). Please
 	 update your code in order to avoid seeing these warning messages.
 
-	 This is because we have changed (starting with 1.0) the annotation
-	 collection implementation from the Bio::Annotation object to the
-	 Bio::Annotation::Collection object which is a more general and
-	 extensible system.  In the future the Reference objects will
-	 likely be implemented by the Bio::Biblio system but we hope to
-	 maintain a compatible API for these. 
+	 The objects have also changed from the Bio::Annotation object to
+	 the Bio::Annotation::Collection object, starting with v. 1.0. This
+	 is a more general and extensible system.  In the future the
+	 Reference objects will likely be implemented by the Bio::Biblio
+	 system but we hope to maintain a compatible API for these. 
 
 
    Q5.2: How do I retrieve all the features from a Sequence?  How about all
@@ -505,17 +617,71 @@ Contents
 				  }  $seq->all_SeqFeatures(); 
 
 
-   Q5.3: How do I parse the CDS join() statements in Genbank or EMBL files
-	 so I can reconstruct the CDS sequence?
+   Q5.3: How do I parse the CDS join() or complement() statements in
+	 Genbank or EMBL files to get the sub-locations, like the
+	 coordinates "45" and "122" in "join(45..122,233..267)"?
 
-      A: You need to use a Location::SplitLocationI object to get the
-	 coordinates and primary_tag() to find the CDS features:
+      A: You could use primary_tag() to find the CDS features and the
+	 Location::SplitLocationI object to get the coordinates:
 
-	 if ( $feature->location->isa('Bio::Location::SplitLocationI') 
+	 
+	 foreach my $feature ($seqobj->top_SeqFeatures){
+	   if ( $feature->location->isa('Bio::Location::SplitLocationI') 
 			  && $feature->primary_tag eq 'CDS' )  {
-	   foreach $location ( $feature->location->sub_Location ) {
-	     print $location->start . ".." . $location->end . "\n";
+	     foreach my $location ( $feature->location->sub_Location ) {
+	       print $location->start . ".." . $location->end . "\n";
+	     }
 	   }
+	 }  
+
+
+   Q5.4: How do I retrieve a nucleotide coding sequence when I have a
+	 protein gi number?
+
+      A: You could go through the protein's feature table and find the
+	 'coded_by' value. The trick is to associate the coded_by
+	 nucleotide coordinates to the nucleotide entry, which you'll
+	 retrieve using the accession number from the same feature.
+
+	 
+	 my $gp = new Bio::DB::GenPept;
+	 my $gb = new Bio::DB::GenBank;
+	 # factory to turn strings into Bio::Location objects
+	 my $loc_factory = new Bio::Factory::FTLocationFactory;
+	 
+	 my $prot_obj = $gp->get_Seq_by_id($protein_gi);
+	 foreach my $feat ( $prot_obj->top_SeqFeatures ) {
+	    if ( $feat->primary_tag eq 'CDS' ) {
+	       # example: 'coded_by="U05729.1:1..122"'
+	       my @coded_by = $feat->each_tag_value('coded_by');
+	       my ($nuc_acc,$loc_str) = split /\:/, $coded_by[0];
+	       my $nuc_obj = $gb->get_Seq_by_acc($nuc_acc);
+	       # create Bio::Location object from a string
+	       my $loc_object = $loc_factory->from_string($loc_str);
+	       # create a Feature object by using a Location
+	       my $feat_obj = new Bio::SeqFeature::Generic(-location
+	 =>$loc_object);
+	       # associate the Feature object with the nucleotide Seq
+	 object
+	       $nuc_obj->add_SeqFeature($feat_obj);
+	       my $cds_obj = $feat_obj->spliced_seq;
+	       print "CDS sequence is ",$cds_obj->seq,"\n";
+	    }
+	 }
+
+
+   Q5.5: How do I get the complete spliced nucleotide sequence from the CDS
+	 section?
+
+      A: You can use the spliced_seq() method. For example:
+
+	 
+	 my $seq_obj = $db->get_Seq_by_id($gi);
+	 foreach my $feat ( $seq_obj->top_SeqFeatures ) {
+	    if ( $feat->primary_tag eq 'CDS' ) {\
+	       my $cds_obj = $feat->spliced_seq;
+	       print "CDS sequence is ",$cds_obj->seq,"\n";
+	    }
 	 }
 
 
@@ -527,32 +693,61 @@ Contents
 
 
 
-   Q6.1: I want to run StandAloneBlast within bioperl - where did it go? 
+   Q6.1: How do I run Blast from within Bioperl?
 
-      A: The Bio::Tools::Run directory was moved to a new package to help
-	 make the size of the core code smaller and separate out the more
-	 specialized nature of application running from the rest of
-	 Bioperl.  You can get these modules by installing the bioperl-run
-	 package.  This is either available from CVS under the same name or
-	 available in the http://bioperl.org/DIST directory and on CPAN. 
-	 This changeover began in the bioperl 1.1 developer release.
+      A:  Use the module Bio::Tools::Run::StandAloneBlast.  It will give
+	 you access to many of the search tools in the NCBI blast suite
+	 including blastll, bl2seq, blastpgp.  The basic structure is like
+	 this.
+	 
+	 use Bio::Tools::Run::StandAloneBlast;
+	 my $factory = Bio::Tools::Run::StandAloneBlast->new(p => 'blastn',
+							     d => 'nt',
+							     e => '1e-5');
+	 my $seq = new Bio::PrimarySeq(-id => 'test1',
+				       -seq => 'AGATCAGTAGATGATAGGGGTAGA');
+	 my $report = $factory->blastall($seq);
 
 
-   Q6.2: What does the future hold for running applications within Bioperl? 
+   Q6.2: Hey, I want to run clustalw within Bioperl, I used
+	 Bio::Tools::Run::Alignment::Clustalw before - where did it go?
+
+      A: The Bio::Tools::Run directory was moved to a new package,
+	 bioperl-run, to help make the size of the core code smaller and
+	 separate out the more specialized nature of application running
+	 from the rest of Bioperl.  You can get these modules by installing
+	 the bioperl-run package.  This is either available from CVS under
+	 the same name or available in the http://bioperl.org/DIST
+	 directory and on CPAN.  This changeover began in the bioperl 1.1
+	 developer release.
+
+
+   Q6.3: What does the future hold for running applications within Bioperl?
+
       A: We are trying to build a standard starting point for analysis
 	 application which will probably look like
 	 Bio::Tools::Run::AnalysisFactory which will allow the user to
 	 request which type of remote or local server they want to use to
 	 run their analyses.  This will connect to the Pasteur's PISE
 	 server, the EBI's Novella server, as well as be aware of wrappers
-	 to run applications locally. 
+	 to run applications locally.
 
-	 Additionally we suggest investigating the BioPipe
-	 project(http://www.biopipe.org) which is making it easier to chain
-	 together various sets of analyses and build rules for peforming
-	 these computes.
+	 Additionally we suggest investigating the BioPipe project, also
+	 known as bioperl-pipeline, at www.biopipe.org. This is a
+	 sophisticated system to chain together sets of analyses and build
+	 rules for performing these computes.
+
+
+   Q6.4: I'm trying to run StandAloneBlast and I'm seeing error messages
+	 like "Can't locate Bio/Tools/Run/WrapperBase.pm". How do I fix
+	 this?
+
+      A: Yes, this file is missing in version 1.2. Two possible solutions:
+	 install version 1.2.1 or greater or retrieve and copy
+	 WrapperBase.pm to the proper location. You can get it at
+	 http://bio.perl.org/Bugs.
 
 ---------------------------------------------------------------------------
-Copyright (c)2002 Open Bioinformatics Foundation. You may distribute this
-FAQ under the same terms as perl itself.
+Copyright (c)2002-2003 Open Bioinformatics Foundation. You may distribute
+this FAQ under the same terms as perl itself.
 
