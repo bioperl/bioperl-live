@@ -670,6 +670,24 @@ sub features {
     return @{$self->{'_features'}};
 }
 
+=head2 features_ordered
+
+ Title   : features_ordered
+ Usage   :
+ Function:
+ Example :
+ Returns : 
+ Args    :
+
+
+=cut
+
+sub features_ordered{
+   my ($self) = @_;
+   return $self->_stranded_sort(@{$self->{'_features'}});
+}
+
+
 sub get_unordered_feature_type{
     my ($self, $type, $pri)=@_;
     my @list;
@@ -687,7 +705,7 @@ sub get_unordered_feature_type{
 
 sub get_feature_type {
     my ($self)=shift;
-    return $self->_my_sort($self->get_unordered_feature_type(@_));
+    return $self->_stranded_sort($self->get_unordered_feature_type(@_));
 }
 
 sub _flush {
@@ -729,7 +747,7 @@ sub _add {
     push(@{$self->{'_features'}}, $fea);
 }
 
-sub _my_sort {
+sub _stranded_sort {
     my ($self,@list)=@_;
     my $strand;
     foreach my $fea (@list) {
