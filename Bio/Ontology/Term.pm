@@ -23,7 +23,7 @@
 
 =head1 NAME
 
-TermI - interface for ontology terms
+Term - interface for ontology terms
 
 =head1 SYNOPSIS
 
@@ -89,12 +89,17 @@ methods.
 
 # Let the code begin...
 
-package Bio::Ontology::TermI;
+package Bio::Ontology::Term;
 use vars qw( @ISA );
 use strict;
 use Bio::Root::Object;
+use Bio::Ontology::TermI;
 
-@ISA = qw( Bio::Root::Root );
+use constant TRUE    => 1;
+use constant FALSE   => 0;
+
+@ISA = qw( Bio::Root::Root Bio::Ontology::TermI );
+
 
 
 
@@ -111,9 +116,13 @@ use Bio::Root::Object;
 =cut
 
 sub identifier {
-    my ( $self ) = @_;
-    
-    $self->throw_not_implemented();
+    my ( $self, $value ) = @_;
+
+    if ( defined $value ) {
+        $self->{ "_identifier" } = $value;
+    }
+
+    return $self->{ "_identifier" };
 
 } # identifier
 
@@ -133,9 +142,13 @@ sub identifier {
 =cut
 
 sub name {
-    my ( $self ) = @_;
-    
-    $self->throw_not_implemented();
+    my ( $self, $value ) = @_;
+
+    if ( defined $value ) {
+        $self->{ "_name" } = $value;
+    }
+
+    return $self->{ "_name" };
 
 } # name
 
@@ -156,9 +169,13 @@ sub name {
 =cut
 
 sub definition {
-    my ( $self ) = @_;
-    
-    $self->throw_not_implemented();
+    my ( $self, $value ) = @_;
+
+    if ( defined $value ) {
+        $self->{ "_definition" } = $value;
+    }
+
+    return $self->{ "_definition" };
 
 } # definition
 
@@ -178,10 +195,15 @@ sub definition {
 =cut
 
 sub is_obsolete {
-    my ( $self ) = @_;
-    
-    $self->throw_not_implemented();
-    
+    my ( $self, $value ) = @_;
+
+    if ( defined $value ) {
+        $self->_is_true_or_false( $value );
+        $self->{ "_is_obsolete" } = $value;
+    }
+
+    return $self->{ "_is_obsolete" };
+
 } # is_obsolete
 
 
@@ -201,9 +223,13 @@ sub is_obsolete {
 =cut
 
 sub comment {
-    my ( $self ) = @_;
-    
-    $self->throw_not_implemented();
+    my ( $self, $value ) = @_;
+
+    if ( defined $value ) {
+        $self->{ "_comment" } = $value;
+    }
+   
+    return $self->{ "_comment" };
     
 } # comment
 
@@ -223,8 +249,13 @@ sub comment {
 sub each_synonym {
     my ( $self ) = @_;
     
-    $self->throw_not_implemented();
-
+    if ( $self->{ "_synonyms" } ) {
+        return @{ $self->{ "_synonyms" } };
+    }
+    else {
+        return my @a = (); 
+    }
+    
 } # each_synonym
 
 
@@ -241,10 +272,12 @@ sub each_synonym {
 =cut
 
 sub add_synonyms {
-    my ( $self ) = @_;
+    my ( $self, @values ) = @_;
     
-    $self->throw_not_implemented();
-
+    return unless( @values );
+        
+    push( @{ $self->{ "_synonyms" } }, @values );
+    
 } # add_synonyms
 
 
@@ -260,10 +293,27 @@ sub add_synonyms {
 
 sub remove_synonyms {
     my ( $self ) = @_;
-    
-    $self->throw_not_implemented();
+     
+    my @a = $self->each_synonym();
+    $self->{ "_synonyms" } = [];
+    return @a;
 
 } # remove_synonyms
+
+
+
+
+# Title   :_is_true_or_false
+# Function: Checks whether the argument is TRUE or FALSE.
+# Returns :
+# Args    : The value to be checked.
+sub _is_true_or_false {
+    my ( $self, $value ) = @_;
+    unless ( $value !~ /\D/ && ( $value == TRUE || $value == FALSE ) ) {
+        $self->throw( "Found [" . $value
+        . "] where " . TRUE . " or " . FALSE . " expected" );
+    }
+} # _is_true_or_false
 
 
 1;

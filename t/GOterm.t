@@ -33,21 +33,21 @@ ok( $obj->GO_id( "GO:0003947" ), "GO:0003947" );
 ok( $obj->GO_id(), "GO:0003947" );
 
 
-ok( $obj->each_definition_reference(), 0 );
+ok( $obj->each_dblink(), 0 );
 
-ok( $obj->add_definition_references( ( "dAA", "dAB" ) ) );
-ok( $obj->each_definition_reference(), 2 );
-my @df1 = $obj->each_definition_reference();
+ok( $obj->add_dblinks( ( "dAA", "dAB" ) ) );
+ok( $obj->each_dblink(), 2 );
+my @df1 = $obj->each_dblink();
 ok( $df1[ 0 ], "dAA" );
 ok( $df1[ 1 ], "dAB" );
-ok( $obj->each_definition_reference(), 2 );
+ok( $obj->each_dblink(), 2 );
 
-my @df2 = $obj->remove_definition_references();
+my @df2 = $obj->remove_dblinks();
 ok( $df2[ 0 ], "dAA" );
 ok( $df2[ 1 ], "dAB" );
 
-ok( $obj->each_definition_reference(), 0 );
-ok( $obj->remove_definition_references(), 0 );
+ok( $obj->each_dblink(), 0 );
+ok( $obj->remove_dblinks(), 0 );
 
 
 ok( $obj->each_secondary_GO_id(), 0 );
@@ -68,8 +68,8 @@ ok( $obj->remove_secondary_GO_ids(), 0 );
 
 
 
-ok( $obj->ontology_id( "0003947" ), "0003947" );
-ok( $obj->ontology_id(), "0003947" );
+ok( $obj->identifier( "0003947" ), "0003947" );
+ok( $obj->identifier(), "0003947" );
 
 ok( $obj->name( "N-acetylgalactosaminyltransferase" ), "N-acetylgalactosaminyltransferase" );
 ok( $obj->name(), "N-acetylgalactosaminyltransferase" );
@@ -83,30 +83,30 @@ ok( $obj->is_obsolete(), 1 );
 ok( $obj->comment( "Consider the term ..." ), "Consider the term ..." );
 ok( $obj->comment(), "Consider the term ..." );
 
-ok( $obj->each_alias(), 0 );
+ok( $obj->each_synonym(), 0 );
 
-ok( $obj->add_aliases( ( "AA", "AB" ) ) );
-ok( $obj->each_alias(), 2 );
-my @al1 = $obj->each_alias();
+ok( $obj->add_synonyms( ( "AA", "AB" ) ) );
+ok( $obj->each_synonym(), 2 );
+my @al1 = $obj->each_synonym();
 ok( $al1[ 0 ], "AA" );
 ok( $al1[ 1 ], "AB" );
-ok( $obj->each_alias(), 2 );
+ok( $obj->each_synonym(), 2 );
 
-my @al2 = $obj->remove_aliases();
+my @al2 = $obj->remove_synonyms();
 ok( $al2[ 0 ], "AA" );
 ok( $al2[ 1 ], "AB" );
 
-ok( $obj->each_alias(), 0 );
-ok( $obj->remove_aliases(), 0 );
+ok( $obj->each_synonym(), 0 );
+ok( $obj->remove_synonyms(), 0 );
 
 
-ok( $obj->add_aliases( ( "AA", "AB" ) ) );
-ok( $obj->add_definition_references( ( "dAA", "dAB" ) ) );
+ok( $obj->add_synonyms( ( "AA", "AB" ) ) );
+ok( $obj->add_dblinks( ( "dAA", "dAB" ) ) );
 ok( $obj->add_secondary_GO_ids( ( "GO:1234567", "GO:1234567" ) ) );
 
 
 $obj->init();
-ok( $obj->ontology_id(), "GO:-------" );
+ok( $obj->identifier(), "GO:-------" );
 ok( $obj->name(), "" );
 ok( $obj->definition(), "" );
 ok( $obj->is_obsolete(), 0 );
@@ -119,7 +119,7 @@ $obj = Bio::Ontology::GOterm->new( -go_id       => "0016847",
                                    -is_obsolete => 0,
                                    -comment     => "" );  
 
-ok( $obj->ontology_id(), "GO:0016847" );
+ok( $obj->identifier(), "GO:0016847" );
 ok( $obj->name(), "1-aminocyclopropane-1-carboxylate synthase" );
 ok( $obj->definition(), "Catalysis of ..." );
 ok( $obj->is_obsolete(), 0 );

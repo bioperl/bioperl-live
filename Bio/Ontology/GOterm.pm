@@ -96,14 +96,13 @@ methods.
 package Bio::Ontology::GOterm;
 use vars qw( @ISA );
 use strict;
-use Bio::Root::Object;
-use Bio::Ontology::TermI;
+use Bio::Ontology::Term;
 
 use constant GOID_DEFAULT => "GO:-------";
 use constant TRUE         => 1;
 use constant FALSE        => 0;
 
-@ISA = qw( Bio::Root::Root Bio::Ontology::TermI );
+@ISA = qw( Bio::Ontology::Term );
 
 
 
@@ -181,9 +180,9 @@ sub init {
     $self->definition( "" );
     $self->is_obsolete( FALSE );
     $self->comment( "" );
-    $self->remove_definition_references();
+    $self->remove_dblinks();
     $self->remove_secondary_GO_ids();
-    $self->remove_aliases();
+    $self->remove_synonyms();
   
 } # init
 
@@ -210,7 +209,7 @@ sub GO_id {
         $value = $self->_check_go_id( $value );
     }
 
-    return $self->ontology_id( $value );
+    return $self->identifier( $value );
 
 } # GO_id
 
@@ -218,71 +217,71 @@ sub GO_id {
 
 
 
-=head2 each_definition_reference
+=head2 each_dblink
 
- Title   : each_definition_reference()
- Usage   : @ds = $term->each_definition_reference();                 
- Function: Returns a list of definition references of this GO term.
- Returns : A list of definition references [array of [scalars]].
+ Title   : each_dblink()
+ Usage   : @ds = $term->each_dblink();                 
+ Function: Returns a list of each dblinks of this GO term.
+ Returns : A list of dblinks [array of [scalars]].
  Args    :
 
 =cut
 
-sub each_definition_reference {
+sub each_dblink {
     my ( $self ) = @_;
     
-    if ( $self->{ "_definition_references" } ) {
-        return @{ $self->{ "_definition_references" } };
+    if ( $self->{ "_dblinks" } ) {
+        return @{ $self->{ "_dblinks" } };
     }
     else {
         return my @a = (); 
     }
     
-} # each_definition_reference
+} # each_dblink
 
 
-=head2 add_definition_references
+=head2 add_dblinks
 
- Title   : add_definition_references
- Usage   : $term->add_definition_references( @refs );
+ Title   : add_dblinks
+ Usage   : $term->add_dblinks( @dbls );
            or
-           $term->add_definition_references( $ref );                  
- Function: Pushes one or more definition reference
-           into the list of definition references.
+           $term->add_dblinks( $dbl );                  
+ Function: Pushes one or more dblinks
+           into the list of dblinks.
  Returns : 
- Args    : One definition reference [scalar] or a list of
-           definition references [array of [scalars]].
+ Args    : One  dblink [scalar] or a list of
+            dblinks [array of [scalars]].
 
 =cut
 
-sub add_definition_references {
+sub add_dblinks {
     my ( $self, @values ) = @_;
     
     return unless( @values );
         
-    push( @{ $self->{ "_definition_references" } }, @values );
+    push( @{ $self->{ "_dblinks" } }, @values );
     
-} # add_definition_references
+} # add_dblinks
 
 
-=head2 remove_definition_references
+=head2 remove_dblinks
 
- Title   : remove_definition_references()
- Usage   : $term->remove_definition_references();
+ Title   : remove_dblinks()
+ Usage   : $term->remove_dblinks();
  Function: Deletes (and returns) the definition references of this GO term.
  Returns : A list of definition references [array of [scalars]].
  Args    :
 
 =cut
 
-sub remove_definition_references {
+sub remove_dblinks {
     my ( $self ) = @_;
      
-    my @a = $self->each_definition_reference();
-    $self->{ "_definition_references" } = [];
+    my @a = $self->each_dblink();
+    $self->{ "_dblinks" } = [];
     return @a;
 
-} # remove_definition_references
+} # remove_dblinks
 
 
 
@@ -389,11 +388,11 @@ sub to_string {
     $s .= "-- Comment:\n";
     $s .= $self->comment()."\n"; 
     $s .= "-- Definition references:\n";
-    $s .= $self->_array_to_string( $self->each_definition_reference() )."\n";
+    $s .= $self->_array_to_string( $self->each_dblink() )."\n";
     $s .= "-- Secondary GO ids:\n";
     $s .= $self->_array_to_string( $self->each_secondary_GO_id() )."\n";
     $s .= "-- Aliases:\n";
-    $s .= $self->_array_to_string( $self->each_alias() );
+    $s .= $self->_array_to_string( $self->each_synonym() );
     
     return $s;
     
