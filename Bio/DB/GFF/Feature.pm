@@ -1,3 +1,5 @@
+# 
+
 =head1 NAME
 
 Bio::DB::GFF::Feature -- A relative segment identified by a feature type
@@ -65,21 +67,20 @@ package Bio::DB::GFF::Feature;
 
 use strict;
 
-use Bio::DB::GFF::Util::Rearrange;
-use Bio::DB::GFF::RelSegment;
+use Bio::SeqFeature::Generic;
+use Bio::DB::GFF::Segment;
+
+use vars qw( $VERSION @ISA $AUTOLOAD );
+@ISA = qw( Bio::SeqFeature::Generic
+           Bio::DB::GFF::Segment );
+
+$VERSION = '0.61';
+
+use Bio::DB::GFF::Util::Rearrange; # for rearrange()
 use Bio::DB::GFF::Featname;
 use Bio::DB::GFF::Typename;
 use Bio::DB::GFF::Homol;
-use Bio::SeqFeatureI;
-use Bio::Root::Root;
 use Bio::LocationI;
-
-use vars qw($VERSION @ISA $AUTOLOAD);
-@ISA = qw(Bio::DB::GFF::RelSegment Bio::SeqFeatureI 
-	  Bio::Root::Root);
-
-$VERSION = '0.61';
-#' 
 
 *segments = \&sub_SeqFeature;
 my %CONSTANT_TAGS = (method=>1, source=>1, score=>1, phase=>1, notes=>1, id=>1, group=>1);
@@ -99,7 +100,7 @@ information obtained from the GFF database.  It is one of two similar
 constructors.  This one is called when the feature is generated from a
 RelSegment object, and should inherit that object's coordinate system.
 
-The 13 arguments are positional (sorry):
+The 14 arguments are positional (sorry):
 
   $parent       a Bio::DB::GFF::RelSegment object (or descendent)
   $start        start of this feature
@@ -135,27 +136,24 @@ sub new_from_parent {
   ($start,$stop) = ($stop,$start) if defined($fstrand) and $fstrand eq '-';
   my $class = $group ? $group->class : $parent->class;
 
-  my $self =  bless {
-		     factory   => $parent->{factory},
-		     sourceseq => $parent->{sourceseq},
-		     strand    => $parent->{strand},
-		     ref       => $parent->{ref},
-		     refstart  => $parent->{refstart},
-		     refstrand => $parent->{refstrand},
-		     absolute  => $parent->{absolute},
-		     start     => $start,
-		     stop      => $stop,
-		     type      => Bio::DB::GFF::Typename->new($method,$source),
-		     fstrand   => $fstrand,
-		     score     => $score,
-		     phase     => $phase,
-		     group     => $group,
-		     db_id     => $db_id,
-		     group_id  => $group_id,
-		     class     => $class,
-		    },$package;
-  $self;
-}
+  my %args =
+    { '-seq_id' => $parent,
+      '-start' => $start,
+      '-end' => $stop,
+      '-strand' => $fstrand,
+      '-absolute' => $parent->absolute(),
+      '-type' => Bio::DB::GFF::Typename->new( $method, $source ),
+      '-parent' => $parent
+    };
+  my $self = $package->SUPER::new( %args );
+  my $self->{ 'score' } = $score;
+  my $self->{ 'phase' } = $phase;
+  my $self->{ 'group' } = $group;
+  my $self->{ 'db_id' } = $db_id;
+  my $self->{ 'group_id' } = $group_id;
+  my $self->{ 'class' } = $class;
+  return $self;
+} # new_from_parent(..)
 
 =head2 new
 
@@ -172,7 +170,7 @@ constructors.  This one is called when the feature is generated
 without reference to a RelSegment object, and should therefore use its
 default coordinate system (relative to itself).
 
-The 11 arguments are positional:
+The 14 arguments are positional:
 
   $factory      a Bio::DB::GFF adaptor object (or descendent)
   $srcseq       the source sequence
@@ -186,6 +184,12 @@ The 11 arguments are positional:
   $phase        this feature's phase
   $group        this feature's group
   $db_id        this feature's internal database ID
+  $group_id     this feature's internal group database ID
+  $tstart       this feature's target start
+  $tstop        this feature's target stop
+
+tstart and tstop aren't used for anything at the moment, since the
+information is embedded in the group object.
 
 =cut
 
@@ -201,60 +205,27 @@ sub new {
       $group,$db_id,$group_id,
       $tstart,$tstop) = @_;
 
-  my $self = bless { },$package;
   ($start,$stop) = ($stop,$start) if defined($fstrand) and $fstrand eq '-';
-
   my $class =  $group ? $group->class : 'Sequence';
 
-  @{$self}{qw(factory sourceseq start stop strand class)} =
-    ($factory,$srcseq,$start,$stop,$fstrand,$class);
-
-  # if the target start and stop are defined, then we use this information to create 
-  # the reference sequence
-  # THIS SHOULD BE BUILT INTO RELSEGMENT
-  if (0 && $tstart ne '' && $tstop ne '') {
-    if ($tstart < $tstop) {
-      @{$self}{qw(ref refstart refstrand)} = ($group,$start - $tstart + 1,'+');
-    } else {
-      @{$self}{'start','stop'} = @{$self}{'stop','start'};
-      @{$self}{qw(ref refstart refstrand)} = ($group,$tstop + $stop - 1,'-');
-    }
-
-  } else {
-    @{$self}{qw(ref refstart refstrand)} = ($srcseq,1,'+');
-  }
-
-  @{$self}{qw(type fstrand score phase group db_id group_id absolute)} =
-    (Bio::DB::GFF::Typename->new($method,$source),$fstrand,$score,$phase,
-     $group,$db_id,$group_id,$factory->{absolute});
-
-  $self;
-}
-
-=head2 type
-
- Title   : type
- Usage   : $type = $f->type([$newtype])
- Function: get or set the feature type
- Returns : a Bio::DB::GFF::Typename object
- Args    : a new Typename object (optional)
- Status  : Public
-
-This method gets or sets the type of the feature.  The type is a
-Bio::DB::GFF::Typename object, which encapsulates the feature method
-and source.  
-
-The method() and source() methods described next provide shortcuts to
-the individual fields of the type.
-
-=cut
-
-sub type   {
-  my $self = shift;
-  my $d = $self->{type};
-  $self->{type} = shift if @_;
-  $d;
-}
+  my %args =
+    { '-seq_id' => $srcseq,
+      '-start' => $start,
+      '-end' => $stop,
+      '-strand' => $fstrand,
+      '-absolute' => $factory->absolute(),
+      '-type' => Bio::DB::GFF::Typename->new( $method, $source ),
+      '-parent' => $factory
+    };
+  my $self = $package->SUPER::new( %args );
+  my $self->{ 'score' } = $score;
+  my $self->{ 'phase' } = $phase;
+  my $self->{ 'group' } = $group;
+  my $self->{ 'db_id' } = $db_id;
+  my $self->{ 'group_id' } = $group_id;
+  my $self->{ 'class' } = $class;
+  return $self;
+} # new(..)
 
 =head2 method
 
@@ -272,8 +243,8 @@ feature that delegates the task to the feature's type object.
 
 sub method {
   my $self = shift;
-  my $d = $self->{type}->method;
-  $self->{type}->method(shift) if @_;
+  my $d = $self->type->method;
+  $self->type->method(shift) if @_;
   $d;
 }
 
@@ -293,8 +264,8 @@ feature that delegates the task to the feature's type object.
 
 sub source {
   my $self = shift;
-  my $d = $self->{type}->source;
-  $self->{type}->source(shift) if @_;
+  my $d = $self->type->source;
+  $self->type->source(shift) if @_;
   $d;
 }
 
@@ -338,30 +309,6 @@ sub phase  {
   $d;
 }
 
-=head2 strand
-
- Title   : strand
- Usage   : $strand = $f->strand
- Function: get the feature strand
- Returns : +1, 0 -1
- Args    : none
- Status  : Public
-
-Returns the strand of the feature.  Unlike the other methods, the
-strand cannot be changed once the object is created (due to coordinate
-considerations).
-
-=cut
-
-sub strand {
-  my $self = shift;
-  return 0 unless $self->{fstrand};
-  if ($self->absolute) {
-    return Bio::DB::GFF::RelSegment::_to_strand($self->{fstrand});
-  }
-  return $self->SUPER::strand;
-}
-
 =head2 group
 
  Title   : group
@@ -382,20 +329,6 @@ sub group  {
   $self->{group} = shift if @_;
   $d;
 }
-
-=head2 display_id
-
- Title   : display_id
- Usage   : $display_id = $f->display_id([$display_id])
- Function: get or set the feature display id
- Returns : a Bio::DB::GFF::Featname object
- Args    : a new display_id (optional)
- Status  : Public
-
-This method is an alias for group().  It is provided for
-Bio::SeqFeatureI compatibility.
-
-=cut
 
 =head2 info
 
@@ -515,12 +448,8 @@ sub clone {
     $clone->group($group);
   }
 
-  if (my $merged = $self->{merged_segs}) {
-    $clone->{merged_segs} = { %$merged };
-  }
-
   $clone;
-}
+} # clone(..)
 
 =head2 compound
 
@@ -543,40 +472,6 @@ sub compound  {
   $d;
 }
 
-=head2 sub_SeqFeature
-
- Title   : sub_SeqFeature
- Usage   : @feat = $feature->sub_SeqFeature([$method])
- Function: get subfeatures
- Returns : a list of Bio::DB::GFF::Feature objects
- Args    : a feature method (optional)
- Status  : Public
-
-This method returns a list of any subfeatures that belong to the main
-feature.  For those features that contain heterogeneous subfeatures,
-you can retrieve a subset of the subfeatures by providing a method
-name to filter on.
-
-For AcePerl compatibility, this method may also be called as
-segments().
-
-=cut
-
-sub sub_SeqFeature {
-  my $self = shift;
-  my $type = shift;
-  my $subfeat = $self->{subfeatures} or return;
-  $self->sort_features;
-  my @a;
-  if ($type) {
-    my $features = $subfeat->{lc $type} or return;
-    @a = @{$features};
-  } else {
-    @a = map {@{$_}} values %{$subfeat};
-  }
-  return @a;
-}
-
 =head2 add_subfeature
 
  Title   : add_subfeature
@@ -586,84 +481,15 @@ sub sub_SeqFeature {
  Args    : a Bio::DB::GFF::Feature object
  Status  : Public
 
-This method adds a new subfeature to the object.  It is used
-internally by aggregators, but is available for public use as well.
+An alias for add_features(..)
 
 =cut
 
 sub add_subfeature {
-  my $self    = shift;
-  my $feature = shift;
-  my $type = $feature->method;
-  my $subfeat = $self->{subfeatures}{lc $type} ||= [];
-  push @{$subfeat},$feature;
-}
+  shift->add_features( @_ );
+} # add_subfeature(..)
 
-=head2 attach_seq
-
- Title   : attach_seq
- Usage   : $sf->attach_seq($seq)
- Function: Attaches a Bio::Seq object to this feature. This
-           Bio::Seq object is for the *entire* sequence: ie
-           from 1 to 10000
- Example :
- Returns : TRUE on success
- Args    : a Bio::PrimarySeqI compliant object
-
-=cut
-
-sub attach_seq { }
-
-
-=head2 location
-
- Title   : location
- Usage   : my $location = $seqfeature->location()
- Function: returns a location object suitable for identifying location 
-	   of feature on sequence or parent feature  
- Returns : Bio::LocationI object
- Args    : none
-
-=cut
-
-sub location {
-   my $self = shift;
-   require Bio::Location::Split unless Bio::Location::Split->can('new');
-   require Bio::Location::Simple unless Bio::Location::Simple->can('new');
-
-   my $location;
-   if (my @segments = $self->segments) {
-       $location = Bio::Location::Split->new(-seq_id => $self->seq_id);
-       foreach (@segments) {
-          $location->add_sub_Location($_->location);
-       }
-   } else {
-       $location = Bio::Location::Simple->new(-start  => $self->start,
-					      -end    => $self->stop,
-					      -strand => $self->strand,
-					      -seq_id => $self->seq_id);
-   }
-   $location;
-}
-
-=head2 entire_seq
-
- Title   : entire_seq
- Usage   : $whole_seq = $sf->entire_seq()
- Function: gives the entire sequence that this seqfeature is attached to
- Example :
- Returns : a Bio::PrimarySeqI compliant object, or undef if there is no
-           sequence attached
- Args    : none
-
-
-=cut
-
-sub entire_seq {
-    my $self = shift;
-    $self->factory->segment($self->sourceseq);
-}
-
+### TODO: ERE I AM
 =head2 merged_segments
 
  Title   : merged_segments
@@ -683,8 +509,6 @@ A side-effect of this method is that the features are returned in
 sorted order by their start tposition.
 
 =cut
-
-#'
 
 sub merged_segments {
   my $self = shift;
@@ -706,7 +530,7 @@ sub merged_segments {
     my ($pscore,$score) = (eval{$previous->score}||0,eval{$s->score}||0);
     if (defined($previous) 
 	&& $previous->stop+1 >= $s->start
-	&& $previous->score == $s->score
+	&& $pscore == $score
        ) {
       if ($self->absolute && $self->strand < 0) {
 	$previous->{start} = $s->{start};
@@ -741,16 +565,12 @@ sub merged_segments {
  Args    : none
  Status  : Public
 
-For those features that contain subfeatures, this method will return a
-unique list of method names of those subfeatures, suitable for use
-with sub_SeqFeature().
+An alias for types()
 
 =cut
 
 sub sub_types {
-  my $self = shift;
-  my $subfeat = $self->{subfeatures} or return;
-  return keys %$subfeat;
+  return shift->types( @_ );
 }
 
 =head2 attributes
@@ -779,6 +599,7 @@ attribute=E<gt>value pairs.  This lets you do:
 
 =cut
 
+## TODO: What about this one? --Paul
 sub attributes {
   my $self = shift;
   my $factory = $self->factory;
@@ -849,41 +670,6 @@ is equivalent to this call:
 
 =cut
 
-=head2 SeqFeatureI methods
-
-The following Bio::SeqFeatureI methods are implemented:
-
-primary_tag(), source_tag(), all_tags(), has_tag(), each_tag_value().
-
-=cut
-
-*primary_tag = \&method;
-*source_tag  = \&source;
-sub all_tags {
-  my $self = shift;
-  my @tags = keys %CONSTANT_TAGS;
-  # autogenerated methods
-  if (my $subfeat = $self->{subfeatures}) {
-    push @tags,keys %$subfeat;
-  }
-  @tags;
-}
-*get_all_tags = \&all_tags;
-
-sub has_tag {
-  my $self = shift;
-  my $tag  = shift;
-  my %tags = map {$_=>1} $self->all_tags;
-  return $tags{$tag};
-}
-sub each_tag_value {
-  my $self = shift;
-  my $tag  = shift;
-  return $self->$tag() if $CONSTANT_TAGS{$tag};
-  $tag = ucfirst $tag;
-  return $self->$tag();  # try autogenerated tag
-}
-
 sub AUTOLOAD {
   my($pack,$func_name) = $AUTOLOAD=~/(.+)::([^:]+)$/;
   my $sub = $AUTOLOAD;
@@ -897,9 +683,10 @@ sub AUTOLOAD {
   return $self->sub_SeqFeature($func_name) if $func_name =~ /^[A-Z]/;
 
   # error message of last resort
-  $self->throw(qq(Can't locate object method "$func_name" via package "$pack"));
-}#'
+  $self->throw( "Can't locate object method \"$func_name\" via package \"$pack\"" );
+}
 
+## TODO: --paul
 =head2 adjust_bounds
 
  Title   : adjust_bounds
@@ -969,27 +756,14 @@ position.  For reverse strand features, it sorts subfeatures in
 descending order.  After this is called sub_SeqFeature will return the
 features in order.
 
-This method is called internally by merged_segments().
+This is an alias for sorted( 1 );
 
 =cut
 
 # sort features
 sub sort_features {
-  my $self = shift;
-  return if $self->{sorted}++;
-  my $strand = $self->strand or return;
-  my $subfeat = $self->{subfeatures} or return;
-  for my $type (keys %$subfeat) {
-      $subfeat->{$type} = [map { $_->[0] }
-			   sort {$a->[1] <=> $b->[1] }
-			   map { [$_,$_->start] }
-			   @{$subfeat->{$type}}] if $strand > 0;
-      $subfeat->{$type} = [map { $_->[0] }
-			   sort {$b->[1] <=> $a->[1]}
-			   map { [$_,$_->start] }
-			   @{$subfeat->{$type}}] if $strand < 0;
-  }
-}
+  shift->sorted( 1 );
+} # sort_features(..)
 
 =head2 asString
 
@@ -1018,7 +792,7 @@ sub asString {
 
 sub name {
   my $self =shift;
-  return $self->group || $self->SUPER::name;
+  return $self->group() || $self->SUPER::display_name();
 }
 
 sub gff_string {
