@@ -28,9 +28,9 @@ Bio::Coordinate::GeneMapper - transformations between gene related coordinate sy
   my $exons;
 
   # create a gene mapper and set it to map from chromosomal to cds coordinates
-  my $gene = Bio::Coordinate::GeneMapper->new(-in=>'chr',
-                                              -out=>'cds',
-                                              -cds=>$cds,
+  my $gene = Bio::Coordinate::GeneMapper->new(-in   =>'chr',
+                                              -out  =>'cds',
+                                              -cds  =>$cds,
                                               -exons=>$exons
                                              );
 
@@ -502,19 +502,21 @@ sub exons {
        # sort the input array
        #
        # and if the used has not defined CDS assume it is the complete exonic range
-       if (defined $value[0]->strand && $value[0]->strand == - 1) {  #reverse strand
+       if (defined $value[0]->strand && 
+	   $value[0]->strand == - 1) {  #reverse strand
 	   @value = map { $_->[0] }
 	               sort { $b->[1] <=> $a->[1] }
                        map { [ $_, $_->start] }
                        @value;
 
            unless ($self->cds) {
-               $self->cds(new Bio::Location::Simple(-start => $value[-1]->start,
-                                                    -end   => $value[0]->end,
-                                                    -strand=> $value[0]->strand,
-                                                    -seq_id=> $value[0]->seq_id,
-                                                   )
-                         );
+               $self->cds(new Bio::Location::Simple
+			  (-start => $value[-1]->start,
+			   -end   => $value[0]->end,
+			   -strand=> $value[0]->strand,
+			   -seq_id=> $value[0]->seq_id,
+			   )
+			  );
            }
        } else {               #undef or forward strand
 	   @value = map { $_->[0] }
@@ -522,11 +524,12 @@ sub exons {
                        map { [ $_, $_->start] }
                        @value;
            unless ($self->cds) {
-               $self->cds(new Bio::Location::Simple(-start => $value[0]->start,
-                                                    -end   => $value[-1]->end,
-                                                    -strand=> $value[0]->strand,
-                                                    -seq_id=> $value[0]->seq_id,
-                                                   )
+               $self->cds(new Bio::Location::Simple
+			  (-start => $value[0]->start,
+			   -end   => $value[-1]->end,
+			   -strand=> $value[0]->strand,
+			   -seq_id=> $value[0]->seq_id,
+			   )
                          );
            }
 
@@ -548,7 +551,6 @@ sub exons {
 
 	   $self->in('chr');
 	   $self->out('gene');
-
 	   @exons = map {$self->map($_)} @value;
 
 	   $self->{'_in'} = ($tmp_in);
@@ -580,8 +582,10 @@ sub exons {
 
 	   my $match1 = Bio::Location::Simple->new
 	       (-seq_id =>'gene' ,
-		-start => $exon->start,
-		-end => $exon->end, -strand=>1 );
+		-start  => $exon->start,
+		-end    => $exon->end, 
+		-strand => 1 );
+
 	   my $match2 = Bio::Location::Simple->new
 	       (-seq_id => 'cds',
 		-start => $tr_end + 1,
@@ -790,7 +794,6 @@ sub cds {
 sub map {
    my ($self,$value) = @_;
    my ($res);
-
    $self->throw("Need to pass me a Bio::Location::Simple or ".
                 "Bio::Location::Simple or Bio::SeqFeatureI, not [".
 		ref($value). "]")
@@ -808,10 +811,9 @@ sub map {
    $self->_check_direction();
 
    $value = $value->location if $value->isa('Bio::SeqFeatureI');
-   print STDERR "=== Start location: ". $value->start. ",".
-       $value->end. " (". $value->strand. ")\n" if $self->verbose > 0;
-
-
+   $self->debug( "=== Start location: ". $value->start. ",".
+		 $value->end. " (". $value->strand. ")\n");
+	       
    # if nozero coordinate system is used in the input values
    if ( defined $self->{'_nozero'} &&
 	( $self->{'_nozero'} == 1 || $self->{'_nozero'} == 3 ) ) {
@@ -822,19 +824,18 @@ sub map {
    }
 
    my @steps = $self->_get_path();
-   print "mapping ", $self->{'_in'}, "->", $self->{'_out'},
-       "  Mappers: ", join(", ", @steps), "\n"  if $self->verbose > 0;
-
+   $self->debug( "mapping ". $self->{'_in'}. "->". $self->{'_out'}.
+		 "  Mappers: ". join(", ", @steps). "\n");
+   
    foreach my $mapper (@steps) {
        if ($mapper eq $TRANSLATION) {
 	   if ($self->direction == 1) {
+
 	       $value = $self->_translate($value);
-	       print STDERR "+   $TRANSLATION cds -> propeptide (translate) \n"
-		   if $self->verbose > 0;
+	       $self->debug( "+   $TRANSLATION cds -> propeptide (translate) \n");
 	   } else {
 	       $value = $self->_reverse_translate($value);
-	       print STDERR "+   $TRANSLATION propeptide -> cds (reverse translate) \n"
-		   if $self->verbose > 0;
+	       $self->debug("+   $TRANSLATION propeptide -> cds (reverse translate) \n");
 	   }
        }
        # keep the start and end values, and go on to next iteration
@@ -843,17 +844,20 @@ sub map {
 	   # update mapper name
 	   $mapper =~ /\d+-(\d+)/;   my ($counter) = $1;
 	   $value->seq_id($COORDINATE_INTS{$counter});
-	   print STDERR "-   $mapper\n" if $self->verbose > 0;
+	   $self->debug( "-   $mapper\n");
        } else {
-
            #
 	   # the DEFAULT : generic mapping
            #
+	   
 	   $value = $self->{'_mappers'}->{$mapper}->map($value);
-           $value->purge_gaps
-              if ($value && $value->isa('Bio::Location::SplitLocationI') && $value->can('gap'));
-	   print STDERR "+  $mapper (", $self->direction, "):  start ",
-               $value->start, " end ", $value->end, "\n"
+           
+	   $value->purge_gaps
+	       if ($value && $value->isa('Bio::Location::SplitLocationI') && 
+		   $value->can('gap'));
+	   
+	   $self->debug( "+  $mapper (". $self->direction. "):  start ".
+			 $value->start. " end ". $value->end. "\n")
 	       if $value && $self->verbose > 0;
        }
    }
@@ -881,7 +885,8 @@ sub map {
                push @matches, $prevloc;
                next;
            }
-           if ($prevloc->end == ($loc->start - 1) && $prevloc->seq_id eq $loc->seq_id) {
+           if ($prevloc->end == ($loc->start - 1) && 
+	       $prevloc->seq_id eq $loc->seq_id) {
                $prevloc->end($loc->end);
                $merging = 1;
            } else {
@@ -895,18 +900,18 @@ sub map {
                map {$newvalue->add_sub_Location} @matches;
            } else {
                $newvalue = Bio::Coordinate::Result::Match->new
-                   (-seq_id => $matches[0]->seq_id,
-                    -start => $matches[0]->start,
-                    -end => $matches[0]->end,
-                    -strand=> $matches[0]->strand );
+                   (-seq_id   => $matches[0]->seq_id,
+                    -start    => $matches[0]->start,
+                    -end      => $matches[0]->end,
+                    -strand   => $matches[0]->strand );
            }
            $value = $newvalue;
        }
    } 
-   elsif (ref $value eq "Bio::Coordinate::Result" && $value->each_match == 1 ){
+   elsif (ref $value eq "Bio::Coordinate::Result" && 
+	  $value->each_match == 1 ){
        $value = $value->match;
    }
-
 
    return $value;
 }
@@ -1134,16 +1139,16 @@ sub _translate {
            ($value->isa('Bio::Location::Simple') || $value->isa('Bio::Location::SplitLocationI'));
 
    my $seqid = 'propeptide';
-
-   if ($value->isa("Bio::Location::SplitLocationI")) {
+   
+   if ($value->isa("Bio::Location::SplitLocationI") ) {
        my $split = new Bio::Location::Split(-seq_id=>$seqid);
        foreach my $loc ( $value->each_Location(1) ) {
-
-           my $match = new Bio::Location::Simple(-start => int($loc->start / 3 )+1,
-                                                 -end => int($loc->end / 3 )+1,
-                                                 -seq_id => $seqid,
-                                                 -strand => 1
-                                                );
+           my $match = new Bio::Location::Simple
+	       (-start  => int ($loc->start / 3 ) +1,
+		-end    => int ($loc->end / 3 ) +1,
+		-seq_id => $seqid,
+		-strand => 1
+		);
            $split->add_sub_Location($match);
        }
        return $split;
@@ -1218,11 +1223,12 @@ sub _reverse_translate {
        my $split = new Bio::Location::Split(-seq_id=>$seqid);
        foreach my $loc ( $value->each_Location(1) ) {
 
-           my $match = new Bio::Location::Simple(-start => $value->start * 3 - 2,
-                                               -end => $value->end * 3,
-                                               -seq_id => $seqid,
-                                               -strand => 1
-                                              );
+           my $match = new Bio::Location::Simple
+	       (-start => $value->start * 3 - 2,
+		-end => $value->end * 3,
+		-seq_id => $seqid,
+		-strand => 1
+		);
            $split->add_sub_Location($match);
        }
        return $split;
