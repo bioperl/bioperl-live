@@ -4,19 +4,35 @@ Version 0.9.0
 
 *NOTE* 
 
-This is a developer release for bioperl, the 0.9.x series
-does not guarantee a stable API between 0.9.x releases.  These
-releases will be provided on a frequent (3-5 week) basis until the 1.0
-release is prepared at the end of 2001.  Please see the section on
-developer releases at the bottom.
+ This is a developer release for bioperl, the 0.9.x series
+ does not guarantee a stable API between 0.9.x releases.  These
+ releases will be provided on a frequent (3-5 week) basis until the 1.0
+ release is prepared at the end of 2001.  Please see the section on
+ developer releases at the bottom.
 
 
 # $Id$
 
 
-o About Bioperl
-
+o Getting Started
+ 
  Thanks for downloading this distribution!
+
+ For tutorials see Bioperl's bptutorial.pl or the online Bioperl tutorial
+ at http://www.pasteur.fr/recherche/unites/sis/formation/bioperl. For
+ information on databases and Bioperl see biodatabases.pod. To look at
+ example code browse the examples/ and scripts/ directories, and look at
+ bioperl.pod for a descriptions of all these scripts. The bioperl.pod file
+ also gives a overview of the history and purpose of Bioperl.
+
+ For a discussion of issues in design and development please see
+ biodesign.pod, recommended for those who want to contribute code. And for
+ a list of OS's and versions that are known to support Bioperl see the
+ PLATFORMS file.
+ 
+ For info on installing Bioperl read on!
+
+o About Bioperl
 
  Bioperl is an association of developers of public domain Perl tools
  for computational molecular biology.
@@ -28,6 +44,10 @@ o About Bioperl
 o Contact info
 
  Bioperl developers: bioperl-l@bioperl.org
+
+ There's quite a variety of tools available in Bioperl, and more are
+ added all the time. If the tool you're looking for isn't described in
+ the documentation please write us, it could be undocumented or in process.
 
  Project website   : http://bioperl.org
  Project FTP server: bioperl.org (anonymous FTP ok)
@@ -44,262 +64,248 @@ o Contact info
 
 o System requirements
 
-  - Not tested on anything but common forms of Unix (see the PLATFORMS file for more details
-  - perl 5.004 or later (*).
-  - ANSI C or Gnu C compiler for XS extensions
-  - LWP (libwww-perl) modules for running network BLAST analyses
-    (available from CPAN http://www.perl.com/CPAN/).
+ - Not tested on anything but common forms of Unix (see the 
+   PLATFORMS file for more details)
+ - perl 5.004 or later *.
+ - ANSI C or Gnu C compiler for XS extensions
+ - LWP (libwww-perl) modules for running network BLAST analyses
+   (available from CPAN http://www.perl.com/CPAN/).
 
-  - Additional perl module and application dependencies listed at
-    http://bioperl.org/Core/external.shtml and in bptutorial.pl
+ - Additional perl module and application dependencies listed at
+   http://bioperl.org/Core/external.shtml and in bptutorial.pl
 
-  - Additional information using Bioperl with MacOS can be 
-    found at http://bioperl.org/Core/mac-bioperl.html
+ - Additional information using Bioperl with MacOS can be 
+   found at http://bioperl.org/Core/mac-bioperl.html
 
-  - Additional information using Bioperl with OS X can be 
-    found at http://www.tc.umn.edu/~cann0010/Bioperl_OSX_install.html
+ - Additional information using Bioperl with OS X can be 
+   found at http://www.tc.umn.edu/~cann0010/Bioperl_OSX_install.html
 
-  * Note that most modules will work with earlier versions of perl. 
-    The only ones that will not are Bio::SimpleAlign.pm and 
-    the Bio::Index::* modules. If you don't need these modules
-    and you want to install bioperl using an earlier version of perl,
-    edit the "require 5.004;" line in Makefile.PL as necessary.
+ * Note that most modules will work with earlier versions of Perl. 
+   The only ones that will not are Bio::SimpleAlign.pm and 
+   the Bio::Index::* modules. If you don't need these modules
+   and you want to install bioperl using an earlier version of Perl,
+   edit the "require 5.004;" line in Makefile.PL as necessary.
 
 o Documentation
 
-  The "meta" documentation can be found in the bioperl.pod file.
-  This should be the starting point for you to read about what
-  bioperl is, how to use it and who wrote it. (The rest of this
-  file will tell you how to install bioperl)
+ The "meta" documentation can be found in the bioperl.pod file.
+ This should be the starting point for you to read about what
+ bioperl is, how to use it and who wrote it.
 
-  The bptutorial.pl file is a POD formatted tutorial document 
-  that contains useful information for new and existing Bioperl users.
-  This file also contains a number of useful scripts that the 
-  student of Bioperl may want to examine.
+ The bptutorial.pl file is a POD formatted tutorial document 
+ that contains useful information for new and existing Bioperl users.
+ This file also contains a number of useful scripts that the 
+ student of Bioperl may want to examine.
 
-  Use your favorite pod2* translator turn it into the format of
-  choice or view it directly via perldoc.
+ Use your favorite pod2* translator turn it into the format of
+ choice or view it directly via perldoc.
 
-  For example, go 
+ For example, go 
 
-  perldoc bioperl 
+   perldoc bioperl 
  
-  or in this directory go
+ or in this directory go
  
-  pod2text bioperl.pod | more
+   pod2text bioperl.pod | more
  
-  pod2text bptutorial.pl | more 
+   pod2text bptutorial.pl | more 
 
-  pod2html, which comes with Perl, can be used to create web-browser
-  navigable documentation files.
+ pod2html, which comes with Perl, can be used to create web-browser
+ navigable documentation files.
 
-  Individual .pm modules have their own embedded POD documentation
-  as well. A complete set of hyperlinked POD, or module, documentation 
-  is available at http://www.bioperl.org.
+ Individual *.pm modules have their own embedded POD documentation
+ as well. A complete set of hyperlinked POD, or module, documentation 
+ is available at http://www.bioperl.org.
 
-  Remember 'perldoc' is your friend. You can use this to read any
-  file containing POD formatted documentation without needing any type
-  of translator.
+ Remember 'perldoc' is your friend. You can use this to read any
+ file containing POD formatted documentation without needing any type
+ of translator.
 
-  There is also an online course written at the Pasteur Institute. See:
-  http://www.pasteur.fr/recherche/unites/sis/formation/bioperl.
+ There is also an online course written at the Pasteur Institute. See:
+ http://www.pasteur.fr/recherche/unites/sis/formation/bioperl.
 
-  Useful documentation, in the form of example code, can also be found
-  in the scripts/ and examples/ directories. The current collection
-  includes scripts that run BLAST and retrieve full "Subject" sequences,
-  make primers, retrieve ESTs based on tissue, align protein to nucleotide
-  sequence, run GENSCAN on multiple sequences, and retrieve multiple
-  conformers from PDB files made from NMR data. 
+ Useful documentation, in the form of example code, can also be found
+ in the scripts/ and examples/ directories. The current collection
+ includes scripts that run BLAST and retrieve full "Subject" sequences,
+ make primers, retrieve ESTs based on tissue, align protein to nucleotide
+ sequence, run GENSCAN on multiple sequences, and much more! See
+ bioperl.pod for a complete listing.
 
 o Releases
   
-  Bioperl releases are always available from the website
-http://www.bioperl.org or by FTP from ftp://bioperl.org.  Each release
-is tested with the test suite and cross-tested on a number of
-different platforms.  See the PLATFORMS file for more information on a
-specific platform.  All efforts are made to release a bug free
-package, however any known bugs in a release will be documented in the
-BUGS file.  See the Changes file for a listing of what features have
-been added or what APIs have changed between releases.
+ Bioperl releases are always available from the website
+ http://www.bioperl.org or by FTP from ftp://bioperl.org.  Each release
+ is tested with the test suite and cross-tested on a number of
+ different platforms.  See the PLATFORMS file for more information on a
+ specific platform.  All efforts are made to release a bug-free
+ package, however any known bugs in a release will be documented in the
+ BUGS file.  See the Changes file for a listing of what features have
+ been added or what APIs have changed between releases.
 
-  The 0.9.x developer series releases are intended to be quick
-releases off the main trunk to provided FTPable code that has been
-test that it will compile and all tests pass reasonably.  In the
-future all odd numbered point releases will be developer releases and
-even point releases will be stable releases.
+ The 0.9.x developer series releases are intended to be quick
+ releases off the main trunk to provided FTPable code that has been
+ test that it will compile and all tests pass reasonably.  In the
+ future all odd numbered point releases will be developer releases and
+ even point releases will be stable releases.
 
 o Install directions
 
-THE EASY WAY
+ THE EASY WAY
 
-The Bioperl modules are distributed as a tar file in standard perl
-CPAN distribution form. This means that installation is very
-simple. Once you have unpacked the tar distribution there is a
-directory called bioperl-xx/, which is where this file is.  Move into
-that directory (you may well be already in the right place!) and
-issue the following commands:
+ The Bioperl modules are distributed as a tar file in standard perl
+ CPAN distribution form. This means that installation is very
+ simple. Once you have unpacked the tar distribution there is a
+ directory called bioperl-xx/, which is where this file is.  Move into
+ that directory (you may well be already in the right place!) and
+ issue the following commands:
 
-  perl Makefile.PL   # makes a system-specific makefile
-  make               # makes the distribution
-  make test          # runs the test code
-  make install       # [may need root access for system install.
-                     #  See below for how to get around this.]
+   perl Makefile.PL   # makes a system-specific makefile
+   make               # makes the distribution
+   make test          # runs the test code
+   make install       # [may need root access for system install.
+                      #  See below for how to get around this.]
 
-This should build, test and install the distribution cleanly on your
-system.  This installs the main perl part of bioperl, which is the
-majority of the bioperl modules. There is one module (Bio::Tools::pSW)
-which needs a compiled extension. This needs an extra installation
-step. The directions for installing this are given below - it is
-almost as easy as installing the standard distribution, so don't
-worry!
+ This should build, test and install the distribution cleanly on your
+ system.  This installs the main perl part of bioperl, which is the
+ majority of the bioperl modules. There is one module (Bio::Tools::pSW)
+ which needs a compiled extension. This needs an extra installation
+ step. The directions for installing this are given below - it is
+ almost as easy as installing the standard distribution, so don't
+ worry!
 
-You may have some errors from the pod2man part of the installation,
-such as 
+ You may have some errors from the pod2man part of the installation,
+ such as 
 
-/usr/bin/pod2man: Unrecognized pod directive in paragraph 168 of Bio/Tools/Blast.pm: head3
+   /usr/bin/pod2man: Unrecognized pod directive in paragraph 168 of Bio/Tools/Blast.pm: head3
 
-You don't need to worry about them: they do not affect the documentation
-processing.
+ You don't need to worry about them: they do not affect the documentation
+ processing.
 
-To install you need write permission in the perl5/site_perl/ source area. 
-Quite often this will require you (or someone else) becoming root, 
-so you will want to talk to your systems manager if you don't 
-have the necessary access.
+ To install you need write permission in the perl5/site_perl/ source area. 
+ Quite often this will require you (or someone else) becoming root, 
+ so you will want to talk to your systems manager if you don't 
+ have the necessary access.
 
-It is possible to install the package outside of the standard Perl5 
-location. See below for details.
+ It is possible to install the package outside of the standard Perl5 
+ location. See below for details.
 
-To install the Compiled extension for pSW you will need to read the
-next section of the manual.
-
-
-
-INSTALLING THE COMPILED EXTENSIONS
-
-This Installation works out-of-the box for all platforms except *BSD
-and Solaris boxes. For notes on this, read on. For other platforms,
-skip ahead to the next section, BUILDING THE COMPILED EXTENSIONS.
-
-INSTALLING for *BSD and Solaris boxes.
-
-You should add the line -fPIC to the CFLAGS line in
-Compile/SW/libs/makefile.  This makes the compile generate position
-independent code, which is required for these architectures. In
-addition, on some solaris boxes, the generated Makefile does not make
-the correct -fPIC/-fpic flags for the c compiler that is used. This
-requires manual editing of the generated makefile to switch case. Try
-it out once, and if you get errors, try editing the -fpic line
-
-BUILDING THE COMPILED EXTENSIONS (OPTIONAL, ONLY FOR RUNNING LOCAL
-PROTEIN SMITH-WATERMAN ANALYSES FROM PERL)
-
-Move to the directory bioperl-ext.  This is available as a separate
-package released from ftp://bioperl.org/pub/DIST.  This is where the C
-code and XS extension for the bp_sw module is held and execute these
-commands: (possibly after making the change for *BSD and Solaris, as
-detailed above)
-
-  perl Makefile.PL   # makes the system specific makefile 
-                     # Solaris/BSD users might need to edit the Makefile here
-  make               # builds all the libaries
-  make test          # runs a short test
-  make install       # installs the package correctly.
-
-This should install the compiled extension. The Bio::Tools::pSW module
-will work cleanly now.
+ To install the Compiled extension for pSW you will need to read the
+ next section of the manual.
 
 
-INSTALLING BIOPERL IN A PERSONAL OR PRIVATE MODULE AREA
+ INSTALLING THE COMPILED EXTENSIONS
 
-If you lack permission to install perl modules into the
-standard site_perl/ system area you can configure bioperl to
-install itself anywhere you choose. Ideally this would
-be a personal perl directory or standard place where you
-plan to put all your 'local' or personal perl modules. 
+ This Installation works out-of-the box for all platforms except *BSD
+ and Solaris boxes. For notes on this, read on. For other platforms,
+ skip ahead to the next section, BUILDING THE COMPILED EXTENSIONS.
 
-Note: you _must_ have write permission to this area.
+ INSTALLING for *BSD and Solaris boxes.
 
-Simply pass a parameter to perl as it builds your system
-specific makefile.
+ You should add the line -fPIC to the CFLAGS line in
+ Compile/SW/libs/makefile.  This makes the compile generate position
+ independent code, which is required for these architectures. In
+ addition, on some Solaris boxes, the generated Makefile does not make
+ the correct -fPIC/-fpic flags for the C compiler that is used. This
+ requires manual editing of the generated Makefile to switch case. Try
+ it out once, and if you get errors, try editing the -fpic line
 
-Example:
+ BUILDING THE COMPILED EXTENSIONS (OPTIONAL, ONLY FOR RUNNING LOCAL
+ PROTEIN SMITH-WATERMAN ANALYSES FROM PERL)
 
-  perl Makefile.PL  PREFIX=/home/dag/My_Local_Perl_Modules
-  make
-  make test
-  make install
+ Move to the directory bioperl-ext.  This is available as a separate
+ package released from ftp://bioperl.org/pub/DIST.  This is where the C
+ code and XS extension for the bp_sw module is held and execute these
+ commands: (possibly after making the change for *BSD and Solaris, as
+ detailed above)
 
-This will cause perl to install the bioperl modules in:
-/home/dag/My_Perl_Modules/lib/perl5/site_perl/
+   perl Makefile.PL   # makes the system specific makefile 
+                      # Solaris/BSD users might need to edit the Makefile here
+   make               # builds all the libaries
+   make test          # runs a short test
+   make install       # installs the package correctly.
 
-And the bioperl man pages will go in:
-/home/dag/My_Perl_Modules/lib/perl5/man/
-
-To specify a directory besides lib/perl5/site_perl, 
-or if there are still permission problems, include
-an INSTALLSITELIB directive along with the PREFIX:
-
-  perl Makefile.PL  PREFIX=/home/dag/perl INSTALLSITELIB=/home/dag/perl/lib
-
-See below for how to use modules that are not installed in the
-standard Perl5 location.
-
-
-THE HARD WAY :)
-
-INSTALLING BIOPERL MODULES: LAST RESORT
-
-As a last resort, you can simply copy all files in Bio/
-to any directory in which you have write privileges. This is 
-generally NOT recommended since some modules may require
-special configuration (currently none do, but don't rely 
-on this.
-
-You will need to set "use lib '/path/to/my/bioperl/modules';" 
-in your perl scripts so that you can access these modules if
-they are not installed in the standard site_perl/ location.
-See below for an example.
-
-To get manpage documentation to work correctly you will have 
-to configure man so that it looks in the proper directory. 
-On most systems this will just involve adding an additional 
-directory to your $MANPATH environment variable.
-
-The installation of the Compile directory can be similarly
-redirected, but execute the make commands from the Compile/SW
-directory.
-
-If all else fails or are unable to access the perl distribution
-directories, ask your system administrator to place the files there 
-for you. You can always execute perl scripts in the same directory 
-as the location of the modules (Bio/ in the distribution) since perl 
-always checks the current working directory when looking for modules.
+ This should install the compiled extension. The Bio::Tools::pSW module
+ will work cleanly now.
 
 
-USING MODULES NOT INSTALLED IN THE STANDARD PERL LOCATION
+ INSTALLING BIOPERL IN A PERSONAL OR PRIVATE MODULE AREA
 
-You can explicitly tell perl where to look for modules by using the
-lib module which comes standard with perl.
+ If you lack permission to install perl modules into the
+ standard site_perl/ system area you can configure bioperl to
+ install itself anywhere you choose. Ideally this would
+ be a personal perl directory or standard place where you
+ plan to put all your 'local' or personal perl modules. 
 
-Example:
+ Note: you _must_ have write permission to this area.
 
-   #!/usr/bin/perl
+ Simply pass a parameter to perl as it builds your system
+ specific makefile.
 
-   use lib "/home/users/dag/My_Local_Perl_Modules/";
-   use Bio::Seq;
+ Example:
 
-   <...insert whizzy perl code here...>
+   perl Makefile.PL  PREFIX=/home/dag/My_Local_Perl_Modules
+   make
+   make test
+   make install
+
+ This will cause perl to install the bioperl modules in:
+ /home/dag/My_Perl_Modules/lib/perl5/site_perl/
+
+ And the bioperl man pages will go in:
+ /home/dag/My_Perl_Modules/lib/perl5/man/
+
+ To specify a directory besides lib/perl5/site_perl, 
+ or if there are still permission problems, include
+ an INSTALLSITELIB directive along with the PREFIX:
+
+   perl Makefile.PL  PREFIX=/home/dag/perl INSTALLSITELIB=/home/dag/perl/lib
+
+ See below for how to use modules that are not installed in the
+ standard Perl5 location.
 
 
-o MISCELLANEOUS DOCUMENTS
+ THE HARD WAY :)
 
-You may want to take a look at these POD documents as well.
+ INSTALLING BIOPERL MODULES: LAST RESORT
 
-  - bioback.pod: This file discusses how to set up sequence
-    databases for quick and easy access using Bioperl and some 
-    Bioperl scripts supplied in the scripts/ directory.
+ As a last resort, you can simply copy all files in Bio/
+ to any directory in which you have write privileges. This is 
+ generally NOT recommended since some modules may require
+ special configuration (currently none do, but don't rely 
+ on this.
 
-  - biodesign.pod: This file discusses a number of the design issues
-    that have been raised and collectively addressed in the course of 
-    the development of Bioperl. Recommended reading for anyone who
-    intends to use Bioperl extensively.
+ You will need to set "use lib '/path/to/my/bioperl/modules';" 
+ in your perl scripts so that you can access these modules if
+ they are not installed in the standard site_perl/ location.
+ See below for an example.
+
+ To get manpage documentation to work correctly you will have 
+ to configure man so that it looks in the proper directory. 
+ On most systems this will just involve adding an additional 
+ directory to your $MANPATH environment variable.
+
+ The installation of the Compile directory can be similarly
+ redirected, but execute the make commands from the Compile/SW
+ directory.
+
+ If all else fails or are unable to access the perl distribution
+ directories, ask your system administrator to place the files there 
+ for you. You can always execute perl scripts in the same directory 
+ as the location of the modules (Bio/ in the distribution) since perl 
+ always checks the current working directory when looking for modules.
+
+
+ USING MODULES NOT INSTALLED IN THE STANDARD PERL LOCATION
+
+ You can explicitly tell perl where to look for modules by using the
+ lib module which comes standard with perl.
+
+ Example:
+
+    #!/usr/bin/perl
+
+    use lib "/home/users/dag/My_Local_Perl_Modules/";
+    use Bio::Seq;
+
+    <...insert whizzy perl code here...>
+
