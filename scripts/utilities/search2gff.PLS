@@ -1,5 +1,5 @@
 #!/usr/bin/perl -w
-# $Id: search2gff.PLS,v 1.7 2003-10-21 15:26:36 jason Exp $
+# $Id: search2gff.PLS,v 1.8 2004-06-25 15:55:52 jason Exp $
 
 # Author:      Jason Stajich <jason@bioperl.org>
 # Description: Turn SearchIO parseable report(s) into a GFF report
@@ -25,13 +25,16 @@ The options are:
    -o filename          - the output filename [default STDOUT]
    -f format            - search result format (blast, fasta,waba,axt)
                           (ssearch is fasta format). default is blast.
-   -t seqtype           - if you want to see query or hit information
+   -t/--type seqtype    - if you want to see query or hit information
                           in the GFF report
+   -s/--source          - specify the source (will be algorithm name
+                          otherwise like BLASTN)
    -h                   - this help menu
    --version            - GFF version to use (put a 3 here to use gff 3)
-   --component          - generate GFF component fields
+   --component          - generate GFF component fields (chromosome)
    -m/--match           - generate a 'match' line which is a container
                           of all the similarity HSPs
+   -c/--cutoff          - specify an evalue cutoff
 
 Additionally specify the filenames you want to process on the
 command-line.  If no files are specified then STDIN input is assumed.
@@ -122,40 +125,31 @@ while( my $result = $parser->next_result ) {
 	my (%min,%max,$seqid,$name,$st);
 	while( my $hsp = $hit->next_hsp ) {
 	    my $feature = new Bio::SeqFeature::Generic;
-	    my $proxyfor;
+	    my ($proxyfor,$other);
 	    if( $type eq 'query' ) {
-		$proxyfor = $hsp->query;
+		($proxyfor,$other) = ($hsp->query,
+				      $hsp->hit);
 		$name  ||= $hit->name;
 		$feature->add_tag_value('Target', 'Sequence:'.$name);
-		if( $hsp->hit->strand < 0 ) {
-		    $feature->add_tag_value('Target', $hsp->hit->end);
-		    $feature->add_tag_value('Target', $hsp->hit->start);
-		} else { 
-		    $feature->add_tag_value('Target', $hsp->hit->start);
-		    $feature->add_tag_value('Target', $hsp->hit->end);
-		}
+		$feature->add_tag_value('Target', $hsp->hit->start);
+		$feature->add_tag_value('Target', $hsp->hit->end);
+		
 	    } else {
-		$proxyfor = $hsp->hit;
+		($other,$proxyfor) = ($hsp->query,
+				      $hsp->hit);
 		$name ||= $acc;
 		$feature->add_tag_value('Target', 'Sequence:'.
 					$acc);
 		$proxyfor->score($hit->bits) unless( $proxyfor->score );
 		
-		if( $hsp->query->strand < 0 ) {
-		    $feature->add_tag_value('Target', $hsp->query->end);
-		    $feature->add_tag_value('Target', $hsp->query->start);
-		} else { 
-		    $feature->add_tag_value('Target', $hsp->query->start);
-		    $feature->add_tag_value('Target', $hsp->query->end);
-		}
-	    }
-	    for my $t ( qw(hit query) ) {
-		$min{$t} = $hsp->$t()->start if( ! defined $min{$t} || 
-						 $min{$t} < $hsp->$t()->start);
-		$max{$t} = $hsp->$t()->end if( ! defined $max{$t} || 
-					       $max{$t} < $hsp->$t()->end); 
+		$feature->add_tag_value('Target', $hsp->query->start);
+		$feature->add_tag_value('Target', $hsp->query->end);
 	    }
 	    $feature->location($proxyfor->location);
+	    #  strand for feature is always going to be product of
+	    #  query & hit strands so that target can always be just
+	    #  '+'
+	    $feature->strand ( $proxyfor->strand * $other->strand);
 	    if( $sourcetag ) { 
 		$feature->source_tag($sourcetag);
 	    } else {
@@ -170,17 +164,20 @@ while( my $result = $parser->next_result ) {
 	    $st ||= $sourcetag || $proxyfor->source_tag;
 	}
 	if( $match ) { 
+
 	    my $matchf = Bio::SeqFeature::Generic->new
-		(-start => $min{$type},
-		 -end   => $max{$type},
+		(-start => $hit->start($type),
+		 -end   => $hit->end($type),
+		 -strand=> $hit->strand($type)*$hit->strand($other),
 		 -primary_tag => 'match',
 		 -source_tag  => $st,
 		 -seq_id => $seqid,
 		 -tag   => { 
 		     'Target' => 'Sequence:'.$name 
 		     });
-	    $matchf->add_tag_value('Target', $min{$other});
-	    $matchf->add_tag_value('Target', $max{$other});
+	    $matchf->add_tag_value('Target', $hit->start($other));
+	    $matchf->add_tag_value('Target', $hit->end($other));
+
 	    $out->write_feature($matchf);
 	}
     }
