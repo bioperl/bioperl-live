@@ -1,3 +1,4 @@
+# -*-Perl-*-
 
 use strict;
 use Dumpvalue;
