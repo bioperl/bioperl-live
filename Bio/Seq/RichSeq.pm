@@ -143,10 +143,10 @@ sub molecule {
 =head2 add_date
 
  Title   : add_date
- Usage   : $self->add_date($ref)
+ Usage   : $self->add_date($datestr)
  Function: adds a date
  Example :
- Returns : 
+ Returns : a date string or an array of such strings
  Args    :
 
 
@@ -165,7 +165,7 @@ sub add_date {
  Usage   :
  Function:
  Example :
- Returns : 
+ Returns : an array of date strings
  Args    :
 
 
@@ -194,8 +194,8 @@ sub get_dates{
 #'
 
 sub accession {
-   my ($obj,$value) = @_;
-   return $obj->accession_number($value);
+   my ($obj,@args) = @_;
+   return $obj->accession_number(@args);
 }
 
 =head2 add_secondary_accession
@@ -205,7 +205,7 @@ sub accession {
  Function: adds a secondary_accession
  Example :
  Returns : 
- Args    :
+ Args    : a string or an array of strings
 
 
 =cut
@@ -223,7 +223,7 @@ sub add_secondary_accession {
  Usage   :
  Function:
  Example :
- Returns : 
+ Returns : An array of strings
  Args    :
 
 
@@ -261,8 +261,8 @@ sub seq_version{
  Title   : keywords
  Usage   : $obj->keywords($newval)
  Function: 
- Returns : value of keywords
- Args    : newvalue (optional)
+ Returns : value of keywords (a string)
+ Args    : newvalue (optional) (a string)
 
 
 =cut
