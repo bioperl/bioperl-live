@@ -31,7 +31,7 @@
 package	 Bio::Root::Global;
 
 BEGIN {
-    use vars qw($CGI);
+    use vars qw($CGI $TIMEOUT_SECS);
 
     # $CGI is a boolean to indicate if the script is running as a CGI.
     # Useful for conditionally producing HTML-formatted messages
