@@ -212,9 +212,13 @@ FEATURES             Location/Qualifiers
     </para>
     <para>
       When a Genbank file like this is parsed the
-      feature data is converted into objects, specifically a 
+      feature data is converted into objects, specifically 
       <ulink
-	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqFeature/Generic.html">Bio::SeqFeature::Generic</ulink> object. In other parts of
+	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqFeature/Generic.html">Bio::SeqFeature::Generic</ulink> objects. How many? In this 
+      case 3, one for each of the primary tags.
+    </para>
+    <para>
+      In other parts of
       the Bioperl documentation one finds discussions
       of the "SeqFeature object", but there's more
       than one of these, so what is this a reference to? More
@@ -480,15 +484,39 @@ FEATURES             Location/Qualifiers
       There's quite a bit to this idea of location, so much that it
       probably deserves its own HOWTO. This is my way of saying that
       if this topic interests you should take a closer look at the modules that
-      are concerned with both Location and Range. The Range modules
-      offer the user a number of useful methods to handle "fuzzy"
+      are concerned with both Location and Range. Together these modules
+      offer the user a number of useful methods to handle both exact and "fuzzy"
       locations, where the "start" and "end" of a particular
-      sub-sequence themselves have start and end positions, or are
-      only partially defined.
+      sub-sequence are precise or themselves have start and end positions, or are
+      not precisely defined. You'll also find methods like union() and
+      intersection() that act on pairs of ranges. The table below is
+      meant to illustrate some of the modules' capabilities.
+    </para>
+    <table>
+	<title>Location Examples</title>
+	<tgroup cols="2">
+	  <thead>
+	    <row><entry>Type</entry><entry>Example</entry></row>
+	  </thead>
+	  <tbody>
+	    <row><entry>EXACT</entry><entry>(5..100)</entry></row>
+	    <row><entry>BEFORE</entry><entry>(&lt;5..100)</entry></row>
+	    <row><entry>AFTER</entry><entry>(&gt;5..100)</entry></row>
+	    <row><entry>WITHIN</entry><entry>((5.10)..100)</entry></row>
+	    <row><entry>BETWEEN</entry><entry>(99^100)</entry></row>
+	  </tbody>
+	</tgroup>
+      </table>
+    <para>
+      One that might not be self-explanatory is 'WITHIN'. The
+      example means "starting somewhere between positions 5 and 10,
+      inclusive, and ending at 100". 'BETWEEN' is interesting - the
+      example means "between 99 and 100, exclusive". A biological example
+      of such a location would be a cleavage site, between two bases or residues.
     </para>
     <para>
       In their simplest form the Location objects are used to get or
-      set these start and end positions, getting the positions could
+      set start and end positions, getting the positions could
       look like this:
     </para>
     <para>
