@@ -19,7 +19,7 @@ BEGIN {
 	use lib 't';
     }
     use vars qw($NTESTS);
-    $NTESTS = 75;
+    $NTESTS = 76;
     $error = 0;
 
     use Test;
@@ -39,6 +39,26 @@ use Bio::PopGen::IO;
 use Bio::PopGen::PopStats;
 
 use Bio::PopGen::Statistics;
+
+
+
+# test Fu and Li's D using data from the paper
+
+ok(sprintf("%.3f",
+	   Bio::PopGen::Statistics->fu_and_li_D_counts(24, 18, 9)),
+   -1.529);
+
+ok(sprintf("%.3f",
+	   Bio::PopGen::Statistics->fu_and_li_D_star_counts(24, 18, 10)),
+   -1.558);
+
+ok(sprintf("%.3f",
+	   Bio::PopGen::Statistics->fu_and_li_F_counts(24, 3.16, 18, 9)),
+   -1.735);
+
+#ok(sprintf("%.3f",
+#	   Bio::PopGen::Statistics->fu_and_li_F_star_counts(24, 3.16, 18, 10)),
+#   -1.710);
 
 my ($FILE1) = qw(popgentst1.out);
 
@@ -234,8 +254,7 @@ $poptst2->set_Allele_Frequency(-name      => 'marker1',
 			       -frequency => '0.40');
 
 #$fst = $stats->Fst([$poptst1,$poptst2],[qw(marker1 marker2) ]);
-skip('Fst not calculated yet',1,'marker1 test'); # 
-
+skip('Fst not calculated yet for just allele freqs',1,'marker1 test'); # 
 
 $io = new Bio::PopGen::IO(-format => 'csv',
 			  -file   => ">$FILE1");
@@ -312,16 +331,15 @@ ok(sprintf("%.5f",Bio::PopGen::Statistics->tajima_D($haploidpop)), 0.27345);
 ok(sprintf("%.5f",Bio::PopGen::Statistics->tajima_D(\@ingroup)),0.27345);
 ok(sprintf("%.5f",Bio::PopGen::Statistics->tajima_D($ingroup)),0.27345);
 
-
 ok(sprintf("%.5f",Bio::PopGen::Statistics->fu_and_li_D_star(\@ingroup)),
    0.27345);
 ok(sprintf("%.5f",Bio::PopGen::Statistics->fu_and_li_D_star($ingroup)),
    0.27345);
 
-skip(sprintf("%.5f",Bio::PopGen::Statistics->fu_and_li_F_star(\@ingroup)),
-   0.27834);
-skip(sprintf("%.5f",Bio::PopGen::Statistics->fu_and_li_F_star($ingroup)),
-   0.27834);
+#ok(sprintf("%.5f",Bio::PopGen::Statistics->fu_and_li_F_star(\@ingroup)),
+#     0.27834);
+#ok(sprintf("%.5f",Bio::PopGen::Statistics->fu_and_li_F_star($ingroup)),
+#   0.27834);
 
 ok((Bio::PopGen::Statistics->derived_mutations(\@ingroup,\@outgroup))[0], 1);
 ok((Bio::PopGen::Statistics->derived_mutations($ingroup,\@outgroup))[0], 1);
@@ -329,6 +347,8 @@ ok((Bio::PopGen::Statistics->derived_mutations(\@ingroup,$outgroup))[0], 1);
 ok((Bio::PopGen::Statistics->derived_mutations($ingroup,$outgroup))[0], 1);
 
 # expect to have 1 external mutation
+@ingroup = $haploidpop->get_Individuals;
+
 ok(sprintf("%.5f",Bio::PopGen::Statistics->fu_and_li_D(\@ingroup,1)),0.75653);
 ok(sprintf("%.5f",Bio::PopGen::Statistics->fu_and_li_D($ingroup,1)),0.75653);
 
@@ -341,12 +361,13 @@ ok(sprintf("%.5f",Bio::PopGen::Statistics->fu_and_li_D($ingroup,
 ok(sprintf("%.5f",Bio::PopGen::Statistics->fu_and_li_D(\@ingroup,
 						       $outgroup)),0.75653);
 
-skip(sprintf("%.5f",Bio::PopGen::Statistics->fu_and_li_F(\@ingroup,1)),0.77499);
-skip(sprintf("%.5f",Bio::PopGen::Statistics->fu_and_li_F($ingroup,1)),0.77499);
-skip(sprintf("%.5f",Bio::PopGen::Statistics->fu_and_li_F($ingroup,
+ok(sprintf("%.5f",Bio::PopGen::Statistics->fu_and_li_F(\@ingroup,1)),
+     0.77499);
+ok(sprintf("%.5f",Bio::PopGen::Statistics->fu_and_li_F($haploidpop,1)),0.77499);
+ok(sprintf("%.5f",Bio::PopGen::Statistics->fu_and_li_F($ingroup,
 						       \@outgroup)),0.77499);
-skip(sprintf("%.5f",Bio::PopGen::Statistics->fu_and_li_F($ingroup,
-						       $outgroup)),0.77499);
+ok( sprintf("%.5f",Bio::PopGen::Statistics->fu_and_li_F($ingroup,
+							 $outgroup)),0.77499);
 
 
 # Test composite LD
@@ -375,3 +396,5 @@ $pop = $io->next_population;
 
 ok(sprintf("%.4f",$LD{'ProC9198EA'}->{'ProcR2973EA'}->[0]), -0.0375);
 ok(sprintf("%.2f",$LD{'ProC9198EA'}->{'ProcR2973EA'}->[1]), 2.56);
+
+
