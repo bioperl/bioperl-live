@@ -54,6 +54,7 @@ bioinformatics@dieselwurks.com
 =head1 CONTRIBUTORS
 
 Jason Stajich, jason@bioperl.org
+Tony Cox, avc@sanger.ac.uk
 
 =head1 APPENDIX
 
@@ -129,7 +130,11 @@ sub next_seq {
 	# first gather the trace information
 	$length = $self->{'samples'}*$self->{sample_size}*4;
 	$buffer = $self->read_from_buffer($fh,$buffer,$length);
-	@read = unpack "n$length",$buffer;
+	my $byte = "n";
+	if ($self->{sample_size} == 1){
+	    $byte = "c";
+	}
+	@read = unpack "${byte}${length}",$buffer;
 	# these traces need to be split
 	$self->_set_v2_traces(\@read);
 	# now go and get the base information
