@@ -96,9 +96,11 @@ use vars qw(@ISA);
 use Bio::Assembly::IO;
 use Bio::Assembly::Scaffold;
 use Bio::Assembly::Contig;
+use Bio::Assembly::Singlet;
 use Bio::LocatableSeq;
 use Bio::Annotation::SimpleValue;
 use Bio::Seq::PrimaryQual;
+use Bio::SeqIO;
 use Bio::SeqFeature::Generic;
 use Dumpvalue();
 my $dumper = new Dumpvalue();
@@ -388,7 +390,7 @@ sub next_assembly {
           else {
                $adder = $seq;
           }
-          $assembly->add_singlet($adder);      
+          $assembly->add_singlet(new Bio::Assembly::Singlet(-seq => $adder));
      }
     $assembly->update_seq_list();
     return $assembly;
@@ -404,11 +406,12 @@ sub next_assembly {
 
 =cut
 
-sub write_assemebly {
+sub write_assembly {
     my $self = shift;
 
     $self->throw("Writing phrap ACE files is not implemented yet! Sorry...");
 }
+
 
 1;
 

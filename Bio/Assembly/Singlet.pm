@@ -77,4 +77,71 @@ use Bio::Seq::PrimaryQual;
 
 @ISA = qw(Bio::Root::Root Bio::Align::AlignI Bio::Assembly::Contig);
 
+
+sub new {
+     my ($class,%ARG) = @_;
+     my $self = {};
+     my $args = \%ARG;
+     bless ($self,$class);
+     if ($args->{'-seq'}) {
+          $self->seqref($args->{'-seq'});
+          $self->seq_to_singlet($args->{'-seq'});
+     }
+     return $self;
+}
+
+=head2 seq_to_singlet
+
+    Title   : seq_to_singlet
+    Usage   : my $singlet = $io->seq_to_singlet($seq)
+    Function: Wrap the information for a singlet as a Bio::Assembly::Singlet
+    Returns : A Bio::Assembly::Singlet object
+    Args    : A Bio::Seq-compliant object
+
+=cut
+
+sub seq_to_singlet {
+    my ($self,$seq) = @_;
+     my $singlet = new Bio::Assembly::Singlet();
+     
+     return $singlet;
+}
+
+
+=head2 id
+
+    Title   : id
+    Usage   : my $id = $singlet->id('chad matsalla')
+    Function: 
+    Returns : 
+    Args    : 
+
+=cut
+
+sub id {
+     my $self = shift;
+     return $self->seqref()->display_id();
+}
+
+
+=head2 seqref
+
+    Title   : seqref
+    Usage   : my $seqref = $singlet->seqref($seq);
+    Function: Set the sequence to which this Singlet refers
+    Returns : A Bio::Seq-compliant object
+    Args    : 
+
+=cut
+
+sub seqref {
+     my ($self,$seq) = @_;
+     if ($seq) { $self->{'seqref'} = $seq; }
+     return $self->{'seqref'};
+}
+
+
+
+
+
 1;

@@ -94,7 +94,8 @@ $traces2->_synthesize_traces();
 
 
 $traces2->set_accuracies();
-# $traces2->scf_dump();
+print("This is an scf dump:\n");
+$traces2->scf_dump();
 
 sub the_old_way {
         my $start2 = 1;

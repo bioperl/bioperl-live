@@ -353,7 +353,7 @@ sub add_contig {
     my $contig = shift;
 
     if( !ref $contig || ! $contig->isa('Bio::Assembly::Contig') ) {
-	$self->throw("Unable to process non Bio::Assembly::Contig object [", ref($contig), "]");
+	$self->throw("Scaffold::add_contig is unable to process non Bio::Assembly::Contig object [", ref($contig), "]");
     }
     my $contigID  = $contig->id();
     if( !defined $contigID ) {
@@ -392,11 +392,10 @@ sub add_contig {
 sub add_singlet {
     my ($self,$singlet) = @_;
 
-    if ( !ref $singlet || ! $singlet->isa('Bio::PrimarySeqI') ) {
-	$self->warn("Unable to process non Bio::SeqI object whos reference is (".ref($singlet).")");
+    if ( !ref $singlet || ! $singlet->isa('Bio::Assembly::Singlet') ) {
+	$self->warn("Scaffold::add_singlet is unable to add a singlet ($singlet) because it was not a Bio::Assembly::Singlet object.");
 	return 0;
     }
-
     my $singletID = $singlet->id();
     $self->warn("Replacing singlet $singletID wih a new sequence object")
 	if (exists $self->{'_contigs'}{$singletID});
