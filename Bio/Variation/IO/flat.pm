@@ -166,7 +166,7 @@ sub next {
 	    my ($start, $sep, $end) = $location =~ /(-?\d+)(.)?\D?(-?\d+)?/;
 	    $end = $start if not $end ;
 	    my ($len) = $end - $start +1; 
-	    $len = 0 if defined $sep and $sep eq '^';
+	    $len = 0, $start = $end if defined $sep and $sep eq '^';
 	    my $ismut = 0;
 	    $ismut = 1 if $change =~ m/>/; 
 	    
@@ -230,7 +230,7 @@ sub next {
 	    my ($start, $sep, $end) = $location =~ /(-?\d+)(.)?\D?(-?\d+)?/;
 	    $end = $start if not $end ;
 	    my ($len) = $end - $start + 1; 
-	    $len = 0 if defined $sep and $sep eq '^'; 
+	    $len = 0, $start = $end if defined $sep and $sep eq '^'; 
 	    my $ismut;
 	    $ismut = 1 if $change =~ m/>/; 
 	    my ($codon_table) = $rna =~ m|.+/codon_table: (\d+)|s;
@@ -297,13 +297,12 @@ sub next {
 	if ($change_number and $change_number > 1 ) {
 	    my $a3 = Bio::Variation::Allele->new;
 	    $a3->seq($mut) if $mut;
-	    #$aamut->add_Allele($a3);
 	    $prevaaobj->add_Allele($a3);
 	} else {
 	    my ($start, $sep, $end) = $location =~ /(-?\d+)(.)?\D?(-?\d+)?/;
 	    $end = $start if not $end ;
 	    my ($len) = $end - $start + 1; 
-	    $len = 0 if defined $sep and $sep eq '^'; 
+	    $len = 0, $start = $end if defined $sep and $sep eq '^'; 
 	    my $ismut;
 	    $ismut = 1 if $change =~ m/>/; 
 	    my ($region) =  $aa =~ m|.+/region: (\w+)|s ;	
@@ -374,10 +373,6 @@ sub write {
 
     foreach my $h (@h) {
 	
-	# HTML | ASCII
-	#my ($mode) = @args;
-	my $mode = '';#= 'ASCII' if not defined $mode;
-	
 	my @entry =();
     
 	my ($text, $tmp, $tmp2, $sep);
@@ -386,12 +381,7 @@ sub write {
 	
 	$text = $tag{ID};
 	
-	if ($mode eq 'HTML' ) {
-	    $text .= '<A HREF=http://srs.ebi.ac.uk/srs6bin/cgi-bin/wgetz?-e+'.
-		'[embl-acc:'. $h->id. ']>'. $h->id. '</A>';
-	} else {
-	    $text .= $h->id;
-	}
+	$text .= $h->id;
 	$text .= ":(". $h->offset;
 	$text .= "+1" if $h->sysname =~ /-/;
 	$text .= ")".  $h->sysname;
@@ -408,7 +398,6 @@ sub write {
 	    #print STDERR  $mut->mut_number, "\t", $mut, "\t", $mut->proof, "\t", scalar $mut->each_Allele,  "\n";	    
 	    push @{$variants{$mut->mut_number} }, $mut; 
 	}
-	#print "-----------\n";
 #	 foreach my $var (sort keys %variants) {
 #	     print "variation: ",  scalar $var, "\n";
 #	 }
@@ -454,31 +443,36 @@ sub write {
 			     push (@entry, $text) ;
 			 }
 			 #location
-			 $text = $tag{FeatureQual}. '/location: '. 
+			 $text = $tag{FeatureQual}. '/location: '; 
 			     #$mut->id. '; '. $mut->start; 
-			     $mut->start; 
-			 
 			 if ($mut->length > 1 ) {#	    if ($mut->end - $mut->start ) {
 			     my $l = $mut->start + $mut->length -1;
-			     $text .= '..'.  $l;
+			     $text .= $mut->start. '..'.  $l;
 			 }
 			 elsif ($mut->length == 0) {
-			     $text .= '^'. $mut->end;
+			     my $tmp_start = $mut->start - 1;
+			     $tmp_start-- if $tmp_start == 0;
+			     $text .= $tmp_start. '^'. $mut->end;
+			 } else {
+			     $text .= $mut->start;
 			 }
+
 			 if ($h->moltype && $h->moltype eq 'dna') {
 			     $tmp = $mut->start + $h->offset;
-			     if ($tmp <= 0) {
-				 $tmp -= 1;
-			     }
+			     $tmp-- if $tmp <= 0;
 			     $mut->start < 1 && $tmp++; 
-			     $text.= ' ('. $h->id. '::'. $tmp;
+			     #$text.= ' ('. $h->id. '::'. $tmp;
 			     $tmp2 = $mut->end + $h->offset;
 			     if ( $mut->length > 1 ) {
 				 $mut->end < 1 && $tmp2++; 
-				 $text.= "..". $tmp2;
+				 $text.= ' ('. $h->id. '::'. $tmp. "..". $tmp2;
 			     }
 			     elsif ($mut->length == 0) {
-				 $text .= '^'. $tmp2;
+				 $tmp--;
+				 $tmp-- if $tmp == 0;
+				 $text .= ' ('. $h->id. '::'. $tmp. '^'. $tmp2;
+			     } else {
+				 $text.= ' ('. $h->id. '::'. $tmp;
 			     }
 			     $text .= ')';
 			 }
@@ -501,20 +495,8 @@ sub write {
 			       );
 			 #restriction enzyme
 			 if ($mut->restriction_changes ne '') {
-			     if ($mode eq 'HTML') {
-				 my @enz = split ', ', $mut->restriction_changes;
-				 my ($rtmp, @tmp);
-				 foreach $rtmp (@enz) {
-				     $rtmp =~ s/([+-])(.*)/$2\]\>$1$2/;
-				     $rtmp = '<A HREF=http://srs.ebi.ac.uk/srs6bin/cgi-bin/wgetz?-e+[rebase-id:'. 
-					 $rtmp. '</A>';
-				     push (@tmp, $rtmp);
-				 }
-				 $text = join ('; ', sort(@tmp));
-			     } else {
-				 $text = $mut->restriction_changes;
-				 $text = wrap($tag{FeatureQual}. '/re_site: ', $tag{FeatureWrap}, $text); 
-			     }
+			     $text = $mut->restriction_changes;
+			     $text = wrap($tag{FeatureQual}. '/re_site: ', $tag{FeatureWrap}, $text); 
 			     push (@entry,
 				   $text
 				   );
@@ -579,32 +561,37 @@ sub write {
 			     push (@entry, $text) ;
 			 }
 			 #location
-			 $text = $tag{FeatureQual}. '/location: '. 
-			     $mut->start; 
-			 
+			 $text = $tag{FeatureQual}. '/location: ' ; 
 			 if ($mut->length > 1 ) {
-			     $text .= '..'. $mut->end;
-			     
+			     $text .= $mut->start. '..'. $mut->end;
 			     $tmp2 = $mut->end + $h->offset;
 			 }
 			 elsif ($mut->length == 0) {
-			     $text .= '^'. $mut->end;
+			     my $tmp_start = $mut->start;
+			     $tmp_start--;
+			     $tmp_start-- if $tmp_start == 0;
+			     $text .= $tmp_start. '^'. $mut->end;
+			 } else {
+			     $text .= $mut->start;
 			 }
+
 			 if ($h->moltype && $h->moltype eq 'rna') {
 			     $tmp = $mut->start + $h->offset;
-			     if ($tmp <= 0) {
-				 $tmp -= 1;
-			     }
+			     $tmp-- if $tmp <= 0;
 			     #$mut->start < 1 && $tmp++;			     
-			     $text.= ' ('. $h->id. '::'. $tmp;
+			     #$text.= ' ('. $h->id. '::'. $tmp;
 			     $tmp2 = $mut->end + $h->offset;
 			     #$mut->end < 1 && $tmp2++; 
 			     if ( $mut->length > 1 ) {
-				 $text.= "..". $tmp2;
+				 $text.= ' ('. $h->id. '::'. $tmp. "..". $tmp2;
 			     }
 			     elsif ($mut->length == 0) {
-				 $text .= '^'. $tmp2;
+				 $tmp--;
+				 $text .= ' ('. $h->id. '::'. $tmp. '^'. $tmp2;
+			     } else {
+				 $text.= ' ('. $h->id. '::'. $tmp;
 			     }
+
 			     $text .= ')';
 			 }
 			 push (@entry, $text);
@@ -626,20 +613,8 @@ sub write {
 			       );
 			 #restriction
 			 if ($mut->restriction_changes ne '') {
-			     if ($mode eq 'HTML') {
-				 my @enz = split ', ', $mut->restriction_changes;
-				 my ($rtmp, @tmp);
-				 foreach $rtmp (@enz) {
-				     $rtmp =~ s/([+-])(.*)/$2\]\>$1$2/;
-				     $rtmp = '<A HREF=http://srs.ebi.ac.uk/srs6bin/cgi-bin/wgetz?-e+[rebase-id:'. 
-					 $rtmp. '</A>';
-				     push (@tmp, $rtmp);
-				 }
-				 $text = join ('; ', sort(@tmp));
-			     } else {
-				 $text = $mut->restriction_changes;
-				 $text = wrap($tag{FeatureQual}. '/re_site: ', $tag{FeatureWrap}, $text); 
-			     }
+			     $text = $mut->restriction_changes;
+			     $text = wrap($tag{FeatureQual}. '/re_site: ', $tag{FeatureWrap}, $text); 
 			     push (@entry,
 				   $text
 				   );
@@ -648,13 +623,7 @@ sub write {
 			 if ($mut->region eq 'coding') {
 			     #codon table
 			     $text =  $tag{FeatureQual}. '/codon_table: ';
-			     if ($mode eq 'HTML' ) {
-				 $text .=  "<A HREF=http://www.ebi.ac.uk/cgi-bin/mutations/trtables.cgi?".
-				     "id=". $mut->codon_table. "&Action=Show>".
-					 $mut->codon_table.  '</A>';
-			     } else {
-				 $text .= $mut->codon_table;
-			     }
+			     $text .= $mut->codon_table;
 			     push (@entry, $text);
 			     #codon
 
