@@ -60,6 +60,12 @@ if( $special ) {
 		   @rc;
 	       } split(/[\s,]/,$special);
 }
+# guess we're talking about MSA if any of the standard MSA names are used
+if( $informat =~ /nexus|phylip|clustal|maf|stockholm|bl2seq|msf/ ||
+    $outformat =~ /nexus|phylip|clustal|maf|stockholm|bl2seq|msf/ ) {
+    $msa = 1;
+}
+
 if( $msa ) {
     eval {
 	$in = new Bio::AlignIO(-format => $informat, -file => $input);
@@ -86,7 +92,11 @@ if( $msa ) {
 	$in = new Bio::SeqIO(-format => $informat, -file => $input);
     };
     if( $@ ) {
-	die("Unknown sequence format to bioperl $informat\n");
+	if( $@ =~ /Could not open/ ) {
+	    die("Could not open input file: $input\n");
+	} else { 
+	    die("Unknown sequence format to bioperl $informat\n");
+	}	
     }
     eval {
 	   if( $output ) {
@@ -98,7 +108,11 @@ if( $msa ) {
 	   }
        };
     if( $@ ) {
-	die("Unknown sequence format to bioperl $outformat\n");
+	if( $@ =~ /Could not open/ ) {
+	    die("Could not open output file: $output\n");
+	} else { 
+	    die("Unknown sequence format to bioperl $outformat: $@\n");
+	}
     }
     while( my $seq = $in->next_seq ) {
 	$out->write_seq($seq);
