@@ -20,11 +20,13 @@ See documentation of methods.
 
 =head1 DESCRIPTION
 
-A feature representing a predicted exon. This class actually
-inherits off Bio::SeqFeature::Generic and therefore has all that
-functionality, plus a few methods supporting predicted features, like various
-scores and a significance. Even though these were inspired by GenScan results,
-at least a subset should be generally useable for exon prediction results.
+A feature representing a predicted exon. This class actually inherits
+off Bio::SeqFeature::Gene::Exon and therefore has all that
+functionality (also implements Bio::SeqFeatureI), plus a few methods
+supporting predicted features, like various scores and a
+significance. Even though these were inspired by GenScan results, at
+least a subset should be generally useable for exon prediction
+results.
 
 =head1 FEEDBACK
 
@@ -49,7 +51,7 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 
 =head1 AUTHOR - Hilmar Lapp
 
-Email hlapp@gmx.net or hilmar.lapp@pharma.novartis.com
+Email hlapp@gmx.net
 
 Describe contact details here
 
@@ -67,21 +69,17 @@ package Bio::Tools::Prediction::Exon;
 use vars qw(@ISA);
 use strict;
 
-use Bio::SeqFeature::Generic;
+use Bio::SeqFeature::Gene::Exon;
 
-@ISA = qw(Bio::SeqFeature::Generic);
+@ISA = qw(Bio::SeqFeature::Gene::Exon);
 
 sub new {
     my($class,@args) = @_;
     
     my $self = $class->SUPER::new(@args);
 
-    my ($primary) =
-	$self->_rearrange([qw(PRIMARY
-			      )],@args);
+    my ($primary) = $self->_rearrange([qw(PRIMARY)],@args);
 
-    $primary = 'predicted_exon' unless $primary;
-    $self->primary_tag($primary);
     return $self;
 }
 
