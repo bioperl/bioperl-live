@@ -17,14 +17,29 @@ Bio::Annotation - A generic object for annotations
 
 =head1 SYNOPSIS
 
-    # get an annotation somehow in $ann
+    use Bio::Annotation;
+    use Bio::Annotation::DBLink;
+    use Bio::Annotation::Comment;
 
-    # description is a simple, one line description 
+    my $link = new Bio::Annotation::DBLink(-database => 'TSC',
+                                     -primary_id => 'TSC0000030'
+                                     );
+    my $ann = Bio::Annotation->new('-description'  => 'some description');
+    $ann->add_DBLink($link);
+
+    my $comment = Bio::Annotation::Comment->new('-text' => 'Text of comment');
+    my $comment2 = Bio::Annotation::Comment->new('-text' => 'Second comment');
+    $ann->add_Comment($comment);
+    $ann->add_Comment($comment2);
+
+    my $ref = Bio::Annotation::Reference->new( '-authors' => 'author line',
+                                           '-title'   => 'title line',
+                                           '-location'=> 'location line',
+                                           '-start'   => 12);
+    $ann->add_Reference($ref);
+
+    # description is a simple, one line description
     print "Description is ",$ann->description, "\n";
-
-    foreach $genename ( $self->each_gene_name() ) {
-	print "gene name: $genename\n";
-    }
 
     foreach $comment ( $ann->each_Comment ) {
        # $comment is a Bio::Annotation::Comment object
@@ -33,23 +48,12 @@ Bio::Annotation - A generic object for annotations
 
     foreach $link ( $ann->each_DBLink ) {
        # link is a Bio::Annotation::DBLink object
-       print "Link to ",$link->primary_id, " in database", $link->database, "\n";
-    }
+       print "Link to ",$link->primary_id, " in database", $link->database,"\n";    }
 
     foreach $ref ( $ann->each_Reference ) {
        # link is a Bio::Annotation::Reference object
        print "Reference title ", $ref->title , "\n";
     }
-
-    #
-    # Making an annotation object from scratch
-    #
-
-    $ann = Bio::Annotation->new();
-
-    $ann->description("Description text");
-    print "Annotation description is ", $ann->description, "\n";
-   
 
 =head1 DESCRIPTION
 
@@ -130,7 +134,7 @@ use Bio::Annotation::Comment;
  Function: Makes a new Annotation object. The main thing 
            you will want to do with this is add comment objects and
            dblink objects, with calls like
-   
+
             $annotation->add_Comment($comment);
             $annotation->add_DBLink($dblink);
 

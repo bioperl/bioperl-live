@@ -15,11 +15,13 @@ which has unclear start and/or end locations
 
 =head1 SYNOPSIS
 
+    use Bio::Location::Fuzzy;
     my $fuzzylocation = new Bio::Location::Fuzzy(-start => '<30',
 						 -end   => 90,
 						 -loc_type => '.');
 
-    print "location string is ", $fuzzylocation->to_FTstring();
+    print "location string is ", $fuzzylocation->to_FTstring(), "\n";
+    print "location is of the type ", $fuzzylocation->loc_type, "\n";
 
 =head1 DESCRIPTION
 
