@@ -252,22 +252,8 @@ sub new {
   $self->phase( $phase ) if defined( $phase );
   $self->class( $class ) if defined( $class );
 
-  ## TODO: REMOVE
-  if( $start == 193754 ) {
-    warn "Creating another new feature: $self";
-  }
-
   return $self;
 } # new(..)
-
-## TODO: REMOVE
-sub seq_id {
-  my $self = shift;
-  if( @_ && ( $self->start() == 193754 ) ) {
-    warn "Resetting seq_id! ".$self->stack_trace_dump();
-  }
-  $self->SUPER::seq_id( @_ );
-}
 
 =head2 new_from_feature
 
