@@ -248,7 +248,8 @@ sub next_result{
 	       my %domaincounter;
 	       my $second_tier=0;
 	       while( defined($_ = $self->_readline) ) {
-		   next if( /^Align/o );
+		   next if( /^Align/o ||
+			    /^\s+RF\s+[x\s]+$/o);
 		   if( /^Histogram/o || m!^//!o ) { 
 		       if( $self->in_element('hsp')) {
 			   $self->end_element({'Name' => 'Hsp'});
@@ -316,8 +317,7 @@ sub next_result{
 		       # Might want to change this so that it
 		       # accumulates all the of the alignment lines into 
 		       # three array slots and then tests for the 
-		       # end of the line
-		       
+		       # end of the line		       
 		       if( /^(\s+\*\-\>)(\S+)/o  ) { # start of domain
 			   $prelength = CORE::length($1);
 			   $width = 0;
@@ -354,20 +354,20 @@ sub next_result{
 					       'Data' => substr($_,$prelength)});
 			   }
 		       } elsif( $count == 2) {
-			   if( /^\s+(\S+)\s+(\d+)\s+(\S+)\s+(\d+)/o ) {
+			   if( /^\s+(\S+)\s+(\d+|\-)\s+(\S+)\s+(\d+|\-)/o ) {
 			       $self->element({'Name' => 'Hsp_hseq',
 					       'Data'  => $3});
 			   } else {
 			       $self->warn("unrecognized line: $_\n");
 			   }
-		       } 
+		       }
 		       $count = 0 if $count++ >= 2;
 		   }
 	       }
 	   } elsif(  /^Histogram/o || m!^//!o ) { 
 	       while( my $HSPinfo = shift @hspinfo ) {		  
 		   my $id = shift @$HSPinfo;
-		   my $info = $hitinfo[$hitinfo{$id}];
+		   my $info = [@{$hitinfo[$hitinfo{$id}]}];
 		   next unless defined $info;
 		   $self->start_element({'Name' => 'Hit'});
 		   $self->element({'Name' => 'Hit_id',
@@ -417,7 +417,8 @@ sub next_result{
 						    pop @line,
 						    pop @line);
 		   my $desc = join(' ', @line);
-		   push @hitinfo, [ $model,$desc,$score,$evalue,$n];
+		   push @hitinfo, [ $model, $desc,$score,$evalue,$n];
+		   $hitinfo{$model} = $#hitinfo;
 	       }
 	   } elsif( /^Parsed for domains:/o ) {
 	       @hspinfo = ();
@@ -434,7 +435,7 @@ sub next_result{
 	       $count = 0;
 	       my $second_tier=0;
 	       while( defined($_ = $self->_readline) ) {
-		   next if( /^Align/o );
+		   next if( /^Align/o || /^\s+RF\s+[x\s]+$/o);
 		   if( /^Histogram/o || m!^//!o ) { 
 		       if( $self->within_element('hsp')) {
 			   $self->end_element({'Name' => 'Hsp'});
@@ -451,8 +452,7 @@ sub next_result{
 			       $self->end_element({'Name' => 'Hit'});
 			   }
 			   $self->start_element({'Name' => 'Hit'});
-
-			   my $info = shift @hitinfo;
+			   my $info = [@{$hitinfo[$hitinfo{$name}]}];
 			   if( $info->[0] ne $name ) { 
 			       $self->throw("Somehow the Model table order does not match the order in the domains (got ".$info->[0].", expected $name)"); 
 			   }
@@ -508,7 +508,8 @@ sub next_result{
 					   'Data' => $2});
 			   $width = CORE::length($2);
 			   $count = 0;
-		       } elsif( CORE::length($_) == 0 || /^\s+$/o ||
+		       } elsif( CORE::length($_) == 0 || 
+				($count != 1 && /^\s+$/o) ||
 				/^\s+\-?\*\s*$/ ) { 
 			   next;
 		       } elsif( $count == 0 ) {
@@ -531,14 +532,17 @@ sub next_result{
 					       'Data' => substr($_,$prelength)});
 			   }
 		       } elsif( $count == 2) {
-			   if( /^\s+(\S+)\s+(\d+)\s+(\S+)\s+(\d+)/o ) {
+			   if( /^\s+(\S+)\s+(\d+)\s+(\S+)\s+(\d+)/o ||
+			       /^\s+(\S+)\s+(\-)\s+(\S*)\s+(\-)/o 
+			       ) {
 			       $self->element({'Name' => 'Hsp_qseq',
 					       'Data'  => $3});
 			   } else {
-			       $self->warn("unrecognized line: $_\n");
+			       $self->warn("unrecognized line ($count): $_\n");
 			   }
-		       } 
+		       }
 		       $count = 0 if $count++ >= 2;
+		       
 		   }	       
 	       }	   
 	   } else { 
