@@ -135,7 +135,9 @@ sub next_seq {
 	}
     } else {
 	# we don't need it really, so disable
-	$alphabet = undef;
+	# we want to keep this if SeqIO alphabet was set by user
+	# not sure if this could break something
+	#$alphabet = undef;
     }
 
     $seq = $self->sequence_factory->create(
@@ -153,9 +155,10 @@ sub next_seq {
 
 
     # if there wasn't one before, set the guessed type
-    unless ( defined $alphabet ) {
-	$self->alphabet($seq->alphabet());
-    }
+    #unless ( defined $alphabet ) {
+	# don't assume that all our seqs are the same as the first one found
+	#$self->alphabet($seq->alphabet());
+    #}
     return $seq;
 
 }
