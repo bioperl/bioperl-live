@@ -15,7 +15,7 @@ BEGIN {
 	use lib 't';
     }
     use Test;
-    plan tests => 9;
+    plan tests => 10;
 }
 
 use Bio::PopGen::Simulation::Coalescent;
@@ -56,7 +56,10 @@ ok($theta,48, 'theta');
 my $tD = Bio::PopGen::Statistics->tajima_D($leaves);
 ok(defined $tD,1, 'tajimaD');
 
-my ($total,$unqiue,$single) = Bio::PopGen::Statistics->allele_count($leaves);
+my $seg_sites = Bio::PopGen::Statistics->segregating_sites_count($leaves);
+ok($seg_sites,$mutcount,
+   'all the mutations should be polymorphic (by definition)');
+my $single = Bio::PopGen::Statistics->singleton_count($leaves);
 my $flD = Bio::PopGen::Statistics->fu_and_li_D($leaves,$single);
 ok(defined $flD,1,'fu and li D');
 
