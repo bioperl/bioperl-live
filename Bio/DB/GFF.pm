@@ -367,7 +367,7 @@ use Bio::Root::Root;
 use vars qw($VERSION @ISA);
 @ISA = qw(Bio::Root::Root);
 
-$VERSION = '0.50';
+$VERSION = '0.51';
 my %valid_range_types = (overlaps     => 1,
 			 contains     => 1,
 			 contained_in => 1);
@@ -1143,6 +1143,7 @@ sub segments {
     $gname  = shift;
   } else  {
     ($gclass,$gname) = rearrange(['CLASS','NAME'],@_);
+    $class ||= $self->default_class;
   }
   my %groups;         # cache the groups we create to avoid consuming too much unecessary memory
   my $features = [];
