@@ -149,7 +149,7 @@ eval {
 if ($@) {
     warn "Warning: Couldn't connect to Genbank with Bio::DB::GenBank.pm!\n" . $@;
     foreach ( $Test::ntest..$NUMTESTS ) { 
-	skip(1,,1,1,'could not connect to Genbank'); 
+	skip(1,1,1,'could not connect to Genbank'); 
     }
 }
 $seq = $seqio = undef;
