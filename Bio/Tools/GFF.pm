@@ -1001,20 +1001,26 @@ sub _gff3_string {
     } else {
 	$name = 'SEQ';
     }
-    my @groups,
-    my @all_tags = $feat->all_tags;
+
+    my @groups;
+
+    # force leading ID and Parent tags
+    my @all_tags =  grep { !/ID/ && !/Parent/ } $feat->all_tags;
+    unshift @all_tags, 'Parent' if $feat->has_tag('Parent');
+    unshift @all_tags, 'ID' if $feat->has_tag('ID');
+
     for my $tag ( @all_tags ) {
 	my $valuestr;	# a string which will hold one or more values 
-# for this tag, with quoted free text and 
-# space-separated individual values.
+                        # for this tag, with quoted free text and 
+                        # space-separated individual values.
 	my @v;
 	for my $value ( $feat->each_tag_value($tag) ) {	    
 	    if(  defined $value && length($value) ) { 
 		$value =~ tr/ /+/;
 		if ($value =~ /[^a-zA-Z0-9\,\;\=\.:\%\^\*\$\@\!\+\_\?\-]/) {
 		    $value =~ s/\t/\\t/g;	# substitute tab and newline 
-# characters
-		    $value =~ s/\n/\\n/g;		# to their UNIX equivalents
+                                                # characters
+		    $value =~ s/\n/\\n/g;	# to their UNIX equivalents
 
 # Unescaped quotes are not allowed in GFF3
 #		    $value = '"' . $value . '"';

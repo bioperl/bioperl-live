@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-#$Id: genbank2gff3.PLS,v 1.5 2005-01-17 19:48:57 cjm Exp $;
+#$Id: genbank2gff3.PLS,v 1.6 2005-03-24 13:03:25 smckay Exp $;
 
 =pod
 
@@ -83,7 +83,9 @@ Copyright (c) 2004 Cold Spring Harbor Laboratory.
 
 use strict;
 
+use lib "$ENV{HOME}/bioperl-live";
 use Pod::Usage;
+use Bio::Root::RootI;
 use Bio::SeqIO;
 use Bio::SeqFeature::Tools::Unflattener;
 use Bio::SeqFeature::Tools::TypeMapper;
@@ -92,7 +94,8 @@ use Bio::Tools::GFF;
 use Getopt::Long;
 
 use vars qw/$split @filter $zip $outdir $help $ethresh
-            $file @files $dir $summary $nolump/;
+            $file @files $dir $summary $nolump
+            $gene_id $rna_id $tnum %method %id %seen/;
 
 $| = 1;
 
@@ -158,8 +161,6 @@ elsif ( !$outdir ) {
 
 $outdir .= '/' unless $outdir =~ m|/$|;
 
-my ($gene_id, $rna_id, $tnum, %method, %id);
-
 for my $file ( @files ) {
     chomp $file;
     die "$! $file" unless -e $file;
@@ -183,11 +184,13 @@ for my $file ( @files ) {
     }
 
     my $in = Bio::SeqIO->new(-fh => \*FH, -format => 'GenBank');
+    my $gffio = Bio::Tools::GFF->new( -noparse => 1, -gff_version => 3 );
 
     while ( my $seq = $in->next_seq ) {
 	my $seq_name = $seq->accession;
 	my $end = $seq->length;
-        
+	my @to_print;
+
         # arrange disposition of GFF output
         $outfile = $lump || $outdir . $seq->accession . ".gff";
 	my $out;
@@ -211,28 +214,33 @@ for my $file ( @files ) {
         # unflatten gene graphs, apply SO types, etc
         unflatten_seq($seq);
 
-	my $gffio = Bio::Tools::GFF->new( -noparse => 1, -gff_version => 3 );
-
         # construct a GFF header
         print $out &gff_header($seq_name, $end);
 
-	for my $feature ($seq->get_all_SeqFeatures) {
+	# Note that we use our own get_all_SeqFeatures function 
+        # to rescue cloned exons
+	for my $feature ( get_all_SeqFeatures($seq) ) {
+	    
 	    $feature->source_tag('GenBank');
-            my $method = $feature->primary_tag;
-
+	    my $method = $feature->primary_tag;
+	    
 	    # unflattened gene parts will have this tag
-            if ( $feature->has_tag('gene') ) {
-                my $tempstr = &gene_features($feature,$gffio);
-                print $out "$tempstr\n" if $tempstr;
-            }
+	    if ( $feature->has_tag('gene') ) {
+		my $unique = gene_features($feature);
+		push @to_print, $feature if $unique;
+	    }
+	    
 	    # otherwise handle as generic feats with IDHandler labels 
-            else {
-                my $tempstr = &generic_features($feature,$gffio,$seq_name);
-                print $out "$tempstr\n" if $tempstr;
-            }
+	    else {
+		my $gff = generic_features($feature,$gffio,$seq_name);
+		print $out "$gff\n" if $gff;
+	    }
 	}
 
-	$gffio->close;
+        for my $printme ( @to_print ) {
+	    my $gff = $gffio->gff_string($printme);
+            print $out "$gff\n";
+        }
 
 	# deal with the corresponding DNA
 	my $dna = $seq->seq;
@@ -279,7 +287,7 @@ for my $file ( @files ) {
 }
 
 sub gene_features {
-    my ($f, $io) = @_;
+    my $f = shift;
     local $_ = $f->primary_tag;
     $method{$_}++;
     
@@ -297,7 +305,7 @@ sub gene_features {
 	$f->add_tag_value( ID => $rna_id );
 	$f->add_tag_value( Parent => $gene_id );
     }
-    elsif ( /exon/ || /CDS/  ) {
+    elsif ( /exon/ || /CDS/ ) {
 	return 0 unless $rna_id;
 	$f->add_tag_value( Parent => $rna_id );
     }
@@ -306,7 +314,10 @@ sub gene_features {
 	$f->add_tag_value( Parent => $gene_id );
     }
     
-    $io->gff_string($f) ;
+    # now we can skip cloned exons
+    return 0 if /exon/ && ++$seen{$f} > 1;
+
+    return 1;
 }
 
 sub generic_features {
@@ -323,7 +334,7 @@ sub generic_features {
 	$idh->generate_unique_persistent_id($f);
     }
 
-    $io->gff_string($f) ;
+    $io->gff_string($f);
 }
 
 sub gff_header {
@@ -360,8 +371,33 @@ sub unflatten_seq {
 
     # map feature types to the sequence ontology
     $tm->map_types_to_SO( -seq => $seq );
-    
+
+    # recursively add gene tags if required
+    # to rescue unlabelled containment hierarchies
+    for my $f ($seq->get_SeqFeatures) {
+	if ($f->has_tag('gene')) {
+	    ($gene_id) = $f->get_tag_values('gene'); 
+	    label_geneparts($f);
+	}
+    }
+
     1;
+}
+
+sub label_geneparts {
+    my $g = shift;
+
+    for my $child ( $g->get_SeqFeatures ) {
+	add_gene($child) unless $child->has_tag('gene');
+	for my $grandchild ( $child->get_SeqFeatures ) {
+	    add_gene($grandchild) unless $grandchild->has_tag('gene');
+	}
+    }
+}
+
+sub add_gene {
+    my $f = shift;
+    $f->add_tag_value( gene => $gene_id );
 }
 
 sub filter {
@@ -376,3 +412,41 @@ sub filter {
 
     $seq->add_SeqFeature(@feats) if @feats;
 }
+
+
+# The default behaviour of Bio::FeatureHolderI:get_all_SeqFeatures
+# changed to filter out cloned features.  We have to implement the old
+# method.  These two subroutines were adapted from the v1.4 Bio::FeatureHolderI
+sub get_all_SeqFeatures  {
+    my $seq = shift;
+    my @flatarr;
+
+    foreach my $feat ( $seq->get_SeqFeatures ){
+        push(@flatarr,$feat);
+        _add_flattened_SeqFeatures(\@flatarr,$feat);
+    }
+    return @flatarr;
+}
+
+sub _add_flattened_SeqFeatures  {
+    my ($arrayref,$feat) = @_;
+    my @subs = ();
+
+    if ($feat->isa("Bio::FeatureHolderI")) {
+	@subs = $feat->get_SeqFeatures;
+    } 
+    elsif ($feat->isa("Bio::SeqFeatureI")) {
+	@subs = $feat->sub_SeqFeature;
+    }
+    else {
+	warn ref($feat)." is neither a FeatureHolderI nor a SeqFeatureI. ".
+	    "Don't know how to flatten.";
+    }
+
+    for my $sub (@subs) {
+	push(@$arrayref,$sub);
+	_add_flattened_SeqFeatures($arrayref,$sub);
+    }
+
+}
+
