@@ -102,16 +102,17 @@ and
 
 This makes the simplest ever reformatter
 
-    #!/usr/local/bin/perl
+    #!/usr/bin/perl
 
     $format1 = shift;
     $format2 = shift || die "Usage: reformat format1 format2 < input > output";
 
     use Bio::SeqIO;
 
-    $in  = Bio::SeqIO->newFh(-format => $format1 );
+    $in  = Bio::SeqIO->newFh(-format => $format1, -fh => \*ARGV );
     $out = Bio::SeqIO->newFh(-format => $format2 );
-    #note: you might want to quote -format to keep older perl's from complaining.
+    # Note: you might want to quote -format to keep older 
+    # perl's from complaining.
 
     print $out $_ while <$in>;
 
@@ -288,9 +289,8 @@ Your participation is much appreciated.
 
 Report bugs to the Bioperl bug tracking system to help us keep track
  the bugs and their resolution.
- Bug reports can be submitted via email or the web:
+ Bug reports can be submitted via the web:
 
-  bioperl-bugs@bioperl.org
   http://bugzilla.bioperl.org/
 
 =head1 AUTHOR - Ewan Birney, Lincoln Stein
