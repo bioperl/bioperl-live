@@ -70,7 +70,7 @@ sequence, such as a repeated domain.  The BlastHit object uses the
 C<-OVERLAP> parameter to determine when two sequences overlap; if this is
 set to 2 -- the default -- then any two sbjct or query HSP sequences
 must overlap by more than two residues to get merged into the same
-contig and counted as an overlap. See the L< BUGS | BUGS> section below for
+contig and counted as an overlap. See the L<BUGS | BUGS> section below for
 "issues" with HSP tiling.
 
 

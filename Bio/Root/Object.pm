@@ -89,13 +89,13 @@ At the very least, this module saves you from re-writing the L<new()|new>
 method for each module you develop. It also permits consistent and
 robust handling of C<-tag =E<gt> value> method arguments via the
 L<Bio::Root::RootI::_rearrange()|Bio::Root::RootI> method and provides a object-oriented way handle
-exceptions and warnings via the L<Bio::Root::Root::throw()|Bio::Root:Root> and L<Bio::Root::Root::warn()|Bio::Root:Root> methods. 
+exceptions and warnings via the L<Bio::Root::Root::throw()|Bio::Root::Root> and L<Bio::Root::Root::warn()|Bio::Root::Root> methods. 
 See L<the APPENDIX section | APPENDIX> for some other handy methods.
 
 =head2 Fault-Tolerant Objects
 
 A major motivation for this module was to promote the creation of robust,
-fault-tolerant Perl5 objects. The L<Bio::Root::Root::throw()|Bio::Root:Root> method relies on Perl's built-in 
+fault-tolerant Perl5 objects. The L<Bio::Root::Root::throw()|Bio::Root::Root> method relies on Perl's built-in 
 C<eval{}/die> exception mechanism to generate fatal exceptions.
 The data comprising an exception is managed by the B<Bio::Root::Err.pm> 
 module, which essentially allows the data thrown by a C<die()> event to be
@@ -229,7 +229,7 @@ differentially sensitive to these values depending on design criteria.
 
 Strictness and verbosity can be positive or negative. Negative 
 verbosity equals terseness; negative strictness equals permissiveness.
-In B<Bio::Root::Object> only the L<Bio::Root::Root::throw()|Bio::Root:Root> and L<Bio::Root::Root::warn()|Bio::Root:Root> methods
+In B<Bio::Root::Object> only the L<Bio::Root::Root::throw()|Bio::Root::Root> and L<Bio::Root::Root::warn()|Bio::Root::Root> methods
 are sensitive to these values as indicated in the tables below:
 
     +---------+
@@ -268,7 +268,7 @@ are sensitive to these values as indicated in the tables below:
      or if $object->record_err(1) is called subsequent to creation.
 
 See the methods L<verbose()|verbose>, L<strict()|strict>, 
-L<Bio::Root::Root::throw()|Bio::Root:Root>, L<Bio::Root::Root::warn()|Bio::Root:Root>, and L<record_err()|record_err> 
+L<Bio::Root::Root::throw()|Bio::Root::Root>, L<Bio::Root::Root::warn()|Bio::Root::Root>, and L<record_err()|record_err> 
 for more details.
 
 
@@ -450,7 +450,7 @@ my @inheriting_modules = ('Bio::Tools::Blast', 'Bio::Root::Object',
            : An object is free to define its own strict, and verbose
            : behavior as well as its own make (constructor) options.
 
-See Also   : L<_initialize()|_initialize>, L<name()|name>, L<parent()|parent>, L<make()|make>, L<strict()|strict>, L<verbose()|verbose>, L<Bio::Root::Root::throw()|Bio::Root:Root>, L<Bio::Root::Root::warn()|Bio::Root:Root>, L<record_err()|record_err>
+See Also   : L<_initialize()|_initialize>, L<name()|name>, L<parent()|parent>, L<make()|make>, L<strict()|strict>, L<verbose()|verbose>, L<Bio::Root::Root::throw()|Bio::Root::Root>, L<Bio::Root::Root::warn()|Bio::Root::Root>, L<record_err()|record_err>
 
 =cut
 
@@ -1154,7 +1154,7 @@ sub set_stats {
            : is generally more convenient.
  Status    : Experimental
 
-See also   : L<Bio::Root::Root::warn()|Bio::Root:Root>, L<Bio::Root::Root::throw()|Bio::Root:Root>, L<the STRICTNESS & VERBOSITY section | STRICTNESS & VERBOSITY>, B<Bio::Root::Global::strictness()>
+See also   : L<Bio::Root::Root::warn()|Bio::Root::Root>, L<Bio::Root::Root::throw()|Bio::Root::Root>, L<the STRICTNESS & VERBOSITY section | STRICTNESS & VERBOSITY>, B<Bio::Root::Global::strictness()>
 
 =cut
 
@@ -1827,7 +1827,7 @@ sub find_object {
            : and must be handled when it occurs.
  Status    : Experimental
 
-See also   : L<err()|err>, L<Bio::Root::Root::warn()|Bio::Root:Root>, L<Bio::Root::Root::throw()|Bio::Root:Root>
+See also   : L<err()|err>, L<Bio::Root::Root::warn()|Bio::Root::Root>, L<Bio::Root::Root::throw()|Bio::Root::Root>
 
 =cut
 

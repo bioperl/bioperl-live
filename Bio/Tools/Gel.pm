@@ -8,7 +8,6 @@
 
 Bio::Tools::Gel - Calculates relative electrophoretic migration distances
 
-
 =head1 SYNOPSIS
 
     #An example of a virtual restriction digest and subsequent gel run

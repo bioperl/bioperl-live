@@ -193,16 +193,16 @@ my $DEFAULT_VALUE = "__DUMMY__";  # Permits eval{} based handlers to work
      if($@) evaluates to true, which will not be the case if
      the Error has no value (Error overloads numeric operations
      to the Error::value() method).
-    
+
      It is OK to create Bio::Root::Exception objects without
      specifing -value. In this case, an invisible dummy value is used.
-    
+
      If you happen to specify a -value of zero (0), it will
      be replaced by the string "The number zero (0)".
-    
+
      If you happen to specify a -value of empty string (""), it will
      be replaced by the string "An empty string ("")".
-    
+
 =cut
 
 sub new {

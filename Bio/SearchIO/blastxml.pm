@@ -21,7 +21,7 @@ Bio::SearchIO::blastxml - A SearchIO implementation of NCBI Blast XML parsing.
 				     -file   => 't/data/plague_yeast.bls.xml');
     while( my $result = $searchin->next_result ) {
     }
-    
+
     # one can also request that the parser NOT keep the XML data in memory
     # by using the tempfile initialization flag.
     my $searchin = new Bio::SearchIO(-tempfile => 1,
@@ -29,7 +29,6 @@ Bio::SearchIO::blastxml - A SearchIO implementation of NCBI Blast XML parsing.
 				     -file   => 't/data/plague_yeast.bls.xml');
     while( my $result = $searchin->next_result ) {
     }
- 
 
 =head1 DESCRIPTION
 

@@ -24,7 +24,7 @@ Bio::AlignIO::phylip - PHYLIP format sequence input/output stream
     while( my $aln = $gcgstream->next_aln ) {
 	$phylipstream->write_aln($aln);
     }
-    
+
     # do it again with phylip sequential format format 
     $phylipstream->interleaved(0);
     # can also initialize the object like this
