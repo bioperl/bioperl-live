@@ -1,6 +1,6 @@
 =head1 NAME
 
-Bioperl databases 1.4
+Bioperl databases 1.5
 
 =head1 SYNOPSIS
 
