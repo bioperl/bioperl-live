@@ -229,8 +229,12 @@ sub _program_list {
     if( $^O =~ /MSWIN/i ||
 	$^O =~ /Mac/i ) { return; }
     {
-	local * STDERR;
+	local * SAVERR;
+	open SAVERR, ">&STDERR";
+	open STDERR, ">/dev/null";
 	open(WOSSOUT, "wossname -auto |") || return;
+	open STDERR, ">&SAVERR";
+
     }
     local $/ = "\n\n";
     while(<WOSSOUT> ) {	
