@@ -854,7 +854,7 @@ $seq_obj = $db_obj->get_Seq_by_id(2);
 		<programlisting>
 use Bio::DB::Query::GenBank;
 
-$query = "Arabidopsis[ORGN] AND topoisomerase[TITL]";
+$query = "Arabidopsis[ORGN] AND topoisomerase[TITL] and 0:3000[SLEN]";
 $query_obj = Bio::DB::Query::GenBank->new(-db    => 'nucleotide',
 		                          -query => $query ); 
 		</programlisting>
@@ -915,8 +915,9 @@ while ($seq_obj = $stream_obj->next_seq) {
 		<para>
 		  Be careful what you ask for, many of today's nucleotide database
 		  entries are genome-size and you will probably run out of memory
-		  if your query accidentally tries to retrieve one of 
-		  these monstrosities.
+		  if your query happens to match one of 
+		  these monstrosities. You can use the SLEN field to limit the 
+		  size of the sequences you retrieve.
 		</para>
 	 </warning>
 	 <para></para>
