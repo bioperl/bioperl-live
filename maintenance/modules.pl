@@ -12,7 +12,7 @@ B<modules.pl> [B<-c|--count>] | [B<-l|--list>] | [B<-u|--untested>] |
 =head1 DESCRIPTION
 
 This script counts, lists and provides other information about bioperl
-modules. It is mainly meant to be ran by bioperl maintainers.
+modules. It is mainly meant to be run by bioperl maintainers.
 
 =cut
 
@@ -216,11 +216,11 @@ Only one option is processed on each run of the script.
 =item B<-c | --count>
 
 The default action if no other option is given. Gives the count of
-modules broken to B<intantance> ("usable"), B<base> ( (abstract)?
+modules broken to B<instance> ("usable"), B<base> ( (abstract)?
 superclass) , B<interface> (the "I" files) and B<component> (used from
 instantiable parent) modules, in addition to total number of modules.
 
-Note that abstact superclass in bioperl is not an enforced concept and
+Note that abstract superclass in bioperl is not an enforced concept and
 they are not clearly indicateded in the class name.
 
 =cut
@@ -255,12 +255,12 @@ sub list_all {
 
 =item B<-u | --untested>
 
-Prints a list of instance modules which are I<not> explicitely used by
+Prints a list of instance modules which are I<not> explicitly used by
 test files in t directory. Superclasess or any classes used by others
 are not reported, either, since their methods are assumed to be tested
 by subclass tests.
 
-This method can not be impoved much without running the tests!
+This method can not be improved much without running the tests!
 
 =cut
 
@@ -316,7 +316,7 @@ sub info {
 
 =item B<-i | --inherit>
 
-Finds inteface modules which inherit from an instantiable class.
+Finds interface modules which inherit from an instantiable class.
 
 Could be extended to check other bad inheritance patterns.
 
@@ -335,7 +335,7 @@ sub inherit {
 
 =item B<-s | --synopsis>
 
-Test SYNOPSIS section of bioperl modules for runnablity
+Test SYNOPSIS section of bioperl modules for runnability
 
 =cut
 
