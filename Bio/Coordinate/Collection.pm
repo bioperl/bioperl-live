@@ -16,11 +16,24 @@ Bio::Coordinate::Collection - Continuous match between two coordinate sets
 
 =head1 SYNOPSIS
 
-  # to use
-  use Bio::Coordinate::Collection;
+  # create Bio::Coordinate::Pairs somehow
+  $pair1; $pair2;
 
-  $a  = Bio::Coordinate::Collection->new();
-  $b  = Bio::Coordinate::Collection -> new ( -id => 3 );
+  # add them into a Collection
+  $collection = Bio::Coordinate::Collection->new;
+  $collection->add_mapper($pair1);
+  $collection->add_mapper($pair2);
+
+  # create a position and map it
+  $pos = Bio::Location::Simple->new (-start => 5, -end => 9 );
+  ok $res = $collection->map($pos);
+  ok $res->match->start, 1;
+  ok $res->match->end, 5;
+
+  # if mapping is many to one (*>1) or many-to-many (*>*)
+  # you have to give seq_id not get unrelevant entries
+  $pos = Bio::Location::Simple->new
+      (-start => 5, -end => 9 -seq_id=>'clone1');
 
 =head1 DESCRIPTION
 
@@ -33,10 +46,9 @@ This class is aimed for representing mapping between whole chromosomes
 and contigs, or between contigs and clones, or between sequencing
 reads and assembly.
 
-If you know your mappers are in order, you can set $self->_is_sorted
-to true before calling map() for the first time, although strictly
-speaking that is cheating.
-
+To map coordinates to other direction, you have to swap() the
+collection. Keeping track of teh direction and when to id restricitons
+are left to the calling code.
 
 =head1 FEEDBACK
 
@@ -110,7 +122,6 @@ sub new {
     return $self; # success - we hope!
 }
 
-
 =head2 add_mapper
 
  Title   : add_mapper
@@ -128,6 +139,13 @@ sub add_mapper {
 
   $self->throw("Is not a Bio::Coordinate::MapperI but a [$self]")
       unless defined $value && $value->isa('Bio::Coordinate::MapperI');
+
+  # test pair range lengths
+  $self->warn("Coodinates in pair [". $value . ":" .
+	      $value->in->seq_id . "/". $value->in->seq_id .
+	      "] are not right.")
+		  unless $value->test;
+
   $self->_is_sorted(0);
   push(@{$self->{'_mappers'}},$value);
 }
@@ -164,15 +182,17 @@ sub each_mapper{
 sub swap {
    my ($self) = @_;
 
-   map {$_->swap} @{$self->{'mappers'}};
-
+   #@{$self->{'mappers'}} = 
+   map {$_->swap} @{$self->{'_mappers'}};
+   $self->_sort;
 }
 
 =head2 test
 
  Title   : test
  Usage   : $obj->test;
- Function: test that both components of all pairs are of the same length
+ Function: test that both components of all pairs are of the same length.
+           Ran automatically.
  Example :
  Returns : boolean
  Args    :
@@ -208,7 +228,7 @@ sub test {
 
 sub map {
    my ($self,$value) = @_;
-   use Data::Dumper;
+
    $self->throw("Need to pass me a value.")
        unless defined $value;
    $self->throw("I need a Bio::Location, not [$value]")
@@ -220,17 +240,26 @@ sub map {
 
    my $result = new Bio::Coordinate::Result;
 
-   foreach my $pair ($self->each_mapper) {
+IDMATCH: {
 
-       # if we haven't even reached the start, move on
-       next if $pair->in->end < $value->start;
-       # if we have over run, break
-       last if $pair->in->start > $value->end;
+       # bail out now we if are forcing the use of an ID 
+       # and it is not in this collection
+       last IDMATCH if defined $value->seq_id && 
+	   ! $self->{'_in_ids'}->{$value->seq_id};
 
-       my $subres = $pair->map($value);
-       #print Dumper $subres;
-       $result->add_result($subres);
-       #print Dumper $result;
+       foreach my $pair ($self->each_mapper) {
+
+	   # if we are limiting input to a certain ID
+	   next if defined $value->seq_id && $value->seq_id ne $pair->in->seq_id;
+
+	   # if we haven't even reached the start, move on
+	   next if $pair->in->end < $value->start;
+	   # if we have over run, break
+	   last if $pair->in->start > $value->end;
+
+	   my $subres = $pair->map($value);
+	   $result->add_result($subres);
+       }
    }
 
    unless ($result->each_location) {
@@ -238,13 +267,12 @@ sub map {
        my $gap = Bio::Location::Simple->new(-start => $value->start,
 					    -end => $value->end,
 					    -strand => $value->strand,
-					    #-seq_id => $self->in->seq_id,
 					    -location_type => $value->location_type
 					   );
+       $gap->seq_id($value->seq_id) if defined $value->seq_id;
        bless $gap, 'Bio::Coordinate::Result::Gap';
        $result->add_location($gap);
    }
-   #print Dumper $result;
    return $result;
 }
 
@@ -267,9 +295,13 @@ sub _sort{
    @{$self->{'_mappers'}} =
        sort { $a->in->start <=> $b->in->start } @{$self->{'_mappers'}};
 
-   #foreach my $p ( $self->each_mapper ) {
-   #    print $p->in->seq_id, ": ", $p->in->start, "\n";
-   #}
+   #create hashes for sequence ids
+   $self->{'_in_ids'} = ();
+   $self->{'_out_ids'} = ();
+   foreach ($self->each_mapper) {
+       $self->{'_in_ids'}->{$_->in->seq_id} = 1;
+       $self->{'_out_ids'}->{$_->out->seq_id} = 1;
+   }
 
    $self->_is_sorted(1);
 }

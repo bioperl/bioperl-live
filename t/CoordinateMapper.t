@@ -16,7 +16,7 @@ BEGIN {
     }
     use Test;
 
-    plan tests => 145;
+    plan tests => 147;
 }
 use Bio::Location::Simple;
 use Bio::Coordinate::Pair;
@@ -308,13 +308,9 @@ ok my $pair2 = Bio::Coordinate::Pair->new(-in => $match3,
 					  -out => $match4,
 					 );
 
-ok $pair1->test;
-ok $pair2->test;
-
 ok my $transcribe = Bio::Coordinate::Collection->new;
 ok $transcribe->add_mapper($pair1);
 ok $transcribe->add_mapper($pair2);
-ok $transcribe->test;
 
 
 # simple match
@@ -374,7 +370,6 @@ $transcribe = Bio::Coordinate::Collection->new;
 $transcribe->add_mapper($pair3);
 $transcribe->add_mapper($pair1);
 $transcribe->add_mapper($pair2);
-$transcribe->test;
 ok $transcribe->_sort;
 my @res;
 map {push @res, $_->in->start } $transcribe->each_mapper;
@@ -429,7 +424,14 @@ ok $res->each_gap, 1;
 compare (shift @res, shift @testres);
 compare (shift @res, shift @testres);
 
-
+ok $mapper->swap;
+$pos = Bio::Location::Simple->new 
+    (-start => 2, -end => 5, -strand => -1, -seq_id => '627012');
+$res = $mapper->map($pos);
+ok $res->match->start, 2;
+ok $res->match->end, 5;
+ok $res->match->strand, -1;
+ok $res->match->seq_id, 'chr1';
 
 
 #
