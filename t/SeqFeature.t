@@ -20,7 +20,7 @@ BEGIN {
 	use lib 't';
     }
     use Test;
-    $NUMTESTS = 74;
+    $NUMTESTS = 192;
     plan tests => $NUMTESTS;
 
     eval { 
@@ -330,28 +330,44 @@ ok($intersect->end,   15);
 
 # now let's test spliced_seq
 
-ok  $seqio = new Bio::SeqIO(-file => Bio::Root::IO->catfile(qw(t data AY095303S1.gbk)),
+ok  $seqio = new Bio::SeqIO(-file => Bio::Root::IO->catfile
+			    (qw(t data AY095303S1.gbk)),
                             -format  => 'genbank');
 
 ok $geneseq = $seqio->next_seq();
 my ($CDS) = grep { $_->primary_tag eq 'CDS' } $geneseq->get_SeqFeatures;
 my $db = new Bio::DB::GenBank();
 $CDS->verbose(-1);
-my $cdsseq = $CDS->spliced_seq($db);
-exit;
+my $cdsseq = $CDS->spliced_seq($db,1);
+
 ok($cdsseq->subseq(1,60, 'ATGCAGCCATACGCTTCCGTGAGCGGGCGATGTCTATC'.
                    'TAGACCAGATGCATTGCATGTGATACCGTTTGGGCGAC'));
 ok($cdsseq->translate->subseq(1,100), 'MQPYASVSGRCLSRPDALHVIPFGRP'.
    'LQAIAGRRFVRCFAKGGQPGDKKKLNVTDKLRLGNTPPTLDVLKAPRPTDAPSAIDDAPSTSGLGLGGGVASPR');
 
-ok  $seqio = new Bio::SeqIO(-file => Bio::Root::IO->catfile(qw(t data AF032047.gbk)),
+ok  $seqio = new Bio::SeqIO(-file => Bio::Root::IO->catfile
+			    (qw(t data AF032047.gbk)),
                             -format  => 'genbank');
 ok $geneseq = $seqio->next_seq();
 ($CDS) = grep { $_->primary_tag eq 'CDS' } $geneseq->get_SeqFeatures;
 
-$cdsseq = $CDS->spliced_seq($db);
+$cdsseq = $CDS->spliced_seq($db,1);
 ok($cdsseq->subseq(1,60, 'ATGGCTCGCTTCGTGGTGGTAGCCCTGCTCGCGCTACTCTCTCTG'.
                    'TCTGGCCTGGAGGCTATCCAGCATG'));
 ok($cdsseq->translate->seq, 'MARFVVVALLALLSLSGLEAIQHAPKIQVYSRHPAENGKPNFL'.
    'NCYVSGFHPSDIEVDLLKNGKKIEKVEHSDLSFSKDWSFYLLYYTEFTPNEKDEYACRVSHVTFPTPKTVKWDRTM*');
 
+
+
+# trans-spliced 
+
+ok( $seqio = Bio::SeqIO->new(-format => 'genbank',
+			     -file   => 
+			    Bio::Root::IO->catfile(qw(t data NC_001284.gbk))));
+my $genome = $seqio->next_seq;
+
+foreach my $cds (grep { $_->primary_tag eq 'CDS' } $genome->get_SeqFeatures) {
+   my $spliced = $cds->spliced_seq(undef,1)->translate->seq;
+   chop($spliced); # remove stop codon
+   ok($spliced,($cds->get_tag_values('translation'))[0],'spliced seq translation matches expected');
+}
