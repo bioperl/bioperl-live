@@ -279,7 +279,7 @@ sub _cleanup_methods {
            (i.e., a simple string is given), A Bio::Root::Exception 
            is thrown.
  Returns : n/a
- Args    : A string giving a descriptive error message
+ Args    : A string giving a descriptive error message, optional
            Named parameters:
            '-class'  a string for the name of a class that derives 
                      from Error.pm, such as any of the exceptions 
@@ -347,6 +347,7 @@ sub throw{
        my $std = $self->stack_trace_dump();
        my $title = "------------- EXCEPTION $class -------------";
        my $footer = "\n" . '-' x CORE::length($title);
+       $text ||= '';
 
        my $out = "\n$title\n" .
            "MSG: $text\n". $std . $footer . "\n";
