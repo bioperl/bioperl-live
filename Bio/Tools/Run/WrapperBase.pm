@@ -27,9 +27,12 @@ Bio::Tools::Run::WrapperBase - A Base object for wrappers around executables
     my $io     = $obj->io;  # Bio::Root::IO object
     my $cleanup= $obj->cleanup(); # remove tempfiles
    
+    $obj->run({-arg1 => $value});
+
 =head1 DESCRIPTION
 
-Describe the object here
+This is a basic module from which to build executable wrapper modules.
+It has some basic methods to help when implementing new modules.
 
 =head1 FEEDBACK
 
@@ -83,6 +86,22 @@ use Bio::Root::IO;
 
 @ISA = qw(Bio::Root::RootI);
 
+=head2 run
+
+ Title   : run
+ Usage   : $wrapper->run({ARGS HERE});
+ Function: Support generic running with args passed in
+           as a hashref
+ Returns : Depends on the implementation, status OR data
+ Args    : hashref of named arguments
+
+
+=cut
+
+sub run {
+   my ($self,@args) = @_;
+   $self->throw_not_implemented();
+}
 
 
 =head2 error_string
@@ -182,7 +201,7 @@ sub tempdir{
    my ($self) = @_;
    
    unless( $self->{'_tmpdir'} ) {
-       $self->{'_tmpdir'} = $self->io->tempdir();
+       $self->{'_tmpdir'} = $self->io->tempdir(CLEANUP => ! $self->save_tempfiles );
    }
    unless( -d $self->{'_tmpdir'} ) { 
        mkdir($self->{'_tmpdir'},0777);
