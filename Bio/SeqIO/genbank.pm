@@ -224,7 +224,7 @@ sub next_seq{
 	    
 	    if( /^ACCESSION\s+(\S+)/ ) {
 		$acc = $1;
-		$seq->accession_number($acc);
+		$seq->accession($acc);
 	    }
 	    
 	    #Version number
@@ -273,7 +273,6 @@ sub next_seq{
 	    # Get next line.
 	    $buffer = $self->_readline;
 	}
-    $seq->desc($desc);
 
     # need to read the first line of the feature table
     
@@ -308,7 +307,8 @@ sub next_seq{
 	$seqc .= $_;
     }
 
-    $seq->seq($seqc);
+    $pseq = Bio::PrimarySeq->new(-seq => $seqc , -id => $name, -desc => $desc);
+    $seq->primary_seq($pseq);
     return $seq;
 }
 
@@ -373,8 +373,8 @@ sub write_seq {
 	$temp_line = &{$self->_ac_generation_func}($seq);
 	$self->_print("ACCESSION   $temp_line\n");   
     } else {
-	if( $seq->can('accession_number') ) {
-	    $self->_print("ACCESSION   ",$seq->accession_number,"\n");
+	if( $seq->can('accession') ) {
+	    $self->_print("ACCESSION   ",$seq->accession,"\n");
 	}
 	# otherwise - cannot print <sigh>
     } 
@@ -828,8 +828,10 @@ sub _read_FTHelper_GenBank {
   QUAL: for (my $i = 0; $i < @qual; $i++) {
         $_ = $qual[$i];
         my( $qualifier, $value ) = m{^/([^=]+)(?:=(.+))?}
-            or $self->throw("Can't see new qualifier in: $_\nfrom:\n"
-                . join('', map "$_\n", @qual));
+	or $self->warn("cannot see new qualifier in feature $key: ".
+		       $qual[$i]);
+#            or $self->throw("Can't see new qualifier in: $_\nfrom:\n"
+#                . join('', map "$_\n", @qual));
         if (defined $value) {
             # Do we have a quoted value?
             if (substr($value, 0, 1) eq '"') {
