@@ -166,13 +166,17 @@ sub next_annseq{
     my ($seq,$fh,$c,$line,$name,$desc,$acc,$seqc);
     
     $fh = $self->_filehandle();
-    $self->throw("This function has not been implemented yet!");
-    if( eof $fh ) {
+#    $self->throw("This function has not been implemented yet!");
+    if( eof $fh) {
 	return undef; # no throws - end of file
     }
     
     $line = <$fh>;
-    $line =~ /^LOCUS\s+(\S+)/ || $self->throw("GenBank stream with no ID. Not GenBank in my book");
+    if( !defined $line ) {
+	return undef; # end of file
+    }
+    
+    $line =~ /^LOCUS\s+(\S+)/ || $self->throw("GenBank stream with no LOCUS. Not GenBank in my book. ");
     $name = $1;
 	
     my $buffer = $line;
@@ -183,14 +187,18 @@ sub next_annseq{
 	until( eof($fh) ) {
 	    $_ = $buffer;
 	    
-
 	    # Exit at start of Feature table
 	    last if /^FEATURES/;
 	    
 	    # Description line(s)
 	    if (/^DEFINITION\s+(\S.*\S)/) {
 		$desc .= $desc ? " $1" : $1;
-	    }
+		$desc .= " ";
+		while ( <$fh> ) { 
+		    /^\s+(.*)/ && do { $desc .= $1; next;};
+		    last;
+		}
+	    }		 
 	    if( /^ACCESSION\s+(\S+);?/ ) {
 		$acc = $1;
 		$annseq->accession($acc);
@@ -201,51 +209,60 @@ sub next_annseq{
 		$annseq->sv($sv);
 	    }
 	    
-	    if( /^KEYWORDS    (.*)\S*$/ ) {
+	    if( /^KEYWORDS\s+(.*)/ ) {
 		my $keywords = $1;
 		$annseq->keywords($keywords);
 	    }
 	    
 	    # accession numbers...
-       
-	    # References
-	    elsif (/^REFERENCE/) {
-		my @refs = &_read_GenBank_References(\$buffer,$fh);
-		$annseq->annotation->add_Reference(@refs);
-	    }
-	    
+
 	    # Organism name and phylogenetic information
-	    elsif (/^SOURCE||^  ORGANISM/) {
+	    if (/^SOURCE/) {
 		my $species = _read_GenBank_Species(\$buffer, $fh);
 		$annseq->species( $species );
+		next;
 	    }
+
+	    #References
+	    if (/^REFERENCE/) {
+		my @refs = &_read_GenBank_References(\$buffer,$fh);
+		$annseq->annotation->add_Reference(@refs);
+		next;
+	    }
+	    
 	    
 	    # Get next line.
 	    $buffer = <$fh>;
 	}
+   
 
-    while( <$fh> ) {
-	/^FEATURES/ && last;
+    # $_ should be in feature line. If not, skip until it is
+
+    if( $_ !~ /^FEATURES/ ) {
+	while( <$fh> ) {
+	    /^FEATURES/ && last;
+	}
     }
+
+
+
+    # need to read the first line of the feature table
+    $_ = <$fh>;
+
     $buffer = $_;
     
     FEATURE_TABLE :   
 	until( eof($fh) ) {
+	    
+	    last if /^BASE/;
 	    my $ftunit = &_read_FTHelper_GenBank($fh,\$buffer);
+
 	    # process ftunit
 	    &_generic_seqfeature($annseq,$ftunit);
-	    
-	    if( $buffer =~ /^BASE/ ) {
-		last;
-	    }
 	}
-#    
-#    if( $buffer !~ /^SQ/  ) {
-#	while( <$fh> ) {
-#	    /^SQ/ && last;
-#	}
-#    }
-    
+    while (<$fh>) {
+	last if /^ORIGIN/;
+    }
     $seqc = "";	       
     while( <$fh> ) {
 	/^\/\// && last;
@@ -257,7 +274,6 @@ sub next_annseq{
     $seq = Bio::Seq->new(-seq => $seqc , -id => $name, -desc => $desc);
     $annseq->seq($seq);
     return $annseq;
-    
 }
 
 =head2 write_annseq
@@ -500,21 +516,60 @@ sub _print_GenBank_FTHelper {
 sub _read_GenBank_References{
    my ($buffer,$fh) = @_;
    my (@refs);
+   my $previous;
    
    # assumme things are starting with RN
 
-   if( $$buffer !~ /^RN/ ) {
+   if( $$buffer !~ /^REFERENCE/ ) {
        warn("Not parsing line '$$buffer' which maybe important");
    }
    my $title;
    my $loc;
    my $au;
    while( <$fh> ) {
-       /^R/ || last;
-       /^RA   (.*)/ && do { $au .= $1;   next;};
-       /^RT   (.*)/ && do { $title .= $1; next;};
-       /^RL   (.*)/ && do { $loc .= $1; next;};
+       if (/^  AUTHORS\s+(.*)/) { 
+	   $au .= $1;   
+	   while ( <$fh> ) {
+	       /^  TITLE/ && last; 
+	       /^\s+(.*)/ && do { $au .= $1; $au =~ s/\,(\S)/ $1/g;$au .= " ";next;};
+	   }    
+       }
+       if (/^  TITLE\s+(.*)/)  { 
+	   $title .= $1;
+	   while ( <$fh> ) {
+	       /^  JOURNAL/ && last; 
+	       /^\s+(.*)/ && do { $title .= $1;$title .= " ";next;};
+	   }
+       }
+       if (/^  JOURNAL\s+(.*)/) { 
+	   $loc .= $1;
+	   while ( <$fh> ) {	       
+	       /^\s+(.*)/ && do { $loc .= $1;$loc .= " ";next;};
+	       last;
+	   }
+       }
+       /^REFERENCE/ && do {
+	   # put away current reference
+	   my $ref = new Bio::Annotation::Reference;
+	   $au =~ s/;\s*$//g;
+	   $title =~ s/;\s*$//g;
+
+	   $ref->authors($au);
+	   $ref->title($title);
+	   $ref->location($loc);
+	   push(@refs,$ref);
+	   $au = "";
+	   $title = "";
+	   $loc = "";
+
+	   # return to main reference loop
+	   next;
+       };
+	   
+       /^FEATURES||^COMMENT/ && last;
    }
+
+   # put away last reference
 
    my $ref = new Bio::Annotation::Reference;
    $au =~ s/;\s*$//g;
@@ -549,13 +604,18 @@ sub _read_GenBank_Species {
     
     my( $species, $genus, $common, @class );
     while (defined( $_ ||= <$fh> )) {
-        
-        if (/^OS\s+(\S+)\s+(\S+)(?:\s+\((\s+)\))?/) {
+
+        if (/^SOURCE\s+(\S+)/) {
+	    $common = $1;
+	    $common =~ s/\.//;
+	}
+	if (/^  ORGANISM\s+(\S+)\s+(\S+)/) {
             $genus   = $1;
             $species = $2;
-            $common  = $3 if $3;
         }
-        elsif (s/^OC\s+//) {
+        elsif ($_ !~ /^REFERENCE/) {
+	    $_ =~ s/\s+//;
+	    $_ =~ s/^SOURCE\S+//;
             push(@class, split /[\s\.;]+/, $_);
         }
         else {
@@ -617,37 +677,29 @@ sub _read_FTHelper_GenBank {
    my ($fh,$buffer) = @_;
    my ($key,$loc,$out);
 
-   if( $$buffer =~ /^FT\s+(\S+)\s+(\S+)/ ) {
+   if( $$buffer =~ /^     (\S+)\s+(\S+)/ ) {
        $key = $1;
        $loc = $2;
+       if ($$buffer !~ /^\s+\//) {
+	   while ( <$fh> ) {
+	       /\s+(\S+)/ && do {$loc .= $1;};
+	       /\s+\// && last;
+	   }
+       }
    }
 
    $out = new Bio::AnnSeqIO::FTHelper();
-
-   # Read the rest of the location
-   while( <$fh> ) {
-       # Exit loop on first qualifier - line is left in $_
-       last if /^XX/; # sometimes a trailing XX comment left in!
-       last if /^FT\s+\//;
-       # Get location line
-       /^FT\s+(\S+)/ or $out->throw("Weird location line in GenBank feature table: '$_'");
-       $loc .= $1;
-   }
-
    $out->key($key);
    $out->loc($loc);
 
    # Now read in other fields
    while( defined($_ ||= <$fh>) ) {
-      
-       # Exit loop on non FT lines!
-       /^FT/  || last;
-       
-       # Exit loop on new primary key
-       /^FT   \w/ && last;
+
+       # Exit loop on new primary key or end of features
+       (/^     \S+/||/^BASE/) && last;
        
        # Field on one line
-       if (/^FT\s+\/(\S+)=\"(.*)\"/) {
+       if (/^\s+\/(\S+)=\"(.*)\"/) {
 	   my $key = $1;
 	   my $value = $2;
 	   if(! defined $out->field->{$key} ) {
@@ -656,12 +708,12 @@ sub _read_FTHelper_GenBank {
 	   push(@{$out->field->{$key}},$value);
        }
        # Field on on multilines:
-       elsif (/^FT\s+\/(\S+)=\"(.*)/) {
+       elsif (/^\s+\/(\S+)=\"(.*)/) {
 	   my $key = $1;
 	   my $value = $2;
 	   while ( <$fh> ) {
-	       /FT\s+(.*)\"/ && do { $value .= $1; last; };
-	       /FT\s+(.*?)\s*/ && do {$value .= $1; };
+	       /\s+(.*)\"/ && do { $value .= $1; last; };
+	       /\s+(.*)/ && do {$value .= $1; };
 	   }
 	   if(! defined $out->field->{$key} ) {
 	       $out->field->{$key} = [];
@@ -669,7 +721,7 @@ sub _read_FTHelper_GenBank {
 	   push(@{$out->field->{$key}},$value);
        }
        # Field with no quoted value
-       elsif (/^FT\s+\/(\S+)=(\S+)/) {
+       elsif (/^\s+\/(\S+)=(\S+)/) {
 	   my $key = $1;
 	   my $value = $2;
 	   if(! defined $out->field->{$key} ) {
@@ -677,7 +729,6 @@ sub _read_FTHelper_GenBank {
 	   }
 	   push(@{$out->field->{$key}},$value);
        }
-       
        # Empty $_ to trigger read from $fh
        undef $_;
    }
@@ -742,7 +793,7 @@ sub _generic_seqfeature {
 	   $lst = $len = $1;
        } else {
 	   $fth->loc =~ /(\d+)\.\.(\d+)/ || do {
-	       $annseq->throw("Weird location line [" . $fth->loc . "] in reading GenBank");
+	       #$annseq->throw("Weird location line [" . $fth->loc . "] in reading GenBank");
 	       last;
 	   };
 	   $lst = $1;
