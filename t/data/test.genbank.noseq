@@ -1,0 +1,240 @@
+LOCUS       DDU63596      310 bp    DNA             INV       14-MAY-1999
+DEFINITION  Dictyostelium discoideum Tdd-4 transposable element flanking
+            sequence, clone p427/428 right end.
+ACCESSION   U63596
+NID         g2393749
+KEYWORDS    .
+SOURCE      Dictyostelium discoideum.
+  ORGANISM  Dictyostelium discoideum
+            Eukaryota; Dictyosteliida; Dictyostelium.
+REFERENCE   1  (bases 1 to 310)
+  AUTHORS   Wells,D.J.
+  TITLE     Tdd-4, a DNA transposon of Dictyostelium that encodes proteins
+            similar to LTR retroelement integrases
+  JOURNAL   Nucleic Acids Res. 27 (11), 2408-2415 (1999)
+REFERENCE   2  (bases 1 to 310)
+  AUTHORS   Wells,D.J. and Welker,D.L.
+  TITLE     Dictyostelium discoideum Tdd-4 transposable element, right end
+            flanking sequence from clone p427/428
+  JOURNAL   Unpublished
+REFERENCE   3  (bases 1 to 310)
+  AUTHORS   Wells,D.J. and Welker,D.L.
+  TITLE     Direct Submission
+  JOURNAL   Submitted (11-JUL-1996) Biology, Utah State Univ., Logan, UT
+            84322-5305, USA
+FEATURES             Location/Qualifiers
+     source          1..310
+                     /organism="Dictyostelium discoideum"
+                     /strain="AX4"
+                     /db_xref="taxon:44689"
+                     /clone="p427/428"
+     misc_feature    5.12
+                     /note="Fuzzy location"
+     misc_feature    join(J00194:(100..202),1..245,256..258)
+                     /note="Location partly in another entry"
+BASE COUNT      118 a     46 c     67 g     79 t
+//
+LOCUS       DDU63595       83 bp    DNA             INV       14-MAY-1999
+DEFINITION  Dictyostelium discoideum Tdd-4 transposable element flanking
+            sequence, clone p427/428 left end.
+ACCESSION   U63595
+NID         g2393748
+KEYWORDS    .
+SOURCE      Dictyostelium discoideum.
+  ORGANISM  Dictyostelium discoideum
+            Eukaryota; Dictyosteliida; Dictyostelium.
+REFERENCE   1  (bases 1 to 83)
+  AUTHORS   Wells,D.J.
+  TITLE     Tdd-4, a DNA transposon of Dictyostelium that encodes proteins
+            similar to LTR retroelement integrases
+  JOURNAL   Nucleic Acids Res. 27 (11), 2408-2415 (1999)
+REFERENCE   2  (bases 1 to 83)
+  AUTHORS   Wells,D.J. and Welker,D.L.
+  TITLE     Dictyostelium discoideum Tdd-4 transposable element, left end
+            flanking sequence from clone p427/428
+  JOURNAL   Unpublished
+REFERENCE   3  (bases 1 to 83)
+  AUTHORS   Wells,D.J. and Welker,D.L.
+  TITLE     Direct Submission
+  JOURNAL   Submitted (11-JUL-1996) Biology, Utah State Univ., Logan, UT
+            84322-5305, USA
+FEATURES             Location/Qualifiers
+     source          1..83
+                     /organism="Dictyostelium discoideum"
+                     /strain="AX4"
+                     /db_xref="taxon:44689"
+                     /clone="p427/428"
+BASE COUNT       31 a     16 c     12 g     24 t
+//
+LOCUS       HUMBDNF       918 bp    DNA             PRI       31-OCT-1994
+DEFINITION  Human brain-derived neurotrophic factor (BDNF) gene, complete cds.
+ACCESSION   M37762
+VERSION     M37762.1  GI:179402
+KEYWORDS    neurotrophic factor.
+SOURCE      Human DNA.
+  ORGANISM  Homo sapiens
+            Eukaryota; Metazoa; Chordata; Craniata; Vertebrata; Mammalia;
+            Eutheria; Primates; Catarrhini; Hominidae; Homo.
+REFERENCE   1  (bases 1 to 918)
+  AUTHORS   Jones,K.R. and Reichardt,L.F.
+  TITLE     Molecular cloning of a human gene that is a member of the nerve
+            growth factor family
+  JOURNAL   Proc. Natl. Acad. Sci. U.S.A. 87 (20), 8060-8064 (1990)
+  MEDLINE   91045937
+COMMENT     Draft entry and computer-readable sequence for [Proc. Natl. Acad.
+            Sci. U.S.A. (1990) In press] kindly submitted
+            by K.R.Jones, 13-AUG-1990.
+FEATURES             Location/Qualifiers
+     source          1..918
+                     /organism="Homo sapiens"
+                     /db_xref="taxon:9606"
+                     /dev_stage="adult"
+     sig_peptide     76..123
+                     /gene="NTF3"
+                     /note="G00-125-917; putative"
+                     /product="brain-derived neurotrophic factor"
+     CDS             76..819
+                     /gene="BDNF"
+                     /note="putative"
+                     /codon_start=1
+                     /db_xref="GDB:G00-125-916"
+                     /product="brain-derived neurotrophic factor"
+                     /protein_id="AAA51820.1"
+                     /db_xref="GI:179403"
+                     /translation="MTILFLTMVISYFGCMKAAPMKEANIRGQGGLAYPGVRTHGTLE
+                     SVNGPKAGSRGLTSLADTFEHVIEELLDEDQKVRPNEENNKDADLYTSRVMLSSQVPL
+                     EPPLLFLLEEYKNYLDAANMSMRVRRHSDPARRGELSVCDSISEWVTAADKKTAVDMS
+                     GGTVTVLEKVPVSKGQLKQYFYETKCNPMGYTKEGCRGIDKRHWNSQCRTTQSYVRAL
+                     TMDSKKRIGWRFIRIDTSCVCTLTIKRGR"
+     gene            76..816
+                     /gene="NTF3"
+                     /map="12p13"
+     gene            76..819
+                     /gene="BDNF"
+                     /map="11p13"
+     mat_peptide     124..816
+                     /gene="NTF3"
+                     /note="G00-125-917; putative"
+                     /product="brain-derived neurotrophic factor"
+BASE COUNT      269 a    192 c    237 g    220 t
+//
+LOCUS       NT_010368  161485 bp    DNA             CON       16-NOV-2000
+DEFINITION  Homo sapiens chromosome 15 working draft sequence segment, complete
+            sequence.
+ACCESSION   NT_010368
+VERSION     NT_010368.1  GI:11433101
+KEYWORDS    HTG.
+SOURCE      human.
+  ORGANISM  Homo sapiens
+            Eukaryota; Metazoa; Chordata; Craniata; Vertebrata; Euteleostomi;
+            Mammalia; Eutheria; Primates; Catarrhini; Hominidae; Homo.
+REFERENCE   1  (bases 1 to 161485)
+  AUTHORS   International Human Genome Project collaborators.
+  TITLE     Toward the complete sequence of the human genome
+  JOURNAL   Unpublished
+COMMENT     GENOME ANNOTATION REFSEQ:  NCBI contigs are derived from assembled
+            genomic sequence data. They may include both draft and finished
+            sequence.
+            COMPLETENESS: not full length.
+FEATURES             Location/Qualifiers
+     source          1..310
+                     /organism="Homo sapiens"
+                     /db_xref="taxon:9606"
+                     /chromosome="15"
+     source          order(1..100,251..300,300..310)
+                     /note="Doctored from Accession AC011224 
+	             sequenced by Whitehead Institute
+                     for Biomedical Research"
+                     /organism="Homo sapiens"
+                     /db_xref="taxon:9606"
+                     /clone="RP11-10K20"
+     variation       244
+                     /replace="T"
+                     /replace="A"
+                     /db_xref="dbSNP:140670"
+CONTIG      AC011224.27:1..116977
+//
+LOCUS       HUMBETGLOA              3002 bp    DNA     linear   PRI 26-AUG-1994
+DEFINITION  Human haplotype C4 beta-globin gene, complete cds.
+ACCESSION   L26462
+VERSION     L26462.1  GI:432453
+KEYWORDS    beta-globin.
+SOURCE      Homo sapiens DNA.
+  ORGANISM  Homo sapiens
+            Eukaryota; Metazoa; Chordata; Craniata; Vertebrata; Euteleostomi;
+            Mammalia; Eutheria; Primates; Catarrhini; Hominidae; Homo.
+REFERENCE   1  (bases 1 to 3002)
+  AUTHORS   Fullerton,S.M., Harding,R.M., Boyce,A.J. and Clegg,J.B.
+  TITLE     Molecular and population genetic analysis of allelic sequence
+            diversity at the human beta-globin locus
+  JOURNAL   Proc. Natl. Acad. Sci. U.S.A. 91 (5), 1805-1809 (1994)
+  MEDLINE   94173918
+   PUBMED   7907422
+FEATURES             Location/Qualifiers
+     source          1..3002
+                     /organism="Homo sapiens"
+                     /db_xref="taxon:9606"
+                     /haplotype="C4"
+                     /note="sequence found in a Melanesian population"
+     variation       111
+                     /replace="t"
+     variation       263
+                     /note="Rsa I polymorphism"
+                     /replace="t"
+     variation       273
+                     /replace="c"
+     variation       286..287
+                     /note="2 bp insertion of AT"
+                     /replace=""
+     variation       288
+                     /replace="t"
+     variation       295..296
+                     /note="1 bp deletion of C or 2 bp deletion of CT"
+                     /replace=""
+     variation       347
+                     /replace="c"
+     variation       476
+                     /replace="t"
+     variation       500
+                     /replace="c"
+     CDS             join(866..957,1088..1310,2161..2289)
+                     /codon_start=1
+                     /product="beta-globin"
+                     /protein_id="AAA21100.1"
+                     /db_xref="GI:532506"
+                     /translation="MVHLTPEEKSAVTALWGKVNVDEVGGEALGRLLVVYPWTQRFFE
+                     SFGDLSTPDAVMGNPKVKAHGKKVLGAFSDGLAHLDNLKGTFATLSELHCDKLHVDPE
+                     NFRLLGNVLVCVLAHHFGKEFTPPVQAAYQKVVAGVANALAHKYH"
+     exon            <866..957
+                     /number=1
+     variation       874
+                     /replace="c"
+     intron          958..1087
+                     /number=1
+     exon            1088..1310
+                     /number=2
+     intron          1311..2160
+                     /number=2
+     variation       1326
+                     /note="Ava II polymorphism"
+                     /replace="g"
+     variation       1384
+                     /replace="g"
+     variation       1391
+                     /replace="t"
+     variation       1976
+                     /replace="t"
+     exon            2161..>2289
+                     /number=3
+     variation       2522
+                     /replace="c"
+     variation       2602
+                     /replace="a"
+     variation       2604
+                     /replace="c"
+     variation       2760
+                     /note="Hinf I polymorphism"
+                     /replace="t"
+     variation       2913
+                     /replace="g"
+BASE COUNT      810 a    601 c    599 g    992 t
