@@ -20,7 +20,7 @@ BEGIN {
 	use lib 't';
     }
     use vars qw($NTESTS);
-    $NTESTS = 601;
+    $NTESTS = 605;
     $LASTXMLTEST = 50;
     $error = 0;
 
@@ -57,7 +57,9 @@ if( ! $SKIPXML ) {
     $result = $searchio->next_result;
     ok($result);    
     ok($result->database_name, '/data_2/jason/db/cdd/cdd/Pfam');
-    ok($result->query_name,'gi|1786182|gb|AAC73112.1| (AE000111) thr operon leader peptide [Escherichia coli]');
+    ok($result->query_name,'gi|1786182|gb|AAC73112.1|');
+    ok($result->query_description, '(AE000111) thr operon leader peptide [Escherichia coli]');
+    ok($result->query_accession, 'AAC73112.1');
     ok($result->query_length, 21);
     ok($result->algorithm, 'BLASTP');
     ok($result->algorithm_version, 'blastp 2.1.3 [Apr-1-2001]');
@@ -113,7 +115,9 @@ if( ! $SKIPXML ) {
     $result = $searchio->next_result;
 
     ok($result->database_name, 'yeast.aa');
-    ok($result->query_name, 'gi|5763811|emb|CAB53164.1| putative transposase [Yersinia pestis]');
+    ok($result->query_name, 'gi|5763811|emb|CAB53164.1|');
+    ok($result->query_description,  'putative transposase [Yersinia pestis]');
+    ok($result->query_accession, 'CAB53164.1');
     ok($result->query_length, 340);
 
     $hit = $result->next_hit;
