@@ -28,6 +28,7 @@ containing the sequence information to be indexed.
      --dbname <name>       The symbolic name of the database to be created.
 
      --indextype <type>    Type of index to create.  Either "bdb" or "flat".
+                           "binarysearch" is the same as "flat".
 
 Options can be abbreviated.  For example, use -i for --indextype.
 
