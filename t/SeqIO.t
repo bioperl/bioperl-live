@@ -165,7 +165,7 @@ ok($kegg->seq);
 ok($kegg->translate->seq);
 ok(($kegg->annotation->get_Annotations('description'))[0]->text,
    'S-adenosylhomocysteine hydrolase-like 1 [EC:3.3.1.1]');
-ok(($kegg->annotation->get_Annotations('pathway'))[0]->value,
+ok(($kegg->annotation->get_Annotations('pathway'))[0]->text,
    'Metabolism; Amino Acid Metabolism; Methionine metabolism');
 
 ok( (grep {$_->database eq 'KO'} 
