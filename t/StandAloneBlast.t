@@ -47,7 +47,7 @@ ok $factory;
 my $inputfilename = Bio::Root::IO->catfile("t","data","test.txt");
 my $program = 'blastn';
 
-my $blast_present = Bio::Tools::Run::StandAloneBlast->exists_blast();
+my $blast_present = $factory->executable('blastall');
 if( ! $blast_present ) {
     skip('Blast not installed',1);
     exit;
@@ -113,7 +113,6 @@ $factory = Bio::Tools::Run::StandAloneBlast->new(@params);
 $str = Bio::SeqIO->new(-file=>Bio::Root::IO->catfile("t","data","amino.fa") , '-format' => 'Fasta', );
 my $seq3 = $str->next_seq();
 my $seq4 = $str->next_seq();
-
 my $bl2seq_report = $factory->bl2seq($seq3, $seq4);
 $hsp = $bl2seq_report->next_feature;
 ok $hsp->hit()->start, 167, " failed creating or parsing bl2seq report object";
