@@ -128,7 +128,8 @@ use Bio::Map::CytoPosition;
 use Bio::Range;
 
 
-@ISA = qw( Bio::Phenotype::PhenotypeI );
+@ISA = qw( Bio::Root::Root
+           Bio::Phenotype::PhenotypeI );
 
 
 

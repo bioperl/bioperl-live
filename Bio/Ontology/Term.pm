@@ -97,7 +97,8 @@ use Bio::Ontology::TermI;
 use constant TRUE    => 1;
 use constant FALSE   => 0;
 
-@ISA = qw( Bio::Root::Root Bio::Ontology::TermI );
+@ISA = qw( Bio::Root::Root
+           Bio::Ontology::TermI );
 
 
 

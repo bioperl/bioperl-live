@@ -108,7 +108,8 @@ use constant PART_OF => "PART_OF";
 use constant TERM    => "TERM";
 use constant TYPE    => "TYPE";
 
-@ISA = qw( Bio::Ontology::OntologyEngineI );
+@ISA = qw( Bio::Root::Root
+           Bio::Ontology::OntologyEngineI );
 
 
 

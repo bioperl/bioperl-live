@@ -87,8 +87,8 @@ use Bio::Root::Root;
 use Bio::Ontology::TermI;
 use Bio::Ontology::RelationshipI;
 
-@ISA = qw( Bio::Ontology::RelationshipI );
-
+@ISA = qw( Bio::Root::Root
+           Bio::Ontology::RelationshipI );
 
 
 
