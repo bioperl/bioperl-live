@@ -1,10 +1,8 @@
 # $Id: po.pm
 #
 # BioPerl module for Bio::AlignIO::po
-
 #	based on the Bio::AlignIO::fasta module
 #       by Peter Schattner (and others?)
-#
 #       and the SimpleAlign.pm module of Ewan Birney
 #
 # You may distribute this module under the same terms as perl itself
@@ -65,7 +63,7 @@ use Bio::SimpleAlign;
  Title   : next_aln
  Usage   : $aln = $stream->next_aln()
  Function: returns the next alignment in the stream.
- Returns : L<Bio::Align::AlignI> object - returns undef on end of file
+ Returns : Bio::Align::AlignI object - returns undef on end of file
 	    or on error
  Args    : NONE
 
@@ -210,7 +208,7 @@ sub next_aln {
  Usage   : $stream->write_aln(@aln)
  Function: writes the $aln object into the stream in po format
  Returns : 1 for success and 0 for error
- Args    : L<Bio::Align::AlignI> object
+ Args    : Bio::Align::AlignI object
 
 =cut
 
