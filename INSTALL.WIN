@@ -74,6 +74,17 @@ download them directly from cpan (http://www.cpan.org) and follow the
 specific build procedures for each module.  This is one major reason for
 avoiding the ActiveState 5.8.0 version.
 
+Remember that Bioperl does not supply external modules as *ppd files, 
+you'll need to search other repositories for these. For example,
+Bioperl will not supply GD.pm for you. To add this you'll need to search
+some other repository. For example:
+
+ppm>rep add Kobes http://theoryx5.uwinnipeg.ca/ppms/
+
+Followed by:
+
+ppm>search GD
+
 1.3 Installing BioPerl
 ======================
 
@@ -197,11 +208,11 @@ backgrounds.
 
 One advantage of using Bioperl in Cygwin is that all the external 
 modules are available through CPAN - the same cannot be said of 
-ActiveState's Perl.
+ActiveState's PPM utility.
 
 To get Bioperl running first install the basic Cygwin package as well
 as the Cygwin Perl, make, and gcc packages. Clicking the "View" button
-in the upper right of the installer enables you to see details on the
+in the upper right of the installer window enables you to see details on the
 various packages. Then follow the BioPerl installation instructions
 for Unix in BioPerl's INSTALL file.
 
@@ -220,7 +231,7 @@ setenv TMPDIR e:/cygwin/tmp     # csh, tcsh
 export TMPDIR=e:/cygwin/tmp     # sh, bash
 
 Note that this is not a syntax that Cygwin understands, which would be 
-something like "/cygdrive/e/cygwin/tmp". This is the syntax that a
+something like "/cygdrive/e/cygwin/tmp", but this is the syntax that a
 Perl module expects on Windows.
 
 If this variable is not set correctly you'll see errors like this
@@ -239,7 +250,7 @@ available at www.mysql.com. Note that Windows does not have
 sockets, so you need to force the Mysql connections to use TCP/IP
 instead. Do this by using the "-h" option from the command-line:
 
->mysql -h 127.0.0.1 -u blip -pblop biosql
+>mysql -h 127.0.0.1 -u <user> -p<password> <database>
 
 Or, alias the mysql command in your .tcshrc, .cshrc, or .bashrc 
 so it uses a host. For example, if your databases are installed 
