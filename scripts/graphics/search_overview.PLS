@@ -1,5 +1,5 @@
 #!/usr/bin/perl -w
-# $Id: search_overview.PLS,v 1.2 2003-09-11 21:05:34 jason Exp $
+# $Id: search_overview.PLS,v 1.3 2003-11-25 17:11:43 jason Exp $
 
 =head1 NAME
 
@@ -91,6 +91,7 @@ while( my $r = $parser->next_result ) {
     my $max = 0;
     my (@features,@configs);
     while(my $h = $r->next_hit ) {
+	next if $h->num_hsps == 0;
 	my ($left,$right) = ( $h->start('query'),
 			      $h->end  ('query') );
 	
