@@ -103,7 +103,7 @@ sub next_seq {
 
 sub next_primary_seq {
   my( $self, $as_next_seq ) = @_;
-  local $/ = '>';
+  local $/ = "\n>";
 
   return unless my $entry = $self->_readline;
 
@@ -124,7 +124,7 @@ sub next_primary_seq {
     or $self->throw("Can't parse entry");
   my ($id,$fulldesc) = $top =~ /^\s*(\S+)\s*(.*)/
     or $self->throw("Can't parse fasta header");
-  
+  $id =~ s/^>//;
   $sequence =~ s/\s//g; # Remove whitespace
 
   if ($as_next_seq) {
