@@ -22,9 +22,8 @@ BEGIN {
     plan tests => $NUMTESTS;
     eval { require 'IO/String.pm' };
     if( $@ ) {
-        print STDERR "IO::String not installed. This means the Bio::Index::Blast modules are not usable. Skipping tests.\n";
-        for( 1..$NUMTESTS ) {
-            skip(1,"IO::String not installed. This means the Bio::Index::Blast modules are not usable. Skipping tests");
+        for( $Test::ntest..$NUMTESTS ) {
+            skip("IO::String not installed. This means the Bio::Index::Blast modules are not usable. Skipping tests",1);
         }
        $error = 1;
     }
