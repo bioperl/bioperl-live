@@ -70,7 +70,10 @@ methods. Internal methods are usually preceded with a _
 package Bio::SeqIO::ace;
 use strict;
 use vars qw(@ISA);
+
 use Bio::SeqIO;
+use Bio::PrimarySeq;
+use Bio::Seq;
 
 @ISA = qw(Bio::SeqIO);
 
