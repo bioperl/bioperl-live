@@ -64,6 +64,17 @@ format via AnnSeqIO::EMBL.
 
 Ewan Birney <birney@sanger.ac.uk>
 
+=head1 DEVELOPERS
+
+This class has been written with an eye out of inheritence. The fields
+the actual object hash are:
+
+   _gsf_tag_hash = reference to a hash for the tags
+   _gsf_sub_hash = reference to an array for sub arrays
+   _gsf_start    = scalar of the start point
+   _gsf_end      = scalar of the end point
+   _gsf_strand   = scalar of the strand
+
 =head1 APPENDIX
 
 The rest of the documentation details each of the object methods. Internal methods are usually preceded with a _
@@ -335,6 +346,13 @@ sub all_tags{
 
    return keys %{$self->{'_gsf_tag_hash'}};
 }
+
+
+
+
+
+
+
 
 
 
