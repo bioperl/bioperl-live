@@ -16,6 +16,11 @@ Bio::SeqFeature::Gene::Exon - a feature representing an exon
 
 =head1 SYNOPSIS
 
+    # obtain an exon instance $exon somehow
+    print "exon from ", $exon->start(), " to ", $exon->end(),
+          " on seq ", $exon->seqname(), ", strand ", $exon->strand(),
+          ", encodes the peptide sequence ", 
+          $exon->cds()->translate()->seq(), "\n";
 
 =head1 DESCRIPTION
 
@@ -75,7 +80,7 @@ use Bio::SeqFeature::Gene::ExonI;
 #
 # A list of allowed exon types. See primary_tag().
 #
-my @valid_exon_types = ('initial', 'internal', 'terminal', 'utr');
+my @valid_exon_types = ('initial', 'internal', 'terminal');
 
 sub new {
     my ($caller, @args) = @_;
@@ -125,14 +130,15 @@ sub is_coding {
 
            This method is overridden here in order to allow only for
            tag values following a certain convention. For consistency reasons,
-           the tag value must contain the string 'exon' (case-insensitive).
-           To distinguish between different types of exon, a string describing
-           this type may be appended or prefixed. Presently, the following
-           types are allowed: initial, internal, terminal, and utr (all case-
-           insensitive).
+           the tag value must either contain the string 'exon' or the string
+           'utr' (both case-insensitive). In the case of 'exon', a string
+           describing the type of exon may be appended or prefixed. Presently,
+           the following types are allowed: initial, internal, and terminal
+           (all case-insensitive). 
 
            If the supplied tag value matches 'utr' (case-insensitive),
-           is_coding() will automatically bet set to FALSE.
+           is_coding() will automatically be set to FALSE, and to TRUE
+           otherwise.
 
  Returns : A string.
  Args    : A string on set.
@@ -144,13 +150,14 @@ sub primary_tag {
    my ($self,$value) = @_;
 
    if(defined($value)) {
-       if(($value !~ /exon/i) ||
-	  ((lc($value) ne "exon") &&
-	   (! grep { $value =~ /$_/i; } @valid_exon_types))) {
+       if((lc($value) =~ /utr/i) || (lc($value) eq "exon") ||
+	  ((lc($value) =~ /exon/i) &&
+	   (grep { $value =~ /$_/i; } @valid_exon_types))) {
+	   $self->is_coding($value =~ /utr/i ? 0 : 1);
+       } else {
 	   $self->throw("primary tag $value is invalid for object of class ".
 			ref($self));
        }
-       $self->is_coding($value =~ /utr/i ? 0 : 1);
    }
    return $self->SUPER::primary_tag($value);
 }

@@ -16,10 +16,13 @@ Bio::SeqFeature::Gene::ExonI - Interface for a feature representing an exon
 
 =head1 SYNOPSIS
 
+See documentation of methods.
 
 =head1 DESCRIPTION
 
-A feature representing an exon.
+A feature representing an exon. An exon in this definition is
+transcribed and at least for one particular transcript not spliced out
+of the pre-mRNA. However, it does not necessarily code for amino acid.
 
 =head1 FEEDBACK
 
