@@ -17,9 +17,15 @@ Bio::Seq::SeqFactory - Instantiates a new Bio::PrimarySeqI (or derived class) th
 =head1 SYNOPSIS
 
     use Bio::Seq::SeqFactory;
-    my $factory = new Bio::Seq::SeqFactory(-type => 'Bio::PrimarySeq');
+    my $factory = new Bio::Seq::SeqFactory;
     my $seq = $factory->create(-seq => 'WYRAVLC',
 			       -id  => 'name');
+
+    # If you want the factory to create Bio::Seq objects instead
+    # of the default Bio::PrimarySeq objects, use the -type parameter:
+
+    my $factory = new Bio::Seq::SeqFactory(-type => 'Bio::Seq');
+
 
 =head1 DESCRIPTION
 
@@ -81,8 +87,8 @@ use Bio::Factory::SequenceFactoryI;
  Usage   : my $obj = new Bio::Seq::SeqFactory();
  Function: Builds a new Bio::Seq::SeqFactory object 
  Returns : Bio::Seq::SeqFactory
- Args    :
-
+ Args    : -type => string, name of a PrimarySeqI derived class
+                    This is optional. Default=Bio::PrimarySeq.
 
 =cut
 
@@ -107,7 +113,8 @@ sub new {
  Function: Instantiates new Bio::SeqI (or one of its child classes)
            This object allows us to genericize the instantiation of sequence
            objects.
- Returns : Bio::SeqI
+ Returns : Bio::PrimarySeq object (default)
+           The return type is configurable using new(-type =>"...").
  Args    : initialization parameters specific to the type of sequence
            object we want.  Typically 
            -seq        => $str,
