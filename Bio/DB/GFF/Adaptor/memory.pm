@@ -266,6 +266,41 @@ sub search_notes {
   @results;
 }
 
+sub _delete_features {
+  my $self        = shift;
+  my @feature_ids = sort {$b<=>$a} @_;
+  my $removed = 0;
+  foreach (@feature_ids) {
+    next unless $_ >= 0 && $_ < @{$self->{data}};
+    $removed += defined splice(@{$self->{data}},$_,1);
+  }
+  $removed;
+}
+
+sub _delete {
+  my $self = shift;
+    my $delete_spec = shift;
+  my $ranges      = $delete_spec->{segments} || [];
+  my $types       = $delete_spec->{types}    || [];
+  my $force       = $delete_spec->{force};
+
+  my $deleted = 0;
+  if (@$ranges) {
+    my @args = @$types ? (-type=>$types) : ();
+    my %ids_to_remove = map {$_->id => 1} map {$_->features(@args)} @$ranges;
+    $deleted = $self->delete_features(keys %ids_to_remove);
+  } elsif (@$types) {
+    my %ids_to_remove = map {$_->id => 1} $self->features(-type=>$types);
+    $deleted = $self->delete_features(keys %ids_to_remove);
+  } else {
+    $self->throw("This operation would delete all feature data and -force not specified")
+      unless $force;
+    $deleted = @{$self->{data}};
+    @{$self->{data}} = ();
+  }
+  $deleted;
+}
+
 # attributes -
 
 # Some GFF version 2 files use the groups column to store a series of

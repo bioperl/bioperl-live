@@ -1165,7 +1165,8 @@ delete_groups().
 sub delete_features {
   my $self = shift;
   my @features_or_ids = @_;
-  my @ids = map {$_->isa('Bio::DB::GFF::Feature') ? $_->id : $_} @features_or_ids;
+  my @ids = map {UNIVERSAL::isa($_,'Bio::DB::GFF::Feature') ? $_->id : $_} @features_or_ids;
+  return unless @ids;
   $self->_delete_features(@ids);
 }
 
@@ -1193,7 +1194,8 @@ delete_features().
 sub delete_groups {
   my $self = shift;
   my @features_or_ids = @_;
-  my @ids = map {$_->isa('Bio::DB::GFF::Feature') ? $_->group_id : $_} @features_or_ids;
+  my @ids = map {UNIVERSAL::isa($_,'Bio::DB::GFF::Feature') ? $_->group_id : $_} @features_or_ids;
+  return unless @ids;
   $self->_delete_groups(@ids);
 }
 
@@ -1207,11 +1209,14 @@ sub delete_groups {
  Status  : public
 
 This method deletes all features that overlap the specified region or
-are of a particular type.
+are of a particular type.  If no arguments are provided and the -force
+argument is true, then deletes ALL features.
 
 Arguments:
 
  -name         ID of the landmark sequence.
+
+ -ref          ID of the landmark sequence (synonym for -name).
 
  -class        Database object class for the landmark sequence.
                "Sequence" assumed if not specified.  This is
@@ -1232,6 +1237,9 @@ Arguments:
  -type,-types  Either a single scalar type to be deleted, or an
                reference to an array of types.
 
+ -force        Force operation to be performed even if it would delete
+               entire feature table.
+
 Examples:
 
   $db->delete(-type=>['intron','repeat:repeatMasker']);  # remove all introns & repeats
@@ -1243,27 +1251,37 @@ The short form of this call, as described in segment() is also allowed:
   $db->delete("chr3",1=>1000);
   $db->delete("chr3");
 
+IMPORTANT NOTE: This method only deletes features.  It does *NOT*
+delete the names of groups that contain the deleted features.  Group
+IDs will be reused if you later load a feature with the same group
+name as one that was previously deleted.
+
 =cut
 
 sub delete {
   my $self = shift;
   my @args = $self->setup_segment_args(@_);
-  my ($name,$class,$start,$end,$offset,$length,$type) =
-    rearrange(['NAME','CLASS','START',[qw(END STOP)],'OFFSET','LENGTH',[qw(TYPE TYPES)]],@args);
-  $start ||= $offset+1;
-  $end   ||= $start+$length-1;
+  my ($name,$class,$start,$end,$offset,$length,$type,$force) =
+    rearrange([['NAME','REF'],'CLASS','START',[qw(END STOP)],'OFFSET',
+	       'LENGTH',[qw(TYPE TYPES)],'FORCE'],@args);
+  $start = $offset+1 unless defined $start;
+  $end   = $start+$length-1 if !defined $end and $length;
   $class ||= $self->default_class;
 
+  my $types = $self->parse_types($type);  # parse out list of types
+
   my @segments;
-  $type   = [$type] unless ref $type eq 'ARRAY';
-  if (defined $name && defined $class) {
+  if ($name ne '') {
     my @args = (-name=>$name,-class=>$class);
     push @args,(-start=>$start) if defined $start;
     push @args,(-end  =>$end)   if defined $end;
-    @segments = $db->segment(@args);
+    @segments = $self->segment(@args);
+    return unless @segments;
   }
   $self->_delete({segments => \@segments,
-		  types    => $type});
+		  types    => $types,
+		  force    => $force}
+		);
 }
 
 =head2 absolute
@@ -2857,8 +2875,8 @@ the list of type names.
 # turn feature types in the format "method:source" into a list of [method,source] refs
 sub parse_types {
   my $self  = shift;
-  return [] if !@_ or !defined($_[0]);
-
+  return []   if !@_ or !defined($_[0]);
+  return $_[0] if ref $_[0] eq 'ARRAY' && ref $_[0][0];
   my @types = ref($_[0]) ? @{$_[0]} : @_;
   my @type_list = map { [split(':',$_,2)] } @types;
   return \@type_list;
@@ -3209,10 +3227,12 @@ sub _split_gff3_group {
 These methods need to be implemented in adaptors.  For
 _delete_features and _delete_groups, the arguments are a list of
 feature or group IDs to remove.  For _delete(), the argument is a
-hashref with the two keys 'segments' and 'types'.  The first contains
-an arrayref of Bio::DB::GFF::RelSegment objects to delete (all
-FEATURES within the segment are deleted).  The second contains an
-arrayref of feature types to delete.  The two are ANDED together.
+hashref with the three keys 'segments', 'types' and 'force'.  The
+first contains an arrayref of Bio::DB::GFF::RelSegment objects to
+delete (all FEATURES within the segment are deleted).  The second
+contains an arrayref of [method,source] feature types to delete.  The
+two are ANDed together.  If 'force' has a true value, this forces the
+operation to continue even if it would delete all features.
 
 =cut
 
