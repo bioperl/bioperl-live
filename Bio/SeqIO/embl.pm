@@ -479,7 +479,7 @@ sub write_seq {
 		if( ref($kw) =~ /ARRAY/i ) {
 		    $kw = join("; ", @$kw);
 		}
-		$kw .= '.' if( $kw !~ /\.$/ );
+		$kw .= '.' if( defined $kw && $kw !~ /\.$/ );
 	    }
 	    if (defined $kw) {
 		$self->_write_line_EMBL_regex("KW   ", "KW   ", 
