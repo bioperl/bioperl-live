@@ -98,8 +98,9 @@ sub new {
   my($class,@args) = @_;
 
   my $self = $class->SUPER::new(@args);
-  my ($swscore) = $self->_rearrange(qw(SWSCORE));
   
+  my ($swscore) = $self->_rearrange([qw(SWSCORE)], @args);
+
   defined $swscore && $self->sw_score($swscore);
 
   return $self;
@@ -120,7 +121,7 @@ sub new {
 sub sw_score{
     my ($self,$value) = @_;
     if( defined $value || ! defined $self->{'_sw_score'} ) {
-	$value = 0 unless defined $self->{'_sw_score'}; # default value
+	$value = 0 unless defined $value; # default value
 	$self->{'_sw_score'} = $value;
     }
     return $self->{'_sw_score'};
