@@ -44,13 +44,18 @@ my $verbose = 0;
 ## the print "1..x\n" in the BEGIN block to reflect the
 ## total number of tests that will be run. 
 
+use Bio::Tools::Phylo::PAML; # PAML parser
+
+my $inpaml = new Bio::Tools::Phylo::PAML(-file => 't/data/codeml.mlc');
+ok($inpaml);
+
 use Bio::Tools::Run::Phylo::PAML::Codeml;
 use Bio::AlignIO;
 my $codeml = new Bio::Tools::Run::Phylo::PAML::Codeml(-verbose => -1);
 exit(0) unless( $codeml->executable );
 
 my $in = new Bio::AlignIO(-format => 'phylip',
-			  -file   => 't/data/gf.s85.4_ZC412.1.dna.phylip');
+			  -file   => 't/data/gf-s85.phylip');
 my $aln = $in->next_aln;
 $codeml->alignment($aln);
 my ($rc,$results) = $codeml->run();
