@@ -1,4 +1,4 @@
-## $Id: MANIFEST,v 1.56 2002-01-08 15:14:46 jason Exp $
+## $Id: MANIFEST,v 1.57 2002-01-09 02:07:24 jason Exp $
 ##
 ## This is the file listing for everything that
 ## comes with the bioperl distribution. The perl
@@ -174,17 +174,13 @@ Bio/Search/Hit/HitI.pm
 Bio/Search/Hit/BlastHit.pm
 Bio/Search/Hit/GenericHit.pm
 Bio/Search/HSP/BlastHSP.pm
-Bio/Search/HSP/HSPI.pm
-Bio/Search/HSP/.#BlastHSP.pm.1.2
 Bio/Search/HSP/GenericHSP.pm
 Bio/Search/Processor/Fasta.pm
 Bio/Search/Processor/ProcessorI.pm
-Bio/Search/Result/.#ResultI.pm.1.7
 Bio/Search/Result/Fasta.pm
 Bio/Search/Result/ResultI.pm
 Bio/Search/Result/BlastResult.pm
 Bio/Search/Result/GenericResult.pm
-Bio/Search/.#HSP.pm.1.9
 Bio/Search/BlastUtils.pm
 Bio/Search/DatabaseI.pm
 Bio/Search/GenericDatabase.pm
@@ -198,10 +194,6 @@ Bio/SearchIO/blastxml.pm
 Bio/SearchIO/fasta.pm
 Bio/SearchIO/SearchWriterI.pm
 Bio/SearchIO/psiblast.pm
-Bio/SearchIO/.#psiblast.pm.1.1
-Bio/SearchIO/.#SearchResultEventBuilder.pm.1.8
-Bio/SearchIO/.#blastxml.pm.1.8
-Bio/SearchIO/.#psiblast.pm.1.2
 Bio/SearchIO/SearchResultEventBuilder.pm
 Bio/Seq/LargePrimarySeq.pm
 Bio/Seq/LargeSeq.pm
@@ -226,7 +218,6 @@ Bio/SeqFeature/FeaturePair.pm
 Bio/SeqFeature/Generic.pm
 Bio/SeqFeature/Similarity.pm
 Bio/SeqFeature/SimilarityPair.pm
-Bio/SeqFeature/.#SimilarityPair.pm.1.9
 Bio/Perl.pm
 Bio/SeqIO/game/featureHandler.pm
 Bio/SeqIO/game/idHandler.pm
@@ -329,7 +320,6 @@ Bio/Tree/RandomFactory.pm
 Bio/Tree/Tree.pm
 Bio/Tree/TreeI.pm
 Bio/Tree/Statistics.pm
-Bio/Tree/PhyloNode.pm
 Bio/TreeIO/TreeEventBuilder.pm
 Bio/TreeIO/newick.pm
 Bio/Variation/IO/flat.pm
@@ -345,7 +335,6 @@ Bio/Variation/SeqDiff.pm
 Bio/Variation/VariantI.pm
 Bio/AnalysisParserI.pm
 Bio/AnalysisResultI.pm
-Bio/.#SearchIO.pm.1.3
 t/data/biodbgff/test.gff
 t/data/AAC12660.fa
 t/data/AE003528_ecoli.bls
@@ -566,7 +555,6 @@ t/qual.t
 t/seqwithquality.t
 t/testformats.pl
 t/trim.t
-t/.#game.t.1.12
 t/StructIO.t
 t/linkagemap.t
 t/linkageposition.t
@@ -575,7 +563,6 @@ t/microsatellite.t
 t/MapIO.t
 t/StateMachine.t
 t/Perl.t
-t/.#SearchIO.t.1.15
 MANIFEST.SKIP
 Makefile.PL
 PLATFORMS
