@@ -156,7 +156,11 @@ sub init {
     $self->{ "_part_of_relationship" }    = Bio::Ontology::RelationshipType->get_instance( PART_OF );
     $self->{ "_related_to_relationship" } = Bio::Ontology::RelationshipType->get_instance( RELATED_TO );
 
-    $self->graph( Graph::Directed->new() );
+    if( $Graph::VERSION >= 0.50 ) {
+        $self->graph( Graph::Directed->new('compat02' => 1,'directed' => 1) );
+    } else {
+        $self->graph( Graph::Directed->new() );
+    }
 
     # set defaults for the factories
     $self->relationship_factory(Bio::Ontology::RelationshipFactory->new(
