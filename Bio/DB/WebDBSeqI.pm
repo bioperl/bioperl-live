@@ -352,6 +352,7 @@ sub get_seq_stream {
     ($rformat, $ioformat) = $self->request_format($rformat);
     
     my $request = $self->get_request(%qualifiers);
+    $self->debug("request is ". $request->as_string(). "\n");
     my ($stream,$resp);
     if( $self->retrieval_type =~ /temp/i ) {
 	my $dir = $self->io()->tempdir( CLEANUP => 1);
@@ -368,8 +369,9 @@ sub get_seq_stream {
 	if( $self->verbose > 0 ) {
 	    open(ERR, "<$tmpfile");
 	    while(<ERR>) { $self->debug($_);}
-	} 
-	$stream = new Bio::SeqIO('-format' => $ioformat,
+	} 	
+	$stream = new Bio::SeqIO('-verbose' => $self->verbose,
+				 '-format' => $ioformat,
 				 '-file'   => $tmpfile);
     } elsif( $self->retrieval_type =~ /io_string/i ) {
 	my ($resp) = $self->_request($request);
@@ -382,7 +384,8 @@ sub get_seq_stream {
 	$self->postprocess_data('type'=> 'string',
 				'location' => $content);
         print STDERR "str is $$content\n" if ( $self->verbose > 0);
-	$stream = new Bio::SeqIO('-format' => $ioformat,
+	$stream = new Bio::SeqIO('-verbose' => $self->verbose,
+				 '-format' => $ioformat,
 				 '-fh'   => new IO::String($$content));
     } else { 
 	$self->throw("retrieval type " . $self->retrieval_type . 
