@@ -116,7 +116,7 @@ sub new {
                           @args);
     $self->{windowsize} = $windowsize || $DEFAULTS{'windowsize'};
     $self->{phreds} = $phreds || $DEFAULTS{'phreds'};
-    print("Constructor set phreds to ".$self->{phreds}."\n") if $self->verbose > 0;
+          # print("Constructor set phreds to ".$self->{phreds}."\n") if $self->verbose > 0;
     $self->set_designators($DEFAULTS{'f_designator'},
 			   $DEFAULTS{'r_designator'});
     return $self;

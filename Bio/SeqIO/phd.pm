@@ -162,6 +162,9 @@ sub next_seq {
 	TRACE_ARRAY_MAX_INDEX: unknown
 	CHEM: unknown
 	DYE: unknown
+     IMPORTANT: This method does not write the trace index where this 
+          call was made. All base calls are placed at index 1.
+
 
 =cut
 
@@ -217,7 +220,7 @@ sub write_seq {
     $trace_min_index = 0 unless defined $trace_min_index;
     push @phredstack,"TRACE_ARRAY_MIN_INDEX: $trace_min_index";
 
-    $trace_max_index = 'unknown' unless defined $trace_max_index;
+    $trace_max_index = '10000' unless defined $trace_max_index;
     push @phredstack,"TRACE_ARRAY_MAX_INDEX: $trace_max_index";
 
     $chem = 'unknown' unless defined $chem;
@@ -236,7 +239,8 @@ sub write_seq {
     }
     for (my $curr = 1; $curr<=$length; $curr++) {
 	$self->_print (uc($swq->baseat($curr))." ".
-		       $swq->qualat($curr)."\n");
+		       $swq->qualat($curr)." 10".
+               "\n");
     }
     $self->_print ("END_DNA\n\nEND_SEQUENCE\n");
 

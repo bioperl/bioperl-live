@@ -370,7 +370,7 @@ sub get_quality_scalar {
 #'
 sub freeze_hash {
     my $self = shift;
-	$self->warn("This method was removed from the bioperl consed.pm. Sorry.\n");
+	$self->warn("This method (freeze_hash) was removed from the bioperl consed.pm. Sorry.\n");
 	if (1==2) {
 	    $self->debug("Bio::Tools::Alignment::Consed::freeze_hash: \$self->{path} is $self->{path}\n");
 	    my $filename = $self->{'path'}."frozen";
