@@ -17,6 +17,9 @@
 #          Megablast parsing fix as reported by Neil Saunders
 # 20030427 - jason 
 #          Support bl2seq parsing
+# 20031124 - jason
+#          Parse more blast statistics, lambda, entropy, etc
+#          from WU-BLAST in frame-specific manner
 
 =head1 NAME
 
@@ -220,6 +223,10 @@ BEGIN {
           'Statistics_kappa'     => { 'RESULT-statistics' => 'kappa' },
           'Statistics_lambda'    => { 'RESULT-statistics' => 'lambda' },
           'Statistics_entropy'   => { 'RESULT-statistics' => 'entropy'},
+	  'Statistics_gapped_kappa' => { 'RESULT-statistics' => 'kappa_gapped' },
+          'Statistics_gapped_lambda' => { 'RESULT-statistics' => 'lambda_gapped' },
+          'Statistics_gapped_entropy' => { 'RESULT-statistics' => 'entropy_gapped'},
+	  
           'Statistics_framewindow'=> { 'RESULT-statistics' => 'frameshiftwindow'},
           'Statistics_decay'=> { 'RESULT-statistics' => 'decayconst'},
 
@@ -227,9 +234,16 @@ BEGIN {
           'Statistics_A'=> { 'RESULT-statistics' => 'A'},
           'Statistics_X1'=> { 'RESULT-statistics' => 'X1'},
           'Statistics_X2'=> { 'RESULT-statistics' => 'X2'},
+          'Statistics_X3'=> { 'RESULT-statistics' => 'X3'},
           'Statistics_S1'=> { 'RESULT-statistics' => 'S1'},
           'Statistics_S2'=> { 'RESULT-statistics' => 'S2'},
-
+	  
+,         'Statistics_X1_bits'=> { 'RESULT-statistics' => 'X1_bits'},
+          'Statistics_X2_bits'=> { 'RESULT-statistics' => 'X2_bits'},
+          'Statistics_X3_bits'=> { 'RESULT-statistics' => 'X3_bits'},
+          'Statistics_S1_bits'=> { 'RESULT-statistics' => 'S1_bits'},
+          'Statistics_S2_bits'=> { 'RESULT-statistics' => 'S2_bits'},
+	  
 	  'Statistics_hit_to_db' => { 'RESULT-statistics'          => 'Hits_to_DB'},
 	  'Statistics_num_extensions' => { 'RESULT-statistics'     => 'num_extensions'},
 	  'Statistics_num_extensions' => { 'RESULT-statistics'     => 'num_extensions'},
@@ -251,8 +265,25 @@ BEGIN {
           'Statistics_neighbortime' => { 'RESULT-statistics' => 'neighborhood_generate_time'},
           'Statistics_starttime' => { 'RESULT-statistics' => 'start_time'},
           'Statistics_endtime' => { 'RESULT-statistics' => 'end_time'},
+	  'Statistics_ctxfactor' => { 'RESULT-statistics' => 'ctxfactor'},
           );
-
+    # add WU-BLAST Frame-Based Statistics
+    for my $frame ( 0..3 ) {
+	for my $strand ( '+', '-') {
+	    for my $ind ( qw(length efflength E S W T X X_gapped E2 
+			     E2_gapped S2) ) {
+		$MAPPING{"Statistics_frame$strand$frame\_$ind"} = 
+		{ 'RESULT-statistics' => "Frame$strand$frame\_$ind" }
+	    }
+	    for my $val ( qw(lambda kappa entropy ) ) {
+		for my $type ( qw(used computed gapped) ) {
+		    my $key ="Statistics_frame$strand$frame\_$val\_$type";
+		    my $val = { 'RESULT-statistics' => "Frame$strand$frame\_$val\_$type" };
+		    $MAPPING{$key} = $val;
+		}
+	    }
+	}      
+    }    
     $DEFAULT_BLAST_WRITER_CLASS = 'Bio::Search::Writer::HitTableWriter';
     $MAX_HSP_OVERLAP  = 2;  # Used when tiling multiple HSPs.
     $DEFAULTREPORTTYPE = 'BLASTP'; # for bl2seq
@@ -365,7 +396,9 @@ sub next_result{
    my $bl2seq_fix;
    $self->start_document();
    my (@hit_signifs);
-
+   my $gapped_stats = 0; # for switching between gapped/ungapped
+                         # lambda, K, H
+   
    while( defined ($_ = $self->_readline )) {
        next if( /^\s+$/); # skip empty lines
        next if( /CPU time:/);
@@ -861,25 +894,97 @@ sub next_result{
                    } elsif( /nogaps/ ) {
                        $self->element({'Name' => 'Parameters_allowgaps',
                                        'Data' => 'no'});
-                   } elsif( $last =~ /(Frame|Strand)\s+MatID\s+Matrix name/i ){
-                       s/^\s+//;
-                       #throw away first two slots
-                       my @vals = split;
-                       splice(@vals, 0,2);
-                       my ($matrix,$lambda,$kappa,$entropy) = @vals;
-                       $self->element({'Name' => 'Parameters_matrix',
-                                       'Data' => $matrix});
-                       $self->element({'Name' => 'Statistics_lambda',
-                                       'Data' => $lambda});
-                       $self->element({'Name' => 'Statistics_kappa',
-                                       'Data' => $kappa});
-                       $self->element({'Name' => 'Statistics_entropy',
-                                       'Data' => $entropy});
-                    } elsif( m/^\s+Q=(\d+),R=(\d+)\s+/ox ) {
-			$self->element({'Name' => 'Parameters_gap-open',
-					'Data' => $1});
-			$self->element({'Name' => 'Parameters_gap-extend',
-					'Data' => $2});
+                   } elsif( /ctxfactor=(\S+)/ ) {
+		       $self->element({'Name' => 'Statistics_ctxfactor',
+				       'Data' => $1});
+		   } elsif( $last =~ /(Frame|Strand)\s+MatID\s+Matrix name/i ){
+		       my $firstgapinfo = 1;
+		       my $frame = undef;		       
+		       while( defined($_) && ! /^\s+$/) { 
+			   s/^\s+//;
+			   s/\s+$//;
+			   if( $firstgapinfo && 
+			       s/Q=(\d+),R=(\d+)\s+//x ) {
+			       $firstgapinfo = 0;
+			       
+			       $self->element({'Name' => 'Parameters_gap-open',
+					       'Data' => $1});
+			       $self->element({'Name' => 'Parameters_gap-extend',
+					       'Data' => $2});
+			       my @fields = split;
+			       
+			       for my $type ( qw(lambda_gapped
+						 kappa_gapped
+						 entropy_gapped) ) {
+				   next if $type eq 'n/a';
+				   if( ! @fields ) {
+				       warn "fields is empty for $type\n";
+				       next;
+				   }
+				   $self->element({'Name' => "Statistics_frame$frame\_$type",
+						   'Data' => shift @fields});
+			       }
+			   } else { 
+			       my ($frameo,$matid,$matrix,@fields) = split;
+			       if( ! defined $frame ) { 
+				   # keep some sort of default feature I guess
+				   # even though this is sort of wrong
+				   $self->element({'Name' => 'Parameters_matrix',
+						   'Data' => $matrix});
+				   $self->element({'Name' => 'Statistics_lambda',
+						   'Data' => $fields[0]});
+				   $self->element({'Name' => 'Statistics_kappa',
+						   'Data' => $fields[1]});
+				   $self->element({'Name' => 'Statistics_entropy',
+						   'Data' => $fields[2]});
+			       }
+			       $frame = $frameo;
+			       my $ii = 0;
+			       for my $type ( qw(lambda_used
+						 kappa_used
+						 entropy_used
+						 lambda_computed
+						 kappa_computed
+						 entropy_computed) ) {
+				   my $f = $fields[$ii];
+				   next unless defined $f; # deal with n/a
+				   if( $f eq 'same' ) { 
+				       $f = $fields[$ii-3];
+				   }
+				   $ii++;
+				   $self->element({'Name' => "Statistics_frame$frame\_$type",
+						   'Data' => $f});
+				   
+			       }
+			   }			   
+			   # get the next line
+			   $_ = $self->_readline;
+		       }
+		       $last = $_;
+		   } elsif( $last =~ /(Frame|Strand)\s+MatID\s+Length/i ){
+		       my $frame = undef;
+		       while( defined($_) && ! /^\s+/) { 
+			   s/^\s+//;
+			   s/\s+$//;
+			   my @fields = split;
+			   if( @fields <= 3 ) { 
+			       for my $type ( qw(X_gapped E2_gapped S2) ) {
+				   last unless @fields;
+				   $self->element({'Name' => "Statistics_frame$frame\_$type",
+						   'Data' => shift @fields});
+			       }
+			   } else  {
+			       print "fields are @fields\n";
+			       for my $type ( qw(length
+						 efflength
+						 E S W T X E2 S2) ) {
+				   $self->element({'Name' => "Statistics_frame$frame\_$type",
+						   'Data' => shift @fields});
+			       }
+			   }
+			   $_ = $self->_readline;
+		       }
+		       $last = $_;
 		   } elsif( /(\S+\s+\S+)\s+DFA:\s+(\S+)\s+\((.+)\)/ ) {
                        if( $1 eq 'states in') { 
                            $self->element({'Name' => 'Statistics_DFA_states',
@@ -913,22 +1018,32 @@ sub next_result{
                        $self->element({'Name' => 'Statistics_endtime',
                                        'Data' => $etime});
                    }
-                   
                } elsif ( $blast eq 'ncbi' ) {
 		   
                    if( m/^Matrix:\s+(.+)\s*$/oxi ) {
                        $self->element({'Name' => 'Parameters_matrix',
                                        'Data' => $1});                       
-                   } elsif( /Lambda/ ) {
+                   } elsif( /^Gapped/ ) { 
+		       $gapped_stats = 1;
+		   } elsif( /^Lambda/ ) {
                        $_ = $self->_readline;
                        s/^\s+//;
                        my ($lambda, $kappa, $entropy) = split;
-                       $self->element({'Name' => 'Statistics_lambda',
-                                       'Data' => $lambda});
-                       $self->element({'Name' => 'Statistics_kappa',
-                                       'Data' => $kappa});
-                       $self->element({'Name' => 'Statistics_entropy',
-                                       'Data' => $entropy});
+		       if( $gapped_stats ) { 
+			   $self->element({'Name' => "Statistics_gapped_lambda",
+					   'Data' => $lambda});
+			   $self->element({'Name' => "Statistics_gapped_kappa",
+					   'Data' => $kappa});
+			   $self->element({'Name' => "Statistics_gapped_entropy",
+					   'Data' => $entropy});
+		       } else { 
+			   $self->element({'Name' => "Statistics_lambda",
+					   'Data' => $lambda});
+			   $self->element({'Name' => "Statistics_kappa",
+					   'Data' => $kappa});
+			   $self->element({'Name' => "Statistics_entropy",
+					   'Data' => $entropy});
+		       }
                    } elsif( m/effective\s+search\s+space\s+used:\s+(\d+)/ox ) {
                        $self->element({'Name' => 'Statistics_eff-spaceused',
                                        'Data' => $1});                       
@@ -954,11 +1069,15 @@ sub next_result{
                        $c =~ s/\,//g;
                        $self->element({'Name' => 'Statistics_eff-dblen',
                                        'Data' => $c});
-                   } elsif( /^(T|A|X1|X2|S1|S2):\s+(.+)/ ) {
+                   } elsif( /^(T|A|X1|X2|X3|S1|S2):\s+(\d+(\.\d+)?)\s+(?:\(\s*(\d+\.\d+) bits\))?/ ) {
 		       my $v = $2;
 		       chomp($v);
                        $self->element({'Name' => "Statistics_$1",
                                        'Data' => $v});
+		       if( defined $4 ) {
+			   $self->element({'Name' => "Statistics_$1_bits",
+					   'Data' => $4});
+		       }
 		   } elsif( m/frameshift\s+window\,
 			    \s+decay\s+const:\s+(\d+)\,\s+([\.\d]+)/x ) {
 		       $self->element({'Name'=> 'Statistics_framewindow',

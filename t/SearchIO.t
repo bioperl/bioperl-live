@@ -20,7 +20,7 @@ BEGIN {
 	use lib 't';
     }
     use vars qw($NTESTS);
-    $NTESTS = 1127;
+    $NTESTS = 1152;
     $LASTXMLTEST = 63;
     $error = 0;
 
@@ -160,9 +160,13 @@ ok($result->algorithm, 'BLASTP');
 ok($result->algorithm_version, qr/^2\.1\.3/);
 ok($result->query_name, qr/gi|1786183|gb|AAC73113.1| (AE000111) aspartokinase I,\s+homoserine dehydrogenase I [Escherichia coli]/);
 ok($result->query_length, 820);
-ok($result->get_statistic('kappa')== 0.041);
-ok($result->get_statistic('lambda'), 0.267);
-ok($result->get_statistic('entropy') == 0.14);
+ok($result->get_statistic('kappa'), '0.135');
+ok($result->get_statistic('kappa_gapped'), '0.0410');
+ok($result->get_statistic('lambda'), '0.319');
+ok($result->get_statistic('lambda_gapped'), '0.267');
+ok($result->get_statistic('entropy'), '0.383');
+ok($result->get_statistic('entropy_gapped'), '0.140');
+
 ok($result->get_statistic('dbletters'), 1358990);
 ok($result->get_statistic('dbentries'), 4289);
 ok($result->get_statistic('effective_hsplength'), 47);
@@ -170,7 +174,8 @@ ok($result->get_statistic('effectivespace'), 894675611);
 ok($result->get_parameter('matrix'), 'BLOSUM62');
 ok($result->get_parameter('gapopen'), 11);
 ok($result->get_parameter('gapext'), 1);
-ok($result->get_statistic('S2'), '92 (40.0 bits)');
+ok($result->get_statistic('S2'), '92');
+ok($result->get_statistic('S2_bits'), '40.0');
 ok($result->get_parameter('expect'), '1.0e-03');
 ok($result->get_statistic('num_extensions'), '82424');
 
@@ -230,6 +235,17 @@ ok($result->get_statistic('entropy'), 0.384);
 ok($result->get_statistic('dbletters'), 1358990);
 ok($result->get_statistic('dbentries'), 4289);
 ok($result->get_parameter('matrix'), 'BLOSUM62');
+ok($result->get_statistic('Frame+0_lambda_used'), '0.319');
+ok($result->get_statistic('Frame+0_kappa_used'), '0.136');
+ok($result->get_statistic('Frame+0_entropy_used'), '0.384');
+
+ok($result->get_statistic('Frame+0_lambda_computed'), '0.319');
+ok($result->get_statistic('Frame+0_kappa_computed'), '0.136');
+ok($result->get_statistic('Frame+0_entropy_computed'), '0.384');
+
+ok($result->get_statistic('Frame+0_lambda_gapped'), '0.244');
+ok($result->get_statistic('Frame+0_kappa_gapped'), '0.0300');
+ok($result->get_statistic('Frame+0_entropy_gapped'), '0.180');
 
 @valid = ( [ 'gb|AAC73113.1|', 820, 'AAC73113', '0', 4141],
 	   [ 'gb|AAC76922.1|', 810, 'AAC76922', '3.1e-86', 844],
@@ -284,6 +300,15 @@ ok($result->get_statistic('entropy'), 0.401);
 ok($result->get_statistic('dbletters'), 4662239);
 ok($result->get_statistic('dbentries'), 400);
 ok($result->get_statistic('T'), 13);
+ok($result->get_statistic('X1'), 16);
+ok($result->get_statistic('X1_bits'), 7.3);
+ok($result->get_statistic('X2'), 0);
+ok($result->get_statistic('X2_bits'), '0.0');
+ok($result->get_statistic('S1'), 41);
+ok($result->get_statistic('S1_bits'), 21.7);
+ok($result->get_statistic('S2'), 53);
+ok($result->get_statistic('S2_bits'), 27.2);
+
 ok($result->get_statistic('decayconst'), 0.1);
 
 ok($result->get_parameter('matrix'), 'BLOSUM62');
@@ -616,10 +641,14 @@ ok($result->get_statistic('kappa'), 0.711);
 ok($result->get_statistic('entropy'),1.31 );
 ok($result->get_statistic('T'), 0);
 ok($result->get_statistic('A'), 30);
-ok($result->get_statistic('X1'), "6 (11.9 bits)");
-ok($result->get_statistic('X2'), "15 (29.7 bits)");
-ok($result->get_statistic('S1'), "12 (24.3 bits)");
-ok($result->get_statistic('S2'), "17 (34.2 bits)");
+ok($result->get_statistic('X1'), '6');
+ok($result->get_statistic('X1_bits'), 11.9);
+ok($result->get_statistic('X2'), 15);
+ok($result->get_statistic('X2_bits'), 29.7);
+ok($result->get_statistic('S1'), 12);
+ok($result->get_statistic('S1_bits'), 24.3);
+ok($result->get_statistic('S2'), 17);
+ok($result->get_statistic('S2_bits'), 34.2);
 
 ok($result->get_statistic('dbentries'), 1083200);
 
