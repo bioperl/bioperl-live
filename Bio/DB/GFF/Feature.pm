@@ -652,7 +652,11 @@ sub merged_segments {
   for my $s (@segs) {
     my $previous = $merged[-1] if @merged;
     if (defined($previous) && $previous->stop+1 >= $s->start){
-      $previous->{stop} = $s->{stop};
+      if ($self->absolute && $self->strand < 0) {
+	$previous->{start} = $s->{start};
+      } else {
+	$previous->{stop} = $s->{stop};
+      }
       # fix up the target too
       my $g = $previous->{group};
       if ( ref($g) &&  $g->isa('Bio::DB::GFF::Homol')) {

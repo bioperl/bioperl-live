@@ -85,7 +85,7 @@ use Bio::DB::GFF::Util::Rearrange;
 
 use vars qw($VERSION @ISA);
 @ISA = qw(Bio::DB::GFF::Adaptor::dbi::mysql);
-$VERSION = 0.80;
+$VERSION = 0.85;
 
 # this is the largest that any reference sequence can be (100 megabases)
 use constant MAX_BIN    => 100_000_000;
@@ -294,7 +294,7 @@ sub make_object {
     # then generate a bogus Homology object (for future compatability??)
     if ($start ne '') {
       require Ace::Sequence::Homol;
-      return Ace::Sequence::Homol->new($class,$name,$db,$start,$stop);
+      return Ace::Sequence::Homol->new_homol($class,$name,$db,$start,$stop);
     }
 
     # General case:
