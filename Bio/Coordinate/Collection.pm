@@ -149,12 +149,12 @@ sub add_mapper {
 
   $self->throw("Is not a Bio::Coordinate::MapperI but a [$self]")
       unless defined $value && $value->isa('Bio::Coordinate::MapperI');
-
+  
   # test pair range lengths
   $self->warn("Coodinates in pair [". $value . ":" .
 	      $value->in->seq_id . "/". $value->out->seq_id .
 	      "] are not right.")
-		  unless $value->test;
+      unless $value->test;
 
   $self->_is_sorted(0);
   push(@{$self->{'_mappers'}},$value);
@@ -243,7 +243,7 @@ sub test {
 
    foreach my $mapper ($self->each_mapper) {
        $self->warn("Coodinates in pair [". $mapper . ":" .
-		   $mapper->in->seq_id . "/". $mapper->in->seq_id .
+		   $mapper->in->seq_id . "/". $mapper->out->seq_id .
 		   "] are not right.") && ($res = 0)
 	   unless $mapper->test;
    }
