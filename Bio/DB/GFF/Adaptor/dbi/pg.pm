@@ -361,15 +361,17 @@ CREATE TABLE "fgroup" (
   "gid" serial NOT NULL,
   "gclass" character varying(100) DEFAULT NULL,
   "gname" character varying(100) DEFAULT NULL,
-  CONSTRAINT pk_fgroup PRIMARY KEY (gid),
-  CONSTRAINT gclass_fgroup UNIQUE (gclass, gname)
+  CONSTRAINT pk_fgroup PRIMARY KEY (gid)
 )
 }, # fgroup table
 
 index => {
 		fgroup_gclass_idx => q{
 CREATE UNIQUE INDEX fgroup_gclass_idx ON fgroup (gclass,gname)
-}
+},
+                fgroup_gname_idx => q{
+CREATE INDEX fgroup_gname_idx ON fgroup(gname)
+},
 	   }, # fgroup indexes
 
 }, # fgroup
@@ -447,7 +449,10 @@ CREATE TABLE "fattribute_to_feature" (
 index => {
        fattribute_to_feature_fid => q{
 CREATE  INDEX fattribute_to_feature_fid ON fattribute_to_feature (fid,fattribute_id)
-}
+},
+       fattribute_txt_idx => q{
+CREATE INDEX fattribute_txt_idx ON fattribute_to_feature (fattribute_value)
+},
 	   } # fattribute_to_feature indexes
 } # fattribute_to_feature  
 
