@@ -117,18 +117,16 @@ ok @ids,4;
 %weights = $psmIO->weight;
 ok !%weights; #Mast doesn't have weights
 
-%seq    = $psmIO->seq;
-ok %seq;
+ok %seq    = $psmIO->seq;
 
 foreach my $id ($psmIO->hid) {
     ok $seq{$id};
 }
-my $psm=$psmIO->next_psm;
-ok $psm;
+ok $psm=$psmIO->next_psm;
 
 my %instances=$psmIO->instances;
 ok %instances;
 
-my $ver=$psmIO->version;
-ok $ver,'3.0';
+ok $psmIO->version, '3.0';
+
 
