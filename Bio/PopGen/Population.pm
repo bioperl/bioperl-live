@@ -239,6 +239,35 @@ sub add_Individual{
     return scalar @{$self->{'_individuals'}};
 }
 
+
+=head2 remove_Individuals
+
+ Title   : remove_Individuals
+ Usage   : $population->remove_Individuals(@ids);
+ Function: Remove individual(s) to a population
+ Returns : count of the current number in the object 
+ Args    : Array of ids
+
+=cut
+
+sub remove_Individuals {
+    my ($self,@names) = @_;
+    my $i = 0;
+    my %namehash; # O(1) lookup will be faster I think
+    foreach my $n ( @names ) { $namehash{$n}++ }
+    my @tosplice;
+    foreach my $ind (  @{$self->{'_individuals'}} ) {
+	unshift @tosplice, $i if( $namehash{$ind->person_id} );
+	$i++;
+    }
+    foreach my $index ( @tosplice ) {
+	splice(@{$self->{'_individuals'}}, $index,1);
+    }
+    $self->{'_cached_markernames'} = undef;
+    $self->{'_allele_freqs'} = {};
+    return scalar @{$self->{'_individuals'}};
+}
+
 =head2 get_Individuals
 
  Title   : get_Individuals
@@ -259,7 +288,7 @@ sub get_Individuals{
    return unless @inds;
    if( @args ) { # save a little time here if @args is empty
        my ($id,$name,$marker) = $self->_rearrange([qw(UNIQUE_ID
-						MARKER)], @args);
+						      MARKER)], @args);
 
        if( defined $id ) { 
 	   @inds = grep { $_->unique_id eq $id } @inds;
