@@ -803,7 +803,7 @@ sub _gff25_string{
                # for this tag (allowed in GFF2 and .ace format)
             }
             if (($tag eq 'Group') || ($tag eq 'Target')){  # hopefully we wont get both...
-                push @firstgroup, "$tag ",join(" ", @v);
+                push @firstgroup, "$tag ".join(" ", @v);
             } else {
                 push @group, "$tag ".join(" ", @v);
             }
@@ -902,7 +902,7 @@ sub _gff3_string {
 	    push @v, $value;
 	}
     
-    $tag=lcfirst($tag) unless ($tag =~/^[ID|Name|Alias|Parent|Gap|Target]$/);
+    $tag=lcfirst($tag) unless ($tag =~/^ID|Name|Alias|Parent|Gap|Target$/);
 
 	push @groups, "$tag=".join(",",@v);
     }
@@ -935,7 +935,7 @@ sub _gff3_string {
                 $score,
                 $strand,
                 $frame,
-                join(';', @groups)) . "\n";
+                join(' ; ', @groups)) . "\n";
         }
         chop $gff_string;
         return $gff_string;
@@ -949,7 +949,7 @@ sub _gff3_string {
 		$score,
 		$strand,
 		$frame, 
-		join(';', @groups));
+		join(' ; ', @groups));
     }
     return $gff_string;
 }
