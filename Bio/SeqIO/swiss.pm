@@ -288,7 +288,10 @@ sub next_seq {
 	   next;
        }
        #DBLinks
-       elsif (/^DR\s+(\S+)\;\s+(\S+)\;\s+(\S+)[\;\.](.*)$/) {
+       # old regexp
+       # /^DR\s+(\S+)\;\s+(\S+)\;\s+(\S+)[\;\.](.*)$/) {
+       # new regexp from Andreas Kahari  bug #1584
+       elsif (/^DR\s+(\S+)\;\s+(\S+)\;\s+([^;]+)[\;\.](.*)$/) {
 	   my $dblinkobj =  Bio::Annotation::DBLink->new();
 	   $dblinkobj->database($1);
 	   $dblinkobj->primary_id($2);
