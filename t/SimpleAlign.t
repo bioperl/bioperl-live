@@ -2,7 +2,7 @@
 ## Bioperl Test Harness Script for Modules
 ## $Id$
 use strict;
-use constant NUMTESTS => 45;
+use constant NUMTESTS => 46;
 
 BEGIN {     
     eval { require Test; };
@@ -94,20 +94,30 @@ my $string;
 my $out = IO::String->new($string);
 
 my $s1 = new Bio::LocatableSeq (-id => 'AAA', 
-			    -seq => 'aaaaattttt',
+			    -seq => 'aawtat-tn-',
 			    -start => 1,
-			    -end => 10
+			    -end => 8,
+  			    -moltype => 'dna'
 			    );
 my $s2 = new Bio::LocatableSeq (-id => 'BBB', 
-			    -seq => '-aaaatttt-',
+			    -seq => '-aaaat-tt-',
 			    -start => 1,
-			    -end => 8
+			    -end => 7,
+  			    -moltype => 'dna'
 			    );
-
 $a = new Bio::SimpleAlign;
 $a->add_seq($s1);
 $a->add_seq($s2);
 
+ok $a->consensus_iupac, "aAWWAT-TN-";
+$s1->seq('aaaaattttt');
+$s1->moltype('dna');
+$s1->end(10);
+$s2->seq('-aaaatttt-');
+$s2->end(8);
+$a = new Bio::SimpleAlign;
+$a->add_seq($s1);
+$a->add_seq($s2);
 
 my $strout = Bio::AlignIO->new(-fh   => $out,'-format' => 'pfam');
 $strout->write_aln($a);
@@ -144,3 +154,4 @@ eval {
     $b = $a->slice(11,13);
 };
 ok 1 if $@;
+
