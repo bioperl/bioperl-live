@@ -16,11 +16,21 @@ Bio::SearchIO::Writer::HTMLResultWriter - Object to implement writing a Bio::Sea
 
 =head1 SYNOPSIS
 
-Give standard usage here
+use Bio::SearchIO;
+use Bio::SearchIO::Writer::HTMLResultWriter;
+
+my $in = new Bio::SearchIO(-format => 'blast',
+			   -file   => shift @ARGV);
+
+my $writer = new Bio::SearchIO::Writer::HTMLResultWriter();
+my $out = new Bio::SearchIO(-writer => $writer);
+$out->write_result($in->next_result);
+
 
 =head1 DESCRIPTION
 
-Describe the object here
+This object implements the SearchWriterI interface which will produce
+a set of HTML for a specific Bio::Search::Report::ReportI interface.
 
 =head1 FEEDBACK
 
@@ -64,13 +74,16 @@ Internal methods are usually preceded with a _
 
 
 package Bio::SearchIO::Writer::HTMLResultWriter;
-use vars qw(@ISA $RemoteURLDefault $MaxDescLen $AlignmentLineWidth);
+use vars qw(@ISA %RemoteURLDefault $MaxDescLen $AlignmentLineWidth);
 use strict;
 
 # Object preamble - inherits from Bio::Root::RootI
 
 BEGIN {
-    $RemoteURLDefault = 'http://www.ebi.ac.uk/cgi-bin/dbfetch?id=%s';    
+    %RemoteURLDefault = ( 'PROTEIN' => 'http://www.ncbi.nlm.nih.gov/entrez/query.fcgi?db=protein&cmd=search&term=%s',			  
+			  'NUCLEOTIDE' => 'http://www.ncbi.nlm.nih.gov/entrez/query.fcgi?db=nucleotide&cmd=search&term=%s'
+			  );
+
     $MaxDescLen = 60;
     $AlignmentLineWidth = 60;
 }
@@ -95,29 +108,38 @@ sub new {
   my($class,@args) = @_;
 
   my $self = $class->SUPER::new(@args);
-  my ($url) = $self->_rearrange([qw(REMOTEDBURL)],@args);
-  $self->remote_database_url($url || $RemoteURLDefault);
+  my ($p,$n) = $self->_rearrange([qw(PROTEIN_URL 
+				     NUCLEOTIDE_URL)],@args);
+  $self->remote_database_url('p',$p || $RemoteURLDefault{'PROTEIN'});
+  $self->remote_database_url('n',$n || $RemoteURLDefault{'NUCLEOTIDE'});
   return $self;
 }
 
 =head2 remote_database_url
 
  Title   : remote_database_url
- Usage   : $obj->remote_database_url($newval)
+ Usage   : $obj->remote_database_url($type,$newval)
  Function: This should return or set a string that contains a %s which can be
            filled in with sprintf.
  Returns : value of remote_database_url
- Args    : newvalue (optional)
+ Args    : $type - 'PROTEIN' or 'P' for protein URLS
+                   'NUCLEOTIDE' or 'N' for nucleotide URLS
+           $value - new value to set [optional]
 
 
 =cut
 
 sub remote_database_url{
-   my ($self,$value) = @_;
+   my ($self,$type,$value) = @_;
+   if( ! defined $type || $type !~ /^(P|N)/i ) { 
+       $self->warn("Must provide a type (PROTEIN or NUCLEOTIDE)");
+       return '';
+   }
+   $type = uc $1;
    if( defined $value) {
-      $self->{'remote_database_url'} = $value;
+      $self->{'remote_database_url'}->{$type} = $value;
     }
-    return $self->{'remote_database_url'};
+   return $self->{'remote_database_url'}->{$type};
 }
 
 =head2 to_string
@@ -138,11 +160,12 @@ sub remote_database_url{
 sub to_string {
     my ($self,$result) = @_; 
     return unless defined $result;
+    my $type = ( $result->algorithm =~ /(P|X|Y)$/i ) ? 'PROTEIN' : 'NUCLEOTIDE';
     my $str = sprintf(
 qq{<HTML>
-    <HEAD><TITLE>Bioperl HTML %s Search output for Bio::Search results</TITLE></HEAD>
+    <HEAD><CENTER><TITLE>Bioperl Reformatted HTML of %s Search output with Bio::Search</TITLE></CENTER></HEAD>
     <BODY BGCOLOR="WHITE">
-    <H1>Bioperl HTML %s Search Report for %s</H1>
+    <CENTER><H1>Bioperl Reformatted HTML of %s Search Report<br> for %s</H1></CENTER>
     <hr>
     <b>Query=</b>%s %s<br><dd>(%d letters)</dd>
     <p>
@@ -162,18 +185,23 @@ qq{<HTML>
     while( my $hit = $result->next_hit ) {
 	my $nm = $hit->name();
 	my $id_parser = $self->id_parser;
+	print STDERR "no $nm for name (",$hit->description(), "\n" unless $nm;
 	my ($gi,$acc) = &$id_parser($nm);
 	my $descsub = substr($hit->description,0,$MaxDescLen);
 	$descsub .= " ..." if length($descsub) < length($hit->description);
-
-	$str .= sprintf('<tr><td><a href="%s">%s</a> %s</td><td><a href="#%s">%s</a></td><td>%s</td></tr>'."\n",
-			sprintf($self->remote_database_url, $gi || $acc),
-			$hit->name, $descsub,$acc,
+	
+	$str .= sprintf('<tr><td><a href="%s">%s</a> %s </td><td>%s</td><td><a href="#%s">%s</a></td></tr>'."\n",
+			sprintf($self->remote_database_url($type), 
+				$gi || $acc),
+			$hit->name, $descsub,
 			defined $hit->raw_score ? $hit->raw_score : '?',
+			$acc,
 			defined $hit->significance ? $hit->significance : '?');
+
 	$hspstr .= "<a name=\"$acc\"><pre>\n".
 	    sprintf(">%s %s\n<dd>Length = %d</dd><p>\n\n", $hit->name, 
-			$hit->description, $hit->length);
+			defined $hit->description ? $hit->description : '', 
+		    $hit->length);
 	
 	while( my $hsp = $hit->next_hsp ) {
 	    $hspstr .= sprintf(" Score = %s bits (%s), Expect = %s",
@@ -292,8 +320,8 @@ qq{<HTML>
    foreach my $stat ( sort $result->available_statistics ) {
 	$str .= "$stat=". $result->get_statistic($stat). "<br>\n";
     }
+    $str .=  $self->footer() . "</BODY>\n</HTML>\n";
     
-    $str .=  "<hr><h6>Produced by Bioperl module".ref($self)."</h6>\n</BODY>\n</HTML>\n";
     return $str;
 }
 
@@ -346,14 +374,15 @@ sub default_id_parser {
     my ($string) = @_;
     my ($gi,$acc);
     if( $string =~ s/gi\|(\d+)\|?// ) 
-    { $gi = $1; }
+    { $gi = $1; $acc = $1;}
     
     if( $string =~ /(\w+)\|([A-Z\d\.\_]+)(\|[A-Z\d\_]+)?/ ) {
 	$acc = defined $2 ? $2 : $1;
-    } elsif ($string =~ /^\s*(\S+)/) {
-        $acc = $1;
+    } else {
+        $acc = $string;
+	$acc =~ s/^\s+(\S+)/$1/;
+	$acc =~ s/(\S+)\s+$/$1/;	
     } 
-
     return ($gi,$acc);
 }
 	
@@ -361,6 +390,9 @@ sub MIN { $a <=> $b ? $a : $b; }
 sub MAX { $a <=> $b ? $b : $a; }
 
 sub footer { 
+    my ($self) = @_;
+    return "<hr><h6>Produced by Bioperl module".ref($self)."</h6>\n"
     
 }
+
 1;
