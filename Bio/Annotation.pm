@@ -403,9 +403,8 @@ sub add_DBLink{
        if( ! $com->isa('Bio::Annotation::DBLink') ) {
 	   $self->throw("Is not a link object but a  [$com]");
        }
-   }
-
    push(@{$self->{'link'}},$com);
+   }
 }
 
 =head2 remove_DBLink
