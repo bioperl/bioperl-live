@@ -253,7 +253,7 @@ WriteMakefile(
     ) : (),
     'realclean' => {  FILES        => join(' ',@BACKUP_FILES) },
     DIR         => [  ], # directories with other Makefile.PL's in them
-    PL_FILES	=> { 'doc/makedoc.PL' }
+    PL_FILES	=> { 'doc/makedoc.PL' => 'makedoc' }
 );
 
 
