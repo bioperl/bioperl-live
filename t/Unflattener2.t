@@ -80,13 +80,13 @@ if (1) {
     @sfs = $seq->get_SeqFeatures;
     write_hier(@sfs);
     printf "PROCESSED/TOP:%d\n", scalar(@sfs);
-    ok(@sfs == 1);
+    ok scalar(@sfs), 1;
     my @exons = grep {$_->primary_tag eq 'exon'} $seq->get_all_SeqFeatures;
-    ok(@exons == 10);    # total number of exons per splice
+    ok scalar(@exons), 10;    # total number of exons per splice
     my %numberh = map {$_->get_tag_values("number") => 1} @exons;
     my @numbers = keys %numberh;
     printf "DISTINCT EXONS: %d [@numbers]\n", scalar(@numbers);
-    ok(@numbers == 6);  # distinct exons
+    ok scalar(@numbers), 6;  # distinct exons
 }
 
 if (1) {
@@ -114,12 +114,12 @@ if (1) {
     @sfs = $seq->get_SeqFeatures;
     write_hier(@sfs);
     printf "PROCESSED/TOP:%d\n", scalar(@sfs);
-    ok(@sfs == 2);
+    ok scalar(@sfs), 2;
     my @exons = grep {$_->primary_tag eq 'exon'} $seq->get_all_SeqFeatures;
-    ok(@exons == 6);    # total number of exons per splice
+    ok scalar(@exons), 6;    # total number of exons per splice
 
     printf "PROBLEMS ENCOUNTERED: %d (EXPECTED: 6)\n", scalar(@probs);
-    ok(@probs == 6);
+    ok scalar(@probs), 6;
 }
 
 
