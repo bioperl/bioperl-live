@@ -100,7 +100,8 @@ sub new {
   $self->{'_statistics'} = {};
   $self->{'_parameters'} = {};
 
-  my ($qname,$qacc,$qdesc,$qlen,$dbname,$dblet,$dbent,$params,   
+  my ($qname,$qacc,$qdesc,$qlen,
+      $dbname,$dblet,$dbent,$params,   
       $stats, $hits, $algo, $algo_v) = $self->_rearrange([qw(QUERY_NAME
 							     QUERY_ACCESSION
 							     QUERY_DESCRIPTION
@@ -340,7 +341,7 @@ sub database_letters {
     my $previous = $self->{'_dbletters'};
     if( defined $value || ! defined $previous ) {
 	$value = $previous = '' unless defined $value;
-	$self->{'_dbname'} = $value;
+	$self->{'_dbletters'} = $value;
     } 
     return $previous;
 }
