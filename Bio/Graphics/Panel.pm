@@ -3,10 +3,10 @@ package Bio::Graphics::Panel;
 use strict;
 use Bio::Graphics::Glyph::Factory;
 use Bio::Graphics::Feature;
-use GD;;
+#use GD::SVG;
 
-
-use constant KEYLABELFONT => gdMediumBoldFont;
+# KEYLABELFONT must be treated as string until image_class is established
+use constant KEYLABELFONT => 'gdMediumBoldFont';
 use constant KEYSPACING   => 5; # extra space between key columns
 use constant KEYPADTOP    => 5;  # extra padding before the key starts
 use constant KEYCOLOR     => 'wheat';
@@ -40,8 +40,10 @@ sub new {
   my $flip         = $options{-flip}       || 0;
   my $empty_track_style   = $options{-empty_tracks} || 'key';
   my $truecolor    = $options{-truecolor}  || 0;
+  my $image_class  = $options{-image_class} || 'GD';
+  $image_class = ($image_class eq 'GD') ? $image_class : "GD::$image_class";
   $options{-stop}||= $options{-end};  # damn damn damn
-
+  
   if (my $seg = $options{-segment}) {
     $offset = eval {$seg->start-1} || 0;
     $length = $seg->length;
@@ -73,7 +75,8 @@ sub new {
 		all_callbacks => $allcallbacks,
 		truecolor     => $truecolor,
 		flip          => $flip,
-		empty_track_style    => $empty_track_style,
+		empty_track_style  => $empty_track_style,
+		image_class => $image_class,
 	       },$class;
 }
 
@@ -336,6 +339,7 @@ sub _add_track {
   return $track;
 }
 
+
 sub height {
   my $self = shift;
   my $spacing           = $self->spacing;
@@ -370,13 +374,28 @@ sub gd {
 
   return $self->{gd} if $self->{gd};
 
+  my $image_class = $self->_image_class;
+  unless ($existing_gd) {
+    # Encapsulating this eval within a BEGIN block
+    # adds nothing since $image_class is undefined at compile time.
+    # gd exported functions should all use ();
+    # BEGIN {
+    eval "use $image_class";
+    # }
+
+    # Image class, established, let's set up the keyfont...
+    my $keyfont = $self->{key_font};
+    my $font_obj = $image_class->$keyfont;
+    $self->{key_font} = $font_obj;
+  }
+
   my $width  = $self->width;
   my $height = $self->height;
-
-  my $gd = $existing_gd || GD::Image->new($width,$height,
-					  ($self->{truecolor} && GD::Image->can('isTrueColor') ? 1 : ())
-					 );
-
+  my $pkg = $self->_image_package;
+  my $gd  = $existing_gd || $pkg->new($width,$height,
+				      ($self->{truecolor} && $pkg->can('isTrueColor') ? 1 : ())
+				     );
+  
   my %translation_table;
   for my $name ('white','black',keys %COLORS) {
     my $idx = $gd->colorAllocate(@{$COLORS{$name}});
@@ -446,8 +465,14 @@ sub gd {
 
 
   $self->draw_bottom_key($gd,$pl,$offset) if $self->{key_style} eq 'bottom';
-
   return $self->{gd} = $gd;
+}
+
+sub _image_class   { return shift->{image_class}; }
+# GD (and GD::SVG)'s new() resides in GD::Image
+sub _image_package {
+  my $self = shift;
+  return ($self->{image_class} . '::Image');
 }
 
 sub boxes {
@@ -623,8 +648,9 @@ sub draw_empty {
   my $right = $self->width-$self->pad_right;
   my $color = $self->translate_color(MISSING_TRACK_COLOR);
   if ($style eq 'dashed') {
-    $gd->setStyle($color,$color,gdTransparent,gdTransparent);
-    $gd->line($left,$offset,$right,$offset,gdStyled);
+    my $img_class = $self->_image_package;
+    $gd->setStyle($color,$color,gdTransparent(),gdTransparent());
+    $gd->line($left,$offset,$right,$offset,gdStyled());
   } else {
     $gd->line($left,$offset,$right,$offset,$color);
   }
@@ -662,8 +688,9 @@ sub ticks {
   my $self = shift;
   my ($length,$minwidth) = @_;
 
+  my $img = $self->_image_class;
   $length   = $self->{length}       unless defined $length;
-  $minwidth = gdSmallFont->width*7  unless defined $minwidth;
+  $minwidth = $img->gdSmallFont->width*7  unless defined $minwidth;
 
   my ($major,$minor);
 
@@ -738,14 +765,16 @@ sub set_pen {
   my $self = shift;
   my ($linewidth,$color) = @_;
   return $self->{pens}{$linewidth,$color} if $self->{pens}{$linewidth,$color};
-
-  my $pen = $self->{pens}{$linewidth} = GD::Image->new($linewidth,$linewidth);
+  my $gd = $self->{gd};
+  my $pkg = $self->_image_package;
+  my $pen = $self->{pens}{$linewidth} = $pkg->new($linewidth,$linewidth);
   my @rgb = $self->rgb($color);
   my $bg = $pen->colorAllocate(255,255,255);
   my $fg = $pen->colorAllocate(@rgb);
   $pen->fill(0,0,$fg);
-  $self->{gd}->setBrush($pen);
-  return gdBrushed;
+  #  $self->{gd}->setBrush($pen);
+  $gd->setBrush($pen);
+  return gdBrushed();
 }
 
 sub png {
@@ -1068,7 +1097,8 @@ You can add a key to the generated image using either of two key
 styles.  One style places the key captions at the top of each track.
 The other style generates a graphical key at the bottom of the image.
 
-Note that this modules depends on GD.
+Note that this modules depends on GD. The optional SVG output depends
+on SVG.
 
 =head1 METHODS
 
@@ -1183,6 +1213,10 @@ a set of tag/value pairs as follows:
 
   -gridcolor   Color of the grid                     lightcyan
 
+  -image_class To create output in scalable vector
+               graphics (SVG), optionally pass the image
+               class parameter 'SVG'. Defaults to
+               using vanilla GD.
 
 Typically you will pass new() an object that implements the
 Bio::RangeI interface, providing a length() method, from which the
@@ -1202,6 +1236,11 @@ is to iterate over the possible track labels, find the largest one,
 and then to compute its width using the formula:
 
   $width = gdMediumBoldFont->width * length($longest_key) +3;
+
+In order to obtain scalable vector graphics (SVG) output, you should
+pass new() the -image_class=>'SVG' parameter. This will cause
+Bio::Graphics::Panel to load the optional GD::SVG module. See the gd()
+and svg() methods below for additional information.
 
 =back
 
@@ -1423,10 +1462,22 @@ wish to draw on top of.  If you do so, you should call the width() and
 height() methods first to ensure that the image has sufficient
 dimensions.
 
+If you passed new() the -image_class=>'SVG' parameter, the gd() method
+returns a GD::SVG::Image object. This object overrides GD::Image
+methods in order to generate SVG output. It behaves exactly as
+described for GD::Image objects with one exception: it implements and
+svg() method instead of the png() or jpeg() methods. Currently there
+is no direct access to underlying SVG calls but this is subject to
+change in the future.
+
 =item $png = $panel-E<gt>png
 
 The png() method returns the image as a PNG-format drawing, without
 the intermediate step of returning a GD::Image object.
+
+=item $svg = $panel-E<gt>svg
+
+The svg() method returns the image in an XML-ified SVG format.
 
 =item $boxes = $panel-E<gt>boxes
 
@@ -1835,6 +1886,7 @@ L<Bio::SeqI>,
 L<Bio::SeqFeatureI>,
 L<Bio::Das>,
 L<GD>
+L<GD::SVG>
 
 =head1 AUTHOR
 
