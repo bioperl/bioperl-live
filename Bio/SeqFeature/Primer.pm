@@ -108,19 +108,18 @@ sub new {
                else {
                     $self->{seq} = new Bio::Seq( -seq => %arguments->{$argument},
                                                   -id => %arguments->{-id});
-                    # print("Created new bioseq with seq ".%arguments->{$argument}." and name ".%arguments->{-id}."\n");
                }
-               push @{$self->{arguments}},$argument;
+               $self->{tags}->{$argument} = "A Bio::Seq. Use seq() to get this 'tag'";
           }
           else {
                (my $fixed = $argument) =~ s/-//;
-               $self->{$fixed} = %arguments->{$argument};
-               push @{$self->{arguments}},$fixed;
+               $self->{tags}->{$fixed} = %arguments->{$argument};
           }
      }
      if (!$self->{seq}) {
           $self->throw("You must pass in a sequence to construct this object.");
      }
+     
                # a bunch of things now need to be set for this SeqFeature
                # things like:
                     # TARGET=513,26
@@ -236,10 +235,11 @@ sub each_tag_value {
 
  Title   : location()
  Usage   : $tag = $feature->location();
- Function: Returns a location object suitable for identifying location of
+ Function: returns a location object suitable for identifying location of
      feature on sequence or parent feature  
- Returns : A Bio::LocationI object.
- Args    : None.
+ Returns : a bio::locationi object.
+ Args    : none.
+Developer Notes: Chad has no idea how to implement this at this time.
 
 =cut
 
@@ -248,43 +248,151 @@ sub location {
      $self->warn("Chad has not written the code for this yet.");
 }
 
+=head2 start()
 
+ Title   : start()
+ Usage   : $start_position = $feature->start($new_position);
+ Function: Return the start position of this Primer.
+ Returns : The start position of this Primer.
+ Args    : If an argument is provided, the start position of this
+     Primer is set to that position.
+
+=cut
 
 sub start {
+     my ($self,$new_position) = @_;
+     if ($new_position) { $self->{start_position} = $new_position; }
+     return $self->{start_position};
 }
+
+=head2 end()
+
+ Title   : end()
+ Usage   : $end_position = $feature->end($new_position);
+ Function: Return the end position of this Primer.
+ Returns : The end position of this Primer.
+ Args    : If an argument is provided, the end position of this
+     Primer is set to that position.
+
+=cut
 
 sub end {
+     my ($self,$new_position) = @_;
+     if ($new_position) { $self->{end_position} = $new_position; }
+     return $self->{end_position};
 }
+
+=head2 strand()
+
+ Title   : strand()
+ Usage   : 
+ Function: 
+ Returns : 
+ Args    : 
+Developer Notes: Chad has no idea how to implement this at this time.
+
+=cut
 
 sub strand {
+     my $self = shift;
+     $self->warn("Chad has not implemented this method at this time.");
 }
+
+=head2 display_id()
+
+ Title   : display_id()
+ Usage   : $id = $feature->display_id($new_id)
+ Function: Returns the display ID for this Primer feature
+ Returns : A scalar.
+ Args    : If an argument is provided, the display_id of this Primer is
+     set to that value.
+
+=cut
 
 sub display_id {
-
+     my ($self,$newid) = @_;
+     if ($newid) { $self->seq()->display_id($newid); }
+     return $self->seq()->display_id();
 }
 
+=head2 overlaps()
 
+ Title   : overlaps()
+ Usage   : 
+ Function: 
+ Returns : 
+ Args    : 
+Developer Notes: Chad has no idea how to implement this at this time.
+
+=cut
 
 sub overlaps {
-
+     my $self = shift;
+     $self->warn("Chad has not implemented this method at this time.");
 }
+
+=head2 contains()
+
+ Title   : contains()
+ Usage   : 
+ Function: 
+ Returns : 
+ Args    : 
+Developer Notes: Chad has no idea how to implement this at this time.
+
+=cut
 
 sub contains {
+     my $self = shift;
+     $self->warn("Chad has not implemented this method at this time.");
 }
+
+=head2 equals()
+
+ Title   : equals()
+ Usage   : 
+ Function: 
+ Returns : 
+ Args    : 
+Developer Notes: Chad has no idea how to implement this at this time.
+
+=cut
 
 sub equals {
-
+     my $self = shift;
+     $self->warn("Chad has not implemented this method at this time.");
 }
+
+=head2 intersection()
+
+ Title   : intersection()
+ Usage   : 
+ Function: 
+ Returns : 
+ Args    : 
+Developer Notes: Chad has no idea how to implement this at this time.
+
+=cut
 
 sub intersection {
-
+     my $self = shift;
+     $self->warn("Chad has not implemented this method at this time.");
 }
+
+=head2 union()
+
+ Title   : union()
+ Usage   : 
+ Function: 
+ Returns : 
+ Args    : 
+Developer Notes: Chad has no idea how to implement this at this time.
+
+=cut
 
 sub union {
-
+     my $self = shift;
+     $self->warn("Chad has not implemented this method at this time.");
 }
-
-
-
 
 1;
