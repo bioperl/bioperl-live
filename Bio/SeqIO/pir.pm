@@ -92,7 +92,7 @@ sub next_seq{
    chomp($desc = $self->_readline);
    local $/ = "";
    my $junk = $self->_readline;  # throw away everything to first empty line
-   my $seq = $self->_readline;   # everything else is the sequence
+   $seq = $self->_readline;   # everything else is the sequence
    $seq =~ s/\s+//g;
    $seq = Bio::Seq->new(-seq => $seq,
 			-id => $name,
@@ -119,8 +119,6 @@ sub write_seq {
      $str =~ s/(.{10})/$1 /g;
      $str =~ s/(.{66})/$1\n/g;
      return unless $self->_print(">P1;", $seq->id(), 
-				 (%{$seq->names()}->{'sfnum'} ? " |" . 
-				  join(' ', @{%{$seq->names()}->{'sfnum'}}) : '' ), 
 				 "\n", $seq->desc(), "\n", 
 				 ">P1;", $seq->id(),"\n", 
 				 "\n",$str, "\n");
