@@ -111,10 +111,7 @@ use Bio::Root::RootI;
 =cut
 
 sub identifier {
-    my ( $self ) = @_;
-    
-    $self->throw_not_implemented();
-
+    shift->throw_not_implemented();
 } # identifier
 
 
@@ -133,10 +130,7 @@ sub identifier {
 =cut
 
 sub name {
-    my ( $self ) = @_;
-    
-    $self->throw_not_implemented();
-
+    shift->throw_not_implemented();
 } # name
 
 
@@ -156,10 +150,7 @@ sub name {
 =cut
 
 sub definition {
-    my ( $self ) = @_;
-    
-    $self->throw_not_implemented();
-
+    shift->throw_not_implemented();
 } # definition
 
 
@@ -189,10 +180,7 @@ sub definition {
 =cut
 
 sub ontology {
-    my ( $self ) = @_;
-    
-    $self->throw_not_implemented();
-    
+    shift->throw_not_implemented();
 } # ontology
 
 
@@ -210,10 +198,7 @@ sub ontology {
 =cut
 
 sub version {
-    my ( $self ) = @_;
-    
-    $self->throw_not_implemented();
-    
+    shift->throw_not_implemented();
 } # version
 
 
@@ -232,10 +217,7 @@ sub version {
 =cut
 
 sub is_obsolete {
-    my ( $self ) = @_;
-    
-    $self->throw_not_implemented();
-    
+    shift->throw_not_implemented();
 } # is_obsolete
 
 
@@ -253,10 +235,7 @@ sub is_obsolete {
 =cut
 
 sub comment {
-    my ( $self ) = @_;
-    
-    $self->throw_not_implemented();
-    
+    shift->throw_not_implemented();
 } # comment
 
 
@@ -279,10 +258,7 @@ sub comment {
 =cut
 
 sub get_synonyms {
-    my ( $self ) = @_;
-    
-    $self->throw_not_implemented();
-
+    shift->throw_not_implemented();
 } # get_synonyms
 
 =head2 get_dblinks

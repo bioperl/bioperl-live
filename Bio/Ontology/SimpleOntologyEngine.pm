@@ -561,7 +561,11 @@ sub _is_rel_type{
   my ($self, $term, @rel_types) = @_;
 
   foreach my $rel_type (@rel_types) {
-    return 1 if $rel_type->identifier eq $term->identifier;
+      if($rel_type->identifier || $term->identifier) {
+	  return 1 if $rel_type->identifier eq $term->identifier;
+      } else {
+	  return 1 if $rel_type->name eq $term->name;
+      }
   }
 
   return 0;
@@ -591,7 +595,9 @@ sub _typed_traversal{
     @ans = ();
 
     foreach my $child_id (@children) {
-      push @ans, $child_id if $self->_is_rel_type( $rel_store->{$term_id}->{$child_id}, @rel_types);
+      push @ans, $child_id
+	  if $self->_is_rel_type( $rel_store->{$term_id}->{$child_id},
+				  @rel_types);
     }
   }
   else {
@@ -601,7 +607,8 @@ sub _typed_traversal{
     my @ans1 = ();
 
     foreach my $child_id (@ans) {
-      push @ans1, $self->_typed_traversal($rel_store, $level - 1, $child_id, @rel_types)
+      push @ans1, $self->_typed_traversal($rel_store,
+					  $level - 1, $child_id, @rel_types)
 	if defined $rel_store->{$child_id};
     }
     push @ans, @ans1;
@@ -615,7 +622,12 @@ sub _typed_traversal{
  Title   : get_child_terms
  Usage   : get_child_terms(TermI term, TermI[] predicate_terms): TermI[]
   get_child_terms(TermI term, RelationshipType[] predicate_terms): TermI[]
- Function: Retrieves all child terms of a given term, that satisfy a relationship among those that are specified in the second argument or undef otherwise. get_child_terms is a special case of get_descendant_terms, limiting the search to the direct descendants.
+ Function: Retrieves all child terms of a given term, that satisfy a
+           relationship among those that are specified in the second
+           argument or undef otherwise. get_child_terms is a special
+           case of get_descendant_terms, limiting the search to the
+           direct descendants.
+
  Example :
  Returns : Array of TermI objects.
  Args    : First argument is the term of interest, second is the list of relationship type terms.
@@ -624,10 +636,17 @@ sub _typed_traversal{
 =cut
 
 sub get_child_terms{
-  my ($self, $term, @relationship_types) = @_;
+    my ($self, $term, @relationship_types) = @_;
 
-  die if !defined $term;
-  return $self->_filter_unmarked( $self->get_term_by_identifier( $self->_typed_traversal($self->_relationship_store, 1, $term->identifier, @relationship_types) ) );
+    $self->throw("must provide TermI compliant object") 
+	unless defined($term) && $term->isa("Bio::Ontology::TermI");
+
+    return $self->_filter_unmarked(
+               $self->get_term_by_identifier(
+		   $self->_typed_traversal($self->_relationship_store,
+					   1,
+					   $term->identifier,
+					   @relationship_types) ) );
 }
 
 =head2 get_descendant_terms
@@ -635,7 +654,11 @@ sub get_child_terms{
  Title   : get_descendant_terms
  Usage   : get_descendant_terms(TermI term, TermI[] rel_types): TermI[]
   get_child_terms(TermI term, RelationshipType[] predicate_terms): TermI[]
- Function: Retrieves all descendant terms of a given term, that satisfy a relationship among those that are specified in the second argument or undef otherwise. Uses _typed_traversal to find all descendants.
+ Function: Retrieves all descendant terms of a given term, that
+           satisfy a relationship among those that are specified in
+           the second argument or undef otherwise. Uses
+           _typed_traversal to find all descendants.
+
  Example :
  Returns : Array of TermI objects.
  Args    : First argument is the term of interest, second is the list of relationship type terms.
@@ -646,9 +669,16 @@ sub get_child_terms{
 sub get_descendant_terms{
   my ($self, $term, @relationship_types) = @_;
 
-  $self->throw("must provide TermI compliant object") unless defined $term;
+  $self->throw("must provide TermI compliant object") 
+      unless defined($term) && $term->isa("Bio::Ontology::TermI");
 
-  return $self->_filter_unmarked( $self->_filter_repeated( $self->get_term_by_identifier( $self->_typed_traversal($self->_relationship_store, 0, $term->identifier, @relationship_types) ) ) );
+  return $self->_filter_unmarked(
+	     $self->_filter_repeated(
+	         $self->get_term_by_identifier(
+		     $self->_typed_traversal($self->_relationship_store,
+					     0,
+					     $term->identifier,
+					     @relationship_types) ) ) );
 }
 
 =head2 get_parent_terms
@@ -681,10 +711,15 @@ sub get_parent_terms{
  Title   : get_ancestor_terms
  Usage   : get_ancestor_terms(TermI term, TermI[] predicate_terms): TermI[]
   get_child_terms(TermI term, RelationshipType[] predicate_terms): TermI[]
- Function: Retrieves all ancestor terms of a given term, that satisfy a relationship among those that are specified in the second argument or undef otherwise. Uses _typed_traversal to find all ancestors.
+ Function: Retrieves all ancestor terms of a given term, that satisfy
+           a relationship among those that are specified in the second
+           argument or undef otherwise. Uses _typed_traversal to find
+           all ancestors.
+
  Example :
  Returns : Array of TermI objects.
- Args    : First argument is the term of interest, second is the list of relationship type terms.
+ Args    : First argument is the term of interest, second is the list
+           of relationship type terms.
 
 
 =cut
@@ -946,7 +981,7 @@ sub to_string{
   my $s = "";
 
   $s .= "-- # Terms:\n";
-  $s .= (scalar $self->get_all_terms)."\n";
+  $s .= scalar($self->get_all_terms)."\n";
   $s .= "-- # Relationships:\n";
   $s .= $self->_get_number_rels."\n";
 

@@ -38,27 +38,27 @@ ok( $IS_A->equals( $IS_A2 ) );
 ok( $PART_OF->equals( $PART_OF ) );
 
 
-ok( $IS_A->identifier(), "IS_A" );
+ok( $IS_A->identifier(), undef ); # don't make up identifiers
 ok( $IS_A->name(), "IS_A" );
-ok( $IS_A->definition(), "IS_A relationship type" );
+ok( $IS_A->definition(), "IS_A relationship predicate (type)" );
 ok( $IS_A->ontology()->name(), "relationship type" );
 
 
-ok( $PART_OF->identifier(), "PART_OF" );
+ok( $PART_OF->identifier(), undef ); # don't make up identifiers
 ok( $PART_OF->name(), "PART_OF" );
-ok( $PART_OF->definition(), "PART_OF relationship type" );
+ok( $PART_OF->definition(), "PART_OF relationship predicate (type)" );
 ok( $PART_OF->ontology()->name(), "relationship type" );
 
 
-ok( $CONTAINS->identifier(), "CONTAINS" );
+ok( $CONTAINS->identifier(), undef ); # don't make up identifiers
 ok( $CONTAINS->name(), "CONTAINS" );
-ok( $CONTAINS->definition(), "CONTAINS relationship type" );
+ok( $CONTAINS->definition(), "CONTAINS relationship predicate (type)" );
 ok( $CONTAINS->ontology()->name(), "relationship type" );
 
 
-ok( $FOUND_IN->identifier(), "FOUND_IN" );
+ok( $FOUND_IN->identifier(), undef ); # don't make up identifiers
 ok( $FOUND_IN->name(), "FOUND_IN" );
-ok( $FOUND_IN->definition(), "FOUND_IN relationship type" );
+ok( $FOUND_IN->definition(), "FOUND_IN relationship predicate (type)" );
 ok( $FOUND_IN->ontology()->name(), "relationship type" );
 
 

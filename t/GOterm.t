@@ -15,7 +15,7 @@ BEGIN {
         use lib 't';
     }
     use Test;
-    plan tests => 66;
+    plan tests => 59;
 }
 
 use Bio::Ontology::GOterm;
@@ -36,8 +36,8 @@ ok( $obj->GO_id(), "GO:0003947" );
 
 ok( $obj->get_dblinks(), 0 );
 
-ok( $obj->add_dblink( ( "dAA", "dAB" ) ) );
-ok( $obj->get_dblinks(), 2 );
+$obj->add_dblink( ( "dAA", "dAB" ) );
+ok( scalar($obj->get_dblinks()), 2 );
 my @df1 = $obj->get_dblinks();
 ok( $df1[ 0 ], "dAA" );
 ok( $df1[ 1 ], "dAB" );
@@ -53,8 +53,8 @@ ok( $obj->remove_dblinks(), 0 );
 
 ok( $obj->get_secondary_GO_ids(), 0 );
 
-ok( $obj->add_secondary_GO_id( ( "GO:0000000", "GO:1234567" ) ) );
-ok( $obj->get_secondary_GO_ids(), 2 );
+$obj->add_secondary_GO_id( ( "GO:0000000", "GO:1234567" ) );
+ok( scalar($obj->get_secondary_GO_ids()), 2 );
 my @si1 = $obj->get_secondary_GO_ids();
 ok( $si1[ 0 ], "GO:0000000" );
 ok( $si1[ 1 ], "GO:1234567" );
@@ -98,12 +98,11 @@ ok( $obj->comment(), "Consider the term ..." );
 
 ok( $obj->get_synonyms(), 0 );
 
-ok( $obj->add_synonym( ( "AA", "AB" ) ) );
-ok( $obj->get_synonyms(), 2 );
+$obj->add_synonym( ( "AA", "AB" ) );
 my @al1 = $obj->get_synonyms();
+ok( scalar(@al1), 2 );
 ok( $al1[ 0 ], "AA" );
 ok( $al1[ 1 ], "AB" );
-ok( $obj->get_synonyms(), 2 );
 
 my @al2 = $obj->remove_synonyms();
 ok( $al2[ 0 ], "AA" );
@@ -114,12 +113,12 @@ ok( $obj->remove_synonyms(), 0 );
 
 
 
-ok( $obj->add_synonym( ( "AA", "AB" ) ) );
-ok( $obj->add_dblink( ( "dAA", "dAB" ) ) );
-ok( $obj->add_secondary_GO_id( ( "GO:1234567", "GO:1234567" ) ) );
+$obj->add_synonym( ( "AA", "AB" ) );
+$obj->add_dblink( ( "dAA", "dAB" ) );
+$obj->add_secondary_GO_id( ( "GO:1234567", "GO:1234567" ) );
 
 $obj->init();
-ok( $obj->identifier(), "GO:0000000" );
+ok( $obj->identifier(), undef ); # don't make up identifiers
 ok( $obj->name(), undef );
 ok( $obj->definition(), undef );
 ok( $obj->is_obsolete(), 0 );

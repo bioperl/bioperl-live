@@ -45,7 +45,7 @@ goflat - a parser for the Gene Ontology flat-file format
 
 Needs Graph.pm from CPAN.
 
-This is essentially a very thin derivation of the dagflat base-parser.
+This is essentially a very thin derivation of the dagflat parser.
 
 =head1 FEEDBACK
 
@@ -135,9 +135,9 @@ use constant FALSE        => 0;
                           parser will auto-discover it by using the term
                           that starts with a '$', and converting underscores
                           to spaces
-           -engine     => the L<Bio::Ontology::OntologyEngineI> object
+           -engine     => the Bio::Ontology::OntologyEngineI object
                           to be reused (will be created otherwise); note
-                          that every L<Bio::Ontology::OntologyI> will
+                          that every Bio::Ontology::OntologyI will
                           qualify as well since that one inherits from the
                           former.
 

@@ -26,9 +26,9 @@ SimpleGOEngine - a Ontology Engine for GO implementing OntologyEngineI
 
 =head1 SYNOPSIS
 
-  use Bio::Ontology::simpleGOparser;
+  use Bio::Ontology::SimpleGOEngine;
 
-  my $parser = Bio::Ontology::simpleGOparser->new
+  my $parser = Bio::Ontology::SimpleGOEngine->new
 	( -defs_file => "/home/czmasek/GO/GO.defs",
 	  -files     => ["/home/czmasek/GO/component.ontology",
 	                 "/home/czmasek/GO/function.ontology",
@@ -214,7 +214,8 @@ sub part_of_relationship {
  Title   : add_term
  Usage   : $engine->add_term( $term_obj );
  Function: Adds a Bio::Ontology::TermI to this engine
- Returns : true
+ Returns : true if the term was added and false otherwise (e.g., if the
+           term already existed in the ontology engine)
  Args    : Bio::Ontology::TermI
 
 
@@ -223,7 +224,7 @@ sub part_of_relationship {
 sub add_term {
     my ( $self, $term ) = @_;
 
-    return TRUE if $self->has_term( $term );
+    return FALSE if $self->has_term( $term );
 
     my $goid = $self->_get_id($term);
 
@@ -251,9 +252,7 @@ sub add_term {
 
 sub has_term {
     my ( $self, $term ) = @_;
-
     $term = $self->_get_id( $term );
-
     if ( $self->graph()->has_vertex( $term ) ) {
         return TRUE;
     }
@@ -296,26 +295,22 @@ sub add_relationship {
 
     $self->_check_class( $type, "Bio::Ontology::TermI" );
 
-    $parent = $self->_get_id( $parent );
-    $child = $self->_get_id( $child );
+    my $parentid = $self->_get_id( $parent );
+    my $childid = $self->_get_id( $child );
 
     my $g = $self->graph();
 
-    if ( ! $g->has_vertex( $child ) ) {
-        $self->throw( "Ontology does not contain a term with an identifier of \"$child\"" );
-    }
-    if ( ! $g->has_vertex( $parent ) ) {
-        $self->throw( "Ontology does not contain a term with an identifier of \"$parent\"" );
-    }
+    $self->add_term($child) unless $g->has_vertex( $childid );
+    $self->add_term($parent) unless $g->has_vertex( $parentid );
 
     # This prevents multi graphs.
-    if ( $g->has_edge( $parent, $child ) ) {
+    if ( $g->has_edge( $parentid, $childid ) ) {
         return FALSE;
     }
 
-    $g->add_edge( $parent, $child );
-    $g->set_attribute( TYPE, $parent, $child, $type );
-    $g->set_attribute( ONTOLOGY, $parent, $child, $ont );
+    $g->add_edge( $parentid, $childid );
+    $g->set_attribute( TYPE, $parentid, $childid, $type );
+    $g->set_attribute( ONTOLOGY, $parentid, $childid, $ont );
 
     return TRUE;
 
@@ -341,48 +336,36 @@ sub add_relationship {
 sub get_relationships {
     my ( $self, $term ) = @_;
 
-    # branch off right away if someone's asking for everything
-    return $self->get_all_relationships() unless $term;
-
     my $g = $self->graph();
 
-    $term = $self->_get_id( $term );
-
-    if ( ! $g->has_vertex( $term ) ) {
-        $self->throw( "Ontology does not contain a term with an identifier of \"$term\"" );
+    # obtain the ID if term provided
+    my $termid;
+    if($term) {
+	$termid = $self->_get_id( $term );
+	# check for presence in the graph
+	if ( ! $g->has_vertex( $termid ) ) {
+	    $self->throw( "no term with identifier \"$termid\" in ontology" );
+	}
     }
 
-    my @childs  = $self->get_child_terms( $term );
-    my @parents = $self->get_parent_terms( $term );
-
+    # now build the relationships
     my $relfact = $self->relationship_factory();
+    # we'll build the relationships from edges
     my @rels = ();
-
-    foreach my $child ( @childs ) {
-        my $rel = $relfact->create_object(
-                    -object_term    => $self->get_terms( $term ),
-                    -subject_term   => $child,
-                    -predicate_term => $g->get_attribute(TYPE, $term,
-						  $child->identifier()),
-	            -ontology       => $g->get_attribute(ONTOLOGY, $term,
-					          $child->identifier())
-							     );
+    my @edges = $g->edges($termid);
+    while(@edges) {
+	my $startid = shift(@edges);
+	my $endid = shift(@edges);
+	my $rel = $relfact->create_object(
+		    -subject_term   => $self->get_terms($endid),
+                    -object_term    => $self->get_terms($startid),
+                    -predicate_term => $g->get_attribute(TYPE, 
+							 $startid, $endid),
+	            -ontology       => $g->get_attribute(ONTOLOGY, 
+							 $startid, $endid));
         push( @rels, $rel );
     }
-    foreach my $parent ( @parents ) {
-        my $rel = $relfact->create_object(
-                    -object_term    => $parent,
-                    -subject_term   => $self->get_terms( $term ),
-                    -predicate_term => $g->get_attribute(TYPE,
-							 $parent->identifier(),
-							 $term),
-                    -ontology       => $g->get_attribute(ONTOLOGY,
-							 $parent->identifier(),
-							 $term)
-							     );
-        push( @rels, $rel );
-    }
-
+    
     return @rels;
 
 } # get_relationships
@@ -399,41 +382,8 @@ sub get_relationships {
 =cut
 
 sub get_all_relationships {
-    my $self = shift;
-    my $term = shift;
-    my $g = $self->graph();
-
-    # we'll traverse the graph in breadth-first order and accumulate the
-    # relationships from a node to each one's children 
-    my $relfact = $self->relationship_factory();
-    my @rels = ();
-    my @terms = $self->get_root_terms();
-    # @terms is the stack to be processed: loop while something is on the
-    # stack
-    while(@terms) {
-	# do one at a time
-	my $term = shift(@terms); # we're using it as a queue actually
-	# grab its children
-	my @children = $self->get_child_terms($term);
-	# and establish a relationship for each parent-child pair
-	foreach my $child (@children) {
-	    my $rel = $relfact->create_object(
-                          -object_term => $term,
-                          -subject_term  => $child,
-			  -predicate_term => $g->get_attribute(TYPE,
-						         $term->identifier(),
-						         $child->identifier()),
-			  -ontology       =>  $g->get_attribute( ONTOLOGY,
-					                 $term->identifier(),
-							 $child->identifier())
-								 );
-	    push( @rels, $rel );
-	}
-	# now push the children onto the stack as we have to process them too
-	push(@terms, @children);
-    }
-    return @rels;
-} # get_relationships
+    return shift->get_relationships(@_);
+} # get_all_relationships
 
 
 
@@ -797,15 +747,15 @@ sub graph {
 
 
 # Checks the correct format of a GOBO-formatted id
-# Gets the id out of a term of id string
+# Gets the id out of a term or id string
 sub _get_id {
     my ( $self, $term ) = @_;
 
     if(ref($term)) {
 	return $term->GO_id() if $term->isa("Bio::Ontology::GOterm");
 	# if not a GOterm, use standard API
-	$self->throw("object must implement Bio::Ontology::TermI ".
-		     "but it doesn't")
+	$self->throw("Object doesn't implement Bio::Ontology::TermI. ".
+		     "Bummer.")
 	    unless $term->isa("Bio::Ontology::TermI");
 	$term = $term->identifier();
     }
@@ -817,7 +767,9 @@ sub _get_id {
 		    "prefixing with 'GO:'");
 	return "GO:" . $term;
     }
-    $self->warn(ref($self).": Are you sure '$term' is a valid identifier? ".
+    # we shouldn't have gotten here if it's at least a remotely decent ID
+    $self->warn(ref($self).
+		": Are you sure '$term' is a valid identifier? ".
 		"If you see problems, this may be the cause.");
     return $term;
 } # _get_id

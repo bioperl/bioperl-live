@@ -119,8 +119,7 @@ my %term_name_map = ();
 sub get_instance {
     my ( $class, $name, $ont ) = @_;
 
-    $class->throw("must provide name, not ".(defined($name)? "\"\"":"undef"))
-	unless $name;
+    $class->throw("must provide predicate name") unless $name;
 
     # is one in the cache?
     my $reltype = $term_name_map{$name};
@@ -175,7 +174,8 @@ sub init {
  Title   : equals
  Usage   : if ( $type->equals( $other_type ) ) { ...
  Function: Compares this type to another one, based on string "eq" of
-           the "identifier" field
+           the "identifier" field, if at least one of the two types has
+           the identifier set, or string eq of the name otherwise.
  Returns : true or false
  Args    : [Bio::Ontology::RelationshipType]
 
@@ -186,12 +186,16 @@ sub equals {
 
     $self->_check_class( $type, "Bio::Ontology::RelationshipType" );
 
-    unless ( $self->identifier() && $type->identifier() ) {
-        $self->throw( "Cannot compare RelationshipType with a undef identifier" );
+    if ( $self->identifier() xor $type->identifier() ) {
+        $self->warn("comparing relationship types when only ".
+		    "one has an identifier will always return false" );
     }
 
-    return( $self->identifier() eq $type->identifier() );
-
+    return
+ 	($self->identifier() || $type->identifier()) ?
+	$self->identifier() eq $type->identifier() :
+	$self->name() eq $type->name();
+	
 } # equals
 
 
@@ -212,12 +216,11 @@ sub identifier {
     my $self = shift;
     my $ret = $self->SUPER::identifier();
     if(@_) {
-	if ($ret && ($ret ne $_[0])) {
-	    print "old: \"$ret\", new: \"$_[0]\"\n"; $self->throw("attempted to change field in immutable object"); }
+	$self->throw($self->veto_change("identifier",$ret,$_[0]))
+	    if $ret && ($ret ne $_[0]);
 	$ret = $self->SUPER::identifier(@_);
     }
-    # we need to return something here
-    return $ret || $self->name();
+    return $ret;
 } # identifier
 
 
@@ -239,7 +242,7 @@ sub name {
     my $self = shift;
     my $ret = $self->SUPER::name();
     if(@_) {
-	$self->throw("attempted to change field in immutable object")
+	$self->throw($self->veto_change("name",$ret,$_[0]))
 	    if $ret && ($ret ne $_[0]);
 	$ret = $self->SUPER::name(@_);
     }
@@ -266,13 +269,13 @@ sub definition {
     my $self = shift;
     my $ret = $self->SUPER::definition();
     if(@_) {
-	$self->throw("attempted to change field in immutable object")
+	$self->veto_change("definition",$ret,$_[0]) 
 	    if $ret && ($ret ne $_[0]);
 	$ret = $self->SUPER::definition(@_);
     }
     # let's be nice and return something readable here
     return $ret if $ret;
-    return $self->name()." relationship type" if $self->name();
+    return $self->name()." relationship predicate (type)" if $self->name();
 } # definition
 
 
@@ -294,9 +297,12 @@ sub ontology {
     my $ret = $self->SUPER::ontology();
     if(@_) {
 	my $ont = shift;
-	$self->throw("attempted to change field in immutable object")
-	    if $ret && ((!$ont) || (($ont->name() ne $ret->name())));
-	$ret = $self->SUPER::ontology($ont);
+	if($ret) {
+	    $self->throw($self->veto_change("ontology",$ret->name,
+					    $ont ? $ont->name : $ont))
+		unless $ont && ($ont->name() eq $ret->name());
+	}
+	$ret = $self->SUPER::ontology($ont,@_);
     }
     return $ret;
 } # category
@@ -319,7 +325,7 @@ sub version {
     my $self = shift;
     my $ret = $self->SUPER::version();
     if(@_) {
-	$self->throw("attempted to change field in immutable object")
+	$self->throw($self->veto_change("version",$ret,$_[0]))
 	    if $ret && ($ret ne $_[0]);
 	$ret = $self->SUPER::version(@_);
     }
@@ -344,7 +350,7 @@ sub is_obsolete {
     my $self = shift;
     my $ret = $self->SUPER::is_obsolete();
     if(@_) {
-	$self->throw("attempted to change field in immutable object")
+	$self->throw($self->veto_change("is_obsolete",$ret,$_[0]))
 	    if $ret && ($ret != $_[0]);
 	$ret = $self->SUPER::is_obsolete(@_);
     }
@@ -371,14 +377,19 @@ sub comment {
     my $self = shift;
     my $ret = $self->SUPER::comment();
     if(@_) {
-	$self->throw("attempted to change field in immutable object")
+	$self->throw($self->veto_change("comment",$ret,$_[0]))
 	    if $ret && ($ret ne $_[0]);
 	$ret = $self->SUPER::comment(@_);
     }
     return $ret;
 } # comment
 
+=head1
 
+Private methods. May be overridden in a derived class, but should
+never be called from outside.
+
+=cut
 
 sub _check_class {
     my ( $self, $value, $expected_class ) = @_;
@@ -395,5 +406,33 @@ sub _check_class {
 
 } # _check_type
 
+=head2 veto_change
+
+ Title   : veto_change
+ Usage   :
+ Function: Called if an attribute is changed. Setting an attribute is
+           considered a change if it had a value before and the attempt
+           to set it would change the value.
+
+           This method returns the message to be printed in the exception.
+
+ Example :
+ Returns : A string
+ Args    : The name of the attribute that was attempted to change.
+           Optionally, the old value and the new value for reporting
+           purposes only.
+
+
+=cut
+
+sub veto_change{
+    my ($self,$attr,$old,$new) = @_;
+
+    my $changetype = $old ? ($new ? "change" : "unset") : "change";
+    my $msg = "attempt to $changetype attribute $attr in ".ref($self).
+    ", which is immutable";
+    $msg .= " (\"$old\" to \"$new\")" if $old && $new;
+    return $msg;
+}
 
 1;

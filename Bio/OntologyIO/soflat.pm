@@ -114,13 +114,10 @@ use constant FALSE        => 0;
 
  Title   : new
  Usage   : $parser = Bio::OntologyIO->new(
-                             -format => "go",
-                             -defs_file => "/path/to/GO.defs",
-                             -files => ["/path/to/component.ontology",
-                                        "/path/to/function.ontology",
-                                        "/path/to/process.ontology"] );
+                             -format => "soflat",
+                             -files => ["/path/to/sofa.ontology"] );
  Function: Creates a new soflat parser.
- Returns : A new soflat parser object, implementing L<Bio::OntologyIO>.
+ Returns : A new soflat parser object, implementing Bio::OntologyIO.
  Args    : -defs_file  => the name of the file holding the term
                           definitions
            -files      => a single ontology flat file holding the
