@@ -16,7 +16,7 @@
       <surname>Stein</surname>
       <affiliation>
 	<orgname>
-	  <ulink url="http://www.cshl.org">Cold Spring Harbor Laboratory</ulink>
+	  <ulink url="http://www.cshl.org"><citetitle>Cold Spring Harbor Laboratory</citetitle></ulink>
 	</orgname>
 	<address>
 	  <email>lstein-at-cshl.org</email>
@@ -30,7 +30,7 @@
         <para>Bioperl contributor</para>
       </authorblurb>
       <affiliation>
-        <orgname><ulink url="http://www.cognia.com">Cognia Corporation</ulink></orgname>
+        <orgname><ulink url="http://www.cognia.com"><citetitle>Cognia Corporation</citetitle></ulink></orgname>
         <address>
           <email>brian-at-cognia.com</email>
         </address>
@@ -44,7 +44,7 @@
       </authorblurb>
       <affiliation>
         <orgname>
-          <ulink url="http://www.ebi.ac.uk">European Bioinformatics Institute</ulink>
+          <ulink url="http://www.ebi.ac.uk"><citetitle>European Bioinformatics Institute</citetitle></ulink>
         </orgname>
         <address>
           <email>heikki-at-ebi.co.uk</email>
@@ -107,7 +107,7 @@
       the various <classname>Bio::Index</classname> modules.  The main
       reason to use it is if you want to use the BioSequence Registry
       system (see the OBDA Access HOWTO at <ulink
-	url="http://bioperl.org/HOWTOs">http://bioperl.org/HOWTOs</ulink>),
+	url="http://bioperl.org/HOWTOs"><citetitle>http://bioperl.org/HOWTOs</citetitle></ulink>),
       or if you want to share the same indexed files among scripts
       written in other languages, such as those written with BioJava or
       BioPython.
@@ -240,7 +240,7 @@
       "flat."  "bdb" selects an index based on the Berkeley DB library.  
       It is generally the faster of the two, but it requires that the
       Berkeley DB library (from Linux RPM or from <ulink
-      url="http://www.sleepycat.com">www.sleepycat.com</ulink>, 
+      url="http://www.sleepycat.com"><citetitle>www.sleepycat.com</citetitle></ulink>, 
       version 2 or higher) and the Perl BerkeleyDB module be installed 
       on your system. The Perl DB_File module will not work.
     </para>
@@ -443,8 +443,8 @@
     <title>More information</title>
     <para>
       For more information on using your indexed flat files please see the 
-      <ulink url="http://bioperl.org/HOWTOs/OBDA_Access/index.html">
-	OBDA Access HOWTO</ulink>.
+      <ulink url="http://bioperl.org/HOWTOs/OBDA_Access/index.html"><citetitle>
+	OBDA Access HOWTO</citetitle></ulink>.
     </para>
   </section>
 </article>

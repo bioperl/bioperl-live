@@ -15,7 +15,7 @@
       <surname>Mackey</surname>
       <affiliation>
 	<orgname>
-	  <ulink url="http://www.virginia.edu">University of Virginia</ulink>
+	  <ulink url="http://www.virginia.edu"><citetitle>University of Virginia</citetitle></ulink>
 	</orgname>
 	<address>
 	  <email>amackey@virginia.edu</email>
@@ -30,7 +30,7 @@
 	<para>Bioperl contributor</para>
       </authorblurb>
       <affiliation>
-	<orgname><ulink url="http://www.cognia.com">Cognia Corporation</ulink></orgname>
+	<orgname><ulink url="http://www.cognia.com"><citetitle>Cognia Corporation</citetitle></ulink></orgname>
 	<address>
 	  <email>brian-at-cognia.com</email>
         </address>
@@ -44,7 +44,7 @@
 	<para>Bioperl contributor</para>
       </authorblurb>
       <affiliation>
-	<orgname><ulink url="http://www.ucsc.edu">UCSC</ulink></orgname>
+	<orgname><ulink url="http://www.ucsc.edu"><citetitle>UCSC</citetitle></ulink></orgname>
 	<address>
 	  <email>schattner@alum.mit.edu</email>
         </address>
@@ -58,7 +58,7 @@
 	<para>Bioperl contributor</para>
       </authorblurb>
       <affiliation>
-	<orgname><ulink url="http://ebi.ac.uk">EBI</ulink></orgname>
+	<orgname><ulink url="http://ebi.ac.uk"><citetitle>EBI</citetitle></ulink></orgname>
 	<address>
 	  <email>heikki@ebi.ac.uk</email>
         </address>
@@ -69,7 +69,7 @@
       <surname>Stein</surname>
       <affiliation>
 	<orgname>
-	  <ulink url="http://www.cshl.org">Cold Spring Harbor Laboratory</ulink>
+	  <ulink url="http://www.cshl.org"><citetitle>Cold Spring Harbor Laboratory</citetitle></ulink>
 	</orgname>
 	<address>
 	  <email>lstein@cshl.org</email>
@@ -158,7 +158,7 @@
       OBDA-registry configuration file and how to access data from the
       databases referred to in the configuration file using a perl script as
       well as from the command line. The Web site for OBDA is 
-      <ulink url="http://obda.open-bio.org">obda.open-bio.org</ulink>.
+      <ulink url="http://obda.open-bio.org"><citetitle>obda.open-bio.org</citetitle></ulink>.
     </para>
     <note>
       <para>
@@ -415,13 +415,13 @@
     </para>	
     <para>
       flat protocol:<ulink
-	url="http://bioperl.org/HOWTOs/Flat_Databases/index.html">Flat
-	Databases HOWTO</ulink>
+	url="http://bioperl.org/HOWTOs/Flat_Databases/index.html"><citetitle>Flat
+	Databases HOWTO</citetitle></ulink>
     </para>
     <para>
       biosql protocol: BioSQL INSTALL (from the biosql-schema package,
       available at <ulink
-	url="http://obda.open-bio.org/">obda.open-bio.org</ulink>).
+	url="http://obda.open-bio.org/"><citetitle>obda.open-bio.org</citetitle></ulink>).
       Download the Biosql tar file to view all the documentation.
     </para>
     <para>
@@ -493,7 +493,7 @@
       IDs, accession numbers and accession.version numbers respectively.
       The returned objects have all the methods defined by Bio::Seq (see
       the appropriate manual page, online at <ulink
-	url="http://doc.bioperl.org">doc.bioperl.org</ulink>).  In 
+	url="http://doc.bioperl.org"><citetitle>doc.bioperl.org</citetitle></ulink>).  In 
       line 5, we call the sequence
       object's seq() method to fetch and print out the DNA or protein
       string.

@@ -16,7 +16,7 @@
       <surname>Osborne</surname>
       <affiliation>
 		  <orgname>
-			 <ulink url="http://www.cognia.com">Cognia Corporation</ulink>
+			 <ulink url="http://www.cognia.com"><citetitle>Cognia Corporation</citetitle></ulink>
 		  </orgname>
 		  <address>
 			 <email>brian_osborne-at-cognia.com</email>
@@ -151,9 +151,9 @@
       SeqFeatures and Annotations will make the most sense if you're
       already somewhat familiar with Bioperl and its central Seq
       and SeqIO objects. The reader is referred to the 
-      <ulink url="http://bioperl.org/Core/Latest/bptutorial.html">bptutorial</ulink>, 
+      <ulink url="http://bioperl.org/Core/Latest/bptutorial.html"><citetitle>bptutorial</citetitle></ulink>, 
       the module documentation, and the 
-      <ulink url="http://bioperl.org/HOWTOs/SeqIO/index.html">SeqIO HOWTO</ulink> 
+      <ulink url="http://bioperl.org/HOWTOs/SeqIO/index.html"><citetitle>SeqIO HOWTO</citetitle></ulink> 
       for more information on these topics. Here's a bit of code, to summarize:
     </para>
     <para>
@@ -170,9 +170,9 @@
     <note>
       <para>
 	This object, $seq_object, is actually a 
-	<ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Seq/RichSeq.html">Bio::Seq::RichSeq</ulink> 
+	<ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Seq/RichSeq.html"><citetitle>Bio::Seq::RichSeq</citetitle></ulink> 
 	object - can a 
-	<ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/PrimarySeq.html">PrimarySeq</ulink> object, the simple parent of all Sequence objects, 
+	<ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/PrimarySeq.html"><citetitle>PrimarySeq</citetitle></ulink> object, the simple parent of all Sequence objects, 
 	have a feature or an annotation? No. 
       </para>
     </note>
@@ -237,7 +237,7 @@ FEATURES             Location/Qualifiers
       When a Genbank file like this is parsed the
       feature data is converted into objects, specifically 
       <ulink
-	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqFeature/Generic.html">Bio::SeqFeature::Generic</ulink> objects. How many? In this 
+	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqFeature/Generic.html"><citetitle>Bio::SeqFeature::Generic</citetitle></ulink> objects. How many? In this 
       case 3, one for each of the primary tags.
     </para>
     <para>
@@ -247,7 +247,7 @@ FEATURES             Location/Qualifiers
       than one of these, so what is this a reference to? More
       than likely it's referring to this same 
       <ulink
-	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqFeature/Generic.html">Bio::SeqFeature::Generic</ulink>
+	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqFeature/Generic.html"><citetitle>Bio::SeqFeature::Generic</citetitle></ulink>
       object. Think of it as the default SeqFeature object. Now,
       should you care what kind of object is being made? For the most 
       part, no, you can write lots of useful and powerful Bioperl code
@@ -344,8 +344,8 @@ primary tag: CDS
 		Genbank and EMBL are
       built to respect the specification for the feature tables agreed
       upon by Genbank, EMBL, and DDBJ (see <ulink 
-		  url="http://www.ncbi.nlm.nih.gov/projects/collab/FT/">Feature
-		  Table Definition</ulink> for the details). Check this page if
+		  url="http://www.ncbi.nlm.nih.gov/projects/collab/FT/"><citetitle>Feature
+		  Table Definition</citetitle></ulink> for the details). Check this page if
       you're interested in a complete listing and description of all the 
       Genbank, EMBL, and DDBJ feature tags.
     </para>
@@ -388,7 +388,7 @@ primary tag: CDS
     <para>
       This doesn't return the parent's sequence directly but rather
       a <ulink
-	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/PrimarySeq.html">Bio::PrimarySeq</ulink> object corresponding to the parent
+	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/PrimarySeq.html"><citetitle>Bio::PrimarySeq</citetitle></ulink> object corresponding to the parent
       sequence. Now that you have this object you can call its
       <function>seq()</function> method to get the sequence string, or
       you could do this all in one step:      
@@ -611,7 +611,7 @@ FEATURES             Location/Qualifiers
       through a Species object as well as a value to the "organism"
       tag, and you'll get more information from the 
       <ulink
-	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Species.html">Bio::Species object</ulink>.
+	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Species.html"><citetitle>Bio::Species object</citetitle></ulink>.
     </para>
     <para>
       <programlisting>
@@ -644,7 +644,7 @@ SOURCE      human.
       taxonomic information, so returning just an array wouldn't
       suffice. See the documentation on
       <ulink
-	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Species.html">Bio::Species</ulink> for more information.
+	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Species.html"><citetitle>Bio::Species</citetitle></ulink> for more information.
     </para>
   </section>
 
@@ -799,10 +799,10 @@ start: 1
       The simplest bits of Genbank text, like KEYWORDS, end up in these
       Annotation::SimpleValue objects, the COMMENT ends up in a
       <ulink
-	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/Comment.html">Bio::Annotation::Comment</ulink> object, and 
+	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/Comment.html"><citetitle>Bio::Annotation::Comment</citetitle></ulink> object, and 
       references are tranformed into
       <ulink
-	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/Reference.html">Bio::Annotation::Reference</ulink> objects. Some of 
+	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/Reference.html"><citetitle>Bio::Annotation::Reference</citetitle></ulink> objects. Some of 
       these specialized objects will have specialized methods. Take the 
       Annotation::Reference object, for example:
     </para>
@@ -864,7 +864,7 @@ start: 1
     </para>
     <para>
       These <ulink
-	url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Seq/RichSeq.html">Bio::Seq::RichSeq</ulink> objects are created 
+	url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Seq/RichSeq.html"><citetitle>Bio::Seq::RichSeq</citetitle></ulink> objects are created 
       automatically when you use SeqIO to read from EMBL, GenBank, GAME,
       Chado XML, TIGR XML, Locuslink, BSML, KEGG, and SwissProt sequence
       files. However, it's not guaranteed that each of these
@@ -984,48 +984,48 @@ GO: cellular component|integral to plasma membrane|P|GO:0005887|Proteome|8396931
 	  </thead>
 	  <tbody>
 <row><entry>Direct database link to AAA93114 in database GenBank</entry><entry>dblink</entry><entry><ulink
-	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/DBLink.html">Bio::Annotation::DBLink</ulink></entry></row>
+	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/DBLink.html"><citetitle>Bio::Annotation::DBLink</citetitle></ulink></entry></row>
 <row><entry>Value:
 	    http://www.ncbi.nlm.nih.gov/UniGene/clust.cgi?ORG=Hs&amp;CID=52931</entry><entry>URL</entry><entry>
 <ulink
-	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/SimpleValue.html">Bio::Annotation::SimpleValue</ulink></entry></row>
+	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/SimpleValue.html"><citetitle>Bio::Annotation::SimpleValue</citetitle></ulink></entry></row>
 <row><entry>Value: 8</entry><entry>CHR</entry><entry><ulink
-	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/SimpleValue.html">Bio::Annotation::SimpleValue</ulink></entry></row>
+	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/SimpleValue.html"><citetitle>Bio::Annotation::SimpleValue</citetitle></ulink></entry></row>
 <row><entry>Direct database link to NP_000671 in database RefSeq</entry><entry>dblink</entry><entry><ulink
-	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/DBLink.html">Bio::Annotation::DBLink</ulink></entry></row>
+	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/DBLink.html"><citetitle>Bio::Annotation::DBLink</citetitle></ulink></entry></row>
 <row><entry>Direct database link to SGC35558 in database STS</entry><entry>dblink</entry><entry><ulink
-	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/DBLink.html">Bio::Annotation::DBLink</ulink></entry></row>
+	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/DBLink.html"><citetitle>Bio::Annotation::DBLink</citetitle></ulink></entry></row>
 <row><entry>Comment: Summary: Alpha-1-ARs are members of the GPCR superfamily</entry><entry>comment</entry><entry><ulink
-	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/Comment.html">Bio::Annotation::Comment</ulink></entry></row>
+	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/Comment.html"><citetitle>Bio::Annotation::Comment</citetitle></ulink></entry></row>
 <row><entry>Value: adrenergic, alpha-1A-, receptor</entry><entry>OFFICIAL_GENE_NAME</entry><entry><ulink
-	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/SimpleValue.html">Bio::Annotation::SimpleValue</ulink></entry></row>
+	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/SimpleValue.html"><citetitle>Bio::Annotation::SimpleValue</citetitle></ulink></entry></row>
 <row><entry>Value: ADRA1C</entry><entry>ALIAS_SYMBOL</entry><entry><ulink
-	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/SimpleValue.html">Bio::Annotation::SimpleValue</ulink></entry></row>
+	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/SimpleValue.html"><citetitle>Bio::Annotation::SimpleValue</citetitle></ulink></entry></row>
 <row><entry>Value: adrenergic, alpha -1A-, receptor</entry><entry>ALIAS_PROT</entry><entry><ulink
-	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/SimpleValue.html">Bio::Annotation::SimpleValue</ulink></entry></row>
+	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/SimpleValue.html"><citetitle>Bio::Annotation::SimpleValue</citetitle></ulink></entry></row>
 <row><entry>Direct database link to NM_000680 in database RefSeq</entry><entry>dblink</entry><entry><ulink
-	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/DBLink.html">Bio::Annotation::DBLink</ulink></entry></row>
+	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/DBLink.html"><citetitle>Bio::Annotation::DBLink</citetitle></ulink></entry></row>
 <row><entry>Value: ADRA1A</entry><entry>OFFICIAL_SYMBOL</entry><entry><ulink
-	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/SimpleValue.html">Bio::Annotation::SimpleValue</ulink></entry></row>
+	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/SimpleValue.html"><citetitle>Bio::Annotation::SimpleValue</citetitle></ulink></entry></row>
 <row><entry>Direct database link to SGC35557 in database STS</entry><entry>dblink</entry><entry><ulink
-	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/DBLink.html">Bio::Annotation::DBLink</ulink></entry></row>
+	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/DBLink.html"><citetitle>Bio::Annotation::DBLink</citetitle></ulink></entry></row>
 <row><entry>Value: 8p21-p11.2</entry><entry>MAP</entry><entry><ulink
-	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/SimpleValue.html">Bio::Annotation::SimpleValue</ulink></entry></row>
+	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/SimpleValue.html"><citetitle>Bio::Annotation::SimpleValue</citetitle></ulink></entry></row>
 <row><entry>Direct database link to 104221 in database MIM</entry><entry>dblink</entry><entry><ulink
-	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/DBLink.html">Bio::Annotation::DBLink</ulink></entry></row>
+	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/DBLink.html"><citetitle>Bio::Annotation::DBLink</citetitle></ulink></entry></row>
 <row><entry>Direct database link to D8S2033 in database STS</entry><entry>dblink</entry><entry><ulink
-	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/DBLink.html">Bio::Annotation::DBLink</ulink></entry></row>
+	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/DBLink.html"><citetitle>Bio::Annotation::DBLink</citetitle></ulink></entry></row>
 <row><entry>Direct database link to none in database GenBank</entry><entry>dblink</entry><entry><ulink
-	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/DBLink.html">Bio::Annotation::DBLink</ulink></entry></row>
+	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/DBLink.html"><citetitle>Bio::Annotation::DBLink</citetitle></ulink></entry></row>
 <row><entry>cellular component|integral to plasma membrane|GO:0005887</entry><entry>cellular
  component</entry><entry><ulink
-	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/OntologyTerm.html">Bio::Annotation::OntologyTerm</ulink></entry></row>
+	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/OntologyTerm.html"><citetitle>Bio::Annotation::OntologyTerm</citetitle></ulink></entry></row>
 <row><entry>Direct database link to Hs.52931 in database UniGene</entry><entry>dblink</entry><entry><ulink
-	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/DBLink.html">Bio::Annotation::DBLink</ulink></entry></row>
+	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/DBLink.html"><citetitle>Bio::Annotation::DBLink</citetitle></ulink></entry></row>
 <row><entry>Direct database link to M11313 in database GenBank</entry><entry>dblink</entry><entry><ulink
-	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/DBLink.html">Bio::Annotation::DBLink</ulink></entry></row>
+	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/DBLink.html"><citetitle>Bio::Annotation::DBLink</citetitle></ulink></entry></row>
 <row><entry>Direct database link to P35348 in database GenBank</entry><entry>dblink</entry><entry><ulink
-	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/DBLink.html">Bio::Annotation::DBLink</ulink></entry></row>
+	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/DBLink.html"><citetitle>Bio::Annotation::DBLink</citetitle></ulink></entry></row>
 	  </tbody>
 	</tgroup>
       </table>
@@ -1069,7 +1069,7 @@ GO: cellular component|integral to plasma membrane|P|GO:0005887|Proteome|8396931
       objects, but what about creating these objects when you
       already have the data? The
       <ulink
-	url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqFeature/Generic.html">Bio::SeqFeature::Generic</ulink> object is 
+	url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqFeature/Generic.html"><citetitle>Bio::SeqFeature::Generic</citetitle></ulink> object is 
       probably the best SeqFeature object for this purpose, in part because of
       its flexibility. Let's assume we have a sequence that has an
       interesting sub-sequence, going from position 10 to 22.
@@ -1089,7 +1089,7 @@ GO: cellular component|integral to plasma membrane|P|GO:0005887|Proteome|8396931
     </para>
     <para>
       The <ulink
-	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqFeature/Generic.html">SeqFeature::Generic</ulink> object offers the user a "tag system" for
+	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqFeature/Generic.html"><citetitle>SeqFeature::Generic</citetitle></ulink> object offers the user a "tag system" for
       addition of data that's not explicitly accounted for by its
       methods, that's what the "-tag" is for, above.
       If you want to add your own custom data to a feature you could
@@ -1196,8 +1196,8 @@ ORIGIN
     <para>
       If you would like to learn about representing sequences and 
       features in graphical form take a look at the <ulink 
-      url="http://bioperl.org/HOWTOs/Graphics-HOWTO/index.html">Graphics
-      HOWTO</ulink>. The documentation for each of the individual
+      url="http://bioperl.org/HOWTOs/Graphics-HOWTO/index.html"><citetitle>Graphics
+      HOWTO</citetitle></ulink>. The documentation for each of the individual
       SeqFeature, Range, Location and 
       Annotation modules is also very useful, here's a list of them. 
       If you have questions 
@@ -1207,89 +1207,89 @@ ORIGIN
     <para>
       <emphasis>SeqFeature Modules</emphasis>
       <simplelist type="horiz" columns="1">
-<member><ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqFeatureI.html">SeqFeatureI.pm</ulink></member>
-<member><ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqFeature/AnnotationAdaptor.html">SeqFeature/AnnotationAdaptor.pm</ulink></member>
-<member><ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqFeature/FeaturePair.html">SeqFeature/FeaturePair.pm</ulink></member>
-<member><ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqFeature/Similarity.html">SeqFeature/Similarity.pm</ulink></member>
-<member><ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqFeature/Generic.html">SeqFeature/Generic.pm</ulink></member>
-<member><ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqFeature/SimilarityPair.html">SeqFeature/SimilarityPair.pm</ulink></member>
-<member><ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqFeature/PositionProxy.html">SeqFeature/PositionProxy.pm</ulink></member>
-<member><ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqFeature/Computation.html">SeqFeature/Computation.pm</ulink></member>
-<member><ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqFeature/Primer.html">SeqFeature/Primer.pm</ulink></member>
-<member><ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqFeature/Collection.html">SeqFeature/Collection.pm</ulink></member>
-<member><ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqFeature/CollectionI.html">SeqFeature/CollectionI.pm</ulink></member>
-<member><ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqFeature/SiRNA/Pair.html">SeqFeature/SiRNA/Pair.pm</ulink></member>
-<member><ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqFeature/SiRNA/Oligo.html">SeqFeature/SiRNA/Oligo.pm</ulink></member>
-<member><ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqFeature/Gene/GeneStructure.html">SeqFeature/Gene/GeneStructure.pm</ulink></member>
-<member><ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqFeature/Gene/NC_Feature.html">SeqFeature/Gene/NC_Feature.pm</ulink></member>
-<member><ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqFeature/Gene/Transcript.html">SeqFeature/Gene/Transcript.pm</ulink></member>
-<member><ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqFeature/Gene/Exon.html">SeqFeature/Gene/Exon.pm</ulink></member>
-<member><ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqFeature/Gene/GeneStructureI.html">SeqFeature/Gene/GeneStructureI.pm</ulink></member>
-<member><ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqFeature/Gene/Poly_A_site.html">SeqFeature/Gene/Poly_A_site.pm</ulink></member>
-<member><ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqFeature/Gene/TranscriptI.html">SeqFeature/Gene/TranscriptI.pm</ulink></member>
-<member><ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqFeature/Gene/ExonI.html">SeqFeature/Gene/ExonI.pm</ulink></member>
-<member><ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqFeature/Gene/Intron.html">SeqFeature/Gene/Intron.pm</ulink></member>
-<member><ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqFeature/Gene/Promoter.html">SeqFeature/Gene/Promoter.pm</ulink></member>
-<member><ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqFeature/Gene/UTR.html">SeqFeature/Gene/UTR.pm</ulink></member>
-<member><ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqFeature/Tools/Unflattener.html">SeqFeature/Tools/Unflattener.pm</ulink></member>
-<member><ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqFeature/Tools/TypeMapper.html">SeqFeature/Tools/TypeMapper.pm</ulink></member>
+<member><ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqFeatureI.html"><citetitle>SeqFeatureI.pm</citetitle></ulink></member>
+<member><ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqFeature/AnnotationAdaptor.html"><citetitle>SeqFeature/AnnotationAdaptor.pm</citetitle></ulink></member>
+<member><ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqFeature/FeaturePair.html"><citetitle>SeqFeature/FeaturePair.pm</citetitle></ulink></member>
+<member><ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqFeature/Similarity.html"><citetitle>SeqFeature/Similarity.pm</citetitle></ulink></member>
+<member><ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqFeature/Generic.html"><citetitle>SeqFeature/Generic.pm</citetitle></ulink></member>
+<member><ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqFeature/SimilarityPair.html"><citetitle>SeqFeature/SimilarityPair.pm</citetitle></ulink></member>
+<member><ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqFeature/PositionProxy.html"><citetitle>SeqFeature/PositionProxy.pm</citetitle></ulink></member>
+<member><ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqFeature/Computation.html"><citetitle>SeqFeature/Computation.pm</citetitle></ulink></member>
+<member><ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqFeature/Primer.html"><citetitle>SeqFeature/Primer.pm</citetitle></ulink></member>
+<member><ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqFeature/Collection.html"><citetitle>SeqFeature/Collection.pm</citetitle></ulink></member>
+<member><ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqFeature/CollectionI.html"><citetitle>SeqFeature/CollectionI.pm</citetitle></ulink></member>
+<member><ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqFeature/SiRNA/Pair.html"><citetitle>SeqFeature/SiRNA/Pair.pm</citetitle></ulink></member>
+<member><ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqFeature/SiRNA/Oligo.html"><citetitle>SeqFeature/SiRNA/Oligo.pm</citetitle></ulink></member>
+<member><ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqFeature/Gene/GeneStructure.html"><citetitle>SeqFeature/Gene/GeneStructure.pm</citetitle></ulink></member>
+<member><ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqFeature/Gene/NC_Feature.html"><citetitle>SeqFeature/Gene/NC_Feature.pm</citetitle></ulink></member>
+<member><ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqFeature/Gene/Transcript.html"><citetitle>SeqFeature/Gene/Transcript.pm</citetitle></ulink></member>
+<member><ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqFeature/Gene/Exon.html"><citetitle>SeqFeature/Gene/Exon.pm</citetitle></ulink></member>
+<member><ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqFeature/Gene/GeneStructureI.html"><citetitle>SeqFeature/Gene/GeneStructureI.pm</citetitle></ulink></member>
+<member><ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqFeature/Gene/Poly_A_site.html"><citetitle>SeqFeature/Gene/Poly_A_site.pm</citetitle></ulink></member>
+<member><ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqFeature/Gene/TranscriptI.html"><citetitle>SeqFeature/Gene/TranscriptI.pm</citetitle></ulink></member>
+<member><ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqFeature/Gene/ExonI.html"><citetitle>SeqFeature/Gene/ExonI.pm</citetitle></ulink></member>
+<member><ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqFeature/Gene/Intron.html"><citetitle>SeqFeature/Gene/Intron.pm</citetitle></ulink></member>
+<member><ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqFeature/Gene/Promoter.html"><citetitle>SeqFeature/Gene/Promoter.pm</citetitle></ulink></member>
+<member><ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqFeature/Gene/UTR.html"><citetitle>SeqFeature/Gene/UTR.pm</citetitle></ulink></member>
+<member><ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqFeature/Tools/Unflattener.html"><citetitle>SeqFeature/Tools/Unflattener.pm</citetitle></ulink></member>
+<member><ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqFeature/Tools/TypeMapper.html"><citetitle>SeqFeature/Tools/TypeMapper.pm</citetitle></ulink></member>
       </simplelist>
     </para>
     <para>
       <emphasis>Annotation Modules</emphasis>
       <simplelist type="horiz" columns="1">
 	<member><ulink
-	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/AnnotationI.html">AnnotationI.pm</ulink></member>  
+	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/AnnotationI.html"><citetitle>AnnotationI.pm</citetitle></ulink></member>  
 <member><ulink
-	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/AnnotatableI.html">AnnotatableI.pm</ulink></member>  
-<member><ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/AnnotationCollectionI.html">AnnotationCollectionI.pm</ulink></member>  
-<member><ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/AnnotationFactory.html">Annotation/AnnotationFactory.pm</ulink></member>  
-<member><ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/Comment.html">Annotation/Comment.pm</ulink></member>       
-<member><ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/Reference.html">Annotation/Reference.pm</ulink></member>        
-<member><ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/TypeManager.html">Annotation/TypeManager.pm</ulink></member>
-<member><ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/DBLink.html">Annotation/DBLink.pm</ulink></member>        
-<member><ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/SimpleValue.html">Annotation/SimpleValue.pm</ulink></member>
-<member><ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/Collection.html">Annotation/Collection.pm</ulink></member>         
-<member><ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/OntologyTerm.html">Annotation/OntologyTerm.pm</ulink></member>  
-<member><ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/StructuredValue.html">Annotation/StructuredValue.pm</ulink></member>
+	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/AnnotatableI.html"><citetitle>AnnotatableI.pm</citetitle></ulink></member>  
+<member><ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/AnnotationCollectionI.html"><citetitle>AnnotationCollectionI.pm</citetitle></ulink></member>  
+<member><ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/AnnotationFactory.html"><citetitle>Annotation/AnnotationFactory.pm</citetitle></ulink></member>  
+<member><ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/Comment.html"><citetitle>Annotation/Comment.pm</citetitle></ulink></member>       
+<member><ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/Reference.html"><citetitle>Annotation/Reference.pm</citetitle></ulink></member>        
+<member><ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/TypeManager.html"><citetitle>Annotation/TypeManager.pm</citetitle></ulink></member>
+<member><ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/DBLink.html"><citetitle>Annotation/DBLink.pm</citetitle></ulink></member>        
+<member><ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/SimpleValue.html"><citetitle>Annotation/SimpleValue.pm</citetitle></ulink></member>
+<member><ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/Collection.html"><citetitle>Annotation/Collection.pm</citetitle></ulink></member>         
+<member><ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/OntologyTerm.html"><citetitle>Annotation/OntologyTerm.pm</citetitle></ulink></member>  
+<member><ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/StructuredValue.html"><citetitle>Annotation/StructuredValue.pm</citetitle></ulink></member>
       </simplelist>
     </para>
     <para>
       <emphasis>Location Modules</emphasis>
       <simplelist type="horiz" columns="1">
 	<member><ulink
-	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/LocationI.html">LocationI.pm</ulink></member>
+	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/LocationI.html"><citetitle>LocationI.pm</citetitle></ulink></member>
 <member><ulink
-	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/LocatableSeq.html">LocatableSeq.pm</ulink></member>
+	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/LocatableSeq.html"><citetitle>LocatableSeq.pm</citetitle></ulink></member>
 <member><ulink
-	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Location/Atomic.html">Location/Atomic.pm</ulink></member>
+	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Location/Atomic.html"><citetitle>Location/Atomic.pm</citetitle></ulink></member>
 <member><ulink
-	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Location/AvWithinCoordPolicy.html">Location/AvWithinCoordPolicy.pm</ulink></member>
+	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Location/AvWithinCoordPolicy.html"><citetitle>Location/AvWithinCoordPolicy.pm</citetitle></ulink></member>
 <member><ulink
-	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Location/CoordinatePolicyI.html">Location/CoordinatePolicyI.pm</ulink></member>
+	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Location/CoordinatePolicyI.html"><citetitle>Location/CoordinatePolicyI.pm</citetitle></ulink></member>
 <member><ulink
-	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Location/Fuzzy.html">Location/Fuzzy.pm</ulink></member>
+	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Location/Fuzzy.html"><citetitle>Location/Fuzzy.pm</citetitle></ulink></member>
 <member><ulink
-	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Location/FuzzyLocationI.html">Location/FuzzyLocationI.pm</ulink></member>
+	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Location/FuzzyLocationI.html"><citetitle>Location/FuzzyLocationI.pm</citetitle></ulink></member>
 <member><ulink
-	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Location/NarrowestCoordPolicy.html">Location/NarrowestCoordPolicy.pm</ulink></member>
+	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Location/NarrowestCoordPolicy.html"><citetitle>Location/NarrowestCoordPolicy.pm</citetitle></ulink></member>
 <member><ulink
-	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Location/Simple.html">Location/Simple.pm</ulink></member>
+	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Location/Simple.html"><citetitle>Location/Simple.pm</citetitle></ulink></member>
 <member><ulink
-	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Location/Split.html">Location/Split.pm</ulink></member>
+	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Location/Split.html"><citetitle>Location/Split.pm</citetitle></ulink></member>
 <member><ulink
-	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Location/SplitLocationI.html">Location/SplitLocationI.pm</ulink></member>
+	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Location/SplitLocationI.html"><citetitle>Location/SplitLocationI.pm</citetitle></ulink></member>
 <member><ulink
-	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Location/WidestCoordPolicy.html">Location/WidestCoordPolicy.pm</ulink></member>
+	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Location/WidestCoordPolicy.html"><citetitle>Location/WidestCoordPolicy.pm</citetitle></ulink></member>
       </simplelist>
     </para>
     <para>
 <emphasis>Range Modules</emphasis>
       <simplelist type="horiz" columns="1">
 <member><ulink
-	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/RangeI.html">RangeI.pm</ulink></member>
+	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/RangeI.html"><citetitle>RangeI.pm</citetitle></ulink></member>
 <member><ulink
-	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Range.html">Range.pm</ulink></member>
+	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Range.html"><citetitle>Range.pm</citetitle></ulink></member>
       </simplelist>
     </para>
   </section>

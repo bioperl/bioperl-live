@@ -15,7 +15,7 @@
       <surname>Stein</surname>
       <affiliation>
 	<orgname>
-	  <ulink url="http://www.cshl.org">Cold Spring Harbor Laboratory</ulink>
+	  <ulink url="http://www.cshl.org"><citetitle>Cold Spring Harbor Laboratory</citetitle></ulink>
 	</orgname>
 	<address>
 	  <email>lstein@cshl.org</email>
@@ -724,8 +724,8 @@ PRES1		127	310	700
       <classname>Bio::SeqIO</classname> to generate a set of
       <classname>Bio::SeqFeatureI</classname> objects, and to use those
       features to populate tracks (see the <ulink
-	url="http://bioperl.org/HOWTOs/Feature-Annotation/index.html">Feature-Annotation
-	HOWTO</ulink> for more information on features). The documentation for
+	url="http://bioperl.org/HOWTOs/Feature-Annotation/index.html"><citetitle>Feature-Annotation
+	HOWTO</citetitle></ulink> for more information on features). The documentation for
       each of  the individual. For simplicity's sake, we will sort each
       feature by its primary tag (such as "exon") and create a new track for
       each tag type.
@@ -1167,7 +1167,7 @@ PRES1		127	310	700
     <para>
       Although we haven't shown it, <classname>Bio::Graphics</classname>
       provides support for generating HTML image maps.  The <ulink
-	url="http://www.gmod.org">Generic Genome Browser</ulink> uses this
+	url="http://www.gmod.org"><citetitle>Generic Genome Browser</citetitle></ulink> uses this
       facility to generate clickable, browsable images of the genome from a
       variety of genome databases.
     </para>

@@ -16,7 +16,7 @@
       <surname>Mackey</surname>
       <affiliation>
 	<orgname>
-	  <ulink url="http://www.virginia.edu">University of Virginia</ulink>
+	  <ulink url="http://www.virginia.edu"><citetitle>University of Virginia</citetitle></ulink>
 	</orgname>
 	<address>
 	  <email>amackey@virginia.edu</email>
@@ -27,14 +27,14 @@
       <firstname>Jason</firstname>
       <surname>Stajich</surname>
       <affiliation>
-	<orgname><ulink url="http://www.duke.edu">Duke
-	    University</ulink></orgname>
+	<orgname><ulink url="http://www.duke.edu"><citetitle>Duke
+	    University</citetitle></ulink></orgname>
 	<orgdiv>
-	  <ulink url="http://upg.duke.edu">University Program in
-	  Genetics</ulink>
+	  <ulink url="http://upg.duke.edu"><citetitle>University Program in
+	  Genetics</citetitle></ulink>
 	</orgdiv>
-	<orgdiv><ulink url="http://cgt.genetics.duke.edu">Center for
-	    Genome Technology</ulink></orgdiv>
+	<orgdiv><ulink url="http://cgt.genetics.duke.edu"><citetitle>Center for
+	    Genome Technology</citetitle></ulink></orgdiv>
 	<address>
 	  Duke University Medical Center
 	  <pob>Box 3568</pob>

@@ -465,31 +465,31 @@ my $total_length = $tree->total_branch_length;
     <para>
       <emphasis>Related Modules</emphasis>
       <simplelist type="horiz" columns="1">
-		  <member><ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/TreeIO.html">Bio/TreeIO.pm</ulink></member>
-		  <member><ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Tree/Tree.html">Bio/Tree/Tree.pm</ulink></member>
-		  <member><ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Align/DNAStatistics.html">Bio/Align/DNAStatistics.pm</ulink></member>
-		  <member><ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Align/ProteinStatistics.html">Bio/Align/ProteinStatistics.pm</ulink></member>
-		  <member><ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Align/Utilities.html">Bio/Align/Utilities.pm</ulink></member>
-		  <member><ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Matrix/PhylipDist.html">Bio/Matrix/PhylipDist.pm</ulink></member>
-		  <member><ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/PopGen/Simulation/Coalescent.html">Bio/PopGen/Simulation/Coalescent.pm</ulink></member>
-		  <member><ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SimpleAlign.html">Bio/SimpleAlign.pm</ulink></member>
-		  <member><ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Tree/DistanceFactory.html">Bio/Tree/DistanceFactory.pm</ulink></member>
-		  <member><ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Tree/Node.html">Bio/Tree/Node.pm</ulink></member>
-		  <member><ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Tree/RandomFactory.html">Bio/Tree/RandomFactory.pm</ulink></member>
-		  <member><ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Tree/TreeI.html">Bio/Tree/TreeI.pm</ulink></member>
-		  <member><ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Tree/AlleleNode.html">Bio/Tree/AlleleNode.pm</ulink></member>
-		  <member><ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Tree/NodeI.html">Bio/Tree/NodeI.pm</ulink></member>
-		  <member><ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Tree/NodeNHX.html">Bio/Tree/NodeNHX.pm</ulink></member>
-		  <member><ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Tree/TreeFunctionsI.html">Bio/Tree/TreeFunctionsI.pm</ulink></member>
-		  <member><ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Tree/Statistics.html">Bio/Tree/Statistics.pm</ulink></member>
-		  <member><ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/TreeIO/newick.html">Bio/TreeIO/newick.pm</ulink></member>
-		  <member><ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/TreeIO/nexus.html">Bio/TreeIO/nexus.pm</ulink></member>
-		  <member><ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/TreeIO/nhx.html">Bio/TreeIO/nhx.pm</ulink></member>
-		  <member><ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/TreeIO/pag.html">Bio/TreeIO/pag.pm</ulink></member>
-		  <member><ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/TreeIO/svggraph.html">Bio/TreeIO/svggraph.pm</ulink></member>
-		  <member><ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/TreeIO/lintree.html">Bio/TreeIO/lintree.pm</ulink></member>
-		  <member><ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/TreeIO/tabtree.html">Bio/TreeIO/tabtree.pm</ulink></member>
-		  <member><ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/TreeIO/TreeEventBuilder.html">Bio/TreeIO/TreeEventBuilder.pm</ulink></member>
+		  <member><ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/TreeIO.html"><citetitle>Bio/TreeIO.pm</citetitle></ulink></member>
+		  <member><ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Tree/Tree.html"><citetitle>Bio/Tree/Tree.pm</citetitle></ulink></member>
+		  <member><ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Align/DNAStatistics.html"><citetitle>Bio/Align/DNAStatistics.pm</citetitle></ulink></member>
+		  <member><ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Align/ProteinStatistics.html"><citetitle>Bio/Align/ProteinStatistics.pm</citetitle></ulink></member>
+		  <member><ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Align/Utilities.html"><citetitle>Bio/Align/Utilities.pm</citetitle></ulink></member>
+		  <member><ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Matrix/PhylipDist.html"><citetitle>Bio/Matrix/PhylipDist.pm</citetitle></ulink></member>
+		  <member><ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/PopGen/Simulation/Coalescent.html"><citetitle>Bio/PopGen/Simulation/Coalescent.pm</citetitle></ulink></member>
+		  <member><ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SimpleAlign.html"><citetitle>Bio/SimpleAlign.pm</citetitle></ulink></member>
+		  <member><ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Tree/DistanceFactory.html"><citetitle>Bio/Tree/DistanceFactory.pm</citetitle></ulink></member>
+		  <member><ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Tree/Node.html"><citetitle>Bio/Tree/Node.pm</citetitle></ulink></member>
+		  <member><ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Tree/RandomFactory.html"><citetitle>Bio/Tree/RandomFactory.pm</citetitle></ulink></member>
+		  <member><ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Tree/TreeI.html"><citetitle>Bio/Tree/TreeI.pm</citetitle></ulink></member>
+		  <member><ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Tree/AlleleNode.html"><citetitle>Bio/Tree/AlleleNode.pm</citetitle></ulink></member>
+		  <member><ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Tree/NodeI.html"><citetitle>Bio/Tree/NodeI.pm</citetitle></ulink></member>
+		  <member><ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Tree/NodeNHX.html"><citetitle>Bio/Tree/NodeNHX.pm</citetitle></ulink></member>
+		  <member><ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Tree/TreeFunctionsI.html"><citetitle>Bio/Tree/TreeFunctionsI.pm</citetitle></ulink></member>
+		  <member><ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Tree/Statistics.html"><citetitle>Bio/Tree/Statistics.pm</citetitle></ulink></member>
+		  <member><ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/TreeIO/newick.html"><citetitle>Bio/TreeIO/newick.pm</citetitle></ulink></member>
+		  <member><ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/TreeIO/nexus.html"><citetitle>Bio/TreeIO/nexus.pm</citetitle></ulink></member>
+		  <member><ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/TreeIO/nhx.html"><citetitle>Bio/TreeIO/nhx.pm</citetitle></ulink></member>
+		  <member><ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/TreeIO/pag.html"><citetitle>Bio/TreeIO/pag.pm</citetitle></ulink></member>
+		  <member><ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/TreeIO/svggraph.html"><citetitle>Bio/TreeIO/svggraph.pm</citetitle></ulink></member>
+		  <member><ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/TreeIO/lintree.html"><citetitle>Bio/TreeIO/lintree.pm</citetitle></ulink></member>
+		  <member><ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/TreeIO/tabtree.html"><citetitle>Bio/TreeIO/tabtree.pm</citetitle></ulink></member>
+		  <member><ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/TreeIO/TreeEventBuilder.html"><citetitle>Bio/TreeIO/TreeEventBuilder.pm</citetitle></ulink></member>
 		</simplelist>
 	 </para>
   </section>

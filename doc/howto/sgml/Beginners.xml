@@ -23,8 +23,8 @@
       </authorblurb>
       <affiliation>
 		  <orgname>
-			 <ulink url="http://www.cognia.com">Cognia
-				Corporation</ulink>
+			 <ulink url="http://www.cognia.com"><citetitle>Cognia
+				Corporation</citetitle></ulink>
 		  </orgname>
 		  <address>
 			 <email>brian-at-cognia.com</email>
@@ -39,7 +39,6 @@
       </authorblurb>
       <affiliation>
 		  <orgname>
-			 <ulink url=""></ulink>
 		  </orgname>
 		  <address>
 			 <email>tex-at-biocompute.net</email>
@@ -120,7 +119,7 @@
       <para>
 		  This HOWTO does not discuss a very nice module that's designed for
 		  beginners, 
-		  <ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Perl.html">Bio::Perl</ulink>. The reason is that though this is an
+		  <ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Perl.html"><citetitle>Bio::Perl</citetitle></ulink>. The reason is that though this is an
 			 excellent introductory tool, it is not object-oriented and
 		  can't be extended. What we're
 		  attempting here is to introduce Bioperl and show you
@@ -228,8 +227,8 @@
 	 </tip>
     <para>
 		You should also read the instructions for 
-		<ulink url="http://bioperl.org/Core/Latest/INSTALL">Unix installation</ulink> or 
-		<ulink url="http://bioperl.org/Core/Latest/INSTALL.WIN">Windows installation</ulink>. Many of the letters to the the bioperl-l
+		<ulink url="http://bioperl.org/Core/Latest/INSTALL"><citetitle>Unix installation</citetitle></ulink> or 
+		<ulink url="http://bioperl.org/Core/Latest/INSTALL.WIN"><citetitle>Windows installation</citetitle></ulink>. Many of the letters to the the bioperl-l
 		mailing list concern problems with installation, and there is a 
 		set of concerns that come up repeatedly:
 	 </para>
@@ -244,7 +243,7 @@
 				You'll need to search other repositories to install
 				all of these accessory modules. See the
 		<ulink
-				url="http://bioperl.org/Core/Latest/INSTALL.WIN">INSTALL.WIN</ulink>
+				url="http://bioperl.org/Core/Latest/INSTALL.WIN"><citetitle>INSTALL.WIN</citetitle></ulink>
 				file for more information. 
 			 </para>
 		  </listitem>
@@ -257,7 +256,7 @@
 				either install Bundle::Bioperl or install that specific
 				module by hand. See 
 <ulink
-				url="http://bioperl.org/Core/Latest/INSTALL.WIN">INSTALL</ulink>
+				url="http://bioperl.org/Core/Latest/INSTALL.WIN"><citetitle>INSTALL</citetitle></ulink>
 				for details.
 			 </para>
 		  </listitem>
@@ -339,11 +338,11 @@
 			 command-line for an introduction.
 		  </member>
 		  <member>
-			 <ulink url="http://www.oreilly.com/catalog/lperl3/">Learning Perl</ulink>
+			 <ulink url="http://www.oreilly.com/catalog/lperl3/"><citetitle>Learning Perl</citetitle></ulink>
 			 is the most frequently cited beginner's book.
 		  </member>
 		  <member>
-			 <ulink url="http://www.oreilly.com/catalog/perlnut2/">Perl in a Nutshell</ulink>
+			 <ulink url="http://www.oreilly.com/catalog/perlnut2/"><citetitle>Perl in a Nutshell</citetitle></ulink>
 			 is also good. Not much in the way of examples, but covers
 			 many topics succintly.
 		  </member>
@@ -477,13 +476,13 @@ use Bio::Seq;
 		your machine called "Bio/Seq.pm".
 		We will use this 
 		<ulink
-		url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Seq.html">Bio::Seq</ulink>
+		url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Seq.html"><citetitle>Bio::Seq</citetitle></ulink>
 		module to create a 
-<ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Seq.html">Bio::Seq</ulink> object.
+<ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Seq.html"><citetitle>Bio::Seq</citetitle></ulink> object.
 		The 
-<ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Seq.html">Bio::Seq</ulink> module is one of the central modules in
+<ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Seq.html"><citetitle>Bio::Seq</citetitle></ulink> module is one of the central modules in
 		Bioperl. The analogous 
-<ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Seq.html">Bio::Seq</ulink> object, or "Sequence object", or
+<ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Seq.html"><citetitle>Bio::Seq</citetitle></ulink> object, or "Sequence object", or
 		"Seq object", is ubiquitous in Bioperl, it contains 
 		a single sequence and associated names, identifiers, and
 		properties. Let's create a very simple sequence object at
@@ -504,7 +503,7 @@ $seq_obj = Bio::Seq->new(-seq => "aaaatgggggggggggccccgtt");
 		Sequence object, a simple one, containing just a sequence.
 	 </para>
 		<para>
-			 <ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Seq.html">Bio::Seq</ulink> objects can be created manually, as above, but
+			 <ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Seq.html"><citetitle>Bio::Seq</citetitle></ulink> objects can be created manually, as above, but
 			 they're also create automatically in many operations
 			 in Bioperl, for example when alignment files or database
 			 entries or BLAST reports are parsed.
@@ -534,11 +533,11 @@ $seq_obj = Bio::Seq->new(-seq => "aaaatgggggggggggccccgtt");
 		than that. It can also do work, meaning it can use or call
 		specific methods taken from the module or modules that were used
 		to create it. For example, the 
-<ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Seq.html">Bio::Seq</ulink>
+<ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Seq.html"><citetitle>Bio::Seq</citetitle></ulink>
 		module can call a method
 		named <function>seq()</function> that will print out the
 		sequence of 
-<ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Seq.html">Bio::Seq</ulink> objects. You could use it like this:
+<ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Seq.html"><citetitle>Bio::Seq</citetitle></ulink> objects. You could use it like this:
 	 </para>
 	 <para>
 		<programlisting>
@@ -598,13 +597,13 @@ print $seq_obj->seq();
 		where IO stands for 
 		<emphasis>I</emphasis>nput-<emphasis>O</emphasis>utput.
 		By using 
-<ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqIO.html">Bio::SeqIO</ulink> in this manner you will be able to get input
+<ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqIO.html"><citetitle>Bio::SeqIO</citetitle></ulink> in this manner you will be able to get input
 		and make output for all of the sequence file formats supported by Bioperl
-		(the <ulink url="http://bioperl.org/HOWTOs/SeqIO/index.html">SeqIO HOWTO</ulink> has a complete list of supported formats).
+		(the <ulink url="http://bioperl.org/HOWTOs/SeqIO/index.html"><citetitle>SeqIO HOWTO</citetitle></ulink> has a complete list of supported formats).
 		The way you create <classname>Bio::SeqIO</classname> objects is 
 		very similar to the way we used <function>new()</function> to
 		create a 
-<ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Seq.html">Bio::Seq</ulink>, or sequence, object:
+<ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Seq.html"><citetitle>Bio::Seq</citetitle></ulink>, or sequence, object:
 	 </para>    
 	 <para>
 		<programlisting>
@@ -697,7 +696,7 @@ ORIGIN
 	 <title>Retrieving a sequence from a file</title>
 	 <para>
 		One beginner's mistake is to not use
-		<ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqIO.html">Bio::SeqIO</ulink> when working with sequence
+		<ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqIO.html"><citetitle>Bio::SeqIO</citetitle></ulink> when working with sequence
 		files. This is understandable in some respects. You
 		may have read about Perl's <function>open</function>
 		function, and Bioperl's way of retrieving sequences may look odd
@@ -748,7 +747,7 @@ $seq_obj = $seqio_obj->next_seq;
 <para></para>
 	 <para>
 		Here we've used the <function>next_seq()</function> method of the
-		<ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqIO.html">Bio::SeqIO</ulink> object. When you use, or call, 
+		<ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqIO.html"><citetitle>Bio::SeqIO</citetitle></ulink> object. When you use, or call, 
 		<function>next_seq()</function> the
 		SeqIO	object will get the next available sequence, in this case
 		the first sequence in the file that was just opened. The
@@ -784,7 +783,7 @@ while ($seq_obj = $seqio_obj->next_seq){
 		to do. If you don't give a format then the SeqIO object will 
 		try to determine the format from the file suffix or extension 
 		(and a list of the file extensions is in the  
-		<ulink url="http://bioperl.org/HOWTOs/SeqIO/index.html">SeqIO HOWTO</ulink>). In fact, the suffix "fa" is one that
+		<ulink url="http://bioperl.org/HOWTOs/SeqIO/index.html"><citetitle>SeqIO HOWTO</citetitle></ulink>). In fact, the suffix "fa" is one that
 		SeqIO understands, so "-format" is unnecessary above. Without a known
 		suffix SeqIO will attempt to guess the format based on the 
 		file's contents but there's no guarantee that it can guess
@@ -847,7 +846,7 @@ $seq_obj = $db_obj->get_Seq_by_id(2);
 		There are more sophisticated ways to query Genbank than
 		this. This next example attempts to do something "biological",
 		using the module 
-<ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/DB/Query/Genbank.html">Bio::DB::Query::GenBank</ulink>. Want all Arabidopsis
+<ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/DB/Query/Genbank.html"><citetitle>Bio::DB::Query::GenBank</citetitle></ulink>. Want all Arabidopsis
 		topoisomerases from Genbank Nucleotide? This would be a 
 		reasonable first attempt:
 	 </para>
@@ -915,7 +914,7 @@ while ($seq_obj = $stream_obj->next_seq) {
 	 <para></para>
 	 <para>
 		You can find detailed information on Genbank's query fields
-		<ulink url="http://www.ncbi.nlm.nih.gov/entrez/query/static/help/Summary_Matrices.html">here</ulink>.
+		<ulink url="http://www.ncbi.nlm.nih.gov/entrez/query/static/help/Summary_Matrices.html"><citetitle>here</citetitle></ulink>.
 	 </para>
   </section>
 
@@ -1034,7 +1033,7 @@ $seq_obj->seq("MMTYDFFFFVVNNNNPPPPAAAW");
 				  <entry>$prot_obj = $dna_obj->translate</entry>
 				  <entry>See
 					 <ulink
-						url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/PrimarySeqI.html">Bio::PrimarySeqI</ulink>
+						url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/PrimarySeqI.html"><citetitle>Bio::PrimarySeqI</citetitle></ulink>
 					 for more</entry>
 				</row>
 				<row>
@@ -1043,7 +1042,7 @@ $seq_obj->seq("MMTYDFFFFVVNNNNPPPPAAAW");
 				  <entry>$species_obj = $so->species</entry>
 				  <entry>See
 					 <ulink
-						url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Species.html">Bio::Species</ulink>
+						url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Species.html"><citetitle>Bio::Species</citetitle></ulink>
 					 for more</entry>
 				</row>
 				<row>
@@ -1087,7 +1086,7 @@ $seq_obj->seq("MMTYDFFFFVVNNNNPPPPAAAW");
 		associated with the Sequence object. This is something of a 
 		tangent but if you'd like to learn about Features and Annotations
 		see the relevant 
-<ulink url="http://bioperl.org/HOWTOs/Feature-Annotation/index.html">HOWTO</ulink>.
+<ulink url="http://bioperl.org/HOWTOs/Feature-Annotation/index.html"><citetitle>HOWTO</citetitle></ulink>.
 		The methods related to this topic are shown below.
 	 </para>
 	 <para>
@@ -1303,7 +1302,7 @@ ORIGIN      15 bp upstream from HhaI site.
 		information missing. All of this missing information is stored in
 		what Bioperl calls Features and Annotations, see the
 		<ulink
-		  url="http://bioperl.org/HOWTOs/Feature-Annotation/index.html">Feature and Annotation HOWTO</ulink> if you'd like to learn more about this.
+		  url="http://bioperl.org/HOWTOs/Feature-Annotation/index.html"><citetitle>Feature and Annotation HOWTO</citetitle></ulink> if you'd like to learn more about this.
 		Second, a few of the
 		methods don't return anything, like
 		<classname>namespace</classname> and <classname>authority</classname>.
@@ -1551,7 +1550,7 @@ SQ   SEQUENCE   913 AA;  101638 MW;  D0E135DBEC30C28C CRC64;
 		As in the Genbank example there's information that the Sequence
 		object doesn't supply, and it's stored in Annotation objects. See the
 	<ulink
-		  url="http://bioperl.org/HOWTOs/Feature-Annotation/index.html">Feature and Annotation HOWTO</ulink> for more.
+		  url="http://bioperl.org/HOWTOs/Feature-Annotation/index.html"><citetitle>Feature and Annotation HOWTO</citetitle></ulink> for more.
 	 </para>
   </section>
 
@@ -1564,7 +1563,7 @@ SQ   SEQUENCE   913 AA;  101638 MW;  D0E135DBEC30C28C CRC64;
 		output, or report, as well. Certainly the most popular 
 		analytical program is 
 <ulink
-		url="http://bioinformatics.ubc.ca/resources/tools/index.php?name=blastall">BLAST</ulink>,
+		url="http://bioinformatics.ubc.ca/resources/tools/index.php?name=blastall"><citetitle>BLAST</citetitle></ulink>,
 		so let's use it as an example. First you'll need to get 
 		BLAST, also known as blastall, installed on your machine
 		and running. This example also assumes that you used the formatdb 
@@ -1573,7 +1572,7 @@ SQ   SEQUENCE   913 AA;  101638 MW;  D0E135DBEC30C28C CRC64;
     <para>
 		As usual, we start by choosing a module to use, in this case
 <ulink
-		  url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Tools/Run/StandAloneBlast.html">Bio::Tools::Run::StandAloneBlast</ulink>.
+		  url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Tools/Run/StandAloneBlast.html"><citetitle>Bio::Tools::Run::StandAloneBlast</citetitle></ulink>.
 		You stipulate the parameters used by the blastall program by
 		populating an array, it's called
 		<varname>@params</varname> in this example but any name for the array 
@@ -1623,21 +1622,21 @@ print $result_obj->num_hits;
 		The report object, <varname>$report_obj</varname>, and the
 		result object, <varname>$result_obj</varname>, come from 
 		the SearchIO modules. The
-		<ulink url="http://bioperl.org/HOWTOs/SearchIO/index.html">SearchIO HOWTO</ulink> will tell you all about using these
+		<ulink url="http://bioperl.org/HOWTOs/SearchIO/index.html"><citetitle>SearchIO HOWTO</citetitle></ulink> will tell you all about using these
 		objects to extract useful data from your BLAST analyses.
 	 </para>
 	 <para>
 		Sometimes you'll see errors when you try to use
 <ulink
-		  url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Tools/Run/StandAloneBlast.html">Bio::Tools::Run::StandAloneBlast</ulink> 
+		  url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Tools/Run/StandAloneBlast.html"><citetitle>Bio::Tools::Run::StandAloneBlast</citetitle></ulink> 
 		that have nothing to do with Bioperl. Make sure that BLAST is 
 		set up properly and running before you attempt to script it
 		using 
 <ulink
-		  url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Tools/Run/StandAloneBlast.html">Bio::Tools::Run::StandAloneBlast</ulink>. There are
+		  url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Tools/Run/StandAloneBlast.html"><citetitle>Bio::Tools::Run::StandAloneBlast</citetitle></ulink>. There are
 		some notes on setting up BLAST in the 
 <ulink
-		  url="http://bioperl.org/Core/Latest/INSTALL">INSTALL</ulink> 
+		  url="http://bioperl.org/Core/Latest/INSTALL"><citetitle>INSTALL</citetitle></ulink> 
 		file.
 	 </para>
 	 <para>
@@ -1649,7 +1648,7 @@ print $result_obj->num_hits;
 		built for the most popular programs. You can find the
 		bioperl-run package on the 
 <ulink
-		  url="http://bioperl.org/Core/Latest/index.shtml">download page</ulink>. 
+		  url="http://bioperl.org/Core/Latest/index.shtml"><citetitle>download page</citetitle></ulink>. 
 	 </para>
   </section>
 
@@ -1767,7 +1766,7 @@ $seq_obj = $inx->fetch($id)
 		like "1CRA" in this example? You can customize the index by 
 		using 
 <ulink
-		url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Index/Fasta.html">Bio::Index::Fasta</ulink>'s 
+		url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Index/Fasta.html"><citetitle>Bio::Index::Fasta</citetitle></ulink>'s 
 <function>id_parser</function> method, which accepts
 		the name of a function as an argument where that function
 		tells the indexing object what key to use. For example:
@@ -1818,21 +1817,21 @@ sub get_id {
 		  <listitem><para>
 			 The 
 	<ulink 
-url="http://bioperl.org/Core/Latest/bptutorial.html">bptutorial</ulink>
+url="http://bioperl.org/Core/Latest/bptutorial.html"><citetitle>bptutorial</citetitle></ulink>
 			 gives a good overview of many
 			 different topics. Few topics are covered in detail but many
 			 of the most important modules and concepts are covered.
 		  </para></listitem>
 		  <listitem><para>
-			 The <ulink url="http://bioperl.org/HOWTOs">
-				HOWTOs</ulink>. Each one covers a topic in some detail, 
+			 The <ulink url="http://bioperl.org/HOWTOs"><citetitle>
+				HOWTOs</citetitle></ulink>. Each one covers a topic in some detail, 
 			 but there are certainly some HOWTOs that are missing that
 			 we would like to see written. Would you like to become an
 				expert and write one yourself?
 		  </para></listitem>
 		  <listitem><para>
 			 The <ulink
-					 url="http://doc.bioperl.org/releases/bioperl-1.4/">module documentation</ulink>. Each module is documented,
+					 url="http://doc.bioperl.org/releases/bioperl-1.4/"><citetitle>module documentation</citetitle></ulink>. Each module is documented,
 			 but the quality and quantity varies by module. 
 		  </para></listitem>
 		  <listitem><para>
@@ -1844,7 +1843,7 @@ url="http://bioperl.org/Core/Latest/bptutorial.html">bptutorial</ulink>
 				directories.
 		  </para></listitem>
 		  <listitem><para>
-			 <ulink url="http://bioperl.org/Core/Latest/modules.html#user">User-contributed documentation</ulink>. There's some very good material here.
+			 <ulink url="http://bioperl.org/Core/Latest/modules.html#user"><citetitle>User-contributed documentation</citetitle></ulink>. There's some very good material here.
 		  </para></listitem>
 		</orderedlist>
 	 </para>
@@ -1977,12 +1976,12 @@ $reversed_obj = $seq_obj->revcom;
 		<orderedlist>
 		  <listitem>
 			 <para>
-				<ulink url="http://www.manning.com/Conway/">Object Oriented Perl</ulink>
+				<ulink url="http://www.manning.com/Conway/"><citetitle>Object Oriented Perl</citetitle></ulink>
           </para>
 		  </listitem>
 		  <listitem>
 			 <para>               
-				The <ulink url="http://bioperl.org/Core/Latest/biodesign.html">Bioperl design documentation</ulink>, for anyone who'd like
+				The <ulink url="http://bioperl.org/Core/Latest/biodesign.html"><citetitle>Bioperl design documentation</citetitle></ulink>, for anyone who'd like
 				to write their own modules. 
 			 </para>
 		  </listitem>

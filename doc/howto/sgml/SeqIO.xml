@@ -93,8 +93,8 @@ my $seq_object = $seqio_object->next_seq;
       like a feature (a
       sub-sequence, usually with some biological property - 
       see the <ulink
-	url="http://bioperl.org/HOWTOs/Feature-Annotation/index.html">
-	Feature-Annotation HOWTO</ulink> for more information). When given
+	url="http://bioperl.org/HOWTOs/Feature-Annotation/index.html"><citetitle>
+	Feature-Annotation HOWTO</citetitle></ulink> for more information). When given
       fasta SeqIO creates a Bio::Seq object, a more spare object than
       the Bio::Seq::RichSeq object that's created when SeqIO is given formats
       like Genbank or EMBL, which may contain features and annotations.
