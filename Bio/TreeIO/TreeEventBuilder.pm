@@ -242,16 +242,26 @@ sub end_element{
    my ($self,$data) = @_;   
 
    $self->debug("end of element: $data->{Name}\n");
+   # this is the stack where we push/pop items from it
+   my $curcount = scalar @{$self->{'_currentnodes'}};
+   my $level   = $self->{'_treelevel'};
+   my $levelct = $self->{'_nodect'}->[$self->{'_treelevel'}+1] || 0;
 
    if( $data->{'Name'} eq 'node' ) {
        my $tnode;
        my $node = pop @{$self->{'_currentitems'}};	   
 
        $tnode = $self->nodetype->new( -verbose => $self->verbose,
-				      %{$node});
-       unless ( $node->{'-leaf'} ) { 
-	   for ( splice( @{$self->{'_currentnodes'}}, 
-			 - $self->{'_nodect'}->[$self->{'_treelevel'}+1])) {
+				      %{$node});       
+       $self->debug( "new node will be ".$tnode->to_string."\n");
+       if ( !$node->{'-leaf'} && $levelct > 0) {
+	   $self->debug(join(',', map { $_->to_string } 
+			     @{$self->{'_currentnodes'}}). "\n");
+	   $self->throw("something wrong with event construction treelevel ".
+			"$level is recorded as having $levelct nodes  ".
+			"but current nodes at this level is $curcount\n")
+	       if( $levelct > $curcount);	
+	   for ( splice( @{$self->{'_currentnodes'}}, - $levelct)) {
 	       $self->debug("adding desc: " . $_->to_string . "\n");
 	       $tnode->add_Descendent($_);
 	   }
@@ -259,9 +269,11 @@ sub end_element{
        }
        push @{$self->{'_currentnodes'}}, $tnode;
        $self->{'_nodect'}->[$self->{'_treelevel'}]++;
-       $self->debug ("added node: nodes in stack is ". scalar @{$self->{'_currentnodes'}} . ", treelevel: $self->{_treelevel}, nodect: $self->{_nodect}->[$self->{_treelevel}]\n");
+       
+       $self->debug ("added node: nodes in stack is $curcount, treelevel: $level, nodect: $levelct\n");
+       
    } elsif(  $data->{'Name'} eq 'tree' ) { 
-       $self->debug("end of tree: nodes in stack is ". scalar @{$self->{'_currentnodes'}}. "\n");
+       $self->debug("end of tree: nodes in stack is $curcount\n");
        $self->{'_treelevel'}--;
    }
 
