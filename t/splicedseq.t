@@ -1,3 +1,5 @@
+# -*-Perl-*-
+
 use strict;
 use vars qw($DEBUG $TESTCOUNT);
 my $error;
@@ -11,14 +13,6 @@ BEGIN {
     $TESTCOUNT = 3;
     plan tests => $TESTCOUNT;
 
-    eval {  };
-    if( $@ ) {
-	print STDERR "Bio::DB::GenBank unable to be loaded. This means the Bio::DB::* modules are not usable. so can't test remote locations.\n";
-	for( 1..$TESTCOUNT ) {
-	    skip("Not possible to test without DB access",1);
-	}
-       $error = 1; 
-    }
 };
 
 if( $error ==  1 ) {
@@ -30,20 +24,36 @@ use Bio::Seq;
 use Bio::SeqIO;
 
 
-my $str = Bio::SeqIO->new( '-file'=> Bio::Root::IO->catfile("t","data","test.genbank"), 
+my $str = Bio::SeqIO->new( '-file'=> Bio::Root::IO->catfile("t","data",
+							    "U58726.gb"), 
 			'-format' => 'GenBank');
-
 ok $str;
 my $seq;
 
 ok ( $seq = $str->next_seq() );
 
-foreach my $ft ( $seq->top_SeqFeatures ) {
+# Here is a cute way to verify the sequence by seeing if the
+# the translation matches what is annotated in the file -js
+foreach my $ft ( grep { $_->primary_tag eq 'CDS'} 
+		 $seq->top_SeqFeatures ) {
+    if( $ft->has_tag('translation') ) {
+	my ($translation) = $ft->each_tag_value('translation');
 	my $t = $ft->spliced_seq();
+	my $pepseq = $t->translate()->seq();
+	chop($pepseq);# chop is to remove stop codon
+	ok($translation,$pepseq); 
+    }	
 }
 
-ok(1);
-
+eval { require Bio::DB::GenBank };
+if( $@ ) {
+    print STDERR "Skipping remote location tests\n";
+    for( $Test::ntest..$TESTCOUNT ) {
+	skip("Not possible to test remote locations without DB access",1);
+    }
+    exit(0);
+} else { 
+	
 #my $db = Bio::DB::GenBank->new();
 #
 #foreach my $ft ( $seq->top_SeqFeatures ) {
@@ -51,6 +61,6 @@ ok(1);
 #	print "Got ",$t->seq,"\n";
 #}
 
-
+}
 
 
