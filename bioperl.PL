@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-#use strict;
+use strict;
 use LocalConfig;
 use File::Basename qw(basename dirname);
 my $file;
@@ -13,7 +13,7 @@ Bioperl v$Local{VERSION} - Perl Modules for Biology
 
 GROK
 ;
-print OUT<<'NOGROK'
+print OUT<<'NOGROK';
 
 =head1 SYNOPSIS
 
@@ -36,7 +36,7 @@ been split up into the following sections:
 
 =head2 References for Individual Modules
 
-For ease of maintenance and coordination amongst contributors, bioperl is
+For ease of maintenance and coordination amongst contributors, bioperl
 code is maintained in a modular form, as is the documentation.  Refer to
 the documentation for individual modules by using perldoc, i.e.
 
@@ -138,7 +138,7 @@ We are very interested to hear how you experienced using Bioperl. Did
 it install cleanly? Did you understand the documentation? Could you
 get the objects to do what you wanted them to do? If Bioperl was useless
 we want to know why, and if it was great - that too. Post a message to
-B<bioperl-l\@bioperl.org>, the Bioperl mailing list, where all the developers
+B<bioperl-l@bioperl.org>, the Bioperl mailing list, where all the developers
 are.
 
 Only by getting people's feedback do we know whether we are providing
@@ -155,7 +155,7 @@ sort of work, advice is freely given and all are welcome!
 =head2 Find bugs!
 
 We know that there are bugs in there. If you find something which you are
-pretty sure is a problem, post a note to bioperl-bugs\@bioperl.org and
+pretty sure is a problem, post a note to bioperl-bugs@bioperl.org and
 we will get on it as soon as possible. You can also access the bug
 system through the web pages.
 
@@ -171,7 +171,7 @@ except for Seq.pm). Talk to him or her and suggest changes.
 If you can make a useful object we will happily include it into the
 core. Probably you will want to read a lot of the documentation 
 in L<Bio::Root>, talk to people on the Bioperl mailing list,
-B<bioperl-l\@bioperl.org>, and read biodesign.pod. biodesign.pod provides
+B<bioperl-l@bioperl.org>, and read biodesign.pod. biodesign.pod provides
 documentation on the conventions and ideas used in Bioperl, it's definitely
 worth a read if you would like to be a Bioperl developer.
 
@@ -217,15 +217,15 @@ From 2001-2002 we saw the developer ranks swell and contributions
 increase with folks volunteering everything from bibliographic modules
 (Martin Senger) to new SCF chromatogram file parsers (Chad Matsalla
 and Aaron Mackey) to a new relational database and Bioperl layer for
-fast access to feature data (Lincoln Stein) as well graphical
+fast access to feature data (Lincoln Stein) as well as graphical
 rendering of sequences with features (Lincoln Stein).  In early 2002
-Open-Bioinformatics foundation was formally incorperated as a
+Open-Bioinformatics foundation was formally incorporated as a
 non-profit organization (see http://www.open-bio.org) in the early
 part of 2002. We also participated in the 1st Bio-Hackathon that
 February which drew developers from several Open-Bio projects to
 lovely Cape Town, South Africa and the hospitality of the co-sponsor
 Electric Genetics (O'Reilly and Associates also co-sponsored the
-event, and AstraZeneca contributed to the sponorship).  In early May
+event, and AstraZeneca contributed to the sponsorship).  In early May
 we released bioperl 1.0 as an effort to put a stamp of completeness on
 the toolkit and submitted a paper detailing the efforts thus far (see
 the FAQ).  In late 2002 we released a developer release 1.1 for
@@ -243,11 +243,11 @@ Institute. In particular Dr. Steven Howes, Kenny Grant &
 Rich DiNunno have made significant efforts on our behalf.
 
 Finally, this document is maintained by Allen Day.  Contact
-<allenday\@ucla.edu> for comments/corrections.
+<allenday@ucla.edu> for comments/corrections.
 
 NOGROK
-;
-print <<GROK
+
+print OUT<<GROK;
 
 $Local{AUTHORS}
 

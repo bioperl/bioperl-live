@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-#use strict;
+use strict;
 use LocalConfig;
 use File::Basename qw(basename dirname);
 my $file;

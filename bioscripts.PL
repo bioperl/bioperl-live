@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-#use strict;
+use strict;
 use LocalConfig;
 use File::Basename qw(basename dirname);
 my $file;
@@ -13,7 +13,7 @@ Bioscripts v$Local{VERSION} - Bioperl scripts
 
 GROK
 ;
-print OUT<<NOGROK
+print OUT<<'NOGROK';
 
 =head1 SYNOPSIS
 
