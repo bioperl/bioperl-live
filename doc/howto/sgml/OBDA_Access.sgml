@@ -440,8 +440,9 @@
       </programlisting>
     </para>
     <para>
-      The database-name can be any useful name, it does not have to
-      refer to existing files or directories.
+      The "database-name" can be any useful name, it does not have to
+      refer to existing files or directories, but the "dbname" should
+      be the name of the newly created directory.
     </para>
   </section>
 
