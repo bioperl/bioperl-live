@@ -23,6 +23,20 @@ Do not use this module directly.  Use it via the Bio::SeqIO class.
 This object can transform Bio::Seq objects to and from fasta flat
 file databases.
 
+This module handles very large sequence files by using the
+L<Bio::Seq:::LargePrimarySeq> module to store all the sequence data in
+a file.  This can be a problem if you have limited disk space on your
+computer because this will effectively cause 2 copies of the sequence
+file to reside on disk for the life of the
+L<Bio::Seq::LargePrimarySeq> object.  The default location for this is
+specified by the L<File::Spec>->tmpdir routine which is usually /tmp
+on UNIX.  If a sequence file is larger than the swap space (capacity
+of the /tmp dir) this could cause problems for the machine.  It is
+possible to set the directory where the temporary file is located by
+adding the following line to your code BEFORE calling next_seq.
+ 
+    $Bio::Seq::LargePrimarySeq::DEFAULT_TEMP_DIR = 'newdir';
+
 =head1 FEEDBACK
 
 =head2 Mailing Lists
@@ -38,17 +52,15 @@ of the Bioperl mailing lists.  Your participation is much appreciated.
 =head2 Reporting Bugs
 
 Report bugs to the Bioperl bug tracking system to help us keep track
- the bugs and their resolution.
- Bug reports can be submitted via email or the web:
+the bugs and their resolution.  Bug reports can be submitted via email
+or the web:
 
   bioperl-bugs@bio.perl.org
   http://bio.perl.org/bioperl-bugs/
 
-=head1 AUTHORS - Ewan Birney & Lincoln Stein
+=head1 AUTHORS - Jason Stajich
 
-Email: birney@ebi.ac.uk
-       lstein@cshl.org
-
+Email: jason@chg.mc.duke.edu
 
 =head1 APPENDIX
 
@@ -60,13 +72,14 @@ methods. Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::SeqIO::largefasta;
-use vars qw(@ISA);
+use vars qw(@ISA $FASTALINELEN);
 use strict;
 # Object preamble - inherits from Bio::Root::Object
 
 use Bio::SeqIO;
 use Bio::Seq::LargePrimarySeq;
 
+$FASTALINELEN = 60;
 @ISA = qw(Bio::SeqIO);
 # override new here to insure we instantiate this class 
 
@@ -109,20 +122,26 @@ sub next_seq {
 sub next_primary_seq {
   my( $self, $as_next_seq ) = @_;
 
-#  local $/ = "\n>";
-  my $largeseq = new Bio::Seq::LargePrimarySeq;(-moltype=>'DNA');
+#  local $/ = "\n";
+  my $largeseq = new Bio::Seq::LargePrimarySeq;
   my ($id,$fulldesc,$entry);
   my $count = 0;
+  my $seen = 0;
   while( defined ($entry = $self->_readline) ) {
-      next if ( $entry eq '>');
-      if( $entry =~ /\s*>(.+?)/ ) {
-	  ($id,$fulldesc) = ($1 =~ /^\s*(\S+)\s*(.*)/)
+      if( $seen == 1 && $entry =~ /^\s*>/ ) {
+	  $self->_pushback($entry);
+	  return $largeseq;
+      }
+      if ( $entry eq '>' ) { $seen = 1; next; }      
+      elsif( $entry =~ /\s*>(.+?)$/ ) {
+	  $seen = 1;
+	  ($id,$fulldesc) = ($1 =~ /^\s*(\S+)\s*(.*)$/)
 	      or $self->warn("Can't parse fasta header");
 	  $largeseq->display_id($id);
 	  $largeseq->primary_id($id);	  
 	  $largeseq->desc($fulldesc);
       } else {
-	  $entry =~ s/\s//g;
+	  $entry =~ s/\s+//g;
 	  $largeseq->add_sequence_as_string($entry);
       }
       (++$count % 1000 == 0 && $self->verbose() > 0) && print "line $count\n";
@@ -143,15 +162,21 @@ sub next_primary_seq {
 
 sub write_seq {
    my ($self,@seq) = @_;
-   foreach my $seq (@seq) {
-     my $str = $seq->seq;
+   foreach my $seq (@seq) {       
      my $top = $seq->id();
      if ($seq->can('desc') and my $desc = $seq->desc()) {
 	 $desc =~ s/\n//g;
-        $top .= " $desc";
+	 $top .= " $desc";
      }
-     $str=~ s/(.{1,60})/$1\n/g;
-     $self->_print (">",$top,"\n",$str) or return;
+     $self->_print (">",$top,"\n");
+     my $end = $seq->length();
+     my $start = 1;
+     while( $start < $end ) {
+	 my $stop = $start + $FASTALINELEN - 1;
+	 $stop = $end if( $stop > $end );
+	 $self->_print($seq->subseq($start,$stop), "\n");
+	 $start += $FASTALINELEN;
+     }
    }
    return 1;
 }
