@@ -890,7 +890,7 @@ return $score;
  Usage   :
  Function:  returns all possible sequence vectors to satisfy the PFM under
             a given threshold
- Throws  :  If threshold outside of 3..7 (no sense to do that)
+ Throws  :  If threshold outside of 0..1 (no sense to do that)
  Example :  my @vectors=$self->get_all_vectors(4);
  Returns :  Array of strings
  Args    :  (optional) floating
@@ -900,10 +900,9 @@ return $score;
 sub get_all_vectors {
 	my $self=shift;
 	my $thresh=shift;
-  $self->throw("Out of range. Threshold should be >3 and 7<.\n") if (($thresh<3) || ($thresh>7));
-  my @seq=split(//,$self->consensus($thresh));
+  $self->throw("Out of range. Threshold should be >0 and 1<.\n") if (($thresh<3) || ($thresh>7));
+  my @seq=split(//,$self->consensus($thresh*10));
   my @perm;
-  $thresh=$thresh/10;
   for my $i (0..@{$self->{probA}}) {
     push @{$perm[$i]},'A' if ($self->{probA}->[$i]>$thresh);
     push @{$perm[$i]},'C' if ($self->{probC}->[$i]>$thresh);
