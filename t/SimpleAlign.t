@@ -2,7 +2,7 @@
 ## Bioperl Test Harness Script for Modules
 ## $Id$
 use strict;
-use constant NUMTESTS => 61;
+use constant NUMTESTS => 60;
 
 BEGIN {
     eval { require Test; };
@@ -105,7 +105,6 @@ if( $@ ) {
     exit;
 }
 
-
 my $string;
 my $out = IO::String->new($string);
 
@@ -157,21 +156,17 @@ BBB/8-8     t-
 
 $a->verbose(-1);
 $out->setpos(0); $string ='';
-$b = $a->slice(1,1);
+$b = $a->slice(1,2);
 $strout->write_aln($b);
-ok $string, "AAA/1-1    a\n";
-
-$out->setpos(0); $string ='';
-$b = $a->slice(10,13);
-$strout->write_aln($b);
-ok $string, "AAA/10-10    t\n";
+ok $string, "AAA/1-2    aa
+BBB/1-1    -a
+";
 
 eval {
     $b = $a->slice(11,13);
 };
 
 ok ($@ =~ /EX/ );
-
 
 #sort_alphabetically
 my $s3 = new Bio::LocatableSeq (-id => 'ABB',
