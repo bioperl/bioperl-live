@@ -97,7 +97,7 @@ use vars qw(@ISA @ATTRIBUTES);
 @ISA     = 'Bio::DB::Query::WebQuery';
 
 BEGIN {
-  @ATTRIBUTES = qw(db reldate mindate maxdate datetype);
+  @ATTRIBUTES = qw(db reldate mindate maxdate datetype maxids);
   for my $method (@ATTRIBUTES) {
     eval <<END;
 sub $method {
@@ -123,6 +123,7 @@ END
            -reldate  relative date to retrieve from (days)
            -datetype date field to use ('edat' or 'mdat')
            -ids      array ref of gids (overrides query)
+           -maxids   the maximum number of IDs you wish to collect (defaults to 100)
 
 This method creates a new query object.  Typically you will specify a
 -db and a -query argument, possibly modified by -mindate, -maxdate, or
@@ -137,17 +138,26 @@ Bio::DB::GenBank object's get_Stream_by_query() method.  A variety of
 IDs are automatically recognized, including GI numbers, Accession
 numbers, Accession.version numbers and locus names.
 
+By default, the query will collect only the first 100 IDs and will
+generate an exception if you call the ids() method and the query
+returned more than that number.  To increase this maximum, set -maxids
+to a number larger than the number of IDs you expect to obtain.  This
+only affects the list of IDs you obtain when you call the ids()
+method, and does not affect in any way the number of entries you
+receive when you generate a SeqIO stream from the query.
+
 =cut
 
 sub new {
   my $class = shift;
   my $self  = $class->SUPER::new(@_);
-  my ($query,$db,$reldate,$mindate,$maxdate,$datetype,$ids)
-    = $self->_rearrange([qw(QUERY DB RELDATE MINDATE MAXDATE DATETYPE IDS)],@_);
+  my ($query,$db,$reldate,$mindate,$maxdate,$datetype,$ids,$maxids)
+    = $self->_rearrange([qw(QUERY DB RELDATE MINDATE MAXDATE DATETYPE IDS MAXIDS)],@_);
   $self->db($db || DEFAULT_DB);
   $reldate  && $self->reldate($reldate);
   $mindate  && $self->mindate($mindate);
   $maxdate  && $self->maxdate($maxdate);
+  $maxids   && $self->maxids($maxids);
   $datetype ||= 'mdat';
   $datetype && $self->datetype($datetype);
   $self;
@@ -198,11 +208,12 @@ sub _request_parameters {
   $base   = ESEARCH;
   push @params,('term'   => $self->query);
 
-  # Providing 'retmax' limits queries to 500 sequences
-  # push @params,('retmax' => $self->{'_count'} || MAXENTRY);
+  # Providing 'retmax' limits queries to 500 sequences  ?? I don't think so LS
+  push @params,('retmax' => $self->maxids || MAXENTRY);
 
-  # And actually, it seems that we need 'retstart' equal to 0
-  push @params, ('retstart' => 0);
+  # And actually, it seems that we need 'retstart' equal to 0 ?? I don't think so LS
+  # push @params, ('retstart' => 0);
+
   ($method,$base,@params);
 }
 
@@ -221,7 +232,6 @@ Returns the number of entries that are matched by the query.
 
 sub count   {
   my $self = shift;
-  warn "count(@_)";
   if (@_) {
     my $d = $self->{'_count'};
     $self->{'_count'}   = shift;
@@ -281,6 +291,8 @@ sub _parse_response {
   if (!$truncated) {
     my @ids = $content =~ /<Id>(\d+)/g;
     $self->ids(\@ids);
+  } else {
+    $self->debug("ids truncated at $max\n");
   }
   $self->_truncated($truncated);
   my ($cookie)    = $content =~ m!<WebEnv>(\S+)</WebEnv>!;

@@ -433,15 +433,14 @@ sub get_seq_stream {
     }
   }
   $qualifiers{'-format'} = $rformat if( ! $seen);
+  $qualifiers{'-offset'} = 0;
   ($rformat, $ioformat) = $self->request_format($rformat);
-
-  my $request = $self->get_request(%qualifiers);
-  $request->proxy_authorization_basic($self->authentication)
-    if ( $self->authentication);
-  $self->debug("request is ". $request->as_string(). "\n");
 
   # workaround for MSWin systems
   $self->retrieval_type('io_string') if $self->retrieval_type =~ /pipeline/ && $^O =~ /^MSWin/;
+
+  my $expected = $qualifiers{-query} && ref $qualifiers{-query} ? $qualifiers{-query}->count : 0;
+  my $got      = 0;
 
   if ($self->retrieval_type =~ /pipeline/) {
     # Try to create a stream using POSIX fork-and-pipe facility.
@@ -456,11 +455,21 @@ sub get_seq_stream {
 
     if (defined $result) {
       $DB::fork_TTY = '/dev/null'; # prevents complaints from debugger
+
       if (!$result) {	# in child process
-	$self->_stream_request($request); 
+	do {
+	  $qualifiers{-offset} = $got;
+	  my $request = $self->get_request(%qualifiers);
+	  $request->proxy_authorization_basic($self->authentication)
+	    if ( $self->authentication);
+	  $self->debug("request is ". $request->as_string(). "\n");
+	  $got += $self->_stream_request($request);
+	  $self->debug("expected $expected, got $got");
+	} until $got >= $expected;
 	kill 9=>$$; # to prevent END{} blocks from executing in forked children
 	exit 0;
       }
+
       else {
 	  return Bio::SeqIO->new('-verbose' => $self->verbose,
 				 '-format'  => $ioformat,
@@ -476,7 +485,13 @@ sub get_seq_stream {
     my $dir = $self->io->tempdir( CLEANUP => 1);
     my ( $fh, $tmpfile) = $self->io()->tempfile( DIR => $dir );
     close $fh;
-    my $resp = $self->_request($request, $tmpfile);		
+
+    my $request = $self->get_request(%qualifiers);
+    $request->proxy_authorization_basic($self->authentication)
+      if ( $self->authentication);
+    $self->debug("request is ". $request->as_string(). "\n");
+
+    my $resp = $self->_request($request, $tmpfile);
     if( ! -e $tmpfile || -z $tmpfile || ! $resp->is_success() ) {
       $self->throw("WebDBSeqI Error - check query sequences!\n");
     }
@@ -494,6 +509,12 @@ sub get_seq_stream {
   }
 
   if ($self->retrieval_type =~ /io_string/i ) {
+
+    my $request = $self->get_request(%qualifiers);
+    $request->proxy_authorization_basic($self->authentication)
+      if ( $self->authentication);
+    $self->debug("request is ". $request->as_string(). "\n");
+
     my $resp = $self->_request($request);
     my $content = $resp->content_ref;
     $self->debug( "content is $$content\n");
@@ -703,7 +724,7 @@ sub _stream_request {
   my $child = open (FETCH,"-|");
   $self->throw("Couldn't fork: $!") unless defined $child;
 
-  if ($child) {
+  if ($child) { # in parent
     local ($/) = "//\n";  # assume genbank/swiss format
     $| = 1;
     my $records = 0;
@@ -715,10 +736,8 @@ sub _stream_request {
     }
     $/ = "\n"; # reset to be safe;
     close(FETCH);
-    close STDOUT; 
-    close STDERR;
-    kill 9=>$$;  # to prevent END{} blocks from executing in forked children
-    sleep;
+    close STDOUT;
+    return $records;
   }
   else {
     $| = 1;
@@ -729,7 +748,7 @@ sub _stream_request {
       $self->throw("WebDBSeqI Request Error:\n".$resp->as_string);
     }
 
-    close STDOUT; close STDERR;
+    close STDOUT;
     kill 9=>$$;  # to prevent END{} blocks from executing in forked children
     sleep;
   }

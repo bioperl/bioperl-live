@@ -159,9 +159,9 @@ sub default_format {
 
 sub get_request {
     my ($self, @qualifiers) = @_;
-    my ($mode, $uids, $format, $query) = $self->_rearrange([qw(MODE UIDS 
-							       FORMAT QUERY)],
-							   @qualifiers);
+    my ($mode, $uids, $format, $query, $query_offset) = $self->_rearrange([qw(MODE UIDS 
+									      FORMAT QUERY OFFSET)],
+									  @qualifiers);
 
     $mode = lc $mode;
     ($format) = $self->request_format() unless ( defined $format);
@@ -193,6 +193,7 @@ sub get_request {
     }
 
     $params{'rettype'} = $format;
+    $params{'retstart'} = $query_offset if defined $query_offset;
     if ($CGILOCATION{$mode}[0] eq 'post') {
 	return POST $url,[%params];
     } else {
