@@ -499,7 +499,7 @@ sub ambiguous_aln {
 
 =head2 overlap
 
-See documentation in L<Bio::Search::SearchUtils::overlap()|Bio::Search::SearchUtils>
+See documentation in L<Bio::Search::Hit::HitI::overlap()|Bio::Search::Hit::HitI>
 
 =cut
 
@@ -1310,7 +1310,7 @@ sub seq_inds {
 
 =head2 strand
 
-See documentation in L<Bio::Search::SearchUtils::strand()|Bio::Search::SearchUtils>
+See documentation in L<Bio::Search::Hit::HitI::strand()|Bio::Search::Hit::HitI>
 
 =cut
 
@@ -1368,7 +1368,7 @@ sub strand {
 
 =head2 frame
 
-See documentation in L<Bio::Search::SearchUtils::frame()|Bio::Search::SearchUtils>
+See documentation in L<Bio::Search::Hit::HitI::frame()|Bio::Search::Hit::HitI>
 
 =cut
 
@@ -1491,7 +1491,7 @@ sub each_accession_number {
 
 =head2 tiled_hsps
 
-See documentation in L<Bio::Search::SearchUtils::tiled_hsps()|Bio::Search::SearchUtils>
+See documentation in L<Bio::Search::SearchUtils::tile_hsps()|Bio::Search::SearchUtils>
 
 =cut
 
