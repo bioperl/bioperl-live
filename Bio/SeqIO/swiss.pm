@@ -2,7 +2,7 @@
 #
 # BioPerl module for Bio::SeqIO::swiss
 #
-# Cared for by Elia Stupka <elia@ebi.ac.uk>
+# Cared for by Elia Stupka <elia@tll.org.sg>
 #
 # Copyright Elia Stupka
 #
@@ -93,7 +93,7 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 
 =head1 AUTHOR - Elia Stupka
 
-Email elia@ebi.ac.uk
+Email elia@tll.org.sg
 
 Describe contact details here
 
