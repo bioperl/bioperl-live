@@ -340,6 +340,10 @@ sub DESTROY {
     # we are planning to cleanup temp files no matter what    
     if( exists($self->{'_rootio_tempfiles'}) &&
 	ref($self->{'_rootio_tempfiles'}) =~ /array/i) { 
+	if( $self->verbose > 0 ) {
+	    print STDERR "going to remove files ", 
+	    join(",",  @{$self->{'_rootio_tempfiles'}}), "\n";
+	}
 	unlink  (@{$self->{'_rootio_tempfiles'}} );
     }
     # cleanup if we are not using File::Temp
@@ -347,9 +351,10 @@ sub DESTROY {
 	exists($self->{'_rootio_tempdirs'}) &&
 	ref($self->{'_rootio_tempdirs'}) =~ /array/i) {	
 
-	print STDERR "going to remove dir ", 
-	@{$self->{'_rootio_tempdirs'}}, "\n";
-
+	if( $self->verbose > 0 ) {
+	    print STDERR "going to remove dirs ", 
+	    join(",",  @{$self->{'_rootio_tempdirs'}}), "\n";
+	}
 	foreach ( @{$self->{'_rootio_tempdirs'}} ) {
 	    rmdir($_); 
 	}
@@ -445,7 +450,9 @@ sub tempfile {
 
 sub tempdir {
     my ( $self, @args ) = @_;
-    return File::Temp::tempdir(@args) if(exists($INC{"File/Temp.pm"}));
+    if( exists(&File::Temp::tempdir) && exists($INC{"File/Temp.pm"})) {
+	return File::Temp::tempdir(@args)));
+    }
 
     # we have to this ourselves, not good
     #
