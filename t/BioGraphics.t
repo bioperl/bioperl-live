@@ -29,14 +29,16 @@ BEGIN {
     $NUMTESTS = 14;
     plan tests => $NUMTESTS;
 
-    eval {require GD; 
-	  require Bio::Graphics::FeatureFile;
-	  require Bio::Graphics;
-          };
-	if( $@) {
-	  print STDERR "GD is not installed\n";
-	  $error = 1;
-	}
+    eval { 
+	require GD; 
+	require Text::Shellwords; 
+	require Bio::Graphics::FeatureFile;
+	require Bio::Graphics;
+    };
+    if( $@ ) {
+	print STDERR "GD or Text::Shellwords modules are not installed. This means that Bio::Graphics module is unusable. Skipping tests.\n";
+      $error = 1;
+    }
 }
 
 exit 0 if $error;
@@ -67,6 +69,7 @@ while (@ARGV && $ARGV[0] =~ /^--?(\w+)/) {
   }
   shift;
 }
+
 
 foreach (@images) {
   if ($write) { warn "$_...\n"; do_write($_) } else { eval { do_compare($_) } }
