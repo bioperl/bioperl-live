@@ -10,15 +10,19 @@
 
 =head1 NAME
 
-Bio::LocationI - Abstract interface of a Location on Sequence
+Bio::LocationI - Abstract interface of a Location on a Sequence
 
 =head1 SYNOPSIS
 
-# get a LocationI somehow
+    # get a LocationI somehow
+    if( $location->strand == -1 ) {
+	printf "complement(%d..%d)\n", $location->start, $location->end;
+    } else {
+	printf "%d..%d\n", $location->start, $location->end;
+    }
 
 =head1 DESCRIPTION
 
-Descript to follow
 
 =head1 FEEDBACK
 
@@ -37,6 +41,10 @@ or the web:
 
   bioperl-bugs@bio.perl.org
   http://bio.perl.org/bioperl-bugs/
+
+=head1 AUTHOR - Jason Stajich
+
+Email jason@chg.mc.duke.edu
 
 =head1 APPENDIX
 

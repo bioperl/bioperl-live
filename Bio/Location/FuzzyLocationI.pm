@@ -1,6 +1,6 @@
 # $Id$
 #
-# BioPerl module for Bio::FuzzyLocationI
+# BioPerl module for Bio::Location::FuzzyLocationI
 # Cared for by Jason Stajich <jason@chg.mc.duke.edu>
 #
 # Copyright Jason Stajich
@@ -10,16 +10,25 @@
 
 =head1 NAME
 
-Bio::FuzzyLocationI - Abstract interface of a Location on Sequence
-which has multiple locations (start/end points)
+Bio::FuzzyLocationI - Abstract interface of a Location on a Sequence
+which has unclear start/end location
 
 =head1 SYNOPSIS
 
-# get a LocationI somehow
+    # Get a FuzzyLocationI object somehow
+    # methods have yet to be defined
 
 =head1 DESCRIPTION
 
-Descript to follow
+This interface encapsulates the necessary methods for representing a
+Fuzzy Location, one that does not have clear start and/or end points.
+This will initially serve to handle features from Genbank/EMBL feature
+tables that are written as 1^100 meaning between bases 1 and 100 or
+<100..300 meaning it starts somewhere before 100.  Advanced
+implementations of this interface may be able to handle the necessary
+logic of overlaps/intersection/contains/union, but initially this will
+be just a holder for the Genbank/EMBL fuzzy location parsing and
+producing.
 
 =head1 FEEDBACK
 
@@ -39,6 +48,10 @@ or the web:
   bioperl-bugs@bio.perl.org
   http://bio.perl.org/bioperl-bugs/
 
+=head1 AUTHOR - Jason Stajich
+
+Email jason@chg.mc.duke.edu
+
 =head1 APPENDIX
 
 The rest of the documentation details each of the object
@@ -49,7 +62,7 @@ methods. Internal methods are usually preceded with a _
 # Let the code begin...
 
 
-package Bio::FuzzyLocationI;
+package Bio::Location::FuzzyLocationI;
 use vars qw(@ISA);
 use strict;
 

@@ -1,4 +1,4 @@
-# $Id $
+# $Id$
 #
 # BioPerl module for Bio::Location::Simple
 # Cared for by Jason Stajich <jason@chg.mc.duke.edu>
@@ -10,15 +10,23 @@
 
 =head1 NAME
 
-Bio::Location::Simple - Abstract interface of a Location on Sequence
+Bio::Location::Simple - Implementation of a Simple Location on a Sequence
 
 =head1 SYNOPSIS
 
-# get a Location::Simple somehow
+    my $location = new Bio::Location::Simple(-start => 1, -end => 100,
+					     -strand => 1 );
 
+    if( $location->strand == -1 ) {
+	printf "complement(%d..%d)\n", $location->start, $location->end;
+    } else {
+	printf "%d..%d\n", $location->start, $location->end;
+    }
+    
 =head1 DESCRIPTION
 
-Descript to follow
+This is an implementation of Bio::LocationI to manage simple location
+information on a Sequence.
 
 =head1 FEEDBACK
 
@@ -37,6 +45,10 @@ or the web:
 
   bioperl-bugs@bio.perl.org
   http://bio.perl.org/bioperl-bugs/
+
+=head1 AUTHOR - Jason Stajich
+
+Email jason@chg.mc.duke.edu
 
 =head1 APPENDIX
 

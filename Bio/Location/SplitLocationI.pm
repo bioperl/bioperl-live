@@ -1,6 +1,6 @@
 # $Id$
 #
-# BioPerl module for Bio::SplitLocationI
+# BioPerl module for Bio::Location::SplitLocationI
 # Cared for by Jason Stajich <jason@chg.mc.duke.edu>
 #
 # Copyright Jason Stajich
@@ -10,16 +10,29 @@
 
 =head1 NAME
 
-Bio::SplitLocationI - Abstract interface of a Location on Sequence
+Bio::SplitLocationI - Abstract interface of a Location on a Sequence
 which has multiple locations (start/end points)
 
 =head1 SYNOPSIS
 
-# get a LocationI somehow
+  # get a SplitLocationI somehow
+    print $splitlocation->start, "..", $splitlocation->end, "\n";
+    my @sublocs = $splitlocation->sub_Location();
+
+    my $count = 1;
+    # print the start/end points of the sub locations
+    foreach my $location ( sort { $a->start <=> $b->start } 
+			   @sublocs ) {
+	printf "sub feature %d [%d..%d]\n", $location->start,$location->end;
+        $count++;
+    }
 
 =head1 DESCRIPTION
 
-Descript to follow
+This interface encapsulates the necessary methods for representing the
+location of a sequence feature that has more that just a single
+start/end pair.  Some examples of this are the annotated exons in a
+gene or the annotated CDS in a sequence file.
 
 =head1 FEEDBACK
 
@@ -39,6 +52,10 @@ or the web:
   bioperl-bugs@bio.perl.org
   http://bio.perl.org/bioperl-bugs/
 
+=head1 AUTHOR - Jason Stajich
+
+Email jason@chg.mc.duke.edu
+
 =head1 APPENDIX
 
 The rest of the documentation details each of the object
@@ -49,7 +66,7 @@ methods. Internal methods are usually preceded with a _
 # Let the code begin...
 
 
-package Bio::SplitLocationI;
+package Bio::Location::SplitLocationI;
 use vars qw(@ISA);
 use strict;
 
@@ -89,6 +106,9 @@ sub sub_Location {
     my ($self,@args) = @_;
     $self->_abstractDeath;
 }
+
+# we'll need to override the RangeI methods since our locations will
+# not be contiguous.
 
 1;
 
