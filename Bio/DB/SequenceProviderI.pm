@@ -564,12 +564,14 @@ sub get_Seq_stream {
 This method is identical to sequences() except that it always generates
 an iterator.
 
-NOTE: This is a (glob ref) alias to get_Seq_stream().  It is
+NOTE: This is an inheritable alias to get_Seq_stream().  It is
 deprecated.  get_Seq_stream() should be used instead.
 
 =cut
 
-  *get_PrimarySeq_stream = \&get_Seq_stream;
+sub get_PrimarySeq_stream {
+  shift->get_Seq_stream( @_ );
+}
 
 1;
 
