@@ -18,7 +18,7 @@ BEGIN {
     }
 
     use Test;
-    plan tests => 47; 
+    plan tests => 62; 
 
     eval { require XML::Parser::PerlSAX; };
     if( $@ ) {
@@ -105,3 +105,28 @@ ok($report->query_size, 340);
 
 $subject = $report->next_subject;
 ok(! $subject);
+
+
+$searchio = new Bio::SearchIO ('-format' => 'blast',
+				  '-file'   => Bio::Root::IO->catfile('t','data','ecolitst.bls'));
+
+$report = $searchio->next_report;
+
+ok($report->database_name, 'ecoli.aa');
+ok($report->database_size, 1358990);
+ok($report->program_name, 'BLASTP');
+ok($report->program_version, '2.1.3');
+ok($report->query_name, 'gi|1786183|gb|AAC73113.1| (AE000111) aspartokinase I,homoserine dehydrogenase I [Escherichia coli]');
+ok($report->query_size, 820);
+
+my @valid = ( [ 'gb|AAC73113.1|', 820, 'AAC73113'],
+	      [ 'gb|AAC76922.1|', 810, 'AAC76922'],
+	      [ 'gb|AAC76994.1|', 449, 'AAC76994']);
+my $count = 0;
+while( $subject = $report->next_subject ) {
+    my $d = shift @valid;
+    ok($subject->name, $d->[0]);
+    ok($subject->length, $d->[1]);
+    ok($subject->accession, $d->[2]);
+    last if( $count++ > @valid );
+}

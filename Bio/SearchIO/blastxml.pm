@@ -112,6 +112,7 @@ BEGIN {
 		 'BlastOutput_query-def'=> 'queryname',
 		 'BlastOutput_query-len'=> 'querylen',
 		 'BlastOutput_db'       => 'dbname',
+		 'BlastOutput_db-len'   => 'dbsize',
 		 'Iteration_iter-num'   => 'iternum',
 		 'Parameters_matrix'    => { 'param' => 'matrix'},
 		 'Parameters_expect'    => { 'param' => 'expect'},
@@ -163,7 +164,7 @@ sub next_report{
     my $data = '';
     my $firstline = 1;
     while( defined( $_ = $self->_readline) ) {
-	if( /^RPS-BLAST/ ) {
+	if( /^RPS-BLAST/i ) {
 	    $self->{'_reporttype'} = 'RPSBLAST';
 	    next;
 	}
@@ -175,7 +176,7 @@ sub next_report{
 	$data .= $_;
 	$firstline = 0;
     }
-    return undef if ( ! $data );
+    return undef unless( $data);
     my %parser_args = ('Source' => { 'String' => $data },
 		       'Handler' => $self);
     

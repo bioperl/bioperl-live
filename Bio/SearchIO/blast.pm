@@ -12,15 +12,22 @@
 
 =head1 NAME
 
-Bio::SearchIO::blast - DESCRIPTION of Object
+Bio::SearchIO::blast - Event generator for event based parsing of blast reports 
 
 =head1 SYNOPSIS
 
-Give standard usage here
+#Do not use this object directly - it is used as part of the Bio::SearchIO system.
+
+    use Bio::SearchIO;
+    my $searchio = new Bio::SearchIO(-format => 'blast',
+				     -file   => 'file1.bls');
+    while( my $report = $searchio->next_report ) {
+    
+    }
 
 =head1 DESCRIPTION
 
-Describe the object here
+This object encapsulated the necessary methods for generating events suitable for building Bio::Search objects from a BLAST report file. 
 
 =head1 FEEDBACK
 
@@ -63,17 +70,72 @@ Internal methods are usually preceded with a _
 # Let the code begin...
 
 
+
 package Bio::SearchIO::blast;
-use vars qw(@ISA);
 use strict;
-
-# Object preamble - inherits from Bio::Root::Root
-
-use Bio::Root::Root;
-use Bio::SearchIO::EventGeneratorI;
+use vars qw(@ISA %MAPPING %MODEMAP);
 use Bio::SearchIO;
 
-@ISA = qw(Bio::SearchIO Bio::SearchIO::EventGeneratorI );
+@ISA = qw(Bio::SearchIO );
+
+BEGIN { 
+    # mapping of NCBI Blast terms to Bioperl hash keys
+    %MODEMAP = ('BlastOutput' => 'report',
+		'Hit'         => 'subject',
+		'Hsp'         => 'hsp'
+		);
+
+    # This should really be done more intelligently, like with
+    # XSLT
+
+    %MAPPING = ( 
+		 'Hsp_bit-score' => 'bits',
+		 'Hsp_score'     => 'score',
+		 'Hsp_evalue'    => 'evalue',
+		 'Hsp_query-from'=> 'querystart',
+		 'Hsp_query-to'  => 'queryend',
+		 'Hsp_hit-from'  => 'subjectstart',
+		 'Hsp_hit-to'    => 'subjectend',
+		 'Hsp_positive'  => 'positive',
+		 'Hsp_identity'  => 'match',
+		 'Hsp_gaps'      => 'gaps',
+		 'Hsp_qseq'      => 'queryseq',
+		 'Hsp_hseq'      => 'subjectseq',
+		 'Hsp_midline'   => 'homolseq',
+		 'Hsp_align-len' => 'hsplen',
+		 'Hsp_query-frame'=> 'queryframe',
+		 'Hsp_hit-frame'  => 'subjectframe',
+
+		 'Hit_id'        => 'subjectname',
+		 'Hit_len'       => 'subjectlen',
+		 'Hit_accession' => 'subjectacc',
+		 'Hit_def'       => 'subjectdesc',
+		 
+		 'BlastOutput_program'  => 'programname',
+		 'BlastOutput_version'  => 'programver',
+		 'BlastOutput_query-def'=> 'queryname',
+		 'BlastOutput_query-len'=> 'querylen',
+		 'BlastOutput_db'       => 'dbname',
+		 'BlastOutput_db-len'   => 'dbsize',
+		 'Iteration_iter-num'   => 'iternum',
+		 'Parameters_matrix'    => { 'param' => 'matrix'},
+		 'Parameters_expect'    => { 'param' => 'expect'},
+		 'Parameters_include'   => { 'param' => 'include'},
+		 'Parameters_sc-match'  => { 'param' => 'match'},
+		 'Parameters_sc-mismatch' => { 'param' => 'mismatch'},
+		 'Parameters_gap-open'  => { 'param' => 'gapopen'},
+		 'Parameters_gap-extend'=> { 'param' => 'gapext'},
+		 'Parameters_filter'    => {'param' => 'filter'},
+		 'Statistics_db-num'    => { 'stat' => 'dbnum'},
+		 'Statistics_db-len'    => { 'stat' => 'dblength'},
+		 'Statistics_hsp-len'   => { 'stat' => 'hsplength'},
+		 'Statistics_eff-space' => { 'stat' => 'effectivespace'},
+		 'Statistics_kappa'     => { 'stat' => 'kappa' },
+		 'Statistics_lambda'    => { 'stat' => 'lambda' },
+		 'Statistics_entropy'   => { 'stat' => 'entropy'},
+		 );
+}
+
 
 =head2 new
 
@@ -83,14 +145,12 @@ use Bio::SearchIO;
  Returns : Bio::SearchIO::blast
  Args    :
 
-
 =cut
 
 sub new {
   my($class,@args) = @_;
 
   my $self = $class->SUPER::new(@args);
-
 }
 
 
@@ -107,15 +167,370 @@ sub new {
 sub next_report{
    my ($self) = @_;
    
-   # parsing magic here - but we call event handlers rather than 
-   # instantiating things 
-   
-   
-   
+   my $data = '';
+   my $seentop = 0;
+
+   $self->start_document();
+   while( defined ($_ = $self->_readline )) {
+       next if( /^\s+$/); # skip empty lines
+       if( /^([T]?BLAST[NPX])\s*([\d\.]+)/i ) {
+	   if( $seentop ) {
+	       $self->_pushback($_);
+	       $self->end_element({ 'Name' => 'BlastOutput'});
+	       return $self->end_document();
+	   }
+	   $self->start_element({ 'Name' => 'BlastOutput' } );
+	   $seentop = 1;
+	   $self->element({ 'Name' => 'BlastOutput_program',
+			    'Data' => $1});
+	   
+	   $self->element({ 'Name' => 'BlastOutput_version',
+			    'Data' => $2});
+       } elsif ( /^Query=\s*(.+)$/ ) {
+	   my $q = $1;
+	   my $size = 0;      
+	   $_ = $self->_readline;
+	   while( defined ($_) && $_ !~ /^\s+$/ ) {	       
+	       chomp;
+	       if( /([\d,]+)\s+letters/ ) {		   
+		   $size = $1;
+		   $size =~ s/,//g;
+		   last;
+	       } else { 
+		   $q .= $_;
+	       }
+	       $_ = $self->_readline;
+	   }
+
+	   $self->element({ 'Name' => 'BlastOutput_query-def',
+			    'Data' => $q});
+	   $self->element({ 'Name' => 'BlastOutput_query-len', 
+			    'Data' => $size});
+
+       } elsif ( /^Database:\s*(.+)$/ ) {
+	   $self->element({'Name' => 'BlastOutput_db',
+			   'Data' => $1});
+	   if( $self->_readline =~ /([\d,]+) total letters/ ) {
+	       my $s = $1;
+	       $s =~ s/,//g;
+	       $self->element({'Name' => 'BlastOutput_db-len',
+			       'Data' => $s});	
+	   }
+       } elsif( /^>(\S+)\s*(.*)?/ ) {
+	   if( $self->in_element('hsp') ) {
+	       $self->end_element({ 'Name' => 'Hsp'});
+	   }
+	   if( $self->in_element('subject') ) {
+	       $self->end_element({ 'Name' => 'Hit'});
+	   }
+	   $self->start_element({ 'Name' => 'Hit'});
+	   my $id = $1;
+	   $self->element({ 'Name' => 'Hit_id',
+			    'Data' => $id});
+	   my @pieces = split(/\|/,$id);
+	   my $acc = pop @pieces;
+	   $acc =~ s/\.\d+$//;
+	   $self->element({ 'Name' =>  'Hit_accession',
+			    'Data'  => $acc});	   
+	   $self->element({ 'Name' => 'Hit_def',
+			    'Data' => $2});	   
+       } elsif( $self->_mode eq 'subject' && /Length\s*=\s*(\d+)/ ) {
+	   $self->element({ 'Name' => 'Hit_len',
+			    'Data' => $1 });
+       } elsif( /Score = (\d+) \((\S+) bits\), Expect = ([^,\s]+),/ ) {
+	   if( $self->in_element('hsp') ) {
+	       $self->end_element({'Name' => 'Hsp'});
+	   }
+	   $self->start_element({'Name' => 'Hsp'});
+       	   $self->element( { 'Name' => 'Hsp_score',
+			     'Data' => $1});
+	   $self->element( { 'Name' => 'Hsp_bit-score',
+			     'Data' => $2});
+	   $self->element( { 'Name' => 'Hsp_evalue',
+			     'Data' => $3});
+       } elsif( /Score = (\S+) bits \((\d+)\), Expect = (\S+)/	) {
+	   if( $self->in_element('hsp') ) {
+	       $self->end_element({ 'Name' => 'Hsp'});
+	   }
+	   $self->start_element({'Name' => 'Hsp'});
+	   $self->element( { 'Name' => 'Hsp_score',
+			     'Data' => $2});
+	   $self->element( { 'Name' => 'Hsp_bit-score',
+			     'Data' => $1});
+	   $self->element( { 'Name' => 'Hsp_evalue',
+			     'Data' => $3});
+       } elsif( $self->in_element('hsp') &&
+		/Identities = (\d+)\/(\d+).+, Positives = (\d+)\/(\d+).+(\, Gaps = (\d+)\/(\d+))?/ ) {
+	   
+	   $self->element( { 'Name' => 'Hsp_identity',
+			     'Data' => $1});
+	   $self->element( {'Name' => 'Hsp_align-len',
+			    'Data' => $2});
+	   $self->element( { 'Name' => 'Hsp_positive',
+			     'Data' => $3});
+	   if( defined $6 ) { 
+	       $self->element( { 'Name' => 'Hsp_gaps',
+				 'Data' => $6});	   
+	   }
+	   $self->{'_Query'} = {'begin' => 0, 'end' => 0};
+	   $self->{'_Sbjct'} = { 'begin' => 0, 'end' => 0};
+	   
+       } elsif( /\s+Database:/ ) {
+	   $self->end_element({'Name' => 'Hsp'});
+	   $self->end_element({'Name' => 'Hit'});
+       } elsif( /Matrix:\s+(\S+)/ ) {
+	   $self->element({'Name' => 'Parameters_matrix',
+			   'Data' => $1});
+       } elsif( /Gap Penalties: Existence: (\d+), Extension: (\d+)/) {
+	   $self->element({'Name' => 'Parameters_gap-open',
+			   'Data' => $1});
+	   $self->element({'Name' => 'Parameters_gap-extend',
+			   'Data' => $1});
+       } elsif( $self->in_element('hsp') ) {
+	   
+           # let's read 3 lines at a time;
+	   my %data = ( 'Query' => '',
+			'Mid' => '',
+			'Hit' => '' );
+	   my $len;
+	   for( my $i = 0; 
+		defined($_) && $i < 3; 
+		$i++ ){
+	       chomp;
+	       if( /((Query|Sbjct):\s+(\d+)\s+)(\S+)\s+(\d+)/ ) {
+		   $data{$2} = $4;
+		   $len = length($1);
+		   $self->{"\_$2"}->{'begin'} = $3 unless $self->{"_$2"}->{'begin'};
+		   $self->{"\_$2"}->{'end'} = $5;
+	       } else { 
+		   $data{'Mid'} = substr($_,$len);
+	       }
+	       $_ = $self->_readline();	       
+	   }
+	   $self->characters({'Name' => 'Hsp_qseq',
+			      'Data' => $data{'Query'} });
+	   $self->characters({'Name' => 'Hsp_hseq',
+			      'Data' => $data{'Sbjct'}});
+	   $self->characters({'Name' => 'Hsp_midline',
+			      'Data' => $data{'Mid'} });
+       } else { 
+	  # print "unrecognized line $_";
+       }
+   } 
+   $self->end_element({'Name' => 'BlastOutput'});
+   return $self->end_document();
+}
+
+=head2 start_element
+
+ Title   : start_element
+ Usage   :
+ Function:
+ Example :
+ Returns : 
+ Args    :
+
+
+=cut
+
+sub start_element{
+   my ($self,$data) = @_;
+    # we currently don't care about attributes
+    my $nm = $data->{'Name'};    
+    if( my $type = $MODEMAP{$nm} ) {
+	$self->_mode($type);
+	if( $self->_eventHandler->will_handle($type) ) {
+	    my $func = sprintf("start_%s",lc $type);
+	    $self->_eventHandler->$func($data->{'Attributes'});
+	}						 
+	unshift @{$self->{'_elements'}}, $type;
+    }
+    if($nm eq 'BlastOutput') {
+	$self->{'_values'} = {};
+	$self->{'_report'}= undef;
+	$self->{'_mode'} = '';
+    }
+
+}
+
+=head2 end_element
+
+ Title   : end_element
+ Usage   :
+ Function:
+ Example :
+ Returns : 
+ Args    :
+
+
+=cut
+
+sub end_element {
+    my ($self,$data) = @_;
+    my $nm = $data->{'Name'};
+    my $rc;
+    if($nm eq 'BlastOutput_program' &&
+       $self->{'_last_data'} =~ /(t?blast[npx])/i ) {
+	$self->{'_reporttype'} = uc $1; 	    
+    }   
+    # Hsp are sort of weird, in that they end when another
+    # object begins so have to detect this in end_element for now
+    if( $nm eq 'Hsp' ) {
+	$self->{'_last_hspdata'} = {};
+	$self->element({'Name' => 'Hsp_query-from',
+			'Data' => $self->{'_Query'}->{'begin'}});
+	$self->element({'Name' => 'Hsp_query-to',
+			'Data' => $self->{'_Query'}->{'end'}});
+	
+	$self->element({'Name' => 'Hsp_hit-from',
+			'Data' => $self->{'_Sbjct'}->{'begin'}});
+	$self->element({'Name' => 'Hsp_hit-to',
+			'Data' => $self->{'_Sbjct'}->{'end'}});
+    }
+    if( my $type = $MODEMAP{$nm} ) {
+	if( $self->_eventHandler->will_handle($type) ) {
+	    my $func = sprintf("end_%s",lc $type);
+	    $rc = $self->_eventHandler->$func($self->{'_reporttype'},
+					      $self->{'_values'});	    
+	}
+	shift @{$self->{'_elements'}};
+
+    } elsif( $MAPPING{$nm} ) { 	
+	
+	if ( ref($MAPPING{$nm}) =~ /hash/i ) {
+	    my $key = (keys %{$MAPPING{$nm}})[0];
+	    $self->{'_values'}->{$key}->{$MAPPING{$nm}->{$key}} = $self->{'_last_data'};
+	} else {
+	    $self->{'_values'}->{$MAPPING{$nm}} = $self->{'_last_data'};
+	}
+    } else { 
+	print "unknown nm $nm, ignoring\n";
+    }
+    $self->{'_last_data'} = ''; # remove read data if we are at 
+				# end of an element
+    $self->{'_report'} = $rc if( $nm eq 'BlastOutput' );
+    return $rc;
+
+}
+
+=head2 element
+
+ Title   : element
+ Usage   :
+ Function:
+ Example :
+ Returns : 
+ Args    :
+
+
+=cut
+
+sub element{
+   my ($self,$data) = @_;
+   $self->start_element($data);
+   $self->characters($data);
+   $self->end_element($data);
 }
 
 
+=head2 characters
+
+ Title   : characters
+ Usage   :
+ Function:
+ Example :
+ Returns : 
+ Args    :
 
 
+=cut
+
+sub characters{
+   my ($self,$data) = @_;   
+
+   if( $self->in_element('hsp') && 
+       $data->{'Name'} =~ /Hsp\_(qseq|hseq|midline)/ ) {
+       $self->{'_last_hspdata'}->{$data->{'Name'}} .= $data->{'Data'};
+       return $data->{'Data'};
+   }  
+   return unless ( defined $data->{'Data'} && $data->{'Data'} !~ /^\s+$/ );
+   
+   $self->{'_last_data'} = $data->{'Data'}; 
+}
+
+=head2 _mode
+
+ Title   : _mode
+ Usage   : $obj->_mode($newval)
+ Function: 
+ Example : 
+ Returns : value of _mode
+ Args    : newvalue (optional)
+
+
+=cut
+
+sub _mode{
+    my ($self,$value) = @_;
+    if( defined $value) {
+	$self->{'_mode'} = $value;
+    }
+    return $self->{'_mode'};
+}
+
+=head2 in_element
+
+ Title   : in_element
+ Usage   :
+ Function:
+ Example :
+ Returns : 
+ Args    :
+
+
+=cut
+
+sub in_element{
+   my ($self,$name) = @_;  
+   return ( $self->{'_elements'}->[0] eq $name)
+}
+
+=head2 start_document
+
+ Title   : start_document
+ Usage   : 
+ Function:
+ Example :
+ Returns : 
+ Args    :
+
+
+=cut
+
+sub start_document{
+    my ($self) = @_;
+    $self->{'_lasttype'} = '';
+    $self->{'_values'} = {};
+    $self->{'_report'}= undef;
+    $self->{'_mode'} = '';
+    $self->{'_elements'} = [];
+}
+
+=head2 end_document
+
+ Title   : end_document
+ Usage   :
+ Function:
+ Example :
+ Returns : 
+ Args    :
+
+
+=cut
+
+sub end_document{
+   my ($self,@args) = @_;
+   return $self->{'_report'};
+}
 
 1;
