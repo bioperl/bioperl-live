@@ -5,7 +5,7 @@
 # Before `make install' is performed this script should be runnable with
 # `make test'. After `make install' it should work as `perl test.t'
 
-my $error = 0;
+my $error;
 
 use strict;
 BEGIN {     
@@ -28,8 +28,9 @@ BEGIN {
 	    skip(1,1);
 	}
        $error = 1;	
-    } 
-
+    } else {
+	$error = 0;
+    }
 }
 
 if( $error == 1 ) {
