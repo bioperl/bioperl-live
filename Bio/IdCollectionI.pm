@@ -7,7 +7,7 @@
 
 =head1 NAME
 
-Bio::IdcollectionI - interface for objects with multiple identifiers
+Bio::IdCollectionI - interface for objects with multiple identifiers
 
 =head1 SYNOPSIS
 
@@ -88,10 +88,10 @@ sub id_authorities {
 
  Title   : ids
  Usage   : @ids    = $obj->ids([$authority1,$authority2...])
- Function: return a list of Bio::IdentifiableI objects, optionally
+ Function: return a list of Bio::LocallyIdentifiableI objects, optionally
            filtered by the list of authorities.
 
- Returns : A list of Bio::IdentifiableI objects.
+ Returns : A list of Bio::LocallyIdentifiableI objects.
  Status  : Virtual
 
 =cut
