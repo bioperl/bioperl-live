@@ -236,7 +236,7 @@ href="http://bioperl.org/pipermail/bioperl-l/2003-December/014406.html">http://b
     <q id="1">
       <question>I want to parse BLAST, how do I do this?</question>
       <answer>
-	<p>Bioperl only supports one approach, Bio::SearchIO, as of verion 1.1. There are other Blast parsing modules in the package but they remain just to support older code.</p>
+	<p>Bioperl only supports one approach, Bio::SearchIO, as of version 1.1. There are other Blast parsing modules in the package but they remain just to support older code.</p>
 	<p>SearchIO supports BLAST, PSIBLAST, HMMER, WABA, and fasta report parsing.  The bptutorial provides an example of how to use this system as well as the documentation in the Bio::SearchIO system. There is also a <a href="http://www.bioperl.org/HOWTOs/html/SearchIO.html">SearchIO HOWTO</a>.</p>
       </answer>
     </q>
@@ -256,7 +256,7 @@ href="http://bioperl.org/pipermail/bioperl-l/2003-December/014406.html">http://b
       <question>Let's say I want to do pairwise alignments of 2 sequences. How can I do this?</question>
       <answer>
 	<p>Look at Bio::Factory::EMBOSS to see how to use the 'water' and 'needle' alignment programs that are part of the EMBOSS suite.</p>
-	<p>Additionally you can use the pSW module that is part of the bioperl-ext package (distributed separated at <a href="ftp://bioperl.org/pub/DIST">ftp://bioperl.org/pub/DIST</a>). However note this only does protein alignments and is no longer a supported module.  Instead the EMBOSS implementation is the the best path ahead unless someone else wants to provide an Inline::C implementation.
+	<p>Or you can use the pSW module for DNA alignments or the dpAlign module for protein alignments. These are part of the bioperl-ext package (distributed separated at <a href="ftp://bioperl.org/pub/DIST">ftp://bioperl.org/pub/DIST</a>).
 	</p>
       </answer>
     </q>
