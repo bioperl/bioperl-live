@@ -78,16 +78,38 @@ is not specified, this list, in this order, will be used as the default.
     query_description
 
 For more details about these columns, see the documentation for the
-corresponding method in Bio::Search::Result::ResultI.
+corresponding method in L<Bio::Search::Result::ResultI|Bio::Search::Result::ResultI>.
 
-=head1 AUTHOR
+=head1 FEEDBACK
+
+=head2 Mailing Lists 
+
+User feedback is an integral part of the evolution of this and other
+Bioperl modules.  Send your comments and suggestions preferably to one
+of the Bioperl mailing lists.  Your participation is much appreciated.
+
+    bioperl-l@bioperl.org              - General discussion
+    http://bio.perl.org/MailList.html  - About the mailing lists
+
+=head2 Reporting Bugs
+
+Report bugs to the Bioperl bug tracking system to help us keep track
+the bugs and their resolution. Bug reports can be submitted via email
+or the web:
+
+    bioperl-bugs@bio.perl.org                   
+    http://bio.perl.org/bioperl-bugs/           
+
+=head1 AUTHOR 
 
 Steve Chervitz <sac@bioperl.org>
 
+See L<the FEEDBACK section | FEEDBACK> for where to send bug reports and comments.
+
 =head1 SEE ALSO
 
-    Bio::SearchIO::Writer::HitTableWriter
-    Bio::SearchIO::Writer::HSPTableWriter
+L<Bio::SearchIO::Writer::HitTableWriter|Bio::SearchIO::Writer::HitTableWriter>
+L<Bio::SearchIO::Writer::HSPTableWriter|Bio::SearchIO::Writer::HSPTableWriter>
 
 =head1 METHODS
 

@@ -70,7 +70,8 @@ The reason why this is considered summary data is that if a hit
 contains multiple HSPs, the HSPs will be tiled and 
 the data represents a summary across all HSPs.
 See below for which columns are affected.
-See the docs in Bio::Search::Hit::BlastHit for more details on HSP tiling.
+See the docs in L<Bio::Search::Hit::BlastHit|Bio::Search::Hit::BlastHit>
+ for more details on HSP tiling.
 
 =head2 Available Columns
 
@@ -78,13 +79,13 @@ Here are the columns that can be specified in the C<-columns>
 parameter when creating a HitTableWriter object.  If a C<-columns> parameter
 is not specified, this list, in this order, will be used as the default.
 
-    query_name
-    query_length
-    hit_name
-    hit_length
-    round
-    expect
-    score
+    query_name                 # Sequence identifier of the query.
+    query_length               # Full length of the query sequence.
+    hit_name                   # Sequence identifier of the hit
+    hit_length                 # Full length of the hit sequence
+    round                      # Round number for hit (PSI-BLAST).
+    expect                     # Expect value for the alignment.
+    score                      # Score for the alignment.
     bits
     num_hsps
     frac_identical_query*
@@ -115,14 +116,36 @@ multiple times.
 For more details about these columns, see the documentation for the
 corresponding method in Bio::Search::Result::BlastHit.
 
-=head1 AUTHOR
+=head1 FEEDBACK
+
+=head2 Mailing Lists 
+
+User feedback is an integral part of the evolution of this and other
+Bioperl modules.  Send your comments and suggestions preferably to one
+of the Bioperl mailing lists.  Your participation is much appreciated.
+
+    bioperl-l@bioperl.org              - General discussion
+    http://bio.perl.org/MailList.html  - About the mailing lists
+
+=head2 Reporting Bugs
+
+Report bugs to the Bioperl bug tracking system to help us keep track
+the bugs and their resolution. Bug reports can be submitted via email
+or the web:
+
+    bioperl-bugs@bio.perl.org                   
+    http://bio.perl.org/bioperl-bugs/           
+
+=head1 AUTHOR 
 
 Steve Chervitz <sac@bioperl.org>
 
+See L<the FEEDBACK section | FEEDBACK> for where to send bug reports and comments.
+
 =head1 SEE ALSO
 
-    Bio::SearchIO::Writer::HitTableWriter
-    Bio::SearchIO::Writer::ResultTableWriter
+L<Bio::SearchIO::Writer::HitTableWriter|Bio::SearchIO::Writer::HitTableWriter>
+L<Bio::SearchIO::Writer::ResultTableWriter|Bio::SearchIO::Writer::ResultTableWriter>
 
 =head1 METHODS
 
@@ -220,7 +243,7 @@ sub to_string {
 1;
 __END__
 
-  TODO: Maybe integrate this in the POD
+  TODO: Integrate the column descriptions into the POD
 
            : Left-to-Right order of fields is customizable (see new()).
            : Here is the default order:

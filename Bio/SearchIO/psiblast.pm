@@ -30,12 +30,14 @@ Bio::SearchIO::psiblast - Parser for traditional BLAST and PSI-BLAST reports
     # If all hits of a report fail, the report will be considered hitless.
     # But we can distinguish this from the case where there were no
     # hits in the report by testing the function $blast->no_hits_found().
+
     my $filt_func = sub{ my $hit=shift; 
     			 $hit->frac_identical('query') >= 0.5 
     			     && $hit->frac_aligned_query >= 0.50
     			 };
 
     # Not supplying a -file or -fh parameter means read from STDIN
+
     my $in2 = Bio::SearchIO->new( -format  => 'psiblast',
                                   -hit_filter => $filt_func
                                  );
@@ -45,16 +47,17 @@ Bio::SearchIO::psiblast - Parser for traditional BLAST and PSI-BLAST reports
 
 This module parses BLAST and PSI-BLAST reports and acts as a factory for
 objects that encapsulate BLAST results:
-B<Bio::Search::Result::BlastResult>, B<Bio::Search::Hit::BlastHit>,
-B<Bio::Search::HSP::BlastHSP>.
+L<Bio::Search::Result::BlastResult|Bio::Search::Result::BlastResult>, 
+L<Bio::Search::Hit::BlastHit|Bio::Search::Hit::BlastHit>,
+L<Bio::Search::HSP::BlastHSP|Bio::Search::HSP::BlastHSP>.
 
 This module does not parse XML-formatted BLAST reports.
-See B<Bio::SearchIO::blastxml> if you need to do that.
+See L<Bio::SearchIO::blastxml|Bio::SearchIO::blastxml> if you need to do that.
 
 To use this module, the only module you need to C<use> is
-Bio::SearchIO.pm. SearchIO knows how to load this module based on the
-C<-algorithm> and C<-format> parameters to its C<new>() function (see
-L<SYNOPSIS>). For more information about the SearchIO system, see
+Bio::SearchIO.pm. SearchIO knows how to load this module when you
+supply a C<-format =E<gt> 'psiblast'> parameters to its C<new>() 
+function. For more information about the SearchIO system, see
 documentation in Bio::SearchIO.pm.
 
 =head2 PSI-BLAST Support
@@ -62,8 +65,9 @@ documentation in Bio::SearchIO.pm.
 In addition to BLAST1 and BLAST2 reports, this module can also handle
 PSI-BLAST reports. When accessing the set of Hits in a result, hits
 from different iterations are lumped together but can be distinguished by
-interrogating B<Bio::Search::Hit::BlastHit::iteration>() and
-B<Bio::Search::Hit::BlastHit::found_again>().
+interrogating L<Bio::Search::Hit::BlastHit::iteration() | Bio::Search::Hit::BlastHit#iteration>
+ and
+L<Bio::Search::Hit::BlastHit::found_again() | Bio::Search::Hit::BlastHit>.
 
 If you want to collect hits only from a certain iteration during parsing,
 supply a function using the C<-HIT_FILTER> parameter.
@@ -71,16 +75,16 @@ supply a function using the C<-HIT_FILTER> parameter.
 =head1 EXAMPLES
 
 To get a feel for how to use this, have look at scripts in the
-examples/searchio and examples/searchio/writer directory of the Bioperl 
-distribution as well as the test script t/SearchIO.t.
+B<examples/searchio> and B<examples/searchio/writer> directory of the Bioperl 
+distribution as well as the test script B<t/SearchIO.t>.
 
 =head1 SEE ALSO
 
 For more documentation about working with Blast result objects that are
 produced by this parser, see
-B<Bio::Search::Result::BlastResult>,
-B<Bio::Search::Hit::BlastHit>, and
-B<Bio::Search::HSP::BlastHSP>.
+L<Bio::Search::Result::BlastResult|Bio::Search::Result::BlastResult>, 
+L<Bio::Search::Hit::BlastHit|Bio::Search::Hit::BlastHit>,
+L<Bio::Search::HSP::BlastHSP|Bio::Search::HSP::BlastHSP>.
 
 =head1 FEEDBACK
 
@@ -102,9 +106,11 @@ email or the web:
   bioperl-bugs@bioperl.org
   http://bioperl.org/bioperl-bugs/
 
-=head1 AUTHOR - Steve Chervitz
+=head1 AUTHOR 
 
-sac@bioperl.org
+Steve Chervitz <sac@bioperl.org>
+
+See L<the FEEDBACK section | FEEDBACK> for where to send bug reports and comments.
 
 =head1 ACKNOWLEDGEMENTS
 
@@ -530,7 +536,7 @@ sub _set_signif {
 
 =head2 signif
 
-  Synonym for max_significance().
+Synonym for L<max_significance()|max_significance>
 
 =cut
 
@@ -589,7 +595,7 @@ sub min_score {
  Returns   : Integer
  Argument  : n/a
 
-See Also   : L<signif>()
+See Also   : L<signif()|signif>
 
 =cut
 
