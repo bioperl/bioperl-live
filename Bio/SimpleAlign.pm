@@ -230,7 +230,7 @@ sub column_from_residue_number {
     foreach my $seq ($self->eachSeqWithId($seqname)) {
 	if ($resnumber >= $seq->start() and $resnumber <= $seq->end()) {
 	    # we have found the correct sequence
-	    my @residues = $seq->ary();
+	    my @residues = $seq->seq();
 	    my $count = $seq->start();
 	    my $i;
 	    for ($i=0; $i < @residues; $i++) {
@@ -690,7 +690,7 @@ sub percentage_identity{
    }
 
    foreach my $seq (@seqs)  {
-       my @seqChars = $seq->ary();
+       my @seqChars = split //, $seq->seq();
        for( my $column=0; $column < @seqChars; $column++ ) {
 	   my $char = uc($seqChars[$column]);
 	   if (exists $countHashes[$column]->{$char}) {
