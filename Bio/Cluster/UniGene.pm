@@ -255,7 +255,8 @@ sub new {
 	     -type => 'Bio::Seq::RichSeq');
     }
     $self->sequence_factory($seqfact);
-    if((! $species) && ($self->unigene_id() =~ /^([A-Za-z]+)\.[0-9]/)) {
+    if( (! $species) && (defined $self->unigene_id() && 
+			 $self->unigene_id() =~ /^([A-Za-z]+)\.[0-9]/)) {
 	# try set a default one depending on the ID
 	$species = $species_map{$1};
     }
