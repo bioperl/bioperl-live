@@ -248,9 +248,8 @@ sub gff_string{
 
    if( $feat->can('frame') ) {
        $frame = $feat->frame();
-   } else {
-       $frame = '.';
    }
+   $frame = '.' unless defined $frame;
 
    $str = join("\t",
                  "SEQ",
