@@ -28,7 +28,9 @@ END {
  	   Bio::Root::IO->catfile("t","data","testout.clustal"),
  	   Bio::Root::IO->catfile("t","data","testout.phylip"),
  	   Bio::Root::IO->catfile("t","data","testout.nexus"),
- 	   Bio::Root::IO->catfile("t","data","testout.mega"));
+ 	   Bio::Root::IO->catfile("t","data","testout.mega"),
+	   Bio::Root::IO->catfile("t","data","testout.po"),
+	   );
     unlink(
            Bio::Root::IO->catfile("t","data","littleout.largemultifasta")
           );
