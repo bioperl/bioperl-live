@@ -397,6 +397,7 @@ sub get_Frequency_Homozygotes{
    my ($homozygote_count) = 0;
    return 0 if ! defined $marker || ! defined $allelename;
    $marker = $marker->name if( defined $marker && 
+			       ref($marker) &&
 			       $marker->isa('Bio::PopGen::MarkerI'));
    my $total = $self->get_number_individuals($marker);
    foreach my $genotype ( $self->get_Genotypes($marker) ) {
