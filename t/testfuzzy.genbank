@@ -49,11 +49,13 @@ FEATURES             Location/Qualifiers
      misc_feature    5.<12
                      /note="Fuzzy location10"
      misc_feature    5.60..<120
-                     /note="Fuzzy location10"
+                     /note="Fuzzy location11"
      misc_feature    5^9..>200
-                     /note="Fuzzy location10"
+                     /note="Fuzzy location12"
      misc_feature    5.10..12.15
-                     /note="Fuzzy location10"
+                     /note="Fuzzy location13"
+     misc_feature    5.10
+                     /note="Fuzzy location14"
      misc_feature    J00194:(100..202),1..245,300..422
                      /note="Location partly in another entry"
 BASE COUNT      118 a     46 c     67 g     79 t
