@@ -7,7 +7,7 @@
 use strict;
 use ExtUtils::MakeMaker;
 use Bio::Root::IO;
-use constant TEST_COUNT => 115;
+use constant TEST_COUNT => 116;
 use constant FASTA_FILES => Bio::Root::IO->catfile('t','data','dbfa');
 use constant GFF_FILE    => Bio::Root::IO->catfile('t','data',
 						   'biodbgff','test.gff');
@@ -56,6 +56,8 @@ my $db = eval { Bio::DB::GFF->new(@args) };
 warn $@ if $@;
 ok($db);
 fail(TEST_COUNT - 1) unless $db;
+
+$db->debug(0);
 
 # exercise the loader
 ok($db->initialize(1));
@@ -110,6 +112,7 @@ my $dna = $segment2->dna;
 ok(length $dna,1000);
 ok(substr($dna,0,10),'gcctaagcct');
 ok($segment3->dna,'aggcttaggc');
+ok($segment1->dna eq $db->dna($segment1->ref));
 
 # exercise ref()
 my $segment4 = $db->segment('-name'=>'c128.1','-class'=>'Transposon');
