@@ -350,5 +350,13 @@ sub program_name {
     $self->throw_not_implemented();
 }
 
+sub DESTROY {
+    my $self= shift;
+    unless ( $self->save_tempfiles ) {
+	$self->cleanup();
+    }
+    $self->SUPER::DESTROY();
+}
+
 
 1;
