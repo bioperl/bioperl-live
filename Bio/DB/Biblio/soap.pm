@@ -187,6 +187,11 @@ BEGIN {
                 See the code for attributes of the default SOAP::Lite
                 object.
 
+              -httpproxy => 'http://server:port'
+                 In addition to the 'location' parameter, you may need
+                 to specify also a location/URL of a HTTP proxy server
+                 (if your site requires one).
+
 	   Additionally, the main module Bio::Biblio recognises
 	   also:
              -access => '...'
@@ -228,10 +233,18 @@ sub _initialize {
     $self->{'_location'} = $DEFAULT_SERVICE unless $self->{'_location'};
     $self->{'_namespace'} = $DEFAULT_NAMESPACE unless $self->{'_namespace'};
     $self->{'_destroy_on_exit'} = 1 unless defined $self->{'_destroy_on_exit'};
-    $self->{'_soap'} = SOAP::Lite
-	                  -> uri ($self->{'_namespace'})
-	                  -> proxy ($self->{'_location'}) unless $self->{'_soap'};
-
+    unless ($self->{'_soap'}) {
+	if (defined $self->{'_httpproxy'}) {
+	    $self->{'_soap'} = SOAP::Lite
+	                          -> uri ($self->{'_namespace'})
+		                  -> proxy ($self->{'_location'},
+				            proxy => ['http' => $self->{'_httpproxy'}]);
+	} else {
+	    $self->{'_soap'} = SOAP::Lite
+	                          -> uri ($self->{'_namespace'})
+				  -> proxy ($self->{'_location'});
+	}
+    }
 }
 
 # -----------------------------------------------------------------------------
