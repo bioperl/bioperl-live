@@ -139,6 +139,7 @@ use Bio::AlternativeLocationHolderI;
            Bio::AnnotatableI
            Bio::AlternativeLocationHolderI );
 
+use Bio::DB::GFF::Util::Rearrange; # for 'rearrange'
 #use Tie::IxHash;
 use Bio::Annotation::Collection;
 use Bio::Location::Simple;
@@ -192,27 +193,29 @@ sub set_attributes {
     my ($self,@args) = @_;
     my ($start, $end, $strand, $unique_id, $display_name, $primary_tag, $source_tag, $primary, $source, $frame, 
 	$score, $tag, $type, $gff_string, $gff1_string,
-	$seqname, $seqid, $annot, $location) =
-	    $self->_rearrange([qw(START
-				  END
-				  STRAND
-                                  UNIQUE_ID
-                                  DISPLAY_NAME
-				  PRIMARY_TAG
-				  SOURCE_TAG
-              PRIMARY
-              SOURCE
-				  FRAME
-				  SCORE
-				  TAG
-                                  TYPE
-				  GFF_STRING
-				  GFF1_STRING
-				  SEQNAME
-				  SEQ_ID
-				  ANNOTATION
-				  LOCATION
-				  )], @args);
+	$seqname, $seqid, $annot, $location, $orientation_policy) =
+	    rearrange( [ [ qw( START BEGIN LOW ) ],
+                         [ qw( STOP END HIGH ) ],
+                         qw( STRAND ),
+                         qw( UNIQUE_ID ),
+                         qw( DISPLAY_NAME ),
+                         qw( PRIMARY_TAG ),
+			 qw( SOURCE_TAG ),
+                         qw( PRIMARY ),
+                         qw( SOURCE ),
+                         qw( FRAME ),
+                         qw( SCORE ),
+                         qw( TAG ),
+                         qw( TYPE ),
+                         qw( GFF_STRING ),
+                         qw( GFF1_STRING ),
+                         qw( SEQNAME ),
+                         [ qw( SEQ_ID SEQ SEQID ID ) ],
+                         qw( ANNOTATION ),
+                         qw( LOCATION ),
+                         [ qw( ORIENTATION_POLICY ORIENTATIONPOLICY
+                               ORIENTATION POLICY ) ]
+		       ], @args );
     $location    && $self->location($location);
     $gff_string  && $self->_from_gff_string($gff_string);
     $gff1_string  && do {
@@ -224,10 +227,12 @@ sub set_attributes {
     $primary        && $self->primary_tag($primary);
     $source         && $self->source_tag($source);
     $type           && $self->source_tag($type);
-    defined $start  && $self->start($start);
-    defined $end    && $self->end($end);
-    defined $strand && $self->strand($strand);
     defined $unique_id && $self->unique_id( $unique_id );
+    defined $strand && $self->strand($strand);
+    defined $start && $self->start( $start );
+    defined $end && $self->end( $end );
+    defined $orientation_policy &&
+      $self->orientation_policy( $orientation_policy );
     defined $display_name && $self->display_name( $display_name );
     defined $frame  && $self->frame($frame);
     $score          && $self->score($score);
@@ -242,6 +247,8 @@ sub set_attributes {
 	    $self->add_tag_value($t,$tag->{$t});
 	}
     };
+
+    $self->ensure_orientation();
 }
 
 
@@ -282,6 +289,9 @@ sub location {
   my $self = shift;
   my $new_location = shift;
 
+  # TODO: The problem with this approach is that if the user changes
+  # the returned location, the location of this feature doesn't
+  # change (or maybe this isn't a problem, I dunno. -Paul
   my $old_location = $self->{ '_location' } ||
     Bio::Location::Simple->new(
       '-seq_id' => $self->seq_id(),
@@ -738,7 +748,7 @@ sub attach_seq {
 
    # attach to sub features if they want it
    foreach ( $self->sub_SeqFeature() ) {
-       $_->attach_seq($seq);
+     $_->attach_seq($seq);
    }
 
    return 1;
@@ -758,31 +768,29 @@ sub attach_seq {
 =cut
 
 sub seq {
-   my ($self, $arg) = @_;
+  my ($self, $arg) = @_;
 
-   if ( defined $arg ) {
-       $self->throw("Calling SeqFeature::Generic->seq with an argument. You probably want attach_seq");
-   }
+  if ( defined $arg ) {
+    $self->throw("Calling SeqFeature::Generic->seq with an argument. You probably want attach_seq");
+  }
 
-   if ( ! exists $self->{'_gsf_seq'} ) {
-       return undef;
-   }
+  if ( !exists $self->{'_gsf_seq'} ) {
+    return undef;
+  }
 
-   # assumming our seq object is sensible, it should not have to yank
-   # the entire sequence out here.
+  # assumming our seq object is sensible, it should not have to yank
+  # the entire sequence out here.
+  my $seq = $self->{'_gsf_seq'}->trunc( $self->start(), $self->end() );
 
-   my $seq = $self->{'_gsf_seq'}->trunc($self->start(), $self->end());
+  if ( $self->strand == -1 ) {
 
+    # ok. this does not work well (?)
+    #print STDERR "Before revcom", $seq->str, "\n";
+    $seq = $seq->revcom;
+    #print STDERR "After  revcom", $seq->str, "\n";
+  }
 
-   if ( $self->strand == -1 ) {
-
-       # ok. this does not work well (?)
-       #print STDERR "Before revcom", $seq->str, "\n";
-       $seq = $seq->revcom;
-       #print STDERR "After  revcom", $seq->str, "\n";
-   }
-
-   return $seq;
+  return $seq;
 }
 
 =head2 entire_seq
@@ -1023,14 +1031,14 @@ sub _expand_region {
     }
     # if this doesn't have start/end set - forget it!
     if((! defined($self->start())) && (! defined $self->end())) {
+	$self->strand($feat->strand) unless defined($self->strand());
 	$self->start($feat->start());
 	$self->end($feat->end());
-	$self->strand($feat->strand) unless defined($self->strand());
     } else {
 	my $range = $self->union($feat);
+	$self->strand($range->strand);
 	$self->start($range->start);
 	$self->end($range->end);
-	$self->strand($range->strand);
     }
 }
 

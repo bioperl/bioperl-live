@@ -128,6 +128,53 @@ sub new {
   return $self;
 } # new(..)
 
+=head2 new_from_collection
+
+ Title   : new_from_collection
+ Usage   : my $new_collection =
+             Bio::SeqFeature::SimpleCollection->new_from_collection(
+               $copy_from
+             );
+ Function: Create a new Bio::SeqFeature::SimpleCollection object by copying
+           values from another SimpleCollection object.
+ Returns : A new L<Bio::SeqFeature::SimpleCollection> object
+ Args    : Another L<Bio::SeqFeature::SimpleCollection> object
+ Status  : Protected
+
+  This is a special copy constructor.  It forces the new collection into
+  the L<Bio::SeqFeature::SimpleCollection> package, regardless of the
+  package that it is called from.  This causes subclass-specfic
+  information to be dropped.
+
+  This also does not copy into the new collection the features held in
+  the existing collection.  If you would like the new collection to hold the
+  same features you must explicitly add them, like so:
+    $new_collection->add_features( $copy_from->features() );
+
+  As a special bonus you may also pass an existing hash and it will be the
+  blessed an anointed object that is returned, like so:
+    $new_collection =
+      Bio::SeqFeature::SimpleCollection->new_from_collection(
+        $copy_from,
+        $new_collection
+      );
+
+=cut
+
+sub new_from_collection {
+  my $pack = shift; # ignored
+  my $collection = shift || $pack;
+  my $new_collection = shift;
+  $new_collection =
+    Bio::SeqFeature::SimpleCollectionProvider->new_from_collectionprovider(
+      $collection,
+      $new_collection
+    );
+  @{ $new_collection }{ qw( _sorted ) } =
+    @{ $collection }{ qw( _sorted ) };
+  return bless $new_collection, __PACKAGE__;
+} # new_from_collection(..)
+
 =head2 sorted
 
  Title   : sorted
@@ -397,9 +444,9 @@ need to be explicitly implemented.
 sub features {
   my $self = shift;
 
-  my ( $types, $unique_ids, $namespace, $names, $attributes, $baserange, $ranges, $strandmatch, $rangetype, $iterator, $callback, $sort );
+  my ( $types, $unique_ids, $namespace, $names, $attributes, $baserange, $ranges, $strandmatch, $rangetype, $iterator, $callback, $sort, $absolute );
   if( scalar( @_ ) && $_[ 0 ] =~ /^-/ ) {
-    ( $types, $unique_ids, $namespace, $names, $attributes, $baserange, $ranges, $strandmatch, $rangetype, $iterator, $callback, $sort ) =
+    ( $types, $unique_ids, $namespace, $names, $attributes, $baserange, $ranges, $strandmatch, $rangetype, $iterator, $callback, $sort, $absolute ) =
       rearrange(
         [ [ qw( TYPE TYPES ) ],
           [ qw( UNIQUE_IDS UNIQUEIDS IDS UNIQUE_ID UNIQUEID ID ) ],
@@ -412,7 +459,8 @@ sub features {
           [ qw( RANGETYPE RANGE_TYPE ) ],
           [ qw( ITERATOR STREAM ) ],
           [ qw( CALLBACK CALL_BACK ) ],
-          [ qw( SORT SORTED ) ]
+          [ qw( SORT SORTED ) ],
+          [ qw( ABSOLUTE ABS ) ]
         ],
         @_
       );
@@ -489,7 +537,7 @@ sub features {
   }
 
   ## We can use ourselves as the baserange, if we are a Bio::RangeI.
-  if( $self->isa( 'Bio::RangeI' ) && !$baserange ) {
+  if( !defined( $baserange ) && $self->isa( 'Bio::RangeI' ) ) {
     $baserange = $self;
   }
 
@@ -550,12 +598,19 @@ sub features {
   ## redundancy check is silly (but we keep it for the mutex check)
   $sort ||= $self->sorted();
   ## Do a reverse sort iff the baserange has a negative strand.
-  my $reverse_sort = ( $baserange && ( $baserange->strand() < 0 ) );
-
+  my $reverse_sort = 0;
+  if( $baserange && ref( $baserange ) && $baserange->isa( 'Bio::RangeI' ) ) {
+    if( $absolute && $baserange->isa( 'Bio::RelRangeI' ) ) {
+      $reverse_sort = ( $baserange->abs_strand() < 0 );
+    } elsif( !$absolute ) {
+      $reverse_sort = ( $baserange->strand() < 0 );
+    }
+  }
   ## This may be horribly inefficient, but what can ya do?  That's why
   ## this is called SimpleCollection.  Make your own if you want
   ## something better.
   my @features_to_return;
+
   ## This next line is fancy speak for "for each feature we've got,
   ## perhaps sorted, perhaps reverse-sorted.."
   foreach my $feature 
@@ -563,8 +618,12 @@ sub features {
      ( $sort ?
        sub{
          sort { ( $reverse_sort ?
-                  $b->start() <=> $a->start() :
-                  $a->start() <=> $b->start() ) } @_;
+                  ( $absolute ?
+                    $b->abs_high() <=> $a->abs_high() :
+                    $b->high() <=> $a->high() ) :
+                  ( $absolute ?
+                    $a->abs_low() <=> $b->abs_low() :
+                    $a->low() <=> $b->low() ) ) } @_;
        } :
        sub { return @_; }
      )->( map { ( values %{ $self->{ '_seq_id_to_feature_table' }->
@@ -577,33 +636,44 @@ sub features {
                keys %{ $self->{ '_seq_id_to_feature_table' } } )
     ) {
 
-      ## TODO: REMOVE
-      unless( ref( $feature ) && $feature->isa( 'Bio::SeqFeatureI' ) ) {
-        print STDERR "--------------Hey, man.  $feature ain't a feature!=======\n";
-      }
+    ## TODO: REMOVE
+    unless( ref( $feature ) && $feature->isa( 'Bio::SeqFeatureI' ) ) {
+      print STDERR "--------------Hey, man.  $feature ain't a feature!=======\n";
+    }
 
     ## Filter them:
     my $passes_filter = 1;
 
     ## Filter on types
     if( $passes_filter && $types ) {
-
       # Failure until proven success:
       $passes_filter = 0;
       my $feature_type = $feature->type();
       foreach my $type ( @$types ) {
-        if( ref( $type ) ) {
-          ## We'll assume that if it's anything, it's a TypeI.
+        if( ref( $feature_type ) &&
+            $feature_type->isa( 'Bio::DB::GFF::Typename' ) &&
+            $feature_type->match( $type ) ) {
+          # success
+          $passes_filter = 1;
+          last;
+        } elsif( ref( $type ) && $type->isa( 'Bio::SeqFeature::TypeI' ) ) {
           if( ( $type eq $feature_type ) ||
               $type->is_descendent( $feature_type ) ) {
             # success
             $passes_filter = 1;
             last;
           }
+        } elsif( ref( $type ) && $type->isa( 'Bio::DB::GFF::Typename' ) ) {
+          ## I've added this to support the Typename stuff used by GFF.
+          if( $type->match( $feature_type ) ) {
+            # success
+            $passes_filter = 1;
+            last;
+          }
         } else {
           ## $type is a string.
-          if( ref( $feature_type ) ) {
-            ## We'll assume that if it's anything, it's a TypeI.
+          if( ref( $feature_type ) &&
+              $feature_type->isa( 'Bio::SeqFeature::TypeI' ) ) {
             if( ( $feature_type eq $type ) ||
                 $feature_type->is_ancestor( $type ) ) {
               # success

@@ -117,6 +117,52 @@ sub new {
   return $self;
 } # new(..)
 
+=head2 new_from_collectionprovider
+
+ Title   : new_from_collectionprovider
+ Usage   : my $new_collection_provider =
+             Bio::SeqFeature::SimpleCollectionProvider->
+               new_from_collectionprovider(
+                 $copy_from
+               );
+ Function: Create a new Bio::SeqFeature::SimpleCollectionProvider object
+           by copying values from another SimpleCollectionProvider object.
+ Returns : A new L<Bio::SeqFeature::SimpleCollectionProvider> object
+ Args    : Another L<Bio::SeqFeature::SimpleCollectionProvider> object
+ Status  : Protected
+
+  This is a special copy constructor.  It forces the new collection
+  provider into the L<Bio::SeqFeature::SimpleCollectionProvider>
+  package, regardless of the package that it is called from.  This
+  causes subclass-specfic information to be dropped.
+
+  This also does not copy into the new provider the features held in
+  the existing provider.  If you would like the new provider to hold the
+  same features you must explicitly add them, like so:
+    $new_collection_provider->insert_collection(
+      $copy_from->get_collection()
+    );
+
+  As a special bonus you may also pass an existing hash and it will be the
+  blessed an anointed object that is returned, like so:
+    $new_collection_provider =
+      Bio::SeqFeature::SimpleCollectionProvider->new_from_collectionprovider(
+        $copy_from,
+        $new_collection_provider
+      );
+
+=cut
+
+sub new_from_collectionprovider {
+  my $pack = shift; # ignored
+  my $provider = shift || $pack;
+  my $new_provider = shift || Bio::SeqFeature::SimpleCollectionProvider->new();
+  @{ $new_provider }{ qw( _parent_collection_provider ) } =
+    @{ $provider }{ qw( _parent_collection_provider ) };
+  ## Note that we do not copy the features.
+  return bless $new_provider, __PACKAGE__;
+} # new_from_collection(..)
+
 =head2 get_collection
 
  Title   : get_collection
@@ -491,6 +537,9 @@ sub parent_collection_provider {
   my $new_value = shift;
   my $old_value = $self->{ '_parent_collection_provider' };
   if( defined( $new_value ) ) {
+    unless( ref( $new_value ) && $new_value->isa( 'Bio::SeqFeature::CollectionProviderI' ) ) {
+      $self->throw( "The given value is illegal because it is not a Bio::SeqFeature::CollectionProviderI object.  It is $new_value, a ".ref( $new_value )."." );
+    }
     $self->{ '_parent_collection_provider' } = $new_value;
   }
   return $old_value;

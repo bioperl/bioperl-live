@@ -79,7 +79,7 @@ Internal methods are usually preceded with a _
 use strict;
 use vars qw( @ISA );
 
-use Bio::RelRange;
+use Bio::RelRange qw( &absSeqId );
 use Bio::SeqFeature::SimpleCollection;
 use Bio::SeqFeature::SegmentI;
 @ISA = qw( Bio::RelRange
@@ -87,6 +87,7 @@ use Bio::SeqFeature::SegmentI;
            Bio::SeqFeature::SegmentI );
 
 use Bio::DB::GFF::Util::Rearrange; # for 'rearrange'
+use Bio::SeqFeature::PositionProxy;
 
 use vars '$VERSION';
 $VERSION = '1.00';
@@ -122,19 +123,75 @@ sub new {
   # Rely on RelRange's new(..) to do most of the work.
   my $self = $caller->Bio::RelRange::new( @args );
   my ( $features, $type, $parent ) =
-    $self->_rearrange( [ qw( FEATURES TYPE PARENT ) ], @args );
+    rearrange( [ 'FEATURES',
+                 'TYPE',
+                 'PARENT'
+               ], @args );
   if( $features ) {
-    foreach my $feature ( @$features ) {
-      next unless( ref( $feature ) && $feature->isa( "Bio::SeqFeatureI" ) );
-      unless( $self->_insert_feature( $feature ) ) {
-        $self->throw( "duplicate feature: $feature" );
+    # It could be a reference to a list or maybe it is just a single feature..
+    if( ref( $features ) eq 'ARRAY' ) {
+      foreach my $feature ( @$features ) {
+        next unless( ref( $feature ) && $feature->isa( "Bio::SeqFeatureI" ) );
+        unless( $self->_insert_feature( $feature ) ) {
+          $self->throw( "duplicate feature: $feature" );
+        }
       }
+    } elsif( ref( $features ) && $features->isa( 'Bio::SeqFeatureI' ) ) {
+      unless( $self->_insert_feature( $features ) ) {
+        $self->throw( "duplicate feature: $features" );
+      }
+    } else {
+      $self->throw( "Expecting the value of the -features argument to be a list of Bio::SeqFeatureI objects, but it isn't.  It is '$features', a ".ref( $features )."." );
     }
   }
   $self->type( $type ) if defined( $type );
   $self->parent_segment_provider( $parent ) if defined( $parent );
   return $self;
 } # new(..)
+
+=head2 new_from_segment
+
+ Title   : new_from_segment
+ Usage   : my $new_segment =
+             Bio::SeqFeature::SimpleSegment->new_from_segment( $copy_from );
+ Function: Create a new Bio::SeqFeature::SimpleSegment object by copying
+           values from another SimpleSegment object.
+ Returns : A new L<Bio::SeqFeature::SimpleSegment> object
+ Args    : Another L<Bio::SeqFeature::SimpleSegment> object
+ Status  : Protected
+
+  This is a special copy constructor.  It forces the new segment into
+  the L<Bio::SeqFeature::SimpleSegment> package, regardless of the
+  package that it is called from.  This causes subclass-specfic
+  information to be dropped.
+
+  This also does not copy into the new segment the features held in
+  the existing segment.  If you would like the new segment to hold the
+  same features you must explicitly add them, like so:
+    $new_segment->add_features( $copy_from->features() );
+
+  As a special bonus you may also pass an existing hash and it will be the
+  blessed an anointed object that is returned, like so:
+    $new_segment =
+      Bio::SeqFeature::SimpleSegment->new_from_segment(
+        $copy_from,
+        $new_segment
+      );
+
+=cut
+
+sub new_from_segment {
+  my $pack = shift; # ignored
+  my $segment = shift || $pack;
+  my $new_segment = shift;
+  $new_segment = Bio::RelRange->new_from_relrange( $segment, $new_segment );
+  $new_segment =
+    Bio::SeqFeature::SimpleCollection->new_from_collection(
+      $segment,
+      $new_segment
+    );
+  return bless $new_segment, __PACKAGE__;
+} # new_from_segment(..)
 
 #                   --Coders beware!--
 # Changes to the interface pod need to be copied to here.
@@ -359,11 +416,11 @@ sub features {
         ],
         @_
       );
-    %args = %_;
+    %args = @_;
   } else {
     ## Types.
     $types = \@_;
-    %args = { -types => $types };
+    %args = ( '-types' => $types );
   }
   # If -baserange is given but is not a RangeI then the
   # -baserange argument to the superclass should be
@@ -372,7 +429,7 @@ sub features {
   # and true or absolute() is true.
   if( not defined( $baserange ) ) {
     if( $absolute || $self->absolute() ) {
-      $baserange = $self->abs_seq_id();
+      $baserange = $self->abs_range();
     } else {
       $baserange = $self;
     }
@@ -383,11 +440,20 @@ sub features {
   }
   $args{ '-baserange' } = $baserange;
   # Oh yeah and make sure it's the only baserange argument..
-  $args{ '-base_range' } = $args{ '-baselocation' } =
-    $args{ '-base_location' } = $args{ '-base' } =
-      $args{ 'baserange' } = $args{ 'base_range' } =
-        $args{ 'baselocation' } = $args{ 'base_location' } =
-          $args{ 'base' } = undef;
+  delete @args{ qw( -base_range -baselocation -base_location -base
+                    baserange base_range baselocation base_location base ) };
+
+  # We do pass -absolute up to SimpleCollection.  Although it does not
+  # document it, passing -absolute up to SimpleCollection affects the
+  # sort order of the returned features. (sorts by abs positions)
+
+  if( $absolute ||
+      ( defined( $baserange ) && ref( $baserange ) &&
+        $baserange->isa( 'Bio::RelRangeI' ) && $baserange->absolute() ) ) {
+    $args{ '-absolute' } = 1;
+  }
+  # Oh yeah and make sure it's the only absolute argument..
+  delete @args{ qw( -abs absolute abs ) };
 
   # If $rangetype is given but not $ranges then we delegate up to daddy.
   if( defined( $rangetype ) && not defined( $ranges ) ) {
@@ -414,8 +480,12 @@ sub features {
     return $daddy_segment->( %args ); 
   } # End if $rangetype is defined but no $ranges are given.
 
-  # We also have promised that the returned features will be relative to whatever
-  # baserange ends up being.
+  # We also have promised that the returned features will be relative
+  # to whatever baserange ends up being.
+  if( $args{ '-absolute' } ) {
+    # In this case it doesn't matter.
+    return $self->SUPER::features( %args );
+  }
   # There's 3 options for this: by default features() returns a
   # list. if -iterator is given then it returns an iterator.  if -callback
   # is given then some method is called.  We need to deal with each option
@@ -423,8 +493,8 @@ sub features {
   if( $iterator ) {
     # Wrap the returned iterator in our own..
     my $super_iterator = $self->SUPER::features( %args );
-    ## SimpleSegmentIteratorWrapper is defined in this file, below.
-    return Bio::SeqFeature::SimpleSegmentIteratorWrapper->new(
+    ## SimpleSegment_IteratorWrapper is defined in this file, below.
+    return Bio::SeqFeature::SimpleSegment_IteratorWrapper->new(
       $baserange,
       $iterator
     );
@@ -433,7 +503,7 @@ sub features {
     my $new_callback = $self->_create_callback_wrapper( $baserange, $callback );
     $args{ '-callback' } = $new_callback;
     # Oh and make sure it's the only callback argument..
-    $args{ '-call_back' } = $args{ 'callback' } = $args{ 'call_back' } = undef;
+    delete @args{ qw( -call_back callback call_back ) };
     return $self->SUPER::features( %args );
   } else {
     # post-process the list.
@@ -576,7 +646,7 @@ sub get_collection {
   my ( $types, $absolute, $baserange, $ranges );
   my %args;
   if( scalar( @_ ) && $_[ 0 ] =~ /^-/ ) {
-    ( $types, $absolute, $baserange, $ranges );
+    ( $types, $absolute, $baserange, $ranges ) =
       rearrange(
         [ [ qw( TYPE TYPES ) ],
           [ qw( ABSOLUTE ABS ) ],
@@ -585,11 +655,11 @@ sub get_collection {
         ],
         @_
       );
-    %args = %_;
+    %args = @_;
   } else {
     ## Types.
     $types = \@_;
-    %args = { -types => $types };
+    %args = ( -types => $types );
   }
   # If -baserange is given but is not a RangeI then the
   # -baserange argument to the superclass should be
@@ -598,22 +668,20 @@ sub get_collection {
   # and true or absolute() is true.
   if( not defined( $baserange ) ) {
     if( $absolute || $self->absolute() ) {
-      $baserange = $self->abs_seq_id();
+      $baserange = $self->abs_range();
+      $absolute = 1;
     } else {
       $baserange = $self;
     }
   } elsif( defined( $baserange ) &&
            ( not ref( $baserange ) || not $baserange->isa( 'Bio::RangeI' ) )
          ) {
-    $baserange = $self->abs_seq_id();
+    $baserange = $self->abs_range();
   }
   $args{ '-baserange' } = $baserange;
   # Oh yeah and make sure it's the only baserange argument..
-  $args{ '-base_range' } = $args{ '-baselocation' } =
-    $args{ '-base_location' } = $args{ '-base' } =
-      $args{ 'baserange' } = $args{ 'base_range' } =
-        $args{ 'baselocation' } = $args{ 'base_location' } =
-          $args{ 'base' } = undef;
+  delete @args{ qw( -base_range -baselocation -base_location -base
+                    baserange base_range baselocation base_location base ) };
 
   # Okay so now we just need to make sure that the segment returned is
   # a Segment after all; we do this by overriding the _create_collection
@@ -686,7 +754,7 @@ sub _create_segment {
 
   my ( $absolute, $baserange, $ranges );
   if( scalar( @$args ) && $args->[ 0 ] =~ /^-/ ) {
-    ( $absolute, $baserange, $ranges );
+    ( $absolute, $baserange, $ranges ) =
       rearrange(
         [ [ qw( ABSOLUTE ABS ) ],
           [ qw( BASERANGE BASE_RANGE BASELOCATION BASE_LOCATION BASE ) ],
@@ -718,7 +786,7 @@ sub _create_segment {
       $union_range = $ranges;
     }
   }
-  my %args_to_new = { '-seq_id' => $baserange };
+  my %args_to_new = ( '-seq_id' => $baserange );
   if( $baserange ) {
     my $abs_baserange = absSeqId( $baserange );
     if( $abs_baserange && ( $baserange eq $abs_baserange ) ) {
@@ -780,13 +848,7 @@ sub _relativize_feature {
       # The feature is already in absolute coords.
       $abs_feature_range = $feature;
     } else {
-      $abs_feature_range =
-        Bio::RelRange->new(
-          '-seq_id' => $feature->seq_id(),
-          '-start' => $feature->start(),
-          '-end' => $feature->end(),
-          '-strand' => $feature->strand()
-        );
+      $abs_feature_range = Bio::RelRange->new( $feature );
       # Now absolutify it.
       $abs_feature_range->absolute( 1 );
     }
@@ -810,17 +872,23 @@ sub _relativize_feature {
       '-end' => 1, # we could use $baserange->length, but it's unnecessary.
       '-strand' => 1
     );
+
+  my $new_start = $temp_rel_range->abs2rel( $abs_feature_range->start() );
+  my $new_end = $temp_rel_range->abs2rel( $abs_feature_range->end() );
+  my $new_strand =
+    $temp_rel_range->abs2rel_strand( $abs_feature_range->strand() );
+  # Don't let the strand get forced to negative:
+  if( ( $new_strand >= 0 ) && ( $new_end < $new_start ) ) {
+    ( $new_start, $new_end ) = ( $new_end, $new_start );
+  }
   return $self->_create_feature_view(
     $feature,
-    {
+    (
       '-seq_id' => $baserange,
-      '-start' =>
-        $temp_rel_range->abs2rel( $abs_feature_range->start() ),
-      '-end' =>
-        $temp_rel_range->abs2rel( $abs_feature_range->end() ),
-      '-strand' =>
-        $temp_rel_range->abs2rel_strand( $abs_feature_range->strand() )
-    }
+      '-start' => $new_start,
+      '-end' => $new_end,
+      '-strand' => $new_strand
+    )
   );
 } # _relativize_feature(..)
 
@@ -830,52 +898,17 @@ sub _relativize_feature {
 # range values will be interpreted in relative mode.  In the future
 # this will be accomplished easily (when the new SeqFeature model is
 # ready) by creating a new feature will the same attribute collection
-# but a different location.  For now we do a shallow copy of the hash,
-# blessed using its own new() method, then change just those parts of
-# the range named in the given hash.
-
+# but a different location.  For now we use a PositionProxy.
 sub _create_feature_view {
   my $self = shift;
   my $copy_from = shift;
 
-  my $new_view = $copy_from->new();
-  foreach my $key ( keys %$copy_from ) {
-    $new_view->{ $key } = $copy_from->{ $key };
-  }
-  if( scalar( @_ ) && $_[ 0 ] =~ /^-/ ) {
-    # The new view should always start out non-absolute while we update stuff
-    my $was_absolute =
-      ( $new_view->isa( 'Bio::RelRangeI' ) && $new_view->absolute() );
-    if( $was_absolute ) {
-      $new_view->absolute( 0 );
-    }
-    my ( $seq_id, $strand, $start, $end, $length ) =
-      $self->_rearrange( [ qw( SEQ_ID
-                               STRAND
-                               START
-                               END
-                               LENGTH
-                             ) ], @_ );
-    if( defined( $seq_id ) ) {
-      $new_view->seq_id( $seq_id );
-    }
-    if( defined( $strand ) ) {
-      $new_view->strand( $strand );
-    }
-    if( defined( $start ) ) {
-      $new_view->start( $start );
-    }
-    if( defined( $end ) ) {
-      $new_view->end( $end );
-    }
-    if( defined( $length ) ) {
-      $new_view->length( $length );
-    }
-    if( $was_absolute ) {
-      $new_view->absolute( 1 );
-    }
-  } # End if there's new values to set for the feature view's range.
-  return $new_view;
+  return
+    Bio::SeqFeature::PositionProxy->new(
+      '-peer' => $copy_from,
+      '-absolute' => $copy_from->absolute(),
+      @_
+    );
 } # _create_feature_view(..)
 
 # Given a range and a callback sub, return a sub that will make sure that all
@@ -892,12 +925,12 @@ sub _create_callback_wrapper {
 
 ## Inner class ##############################################################
 #============================================================================
-# Bio::SeqFeature::SimpleSegmentIteratorWrapper: A
+# Bio::SeqFeature::SimpleSegment_IteratorWrapper: A
 # Bio::SeqFeature::IteratorI that wraps another to make sure that all
 # features that would be returned are relativized to a given range
 # beforehand.
 #============================================================================
-package Bio::SeqFeature::SimpleSegmentIteratorWrapper;
+package Bio::SeqFeature::SimpleSegment_IteratorWrapper;
 use Bio::Root::Root;
 use Bio::SeqFeature::IteratorI;
 use vars qw( @ISA );
@@ -907,13 +940,13 @@ use vars qw( @ISA );
 =head2 new
 
  Title   : new
- Usage   : $iterator = Bio::SeqFeature::SimpleSegmentIteratorWrapper->new(
+ Usage   : $iterator = Bio::SeqFeature::SimpleSegment_IteratorWrapper->new(
                          $baserange,
                          $iterator_to_wrap
                        );
  Function: Instantiates a new iterator that relativizes the features
            returned by the given iterator to the given range.
- Returns : a new Bio::SeqFeature::SimpleSegmentIteratorWrapper
+ Returns : a new Bio::SeqFeature::SimpleSegment_IteratorWrapper
  Args    : A L<Bio::RangeI> or sequence id string and an
            L<Bio::SeqFeature::IteratorI> to wrap.
  Status  : Public
@@ -968,7 +1001,7 @@ sub has_more_features {
 } # has_more_features()
 
 #============================================================================
-## This is the end of SimpleSegmentIteratorWrapper, an inner class of
+## This is the end of SimpleSegment_IteratorWrapper, an inner class of
 ## SimpleSegment.
 #============================================================================
 ## End Inner class ##########################################################

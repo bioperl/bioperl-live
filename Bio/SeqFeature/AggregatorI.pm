@@ -1,4 +1,4 @@
-package Bio::SeqFeature::AggregatorI.pm
+package Bio::SeqFeature::AggregatorI;
 
 # $Id $
 # Factory for grouping features into components of a containing feature.
