@@ -27,7 +27,7 @@ use Bio::Root::Object ();
 use strict;
 use vars qw($ID $VERSION $GAP_SYMBOL @SCORE_CUTOFFS $Revision);
 $ID       = 'Bio::Tools::Blast::HSP';
-$VERSION  = 0.075;
+$VERSION  = 0.080;
 $Revision = '$Id$';  #'
 
 $GAP_SYMBOL    = '-';          # Need a more general way to handle gap symbols.
@@ -137,7 +137,7 @@ Steve A. Chervitz, sac@genome.stanford.edu
 
 =head1 VERSION
 
-Bio::Tools::Blast::HSP.pm, 0.075
+Bio::Tools::Blast::HSP.pm, 0.080
 
 =head1 SEE ALSO
 

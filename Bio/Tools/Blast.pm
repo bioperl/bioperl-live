@@ -46,10 +46,9 @@ $Blast->{'_name'} = "Static Blast object";
 
 @Blast_programs  = qw(blastp blastn blastx tblastn tblastx);
 
-use vars qw($RawData $HspString $HitCount $DEFAULT_MATRIX $DEFAULT_SIGNIF);
+use vars qw($DEFAULT_MATRIX $DEFAULT_SIGNIF);
 $DEFAULT_MATRIX      = 'BLOSUM62';
 $DEFAULT_SIGNIF      = 999;# Value used as significance cutoff if none supplied.
-$HitCount            = 0;  # Holds total number of hits (not just significant hits).
 my $MAX_HSP_OVERLAP  = 2;  # Used when tiling multiple HSPs.
 
 ## POD Documentation:
@@ -1375,7 +1374,7 @@ sub db_local {
            : prior to parsing. Parsing HTML-formatted reports is highly
            : error prone and is generally not recommended.
 
-See Also   : L<_parse>(), L<_parse_stream>(), L<_set_signif>(), L<overlap>(), L<signif_fmt>(), B<Bio::Root::Object::read()>, B<Bio::Tools::Blast::HTML.pm::strip_html()>, L<Links to related modules>
+See Also   : L<_parse>(), L<_init_parse_params>(), L<overlap>(), L<signif_fmt>(), B<Bio::Root::Object::read()>, B<Bio::Tools::Blast::HTML.pm::strip_html()>, L<Links to related modules>
 
 =cut
 
@@ -1420,10 +1419,24 @@ sub parse {
     return $count;
 }
 
+=head2 _init_parse_params
+
+ Title   : _init_parse_params
+ Usage   : n/a; called automatically by parse()
+ Purpose : Initializes parameters used during parsing of Blast reports.
+         : This is a static method used by the $Blast object.
+         : Calls _set_signif().
+ Example :
+ Returns : n/a
+ Args    : Args extracted by parse().
+
+See Also: L<parse>(), L<_set_signif>()
+
+=cut
+
 #----------------------
 sub _init_parse_params {
 #----------------------
-# "Static" method used by the $Blast object.
     my ($share, $filt_func, $check_all, 
 	$signif, $min_len, $strict,
 	$best, $signif_fmt, $stats) = @_;
@@ -1460,9 +1473,9 @@ sub _init_parse_params {
            : _set_signif($signif, $min_len, $filt_func); 
  Purpose   : Sets significance criteria for the BLAST object.
  Argument  : Obligatory three arguments:
-           : $signif = float or sci-notation number or undef
-           : $min_len = integer or undef
-           : $filt_func = function reference or undef
+           :   $signif = float or sci-notation number or undef
+           :   $min_len = integer or undef
+           :   $filt_func = function reference or undef
  Throws    : Exception if significance values appear out of range or invalid.
            : Sets default values (signif = 10; min_length = not set).
            : Exception if $filt_func if defined and is not a func ref.
@@ -1526,8 +1539,6 @@ sub _set_signif {
  Returns   : Integer (the number of blast reports read)
  Argument  : Named parameters  (forwarded from parse())
  Throws    : Propagates any exception thrown by _get_parse_blast_func() and read().
- Comments  : 
- Status    : NEW FUNCTION: to be used for the new parsing strategy.
 
 See Also   : L<_get_parse_blast_func>(), B<Bio::Root::Object::read()>
 
@@ -1557,14 +1568,12 @@ sub _parse_blast_stream {
 =head2 _get_parse_blast_func
 
  Usage     : n/a; internal method used by _parse_blast_stream()
-           : $func_ref = $blast_object->_get_parse_func()
- Purpose   : Generates a function ref to be used as a closure for parsing raw data
-           : as it is being loaded by Bio::Root::Object::read()
+           : $func_ref = $blast_object->_get_parse_blast_func()
+ Purpose   : Generates a function ref to be used as a closure for parsing 
+           : raw data as it is being loaded by Bio::Root::IOManager::read().
  Returns   : Function reference (closure).
-
- Status    : NEW METHOD: to be used for the new parsing strategy.
-              Not completely tested, under development.
-              steve --- Sat Feb 13 01:42:39 1999
+ Comments  : The the function reference contains a fair bit of logic
+           : at present. This should probably be broken up if possible.
 
 See Also   : L<_parse_blast_stream>()
 
@@ -1590,10 +1599,15 @@ sub _get_parse_blast_func {
     } elsif($save_a and not ref($save_a) eq 'ARRAY') {
 	$self->throw("The -SAVE_ARRAY parameter must supply an array reference".
 		     "when not using an -EXEC_FUNC parameter.");
-    } elsif(not ($save_a or $exec_func)) {
-	$self->throw("No -EXEC_FUNC or -SAVE_ARRAY parameter was specified.",
-		     "Need to do something with the Blast objects.");
+# You won't need a exec-func or save_array when just creating a Blast object
+#   as in: $blast = new Bio::Tools::Blast(...);
+# Remember, all Blast parsing will use this function now.
+#    } elsif(not ($save_a or $exec_func)) {
+#	$self->throw("No -EXEC_FUNC or -SAVE_ARRAY parameter was specified.",
+#		     "Need to do something with the Blast objects.");
     }
+
+    ## This closure is getting a bit hairy.
 
      return sub {
 	my ($data) = @_;
@@ -1617,7 +1631,7 @@ sub _get_parse_blast_func {
 
 	    # If we're parsing a stream containing multiple reports,
 	    # all subsequent header sections will contain the last hit of
-	    # the previous report which needs to be parsed and added to this
+	    # the previous report which needs to be parsed and added to that
 	    # report if signifcant. It also contains the run parameters
 	    # at the bottom of the Blast report.
 	    if($Blast->{'_blast_count'} > 1) {
@@ -1686,7 +1700,7 @@ sub _get_parse_blast_func {
 	if( defined $prev_blast or $current_blast->{'_found_params'}) {
 	  my $finished_blast = defined($prev_blast) ? $prev_blast : $current_blast;
 	  
-	  $finished_blast->report_errors();
+	  $finished_blast->_report_errors();
 #	  print STDERR "\nNEW BLAST OBJECT: ${\$finished_blast->name}\n";
 
 	  if($exec_func) {
@@ -1706,20 +1720,34 @@ sub _get_parse_blast_func {
       }
   }
 
+=head2 _report_errors
 
-#-----------------
-sub report_errors {
-#-----------------
+ Title   : _report_errors
+ Usage   : n/a; Internal method called by parse().
+ Purpose : Throw or warn about any errors encountered. 
+ Returns : n/a
+ Args    : n/a
+ Throws  : If all hits generated exceptions, raise exception
+         :   (a fatal event for the Blast object.)
+         : If some hits were okay but some were bad, generate a warning
+         :   (a few bad applies should not spoil the bunch).
+         :   This usually indicates a limiting B-value.
+         : When the parsing code fails, it is either all or nothing.
+
+=cut
+
+#-------------------
+sub _report_errors {
+#-------------------
   my $self = shift;
 
   ref($self->{'_blast_errs'}) || (print STDERR "\nNO ERRORS\n", return );
 
   my @errs = @{$self->{'_blast_errs'}};
 
-  ## Throw or warn about any errors encountered. 
-
   if(scalar @errs) {
     my ($str);
+    @{$self->{'_blast_errs'}} = (); # clear the errs on the object.
     # When there are many errors, in most of the cases, they are
     # caused by the same problem. Only need to see full data for
     # the first one.
@@ -1733,7 +1761,7 @@ sub report_errors {
     }
     
     if(not $self->{'_num_hits_significant'}) {
-      $self->throw(sprintf("Failed to parse data for %d potential hit(s).", scalar(@errs)),
+      $self->throw(sprintf("Failed to parse any hit data (n=%d).", scalar(@errs)),
 		   "\n\nTRAPPED EXCEPTION(S):\n$str\nEND TRAPPED EXCEPTION(S)\n"
 		  );
     } else {
@@ -1755,10 +1783,6 @@ sub report_errors {
              Exception if there are no significant hits.
  Comments  : Description section contains a single line for each hit listing
            : the seq id, description, score, Expect or P-value, etc.
-
- Status    : NEW METHOD: under development. Incomplete.
-             steve --- Sat Feb 13 02:40:01 1999
-             Need to incorporate sections of code from _set_hits().
 
 See Also   : L<_get_parse_blast_func>()
 
@@ -1845,7 +1869,6 @@ sub _parse_header {
 #-----------------------
 sub _parse_descriptions {
 #-----------------------
-# This is basically done. Ready for testing....
   my ($self, $desc) = @_;
 
 #    print STDERR "\nPARSING DESCRIPTION DATA\n";
@@ -1868,7 +1891,6 @@ sub _parse_descriptions {
 
     desc_loop:
   foreach $line (@descriptions) {
-      
       $count++;
       last desc_loop if $line =~ / NONE |End of List/;
       next desc_loop if $line =~ /^\s*$/;
@@ -1883,8 +1905,7 @@ sub _parse_descriptions {
       } elsif( $line =~ /\d+\s{1,2}[\de.-]+\s{1,}\d+\s*$/) {
 	$layout = 1;
       } else {
-#	$self->throw("Can't determine report layout (Blast1 or 2).");
-	print STDERR "TROUBLE: _parse_signif() failed.\nLINE = $line\n";
+	$self->warn("Can't parse significance data in description line $line");
 	next desc_loop;
       }
       not $layout_set and ($self->_layout($layout), $layout_set = 1);
@@ -1900,13 +1921,14 @@ sub _parse_descriptions {
                                     ? $sig : $self->{'_lowestSignif'};
       # Significance value assessment.
       $sig <= $my_signif and $self->{'_num_hits_significant'}++;
+      last desc_loop if ($sig > $my_signif and not $Blast->{'_check_all'});
 
       $self->{'_num_hits'}++;
     }
 
     $self->{'_is_significant'} = 1 if $self->{'_num_hits_significant'};
 
-#  print "\nDONE PARSING DESCRIPTIONS.";
+  printf "\n%d SIGNIFICANT HITS.\nDONE PARSING DESCRIPTIONS.\n", $self->{'_num_hits_significant'};
 }
 
 
@@ -1916,63 +1938,37 @@ sub _parse_descriptions {
  Usage     : n/a; called automatically by the _get_parse_blast_func().
  Purpose   : Parses a single alignment section of a BLAST report.
  Argument  : String containing the alignment section.
- Throws    : Exception if description data cannot be parsed properly.
+ Throws    : n/a; All errors are trapped while parsing the hit data
+           : and are processed as a group when the report is 
+           : completely processed (See _report_errors()).
  Comments  : Alignment section contains all HSPs for a hit.
-
- Status    : NEW METHOD: under development. Incomplete.
-             steve --- Sat Feb 13 02:40:01 1999
-             Need to incorporate sections of code from _set_hits().
-
-See Also   : L<_get_parse_blast_func>()
-
-=cut
-
-=head2 _set_hits  (FROM THE OLDER METHOD, MERGE ?
-
- Usage     : n/a; called automatically during Blast report parsing.
- Purpose   : Set significant hits for the BLAST report. Hits are encapsulated
-           : within Bio::Tools::Blast::Sbjct.pm objects.
- Throws    : If all hits generated exceptions, raise exception
-           :   (a fatal event for the Blast object.)
-           : If some hits were okay but some were bad, generate a warning
-           :   (a few bad applies should not spoil the bunch).
-           :   This usually indicates a limiting B-value.
-           : When the parsing code fails, it is either all or nothing.
- Comments  : Requires Bio::Tools::Blast::Sbjct.pm.
-           : Checks significance level (P or Expect value obtained from the
-           : "Description section" of the Blast report) of the hit before creating 
-           : new Bio::Sbjct object. 
+           : Requires Bio::Tools::Blast::Sbjct.pm.
            : Optionally calls a filter function to screen the hit on arbitrary
-           : criteria. If the filter function returns true for a gicen hit,
+           : criteria. If the filter function returns true for a given hit,
            : that hit will be skipped.
-           : If the Blast object was created with-check_all_hits set to true,
+           : If the Blast object was created with -check_all_hits set to true,
            : all hits will be checked for significance and processed if necessary.
            : If this field is false, the parsing will stop after the first
            : non-significant hit. 
-           : See parse() for description of parameters.
+           : See parse() for description of parsing parameters.
 
-See Also   : L<parse>(), L<_set_descriptions>(), L<_parse_hsp_data>(), L<_parse_signif>(), B<Bio::Tools::Blast::Sbjct()>,L<Links to related modules>
+See Also   : L<parse>(), L<_get_parse_blast_func>(), L<_report_error>(), B<Bio::Tools::Blast::Sbjct()>, L<Links to related modules>
 
 =cut
 
 #----------------------
 sub _parse_alignment {  
 #----------------------
-# This method needs to be somewhat sophisticated since it needs to 
-# detect if $data contains the footer of a Blast report.
-# This would indicate the last chunk of a single Blast stream
-# and we then need to parse the stats (if '_get_stats' is true) 
-# and set a {'_found_params'} = 1 member on the object.
-
-# Error handling: all exceptions that occur during hit 0bject construction
-# are saved until util the last alignment is parsed (see sub parse()).
+# This method always needs to check detect if the $data argument
+# contains the footer of a Blast report, indicating the last chunk 
+# of a single Blast stream.
 
     my( $self, $data ) = @_;
-    
+
 #    printf STDERR "\nPARSING ALIGNMENT DATA for %s $self.\n", $self->name;
 
-#    print STDERR "  CURRENT HIT: $self->{'_current_hit'}\n";
-#    print STDERR "  NUM SIGNIF: $self->{'_num_hits_significant'}\n";
+    # NOTE: $self->{'_current_hit'} is an instance variable
+    #       The $Blast object will not have this member.
 
     # If all of the significant hits have been parsed,
     # return if we're not checking all or if we need to get 
@@ -1983,19 +1979,14 @@ sub _parse_alignment {
     }
 
     # Check for the presence of the Blast parameters (footer) section .
-    # But still need to get the alignment section...
+    # _parse_parameters returns the alignment section.
     $data = $self->_parse_parameters($data);
 
 #    print "RETURNED FROM _parse_parameters($self)\n";
 #    print "\n  --> FOUND PARAMS.\n" if $self->{'_found_params'};
 #    print "\n  --> DID NOT FIND PARAMS.\n" unless $self->{'_found_params'};
 
-    if(defined $self->{'_current_hit'} and defined $self->{'_num_hits_significant'}) {
-      return if $self->{'_current_hit'} >= $self->{'_num_hits_significant'} and
-	 $self->{'_found_params'} and not $Blast->{'_check_all'};
-    }
-
-#    print STDERR "\nRETURNED BY _parse_parameters():\n$data\n"; 
+    return if $self->{'_found_params'} and not $Blast->{'_check_all'};
 
     require Bio::Tools::Blast::Sbjct;
 
@@ -2011,6 +2002,7 @@ sub _parse_alignment {
     my $check_all  = $Blast->{'_check_all'};
     my $filt_func  = $Blast->{'_filt_func'} || 0;
     my $signif_fmt = $Blast->{'_signif_fmt'};
+    my $my_signif  = $self->signif;
     my $err;
 
     # Now construct the Sbjct objects from the alignment section
@@ -2020,7 +2012,7 @@ sub _parse_alignment {
     $self->{'_current_hit'}++;
     
     if( not $Blast->{'_confirm_significance'}) {
-       # Also nee to set high/low signif values.
+       # Also need to set high/low signif values.
       $self->{'_num_hits'}++;
     }
 
@@ -2050,8 +2042,9 @@ sub _parse_alignment {
       # Test significance using custom function (if supplied)
       if($filt_func) {
 	not &$filt_func($hit) and do { $hit->destroy; undef $hit; };
+      } elsif($hit->signif <= $my_signif) {
+	push @{$self->{'_hits'}}, $hit;
       }
-      push @{$self->{'_hits'}}, $hit;
     }
     
   }
@@ -2059,11 +2052,13 @@ sub _parse_alignment {
 
 =head2 _parse_parameters
 
- Usage     : n/a; internal function. called by parse(), set_parameters()
+ Usage     : n/a; internal function. called by _parse_alignment()
  Purpose   : Extracts statistical and other parameters from the BLAST report.
            : Sets various key elements such as the program and version,
            : gapping, and the layout for the report (blast1 or blast2).
  Argument  : Boolean (get_stats indicator)
+ Returns   : String containing an alignment section for processing by
+           : _parse_alignment().
  Throws    : Exception if cannot find the parameters section of report.
            : Warning if cannot determine if gapping was used.
            : Warning if cannot determine the scoring matrix used.
@@ -2073,7 +2068,7 @@ sub _parse_alignment {
            : The determination whether to set additional stats is made 
            : by methods called by _parse_parameters().
 
-See Also   : L<parse>(), L<set_parameters>(), L<_set_database>(), L<_set_program>()
+See Also   : L<parse>(), L<_parse_alignment>(), L<_set_database>(), L<_set_program>()
 
 =cut
 
@@ -2085,7 +2080,7 @@ sub _parse_parameters {
 # 2. figure out if the stats are to be shared. some, not all can be shared 
 #    (eg., db info and matrix can be shared, karlin altschul params cannot.
 #    However, this method assumes they are all sharable.)
-# 3. return the block before the parameters section if the supplied data 
+# 3. return the block before the parameters section if the supplied data
 #    contains a footer parameters section.
 
     my ($self, $data) = @_;
@@ -2094,8 +2089,11 @@ sub _parse_parameters {
 #    printf STDERR "\nPARSING PARAMETERS for %s $self.\n", $self->name;
 
     # Should the parameters be shared?
-    # If so, set $self to the static $Blast object and return if already set.
-    # BUT... we need to extract the alignment from the parameter section, if any.
+    # If so, set $self to the static $Blast object and return if 
+    # the parameters were already set.
+    # Before returning, we need to extract the last alignment section
+    # from the parameter section, if any.
+
     if ($Blast->{'_share'}) {
       $client = $self;
       $self = $Blast if $Blast->{'_share'};
@@ -2128,16 +2126,11 @@ sub _parse_parameters {
     # If parameter section was found, set a boolean, 
     # otherwise return original data.
 
-#    printf STDERR "\nCONTINUING PARSING PARAMETERS for %s $client.\n", $client->name;
-
     if (defined($params)) {
       $client->{'_found_params'} = 1;
- #     print STDERR "\nPARAM SECTION FOUND ($client)\n";
     } else {
-#      print STDERR "\nPARAM SECTION NOT FOUND ($client)\n";
       return $data;
     }
-#    defined($params) ? ($client->{'_found_params'} = 1) : return $data;
 
     $self->_set_database($params) if $get_stats;
 
@@ -3413,28 +3406,28 @@ sub homol_data {
  Returns   : String containing tab-delimited set of data for each HSP
            : of each significant hit. Different HSPs are separated by newlines.
            : Left-to-Right order of fields:
-           :   QUERY_NAME             # Sequence identifier of the query.
-           :   QUERY_LENGTH           # Full length of the query sequence.
-           :   SBJCT_NAME             # Sequence identifier of the sbjct ("hit".
-           :   SBJCT_LENGTH           # Full length of the sbjct sequence.
-           :   EXPECT                 # Expect value for the alignment.
-           :   SCORE                  # Blast score for the alignment.
-           :   BITS                   # Bit score for the alignment.
-           :   NUM_HSPS               # Number of HSPs (not the "N" value).
-           :   HSP_FRAC_IDENTICAL     # fraction of identical substitutions.
-           :   HSP_FRAC_CONSERVED     # fraction of conserved ("positive") substitutions.
-           :   HSP_QUERY_ALN_LENGTH   # Length of the aligned portion of the query sequence.
-           :   HSP_SBJCT_ALN_LENGTH   # Length of the aligned portion of the sbjct sequence.
-           :   HSP_QUERY_GAPS         # Number of gaps in the aligned query sequence.
-           :   HSP_SBJCT_GAPS         # Number of gaps in the aligned sbjct sequence.
-           :   HSP_QUERY_START        # Starting coordinate of the query sequence.
-           :   HSP_QUERY_END          # Ending coordinate of the query sequence.
-           :   HSP_SBJCT_START        # Starting coordinate of the sbjct sequence.
-           :   HSP_SBJCT_END          # Ending coordinate of the sbjct sequence.
-           :   HSP_QUERY_STRAND       # Strand of the query sequence (TBLASTN/X only)
-           :   HSP_SBJCT_STRAND       # Strand of the sbjct sequence (TBLASTN/X only)
-           :   HSP_FRAME              # Frame for the sbjct translation (TBLASTN/X only)
-           :   SBJCT_DESCRIPTION  (optional)  # Full description of the sbjct sequence from 
+           : 1 QUERY_NAME             # Sequence identifier of the query.
+           : 2 QUERY_LENGTH           # Full length of the query sequence.
+           : 3 SBJCT_NAME             # Sequence identifier of the sbjct ("hit".
+           : 4 SBJCT_LENGTH           # Full length of the sbjct sequence.
+           : 5 EXPECT                 # Expect value for the alignment.
+           : 6 SCORE                  # Blast score for the alignment.
+           : 7 BITS                   # Bit score for the alignment.
+           : 8 NUM_HSPS               # Number of HSPs (not the "N" value).
+           : 9 HSP_FRAC_IDENTICAL     # fraction of identical substitutions.
+           : 10 HSP_FRAC_CONSERVED    # fraction of conserved ("positive") substitutions.
+           : 11 HSP_QUERY_ALN_LENGTH  # Length of the aligned portion of the query sequence.
+           : 12 HSP_SBJCT_ALN_LENGTH  # Length of the aligned portion of the sbjct sequence.
+           : 13 HSP_QUERY_GAPS        # Number of gaps in the aligned query sequence.
+           : 14 HSP_SBJCT_GAPS        # Number of gaps in the aligned sbjct sequence.
+           : 15 HSP_QUERY_START       # Starting coordinate of the query sequence.
+           : 16 HSP_QUERY_END         # Ending coordinate of the query sequence.
+           : 17 HSP_SBJCT_START       # Starting coordinate of the sbjct sequence.
+           : 18 HSP_SBJCT_END         # Ending coordinate of the sbjct sequence.
+           : 19 HSP_QUERY_STRAND      # Strand of the query sequence (TBLASTN/X only)
+           : 20 HSP_SBJCT_STRAND      # Strand of the sbjct sequence (TBLASTN/X only)
+           : 21 HSP_FRAME             # Frame for the sbjct translation (TBLASTN/X only)
+           : 22 SBJCT_DESCRIPTION  (optional)  # Full description of the sbjct sequence from 
            :                                  # the alignment section.
  Throws    : n/a
  Comments  : This method does not collect data based on tiling of the HSPs.
@@ -3532,28 +3525,28 @@ sub table_labels {
  Returns   : String containing tab-delimited set of data for each HSP
            : of each significant hit. Multiple hits are separated by newlines.
            : Left-to-Right order of fields:
-           :   QUERY_NAME            # Sequence identifier of the query.
-           :   QUERY_LENGTH          # Full length of the query sequence.
-           :   SBJCT_NAME            # Sequence identifier of the sbjct ("hit".
-           :   SBJCT_LENGTH          # Full length of the sbjct sequence.
-           :   EXPECT                # Expect value for the alignment.
-           :   SCORE                 # Blast score for the alignment.
-           :   BITS                  # Bit score for the alignment.
-           :   NUM_HSPS              # Number of HSPs (not the "N" value).
-           :   FRAC_IDENTICAL*       # fraction of identical substitutions.
-           :   FRAC_CONSERVED*       # fraction of conserved ("positive") substitutions .
-           :   FRAC_ALN_QUERY*       # fraction of the query sequence that is aligned.
-           :   FRAC_ALN_SBJCT*       # fraction of the sbjct sequence that is aligned.
-           :   QUERY_ALN_LENGTH*     # Length of the aligned portion of the query sequence.
-           :   SBJCT_ALN_LENGTH*     # Length of the aligned portion of the sbjct sequence.
-           :   QUERY_GAPS*           # Number of gaps in the aligned query sequence.
-           :   SBJCT_GAPS*           # Number of gaps in the aligned sbjct sequence.
-           :   QUERY_START*          # Starting coordinate of the query sequence.
-           :   QUERY_END*            # Ending coordinate of the query sequence.
-           :   SBJCT_START*          # Starting coordinate of the sbjct sequence.
-           :   SBJCT_END*            # Ending coordinate of the sbjct sequence.
-           :   AMBIGUOUS_ALN         # Ambiguous alignment indicator ('qs', 'q', 's').
-           :   SBJCT_DESCRIPTION  (optional)  # Full description of the sbjct sequence from 
+           : 1 QUERY_NAME           # Sequence identifier of the query.
+           : 2 QUERY_LENGTH         # Full length of the query sequence.
+           : 3 SBJCT_NAME           # Sequence identifier of the sbjct ("hit".
+           : 4 SBJCT_LENGTH         # Full length of the sbjct sequence.
+           : 5 EXPECT               # Expect value for the alignment.
+           : 6 SCORE                # Blast score for the alignment.
+           : 7 BITS                 # Bit score for the alignment.
+           : 8 NUM_HSPS             # Number of HSPs (not the "N" value).
+           : 9 FRAC_IDENTICAL*      # fraction of identical substitutions.
+           : 10 FRAC_CONSERVED*     # fraction of conserved ("positive") substitutions .
+           : 11 FRAC_ALN_QUERY*     # fraction of the query sequence that is aligned.
+           : 12 FRAC_ALN_SBJCT*     # fraction of the sbjct sequence that is aligned.
+           : 13 QUERY_ALN_LENGTH*   # Length of the aligned portion of the query sequence.
+           : 14 SBJCT_ALN_LENGTH*   # Length of the aligned portion of the sbjct sequence.
+           : 15 QUERY_GAPS*         # Number of gaps in the aligned query sequence.
+           : 16 SBJCT_GAPS*         # Number of gaps in the aligned sbjct sequence.
+           : 17 QUERY_START*        # Starting coordinate of the query sequence.
+           : 18 QUERY_END*          # Ending coordinate of the query sequence.
+           : 19 SBJCT_START*        # Starting coordinate of the sbjct sequence.
+           : 20 SBJCT_END*          # Ending coordinate of the sbjct sequence.
+           : 21 AMBIGUOUS_ALN       # Ambiguous alignment indicator ('qs', 'q', 's').
+           : 22 SBJCT_DESCRIPTION  (optional)  # Full description of the sbjct sequence from 
            :                                  # the alignment section.
            :
            : * Items marked with a "*" report data summed across all HSPs
@@ -3587,7 +3580,7 @@ sub table_tiled {
 	               $hit->num_hsps, $hit->frac_identical, $hit->frac_conserved, 
 	               $hit->frac_aligned_query, $hit->frac_aligned_hit,
 	               $hit->length_aln('query'), $hit->length_aln('sbjct'), 
-                       $hit->gaps, $hit->range('query'), $hit->range('sbjct'),
+                       $hit->gaps('list'), $hit->range('query'), $hit->range('sbjct'),
 	               $hit->ambiguous_aln, ($get_desc ? $hit->desc : '');
     }
     $str =~ s/\t$Newline/$Newline/gs;
@@ -3985,7 +3978,6 @@ all or some of the following fields:
 
 The static $Blast object has a special set of members:
 
-  _rawData  
   _errs
   _share
   _stream
