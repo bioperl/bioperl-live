@@ -1,6 +1,6 @@
 # $Id$
 #
-# BioPerl module for Bio::Tools::MZEF
+# BioPerl module for Bio::Tools::Eponine
 #
 # Cared for by Tania Oh <gisoht@nus.edu.sg>
 #
