@@ -37,7 +37,7 @@ my $USAGE = "bpsreformat -if INFORMAT -of OUTFORMAT -i FILENAME -o output.FORMAT
 my ($input,$output,$informat,$outformat,$msa,$special);
 
 GetOptions(
-	   'h|help:s'          => sub { die($USAGE) },
+	   'h|help'          => sub { die($USAGE) },
 	   'i|input:s'         => \$input,
 	   'o|output:s'        => \$output,
 	   'if|informat:s'     => \$informat,
@@ -110,7 +110,7 @@ bpsreformat - convert sequence formats
 
 =head1 DESCRIPTION
 
-This module is an implementation that allows conversion of sequence
+This script uses the SeqIO system that allows conversion of sequence
 formats either sequence data or multiple sequence alignment data.  The
 name comes from the fact that Sean Eddy's program sreformat (part of
 the HMMER pkg) already does this.  Sean's program tries to guess the
