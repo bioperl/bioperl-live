@@ -810,8 +810,12 @@ sub _setparams {
 	if ($attr  eq 'd' && ($executable ne 'bl2seq')) { 
 # This is added so that you can specify a DB with a full path
 	  if (! (-e $value.".nin" || -e $value.".pin")){ 
-	    $value = File::Spec->catdir($DATADIR,$value);
-	  }
+      my @dbs = split(/ /, $value);
+      for (my $i = 0; $i < scalar(@dbs); $i++) {
+        $dbs[$i] = File::Spec->catdir($DATADIR, $dbs[$i]);
+      }
+      $value = '"'.join(" ", @dbs).'"';
+    }
 	}
 # put params in format expected by Blast
 	$attr  = '-'. $attr ;       
