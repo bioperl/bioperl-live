@@ -609,6 +609,11 @@ sub draw {
 
   my $connector =  $self->connector;
   if (my @parts = $self->parts) {
+
+    # invoke sorter if use wants to sort always and we haven't already sorted
+    # during bumping.
+    @parts = $self->layout_sort(@parts) if !$self->bump && $self->option('always_sort');
+
     my $x = $left;
     my $y = $top  + $self->top + $self->pad_top;
     $self->draw_connectors($gd,$x,$y) if $connector && $connector ne 'none';
@@ -1275,6 +1280,8 @@ glyph pages for more options.
 
   -sort_order   Specify layout sort order      "default"
 
+  -always_sort  Sort even when bumping is off  0 (false)
+
   -bump_limit   Maximum number of levels to bump 0 (unlimited)
 
 For glyphs that consist of multiple segments, the -connector option
@@ -1346,6 +1353,10 @@ to sort a set of database search hits by bits (stored in the features'
                      ( $a->start <=> $b->start )
                    }
 
+The -always_sort option, if true, will sort features even if bumping
+is turned off.  This is useful if you would like overlapping features
+to stack in a particular order.  Features towards the end of the list
+will overlay those towards the beginning of the sort order.
 
 =head1 SUBCLASSING Bio::Graphics::Glyph
 
