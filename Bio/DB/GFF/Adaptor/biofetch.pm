@@ -70,8 +70,6 @@ all adaptors, the following class-specific arguments are recgonized:
 
   -proxy         [['http','ftp'],'http://proxy:8080']
 
-  -stdout        write result to stdout rather than a database
-
 -dsn,-user and -pass indicate the local database to cache results in,
 and as are per Bio::DB::GFF::Adaptor::dbi.  The -proxy argument allows
 you to set the biofetch web proxy, and uses the same syntax described
@@ -156,6 +154,7 @@ sub _load_embl {
   my $acc  = shift;
   my $seq  = shift;
   my $refclass = $self->refclass;
+  my $locus    = $seq->id;
 
   # begin loading
   $self->setup_load();
@@ -187,19 +186,43 @@ sub _load_embl {
   # now load each feature in turn
   for my $feat ($seq->all_SeqFeatures) {
     my $attributes = $self->get_attributes($feat);
-    my $name = $self->guess_name($attributes);
+    my $name       = $self->guess_name($attributes);
 
     my $location = $feat->location;
-    my @segments = map {[$_->start,$_->end]} 
+    my @segments = map {[$_->start,$_->end,$_->seq_id]}
       $location->can('sub_Location') ? $location->sub_Location : $location;
 
-    for my $segment (@segments) {
+    my $type     =  $feat->primary_tag eq 'CDS' ? 'mRNA'  : $feat->primary_tag;
+    my $parttype =  $feat->primary_tag eq 'gene' ? 'exon' : $feat->primary_tag;
 
+    if ($feat->primary_tag =~ /^(gene|CDS)$/) {
       $self->load_gff_line( {
 			     ref    => $acc,
 			     class  => $refclass,
 			     source => 'EMBL',
-			     method => $feat->primary_tag,
+			     method => $type,
+			     start  => $location->start,
+			     stop   => $location->end,
+			     score  => $feat->score || undef,
+			     strand => $feat->strand > 0 ? '+' : ($feat->strand < 0 ? '-' : '.'),
+			     phase  => $feat->frame || '.',
+			     gclass => $name->[0],
+			     gname  => $name->[1],
+			     tstart => undef,
+			     tstop  => undef,
+			     attributes  => $attributes,
+			    }
+			  );
+      @$attributes = ();
+    }
+
+    for my $segment (@segments) {
+
+      $self->load_gff_line( {
+			     ref    => $segment->[2] eq $locus ? $acc : $segment->[2],
+			     class  => $refclass,
+			     source => 'EMBL',
+			     method => $parttype,
 			     start  => $segment->[0],
 			     stop   => $segment->[1],
 			     score  => $feat->score || undef,
@@ -213,6 +236,7 @@ sub _load_embl {
 			    }
 			  );
     }
+
   }
 
   # finish loading

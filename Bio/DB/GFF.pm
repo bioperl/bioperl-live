@@ -1937,9 +1937,18 @@ field, which are legion.
 # load from <>
 sub do_load_gff {
   my $self = shift;
+  local $self->{gff3_flag} = 0;
   $self->setup_load();
 
+  my $fasta_sequence_id;
+
   while (<>) {
+    chomp;
+    $self->{gff3_flag}++ if /^\#\#gff-version\s+3/;
+    if (/^>(\S+)/) {  # uh oh, sequence coming
+      $fasta_sequence_id = $1;
+      last;
+    }
     if (/^\#\#\s*sequence-region\s+(\S+)\s+(\d+)\s+(\d+)/i) { # header line
       $self->load_gff_line(
 			   {
@@ -1969,15 +1978,23 @@ sub do_load_gff {
       undef $$_ if $$_ eq '.';
     }
 
-    # handle group parsing
-    # protect embedded semicolons in the group; there must be faster/more elegant way
-    # to do this.
-    $group =~ s/\\;/$;/g;
-    while ($group =~ s/( \"[^\"]*);([^\"]*\")/$1$;$2/) { 1 }
-    my @groups = split(/\s*;\s*/,$group);
-    foreach (@groups) { s/$;/;/g }
+    my ($gclass,$gname,$tstart,$tstop,$attributes);
+    if ($self->{gff3_flag}) {
+      my @groups = split /[;&]/,$group;  # so easy!
+      ($gclass,$gname,$tstart,$tstop,$attributes) = $self->_split_gff3_group(@groups);
+    }
 
-    my ($gclass,$gname,$tstart,$tstop,$attributes) = $self->_split_group(@groups);
+    else { #gff2 parsing
+      # handle group parsing
+      # protect embedded semicolons in the group; there must be faster/more elegant way
+      # to do this.
+      $group =~ s/\\;/$;/g;
+      while ($group =~ s/( \"[^\"]*);([^\"]*\")/$1$;$2/) { 1 }
+      my @groups = split(/\s*;\s*/,$group);
+      foreach (@groups) { s/$;/;/g }
+
+      ($gclass,$gname,$tstart,$tstop,$attributes) = $self->_split_group(@groups);
+    }
 
     # no standard way in the GFF file to denote the class of the reference sequence -- drat!
     # so we invoke the factory to do it
@@ -2009,13 +2026,17 @@ sub do_load_gff {
 			);
   }
 
-  $self->finish_load();
+  my $result = $self->finish_load();
+  $result += $self->load_sequence($fasta_sequence_id) if defined $fasta_sequence_id;
+  $result;
+
 }
 
 sub load_sequence {
   my $self = shift;
+  my $id   = shift;   # hack for GFF files that contain fasta data
   # read fasta file(s) from ARGV
-  my ($id,$seq,$offset,$loaded);
+  my ($seq,$offset,$loaded) = (undef,0,0);
   while (<>) {
     chomp;
     if (/^>(\S+)/) {
@@ -3000,6 +3021,59 @@ sub _split_group {
 
   return ($gclass,$gname,$tstart,$tstop,\@attributes);
 }
+
+=head2 _split_gff3_group
+
+ Title   : _split_gff3_group
+ Usage   : $db->_split_gff3_group(@groups)
+ Function: parse GFF3 group field
+ Returns : ($gclass,$gname,$tstart,$tstop,$attributes)
+ Args    : a list of group fields from a GFF line
+ Status  : internal
+
+This is an internal method that is called by load_gff_line to parse
+out the contents of one or more group fields.  It returns the class of
+the group, its name, the start and stop of the target, if any, and an
+array reference containing any attributes that were stuck into the
+group field, in [attribute_name,attribute_value] format.
+
+It is used for lines from GFF3 files.
+
+=cut
+
+sub _split_gff3_group {
+  my $self   = shift;
+  my @groups = @_;
+  my ($gclass,$gname,$tstart,$tstop,@attributes);
+
+  for my $group (@groups) {
+    my ($tag,$value) = split /=/,$group;
+    $tag             = unescape($tag);
+    my @values       = map {unescape($_)} split /,/,$value;
+    if ($tag eq 'Parent') {
+      $gclass = 'Sequence';
+      $gname  = shift @values;
+    }
+    elsif ($tag eq 'ID') {
+      $gclass = 'Sequence';
+      $gname  = shift @values;
+    }
+    elsif ($tag eq 'Target') {
+      $gclass = 'Sequence';
+      ($gname,$tstart,$tstop) = split /\s+/,shift @values;
+    }
+    push @attributes,[$tag=>$_] foreach @values;
+  }
+  return ($gclass,$gname,$tstart,$tstop,\@attributes);
+}
+
+sub unescape {
+  my $v = shift;
+  $v =~ tr/+/ /;
+  $v =~ s/%([0-9a-fA-F]{2})/chr hex($1)/ge;
+  return $v;
+}
+
 
 package Bio::DB::GFF::ID_Iterator;
 use strict;
