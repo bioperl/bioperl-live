@@ -8,7 +8,7 @@ BEGIN {
 	use lib 't';
     }
     use Test;
-    plan tests => 56 }
+    plan tests => 68 }
 
 use Bio::Seq;
 use Bio::SeqIO;
@@ -231,6 +231,29 @@ $seq = Bio::SeqIO->new( '-format' => 'GenBank' ,
 $seq->verbose($verbosity);
 ok(defined($as = $seq->next_seq()));
 
+my @features = $as->all_SeqFeatures();
+ok(@features,21);
+my $lastfeature = pop @features;
+
+ok($lastfeature->strand, -1);
+my $location = $lastfeature->location;
+ok($location->strand, -1);
+ok($location->start, 83202);
+ok($location->end, 84996);
+
+my @sublocs = $location->sub_Location();
+
+ok(@sublocs, 2);
+my $loc = shift @sublocs;
+ok($loc->start, 83202);
+ok($loc->end, 83329);
+ok($loc->strand, -1);
+
+$loc = shift @sublocs;
+ok($loc->start, 84248);
+ok($loc->end, 84996);
+ok($loc->strand,1);
+
 $seq = Bio::SeqIO->new( '-format' => 'GenBank' , 
 			-file => ">".Bio::Root::IO->catfile("t","data","genbank.fuzzyout"));
 $seq->verbose($verbosity);
@@ -275,12 +298,12 @@ $str  = new Bio::SeqIO(-format => 'genbank',
 			    -verbose => $verbosity);
 
 $seq = $str->next_seq;
-my @features = $seq->all_SeqFeatures();
+@features = $seq->all_SeqFeatures();
 ok(@features, 5);
 ok($features[0]->start, 1);
 ok($features[0]->end, 226);
-my $location = $features[1]->location;
+$location = $features[1]->location;
 ok($location->isa('Bio::Location::SplitLocationI'));
-my @sublocs = $location->sub_Location();
+@sublocs = $location->sub_Location();
 ok(@sublocs, 29);
  
