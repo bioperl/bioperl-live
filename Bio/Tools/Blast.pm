@@ -337,7 +337,7 @@ parameter containing a reference to a hash
 that hold the parameters required by the L<run>() method.
 
 The constructor for Blast objects is inherited from Bio::Tools::SeqAnal.pm.
-See the B<_initialize)() method of that package for general information 
+See the B<_initialize>() method of that package for general information 
 relevant to creating Blast objects. (The B<new>() method, inherited from
 B<Bio::Root::Object.pm>, calls B<_initialize>(). See L<Links to related modules>).
 
