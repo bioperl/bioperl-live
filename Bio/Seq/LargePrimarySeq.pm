@@ -224,7 +224,7 @@ sub DESTROY {
     my $fh = $self->_fh();
     close($fh) if( defined $fh );
     # this should be handled by Tempfile removal, but we'll unlink anyways.
-    unlink $self->_filename()
+    unlink $self->_filename();
     $self->SUPER::DESTROY();
 }
 
