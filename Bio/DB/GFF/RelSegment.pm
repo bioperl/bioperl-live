@@ -286,7 +286,8 @@ sub new {
     # handle truncation in either direction
     # This only happens if the segment runs off the end of
     # the reference sequence
-    if (($this_start < $absstart) || ($this_stop > $absstop)) {
+    if ($factory->strict_bounds_checking &&
+	(($this_start < $absstart) || ($this_stop > $absstop))) {
       if (my $a = $factory->abscoords($absref,'Sequence')) {
 	my $refstart = $a->[0][2];
 	my $refstop  = $a->[0][3];

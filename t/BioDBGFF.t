@@ -346,6 +346,16 @@ ok($st1 eq $st2);
 my @transcripts = $st1->features('transcript');
 ok(($transcripts[0]->aliases)[0] eq 'trans-18');
 
+# test truncation
+$db->strict_bounds_checking(1);
+my $tseg = $db->segment(-name=>'trans-1',-class=>'Transcript',-start=>1,-stop=>500);
+ok(!$tseg->truncated);
+$tseg    = $db->segment(-name=>'trans-1',-class=>'Transcript',-start=>1,-stop=>50000);
+ok($tseg->truncated);
+$db->strict_bounds_checking(0);
+$tseg    = $db->segment(-name=>'trans-1',-class=>'Transcript',-start=>1,-stop=>50000);
+ok(!$tseg->truncated);
+
 END {
   unlink FASTA_FILES."/directory.index";
 }

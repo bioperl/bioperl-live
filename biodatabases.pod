@@ -1,4 +1,4 @@
-## $Id: biodatabases.pod,v 1.3 2002-02-19 23:40:33 bosborne Exp $
+## $Id: biodatabases.pod,v 1.4 2002-02-22 05:14:20 lstein Exp $
 
 #
 # Documentation about the backend of Bioperl
@@ -204,3 +204,17 @@ and retrieve arrays of Seq objects. For example
 See L<Bio::DB::SQL::SeqAdaptor>, L<Bio::DB::SQL::QueryConstraint>, 
 L<Bio::DB::SQL::CommentAdaptor>, and L<Bio::DB::SQL::BioQuery> for
 more examples.
+
+=head1 BIO::DB::GFF: INDEXING AND RETRIEVAL OF SEQUENCE FEATURE DATA
+
+An alternative view of sequence feature data is provided by the
+Bio::DB::GFF module, part of the core package.  This module takes a
+set of sequence features stored in GFF (gene-finding format) format
+and loads them into a relational database optimized for positional
+queries.  This allows a variety of data mining operations, such as
+finding sequence features that are within a certain distance of each
+other or which overlap. The module can also store large contiguous
+sequences and extract subsequences rapidly.
+
+See L<Bio::DB::GFF>, L<Bio::DB::GFF::RelSegment>,
+L<Bio::DB::GFF::Feature>, and L<Bio::DB::GFF::Adaptor::dbi>.

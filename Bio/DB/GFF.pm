@@ -331,6 +331,24 @@ Chr1 are composed of LINK_H06O01 from bp 1 to bp 254826.  The region
 of LINK_H0601 between 32386 and 64122 is, in turn, composed of the
 bases 5 to 31742 of cosmid F49B2.
 
+=head2 Attributes
+
+While not intended to serve as a general-purpose sequence database
+(see bioperl-db for that), GFF allows you to tag features with
+arbitrary attributes.  Attributes appear in the Group field following
+the initial class/name pair.  For example:
+
+ Chr1  cur trans  939 942 . +  . Transcript Y95B8A.2 ; Gene sma-3 ; Alias sma3
+
+This line tags the feature named Transcript Y95B8A.2 as being "Gene"
+named sma-3 and having the Alias "sma3".  Features having these
+attributes can be looked up using the fetch_feature_by_attribute() method.
+
+Two attributes have special meaning: "Note" is for backward
+compatibility and is used for unstructured text remarks.  "Alias" is
+considered as a synonym for the feature name and will be consulted
+when looking up a feature by its name.
+
 =head2 Adaptors and Aggregators
 
 This module uses a system of adaptors and aggregators in order to make
@@ -433,7 +451,7 @@ use Bio::Root::Root;
 use vars qw($VERSION @ISA);
 @ISA = qw(Bio::Root::Root);
 
-$VERSION = '1.01';
+$VERSION = '1.02';
 my %valid_range_types = (overlaps     => 1,
 			 contains     => 1,
 			 contained_in => 1);
@@ -1052,6 +1070,33 @@ sub absolute {
   my $self = shift;
   my $d = $self->{absolute};
   $self->{absolute} = shift if @_;
+  $d;
+}
+
+=head2 strict_bounds_checking
+
+ Title   : strict_bounds_checking
+ Usage   : $flag = $db->strict_bounds_checking([$flag])
+ Function: gets/sets strict bounds checking
+ Returns : current setting of bounds checking flag
+ Args    : new setting for bounds checking flag
+ Status  : public
+
+This flag enables extra checks for segment requests that go beyond the
+ends of their reference sequences.  If bounds checking is enabled,
+then retrieved segments will be truncated to their physical length,
+and their truncated() methods will return true.
+
+If the flag is off (the default), then the module will return segments
+that appear to extend beyond their physical boundaries.  Requests for
+features beyond the end of the segment will, however, return empty.
+
+=cut
+
+sub strict_bounds_checking {
+  my $self = shift;
+  my $d = $self->{strict};
+  $self->{strict} = shift if @_;
   $d;
 }
 
