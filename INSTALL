@@ -21,8 +21,8 @@ o System requirements
    shell and all necessary modules will be installed.
 
  - Bioperl on ActiveState for Windows - An ActiveState PPM distribution
-   is available for bioperl.  Issue the following commands in your PPM
-   shell to install Bioperl.
+   is available for bioperl v. 1.0.  Issue the following commands in
+   your PPM shell to install Bioperl (ActiveState Perl v. 5.6*).
 
      PPM>repository add Bioperl http://bioperl.org/DIST/
 
@@ -307,71 +307,78 @@ or more simply:
 
   >perl -MCPAN -e "install Bundle::BioPerl"
 
+The DBD::mysql, DB_File and XML::Parser modules require other
+applications or databases.
 
 Module			 Where it is Used
 ------------------------------------------------------------------
 HTTP::Request::Common    GenBank+GenPept sequence retrieval, 
-			 remote http Blast jobs.
-			 Bio::DB::*,Bio::Tools::Run::RemoteBlast
+			 remote http Blast jobs
+			 Bio::DB::*
+			 Bio::Tools::Run::RemoteBlast
 
 LWP::UserAgent           GenBank+GenPept sequence retrieval, 
 			 remote http Blast jobs
-			 Bio::DB::*,Bio::Tools::Run::RemoteBlast
+			 Bio::DB::*
+			 Bio::Tools::Run::RemoteBlast
 
-Ace come from AcePerl    Access to ACeDB databases
+AcePerl			 Access to ACeDB databases
 			 Bio::DB::Ace
-
-IO::Scalar		 IO handle to read or write to a scalar/remote 
-			 http Blast jobs
-			 Bio::Tools::Blast::Run::Remote,
-
+			 Available at http://stein.cshl.org
+			 
 IO::String               IO handle to read or write to a string.
-			 GenBank+GenPept sequence retrieval, 
-			 Variation code,
-			 Bio::DB::*,Bio::Variation::*,
+			 Bio::SeqIO
+			 Bio::Variation::*
+			 Bio::DB::*
 			 Bio::Index::Blast
+			 Bio::Tools::*
+			 Bio::Biblio::IO
+			 Bio::Structure::IO
 
 XML::Parser              Parsing of XML documents
-			 Bio::Variation code, GAME parser, SearchIO
-			 Bio::SeqIO::game,Bio::Variation::*, 
+			 Bio::SeqIO::game
+			 Bio::Variation::* 
 			 Bio::SearchIO::blastxml
 			 Bio::Biblio::IO::medlinexml
-
+			 Requires expat from
+			 http://sourceforge.net/projects/expat/
+			 			 
 XML::Writer              Parsing + writing of XML documents
-			 Bio::Variation code, GAME parser
-			 Bio::SeqIO::game,Bio::Variation::*
+			 Bio::SeqIO::game
+			 Bio::Variation::*
 
 XML::Parser::PerlSAX     Parsing of XML documents
-			 Bio::Variation code, GAME parser, SearchIO
-			 Bio::SeqIO::game,Bio::Variation::*,
+			 Bio::SeqIO::game
+			 Bio::Variation::*
 			 Bio::SearchIO::blastxml
 			 Bio::Biblio::IO::medlinexml
 
 XML::Twig        	 Parsing of XML documents
-			 Module Bio::Variation::IO::xml
+			 Bio::Variation::IO::xml
 
 File::Temp               Temporary File creation
-			 Bio::DB::WebDBSeqI, Bio::Seq::LargePrimarySeq
-			 All analysis running
+			 Bio::DB::FileCache
+			 Bio::DB::XEMBL
 
-SOAP::Lite               SOAP protocol
-			 XEMBL Services, 
-			 Bibliographic queries in Biblio::
+SOAP::Lite               SOAP protocol, XEMBL Services, 
+			 Bio::Biblio::*
 			 Bio::DB::XEMBLService
 
 HTML::Parser             HTML parsing of GDB page
 			 Bio::DB::GDB
 
-DBD::mysql               Mysql driver
-			 loading and querying of Mysql-based 
-			 GFF feature databases
+DBD::mysql               Mysql API for loading and querying of Mysql-based 
+			 GFF feature and BioSQL databases
 			 Bio::DB::GFF
+			 bioperl-db external package
+			 bioperl-pipeline external package
+			 Mysql DB free from www.mysql.com
 
 GD			 GD graphical drawing library
 			 Bio::Graphics
                          Requires GD library from www.boutell.com/gd
 
-srsperl.pm		 Sequence Retrieval System (SRS) 
+srsperl			 Sequence Retrieval System (SRS) 
 			 alternative way of retrieving 
 			 sequences
 			 Bio::LiveSeq::IO::SRS.pm
@@ -380,14 +387,16 @@ srsperl.pm		 Sequence Retrieval System (SRS)
 Storable		 Persistent object storage & retrieval 
 			 Bio::DB::FileCache
 
-Parse::RecDescent        Parsing of Unigene files
-
 Text::Shellwords         Text parser
-                         Bio::Graphics::FeatureFile.pm
+                         Bio::Graphics::FeatureFile
 
 XML::DOM		 XML parser
 			 Bio::SeqIO::bsml.pm
 
 DB_File                  Perl access to Berkeley DB
                          Bio::DB::Flat
-                         Bio::SeqFeature::Collection
+			 Bio::DB::Fasta,
+			 Bio::SeqFeature::Collection,
+			 Bio::Index::*
+                         Requires Berkeley DB, from Linux RPM
+			 or from www.sleepycat.com
