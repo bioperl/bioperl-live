@@ -222,10 +222,10 @@ sub get_Markers{
 }
 
 
-=head2 number_individuals
+=head2 get_number_individuals
 
- Title   : number_individuals
- Usage   : my $count = $pop->number_individuals;
+ Title   : get_number_individuals
+ Usage   : my $count = $pop->get_number_individuals;
  Function: Get the count of the number of individuals
  Returns : integer >= 0
  Args    : [optional] marker name, will return a count of the number
