@@ -166,6 +166,10 @@ the Ka (non-synonymous) and Ks (synonymous) substitutions.
 This script will turn a protein SearchIO-compatible report (BLASTP, 
 FASTP, SSEARCH) into a Markov Matrix for TribeMCL clustering.
 
+=head2 scripts/utilities/search2gff.PLS
+
+Turn SearchIO parseable reports(s) into a GFF report.
+
 =head2 scripts/utilities/seq_length.PLS
 
 Reports the total number of residues and total number of individual 
