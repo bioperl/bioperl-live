@@ -21,7 +21,11 @@ sub font {
 sub pad_top {
   my $self = shift;
   my $pad = $self->SUPER::pad_top;
-  $pad   += $self->labelheight if $self->label;
+  my $decoration_height = $self->decoration_height() if $self->has_decoration();
+  my $label_height = $self->labelheight if $self->label;
+  my $max = 
+    $decoration_height > $label_height ? $decoration_height : $label_height;
+  $pad   += $max;
   $pad;
 }
 sub pad_bottom {
@@ -33,9 +37,12 @@ sub pad_bottom {
 sub pad_right {
   my $self = shift;
   my $pad = $self->SUPER::pad_right;
+  my $decoration_width  = $self->decoration_width() if $self->has_decoration();
   my $label_width       = length($self->label||'') * $self->font->width;
   my $description_width = length($self->description||'') * $self->font->width;
-  my $max = $label_width > $description_width ? $label_width : $description_width;
+  my $max = ( $label_width + $decoration_width );
+  my $max =
+    $max > $description_width ? $max : $description_width;
   my $right = $max - $self->width;
   return $pad > $right ? $pad : $right;
 }
@@ -105,6 +112,7 @@ sub get_description {
 sub draw {
   my $self = shift;
   $self->SUPER::draw(@_);
+  $self->draw_decoration(@_)  if $self->has_decoration();
   $self->draw_label(@_)       if $self->option('label');
   $self->draw_description(@_) if $self->option('description');
 }
@@ -112,8 +120,10 @@ sub draw {
 sub draw_label {
   my $self = shift;
   my ($gd,$left,$top,$partno,$total_parts) = @_;
+  $self->draw_decoration(@_) if $self->has_decoration();
   my $label = $self->label or return;
   my $x = $self->left + $left;
+  $x += $self->decoration_width() if $self->has_decoration();
   $x = $self->panel->left + 1 if $x <= $self->panel->left;
   my $font = $self->option('labelfont') || $self->font;
   $gd->string($font,
@@ -133,6 +143,44 @@ sub draw_description {
 	      $self->bottom - $self->pad_bottom + $top,
 	      $label,
 	      $self->font2color);
+}
+
+sub draw_decoration {
+  my $self = shift;
+  return unless $self->has_decoration();
+  my ( $gd, $left, $top, $partno, $total_parts ) = @_;
+
+  ## TODO: Replace this with something else.
+  my $label = '*';
+  my $x = $self->left + $left;
+  $x = $self->panel->left + 1 if $x <= $self->panel->left;
+  my $font = $self->option('labelfont') || $self->font;
+  $gd->string($font,
+	      $x,
+	      $self->top + $top,
+	      $label,
+	      $self->factory->translate_color($self->option( 'decoration color' )||'red'));
+}
+
+sub has_decoration {
+  my $self = shift;
+
+  ## TODO: ERE I AM
+  return ( $self->label() =~ /08/ );
+}
+
+sub decoration_width {
+  my $self = shift;
+
+  ## TODO: Something cool
+  return $self->font->width();
+}
+
+sub decoration_height {
+  my $self = shift;
+
+  ## TODO: Something cool
+  return $self->labelheight();
 }
 
 sub dna_fits {
