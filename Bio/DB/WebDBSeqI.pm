@@ -78,7 +78,7 @@ preceded with a _
 package Bio::DB::WebDBSeqI;
 use strict;
 use vars qw(@ISA $MODVERSION %RETRIEVAL_TYPES $DEFAULT_RETRIEVAL_TYPE
-	    $DEFAULTFORMAT);
+	    $DEFAULTFORMAT $LAST_INVOCATION_TIME);
 
 use Bio::DB::RandomAccessI;
 use Bio::SeqIO;
@@ -100,6 +100,7 @@ BEGIN {
 		       );
     $DEFAULT_RETRIEVAL_TYPE = 'pipeline';
     $DEFAULTFORMAT = 'fasta';
+    $LAST_INVOCATION_TIME = 0;
 }
 
 sub new {
@@ -143,6 +144,7 @@ sub new {
 
 sub get_Seq_by_id {
     my ($self,$seqid) = @_;
+    $self->_sleep;
     my $seqio = $self->get_Stream_by_id([$seqid]);
     $self->throw("id does not exist") if( !defined $seqio ) ;
     my @seqs;
@@ -163,6 +165,7 @@ sub get_Seq_by_id {
 
 sub get_Seq_by_acc {
    my ($self,$seqid) = @_;
+    $self->_sleep;
    my $seqio = $self->get_Stream_by_acc($seqid);
    $self->throw("acc does not exist") if( !defined $seqio );
    my @seqs;
@@ -184,6 +187,7 @@ sub get_Seq_by_acc {
 
 sub get_Seq_by_gi {
    my ($self,$seqid) = @_;
+    $self->_sleep;
    my $seqio = $self->get_Stream_by_gi($seqid);
    $self->throw("gi does not exist") if( !defined $seqio );
    my @seqs;
@@ -204,6 +208,7 @@ sub get_Seq_by_gi {
 
 sub get_Seq_by_version {
    my ($self,$seqid) = @_;
+    $self->_sleep;
    my $seqio = $self->get_Stream_by_version($seqid);
    $self->throw("accession.version does not exist") if( !defined $seqio );
    my @seqs;
@@ -683,6 +688,51 @@ sub io {
 	$self->{'_io'} = $io;
     }
     return $self->{'_io'};
+}
+
+
+=head2 delay_policy
+
+ Title   : delay_policy
+ Usage   : $secs = $self->delay_policy
+ Function: return number of seconds to delay between calls to remote db
+ Returns : number of seconds to delay
+ Args    : none
+
+NOTE: The default delay policy is 0s.  Override in subclasses to
+implement delays.  The timer has only second resolution, so the delay
+will actually be +/- 1s.
+
+=cut
+
+sub delay_policy {
+   my $self = shift;
+   return 0;
+}
+
+=head2 _sleep
+
+ Title   : _sleep
+ Usage   : $self->_sleep
+ Function: sleep for a number of seconds indicated by the delay policy
+ Returns : none
+ Args    : none
+
+NOTE: This method keeps track of the last time it was called and only
+imposes a sleep if it was called more recently than the delay_policy()
+allows.
+
+=cut
+
+sub _sleep {
+   my $self = shift;
+   my $last_invocation = $LAST_INVOCATION_TIME;
+   if (time - $LAST_INVOCATION_TIME < $self->delay_policy) {
+      my $delay = $self->delay_policy - (time - $LAST_INVOCATION_TIME);
+      warn "sleeping for $delay seconds\n" if $self->verbose;
+      sleep $delay;
+   }
+   $LAST_INVOCATION_TIME = time;
 }
 
 1;

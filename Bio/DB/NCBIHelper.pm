@@ -445,7 +445,23 @@ sub _check_id {
     }
 }
 
+=head2 delay_policy
 
+ Title   : delay_policy
+ Usage   : $secs = $self->delay_policy
+ Function: return number of seconds to delay between calls to remote db
+ Returns : number of seconds to delay
+ Args    : none
+
+NOTE: NCBI requests a delay of 3s between requests.  This method
+implements that policy.
+
+=cut
+
+sub delay_policy {
+  my $self = shift;
+  return 3;
+}
 
 1;
 __END__
