@@ -83,7 +83,7 @@ This is a Bio::Seq object that can also hold data about each residue
 in the sequence In this case, the sequence can be associated with a
 single array of HNN prediction scores.  e.g.,
 
-  my $meta_sequence = $analysis_object->result('all');					
+  my $meta_sequence = $analysis_object->result('meta');					
   print "helix scores from residues 10-20 are ",
       $meta_sequence->named_submeta_text("HNN_helix",10,20), "\n";			
 
@@ -139,8 +139,6 @@ use strict;
 package Bio::Tools::Analysis::Protein::HNN;
 use vars qw(@ISA );
 
-use Data::Dumper;
-use Bio::WebAgent;
 use IO::String;
 use Bio::SeqIO;
 use HTTP::Request::Common qw (POST);
@@ -195,15 +193,15 @@ sub  _run {
                          ali_width => 70,
                         ];
 
-    my $ua = LWP::UserAgent->new();
+    
 
-    my $content = $ua->request($request);
-    my $text = $content->content;
+     
+    my $text = $self->request($request)->content;
     my ($next) = $text =~ /Prediction.*?=(.*?)>/;
-    my $ua2 = LWP::UserAgent->new();
+    
     my $out = "http://npsa-pbil.ibcp.fr/". "$next";
     my $req2 = HTTP::Request->new(GET=>$out);
-    my $resp2 = $ua->request ($req2);
+    my $resp2 = $self->request ($req2);
     $self->{'_result'} = $resp2->content;
 }
 
@@ -292,7 +290,7 @@ sub result {
             return @fts;
         }                       #endif BioSeqFeature
 
-        elsif ($value eq 'all') {
+        elsif ($value eq 'meta') {
             #1st of all make 3 or 4 arrays of scores for each type from column data
             my %type_scores;
             for my $aa (@{$self->{'_parsed'}}) {

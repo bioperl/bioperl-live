@@ -66,7 +66,9 @@ assigned state.
 
 An array of Bio::SeqFeature::Generic objects where each feature is a
 predicted unit of secondary structure. Only stretches of helix/sheet
-predictions for longer than 4 residues are defined as helices.
+predictions for longer than 4 residues are defined as helices. See 
+Bio::Tools::Analysis::Domcut.pm for examples of how to add sequence
+features.
 
   my @fts = $analysis_object->result(Bio::SeqFeatureI);
   for my $ft (@fts) {
@@ -137,8 +139,6 @@ use strict;
 package Bio::Tools::Analysis::Protein::GOR4;
 use vars qw(@ISA );
 
-use Data::Dumper;
-use Bio::WebAgent;
 use IO::String;
 use Bio::SeqIO;
 use HTTP::Request::Common qw(POST);
@@ -191,13 +191,13 @@ Returns the raw ASCII data stream but without HTML tags
 The argument string defines the type of bioperl objects returned in an
 array.  The objects are L<Bio::SeqFeature::Generic>.  Feature primary
 tag is "2ary".  Feature tags are "type" (which can be helix, sheet or
-coil) "method" (GOR4)
+coil) "method" (GOR4).
 
 =item 'parsed'
 
 Array of hash references of { helix =E<gt>, sheet =E<gt> , coil =E<gt> , struc=E<gt>}.
 
-=item 'all'
+=item 'meta'
 
 A Bio::Seq::Meta::Array object. Scores can be accessed using methods
 from this class. Meta sequence names are GOR4_helix, GOR4_sheet,
@@ -251,7 +251,7 @@ sub result {
             return @fts;
         }                       #endif BioSeqFeature
 
-        elsif ($value eq 'all') {
+        elsif ($value eq 'meta') {
             #1st of all make 3 or 4 arrays of scores for each type from column data
             my %type_scores;
             for my $aa (@{$self->{'_parsed'}}) {

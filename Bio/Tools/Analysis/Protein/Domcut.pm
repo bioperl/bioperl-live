@@ -15,7 +15,7 @@ Bio::Tools::Analysis::Protein::Domcut -  a wrapper around Domcut server
 =head1  SYNOPSIS
 
   use   Bio::Tools::Analysis::Protein::Domcut;
-  #get a Bio::Seq or Bio::PrimarySeq
+  #get a  Bio::PrimarySeq
   use Bio::PrimarySeq;
   my $seq = new Bio::PrimarySeq
      (-seq=>'IKLCVNLAILAKAHLIELALAL',
@@ -24,6 +24,7 @@ Bio::Tools::Analysis::Protein::Domcut -  a wrapper around Domcut server
   my $domcut = Bio::Tools::Analysis::Protein::Domcut->new (-seq=>$seq);
   $domcut->run;
   print $domcut->result;# #raw text to standard out
+  
 
 =head1  DESCRIPTION
 
@@ -33,10 +34,11 @@ better than the significance threshold and at a local minimum receive
 a rank - i.e., the best minimum is rank 1, the second best minimum is
 rank2 etc. These correspond to domain boundaries.  e.g.,
 
-  my $analysis_object = Bio::Tools::SimpleAnalysis::Protein::Domcut->new
+  my $analysis_object = Bio::Tools::Analysis::Protein::Domcut->new
      (-seq => $seq);
 
-creates a new object
+creates a new object. The sequence supplied must be a Bio::PrimarySeq and not
+a Bio::Seq object. 
 
   $analysis_object->run;
 
@@ -56,7 +58,7 @@ The raw text of the program output
 =item 2
 
 An reference to an array of hashes of scores for each state and the
-assigned state.
+assigned state. Each element in the array is a residue (indexed from 0).
 
   my $data_ref = $analysis_object->result('parsed');
   print "score for helix at residue 2 is $data_ref->[1]{'helix'}\n";
@@ -67,12 +69,25 @@ assigned state.
 An array of Bio::SeqFeature::Generic objects where each feature is a
 predicted unit of secondary structure. Only stretches of helix/sheet
 predictions for longer than 4 residues are defined as helices.
+So, in order to add features to an existing Bio::Seq object;
+# get a Bio::Seq object
+my $seqobj;
+my $tool = Bio::Tools::Analysis::Protein::Domcut->new (
+			-seq => $seqobj->primary_seq);
+$tool->run;
 
-  my @fts = $analysis_object->result(Bio::SeqFeatureI);
-  for my $ft (@fts) {
-      print " From ",  $ft->start, " to  ",$ft->end, " struc: " ,
-             ($ft->each_tag_value('type'))[0]  ,"\n";
-  }
+  my @fts = $tool->result(Bio::SeqFeatureI);
+ 
+  $seqobj->add_SeqFeature(@fts);
+  
+  # if you want  meta sequences as well :
+  my $meta = $tool->result('meta');
+  $seqobj->primary_seq($meta);
+  
+  #can access meta data in a Bio::Seq object via a 
+  #call to primary_seq:
+  
+  print $seq4->primary_seq->named_submeta_text('Domcut', 1,2), "\n";
 
 =item 4
 
@@ -82,7 +97,7 @@ This is a Bio::Seq object that can also hold data about each residue
 in the sequence In this case, the sequence can be associated with a
 single array of Domcut prediction scores.  e.g.,
 
-  my $meta_sequence = $analysis_object->result('all');
+  my $meta_sequence = $analysis_object->result('meta');
   print "scores from residues 10 -20 are ",
       $meta_sequence->submeta_text(10,20), "\n";
 
@@ -134,8 +149,6 @@ methods. Internal methods are usually preceded with a _
 use strict;
 package Bio::Tools::Analysis::Protein::Domcut;
 use vars qw(@ISA );
-use Data::Dumper;
-use Bio::WebAgent;
 use IO::String;
 use Bio::SeqIO;
 use HTTP::Request::Common qw(GET);
@@ -254,13 +267,8 @@ sub result {
             return @fts;
         }
         ## convert parsed data into a meta array format
-        elsif ($value eq 'all') {
-			#alter inheritance depending on type#
-			if ($self->seq->isa("Bio::SeqI")) {
-				 @Bio::Seq::Meta::Array::ISA = qw(Bio::Seq Bio::Seq::MetaI); 
-					}
-				
-            bless ($self->seq, "Bio::Seq::Meta::Array");
+        elsif ($value eq 'meta') {
+			bless ($self->seq, "Bio::Seq::Meta::Array");
             $self->seq->isa("Bio::Seq::MetaI")
                 || $self->throw("$self is not a Bio::Seq::MetaI");
             my $meta_name = "Domcut";

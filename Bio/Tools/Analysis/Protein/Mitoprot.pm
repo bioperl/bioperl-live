@@ -127,8 +127,6 @@ package Bio::Tools::Analysis::Protein::Mitoprot;
 use vars qw(@ISA  $FLOAT );
 use strict;
 
-use Data::Dumper;
-use Bio::WebAgent;
 use IO::String;
 use Bio::SeqIO;
 use HTTP::Request::Common qw(GET);
@@ -216,7 +214,7 @@ sub result {
     #make sec feat of above threshold scores #
 
     my @sig_pdctns;
-    my $fts;
+    my @fts;
 
     if ($value ) {
         my $result = IO::String->new($self->{'_result'});
@@ -245,7 +243,7 @@ sub result {
 
         if ($value eq 'Bio::SeqFeatureI') {
             #make new ese object for each row of results
-            $fts  = Bio::SeqFeature::Generic->new
+            push @fts, Bio::SeqFeature::Generic->new
                 (
                  -start => 1,
                  -end => ($results{'cleavage_site'} =~
@@ -261,7 +259,7 @@ sub result {
                          cleavage_site=>$results{'cleavage_site'},
                         },
                 );
-            return $fts;        #return Bioseqfeature ref
+            return @fts;        #return Bioseqfeature ref
         }
         ## convert parsed data into a meta array format
         elsif ($value eq 'parsed') {
@@ -302,8 +300,6 @@ sub _run {
     #request submitted by get not by post
     my $self  = shift;
     $self->delay(1);
-
-    # delay repeated calls by default by 3 sec, set delay() to change
     $self->sleep;
 
     $self->status('TERMINATED_BY_ERROR');

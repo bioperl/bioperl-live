@@ -101,9 +101,6 @@ methods. Internal methods are usually preceded with a _
 package Bio::Tools::Analysis::Protein::NetPhos;
 use vars qw(@ISA  $FLOAT );
 use strict;
-
-use Data::Dumper;
-use Bio::WebAgent;
 use IO::String;
 use Bio::SeqIO;
 use HTTP::Request::Common qw (POST);
@@ -221,11 +218,10 @@ sub result {
 
 =head2  threshold
 
-	Useage: $job->states(...)
+	Useage: $job->threshold(...)
 	Returns: The significance threshold of a prediction
 	Args: None (retrieves value) or a value beween 0 and 1.
-
-	This method gets/sets the threshold to be sumitted for analysis.
+	Purpose: This method gets/sets the threshold to be sumitted for analysis.
 
 =cut
 

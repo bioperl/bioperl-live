@@ -88,7 +88,7 @@ This is a Bio::Seq object that can also hold data about each residue
 in the sequence.  In this case, the sequence can be associated with a
 arrays of Sopma prediction scores.  e.g.,
 
-  my $meta_sequence = $analysis_object->result('all');
+  my $meta_sequence = $analysis_object->result('meta');
   print "scores from residues 10 -20 are ",
       $meta_sequence->named_submeta_text("Sopma_helix",10,20), "\n";
 
@@ -140,8 +140,6 @@ use strict;
 package Bio::Tools::Analysis::Protein::Sopma;
 use vars qw(@ISA );
 
-use Data::Dumper;
-use Bio::WebAgent;
 use IO::String;
 use Bio::SeqIO;
 use HTTP::Request::Common qw (POST);
@@ -182,7 +180,7 @@ my  $RESULT_SPEC =
      '' => 'bulk',              # same as undef
      'Bio::SeqFeatureI' => 'ARRAY of Bio::SeqFeature::Generic',
      raw => 'Array of [ SRprotein, position , motif,score]',
-     all => 'Bio::Seq::Meta::Array object',
+     meta => 'Bio::Seq::Meta::Array object',
     };
 use constant MIN_STRUC_LEN => 3; 
 
@@ -343,7 +341,7 @@ sub result {
             return @fts;
         }                       #endif BioSeqFeature
 
-        elsif ($value eq 'all') {
+        elsif ($value eq 'meta') {
             #1st of all make 3 or 4 arrays of scores for each type from column data
             my %type_scores;
             for my $aa (@{$self->{'_parsed'}}) {
@@ -426,7 +424,6 @@ sub  _run {
     # delay repeated calls by default by 3 sec, set delay() to change
     $self->sleep;
     $self->status('TERMINATED_BY_ERROR');
-    my $ua = LWP::UserAgent->new();
     my $request = POST 'http://npsa-pbil.ibcp.fr/cgi-bin/secpred_sopma.pl',
         Content_Type => 'form-data',
             Content  => [title => "",
@@ -437,16 +434,13 @@ sub  _run {
                          width =>$self->window_width,
                         ];
 
-    my $content = $ua->request($request);
-    my $text = $content->content;
-
-
+    my $text = $self->request($request)->content;
+  
     #### get text only version of results ## 
     my ($next) = $text =~ /Prediction.*?=(.*?)>/;
-    my $ua2 = LWP::UserAgent->new();
     my $out = "http://npsa-pbil.ibcp.fr/". "$next";
     my $req2 = HTTP::Request->new(GET=>$out);
-    my $resp2 = $ua->request ($req2);
+    my $resp2 = $self->request ($req2);
     $self->{'_result'} = $resp2->content;
     $self->status('COMPLETED') if $resp2 ne '';
     return $self;
