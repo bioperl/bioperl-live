@@ -24,15 +24,16 @@ Bio::Index::EMBL - Interface for indexing (multiple) EMBL/Swissprot
     $inx->make_index(@ARGV);
 
     # Print out several sequences present in the index
-    # in gcg format
+    # in Fasta format
     use Bio::Index::EMBL;
 
     my $Index_File_Name = shift;
     my $inx = Bio::Index::EMBL->new($Index_File_Name);
+    my $out = Bio::SeqIO->new('-format' => 'Fasta','-fh' => \*STDOUT);
 
     foreach my $id (@ARGV) {
         my $seq = $inx->fetch($id); # Returns Bio::Seq object
-        print $seq->layout('GCG');
+	$out->write_seq($seq);
     }
 
     # alternatively
