@@ -923,6 +923,7 @@ ok($hsp->homology_string, 'C+AEFDF++  T  +   T                 + +   +L +    +  
 
 # TODO: Flesh this test out!
 $searchio = new Bio::SearchIO ('-format' => 'psiblast',
+			       '-stats'  => 1,
 			       '-file'   => Bio::Root::IO->catfile('t','data','HUMBETGLOA.tblastx'));
 
 $result = $searchio->next_result;
