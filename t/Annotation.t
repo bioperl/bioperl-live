@@ -6,7 +6,9 @@
 # `make test'. After `make install' it should work as `perl test.t'
 
 use strict;
-use vars qw($HAVEGRAPHDIRECTED);
+use vars qw($HAVEGRAPHDIRECTED $DEBUG $NUMTESTS);
+$DEBUG = $ENV{'BIOPERLDEBUG'} || 0;
+
 BEGIN { 
     # to handle systems with no installed Test module
     # we include the t dir (where a copy of Test.pm is located)
@@ -22,7 +24,7 @@ BEGIN {
     if ($@) {
 	$HAVEGRAPHDIRECTED = 0;
     }
-    plan tests => 63;
+    plan tests => ($NUMTESTS = 63);
 }
 
 use Bio::Annotation::Collection;

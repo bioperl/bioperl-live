@@ -6,6 +6,7 @@
 # `make test'. After `make install' it should work as `perl test.t'
 
 use strict;
+use vars qw($HAVEGRAPHDIRECTED $DEBUG $NUMTESTS);
 BEGIN {
     # to handle systems with no installed Test module
     # we include the t dir (where a copy of Test.pm is located)
@@ -15,14 +16,28 @@ BEGIN {
         use lib 't';
     }
     use Test;
-    plan tests => 22;
+    eval {
+	require Graph::Directed; 
+	$HAVEGRAPHDIRECTED=1;
+    };
+    if ($@) {
+	$HAVEGRAPHDIRECTED = 0;
+    }
+
+    plan tests => ($NUMTESTS = 22);
 }
 
-use Bio::Ontology::Term;
-use Bio::Ontology::Relationship;
-use Bio::Ontology::RelationshipType;
-use Bio::Ontology::SimpleOntologyEngine;
-use Bio::Ontology::Ontology;
+END {
+    foreach ( $Test::ntest..$NUMTESTS) {
+	skip('Cannot run tests as Graph::Directed is not installed',1);
+   }
+}
+exit(0) unless $HAVEGRAPHDIRECTED;
+require Bio::Ontology::Term;
+require Bio::Ontology::Relationship;
+require Bio::Ontology::RelationshipType;
+require Bio::Ontology::SimpleOntologyEngine;
+require Bio::Ontology::Ontology;
 
 my $ont = Bio::Ontology::Ontology->new(-name => "My Ontology");
 

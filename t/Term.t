@@ -6,6 +6,9 @@
 # `make test'. After `make install' it should work as `perl test.t'
 
 use strict;
+use vars qw($HAVEGRAPHDIRECTED $DEBUG $NUMTESTS);
+$DEBUG = $ENV{'BIOPERLDEBUG'} || 0;
+
 BEGIN {
     # to handle systems with no installed Test module
     # we include the t dir (where a copy of Test.pm is located)
@@ -15,10 +18,24 @@ BEGIN {
         use lib 't';
     }
     use Test;
-    plan tests => 51;
+    eval {require Graph::Directed; 
+	  $HAVEGRAPHDIRECTED=1;
+	 };
+
+    if ($@) {
+	$HAVEGRAPHDIRECTED = 0;
+    }
+    plan tests => ($NUMTESTS = 51);
+}
+END {
+    foreach ( $Test::ntest..$NUMTESTS) {
+	skip('Cannot run tests as Graph::Directed is not installed',1);
+    }
 }
 
-use Bio::Ontology::Term;
+exit 0 unless $HAVEGRAPHDIRECTED;
+
+require Bio::Ontology::Term;
 use Bio::Ontology::TermFactory;
 use Bio::Annotation::DBLink;
 use Bio::Annotation::Reference;

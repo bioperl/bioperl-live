@@ -8,10 +8,11 @@
 use strict;
 my $error;
 use lib '..','.','./blib/lib';
-use vars qw($NUMTESTS $DEBUG);
+use vars qw($NUMTESTS $DEBUG $HAVEGRAPHDIRECTED $errmsg);
 $DEBUG = $ENV{'BIOPERLDEBUG'} || 0;
 
 BEGIN {
+    $errmsg = 'Unable to run Interpro Tests';
    # to handle systems with no installed Test module
    # we include the t dir (where a copy of Test.pm is located)
    # as a fallback
@@ -27,20 +28,32 @@ BEGIN {
       require XML::Parser::PerlSAX;
    };
    if( $@ ) {
-      print STDERR "XML::Parser::PerlSAX not installed. This means that InterPro Ontology Parsing module is not usable. Skipping tests.\n";
+      warn( "XML::Parser::PerlSAX not installed. This means that InterPro Ontology Parsing module is not usable. Skipping tests.\n") if $DEBUG;
+      $errmsg .= ', XML::Parser::PerlSAX not installed';
       $error = 1;
    }
+   
    eval {
       require XML::Parser;
    };
    if( $@ ) {
-      print STDERR "XML::Parser not installed. This means that InterPro Ontology Parsing module is not usable. Skipping tests.\n";
+      warn "XML::Parser not installed. This means that InterPro Ontology Parsing module is not usable. Skipping tests.\n" if $DEBUG;
       $error = 1;
+      $errmsg .= ', XML::Parser not installed';
    }
+    eval {require Graph::Directed; 
+	  $HAVEGRAPHDIRECTED=1;
+	 };
+    if ($@) {
+	$errmsg .= ', Graph::Directed not installed';
+	$HAVEGRAPHDIRECTED = 0;
+	$error = 1;
+    }
+
 }
 END {
    foreach ( $Test::ntest..$NUMTESTS) {
-      skip('Unable to run Interpro Tests',1);
+      skip($errmsg,1);
    }
 }
 if ( $error ) {
