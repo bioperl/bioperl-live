@@ -73,6 +73,9 @@ package Bio::Ontology::DocumentRegistry;
 use strict;
 use base qw(Bio::Root::Root);
 use Data::Dumper;
+use File::Spec::Functions;
+use URI;
+use LWP::Simple;
 
 my $instance;
 
@@ -166,12 +169,46 @@ sub get_instance {
 
 =cut
 
-
 sub documents {
   my($self,$name) = @_;
 
-  if(defined($self->{$name})){
-    return ($self->{$name}{ontology} , $self->{$name}{definitions}, $self->{$name}{format});
+  if (defined($self->{$name})) {
+    #try locals
+    my($onturi,$defuri,$format);
+    $format = $self->{$name}{format};
+
+    if (! -d catfile(rootdir(),'tmp','bioperl')){
+      mkdir(catfile(rootdir(),'tmp','bioperl'));
+    }
+
+    my @uri = ref($self->{$name}{ontology}) eq 'ARRAY' ? @{ $self->{$name}{ontology} } : ($self->{$name}{ontology});
+    foreach my $uri (@uri) {
+      my $URI = URI->new($uri);
+      my @path = split '/', $URI->path;
+      my $file = pop @path;
+      my $store = catfile(rootdir(),'tmp','bioperl',$file);
+
+      if (! -e $store) {
+        getstore($uri,$store);
+      }
+      push @$onturi, $store;
+    }
+
+    my @uri = ref($self->{$name}{definitions}) eq 'ARRAY' ? @{ $self->{$name}{definitions} } : ($self->{$name}{definitions});
+    foreach my $uri (@uri) {
+      my $URI = URI->new($uri);
+      my @path = split '/', $URI->path;
+      my $file = pop @path;
+
+      my $store = catfile(rootdir(),'tmp','bioperl',$file);
+
+      if (! -e $store) {
+        getstore($uri,$store);
+      }
+      $defuri = $store;
+    }
+
+    return ($onturi,$defuri,$format);
   } else {
     return ();
   }
