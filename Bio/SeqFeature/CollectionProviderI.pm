@@ -378,12 +378,14 @@ sub parent_collection_provider {
        not have; this may happen eg. when a feature was added to the
        CollectionProviderI but not to its parent.
 
-  This method is implemented in the interface as a (glob ref) alias to
+  This method is implemented in the interface as an inheritable alias to
   parent_collection_provider().
 
 =cut
 
-  *factory = \&parent_collection_provider;
+sub factory {
+  shift->parent_collection_provider( @_ );
+}
 
 1;
 

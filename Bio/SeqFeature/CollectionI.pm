@@ -647,6 +647,80 @@ sub get_feature_by_attribute {
   return $self->features( @args );
 } # get_feature_by_attribute(..)
 
+=head1 FeatureHolderI methods
+
+=head2 get_SeqFeatures
+
+  Implemented in the interface as an inheritable alias for features().
+
+=cut
+
+sub get_SeqFeatures {
+  shift->features( @_ );
+} # get_SeqFeatures()
+
+=head2 feature_count
+
+ Title   : feature_count
+ Usage   : $collection->feature_count()
+ Function: Return the number of SeqFeatureI objects that would be returned by a
+           call to features() with no arguments.
+ Returns : integer representing the number of SeqFeatureI objects
+ Args    : None
+
+  This method is implemented in the interface to return
+    scalar( $self->features() )
+  Because this is not particularly efficient, implementers are
+  encouraged to override it, but the result should of course be the
+  same.
+
+=cut
+
+sub feature_count {
+  return scalar( shift->features() );
+} # feature_count()
+
+=head2 get_all_SeqFeatures
+
+ Title   : get_all_SeqFeatures
+ Usage   : @all_features = $collection->get_all_SeqFeatures( %args )
+ Function: Get the flattened tree of features held by this collection.
+ Returns : a list of L<Bio::SeqFeatureI> objects,
+ Args    : same as features(), except no -iterator or -callback
+ Status  : Public
+
+  This method is identical to features() except that the entire tree
+  of sub-features will be flattened out and returned in a list
+  (always, so -iterator and -callback are ignored).
+
+NOTE: This is defined in the interface in terms of features().  You do not
+have to implement it.
+
+=cut
+
+sub get_all_SeqFeatures {
+  my $self = shift;
+
+  my %args;
+  if( scalar( @_ ) && $_[ 0 ] =~ /^-/ ) {
+    %args = %_;
+  } else {
+    %args = { '-types' => \@_ };
+  }
+  # Mustn't allow iterator or callback args
+  $args{ '-iterator' } = $args{ '-stream' } =
+    $args{ 'iterator' } = $args{ 'stream' } =
+      $args{ '-callback' } = $args{ '-call_back' } =
+        $args{ 'callback' } = $args{ 'call_back' } =
+          undef;
+
+  my @flat_features;
+  foreach my $feature ( $self->features( %args ) ) {
+    push( @flat_features, $feature, $feature->get_all_SeqFeatures( %args ) );
+  }
+  return @flat_features;
+} # get_all_SeqFeatures(..)
+
 1;
 
 __END__

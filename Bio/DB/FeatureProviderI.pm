@@ -115,6 +115,25 @@ use Bio::SeqFeature::CollectionProviderI;
 use vars '$VERSION';
 $VERSION = '1.00';
 
+=head2 parent_feature_provider
+
+ Title   : parent_feature_provider
+ Usage   : my $parent = $featureprovider->parent_feature_provider();
+ Function: Return the FeatureProviderI that is the parent of this provider.
+ Returns : a L<Bio::DB::FeatureProviderI> or undef if there is none
+ Args    : none
+
+  FeatureProviderIs may be views onto other FeatureProviderIs.  This
+  returns the other FeatureProviderI that this one is a view of.
+
+  This method is an inheritable alias to parent_collection_provider().
+
+=cut
+
+sub parent_feature_provider {
+  shift->parent_collection_provider( @_ );
+} # parent_feature_provider()
+
 1;
 
 __END__

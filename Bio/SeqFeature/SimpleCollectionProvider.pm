@@ -1,6 +1,8 @@
 package Bio::SeqFeature::SimpleCollectionProvider;
 
 # $Id $
+## A simple implementation of the Bio::SeqFeature::CollectionProviderI
+## interface.
 
 =head1 NAME
 
@@ -79,6 +81,7 @@ use overload
   cmp   => '_cmp';
 
 use Bio::DB::GFF::Util::Rearrange; # for 'rearrange'
+use Bio::RelRange qw( &absSeqId );
 
 use Bio::Root::Root;
 use Bio::SeqFeature::CollectionProviderI;
@@ -101,8 +104,7 @@ sub new {
   my( $class, @args ) = @_;
 
   my $self = $class->SUPER::new( @args );
-  $self->{ '_identifiable_features' } = {};
-  $self->{ '_anonymous_features' } = {};
+  $self->{ '_seq_id_to_feature_table' } = {};
 
   if( scalar( @args ) ) {
     foreach my $feature ( @args ) {
@@ -235,23 +237,37 @@ then any feature with the display_name or unique_id 'foo', 'ns:foo',
 ## delegating to our own features() method).  This works because the
 ## argument list of get_collection is a subset of the argument list of
 ## features().
+## This implementation uses _create_collection() for all collection
+## construction.  See it for info about how to override it.
 sub get_collection {
   my $self = shift;
   if( $self->isa( 'Bio::SeqFeature::CollectionI' ) ) {
     ## Use our own features() method to do the hard work..
-    return new Bio::SeqFeature::SimpleCollection( $self->features( @_ ) );
+    return $self->_create_collection( \@_, $self->features( @_ ) );
   } else {
     # We're not a CollectionI.  Let's hijack one for our own nefarious needs.
-    my $hijacked_collection = new Bio::SeqFeature::SimpleCollection();
+    my $hijacked_collection = $self->_create_collection( \@_ );
     # Add everything to it.
-    $hijacked_collection->add_features(
-      values %{ $self->{ '_identifiable_features' } }
-    );
-    foreach my $start ( keys %{ $self->{ '_anonymous_features' } } ) {
+    foreach my $seq_id ( keys %{ $self->{ '_seq_id_to_feature_table' } } ) {
       $hijacked_collection->add_features(
-        @{ $self->{ '_anonymous_features' }{ $start } }
+        values %{ $self->{ '_seq_id_to_feature_table' }->
+                         { $seq_id }->
+                         { '_identifiable_features' }
+                }
       );
-    }
+      foreach my $start ( keys %{ $self->{ '_seq_id_to_feature_table' }->
+                                         { $seq_id }->
+                                         { '_anonymous_features' }
+                                } ) {
+        $hijacked_collection->add_features(
+          @{ $self->{ '_seq_id_to_feature_table' }->
+                    { $seq_id }->
+                    { '_anonymous_features' }->
+                    { $start }
+           }
+        );
+      } # End foreach $start
+    } # End foreach $seq_id
 
     # Now delegate to it.
     return $hijacked_collection->get_collection( @_ );
@@ -418,10 +434,20 @@ sub types {
       rearrange( [ qw( COUNT COUNTS ENUM ENUMERATE ) ], @_ );
   }
   my %types;
-  foreach my $feature ( ( values %{ $self->{ '_identifiable_features' } } ),
-                        ( map +( @{ $_ }, 1 ),
-                          ( values %{ $self->{ '_anonymous_features' } } ) ) ) {
-    $types{ $feature->type() }++;
+  foreach my $seq_id ( keys %{ $self->{ '_seq_id_to_feature_table' } } ) {
+    foreach my $feature (
+      ( values %{ $self->{ '_seq_id_to_feature_table' }->
+                         { $seq_id }->
+                         { '_identifiable_features' }
+                } ),
+      ( map @{ $_ },
+        ( values %{ $self->{ '_seq_id_to_feature_table' }->
+                           { $seq_id }->
+                           { '_anonymous_features' }
+                  } ) )
+    ) {
+      $types{ $feature->type() }++;
+    }
   }
   if( $count ) {
     return %types;
@@ -429,6 +455,77 @@ sub types {
     return keys %types;
   }
 } # types(..)
+
+=head2 parent_collection_provider
+
+ Title   : parent_collection_provider
+ Usage   : my $parent = $provider->parent_collection_provider( [$new_parent] );
+ Function: Get/set the CollectionProviderI that is the parent of this provider.
+ Returns : The current (or former, if used as a set method)
+           L<Bio::SeqFeature::CollectionProviderI> parent or undef if
+           there is none
+ Args    : [optional] a new parent
+
+  CollectionProviderIs may be views onto other CollectionProviderIs.
+  A common example is the CollectionI returned by the get_collection()
+  method.  It is a CollectionProviderI as well (CollectionI ISA
+  CollectionProviderI), but it (initially) provides only features
+  found in the original CollectionProviderI.  The original is then
+  called its parent, and is returned by calling this method.  Note the
+  following facts:
+
+    1) Not all CollectionProviderIs have parents.
+
+    2) A CollectionProviderI may store its features independently from
+       its parent or it may delegate to its parent; the behavior is
+       unspecified by the interface.
+
+    3) A CollectionProviderI may have features that its parent does
+       not have; this may happen eg. when a feature was added to the
+       CollectionProviderI but not to its parent.
+
+=cut
+
+sub parent_collection_provider {
+  my $self = shift;
+  my $new_value = shift;
+  my $old_value = $self->{ '_parent_collection_provider' };
+  if( defined( $new_value ) ) {
+    $self->{ '_parent_collection_provider' } = $new_value;
+  }
+  return $old_value;
+} # parent_collection_provider(..)
+
+=head2 _create_collection
+
+ Title   : _create_collection
+ Usage   : my $collection = $provider->_create_collection(
+                              \@args_to_get_collection,
+                              @features
+                            );
+ Function: Factory method for instantiating a collection.
+ Args    : a ref to the args used by the get_collection method, and some
+           L<Bio::SeqFeatureI> objects to add to the new collection.
+ Returns : a new L<Bio::SeqFeature::CollectionI> object
+ Status  : Protected
+
+   NOTE THIS CONSTRAINT: Because of our hacky implementation of
+get_collection(), we require that the L<Bio::SeqFeature::CollectionI>
+that is returned by this method creates collections of its own type
+when its get_collection() method is called.  This is the likely
+behavior anyway, but it should be noted, just in case.
+
+=cut
+
+# This implementation just ignores the args and makes a new
+# SimpleCollection with the given features.
+sub _create_collection {
+  my $self = shift;
+  my $args = shift;
+  my @features = @_;
+
+  return Bio::SeqFeature::SimpleCollection->new( @features );
+} # _create_collection
 
 =head2 _insert_feature
 
@@ -452,17 +549,31 @@ sub _insert_feature {
     $self->throw( "\$simple_collection_provider->_insert_feature( $feature ): \$feature is not a Bio::SeqFeatureI!" );
   }
 
+  my $seq_id = absSeqId( $feature );
+  unless( defined $seq_id ) {
+    $seq_id = 'undef';
+  }
   if( defined( $feature->unique_id() ) ) {
-    if( $self->{ '_identifiable_features' }{ $feature->unique_id() } ) {
+    if( $self->{ '_seq_id_to_feature_table' }->
+               { $seq_id }->
+               { '_identifiable_features' }->
+               { $feature->unique_id() }
+      ) {
       return 0;
     } else {
-      $self->{ '_identifiable_features' }{ $feature->unique_id() } =
-        $feature;
+      $self->{ '_seq_id_to_feature_table' }->
+             { $seq_id }->
+             { '_identifiable_features' }->
+             { $feature->unique_id() } =
+               $feature;
       return 1;
     }
   } else { # it does not have a unique id.  Store it by start location.
     my $features_that_start_where_this_one_does =
-      $self->{ '_anonymous_features' }{ $feature->start() };
+      $self->{ '_seq_id_to_feature_table' }->
+             { $seq_id }->
+             { '_anonymous_features' }->
+             { $feature->start() };
     if( $features_that_start_where_this_one_does &&
         scalar( @$features_that_start_where_this_one_does ) ) {
       foreach my $other_feature ( @$features_that_start_where_this_one_does ) {
@@ -476,7 +587,10 @@ sub _insert_feature {
       push( @$features_that_start_where_this_one_does, $feature );
       return 1;
     } else {
-      $self->{ '_anonymous_features' }{ $feature->start() } = [ $feature ];
+      $self->{ '_seq_id_to_feature_table' }->
+             { $seq_id }->
+             { '_anonymous_features' }->
+             { $feature->start() } = [ $feature ];
       return 1;
     }
   }
@@ -504,9 +618,20 @@ sub _update_feature {
     $self->throw( "\$simple_collection_provider->_update_feature( $feature ): \$feature is not a Bio::SeqFeatureI!" );
   }
 
+  my $seq_id = absSeqId( $feature );
+  unless( defined $seq_id ) {
+    $seq_id = 'undef';
+  }
   if( defined( $feature->unique_id() ) ) {
-    if( $self->{ '_identifiable_features' }{ $feature->unique_id() } ) {
-      $self->{ '_identifiable_features' }{ $feature->unique_id() } =
+    if( $self->{ '_seq_id_to_feature_table' }->
+               { $seq_id }->
+               { '_identifiable_features' }->
+               { $feature->unique_id() }
+      ) {
+      $self->{ '_seq_id_to_feature_table' }->
+             { $seq_id }->
+             { '_identifiable_features' }->
+             { $feature->unique_id() } =
         $feature;
       return 1;
     } else {
@@ -514,7 +639,10 @@ sub _update_feature {
     }
   } else { # it does not have a unique id.  It is stored by start location.
     my $features_that_start_where_this_one_does =
-      $self->{ '_anonymous_features' }{ $feature->start() };
+      $self->{ '_seq_id_to_feature_table' }->
+             { $seq_id }->
+             { '_anonymous_features' }->
+             { $feature->start() };
     if( $features_that_start_where_this_one_does &&
         scalar( @$features_that_start_where_this_one_does ) ) {
       my $other_feature;
@@ -527,7 +655,7 @@ sub _update_feature {
            ||
            $features_that_start_where_this_one_does->[ $i ]->equals( $feature )
           ) {
-          $features_that_start_where_this_one_does = $feature;
+          $features_that_start_where_this_one_does->[ $i ] = $feature;
           return 1;
         }
       }
@@ -560,13 +688,23 @@ sub _insert_or_update_feature {
     $self->throw( "\$simple_collection_provider->_insert_or_update_feature( $feature ): \$feature is not a Bio::SeqFeatureI!" );
   }
 
+  my $seq_id = absSeqId( $feature );
+  unless( defined $seq_id ) {
+    $seq_id = 'undef';
+  }
   if( defined( $feature->unique_id() ) ) {
-    $self->{ '_identifiable_features' }{ $feature->unique_id() } =
+    $self->{ '_seq_id_to_feature_table' }->
+           { $seq_id }->
+           { '_identifiable_features' }->
+           { $feature->unique_id() } =
       $feature;
     return 1;
   } else { # it does not have a unique id.  It is stored by start location.
     my $features_that_start_where_this_one_does =
-      $self->{ '_anonymous_features' }{ $feature->start() };
+      $self->{ '_seq_id_to_feature_table' }->
+             { $seq_id }->
+             { '_anonymous_features' }->
+             { $feature->start() };
     if( $features_that_start_where_this_one_does &&
         scalar( @$features_that_start_where_this_one_does ) ) {
       my $other_feature;
@@ -579,14 +717,17 @@ sub _insert_or_update_feature {
            ||
            $features_that_start_where_this_one_does->[ $i ]->equals( $feature )
           ) {
-          $features_that_start_where_this_one_does = $feature;
+          $features_that_start_where_this_one_does->[ $i ] = $feature;
           return 1;
         }
       }
       push( @$features_that_start_where_this_one_does, $feature );
       return 1;
     } else {
-      $self->{ '_anonymous_features' }{ $feature->start() } = [ $feature ];
+      $self->{ '_seq_id_to_feature_table' }->
+             { $seq_id }->
+             { '_anonymous_features' }->
+             { $feature->start() } = [ $feature ];
       return 1;
     }
   }
@@ -595,7 +736,7 @@ sub _insert_or_update_feature {
 =head2 _remove_feature
 
  Title   : _remove_feature
-  Usage   : $provider->_remove_feature( $feature );
+ Usage   : $provider->_remove_feature( $feature );
  Function: Removes the given feature from the store.
  Args    : L<Bio::SeqFeatureI> object
  Returns : False iff the feature was not previously in the store.
@@ -614,16 +755,30 @@ sub _remove_feature {
     $self->throw( "\$simple_collection_provider->_remove_feature( $feature ): \$feature is not a Bio::SeqFeatureI!" );
   }
 
+  my $seq_id = absSeqId( $feature );
+  unless( defined $seq_id ) {
+    $seq_id = 'undef';
+  }
   if( defined( $feature->unique_id() ) ) {
-    if( $self->{ '_identifiable_features' }{ $feature->unique_id() } ) {
-      delete $self->{ '_identifiable_features' }{ $feature->unique_id() };
+    if( $self->{ '_seq_id_to_feature_table' }->
+               { $seq_id }->
+               { '_identifiable_features' }->
+               { $feature->unique_id() }
+      ) {
+      delete $self->{ '_seq_id_to_feature_table' }->
+                    { $seq_id }->
+                    { '_identifiable_features' }->
+                    { $feature->unique_id() };
       return 1;
     } else {
       return 0;
     }
   } else { # it does not have a unique id.  It is stored by start location.
     my $features_that_start_where_this_one_does =
-      $self->{ '_anonymous_features' }{ $feature->start() };
+      $self->{ '_seq_id_to_feature_table' }->
+             { $seq_id }->
+             { '_anonymous_features' }->
+             { $feature->start() };
     if( $features_that_start_where_this_one_does &&
         scalar( @$features_that_start_where_this_one_does ) ) {
       my $other_feature;
@@ -636,7 +791,14 @@ sub _remove_feature {
            ||
            $features_that_start_where_this_one_does->[ $i ]->equals( $feature )
           ) {
-          splice( @$features_that_start_where_this_one_does, $i, 1 );
+          if( scalar( @$features_that_start_where_this_one_does ) == 1 ) {
+            delete $self->{ '_seq_id_to_feature_table' }->
+                          { $seq_id }->
+                          { '_anonymous_features' }->
+                          { $feature->start() };
+          } else {
+            splice( @$features_that_start_where_this_one_does, $i, 1 );
+          }
           return 1;
         }
       }

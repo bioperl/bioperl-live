@@ -276,11 +276,47 @@ sub get_collection {
  Args    : see below
  Status  : Public
 
-  This method is a (glob ref) alias for get_collection().
+  This method is an inheritable alias for get_collection().
 
 =cut
 
-  *segment = \&get_collection;
+sub segment {
+  shift->get_collection( @_ );
+}
+
+=head2 parent_segment_provider
+
+ Title   : parent_segment_provider
+ Usage   : my $parent = $segmentprovider->parent_segment_provider();
+ Function: Return the SegmentProviderI that is the parent of this provider.
+ Returns : a L<Bio::DB::SegmentProviderI> or undef if there is none
+ Args    : none
+
+  SegmentProviderIs may be views onto other SegmentProviderIs.
+  A common example is the SegmentI returned by the get_collection()
+  method.  It is a SegmentProviderI as well (SegmentI ISA
+  SegmentProviderI), but it (initially) provides only features
+  found in the original SegmentProviderI.  The original is then
+  called its parent, and is returned by calling this method.  Note the
+  following facts:
+
+    1) Not all SegmentProviderIs have parents.
+
+    2) A SegmentProviderI may store its features independently from
+       its parent or it may delegate to its parent; the behavior is
+       unspecified by the interface.
+
+    3) A SegmentProviderI may have features or sequences that its
+       parent does not have; this may happen eg. when a feature was
+       added to the SegmentProviderI but not to its parent.
+
+  This method is an inheritable alias to parent_collection_provider().
+
+=cut
+
+sub parent_segment_provider {
+  shift->parent_collection_provider( @_ );
+} # parent_segment_provider()
 
 1;
 

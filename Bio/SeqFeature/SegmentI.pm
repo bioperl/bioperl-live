@@ -37,6 +37,8 @@ L<Bio::RelRangeI> interface and the L<Bio::SeqFeature::CollectionI>
 interface.  It uses RelRangeI vs RangeI to support switching between
 relative and absolute positioning.
 
+The only new method is segments(), which is an alias for features().
+
 =head1 FEEDBACK
 
 =head2 Mailing Lists
@@ -93,6 +95,10 @@ $VERSION = '1.00';
 # This pod is a modification of the pod for features() in
 #   Bio/SeqFeature/CollectionI.pm
 # , so changes must be kept in sync.
+# Changes to this features() pod need to be copied to the following
+# places, perhaps respecting existing modifications:
+#   Bio/SeqFeature/SimpleSegment.pm [no  modifications]
+#   Bio/SeqFeatureI.pm              [no  modifications]
 
 =head2 features
 
@@ -121,10 +127,21 @@ documentation follows, but first a brief summary of the changes:
     absolute() flag (but is friendlier in a concurrent environment).
   * Features that are returned in relative mode (relative either to
     this SegmentI or to a given RangeI) will be returned with
-    coordinates that are relative.  Features that are returned in
-    absolute mode will be returned with absolute coordinates.  The
-    mode is determined by the -baserange and -absolute arguments and
-    by the absolute() flag, in that precedence order.
+    coordinates that are relative (and with their seq_id set to
+    whatever it is that they are relative to, ie. whatever baserange
+    ends up being).  Features that are returned in absolute mode will
+    be returned with absolute coordinates.  The mode is determined by
+    the -baserange and -absolute arguments and by the absolute() flag,
+    in that precedence order.
+  * If -rangetype is given but no -range is given then a special and
+    strange thing happens: the method call is delegated to the
+    parent_segment_provider.  If it is a SegmentI then its features()
+    method will be called with all the same arguments but with *this*
+    segment as the -range argument.  If the parent_segment_provider is
+    a L<Bio::DB::SegmentProviderI> (but not a SegmentI) then the same
+    thing will happen, but to the SegmentI returned by its
+    get_collection() method with no arguments.  If the
+    parent_segment_provider is null then no features will be returned.
 
 This routine will retrieve features associated with this segment
 object.  It can be used to return all features, or a subset based on
@@ -139,18 +156,29 @@ If ranges are specified using the -ranges argument, then these ranges
 will be used to narrow the results, according to the specified
 -rangetype and -strandtype arguments.
 
+If no ranges are specified but the -rangetype argument is given then a
+special and strange thing happens: the method call is delegated to the
+parent_segment_provider.  If it is a SegmentI then its features()
+method will be called with all the same arguments but with *this*
+segment as the -range argument.  If the parent_segment_provider is a
+L<Bio::DB::SegmentProviderI> (but not a SegmentI) then the same thing
+will happen, but to the SegmentI returned by its get_collection()
+method with no arguments.  If the parent_segment_provider is null then
+no features will be returned.
+
 If a -baserange is specified then unqualified ranges given with the
--ranges argument will be interpreted as relative to that baserange.
-If no -baserange is given then a default will be provided that will
-depend on the value of the absolute() flag.  If absolute() is true
-then the default is the value returned by the abs_seq_id() method; if
-absolute() is false then the default is this SegmentI object ($self).
-Note that the baserange only applies to unqualified ranges, ie. ranges
-that have no defined seq_id.  You may force absolute range
-interpretations by giving a -baserange that is not a L<Bio::RangeI>
-(such as the string 'absolute', though any string will do the trick),
-by providing a true value to the -absolute argument, by setting the
-absolute() flag to true, or by qualifying all given ranges.
+-ranges argument will be interpreted as relative to that baserange,
+and qualified ranges will be re-relativized to the baserange.  If no
+-baserange is given then a default will be provided that will depend
+on the value of the -absolute argument or the absolute() flag.  If
+-absolute is given and true or if absolute() is true then the default
+baserange is the value returned by the abs_seq_id() method; if
+( -absolute || absolute() ) is false then the default is this SegmentI
+object ($self).  You may force absolute range interpretations by
+giving a -baserange that is not a L<Bio::RangeI> (such as the string
+'absolute', though any string will do the trick), by providing a true
+value to the -absolute argument, or by setting the absolute() flag to
+true.
 
 -rangetype is one of:
    "overlaps"      return all features that overlap the range (default)
@@ -196,7 +224,8 @@ difference).
                  flag.  If absolute() is true then the default is the
                  value of the abs_seq_id() method.  If absolute() is
                  false then the default is $self.  Note that the
-                 baserange affects the sort order.
+                 baserange affects the sort order.  See also
+                 -absolute.
 
   -absolute      If -absolute is given and true then all behavior will be as
                  if this SegmentI's absolute() flag was set to true,
@@ -204,19 +233,21 @@ difference).
                  then all behavior will be as if this SegmentI's
                  absolute() flag was set to false, even if it isn't.
                  Note that -baserange can still be given and can force
-                 absoluteness or relativeness, and that takes
-                 precedence over -absolute.
+                 relativeness, and that takes precedence over -absolute.
 
   -range         A L<Bio::RangeI> object defining the range to search.
                  See also -strandmatch, -rangetype, and -baserange.
   -ranges        An array reference to multiple ranges.
 
-  -rangetype     One of "overlaps", "contains", or "contained_in".
+  -rangetype     One of "overlaps", "contains", or "contained_in".  If no
+                 range is given then a strange thing happens (it is
+                 described above).
 
-  -strandmatch   One of "strong", "weak", or "ignore".  Note that the strand
-                 attribute of a given -range must be non-zero for this to work
-                 (a 0/undef strand forces a 'weak' strandmatch to become
-                 'ignore' and cripples the 'strong' strandmatch).
+  -strandmatch   One of "strong", "weak", or "ignore".  Note that the
+                 strand attribute of a given -range must be non-zero
+                 for this to work (a 0/undef strand forces a 'weak'
+                 strandmatch to become 'ignore' and cripples the
+                 'strong' strandmatch).
 
   -iterator      Return a L<Bio::SeqFeature::IteratorI>
 
@@ -307,13 +338,35 @@ sub features {
   shift->throw_not_implemented();
 }
 
+=head2 segments
+
+ Title   : segments
+ Usage   : @features = $segment->segments( %args );
+           OR
+           @features = $segment->segments( @types );
+ Returns : a list of L<Bio::SeqFeatureI> objects,
+           OR
+           (when the -iterator option is true) an L<Bio::SeqFeature::IteratorI>
+           OR
+           (when the -callback argument is given) true iff the callbacks
+             completed.
+ Args    : see below
+ Status  : Public
+
+  This method is a (glob ref) alias for features().
+
+=cut
+
+  *segments = \&features;
+
 #                   --Coders beware!--
 # This pod is a modification of the pod for get_collection() in
 #   Bio/DB/SegmentProviderI.pm
 # , so changes must be kept in sync.
-# Changes to this features() pod need to be copied to the following
+# Changes to this get_collection() pod need to be copied to the following
 # places, perhaps respecting existing modifications:
 #   Bio/SeqFeature/SimpleSegment.pm [no  modifications]
+#   Bio/SeqFeatureI.pm              [no  modifications]
 
 =head2 get_collection
 
@@ -403,7 +456,8 @@ difference).
                  flag.  If absolute() is true then the default is the
                  value of the abs_seq_id() method.  If absolute() is
                  false then the default is $self.  Note that the
-                 baserange affects the sort order.
+                 baserange affects the sort order.  See also
+                 -absolute.
 
   -absolute      If -absolute is given and true then all behavior will be as
                  if this SegmentI's absolute() flag was set to true,
@@ -411,8 +465,7 @@ difference).
                  then all behavior will be as if this SegmentI's
                  absolute() flag was set to false, even if it isn't.
                  Note that -baserange can still be given and can force
-                 absoluteness or relativeness, and that takes
-                 precedence over -absolute.
+                 relativeness, and that takes precedence over -absolute.
 
   -range         A L<Bio::RangeI> object defining the range to search.
                  See also -strandmatch, -rangetype, and -baserange.

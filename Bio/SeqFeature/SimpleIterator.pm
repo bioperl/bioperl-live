@@ -102,7 +102,7 @@ sub new {
     }
   }
   return bless {
-		features  => $features
+                 '_features'  => $features
 	       },$class;
 } # new(..)
 
@@ -120,8 +120,8 @@ sub new {
 sub next_feature {
   my $self = shift;
 
-  if( $self->{features} ) {
-    return shift @{$self->{features}};
+  if( $self->{ '_features' } ) {
+    return shift @{ $self->{ '_features' } };
   }
   return undef;
 } # next_feature()
@@ -139,7 +139,9 @@ sub next_feature {
 
 sub has_more_features {
   my $self = shift;
-  return ( $self->{features} && scalar( @{ $self->{ features } } ) );
+  return ( $self->{ '_features' } && scalar( @{ $self->{ '_features' } } ) );
 } # has_more_features()
 
 1;
+
+__END__

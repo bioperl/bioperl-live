@@ -65,13 +65,13 @@ Internal methods are usually preceded with a _
 
 # Let the code begin...
 use strict;
-use vars qw( @ISA );
+use vars qw( @ISA @EXPORT_OK );
 
 use Bio::Root::Root;
 use Bio::RelRangeI;
-use Exporter;
+require Exporter;
 @ISA = qw( Bio::Root::Root Bio::RelRangeI Exporter );
-@EXPORT_OK = qw( absSeqId );
+@EXPORT_OK = qw( absSeqId absStart absEnd absStrand );
 
 use vars '$VERSION';
 $VERSION = '1.00';
@@ -90,14 +90,17 @@ $VERSION = '1.00';
 
   This is a utility function provided by the RelRange package to find
   the root seq_id of any L<Bio::RangeI> objects (even those that are not
-  L<Bio::RelRangeI> implementers).
+  L<Bio::RelRangeI> implementers).  For convenience this method will
+  return the given value if the given value is not a L<Bio::RangeI>
+  (this is convenient when the given value is *already* the id of some
+  sequence).
 
 =cut
 
 sub absSeqId {
   my $range = shift;
-  unless( ref( $range ) && $range->isa( 'Bio::RangeI' ) ) {
-    return undef;
+  unless( $range && ref( $range ) && $range->isa( 'Bio::RangeI' ) ) {
+    return $range;
   }
   if( $range->isa( 'Bio::RelRangeI' ) ) {
     return $range->abs_seq_id();
@@ -113,12 +116,148 @@ sub absSeqId {
   return $seq_id;
 } # absSeqId()
 
+=head2 absStart
+
+  Title   : absStart
+  Usage   : use Bio::RelRange qw( absStart );
+            my $abs_start = absStart( $range );
+  Function: Get the absolute start position of the given range.
+  Returns : The current start position of the given range, relative to
+            absSeqId( $range ).
+  Args    : a L<Bio::RangeI> object.
+
+  This is a utility function provided by the RelRange package to convert
+  the start coordinate of any L<Bio::RangeI> objects (even those that are not
+  L<Bio::RelRangeI> implementers) into their absolute equivalents.
+
+=cut
+
+sub absStart {
+  my $range = shift;
+  unless( $range && ref( $range ) && $range->isa( 'Bio::RangeI' ) ) {
+    return undef;
+  }
+  if( $range->isa( 'Bio::RelRangeI' ) ) {
+    return $range->abs_start();
+  }
+
+  ## Okay so it's a RangeI but not a RelRangeI.
+  my $seq_id = $range->seq_id();
+  my $abs_strand = $range->strand();
+  my $abs_start = $range->start();
+
+  while( defined( $seq_id ) &&
+         ref( $seq_id ) ) {
+    ## Assertion: ( $seq_id isa 'Bio::RangeI' )
+    $seq_id = $seq_id->seq_id();
+    last unless( defined( $seq_id ) && ref( $seq_id ) );
+
+    $abs_strand *= $seq_id->strand();
+    if( $abs_strand < 0 ) {
+      $abs_start = ( $seq_id->start() - $abs_start + 1 );
+    } else {
+      $abs_start += ( $seq_id->start() - 1 );
+    }
+  }
+  return $abs_start;
+} # absStart()
+
+=head2 absEnd
+
+  Title   : absEnd
+  Usage   : use Bio::RelRange qw( absEnd );
+            my $abs_end = absEnd( $range );
+  Function: Get the absolute end position of the given range.
+  Returns : The current end position of the given range, relative to
+            absSeqId( $range ).
+  Args    : a L<Bio::RangeI> object.
+
+  This is a utility function provided by the RelRange package to convert
+  the end coordinate of any L<Bio::RangeI> objects (even those that are not
+  L<Bio::RelRangeI> implementers) into their absolute equivalents.
+
+=cut
+
+sub absEnd {
+  my $range = shift;
+  unless( $range && ref( $range ) && $range->isa( 'Bio::RangeI' ) ) {
+    return undef;
+  }
+  if( $range->isa( 'Bio::RelRangeI' ) ) {
+    return $range->abs_end();
+  }
+
+  ## Okay so it's a RangeI but not a RelRangeI.
+  my $seq_id = $range->seq_id();
+  my $abs_strand = $range->strand();
+  my $abs_end = $range->end();
+
+  while( defined( $seq_id ) &&
+         ref( $seq_id ) ) {
+    ## Assertion: ( $seq_id isa 'Bio::RangeI' )
+    $seq_id = $seq_id->seq_id();
+    last unless( defined( $seq_id ) && ref( $seq_id ) );
+
+    $abs_strand *= $seq_id->strand();
+    if( $abs_strand < 0 ) {
+      $abs_end = ( $seq_id->end() - $abs_end + 1 );
+    } else {
+      $abs_end += ( $seq_id->end() - 1 );
+    }
+  }
+  return $abs_end;
+} # absEnd()
+
+=head2 absStrand
+
+  Title   : absStrand
+  Usage   : use Bio::RelRange qw( absStrand );
+            my $abs_strand = absStrand( $range );
+  Function: Get the absolute strandedness (-1, 0, or 1) of the given range.
+  Returns : The current absolute strand value of the given range.
+  Args    : a L<Bio::RangeI> object.
+
+  This is a utility function provided by the RelRange package to convert
+  the strand value of any L<Bio::RangeI> objects (even those that are not
+  L<Bio::RelRangeI> implementers) into their absolute equivalents.
+
+=cut
+
+sub absStrand {
+  my $range = shift;
+  unless( $range && ref( $range ) && $range->isa( 'Bio::RangeI' ) ) {
+    return undef;
+  }
+  if( $range->isa( 'Bio::RelRangeI' ) ) {
+    return $range->abs_strand();
+  }
+
+  ## Okay so it's a RangeI but not a RelRangeI.
+  my $seq_id = $range->seq_id();
+  my $abs_strand = $range->strand();
+
+  while( defined( $seq_id ) &&
+         ref( $seq_id ) ) {
+    unless( $abs_strand ) {
+      return $abs_strand;
+    }
+    ## Assertion: ( $seq_id isa 'Bio::RangeI' )
+    $seq_id = $seq_id->seq_id();
+    last unless( defined( $seq_id ) && ref( $seq_id ) );
+
+    $abs_strand *= $seq_id->strand();
+  }
+  return $abs_strand;
+} # absStrand()
+
 =head1 Constructors
 
 =head2 new
 
   Title   : new
-  Usage   : $range = Bio::RelRange->new(
+  Usage   : $range = Bio::RelRange->new( $another_range_to_copy_from );
+            OR
+            $range = Bio::RelRange->new(
                        -seq_id => $another_range_or_a_sequence_id,
                        -start => 100,
                        -end => 200,
@@ -127,27 +266,50 @@ sub absSeqId {
                      );
   Function: generates a new Bio::RelRange object
   Returns : a new Bio::RelRange object
-  Args    : two of (-start, -end, -length) - the third is calculated
-          : -strand (defaults to 0)
-          : -seq_id (not required but highly recommended)
-          : -absolute (defaults to 0)
+  Args    : a L<Bio::RangeI> to copy from
+            OR
+              two of (-start, -end, -length) - the third is calculated
+              -strand (defaults to 0)
+              -seq_id (not required but highly recommended)
+              -absolute (defaults to 0)
+
+    Note that if you pass a RelRangeI that is in absolute() mode, the
+    copied values will be absolute, and the relative values will not
+    be preserved.  To work around this, set absolute() to false before
+    passing it in.
+
+    If the -absolute argument is true, the other values will be
+    interpreted relative to the given -seq_id, but then absolute()
+    will be set to true.
 
 =cut
 
 sub new {
   my ( $caller, @args ) = @_;
   my $self = $caller->SUPER::new( @args );
-  my ( $seq_id, $strand, $start, $end, $length, $absolute ) = 
-    $self->_rearrange( [ qw( SEQ_ID
-                             STRAND
-                             START
-                             END
-                             LENGTH
-                             ABSOLUTE
-                           ) ], @args );
+  my ( $seq_id, $strand, $start, $end, $length, $absolute );
+
+  if( scalar( @_ ) && $_[ 0 ] =~ /^-/ ) {
+    ( $seq_id, $strand, $start, $end, $length, $absolute ) = 
+      $self->_rearrange( [ qw( SEQ_ID
+                               STRAND
+                               START
+                               END
+                               LENGTH
+                               ABSOLUTE
+                             ) ], @args );
+  } else {
+    my $copy_from = shift;
+    if( $copy_from && ref( $copy_from ) && $copy_from->isa( 'Bio::RangeI' ) ) {
+      $seq_id = $copy_from->seq_id();
+      $strand = $copy_from->strand();
+      $start = $copy_from->start();
+      $end = $copy_from->end();
+    }
+  }
+
   $self->seq_id( $seq_id );
-  $self->absolute( $absolute || 0);
-  $self->strand($strand || 0);
+  $self->strand( $strand || 0 );
 
   if( defined $start ) {
     $self->start( $start );
@@ -160,6 +322,8 @@ sub new {
     $self->end( $end );
     $self->start( $self->end() - $length + 1 );
   }
+
+  $self->absolute( $absolute || 0 );
   return $self;
 } # new(..)
 
@@ -176,6 +340,45 @@ consequently the L<Bio::RangeI> interface).
 # This is a final implementation.  That means that its methods are
 # defined using each other, so if you override a method you may break
 # everything.  You have been warned.
+
+=head2 rel2abs_strand
+
+  Title   : rel2abs_strand
+  Usage   : my $abs_strand = $range->rel2abs_strand( $rel_strand );
+  Function: Convert a strand that is relative to seq_id() into one that
+            is relative to abs_seq_id().
+  Returns : a strand value (-1, 0, or 1).
+  Args    : a strand value (-1, 0, or 1).
+
+  This function takes a strand value that is relative to seq_id()
+  and converts it so that it is absolute (ie. relative to abs_seq_id()).
+
+  Note that if absolute() is true this method still interprets
+  the argument strand as it were relative to what seq_id() would
+  be if absolute() were false.
+
+=cut
+
+sub rel2abs_strand {
+  my $self = shift;
+  my $rel_strand = shift;
+
+  my $ancestor_seq_id = $self->_seq_id();
+  my $abs_strand = $rel_strand;
+
+  while( defined( $ancestor_seq_id ) &&
+         ref( $ancestor_seq_id ) ) {
+    unless( $abs_strand ) {
+      return $abs_strand;
+    }
+    ## Assertion: ( $ancestor_seq_id isa 'Bio::RangeI' )
+    $ancestor_seq_id = $ancestor_seq_id->seq_id();
+    last unless( defined( $ancestor_seq_id ) && ref( $ancestor_seq_id ) );
+
+    $abs_strand *= $ancestor_seq_id->strand();
+  }
+  return $abs_strand;
+} # rel2abs_strand(..)
 
 =head2 absolute
 
@@ -225,7 +428,7 @@ sub absolute {
 
 sub abs_seq_id {
   my $self = shift;
-  my $ancestor_seq_id = $self->{ '_seq_id' };
+  my $ancestor_seq_id = $self->_seq_id();
 
   while( defined( $ancestor_seq_id ) &&
          ref( $ancestor_seq_id ) ) {
@@ -255,14 +458,16 @@ sub abs_seq_id {
 sub abs_start {
   my $self = shift;
 
-  my $ancestor_seq_id = $self->{ '_seq_id' };
-  my $abs_strand = $self->{ '_strand' };
-  my $abs_start = $self->{ '_start' };
+  my $ancestor_seq_id = $self->_seq_id();
+  my $abs_strand = $self->_strand();
+  my $abs_start = $self->_start();
 
   while( defined( $ancestor_seq_id ) &&
          ref( $ancestor_seq_id ) ) {
     ## Assertion: ( $ancestor_seq_id isa 'Bio::RangeI' )
     $ancestor_seq_id = $ancestor_seq_id->seq_id();
+
+    last unless( defined( $ancestor_seq_id ) && ref( $ancestor_seq_id ) );
     $abs_strand *= $ancestor_seq_id->strand();
     if( $abs_strand < 0 ) {
       $abs_start = ( $ancestor_seq_id->start() - $abs_start + 1 );
@@ -293,14 +498,16 @@ sub abs_start {
 sub abs_end {
   my $self = shift;
 
-  my $ancestor_seq_id = $self->{ '_seq_id' };
-  my $abs_strand = $self->{ '_strand' };
-  my $abs_end = $self->{ '_end' };
+  my $ancestor_seq_id = $self->_seq_id();
+  my $abs_strand = $self->_strand();
+  my $abs_end = $self->_end();
 
   while( defined( $ancestor_seq_id ) &&
          ref( $ancestor_seq_id ) ) {
     ## Assertion: ( $ancestor_seq_id isa 'Bio::RangeI' )
     $ancestor_seq_id = $ancestor_seq_id->seq_id();
+    last unless( defined( $ancestor_seq_id ) && ref( $ancestor_seq_id ) );
+
     $abs_strand *= $ancestor_seq_id->strand();
     if( $abs_strand < 0 ) {
       $abs_end = ( $ancestor_seq_id->end() - $abs_end + 1 );
@@ -324,8 +531,8 @@ sub abs_end {
 sub abs_strand {
   my $self = shift;
 
-  my $ancestor_seq_id = $self->{ '_seq_id' };
-  my $abs_strand = $self->{ '_strand' };
+  my $ancestor_seq_id = $self->_seq_id();
+  my $abs_strand = $self->_strand();
 
   while( defined( $ancestor_seq_id ) &&
          ref( $ancestor_seq_id ) ) {
@@ -334,6 +541,8 @@ sub abs_strand {
     }
     ## Assertion: ( $ancestor_seq_id isa 'Bio::RangeI' )
     $ancestor_seq_id = $ancestor_seq_id->seq_id();
+    last unless( defined( $ancestor_seq_id ) && ref( $ancestor_seq_id ) );
+
     $abs_strand *= $ancestor_seq_id->strand();
   }
   return $abs_strand;
@@ -433,16 +642,16 @@ sub seq_id {
   my $old_val =
     ( $self->absolute() ?
       $self->abs_seq_id() :
-      $self->{ '_seq_id' } );
+      $self->_seq_id() );
   if( defined( $new_val ) ) {
     if( $self->absolute() ) {
       $self->throw( "Unable to set the absolute seq_id.  If you would like to set the relative seq_id, first turn the absolute() flag off, then try again." );
     }
     if( ( ( ref $new_val ) && !$new_val->isa( 'Bio::RangeI' ) ) ||
-        ( ref \$new_val ne 'STRING' ) ) {
+        ( ref \$new_val ne 'SCALAR' ) ) {
       $self->throw( "The given value is neither a string nor a Bio::RangeI object." );
     }
-    $self->{ '_seq_id' } = $new_val;
+    $self->_seq_id( $new_val );
   }
   return $old_val;
 } # seq_id(..)
@@ -474,7 +683,7 @@ sub start {
   my $old_val =
     ( $self->absolute() ?
       $self->abs_start() :
-      $self->{ '_start' } );
+      $self->_start() );
   if( defined( $new_val ) ) {
     if( $self->absolute() ) {
       $self->throw( "Unable to set the absolute start value.  If you would like to set the relative start, first turn the absolute() flag off, then try again." );
@@ -482,7 +691,7 @@ sub start {
     unless( $new_val =~ /^[-+]?\d+$/ ) {
       $self->throw( "'$new_val' is not an integer.\n" );
     }
-    $self->{ '_start' } = $new_val;
+    $self->_start( $new_val );
   }
   return $old_val;
 } # start(..)
@@ -514,7 +723,7 @@ sub end {
   my $old_val =
     ( $self->absolute() ?
       $self->abs_end() :
-      $self->{ '_end' } );
+      $self->_end() );
   if( defined( $new_val ) ) {
     if( $self->absolute() ) {
       $self->throw( "Unable to set the absolute end value.  If you would like to set the relative end, first turn the absolute() flag off, then try again." );
@@ -522,7 +731,7 @@ sub end {
     unless( $new_val =~ /^[-+]?\d+$/ ) {
       $self->throw( "'$new_val' is not an integer.\n" );
     }
-    $self->{ '_end' } = $new_val;
+    $self->_end( $new_val );
   }
   return $old_val;
 } # end(..)
@@ -548,7 +757,7 @@ sub strand {
   my $old_val =
     ( $self->absolute() ?
       $self->abs_strand() :
-      $self->{ '_strand' } );
+      $self->_strand() );
   if( defined( $new_val ) ) {
     if( $self->absolute() ) {
       $self->throw( "Unable to set the absolute strand value.  If you would like to set the relative strand, first turn the absolute() flag off, then try again." );
@@ -563,7 +772,7 @@ sub strand {
     unless( ( $new_val == -1 ) || ( $new_val == 0 ) || ( $new_val == 1 ) ) {
       $self->throw( "'$new_val' is not in the set { '-1', '0', '1' }." );
     }
-    $self->{ '_strand' } = $new_val;
+    $self->_strand( $new_val );
   }
   return $old_val;
 } # strand(..)
@@ -593,8 +802,8 @@ sub length {
   # positions, but we differentiate anyway just to be on the safe side.
   my $old_val =
     ( $self->absolute() ?
-      ( ( $self->end() - $self->start() ) + 1 ) :
-      ( ( $self->abs_high() - $self->abs_low() ) + 1 ) );
+      ( ( $self->abs_high() - $self->abs_low() ) + 1 ) :
+      ( ( $self->end() - $self->start() ) + 1 ) );
   my ( $new_val ) = @_;
 
   if( defined( $new_val ) ) {
@@ -713,6 +922,50 @@ sub length {
   overridden in concrete subclasses.
 
 =cut
+
+# Internal overridable getter/setter for the actual stored value of seq_id.
+sub _seq_id {
+  my $self = shift;
+  my ( $new_val ) = @_;
+  my $old_val = $self->{ '_seq_id' };
+  if( defined $new_val ) {
+    $self->{ '_seq_id' } = $new_val;
+  }
+  return $old_val;
+} # _seq_id(..)
+
+# Internal overridable getter/setter for the actual stored value of start.
+sub _start {
+  my $self = shift;
+  my ( $new_val ) = @_;
+  my $old_val = $self->{ '_start' };
+  if( defined $new_val ) {
+    $self->{ '_start' } = $new_val;
+  }
+  return $old_val;
+} # _start(..)
+
+# Internal overridable getter/setter for the actual stored value of end.
+sub _end {
+  my $self = shift;
+  my ( $new_val ) = @_;
+  my $old_val = $self->{ '_end' };
+  if( defined $new_val ) {
+    $self->{ '_end' } = $new_val;
+  }
+  return $old_val;
+} # _end(..)
+
+# Internal overridable getter/setter for the actual stored value of strand.
+sub _strand {
+  my $self = shift;
+  my ( $new_val ) = @_;
+  my $old_val = $self->{ '_strand' };
+  if( defined $new_val ) {
+    $self->{ '_strand' } = $new_val;
+  }
+  return $old_val;
+} # _strand(..)
 
 1;
 

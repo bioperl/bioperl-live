@@ -417,7 +417,7 @@ sub get_Seq_by_acc {
   }
 
   unless( $accession ) {
-    @self->throw( "Bio::DB::SequenceProviderI->get_Seq_by_acc(..) requires either 1 argument (an accession value or a reference to a non-empty list of accession values) or 2 or 3 arguments (namespace, accession(s), and optionally a version).  Somehow it didn't get an $accession." );
+    $self->throw( "Bio::DB::SequenceProviderI->get_Seq_by_acc(..) requires either 1 argument (an accession value or a reference to a non-empty list of accession values) or 2 or 3 arguments (namespace, accession(s), and optionally a version).  Somehow it didn't get an $accession." );
   }
 
   if( ref $accession ) {
@@ -496,7 +496,7 @@ sub get_Seq_by_version {
     ( $accession, $version ) = @_;
   }
   unless( $accession ) {
-    @self->throw( "Bio::DB::SequenceProviderI->get_Seq_by_version(..) requires either 1 argument (an accession value or a reference to a non-empty list of accession values) or 2 or 3 arguments (namespace, accession(s), and optionally a version).  Somehow it didn't get an $accession." );
+    $self->throw( "Bio::DB::SequenceProviderI->get_Seq_by_version(..) requires either 1 argument (an accession value or a reference to a non-empty list of accession values) or 2 or 3 arguments (namespace, accession(s), and optionally a version).  Somehow it didn't get an $accession." );
   }
 
   # NOTE: This if.. is the only diff b/n this method and get_Seq_by_acc(..).

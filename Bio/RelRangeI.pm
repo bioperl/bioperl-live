@@ -302,6 +302,51 @@ sub abs2rel {
   return @result;
 } # abs2rel(..)
 
+=head2 rel2abs_strand
+
+  Title   : rel2abs_strand
+  Usage   : my $abs_strand = $range->rel2abs_strand( $rel_strand );
+  Function: Convert a strand that is relative to seq_id() into one that
+            is relative to abs_seq_id().
+  Returns : a strand value (-1, 0, or 1).
+  Args    : a strand value (-1, 0, or 1).
+
+  This function takes a strand value that is relative to seq_id()
+  and converts it so that it is absolute (ie. relative to abs_seq_id()).
+
+  Note that if absolute() is true this method still interprets
+  the argument strand as it were relative to what seq_id() would
+  be if absolute() were false.
+
+=cut
+
+sub rel2abs_strand {
+  shift->throw_not_implemented();
+} # rel2abs_strand(..)
+
+=head2 abs2rel_strand
+
+  Title   : abs2rel_strand
+  Usage   : my $rel_strand = $range->abs2rel_strand( $abs_strand )
+  Function: Convert a strand that is relative to abs_seq_id() into one that
+            is relative to seq_id().
+  Returns : a strand value (-1, 0, or 1).
+  Args    : a strand value (-1, 0, or 1).
+
+  This function takes a strand value that is absolute (ie. relative to
+  abs_seq_id()) and converts it so that it is relative to seq_id().
+
+  Note that if absolute() is true this method still returns the strand
+  relative to what seq_id() would be if absolute() were false.
+
+  This method turns out to be identical to rel2abs_strand, so it is
+  implemented in the interface as a (glob ref) alias for
+  rel2abs_strand.
+
+=cut
+
+  *abs2rel_strand = \&abs2rel_strand;
+
 =head1 Bio::RangeI methods
 
 These methods are inherited from L<Bio::RangeI>.  Changes between this
@@ -540,8 +585,8 @@ sub contains {
             ( ( defined( $self->abs_seq_id() ) &&
                 defined( $other->abs_seq_id() ) ) ?
               ( $self->abs_seq_id() eq $other->abs_seq_id() ) : 1 ) and
-            ( $self->abs_low() >= $other->abs_low() ) and
-            ( $self->abs_high() <= $other->abs_high() )
+            ( $self->abs_low() <= $other->abs_low() ) and
+            ( $self->abs_high() >= $other->abs_high() )
            );
   } else {
     return $self->SUPER::contains(@_);
@@ -618,7 +663,7 @@ sub intersection {
   my $self = shift;
   my ( $other, $strand_option ) = @_;
 
-  if( $other->isa( 'Bio::RelRangeI' ) {
+  if( $other->isa( 'Bio::RelRangeI' ) ) {
     unless( $self->_testStrand( $other, $strand_option ) &&
             ( ( defined( $self->abs_seq_id() ) &&
                 defined( $other->abs_seq_id() ) ) ?
@@ -744,7 +789,7 @@ sub union {
   }
   return $self->new( -seq_id => $abs_seq_id,
 	             -start  => $low,
-	             -stop   => $high,
+	             -end    => $high,
                      -strand => $union_strand
                    );
 } # union(..)
