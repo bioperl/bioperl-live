@@ -137,8 +137,9 @@ sub get_Seq_by_acc {
   my ($ns,$key) = @_;
   my @primary_ids = $self->expand_ids($ns => $key);
   $self->throw("more than one sequences correspond to this accession")
-    if @primary_ids > 1 && !wantarray;
-  return map {$self->get_Seq_by_id($_)} @primary_ids;
+      if @primary_ids > 1 && ! wantarray;
+  my @rc = map {$self->get_Seq_by_id($_)} @primary_ids;
+ return wantarray ? @rc : $rc[0];
 }
 
 # fetch array of Bio::Seq objects
