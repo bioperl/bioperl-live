@@ -240,7 +240,7 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 
 =head1 AUTHOR - Ewan Birney, Lincoln Stein, Kris Boulez
 
-Email birney@ebi.ac.uk, kris.boulez@algonomics
+Email birney@ebi.ac.uk, kris.boulez@algonomics.com
 
 Describe contact details here
 
