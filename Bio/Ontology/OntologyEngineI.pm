@@ -410,4 +410,39 @@ sub find_terms{
     return @terms;
 }
 
+=head2 common_ancestor_path
+
+ Title   : common_ancestor_path
+ Usage   :
+ Function: Get the paths from two terms A and B to term C, such that
+           there is no other term D to which A and B would have a shorter
+           path, provided there is a term C to which both A and B are
+           connected by a path.
+
+           Note that the path to the common ancestor between A and A
+           exists, has distance zero, and predicate "identity".
+
+           The search for the common ancestor C can be further
+           constrained by supplying a predicate term. If supplied, the
+           predicates of the two paths (A,C) and (B,C) must have a
+           common ancestor identical to the predicate, or that has a
+           path to the predicate.
+
+ Example :
+ Returns : The path of the first term to the common ancestor in scalar
+           context, and both paths in list context. Paths are
+           Bio::Ontology::PathI compliant objects.
+ Args    : The two terms (Bio::Ontology::TermI objects), and optionally
+           a constraining common predicate (Bio::Ontology::TermI object).
+           The latter may also be given as a scalar, in which case it
+           is treated as a boolean that, if TRUE, means that the two paths
+           must have identical predicates in order to be returned.
+
+
+=cut
+
+sub common_ancestor_path{
+    return shift->throw_not_implemented();
+}
+
 1;
