@@ -321,10 +321,6 @@ sub new {
 		'fasta';
 	$format = "\L$format";	# normalize capitalization to lower case
 
-	if ( $class eq 'Bio::SeqIO::MultiFile' ) {
-	    return $class->new(%param);
-	}	
-
 	# normalize capitalization
 	return undef unless( &_load_format_module($format) );
 	return "Bio::SeqIO::$format"->new(@args);
