@@ -1,7 +1,8 @@
+# $Id$
 #
 # bioperl module for Bio::LiveSeq::Repeat_Unit
 #
-# Cared for by Joseph Insana <insana@ebi.ac.uk> <jinsane@alaric.atnet.it>
+# Cared for by Joseph Insana <insana@ebi.ac.uk> <jinsana@gmx.net>
 #
 # Copyright Joseph Insana
 #
@@ -24,7 +25,7 @@ The strand could be 1 (forward strand, default), -1 (reverse strand).
 
 =head1 AUTHOR - Joseph A.L. Insana
 
-Email:  Insana@ebi.ac.uk, jinsane@alaric.atnet.it
+Email:  Insana@ebi.ac.uk, jinsana@gmx.net
 
 Address: 
 

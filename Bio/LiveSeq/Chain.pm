@@ -1,7 +1,9 @@
 #!/usr/bin/perl
+# $Id$
+#
 # DoubleChain Data Structure for PERL
 # by Joseph A.L. Insana - Deathson - Filius Mortis - Fal Mortais
-# insana@ebi.ac.uk, jinsane@alaric.atnet.it
+# insana@ebi.ac.uk, jinsana@gmx.net
 
 package Bio::LiveSeq::Chain;
 # Version history:

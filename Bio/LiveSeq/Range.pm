@@ -1,7 +1,8 @@
+# $Id$
 #
 # bioperl module for Bio::LiveSeq::Range
 #
-# Cared for by Joseph Insana <insana@ebi.ac.uk> <jinsane@alaric.atnet.it>
+# Cared for by Joseph Insana <insana@ebi.ac.uk> <jinsana@gmx.net>
 #
 # Copyright Joseph Insana
 #
@@ -22,7 +23,7 @@ This is used as parent for exon and intron classes.
 
 =head1 AUTHOR - Joseph A.L. Insana
 
-Email:  Insana@ebi.ac.uk, jinsane@alaric.atnet.it
+Email:  Insana@ebi.ac.uk, jinsana@gmx.net
 
 Address: 
 

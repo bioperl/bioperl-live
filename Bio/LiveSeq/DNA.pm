@@ -1,7 +1,8 @@
+# $Id$
 #
 # bioperl module for Bio::LiveSeq::DNA
 #
-# Cared for by Joseph Insana <insana@ebi.ac.uk> <jinsane@alaric.atnet.it>
+# Cared for by Joseph Insana <insana@ebi.ac.uk> <jinsana@gmx.net>
 #
 # Copyright Joseph Insana
 #
@@ -23,7 +24,7 @@ and is accessed by exons, genes, transcripts... objects
 
 =head1 AUTHOR - Joseph A.L. Insana
 
-Email:  Insana@ebi.ac.uk, jinsane@alaric.atnet.it
+Email:  Insana@ebi.ac.uk, jinsana@gmx.net
 
 Address: 
 

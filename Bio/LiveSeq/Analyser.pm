@@ -1,3 +1,4 @@
+# $Id$
 #
 # Bioperl module for Bio::LiveSeq::Analyser
 #

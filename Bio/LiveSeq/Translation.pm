@@ -1,7 +1,8 @@
+# $Id$
 #
 # bioperl module for Bio::LiveSeq::Translation
 #
-# Cared for by Joseph Insana <insana@ebi.ac.uk> <jinsane@alaric.atnet.it>
+# Cared for by Joseph Insana <insana@ebi.ac.uk> <jinsana@gmx.net>
 #
 # Copyright Joseph Insana
 #
@@ -25,7 +26,7 @@ different coordinate system and eventually its own ranges (protein domains).
 
 =head1 AUTHOR - Joseph A.L. Insana
 
-Email:  Insana@ebi.ac.uk, jinsane@alaric.atnet.it
+Email:  Insana@ebi.ac.uk, jinsana@gmx.net
 
 Address: 
 
