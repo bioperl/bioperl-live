@@ -15,7 +15,7 @@
 Bio::Assembly::ContigAnalysis - 
     Perform analysis on sequence assembly contigs.
 
-=head1 SYNOPSYS
+=head1 SYNOPSIS
 
     # Module loading
     use Bio::Assembly::ContigAnalysis;
@@ -425,16 +425,18 @@ sub single_strand {
 
     # Loading complete list of coordinates for aligned sequences
     my $sfc = $self->{'_objref'}->get_features_collection();
-    my @forward = grep { $_->primary_tag =~ /^_aligned_coord:/ } $sfc->features_in_range(-start=>$start,
-											 -end=>$end,
-											 -contain=>0,
-											 -strand=>1,
-											 -strandmatch=>'strong');
-    my @reverse = grep { $_->primary_tag =~ /^_aligned_coord:/ } $sfc->features_in_range(-start=>$start,
-											 -end=>$end,
-											 -contain=>0,
-											 -strand=>-1,
-											 -strandmatch=>'strong');
+    my @forward = grep { $_->primary_tag =~ /^_aligned_coord:/ } 
+    $sfc->features_in_range(-start=>$start,
+			    -end=>$end,
+			    -contain=>0,
+			    -strand=>1,
+			    -strandmatch=>'strong');
+    my @reverse = grep { $_->primary_tag =~ /^_aligned_coord:/ } 
+    $sfc->features_in_range(-start=>$start,
+			    -end=>$end,
+			    -contain=>0,
+			    -strand=>-1,
+			    -strandmatch=>'strong');
     # Merging overlapping features
     @forward = $self->_merge_overlapping_features(@forward);
     @reverse = $self->_merge_overlapping_features(@reverse);
