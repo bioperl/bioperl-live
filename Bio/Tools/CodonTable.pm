@@ -256,18 +256,18 @@ for ($i=0;$i<4;$i++) {
 }
 
 my  %onecode =
-    (Ala => 'A',     Asx => 'B',
-     Cys => 'C',     Asp => 'D',
-     Glu => 'E',     Phe => 'F',
-     Gly => 'G',     His => 'H',
-     Ile => 'I',     Lys => 'K',
-     Leu => 'L',     Met => 'M',
-     Asn => 'N',     Pro => 'P',
-     Gln => 'Q',     Arg => 'R',
-     Ser => 'S',     Thr => 'T',
-     Val => 'V',     Trp => 'W',
-     Xaa => 'X',     Tyr => 'Y',
-     Glx => 'Z',     Ter => '*'
+    ('Ala' => 'A',     'Asx' => 'B',
+     'Cys' => 'C',     'Asp' => 'D',
+     'Glu' => 'E',     'Phe' => 'F',
+     'Gly' => 'G',     'His' => 'H',
+     'Ile' => 'I',     'Lys' => 'K',
+     'Leu' => 'L',     'Met' => 'M',
+     'Asn' => 'N',     'Pro' => 'P',
+     'Gln' => 'Q',     'Arg' => 'R',
+     'Ser' => 'S',     'Thr' => 'T',
+     'Val' => 'V',     'Trp' => 'W',
+     'Xaa' => 'X',     'Tyr' => 'Y',
+     'Glx' => 'Z',     'Ter' => '*'
      );
 
 my %iupac_dna =
@@ -391,12 +391,12 @@ sub name{
                acid (with exceptions above), return that, otherwise
                return empty string.
 
-           Return empty string for input strings that are not three
-           characters long.
+           Returns empty string for other input strings that are not
+           three characters long.
 
  Example :
  Returns : One letter ambiguous IUPAC amino acid code
- Args    : a codon = a three character, ambiguous IUPAC nucleotide  string
+ Args    : a codon = a three character, ambiguous IUPAC nucleotide string
 
 
 =cut
