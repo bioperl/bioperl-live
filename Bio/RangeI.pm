@@ -24,8 +24,13 @@ Ranges are modeled as having (start, end, length, strand). They
 use Bio-coordinates - all points >= start and <= end are within
 the range. End is always greater-than or equal-to start, and
 length is greather than or equal to 1. The behaviour of a range
-is undefined if ranges with negative numbers are used. So,
-end - start + 1 = length.
+is undefined if ranges with negative numbers or zero are used.
+
+So, in summary:
+
+  length = end - start + 1
+  end >= start
+  strand = (-1 | 0 | +1)
 
 =head1 FEEDBACK
 
@@ -78,15 +83,6 @@ BEGIN {
        );
 }
 
-# constructor
-#
-# assume a constructor that takes
-# 2 of start, stop, length and calculates third
-# optional strand
-#
-# this is an interface so there is no constructor
-
-
 # utility method
 #
 # Prints out a method like:
@@ -106,7 +102,10 @@ These methods must be implemented in all subclasses.
 =head3
 
   Title   : new
-  Function: confesses if you try to instantiate a RangeI - should never be called
+  Function: confesses if you try to instantiate a RangeI
+          : RangeI is an interface, so RangeI->new should never be called
+	  : To make a range, instantiate one of the implementing classes. e.g.
+	  : $range = Bio::Range->new(-start=>20, -stop=>2000, -strand=>1)
 
 =cut
 
@@ -122,7 +121,7 @@ sub new {
   Returns : the start of this range
   Args    : optionaly allows the start to be set
           : using $range->start($start)
-  
+
 =cut
 
 sub start {
@@ -138,7 +137,6 @@ sub start {
   Args    : optionaly allows the end to be set
           : using $range->end($start)
 
-  
 =cut
 
 sub end {
@@ -154,7 +152,6 @@ sub end {
   Args    : optionaly allows the length to be set
           : using $range->length($start)
 
-  
 =cut
 
 sub length {
@@ -170,7 +167,6 @@ sub length {
   Args    : optionaly allows the strand to be set
           : using $range->strand($start)
 
-  
 =cut
 
 sub strand {
@@ -183,7 +179,7 @@ These methods return true or false so that you can use them to direct
 program flow.
 
  $range->overlaps($otherRange) && &processOverlaps($range, $otherRange);
- 
+
 =head3 overlaps
 
   Title   : overlaps
@@ -191,7 +187,7 @@ program flow.
   Function: tests if $r2 overlaps $r1
   Args    : a range to test for overlap with
   Returns : true if the ranges overlap, false otherwise
-  
+
 =cut
 
 sub overlaps {
@@ -207,7 +203,7 @@ sub overlaps {
   Function: tests wether $r1 totaly contains $r2
   Args    : a range to test for being contained
   Returns : true if the argument is totaly contained within this range
-  
+
 =cut
 
 sub contains {
@@ -227,7 +223,7 @@ sub contains {
   Function: test whether $r1 has the same start, end, length as $r2
   Args    : a range to test for equality
   Returns : true if they are describing the same range
-  
+
 =cut
 
 sub equals {
@@ -239,16 +235,16 @@ sub equals {
 =head2 Geometrical methods
 
 These methods do things to the geometry of ranges, and return
-quadruplets from which new ranges could be built.
+triplets (start, stop, strand) from which new ranges could be built.
 
 =head3
 
   Title   : intersection
-  Usage   : ($start, $stop, $length, $strand) = $r1->intersection($r2)
+  Usage   : ($start, $stop, $strand) = $r1->intersection($r2)
   Function: gives the range that is contained by both ranges
   Args    : a range to compare this one to
   Returns : nothing if they don't overlap, or the range that they do overlap
-  
+
 =cut
 
 sub intersection {
@@ -266,15 +262,15 @@ sub intersection {
   if($start > $end) {
     return;     
   } else {
-    return ($start, $end, $end - $start + 1, 0);
+    return ($start, $end, 0);
   }
 }
 
 =head3
 
   Title   : union
-  Usage   : ($start, $stop, $length, $strand) = $r1->union($r2);
-          : ($start, $stop, $length, $strand) = Bio::RangeI->union(@ranges);
+  Usage   : ($start, $stop, $strand) = $r1->union($r2);
+          : ($start, $stop, $strand) = Bio::RangeI->union(@ranges);
   Function: finds the minimal range that contains all of the ranges
   Args    : a range or list of ranges to find the union of
   Returns : the range containing all of the ranges
@@ -296,7 +292,7 @@ sub union {
   my $start = shift @start;
   my $end = pop @end;
   
-  return ($start, $end, $end - $start + 1, 0);
+  return ($start, $end, 0);
 }
 
 1;
