@@ -86,7 +86,14 @@ use Bio::Tools::Blast::Sbjct;
 
 sub new {
     my($class,@args) = @_;
+
     my $self = $class->SUPER::new(@args);
+
+    # Hack to deal with the fact that SimilarityPair calls strand()
+    # which will lead to an error in Bio::Search::HSP::BlastHSP 
+    # because parsing hasn't yet occurred.
+    # TODO: Remove this when BlastHSP doesn't do lazy parsing.
+    $self->{'_initializing'} = 1;
 
     my ($sbjct, $query, $fea1, $source) =
 	$self->_rearrange([qw(SUBJECT
@@ -105,6 +112,7 @@ sub new {
     $source && $self->source_tag($source);
     $self->strand(0) unless( defined $self->strand() );
 
+    $self->{'_initializing'} = 0;  # See "Hack" note above
     return $self;
 }
 
