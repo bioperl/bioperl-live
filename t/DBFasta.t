@@ -5,7 +5,7 @@
 # `make test'. After `make install' it should work as `perl test.t'
 
 use strict;
-use lib './blib/lib';
+use lib '.','./blib/lib';
 
 BEGIN {     
     # to handle systems with no installed Test module

@@ -62,6 +62,7 @@ sub draw_component {
 
 sub draw_dna {
   my $self = shift;
+
   my ($gd,$dna,$x1,$y1,$x2,$y2) = @_;
   my $pixels_per_base = $self->pixels_per_base;
 
@@ -134,6 +135,7 @@ sub make_key_feature {
 				-name => 'DNA/GC content',
 				-strand => '+1',
 			       );
+  $feature;
 }
 
 1;

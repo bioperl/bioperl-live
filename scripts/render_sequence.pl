@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 
 use strict;
-use lib './blib/lib';
+use lib '.','./blib/lib';
 use Bio::DB::BioFetch;
 use Bio::Graphics;
 

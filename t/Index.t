@@ -5,7 +5,7 @@ BEGIN {
 	use lib 't';
     }
     use Test;
-    plan tests => 11;
+    plan tests => 12;
 }
 
 use Bio::Root::IO;
@@ -15,6 +15,9 @@ use Bio::Index::EMBL;
 use Bio::Index::GenBank;
 use Bio::Index::Swissprot;
 use Bio::DB::InMemoryCache;
+eval {foobar();
+  require Bio::DB::FileCache;	
+};
 use vars qw ($dir);
 
 ($Bio::Root::IO::FILESPECLOADED && File::Spec->can('cwd') && ($dir = File::Spec->cwd) ) ||
@@ -108,6 +111,9 @@ my $cache = Bio::DB::InMemoryCache->new( -seqdb => $gb_ind );
 
 ok ( $cache->get_Seq_by_id('AI129902') );
 
-
-
-
+if (Bio::DB::FileCache->can('new')) {
+  $cache = Bio::DB::FileCache->new($gb_ind);
+  ok ($cache->get_Seq_by_id('AI129902') );
+} else {
+  skip('Bio::DB::FileCache not loaded because one or more of Storable, DB_File or File::Temp not installed',1);
+}

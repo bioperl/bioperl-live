@@ -80,37 +80,50 @@ sub draw_parallel {
 
   # turn on ticks
   if ($self->option('tick')) {
-      local $^W = 0;  # dumb uninitialized variable warning
-    my $font = $self->font;
+    local $^W = 0;  # dumb uninitialized variable warning
+    my $font       = $self->font;
     my $width      = $font->width;
     my $font_color = $self->fontcolor;
-    my $height   = $self->height;
+    my $height     = $self->height;
 
     my $relative = $self->option('relative_coords');
+
     my $start    = $relative ? 1 : $self->feature->start;
-    my $stop     = $start + $self->feature->length  - 1;
+    my $stop     = $start + $self->feature->length - 1;
 
     my $offset   = $relative ? $self->feature->start-1 : 0;
     my $reversed = $self->feature->strand < 0;
 
-    my $units = $self->option('units') || $self->calculate_units($start,$self->feature->length);
-    my $divisor = $UNITS{$units} || 1 if $units;
+    my $units    = $self->option('units') || $self->calculate_units($start,$self->feature->length);
+    my $divisor  = $UNITS{$units} || 1;
+    my $format   = min($self->feature->length,$self->panel->length)/$divisor > 10
+      ? "%d$units" : "%.6g$units";
 
-    my ($major_ticks,$minor_ticks) = $self->panel->ticks($start,$stop,$font,$divisor);
+    my $scale  = $self->option('scale') || 1;  ## Does the user want to override the internal scale?
 
-    ## Does the user want to override the internal scale?
-    my $scale = $self->option('scale');
+    my $model  = sprintf("$format ",$stop/($divisor*$scale));
+    my $minlen = $width * length($model);
+
+    my ($major_interval,$minor_interval) = $self->panel->ticks($stop-$start+1,$minlen);
 
     my $left  = $sw ? $x1+$height : $x1;
     my $right = $ne ? $x2-$height : $x2;
 
-#    my $format = ($major_ticks->[1]-$major_ticks->[0])/($divisor||1) < 1 ? "%.6g$units" : "%d$units";
-      my $format = "%.6g$units";
+    # adjust for portions of arrow that are outside panel
+    $start += $self->panel->start - $self->feature->start
+      if $self->feature->start < $self->panel->start;
+    $stop  -= $self->feature->end - $self->panel->end
+      if $self->feature->end   > $self->panel->end;
 
-    for my $i (@$major_ticks) {
+    my $first_tick = $major_interval * int(0.5 + $start/$major_interval);
+    my $last_tick  = $major_interval * int(0.5 + $stop/$major_interval);
+
+    for (my $i = $first_tick; $i <= $last_tick; $i += $major_interval) {
+
       my $tickpos = $dx + ($reversed ? $self->map_pt($stop - $i + $offset)
 	                             : $self->map_pt($i + $offset));
       next if $tickpos < $left or $tickpos > $right;
+
       $gd->line($tickpos,$center-$a2,$tickpos,$center+$a2,$fg);
       my $label = $scale ? $i / $scale : $i;
       if ($units) {
@@ -118,16 +131,23 @@ sub draw_parallel {
 	$label = sprintf($format,$scaled);
       }
       my $middle = $tickpos - (length($label) * $width)/2;
+      next if $middle < $left or $middle > $right;
+
       $gd->string($font,$middle,$center+$a2-1,$label,$font_color)
         unless ($self->option('no_tick_label'));
     }
 
     if ($self->option('tick') >= 2) {
+
+      $first_tick = $minor_interval * int(0.5 + $start/$minor_interval);
+      $last_tick  = $minor_interval * int(0.5 + $stop/$minor_interval);
+
       my $a4 = $self->height/4;
-      for my $i (@$minor_ticks) {
+      for (my $i = $first_tick; $i <= $last_tick; $i += $minor_interval) {
 	my $tickpos = $dx + ($reversed ? $self->map_pt($stop - $i + $offset)
 	                               : $self->map_pt($i + $offset));
 	next if $tickpos < $left or $tickpos > $right;
+
 	$gd->line($tickpos,$center-$a4,$tickpos,$center+$a4,$fg);
       }
     }
@@ -154,7 +174,9 @@ sub arrowheads {
     $sw = 1 if $self->feature->strand < 0;
   }
   return ($sw,$ne,0,0) unless $self->option('base');
-  return ($sw,$ne,!$sw,!$ne);
+  return ($sw,$ne,
+	  (!$sw && $self->feature->start>= $self->panel->start),
+	  (!$ne && $self->feature->end  <= $self->panel->end));
 }
 
 sub calculate_units {
@@ -165,6 +187,8 @@ sub calculate_units {
   return 'M' if $start >= 1e7 || $length >= 1e6;
   return 'K';
 }
+
+sub min { $_[0]<$_[1] ? $_[0] : $_[1] }
 
 1;
 
