@@ -219,7 +219,14 @@ Contents
 
    Q1.8: How should I cite Bioperl?
 
-      A: For now, cite it as "The Bioperl Project, http://www.bioperl.org".
+      A: Please cite it as.
+	 Stajich JE, Block D, Boulez K, Brenner SE, Chervitz SA,  
+	 Dagdigian C, Fuellen G, Gilbert JGR, Korf I, Lapp H, 
+	 Lehvaslaiho H, Matsalla C, Mungall CJ, Osborne BI,
+	 Pocock MR, Schattner P, Senger M, Stein LD, Stupka ED, 
+	 Wilkinson M, Birney E.
+	 The Bioperl Toolkit: Perl modules for the life sciences. 
+	 Genome Research. 2002 Oct;12(10):1161-8.
 
 
    Q1.9: What are the license terms for Bioperl?
