@@ -32,16 +32,19 @@ via HTTP
 
   my $factory = Bio::Tools::Run::RemoteBlast->new(@params);
 
-  #change a paramter
+  #change a query paramter
   $Bio::Tools::Run::RemoteBlast::HEADER{'ENTREZ_QUERY'} = 'Homo sapiens [ORGN]';
+
+  #change a retrieval parameter
+  $Bio::Tools::Run::RemoteBlast::RETRIEVALHEADER{'DESCRIPTIONS'} = 1000;
 
   #remove a parameter
   delete $Bio::Tools::Run::RemoteBlast::HEADER{'FILTER'};
 
-  my $v = 1;
   #$v is just to turn on and off the messages
+  my $v = 1;
 
-  my $str = Bio::SeqIO->new(-file=>'amino.fa' , '-format' => 'fasta' );
+  my $str = Bio::SeqIO->new(-file=>'amino.fa' , -format => 'fasta' );
 
   while (my $input = $str->next_seq()){
     #Blast a sequence against a database:
@@ -151,116 +154,127 @@ BEGIN {
     $URLBASE = 'http://www.ncbi.nlm.nih.gov/blast/Blast.cgi';
 
     # In GET/PUTPARAMS the values are regexes which validate the input.
-    %PUTPARAMS = (	'AUTO_FORMAT' 	=> '(Off|(Semi|Full)auto)',	# Off, Semiauto, Fullauto
-			'COMPOSITION_BASED_STATISTICS'	=> '(yes|no)',	# yes, no
-			'DATABASE' 	=>  '.*',
-			'DB_GENETIC_CODE' => '([1-9]|1[1-6]|2(1|2))',   # 1..16,21,22
-			'ENDPOINTS'	=> '(yes|no)',			# yes,no
-			'ENTREZ_QUERY'	=> '.*',
-			'EXPECT'	=> '\d+(\.\d+)?([eE]-\d+)?',	# Positive double
-			'FILTER'	=> '[LRm]',			# L or R or m
-			'GAPCOSTS'	=> '-?\d+(\.\d+)\s+i-?\d+(\.\d+)',	
+    %PUTPARAMS = (
+	'AUTO_FORMAT' 	=> '(Off|(Semi|Full)auto)',	# Off, Semiauto, Fullauto
+	'COMPOSITION_BASED_STATISTICS'	=> '(yes|no)',	# yes, no
+	'DATABASE' 	=>  '.*',
+	'DB_GENETIC_CODE' => '([1-9]|1[1-6]|2(1|2))',   # 1..16,21,22
+	'ENDPOINTS'	=> '(yes|no)',			# yes,no
+	'ENTREZ_QUERY'	=> '.*',
+	'EXPECT'	=> '\d+(\.\d+)?([eE]-\d+)?',	# Positive double
+	'FILTER'	=> '[LRm]',			# L or R or m
+	'GAPCOSTS'	=> '-?\d+(\.\d+)\s+i-?\d+(\.\d+)',
 					# Two space separated float values
-			'GENETIC_CODE'	=> '([1-9]|1[1-6]|2(1|2))',	# 1..16,21,22
-			'HITLIST_SIZE'	=> '\d+',			# Positive integer
-			'I_THRESH'	=> '-?\d+(\.\d+)([eE]-\d+)?',	# float
-			'LAYOUT'	=> '(One|Two)Windows?',		# onewindow, twowindows
-			'LCASE_MASK'	=> '(yes|no)',			# yes, no
-			'MATRIX_NAME'	=> '.*',
-			'NUCL_PENALTY'	=> '-\d+',			# Negative integer
-			'NUCL_REWARD'	=> '-?\d+',			# Integer
-			'OTHER_ADVANCED' => '.*',
-			'PERC_IDENT'	=> '\d\d+',			# Integer, 0-99 inclusive
-			'PHI_PATTERN'	=> '.*',
-			'PROGRAM'	=> 't?blast[pnx]',		
+	'GENETIC_CODE'	=> '([1-9]|1[1-6]|2(1|2))',	# 1..16,21,22
+	'HITLIST_SIZE'	=> '\d+',			# Positive integer
+	'I_THRESH'	=> '-?\d+(\.\d+)([eE]-\d+)?',	# float
+	'LAYOUT'	=> '(One|Two)Windows?',		# onewindow, twowindows
+	'LCASE_MASK'	=> '(yes|no)',			# yes, no
+	'MATRIX_NAME'	=> '.*',
+	'NUCL_PENALTY'	=> '-\d+',			# Negative integer
+	'NUCL_REWARD'	=> '-?\d+',			# Integer
+	'OTHER_ADVANCED' => '.*',
+	'PERC_IDENT'	=> '\d\d+',			# Integer, 0-99 inclusive
+	'PHI_PATTERN'	=> '.*',
+	'PROGRAM'	=> 't?blast[pnx]',
 					# tblastp, tblastn, tblastx, blastp, blastn, blastx
-			'QUERY'		=> '.*',
-			'QUERY_FILE'	=> '.*',
-			'QUERY_BELIEVE_DEFLINE'	=> '(yes|no)',		# yes, no
-			'QUERY_FROM'	=> '\d+',			# Positive integer
-			'QUERY_TO'	=> '\d+',			# Positive integer
-			'SEARCHSP_EFF'	=> '\d+',			# Positive integer
-			'SERVICE'	=> '(plain|p[sh]i|(rps|mega)blast)',	
+	'QUERY'		=> '.*',
+	'QUERY_FILE'	=> '.*',
+	'QUERY_BELIEVE_DEFLINE'	=> '(yes|no)',		# yes, no
+	'QUERY_FROM'	=> '\d+',			# Positive integer
+	'QUERY_TO'	=> '\d+',			# Positive integer
+	'SEARCHSP_EFF'	=> '\d+',			# Positive integer
+	'SERVICE'	=> '(plain|p[sh]i|(rps|mega)blast)',
 					# plain,psi,phi,rpsblast,megablast
-			'THRESHOLD'	=> '-?\d+',			# Integer
-			'UNGAPPED_ALIGNMENT' => '(yes|no)',		# yes, no
-			'WORD_SIZE'	=> '\d+'			# Positive integer
-		);
-    %GETPARAMS = (	'ALIGNMENTS'	=> '\d+',			# Positive integer
-			'ALIGNMENT_VIEW' => '(Pairwise|(Flat)?QueryAnchored(NoIdentities)?|Tabular)',
-					# Pairwise, QueryAnchored, QueryAnchoredNoIdentities, 
-  					# FlatQueryAnchored, FlatQueryAnchoredNoIdentities, Tabular 
-			'DESCRIPTIONS'	=> '\d+',			# Positive integer
-			'ENTREZ_LINKS_NEW_WINDOW' => '(yes|no)',	# yes, no
-			'EXPECT_LOW'	=> '\d+(\.\d+)?([eE]-\d+)?',	# Positive double
-			'EXPECT_HIGH'	=> '\d+(\.\d+)?([eE]-\d+)?',	# Positive double
-			'FORMAT_ENTREZ_QUERY' => '',
-			'FORMAT_OBJECT'	=> '(Alignment|Neighbors|PSSM|SearchInfo|TaxBlast(Parent|MultiFrame)?)',
+	'THRESHOLD'	=> '-?\d+',			# Integer
+	'UNGAPPED_ALIGNMENT' => '(yes|no)',		# yes, no
+	'WORD_SIZE'	=> '\d+'			# Positive integer
+					  );
+    %GETPARAMS = (
+   'ALIGNMENTS'	=> '\d+',			# Positive integer
+	'ALIGNMENT_VIEW' =>
+   '(Pairwise|(Flat)?QueryAnchored(NoIdentities)?|Tabular)',
+	 # Pairwise, QueryAnchored, QueryAnchoredNoIdentities, 
+  	 # FlatQueryAnchored, FlatQueryAnchoredNoIdentities, Tabular 
+	 'DESCRIPTIONS'	=> '\d+',			# Positive integer
+	 'ENTREZ_LINKS_NEW_WINDOW' => '(yes|no)',	# yes, no
+	 'EXPECT_LOW'	=> '\d+(\.\d+)?([eE]-\d+)?',	# Positive double
+	 'EXPECT_HIGH'	=> '\d+(\.\d+)?([eE]-\d+)?',	# Positive double
+	 'FORMAT_ENTREZ_QUERY' => '',
+	 'FORMAT_OBJECT'	=> 
+    '(Alignment|Neighbors|PSSM|SearchInfo|TaxBlast(Parent|MultiFrame)?)',
 					# Alignment, Neighbors, PSSM,  SearchInfo 
 					# TaxBlast, TaxblastParent, TaxBlastMultiFrame 
-			'FORMAT_TYPE'	=> '((HT|X)ML|ASN\.1|Text)',
+	 'FORMAT_TYPE'	=> '((HT|X)ML|ASN\.1|Text)',
 					# HTML, Text, ASN.1, XML
-			'NCBI_GI'	=> '(yes|no)',			# yes, no
-			'RID' 		=>  '.*',
-			'RESULTS_FILE' 	=>  '(yes|no)',			# yes, no
-			'SERVICE' 	=>  '(plain|p[sh]i|(rps|mega)blast)',    
+	 'NCBI_GI'	=> '(yes|no)',			# yes, no
+	 'RID' 		=>  '.*',
+	 'RESULTS_FILE' 	=>  '(yes|no)',			# yes, no
+	 'SERVICE' 	=>  '(plain|p[sh]i|(rps|mega)blast)',
 					# plain,psi,phi,rpsblast,megablast
-			'SHOW_OVERVIEW' =>  '(yes|no)'			# yes, no
-		    );
+	 'SHOW_OVERVIEW' =>  '(yes|no)'			# yes, no
+					  );
+
     # Default values go in here for PUT
-    %HEADER = ('CMD'                          => 'Put',
+    %HEADER = (
+          'CMD'                          => 'Put',
 	       'FORMAT_OBJECT'                => 'Alignment',
 	       'COMPOSITION_BASED_STATISTICS' => 'off', 
-	       'DATABASE'	    	      => 'nr',
-	       'EXPECT'			      => '1e-3', 
-	       'FILTER'			      => 'L', 
-	       'PROGRAM'		      => 'blastp', 
-	       'SERVICE'		      => 'plain' 
+	       'DATABASE'	    	              => 'nr',
+	       'EXPECT'			              => '1e-3', 
+	       'FILTER'			              => 'L', 
+	       'PROGRAM'		                 => 'blastp', 
+	       'SERVICE'		                 => 'plain' 
 	       );
+
     # Default values go in here for GET
-    %RETRIEVALHEADER = ('CMD'            => 'Get',
-			'ALIGNMENTS'	=> '50',
+    %RETRIEVALHEADER = (
+         'CMD'            => 'Get',
+			'ALIGNMENTS'	  => '50',
 			'ALIGNMENT_VIEW' => 'Pairwise',
-			'DESCRIPTIONS'	=> '100',
-			'FORMAT_TYPE'	=> 'Text'
+			'DESCRIPTIONS'	  => '100',
+			'FORMAT_TYPE'	  => 'Text'
 			);
 
     $RIDLINE = 'RID\s+=\s+(\S+)';
 }
 
 sub new {
-    my ($caller, @args) = @_;
-    # chained new
-    my $self = $caller->SUPER::new(@args);
-    # so that tempfiles are cleaned up
-    $self->_initialize_io();
-    my ($prog, $data, 
-	$readmethod) = $self->_rearrange([qw(PROG DATA
+	my ($caller, @args) = @_;
+	# chained new
+	my $self = $caller->SUPER::new(@args);
+	# so that tempfiles are cleaned up
+	$self->_initialize_io();
+	my ($prog, $data,
+		 $readmethod) = $self->_rearrange([qw(PROG DATA
 					     READMETHOD)],
 					 @args);
-    # Use these two parameters for backward-compatibility. 
-    # Overridden by PROGRAM and DATABASE if supplied.
-    $self->submit_parameter('PROGRAM',$prog) if $prog;
-    $self->submit_parameter('DATABASE',$data) if $data;
+	# Use these two parameters for backward-compatibility. 
+	# Overridden by PROGRAM and DATABASE if supplied.
+	$self->submit_parameter('PROGRAM',$prog) if $prog;
+	$self->submit_parameter('DATABASE',$data) if $data;
 
-    $readmethod = 'SearchIO' unless defined $readmethod;
-    $self->readmethod($readmethod);
+	$readmethod = 'SearchIO' unless defined $readmethod;
+	$self->readmethod($readmethod);
 
-    # Now read the rest of the parameters and set them all
+	# Now read the rest of the parameters and set them all
 
-    # PUT parameters first
-    my @putValues = $self->_rearrange([keys %PUTPARAMS],@args);
-    my %putNames;
-    @putNames{keys %PUTPARAMS} = @putValues;
-    foreach my $putName (keys %putNames) { $self->submit_parameter($putName,$putNames{$putName}); }
+	# PUT parameters first
+	my @putValues = $self->_rearrange([keys %PUTPARAMS],@args);
+	my %putNames;
+	@putNames{keys %PUTPARAMS} = @putValues;
+	foreach my $putName (keys %putNames) {
+		$self->submit_parameter($putName,$putNames{$putName});
+	}
+	# GET parameters second
+	my @getValues = $self->_rearrange([keys %GETPARAMS],@args);
+	my %getNames;
+	@getNames{keys %GETPARAMS} = @getValues;
+	foreach my $getName (keys %getNames) {
+		$self->retrieve_parameter($getName,$getNames{$getName});
+	}
 
-    # GET parameters second
-    my @getValues = $self->_rearrange([keys %GETPARAMS],@args);
-    my %getNames;
-    @getNames{keys %GETPARAMS} = @getValues;
-    foreach my $getName (keys %getNames) { $self->retrieve_parameter($getName,$getNames{$getName}); }
-
-    return $self;
+	return $self;
 }
 
 =head2 retrieve_parameter
@@ -270,22 +284,22 @@ sub new {
  Function: Get/Set the named parameter for the retrieve_blast operation.
  Returns : string
  Args    : $name : name of GET parameter
-	   $val : optional value to set the parameter to
+	 $val : optional value to set the parameter to
 
 =cut
 
 sub retrieve_parameter {
-    my ($self, $name, $val) = @_;
-    $name = uc($name);
-    $self->throw($name." is not a valid GET parameter.") unless
-	exists $GETPARAMS{$name};
-    if (defined $val) {
+	my ($self, $name, $val) = @_;
+	$name = uc($name);
+	$self->throw($name." is not a valid GET parameter.") unless
+	  exists $GETPARAMS{$name};
+	if (defined $val) {
     	my $regex = $GETPARAMS{$name};
     	$val =~ m/^$regex$/i or 
-		$self->throw("Value ".$val." for GET parameter ".$name." does not match expression ".$regex.". Rejecting.");
-	$RETRIEVALHEADER{$name} = $val;
-    }
-    return $RETRIEVALHEADER{$name};
+		  $self->throw("Value ".$val." for GET parameter ".$name." does not match expression ".$regex.". Rejecting.");
+		$RETRIEVALHEADER{$name} = $val;
+	}
+	return $RETRIEVALHEADER{$name};
 }
 
 =head2 submit_parameter
@@ -295,7 +309,7 @@ sub retrieve_parameter {
  Function: Get/Set the named parameter for the submit_blast operation.
  Returns : string
  Args    : $name : name of PUT parameter
-	   $val : optional value to set the parameter to
+    $val : optional value to set the parameter to
 
 =cut
 
@@ -524,49 +538,49 @@ sub submit_blast {
 =cut
 
 sub retrieve_blast {
-    my($self, $rid) = @_;
-    my ($fh,$tempfile) = $self->tempfile();
+	my($self, $rid) = @_;
+	my ($fh,$tempfile) = $self->tempfile();
 	close $fh; #explicit close
-    my %hdr = %RETRIEVALHEADER;
-    $hdr{'RID'} = $rid;
-    my $req = POST $URLBASE, [%hdr];
-    if( $self->verbose > 0 ) {
-	$self->warn("retrieve request is " . $req->as_string());
-    }
-    my $response = $self->ua->request($req, $tempfile);
-    if( $response->is_success ) {	
+	my %hdr = %RETRIEVALHEADER;
+	$hdr{'RID'} = $rid;
+	my $req = POST $URLBASE, [%hdr];
+	if( $self->verbose > 0 ) {
+		$self->warn("retrieve request is " . $req->as_string());
+	}
+	my $response = $self->ua->request($req, $tempfile);
+	if( $response->is_success ) {
     	if( $self->verbose > 0 ) {
 			#print content of reply if verbose > 1
 			open(TMP, $tempfile) or $self->throw("cannot open $tempfile");
-			 while(<TMP>) { print $_; }
-			 close TMP;
-   		 }
+			while(<TMP>) { print $_; }
+			close TMP;
+		}
 		## if proper reply 
 		my $size = -s $tempfile;
 		if( $size > 1000 ) {
 	    	my $blastobj;
-	   	 	if( $self->readmethod =~ /BPlite/ ) {
+			if( $self->readmethod =~ /BPlite/ ) {
 				$blastobj = new Bio::Tools::BPlite(-file => $tempfile);
 	    	} else {
 				$blastobj = new Bio::SearchIO( -file     => $tempfile,
-					      			           -format => 'blast');
-	    		}
-			
+														 -format => 'blast');
+			}
+
 			## store filename in object ##
 			$self->file($tempfile);
 	    	return $blastobj;
 		} elsif( $size < 500 ) { # search had a problem
 			open(ERR, "<$tempfile") or $self->throw("cannot open file $tempfile"); 
-			 $self->warn(join("", <ERR>));
+			$self->warn(join("", <ERR>));
 			close ERR;
 	    	return -1;
 		} else { # still working
 	    	return 0;
-			}
-    } else {
-	$self->warn($response->error_as_HTML);
-	return -1;
-    }
+		}
+	} else {
+		$self->warn($response->error_as_HTML);
+		return -1;
+	}
 }
 
 =head2 save_output
@@ -580,38 +594,37 @@ sub retrieve_blast {
 =cut
 
 sub save_output {
-    my ($self, $filename) = @_;
-    if( ! defined $filename ) {
-        	$self->throw("Can't save blast output.  You must specify a filename to save to.");
-    }
-	 my $blastfile = $self->file;
+	my ($self, $filename) = @_;
+	if( ! defined $filename ) {
+		$self->throw("Can't save blast output.  You must specify a filename to save to.");
+	}
+	my $blastfile = $self->file;
 	#open temp file and output file, have to filter out some HTML
 	open(TMP, $blastfile) or $self->throw("cannot open $blastfile");
-
 
 	open(SAVEOUT, ">$filename") or $self->throw("cannot open $filename");
 	my $seentop = 0;
 	while(my $l = <TMP>) {
-		next if ($l =~ /<pre>/);	
+		next if ($l =~ /<pre>/);
 		if( $l =~ /^(?:[T]?BLAST[NPX])\s*.+$/i ||
-	   		 $l =~/^RPS-BLAST\s*.+$/i ) {
-	   		$seentop=1;
-	   	}
-	   	next if !$seentop;
-	    if( $seentop ) {
+			 $l =~/^RPS-BLAST\s*.+$/i ) {
+			$seentop=1;
+		}
+		next if !$seentop;
+		if( $seentop ) {
 			print SAVEOUT $l;
 		}
 	}
 	close TMP;
 	close SAVEOUT;
-	return 1;	
+	return 1;
 }
 
 sub _load_input {
     my ($self, $input) = @_;
 
     if( ! defined $input ) {
-		$self->throw("Calling remote blast with no input");	
+		$self->throw("Calling remote blast with no input");
     }
     my @seqs;
     if( ! ref $input ) {
