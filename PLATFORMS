@@ -1,4 +1,4 @@
-# $Id: PLATFORMS,v 1.7.2.2 2001-03-04 01:05:52 dag Exp $
+# $Id: PLATFORMS,v 1.7.2.3 2001-11-04 17:26:39 jason Exp $
 
 Perl general comments:
 
@@ -57,6 +57,8 @@ Compiler: --
 Perl    : ActiveState Perl 5.6
 Comments: Likely failure of Index.t (i.e., the modules in Bio/Index/),
           File::Temp potentially broken (causing at least BPpsilite to fail)
+	  See http://bioperl.org/Core/windows-bioperl.html for more info on 
+	  installing on Windows.
 
 Machine : MacOS
 Compiler: --

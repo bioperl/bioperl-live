@@ -132,13 +132,12 @@ Recommendations on where to go for additional information.
 
 =item *
 
-A separate tutorial script (tutorial.pl - located in the top bioperl
-  directory) with examples of many of methods described in the
-  tutorial.
-
+The POD documentation should contain runnable code in the SYNOPSIS section 
+which is meant to illustrate the use of a module and its methods. 
+ 
 =back
 
-Running the tutorial.pl script while going through this tutorial - or
+Running the bptutorial.pl script while going through this tutorial - or
 better yet, stepping through it with an interactive debugger - is a
 good way of learning bioperl.  The tutorial script is also a good
 place from which to cut-and-paste code for your scripts(rather than
@@ -148,8 +147,24 @@ idea to find out why, before getting too involved with bioperl!
 
 This tutorial does not intend to be a comprehensive description of all
 the objects and methods available in bioperl.  For that the reader is
-directed to the documentation included with each of the modules as
-well as the additional documentation referred to below.
+directed to the documentation included with each of the modules. A
+very useful interface for finding one's way within all the module
+documentation can be found at http://doc.bioperl.org/bioperl-live/.
+This interface lists all bioperl modules and descriptions of all
+of their methods.
+
+One potential problem in locating the correct documentation is that
+multiple methods in different modules may all share the same name.
+Moreover, because of perl's complex method of "inheritance",
+it is not often clear which of the identically named methods is being
+called by a given object. One way to resolve this question is by using
+the software described in Appendix V.1.
+
+For those who prefer more visual descriptions,
+http://doc.bioperl.org/bioperl-live/ also offers links to three
+PDF files which contain schematics that describe how many of the bioperl
+objects related to one another.
+
 
 =head2 I.2 Software requirements
 

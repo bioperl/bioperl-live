@@ -1,12 +1,15 @@
-# $Id: BUGS,v 1.1.2.4 2001-07-02 17:21:56 jason Exp $
+# $Id: BUGS,v 1.1.2.5 2001-11-04 17:26:39 jason Exp $
 Known Bugs 
 
 
 Bioperl 0.7.2
 =============
 
-This is a maintence release replacing 0.7.1.  Same bugs as 0.7.1
-apply.
+ * NCBI has changed some of the cgi scripts for retrieving sequences
+   online which as resulted in some of the DB methods from not working
+   consistently.  We are addressing these in the 0.9.x and 1.0 series
+   of releases.  We reccommend using the Bio::DB::EMBL object that is
+   part of the later releases. 
  
 Bioperl 0.7.1
 =============
