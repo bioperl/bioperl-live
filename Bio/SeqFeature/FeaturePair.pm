@@ -94,7 +94,7 @@ use strict;
 
 use Bio::Root::Object;
 use Bio::SeqFeatureI;
-use Bio::SeqFeatureGeneric;
+use Bio::SeqFeature::Generic;
 
 
 @ISA = qw(Bio::SeqFeature::Generic);
