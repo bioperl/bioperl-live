@@ -78,7 +78,10 @@ ok(!$@);
 eval { $qualobj->qual(" 4"); };
 ok(!$@);
 
+$qualobj->qual("4 10");
+
 ok($qualobj->length(),2 );
+
 $qualobj->qual("10 20 30 40 50 40 30 20 10");
 my @subquals = @{$qualobj->subqual(3,6);};
 ok(@subquals, 4);
