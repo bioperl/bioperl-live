@@ -27,7 +27,7 @@ $a = Bio::Variation::Allele->new(-seq=>'ACTGACTGACTG',
 			-accession_number => 'X677667',
                         -desc=>'Sample Bio::Seq object');
 ok defined $a,
-ok ref($a), qw/Bio::Variation::Allele/;
+ok ref($a), 'Bio::Variation::Allele';
 
 ok $a->accession_number(), 'X677667';
 ok $a->seq(), 'ACTGACTGACTG';
