@@ -137,9 +137,13 @@ sub _generic_seqfeature {
 			   $next_loc . ", ignoring feature (seqid=" .
 			   $annseq->id() . ")");		
                 $sf = undef;
+		last;
 	    }
 	}
-	$sf->location($splitlocation);
+	# see bug #930
+        # we'll skip this SeqFeature if we can't parse the location 
+	$sf->location($splitlocation) if( defined $sf);
+
     }     
     # Parse simple locations and fuzzy locations
     else {
