@@ -58,7 +58,7 @@ sub do_query {
 # given sequence name, and optional (start,stop) give raw dna
 sub get_dna {
   my $self = shift;
-  my ($name,$start,$stop,$class) = @_;
+  my ($name,$class,$start,$stop) = @_;
   my ($offset,$length);
   if ($stop > $start) {
     $offset = $stop - 1;
@@ -112,34 +112,42 @@ sub get_abscoords {
 }
 
 # Given sequence name, range, and optional filter, retrieve list of all
-# features.  Passes features through callback if provided to construct object.
+# features.  Passes features through callback.
 sub get_features {
   my $self = shift;
-  my ($isrange,$refseq,$class,$start,$stop,$types,$callback,$class) = @_;
+  my ($isrange,$srcseq,$class,$start,$stop,$types,$callback) = @_;
+  $callback || $self->throw('must provide a callback argument');
 
-  my $sth = $self->range_or_overlap($isrange,$refseq,$class,$start,$stop,$types,$class) or return;
+  my $sth = $self->range_or_overlap($isrange,$srcseq,$class,$start,$stop,$types,$class) or return;
 
-  my @result;
+  my $count = 0;
   while (my @row = $sth->fetchrow_array) {
-    if ($callback) {
-      $callback->(@row);
-    } else {
-      push @result,\@row;
-    }
+    $callback->(@row);
+    $count++;
   }
   $sth->finish;
-  return @result;
+  return $count;
+}
+
+sub get_features_iterator {
+  my $self = shift;
+  my ($isrange,$srcseq,$class,$start,$stop,$types,$callback) = @_;
+  $callback || $self->throw('must provide a callback argument');
+
+  my $sth = $self->range_or_overlap($isrange,$srcseq,$class,$start,$stop,$types,$class) or return;
+
+  return Bio::DB::GFF::Adaptor::dbi::iterator->new($sth,$callback);
 }
 
 sub get_types {
   my $self = shift;
-  my ($refseq,$start,$stop,$want_count) = @_;
-  my $straight      = $self->do_straight_join($refseq,$start,$stop,[]) ? 'straight_join' : '';
-  my ($select,@args1) = $self->make_types_select_part($refseq,$start,$stop,$want_count);
-  my ($from,@args2)   = $self->make_types_from_part($refseq,$start,$stop,$want_count);
-  my ($join,@args3)   = $self->make_types_join_part($refseq,$start,$stop,$want_count);
-  my ($where,@args4)  = $self->make_types_where_part($refseq,$start,$stop,$want_count);
-  my ($group,@args5)  = $self->make_types_group_part($refseq,$start,$stop,$want_count);
+  my ($srcseq,$start,$stop,$want_count) = @_;
+  my $straight      = $self->do_straight_join($srcseq,$start,$stop,[]) ? 'straight_join' : '';
+  my ($select,@args1) = $self->make_types_select_part($srcseq,$start,$stop,$want_count);
+  my ($from,@args2)   = $self->make_types_from_part($srcseq,$start,$stop,$want_count);
+  my ($join,@args3)   = $self->make_types_join_part($srcseq,$start,$stop,$want_count);
+  my ($where,@args4)  = $self->make_types_where_part($srcseq,$start,$stop,$want_count);
+  my ($group,@args5)  = $self->make_types_group_part($srcseq,$start,$stop,$want_count);
 
   my $query = "SELECT $straight $select FROM $from WHERE $join AND $where";
   $query   .= " GROUP BY $group" if $group;
@@ -159,17 +167,16 @@ sub get_types {
 # this is what will need to change if the structure of the GFF table is altered
 sub range_or_overlap {
   my $self = shift;
-  my($isrange,$refseq,$class,$start,$stop,$types,$class) = @_;
-  $self->throw("range_or_overlap(): Must provide refseq") unless $refseq;
+  my($isrange,$srcseq,$class,$start,$stop,$types) = @_;
 
   my $dbh = $self->features_db;
 
   # NOTE: straight_join is necessary in some database to force the right index to be used.
-  my $straight      = $self->do_straight_join($refseq,$start,$stop,$types) ? 'straight_join' : '';
+  my $straight      = $self->do_straight_join($srcseq,$start,$stop,$types) ? 'straight_join' : '';
   my $select        = $self->make_features_select_part;
   my $from          = $self->make_features_from_part;
   my $join          = $self->make_features_join_part;
-  my ($where,@args) = $self->make_features_where_part($isrange,$refseq,$class,
+  my ($where,@args) = $self->make_features_where_part($isrange,$srcseq,$class,
 						      $start,$stop,$types,$class);
   my $query         = "SELECT $straight $select FROM $from WHERE $join AND $where";
 
@@ -193,14 +200,14 @@ sub make_features_join_part {
 
 sub make_features_where_part {
   my $self = shift;
-  my($isrange,$refseq,$class,$start,$stop,$types) = @_;
-  my $query = "";
+  my($isrange,$srcseq,$class,$start,$stop,$types) = @_;
+  my @query;
   my @args;
 
 
-  if ($refseq) {
-    my ($q,@a) = $self->refseq_query($refseq,$class);
-    $query .= $q;
+  if ($srcseq) {
+    my ($q,@a) = $self->srcseq_query($srcseq,$class);
+    push @query,$q;
     push @args,@a;
   }
 
@@ -210,16 +217,17 @@ sub make_features_where_part {
 
     my ($range_query,@range_args) = $isrange ? $self->range_query($start,$stop) 
                                              : $self->overlap_query($start,$stop);
-    $query .= qq( AND $range_query\n);
+    push @query,$range_query;
     push @args,@range_args;
   }
 
-  if (defined $types) {
+  if (defined $types && @$types) {
     my ($type_query,@type_args) = $self->types_query($types);
-    $query .= qq( AND $type_query\n) if $type_query;
+    push @query,$type_query;
     push @args,@type_args;
   }
 
+  my $query = join "\n\tAND ",@query;
   return wantarray ? ($query,@args) : $self->dbi_quote($query,@args);
 }
 
@@ -235,10 +243,10 @@ sub make_abscoord_query {
 }
 
 
-sub refseq_query {
+sub srcseq_query {
   my $self = shift;
-  my ($refseq,$refclass) = @_;
-  $self->throw("refseq_query(): must be implemented by subclass");
+  my ($srcseq,$refclass) = @_;
+  $self->throw("srcseq_query(): must be implemented by subclass");
   # in scalar context, return a query string.
   # in array context, return a query string and bind arguments
 }
@@ -275,31 +283,31 @@ sub types_query {
 
 sub make_types_select_part {
   my $self = shift;
-  my ($refseq,$start,$stop,$want_count) = @_;
+  my ($srcseq,$start,$stop,$want_count) = @_;
   $self->throw("make_types_select_part(): must be implemented by subclass");
 }
 
 sub make_types_from_part {
   my $self = shift;
-  my ($refseq,$start,$stop,$want_count) = @_;
+  my ($srcseq,$start,$stop,$want_count) = @_;
   $self->throw("make_types_from_part(): must be implemented by subclass");
 }
 
 sub make_types_join_part {
   my $self = shift;
-  my ($refseq,$start,$stop,$want_count) = @_;
+  my ($srcseq,$start,$stop,$want_count) = @_;
   $self->throw("make_types_join_part(): must be implemented by subclass");
 }
 
 sub make_types_where_part {
   my $self = shift;
-  my ($refseq,$start,$stop,$want_count) = @_;
+  my ($srcseq,$start,$stop,$want_count) = @_;
   $self->throw("make_types_where_part(): must be implemented by subclass");
 }
 
 sub make_types_group_part {
   my $self = shift;
-  my ($refseq,$start,$stop,$want_count) = @_;
+  my ($srcseq,$start,$stop,$want_count) = @_;
   $self->throw("make_types_group_part(): must be implemented by subclass");
 }
 
@@ -354,6 +362,25 @@ sub tables {
 sub DESTROY {
   my $self = shift;
   $self->features_db->disconnect if defined $self->features_db;
+}
+
+package Bio::DB::GFF::Adaptor::dbi::iterator;
+
+sub new {
+  my $class = shift;
+  my ($sth,$callback) = @_;
+  return bless [$sth,$callback],$class;
+}
+
+sub next_feature {
+  my $self = shift;
+  return unless $self->[0];
+  if (my @row = $self->[0]->fetchrow_array) {
+    return $self->[1]->(@row);
+  } else {
+    $self->[0]->finish;
+    undef $self->[0];
+  }
 }
 
 1;

@@ -68,7 +68,7 @@ sub acedb       { shift->{acedb}       }
 # given sequence name, and optional (start,stop) give raw dna
 sub get_dna {
   my $self = shift;
-  my ($name,$start,$stop,$class) = @_;
+  my ($name,$class,$start,$stop) = @_;
   my $dna_db = $self->dna_db or return $self->SUPER::get_dna(@_);
   # in actuality, the class is simply ignored by Bio::DB::Fasta
   $dna_db->seq($name,$start,$stop,$class);
@@ -76,7 +76,7 @@ sub get_dna {
 
 sub do_straight_join {
   my $self = shift;
-  my($refseq,$start,$stop,$types) = @_;
+  my($srcseq,$start,$stop,$types) = @_;
 
   # Might try turning on and off straight join based on the number of types
   # specified, but this turns out to be very difficult indeed!
@@ -89,7 +89,7 @@ sub do_straight_join {
   # and !grep {$_->[0] =~ /similarity/ } @$types;
 
   # if no types are specified then it is faster to do a range search, up to a point.
-  return $refseq && abs($stop-$start) < $self->{straight_join_limit};
+  return $srcseq && defined($start) && defined($stop) && abs($stop-$start) < $self->{straight_join_limit};
 }
 
 

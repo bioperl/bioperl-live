@@ -38,8 +38,16 @@ Bio::DB::GFF -- Storage and retrieval of sequence annotation data
   # get all feature types in the database
   my @types = $db->types;
 
-  # last example: count all feature types in the segment
+  # count all feature types in the segment
   my %type_counts = $segment->types(-enumerate=>1);
+
+  # get an iterator on all curated features of type 'exon' or 'intron'
+  my $iterator = $db->features(-type     => ['exon:curated','intron:curated'],
+                               -iterator => 1);
+
+  while ($_ = $iterator->next_feature) {
+      print $_,"\n";
+  }
 
 =head1 DESCRIPTION
 
@@ -163,10 +171,6 @@ use vars qw($VERSION @ISA);
 @ISA = qw(Bio::Root::RootI);
 
 $VERSION = '0.30';
-
-
-# features() is the pseudonym for overlapping_features()
-*features = \&overlapping_features;
 
 =head2 new
 
@@ -438,7 +442,7 @@ Arguments:
                that distinguish different object classes.  Defaults to "Sequence".
 
  -name,-sequence,-sourceseq   Aliases for -seq.
-               
+
  -begin,-end   Aliases for -start and -stop
 
  -off,-len     Aliases for -offset and -length
@@ -598,7 +602,7 @@ sub get_dna {
  Title   : get_features
  Usage   : $db->get_features($isrange,$refseq,$class,$start,$stop,$types,$callback)
  Function: get list of features for a region
- Returns : list of Bio::DB::GFF::Feature objects
+ Returns : count of number of features retrieved
  Args    : see below
  Status  : protected
 
@@ -612,7 +616,7 @@ Arguments are as follows:
    $refseq    ID of the landmark that establishes the absolute 
               coordinate system.
 
-   $class     Class of this landmark.  Ignored by implementations
+   $class     Class of this landmark.  Can be ignored by implementations
               that don't recognize such distinctions.
 
    $start,$stop  Start and stop of the range, inclusive.
@@ -621,15 +625,35 @@ Arguments are as follows:
               to fetch from the database.  Each annotation type is an
               array reference consisting of [source,method].
 
-   $callback  A code reference.  The pased features are retrieved from the
-              database they are passed to this callback routine for processing.
-              
+   $callback  A code reference.  As the passed features are retrieved
+              they are passed to this callback routine for processing.
+
+This routine is responsible for getting arrays of GFF data out of the
+database and passing them to the callback subroutine.  The callback
+does the work of constructing a Bio::DB::GFF::Feature object out of
+that data.  The callback expects a list of 11 fields:
+
+  $srcseq      source sequence
+  $start       feature start
+  $stop        feature stop
+  $source      feature source
+  $method      feature method
+  $score       feature score
+  $strand      feature strand
+  $phase       feature phase
+  $groupclass  group class (may be undef)
+  $groupname   group ID (may be undef)
+  $tstart      target start for similarity hits (may be undef)
+  $tstop       target stop for similarity hits (may be undef)
+
+These fields are in the same order as the raw GFF file, with the
+exception that some parsing has been performed on the group field
 
 =cut
 
 sub get_features{
   my $self = shift;
-  my ($isrange,$refseq,$class,$start,$stop,$types,$callback) = @_;
+  my ($isrange,$srcseq,$class,$start,$stop,$types,$callback) = @_;
   $self->throw("get_features() must be implemented by an adaptor");
 }
 
@@ -657,21 +681,32 @@ sub get_types {
 sub make_feature {
   my $self = shift;
   my ($parent,$group_hash,
-      $start,$stop,$method,$source,
+      $srcseq,$start,$stop,
+      $source,$method,
       $score,$strand,$phase,
       $group_class,$group_name,
       $tstart,$tstop) = @_;
 
   my $group;  # undefined
   if (defined $group_class && defined $group_name) {
+    $tstart ||= '';
+    $tstop  ||= '';
     $group = $group_hash->{$group_class,$group_name,$tstart,$tstop} 
       ||= $self->make_object($group_class,$group_name,$tstart,$tstop);
   }
 
-  return Bio::DB::GFF::Feature->new_feature($parent,$start,$stop,
-					    $method,$source,
-					    $score,$strand,$phase,
-					    $group);
+  if (ref $parent) { # note that the src sequence is ignored
+    return Bio::DB::GFF::Feature->new_from_parent($parent,$start,$stop,
+						  $method,$source,
+						  $score,$strand,$phase,
+						  $group);
+  } else {
+    return Bio::DB::GFF::Feature->new($self,$srcseq,
+				      $start,$stop,
+				      $method,$source,
+				      $score,$strand,$phase,
+				      $group);
+  }
 }
 
 # call to return the DNA string for the indicated region
@@ -692,7 +727,7 @@ sub dna {
 # real work is done by get_features
 sub overlapping_features {
   my $self = shift;
-  my ($refseq,$class,$start,$stop,$types,$parent,$automerge) =
+  my ($refseq,$class,$start,$stop,$types,$parent,$automerge,$iterator) =
     rearrange([
 	       [qw(REF REFSEQ)],
 	       qw(CLASS),
@@ -701,11 +736,12 @@ sub overlapping_features {
 	       [qw(TYPE TYPES)],
 	       qw(PARENT),
 	       [qw(MERGE AUTOMERGE)],
+	       'ITERATOR'
 	      ],@_);
 
-  return unless defined $start && defined $stop;
+  # return unless defined $start && defined $stop;
   $automerge = 1 unless defined $automerge;
-  $self->_features(0,$refseq,$class,$start,$stop,$types,$parent,$automerge,$class);
+  $self->_features(0,$refseq,$class,$start,$stop,$types,$parent,$automerge,$iterator);
 }
 
 
@@ -713,7 +749,7 @@ sub overlapping_features {
 # range (much faster usually)
 sub contained_features {
   my $self = shift;
-  my ($refseq,$class,$start,$stop,$types,$parent,$automerge) = 
+  my ($refseq,$class,$start,$stop,$types,$parent,$automerge,$iterator) = 
     rearrange([
 	       [qw(REF REFSEQ)],
 	       qw(CLASS),
@@ -722,11 +758,31 @@ sub contained_features {
 	       [qw(TYPE TYPES)],
 	       qw(PARENT),
 	       [qw(MERGE AUTOMERGE)],
+	       'ITERATOR'
 	      ],@_);
 
-  return unless defined $start && defined $stop;
+  # return unless defined $start && defined $stop;
   $automerge = 1 unless defined $automerge;
-  $self->_features(1,$refseq,$class,$start,$stop,$types,$parent,$automerge);
+  $self->_features(1,$refseq,$class,$start,$stop,$types,$parent,$automerge,$iterator);
+}
+
+# The same, except that it fetches all features of a particular type regardless
+# of position
+sub features {
+  my $self = shift;
+  my ($types,$automerge,$iterator);
+  if ($_[0] =~ /^-/) {
+    ($types,$automerge,$iterator) = rearrange([
+					       [qw(TYPE TYPES)],
+					       [qw(MERGE AUTOMERGE)],
+					       'ITERATOR'
+					      ],@_);
+  } else {
+    $types = \@_;
+  }
+
+  $automerge = 1 unless defined $automerge;
+  $self->_features(1,undef,undef,undef,undef,$types,undef,$automerge,$iterator);
 }
 
 sub types {
@@ -742,12 +798,20 @@ sub types {
 
 sub _features {
   my $self = shift;
-  my ($range_query,$refseq,$class,$start,$stop,$types,$parent,$automerge) = @_;
+  my ($range_query,$refseq,$class,$start,$stop,$types,$parent,$automerge,$iterator) = @_;
 
+  ($start,$stop) = ($stop,$start) if $start > $stop;
 
   $types = $self->parse_types($types);  # parse out list of types
   my $aggregated_types = $types;         # keep a copy
 
+  my %groups;  # cache groups so that we don't create them unecessarily
+
+  if ($iterator) {
+    my $callback = sub { $self->make_feature($parent,\%groups,@_) };
+    return $self->get_features_iterator($range_query,$refseq,$class,
+					$start,$stop,$aggregated_types,$callback) ;
+  }
 
   # allow the aggregators to operate on the original
   if ($automerge) {
@@ -756,11 +820,9 @@ sub _features {
     }
   }
 
-  my (%groups);  # cache groups so that we don't create them unecessarily
   my $features = [];
 
-  my $callback = sub { push @$features,$self->make_feature($parent,\%groups,@_) } 
-    if $parent;
+  my $callback = sub { push @$features,$self->make_feature($parent,\%groups,@_) };
   $self->get_features($range_query,$refseq,$class,
 		      $start,$stop,$aggregated_types,$callback) ;
 
@@ -821,7 +883,7 @@ END
 sub make_object {
   my $self = shift;
   my ($class,$name,$start,$stop) = @_;
-  return Bio::DB::GFF::Homol->new($self,$name,$class,$start,$stop) if defined $start;
+  return Bio::DB::GFF::Homol->new($self,$name,$class,$start,$stop) if defined $start and length $start;
   return Bio::DB::GFF::Featname->new($class,$name);
 }
 

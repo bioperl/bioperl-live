@@ -17,7 +17,9 @@ $VERSION = '0.20';
 *segments = \&sub_SeqFeature;
 *name     = \&group;
 
-sub new_feature {
+# this is called for a feature that is attached to a parent sequence,
+# in which case it inherits its coordinate reference system and strandedness
+sub new_from_parent {
   my $class   = shift;
   my ($parent,
       $start,$stop,
@@ -26,16 +28,46 @@ sub new_feature {
       $group) = @_;
 
   ($start,$stop) = ($stop,$start) if defined($fstrand) and $fstrand eq '-';
-  my $self = bless {
-		    %$parent,
-		    start  => $start,
-		    stop   => $stop,
-		    type   => Bio::DB::GFF::Typename->new($method,$source),
-		    fstrand => $fstrand,
-		    score  => $score,
-		    phase  => $phase,
-		    group  => $group,
-		   },$class;
+
+  return bless {
+		%$parent,
+		start  => $start,
+		stop   => $stop,
+		type   => Bio::DB::GFF::Typename->new($method,$source),
+		fstrand => $fstrand,
+		score  => $score,
+		phase  => $phase,
+		group  => $group,
+		whole  => 0,
+	       },$class;
+}
+
+# This is called when creating a feature from scratch.  It does not have
+# an inherited coordinate system.
+sub new {
+  my $package = shift;
+  my ($factory,
+      $srcseq,
+      $start,$stop,
+      $method,$source,
+      $score,$fstrand,$phase,
+      $group,
+      $class) = @_;
+
+  my $self = bless { },$package;
+  ($start,$stop) = ($stop,$start) if defined($fstrand) and $fstrand eq '-';
+
+  $class ||= 'Sequence';
+
+  @{$self}{qw(factory sourceseq start stop strand class)} =
+    ($factory,$srcseq,$start,$stop,$fstrand,$class);
+
+  @{$self}{qw(ref refstart refstrand)} = ($srcseq,1,$fstrand);
+
+  @{$self}{qw(type fstrand score phase group)} =
+    (Bio::DB::GFF::Typename->new($method,$source),$fstrand,$score,$phase,$group);
+
+  $self;
 }
 
 sub method {

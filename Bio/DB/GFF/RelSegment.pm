@@ -53,15 +53,18 @@ sub new {
 
   # an explicit length overrides start and stop
   if (defined $offset) {
-    warn __PACKAGE__."->new(): bad idea to call new() with both a start and an offset"
+    warn "new(): bad idea to call new() with both a start and an offset"
       if defined $start;
     $start = $offset+1;
   }
   if (defined $length) {
-    warn __PACKAGE__."->new(): bad idea to call new() with both a stop and a length"
+    warn "new(): bad idea to call new() with both a stop and a length"
       if defined $stop;
     $stop = $start + $length - 1;
   }
+
+  # this allows a SQL optimization way down deep
+  $self->{whole}++ unless defined $start and defined $stop;
 
   $start = 1                    unless defined $start;
   $stop  = $absstop-$absstart+1 unless defined $stop;
@@ -111,6 +114,7 @@ sub stop {
 
 sub abstart { shift->{start} }
 sub abstop  { shift->{stop}  }
+sub absstrand { shift->{refstrand} }
 
 sub length {
   my $self = shift;
@@ -121,10 +125,11 @@ sub refseq {
   my $self = shift;
   my $g    = $self->{ref};
   if (@_) {
-    my $newref = shift;
+    my $newref   = shift;
     my $newclass = shift || 'Sequence';
-    my ($refref,$refstart,$refstop,$refstrand) 
-      = $self->factory->abscoords($newref,$newclass);
+    my ($refref,$refstart,$refstop,$refstrand)
+      = $newref->isa('Bio::DB::GFF::RelSegment') ? ($newref->refseq,$newref->absstart,$newref->abstop,$newref->abstrand)
+                                                 : $self->factory->abscoords($newref,$newclass);
     $self->throw("can't set reference sequence: $newref and $self are on different sequence segments")
       unless $refref eq $self->{sourceseq};
     @{$self}{qw(ref refstart refstrand)} = ($newref,$refstart,$refstrand);
@@ -149,8 +154,8 @@ sub absolute {
 
 sub dna {
   my $self = shift;
-  my ($ref,$class,$start,$stop,$strand,$class) 
-    = @{$self}{qw(sourceseq class start stop strand class)};
+  my ($ref,$start,$stop,$strand,$class) 
+    = @{$self}{qw(sourceseq start stop strand class)};
   ($start,$stop) = ($stop,$start) if $strand eq '-';
   $self->factory->dna($ref,$class,$start,$stop);
 }
@@ -172,10 +177,17 @@ sub contained_features {
 
 sub _process_feature_args {
   my $self = shift;
-  my ($ref,$start,$stop,$strand,$class) 
-    = @{$self}{qw(sourceseq start stop strand class)};
+  my ($ref,$class,$start,$stop,$strand,$whole)
+    = @{$self}{qw(sourceseq class start stop strand whole)};
+
   ($start,$stop) = ($stop,$start) if $strand eq '-';
-  my @args = (-ref=>$ref,-start=>$start,-stop=>$stop,-class=>$class);
+
+  my @args = (-ref=>$ref,-class=>$class);
+
+  # indicating that we are fetching the whole segment allows certain
+  # SQL optimizations.
+  push @args,(-start=>$start,-stop=>$stop) unless $whole;
+
   if (@_) {
     if ($_[0] =~ /^-/) {
       push @args,@_;

@@ -37,7 +37,7 @@ sub make_abscoord_query {
 sub make_features_select_part {
   my $self = shift;
   return <<END;
-fstart,fstop,fmethod,fsource,fscore,fstrand,fphase,gclass,gname,ftarget_start,ftarget_stop
+fref,fstart,fstop,fsource,fmethod,fscore,fstrand,fphase,gclass,gname,ftarget_start,ftarget_stop
 END
 }
 
@@ -54,11 +54,11 @@ END
 }
 
 # IMPORTANT NOTE: THE MYSQL SCHEMA IGNORES THE SEQUENCE CLASS
-sub refseq_query {
+sub srcseq_query {
   my $self = shift;
-  my ($refseq,$refclass) = @_;
+  my ($srcseq,$refclass) = @_;
   my $query = "fdata.fref = ?\n";
-  return wantarray ? ($query,$refseq) : $self->dbi_quote($query,$refseq);
+  return wantarray ? ($query,$srcseq) : $self->dbi_quote($query,$srcseq);
 }
 
 
@@ -89,14 +89,14 @@ sub types_query {
   my @args;
   for my $type (@$types) {
     my ($method,$source) = @$type;
-    my $meth_query = $self->string_match('fmethod',$method) if defined $method;
-    my $src_query  = $self->string_match('fsource',$source) if defined $source;
+    my $meth_query = $self->string_match('fmethod',$method) if defined $method && length $method;
+    my $src_query  = $self->string_match('fsource',$source) if defined $source && length $source;
     my @pair;
-    if (defined $method) {
+    if (defined $method && length $method) {
       push @pair,$self->string_match('fmethod',$method);
       push @args,$method;
     }
-    if (defined $source) {
+    if (defined $source && length $source) {
       push @pair,$self->string_match('fsource',$source);
       push @args,$source;
     }
@@ -110,7 +110,7 @@ sub types_query {
 #------------------------- support for the types() query ------------------------
 sub make_types_select_part {
   my $self = shift;
-  my ($refseq,$start,$stop,$want_count) = @_;
+  my ($srcseq,$start,$stop,$want_count) = @_;
   my $query = $want_count ? 'ftype.fmethod,ftype.fsource,count(fdata.ftypeid)'
                           : 'fmethod,fsource';
   return $query;
@@ -118,26 +118,26 @@ sub make_types_select_part {
 
 sub make_types_from_part {
   my $self = shift;
-  my ($refseq,$start,$stop,$want_count) = @_;
-  my $query = defined($refseq) || $want_count ? 'fdata,ftype' : 'ftype';
+  my ($srcseq,$start,$stop,$want_count) = @_;
+  my $query = defined($srcseq) || $want_count ? 'fdata,ftype' : 'ftype';
   return $query;
 }
 
 sub make_types_join_part {
   my $self = shift;
-  my ($refseq,$start,$stop,$want_count) = @_;
-  my $query = defined($refseq) || $want_count ? 'fdata.ftypeid=ftype.ftypeid'
+  my ($srcseq,$start,$stop,$want_count) = @_;
+  my $query = defined($srcseq) || $want_count ? 'fdata.ftypeid=ftype.ftypeid'
                                               : '';
   return $query || 1;
 }
 
 sub make_types_where_part {
   my $self = shift;
-  my ($refseq,$start,$stop,$want_count) = @_;
+  my ($srcseq,$start,$stop,$want_count) = @_;
   my ($query,@args);
-  if (defined($refseq)) {
+  if (defined($srcseq)) {
     $query .= 'fdata.fref=?';
-    push @args,$refseq;
+    push @args,$srcseq;
     if (defined $start or defined $stop) {
       $start = 1           unless defined $start;
       $stop  = MAX_SEGMENT unless defined $stop;
@@ -153,8 +153,8 @@ sub make_types_where_part {
 
 sub make_types_group_part {
   my $self = shift;
-  my ($refseq,$start,$stop,$want_count) = @_;
-  return unless $refseq or $want_count;
+  my ($srcseq,$start,$stop,$want_count) = @_;
+  return unless $srcseq or $want_count;
   return 'ftype.ftypeid';
 }
 
