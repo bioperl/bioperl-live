@@ -22,7 +22,7 @@ Bio::Taxonomy::Node - A node in a represented taxonomy
   my $node = new Bio::Taxonomy::Node(-name      => $name,
                                      -object_id => $oid,
                                      -parent_id => $pid,
-                                     -rank_id   => $rank,
+                                     -rank   => $rank,
                                      -division  => $div,
                                      -dbh       => $dbh);
 
@@ -72,6 +72,8 @@ Describe contact details here
 
 =head1 CONTRIBUTORS
 
+Juguang Xiao <juguang@tll.org.sg>
+
 Additional contributors names and emails here
 
 =head1 APPENDIX
@@ -110,16 +112,20 @@ use Bio::DB::Taxonomy;
 sub new {
   my($class,@args) = @_;
   my $self = $class->SUPER::new(@args);
-  my ($name,$uniqueid,$parentid,$rank,$div,$dbh) = 
+  my ($name,$uniqueid,$parentid,$rank,$div,$dbh, $factory) = 
       $self->_rearrange([qw(NAME OBJECT_ID PARENT_ID RANK DIVISION
-			    DBH)],
+			    DBH FACTORY)],
 			@args);
 
   $uniqueid && $self->object_id($uniqueid);
   $name && $self->node_name($name);
   $rank && $self->rank($rank);
   $div  && $self->division($div);
-  $self->db_handle($dbh || Bio::DB::Taxonomy->new(-source => 'entrez'));
+  $factory && $self->factory($factory);
+  unless(defined $factory){
+      $self->db_handle($dbh 
+        || Bio::DB::Taxonomy->new(-source => 'entrez'));
+  }
   $self->parent_id($parentid);
   return $self;
 }
@@ -148,6 +154,26 @@ sub db_handle{
     return $self->{'db_handle'};
 }
 
+=head2 factory
+  Title:    factory
+  Usage:    $factory->factory($newval);
+  Function: Get/Set Bio::Taxonomy::FactoryI implementation
+  Returns:  Bio:;Taxonomy::FactoryI
+  Args:     Bio::Taxonomy::FactoryI
+
+=cut
+
+sub factory {
+    my $self = shift;
+    if(@_){
+        my $v = shift;
+        unless(ref($v) || $v->isa('Bio::Taxonomy::FactoryI')){
+            $self->throw('A Bio::Taxonomy::FactoryI object required');
+        }
+        $self->{_factory} = $v;
+    }
+    return $self->{_factory};
+}
 
 =head2 rank
 
@@ -374,5 +400,73 @@ sub show_all{
     return $self->{'show_all'};
 }
 
+=head2 name
+  
+  Title:    name
+  Usage:    $obj->name('scientific', 'sapiens');
+            $obj->name('common', 'human', 'man');
+            my @names = @{$obj->name('common')};
+  Function: Get and set the names
+  Returns:  names (a array reference)
+  Args:     Arg1 => the name_class. You can assign any text, but the words
+                'scientific' and 'common' have the special meaning, as
+                scientific name and common name, respectively.
+            Arg2 .. => the names
 
-1;
+=cut
+
+sub name {
+    my ($self, $name_class, @names) = @_;
+    $self->throw('No name class specified') unless defined $name_class;
+    # scientific name should be special, because of its uniqueness.
+    return [$self->scientific_name(@names)] if $name_class =~ /scientific/i;
+    $self->{_names_hash} = {} unless exists $self->{_names_hash};
+    if(@names){
+        $self->{_names_hash}->{$name_class} = [] 
+            unless exists $self->{_names_hash}->{$name_class};
+        push @{$self->{_names_hash}->{$name_class}}, @names;
+    }
+    return $self->{_names_hash}->{$name_class};
+}
+
+=head2 scientific_name
+
+  Title:    scientific_name
+  Usage:    my $new_val = $obj->scientific_name($newval);
+  Function: Get/Set the scientific name
+  Returns:  a scalar text value
+  Args:     a scalar text value
+
+=cut
+
+sub scientific_name {
+    my $self = shift;
+    if(@_){
+        my $scientific_name = shift;
+        if(defined $self->{_scientific_name}){
+            my $current = $self->{_scientific_name};
+            $self->throw("Scientific name can be set once only![$current]");
+        }
+        return $self->{_scientific_name} = $scientific_name;
+    }
+    return $self->{_scientific_name};
+}
+
+=head2 parent_taxon_id
+
+  Title   : parent_taxon_id
+  Usage   : $self->parent_taxon_id($newval);
+            $val = $self->parent_taxon_id;
+  Function: Get/Set for parent_taxon_id
+  Return  : 
+  Args    :    
+
+=cut
+
+sub parent_taxon_id {
+    my $self = shift;
+    return $self->{_parent_taxon_id} = shift if @_;
+    return $self->{_parent_taxon_id};
+}
+
+1; # EOF

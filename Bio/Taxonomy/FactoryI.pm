@@ -43,9 +43,9 @@ package Bio::Taxonomy::FactoryI;
 use vars qw(@ISA);
 use strict;
 
-use Bio::Root::RootI;
+use Bio::Root::Root;
 
-@ISA = qw(Bio::Root::RootI);
+@ISA = qw(Bio::Root::Root);
 
 =head2 fetch
 
