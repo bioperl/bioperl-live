@@ -102,8 +102,7 @@ sub nextHSP {
   my $frame = '0';
   $positive = $match if not defined $positive;
   my ($p)        = $scoreline =~ /[Sum ]*P[\(\d+\)]* = (\S+)/;
-  if (not defined $p) {($p) = $scoreline =~ /Expect = (\S+)/}
-  
+  if (not defined $p) {(undef, $p) = $scoreline =~ /Expect(\(\d+\))? =\s+(\S+)/}
   $self->throw("Unable to parse '$scoreline'") if not defined $score;
   
   #######################
