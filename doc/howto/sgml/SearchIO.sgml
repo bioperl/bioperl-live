@@ -1,4 +1,4 @@
-<!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.2//EN">
+<!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook V4.2//EN">
 <article lang="en">
   <articleinfo>
     <title>Bio::SearchIO HOWTO</title>
@@ -71,10 +71,17 @@
 	<authorinitials>BIO</authorinitials>
 	<revremark>updated Parsing section</revremark>
       </revision>
+      <revision>
+	<revnumber>0.5</revnumber>
+	<date>2004-01-30</date>
+	<authorinitials>JES and BIO</authorinitials>
+	<revremark>Fixed some missing table entries for Hit
+	functions, typo fixes.</revremark>
+      </revision>
     </revhistory>
     <legalnotice>
-      <para>This document is copyright Jason Stajich, 2002.  For
-	reproduction other than personal use please contact jason-at-bioperl.org
+      <para>This document is copyright Jason Stajich, Brian Osborne,
+	2002-2004. For reproduction other than personal use please contact jason-at-bioperl.org.
       </para>      
     </legalnotice>
     
@@ -84,7 +91,7 @@
 	the creation of the Bio::SearchIO system, how to use it, and how one
 	goes about writing new adaptors to different output formats.  We will
 	also describe how the Bio::SearchIO::Writer modules work for outputting
-	various formats from Bio::Search objects. 
+	various formats from Bio::Search objects.
       </para>
     </abstract>
   </articleinfo>
@@ -412,6 +419,12 @@ S1: 32 (17.6 bits)
 	  </row>
 	  <row>
 	    <entry>Hit</entry>
+	    <entry>length</entry>
+	    <entry>331</entry>
+	    <entry>Length of the Hit sequence</entry>
+	  </row>
+	  <row>
+	    <entry>Hit</entry>
 	    <entry>accession</entry>
 	    <entry>443893</entry>
 	    <entry>accession</entry>
@@ -528,25 +541,25 @@ S1: 32 (17.6 bits)
 	    <entry>HSP</entry>
 	    <entry>length('total')</entry>
 	    <entry>52</entry>
-	    <entry>length of HSP</entry>
+	    <entry>length of HSP (including gaps)</entry>
 	  </row>
 	  <row>
 	    <entry>HSP</entry>
 	    <entry>length('hit')</entry>
 	    <entry>50</entry>
-	    <entry>length of hit minus gaps</entry>
+	    <entry>length of hit participating in alignment minus gaps</entry>
 	  </row>
 	  <row>
 	    <entry>HSP</entry>
 	    <entry>length('query')</entry>
 	    <entry>156</entry>
-	    <entry>length of query minus gaps</entry>
+	    <entry>length of query participating in alignment minus gaps</entry>
 	  </row>
 	  <row>
 	    <entry>HSP</entry>
 	    <entry>hsp_length</entry>
 	    <entry>52</entry>
-	    <entry>desc</entry>
+	    <entry>Length of the HSP (including gaps) alias for length('total')</entry>
 	  </row>
 	  <row>
 	    <entry>HSP</entry>
@@ -771,7 +784,7 @@ S1: 32 (17.6 bits)
     </para>
   </section>
   
-  <section id="creating_reports">
+  <section id="creating-reports">
     <title>Creating Reports for SearchIO</title>
     <para>
       One note on creating reports that can be parsed by SearchIO: the
