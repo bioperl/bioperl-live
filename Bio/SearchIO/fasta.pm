@@ -447,7 +447,7 @@ sub next_result{
 			       'Data' => $1});
 	   }
 	   if( / (\S+)\% \s* identity
-                 (?:\s* \( (\S+)\% \s* ungapped \) )?
+                 (?:\s* \(\s*(\S+)\% \s* ungapped \) )?
                  \s* in \s* (\d+) \s+ (?:aa|nt) \s+ overlap \s*
                  \( (\d+) \- (\d+) : (\d+) \- (\d+) \)
                /x ) {
@@ -465,6 +465,7 @@ sub next_result{
 	       $self->element({'Name' => 'Hsp_align-len',
 			       'Data' => $len});
 	       
+	       $self->debug( "query_start = $querystart, query_end = $queryend\n");
 	       $self->element({'Name' => 'Hsp_query-from',
 			       'Data' => $querystart});
 	       $self->element({'Name' => 'Hsp_query-to',
@@ -527,7 +528,7 @@ sub next_result{
            if (@hit_signifs) {
 	       # process remaining best hits
 	       for my $h (@hit_signifs) {
-		   #  Hsp_score Hsp_evalue Hsp_bit-score
+		   # Hsp_score Hsp_evalue Hsp_bit-score
 		   # Hsp_sw-score Hsp_gaps Hsp_identity Hsp_positive
 		   # Hsp_align-len Hsp_query-from Hsp_query-to
 		   # Hsp_hit-from Hsp_hit-to Hsp_qseq Hsp_midline
