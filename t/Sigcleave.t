@@ -6,7 +6,7 @@
 # `make test'. After `make install' it should work as `perl test.t'
 
 use strict;
-BEGIN {     
+BEGIN {
     # to handle systems with no installed Test module
     # we include the t dir (where a copy of Test.pm is located)
     # as a fallback
@@ -15,31 +15,35 @@ BEGIN {
 	use lib 't';
     }
     use Test;
-    plan tests => 3;
+    plan tests => 16;
 }
+use Bio::PrimarySeq;
 use Bio::Tools::Sigcleave;
 
-my $protein = 'MTMDKSELVQKAKLAEQAERYDDMAAAMKAVTEQGHELSNEERNLLSVAYKNVVGARRSSWRVISSIEQKTERNEKKQQMGKEYREKIEAELQDICNDVLELLDKYLIPNATQPESKVFYLKMKGDYFRYLSEVASGDNKQTTVSNSQQAYQEAFEISKKEMQPTHPIRLGLALNFSVFYYEILNSPEKACSLAKTAFDEAIAELDTLNEESYKDSTLIMQLLRDNLTLWTSENQGDEGDAGEGEN';
+#load n-terminus of MGR5_HUMAN as test seq
+my $protein = "MVLLLILSVLLLKEDVRGSAQSSERRVVAHMPGDIIIGALFSVHHQPTVDKVHERKCGAVREQYGI";
 
-# Build object
-my $sigcleave_object = new Bio::Tools::Sigcleave(-id         =>'test_sigcleave_seq',
-						 -type      =>'amino',
-						 -threshold => 0,
-						 -seq       =>$protein); 
-ok ($sigcleave_object);
-# Test raw result accessor
-my %results = $sigcleave_object->signals;
-ok $results{57}, 0.3, "unable to get raw sigcleave results";
+ok my $seq= Bio::PrimarySeq->new(-seq => $protein);
 
-# Test formatted output method
-my $formatted_output = $sigcleave_object->pretty_print;
-ok ($formatted_output);
+ok my $sig = new Bio::Tools::Sigcleave;
+ok $sig->seq($seq);
+ok my $sout = $sig->seq;
+ok $sout->seq eq $protein;
+ok $sig->threshold, 3.5;
+ok $sig->threshold(5), 5;
+ok $sig->matrix, 'eucaryotic';
+ok $sig->matrix('procaryotic'), 'procaryotic';
+ok $sig->matrix('eucaryotic'), 'eucaryotic';
 
-##
-## More tests
-##
+ok $sig->pretty_print =~ /Maximum score 7/;
+ok my %results = $sig->signals;
 
-
+ok $results{9}, 5.2, "unable to get raw sigcleave results";
 
 
+$sig = new Bio::Tools::Sigcleave(-seq=>$protein,
+				 -threshold=>5);
+ok %results = $sig->signals;
+ok $results{9}, 5.2, "unable to get raw sigcleave results";
+ok $sig->result_count, 5;
 
