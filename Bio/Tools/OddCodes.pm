@@ -41,8 +41,8 @@ or:
 
 	my $seqobj = Bio::PrimarySeq->new
               (-seq=>'[cut and paste a sequence here]',
-               -alphabet = 'protein',
-               -id = 'test');
+               -alphabet => 'protein',
+               -id => 'test');
 	my $oddcode_obj  =  Bio::Tools::OddCodes->new(-seq => $seqobj);
 
 do the alternative coding, returning the answer as a reference to a string
