@@ -39,7 +39,7 @@ use POSIX;
 #*AUTOLOAD = \&AutoLoader::AUTOLOAD;
 
 use vars qw( @ISA @EXPORT_OK %EXPORT_TAGS );
-@ISA         = qw( Bio::Root::Object Exporter);
+@ISA         = qw( Bio::Root::RootI Exporter);
 @EXPORT_OK   = qw($Util);
 %EXPORT_TAGS = ( obj => [qw($Util)],
 		 std => [qw($Util)],);
@@ -185,10 +185,9 @@ for documentation purposes only.
 =cut
 
 
-##########################################################################################
-##                               INSTANCE METHODS                                       ##
-##########################################################################################
-
+############################################################################
+##                 INSTANCE METHODS                                       ##
+############################################################################
 
 =head2 date_format
 
@@ -231,7 +230,7 @@ for documentation purposes only.
            :           12/1/97 (for 1 December 1997)
            :           1997-12-01 
            :           1997-Dec-01
- Throws    : Exception if the file appears to be empty or non-existent
+ Throws    : 
  Comments  : Relies on the $BASE_YEAR constant exported by Bio:Root::Global.pm.
            :
            : If you don't care about formatting or using backticks, you can
@@ -259,7 +258,7 @@ sub date_format {
     my (@date);
 
     # Load a supplied date for conversion:
-    if(defined($date)) {
+    if(defined($date) && ($date =~ /[\D-]+/)) {
 	if( $date =~ /\//) {
 	    ($mon,$mday,$year) = split(/\//, $date); 
 	} elsif($date =~ /(\d{4})-(\d{1,2})-(\d{1,2})/) {
@@ -273,7 +272,8 @@ sub date_format {
 	if(length($year) == 4) { $year = substr $year, 2; }
 	$mon -= 1;
     } else {
-	($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = @date =localtime(time);
+	($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = @date =
+	    localtime(($date ? $date : time()));
 	return @date if $option =~ /list/i;
     }
     $month_txt = $MONTHS[$mon];
@@ -523,11 +523,7 @@ sub uncompress {
           : date_format = string, desired format for date (see date_format()).
           :               Default = yyyy-mm-dd
  Thows    : Exception if no file is provided or does not exist.
- Comments : Uses `ls -lga` to get file date data.
-          : Not so universal and not taint-safe. 
-          : Think about using stat() or a standard CPAN module for this, like
-          : Date::Manip or Date::DateCalc. However, these are pretty heavy-duty.
-          : I just want a simple function.
+ Comments : Uses the mtime field as obtained by stat().
 
 =cut
 
@@ -539,32 +535,9 @@ sub file_date {
     $self->throw("No such file: $file") if not $file or not -e $file;
 
     $fmt ||= 'yyyy-mm-dd';
-    my($fmon,$fday,$fyear);
 
-    my $file_data = `ls -lga $file`;
-    # Parsing lines such as:
-    # -rwxr-xr-x   1 sac      sac          7028 Nov  5  1997 ./YDR222W.blastp
-    # -rwxrwxr-x   1 sac      sac           525 Jun 23 16:20 ./utilities.p
-    if($file_data =~ / ([a-z]{3})  ?([\d]{1,2})  ?([\d:]+) /i) {
-	($fmon,$fday,$fyear) = ($1, $2, $3);
-    } else {
-	# If the regexp fails, split().
-	my @file_data = split /\s+/, $file_data;
-	($fmon,$fday,$fyear) = @file_data[5..7];
-    }
-
-    if($fyear =~ /:/) { $fyear = $self->date_format('year'); }
-    my $fmon_num = '00';
-    foreach(0..11) { if($MONTHS[$_] eq $fmon) {$fmon_num = $_ + 1; last;} }
-
-    my $date = sprintf "%4d-%02d-%02d",$fyear,$fmon_num,$fday;
-
-    if($fmt =~ /yyyy-mmm-dd/i ) {
-	$date = sprintf "%4d-%3s-%02d",$fyear,$fmon,$fday;
-    } elsif($fmt eq 'd m y' ) {
-	$date = sprintf "%s %s %s",$fday,$fmon,$fyear;
-    }
-    $date;
+    my @file_data = stat($file);
+    return $self->date_format($fmt, $file_data[9]); # mtime field
 }
 
 
@@ -617,32 +590,6 @@ sub untaint {
 
     $untainted;
 }
-
-
-=head2 is_tainted
-
- Title  : is_tainted
- Purpose: Test whether a variable is tainted or not.
-        : Used for testing variables for taintedness. 
-        : Development use only. 
- Usage  : $Util->is_tainted($string);
- Warning: This method  always generates a compile-time
-        : warning and is therefore commented out.
-
-=cut
-
-#--------------
-sub is_tainted {
-#--------------
-#    my $self = shift;
-#    local($^W) = 0;    ## disable warnings with -w (run-time only)
-#    # Test for tained data. See the Camel book 2ed, p.358.
-#    not eval {
-#	  join("",@_), kill 0;
-#	  1;
-#    };
-}
-
 
 
 =head2 mean_stdev
