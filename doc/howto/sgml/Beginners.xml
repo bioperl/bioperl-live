@@ -951,19 +951,31 @@ while( my $seq = $seq_in->next_seq() ) {
 
 		  <para>
 			 <emphasis>Terminology</emphasis>
-			 In the object-oriented example above, $sequence is called an
-			 object, and the function "revcom" is called a method. An object
-			 is a data structure that has both data and methods associated
-			 with it. Objects are separated into types called classes, and the
-			 class of an object defines both the data that it can hold and the 
-			 methods that it knows.
-		  </para>
-		  
-		  <para>
-			 <emphasis>A Bioperl Example</emphasis>
-			 
-		  </para>
+                         In the object-oriented example above, $sequence is
+                         called an object, and the function "revcom" is called
+                         a method.  An <emphasis>object</emphasis> is a data
+                         structure that has both data and methods associated
+                         with it.  Objects are separated into types called
+                         <emphasis>classes</emphasis>, and the class of an
+                         object defines both the data that it can hold and the
+                         methods that it knows. A specific object that has a
+                         defined class is referred to as an
+                         <emphasis>instance</emphasis> of that class.
+                 </para>
 
+                 <para>
+                         <emphasis>Further Reading</emphasis>
+                         Bioperl uses the object-oriented paradigm, and readers
+                         interested in learning more about object-oriented Perl
+                         might find <ulink
+                         url="http://www.manning.com/Conway/">Damian Conway's
+                         book.</ulink>
+                         
+                         Anyone who is interested in developing their own
+                         modules would do well to read the <ulink
+                         url="http://http://bioperl.org/Core/Latest/biodesign.html">Bioperl
+                         design documentation</ulink>. 
+                </para>
   </section>
 </article>
 
