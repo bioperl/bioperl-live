@@ -169,9 +169,10 @@ sub _generic_seqfeature {
     } else {
 	my $lst;
 	my $len;
+	my @coord_count = $fth->loc =~ /\d+/g;
 
-	if ( $fth->loc =~ /^(\d+)$/ ) {
-	    $lst = $len = $1;
+	if ( scalar @coord_count == 1 ) {
+	    $lst = $len = shift @coord_count;
 	} else {
 	    $fth->loc =~ /\<?(\d+)[\.\^]+\>?(\d+)/ || do {
 		$annseq->throw("Weird location line [" . $fth->loc . "] in reading EMBL");
