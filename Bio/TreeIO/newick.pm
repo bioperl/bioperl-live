@@ -117,7 +117,7 @@ sub next_tree{
 	   $chars = '';
 	   $self->_eventHandler->start_element( {'Name' => 'tree'} );
        } elsif($ch eq ')' ) {
-	   if( $chars ) {
+	   if( length $chars ) {
 	       if( $lastevent eq ':' ) {
 		   $self->_eventHandler->start_element( { 'Name' => 'branch_length'});
 		   $self->_eventHandler->characters($chars);
