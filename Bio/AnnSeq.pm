@@ -126,7 +126,7 @@ sub seq{
 =head2 annotation
 
  Title   : annotation
- Usage   : $obj->annotation($newval)
+ Usage   : $obj->annotation($seq_obj)
  Function: 
  Example : 
  Returns : value of annotation
@@ -237,6 +237,7 @@ sub _retrieve_subSeqFeature {
     }
 
 }
+
 =head2 fetch_SeqFeatures
 
  Title   : fetch_SeqFeatures
@@ -254,6 +255,32 @@ sub fetch_SeqFeatures{
 
    $self->throw("Not implemented yet");
 }
+
+
+=head2 species
+
+ Title   : species
+ Usage   : 
+ Function: Gets or sets the species
+ Example : $species = $self->species();
+ Returns : Bio::Species object
+ Args    : Bio::Species object or none;
+
+
+=cut
+
+sub species {
+    my ($self, $species) = @_;
+
+    if ($species) {
+        $self->{'species'} = $species;
+    } else {
+        return $self->{'species'}
+    }
+}
+
+
+
 
 
 

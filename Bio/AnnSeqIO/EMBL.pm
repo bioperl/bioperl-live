@@ -22,7 +22,7 @@ rather go through the AnnSeqIO handler system. Go:
 
     $stream = Bio::AnnSeqIO->new(-file => $filename, -format => 'EMBL');
 
-    while my $annseq ( $stream->next_annseq() ) {
+    while ( my $annseq = $stream->next_annseq() ) {
 	# do something with $annseq
     }
 
@@ -75,6 +75,7 @@ use strict;
 use Bio::AnnSeq;
 use Bio::AnnSeqIO::FTHelper;
 use Bio::SeqFeature::Generic;
+use Bio::Species;
 
 # Object preamble - inheriets from Bio::Root::Object
 
@@ -152,20 +153,31 @@ sub next_annseq{
    my $annseq = Bio::AnnSeq->new();
    
    BEFORE_FEATURE_TABLE :
-   while( !eof($fh) ) {
+   until( eof($fh) ) {
        $_ = $buffer;
 
-       /^DE\s+(\S.*\S)/ && do { $desc .= $1; $buffer = <$fh>; next;};
+       # Exit at start of Feature table
+       last if /^FH/;
+
+       # Description line(s)
+       if (/^DE\s+(\S.*\S)/) {
+           $desc .= $desc ? " $1" : $1;
+       }
        # accession numbers...
-       /^R/ && do {
+       
+       # References
+       elsif (/^R/) {
 	   my @refs = &_read_EMBL_References(\$buffer,$fh);
 	   $annseq->annotation->add_Reference(@refs);
-       };
-
-       # we need to do the upper level annotation
-       /^FH/ && last;
-       # next line.
-
+       }
+       
+       # Organism name and phylogenetic information
+       elsif (/^O[SC]/) {
+           my $species = _read_EMBL_Species(\$buffer, $fh);
+           $annseq->species( $species );
+       }
+       
+       # Get next line.
        $buffer = <$fh>;
    }
 
@@ -173,9 +185,9 @@ sub next_annseq{
        /FT   \w/ && last;
    }
    $buffer = $_;
-   
+      
    FEATURE_TABLE :   
-   while( !eof($fh) ) {
+   until( eof($fh) ) {
        my $ftunit = &_read_FTHelper_EMBL($fh,\$buffer);
        # process ftunit
        &_generic_seqfeature($annseq,$ftunit);
@@ -183,7 +195,6 @@ sub next_annseq{
        if( $buffer !~ /^FT/ ) {
 	   last;
        }
-	   
    }
 	
    if( $buffer !~ /^SQ/  ) {
@@ -198,7 +209,6 @@ sub next_annseq{
        $_ = uc($_);
        s/[^A-Za-z]//g;
        $seqc .= $_;
-       eof $fh && last;
    }
 
    $seq = Bio::Seq->new(-seq => $seqc , -id => $name, -desc => $desc);
@@ -218,7 +228,7 @@ sub next_annseq{
 
 =cut
 
-sub write_annseq{
+sub write_annseq {
    my ($self,$annseq) = @_;
 
    if( !defined $annseq ) {
@@ -234,7 +244,23 @@ sub write_annseq{
    my $i;
    my $str = $seq->seq;
 
-   print $fh "ID   ", $seq->id(), "\nXX   \nDE   ", $seq->desc(), "\nXX   \n";
+   print $fh "ID   ", $seq->id(), "\nXX   \n";
+   _write_line_EMBL_regex($fh,"DE   ","DE   ",$seq->desc(),'\s+|$',80);
+   print $fh "XX   \n";
+   
+    # Organism lines
+    if (my $spec = $annseq->species) {
+        my($species, $genus, @class) = $spec->classification();
+        my $OS = "$genus $species";
+        if (my $common = $spec->common_name) {
+            $OS .= " ($common)";
+        }
+        print $fh "OS   $OS\n";
+        my $OC = join('; ', reverse(@class)). '.';
+        _write_line_EMBL_regex($fh,"OC   ","OC   ",$OC,'; |$',80);
+    }
+   
+   # Reference lines
    my $t = 1;
    foreach my $ref ( $annseq->annotation->each_Reference() ) {
        print $fh "RN   [$t]\n";
@@ -279,7 +305,7 @@ sub write_annseq{
 
 =cut
 
-sub _print_EMBL_FTHelper{
+sub _print_EMBL_FTHelper {
    my ($fth,$fh) = @_;
 
    #print $fh "FH   Key             Location/Qualifiers\n";
@@ -314,7 +340,7 @@ sub _read_EMBL_References{
    # assumme things are starting with RN
 
    if( $$buffer !~ /^RN/ ) {
-       warn("Not parsing line $$buffer which maybe important");
+       warn("Not parsing line '$$buffer' which maybe important");
    }
    my $title;
    my $loc;
@@ -339,6 +365,56 @@ sub _read_EMBL_References{
    return @refs;
 }
 
+
+=head2 _read_EMBL_Species
+
+ Title   : _read_EMBL_Species
+ Usage   :
+ Function: Reads the EMBL Organism species and classification
+           lines.
+ Example :
+ Returns : A Bio::Species object
+ Args    :
+
+=cut
+
+sub _read_EMBL_Species {
+    my( $buffer, $fh ) = @_;
+    
+    $_ = $$buffer;
+    
+    my( $species, $genus, $common, @class );
+    while (defined( $_ ||= <$fh> )) {
+        
+        if (/^OS\s+(\S+)\s+(\S+)(?:\s+\((\s+)\))?/) {
+            $genus   = $1;
+            $species = $2;
+            $common  = $3 if $3;
+        }
+        elsif (s/^OC\s+//) {
+            push(@class, split /[\s\.;]+/, $_);
+        }
+        else {
+            last;
+        }
+        
+        $_ = undef; # Empty $_ to trigger read of next line
+    }
+    
+    $$buffer = $_;
+    
+    # Don't make a species object if it's "Unknown" or "None"
+    return if $genus =~ /^(Unknown|None)$/i;
+    
+    # Bio::Species array needs array in Species -> Kingdom direction
+    push( @class, $genus, $species );
+    @class = reverse @class;
+    
+    my $make = Bio::Species->new();
+    $make->classification( @class );
+    $make->common_name( $common ) if $common;
+    return $make;
+}
 
 =head2 _filehandle
 
@@ -373,7 +449,7 @@ sub _filehandle{
 
 =cut
 
-sub _read_FTHelper_EMBL{
+sub _read_FTHelper_EMBL {
    my ($fh,$buffer) = @_;
    my ($key,$loc,$out);
 
@@ -382,37 +458,39 @@ sub _read_FTHelper_EMBL{
        $loc = $2;
    }
 
-   if( $loc =~ /\(/ && $loc !~ /complement\(\d+\.\.\d+\)/ ) {
-       # more location to read
-       while( <$fh> ) {
-	   /^FT\s+(\S+)/ || do { &Bio::Root::Object::throw("Weird location line in EMBL feature table"); };
-	   $loc .= $1;
-	   $loc =~ /\)/ && last;
-       }
-
+   # Read the rest of the location
+   while( <$fh> ) {
+       # Exit loop on first qualifier - line is left in $_
+       last if /^FT\s+\//;
+       # Get location line
+       /^FT\s+(\S+)/ or Bio::Root::Object::throw("Weird location line in EMBL feature table: '$_'");
+       $loc .= $1;
    }
 
    $out = new Bio::AnnSeqIO::FTHelper();
    $out->key($key);
    $out->loc($loc);
 
-   # should read in other fields
-   my $current = "";
-   while( <$fh> ) {
-       /^FT/  || last; # leave on non FT lines!
+   # Now read in other fields
+   while( defined($_ ||= <$fh>) ) {
+      
+       # Exit loop on non FT lines!
+       /^FT/  || last;
+       
+       # Exit loop on new primary key
        /^FT   \w/ && last;
-       # field on one line
-       /^FT\s+\/(\S+)=\"(.*)\"/ && do {
+       
+       # Field on one line
+       if (/^FT\s+\/(\S+)=\"(.*)\"/) {
 	   my $key = $1;
 	   my $value = $2;
 	   if(! defined $out->field->{$key} ) {
 	       $out->field->{$key} = [];
 	   }
 	   push(@{$out->field->{$key}},$value);
-	   next;
-       };
-       # field on on multilines:
-       /^FT\s+\/(\S+)=\"(.*)/ && do {
+       }
+       # Field on on multilines:
+       elsif (/^FT\s+\/(\S+)=\"(.*)/) {
 	   my $key = $1;
 	   my $value = $2;
 	   while ( <$fh> ) {
@@ -423,20 +501,19 @@ sub _read_FTHelper_EMBL{
 	       $out->field->{$key} = [];
 	   }
 	   push(@{$out->field->{$key}},$value);
-	   next;
-       };
-       #field with no quoted value
-       /^FT\s+\/(\S+)=(\S+)/ && do {
+       }
+       # Field with no quoted value
+       elsif (/^FT\s+\/(\S+)=(\S+)/) {
 	   my $key = $1;
 	   my $value = $2;
 	   if(! defined $out->field->{$key} ) {
 	       $out->field->{$key} = [];
 	   }
 	   push(@{$out->field->{$key}},$value);
-	   next;
-       };
-
-
+       }
+       
+       # Empty $_ to trigger read from $fh
+       undef $_;
    }
 
    $$buffer = $_;
@@ -455,7 +532,7 @@ sub _read_FTHelper_EMBL{
 
 =cut
 
-sub _generic_seqfeature{
+sub _generic_seqfeature {
    my ($annseq,$fth) = @_;
    my ($sf);
 
