@@ -1,0 +1,20 @@
+GENSCAN 1.0	Date run: 29-Nov-101	Time: 16:19:58
+
+Sequence 5922693.fa : 780 bp : 52.82% C+G : Isochore 3 (51 - 57 C+G%)
+
+Parameter matrix: HumanIso.smat
+
+Predicted genes/exons:
+
+Gn.Ex Type S .Begin ...End .Len Fr Ph I/Ac Do/T CodRg P.... Tscr..
+----- ---- - ------ ------ ---- -- -- ---- ---- ----- ----- ------
+
+ 1.00 Prom -    305    266   40                               2.29
+
+
+Predicted peptide sequence(s):
+
+Predicted coding sequence(s):
+
+
+NO PEPTIDES PREDICTED
