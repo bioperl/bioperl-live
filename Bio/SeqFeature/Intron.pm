@@ -20,7 +20,7 @@ Bio::SeqFeature::Intron
       -type => 'variably_spliced');   # Descr. of the Intron type; *not* Cont.Vocab.
 
 
-=head1 DESCRIPTION and ACKNOWLEDGEMENTS
+=head1 DESCRIPTION
 
 Creates Intron type sequence features.  These are essentially SeaFeature::Generic
 features, but report themselves as "Bio::SeqFeature::Intron" when you query them
