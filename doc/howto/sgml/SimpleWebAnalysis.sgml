@@ -126,7 +126,6 @@
 <section id="Simple">
       <title>Simple Examples</title>
 
-
       <para>
         The script below runs multiple analyses on a single sequence
         and parses the results into standard BioPerl sequence feature
@@ -264,8 +263,6 @@
      </para>
 </section>
 
-
-
    <section id="parameters">
       <title>How to  run the same analysis with varying parameters</title>
 
@@ -346,14 +343,12 @@
      ## now onto comparison..... ##
      </programlisting> 
 
-
      </para>
 </section>
 
    <section id="caveats">
       <title>Caveats</title>
       <para>
-
         The problem with these analyses is their speed of execution, which
         obviously depends on your network speed, the complexity of the
         analysis and the speed of the host. Moreover, it is usually polite to
@@ -364,9 +359,7 @@
         smaller numbers of sequences. However, the code in the result()
         methods should still be usable for parsing analyses run locally when
         the local output and webpage output are the same format.
-
       </para>
-
 
    </section>
 
@@ -408,14 +401,12 @@
       </para>
 
       <para>
-        
         For more complicated prediction programs with analysis specific
         parameters (e.g., Sopma), get/set methods need to be written. Also, if
         any of these parameters need special error checking then a
         check_parameters() needs to be written as well. The nature of these
         parameters should be listed in a hash referenced by the $INPUT_SPEC
         variable.
-
       </para>
 
       <para>

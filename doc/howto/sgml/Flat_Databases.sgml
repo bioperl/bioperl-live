@@ -435,7 +435,7 @@
     <title>More information</title>
     <para>
       For more information on using your indexed flat files please see the 
-      <ulink url="http://bioperl.org/HOWTOs/html/OBDA_Access.html">
+      <ulink url="http://bioperl.org/HOWTOs/OBDA_Access/index.html">
 	OBDA Access HOWTO</ulink>.
     </para>
   </section>
