@@ -128,7 +128,7 @@ This method creates a new query object.  Typically you will specify a
 -db and a -query argument, possibly modified by -mindate, -maxdate, or
 -reldate.  -mindate and -maxdate specify minimum and maximum dates for
 entries you are interested in retrieving, expressed in the form
-DD/MM/YYYY.  -reldate is used to fetch entries that are more recent
+YYYY/MM/DD.  -reldate is used to fetch entries that are more recent
 than the indicated number of days.
 
 If you provide an array reference of IDs in -ids, the query will be

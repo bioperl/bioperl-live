@@ -261,10 +261,10 @@ sub _run_query {
   return $self->{'_ran_query'} if $self->{'_ran_query'}++ && !$force;
 
   my $request = $self->_get_request;
-  $self->debug("request is ".$request->url)     if $self->verbose;
+  $self->debug("request is ".$request->url."\n");
   my $response = $self->ua->request($request);
   return unless $response->is_success;
-  $self->debug("response is ".$response->content) if $self->verbose;
+  $self->debug("response is ".$response->content."\n");
   $self->_parse_response($response->content);
   1;
 }

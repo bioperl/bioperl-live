@@ -246,8 +246,8 @@ eval {
   ok defined ( $query = Bio::DB::Query::GenBank->new('-verbose' => $verbose,
 						     '-db'      => 'nucleotide',
 						     '-query'   => 'Onchocerca volvulus[Organism]',
-						     '-mindate' => '1/1/2002',
-						     '-maxdate' => '1/30/2002'));
+						     '-mindate' => '2002/1/1',
+						     '-maxdate' => '2002/12/31'));
   ok $query->count > 0;
   my @ids = $query->ids;
   ok @ids > 0;
@@ -256,9 +256,9 @@ eval {
 					  '-delay'  => 0,
 					 ));
   ok defined ($seqio = $gb->get_Stream_by_query($query));
-  ok($seqio->next_seq->length,3766);
-  ok($seqio->next_seq->length,3857);
-  ok($seqio->next_seq->length,508);
+  ok($seqio->next_seq->length,798);
+  ok($seqio->next_seq->length,1042);
+  ok($seqio->next_seq->length,1172);
 };
 
 if ($@) {
@@ -301,4 +301,4 @@ if ($@) {
     }
 }
 $seq = $seqio = undef;
-print STDERR "\n";
+#print STDERR "\n";
