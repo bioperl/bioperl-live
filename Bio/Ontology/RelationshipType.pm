@@ -212,7 +212,8 @@ sub identifier {
     my $self = shift;
     my $ret = $self->SUPER::identifier();
     if(@_) {
-	$self->throw("attempted to change field in immutable object") if $ret;
+	if ($ret && ($ret ne $_[0])) {
+	    print "old: \"$ret\", new: \"$_[0]\"\n"; $self->throw("attempted to change field in immutable object"); }
 	$ret = $self->SUPER::identifier(@_);
     }
     # we need to return something here
@@ -238,7 +239,8 @@ sub name {
     my $self = shift;
     my $ret = $self->SUPER::name();
     if(@_) {
-	$self->throw("attempted to change field in immutable object") if $ret;
+	$self->throw("attempted to change field in immutable object")
+	    if $ret && ($ret ne $_[0]);
 	$ret = $self->SUPER::name(@_);
     }
     return $ret;
@@ -264,7 +266,8 @@ sub definition {
     my $self = shift;
     my $ret = $self->SUPER::definition();
     if(@_) {
-	$self->throw("attempted to change field in immutable object") if $ret;
+	$self->throw("attempted to change field in immutable object")
+	    if $ret && ($ret ne $_[0]);
 	$ret = $self->SUPER::definition(@_);
     }
     # let's be nice and return something readable here
@@ -292,7 +295,7 @@ sub ontology {
     if(@_) {
 	my $ont = shift;
 	$self->throw("attempted to change field in immutable object")
-	    if $ret && ($ont != $ret);
+	    if $ret && ((!$ont) || (($ont->name() ne $ret->name())));
 	$ret = $self->SUPER::ontology($ont);
     }
     return $ret;
@@ -316,7 +319,8 @@ sub version {
     my $self = shift;
     my $ret = $self->SUPER::version();
     if(@_) {
-	$self->throw("attempted to change field in immutable object") if $ret;
+	$self->throw("attempted to change field in immutable object")
+	    if $ret && ($ret ne $_[0]);
 	$ret = $self->SUPER::version(@_);
     }
     return $ret;
@@ -340,7 +344,8 @@ sub is_obsolete {
     my $self = shift;
     my $ret = $self->SUPER::is_obsolete();
     if(@_) {
-	$self->throw("attempted to change field in immutable object") if $ret;
+	$self->throw("attempted to change field in immutable object")
+	    if $ret && ($ret != $_[0]);
 	$ret = $self->SUPER::is_obsolete(@_);
     }
     return $ret;
@@ -366,7 +371,8 @@ sub comment {
     my $self = shift;
     my $ret = $self->SUPER::comment();
     if(@_) {
-	$self->throw("attempted to change field in immutable object") if $ret;
+	$self->throw("attempted to change field in immutable object")
+	    if $ret && ($ret ne $_[0]);
 	$ret = $self->SUPER::comment(@_);
     }
     return $ret;

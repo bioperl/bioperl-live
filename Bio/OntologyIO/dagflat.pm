@@ -402,8 +402,9 @@ sub _is_a_relationship {
 sub _add_relationship {
     my ( $self, $parent, $child, $type, $ont ) = @_;
 
-   
-    $self->_ont_engine()->add_relationship( $parent, $child, $type, $ont );
+    # note the triple terminology (subject,predicate,object) corresponds to
+    # (child,type,parent)
+    $self->_ont_engine()->add_relationship( $child, $type, $parent, $ont );
 
 
 } # _add_relationship

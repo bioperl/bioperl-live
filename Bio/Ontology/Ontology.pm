@@ -341,7 +341,7 @@ sub add_term{
 
  Title   : add_relationship
  Usage   : add_relationship(RelationshipI relationship): RelationshipI
-  add_relatioship(TermI parent, TermI child, TermI relationship_type)
+  add_relatioship(TermI subject, TermI predicate, TermI object)
  Function: Adds a relationship object to the ontology engine.
  Example :
  Returns : Its argument.
@@ -356,11 +356,11 @@ sub add_relationship{
 
     if($rel && $rel->isa("Bio::Ontology::TermI")) {
 	# we need to construct the relationship object on the fly
-	my ($child,$type) = @_;
-	$rel = Bio::Ontology::Relationship->new(-parent_term => $rel,
-						-child_term  => $child,
-						-relationship_type => $type,
-						-ontology    => $self);
+	my ($predicate,$object) = @_;
+	$rel = Bio::Ontology::Relationship->new(-subject_term   => $rel,
+						-object_term    => $object,
+						-predicate_term => $predicate,
+						-ontology       => $self);
     }
     # set ontology if not set already
     $rel->ontology($self) unless $rel->ontology();
@@ -370,24 +370,37 @@ sub add_relationship{
 =head2 get_relationships
 
  Title   : get_relationships
- Usage   : get_relationships(): RelationshipI[]
- Function: Retrieves all relationship objects.
+ Usage   : get_relationships(TermI term): RelationshipI[]
+ Function: Retrieves all relationship objects in the ontology, or all
+           relationships of a given term.
  Example :
- Returns : Array of RelationshipI objects
- Args    :
+ Returns : Array of Bio::Ontology::RelationshipI objects
+ Args    : Optionally, a Bio::Ontology::TermI compliant object
 
 
 =cut
 
 sub get_relationships{
     my $self = shift;
-    return grep { $_->ontology == $self;} $self->engine->get_relationships(@_);
+    my $term = shift;
+    if($term) {
+	# we don't need to filter in this case
+	return $self->engine->get_relationships($term);
+    } 
+    # else we need to filter by ontology
+    return grep { my $ont = $_->ontology;
+		  # the first condition is a superset of the second, but
+		  # we add it here for efficiency reasons, as many times
+		  # it will short-cut to true and is supposedly faster than
+		  # string comparison
+		  ($ont == $self) || ($ont->name eq $self->name);
+	      } $self->engine->get_relationships(@_);
 }
 
-=head2 get_relationship_types
+=head2 get_predicate_terms
 
- Title   : get_relationship_types
- Usage   : get_relationship_types(): TermI[]
+ Title   : get_predicate_terms
+ Usage   : get_predicate_terms(): TermI[]
  Function: Retrieves all relationship types.
  Example :
  Returns : Array of TermI objects
@@ -396,16 +409,16 @@ sub get_relationships{
 
 =cut
 
-sub get_relationship_types{
+sub get_predicate_terms{
     my $self = shift;
-    return grep { $_->ontology == $self; }
-                $self->engine->get_relationship_types(@_);
+    return grep { $_->ontology->name eq $self->name;
+	      } $self->engine->get_predicate_terms(@_);
 }
 
 =head2 get_child_terms
 
  Title   : get_child_terms
- Usage   : get_child_terms(TermI term, TermI[] relationship_types): TermI[]
+ Usage   : get_child_terms(TermI term, TermI[] predicate_terms): TermI[]
  Function: Retrieves all child terms of a given term, that satisfy a
            relationship among those that are specified in the second
            argument or undef otherwise. get_child_terms is a special
@@ -459,7 +472,7 @@ sub get_descendant_terms{
 =head2 get_parent_terms
 
  Title   : get_parent_terms
- Usage   : get_parent_terms(TermI term, TermI[] relationship_types): TermI[]
+ Usage   : get_parent_terms(TermI term, TermI[] predicate_terms): TermI[]
  Function: Retrieves all parent terms of a given term, that satisfy a
            relationship among those that are specified in the second
            argument or undef otherwise. get_parent_terms is a special
@@ -487,7 +500,7 @@ sub get_parent_terms{
 =head2 get_ancestor_terms
 
  Title   : get_ancestor_terms
- Usage   : get_ancestor_terms(TermI term, TermI[] relationship_types): TermI[]
+ Usage   : get_ancestor_terms(TermI term, TermI[] predicate_terms): TermI[]
  Function: Retrieves all ancestor terms of a given term, that satisfy
            a relationship among those that are specified in the second
            argument or undef otherwise.
@@ -526,7 +539,13 @@ sub get_ancestor_terms{
 
 sub get_leaf_terms{
     my $self = shift;
-    return grep { $_->ontology == $self; } $self->engine->get_leaf_terms(@_);
+    return grep { my $ont = $_->ontology;
+		  # the first condition is a superset of the second, but
+		  # we add it here for efficiency reasons, as many times
+		  # it will short-cut to true and is supposedly faster than
+		  # string comparison
+		  ($ont == $self) || ($ont->name eq $self->name);
+	      } $self->engine->get_leaf_terms(@_);
 }
 
 =head2 get_root_terms()
@@ -545,7 +564,13 @@ sub get_leaf_terms{
 
 sub get_root_terms{
     my $self = shift;
-    return grep { $_->ontology == $self; } $self->engine->get_root_terms(@_);
+    return grep { my $ont = $_->ontology;
+		  # the first condition is a superset of the second, but
+		  # we add it here for efficiency reasons, as many times
+		  # it will short-cut to true and is supposedly faster than
+		  # string comparison
+		  ($ont == $self) || ($ont->name eq $self->name);
+	      } $self->engine->get_root_terms(@_);
 }
 
 =head2 get_all_terms
@@ -567,7 +592,13 @@ sub get_root_terms{
 
 sub get_all_terms{
     my $self = shift;
-    return grep { $_->ontology == $self; } $self->engine->get_all_terms(@_);
+    return grep { my $ont = $_->ontology;
+		  # the first condition is a superset of the second, but
+		  # we add it here for efficiency reasons, as many times
+		  # it will short-cut to true and is supposedly faster than
+		  # string comparison
+		  ($ont == $self) || ($ont->name eq $self->name);
+	      } $self->engine->get_all_terms(@_);
 }
 
 =head2 find_terms
@@ -594,7 +625,59 @@ sub get_all_terms{
 
 sub find_terms{
     my $self = shift;
-    return grep { $_->ontology == $self; } $self->engine->find_terms(@_);
+    return grep { $_->ontology->name eq $self->name;
+	      } $self->engine->find_terms(@_);
 }
+
+=head1 Factory for relationships and terms
+
+=cut
+
+=head2 relationship_factory
+
+ Title   : relationship_factory
+ Usage   : $fact = $obj->relationship_factory()
+ Function: Get (and set, if the engine supports it) the object
+           factory to be used when relationship objects are created by
+           the implementation on-the-fly.
+
+ Example : 
+ Returns : value of relationship_factory (a Bio::Factory::ObjectFactoryI
+           compliant object)
+ Args    : 
+
+
+=cut
+
+sub relationship_factory{
+    return shift->engine->relationship_factory(@_);
+}
+
+=head2 term_factory
+
+ Title   : term_factory
+ Usage   : $fact = $obj->term_factory()
+ Function: Get (and set, if the engine supports it) the object
+           factory to be used when term objects are created by
+           the implementation on-the-fly.
+
+ Example : 
+ Returns : value of term_factory (a Bio::Factory::ObjectFactoryI
+           compliant object)
+ Args    : 
+
+
+=cut
+
+sub term_factory{
+    return shift->engine->term_factory(@_);
+}
+
+
+#################################################################
+# aliases
+#################################################################
+
+*get_relationship_types = \&get_predicate_terms;
 
 1;
