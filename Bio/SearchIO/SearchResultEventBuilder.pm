@@ -69,9 +69,7 @@ use strict;
 
 use Bio::Root::Root;
 use Bio::SearchIO::EventHandlerI;
-use Bio::Search::HSP::HSPFactory;
-use Bio::Search::Hit::HitFactory;
-use Bio::Search::Result::ResultFactory;
+use Bio::Factory::ObjectFactory;
 
 @ISA = qw(Bio::Root::Root Bio::SearchIO::EventHandlerI);
 
@@ -95,9 +93,20 @@ sub new {
     my ($hspF,$hitF,$resultF) = $self->_rearrange([qw(HSP_FACTORY
                                                       HIT_FACTORY
                                                       RESULT_FACTORY)],@args);
-    $self->register_factory('hsp', $hspF || Bio::Search::HSP::HSPFactory->new());
-    $self->register_factory('hit', $hitF || Bio::Search::Hit::HitFactory->new());
-    $self->register_factory('result', $resultF || Bio::Search::Result::ResultFactory->new());
+    $self->register_factory('hsp', $hspF || 
+                            Bio::Factory::ObjectFactory->new(
+                                     -type      => 'Bio::Search::HSP::GenericHSP',
+                                     -interface => 'Bio::Search::HSP::HSPI'));
+
+    $self->register_factory('hit', $hitF ||
+                            Bio::Factory::ObjectFactory->new(
+                                      -type      => 'Bio::Search::Hit::GenericHit',
+                                      -interface => 'Bio::Search::Hit::HitI'));
+
+    $self->register_factory('result', $resultF ||
+                            Bio::Factory::ObjectFactory->new(
+                                      -type      => 'Bio::Search::Result::GenericResult',
+                                      -interface => 'Bio::Search::Result::ResultI'));
 
     return $self;
 }
@@ -182,7 +191,7 @@ sub end_result {
     $args{'-algorithm'} =  uc( $args{'-algorithm_name'} || 
                                $data->{'RESULT-algorithm_name'} || $type);
     $args{'-hits'}      =  $self->{'_hits'};
-    my $result = $self->factory('result')->create(%args);
+    my $result = $self->factory('result')->create_object(%args);
     $self->{'_hits'} = [];
     return $result;
 }
@@ -263,7 +272,7 @@ sub end_hsp {
     my ($rank) = scalar @{$self->{'_hsps'}} + 1;
     $args{'-rank'} = $rank;
 
-    my $hsp = $self->factory('hsp')->create(%args);
+    my $hsp = $self->factory('hsp')->create_object(%args);
     push @{$self->{'_hsps'}}, $hsp;
     return $hsp;
 }
@@ -320,7 +329,7 @@ sub end_hit{
 	    $args{'-significance'} = $args{'-hsps'}->[0]->evalue;
 	}
     }
-    my $hit = $self->factory('hit')->create(%args);
+    my $hit = $self->factory('hit')->create_object(%args);
     $self->_add_hit($hit);
     $self->{'_hsps'} = [];
     return $hit;
