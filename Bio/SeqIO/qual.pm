@@ -219,7 +219,7 @@ sub write_seq {
 	$length = $source->qual_obj()->length();
     }
     # print("Printing $header to a file.\n");
-    for (my $count = 1; $count<$length; $count+= 50) {
+    for (my $count = 1; $count<=$length; $count+= 50) {
 	if ($count+50 > $length) { $max = $length; }
 	else { $max = $count+49; }
 	my @slice = @{$source->subqual($count,$max)};
