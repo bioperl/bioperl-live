@@ -79,17 +79,18 @@ sub new {
     bless $self,$class;
 
     my ($v,$start,$end,$strand,$seqid) = $self->_rearrange([qw(VERBOSE
-							       START 
-							    END 
-							    STRAND
-							    SEQID)],@args);
+							       START
+							       END
+							       STRAND
+							       SEQID)],@args);
     defined $v && $self->verbose($v);
     defined $strand && $self->strand($strand);
     defined $start  && $self->start($start);
     defined $end    && $self->end($end);
     if( defined $self->start && defined $self->end &&
 	$self->start > $self->end ) {
-	$self->warn("When building a location start ($start) is expected to be less than end ($end), however it was not was not. Switching start and end and setting strand to -1");
+	$self->warn("When building a location, start ($start) is expected to be less than end ($end), ".
+		    "however it was not. Switching start and end and setting strand to -1");
 
 	$self->strand(-1);
 	my $e = $self->end;
@@ -151,14 +152,7 @@ sub end {
 sub strand {
   my ($self, $value) = @_;
 
-  if ( defined $value ||  
-       ! defined $self->{'_strand'} ) {
-      # let's go ahead and force to '0' if
-      # we are requesting the strand without it
-      # having been set previously
-
-       $value = 0 unless defined($value);
-
+  if ( defined $value ) {
        if ( $value eq '+' ) { $value = 1; }
        elsif ( $value eq '-' ) { $value = -1; }
        elsif ( $value eq '.' ) { $value = 0; }
@@ -167,7 +161,10 @@ sub strand {
        }
        $self->{'_strand'} = $value
    }
-   return $self->{'_strand'};
+  # let's go ahead and force to '0' if
+  # we are requesting the strand without it
+  # having been set previously
+   return $self->{'_strand'} || 0;
 }
 
 =head2 length
@@ -362,7 +359,6 @@ sub to_FTstring {
 sub trunc {
   my ($self,$start,$end,$relative_ori) = @_;
 
-  
   my $newstart  = $self->start - $start+1;
   my $newend    = $self->end   - $start+1;
   my $newstrand = $relative_ori * $self->strand;
