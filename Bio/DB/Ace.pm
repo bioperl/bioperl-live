@@ -109,7 +109,7 @@ BEGIN {
 
 sub new {
   my($class,@args) = @_;
-  my $sekf = $class->SUPER::new(@args);
+  my $self = $class->SUPER::new(@args);
   my ($host,$port) = $self->_rearrange([qw(
 					 HOST
 					 PORT
