@@ -51,8 +51,7 @@ alignment using the BLAST algorithm.
 BPbl2seq is a package for parsing BLAST bl2seq reports. BLAST bl2seq is a
 program for comparing and aligning two sequences using BLAST.  Although
 the report format is similar to that of a conventional BLAST, there are a
-few differences so that the standard bioperl BLAST parsers Blast.pm and
-BPlite are unable to read bl2seq reports directly.
+few differences so that BPlite is unable to read bl2seq reports directly.
 
 From the user's perspective, one difference between bl2seq and
 other blast reports is that the bl2seq report does not print out the
