@@ -144,7 +144,7 @@ sub _initialize_me {
 =head2 close
 
  Title   : close
- Usage   : $sim4_result->close()
+ Usage   : $genscan->close()
  Function: Closes the file handle associated with this result file
  Example :
  Returns :
