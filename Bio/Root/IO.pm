@@ -286,6 +286,43 @@ sub _fh {
     return $obj->{'_filehandle'};
 }
 
+=head2 mode
+
+ Title   : mode
+ Usage   : $obj->mode()
+ Function:
+ Example :
+ Returns : mode of filehandle:
+           'r' for readable
+           'w' for writeable
+           '?' if mode could not be determined
+ Args    : none, readonly function
+
+
+=cut
+
+sub mode {
+    my ($obj, $value) = @_;
+    $obj->throw(__PACKAGE__ . "mode() is not settable") if defined $value;
+    return $obj->{'_mode'} if defined $obj->{'_mode'};
+
+    my $iotest = new IO::Handle;
+    $iotest->fdopen(fileno($obj->_fh),'r');
+    my $r_error = $iotest->error;
+    $iotest->fdopen(fileno($obj->_fh),'w');
+    my $w_error = $iotest->error;
+
+    if($r_error == 0 and $w_error == -1){
+      $obj->{'_mode'} = 'r';
+    } elsif($r_error == -1 and $w_error == 0){
+      $obj->{'_mode'} = 'w';
+    } else {
+      $obj->{'_mode'} = '?';
+    }
+
+    return$obj->{'_mode'};
+}
+
 =head2 file
 
  Title   : file
