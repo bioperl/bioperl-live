@@ -1,0 +1,31 @@
+
+                       README for Bio::Variation classes
+
+
+These classes are part of "Computational Mutation Expression Toolkit"
+project at European Bioinformatics Institute
+<http://www.ebi.ac.uk/mutations/toolkit/>, but they are written to be
+as general as possinble.
+
+Bio::Variation name space contains modules to store sequence variation
+information as differences between the reference sequence and changes
+sequences. Also included are classes to write out and recrete objects
+from EMBL-like flat files and XML. Lastly, there are simple classes to
+calculate values for sequence change objects.
+
+See "Computational Mutation Expression Toolkit" web pages for more
+information:
+
+	http://www.ebi.ac.uk/mutations/toolkit/
+
+
+Send bug reports using the bioperl bug-tracking system at
+http://bio.perl.org/Bugs/ or send them via e-mail to
+bioperl-bugs@bio.perl.org.
+ 
+Send general comments, questions, and feature requests to the bioperl
+mailing list:
+
+	bioperl-l@bioperl.org
+
+Heikki Lehväslaiho <heikki@ebi.ac.uk>
