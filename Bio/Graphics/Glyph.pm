@@ -109,6 +109,7 @@ sub stop    {
 }
 sub end     { shift->stop }
 sub map_pt  { shift->{factory}->map_pt(@_) }
+sub map_no_trunc { shift->{factory}->map_no_trunc(@_) }
 
 # add a feature (or array ref of features) to the list
 sub add_feature {

@@ -30,7 +30,7 @@ sub draw {
     $self->{source2color}{$s} ||= $self->color(lc($s)."_color") || $fill;
     $part->{partcolor} = $self->{source2color}{$s};
   }
-  
+
   $self->Bio::Graphics::Glyph::generic::draw(@_);
 }
 

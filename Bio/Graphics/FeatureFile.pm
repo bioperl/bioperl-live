@@ -149,6 +149,10 @@ object.  Arguments are -name=E<gt>value pairs:
                    module should be made aware of the FeatureFile
 		   object by calling their configurator() method.
 
+   -safe           Indicates that the contents of this file is trusted.
+                   Any option value that begins with the string "sub {"
+                   will be evaluated as a code reference.
+
 The -file and -text arguments are mutually exclusive, and -file will
 supersede the other if both are present.
 
@@ -188,10 +192,12 @@ sub new {
 		    min      => undef,
 		    stat     => [],
 		    refs     => {},
+                    safe     => undef,
 		   },$class;
   $self->{coordinate_mapper} = $args{-map_coords} 
     if exists $args{-map_coords} && ref($args{-map_coords}) eq 'CODE';
   $self->{smart_features}    = $args{-smart_features} if exists $args{-smart_features};
+  $self->{safe}              = $args{-safe}           if exists $args{-safe};
 
   # call with
   #   -file
@@ -351,25 +357,23 @@ sub parse_file {
   my $fh   = shift or return;
   $self->_stat($fh);
 
-  $self->{seenit} = {};
+  $self->init_parse;
   while (<$fh>) {
     chomp;
     $self->parse_line($_);
   }
-  $self->consolidate_groups;
+  $self->finish_parse;
 }
 
 sub parse_text {
   my $self = shift;
   my $text = shift;
 
-  $self->{seenit} = {};
-  $self->{features} = {};
+  $self->init_parse;
   foreach (split /\r?\n|\r\n?/,$text) {
     $self->parse_line($_);
   }
-  $self->consolidate_groups;
-  delete $self->{seenit};
+  $self->finish_parse;
 }
 
 sub parse_line {
@@ -591,7 +595,6 @@ sub destroy {
 
 sub DESTROY { shift->destroy(@_) }
 
-
 =over 4
 
 =item $value = $features-E<gt>setting($stanza =E<gt> $option)
@@ -615,10 +618,19 @@ Call with no elements to retrieve all stanza names:
 
 =cut
 
+sub setting {
+  my $self = shift;
+  if ($self->safe) {
+     $self->code_setting(@_);
+  } else {
+     $self->_setting(@_);
+  }
+}
+
 # return configuration information
 # arguments are ($type) => returns tags for type
 #               ($type=>$tag) => returns values of tag on type
-sub setting {
+sub _setting {
   my $self = shift;
   my $config = $self->{config} or return;
   return keys %{$config} unless @_;
@@ -645,14 +657,36 @@ sub code_setting {
   my $section = shift;
   my $option  = shift;
 
-  my $setting = $self->setting($section=>$option);
+  my $setting = $self->_setting($section=>$option);
   return unless defined $setting;
   return $setting if ref($setting) eq 'CODE';
   return $setting unless $setting =~ /^sub\s+\{/;
   my $coderef = eval $setting;
   warn $@ if $@;
+  $self->set($section,$option,$coderef);
+  return $coderef;
+}
 
-  return $self->{$section}{$option} = $coderef;
+=over 4
+
+=item $flag = $features->safe([$flag]);
+
+This gets or sets and "safe" flag.  If the safe flag is set, then
+calls to setting() will invoke code_setting(), allowing values that
+begin with the string "sub {" to be interpreted as anonymous
+subroutines.  This is a potential security risk when used with
+untrusted files of features, so use it with care.
+
+=back
+
+=cut
+
+sub safe {
+   my $self = shift;
+   my $d = $self->{safe};
+   $self->{safe} = shift if @_;
+   $self->evaluate_coderefs if $self->{safe} && !$d;
+   $d;
 }
 
 
@@ -823,6 +857,7 @@ sub init_parse {
 sub finish_parse {
   my $s = shift;
   $s->consolidate_groups;
+  $s->evaluate_coderefs if $s->safe;
   $s->{seenit} = {};
   $s->{groups} = {};
 }
@@ -834,6 +869,15 @@ sub consolidate_groups {
   for my $type (keys %$groups) {
     my @groups = values %{$groups->{$type}};
     push @{$self->{features}{$type}},@groups;
+  }
+}
+
+sub evaluate_coderefs {
+  my $self = shift;
+  for my $s ($self->_setting) {
+    for my $o ($self->_setting($s)) {
+      $self->code_setting($s,$o);
+    }
   }
 }
 
