@@ -89,7 +89,7 @@ Internal methods are usually preceded with a _
 package Bio::Index::Swissprot;
 
 use vars qw( @ISA);
-use strict;
+use strict qw(vars);
 
 use Bio::Index::AbstractSeq;
 use Bio::Seq;
@@ -129,11 +129,11 @@ sub _index_file {
 	open SWISSPROT,$file or $self->throw("Can't read file: $file");
 
 	while (<SWISSPROT>) {
-		if (/^ID\s+/) {
+		if (/^ID\s+\S+/) {
 			$begin = tell(SWISSPROT) - length( $_ );
 		}
 		for my $id (&$id_parser($_)) {
-			$self->add_record($id, $i, $begin);
+			$self->add_record($id, $i, $begin) if $id;
 		}
 	}
 	close SWISSPROT;
@@ -182,9 +182,10 @@ sub default_id_parser {
 		return $1;
 	} elsif ($line =~ /^AC\s+([A-Z0-9]+)/) {
 		return $1;
-	} else {
-		return;
 	}
+	#else {
+		#return;
+	#}
 }
 
 =head2 _file_format
