@@ -186,6 +186,7 @@ sub arrowheads {
     # turn on both if neither specified
     $ne = 1 if $self->feature->strand > 0;
     $sw = 1 if $self->feature->strand < 0;
+    ($ne,$sw) = ($sw,$ne) if $self->{flip};
   }
   return ($sw,$ne,0,0) unless $self->option('base');
   return ($sw,$ne,
