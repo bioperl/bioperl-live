@@ -9,6 +9,9 @@
 # (preferably from Perl v5.004 or better).
 #
 # MODIFIED: 
+#   3 Feb 1999, sac:
+#      * Added timeout support to read().
+#
 #    24 Nov 1998, sac:
 #      * Modified read(), compress(), and uncompress() to properly
 #        deal with file ownership issues.
@@ -49,7 +52,7 @@ use FileHandle            ();
 use strict;
 use vars qw($ID $VERSION $revision);
 $ID = 'Bio::Root::IOManager';
-$VERSION = 0.04;
+$VERSION = 0.041;
 
 ## POD Documentation:
 
@@ -179,7 +182,7 @@ See the L<FEEDBACK> section for where to send bug reports and comments.
 
 =head1 VERSION
 
-Bio::Root::IOManager.pm, 0.04
+Bio::Root::IOManager.pm, 0.041
 
 =head1 ACKNOWLEDGEMENTS
 
@@ -669,6 +672,8 @@ sub fh {
            :                read from a desired file before calling this
            :                method. If both -handle and -file are defined,
            :                -handle takes precedence.
+           :    -WAIT    => integer (number of seconds to wait for input
+           :                before timing out. Default = 3 seconds).
            :
  Returns   : string, array, or undef depending on the arguments.
            : If a function reference is supplied, this function will be
@@ -678,6 +683,9 @@ sub fh {
            : The data are not altered; blank lines are not removed. 
            :
  Throws    : Exception if reading from a file which cannot be opened.
+           : Exception if no input is read from source.
+           : Exception if no input is read within WAIT seconds.
+           : Exception if FUNC is not a function reference.
            :
  Comments  : Gets the file name from the current file data member.
            : If no file has been defined, this method will attempt to
@@ -694,7 +702,7 @@ sub fh {
            : If the raw data is to be returned, wantarray is used to
            : determine how the data are to be returned (list or string).
            :
-           : Sets the current file data member to be the supplied file name.
+           : Sets the file data member to be the supplied file name.
            : (if any is supplied).
 
            : The read() method is a fairly new implementation
@@ -713,10 +721,11 @@ See Also   : L<file>()
 sub read {
 #----------
     my($self, @param) = @_;
-    my($file, $rec_sep, $func_ref, $handle ) =
-	$self->_rearrange([qw(FILE REC_SEP FUNC HANDLE)], @param);
+    my($file, $rec_sep, $func_ref, $handle, $wait ) =
+	$self->_rearrange([qw(FILE REC_SEP FUNC HANDLE WAIT)], @param);
 
     my $fmt = (wantarray ? 'list' : 'string');
+    $wait ||= 3;  # seconds to wait before timing out.
 
     $file = $self->file($file);
 
@@ -739,7 +748,7 @@ sub read {
 
     my $fh = new FileHandle;
 
-    my ($handle_ref, $dont_close, $owner);
+    my ($handle_ref, $dont_close, $owner, $source);
 
     if($handle_ref = ref($handle)) {
 	if($handle_ref eq 'FileHandle' or $handle_ref eq 'GLOB') {
@@ -748,6 +757,7 @@ sub read {
 	    $self->throw("Can't read from $handle: Not a FileHandle or GLOB ref.");
 	}
 	$self->verbose > 0 and printf STDERR "$ID: reading data from FileHandle\n";
+	$source = "FileHandle";
 
     } elsif($file) {
 	# Uncompress file if neccesary.
@@ -759,29 +769,42 @@ sub read {
 	open ($fh, $file) || $self->throw("Can't access data file: $file",
 					  "Cause:$!");
 	$self->verbose > 0 and printf STDERR "$ID: reading data from file $file\n";
+	$source = "File $file";
 
     } else {
 	# Read from STDIN.
 	$fh = \*STDIN;
 	$dont_close = 1;
 	$self->verbose > 0 and printf STDERR "$ID: reading data from STDIN\n";
+	$source = "STDIN";
     }
 
-    READ_LOOP:
-    while(<$fh>) {
-	# Default behavior: read all lines.
-	# If &$func_ref returns false, exit this while loop.
-        # Uncomment to skip lines with only white space or record separators
-#	next if m@^(\s*|$/*)$@; 
-
-	$lines++;
-	my($result);
-	if($func_ref) {
-	    $result = &$func_ref($_) or last READ_LOOP;
-#	    print "$ID read(): RESULT = $result\n"; 
-	} else {
-	    $data .= $_;
+    $SIG{ALRM} = sub { die "Timed out!"; };
+    eval {
+	alarm($wait);
+      READ_LOOP:
+	while(<$fh>) {
+	    # Default behavior: read all lines.
+	    # If &$func_ref returns false, exit this while loop.
+	    # Uncomment to skip lines with only white space or record separators
+#	    next if m@^(\s*|$/*)$@; 
+	    
+	    $lines++;
+	    my($result);
+	    if($func_ref) {
+		$result = &$func_ref($_) or last READ_LOOP;
+#		print "$ID read(): RESULT = $result\n"; 
+	    } else {
+		$data .= $_;
+	    }
 	}
+	alarm(0);
+    };
+    if($@ =~ /Timed out!/) {
+	$self->throw("Timed out while waiting for input from $source.");
+    } elsif($@ =~ /\S/) {
+	my $err = $@;
+	$self->throw("Unexpected error during read: $err");
     }
 
     close ($fh) unless $dont_close;
