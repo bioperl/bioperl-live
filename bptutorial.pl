@@ -602,7 +602,7 @@ follows:
   # this returns a Seq object :
   $seq2 = $gb->get_Seq_by_acc('AF303112'))
   # this returns a SeqIO object :
-  $seqio = $gb->get_Stream_by_batch([ qw(J00522 AF303112 2981014)]));
+  $seqio = $gb->get_Stream_by_batch("J00522","AF303112","2981014");
 
 Bioperl currently supports sequence data retrieval from the genbank,
 genpept, RefSeq, swissprot, and EMBL databases. See L<Bio::DB::GenBank>,
@@ -2550,7 +2550,7 @@ $fetch_local_db = sub {
 
     use Bio::Index::Fasta; # using fasta file format
     my ( $Index_File_Name, $inx2, $id, $dir, $key,
-         $keyfound, $seq, $indexhash);
+         $keyfound, $seq, $indexhash,$value );
     print "\nBeginning retrieving local_db example... \n";
 
     # then retrieve some files
@@ -2567,8 +2567,8 @@ $fetch_local_db = sub {
 
     $indexhash = $inx2->db();
     $keyfound = "";
-    foreach $key (sort keys %$indexhash) {
-        if($key =~ /97/) {$keyfound = 'true' ; $id = $key; last};
+    while ( ($key,$value) = each %$indexhash ) {
+        if ( $key =~ /97/ ) { $keyfound = 'true'; $id = $key; last; }
     }
     if ($keyfound) {
         $seq = $inx2->fetch($id);
