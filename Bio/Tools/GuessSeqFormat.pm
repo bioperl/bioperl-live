@@ -11,7 +11,7 @@
 =head1 NAME
 
 Bio::Tools::GuessSeqFormat - Module for determining the sequence
-format of the contents in a file, in a string, or through a
+format of the contents of a file, a string, or through a
 filehandle.
 
 =head1 SYNOPSIS
@@ -26,37 +26,35 @@ filehandle.
     # If the filehandle is seekable (STDIN isn't), it will be
     # returned to its original position.
 
-    # To guess the format of a single line of text:
-    my $guesser = new Bio::Tools::GuessSeqFormat( -line => $line );
-    my @formats = $guesser->guess;
+    # To guess the format of one or several lines of text (with
+    # embedded newlines):
+    my $guesser = new Bio::Tools::GuessSeqFormat( -text => $linesoftext );
+    my $format = $guesser->guess;
 
     # To create a Bio::Tools::GuessSeqFormat object and set the
-    # filname, filehandle, or line to parse afterwards:
+    # filename, filehandle, or line to parse afterwards:
     my $guesser = new Bio::Tools::GuessSeqFormat;
     $guesser->file($filename);
     $guesser->fh($filehandle);
-    $guesser->line($line);  # $line is assumed to be the very
-                            # first line of the data.
+    $guesser->text($linesoftext);
 
     # To guess in one go, given e.g. a filename:
     my $format = new Bio::Tools::GuessSeqFormat( -file => $filename )->guess;
-
 
 =head1 DESCRIPTION
 
 Bio::Tools::GuessSeqFormat tries to guess the format ("swiss",
 "pir", "fasta" etc.) of the sequence or MSA in a file, in a
-string, or through a filehandle.
+scalar, or through a filehandle.
 
 The guess() method of a Bio::Tools::GuessSeqFormat object will
 examine the data, line by line, until it finds a line to which
-only one format can be assigned.
+only one format can be assigned.  If no conclusive guess can be
+made, the "unknown" format is returned.
 
-In the case where the object is only given a single line,
-an array of possible formats is returned.  If a filename or
-filehandle is given, and if no conclusive guess can be made, the
-"unknown" format is returned.  If the filehandle is seekable, it
-will be restored to its original position.
+If the Bio::Tools::GuessSeqFormat object is given a filehandle
+which is seekable, it will be restored to its original position
+on return from the guess() method.
 
 =head2 Formats
 
@@ -251,10 +249,11 @@ underscore are considered to be internal.
                     be guessed, or
               -fh   An already opened filehandle from which a text
                     stream may be read, or
-              -line The very first line of a file.
+              -text A scalar containing one or several lines of
+                    text with embedded newlines.
 
     If more than one of the above arguments are given, they
-    are tested in the order -line, -file, -fh, and the first
+    are tested in the order -text, -file, -fh, and the first
     available argument will be used.
 
 =cut
@@ -291,7 +290,7 @@ sub new
               guessed.
 
     A call to this method will clear the current filehandle and
-    the current line of text associated with the object.
+    the current lines of text associated with the object.
 
 =cut
 
@@ -305,7 +304,7 @@ sub file
         # Set the active filename, and clear the filehandle and
         # text line, if present.
         $self->{-file} = $file;
-        $self->{-fh} = $self->{-line} = undef;
+        $self->{-fh} = $self->{-text} = undef;
     }
 
     return $self->{-file};
@@ -323,7 +322,7 @@ sub file
               stream may be read.
 
     A call to this method will clear the current filename and
-    the current line of text associated with the object.
+    the current lines of text associated with the object.
 
 =cut
 
@@ -337,42 +336,43 @@ sub fh
         # Set the active filehandle, and clear the filename and
         # text line, if present.
         $self->{-fh} = $fh;
-        $self->{-file} = $self->{-line} = undef;
+        $self->{-file} = $self->{-text} = undef;
     }
 
     return $self->{-fh};
 }
 
 
-=head2 line
+=head2 text
 
- Title      : line
- Usage      : $guesser->line($firstline);
-              $firstline = $guesser->line;
- Function   : Gets or sets the current line of text associated
-              with an object.
- Returns    : The new filehandle.
- Arguments  : The very first line of a file.
+ Title      : text
+ Usage      : $guesser->text($linesoftext);
+              $linesofext = $guesser->text;
+ Function   : Gets or sets the current text associated with an
+              object.
+ Returns    : The new lines of texts.
+ Arguments  : A scalar containing one or several lines of text,
+              including embedded newlines.
 
     A call to this method will clear the current filename and
     the current filehandle associated with the object.
 
 =cut
 
-sub line
+sub text
 {
-    # Sets and/or returns the text line to use.
+    # Sets and/or returns the text lines to use.
     my $self = shift;
-    my $line = shift;
+    my $text = shift;
 
-    if (defined $line) {
-        # Set the active text line, and clear the filehandle and
-        # filename, if present.
-        $self->{-line} = $line;
+    if (defined $text) {
+        # Set the active text lines, and clear the filehandle
+        # and filename, if present.
+        $self->{-text} = $text;
         $self->{-fh} = $self->{-file} = undef;
     }
 
-    return $self->{-line};
+    return $self->{-text};
 }
 
 =head2 guess
@@ -385,10 +385,6 @@ sub line
  Returns    : A format string such as "swiss" or "pir".  If a
               format can not be found, the "unknown" format will
               be returned.
-              If the object is given a line of text, it will
-              return an array of possible formats.  If the
-              format of a text line can not be found, an empty
-              list will be returned.
  Arguments  : None.
 
     If the object is associated with a filehandle and if that
@@ -398,65 +394,55 @@ sub line
 
 =cut
 
+our %formats = (
+    ace         => { test => \&_possibly_ace        },
+    blast       => { test => \&_possibly_blast      },
+    clustalw    => { test => \&_possibly_clustalw   },
+    codata      => { test => \&_possibly_codata     },
+    embl        => { test => \&_possibly_embl       },
+    fasta       => { test => \&_possibly_fasta      },
+    fastxy      => { test => \&_possibly_fastxy     },
+    game        => { test => \&_possibly_game       },
+    gcg         => { test => \&_possibly_gcg        },
+    gcgblast    => { test => \&_possibly_gcgblast   },
+    gcgfasta    => { test => \&_possibly_gcgfasta   },
+    gde         => { test => \&_possibly_gde        },
+    genbank     => { test => \&_possibly_genbank    },
+    genscan     => { test => \&_possibly_genscan    },
+    gff         => { test => \&_possibly_gff        },
+    hmmer       => { test => \&_possibly_hmmer      },
+    nexus       => { test => \&_possibly_nexus      },
+    mase        => { test => \&_possibly_mase       },
+    mega        => { test => \&_possibly_mega       },
+    msf         => { test => \&_possibly_msf        },
+    phrap       => { test => \&_possibly_phrap      },
+    pir         => { test => \&_possibly_pir        },
+    pfam        => { test => \&_possibly_pfam       },
+    phylip      => { test => \&_possibly_phylip     },
+    prodom      => { test => \&_possibly_prodom     },
+    raw         => { test => \&_possibly_raw        },
+    rsf         => { test => \&_possibly_rsf        },
+    selex       => { test => \&_possibly_selex      },
+    stockholm   => { test => \&_possibly_stockholm  },
+    swiss       => { test => \&_possibly_swiss      },
+    tab         => { test => \&_possibly_tab        }
+);
+
 sub guess
 {
     my $self = shift;
-
-    my %formats = (
-        ace         => { test => \&_possibly_ace        },
-        blast       => { test => \&_possibly_blast      },
-        clustalw    => { test => \&_possibly_clustalw   },
-        codata      => { test => \&_possibly_codata     },
-        embl        => { test => \&_possibly_embl       },
-        fasta       => { test => \&_possibly_fasta      },
-        fastxy      => { test => \&_possibly_fastxy     },
-        game        => { test => \&_possibly_game       },
-        gcg         => { test => \&_possibly_gcg        },
-        gcgblast    => { test => \&_possibly_gcgblast   },
-        gcgfasta    => { test => \&_possibly_gcgfasta   },
-        gde         => { test => \&_possibly_gde        },
-        genbank     => { test => \&_possibly_genbank    },
-        genscan     => { test => \&_possibly_genscan    },
-        gff         => { test => \&_possibly_gff        },
-        hmmer       => { test => \&_possibly_hmmer      },
-        nexus       => { test => \&_possibly_nexus      },
-        mase        => { test => \&_possibly_mase       },
-        mega        => { test => \&_possibly_mega       },
-        msf         => { test => \&_possibly_msf        },
-        phrap       => { test => \&_possibly_phrap      },
-        pir         => { test => \&_possibly_pir        },
-        pfam        => { test => \&_possibly_pfam       },
-        phylip      => { test => \&_possibly_phylip     },
-        prodom      => { test => \&_possibly_prodom     },
-        raw         => { test => \&_possibly_raw        },
-        rsf         => { test => \&_possibly_rsf        },
-        selex       => { test => \&_possibly_selex      },
-        stockholm   => { test => \&_possibly_stockholm  },
-        swiss       => { test => \&_possibly_swiss      },
-        tab         => { test => \&_possibly_tab        }
-    );
 
     foreach my $fmt_key (keys %formats) {
         $formats{$fmt_key}{fmt_string} = $fmt_key;
     }
 
-    if (defined $self->{-line}) {
-        # Handle a single line.
-        my @result = ( );
-
-        foreach my $fmt (values %formats) {
-            if ($fmt->{test}($self->{-line}, 1)) {
-                push @result, $fmt->{fmt_string};
-            }
-        }
-        return @result;
-
-        # NOTREACHED
-    }
-
     my $fh;
     my $start_pos;
-    if (defined $self->{-file}) {
+    my @lines;
+    if (defined $self->{-text}) {
+	# Break the text into separate lines.
+	@lines = split /\n/, $self->{-text};
+    } elsif (defined $self->{-file}) {
         # If given a filename, open the file.
         open($fh, $self->{-file}) or
             die "Can not open '$self->{-file}' for reading: $!";
@@ -480,7 +466,12 @@ sub guess
         my $line;       # The next line of the file.
         my $match = 0;  # Number of possible formats of this line.
 
-        last if (!defined($line = <$fh>));
+	if (defined $self->{-text}) {
+	    last if (scalar @lines == 0);
+	    $line = shift @lines;
+	} else {
+	    last if (!defined($line = <$fh>));
+	}
         next if ($line =~ /^\s*$/); # Skip white and empty lines.
 
         chomp($line);
@@ -507,9 +498,7 @@ sub guess
     } elsif (ref $fh eq 'GLOB') {
         # Try seeking to the start position.
         seek($fh, $start_pos, 0);
-    } elsif ($fh->can('setpos')) {
-        $fh->setpos(0);
-    } elsif (UNIVERSAL::isa($fh, 'IO::Seekable')) {
+    } elsif (defined $fh && $fh->can('setpos')) {
         # Seek to the start position.
         $fh->setpos($start_pos);
     }
@@ -529,7 +518,8 @@ characteristics of that type of file in the line.
 =head2 _possibly_ace
 
 From bioperl test data, and
-from "http://www.isrec.isb-sib.ch/DEA/module8/B_Stevenson/Practicals/transcriptome_recon/transcriptome_recon.html".
+from
+"http://www.isrec.isb-sib.ch/DEA/module8/B_Stevenson/Practicals/transcriptome_recon/transcriptome_recon.html".
 
 =cut
 
