@@ -206,17 +206,17 @@ EOGRAMMAR
 
 my $parser = new Parse::RecDescent ($grammar);
 
-=head2 next_unigene
+=head2 next_cluster
 
- Title   : next_unigene
- Usage   : $unigene = $stream->next_unigene()
+ Title   : next_cluster
+ Usage   : $unigene = $stream->next_cluster()
  Function: returns the next unigene in the stream
  Returns : Bio::Cluster::UniGene object
  Args    : NONE
 
 =cut
 
-sub next_unigene {
+sub next_cluster {
 	my( $self) = @_;
 	local $/ = "//";
 	return unless my $entry = $self->_readline;
