@@ -56,7 +56,7 @@ we use to identify which residues of a DNA sequence are protein-coding
 able to "figure out" its translational CDS.  There are two sets of
 coding characters, one termed "implicit" and one termed "explicit".
 
-The "implict" encoding is a bit simpler than the "explicit" encoding:
+The "implicit" encoding is a bit simpler than the "explicit" encoding:
 'C' is used for any nucleotide that's part of a codon, 'U' for any
 UTR, etc.  The full list is shown below:
 
@@ -114,14 +114,14 @@ and other Bioperl modules. Send your comments and suggestions preferably
  to one of the Bioperl mailing lists.
 Your participation is much appreciated.
 
-  bioperl-l@bioperl.org          - General discussion
-  http://www.bioperl.org/MailList.html             - About the mailing lists
+  bioperl-l@bioperl.org                     - General discussion
+  http://www.bioperl.org/MailList.html      - About the mailing lists
 
 =head2 Reporting Bugs
 
 Report bugs to the Bioperl bug tracking system to help us keep track
- the bugs and their resolution.
- Bug reports can be submitted via email or the web:
+the bugs and their resolution.  Bug reports can be submitted via email
+or the web:
 
   bioperl-bugs@bio.perl.org
   http://bugzilla.bioperl.org/
@@ -132,7 +132,8 @@ Email amackey@virginia.edu
 
 =head1 APPENDIX
 
-The rest of the documentation details each of the object methods. Internal methods are usually preceded with a _
+The rest of the documentation details each of the object
+methods. Internal methods are usually preceded with a _
 
 =cut
 
@@ -330,8 +331,9 @@ sub encoding {
                                                           (.{@{[ $spanend - $spanstart + ($loc->location_type eq 'IN-BETWEEN' ? -1 : 1) ]}})
                                                           (.*)
                                                          /x;
+                $in ||= '';
 		$in =~ s/[\.\-]+//g;
-		$currseq = $before . $in . $after;
+		$currseq = ($before||'') . $in. ($after||'');
 		# change seq without changing the alphabet
 		$self->seq($currseq,$self->alphabet());
 	    }
