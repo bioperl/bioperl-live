@@ -116,7 +116,7 @@ sub write_tree {
 	$no_outgroups,
 	$special_node, 
 	$outgroup_ancestor,
-	$tree_no) = (0,0);
+	$tree_no) = (0,0,1);
     if( @args ) {
 	($no_outgroups,
 	 $print_header,
@@ -137,6 +137,7 @@ sub write_tree {
     my (%chars,%names);
     my @nodes = $tree->get_nodes;
     my $species_ct;
+    my $traitct;
     for my $node ( @nodes ) {
 	if ((defined $special_node) && ($node eq $special_node)) {
 	    my $no_of_tree_nodes = scalar(@nodes);
@@ -157,6 +158,7 @@ sub write_tree {
 	    $names{$node->internal_id} = $node_name;
 	    my @tags = sort $node->get_all_tags;
 	    my @charstates = map { ($node->get_tag_values($_))[0] } @tags;
+	    $traitct = scalar @charstates unless defined $traitct;
 	    $chars{$node->internal_id} = [@charstates];
 	} else {
 	    $names{$node->internal_id} = sprintf("N%d", $newname_base++);
@@ -166,9 +168,9 @@ sub write_tree {
     # generate PAG representation
     if( $print_header ) { 
 	if ($keep_outgroup) {
-	    $self->_print(sprintf("%d 1\n",$species_ct));
+	    $self->_print(sprintf("%d %d\n",$species_ct,$traitct));
 	} else {
-	    $self->_print( sprintf("%d 1\n",$species_ct-$no_outgroups));
+	    $self->_print( sprintf("%d %d\n",$species_ct-$no_outgroups,$traitct));
 	}
     }
 
