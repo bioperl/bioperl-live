@@ -958,7 +958,7 @@ sub read_MSF{
    # alignment section
 
    while( <$fh> ) {
-       /^\s+(\S+)\s+(.*)$/ && do {
+       /^\s*(\S+)\s+(.*)$/ && do {
 	   $name = $1;
 	   $str = $2;
 	   if( ! exists $hash{$name} ) {
@@ -1585,7 +1585,7 @@ sub write_MSF {
     #
     # ok - heavy handed, but there you go.
     #
-    print "\n//\n";
+    print $file "\n//\n";
 
     while( $count < $length ) {
 	
@@ -1621,7 +1621,7 @@ sub write_MSF {
 	    print $file "\n";
 	} # end of each sequence
 
-	print "\n\n";
+	print $file "\n\n";
 
 	$count = $tempcount;
     }				

@@ -1,5 +1,32 @@
 Revision history for Bioperl core modules
 
+0.6.2  
+
+   There are very few functionality changes but a large
+   number of software improvements/bug fixes across the package.
+
+   o The EMBL/GenBank parsing are improved.
+
+   o The Swissprot reading is improved. Swissprot writing
+     is disabled as it doesn't work at all. This needs to
+     wait for 0.7 release
+
+   o Old syntax calls have been replaced with more modern syntax
+ 
+   o Modules that did not work at all, in particular the Sim4
+     set have been removed
+
+   o Bio::SeqFeature::Generic and Bio::SeqFeature::FeaturePair
+     have improved compliance with interface specs and documentation
+
+   o Mailing list documentation updated throughout the distribution
+
+   o Most minor bug fixes have happened.
+
+   o The scripts in /examples now work and have the modern syntax
+     rather than the deprecated syntax
+
+
 0.6.1  Sun April 2 2000
 
    o Sequences can have Sequence Features attached to them

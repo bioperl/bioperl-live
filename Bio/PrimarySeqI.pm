@@ -496,6 +496,9 @@ sub trunc{
            codon table id (optional) defaults to 1
            Final argument set to 1 means do not edit amino terminal codon
 
+         Ok. We screwed up here. The main trunk is now ahead of this with
+         a cleaner interface EB.
+
 =cut
 
 sub translate {

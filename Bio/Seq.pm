@@ -572,8 +572,8 @@ sub add_SeqFeature {
 	   $self->throw("$feat is not a SeqFeatureI and that's what we expect...");
        }
        
-       if( $feat->can("seq") ) {
-	   $fseq = $feat->seq;
+       if( $feat->can("entire_seq") ) {
+	   $fseq = $feat->entire_seq;
 	   $aseq = $self->primary_seq;
 	   
 	   if( defined $aseq ) {
@@ -588,11 +588,34 @@ sub add_SeqFeature {
 		   }
 	       }
 	   } # end of if aseq
-       } # end of if the feat can seq
+       } # end of if the feat can entire_seq
        
        push(@{$self->{'_as_feat'}},$feat);
    }
 }
+
+=head2 feature_count
+
+ Title   : feature_count
+ Usage   : $seq-feature_count()
+ Function: Return the number of SeqFeatures attached to a sequence
+ Example :
+ Returns : number of SeqFeatures
+ Args    : none
+
+=cut
+
+sub feature_count {
+    my ($self) = @_;
+    
+    if (defined($self-{'_as_feat'})) {
+	return ($#{$self-{'_as_feat'}} + 1);
+    } else {
+	return 0;
+    }
+}
+
+
 
 =head2 top_SeqFeatures
 
@@ -738,7 +761,7 @@ sub molecule {
 =head2 add_date
 
  Title   : add_date
- Usage   : $self->add_domment($ref)
+ Usage   : $self->add_date($ref)
  Function: adds a date
  Example :
  Returns : 

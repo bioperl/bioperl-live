@@ -1,4 +1,3 @@
-## $Id$
 
 #
 # BioPerl module for Bio::Tools::pSW
@@ -187,8 +186,8 @@ sub pairwise_alignment{
     $self->set_memory_and_report();
     # create engine objects 
 
-    $t1  = &Bio::Ext::Align::new_Sequence_from_strings($seq1->id(),$seq1->str());
-    $t2  = &Bio::Ext::Align::new_Sequence_from_strings($seq2->id(),$seq2->str());
+    $t1  = &Bio::Ext::Align::new_Sequence_from_strings($seq1->id(),$seq1->seq());
+    $t2  = &Bio::Ext::Align::new_Sequence_from_strings($seq2->id(),$seq2->seq());
     $aln = &Bio::Ext::Align::Align_Sequences_ProteinSmithWaterman($t1,$t2,$self->{'matrix'},-$self->gap,-$self->ext);
     if( ! defined $aln || $aln == 0 ) {
 	$self->throw("Unable to build an alignment");
@@ -203,8 +202,8 @@ sub pairwise_alignment{
 
     # we are going to need the sequences as arrays for convience
 
-    @str1 = $seq1->seq();
-    @str2 = $seq2->seq();
+    @str1 = split(//, $seq1->seq());
+    @str2 = split(//, $seq2->seq());
 
     # get out start points
 
@@ -253,17 +252,17 @@ sub pairwise_alignment{
 
     $tstr = join('',@ostr1);
     $tid = $seq1->id();
-    $out->addSeq(Bio::Seq->new( -seq=> $tstr,
-			       -start => $start1,
-			       -end   => $end1,
-			       -id=>$tid ));
+    $out->addSeq(Bio::LocatableSeq->new( -seq=> $tstr,
+					 -start => $start1,
+					 -end   => $end1,
+					 -id=>$tid ));
 
     $tstr = join('',@ostr2);
     $tid = $seq2->id();
-    $out->addSeq(Bio::Seq->new( -seq=> $tstr,
-			       -start => $start2,
-			       -end => $end2,
-			       -id=> $tid ));
+    $out->addSeq(Bio::LocatableSeq->new( -seq=> $tstr,
+					 -start => $start2,
+					 -end => $end2,
+					 -id=> $tid ));
 
     # give'm back the alignment
 
@@ -283,9 +282,9 @@ sub align_and_show {
 
     $self->set_memory_and_report();
 
-    $t1  = &Bio::Ext::Align::new_Sequence_from_strings($seq1->id(),$seq1->str());
+    $t1  = &Bio::Ext::Align::new_Sequence_from_strings($seq1->id(),$seq1->seq());
 
-    $t2  = &Bio::Ext::Align::new_Sequence_from_strings($seq2->id(),$seq2->str());
+    $t2  = &Bio::Ext::Align::new_Sequence_from_strings($seq2->id(),$seq2->seq());
     $aln = &Bio::Ext::Align::Align_Sequences_ProteinSmithWaterman($t1,$t2,$self->{'matrix'},-$self->gap,-$self->ext);
     if( ! defined $aln || $aln == 0 ) {
 	$self->throw("Unable to build an alignment");
