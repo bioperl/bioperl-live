@@ -1,0 +1,14 @@
+These are utilities that go with the Bio::DB::GFF module:
+
+load_gff.pl	      Slow but foolproof GFF table to database loader.
+bulk_load_gff.pl      Fast loader, but wipes database clean each time.
+fast_load_gff.pl      EXPERIMENTAL incremental loader that is as fast
+		       as bulk loader, but only works on Unix platforms.
+generate_histogram.pl Generate histogram of sequence features, for use with
+		       generic genome browser.
+process_gadfly.pl     Tweak GadFly GFF files for loading (drosophila).
+process_wormbase.pl   Tweak WormBase GFF files for loading (elegans)
+process_sgd.pl        Turn SGD feature dumps into GFF files for loading (saccharomyces).
+process_ncbi_human.pl Turn NCBI feature dumps into GFF files for loading (human).
+
+
