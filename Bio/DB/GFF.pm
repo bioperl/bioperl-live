@@ -3028,32 +3028,6 @@ sub make_aggregated_feature {
   return;
 }
 
-=head2 parse_types
-
- Title   : parse_types
- Usage   : $db->parse_types(@args)
- Function: parses list of types
- Returns : an array ref containing ['method','source'] pairs
- Args    : a list of types in 'method:source' form
- Status  : internal
-
-This method takes an array of type names in the format "method:source"
-and returns an array reference of ['method','source'] pairs.  It will
-also accept a single argument consisting of an array reference with
-the list of type names.
-
-=cut
-
-# turn feature types in the format "method:source" into a list of [method,source] refs
-sub parse_types {
-  my $self  = shift;
-  return []   if !@_ or !defined($_[0]);
-  return $_[0] if ref $_[0] eq 'ARRAY' && ref $_[0][0];
-  my @types = ref($_[0]) ? @{$_[0]} : @_;
-  my @type_list = map { [split(':',$_,2)] } @types;
-  return \@type_list;
-}
-
 =head2 make_match_sub
 
  Title   : make_match_sub
