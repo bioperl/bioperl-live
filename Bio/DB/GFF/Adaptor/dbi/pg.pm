@@ -1093,5 +1093,16 @@ sub _feature_by_name {
   return $count;
 }
 
+sub update_sequences {
+  my $self = shift;
+  my $dbh  = $self->features_db;
+ 
+  $dbh->do("SELECT setval('public.fdata_fid_seq', max(fid)+1) FROM fdata");
+  $dbh->do("SELECT setval('public.fattribute_fattribute_id_seq', max(fattribute_id)+1) FROM fattribute");
+  $dbh->do("SELECT setval('public.fgroup_gid_seq', max(gid)+1) FROM fgroup");
+  $dbh->do("SELECT setval('public.ftype_ftypeid_seq', max(ftypeid)+1) FROM ftype");
+
+  1;
+}
 
 1;

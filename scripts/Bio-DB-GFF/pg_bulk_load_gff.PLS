@@ -309,6 +309,9 @@ foreach (@files) {
   unlink $file;
 }
 
+warn "Updating sequences ...\n";
+$db->update_sequences();
+
 warn "Creating indexes ...\n";
 $db->_create_indexes_etc();
 
