@@ -241,15 +241,15 @@ sub next_result {
 	if( /DOCTYPE/ || /<BlastOutput>/ ) {
 	    if(  $sawdoctype ) {
 		if( ! $sawxmlheader ) { 
-		    $self->_pushback('<?xml version="1.0"?>');
+		    $self->_pushback("<?xml version=\"1.0\"?>\n");
 		}
 		$self->_pushback($_);
 		last;
 	    }
 	    $sawdoctype = 1;
 	    unless( $sawxmlheader ) {
-		print STDERR "matched here\n";
-		$self->_pushback('<?xml version="1.0"?>');
+		$self->debug( "matched here\n");
+		$self->_pushback("<?xml version=\"1.0\"?>\n");
 		$self->_pushback($_);
 		next;
 	    }
