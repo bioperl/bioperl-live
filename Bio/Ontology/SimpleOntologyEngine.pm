@@ -499,13 +499,12 @@ sub get_relationships{
 		($term) : $self->get_term_by_identifier($parent_id);
 	    foreach my $child_id (keys %$parent_entry) {
 		my $rel_info = $parent_entry->{$child_id};
+                my ($subj_term) = $self->get_term_by_identifier($child_id);
 
 		foreach my $parent_term (@parent_terms) {
 			push(@rels,
-		     	$relfact->create_object(-object_term    => $parent_term,
-					     	-subject_term   =>
-					         	$self->get_term_by_identifier(
-							            $child_id),
+		     	$relfact->create_object(-object_term  => $parent_term,
+					     	-subject_term => $subj_term,
 					     	-predicate_term => $rel_info,
 					     	-ontology =>$parent_term->ontology
 					     	)
