@@ -817,14 +817,17 @@ and write sequence objects, eg:
 
 For more information see L<Bio::SeqIO>.
 
-=head2   III.2.2 Transforming alignment files (AlignIO)
+=for html <A NAME ="iii.2.2"></A>
+
+=head2 III.2.2 Transforming alignment files (AlignIO)
 
 Data files storing multiple sequence alignments also appear in varied
 formats.  AlignIO is the bioperl object for data conversion of
 alignment files. AlignIO is patterned on the SeqIO object and shares
 most of SeqIO\'s features.  AlignIO currently supports input in the
 following formats: fasta, mase, stockholm, prodom, selex, bl2seq, clustalw,
-msf/gcg and output in these formats: : fasta, mase, selex, clustalw,
+msf/gcg, water (from EMBOSS, see L<"III.3.6">), needle (from EMBOSS, see
+L<"III.3.6">) and output in these formats: fasta, mase, selex, clustalw,
 msf/gcg.  One significant difference between AlignIO and SeqIO is that
 AlignIO handles IO for only a single alignment at a time (SeqIO.pm
 handles IO for multiple sequences in a single stream.)  Syntax for
@@ -1117,7 +1120,7 @@ More detail can be found in L<Bio::Tools::SeqPattern>.
 
 =for html <A NAME ="iii.3.6"></A>
 
-=head2    III.3.6 Sequence manipulation using the Bioperl EMBOSS interface (Tools::Run::EMBOSSApplication)
+=head2  III.3.6 Sequence manipulation using the Bioperl EMBOSS interface (Tools::Run::EMBOSSApplication)
 
 EMBOSS (European Molecular Biology Open Source Software) is an extensive
 collection of sequence analysis programs written in the C
@@ -1158,10 +1161,12 @@ accept a file name as input, eg
 
 Some EMBOSS programs will return strings, others will create files that
 can be read directly using Bio::SeqIO (section L<"III.2.1">), as in the
-example above.
+example above. It's worth mentioning that the AlignIO module can use files
+from EMBOSS's water and needle as input (see L<"III.2.2">) to create AlignIO
+objects.
 
 
-=head2    III.3.7 Sequence manipulation without creating Bioperl "objects" (Perl.pm)
+=head2 III.3.7 Sequence manipulation without creating Bioperl "objects" (Perl.pm)
 
 Using the Bio::Perl.pm module, it is possible to manipulate sequence
 data in Bioperl without explicitly creating Seq or SeqIO objects.
