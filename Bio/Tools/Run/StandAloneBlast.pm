@@ -242,9 +242,9 @@ package Bio::Tools::Run::StandAloneBlast;
 use vars qw($AUTOLOAD @ISA $FILESPECLOADED @BLASTALL_PARAMS @BLASTPGP_PARAMS 
 	    @BL2SEQ_PARAMS @OTHER_PARAMS %OK_FIELD $DATADIR $BLASTDIR);
 use strict;
+use Bio::Root::RootI;
 use Bio::Seq;
 use Bio::SeqIO;
-use Bio::Root::Object;
 use Bio::Tools::BPbl2seq;
 use Bio::Tools::BPpsilite;
 use Bio::Tools::Blast;
@@ -344,12 +344,12 @@ program with the option "-" as in blastall -
 sub new {
     my ($caller, @args) = @_;
     # chained new
+    my $self = $caller->SUPER::new(@args);
+    
     unless (&Bio::Tools::Run::StandAloneBlast::exists_blast()) {
 	warn "Blast program not found or not executable. \n  Blast can be obtained from ftp://ncbi.nlm.nih.gov/blast\n";
     }
 
-    my $self = $caller->SUPER::new();
-    
     my ($fh,$tempfile) = $self->tempfile();
     $self->outfile($tempfile);
     $self->_READMETHOD('BPlite');
@@ -391,7 +391,7 @@ sub AUTOLOAD {
 =cut
 
 sub exists_blast {
-    my $returnvalue = (-e $FILESPECLOADED ? File::Spec->catfile($BLASTDIR, 'blastall') : $BLASTDIR. '/blastall' );
+    return (-e ($FILESPECLOADED ? File::Spec->catfile($BLASTDIR, 'blastall') : $BLASTDIR. '/blastall') );
 }
 
 =head2  blastall
