@@ -177,12 +177,12 @@ sub subseq{
 =head2 add_sequence_as_string
 
  Title   : add_sequence_as_string
- Usage   :
- Function:
- Example :
- Returns : 
- Args    :
-
+ Usage   : $seq->add_sequence_as_string("CATGAT");
+ Function: Appends additional residues to an existing LargePrimarySeq object.  
+           This allows one to build up a large sequence without storing
+           entire object in memory.
+ Returns : Current length of sequence
+ Args    : string to append
 
 =cut
 
