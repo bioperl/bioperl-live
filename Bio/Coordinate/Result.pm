@@ -23,9 +23,10 @@ Bio::Coordinate::Result - Results from coordinate transformation
 
 =head1 DESCRIPTION
 
-The results from Bio::Coordinate::MapperI are kept in an array. The
-results are either Matches or Gaps.  SeeL<Bio::Coordinate::Result::Match>
-and L<Bio::Coordinate::Result::Match>.
+The results from Bio::Coordinate::MapperI are kept in an object which
+itself is a split location, See L<Bio::Location::Split>. The results
+are either Matches or Gaps.  See L<Bio::Coordinate::Result::Match> and
+L<Bio::Coordinate::Result::Match>.
 
 If only one Match is returned, there is a convenience method of
 retrieving it or accessing its methods. Same holds true for a Gap.
@@ -78,8 +79,9 @@ use vars qw(@ISA );
 use strict;
 
 use Bio::Location::Split;
+use Bio::Coordinate::ResultI;
 
-@ISA = qw(Bio::Location::Split);
+@ISA = qw(Bio::Location::Split Bio::Coordinate::ResultI);
 
 
 =head2 add_location

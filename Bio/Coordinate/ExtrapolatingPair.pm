@@ -16,15 +16,44 @@ Bio::Coordinate::ExtrapolatingPair - Continuous match between two coordinate set
 
 =head1 SYNOPSIS
 
-  # to use
+
+  use Bio::Location::Simple;
   use Bio::Coordinate::ExtrapolatingPair;
 
-  $a  = Bio::Coordinate::ExtrapolatingPair->new();
-  $b  = Bio::Coordinate::ExtrapolatingPair -> new ( -id => 3 );
+
+  $match1 = Bio::Location::Simple->new 
+    (-seq_id => 'propeptide', -start => 21, -end => 40, -strand=>1 );
+  $match2 = Bio::Location::Simple->new
+    (-seq_id => 'peptide', -start => 1, -end => 20, -strand=>1 );
+
+  $pair = Bio::Coordinate::ExtrapolatingPair->
+    new(-in => $match1,
+    	-out => $match2,
+    	-strict => 1
+       );
+
+  $pos = Bio::Location::Simple->new 
+      (-start => 40, -end => 60, -strand=> 1 );
+  $res = $pair->map($pos);
+  $res->start eq 20;
+  $res->end eq 20;
 
 =head1 DESCRIPTION
 
-Class
+This class represents a one continuous match between two coordinate
+systems represented by Bio::Location::Simple objects. The relationship
+is directed and reversible. It implements methods to ensure internal
+consistency, and map continuous and split locations from one
+coordinate system to another.
+
+This class is an elaboration of Bio::Coordoinate::Pair. The map
+function returns only matches which is the mode needed most of
+tehtime. By default the matching regions between coordinate systems
+are boundless, so that you can say e.g. that gene starts from here in
+the chromosomal coordinate system and extends indefinetely in both
+directions. If you want to define the matching regions exactly, you
+can do that and set strict() to true.
+
 
 =head1 FEEDBACK
 
@@ -34,14 +63,14 @@ User feedback is an integral part of the evolution of this and other
 Bioperl modules. Send your comments and suggestions preferably to the
 Bioperl mailing lists  Your participation is much appreciated.
 
-  bioperl-l@bioperl.org                         - General discussion
+  bioperl-l@bioperl.org                        - General discussion
   http://bio.perl.org/MailList.html             - About the mailing lists
 
 =head2 Reporting Bugs
 
 report bugs to the Bioperl bug tracking system to help us keep track
- the bugs and their resolution.  Bug reports can be submitted via
- email or the web:
+the bugs and their resolution.  Bug reports can be submitted via email
+or the web:
 
   bioperl-bugs@bio.perl.org
   http://bugzilla.bioperl.org/
@@ -72,7 +101,6 @@ use strict;
 # Object preamble - inherits from Bio::Root::Root
 use Bio::Root::Root;
 use Bio::LocationI;
-#use Bio::Coordinate::Result::Match;
 use Bio::Coordinate::Pair;
 
 @ISA = qw(Bio::Coordinate::Pair);
@@ -163,8 +191,9 @@ sub map {
 
  Title   : _map
  Usage   : $newpos = $obj->_map($simpleloc);
- Function: Internal method that does the actual mapping. Called multiple times
-           by map() if the location  to be mapped is a split location
+ Function: Internal method that does the actual mapping. Called
+           multiple times by map() if the location to be mapped is a
+           split location
 
  Example :
  Returns : new location in the output coordinate system or undef

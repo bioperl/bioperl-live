@@ -24,28 +24,36 @@ Bio::Coordinate::Pair - Continuous match between two coordinate sets
   my $match2 = Bio::Location::Simple->new
       (-seq_id => 'peptide', -start => 1, -end => 20, -strand=>1 );
   my $pair = Bio::Coordinate::Pair->new(-in => $match1,
-  					-out => $match2,
-  				        -negative => 0, # false, default
+  					-out => $match2
+                                        );
   # location to match
   $pos = Bio::Location::Simple->new 
       (-start => 25, -end => 25, -strand=> -1 );
 
-  # results are in Bio::Coordinate::Result
+  # results are in a Bio::Coordinate::Result
   # they can be Matches and Gaps; are  Bio::LocationIs
   $res = $pair->map($pos);
   $res->isa('Bio::Coordinate::Result');
-  $res->each_match, 1;
-  $res->each_gap, 0;
-  $res->each_location, 1;
-  $res->match->start, 5;
-  $res->match->end, 5;
-  $res->match->strand, -1;
-  $res->match->seq_id, 'peptide';
+  $res->each_match == 1;
+  $res->each_gap == 0;
+  $res->each_Location == 1;
+  $res->match->start == 5;
+  $res->match->end == 5;
+  $res->match->strand == -1;
+  $res->match->seq_id eq 'peptide';
 
 
 =head1 DESCRIPTION
 
-Class
+This class represents a one continuous match between two coordinate
+systems represented by Bio::Location::Simple objects. The relationship
+is directed and reversible. It implements methods to ensure internal
+consistency, and map continuous and split locations from one
+coordinate system to another.
+
+The map() method returns Bio::Coordinate::Results with
+Bio::Coordinate::Result::Gaps. The calling code have to deal (process
+or ignore) them.
 
 =head1 FEEDBACK
 
@@ -271,9 +279,9 @@ sub map {
 
  Title   : _map
  Usage   : $newpos = $obj->_map($simpleloc);
- Function: Internal method that does the actual mapping. Called multiple times
-           by map() if the location  to be mapped is a split location
-
+ Function: Internal method that does the actual mapping. Called
+           multiple times by map() if the location to be mapped is a
+           split location
  Example :
  Returns : new location in the output coordinate system or undef
  Args    : Bio::Location::Simple

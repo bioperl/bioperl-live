@@ -16,7 +16,7 @@ Bio::Coordinate::Graph - Finds shortest path between nodes in a graph
 
 =head1 SYNOPSIS
 
-  # get a hash of hashes representing the graph. E,g:
+  # get a hash of hashes representing the graph. E.g.:
   my $hash= {
 	     '1' => {
 		     '2' => 1

@@ -54,7 +54,7 @@ between them:
         negative_introns    | \
                     ^       |  \  transcript
                      \      |   \
-        inex  =  introns  exons  \
+                 introns  exons  \
                        ^    ^    /
                         \   |   /
                splice    \  |  /
@@ -125,6 +125,7 @@ use vars qw(@ISA %COORDINATE_SYSTEMS  %COORDINATE_INTS $TRANSLATION $DAG
 use strict;
 
 # Object preamble - inherits from Bio::Root::Root
+
 use Bio::Root::Root;
 use Bio::Coordinate::Result;
 use Bio::Location::Simple;
@@ -133,7 +134,7 @@ use Bio::Coordinate::Collection;
 use Bio::Coordinate::Pair;
 use Bio::Coordinate::ExtrapolatingPair;
 
-@ISA = qw(Bio::Root::Root);
+@ISA = qw(Bio::Root::Root Bio::Coordinate::MapperI);
 
 # first set internal values for all translation tables
 
@@ -192,8 +193,8 @@ sub new {
     $graph->hash_of_arrays($DAG);
     $self->graph($graph);
 
-    my($in, $out, $peptide_offset, $transcript, $exons,
-       $cds, $nozero, $strict) =
+    my($in, $out, $peptide_offset, $transcript, $exons, $strict,
+       $cds, $nozero) =
 	$self->_rearrange([qw(IN
                               OUT
                               PEPTIDE_OFFSET

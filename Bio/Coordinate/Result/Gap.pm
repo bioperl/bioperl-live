@@ -23,7 +23,7 @@ Bio::Coordinate::Result::Gap - An other name for Bio::Location::Simple
 
 =head1 DESCRIPTION
 
-This is a location object for coordinate transformation results.
+This is a location object for coordinate mapping results.
 
 =head1 FEEDBACK
 
@@ -64,11 +64,10 @@ package Bio::Coordinate::Result::Gap;
 use vars qw(@ISA);
 use strict;
 
-use Bio::Root::Root;
 use Bio::Location::Simple;
+use Bio::Coordinate::ResultI;
 
-
-@ISA = qw(Bio::Location::Simple);
+@ISA = qw(Bio::Location::Simple Bio::Coordinate::ResultI);
 
 
 1;
