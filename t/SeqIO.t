@@ -8,7 +8,7 @@ BEGIN {
 	use lib 't';
     }
     use Test;
-    plan tests => 35 }
+    plan tests => 37 }
 
 use Bio::Seq;
 use Bio::SeqIO;
@@ -220,3 +220,20 @@ $seq = Bio::SeqIO->new( '-format' => 'GenBank' ,
 $seq->verbose($verbosity);
 ok($seq->write_seq($as));
 unlink(Bio::Root::IO->catfile("t","genbank.fuzzyout"));
+
+
+my $seqio = Bio::SeqIO->new( '-format' => 'swiss' ,
+			  -file => Bio::Root::IO->catfile("t","swiss.dat"));
+
+my $seq = $seqio->next_seq;
+
+ok defined $seq;
+
+my $seen = 0;
+foreach my $gn ( $seq->annotation->each_gene_name() ) {
+    if( $gn =~ /SF2/ ) {
+	$seen = 1;
+    }	       
+}
+
+ok $seen;
