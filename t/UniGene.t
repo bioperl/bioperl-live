@@ -23,7 +23,7 @@ BEGIN {
     }
     use Test;
 
-    $NUMTESTS = 57;
+    $NUMTESTS = 61;
     plan tests => $NUMTESTS;
     
 }
@@ -46,29 +46,30 @@ ok $unigene->isa("Bio::ClusterI");
 ok $unigene->isa("Bio::IdentifiableI");
 ok $unigene->isa("Bio::DescribableI");
 
+
+# test specific instance of unigene record provided in the unigene.data file
 ok($unigene->unigene_id, 'Hs.2');
 ok($unigene->title, 'N-acetyltransferase 2 (arylamine N-acetyltransferase)');
 ok($unigene->gene, 'NAT2');
 ok($unigene->cytoband,'8p22');
-ok($unigene->gnm_terminus,'T');
-ok($unigene->scount,29);
-ok(scalar @{ $unigene->locuslink }, 2);
-ok(scalar @{ $unigene->chromosome }, 10);
-ok(scalar @{ $unigene->express }, 4);
-ok(scalar @{ $unigene->sts }, 4);
-ok(scalar @{ $unigene->txmap }, 1);
+ok($unigene->gnm_terminus,'S');
+ok($unigene->scount,25);
+ok(scalar @{ $unigene->locuslink }, 1);
+ok(scalar @{ $unigene->chromosome }, 1);
+ok(scalar @{ $unigene->express }, 7);
+ok(scalar @{ $unigene->sts }, 10);
+ok(scalar @{ $unigene->txmap }, 0);
 ok(scalar @{ $unigene->protsim } , 4);
-ok(scalar @{ $unigene->sequences },29);
+ok(scalar @{ $unigene->sequences },25);
 
-ok($unigene->locuslink->[0], '58473');
+ok($unigene->locuslink->[0], '10');
 ok($unigene->chromosome->[0], '8');
-ok($unigene->express->[0], 'colon');
-ok($unigene->sts->[0], 'ACC=- NAME=GDB:386004 UNISTS=157141');
-ok($unigene->txmap->[0], 'D8S549-D8S258; MARKER=stSG40; RHPANEL=GB4');
-ok($unigene->protsim->[0], 'ORG=Escherischia coli; PROTGI=8928262; PROTID=Ec_pid; PCT=24; ALN=254');
+ok($unigene->express->[0], 'liver');
+ok($unigene->sts->[0], 'ACC=GDB:386004 UNISTS=157141');
+ok($unigene->protsim->[0], 'ORG=Escherischia coli; PROTGI=16129422; PROTID=ref:NP_415980.1; PCT=24; ALN=255');
 
 my ($seq1) = $unigene->next_seq;
-ok($seq1->display_id, 'D90042');
+ok($seq1->display_id, 'D90040');
 #ok($seq1->desc, 'ACC=D90042 NID=g219415 PID=g219416');
 
 # test recognition of species
@@ -83,9 +84,9 @@ my $n = 1; # we've seen already one seq
 while($seq1 = $unigene->next_seq()) {
     $n++;
 }
-ok ($n, 29);
-ok ($unigene->size(), 29);
-ok (scalar($unigene->get_members()), 29);
+ok ($n, 25);
+ok ($unigene->size(), 25);
+ok (scalar($unigene->get_members()), 25);
 ok ($unigene->description, 'N-acetyltransferase 2 (arylamine N-acetyltransferase)');
 ok ($unigene->display_id, "Hs.2");
 ok ($unigene->namespace, "UniGene");
@@ -113,8 +114,21 @@ my $seq = $unigene->next_seq;
 $seq = $unigene->next_seq;
 ok($seq->isa('Bio::PrimarySeqI'), 1,'expected a Bio::PrimarySeq object but got a ' . ref($seq));
 my $accession = $seq->accession_number;
-ok($accession, 'D90040');
+ok($accession, 'BC015878');
+my $version = $seq->seq_version();
+ok($version, "");
 
+
+# test the sequence parsing is working
+my $ac = $seq->annotation();
+my $simple_ann_object;
+($simple_ann_object) = $ac->get_Annotations('seqtype');
+ok $simple_ann_object;
+ok($simple_ann_object->value(), 'mRNA', 'seqtype was ' . $simple_ann_object->value);	
+
+
+
+# tests not specific to unigene record provided in the unigene.data file
 my @locuslink_test = ( "58473", "5354" );
 $unigene->locuslink(\@locuslink_test);
 my @locuslink_results;
@@ -175,4 +189,12 @@ my $protsim = shift @protsim_results;
 ok $protsim, 'ORG=Homo sapiens; PROTGI=107211; PROTID=pir:A40428; PCT=100; ALN=243', 'expected ORG=Homo sapiens; PROTGI=107211; PROTID=pir:A40428; PCT=100; ALN=243 but got ' . $protsim;
 
 
+
+# do a quick test on Rn record included as the next cluster in the test data file because it has version numbers tacked on the end of the accession numbers in each seq line - NCBI has started doing this now (Sept 2003).
+
+$unigene = $str->next_cluster();
+$seq = $unigene->next_seq;
+ok($seq->isa('Bio::PrimarySeqI'), 1,'expected a Bio::PrimarySeq object but got a ' . ref($seq));
+$version = $seq->seq_version();
+ok($version, '1');
 
