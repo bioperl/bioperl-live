@@ -170,6 +170,7 @@ sub parse_next_gene {
    my $seensegment = 0;
    my @features;
    my ($qstrand,$hstrand) = (1,1);
+   my $lasthseqname;
    while( defined($_ = $self->_readline) ) {
        if( /Note Best alignment is between (reversed|forward) est and (reversed|forward) genome, (but|and) splice\s+sites imply\s+(forward gene|REVERSED GENE)/) {
 	   if( $seensegment ) { 
@@ -183,6 +184,7 @@ sub parse_next_gene {
        elsif( /^Exon/ ) {
 	   my ($name,$len,$score,$qstart,$qend,$qseqname,
 	       $hstart,$hend, $hseqname) = split;
+	   $lasthseqname = $hseqname;
 	   my $query = new Bio::SeqFeature::Similarity(-primary => $name,
 						       -source  => $self->analysis_method,
 						       -seqname => $qseqname, # FIXME WHEN WE REDO THE GENERIC NAME CHANGE
@@ -191,7 +193,8 @@ sub parse_next_gene {
 						       -strand  => $qstrand,
 						       -score   => $score,
 						       -tag => { 
-							   'Hit' => "$hseqname:$hstart..$hend",
+#							   'Location' => "$hstart..$hend",
+							   'Sequence' => "$hseqname",
 							   }
 						       );
 	   my $hit = new Bio::SeqFeature::Similarity(-primary => 'exon_hit',
@@ -202,8 +205,10 @@ sub parse_next_gene {
 						     -strand  => $hstrand,
 						     -score   => $score,
 						     -tag => { 
-							 'Query' => "$qseqname:$qstart..$qend",
-							   }
+#							 'Location' => "$qstart..$qend", 
+							 'Sequence' => "$qseqname",
+							 
+						     }
 						     );
 	   push @features, new Bio::SeqFeature::SimilarityPair
 	       (-query => $query,
@@ -217,7 +222,9 @@ sub parse_next_gene {
 							-end   => $qend,
 							-strand => $1,
 							-score  => $score,
-							-seqname => $qseqname);
+							-seqname => $qseqname,
+							-tag => { 
+							    'Sequence' => $lasthseqname});
        } elsif( /^Span/ ) {
        } elsif( /^Segment/ ) {
 	   $seensegment = 1;
