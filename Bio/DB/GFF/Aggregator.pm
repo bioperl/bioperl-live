@@ -325,6 +325,7 @@ sub aggregate {
     $base->method($pseudo_method);
     $base->add_subfeature($_) foreach @{$aggregates{$_}{subparts}};
     $base->adjust_bounds;
+    $base->compound(1);  # set the compound flag
     push @result,$base;
   }
   @$features = @result;

@@ -2,12 +2,10 @@ package Bio::Graphics::Glyph::transcript;
 # $Id$
 
 use strict;
-use Bio::Graphics::Glyph::generic;
-use Bio::Graphics::Glyph::segmented_keyglyph;
+use Bio::Graphics::Glyph::segments;
+use Bio::Location::Simple;
 use vars '@ISA';
-@ISA = qw( Bio::Graphics::Glyph::segmented_keyglyph
-	   Bio::Graphics::Glyph::generic
-	 );
+@ISA = qw( Bio::Graphics::Glyph::segments);
 
 sub pad_left  {
   my $self = shift;
@@ -69,40 +67,6 @@ sub connector {
   return 'hat';
 }
 
-sub bump {
-  my $self = shift;
-  return $self->SUPER::bump(@_) if $self->all_callbacks;
-  return 0;  # never allow our components to bump
-}
-
-sub label {
-  my $self = shift;
-  return $self->SUPER::label(@_) if $self->all_callbacks;
-  return unless $self->{level} == 0;
-  return $self->SUPER::label(@_);
-}
-
-sub description {
-  my $self = shift;
-  return $self->SUPER::description(@_) if $self->all_callbacks;
-  return unless $self->{level} == 0;
-  return $self->SUPER::description(@_);
-}
-
-
-# This ensures that single-exon genes (which have a position of Bio::Location::Simple
-# rather than Bio::Location::Split) can be drawn uniformly.
-sub _subseq {
-  my $class   = shift;
-  my $feature = shift;
-  my @subseq  = $class->SUPER::_subseq($feature);
-  return @subseq if @subseq;
-  if ($feature->can('location') && $feature->location->isa('Bio::Location::Simple')) {
-    return Bio::Location::Simple->new(-start=>$feature->start,-end=>$feature->end);
-  } else {
-    return;
-  }
-}
 
 1;
 
