@@ -31,9 +31,10 @@ Bio::LiveSeq::Mutator - Package mutating LiveSequences
 
 =head1 DESCRIPTION
 
-  This class mutates L<Bio::LiveSeq::Gene> objects and returns a
-  L<Bio::Variation::SeqDiff> object. Mutations are described as
-  L<Bio::LiveSeq::Mutation> objects.
+This class mutates Bio::LiveSeq::Gene objects and returns a
+Bio::Variation::SeqDiff object. Mutations are described as
+Bio::LiveSeq::Mutation objects. See L<Bio::LiveSeq::Gene>,
+L<Bio::Variation::SeqDiff>, and L<Bio::LiveSeq::Mutation> for details.
 
 =head1 FEEDBACK
 
