@@ -97,18 +97,11 @@ sub _type_stamp {
     return '__FASTA__'; # What kind of index are we?
 }
 
-#
-# Suggested fix by Michael G Schwern <schwern@pobox.com> to
-# get around a clash with CPAN shell...
-#
-
-BEGIN { 
-    $VERSION = 0.2;
-}
-
 sub _version {
-    return $VERSION;
+    return 0.2;
 }
+$VERSION = _version();
+
 
 
 =head2 _initialize

@@ -141,28 +141,6 @@ sub description{
 
 }
 
-=head2 gene_name
-
- Title   : gene_name
- Usage   : $obj->gene_name($newval)
- Function: 
- Example : 
- Returns : value of gene name
- Args    : newvalue (optional)
-
-
-=cut
-
-sub gene_name{
-   my ($self,$value) = @_;
-   if( defined $value) {
-      $self->{'gene_name'} = $value;
-    }
-    return $self->{'gene_name'};
-
-}
-
-
 =head2 add_Reference
 
  Title   : add_Reference
@@ -217,10 +195,6 @@ sub each_Reference{
 sub add_Comment{
    my ($self) = shift;
    foreach my $com ( @_ ) {
-       if( ! $com->isa('Bio::Annotation::Comment') ) {
-	   $self->throw("Is not a comment object but a  [$com]");
-       }
-
        push(@{$self->{'comment'}},$com);
    }
 }

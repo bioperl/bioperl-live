@@ -16,7 +16,7 @@ Bio::AnnSeq - Annotated Sequence
 
 =head1 SYNOPSIS
 
-    $stream = Bio::AnnSeqIO->new(-file => 'my.embl',-format => 'EMBL')
+    $stream = Bio::AnnSeqIO->new(-file 'my.embl',-format => 'EMBL')
 
     foreach $annseq ( $stream->next_annseq() ) {
 	foreach $feat ( $annseq->all_SeqFeatures() ) {
@@ -26,31 +26,7 @@ Bio::AnnSeq - Annotated Sequence
 
 =head1 DESCRIPTION
 
-An AnnSeq is a sequence with sequence features placed on them. The
-AnnSeq object is not a Bio::Seq object, but contains one. This is an
-important distinction from other packages which tend to have either a
-single sequence object with features, or an inheritence relationship
-between a "large" and "small" sequence object. In bioperl we have 3
-main players:
-
-  Bio::Seq - just the sequence, nothing else.
-  Bio::SeqFeature - a location on a sequence, potentially with a sequence.
-                    and annotation
-  Bio::AnnSeq - A sequence and a collection of seqfeatures (an aggregate) with
-                its own annotation.
-
-Although bioperl is not tied to file formats heavily, these distrinctions do map to file formats
-sensibly and for some bioinformaticians this might help you:
-
-  Bio::Seq - Fasta file of a sequence
-  Bio::SeqFeature - A single entry in an EMBL/GenBank/DDBJ feature table
-  Bio::AnnSeq - A single EMBL/GenBank/DDBJ entry
-
-By having this split we avoid alot of nasty ciricular references
-(seqfeatures can hold a reference to a sequence without the sequence
-holding a reference to the seqfeature).
-
-Ian Korf really helped in the design of the AnnSeq and SeqFeature system.
+An AnnSeq is a sequence with sequence features placed on them
 
 =head1 FEEDBACK
 
@@ -74,7 +50,7 @@ Report bugs to the Bioperl bug tracking system to help us keep track
   bioperl-bugs@bio.perl.org
   http://bio.perl.org/bioperl-bugs/
 
-=head1 AUTHOR - Ewan Birney, inspired by Ian Korf objects
+=head1 AUTHOR - Ewan Birney
 
 Email birney@sanger.ac.uk
 
@@ -111,8 +87,6 @@ sub _initialize {
   my($ann);
   my $make = $self->SUPER::_initialize;
   $self->{'_as_feat'} = [];
-  $self->{'date'} = [];
-  $self->{'secondary_accession'} = [];
   $ann = new Bio::Annotation;
   $self->annotation($ann);
 
@@ -308,28 +282,6 @@ sub species {
     }
 }
 
-=head2 sub_species
-
- Title   : sub_species
- Usage   : 
- Function: Gets or sets the sub_species
- Example : $sub_species = $self->sub_species();
- Returns : Bio::Species object
- Args    : Bio::Species object or none;
-
-
-=cut
-
-sub sub_species {
-    my ($self, $sub_species) = @_;
-
-    if ($sub_species) {
-        $self->{'sub_species'} = $sub_species;
-    } else {
-        return $self->{'sub_species'}
-    }
-}
-
 =head1 EMBL/GenBank/DDBJ methods
 
 These methods are here to support the EMBL/GenBank/DDBJ format.
@@ -364,70 +316,11 @@ sub division{
 
 }
 
-=head2 molecule
-
- Title   : molecule
- Usage   : $obj->molecule($newval)
- Function: 
- Returns : type of molecule (DNA, mRNA)
- Args    : newvalue (optional)
-
-
-=cut
-
-sub molecule{
-   my $obj = shift;
-   if( @_ ) {
-      my $value = shift;
-      $obj->{'molecule'} = $value;
-    }
-    return $obj->{'molecule'};
-
-}
-
-=head2 add_date
-
- Title   : add_date
- Usage   : $self->add_domment($ref)
- Function: adds a date
- Example :
- Returns : 
- Args    :
-
-
-=cut
-
-sub add_date{
-   my ($self) = shift;
-   foreach my $dt ( @_ ) {
-       push(@{$self->{'date'}},$dt);
-   }
-}
-
-=head2 each_Comment
-
- Title   : each_date
- Usage   : foreach $dt ( $self->each_date() )
- Function: gets an array of dates
- Example :
- Returns : 
- Args    :
-
-
-=cut
-
-sub each_date{
-   my ($self) = @_;
-   return @{$self->{'date'}}; 
-}
-
 =head2 accession
 
  Title   : accession
  Usage   : $obj->accession($newval)
- Function: Whilst the underlying sequence object does not 
-           have an accession, so we need one here. Wont stay
-           when we do the reimplementation.
+ Function: 
  Example : 
  Returns : value of accession
  Args    : newvalue (optional)
@@ -444,83 +337,7 @@ sub accession{
 
 }
 
-=head2 add_secondary_accession
 
- Title   : add_secondary_accession
- Usage   : $self->add_domment($ref)
- Function: adds a secondary_accession
- Example :
- Returns : 
- Args    :
-
-
-=cut
-
-sub add_secondary_accession{
-   my ($self) = shift;
-   foreach my $dt ( @_ ) {
-       push(@{$self->{'secondary_accession'}},$dt);
-   }
-}
-
-=head2 each_Comment
-
- Title   : each_secondary_accession
- Usage   : foreach $dt ( $self->each_secondary_accession() )
- Function: gets an array of secondary_accessions
- Example :
- Returns : 
- Args    :
-
-
-=cut
-
-sub each_secondary_accession{
-   my ($self) = @_;
-   return @{$self->{'secondary_accession'}}; 
-}
-
-=head2 sv
-
- Title   : sv
- Usage   : $obj->sv($newval)
- Function: 
- Returns : value of sv
- Args    : newvalue (optional)
-
-
-=cut
-
-sub sv{
-   my $obj = shift;
-   if( @_ ) {
-      my $value = shift;
-      $obj->{'sv'} = $value;
-    }
-    return $obj->{'sv'};
-
-}
-
-=head2 keywords
-
- Title   : keywords
- Usage   : $obj->keywords($newval)
- Function: 
- Returns : value of keywords
- Args    : newvalue (optional)
-
-
-=cut
-
-sub keywords{
-   my $obj = shift;
-   if( @_ ) {
-      my $value = shift;
-      $obj->{'keywords'} = $value;
-    }
-    return $obj->{'keywords'};
-
-}
 
 
 

@@ -345,7 +345,7 @@ list of parameters.
   $aln = new Bio::UnivAln(-seqs=>scalar($aln2->seqs()));
 
 In the example above, the list-context return value of
-C<$aln2->seqs()>, i.e. the list of rows of $aln2,
+$aln2->seqs(), i.e. the list of rows of $aln2,
 would be fed one by one as additional parameters into the constructor,
 if you didn't ``protect'' it by scalar(). You will be warned about the problem
 because Bio::UnivAln detects any named parameters that it can't use.
@@ -739,7 +739,7 @@ map and grep...
 
 Soon: 
 
-Better handling of access, copying and slicing of C<$self->{row_ids}>, etc.
+Better handling of access, copying and slicing of $self->{row_ids}, etc.
 Add pointer to a UnivAln demo page based on the draft at
 http://www.techfak.uni-bielefeld.de/bcd/Perl/Bio/Docs/phylosnapshot.html.
 Fix alphabet_check() (current workaround cannot be generalized),
@@ -853,9 +853,7 @@ Version 1.000 on 12 Feb 1997.
 Version 1.001 on 19 Feb 1997. Fixed a bug that 
 triggered _rowbounds() and _colbounds() to use maximal index lists
 whenever the first index in an index list was 0. New example in POD:
-
-    $aln = new Bio::UnivAln(-seqs=>scalar($aln2->var_sites()));
-
+$aln = new Bio::UnivAln(-seqs=>scalar($aln2->var_sites()));
 Internal: Now avoiding any global parameter passing by using closures,
 for the utility functions.
 

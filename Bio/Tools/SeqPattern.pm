@@ -725,8 +725,7 @@ sub _fixpat_4 {
 #	    print "1: $1\n2: $2\n3: $3\n4: $4\n5: $5\n";
 	    $braces = $3;
 	    $braces =~ s/[{}]//g;
-	    if( (defined $braces and defined $2) and
-		exists $Processed_braces{"$2$braces"} || exists $Processed_asterics{$2}) {
+	    if( exists $Processed_braces{"$2$braces"} || exists $Processed_asterics{$2}) {
 		$pat = $oldpat;  # Don't change it. Already processed.
 #		print "saved pat: $pat";<STDIN>;
 	    } else {

@@ -18,7 +18,7 @@
 
 
 ## We start with some black magic to print on failure.
-BEGIN { $| = 1; print "1..3\n"; }
+BEGIN { $| = 1; print "1..2\n"; }
 END {print "not ok 1\n" unless $loaded;}
 
 use Bio::AnnSeqIO;
@@ -37,14 +37,3 @@ while( my $as = $ast->next_annseq() ) {
 
 
 print "ok 2\n";
-
-$ast = Bio::AnnSeqIO->new( '-format' => 'GenBank' , -file => 't/roa1.genbank');
-
-while( my $as = $ast->next_annseq() ) {
-       if( ! defined $as->seq ) {
-	   print "not ok 3\n";
-	   }
-      }
-
-
-print "ok 3\n";

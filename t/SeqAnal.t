@@ -1,4 +1,5 @@
 ## Bioperl Test Harness Script for Modules
+## $Id$
 
 # Before `make install' is performed this script should be runnable with
 # `make test'. After `make install' it should work as `perl test.t'

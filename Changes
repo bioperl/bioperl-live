@@ -1,21 +1,5 @@
 Revision history for Bioperl core modules
 
-0.05.1 Tue Jun 29 05:30:44 1999
-        - Central distribution now requires Perl 5.004. This was
-          done to get around 5.003-based problems in Bio/Index/* 
-          and SimpleAlign.
-        - Various bug fixes in the Bio::Tools::Blast modules
-          including better exception handling and PSI-Blast 
-          support. See Bio/Tools/Blast/CHANGES for more.
-        - Fixed the Parse mechanism in Seq.pm to use readseq.
-	  Follow the instructions in README for how to install
-	  it (basically, you have to edit Parse.pm).
-        - Improved documentation of Seq.pm, indicating where 
-          objects are returned and where strings are returned.
-        - Fixed uninitialized warnings in Bio::Root::Object.pm
-          and Bio::Tools::SeqPattern.pm.
-        - Bug fixes for PR#s: 30,31,33-35,41,42,44,45,47-50,52.
-
 0.05  Sun Apr 25 01:14:11 1999
         - Bio::Tools::Blast modules have less memory problems
           and faster parsing. Webblast uses LWP and supports

@@ -1,6 +1,7 @@
 ## --Makefile.PL for Bioperl core module distribution--##
 ## ----------------------------------------------------##
 
+# $Id$
 
 #
 # Basically this is a standard Makefile with a hash of
@@ -70,13 +71,13 @@ sub MY::postamble {
 
 # Let the code begin...
 
-require 5.004;
+require 5.003;
 use ExtUtils::MakeMaker;
 
 $do_autoload_finesse = 0;
 $NAME     = 'Bio';
 $DISTNAME = "bioperl";
-$VERSION  = "0.05.1";
+$VERSION  = "0.05";
 
 if( $do_autoload_finesse == 1 ) {
     fatal("Autoload finessing does not work at the moment!");

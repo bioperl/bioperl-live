@@ -5,6 +5,7 @@
 # PURPOSE : To demonstrate parsing features of the Bio::Tools::Blast.pm module.
 # AUTHOR  : Steve A. Chervitz (sac@genome.stanford.edu)
 # CREATED : 3 Feb 1998
+# REVISION: $Id$
 # WEBSITE : http://bio.perl.org/Projects/Blast/
 # USAGE   : parse_blast.pl -h
 # EXAMPLES: parse_blast.pl -eg

@@ -60,68 +60,6 @@ sub _initialize {
  return $make; # success - we hope!
 }
 
-=head2 start
-
- Title   : start
- Usage   : $self->start($newval)
- Function: Gives the reference start base
- Example : 
- Returns : value of start
- Args    : newvalue (optional)
-
-
-=cut
-
-sub start{
-   my ($self,$value) = @_;
-   if( defined $value) {
-      $self->{'start'} = $value;
-    }
-    return $self->{'start'};
-
-}
-=head2 end
-
- Title   : end
- Usage   : $self->end($newval)
- Function: Gives the reference end base
- Example : 
- Returns : value of end
- Args    : newvalue (optional)
-
-
-=cut
-
-sub end{
-   my ($self,$value) = @_;
-   if( defined $value) {
-      $self->{'end'} = $value;
-    }
-    return $self->{'end'};
-
-}
-
-=head2 rp
-
- Title   : rp
- Usage   : $self->rp($newval)
- Function: Gives the RP line. No attempt is made to parse this line, unless it indicates
-           start and end reference bases
- Example : 
- Returns : value of rp
- Args    : newvalue (optional)
-
-
-=cut
-
-sub rp{
-   my ($self,$value) = @_;
-   if( defined $value) {
-      $self->{'rp'} = $value;
-    }
-    return $self->{'rp'};
-
-}
 
 =head2 authors
 

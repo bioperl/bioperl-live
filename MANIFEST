@@ -1,4 +1,5 @@
 # Bioperl Manifest List
+# $Id: MANIFEST,v 1.14 1999-07-23 09:21:42 birney Exp $
 #
 MANIFEST
 Makefile.PL
@@ -42,10 +43,11 @@ Bio/DB/BioSeqI.pm
 Bio/DB/GenBank.pm
 Bio/DB/GenPept.pm
 Bio/SeqIO.pm
-Bio/SeqIO/embl.pm
-Bio/SeqIO/fasta.pm
-Bio/SeqIO/raw.pm
-Bio/SeqIO/gcg.pm
+Bio/SeqIO/Handler.pm
+Bio/SeqIO/EMBL.pm
+Bio/SeqIO/Fasta.pm
+Bio/SeqIO/Raw.pm
+Bio/SeqIO/GCG.pm
 t/Seq.t
 t/SimpleAlign.t
 t/Blast.t              

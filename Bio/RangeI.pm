@@ -13,10 +13,6 @@
 
 Bio::RangeI - Range interface
 
-=head1 SYNOPSIS
-
-None.
-
 =head1 DESCRIPTION
 
 This provides a standard BioPerl range interface that should be
@@ -338,47 +334,6 @@ sub union {
   my $end = pop @end;
   
   return ($start, $end, 0);
-}
-
-=head2 overlap_extent
-
- Title   : overlap_extent
- Usage   : ($a_unique,$common,$b_unique) = $a->overlap_extent($b)
- Function: Provides actual amount of overlap between two different
-           ranges, being the amount unique to a, the amount unique to
-           b and the amount common to both.
- Example :
- Returns : 
- Args    :
-
-
-=cut
-
-sub overlap_extent{
-   my ($a,$b) = @_;
-
-   my ($au,$bu,$is,$ie);
-   if( ! $a->overlaps($b) ) {
-       return ($a->length,0,$b->length);
-   }
-
-   if( $a->start < $b->start ) {
-       $au = $b->start - $a->start;
-   } else {
-       $bu = $a->start - $b->start;
-   }
-
-   if( $a->end > $b->end ) {
-       $au += $a->end - $b->end;
-   } else {
-       $bu += $b->end - $a->end;
-   }
-
-   ($is,$ie) = $a->intersection($b);
-
-  # print STDERR "Returning $au,$ie,$is,$bu\n";
-
-   return ($au,$ie-$is+1,$bu);
 }
 
 1;

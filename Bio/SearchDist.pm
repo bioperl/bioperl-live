@@ -100,10 +100,10 @@ use Bio::Root::Object;
 
 BEGIN {
     eval {
-	require Bio::Ext::Align;
+	require bp_sw;
     };
     if ( $@ ) {
-	print STDERR ("\nThe C-compiled engine for histogram object (Bio::Ext::Align) has not been installed.\n Please install the bioperl-ext package\n\n");
+	print STDERR ("\nThe C-compiled engine for histogram object (bp_sw) has not been installed.\n Please read the installation instructions for bioperl for using the compiled extensions\n\n");
 	exit(1);
     }
 }
@@ -134,7 +134,7 @@ sub _initialize {
     $lump = 50;
   }
 
-  $self->_engine(&Bio::Ext::new_Histogram($min,$max,$lump));
+  $self->_engine(&Wise2::new_Histogram($min,$max,$lump));
 
   return $make; # success - we hope!
 }

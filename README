@@ -1,5 +1,5 @@
 This is the README file for the Bioperl central distribution,
-version 0.05.1
+version 0.05
 
 # $Id$
 
@@ -35,16 +35,10 @@ o Contact info
 o System requirements
 
   - Not tested on anything but common forms of Unix
-  - perl 5.004 or later (*).
+  - perl 5.003 or later (5.004 recommended; not much 5.005 testing)
   - ANSI C or Gnu C compiler for XS extensions
   - LWP (libwww-perl) modules for running network BLAST analyses
     (available from CPAN http://www.perl.com/CPAN/).
-
-  * Note that most modules will work with earlier versions of perl. 
-    The only ones that will not are Bio::SimpleAlign.pm and 
-    the Bio::Index::* modules. If you don't need these modules
-    and you want to install bioperl using an earlier version of perl,
-    edit the "require 5.004;" line in Makefile.PL as necessary.
 
 o Documentation
 
@@ -120,12 +114,21 @@ To install the Compiled extension for pSW you will need to read the
 next section of the manual.
 
 
-
 INSTALLING THE COMPILED EXTENSIONS
 
-This Installation works out-of-the box for all platforms except *BSD
-and Solaris boxes. For notes on this, read on. For other platforms,
-skip ahead to the next section, BUILDING THE COMPILED EXTENSIONS.
+This works out-of-the box for all platforms except *BSD and Solaris
+boxes. For notes on this, read on.
+
+Move to the directory Compile/SW. This is where the C code and XS
+extension for the bp_sw module is held and execute these commands:
+
+  perl Makefile.PL   # makes the system specific makefile
+  make               # builds all the libaries
+  make test          # runs a short test
+  make install       # installs the package correctly.
+
+This should install the compiled extension. The Bio::Tools::pSW module
+will work cleanly now.
 
 INSTALLING for *BSD and Solaris boxes.
 
@@ -136,51 +139,6 @@ addition, on some solaris boxes, the generated Makefile does not make
 the correct -fPIC/-fpic flags for the c compiler that is used. This
 requires manual editing of the generated makefile to switch case. Try
 it out once, and if you get errors, try editing the -fpic line
-
-BUILDING THE COMPILED EXTENSIONS
-
-Move to the directory Compile/SW. This is where the C code and XS
-extension for the bp_sw module is held and execute these commands:
-(possibly after making the change for *BSD and Solaris, as detailed above)
-
-  perl Makefile.PL   # makes the system specific makefile 
-                     # Solaris/BSD users might need to edit the Makefile here
-  make               # builds all the libaries
-  make test          # runs a short test
-  make install       # installs the package correctly.
-
-This should install the compiled extension. The Bio::Tools::pSW module
-will work cleanly now.
-
-INSTALLING TO USE Readseq 
-
-Edit the top of Bio::Parse.pm to show the path to readseq, ie
-edit
-
-
-## Uncomment the $OK stuff (it is mentioned twice to
-## shut strict up. Set $READSEQ_PATH to the full path
-## to the readseq executable.
- 
-## $OK = "Y"; 
-## $OK = "Y"; 
-my $READSEQ_PATH=undef;
-
-to something like
-
-## Uncomment the $OK stuff (it is mentioned twice to
-## shut strict up. Set $READSEQ_PATH to the full path
-## to the readseq executable.
- 
-$OK = "Y"; 
-$OK = "Y"; 
-my $READSEQ_PATH='/usr/local/bin/readseq';
-
-
-The use of readseq like this has been officially 'deprecated', waiting
-for a better system in 0.06 which will be much more transparent as
-to what is going on. 
-
 
 INSTALLING BIOPERL IN A PERSONAL OR PRIVATE MODULE AREA
 
