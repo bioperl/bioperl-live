@@ -18,29 +18,47 @@ Bio::LiveSeq::IO::BioPerl - Loader for LiveSeq from EMBL entries with BioPerl
 
   my $db="EMBL";
   my $file="../data/M20132";
+  my $id="HSANDREC";
 
-  my $loader=Bio::LiveSeq::IO::BioPerl->load(-db=>"EMBL", -file=>"$file");
+  my $loader=Bio::LiveSeq::IO::BioPerl->load(-db=>"$db", -file=>"$file");
+                        or
+  my $loader=Bio::LiveSeq::IO::BioPerl->load(-db=>"$db", -id=>"$id");
 
   my @translationobjects=$loader->entry2liveseq();
 
-  my $gene="AR";
-  my $gene=$loader->gene2liveseq("gene");
+  my $genename="AR";
+  my $gene=$loader->gene2liveseq(-gene_name => "$genename",
+                                    -getswissprotinfo => 0);
 
-  NOTE: The only -db now supported is EMBL. Hence it defaults to EMBL.
+  NOTE1: The only -db now supported is EMBL. Hence it defaults to EMBL.
+  NOTE2: -file requires a filename (and path if necessary) containing an
+               EMBL entry
+         -id will use Bio::DB::EMBL.pm to fetch the sequence from the web,
+               (bioperl wraparound to SRS's [w]getz)
+  NOTE3: To retrieve the swissprot (if possible) attached to the embl entry
+               (to get protein domains at dna level), only Bio::DB::EMBL.pm
+               is supported under BioPerl. Refer to Bio::LiveSeq::IO::SRS
+               otherwise.
+  NOTE4: NOTE3 is not implemented yet for bioperl, working on it
+
 
 =head1 DESCRIPTION
 
 This package uses BioPerl (SeqIO) to fetch a sequence database entry,
 analyse it and create LiveSeq objects out of it.
 
-An filename has to be passed to this package which will return
-references to all translation objects created from the EMBL
-entry. References to Transcription, DNA and Exon objects can all be
-retrieved departing from these.
+A filename (or an ID that will fetch entry through the web) has to be passed
+to this package which will return references to all translation objects
+created from the EMBL entry. References to Transcription, DNA and Exon
+objects can all be retrieved departing from these.
 
 Alternatively, a specific "gene" name can be specified, together with
 the embl-acc ID. This will create a LiveSeq::Gene object with all
 relevant gene features attached/created.
+
+ATTENTION: if web fetching is requested, the package HTTP::Request needs
+to be installed.
+
 
 =head1 AUTHOR - Joseph A.L. Insana
 
@@ -62,7 +80,7 @@ methods. Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::LiveSeq::IO::BioPerl;
-$VERSION=2.3;
+$VERSION=2.42;
 
 # Version history:
 # Thu Apr  6 00:25:46 BST 2000 v 1.0 begun
@@ -72,6 +90,8 @@ $VERSION=2.3;
 # Tue Jul  4 14:07:52 BST 2000 v 2.11 note&number added in val_qual_names
 # Fri Sep 15 15:41:02 BST 2000 v 2.22 novelaasequence2gene now works without SRS
 # Mon Jan 29 17:40:06 EST 2001 v 2.3 made it work with the new split_location of BioPerl 0.7
+# Tue Apr 10 17:00:18 BST 2001 v 2.41 started work on support of DB::EMBL.pm
+# Tue Apr 10 17:22:26 BST 2001 v 2.42 -id should work now
 
 # TODO->TOCHECK
 # each_secondary_access not working
@@ -83,7 +103,11 @@ $VERSION=2.3;
 use strict;
 use Carp qw(cluck croak carp);
 use vars qw($VERSION @ISA);
-use Bio::SeqIO;
+use Bio::SeqIO; # for -file entry loading
+
+# Note, the following requires HTTP::Request. If the modules are not installed
+# uncomment the following and use only -filename and don't request swissprotinfo
+use Bio::DB::EMBL; # for -id entry loading
 
 use Bio::LiveSeq::IO::Loader 2.0;
 
@@ -97,11 +121,13 @@ use Bio::LiveSeq::IO::Loader 2.0;
   Title   : load
   Usage   : my $filename="../data/M20132";
             $loader=Bio::LiveSeq::IO::BioPerl->load(-db=>"EMBL", -file=>"$filename");
+                                   or
+            $loader=Bio::LiveSeq::IO::BioPerl->load(-db=>"EMBL", -id=>"HSANDREC");
 
   Function: loads an entry with BioPerl from a database into a hash
   Returns : reference to a new object of class IO::BioPerl holding an entry
   Errorcode 0
-  Args    : an BioPerl query resulting in one fetched EMBL (by default) entry
+  Args    : an filename containing an EMBL entry OR an ID or ACCESSION code
 
 =cut
 
@@ -110,7 +136,7 @@ sub load {
   my $class = ref($thing) || $thing;
   my ($obj,%loader);
 
-  my ($db,$filename)=($args{-db},$args{-file});
+  my ($db,$filename,$id)=($args{-db},$args{-file},$args{-id});
 
   if (defined($db)) {
     unless ($db eq "EMBL") {
@@ -119,6 +145,16 @@ sub load {
     }
   } else {
     $db="EMBL";
+  }
+
+  if (defined($id) && defined($filename)) {
+    carp "You can either specify a -id or a -filename!";
+    return(0);
+  }
+
+  unless (defined($id) || defined($filename)) {
+    carp "You must specify either a -id or a -filename!";
+    return(0);
   }
 
   my $hashref;
@@ -134,11 +170,22 @@ sub load {
     if ($test_transl) {
       push (@embl_valid_qual_names,"translation"); # needed for test_transl
     }
-    $hashref=&embl2hash("$filename",\@embl_valid_feature_names,\@embl_valid_qual_names);
+
+    my $seqobj; # bioperl sequence object, to be passed to embl2hash
+
+    if (defined($filename)) {
+      my $stream = Bio::SeqIO->new('-file' => $filename, '-format' => 'EMBL');
+      $seqobj = $stream->next_seq();
+    } else { # i.e. if -id
+      my $embl = new Bio::DB::EMBL;
+      $seqobj = $embl->get_Seq_by_id($id); # EMBL ID or ACC
+    }
+
+    $hashref=&embl2hash($seqobj,\@embl_valid_feature_names,\@embl_valid_qual_names);
   }
   unless ($hashref) { return (0); }
 
-  %loader = (db => $db, filename => $filename, hash => $hashref);
+  %loader = (db => $db, filename => $filename, id => $id, hash => $hashref);
   $obj = \%loader;
   $obj = bless $obj, $class;
   return $obj;
@@ -151,22 +198,22 @@ sub load {
             a hash that contains all the information.
   Returns : a reference to a hash
   Errorcode: 0
-  Args    : a filename pointing to a file containing one EMBL entry
+  Args    : a BioPerl Sequence Object (from file or web fetching)
 	    two array references to skip features and qualifiers (for
 	    performance)
   Example: @valid_features=qw(CDS exon prim_transcript mRNA);
            @valid_qualifiers=qw(gene codon_start db_xref product rpt_family);
-           $hashref=&embl2hash("$file",\@valid_features,\@valid_qualifiers);
+           $hashref=&embl2hash($seqobj,\@valid_features,\@valid_qualifiers);
 
 =cut
 
-# arguments: embl filename containing one EMBL entry
+# arguments: Bioperl $seqobj
 # to skip features and qualifiers (for performance), two array
 # references must be passed (this can change into string arguments to
 # be passed....)
 # returns: a reference to a hash containing the important features requested
 sub embl2hash {
-  my $filename=$_[0];
+  my $seqobj=$_[0];
   my %valid_features; my %valid_names;
   if ($_[1]) {
     %valid_features = map {$_, 1} @{$_[1]}; # to skip features
@@ -175,9 +222,6 @@ sub embl2hash {
     %valid_names = map {$_, 1} @{$_[2]}; # to skip qualifiers
   }
 
-  my $stream = Bio::SeqIO->new('-file' => $filename, '-format' => 'EMBL');
- 
-  my $seqobj = $stream->next_seq();
   my $annobj = $seqobj->annotation(); # what's this?
 
   my $entry_Sequence = lc($seqobj->seq()); # SRS returns lowercase
