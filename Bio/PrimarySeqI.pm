@@ -787,7 +787,7 @@ sub out_fasta{
    my $str = $self->seq;
    $str =~ tr/a-z/A-Z/;
    $str=~ s/(.{1,60})/$1\n/g;
-   return ">". $seq->id(). " ".$seq->desc()."\n";
+   return ">". $self->id(). " ".$self->desc()."\n";
 }
 
 =head1 Private functions
