@@ -16,13 +16,15 @@ BEGIN {
     }
     use Test;
 
-    plan tests => 147;
+    plan tests => 154;
 }
+
 use Bio::Location::Simple;
 use Bio::Coordinate::Pair;
 use Bio::Coordinate::Result;
 use Bio::Coordinate::Result::Match;
 use Bio::Coordinate::Result::Gap;
+use Bio::Coordinate::Chain;
 use Bio::Coordinate::Collection;
 
 use vars qw($DEBUG);
@@ -271,6 +273,40 @@ ok $gap1->strand, -1;
 ok $gap2->start, 12;
 ok $gap2->end, 12;
 ok $gap2->strand, -1;
+
+#
+# Chain
+#
+# chain (two) mappers together
+#
+
+# propepide
+$match1 = Bio::Location::Simple->new 
+    (-seq_id => 'propeptide', -start => 5, -end => 40, -strand=>1 );
+# peptide
+$match2 = Bio::Location::Simple->new
+    (-seq_id => 'peptide', -start => 1, -end => 36, -strand=>1 );
+
+ok $pair = Bio::Coordinate::Pair->new(-in => $match1,
+					 -out => $match2
+					);
+
+
+ok my $chain = Bio::Coordinate::Chain->new;
+ok $chain->add_mapper($pair);
+$chain->add_mapper($pair);
+
+
+$pos = Bio::Location::Simple->new
+    (-seq_id => 'from', -start => 6, -end => 21, -strand=> 1 );
+
+#  6 ->  2 ->  1
+# 21 -> 17 -> 13
+$match = $chain->map($pos);
+ok $match->isa('Bio::Coordinate::Result::Match');
+ok $match->start, 1;
+ok $match->end, 13;
+ok $match->strand, 1;
 
 
 
