@@ -1,4 +1,4 @@
-<!DOCTYPE article  PUBLIC "-//OASIS//DTD DocBook XML V4.2//EN">
+<!DSOCTYPE article  PUBLIC "-//OASIS//DTD DocBook XML V4.2//EN">
   <article lang="en">
     <articleinfo>
       <title>Bio::SeqIO HOWTO</title>
@@ -254,7 +254,7 @@ below. It prints out the accession number for each entry in the file.
      # or write(&gt;).  It will definitely help others reading your
      # code understand the function of the SeqIO object.
      
-     my $inseq = Bio:SeqIO->new('-file'   => "&lt;$file",
+     my $inseq = Bio::SeqIO->new('-file'   => "&lt;$file",
                                 '-format' => $format );
      # Now that we have a seq stream,
      # we need to tell it to give us a $seq.
