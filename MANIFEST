@@ -1,4 +1,4 @@
-## $Id: MANIFEST,v 1.45 2001-08-10 14:43:17 jason Exp $
+## $Id: MANIFEST,v 1.46 2001-08-10 15:03:04 jason Exp $
 ##
 ## This is the file listing for everything that
 ## comes with the bioperl distribution. The perl
@@ -303,7 +303,6 @@ examples/test-genscan.pl
 models/bio_liveseq_variation.dia
 models/bioperl.dia
 models/maps_and_markers.dia
-pm_to_blib
 scripts/DB/dbfetch
 scripts/blast_fetch.pl
 scripts/blast_fetch_local.pl
