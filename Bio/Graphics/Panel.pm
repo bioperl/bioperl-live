@@ -371,7 +371,6 @@ sub setup_fonts {
   my $image_class = $self->_image_class;
   eval "use $image_class; 1" or die $@;
 
-  my $image_class = $self->_image_class;
   my $keyfont = $self->{key_font};
   my $font_obj = $image_class->$keyfont;
   $self->{key_font} = $font_obj;
