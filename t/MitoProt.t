@@ -18,7 +18,7 @@ BEGIN {
     }
     use Test;
 
-    $NUMTESTS = 7;
+    $NUMTESTS = 8;
     plan tests => $NUMTESTS;
 
     eval {
