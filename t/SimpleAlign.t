@@ -2,7 +2,7 @@
 ## Bioperl Test Harness Script for Modules
 ## $Id$
 use strict;
-use constant NUMTESTS => 41;
+use constant NUMTESTS => 42;
 
 BEGIN {     
     eval { require Test; };
@@ -19,7 +19,7 @@ ok(1);
 use Bio::AlignIO;
 use Bio::Root::IO;
 
-my ($str, $aln, @seqs);
+my ($str, $aln, @seqs, $seq);
 
 $str = Bio::AlignIO->new(-file=> Bio::Root::IO->catfile("t","data","testaln.pfam"));
 ok defined($str) && ref($str) && $str->isa('Bio::AlignIO');
@@ -74,6 +74,7 @@ ok $aln->remove_seq($seqs[0]);
 ok $aln->no_sequences, 15;
 ok $aln->add_seq($seqs[0]);
 ok $aln->no_sequences, 16;
+ok $seq = $aln->get_seq_by_pos(1);
 
 # write test for:
 # purge()
