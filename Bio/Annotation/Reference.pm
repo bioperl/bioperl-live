@@ -240,9 +240,9 @@ sub pubmed {
 =cut
 
 sub database{
-   my ($self, $val) = @_;
+   my ($self, @args) = @_;
 
-   return $self->SUPER::database($val) || 'MEDLINE';
+   return $self->SUPER::database(@args) || 'MEDLINE';
 }
 
 =head2 primary_id
@@ -258,9 +258,9 @@ sub database{
 =cut
 
 sub primary_id{
-   my ($self, $val) = @_;
+   my ($self, @args) = @_;
 
-   return $self->medline($val);
+   return $self->medline(@args);
 }
 
 =head2 optional_id
@@ -276,9 +276,9 @@ sub primary_id{
 =cut
 
 sub optional_id{
-   my ($self, $val) = @_;
+   my ($self, @args) = @_;
 
-   return $self->pubmed($val);
+   return $self->pubmed(@args);
 }
 
 
