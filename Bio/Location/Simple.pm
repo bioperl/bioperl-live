@@ -312,7 +312,7 @@ sub location_type {
 
 =cut
 
-sub is_remote{
+sub is_remote {
    my $self = shift;
    if( @_ ) {
        my $value = shift;
