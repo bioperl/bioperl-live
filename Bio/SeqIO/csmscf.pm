@@ -64,13 +64,17 @@ methods. Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::SeqIO::csmscf;
-use vars qw(@ISA);
+use vars qw(@ISA $DEFAULT_QUALITY);
 use strict;
 use Bio::SeqIO;
 use Bio::Seq::PrimaryQual;
 use Bio::PrimarySeq;
 use Bio::Seq::SeqWithQuality;
 require 'dumpvar.pl';
+
+BEGIN { 
+    $DEFAULT_QUALITY= 10;
+}
 
 @ISA = qw(Bio::SeqIO);
 
@@ -99,7 +103,7 @@ sub next_seq {
 =head2 _next_scf()
 
  Title   : _next_scf()
- Usage   : $scf = $stream->_next_scf() (but don't do this. use
+ Usage   : $scf = $stream->_next_scf() (but don\'t do this. use
 	next_seq() instead.)
  Function: returns the next scf sequence in the stream
  Returns : Bio::Seq::SeqWithQuality object
@@ -127,7 +131,7 @@ sub _next_scf {
     $self->_parse_header($buffer);
     $self->warn("After getting the header information, the read position is ".tell($fh)) if( $self->verbose > 0 );
 	    # gather the trace information
-    $length = $self->{samples}*$self->{sample_size}*4;
+    $length = $self->{'samples'}*$self->{sample_size}*4;
     $self->warn("Going to read trace sample information. Current file position is: ".tell($fh).". Read length is: $length") if( $self->verbose > 0 );
     read $fh,$buffer,$length;
     unless (length($buffer) == $length) {
@@ -156,19 +160,20 @@ sub _next_scf {
     $offset = $self->{comments_offset};
     $length = $self->{comment_size};
 	# this is absolutely unnecessary. delete it. csm
-    $self->warn("Reading the comments: Going to $offset to read $length bytes.") if( $self->verbose > 0 );
+    $self->debug("Reading the comments: Going to $offset to read $length bytes.");
     seek $fh,$offset,0;
 	# this is absolutely unnecessary. delete it. csm
-    $self->warn("Just before the read, the curent filehandle position is: ".
-	  tell($fh)) if( $self->verbose > 0);
+    $self->debug("Just before the read, the curent filehandle position is: ".
+		 tell($fh));
     read $fh, $buffer, $length;
     unless (length($buffer) == $length) {
 	$self->throw('Unexpected end of file while reading from SCF file');
     }
     $self->_parse_comments($buffer);
-    my $swq = Bio::Seq::SeqWithQuality->new(-seq  =>	$self->{'parsed'}->{'sequence'},
-					    -qual =>	$self->{'parsed'}->{'qualities'},
-					    -id	  =>	$self->{'comments'}->{'NAME'});
+    my $swq = Bio::Seq::SeqWithQuality->new
+	(-seq  =>	$self->{'parsed'}->{'sequence'},
+	 -qual =>	$self->{'parsed'}->{'qualities'},
+	 -id	  =>	$self->{'comments'}->{'NAME'});
     return $swq;
 }
 
@@ -262,7 +267,7 @@ sub _parse_bases {
 	push @qualities,$currqual;
     }
 
-    $self->warn("\$sequence is $sequence\n\@qualities are @qualities\n") if($self->verbose > 0);
+    $self->debug("\$sequence is $sequence\n\@qualities are @qualities\n");
     $self->{'parsed'}->{'sequence'} = $sequence;
     # $self->{'parsed'}->qualities} = \@qualities;
     # for debugging
@@ -331,16 +336,13 @@ sub _split_traces {
 =cut
 
 sub get_trace {
-	my ($self,$base_channel) = @_;
-	$base_channel =~ tr/a-z/A-Z/;
-		# this is unnecessary. delete it. csm
-		# $self->warn("get_trace: you asked for the colour channel for $base_channel\n") if( $self->verbose > 0 );
-	if ($base_channel !~ /A|T|G|C/) {
-		$self->throw("You tried to ask for a base channel that wasn't A,T,G, or C. Ask for one of those next time.");
-	}
-	elsif ($base_channel) {
-		return $self->{'traces'}->{$base_channel};
-	}
+    my ($self,$base_channel) = @_;
+    $base_channel =~ tr/a-z/A-Z/;
+    if ($base_channel !~ /A|T|G|C/) {
+	$self->throw("You tried to ask for a base channel that wasn't A,T,G, or C. Ask for one of those next time.");
+    } elsif ($base_channel) {
+	return $self->{'traces'}->{$base_channel};
+    }
 }
 
 =head2 _dump_traces
@@ -365,10 +367,10 @@ sub _dump_traces {
     return;
 }
 
-=head2 write_scf
+=head2 write_seq
 
- Title   : write_scf(-SeqWithQuality => $swq, <comments>)
- Usage   : $obj->write_scf(	-SeqWithQuality => $swq,
+ Title   : write_seq(-SeqWithQuality => $swq, <comments>)
+ Usage   : $obj->write_seq(	-SeqWithQuality => $swq,
 				-CONV => "Bioperl-Chads Mighty SCF writer.");
  Function: Write out an scf.
  Returns : Nothing.
@@ -385,25 +387,26 @@ sub _dump_traces {
 
 =cut
 
-sub write_scf {
+sub write_seq {
     my ($self,%args) = @_;
     my %comments;
     my ($label,$arg);
-    my $swq = $args{-SeqWithQuality};
+
+    my ($swq) = $self->_rearrange([qw(SEQWITHQUALITY)], %args);
     unless (ref($swq) eq "Bio::Seq::SeqWithQuality") {
-	$self->throw("You must pass a Bio::Seq::SeqWithQuality object to write_scf as a parameter named \"SeqWithQuality\"");
+	$self->throw("You must pass a Bio::Seq::SeqWithQuality object to write_seq as a parameter named \"SeqWithQuality\"");
     }
-		# verify that there is some sequence or some qualities
-	$self->_fill_missing_data($swq);
-		# all of the rest of the arguments are comments for the scf
+    # verify that there is some sequence or some qualities
+    $self->_fill_missing_data($swq);
+    # all of the rest of the arguments are comments for the scf
     foreach $arg (sort keys %args) {
-	next if ($arg =~ /SeqWithQuality/);
+	next if ($arg =~ /SeqWithQuality/i);
 	($label = $arg) =~ s/^\-//;
 	$comments{$label} = %args->{$arg};
     }
     if (!$comments{'NAME'}) { $comments{'NAME'} = $swq->id(); }
 	    # HA! Bwahahahaha.
-    $comments{'CONV'} = "Bioperl-Chads Mighty SCF writer.";
+    $comments{'CONV'} = "Bioperl-Chads Mighty SCF writer." unless defined $comments{'CONV'};
 
     # set a few things in the header
     $self->{'header'}->{'magic'} = ".scf";
@@ -414,36 +417,45 @@ sub write_scf {
     $self->{'header'}->{'version'} = "2.00";
     $self->{'header'}->{'sample_size'} = "2";
     $self->{'header'}->{'code_set'} = "9";
-    @{$self->{'header'}->{'spare'}} = qw(0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0);
+    @{$self->{'header'}->{'spare'}} = qw(0 0 0 0 0 0 0 0 0 0 
+					 0 0 0 0 0 0 0 0 0 0);
 
     my $b_comments = $self->_give_comments_binary(\%comments);
     my ($b_traces,$b_bases);
-    ($b_traces,$b_bases,$self->{'header'}->{samples}) = $self->_give_tracesbases_binary($swq->seq(),$swq->qual());
+    ($b_traces,$b_bases,$self->{'header'}->{'samples'}) =  
+	$self->_give_tracesbases_binary($swq->seq(),$swq->qual());
+    
     $self->{'header'}->{'samples_offset'} = "128";
-    my $samples_size = $self->{'header'}->{'samples'} * 4 * $self->{'header'}->{'sample_size'};
+    
+    my $samples_size = $self->{'header'}->{'samples'} * 4 * 
+	               $self->{'header'}->{'sample_size'};
     my $bases_size = length($swq->seq()) * 12;
+
     $self->{'header'}->{'bases_offset'} = 128 + length($b_traces);
-    $self->{'header'}->{'comments_offset'} = 128 + length($b_traces) + length($b_bases); 
+    $self->{'header'}->{'comments_offset'} = 128 + length($b_traces) + 
+	length($b_bases); 
     $self->{'header'}->{'comments_size'} = length($b_comments);
     $self->{'header'}->{'private_size'} = "0";
-    $self->{'header'}->{'private_offset'} = 128 + $samples_size + $bases_size + $self->{'header'}->{'comments_size'};
-
+    $self->{'header'}->{'private_offset'} = 128 + $samples_size + 
+	$bases_size + $self->{'header'}->{'comments_size'};
+    
     my $b_header = $self->_give_header_binary();
-	# this is unnecssary. delete it. csm.
-    if( $self->verbose > 0 ) {
-	$self->warn(join('', ("Lengths:\n",
-			      "Header  : ".length($b_header)."\n",
-			      "Traces  : ".length($b_traces)."\n",
-			      "Bases   : ".length($b_bases)."\n",
-			      "Comments: ".length($b_comments)."\n")));
-    }
-    my $fh = $self->_filehandle();
-	# should something better be done rather then returning after writing? I don't do any
-	# exception trapping here
-    print $fh ($b_header) or return;
-    print $fh ($b_traces) or return;
-    print $fh ($b_bases) or return;
-    print $fh ($b_comments) or return;
+	
+    # this is unnecssary. delete it. csm.
+    $self->debug(join('', ("Lengths:\n",
+			   "Header  : ".length($b_header)."\n",
+			   "Traces  : ".length($b_traces)."\n",
+			   "Bases   : ".length($b_bases)."\n",
+			   "Comments: ".length($b_comments)."\n"))
+		 );
+
+    # should something better be done rather then returning after
+    # writing? I don't do any exception trapping here
+
+    $self->_print ($b_header) or return;
+    $self->_print ($b_traces) or return;
+    $self->_print ($b_bases) or return;
+    $self->_print ($b_comments) or return;
 }
 
 =head2 _give_header_binary
@@ -531,7 +543,7 @@ sub _give_tracesbases_binary {
 	$current_base = substr($samples->{'sequence'},$pos,1);
 	# where should the peak for this base be placed? Modeled after a mktrace scf
 	$place_base_at = ($pos * $samples->{'ramp_width'}) - 
-	                 ($pos * $samples->{overlap}) - 
+	                 ($pos * $samples->{'overlap'}) - 
 		         $half_ramp + $samples->{'ramp_width'} - 1;
 	$peak_quality = $quals[$pos];
 	if ($current_base eq "A") {
@@ -541,13 +553,19 @@ sub _give_tracesbases_binary {
 		 $current_ramp++) {
 		$samples->{'arrays'}->{'sam_a'}[$ramp_position+$current_ramp] = $peak_quality * $samples->{'ramp'}[$current_ramp];
 	    }
-	    push @{$samples->{'arrays'}->{all_bases}},($place_base_at+1,$peak_quality,0,0,0,$current_base,0,0,0);
+	    push @{$samples->{'arrays'}->{'all_bases'}},($place_base_at+1,
+						       $peak_quality,0,0,
+						       0,$current_base,0,0,0);
 	} elsif ($current_base eq "C") {
 	    $ramp_position = $place_base_at - $half_ramp;
-	    for ($current_ramp = 0; $current_ramp < $samples->{'ramp_width'}; $current_ramp++) {
+	    for ($current_ramp = 0; 
+		 $current_ramp < $samples->{'ramp_width'}; 
+		 $current_ramp++) {
 		$samples->{'arrays'}->{'sam_c'}[$ramp_position+$current_ramp] = $peak_quality * $samples->{'ramp'}[$current_ramp];
 	    }
-	    push @{$samples->{'arrays'}->{'all_bases'}},($place_base_at+1,0,$peak_quality,0,0,$current_base,0,0,0);
+	    push @{$samples->{'arrays'}->{'all_bases'}},($place_base_at+1,0,
+							 $peak_quality,0,0,
+							 $current_base,0,0,0);
 	} elsif ($current_base eq "G") {
 	    $ramp_position = $place_base_at - $half_ramp;
 	    for ($current_ramp = 0; 
@@ -556,7 +574,9 @@ sub _give_tracesbases_binary {
 	    {
 		$samples->{'arrays'}->{'sam_g'}[$ramp_position+$current_ramp] = $peak_quality * $samples->{'ramp'}[$current_ramp];
 	    }
-	    push @{$samples->{'arrays'}->{'all_bases'}},($place_base_at+1,0,0,$peak_quality,0,$current_base,0,0,0);
+	    push @{$samples->{'arrays'}->{'all_bases'}},($place_base_at+1,0,
+							 0,$peak_quality,0,
+							 $current_base,0,0,0);
 	}
 	elsif ($current_base eq "N") {
 	    $ramp_position = $place_base_at - $half_ramp;
@@ -565,7 +585,9 @@ sub _give_tracesbases_binary {
 		 $current_ramp++) {
 		$samples->{'arrays'}->{'sam_a'}[$ramp_position+$current_ramp] = $peak_quality * $samples->{'ramp'}[$current_ramp];
 	    }
-	    push @{$samples->{'arrays'}->{'all_bases'}},($place_base_at+1,0,0,0,$peak_quality,$current_base,0,0,0);
+	    push @{$samples->{'arrays'}->{'all_bases'}},($place_base_at+1,0,
+							 0,0,$peak_quality,
+							 $current_base,0,0,0);
 	}
 	else {
 		# don't print this.
@@ -624,7 +646,9 @@ sub _make_trace_string {
     my @as = @$ra; my @cs = @$rc; my @gs = @$rg; my @ts = @$rt;
     for (my $curr=0; $curr < scalar(@as); $curr++) {
 	push @traces,($as[$curr],$cs[$curr],$gs[$curr],$ts[$curr]);
-	push @traces_view,($as[$curr]." ".$cs[$curr]." ".$gs[$curr]." ".$ts[$curr]);
+	push @traces_view,join(' ', ( $as[$curr], $cs[$curr],
+				      $gs[$curr], $ts[$curr]) );
+	
     }
     my $length = scalar(@traces)/4;
     my $trace_string = join' ',@traces;
@@ -647,11 +671,13 @@ sub _make_trace_string {
 
 sub _give_comments_binary {
     my ($self,$rcomments) = @_;
-    my %comments = %$rcomments;
-    my $comments_string;
-    foreach (sort keys %comments) {
-	$comments_string .= "$_=".$comments{$_}."\n";
+    my $comments_string = '';
+    my %comments = %{$rcomments};
+    foreach my $key (sort keys %comments) {
+	$comments{$key} ||= '';
+	$comments_string .= "$key=$comments{$key}\n";
     }
+    
     $comments_string .= "\n\0";
     my $length = length($comments_string);
     my $binary .= pack "A$length",$comments_string;
@@ -663,7 +689,7 @@ sub _give_comments_binary {
  Title   : _fill_missing_data($swq)
  Usage   : $self->_fill_missing_data($swq);
  Function: If the $swq with quality has no qualities, set all qualities to 0.
-	If the $swq has no sequence, set the sequence to N's.
+	   If the $swq has no sequence, set the sequence to N\'s.
  Returns : Nothing. Modifies the SeqWithQuality that was passed as an argument.
  Args    : A reference to a Bio::Seq::SeqWithQuality
  Notes   : None.
@@ -671,17 +697,17 @@ sub _give_comments_binary {
 =cut
 
 sub _fill_missing_data {
-	my ($self,$swq) = @_;
-	my $qual_obj = $swq->qual_obj();
-	my $seq_obj = $swq->seq_obj();
-	if ($qual_obj->length() == 0 && $seq_obj->length() != 0) {
-		my $fake_qualities = ("10 ")x$seq_obj->length();
-		$swq->qual($fake_qualities);
-	}
-	if ($seq_obj->length() == 0 && $qual_obj->length != 0) {
-		my $sequence = ("N")x$qual_obj->length();
-		$swq->seq($sequence);
-	}
+    my ($self,$swq) = @_;
+    my $qual_obj = $swq->qual_obj();
+    my $seq_obj = $swq->seq_obj();
+    if ($qual_obj->length() == 0 && $seq_obj->length() != 0) {
+	my $fake_qualities = ("$DEFAULT_QUALITY ")x$seq_obj->length();
+	$swq->qual($fake_qualities);
+    }
+    if ($seq_obj->length() == 0 && $qual_obj->length != 0) {
+	my $sequence = ("N")x$qual_obj->length();
+	$swq->seq($sequence);
+    }
 }
 
 

@@ -5,13 +5,13 @@
 
 use strict;
 
-use vars qw($DEBUG);
-$DEBUG = $ENV{'BIOPERLDEBUG'};
-
 BEGIN {
-	# to handle systems with no installed Test module
-	# we include the t dir (where a copy of Test.pm is located)
-	# as a fallback
+    use vars qw($DEBUG);
+    $DEBUG = $ENV{'BIOPERLDEBUG'};
+
+    # to handle systems with no installed Test module
+    # we include the t dir (where a copy of Test.pm is located)
+    # as a fallback
     eval { require Test; };
     if( $@ ) {
         use lib 't';
@@ -21,7 +21,8 @@ BEGIN {
 }
 
 END {
-    unlink qw(write_scf.scf write_scf_no_sequence.scf write_scf_no_qualities.scf);
+    unlink qw(write_scf.scf write_scf_no_sequence.scf 
+	      write_scf_no_qualities.scf);
 }
 
 
@@ -34,36 +35,35 @@ ok(1);
 
 print("Checking to see if SeqWithQuality objects can be created from an scf file...\n") if( $DEBUG );
 	# my $in_scf = Bio::SeqIO->new(-file => "<t/data/chad100.scf" , '-format' => 'csmscf');
-my $in_scf = Bio::SeqIO->new('-file' => Bio::Root::IO->catfile("t","data","chad100.scf") , 
+my $in_scf = Bio::SeqIO->new('-file' => Bio::Root::IO->catfile("t","data",
+							       "chad100.scf"),
 			     '-format' => 'csmscf',
 			     '-verbose' => $DEBUG || 0);
 ok(1);
 
 my $swq = $in_scf->next_seq();
 
-print("Checking to see that SeqIO::scf returned the right kind of object (SeqWithQuality)...\n") if( $DEBUG);
+print("Checking to see that SeqIO::scf returned the right kind of object (SeqWithQuality)...\n");
+
 ok (ref($swq) eq "Bio::Seq::SeqWithQuality");
 
-if( $DEBUG ) {
-    print("Checking to see if the SeqWithQuality object contains the right stuff.\n");
-    print("sequence :  ".$swq->seq()."\n");
-}
+print("Checking to see if the SeqWithQuality object contains the right stuff.\n");
+print("sequence :  ".$swq->seq()."\n");
 ok (length($swq->seq())>10);
 my $qualities = join(' ',@{$swq->qual()});
 
-print("qualities: $qualities\n") if ( $DEBUG );
+print("qualities: $qualities\n");
 ok (length($qualities)>10);
-print("id       : ".$swq->id()."\n") if ($DEBUG );
+print("id       : ".$swq->id()."\n");
 ok ($swq->id());
 
-if( $DEBUG ) { 
-    print("Now checking to see that you can retrieve traces for the individual colour channels in the scf...\n");
-    print("First, trying to retrieve a base channel that doesn't exist...\n");
-}
+print("Now checking to see that you can retrieve traces for the individual colour channels in the scf...\n");
+print("First, trying to retrieve a base channel that doesn't exist...\n");
+
 eval { $in_scf->get_trace("h"); };
 ok ($@ =~ /that wasn\'t A,T,G, or C/);
 
-print("Now trying to request a valid base channel...\n") if ($DEBUG);
+print("Now trying to request a valid base channel...\n");
 my $a_channel = $in_scf->get_trace("a");
 ok (length($a_channel) > 10);
 my $c_channel = $in_scf->get_trace("c");
@@ -75,11 +75,11 @@ ok (length($t_channel) > 10);
 
 	# everything ok? <deep breath> ok, now we test the writing components
 	# 1. try to create an empty file
-print("Trying to create a new scf file from the existing object (from above)...\n") if( $DEBUG );
+print("Trying to create a new scf file from the existing object (from above)...\n");
 
 my $out_scf = Bio::SeqIO->new('-file' => ">write_scf.scf",
 			      '-format' => 'csmscf');
-    $out_scf->write_scf(	-SeqWithQuality	=>	$swq,
+    $out_scf->write_seq(-SeqWithQuality	=>	$swq,
 			-MACH		=>	'CSM sequence-o-matic 5000',
 			-TPSW		=>	'trace processing software',
 			-BCSW		=>	'basecalling software',
@@ -87,16 +87,14 @@ my $out_scf = Bio::SeqIO->new('-file' => ">write_scf.scf",
 			-DATN		=>	'a22c.alf',
 			-CONV		=>	'Bioperl-scf.pm');
 
-if ($DEBUG) {
-	print("Trying to create an scf using null qualities.\n");
-}
+print("Trying to create an scf using null qualities.\n");
 
 $swq = Bio::Seq::SeqWithQuality->new(-seq=>'ATCGTACGTACGTC',
 				-qual=>"");
 
 $out_scf = Bio::SeqIO->new('-file' => ">write_scf_no_qualities.scf",
 			      '-format' => 'csmscf');
-$out_scf->write_scf(	-SeqWithQuality	=>	$swq,
+$out_scf->write_seq(	-SeqWithQuality	=>	$swq,
 			-MACH		=>	'CSM sequence-o-matic 5000',
 			-TPSW		=>	'trace processing software',
 			-BCSW		=>	'basecalling software',
@@ -104,28 +102,22 @@ $out_scf->write_scf(	-SeqWithQuality	=>	$swq,
 			-DATN		=>	'a22c.alf',
 			-CONV		=>	'Bioperl-scf.pm');
 
-if ($DEBUG) {
 	print("Trying to create an scf using null sequence but with qualities.\n");
-}
 
-my $out_scf = Bio::SeqIO->new('-file' => ">write_scf_no_sequence.scf",
+$out_scf = Bio::SeqIO->new('-file' => ">write_scf_no_sequence.scf",
 			      '-format' => 'csmscf');
 
 $swq = Bio::Seq::SeqWithQuality->new(-seq=>'',
-				-qual=>"10 20 30 40 50 20 10 30 40 50",
-				-moltype=>'dna');
-    
-$out_scf->write_scf(	-SeqWithQuality	=>	$swq,
+				     -qual=>"10 20 30 40 50 20 10 30 40 50",
+				     -moltype=>'dna');
+
+$out_scf->write_seq(	-SeqWithQuality	=>	$swq,
 			-MACH		=>	'CSM sequence-o-matic 5000',
 			-TPSW		=>	'trace processing software',
 			-BCSW		=>	'basecalling software',
 			-DATF		=>	'AM_Version=2.00',
 			-DATN		=>	'a22c.alf',
 			-CONV		=>	'Bioperl-scf.pm');
-
-
-				
-
 
 # dumpValue($in_scf);
 ok( -e "write_scf.scf");
