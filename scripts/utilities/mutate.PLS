@@ -72,10 +72,16 @@ srand(time|$$);
 my $seqio = Bio::SeqIO->new(-file => $in_file);
 my $seqobj = $seqio->next_seq;
 my $num_mut = percent_to_num($percent);
+my @seq_arr = ();
 
-foreach my $num (1..$number) {
+# don't keep a mutant that's already been made
+while ($number > $#seq_arr + 1) {
    my $mut_seq = mutate_all($seqobj,$num_mut);
-   my $name = $seqobj->display_id . "-" . "mutant" . $num;
+   push @seq_arr, $mut_seq unless (grep /$mut_seq/,@seq_arr);
+}
+
+foreach my $mut_seq (@seq_arr) {
+   my $name = $seqobj->display_id . "-" . "mutant" . $number;
    my $outseq = Bio::Seq->new(-seq        => $mut_seq,
 			      -display_id => $name,
 			      -desc       => $seqobj->desc );
@@ -83,6 +89,7 @@ foreach my $num (1..$number) {
    $args{-file} = ">>$out_file" if $out_file;
    my $seqio = Bio::SeqIO->new(%args);
    $seqio->write_seq($outseq);
+   $number--;
 }
 
 # mutagenize the sequence, one-by-one
