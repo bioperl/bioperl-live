@@ -191,16 +191,36 @@ sub exons {
     my ($self, $type) = @_;
     my @keys = ();
     my @exons = ();
+    my $strand;
 
     # pull out all exon types that exist and match
-    @keys = _get_typed_keys("exons_",
-			    ($type && (lc($type) eq 'coding') ? "" : $type));
+    @keys = $self->_get_typed_keys("exons_",
+				   ($type && (lc($type) eq 'coding') ?
+				    "" : $type));
     # if none matched we're done
     return () unless(@keys);
-    # bring keys into the right order
+    # bring keys into the right order, depending on the strand, provided we've
+    # got an unambiguous strand
+    foreach my $exon (map { @{$_}; } @{%$self}{@keys}) {
+	if($exon->strand()) {
+	    # defined and != 0
+	    $strand = $exon->strand() if(! $strand);
+	    if(($exon->strand() * $strand) < 0) {
+		$strand = undef;
+		last;
+	    }
+	}
+    }
     my %order = %{$self->exon_type_sortorder()};
-    @keys = sort {$order{substr($a,rindex($a,'_')+1)} <=>
-		      $order{substr($b,rindex($b,'_'))};} @keys;
+    if((! $strand) || ($strand == 1)) {
+	# for undefined and forward, sort forward
+	@keys = sort {$order{substr($a,rindex($a,'_')+1)} <=>
+			  $order{substr($b,rindex($b,'_')+1)};} @keys;
+    } else {
+	# for reverse strand transcripts, sort in reverse order
+	@keys = sort {$order{substr($b,rindex($b,'_')+1)} <=>
+			  $order{substr($a,rindex($a,'_')+1)};} @keys;
+    }
     # gather the individual arrays and flatten out into one
     foreach my $key (@keys) {
 	if($type && (lc($type) eq 'coding')) {
@@ -282,7 +302,7 @@ sub flush_exons {
     my ($self, $type) = @_;
 
     # pull out all exon types that exist and match
-    my @keys = grep { $_ !~ /utr/i; } _get_typed_keys("exons_", $type);
+    my @keys = grep { $_ !~ /utr/i; } $self->_get_typed_keys("exons_", $type);
     # delete the keys pulled out
     foreach my $key (@keys) {
 	delete($self->{$key});
@@ -482,7 +502,7 @@ sub utrs {
     my @keys;
 
     # pull out all exon types that exist and match
-    @keys = _get_typed_keys("exons_utr", $type);
+    @keys = $self->_get_typed_keys("exons_utr", $type);
     # gather the individual arrays and flatten out into one
     foreach my $key (@keys) {
 	push(@utrs, @{$self->{$key}});
@@ -556,7 +576,7 @@ sub flush_utrs {
     $type = ($type ? lc($type) : "");
     $type = "utr".$type if($type !~ /^utr/);
     # pull out all types that exist and match
-    my @keys = _get_typed_keys("exons_", $type);
+    my @keys = $self->_get_typed_keys("exons_", $type);
     # delete the keys pulled out
     foreach my $key (@keys) {
 	delete($self->{$key});
@@ -587,7 +607,7 @@ sub sub_SeqFeature {
    # add the features we have in addition
    push(@feas, $self->exons()); # this includes UTR features
    push(@feas, $self->promoters());
-   push(@feas, $self->poly_A_site());
+   push(@feas, $self->poly_A_site()) if($self->poly_A_site());
    return @feas;
 }
 
@@ -678,7 +698,8 @@ sub cds {
     my $cds = $self->_make_cds(@exons);
     return undef unless $cds;
     return Bio::PrimarySeq->new('-id' => $self->seqname(),
-				'-seq' => $cds);
+				'-seq' => $cds,
+				'-moltype' => "dna");
 }
 
 =head2 protein
@@ -760,7 +781,7 @@ sub _get_typed_keys {
     # make case-insensitive
     $type = ($type ? lc($type) : "");
     # pull out all feature types that exist and match
-    @keys = grep { $_ =~ /^_$keyprefix$type/i; } (keys(%{$self}));
+    @keys = grep { /^_$keyprefix$type/i; } (keys(%{$self}));
     return @keys;
 }
 
