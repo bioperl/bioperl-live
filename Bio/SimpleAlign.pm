@@ -302,7 +302,7 @@ sub remove_seq {
     my ($name,$id,$start,$end);
 
     $self->throw("Need Bio::Locatable seq argument ")
-	unless ref $seq eq 'Bio::LocatableSeq';
+	unless ref $seq && $seq->isa( 'Bio::LocatableSeq');
 
     $id = $seq->id();
     $start = $seq->start();
