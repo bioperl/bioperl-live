@@ -573,7 +573,7 @@ sub get_child_terms{
   my ($self, $term, @relationship_types) = @_;
 
   die if !defined $term;
-  return $self->_filter_unmarked( $self->get_term_by_identifier( $self->_typed_traversal(($self->_relationship_store, 1, $term->identifier, @relationship_types)) ) );
+  return $self->_filter_unmarked( $self->get_term_by_identifier( $self->_typed_traversal($self->_relationship_store, 1, $term->identifier, @relationship_types) ) );
 }
 
 =head2 get_descendant_terms
@@ -593,7 +593,7 @@ sub get_descendant_terms{
   my ($self, $term, @relationship_types) = @_;
   die if !defined $term;
 
-  return $self->_filter_unmarked( $self->get_term_by_identifier( $self->_typed_traversal(($self->_relationship_store, 0, $term->identifier, @relationship_types)) ) );
+  return $self->_filter_unmarked( $self->_filter_repeated( $self->get_term_by_identifier( $self->_typed_traversal($self->_relationship_store, 0, $term->identifier, @relationship_types) ) ) );
 }
 
 =head2 get_parent_terms
@@ -613,7 +613,7 @@ sub get_parent_terms{
   my ($self, $term, @relationship_types) = @_;
   die if !defined $term;
 
-  return $self->_filter_unmarked( $self->get_term_by_identifier( $self->_typed_traversal(($self->_inverted_relationship_store, 1, $term->identifier, @relationship_types)) ) );
+  return $self->_filter_unmarked( $self->get_term_by_identifier( $self->_typed_traversal($self->_inverted_relationship_store, 1, $term->identifier, @relationship_types) ) );
 }
 
 =head2 get_ancestor_terms
@@ -633,7 +633,7 @@ sub get_ancestor_terms{
   my ($self, $term, @relationship_types) = @_;
   die if !defined $term;
 
-  return $self->_filter_unmarked( $self->get_term_by_identifier( $self->_typed_traversal(($self->_inverted_relationship_store, 0, $term->identifier, @relationship_types)) ) );
+  return $self->_filter_unmarked( $self->_filter_repeated( $self->get_term_by_identifier( $self->_typed_traversal($self->_inverted_relationship_store, 0, $term->identifier, @relationship_types) ) ) );
 }
 
 =head2 get_leaf_terms
@@ -684,6 +684,29 @@ sub get_root_terms{
   }
 
   return @root_terms;
+}
+
+=head2 _filter_repeated
+
+ Title   : _filter_repeated
+ Usage   : @lst = $self->_filter_repeated(@old_lst);
+ Function: Removes repeated terms
+ Example :
+ Returns : List of unique TermI objects
+ Args    : List of TermI objects
+
+
+=cut
+
+sub _filter_repeated{
+  my ($self, @args) = @_;
+  my %h;
+
+  foreach my $element (@args) {
+    $h{$element->identifier} = $element if !defined $h{$element->identifier};
+  }
+
+  return values %h;
 }
 
 =head2 get_all_terms
