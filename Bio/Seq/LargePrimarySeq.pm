@@ -70,7 +70,7 @@ The rest of the documentation details each of the object methods. Internal metho
 
 
 package Bio::Seq::LargePrimarySeq;
-use vars qw($AUTOLOAD @ISA);
+use vars qw($AUTOLOAD $COUNTER $DEFAULT_TEMP_DIR @ISA);
 use strict;
 
 # Object preamble - inherits from Bio::Root::Objecttest 8, 
@@ -80,18 +80,37 @@ use Bio::PrimarySeqI;
 
 use POSIX;
 use FileHandle;
-use File::Spec;
-
-my $DEFAULT_TEMP_DIR = File::Spec->tmpdir();
-my $counter = 0;
-
 @ISA = qw(Bio::PrimarySeqI Bio::Root::RootI);
+
+BEGIN { 
+    eval { 
+	use File::Spec;
+	$DEFAULT_TEMP_DIR = File::Spec->tmpdir();
+    };
+    if( $@ ) {
+	print STDERR "error was $@\n";
+	if( defined $ENV{TMPDIR} && -w $ENV{TMPDIR} ) {
+	    $DEFAULT_TEMP_DIR = $ENV{TMPDIR};
+	} else {
+	    $DEFAULT_TEMP_DIR = '/tmp';
+	}
+    }
+    $COUNTER = 0;
+}
+
+
 
 sub new {
     my ($class, @args) = @_;
-
     my $self = bless {}, $class;
-    my($seq,$disp_id,$acc,$pid,$desc,$moltype,$given_id) =
+    $self->_initialize(@args);
+    return $self;
+}
+
+sub _initialize {
+    my ($self, @args) = @_;
+
+    my($seq,$id,$acc,$pid,$desc,$moltype,$given_id) =
 	$self->_rearrange([qw(SEQ
 			      DISPLAY_ID
 			      ACCESSION_NUMBER
@@ -101,30 +120,39 @@ sub new {
 			      ID
 			      )],
 			  @args);
+
+    my $make = $self->SUPER::_initialize(@args);
+
+    if( defined $id && defined $given_id ) {
+	if( $id ne $given_id ) {
+	    $self->throw("Provided both id and display_id constructor functions. [$id] [$given_id]");
+	}
+    }
+    if( defined $given_id ) { $id = $given_id; }
+    $acc = 'unknown' if( !defined $acc);
+    $pid = 'nopid'   if( !defined $pid );
     
-    my $id = POSIX::cuserid() . "$$" . $counter;
-    my $file = "$DEFAULT_TEMP_DIR/$id";
+    $seq     && $self->seq($seq);
+    $id      && $self->display_id($id);
+    $acc     && $self->accession_number($acc);
+    $pid     && $self->primary_id($pid);
+    $desc    && $self->desc($desc);
+    $moltype && $self->moltype($moltype);
+
+    my $fid = POSIX::cuserid() . "$$-" . $COUNTER++;
+    my $file = "$DEFAULT_TEMP_DIR/$fid";
+
     system("touch $file");
     my $fh = new FileHandle $file,"+>"; 
     if( !defined $fh ) {
 	$self->throw("Unable to make file $file $!");
     }
-    $acc = 'unknown' unless ( defined $acc );
-    $disp_id  = 'no_id'   unless ( defined $disp_id  );
-    $pid = "pid$$"   unless ( defined $pid );
-    
-    $seq     && $self->add_sequence_as_string($seq);
-    $disp_id && $self->display_id($disp_id);
-    $acc     && $self->accession_number($acc);
-    $pid     && $self->primary_id($pid);
-    $desc    && $self->desc($desc);
-    $moltype && $self->moltype($moltype);    
 
     $fh      && $self->_fh($fh);
     $file    && $self->_filename($file);
     $self->length(0);
-    
-    return $self;
+
+    return $make;
 }
 
 =head2 id
@@ -248,9 +276,16 @@ sub length{
 
 =cut
 
-sub seq{
-   my ($self) = @_;
+sub seq {
+   my ($self, $data) = @_;
 
+   if( defined $data  ) {
+       if( $self->length() == 0) {
+	   $self->add_sequence_as_string($data);
+       } else { 
+	   $self->warn("Trying to reset the seq string, cannot do this with a LargePrimarySeq - must allocate a new object");
+       }
+   } 
    return $self->subseq(1,$self->length);
 }
 
@@ -414,8 +449,3 @@ sub DESTROY {
     my $self = shift;
     if( defined  $self->_fh ) {
 	$self->_fh->close();
-    }
-    unlink($self->_filename);
-}
-
-

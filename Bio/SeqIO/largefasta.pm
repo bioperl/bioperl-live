@@ -78,6 +78,7 @@ use strict;
 
 use Bio::SeqIO;
 use Bio::Seq::LargePrimarySeq;
+use Bio::Seq::LargeSeq;
 
 $FASTALINELEN = 60;
 @ISA = qw(Bio::SeqIO);
@@ -123,30 +124,34 @@ sub next_primary_seq {
   my( $self, $as_next_seq ) = @_;
 
 #  local $/ = "\n";
-  my $largeseq = new Bio::Seq::LargePrimarySeq;
+  my $largepseq = new Bio::Seq::LargePrimarySeq();
   my ($id,$fulldesc,$entry);
   my $count = 0;
   my $seen = 0;
   while( defined ($entry = $self->_readline) ) {
       if( $seen == 1 && $entry =~ /^\s*>/ ) {
 	  $self->_pushback($entry);
-	  return $largeseq;
+	  return $largepseq;
       }
       if ( $entry eq '>' ) { $seen = 1; next; }      
       elsif( $entry =~ /\s*>(.+?)$/ ) {
 	  $seen = 1;
 	  ($id,$fulldesc) = ($1 =~ /^\s*(\S+)\s*(.*)$/)
 	      or $self->warn("Can't parse fasta header");
-	  $largeseq->display_id($id);
-	  $largeseq->primary_id($id);	  
-	  $largeseq->desc($fulldesc);
+	  $largepseq->display_id($id);
+	  $largepseq->primary_id($id);	  
+	  $largepseq->desc($fulldesc);
       } else {
 	  $entry =~ s/\s+//g;
-	  $largeseq->add_sequence_as_string($entry);
+	  $largepseq->add_sequence_as_string($entry);
       }
       (++$count % 1000 == 0 && $self->verbose() > 0) && print "line $count\n";
   }
-  return $largeseq;
+  if( $as_next_seq ) {
+      return new Bio::Seq::LargeSeq(-primaryseq => $largepseq );      
+  } else {
+      return $largepseq;
+  }
 }
 
 =head2 write_seq
