@@ -152,7 +152,7 @@ sub next_seq {
  Usage   : $stream->write_seq(@seq)
  Function: writes the $seq object into the stream
  Returns : 1 for success and 0 for error
- Args    : Bio::Seq object
+ Args    : array of 1 to n Bio::PrimarySeqI objects
 
 
 =cut
@@ -161,18 +161,21 @@ sub write_seq {
    my ($self,@seq) = @_;
    my $width = $self->width;
    foreach my $seq (@seq) {
-     my $str = $seq->seq;
-     my $top = $seq->display_id();
-     if ($seq->can('desc') and my $desc = $seq->desc()) {
-	 $desc =~ s/\n//g;
-        $top .= " $desc";
-     }
-     if(length($str) > 0) {
-	 $str =~ s/(.{1,$width})/$1\n/g;
-     } else {
-	 $str = "\n";
-     }
-     $self->_print (">",$top,"\n",$str) or return;
+       $self->throw("Did not provide a valid Bio::PrimarySeqI object") 
+	   unless defined $seq && ref($seq) && $seq->isa('Bio::PrimarySeqI');
+
+       my $str = $seq->seq;
+       my $top = $seq->display_id();
+       if ($seq->can('desc') and my $desc = $seq->desc()) {
+	   $desc =~ s/\n//g;
+	   $top .= " $desc";
+       }
+       if(length($str) > 0) {
+	   $str =~ s/(.{1,$width})/$1\n/g;
+       } else {
+	   $str = "\n";
+       }
+       $self->_print (">",$top,"\n",$str) or return;
    }
 
    $self->flush if $self->_flush_on_write && defined $self->_fh;

@@ -161,9 +161,9 @@ sub next_seq {
 
  Title   : write_seq
  Usage   : $stream->write_seq(@seq)
- Function: writes the fromatted $seq object into the stream
+ Function: writes the formatted $seq object into the stream
  Returns : 1 for success and 0 for error
- Args    : Bio::Seq object, sequence string
+ Args    : array of Bio::PrimarySeqI object
 
 
 =cut
@@ -171,6 +171,9 @@ sub next_seq {
 sub write_seq {
     my ($self,@seq) = @_;
     for my $seq (@seq) {
+	$self->throw("Did not provide a valid Bio::PrimarySeqI object") 
+	    unless defined $seq && ref($seq) && $seq->isa('Bio::PrimarySeqI');
+
 	my $str         = $seq->seq;
 	my $comment     = $seq->desc; 
 	my $id          = $seq->id;

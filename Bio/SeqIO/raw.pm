@@ -130,14 +130,16 @@ sub next_seq{
  Usage   : $stream->write_seq($seq)
  Function: writes the $seq object into the stream
  Returns : 1 for success and 0 for error
- Args    : Bio::Seq object
+ Args    : Array of Bio::PrimarySeqI objects
 
 
 =cut
 
 sub write_seq {
    my ($self,@seq) = @_;
-   foreach (@seq) {
+   foreach my $seq (@seq) {
+       $self->throw("Must provide a valid Bio::PrimarySeqI object") 
+	   unless defined $seq && ref($seq) && $seq->isa('Bio::PrimarySeqI');
      $self->_print($_->seq, "\n") or return;
    }
    $self->flush if $self->_flush_on_write && defined $self->_fh;
