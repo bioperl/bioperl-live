@@ -3317,7 +3317,7 @@ sub _split_gff2_group {
   for (@groups) {
 
     my ($tag,$value) = /^(\S+)(?:\s+(.+))?/;
-    $value ||= '';
+    $value = '' unless defined $value;
     if ($value =~ /^\"(.+)\"$/) {  #remove quotes
       $value = $1;
     }
