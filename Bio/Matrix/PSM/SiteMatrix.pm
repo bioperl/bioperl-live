@@ -178,10 +178,10 @@ sub new {
 	$self->{probG}   = [split(//,$input{pG})];
 	$self->{probT}   = [split(//,$input{pT})];
 	for (my $i=0; $i<@{$self->{probA}}+1; $i++) {
-	    ${$self->{probA}}[$i]='10' if ( ${$self->{probA}}[$i] eq 'a');
-	    ${$self->{probC}}[$i]='10' if ( ${$self->{probC}}[$i] eq 'a');
-	    ${$self->{probG}}[$i]='10' if ( ${$self->{probG}}[$i] eq 'a');
-	    ${$self->{probT}}[$i]='10' if ( ${$self->{probT}}[$i] eq 'a');
+	    ${$self->{probA}}[$i]='10' if ( ${$self->{probA}}[$i] and ${$self->{probA}}[$i] eq 'a');
+	    ${$self->{probC}}[$i]='10' if ( ${$self->{probC}}[$i] and ${$self->{probC}}[$i] eq 'a');
+	    ${$self->{probG}}[$i]='10' if ( ${$self->{probG}}[$i] and ${$self->{probG}}[$i] eq 'a');
+	    ${$self->{probT}}[$i]='10' if ( ${$self->{probT}}[$i] and ${$self->{probT}}[$i] eq 'a');
 	}
 #If this is MEME like output(probabilities, rather than count) here is the place for a check
     }
