@@ -1,5 +1,5 @@
 #!perl -w
-# $Id: chaos_plot.PLS,v 1.1 2003-02-26 09:34:18 heikki Exp $
+# $Id: chaos_plot.PLS,v 1.2 2003-02-28 04:59:02 heikki Exp $
 
 use strict;
 
@@ -21,7 +21,8 @@ $USAGE = "usage:\tchaos_plot -i/--input=INPUTFILE -f/--format=SEQFORMAT \n".
     "\t-w/--width=600 -h/--height=400\n";
 
 $USAGE .= "\tValid graphics formats: (" . join(",", ( keys %VALIDFORMATS )) .")\n";
-$USAGE .= "\tImage size defaults to 600x400\n";
+$USAGE .= "\tImage size defaults to 600x400, SEQFORMAT to fasta\n";
+$USAGE .= "\tINPUTFILE can also be read from STDIN\n";
 
 my ($format,$graph,$width,$height,$seqfile,$output) = ('fasta', 'png', 600, 400);
 GetOptions( "i|input:s"           => \$seqfile,
@@ -32,11 +33,19 @@ GetOptions( "i|input:s"           => \$seqfile,
             "height:i"            => \$height
 	    );
 
-if( ! $seqfile || ! -e $seqfile || ! $output || ! $VALIDFORMATS{$graph} ) {
+if( ! $output || ! $VALIDFORMATS{$graph} ) {
     die $USAGE ;
 }
-my $seqin = new Bio::SeqIO(-format => $format,
-			   -file   => $seqfile);
+my $seqin;
+$seqfile = shift unless $seqfile;
+if( defined $seqfile ) {
+    print "Could not open file [$seqfile]\n$USAGE" and exit unless -e $seqfile;
+    $seqin = new Bio::SeqIO(-format => $format,
+			    -file   => $seqfile);
+} else {
+    $seqin = new Bio::SeqIO(-format => $format,
+			    -fh     => \*STDIN);
+}
 
 my $img = new GD::Image($width,$height);
 my $white = $img->colorAllocate(255,255,255); 
@@ -81,6 +90,7 @@ $graph =~ s/jpg/jpeg/;
 print OUT $img->$graph();
 
 
+__END__
 
 =head1 NAME
 
@@ -102,6 +112,24 @@ nucleotide sequences using chaos plot.
 Valid graphics formats are currently gd, gd2, png, wbmp, jpeg and gif.
 
 The default size of the image file is 600x400.
+
+The sequence input can be provided using any of the three methods:
+
+=over 3
+
+=item unnamed argument
+
+  chaos_plot filename
+
+=item named argument
+
+  chaos_plot -i filename
+
+=item standard input
+
+  chaos_plot < filename
+
+=cut
 
 =head1 FEEDBACK
 
