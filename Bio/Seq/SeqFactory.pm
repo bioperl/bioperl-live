@@ -143,8 +143,9 @@ sub type{
        if( $@ ) { $self->throw("$@: Unrecognized Sequence type for SeqFactory '$value'");}
        
        my $a = bless {},$value;
-       unless( $a->isa('Bio::PrimarySeqI') ) {
-	   $self->throw("Must provide a valid Bio::PrimarySeqI or child class to SeqFactory Not $value");
+       unless( $a->isa('Bio::PrimarySeqI') ||
+	       $a->isa('Bio::Seq::QualI') ) {
+	   $self->throw("Must provide a valid Bio::PrimarySeqI or Bio::Seq::QualI or child class to SeqFactory Not $value");
        }
       $self->{'type'} = $value;
     }
