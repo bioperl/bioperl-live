@@ -28,6 +28,7 @@ END { unlink $FILE1; }
  
 my $ssize = 10;
 my $factory = new Bio::Tree::RandomFactory(-sample_size => $ssize);
+my $stats = new Bio::Tree::Statistics();
 
 my $tree = $factory->next_tree;
 
@@ -42,7 +43,22 @@ ok(-s $FILE1);
 my $mutcount = 100;
 $factory->add_Mutations($tree, $mutcount);
 
-my $stats = new Bio::Tree::Statistics();
-my $D = $stats->fu_and_li_D($tree);
-ok($D);
+my $flD = $stats->fu_and_li_D($tree);
 
+ok(defined $flD,1, 'fu and li D');
+
+my $flD_star = $stats->fu_and_li_D_star($tree);
+ok(defined $flD_star,1, 'fu and li D*');
+
+my $flF = $stats->fu_and_li_F($tree);
+ok(defined $flF,1,'fu and li F');
+
+my $tD = $stats->tajima_D($tree);
+ok(defined $tD,1, 'tajimaD');
+
+my $theta = $stats->theta($tree);
+ok(defined $theta,1, 'theta');
+
+$stats->verbose(1);
+my $pi = $stats->pi($tree);
+#ok($pi,1, 'pi');
