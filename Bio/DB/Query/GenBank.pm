@@ -197,7 +197,8 @@ sub _request_parameters {
   $method = 'get';
   $base   = ESEARCH;
   push @params,('term'   => $self->query);
-  push @params,('retmax' => $self->{'_count'} || MAXENTRY);
+  # Providing 'retmax' limits queries to 500 sequences
+  # push @params,('retmax' => $self->{'_count'} || MAXENTRY);
   ($method,$base,@params);
 }
 
