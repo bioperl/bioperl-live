@@ -144,6 +144,8 @@ sub next_seq{
        return undef; # no throws - end of file
    }
 
+   local($/) = "\n";
+
    $line = $self->_popbuffer(); # may be '>' character or undef.
    $line .= <$fh>;
 
@@ -151,7 +153,7 @@ sub next_seq{
        $self->throw("Fasta stream read attempted with no '>' as first character[ $line ]");
    }
    $name = $1;
-   $sfs = $2;
+   $sfs = $2 || '';
    $desc = $3;
    $fulldesc = $sfs . $desc;
 
@@ -176,7 +178,7 @@ sub next_seq{
        $seq = Bio::Seq->new(-seq => $seqc,
 			    -id => $name,
 			    -desc => $desc,
-			    -names => defined $sfs ? { 'sfnum' => [ split(/\s+/, substr($sfs, 1, length($sfs) - 3) ) ] } : undef
+			    -names => length $sfs ? { 'sfnum' => [ split(/\s+/, substr($sfs, 1, length($sfs) - 3) ) ] } : undef
 		       );
    } else {
        $seq = Bio::Seq->new(-seq => $seqc,
