@@ -143,11 +143,11 @@ use Bio::Root::Root;
 use Bio::LocatableSeq;         # uses Seq's as list
 use Bio::Align::AlignI;
 
-BEGIN { 
+BEGIN {
     # This data should probably be in a more centralized module...
     # it is taken from Clustalw documentation
-    # These are all the positively scoring groups that occur in the 
-    # Gonnet Pam250 matrix. The strong and weak groups are 
+    # These are all the positively scoring groups that occur in the
+    # Gonnet Pam250 matrix. The strong and weak groups are
     # defined as strong score >0.5 and weak score =<0.5 respectively.
 
     %CONSERVATION_GROUPS = ( 'strong' => [ qw(STA
@@ -183,7 +183,7 @@ BEGIN {
  Usage     : my $aln = new Bio::SimpleAlign();
  Function  : Creates a new simple align object
  Returns   : Bio::SimpleAlign
- Args      : -source => string representing the source program 
+ Args      : -source => string representing the source program
                         where this alignment came from
 
 =cut
@@ -250,7 +250,7 @@ sub add_seq {
 
     # build the symbol list for this sequence,
     # will prune out the gap and missing/match chars
-    # when actually asked for the symbol list in the 
+    # when actually asked for the symbol list in the
     # symbol_chars
     map { $self->{'_symbols'}->{$_} = 1; } split(//,$seq->seq);
 
@@ -417,7 +417,7 @@ sub purge {
  Usage     : $ali->sort_alphabetically
  Function  : 
 
-             Changes the order of the alignemnt to alphabetical on name 
+             Changes the order of the alignemnt to alphabetical on name
              followed by numerical by number.
 
  Returns   : 
@@ -520,7 +520,7 @@ sub _alpha_startend {
     if( $aname eq $bname ) {
 	return $astart <=> $bstart;
     }
-    else { 
+    else {
 	return $aname cmp $bname;
     }
 
@@ -529,7 +529,7 @@ sub _alpha_startend {
 =head2 each_seq_with_id
 
  Title     : each_seq_with_id
- Usage     : foreach $seq ( $align->each_seq_with_id() ) 
+ Usage     : foreach $seq ( $align->each_seq_with_id() )
  Function  : 
 
              Gets an array of Seq objects from the
@@ -582,9 +582,9 @@ sub get_seq_by_pos {
     my $self = shift;
     my ($pos) = @_;
 
-    $self->throw("Sequence position has to be a positive integer, not [$pos]") 
+    $self->throw("Sequence position has to be a positive integer, not [$pos]")
 	unless $pos =~ /^\d+$/ and $pos > 0;
-    $self->throw("No sequence at position [$pos]") 
+    $self->throw("No sequence at position [$pos]")
 	unless $pos <= $self->no_sequences ;
 
     my $nse = $self->{'_order'}->{--$pos};
@@ -616,13 +616,13 @@ sub select {
     my $self = shift;
     my ($start, $end) = @_;
 
-    $self->throw("Select start has to be a positive integer, not [$start]") 
+    $self->throw("Select start has to be a positive integer, not [$start]")
 	unless $start =~ /^\d+$/ and $start > 0;
-    $self->throw("Select end has to be a positive integer, not [$end]") 
+    $self->throw("Select end has to be a positive integer, not [$end]")
 	unless $end  =~ /^\d+$/ and $end > 0;
-    $self->throw("Select $start [$start] has to be smaller than or equal to end [$end]") 
+    $self->throw("Select $start [$start] has to be smaller than or equal to end [$end]")
 	unless $start <= $end;
-    
+
     my $aln = new $self;
     foreach my $pos ($start .. $end) {
 	$aln->add_seq($self->get_seq_by_pos($pos));
@@ -651,7 +651,7 @@ sub select_noncont {
     my (@pos) = @_;
     my $end = $self->no_sequences;
     foreach ( @pos ) {
-	$self->throw("position must be a positive integer, > 0 and <= $end not [$_]") 
+	$self->throw("position must be a positive integer, > 0 and <= $end not [$_]")
 	    unless( /^\d+$/ && $_ > 0 && $_ <= $end );
     }
     my $aln = new $self;
@@ -675,8 +675,8 @@ sub select_noncont {
              padding.
 
  Returns   : a Bio::SimpleAlign object
- Args      : positive integer for start column 
-             positive integer for end column 
+ Args      : positive integer for start column
+             positive integer for end column
 
 =cut
 
@@ -684,15 +684,15 @@ sub slice {
     my $self = shift;
     my ($start, $end) = @_;
 
-    $self->throw("Slice start has to be a positive integer, not [$start]") 
+    $self->throw("Slice start has to be a positive integer, not [$start]")
 	unless $start =~ /^\d+$/ and $start > 0;
-    $self->throw("Slice end has to be a positive integer, not [$end]") 
+    $self->throw("Slice end has to be a positive integer, not [$end]")
 	unless $end =~ /^\d+$/ and $end > 0;
-    $self->throw("Slice $start [$start] has to be smaller than or equal to end [$end]") 
+    $self->throw("Slice $start [$start] has to be smaller than or equal to end [$end]")
 	unless $start <= $end;
     my $aln_length = $self->length;
-    $self->throw("This alignment has only ". $self->length. 
-		  " residues. Slice start [$start] is too bigger.") 
+    $self->throw("This alignment has only ". $self->length.
+		  " residues. Slice start [$start] is too bigger.")
 	 if $start > $self->length;
 
     my $aln = new $self;
@@ -706,7 +706,7 @@ sub slice {
 	$seq_end = $seq->length if $end > $seq->length;
 	my $slice_seq = $seq->subseq($start, $seq_end);
 	$new_seq->seq( $slice_seq );
-	
+
 	# start
 	if ($start > 1) {
 	    my $pre_start_seq = $seq->subseq(1, $start - 1);
@@ -724,7 +724,8 @@ sub slice {
 	    $aln->add_seq($new_seq);
 	} else {
 	    my $nse = $seq->get_nse();
-	    $self->warn("Slice [$start-$end] of sequence [$nse] contains no residues. Sequence excluded from the new alignment.");
+	    $self->warn("Slice [$start-$end] of sequence [$nse] contains no residues.".
+			" Sequence excluded from the new alignment.");
 	}
 
     }
@@ -869,8 +870,8 @@ sub match_line {
 		       'weak'   => $weak          || '.',
 		       'strong' => $strong        || ':',
 		       'mismatch'=> ' ', 
-	       );    
-              
+	       );
+
 
     my @seqchars;
     my $seqcount = 0;
@@ -899,23 +900,23 @@ sub match_line {
 	elsif( @colresidues == 1 ) { $char = $matchchars{'match'} }
 	elsif( $alphabet eq 'protein' ) { # only try to do weak/strong
 	                                  # matches for protein seqs
-	    TYPE: foreach my $type ( qw(strong weak) ) { 
+	    TYPE: foreach my $type ( qw(strong weak) ) {
                 # iterate through categories
 		my %groups;
 		# iterate through each of the aa in the col
 		# look to see which groups it is in
 		foreach my $c ( @colresidues ) {
 		    foreach my $f ( grep /\Q$c/, @{$CONSERVATION_GROUPS{$type}} ) {
-			push @{$groups{$f}},$c; 
+			push @{$groups{$f}},$c;
 		    }
 		}
 		GRP: foreach my $cols ( values %groups ) {
 		    @$cols = sort @$cols;
-		    # now we are just testing to see if two arrays 
+		    # now we are just testing to see if two arrays
 		    # are identical w/o changing either one
 
 		    # have to be same len
-		    next if( scalar @$cols != scalar @colresidues ); 
+		    next if( scalar @$cols != scalar @colresidues );
 		    # walk down the length and check each slot
 		    for($_=0;$_ < (scalar @$cols);$_++ ) {
 			next GRP if( $cols->[$_] ne $colresidues[$_] );
@@ -968,7 +969,7 @@ sub match {
     foreach my $seq ( @seqs ) {
 	my @varseq = split //, $seq->seq();
 	for ( my $i=0; $i < scalar @varseq; $i++) {
-	    $varseq[$i] = $match if defined $refseq[$i] && 
+	    $varseq[$i] = $match if defined $refseq[$i] &&
 		( $refseq[$i] =~ /[A-Za-z\*]/ ||
 		  $refseq[$i] =~ /$gapchar/ )
 		      && $refseq[$i] eq $varseq[$i];
@@ -1020,7 +1021,7 @@ sub unmatch {
 
 =head1 MSE attibutes
 
-Methods for setting and reading the MSE attributes. 
+Methods for setting and reading the MSE attributes.
 
 Note that the methods defining character semantics depend on the user
 to set them sensibly.  They are needed only by certain input/output
@@ -1042,7 +1043,7 @@ sub id {
     if (defined( $name )) {
 	$self->{'_id'} = $name;
     }
-    
+
     return $self->{'_id'};
 }
 
@@ -1051,8 +1052,8 @@ sub id {
  Title     : missing_char
  Usage     : $myalign->missing_char("?")
  Function  : Gets/sets the missing_char attribute of the alignment
-             It is generally recommended to set it to 'n' or 'N' 
-             for nucleotides and to 'X' for protein. 
+             It is generally recommended to set it to 'n' or 'N'
+             for nucleotides and to 'X' for protein.
  Returns   : An missing_char string,
  Argument  : An missing_char string (optional)
 
@@ -1065,7 +1066,7 @@ sub missing_char {
 	$self->throw("Single missing character, not [$char]!") if CORE::length($char) > 1;
 	$self->{'_missing_char'} = $char;
     }
-    
+
     return $self->{'_missing_char'};
 }
 
@@ -1102,12 +1103,12 @@ sub match_char {
 
 sub gap_char {
     my ($self, $char) = @_;
-    
+
     if (defined $char || ! defined $self->{'_gap_char'} ) {
 	$char= '-' unless defined $char;
 	$self->throw("Single gap character, not [$char]!") if CORE::length($char) > 1;
 	$self->{'_gap_char'} = $char;
-    }    
+    }
     return $self->{'_gap_char'};
 }
 
@@ -1123,14 +1124,14 @@ sub gap_char {
 
 sub symbol_chars{
    my ($self,$includeextra) = @_;
-   if( ! defined $self->{'_symbols'} ) { 
+   if( ! defined $self->{'_symbols'} ) {
        $self->warn("Symbol list was not initialized");
        return ();
    }
    my %copy = %{$self->{'_symbols'}};
-   if( ! $includeextra ) { 
-       foreach my $char ( $self->gap_char, $self->match_char, 
-			  $self->missing_char) { 
+   if( ! $includeextra ) {
+       foreach my $char ( $self->gap_char, $self->match_char,
+			  $self->missing_char) {
 	   delete $copy{$char} if( defined $char );
        }
    }
@@ -1139,14 +1140,14 @@ sub symbol_chars{
 
 =head1 Alignment descriptors
 
-These read only methods describe the MSE in various ways. 
+These read only methods describe the MSE in various ways.
 
 
 =head2 consensus_string
 
  Title     : consensus_string
  Usage     : $str = $ali->consensus_string($threshold_percent)
- Function  : Makes a strict consensus 
+ Function  : Makes a strict consensus
  Returns   : 
  Argument  : Optional treshold ranging from 0 to 100.
              The consensus residue has to appear at least threshold %
@@ -1227,9 +1228,9 @@ sub consensus_iupac {
     my $out = "";
     my $len = $self->length-1;
 
-    # only DNA and RNA sequences are valid 
+    # only DNA and RNA sequences are valid
     foreach my $seq ( $self->each_seq() ) {
-	$self->throw("Seq [". $seq->get_nse. "] is a protein") 
+	$self->throw("Seq [". $seq->get_nse. "] is a protein")
 	    if $seq->alphabet eq 'protein';
     }
     # loop over the alignment columns
@@ -1240,10 +1241,10 @@ sub consensus_iupac {
 }
 
 sub _consensus_iupac {
-    my ($self, $column) = @_; 
-    my ($string, $char, $rna);    
+    my ($self, $column) = @_;
+    my ($string, $char, $rna);
 
-    #determine all residues in a column 
+    #determine all residues in a column
     foreach my $seq ( $self->each_seq() ) {
 	$string .= substr($seq->seq, $column, 1);
     }
@@ -1264,15 +1265,15 @@ sub _consensus_iupac {
 
     # the following s///'s only need to be done to the _first_ ambiguity code
     # as we only need to see the _range_ of characters in $string
-    
+
     if ($string =~ /[VDHB]/) {
 	$string =~ s/V/AGC/;
 	$string =~ s/D/AGT/;
 	$string =~ s/H/ACT/;
 	$string =~ s/B/CTG/;
     }
-    
-    if ($string =~ /[SKYWM]/) {
+
+    if ($string =~ /[SKYRWM]/) {
 	$string =~ s/S/GC/;
 	$string =~ s/K/GT/;
 	$string =~ s/Y/CT/;
@@ -1285,42 +1286,42 @@ sub _consensus_iupac {
 
     if ($string =~ /A/) {
         $char = 'A';                     # A                      A
-        if ($string =~ /G/) {					  
+        if ($string =~ /G/) {
             $char = 'R';                 # A and G (purines)      R
-            if ($string =~ /C/) {				  
+            if ($string =~ /C/) {
                 $char = 'V';             # A and G and C          V
-                if ($string =~ /T/) {				  
+                if ($string =~ /T/) {
                     $char = 'N';         # A and G and C and T    N
-                }						  
-            } elsif ($string =~ /T/) {				  
+                }
+            } elsif ($string =~ /T/) {
                 $char = 'D';             # A and G and T          D
-            }							  
-        } elsif ($string =~ /C/) {				  
+            }
+        } elsif ($string =~ /C/) {
             $char = 'M';                 # A and C                M
-            if ($string =~ /T/) {				  
+            if ($string =~ /T/) {
                 $char = 'H';             # A and C and T          H
-            }							  
-        } elsif ($string =~ /T/) {				  
+            }
+        } elsif ($string =~ /T/) {
             $char = 'W';                 # A and T                W
-        }							  
-    } elsif ($string =~ /C/) {					  
+        }
+    } elsif ($string =~ /C/) {
         $char = 'C';                     # C                      C
-        if ($string =~ /T/) {					  
+        if ($string =~ /T/) {
             $char = 'Y';                 # C and T (pyrimidines)  Y
-            if ($string =~ /G/) {				  
+            if ($string =~ /G/) {
                 $char = 'B';             # C and T and G          B
-            }							  
-        } elsif ($string =~ /G/) {				  
+            }
+        } elsif ($string =~ /G/) {
             $char = 'S';                 # C and G                S
-        }							  
-    } elsif ($string =~ /G/) {					  
+        }
+    } elsif ($string =~ /G/) {
         $char = 'G';                     # G                      G
-        if ($string =~ /C/) {					  
+        if ($string =~ /C/) {
             $char = 'S';                 # G and C                S
-        } elsif ($string =~ /T/) {				  
+        } elsif ($string =~ /T/) {
             $char = 'K';                 # G and T                K
-        }							  
-    } elsif ($string =~ /T/) {					  
+        }
+    } elsif ($string =~ /T/) {
         $char = 'T';                     # T                      T
     }
 
@@ -1350,14 +1351,14 @@ sub is_flush {
     my $seq;
     my $length = (-1);
     my $temp;
-    
+
     foreach $seq ( $self->each_seq() ) {
 	if( $length == (-1) ) {
 	    $length = CORE::length($seq->seq());
 	    next;
 	}
-	
-	$temp = CORE::length($seq->seq());	
+
+	$temp = CORE::length($seq->seq());
 	if( $temp != $length ) {
 	    $self->warn("expecting $length not $temp from ".
 			$seq->display_id) if( $report );
@@ -1375,7 +1376,7 @@ sub is_flush {
 =head2 length
 
  Title     : length()
- Usage     : $len = $ali->length() 
+ Usage     : $len = $ali->length()
  Function  : Returns the maximum length of the alignment.
              To be sure the alignment is a block, use is_flush
  Returns   : 
@@ -1422,13 +1423,15 @@ sub length {
 
 sub maxname_length {
     my $self = shift;
-    $self->warn(ref($self). "::maxname_length - deprecated method. Use maxdisplayname_length() instead.");
+    $self->warn(ref($self). "::maxname_length - deprecated method.".
+		" Use maxdisplayname_length() instead.");
     $self->maxdisplayname_length();
 }
 
 sub maxnse_length {
     my $self = shift;
-    $self->warn(ref($self). "::maxnse_length - deprecated method. Use maxnse_length() instead.");
+    $self->warn(ref($self). "::maxnse_length - deprecated method.".
+		" Use maxnse_length() instead.");
     $self->maxdisplayname_length();
 }
 
@@ -1492,12 +1495,12 @@ sub no_sequences {
 
  Title   : average_percentage_identity
  Usage   : $id = $align->average_percentage_identity
- Function: The function uses a fast method to calculate the average 
+ Function: The function uses a fast method to calculate the average
            percentage identity of the alignment
  Returns : The average percentage identity of the alignment
  Args    : None
- Notes   : This method implemented by Kevin Howe calculates a figure that is 
-           designed to be similar to the average pairwise identity of the 
+ Notes   : This method implemented by Kevin Howe calculates a figure that is
+           designed to be similar to the average pairwise identity of the
            alignment (identical in the absence of gaps), without having to
            explicitly calculate pairwise identities proposed by Richard Durbin.
            Validated by Ewan Birney ad Alex Bateman.
@@ -1556,12 +1559,12 @@ sub average_percentage_identity{
  Usage   : $id = $align->percentage_identity
  Function: The function calculates the average percentage identity
            (aliased for average_percentage_identity)
- Returns : The average percentage identity 
+ Returns : The average percentage identity
  Args    : None
 
 =cut
 
-sub percentage_identity { 
+sub percentage_identity {
     my $self = shift;
     return $self->average_percentage_identity();
 }
@@ -1570,7 +1573,7 @@ sub percentage_identity {
 
  Title   : percentage_identity
  Usage   : $id = $align->percentage_identity
- Function: The function calculates the percentage identity of 
+ Function: The function calculates the percentage identity of
            the conserved columns
  Returns : The percentage identity of the conserved columns
  Args    : None
@@ -1579,7 +1582,7 @@ sub percentage_identity {
 
 sub overall_percentage_identity{
    my ($self,@args) = @_;
-   
+
    my @alphabet = ('A','B','C','D','E','F','G','H','I','J','K','L','M',
                    'N','O','P','Q','R','S','T','U','V','W','X','Y','Z');
 
@@ -1591,7 +1594,7 @@ sub overall_percentage_identity{
 
    @seqs = $self->each_seq();
    $len = $self->length();
-   
+
    # load the each hash with correct keys for existence checks
    for( my $index=0; $index < $len; $index++) {
        foreach my $letter (@alphabet) {
@@ -1683,7 +1686,8 @@ sub column_from_residue_number {
 	return $col;
     }
 
-    $self->throw("Could not find a sequence segment in $name containing residue number $resnumber");
+    $self->throw("Could not find a sequence segment in $name ".
+		 "containing residue number $resnumber");
 
 }
 
@@ -1797,7 +1801,7 @@ sub set_displayname_flat {
 =head2 set_displayname_normal
 
  Title     : set_displayname_normal
- Usage     : $ali->set_displayname_normal() 
+ Usage     : $ali->set_displayname_normal()
  Function  : Makes all the sequences be displayed as name/start-end
  Returns   : 
  Argument  : 
