@@ -1,0 +1,146 @@
+########################################
+# Program:  water
+# Rundate:  Tue Feb 12 21:31:03 2002
+# Report_file: cys1_dicdi.water
+########################################
+#=======================================
+#
+# Aligned_sequences: 2
+# 1: CYS1_DICDI
+# 2: CYS1_DICDI
+# Matrix: EBLOSUM62
+# Gap_penalty: 10.0
+# Extend_penalty: 0.5
+#
+# Length: 343
+# Identity:     343/343 (100.0%)
+# Similarity:   343/343 (100.0%)
+# Gaps:           0/343 ( 0.0%)
+# Score: 1841.0
+# 
+#
+#=======================================
+
+CYS1_DICDI         1 MKVILLFVLAVFTVFVSSRGIPPEEQSQFLEFQDKFNKKYSHEEYLERFE     50
+                     ||||||||||||||||||||||||||||||||||||||||||||||||||
+CYS1_DICDI         1 MKVILLFVLAVFTVFVSSRGIPPEEQSQFLEFQDKFNKKYSHEEYLERFE     50
+
+CYS1_DICDI        51 IFKSNLGKIEELNLIAINHKADTKFGVNKFADLSSDEFKNYYLNNKEAIF    100
+                     ||||||||||||||||||||||||||||||||||||||||||||||||||
+CYS1_DICDI        51 IFKSNLGKIEELNLIAINHKADTKFGVNKFADLSSDEFKNYYLNNKEAIF    100
+
+CYS1_DICDI       101 TDDLPVADYLDDEFINSIPTAFDWRTRGAVTPVKNQGQCGSCWSFSTTGN    150
+                     ||||||||||||||||||||||||||||||||||||||||||||||||||
+CYS1_DICDI       101 TDDLPVADYLDDEFINSIPTAFDWRTRGAVTPVKNQGQCGSCWSFSTTGN    150
+
+CYS1_DICDI       151 VEGQHFISQNKLVSLSEQNLVDCDHECMEYEGEEACDEGCNGGLQPNAYN    200
+                     ||||||||||||||||||||||||||||||||||||||||||||||||||
+CYS1_DICDI       151 VEGQHFISQNKLVSLSEQNLVDCDHECMEYEGEEACDEGCNGGLQPNAYN    200
+
+CYS1_DICDI       201 YIIKNGGIQTESSYPYTAETGTQCNFNSANIGAKISNFTMIPKNETVMAG    250
+                     ||||||||||||||||||||||||||||||||||||||||||||||||||
+CYS1_DICDI       201 YIIKNGGIQTESSYPYTAETGTQCNFNSANIGAKISNFTMIPKNETVMAG    250
+
+CYS1_DICDI       251 YIVSTGPLAIAADAVEWQFYIGGVFDIPCNPNSLDHGILIVGYSAKNTIF    300
+                     ||||||||||||||||||||||||||||||||||||||||||||||||||
+CYS1_DICDI       251 YIVSTGPLAIAADAVEWQFYIGGVFDIPCNPNSLDHGILIVGYSAKNTIF    300
+
+CYS1_DICDI       301 RKNMPYWIVKNSWGADWGEQGYIYLRRGKNTCGVSNFVSTSII    343
+                     |||||||||||||||||||||||||||||||||||||||||||
+CYS1_DICDI       301 RKNMPYWIVKNSWGADWGEQGYIYLRRGKNTCGVSNFVSTSII    343
+
+#=======================================
+#
+# Aligned_sequences: 2
+# 1: CYS1_DICDI
+# 2: ALEU_HORVU
+# Matrix: EBLOSUM62
+# Gap_penalty: 10.0
+# Extend_penalty: 0.5
+#
+# Length: 339
+# Identity:     112/339 (33.0%)
+# Similarity:   169/339 (49.9%)
+# Gaps:          63/339 (18.6%)
+# Score: 510.5
+# 
+#
+#=======================================
+
+CYS1_DICDI        29 FLEFQDKFNKKY-SHEEYLERFEIFKSNLGKIEELNLIAINHKADTKFGV     77
+                     |..|..::.|.| |..|...||.||..:|.::...|...:.:    :.|:
+ALEU_HORVU        61 FARFAVRYGKSYESAAEVRRRFRIFSESLEEVRSTNRKGLPY----RLGI    106
+
+CYS1_DICDI        78 NKFADLSSDEFK----------------NYYLNNKEAIFTDDLPVADYLD    111
+                     |:|:|:|.:||:                |:.:.:..|             
+ALEU_HORVU       107 NRFSDMSWEEFQATRLGAAQTCSATLAGNHLMRDAAA-------------    143
+
+CYS1_DICDI       112 DEFINSIPTAFDWRTRGAVTPVKNQGQCGSCWSFSTTGNVEGQHFISQNK    161
+                           :|...|||..|.|:|||||..|||||:|||||.:|..:..:..|
+ALEU_HORVU       144 ------LPETKDWREDGIVSPVKNQAHCGSCWTFSTTGALEAAYTQATGK    187
+
+CYS1_DICDI       162 LVSLSEQNLVDCDHECMEYEGEEACDEGCNGGLQPNAYNYIIKNGGIQTE    211
+                     .:|||||.||||......:        ||||||...|:.||..||||.||
+ALEU_HORVU       188 NISLSEQQLVDCAGGFNNF--------GCNGGLPSQAFEYIKYNGGIDTE    229
+
+CYS1_DICDI       212 SSYPYTAETGTQCNFNSANIGAKI---SNFTMIPKNETVMAGYIVSTGPL    258
+                     .||||....|. |::.:.|...::   .|.|:..::|...|..:|.  |:
+ALEU_HORVU       230 ESYPYKGVNGV-CHYKAENAAVQVLDSVNITLNAEDELKNAVGLVR--PV    276
+
+CYS1_DICDI       259 AIAADAVE-WQFYIGGVFDIP-C--NPNSLDHGILIVGYSAKNTIFRKNM    304
+                     ::|...:: ::.|..||:... |  .|:.::|.:|.|||..:|     .:
+ALEU_HORVU       277 SVAFQVIDGFRQYKSGVYTSDHCGTTPDDVNHAVLAVGYGVEN-----GV    321
+
+CYS1_DICDI       305 PYWIVKNSWGADWGEQGYIYLRRGKNTCGVSNFVSTSII    343
+                     |||::|||||||||:.||..:..|||.|.::...|..::
+ALEU_HORVU       322 PYWLIKNSWGADWGDNGYFKMEMGKNMCAIATCASYPVV    360
+
+#=======================================
+#
+# Aligned_sequences: 2
+# 1: CYS1_DICDI
+# 2: CATH_HUMAN
+# Matrix: EBLOSUM62
+# Gap_penalty: 10.0
+# Extend_penalty: 0.5
+#
+# Length: 323
+# Identity:     122/323 (37.8%)
+# Similarity:   165/323 (51.1%)
+# Gaps:          40/323 (12.4%)
+# Score: 511.0
+# 
+#
+#=======================================
+
+CYS1_DICDI        32 FQDKFNKKYSHEEYLERFEIFKSNLGKIEELNLIAINHKADTKFGVNKFA     81
+                     :..|..|.||.|||..|.:.|.||..||...|    |.....|..:|:|:
+CATH_HUMAN        38 WMSKHRKTYSTEEYHHRLQTFASNWRKINAHN----NGNHTFKMALNQFS     83
+
+CYS1_DICDI        82 DLSSDEFKNYYL----NNKEAIFTDDLPVADYLDDEFINSIPTAFDWRTR    127
+                     |:|..|.|:.||    .|..|      ..::||  ......|.:.|||.:
+CATH_HUMAN        84 DMSFAEIKHKYLWSEPQNCSA------TKSNYL--RGTGPYPPSVDWRKK    125
+
+CYS1_DICDI       128 G-AVTPVKNQGQCGSCWSFSTTGNVEGQHFISQNKLVSLSEQNLVDCDHE    176
+                     | .|:||||||.|||||:|||||.:|....|:..|::||:||.||||..:
+CATH_HUMAN       126 GNFVSPVKNQGACGSCWTFSTTGALESAIAIATGKMLSLAEQQLVDCAQD    175
+
+CYS1_DICDI       177 CMEYEGEEACDEGCNGGLQPNAYNYIIKNGGIQTESSYPYTAETGTQCNF    226
+                     ...|        ||.|||...|:.||:.|.||..|.:|||..:.| .|.|
+CATH_HUMAN       176 FNNY--------GCQGGLPSQAFEYILYNKGIMGEDTYPYQGKDG-YCKF    216
+
+CYS1_DICDI       227 NSAN-IG--AKISNFTMIPKNETVMAGYIVSTGPLAIAADAV-EWQFYIG    272
+                     .... ||  ..::|.|:.  :|..|...:....|::.|.:.. ::..|..
+CATH_HUMAN       217 QPGKAIGFVKDVANITIY--DEEAMVEAVALYNPVSFAFEVTQDFMMYRT    264
+
+CYS1_DICDI       273 GVF-DIPCN--PNSLDHGILIVGYSAKNTIFRKNMPYWIVKNSWGADWGE    319
+                     |:: ...|:  |:.::|.:|.|||..||.|     ||||||||||..||.
+CATH_HUMAN       265 GIYSSTSCHKTPDKVNHAVLAVGYGEKNGI-----PYWIVKNSWGPQWGM    309
+
+CYS1_DICDI       320 QGYIYLRRGKNTCGVSNFVSTSI    342
+                     .||..:.||||.||::...|..|
+CATH_HUMAN       310 NGYFLIERGKNMCGLAACASYPI    332
+
+
+#---------------------------------------
+#---------------------------------------

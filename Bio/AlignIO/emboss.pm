@@ -80,6 +80,12 @@ use Bio::LocatableSeq;
 
 @ISA = qw(Bio::AlignIO );
 
+sub _initialize {
+    my($self,@args) = @_;
+    $self->SUPER::_initialize(@args);
+    $self->{'_type'} = undef;
+}
+
 =head2 next_aln
 
  Title   : next_aln
@@ -93,30 +99,65 @@ use Bio::LocatableSeq;
 
 sub next_aln {
     my ($self) = @_;
-    my %data;    
+    my $seenbegin = 0;
+    my %data = ( 'seq1' => { 
+		     'start'=> undef,
+		     'end'=> undef,		
+		     'name' => '',
+		     'data' => '' },
+		 'seq2' => { 
+		     'start'=> undef,
+		     'end'=> undef,
+		     'name' => '',
+		     'data' => '' },
+		 'align' => '',
+		 'type'  => $self->{'_type'},  # to restore type from 
+		                                     # previous aln if possible
+		 );
+    my %names;
     while( defined($_ = $self->_readline) ) {
-        next if( /^\s+/ );
-	if( /(Local|Global):\s*(\S+)\s+vs\s+(\S+)/ ) {
-	    $data{'type'} = $1 eq 'Local' ? 'water' : 'needle';
-	    $data{'seq1'} = { 
-		'start'=> undef,
-		'end'=> undef,		
-		'name' => $2,
-		'data' => '' };
-	    $data{'seq2'} = { 
-		'start'=> undef,
-		'end'=> undef,		
-		'name' => $3,
-		'data' => '' };
-	    $data{'align'} = '';
+	next if( /^\#?\s+$/ || /^\#+\s*$/ );
+	if( /^\#(\=|\-)+\s*$/) {
+	    last if( $seenbegin);
+	} elsif( /(Local|Global):\s*(\S+)\s+vs\s+(\S+)/ ||
+		 /^\#\s+Program:\s+(\S+)/ )
+	{
+	    my ($name1,$name2) = ($2,$3);
+	    if( ! defined $name1 ) { # Handle EMBOSS 2.2.X
+		$data{'type'} = $1;
+		$name1 = $name2 = '';
+	    } else { 
+		$data{'type'} = $1 eq 'Local' ? 'water' : 'needle';
+	    }	    
+	    $data{'seq1'}->{'name'} = $name1;
+	    $data{'seq2'}->{'name'} = $name2;
+
+	    $self->{'_type'} = $data{'type'};
+
 	} elsif( /Score:\s+(\S+)/ ) {
 	    $data{'score'} = $1;		
-	} elsif( /^$data{'seq1'}->{'name'}/ ) {
+	} elsif( /^\#\s+(1|2):\s+(\S+)/ && !  $data{"seq$1"}->{'name'} ) {
+	    my $nm = $2;
+	    if( $names{$nm} ) {
+		$nm .= "-". $names{$nm};
+	    }
+	    $names{$nm}++;
+	    $data{"seq$1"}->{'name'} = $nm;	
+	} elsif( $data{'seq1'}->{'name'} &&
+		 /^$data{'seq1'}->{'name'}/ ) {	    
+	    $seenbegin = 1;
 	    my $count = 0;
 	    while( defined ($_) ) {
 		if($count == 0 || $count == 2 ) {
-		    my ($seq,$start,$align,$end) = split;
+		    my @l = split;
+		    my ($seq,$start,$align,$end);
+		    if( $count == 2 && $data{'seq2'}->{'name'} eq '' ) {
+			($start,$align,$end) = @l;
+		    } else { 
+			($seq,$start,$align,$end) = @l;
+		    }
 		    my $seqname = sprintf("seq%d", ($count == 0) ? '1' : '2'); 
+
 		    $data{$seqname}->{'data'} .= $align;
 		    $data{$seqname}->{'start'} ||= $start;
 		    $data{$seqname}->{'end'} = $end;
@@ -130,15 +171,17 @@ sub next_aln {
 	    }
 	}
     }
-    my $aln =  Bio::SimpleAlign->new();
+    return undef unless $seenbegin;
+    my $aln =  Bio::SimpleAlign->new(-source => "EMBOSS-".$data{'type'});
     
     foreach my $seqname ( qw(seq1 seq2) ) { 
-	return undef unless ( defined $data{$seqname} );
+	return undef unless ( defined $data{$seqname} );	
+	$data{$seqname}->{'name'} ||= $seqname;
 	my $seq = new Bio::LocatableSeq('-seq' => $data{$seqname}->{'data'},
 					'-id'  => $data{$seqname}->{'name'},
 					'-start'=> $data{$seqname}->{'start'},
 					'-end' => $data{$seqname}->{'end'},
-					'-type' => 'aligned');
+					);
 	$aln->add_seq($seq);
     }
     return $aln;

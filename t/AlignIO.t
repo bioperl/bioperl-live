@@ -166,6 +166,21 @@ ok($aln);
 ok($aln->get_seq_by_pos(1)->get_nse,'PAPA_CARPA/1-345');
 ok($aln->get_seq_by_pos(2)->get_nse,'CATL_HUMAN/1-333');
 
+
+# EMBOSS needle
+
+$str = new Bio::AlignIO('-format' => 'emboss',
+			'-file'   => Bio::Root::IO->catfile("t", "data", 'cys1_dicdi.water'));
+$aln = $str->next_aln();
+ok($aln);
+ok($aln->get_seq_by_pos(1)->get_nse,'CYS1_DICDI/1-343');
+ok($aln->get_seq_by_pos(2)->get_nse,'CYS1_DICDI-1/1-343');
+
+$aln = $str->next_aln();
+ok($aln);
+ok($aln->get_seq_by_pos(1)->get_nse,'CYS1_DICDI/29-343');
+ok($aln->get_seq_by_pos(2)->get_nse,'ALEU_HORVU/61-360');
+
 # MEGA
 
 $str = new Bio::AlignIO('-format' => 'mega',
