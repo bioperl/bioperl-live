@@ -1,4 +1,4 @@
-
+# test
 #
 # BioPerl module for Bio::DB::GenBank
 #
@@ -77,6 +77,7 @@ use Bio::DB::BioSeqI;
 
 use Bio::SeqIO;
 use IO::Socket;
+use IO::File;
 
 @ISA = qw(Bio::DB::BioSeqI Exporter);
 @EXPORT_OK = qw();
@@ -174,10 +175,74 @@ sub get_Stream_by_id {
 sub get_Stream_by_acc {
 
   my $self = shift;
-  my $acc = shift or $self->throw("Must supply an accesion number!\n");
+  my $acc = shift or $self->throw("Must supply an accession number!\n");
 
   return $self->get_Seq_by_id($acc);
 }
+
+=head2 get_Stream_by_batch
+
+  Title   : get_Stream_by_batch
+  Usage   : $seq = $db->get_Stream_by_batch($ref);
+  Function: Retrieves Seq objects from Entrez 'en masse', rather than one
+            at a time.  For large numbers of sequences, this is far superior
+            than get_Stream_by_[id/acc]().
+  Example :
+  Returns : a Bio::SeqIO stream object
+  Args    : $ref : either an array reference, a filename, or a filehandle
+            from which to get the list of unique id's/accession numbers.
+
+
+=cut
+
+sub get_Stream_by_batch {
+   my $self = shift;
+   my $ref = shift or $self->throw("Must supply an argument!\n");
+   my $which = ref($ref);
+   my $fh;
+   my $filename;
+   if ( $which eq 'ARRAY') { # $ref is an array reference
+       $fh = new_tmpfile IO::File;
+       for ( @{$ref} ) {
+	   print $fh $_ . "\n";
+       }
+       $filename = "tempfile.txt";
+   } elsif ( $which eq '') { # $ref is a filename
+       $fh = new IO::File $ref, "r";
+       $filename = $ref;
+   } elsif ( $which eq 'GLOB' or $which eq 'IO::File') { # $ref is assumed to be a filehandle
+       $fh = $ref;
+       $filename = "tempfile.txt";
+   }
+
+   my $wwwbuf = "DB=n&REQUEST_TYPE=LIST_OF_GIS&FORMAT=1&HTML=FALSE&SAVETO=FALSE&NOHEADER=TRUE&UID=" . join(',', grep { chomp; } <$fh> );
+
+   my $sock = $self->_get_sock();
+
+   select $sock;
+   print "POST /cgi-bin/Entrez/qserver.cgi HTTP/1.0\015\012";
+   print "Host: www.ncbi.nlm.nih.gov\015\012";
+   print "User-Agent: $0::Bio::DB::GenBank\015\012";
+   print "Connection: Keep-Alive\015\012";
+   print "Content-type: application/x-www-form-urlencoded\015\012";
+   print "Content-length: " . length($wwwbuf) . "\015\012";
+   print "\015\012";
+   print $wwwbuf;
+   
+   while (<$sock>) {
+       if ( m,^HTTP/\d+\.\d+\s+(\d+)[^\012]\012, ) {
+	   my $code = $1;
+	   return undef unless $code =~ /^2/;
+       }
+       $self->throw("Entrez Error - check query sequences!\n") if m/^ERROR/i;
+       last if m/Batch Entrez results/;
+   }
+
+   return Bio::SeqIO->new('-fh' => $sock, '-format' => 'Fasta');
+
+}
+
+
 
 sub _get_stream {
 
@@ -187,20 +252,11 @@ sub _get_stream {
 # Gisle Aas and Martijn Koster.  They copyleft'ed it, but we should give
 # them full credit for this little diddy.
 
-  my $sock = IO::Socket::INET->new(PeerAddr => 'www3.ncbi.nlm.nih.gov',
-				   PeerPort => 80,
-				   Proto    => 'tcp',
-				   Timeout  => 60
-				  );
-  unless ($sock) {
-    $@ =~ s/^.*?: //;
-    $self->throw("Can't connect to GenBank ($@)\n");
-  }
-  $sock->autoflush(); # just for safety's sake if they have old IO::Socket
+  my $sock = $self->_get_sock();
 
   print $sock join("\015\012" =>
 		   "GET /htbin-post/Entrez/query?$entrez HTTP/1.0",
-		   "Host: www3.ncbi.nlm.nih.gov",
+		   "Host: www.ncbi.nlm.nih.gov",
 		   "User-Agent: $0::Bio::DB::GenBank",
 		   "", "");
 
@@ -215,6 +271,22 @@ sub _get_stream {
 
   return Bio::SeqIO->new('-fh' => $sock, '-format' => 'Fasta');
 
+}
+
+sub _get_sock {
+    my $self = shift;
+  my $sock = IO::Socket::INET->new(PeerAddr => 'www.ncbi.nlm.nih.gov',
+				   PeerPort => 80,
+				   Proto    => 'tcp',
+				   Timeout  => 60
+				  );
+  unless ($sock) {
+    $@ =~ s/^.*?: //;
+    $self->throw("Can't connect to GenBank ($@)\n");
+  }
+  $sock->autoflush(); # just for safety's sake if they have old IO::Socket
+
+  return $sock;
 }
 
 
