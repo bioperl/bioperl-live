@@ -878,4 +878,6 @@ sub result_count {
     return $self->{'_result_count'};
 }
 
+sub report_count { shift->result_count }
+
 1;

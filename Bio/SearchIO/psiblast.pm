@@ -1132,6 +1132,9 @@ sub result_count {
     return $self->{'_result_count'};
 }
 
+# For backward compatibility:
+sub report_count { shift->result_count }
+
 sub next_result {
    my ($self) = @_;
   # print STDERR "next_result() called\n";
