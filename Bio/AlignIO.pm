@@ -299,6 +299,7 @@ use Bio::Seq;
 use Bio::LocatableSeq;
 use Bio::SimpleAlign;
 use Bio::Root::IO;
+use Bio::Tools::GuessSeqFormat;
 @ISA = qw(Bio::Root::Root Bio::Root::IO);
 
 =head2 new
@@ -330,11 +331,17 @@ sub new {
 	my %param = @args;
 	@param{ map { lc $_ } keys %param } = values %param; # lowercase keys
 	my $format = $param{'-format'} || 
-	    $class->_guess_format( $param{-file} || $ARGV[0] ) ||
-		'fasta';
+	    $class->_guess_format( $param{-file} || $ARGV[0] );
+        if ($param{-file}) {
+            $format = Bio::Tools::GuessSeqFormat->new(-file => $param{-file}||$ARGV[0] )->guess;
+        }
+        elsif ($param{-fh}) {
+            $format = Bio::Tools::GuessSeqFormat->new(-fh => $param{-fh}||$ARGV[0] )->guess;
+        }
 	$format = "\L$format";	# normalize capitalization to lower case
+        $class->throw("Unknown format given or could not determine it [$format]")
+            if $format eq 'unknown';
 
-	# normalize capitalization
 	return undef unless( $class->_load_format_module($format) );
 	return "Bio::AlignIO::$format"->new(@args);
     }

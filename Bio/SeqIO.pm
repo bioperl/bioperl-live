@@ -312,6 +312,7 @@ use Bio::Root::IO;
 use Bio::Factory::SequenceStreamI;
 use Bio::Factory::FTLocationFactory;
 use Bio::Seq::SeqBuilder;
+use Bio::Tools::GuessSeqFormat;
 use Symbol();
 
 @ISA = qw(Bio::Root::Root Bio::Root::IO Bio::Factory::SequenceStreamI);
@@ -349,23 +350,29 @@ my $entry = 0;
 sub new {
     my ($caller,@args) = @_;
     my $class = ref($caller) || $caller;
-    
+
     # or do we want to call SUPER on an object if $caller is an
     # object?
     if( $class =~ /Bio::SeqIO::(\S+)/ ) {
 	my ($self) = $class->SUPER::new(@args);	
 	$self->_initialize(@args);
 	return $self;
-    } else { 
-
+    } else {
+        
 	my %param = @args;
 	@param{ map { lc $_ } keys %param } = values %param; # lowercase keys
-	my $format = $param{'-format'} || 
-	    $class->_guess_format( $param{-file} || $ARGV[0] ) ||
-		'fasta';
-	$format = "\L$format";	# normalize capitalization to lower case
+	my $format = $param{'-format'} ||
+	    $class->_guess_format( $param{-file} || $ARGV[0] );
 
-	# normalize capitalization
+        if ($param{-file}) {
+            $format = Bio::Tools::GuessSeqFormat->new(-file => $param{-file}||$ARGV[0] )->guess;
+        }
+        elsif ($param{-fh}) {
+            $format = Bio::Tools::GuessSeqFormat->new(-fh => $param{-fh}||$ARGV[0] )->guess;
+        }
+	$format = "\L$format";	# normalize capitalization to lower case
+        $class->throw("Unknown format given or could not determine it [$format]")
+            if $format eq 'unknown';
 	return undef unless( $class->_load_format_module($format) );
 	return "Bio::SeqIO::$format"->new(@args);
     }
