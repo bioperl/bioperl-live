@@ -69,10 +69,10 @@ my $fuzzy = new Bio::Location::Fuzzy('-start' =>'<10', '-end' => 20,
 				     -strand=>1);
 				     
 ok($fuzzy->strand, 1);
-ok($fuzzy->start, 0);
+ok($fuzzy->start, 10);
 ok($fuzzy->end,20);
-ok($fuzzy->min_start, 10);
-ok($fuzzy->max_start, undef);
+ok($fuzzy->min_start, undef);
+ok($fuzzy->max_start, 10);
 ok($fuzzy->min_end, 20);
 ok($fuzzy->max_end, 20);
 ok($fuzzy->loc_type, 'EXACT');
@@ -109,15 +109,15 @@ $splitlocation->add_sub_Location($f);
 $f = new Bio::Location::Fuzzy('-start'=>"<50",
 			      '-end'=>61,
 			      '-strand'=>1);
-ok($f->start, 0);
-ok($f->min_start, 50);
-ok($f->max_start,undef);
+ok($f->start, 50);
+ok($f->min_start, undef);
+ok($f->max_start, 50);
 
 $splitlocation->add_sub_Location($f);
 
 ok($splitlocation->max_end, 90);
 ok($splitlocation->min_start, 13);
-ok($splitlocation->end, 61);
+ok($splitlocation->end, 90);
 ok($splitlocation->start, 13);
 ok($splitlocation->sub_Location(),5);
 
