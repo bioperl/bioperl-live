@@ -48,13 +48,14 @@ if ($adaptor =~ /^dbi/) {
   $adaptor = "dbi::$cfg->{dbd_driver}" if $cfg->{dbd_driver};
   @args = ( '-adaptor'  => $adaptor,
 	    '-dsn'     => $cfg->{test_dsn},
-	    '-aggregators' => ['transcript','processed_transcript'],
 	  );
   push @args,('-user' => $cfg->{test_user}) if $cfg->{test_user};
   push @args,('-pass' => $cfg->{test_pass}) if $cfg->{test_pass};
 } else {
   @args = ('-adaptor' => $adaptor);
 }
+
+push @args,('-aggregators' => ['transcript','processed_transcript']);
 
 my $db = eval { Bio::DB::GFF->new(@args) };
 warn $@ if $@;

@@ -199,7 +199,7 @@ sub get_abscoords {
       my $feature_attributes = $feature->{attributes};
       my $attributes = {Alias => $name};
       if (!_matching_attributes($feature_attributes,$attributes)){
-         next;
+	next;
       }
     }
     push @{$refs{$feature->{ref}}},$feature;
@@ -219,11 +219,6 @@ sub get_abscoords {
   my ($ref) = keys %refs;
   my @found = @{$refs{$ref}};
   my ($strand,$start,$stop);
-  foreach (@found) {
-    $strand ||= $_->{strand};
-    $strand = '+' if $strand && $strand eq '.'; 
-    $start  = $_->{start} if !defined($start) || $start > $_->{start};
-    $stop   = $_->{stop}  if !defined($stop)  || $stop  < $_->{stop};
 
   my @found_segments;
   foreach my $ref (keys %refs) {
@@ -701,6 +696,3 @@ sub get_feature_by_group_id{ 1; }
 
 1;
 
-}
-
-1;
