@@ -1141,7 +1141,7 @@ create table fdata (
     fstop        int unsigned   not null,
     ftypeid      int not null,
     fscore        float,
-    fstrand       enum('+','-'),
+    fstrand       enum('+','-','.'),
     fphase        enum('0','1','2'),
     gid          int not null,
     ftarget_start int unsigned,
