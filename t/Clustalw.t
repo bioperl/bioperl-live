@@ -21,6 +21,8 @@
 ## We start with some black magic to print on failure.
 BEGIN { $| = 1; print "1..9\n";
 	use vars qw($loaded); }
+# Modify following line as required to point to clustalw program directory on your system
+BEGIN {$ENV{CLUSTALDIR} = '/home/peter/clustalw1.8/'; }
 
 END {print "not ok 1\n" unless $loaded;}
 

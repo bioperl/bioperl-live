@@ -206,12 +206,20 @@ use Bio::Root::Object;
 
 @ISA = qw(Bio::Root::Object);
 
-# You will need to edit following line to point to your location of the clustalw executable
-my $clustdir =  '/home/peter/clustalw1.8/';
-my $program =   $clustdir.'clustalw' ;
+# You will need to enable Clustalw to find the clustalw program. This can be done
+# in (at least) three ways:
+#  1. Modify your $PATH variable to include your clustalw directory as in (for Linux):
+#	export PATH=$PATH:/home/peter/clustalw1.8   or
+#  2. define an environmental variable CLUSTALDIR:
+#	export CLUSTALDIR=/home/peter/clustalw1.8   or
+#  3. include a definition of an environmental variable CLUSTALDIR in every script that will
+#     use Clustal.pm.
+#	BEGIN {$ENV{CLUSTALDIR} = '/home/peter/clustalw1.8/'; }
+my $clustaldir = $ENV{CLUSTALDIR} || '';
+my $program =   $clustaldir.'clustalw' ;
 
-unless (-x $program) {
-	warn "Clustalw program not found or not executable. \n  Clustalw can be obtained from ftp://ftp.ebi.ac.uk/pub/software/ \n";
+unless (exists_clustal()) {
+	warn "Clustalw program not found or not executable. \n  Clustalw can be obtained from eg- http://corba.ebi.ac.uk/Biocatalog/Alignment_Search_software.html/ \n";
 }
 # Object preamble - inherits from Bio::Root::Object
 
@@ -306,10 +314,14 @@ Function: Determine whether clustalw program can be found on current host
 =cut
 
 # purpose of this method is to enable a script to determine whether the clustalw
-# is properly installed on the system.
+# is properly installed on the system and can be found. This implementation
+# is a little kludgy; there's probably a better way...
+
 sub exists_clustal {
-if (-x $program) {return 1;}
-return 0;
+my $commandstring = "$program".' -options >/dev/null 2>/dev/null ';
+eval {my $status = system($commandstring); } ;
+if ($@)  {return 0;}
+return 1;
 }
 
 =head2  align
@@ -327,8 +339,9 @@ Function: Perform a multiple sequence alignment
  Args    : Name of a file containing a set of unaligned fasta sequences
          or else an array of references to Bio::Seq objects.
 Throws an exception if argument is not either a string (eg a filename) or a reference
-to an array of Bio::Seq objects.  If argument is string, throws
-exception if file corresponding to string name can not be found.
+to an array of Bio::Seq objects.  If argument is string, throws exception if file
+corresponding to string name can not be found. If argument is Bio::Seq array, throws
+exception if less than two sequence objects are in array.
 
 
 =cut
@@ -340,10 +353,9 @@ my $input = shift;
 my ($temp,$infilename, $seq);
 my ($attr, $value, $switch);
 
-
 # Create input file pointer
 $infilename = &_setinput($input);
-if (!$infilename) {$self->throw("Bad input data: $input !");}
+if (!$infilename) {$self->throw("Bad input data or less than 2 sequences in $input !");}
 
 # Create parameter string to pass to clustalw program
 my $param_string = &_setparams($self);
@@ -428,6 +440,9 @@ my $outfile=   "./clustalw.tmp" ;
 
 my $commandstring = "$program"." $command"." $instring".
 			" -output=gcg"." -outfile=$outfile". " $param_string";
+# next line is for debugging purposes
+#print "clustal command = $commandstring \n";
+
 
 my $status = system($commandstring);
 
@@ -470,6 +485,7 @@ sub _setinput {
         #  Open temporary file for both reading & writing of BioSeq array
 		$infilename = 'tmp.fa';
                 $temp =  Bio::SeqIO->new(-file=> ">$infilename", '-format' => 'Fasta');
+		unless (scalar(@$input) > 1) {return 0;} # Need at least 2 seqs for alignment
    		foreach $seq (@$input) {
 		  unless (ref($seq) eq "Bio::Seq")
    	            {return 0;}
