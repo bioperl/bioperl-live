@@ -145,19 +145,13 @@ use Bio::Tools::BPlite;
 
 @ISA = qw(Bio::Root::RootI Bio::Root::IO);
 
-#  clean up temporary files when exiting
-END {
-    #system('rm -f iteration?.tmp '); # this is not cross-platform compatible
-    # temp files created via tempfile() will be removed automatically
-}
-
 sub new {
   my ($class, @args) = @_; 
   my $self = $class->SUPER::new(@args);
-
+  
   # initialize IO
   $self->_initialize_io(@args);
-  $self->{'_tempdir'} = $self->tempdir(CLEANUP=>1);
+  $self->{'_tempdir'} = $self->tempdir('CLEANUP' => 1);
   $self->{'LASTLINE'} = "";
   $self->{'QPATLOCATION'} = [];  # Anonymous array of query pattern locations for PHIBLAST
   $self->{'NEXT_ITERATION_NUMBER'} = 1;
