@@ -81,12 +81,10 @@ $EMBOSSVERSION = "2.0.0";
 sub new {
   my($class,@args) = @_;
   my $self = $class->SUPER::new(@args);
-  $self->_initialize(@args);
   # set up defaults
 
   my($location) =
-      $self->_rearrange([qw(LOCATION
-			    )],
+      $self->_rearrange([qw(LOCATION )],
 			@args);
   
   $self->{ '_programs' } = {};
@@ -229,13 +227,13 @@ Do not call these methods directly
 sub _program_list {
     my ($self) = @_;
     if( $^O =~ /MSWIN/i ||
-	$^O =~ /Mac/i ) { return }
+	$^O =~ /Mac/i ) { return; }
     {
-	local *STDERR;
+	local * STDERR;
 	open(WOSSOUT, "wossname -auto |") || return;
     }
-    $/ = "\n\n";
-    while( <WOSSOUT> ) {	
+    local $/ = "\n\n";
+    while(<WOSSOUT> ) {	
 	my ($groupname) = (/^([A-Z][A-Z0-9 ]+)$/m); 
 	#print $groupname, "\n" if $groupname;
 	$self->{'_groups'}->{$groupname} = [] if $groupname; 
@@ -246,6 +244,8 @@ sub _program_list {
 	    push @{$self->{'_groups'}->{$groupname}}, $1 if $1;
 	}
     }	
+    close(WOSSOUT);
+
 }
 
 
