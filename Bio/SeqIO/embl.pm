@@ -192,7 +192,7 @@ sub next_seq {
    $mol = $2;
    $div = $3;
    if(! $name) {
-       $name = "unknown id";
+       $name = "unknown_id";
    }
    my $alphabet;
 
@@ -225,8 +225,12 @@ sub next_seq {
    BEFORE_FEATURE_TABLE :
    until( !defined $buffer ) {
        $_ = $buffer;
-
-       # Exit at start of Feature table
+       # exit if we hit Sequence and there is no feature table
+       if( /^SQ/ ) {
+	   $self->_pushback($_);
+	   last;
+       }
+       # Exit at start of Feature table 
        last if /^F[HT]/;
 
        # Description line(s)
@@ -309,7 +313,7 @@ sub next_seq {
    }
 
    while( defined ($_ = $self->_readline) ) {
-       /^FT   \w/ && last;
+       /^FT\s{3}\w/ && last;
        /^SQ / && last;
        /^CO / && last;
    }
@@ -353,7 +357,6 @@ sub next_seq {
 	   /^SQ/ && last;
        }
    }
-   
    $seqc = "";	       
    while( defined ($_ = $self->_readline) ) {
        /^\/\// && last;
