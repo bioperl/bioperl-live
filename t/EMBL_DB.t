@@ -22,7 +22,7 @@ BEGIN {
     }
     use Test;
 
-    $NUMTESTS = 11;
+    $NUMTESTS = 15;
     plan tests => $NUMTESTS;
     eval { require 'IO/String.pm' };
     if( $@ ) {
@@ -77,7 +77,7 @@ if ($@) {
 	 skip('could not connect to embl',1);}
 
 }
-exit;
+
 $seq = $seqio = undef;
 
 eval {
