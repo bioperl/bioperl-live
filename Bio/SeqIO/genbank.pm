@@ -1103,7 +1103,7 @@ sub _read_GenBank_Species {
 	   #does the next term start with uppercase?
 		#yes: valid genus; no then unconventional
 		#e.g. leaf litter basidiomycete sp. Collb2-39
-		if ($spflds[0]=~m/[A-Z]/)	{
+		if ($spflds[0]=~m/^[A-Z]/)	{
 			$genus=shift(@spflds);
 		} else { undef $genus; }
 		#populate species tag
@@ -1118,21 +1118,27 @@ sub _read_GenBank_Species {
 			$sub_species = join ' ',@spflds if(@spflds);
 		}
 		else { $species = 'sp.'; }
-		
 		#does ORGANISM start with any words which make its genus undefined?
 		#these are in @unkn_genus	
 		#this in case species starts with uppercase so isn't caught above. 
 		#alter common name if required
-		if ( $genus && grep { $_ =~ /^$genus/i; } @unkn_genus )	{
-			$species = $genus." ".$species; undef $genus; 
-		}
-		#need to extract subspecies from conventional ORGANISM format.  
-		#Will the 'word' in a two element species name
-		#e.g. $species = 'thummi thummi' => $species='thummi' & $sub_species='thummi' 
-		else	{
-			if (!$sub_species && $species =~s/^(\w+)\s(\w+)$/$1/)	{
-				$sub_species = $2;
+		my $unconv=0;	#is it unconventional species name?
+		foreach (@unkn_genus)	{
+			if ($genus && $genus=~m/$_/i)	{
+				$species = $genus." ".$species; undef $genus;
+				$unconv=1;
+				last;
 			}
+			elsif ($species=~m/$_/i)	{
+				$unconv=1;
+				last;
+			}
+		}
+		if (!$unconv && !$sub_species && $species =~s/^(\w+)\s(\w+)$/$1/)	{
+			#need to extract subspecies from conventional ORGANISM format.  
+			#Will the 'word' in a two element species name
+			#e.g. $species = 'thummi thummi' => $species='thummi' & $sub_species='thummi' 	
+				$sub_species = $2;
 		}
 		
 	} elsif (/^\s+(.+)/o) {
@@ -1147,17 +1153,15 @@ sub _read_GenBank_Species {
         
         $_ = undef; # Empty $_ to trigger read of next line
     }
-    
-	 $$buffer = $_;
+     $$buffer = $_;
     
     # Don't make a species object if it's empty or "Unknown" or "None"
     #return unless $genus and  $genus !~ /^(Unknown|None)$/oi;
     
 	 # Don't make a species object if it belongs to taxid 32644
-	 my $unkn = grep { $_ =~ /$common/i; } @unkn_names;
+	 my $unkn = grep { $_ =~ /^$common$/; } @unkn_names;
 	 return unless ($species||$genus) and $unkn==0;
-			
-    # Bio::Species array needs array in Species -> Kingdom direction
+	# Bio::Species array needs array in Species -> Kingdom direction
     if ($class[0] eq 'Viruses') {
         push( @class, $ns_name );
     }
