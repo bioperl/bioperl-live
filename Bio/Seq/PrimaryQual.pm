@@ -133,7 +133,6 @@ sub new {
                               )],
                           @args);
 	if (defined($quiet)) {
-		print("Setting some sort of quiet mode.\n");
 		 $self->quiet($quiet);
 	}
 
