@@ -1,4 +1,4 @@
-#!/usr/local/bin/perl -w
+#!/usr/bin/perl -w
 
 # A minimal script using seqtools.pl
 # See seqs2.pl, seqs3.pl, and seqs4.pl for some more advanced scripts.

@@ -30,7 +30,7 @@
 #
 #-----------------------------------------------------------------------------
 
-use lib "/home/steve/perl/lib";
+use lib "/home/steve/perl/bioperl";
 use Bio::Tools::SeqPattern ();
 use Bio::Root::Global qw(:std);
 use Getopt::Std;

@@ -12,7 +12,7 @@
 #    containing your Bioperl modules.
 #---------------------------------------------------------------------------
 
-use lib "/home/steve/perl/lib";
+use lib "/home/steve/perl/bioperl";
 use Bio::Root::Object ();    
 use Bio::Root::Global qw(:std);    
 use Foo               ();

@@ -5,14 +5,13 @@
 # PURPOSE : To demonstrate passing filehandles between objects.
 # AUTHOR  : Steve A. Chervitz (sac@genome.stanford.edu)
 # CREATED : 21 Mar 1997
+# REVISION: $Id$
 #
 # INSTALLATION
 #    Edit the use lib "...." line to point the directory
 #    containing your Bioperl modules.
 #
 # MODIFIED: sac --- Tue Mar 31 19:54:15 1998
-#
-# $Id$
 #----------------------------------------------------------------
 
 use lib "/home/steve/perl/lib";
