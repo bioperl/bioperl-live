@@ -388,11 +388,27 @@ sub new {
 
     my $pseq = Bio::PrimarySeq->new(@args);
     $self->{'_as_feat'} = [];
-
-    my $ann = new Bio::Annotation::Collection;
-    $self->annotation($ann);
+    my ($ann, $pid,$feat,$species) = $self->_rearrange([qw(ANNOTATION 
+						      PRIMARY_ID
+						      FEATURES 
+						      SPECIES)], @args);
+    $pid && $self->primary_id($pid);
+    $species && $self->species($species);
+    $self->annotation($ann || new Bio::Annotation::Collection);
     $self->primary_seq($pseq);
-
+    if( defined $feat ) {
+	if( ref($feat) !~ /ARRAY/i ) {
+	    if( ref($feat) && $feat->isa('Bio::SeqFeatureI') ) {
+		$self->add_SeqFeature($feat);
+	    } else { 
+		$self->warn("Must specify a valid Bio::SeqFeatureI or ArrayRef of Bio::SeqFeatureI's with the -features init parameter for ".ref($self));
+	    }
+	} else { 
+	    foreach my $feature ( @$feat ) {
+		$self->add_SeqFeature($feature);
+	    }	    
+	}
+    }
     return $self;
 }
 
@@ -1042,10 +1058,10 @@ sub species {
  Usage   : $ann = $seq->annotation or $seq->annotation($annotation)
  Function: Gets or sets the annotation
  Example :
- Returns : Bio::Annotation object
- Args    : None or Bio::Annotation object
+ Returns : Bio::AnnotationCollectionI object
+ Args    : None or Bio::AnnotationCollectionI object
 
-See L<Bio::Annotation> for more information
+See L<Bio::AnnotationCollectionI> for more information
 
 =cut
 
