@@ -200,28 +200,33 @@ sub next_prediction {
 	if(! $seqobj) {
 	    # otherwise read from input stream
 	    ($id, $seq) = $self->_read_fasta_seq();
-	    $seqobj = Bio::PrimarySeq->new('-seq' => $seq,
-					   '-display_id' => $id,
-					   '-alphabet' => "protein");
-	}
-	# check that prediction number matches the prediction number
-	# indicated in the sequence id (there may be incomplete gene
-	# predictions that contain only signals with no associated protein
-	# and CDS, like promoters, poly-A sites etc)
-	$gene->primary_tag() =~ /[^0-9]([0-9]+)$/;
-	my $prednr = $1;
-	if($seqobj->display_id() !~ /_predicted_\w+_$prednr\|/) {
-	    # this is not our sequence, so push back for the next prediction
-	    push(@{$self->{'_seqstack'}}, $seqobj);
-	} else {
-	    $gene->predicted_protein($seqobj);
-	    # CDS prediction, too?
-	    if($self->_has_cds()) {
-		($id, $seq) = $self->_read_fasta_seq();
+	    # there may be no sequence at all, or none any more
+	    if($id && $seq) {
 		$seqobj = Bio::PrimarySeq->new('-seq' => $seq,
 					       '-display_id' => $id,
-					       '-alphabet' => "dna");
-		$gene->predicted_cds($seqobj);
+					       '-alphabet' => "protein");
+	    }
+	}
+	if($seqobj) {
+	    # check that prediction number matches the prediction number
+	    # indicated in the sequence id (there may be incomplete gene
+	    # predictions that contain only signals with no associated protein
+	    # and CDS, like promoters, poly-A sites etc)
+	    $gene->primary_tag() =~ /[^0-9]([0-9]+)$/;
+	    my $prednr = $1;
+	    if($seqobj->display_id() !~ /_predicted_\w+_$prednr\|/) {
+		# this is not our sequence, so push back for next prediction
+		push(@{$self->{'_seqstack'}}, $seqobj);
+	    } else {
+		$gene->predicted_protein($seqobj);
+		# CDS prediction, too?
+		if($self->_has_cds()) {
+		    ($id, $seq) = $self->_read_fasta_seq();
+		    $seqobj = Bio::PrimarySeq->new('-seq' => $seq,
+						   '-display_id' => $id,
+						   '-alphabet' => "dna");
+		    $gene->predicted_cds($seqobj);
+		}
 	    }
 	}
     }
@@ -461,22 +466,25 @@ sub _read_fasta_seq {
     local $/ = ">";
     
     my $entry = $self->_readline();
-    $entry =~ s/^>//;
-    # complete the entry if the first line came from a pushback buffer
-    while(! ($entry =~ />$/)) {
-	last unless $_ = $self->_readline();
-	$entry .= $_;
+    if($entry) {
+	$entry =~ s/^>//;
+	# complete the entry if the first line came from a pushback buffer
+	while($entry !~ />$/) {
+	    last unless $_ = $self->_readline();
+	    $entry .= $_;
+	}
+	# delete everything onwards from an intervening empty line (at the
+	# end there might be statistics stuff)
+	$entry =~ s/\n\n.*$//s;
+	# id and sequence
+	if($entry =~ /^(\S+)\n([^>]+)/) {
+	    $id = $1;
+	    $seq = $2;
+	} else {
+	    $self->throw("Can't parse Genscan predicted sequence entry");
+	}
+	$seq =~ s/\s//g; # Remove whitespace
     }
-    # mark everything onwards from an intervening empty line
-    $entry =~ s/\n\n.*$//s;
-    # id and sequence
-    if($entry =~ /^(\S+)\n([^>]+)/) {
-	$id = $1;
-	$seq = $2;
-    } else {
-	$self->throw("Can't parse Genscan predicted sequence entry");
-    }
-    $seq =~ s/\s//g; # Remove whitespace
     return ($id, $seq);
 }
 
