@@ -1030,6 +1030,8 @@ sub _get_av_ds_dn {
 			
 			#now calculate z_value
 			#print "d_syn_var is  $d_syn_var,and d_nc_var is $d_nc_var\n";
+			$self->throw("error - sum of variances is negative - dodgy alignment?") 
+					if $d_syn_var + $d_nc_var < 0;
 			my $z = ($d_nc - $d_syn) / sqrt($d_syn_var + $d_nc_var);
 			#	print "z is $z\n";
 
@@ -1148,8 +1150,10 @@ for (my $j=0; $j< $seqlen; $j+=3) {
 					}
 		#		print "\n";
 				}
-				$TOTAL += ($s_cnt/($tot_muts/2));
-				$TOTAL_n += ($tot_muts - $s_cnt)/ ($tot_muts / 2);
+				if ($tot_muts != 0) {
+					$TOTAL += ($s_cnt/($tot_muts/2));
+					$TOTAL_n += ($tot_muts - $s_cnt)/ ($tot_muts / 2);
+				}
  
 		}
 	elsif ($diff_cnt ==3 ) {
@@ -1179,9 +1183,10 @@ for (my $j=0; $j< $seqlen; $j+=3) {
 		}#end OUTER loop
 		#calculate number of synonymous/non synonymous mutations for that codon
 		# and add to total
-		$TOTAL += ($s_cnt / ($tot_muts /3));
-		$TOTAL_n += 3 - ($s_cnt / ($tot_muts /3));
-		print " \nafter codon, totals now $TOTAL, total n now $TOTAL_n\n\n";
+		if ($tot_muts != 0) {
+			$TOTAL += ($s_cnt / ($tot_muts /3));
+			$TOTAL_n += 3 - ($s_cnt / ($tot_muts /3));
+			}
 	}#endif $diffcnt = 3
 }#end of sequencetraversal
 #print " there are $TOTAL syn mutations and $TOTAL_n non -syn  mutations\n";
