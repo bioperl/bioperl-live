@@ -388,6 +388,7 @@ sub parse_line {
   local $_ = shift;
 
   s/\015//g;  # get rid of carriage returns left over by MS-DOS/Windows systems
+  s/\s+$//;   # get rid of trailing whitespace
 
   # capture GFF header
   if (/^\#\#gff-version\s+(\d+)/) {
