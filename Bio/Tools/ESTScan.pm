@@ -263,6 +263,9 @@ sub next_prediction {
 					'-display_id' => $seq->display_id(),
 					'-desc' => $seq->desc(),
 					'-moltype' => "dna");
+	    # in case of a reverse strand prediction, we reversed the sequence
+	    # initially, so reverse the predicted CDS back
+	    $cds = $cds->revcom() if($gene->strand() == -1);
 	    # only store the first one in the overall prediction
 	    $gene->predicted_cds($cds) unless $gene->predicted_cds();
 	    $predobj->predicted_cds($cds);
