@@ -475,7 +475,7 @@ sub _cleanup_methods {
   return;
 }
 
-=head2 B<throw_not_implemented()>
+=head2 throw_not_implemented()>
 
  Purpose : Throws a Bio::Root::NotImplemented exception.
            Intended for use in the method definitions of 
@@ -531,7 +531,7 @@ sub throw_not_implemented {
 }
 
 
-=head2 B<warn_not_implemented()>
+=head2 warn_not_implemented()
 
  Purpose : Generates a warning that a method has not been implemented.
            Intended for use in the method definitions of 
