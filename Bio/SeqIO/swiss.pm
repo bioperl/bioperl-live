@@ -662,7 +662,6 @@ sub _crc64{
 
     my $seq = $$sequence;
       
-    $seq = shift;
     my $crcl = 0;
     my $crch = 0;
     if (!$initialized) {
