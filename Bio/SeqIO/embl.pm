@@ -110,7 +110,7 @@ methods. Internal methods are usually preceded with a _
 
 
 package Bio::SeqIO::embl;
-use vars qw(@ISA);
+use vars qw(@ISA %FTQUAL_NO_QUOTE);
 use strict;
 use Bio::SeqIO::FTHelper;
 use Bio::SeqFeature::Generic;
@@ -122,6 +122,24 @@ use Bio::Annotation::Reference;
 use Bio::Annotation::DBLink;
 
 @ISA = qw(Bio::SeqIO);
+
+%FTQUAL_NO_QUOTE=(
+  'anticodon'=>1,
+  'citation'=>1,
+  'codon'=>1,
+  'codon_start'=>1,
+  'cons_splice'=>1,
+  'direction'=>1,
+  'evidence'=>1,
+  'label'=>1,
+  'mod_base'=> 1,
+  'number'=> 1,
+  'rpt_type'=> 1,
+  'rpt_unit'=> 1,
+  'transl_except'=> 1,
+  'transl_table'=> 1,
+  'usedin'=> 1,
+);
 
 sub _initialize {
   my($self,@args) = @_;
@@ -674,8 +692,7 @@ sub write_seq {
 =cut
 
 sub _print_EMBL_FTHelper {
-   my ($self,$fth,$always_quote) = @_;
-   $always_quote ||= 0;
+   my ($self,$fth) = @_;
    
    if( ! ref $fth || ! $fth->isa('Bio::SeqIO::FTHelper') ) {
        $fth->warn("$fth is not a FTHelper class. Attempting to print, but there could be tears!");
@@ -704,18 +721,18 @@ sub _print_EMBL_FTHelper {
 					     "FT                   ",
 					     "/$tag",'.|$',80); #'
 	   }
-           elsif( $always_quote == 1 || $value !~ /^\d+$/ ) {
+           # there are almost 3x more quoted qualifier values and they
+           # are more common too so we take quoted ones first
+           elsif (!$FTQUAL_NO_QUOTE{$tag}) {
               my $pat = $value =~ /\s/ ? '\s|$' : '.|$';
 	      $self->_write_line_EMBL_regex("FT                   ",
 					    "FT                   ",
 					    "/$tag=\"$value\"",$pat,80);
-           }
-           else {
+           } else {
               $self->_write_line_EMBL_regex("FT                   ",
 					    "FT                   ",
 					    "/$tag=$value",'.|$',80); #'
            }
-	  # $self->_print( "FT                   /", $tag, "=\"", $value, "\"\n");
        }
    }
 }

@@ -173,7 +173,7 @@ methods. Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::SeqIO::genbank;
-use vars qw(@ISA);
+use vars qw(@ISA %FTQUAL_NO_QUOTE);
 use strict;
 
 use Bio::SeqIO;
@@ -187,7 +187,25 @@ use Bio::Annotation::Reference;
 use Bio::Annotation::DBLink;
 
 @ISA = qw(Bio::SeqIO);
- 
+
+%FTQUAL_NO_QUOTE=(
+  'anticodon'=>1,
+  'citation'=>1,
+  'codon'=>1,
+  'codon_start'=>1,
+  'cons_splice'=>1,
+  'direction'=>1,
+  'evidence'=>1,
+  'label'=>1,
+  'mod_base'=> 1,
+  'number'=> 1,
+  'rpt_type'=> 1,
+  'rpt_unit'=> 1,
+  'transl_except'=> 1,
+  'transl_table'=> 1,
+  'usedin'=> 1,
+);
+
 sub _initialize {
     my($self,@args) = @_;
     
@@ -841,7 +859,7 @@ sub write_seq {
 =cut
 
 sub _print_GenBank_FTHelper {
-   my ($self,$fth,$always_quote) = @_;
+   my ($self,$fth) = @_;
    
    if( ! ref $fth || ! $fth->isa('Bio::SeqIO::FTHelper') ) {
        $fth->warn("$fth is not a FTHelper class. Attempting to print, but there could be tears!");   
@@ -856,8 +874,6 @@ sub _print_GenBank_FTHelper {
 					$fth->loc,"\,\|\$",80);
    }
 
-   if( !defined $always_quote) { $always_quote = 0; }
-   
    foreach my $tag ( keys %{$fth->field} ) {
        foreach my $value ( @{$fth->field->{$tag}} ) {
 	   $value =~ s/\"/\"\"/g;
@@ -866,11 +882,14 @@ sub _print_GenBank_FTHelper {
 						" "x21,
 						"/$tag","\.\|\$",80);
 	   }
-           elsif( $always_quote == 1 || $value !~ /^\d+$/ ) {
-              my ($pat) = ($value =~ /\s/ ? '\s|$' : '.|$');	      
+           # there are almost 3x more quoted qualifier values and they
+           # are more common too so we take quoted ones first
+           elsif (!$FTQUAL_NO_QUOTE{$tag}) {
+              my ($pat) = ($value =~ /\s/ ? '\s|$' : '.|$');
 	      $self->_write_line_GenBank_regex(" "x21,
 					       " "x21,
 					       "/$tag=\"$value\"",$pat,80);
+
            } else {
               $self->_write_line_GenBank_regex(" "x21,
 					       " "x21,
