@@ -169,6 +169,7 @@ use IO::String;
 use Bio::TreeIO;
 use Bio::Tools::Phylo::PAML::Result;
 use Bio::PrimarySeq;
+use Bio::Matrix::PhylipDist;
 
 =head2 new
 
@@ -221,11 +222,11 @@ sub next_result {
     # get the various codon and other sequence summary data, if necessary:
     $self->_parse_summary
 	unless ($self->{'_summary'} && !$self->{'_summary'}->{'multidata'});
-
+    
     # OK, depending on seqtype and runmode now, one of a few things can happen:
     my $seqtype = $self->{'_summary'}->{'seqtype'};
     if ($seqtype eq 'CODONML' || $seqtype eq 'AAML') {
-	while ($_ = $self->_readline) {	    
+	while (defined ($_ = $self->_readline)) {	    
 	    if ($seqtype eq 'CODONML' && 
 		m/^pairwise comparison, codon frequencies:/o) {
 
@@ -235,11 +236,9 @@ sub next_result {
 		last;
 
 	    } elsif ($seqtype eq 'AAML' && m/^ML distances of aa seqs\.$/o) {
-
-		# runmode = -2, AAML
-		$self->throw( -class => 'Bio::Root::NotImplemented',
-			      -text  => "Pairwise AA not yet implemented!"
-			      );
+		$self->_pushback($_);
+		# get AA distances
+		%data = ( '-AAMLdistmat' => $self->_parse_aa_dists());
 
 		# $self->_pushback($_);
 		# %data = $self->_parse_PairwiseAA;
@@ -263,7 +262,7 @@ sub next_result {
 		last;
 
 	    } elsif (m/Heuristic tree search by stepwise addition$/o) {
-
+		
 		# runmode = 3
 		$self->throw( -class => 'Bio::Root::NotImplemented',
 			      -text  => "StepwiseAddition not yet implemented!"
@@ -291,9 +290,9 @@ sub next_result {
 			      -text  => "StarDecomposition not yet implemented!"
 			      );
 
-		# $self->_pushback($_);
-		# %data = $self->_parse_StarDecomposition;
-		# last;
+		$self->_pushback($_);
+		%data = $self->_parse_StarDecomposition;
+		last;
 
 	    }
 	}
@@ -308,12 +307,17 @@ sub next_result {
 	}
     }
     if (%data) {
-	$data{'-version'} = $self->{'_summary'}->{'version'};
-	$data{'-seqs'} = $self->{'_summary'}->{'seqs'};
-	$data{'-patterns'} = $self->{'_summary'}->{'patterns'};
-	$data{'-ngmatrix'} = $self->{'_summary'}->{'ngmatrix'};
-	$data{'-codonpos'} = $self->{'_summary'}->{'codonposition'};
+	$data{'-version'}   = $self->{'_summary'}->{'version'};
+	$data{'-seqs'}      = $self->{'_summary'}->{'seqs'};
+	$data{'-patterns'}  = $self->{'_summary'}->{'patterns'};
+	$data{'-ngmatrix'}  = $self->{'_summary'}->{'ngmatrix'};
+	$data{'-codonpos'}  = $self->{'_summary'}->{'codonposition'};
 	$data{'-codonfreq'} = $self->{'_summary'}->{'codonfreqs'};
+	$data{'-model'}     = $self->{'_summary'}->{'model'};
+	$data{'-aadistmat'} = $self->{'_summary'}->{'aadistmat'};
+	$data{'-stats'}     = $self->{'_summary'}->{'stats'};
+	$data{'-aafreq'}    = $self->{'_summary'}->{'aafreqs'};
+	
 	return new Bio::Tools::Phylo::PAML::Result %data;
     } else {
 	return undef;
@@ -369,17 +373,27 @@ sub _parse_summary {
     $self->debug( "seqtype is $seqtype\n");
     if ($seqtype eq "CODONML") {
 
-	$self->_parse_inputparams(); # settings from the .ctl file that get printed
-	$self->_parse_patterns();  # codon patterns - not very interesting	        
-	$self->_parse_seqs();  # the sequences data used for analysis
-	$self->_parse_codoncts();    # counts and distributions of codon/nt usage
+	$self->_parse_inputparams(); # settings from the .ctl file 
+	                             # that get printed
+	$self->_parse_patterns();    # codon patterns - not very interesting
+	$self->_parse_seqs();        # the sequences data used for analysis
+	$self->_parse_codoncts();    # counts and distributions of codon/nt
+	                             # usage
 	$self->_parse_codon_freqs(); # codon frequencies
-	$self->_parse_distmat(); # NG distance matrices
+	$self->_parse_distmat();     # NG distance matrices
 	
 
     } elsif ($seqtype eq "AAML") {
-	$self->throw( -class => 'Bio::Root::NotImplemented',
-		      -text => 'AAML parsing not yet implemented!');
+
+	$self->_parse_inputparams;
+
+	$self->_parse_patterns();
+        $self->_parse_seqs();     # the sequences data used for analysis
+	$self->_parse_aa_freqs(); # codon frequencies
+
+	# get AA distances
+	$self->{'_summary'}->{'aadistmat'} = $self->_parse_aa_dists();
+
     } elsif ($seqtype eq "CODON2AAML") {
 	$self->throw( -class => 'Bio::Root::NotImplemented',
 		      -text => 'CODON2AAML parsing not yet implemented!');
@@ -443,6 +457,102 @@ sub _parse_codon_freqs {
     }
 }
 
+sub _parse_aa_freqs {
+    my ($self) = @_;
+    my ($okay,$done,$header) = (0,0,0);
+    my (@bases);
+    my $numseqs = scalar @{$self->{'_summary'}->{'seqs'} || []};
+    while( defined($_ = $self->_readline ) ) {
+	if( /^TREE/o || /^AA distances/o ) { $self->_pushback($_); last }
+	last if( $done);
+	next if ( /^\s+$/o || /^\(Ambiguity/o );
+	if( /^Frequencies\./o ) { 
+	    $okay = 1;
+	} elsif( ! $okay ) { # skip till we see 'Frequencies.
+	    next;
+	} elsif ( ! $header ) {
+	    s/^\s+//;        # remove leading whitespace
+	    @bases = split;  # get an array of the all the aa names
+	    $header = 1;
+	    $self->{'_summary'}->{'aafreqs'} = {}; # reset/clear values
+	    next;
+	} elsif( /^\#\s+constant\s+sites\:\s+
+		 (\d+)\s+ # constant sites
+		 \(\s*([\d\.]+)\s*\%\s*\)/ox){
+	    $self->{'_summary'}->{'stats'}->{'constant_sites'} = $1;
+	    $self->{'_summary'}->{'stats'}->{'constant_sites_percentage'} = $2;
+	} elsif( /^ln\s+Lmax\s+\(unconstrained\)\s+\=\s+(\S+)/ox ) {
+	    $self->{'_summary'}->{'stats'}->{'loglikelihood'} = $1;
+	    $done = 1; # done for sure
+	} else { 
+	    my ($seqname,@freqs) = split;
+	    my $basect = 0;
+	    foreach my $f ( @freqs ) { 
+		# this will also store 'Average'
+		$self->{'_summary'}->{'aafreqs'}->{$seqname}->{$bases[$basect++]} = $f;
+	    }	    
+	}
+    }
+}
+
+
+# This is for parsing the automatic tree output
+
+sub _parse_StarDecomposition {
+    my ($self) = @_;
+    my %data;
+
+    return %data;
+}
+
+sub _parse_aa_dists {
+    my ($self) = @_;
+    my ($okay,$seen,$done) = (0,0,0);
+    my (%matrix,@names,@values);
+    my $numseqs = scalar @{$self->{'_summary'}->{'seqs'} || []};
+    while( defined ($_ = $self->_readline ) ) {
+	last if $done;
+	if( /^TREE/ ) { $self->_pushback($_); last; }
+	if( /^\s+$/ ) {
+	    last if( $seen );
+	    next;
+	}
+	$okay = 1, next if( /^(AA|ML) distances/ );
+	if( $okay ) {
+	    my ($seqname,@values) = split;
+	    $seen = 1;
+	    my $i = 0;
+	    for my $s ( @names ) {
+		$matrix{$seqname}->{$s} = $values[$i++];
+	    }
+	    push @names, $seqname;
+	    $matrix{$seqname}->{$seqname} = 0;
+	}
+	$done = 1 if( scalar @names == $numseqs);
+    }
+    my %dist;
+    my $i = 0;
+    foreach my $lname ( @names ) {
+	my @row;
+	my $j = 0;
+	foreach my $rname ( @names ) {
+	    my $v = $matrix{$lname}->{$rname};
+	    $v = $matrix{$rname}->{$lname} unless defined $v;
+	    $matrix{$rname}->{$lname} = $matrix{$lname}->{$rname} = $v;
+	    push @row, $v;
+	    $dist{$lname}{$rname} = [$i,$j++];
+	}
+	$i++;
+	push @values, \@row;
+    }
+    return new Bio::Matrix::PhylipDist(-program=> $self->{'_summary'}->{'seqtype'},
+				       -matrix => \%dist,
+				       -names  => \@names,
+				       -values => \@values);
+
+    1;
+}
+
 sub _parse_patterns { 
     my ($self) = @_;
     my ($patternct,@patterns,$ns,$ls);
@@ -472,6 +582,7 @@ sub _parse_seqs {
     my ($self) = @_;
     my (@firstseq,@seqs);
     while( defined ($_ = $self->_readline) ) {
+	last if( /^TREE/ );
 	last if( /^\s+$/ && @seqs > 0 );
 	next if ( /^\s+$/ );
 	next if( /^\d+\s+$/ );
@@ -620,39 +731,42 @@ sub _parse_YN_Pairwise {
 }
 
 sub _parse_Forestry {
-
     my ($self) = @_;
-    my %data = (-trees => []);
-
-
-    return %data
-};
-
-# parse the mlc file
-
-sub _parse_mlc {
-    my ($self) = @_;
+    my ($instancecount,$loglikelihood,$score,$done,$treelength) = (0,0,0,0,0);
     my %data;
-    while( defined( $_ = $self->_readline) ) {
-	$self->debug( "mlc parse: $_");
-	# Aaron this is where the parsing should begin
-
-	# I'll do the Tree objects if you like - I'd do it by building
-	# an IO::String for the the tree data or does it make more
-	# sense to parse this out of a collection of files?
+    my $okay = 0;
+    while( defined ($_ = $self->_readline) ) {
+	last if $done;	
 	if( /^TREE/ ) {
-	    # ...
-	    while( defined($_ = $self->_readline) ) {
-		if( /^\(/) {
-		    my $treestr = new IO::String($_);
-		    my $treeio = new Bio::TreeIO(-fh => $treestr,
-						 -format => 'newick');
-		    # this is very tenative here!!
-		    push @{$self->{'_trees'}}, $treeio->next_tree;
+	    ($score) = (/MP\s+score\:\s+(\S+)/ );
+	} elsif( /^Node\s+\&/ || /^\s+N37/ || /^(CODONML|AAML|YN00|BASEML)/ ||
+		 /^\*\*/ ) {
+	    $self->_pushback($_);
+	    $done = 1;
+	    last;
+	} elsif( /^tree\s+length\s+\=\s+(\S+)/ ) {
+	    $treelength = $1; # not going to store this for now
+            # as it is directly calculated from
+	    # $tree->total_branch_length;
+	} elsif( /^\s*lnL\(.+\)\:\s+(\S+)/ ) {
+	    $loglikelihood = $1;
+	} elsif( /^\(/) {
+	    if( $okay > 0 ) {
+		my $treestr = new IO::String($_);
+		my $treeio = new Bio::TreeIO(-fh => $treestr,
+					     -format => 'newick');
+		my $tree = $treeio->next_tree;
+		if( $tree ) {
+		    $tree->score($loglikelihood);
+		    push @{$data{'-trees'}}, $tree;
 		}
+		last;
 	    }
-	}
+	    $okay++;
+	} 
     }
+    return %data
 }
+
 
 1;

@@ -1,0 +1,49 @@
+AAML (in paml 3.13, August 2002)    abglobin.aa   Model: Empirical_F (wag.dat) 
+ns = 5  	ls = 285
+# site patterns = 126
+   16   21   10    1    1   10   17    1    1    2    1    1    3    1   13
+    1    2    1    1    5    2    1    5   15    1    1    5    1   10    1
+    1    7   10    1   14    1    1    1    1    1    3    1    2    1    1
+    1    1    1    1    1    1    1    1    1    1    1    4    1    4    1
+    1    1    1    1    2    1    1    1    1    1    1    1    1    1    1
+    1    1    1    1    1    1    1    1    1    1    1    1    1    1    1
+    1    1    1    1    1    1    1    1    1    1    1    1    1    1    1
+    1    1    1    1    1    1    1    1    1    1    1    1    1    1    1
+    1    1    1    1    1    1
+
+human                 VLSPADKTNV AAWGGAHAEY GAEALERMFL SPTPHFLSHA QVKGKADTNV AVDMNALANL CLALPAEFAV LSSTPESAVT ALGNVDEVQF ETPDVMGKLG ASDLANFTCR VLCVAHFEPV AAYVNK
+goat-cow              ...A...S.. .....GN.A. .......... .......... ....E.A.K. GL.LGT.D.. S.C..ND... .N..A.A... .F.K...... ..A...N..D S.NMKD.A.K ..V..R..VL .DF..R
+rabbit                .........I T..E.S.G.. ....V..... G.....FT.E .I.A.SE.K. GL.LG..T.. ..NH.S.... .N.SS..... .....E.... .SAN..N..A ..E.S..K.. ..I.S...Q. ......
+rat                   ...AD....I NC...G.G.. .E...Q...A A..S.IV.P. ...A...AKA D.ELG..T.F ..CH.GD..M ....DAA..N ....P.D..Y DSASI...IN .N..K..H.. MII.G.L.CA ..F.S.
+marsupial             ...D....H. .I...G..A. A....A.T.. ........P. .IQ....SQ. .L.LGTMK.. .I..SKDLE. F.A.S.NCI. TISQ..QTT. GS.G..SA.T SGEVK.YK.K IIIC.E.DEC V.WLH.
+
+
+
+
+Frequencies..
+                                    A      R      N      D      C      Q      E      G      H      I      L      K      M      F      P      S      T      W      Y      V
+human                          0.1263 0.0211 0.0351 0.0526 0.0105 0.0140 0.0421 0.0702 0.0632 0.0000 0.1263 0.0772 0.0105 0.0526 0.0491 0.0561 0.0561 0.0105 0.0211 0.1053
+goat-cow                       0.1193 0.0246 0.0421 0.0632 0.0070 0.0140 0.0386 0.0737 0.0526 0.0000 0.1298 0.0842 0.0105 0.0596 0.0351 0.0596 0.0526 0.0105 0.0175 0.1053
+rabbit                         0.0982 0.0211 0.0421 0.0386 0.0070 0.0175 0.0596 0.0702 0.0667 0.0140 0.1228 0.0842 0.0070 0.0561 0.0386 0.0737 0.0561 0.0105 0.0211 0.0947
+rat                            0.1193 0.0211 0.0386 0.0667 0.0175 0.0175 0.0316 0.0807 0.0667 0.0246 0.1123 0.0842 0.0140 0.0491 0.0386 0.0596 0.0456 0.0105 0.0211 0.0807
+marsupial                      0.1088 0.0175 0.0211 0.0561 0.0175 0.0281 0.0351 0.0702 0.0632 0.0281 0.1088 0.0842 0.0175 0.0491 0.0351 0.0737 0.0667 0.0140 0.0211 0.0842
+
+Average                        0.1144 0.0211 0.0358 0.0554 0.0119 0.0182 0.0414 0.0730 0.0625 0.0133 0.1200 0.0828 0.0119 0.0533 0.0393 0.0646 0.0554 0.0112 0.0204 0.0940
+
+# constant sites:    170 (59.65%)
+ln Lmax (unconstrained) = -1189.106658
+
+AA distances (raw proportions of different sites)
+
+human          
+goat-cow         0.1439
+rabbit           0.1368  0.1825
+rat              0.2000  0.2351  0.2035
+marsupial        0.2456  0.2561  0.2877  0.3123
+
+ML distances of aa seqs.
+human          
+goat-cow         0.1551
+rabbit           0.1474  0.2020
+rat              0.2267  0.2694  0.2306
+marsupial        0.2870  0.3024  0.3392  0.3861
