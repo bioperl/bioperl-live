@@ -1,77 +1,78 @@
 
 #
-# Perl Module for HMMUnit
+# BioPerl module for Bio::Tools::HMMER::Domain
 #
 # Cared for by Ewan Birney <birney@sanger.ac.uk>
 #
-#Copyright Genome Research Limited (1997). Please see information on licensing in LICENSE
+# Copyright Ewan Birney
+#
+# You may distribute this module under the same terms as perl itself
+
+# POD documentation - main docs before the code
+
+=head1 NAME
+
+Bio::Tools::HMMER::Domain - One particular domain hit from HMMER 
+
+=head1 SYNOPSIS
+
+Read the Bio::Tools::HMMER::Results docs
+
+=head1 DESCRIPTION
+
+A particular domain score. We reuse the Homol SeqFeature system
+here, so this inheriets off Homol SeqFeature. As this code
+originally came from a separate project, there are some backward
+compatibility stuff provided to keep this working with old code.
+
+Don't forget this inheriets off Bio::SeqFeature, so all your usual
+nice start/end/score stuff is ready for use.
+
+=head1 CONTACT
+
+Describe contact details here
+
+=head1 APPENDIX
+
+The rest of the documentation details each of the object methods. Internal methods are usually preceded with a 
+_
+
+=cut
 
 package Bio::Tools::HMMER::Domain;
 
-use vars qw($AUTOLOAD @ISA @EXPORT_OK);
-use Exporter;
-use Carp;
+use vars qw(@ISA);
+use Bio::SeqFeature::Homol;
+
 use strict;
 
-#
-# Place functions/variables you want to *export*, ie be visible from the caller package into @EXPORT_OK
-#
 
-@EXPORT_OK = qw();
+@ISA = ( 'Bio::SeqFeature::Homol' );
 
-#
-# @ISA has our inheritance.
-#
+sub _initialize {
+  my($self,@args) = @_;
+  my $make = $self->SUPER::_initialize(@args);
+  $self->{'alignlines'} = [];
 
-@ISA = ( 'Exporter' );
+  my $hmmf = Bio::SeqFeature::Homol->new();
+  $self->homol_SeqFeature($hmmf);
 
-
-
-my %fields = (
-    #Insert field names here as field => undef,
-	      seqname => undef,
-	      seq_range => undef,
-	      hmmname => undef,
-	      hmmacc  => undef,
-	      hmm_range => undef,
-	      bits => undef,
-	      evalue => undef,
-	      prob => undef,
-	      seqbits => undef,
-	      alignlines => undef, #raw HMMer2 alignment alignment lines for printing out
-);
-
-
-sub new {
-    my $ref = shift;
-    my $class = ref($ref) || $ref;
-    my $self = {
-	'_permitted' => \%fields,
-	%fields, };
-
-    $self->{'seq_range'} = new Range;
-    $self->{'hmm_range'} = new Range;
-    $self->{'alignlines'} = [];
-    bless $self, $class;
-    return $self;
+  return $make;
 }
 
+=head2 add_alignment_line
 
-sub AUTOLOAD {
-    my $self = shift;
-    my $type = ref($self) || carp "$self is not an object - can't therefore find a member!";
-    my $name = $AUTOLOAD;
-    $name =~ /::DESTROY/ && return;
-    $name =~ s/.*://;
-    unless (exists $self->{'_permitted'}->{$name} ) {
-	carp "In type $type, can't access $name - probably passed a wrong variable into HMMUnit";
-    }
-    if (@_) {
-	return $self->{$name} = shift;
-    } else {
-	return $self->{$name};
-    }
-}
+ Title   : add_alignment_line
+ Usage   : $domain->add_alignment_line($line_from_hmmer_output);
+ Function: add an alignment line to this Domain object
+ Returns : Nothing
+ Args    : scalar
+
+ Adds an alignment line, mainly for storing the HMMER alignments
+as flat text which can be reguritated. You're right. This is *not
+nice* and not the right way to do it.  C'est la vie.
+
+=cut
 
 sub add_alignment_line {
     my $self = shift;
@@ -79,10 +80,39 @@ sub add_alignment_line {
     push(@{$self->{'alignlines'}},$line);
 }
 
+=head2 each_alignment_line
+
+ Title   : each_alignment_line
+ Usage   : foreach $line ( $domain->each_alignment_line )
+ Function: reguritates the alignment lines as they were fed in.
+           only useful realistically for printing.
+ Example :
+ Returns : 
+ Args    : None
+
+
+=cut
+
 sub each_alignment_line {
     my $self = shift;
     return @{$self->{'alignlines'}};
 }
+
+=head2 get_nse
+
+ Title   : get_nse
+ Usage   : $domain->get_nse()
+ Function: Provides a seqname/start-end format, useful
+           for unique keys. nse stands for name-start-end
+           It is used alot in Pfam
+ Example :
+ Returns : A string
+ Args    : Optional seperator 1 and seperator 2 (default / and -)
+
+
+=cut
+
+
 
 sub get_nse {
     my $self = shift;
@@ -96,55 +126,229 @@ sub get_nse {
 	$sep1 = "/";
     }
 
-    return sprintf("%s%s%d%s%d",$self->seqname,$sep1,$self->start_seq,$sep2,$self->end_seq);
+    return sprintf("%s%s%d%s%d",$self->seqname,$sep1,$self->start,$sep2,$self->end);
 }
 
+
+=head2 start_seq
+
+ Title   : start_seq
+ Usage   : Backward compatibility with old HMMER modules.
+           should use $domain->start
+ Function:
+ Example :
+ Returns : 
+ Args    :
+
+
+=cut
 
 sub start_seq {
     my $self = shift;
     my $start = shift;
-
-    if( !defined $start ) {
-	return $self->{'seq_range'}->start();
-    }
-    $self->{'seq_range'}->start($start);
-    return $start;
+    
+    $self->warn("Using old domain->start_seq. Should use domain->start");
+    return $self->start($start);
 }
+
+=head2 end_seq
+
+ Title   : end_seq
+ Usage   : Backward compatibility with old HMMER modules.
+           should use $domain->end
+ Function:
+ Example :
+ Returns : 
+ Args    :
+
+
+=cut
 
 sub end_seq {
     my $self = shift;
     my $end = shift;
 
-    if( !defined $end ) {
-	return $self->{'seq_range'}->end();
-    }
-    $self->{'seq_range'}->end($end);
-    return $end;
+    $self->warn("Using old domain->end_seq. Should use domain->end");
+    return $self->end($end);
+}
 
+=head2 start_hmm
+
+ Title   : start_hmm
+ Usage   : Backward compatibility with old HMMER modules, and
+           for convience. Equivalent to $self->homol_SeqFeature->start
+ Function:
+ Example :
+ Returns : 
+ Args    :
+
+
+=cut
+
+
+sub start_hmm { 
+    my $self = shift; 
+    my $start = shift; 
+    return $self->homol_SeqFeature->start($start); 
 }
 
 
-sub start_hmm {
-    my $self = shift;
-    my $start = shift;
+=head2 end_hmm
 
-    if( !defined $start ) {
-	return $self->{'hmm_range'}->start();
-    }
-    $self->{'hmm_range'}->start($start);
-    return $start;
-}
+ Title   : end_hmm
+ Usage   : Backward compatibility with old HMMER modules, and
+           for convience. Equivalent to $self->homol_SeqFeature->start
+ Function:
+ Example :
+ Returns : 
+ Args    :
+
+
+=cut
 
 sub end_hmm {
     my $self = shift;
     my $end = shift;
 
-    if( !defined $end ) {
-	return $self->{'hmm_range'}->end();
-    }
-    $self->{'hmm_range'}->end($end);
-    return $end;
+    return $self->homol_SeqFeature->end($end); 
+}
 
+=head2 hmmacc
+
+ Title   : hmmacc
+ Usage   : $domain->hmmacc($newacc)
+ Function: set get for HMM accession number. This is placed in the homol
+           feature of the HMM
+ Example :
+ Returns : 
+ Args    :
+
+
+=cut
+
+sub hmmacc{
+   my ($self,$acc) = @_;
+   if( defined $acc ) {
+       $self->homol_SeqFeature->add_tag_value('accession',$acc);
+   }
+   my @vals = $self->homol_SeqFeature->each_tag_value('accession');
+   return shift @vals;
+}
+
+=head2 hmmname
+
+ Title   : hmmname
+ Usage   : $domain->hmmname($newname)
+ Function: set get for HMM accession number. This is placed in the homol
+           feature of the HMM
+ Example :
+ Returns : 
+ Args    :
+
+
+=cut
+
+sub hmmname {
+   my ($self,$hname) = @_;
+
+   return $self->homol_SeqFeature->seqname($hname);
+}
+
+=head2 bits
+
+ Title   : bits
+ Usage   :
+ Function: backward compatibility. Same as score
+ Example :
+ Returns : 
+ Args    :
+
+
+=cut
+
+sub bits{
+   my ($self,$sc) = @_;
+
+   return $self->score($sc);
+}
+
+=head2 evalue
+
+ Title   : evalue
+ Usage   :
+ Function: $domain->evalue($value);
+ Example :
+ Returns : 
+ Args    :
+
+
+=cut
+
+sub evalue{
+   my ($self,$value) = @_;
+   if( defined $value ) {
+       $self->add_tag_value('evalue',$value);
+   }
+   my @vals = $self->each_tag_value('evalue');
+   return shift @vals;
+}
+
+=head2 seqbits
+
+ Title   : seqbits
+ Usage   :
+ Function: $domain->seqbits($value);
+ Example :
+ Returns : 
+ Args    :
+
+
+=cut
+
+sub seqbits {
+   my ($self,$value) = @_;
+   if( defined $value ) {
+       $self->add_tag_value('seqbits',$value);
+   }
+   my @vals = $self->each_tag_value('seqbits');
+   return shift @vals;
+}
+
+
+=head2 seq_range
+
+ Title   : seq_range
+ Usage   : 
+ Function: Throws an exception to catch scripts which need to upgrade
+ Example :
+ Returns : 
+ Args    :
+
+
+=cut
+
+sub seq_range{
+   my ($self,@args) = @_;
+
+   $self->throw("You have accessed an old method. Please recode your script to the new bioperl HMMER module");
+}
+
+=head2 hmm_range
+
+ Title   : hmm_range
+ Usage   :
+ Function: Throws an exception to catch scripts which need to upgrade
+ Example :
+ Returns : 
+ Args    :
+
+
+=cut
+
+sub hmm_range{
+   my ($self,@args) = @_;
+
+   $self->throw("You have accessed an old method. Please recode your script to the new bioperl HMMER module");
 }
 
 
@@ -152,36 +356,5 @@ sub end_hmm {
 1;  # says use was ok
 __END__
 
-=head1 NAME
 
-HMMUnit
 
-=head1 DESCRIPTION
-
-Description for B<HMMUnit>
-
-=head1 AUTHOR
-
-B<Ewan Birney> Email birney@sanger.ac.uk
-
-=over
-
-=item get_nse
-
-No current documentation
-
-=item start_seq
-
-No current documentation
-
-=item end_seq
-
-No current documentation
-
-=item add_alignment_line
-
-No current documentation
-
-=item each_alignment_line
-
-No current documentation

@@ -99,12 +99,67 @@ sub homol_SeqFeature{
        my $value = shift;
        $value->isa("Bio::SeqFeatureI") || $self->throw("$value is not a Bio::SeqFeatureI implementing object");
        $self->{'homol_SeqFeature'} = $value;
+       if( $value->isa("Bio::SeqFeature::Homol") ) {
+	   my $h = $value->homol_SeqFeature();
+	   if( ! defined $h ) {
+	       $value->homol_SeqFeature($self);
+	   } else {
+	       if( $h != $self ) {
+		   $self->throw("Attempting to attach a homol seqfeature that already has a homol partner, but not myself!");
+	       }
+	   }
+
+       } else {
+	   $self->warn("You are now suggested to use Homol objects paired with Homol objects, rather than generic seqfeatures.");
+       }
    }
    return $self->{'homol_SeqFeature'};
 
 }
 
+=head2 _remove_homol_SeqFeature
 
+ Title   : _remove_homol_SeqFeature
+ Usage   :
+ Function: internal remove function, mainly to keep -w happy
+           about removing things
+ Example :
+ Returns : 
+ Args    :
+
+
+=cut
+
+sub _remove_homol_SeqFeature{
+   my ($self) = @_;
+
+   $self->{'homol_SeqFeature'} = undef;
+}
+
+
+=head2 DESTROY
+
+ Title   : DESTROY
+ Usage   : Object deconstructor. We need one to get rid of the potential 
+           self reference in the homol pair
+
+=cut
+
+sub DESTROY {
+    my $self = shift;
+    my $h = $self->homol_SeqFeature();
+
+    if( defined $h ) {
+	if( $h->can('homol_SeqFeature') ) {
+	    my $partner  = $h->homol_SeqFeature();
+	    if( defined $partner && $partner == $self ) {
+		$h->_remove_homol_SeqFeature();
+	    }
+	}
+    }
+
+    $self->SUPER::DESTROY();
+}
 
 
 
