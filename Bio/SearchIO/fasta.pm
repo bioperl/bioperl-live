@@ -729,7 +729,7 @@ sub next_result{
 	   }
        } elsif( $self->in_element('hsp' ) ) {
 	   
-	   my @data = ( '','','');
+	   my @data = ( [],[],[]);
 	   my $count = 0;
 	   my $len = $self->idlength + 1;
 	   my ($seq1_id);
@@ -748,7 +748,14 @@ sub next_result{
 		   last;
 	       }
 	       if( $count == 0 ) { 
-		   unless( /^\s+\d+/ || /^\s+$/) {
+		   if( /^(\S+)\s+/ ) {
+		       $self->_pushback($_);
+		       $count = 2;
+		   } elsif( /^\s+\d+\s+/ || /^\s+$/ ) { 
+		       # do nothing, this is really a 0 line
+		   } elsif( length($_) == 0 ) { 
+		       $count = -1;
+		   } else { 
 		       $self->_pushback($_);
 		       $count = 0;
 		   }
@@ -756,7 +763,7 @@ sub next_result{
 		   if( /^(\S+)\s+/ ) {
 		       $len = CORE::length($1) if $len < CORE::length($1);
 		       s/\s+$//; # trim trailing spaces,we don't want them 
-		       $data[$count-1] = substr($_,$len);
+		       push @{$data[$count-1]},substr($_,$len);
 		   } elsif( /^\s+(\d+)/ ) {
 		       $count = -1;
 		       $self->_pushback($_);
@@ -769,24 +776,28 @@ sub next_result{
 	       } elsif( $count == 2 ) {
 		   if( /^\s+\d+\s+/ ) {
 		       $self->warn("$_\n") if $self->verbose > 0;
+		       # we are on a Subject part of the alignment
+		       # but we THOUGHT we were on the Query
+		       # move that last line to the proper place
+		       push @{$data[2]}, pop @{$data[0]};
 		       $count = 4;
 		   } else {
 		       # toss the first IDLENGTH characters of the line
 		       if( length($_) >= $len ) {
-			   $data[$count-1] = substr($_,$len);
+			   push @{$data[$count-1]}, substr($_,$len);
 		       }
 		   }
 	       } 
 	       last if( $count++ >= 5);
 	       $_ = $self->_readline();	       
 	   }
-	   if( length($data[0]) > 0 || length($data[2]) > 0 ) {
+	   if( @{$data[0]} || @{$data[2]}) {
 	       $self->characters({'Name' => 'Hsp_qseq',
-				  'Data' => $data[0] });
+				  'Data' => join('',@{$data[0]}) });
 	       $self->characters({'Name' => 'Hsp_midline',
-				  'Data' => $data[1]});
+				  'Data' => join('',@{$data[1]}) });
 	       $self->characters({'Name' => 'Hsp_hseq',
-				  'Data' => $data[2]});
+				  'Data' => join('',@{$data[2]}) });
 	   }
        } else {
 	   if( ! $seentop ) {
