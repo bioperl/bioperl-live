@@ -1601,6 +1601,15 @@ sub _write_sf {
     return;
 }
 
+sub _write_sf_detail {
+    my $self = shift;
+    my $sf = shift;
+    printf "TYPE:%s\n", $sf->primary_tag;
+    my @locs = $sf->location->each_Location;
+    printf "  %s,%s [%s]\n", $_->start, $_->end, $_->strand foreach @locs;
+    return;
+}
+
 sub _write_hier {
     my $self = shift;
     my @sfs = @{shift || []};
@@ -1637,7 +1646,7 @@ sub _resolve_container_for_sf{
 	 !$splice_uniq_str || 
 	   index("@container_coords", $splice_uniq_str) > -1;
        if ($self->verbose) {
-	   print "    Checking containment:[$inside] @container_coords IN $splice_uniq_str\n";
+	   print "    Checking containment:[$inside] (@container_coords) IN ($splice_uniq_str)\n";
        }
        if ($inside) {
 	   # SCORE: matching (ss-scoords+2)/(n-container-ss-coords+2)
@@ -1660,10 +1669,13 @@ sub _get_splice_coords_for_sf {
    }
 
    # get an ordered list of (start, end) positions
-   my @coords =
-     map {
-         $_->strand > 0 ? ($_->start, $_->end) : ($_->end, $_->start)
-     } @locs;
+
+#   my @coords =
+#     map {
+#         $_->strand > 0 ? ($_->start, $_->end) : ($_->end, $_->start)
+#     } @locs;
+
+    my @coords = map {($_->start, $_->end)} @locs;
 
    # remove first and last leaving only splice sites
    pop @coords;
@@ -1705,21 +1717,26 @@ sub feature_from_splitloc{
    }
    my @exons = grep {$_->primary_tag eq 'exon'} @sfs;
    if (@exons) {
-       $self->throw("There are already exons");
+       $self->throw("There are already exons, so I will not infer exons");
    }
+   # infer for every feature
    foreach my $sf (@sfs) {
 
        $sf->isa("Bio::SeqFeatureI") || $self->throw("$sf NOT A SeqFeatureI");
        $sf->isa("Bio::FeatureHolderI") || $self->throw("$sf NOT A FeatureHolderI");
 
+       # so far, we only infer exons from mRNA
        my $type = $sf->primary_tag;
        next unless $type eq 'mRNA' or $type =~ /RNA/;
 
+       # an mRNA from genbank will have a discontinuous location,
+       # with each sub-location being equivalent to an exon
        my @locs = $sf->location;
        if ($sf->location->isa("Bio::Location::SplitLocationI")) {
            @locs = $sf->location->each_Location;
        }
        
+       # make exons from locations
        my @subsfs =
          map {
              my $subsf = Bio::SeqFeature::Generic->new(-location=>$_,
@@ -1727,10 +1744,23 @@ sub feature_from_splitloc{
              $subsf;
          } @locs;
        
+       # PARANOID CHECK
+       my $ok =
+	 $self->_check_order_is_consistent(@subsfs);
+       if (!$ok) {
+	   print "Unordered features:\n";
+	   $self->_write_sf_detail($_) foreach @subsfs;
+	   $self->throw("inconsistent order");
+       }
+       #----
+
        $sf->location(Bio::Location::Simple->new());
        $sf->add_SeqFeature($_, 'EXPAND') foreach @subsfs;
+
+
        if (!$sf->location->strand) {
-	   # correct weird bioperl bug
+	   # correct weird bioperl bug in previous versions;
+	   # strand was not being set correctly
 	   $sf->location->strand($subsfs[0]->location->strand);
        }
 
@@ -1794,6 +1824,14 @@ sub infer_mRNA_from_CDS{
 	   my @mrnas = ();
 	   foreach my $cds (@cdsl) {
 	       
+	       my $ok;
+	       $ok =
+		 $self->_check_order_is_consistent($cds->location->each_Location);
+	       if (!$ok) {
+		   $self->_write_sf_detail($cds);
+		   $self->throw("inconsistent order");
+	       }
+
 	       my $loc = Bio::Location::Split->new;
 	       foreach my $cdsexonloc ($cds->location->each_Location) {
 		   my $subloc =
@@ -1807,6 +1845,11 @@ sub infer_mRNA_from_CDS{
 		 Bio::SeqFeature::Generic->new(-location=>$loc,
 					       -primary_tag=>'mRNA');
 	       
+	       $ok =
+		 $self->_check_order_is_consistent($mrna->location->each_Location);
+	       if (!$ok) {
+		   $self->throw("inconsistent order");
+	       }
 	       $mrna->add_SeqFeature($cds);
 	       # mRNA steals children of CDS
 	       foreach my $subsf ($cds->get_SeqFeatures) {
@@ -1823,6 +1866,33 @@ sub infer_mRNA_from_CDS{
    return;
    
 
+}
+
+sub _check_order_is_consistent {
+    my $self = shift;
+    my @ranges = @_;
+    return unless @ranges;
+    my $strand = $ranges[0]->strand;
+    for (my $i=1; $i<@ranges;$i++) {
+	if ($ranges[$i]->strand != $strand) {
+	    return 1; # mixed ranges - autopass
+	}
+    }
+    for (my $i=1; $i<@ranges;$i++) {
+	my $rangeP = $ranges[$i-1];
+	my $range = $ranges[$i];
+#	if ($strand < 0) {
+#	    if ($rangeP->end < $range->start) {
+#		return 0;
+#	    }
+#	}
+#	else {
+	    if ($rangeP->start > $range->end) {
+		return 0;
+	    }
+#	}
+    }
+    return 1; # pass
 }
 
 # PRIVATE METHOD: _locstr($sf)
