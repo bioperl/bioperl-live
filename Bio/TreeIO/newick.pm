@@ -108,30 +108,55 @@ sub next_tree{
 
    my $chars = '';
    $self->_eventHandler->start_document;
+   my $lastevent = '';
    foreach my $ch ( split(//,$_) ) {
        if( $ch eq ';' ) { 	   
 	   return $self->_eventHandler->end_document;
        } elsif( $ch eq '(' ) {
 	   $chars = '';
-	   $self->_eventHandler->start_element( {'Name' => 'tree'} )
+	   $self->_eventHandler->start_element( {'Name' => 'tree'} );
+	   $lastevent = $ch;
        } elsif($ch eq ')' ) {
-	   $self->_eventHandler->characters($chars);
-	   $self->_eventHandler->end_element( {'Name' => 'branch_length'});
-	   $self->_eventHandler->end_element( {'Name' => 'node'} );
+	   if( $chars ) {
+	       if( $lastevent eq ':' ) {
+		   $self->_eventHandler->start_element( { 'Name' => 'branch_length'});
+		   $self->_eventHandler->characters($chars);
+		   $self->_eventHandler->end_element( {'Name' => 'branch_length'});
+	       } else { 
+		   $self->debug($chars."\n");
+		   $self->_eventHandler->start_element( { 'Name' => 'node' } );
+		   $self->_eventHandler->start_element( { 'Name' => 'id' } );
+		   $self->_eventHandler->characters($chars);
+		   $self->_eventHandler->end_element( { 'Name' => 'id' } );
+	       }	   	   
+	       $self->_eventHandler->end_element( {'Name' => 'node'} );
+	   }
 	   $self->_eventHandler->end_element( {'Name' => 'tree'} );
 	   $chars = '';
+	   $lastevent = $ch;
        } elsif ( $ch eq ',' ) {
-	   $self->_eventHandler->characters($chars);
-	   $self->_eventHandler->end_element( {'Name' => 'branch_length'});
-	   $self->_eventHandler->end_element( {'Name' => 'node'} );
+	   if( $chars ) {
+	       if( $lastevent eq ':' ) {
+		   $self->_eventHandler->start_element( { 'Name' => 'branch_length'});
+		   $self->_eventHandler->characters($chars);
+		   $self->_eventHandler->end_element( {'Name' => 'branch_length'});
+	       } else { 
+		   $self->_eventHandler->start_element( { 'Name' => 'node' } );
+		   $self->_eventHandler->start_element( { 'Name' => 'id' } );
+		   $self->_eventHandler->characters($chars);
+		   $self->_eventHandler->end_element( { 'Name' => 'id' } );
+	       }
+	       $self->_eventHandler->end_element( {'Name' => 'node'} );
+	   }
 	   $chars = '';
+	   $lastevent = $ch;
        } elsif( $ch eq ':' ) {
 	   $self->_eventHandler->start_element( { 'Name' => 'node' } );
 	   $self->_eventHandler->start_element( { 'Name' => 'id' } );	   
 	   $self->_eventHandler->characters($chars);
-	   $self->_eventHandler->end_element( { 'Name' => 'id' } );
-	   $self->_eventHandler->start_element( { 'Name' => 'branch_length'});
+	   $self->_eventHandler->end_element( { 'Name' => 'id' } );	   
 	   $chars = '';
+	   $lastevent = $ch;
        } else { 	   
 	   $chars .= $ch;
        } 

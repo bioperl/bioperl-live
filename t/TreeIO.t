@@ -18,7 +18,7 @@ BEGIN {
     }
 
     use Test;
-    plan tests => 10; 
+    plan tests => 12; 
 
 #    eval { require XML::Parser::PerlSAX; };
 #    if( $@ ) {
@@ -107,10 +107,27 @@ if($verbose ) {
 }
 
 ok($tree->total_branch_length, 7.12148);
-
 $treeio = new Bio::TreeIO(-verbose => $verbose,
 			  -format => 'newick', 
 			  -file   => ">$FILE2");
 $treeio->write_tree($tree);
 undef $treeio;
 ok(-s $FILE2);
+$treeio = new Bio::TreeIO(-verbose => $verbose,
+			  -format  => 'newick',
+			  -file    => Bio::Root::IO->catfile('t','data','hs_fugu.newick'));
+$tree = $treeio->next_tree();
+@nodes = $tree->get_nodes();
+ok(@nodes, 4);
+# no relable order for the bottom nodes because they have no branchlen
+my @vals = qw(SINFRUP0000006110);
+foreach my $node ( $tree->get_root_node()->each_Descendent() ) {
+    ok($node->id, shift @vals);
+    last;
+}
+
+if( $verbose ) {
+    foreach my $node ( @nodes ) {
+	print "\t", $node->id, "\n";
+    }
+}
