@@ -445,6 +445,7 @@ sub draw {
   if (my @parts = $self->parts) {
     my $x = $left;
     my $y = $top  + $self->top + $self->pad_top;
+    $self->draw_connectors($gd,$x,$y) if $connector && $connector ne 'none';
 
     my $last_x;
     for (my $i=0; $i<@parts; $i++) {
@@ -455,13 +456,12 @@ sub draw {
       $parts[$i]->draw($gd,$fake_x,$y,$i,scalar(@parts));
       $last_x = $parts[$i]->right;
     }
-    $self->draw_connectors($gd,$x,$y) if $connector && $connector ne 'none';
   }
 
   else {  # no part
-    $self->draw_component($gd,$left,$top);
     $self->draw_connectors($gd,$left,$top)
       if $connector && $connector ne 'none' && $self->{level} == 0;
+    $self->draw_component($gd,$left,$top);
   }
 }
 
