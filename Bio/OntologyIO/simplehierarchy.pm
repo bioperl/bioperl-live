@@ -243,7 +243,9 @@ sub parse {
 					   -engine => $self->_ont_engine());
 
     # set up the ontology of the relationship types
-    foreach ($self->_part_of_relationship(), $self->_is_a_relationship()) {
+    foreach ($self->_part_of_relationship(), 
+             $self->_is_a_relationship(), 
+             $self->_related_to_relationship()) {
 	$_->ontology($ont);
     }
 
@@ -366,10 +368,7 @@ sub _add_term {
 sub _part_of_relationship {
     my ( $self, $term ) = @_;
 
-    $self->{ "_part_of_relationship" } ||= Bio::Ontology::RelationshipType->get_instance( 'PART_OF' );
-	return $self->{ "_part_of_relationship" };
-#    return $self->_ont_engine()->part_of_relationship();
-
+    return $self->_ont_engine()->part_of_relationship();
 
 } # _part_of_relationship 
 
@@ -379,13 +378,18 @@ sub _part_of_relationship {
 sub _is_a_relationship {
     my ( $self, $term ) = @_;
 
-    $self->{ "_is_a_relationship" } ||= Bio::Ontology::RelationshipType->get_instance( 'IS_A' );
-	return $self->{ "_is_a_relationship" };
-#    return $self->_ont_engine()->is_a_relationship();
-
+    return $self->_ont_engine()->is_a_relationship();
 
 } # _is_a_relationship 
 
+
+# This simply delegates. See SimpleGOEngine
+sub _related_to_relationship {
+    my ( $self, $term ) = @_;
+
+    return $self->_ont_engine()->related_to_relationship();
+
+} # _is_a_relationship 
 
 
 # This simply delegates. See SimpleGOEngine
