@@ -1634,21 +1634,37 @@ In all cases, the "left" position will be used to break any ties.  To
 break ties using another field, options may be strung together using a
 "|" character; e.g. "strand|low_score|right" would cause the features
 to be sorted first by strand, then score (lowest to highest), then by
-"right" position in the sequence.  Finally, a subroutine coderef can
-be provided, which should expect to receive two feature objects (via
-the special sort variables $a and $b), and should return -1, 0 or 1
-(see Perl's sort() function for more information); this subroutine
-will be used without further modification for sorting.  For example,
-to sort a set of database search hits by bits (stored in the features'
-"score" fields), scaled by the log of the alignment length (with
-"left" position breaking any ties):
+"right" position in the sequence.
 
-  sort_order = sub { ( $b->score/log($b->length)
-                                      <=>
-                       $a->score/log($a->length) )
-                                      ||
-                     ( $a->start <=> $b->start )
-                   }
+Finally, a subroutine coderef with a $$ prototype can be provided.  It
+will receive two B<glyph> as arguments and should return -1, 0 or 1
+(see Perl's sort() function for more information).  For example, to
+sort a set of database search hits by bits (stored in the features'
+"score" fields), scaled by the log of the alignment length (with
+"start" position breaking any ties):
+
+  sort_order = sub ($$) {
+    my ($glyph1,$glyph2) = @_;
+    my $a = $glyph1->feature;
+    my $b = $glyph2->feature;
+    ( $b->score/log($b->length)
+          <=>
+      $a->score/log($a->length) )
+          ||
+    ( $a->start <=> $b->start )
+  }
+
+It is important to remember to use the $$ prototype as shown in the
+example.  Otherwise Bio::Graphics will quit with an exception. The
+arguments are subclasses of Bio::Graphics::Glyph, not the features
+themselves.  While glyphs implement some, but not all, of the feature
+methods, to be safe call the two glyphs' feature() methods in order to
+convert them into the actual features.
+
+The <-always_sort> option, if true, will sort features even if bumping
+is turned off.  This is useful if you would like overlapping features
+to stack in a particular order.  Features towards the end of the list
+will overlay those towards the beginning of the sort order.
 
 B<bump_limit>: When bumping is chosen, colliding features will
 ordinarily move upward or downward without limit.  When many features
