@@ -765,6 +765,31 @@ sub seq_len {
     return $self->length();
 }
 
+=head2 out_fasta
+
+ Title   : out_fasta
+ Usage   :
+ Function:
+ Example :
+ Returns : 
+ Args    :
+
+ Too many people are going call this function for me not to put it in 
+
+=cut
+
+sub out_fasta{
+   my ($self,@args) = @_;
+
+   my ($p,$f,$l) = caller;
+   $self->warn("$f:$l Seq::out_fasta - deprecated method. You should use the SeqIO package in preference");
+
+   my $str = $self->seq;
+   $str =~ tr/a-z/A-Z/;
+   $str=~ s/(.{1,60})/$1\n/g;
+   return ">". $seq->id(). " ".$seq->desc()."\n";
+}
+
 =head1 Private functions
 
 These are some private functions for the PrimarySeqI interface. You do not
