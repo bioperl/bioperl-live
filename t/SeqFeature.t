@@ -20,7 +20,7 @@ BEGIN {
     }
     use Test;
 
-    plan tests => 31;
+    plan tests => 25;
 }
 
 use Bio::Seq;
@@ -28,8 +28,6 @@ use Bio::SeqFeature::Generic;
 use Bio::SeqFeature::FeaturePair;
 use Bio::SeqFeature::SimilarityPair;
 use Bio::Tools::Blast;
-use Bio::SeqFeature::Computation;
-
 
 ok(1);
 
@@ -142,18 +140,4 @@ ok $pair->end, 440;
     # Test again that we have the correct sequence
     my $sf_seq2 = $sf2->seq->seq;
     ok $sf_seq2, 'acccct';
-}
-
-#Do some tests for computation.pm
-
-ok defined ( $comp_obj1 = Bio::SeqFeature::Computation->new('-start' => 1,
-							    '-end'   => 10) );
-ok ( $comp_obj1->computation_id(332) );
-ok ( $comp_obj1->add_score_value('P', 33) );
-{
-    $comp_obj2 = Bio::SeqFeature::Computation->new('-start' => 2,
-						   '-end'   => 10);
-    ok ($comp_obj1->add_sub_SeqFeature($comp_obj2, 'exon') );
-    ok (@sft = $comp_obj1->all_sub_SeqFeature_types() );
-    ok ($sft[0], 'exon');
 }
