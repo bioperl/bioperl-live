@@ -51,8 +51,9 @@ unless (-e $testfile) {
 }
 
 # check 'use ...'
-eval 'use Bio::Biblio 99.99'; # hm, definitely should fail
-print sprintf ($format, "use Bio::Biblio "); skip ($serror, $@ =~ /99\.99 required/);
+eval { require Bio::Biblio };
+print sprintf ($format, 'use Bio::Biblio'); skip ($error, %Bio::Biblio::);
+print $@ if $@;
 
 # check 'new...'
 my $biblio;
@@ -60,8 +61,8 @@ print sprintf ($format, "new Bio::Biblio "); skip ($serror,
 						   defined ($biblio = new Bio::Biblio (-location => 'http://localhost:4567')));
 
 # check MEDLINE XML parser
-eval 'use Bio::Biblio::IO 99.99'; # hm, definitely should fail
-print sprintf ($format, "use Bio::Biblio::IO "); ok ($@ =~ /99\.99 required/);
+eval { require Bio::Biblio::IO };
+print sprintf ($format, "use Bio::Biblio::IO "); skip ($error, %Bio::Biblio::IO::);
 
 my $io;
 print sprintf ($format, "new Bio::Biblio::IO ");
