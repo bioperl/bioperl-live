@@ -1355,11 +1355,11 @@ sub _consensus_aa {
     my $point = shift;
     my $threshold_percent = shift || -1 ;
     my ($seq,%hash,$count,$letter,$key);
-
+    my $gapchar = $self->gap_char;    
     foreach $seq ( $self->each_seq() ) {
 	$letter = substr($seq->seq,$point,1);
 	$self->throw("--$point-----------") if $letter eq '';
-	($letter =~ /\./) && next;
+	($letter eq $gapchar || $letter =~ /\./) && next;
 	# print "Looking at $letter\n";
 	$hash{$letter}++;
     }
