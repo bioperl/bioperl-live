@@ -13,11 +13,11 @@ BEGIN {
     use Test;
     $TESTCOUNT = 270;
     # interpro uses XML::DOM
-    eval {require XML::DOM};
+    eval {require XML::DOM::XPath};
     if ($@) {
        $TESTCOUNT -= 8;
        $NODOM = 1;
-       print STDERR "XML::DOM not found - skipping interpro tests\n";
+       print STDERR "XML::DOM::XPath not found - skipping interpro tests\n";
     }
     plan tests => $TESTCOUNT;
 }
