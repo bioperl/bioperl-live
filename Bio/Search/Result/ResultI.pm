@@ -109,7 +109,7 @@ use Bio::AnalysisResultI;
 =head2 next_hit
 
  Title   : next_hit
- Usage   : while( $hit = $result->next_hits()) { ... }
+ Usage   : while( $hit = $result->next_hit()) { ... }
  Function: Returns the next available Hit object, representing potential
            matches between the query and various entities from the database.
  Returns : a Bio::Search::Hit::HitI object or undef if there are no more.
@@ -118,7 +118,7 @@ use Bio::AnalysisResultI;
 
 =cut
 
-sub next_hits {
+sub next_hit {
     my ($self,@args) = @_;
     $self->throw_not_implemented;
 }
@@ -138,6 +138,22 @@ sub query_name {
     my ($self,@args) = @_;
     $self->throw_not_implemented;
 }
+
+=head2 query_accession
+
+ Title   : query_accession
+ Usage   : $id = $result->query_accession();
+ Function: Get the accession (if available) for the query sequence
+ Returns : a string
+ Args    : none
+
+=cut
+
+sub query_accession {
+    my ($self,@args) = @_;
+    $self->throw_not_implemented;
+}
+
 
 =head2 query_length
 
@@ -204,8 +220,7 @@ sub database_name {
 
 sub database_letters {
     my ($self,@args) = @_;
-
-    $self->throw_not_implemented;
+    $self->throw_not_implemented();
 }
 
 =head2 database_entries
@@ -223,7 +238,7 @@ sub database_letters {
 sub database_entries {
     my ($self,@args) = @_;
 
-    $self->throw_not_implemented;
+    $self->throw_not_implemented();
 }
 
 =head2 get_parameter
@@ -239,7 +254,7 @@ sub database_entries {
 
 sub get_parameter{
    my ($self,@args) = @_;
-   $self->_abstractDeath;
+   $self->throw_not_implemented();
 }
 
 =head2 available_parameters
@@ -254,7 +269,7 @@ sub get_parameter{
 
 sub available_parameters{
    my ($self) = @_;
-   $self->_abstractDeath;
+   $self->throw_not_implemented();
 }
 
 =head2 get_statistic
@@ -270,7 +285,7 @@ sub available_parameters{
 
 sub get_statistic{
    my ($self,@args) = @_;
-   $self->_abstractDeath;
+   $self->throw_not_implemented();
 }
 
 =head2 available_statistics
@@ -285,7 +300,7 @@ sub get_statistic{
 
 sub available_statistics{
    my ($self) = @_;
-   $self->_abstractDeath;
+   $self->throw_not_implemented();
 }
 
 1;
