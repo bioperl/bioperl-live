@@ -115,7 +115,7 @@ use Bio::RangeI;
 
 use vars qw($VERSION @ISA);
 @ISA = qw(Bio::DB::GFF::Segment);
-$VERSION = '0.40';
+$VERSION = '0.41';
 
 use overload '""' => 'asString',
              'bool' => sub { overload::StrVal(shift) },
@@ -999,8 +999,8 @@ sub overlaps {
   my($other,$so) = @_;
   $self->SUPER::overlaps(@_) unless $other->isa('Bio::DB::GFF::RelSegment');
   return if $self->abs_ref ne $other->abs_ref;
-  return if $self->abs_start > $other->abs_end;
-  return if $self->abs_stop  < $other->abs_start;
+  return if $self->abs_low  > $other->abs_high;
+  return if $self->abs_high < $other->abs_low;
   1;
 }
 
@@ -1009,8 +1009,8 @@ sub contains {
   my($other,$so) = @_;
   $self->SUPER::overlaps(@_) unless $other->isa('Bio::DB::GFF::RelSegment');
   return if $self->abs_ref ne $other->abs_ref;
-  return unless $self->abs_start <= $other->abs_start;
-  return unless $self->abs_stop  >= $other->abs_start;
+  return unless $self->abs_low <= $other->abs_low;
+  return unless $self->abs_high >= $other->abs_high;
   1;
 }
 
