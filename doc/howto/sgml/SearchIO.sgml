@@ -1242,7 +1242,13 @@ $searchio->_eventHandler->register_factory('hit', $hitfact);
 	<member><ulink
 	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/Result/WABAResult.html">Search/Result/WABAResult.pm</ulink></member>
 	<member><ulink
-	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/Utils.html">Search/Utils.pm</ulink></member>
+	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/SearchUtils.html">Search/SearchUtils.pm</ulink></member>
+	<member><ulink
+	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/BlastStatistics.html">Search/BlastStatistics.pm</ulink></member>
+	<member><ulink
+	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/GenericStatistics.html">Search/GenericStatistics.pm</ulink></member>
+	<member><ulink
+	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/StatisticsI.html">Search/StatisticsI.pm</ulink></member>
       </simplelist>
     </para>
   </section>
