@@ -16,12 +16,20 @@ sub draw_component {
   my $ymid = ($y1+$y2)/2;
 
   my $h = $self->option('height')/2;
-  $x1 = $xmid - $h;
-  $x2 = $xmid + $h;
   $y1 = $ymid - $h;
   $y2 = $ymid + $h;
 
-  # now draw the diamond
+  # if it's a point-like feature, then draw symmetrically
+  # around the midpoing
+  if ($self->option('point') || $x2 - $x1 < $h*2) {
+    $x1 = $xmid - $h;
+    $x2 = $xmid + $h;
+  }
+
+  elsif ($self->option('fallback_to_rectangle')) {
+    return $self->SUPER::draw_component($gd,@_);
+  }
+
   $gd->line($x1,$ymid,$xmid,$y1,$fg);
   $gd->line($xmid,$y1,$x2,$ymid,$fg);
   $gd->line($x2,$ymid,$xmid,$y2,$fg);

@@ -934,7 +934,6 @@ sub asString {
 sub name {
   my $self =shift;
   return $self->group || $self->SUPER::name;
-  
 }
 
 sub gff_string {
