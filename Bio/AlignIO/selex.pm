@@ -21,7 +21,16 @@ Bio::AlignIO::selex - selex sequence input/output stream
 
 =head1 SYNOPSIS
 
-Do not use this module directly.  Use it via the L<Bio::AlignIO> class.
+  # Do not use this module directly.  Use it via the L<Bio::AlignIO> class.
+
+  use Bio::AlignIO;
+  use strict;
+  
+  my $in = Bio::AlignIO->new(-format => 'selex',
+                             -file   => 't/data/testaln.selex');
+  while( my $aln = $in->next_aln ) {
+
+  }
 
 =head1 DESCRIPTION
 
@@ -33,16 +42,18 @@ file databases.
 =head2 Reporting Bugs
 
 Report bugs to the Bioperl bug tracking system to help us keep track
- the bugs and their resolution.
- Bug reports can be submitted via email or the web:
+the bugs and their resolution. Bug reports can be submitted via the
+web:
 
-  bioperl-bugs@bio.perl.org
   http://bugzilla.bioperl.org/
 
 =head1 AUTHORS - Peter Schattner
 
 Email: schattner@alum.mit.edu
 
+=head1 CONTRIBUTORS
+
+Jason Stajich, jason-at-bioperl.org
 
 =head1 APPENDIX
 
@@ -76,37 +87,32 @@ use Bio::AlignIO;
 sub next_aln {
     my $self = shift;
     my $entry;
-    my ($start,$end,%align,$name,$seqname,$seq,$count,%hash,%c2name, %accession, $no);
+    my ($start,$end,%align,$name,$seqname,%hash,@c2name, %accession,%desc);
     my $aln =  Bio::SimpleAlign->new(-source => 'selex');
 
     # in selex format, every non-blank line that does not start
     # with '#=' is an alignment segment; the '#=' lines are mark up lines.
     # Of particular interest are the '#=GF <name/st-ed> AC <accession>'
     # lines, which give accession numbers for each segment
-
     while( $entry = $self->_readline) {
-        $entry =~ /^\#=GS\s+(\S+)\s+AC\s+(\S+)/ && do {
-	    				$accession{ $1 } = $2;
-	    				next;
-					};
-	$entry !~ /^([^\#]\S+)\s+([A-Za-z\.\-]+)\s*/ && next;
-	
-	$name = $1;
-	$seq = $2;
+        if( $entry =~ /^\#=GS\s+(\S+)\s+AC\s+(\S+)/ ) {
+	    $accession{ $1 } = $2;
+	    next;
+	} elsif( $entry =~ /^\#=GS\s+(\S+)\s+DE\s+(.+)\s*$/ ) {
+	    $desc{$1} .= $2;
+	} elsif ( $entry =~ /^([^\#]\S+)\s+([A-Za-z\.\-\*]+)\s*/ ) {
+	    my ($name,$seq) = ($1,$2);
 
-	if( ! defined $align{$name}  ) {
-	    $count++;
-	    $c2name{$count} = $name;
+	    if( ! defined $align{$name}  ) {
+		push @c2name, $name;
+	    }
+	    $align{$name} .= $seq;
 	}
-	$align{$name} .= $seq;
     }
-
     # ok... now we can make the sequences
 
-    $count = 0;
-    foreach $no ( sort { $a <=> $b } keys %c2name ) {
-	$name = $c2name{$no};
-
+    foreach my $name ( @c2name ) {
+	
 	if( $name =~ /(\S+)\/(\d+)-(\d+)/ ) {
 	    $seqname = $1;
 	    $start = $2;
@@ -116,24 +122,22 @@ sub next_aln {
 	    $start = 1;
 	    $end = length($align{$name});
 	}
-	$seq = new Bio::LocatableSeq('-seq'=>$align{$name},
-			    '-id'=>$seqname,
-			    '-start'=>$start,
-			    '-end'=>$end,
-			    '-type'=>'aligned',
-				     '-accession_number' => $accession{$name},
-
-			    );
-
+	my $seq = new Bio::LocatableSeq
+	    ('-seq'              => $align{$name},
+	     '-display_id'       => $seqname,
+	     '-start'            => $start,
+	     '-end'              => $end,
+	     '-description'      => $desc{$name},
+	     '-accession_number' => $accession{$name},
+	     );
+	
 	$aln->add_seq($seq);
-	$count++;
     }
 
 #  If $end <= 0, we have either reached the end of
 #  file in <> or we have encountered some other error
 #
-   if ($end <= 0) { undef $aln;}
-
+    return undef if ($end <= 0);
     return $aln;
 }
 
