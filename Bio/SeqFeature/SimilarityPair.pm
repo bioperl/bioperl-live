@@ -1,6 +1,6 @@
 
 #
-# BioPerl module for Bio::SeqFeature::Similarity
+# BioPerl module for Bio::SeqFeature::SimilarityPair
 #
 # Cared for by Hilmar Lapp <hlapp@gmx.net>
 #
@@ -108,7 +108,7 @@ sub _initialize {
     $self->query();
     # the following refer to feature1, which has been ensured to exist
     $self->primary_tag('similarity') if(! defined($self->primary_tag()));
-    $source && $self->source($source);
+    $source && $self->source_tag($source);
     $self->strand(0) if(! defined($self->strand()));
     # set stuff in self from @args
     return $make; # success - we hope!
