@@ -187,9 +187,6 @@ sub in_map{
    $self->throw_not_implemented();
 }
 
-#====================================================================
-
-
 =head2 get_position_object
 
  Title   : get_position_class
@@ -208,18 +205,6 @@ sub get_position_object {
 }
 
 
-=head2 Bio::Map::MappableI methods
-
-=cut
-
-=head2 map_position
-
- Title   : map_position
- Usage   : my $position = $mappable->map_position(); 
- Function: Get/Set the Bio::Map::PositionI for a mappable element
- Returns : Bio::Map::PositionI
- Args    : (optional) Bio::Map::PositionI
-
 =head2 tuple
 
  Title   : tuple
@@ -230,6 +215,24 @@ sub get_position_object {
  Args    : Bio::Map::MappableI or Bio::Map::PositionI
 
 =cut
+
+sub in_map{
+   my ($self,@args) = @_;
+   $self->throw_not_implemented();
+}
+
+
+=head2 Bio::Map::MappableI methods
+
+=cut
+
+=head2 position
+
+ Title   : position
+ Usage   : my $position = $mappable->position(); 
+ Function: Get/Set the Bio::Map::PositionI for a mappable element
+ Returns : Bio::Map::PositionI
+ Args    : (optional) Bio::Map::PositionI
 
 =head2 equals
 
