@@ -21,7 +21,7 @@ BEGIN {
     }
     use Test;
 
-    $NUMTESTS = 116;
+    $NUMTESTS = 120;
     plan tests => $NUMTESTS;
     eval { require IO::String; 
 	   require Bio::Tools::Phylo::PAML;}; 
@@ -61,18 +61,24 @@ my $NGmat = $result->get_NGmatrix;
 ok($NGmat->[0]->[1]->{'omega'}, 0.2507);
 ok($NGmat->[0]->[1]->{'dN'}, 0.0863);
 ok($NGmat->[0]->[1]->{'dS'}, 0.3443);
+
 ok($NGmat->[2]->[3]->{'omega'}, 0.2178);
 ok($NGmat->[2]->[3]->{'dN'}, 0.1348);
 ok($NGmat->[2]->[3]->{'dS'}, 0.6187);
 
-ok($MLmat->[0]->[1]->{'omega'}, 0.1948);
+ok($MLmat->[0]->[1]->{'omega'}, 0.19479);
 ok($MLmat->[0]->[1]->{'dN'}, 0.0839);
 ok($MLmat->[0]->[1]->{'dS'}, 0.4309);
 ok($MLmat->[0]->[1]->{'lnL'}, -1508.607268);
-ok($MLmat->[2]->[3]->{'omega'}, 0.1611);
+ok($MLmat->[0]->[1]->{'t'}, 0.47825);
+ok($MLmat->[0]->[1]->{'kappa'}, 2.29137);
+
+ok($MLmat->[2]->[3]->{'omega'}, 0.16114);
 ok($MLmat->[2]->[3]->{'dN'}, 0.1306);
 ok($MLmat->[2]->[3]->{'dS'}, 0.8105);
 ok($MLmat->[2]->[3]->{'lnL'},-1666.440696);
+ok($MLmat->[2]->[3]->{'t'}, 0.85281);
+ok($MLmat->[2]->[3]->{'kappa'}, 2.21652);
 
 my @codonposfreq = $result->get_codon_pos_basefreq();
 ok($codonposfreq[0]->{'A'}, 0.23579);
