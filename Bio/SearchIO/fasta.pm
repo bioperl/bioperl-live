@@ -204,11 +204,18 @@ sub next_result{
 			    'Data' => $version});
 	   my ($last);
 	   while( defined($_ = $self->_readline()) ) {
-	       if( />(.+)/ || /^\s*vs\s+/ ) {
+	       if( /\s+>(.+)/ || /^\s*vs\s+/ ) {
 		   my $querydef = $1;
 		   
 		   if( $last =~ /(\S+)[:,]\s*(\d+)\s+(aa|nt)/ ) {
-		       		   		   
+		       if( $self->{'_reporttype'} &&
+			   $self->{'_reporttype'} eq 'FASTA' ) {
+			   if( $3 eq 'nt') {
+			       $self->{'_reporttype'} = 'FASTN' ;
+			   } elsif( $3 eq 'aa' ) {
+			       $self->{'_reporttype'} = 'FASTP' ;
+			   }
+		       }
 		       $self->element({'Name' => 'FastaOutput_query-def',
 				       'Data' => $querydef || $1});
 		       $self->element({'Name' => 'FastaOutput_query-len',
