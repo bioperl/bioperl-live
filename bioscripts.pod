@@ -60,6 +60,12 @@ This script does a rapid load of a mySQL Bio::DB::GFF database
 using files as source. Probably only works in Unix as it relies 
 on pipes.
 
+=head2 scripts/Bio-DB-GFF/genbank2gff3.PLS
+
+This script uses SeqFeature::Tools::Unflattener to convert GenBank 
+flatfiles to GFF3 with gene hierarchies mapped for optimal display in
+gbrowse.
+
 =head2 scripts/Bio-DB-GFF/generate_histogram.PLS
 
 Create a GFF-formatted histogram of the density of the indicated set
