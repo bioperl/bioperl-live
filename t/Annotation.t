@@ -19,7 +19,7 @@
 
 
 ## We start with some black magic to print on failure.
-BEGIN { $| = 1; print "1..10\n"; }
+BEGIN { $| = 1; print "1..11\n"; }
 END {print "not ok 1\n" unless $loaded;}
 
 use Bio::Annotation;
@@ -75,8 +75,12 @@ test 9, ( $comment->text eq 'sometext' );
 
 $ref = Bio::Annotation::Reference->new( '-authors' => 'author line',
 					'-title'   => 'title line',
-					'-location' => 'location line');
+					'-location'=> 'location line',
+					'-start'   => 12);
 
 test 10, ( $ref->authors eq 'author line' && 
 	   $ref->title   eq 'title line' &&
-	   $ref->location eq 'location line' );
+	   $ref->location eq 'location line' &&
+	   $ref->start == 12);
+
+test 11, $ref->database eq 'MEDLINE';

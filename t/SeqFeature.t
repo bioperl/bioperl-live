@@ -30,6 +30,8 @@ END {print "not ok 1\n" unless $loaded;}
 use Bio::Seq;
 use Bio::SeqFeature::Generic;
 use Bio::SeqFeature::FeaturePair;
+use Bio::SeqFeature::SimilarityPair;
+use Bio::Tools::Blast;
 use Bio::SeqFeature::Computation;
 
 $loaded = 1;
@@ -167,4 +169,3 @@ test 24, ( $comp_obj1->add_score_value('P', 33) );
     test 26, (@sft = $comp_obj1->all_sub_SeqFeature_types() );
     test 27, ($sft[0] eq 'exon');
 }
-

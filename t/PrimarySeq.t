@@ -47,7 +47,7 @@ my $seq = Bio::PrimarySeq->new(-seq=>'TTGGTGGCGTCAACT',
 			-moltype => 'dna',
 			-accession_number => 'X677667',
                         -desc=>'Sample Bio::Seq object');
-test 2, defined $seq;
+test 2, defined $seq && $seq->isa('Bio::PrimarySeqI'), 'Error initializing Primary Seq';
 
 test 3, $seq->accession_number() eq 'X677667';
 test 4, $seq->seq() eq 'TTGGTGGCGTCAACT';
@@ -63,7 +63,7 @@ test 9, ( $trunc->seq() eq 'TTGG' ), "Expecting TTGG. Got ".$trunc->seq();
 $rev = $seq->revcom();
 test 10, defined $rev; 
 
-test 11, ( $rev->seq() eq 'AGTTGACGCCACCAA' );
+test 11, ( $rev->seq() eq 'AGTTGACGCCACCAA' ), 'rev faile was ' . $rev->seq();
 
 #
 # Translate

@@ -28,8 +28,11 @@ BEGIN {
 
 END {print "not ok 1\n" unless $loaded;}
 
-use Bio::Tools::Run::Alignment::Clustalw; use Bio::SimpleAlign; use
-Bio::AlignIO; use Bio::SeqIO; use strict;
+use Bio::Tools::Run::Alignment::Clustalw; 
+use Bio::SimpleAlign; 
+use Bio::AlignIO; 
+use Bio::SeqIO; 
+use strict;
 
 $loaded = 1;
 print "ok 1\n";    # 1st test passes.

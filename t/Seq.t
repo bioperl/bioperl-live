@@ -98,13 +98,13 @@ my $newfeat = Bio::SeqFeature::Generic->new( -start => 10,
 $seq->add_SeqFeature($newfeat);
 test 12, $seq->feature_count == 1;
 
-my $species = new Bio::Species(qw( sapiens Homo Hominidae
+my $species = new Bio::Species(-verbose => 1, 
+			       -classification => [ qw( sapiens Homo Hominidae
 				   Catarrhini Primates Eutheria
 				   Mammalia Vertebrata Chordata
-				   Metazoa Eukaryota ));
+				   Metazoa Eukaryota )]);
 $seq->species($species);
 test 13, $seq->species->binomial eq 'Homo sapiens';
-
 $seq->annotation(new Bio::Annotation('-description' => 'desc-here'));
 test 14, $seq->annotation()->description() eq  'desc-here', 
 		 'annotation was ' . $seq->annotation();
