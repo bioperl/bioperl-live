@@ -989,6 +989,6 @@ $outhtml->write_result($result, 1);
 ok(-e "searchio.html");
 
 END { 
-#    unlink 'searchio.out';
-#    unlink 'searchio.html';
+    unlink 'searchio.out';
+    unlink 'searchio.html';
 }
