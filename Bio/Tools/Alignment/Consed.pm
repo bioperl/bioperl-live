@@ -221,8 +221,8 @@ sub count_sequences_with_grep {
     	# I tried to cause graceful exiting if not on *ix here
     	# then i took platforms from Bioperl*/PLATFORMS here. Is that good?
     	# print("\$^O is $^O\n");
-    if (!($^O =~ /linux|unix|bsd|solaris/i)) {
-	$self->warn("Bio::Tools::Alignment::Consed::count_sequences_with_grep: This sub uses grep which is doesn't run on this operating system, AFAIK. Sorry.");
+    if (!($^O =~ /dec_osf|linux|unix|bsd|solaris/i)) {
+	$self->warn("Bio::Tools::Alignment::Consed::count_sequences_with_grep: This sub uses grep which is doesn't run on this operating system, AFAIK. Sorry   .".$^O);
 	return 1;
     }
     $grep_cli = `which grep`;

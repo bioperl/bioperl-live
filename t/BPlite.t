@@ -70,7 +70,7 @@ ok defined $hsp;
 ok $hsp->bits, 57.8;
 ok $hsp->score, 137;
 ok int($hsp->percent), 24;
-ok $hsp->P, 4e-07;
+ok ( $hsp->P < 0.00000041 && $hsp->P > 0.00000039);
 ok $hsp->match, 64;
 ok $hsp->positive, 112;
 ok $hsp->hsplength, 261;

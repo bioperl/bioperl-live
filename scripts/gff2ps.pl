@@ -58,7 +58,10 @@ while( my $f = $gffio->next_feature()) {
     if( $f->start < 0 ) {
 	next;
     }
-    
+
+    if( $f->start > $scale*1000 ) {
+      next;
+    }
     
     
     if( $f->primary_tag =~ /coding_exon/ ) {
