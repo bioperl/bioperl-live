@@ -42,7 +42,8 @@ o System requirements
 
      >perl -MCPAN -e "install Bundle::BioPerl"
 
-   Do not use a Unix make to install Perl modules this way, use nmake. 
+   Do not use a Unix make to install Perl modules this way, use nmake
+   (http://download.microsoft.com/download/vc15/Patch/1.52/W95/EN-US/Nmake15.exe).
    See "DEPENDENCIES AND Bundle::BioPerl" below for more information
    on this useful bundle.
 

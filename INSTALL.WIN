@@ -112,7 +112,8 @@ only one file!  Extract and decompress?".  This is just a variation in how
 UNIX and Windows software likes to compress files.  Choose yes, and all
 will be well.
 
-You will need use nmake, not make, to utilize this approach.
+You will need use nmake, not make, to utilize this approach
+(http://download.microsoft.com/download/vc15/Patch/1.52/W95/EN-US/Nmake15.exe).
 
 1.3.4. If All Else Fails....
 ============================
