@@ -366,7 +366,7 @@ $transcribe = Bio::Coordinate::Collection->new;
 $transcribe->add_mapper($pair3);
 $transcribe->add_mapper($pair1);
 $transcribe->add_mapper($pair2);
-ok $transcribe->_sort;
+ok $transcribe->sort;
 my @res;
 map {push @res, $_->in->start } $transcribe->each_mapper;
 ok compare_arrays ([5, 15, 25], \@res);
