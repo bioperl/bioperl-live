@@ -129,14 +129,14 @@ sub type {
   if(defined($val)){
     my $term = undef;
 
-    if(!$ref($val)){
+    if(!ref($val)){
       #we have a plain text annotation coming in.  try to map it to SOFA.
       if($val =~ /^\D+:\d+$/){
         #looks like an identifier
-        ($term) = $self->so->find_terms(-identifier => $type);
+        ($term) = $self->so->find_terms(-identifier => $val);
       } else {
         #looks like a name
-        ($term) = $self->so->find_terms(-name => $type);
+        ($term) = $self->so->find_terms(-name => $val);
       }
 
       if(!$term){
@@ -197,7 +197,7 @@ sub score {
 
   if(defined($val)){
     if ($val !~ /^[+-]?\d+\.?\d*(e-\d+)?/) {
-      $self->throw("'$value' is not a valid score");
+      $self->throw("'$val' is not a valid score");
     }
 
     $self->{'score'} = $val;
