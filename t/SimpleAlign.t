@@ -156,6 +156,8 @@ ok $string, "AAA/10-10    t\n";
 
 eval {
     $b = $a->slice(11,13);
+
 };
-ok 1 if $@;
+
+ok ($@ =~ /EX/ );
 

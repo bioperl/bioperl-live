@@ -135,7 +135,7 @@ $seq->seq('atgtggtaataa');
 eval {
     $seq->translate(undef, undef, undef, undef, 'CDS' , 'throw');
 };
-ok $@ ;
+ok ($@ =~ /EX/) ;
 
 $seq->seq('atgtggtaataa');
 ok( $seq->translate('J', '-',)->seq, 'MWJJ');

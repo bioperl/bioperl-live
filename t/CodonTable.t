@@ -45,7 +45,7 @@ $myCodonTable->id(1);
 eval {
     $myCodonTable->translate();
 };
-ok $@;
+ok ($@ =~ /EX/) ;
 
 ok $myCodonTable->translate(''), '';
 

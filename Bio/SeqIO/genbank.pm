@@ -268,11 +268,25 @@ sub next_seq {
 	    # check immediately -- not at the end of the loop
 	    # note: GenPept entries obviously do not have a BASE line
 	    last if(($buffer =~ /^BASE/) || ($buffer =~ /^ORIGIN/));
+
 	    # slurp in one feature at a time -- at return, the start of
 	    # the next feature will have been read already, so we need
 	    # to pass a reference, and the called method must set this
 	    # to the last line read before returning 
+
 	    my $ftunit = $self->_read_FTHelper_GenBank(\$buffer);
+
+	    # fix suggested by James Diggans
+
+	    if( !defined $ftunit ) {
+		# GRRRR. We have fallen over. Try to recover
+		$self->warn("Unexpected error in feature table for ".$seq->id." Skipping feature, attempting to recover");
+		unless( ($buffer =~ /^\s{5,5}\S+/) or ($buffer =~ /\S+/)) {
+		    $buffer = $self->_readline();
+		}
+		next; # back to reading FTHelpers
+	    }
+		
 	    # process ftunit
 	    $ftunit->_generic_seqfeature($seq);
 	}

@@ -119,13 +119,13 @@ ok(!&compare_arrays(\@subquals,\@true_comparator));
 
 print("Checking boundry conditions for subqual\n") if($DEBUG);
 eval { $qualobj->subqual(-1,6); };
-ok($@);
+ok($@ =~ /EX/ );
 eval { $qualobj->subqual(1,6); };
 ok(!$@);
 eval { $qualobj->subqual(1,9); };
 ok(!$@);
 eval { $qualobj->subqual(9,1); };
-ok($@);
+ok($@ =~ /EX/ );
 
 if($DEBUG ) {
     print("3. Checking display_id()...\n");

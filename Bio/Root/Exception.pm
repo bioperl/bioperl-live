@@ -270,6 +270,8 @@ sub stringify {
     return $self->pretty_format( @args );
 }
 
+
+
 =back
 
 =head1 Subclasses of Bio::Root::Exception 
