@@ -213,7 +213,7 @@ BEGIN {
           'Parameters_gap-extend'=>   { 'RESULT-parameters' => 'gapext'},
           'Parameters_filter'    =>  {'RESULT-parameters' => 'filter'},
           'Parameters_allowgaps' =>   { 'RESULT-parameters' => 'allowgaps'},
-
+	  'Parameters_full_dbpath' => { 'RESULT-parameters' => 'full_dbpath'},
           'Statistics_db-len'    => {'RESULT-statistics' => 'dbentries'},
           'Statistics_db-let'    => { 'RESULT-statistics' => 'dbletters'},
           'Statistics_hsp-len'   => { 'RESULT-statistics' => 'effective_hsplength'},
@@ -581,7 +581,6 @@ sub next_result{
        } elsif ( /^Database:\s*(.+)$/ ) {
 #           $self->debug("blast.pm: Database: $1\n");
            my $db = $1;
-
            while( defined($_ = $self->_readline) ) {
                if( /^\s+(\-?[\d\,]+)\s+sequences\;\s+(\-?[\d,]+)\s+total\s+letters/){
                    my ($s,$l) = ($1,$2);
@@ -880,7 +879,7 @@ sub next_result{
                # here is where difference between wublast and ncbiblast
                # is better handled by different logic
                if( /Number of Sequences:\s+([\d\,]+)/i ||
-                        /of sequences in database:\s+(\-?[\d,]+)/i) {
+		   /of sequences in database:\s+(\-?[\d,]+)/i) {
                    my $c = $1;
                    $c =~ s/\,//g;
                    $self->element({'Name' => 'Statistics_db-len',
@@ -1022,7 +1021,16 @@ sub next_result{
                        chomp($etime);
                        $self->element({'Name' => 'Statistics_endtime',
                                        'Data' => $etime});
-                   }
+                   } elsif( /^\s+Database:\s+(\S+)/ ) {
+		       $self->element({'Name' => 'Parameters_full_dbpath',
+				       'Data' => $1});
+		       
+		   } elsif( /^\s+Posted:\s+(.+)/ ) {
+		       my $d = $1;
+		       chomp($d);
+		       $self->element({'Name' => 'Statistics_posted_date',
+				       'Data' => $d});
+		   }
                } elsif ( $blast eq 'ncbi' ) {
 		   
                    if( m/^Matrix:\s+(.+)\s*$/oxi ) {
