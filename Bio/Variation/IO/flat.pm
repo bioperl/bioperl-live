@@ -374,10 +374,6 @@ sub write {
 
     foreach my $h (@h) {
 	
-	# HTML | ASCII
-	#my ($mode) = @args;
-	my $mode = '';#= 'ASCII' if not defined $mode;
-	
 	my @entry =();
     
 	my ($text, $tmp, $tmp2, $sep);
@@ -386,12 +382,7 @@ sub write {
 	
 	$text = $tag{ID};
 	
-	if ($mode eq 'HTML' ) {
-	    $text .= '<A HREF=http://srs.ebi.ac.uk/srs6bin/cgi-bin/wgetz?-e+'.
-		'[embl-acc:'. $h->id. ']>'. $h->id. '</A>';
-	} else {
-	    $text .= $h->id;
-	}
+	$text .= $h->id;
 	$text .= ":(". $h->offset;
 	$text .= "+1" if $h->sysname =~ /-/;
 	$text .= ")".  $h->sysname;
@@ -501,20 +492,8 @@ sub write {
 			       );
 			 #restriction enzyme
 			 if ($mut->restriction_changes ne '') {
-			     if ($mode eq 'HTML') {
-				 my @enz = split ', ', $mut->restriction_changes;
-				 my ($rtmp, @tmp);
-				 foreach $rtmp (@enz) {
-				     $rtmp =~ s/([+-])(.*)/$2\]\>$1$2/;
-				     $rtmp = '<A HREF=http://srs.ebi.ac.uk/srs6bin/cgi-bin/wgetz?-e+[rebase-id:'. 
-					 $rtmp. '</A>';
-				     push (@tmp, $rtmp);
-				 }
-				 $text = join ('; ', sort(@tmp));
-			     } else {
-				 $text = $mut->restriction_changes;
-				 $text = wrap($tag{FeatureQual}. '/re_site: ', $tag{FeatureWrap}, $text); 
-			     }
+			     $text = $mut->restriction_changes;
+			     $text = wrap($tag{FeatureQual}. '/re_site: ', $tag{FeatureWrap}, $text); 
 			     push (@entry,
 				   $text
 				   );
@@ -626,20 +605,8 @@ sub write {
 			       );
 			 #restriction
 			 if ($mut->restriction_changes ne '') {
-			     if ($mode eq 'HTML') {
-				 my @enz = split ', ', $mut->restriction_changes;
-				 my ($rtmp, @tmp);
-				 foreach $rtmp (@enz) {
-				     $rtmp =~ s/([+-])(.*)/$2\]\>$1$2/;
-				     $rtmp = '<A HREF=http://srs.ebi.ac.uk/srs6bin/cgi-bin/wgetz?-e+[rebase-id:'. 
-					 $rtmp. '</A>';
-				     push (@tmp, $rtmp);
-				 }
-				 $text = join ('; ', sort(@tmp));
-			     } else {
-				 $text = $mut->restriction_changes;
-				 $text = wrap($tag{FeatureQual}. '/re_site: ', $tag{FeatureWrap}, $text); 
-			     }
+			     $text = $mut->restriction_changes;
+			     $text = wrap($tag{FeatureQual}. '/re_site: ', $tag{FeatureWrap}, $text); 
 			     push (@entry,
 				   $text
 				   );
@@ -648,13 +615,7 @@ sub write {
 			 if ($mut->region eq 'coding') {
 			     #codon table
 			     $text =  $tag{FeatureQual}. '/codon_table: ';
-			     if ($mode eq 'HTML' ) {
-				 $text .=  "<A HREF=http://www.ebi.ac.uk/cgi-bin/mutations/trtables.cgi?".
-				     "id=". $mut->codon_table. "&Action=Show>".
-					 $mut->codon_table.  '</A>';
-			     } else {
-				 $text .= $mut->codon_table;
-			     }
+			     $text .= $mut->codon_table;
 			     push (@entry, $text);
 			     #codon
 
