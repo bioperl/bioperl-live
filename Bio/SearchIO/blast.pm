@@ -202,6 +202,7 @@ sub next_result{
    my @hit_signifs;
    while( defined ($_ = $self->_readline )) {
        next if( /^\s+$/); # skip empty lines
+       next if( /CPU time:/);
        if( /^([T]?BLAST[NPX])\s*(\S+)/i ) {
 	   if( $seentop ) {
 	       $self->_pushback($_);
