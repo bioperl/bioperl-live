@@ -25,6 +25,17 @@ Do not use this module directly.  Use it via the Bio::SeqIO class.
 This object can transform Bio::Seq objects to and from fasta flat
 file databases.
 
+A method L<preferred_id_type()> can be used to specify the type of ID
+we would like to parse from the fasta line.  By default 'display' is
+used, which means it parses everything from the '>' to the first space
+and makes that the 'display_id' for the sequence.
+
+Can be one of:
+ - accession 
+ - accession.version 
+ - display
+ - primary
+
 =head1 FEEDBACK
 
 =head2 Mailing Lists
