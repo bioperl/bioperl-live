@@ -1026,6 +1026,11 @@ sub length {
   return $self->{db}->length($self->{id});
 }
 
+sub desc  { 
+    my $self = shift;
+    return '';
+}
+
 #-------------------------------------------------------------
 # stream-based access to the database
 #
