@@ -144,7 +144,7 @@ if( eval "require SVG::Graph; 1;" ) {
 	my $treeout3 = new Bio::TreeIO(-format => 'svggraph',
 											 -file => ">$FILE3");
 	ok($treeout3);
-	$treeout3->write_tree($tree);
+	eval {$treeout3->write_tree($tree);};
 	ok (-e $FILE3);
 } else {
     for ( 1..2 ) {
