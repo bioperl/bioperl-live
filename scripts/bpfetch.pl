@@ -278,8 +278,8 @@ foreach my $arg ( @ARGV ) {
     # the sequence index databases and the GenBank/GenPept do already
     #
 
-    if( ! $dbobj->isa('Bio::DB::BioSeqI') ) {
-	warn("$db in $arg does not inherit from Bio::DB::BioSeqI, so is not expected to work under the DB guidlines. Going to try it anyway");
+    if( ! $dbobj->isa('Bio::DB::RandomAccessI') ) {
+	warn("$db in $arg does not inherit from Bio::DB::RandomAccessI, so is not expected to work under the DB guidlines. Going to try it anyway");
     }
 
     eval {
