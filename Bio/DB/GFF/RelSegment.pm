@@ -63,12 +63,12 @@ Internally, Bio::DB::GFF::RelSegment has looked up the absolute
 coordinates of this segment and maintains the source sequence and the
 absolute coordinates relative to the source sequence.  We can see this 
 information using sourceseq() (inherited from Bio::DB::GFF::Segment)
-and the abs_start() and abs_stop() methods:
+and the abs_start() and abs_end() methods:
 
   print $seg->sourceseq;
   => CHROMOSOME_I
 
-  print $seg->abs_start,' - ',$seg->abs_stop;
+  print $seg->abs_start,' - ',$seg->abs_end;
   => 14839545 - 14873326
 
 We can also put the segment into absolute mode, so that it behaves
@@ -350,8 +350,30 @@ sub end {
 
 sub length {
   my $self = shift;
-  return unless defined $self->abs_stop;
-  abs($self->abs_stop - $self->abs_start) + 1;
+  return unless defined $self->abs_end;
+  abs($self->abs_end - $self->abs_start) + 1;
+}
+
+sub abs_start {
+  my $self = shift;
+  if ($self->absolute) {
+    my ($a,$b) = ($self->SUPER::abs_start,$self->SUPER::abs_end);
+    return ($a<$b) ? $a : $b;
+  }
+  else {
+    return $self->SUPER::abs_start(@_);
+  }
+}
+sub abs_end {
+  my $self = shift;
+  if ($self->absolute) {
+    my ($a,$b) = ($self->SUPER::abs_start,$self->SUPER::abs_end);
+    return ($a>$b) ? $a : $b;
+  }
+
+  else {
+    return $self->SUPER::abs_end(@_);
+  }
 }
 
 =head2 refseq
@@ -400,7 +422,7 @@ sub refseq {
     my ($refsource,undef,$refstart,$refstop,$refstrand);
     if ($newref->isa('Bio::DB::GFF::RelSegment')) {
       ($refsource,undef,$refstart,$refstop,$refstrand) =
-	($newref->sourceseq,undef,$newref->abs_start,$newref->abs_stop,$newref->abs_strand >= 0 ? '+' : '-');
+	($newref->sourceseq,undef,$newref->abs_start,$newref->abs_end,$newref->abs_strand >= 0 ? '+' : '-');
     } else {
       my $coords = $self->factory->abscoords($newref,$newclass);
       foreach (@$coords) { # find the appropriate one
@@ -435,7 +457,7 @@ absolute coordinates;
 
 sub abs_low {
   my $self = shift;
-  my ($a,$b) = ($self->abs_start,$self->abs_stop);
+  my ($a,$b) = ($self->abs_start,$self->abs_end);
   return ($a<$b) ? $a : $b;
 }
 
@@ -455,7 +477,7 @@ absolute coordinates;
 
 sub abs_high {
   my $self = shift;
-  my ($a,$b) = ($self->abs_start,$self->abs_stop);
+  my ($a,$b) = ($self->abs_start,$self->abs_end);
   return ($a>$b) ? $a : $b;
 }
 
@@ -487,7 +509,7 @@ sub asString {
   if (ref($label) && overload::StrVal($self) eq overload::StrVal($label->ref)) {
     $label = $self->abs_ref;
     $start = $self->abs_start;
-    $stop  = $self->abs_stop;
+    $stop  = $self->abs_end;
   }
   return "$label:$start,$stop";
 }

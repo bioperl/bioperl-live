@@ -428,10 +428,10 @@ Bio::DB::GFF::RelSegment.
 
 *abs_start  = \&start;
 
-=head2 abs_stop
+=head2 abs_end
 
- Title   : abs_stop
- Usage   : $s->abs_stop
+ Title   : abs_end
+ Usage   : $s->abs_end
  Function: the absolute stop of the segment
  Returns : an integer
  Args    : none
@@ -461,7 +461,7 @@ Bio::DB::GFF::RelSegment.
 
 sub abs_strand {
   my $self = shift;
-  return $self->abs_stop <=> $self->abs_start;
+  return $self->abs_end <=> $self->abs_start;
 }
 
 =head2 abs_ref
