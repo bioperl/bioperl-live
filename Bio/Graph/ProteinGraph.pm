@@ -947,13 +947,21 @@ sub articulation_points {
 
 	my $t      = $sg->node_traversal($all_nodes->{$id},'d');
 	my @nodes  = $t->get_all();
+	my $id = 0;
+	#assign node ids
+	for my $n(@nodes) {
+		$n->{'_node_id'} = $id;	
+		$id++;
+	}
+	
+
 	
 	## cycle through each node 
 	for (my $i       = $#nodes; $i >= 0; $i--) {
 
-		## initiate minimn to node_id
+		## initiate minimumn to node_id
 		my $curr_min = $all_nodes->{$nodes[$i]}{'_node_id'};
-		
+		#print STDERR "currmin - $curr_min, i = $i\n";
 		## cycle through neighbors, reset minumum if required
 		my $nbors    = $neighbors->{$nodes[$i]};
 		for my $nbor (@$nbors) {	
