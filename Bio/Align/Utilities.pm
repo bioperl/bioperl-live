@@ -183,11 +183,16 @@ sub bootstrap_replicates {
    my ($aln,$count) = @_;
    $count ||= 1;
    my $alen = $aln->length;
-   my @seqs = map { $_->seq() } $aln->each_seq;
-   my @alns;
+   my (@seqs,@nm);
+   $aln->set_displayname_flat(1);
+   for ( $aln->each_seq ) {
+       push @seqs, $_->seq();
+       push @nm, $_->id;
+   }
+   my (@alns,$i);
    while( $count-- > 0 ) {
        my @newseqs;
-       for(my $i =0; $i < $alen; $i++ ) {
+       for($i =0; $i < $alen; $i++ ) {
 	   my $index = int(rand($alen));
 	   my $c = 0;
 	   for ( @seqs ) {
@@ -195,11 +200,14 @@ sub bootstrap_replicates {
 	   }
        }
        my $newaln = Bio::SimpleAlign->new();
+       my $i = 0;
        for my $s ( @newseqs ) {
 	   $newaln->add_seq( Bio::LocatableSeq->new
-			     (-start => 1,
-			      -end   => $alen,
-			      -seq   => $s));
+			     (-start         => 1,
+			      -end           => $alen,
+			      -display_id    => $nm[$i++],
+			      -seq           => $s));
+
        }
        push @alns, $newaln;
    }
