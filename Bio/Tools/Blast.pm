@@ -34,7 +34,7 @@ use strict;
 use vars qw($ID $VERSION $Blast @Blast_programs $Revision);
 
 $ID = 'Bio::Tools::Blast';
-$VERSION  = 0.074; 
+$VERSION  = 0.075; 
 $Revision = '$Id$';  #'
 
 ## Static Blast object. 
@@ -242,11 +242,11 @@ The Blast family includes 5 different programs:
 
               Query Seq        Database
              ------------     ----------
- blastp  --  protein          protein
- blastn  --  nucleotide       nucleotide 
- blastx  --  nucleotide*      protein
- tblastn --  protein          nucleotide*
- tblastx --  nucleotide*      nucleotide*
+ BLASTP  --  protein          protein
+ BLASTN  --  nucleotide       nucleotide 
+ BLASTX  --  nucleotide*      protein
+ TBLASTN --  protein          nucleotide*
+ TBLASTX --  nucleotide*      nucleotide*
  
             * = dynamically translated in all reading frames, both strands
 
@@ -878,7 +878,7 @@ for use with "make test" during installation.
 
 =head1 VERSION
 
-Bio::Tools::Blast.pm, 0.074
+Bio::Tools::Blast.pm, 0.075
 
 
 =head1 FEEDBACK
@@ -1920,7 +1920,7 @@ sub _set_blast2_stats {
 #---------------------
     my ($self, $data) = (@_);
     
-    if($data =~ /\nGapped/s) {
+    if($data =~ /\n\s*Gapped/s) {
 	$self->{'_gapped'} = 1;
     } else {
  	$self->{'_gapped'} = 0;
@@ -1938,7 +1938,7 @@ sub _set_blast2_stats {
 	$self->{'_filter'} = 'NONE';
     }
 
-    if($data =~ /Gapped\nLambda +K +H\n +(.+?)\n/s) {
+    if($data =~ /Gapped\n\s*Lambda +K +H\n +(.+?)\n/s) {
 	my ($l, $k, $h) = split(/\s+/, $1);
 	$self->{'_lambda'} = $l || 'UNKNOWN';
 	$self->{'_k'} = $k || 'UNKNOWN';
@@ -1950,7 +1950,7 @@ sub _set_blast2_stats {
 	$self->{'_h'} = $h || 'UNKNOWN';
     }
     
-    if($data =~ /\nMatrix: +(\w+)\n/s) {
+    if($data =~ /\n\s*Matrix: (.+?)\n/s) {
 	$self->{'_matrix'} = $1;
     } else {
 	$self->{'_matrix'} = $DEFAULT_MATRIX.'?'; 
@@ -1959,7 +1959,7 @@ sub _set_blast2_stats {
 	}
     }
 
-    if($data =~ /\nGap Penalties: Existence: +(\d+), +Extension: (\d+)\n/s) {
+    if($data =~ /\n\s*Gap Penalties: Existence: +(\d+), +Extension: (\d+)\n/s) {
 	$self->{'_gapCreation'} = $1;
 	$self->{'_gapExtension'} = $2;
     }
@@ -1967,12 +1967,12 @@ sub _set_blast2_stats {
 	$self->{'_expect'} = $1;
     }
 
-    if($data =~ /\nT: (\d+)/) { $self->{'_word_size'} = $1; }
-    if($data =~ /\nA: (\d+)/) { $self->{'_a'} = $1; }
-    if($data =~ /\nS1: (\d+)/) { $self->{'_s'} = $1; }
-    if($data =~ /\nS2: (\d+)/) { $self->{'_s'} .= ", $1"; }
-    if($data =~ /\nX1: (\d+)/) { $self->{'_x1'} = $1; }
-    if($data =~ /\nX2: (\d+)/) { $self->{'_x2'} = $1; }
+    if($data =~ /\n\s*T: (\d+)/) { $self->{'_word_size'} = $1; }
+    if($data =~ /\n\s*A: (\d+)/) { $self->{'_a'} = $1; }
+    if($data =~ /\n\s*S1: (\d+)/) { $self->{'_s'} = $1; }
+    if($data =~ /\n\s*S2: (\d+)/) { $self->{'_s'} .= ", $1"; }
+    if($data =~ /\n\s*X1: (\d+)/) { $self->{'_x1'} = $1; }
+    if($data =~ /\n\s*X2: (\d+)/) { $self->{'_x2'} = $1; }
 }
 
 
@@ -2012,11 +2012,11 @@ sub _set_blast1_stats {
 	$self->{'_filter'} = 'NONE';
     }
     
-    if($data =~ /E=(\d+)\n/s) {  $self->{'_expect'} = $1; }
+    if($data =~ /\n\s*E=(\d+)\n/s) {  $self->{'_expect'} = $1; }
 
-    if($data =~ /M=(\d+)\n/s) {  $self->{'_matrix'} = $1; }
+    if($data =~ /\n\s*M=(\w+)\n/s) {  $self->{'_matrix'} = $1; }
 
-    if($data =~ /Frame  MatID Matrix name .+?\n +(.+?)\n/s) {
+    if($data =~ /\s*Frame  MatID Matrix name .+?\n +(.+?)\n/s) {
 	## WU-Blast2.
 	my ($fr, $mid, $mat, $lu, $ku, $hu, $lc, $kc, $hc) = split(/\s+/,$1);
 	$self->{'_matrix'} = $mat || 'UNKNOWN';

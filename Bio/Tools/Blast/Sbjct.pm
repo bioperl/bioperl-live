@@ -28,7 +28,7 @@ use Exporter           ();
 use strict;
 use vars qw($ID $VERSION %SUMMARY_OFFSET $Revision);
 $ID = 'Bio::Tools::Blast::Sbjct';
-$VERSION = 0.074;
+$VERSION = 0.075;
 $Revision = '$Id$';  #'
 
 my $_layout     = '';
@@ -227,7 +227,7 @@ See the L<FEEDBACK> section for where to send bug reports and comments.
 
 =head1 VERSION
 
-Bio::Tools::Blast::Sbjct.pm, 0.074
+Bio::Tools::Blast::Sbjct.pm, 0.075
 
 =head1 COPYRIGHT
 

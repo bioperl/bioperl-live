@@ -38,7 +38,7 @@ use vars qw( $ID $VERSION %DbUrl %SGDUrl $Revision
 	     $Acc $Pir_acc $Word $Signif $Int $Descrip);
 
 $ID = 'Bio::Tools::Blast::HTML';
-$VERSION  = 0.074; 
+$VERSION  = 0.075; 
 $Revision = '$Id$';  #'
 
 my $_set_markup = 0;
@@ -138,7 +138,7 @@ Steve A. Chervitz, sac@genome.stanford.edu
 
 =head1 VERSION
 
-Bio::Tools::Blast::HTML.pm, 0.074
+Bio::Tools::Blast::HTML.pm, 0.075
 
 =head1 COPYRIGHT
 
@@ -247,6 +247,7 @@ sub get_html_func {
 		$out_aref ? push(@$out_aref, $date) : print $date;
 	    } elsif ( /^(<\w+>)?(T?BLAST[NPX])\s+(.*?)/ ) {
 		$found_data = 1;
+		local($^W) = 0;
 		s#(\S+)\s+(.*)#<P><B>Program:</B> $1 $2 $3<br>#o;
 		$out_aref ? push(@$out_aref, $_) : print $_;
 		$skip = 1;

@@ -1,5 +1,17 @@
 Revision history for Perl extension Bio::Tools::Blast.pm and related modules.
 
+0.075  Wed Feb 17 01:29:57 1999
+        - Bug fix in Blast::Run::postclient.pl which was always printing 
+          usage information (reported by Ross Crowhurst).
+        - Improved error detection & reporting in Blast::Run::Webblast
+	  and Blast::Run::postclient.pl.
+        - Bug fixes in HSP.pm: _set_match_stats() now properly handles
+          BLASTN output format and matches() properly handles BLASTX
+          reports.
+        - Fixed detection of substitution matrix type in Blast.pm.
+        - Updated Blast example scripts in examples/blast/
+	  (in particular, run.pl).
+	  
 0.074  Wed Feb  3 04:10:06 1999
         - Modified blast_config.pl to make the -prog and -db command-line
           arguments mandatory. There are no default values for $opt_blast
