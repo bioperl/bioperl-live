@@ -138,13 +138,14 @@ sub next_structure {
        return undef; # end of file
    }
    $line =~ /^HEADER\s+\S+/ || $self->throw("PDB stream with no HEADER. Not pdb in my book");
-   my($class, $depdate, $idcode) = unpack "x10 A40 A9 x3 A4", $line;
+   my($header_line) = unpack "x10 a56", $line;
+   $header{'header'} = $header_line;
+   my($class, $depdate, $idcode) = unpack "x10 a40 a9 x3 a4", $line;
    $idcode =~ s/^\s*(\S+)\s*$/$1/;
    $struc->id($idcode);
 $self->debug("PBD c $class d $depdate id $idcode\n"); # XXX KB
 
    my $buffer = $line;
- 
    
    BEFORE_COORDINATES :
    until( !defined $buffer ) {
@@ -223,6 +224,7 @@ $self->debug("get COMPND $compnd\n");
 	if (/^JRNL / && $all_headers) {
 		$jrnl = $self->_read_PDB_jrnl(\$buffer);
 		$struc->annotation->add_Annotation('reference',$jrnl);
+		$header{'jrnl'} = 1; # when writing out, we need a way to check there was a JRNL record (not mandatory)
 	}
 
 	# REMARK line(s)
@@ -236,9 +238,17 @@ $self->debug("get COMPND $compnd\n");
 			foreach my $ref (@refs) {
 				$struc->annotation->add_Annotation('reference', $ref);
 			}
-		} else { # other remarks, we store literlly at the moment
-			my ($rol) = unpack "x11 a59", $_;
-			$remark{$remark_num} .= $rol;
+			# $_ still holds the REMARK_1 line, $buffer now contains the first non
+			#  REMARK_1 line. We need to parse it in this pass (so no else block)
+			$_ = $buffer;
+		} 
+		# for the moment I don't see a better solution (other then using goto)
+		if (/^REMARK\s+(\d+)\s*/) {
+			my $r_num = $1;
+			if ($r_num != 1) { # other remarks, we store literlly at the moment
+				my ($rol) = unpack "x11 a59", $_;
+				$remark{$r_num} .= $rol;
+			}
 		}
 	} # REMARK
 
@@ -248,6 +258,7 @@ $self->debug("get COMPND $compnd\n");
 	if (/^DBREF / && $all_headers) {
 		my ($rol) = unpack "x7 a61", $_;
 		$dbref .= $rol;
+		$header{'dbref'} = $dbref;
 		my ($db, $acc) = unpack "x26 a6 x1 a8", $_;
 		$db =~ s/\s*$//;
 		$acc =~ s/\s*$//;
@@ -260,7 +271,7 @@ $self->debug("get COMPND $compnd\n");
 	# SEQADV line(s)
 	if (/^SEQADV / && $all_headers) {
 		my ($rol) = unpack "x7 a63", $_;
-		$self->_concatenate_lines($seqadv, $rol);
+		$seqadv .= $rol;
 		$header{'seqadv'} = $seqadv;
 	} # SEQADV
 
@@ -268,7 +279,7 @@ $self->debug("get COMPND $compnd\n");
 	#  this is (I think) the sequence of macromolecule that was analysed
 	#  this will be returned when doing $struc->seq
 	if (/^SEQRES / && $all_headers) {
-		my ($rol) = unpack "x7 a63", $_;
+		my ($rol) = unpack "x8 a62", $_;
 		$seqres .= $rol;
 		$header{'seqres'} = $seqres;
 	} # SEQRES
@@ -429,8 +440,8 @@ $self->debug("get COMPND $compnd\n");
    }
    # store %remark entries as annotations
    if (%remark) {
-	my $sim = Bio::Annotation::SimpleValue->new();
 	for my $remark_num (keys %remark) {
+		my $sim = Bio::Annotation::SimpleValue->new();
 		$sim->value($remark{$remark_num});
 		$struc->annotation->add_Annotation("remark_$remark_num", $sim);
 	}
@@ -472,9 +483,24 @@ $self->debug("get COMPND $compnd\n");
 			$conect[$k] =~ s/\s//g;
 		}
 		my $source = shift @conect;
-		for my $conect (@conect) {
-			next unless ($conect =~ /^\d+$/);
-			$struc->conect($source, $conect);
+		my $type;
+		for my $k (0 .. 9) {
+			next unless ($conect[$k] =~ /^\d+$/);
+			# 0..3 		bond
+			if( $k <= 3 ) {
+				$type = "bond";
+			}
+			# 4..5,7..8 	hydrogen bonded
+			elsif( ($k >= 4 && $k <= 5) || ($k >= 7 && $k <= 8) ) {
+				$type = "hydrogen";
+			}
+			# 6, 9		salt bridged
+			elsif( $k == 6 || $k == 9 ) {
+				$type = "saltbridged";
+			} else {
+				$self->throw("k has impossible value ($k), check brain");
+			}
+			$struc->conect($source, $conect[$k], $type);
 		}
 	}
 
@@ -508,11 +534,335 @@ $self->debug("get COMPND $compnd\n");
 =cut
 
 sub write_structure {
-	my ($self) = @_;
+	my ($self, $struc) = @_;
+	if( !defined $struc ) {
+		$self->throw("Attempting to write with no structure!");
+	}
 
-	$self->throw("write_structure is not yet implemented, start holding your breath\n");
+	if( ! ref $struc || ! $struc->isa('Bio::StructureI') ) {
+		$self->throw(" $struc is not a StructureI compliant module.");
+	}
+	my ($ann, $string, $output_string, $key);
+	# HEADER
+	($ann) = $struc->annotation->get_Annotations("header");
+	if ($ann) { 
+		$string = $ann->as_text;
+		$string =~ s/^Value: //;
+		$output_string = pack ("A10 A56", "HEADER", $string);
+	} else {	# not read in via read_structure, create HEADER line
+		my $id = $struc->id;
+		if (!$id) {
+			$id = "UNK1";
+		}
+		if (length($id) > 4) {
+			$id = substr($id,0,4);
+		}
+		my $classification = "DEFAULT CLASSIFICATION";
+		my $dep_date       = "24-JAN-70";
+		$output_string = pack ("A10 A40 A12 A4", "HEADER", $classification, $dep_date, $id);
+	}
+	$output_string .= " " x (80 - length($output_string) );
+	$self->_print("$output_string\n");
+
+	my (%header);
+	for  $key ($struc->annotation->get_all_annotation_keys) {
+		$header{$key} = 1;;
+	}
+
+	exists $header{'obslte'} && $self->_write_PDB_simple_record(-name => "OBSLTE  ", -cont => "9-10",
+					-annotation => $struc->annotation->get_Annotations("obslte"), -rol => "11-70");
+					
+	exists $header{'title'} && $self->_write_PDB_simple_record(-name => "TITLE   ", -cont => "9-10",
+					-annotation => $struc->annotation->get_Annotations("title"), -rol => "11-70");
+					
+	exists $header{'caveat'} && $self->_write_PDB_simple_record(-name => "CAVEAT  ", -cont => "9-10",
+					-annotation => $struc->annotation->get_Annotations("caveat"), -rol => "12-70");
+					
+	exists $header{'compnd'} && $self->_write_PDB_simple_record(-name => "COMPND  ", -cont => "9-10",
+					-annotation => $struc->annotation->get_Annotations("compnd"), -rol => "11-70");
+					
+	exists $header{'source'} && $self->_write_PDB_simple_record(-name => "SOURCE  ", -cont => "9-10",
+					-annotation => $struc->annotation->get_Annotations("source"), -rol => "11-70");
+					
+	exists $header{'keywds'} && $self->_write_PDB_simple_record(-name => "KEYWDS  ", -cont => "9-10",
+					-annotation => $struc->annotation->get_Annotations("keywds"), -rol => "11-70");
+
+	exists $header{'expdta'} && $self->_write_PDB_simple_record(-name => "EXPDTA  ", -cont => "9-10",
+					-annotation => $struc->annotation->get_Annotations("expdta"), -rol => "11-70");
+
+	exists $header{'author'} && $self->_write_PDB_simple_record(-name => "AUTHOR  ", -cont => "9-10",
+					-annotation => $struc->annotation->get_Annotations("author"), -rol => "11-70");
+
+	exists $header{'revdat'} && $self->_write_PDB_simple_record(-name => "REVDAT ",
+					-annotation => $struc->annotation->get_Annotations("revdat"), -rol => "8-66");
+
+	exists $header{'sprsde'} && $self->_write_PDB_simple_record(-name => "SPRSDE  ", -cont => "9-10",
+					-annotation => $struc->annotation->get_Annotations("sprsde"), -rol => "12-70");
+
+	# JRNL en REMARK 1
+	my ($jrnl_done, $remark_1_counter);
+	if ( !exists $header{'jrnl'} ) {
+		$jrnl_done = 1;
+	}
+	foreach my $ref ($struc->annotation->get_Annotations('reference') ) {
+		if( !$jrnl_done ) { # JRNL record
+			$ref->authors && $self->_write_PDB_simple_record(-name => "JRNL        AUTH",
+					-cont => "17-18", -rol => "20-70", -string => $ref->authors );
+			$ref->title && $self->_write_PDB_simple_record(-name => "JRNL        TITL",
+					-cont => "17-18", -rol => "20-70", -string => $ref->title );
+			$ref->editors && $self->_write_PDB_simple_record(-name => "JRNL        EDIT",
+					-cont => "17-18", -rol => "20-70", -string => $ref->editors );
+			$ref->location && $self->_write_PDB_simple_record(-name => "JRNL        REF ",
+					-cont => "17-18", -rol => "20-70", -string => $ref->location );
+			$ref->editors && $self->_write_PDB_simple_record(-name => "JRNL        EDIT",
+					-cont => "17-18", -rol => "20-70", -string => $ref->editors );
+			$ref->encoded_ref && $self->_write_PDB_simple_record(-name => "JRNL        REFN",
+					-cont => "17-18", -rol => "20-70", -string => $ref->encoded_ref );
+			$jrnl_done = 1;
+		} else { # REMARK 1
+			if (!$remark_1_counter) { # header line
+				my $remark_1_header_line = "REMARK   1" . " " x 70;
+				$self->_print("$remark_1_header_line\n");
+				$remark_1_counter = 1;
+			}
+			# per reference header
+			my $rem_line = "REMARK   1 REFERENCE " . $remark_1_counter;
+			$rem_line .= " " x (80 - length($rem_line) );
+			$self->_print($rem_line,"\n");
+			$ref->authors && $self->_write_PDB_simple_record(-name => "REMARK   1  AUTH",
+					-cont => "17-18", -rol => "20-70", -string => $ref->authors );
+			$ref->title && $self->_write_PDB_simple_record(-name => "REMARK   1  TITL",
+					-cont => "17-18", -rol => "20-70", -string => $ref->title );
+			$ref->editors && $self->_write_PDB_simple_record(-name => "REMARK   1  EDIT",
+					-cont => "17-18", -rol => "20-70", -string => $ref->editors );
+			$ref->location && $self->_write_PDB_simple_record(-name => "REMARK   1  REF ",
+					-cont => "17-18", -rol => "20-70", -string => $ref->location );
+			$ref->editors && $self->_write_PDB_simple_record(-name => "REMARK   1  EDIT",
+					-cont => "17-18", -rol => "20-70", -string => $ref->editors );
+			$ref->encoded_ref && $self->_write_PDB_simple_record(-name => "REMARK   1  REFN",
+					-cont => "17-18", -rol => "20-70", -string => $ref->encoded_ref );
+			$remark_1_counter++;
+		}
+	}
+	if (! defined $remark_1_counter ) { 	# no remark 1 record written yet
+		my $remark_1_header_line = "REMARK   1" . " " x 70;
+		$self->_print("$remark_1_header_line\n");  # write dummy  (we need this line)
+	}
+
+	# REMARK's  (not 1 at the moment, references)
+	my (%remarks, $remark_num);
+	for  $key (keys %header) {
+		next unless ($key =~ /^remark_(\d+)$/);
+		next if ($1 == 1);
+		$remarks{$1} = 1;
+	}
+	for $remark_num (sort {$a <=> $b} keys %remarks) {
+		$self->_write_PDB_remark_record($struc, $remark_num);
+	}
+
+	exists $header{'dbref'} && $self->_write_PDB_simple_record(-name =>  "DBREF  ",
+					-annotation => $struc->annotation->get_Annotations("dbref"), -rol => "8-68");
+	exists $header{'seqadv'} && $self->_write_PDB_simple_record(-name => "SEQADV ",
+					-annotation => $struc->annotation->get_Annotations("seqadv"), -rol => "8-70");
+	exists $header{'seqres'} && $self->_write_PDB_simple_record(-name => "SEQRES  ",
+					-annotation => $struc->annotation->get_Annotations("seqres"), -rol => "9-70");
+	exists $header{'modres'} && $self->_write_PDB_simple_record(-name => "MODRES ",
+					-annotation => $struc->annotation->get_Annotations("modres"), -rol => "8-70");
+	exists $header{'het'} && $self->_write_PDB_simple_record(-name =>    "HET    ",
+					-annotation => $struc->annotation->get_Annotations("het"), -rol => "8-70");
+	exists $header{'hetnam'} && $self->_write_PDB_simple_record(-name => "HETNAM  ",
+					-annotation => $struc->annotation->get_Annotations("hetnam"), -rol => "9-70");
+	exists $header{'hetsyn'} && $self->_write_PDB_simple_record(-name => "HETSYN  ",
+					-annotation => $struc->annotation->get_Annotations("hetsyn"), -rol => "9-70");
+	exists $header{'formul'} && $self->_write_PDB_simple_record(-name => "FORMUL  ",
+					-annotation => $struc->annotation->get_Annotations("formul"), -rol => "9-70");
+	exists $header{'helix'} && $self->_write_PDB_simple_record(-name =>  "HELIX  ",
+					-annotation => $struc->annotation->get_Annotations("helix"), -rol => "8-76");
+	exists $header{'sheet'} && $self->_write_PDB_simple_record(-name =>  "SHEET  ",
+					-annotation => $struc->annotation->get_Annotations("sheet"), -rol => "8-70");
+	exists $header{'turn'} && $self->_write_PDB_simple_record(-name =>   "TURN   ",
+					-annotation => $struc->annotation->get_Annotations("turn"), -rol => "8-70");
+	exists $header{'ssbond'} && $self->_write_PDB_simple_record(-name => "SSBOND ",
+					-annotation => $struc->annotation->get_Annotations("ssbond"), -rol => "8-72");
+	exists $header{'link'} && $self->_write_PDB_simple_record(-name =>   "LINK        ",
+					-annotation => $struc->annotation->get_Annotations("link"), -rol => "13-72");
+	exists $header{'hydbnd'} && $self->_write_PDB_simple_record(-name => "HYDBND      ",
+					-annotation => $struc->annotation->get_Annotations("hydbnd"), -rol => "13-72");
+	exists $header{'sltbrg'} && $self->_write_PDB_simple_record(-name => "SLTBRG      ",
+					-annotation => $struc->annotation->get_Annotations("sltbrg"), -rol => "13-72");
+	exists $header{'cispep'} && $self->_write_PDB_simple_record(-name => "CISPEP ",
+					-annotation => $struc->annotation->get_Annotations("cispep"), -rol => "8-59");
+	exists $header{'site'} && $self->_write_PDB_simple_record(-name =>   "SITE   ",
+					-annotation => $struc->annotation->get_Annotations("site"), -rol => "8-61");
+	exists $header{'cryst1'} && $self->_write_PDB_simple_record(-name => "CRYST1",
+					-annotation => $struc->annotation->get_Annotations("cryst1"), -rol => "7-70");
+	for my $k (1..3) {
+		my $origxn = "origx".$k;
+		my $ORIGXN = uc($origxn)."    ";
+		exists $header{$origxn} && $self->_write_PDB_simple_record(-name => $ORIGXN,
+			-annotation => $struc->annotation->get_Annotations($origxn), -rol => "11-55");
+	}
+	for my $k (1..3) {
+		my $scalen = "scale".$k;
+		my $SCALEN = uc($scalen)."    ";
+		exists $header{$scalen} && $self->_write_PDB_simple_record(-name => $SCALEN,
+			-annotation => $struc->annotation->get_Annotations($scalen), -rol => "11-55");
+	}
+	for my $k (1..3) {
+		my $mtrixn = "mtrix".$k;
+		my $MTRIXN = uc($mtrixn)." ";
+		exists $header{$mtrixn} && $self->_write_PDB_simple_record(-name => $MTRIXN,
+			-annotation => $struc->annotation->get_Annotations($mtrixn), -rol => "8-60");
+	}
+	exists $header{'tvect'} && $self->_write_PDB_simple_record(-name => "TVECT  ",
+					-annotation => $struc->annotation->get_Annotations("tvect"), -rol => "8-70");
+				
+	# write out coordinate section
+	#
+	my %het_res;  # hetero residues
+	$het_res{'HOH'} = 1;  # water is default
+	if (exists $header{'het'}) {
+		my ($het_line) = ($struc->annotation->get_Annotations("het"))[0]->as_text;
+		$het_line =~ s/^Value: //;
+		for ( my $k = 0; $k <= length $het_line ; $k += 63) {
+			my $l = substr $het_line, $k, 63;
+			$l =~ s/^\s*(\S+)\s+.*$/$1/;
+			$het_res{$l} = 1;
+		}
+	}
+	for my $model ($struc->get_models) {
+		# more then one model ?
+		if ($struc->get_models > 1) {
+			my $model_line = sprintf("MODEL     %4d", $model->id);
+			$model_line .= " " x (80 - length($model_line) );
+			$self->_print($model_line, "\n");
+		}
+		for my $chain ($struc->get_chains($model)) {
+			my ($residue, $atom, $resname, $resnum, $atom_line, $atom_serial, $atom_icode, $chain_id);
+			$chain_id = $chain->id;
+			if ( $chain_id eq "default" ) {
+				$chain_id = " "; 
+			}
+$self->debug("model_id: $model->id chain_id: $chain_id\n");
+			for $residue ($struc->get_residues($chain)) {
+				($resname, $resnum) = split /-/, $residue->id;
+				for $atom ($struc->get_atoms($residue)) {
+					if ($het_res{$resname}) {  # HETATM
+						$atom_line = "HETATM";
+					} else {
+						$atom_line = "ATOM  ";
+					}
+					$atom_line .= sprintf("%5d ", $atom->serial);
+					$atom_serial = $atom->serial; # we need it for TER record
+					$atom_icode = $atom->icode;
+					my $atom_id = $atom->id;
+					if ($atom->id =~ /^\dH/) { # H: four positions, left justified
+						$atom_line .= sprintf("%-4s", $atom->id);
+					} elsif (length($atom_id) == 4) {
+						$atom_line .= $atom_id;
+					} else { # this is certainly not completely correct (DNA and friends) XXX
+						$atom_line .= sprintf(" %-3s", $atom->id);
+					}
+					# we don't do alternate location at this moment
+					$atom_line .= " "; 				# 17
+					$atom_line .= sprintf("%3s",$resname);		# 18-20
+					$atom_line .= " ".$chain_id; 			# 21, 22
+					$atom_line .= sprintf("%4d", $resnum); 		# 23-26
+					$atom_line .= $atom->icode ? $atom->icode : " "; # 27
+					$atom_line .= "   ";				# 28-30
+					$atom_line .= sprintf("%8.3f", $atom->x);	# 31-38
+					$atom_line .= sprintf("%8.3f", $atom->y);	# 39-46
+					$atom_line .= sprintf("%8.3f", $atom->z);	# 47-54
+					$atom_line .= sprintf("%6.2f", $atom->occupancy); # 55-60
+					$atom_line .= sprintf("%6.2f", $atom->tempfactor); # 61-66
+					$atom_line .= "      ";				# 67-72
+					$atom_line .= "    ";		# seqID deprecated 73-76
+					$atom_line .= $atom->element ? 
+							sprintf("%2s", $atom->element) :
+							"  ";
+					$atom_line .= $atom->charge ? 
+							sprintf("%2s", $atom->charge) :
+							"  ";
+
+					$self->_print($atom_line,"\n");
+				}
+			}
+			# write out TER record if previous was not HOH
+			if ($resname ne "HOH") {
+				my $ter_line = "TER   ";
+				$ter_line .= sprintf("%5d", $atom_serial + 1);
+				$ter_line .= "      ";
+				$ter_line .= sprintf("%3s ", $resname);
+				$ter_line .= $chain_id;
+				$ter_line .= sprintf("%4d", $resnum);
+				$ter_line .= $atom_icode ? $atom_icode : " "; # 27
+				$ter_line .= " " x (80 - length $ter_line);  # extend to 80 chars
+				$self->_print($ter_line,"\n");
+			}
+		}
+		if ($struc->get_models > 1) { # we need ENDMDL
+			my $endmdl_line = "ENDMDL" . " " x 74;
+			$self->_print($endmdl_line, "\n");
+		}
+	} # for my $model
+
+	# CONECT
+	my @sources = $struc->get_all_conect_source;
+	my ($conect_line,@conect, @bond, @hydbond, @saltbridge, $to, $type);
+	for my $source (@sources) {
+		# get all conect's
+		my @conect = $struc->conect($source);
+		# classify
+		for my $con (@conect) {
+			($to, $type) = split /_/, $con;
+			if($type eq "bond") {
+				push @bond, $to;
+			} elsif($type eq "hydrogenbonded") {
+				push @hydbond, $to;
+			} elsif($type eq "saltbridged") {
+				push @saltbridge, $to;
+			} else {
+				$self->throw("type $type is unknown for conect");
+			}
+		}
+		# and write out CONECT lines as long as there is something
+		# in one of the arrays
+		while ( @bond || @hydbond ||  @saltbridge) {
+			my ($b, $hb, $sb);
+			$conect_line = "CONECT". sprintf("%5d", $source);
+			for my $k (0..3) {
+				$b = shift @bond;
+				$conect_line .= $b ? sprintf("%5d", $b) : "    ";
+			}
+			for my $k (4..5) {
+				$hb = shift @hydbond;
+				$conect_line .= $hb ? sprintf("%5d", $hb) : "    ";
+			}
+			$sb = shift @saltbridge;
+			$conect_line .= $sb ? sprintf("%5d", $sb) : "    ";
+			for my $k (7..8) {
+				$hb = shift @hydbond;
+				$conect_line .= $hb ? sprintf("%5d", $hb) : "    ";
+			}
+			$sb = shift @saltbridge;
+			$conect_line .= $sb ? sprintf("%5d", $sb) : "    ";
+
+			$conect_line .= " " x (80 - length($conect_line) );
+			$self->_print($conect_line, "\n");
+		}
+	}
+		
+
+	# MASTER line contains checksums, we should calculate them of course :)
+	my $master_line = "MASTER    " . $struc->master;
+	$master_line .= " " x (80 - length($master_line) );
+	$self->_print($master_line, "\n");
+	
+	my $end_line = "END" . " " x 77;
+	$self->_print($end_line,"\n");
+
+	#$self->throw("write_structure is not yet implemented, start holding your breath\n");
 }
-
 
 =head2 _filehandle
 
@@ -640,7 +990,7 @@ sub _read_PDB_jrnl {
 		if (/^JRNL /) {
 			# this code belgons in a seperate method (shared with
 			# remark 1 parsing)
-			my ($rec, $subr, $cont, $rol) = unpack "a6 x6 a4 a2 x1 a51", $_;
+			my ($rec, $subr, $cont, $rol) = unpack "A6 x6 A4 A2 x1 A51", $_;
 			$auth = $self->_concatenate_lines($auth,$rol) if ($subr eq "AUTH");
 			$titl = $self->_concatenate_lines($titl,$rol) if ($subr eq "TITL");
 			$edit = $self->_concatenate_lines($edit,$rol) if ($subr eq "EDIT");
@@ -663,7 +1013,6 @@ sub _read_PDB_jrnl {
 	$jrnl_ref->publisher($publ);
 	$jrnl_ref->editors($edit);
 	$jrnl_ref->encoded_ref($refn);
-	# XXX KB waht to do with $publ (publisher), $edit (editor) and $refn (ASTM code) ?
 	
 	return $jrnl_ref;
 } # sub _read_PDB_jrnl
@@ -683,13 +1032,13 @@ sub _read_PDB_remark_1 {
 	my ($self, $buffer) = @_;
 	
 	$_ = $$buffer;
-	my ($auth, $titl,$edit,$ref,$publ,$refn);
+	my ($auth, $titl,$edit,$ref,$publ,$refn,$refnum);
 	my @refs;
 
 	while (defined( $_ ||= $self->_readline )) {
 		if (/^REMARK   1 /) {
-			if (/^REMARK   1\s+(\d+)\s*/) {
-				my $refnum = $1;
+			if (/^REMARK   1\s+REFERENCE\s+(\d+)\s*/) {
+				$refnum = $1;
 				if ($refnum != 1) { # this is first line of a reference
 					my $rref = Bio::Annotation::Reference->new;
 					$rref->authors($auth);
@@ -698,6 +1047,7 @@ sub _read_PDB_remark_1 {
 					$rref->publisher($publ);
 					$rref->editors($edit);
 					$rref->encoded_ref($refn);
+					$auth = $titl = $edit = $ref = $publ = $refn = undef;
 					push @refs, $rref;
 				}
 			} else {
@@ -712,6 +1062,11 @@ sub _read_PDB_remark_1 {
 				$refn = $self->_concatenate_lines($refn,$rol) if ($subr eq "REFN");
 			}
 		} else {
+			# have we seen any reference at all (could be single REMARK  1 line
+			if ( ! defined ($refnum) ) {
+				last; # get out of while()
+			}
+
 			# create last reference
                         my $rref = Bio::Annotation::Reference->new;
 		        $rref->authors($auth);
@@ -818,7 +1173,7 @@ $self->debug("_read_PDB_coor: parsing model $model_num\n");
 				$atom->z($z);
 				$atom->occupancy($occupancy);
 				$atom->tempfactor($tempfactor);
-				# ? segment ID ? (deprecated)
+				# ? segment ID ? $seqID (deprecated)
 				if (! $old ) {
 					$atom->element($element);
 					$atom->charge($charge);
@@ -908,5 +1263,116 @@ $self->debug("read_PDB_coor: parsing ANISOU record: $serial $atomname\n");
 
 	return $model;
 } # _read_PDB_coordinate_section
+
+
+sub _write_PDB_simple_record {
+	my ($self, @args) = @_;
+	my ($name, $cont , $annotation, $rol, $string) = 
+		$self->_rearrange([qw(
+				NAME
+				CONT
+				ANNOTATION
+				ROL
+				STRING
+			)],
+			@args);
+	if (defined $string && defined $annotation) {
+		$self->throw("you can only supply one of -annoation or -string");
+	}
+	my ($output_string, $ann_string, $t_string);
+	my ($rol_begin, $rol_end) = $rol =~ /^(\d+)-(\d+)$/;
+	my $rol_length = $rol_end - $rol_begin +1;
+	if ($string) {
+		if (length $string > $rol_length) {
+			# we might need to split $string in multiple lines
+			while (length $string > $rol_length) {
+				# other option might be to go for a bunch of substr's
+				my @c = split//,$string;
+				my $t = $rol_length; # index into @c
+				while ($c[$t] ne " ") { # find first space, going backwards
+$self->debug("c[t]: $c[$t] $t\n");
+					$t--;
+					if ($t == 0) { $self->throw("Found no space for $string\n"); }
+				}
+$self->debug("t: $t rol_length: $rol_length\n");
+				$ann_string .= substr($string, 0, $t);
+$self->debug("ann_string: $ann_string\n");
+				$ann_string .= " " x ($rol_length - $t );
+				$string = substr($string, $t+1);
+				$string =~ s/^\s+//;
+$self->debug("ann_string: $ann_string~~\nstring: $string~~\n");
+			}
+			$ann_string .= $string;
+		} else {
+			$ann_string = $string;
+		}
+	} else {
+		$ann_string = $annotation->as_text;
+		$ann_string =~ s/^Value: //;
+	}
+	# ann_string contains the thing to write out, writing out happens below
+	my $ann_length = length $ann_string;
+	
+$self->debug("ann_string: $ann_string\n");
+	if ($cont) {
+		my ($c_begin, $c_end) = $cont =~ /^(\d+)-(\d+)$/;
+		if ( $ann_length > $rol_length ) { # we need to continuation lines
+			my $first_line = 1;
+			my $cont_number = 2;
+			my $out_line;
+			my $num_pos = $rol_length;
+			for (my $i = 0; $i < $ann_length; $i += $num_pos ) { 
+				$t_string = substr($ann_string, $i, $num_pos);
+$self->debug("t_string: $t_string~~$i $num_pos\n");
+				if ($first_line) {
+					$out_line = $name . " " x ($rol_begin - $c_begin) . $t_string;
+					$out_line .= " " x (80 - length($out_line) ) . "\n";
+					$first_line = 0;
+					if ($rol_begin - $c_end == 1) {
+						$num_pos--;
+					}
+					$output_string = $out_line;
+				} else {
+					$out_line = $name . sprintf("%2d",$cont_number);
+					if ($rol_begin - $c_end == 1) {  # no space
+						$out_line .=  $t_string;
+					} else {
+						$out_line .= " " x ($rol_begin - $c_end - 1) . $t_string;
+					}
+					$out_line .= " " x (80 -length($out_line) ) . "\n";
+					$cont_number++;
+					$output_string .= $out_line;
+				}
+			}
+		} else { # no continuation
+			my $spaces = $rol_begin - $c_begin; # number of spaces need to insert
+			$output_string = $name . " " x $spaces . $ann_string;
+			$output_string .= " " x (80 - length($output_string) );
+		}
+	} else { # no contintuation lines
+		if ($ann_length < $rol_length) {
+			$output_string = $name . $ann_string;
+			$output_string .= " " x (80 - length($output_string) );
+		} else {
+			for (my $i = 0; $i < $ann_length; $i += $rol_length) {
+				my $out_line;
+				$t_string = substr($ann_string, $i, $rol_length);
+				$out_line = $name . $t_string;
+				$out_line .= " " x (80 -length($out_line) ) . "\n";
+				$output_string .= $out_line;
+			}
+		}
+	}
+	$output_string =~ s/\n$//;  # remove trailing newline
+	$self->_print("$output_string\n");
+
+}
+
+sub _write_PDB_remark_record {
+	my ($self, $struc, $remark_num) = @_;
+	my ($ann) = $struc->annotation->get_Annotations("remark_$remark_num");
+	my $name = sprintf("REMARK %3d ",$remark_num);
+	$self->_write_PDB_simple_record(-name => $name, -annotation => $ann, -rol => "12-70");
+}
 
 1;
