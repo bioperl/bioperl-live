@@ -164,7 +164,7 @@ sub seq_id {
   my $previous_val = $self->{ 'seq_id' };
   if( defined $new_val ) {
     if( ( ( ref $new_val ) && !$new_val->isa( 'Bio::RangeI' ) ) ||
-        ( ref \$new_val ne 'STRING' ) ) {
+        ( ref \$new_val ne 'SCALAR' ) ) {
       $self->throw( "The given value is neither a string nor a Bio::RangeI object." );
     }
     $self->{ 'seq_id' } = $new_val;
