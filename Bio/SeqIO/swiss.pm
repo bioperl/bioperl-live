@@ -150,12 +150,19 @@ sub next_seq {
        return undef; # end of file
    }
 
-   $line =~ /^ID\s+([^\s_]+)_([^\s_]+)\s+([^\s;]+);\s+([^\s;]+);/
+   # fixed to allow _DIVISION to be optional for bug #946
+   # see bug report for more information
+   $line =~ /^ID\s+([^\s_]+)(_([^\s_]+))?\s+([^\s;]+);\s+([^\s;]+);/ 
      || $self->throw("swissprot stream with no ID. Not swissprot in my book");
-   $name = $1."_".$2;
+   if( $3 ) {
+       $name = "$1$2";
+       $seq->division($3);
+   } else {
+       $name = $1;
+       $seq->division('UNK');       
+   }
    $seq->primary_id($1);
-   $seq->division($2);
-   $seq->molecule($4);
+   $seq->molecule($5);
     # this is important to have the id for display in e.g. FTHelper, otherwise
     # you won't know which entry caused an error
    $seq->display_id($name);
