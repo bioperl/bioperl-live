@@ -119,10 +119,12 @@ Chris Mungall cjm@fruitfly.bdgp.berkeley.edu
 Lincoln Stein lstein@cshl.org
 Heikki Lehvaslaiho, heikki@ebi.ac.uk
 Hilmar Lapp, hlapp@gmx.net
+Donald G. Jackson, donald.jackson@bms.com
 
 =head1 APPENDIX
 
-The rest of the documentation details each of the object methods. Internal methods are usually preceded with a _
+The rest of the documentation details each of the object
+methods. Internal methods are usually preceded with a _
 
 =cut
 
@@ -703,7 +705,7 @@ sub write_seq {
 
 	# Print the whole lines
 	my $i;
-	for (my $i = 0; $i < $whole; $i += $nuc) {
+	for ($i = 0; $i < $whole; $i += $nuc) {
 	    my $blocks = pack $out_pat,
 	    unpack $whole_pat,
 	    substr($str, $i, $nuc);
