@@ -192,7 +192,7 @@ BEGIN {
     %Alphabets =   (
 		    'dna'     => [ qw(A C G T R Y M K S W H B V D X N) ],
 		    'rna'     => [ qw(A C G U R Y M K S W H B V D X N) ],
-		    'protein' => [ qw(A R N D C Q E G H I L K M F
+		    'protein' => [ qw(A R N D C Q E G H I L K M F U
 				      P S T W X Y V B Z *) ], # sac: added B, Z
 		    );
 
@@ -200,7 +200,7 @@ BEGIN {
     %Alphabets_strict = (
 			 'dna'     => [ qw( A C G T ) ],
 			 'rna'     => [ qw( A C G U ) ],
-			 'protein'    => [ qw(A R N D C Q E G H I L K M F
+			 'protein'    => [ qw(A R N D C Q E G H I L K M F U
 					      P S T W Y V) ],
 			 );
 
@@ -231,14 +231,16 @@ BEGIN {
     my $amino_R_wt = 174.21;
     my $amino_S_wt = 105.09;
     my $amino_T_wt = 119.12;
+    my $amino_U_wt = 168.06;
     my $amino_V_wt = 117.15;
     my $amino_W_wt = 204.22;
     my $amino_Y_wt = 181.19;
 
+
     $amino_weights = {
 	'A'     => [$amino_A_wt, $amino_A_wt], #    Alanine
 	'B'      => [$amino_N_wt, $amino_D_wt],	#   Aspartic Acid, Asparagine
-	'C'      => [$amino_C_wt, $amino_C_wt],	#   Cystine
+	'C'      => [$amino_C_wt, $amino_C_wt],	#   Cysteine
 	'D'         => [$amino_D_wt, $amino_D_wt], # Aspartic Acid
 	'E'        => [$amino_E_wt, $amino_E_wt], # Glutamic Acid
 	'F'        => [$amino_F_wt, $amino_F_wt], # Phenylalanine
@@ -254,6 +256,7 @@ BEGIN {
 	'R'        => [$amino_R_wt, $amino_R_wt], # Arginine
 	'S'        => [$amino_S_wt, $amino_S_wt], # Serine
 	'T'        => [$amino_T_wt, $amino_T_wt], # Threonine
+	'U'        => [$amino_U_wt, $amino_U_wt], # SelenoCysteine
 	'V'        => [$amino_V_wt, $amino_V_wt], # Valine
 	'W'        => [$amino_W_wt, $amino_W_wt], # Tryptophan
 	'X'        => [$amino_G_wt, $amino_W_wt], # Unknown
