@@ -190,14 +190,16 @@ sub _parse_location {
 	$seqid = $1;
 	$locstr = $2;
     }
-
+    
     # split into start and end
     my ($start, $end) = split(/\.\./, $locstr);
-    # remove enclosing parentheses if any
-    $start =~ s/^\((.*)\)$/$1/;
-    $end   =~ s/^\((.*)\)$/$1/ if $end;
-    $start =~ s/^\(//;
-    $end   =~ s/\)$// if $end;
+    # remove enclosing parentheses if any; note that because of parentheses
+    # possibly surrounding the entire location the parentheses around start
+    # and/or may be asymmetrical
+    $start =~ s/^\(+//;
+    $start =~ s/\)+$//;
+    $end   =~ s/^\(+// if $end;
+    $end   =~ s/\)+$// if $end;
 
     # Is this a simple (exact) or a fuzzy location? Simples have exact start
     # and end, or is between two adjacent bases. Everything else is fuzzy.

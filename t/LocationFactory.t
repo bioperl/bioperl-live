@@ -15,7 +15,7 @@ BEGIN {
 	use lib 't';
     }
     use Test;
-    plan tests => 131;
+    plan tests => 151;
 }
 
 use Bio::Factory::FTLocationFactory;
@@ -60,6 +60,12 @@ my %testcases = ("467" => [$simple_impl,
 		   34, 34, "EXACT", 122, 126, "WITHIN", "EXACT", 1],
 		 "J00194:100..202" => [$simple_impl,
 		   100, 100, "EXACT", 202, 202, "EXACT", "EXACT", 1],
+		 # this variant is not really allowed by the FT definition
+		 # document but we want to be able to cope with it
+		 "J00194:(100..202)" => [$simple_impl,
+		   100, 100, "EXACT", 202, 202, "EXACT", "EXACT", 1],
+		 "((122.133)..(204.221))" => [$fuzzy_impl,
+		   122, 133, "WITHIN", 204, 221, "WITHIN", "EXACT", 1],
 		 );
 
 my $locfac = Bio::Factory::FTLocationFactory->new();
@@ -80,6 +86,10 @@ foreach my $locstr (sort keys(%testcases)) {
     my @locs = $loc->each_Location();
     ok(@locs, $res[8]);
     my $ftstr = $loc->to_FTstring();
+    # this is a somewhat ugly hack, but we want clean output from to_FTstring()
+    $locstr = "J00194:100..202" if $locstr eq "J00194:(100..202)";
+    $locstr = "(122.133)..(204.221)" if $locstr eq "((122.133)..(204.221))";
+    # now test
     ok($ftstr, $locstr);
 }
    
