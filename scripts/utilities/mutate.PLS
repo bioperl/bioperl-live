@@ -76,7 +76,8 @@ foreach my $num (1..$number) {
    my $mut_seq = mutate_all($seqobj,$num_mut);
    my $name = $seqobj->display_id . "-" . "mutant" . $num;
    my $outseq = Bio::Seq->new(-seq        => $mut_seq,
-			      -display_id => $name );
+			      -display_id => $name,
+			      -desc       => $seqobj->desc );
    my %args = (-format => $format );
    $args{-file} = ">>$out_file" if $out_file;
    my $seqio = Bio::SeqIO->new(%args);
@@ -118,26 +119,19 @@ sub mutate_one {
 # randomly select a position in the sequence
 sub random_position {
    my $string = shift;
-   return int(rand(length($string)));
-}
-
-# randomly select an element from an array of characters
-sub random_element {
-   my $ref = shift;
-   my @array = @{$ref};
-   return $array[rand @array];
+   int(rand(length($string)));
 }
 
 # randomly select one of the chars depending on alphabet
 sub random_char {
    my $type = shift;
-   $type eq "protein" ? return random_element(\@amino) : 
-     return random_element(\@dna);
+   $type eq "protein" ? return $amino[rand @amino] :
+     return $dna[rand @dna];
 }
 
 sub percent_to_num {
    my $percent = shift;
-   return int($percent/100 * length($seqobj->seq));
+   int($percent/100 * length($seqobj->seq));
 }
 
 sub usage {
