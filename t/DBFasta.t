@@ -6,6 +6,9 @@
 
 use strict;
 use lib '.','./blib/lib';
+use vars qw($DEBUG $NUMTESTS $exit);
+
+$DEBUG = $ENV{'BIOPERLDEBUG'} || 0;
 
 BEGIN {     
     # to handle systems with no installed Test module
@@ -16,12 +19,38 @@ BEGIN {
         use lib 't';
     }
     use Test;
-    plan test => 12;
+    eval {
+	require Bio::DB::Fasta;
+    };
+    if ( $@ ) {
+	warn("A depedendancy for Bio::DB::Fasta is not installed - skipping tests. $@\n") if $DEBUG;
+	$exit = 1;
+    }
+    plan test => ($NUMTESTS = 12);
 }
-use Bio::DB::Fasta;
+require Bio::DB::Fasta;
 use Bio::Root::IO;
-my $db = Bio::DB::Fasta->new(Bio::Root::IO->catfile(qw(. t data dbfa)),
-	                     -reindex=>1);
+
+# this obfuscation is to deal with lockfiles by GDBM_File which can
+# only be created on local filesystems apparently so will cause test
+# to block and then fail when the testdir is on an NFS mounted system
+
+use File::Copy;
+my $io = Bio::Root::IO->new(-verbose => $DEBUG);
+my $tempdir = $io->tempdir('CLEANUP' => 1);
+my $test_dbdir = $io->catfile($tempdir, 'dbfa');
+mkdir($test_dbdir); # make the directory
+my $indir = $io->catfile(qw(. t data dbfa)); 
+opendir(INDIR,$indir) || die("cannot open dir $indir");
+# effectively do a cp -r but only copy the files that are in there, no subdirs
+for my $file ( map { $io->catfile($indir,$_) } readdir(INDIR) ) {
+    next unless (-f $file );
+    copy($file, $test_dbdir);
+}
+closedir(INDIR);
+
+# now use this temporary dir for the db file
+my $db = Bio::DB::Fasta->new($test_dbdir, -reindex => 1);
 ok($db);
 ok($db->length('CEESC13F') > 0);
 ok(length $db->seq('CEESC13F:1,10') == 10);
@@ -34,7 +63,7 @@ undef $db;
 undef $primary_seq;
 
 my (%h,$dna1,$dna2);
-ok(tie(%h,'Bio::DB::Fasta',Bio::Root::IO->catfile(qw(. t data dbfa))));
+ok(tie(%h,'Bio::DB::Fasta',$test_dbdir));
 ok($h{'AW057146'});
 ok($dna1 = $h{'AW057146:1,10'});
 ok($dna2 = $h{'AW057146:10,1'});
@@ -45,7 +74,8 @@ ok($dna2 eq $revcom);
 
 
 END {
-  unlink Bio::Root::IO->catfile(qw(t data dbfa directory.index));
-  unlink Bio::Root::IO->catfile(qw(t data dbfa directory.index.dir));
-  unlink Bio::Root::IO->catfile(qw(t data dbfa directory.index.pag));
+    foreach ( $Test::ntest..$NUMTESTS) {
+	skip('Cannot run tests some needed modules for Bio::DB::Fasta are not installed',1);
+    }
+    # test dir is cleaned up automagically by tempdir(CLEANUP => 1)
 }
