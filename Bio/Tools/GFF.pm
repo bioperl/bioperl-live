@@ -549,5 +549,72 @@ sub gff_version {
   return $self->{'GFF_VERSION'};
 }
 
+# Make filehandles
+
+=head2 newFh
+
+ Title   : newFh
+ Usage   : $fh = Bio::Tools::GFF->newFh(-file=>$filename,-format=>'Format')
+ Function: does a new() followed by an fh()
+ Example : $fh = Bio::Tools::GFF->newFh(-file=>$filename,-format=>'Format')
+           $sequence = <$fh>;   # read a sequence object
+           print $fh $sequence; # write a sequence object
+ Returns : filehandle tied to the Bio::Tools::GFF class
+ Args    :
+
+=cut
+
+sub newFh {
+  my $class = shift;
+  return unless my $self = $class->new(@_);
+  return $self->fh;
+}
+
+=head2 fh
+
+ Title   : fh
+ Usage   : $obj->fh
+ Function:
+ Example : $fh = $obj->fh;      # make a tied filehandle
+           $sequence = <$fh>;   # read a sequence object
+           print $fh $sequence; # write a sequence object
+ Returns : filehandle tied to Bio::Tools::GFF class
+ Args    : none
+
+=cut
+
+
+sub fh {
+  my $self = shift;
+  my $class = ref($self) || $self;
+  my $s = Symbol::gensym;
+  tie $$s,$class,$self;
+  return $s;
+}
+
+sub DESTROY {
+    my $self = shift;
+
+    $self->close();
+}
+
+sub TIEHANDLE {
+    my ($class,$val) = @_;
+    return bless {'gffio' => $val}, $class;
+}
+
+sub READLINE {
+  my $self = shift;
+  return $self->{'gffio'}->next_feature() unless wantarray;
+  my (@list, $obj);
+  push @list, $obj while $obj = $self->{'gffio'}->next_feature();
+  return @list;
+}
+
+sub PRINT {
+  my $self = shift;
+  $self->{'gffio'}->write_feature(@_);
+}
+
 1;
 
