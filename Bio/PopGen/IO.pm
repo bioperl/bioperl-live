@@ -142,7 +142,7 @@ sub _initialize {
  Title   : next_individual
  Usage   : my $ind = $popgenio->next_individual;
  Function: Retrieve the next individual from a dataset
- Returns : Bio::PopGen::IndividualI object
+ Returns : L<Bio::PopGen::IndividualI> object
  Args    : none
 
 
@@ -157,9 +157,9 @@ sub next_individual{
 =head2 next_population
 
  Title   : next_population
- Usage   : my $ind = $popgenio->next_population;
+ Usage   : my $pop = $popgenio->next_population;
  Function: Retrieve the next population from a dataset
- Returns : Bio::PopGen::PopulationI object
+ Returns : L<Bio::PopGen::PopulationI> object
  Args    : none
  Note    : Many implementation will not implement this
 
@@ -169,6 +169,40 @@ sub next_population{
     my ($self) = @_;
     $self->throw_not_implemented();
 }
+
+=head2 write_individual
+
+ Title   : write_individual
+ Usage   : $popgenio->write_individual($ind);
+ Function: Write an individual out in the implementation format
+ Returns : none
+ Args    : L<Bio::PopGen::PopulationI> object(s)
+
+=cut
+
+sub write_individual{
+    my ($self) = @_;
+    $self->throw_not_implemented();
+}
+
+
+
+=head2 write_population
+
+ Title   : write_population
+ Usage   : $popgenio->write_population($pop);
+ Function: Write a population out in the implementation format
+ Returns : none
+ Args    : L<Bio::PopGen::PopulationI> object(s)
+ Note    : Many implementation will not implement this
+
+=cut
+
+sub write_population{
+    my ($self) = @_;
+    $self->throw_not_implemented();
+}
+
 
 =head2 newFh
 
