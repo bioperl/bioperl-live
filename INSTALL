@@ -403,3 +403,12 @@ DB_File                  Perl access to Berkeley DB
 
 Graph::Directed          generic graph data and algorithms
                          Bio::Ontology::SimpleOntologyEngine
+
+Data::Stag::ITextWriter  Structured Tags datastructures
+			 Bio::SeqIO::chadoitext
+
+Data::Stag::SxprWriter   Structured Tags datastructures
+			 Bio::SeqIO::chadosxpr
+
+Data::Stag::XMLWriter    Structured Tags datastructures
+			 Bio::SeqIO::chadoxml
