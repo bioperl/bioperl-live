@@ -1,5 +1,7 @@
-
 #!/usr/bin/perl -w
+# -*-Perl-*- (for my emacs)
+# $Id: heterogeneity_test.PLS,v 1.2 2003-08-13 14:46:12 jason Exp $
+
 use strict;
 
 =head1 NAME 
@@ -39,11 +41,11 @@ Jason Stajich E<lt>jason-at-bioperl-dot-orgE<gt>
 
 =cut
 
-
-
 use Getopt::Long;
 use Bio::PopGen::Simulation::Coalescent;
 use Bio::PopGen::Statistics;
+use Bio::PopGen::Individual;
+use Bio::PopGen::Genotype;
 
 my $sample_size = 4;
 my $mut_count_1 = 10; # synonymous
@@ -89,13 +91,22 @@ for(my $iter = 0; $iter < $iterations; $iter++ ) {
     my $f1 = 0;
     if( $mut_count_1 > 0 ) {
 	$sim->add_Mutations($tree,$mut_count_1,$precision);
+
 	my @leaves = $tree->get_leaf_nodes;
+	# the outgroup is just an individual with the ancestral state 
+	# (no mutations)
+	my $outgroup = new Bio::PopGen::Individual();
+	foreach my $m ( $leaves[0]->get_marker_names ) {
+	    $outgroup->add_Genotype(Bio::PopGen::Genotype->new
+				    (-marker_name=> $m,
+				     -alleles    => [ 0 ]));
+	}
 	if( $method eq 'fuD' ) {
-	    $f1 = Bio::PopGen::Statistics->fu_and_li_D_star(\@leaves);
+	    $f1 = Bio::PopGen::Statistics->fu_and_li_D(\@leaves,[$outgroup]);
 	} elsif( $method eq 'tajimaD' ) {
 	    $f1 = Bio::PopGen::Statistics->tajima_D(\@leaves);
 	}
-	print "(mutation count = $mut_count_1)D=$f1\n" 
+	print "(mutation count = $mut_count_1) D=$f1\n" 
 	    if( $verbose >= 0);
     }
     
@@ -103,9 +114,16 @@ for(my $iter = 0; $iter < $iterations; $iter++ ) {
     if( $mut_count_2 > 0 ) {
 	$sim->add_Mutations($tree,$mut_count_2,$precision);
 	my @leaves = $tree->get_leaf_nodes;
-
+        # the outgroup is just an individual with the ancestral state 
+	# (no mutations)
+	my $outgroup = new Bio::PopGen::Individual();
+	foreach my $m ( $leaves[0]->get_marker_names ) {
+	    $outgroup->add_Genotype(Bio::PopGen::Genotype->new
+				    (-marker_name=> $m,
+				     -alleles    => [ 0 ]));
+	}
 	if( $method eq 'fuD' ) {
-	    $f2 = Bio::PopGen::Statistics->fu_and_li_D_star(\@leaves);
+	    $f2 = Bio::PopGen::Statistics->fu_and_li_D(\@leaves,[$outgroup]);
 	} elsif( $method eq 'tajimaD' ) {
 	    $f2 = Bio::PopGen::Statistics->tajima_D(\@leaves);
 	}
