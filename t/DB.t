@@ -256,9 +256,9 @@ eval {
 					  '-delay'  => 0,
 					 ));
   ok defined ($seqio = $gb->get_Stream_by_query($query));
-  ok($seqio->next_seq->length,13747);
   ok($seqio->next_seq->length,3766);
   ok($seqio->next_seq->length,3857);
+  ok($seqio->next_seq->length,508);
 };
 
 if ($@) {
