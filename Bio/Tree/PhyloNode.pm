@@ -18,7 +18,8 @@ Bio::Tree::PhyloNode - A Phlyogenetic Tree Node
 
     my $phylonode = new Bio::Tree::PhyloNode(-parent => $node,
 					     -leaf   => 1,
-					     -bootstrap => '0.301',
+					     -branch_length => '0.301',
+					     -boostrap=> '75', # 75% support 
 					     -id     => 'ACT2_LYTPI',
 					     -desc   => 'L.pictus Actin cytoskeleton 2');
 
@@ -96,17 +97,19 @@ sub new {
   my($class,@args) = @_;
 
   my $self = $class->SUPER::new(@args);
-  my ($bootstrap, $desc, $id) = $self->_rearrange([qw(BOOTSTRAP
-						      DESC
-						      ID
-						      )], @args);
+  my ($bootstrap, $desc, $id,
+      $branchlen) = $self->_rearrange([qw(BOOTSTRAP
+					  DESC
+					  ID
+					  BRANCH_LENGTH
+					  )], @args);
   if( ! defined $id ) {
       $self->throw("Must define a valid ID for PhyloNode");
   }
   $desc && $self->description($desc);
   $bootstrap && $self->bootstrap($bootstrap);
   $id && $self->id($id);
-  
+  $branchlen && $self->branch_length($branchlen);
   return $self;
 
 }
@@ -125,11 +128,11 @@ sub new {
 
 sub bootstrap{
    my ($self,$value) = @_;
-   if( defined $value) {
-      $self->{'_bootstrap'} = $value;
-    }
-    return $self->{'_bootstrap'};
-
+   if( defined $value || ! defined $self->{'_boostrap'} ) {
+       $value = '' unless defined $value;
+       $self->{'_bootstrap'} = $value;
+   }
+   return $self->{'_bootstrap'};
 }
 
 =head2 description
@@ -146,11 +149,11 @@ sub bootstrap{
 
 sub description{
    my ($self,$value) = @_;
-   if( defined $value) {
-      $self->{'description'} = $value;
-    }
-    return $self->{'description'};
-
+   if( defined $value || ! defined $self->{'_description'} ) {
+       $value = '' unless defined $value;
+       $self->{'_description'} = $value;
+   }
+   return $self->{'_description'};
 }
 
 =head2 id
@@ -167,11 +170,33 @@ sub description{
 
 sub id{
    my ($self,$value) = @_;
-   if( defined $value) {
-      $self->{'id'} = $value;
+   if( defined $value || ! defined $self->{'_id'} ) {
+       $value = '' unless defined $value;
+      $self->{'_id'} = $value;
     }
-    return $self->{'id'};
+    return $self->{'_id'};
 
+}
+
+=head2 branch_length
+
+ Title   : branch_length
+ Usage   : $obj->branch_length($newval)
+ Function: 
+ Example : 
+ Returns : value of branch_length
+ Args    : newvalue (optional)
+
+
+=cut
+
+sub branch_length{
+   my ($self,$value) = @_;
+   if( defined $value || ! defined $self->{'_branch_length'} ) {
+       $value = '' unless defined $value;
+       $self->{'_branch_length'} = $value;
+   }
+   return $self->{'_branch_length'};
 }
 
 =head2 Bio::Tree::Node methods
