@@ -689,7 +689,7 @@ sub swisshash2liveseq {
     #print "Processing SwissProtFeature: $i\n"; # debug
     ($start,$end)=split(/ /,$feature->{'location'});
     # Note: cleavedmet is taken in account for updating numbering
-    $aarangeobj=Bio::LiveSeq::AARange->new(-start => $start+$cleavedmet, -end => $end+$cleavedmet, -name => $feature->{'name'}, -desc => $feature->{'desc'}, -translation => $translation, -translength => $translength);
+    $aarangeobj=Bio::LiveSeq::AARange->new(-start => $start+$cleavedmet, -end => $end+$cleavedmet, -name => $feature->{'name'}, -description => $feature->{'description'}, -translation => $translation, -translength => $translength);
     if ($aarangeobj != -1) {
       push(@aarangeobjects,$aarangeobj);
     }
