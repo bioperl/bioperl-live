@@ -85,6 +85,7 @@ use Carp;
 use strict;
 
 use Bio::Root::RootI;
+use Bio::Root::IO;
 use Bio::Tools::HMMER::Domain;
 use Bio::Tools::HMMER::Set;
 use Bio::SeqAnalysisParserI;
@@ -100,31 +101,17 @@ sub new {
   $self->{'domain'} = []; # array of HMMUnits
   $self->{'seq'} = {};
 
-  my($file,$fh,$parsetype) = $self->_rearrange([qw(FILE
-						   FH
-						   TYPE
-						   )],
-					       @args);
-  
-  if( !defined $file && ! defined $fh ) {
-      $self->throw("No file/filehandle definition to HMMER results");
-  } elsif( defined $file and defined $fh ) {
-      $self->throw("Providing both a file and a filehandle for reading from - only one please!");
-  }
-
-  if( defined $file ) {
-      $fh = Symbol::gensym();
-      open ($fh,$file) || $self->throw("Could not open file [$file] $!");
-  }
+  my ($parsetype) = $self->_rearrange([qw(TYPE)],@args);
+  my $io = Bio::Root::IO->new(@args);
 
   if( !defined $parsetype ) {
       $self->throw("No parse type provided. should be hmmsearch or hmmpfam");
   }
 
   if( $parsetype eq 'hmmsearch' ) {
-      $self->_parse_hmmsearch($fh);
+      $self->_parse_hmmsearch($io->_fh());
   } elsif ( $parsetype eq 'hmmpfam' ) {
-      $self->_parse_hmmpfam($fh);
+      $self->_parse_hmmpfam($io->_fh());
   } else {
       $self->throw("Did not recoginise type $parsetype");
   } 

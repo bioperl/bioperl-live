@@ -83,9 +83,10 @@ package Bio::Tools::GFF;
 use vars qw(@ISA);
 use strict;
 
+use Bio::Root::IO;
 use Bio::SeqAnalysisParserI;
 
-@ISA = qw(Bio::Root::RootI Bio::SeqAnalysisParserI);
+@ISA = qw(Bio::Root::RootI Bio::SeqAnalysisParserI Bio::Root::IO);
 
 =head2 new
 
@@ -104,21 +105,11 @@ sub new {
   my ($class, @args) = @_;
   my $self = $class->SUPER::new(@args);
   
-  my ($file, $fh, $gff_version) = $self->_rearrange([qw(FILE FH 
-							GFF_VERSION)],@args);
-  
-  if( defined $file && defined $fh ) {
-      $self->throw("Cannot define both a file and fh for input");
-  }
-  if( defined $file ) {
-      $fh = Symbol::gensym();
-      open ($fh,$file) || $self->throw("Could not open file [$file] $!");
-  } elsif( defined $fh ) {
-      if (ref $fh !~ /GLOB/)
-      { $self->throw("Expecting a GLOB reference, not $fh!"); }
-  }
-  $self->_fh($fh);
-  
+  my ($gff_version) = $self->_rearrange([qw(GFF_VERSION)],@args);
+
+  # initialize IO
+  $self->_initialize_io(@args);
+    
   $gff_version ||= 2;
   if(($gff_version != 1) && ($gff_version != 2)) {
     $self->throw("Can't build a GFF object with the unknown version ".
@@ -148,7 +139,7 @@ sub next_feature {
 
     # be graceful about empty lines or comments, and make sure we return undef
     # if the input's consumed
-    while(($gff_string = $self->_readLine()) && defined($gff_string)) {
+    while(($gff_string = $self->_readline()) && defined($gff_string)) {
 	next if($gff_string =~ /^\#/);
 	next if($gff_string =~ /^\s*$/);
 	last;
@@ -483,25 +474,6 @@ sub _gff2_string{
    return $str;
 }
 
-=head2 _fh
-
- Title   : _fh
- Usage   : 
- Function: 
- Example :
- Returns : The input file handle
- Args    : none
-
-=cut
-
-sub _fh {
-  my ($self, $value) = @_;
-  if(defined $value && ref($value) =~ /GLOB/i ) {
-    $self->{'FH'} = $value;
-  } 
-  return $self->{'FH'};
-}
-
 =head2 gff_version
 
  Title   : _gff_version
@@ -521,39 +493,5 @@ sub gff_version {
   return $self->{'GFF_VERSION'};
 }
 
-sub _print {
-  my ($self, $str) = @_;
-  
-  my $fh = $self->_fh() || \*STDOUT;
-  print $fh $str;
-}
+1;
 
-sub _readLine {
-  my ($self) = @_;
-  
-  my $fh = $self->_fh() || \*STDIN;
-  my $line = <$fh>;
-  
-  return $line;
-}
-
-=head2 close
-
- Title   : close
- Usage   : $gffio->close()
- Function: Closes the file handle associated with this GFF parser.
-
-           Note that is Perl this is equivalent to undefining the reference
-           to the handle. That is, closing the filehandle here does not
-           necessarily close the file globally.
-
- Example :
- Returns :
- Args    :
-
-=cut
-
-sub close {
-   my ($self, @args) = @_;
-   $self->{'FH'} = undef;
-}

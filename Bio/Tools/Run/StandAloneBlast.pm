@@ -26,7 +26,7 @@ Local-blast "factory object" creation and blast-parameter initialization:
 
 Blast a sequence against a database:
 
- $str = Bio::SeqIO->new(-file=>'t/amino.fa' , '-format' => 'Fasta', );
+ $str = Bio::SeqIO->new(-file=>'t/amino.fa' , '-format' => 'Fasta' );
  $input = $str->next_seq();
  $input2 = $str->next_seq();
  $blast_report = $factory->blastall($input);
@@ -239,19 +239,18 @@ methods. Internal methods are usually preceded with a _
 
 package Bio::Tools::Run::StandAloneBlast;
 
-use vars qw($AUTOLOAD @ISA $FILESPECLOADED @BLASTALL_PARAMS @BLASTPGP_PARAMS 
+use vars qw($AUTOLOAD @ISA @BLASTALL_PARAMS @BLASTPGP_PARAMS 
 	    @BL2SEQ_PARAMS @OTHER_PARAMS %OK_FIELD $DATADIR $BLASTDIR);
 use strict;
 use Bio::Root::RootI;
+use Bio::Root::IO;
 use Bio::Seq;
 use Bio::SeqIO;
 use Bio::Tools::BPbl2seq;
 use Bio::Tools::BPpsilite;
 use Bio::Tools::Blast;
 
- BEGIN {      
-     eval { require 'File/Spec.pm'; 
-	    $FILESPECLOADED = 1; };
+BEGIN {      
 
      @BLASTALL_PARAMS = qw( p d i e m o F G E X I q r v b f g Q
 			    D a O J M W z K L Y S T l U y Z);
@@ -287,11 +286,10 @@ use Bio::Tools::Blast;
 # If local BLAST databases are not stored in the standard
 # /data directory, the variable BLASTDATADIR will need to be set explicitly 
      $DATADIR =  $ENV{'BLASTDATADIR'} ||
-	 ($FILESPECLOADED ? File::Spec->catfile($BLASTDIR,'data') : 
-	  $BLASTDIR . '/data');
- }
+       Bio::Root::IO->catfile($BLASTDIR,'data');
+}
 
-@ISA = qw(Bio::Root::RootI);
+@ISA = qw(Bio::Root::RootI Bio::Root::IO);
 
 =head1 BLAST parameters
 
@@ -391,7 +389,7 @@ sub AUTOLOAD {
 =cut
 
 sub exists_blast {
-    return (-e ($FILESPECLOADED ? File::Spec->catfile($BLASTDIR, 'blastall') : $BLASTDIR. '/blastall') );
+    return (-e Bio::Root::IO->catfile($BLASTDIR, 'blastall'));
 }
 
 =head2  blastall
@@ -560,7 +558,7 @@ sub _runblast {
     my ($self,$executable,$param_string) = @_;
     my $blast_obj;
 
-    my $commandstring = ($FILESPECLOADED ? File::Spec->catfile($BLASTDIR,$executable) : "$BLASTDIR/$executable") . $param_string;
+    my $commandstring = Bio::Root::IO->catfile($BLASTDIR,$executable) . $param_string;
 
     # next line for debugging
     print STDERR "$commandstring \n" if ( $self->verbose() > 0 );
@@ -629,14 +627,14 @@ SWITCH:  {
 	($fh,$infilename1) = $self->tempfile();
 	$temp =  Bio::SeqIO->new(-fh=> $fh, '-format' => 'Fasta');
 	foreach $seq (@$input1) {
-	    unless ($seq->isa("Bio::Seq")) {return 0;}
+	    unless ($seq->isa("Bio::PrimarySeqI")) {return 0;}
 	    $temp->write_seq($seq);
 	}
 	close $fh;
 	last SWITCH;
     }
 #  $input may be a single BioSeq object...
-    elsif ($input1->isa("Bio::Seq")) {
+    elsif ($input1->isa("Bio::PrimarySeqI")) {
 	($fh,$infilename1) = $self->tempfile();
 
 # just in case $input1 is taken from an alignment and has spaces (ie
@@ -662,7 +660,7 @@ SWITCH2:  {
 	$infilename2 =   (-e $input2) ? $input2 : 0 ;
 	last SWITCH2; 
     }
-    if ($input2->isa("Bio::Seq")  && $executable  eq 'bl2seq' ) {
+    if ($input2->isa("Bio::PrimarySeqI")  && $executable  eq 'bl2seq' ) {
 	($fh,$infilename2) = $self->tempfile();
 	
 	$temp =  Bio::SeqIO->new(-fh=> $fh, '-format' => 'Fasta');

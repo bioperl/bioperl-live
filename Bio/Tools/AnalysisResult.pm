@@ -91,14 +91,12 @@ The rest of the documentation details each of the object methods. Internal metho
 package Bio::Tools::AnalysisResult;
 use vars qw(@ISA);
 use strict;
-use Symbol;
-
-# Object preamble - inherits from Bio::Root::Object
 
 use Bio::Root::RootI;
+use Bio::Root::IO;
 use Bio::SeqAnalysisParserI;
 
-@ISA = qw(Bio::Root::RootI Bio::SeqAnalysisParserI);
+@ISA = qw(Bio::Root::RootI Bio::SeqAnalysisParserI Bio::Root::IO);
 
 sub new {
     my ($class, @args) = @_;
@@ -128,7 +126,7 @@ sub _initialize {
            and repeatedly within the lifetime of this object. B<Note, however,
            that this is potentially dangerous in a multi-threading
            environment. In general, calling this method twice is discouraged
-           for this reason.> 
+           for this reason.
 
            This method is supposed to reset the state such that any 'history'
            is lost. State information that does not change during object
@@ -155,67 +153,17 @@ sub _initialize {
 
 sub _initialize_state {
     my ($self,@args) = @_;
-    my ($input,$fh,$file) =
-	$self->_rearrange([qw(INPUT
-			      FH
-			      FILE
-			      )],
-			  @args);
 
     $self->close();
-    $self->{'readbuffer'} = "";
+    $self->_initialize_io(@args);
+
     $self->{'_analysis_sbjct'} = undef;
     $self->{'_analysis_query'} = undef;
     $self->{'_analysis_prog'} = undef;
     $self->{'_analysis_progVersion'} = undef;
     $self->{'_analysis_date'} = undef;
 
-    # determine whether the input is a file(name) or a stream
-    if($input) {
-	if(ref(\$input) eq "SCALAR") {
-	    # we assume that a scalar is a filename
-	    if($file && ($file ne $input)) {
-		$self->throw("input file given twice: $file and $input disagree");
-	    }
-	    $file = $input;
-	} elsif(ref($input) eq "GLOB") {
-	    # input is a stream
-	    $fh = $input;
-	} else {
-	    # let's be strict for now
-	    $self->throw("unable to determine type of input $input: ".
-			 "not string and not GLOB");
-	}
-    }
-    if( defined $fh && defined $file ) {
-	$self->throw("You have defined both a filehandle and file to read from. Not good news!");
-    }
-    if((defined $file) && ($file ne '')) {
-	$fh = Symbol::gensym();
-	open ($fh,$file)
-	    || $self->throw("Could not open $file for reading: $!");
-    }
-    if((! defined($fh)) && ($file eq "")) {
-	$fh = \*STDIN;
-    }
-    $self->_filehandle($fh) if defined $fh;
-}
-
-=head2 close
-
- Title   : close
- Usage   : $result->close()
- Function: Closes the file handle associated with this result file
- Example :
- Returns :
- Args    :
-
-=cut
-
-sub close {
-   my ($self, @args) = @_;
-
-   $self->{'_filehandle'} = undef;
+    return 1;
 }
 
 #  =head2 parse
@@ -368,85 +316,5 @@ sub analysis_method_version {
     return $self->{'_analysis_progVersion'}; 
 }
 
-=head2 _pushback
-
- Title   : _pushback
- Usage   : $obj->_pushback($newvalue)
- Function: puts a line previously read with _readline back into a buffer
-
-           Copied from Bio/SeqIO.pm.
- Example :
- Returns :
- Args    : newvalue
-
-=cut
-
-sub _pushback {
-  my ($obj, $value) = @_;
-  $obj->{'readbuffer'} .= $value;
-}
-
-
-=head2 _filehandle
-
- Title   : _filehandle
- Usage   : $obj->_filehandle($newval)
- Function:
- Example :
- Returns : value of _filehandle
- Args    : newvalue (optional)
-
-
-=cut
-
-sub _filehandle {
-    my ($obj, $value) = @_;
-    if(defined $value) {
-	$obj->{'_filehandle'} = $value;
-    }
-    return $obj->{'_filehandle'};
-}
-
-
-=head2 _readline
-
- Title   : _readline
- Usage   : $obj->_readline
- Function: Reads a line of input and returns it.
-
-           Note that this method implicitely uses the value of $/ that is
-           in effect when called.
-
-           Note also that the current implementation does not handle pushed
-           back input correctly unless the pushed back input ends with the
-           value of $/.
-
-           Copied from Bio/SeqIO.pm.
- Example :
- Returns : 
-
-=cut
-
-sub _readline {
-  my $self = shift;
-  my $fh = $self->_filehandle();
-  my $line;
-
-  # if the buffer been filled by _pushback then return the buffer
-  # contents, rather than read from the filehandle
-  if ( defined $self->{'readbuffer'} ) {
-      $line = $self->{'readbuffer'};
-      undef $self->{'readbuffer'};
-  } else {
-      $line = defined($fh) ? <$fh> : <>;
-  }
-  return $line;
-}
-
-sub DESTROY {
-    my $self = shift;
-
-    $self->close();
-}
 
 1;

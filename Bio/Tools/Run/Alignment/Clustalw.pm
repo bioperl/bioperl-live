@@ -306,7 +306,7 @@ methods. Internal methods are usually preceded with a _
 
 package Bio::Tools::Run::Alignment::Clustalw;
 
-use vars qw($AUTOLOAD @ISA $DEBUG $PROGRAM $PROGRAMDIR $FILESPECLOADED 
+use vars qw($AUTOLOAD @ISA $DEBUG $PROGRAM $PROGRAMDIR
 	    $TMPOUTFILE @CLUSTALW_SWITCHES @CLUSTALW_PARAMS 
 	    @OTHER_SWITCHES %OK_FIELD);
 use strict;
@@ -315,8 +315,9 @@ use Bio::SeqIO;
 use Bio::SimpleAlign;
 use Bio::AlignIO;
 use Bio::Root::RootI;
+use Bio::Root::IO;
 
-@ISA = qw(Bio::Root::RootI);
+@ISA = qw(Bio::Root::RootI Bio::Root::IO);
 
 BEGIN {
 
@@ -334,12 +335,9 @@ BEGIN {
 # every script that will use Clustal.pm.  
 # $ENV{CLUSTALDIR} = '/home/peter/clustalw1.8/';
 
-    eval { require 'File/Spec.pm'; 
-	   $FILESPECLOADED = 1; };
-
     $PROGRAMDIR = $ENV{CLUSTALDIR} || '';
-    $PROGRAM = $FILESPECLOADED ? File::Spec->catfile($PROGRAMDIR,'clustalw') :
-	$PROGRAMDIR.'/clustalw';
+    $PROGRAM = Bio::Root::IO->catfile($PROGRAMDIR,'clustalw');
+
     @CLUSTALW_PARAMS = qw(KTUPLE TOPDIAGS WINDOW PAIRGAP FIXEDGAP
                    FLOATGAP MATRIX TYPE	TRANSIT DNAMATRIX OUTFILE
                    GAPOPEN GAPEXT MAXDIV GAPDIST HGAPRESIDUES PWMATRIX
@@ -590,7 +588,7 @@ $suffix== 2 );
     }
 
 #  or $input may be a single BioSeq object (to be added to a previous alignment)
-    if (ref($input) eq "Bio::Seq" && $suffix==2) {
+    if (ref($input) && $input->isa("Bio::PrimarySeqI") && $suffix==2) {
         #  Open temporary file for both reading & writing of BioSeq object
 	($tfh,$infilename) = $self->tempfile();
 	$temp =  Bio::SeqIO->new(-fh=> $tfh, '-format' =>'Fasta');

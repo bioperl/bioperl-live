@@ -491,7 +491,7 @@ methods. Internal methods are usually preceded with a _
 
 package Bio::Tools::Run::Alignment::TCoffee;
 
-use vars qw($AUTOLOAD @ISA $TMPOUTFILE $PROGRAM $PROGRAMDIR $FILESPECLOADED
+use vars qw($AUTOLOAD @ISA $TMPOUTFILE $PROGRAM $PROGRAMDIR
             @TCOFFEE_PARAMS @TCOFFEE_SWITCHES @OTHER_SWITCHES %OK_FIELD
             );
 use strict;
@@ -500,8 +500,9 @@ use Bio::SeqIO;
 use Bio::SimpleAlign;
 use Bio::AlignIO;
 use Bio::Root::RootI;
+use Bio::Root::IO;
 
-@ISA = qw(Bio::Root::RootI);
+@ISA = qw(Bio::Root::RootI Bio::Root::IO);
 
 
 BEGIN { 
@@ -515,12 +516,8 @@ BEGIN {
 #     use Bio::Tools::Run::Alignment::TCoffee.pm.
 #	BEGIN {$ENV{TCOFFEEDIR} = '/home/progs/tcoffee'; }
 
-    eval { require 'File/Spec.pm'; $FILESPECLOADED = 1; };
-
     $PROGRAMDIR = $ENV{TCOFFEEDIR} || '';
-    $PROGRAM =  ($FILESPECLOADED) ? File::Spec->catfile($PROGRAMDIR,'t_coffee') :
-        $PROGRAMDIR.'/t_coffee';
-
+    $PROGRAM = Bio::Root::IO->catfile($PROGRAMDIR,'t_coffee');
     
     @TCOFFEE_PARAMS = qw(IN TYPE PARAMETERS DO_NORMALISE EXTEND
 			 DP_MODE KTUPLE NDIAGS DIAG_MODE SIM_MATRIX 
@@ -717,11 +714,11 @@ sub _run {
 	    next if( !defined $f || $f eq '');
 	    $f =~ s/\.[^\.]*$// ;   
 	    # because TCoffee writes these files to the CWD
-	    if( $FILESPECLOADED ) {
-		(undef, undef, $f) = File::Spec->splitpath($f);    
-	    } else { 		
-		my @line = split(/\//, $f);
+	    if( $Bio::Root::IO::PATHSEP ) {
+		my @line = split(/$Bio::Root::IO::PATHSEP/, $f);
 		$f = pop @line;	    
+	    } else { 		
+		(undef, undef, $f) = File::Spec->splitpath($f);    
 	    }
 	    unlink $f .'.dnd' if( $f ne '' );
 	}
@@ -762,8 +759,7 @@ sub _setinput {
 				'-format' => 'Fasta');
 	unless (scalar(@$input) > 1) {return 0;} # Need at least 2 seqs for alignment
 	foreach $seq (@$input) {
-	    unless (ref($seq) eq "Bio::Seq")
-	    {return 0;}
+	    return 0 if(ref($seq) && $seq->isa("Bio::PrimarySeqI"));
 	    $temp->write_seq($seq);
 	}
 	return $infilename;
@@ -780,7 +776,7 @@ sub _setinput {
     }
 
 #  or $input may be a single BioSeq object (to be added to a previous alignment)
-    if (ref($input) eq "Bio::Seq" && $suffix==2) {
+    if (ref($input) && $input->isa("Bio::PrimarySeqI") && $suffix==2) {
         #  Open temporary file for both reading & writing of BioSeq object
 	($tfh,$infilename) = $self->tempfile();
 	$temp =  Bio::SeqIO->new(-fh=> $tfh, '-format' =>'Fasta');

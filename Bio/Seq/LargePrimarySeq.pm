@@ -1,6 +1,6 @@
 # $Id$
 #
-# BioPerl module for Bio::LargePrimarySeq
+# BioPerl module for Bio::Seq::LargePrimarySeq
 #
 # Cared for by Ewan Birney <birney@ebi.ac.uk>
 #
@@ -76,9 +76,10 @@ use vars qw($AUTOLOAD @ISA);
 use strict;
 
 use Bio::PrimarySeq;
+use Bio::Root::IO;
 use IO::File;
 
-@ISA = qw(Bio::PrimarySeq);
+@ISA = qw(Bio::PrimarySeq Bio::Root::IO);
 
 sub new {
     my ($class, %params) = @_;
@@ -96,9 +97,9 @@ sub new {
     my $tempdir = $self->tempdir( CLEANUP => 1);
     my ($tfh,$file) = $self->tempfile( DIR => $tempdir );
     my $fh = IO::File->new($file, O_RDWR);    
-    # hack where IO::File does want to work
-    if( ! $fh ) { $fh = $tfh }
-    else { close ($tfh) }
+    # hack where IO::File does not want to work
+    if( ! $fh ) { $fh = $tfh; }
+    else { close ($tfh); }
 
     $fh      && $self->_fh($fh);
     $file    && $self->_filename($file);    
@@ -136,7 +137,7 @@ sub seq {
        if( $self->length() == 0) {
 	   $self->add_sequence_as_string($data);
        } else { 
-	   $self->warn("Trying to reset the seq string, cannot do this with a La_fhrgePrimarySeq - must allocate a new object");
+	   $self->warn("Trying to reset the seq string, cannot do this with a LargePrimarySeq - must allocate a new object");
        }
    } 
    return $self->subseq(1,$self->length);
@@ -165,10 +166,13 @@ sub subseq{
    }
    
    my $string;
-   if( !$self->_fh->seek($start-1,0) ) {
+   my $fh = $self->_fh();
+   if(! (ref($fh) eq 'GLOB' ? seek($fh,$start-1,0) : $fh->seek($start-1,0))) {
        $self->throw("Unable to seek on file $start:$end $!");
    }
-   my $ret = $self->_fh->read($string,$end-$start+1);
+   my $ret = (ref($fh) eq 'GLOB' ?
+	      read($fh, $string, $end-$start+1) :
+	      $fh->read($string, $end-$start+1));
    if( !defined $ret ) {
        $self->throw("Unable to read $start:$end $!");
    }
@@ -192,32 +196,12 @@ sub subseq{
 sub add_sequence_as_string{
    my ($self,$str) = @_;
    my $len = $self->length + CORE::length($str);
-   $self->_fh->seek(0,2);
-   $self->_fh->print($str);
+   my $fh = $self->_fh();
+   ref($fh) eq 'GLOB' ? seek($fh,0,2) : $fh->seek(0,2);
+   $self->_print($str);
    $self->length($len);
 }
 
-
-=head2 _fh
-
- Title   : _fh
- Usage   : $obj->_fh($newval)
- Function: 
- Example : 
- Returns : value of _fh
- Args    : newvalue (optional)
-
-
-=cut
-
-sub _fh{
-   my ($obj,$value) = @_;
-   if( defined $value) {
-      $obj->{'_fh'} = $value;
-    }
-    return $obj->{'_fh'};
-
-}
 
 =head2 _filename
 
@@ -243,7 +227,8 @@ sub _filename{
 sub DESTROY {
     my $self = shift;
     if( defined  $self->_fh ) {
-	$self->_fh->close();		
+	my $fh = $self->_fh();
+	ref($fh) eq 'GLOB' ? close($fh) : $fh->close();
     }
     unlink $self->_filename;
     $self->SUPER::DESTROY();

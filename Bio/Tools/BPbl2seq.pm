@@ -101,7 +101,9 @@ BPlite.pm is copyright (C) 1999 by Ian Korf.
 This software is provided "as is" without warranty of any kind.
 
 =cut
+
 #'
+
 package Bio::Tools::BPbl2seq;
 
 use vars qw(@ISA);
@@ -112,10 +114,11 @@ use strict;
 
 # Object preamble - inherits from Bio::SeqFeature::SimilarityPair
 
+use Bio::Root::IO;
 use Bio::SeqFeature::SimilarityPair;
 use Bio::SeqFeature::Similarity;
 
-@ISA = qw(Bio::SeqFeature::SimilarityPair);
+@ISA = qw(Bio::SeqFeature::SimilarityPair Bio::Root::IO);
 
 =head2 new
 
@@ -130,20 +133,11 @@ use Bio::SeqFeature::Similarity;
 sub new {
     my ($class, @args) = @_;
     my $self = $class->SUPER::new(@args);
-    my ($file, $fh, $query) = $self->_rearrange([qw(FILE FH QUERYNAME)], @args);
+    my ($query) = $self->_rearrange([qw(QUERYNAME)], @args);
     $query = 'unknown' if( ! defined $query );
+    # initialize the IO part, too
+    $self->_initialize_io(@args);
 
-    if( defined $file && defined $fh ) {
-	$self->throw("Cannot define both a file and fh for input");
-    }
-    if( defined $file ) {
-	$fh = Symbol::gensym();
-	open ($fh,$file) || $self->throw("Could not open file [$file] $!");
-    } elsif( defined $fh ) {
-	if (ref $fh !~ /GLOB/)
-	{ $self->throw("Expecting a GLOB reference, not $fh!"); }
-    }
-    $self->fh($fh);
     my ($score,$bits,$match,$positive,$p,$qb,$qe,$sb,$se,$qs,
 	$ss,$hs,$qname,$sname,$qlength,$slength) = $self->_parsebl2seq($query);
     unless ( $positive ) {
@@ -335,7 +329,7 @@ sub _parsebl2seq {
   ############################
   # get seq2 (the "hit") name & lrngth  
   ############################
-  my $FH = $self->fh;
+  my $FH = $self->_fh;
   while(<$FH>) {
     if    ($_ !~ /\w/)            {next}
     elsif ($_ =~ /^\s*Length/) {$def .= $_; last}
@@ -442,21 +436,4 @@ sub _parsebl2seq {
   return @returnarray;
 }
 
-=head2 fh
-
- Title    : fh
- Usage    : do not use
- Function : Get/Set method for filehandle
- Example  : my $fh = $self->fh
- Returns  : filehandle reference
- Args     : filehandle reference [optional]
-
-=cut
-sub fh {
-    my ($self, $value) = @_;    
-    if( defined $value && ref($value) =~ /GLOB/i ) {
-	$self->{'FH'} = $value;
-    } 
-    return $self->{'FH'};
-}
 1;

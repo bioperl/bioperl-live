@@ -76,22 +76,26 @@ preceded with a _
 package Bio::DB::WebDBSeqI;
 use strict;
 use vars qw(@ISA $MODVERSION %RETRIEVAL_TYPES $DEFAULT_RETRIEVAL_TYPE
-	    $DEFAULTFORMAT @TEMPFILES );
+	    $DEFAULTFORMAT);
 
 use Bio::DB::RandomAccessI;
 use Bio::SeqIO;
+use Bio::Root::IO;
 use LWP::UserAgent;
 use HTTP::Request::Common;
 use HTTP::Response;
 use File::Spec;
 use IO::String;
 
-$MODVERSION = '0.8';
 @ISA = qw(Bio::DB::RandomAccessI);
-%RETRIEVAL_TYPES = ( 'io_string' => 1,
-		     'tempfile'  => 1);
-$DEFAULT_RETRIEVAL_TYPE = 'io_string';
-$DEFAULTFORMAT = 'fasta';
+
+BEGIN {
+    $MODVERSION = '0.8';
+    %RETRIEVAL_TYPES = ( 'io_string' => 1,
+			 'tempfile'  => 1);
+    $DEFAULT_RETRIEVAL_TYPE = 'io_string';
+    $DEFAULTFORMAT = 'fasta';
+}
 
 sub new {
     my ($class, @args) = @_;
@@ -274,8 +278,8 @@ sub get_seq_stream {
     my $url = $self->get_request(%qualifiers);
     my ($stream,$resp);
     if( $self->retrieval_type =~ /temp/i ) {
-	my $dir = $self->tempdir( CLEANUP => 1);
-	my ( $fh, $tmpfile) = $self->tempfile( DIR => $dir );
+	my $dir = $self->io()->tempdir( CLEANUP => 1);
+	my ( $fh, $tmpfile) = $self->io()->tempfile( DIR => $dir );
 	close $fh;
 	my ($resp) = $self->_request($url, $tmpfile);		
 	if( ! -e $tmpfile || -z $tmpfile ) {
@@ -438,6 +442,17 @@ sub _request {
     return $resp;
 }
 
+sub io {
+    my ($self,$io) = @_;
+
+    if(defined($io) || (! exists($self->{'_io'}))) {
+	$io = Bio::Root::IO->new() unless $io;
+	$self->{'_io'} = $io;
+    }
+    return $self->{'_io'};
+}
+
 sub DESTROY {    
 }
+
 1;

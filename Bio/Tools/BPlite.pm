@@ -167,11 +167,12 @@ use strict;
 use vars qw(@ISA);
 
 use Bio::Root::RootI;
+use Bio::Root::IO;
 use Bio::Tools::BPlite::Sbjct; # we want to use Sbjct
 use Bio::SeqAnalysisParserI;
 use Symbol;
 
-@ISA = qw(Bio::Root::RootI Bio::SeqAnalysisParserI);
+@ISA = qw(Bio::Root::RootI Bio::SeqAnalysisParserI Bio::Root::IO);
 
 # new comes from a RootI now
 
@@ -189,19 +190,9 @@ sub new {
   my ($class, @args) = @_; 
   my $self = $class->SUPER::new(@args);
 
-  my ($file, $fh) = $self->_rearrange([qw(FILE FH)],@args);
+  # initialize IO
+  $self->_initialize_io(@args);
 
-  if( defined $file && defined $fh ) {
-      $self->throw("Cannot define both a file and fh for input");
-  }
-  if( defined $file ) {
-      $fh = Symbol::gensym();
-      open ($fh,$file) || $self->throw("Could not open file [$file] $!");
-  } elsif( defined $fh ) {
-      if (ref $fh !~ /GLOB/)
-      { $self->throw("Expecting a GLOB reference, not $fh!"); }
-  }
-  $self->fh($fh);
   $self->{'LASTLINE'} = "";
   $self->{'QPATLOCATION'} = [];  # Anonymous array of query pattern locations for PHIBLAST
 
@@ -322,7 +313,7 @@ sub nextSbjct {
   # get all sbjct lines #
   #######################
   my $def = $self->{'LASTLINE'};
-  my $FH = $self->fh();
+  my $FH = $self->_fh();
   while(<$FH>) {
     if    ($_ !~ /\w/)            {next}
     elsif ($_ =~ /Strand HSP/)    {next} # WU-BLAST non-data
@@ -341,34 +332,17 @@ sub nextSbjct {
   ####################
   my $sbjct = new Bio::Tools::BPlite::Sbjct('-name'=>$def,
 					    '-length'=>$length,
-                                            '-fh'=>$self->fh, 
+                                            '-fh'=>$self->_fh(), 
 					    '-lastline'=>$self->{'LASTLINE'}, 
 					    '-parent'=>$self);
   return $sbjct;
 }
 
-=head2 fh
-
- Title    : fh
- Usage    : $fh = $obj->fh();
- Function : get/set filehandle
- Returns  : file handle
- Args     :
-
-=cut
-
-sub fh {
-    my ($self, $value) = @_;
-    if( defined $value && ref($value) =~ /GLOB/i ) {
-	$self->{'FH'} = $value;
-    } 
-    return $self->{'FH'};
-}
 # begin private routines
 
 sub _parseHeader {
   my ($self) = @_;
-  my $FH = $self->fh();
+  my $FH = $self->_fh();
   
   while(<$FH>) {
     if ($_ =~ /^Query=\s+([^\(]+)/)    {
@@ -403,7 +377,7 @@ sub _fastForward {
     return 0 if $self->{'REPORT_DONE'}; # empty report
     return 1 if $self->{'LASTLINE'} =~ /^>/;
 
-    my $FH = $self->fh();
+    my $FH = $self->_fh();
     my $capture;
     while(<$FH>) {
 	if ($_ =~ /^>|^Parameters|^\s+Database:|^\s+Posted date:/) {
