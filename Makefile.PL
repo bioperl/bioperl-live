@@ -228,7 +228,8 @@ Information:
    core packages.
 
    The installation of these external packages is very simple. You
-   can read more about bioperl external dependencies at
+   can read more about bioperl external dependencies in the INSTALL
+   file or at:
 
    http://bioperl.org/Core/Latest/INSTALL
 
