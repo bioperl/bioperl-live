@@ -32,6 +32,7 @@ sub nodes {
   my @ret  = @_? @{$self->_nodes}{@_}: values %{$self->_nodes};
   wantarray? @ret: \@ret;
 }
+
 sub node {
   my $self   = shift; 
   my @result = $self->nodes(@_); 
@@ -361,17 +362,17 @@ sub connected_subgraphs {
 }
 
 sub components {
-  my($self)=@_;
+  my($self)  = @_;
   return $self->_components if defined $self->_components;
-  my $components=[];
-  my @nodes=$self->nodes;
+  my $components = [];
+  my @nodes      = $self->nodes;
   my %future;
   @future{@nodes}=(0)x@nodes;
-  while(my($node,$used)=each %future) {
+  while(my($node, $used)=each %future) {
     next if $used;
-    my $component=$self->subgraph($self->traversal($self->node($node))->get_all);
-    my @nodes=$component->nodes;
-    @future{@nodes}=(1)x@nodes;
+    my $component   = $self->subgraph($self->traversal($self->node($node))->get_all);
+    my @nodes       = $component->nodes;
+    @future{@nodes} = (1)x@nodes;
     push(@$components,$component);
   }
   wantarray? @$components: $components;
@@ -795,7 +796,12 @@ The rest of the documentation describes the methods.
            while (my $node=$traversal->get_next) {
              push(@nodes,$node);
            }
-           my $traversal=$graph->node_traversal('a','depth first');
+           my $traversal=$graph->node_traversal('a','depth first');;
+           my @nodes;
+
+
+           my @nodes;
+
            my @nodes=$traversal->get_all;
  Function: Do node traversal in depth or breadth first order.
            Wrapper for 'traversal' method. See above.
