@@ -32,7 +32,7 @@ SELECT fref,
   WHERE fgroup.gname=?
     AND fgroup.gclass=?
     AND fgroup.gid=fdata.gid
-    GROUP BY fref,fstrand
+    GROUP BY fref,fstrand,gname
 END
 ;
 
@@ -50,7 +50,7 @@ SELECT fref,
     AND fattribute.fattribute_name='Alias'
     AND fattribute_to_feature.fattribute_id=fattribute.fattribute_id
     AND fattribute_to_feature.fid=fdata.fid
-    GROUP BY fref,fstrand
+    GROUP BY fref,fstrand,gname
 END
 ;
 
@@ -274,8 +274,11 @@ sub get_dna {
   my ($ref,$start,$stop,$class) = @_;
   my ($offset_start,$offset_stop);
 
+  my $has_start = defined $start;
+  my $has_stop  = defined $stop;
+
   my $reversed;
-  if ($start > $stop) {
+  if ($has_start && $has_stop && $start > $stop) {
     $reversed++;
     ($start,$stop) = ($stop,$start);
   }
@@ -286,14 +289,28 @@ sub get_dna {
   $offset_start = int($start/$cs)*$cs;
   $offset_stop  = int($stop/$cs)*$cs;
 
-  my $sth = $self->dbh->do_query('select fdna,foffset from fdna where fref=? and foffset>=? and foffset<=?',
-				 $ref,$offset_start,$offset_stop);
+  my $sth;
+  # special case, get it all
+  if (!($has_start || $has_stop)) {
+    $sth = $self->dbh->do_query('select fdna,foffset from fdna where fref=? order by foffset',$ref);
+  } 
+
+  elsif (!$has_stop) {
+    $sth = $self->dbh->do_query('select fdna,foffset from fdna where fref=? and foffset>=? order by foffset',
+				$ref,$offset_start);
+  } 
+
+  else {  # both start and stop defined
+    $sth = $self->dbh->do_query('select fdna,foffset from fdna where fref=? and foffset>=? and foffset<=? order by foffset',
+				$ref,$offset_start,$offset_stop);
+  }
+
   my $dna;
   while (my($frag,$offset) = $sth->fetchrow_array) {
-    substr($frag,0,$start-$offset) = '' if $start > $offset;
+    substr($frag,0,$start-$offset) = '' if $has_start && $start > $offset;
     $dna .= $frag;
   }
-  substr($dna,$stop-$start+1)  = '' if defined($stop) && $stop-$start+1 < length $dna;
+  substr($dna,$stop-$start+1)  = '' if $has_stop && $stop-$start+1 < length $dna;
   if ($reversed) {
     $dna = reverse $dna;
     $dna =~ tr/gatcGATC/ctagCTAG/;
@@ -455,7 +472,7 @@ sub make_features_select_part {
   my $s = <<END;
 fref,fstart,fstop,fsource,fmethod,fscore,fstrand,fphase,gclass,gname,ftarget_start,ftarget_stop,fdata.fid,fdata.gid
 END
-  $s .= ",count(fdata.fid) as c" if $options->{attributes} && keys %{$options->{attributes}}>1;
+  $s .= ",count(fdata.fid)" if $options->{attributes} && keys %{$options->{attributes}}>1;
   $s;
 }
 
@@ -550,7 +567,10 @@ sub make_features_group_by_part {
   my $att = $options->{attributes} or return;
   my $key_count = keys %$att;
   return unless $key_count > 1;
-  return ("fdata.fid having c > ?",$key_count-1);
+  return ("fdata.fid,fref,fstart,fstop,fsource,
+           fmethod,fscore,fstrand,fphase,gclass,gname,ftarget_start,
+           ftarget_stop,fdata.gid 
+     HAVING count(fdata.fid) > ?",$key_count-1);
 }
 
 =head2 refseq_query
@@ -946,7 +966,7 @@ sub make_types_group_part {
   my $self = shift;
   my ($srcseq,$start,$stop,$want_count) = @_;
   return unless $srcseq or $want_count;
-  return 'ftype.ftypeid';
+  return 'ftype.ftypeid,ftype.fmethod,ftype.fsource';
 }
 
 

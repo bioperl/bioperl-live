@@ -8,7 +8,7 @@ See L<Bio::DB::GFF>
 
 =head1 DESCRIPTION
 
-This adaptor is similar to Bio::DB::GFF::Adaptor::mysql, except
+This adaptor is similar to Bio::DB::GFF::Adaptor::mysqlopt, except
 that it implements several optimizations:
 
 =over 4

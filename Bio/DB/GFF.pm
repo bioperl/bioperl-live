@@ -491,7 +491,7 @@ the components aggregated by the transcript aggregator, you could
 pass it to the GFF constructor this way:
 
   my $transcript = 
-     Bio::DB::GFF::Aggregator::transcript->new(-sub_parts=>[qw(exon intron utr
+     Bio::DB::Aggregator::transcript->new(-sub_parts=>[qw(exon intron utr
                                                           polyA spliced_leader)]);
 
   my $db = Bio::DB::GFF->new(-aggregator=>[$transcript,'clone','alignment],
@@ -607,7 +607,7 @@ The argument -end is a synonum for -stop, and -count is a synonym for
 -enumerate.
 
 =cut
-#'
+
 sub types {
   my $self = shift;
   my ($refseq,$start,$stop,$enumerate,$refclass,$types) = rearrange ([
@@ -698,9 +698,16 @@ Arguments:
  -refclass     Specifies the class of the reference landmark, for those databases
                that distinguish different object classes.  Defaults to "Sequence".
 
- -absolute,-force_absolute
+ -absolute
                Return features in absolute coordinates rather than relative to the
                parent segment.
+
+ -nocheck      Don't check the database for the coordinates and length of this
+               feature.  Construct a segment using the indicated name as the
+               reference, a start coordinate of 1, an undefined end coordinate,
+               and a strand of +1.
+
+ -force        Same as -nocheck.
 
  -seq,-sequence,-sourceseq   Aliases for -name.
 
@@ -2088,7 +2095,7 @@ sub do_initialize {
 =head2 dna
 
  Title   : dna
- Usage   : $db->dna($id,$class,$start,$stop)
+ Usage   : $db->dna($id,$start,$stop,$class)
  Function: return the raw DNA string for a segment
  Returns : a raw DNA string
  Args    : id of the sequence, its class, start and stop positions
@@ -2096,6 +2103,20 @@ sub do_initialize {
 
 This method is invoked by Bio::DB::GFF::Segment to fetch the raw DNA
 sequence.
+
+Arguments: -name          sequence name
+           -start         start position
+           -stop          stop position
+           -class         sequence class
+
+If start and stop are both undef, then the entire DNA is retrieved.
+So to fetch the whole dna, call like this:
+
+  $db->dna($name_of_sequence);
+
+or like this:
+
+   $db->dna(-name=>$name_of_sequence,-class=>$class_of_sequence);
 
 NOTE: you will probably prefer to create a Segment and then invoke its
 dna() method.
@@ -2112,7 +2133,7 @@ sub dna {
 					     [qw(STOP END)],
     					    'CLASS',
 					   ],@_);
-  return unless defined $start && defined $stop;
+# return unless defined $start && defined $stop;
   $self->get_dna($id,$start,$stop,$class);
 }
 

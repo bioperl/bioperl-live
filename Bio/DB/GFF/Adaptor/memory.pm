@@ -50,6 +50,9 @@ sub insert_sequence {
 sub get_dna {
   my $self = shift;
   my ($id,$start,$stop,$class) = @_;
+  return $self->{dna}{$id} if !defined $start || !defined $stop;
+  $start = 1 if !defined $start;
+  
   my $reversed = 0;
   if ($start > $stop) {
     $reversed++;

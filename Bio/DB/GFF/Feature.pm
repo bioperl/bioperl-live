@@ -621,7 +621,7 @@ sub to_FTstring {
  Status  : Public
 
 This method acts like sub_SeqFeature, except that it merges
-overlapping segments of the same type into contiguous features.  For
+overlapping segments of the same time into contiguous features.  For
 those features that contain heterogeneous subfeatures, you can
 retrieve a subset of the subfeatures by providing a method name to
 filter on.
@@ -791,15 +791,12 @@ is equivalent to this call:
 
 The following Bio::SeqFeatureI methods are implemented:
 
-primary_tag(), source_tag(), all_tags(), has_tag(), each_tag_value(), seqname().
+primary_tag(), source_tag(), all_tags(), has_tag(), each_tag_value().
 
 =cut
 
 *primary_tag = \&method;
 *source_tag  = \&source;
-
-sub seqname { return shift->{'sourceseq'} }
-
 sub all_tags {
   my $self = shift;
   my @tags = keys %CONSTANT_TAGS;

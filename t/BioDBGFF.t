@@ -7,7 +7,7 @@
 use strict;
 use ExtUtils::MakeMaker;
 use Bio::Root::IO;
-use constant TEST_COUNT => 115;
+use constant TEST_COUNT => 116;
 use constant FASTA_FILES => Bio::Root::IO->catfile('t','data','dbfa');
 use constant GFF_FILE    => Bio::Root::IO->catfile('t','data',
 						   'biodbgff','test.gff');
@@ -29,6 +29,7 @@ sub user_prompt ($;$);
 sub fail ($);
 use lib './blib/lib';
 use Bio::DB::GFF;
+use Bio::SeqIO;
 
 my $adaptor = -e 't/do_biodbgff.tests' ? 'dbi::mysqlopt' : 'memory';
 my @args;
@@ -55,6 +56,8 @@ my $db = eval { Bio::DB::GFF->new(@args) };
 warn $@ if $@;
 ok($db);
 fail(TEST_COUNT - 1) unless $db;
+
+$db->debug(0);
 
 # exercise the loader
 ok($db->initialize(1));
@@ -101,14 +104,15 @@ ok($t[0] eq $t);
 my $seg = $db->segment('Contig1');
 @t = $seg->features(-attributes=>{'Gene'=>'abc-1'});
 ok(@t>0);
-@t = $seg->features(-attributes=>{'Gene'=>'xyz-2',Note=>'Terribly interesting; transspliced; confirmed'});
-ok(@t==1);
+@t = $seg->features(-attributes=>{'Gene'=>'xyz-2',Note=>'Terribly interesting'});
+  ok(@t==1);
 
 # exercise dna() a bit
 my $dna = $segment2->dna;
 ok(length $dna,1000);
 ok(substr($dna,0,10),'gcctaagcct');
 ok($segment3->dna,'aggcttaggc');
+ok($segment1->dna eq $db->dna($segment1->ref));
 
 # exercise ref()
 my $segment4 = $db->segment('-name'=>'c128.1','-class'=>'Transposon');
