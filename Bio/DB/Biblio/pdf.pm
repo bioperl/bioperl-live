@@ -371,72 +371,144 @@ sub _process_pubmed_html {
   my $page = $self->ua->content();
 
   #here is the treasure
-  $page =~ m|<!---- Pager -- \(page header\) -- end ------>.+?<a href="(.+?)" onClick="window.open|s;
+  $page =~ m|<!---- Pager -- \(page header\) -- end ------>.+?<SPAN><a href="(.+?)" onClick="window.open|s;
+
+  if( ! defined($1) ) {
+    return undef;
+  }
 
   $self->ua->follow_link( url => $1 );
-  $self->_crawl();
+
+  #uncomment this to do site crawl -- old style
+  #$self->_crawl();
+
+  my $pdf_url = $self->guess_pdf_url($self->ua->uri);
+  $self->throw( "didn't recognize pattern in '".$self->ua->uri."', please patch module" ) unless $pdf_url;
+  $self->ua->get( $pdf_url );
+  my $content = $self->ua->content();
+  $self->pdf( $content );
 }
 
-sub _crawl {
-  my( $self ) = @_;
+sub guess_pdf_url {
+  my($self,$url) = @_;
 
-  return undef if $self->depth() == $self->max_depth();
-  return undef if $self->pdf();
-
-  $self->depth( $self->depth + 1 );
-
-  #try to find "PDF" link first
-  my ( $link ) = $self->ua->find_link( text_regex => qr/PDF|View article/ );
-  if ( $link ) {
-
-    next if $visit{ $link->url() };
-    $visit{ $link->url() }++;
-
-    $self->ua->get( $link );
-    print "[" . $self->depth() . "] fetching: " . $link->url() . " " . $self->ua->ct() . "\n" if DEBUG;
-
-    #test for a likely string "href", because some misconfigured webservers will send pdf
-    #as text/html
-    if ( $self->ua->ct() eq 'application/pdf' or
-         ( $self->ua->ct() eq 'text/html' and $self->ua->content !~ /href/is )
-       ) {
-      print "*****FOUND IT (" . $link->url . ") *****\n" if DEBUG;
-
-      $self->pdf( $self->ua->content() );
-    }
-    else {
-      $self->_crawl();
-    }
+  #cancer research
+  if( $url =~ m!^(.+?)/cgi/content/full/(\d+)/(\d+)/(\d+)/?$! ) {
+    return qq($1/cgi/reprint/$2/$3/$4.pdf);
   }
-  else {
-    foreach my $link ( $self->ua->find_all_links ) {
-
-      next if $visit{ $link->url() };
-      $visit{ $link->url() }++;
-
-      $self->ua->get( $link );
-      print "[" . $self->depth() . "] fetching: " . $link->url() . " " . $self->ua->ct() . "\n" if DEBUG;
-
-      #test for a likely string "href", because some misconfigured webservers will send pdf
-      #as text/html
-      if ( $self->ua->ct() eq 'application/pdf' or 
-           ( $self->ua->ct() eq 'text/html' and $self->ua->content !~ /href/is )
-         ) {
-        print "*****FOUND IT (" . $link->url . ") *****\n" if DEBUG;
-
-        $self->pdf( $self->ua->content() );
-        last;
-      }
-      else {
-        $self->_crawl();
-      }
-    }
+  #nature
+  #http://www.nature.com/cgi-taf/DynaPage.taf?file=/onc/journal/v18/n27/abs/1202776a.html&dynoptions=doi1108513968
+  #http://www.nature.com/cgi-taf/DynaPage.taf?file=/onc/journal/v18/n27/full/1202776a.html&filetype=pdf
+  elsif( $url =~ m!^(.+?cgi-taf/DynaPage.taf.+?)/journal/(.+?)/abs/(.+?\.html)! ) {
+    return qq($1/journal/$2/full/$3\&filetype=pdf);
+  }
+  #science direct
+  #these pages contain some unpredictable md5 bullshit, so we need to parse the page
+  #http://www.sciencedirect.com/science?_ob=ArticleURL&_udi=B6VPM-480CTTS-5&_coverDate=04%2F30%2F2003&_alid=247076467&_rdoc=1&_fmt=&_orig=search&_qd=1&_cdi=6210&_sort=d&view=c&_acct=C000059605&_version=1&_urlVersion=0&_userid=4423&md5=8054dea49e32e98a6b30b206ea47fbfe
+  #http://www.sciencedirect.com/science?_ob=MImg&_imagekey=B6VPM-480CTTS-5-5&_cdi=6210&_user=4423&_orig=search&_coverDate=04%2F30%2F2003&_qd=1&_sk=999779997&view=c&wchp=dGLbVtz-zSkzV&md5=5b04979d84dab066be5cde52fd2affa7&ie=/sdarticle.pdf
+  elsif( $url =~ m!^(.+?science\?_ob=)ArticleURL(.+?)$! ) {
+    my $link = $self->ua->find_link( text_regex => qr/PDF \(.+?\)/s );
+    return undef unless $link;
+    return $link->url_abs();
+  }
+  #genome biology
+  #http://genomebiology.com/2003/4/7/R43
+  #http://genomebiology.com/content/pdf/gb-2003-4-7-r43.pdf
+  elsif( $url =~ m!^(.+?genomebiology.com)/(\d+)/(\d+)/(\d+)/(.+?)/?$! ) {
+    my $file = lc(sprintf("gb-%d-%d-%d-%s.pdf",$2,$3,$4,$5));
+    return qq($1/content/pdf/$file);
+  }
+  #wiley interscience
+  #http://www3.interscience.wiley.com/cgi-bin/abstract/91013753/ABSTRACT
+  #http://www3.interscience.wiley.com/cgi-bin/fulltext/91013753/PDFSTART
+  #http://download.interscience.wiley.com/cgi-bin/fulltext?ID=96515300&PLACEBO=IE.pdf&mode=pdf
+  elsif( $url =~ m!^(.+?/cgi-bin)/abstract/(\d+?)/ABSTRACT$! ) {
+    $self->ua->get( qq($1/fulltext/$2/PDFSTART) );
+    my $link = $self->ua->find_link( url_regex => qr/fulltext/ );
+    return undef unless $link;
+    return $link->url_abs();
+  }
+  #nar, bioinformatics
+  #http://nar.oupjournals.org/cgi/content/full/32/suppl_1/D258
+  #http://nar.oupjournals.org/cgi/reprint/32/suppl_1/D258.pdf
+  elsif( $url =~ m!^(.+?oupjournals.org/cgi)/reprint/(.+?)$! ) {
+    return qq($1/reprint/$2.pdf);
+  }
+  elsif( $url =~ m!^(.+?oupjournals.org/cgi)/content/full/(.+?)$! ) {
+    return qq($1/reprint/$2.pdf);
   }
 
-  $self->depth( $self->depth - 1 );
+  #plos
+  #http://biology.plosjournals.org/plosonline/?request=get-document&doi=10.1371/journal.pbio.0020009
+  #http://www.plosbiology.org/archive/1545-7885/2/1/pdf/10.1371_journal.pbio.0020009-S.pdf
+  elsif( $url =~ m!^http://[^.]+?\.plos! ) {
+    my $link = $self->ua->find_link( text_regex => qr/^Screen/s );
+    return undef unless $link;
+    return $link->url_abs();
+  }
+  #bmc bioinformatics
+  #http://www.biomedcentral.com/1471-2105/2/7
+  #http://www.biomedcentral.com/content/pdf/1471-2105-2-7.pdf
+  elsif( $url =~ m!^(.+?biomedcentral.+?)/(\d+\-\d+)/(\d+)/(\d+)/?$! ) {
+    my $file = lc(sprintf("%s-%d-%d.pdf",$2,$3,$4));
+    return qq($1/content/pdf/$file);
+  }
 
+
+warn $url;
   return undef;
 }
+
+
+# sub _crawl {
+#   my( $self ) = @_;
+
+#   return undef if $self->depth() == $self->max_depth();
+#   return undef if $self->pdf();
+
+#   $self->depth( $self->depth + 1 );
+
+#   #try to find "PDF" link first
+#   my ( $link ) = $self->ua->find_link( text_regex => qr/PDF|View article/ );
+#   if ( $link ) {
+#     $self->_fetch_pdf( $link );
+#   }
+#   else {
+#     foreach my $link ( $self->ua->find_all_links ) {
+#       $self->_fetch_pdf( $link );
+#     }
+#   }
+
+#   $self->depth( $self->depth - 1 );
+
+#   return undef;
+# }
+
+# sub _fetch_pdf {
+#   my $self = shift;
+#   my $link = shift;
+
+#   return if $visit{ $link->url_abs };
+#   $visit{ $link->url_abs }++;
+
+#   $self->ua->get( $link->url_abs );
+#   print "[" . $self->depth() . "] fetching: " . $link->url_abs . " " . $self->ua->ct() . "\n" if DEBUG;
+
+#   #test for a likely string "href", because some misconfigured webservers will send pdf
+#   #as text/html
+#   if ( $self->ua->ct() eq 'application/pdf' or
+#        ( $self->ua->ct() =~ /text/ and $self->ua->content !~ /href|src/is )
+#      ) {
+#     print "*****FOUND IT (" . $link->url_abs . ") *****\n" if DEBUG;
+
+#     $self->ua->get( $link->url_abs );
+#     my $content = $self->ua()->content();
+#     $self->pdf( $content );
+#   }
+#   else {
+#     $self->_crawl();
+#   }
+# }
 
 =head2 pdf()
 
