@@ -141,7 +141,7 @@ sub _write_feature_25 {
   }
 
   my $seq    = $feature->id      || '.';
-  my $source = $feature->source  || '.';
+  my $source = $feature->source->value;
   my $type   = $feature->type->name;
   $type = 'EXON' if $type eq 'exon'; #a GTF peculiarity, incosistent with the sequence ontology.
   my $min    = $feature->start   || '.';
@@ -168,7 +168,7 @@ sub _write_feature_3 {
   my($self,$feature) = @_;
 
   my $seq    = $feature->id      || 'SEQ';
-  my $source = $feature->source  || '.';
+  my $source = $feature->source->value;
   my $type   = $feature->type->name;
   my $min    = $feature->start   || '.';
   my $max    = $feature->end     || '.';
