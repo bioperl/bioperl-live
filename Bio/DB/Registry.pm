@@ -26,6 +26,8 @@ This module provides access to the Open Bio Database Access scheme,
 which provides a cross language and cross platform specification of how
 to get to databases.
 
+If the user or system administrator has not installed the default init file,
+creating the first Registry object copies the default settings from the net.
 
 =head1 CONTACT
 
@@ -52,13 +54,21 @@ methods. Internal methods are usually preceded with a _
 
 package Bio::DB::Registry;
 
-use vars qw(@ISA);
+use vars qw(@ISA $BIOINFORMATICS);
 use strict;
 
 use Bio::Root::Root;
 @ISA = qw(Bio::Root::Root);
 use Bio::DB::Failover;
 use Bio::Root::HTTPget;
+
+BEGIN {
+
+    if (defined $ENV{BIOINFORMATICS}) {
+        $BIOINFORMATICS = $ENV{BIOINFORMATICS} || '';
+
+    }
+}
 
 my %implement = (
 		 'biocorba'         => 'Bio::CorbaClient::SeqDB',
@@ -74,7 +84,7 @@ my $fallbackRegistryURL = 'http://www.open-bio.org/registry/seqdatabase.ini';
 sub new {
     my ($class,@args) = shift;
     my $self = $class->SUPER::new(@args);
-    
+
     # open files in order
     $self->{'_dbs'} = {};
     $self->_load_registry();
@@ -87,20 +97,37 @@ sub _load_registry {
 
     my $home = (getpwuid($>))[7];
     my $f;
-    if( -e "$home/.bioinformatics/seqdatabase.ini" ) {
+
+    if( $BIOINFORMATICS ) {
+        open(F,"$BIOINFORMATICS/seqdatabase.ini");
+        $f = \*F;
+    } elsif( -e "$home/.bioinformatics/seqdatabase.ini" ) {
 	open(F,"$home/.bioinformatics/seqdatabase.ini");
 	$f = \*F;
     } elsif ( -e "/etc/bioinformatics/seqdatabase.ini" ) {
-	open(F,"$home/.bioinformatics/seqdatabase.ini");
+	open(F,"/etc/bioinformatics/seqdatabase.ini");
 	$f = \*F;
     } else {
 	# waiting for information
-	$self->warn("No conf file found in ~/.bioinformatics/ \nor in /etc/.bioinformatics/ using web to get database registry from \n$fallbackRegistryURL\n");
+	$self->warn("No conf file found in ~/.bioinformatics/ \nor in /etc/.bioinformatics/.\n".
+                    "Using web to get database registry from \n$fallbackRegistryURL");
 
 	# Last gasp. Try to use HTTPget module to retrieve the registry from
         # the web...
 
 	$f = Bio::Root::HTTPget::getFH($fallbackRegistryURL);
+
+        # store the default registry file
+        mkdir "$home/.bioinformatics" unless -e "$home/.bioinformatics";
+	open(F,">$home/.bioinformatics/seqdatabase.ini");
+        print F while (<$f>);
+        close F;
+
+	$self->warn("Stored the default registry configuration into:\n".
+                    "  $home/.bioinformatics/seqdatabase.ini");
+
+	open(F,"$home/.bioinformatics/seqdatabase.ini");
+	$f = \*F;
 
     }
 
@@ -125,7 +152,7 @@ sub _load_registry {
 		$tag =~ s/\s//g;
 		$hash->{$tag} = $value;
 	    }
-	    
+
 	    if( !exists $self->{'_dbs'}->{$db} ) {
 		my $failover = Bio::DB::Failover->new();
 		$self->{'_dbs'}->{$db}=$failover;
@@ -139,12 +166,12 @@ sub _load_registry {
 		next;
 	    }
 	    eval "require $class";
-	    
+
 	    if ($@) {
 		$self->verbose && $self->warn("Couldn't load $class");
 		next;
 	    }
-	    
+
 	    else {
 		eval {
 		    my $randi = $class->new_from_registry(%$hash);
