@@ -1,3 +1,6 @@
+package Bio::DB::GFF;
+$Id$
+
 =head1 NAME
 
 Bio::DB::GFF -- Storage and retrieval of sequence annotation data
@@ -202,8 +205,8 @@ It is not necessary for the annotation's method to correspond to the
 object class, although this is commonly the case.
 
 As explained above, each annotation in a GFF file refers to a
-reference sequence.  It is important that each reference sequence be
-identified by a line in the GFF file.  This allows the Bio::DB::GFF
+reference sequence.  It is important that each reference sequence also
+be identified by a line in the GFF file.  This allows the Bio::DB::GFF
 module to determine the length and class of the reference sequence,
 and makes it possible to do relative arithmetic.
 
@@ -223,6 +226,19 @@ form of the segment() method:
 
  $segment = $db->segment('Chr1');          # whole chromosome
  $segment = $db->segment('Chr1',1=>1000);  # first 1000 bp
+
+For your convenience, if, during loading a GFF file, Bio::DB::GFF
+encounters a line like the following:
+
+  ##sequence-region Chr1 1 14972282
+
+It will automatically generate the following entry:
+
+ Chr1 reference Component 1 14972282 . + . Sequence Chr1
+
+This is sufficient to use Chr1 as a reference point.
+The ##sequence-region line is frequently found in the GFF files
+distributed by annotation groups.
 
 =head2 Sequence alignments
 
@@ -339,8 +355,6 @@ will return a list of unaggregated similarity segments.
 The following is the API for Bio::DB::GFF.
 
 =cut
-
-package Bio::DB::GFF;
 
 use strict;
 
