@@ -106,6 +106,29 @@ sub new {
     return $self;
 }
 
+=head2 each_Location
+
+ Title   : each_Location
+ Usage   : @locations = $locObject->each_Location($order);
+ Function: Conserved function call across Location:: modules - will
+           return an array containing the component Location(s) in
+           that object, regardless if the calling object is itself a
+           single location or one containing sublocations.
+ Returns : an array of Bio::LocationI implementing objects
+ Args    : Optional sort order to be passed to sub_Location()
+
+=cut
+
+sub each_Location {
+    my ($self, $order) = @_;
+    my @locs = ();
+    foreach my $subloc ($self->sub_Location($order)) {
+	# Recursively check to get hierarchical split locations:
+	push @locs, $subloc->each_Location($order);
+    }
+    return @locs;
+}
+
 =head2 sub_Location
 
  Title   : sub_Location
