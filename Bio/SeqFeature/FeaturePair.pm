@@ -127,7 +127,7 @@ sub new {
 sub feature1 {
     my ($self,$arg) = @_;    
     if ( defined($arg) || !defined $self->{'feature1'} ) {
-	$arg = new Bio::SeqFeature::Generic unless( defined $arg);
+	$arg = new Bio::SeqFeature::Generic() unless( defined $arg);
 	$self->throw("Argument [$arg] must be a Bio::SeqFeatureI") 
 	    unless (ref($arg) && $arg->isa("Bio::SeqFeatureI"));
 	$self->{'feature1'} = $arg;
@@ -166,7 +166,7 @@ sub feature2 {
            $featpair->start(20)
  Function: Get/set on the start coordinate of feature1
  Returns : integer
- Args    : none
+ Args    : [optional] beginning of feature
 
 =cut
 
@@ -182,7 +182,7 @@ sub start {
            $featpair->end($end)
  Function: get/set on the end coordinate of feature1
  Returns : integer
- Args    : none
+ Args    : [optional] ending point of feature
 
 
 =cut
@@ -199,7 +199,7 @@ sub end{
            $feat->strand($strand)
  Function: get/set on strand information, being 1,-1 or 0
  Returns : -1,1 or 0
- Args    : none
+ Args    : [optional] strand information to set
 
 
 =cut
@@ -207,6 +207,22 @@ sub end{
 sub strand{
     my ($self,$arg) = @_;
     return $self->feature1->strand($arg);    
+}
+
+=head2 location
+
+ Title   : location
+ Usage   : $location = $featpair->location
+           $featpair->location($location)
+ Function: Get/set location object (using feature1)
+ Returns : Bio::LocationI object
+ Args    : [optional] LocationI to store
+
+=cut
+
+sub location {
+    my ($self,$value) = @_;    
+    return $self->feature1->location($value);
 }
 
 =head2 score
