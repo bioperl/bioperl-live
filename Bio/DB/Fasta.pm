@@ -461,6 +461,10 @@ sub new {
   my ($offsets,$dirname);
 
   if (-d $path) {
+    # because Win32 glob() is broken with respect to long file names
+    # that contain whitespace.
+    $path = Win32::GetShortPathName($path)
+      if $^O =~ /^MSWin/i && eval 'use Win32; 1';
     $offsets = $self->index_dir($path,$opts{-reindex});
     $dirname = $path;
   } elsif (-f _) {
