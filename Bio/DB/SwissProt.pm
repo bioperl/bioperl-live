@@ -22,18 +22,27 @@ Bio::DB::SwissProt - Database object interface to SwissProt retrieval
 
     $sp = new Bio::DB::SwissProt;
 
-    $seq = $sp->get_Seq_by_id('P43780'); # SwissProtID
+    $seq = $sp->get_Seq_by_id('KPY1_ECOLI'); # SwissProt ID
+    # <4-letter-identifier>_<species 5-letter code>
     # or ...
-    $seq = $sp->get_Seq_by_acc('P43780'); # SwissProtID
-    # can only query on SwissProtID at expasy right now
+    $seq = $sp->get_Seq_by_acc('P43780'); # SwissProt AC      
+    # [OPQ]xxxxx
+
+
+    # In fact in this implementation 
+    # these methods call the same webscript so you can use 
+    # then interchangeably
 
     # choose a different server to query
     $sp = new Bio::DB::SwissProt('-hostlocation' => 'canada');
 
-    $seq = $sp->get_Seq_by_id('P43780'); # SwissProtID
-
+    $seq = $sp->get_Seq_by_id('BOLA_HAEIN'); # SwissProtID
+    
 
 =head1 DESCRIPTION
+
+SwissProt is a curated database of proteins managed by the Swiss
+Bioinformatics Institute.  This is in contrast to EMBL/GenBank/DDBJ which are archives of protein information.  Additional tools for parsing and manipulating swissprot files can be found at ftp://ftp.ebi.ac.uk/pub/software/swissprot/Swissknife/.
 
 Allows the dynamic retrieval of Sequence objects (Bio::Seq) from the SwissProt
 database via an expasy retrieval.  Perhaps through SRS later.
@@ -44,15 +53,13 @@ allows the user to pick the closest expasy mirror for running their
 queries.
 
 
-
 =head1 FEEDBACK
 
 =head2 Mailing Lists
 
-User feedback is an integral part of the evolution of this
-and other Bioperl modules. Send your comments and suggestions preferably
- to one of the Bioperl mailing lists.
-Your participation is much appreciated.
+User feedback is an integral part of the evolution of this and other
+Bioperl modules. Send your comments and suggestions preferably to one
+of the Bioperl mailing lists.  Your participation is much appreciated.
 
 
   bioperl-l@bioperl.org                         - General discussion
@@ -61,19 +68,24 @@ Your participation is much appreciated.
 =head2 Reporting Bugs
 
 Report bugs to the Bioperl bug tracking system to help us keep track
- the bugs and their resolution.
- Bug reports can be submitted via email or the web:
+the bugs and their resolution.  Bug reports can be submitted via email
+or the web:
 
   bioperl-bugs@bio.perl.org
   http://bio.perl.org/bioperl-bugs/
 
 =head1 AUTHOR - Jason Stajich
 
-Email Jason Stajich E<lt>jason@chg.mc.duke.eduE<gt> 
+Email Jason Stajich <jason@chg.mc.duke.edu>
 
+Thanks go to Alexandre Gattiker <gattiker@isb-sib.ch> of Swiss
+Institute of Bioinformatics for helping point us in the direction of
+the correct expasy scripts and for swissknife references.
+  
 =head1 APPENDIX
 
-The rest of the documentation details each of the object methods. Internal methods are usually preceded with a _
+The rest of the documentation details each of the object
+methods. Internal methods are usually preceded with a _
 
 =cut
 
@@ -81,10 +93,10 @@ The rest of the documentation details each of the object methods. Internal metho
 
 package Bio::DB::SwissProt;
 use strict;
-use vars qw(@ISA $MODVERSION %HOSTS $DEFAULTFORMAT $DEFAULTLOCATION
+use vars qw(@ISA $MODVERSION %HOSTS $DEFAULTFORMAT $DEFAULTLOCATION 
 	    $DEFAULTSERVERTYPE);
 
-$MODVERSION = '0.8';
+$MODVERSION = '0.7.1';
 use HTTP::Request::Common;
 use Bio::DB::WebDBSeqI;
 
@@ -92,18 +104,19 @@ use Bio::DB::WebDBSeqI;
 
 # global vars
 $DEFAULTSERVERTYPE = 'expasy';
-$DEFAULTFORMAT = 'swiss';
+$DEFAULTFORMAT = 'sprot';
 $DEFAULTLOCATION = 'switzerland';
 # you can add your own here theoretically.
-%HOSTS = (
-	   'expasy' => {
-	       baseurl => 'http://%s/cgi-bin/get-sprot-raw.pl?',
-	       hosts   =>
-	       { 'switzerland'  => 'www.expasy.ch',
-		 'canada' => 'expasy.cbr.nrc.ca',
-		 'china'  => 'expasy.pku.edu.cn',
-		 'taiwan' => 'expasy.nhri.org.tw',
-		 'australia' => 'expasy.proteome.org.au',
+%HOSTS = ( 
+	   'expasy' => { 
+	       baseurl => 'http://%s/cgi-bin/sprot-retrieve-list.pl',
+	       hosts   => 
+	       { 'switzerland'  => 'ch.expasy.org',
+		 'canada' => 'ca.expasy.org',
+		 'china'  => 'cn.expasy.org',
+		 'taiwan' => 'tw.expasy.org',
+		 'australia' => 'au.expasy.org',
+		 'korea'  => 'kr.expasy.org'
 	     }
 	   });
 
@@ -114,17 +127,18 @@ sub new {
     my ($class, @args) = @_;
     my $self = $class->SUPER::new(@args);
 
-    my ($format, $hostlocation,$servertype) =
-	$self->_rearrange([qw(fFORMAT HOSTLOCATION SERVERTYPE)],
-			  @args);
+    my ($format, $hostlocation,$servertype) = 
+	$self->_rearrange([qw(FORMAT HOSTLOCATION SERVERTYPE)],
+			  @args);    
 
-    if( $format && $format !~ /swiss/i ) {
-	$self->warn("Requested Format $format is ignored because only SwissProt format is currently supported");
-    }
+    if( $format && $format !~ /(swiss)|(fasta)/i ) {
+	$self->warn("Requested Format $format is ignored because only SwissProt and Fasta formats are currently supported");
+	$format = $self->default_format;
+    } 
     $servertype = $DEFAULTSERVERTYPE unless $servertype;
-    $hostlocation = $DEFAULTLOCATION unless( $hostlocation );
+    $hostlocation = $DEFAULTLOCATION unless( $hostlocation );    
 
-    $self->request_format($self->default_format); # let's always override the format, as it must be swiss from this location
+    $self->request_format($format); # let's always override the format, as it must be swiss from this location
 
     $hostlocation = lc $hostlocation;
     $servertype = lc $servertype;
@@ -133,14 +147,14 @@ sub new {
     return $self;
 }
 
-=head1 Routines from Bio::DB::WebDBSeqI
+=head2 Routines fro Bio::DB::WebDBSeqI
 
 =head2 get_request
 
  Title   : get_request
  Usage   : my $url = $self->get_request
  Function: returns a HTTP::Request object
- Returns :
+ Returns : 
  Args    : %qualifiers = a hash of qualifiers (ids, format, etc)
 
 =cut
@@ -154,18 +168,18 @@ sub get_request {
 	$self->throw("Must specify a value for uids to query");
     }
     $self->request_format($format) if( defined $format );
-
-    my $url = $self->location_url();
+    
+    my %vars = ( 'format' => $format );
+    my $url = $self->location_url;
     my $uid;
-    if( ref($uids) =~ /ARRAY/i ) {
-	$uid = $uids->[0];
-	if(scalar(@$uids) > 1) {
-	    $self->warn("Currently can only process 1 SwissProt request at a time -- only processing $uid");
-	}
+    if( ref($uids) =~ /ARRAY/i ) {	
+	# HTTP::Request automagically converts the ' ' to %20
+	$uid = join(' ', @$uids);
     } else {
 	$uid = $uids;
     }
-    return GET $url . $uid;
+    $vars{'list'} = $uid;
+    return POST $url, \%vars;
 }
 
 =head2 postprocess_data
@@ -176,15 +190,15 @@ sub get_request {
  Function: process downloaded data before loading into a Bio::SeqIO
  Returns : void
  Args    : hash with two keys - 'type' can be 'string' or 'file'
-                              - 'location' either file location or string
+                              - 'location' either file location or string 
                                            reference containing data
 
 =cut
 
-# don't need to do anything
+# don't need to do anything 
 
 sub postprocess_data {
-    my ($self, %args) = @_;
+    my ($self, %args) = @_;    
     return;
 }
 
@@ -202,8 +216,8 @@ sub default_format {
     return $DEFAULTFORMAT;
 }
 
-=head1 Bio::DB::SwissProt specific routines
-
+=head2 Bio::DB::SwissProt specific routines
+ 
 =head2 servertype
 
  Title   : servertype
@@ -219,7 +233,7 @@ sub servertype {
     my ($self, $servertype) = @_;
     if( defined $servertype && $servertype ne '') {		
 	$self->throw("You gave an invalid server type ($servertype)".
-			 " - available types are ".
+			 " - available types are ".  
 			 keys %HOSTS) unless( $HOSTS{$servertype} );
 	$self->{'_servertype'} = $servertype;
     }
@@ -228,28 +242,28 @@ sub servertype {
 
 
 =head2 hostlocation
-
+    
  Title   : hostlocation
- Usage   : my $location = $self->hostlocation()
-          $self->hostlocation($location)
- Function: Set/Get Hostlocation
+ Usage   : my $location = $self->hostlocation() 
+          $self->hostlocation($location) 
+ Function: Set/Get Hostlocation 
  Returns : string representing hostlocation
  Args    : string specifying hostlocation [optional]
-
-=cut
-
+    
+=cut    
+    
 sub hostlocation {
     my ($self, $location ) = @_;
     $location = lc $location;
     my $servertype = $self->servertype;
     $self->throw("Must have a valid servertype defined not $servertype")
-	unless defined $servertype;
+	unless defined $servertype; 
     my %hosts = %{$HOSTS{$servertype}->{'hosts'}};
     if( defined $location && $location ne '' ) {
 	if( ! $hosts{$location} ) {
 	    $self->throw("Must specify a known host, not $location,".
 			 " possible values (".
-			 join(",", sort keys %hosts ). ")");
+			 join(",", sort keys %hosts ). ")"); 
 	}
 	$self->{'_hostlocation'} = $location;
     }
@@ -267,16 +281,42 @@ sub hostlocation {
 =cut
 
 sub location_url {
-    my ($self) = @_;
+    my ($self) = @_;    
     my $servertype = $self->servertype();
     my $location = $self->hostlocation();
 
     if( ! defined $location || !defined $servertype )  {	
 	$self->throw("must have a valid hostlocation and servertype set before calling location_url");
     }
-    return sprintf($HOSTS{$servertype}->{'baseurl'},
+    return sprintf($HOSTS{$servertype}->{'baseurl'}, 
 		   $HOSTS{$servertype}->{'hosts'}->{$location});
-}		
+}		   
+
+=head2 request_format
+
+ Title   : request_format
+ Usage   : my ($req_format, $ioformat) = $self->request_format;
+           $self->request_format("genbank");
+           $self->request_format("fasta");
+ Function: Get/Set sequence format retrieval. The get-form will normally not
+           be used outside of this and derived modules.
+ Returns : Array of two strings, the first representing the format for
+           retrieval, and the second specifying the corresponding SeqIO format.
+ Args    : $format = sequence format
+
+=cut
+
+sub request_format {
+    my ($self, $value) = @_;
+    if( defined $value ) {
+	if( $value =~ /sprot/ || $value =~ /swiss/ ) {
+	    $self->{'_format'} = [ 'sprot', 'swiss'];	    
+	} else {
+	    $self->{'_format'} = [ $value, $value];
+	}
+    }
+    return @{$self->{'_format'}};
+}
 
 1;
 __END__

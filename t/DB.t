@@ -22,7 +22,7 @@ BEGIN {
     }
     use Test;
 
-    $NUMTESTS = 33;
+    $NUMTESTS = 37;
     plan tests => $NUMTESTS;
     eval { require 'IO/String.pm' };
     if( $@ ) {
@@ -106,14 +106,18 @@ $seq  = $seqio = undef;
 
 eval { 
     ok defined($gb = new Bio::DB::SwissProt('-verbose'=>$verbose)); 
+    ok(defined($seq = $gb->get_Seq_by_id('YNB3_YEAST')));
+    ok( $seq->length, 125);
     ok(defined($seq = $gb->get_Seq_by_acc('P43780')));
     ok( $seq->length, 103); 
     ok( defined($gb = new Bio::DB::SwissProt('-verbose'=>$verbose, 
 					     '-retrievaltype' => 'tempfile')));
-    ok(defined($seqio = $gb->get_Stream_by_id(['KPY1_ECOLI'])));
+    ok(defined($seqio = $gb->get_Stream_by_id(['KPY1_ECOLI', 'KPY1_HUMAN'])));
     undef $gb; # testing to see if we can remove gb
     ok( defined($seq = $seqio->next_seq()));
     ok( $seq->length, 470);
+    ok( defined($seq = $seqio->next_seq()));
+    ok( $seq->length, 530);
 };
 
 if ($@) {
