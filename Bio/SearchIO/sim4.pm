@@ -164,7 +164,7 @@ sub next_result {
     # Start document and main element
     $self->start_document();
     $self->start_element({'Name' => 'Sim4Output'});
-
+    my $lastquery = '';
     # Read output report until EOF
     while( defined($_ = $self->_readline) ) {       
         # Skip empty lines, chomp filled ones
@@ -179,14 +179,19 @@ sub next_result {
 
         # This line indicates the start of a new hit
 	if( /^seq1\s*=\s*(\S+),\s+(\d+)/ ) {
+	    my ($nm,$desc) = ($1,$2);
             # First hit? Adjust some parameters if so
-	    if ( !$seentop ) {
+	    if ( ! $seentop ) {
 	        $self->element( {'Name' => 'Sim4Output_query-def', 
-				 'Data' => $1} );
+				 'Data' => $nm} );
 	        $self->element( {'Name' => 'Sim4Output_query-len', 
-				 'Data' => $2} );
+				 'Data' => $desc} );
                 $seentop = 1;
+	    } elsif( $nm ne $lastquery ) {
+		$self->_pushback($_);
+		last;
 	    }
+	    $lastquery = $nm;
             # A previous HSP may need to be ended
             $self->end_element({'Name' => 'Hsp'}) if ( $self->in_element('hsp') );
             # A previous hit exists? End it and reset needed variables
