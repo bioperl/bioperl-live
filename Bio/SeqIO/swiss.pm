@@ -392,8 +392,16 @@ sub write_seq {
    if( $self->_id_generation_func ) {
        $temp_line = &{$self->_id_generation_func}($seq);
    } else {
+       #$temp_line = sprintf ("%10s     STANDARD;      %3s;   %d AA.",
+       #		     $seq->primary_id()."_".$div,$mol,$len);
+       # Reconstructing the ID relies heavily upon the input source having
+       # been in a format that is parsed as this routine expects it -- that is,
+       # by this module itself. This is bad, I think, and immediately breaks
+       # if e.g. the Bio::DB::GenPept module is used as input.
+       # Hence, switch to display_id(); _every_ sequence is supposed to have
+       # this. HL 2000/09/03
        $temp_line = sprintf ("%10s     STANDARD;      %3s;   %d AA.",
-			     $seq->primary_id()."_".$div,$mol,$len);
+			     $seq->display_id(), $mol, $len);
    } 
 
    $self->_print( "ID   $temp_line\n");   
