@@ -22,9 +22,11 @@ Bio::DB::Registry - Access to the Open Bio Database Access registry scheme
 
 =head1 DESCRIPTION
 
-This module provides access to the Open Bio Database Access scheme,
-which provides a cross language and cross platform specification of how
-to get to databases.
+This module provides access to the Open Bio Database Access (OBDA)
+scheme, which provides a single cross-language and cross-platform 
+specification of how to get to databases. These databases may be 
+accessible through the Web, they may be BioSQL databases, or
+they may be local, indexed flatfile databases.
 
 If the user or system administrator has not installed the default init 
 file, seqdatabase.ini, in /etc/bioinformatics or ${HOME}/.bioinformatics 
@@ -35,6 +37,9 @@ ${HOME}/.bioinformatics/seqdatabase.ini.
 Users can specify one or more custom locations for the init file by 
 setting $OBDA_SEARCH_PATH to those directories, where multiple 
 directories should be separated by ';'.
+
+Please see the OBDA Access HOWTO for more information
+(http://bioperl.org/HOWTOs).
 
 =head1 CONTACT
 
@@ -77,131 +82,110 @@ BEGIN {
     }
 }
 
-my %implement = (
-		 'biocorba'         => 'Bio::CorbaClient::SeqDB',
+my %implement = ('biocorba'         => 'Bio::CorbaClient::SeqDB',
 		 'flat'             => 'Bio::DB::Flat',
 		 'biosql'           => 'Bio::DB::BioSQL::BioDatabaseAdaptor',
-		 'biofetch'         => 'Bio::DB::BioFetch'
-		 );
+		 'biofetch'         => 'Bio::DB::BioFetch' );
 
 my $fallbackRegistryURL = 'http://www.open-bio.org/registry/seqdatabase.ini';
 
 sub new {
     my ($class,@args) = shift;
     my $self = $class->SUPER::new(@args);
-
     # open files in order
     $self->{'_dbs'} = {};
     $self->_load_registry();
     return $self;
 }
 
+=head2 _load_registry
+
+ Title   : _load_registry
+ Usage   :
+ Function: Looks for seqdatabase.ini files in the expected locations and
+           in the directories specified by $OBDA_SEARCH_PATH. If no files
+           are found it downloads a default file from www.open-bio.org
+ Returns : nothing
+ Args    : none
+
+=cut
 
 sub _load_registry {
-    my ($self) = @_;
-    my $home = "";
-    defined $ENV{"HOME"} ? $home = $ENV{"HOME"} 
-      : $home = (getpwuid($>))[7]; # ActiveState has no getpwuid()
+   my ($self) = @_;
+   my $home = "";
+   defined $ENV{"HOME"} ? $home = $ENV{"HOME"} 
+     : $home = (getpwuid($>))[7]; # ActiveState has no getpwuid()
+   my @ini_files = _get_ini_files($home);
 
-    my $f;
+   unless (@ini_files) {
+      $self->warn("No seqdatabase.ini file found in ~/.bioinformatics/\nnor in /etc/bioinformatics/ nor in directory specified by\n$OBDA_SEARCH_PATH. Using web to get database registry from\n$fallbackRegistryURL");
 
-    if ( $OBDA_SEARCH_PATH ) {
-        foreach ( split /;/,$OBDA_SEARCH_PATH ) {
-            next unless -e $_;
-            open(F,"$OBDA_SEARCH_PATH/seqdatabase.ini");
-            $f = \*F;
-            last;
-        }
-    }
-    elsif( -e "$home/.bioinformatics/seqdatabase.ini" ) {
-	open(F,"$home/.bioinformatics/seqdatabase.ini");
-	$f = \*F;
-    } elsif ( -e "/etc/bioinformatics/seqdatabase.ini" ) {
-	open(F,"/etc/bioinformatics/seqdatabase.ini");
-	$f = \*F;
-    } else {
-	# waiting for information
-	$self->warn("No seqdatabase.ini file found in ~/.bioinformatics/ \nor in /etc/bioinformatics/.\nor in directory specified by $OBDA_SEARCH_PATH".
-                    "Using web to get database registry from \n$fallbackRegistryURL");
+      # Last gasp. Try to use HTTPget module to retrieve the registry from
+      # the web...
+      my $f = Bio::Root::HTTPget::getFH($fallbackRegistryURL);
 
-	# Last gasp. Try to use HTTPget module to retrieve the registry from
-        # the web...
+      # store the default registry file
+      mkdir "$home/.bioinformatics" unless -e "$home/.bioinformatics";
+      open(F,">$home/.bioinformatics/seqdatabase.ini");
+      print F while (<$f>);
+      close F;
 
-	$f = Bio::Root::HTTPget::getFH($fallbackRegistryURL);
+      $self->warn("Stored the default registry configuration in\n" .
+		  "$home/.bioinformatics/seqdatabase.ini");
 
-        # store the default registry file
-        mkdir "$home/.bioinformatics" unless -e "$home/.bioinformatics";
-	open(F,">$home/.bioinformatics/seqdatabase.ini");
-        print F while (<$f>);
-        close F;
+      push @ini_files,"$home/.bioinformatics/seqdatabase.ini";
+   }
 
-	$self->warn("Stored the default registry configuration into:\n".
-                    "  $home/.bioinformatics/seqdatabase.ini");
-
-	open(F,"$home/.bioinformatics/seqdatabase.ini");
-	$f = \*F;
-
-    }
-
-    while( <$f> ) {
-	/^VERSION=([\d\.]+)/;
-        $self->throw("Do not know about this version [$1] > $OBDA_SPEC_VERSION")
-            if $1 > $OBDA_SPEC_VERSION or !$1;
-        last;
-    }
-
-    while( <$f> ) {
-      if( /^#/ ) {
-	  next;
-       }
-	if( /^\s/ ) {
-	  next;
-	}
-
-      if( /\[(\w+)\]/ )  {
-	my $db = $1;
-	my $hash = {};
-	while( <$f> ) {
-	  chomp();
-	  /^#/ && next;
-	    /^$/ && last;
-	  my ($tag,$value) = split('=',$_);
-	  $value =~ s/\s//g;
-	  $tag =~ s/\s//g;
-	  $hash->{"\L$tag"} = lc $value;
-	}
-
-	if( !exists $self->{'_dbs'}->{$db} ) {
-	  my $failover = Bio::DB::Failover->new();
-	  $self->{'_dbs'}->{$db}=$failover;
-	}
-	my $class;
-	if (defined $implement{$hash->{'protocol'}}) {
-	  $class = $implement{$hash->{'protocol'}};
-	}
-	else {
-	  $self->warn("Registry does not support protocol ".$hash->{'protocol'});
-	  next;
-	}
-	eval "require $class";
-
-	if ($@) {
-	  $self->verbose && $self->warn("Couldn't load $class");
-	  next;
-	}
-
-	else {
-	  eval {
-	    my $randi = $class->new_from_registry(%$hash);
-	    $self->{'_dbs'}->{$db}->add_database($randi); };
-	  if ($@) {
-	    $self->warn("Couldn't call new_from_registry on [$class]\n$@");
-	  }
-	}
-	next; # back to main loop
+   my ($db,$hash) = ();
+   foreach my $file (@ini_files) {
+      open FH,"$file";
+      while( <FH> ) {
+	 if (/^VERSION=([\d\.]+)/) {
+	    if ($1 > $OBDA_SPEC_VERSION or !$1) {
+	       $self->throw("Do not know about this version [$1] > $OBDA_SPEC_VERSION");
+	       last;
+	    }
+	    next;
+         }
+	 next if( /^#/ );
+	 next if( /^\s/ );
+	 if ( /^\[(\w+)\]/ ) {
+	    $db = $1;
+	    next;
+	 }
+	 my ($tag,$value) = split('=',$_);
+	 $value =~ s/\s//g;
+	 $tag =~ s/\s//g;
+	 $hash->{$db}->{"\L$tag"} = lc $value;
       }
-      $self->warn("Uninterpretable line in registry, $_");
-    }
+   }
+
+   foreach my $db( keys %{$hash} ) {
+      if ( !exists $self->{'_dbs'}->{$db} ) {
+	 my $failover = Bio::DB::Failover->new();
+	 $self->{'_dbs'}->{$db} = $failover;
+      }
+      my $class;
+      if (defined $implement{$hash->{$db}->{'protocol'}}) {
+	 $class = $implement{$hash->{$db}->{'protocol'}};
+      } else {
+	 $self->warn("Registry does not support protocol " .
+		     $hash->{$db}->{'protocol'});
+	 next;
+      }
+      eval "require $class";
+      if ($@) {
+	 $self->verbose && $self->warn("Couldn't load $class");
+	 next;
+      } else {
+	 eval {
+	    my $randi = $class->new_from_registry( %{$hash->{$db}} );
+	    $self->{'_dbs'}->{$db}->add_database($randi); };
+	 if ($@) {
+	    $self->warn("Couldn't call new_from_registry on [$class]\n$@");
+	 }
+      }
+   }
 }
 
 =head2 get_database
@@ -223,7 +207,7 @@ sub get_database {
 	return undef;
     }
     if( !exists $self->{'_dbs'}->{$dbname} ) {
-	$self->warn("No database in with $dbname in registry");
+	$self->warn("No database with name $dbname in Registry");
 	return undef;
     }
     return $self->{'_dbs'}->{$dbname};
@@ -233,20 +217,46 @@ sub get_database {
 
  Title   : services
  Usage   : my @available = $registry->services();
- Function: returns list of possible services 
+ Function: returns list of possible services
  Returns : list of strings
  Args    : none
 
-
 =cut
 
-sub services{ 
+sub services {
     my ($self) = @_;
     return () unless ( defined $self->{'_dbs'} &&
 		       ref( $self->{'_dbs'} ) =~ /HASH/i);
     return keys %{$self->{'_dbs'}};
 }
 
+=head2 _get_ini_files
+
+ Title   : _get_ini_files
+ Usage   :
+ Function: To find all the seqdatabase.ini files
+ Returns : list of seqdatabase.ini paths
+ Args    : $home
+
+=cut
+
+sub _get_ini_files {
+   my $home = shift;
+   my @ini_files = ();
+   my $file = "";
+   if ( $OBDA_SEARCH_PATH ) {
+      foreach my $dir ( split /;/,$OBDA_SEARCH_PATH ) {
+	 $file = $dir . "/" . "seqdatabase.ini";
+	 next unless -e $file;
+	 push @ini_files,$file;
+      }
+   }
+   push @ini_files,"$home/.bioinformatics/seqdatabase.ini" 
+     if ( -e "$home/.bioinformatics/seqdatabase.ini" );
+   push @ini_files,"/etc/bioinformatics/seqdatabase.ini"
+     if ( -e "/etc/bioinformatics/seqdatabase.ini" );
+   @ini_files;
+}
 
 ## End of Package
 
