@@ -82,9 +82,11 @@ if (1) {
     printf "PROCESSED/TOP:%d\n", scalar(@sfs);
     ok(@sfs == 1);
     my @exons = grep {$_->primary_tag eq 'exon'} $seq->get_all_SeqFeatures;
-    ok(@exons == 10);
-    my @numbers = map {$_->get_tag_values("number")} @exons;
-    ok(@numbers == 10);
+    ok(@exons == 10);    # total number of exons per splice
+    my %numberh = map {$_->get_tag_values("number") => 1} @exons;
+    my @numbers = keys %numberh;
+    printf "DISTINCT EXONS: %d [@numbers]\n", scalar(@numbers);
+    ok(@numbers == 6);  # distinct exons
 }
 
 
@@ -102,6 +104,9 @@ sub _write_hier {
         }
         if ($sf->has_tag('product')) {
             ($label) = $sf->get_tag_values('product');
+        }
+        if ($sf->has_tag('number')) {
+            $label = join("; ", $sf->get_tag_values('number'));
         }
         printf "%s%s $label\n", '  ' x $indent, $sf->primary_tag;
         my @sub_sfs = $sf->sub_SeqFeature;

@@ -164,11 +164,11 @@ If you are skeptical of magic, or you wish to exact fine grained
 control over how the entry is unflattened, or you simply wish to
 understand more about how this crazy stuff works, then read on!
 
-=head1 PROBLEMS
+=head1 PROBLEMATIC DATA AND INCONSISTENCIES
 
 Occasionally the Unflattener will have problems with certain
 records. For example, the record may contain inconsistent data - maybe
-there is an B<exon> entry that has no corresponding B<mRNA> location.
+there is an B<exon> entry that has no corresponding B<mRNA> location. 
 
 The default behaviour is to throw an exception reporting the problem,
 if the problem is relatively serious - for example, inconsistent data.
@@ -1375,8 +1375,12 @@ sub unflatten_seq{
 
    # INFERRING exons
    if ($need_to_infer_exons) {
-       # infer exons
-       $self->feature_from_splitloc(-seq=>$seq);
+
+       # infer exons, one group/gene at a time
+       foreach my $sf (@top_sfs) {
+	   my @sub_sfs = ($sf, $sf->get_all_SeqFeatures);
+	   $self->feature_from_splitloc(-features=>\@sub_sfs);
+       }
 
        # some exons are stated explicitly; ie there is an "exon" feature
        # most exons are inferred; ie there is a "mRNA" feature with
@@ -1401,7 +1405,7 @@ sub unflatten_seq{
 
 	   my %exon_h = (); 	   # index of exons by location;
 
-	   # there can be >1 exon at a location; we represent these redundantly
+	   # there CAN be >1 exon at a location; we can represent these redundantly
 	   # (ie as a tree, not a graph)
 	   push(@{$exon_h{$self->_locstr($_)}}, $_) foreach @exons;
 	   my @problems = ();      # list of problems;
@@ -1415,7 +1419,13 @@ sub unflatten_seq{
 	       my $inferred_exons = $exon_h{$locstr};
 	       delete $exon_h{$locstr};
 	       if ($inferred_exons) {
+		   my %exons_done = ();
 		   foreach my $exon (@$inferred_exons) {
+
+		       # make sure we don't move stuff twice
+		       next if $exons_done{$exon};
+		       $exons_done{$exon} = 1;
+
 		       # we need to tranfer any tag-values from the explicit
 		       # exon to the implicit exon
 		       foreach my $tag ($removed_exon->get_all_tags) {
@@ -1474,6 +1484,16 @@ sub unflatten_seq{
 #   return @top_sfs;
    return $seq->get_SeqFeatures;
 }
+
+# _split_group_if_disconnected([@sfs])
+#
+# as well as having the same group_tag, a group should be spatially
+# connected. if not, then the group should be split into subgroups.
+# this turns out to be necessary in the case of multicopy genes.
+# the standard way to represent these is as spatially disconnected
+# gene models (usually a 'gene' feature and some kind of RNA feature)
+# with the same group tag; the code below will split these into 
+# seperate groups, one per copy.
 
 sub _split_group_if_disconnected {
     my $self = shift;
@@ -1672,9 +1692,15 @@ sub unflatten_group{
 
    my $partonomy = $self->partonomy;
 
+   # RESOLVER METHOD
+   #   a subroutine for connecting the correct parents and children
+   # the resolver method returns a child feature
+   #
    # use default function for resolving, unless one passed in
    $resolver_method = $resolver_method || \&_resolve_container_for_sf;
 
+   # if the user specifies a 'resolver_tag' (e.g. /derives_from) then
+   # make a resolver_method based around this tag
    if ($resolver_tag) {
        my $backup_resolver_method = $resolver_method;
        # closure: $resolver_tag is remembered by this sub
@@ -1684,6 +1710,9 @@ sub unflatten_group{
 	     my @container_sfs = ();
 	     if ($sf->has_tag($resolver_tag)) {
 		 my ($resolver_tagval) = $sf->get_tag_values($resolver_tag);
+		 # if a feature has a resolver_tag (e.g. /derives_from)
+		 # this specifies the /product, /symbol or /label for the
+		 # parent feature
 		 @container_sfs = 
 		   grep {
 		       my $match = 0;
@@ -1729,6 +1758,7 @@ sub unflatten_group{
        push(@{$sfs_by_type{$sf->primary_tag}}, $sf);
    }
 
+   my %container = ();   # containment index; keyed by child; lookup parent
 
    # ALGORITHM: build containment graph
    #
@@ -1740,111 +1770,100 @@ sub unflatten_group{
    #
    # contention is resolved by checking coordinates of splice sites
    # (this is the default, but can be overridden)
+   #
+   # most of the time, there is no problem identifying a unique
+   # parent for every child; this can be ambiguous when constructing
+   # CDS to mRNA relationships with lots of alternate splicing
+   #
+   # a hash of child->parent relationships is constructed (%container)
+   # any mappings that need further resolution (eg CDS to mRNA) are
+   # placed in %unresolved
 
-   my @containment_pairs = ();    # child, parent pairs
-                                  # 3rd element is score
-   my %idxsf = map {$sfs[$_]=>$_} (0..$#sfs);
-   my @roots = ();
-   for (my $i=0; $i<@sfs; $i++) {
-       my $sf = $sfs[$i];
+   my %unresolved = ();    # child->[parent,score] to be resolved
+
+   my %idxsf = map {$_=>$_} @sfs;
+
+   foreach my $sf (@sfs) {
        my $type = $sf->primary_tag;
        my $container_type = 
          $self->get_container_type($type);
        if ($container_type) {
            my @possible_container_sfs =
              @{$sfs_by_type{$container_type} || []};
-	   # get the position in the @sfs array for each of 
-	   # the possible container sfs
-	   my @J =
-	     map {
-		 my $j = $idxsf{$_};
-		 if (!defined($j)) {
-		     $self->throw("ASSERTION ERROR");
-		 }
-		 if ($j<0) {
-		     $self->throw("ASSERTION ERROR");
-		 }
-		 if ($j>@sfs) {
-		     $self->throw("ASSERTION ERROR");
-		 }
-		 $j;
-	     } @possible_container_sfs;
-           if (@J == 0) {
-	       push(@roots, $i);
-           }
-           elsif (@J == 1) {
-#               push(@{$sf_parents{$sf}}, $possible_container_sfs[0]);
-#               $container{$sf} = $possible_container_sfs[0];
-	       my $j = $J[0];
-	       push(@containment_pairs, [$i, $j, 0]);
-           }
-           else {
-	       $self->throw("ASSERTION ERROR") unless @possible_container_sfs > 1;
-               # contention for container; use resolver
-               # (default is to check splice sites)
-               my %container_sfh =
-                 $resolver_method->($self, $sf, @possible_container_sfs);
-	       foreach my $sf (keys %container_sfh) {
-		   my $j = $idxsf{$sf};
-		   push(@containment_pairs, [$i, $j, $container_sfh{$sf} || 0]);
+
+	   if (!@possible_container_sfs) {
+	       # root of hierarchy
+	   }
+	   else {
+	       if (@possible_container_sfs == 1) {
+		   # there is only one choice
+		   $container{$sf} = $possible_container_sfs[0];
 	       }
-	   }	   
+	       else {
+		   # MULTIPLE CONTAINER CHOICES
+		   $self->throw("ASSERTION ERROR") unless @possible_container_sfs > 1;
+
+		   if ($sf->primary_tag ne 'CDS') {
+		       $self->problem(1,
+				      "multiple container choice for non-CDS; ".
+				      "CDS to mRNA should be the only ".
+				      "relationships requiring resolving",
+				      $sf);
+		   }
+
+		   # choice: use resolver to score possibilities
+		   # (default is to check splice sites)
+		   # we will resolve remaining contentions later
+		   my %container_sfh =
+		     $resolver_method->($self, $sf, @possible_container_sfs);
+		   foreach my $jsf (keys %container_sfh) {
+		       push(@{$unresolved{$sf}}, 
+			    [$idxsf{$jsf}, $container_sfh{$jsf} || 0]);
+		   }
+	       }
+	   }
        }
        else {
 	   # $sf type has no container type
-	   # must be a root node
+	   # must be a root node (e.g. type: gene)
        }
    }
 
    # we now have a graph representing POSSIBLE parent/containment
-   # relationships. each sf can only have one parent. there are a 
-   # number of trees that can be made from any graph - find them
-   # and evaluate them.
-   if ($self->verbose) {
-       print "CONTAINMENT PAIRS:\n";
-       foreach my $pair (@containment_pairs) {
-	   my ($childid, $parentid) = @$pair;
-	   my ($childsf, $parentsf) = ($sfs[$childid], $sfs[$parentid]);
-	   printf("  PAIR: [$pair->[0] %s => $pair->[1] %s : $pair->[2]] of %s\n", 
-		  $childsf->has_tag('product') ? $childsf->get_tag_values('product') : '-',
-		  $parentsf->has_tag('product') ? $parentsf->get_tag_values('product') : '-',
-		  scalar(@containment_pairs));
+   # relationships.
+   if ($self->verbose && scalar(keys %unresolved)) {
+       print "UNRESOLVED PAIRS:\n";
+       foreach my $childsf (keys %unresolved) {
+	   my @poss = @{$unresolved{$childsf}};
+	   foreach my $p (@poss) {
+	       my $parentsf = $idxsf{$p->[0]};
+	       $childsf = $idxsf{$childsf};
+	       printf("  PAIR: %s => %s  (of %d)\n", 
+		      $childsf->has_tag('product') ? $childsf->get_tag_values('product') : '-',
+		      $parentsf->has_tag('product') ? $parentsf->get_tag_values('product') : '-',
+		      scalar(@poss));
+	   }
        }
-   }
-   
-   # sort by score
-   my %container = ();
-   @containment_pairs = sort {$b->[2] <=> $a->[2]} @containment_pairs;
-   while (my $pair = shift @containment_pairs) {
-       my ($childid, $parentid) = @$pair;
-       my ($childsf, $parentsf) = ($sfs[$childid], $sfs[$parentid]);
-       if ($self->verbose) {
-	   printf("  CHOSEN: [$pair->[0] %s => $pair->[1] %s : $pair->[2]] of %s\n", 
-		  $childsf->has_tag('product') ? $childsf->get_tag_values('product') : '-',
-		  $parentsf->has_tag('product') ? $parentsf->get_tag_values('product') : '-',
-		  scalar(@containment_pairs));
+   } # -- end of verbose
+
+   if (%unresolved) {
+       my $new_pairs =
+	 find_best_matches(\%unresolved, []);
+       if (!$new_pairs) {
+	   $self->problem(2,
+			  "Could not resolve hierarchy");
        }
-       $container{$childsf} = $parentsf;
-       if ($childsf->primary_tag eq 'CDS' &&
-	   $parentsf->primary_tag eq 'mRNA') {
-	   # HACK: we want to try and preserve a 1:1 mapping between
-	   # CDS and mRNAs
-	   #
-	   # get rid of other possible CDS children of this mRNA
-	   @containment_pairs = 
-	     grep { 
-		 !($_->[1] == $parentid &&
-		   $sfs[$_->[0]]->primary_tag eq 'CDS')
-	     } @containment_pairs;
-	   # re-sort
-	   @containment_pairs = sort {$b->[2] <=> $a->[2]} @containment_pairs;
+       foreach my $pair (@$new_pairs) {
+	   if ($self->verbose) {
+	       printf "  resolved pair @$pair\n";
+	   }
+	   $container{$pair->[0]} = $pair->[1];
        }
-       
-       # each child can only have one parent; get rid of all other
-       # possible parents
-       @containment_pairs = grep { $_->[0] != $childid } @containment_pairs;
    }
 
+   # CONTAINMENT HIERARCHY RESOLVED
+   # make nested SeqFeature hierarchy from @containment_pairs
+   # ie put child SeqFeatures into parent SeqFeatures
    my @top = ();
    foreach my $sf (@sfs) {
        my $container_sf = $container{$sf};
@@ -1871,6 +1890,81 @@ sub unflatten_group{
    return @top;
 }
 
+sub find_best_matches {
+    my $matrix = shift;
+    my $pairs = shift;
+    my $verbose = shift;
+    #################################print "I";
+    if ($verbose) {
+	printf "find_best_matches: (/%d)\n", scalar(@$pairs);
+    }
+
+    my %selected_children = map {($_->[0]=>1)} @$pairs;
+    my %selected_parents = map {($_->[1]=>1)} @$pairs;
+    
+    # make a copy of the matrix with the portions still to be
+    # resolved
+    my %unresolved =
+      map {
+	  if ($selected_children{$_}) {
+	      ();
+	  }
+	  else {
+	      my @parents =
+		grep {
+		    !$selected_parents{$_->[0]}
+		} @{$matrix->{$_}};
+	      ($_ => [@parents]);
+	  }
+      } keys %$matrix;
+    
+    my @I = keys %unresolved;
+
+    return $pairs if !scalar(@I);
+
+    # give those with fewest choices highest priority
+    @I = sort {
+	# n possible parents
+	scalar(@{$unresolved{$a}}) 
+	  <=>
+	    scalar(@{$unresolved{$b}}) ;
+    } @I;
+    
+    my $csf = shift @I;
+    my @J = @{$unresolved{$csf}};
+    # sort by score, highest first
+    @J =
+      sort {
+	  $b->[1] <=> $a->[1]
+      } @J;
+    my $successful_pairs;
+    foreach my $j (@J) {
+	my ($psf, $score) = @$j;
+	# would selecting $csf, $psf as a pair
+	# remove all choices from another?
+	my $bad = 0;
+	foreach my $sf (@I) {
+	    if (!grep {$_->[0] ne $psf} @{$unresolved{$sf}}) {
+		# $psf was the only parent choice for $sf
+		$bad = 1;
+		last;
+	    }
+	}
+	if (!$bad) {
+	    my $pair = [$csf, $psf];
+	    my $new_pairs = [@$pairs, $pair];
+	    my $set = find_best_matches($matrix, $new_pairs, $verbose);
+	    if ($set) {
+		$successful_pairs = $set;
+		last;
+	    }
+	}
+    }
+    # success
+    return $successful_pairs if $successful_pairs;
+    # fail
+    return 0;
+}
 
 # ----------------------------------------------
 # writes a group to stdout
@@ -1956,6 +2050,7 @@ sub _resolve_container_for_sf{
 		$_=>$score);
        }
    }
+   # return array ( $sf1=>$score1, $sf2=>$score2, ...)
    return @sf_score_pairs;
 }
 
@@ -1986,7 +2081,7 @@ sub _get_splice_coords_for_sf {
 =head2 feature_from_splitloc
 
  Title   : feature_from_splitloc
- Usage   : $unflattener->feature_from_splitloc(-feature=>$sf);
+ Usage   : $unflattener->feature_from_splitloc(-features=>$sfs);
  Function:
  Example :
  Returns : 
@@ -1998,6 +2093,7 @@ Arguments:
 
   -feature:    a Bio::SeqFeatureI object (that conforms to Bio::FeatureHolderI)
   -seq:        a Bio::SeqI object that contains Bio::SeqFeatureI objects
+  -features:   an arrayref of Bio::SeqFeatureI object
 
 
 =cut
@@ -2005,12 +2101,14 @@ Arguments:
 sub feature_from_splitloc{
    my ($self,@args) = @_;
 
-   my($sf, $seq) =
+   my($sf, $seq, $sfs) =
      $self->_rearrange([qw(FEATURE
                            SEQ
+			   FEATURES
                           )],
                           @args);
-   my @sfs = ($sf);
+   my @sfs = (@{$sfs || []});
+   push(@sfs, $sf) if $sf;
    if ($seq) {
        $seq->isa("Bio::SeqI") || $self->throw("$seq NOT A SeqI");
        @sfs = $seq->get_all_SeqFeatures;
@@ -2020,6 +2118,10 @@ sub feature_from_splitloc{
        $self->problem(2,
 		      "There are already exons, so I will not infer exons");
    }
+
+   # index of features by type+location
+   my %loc_h = ();
+
    # infer for every feature
    foreach my $sf (@sfs) {
 
@@ -2042,6 +2144,15 @@ sub feature_from_splitloc{
          map {
              my $subsf = Bio::SeqFeature::Generic->new(-location=>$_,
                                                        -primary_tag=>'exon');
+	     my $locstr = 'exon::'.$self->_locstr($subsf);
+
+	     # re-use feature if type and location the same
+	     if ($loc_h{$locstr}) {
+		 $subsf = $loc_h{$locstr};
+	     }
+	     else {
+		 $loc_h{$locstr} = $subsf;
+	     }
              $subsf;
          } @locs;
        
@@ -2069,6 +2180,30 @@ sub feature_from_splitloc{
    }
    return;
 }
+
+#sub merge_features_with_same_loc {
+#   my ($self,@args) = @_;
+
+#   my($sfs, $seq) =
+#     $self->_rearrange([qw(FEATURES
+#                           SEQ
+#                          )],
+#                          @args);
+#   my @sfs = (@$sfs);
+#   if ($seq) {
+#       $seq->isa("Bio::SeqI") || $self->throw("$seq NOT A SeqI");
+#       @sfs = $seq->get_all_SeqFeatures;
+#   }
+
+   
+#   my %loc_h = ();
+#   foreach my $sf (@sfs) {
+#       my $type = $sf->primary_tag;
+#       my $locstr = $self->_locstr($sf);
+##       $loc_h{$type.$locstr}
+#       push(@{$exon_h{$self->_locstr($_)}}, $_) foreach @exons;
+#   }
+#}
 
 =head2 infer_mRNA_from_CDS
 
@@ -2216,5 +2351,19 @@ sub iterate_containment_tree {
     $self->iterate_containment_tree($_) foreach @sfs;
 }
 
+sub find_best_pairs {
+    my $matrix = shift;
+    my $size = shift;
+    my $i = shift || 0;
+
+    for (my $j=0; $j < $size; $j++) {
+	my $score = $matrix->[$i][$j];
+	if (!defined($score)) {
+	    next;
+	}
+	
+    }
+    
+}
 
 1;

@@ -40,8 +40,9 @@ if (1) {
     write_hier(@topsfs);
     
     # UNFLATTEN
+    $unflattener->verbose(1);
     @sfs = $unflattener->unflatten_seq(-seq=>$seq,
-                                     -group_tag=>'locus_tag');
+				       -group_tag=>'locus_tag');
     print "\n\nPOST PROCESSING:\n";
     write_hier(@sfs);
     printf "PROCESSED:%d\n", scalar(@sfs);
