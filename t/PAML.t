@@ -21,7 +21,7 @@ BEGIN {
     }
     use Test;
 
-    $NUMTESTS = 72;
+    $NUMTESTS = 116;
     plan tests => $NUMTESTS;
     eval { require IO::String; 
 	   require Bio::Tools::Phylo::PAML;}; 
@@ -53,6 +53,7 @@ my $inpaml = new Bio::Tools::Phylo::PAML(-file => Bio::Root::IO->catfile(qw(t da
 ok($inpaml);
 my $result = $inpaml->next_result;
 ok($result);
+ok($result->model, 'several dN/dS ratios for branches');
 ok($result->version, qr'3\.12');
 my $MLmat = $result->get_MLmatrix;
 my $NGmat = $result->get_NGmatrix;
@@ -86,6 +87,7 @@ $inpaml = new Bio::Tools::Phylo::PAML(-file => Bio::Root::IO->catfile
 ok($inpaml);
 $result = $inpaml->next_result;
 ok($result);
+ok($result->model, 'Empirical (wag.dat)');
 my @trees = $result->get_trees;
 ok(@trees, 1);
 ok($trees[0]->score, -1042.768973);
@@ -116,7 +118,7 @@ ok(scalar @pat, 98);
 ok($patterns->{'-ns'}, 6);
 ok($patterns->{'-ls'}, 130);
 
-ok(($result->get_stat_names)[0], 'constant_sites');
+ok((sort $result->get_stat_names)[0], 'constant_sites');
 ok($result->get_stat('constant_sites'), 46);
 ok($result->get_stat('constant_sites_percentage'), 35.38);
 
@@ -127,6 +129,7 @@ $inpaml = new Bio::Tools::Phylo::PAML(-file => Bio::Root::IO->catfile
 ok($inpaml);
 $result = $inpaml->next_result;
 ok($result);
+ok($result->model, 'Empirical_F (wag.dat)');
 ok($result->get_stat('loglikelihood'),-1189.106658);
 ok($result->get_stat('constant_sites'), 170);
 ok($result->get_stat('constant_sites_percentage'), 59.65);
@@ -158,7 +161,6 @@ ok($result);
 $MLmat = $result->get_MLmatrix;
 $NGmat = $result->get_NGmatrix;
 
-
 ok($NGmat->[0]->[1]->{'omega'}, 0.251);
 ok($NGmat->[0]->[1]->{'dN'}, 0.0863);
 ok($NGmat->[0]->[1]->{'dS'}, 0.3443);
@@ -175,4 +177,70 @@ ok($MLmat->[2]->[3]->{'dN_SE'}, 0.0149);
 ok($MLmat->[2]->[3]->{'dS'}, 1.0286);
 ok($MLmat->[2]->[3]->{'dS_SE'}, 0.2614);
 
+# codeml NSSites parsing
+
+$inpaml = new Bio::Tools::Phylo::PAML
+    (-file => Bio::Root::IO->catfile(qw(t data codeml_nssites.mlc)));
+
+ok($inpaml);
+$result = $inpaml->next_result;
+
+ok($result);
+ok($result->model, 'One dN/dS ratio dGamma (ncatG=11)');
+ok($result->version, 'paml 3.13, August 2002');
+$NGmat = $result->get_NGmatrix;
+ok($NGmat);
+
+ok($NGmat->[0]->[1]->{'omega'}, 0.2782);
+ok($NGmat->[0]->[1]->{'dN'}, 0.0133);
+ok($NGmat->[0]->[1]->{'dS'}, 0.0478);
+ok($NGmat->[1]->[2]->{'omega'}, 1.1055);
+ok($NGmat->[1]->[2]->{'dN'}, 0.0742);
+ok($NGmat->[1]->[2]->{'dS'}, 0.0671);
+          # this is
+          #   model num  description
+          #   kappa   log-likelihood tree length time used
+          #   shape   alpha/gamma r          f
+my @tstr = ([qw(0 one-ratio 0
+		4.54006 -906.017440    0.55764
+		)],
+	    [qw(1 neutral 2
+		4.29790 -902.503869    0.56529
+		)],
+	    [qw(2 selection 3 
+		5.12250 -900.076500    0.6032
+		)],
+	     );
+my $iter = 0;
+my $lastmodel;
+foreach my $model ( $result->get_NSSite_results ) {    
+    my $i = 0;
+    my $r = shift @tstr;
+    ok($model->model_num, $r->[$i++]);
+    ok($model->model_description, qr/$r->[$i++]/);
+    ok($model->num_site_classes,$r->[$i++]);
+    my $tree = $model->next_tree;
+    ok($model->kappa, $r->[$i++]);
+    ok($model->likelihood,$r->[$i]);
+    ok($tree->score, $r->[$i++]);
+    ok($tree->total_branch_length, $r->[$i++]);
+    if( $iter == 0 ) {
+	my $params = $model->shape_params;
+	ok($params->{'shape'}, 'alpha');
+	ok($params->{'gamma'},   '0.50000');
+	ok($params->{'r'}->[0], '1.00000');
+	ok($params->{'f'}->[0], '1.00000');
+    } elsif( $iter == 2 ) {
+	my $class = $model->dnds_site_classes;
+	ok($class->{'p'}->[0], '0.38160');
+	ok($class->{'w'}->[1], '1.00000');
+    }
+    $iter++;
+    $lastmodel = $model;
+}
+
+my ($firstsite) = $lastmodel->get_pos_selected_sites;
+ok($firstsite->[0], 15);
+ok($firstsite->[1], 'L');
+ok($firstsite->[2], 0.6588);
 
