@@ -336,8 +336,13 @@ sub open_dbm {
     my $mode_flags = $self->write_flag ? O_RDWR|O_CREAT : O_RDONLY;
     
     # Open the dbm file
-    tie( %$db, $dbm_type, $filename, $mode_flags, 0644, $DB_HASH )
-        or $self->throw("Can't open '$dbm_type' dbm file '$filename' : $!");
+    if ($dbm_type eq 'DB_File') {
+        tie( %$db, $dbm_type, $filename, $mode_flags, 0644, $DB_HASH )
+            or $self->throw("Can't open '$dbm_type' dbm file '$filename' : $!");
+    } else {
+        tie( %$db, $dbm_type, $filename, $mode_flags, 0644 )
+            or $self->throw("Can't open '$dbm_type' dbm file '$filename' : $!");
+    }
 
     # The following methods access data in the dbm file:
 
