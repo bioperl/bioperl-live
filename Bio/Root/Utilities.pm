@@ -802,40 +802,46 @@ sub create_filehandle {
 	$self->_rearrange([qw( CLIENT FILE HANDLE )], @param);
 
     if(not $client) {  $client = $self; }
+    $file ||= $handle;
     $file = $client->file($file);
 
-    my $FH = new FileHandle;
+    my $FH; # = new FileHandle;
 
     my ($handle_ref);
-
-    if($handle_ref = ref($file) || ref($handle)) {
-	if($handle_ref eq 'FileHandle' or $handle_ref eq 'GLOB') {
-	    $FH = $file || $handle;
-	} else {
-	    $self->throw("Can't read from $file (or $handle): Not a FileHandle or GLOB ref.");
-	}
-	$self->verbose > 0 and printf STDERR "$ID: reading data from FileHandle\n";
+    
+    if($handle_ref = ref($file)) {
+      if($handle_ref eq 'FileHandle') {
+	$FH = $file;
 	$client->{'_input_type'} = "FileHandle";
+      } elsif($handle_ref eq 'GLOB') {
+#	$FH = new FileHandle($file);  # Can't do this
+	$FH = $file;
+	$client->{'_input_type'} = "Glob";
+      } else {
+	$self->throw("Can't read from $file: Not a FileHandle or GLOB ref.");
+      }
+      $self->verbose > 0 and printf STDERR "$ID: reading data from FileHandle\n";
 
     } elsif($file) {
-	# Uncompress file if neccesary.
-	if( -B $file ) {
-	    $client->{'_file_owner'} = -o $file;
-	    $file = $client->uncompress_file(); $client->{'_compressed_file'} = 1; 
-	}
-	    
-	open ($FH, $file) || $self->throw("Can't access data file: $file",
-					  "Cause:$!");
-	$self->verbose > 0 and printf STDERR "$ID: reading data from file $file\n";
-	$client->{'_input_type'} = "File $file";
+      # Use gzip -cd to uncompress file if neccesary.
+      $client->{'_input_type'} = "FileHandle for $file";
+
+      if( -B $file ) {
+	$file = "${GNU_PATH}gzip -cd $file |"
+      }
+      
+      $FH = new FileHandle;
+      open ($FH, $file) || $self->throw("Can't access data file: $file",
+					"$!");
+      $self->verbose > 0 and printf STDERR "$ID: reading data from file $file\n";
 
     } else {
-	# Read from STDIN.
-	$FH = \*STDIN;
-	$self->verbose > 0 and printf STDERR "$ID: reading data from STDIN\n";
-	$client->{'_input_type'} = "STDIN";
+      # Read from STDIN.
+      $FH = \*STDIN;
+      $self->verbose > 0 and printf STDERR "$ID: reading data from STDIN\n";
+      $client->{'_input_type'} = "STDIN";
     }
-
+    
     return $FH;
   }
 
@@ -868,20 +874,24 @@ sub get_newline {
 
     if(not $client) {  $client = $self;   }
 
-    $NEWLINE = $self->taste_file($FH);
+    if($client->{'_input_type'} eq 'STDIN') {
+#    if(ref($FH) ne 'FileHandle') {
+      # Can't taste from STDIN since we can't seek 0 on it.
+      # Are other non special Glob refs seek able?
+      # Attempt to guess newline based on platform.
+      # Not robust since we could be reading Unix files on a Mac, e.g.
+      if(defined $ENV{'MACPERL'}) {
+	$NEWLINE = "\015";  # \r
+      } else {
+	$NEWLINE = "\012";  # \n
+      }	
+    } else {
+      $NEWLINE = $self->taste_file($FH);
+    }
 
     close ($FH) unless $client->{'_input_type'} eq 'STDIN';
     
-    # If the file was compressed and the user is the owner of file,
-    #   then leave the file in its original compressed state.
-    # If the file was compressed and the user was NOT the owner of file,
-    #   then removed the compressed file which is a tmp file.
-
-    $client->{'_compressed_file'} and ($client->{'_file_owner'} ? $client->compress_file() : $client->delete_file());
-
     delete $client->{'_input_type'};
-    delete $client->{'_file_owner'};
-    delete $client->{'_compressed_file'};
 
     return $NEWLINE;
   }
@@ -898,8 +908,9 @@ sub get_newline {
            :   Unix = "\012"  ("\n")
            :   Win32 = "\012\015" ("\r\n")
            :   Mac = "\015"  ("\r")
- Throws    : Exception if no input is read within 3 seconds.
-           : Warning if cannot determie neewline char(s).
+ Throws    : Exception if no input is read within $TIMEOUT_SECS seconds.
+           : Exception if argument is not FileHandle object reference.
+           : Warning if cannot determine neewline char(s).
  Comments  : Based on code submitted by Vicki Brown (vlb@deltagen.com).
 
 See Also : L<get_newline>()
@@ -910,27 +921,35 @@ See Also : L<get_newline>()
 sub taste_file {
 #---------------
   my ($self, $FH) = @_; 
-  my $BUFSIZ = 256;
+  my $BUFSIZ = 256;   # Number of bytes read from the file handle.
   my ($buffer, $octal, $str, $irs, $i);
   my $wait = $TIMEOUT_SECS;
   
+  ref($FH) eq 'FileHandle' or $self->throw("Can't taste file: not a FileHandle ref");
+
   $buffer = '';
   $SIG{ALRM} = sub { die "Timed out!"; };
+  my $result;
   eval {
     alarm( $wait );
-    read($FH, $buffer, $BUFSIZ); # read the $BUFSIZ characters of file
+    $result = read($FH, $buffer, $BUFSIZ); # read the $BUFSIZ characters of file
     alarm(0);
   };
   if($@ =~ /Timed out!/) {
     $self->throw("Timed out while waiting for input.", 
-		 "For longer time before timing out, edit \$TIMEOUT_SECS in Bio::Root::Global.pm.");	
+		 "Timeout period = $wait seconds.\nFor longer time before timing out, edit \$TIMEOUT_SECS in Bio::Root::Global.pm.");	
+
+  } elsif(not $result) {
+    my $err = $@;
+    $self->throw("read taste failed to read from FileHandle.", $err);
 
   } elsif($@ =~ /\S/) {
     my $err = $@;
     $self->throw("Unexpected error during read: $err");
   }
 
-  seek($FH, 0, 0);
+  seek($FH, 0, 0) or $self->throw("seek failed to seek 0 on FileHandle.");
+
   my @chars = split(//, $buffer);
 
   for ($i = 0; $i <$BUFSIZ; $i++) {
