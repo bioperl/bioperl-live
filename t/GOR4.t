@@ -63,11 +63,12 @@ ok my $tool = Bio::WebAgent->new(-verbose =>$verbose);
 
 
 my $seq = Bio::Seq->new(-seq => 'MSADQRWRQDSQDSFGDSFDGDPPPPPPPPFGDSFGDGFSDRSRQDQRS',
-						-display_id => 'test2',
-						);
+                        -display_id => 'test2',
+                       );
 ok $tool = Bio::Tools::Analysis::Protein::GOR4->new( -seq=>$seq->primary_seq,
-													 );
+                                                   );
 ok $tool->run ();
+exit if $tool->status eq 'TERMINATED_BY_ERROR';
 ok my $raw = $tool->result('');
 ok my $parsed = $tool->result('parsed');
 ok ($parsed->[0]{'coil'}, '0.999');

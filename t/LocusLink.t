@@ -3,9 +3,14 @@
 
 use strict;
 use vars qw($DEBUG);
-use Test;
 
-BEGIN {     
+BEGIN {
+    eval { require Test; };
+    if( $@ ) {
+	use lib 't';
+    }
+    use Test;
+
     plan tests => 23;
 }
 

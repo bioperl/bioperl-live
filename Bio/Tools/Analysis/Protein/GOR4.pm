@@ -344,6 +344,7 @@ sub  _run {
 
     my $content = $self->request($request);
     my $text = $content->content;
+    return unless $text;
     my ($next) = $text =~ /Prediction.*?=(.*?)>/;
     my $out = "http://npsa-pbil.ibcp.fr/". "$next";
     my $req2 = HTTP::Request->new(GET=>$out);

@@ -64,10 +64,11 @@ ok my $tool = Bio::WebAgent->new(-verbose =>$verbose);
 
 ######## test using PrimarySeq object ##############
 my $seq = Bio::PrimarySeq->new(-seq => 'MSADQRWRQDSQDSFGDSFDGDPPPPPPPPFGDSFGDGFSDRSRQPPPPPPPPPPPPPDQRS',
-						-display_id => 'test2');
+                               -display_id => 'test2');
 
 ok $tool = Bio::Tools::Analysis::Protein::Domcut->new( -seq=>$seq);
 ok $tool->run ();
+exit if $tool->status eq 'TERMINATED_BY_ERROR';
 ok my $raw = $tool->result('');
 ok my $parsed = $tool->result('parsed');
 ok ($parsed->[23]{'score'}, '-0.209');
@@ -80,9 +81,9 @@ if (scalar @res > 0) {
 ok my $meta = $tool->result('meta');
 
 if (!$METAERROR) { #if Bio::Seq::Meta::Array available
-	ok($meta->named_submeta_text('Domcut', 1,2), "0.068 0.053");
-	ok ($meta->seq, "MSADQRWRQDSQDSFGDSFDGDPPPPPPPPFGDSFGDGFSDRSRQPPPPPPPPPPPPPDQRS");
-	}
+    ok($meta->named_submeta_text('Domcut', 1,2), "0.068 0.053");
+    ok ($meta->seq, "MSADQRWRQDSQDSFGDSFDGDPPPPPPPPFGDSFGDGFSDRSRQPPPPPPPPPPPPPDQRS");
+}
 	
 	
 ########## test using Bio::Seq object ##############

@@ -532,7 +532,7 @@ sub add_secondary_id {
 
     # avoid duplicates
     foreach my $id (@_) {
-	next if grep { $_ eq $id; } @{$self->{ "_secondary_ids" }};
+	next if grep { !$_ or $_ eq $id; } @{$self->{ "_secondary_ids" }};
 	push( @{ $self->{ "_secondary_ids" } }, $id );
     }
 

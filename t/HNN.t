@@ -63,11 +63,12 @@ ok my $tool = Bio::WebAgent->new(-verbose =>$verbose);
 
 
 my $seq = Bio::PrimarySeq->new(-seq => 'MSADQRWRQDSQDSFGDSFDGDPPPPPPPPFGDSFGDGFSDRSRQDQRS',
-						-display_id => 'test2',
-						);
+                               -display_id => 'test2',
+                              );
 ok $tool = Bio::Tools::Analysis::Protein::HNN->new( -seq=>$seq,
-													 );
+                                                  );
 ok $tool->run ();
+exit if $tool->status eq 'TERMINATED_BY_ERROR';
 ok my $raw = $tool->result('');
 ok my $parsed = $tool->result('parsed');
 ok ($parsed->[0]{'coil'}, '1000');
@@ -80,9 +81,8 @@ if (scalar @res > 0) {
 ok my $meta = $tool->result('meta');
 
 if (!$METAERROR) { #if Bio::Seq::Meta::Array available
-	#meta sequence contains data...
-
-	#but not available thru method call...??
-	ok ( $meta->named_submeta_text('HNN_helix',1,2), '0 111');
-	ok ($meta->seq, 'MSADQRWRQDSQDSFGDSFDGDPPPPPPPPFGDSFGDGFSDRSRQDQRS');
-	}
+    #meta sequence contains data...
+    #but not available thru method call...??
+    ok ( $meta->named_submeta_text('HNN_helix',1,2), '0 111');
+    ok ($meta->seq, 'MSADQRWRQDSQDSFGDSFDGDPPPPPPPPFGDSFGDGFSDRSRQDQRS');
+}

@@ -65,7 +65,7 @@ my $seq = Bio::PrimarySeq->new(-id=>'bioperl',
 
 ok $tool = Bio::Tools::Analysis::Protein::NetPhos->new(-verbose =>$verbose);
 ok $tool->run ( {seq=>$seq, threshold=>0.9} );
-
+exit if $tool->status eq 'TERMINATED_BY_ERROR';
 ok my @res = $tool->result('Bio::SeqFeatureI');
 #new tests her in v 1.2
 ok my $raw = $tool->result('');

@@ -54,17 +54,14 @@ ok my $tool = Bio::WebAgent->new(-verbose =>$verbose);
 
 
 
-my $seq = Bio::PrimarySeq->new(-seq => 'MSADQRWRQDSQDSFGDSFDGDSFFGSDFDGDSDFGSDFGSDGDFGSDFGDSFGDGFSDRSRQDQRS',
-						-display_id => 'test2');
+my $seq = Bio::PrimarySeq->new(-seq => 'MSADQRWRQDSQDSFGDSFDGDSFFGSDFDGDS'.
+                               'DFGSDFGSDGDFGSDFGDSFGDGFSDRSRQDQRS',
+                               -display_id => 'test2');
 
 ok $tool = Bio::Tools::Analysis::Protein::Mitoprot->new( -seq=>$seq);
 ok $tool->run ();
+exit if $tool->status eq 'TERMINATED_BY_ERROR';
 ok my $raw = $tool->result('');
 ok my $parsed = $tool->result('parsed');
 ok ($parsed->{'charge'}, -13);
-my @res = $tool->result('Bio::SeqFeatureI');
-if (scalar @res > 0) {
-    ok 1;
-} else {
-    skip('No network access - could not connect to NetPhos server', 1);
-}
+ok my @res = $tool->result('Bio::SeqFeatureI');

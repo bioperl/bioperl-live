@@ -24,7 +24,6 @@ Bio::Tools::Analysis::Protein::Domcut -  a wrapper around Domcut server
   my $domcut = Bio::Tools::Analysis::Protein::Domcut->new (-seq=>$seq);
   $domcut->run;
   print $domcut->result;# #raw text to standard out
-  
 
 =head1  DESCRIPTION
 
@@ -70,23 +69,24 @@ An array of Bio::SeqFeature::Generic objects where each feature is a
 predicted unit of secondary structure. Only stretches of helix/sheet
 predictions for longer than 4 residues are defined as helices.
 So, in order to add features to an existing Bio::Seq object;
-# get a Bio::Seq object
-my $seqobj;
-my $tool = Bio::Tools::Analysis::Protein::Domcut->new (
-			-seq => $seqobj->primary_seq);
-$tool->run;
+
+  # get a Bio::Seq object
+  my $seqobj;
+  my $tool = Bio::Tools::Analysis::Protein::Domcut->new
+      ( -seq => $seqobj->primary_seq);
+  $tool->run;
 
   my @fts = $tool->result(Bio::SeqFeatureI);
- 
+
   $seqobj->add_SeqFeature(@fts);
-  
+
   # if you want  meta sequences as well :
   my $meta = $tool->result('meta');
   $seqobj->primary_seq($meta);
-  
-  #can access meta data in a Bio::Seq object via a 
-  #call to primary_seq:
-  
+
+  # can access meta data in a Bio::Seq object via a 
+  # call to primary_seq:
+
   print $seq4->primary_seq->named_submeta_text('Domcut', 1,2), "\n";
 
 =item 4
@@ -338,6 +338,7 @@ sub _run {
 
     my $content = $self->request($rqst);
     my $text = $content->content; #1st reponse
+    return unless $text;
     $self->{'_result'} = $text;
     $self->status('COMPLETED') if $text ne '';
 }

@@ -60,8 +60,8 @@ ok $tool->sleep;
 
 #get CUT from web
 ok my $db = Bio::DB::CUTG->new();
-ok my $cdtable =  $db->get_request(-sp =>'Pan troglodytes');
-
+my $cdtable =  $db->get_request(-sp =>'Pan troglodytes');
+exit unless $cdtable;
 #tests for Table.pm
 ok $cdtable->cds_count(), 325;
 ok $cdtable->aa_frequency('LEU'), "10.07";

@@ -2919,7 +2919,7 @@ $access_remote_db = sub {
 
 if ($@ || !$seq1) {
     warn "Warning: Couldn't connect to Genbank with Bio::DB::GenBank.pm!\nProbably no network access.\nSkipping method 'access_remote_db'.\n";
-    exit;
+    return 0;
 }
     $seq1_id =  $seq1->display_id();
     print $outputfh "seq1 display id is $seq1_id \n";

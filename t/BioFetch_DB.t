@@ -39,7 +39,7 @@ BEGIN {
 
 END { 
     foreach ( $Test::ntest..$NUMTESTS) {
-	skip('unable to run all of the Biblio_biofetch tests',1);
+	skip('unable to run all of the Biblio/Biofetch tests - probably no network',1);
     }
 }
 
@@ -67,7 +67,8 @@ ok defined($db = new Bio::DB::BioFetch(-verbose => $verbose));
 eval {
     # get a RefSeq entry
     ok $db->db('refseq');
-    ok $seq = $db->get_Seq_by_acc('NM_006732'); # RefSeq VERSION
+    $seq = $db->get_Seq_by_acc('NM_006732'); # RefSeq VERSION
+    $seq ? ok 1 : exit;
     ok $seq->accession_number;
 
     # EMBL

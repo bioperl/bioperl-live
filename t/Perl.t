@@ -39,14 +39,12 @@ BEGIN {
 END {
     # clean up after oneself
     unlink (  'Perltmp' );
+
+    for ( $Test::ntest..$NUMTESTS ) {
+	skip("Unable to run db access tests - probably no network connection.",1);
+    }
 }
 
-#use Bio::Perl qw( read_sequence 
-#		  read_all_sequences 
-#		  write_sequence
-#		  new_sequence 
-#		  get_sequence translate     
-#                  translate_as_string);
 use Bio::Perl;
 
 ## End of black magic.
@@ -58,63 +56,6 @@ use Bio::Perl;
 my ($seq_object,$filename,@seq_object_array);
 
 
-unless ( $error ) {
-    # swissprot
-    eval {
-	ok ($seq_object = get_sequence('swissprot',"ROA1_HUMAN"));
-    };
-    if ($@) {
-	if($DEBUG) {
-	    warn "Warning: Couldn't connect to SWISS-PROT! Do you have network access?\n";
-        }
-	skip('no network access',1);
-    }
-
-    # embl
-    eval {
-	ok ($seq_object = get_sequence('embl',"BUM"));
-    };
-    if ($@) {
-	if($DEBUG ) {
-	    warn "Warning: Couldn't connect to EMBL! Do you have network access?\n";
-	}
-        skip('no network access',1);
-    }
-
-    # genbank
-    eval {
-	ok ($seq_object = get_sequence('genbank',"AI129902"));
-    };
-    if ($@) {
-	if($DEBUG) {
-	    warn "Warning: Couldn't connect to GenBank! Do you have network access?\n";
-	}
-        skip( 'no network access',1);
-    }
-
-    # refseq
-    eval {
-	ok ($seq_object = get_sequence('genbank',"NM_006732"));
-    };
-    if ($@) {
-	if( $DEBUG ) {
-	    warn "Warning: Couldn't connect to RefSeq! Do you have network access?\n";
-	}
-        skip('no network access',1);
-    }
-
-        # genbank
-    eval {
-	ok ($seq_object = get_sequence('genpept',"AAC06201"));
-    };
-    if ($@) {
-	if($DEBUG) {
-	    warn "Warning: Couldn't connect to GenPept! Do you have network access?\n";
-	}
-        skip( 'no network access',1);
-    }
-
-}
 
 # will guess file format from extension
 $filename = 't/data/cysprot1.fa';
@@ -140,3 +81,62 @@ ok ($trans = translate_as_string($seq_object));
 ok ($trans = translate_as_string("ATTGGTTTGGGGACCCAATTTGTGTGTTATATGTA"));
 
 
+# we need to keep tests that depend on net connection at the end
+
+unless ( $error ) {
+    # swissprot
+    eval {
+	ok ($seq_object = get_sequence('swissprot',"ROA1_HUMAN"));
+    };
+    if ($@) {
+	if($DEBUG) {
+	    warn "Warning: Couldn't connect to SWISS-PROT! Do you have network access?\n";
+        }
+	exit 0;
+    }
+
+    # embl
+    eval {
+	ok ($seq_object = get_sequence('embl',"BUM"));
+    };
+    if ($@) {
+	if($DEBUG ) {
+	    warn "Warning: Couldn't connect to EMBL! Do you have network access?\n";
+	}
+        exit 0;
+    }
+
+    # genbank
+    eval {
+	ok ($seq_object = get_sequence('genbank',"AI129902"));
+    };
+    if ($@) {
+	if($DEBUG) {
+	    warn "Warning: Couldn't connect to GenBank! Do you have network access?\n";
+	}
+        exit 0;
+    }
+
+    # refseq
+    eval {
+	ok ($seq_object = get_sequence('genbank',"NM_006732"));
+    };
+    if ($@) {
+	if( $DEBUG ) {
+	    warn "Warning: Couldn't connect to RefSeq! Do you have network access?\n";
+	}
+        exit 0;
+    }
+
+        # genbank
+    eval {
+	ok ($seq_object = get_sequence('genpept',"AAC06201"));
+    };
+    if ($@) {
+	if($DEBUG) {
+	    warn "Warning: Couldn't connect to GenPept! Do you have network access?\n";
+	}
+        exit 0;
+    }
+
+}

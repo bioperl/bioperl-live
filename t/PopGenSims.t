@@ -44,11 +44,11 @@ for(my $i =0 ;$i < 10; $i++ ) {
     my %f = $sim->next_generation;
     push @Afreqs, $f{'A'};
     push @Bfreqs, $f{'B'};
-    ok($f{'A'} + $f{'B'}, 1, 'Allele freqs should sum to 1');
+    ok(($f{'A'}||0) + ($f{'B'}||0), 1, 'Allele freqs should sum to 1');
 }
 
 ok(@Afreqs, 10);
-ok($Afreqs[9] <= 1, 1, 'All frequncies should be <= 1');
+ok(($Afreqs[9]||0) <= 1, 1, 'All frequencies should be <= 1');
 
 $sim = new Bio::PopGen::Simulation::GeneticDrift(-popsize => 50,
 						 -alleles => {A => 0.2,
@@ -58,5 +58,5 @@ $sim = new Bio::PopGen::Simulation::GeneticDrift(-popsize => 50,
 
 for(my $i =0 ;$i < 10; $i++ ) {
     my %f = $sim->next_generation;
-    ok($f{'A'} + $f{'B'} + $f{'C'}, 1, 'Allele freqs should sum to 1');
+    ok(($f{'A'}||0) + ($f{'B'}||0) + ($f{'C'}||0), 1, 'Allele freqs should sum to 1');
 }

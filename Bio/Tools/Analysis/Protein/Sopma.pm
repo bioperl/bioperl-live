@@ -398,7 +398,7 @@ sub _get_2ary_coords {
     for (my $index = 0; $index <= $#prot; $index++) {
 
         my $type        = $prot[$index]{'struc'};
-        next unless $type =~ /[HTCE]/;
+        next unless $type && $type =~ /[HTCE]/;
         my $length = 1;
         for (my $j = $index + 1; $j <= $#prot; $j++) {
             my $test = $prot[$j];
@@ -435,7 +435,8 @@ sub  _run {
                         ];
 
     my $text = $self->request($request)->content;
-  
+    return $self unless $text;
+
     #### get text only version of results ## 
     my ($next) = $text =~ /Prediction.*?=(.*?)>/;
     my $out = "http://npsa-pbil.ibcp.fr/". "$next";

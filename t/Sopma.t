@@ -63,26 +63,21 @@ ok my $tool = Bio::WebAgent->new(-verbose =>$verbose);
 
 
 my $seq = Bio::PrimarySeq->new(-seq => 'MSADQRWRQDSQDSFGDSFDGDPPPPPPPPFGDSFGDGFSDRSRQDQRS',
-						-display_id => 'test2',
+                               -display_id => 'test2',
 						);
 ok $tool = Bio::Tools::Analysis::Protein::Sopma->new( -seq=>$seq,
-													 -window_width => 15);
+                                                      -window_width => 15);
 ok $tool->run ();
+exit if $tool->status eq 'TERMINATED_BY_ERROR';
 ok my $raw = $tool->result('');
 ok my $parsed = $tool->result('parsed');
 ok ($parsed->[0]{'helix'}, '104');
-my @res = $tool->result('Bio::SeqFeatureI');
-if (scalar @res > 0) {
-    ok 1;
-} else {
-    skip('No network access - could not connect to NetPhos server', 1);
-}
+ok my @res = $tool->result('Bio::SeqFeatureI');
 ok my $meta = $tool->result('meta');
 
 if (!$METAERROR) { #if Bio::Seq::Meta::Array available
-	#meta sequence contains data...
-
-	#but not available thru method call...??
-	ok ($meta->named_submeta_text('Sopma_helix',1,2), '104 195');
-	ok ($meta->seq, 'MSADQRWRQDSQDSFGDSFDGDPPPPPPPPFGDSFGDGFSDRSRQDQRS');
-	}
+    #meta sequence contains data...
+    #but not available thru method call...??
+    ok ($meta->named_submeta_text('Sopma_helix',1,2), '104 195');
+    ok ($meta->seq, 'MSADQRWRQDSQDSFGDSFDGDPPPPPPPPFGDSFGDGFSDRSRQDQRS');
+}
