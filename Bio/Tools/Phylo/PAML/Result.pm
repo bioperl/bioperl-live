@@ -722,7 +722,7 @@ sub add_NSSite_result{
 
 sub get_NSSite_results{
    my ($self) = @_;
-   return @{$self->{'_nssiteresult'}};
+   return @{$self->{'_nssiteresult'} || []};
 }
 
 =head2 set_CodonFreqs
