@@ -1,6 +1,6 @@
 # $Id$
 #
-# BioPerl module for Bio::Factory::SequenceBuilderI
+# BioPerl module for Bio::Factory::SequenceFactoryI
 #
 # Cared for by Jason Stajich <jason@bioperl.org>
 #
@@ -12,15 +12,15 @@
 
 =head1 NAME
 
-Bio::Factory::SequenceBuilderI - This interface allows for generic building of sequences in factories which create sequences (like SeqIO) 
+Bio::Factory::SequenceFactoryI - This interface allows for generic building of sequences in factories which create sequences (like SeqIO) 
 
 =head1 SYNOPSIS
 
 # do not use this object directly it is an interface
-# get a Bio::Factory::SequenceBuilderI object like
+# get a Bio::Factory::SequenceFactoryI object like
 
-    use Bio::Seq::PrimarySequenceBuilder;
-    my $seqbuilder = new Bio::Seq:PrimarySequenceBuilder();
+    use Bio::Seq::PrimarySequenceFactory;
+    my $seqbuilder = new Bio::Seq:PrimarySequenceFactory();
 
     my $seq = $seqbuilder->new_sequence(-seq => 'ACTGAT',
 					-display_id => 'exampleseq');
@@ -72,7 +72,7 @@ Internal methods are usually preceded with a _
 # Let the code begin...
 
 
-package Bio::Factory::SequenceBuilderI;
+package Bio::Factory::SequenceFactoryI;
 use vars qw(@ISA);
 use strict;
 @ISA = qw(Bio::Root::RootI);

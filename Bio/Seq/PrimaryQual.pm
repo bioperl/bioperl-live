@@ -93,6 +93,7 @@ use strict;
 
 use Bio::Root::Root;
 use Bio::Seq::QualI;
+
 @ISA = qw(Bio::Root::Root Bio::Seq::QualI);
 
 

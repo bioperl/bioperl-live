@@ -76,8 +76,8 @@ User feedback is an integral part of the evolution of this and other
 Bioperl modules. Send your comments and suggestions preferably to one
 of the Bioperl mailing lists.  Your participation is much appreciated.
 
-  bioperl-l@bioperl.org          - General discussion
-  http://bio.perl.org/MailList.html             - About the mailing lists
+  bioperl-l@bioperl.org             - General discussion
+  http://bio.perl.org/MailList.html - About the mailing lists
 
 =head2 Reporting Bugs
 
@@ -92,13 +92,16 @@ or the web:
 
 Email bioinformatics@dieselwurks.com
 
+=head1 CONTRIBUTORS 
+
+Jason Stajich, jason@bioperl.org
+
 =head1 APPENDIX
 
 The rest of the documentation details each of the object methods.
 Internal methods are usually preceded with a _
 
 =cut
-
 
 
 package Bio::Seq::SeqWithQuality;
@@ -109,6 +112,8 @@ use strict;
 use Bio::Root::Root;
 use Bio::Seq::QualI;
 use Bio::PrimarySeqI;
+use Bio::PrimarySeq;
+use Bio::Seq::PrimaryQual;
 
 @ISA = qw(Bio::Root::Root Bio::PrimarySeqI Bio::Seq::QualI);
 
@@ -523,14 +528,14 @@ sub desc {
 
 sub id {
    my ($self,$value) = @_;
-	if (!$self) { die "AAAAAAAAAAAA\n"; }
+   if (!$self) { $self->throw("no value for self in $value"); }
    if( defined $value ) {
-        return $self->display_id($value);
+       return $self->display_id($value);
    }
    return $self->display_id();
 }
 
-=head2 seq()
+=head2 seq
 
  Title   : seq()
  Usage   : $string    = $obj->seq(); _or_
@@ -604,35 +609,35 @@ sub qual {
 =cut
 
 sub length {
-	my $self = shift;
-	if (!$self->{seq_ref}) {
-		unless ($self->{supress_warnings} == 1) {
-			$self->warn("Can't find {seq_ref} here in length().");
-		}
-		return;
+    my $self = shift;
+    if (!$self->{seq_ref}) {
+	unless ($self->{supress_warnings} == 1) {
+	    $self->warn("Can't find {seq_ref} here in length().");
 	}
-	if (!$self->{qual_ref}) {
-		unless ($self->{supress_warnings} == 1) {
-			$self->warn("Can't find {qual_ref} here in length().");
-		}
-		return;
+	return;
+    }
+    if (!$self->{qual_ref}) {
+	unless ($self->{supress_warnings} == 1) {
+	    $self->warn("Can't find {qual_ref} here in length().");
 	}
-	my $seql = $self->{seq_ref}->length();
-    
-	if ($seql != $self->{qual_ref}->length()) {
-		unless ($self->{supress_warnings} == 1) {
-			$self->warn("Sequence length (".$seql.") is different from quality length (".$self->{qual_ref}->length().") in the SeqWithQuality object. This can only lead to problems later.");		
-		}
-		$self->{'length'} = "DIFFERENT";
+	return;
+    }
+    my $seql = $self->{seq_ref}->length();
+
+    if ($seql != $self->{qual_ref}->length()) {
+	unless ($self->{supress_warnings} == 1) {
+	    $self->warn("Sequence length (".$seql.") is different from quality length (".$self->{qual_ref}->length().") in the SeqWithQuality object. This can only lead to problems later.");		
 	}
-	else {
-		$self->{'length'} = $seql;
-	}
-	return $self->{'length'};
+	$self->{'length'} = "DIFFERENT";
+    }
+    else {
+	$self->{'length'} = $seql;
+    }
+    return $self->{'length'};
 }
 
 
-=head2 qual_obj($different_obj)
+=head2 qual_obj
 
  Title   : qual_obj($different_obj)
  Usage   : $qualobj = $seqWqual->qual_obj(); _or_
@@ -646,25 +651,22 @@ sub length {
 =cut
 
 sub qual_obj {
-	my ($self,$value) = @_;
-	if (defined($value)) {
-		if (ref($value) eq "Bio::Seq::PrimaryQual") {
-			$self->{qual_ref} = $value;
-			unless ($self->{supress_warnings} == 1) {
-				$self->warn("You successfully changed the PrimaryQual object within a SeqWithQuality object. ID's for the SeqWithQuality object may now not be what you expect. Use something like set_common_descriptors() to fix them if you care,");
-			}
-		}
-		else {
-			unless ($self->{supress_warnings} == 1) {
-				$self->warn("You tried to change the PrimaryQual object within a SeqWithQuality object but you passed a reference to an object that was not a Bio::Seq::PrimaryQual object. Thus your change failed. Sorry.\n");
-			}
-		}
+    my ($self,$value) = @_;
+    if (defined($value)) {
+	if (ref($value) eq "Bio::Seq::PrimaryQual") {
+	    $self->{qual_ref} = $value;
+	    
+	    $self->debug("You successfully changed the PrimaryQual object within a SeqWithQuality object. ID's for the SeqWithQuality object may now not be what you expect. Use something like set_common_descriptors() to fix them if you care,");	    
+	}	
+	else {
+	    $self->debug("You tried to change the PrimaryQual object within a SeqWithQuality object but you passed a reference to an object that was not a Bio::Seq::PrimaryQual object. Thus your change failed. Sorry.\n");	    
 	}
-	return $self->{qual_ref};
+    }
+    return $self->{qual_ref};
 }
 
 
-=head2 seq_obj()
+=head2 seq_obj
 
  Title   : seq_obj()
  Usage   : $seqobj = $seqWqual->qual_obj(); _or_
@@ -678,20 +680,15 @@ sub qual_obj {
 =cut
 
 sub seq_obj {
-	my ($self,$value) = @_;
-	if( defined $value) {
-		if (ref($value) eq "Bio::PrimarySeq") {
-			unless ($self->{supress_warnings} == 1) {
-				$self->warn("You successfully changed the PrimarySeq object within a SeqWithQuality object. ID's for the SeqWithQuality object may now not be what you expect. Use something like set_common_descriptors() to fix them if you care,");
-			}
-		}
-		else {
-			unless ($self->{supress_warnings} == 1) {
-				$self->warn("You tried to change the PrimarySeq object within a SeqWithQuality object but you passed a reference to an object that was not a Bio::PrimarySeq object. Thus your change failed. Sorry.\n");
-			}
-		}
+    my ($self,$value) = @_;
+    if( defined $value) {
+	if (ref($value) eq "Bio::PrimarySeq") {
+	    $self->debug("You successfully changed the PrimarySeq object within a SeqWithQuality object. ID's for the SeqWithQuality object may now not be what you expect. Use something like set_common_descriptors() to fix them if you care,");
+	} else {
+	    $self->debug("You tried to change the PrimarySeq object within a SeqWithQuality object but you passed a reference to an object that was not a Bio::PrimarySeq object. Thus your change failed. Sorry.\n");
 	}
-	return $self->{seq_ref};
+    }
+    return $self->{seq_ref};
 }
 
 =head2 _set_descriptors
@@ -714,27 +711,27 @@ sub seq_obj {
 
 
 sub _set_descriptors {
-	my ($self,$qual,$seq,$id,$acc,$pid,$desc,$given_id,$alphabet) = @_;
-	my ($c_id,$c_acc,$c_pid,$c_desc);
-	if (!$self->display_id()) {
-		if ($c_id = $self->_common_id() ) { $self->display_id($c_id); }
-		else {
-			if ($self->{seq_ref}) {
-					# print("Using seq_ref to set id to ".$self->{seq_ref}->display_id()."\n");
-					# ::dumpValue($self->{seq_ref});
-				$self->display_id($self->{seq_ref}->id());
-			}
-			elsif ($self->{qual_ref}) {
-				$self->display_id($self->{qual_ref}->id());
-			}
-		}
+    my ($self,$qual,$seq,$id,$acc,$pid,$desc,$given_id,$alphabet) = @_;
+    my ($c_id,$c_acc,$c_pid,$c_desc);
+    if (!$self->display_id()) {
+	if ($c_id = $self->_common_id() ) { $self->display_id($c_id); }
+	else {
+	    if ($self->{seq_ref}) {
+		# print("Using seq_ref to set id to ".$self->{seq_ref}->display_id()."\n");
+		# ::dumpValue($self->{seq_ref});
+		$self->display_id($self->{seq_ref}->id());
+	    }
+	    elsif ($self->{qual_ref}) {
+		$self->display_id($self->{qual_ref}->id());
+	    }
 	}
-	if ($acc) { $self->accession_number($acc); }
-	elsif ($c_acc = $self->_common_accession_number() ) { $self->accession_number($c_acc); }
-	if ($pid) { $self->primary_id($pid); }
-	elsif ($c_pid = $self->_common_primary_id() ) { $self->primary_id($c_pid); }
-	if ($desc) { $self->desc($desc); }
-	elsif ($c_desc = $self->_common_desc() ) { $self->desc($c_desc); }
+    }
+    if ($acc) { $self->accession_number($acc); }
+    elsif ($c_acc = $self->_common_accession_number() ) { $self->accession_number($c_acc); }
+    if ($pid) { $self->primary_id($pid); }
+    elsif ($c_pid = $self->_common_primary_id() ) { $self->primary_id($c_pid); }
+    if ($desc) { $self->desc($desc); }
+    elsif ($c_desc = $self->_common_desc() ) { $self->desc($c_desc); }
 }
 
 =head2 subseq($start,$end)
@@ -750,9 +747,9 @@ sub _set_descriptors {
 =cut
 
 sub subseq {
-	my ($self,$val1,$val2) = @_;
-		# does a single value work?
-	return $self->{seq_ref}->subseq($val1,$val2);	
+    my ($self,@args) = @_;
+    # does a single value work?
+    return $self->{seq_ref}->subseq(@args);	
 }
 
 =head2 baseat($position)
@@ -768,8 +765,8 @@ sub subseq {
 =cut
 
 sub baseat {
-	my ($self,$val) = @_;
-	return $self->{seq_ref}->subseq($val,$val);
+    my ($self,$val) = @_;
+    return $self->{seq_ref}->subseq($val,$val);
 }
 
 =head2 subqual($start,$end)
@@ -786,10 +783,9 @@ sub baseat {
 =cut
 
 sub subqual {
-	my ($self,$val1,$val2) = @_;
-	return $self->{qual_ref}->subqual($val1,$val2);
+    my ($self,@args) = @_;
+    return $self->{qual_ref}->subqual(@args);
 }
-
 
 =head2 qualat($position)
 
@@ -805,25 +801,8 @@ sub subqual {
 =cut
 
 sub qualat {
-	my ($self,$val) = @_;
-	return $self->{qual_ref}->qualat($val);
-}
-
-=head2 quiet($mode)
-
- Title   : quiet($mode)
- Usage   : $obj->quiet(1);
- Function: Shuit off warnings. Used pretty much exclusively so that make
-	test doesn't spill out warnings. I wouldn't advise you turn these off
-	because they are there for your own good.
- Returns : Nothing
- Args    : "1" for supression of warnings, "0" for normal mode.
-
-=cut
-
-sub quiet {
-	my ($self,$mode) = @_;
-	$self->{supress_warnings} = $mode;
+    my ($self,$val) = @_;
+    return $self->{qual_ref}->qualat($val);
 }
 
 =head2 to_string()

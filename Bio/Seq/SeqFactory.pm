@@ -1,6 +1,6 @@
 # $Id$
 #
-# BioPerl module for Bio::Seq::SeqBuilder
+# BioPerl module for Bio::Seq::SeqFactory
 #
 # Cared for by Jason Stajich <jason@bioperl.org>
 #
@@ -12,13 +12,13 @@
 
 =head1 NAME
 
-Bio::Seq::SeqBuilder - Instantiates a new Bio::PrimarySeqI (or derived class) through a factory
+Bio::Seq::SeqFactory - Instantiates a new Bio::PrimarySeqI (or derived class) through a factory
 
 =head1 SYNOPSIS
 
-    use Bio::Seq::SeqBuilder;
-    my $factory = new Bio::Seq::SeqBuilder(-type => 'Bio::PrimarySeq');
-    my $seq = $factory->new_sequence(-seq => 'WYRAVLC',
+    use Bio::Seq::SeqFactory;
+    my $factory = new Bio::Seq::SeqFactory(-type => 'Bio::PrimarySeq');
+    my $seq = $factory->create_sequence(-seq => 'WYRAVLC',
 				     -id  => 'name');
 
 =head1 DESCRIPTION
@@ -66,23 +66,23 @@ Internal methods are usually preceded with a _
 # Let the code begin...
 
 
-package Bio::Seq::SeqBuilder;
+package Bio::Seq::SeqFactory;
 use vars qw(@ISA);
 use strict;
 
 # Object preamble - inherits from Bio::Root::Root
 
 use Bio::Root::Root;
-use Bio::Factory::SequenceBuilderI;
+use Bio::Factory::SequenceFactoryI;
 
-@ISA = qw(Bio::Root::Root Bio::Factory::SequenceBuilderI);
+@ISA = qw(Bio::Root::Root Bio::Factory::SequenceFactoryI);
 
 =head2 new
 
  Title   : new
- Usage   : my $obj = new Bio::Seq::SeqBuilder();
- Function: Builds a new Bio::Seq::SeqBuilder object 
- Returns : Bio::Seq::SeqBuilder
+ Usage   : my $obj = new Bio::Seq::SeqFactory();
+ Function: Builds a new Bio::Seq::SeqFactory object 
+ Returns : Bio::Seq::SeqFactory
  Args    :
 
 
@@ -96,16 +96,16 @@ sub new {
       $type = 'Bio::PrimarySeq';
   }
   eval "require $type";
-  if( $@ ) { $self->throw("$@: Unrecognized Sequence type for SeqBuilder '$type'");}
+  if( $@ ) { $self->throw("$@: Unrecognized Sequence type for SeqFactory '$type'");}
   $self->type($type);
   return $self;
 }
 
 
-=head2 new_sequence
+=head2 create_sequence
 
- Title   : new_sequence
- Usage   : my $seq = $seqbuilder->new_sequence(-seq => 'CAGT', -id => 'name');
+ Title   : create_sequence
+ Usage   : my $seq = $seqbuilder->create_sequence(-seq => 'CAGT', -id => 'name');
  Function: Instantiates new Bio::SeqI (or one of its child classes)
            This object allows us to genericize the instantiation of sequence
            objects.
@@ -117,7 +117,7 @@ sub new {
 
 =cut
 
-sub new_sequence{
+sub create_sequence{
    my ($self,@args) = @_;
    return $self->type->new(-verbose => $self->verbose, @args);
 }
