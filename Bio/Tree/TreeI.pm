@@ -68,10 +68,13 @@ Internal methods are usually preceded with a _
 
 
 package Bio::Tree::TreeI;
+use Bio::Tree::NodeI;
 use vars qw(@ISA);
 use strict;
 
 use Carp;
+
+@ISA = qw(Bio::Tree::NodeI);
 
 sub _abstractDeath {
   my $self = shift;
@@ -112,5 +115,62 @@ sub get_root_node{
    my ($self) = @_;
    $self->_abstractDeath;
 }
+
+=head2 number_nodes
+
+ Title   : number_nodes
+ Usage   : my $size = $tree->number_nodes
+ Function: Returns the number of nodes
+ Example :
+ Returns : 
+ Args    :
+
+
+=cut
+
+sub number_nodes{
+   my ($self) = @_;
+   my $root = $self->get_root_node;
+   if( defined $root && $root->isa('Bio::Tree::NodeI'))  {
+       return $root->descendent_count;
+   }
+   return 0;
+}
+
+
+=head2 branch_length
+
+ Title   : branch_length
+ Usage   : my $size = $tree->branch_length
+ Function: Returns the number of branches 
+ Returns : integer
+ Args    : none
+
+=cut
+
+sub branch_length {
+   my ($self) = @_;
+   $self->_abstractDeath;
+}
+
+=head2 height
+
+ Title   : height
+ Usage   : my $height = $tree->height
+ Function: Gets the height of tree - this LOG_2($number_nodes)
+ Returns : integer
+ Args    : none
+
+
+=cut
+
+sub height{
+   my ($self) = @_;
+   my $nodect =  $self->number_nodes;
+   return 0 if( ! $nodect ); 
+   return log($nodect) / log(2);
+}
+
+
 
 1;

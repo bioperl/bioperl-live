@@ -95,36 +95,11 @@ sub new {
   
   my $self = $class->SUPER::new(@args);
   $self->{'_rootnode'} = undef;
-  $self->{'_nodect'} = 0;
   $self->{'_maxbranchlen'} = 0;
+
+  my ($root)= $self->_rearrange([qw(ROOT)], @args);
+  if( $root ) { $self->set_root_node($root); }
   return $self;
-}
-
-
-=head2 add_node
-
- Title   : add_node
- Usage   : my $tree->add_node($node)
- Function: Adds a node to the tree by adding it to the Root Node
- Returns : Tree size
- Args    : Bio::Tree::NodeI
-
-
-=cut
-
-sub add_node{
-   my ($self,$node) = @_;
-   $self->throw("Must provide a valid Bio::Tree::NodeI object") 
-       unless (defined $node && $node->isa('Bio::Tree::NodeI'));
-   if( ! defined $self->{'_rootnode'} ) {
-       $self->{'_rootnode'} = $node;
-   } else { 
-       my $s = $self->{'_rootnode'}->add_child($node);
-       if( $s > $self->{'_maxbranchlen'} ) { 
-	   $self->{'_maxbranchlen'} = $s;
-       }
-   }
-   $self->{'_nodect'}++;
 }
 
 
@@ -146,14 +121,8 @@ sub get_nodes{
 
    # this is depth search I believe
    my $node = $self->get_root_node;
-   my @nodes;
-   while( defined $node ) {
-       push @nodes, $node;
-       my $child = $node->get_child;       
-       $node = $child;
-   }
-
-   return @nodes;
+   my @children = ($node,$node->get_Descendents);
+   return @children;
 }
 
 =head2 get_root_node
@@ -173,21 +142,54 @@ sub get_root_node{
    return $self->{'_rootnode'};
 }
 
-=head2 length
+=head2 set_root_node
 
- Title   : length
- Usage   : my $size = $tree->length
- Function: Returns the size of the tree 
-           (length of largest path from root to leaf)
+ Title   : set_root_node
+ Usage   : $tree->set_root_node($node)
+ Function: Set the Root Node for the Tree
+ Returns : Bio::Tree::NodeI
+ Args    : Bio::Tree::NodeI
+
+=cut
+
+sub set_root_node{
+   my ($self,$value) = @_;
+   if( defined $value ) { 
+       if( ! $value->isa('Bio::Tree::NodeI') ) { 
+	   $self->warn("Trying to set the root node to $value which is not a Bio::Tree::NodeI");
+	   return $self->get_root_node;
+       }
+       $self->{'_rootnode'} = $value;
+   }
+   return $self->get_root_node;
+}
+
+=head2 branch_length
+
+ Title   : branch_length
+ Usage   : my $size = $tree->branch_length
+ Function: Returns the number of branches 
  Returns : integer
  Args    : none
 
 =cut
 
-sub size{
+sub branch_length {
    my ($self) = @_;
-   return $self->{'_maxbranchlen'};
+   return 0;
 }
+
+
+# decorated intereface TreeI Implements this
+
+
+=head2 height
+
+ Title   : height
+ Usage   : my $height = $tree->height
+ Function: Gets the height of tree - this LOG_2($number_nodes)
+ Returns : integer
+ Args    : none
 
 =head2 number_nodes
 
@@ -200,10 +202,5 @@ sub size{
 
 
 =cut
-
-sub number_nodes{
-   my ($self) = @_;
-   return $self->{'_size'};
-}
 
 1;

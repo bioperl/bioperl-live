@@ -15,19 +15,22 @@
 Bio::Tree::Node - A Simple Tree Node
 
 =head1 SYNOPSIS
+    
+    use Bio::Tree::Node;
+    my $nodeA = new Bio::Tree::Node();
+    my $nodeL = new Bio::Tree::Node();
+    my $nodeR = new Bio::Tree::Node();
+    
+    my $node = new Bio::Tree::Node(-left   => $nodeL,
+				   -right  => $nodeR);
 
-    my $node = new Bio::Tree::Node(-parent => $node,
-				   -leaf   => 1);
-
-    if( $node->is_leaf ) {
-	# process a leafnode
-    } else {
-	# process a node
-    }
-
+    $nodeA->set_Left_Descendent($node);
+    
+    print "node is not a leaf \n" if( $node->is_leaf);
+   
 =head1 DESCRIPTION
 
-Makes a Tree Node suitable for building a node.
+Makes a Tree Node suitable for building a Tree.
 
 =head1 FEEDBACK
 
@@ -84,106 +87,248 @@ use Bio::Tree::NodeI;
  Usage   : my $obj = new Bio::Tree::Node();
  Function: Builds a new Bio::Tree::Node object 
  Returns : Bio::Tree::Node
- Args    : -parent => parent Node of this node
-           -leaf   => boolean if this is a leaf node
-
+ Args    : -left   => pointer to Left descendent (optional)
+           -right  => pointer to Right descenent (optional)
+	   -branch_length => branch length [integer] (optional)
+           -bootstrap => value   bootstrap value (string)
+           -desc      => description of node
+           -id        => unique id for node
 =cut
 
 sub new {
   my($class,@args) = @_;
 
   my $self = $class->SUPER::new(@args);
-  my ($parent,$leaf) = $self->_rearrange([qw(PARENT 
-					     LEAF)],
-					 @args);
-  $self->set_parent($parent);
-  $self->is_leaf($leaf);
+  my ($left,$right,$branchlen,$id,
+      $bootstrap, $desc) = $self->_rearrange([qw(LEFT RIGHT
+						 BRANCH_LENGTH
+						 ID
+						 BOOTSTRAP
+						 DESC
+						       )],
+					     @args);
+
+  defined $desc && $self->description($desc);  
+  defined $bootstrap && $self->bootstrap($bootstrap);
+  defined $id && $self->id($id);
+  defined $branchlen && $self->branch_length($branchlen);
+  
+  # these will operate fine if left or right is null
+  $self->set_Left_Descendent($left);
+  $self->set_Right_Descendent($right);
   return $self;
 }
 
-=head2 add_child
+=head get_Left_Descendent
 
- Title   : add_child
- Usage   : $node->add_child
- Function: Adds a node that is a child of a node,
-           If this node already has a child will call add_child to its 
-           child node
- Returns : integer - depth of the tree from this node to a leaf
+ Title   : get_Left_Descendent
+ Usage   : my $left_D = $node->get_Left_Descendent 
+ Function: Get the Left Descendant of a node
+ Returns : Bio::Tree::NodeI
+ Args    : none
+
+=cut
+
+sub get_Left_Descendent {
+   my ($self) = @_;
+   return $self->{'_left'};
+}
+
+=head get_Right_Descendent
+
+ Title   : get_Right_Descendent
+ Usage   : my $right_D = $node->get_Right_Descendent 
+ Function: Get the Right Descendant of a node
+ Returns : Bio::Tree::NodeI
+ Args    : none
+
+=cut
+
+sub get_Right_Descendent {
+   my ($self) = @_;
+   return $self->{'_right'};
+}
+
+=head set_Left_Descendent
+
+ Title   : set_Left_Descendent
+ Usage   : $node->set_Left_Descendent($left) 
+ Function: Set the Left Descendant of a node
+ Returns : Bio::Tree::NodeI
  Args    : Bio::Tree::NodeI
 
 =cut
 
-sub add_child{
-   my ($self,$node) = @_;   
-   if( !defined $node || ! $node->isa('Bio::Tree::NodeI') ) {
-       $self->throw("Must specify a Bio::Tree::NodeI to add_child");
+sub set_Left_Descendent {
+   my ($self,$value) = @_;
+   if( defined $value ) {   
+     if(! $value->isa('Bio::Tree::NodeI') ) { 
+	 $self->throw("Must specify a valid Bio::Tree::NodeI when setting a descendent");
+     } 
+     
+     $self->{'_left'} = $value;
+     $self->{'_left'}->set_Ancestor($self);
    }
-   my $r = 0;
-   if( $self->is_leaf ) {
-       $node->set_parent($self);
-       $self->{'_child'} = $node;
-   } else {
-       $r = $self->{'_child'}->add_child($node);
-   }
-   return $r + 1;
+   return $self->{'_left'};
 }
 
-=head2 get_child
+=head set_Right_Descendent
 
- Title   : get_child
- Usage   : my $nodechild = $node->get_child
- Function: Retrieves the node child at this point
- Returns : Bio::Node::NodeI
- Args    : none
-
+ Title   : set_Right_Descendent
+ Usage   : $node->set_Right_Descendent($right) 
+ Function: Set the Right Descendant of a node
+ Returns : Bio::Tree::NodeI
+ Args    : Bio::Tree::NodeI
 
 =cut
 
-sub get_child{
-   my ($self) = @_;
-   return $self->{'_child'};
+sub set_Right_Descendent {
+   my ($self,$value) = @_;
+   if( defined $value ) {   
+     if(! $value->isa('Bio::Tree::NodeI') ) { 
+	 $self->throw("Must specify a valid Bio::Tree::NodeI when setting a descendent");
+     } 
+     $self->{'_right'} = $value;
+     $self->{'_right'}->set_Ancestor($self);
+   }
+   return $self->{'_right'};
 }
 
-=head2 get_parent
+=head2 get_Ancestor
 
- Title   : get_parent
- Usage   : my $node = $node->parent;
- Function: Gets a Node\'s parent node
+ Title   : get_Ancestor
+ Usage   : my $node = $node->get_Ancestor;
+ Function: Gets a Node\'s ancestor node
  Returns : Null if this is top level node
  Args    : none
 
 =cut
 
-sub get_parent{
+sub get_Ancestor{
    my ($self,@args) = @_;
-   return $self->{'_parent'};
+   return $self->{'_ancestor'};
 }
 
-=head2 set_parent
 
- Title   : set_parent
- Usage   : $obj->set_parent($newval)
- Function: Set the parent(s)
- Returns : value of set_parent
+=head2 set_Ancestor
+
+ Title   : set_Ancestor
+ Usage   : $obj->set_Ancestor($newval)
+ Function: Set the Ancestor
+ Returns : value of set_Ancestor
  Args    : newvalue (optional)
 
 =cut
 
-sub set_parent{
+sub set_Ancestor{
    my ($self,$value) = @_;
    if( defined $value) {
-      $self->{'_parent'} = $value;
-    }
-    return $self->{'_parent'};
+       if(! $value->isa('Bio::Tree::NodeI') ) { 
+	   $self->throw("Must specify a valid Bio::Tree::NodeI when setting the ancestor");
+       }      
+       $self->{'_ancestor'} = $value;
+   }
+   return $self->{'_ancestor'};
 }
 
-=head2 is_leaf
+=head2 branch_length
+    
+ Title   : branch_length
+ Usage   : $obj->branch_length($newval)
+ Function: 
+ Example : 
+ Returns : value of branch_length
+ Args    : newvalue (optional)
 
- Title   : is_leaf
- Usage   : if( $node->is_leaf ) 
- Function: Get/Set Leaf status
+
+=cut
+
+sub branch_length{
+    my ($self,$value) = @_;
+    if( defined $value) {
+	$self->{'branch_length'} = $value;
+    }
+    return $self->{'branch_length'};
+}
+
+=head2 bootstrap
+
+ Title   : bootstrap
+ Usage   : $obj->bootstrap($newval)
+ Function: 
+ Example : 
+ Returns : value of bootstrap
+ Args    : newvalue (optional)
+
+
+=cut
+
+sub bootstrap{
+    my ($self,$value) = @_;
+    if( defined $value ) {
+       $self->{'_bootstrap'} = $value;       
+    }
+    return $self->{'_bootstrap'};
+}
+
+=head2 description
+
+ Title   : description
+ Usage   : $obj->description($newval)
+ Function: 
+ Example : 
+ Returns : value of description
+ Args    : newvalue (optional)
+
+
+=cut
+
+sub description{
+   my ($self,$value) = @_;
+   if( defined $value  ) {
+       $self->{'_description'} = $value;
+   }
+   return $self->{'_description'};
+}
+
+=head2 id
+
+ Title   : id
+ Usage   : $obj->id($newval)
+ Function: 
+ Example : 
+ Returns : value of id
+ Args    : newvalue (optional)
+
+
+=cut
+
+sub id{
+   my ($self,$value) = @_;
+   if( defined $value ) {
+       $self->{'_id'} = $value;
+   }
+   return $self->{'_id'};
+}
+
+=head2 is_Leaf
+
+ Title   : is_Leaf
+ Usage   : if( $node->is_Leaf ) 
+ Function: Get Leaf status
  Returns : boolean
- Args    : (optional) boolean
+ Args    : none
+
+=cut
+
+=head2 to_string
+
+ Title   : to_string
+ Usage   : my $str = $node->to_string()
+ Function: For debugging, provide a node as a string
+ Returns : string
+ Args    : none
+
 
 =cut
 

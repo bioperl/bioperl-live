@@ -68,6 +68,7 @@ use vars qw(@ISA);
 use strict;
 use Carp;
 
+
 sub _abstractDeath {
   my $self = shift;
   my $package = ref $self;
@@ -75,70 +76,106 @@ sub _abstractDeath {
   confess "Abstract method '$caller' defined in interfaceBio::Tree::NodeI not implemented by pacakge $package. Not your fault - author of $package should be blamed!";
 }
 
-=head2 add_child
 
- Title   : add_child
- Usage   : $node->add_child
- Function: Adds a node that is a child of a node,
-           If this node already has a child will call add_child to its 
-           child node
- Returns : integer - depth of the tree from this node to a leaf
- Args    : Bio::Tree::NodeI
+=head2 get_Descendents
 
-
-=cut
-
-sub add_child{
-   my ($self,@args) = @_;   
-   $self->_abstractDeath;
-}
-
-=head2 get_child
-
- Title   : get_child
- Usage   :
- Function:
- Example :
- Returns : 
- Args    :
-
-
-=cut
-
-sub get_child{
-   my ($self,@args) = @_;
-   $self->_abstractDeath;
-}
-
-=head2 get_parent
-
- Title   : get_parent
- Usage   : my $node = $node->parent;
- Function: Gets a Node\'s parent node
- Returns : Null if this is top level node
+ Title   : get_Descendents
+ Usage   : my @nodes = $node->get_Descendents;
+ Function: Recursively fetches all the child nodes
+ Returns : Array of Bio::Tree::NodeI objects
  Args    : none
 
 =cut
 
-sub get_parent{
-   my ($self,@args) = @_;
-   $self->_abstractDeath();
+sub get_Descendents{
+   my ($self) = @_;
+   my @children;
+   if( my $left = $self->get_Left_Descendent ) { 
+       push @children, ($left, $left->get_Descendents); 
+   } 
+   if( my $right = $self->get_Right_Descendent ) { 
+       push @children, ($right, $right->get_Descendents); 
+   }
+   return @children;
 }
 
-=head2 is_leaf
+=head2 is_Leaf
 
- Title   : is_leaf
- Usage   : if( $node->is_leaf ) 
- Function: Get/Set Leaf status
+ Title   : is_Leaf
+ Usage   : if( $node->is_Leaf ) 
+ Function: Get Leaf status
  Returns : boolean
- Args    : (optional) boolean
+ Args    : none
 
 =cut
 
-sub is_leaf{
+sub is_Leaf{
+    my ($self) = @_;
+    return if( ! $self->get_Right_Descendent &&
+	       ! $self->get_Left_Descendent );
+}
+
+
+=head2 descendent_count
+
+ Title   : descendent_count
+ Usage   : my $count = $node->descendent_count;
+ Function: Counts the number of descendents a node has 
+           (and all of their subnodes)
+ Returns : integer
+ Args    : none
+
+=cut
+
+sub descendent_count{
    my ($self) = @_;
-   return ( ! defined $self->get_child); 
-   $self->_abstractDeath();
+   my $count = 0;
+   
+   # how to avoid the possiblility that a node has 2 places in a tree...
+   if( my $left = $self->get_Left_Descendent ) { 
+       $count += $left->descendent_count;
+   }
+   
+   if( my $right = $self->get_Right_Descendent ) { 
+       $count += $right->descendent_count;
+   }   
+   return $count;
+}
+
+=head2 branch_length
+
+ Title   : branch_length
+ Usage   : $obj->branch_length($newval)
+ Function: 
+ Example : 
+ Returns : value of branch_length
+ Args    : newvalue (optional)
+
+
+=cut
+
+sub branch_length{
+    my ($self)= @_;
+    $self->_abstractDeath;
+
+}
+
+
+=head2 to_string
+
+ Title   : to_string
+ Usage   : my $str = $node->to_string()
+ Function: For debugging, provide a node as a string
+ Returns : string
+ Args    : none
+
+
+=cut
+
+sub to_string{
+   my ($self) = @_;
+   return sprintf("BL:%s",defined $self->branch_length ? 
+		  $self->branch_length : ' ');
 }
 
 
