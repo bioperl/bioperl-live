@@ -340,11 +340,13 @@ The following functions rely on the above functions. A implementing
 class does not need to provide these functions, as they will be
 provided by this class, but is free to override these functions.
 
-All of revcom(), trunc(), and translate() create new sequence objects. They
-will call new() on the class of the sequence object instance passed as
-argument. Implementors which really want to control how objects are created
-(eg, for object persistence over a database, or objects in a CORBA
-framework), they are encouraged to override these methods
+All of revcom(), trunc(), and translate() create new sequence
+objects. They will call new() on the class of the sequence object
+instance passed as argument, unless can_call_new() returns FALSE. In
+the latter case a Bio::PrimarySeq object will be created. Implementors
+which really want to control how objects are created (eg, for object
+persistence over a database, or objects in a CORBA framework), they
+are encouraged to override these methods
 
 =head2 revcom
 
@@ -413,7 +415,13 @@ sub revcom{
        $revseq =~ tr/tT/uU/;
    }
 
-   my $seqclass = ref($self);
+   my $seqclass;
+   if($self->can_call_new()) {
+       $seqclass = ref($self);
+   } else {
+       $seqclass = 'Bio::PrimarySeq';
+       $self->_attempt_to_load_Seq();
+   }
    my $out = $seqclass->new( '-seq' => $revseq,
 			     '-display_id'  => $self->display_id,
 			     '-accession_number' => $self->accession_number,
@@ -458,7 +466,13 @@ sub trunc{
        
    my $str = $self->subseq($start,$end);
 
-   my $seqclass = ref($self);
+   my $seqclass;
+   if($self->can_call_new()) {
+       $seqclass = ref($self);
+   } else {
+       $seqclass = 'Bio::PrimarySeq';
+       $self->_attempt_to_load_Seq();
+   }
    my $out = $seqclass->new( '-seq' => $str,
 			     '-display_id'  => $self->display_id,
 			     '-accession_number' => $self->accession_number,
@@ -576,7 +590,13 @@ sub translate {
       }
   }
 
-  my $seqclass = ref($self);
+  my $seqclass;
+  if($self->can_call_new()) {
+      $seqclass = ref($self);
+  } else {
+      $seqclass = 'Bio::PrimarySeq';
+      $self->_attempt_to_load_Seq();
+  }
   my $out = $seqclass->new( '-seq' => $output,
 			    '-display_id'  => $self->display_id,
 			    '-accession_number' => $self->accession_number,
