@@ -20,9 +20,7 @@ Bio::Tools::AnalysisResult - Base class for analysis result objects and parsers
     print "Method ", $result->analysis_method(),
           ", version " $result->analysis_method_version(), 
           ", performed on ", $result->analysis_date(), "\n";
-    # parse the result (utilizing SeqAnalysisParserI methods)
-    $result->parse('-input' => 'myfile.out');
-    # and annotate (e.g., a sequence)
+    # annotate a sequence utilizing SeqAnalysisParserI methods
     while($feat = $result->next_feature()) {
 	$seq->add_SeqFeature($feat);
     }
@@ -76,7 +74,7 @@ or the web:
 
 =head1 AUTHOR - Hilmar Lapp
 
-Email hlapp@gmx.net (or hilmar.lapp@pharma.novartis.com)
+Email hlapp@gmx.net
 
 Describe contact details here
 
@@ -127,7 +125,10 @@ sub _initialize {
 
            Performs initialization or reset of the state of this object. The
            difference to L<_initialize>() is that it may be called at any time,
-           and repeatedly within the lifetime of this object. 
+           and repeatedly within the lifetime of this object. B<Note, however,
+           that this is potentially dangerous in a multi-threading
+           environment. In general, calling this method twice is discouraged
+           for this reason.> 
 
            This method is supposed to reset the state such that any 'history'
            is lost. State information that does not change during object
@@ -192,7 +193,7 @@ sub _initialize_state {
     if((defined $file) && ($file ne '')) {
 	$fh = Symbol::gensym();
 	open ($fh,$file)
-	    || $self->throw("Could not open $file for Fasta stream reading $!");
+	    || $self->throw("Could not open $file for reading: $!");
     }
     if((! defined($fh)) && ($file eq "")) {
 	$fh = \*STDIN;
@@ -217,27 +218,30 @@ sub close {
    $self->{'_filehandle'} = undef;
 }
 
-=head2 parse
-
- Title   : parse
- Usage   : $obj->parse(-input=>$inputobj, [ -params=>[@params] ],
-		       [ -method => $method ] )
- Function: Sets up parsing for feature retrieval from an analysis file, 
-           or object
-
-           This method is required for all classes implementing the
-           SeqAnalysisParserI interface.
-
-           The implementation provided here calls automatically
-           _initialize_state() with passing on -input=>$inputobj and
-           @params as final arguments.
- Example :
- Returns : void
- Args    : B<input>  - object/file where analysis are coming from
-	   B<params> - parameter to use when parsing/running analysis
-	   B<method> - method of analysis
-
-=cut
+#  =head2 parse
+#
+#   Title   : parse
+#   Usage   : $obj->parse(-input=>$inputobj, [ -params=>[@params] ],
+#  		       [ -method => $method ] )
+#   Function: Sets up parsing for feature retrieval from an analysis file, 
+#             or object.
+#
+#             This method was originally required by SeqAnalysisParserI, but
+#             is now discouraged due to potential problems in a multi-
+#             threading environment (CORBA!). If called only once, it doesn't
+#             add any functionality to calling new() with the same
+#             parameters.
+#
+#             The implementation provided here calls automatically
+#             _initialize_state() and passes on -input=>$inputobj and
+#             @params as final arguments.
+#   Example :
+#   Returns : void
+#   Args    : B<input>  - object/file where analysis are coming from
+#  	   B<params> - parameter to use when parsing/running analysis
+#  	   B<method> - method of analysis
+#
+#  =cut
 
 sub parse {
     my ($self, @args) = @_;
