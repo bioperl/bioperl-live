@@ -20,8 +20,8 @@ BEGIN {
 	use lib 't';
     }
     use vars qw($NTESTS);
-    $NTESTS = 558;
-    $LASTXMLTEST = 50;
+    $NTESTS = 557;
+    $LASTXMLTEST = 49;
     $error = 0;
 
     use Test;
