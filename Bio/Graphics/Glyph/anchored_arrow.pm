@@ -130,7 +130,12 @@ In addition to the standard options, this glyph recognizes the following:
 
   -tick          draw a scale               0 (false)
 
-  -rel_coords    use relative coordinates   0 (false)
+  -relative_coords 
+                 use relative coordinates   0 (false)
+                 for scale
+
+  -relative_coords_offset 
+                 set the relative offset    1 
                  for scale
 
   -no_arrows     don't draw an arrow when   0 (false)

@@ -315,6 +315,14 @@ options are recognized:
               arrowhead.  "filled" to create
               a thick filled arrowhead
 
+  -relative_coords 
+                 use relative coordinates       0 (false)
+                 for scale
+
+  -relative_coords_offset 
+                 set the relative offset        1 
+                 for scale
+
   -units      add units to the tick labels      none
               e.g. bp
 
