@@ -10,6 +10,8 @@ my $error;
 use vars qw($SKIPXML $LASTXMLTEST); 
 use strict;
 use lib '.';
+use Dumpvalue();
+my $dumper = new Dumpvalue();
 
 BEGIN {     
     # to handle systems with no installed Test module
@@ -151,6 +153,7 @@ $searchio = new Bio::SearchIO ('-format' => 'blast',
 				  '-file'   => Bio::Root::IO->catfile('t','data','ecolitst.bls'));
 
 $result = $searchio->next_result;
+     $dumper->dumpValue($result);
 
 ok($result->database_name, 'ecoli.aa');
 ok($result->database_entries, 4289);

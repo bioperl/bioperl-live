@@ -86,6 +86,7 @@ use vars qw(@ISA);
 use strict;
 
 use Bio::Search::Result::GenericResult;
+use Bio::Search::BlastStatistics;
 
 @ISA = qw( Bio::Search::Result::GenericResult );
 

@@ -128,6 +128,8 @@ use strict;
 
 use Bio::Root::Root;
 use Bio::Search::Result::ResultI;
+use Bio::Search::GenericStatistics;
+use Bio::Tools::Run::GenericParameters;
 
 # bug #1420
 #use overload 
@@ -164,8 +166,8 @@ sub new {
 
   $self->{'_hits'} = [];
   $self->{'_hitindex'} = 0;
-  $self->{'_statistics'} = {};
-  $self->{'_parameters'} = {};
+  $self->{'_statistics'} = new Bio::Search::GenericStatistics;
+  $self->{'_parameters'} = new Bio::Tools::Run::GenericParameters;
 
   my ($qname,$qacc,$qdesc,$qlen,
       $dbname,$dblet,$dbent,$params,   
@@ -204,7 +206,8 @@ sub new {
           $self->throw("Must specify a hash reference with the the parameter '-parameters");
       }
       while( my ($key,$value) = each %{$params} ) {
-          $self->add_parameter($key,$value);
+          $self->{'_parameters'}->set_parameter($key   =>   $value);
+               # $self->add_parameter($key,$value);
       }
   }
   if( defined $stats ) {
@@ -212,7 +215,8 @@ sub new {
           $self->throw("Must specify a hash reference with the the parameter '-statistics");
       }
       while( my ($key,$value) = each %{$stats} ) {
-          $self->add_statistic($key,$value);
+          $self->{'_statistics'}->set_statistic($key   =>   $value); 
+          # $self->add_statistic($key,$value);
       }
   }
 
@@ -570,9 +574,9 @@ sub _nexthitindex{
 
 =cut
 
-sub add_parameter{
+sub add_parameter {
    my ($self,$key,$value) = @_;
-   $self->{'_parameters'}->{$key} = $value;
+   $self->{'_parameters'}->set_parameter($key => $value);
 }
 
 
