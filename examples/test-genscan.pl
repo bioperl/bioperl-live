@@ -51,10 +51,9 @@ while($gene = $genscan->next_prediction()) {
     # sequences
     my $cds;
     my $outseq;
+
     if($gene->predicted_protein()) {
-	$outseq = Bio::PrimarySeq->new('-seq' => $gene->predicted_protein(),
-				       '-id' => "pred_pept_" . $gene->primary_tag());
-	$seqout->write_seq($outseq);
+	$seqout->write_seq($gene->predicted_protein());
     }
     if($seq) {
 	$cds = Bio::PrimarySeq->new('-seq' => $gene->cds(1),
@@ -63,9 +62,7 @@ while($gene = $genscan->next_prediction()) {
 	$seqout->write_seq($outseq);
     }
     if($gene->predicted_cds()) {
-	$outseq = Bio::PrimarySeq->new('-seq' => $gene->predicted_cds(),
-				       '-id' => "cds_pred_" . $gene->primary_tag());
-	$seqout->write_seq($outseq);
+	$seqout->write_seq($gene->predicted_cds());
     }
     if($seq) {
 	$seqout->write_seq($cds);
