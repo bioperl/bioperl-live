@@ -692,38 +692,37 @@ sub write_seq {
 	    $self->_print($base_count); 
 	}
 	$self->_print(sprintf("ORIGIN%6s\n",''));
-	my $di;
 
-	# push sequence blocks to be printed into an array
-	# so we can comply with genbank format and not have 
-	# block \n
-	#     ^^ space after last block before newline is not allowed
-	#        in the strictest sense of the format 
-	my @seqline;
-	for ($i = 0; $i < length($str); $i += 10) {
+# print out the sequence
+	my $nuc = 60;		# Number of nucleotides per line
+	my $whole_pat = 'a10' x 6; # Pattern for unpacking a whole line
+	my $out_pat   = 'A11' x 6; # Pattern for packing a line
+	my $length = length($str);
 
-	    $di=$i+11;
+	# Calculate the number of nucleotides which fit on whole lines
+	my $whole = int($length / $nuc) * $nuc;
 
-	    #first line
-	    if ($i==0) {
-		$self->_print(sprintf("%9d ",1));
-	    }
-	    #print sequence, spaced by 10
-	    push @seqline, substr($str,$i,10);
-	    #break line and print number at beginning of next line
-	    if(($i+10)%60 == 0) {	    
-		$self->_print(join(' ', @seqline), "\n");
-		$self->_print(sprintf("%9d ",$di));
-		@seqline = ();
-	    }
+	# Print the whole lines
+	my( $i );
+	for ($i = 0; $i < $whole; $i += $nuc) {
+	    my $blocks = pack $out_pat,
+	    unpack $whole_pat,
+	    substr($str, $i, $nuc);
+            chop $blocks;
+	    $self->_print(sprintf("%9d $blocks\n", $i + $nuc - 59));
 	}
-	# fencepost problem, print whatever is left in the queue
-	# again we are doing this to comply with  genbank in the 
-	# strictest sense
-	$self->_print(join(' ', @seqline), ' ') if( @seqline );
 
+	# Print the last line
+	if (my $last = substr($str, $i)) {
+	    my $last_len = length($last);
+	    my $last_pat = 'a10' x int($last_len / 10) .'a'. $last_len % 10;
+	    my $blocks = pack $out_pat,
+	    unpack($last_pat, $last);
+            $blocks =~ s/ +$//;
+	    $self->_print(sprintf("%9d $blocks\n", $length - $last_len + 1));
+	}
 
-	$self->_print("\n//\n");
+	$self->_print("//\n");
 
 	$self->flush if $self->_flush_on_write && defined $self->_fh;
 	return 1;
