@@ -16,7 +16,7 @@ BEGIN {
 	use lib 't';
     }
     use Test;
-    $NTESTS = 14;
+    $NTESTS = 15;
     plan tests => $NTESTS }
 
 use Bio::Factory::EMBOSS;
@@ -25,6 +25,7 @@ use Bio::SeqIO;
 use Bio::AlignIO;
 my $compseqoutfile = 'dna1.4.compseq';
 my $wateroutfile   = 'cysprot.water';
+my $consoutfile    = 'cysprot.cons';
 END { 
 
     foreach ( $Test::ntest..$NTESTS ) { 
@@ -32,6 +33,7 @@ END {
     }
     unlink($compseqoutfile);
     unlink($wateroutfile);
+#    unlink($consoutfile);
 }
 
     
@@ -92,7 +94,7 @@ $water->run({ '-sequencea' => $seq,
 
 ok(-e $wateroutfile);
 
-my $alnin =new Bio::AlignIO(-format => 'emboss',
+my $alnin = new Bio::AlignIO(-format => 'emboss',
 			    -file   => $wateroutfile);
 
 ok( $alnin);
@@ -104,3 +106,15 @@ $aln = $alnin->next_aln;
 ok($aln);
 ok($aln->length, 339);
 ok(sprintf("%.2f",$aln->percentage_identity), 40.58);
+
+my $cons = $factory->program('cons');
+$cons->verbose(0);
+$in = new Bio::AlignIO(-format => 'msf',
+			  -file   => Bio::Root::IO->catfile('t',
+							    'data',
+							    'cysprot.msf'));
+my $aln2 = $in->next_aln;
+$cons->run({ '-msf'   => $aln2,
+	     '-outseq'=> $consoutfile});
+
+ok(-e $consoutfile);

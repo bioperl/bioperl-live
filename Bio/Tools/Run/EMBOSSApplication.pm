@@ -1,4 +1,4 @@
-# $Id$
+ # $Id$
 #
 # BioPerl module for Bio::Tools::Run::EMBOSSApplication
 #
@@ -84,6 +84,10 @@ Address:
      Wellcome Trust Genome Campus, Hinxton
      Cambs. CB10 1SD, United Kingdom
 
+=head2 CONTRIBUTORS
+
+Email: jason@bioperl.org
+
 =head1 APPENDIX
 
 The rest of the documentation details each of the object
@@ -98,7 +102,6 @@ use vars qw(@ISA);
 use strict;
 use Data::Dumper;
 use Bio::Root::Root;
-use Bio::SeqIO; # for auto dumping sequences to files
 use Bio::Root::IO;
 
 @ISA = qw(Bio::Root::Root);
@@ -148,30 +151,40 @@ sub run {
 	
 	if( defined $input->{$attr} && ref($input->{$attr}) ) {
 
-	    if( ($array = (ref($input->{$attr}) =~ /array/i)) ||
-		( $input->{$attr}->isa('Bio::PrimarySeqI')))
-	    {
-		my @seqs;
-		if( $array && defined $input->{$attr}->[0] && 
-		    $input->{$attr}->[0]->isa('Bio::PrimarySeqI') ) {
-		    @seqs = @{$input->{$attr}};
-		} else {
-		    @seqs = ($input->{$attr});
+	    my (@pieces);
+	    
+	    if( $array = (ref($input->{$attr}) =~ /array/i) ) {
+		foreach my $s ( @{$input->{$attr}} ) {
+		    @pieces = @{$input->{$attr}};
 		}
+	    } else {
+		@pieces = ($input->{$attr});
+	    }
+	    if( $pieces[0]->isa('Bio::PrimarySeqI') ) {
+		require Bio::SeqIO;
 		my ($tfh,$tempfile) = $self->{'_io'}->tempfile();
 		my $out = new Bio::SeqIO(-format => 'fasta',
 					 -fh     => $tfh);
-		foreach my $seq ( @seqs ) {
-		    $out->write_seq($seq);
-		}
+		foreach my $seq ( @pieces ) {
+			$out->write_seq($seq);
+		    }
 		$out->close();
+		$input->{$attr} = $tempfile;
+	    } elsif( $pieces[0]->isa('Bio::Align::AlignI') ) {
+		require Bio::AlignIO;
+		my ($tfh,$tempfile) = $self->{'_io'}->tempfile();
+		my $out = new Bio::AlignIO(-format => 'msf',
+					   -fh     => $tfh);
+		foreach my $p ( @pieces ) {
+		    $out->write_aln($p);
+		}
 		$input->{$attr} = $tempfile;
 	    }
 	}
 	# ADD: validate the values against acd
-
-	print "Input attr: ", $attr_name, " => ", %{$input}->{$attr}, "\n" 
-	    if $self->verbose > 1;;
+	
+	$self->debug("Input attr: ". $attr_name. " => ". 
+		     %{$input}->{$attr}. "\n"); 
 	$option_string .= " " . $attr;
 	$option_string .= " ". %{$input}->{$attr} 
 	   if %{$input}->{$attr};
