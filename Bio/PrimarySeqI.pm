@@ -303,31 +303,6 @@ sub can_call_new{
    return 0;
 }
 
-=head2 validate_seq
-
- Title   : validate_seq
- Usage   : if(! $seq->validate_seq($seq_str) ) {
-                print "sequence $seq_str is not valid for an object of type ",
-		      ref($seq), "\n";
-	   }
- Function: Validates a given sequence string. A validating sequence string
-           must be accepted by seq(). A string that does not validate will
-           lead to an exception if passed to seq().
- Example :
- Returns : TRUE if the supplied sequence string is valid for the object, and
-           FALSE otherwise.
- Args    : The sequence string to be validated.
-
-
-=cut
-
-sub validate_seq {
-   my ($self,@args) = @_;
-
-   # we default to 1 here
-   return 1;
-}
-
 =head2 moltype
 
  Title   : moltype
