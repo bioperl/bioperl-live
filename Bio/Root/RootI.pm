@@ -116,7 +116,7 @@ sub throw {
 	$verbosity = 0;
     }
 
-
+    $verbosity = 0 if( !defined $verbosity);
     if($verbosity < 0) {
 	# Low verbosity: no stack trace.
 	die $self->_set_err(@param)->string(-SHOW=>'msgnotechcontext', -CURRENT=>1);
