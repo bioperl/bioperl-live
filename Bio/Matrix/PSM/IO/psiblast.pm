@@ -71,8 +71,6 @@ our @ordered_alphabet = qw/A  R  N  D  C  Q  E  G  H  I  L  K  M  F  P  S  T  W 
 
 =cut
 
-
-
 sub new {
    my ($class,@args)=@_;
    my $line;
@@ -85,7 +83,6 @@ sub new {
    $self->{_ordered_alphabet} = \@ordered_alphabet;
    return $self;
 }
-
 
 =head2 next_psm
 
@@ -127,13 +124,10 @@ sub next_psm {
          for ( 0 .. 19 ) { push @{$args{'p'.$ordered_alphabet[$_]}}, shift @elements; }
          
          push @{$args{'ic'}}, $ic;
-         if ( scalar @{$args{'lA'}} > 5 ) {
-            last;
-         }
       }
    }
 
-   $self->{_end} = 1; #psiblast matrix files currently only hold one PSM per file
+   $self->{_end} = 1; # psiblast matrix files currently only hold one PSM per file
 
    my $psm = Bio::Matrix::PSM::ProtMatrix->new( %args );
    return $psm;
