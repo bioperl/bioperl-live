@@ -530,7 +530,7 @@ sub _parse_flat_file {
 sub _get_first_termid {
     my ( $self, $line ) = @_;
     
-    if ( $line =~ /;\s*([A-Z]{1,8}:\d{7})/ ) {
+    if ( $line =~ /;\s*([A-Z]{1,8}:\d{1,7})/ ) {
         return $1;
     }
     else {
