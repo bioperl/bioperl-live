@@ -14,12 +14,13 @@ See L<Bio::DB::GFF>
 # a simple oracle adaptor
 use strict;
 use Bio::DB::GFF::Adaptor::dbi;
-use Bio::DB::GFF::Adaptor::dbi::mysql;
-use Bio::DB::GFF::Adaptor::dbi::mysqlopt;
+#use Bio::DB::GFF::Adaptor::dbi::mysql;
+#use Bio::DB::GFF::Adaptor::dbi::mysqlopt;
 use Bio::DB::GFF::Util::Binning;
 use Bio::DB::GFF::Util::Rearrange; # for rearrange()
 use vars qw($VERSION @ISA);
-@ISA = qw(Bio::DB::GFF::Adaptor::dbi::mysqlopt);
+#@ISA = qw(Bio::DB::GFF::Adaptor::dbi::mysqlopt);
+@ISA = qw(Bio::DB::GFF::Adaptor::dbi);
 $VERSION = '0.50';
 
 use constant MAX_SEGMENT => 100_000_000;  # the largest a segment can get
@@ -58,6 +59,25 @@ SELECT fref,
 END
 ;
 
+use constant GETALIASLIKE =><<END;
+SELECT fref,
+       NVL(gclass,'Sequence'),
+       min(fstart),
+       max(fstop),
+       fstrand,
+       gname
+  FROM fdata,fgroup,fattribute,fattribute_to_feature
+  WHERE fattribute_to_feature.fattribute_value LIKE ?
+    AND fgroup.gclass=?
+    AND fgroup.gid=fdata.gid
+    AND fattribute.fattribute_name='Alias'
+    AND fattribute_to_feature.fattribute_id=fattribute.fattribute_id
+    AND fattribute_to_feature.fid=fdata.fid
+    GROUP BY fref,fstrand,gname
+END
+;
+
+
 use constant GETFORCEDSEQCOORDS =><<END;
 SELECT fref,
        NVL(gclass,'Sequence'),
@@ -73,14 +93,20 @@ SELECT fref,
 END
 ;
 
-use constant FULLTEXTSEARCH => <<END;
-SELECT distinct gclass,gname,fattribute_value,MATCH(fattribute_value) AGAINST (?) as score
-  FROM fgroup,fattribute_to_feature,fdata
-  WHERE fgroup.gid=fdata.gid
-    AND fdata.fid=fattribute_to_feature.fid
-    AND MATCH(fattribute_value) AGAINST (?)
-END
-;
+########################
+# moved from mysqlopt.pm
+########################
+
+# this is the largest that any reference sequence can be (100 megabases)
+use constant MAX_BIN    => 100_000_000;
+
+# this is the smallest bin (1 K)
+use constant MIN_BIN    => 1000;
+
+# size of range over which it is faster to force mysql to use the range for indexing
+use constant STRAIGHT_JOIN_LIMIT => 200_000;
+
+##############################################################################
 
 =head1 DESCRIPTION
 
@@ -910,118 +936,39 @@ sub make_meta_set_query {
    return 'INSERT INTO fmeta VALUES (?,?)';
 }
 
-
-sub make_types_join_part {
-  my $self = shift;
-  my ($srcseq,$start,$stop,$want_count) = @_;
-  my $query = defined($srcseq) || $want_count ? 'fdata.ftypeid=ftype.ftypeid'
-                                              : '';
-  return $query || '1=1';
-}
-
-=head2 make_types_where_part
-
- Title   : make_types_where_part
- Usage   : ($string,@args) = $db->make_types_where_part(@args)
- Function: create the WHERE portion of the SQL for fetching features type lists
- Returns : query string and bind arguments
- Args    : see below
- Status  : protected
-
-This method is called by get_types() to generate the query fragment
-and bind arguments for the WHERE part of the query that retrieves
-lists of feature types.  The four positional arguments are as follows:
-
- $refseq      reference sequence name
- $start       start of region
- $stop        end of region
- $want_count  true to return the count of this feature type
-
-=cut
-
-sub make_types_where_part {
-  my $self = shift;
-  my ($srcseq,$start,$stop,$want_count,$typelist) = @_;
-  my (@query,@args);
-  if (defined($srcseq)) {
-    push @query,'fdata.fref=?';
-    push @args,$srcseq;
-    if (defined $start or defined $stop) {
-      $start = 1           unless defined $start;
-      $stop  = MAX_SEGMENT unless defined $stop;
-      my ($q,@a) = $self->overlap_query($start,$stop);
-      push @query,"($q)";
-      push @args,@a;
-    }
-  }
-  if (defined $typelist && @$typelist) {
-    my ($q,@a) = $self->types_query($typelist);
-    push @query,($q);
-    push @args,@a;
-  }
-  my $query = @query ? join(' AND ',@query) : '1=1';
-  return wantarray ? ($query,@args) : $self->dbh->dbi_quote($query,@args);
-}
-
-sub make_types_group_part {
-  my $self = shift;
-  my ($srcseq,$start,$stop,$want_count) = @_;
-  return unless $srcseq or $want_count;
-  return 'ftype.fmethod,ftype.fsource';
-}
-
 sub make_classes_query {
   my $self = shift;
   return 'SELECT DISTINCT gclass FROM fgroup WHERE NOT gclass IS NULL';
 }
 
 
-# the same as in mysql.pm , but using other constants GETFORCEDSEQCOORDS,GETSEQCOORDS,GETALIASCOORDS
-# given sequence name, return (reference,start,stop,strand)
-sub make_abscoord_query {
+sub chunk_size {
   my $self = shift;
-  my ($name,$class,$refseq) = @_;
-  my $query = GETSEQCOORDS;
-  if ($name =~ /\*/) {
-    $name =~ tr/*/%/;
-    $query =~ s/gname=\?/gname LIKE ?/;
-  }
-  defined $refseq ? $self->dbh->do_query(GETFORCEDSEQCOORDS,$name,$class,$refseq) 
-    : $self->dbh->do_query($query,$name,$class);
+  $self->meta('chunk_size') || DEFAULT_CHUNK;
 }
 
-sub make_aliasabscoord_query {
-  my $self = shift;
-  my ($name,$class) = @_;
-  my $query = GETALIASCOORDS;
-  if ($name =~ /\*/) {
-    $name =~ tr/*/%/;
-    $query =~ s/gname=\?/gname LIKE ?/;
-  }
-  $self->dbh->do_query($query,$name,$class);
+sub getseqcoords_query {
+   my $self = shift;
+   return GETSEQCOORDS ;
 }
 
-# override parent
-sub get_abscoords_old {
+sub getaliascoords_query{
   my $self = shift;
-  my ($name,$class,$refseq)  = @_;
-
-  my $result = $self->SUPER::get_abscoords(@_);
-  return $result if $result;
-
-  my $sth = $self->dbh->do_query(GETALIASCOORDS,$name,$class);
-  my @result;
-  while (my @row = $sth->fetchrow_array) { push @result,\@row }
-  $sth->finish;
-
-  if (@result == 0) {
-    $self->error("$name not found in database");
-    return;
-  } else {
-    return \@result;
-  }
-
+  return GETALIASCOORDS ;
 }
+
+
+sub getforcedseqcoords_query{
+  my $self = shift;
+  return GETFORCEDSEQCOORDS ;
+}
+
+
+sub getaliaslike_query{
+  my $self = shift;
+  return GETALIASLIKE ;
+}
+
 
 sub make_features_select_part {
   my $self = shift;
@@ -1050,8 +997,7 @@ END
   $s;
 }
 
-
-sub make_features_from_part {
+sub make_features_from_part_bkup {
   my $self = shift;
   my $sparse = shift;
   my $options = shift || {};
@@ -1061,5 +1007,33 @@ sub make_features_from_part {
                                 : "fdata${index},ftype,fgroup\n";
 }
 
+
+####################################
+# moved from mysqlopt.pm
+###################################
+# meta values
+sub default_meta_values {
+  my $self = shift;
+  my @values = $self->SUPER::default_meta_values;
+  return (
+	  @values,
+	  max_bin => MAX_BIN,
+	  min_bin => MIN_BIN,
+	  straight_join_limit => STRAIGHT_JOIN_LIMIT,
+	 );
+}
+
+sub min_bin {
+  my $self = shift;
+  return $self->meta('min_bin') || MIN_BIN;
+}
+sub max_bin {
+  my $self = shift;
+  return $self->meta('max_bin') || MAX_BIN;
+}
+sub straight_join_limit {
+  my $self = shift;
+  return $self->meta('straight_join_limit') || STRAIGHT_JOIN_LIMIT;
+}
 
 1;

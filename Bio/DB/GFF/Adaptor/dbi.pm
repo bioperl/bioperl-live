@@ -22,6 +22,8 @@ use strict;
 use DBI;
 use Bio::DB::GFF;
 use Bio::DB::GFF::Util::Rearrange; # for rearrange()
+use Bio::DB::Fasta;
+use Bio::DB::GFF::Util::Binning;
 use Bio::DB::GFF::Adaptor::dbi::iterator;
 use Bio::DB::GFF::Adaptor::dbi::caching_handle;
 use vars qw($VERSION @ISA);
@@ -58,11 +60,33 @@ all adaptors, the following class-specific arguments are recgonized:
 # Create a new Bio::DB::GFF::Adaptor::dbi object
 sub new {
   my $class = shift;
-  my ($features_db,$username,$auth) = rearrange([
+  my ($features_db,$username,$auth,$dna_db,$acedb,$other) = rearrange([
 						 [qw(FEATUREDB DB DSN)],
 						 [qw(USERNAME USER)],
-						 [qw(PASSWORD PASS)]
+						 [qw(PASSWORD PASS)],
+                                                 [qw(DNADB DNA FASTA FASTA_DIR)],
+					         'ACEDB'
 						],@_);
+
+###############################################################
+# Moved from mysqlopt.pm - with the arguments $dna_db,$acedb
+###############################################################
+if ($dna_db) {
+    if (!ref($dna_db)) {
+      my $fasta_dir = $dna_db;
+      $dna_db = Bio::DB::Fasta->new($fasta_dir);
+      $dna_db or $class->throw("new(): Failed to create new Bio::DB::Fasta from files in $fasta_dir");
+    } else {
+      $dna_db->isa('Bio::DB::Fasta') or $class->throw("new(): $dna_db is not a Bio::DB::Fasta object");
+    }
+    $class->{dna_db} = $dna_db;
+  }
+
+  if ($acedb) {
+    $acedb->isa('Ace') or $class->throw("$acedb is not an acedb accessor object");
+    $class->{acedb} = $acedb;
+  }
+################################################################
 
   $features_db  || $class->throw("new(): Provide a data source or DBI database");
 
@@ -122,7 +146,7 @@ consistency checking.
 =cut
 
 # given sequence name, and optional (start,stop) give raw dna
-sub get_dna {
+sub get_dna_old {
   my $self = shift;
   my ($name,$start,$stop,$class) = @_;
   my ($offset,$length);
@@ -147,6 +171,67 @@ sub get_dna {
   }
   $dna;
 }
+
+sub get_dna {
+  my $self = shift;
+  my ($ref,$start,$stop,$class) = @_;
+  
+  # my $dna_db = $self->dna_db or return $self->SUPER::get_dna(@_);
+  # in actuality, the class is simply ignored by Bio::DB::Fasta
+  #$dna_db->seq($name,$start,$stop,$class);
+
+    # in actuality, the class is simply ignored by Bio::DB::Fasta
+   my $dna_db = $self->dna_db ;
+   return $dna_db->seq($ref,$start,$stop,$class) if $dna_db;
+
+   my ($offset_start,$offset_stop);
+
+  my $has_start = defined $start;
+  my $has_stop  = defined $stop;
+
+  my $reversed;
+  if ($has_start && $has_stop && $start > $stop) {
+    $reversed++;
+    ($start,$stop) = ($stop,$start);
+  }
+
+  # turn start and stop into 0-based offsets
+  my $cs = $self->chunk_size;
+  $start -= 1;  $stop -= 1;
+  $offset_start = int($start/$cs)*$cs;
+  $offset_stop  = int($stop/$cs)*$cs;
+
+  my $sth;
+  # special case, get it all
+  if (!($has_start || $has_stop)) {
+    $sth = $self->dbh->do_query('select fdna,foffset from fdna where fref=? order by foffset',$ref);
+  } 
+
+  elsif (!$has_stop) {
+    $sth = $self->dbh->do_query('select fdna,foffset from fdna where fref=? and foffset>=? order by foffset',
+				$ref,$offset_start);
+  } 
+
+  else {  # both start and stop defined
+    $sth = $self->dbh->do_query('select fdna,foffset from fdna where fref=? and foffset>=? and foffset<=? order by foffset',
+				$ref,$offset_start,$offset_stop);
+  }
+
+  my $dna;
+  while (my($frag,$offset) = $sth->fetchrow_array) {
+    substr($frag,0,$start-$offset) = '' if $has_start && $start > $offset;
+    $dna .= $frag;
+  }
+  substr($dna,$stop-$start+1)  = '' if $has_stop && $stop-$start+1 < length $dna;
+  if ($reversed) {
+    $dna = reverse $dna;
+    $dna =~ tr/gatcGATC/ctagCTAG/;
+  }
+
+  $sth->finish;
+  $dna;
+}
+
 
 =head2 get_abscoords
 
@@ -186,11 +271,7 @@ sub get_abscoords_b {
   }
 }
 
-####################################
-##
-##  SHULY - only a backup - delete when get_abscoords works fine!
-##
-#####################################
+
 sub get_abscoords {
   my $self = shift;
   my ($name,$class,$refseq)  = @_;
@@ -807,7 +888,12 @@ retrieved.
 =cut
 
 sub make_meta_get_query {
-  return;
+   return 'SELECT fvalue FROM fmeta WHERE fname=?';
+}
+
+
+sub dna_chunk_size {
+  shift->meta('chunk_size');
 }
 
 =head2 make_meta_set_query
@@ -904,6 +990,37 @@ sub do_initialize {
 
   1;
 }
+
+=head2 finish_load
+
+ Title   : finish_load
+ Usage   : $db->finish_load
+ Function: called after load_gff_line()
+ Returns : number of records loaded
+ Args    : none
+ Status  : protected
+
+This method performs schema-specific cleanup after loading a set of
+GFF records.  It finishes each of the statement handlers prepared by
+setup_load().
+
+=cut
+
+sub finish_load {
+  my $self = shift;
+
+  my $dbh = $self->features_db or return;
+  $dbh->do('UNLOCK TABLES') if $self->lock_on_load;
+
+  foreach (keys %{$self->{load_stuff}{sth}}) {
+    $self->{load_stuff}{sth}{$_}->finish;
+  }
+
+  my $counter = $self->{load_stuff}{counter};
+  delete $self->{load_stuff};
+  return $counter;
+}
+
 
 =head2 create_other_schema_objects
 
@@ -1020,122 +1137,6 @@ sub make_features_select_part {
   shift->throw("make_features_select_part(): must be implemented by subclass");
 }
 
-=head2 make_features_from_part
-
- Title   : make_features_from_part
- Usage   : $string = $db->make_features_from_part()
- Function: make from part of the features query
- Returns : a string
- Args    : none
- Status  : Abstract
-
-This abstract method creates the part of the features query that
-immediately follows the FROM keyword.
-
-=cut
-
-sub make_features_from_part {
-  shift->throw("make_features_from_part(): must be implemented by subclass");
-}
-
-=head2 make_features_join_part
-
- Title   : make_features_join_part
- Usage   : $string = $db->make_features_join_part()
- Function: make join part of the features query
- Returns : a string
- Args    : none
- Status  : Abstract
-
-This abstract method creates the part of the features query that
-immediately follows the WHERE keyword.  It is combined with the output
-of make_feautres_where_part() to form the full WHERE clause.  If you
-do not need to join, return "1".
-
-=cut
-
-sub make_features_join_part {
-  shift->throw("make_features_join_part(): must be implemented by subclass");
-}
-
-=head2 make_features_order_by_part
-
- Title   : make_features_order_by_part
- Usage   : ($query,@args) = $db->make_features_order_by_part()
- Function: make the ORDER BY part of the features() query
- Returns : a SQL fragment and bind arguments, if any
- Args    : none
- Status  : Abstract
-
-This abstract method creates the part of the features query that
-immediately follows the ORDER BY part of the query issued by
-features() and related methods.  Return undef if it is not necessary
-to order the returned features in some way.
-
-=cut
-
-sub make_features_order_by_part {
-  my $self = shift;
-  $self->throw("please implement a make_features_order_by_part() method");
-}
-
-=head2 make_features_by_name_where_part
-
- Title   : make_features_by_name_where_part
- Usage   : $db->make_features_by_name_where_part($class,$name)
- Function: create the SQL fragment needed to select a feature by its group name & class
- Returns : a SQL fragment and bind arguments
- Args    : class and name of the feature group
- Status  : Protected
-
-=cut
-
-sub make_features_by_name_where_part {
-  my $self = shift;
-  my ($class,$name) = @_;
-  shift->throw('make_features_by_name_where_part(): must be implemented by subclass');
-}
-
-=head2 make_features_by_id_where_part
-
- Title   : make_features_by_id_where_part
- Usage   : $db->make_features_by_id_where_part($ids)
- Function: create the SQL fragment needed to select a set of features by their ids
- Returns : a SQL fragment and bind arguments
- Args    : arrayref of IDs
- Status  : Protected
-
-=cut
-
-sub make_features_by_id_where_part {
-  my $self = shift;
-  my $ids  = shift;
-  shift->throw('make_features_by_id_where_part(): must be implemented by subclass');
-}
-
-sub make_features_by_attribute_where_part {
-  my $self = shift;
-  my $ids  = shift;
-  shift->throw('make_features_by_attribute_where_part(): must be implemented by subclass');
-}
-
-=head2 make_features_by_gid_where_part
-
- Title   : make_features_by_gid_where_part
- Usage   : $db->make_features_by_gid_where_part($ids)
- Function: create the SQL fragment needed to select a set of features by their group ids
- Returns : a SQL fragment and bind arguments
- Args    : arrayref of IDs
- Status  : Protected
-
-=cut
-
-sub make_features_by_gid_where_part {
-  my $self = shift;
-  my $ids  = shift;
-  shift->throw('make_features_by_gid_where_part(): must be implemented by subclass');
-}
-
 =head2 make_dna_query
 
  Title   : make_dna_query
@@ -1154,358 +1155,6 @@ sub make_dna_query {
   shift->throw("make_dna_query(): must be implemented by a subclass");
 }
 
-=head2 make_abscoord_query
-
- Title   : make_abscoord_query
- Usage   : $sth = $db->make_abscoord_query($name,$class);
- Function: create query that finds the reference sequence coordinates given a landmark & classa
- Returns : a DBI statement handle
- Args    : name and class of landmark
- Status  : Abstract
-
-The statement handler should return rows containing five fields:
-
-  1. reference sequence name
-  2. reference sequence class
-  3. start position
-  4. stop position
-  5. strand ("+" or "-")
-
-If the database does not recognize different classes of reference
-sequence, return "Sequence" as the class.
-
-=cut
-
-# generate the fragment of SQL responsible for returning the
-# reference sequence, start, stop and strand given a sequence class
-# and name.
-sub make_abscoord_query {
-  my $self = shift;
-  my ($seq_name,$seq_class) = @_;
-  $self->throw("make_abscoord_query(): must be implemented by subclass");
-  # in scalar context, return a query string.
-  # in array context, return a query string and bind arguments
-}
-sub make_aliasabscoord_query {
-  my $self = shift;
-  my ($seq_name,$seq_class) = @_;
-  $self->throw("make_aliasabscoord_query(): must be implemented by subclass");
-  # in scalar context, return a query string.
-  # in array context, return a query string and bind arguments
-}
-
-
-=head2 refseq_query
-
- Title   : refseq_query
- Usage   : ($query,@args) = $db->refseq_query($name,$class)
- Function: create SQL fragment that selects the desired reference sequence
- Returns : a list containing the query and bind arguments
- Args    : reference sequence name and class
- Status  : Abstract
-
-This method is called by make_features_by_range_where_part() to construct the
-part of the select WHERE section that selects a particular reference
-sequence.  It returns a mult-element list in which the first element
-is the SQL fragment and subsequent elements are bind values.  For
-example:
-
-  sub refseq_query {
-     my ($name,$class) = @_;
-     return ('gff.refseq=? AND gff.refclass=?',
-	     $name,$class);
-  }
-
-=cut
-
-sub refseq_query {
-  my $self = shift;
-  my ($refseq,$refclass) = @_;
-  $self->throw("refseq_query(): must be implemented by subclass");
-  # in scalar context, return a query string.
-  # in array context, return a query string and bind arguments
-}
-
-
-=head2 overlap_query
-
- Title   : overlap_query
- Usage   : ($query,@args) = $db->overlap_query($start,$stop)
- Function: create SQL fragment that selects the desired features by range
- Returns : a list containing the query and bind arguments
- Args    : the start and stop of a range, inclusive
- Status  : Abstract
-
-This method is called by make_features_by_range_where_part() to construct the
-part of the select WHERE section that selects a set of features that
-overlap a range. It returns a multi-element list in which the first
-element is the SQL fragment and subsequent elements are bind values.
-For example:
-
-  sub overlap_query {
-     my ($start,$stop) = @_;
-     return ('gff.stop>=? AND gff.start<=?',
-	     $start,$stop);
-  }
-
-=cut
-
-# generate the fragment of SQL responsible for searching for
-# features that overlap a given range
-sub overlap_query {
-  my $self = shift;
-  my ($start,$stop) = @_;
-  $self->throw("overlap_query(): must be implemented by subclass");
-  # in scalar context, return a query string.
-  # in array context, return a query string and bind arguments
-}
-
-=head2 contains_query
-
- Title   : contains_query
- Usage   : ($query,@args) = $db->contains_query($start,$stop)
- Function: create SQL fragment that selects the desired features by range
- Returns : a list containing the query and bind arguments
- Args    : the start and stop of a range, inclusive
- Status  : Abstract
-
-This method is called by make_features_by_range_where_part() to construct the
-part of the select WHERE section that selects a set of features
-entirely enclosed by a range. It returns a multi-element list in which
-the first element is the SQL fragment and subsequent elements are bind
-values.  For example:
-
-  sub contains_query {
-     my ($start,$stop) = @_;
-     return ('gff.start>=? AND gff.stop<=?',
-	     $start,$stop);
-  }
-
-=cut
-
-# generate the fragment of SQL responsible for searching for
-# features that are completely contained within a range
-sub contains_query {
-  my $self = shift;
-  my ($start,$stop) = @_;
-  $self->throw("contains_query(): must be implemented by subclass");
-  # in scalar context, return a query string.
-  # in array context, return a query string and bind arguments
-}
-
-=head2 contained_in_query
-
- Title   : contained_in_query
- Usage   : ($query,@args) = $db->contained_in_query($start,$stop)
- Function: create SQL fragment that selects the desired features by range
- Returns : a list containing the query and bind arguments
- Args    : the start and stop of a range, inclusive
- Status  : Abstract
-
-This method is called by make_features_by_range_where_part() to construct the
-part of the select WHERE section that selects a set of features
-entirely enclosed by a range. It returns a multi-element list in which
-the first element is the SQL fragment and subsequent elements are bind
-values.  For example:
-
-  sub contained_in_query {
-     my ($start,$stop) = @_;
-     return ('gff.start<=? AND gff.stop>=?',
-	     $start,$stop);
-  }
-
-=cut
-
-# generate the fragment of SQL responsible for searching for
-# features that are completely contained within a range
-sub contained_in_query {
-  my $self = shift;
-  my ($start,$stop) = @_;
-  $self->throw("contained_in_query(): must be implemented by subclass");
-  # in scalar context, return a query string.
-  # in array context, return a query string and bind arguments
-}
-
-=head2 types_query
-
- Title   : types_query
- Usage   : ($query,@args) = $db->types_query($types)
- Function: create SQL fragment that selects the desired features by type
- Returns : a list containing the query and bind arguments
- Args    : an array reference containing the types
- Status  : Abstract
-
-This method is called by make_features_by_range_where_part() to construct the
-part of the select WHERE section that selects a set of features based
-on their type. It returns a multi-element list in which the first
-element is the SQL fragment and subsequent elements are bind values.
-The argument is an array reference containing zero or more
-[$method,$source] pairs.
-
-=cut
-
-#'
-
-# generate the fragment of SQL responsible for searching for
-# features with particular types and methods
-sub types_query {
-  my $self  = shift;
-  my $types = shift;  # array ref
-  $self->throw("types_query(): must be implemented by subclass");
-  # in scalar context, return a query string.
-  # in array context, return a query string and bind arguments
-}
-
-=head2 make_types_select_part
-
- Title   : make_types_select_part
- Usage   : ($string,@args) = $db->make_types_select_part(@args)
- Function: create the select portion of the SQL for fetching features type list
- Returns : query string and bind arguments
- Args    : see below
- Status  : Abstract
-
-This abstract method is called by get_types() to generate the query
-fragment and bind arguments for the SELECT part of the query that
-retrieves lists of feature types.  The four positional arguments are
-as follows:
-
- $refseq      reference sequence name
- $start       start of region
- $stop        end of region
- $want_count  true to return the count of this feature type
-
-If $want_count is false, the SQL fragment returned must produce a list
-of feature types in the format (method, source).
-
-If $want_count is true, the returned fragment must produce a list of
-feature types in the format (method, source, count).
-
-=cut
-
-sub make_types_select_part {
-  my $self = shift;
-  my ($srcseq,$start,$stop,$want_count) = @_;
-  $self->throw("make_types_select_part(): must be implemented by subclass");
-}
-
-=head2 make_types_from_part
-
- Title   : make_types_from_part
- Usage   : ($string,@args) = $db->make_types_from_part(@args)
- Function: create the FROM portion of the SQL for fetching features type lists
- Returns : query string and bind arguments
- Args    : see below
- Status  : Abstract
-
-This abstract method is called by get_types() to generate the query
-fragment and bind arguments for the FROM part of the query that
-retrieves lists of feature types.  The four positional arguments are
-as follows:
-
- $refseq      reference sequence name
- $start       start of region
- $stop        end of region
- $want_count  true to return the count of this feature type
-
-If $want_count is false, the SQL fragment returned must produce a list
-of feature types in the format (method, source).
-
-If $want_count is true, the returned fragment must produce a list of
-feature types in the format (method, source, count).
-
-=cut
-
-sub make_types_from_part {
-  my $self = shift;
-  my ($srcseq,$start,$stop,$want_count) = @_;
-  $self->throw("make_types_from_part(): must be implemented by subclass");
-}
-
-=head2 make_types_join_part
-
- Title   : make_types_join_part
- Usage   : ($string,@args) = $db->make_types_join_part(@args)
- Function: create the JOIN portion of the SQL for fetching features type lists
- Returns : query string and bind arguments
- Args    : see below
- Status  : Abstract
-
-This abstract method is called by get_types() to generate the query
-fragment and bind arguments for the JOIN part of the query that
-retrieves lists of feature types.  The four positional arguments are
-as follows:
-
- $refseq      reference sequence name
- $start       start of region
- $stop        end of region
- $want_count  true to return the count of this feature type
-
-=cut
-
-sub make_types_join_part {
-  my $self = shift;
-  my ($srcseq,$start,$stop,$want_count) = @_;
-  $self->throw("make_types_join_part(): must be implemented by subclass");
-}
-
-=head2 make_types_where_part
-
- Title   : make_types_where_part
- Usage   : ($string,@args) = $db->make_types_where_part(@args)
- Function: create the WHERE portion of the SQL for fetching features type lists
- Returns : query string and bind arguments
- Args    : see below
- Status  : Abstract
-
-This abstract method is called by get_types() to generate the query
-fragment and bind arguments for the WHERE part of the query that
-retrieves lists of feature types.  The four positional arguments are
-as follows:
-
- $refseq      reference sequence name
- $start       start of region
- $stop        end of region
- $want_count  true to return the count of this feature type
-
-=cut
-
-sub make_types_where_part {
-  my $self = shift;
-  my ($srcseq,$start,$stop,$want_count) = @_;
-  $self->throw("make_types_where_part(): must be implemented by subclass");
-}
-
-=head2 make_types_group_part
-
- Title   : make_types_group_part
- Usage   : ($string,@args) = $db->make_types_group_part(@args)
- Function: create the GROUP BY portion of the SQL for fetching features type lists
- Returns : query string and bind arguments
- Args    : see below
- Status  : Abstract
-
-This abstract method is called by get_types() to generate the query
-fragment and bind arguments for the GROUP BY part of the query that
-retrieves lists of feature types.  The four positional arguments are
-as follows:
-
- $refseq      reference sequence name
- $start       start of region
- $stop        end of region
- $want_count  true to return the count of this feature type
-
-This method may return an empty list if grouping is not required.
-Note, however, that grouping will always be required if a type count
-is requested.
-
-=cut
-
-sub make_types_group_part {
-  my $self = shift;
-  my ($srcseq,$start,$stop,$want_count) = @_;
-  $self->throw("make_types_group_part(): must be implemented by subclass");
-}
 
 =head2 tables
 
@@ -1566,6 +1215,821 @@ sub DESTROY {
 
 ################## query cache ##################
 
+
+#########################################  
+## Moved from mysql.pm and mysqlopt.pm ##
+#########################################
+
+=head2 make_features_by_name_where_part
+
+ Title   : make_features_by_name_where_part
+ Usage   : $db->make_features_by_name_where_part
+ Function: create the SQL fragment needed to select a feature by its group name & class
+ Returns : a SQL fragment and bind arguments
+ Args    : see below
+ Status  : Protected
+
+=cut
+
+sub make_features_by_name_where_part {
+  my $self = shift;
+  my ($class,$name) = @_;
+  if ($name =~ /\*/) {
+    $name =~ s/\*/%/g;
+    return ("fgroup.gclass=? AND fgroup.gname LIKE ?",$class,$name);
+  } else {
+    return ("fgroup.gclass=? AND fgroup.gname=?",$class,$name);
+  }
+}
+
+sub make_features_by_attribute_where_part {
+  my $self = shift;
+  my $attributes = shift;
+  my @args;
+  my @sql;
+  foreach (keys %$attributes) {
+     push @sql,"(fattribute.fattribute_name=? AND fattribute_to_feature.fattribute_value=?)";
+     push @args,($_,$attributes->{$_});
+  }
+  return (join(' OR ',@sql),@args);
+}
+
+=head2 make_features_by_id_where_part
+
+ Title   : make_features_by_id_where_part
+ Usage   : $db->make_features_by_id_where_part($ids)
+ Function: create the SQL fragment needed to select a set of features by their ids
+ Returns : a SQL fragment and bind arguments
+ Args    : arrayref of IDs
+ Status  : Protected
+
+=cut
+
+sub make_features_by_id_where_part {
+  my $self = shift;
+  my $ids = shift;
+  my $set = join ",",@$ids;
+  return ("fdata.fid IN ($set)");
+}
+
+=head2 make_features_by_gid_where_part
+
+ Title   : make_features_by_id_where_part
+ Usage   : $db->make_features_by_gid_where_part($ids)
+ Function: create the SQL fragment needed to select a set of features by their ids
+ Returns : a SQL fragment and bind arguments
+ Args    : arrayref of IDs
+ Status  : Protected
+
+=cut
+
+sub make_features_by_gid_where_part {
+  my $self = shift;
+  my $ids = shift;
+  my $set = join ",",@$ids;
+  return ("fgroup.gid IN ($set)");
+}
+
+=head2 make_features_select_part
+
+ Title   : make_features_select_part
+ Usage   : $string = $db->make_features_select_part()
+ Function: make select part of the features query
+ Returns : a string
+ Args    : none
+ Status  : protected
+
+This method creates the part of the features query that immediately
+follows the SELECT keyword.
+
+=cut
+
+=head2 make_features_from_part
+
+ Title   : make_features_from_part
+ Usage   : $string = $db->make_features_from_part()
+ Function: make from part of the features query
+ Returns : a string
+ Args    : none
+ Status  : protected
+
+This method creates the part of the features query that immediately
+follows the FROM keyword.
+
+=cut
+
+sub make_features_from_part {
+  my $self = shift;
+  my $sparse = shift;
+  my $options = shift || {};
+  return $options->{attributes} ? "fdata,ftype,fgroup,fattribute,fattribute_to_feature\n"
+                                : "fdata,ftype,fgroup\n";
+}
+
+
+=head2 make_features_join_part
+
+ Title   : make_features_join_part
+ Usage   : $string = $db->make_features_join_part()
+ Function: make join part of the features query
+ Returns : a string
+ Args    : none
+ Status  : protected
+
+This method creates the part of the features query that immediately
+follows the WHERE keyword.
+
+=cut
+
+sub make_features_join_part {
+  my $self = shift;
+  my $options = shift || {};
+  return !$options->{attributes} ? <<END1 : <<END2;
+  fgroup.gid = fdata.gid 
+  AND ftype.ftypeid = fdata.ftypeid
+END1
+  fgroup.gid = fdata.gid 
+  AND ftype.ftypeid = fdata.ftypeid
+  AND fattribute.fattribute_id=fattribute_to_feature.fattribute_id
+  AND fdata.fid=fattribute_to_feature.fid
+END2
+}
+
+=head2 make_features_order_by_part
+
+ Title   : make_features_order_by_part
+ Usage   : ($query,@args) = $db->make_features_order_by_part()
+ Function: make the ORDER BY part of the features() query
+ Returns : a SQL fragment and bind arguments, if any
+ Args    : none
+ Status  : protected
+
+This method creates the part of the features query that immediately
+follows the ORDER BY part of the query issued by features() and
+related methods.
+
+=cut
+
+sub make_features_order_by_part {
+  my $self = shift;
+  my $options = shift || {};
+  return "fgroup.gname";
+}
+
+=head2 make_features_group_by_part
+
+ Title   : make_features_group_by_part
+ Usage   : ($query,@args) = $db->make_features_group_by_part()
+ Function: make the GROUP BY part of the features() query
+ Returns : a SQL fragment and bind arguments, if any
+ Args    : none
+ Status  : protected
+
+This method creates the part of the features query that immediately
+follows the GROUP BY part of the query issued by features() and
+related methods.
+
+=cut
+
+sub make_features_group_by_part {
+  my $self = shift;
+  my $options = shift || {};
+  my $att = $options->{attributes} or return;
+  my $key_count = keys %$att;
+  return unless $key_count > 1;
+  #return ("fdata.fid having count(fdata.fid) > ?",$key_count-1);
+  return ("fref,fstart,fstop,fsource,fmethod,fscore,fstrand,fphase,gclass,gname,ftarget_start,ftarget_stop,fdata.fid,fdata.gid having count(fdata.fid) > ?",$key_count-1);
+
+  if (my $att = $options->{attributes}) {
+    my $key_count = keys %$att;
+    return unless $key_count > 1;
+    return ("fdata.fid,fref,fstart,fstop,fsource,
+           fmethod,fscore,fstrand,fphase,gclass,gname,ftarget_start,
+           ftarget_stop,fdata.gid
+     HAVING count(fdata.fid) > ?",$key_count-1);
+  }
+  elsif (my $b = $options->{bin_width}) {
+    return "fref,fstart,fdata.ftypeid";
+  }
+
+}
+
+=head2 refseq_query
+
+ Title   : refseq_query
+ Usage   : ($query,@args) = $db->refseq_query($name,$class)
+ Function: create SQL fragment that selects the desired reference sequence
+ Returns : a list containing the query and bind arguments
+ Args    : reference sequence name and class
+ Status  : protected
+
+This method is called by make_features_by_range_where_part() to
+construct the part of the select WHERE section that selects a
+particular reference sequence.  It returns a mult-element list in
+which the first element is the SQL fragment and subsequent elements
+are bind values.
+
+For example:
+
+  sub refseq_query {
+     my ($name,$class) = @_;
+     return ('gff.refseq=? AND gff.refclass=?',
+	     $name,$class);
+  }
+
+The current schema does not distinguish among different classes of
+reference sequence.
+
+=cut
+
+# IMPORTANT NOTE: THE MYSQL SCHEMA IGNORES THE SEQUENCE CLASS
+# THIS SHOULD BE FIXED
+sub refseq_query {
+  my $self = shift;
+  my ($refseq,$refclass) = @_;
+  my $query = "fdata.fref=?";
+  return wantarray ? ($query,$refseq) : $self->dbh->dbi_quote($query,$refseq);
+}
+
+=head2 attributes
+
+ Title   : attributes
+ Usage   : @attributes = $db->attributes($id,$name)
+ Function: get the attributes on a particular feature
+ Returns : an array of string
+ Args    : feature ID
+ Status  : public
+
+Some GFF version 2 files use the groups column to store a series of
+attribute/value pairs.  In this interpretation of GFF, the first such
+pair is treated as the primary group for the feature; subsequent pairs
+are treated as attributes.  Two attributes have special meaning:
+"Note" is for backward compatibility and is used for unstructured text
+remarks.  "Alias" is considered as a synonym for the feature name.
+
+If no name is provided, then attributes() returns a flattened hash, of
+attribute=E<gt>value pairs.  This lets you do:
+
+  %attributes = $db->attributes($id);
+
+Normally, attributes() will be called by the feature:
+
+  @notes = $feature->attributes('Note');
+
+=cut
+
+sub do_attributes {
+  my $self        = shift;
+  my ($id,$tag)   = @_;
+  my $from   = 'fattribute_to_feature,fattribute';
+  my $join   = 'fattribute.fattribute_id=fattribute_to_feature.fattribute_id';
+  my $where1 = 'fid=? AND fattribute_name=?';
+  my $where2 = 'fid=?';
+  my $sth = defined($tag) ? $self->dbh->do_query("SELECT fattribute_value FROM $from WHERE $where1 AND $join",$id,$tag)
+                          : $self->dbh->do_query("SELECT fattribute_name,fattribute_value FROM $from WHERE $where2 AND $join",$id);
+  my @result;
+  while (my @stuff = $sth->fetchrow_array) {
+    push @result,@stuff;
+  }
+  $sth->finish;
+  return @result;
+}
+
+
+
+=head2 overlap_query_nobin
+
+ Title   : overlap_query
+ Usage   : ($query,@args) = $db->overlap_query($start,$stop)
+ Function: create SQL fragment that selects the desired features by range
+ Returns : a list containing the query and bind arguments
+ Args    : the start and stop of a range, inclusive
+ Status  : protected
+
+This method is called by make_features_byrange_where_part() to construct the
+part of the select WHERE section that selects a set of features that
+overlap a range. It returns a multi-element list in which the first
+element is the SQL fragment and subsequent elements are bind values.
+
+
+sub overlap_query_nobin {
+     my ($start,$stop) = @_;
+     return ('gff.stop>=? AND gff.start<=?',
+	     $start,$stop);
+
+=cut
+
+# find features that overlap a given range
+sub overlap_query_nobin {
+  my $self = shift;
+  my ($start,$stop) = @_;
+
+  my $query    = qq(fdata.fstop>=? AND fdata.fstart<=?);
+  return wantarray ? ($query,$start,$stop) : $self->dbh->dbi_quote($query,$start,$stop);
+}
+
+=head2 contains_query_nobin
+
+ Title   : contains_query
+ Usage   : ($query,@args) = $db->contains_query($start,$stop)
+ Function: create SQL fragment that selects the desired features by range
+ Returns : a list containing the query and bind arguments
+ Args    : the start and stop of a range, inclusive
+ Status  : protected
+
+This method is called by make_features_byrange_where_part() to construct the
+part of the select WHERE section that selects a set of features
+entirely enclosed by a range. It returns a multi-element list in which
+the first element is the SQL fragment and subsequent elements are bind
+values. For example:
+
+  sub contains_query_nobin {
+     my ($start,$stop) = @_;
+     return ('gff.start>=? AND gff.stop<=?',
+	     $start,$stop);
+
+=cut
+
+# find features that are completely contained within a range
+sub contains_query_nobin {
+  my $self = shift;
+  my ($start,$stop) = @_;
+  my $query    = qq(fdata.fstart>=? AND fdata.fstop<=?);
+  return wantarray ? ($query,$start,$stop) : $self->dbh->dbi_quote($query,$start,$stop);
+}
+
+=head2 contained_in_query_nobin
+
+ Title   : contained_in_query_nobin
+ Usage   : ($query,@args) = $db->contained_in_query($start,$stop)
+ Function: create SQL fragment that selects the desired features by range
+ Returns : a list containing the query and bind arguments
+ Args    : the start and stop of a range, inclusive
+ Status  : protected
+
+This method is called by make_features_byrange_where_part() to construct the
+part of the select WHERE section that selects a set of features
+entirely enclosed by a range. It returns a multi-element list in which
+the first element is the SQL fragment and subsequent elements are bind
+values.For example:
+
+  sub contained_in_query_nobin {
+     my ($start,$stop) = @_;
+     return ('gff.start<=? AND gff.stop>=?',
+	     $start,$stop);
+  }
+
+=cut
+
+# find features that are completely contained within a range
+sub contained_in_query_nobin {
+  my $self = shift;
+  my ($start,$stop) = @_;
+  my $query    = qq(fdata.fstart<=? AND fdata.fstop>=?);
+  return wantarray ? ($query,$start,$stop) : $self->dbh->dbi_quote($query,$start,$stop);
+}
+
+=head2 types_query
+
+ Title   : types_query
+ Usage   : ($query,@args) = $db->types_query($types)
+ Function: create SQL fragment that selects the desired features by type
+ Returns : a list containing the query and bind arguments
+ Args    : an array reference containing the types
+ Status  : protected
+
+This method is called by make_features_byrange_where_part() to construct the
+part of the select WHERE section that selects a set of features based
+on their type. It returns a multi-element list in which the first
+element is the SQL fragment and subsequent elements are bind values.
+The argument is an array reference containing zero or more
+[$method,$source] pairs.
+
+=cut
+
+# generate the fragment of SQL responsible for searching for
+# features with particular types and methods
+sub types_query {
+  my $self = shift;
+  my $types = shift;
+
+  my @method_queries;
+  my @args;
+  for my $type (@$types) {
+    my ($method,$source) = @$type;
+    my $meth_query = $self->exact_match('fmethod',$method) if defined $method && length $method;
+    my $src_query  = $self->exact_match('fsource',$source) if defined $source && length $source;
+    my @pair;
+    if (defined $method && length $method) {
+      push @pair,$self->exact_match('fmethod',$method);
+      push @args,$method;
+    }
+    if (defined $source && length $source) {
+      push @pair,$self->exact_match('fsource',$source);
+      push @args,$source;
+    }
+    push @method_queries,"(" . join(' AND ',@pair) .")" if @pair;
+  }
+  my $query = " (".join(' OR ',@method_queries).")\n" if @method_queries;
+  return wantarray ? ($query,@args) : $self->dbh->dbi_quote($query,@args);
+}
+
+=head2 make_types_select_part
+
+ Title   : make_types_select_part
+ Usage   : ($string,@args) = $db->make_types_select_part(@args)
+ Function: create the select portion of the SQL for fetching features type list
+ Returns : query string and bind arguments
+ Args    : see below
+ Status  : protected
+
+This method is called by get_types() to generate the query fragment
+and bind arguments for the SELECT part of the query that retrieves
+lists of feature types.  The four positional arguments are as follows:
+
+ $refseq      reference sequence name
+ $start       start of region
+ $stop        end of region
+ $want_count  true to return the count of this feature type
+
+If $want_count is false, the SQL fragment returned must produce a list
+of feature types in the format (method, source).
+
+If $want_count is true, the returned fragment must produce a list of
+feature types in the format (method, source, count).
+
+=cut
+
+#------------------------- support for the types() query ------------------------
+sub make_types_select_part {
+  my $self = shift;
+  my ($srcseq,$start,$stop,$want_count) = @_;
+  my $query = $want_count ? 'ftype.fmethod,ftype.fsource,count(fdata.ftypeid)'
+                          : 'fmethod,fsource';
+  return $query;
+}
+
+=head2 make_types_from_part
+
+ Title   : make_types_from_part
+ Usage   : ($string,@args) = $db->make_types_from_part(@args)
+ Function: create the FROM portion of the SQL for fetching features type lists
+ Returns : query string and bind arguments
+ Args    : see below
+ Status  : protected
+
+This method is called by get_types() to generate the query fragment
+and bind arguments for the FROM part of the query that retrieves lists
+of feature types.  The four positional arguments are as follows:
+
+ $refseq      reference sequence name
+ $start       start of region
+ $stop        end of region
+ $want_count  true to return the count of this feature type
+
+If $want_count is false, the SQL fragment returned must produce a list
+of feature types in the format (method, source).
+
+If $want_count is true, the returned fragment must produce a list of
+feature types in the format (method, source, count).
+
+=cut
+
+sub make_types_from_part {
+  my $self = shift;
+  my ($srcseq,$start,$stop,$want_count) = @_;
+  my $query = defined($srcseq) || $want_count ? 'fdata,ftype' : 'ftype';
+  return $query;
+}
+
+=head2 make_types_join_part
+
+ Title   : make_types_join_part
+ Usage   : ($string,@args) = $db->make_types_join_part(@args)
+ Function: create the JOIN portion of the SQL for fetching features type lists
+ Returns : query string and bind arguments
+ Args    : see below
+ Status  : protected
+
+This method is called by get_types() to generate the query fragment
+and bind arguments for the JOIN part of the query that retrieves lists
+of feature types.  The four positional arguments are as follows:
+
+ $refseq      reference sequence name
+ $start       start of region
+ $stop        end of region
+ $want_count  true to return the count of this feature type
+
+=cut
+
+sub make_types_join_part {
+  my $self = shift;
+  my ($srcseq,$start,$stop,$want_count) = @_;
+  my $query = defined($srcseq) || $want_count ? 'fdata.ftypeid=ftype.ftypeid'
+                                              : '';
+  return $query || '1=1';
+}
+
+=head2 make_types_where_part
+
+ Title   : make_types_where_part
+ Usage   : ($string,@args) = $db->make_types_where_part(@args)
+ Function: create the WHERE portion of the SQL for fetching features type lists
+ Returns : query string and bind arguments
+ Args    : see below
+ Status  : protected
+
+This method is called by get_types() to generate the query fragment
+and bind arguments for the WHERE part of the query that retrieves
+lists of feature types.  The four positional arguments are as follows:
+
+ $refseq      reference sequence name
+ $start       start of region
+ $stop        end of region
+ $want_count  true to return the count of this feature type
+
+=cut
+
+sub make_types_where_part {
+  my $self = shift;
+  my ($srcseq,$start,$stop,$want_count,$typelist) = @_;
+  my (@query,@args);
+  if (defined($srcseq)) {
+    push @query,'fdata.fref=?';
+    push @args,$srcseq;
+    if (defined $start or defined $stop) {
+      $start = 1           unless defined $start;
+      $stop  = MAX_SEGMENT unless defined $stop;
+      my ($q,@a) = $self->overlap_query($start,$stop);
+      push @query,"($q)";
+      push @args,@a;
+    }
+  }
+  if (defined $typelist && @$typelist) {
+    my ($q,@a) = $self->types_query($typelist);
+    push @query,($q);
+    push @args,@a;
+  }
+  my $query = @query ? join(' AND ',@query) : '1=1';
+  return wantarray ? ($query,@args) : $self->dbh->dbi_quote($query,@args);
+}
+
+=head2 make_types_group_part
+
+ Title   : make_types_group_part
+ Usage   : ($string,@args) = $db->make_types_group_part(@args)
+ Function: create the GROUP BY portion of the SQL for fetching features type lists
+ Returns : query string and bind arguments
+ Args    : see below
+ Status  : protected
+
+This method is called by get_types() to generate the query fragment
+and bind arguments for the GROUP BY part of the query that retrieves
+lists of feature types.  The four positional arguments are as follows:
+
+ $refseq      reference sequence name
+ $start       start of region
+ $stop        end of region
+ $want_count  true to return the count of this feature type
+
+=cut
+
+sub make_types_group_part {
+  my $self = shift;
+  my ($srcseq,$start,$stop,$want_count) = @_;
+  return unless $srcseq or $want_count;
+  return 'ftype.ftypeid,ftype.fmethod,ftype.fsource';
+}
+
+
+=head2 get_feature_id
+
+ Title   : get_feature_id
+ Usage   : $integer = $db->get_feature_id($ref,$start,$stop,$typeid,$groupid)
+ Function: get the ID of a feature
+ Returns : an integer ID or undef
+ Args    : none
+ Status  : private
+
+This internal method is called by load_gff_line to look up the integer
+ID of an existing feature.  It is ony needed when replacing a feature
+with new information.
+
+=cut
+
+# this method is called when needed to look up a feature's ID
+sub get_feature_id {
+  my $self = shift;
+  my ($ref,$start,$stop,$typeid,$groupid) = @_;
+  my $s = $self->{load_stuff};
+  unless ($s->{get_feature_id}) {
+    my $dbh = $self->features_db;
+    $s->{get_feature_id} =
+      $dbh->prepare_delayed('SELECT fid FROM fdata WHERE fref=? AND fstart=? AND fstop=? AND ftypeid=? AND gid=?');
+  }
+  my $sth = $s->{get_feature_id} or return;
+  $sth->execute($ref,$start,$stop,$typeid,$groupid) or return;
+  my ($fid) = $sth->fetchrow_array;
+  return $fid;
+}
+
+
+
+=head2 make_abscoord_query
+
+ Title   : make_abscoord_query
+ Usage   : $sth = $db->make_abscoord_query($name,$class);
+ Function: create query that finds the reference sequence coordinates given a landmark & classa
+ Returns : a DBI statement handle
+ Args    : name and class of landmark
+ Status  : protected
+
+The statement handler should return rows containing five fields:
+
+  1. reference sequence name
+  2. reference sequence class
+  3. start position
+  4. stop position
+  5. strand ("+" or "-")
+
+This query always returns "Sequence" as the class of the reference
+sequence.
+
+=cut
+
+# given sequence name, return (reference,start,stop,strand)
+sub make_abscoord_query {
+  my $self = shift;
+  my ($name,$class,$refseq) = @_;
+  #my $query = GETSEQCOORDS;
+  my $query = $self->getseqcoords_query();
+  my $getforcedseqcoords = $self->getforcedseqcoords_query() ;
+  if ($name =~ /\*/) {
+    $name =~ tr/*/%/;
+    $query =~ s/gname=\?/gname LIKE ?/;
+  }
+  defined $refseq ? $self->dbh->do_query($getforcedseqcoords,$name,$class,$refseq) 
+    : $self->dbh->do_query($query,$name,$class);
+}
+
+sub make_aliasabscoord_query {
+  my $self = shift;
+  my ($name,$class) = @_;
+  #my $query = GETALIASCOORDS;
+  my $query = $self->getaliascoords_query();
+  if ($name =~ /\*/) {
+    $name =~ tr/*/%/;
+    $query =~ s/gname=\?/gname LIKE ?/;
+  }
+  $self->dbh->do_query($query,$name,$class);
+}
+
+sub getseqcoords_query {
+  shift->throw("getseqcoords_query(): must be implemented by a subclass");
+}
+
+sub getaliascoords_query {
+  shift->throw("getaliascoords_query(): must be implemented by a subclass");
+}
+
+#########################
+# Moved from mysqlopt.pm
+#########################
+sub make_object {
+  my $self = shift;
+  my ($class,$name,$start,$stop) = @_;
+
+  if (my $db = $self->acedb) {
+
+    # for Notes we just return a text, no database associated
+    return $class->new(Text=>$name) if $class eq 'Note';
+
+    # for homols, we create the indicated Protein or Sequence object
+    # then generate a bogus Homology object (for future compatability??)
+    if ($start ne '') {
+      require Ace::Sequence::Homol;
+      return Ace::Sequence::Homol->new_homol($class,$name,$db,$start,$stop);
+    }
+
+    # General case:
+    my $obj = $db->class->new($class=>$name,$self->acedb);
+
+    return $obj if defined $obj;
+
+    # Last resort, return a Text
+    return $class->new(Text=>$name);
+  }
+
+  return $self->SUPER::make_object($class,$name,$start,$stop);
+}
+
+sub bin_query {
+  my $self = shift;
+  my ($start,$stop,$minbin,$maxbin) = @_;
+  my ($query,@args);
+
+  $start = 0               unless defined($start);
+  $stop  = $self->meta('max_bin') unless defined($stop);
+
+  my @bins;
+  $minbin = defined $minbin ? $minbin : $self->min_bin;
+  $maxbin = defined $maxbin ? $maxbin : $self->max_bin;
+  my $tier = $maxbin;
+  while ($tier >= $minbin) {
+    my ($tier_start,$tier_stop) = (bin_bot($tier,$start),bin_top($tier,$stop));
+    if ($tier_start == $tier_stop) {
+      push @bins,'fbin=?';
+      push @args,$tier_start;
+    } else {
+      push @bins,'fbin between ? and ?';
+      push @args,($tier_start,$tier_stop);
+    }
+    $tier /= 10;
+  }
+  $query = join("\n\t OR ",@bins);
+  return wantarray ? ($query,@args)
+                   : $self->dbh->dbi_quote($query,@args);
+}
+
+
+sub dna_db      { shift->{dna_db}      }
+sub acedb       { shift->{acedb}       }
+
+
+=head2 freshen_ace
+
+ Title   : freshen
+ Usage   : $flag = Bio::DB::GFF->freshen_ace;
+ Function: Refresh internal acedb handle
+ Returns : flag if correctly freshened
+ Args    : none
+ Status  : Public
+
+ACeDB has an annoying way of timing out, leaving dangling database
+handles.  This method will invoke the ACeDB reopen() method, which
+causes dangling handles to be refreshed.  It has no effect if you are
+not using ACeDB to create ACeDB objects.
+
+=cut
+
+sub freshen_ace {
+  my $acedb = shift->acedb or return;
+  $acedb->reopen();
+}
+
+# find features that overlap a given range
+sub overlap_query {
+  my $self = shift;
+  my ($start,$stop) = @_;
+
+  my ($bq,@bargs)   = $self->bin_query($start,$stop);
+  my ($iq,@iargs) = $self->overlap_query_nobin($start,$stop);
+  my $query = "($bq)\n\tAND $iq";
+  my @args  = (@bargs,@iargs);
+
+  return wantarray ? ($query,@args) : $self->dbh->dbi_quote($query,@args);
+}
+
+# find features that are completely contained within a range
+sub contains_query {
+  my $self = shift;
+  my ($start,$stop) = @_;
+  my ($bq,@bargs)   = $self->bin_query($start,$stop,undef,bin($start,$stop,$self->min_bin));
+  my ($iq,@iargs)   = $self->contains_query_nobin($start,$stop);
+  my $query = "($bq)\n\tAND $iq";
+  my @args  = (@bargs,@iargs);
+  return wantarray ? ($query,@args) : $self->dbh->dbi_quote($query,@args);
+}
+
+# find features that are completely contained within a range
+sub contained_in_query {
+  my $self = shift;
+  my ($start,$stop) = @_;
+  my ($bq,@bargs)   = $self->bin_query($start,$stop,abs($stop-$start)+1,undef);
+  my ($iq,@iargs)   = $self->contained_in_query_nobin($start,$stop);
+  my $query = "($bq)\n\tAND $iq";
+  my @args  = (@bargs,@iargs);
+  return wantarray ? ($query,@args) : $self->dbh->dbi_quote($query,@args);
+}
+
+sub do_straight_join_old {
+  my $self = shift;
+  my($srcseq,$class,$start,$stop,$types) = @_;
+
+  # Might try turning on and off straight join based on the number of types
+  # specified, but this turns out to be very difficult indeed!
+
+  # if a list of types has been specified, then it is almost always faster
+  # to let the query optimizer figure it out.
+  # the exception is when a type of "similarity" has been specified, in which
+  # case the range query is better.  (yes, definitely a hack)
+  # return 0 if defined($types) and @$types > 0 
+  # and !grep {$_->[0] =~ /similarity/ } @$types;
+
+  # if no types are specified then it is faster to do a range search, up to a point.
+  return $srcseq && defined($start) && defined($stop) && 
+    abs($stop-$start) < $self->straight_join_limit;
+}
 
 1;
 
