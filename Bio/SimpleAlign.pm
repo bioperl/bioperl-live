@@ -115,6 +115,7 @@ Ewan Birney, birney@sanger.ac.uk
 
 =head1 CONTRIBUTORS
 
+Allen Day, allenday@ucla.edu,
 Richard Adams, Richard.Adams@ed.ac.uk, 
 David J. Evans, David.Evans@vir.gla.ac.uk, 
 Heikki Lehvaslaiho, heikki@ebi.ac.uk, 
@@ -144,6 +145,9 @@ use strict;
 use Bio::Root::Root;
 use Bio::LocatableSeq;         # uses Seq's as list
 use Bio::Align::AlignI;
+
+use Bio::Seq;
+use Bio::SeqFeature::Generic;
 
 BEGIN {
     # This data should probably be in a more centralized module...
@@ -593,6 +597,83 @@ sub get_seq_by_pos {
     return $self->{'_seq'}->{$nse};
 }
 
+=head2 seq_with_features
+
+ Title   : seq_with_features
+ Usage   : $seq = $aln->seq_with_features(-pos => 1,
+                                          -consensus => 60
+                                          -mask =>
+sub {
+  my $consensus = shift;
+
+  for my $i (1..5){
+    my $n = 'N' x $i;
+    my $q = '\?' x $i;
+    while($consensus =~ /[^?]$q[^?]/){
+      $consensus =~ s/([^?])$q([^?])/$1$n$2/;
+    }
+  }
+
+  return $consensus;
+}
+
+                                         );
+ Function: produces a Bio::Seq object by first splicing gaps from -pos
+           (by means of a splice_by_seq_pos() call), then creating
+           features using non-? chars (by means of a consensus_string()
+           call with stringency -consensus).
+ Returns : a Bio::Seq object
+ Args    : -pos : required. sequence from which to build the Bio::Seq
+             object
+           -consensus : optional, defaults to consensus_string()'s
+             default cutoff value
+           -mask : optional, a coderef to apply to consensus_string()'s
+             output before building features.  this may be useful for
+             closing gaps of 1bp by glossing over them with N, for
+             instance
+
+=cut
+
+sub seq_with_features{
+   my ($self,%arg) = @_;
+
+   #first do the preparatory splice
+   $self->throw("must provide a -pos argument") unless $arg{-pos};
+   $self->splice_by_seq_pos($arg{-pos});
+
+   my $consensus_string = $self->consensus_string($arg{-consensus});
+   $consensus_string = $arg{-mask}->($consensus_string)
+	 if defined($arg{-mask});
+
+   my(@bs,@es);
+
+   push @bs, 1 if $consensus_string =~ /^[^?]/;
+
+   while($consensus_string =~ /\?[^?]/g){
+	 push @bs, pos($consensus_string);
+   }
+   while($consensus_string =~ /[^?]\?/g){
+	 push @es, pos($consensus_string);
+   }
+
+   push @es, length($consensus_string) if $consensus_string =~ /[^?]$/;
+
+   my $seq = Bio::Seq->new();
+   while(my $b = shift @bs){
+	 my $e = shift @es;
+	 $seq->add_SeqFeature(
+       Bio::SeqFeature::Generic->new(
+         -start => $b - 1,
+         -end   => $e - 1,
+         -source_tag => $self->source || 'MSA',
+       )
+     );
+   }
+
+   return $seq;
+}
+
+
 =head1 Create new alignments
 
 The result of these methods are horizontal or vertical subsets of the
@@ -876,7 +957,6 @@ sub _remove_col {
 
 These methods affect characters in all sequences without changeing the
 alignment.
-
 
 =head2 splice_by_seq_pos
 

@@ -67,18 +67,21 @@ my $file_present = -e $nt_database_file;
 
 my $exit;
 unless ($file_present) {
-   warn "Blast Database $nt_database not found";
+   skip("Blast Database $nt_database not found",1);
+#   warn "Blast Database $nt_database not found";
    $exit = 1;
 }
 my $file_present2 = -e $amino_database_file;
 
 unless ($file_present2) {
-    warn "Blast Database $amino_database not found";
+    skip("Blast Database $amino_database not found",1);
+#    warn "Blast Database $amino_database not found";
     $exit=1;
 }
 
 if ($exit) {
-   warn"Blast databases(s) not found, skipping remaining  tests";
+   skip("Blast databases(s) not found, skipping remaining  tests",1);
+#   warn "Blast databases(s) not found, skipping remaining  tests";
    exit(0);
 }
 

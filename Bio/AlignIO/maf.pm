@@ -127,11 +127,13 @@ sub next_aln {
 
   my($aline, @slines);
   while(my $line = $self->_readline()){
-	$aline = $line if $line =~ /^a /;
+	$aline = $line if $line =~ /^a/;
 	push @slines, $line if $line =~ /^s /;
 	last if $line !~ /\S/;
 
   }
+
+  return undef unless $aline;
 
   foreach my $sline (@slines){
 	my($s,$src,$start,$size,$strand,$srcsize,$text) =
