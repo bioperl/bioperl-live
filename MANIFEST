@@ -1,4 +1,4 @@
-## $Id: MANIFEST,v 1.31.2.4 2001-07-02 17:21:56 jason Exp $
+## $Id: MANIFEST,v 1.31.2.5 2001-11-16 14:01:45 jason Exp $
 ##
 ## bioperl 0.7.2 manifest listing
 ##
@@ -9,16 +9,6 @@
 ##
 AUTHORS
 BUGS
-LICENSE
-MANIFEST
-PLATFORMS
-README
-Changes
-bioback.pod
-biodesign.pod
-bioperl.pod
-biostart.pod
-bptutorial.pl
 Bio/AlignIO.pm
 Bio/AlignIO/bl2seq.pm
 Bio/AlignIO/clustalw.pm
@@ -190,6 +180,16 @@ Bio/Variation/README
 Bio/Variation/RNAChange.pm
 Bio/Variation/SeqDiff.pm
 Bio/Variation/VariantI.pm
+Changes
+LICENSE
+MANIFEST
+PLATFORMS
+README
+bioback.pod
+biodesign.pod
+bioperl.pod
+biostart.pod
+bptutorial.pl
 examples/blast/blast_config.pl
 examples/blast/blast_seq.pl
 examples/blast/example.table1
@@ -342,6 +342,7 @@ t/cysprot1b.fa
 t/cysprot1b.msf
 t/dna1.fa
 t/dna2.fa
+t/empty.bl2seq
 t/exception.t
 t/expected.blast.out
 t/factor7.embl
