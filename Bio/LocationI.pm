@@ -113,7 +113,11 @@ sub location_type {
 sub start {
     my ($self,@args) = @_;
 
-    $self->_abstractDeath('start') if @args;
+    # throw if @args means that we don't support updating information
+    # in the interface but will delegate to the coordinate policy object
+    # for interpreting the 'start' value
+
+    $self->throw_not_implemented if @args;
     return $self->coordinate_policy()->start($self);
 }
 
@@ -141,7 +145,10 @@ sub start {
 sub end {
     my ($self,@args) = @_;
 
-    $self->_abstractDeath('end') if @args;
+    # throw if @args means that we don't support updating information
+    # in the interface but will delegate to the coordinate policy object
+    # for interpreting the 'end' value
+    $self->throw_not_implemented if @args;
     return $self->coordinate_policy()->end($self);
 }
 
@@ -160,7 +167,7 @@ sub end {
 
 sub min_start {
     my($self) = @_;
-    $self->_abstractDeath('min_start');
+    $self->throw_not_implemented();
 }
 
 =head2 max_start
@@ -180,7 +187,7 @@ sub min_start {
 
 sub max_start {
     my($self) = @_;
-    $self->_abstractDeath('max_start');
+    $self->throw_not_implemented();
 }
 
 =head2 start_pos_type
@@ -201,7 +208,7 @@ sub max_start {
 
 sub start_pos_type {
     my($self) = @_;
-    $self->_abstractDeath('start_pos_type');
+    $self->throw_not_implemented();
 }
 
 =head2 min_end
@@ -221,7 +228,7 @@ sub start_pos_type {
 
 sub min_end {
     my($self) = @_;
-    $self->_abstractDeath('min_end');
+    $self->throw_not_implemented();
 }
 
 =head2 max_end
@@ -241,7 +248,7 @@ sub min_end {
 
 sub max_end {
     my($self) = @_;
-    $self->_abstractDeath('max_end');
+    $self->throw_not_implemented();
 }
 
 =head2 end_pos_type
@@ -262,7 +269,7 @@ sub max_end {
 
 sub end_pos_type {
     my($self) = @_;
-    $self->_abstractDeath('end_pos_type');
+    $self->throw_not_implemented();
 }
 
 =head2 seq_id
@@ -341,7 +348,7 @@ sub coordinate_policy {
 
 sub to_FTstring { 
     my($self) = @_;
-    $self->_abstractDeath('to_FTstring');
+    $self->throw_not_implemented();
 }
 1;
 

@@ -85,8 +85,12 @@ use Carp;
 
 sub location_type {
     my ($self) = @_;
-    $self->_abstractDeath('location_type');
+    $self->throw_not_implemented();
 }
+
+=head1 Bio::LocationI methods
+
+Bio::LocationI methods follow
 
 =head2 min_start
 

@@ -88,7 +88,7 @@ use Carp;
 
 sub sub_Location {
     my ($self,@args) = @_;
-    $self->_abstractDeath('sub_Location');
+    $self->throw_not_implemented();
 }
 
 =head2 splittype
@@ -102,8 +102,8 @@ sub sub_Location {
 =cut
 
 sub splittype {
-    my($self,$value) = @_;
-    $self->_abstractDeath('splittype');
+    my($self) = @_;
+    $self->throw_not_implemented();
 }
 
 
@@ -124,10 +124,12 @@ sub splittype {
 
 sub is_single_sequence {
     my ($self) = @_;
-    $self->_abstractDeath('is_single_sequence');
+    $self->throw_not_implemented();
 }
 
-=head1 LocationI methods
+=head1 Bio::LocationI methods
+
+Bio::LocationI inherited methods follow
 
 =head2 min_start
 

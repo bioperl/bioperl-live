@@ -2,7 +2,7 @@
 #
 # BioPerl module for Bio::Location::CoordinatePolicyI
 # Cared for by Hilmar Lapp <hlapp@gmx.net>
-#          and Jason Stajich <jason@chg.mc.duke.edu>
+#          and Jason Stajich <jason@bioperl.org>
 #
 # Copyright Hilmar Lapp, Jason Stajich
 #
@@ -57,7 +57,7 @@ or the web:
 
 =head1 AUTHOR - Hilmar Lapp, Jason Stajich
 
-Email hlapp@gmx.net, jason@chg.mc.duke.edu
+Email hlapp@gmx.net, jason@bioperl.org
 
 =head1 APPENDIX
 
@@ -72,26 +72,9 @@ methods. Internal methods are usually preceded with a _
 package Bio::Location::CoordinatePolicyI;
 use vars qw(@ISA);
 use strict;
+use Bio::Root::RootI;
 
-use Carp;
-
-# utility method Prints out a method like: 
-# Abstract method stop defined in interface Bio::LocationI not
-# implemented by package You::BadLocation
-
-sub _abstractDeath {
-  my $self = shift;
-  my $package = ref $self;
-  my $caller = (caller)[1];
-  
-  my $msg = "Abstract method '$caller' defined in interface Bio::ComplexLocationI but not implemented by package $package";
-  if( $self->can('throw') ) {
-      $self->throw($msg);
-  } else {
-      confess($msg);
-  }
-}
-
+@ISA = qw(Bio::Root::RootI);
 
 =head2 start
 
@@ -106,7 +89,7 @@ sub _abstractDeath {
 
 sub start {
     my ($self) = @_;
-    $self->_abstractDeath();
+    $self->throw_not_implemented();
 }
 
 =head2 end
@@ -122,7 +105,7 @@ sub start {
 
 sub end {
     my ($self) = @_;
-    $self->_abstractDeath();
+    $self->throw_not_implemented();
 }
 
 1;
