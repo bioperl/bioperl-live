@@ -37,7 +37,7 @@ This class implementes the following interfaces.
 
 Note that this includes implementing Bio::PrimarySeqI and Bio::SeqI.
 
-=item Bio::IdentifiableI
+=item Bio::GloballyIdentifiableI
 
 =item Bio::DescribableI
 
