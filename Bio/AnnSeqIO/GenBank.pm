@@ -402,12 +402,7 @@ sub write_annseq {
         my($species, $genus, @class) = $spec->classification();
 	my $sub_species = $spec->sub_species();
         my $OS = "$genus $species $sub_species";
-        if (my $common = $spec->common_name) {
-	    print $fh "SOURCE      $common\n";
-        }
-	else {
-	    print $fh "SOURCE      $OS\n";
-	}
+	print $fh "SOURCE      $OS\n";
 	print $fh "  ORGANISM  $OS\n";
         my $OC = join (';', reverse(@class));
 	$OC =~ s/\n//g;
