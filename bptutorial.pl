@@ -141,9 +141,8 @@ Recommendations on where to go for additional information.
 
 =item *
 
-A separate tutorial script (tutorial.pl - located in the top bioperl
-  directory) with examples of many of methods described in the
-  tutorial.
+The POD documentation should contain runnable code in the SYNOPSIS section 
+which is meant to illustrate the use of a module and its methods. 
 
 =back
 
