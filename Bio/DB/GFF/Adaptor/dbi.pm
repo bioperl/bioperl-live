@@ -961,8 +961,8 @@ sub make_features_order_by_part {
 
 =head2 make_features_by_name_where_part
 
- Title   : make_features_byname_where_part
- Usage   : $db->make_features_byname_where_part($class,$name)
+ Title   : make_features_by_name_where_part
+ Usage   : $db->make_features_by_name_where_part($class,$name)
  Function: create the SQL fragment needed to select a feature by its group name & class
  Returns : a SQL fragment and bind arguments
  Args    : class and name of the feature group

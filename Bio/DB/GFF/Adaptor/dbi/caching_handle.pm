@@ -199,7 +199,7 @@ sub AUTOLOAD {
   my($pack,$func_name) = $AUTOLOAD=~/(.+)::([^:]+)$/;
   return if $func_name eq 'DESTROY';
   my $self = shift;
-  if( defined $self->{dbh} )  {
+  if( defined $self->{dbh} ) {
       $self->{dbh}->$func_name(@_);
   }
 }

@@ -1,4 +1,5 @@
 package Bio::Graphics::FeatureFile;
+
 # $Id$
 
 # This package parses and renders a simple tab-delimited format for features.

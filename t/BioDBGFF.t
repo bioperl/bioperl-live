@@ -7,7 +7,7 @@
 use strict;
 use ExtUtils::MakeMaker;
 use Bio::Root::IO;
-use constant TEST_COUNT => 116;
+use constant TEST_COUNT => 115;
 use constant FASTA_FILES => Bio::Root::IO->catfile('t','data','dbfa');
 use constant GFF_FILE    => Bio::Root::IO->catfile('t','data',
 						   'biodbgff','test.gff');
@@ -24,32 +24,27 @@ BEGIN {
     plan test => TEST_COUNT;
 }
 
-
 sub bail ($;$);
 sub user_prompt ($;$);
 sub fail ($);
 use lib './blib/lib';
 use Bio::DB::GFF;
 
-my %EXCLUDE_DRIVERS    = ('ExampleP' =>1, 'Multiplex'=>1, 'Proxy'=>1);
-my @PREFERRED_DRIVERS  = qw(mysql Pg Oracle Sybase mSQL Solid Informix Illustra CSV);
-my $idx = 1;
-my %PREFERRED_DRIVERS  = map {$_=>$idx++} @PREFERRED_DRIVERS;
-
-my $adaptor = shift || 'dbi::mysqlopt';
+my $adaptor = -e 't/do_biodbgff.tests' ? 'dbi::mysqlopt' : 'memory';
 my @args;
 
-if( ! -e 't/do_biodbgff.tests' ) {
-  bail(TEST_COUNT,'Skipped by user');
-}
-
 if ($adaptor =~ /^dbi/) {
-  eval { require DBI } or bail(TEST_COUNT,'DBI driver is missing');
-  my $cfg = ChooseDrivers() or bail(TEST_COUNT,'Skipped by user');
-  QueryDb($cfg,{'prompt'=>1,'verbose'=>1});
+
+  open T,"t/do_biodbgff.tests" or bail(TEST_COUNT,"Couldn't read configuration");
+  my $cfg = {};
+  while (<T>) {
+    chomp;
+    my ($key,$value) = split "\t";
+    $cfg->{$key}     = $value;
+  }
   @args = ( '-adaptor'  => $adaptor,
-	     '-dsn'     => $cfg->{test_dsn},
-	     );
+	    '-dsn'     => $cfg->{test_dsn},
+	  );
   push @args,('-user' => $cfg->{test_user}) if $cfg->{test_user};
   push @args,('-pass' => $cfg->{test_pass}) if $cfg->{test_pass};
 } else {
@@ -296,12 +291,17 @@ ok($overlap[1]->strand,-1);
 # testing feature id and group_id
 my $tf = $overlap[0];
 ok(defined $tf->id);
-ok(defined $tf->group_id);
 my $t1 = $db->fetch_feature_by_id($tf->id);
 ok($t1->id,$tf->id);
-my $t2 = $db->fetch_feature_by_gid($tf->group_id);
-ok($t2->group_id,$tf->group_id);
-ok($t2->group_id,$t1->group_id);
+
+if (defined $tf->group_id) {
+  my $t2 = $db->fetch_feature_by_gid($tf->group_id);
+  ok($t2->group_id,$tf->group_id);
+  ok($t2->group_id,$t1->group_id);
+} else {
+  skip("fetch_feature_by_gid() not implemented by this adaptor",1);
+  skip("fetch_feature_by_gid() not implemented by this adaptor",1);
+}
 
 $segment1 = $db->segment('-class' => 'Transcript',
 			 '-name'  => 'trans-4',
@@ -363,110 +363,6 @@ ok(!$tseg->truncated);
 
 END {
   unlink FASTA_FILES."/directory.index";
-}
-
-############################################################################
-#
-#   Name:    ChooseDrivers
-#
-#   Purpose: Choose drivers for test suite
-#
-#   Inputs:  none
-#
-#   Returns: configuration hash
-#
-############################################################################
-sub ChooseDrivers {
-  my $cfg = shift || {};
-  my @drivers = grep {!$EXCLUDE_DRIVERS{$_}} DBI->available_drivers;
-  my @preferred_drivers = sort {($PREFERRED_DRIVERS{$a}||99) <=> ($PREFERRED_DRIVERS{$b}||99)} @drivers;
-  print STDERR <<END;
-
-*** Bio::DB::GFF TEST SETUP ***
-    Bio::DB::GFF requires a running database server (preferably MySQL).
-    To run this test suite you must provide the name and host of a test database
-    for which you have insert privileges.
-END
-;
-  my $proceed = user_prompt("Do you want to run the tests? y/n",'n');
-  return unless $proceed =~/^[yY]/;
-  my $choice = user_prompt("Which database driver do you wish to use (@preferred_drivers)",$preferred_drivers[0]);
-  $cfg->{dbd_driver} = $choice;
-  $cfg;
-}
-
-############################################################################
-#
-#   Name:    QueryDb
-#
-#   Purpose: Query settings for running the test suite
-#
-#   Inputs:  $cfg - Config hash ref
-#
-#   Returns: Nothing; creates
-#            $cfg->{$driver}->{test_(db|host|dsn|user|pass)}
-#
-############################################################################
-
-sub QueryDb {
-  my $cfg     = shift;
-  my $options = shift || {};
-  my $db     = $cfg->{'description'} || $cfg->{'dbd_driver'};
-  my $driver = $cfg->{'dbd_driver'};
-
-  my $d = lc $driver;
-  my $prompt = $options->{'prompt'};
-
-  my $test_db =  exists($options->{"$d-test-db"}) ?
-    $options->{"$d-test-db"} : ($cfg->{'test_db'} || 'test');
-  $test_db = user_prompt
-    ("Which database should I use for testing the $db drivers?",
-     $test_db) if $prompt;
-
-  my $test_host = exists($options->{"$d-test-host"}) ?
-    $options->{"$d-test-host"} : ($cfg->{'test_host'} || 'localhost');
-  $test_host = user_prompt
-    ("On which host is database $test_db running (hostname, ip address or host:port)", $test_host) if $prompt;
-
-  my($test_user, $test_pass);
-
-  $test_user = exists($options->{"$d-test-user"}) ?
-    $options->{"$d-test-user"} : ($cfg->{'test_user'} || "undef");
-  $test_user = user_prompt
-    ("User name for connecting to database $test_db?", $test_user)
-      if $prompt;
-  $test_user = undef if $test_user eq 'undef';
-
-  $test_pass = exists($options->{"$d-test-pass"}) ?
-    $options->{"$d-test-pass"} : ($cfg->{'test_pass'} || "undef");
-  $test_pass = user_prompt
-    ("Password for connecting to database $test_db?", $test_pass)
-      if $prompt;
-  $test_pass = undef if $test_pass eq 'undef';
-
-  $cfg->{'test_db'}   = $test_db;
-  $cfg->{'test_host'} = $test_host;
-  $cfg->{'test_user'} = $test_user;
-  $cfg->{'test_pass'} = $test_pass;
-  if ($test_host eq 'undef'  ||  $test_host eq 'localhost') {
-    $test_host = '';
-  }
-  my $test_dsn = "DBI:$driver:database=$test_db";
-  $cfg->{test_dsn} = $test_dsn;
-  if ($test_host) {
-    $cfg->{'test_dsn'} .= ";host=$test_host";
-  }
-
-
-  if ($options->{'verbose'}) {
-    local $^W=0;  # some uninitialized variable warning coming through
-    print("Driver $driver is using the following settings for tests:\n",
-	  "    Database $test_db\n",
-	  "    Host     $test_host\n",
-	  "    DSN      $test_dsn\n",
-	  "    User     $test_user\n",
-	  "    Password $test_pass\n");
-  }
 }
 
 sub bail ($;$) {
