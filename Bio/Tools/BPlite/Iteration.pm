@@ -265,7 +265,7 @@ sub Align {
   } 
   while(<$FH>){
     chomp;
-    if ( $_ =~ /^QUERY\s+(\d*)\s*([-\w]+)\s*(\d*)\s*$/){
+    if ( $_ =~ /^QUERY\s+(\d+)\s*([\-A-Z]+)\s*(\+)\s*$/){
        my $name='QUERY';
        my $start=$1; 
        my $seq=$2; 
@@ -277,7 +277,7 @@ sub Align {
        if ($first{$name} eq ''){$first{$name}=$start;} 
        if ($stop ne ''){$last{$name}=$stop;} 
        $num=0;
-     }elsif ( $_ =~ /^(\d{1,5})\s+(\d*)\s*([-\w]+)\s*(\d*)\s*$/ ){
+     }elsif ( $_ =~ /^(\d+)\s+(\d+)\s*([\-A-Z]+)\s*(\d+)\s*$/ ){
        my $name=$1.".".$num;
        my $start=$2;
        my $seq=$3;
@@ -295,7 +295,6 @@ sub Align {
   my @keys=sort keys(%sequence);
   foreach my $name (@keys){
     my $nse=$name."/".$first{$name}."-".$last{$name};
-#    print "$nse\t",$sequence{$name},"\n";
     my $seqobj=Bio::LocatableSeq->new( -seq => $sequence{$name},
                                     -id  => $name,
                                     -name  => $nse,

@@ -331,6 +331,7 @@ sub _preprocess {
 	    $currentfile = Bio::Root::IO->catfile($self->{'_tempdir'}, 
 						  "iteration$round.tmp");
 
+	    close FILEHANDLE;
 	    open (FILEHANDLE, ">$currentfile") || 
 		$self->throw("cannot open filehandle to write to file $currentfile");
 	    $oldround = $round;
@@ -341,6 +342,8 @@ sub _preprocess {
 
     }
     $self->{'TOTAL_ITERATION_NUMBER'}= $round;
+# It is necessary to close filehandel otherwise the whole file will not be read later !!
+    close FILEHANDLE;
 }
 
 1;
