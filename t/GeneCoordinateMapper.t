@@ -208,11 +208,10 @@ ok $res->start, 2;
 ok $res = $m->_reverse_translate($pos);
 ok $res->start, 13;
 ok $res->end, 15;
-#$m->verbose(2);
+
 $pos = Bio::Location::Simple->new 
     (-start => 26, -end => 26, -strand=> 1 );
 $m->out('peptide');
-#print Dumper $m;
 $res = $m->map($pos);
 ok $res->start, 4;
 
@@ -259,19 +258,15 @@ $m->out('gene');
 my $off = $m->cds(5);
 ok $off->start, 5; # start of the coding region
 ok $m->exons(@cexons), 3;
-#$m->to_string;
-#print Dumper $m;
-#$m->verbose(2);
-#exit;
+
 $m->out('exon');
 $pos = Bio::Location::Simple->new
     (-start => 6, -end => 7, -strand=> 1 );
 $res = $m->map($pos);
-#print Dumper $res;
+
 ok $res->start, 2;
 ok $res->end, 3;
-#print Dumper $res;
-#$m->verbose(2);
+
 $m->out('negative_intron');
 #$m->out('exon');
 $pos = Bio::Location::Simple->new 
@@ -393,37 +388,24 @@ my ($cdsr, @exons) = read_gene_data(@gene1_dump);
 
 ok my $g1 = new Bio::Coordinate::GeneMapper(-in=>'chr', -out=>'gene');
 $g1->cds($cdsr);
-#print Dumper $g1->map($cdsr);
-#print Dumper $cdsr;
 
-#$g1->to_string;
-#print Dumper $g1;
 #$pos = Bio::Location::Simple->new
 #    (-start => 34576888, -end => 34579355, -strand=> 1 );
 $res = $g1->map($cdsr);
 ok $res->start, 1;
 ok $res->end, 2468;
 
-#print Dumper $g1->{'_mappers'}->{'1-2'};
 $g1->exons(@exons);
-#print Dumper $g1->map($cdsr);
-#$g1->to_string;
 $g1->in('gene');
 $g1->out('cds');
-#$res = $g1->map($cdsr);
 $res = $g1->map($res);
 ok $res->start, 1;
 ok $res->end, 1173;
-#print Dumper $res;
-#print Dumper $g1;
-#$g1->to_string;
-#print Dumper $g1->{'_mappers'}->{'1-2'};
 
 #map_snps($g1, @snp_dump);
-#exit;
+
 
 #gene 2 in reverse strand
-#print "+++++++++++++++++++++++++\n";
 ($cdsr, @exons) = read_gene_data(@gene2_dump);
 ok my $g2 = new Bio::Coordinate::GeneMapper(-in=>'chr', -out=>'gene');
 $g2->cds($cdsr);
@@ -437,16 +419,8 @@ ok $res->strand, -1;
 #print Dumper \@exons;
 
 $g2->exons(@exons);
-#print Dumper $g2;
-#$g2->to_string;
-
-#exit;
-
 
 #map_snps($g2, @snp_dump);
-
-
-
 
 
 
@@ -466,26 +440,16 @@ $g2->exons(@exons);
 sub read_gene_data {
     my ($self,@gene_dump) = @_;
     my ($cds_start, $cds_end, $strand, @exons);
-#    print join ("\n",@gene_dump), "\n";
+
     #one line per exon
     my ($first, $first_line);
     for my $line ( @gene_dump ) {
-#	unless ($first) {
-#	    $first = 1; next;
-#	}
-#
+
 	my ($geneid, $exon_start, $exon_end, $exon_cstart,
 	    $exon_cend, $exon_strand) = split /\t/, $line;
 
 	$strand = $exon_strand if $exon_strand;
 	#print join (' ', $geneid, $exon_start, $exon_strand), "\n";
-
-#	# first line has cds;
-#	unless ($first_line) {
-#	    # gene coordinate start is defined by the start of the first exon;
-#	    $strand = $exon_strand;
-#	    $first_line = 1;
-#	}
 
 	# CDS location in chromosome coordinates
 	$cds_start = $exon_cstart if !$cds_start and $exon_cstart;
@@ -520,12 +484,12 @@ sub map_snps {
     $mapper->out('cds');
     foreach my $line (@snps) {
 	$mapper->out('cds');
-#	print "++$line\n";
+
 	my ($chr, $start, $strand, $id) = split /\t/, $line;
 	my $loc = Bio::Location::Simple->new
 	    ( -start => $start,
 	     -end => $start, -strand=>$strand );
-#	print Dumper $loc;
+
 	my $res = $mapper->map($loc);
 	my $cds_start = 0;
 	$cds_start = $res->start if defined $res;#defined $res->start;

@@ -304,7 +304,7 @@ IDMATCH: {
 		-strand=>$matches[0]->strand );
        }
    }
-#   $result->seq_id($result->match->seq_id) if $result->match;
+   $result->seq_id($result->match->seq_id) if $result->match;
    unless ($result->each_Location) {
        #build one gap;
        my $gap = Bio::Location::Simple->new(-start => $value->start,
@@ -314,7 +314,7 @@ IDMATCH: {
 					   );
        $gap->seq_id($value->seq_id) if defined $value->seq_id;
        bless $gap, 'Bio::Coordinate::Result::Gap';
-#       $result->seq_id($value->seq_id) if defined $value->seq_id;
+       $result->seq_id($value->seq_id) if defined $value->seq_id;
        $result->add_sub_Location($gap);
    }
    return $result;

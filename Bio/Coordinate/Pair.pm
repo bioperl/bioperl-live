@@ -395,7 +395,6 @@ sub map {
        $result->add_sub_Location($gap2);
 
    } else {
-       #use Data::Dumper; print $start, " ", $end, Dumper $value, $self;
        $self->throw("Should not be here!");
    }
    return $result;

@@ -489,12 +489,13 @@ sub exons {
 
    if(@value) {
 
-       if ($value[0]->isa('Bio::SeqFeatureI') and $value[0]->location->isa('Bio::Location::SplitLocationI')) {
+       if ($value[0]->isa('Bio::SeqFeatureI') and 
+	   $value[0]->location->isa('Bio::Location::SplitLocationI')) {
 	   @value = $value[0]->location->each_Location;
        } else {
 	   $self->throw("I need an array , not [@value]")
 	       unless ref \@value eq 'ARRAY';
-	   $self->throw("I need n reference to an array of Bio::LocationIs, not to [".
+	   $self->throw("I need a reference to an array of Bio::LocationIs, not to [".
 			$value[0]. "]")
 	       unless ref $value[0] and $value[0]->isa('Bio::LocationI');
        }
@@ -523,19 +524,28 @@ sub exons {
 #s strand!
 
        # transform exons from chromosome to gene coordinates
-       my $tmp_in = $self->{'_in'};
-       my $tmp_out = $self->{'_out'};
-       my $tmp_verb = $self->verbose;
-       $self->verbose(0);
+       # but only if gene coordinate system has been set
+       my @exons ;
+       #my $gene_mapper = $self->$COORDINATE_SYSTEMS{'chr'}. "-". $COORDINATE_SYSTEMS{'gene'};
+       my $gene_mapper = "1-2";
+       if (defined $self->{'_mappers'}->{$gene_mapper} ) {
 
-       $self->in('chr');
-       $self->out('gene');
-       my @exons = map {$self->map($_)} @value;
+	   my $tmp_in = $self->{'_in'};
+	   my $tmp_out = $self->{'_out'};
+	   my $tmp_verb = $self->verbose;
+	   $self->verbose(0);
 
-       $self->{'_in'} = ($tmp_in);
-       $self->{'_out'} = ($tmp_out);
-       $self->verbose($tmp_verb);
-       #
+	   $self->in('chr');
+	   $self->out('gene');
+
+	   @exons = map {$self->map($_)} @value;
+
+	   $self->{'_in'} = ($tmp_in);
+	   $self->{'_out'} = ($tmp_out);
+	   $self->verbose($tmp_verb);
+       } else {
+	   @exons = @value;
+       }
 
        my $cds_map = Bio::Coordinate::Collection->new;
        my $inex_map = Bio::Coordinate::Collection->new;
@@ -638,10 +648,8 @@ sub exons {
        }
 
        # move coordinate start if exons have negative values
-       if ($coffset) {##use Data::Dumper; print Dumper $cds_map;
+       if ($coffset) {
 	   foreach my $m ($cds_map->each_mapper) {
-#	       print $m->in->start, " : ", $m->out->start, "      $coffset\n";
-#	       print $m->in->end, " : ", $m->out->end, "\n";
 	       $m->out->start($m->out->start - $coffset);
 	       $m->out->end($m->out->end - $coffset);
 	   }
@@ -810,7 +818,6 @@ sub map {
 		    -strand=>$matches[0]->strand );
 	   }
        }
-       #use Data::Dumper; print Dumper $value;#   print ref($value), "\n";
    }
 
    # if nozero coordinate system is asked to be used in the output values

@@ -16,7 +16,7 @@ BEGIN {
     }
     use Test;
 
-    plan tests => 160;
+    plan tests => 162;
 }
 
 use Bio::Location::Simple;
@@ -495,11 +495,11 @@ my $s2 = new Bio::LocatableSeq (-id => 'BBB',
 $a = new Bio::SimpleAlign;
 $a->add_seq($s1);
 $a->add_seq($s2);
-use Data::Dumper;
+#use Data::Dumper;
 
 ok my $uti = Bio::Coordinate::Utils->new;
 $mapper = $uti->from_align($a);
-print Dumper $mapper;
+#print Dumper $mapper;
 ok $mapper->return_match, 1;
 ok $mapper->return_match(1), 1;
 
@@ -507,7 +507,7 @@ ok $mapper->return_match(1), 1;
 $pos = Bio::Location::Simple->new 
     (-start => 4, -end => 8, -strand => 1);
 $res = $mapper->map($pos);
-print Dumper $res;
+#print Dumper $res;
 
 exit; # end of tests
 #
