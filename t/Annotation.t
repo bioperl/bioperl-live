@@ -6,6 +6,7 @@
 # `make test'. After `make install' it should work as `perl test.t'
 
 use strict;
+use vars qw($HAVEGRAPHDIRECTED);
 BEGIN { 
     # to handle systems with no installed Test module
     # we include the t dir (where a copy of Test.pm is located)
@@ -15,6 +16,12 @@ BEGIN {
 	use lib 't';
     }
     use Test;
+    eval {require Graph::Directed; 
+	  $HAVEGRAPHDIRECTED=1;
+	  require Bio::Annotation::OntologyTerm; };
+    if ($@) {
+	$HAVEGRAPHDIRECTED = 0;
+    }
     plan tests => 63;
 }
 
@@ -23,7 +30,7 @@ use Bio::Annotation::DBLink;
 use Bio::Annotation::Comment;
 use Bio::Annotation::Reference;
 use Bio::Annotation::SimpleValue;
-use Bio::Annotation::OntologyTerm;
+
 use Bio::Annotation::StructuredValue;
 use Bio::Seq;
 use Bio::SeqFeature::Generic;
@@ -136,16 +143,22 @@ ok (scalar($nested_ac->flatten_Annotations()), 2);
 ok (scalar($nested_ac->get_Annotations()), 6);
 ok (scalar($nested_ac->get_all_Annotations()), 6);
 
+if( $HAVEGRAPHDIRECTED ) {
 # OntologyTerm annotation
-my $termann = Bio::Annotation::OntologyTerm->new(-label => 'test case',
-						 -identifier => 'Ann:00001',
-						 -ontology => 'dumpster');
-ok ($termann->term);
-ok ($termann->term->name, 'test case');
-ok ($termann->term->identifier, 'Ann:00001');
-ok ($termann->tagname, 'dumpster');
-ok ($termann->ontology->name, 'dumpster');
-ok ($termann->as_text, "dumpster|test case|Ann:00001");
+    my $termann = Bio::Annotation::OntologyTerm->new(-label => 'test case',
+						     -identifier => 'Ann:00001',
+						     -ontology => 'dumpster');
+    ok ($termann->term);
+    ok ($termann->term->name, 'test case');
+    ok ($termann->term->identifier, 'Ann:00001');
+    ok ($termann->tagname, 'dumpster');
+    ok ($termann->ontology->name, 'dumpster');
+    ok ($termann->as_text, "dumpster|test case|Ann:00001");
+} else { 
+    for (1..6 ) { 
+	skip('Graph::Directed not installed cannot test Bio::Annotation::OntologyTerm module',1);
+    }
+}
 
 # AnnotatableI
 my $seq = Bio::Seq->new();
