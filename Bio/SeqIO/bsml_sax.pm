@@ -1,4 +1,4 @@
-#
+# $Id$
 # BioPerl module for Bio::SeqIO::bsml_sax
 #
 # Cared for by Jason Stajich
