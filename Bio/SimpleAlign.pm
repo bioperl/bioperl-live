@@ -1431,9 +1431,11 @@ sub gap_char {
 
 sub symbol_chars{
    my ($self,$includeextra) = @_;
-   if( ! defined $self->{'_symbols'} ) {
-       $self->warn("Symbol list was not initialized");
-       return ();
+
+   unless ($self->{'_symbols'}) { 
+       foreach my $seq ($self->each_seq) { 
+           map { $self->{'_symbols'}->{$_} = 1; } split(//,$seq->seq);
+       }
    }
    my %copy = %{$self->{'_symbols'}};
    if( ! $includeextra ) {
@@ -1717,7 +1719,11 @@ sub length {
     my ($temp,$len);
 
     foreach $seq ( $self->each_seq() ) {
-	$temp = CORE::length($seq->seq());
+        if ($self->isa("Bio::Seq::LargeSeqI")) {
+            $temp = $seq->length();
+        } else {
+            $temp = CORE::length($seq->seq());
+        }
 	if( $temp > $length ) {
 	    $length = $temp;
 	}

@@ -107,6 +107,7 @@ sub next_aln {
 					     '-end'        =>$end,
 					     );
 		$aln->add_seq($seq);
+                $self->debug("Reading $seqname");
 	    }
 	    $desc = $tempdesc;	
 	    $name = $tempname;
@@ -158,6 +159,7 @@ sub next_aln {
 	
 	$aln->add_seq($seq);
     }
+    $self->debug("Reading $seqname");
     my $alnlen = $aln->length;
     foreach my $seq ( $aln->each_seq ) {
 	if( $seq->length < $alnlen ) {

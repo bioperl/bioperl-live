@@ -1,21 +1,18 @@
-# $Id$
+
+# BioPerl module for Bio::Seq::LargeLocatableSeq
 #
-# BioPerl module for Bio::Seq::LargePrimarySeq
+# Cared for by Albert Vilella <avilella@ebi.ac.uk, avilella@ub.edu>
 #
-# Cared for by Ewan Birney <birney@ebi.ac.uk>
-#
-# Copyright Ewan Birney
+# Copyright Albert Vilella
 #
 # You may distribute this module under the same terms as perl itself
-#
-# updated to utilize File::Temp - jason 2000-12-12
+
 # POD documentation - main docs before the code
 
 =head1 NAME
 
-Bio::Seq::LargePrimarySeq - PrimarySeq object that stores sequence as
-files in the tempdir (as found by File::Temp) or the default method in
-Bio::Root::Root
+Bio::Seq::LargeLocatableSeq - LocatableSeq object that stores sequence as
+files in the tempdir
 
 =head1 SYNOPSIS
 
@@ -30,8 +27,8 @@ of memory (eg, on a 64 MB real memory machine!).
 
 Of course, to actually make use of this functionality, the programs
 which use this object B<must> not call $primary_seq-E<gt>seq otherwise
-the entire sequence will come out into memory and probably paste your
-machine. However, calls $primary_seq-E<gt>subseq(10,100) will cause
+the entire sequence will come out into memory and probably crach your
+machine. However, calls like $primary_seq-E<gt>subseq(10,100) will cause
 only 90 characters to be brought into real memory.
 
 =head1 FEEDBACK
@@ -39,51 +36,66 @@ only 90 characters to be brought into real memory.
 =head2 Mailing Lists
 
 User feedback is an integral part of the evolution of this and other
-Bioperl modules. Send your comments and suggestions preferably to one
-of the Bioperl mailing lists.  Your participation is much appreciated.
+Bioperl modules. Send your comments and suggestions preferably to
+the Bioperl mailing list.  Your participation is much appreciated.
 
-  bioperl-l@bioperl.org               - General discussion
-  http://bio.perl.org/MailList.html   - About the mailing lists
+  bioperl-l@bioperl.org              - General discussion
+  http://bioperl.org/MailList.shtml  - About the mailing lists
 
 =head2 Reporting Bugs
 
 Report bugs to the Bioperl bug tracking system to help us keep track
-the bugs and their resolution.  Bug reports can be submitted via email
-or the web:
+of the bugs and their resolution. Bug reports can be submitted via
+the web:
 
-  bioperl-bugs@bio.perl.org
   http://bugzilla.bioperl.org/
 
-=head1 AUTHOR - Ewan Birney, Jason Stajich
+=head1 AUTHOR - Albert Vilella
 
-Email birney@ebi.ac.uk
-Email jason@bioperl.org
+Email avilella@ebi.ac.uk, avilella@ub.edu
+
+Describe contact details here
+
+=head1 CONTRIBUTORS
+
+Additional contributors names and emails here
 
 =head1 APPENDIX
 
-The rest of the documentation details each of the object
-methods. Internal methods are usually preceded with a _
+The rest of the documentation details each of the object methods.
+Internal methods are usually preceded with a _
 
 =cut
 
 
 # Let the code begin...
 
-
-package Bio::Seq::LargePrimarySeq;
+package Bio::Seq::LargeLocatableSeq;
 use vars qw($AUTOLOAD @ISA);
 use strict;
 
-use Bio::PrimarySeq;
+use Bio::Seq::LargePrimarySeq;
+use Bio::LocatableSeq;
 use Bio::Root::IO;
-use Bio::Seq::LargeSeqI;
 
-@ISA = qw(Bio::PrimarySeq Bio::Root::IO Bio::Seq::LargeSeqI);
+@ISA = qw(Bio::Seq::LargePrimarySeq Bio::LocatableSeq Bio::Root::IO);
+
+
+=head2 new
+
+ Title   : new
+ Usage   : my $obj = new Bio::Seq::LargeLocatableSeq();
+ Function: Builds a new Bio::Seq::LargeLocatableSeq object
+ Returns : an instance of Bio::Seq::LargeLocatableSeq
+ Args    :
+
+
+=cut
 
 sub new {
     my ($class, %params) = @_;
-    
-    # don't let PrimarySeq set seq until we have 
+
+    # don't let PrimarySeq set seq until we have
     # opened filehandle
 
     my $seq = $params{'-seq'} || $params{'-SEQ'};
@@ -97,9 +109,9 @@ sub new {
     my ($tfh,$file) = $self->tempfile( DIR => $tempdir );
 
     $tfh     && $self->_fh($tfh);
-    $file    && $self->_filename($file);    
+    $file    && $self->_filename($file);
     $self->length(0);
-    $seq && $self->seq($seq); 
+    $seq && $self->seq($seq);
 
     return $self;
 }
@@ -111,7 +123,7 @@ sub new {
  Usage   :
  Function:
  Example :
- Returns : 
+ Returns :
  Args    :
 
 
@@ -122,6 +134,7 @@ sub length {
    if( defined $value) {
       $obj->{'length'} = $value;
     }
+
     return (defined $obj->{'length'}) ? $obj->{'length'} : 0;
 }
 
@@ -131,23 +144,24 @@ sub length {
  Usage   :
  Function:
  Example :
- Returns : 
+ Returns :
  Args    :
 
 
 =cut
 
 sub seq {
-   my ($self, $data) = @_;   
+   my ($self, $data) = @_;
    if( defined $data ) {
        if( $self->length() == 0) {
 	   $self->add_sequence_as_string($data);
-       } else { 
-	   $self->warn("Trying to reset the seq string, cannot do this with a LargePrimarySeq - must allocate a new object");
+       } else {
+	   $self->warn("Trying to reset the seq string, cannot do this with a LargeLocatableSeq - must allocate a new object");
        }
-   } 
+   }
    return $self->subseq(1,$self->length);
 }
+
 
 =head2 subseq
 
@@ -155,7 +169,7 @@ sub seq {
  Usage   :
  Function:
  Example :
- Returns : 
+ Returns :
  Args    :
 
 
@@ -168,10 +182,10 @@ sub subseq{
 
    if( ref($start) && $start->isa('Bio::LocationI') ) {
        my $loc = $start;
-       if( $loc->length == 0 ) { 
+       if( $loc->length == 0 ) {
 	   $self->warn("Expect location lengths to be > 0");
 	   return '';
-       } elsif( $loc->end < $loc->start ) { 
+       } elsif( $loc->end < $loc->start ) {
 	   # what about circular seqs
 	   $self->warn("Expect location start to come before location end");
        }
@@ -185,12 +199,13 @@ sub subseq{
 	       if( !defined $ret ) {
 		   $self->throw("Unable to read $start:$end $!");
 	       }
-	       if( $subloc->strand < 0 ) { 
-		   $string = Bio::PrimarySeq->new(-seq => $string)->revcom()->seq();
+	       if( $subloc->strand < 0 ) {
+# 		   $string = Bio::PrimarySeq->new(-seq => $string)->revcom()->seq();
+		   $string = Bio::Seq::LargePrimarySeq->new(-seq => $string)->revcom()->seq();
 	       }
-	       $seq .= $string;
+	       $seq .= $string;		
 	   }
-       } else { 
+       } else {
 	   if(! seek($fh,$loc->start()-1,0)) {
 	       $self->throw("Unable to seek on file ".$loc->start.":".
 			    $loc->end ." $!");
@@ -202,9 +217,10 @@ sub subseq{
 	   }
 	   $seq = $string;
        }
-       if( defined $loc->strand && 
-	   $loc->strand < 0 ) { 
-	   $seq = Bio::PrimarySeq->new(-seq => $seq)->revcom()->seq();
+       if( defined $loc->strand &&
+	   $loc->strand < 0 ) {
+# 	   $seq = Bio::PrimarySeq->new(-seq => $string)->revcom()->seq();
+	   $seq = Bio::Seq::LargePrimarySeq->new(-seq => $seq)->revcom()->seq();
        }
        return $seq;
    }
@@ -226,11 +242,12 @@ sub subseq{
    return $string;
 }
 
+
 =head2 add_sequence_as_string
 
  Title   : add_sequence_as_string
  Usage   : $seq->add_sequence_as_string("CATGAT");
- Function: Appends additional residues to an existing LargePrimarySeq object.
+ Function: Appends additional residues to an existing LargeLocatableSeq object.
            This allows one to build up a large sequence without storing
            entire object in memory.
  Returns : Current length of sequence
@@ -254,8 +271,8 @@ sub add_sequence_as_string{
 
  Title   : _filename
  Usage   : $obj->_filename($newval)
- Function: 
- Example : 
+ Function:
+ Example :
  Returns : value of _filename
  Args    : newvalue (optional)
 
@@ -276,8 +293,8 @@ sub _filename{
 
  Title   : alphabet
  Usage   : $obj->alphabet($newval)
- Function: 
- Example : 
+ Function:
+ Example :
  Returns : value of alphabet
  Args    : newvalue (optional)
 
@@ -293,13 +310,43 @@ sub alphabet{
 
 }
 
+
+=head2 end
+
+ Title   : end
+ Usage   : $obj->end($newval)
+ Function:
+ Returns : value of end
+ Args    : newvalue (optional)
+
+=cut
+
+sub end {
+   my $self = shift;
+   if( @_ ) {
+      my $value = shift;
+      my $string = $self->seq;
+      if ($self->seq) {
+          my $len = $self->_ungapped_len;
+	  my $id = $self->id;
+	  $self->warn("In sequence $id residue count gives end value $len.
+Overriding value [$value] with value $len for Bio::LargeLocatableSeq::end().")
+	      and $value = $len if $len != $value and $self->verbose > 0;
+      }
+
+      $self->{'end'} = $value;
+    }
+
+   return $self->{'end'} || $self->_ungapped_len;
+}
+
+
 sub DESTROY {
     my $self = shift;
     my $fh = $self->_fh();
     close($fh) if( defined $fh );
     # this should be handled by Tempfile removal, but we'll unlink anyways.
-    unlink $self->_filename()
-        if defined $self->_filename() && -e $self->_filename;
+    unlink $self->_filename() if defined $self->_filename() && -e $self->_filename;
     $self->SUPER::DESTROY();
 }
 
