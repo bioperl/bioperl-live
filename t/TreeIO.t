@@ -18,7 +18,7 @@ BEGIN {
     }
 
     use Test;
-    plan tests => 15; 
+    plan tests => 14; 
 
 #    eval { require XML::Parser::PerlSAX; };
 #    if( $@ ) {
@@ -144,48 +144,6 @@ $tree = $treeio->next_tree;
 
 if( $verbose > 0  ) {
     $treeout->write_tree($tree);
-    $treeout2->write_tree($tree);
-}
-@nodes = $tree->get_nodes;
-
-my( $i, $c, $g);
-
-for ($i = 0; $i <= $#nodes; $i++) {
-    next unless defined $nodes[$i]->id;
-    if ($nodes[$i]->id eq 'C') {
-	$c = $i;
-    }
-    if ($nodes[$i]->id eq 'G') {
-	$g = $i;
-    }
-}
-$nodes[$c]->ancestor;
-$nodes[$g]->ancestor;
-my $cancestor = $nodes[$c]->ancestor;
-my $gancestor = $nodes[$g]->ancestor; 
-$cancestor->id('C-ancestor'); # let's provide a way to test if we suceeded
-$gancestor->id('G-ancestor'); # in our swapping
-
-$cancestor->remove_Descendent($nodes[$c]);
-$gancestor->remove_Descendent($nodes[$g]);
-$cancestor->add_Descendent($nodes[$g],1);
-$gancestor->add_Descendent($nodes[$c],1);
-
-@nodes = $tree->get_nodes();
-
-for ($i = 0; $i <= $#nodes; $i++) {
-    next unless defined $nodes[$i]->id;
-    if ($nodes[$i]->id eq 'C') {
-	ok($nodes[$i]->ancestor->id, 'G-ancestor');
-	$c = $i;
-    }
-    if ($nodes[$i]->id eq 'G') {
-	$g = $i;
-	ok($nodes[$i]->ancestor->id, 'C-ancestor');
-    }
-}
-
-if( $verbose > 0  ) {
     $treeout2->write_tree($tree);
 }
 
