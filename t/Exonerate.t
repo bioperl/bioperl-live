@@ -19,7 +19,7 @@ BEGIN {
 	use lib 't';
     }
     use vars qw($NTESTS);
-    $NTESTS = 17;
+    $NTESTS = 41;
     $error = 0;
 
     use Test;
@@ -42,19 +42,39 @@ $searchio = new Bio::SearchIO(-file =>
 			      Bio::Root::IO->catfile(qw(t data 
 							testdat.exonerate)),
 			      -format => 'exonerate');
-my @data = ( [qw(Contig124 ln27 575 764 -1 835 1024 1)],
-	     [qw(Contig124 ln27 810 940 -1 1017 1147 1)] );
+my @data = ( [qw(ln27 Contig124 
+		 292 417 -1 
+		 1 125 1 
+		 
+		 106 293 -1 
+		 178 364 1 
+		 
+		 66 107 -1
+		 899 940 1
+		 )],
+	     [qw(ln74 Contig275 
+		 600 645 -1
+		 901 945 1
+		 
+		 435 601 -1
+		 998 1163 1
+		 
+		 386 436 -1
+		 1247 1297 1
+		 )] );
+
 while( my $r = $searchio->next_result ) {
     my $d = shift @data;
     ok($r->query_name, shift @$d);
     my $h = $r->next_hit;
     ok($h->name, shift @$d);
-    my $hsp = $h->next_hsp;
-    ok($hsp->query->start, shift @$d);
-    ok($hsp->query->end, shift @$d);
-    ok($hsp->query->strand, shift @$d);
-
-    ok($hsp->hit->start, shift @$d);
-    ok($hsp->hit->end, shift @$d);
-    ok($hsp->hit->strand, shift @$d);
+    while( my $hsp = $h->next_hsp ) {
+	ok($hsp->query->start, shift @$d);
+	ok($hsp->query->end, shift @$d);
+	ok($hsp->query->strand, shift @$d);
+	
+	ok($hsp->hit->start, shift @$d);
+	ok($hsp->hit->end, shift @$d);
+	ok($hsp->hit->strand, shift @$d);
+    }
 }
