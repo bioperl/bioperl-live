@@ -110,7 +110,10 @@ sub get_Seq_by_id {
   my $entrez = "db=p&form=6&dopt=f&html=no&title=no&uid=$uid" ;
 
   my $stream = $self->_get_stream($entrez);
-  return $stream->next_seq();
+  my $seq = $stream->next_seq();
+  $self->throw("Unable to get seq for id $uid, is it really a genpept id?\n")
+      if( !defined $seq );
+  return $seq;
 }
 
 =head2 get_Seq_by_acc
