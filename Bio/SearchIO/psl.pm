@@ -85,6 +85,7 @@ $DEFAULT_WRITER_CLASS = 'Bio::Search::Writer::HitTableWriter';
 # mapping of terms to Bioperl hash keys
 %MODEMAP = (
 	    'PSLOutput'          => 'result',
+	    'Result'             => 'result',
 	    'Hit'                => 'hit',
 	    'Hsp'                => 'hsp'
 	    );
@@ -169,6 +170,15 @@ sub next_result{
    my ($self) = @_;
    my ($lastquery,$lasthit) = undef;
    local ($_);
+
+   #clear header if exists
+   my $head = $self->_readline;
+   if($head =~ /^psLayout/){
+       for(1..4){$self->_readline}
+   } else {
+     $self->_pushback($head);
+   }
+
    while( defined ($_ = $self->_readline) ) {
        my ( $matches,$mismatches,$rep_matches,$n_count,
 	    $q_num_insert,$q_base_insert,
@@ -177,7 +187,7 @@ sub next_result{
 	    $q_end, $t_name, $t_length,$t_start, $t_end, $block_count,
 	    $block_sizes,  $q_starts,      $t_starts
 	    ) = split;
-       
+
        my $score   = sprintf "%.2f", ( 100 * ( $matches + $mismatches + $rep_matches ) / $q_length );
 
        # this is overall percent identity...
@@ -352,11 +362,11 @@ sub end_element {
 	    $self->{'_values'}->{$MAPPING{$nm}} = $self->{'_last_data'};
 	}
     } else { 
-	$self->warn( "unknown nm $nm ignoring\n");
+	$self->warn( __PACKAGE__."::end_element: unknown nm '$nm', ignoring\n");
     }
     $self->{'_last_data'} = ''; # remove read data if we are at 
 				# end of an element
-    $self->{'_result'} = $rc if( $nm eq 'PSLOutput' );
+    $self->{'_result'} = $rc if( $MODEMAP{$nm} eq 'result' );
     return $rc;
 
 }
