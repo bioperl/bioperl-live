@@ -900,7 +900,7 @@ return $score;
 sub get_all_vectors {
 	my $self=shift;
 	my $thresh=shift;
-  $self->throw("Out of range. Threshold should be >0 and 1<.\n") if (($thresh<3) || ($thresh>7));
+  $self->throw("Out of range. Threshold should be >0 and 1<.\n") if (($thresh<0) || ($thresh>1));
   my @seq=split(//,$self->consensus($thresh*10));
   my @perm;
   for my $i (0..@{$self->{probA}}) {

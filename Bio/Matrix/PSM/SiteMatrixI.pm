@@ -578,7 +578,7 @@ sub sequence_match_weight {
  Usage   :
  Function:  returns all possible sequence vectors to satisfy the PFM under
             a given threshold
- Throws  :  If threshold outside of 3..7 (no sense to do that)
+ Throws  :  If threshold outside of 0..1 (no sense to do that)
  Example :  my @vectors=$self->get_all_vectors(4);
  Returns :  Array of strings
  Args    :  (optional) floating
