@@ -44,7 +44,7 @@ Contents
    Q2.2: I can't get sequences with Bio::DB::GenBank any more, why not?
    Q2.3: How can I get NT_ or NM_ or NP_ accessions from NCBI
 	 (Reference Sequences)?
-   Q2.4: How can I use SeqIO to parse sequence data from a string?
+   Q2.4: How can I use SeqIO to parse sequence data to or from a string?
 
 3. Report parsing
 
@@ -339,9 +339,11 @@ Contents
 	 accessions will not be retrievable.
 
 
-   Q2.4: How can I use SeqIO to parse sequence data from a string?
+   Q2.4: How can I use SeqIO to parse sequence data to or from a string?
 
-      A: 
+      A: From a string:
+
+	 
 	   use IO::String;
 	   use Bio::SeqIO;
 	   my $stringfh = new IO::String($string);
@@ -351,6 +353,17 @@ Contents
 	   while( my $seq = $seqio->next_seq ) { 
 	       # process each seq
 	   }
+
+	 And here is how to write to a string:
+
+	 
+	 use IO::String;
+	 use Bio::SeqIO;
+	 my $s;
+	 my $io = IO::String->new(\$s);
+	 my $seqOut = new Bio::SeqIO(-format=>'swiss', -fh => $io);
+	 $seqOut->write_seq($seq1);
+	 print $s; # $s contains the record
 
 
 ---------------------------------------------------------------------------
