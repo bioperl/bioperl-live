@@ -1,0 +1,101 @@
+LOCUS       DMALCDEHP               2071 bp    mRNA    linear   INV 06-JAN-1997
+DEFINITION  D.melanogaster mRNA for alcohol dehydrogenase related protein.
+ACCESSION   X98338
+VERSION     X98338.1  GI:1752657
+KEYWORDS    ADH protein; ADHR protein.
+SOURCE      Drosophila melanogaster (fruit fly)
+  ORGANISM  Drosophila melanogaster
+            Eukaryota; Metazoa; Arthropoda; Hexapoda; Insecta; Pterygota;
+            Neoptera; Endopterygota; Diptera; Brachycera; Muscomorpha;
+            Ephydroidea; Drosophilidae; Drosophila.
+REFERENCE   1
+  AUTHORS   Brogna,S. and Ashburner,M.
+  TITLE     The Adh-related gene of Drosophila melangaster is expressed via a
+            functional dicistronic messenger: multigenic transcription in
+            higher organisms
+  JOURNAL   Unpublished
+REFERENCE   2  (bases 1 to 2071)
+  AUTHORS   Brogna,S.
+  TITLE     Direct Submission
+  JOURNAL   Submitted (05-JUN-1996) S. Brogna, University of Cambridge,
+            Genetics, Downing Street, Cambridge, CB2 3EH, UK
+FEATURES             Location/Qualifiers
+     source          1..2071
+                     /organism="Drosophila melanogaster"
+                     /mol_type="mRNA"
+                     /strain="Canton-S"
+                     /db_xref="taxon:7227"
+                     /dev_stage="adult"
+     gene            125..895
+                     /gene="ADH"
+     CDS             125..895
+                     /gene="ADH"
+                     /codon_start=1
+                     /product="alcohol dehydrogenase protein"
+                     /protein_id="CAA66981.1"
+                     /db_xref="GI:1752658"
+                     /db_xref="FLYBASE:FBgn0000055"
+                     /db_xref="SWISS-PROT:P00334"
+                     /translation="MSFTLTNKNVIFVAGLGGIGLDTSKELLKRDLKNLVILDRIENP
+                     AAIAELKAINPKVTVTFYPYDVTVPIAETTKLLKTIFAQLKTVDVLINGAGILDDHQI
+                     ERTIAVNYTGLVNTTTAILDFWDKRKGGPGGIICNIGSVTGFNAIYQVPVYSGTKAAV
+                     VNFTSSLAKLAPITGVTAYTVNPGITRTTLVHKFNSWLDVEPQVAEKLLAHPTQPSLA
+                     CAENFVKAIELNQNGAIWKLDLGTLEAIQWTKHWDSGI"
+     polyA_signal    1017..1022
+     polyA_site      1066
+     gene            1194..2012
+                     /gene="ADHR"
+     CDS             1194..2012
+                     /gene="ADHR"
+                     /codon_start=1
+                     /product="alcohol dehydrogenase related protein"
+                     /protein_id="CAA66982.1"
+                     /db_xref="GI:1752659"
+                     /db_xref="FLYBASE:FBgn0000056"
+                     /db_xref="SWISS-PROT:P91615"
+                     /translation="MFDLTGKHVCYVADCGGIALETSKVLMTKNIAKLAILQSTENPQ
+                     AIAQLQSIKPSTQIFFWTYDVTMAREDMKKYFDEVMVQMDYIDVLINGATLCDENNID
+                     ATINTNLTGMMNTVATVLPYMDRKMGGTGGLIVNVTSVIGLDPSPVFCAYSASKFGVI
+                     GFTRSLADPLYYSQNGVAVMAVCCGPTRVFVDRELKAFLEYGQSFADRLRRAPCQSTS
+                     VCGQNIVNAIERSENGQIWIADKGGLELVKLHWYWHMADQFVHYMQSNDEEDQD"
+     polyA_signal    2023..2028
+     polyA_site      2071
+BASE COUNT      581 a    504 c    511 g    475 t
+ORIGIN      
+        1 attattgtct cagtgcagtt gtcagttgca gttcagcaga cgggctaacg agtacttgca
+       61 tctcttcaaa tttacttaat tgatcaatat cgaaagagcc tgctaaagca aaaaagaagt
+      121 caccatgtcg tttactttga ccaacaagaa cgtgattttc gttgccggtc tgggaggcat
+      181 tggtctggac accagcaagg agctgctcaa gcgcgatctg aagaacctgg tgatcctcga
+      241 ccgcattgag aacccggctg ccattgccga gctgaaggca atcaatccaa aggtgaccgt
+      301 caccttctac ccctatgatg tgaccgtgcc cattgccgag accaccaagc tgctgaagac
+      361 catcttcgcc cagctgaaga ccgtcgatgt cctgatcaac ggagctggta tcctggacga
+      421 tcaccagatc gagcgcacca ttgccgtcaa ctacactggc ctggtcaaca ccacgacggc
+      481 cattctggac ttctgggaca agcgcaaggg cggtcccggt ggtatcatct gcaacattgg
+      541 atccgtcact ggattcaatg ccatctacca ggtgcccgtc tactccggca ccaaggccgc
+      601 cgtggtcaac ttcaccagct ccctggcgaa actggccccc attaccggcg tgaccgctta
+      661 caccgtgaac cccggcatca cccgcaccac cctggtgcac aagttcaact cctggttgga
+      721 tgttgagccc caggttgctg agaagctcct ggctcatccc acccagccat cgttggcctg
+      781 cgccgagaac ttcgtcaagg ctatcgaact gaaccagaac ggagccatct ggaaactgga
+      841 cttgggcacc ctggaggcca tccagtggac caagcactgg gactccggca tctaagaagt
+      901 gataatccca aaaaaaaaac ataacattag ttcatagggt tctgcgaacc acaagatatt
+      961 cacgcaaggc aataaggctg attcgatgca cactcacatt cttctcctaa tacgataata
+     1021 aaactttcca tgaaaaatat ggaaaaatat atgaaaattg agaaatccaa aaaactgata
+     1081 aacgctctac ttaattaaaa tagataaatg ggagcggcag gaatggcgga gcatggccaa
+     1141 gttcctccgc caatcagtcg taaaacagaa gtcgtggaaa gcggatagaa agaatgttcg
+     1201 atttgacggg caagcatgtc tgctatgtgg cggattgcgg aggaattgca ctggagacca
+     1261 gcaaggttct catgaccaag aatatagcga aactggccat tttacagagt acggaaaatc
+     1321 cccaggccat cgctcagttg cagtcgataa agccgagtac ccaaatattt ttctggacct
+     1381 acgacgtgac catggcaagg gaagatatga agaagtactt cgatgaggtg atggtccaaa
+     1441 tggactacat cgatgtcctg atcaatggtg ctacgctgtg cgatgaaaat aacattgatg
+     1501 ccaccatcaa tacaaatcta acgggaatga tgaacactgt ggccacagtg ttaccctata
+     1561 tggacagaaa aatgggagga actggtgggc taattgtgaa cgtcacttcg gtcattggat
+     1621 tggacccttc gccggttttc tgcgcatata gtgcatccaa attcggtgta attggattca
+     1681 ccagaagtct agcggacccc ctttactatt cccaaaacgg ggtagctgtg atggcggttt
+     1741 gttgtggtcc tacaagggtc tttgtggacc gggaactgaa agcgtttttg gaatacggac
+     1801 aatcctttgc cgatcgcctg cggcgagcgc cctgccaatc gacatcggtt tgtggtcaga
+     1861 atattgtcaa tgccatcgag agatcggaga atggtcagat atggattgcg gataagggtg
+     1921 gactggagtt ggtcaaattg cattggtact ggcacatggc cgaccagttc gtgcactata
+     1981 tgcagagcaa tgatgaagag gatcaagatt gaattcgaat caaataaaat aatgctttac
+     2041 gcaaaaagta ggcaattcat tttcctatga t
+//
+
