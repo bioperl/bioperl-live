@@ -66,7 +66,7 @@ ds are usually preceded with a _
 
 =cut
 
-package RangeI;
+package Bio::RangeI;
 
 use strict;
 use Carp;
@@ -95,11 +95,11 @@ sub _abstractDeath {
   confess "Abstract method '$caller' defined in interface Bio::RangeI not implemented by pacakge $package";
 }
   
-=head2 Abstract methods
+=head1 Abstract methods
 
 These methods must be implemented in all subclasses.
 
-=head3
+=head2
 
   Title   : new
   Function: confesses if you try to instantiate a RangeI
@@ -113,7 +113,7 @@ sub new {
   shift->_abstractDeath();
 }
 
-=head3
+=head2
 
   Title   : start
   Usage   : $start = $range->start();
@@ -128,7 +128,7 @@ sub start {
   shift->_abstractDeath();
 }
 
-=head3
+=head2
 
   Title   : end
   Usage   : $end = $range->end();
@@ -143,7 +143,7 @@ sub end {
   shift->_abstractDeath();
 }
 
-=head3
+=head2
 
   Title   : length
   Usage   : $length = $range->length();
@@ -158,7 +158,7 @@ sub length {
   shift->_abstractDeath();
 }
 
-=head3
+=head2
 
   Title   : strand
   Usage   : $strand = $range->strand();
@@ -173,14 +173,13 @@ sub strand {
   shift->_abstractDeath();
 }
 
-=head2 Boolean Methods
+=head1 Boolean Methods
 
-These methods return true or false so that you can use them to direct
-program flow.
+These methods return true or false.
 
- $range->overlaps($otherRange) && &processOverlaps($range, $otherRange);
+ $range->overlaps($otherRange) && print "Ranges overlap\n";
 
-=head3 overlaps
+=head2 overlaps
 
   Title   : overlaps
   Usage   : if($r1->overlaps($r2)) { do stuff }
@@ -196,7 +195,7 @@ sub overlaps {
               $self->end() > $other->start());
 }
 
-=head3 contains
+=head2 contains
 
   Title   : contains
   Usage   : if($r1->contains($r2) { do stuff }
@@ -216,7 +215,7 @@ sub contains {
   }
 }
 
-=head3
+=head2
 
   Title   : equals
   Usage   : if($r1->equals($r2))
@@ -232,12 +231,12 @@ sub equals {
          $self->end() == $other->end();
 }
 
-=head2 Geometrical methods
+=head1 Geometrical methods
 
 These methods do things to the geometry of ranges, and return
 triplets (start, stop, strand) from which new ranges could be built.
 
-=head3
+=head2
 
   Title   : intersection
   Usage   : ($start, $stop, $strand) = $r1->intersection($r2)
@@ -266,7 +265,7 @@ sub intersection {
   }
 }
 
-=head3
+=head2
 
   Title   : union
   Usage   : ($start, $stop, $strand) = $r1->union($r2);
