@@ -100,7 +100,8 @@ ok(($g[0]->get_Alleles())[0], 'C');
 my $marker = $population->get_Marker('Mkr3');
 ok($marker);
 
-ok($marker->get_Alleles,2);
+@alleles = $marker->get_Alleles;
+ok(@alleles,2);
 my %af = $marker->get_Allele_Frequencies();
 ok($af{'a'}, 0.75);
 ok($af{'A'}, 0.25);
