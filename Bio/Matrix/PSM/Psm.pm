@@ -115,8 +115,6 @@ SiteMatrix, meme, transfac, InstanceSite
 
 # Let the code begin...
 package Bio::Matrix::PSM::Psm;
-use Bio::Root::Root;
-use Bio::Root::IO;
 use Bio::Matrix::PSM::SiteMatrix;
 use Bio::Matrix::PSM::InstanceSite;
 use Bio::Matrix::PSM::PsmI;
@@ -124,7 +122,7 @@ use Bio::Annotation::Collection;
 use vars qw(@ISA);
 use strict;
 
-@ISA=qw(Bio::Matrix::PSM::SiteMatrix Bio::Root::Root Bio::Matrix::PSM::PsmI Bio::Annotation::Collection);
+@ISA=qw(Bio::Matrix::PSM::SiteMatrix Bio::Matrix::PSM::PsmI Bio::Annotation::Collection);
 
 @Bio::Matrix::PSM::Psm::HEADER = qw(e_val sites IC width);
 
