@@ -632,7 +632,6 @@ sub features {
   return $self->factory->overlapping_features(@args);
 }
 
-
 =head2 get_SeqFeatures
 
  Title   : get_SeqFeatures
@@ -916,7 +915,7 @@ sub _process_feature_args {
   my ($ref,$class,$start,$stop,$strand,$whole)
     = @{$self}{qw(sourceseq class start stop strand whole)};
 
-  ($start,$stop) = ($stop,$start) if $strand eq '-';
+  ($start,$stop) = ($stop,$start) if defined $strand && $strand eq '-';
 
   my @args = (-ref=>$ref,-class=>$class);
 

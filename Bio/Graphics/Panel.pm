@@ -545,6 +545,10 @@ sub draw_side_key {
   my $pos = $side eq 'left' ? $self->pad_left - $self->{key_font}->width * CORE::length($key)-3
                             : $self->width - $self->pad_right+3;
   my $color = $self->translate_color('black');
+  # help me not go off the bottom!
+  if ((my $deficit = ($offset + $self->{key_font}->height) - ($gd->getBounds)[1])>0) {
+    $offset -= $deficit;
+  }
   $gd->string($self->{key_font},$pos,$offset,$key,$color);
 }
 
