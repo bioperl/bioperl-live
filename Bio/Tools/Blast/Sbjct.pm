@@ -26,7 +26,7 @@ use Bio::Root::Object  ();
 use strict;
 use vars qw($ID $VERSION %SUMMARY_OFFSET $Revision);
 $ID = 'Bio::Tools::Blast::Sbjct';
-$VERSION = 0.09;
+$VERSION = 0.091;
 $Revision = '$Id$';  #'
 
 my $_prog       = '';
@@ -218,7 +218,7 @@ See the L<FEEDBACK> section for where to send bug reports and comments.
 
 =head1 VERSION
 
-Bio::Tools::Blast::Sbjct.pm, 0.09
+Bio::Tools::Blast::Sbjct.pm, 0.091
 
 =head1 COPYRIGHT
 
@@ -546,7 +546,7 @@ sub _set_hsps {
 	       } else {
 		   push @hspList, $hspObj;
                    if (!defined($self->{'_expect'}) || $hspObj->expect() < $self->{'_expect'}) {
-                       $self->{_expect} = $hspObj->expect();
+                       $self->{'_expect'} = $hspObj->expect();
                    }
                    if (!defined($self->{'_p'}) || $hspObj->p() < $self->{'_p'}) {
                        $self->{'_p'} = $hspObj->p();
@@ -1448,7 +1448,7 @@ sub num_hsps {
  Usage     : $sbjct_object->length();
  Purpose   : Get the total length of the hit sequence.
  Example   : $len    = $sbjct_object->length();
- Returns   : Integer 
+ Returns   : Integer 
  Argument  : n/a
  Throws    : n/a
  Comments  : Developer note: when using the built-in length function within
