@@ -398,7 +398,7 @@ the raw string while L<id_output> to get the pre-escaped string.
 
 sub id{
     my ($self, $value) = @_;
-    if ($value) {
+    if (defined $value) {
         #$self->warn("Illegal characters ();:  and space in the id [$value], converting to _ ")
 	# if $value =~ /\(\);:/ and $self->verbose >= 0;
         #$value =~ s/[\(\);:\s]/_/g;
@@ -506,20 +506,15 @@ sub height {
 
     return $self->{'_height'} if( defined $self->{'_height'} );
     
-    if( $self->is_Leaf ) { 
-       if( !defined $self->branch_length ) { 
-	   $self->debug(sprintf("Trying to calculate height of a node when a Node (%s) has an undefined branch_length\n",$self->id || '?' ));
-	   return 0;
-       }
-       return $self->branch_length;
-   }
-   my $max = 0;
-   foreach my $subnode ( $self->each_Descendent ) { 
-       my $s = $subnode->height;
-       if( $s > $max ) { $max = $s; }
-   }
-   my $bl = $self->branch_length;
-   $bl = 1 unless (defined $bl && $bl =~ /^\d+(\.\d+)?$/);
+    return 0 if( $self->is_Leaf );
+    
+    my $max = 0;
+    foreach my $subnode ( $self->each_Descendent ) { 
+	my $s = $subnode->height;
+	if( $s > $max ) { $max = $s; }
+    }
+    my $bl = $self->branch_length;
+    $bl = 1 unless (defined $bl && $bl =~ /^\-?\d+(\.\d+)?$/);
    return ($self->{'_height'} = $max + $bl);
 }
 
