@@ -8,10 +8,10 @@ $DEBUG = $ENV{'BIOPERLDEBUG'} || 0;
 BEGIN {
     eval { require Test; };
     if( $@ ) {
-	use lib 't';
+use lib 't';
     }
     use Test;
-    $TESTCOUNT = 235;
+    $TESTCOUNT = 248;
     plan tests => $TESTCOUNT;
 }
 
@@ -88,7 +88,7 @@ while( $seq = $str->next_seq()) {
 }
 $out = undef;
 $ast = Bio::SeqIO->new( '-format' => 'GenBank' ,
-			'-file' => Bio::Root::IO->catfile("t","data","roa1.genbank"));
+'-file' => Bio::Root::IO->catfile("t","data","roa1.genbank"));
 $ast->verbose($verbosity);
 my $as = $ast->next_seq();
 ok $as->molecule, 'mRNA';
@@ -97,8 +97,8 @@ ok($as->primary_id, 3598416);
 
 
 $ast = Bio::SeqIO->new( '-format' => 'genbank' ,
-			'-file' => Bio::Root::IO->catfile("t","data",
-							  "NT_021877.gbk"));
+'-file' => Bio::Root::IO->catfile("t","data",
+  "NT_021877.gbk"));
 $ast->verbose($verbosity);
 $as = $ast->next_seq();
 ok $as->molecule, 'DNA';
@@ -111,7 +111,7 @@ ok(($cds->get_tag_values('transl_except'))[1],
    '(pos:complement(4224..4226),aa:OTHER)');
 # embl
 $ast = Bio::SeqIO->new( '-format' => 'embl' ,
-			'-file' => Bio::Root::IO->catfile("t","data","roa1.dat"));
+'-file' => Bio::Root::IO->catfile("t","data","roa1.dat"));
 $ast->verbose($verbosity);
 $as = $ast->next_seq();
 ok defined $as->seq;
@@ -127,7 +127,7 @@ ok($as->length, 1198);
 ok($as->species->binomial(), 'Homo sapiens');
 
 $ent = Bio::SeqIO->new( '-file' => Bio::Root::IO->catfile("t","data","test.embl"),
-			'-format' => 'embl');
+'-format' => 'embl');
 
 $seq = $ent->next_seq();
 
@@ -136,7 +136,7 @@ ok(defined $seq->seq(), 1,
 ok(scalar $seq->annotation->get_Annotations('reference'), 3);
 
 $out = Bio::SeqIO->new('-file'=> ">embl.out",
-		       '-format' => 'embl');
+       '-format' => 'embl');
 
 ok($out->write_seq($seq),1,
    'failure to write Embl format with ^ < and > locations');
@@ -144,7 +144,7 @@ unlink("embl.out");
 
 # kegg
 my $kegg = Bio::SeqIO->new( '-format' => 'kegg' ,
-			    '-file' => Bio::Root::IO->catfile("t","data","AHCYL1.kegg"));
+    '-file' => Bio::Root::IO->catfile("t","data","AHCYL1.kegg"));
 
 ok($kegg);
 $kegg = $kegg->next_seq();
@@ -154,22 +154,23 @@ ok($kegg->display_id, 'AHCYL1');
 ok($kegg->alphabet, 'dna');
 ok($kegg->seq);
 ok($kegg->translate->seq);
-ok(($kegg->annotation->get_Annotations('description'))[0]->text, 'S-adenosylhomocysteine hydrolase-like 1 [EC:3.3.1.1]');
+ok(($kegg->annotation->get_Annotations('description'))[0]->text, 'S-adenosylhomocysteine hydrolase-like 1 
+[EC:3.3.1.1]');
 ok( (grep {$_->database eq 'KO'} $kegg->annotation->get_Annotations('dblink'))[0]->comment, 'adenosylhomocysteinase' );
 ok( (grep {$_->database eq 'PATH'} $kegg->annotation->get_Annotations('dblink'))[0]->primary_id, 'hsa00271' );
 
 # multifile
 $mf = Bio::SeqIO::MultiFile->new( '-format' => 'Fasta' ,
-				  '-files' =>
-				  [ Bio::Root::IO->catfile("t","data","multi_1.fa"),
-				    Bio::Root::IO->catfile("t","data","multi_2.fa")]);
+  '-files' =>
+  [ Bio::Root::IO->catfile("t","data","multi_1.fa"),
+    Bio::Root::IO->catfile("t","data","multi_2.fa")]);
 
 ok defined $mf;
 my $count = 0;
 eval {
     while( $seq = $mf->next_seq() ) {
-	$count++;
-	$temp = $seq->display_id;
+$count++;
+$temp = $seq->display_id;
     }
 };
 ok( $count ,12);
@@ -177,8 +178,8 @@ $temp = undef;
 
 # swissprot
 $ast = Bio::SeqIO->new( '-verbosity' => $verbosity,
-			'-format' => 'swiss' ,
-			'-file' => Bio::Root::IO->catfile("t","data","roa1.swiss"));
+'-format' => 'swiss' ,
+'-file' => Bio::Root::IO->catfile("t","data","roa1.swiss"));
 $as = $ast->next_seq();
 
 ok defined $as->seq;
@@ -219,7 +220,7 @@ ok(scalar $as->annotation->get_Annotations('reference'), 11);
 
     my $esc_name = $a_seq[1]->display_id;
     ok( $esc_name , 'Name; 4% strewn with \ various / escaped characters',
-	"bad unescaping of characters, $esc_name");
+"bad unescaping of characters, $esc_name");
 
     ok $a_seq[0]->alphabet, 'protein', 'alphabets incorrectly detected';
     ok $a_seq[1]->alphabet, 'dna', 'alphabets incorrectly detected';
@@ -244,7 +245,7 @@ ok(scalar $as->annotation->get_Annotations('reference'), 11);
     unlink($o_file);
 
     ok( ($before and $after and ($before eq $after)),1,
-	'test output file differs from input');
+'test output file differs from input');
 }
 
 #
@@ -252,7 +253,7 @@ ok(scalar $as->annotation->get_Annotations('reference'), 11);
 #
 
 my $stream = Bio::SeqIO->new('-file' => Bio::Root::IO->catfile("t","data","test.genbank"),
-			     '-format' => 'GenBank');
+     '-format' => 'GenBank');
 $stream->verbose($verbosity);
 my $seqnum = 0;
 my $species;
@@ -263,14 +264,14 @@ my @tids = (44689, 44689, 9606);
 my @tnames = ("Dictyostelium discoideum","Dictyostelium discoideum","Homo sapiens");
 while($seq = $stream->next_seq()) {
     if($seqnum < 3) {
-	ok $seq->display_id(), $ids[$seqnum];
-	$species = $seq->species();
-	@cl = $species->classification();
-	ok( $species->binomial(), $tnames[$seqnum],
-	    'species parsing incorrect for genbank');
-	ok( $cl[3] ne $species->genus(), 1,
-	    'genus duplicated in genbank parsing');
-	ok( $species->ncbi_taxid, $tids[$seqnum] );
+ok $seq->display_id(), $ids[$seqnum];
+$species = $seq->species();
+@cl = $species->classification();
+ok( $species->binomial(), $tnames[$seqnum],
+    'species parsing incorrect for genbank');
+ok( $cl[3] ne $species->genus(), 1,
+    'genus duplicated in genbank parsing');
+ok( $species->ncbi_taxid, $tids[$seqnum] );
     }
     $seqnum++;
     $lasts = $seq;
@@ -289,14 +290,14 @@ while($seq = $stream->next_seq()) {
     if($seqnum < 3) {
         ok $seq->display_id(), $ids[$seqnum];
     } elsif( $seq->display_id eq 'M37762') {
-	ok( ($seq->get_keywords())[0], 'neurotrophic factor');
+ok( ($seq->get_keywords())[0], 'neurotrophic factor');
     }
     $seqnum++;
 }
 ok $seqnum, 5, "Total number of sequences in test file";
 
 $ent = Bio::SeqIO->new( '-file' => Bio::Root::IO->catfile("t","data","test.embl"),
-			'-format' => 'embl');
+'-format' => 'embl');
 $ent->verbose($verbosity);
 $seq = $ent->next_seq();
 $species = $seq->species();
@@ -305,7 +306,7 @@ ok( $cl[3] ne $species->genus(), 1, 'genus duplicated in EMBL parsing');
 $ent->close();
 
 $seq = Bio::SeqIO->new( '-format' => 'GenBank' ,
-			-file => Bio::Root::IO->catfile("t","data","testfuzzy.genbank"));
+-file => Bio::Root::IO->catfile("t","data","testfuzzy.genbank"));
 $seq->verbose($verbosity);
 ok(defined($as = $seq->next_seq()));
 
@@ -336,13 +337,13 @@ ok($loc->end, 84996);
 ok($loc->strand,1);
 
 $seq = Bio::SeqIO->new( '-format' => 'GenBank' ,
-			-file => ">".Bio::Root::IO->catfile("t","data","genbank.fuzzyout"));
+-file => ">".Bio::Root::IO->catfile("t","data","genbank.fuzzyout"));
 $seq->verbose($verbosity);
 ok($seq->write_seq($as));
 unlink(Bio::Root::IO->catfile("t","data","genbank.fuzzyout"));
 
 my $seqio = Bio::SeqIO->new( '-format' => 'swiss' ,
-			  -file => Bio::Root::IO->catfile("t","data","swiss.dat"));
+  -file => Bio::Root::IO->catfile("t","data","swiss.dat"));
 
 ok(defined( $seq = $seqio->next_seq));
 
@@ -404,11 +405,12 @@ ok ($seq = $seqio->next_seq());
 foreach my $gn ( $ann->get_all_values() ) {
     ok ($gn, shift(@genenames));
 }
-ok $ann->value(-joins => [" AND "," OR "]), "(CALM1 OR CAM1 OR CALM OR CAM) AND (CALM2 OR CAM2 OR CAMB) AND (CALM3 OR CAM3 OR CAMC)";
+ok $ann->value(-joins => [" AND "," OR "]), "(CALM1 OR CAM1 OR CALM OR CAM) AND (CALM2 OR CAM2 OR CAMB) AND (CALM3 OR 
+CAM3 OR CAMC)";
 
 # test dos Linefeeds in gcg parser
 $str = Bio::SeqIO->new('-file' => Bio::Root::IO->catfile("t","data","test_badlf.gcg"),
-		       '-format' => 'GCG');
+       '-format' => 'GCG');
 
 ok($str);
 ok ( $seq = $str->next_seq());
@@ -417,9 +419,9 @@ print "Sequence 1 of 1 from GCG stream:\n", $seq->seq, "\n" if( $DEBUG);
 
 
 $str  = new Bio::SeqIO(-format => 'genbank',
-		       -file   => Bio::Root::IO->catfile("t","data",
-							 "AF165282.gb"),
-		       -verbose => $verbosity);
+       -file   => Bio::Root::IO->catfile("t","data",
+"AF165282.gb"),
+       -verbose => $verbosity);
 
 $seq = $str->next_seq;
 @features = $seq->all_SeqFeatures();
@@ -440,14 +442,14 @@ ok ($seq->primary_id, "5734104");
 # test embl writing of a PrimarySeq
 
 my $primaryseq = new Bio::PrimarySeq( -seq => 'AGAGAGAGATA',
-				      -id  => 'myid',
-				      -desc => 'mydescr',
-				      -alphabet => 'DNA',
-				      -accession_number => 'myaccession');
+      -id  => 'myid',
+      -desc => 'mydescr',
+      -alphabet => 'DNA',
+      -accession_number => 'myaccession');
 
 my $embl = new Bio::SeqIO(-format => 'embl',
-			  -verbose => $verbosity,
-			  -file => ">primaryseq.embl");
+  -verbose => $verbosity,
+  -file => ">primaryseq.embl");
 
 ok($embl->write_seq($primaryseq));
 my $scalar = "test";
@@ -480,7 +482,7 @@ unlink("tmp_revcomp_mrna.gb");
 # test secondary accessions in EMBL (bug #1332)
 
 $seqio = new Bio::SeqIO(-format =>'embl', -file => Bio::Root::IO->catfile
-			( qw(t data ECAPAH02.embl)));
+( qw(t data ECAPAH02.embl)));
 $seq = $seqio->next_seq;
 
 ok($seq->accession_number, 'D10483');
@@ -490,8 +492,8 @@ ok($accs[0], 'J01597');
 ok($accs[-1], 'X56742');
 
 $seqio = new Bio::SeqIO(-format => 'genbank',
-			-file   => Bio::Root::IO->catfile(qw(t data
-							     D10483.gbk)));
+-file   => Bio::Root::IO->catfile(qw(t data
+     D10483.gbk)));
 
 $seq = $seqio->next_seq;
 @kw =  $seq->get_keywords;
@@ -509,7 +511,7 @@ ok($sec_acc[-1], 'X56742');
 ###embl####
 
 $str = new Bio::SeqIO(-format =>'embl', -file => Bio::Root::IO->catfile
-		      ( qw(t data BN000066-tpa.embl)));
+      ( qw(t data BN000066-tpa.embl)));
 $seq = $str->next_seq;
 ok(defined $seq);
 ok($seq->accession_number, 'BN000066');
@@ -522,23 +524,25 @@ ok($seq->keywords, 'acetylcholinesterase; achE1 gene; Third Party Annotation; TP
 ok($seq->seq_version, 1);
 ok($seq->feature_count, 15);
 
-	my $spec_obj = $seq->species;
+my $spec_obj = $seq->species;
 ok ($spec_obj->common_name, 'African malaria mosquito');
 ok ($spec_obj->species, 'gambiae');
 ok ($spec_obj->genus, 'Anopheles');
 ok ($spec_obj->binomial, 'Anopheles gambiae');
 
-	my $ac = $seq->annotation;
-		my $reference =  ($ac->get_Annotations('reference') )[1];
-		ok ($reference->title,'"A novel acetylcholinesterase gene in mosquitoes codes for the insecticide target and is non-homologous to the ace gene in Drosophila"');
-		ok ($reference->authors,'Weill M., Fort P., Berthomi eu A., Dubois M.P., Pasteur N., Raymond M.');
-		my $cmmnt =  ($ac->get_Annotations('comment') )[0];
-		ok($cmmnt->text, 'see also AJ488492 for achE-1 from Kisumu strain Third Party Annotation Database: This TPA record uses Anopheles gambiae trace archive data (http://trace.ensembl.org) ');
+my $ac = $seq->annotation;
+my $reference =  ($ac->get_Annotations('reference') )[1];
+ok ($reference->title,'"A novel acetylcholinesterase gene in mosquitoes codes for the insecticide target and is 
+non-homologous to the ace gene in Drosophila"');
+ok ($reference->authors,'Weill M., Fort P., Berthomi eu A., Dubois M.P., Pasteur N., Raymond M.');
+my $cmmnt =  ($ac->get_Annotations('comment') )[0];
+ok($cmmnt->text, 'see also AJ488492 for achE-1 from Kisumu strain Third Party Annotation Database: This TPA record uses 
+Anopheles gambiae trace archive data (http://trace.ensembl.org) ');
 
 ## now genbank ##
 
 $str = new Bio::SeqIO(-format =>'genbank', -file => Bio::Root::IO->catfile
-			( qw(t data BK000016-tpa.gbk)));
+( qw(t data BK000016-tpa.gbk)));
 $seq = $str->next_seq;
 ok(defined $seq);
 ok(defined $seq->seq);
@@ -552,13 +556,13 @@ ok($seq->keywords, 'Third Party Annotation; TPA');
 ok($seq->desc, 'TPA: Mus musculus pantothenate kinase 4 mRNA, partial cds.');
 ok($seq->seq_version, 1);
 ok($seq->feature_count, 2);
-	 $spec_obj = $seq->species;
+$spec_obj = $seq->species;
 ok ($spec_obj->common_name, 'Mus musculus (house mouse)');
 ok ($spec_obj->species, 'musculus');
 ok ($spec_obj->genus, 'Mus');
 ok ($spec_obj->binomial, 'Mus musculus');
-	 $ac = $seq->annotation;
-	 $reference =  ($ac->get_Annotations('reference') )[0];
+$ac = $seq->annotation;
+$reference =  ($ac->get_Annotations('reference') )[0];
 ok ($reference->pubmed, '11479594');
 ok ($reference->medline, '21372465');
 
@@ -566,12 +570,12 @@ ok ($reference->medline, '21372465');
 
 my $testfile = "testtpa.gbk";
 $out = new Bio::SeqIO(-file => ">$testfile",
-		      -format => 'genbank');
+      -format => 'genbank');
 $out->write_seq($seq);
 $out->close();
 
 $str = new Bio::SeqIO(-format =>'genbank', 
-		      -file => $testfile);
+      -file => $testfile);
 $seq = $str->next_seq;
 ok(defined $seq);
 ok(defined $seq->seq);
@@ -585,25 +589,57 @@ ok($seq->keywords, 'Third Party Annotation; TPA');
 ok($seq->desc, 'TPA: Mus musculus pantothenate kinase 4 mRNA, partial cds.');
 ok($seq->seq_version, 1);
 ok($seq->feature_count, 2);
-	 $spec_obj = $seq->species;
+$spec_obj = $seq->species;
 ok ($spec_obj->common_name, 'Mus musculus (house mouse)');
 ok ($spec_obj->species, 'musculus');
 ok ($spec_obj->genus, 'Mus');
 ok ($spec_obj->binomial, 'Mus musculus');
-	 $ac = $seq->annotation;
-	 $reference =  ($ac->get_Annotations('reference') )[0];
+$ac = $seq->annotation;
+$reference =  ($ac->get_Annotations('reference') )[0];
 ok ($reference->pubmed, '11479594');
 ok ($reference->medline, '21372465');
 
 unlink($testfile);
 
+# GAME-XML
+$str = new Bio::SeqIO( 
+    -format =>'game', 
+    -file => Bio::Root::IO->catfile ( qw(t data test.game))
+    );
+$seq = $str->next_seq;
+ok(defined $seq);
+ok(defined $seq->seq);
+ok($seq->alphabet, 'dna');
+ok($seq->display_id, 'L16622');
+ok($seq->length, 28735);
+ok($seq->species->binomial, 'Caenorhabditis elegans');
+my @feats = $seq->get_SeqFeatures;
+ok(scalar(@feats), 7);
+my $source = grep { $_->primary_tag eq 'source' } @feats;
+ok($source);
+my @genes = grep { $_->primary_tag eq 'gene' } @feats;
+my $cds   = grep { $_->primary_tag eq 'CDS' } @feats;
+ok(scalar(@genes), 3);
+ok($genes[0]->has_tag('gene'));
+my $gname;
+if ( $genes[0]->has_tag('gene') ) {
+    ($gname) = $genes[0]->get_tag_values('gene');
+}
+ok($gname, 'C02D5.3');
+ok($genes[0]->strand, 1);
+ok($cds, 3);
+
+# tests for GAME-XML writing to be added ASAP
+
+
 # bug #1487
 
 $str = new Bio::SeqIO(-verbose => $verbosity,
-		      -file    => Bio::Root::IO->catfile
-		      (qw(t data D12555.gbk)));
+      -file    => Bio::Root::IO->catfile
+      (qw(t data D12555.gbk)));
 eval { 
     $seq = $str->next_seq;    
 };
 
 ok(! $@ );
+
