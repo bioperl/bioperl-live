@@ -222,18 +222,18 @@ o System requirements
 
  Example:
 
-   perl Makefile.PL  LIB=/home/dag/My_Local_Perl_Modules
+   perl Makefile.PL  LIB=/home/users/dag/My_Local_Perl_Modules
    make
    make test
    make install
 
  This tells perl to install bioperl in the desired place, e.g.:
  
-  /home/dag/My_Perl_Modules/Bio/Seq.pm
+  /home/users/dag/My_Perl_Modules/Bio/Seq.pm
 
  Then in your Bioperl script you would write:
 
-  use lib "/home/dag/My_Local_Perl_Modules";
+  use lib "/home/users/dag/My_Local_Perl_Modules";
   use Bio::Seq;
 
  The man pages will probably be installed in $LIB/man. For more
@@ -288,6 +288,13 @@ o System requirements
     use Bio::Seq;
 
     <...insert whizzy perl code here...>
+
+ Or, you can set the environmental variable PERL5LIB:
+
+    # csh or tcsh
+    setenv PERL5LIB /home/users/dag/My_Local_Perl_Modules/
+    # bash
+    export PERL5LIB=/home/users/dag/My_Local_Perl_Modules/
 
 
  THE TEST SYSTEM
