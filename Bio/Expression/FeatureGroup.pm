@@ -247,7 +247,7 @@ sub this_feature {
 
 sub each_feature {
   my $self = shift;
-  return @{$self->{features}};
+  return @{$self->{features}} if defined($self->{features});
 }
 
 =head2 each_feature_quantitation

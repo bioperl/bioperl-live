@@ -270,6 +270,9 @@ sub make_svg {
     $x+=$width;
   }
     
+
+#  $seq_grp->transform("scale(2,2)");
+
   return $self->svg_obj($svg);
 }
 

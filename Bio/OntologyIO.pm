@@ -150,7 +150,6 @@ my %format_driver_map = (
 sub new {
     my ($caller,@args) = @_;
     my $class = ref($caller) || $caller;
-    
     # or do we want to call SUPER on an object if $caller is an
     # object?
     if( $class =~ /Bio::OntologyIO::(\S+)/ ) {
@@ -158,7 +157,6 @@ sub new {
 	$self->_initialize(@args);
 	return $self;
     } else { 
-
 	my %param = @args;
 	@param{ map { lc $_ } keys %param } = values %param; # lowercase keys
 	my $format = $class->_map_format($param{'-format'});
@@ -167,6 +165,7 @@ sub new {
 	return undef unless( $class->_load_format_module($format) );
 	return "Bio::OntologyIO::$format"->new(@args);
     }
+
 }
 
 sub _initialize {
@@ -176,7 +175,6 @@ sub _initialize {
     my ($eng,$fact,$ontname) =
 	$self->_rearrange([qw(TERM_FACTORY)
 			   ], @args);
-    
     # term object factory
     $self->term_factory($fact) if $fact;
 
