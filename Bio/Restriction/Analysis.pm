@@ -117,7 +117,8 @@ something like this:
 
 Note that if your sequence is circular, the first and last fragment
 will be joined so that they are the appropriate length and sequence
-for further analysis. However, this will change the start of the
+for further analysis. This fragment will also be checked for cuts
+by the enzyme(s).  However, this will change the start of the
 sequence!
 
 =head1 COMMENTS
@@ -734,12 +735,27 @@ sub _new_cuts {
                 my $first = shift @re_frags;
                 my $last = pop @re_frags;
 
+		my $newfrag=$last.$first;
+                my @cuts = split /($beforeseq)($afterseq)/i, $newfrag;
+                my @newfrags;
+		if ($#cuts) {
+		    # there is another cut
+		    for (my $i=0; $i<=$#cuts; $i+=2) {
+			push (@newfrags, 
+			      $cuts[$i].$cuts[$i+1])}
+		}
+		else {
+		    # there isn't another cut
+		    push (@newfrags, $newfrag);
+		}
+                push @re_frags, @newfrags;
+
                 unshift (@re_frags, $last.$first);
             }
 
         } else {
             @re_frags=@cuts;
-        }                       # the sequence was not cut.
+        } # the sequence was not cut.
 
         # get the number of times this enzyme cuts the sequence
         my $number_of_cuts = $#re_frags;
