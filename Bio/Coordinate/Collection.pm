@@ -45,7 +45,7 @@ current bioperl usage.
 This class is aimed for representing mapping between whole chromosomes
 and contigs, or between contigs and clones, or between sequencing
 reads and assembly. The submaps are automatically sorted, so they can
-be addedin any order.
+be added in any order.
 
 To map coordinates to other direction, you have to swap() the
 collection. Keeping track of teh direction and when to id restricitons
