@@ -36,7 +36,7 @@ my %weights=$psmIO->weight;
 ok %weights;
 
 my %seq = $psmIO->seq;
-ok %seq;
+ok %seq,'1';#Meme doesn't have seq
 
 ok $psmIO->version,'3.0';
 
@@ -99,8 +99,9 @@ ok scalar keys %seq, 0;
 
 #Quick check if returned object works
 $IUPAC   = $psm->IUPAC;
-ok $IUPAC,'VVDCAGGTGBYD';
+ok $IUPAC,'NNNNNNNNNNN';
 
+#Now we are going to try mast
 $psmIO =  new Bio::Matrix::PSM::IO(-format=>'mast', 
 				   -file=>Bio::Root::IO->catfile(qw(t data mast.dat)));
 ok $psmIO;
@@ -114,7 +115,7 @@ ok( $psmIO->release, '2002/04/02 0:11:59');
 ok @ids,4;
 
 %weights = $psmIO->weight;
-ok %weights;
+ok !%weights; #Mast doesn't have weights
 
 %seq    = $psmIO->seq;
 ok %seq;
