@@ -348,7 +348,8 @@ sub stack_trace{
 
 sub _rearrange {
     my (undef,$order) = (shift,shift);
-    return @_ unless ($#_ %2 && substr($_[0]||'',0,1) eq '-');
+    return @_ unless (substr($_[0]||'',0,1) eq '-');
+    push @_,undef unless $#_ %2;
     my %param;
     while( @_ ) {
 	(my $key = shift) =~ tr/a-z\055/A-Z/d; #deletes all dashes!
