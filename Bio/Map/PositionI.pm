@@ -2,7 +2,7 @@
 #
 # BioPerl module for Bio::Map::PositionI
 #
-# Cared for by Jason Stajich <jason@bioperl.org>
+# Cared for by Jason Stajich <jason-at-bioperl.org>
 #
 # Copyright Jason Stajich
 #
@@ -12,18 +12,19 @@
 
 =head1 NAME
 
-Bio::Map::PositionI - Abstracts the notion of a position  having
-  a value in the context of a marker and a Map
+Bio::Map::PositionI - Abstracts the notion of a position having a value in the context of a marker and a Map
 
 =head1 SYNOPSIS
 
     # do not use directly
+    my $marker_position = $position->value;
+    my $map             = $position->map;
+    my $marker          = $position->marker;
 
 =head1 DESCRIPTION
 
 This object stores one of the postions a that a mappable object
-(e.g. Marker) may have in a map (e.g. restriction enzymes or a SNP
-mapped to several chromosomes).
+(e.g. Marker) may have in a map.
 
 The method numeric() returns the position in a form that can be
 compared between other positions of the same type.
@@ -42,22 +43,21 @@ the Bioperl mailing list.  Your participation is much appreciated.
 =head2 Reporting Bugs
 
 Report bugs to the Bioperl bug tracking system to help us keep track
-of the bugs and their resolution. Bug reports can be submitted via
-email or the web:
+of the bugs and their resolution. Bug reports can be submitted via the
+web:
 
-  bioperl-bugs@bioperl.org
   http://bugzilla.bioperl.org/
 
 =head1 AUTHOR - Jason Stajich
 
-Email jason@bioperl.org
+Email jason-at-bioperl.org
 
 Describe contact details here
 
 =head1 CONTRIBUTORS
 
-Lincoln Stein, lstein@cshl.org
-Heikki Lehvaslaiho, heikki@ebi.ac.uk
+Lincoln Stein, lstein-at-cshl.org
+Heikki Lehvaslaiho, heikki-at-ebi.ac.uk
 
 =head1 APPENDIX
 
@@ -82,7 +82,7 @@ use Carp;
 =head2 map
 
  Title   : map
- Usage   : my $id = map->$map;
+ Usage   : my $id = map->map;
  Function: Get/Set the map the position is in.
  Returns : L<Bio::Map::MapI>
  Args    : [optional] new L<Bio::Map::MapI>
@@ -97,7 +97,7 @@ sub map {
 =head2 marker
 
  Title   : marker
- Usage   : my $id = marker->$marker;
+ Usage   : my $id = marker->marker;
  Function: Get/Set the marker the position is in.
  Returns : L<Bio::Map::MarkerI>
  Args    : [optional] new L<Bio::Map::MarkerI>
