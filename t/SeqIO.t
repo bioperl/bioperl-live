@@ -46,18 +46,23 @@ if ( $str ) {
     print "not ok 2\n";
 }
 
-$seq = $str->next_seq();
+if($seq = $str->next_seq()) { 
+     print "ok 3\n";
+ } else { 
+     print "not ok 3 , failed to read fasta seq from stream,\n"; 
+}
+print "Sequence 1 of 2 from fasta stream:\n", $seq->seq, "\n";
 
 if ( $seq->id eq 'roa1_drome' ) {
-    print "ok 3\n";
-} else {
-    print "not ok 3\n";
-}
-
-if ($seq->length == 358) {
     print "ok 4\n";
 } else {
     print "not ok 4\n";
+}
+
+if ($seq->length == 358) {
+    print "ok 5\n";
+} else {
+    print "not ok 5\n";
 }
 
 #####
@@ -75,20 +80,23 @@ if ($seq->length == 358) {
 $str = Bio::SeqIO->new(-file=> 't/test.raw', '-format' => 'Raw');
 
 if ( $str ) {
-    print "ok 5\n";
+    print "ok 6\n";
 } else {
-    print "not ok 5 , unable to open stream from raw sequence DB\n";
+    print "not ok 6 , unable to open stream from raw sequence DB\n";
 }
 
 if ( $seq = $str->next_seq() ) {
-    print "ok 6\n";
-} else { print "not ok 6 , failed to read 1st raw sequence from stream,\n"; }
+    print "ok 7\n";
+} else { print "not ok 7 , failed to read 1st raw sequence from stream,\n"; }
 print "Sequence 1 of 2 from Raw stream:\n", $seq->seq;
 
 print "\n\n";
 
-if($seq = $str->next_seq()) { print "ok 7\n";
- } else { print "not ok 7 , failed to read 2nd raw sequence from stream.\n"; }
+if($seq = $str->next_seq()) { 
+    print "ok 8\n";
+ } else { 
+    print "not ok 8 , failed to read 2nd raw sequence from stream.\n"; 
+}
 print "Sequence 2 of 2 from Raw stream:\n", $seq->seq;
 print $seq->seq;
 print "\n";
@@ -99,14 +107,14 @@ print "\n";
 $str = Bio::SeqIO->new(-file=> 't/test.gcg', '-format' => 'GCG');
 
 if ( $str ) {
-    print "ok 8\n";
+    print "ok 9\n";
 } else {
-    print "not ok 8 , unable to open stream from GCG sequence file\n";
+    print "not ok 9 , unable to open stream from GCG sequence file\n";
 }
 
 if ( $seq = $str->next_seq() ) {
-    print "ok 9\n";
-} else { print "not ok 9 , failed to read GCG sequence from stream,\n"; }
+    print "ok 10\n";
+} else { print "not ok 10 , failed to read GCG sequence from stream,\n"; }
 print "Sequence 1 of 1 from GCG stream:\n", $seq->seq, "\n";
 
 ## Now we test Bio::SeqIO::GCG output writing
@@ -115,7 +123,7 @@ $str = Bio::SeqIO->new(-file=> '>t/gcg.out', '-format' => 'GCG');
 
 $str->write_seq($seq);
 
-print "ok 10\n";
+print "ok 11\n";
 
 #####
 ## End of ChrisDag's SeqIO tests.
@@ -126,14 +134,14 @@ $str = Bio::SeqIO->new(-file=> 't/test.genbank', '-format' => 'GenBank');
 $str->verbose(0);    # Set to -1 for release version, so warnings aren't printed
 
 if ( $str ) {
-    print "ok 11\n";
+    print "ok 12\n";
 } else {
-    print "not ok 11 , unable to open stream from GenBank sequence file\n";
+    print "not ok 12 , unable to open stream from GenBank sequence file\n";
 }
 
 if ( $seq = $str->next_seq() ) {
-    print "ok 12\n";
-} else { print "not ok 12 , failed to read GenBank sequence from stream,\n"; }
+    print "ok 13\n";
+} else { print "not ok 13 , failed to read GenBank sequence from stream,\n"; }
 print "Sequence 1 of 1 from GenBank stream:\n", $seq->seq, "\n";
 
 
@@ -141,7 +149,7 @@ $str = Bio::SeqIO->new(-file=> '>t/genbank.out', '-format' => 'GenBank');
 
 $str->write_seq($seq);
 
-print "ok 13\n";
+print "ok 14\n";
 
 # please leave this as the last line:
 $str = undef;
@@ -153,27 +161,27 @@ $ast = Bio::SeqIO->new( '-format' => 'embl' , -file => 't/roa1.dat');
 
 while ( my $as = $ast->next_seq() ) {
        if( ! defined $as->seq ) {
-	   print "not ok 14\n";
+	   print "not ok 15\n";
 	   }
       }
 
 
-print "ok 14\n";
+print "ok 15\n";
 
 $ast = Bio::SeqIO->new( '-format' => 'GenBank' , -file => 't/roa1.genbank');
 
 while ( my $as = $ast->next_seq() ) {
     if ( ! defined $as->seq ) {
-	print "not ok 15\n";
+	print "not ok 16\n";
     }
 }
 
 
-print "ok 15\n";
+print "ok 16\n";
 
 $mf = Bio::SeqIO::MultiFile->new( '-format' => 'Fasta' , -files => ['t/multi_1.fa','t/multi_2.fa']);
 
-print "ok 16\n";
+print "ok 17\n";
 
 # read completely to the end
 
@@ -181,17 +189,17 @@ while( $seq = $mf->next_seq() ) {
     $temp = $seq->display_id;
 }
 $temp = undef;
-print "ok 17\n";
+print "ok 18\n";
 
 
 $ast = Bio::SeqIO->new( '-format' => 'Swiss' , -file => 't/roa1.swiss');
 
 while ( my $as = $ast->next_seq() ) {
     if ( ! defined $as->seq || $as->id ne 'ROA1_HUMAN' ) {
-	print "not ok 18\n";
+	print "not ok 19\n";
 	print STDERR "id is ".$as->id."\n";
     } else {
-	print "ok 18\n";
+	print "ok 19\n";
     }
 }
 
@@ -209,18 +217,18 @@ $seq = $ent->next_seq();
 
 # test reading file
 if ( ! defined $seq->seq() ) {
-    print "not ok 19 , failure to read Embl with ^ location and badly split double quotes\n";
+    print "not ok 20 , failure to read Embl with ^ location and badly split double quotes\n";
 } else {
-    print "ok 19\n";
+    print "ok 20\n";
 }
 
 $out = Bio::SeqIO->new(-file=> '>t/embl.out', '-format' => 'embl');
 
 # test writing the same
 if ( $out->write_seq($seq) ) {
-    print "ok 20\n";
+    print "ok 21\n";
 } else {
-    print "not ok 20 , failure to write Embl format with ^ < and > locations\n";
+    print "not ok 21 , failure to write Embl format with ^ < and > locations\n";
 }
 
 
@@ -244,23 +252,23 @@ if ( $out->write_seq($seq) ) {
     }
 
     if (@a_seq == 3) {
-        print "ok 21\n";
+        print "ok 22\n";
     } else {
-        print "not ok 21 , wrong number of sequence objects\n";
+        print "not ok 22 , wrong number of sequence objects\n";
     }
 
     my $esc_name = $a_seq[1]->display_id;
     if ($esc_name eq 'Name; 4% strewn with \ various / escaped characters') {
-        print "ok 22\n";
+        print "ok 23\n";
     } else {
         warn "$esc_name";
-        print "not ok 22 , bad unescaping of characters\n";
+        print "not ok 23 , bad unescaping of characters\n";
     }
     
     if ($a_seq[0]->moltype eq 'protein' and $a_seq[1]->moltype eq 'dna') {
-        print "ok 23\n";
+        print "ok 24\n";
     } else {
-        print "not ok 23 , moltypes incorrectly detected\n";
+        print "not ok 24 , moltypes incorrectly detected\n";
     }
     
     # Test writing
@@ -272,9 +280,9 @@ if ( $out->write_seq($seq) ) {
     }
     undef($a_out);  # Flush to disk
     if ($a_out_ok) {
-        print "ok 24\n";
+        print "ok 25\n";
     } else {
-        print "not ok 24 , error writing sequence\n";
+        print "not ok 25 , error writing sequence\n";
     }
     
     my( $after );
@@ -289,9 +297,9 @@ if ( $out->write_seq($seq) ) {
     
     # Test that input and output files are identical
     if ($before and $after and ($before eq $after)) {
-        print "ok 25\n";
+        print "ok 26\n";
     } else {
-        print "not ok 25 , test output file differs from input";
+        print "not ok 26 , test output file differs from input";
     }
 }
 
@@ -309,27 +317,27 @@ while($seq = $stream->next_seq()) {
     if($seqnum == 3) {
 	if($seq->display_id() eq "HUMBDNF") {
 	    # more than 1 feature
-	    print "ok 26\n";
+	    print "ok 27\n";
 	} else {
-	    print "not ok 26\n";
+	    print "not ok 27\n";
 	}
 	# check for correct recognition of species
 	$species = $seq->species();
 	@cl = $species->classification();
 	if($species->binomial() eq "Homo sapiens") {
-	    print "ok 27\n";
+	    print "ok 28\n";
 	} else {
-	    print "not ok 27 , species parsing incorrect for genbank\n";
+	    print "not ok 28 , species parsing incorrect for genbank\n";
 	}
 	if($cl[3] eq $species->genus()) {
-	    print "not ok 28 , genus duplicated in genbank parsing\n";
+	    print "not ok 29 , genus duplicated in genbank parsing\n";
 	} else {
-	    print "ok 28\n";
+	    print "ok 29\n";
 	}
     }
     if($seq->display_id() eq "HUMBETGLOA") {
 	# features which used to screw up the genbank/feature table parser
-	print "ok 29\n";
+	print "ok 30\n";
     }
 }
 $stream->close();
@@ -341,8 +349,8 @@ $seq = $ent->next_seq();
 $species = $seq->species();
 @cl = $species->classification();
 if($cl[3] eq $species->genus()) {
-    print "not ok 30 , genus duplicated in EMBL parsing\n";
+    print "not ok 31 , genus duplicated in EMBL parsing\n";
 } else {
-    print "ok 30\n";
+    print "ok 31\n";
 }
 $ent->close();
