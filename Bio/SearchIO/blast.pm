@@ -219,8 +219,8 @@ sub next_result{
        next if( /CPU time:/);
        next if( /^>\s*$/);
 
-       if( /^(T?BLAST[NPX])\s*(.+)$/i ||
-	   /^PSI(T?BLAST[NPX])\s*(.+)$/i ||
+       if( /^([T]?BLAST[NPX])\s*(.+)$/i ||
+	   /^(PSITBLASTN)\s+(.+)$/i ||
 	   /^(RPS-BLAST)\s*(.+)$/i ||
 	   /^(MEGABLAST)\s*(.+)$/i 
 	   ) {
@@ -461,14 +461,15 @@ sub next_result{
 	   next;
        } elsif( $self->in_element('hsp') &&
 		/Frame\s*=\s*([\+\-][1-3])\s*(\/\s*([\+\-][1-3]))?/ ){
+	   my ($one,$two)= ($1,$2);
 	   my ($queryframe,$hitframe);
 	   if( $reporttype eq 'TBLASTX' ) {
-	       ($queryframe,$hitframe) = ($1,$2);
+	       ($queryframe,$hitframe) = ($one,$two);
 	       $hitframe =~ s/\/\s*//g;
-	   } elsif( $reporttype eq 'TBLASTN' ) {
-	       ($hitframe,$queryframe) = ($1,0);	       
+	   } elsif( $reporttype =~ /^(PSI)?TBLASTN/oi ) {
+	       ($hitframe,$queryframe) = ($one,0);	       
 	   } elsif( $reporttype eq 'BLASTX' ) {	       
-	       ($queryframe,$hitframe) = ($1,0);
+	       ($queryframe,$hitframe) = ($one,0);
 	   } 
 	   $self->element({'Name' => 'Hsp_query-frame',
 			   'Data' => $queryframe});
@@ -486,7 +487,7 @@ sub next_result{
 	   $self->element({'Name' => 'Parameters_allowgaps',
 			   'Data' => 'yes'});
 	   while( defined ($_ = $self->_readline ) ) {
-	       if( /^([T]?BLAST[NPX])\s*([\d\.]+)/i ) {
+	       if( /^(PSI)?([T]?BLAST[NPX])\s*([\d\.]+)/i ) {
 		   $self->_pushback($_);
 		   # let's handle this in the loop
 		   last;
