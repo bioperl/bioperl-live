@@ -83,8 +83,8 @@ sub new {
     
     my $self = $class->SUPER::new(@args);
 
-    my ($primary) = $self->_rearrange([qw(PRIMARY)],@args);
-
+    my ($primary,$ptag) = $self->_rearrange([qw(PRIMARY PRIMARY_TAG)],@args);
+    if( $ptag ) { $primary = $ptag }
     $primary = 'predicted_gene' unless $primary;
     $self->primary_tag($primary);
     return $self; 
