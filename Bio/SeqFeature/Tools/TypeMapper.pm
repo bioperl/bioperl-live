@@ -278,8 +278,13 @@ sub get_relationship_type_by_parent_child {
    my $type = 'part_of'; # default
 
    # TODO - do this with metadata, or infer via SO itself
-   if (lc($child) eq 'protein' or lc($child) eq 'cds') {
+
+   if (lc($child) eq 'protein') {
+       # DEPRECATED!!!
        $type = 'produced_by';
+   }
+   if (lc($child) eq 'polypeptide') {
+       $type = 'derived_from';
    }
    return $type;
 }
