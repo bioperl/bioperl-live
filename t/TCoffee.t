@@ -11,7 +11,7 @@ BEGIN {
     }
     use Test;
 
-    $NUMTESTS = 9; 
+    $NUMTESTS = 13; 
     plan tests => $NUMTESTS; 
 }
 
@@ -59,7 +59,7 @@ unless ($coffee_present) {
 }
 $aln = $factory->align($inputfilename);
 
-ok ($aln->{order}->{'0'}, 'CYS1_DICDI-1-343', 
+ok ($aln->{order}->{'0'}, 'CYS1_DICDI/1-343', 
     "failed tcoffee alignment using input file");
 
 my $str = Bio::SeqIO->new('-file' => Bio::Root::IO->catfile("t","data","cysprot.fa"), 
@@ -74,7 +74,7 @@ my $seq_array_ref = \@seq_array;
 
 $aln = $factory->align($seq_array_ref);
 	
-ok($aln->{order}->{'0'}, 'CYS1_DICDI-1-343', 
+ok($aln->{order}->{'0'}, 'CYS1_DICDI/1-343', 
    "failed tcoffee alignment using BioSeq array ");
 
 
@@ -82,8 +82,9 @@ ok($aln->{order}->{'0'}, 'CYS1_DICDI-1-343',
 my $profile1 = Bio::Root::IO->catfile("t","data","cysprot1a.msf");
 my $profile2 = Bio::Root::IO->catfile("t","data","cysprot1b.msf");
 $aln = $factory->profile_align($profile1,$profile2);
-
-ok( $aln->{order}->{'1'}, 'CATL_HUMAN-1-333', 
+#use Data::Dumper;
+#print Dumper($aln);
+ok( $aln->{order}->{'1'}, 'CATL_HUMAN/1-333', 
     " failed tcoffee profile alignment using input file ". 
     $aln->{order}->{'1'} );
 
@@ -94,7 +95,9 @@ my $str2 = Bio::AlignIO->new(-file=> Bio::Root::IO->catfile("t","data","cysprot1
 my $aln2 = $str2->next_aln();
 
 $aln = $factory->profile_align($aln1,$aln2);
-ok ( $aln->{order}->{'1'}, 'CATL_HUMAN-1-333', 
+#use Data::Dumper;
+#print Dumper($aln);
+ok ( $aln->{order}->{'1'}, 'CATL_HUMAN/1-333', 
      "failed tcoffee profile alignment using SimpleAlign input ". 
      $aln->{order}->{'1'});
 
@@ -103,7 +106,21 @@ $str1 = Bio::AlignIO->new(-file=> Bio::Root::IO->catfile("t","data","cysprot1a.m
 $aln1 = $str1->next_aln();
 $str2 = Bio::SeqIO->new(-file=> Bio::Root::IO->catfile("t","data","cysprot1b.fa"));
 my $seq = $str2->next_seq();
-$aln = $factory->profile_align($aln1,$seq);
 
-ok( $aln->{order}->{'1'}, 'CATH_RAT-1-333', 
+ok $aln1->no_sequences, 3;
+ok int($aln->percentage_identity), 41 ;
+$aln = $factory->profile_align($aln1,$seq);
+ok $aln->no_sequences, 4;
+ok int($aln->percentage_identity), 47 ;
+
+ok( $aln->{order}->{'1'}, 'CATH_RAT/1-333', 
     "failed adding new sequence to alignment ". $aln->{order}->{'1'});
+
+
+#use Data::Dumper;
+#print Dumper($aln);
+
+#my $strout = Bio::AlignIO->new( '-format' => 'fasta');
+#$strout->write_aln($aln);
+
+
