@@ -71,7 +71,7 @@ Internal methods are usually preceded with a _
 
 
 package Bio::SearchIO::psl;
-use vars qw(@ISA %MAPPING %MODEMAP $DEFAULT_WRITER_CLASS $ProgramName);
+use vars qw(@ISA %MAPPING %MODEMAP $DEFAULT_WRITER_CLASS $DefaultProgramName);
 
 use strict;
 use Bio::SearchIO;
@@ -79,7 +79,7 @@ use Bio::Search::HSP::HSPFactory;
 use Bio::Search::Hit::HitFactory;
 use Bio::Search::Result::ResultFactory;
 
-$ProgramName = 'BLAT';
+$DefaultProgramName = 'BLAT';
 $DEFAULT_WRITER_CLASS = 'Bio::Search::Writer::HitTableWriter';
 
 # mapping of terms to Bioperl hash keys
@@ -146,7 +146,7 @@ sub _initialize {
     $self->SUPER::_initialize(@args);
     my ($pname) = $self->_rearrange([qw(PROGRAM_NAME)],
 				    @args);
-    $ProgramName = $pname if defined $pname;
+    $self->program_name($pname || $DefaultProgramName);
     $self->_eventHandler->register_factory('result', Bio::Search::Result::ResultFactory->new(-type => 'Bio::Search::Result::GenericResult'));
 
     $self->_eventHandler->register_factory('hit', Bio::Search::Hit::HitFactory->new(-type => 'Bio::Search::Hit::GenericHit'));
@@ -195,7 +195,7 @@ sub next_result{
 	   $self->{'_result_count'}++;
 	   $self->start_element({'Name' => 'PSLOutput'});
 	   $self->element({'Name' => 'PSLOutput_program',
-			   'Data' => $ProgramName});
+			   'Data' => $self->program_name});
 	   $self->element({'Name' => 'PSLOutput_query-def',
 			   'Data' => $q_name});
 	   $self->element({'Name' => 'PSLOutput_query-len',
@@ -228,8 +228,6 @@ sub next_result{
 		       'Data' => $identical});
        $self->element({'Name' => 'Hsp_mismatches',
 		       'Data' => $mismatches});
-       $self->element({'Name' => 'Hsp_gaps',
-		       'Data' => $q_base_insert + $t_base_insert});
        $self->element({'Name' => 'Hsp_gaps',
 		       'Data' => $q_base_insert + $t_base_insert});
        # query gaps are the number of target inserts and vice-versa
@@ -282,6 +280,11 @@ sub next_result{
        $lastquery = $q_name;
        $lasthit   = $t_name;
    }   
+   if( defined $lasthit || defined $lastquery ) {
+       $self->end_element({'Name' => 'Hit'});
+       $self->end_element({'Name' => 'Result'});
+       return $self->end_document;
+   }
 }
 
 =head2 start_element
@@ -525,5 +528,24 @@ sub result_count {
 }
 
 sub report_count { shift->result_count }
+
+
+=head2 program_name
+
+ Title   : program_name
+ Usage   : $obj->program_name($newval)
+ Function: Get/Set the program name
+ Returns : value of program_name (a scalar)
+ Args    : on set, new value (a scalar or undef, optional)
+
+
+=cut
+
+sub program_name{
+    my $self = shift;
+
+    $self->{'program_name'} = shift if @_;
+    return $self->{'program_name'} || $DefaultProgramName;
+}
 
 1;
