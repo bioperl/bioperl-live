@@ -82,7 +82,7 @@ Internal methods are usually preceded with a _
 package Bio::Ontology::InterProTerm;
 use vars qw(@ISA);
 use strict;
-use Carp;
+
 use Bio::Ontology::Term;
 use Bio::Annotation::Reference;
 
@@ -97,8 +97,8 @@ use constant INTERPRO_ID_DEFAULT => "IPR000000";
 						     -name => "Cdc20/Fizzy",
 						     -definition => "The Cdc20/Fizzy region is almost always ...",
 						     -ontology => "Domain"
-						     -comment => ""
 						   );
+
  Function: Creates a new Bio::Ontology::InterProTerm.
  Example :
  Returns : A new Bio::Ontology::InterProTerm object.
@@ -106,7 +106,7 @@ use constant INTERPRO_ID_DEFAULT => "IPR000000";
   -interpro_id => the InterPro ID of the term. Has the form IPRdddddd, where dddddd is a zero-padded six digit number
   -name => the name of this InterPro term [scalar]
   -definition => the definition/abstract of this InterPro term [scalar]
-  -ontology => type of InterPro term: "Domain", "Family", "Repeat", "PTM" (post-translational modification) [scalar]
+  -ontology => ontology of InterPro terms [Bio::Ontology::OntologyI]
   -comment => a comment [scalar]
 
 =cut
@@ -240,92 +240,258 @@ sub protein_count{
   return $self->{'protein_count'};
 }
 
-=head2 references
+=head2 get_references
 
- Title   : references
- Usage   : $obj->references($newval)
- Function: 
- Example : 
- Returns : reference to an array of Bio::Annotation::Reference objects
- Args    : reference to an array of Bio::Annotation::Reference objects
+ Title   : get_references
+ Usage   :
+ Function: Get the references for this InterPro term.
+ Example :
+ Returns : An array of L<Bio::Annotation::Reference> objects
+ Args    :
 
 
 =cut
 
-sub references{
-  my ($self, $value) = @_;
+sub get_references{
+    my $self = shift;
 
-  if( defined $value) {
-    $self->{'references'} = $value;
-  }
-
-  return $self->{'references'};
+    return @{$self->{"_references"}} if exists($self->{"_references"});
+    return ();
 }
 
-=head2 member_list
+=head2 add_reference
 
- Title   : member_list
- Usage   : $obj->member_list($newval)
- Function: Set/get for member list element of the InterPro xml schema
- Example : 
- Returns : reference to an array of Bio::Annotation::DBLink objects
- Args    : reference to an array of Bio::Annotation::DBLink objects
+ Title   : add_reference
+ Usage   :
+ Function: Add one or more references to this InterPro term.
+ Example :
+ Returns : 
+ Args    : One or more L<Bio::Annotation::Reference> objects.
 
 
 =cut
 
-sub member_list{
-  my ($self, $value) = @_;
+sub add_reference{
+    my $self = shift;
 
-  if( defined $value) {
-    $self->{'member_list'} = $value;
-  }
-
-  return $self->{'member_list'};
+    $self->{"_references"} = [] unless exists($self->{"_references"});
+    push(@{$self->{"_references"}}, @_);
 }
 
-=head2 examples
+=head2 remove_references
 
- Title   : examples
- Usage   : $obj->examples($newval)
- Function: Set/get for example list element of the InterPro xml schema
- Example : 
- Returns : reference to an array of Bio::Annotation::DBLink objects
- Args    : reference to an array of Bio::Annotation::DBLink objects
+ Title   : remove_references
+ Usage   :
+ Function: Remove all references for this InterPro term.
+ Example :
+ Returns : The list of previous references as an array of
+           L<Bio::Annotation::Reference> objects.
+ Args    :
 
 
 =cut
 
-sub examples{
-  my ($self, $value) = @_;
+sub remove_references{
+    my $self = shift;
 
-  if( defined $value) {
-    $self->{'examples'} = $value;
-  }
-
-  return $self->{'examples'};
+    my @arr = $self->get_references();
+    $self->{"_references"} = [];
+    return @arr;
 }
 
-=head2 external_doc_list
+=head2 get_members
 
- Title   : external_doc_list
- Usage   : $obj->external_doc_list($newval)
- Function: Set/get for external doc list element of the InterPro xml schema
- Example : 
- Returns : reference to an array of Bio::Annotation::DBLink objects
- Args    : reference to an array of Bio::Annotation::DBLink objects
+ Title   : get_members
+ Usage   : @arr = get_members()
+ Function: Get the list of member(s) for this object.
+ Example :
+ Returns : An array of Bio::Annotation::DBLink objects
+ Args    :
 
 
 =cut
 
-sub external_doc_list{
-  my ($self, $value) = @_;
+sub get_members{
+    my $self = shift;
 
-  if( defined $value) {
-    $self->{'external_doc_list'} = $value;
-  }
+    return @{$self->{'_members'}} if exists($self->{'_members'});
+    return ();
+}
 
-  return $self->{'external_doc_list'};
+=head2 add_member
+
+ Title   : add_member
+ Usage   :
+ Function: Add one or more member(s) to this object.
+ Example :
+ Returns : 
+ Args    : One or more Bio::Annotation::DBLink objects.
+
+
+=cut
+
+sub add_member{
+    my $self = shift;
+
+    $self->{'_members'} = [] unless exists($self->{'_members'});
+    push(@{$self->{'_members'}}, @_);
+}
+
+=head2 remove_members
+
+ Title   : remove_members
+ Usage   :
+ Function: Remove all members for this class.
+ Example :
+ Returns : The list of previous members as an array of
+           Bio::Annotation::DBLink objects.
+ Args    :
+
+
+=cut
+
+sub remove_members{
+    my $self = shift;
+
+    my @arr = $self->get_members();
+    $self->{'_members'} = [];
+    return @arr;
+}
+
+=head2 get_examples
+
+ Title   : get_examples
+ Usage   : @arr = get_examples()
+ Function: Get the list of example(s) for this object.
+
+           This is an element of the InterPro xml schema.
+
+ Example :
+ Returns : An array of Bio::Annotation::DBLink objects
+ Args    :
+
+
+=cut
+
+sub get_examples{
+    my $self = shift;
+
+    return @{$self->{'_examples'}} if exists($self->{'_examples'});
+    return ();
+}
+
+=head2 add_example
+
+ Title   : add_example
+ Usage   :
+ Function: Add one or more example(s) to this object.
+
+           This is an element of the InterPro xml schema.
+
+ Example :
+ Returns : 
+ Args    : One or more Bio::Annotation::DBLink objects.
+
+
+=cut
+
+sub add_example{
+    my $self = shift;
+
+    $self->{'_examples'} = [] unless exists($self->{'_examples'});
+    push(@{$self->{'_examples'}}, @_);
+}
+
+=head2 remove_examples
+
+ Title   : remove_examples
+ Usage   :
+ Function: Remove all examples for this class.
+
+           This is an element of the InterPro xml schema.
+
+ Example :
+ Returns : The list of previous examples as an array of
+           Bio::Annotation::DBLink objects.
+ Args    :
+
+
+=cut
+
+sub remove_examples{
+    my $self = shift;
+
+    my @arr = $self->get_examples();
+    $self->{'_examples'} = [];
+    return @arr;
+}
+
+=head2 get_external_documents
+
+ Title   : get_external_documents
+ Usage   : @arr = get_external_documents()
+ Function: Get the list of external_document(s) for this object.
+
+           This is an element of the InterPro xml schema.
+
+ Example :
+ Returns : An array of Bio::Annotation::DBLink objects
+ Args    :
+
+
+=cut
+
+sub get_external_documents{
+    my $self = shift;
+
+    return @{$self->{'_external_documents'}} if exists($self->{'_external_documents'});
+    return ();
+}
+
+=head2 add_external_document
+
+ Title   : add_external_document
+ Usage   :
+ Function: Add one or more external_document(s) to this object.
+
+           This is an element of the InterPro xml schema.
+
+ Example :
+ Returns : 
+ Args    : One or more Bio::Annotation::DBLink objects.
+
+
+=cut
+
+sub add_external_document{
+    my $self = shift;
+
+    $self->{'_external_documents'} = [] unless exists($self->{'_external_documents'});
+    push(@{$self->{'_external_documents'}}, @_);
+}
+
+=head2 remove_external_documents
+
+ Title   : remove_external_documents
+ Usage   :
+ Function: Remove all external_documents for this class.
+
+           This is an element of the InterPro xml schema.
+
+ Example :
+ Returns : The list of previous external_documents as an array of
+           Bio::Annotation::DBLink objects.
+ Args    :
+
+
+=cut
+
+sub remove_external_documents{
+    my $self = shift;
+
+    my @arr = $self->get_external_documents();
+    $self->{'_external_documents'} = [];
+    return @arr;
 }
 
 =head2 class_list
@@ -348,28 +514,6 @@ sub class_list{
   }
 
   return $self->{'class_list'};
-}
-
-=head2 secondary_ids
-
- Title   : secondary_ids
- Usage   : $obj->secondary_ids($newval)
- Function: Set/get for secondary accession numbers
- Example : 
- Returns : reference to an array of strings
- Args    : reference to an array of strings
-
-
-=cut
-
-sub secondary_ids{
-  my ($self, $value) = @_;
-
-  if( defined $value) {
-    $self->{'secondary_ids'} = $value;
-  }
-
-  return $self->{'secondary_ids'};
 }
 
 =head2 to_string
@@ -440,9 +584,9 @@ sub to_string {
       };
       $s .= "\n";
     }
-    if (defined $self->secondary_ids) {
+    if ($self->get_secondary_ids) {
       $s .= "-- Secondary IDs:\n";
-      foreach my $ref ( @{$self->secondary_ids} ) {
+      foreach my $ref ( $self->get_secondary_ids() ) {
 	$s .= $ref."\n";
       };
       $s .= "\n";
@@ -452,6 +596,49 @@ sub to_string {
     $s .= "InterPro term not fully instantiated\n";
   }
   return $s;
+}
+
+=head1
+
+  Deprecated methods. These are here for backwards compatibility.
+
+=cut
+
+=head2 secondary_ids
+
+ Title   : secondary_ids
+ Usage   : $obj->secondary_ids($newval)
+ Function: This is deprecated. Use get_secondary_ids() or 
+           add_secondary_id() instead.
+ Example : 
+ Returns : reference to an array of strings
+ Args    : reference to an array of strings
+
+
+=cut
+
+sub secondary_ids{
+    my $self = shift;
+    my @ids;
+
+    $self->warn("secondary_ids is deprecated. Use ".
+		"get_secondary_ids/add_secondary_id instead.");
+
+    # set mode?
+    if(@_) {
+	my $sids = shift;
+	if($sids) {
+	    $self->add_secondary_id(@$sids);
+	    @ids = @$sids; 
+	} else {
+	    # we interpret setting to undef as removing the array
+	    $self->remove_secondary_ids();
+	}
+    } else {
+	# no; get mode
+	@ids = $self->get_secondary_ids();
+    }
+    return \@ids;
 }
 
 1;

@@ -185,6 +185,8 @@ sub init {
     $self->ontology(undef);
     $self->is_obsolete(0);
     $self->remove_synonyms();
+    $self->remove_dblinks();
+    $self->remove_secondary_ids();
   
 } # init
 
@@ -369,15 +371,10 @@ sub comment{
 =cut
 
 sub get_synonyms {
-    my ( $self ) = @_;
+    my $self = shift;
     
-    if ( $self->{ "_synonyms" } ) {
-        return @{ $self->{ "_synonyms" } };
-    }
-    else {
-        return my @a = (); 
-    }
-    
+    return @{ $self->{ "_synonyms" } } if exists($self->{ "_synonyms" });
+    return (); 
 } # get_synonyms
 
 
@@ -422,7 +419,130 @@ sub remove_synonyms {
 
 } # remove_synonyms
 
+=head2 get_dblinks
 
+ Title   : get_dblinks()
+ Usage   : @ds = $term->get_dblinks();
+ Function: Returns a list of each dblinks of this GO term.
+ Returns : A list of dblinks [array of [scalars]].
+ Args    :
+
+=cut
+
+sub get_dblinks {
+    my $self = shift;
+    
+    return @{$self->{ "_dblinks" }} if exists($self->{ "_dblinks" });
+    return (); 
+} # get_dblinks
+
+
+=head2 add_dblink
+
+ Title   : add_dblink
+ Usage   : $term->add_dblink( @dbls );
+           or
+           $term->add_dblink( $dbl );                  
+ Function: Pushes one or more dblinks
+           into the list of dblinks.
+ Returns : 
+ Args    : One  dblink [scalar] or a list of
+            dblinks [array of [scalars]].
+
+=cut
+
+sub add_dblink {
+    my ( $self, @values ) = @_;
+    
+    return unless( @values );
+
+    $self->{ "_dblinks" } = [] unless exists($self->{ "_dblinks" });
+    push( @{ $self->{ "_dblinks" } }, @values );
+    
+} # add_dblink
+
+
+=head2 remove_dblinks
+
+ Title   : remove_dblinks()
+ Usage   : $term->remove_dblinks();
+ Function: Deletes (and returns) the definition references of this GO term.
+ Returns : A list of definition references [array of [scalars]].
+ Args    :
+
+=cut
+
+sub remove_dblinks {
+    my ( $self ) = @_;
+     
+    my @a = $self->get_dblinks();
+    $self->{ "_dblinks" } = [];
+    return @a;
+
+} # remove_dblinks
+
+=head2 get_secondary_ids
+
+ Title   : get_secondary_ids
+ Usage   : @ids = $term->get_secondary_ids();
+ Function: Returns a list of secondary identifiers of this Term.
+
+           Secondary identifiers mostly originate from merging terms,
+           or possibly also from splitting terms.
+
+ Returns : A list of secondary identifiers [array of [scalar]]
+ Args    :
+
+=cut
+
+sub get_secondary_ids {
+    my $self = shift;
+    
+    return @{$self->{"_secondary_ids"}} if exists($self->{"_secondary_ids"});
+    return ();
+} # get_secondary_ids
+
+
+=head2 add_secondary_id
+
+ Title   : add_secondary_id
+ Usage   : $term->add_secondary_id( @ids );
+           or
+           $term->add_secondary_id( $id );                  
+ Function: Adds one or more secondary identifiers to this term.
+ Returns : 
+ Args    : One or more secondary identifiers [scalars]
+
+=cut
+
+sub add_secondary_id {
+    my $self = shift;
+    
+    return unless @_;
+    $self->{"_secondary_ids"} = [] unless exists($self->{"_secondary_ids"});
+    push( @{ $self->{ "_secondary_ids" } }, @_ );
+    
+} # add_secondary_id
+
+
+=head2 remove_secondary_ids
+
+ Title   : remove_secondary_ids
+ Usage   : $term->remove_secondary_ids();
+ Function: Deletes (and returns) the secondary identifiers of this Term.
+ Returns : The previous list of secondary identifiers [array of [scalars]]
+ Args    :
+
+=cut
+
+sub remove_secondary_ids {
+    my $self = shift;
+     
+    my @a = $self->get_secondary_ids();
+    $self->{ "_secondary_ids" } = [];
+    return @a;
+
+} # remove_secondary_ids
 
 
 # Title   :_is_true_or_false
@@ -623,5 +743,7 @@ sub category {
 
 *each_synonym = \&get_synonyms;
 *add_synonyms = \&add_synonym;
+*each_dblink = \&get_dblinks;
+*add_dblinks = \&add_dblink;
 
 1;

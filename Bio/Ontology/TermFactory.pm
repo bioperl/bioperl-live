@@ -31,10 +31,11 @@ Bio::Ontology::TermFactory - Instantiates a new Bio::Ontology::TermI (or derived
 =head1 SYNOPSIS
 
     use Bio::Ontology::TermFactory;
+
     # the default type is Bio::Ontology::Term
     my $factory = new Bio::Ontology::TermFactory(-type => 'Bio::Ontology::GOterm');
     my $clu = $factory->create_object(-name => 'peroxisome',
-                                      -category => 'cellular component',
+                                      -ontology => 'Gene Ontology',
                                       -identifier => 'GO:0005777');
 
 
@@ -132,9 +133,9 @@ sub new {
            The return type is configurable using new(-type =>"...").
  Args    : initialization parameters specific to the type of term
            object we want.  Typically 
-           -name  => $name
-           -identifier => identifier for the term
-           -category     => category for the term
+           -name        => $name
+           -identifier  => identifier for the term
+           -ontology    => ontology for the term
 
 =cut
 
@@ -175,8 +176,8 @@ sub type{
 	    }
 	    my $a = bless {},$type;
 	    if( ! $a->isa('Bio::Ontology::TermI') ) {
-		$self->throw("'$type' does not implement Bio::Ontology::TermI. ".
-			     "Too bad.");
+		$self->throw("'$type' does not implement Bio::Ontology::TermI".
+			     ". Too bad.");
 	    }
 	    $self->{'_loaded_types'}->{$type} = 1;
 	}

@@ -1,10 +1,11 @@
 # $Id$
 #
-# BioPerl module for Bio::OntologyIO::simpleGOparser
+# BioPerl module for Bio::OntologyIO::dagflat
 #
-# Cared for by Christian M. Zmasek <czmasek@gnf.org> or <cmzmasek@yahoo.com>
+# Cared for by Hilmar Lapp, hlapp at gmx.net
 #
 # (c) Christian M. Zmasek, czmasek@gnf.org, 2002.
+# (c) Hilmar Lapp, hlapp at gmx.net, 2003.
 # (c) GNF, Genomics Institute of the Novartis Research Foundation, 2002.
 #
 # You may distribute this module under the same terms as perl itself.
@@ -22,19 +23,22 @@
 
 =head1 NAME
 
-simpleGOparser - a simple GO parser returning a SimpleGOEngine
+dagflat - a base class parser for GO flat-file type formats 
 
 =head1 SYNOPSIS
 
-  use Bio::Ontology::simpleGOparser;
+  use Bio::OntologyIO;
 
-  my $parser = Bio::Ontology::simpleGOparser->new
-	( -go_defs_file_name    => "/home/czmasek/GO/GO.defs",
-	  -components_file_name => "/home/czmasek/GO/component.ontology",
-	  -functions_file_name  => "/home/czmasek/GO/function.ontology",
-	  -processes_file_name  => "/home/czmasek/GO/process.ontology" );
+  # do not use directly -- use via Bio::OntologyIO
+  # e.g., the GO parser is a simple extension of this class
+  my $parser = Bio::OntologyIO->new
+	( -format       => "go",
+          -defs_file    => "/home/czmasek/GO/GO.defs",
+	  -files        => ["/home/czmasek/GO/component.ontology",
+	                    "/home/czmasek/GO/function.ontology",
+	                    "/home/czmasek/GO/process.ontology"] );
 
-  my $engine = $parser->parse();
+  my $go_ontology = $parser->next_ontology();
 
   my $IS_A    = Bio::Ontology::RelationshipType->get_instance( "IS_A" );
   my $PART_OF = Bio::Ontology::RelationshipType->get_instance( "PART_OF" );
@@ -77,6 +81,10 @@ Address:
   10675 John Jay Hopkins Drive
   San Diego, CA 92121
 
+=head2 CONTRIBUTOR
+
+ Hilmar Lapp, hlapp at gmx.net
+
 =head1 APPENDIX
 
 The rest of the documentation details each of the object
@@ -88,14 +96,15 @@ methods. Internal methods are usually preceded with a _
 # Let the code begin...
 
 
-package  Bio::OntologyIO::simpleGOparser;
+package  Bio::OntologyIO::dagflat;
 
 use vars qw( @ISA );
 use strict;
 
 use Bio::Root::IO;
-use Bio::Ontology::GOterm;
 use Bio::Ontology::SimpleGOEngine;
+use Bio::Ontology::Ontology;
+use Bio::Ontology::TermFactory;
 use Bio::OntologyIO;
 
 use constant TRUE         => 1;
@@ -114,19 +123,24 @@ use constant FALSE        => 0;
                              -files => ["/path/to/component.ontology",
                                         "/path/to/function.ontology",
                                         "/path/to/process.ontology"] );
- Function: Creates a new simpleGOparser.
- Returns : A new simpleGOparser object, implementing L<Bio::OntologyIO>.
- Args    : -defs_file    => the name of the file holding the
-                            term definitions
-           -files        => a single ontology flat file holding the
-                            term relationships, or an array ref holding
-                            the file names (for GO, there will usually be
-                            3 files: component.ontology, function.ontology,
-                            process.ontology)
-           -file         => if there is only a single flat file, it may
-                            also be specified via the -file parameter
-           -name         => the name of the ontology, defaults to
-                            "Gene Ontology"
+ Function: Creates a new dagflat parser.
+ Returns : A new dagflat parser object, implementing L<Bio::OntologyIO>.
+ Args    : -defs_file  => the name of the file holding the term
+                          definitions
+           -files      => a single ontology flat file holding the
+                          term relationships, or an array ref holding
+                          the file names (for GO, there will usually be
+                          3 files: component.ontology, function.ontology,
+                          process.ontology)
+           -file       => if there is only a single flat file, it may
+                          also be specified via the -file parameter
+           -ontology_name => the name of the ontology, defaults to
+                          "Gene Ontology"
+           -engine     => the L<Bio::Ontology::OntologyEngineI> object
+                          to be reused (will be created otherwise); note
+                          that every L<Bio::Ontology::OntologyI> will
+                          qualify as well since that one inherits from the
+                          former.
 
 =cut
 
@@ -137,10 +151,11 @@ sub _initialize {
     
     $self->SUPER::_initialize( @args );
 
-    my ( $defs_file_name, $files, $name ) =
+    my ( $defs_file_name,$files,$name,$eng ) =
 	$self->_rearrange([qw( DEFS_FILE
 			       FILES
-			       NAME)
+			       ONTOLOGY_NAME
+			       ENGINE)
 			   ],
 			  @args );
     
@@ -149,11 +164,20 @@ sub _initialize {
     $self->_term( "" );
     delete $self->{'_ontologies'};
 
-    $self->_go_engine( Bio::Ontology::SimpleGOEngine->new() );
+    # ontology engine (and possibly name if it's an OntologyI)
+    $eng = Bio::Ontology::SimpleGOEngine->new() unless $eng;
+    if($eng->isa("Bio::Ontology::OntologyI")) {
+	$self->ontology_name($eng->name());
+	$eng = $eng->engine() if $eng->can('engine');
+    }
+    $self->_ont_engine($eng);
     
+    # flat files to parse
     $self->defs_file( $defs_file_name );
     $self->{_flat_files} = $files ? ref($files) ? $files : [$files] : [];
-    $self->ontology_name("Gene Ontology");
+
+    # ontology name (overrides implicit one through OntologyI engine)
+    $self->ontology_name($name);
 
 } # _initialize
 
@@ -188,7 +212,7 @@ sub ontology_name{
            be called automatically upon the first call to
            next_ontology().
 
- Returns : [Bio::Ontology::SimpleGOEngine]
+ Returns : [Bio::Ontology::OntologyEngineI]
  Args    :
 
 =cut
@@ -198,11 +222,11 @@ sub parse {
     
     # create the ontology object itself
     my $ont = Bio::Ontology::Ontology->new(-name => $self->ontology_name(),
-					   -engine => $self->_go_engine());
+					   -engine => $self->_ont_engine());
 
     # parse definitions
-    while( my $goterm = $self->_next_term() ) {
-        $self->_add_term( $goterm, $ont );
+    while( my $term = $self->_next_term() ) {
+        $self->_add_term( $term, $ont );
     }
 
     # set up the ontology of the relationship types
@@ -228,7 +252,7 @@ sub parse {
     $self->_add_ontology($ont);
     
     # not needed anywhere, only because of backward compatibility
-    return $self->_go_engine();
+    return $self->_ont_engine();
     
 } # parse
 
@@ -261,9 +285,9 @@ sub next_ontology{
 
  Title   : defs_file
  Usage   : $parser->defs_file( "GO.defs" );
- Function: Set/get for the GO defs-file_name.
- Returns : The GO defs-file name [string].
- Args    : The GO defs-file name [string] (optional).
+ Function: Set/get for the term definitions filename.
+ Returns : The term definitions file name [string].
+ Args    : On set, the term definitions file name [string] (optional).
 
 =cut
 
@@ -345,7 +369,7 @@ sub _add_term {
     my ( $self, $term, $ont ) = @_;
 
     $term->ontology($ont) if $ont && (! $term->ontology);
-    $self->_go_engine()->add_term( $term );
+    $self->_ont_engine()->add_term( $term );
 
 
 } # _add_term 
@@ -356,7 +380,7 @@ sub _add_term {
 sub _part_of_relationship {
     my ( $self, $term ) = @_;
 
-    return $self->_go_engine()->part_of_relationship();
+    return $self->_ont_engine()->part_of_relationship();
 
 
 } # _part_of_relationship 
@@ -367,7 +391,7 @@ sub _part_of_relationship {
 sub _is_a_relationship {
     my ( $self, $term ) = @_;
 
-    return $self->_go_engine()->is_a_relationship();
+    return $self->_ont_engine()->is_a_relationship();
 
 
 } # _is_a_relationship 
@@ -379,7 +403,7 @@ sub _add_relationship {
     my ( $self, $parent, $child, $type, $ont ) = @_;
 
    
-    $self->_go_engine()->add_relationship( $parent, $child, $type, $ont );
+    $self->_ont_engine()->add_relationship( $parent, $child, $type, $ont );
 
 
 } # _add_relationship
@@ -390,7 +414,7 @@ sub _has_term {
     my ( $self, $term ) = @_;
 
     
-    return $self->_go_engine()->has_term( $term );
+    return $self->_ont_engine()->has_term( $term );
 
 
 } # _add_term
@@ -412,31 +436,35 @@ sub _parse_flat_file {
             next;
         }
         
-        my $current_term   = $self->_get_first_goid( $line );
-        my @isa_parents    = $self->_get_isa_goids( $line );
-        my @partof_parents = $self->_get_partof_goids( $line );
+        my $current_term   = $self->_get_first_termid( $line );
+        my @isa_parents    = $self->_get_isa_termids( $line );
+        my @partof_parents = $self->_get_partof_termids( $line );
         my @syns           = $self->_get_synonyms( $line );
-        my @sec_go_ids     = $self->_get_secondary_goids( $line );
+        my @sec_go_ids     = $self->_get_secondary_termids( $line );
         my @cross_refs     = $self->_get_db_cross_refs( $line );
         
         
         if ( ! $self->_has_term( $current_term ) ) {
-            my $goterm = $self->_create_GOentry( $self->_get_name( $line, $current_term ), $current_term );
-            $self->_add_term( $goterm, $ont );
+            my $term = $self->_create_ont_entry($self->_get_name($line,
+								$current_term),
+						$current_term );
+            $self->_add_term( $term, $ont );
         }
         
-        my $current_term_object = $self->_go_engine()->get_term( $current_term );
+        my $current_term_object = $self->_ont_engine()->get_term( $current_term );
         
         $current_term_object->add_dblink( @cross_refs );
-        $current_term_object->add_secondary_GO_id( @sec_go_ids );
+        $current_term_object->add_secondary_id( @sec_go_ids );
         $current_term_object->add_synonym( @syns );
         unless ( $line =~ /^\$/ ) {
             $current_term_object->ontology( $ont );
         }
         foreach my $parent ( @isa_parents ) {
             if ( ! $self->_has_term( $parent ) ) {
-                my $goterm = $self->_create_GOentry( $self->_get_name( $line, $parent ), $parent );
-                $self->_add_term( $goterm, $ont );
+                my $term = $self->_create_ont_entry($self->_get_name($line,
+								     $parent),
+						    $parent );
+                $self->_add_term( $term, $ont );
             }
             
             $self->_add_relationship( $parent,
@@ -447,8 +475,10 @@ sub _parse_flat_file {
         }
         foreach my $parent ( @partof_parents ) {
             if ( ! $self->_has_term( $parent ) ) {
-                my $goterm = $self->_create_GOentry( $self->_get_name( $line, $parent ), $parent );
-                $self->_add_term( $goterm, $ont );
+                my $term = $self->_create_ont_entry($self->_get_name($line,
+								     $parent),
+						      $parent );
+                $self->_add_term( $term, $ont );
             }
            
             $self->_add_relationship( $parent,
@@ -507,26 +537,26 @@ sub _parse_flat_file {
 
 
 
-# Parses the 1st GO id number out of line.
-sub _get_first_goid {
+# Parses the 1st term id number out of line.
+sub _get_first_termid {
     my ( $self, $line ) = @_;
     
-    if ( $line =~ /;\s*(GO:\d{7})/ ) {
+    if ( $line =~ /;\s*([A-Z]{1,8}:\d{7})/ ) {
         return $1;
     }
     else {
-        $self->throw( "format error: no GO id in line \"$line\"" );
+        $self->throw( "format error: no term id in line \"$line\"" );
     }
     
-} # _get_first_goid
+} # _get_first_termid
 
 
 
 # Parses the name out of line.
 sub _get_name {
-    my ( $self, $line, $goid ) = @_;
+    my ( $self, $line, $termid ) = @_;
     
-    if ( $line =~ /([^;^<^%^,]+);\s*$goid/ ) {
+    if ( $line =~ /([^;^<^%^,]+);\s*$termid/ ) {
         my $name = $1;
         $name =~ s/\s+$//;
         $name =~ s/^\s+//;
@@ -564,7 +594,7 @@ sub _get_db_cross_refs {
    
     while ( $line =~ /;([^;^<^%^:]+:[^;^<^%^:]+)/g ) {
         my $ref = $1;
-        if ( $ref =~ /synonym/ || $ref =~ /GO:\d{7}/ ) {
+        if ( $ref =~ /synonym/ || $ref =~ /[A-Z]{1,8}:\d{7}/ ) {
             next;
         }
         $ref =~ s/\s+$//;
@@ -577,51 +607,51 @@ sub _get_db_cross_refs {
 
 
 # Parses the secondary go ids out of a line
-sub _get_secondary_goids {
+sub _get_secondary_termids {
     my ( $self, $line ) = @_;
     my @secs = ();
    
-    while ( $line =~ /,\s*(GO:\d{7})/g ) {
+    while ( $line =~ /,\s*([A-Z]{1,8}:\d{7})/g ) {
         my $sec = $1;
         push( @secs, $sec );
     }
     return @secs;
     
-} # _get_secondary_goids 
+} # _get_secondary_termids 
 
 
 
 # Parses the is a ids out of a line
-sub _get_isa_goids {
+sub _get_isa_termids {
     my ( $self, $line ) = @_;
     
     my @ids = ();
     
-    $line =~ s/GO:\d{7}//;
+    $line =~ s/[A-Z]{1,8}:\d{7}//;
     
-    while ( $line =~ /%[^<^,]*?(GO:\d{7})/g ) {
+    while ( $line =~ /%[^<^,]*?([A-Z]{1,8}:\d{7})/g ) {
         push( @ids, $1 );
     }
     return @ids; 
-} # _get_isa_goids
+} # _get_isa_termids
 
 
 
 # Parses the part of ids out of a line
-sub _get_partof_goids {
+sub _get_partof_termids {
     my ( $self, $line ) = @_;
     
     my @ids = ();
     
-    $line =~ s/GO:\d{7}//;
+    $line =~ s/[A-Z]{1,8}:\d{7}//;
     
-    while ( $line =~ /<[^%^,]*?(GO:\d{7})/g ) {
+    while ( $line =~ /<[^%^,]*?([A-Z]{1,8}:\d{7})/g ) {
         push( @ids, $1 );
     }
     return @ids; 
     
     
-} # _get_partof_goids
+} # _get_partof_termids
 
 
 
@@ -630,7 +660,7 @@ sub _get_partof_goids {
 sub _count_spaces {
     my ( $self, $line ) = @_;
      
-    if ( $line =~ /^([ ]+)/ ) {
+    if ( $line =~ /^(\s+)/ ) {
          return length( $1 );
     }
     else {
@@ -650,7 +680,7 @@ sub _next_term {
     }
     
     my $line      = "";
-    my $goid      = "";
+    my $termid      = "";
     my $next_term = "";
     my $def       = "";
     my $comment   = "";
@@ -666,7 +696,9 @@ sub _next_term {
         elsif ( $line =~ /^\s*term:\s*(.+)/ ) {
             $next_term = $1;
             if ( $self->_not_first_record() == TRUE ) {
-                my $entry = $self->_create_GOentry( $self->_term(), $goid, $def, $comment, \@def_refs );
+                my $entry = $self->_create_ont_entry( $self->_term(), $termid,
+						      $def, $comment,
+						      \@def_refs );
                 $self->_term( $next_term );
                 return $entry;
             }
@@ -675,8 +707,8 @@ sub _next_term {
                 $self->_not_first_record( TRUE );
             }
         }
-        elsif ( $line =~ /^\s*goid:\s*(.+)/ ) {
-            $goid = $1;
+        elsif ( $line =~ /^\s*[a-z]{1,8}id:\s*(.+)/ ) {
+            $termid = $1;
         }
         elsif ( $line =~ /^\s*definition:\s*(.+)/ ) {
             $def = $1;   
@@ -689,7 +721,8 @@ sub _next_term {
         }
     }
     $self->_done( TRUE );
-    return $self->_create_GOentry( $self->_term(), $goid, $def, $comment, \@def_refs );
+    return $self->_create_ont_entry( $self->_term(), $termid, $def,
+				     $comment, \@def_refs );
 } # _next_term
 
 
@@ -697,32 +730,30 @@ sub _next_term {
 
 
 # Holds the GO engine to be parsed into
-sub _go_engine {
+sub _ont_engine {
     my ( $self, $value ) = @_;
 
     if ( defined $value ) {
-        $self->{ "_go_engine" } = $value;
+        $self->{ "_ont_engine" } = $value;
     }
     
-    return $self->{ "_go_engine" };
-} # _go_enginee
+    return $self->{ "_ont_engine" };
+} # _ont_engine
 
 
 
 
-# Used to create GO terms.
+# Used to create ontology terms.
 # Arguments: name, id
-sub _create_GOentry {
-    my ( $self, $name, $goid ) = @_;
+sub _create_ont_entry {
+    my ( $self, $name, $termid ) = @_;
 
-    my $term = Bio::Ontology::GOterm->new();
+    my $term = $self->term_factory->create_object(-name => $name,
+						  -identifier => $termid);
 
-    $term->GO_id( $goid );
-    $term->name( $name );
-    
     return $term;
 
-} # _create_GOentry
+} # _create_ont_entry
 
 
 
@@ -756,24 +787,6 @@ sub _done {
     
     return $self->{ "_done" };
 } # _done
-
-
-
-# Holds the GO definitions file
-sub _go_defs_file {
-    my ( $self, $value ) = @_;
-
-    if ( defined $value ) {
-        unless ( $value->isa( "Bio::Root::IO" ) ) {
-            $self->throw( "Argument to method \"_go_defs_File\" is not a valid \"Bio::Root::IO\"" );
-        }
-        $self->{ "_go_defs_file" } = $value;
-     
-    }
-    
-    return $self->{ "_go_defs_file" };
-} # _go_defs_file
-
 
 
 # Holds a term.  

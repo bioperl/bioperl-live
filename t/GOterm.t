@@ -53,7 +53,7 @@ ok( $obj->remove_dblinks(), 0 );
 
 ok( $obj->get_secondary_GO_ids(), 0 );
 
-ok( $obj->add_secondary_GO_id( ( "GO:0000000", "1234567" ) ) );
+ok( $obj->add_secondary_GO_id( ( "GO:0000000", "GO:1234567" ) ) );
 ok( $obj->get_secondary_GO_ids(), 2 );
 my @si1 = $obj->get_secondary_GO_ids();
 ok( $si1[ 0 ], "GO:0000000" );

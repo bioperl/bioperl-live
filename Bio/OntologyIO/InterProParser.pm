@@ -80,8 +80,10 @@ Internal methods are usually preceded with a _
 package Bio::OntologyIO::InterProParser;
 use vars qw(@ISA);
 use strict;
-use Carp;
+#use Carp;
 use XML::Parser::PerlSAX;
+use Bio::Ontology::SimpleOntologyEngine;
+use Bio::Ontology::TermFactory;
 use Bio::OntologyIO;
 use Bio::OntologyIO::Handlers::InterProHandler;
 
@@ -92,11 +94,9 @@ use Bio::OntologyIO::Handlers::InterProHandler;
  Title   : new
  Usage   :
  Function: Initializes objects needed for parsing.
- Example : $ipp = Bio::OntologyIO::InterProParser->new( -file => 't/interpro.xml',
-							-ontology_engine => 'simple' )
-
-           Note that this method really is _initialize, which is
-           automatically called by OntologyIO::new().
+ Example : $ipp = Bio::OntologyIO::InterProParser->new( 
+                                  -file => 't/data/interpro.xml',
+				  -ontology_engine => 'simple' )
 
  Returns : Object of class Bio::OntologyIO::InterProParser.
  Args    :
@@ -118,21 +118,38 @@ sub _initialize{
 
     $self->SUPER::_initialize(@_);
 
-    my ($eng_type) = $self->_rearrange([qw(ONTOLOGY_ENGINE
-					   )
-					], @_);
-    my $ont_eng;
-    if(lc($eng_type) eq 'simple') {
-	$ont_eng = Bio::Ontology::SimpleOntologyEngine->new();
-    } else {
-	$self->throw("ontology engine type '$eng_type' not implemented yet");
-    }
+    my ($eng,$eng_type,$name) =
+	$self->_rearrange([qw(ENGINE
+			      ONTOLOGY_ENGINE
+			      ONTOLOGY_NAME)
+			   ], @_);
 
-    my $ip_h = Bio::OntologyIO::Handlers::InterProHandler->new;
-    $ip_h->ontology_engine($ont_eng);
+    my $ip_h = Bio::OntologyIO::Handlers::InterProHandler->new(
+			                             -ontology_name => $name);
+
+    if(! $eng) {
+	if(lc($eng_type) eq 'simple') {
+	    $eng = Bio::Ontology::SimpleOntologyEngine->new();
+	} else {
+	    $self->throw("ontology engine type '$eng_type' ".
+			 "not implemented yet");
+	}
+    }
+    if($eng->isa("Bio::Ontology::OntologyI")) {
+	$ip_h->ontology($eng);
+	$eng = $eng->engine() if $eng->can('engine');
+    }
+    $self->{_ontology_engine} = $eng;
+    $ip_h->ontology_engine($eng);
+
     $self->{_parser} = XML::Parser::PerlSAX->new( Handler => $ip_h );
-    $self->{_ontology_engine} = $ont_eng;
     $self->{_interpro_handler} = $ip_h;
+
+    # default term object factory
+    $self->term_factory(Bio::Ontology::TermFactory->new(
+				   -type => "Bio::Ontology::InterProTerm"))
+	unless $self->term_factory();
+    $ip_h->term_factory($self->term_factory());
 
 }
 

@@ -35,7 +35,7 @@ TermI - interface for ontology terms
   print $term->is_obsolete(), "\n";
   print $term->comment(), "\n";
 
-  foreach my $synonym ( $term->each_synonym() ) {
+  foreach my $synonym ( $term->get_synonyms() ) {
       print $synonym, "\n";
   }
 
@@ -267,6 +267,12 @@ sub comment {
  Title   : get_synonyms
  Usage   : @aliases = $term->get_synonyms();
  Function: Returns a list of aliases of this Term.
+
+           If an implementor of this interface permits modification of
+           this array property, the class should define at least
+           methods add_synonym() and remove_synonyms(), with obvious
+           functionality.
+
  Returns : A list of aliases [array of [scalar]].
  Args    :
 
@@ -277,7 +283,50 @@ sub get_synonyms {
     
     $self->throw_not_implemented();
 
-} # each_synonym
+} # get_synonyms
+
+=head2 get_dblinks
+
+ Title   : get_dblinks()
+ Usage   : @ds = $term->get_dblinks();
+ Function: Returns a list of each dblink of this term.
+
+           If an implementor of this interface permits modification of
+           this array property, the class should define at least
+           methods add_dblink() and remove_dblinks(), with obvious
+           functionality.
+
+ Returns : A list of dblinks [array of [scalars]].
+ Args    :
+
+=cut
+
+sub get_dblinks {
+    shift->throw_not_implemented();
+} # get_dblinks
+
+=head2 get_secondary_ids
+
+ Title   : get_secondary_ids
+ Usage   : @ids = $term->get_secondary_ids();
+ Function: Returns a list of secondary identifiers of this Term.
+
+           Secondary identifiers mostly originate from merging terms,
+           or possibly also from splitting terms.
+
+           If an implementor of this interface permits modification of
+           this array property, the class should define at least
+           methods add_secondary_id() and remove_secondary_ids(), with
+           obvious functionality.
+
+ Returns : A list of secondary identifiers [array of [scalar]]
+ Args    :
+
+=cut
+
+sub get_secondary_ids {
+    shift->throw_not_implemented();
+} # get_secondary_ids
 
 
 1;

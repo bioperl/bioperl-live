@@ -102,7 +102,8 @@ use Bio::Root::IO;
 # Maps from format name to driver suitable for the format.
 #
 my %format_driver_map = (
-			 "go"       => "simpleGOparser",
+			 "go"       => "goflat",
+			 "so"       => "soflat",
 			 "interpro" => "InterProParser",
 			 );
 
@@ -116,12 +117,29 @@ my %format_driver_map = (
            for the specified format.
  Args    : Named parameters. Common parameters are
 
-              -format  the format of the input; supported right now are
-                       'go' and 'interpro'
-              -file    the file holding the data
-              -fh      the stream providing the data (-file and -fh are
-                       mutually exclusive)
-           
+              -format    - the format of the input; supported right now are
+                          'go' and 'interpro'
+              -file      - the file holding the data
+              -fh        - the stream providing the data (-file and -fh are
+                          mutually exclusive)
+              -ontology_name - the name of the ontology
+              -engine    - the L<Bio::Ontology::OntologyEngineI> object
+                          to be reused (will be created otherwise); note
+                          that every L<Bio::Ontology::OntologyI> will
+                          qualify as well since that one inherits from the
+                          former.
+              -term_factory - the ontology term factory to use. Provide a
+                          value only if you know what you are doing.
+
+           DAG-Edit flat file parsers will usually also accept the
+           following parameters.
+
+              -defs_file - the name of the file holding the term
+                          definitions
+              -files     - an array ref holding the file names (for GO,
+                          there will usually be 3 files: component.ontology,
+                          function.ontology, process.ontology)
+
            Other parameters are specific to the parsers.
 
 =cut
@@ -150,6 +168,15 @@ sub new {
 
 sub _initialize {
     my($self, @args) = @_;
+
+    # initialize factories etc
+    my ($eng,$fact,$ontname) =
+	$self->_rearrange([qw(TERM_FACTORY)
+			   ], @args);
+    
+    # term object factory
+    $self->term_factory($fact) if $fact;
+
     # initialize the Bio::Root::IO part
     $self->_initialize_io(@args);
 }
@@ -169,6 +196,43 @@ sub _initialize {
 sub next_ontology {
     shift->throw_not_implemented();
 }
+
+=head2 term_factory
+
+ Title   : term_factory
+ Usage   : $obj->term_factory($newval)
+ Function: Get/set the ontology term factory to use.
+
+           As a user of this module it is not necessary to call this
+           method as there will be default. In order to change the
+           default, the easiest way is to instantiate
+           L<Bio::Ontology::TermFactory> with the proper -type
+           argument. Most if not all parsers will actually use this
+           very implementation, so even easier than the aforementioned
+           way is to simply call
+           $ontio->term_factory->type("Bio::Ontology::MyTerm").
+
+ Example : 
+ Returns : value of term_factory (a Bio::Factory::ObjectFactoryI object)
+ Args    : on set, new value (a Bio::Factory::ObjectFactoryI object, optional)
+
+
+=cut
+
+sub term_factory{
+    my $self = shift;
+
+    return $self->{'term_factory'} = shift if @_;
+    return $self->{'term_factory'};
+}
+
+=head1 Private Methods
+
+  Some of these are actually 'protected' in OO speak, which means you
+  may or will want to utilize them in a derived ontology parser, but
+  you should not call them from outside.
+
+=cut
 
 =head2 _load_format_module
 

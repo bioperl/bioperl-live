@@ -146,9 +146,6 @@ sub new {
 } # new
 
 
-
-
-
 =head2 init
 
  Title   : init()
@@ -168,9 +165,6 @@ sub init {
 
     # then only initialize what we implement ourselves here
     $self->GO_id( GOID_DEFAULT );
-    $self->remove_dblinks();
-    $self->remove_secondary_GO_ids();
-    $self->remove_synonyms();
   
 } # init
 
@@ -208,83 +202,14 @@ sub GO_id {
 } # GO_id
 
 
-
-
-
-=head2 get_dblinks
-
- Title   : get_dblinks()
- Usage   : @ds = $term->get_dblinks();
- Function: Returns a list of each dblinks of this GO term.
- Returns : A list of dblinks [array of [scalars]].
- Args    :
-
-=cut
-
-sub get_dblinks {
-    my ( $self ) = @_;
-    
-    if ( $self->{ "_dblinks" } ) {
-        return @{ $self->{ "_dblinks" } };
-    }
-    else {
-        return my @a = (); 
-    }
-    
-} # get_dblinks
-
-
-=head2 add_dblink
-
- Title   : add_dblink
- Usage   : $term->add_dblink( @dbls );
-           or
-           $term->add_dblink( $dbl );                  
- Function: Pushes one or more dblinks
-           into the list of dblinks.
- Returns : 
- Args    : One  dblink [scalar] or a list of
-            dblinks [array of [scalars]].
-
-=cut
-
-sub add_dblink {
-    my ( $self, @values ) = @_;
-    
-    return unless( @values );
-        
-    push( @{ $self->{ "_dblinks" } }, @values );
-    
-} # add_dblink
-
-
-=head2 remove_dblinks
-
- Title   : remove_dblinks()
- Usage   : $term->remove_dblinks();
- Function: Deletes (and returns) the definition references of this GO term.
- Returns : A list of definition references [array of [scalars]].
- Args    :
-
-=cut
-
-sub remove_dblinks {
-    my ( $self ) = @_;
-     
-    my @a = $self->each_dblink();
-    $self->{ "_dblinks" } = [];
-    return @a;
-
-} # remove_dblinks
-
-
-
-
 =head2 get_secondary_GO_ids
 
  Title   : get_secondary_GO_ids
  Usage   : @ids = $term->get_secondary_GO_ids();
  Function: Returns a list of secondary goids of this Term.
+
+           This is aliased to remove_secondary_ids().
+
  Returns : A list of secondary goids [array of [GO:nnnnnnn]]
            (nnnnnnn is a zero-padded integer of seven digits).
  Args    :
@@ -292,15 +217,7 @@ sub remove_dblinks {
 =cut
 
 sub get_secondary_GO_ids {
-    my ( $self ) = @_;
-    
-    if ( $self->{ "_secondary_GO_ids" } ) {
-        return @{ $self->{ "_secondary_GO_ids" } };
-    }
-    else {
-        return my @a = (); 
-    }
-    
+    return shift->get_secondary_ids(@_);
 } # get_secondary_GO_ids
 
 
@@ -312,6 +229,9 @@ sub get_secondary_GO_ids {
            $term->add_secondary_GO_id( $id );                  
  Function: Pushes one or more secondary goids into
            the list of secondary goids.
+
+           This is aliased to remove_secondary_ids().
+
  Returns : 
  Args    : One secondary goid [GO:nnnnnnn or nnnnnnn] or a list
            of secondary goids [array of [GO:nnnnnnn or nnnnnnn]]
@@ -320,16 +240,7 @@ sub get_secondary_GO_ids {
 =cut
 
 sub add_secondary_GO_id {
-    my ( $self, @values ) = @_;
-    
-    return unless( @values );
-    
-    foreach my $value ( @values ) {  
-        $value = $self->_check_go_id( $value );
-    }
-    
-    push( @{ $self->{ "_secondary_GO_ids" } }, @values );
-    
+    return shift->add_secondary_id(@_);
 } # add_secondary_GO_id
 
 
@@ -338,6 +249,9 @@ sub add_secondary_GO_id {
  Title   : remove_secondary_GO_ids()
  Usage   : $term->remove_secondary_GO_ids();
  Function: Deletes (and returns) the secondary goids of this Term.
+
+           This is aliased to remove_secondary_ids().
+
  Returns : A list of secondary goids [array of [GO:nnnnnnn]]
            (nnnnnnn is a zero-padded integer of seven digits).
  Args    :
@@ -345,12 +259,7 @@ sub add_secondary_GO_id {
 =cut
 
 sub remove_secondary_GO_ids {
-    my ( $self ) = @_;
-     
-    my @a = $self->each_secondary_GO_id();
-    $self->{ "_secondary_GO_ids" } = [];
-    return @a;
-
+    return shift->remove_secondary_ids(@_);
 } # remove_secondary_GO_ids
 
 
@@ -391,11 +300,11 @@ sub to_string {
     $s .= "-- Comment:\n";
     $s .= ($self->comment() || '') ."\n"; 
     $s .= "-- Definition references:\n";
-    $s .= $self->_array_to_string( $self->each_dblink() )."\n";
+    $s .= $self->_array_to_string( $self->get_dblinks() )."\n";
     $s .= "-- Secondary GO ids:\n";
-    $s .= $self->_array_to_string( $self->each_secondary_GO_id() )."\n";
+    $s .= $self->_array_to_string( $self->get_secondary_GO_ids() )."\n";
     $s .= "-- Aliases:\n";
-    $s .= $self->_array_to_string( $self->each_synonym() );
+    $s .= $self->_array_to_string( $self->get_synonyms() );
     
     return $s;
     
@@ -446,8 +355,6 @@ sub _array_to_string {
 # aliases or forwards to maintain backward compatibility
 #################################################################
 
-*each_dblink = \&get_dblinks;
-*add_dblinks = \&add_dblink;
 *each_secondary_GO_id = \&get_secondary_GO_ids;
 *add_secondary_GO_ids = \&add_secondary_GO_id;
 
