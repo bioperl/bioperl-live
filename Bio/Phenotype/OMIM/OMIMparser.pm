@@ -2,9 +2,19 @@
 #
 # BioPerl module for Bio::Phenotype::OMIM::OMIMparser
 #
-# Cared for by Christian M. Zmasek <czmasek@gnf.org>
+# Cared for by Christian M. Zmasek <czmasek@gnf.org> or <zmasek@yahoo.com>
 #
-# Copyright Christian M. Zmasek
+# (c) Christian M. Zmasek, czmasek@gnf.org, 2002.
+# (c) GNF, Genomics Institute of the Novartis Research Foundation, 2002.
+#
+# You may distribute this module under the same terms as perl itself.
+# Refer to the Perl Artistic License (see the license accompanying this
+# software package, or see http://www.perl.com/language/misc/Artistic.html)
+# for the terms under which you may use, modify, and redistribute this module.
+#
+# THIS PACKAGE IS PROVIDED "AS IS" AND WITHOUT ANY EXPRESS OR IMPLIED
+# WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF
+# MERCHANTIBILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 #
 # You may distribute this module under the same terms as perl itself
 
@@ -18,6 +28,11 @@ OMIMparser - parser for the OMIM database
 
   use Bio::Phenotype::OMIM::OMIMparser;
 
+  # The OMIM database is available as textfile at:
+  # ftp://ncbi.nlm.nih.gov/repository/OMIM/omim.txt.Z
+  # The genemap is available as textfile at:
+  # ftp://ncbi.nlm.nih.gov/repository/OMIM/genemap
+
   $omim_parser = Bio::Phenotype::OMIM::OMIMparser->new( -genemap  => "/path/to/genemap",
                                                         -omimtext => "/path/to/omim.txt" );
                                                         
@@ -28,24 +43,67 @@ OMIMparser - parser for the OMIM database
     
     # This gets individual data (some of them object-arrays)
     # (and illustrates the relevant methods of OMIMentry).
-    my $number     = $omim_entry->MIM_number();
-    my $title      = $omim_entry->title();
-    my $alt        = $omim_entry->alternative_titles_and_symbols();
-    my $mtt        = $omim_entry->more_than_two_genes();
-    my $is_separat = $omim_entry->is_separate();
-    my $desc       = $omim_entry->description();
-    my $mm         = $omim_entry->mapping_method();
-    my $gs         = $omim_entry->gene_status();
-    my $cr         = $omim_entry->created();
-    my $cont       = $omim_entry->contributors();
-    my $sa         = $omim_entry->additional_references();
-    my $cs         = $omim_entry->clinical_symptoms();
-    my $mini_mim   = $omim_entry->miniMIM();
-    my @corrs      = $omim_entry->each_Correlate();
-    my @refs       = $omim_entry->each_Reference();
-    my @avs        = $omim_entry->each_AllelicVariant();
-    my @cps        = $omim_entry->each_CytoPosition();
-    my @gss        = $omim_entry->each_gene_symbol();
+    my $numb  = $omim_entry->MIM_number();                     # *FIELD* NO
+    my $title = $omim_entry->title();                          # *FIELD* TI - first line
+    my $alt   = $omim_entry->alternative_titles_and_symbols(); # *FIELD* TI - additional lines
+    my $mtt   = $omim_entry->more_than_two_genes();            # "#" before title
+    my $sep   = $omim_entry->is_separate();                    # "*" before title
+    my $desc  = $omim_entry->description();                    # *FIELD* TX
+    my $mm    = $omim_entry->mapping_method();                 # from genemap
+    my $gs    = $omim_entry->gene_status();                    # from genemap
+    my $cr    = $omim_entry->created();                        # *FIELD* CD
+    my $cont  = $omim_entry->contributors();                   # *FIELD* CN
+    my $ed    = $omim_entry->edited();                         # *FIELD* ED
+    my $sa    = $omim_entry->additional_references();          # *FIELD* SA
+    my $cs    = $omim_entry->clinical_symptoms();              # *FIELD* CS
+    my $comm  = $omim_entry->comment();                        # from genemap
+    
+    my $mini_mim   = $omim_entry->miniMIM();                   # *FIELD* MN
+      # Array of Bio::Phenotype::OMIM::MiniMIMentry objects.
+      # class Bio::Phenotype::OMIM::MiniMIMentry
+      # provides the following:
+      # - description()
+      # - created()
+      # - contributors()
+      # - edited() 
+       
+   
+    my @corrs      = $omim_entry->each_Correlate();            # from genemap
+      # Array of Bio::Phenotype::Correlate objects.
+      # class Bio::Phenotype::Correlate
+      # provides the following:
+      # - name()
+      # - description() (not used)
+      # - species() (always mouse)
+      # - type() ("OMIM mouse correlate")
+      # - comment() 
+    
+    
+    my @refs       = $omim_entry->each_Reference();            # *FIELD* RF
+      # Array of Bio::Annotation::Reference objects.
+    
+    
+    my @avs        = $omim_entry->each_AllelicVariant();       # *FIELD* AV
+      # Array of Bio::Phenotype::OMIM::OMIMentryAllelicVariant objects.
+      # class Bio::Phenotype::OMIM::OMIMentryAllelicVariant
+      # provides the following:
+      # - number (e.g ".0001" )
+      # - title (e.g "ALCOHOL INTOLERANCE" )
+      # - symbol (e.g "ALDH2*2" )
+      # - description (e.g "The ALDH2*2-encoded protein has a change ..." )
+      # - aa_ori  (used if information in the form "LYS123ARG" is found)
+      # - aa_mut (used if information in the form "LYS123ARG" is found)
+      # - position (used if information in the form "LYS123ARG" is found)
+      # - additional_mutations (used for e.g. "1-BP DEL, 911T")
+    
+    my @cps        = $omim_entry->each_CytoPosition();         # from genemap
+      # Array of Bio::Map::CytoPosition objects.
+    
+    
+    my @gss        = $omim_entry->each_gene_symbol();          # from genemap
+      # Array of strings.
+    
+    
     # do something ...
   }                                                      
 
@@ -53,6 +111,12 @@ OMIMparser - parser for the OMIM database
 
 This parser returns Bio::Phenotype::OMIM::OMIMentry objects
 (which inherit from Bio::Phenotype::PhenotypeI).
+It parses the OMIM database available as 
+ftp://ncbi.nlm.nih.gov/repository/OMIM/omim.txt.Z 
+together with (optionally) the gene map file at
+ftp://ncbi.nlm.nih.gov/repository/OMIM/genemap.
+
+
 =head1 FEEDBACK
 
 =head2 Mailing Lists
@@ -181,11 +245,10 @@ sub new {
 =cut
 
 sub next  {
-  
     my ( $self ) = @_;
     
-    unless( defined( $self->_omimtxtFile() ) ) {
-        $self->_noOmimTextFile();
+    unless( defined( $self->_OMIM_text_file() ) ) {
+        $self->_no_OMIM_text_file_provided_error();
     }
     
     if ( $self->_done() == TRUE ) {
@@ -199,28 +262,22 @@ sub next  {
     my $saw_mini_min_flag = FALSE;
     my %record            = ();
     
-    while( $line = ( $self->_omimtxtFile )->_readline() ) {
+    while( $line = ( $self->_OMIM_text_file )->_readline() ) {
         if ( $line =~ /^\s*\*RECORD\*/ ) {
-            if ( $self->_notFirstRecord() == TRUE ) {
-                $record{ $state } = $contents;
+            if ( $self->_is_not_first_record() == TRUE ) {
+                $self->_add_to_hash( $state, $contents,\%record );
                 my $omim_entry = $self->_createOMIMentry( \%record );
                 return $omim_entry;
             }
             else {
-                $self->_notFirstRecord( TRUE );
+                $self->_is_not_first_record( TRUE );
             }
             
         }
         elsif ( $line =~ /^\s*\*FIELD\*\s*(\S+)/ ) {
             $fieldtag = $1;
             if ( $state != DEFAULT_STATE ) {
-                if ( exists( $record{ $state } ) ) {
-                    chomp( $record{ $state } );
-                    $record{ $state } = $record{ $state }.$contents;
-                }
-                else {
-                    $record{ $state } = $contents;
-                }
+                $self->_add_to_hash( $state, $contents,\%record );
             }
             $contents = "";
             
@@ -281,8 +338,7 @@ sub next  {
                 }     
             }
             else {
-                print "new tag: $fieldtag\n";
-                die;
+                print "Warning: Unknown tag: $fieldtag\n";
             }
 
         }
@@ -291,14 +347,15 @@ sub next  {
         }
     }
 
-    $self->_omimtxtFile()->close();
+    $self->_OMIM_text_file()->close();
     $self->_done( TRUE );
 
     unless( %record ) {
-        $self->_notOmim();
+        $self->_not_a_OMIM_text_file_error();
     }
 
-    $record{ $state } = $contents;
+    $self->_add_to_hash( $state, $contents,\%record );
+    
     my $omim_entry = $self->_createOMIMentry( \%record );
     
     return $omim_entry;
@@ -323,9 +380,9 @@ sub init {
     
     $self->genemap_file_name( "" );
     $self->omimtxt_file_name( "" );
-    $self->_genemapHash( {} );
-    $self->_omimtxtFile( undef );
-    $self->_notFirstRecord( FALSE );
+    $self->_genemap_hash( {} );
+    $self->_OMIM_text_file( undef );
+    $self->_is_not_first_record( FALSE );
     $self->_done( FALSE );
 
 } # init
@@ -349,7 +406,7 @@ sub genemap_file_name {
     if ( defined $value ) {
         $self->{ "_genemap_file_name" } = $value;
         if ( $value =~ /\W/ ) {
-            _genemapHash( $self->_read_genemap( $value ) );
+            _genemap_hash( $self->_read_genemap( $value ) );
         }
     }
     
@@ -375,7 +432,7 @@ sub omimtxt_file_name {
     if ( defined $value ) {
         $self->{ "_omimtxt_file_name" } = $value;
         if ( $value =~ /\W/ ) {
-            $self->_omimtxtFile( new Bio::Root::IO->new( -file => $value ) );
+            $self->_OMIM_text_file( new Bio::Root::IO->new( -file => $value ) );
         } 
     }
     
@@ -394,13 +451,16 @@ sub _createOMIMentry {
     
     while ( ( my $key, my $val ) = each( %$record_ref ) ) {
         
+        $val =~ s/^\s+//;
+        $val =~ s/\s+$//;
+        
         if ( $key == MIM_NUMBER_STATE ) {
             $val =~ s/\s+//g;
             $val =~ s/\D//g;
            
             $omim_entry->MIM_number( $val );
             
-            my $gm = $self->_genemapHash();
+            my $gm = $self->_genemap_hash();
             if ( exists( $$gm{ $val } ) ) {
                 $self->_parse_genemap( $omim_entry, $val );
             }
@@ -474,7 +534,7 @@ sub _createOMIMentry {
 sub _parse_genemap {
      my ( $self, $omim_entry, $val ) = @_;
      
-     my $genemap_line = ${ $self->_genemapHash() }{ $val };
+     my $genemap_line = ${ $self->_genemap_hash() }{ $val };
      my @a = split( /\|/, $genemap_line );
 
      my $locations = $a[ 4 ];
@@ -528,50 +588,56 @@ sub _parse_allelic_variants {
     my ( $self, $text ) = @_;
     
     my @allelic_variants;
-    my $number      = "";
-    my $title       = "";
-    my $symbol      = "";
-    my $mutation    = "";
-    my $description = "";
+    my $number          = "";
+    my $title           = "";
+    my $symbol_mut_line = "";
+    my $prev_line       = "";
+    my $description     = "";
+    my $saw_empty_line  = FALSE;
      
     my @lines = split( /\n/, $text );
     
     foreach my $line ( @lines ) {
-        if ( $line !~ /\W/ ) {
-            next;
+        if ( $line !~ /\w/ ) {
+             $saw_empty_line = TRUE;
         }
-        elsif ( $line =~ /^(\s*\.\d+)/ ) {
+        elsif ( $line =~ /^\s*(\.\d+)/ ) {
+            my $current_number = $1;
             if ( $number ne "" ) {
                 my $allelic_variant = $self->_create_allelic_variant( $number, $title, 
-                                                    $symbol, $mutation, $description );
+                                                    $symbol_mut_line, $description );
                 
                 push( @allelic_variants, $allelic_variant );
             }
-            $number      = $1;
-            $title       = "";
-            $symbol      = "";
-            $mutation    = "";
-            $description = "";
+            $number          = $current_number;
+            $title           = "";
+            $prev_line       = "";
+            $symbol_mut_line = "";
+            $description     = "";
+            $saw_empty_line  = FALSE;
         }
         elsif ( $title eq "" ) {
             $title = $line;
         }
-        elsif ( $symbol eq "" ) {
-            if ( $line =~ /\s*(.+)\s*,\s*(.+)/ ) {
-                $symbol   = $1;
-                $mutation = $2;
+        elsif ( $saw_empty_line == FALSE ) {
+            $prev_line = $line;
+        }
+        elsif ( $saw_empty_line == TRUE ) {
+            if ( $prev_line ne "" ) {
+                $symbol_mut_line = $prev_line;
+                $prev_line       = "";
+            }
+            if ( $description ne "" ) {
+                $description .= "\n" . $line;
             }
             else {
-                $symbol = $line;
+                $description = $line;
             }
-        }
-        else {
-            $description .= $line;
         }
     }
     
     my $allelic_variant = $self->_create_allelic_variant( $number, $title, 
-                                        $symbol, $mutation, $description );
+                                        $symbol_mut_line, $description );
     
     push( @allelic_variants, $allelic_variant );
     
@@ -583,13 +649,31 @@ sub _parse_allelic_variants {
 
 
 sub _create_allelic_variant {
-    my ( $self, $number, $title, $symbol, $mutation, $description ) = @_;
+    my ( $self, $number, $title, $symbol_mut_line, $description ) = @_;
     
-    $mutation =~ /(\d+)([a-z]+)(\d+)/i;
+    my $symbol   = "";
+    my $mutation = "";
+    my $aa_ori   = "";
+    my $aa_mut   = "";
+    my $position = "";
+   
+    if ( $symbol_mut_line =~ /\s*(.+?)\s*,\s*([a-z]{3})(\d+)([a-z]{3})/i ) {
+         $symbol   = $1;
+         $aa_ori   = $2;
+         $aa_mut   = $4;
+         $position = $3;
+    }
+    elsif ( $symbol_mut_line =~ /\s*(.+?)\s*,\s*(.+)/ ) {
+         $symbol   = $1;
+         $mutation = $2;
+    }
+    else {
+         $symbol = $symbol_mut_line;
+    }
     
-    my $aa_ori   = $1;
-    my $aa_mut   = $3;
-    my $position = $2;
+    if ( ! defined( $description ) ) { die( "undef desc" ); }
+    if ( ! defined( $mutation ) )   { die( "undef mutation" ); }
+  
     
     my $allelic_variant = Bio::Phenotype::OMIM::OMIMentryAllelicVariant->new();
     $allelic_variant->number( $number );
@@ -599,6 +683,7 @@ sub _create_allelic_variant {
     $allelic_variant->title( $title );
     $allelic_variant->symbol( $symbol );
     $allelic_variant->description( $description );
+    $allelic_variant->additional_mutations( $mutation );
      
     return $allelic_variant; 
     
@@ -609,14 +694,16 @@ sub _create_allelic_variant {
 
 sub _parse_title {
     my ( $self, $text ) = @_;
-     
-    $text =~ /^(.+)\n/;
-    my $title = $1;
-    $text =~ s/^(.+)\n//;
-    $text =~ s/;+/;/g;
-    #$text =~ s/\n+/ /g;
-    $text =~ s/^;//;
-    $text =~ s/;$//;
+    my $title = "";
+    if ( $text =~ /^(.+)\n/ ) {
+        $title = $1;
+        $text  =~ s/^.+\n//;
+    }
+    else {
+        $title = $text;
+        $text  = "";
+    
+    }
     
     return ( $title, $text ); 
 } # _parse_title
@@ -635,15 +722,11 @@ sub _parse_references {
     
     my @texts = split( /\s*\n\s*\n\s*\d+\.\s*/, $text );
     
-    my $authors   = "";
-    my $title     = "";
-    my $location  = "";
-    
     foreach my $t ( @texts ) {
     
-        $authors   = "";
-        $title     = "";
-        $location  = "";
+        my $authors   = "";
+        my $title     = "";
+        my $location  = "";
         
         $t =~ s/\s+/ /g;
         
@@ -675,15 +758,10 @@ sub _parse_references {
         else {
             $title = $t;  
         }
-        
-        $authors =~ s/;//g;
-        
-        $title =~ s/\.\z//;
          
         my $ref = Bio::Annotation::Reference->new( -title    => $title,
                                                    -location => $location,
                                                    -authors  => $authors );
-         
         push( @references, $ref );
        
     }
@@ -694,36 +772,37 @@ sub _parse_references {
 
 
 
-sub _genemapHash {
+sub _genemap_hash {
     my ( $self, $value ) = @_;
 
     if ( defined $value ) {
         unless ( ref( $value ) eq "HASH" ) {
-            $self->throw( "Argument to method \"_genemapHash\" is not a reference to an Hash" );
+            $self->throw( "Argument to method \"_genemap_hash\" is not a reference to an Hash" );
         }
         $self->{ "_genemap_hash" } = $value;
      
     }
     
     return $self->{ "_genemap_hash" };
-} # _genemapHash
+} # _genemap_hash
 
 
 
 
-sub _notFirstRecord {
+sub _is_not_first_record {
 
     my ( $self, $value ) = @_;
 
     if ( defined $value ) {
         unless ( $value == FALSE || $value == TRUE ) {
-            $self->throw( "Argument to method \"_notFirstRecord\" must be either ".TRUE." or ".FALSE );
+            $self->throw( "Found [$value] where [" . TRUE
+            ." or " . FALSE . "] expected" );
         }
         $self->{ "_not_first_record" } = $value;
     }
     
     return $self->{ "_not_first_record" };
-} # _notFirstRecord
+} # _is_not_first_record
 
 
 
@@ -733,7 +812,8 @@ sub _done {
 
     if ( defined $value ) {
         unless ( $value == FALSE || $value == TRUE ) {
-            $self->throw( "Argument to method \"_done\" must be either ".TRUE." or ".FALSE );
+            $self->throw( "Found [$value] where [" . TRUE
+            ." or " . FALSE . "] expected" );
         }
         $self->{ "_done" } = $value;
     }
@@ -744,19 +824,19 @@ sub _done {
 
 
 
-sub _omimtxtFile {
+sub _OMIM_text_file {
     my ( $self, $value ) = @_;
 
     if ( defined $value ) {
         unless ( $value->isa( "Bio::Root::IO" ) ) {
-            $self->throw( "Argument to method \"_omimtxtFile\" is not a valid \"Bio::Root::IO\"" );
+            $self->throw( "[$value] is not a valid \"Bio::Root::IO\"" );
         }
         $self->{ "_omimtxt_file" } = $value;
      
     }
     
     return $self->{ "_omimtxt_file" };
-} # _omimtxtFile
+} # _OMIM_text_file
 
 
 
@@ -773,35 +853,54 @@ sub _read_genemap {
     while( $line = $genemap_file->_readline() ) {
         @a = split( /\|/, $line );
         unless( scalar( @a ) == 18 ) {
-            $self->throw( "Gene map file \"".$self->genemapFileName()."\" is not in the expected format" );
+            $self->throw( "Gene map file \"".$self->genemap_file_name()
+            . "\" is not in the expected format" );
         }
         $gm{ $a[ 9 ] } = $line;
     }
     $genemap_file->close();
-    $self->_genemapHash( \%gm );
+    $self->_genemap_hash( \%gm );
   
 } #_read_genemap 
 
 
 
 
-sub _noOmimTextFile {
+sub _no_OMIM_text_file_provided_error {
     my ( $self ) = @_;
 
     my $msg =  "Need to indicate a OMIM text file to read from with\n";
     $msg .= "either \"OMIMparser->new( -omimtext => \"path/to/omim.txt\" );\"\n";
-    $msg .= "or \"\$omim_parser->omimtxtFileName( \"path/to/omim.txt\" );\"";
+    $msg .= "or \"\$omim_parser->omimtxt_file_name( \"path/to/omim.txt\" );\"";
     $self->throw( $msg );
-} # _noOmimTextFile
+} # _no_OMIM_text_file_provided_error
 
 
 
 
-sub _notOmim {
+sub _not_a_OMIM_text_file_error {
     my ( $self ) = @_;
 
-    my $msg =  "File \"".$self->omimtxtFileName()."\" appears not to be a OMIM text file";
+    my $msg =  "File \"".$self->omimtxt_file_name() . 
+    "\" appears not to be a OMIM text file";
     $self->throw( $msg );
-} # _notOmim
+} # _not_a_OMIM_text_file_error
+
+
+
+
+sub _add_to_hash {
+    my ( $self, $state, $contents, $record_ref ) = @_;
+    
+    if ( exists( $record_ref->{ $state } ) ) {
+        chomp( $record_ref->{ $state } );
+        $record_ref->{ $state } = $record_ref->{ $state } . $contents;
+    }
+    else {
+        $record_ref->{ $state } = $contents;
+    }
+} # _add_to_hash
+
+
 
 1;

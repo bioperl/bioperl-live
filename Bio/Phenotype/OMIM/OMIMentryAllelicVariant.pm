@@ -2,9 +2,19 @@
 #
 # BioPerl module for Bio::Phenotype::OMIM::OMIMentryAllelicVariant
 #
-# Cared for by Christian M. Zmasek <czmasek@gnf.org>
+# Cared for by Christian M. Zmasek <czmasek@gnf.org> or <zmasek@yahoo.com>
 #
-# Copyright Christian M. Zmasek
+# (c) Christian M. Zmasek, czmasek@gnf.org, 2002.
+# (c) GNF, Genomics Institute of the Novartis Research Foundation, 2002.
+#
+# You may distribute this module under the same terms as perl itself.
+# Refer to the Perl Artistic License (see the license accompanying this
+# software package, or see http://www.perl.com/language/misc/Artistic.html)
+# for the terms under which you may use, modify, and redistribute this module.
+#
+# THIS PACKAGE IS PROVIDED "AS IS" AND WITHOUT ANY EXPRESS OR IMPLIED
+# WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF
+# MERCHANTIBILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 #
 # You may distribute this module under the same terms as perl itself
 
@@ -19,13 +29,14 @@ OMIMentryAllelicVariant - Representation of a allelic variant of the OMIM databa
 
   use Bio::Phenotype::OMIM::OMIMentryAllelicVariant;
   
-  $av = Bio::Phenotype::OMIM::OMIMentryAllelicVariant->new( -number      => ".0001",
-                                                            -title       => "ALCOHOL INTOLERANCE",
-                                                            -symbol      => "ALDH2*2",
-                                                            -description => "The ALDH2*2-encoded ...",
-                                                            -aa_ori      => "GLU",
-                                                            -aa_mut      => "LYS",
-                                                            -position    => 487 ); 
+  $av = Bio::Phenotype::OMIM::OMIMentryAllelicVariant->new( -number               => ".0001",
+                                                            -title                => "ALCOHOL INTOLERANCE",
+                                                            -symbol               => "ALDH2*2",
+                                                            -description          => "The ALDH2*2-encoded ...",
+                                                            -aa_ori               => "GLU",
+                                                            -aa_mut               => "LYS",
+                                                            -position             => 487,
+                                                            -additional_mutations => "IVS4DS, G-A, +1" ); 
 
 =head1 DESCRIPTION
 
@@ -90,22 +101,24 @@ use Bio::Root::Object;
 =head2 new
 
  Title   : new
- Usage   : $av = Bio::Phenotype::OMIM::OMIMentryAllelicVariant->new( -number      => ".0001",
-                                                                     -title       => "ALCOHOL INTOLERANCE",
-                                                                     -symbol      => "ALDH2*2",
-                                                                     -description => "The ALDH2*2-encoded ...",
-                                                                     -aa_ori      => "GLU",
-                                                                     -aa_mut      => "LYS",
-                                                                     -position    => 487 );                      
+ Usage   : $av = Bio::Phenotype::OMIM::OMIMentryAllelicVariant->new( -number               => ".0001",
+                                                                     -title                => "ALCOHOL INTOLERANCE",
+                                                                     -symbol               => "ALDH2*2",
+                                                                     -description          => "The ALDH2*2-encoded ...",
+                                                                     -aa_ori               => "GLU",
+                                                                     -aa_mut               => "LYS",
+                                                                     -position             => 487,
+                                                                     -additional_mutations => "IVS4DS, G-A, +1" );                      
  Function: Creates a new OMIMentryAllelicVariant object.
  Returns : A new OMIMentryAllelicVariant object.
- Args    : -number      => the OMIM allelic variant number
-           -title       => the title
-           -symbol      => a symbol
-           -description => a description
-           -aa_ori      => the original amino acid
-           -aa_mut      => the mutated amino acid
-           -position    => the position of the mutation
+ Args    : -number               => the OMIM allelic variant number
+           -title                => the title
+           -symbol               => a symbol
+           -description          => a description
+           -aa_ori               => the original amino acid
+           -aa_mut               => the mutated amino acid
+           -position             => the position of the mutation
+           -additional_mutations => free form description of additional mutations
 
 =cut
 
@@ -115,14 +128,15 @@ sub new {
   
     my $self = $class->SUPER::new( @args );
    
-    my ( $number, $title, $symbol, $desc, $ori, $mut, $pos )
+    my ( $number, $title, $symbol, $desc, $ori, $mut, $pos, $am )
     = $self->_rearrange( [ qw( NUMBER
                                TITLE
                                SYMBOL
                                DESCRIPTION
                                AA_ORI
                                AA_MUT
-                               POSITION ) ], @args );
+                               POSITION
+                               ADDITIONAL_MUTATIONS ) ], @args );
 
     $self->init(); 
 
@@ -133,6 +147,7 @@ sub new {
     $ori    && $self->aa_ori( $ori );
     $mut    && $self->aa_mut( $mut );
     $pos    && $self->position( $pos );
+    $am     && $self->additional_mutations( $am );
    
     return $self;
 
@@ -161,6 +176,7 @@ sub init {
     $self->aa_ori( "" );
     $self->aa_mut( "" );
     $self->position( "" );
+    $self->additional_mutations( "" );
     
 } # init
 
@@ -349,6 +365,31 @@ sub position {
 
 
 
+=head2 additional_mutations
+
+ Title   : additional_mutations
+ Usage   : $av->additional_mutations( "1-BP DEL, 911T" );
+           or
+           print $av->additional_mutations();
+ Function: Set/get for free form description of (additional) mutation(s).
+ Returns : description of (additional) mutation(s).
+ Args    : description of (additional) mutation(s) (optional).
+
+=cut
+
+sub additional_mutations {
+    my ( $self, $value ) = @_;
+
+    if ( defined $value ) {
+        $self->{ "_additional_mutations" } = $value;
+    }
+
+    return $self->{ "_additional_mutations" };
+
+} # additional_mutations
+
+
+
 =head2 to_string
 
  Title   : to_string()
@@ -377,7 +418,9 @@ sub to_string {
     $s .= "-- Mutated AA(s):\n";
     $s .= $self->aa_mut()."\n";
     $s .= "-- Position:\n";
-    $s .= $self->position();
+    $s .= $self->position()."\n";
+    $s .= "-- Additional Mutation(s):\n";
+    $s .= $self->additional_mutations();
   
     return $s;
  
