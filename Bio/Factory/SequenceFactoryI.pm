@@ -22,7 +22,7 @@ Bio::Factory::SequenceFactoryI - This interface allows for generic building of s
     use Bio::Seq::PrimarySequenceFactory;
     my $seqbuilder = new Bio::Seq:PrimarySequenceFactory();
 
-    my $seq = $seqbuilder->new_sequence(-seq => 'ACTGAT',
+    my $seq = $seqbuilder->create_sequence(-seq => 'ACTGAT',
 					-display_id => 'exampleseq');
 
     print "seq is a ", ref($seq), "\n";
@@ -77,10 +77,11 @@ use vars qw(@ISA);
 use strict;
 @ISA = qw(Bio::Root::RootI);
 
-=head2 new_sequence
+=head2 create_sequence
 
- Title   : new_sequence
- Usage   : my $seq = $seqbuilder->new_sequence(-seq => 'CAGT', -id => 'name');
+ Title   : create_sequence
+ Usage   : my $seq = $seqbuilder->create_sequence(-seq => 'CAGT', 
+						  -id => 'name');
  Function: Instantiates new Bio::PrimarySeqI (or one of its child classes)
            This object allows us to genericize the instantiation of sequence
            objects.
@@ -92,7 +93,7 @@ use strict;
 
 =cut
 
-sub new_sequence{
+sub create_sequence{
    my ($self,@args) = @_;
    $self->throw_not_implemented();
 }
