@@ -36,7 +36,7 @@ my $options = << "OPTS";
       -h             Print this usage
 OPTS
 
-(!$eg || $help) and die "Usage: $0 -eg 1|2|3|4 [-nodebug] [-h]\nOptions:\n$options";
+(!$eg || $help) and die "Usage: $0 -eg 1|2|3|4|5 [-nodebug] [-h]\nOptions:\n$options";
 
 # Set up a tester object.
 my $test = TestObject->new();
@@ -57,6 +57,13 @@ eval {
 	test_foobar();
     }
 
+    # Throwing an exception the traditional bioperl way.
+    if(  $eg == 5 ) {
+	print "Test #5: Creating a Bio::Root::Root object and calling throw('string').\n";
+        my $obj = Bio::Root::Root->new();
+        $obj->throw("Throwing string from Bio::Root::Root object.");
+    }
+
     # We shouldn't see this stuff.
     print "----\n";
     print "----\n";
@@ -68,6 +75,9 @@ eval {
 if($@) {
     my $error = shift;
     print "\nAn exception occurred:\n$@\n";
+}
+else {
+    print "\nNo exception occurred\n";
 }
 
 print "\nDone $0\n";
