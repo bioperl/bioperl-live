@@ -73,10 +73,8 @@ sub get_dna {
 sub load_gff_line {
   my $self = shift;
   my $feature_hash  = shift;
-  $feature_hash->{strand} = '' if $feature_hash->{strand} eq '.'; 
-  $feature_hash->{phase} = '' if $feature_hash->{phase} eq '.';
-  #$feature_hash->{strand} = '+' if $feature_hash->{strand} eq '.'; 
-  #$feature_hash->{phase} = '+' if $feature_hash->{phase} eq '.';
+  $feature_hash->{strand} = '' if $feature_hash->{strand} && $feature_hash->{strand} eq '.';
+  $feature_hash->{phase} = ''  if $feature_hash->{phase}  && $feature_hash->{phase} eq '.';
   push @{$self->{data}},$feature_hash;
 }
 
@@ -133,7 +131,7 @@ sub get_abscoords {
   my ($strand,$start,$stop);
   foreach (@found) {
     $strand ||= $_->{strand};
-    $strand = '+' if $strand eq '.'; 
+    $strand = '+' if $strand && $strand eq '.'; 
     $start  = $_->{start} if !defined($start) || $start > $_->{start};
     $stop   = $_->{stop}  if !defined($stop)  || $stop  < $_->{stop};
 
@@ -144,7 +142,7 @@ sub get_abscoords {
     my ($strand,$start,$stop);
     foreach (@found) {
       $strand ||= $_->{strand};
-      $strand = '+' if $strand eq '.'; 
+      $strand = '+' if $strand && $strand eq '.'; 
       $start  = $_->{start} if !defined($start) || $start > $_->{start};
       $stop   = $_->{stop}  if !defined($stop)  || $stop  < $_->{stop};
     }
