@@ -21,7 +21,7 @@ See documentation of methods.
 =head1 DESCRIPTION
 
 A feature representing a predicted gene structure. This class actually
-inherits off Bio::SeqFeature::GeneStructure and therefore has all that
+inherits off Bio::SeqFeature::Gene::Transcript and therefore has all that
 functionality, plus a few methods supporting predicted sequence features,
 like a predicted CDS and a predicted translation.
 
@@ -74,19 +74,17 @@ package Bio::Tools::Prediction::Gene;
 use vars qw(@ISA);
 use strict;
 
-use Bio::SeqFeature::GeneStructure;
+use Bio::SeqFeature::Gene::Transcript;
 
 
-@ISA = qw(Bio::SeqFeature::GeneStructure);
+@ISA = qw(Bio::SeqFeature::Gene::Transcript);
 
 sub new {
     my($class,@args) = @_;
     
     my $self = $class->SUPER::new(@args);
 
-    my ($primary) =
-	$self->_rearrange([qw(PRIMARY
-			      )],@args);
+    my ($primary) = $self->_rearrange([qw(PRIMARY)],@args);
 
     $primary = 'predicted_gene' unless $primary;
     $self->primary_tag($primary);
