@@ -14,7 +14,7 @@ BEGIN {
         use lib 't';
     }
     use Test;
-    $NUMTESTS  = 35;
+    $NUMTESTS  = 50;
     plan tests => $NUMTESTS;
     eval {	require Class::AutoClass;	
          	require Clone;
@@ -230,6 +230,16 @@ ok $gr->node_count, 74;
 #there should be 2 more edge in the graph $gr now and 2 more nodes. $g2 is unaffected.  
 ok $gr->edge_count, 74;
 ok $gr->node_count, 76;
+
+
+#### now let's test the psi_xml module #####
+ok $io = Bio::Graph::IO->new(-format => 'psi_xml', 
+                             -file   => Bio::Root::IO->catfile("t", "data", "psi_xml.dat")) ;
+ok my $g = $io->next_network();
+ok $g->edge_count, 3;
+ok $g->node_count, 4;
+my @rts =$g->articulation_points();
+
 
 
 
