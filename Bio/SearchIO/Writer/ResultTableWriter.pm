@@ -289,7 +289,7 @@ sub _set_row_data_func {
     while( my $col = shift @cols ) {
 	my $object = $map{$col}->[1];
 	my $method = $map{$col}->[2];
-        my $arg;
+        my $arg = '';
         if( $method =~ m!(\w+)/(\w+)! ) {
             $method = $1;
             $arg = "\"$2\"";
