@@ -64,7 +64,7 @@ my $out_phd = Bio::SeqIO->new(-file => ">write_phd.phd",
 print("Did it return the right reference?\n") if($DEBUG);
 ok(ref($out_phd) eq "Bio::SeqIO::phd");
 
-$out_phd->write_phd(	-SeqWithQuality		=>	$phd,
+$out_phd->write_seq(	-SeqWithQuality		=>	$phd,
 			-CHROMAT_FILE		=>	$phd->id(),
 			-ABI_THUMBPRINT		=>	"",
 			-PHRED_VERSION		=>	"",
