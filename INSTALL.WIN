@@ -208,18 +208,28 @@ for Unix in BioPerl's INSTALL file.
 Note that expat comes with Cygwin (it's used by the module XML::Parser).
 
 One known issue is that DBD::mysql can be tricky to install in
-Cygwin and this module is required for the bioperl-db, biosql, and 
+Cygwin and this module is required for the bioperl-db, Biosql, and 
 bioperl-pipeline external packages. Fortunately there's some good 
 instructions online:
 http://search.cpan.org/src/JWIED/DBD-mysql-2.1025/INSTALL.html#windows/cygwin.
 
-Also, set the environmental variable TEMPDIR, a number of
-bioinformatics programs need a place to create temporary files. E.g.:
+Also, set the environmental variable TMPDIR, programs like BLAST and
+clustalw need a place to create temporary files. E.g.:
 
-setenv TEMPDIR /tmp    # csh, tcsh
-export TEMPDIR=/tmp    # sh, bash
+setenv TMPDIR e:/cygwin/tmp     # csh, tcsh
+export TMPDIR=e:/cygwin/tmp     # sh, bash
 
-This is necessary for Bio::Tools::Run::StandAloneBlast.
+Note that this is not a syntax that Cygwin understands, which would be 
+something like "/cygdrive/e/cygwin/tmp". This is the syntax that a
+Perl module expects on Windows.
+
+If this variable is not set correctly you'll see errors like this
+when you run Bio::Tools::Run::StandAloneBlast:
+
+------------- EXCEPTION: Bio::Root::Exception -------------
+MSG: Could not open /tmp/gXkwEbrL0a: No such file or directory
+STACK: Error::throw
+..........
 
 3.1 Cygwin tips
 ===============
@@ -227,10 +237,13 @@ This is necessary for Bio::Tools::Run::StandAloneBlast.
 The easiest way to install Mysql is to use the Windows binaries 
 available at www.mysql.com. Note that Windows does not have
 sockets, so you need to force the Mysql connections to use TCP/IP
-instead. One way to do this is to use the "-h" option from the
-command-line. Or, alias the mysql command in your 
-.tcshrc, .cshrc, or .bashrc so it uses a host. For example, if your
-databases are installed locally:
+instead. Do this by using the "-h" option from the command-line:
+
+>mysql -h 127.0.0.1 -u blip -pblop biosql
+
+Or, alias the mysql command in your .tcshrc, .cshrc, or .bashrc 
+so it uses a host. For example, if your databases are installed 
+locally:
 
 alias mysql 'mysql -h 127.0.0.1'
 
@@ -251,7 +264,7 @@ but there may be occasions where this is a problem.
 If you want use BLAST we recommend that the Windows binary be obtained 
 from NCBI (ftp://ftp.ncbi.nih.gov/blast/executables/LATEST-BLAST - the 
 file will be named something like blast-2.2.6-ia32-win32.exe). 
-Then follow the Windows instructions in README.bls. 
+Then follow the Windows instructions in README.bls.
 
 Although we've recommended using the BLAST and Mysql binaries you
 should be able to compile just about everything else from source 
