@@ -23,8 +23,8 @@ BEGIN {
     }
     use Test;
 
-    $NUMTESTS = 13;
-    $BIODBTESTS = 4;
+    $NUMTESTS = 14;
+    $BIODBTESTS = 5;
     plan tests => $NUMTESTS;
     eval { require IO::String };
     if( $@ ) {
@@ -41,12 +41,13 @@ END {
     unlink (  'Perltmp' );
 }
 
-use Bio::Perl qw( read_sequence 
-		  read_all_sequences 
-		  write_sequence 
-		  new_sequence 
-		  get_sequence translate     
-                  translate_as_string);
+#use Bio::Perl qw( read_sequence 
+#		  read_all_sequences 
+#		  write_sequence
+#		  new_sequence 
+#		  get_sequence translate     
+#                  translate_as_string);
+use Bio::Perl;
 
 ## End of black magic.
 ##
@@ -101,6 +102,18 @@ unless ( $error ) {
 	}
         skip('no network access',1);
     }
+
+        # genbank
+    eval {
+	ok ($seq_object = get_sequence('genpept',"AAC06201"));
+    };
+    if ($@) {
+	if($DEBUG) {
+	    warn "Warning: Couldn't connect to GenPept! Do you have network access?\n";
+	}
+        skip( 'no network access',1);
+    }
+
 }
 
 # will guess file format from extension
