@@ -423,7 +423,7 @@ Mac users may find Steve Cannon's installation notes and suggestions
 for Bioperl on OS X at
 http://www.tc.umn.edu/~cann0010/Bioperl_OSX_install.html helpful. Also
 Todd Richmond has written of his experiences with BioPerl on MacOS 9
-at http://bioperl.org/Core/mac-bioperl.html.
+(http://bioperl.org/Core/mac-bioperl.html).
 
 The bioperl core has also been tested and should work under most
 versions of Microsoft Windows.  For many windows users the perl and
@@ -637,8 +637,8 @@ bioperl programs can communicate with other bioinformatics projects
 and computer languages such as Ensembl and biopython and biojava.
 
 For more discussion of design and development issues please see the
-biodesign.pod file in the package or at 
-http://bioperl.org/Core/Latest/biodesign.html.
+biodesign.pod file in the package or biodesign.html
+(http://bioperl.org/Core/Latest/biodesign.html).
 
 
 =head1 III. Using bioperl
@@ -947,8 +947,8 @@ current interpretations:
 * These formats require the bioperl-ext package and the io_lib library
   from the Staden package
 
-For more information see L<Bio::SeqIO> or the SeqIO HOWTO at 
-http://bioperl.org/HOWTOs/html/SeqIO.html.
+For more information see L<Bio::SeqIO> or the SeqIO HOWTO
+(http://bioperl.org/HOWTOs/html/SeqIO.html).
 
 =for html <A NAME ="iii.2.2"></A>
 
