@@ -166,7 +166,7 @@ the bugs and their resolution. Bug reports can be submitted via email
 or the web:
 
     bioperl-bugs@bio.perl.org                   
-    http://bugzilla.bioperl.org/           
+    http://bio.perl.org/bioperl-bugs/           
 
 =head1 AUTHOR 
 
@@ -887,20 +887,27 @@ sub n {
 =head2 frame
 
  Usage     : $hit_object->frame();
- Purpose   : Gets the reading frame for the hit sequence (TBLASTN/X only).
+ Purpose   : Gets the reading frame for the best HSP after HSP tiling.
+           : This is only valid for BLASTX and TBLASTN/X reports.
  Example   : $frame = $hit_object->frame();
- Returns   : Integer (-3 .. +3).
+ Returns   : Integer (-2 .. +2)
  Argument  : n/a
  Throws    : Exception if HSPs have not been set (BLAST2 reports).
+ Comments  : This method requires that all HSPs be tiled. If they have not
+           : already been tiled, they will be tiled first automatically..
+           : If you don't want the tiled data, iterate through each HSP
+           : calling frame() on each (use hsps() to get all HSPs).
 
 See Also   : L<hsps()|hsps>
 
 =cut
 
-#----------
+#----------'
 sub frame { 
 #----------
     my $self = shift; 
+
+    Bio::Search::BlastUtils::tile_hsps($self) if not $self->{'_tile_hsps'};
 
     # The check for $self->{'_frame'} is a remnant from the 'query' mode days
     # in which the sbjct object would collect data from the description line only.
@@ -1142,17 +1149,18 @@ sub num_hsps {
  Usage     : $hit_object->logical_length( [seq_type] );
            : (mostly intended for internal use).
  Purpose   : Get the logical length of the hit sequence.
-           : If the Blast is a TBLASTN or TBLASTX, the returned length 
+           : For query sequence of BLASTX and TBLASTX reports and the hit
+           : sequence of TBLASTN and TBLASTX reports, the returned length 
            : is the length of the would-be amino acid sequence (length/3).
            : For all other BLAST flavors, this function is the same as length().
- Example   : $len    = $hit_object->logical_length();
+ Example   : $len = $hit_object->logical_length();
  Returns   : Integer 
  Argument  : seq_type = 'query' or 'hit' or 'sbjct' (default = 'query')
              ('sbjct' is synonymous with 'hit')
  Throws    : n/a
  Comments  : This is important for functions like frac_aligned_query()
            : which need to operate in amino acid coordinate space when dealing
-           : with [T]BLAST[NX] type reports.
+           : with T?BLASTX type reports.
 
 See Also   : L<length()|length>, L<frac_aligned_query()|frac_aligned_query>, L<frac_aligned_hit()|frac_aligned_hit>
 
@@ -1514,14 +1522,7 @@ sub frac_identical {
 
     Bio::Search::BlastUtils::tile_hsps($self) if not $self->{'_tile_hsps'};
 
-    my $ident = $self->{'_totalIdentical'};
-    my $total = $self->{'_length_aln_'.$seqType};
-    my $ratio = $ident / $total;
-    my $ratio_rounded = sprintf( "%.3f", $ratio);
-
-    # Round down iff normal rounding yields 1 (just like blast)
-    $ratio_rounded = 0.999 if (($ratio_rounded == 1) && ($ratio < 1));
-    return $ratio_rounded;
+    sprintf( "%.2f", $self->{'_totalIdentical'}/$self->{'_length_aln_'.$seqType});
 }
 
 
@@ -1575,14 +1576,7 @@ sub frac_conserved {
 
     Bio::Search::BlastUtils::tile_hsps($self) if not $self->{'_tile_hsps'};
 
-    my $consv = $self->{'_totalConserved'};
-    my $total = $self->{'_length_aln_'.$seqType};
-    my $ratio = $consv / $total;
-    my $ratio_rounded = sprintf( "%.3f", $ratio);
-
-    # Round down iff normal rounding yields 1 (just like blast)
-    $ratio_rounded = 0.999 if (($ratio_rounded == 1) && ($ratio < 1));
-    return $ratio_rounded;
+    sprintf( "%.2f", $self->{'_totalConserved'}/$self->{'_length_aln_'.$seqType});
 }
 
 
@@ -1768,6 +1762,10 @@ sub num_unaligned_query {
            :             collapses to "1-5 7 9-11". This is useful for 
            :             consolidating long lists. Default = no collapse.
  Throws    : n/a.
+ Comments  : Note that HSPs are not tiled for this. This could be a problem 
+           : for hits containing mutually exclusive HSPs. 
+           : TODO: Consider tiling and then reporting seq_inds for the 
+           : best HSP contig.
 
 See Also   : L<Bio::Search::HSP::BlastHSP::seq_inds()|Bio::Search::HSP::BlastHSP>
 
@@ -1853,50 +1851,83 @@ sub found_again { shift->{'_found_again'} }
 
  Usage     : $sbjct->strand( [seq_type] );
  Purpose   : Gets the strand(s) for the query, sbjct, or both sequences
-           : in the BlastHit object. 
+           : in the best HSP of the BlastHit object after HSP tiling.
+           : Only valid for BLASTN, TBLASTX, BLASTX-query, TBLASTN-hit.
  Example   : $qstrand = $sbjct->strand('query');
            : $sstrand = $sbjct->strand('hit');
            : ($qstrand, $sstrand) = $sbjct->strand();
- Returns   : scalar context: integer '1', '-1', or '-1/1'
-           : if there are HSPs on both strands.
+ Returns   : scalar context: integer '1', '-1', or '0'
            : array context without args: list of two strings (queryStrand, sbjctStrand)
            : Array context can be "induced" by providing an argument of 'list' or 'array'.
  Argument  : In scalar context: seq_type = 'query' or 'hit' or 'sbjct' (default = 'query')
              ('sbjct' is synonymous with 'hit')
  Throws    : n/a
+ Comments  : This method requires that all HSPs be tiled. If they have not
+           : already been tiled, they will be tiled first automatically..
+           : If you don't want the tiled data, iterate through each HSP
+           : calling strand() on each (use hsps() to get all HSPs).
+           :
+           : Formerly (prior to 10/21/02), this method would return the
+           : string "-1/1" for hits with HSPs on both strands.
+           : However, now that strand and frame is properly being accounted
+           : for during HSP tiling, it makes more sense for strand()
+           : to return the strand data for the best HSP after tiling.
+           :
+           : If you really want to know about hits on opposite strands,
+           : you should be iterating through the HSPs using methods on the
+           : HSP objects.
+           :
+           : A possible use case where knowing whether a hit has HSPs 
+           : on both strands would be when filtering via SearchIO for hits with 
+           : this property. However, in this case it would be better to have a
+           : dedicated method such as $hit->hsps_on_both_strands(). Similarly
+           : for frame. This could be provided if there is interest.
 
 See Also   : B<Bio::Search::HSP::BlastHSP::strand>()
 
 =cut
 
-#----------
+#----------'
 sub strand {
 #----------
     my ($self, $seqType) = @_;
 
+    Bio::Search::BlastUtils::tile_hsps($self) if not $self->{'_tile_hsps'};
+
     $seqType ||= (wantarray ? 'list' : 'query');
     $seqType = 'sbjct' if $seqType eq 'hit';
 
+    my ($qstr, $hstr);
     # If there is only one HSP, defer this call to the solitary HSP.
     if($self->num_hsps == 1) {
 	return $self->hsp->strand($seqType);
-    } else {
+    } 
+    elsif( defined $self->{'_qstrand'}) {
+        # Get the data computed during hsp tiling.
+        $qstr = $self->{'_qstrand'};
+        $hstr = $self->{'_sstrand'};
+    }
+    else {
 	# otherwise, iterate through all HSPs collecting strand info.
+        # This will return the string "-1/1" if there are HSPs on different strands.
+        # NOTE: This was the pre-10/21/02 procedure which will no longer be used,
+        # (unless the above elsif{} is commented out).
         my (%qstr, %hstr);
         foreach my $hsp( $self->hsps ) {
             my ( $q, $h ) = $hsp->strand();
             $qstr{ $q }++;
             $hstr{ $h }++;
         }
-        my $qstr = join( '/', sort keys %qstr);
-        my $hstr = join( '/', sort keys %hstr);
-	if($seqType =~ /list|array/i) {
-	    return ($qstr, $hstr);
-	} elsif( $seqType eq 'query' ) {
-	    return $qstr;
-	} else {
-	    return $hstr;
-	}
+        $qstr = join( '/', sort keys %qstr);
+        $hstr = join( '/', sort keys %hstr);
+    }
+
+    if($seqType =~ /list|array/i) {
+        return ($qstr, $hstr);
+    } elsif( $seqType eq 'query' ) {
+        return $qstr;
+    } else {
+        return $hstr;
     }
 }
 
