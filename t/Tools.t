@@ -31,12 +31,12 @@ my $str = Bio::SeqIO->new(-file=> Bio::Root::IO->catfile("t","multifa.seq"), '-f
 my $seqobj= $str->next_seq();
 ok $seqobj;
 
-my $words = Bio::Tools::SeqWords->new($seqobj);
+my $words = Bio::Tools::SeqWords->new('-seq' => $seqobj);
 my $hash = $words->count_words(6);
 ok ($words);
 ok ($hash);
 
-my $seq_stats  =  Bio::Tools::SeqStats->new($seqobj);
+my $seq_stats  =  Bio::Tools::SeqStats->new('-seq' => $seqobj);
 
 ok $seq_stats;
 
@@ -50,3 +50,4 @@ ok $hash_ref;
 
 my $weight = $seq_stats->get_mol_wt();
 ok $weight;
+
