@@ -152,19 +152,21 @@ sub next_seq {
     # you won't know which entry caused an error
     $seq->display_id($name);
     # the moltype of the entry
-    if($2 eq 'bp') {
-	$seq->moltype('dna');
-    } else {
-	# $2 eq 'aa'
+    if ($2 eq 'aa') {
 	$seq->moltype('protein');
     }
+    elsif(defined($3) && $3 =~ 'RNA') {
+	$seq->moltype('rna');
+    } else {
+	$seq->moltype('dna');
+    }
     # for aa there is usually no 'molecule' (mRNA etc)
-    if (($2 eq 'bp') || defined($5)) {
+    if ((defined($2) && $2 eq 'bp') || defined($5)) {
 	$seq->molecule($3);
 	$seq->division($4);
 	$date = $5;
     } else {
-	$seq->molecule('PRT') if($2 eq 'aa');
+	$seq->molecule('PRT') if(defined($2) && $2 eq 'aa');
 	$seq->division($3);
 	$date = $4;
     }
