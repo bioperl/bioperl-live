@@ -74,15 +74,18 @@ sub draw_parallel {
   my $a2 = ($self->height)/2;
   my $center = $y1+$a2;
 
-  $x1 = $self->panel->left  if $x1 < $self->panel->left;
-  $x2 = $self->panel->right if $x2 > $self->panel->right;
+  my $trunc_left  = $x1 < $self->panel->left;
+  my $trunc_right = $x2 > $self->panel->right;
+
+  $x1 = $self->panel->left  if $trunc_left;
+  $x2 = $self->panel->right if $trunc_right;
 
   my ($sw,$ne,$base_w,$base_e) = $self->arrowheads;
   $gd->line($x1,$center,$x2,$center,$fg);
-  $self->arrowhead($gd,$x1,$center,$a2,-1) if $sw; # west arrow
-  $self->arrowhead($gd,$x2,$center,$a2,+1) if $ne; # east arrow
-  $gd->line($x2,$center-$a2,$x2,$center+$a2,$fg) if $base_e; #east base
-  $gd->line($x1,$center-$a2,$x1,$center+$a2,$fg) if $base_w; #west base
+  $self->arrowhead($gd,$x1,$center,$a2,-1) if $sw && !$trunc_left;  # west arrow
+  $self->arrowhead($gd,$x2,$center,$a2,+1) if $ne && !$trunc_right; # east arrow
+  $gd->line($x1,$center-$a2,$x1,$center+$a2,$fg) if $base_w && !$trunc_left;  #west base
+  $gd->line($x2,$center-$a2,$x2,$center+$a2,$fg) if $base_e && !$trunc_right; #east base
 
   # turn on ticks
   if ($self->option('tick')) {
