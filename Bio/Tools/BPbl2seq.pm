@@ -124,13 +124,13 @@ use Bio::SeqFeature::Similarity;
  Returns : Bio::Tools::BPbl2seq
  Args    : -file     input file (alternative to -fh)
            -fh       input stream (alternative to -file)
-           -query    name of query sequence
+           -queryname    name of query sequence
 =cut
 
 sub new {
     my ($class, @args) = @_;
     my $self = $class->SUPER::new(@args);
-    my ($file, $fh, $query) = $self->_rearrange([qw(FILE FH QUERY)], @args);
+    my ($file, $fh, $query) = $self->_rearrange([qw(FILE FH QUERYNAME)], @args);
     $query = 'unknown' if( ! defined $query );
 
     if( defined $file && defined $fh ) {
