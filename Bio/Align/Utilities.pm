@@ -75,6 +75,7 @@ Internal methods are usually preceded with a _
 package Bio::Align::Utilities;
 use vars qw(@ISA @EXPORT @EXPORT_OK);
 use strict;
+use Carp;
 require Exporter;
 
 @ISA = qw(Exporter);
@@ -111,14 +112,14 @@ See also: L<Bio::Align::AlignI>, L<Bio::SimpleAlign>, L<Bio::PrimarySeq>
 sub aa_to_dna_aln {
     my ($self,$aln,$dnaseqs) = @_;
     unless( $aln->isa('Bio::Align::AlignI') ) { 
-	$self->throw('Must provide a valid Bio::Align::AlignI object as the first argument to aa_to_dna_aln, see the documentation for proper usage and the method signature');
+	croak('Must provide a valid Bio::Align::AlignI object as the first argument to aa_to_dna_aln, see the documentation for proper usage and the method signature');
     }
     my $alnlen = $aln->length;
     #print "HSP length is $alnlen\n";
     my $dnaalign = new Bio::SimpleAlign;
     foreach my $seq ( $aln->each_seq ) {    
 	my $newseq;	    
-	my $dnaseq = $dnaseqs->{$seq->display_id} || die("cannot find ".
+	my $dnaseq = $dnaseqs->{$seq->display_id} || croak("cannot find ".
 							 $seq->display_id);
 	foreach my $pos ( 1..$alnlen ) {
 	    my $loc = $seq->location_from_column($pos);
