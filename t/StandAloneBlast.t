@@ -29,7 +29,7 @@ END {print "not ok 1\n" unless $loaded;
 
 use Bio::Tools::Blast;
 use Bio::Tools::BPlite;
-use Bio::Tools::StandAloneBlast;
+use Bio::Tools::Run::StandAloneBlast;
 use Bio::SeqIO;
 use Bio::AlignIO;
 use Bio::Seq;
@@ -61,7 +61,7 @@ my $amino_database = 'swissprot';
 ## Create blast factory
 my @params = ('program' => 'blastn', 'database' => $nt_database , 
 	      '_READMETHOD' => 'Blast', 'output' => 'blastreport.out');
-my  $factory = Bio::Tools::StandAloneBlast->new(@params);
+my  $factory = Bio::Tools::Run::StandAloneBlast->new(@params);
 
 test 2, $factory, " couldn't create blast factory";
 
@@ -71,7 +71,7 @@ my $program = 'blastn';
 # If the blast program isn't found and executable at the expected location,
 # there is no point in executing the remaining tests...
 
-my $blast_present = Bio::Tools::StandAloneBlast->exists_blast();
+my $blast_present = Bio::Tools::Run::StandAloneBlast->exists_blast();
 unless ($blast_present) {
 	warn "blast program not found. Skipping tests 3 to 8\n";
    	print "ok 3\n";  print "ok 4\n"; print "ok 5\n";
@@ -130,7 +130,7 @@ test 5,$testresults[5], " failed Seq array input test";
 # first create factory for bl2seq
 @params = ('program' => 'blastp');
 #@params = ('program' => 'blastp', 'outfile' => 'bl2seqtest.out');
-$factory = Bio::Tools::StandAloneBlast->new(@params);
+$factory = Bio::Tools::Run::StandAloneBlast->new(@params);
 
 # Get protein sequences from file
 $str = Bio::SeqIO->new(-file=>'t/amino.fa' , '-format' => 'Fasta', );
@@ -145,7 +145,7 @@ test 6, $bl2seq_report->subject->start == 167, " failed creating or parsing bl2s
 ## Create factory for psiblast
 @params = ('database' => $amino_database);
 #@params = ('database' => $amino_database, 'outfile' => 'psiblast.out');
-$factory = Bio::Tools::StandAloneBlast->new(@params);
+$factory = Bio::Tools::Run::StandAloneBlast->new(@params);
 
 # set psiblast iteration parameter
 

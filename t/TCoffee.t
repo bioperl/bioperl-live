@@ -28,7 +28,7 @@ END {print "not ok 1\n" unless $loaded;
     unlink( qw(cysprot.dnd cysprot1a.dnd) );
 }
 
-use Bio::Tools::Alignment::TCoffee;
+use Bio::Tools::Run::Alignment::TCoffee;
 use Bio::SimpleAlign;
 use Bio::AlignIO;
 use Bio::SeqIO;
@@ -52,7 +52,7 @@ sub test ($$;$) {
 
 ## Create tcoffee alignment factory
 my @params = ('ktuple' => 2, 'matrix' => 'BLOSUM');
-my  $factory = Bio::Tools::Alignment::TCoffee->new(@params);
+my  $factory = Bio::Tools::Run::Alignment::TCoffee->new(@params);
 
 test 2, $factory, " couldn't create alignment factory";
 
@@ -79,7 +79,7 @@ my $aln;
 # If the tcoffee program isn't found and executable at the expected location,
 # there is no point in executing the remaining tests...
 
-my $coffee_present = Bio::Tools::Alignment::TCoffee->exists_tcoffee();
+my $coffee_present = Bio::Tools::Run::Alignment::TCoffee->exists_tcoffee();
 unless ($coffee_present) {
 	warn "tcoffee program not found. Skipping tests 5 to 9.\n";
     	print "ok 5\n", "ok 6\n", "ok 7\n", "ok 8\n", "ok 9\n";

@@ -28,11 +28,8 @@ BEGIN {
 
 END {print "not ok 1\n" unless $loaded;}
 
-use Bio::Tools::Alignment::Clustalw;
-use Bio::SimpleAlign;
-use Bio::AlignIO;
-use Bio::SeqIO;
-use strict;
+use Bio::Tools::Run::Alignment::Clustalw; use Bio::SimpleAlign; use
+Bio::AlignIO; use Bio::SeqIO; use strict;
 
 $loaded = 1;
 print "ok 1\n";    # 1st test passes.
@@ -52,7 +49,7 @@ sub test ($$;$) {
 
 ## Create clustalw alignment factory
 my @params = ('ktuple' => 2, 'matrix' => 'BLOSUM');
-my  $factory = Bio::Tools::Alignment::Clustalw->new(@params);
+my  $factory = Bio::Tools::Run::Alignment::Clustalw->new(@params);
 
 test 2, $factory, " couldn't create alignment factory";
 
@@ -79,7 +76,7 @@ my $aln;
 # If the clustalw program isn't found and executable at the expected location,
 # there is no point in executing the remaining tests...
 
-my $clustal_present = Bio::Tools::Alignment::Clustalw->exists_clustal();
+my $clustal_present = Bio::Tools::Run::Alignment::Clustalw->exists_clustal();
 unless ($clustal_present) {
 	warn "Clustalw program not found. Skipping tests 5 to 9.\n";
     	print "ok 5\n", "ok 6\n", "ok 7\n", "ok 8\n", "ok 9\n";
