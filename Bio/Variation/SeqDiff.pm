@@ -13,8 +13,7 @@
 
 =head1 NAME
 
-  Bio::Variation::SeqDiff - Container class for mutation/variant
-  descriptions
+Bio::Variation::SeqDiff - Container class for mutation/variant descriptions
 
 =head1 SYNOPSIS
 
@@ -42,7 +41,7 @@ initiator codon has number 1 and the one before it -1. This is
 according to conventions of human genetics.
 
 There will be class Bio::Variation::Genotype to describe markers in
-different chromosomes and diploid genototypes,.
+different chromosomes and diploid genototypes.
 
 Classes implementing L<Bio::Variation::VariantI>
 interface are L<Bio::Variation::DNAMutation>,
@@ -1010,7 +1009,7 @@ sub alignment {
 	    push (@rseqmut, $rseqmutd);
 	    unshift (@rseqmut, $rseqmutu);
 	    
-	
+	    return unless $mut->AAChange;
 	    #translate
 	    my $tr = new Bio::Tools::CodonTable ('-id' => $mut->codon_table);
 	    my $apos =  $mut->AAChange->start;
