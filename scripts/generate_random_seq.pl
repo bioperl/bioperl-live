@@ -16,7 +16,7 @@ my %alphabets = ( 'dna' => [qw(C A G T)],
     (
      'l|length:s'         => \$length,
      't|type|m|moltype:s' => \$type,
-     'f|file:s'           => \$filename
+     'f|file|filename:s'  => \$filename
      );
 
 assert ( $type && defined ($alphabets{lc $type}),
