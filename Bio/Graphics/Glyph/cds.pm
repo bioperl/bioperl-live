@@ -36,13 +36,20 @@ sub sixframe {
   return $self->{sixframe};
 }
 
+sub require_subparts {
+  my $self = shift;
+  my $rs   = $self->option('require_subparts');
+  $rs      = $self->feature->type eq 'coding' if !defined $rs;  # shortcut for the "coding" aggregator
+  $rs;
+}
+
 # figure out (in advance) the color of each component
 sub draw {
   my $self = shift;
   my ($gd,$left,$top) = @_;
 
   my @parts = $self->parts;
-  @parts    = $self if !@parts && $self->level == 0 && !$self->option('require_subparts');
+  @parts    = $self if !@parts && $self->level == 0 && !$self->require_subparts;
 
   my $fits = $self->protein_fits;
 
@@ -280,11 +287,13 @@ glyph-specific options:
   -require_subparts
               Don't draw the reading frame 0 (false)
               unless it is a feature
-              subpart
+              subpart.
 
 The -require_subparts option is suggested when rendering spliced
 transcripts which contain multiple CDS subparts.  Otherwise, the glyph
-will hickup when zoomed way down onto an intron between two CDSs.
+will hickup when zoomed way down onto an intron between two CDSs (a
+phantom reading frame will appear).  For unspliced sequences, do *not*
+use -require_subparts.
 
 =head1 SUGGESTED STANZA FOR GENOME BROWSER
 

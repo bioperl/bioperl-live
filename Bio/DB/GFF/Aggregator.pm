@@ -573,6 +573,9 @@ None known yet.
 L<Bio::DB::GFF>,
 L<Bio::DB::GFF::Aggregator::alignment>,
 L<Bio::DB::GFF::Aggregator::clone>,
+L<Bio::DB::GFF::Aggregator::coding>,
+L<Bio::DB::GFF::Aggregator::match>,
+L<Bio::DB::GFF::Aggregator::processed_transcript>,
 L<Bio::DB::GFF::Aggregator::transcript>,
 L<Bio::DB::GFF::Aggregator::none>
 
