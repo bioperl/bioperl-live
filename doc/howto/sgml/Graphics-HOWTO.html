@@ -195,8 +195,8 @@ At the time this was written, there were two versions of libgd.  libgd
 version 1.8.4 is the stable version, and corresponds to GD version
 1.43.  libgd version 2.0.1 is the beta version; although it has many
 cool features, it also has a few known bugs (which Bio::Graphics works
-around).  If you use libgd 2.0.1 or higher, be sure to use GD version
-2.0.1 or higher.</P
+around).  If you use libgd 2.0.1 or higher, be sure it matches GD
+version 2.0.1 or higher.</P
 ></DIV
 ><DIV
 CLASS="SECTION"
@@ -276,18 +276,21 @@ CLASS="PROGRAMLISTING"
 ><P
 >The script begins by loading the Bio::Graphics module (line 3), which
 in turn brings in a number of other modules that we'll use later.  We
-also load Bio::SeqFeature::Generic in order to create a series of
-Bio::SeqFeatureI objects for rendering.  We then create a
-Bio::Graphics::Panel object by calling its new() method, specifying
-that the panel is to correspond to a sequence that is 1000 residues
-long, and has a physical width of 800 bp (line 5).  The Panel can
-contain multiple horizontal tracks, each of which has its own way of
-rendering features (called a "glyph"), color, labeling convention, and
-so forth.  In this simple example, we create a single track by calling
-the panel object's add_track() method (line 6), specify a glyph type
-of "generic", and ask that the objects in the track be labeled by
-providing a true value to the -label argument.  This gives us a track
-object that we can add our hits to.</P
+also load <TT
+CLASS="CLASSNAME"
+>Bio::SeqFeature::Generic</TT
+> in order to
+create a series of Bio::SeqFeatureI objects for rendering.  We then
+create a Bio::Graphics::Panel object by calling its new() method,
+specifying that the panel is to correspond to a sequence that is 1000
+residues long, and has a physical width of 800 bp (line 5).  The Panel
+can contain multiple horizontal tracks, each of which has its own way
+of rendering features (called a "glyph"), color, labeling convention,
+and so forth.  In this simple example, we create a single track by
+calling the panel object's add_track() method (line 6), specify a
+glyph type of "generic", and ask that the objects in the track be
+labeled by providing a true value to the -label argument.  This gives
+us a track object that we can add our hits to.</P
 ><P
 >We're now ready to render the blast hit file.  We loop through it
 (line 7-14), stripping off the comments, and parsing out the name,
@@ -311,7 +314,7 @@ result by piping it to our favorite image display program.</P
 ><DIV
 CLASS="FIGURE"
 ><A
-NAME="AEN63"
+NAME="AEN64"
 ></A
 ><P
 ><B
@@ -412,10 +415,21 @@ CLASS="PROGRAMLISTING"
 ></DIV
 ></P
 ><P
->There are several changes to look at.  The first is minor.  We'd
-like to put a boundary around the left and right edges of the image so
-that the features don't bump up against the margin, so we specify a 10
-pixel leeway with the -pad_left and -pad_right arguments in line 5.</P
+>There are several changes to look at.  The first is minor.  We'd like
+to put a boundary around the left and right edges of the image so that
+the features don't bump up against the margin, so we specify a 10
+pixel leeway with the <TT
+CLASS="PARAMETER"
+><I
+>-pad_left</I
+></TT
+> and
+<TT
+CLASS="PARAMETER"
+><I
+>-pad_right</I
+></TT
+> arguments in line 5.</P
 ><P
 >The next change is more subtle.  We want to draw a scale all the way
 across the image.  To do this, we create a track to contain the scale,
@@ -434,8 +448,8 @@ contain tick marks, and that both major and minor ticks should be
 shown (tick type of "2").  We set the foreground color to black, and
 request that arrows should be placed at both ends (-double =&#62;1).
 <A
-NAME="AEN85"
-HREF="#FTN.AEN85"
+NAME="AEN88"
+HREF="#FTN.AEN88"
 >[1]</A
 ></P
 ><P
@@ -454,7 +468,7 @@ program is the same.</P
 ><DIV
 CLASS="FIGURE"
 ><A
-NAME="AEN90"
+NAME="AEN93"
 ></A
 ><P
 ><B
@@ -545,37 +559,94 @@ CLASS="PROGRAMLISTING"
 ></P
 ><P
 >There are two changes to look at.  The first appears in line 24, where
-we pass the -sort_order option to the call that creates the blast hit
-track.  -sort_order changes the way that features sort from top to
-bottom, and will accept a number of prepackaged sort orders or a
-coderef for custom sorting.  In this case, we pass a prepackaged sort
-order of "high_score", which sorts the hits from top to bottom in
-reverse order of their score.</P
+we pass the <TT
+CLASS="PARAMETER"
+><I
+>-sort_order</I
+></TT
+> option to the call that
+creates the blast hit track.  <TT
+CLASS="PARAMETER"
+><I
+>-sort_order</I
+></TT
+>
+changes the way that features sort from top to bottom, and will accept
+a number of prepackaged sort orders or a coderef for custom sorting.
+In this case, we pass a prepackaged sort order of
+<TT
+CLASS="PARAMETER"
+><I
+>high_score</I
+></TT
+>, which sorts the hits from top to
+bottom in reverse order of their score.</P
 ><P
 >The second change is more complicated, and involves the -description
-option that appears in the add_track() call on lines 25-28.  The value
-of -description will be printed beneath each feature.  We could pass
--description a constant string, but that would simply print the same
-string under each feature.  Instead we pass -description a code
-reference to a subroutine that will be invoked while the picture is
-being rendered.  This subroutine will be passed the current feature,
-and must return the string to use as the value of the description.  In
-our code, we simply fetch out the BLAST hit's score using its score()
+option that appears in the <TT
+CLASS="FUNCTION"
+>add_track()</TT
+> call on
+lines 25-28.  The value of <TT
+CLASS="PARAMETER"
+><I
+>-description</I
+></TT
+> will be
+printed beneath each feature.  We could pass
+<TT
+CLASS="PARAMETER"
+><I
+>-description</I
+></TT
+> a constant string, but that would
+simply print the same string under each feature.  Instead we pass
+<TT
+CLASS="PARAMETER"
+><I
+>-description</I
+></TT
+> a code reference to a subroutine
+that will be invoked while the picture is being rendered.  This
+subroutine will be passed the current feature, and must return the
+string to use as the value of the description.  In our code, we simply
+fetch out the BLAST hit's score using its <TT
+CLASS="FUNCTION"
+>score()</TT
+>
 method, and incorporate that into the description string.</P
+><DIV
+CLASS="TIP"
+><BLOCKQUOTE
+CLASS="TIP"
 ><P
+><B
+>Tip: </B
 >The ability to use a code reference as a configuration option isn't
-unique to -description.  In fact, you can use a code reference for any
+unique to <TT
+CLASS="PARAMETER"
+><I
+>-description</I
+></TT
+>.  In fact, you can use a code reference for any
 of the options passed to add_track().</P
+></BLOCKQUOTE
+></DIV
 ><P
->Another minor change is the use of -font2color in line 23. This simply
-sets the color used for the description strings.</P
-><P
->Figure 4 shows the effect of these changes.</P
+>Another minor change is the use of
+<TT
+CLASS="PARAMETER"
+><I
+>-font2color</I
+></TT
+> in line 23. This simply
+sets the color used for the description strings.  Figure 4 shows the
+effect of these changes.</P
 ><P
 ><DIV
 CLASS="FIGURE"
 ><A
-NAME="AEN108"
+NAME="AEN121"
 ></A
 ><P
 ><B
@@ -586,6 +657,565 @@ CLASS="MEDIAOBJECT"
 ><P
 ><IMG
 SRC="graphics/figs/fig3.png"
+></IMG
+></P
+></DIV
+></DIV
+></P
+></DIV
+><DIV
+CLASS="SECTION"
+><HR><H1
+CLASS="SECTION"
+><A
+NAME="PARSING-BLAST"
+>Parsing Real BLAST Output</A
+></H1
+><P
+>From here it's just a small step to writing a general purpose utility
+that will read a BLAST file, parse its output, and output a picture.
+The key is to use the <TT
+CLASS="CLASSNAME"
+>Bio::SearchIO</TT
+>
+infrastructure because it produces Bio::SeqFeatureI similarity hits
+that can be rendered directly by <TT
+CLASS="CLASSNAME"
+>Bio::Graphics</TT
+>.</P
+><P
+>Code example 4 shows the new utility.</P
+><P
+><DIV
+CLASS="EXAMPLE"
+><A
+NAME="CODE4"
+></A
+><P
+><B
+>Example 4. Parsing and Rendering a Real BLAST File with Bio::SearchIO</B
+></P
+><PRE
+CLASS="PROGRAMLISTING"
+>  0  #!/usr/bin/perl
+
+  1  # This is code example 4 in the Graphics-HOWTO
+  2  use strict;
+  3  use lib "$ENV{HOME}/projects/bioperl-live";
+  4  use Bio::Graphics;
+  5  use Bio::SearchIO;
+
+  6  my $file = shift or die "Usage: render4.pl &lt;blast file&gt;\n";
+
+  7  my $searchio = Bio::SearchIO-&gt;new(-file   =&gt; $file,
+  8                                    -format =&gt; 'blast') or die "parse failed";
+
+
+  9  my $result = $searchio-&gt;next_result() or die "no result";
+
+ 10  my $panel = Bio::Graphics::Panel-&gt;new(-length    =&gt; $result-&gt;query_length,
+ 11                                        -width     =&gt; 800,
+ 12                                        -pad_left  =&gt; 10,
+ 13                                        -pad_right =&gt; 10,
+ 14                                       );
+
+ 15  my $full_length = Bio::SeqFeature::Generic-&gt;new(-start=&gt;1,-end=&gt;$result-&gt;query_length,
+ 16                                                  -seqname=&gt;$result-&gt;query_name);
+ 17  $panel-&gt;add_track($full_length,
+ 18                    -glyph   =&gt; 'arrow',
+ 19                    -tick    =&gt; 2,
+ 20                    -fgcolor =&gt; 'black',
+ 21                    -double  =&gt; 1,
+ 22                    -label   =&gt; 1,
+ 23                   );
+
+ 24  my $track = $panel-&gt;add_track(-glyph       =&gt; 'graded_segments',
+ 25                                -label       =&gt; 1,
+ 26                                -connector   =&gt; 'dashed',
+ 27                                -bgcolor     =&gt; 'blue',
+ 28                                -font2color  =&gt; 'red',
+ 29                                -sort_order  =&gt; 'high_score',
+ 30                                -description =&gt; sub {
+ 31                                  my $feature = shift;
+ 32                                  return unless $feature-&gt;has_tag('description');
+ 33                                  my ($description) = $feature-&gt;each_tag_value('description');
+ 34                                  my $score = $feature-&gt;score;
+ 35                                  "$description, score=$score";
+ 36                                 });
+
+ 37  while( my $hit = $result-&gt;next_hit ) {
+ 38    next unless $hit-&gt;significance &lt; 1E-20;
+ 39    my $feature = Bio::SeqFeature::Generic-&gt;new(-score   =&gt; $hit-&gt;raw_score,
+ 40                                                -seqname =&gt; $hit-&gt;name,
+ 41                                                -tag     =&gt; {
+ 42                                                             description =&gt; $hit-&gt;description
+ 43                                                            },
+ 44                                               );
+ 45    while( my $hsp = $hit-&gt;next_hsp ) {
+ 46      $feature-&gt;add_sub_SeqFeature($hsp,'EXPAND');
+ 47    }
+
+ 48    $track-&gt;add_feature($feature);
+ 49  }
+
+ 50  print $panel-&gt;png;</PRE
+></DIV
+></P
+><P
+>In lines 6-7 we read the name of the file that contains the BLAST
+results from the command line, and pass it to
+<TT
+CLASS="FUNCTION"
+>Bio::SearchIO-&gt;new()</TT
+>, returning a
+<TT
+CLASS="CLASSNAME"
+>Bio::SearchIO</TT
+> object.  We read a single result
+from the searchIO object (line 9).  This assumes that the BLAST output
+file contains a single run of BLAST only.</P
+><P
+>We then initialize the panel and tracks as before.  The only change
+here is in lines 24-36, where we create the track for the BLAST hits.
+The <TT
+CLASS="PARAMETER"
+><I
+>-description</I
+></TT
+> option has now been enhanced
+to create a line of text that incorporates the "description" tag from
+the feature object as well as its similarity score.  There's also a
+slight change in line 26, where we introduce the
+<TT
+CLASS="PARAMETER"
+><I
+>-connector</I
+></TT
+> option.  This allows us to configure a
+line that connects the segments of a discontinuous feature, such as
+the HSPs in a BLAST hit.  In this case, we asked the rendering engine
+to produce a dashed connector line.</P
+><P
+>The remainder of the script retrieves each of the hits from the BLAST
+file, creates a Feature object representing the hit, and then
+retrieves each HSP and incorporates it into the feature.  Line 37
+begins a <TT
+CLASS="FUNCTION"
+>while()</TT
+> loop that retrieves each of the
+similarity hits in turn.  We filter the hit by its significance,
+throwing out any that have an expectation value greater than 1E-20
+(you will have to adjust this in your own utilities).  We then use the
+information in the hit to construct a
+<TT
+CLASS="CLASSNAME"
+>Bio::SeqFeature::Generic</TT
+> object (lines 39-44).
+Notice how the name of the hit and the score are used to initialize
+the feature, and how the description is turned into a tag named
+"description."</P
+><P
+>The start and end bounds of the hit are determined by the union of its
+HSPs.  We loop through each of the hit's HSPs by calling its
+<TT
+CLASS="FUNCTION"
+>next_hsp()</TT
+> method, and add each HSP to the
+newly-created hit feature by calling the feature's
+<TT
+CLASS="FUNCTION"
+>add_sub_SeqFeature()</TT
+> method (line 46).  The
+<TT
+CLASS="PARAMETER"
+><I
+>EXPAND</I
+></TT
+> parameter instructs the feature to
+expand its start and end coordinates to enclose the added subfeature.</P
+><P
+>Once all the HSPs are added to the feature, we insert the feature into
+the track as before using the track's
+<TT
+CLASS="FUNCTION"
+>add_feature()</TT
+> function.</P
+><P
+>Figure 5 shows the output from a sample BLAST hit file.</P
+><P
+><DIV
+CLASS="FIGURE"
+><A
+NAME="AEN153"
+></A
+><P
+><B
+>Figure 5. Output from the BLAST parsing and rendering script</B
+></P
+><DIV
+CLASS="MEDIAOBJECT"
+><P
+><IMG
+SRC="graphics/figs/fig4.png"
+></IMG
+></P
+></DIV
+></DIV
+></P
+><P
+>The next section will demonstrate how to parse and display feature
+tables from GenBank and EMBL.</P
+></DIV
+><DIV
+CLASS="SECTION"
+><HR><H1
+CLASS="SECTION"
+><A
+NAME="RENDERING-FEATURES"
+>Rendering Features from a GenBank or EMBL File</A
+></H1
+><P
+>With <TT
+CLASS="CLASSNAME"
+>Bio::Graphics</TT
+> you can render the feature
+table of a GenBank or EMBL file quite easily.  The trick is to use
+<TT
+CLASS="CLASSNAME"
+>Bio::SeqIO</TT
+> to generate a set of
+<TT
+CLASS="CLASSNAME"
+>Bio::SeqFeatureI</TT
+> objects, and to use those
+features to populate tracks. For simplicity's sake, we will sort each
+feature by its primary tag (such as "exon") and create a new track for
+each tag type.</P
+><P
+>Code example 5 shows the code for rendering an EMBL or GenBank entry.</P
+><P
+><DIV
+CLASS="EXAMPLE"
+><A
+NAME="CODE5"
+></A
+><P
+><B
+>Example 5. The embl2picture.pl script turns any EMBL or GenBank entry into a graphical rendering</B
+></P
+><PRE
+CLASS="PROGRAMLISTING"
+>  0  #!/usr/bin/perl
+
+  1  # file: embl2picture.pl
+  2  # This is code example 5 in the Graphics-HOWTO
+  3  # Author: Lincoln Stein
+
+  4  use strict;
+  5  use lib "$ENV{HOME}/projects/bioperl-live";
+  6  use Bio::Graphics;
+  7  use Bio::SeqIO;
+
+  8  use constant USAGE =&gt;&lt;&lt;END;
+  9  Usage: $0 &lt;file&gt;
+ 10     Render a GenBank/EMBL entry into drawable form.
+ 11     Return as a GIF or PNG image on standard output.
+
+ 12     File must be in embl, genbank, or another SeqIO-
+ 13     recognized format.  Only the first entry will be 
+ 14     rendered.
+
+ 15  Example to try:
+ 16     embl2picture.pl factor7.embl | display -
+
+ 17  END
+
+ 18  my $file = shift                       or die USAGE;
+ 19  my $io = Bio::SeqIO-&gt;new(-file=&gt;$file) or die USAGE;
+ 20  my $seq = $io-&gt;next_seq                or die USAGE;
+
+ 21  my @features = $seq-&gt;all_SeqFeatures;
+
+ 22  # sort features by their primary tags
+ 23  my %sorted_features;
+ 24  for my $f (@features) {
+ 25    my $tag = $f-&gt;primary_tag;
+ 26    push @{$sorted_features{$tag}},$f;
+ 27  }
+
+ 28  my $panel = Bio::Graphics::Panel-&gt;new(
+ 29                                        -segment   =&gt; $seq,
+ 30                                        -key_style =&gt; 'between',
+ 31                                        -width     =&gt; 800,
+ 32                                        -pad_left  =&gt; 10,
+ 33                                        -pad_right =&gt; 10,
+ 34                                        );
+ 35  $panel-&gt;add_track($seq,
+ 36                    -glyph =&gt; 'arrow',
+ 37                    -bump =&gt; 0,
+ 38                    -double=&gt;1,
+ 39                    -tick =&gt; 2);
+
+ 40  $panel-&gt;add_track($seq,
+ 41                    -glyph  =&gt; 'generic',
+ 42                    -bgcolor =&gt; 'blue',
+ 43                    -label  =&gt; 1,
+ 44                   );
+
+ 45  # special cases
+ 46  if ($sorted_features{CDS}) {
+ 47    $panel-&gt;add_track($sorted_features{CDS},
+ 48                      -glyph      =&gt; 'transcript2',
+ 49                      -bgcolor    =&gt; 'orange',
+ 50                      -fgcolor    =&gt; 'black',
+ 51                      -font2color =&gt; 'red',
+ 52                      -key        =&gt; 'CDS',
+ 53                      -bump       =&gt;  +1,
+ 54                      -height     =&gt;  12,
+ 55                      -label      =&gt; \&amp;gene_label,
+ 56                      -description=&gt; \&amp;gene_description,
+ 57                     );
+ 58    delete $sorted_features{'CDS'};
+ 59  }
+
+ 60  if ($sorted_features{tRNA}) {
+ 61    $panel-&gt;add_track($sorted_features{tRNA},
+ 62                      -glyph     =&gt;  'transcript2',
+ 63                      -bgcolor   =&gt;  'red',
+ 64                      -fgcolor   =&gt;  'black',
+ 65                      -font2color =&gt; 'red',
+ 66                      -key       =&gt; 'tRNAs',
+ 67                      -bump      =&gt;  +1,
+ 68                      -height    =&gt;  12,
+ 69                      -label     =&gt; \&amp;gene_label,
+ 70                     );
+ 71    delete $sorted_features{tRNA};
+ 72  }
+
+ 73  # general case
+ 74  my @colors = qw(cyan orange blue purple green chartreuse magenta yellow aqua);
+ 75  my $idx    = 0;
+ 76  for my $tag (sort keys %sorted_features) {
+ 77    my $features = $sorted_features{$tag};
+ 78    $panel-&gt;add_track($features,
+ 79                      -glyph    =&gt;  'generic',
+ 80                      -bgcolor  =&gt;  $colors[$idx++ % @colors],
+ 81                      -fgcolor  =&gt; 'black',
+ 82                      -font2color =&gt; 'red',
+ 83                      -key      =&gt; "${tag}s",
+ 84                      -bump     =&gt; +1,
+ 85                      -height   =&gt; 8,
+ 86                      -description =&gt; \&amp;generic_description
+ 87                     );
+ 88  }
+
+ 89  print $panel-&gt;png;
+ 90  exit 0;
+
+ 91  sub gene_label {
+ 92    my $feature = shift;
+ 93    my @notes;
+ 94    foreach (qw(product gene)) {
+ 95      next unless $feature-&gt;has_tag($_);
+ 96      @notes = $feature-&gt;each_tag_value($_);
+ 97      last;
+ 98    }
+ 99    $notes[0];
+100  }
+
+101  sub gene_description {
+102    my $feature = shift;
+103    my @notes;
+104    foreach (qw(note)) {
+105      next unless $feature-&gt;has_tag($_);
+106      @notes = $feature-&gt;each_tag_value($_);
+107      last;
+108    }
+109    return unless @notes;
+110    substr($notes[0],30) = '...' if length $notes[0] &gt; 30;
+111    $notes[0];
+112  }
+
+113  sub generic_description {
+114    my $feature = shift;
+115    my $description;
+116    foreach ($feature-&gt;all_tags) {
+117      my @values = $feature-&gt;each_tag_value($_);
+118      $description .= $_ eq 'note' ? "@values" : "$_=@values; ";
+119    }
+120    $description =~ s/; $//; # get rid of last
+121    $description;
+122  }</PRE
+></DIV
+></P
+><P
+>At 121 lines, this is the longest example in this HOWTO.  Nevertheless
+it is straightforward.  After the library load preamble, the script
+begins by reading the name of the GenBank or EMBL file from the
+command line (line 18).  It passes the filename to
+<TT
+CLASS="CLASSNAME"
+>Bio::SeqIO</TT
+>'s <TT
+CLASS="FUNCTION"
+>new()</TT
+> method,
+and reads the first sequence object from it (lines 19-20).  If
+anything goes wrong, the script dies with a usage message.</P
+><P
+>The script reads the features from the sequence object by calling
+<TT
+CLASS="FUNCTION"
+>all_SeqFeatures()</TT
+>, and then sorts each feature by
+its primary tag into a hash of array references named
+<TT
+CLASS="VARNAME"
+>%sorted_features</TT
+> (lines 21-27).</P
+><P
+>We create the <TT
+CLASS="CLASSNAME"
+>Bio::Graphics::Panel</TT
+> object
+(lines 28-34).  As in previous examples, we specify the width and left
+and right padding for the image.  However, instead of explicitly
+specifying the length of the sequence with the
+<TT
+CLASS="PARAMETER"
+><I
+>-length</I
+></TT
+> option, we let
+<TT
+CLASS="CLASSNAME"
+>Bio::Graphics::Panel</TT
+> handle it by passing it
+the sequence object itself as the argument to the
+<TT
+CLASS="PARAMETER"
+><I
+>-segment</I
+></TT
+> option.  This will also handle the
+unusual case of a sequence that does not start at position 1.</P
+><P
+>We now add two tracks, one for the scale (lines 35-39) and the other
+for the sequence as a whole (40-44).  As in the earlier examples, we
+pass <TT
+CLASS="FUNCTION"
+>add_track()</TT
+> the sequence object as the first
+argument before the options so that the object is incorporated into
+the track immediately.</P
+><P
+>We now handle two special cases.  We would like to draw CDS and tRNA
+features like genes using the "transcript2" glyph.  This glyph will
+draw inverted V's for introns, if there are any, and will turn the
+last (or only) exon into an arrow to indicate the direction of
+transcription.  To do this, we look to see whether there are any
+features with the primary tag of "CDS" (lines 45-59), and create a
+track for them using the desired glyph.  Line 47 shows how to add
+several features to a track at creation time.  If the first argument
+to <TT
+CLASS="FUNCTION"
+>add_track()</TT
+> is an array reference, all the
+features contained in the array will be incorporated into the track.
+We provide custom code references for the
+<TT
+CLASS="PARAMETER"
+><I
+>-label</I
+></TT
+> and <TT
+CLASS="PARAMETER"
+><I
+>-description</I
+></TT
+>
+options.  As we shall see later, the subroutines these code references
+point to are responsible for extracting names and descriptions for the
+coding regions.  After we handle this special case, we remove the CDS
+feature type from the <TT
+CLASS="VARNAME"
+>%sorted_features</TT
+>
+array.</P
+><P
+>We do the same thing for tRNA features, but alter the graphical
+options very slightly (lines 60-72).  </P
+><P
+>We are now ready to draw the remainder of the features.  Since we
+don't know in advance what to expect, we initialize an array of 9
+color names and simply cycle through them (lines 73-75).  For each
+feature tag, we retrieve the list of features and create a track for
+it using the "generic" glyph and the next color in the cycle (lines
+78-87).  We use a subroutine named
+<TT
+CLASS="FUNCTION"
+>generic_description()</TT
+> to generate an appropriate
+description for each feature.</P
+><P
+>After adding all the feature types, we call the panel's
+<TT
+CLASS="FUNCTION"
+>png()</TT
+> method to generate a graphic file, which we
+print to STDOUT.</P
+><P
+>The <TT
+CLASS="FUNCTION"
+>gene_label()</TT
+> (lines 91-100) and
+<TT
+CLASS="FUNCTION"
+>gene_description()</TT
+> (lines 101-112) subroutines
+are simple.  The first one searches the feature for the tags "product"
+and/or "gene" and uses the first one it finds as the label for the
+feature.  The <TT
+CLASS="FUNCTION"
+>gene_description()</TT
+> subroutine is
+similar, except that it returns the value of the first tag named
+"note".  If the description is over 30 characters long, it is
+truncated.</P
+><P
+>The <TT
+CLASS="FUNCTION"
+>generic_description()</TT
+> (lines 113-122) is
+invoked to generate descriptions of all non-gene features.  We simply
+concatenate together the names and values of tags.  For example the
+entry:
+<PRE
+CLASS="PROGRAMLISTING"
+>   source          1..12850
+                   /db_xref="taxon:9606"
+                   /organism="Homo sapiens"
+                   /map="13q34"</PRE
+>
+will be turned into the description string "db_xref=taxon:9606;
+organism=Homo Sapiens; map=13q34".</P
+><P
+>Figure 6 shows an exmaple of the output of this script.</P
+><P
+><DIV
+CLASS="FIGURE"
+><A
+NAME="AEN202"
+></A
+><P
+><B
+>Figure 6. The embl2picture.pl script</B
+></P
+><DIV
+CLASS="MEDIAOBJECT"
+><P
+><IMG
+SRC="graphics/figs/fig5.png"
 ></IMG
 ></P
 ></DIV
@@ -606,8 +1236,8 @@ ALIGN="LEFT"
 VALIGN="TOP"
 WIDTH="5%"
 ><A
-NAME="FTN.AEN85"
-HREF="#AEN85"
+NAME="FTN.AEN88"
+HREF="#AEN88"
 >[1]</A
 ></TD
 ><TD

@@ -1,6 +1,9 @@
 #!/usr/bin/perl
 
+# file: render_blast1.pl
 # This is code example 1 in the Graphics-HOWTO
+# Author: Lincoln Stein
+
 use strict;
 use lib "$ENV{HOME}/projects/bioperl-live";
 use Bio::Graphics;

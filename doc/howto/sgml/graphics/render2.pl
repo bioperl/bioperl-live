@@ -2,7 +2,7 @@
 
 # This is code example 2 in the Graphics-HOWTO
 use strict;
-use lib '/home/lstein/projects/bioperl-live';
+use lib "$ENV{HOME}/projects/bioperl-live";
 use Bio::Graphics;
 use Bio::SeqFeature::Generic;
 

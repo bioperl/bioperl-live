@@ -1,6 +1,9 @@
 #!/usr/bin/perl
 
-# This is code example 3 in the Graphics-HOWTO
+# file: render_blast2.pl
+# This is code example 2 in the Graphics-HOWTO
+# Author: Lincoln Stein
+
 use strict;
 use lib "$ENV{HOME}/projects/bioperl-live";
 use Bio::Graphics;
@@ -23,21 +26,13 @@ my $track = $panel->add_track(-glyph => 'graded_segments',
 			      -label  => 1,
 			      -bgcolor => 'blue',
 			      -min_score => 0,
-			      -max_score => 1000,
-			      -font2color     => 'red',
-			      -sort_order     => 'high_score',
-			      -description => sub {
-				my $feature = shift;
-				my $score   = $feature->score;
-				return "score=$score";
-			       });
+			      -max_score => 1000);
 
 while (<>) { # read blast file
   chomp;
   next if /^\#/;  # ignore comments
   my($name,$score,$start,$end) = split /\t+/;
-  my $feature = Bio::SeqFeature::Generic->new(-score=>$score,
-					      -seqname=>$name,
+  my $feature = Bio::SeqFeature::Generic->new(-seqname=>$name,-score=>$score,
 					      -start=>$start,-end=>$end);
   $track->add_feature($feature);
 }
