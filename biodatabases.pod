@@ -1,4 +1,4 @@
-## $Id: biodatabases.pod,v 1.1 2002-02-05 20:34:13 bosborne Exp $
+## $Id: biodatabases.pod,v 1.2 2002-02-07 21:40:35 bosborne Exp $
 
 #
 # Documentation about the backend of Bioperl
@@ -163,7 +163,7 @@ go
    bpindex.pl swissprot /nfs/datadisk/swiss/swissprot.dat
 
 etc. You are now ready to use bpfetch.pl. See L<Bio::Index::Fasta>, 
-L<Bio::Index::Genbank, L<Bio::Index::Blast>, L<Bio::Index::EMBL>,
+L<Bio::Index::Genbank>, L<Bio::Index::Blast>, L<Bio::Index::EMBL>,
 L<Bio::Index::SwissPfam>, and L<Bio::Index::Swissprot> for more.	
 
 Flat file indexing of Fasta files is also provided by Bio::DB::Fasta,
