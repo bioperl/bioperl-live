@@ -17,7 +17,7 @@ BEGIN {
         use lib 't';
     }
     use Test;
-    plan tests => 30;
+    plan tests => 31;
 }
 
 END { 
@@ -25,7 +25,7 @@ END {
 	
 }
 # redirect STDERR to STDOUT
-#open (STDERR, ">&STDOUT");
+open (STDERR, ">&STDOUT");
 use Bio::Root::IO;
 use Bio::SeqIO;
 use Bio::Seq::SeqWithQuality;
@@ -82,6 +82,10 @@ ok($qualobj->length(),2 );
 $qualobj->qual("10 20 30 40 50 40 30 20 10");
 my @subquals = @{$qualobj->subqual(3,6);};
 ok(@subquals, 4);
+     # chad, note to self, evaluate border conditions
+ok ("30 20 10" eq join(' ',@{$qualobj->subqual(7,9)}));
+
+
 
 my @false_comparator = qw(30 40 70 40);
 my @true_comparator = qw(30 40 50 40);
@@ -95,6 +99,7 @@ eval { $qualobj->subqual(1,9); };
 ok(!$@);
 eval { $qualobj->subqual(9,1); };
 ok($@ =~ /EX/ );
+
 
 ok($qualobj->display_id() eq "chads id");
 $qualobj->display_id("chads new display_id");

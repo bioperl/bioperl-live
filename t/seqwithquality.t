@@ -3,7 +3,7 @@
 ## $Id$
 
 use strict;
-#require 'dumpvar.pl';
+use Dumpvalue;
 
 BEGIN {
 	# to handle systems with no installed Test module
@@ -17,6 +17,8 @@ BEGIN {
     plan tests => 18;
 }
 
+
+my $dumper = new Dumpvalue();
 my $DEBUG = $ENV{'BIOPERLDEBUG'};
 
         # redirect STDERR to STDOUT
@@ -46,6 +48,7 @@ ok(!$@);
 
 # create some random quality object with the same number of qualities and the same identifiers
 my $string_quals = "10 20 30 40 50 40 30 20 10";
+my $indices = "5 10 15 20 25 30 35 40 45";
 my $qualobj;
 eval {
 $qualobj = Bio::Seq::PrimaryQual->new( -qual => $string_quals,
@@ -55,10 +58,12 @@ $qualobj = Bio::Seq::PrimaryQual->new( -qual => $string_quals,
 };
 ok(!$@);
 
-# check to see what happens when you construct the SeqWithQuality object
+     # check to see what happens when you construct the SeqWithQuality object
 my $swq1 = Bio::Seq::SeqWithQuality->new( -seq	=>	$seqobj,
 					-qual		=>	$qualobj);
 ok(!$@);
+
+
 
 print("Testing various weird constructors...\n") if $DEBUG;
 print("\ta) No ids, Sequence object, no quality...\n") if $DEBUG;
@@ -159,6 +164,16 @@ print("5. Testing the seq_obj() method...\n") if $DEBUG;
 		ok (ref($retr_seq_obj) eq "Bio::PrimarySeq");
 	print("\t5b) Testing seq_obj(\$ref)...\n") if $DEBUG;
 		$swq1->seq_obj($seqobj);
+
+print("6. Testing the subqual() method...\n");
+     my $t_subqual = "10 20 30 40 50 60 70 80 90";
+     $swq1->qual($t_subqual);
+     print("\t6d) Testing the subqual at the start (border condition)\n");
+          # ok ('1 2 3' eq join(' ',@{$swq1->subqual(1,3)}));
+     print("\t6d) Testing the subqual at the end (border condition)\n");
+          # ok ('7 8 9' eq join(' ',@{$swq1->subqual(7,9)}));
+     print("\t6d) Testing the subqual in the middle\n");
+          # ok ('4 5 6' eq join(' ',@{$swq1->subqual(4,6)}));
 
 
 
