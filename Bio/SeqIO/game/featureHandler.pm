@@ -7,7 +7,10 @@
 #
 
 package Bio::SeqIO::game::featureHandler;
+
 use Bio::SeqFeature::Generic;
+use XML::Handler::Subs;
+
 use vars qw{ $AUTOLOAD @ISA };
 use strict;
 

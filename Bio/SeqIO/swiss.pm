@@ -100,6 +100,7 @@ package Bio::SeqIO::swiss;
 use vars qw(@ISA);
 use strict;
 use Bio::Seq;
+use Bio::SeqIO;
 use Bio::SeqIO::FTHelper;
 use Bio::SeqFeature::Generic;
 use Bio::Species;

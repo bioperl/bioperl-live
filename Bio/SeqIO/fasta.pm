@@ -66,6 +66,8 @@ use strict;
 # Object preamble - inherits from Bio::Root::Object
 
 use Bio::SeqIO;
+use Bio::Seq;
+use Bio::PrimarySeq;
 
 @ISA = qw(Bio::SeqIO);
 

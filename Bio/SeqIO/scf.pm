@@ -78,7 +78,9 @@ methods. Internal methods are usually preceded with a _
 package Bio::SeqIO::scf;
 use strict;
 use vars qw(@ISA);
+
 use Bio::SeqIO;
+use Bio::Seq;
 
 @ISA = qw(Bio::SeqIO);
 

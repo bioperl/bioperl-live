@@ -72,6 +72,7 @@ use strict;
 # Object preamble - inherits from Bio::Root::Object
 
 use Bio::SeqIO;
+use Bio::Seq;
 use Bio::Root::Object;
 use XML::DOM;
 use XML::Handler::BuildDOM;

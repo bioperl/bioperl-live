@@ -6,7 +6,9 @@
 
 package Bio::SeqIO::game::seqHandler;
 use vars qw{ $AUTOLOAD @ISA };
+
 use XML::Handler::Subs;
+use Bio::PrimarySeq;
 
 @ISA = qw(XML::Handler::Subs);
 
