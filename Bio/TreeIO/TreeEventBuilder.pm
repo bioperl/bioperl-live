@@ -72,7 +72,6 @@ use Bio::Root::RootI;
 use Bio::Event::EventHandlerI;
 use Bio::Tree::Tree;
 use Bio::Tree::Node;
-use Bio::Tree::PhyloNode;
 
 @ISA = qw(Bio::Root::RootI Bio::Event::EventHandlerI);
 
@@ -112,7 +111,7 @@ sub start_document {
    my ($self) = @_;   
    $self->{'_lastitem'} = {};
    $self->{'_currentitems'} = [];
-   $self->{'_tree'} = new Bio::Tree::Tree();
+   $self->{'_currentnodes'} = [];
    return;
 }
 
@@ -127,8 +126,30 @@ sub start_document {
 =cut
 
 sub end_document {
-    my ($self) = @_;
-    return $self->{'_tree'};       
+    my ($self) = @_;    
+    
+    # aggregate the nodes into trees basically ad-hoc.
+    while ( scalar @{$self->{'_currentnodes'}} > 1 ) { 
+	my ($right,$left) = ( pop @{$self->{'_currentnodes'}},
+			      pop @{$self->{'_currentnodes'}});
+	
+	my $root = new Bio::Tree::Node();
+	$root->set_Left_Descendent($left);
+	$root->set_Right_Descendent($right);
+	push @{$self->{'_currentnodes'}}, $root;
+    }
+
+    my $root = pop @{$self->{'_currentnodes'}};
+
+    $self->debug("Root node is " . $root->to_string()."\n");
+    $self->debug( "Right is ". $root->get_Right_Descendent->to_string(). "\n");
+    if( $self->verbose > 0 ) { 
+	foreach my $node ( $root->get_Descendents  ) {
+	    $self->debug("node is ". $node->to_string(). "\n");
+	}
+    }
+    my $tree = new Bio::Tree::Tree(-root => $root);
+    return $tree;       
 }
 
 =head2 start_element
@@ -143,14 +164,15 @@ sub end_document {
 =cut
 
 sub start_element{
-   my ($self,$data) = @_;
-   $self->{'_lastitem'}->{$data->{'Name'}} = 1;   
-   $self->{'_lastitem'}->{'current'} = $data->{'Name'};   
+   my ($self,$data) =@_;
+   $self->{'_lastitem'}->{$data->{'Name'}}++;   
+   push @{$self->{'_lastitem'}->{'current'}},$data->{'Name'};
 
    my %data;
+   
    if( $data->{'Name'} eq 'node' ) {
        push @{$self->{'_currentitems'}}, \%data; 
-   }
+   } 
 }
 
 =head2 end_element
@@ -164,22 +186,29 @@ sub start_element{
 =cut
 
 sub end_element{
-   my ($self,$data) = @_;
-
+   my ($self,$data) = @_;   
    if( $data->{'Name'} eq 'node' ) {
-       my $node = pop @{$self->{'_currentitems'}};
        my $tnode;
+       my $node = pop @{$self->{'_currentitems'}};	   
        if( $node->{'-id'} ) { 
-	   $tnode = new Bio::Tree::PhyloNode( %{$node});
-       } else { 
-	   $tnode = new Bio::Tree::Node( %{$node} );
+	   $tnode = new Bio::Tree::Node( %{$node});
+       } else {
+	   my ($right,$left) = ( pop @{$self->{'_currentnodes'}},
+				 pop @{$self->{'_currentnodes'}},
+				 );
+	   $tnode = new Bio::Tree::Node(%{$node});
+	   $tnode->set_Left_Descendent($left);
+	   $tnode->set_Right_Descendent($right);       
+	   $self->debug( join('',("branch len is ", $tnode->branch_length, " right is ", $tnode->get_Right_Descendent()->branch_length, " left is ", $tnode->get_Left_Descendent()->branch_length, "\n")));	   
        }
-       $self->{'_tree'}->add_node($tnode);
-   } elsif( $data->{'Name'} eq 'tree' ) {
-       
+       push @{$self->{'_currentnodes'}}, $tnode;       
+       $self->debug ("added node: nodes in stack is ". scalar @{$self->{'_currentnodes'}}. "\n");       
+   } elsif(  $data->{'Name'} eq 'tree' ) { 
+       $self->debug("end of tree: nodes in stack is ". scalar @{$self->{'_currentnodes'}}. "\n");
+
    }
-   $self->{'_lastitem'}->{$data->{'Name'}} = 0; 
-   $self->{'_lastitem'}->{'current'} = '';   
+   $self->{'_lastitem'}->{$data->{'Name'}}--; 
+   pop @{$self->{'_lastitem'}->{'current'}};
 }
 
 
@@ -199,8 +228,8 @@ sub in_element{
    my ($self,$e) = @_;
 
    return 0 if ! defined $self->{'_lastitem'} || 
-       ! defined $self->{'_lastitem'}->{'current'};
-   return ($e eq $self->{'_lastitem'}->{'current'});
+       ! defined $self->{'_lastitem'}->{'current'}->[-1];
+   return ($e eq $self->{'_lastitem'}->{'current'}->[-1]);
 
 }
 

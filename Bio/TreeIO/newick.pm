@@ -12,7 +12,8 @@
 
 =head1 NAME
 
-Bio::TreeIO::newick - TreeIO implementation for parsing newick/New Hampshire format.
+Bio::TreeIO::newick - TreeIO implementation for parsing 
+    Newick/New Hampshire/PHYLIP format.
 
 =head1 SYNOPSIS
 
@@ -23,15 +24,15 @@ my $tree = $treeio->next_tree;
 
 =head1 DESCRIPTION
 
-Describe the object here
+This module handles parsing and writing of Newick/PHYLIP/New Hampshire format.
 
 =head1 FEEDBACK
 
 =head2 Mailing Lists
 
 User feedback is an integral part of the evolution of this and other
-Bioperl modules. Send your comments and suggestions preferably to
-the Bioperl mailing list.  Your participation is much appreciated.
+Bioperl modules. Send your comments and suggestions preferably to the
+Bioperl mailing list.  Your participation is much appreciated.
 
   bioperl-l@bioperl.org              - General discussion
   http://bioperl.org/MailList.shtml  - About the mailing lists
@@ -74,7 +75,7 @@ use strict;
 
 use Bio::TreeIO;
 use Bio::Event::EventGeneratorI;
-use XML::Handler::Subs;
+#use XML::Handler::Subs;
 
 
 @ISA = qw(Bio::TreeIO );
@@ -96,9 +97,7 @@ sub next_tree{
    return unless $_ = $self->_readline;
    s/\s+//g;
    $self->debug("entry is $_\n");
-   
 #   my $empty = chr(20);
- 
  
    # replace empty labels with a tag
 #   s/\(,/\($empty,/ig;
@@ -114,7 +113,14 @@ sub next_tree{
 	   return $self->_eventHandler->end_document;
        } elsif( $ch eq '(' ) {
 	   $chars = '';
-       } elsif($ch eq ')' || $ch eq ',' ) {
+	   $self->_eventHandler->start_element( {'Name' => 'tree'} )
+       } elsif($ch eq ')' ) {
+	   $self->_eventHandler->characters($chars);
+	   $self->_eventHandler->end_element( {'Name' => 'branch_length'});
+	   $self->_eventHandler->end_element( {'Name' => 'node'} );
+	   $self->_eventHandler->end_element( {'Name' => 'tree'} );
+	   $chars = '';
+       } elsif ( $ch eq ',' ) {
 	   $self->_eventHandler->characters($chars);
 	   $self->_eventHandler->end_element( {'Name' => 'branch_length'});
 	   $self->_eventHandler->end_element( {'Name' => 'node'} );
@@ -133,6 +139,51 @@ sub next_tree{
    return undef;
 }
 
+=head2 write_tree
+
+ Title   : write_tree
+ Usage   : $treeio->write_tree($tree);
+ Function: Write a tree out to data stream in newick/phylip format
+ Returns : none
+ Args    : Bio::Tree::TreeI object
+
+=cut
+
+sub write_tree{
+   my ($self,$tree) = @_;
+   my @data = _write_tree_Helper($tree->get_root_node);
+   $self->_print('(', join(',', @data), ");\n");   
+   return;
+}
+
+sub _write_tree_Helper {
+    my ($node) = @_;
+    return () if (!defined $node);
+    my @data;
+    if( $node->get_Left_Descendent() ) { 
+	my @v =  _write_tree_Helper($node->get_Left_Descendent());
+	if( @v > 1 ) {
+	    $v[0] = "(" . $v[0];	
+	    $v[-1] .= ")";
+	}
+	push @data, @v;
+    }
+    if( $node->get_Right_Descendent() ) { 
+	my @v =  _write_tree_Helper($node->get_Right_Descendent());
+	if( @v > 1 ) { 
+	    $v[0] = "(" . $v[0];	
+	    $v[-1] .= ")";
+	}
+	push @data, @v;
+    }    
+    if(  defined $node->id || defined $node->branch_length) {
+	push @data, sprintf("%s%s",$node->id || '', 
+			    defined $node->branch_length ? ":" .
+			    $node->branch_length : '');
+    }
+
+    return @data;
+}
 
 
 1;
