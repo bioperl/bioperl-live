@@ -18,7 +18,7 @@
 
 
 ## We start with some black magic to print on failure.
-BEGIN { $| = 1; print "1..7\n"; 
+BEGIN { $| = 1; print "1..9\n"; 
 	use vars qw($loaded); }
 END {print "not ok 1\n" unless $loaded;}
 
@@ -36,7 +36,7 @@ print "ok 1\n";    # 1st test passes.
 ## total number of tests that will be run. 
 
 
-my $seq = Bio::PrimarySeq->new(-seq=>'ACTGTGGCGTCAACT',
+my $seq = Bio::PrimarySeq->new(-seq=>'TTGGTGGCGTCAACT',
 			-display_id => 'new-id',
 			-moltype => 'dna',
 			-accession_number => 'X677667',
@@ -53,10 +53,10 @@ $trunc = $seq->trunc(1,4);
 
 print "ok 4\n";
 
-if( $trunc->seq() ne 'ACTG' ) {
+if( $trunc->seq() ne 'TTGG' ) {
    print "not ok 5\n";
    $s = $trunc->seq();
-   print STDERR "Expecting ACTG. Got $s\n";
+   print STDERR "Expecting TTGG. Got $s\n";
 } else {
    print "ok 5\n";
 }
@@ -65,11 +65,28 @@ $rev = $seq->revcom();
 
 print "ok 6\n";
 
-if( $rev->seq() ne 'AGTTGACGCCACAGT' ) {
+if( $rev->seq() ne 'AGTTGACGCCACCAA' ) {
    print "not ok 7\n";
 } else {
    print "ok 7\n";
 }
+
+#
+# Translate
+#
+
+$aa = $seq->translate();
+
+print "ok 8\n";
+
+# tests for non-Methionin initiator codon (AGT) coding for M
+if( $aa->seq ne 'MVAST' ) {
+    print STDERR "Translation: ", $aa->seq, "\n";
+    print "not ok 9\n";
+} else {
+    print "ok 9\n";
+}
+
 
 
 
