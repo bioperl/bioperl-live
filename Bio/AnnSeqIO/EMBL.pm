@@ -162,18 +162,19 @@ sub _initialize {
 
 =cut
 
-sub next_annseq{
+sub next_annseq {
    my ($self,@args) = @_;
    my ($seq,$fh,$c,$line,$name,$desc,$acc,$seqc,$mol,$div, $date, $comment, @date_arr);
    my $annseq = Bio::AnnSeq->new();
 
    $fh = $self->_filehandle();
 
+   $line = <$fh>;   # This needs to be before the first eof() test
+
    if( eof $fh ) {
        return undef; # no throws - end of file
    }
 
-   $line = <$fh>;
    if( $line =~ /^\s+$/ ) {
        while( <$fh> ) {
 	   /\S/ && last;
@@ -257,6 +258,13 @@ sub next_annseq{
 	   $annseq->annotation->add_Reference(@refs);
        }
        
+       # DB Xrefs
+       elsif (/^DR/) {
+	   my @links = &_read_EMBL_DBLink(\$buffer,$fh);
+	   $annseq->annotation->add_DBLink(@links);
+       }
+       
+       # Comments
        elsif (/^CC\s+(.*)/) {
 	   $comment .= $1;
 	   $comment .= " ";
@@ -397,7 +405,7 @@ sub write_annseq {
     # Date lines
     my $switch=0;
     foreach my $dt ( $annseq->each_date() ) {
-        _write_line_EMBL_regex($fh,"DT   ","DT   ",$dt,"\\s\+\|\$",80);
+        _write_line_EMBL_regex($fh,"DT   ","DT   ",$dt,'\s+|$',80);
         $switch=1;
     }
     if ($switch == 1) {
@@ -405,7 +413,7 @@ sub write_annseq {
     }
 
     # Description lines
-    _write_line_EMBL_regex($fh,"DE   ","DE   ",$seq->desc(),"\\s\+\|\$",80);
+    _write_line_EMBL_regex($fh,"DE   ","DE   ",$seq->desc(),'\s+|$',80);
     print $fh "XX\n";
 
     # if there, write the kw line
@@ -433,9 +441,9 @@ sub write_annseq {
         my $OC = join('; ', reverse(@class));
 	$OC =~ s/\;\s+$//;
 	$OC .= ".";
-        _write_line_EMBL_regex($fh,"OC   ","OC   ",$OC,"\; \|\$",80);
+        _write_line_EMBL_regex($fh,"OC   ","OC   ",$OC,'; |$',80);
 	if ($spec->organelle) {
-	    _write_line_EMBL_regex($fh,"OG   ","OG   ",$spec->organelle,"\; \|\$",80);
+	    _write_line_EMBL_regex($fh,"OG   ","OG   ",$spec->organelle,'; |$',80);
 	}
         print $fh "XX\n";
     }
@@ -445,7 +453,7 @@ sub write_annseq {
     foreach my $ref ( $annseq->annotation->each_Reference() ) {
         print $fh "RN   [$t]\n";
         
-        # Blank RP lines are legal, but we need both
+        # Having no RP line is legal, but we need both
         # start and end for a valid location.
         my $start = $ref->start;
         my $end   = $ref->end;
@@ -459,22 +467,42 @@ sub write_annseq {
             print $fh "RX   MEDLINE; $med\n";
         }
 
-        &_write_line_EMBL_regex($fh, "RA   ", "RA   ", $ref->authors,  "\\s\+\|\$", 80);       
-        &_write_line_EMBL_regex($fh, "RT   ", "RT   ", $ref->title,    "\\s\+\|\$", 80);       
-        &_write_line_EMBL_regex($fh, "RL   ", "RL   ", $ref->location, "\\s\+\|\$", 80);
+        &_write_line_EMBL_regex($fh, "RA   ", "RA   ", $ref->authors,  '\s+|$', 80);       
+
+        # If there is no title to the reference, it appears
+        # as a single semi-colon.  All titles must end in
+        # a semi-colon.
+        my $ref_title = $ref->title || '';
+        $ref_title =~ s/[\s;]*$/;/;
+        &_write_line_EMBL_regex($fh, "RT   ", "RT   ", $ref_title,    '\s+|$', 80);       
+
+        &_write_line_EMBL_regex($fh, "RL   ", "RL   ", $ref->location, '\s+|$', 80);
         if ($ref->comment) {
-	    &_write_line_EMBL_regex($fh, "RC   ", "RC   ", $ref->comment, "\\s\+\|\$", 80); 
+	    &_write_line_EMBL_regex($fh, "RC   ", "RC   ", $ref->comment, '\s+|$', 80); 
         }
         print $fh "XX\n";
         $t++;
     }
 
-    # Comment lines
-    foreach my $comment ( $annseq->annotation->each_Comment() ) {
-        _write_line_EMBL_regex($fh, "CC   ", "CC   ", $comment->text, "\\s\+\|\$", 80);
+    # DB Xref lines
+    if (my @db_xref = $annseq->annotation->each_DBLink) {
+        foreach my $dr (@db_xref) {
+            my $db_name = $dr->database;
+            my $prim    = $dr->primary_id;
+            my $opt     = $dr->optional_id || '';
+            
+            my $line = "$db_name; $prim; $opt.";
+            &_write_line_EMBL_regex($fh, "DR   ", "DR   ", $line, '\s+|$', 80);
+        }
         print $fh "XX\n";
     }
 
+    # Comment lines
+    foreach my $comment ( $annseq->annotation->each_Comment() ) {
+        _write_line_EMBL_regex($fh, "CC   ", "CC   ", $comment->text, '\s+|$', 80);
+        print $fh "XX\n";
+    }
+    # "\\s\+\|\$"
 
     ## FEATURE TABLE
 
@@ -579,19 +607,19 @@ sub _print_EMBL_FTHelper {
 
    #print $fh "FH   Key             Location/Qualifiers\n";
    #print $fh  sprintf("FT   %-15s  %s\n",$fth->key,$fth->loc);
-   &_write_line_EMBL_regex($fh,sprintf("FT   %-15s ",$fth->key),"FT                   ",$fth->loc,"\,\|\$",80);
+   &_write_line_EMBL_regex($fh,sprintf("FT   %-15s ",$fth->key),"FT                   ",$fth->loc,'\,|$',80);
    foreach my $tag ( keys %{$fth->field} ) {
        if( ! defined $fth->field->{$tag} ) { next; } 
        foreach my $value ( @{$fth->field->{$tag}} ) {
 	   $value =~ s/\"/\"\"/g;
 	   if ($value eq "_no_value") {
-	       &_write_line_EMBL_regex($fh,"FT                   ","FT                   ","/$tag","\.\|\$",80);
+	       &_write_line_EMBL_regex($fh,"FT                   ","FT                   ","/$tag",'.|$',80);
 	   }
            elsif( $always_quote == 1 || $value !~ /^\d+$/ ) {
-	      &_write_line_EMBL_regex($fh,"FT                   ","FT                   ","/$tag=\"$value\"","\.\|\$",80);
+	      &_write_line_EMBL_regex($fh,"FT                   ","FT                   ","/$tag=\"$value\"",'.|$',80);
            }
            else {
-              &_write_line_EMBL_regex($fh,"FT                   ","FT                   ","/$tag=$value","\.\|\$",80);
+              &_write_line_EMBL_regex($fh,"FT                   ","FT                   ","/$tag=$value",'.|$',80);
            }
 	  # print $fh "FT                   /", $tag, "=\"", $value, "\"\n";
        }
@@ -721,6 +749,44 @@ sub _read_EMBL_Species {
     $make->common_name( $common ) if $common;
     $make->organelle($org) if $org;
     return $make;
+}
+
+=head2 _read_EMBL_DBLink
+
+ Title   : _read_EMBL_DBLink
+ Usage   :
+ Function: Reads the EMBL database cross reference ("DR") lines
+ Example :
+ Returns : A list of Bio::Annotation::DBLink objects
+ Args    :
+
+=cut
+
+sub _read_EMBL_DBLink {
+    my( $buffer, $fh ) = @_;
+    my( @db_link );
+
+    $_ = $$buffer;
+    while (defined( $_ ||= <$fh> )) {
+        
+        if (my($databse, $prim_id, $sec_id)
+                = /^DR   ([^\s;]+);\s*([^\s;]+);\s*([^\s;]+)?\.$/) {
+            my $link = Bio::Annotation::DBLink->new();
+            $link->database   ( $databse );
+            $link->primary_id ( $prim_id );
+            $link->optional_id( $sec_id  ) if $sec_id;
+            push(@db_link, $link);
+	}
+        else {
+            last;
+        }
+        
+        $_ = undef; # Empty $_ to trigger read of next line
+    }
+    
+    $$buffer = $_;
+    
+    return @db_link;
 }
 
 =head2 _filehandle
@@ -901,14 +967,19 @@ sub _write_line_EMBL_regex {
     }
 
     my $subl = $length - (length $pre1) -1 ;
-    my @lines;
 
+    my( @lines );
     while($line =~ m/(.{1,$subl})($regex)/g) {
         push(@lines, $1.$2);
     }
-    chomp(@lines);
+    foreach (@lines) { s/\s+$//; }
+    #chomp(@lines);
+    
+    # Print first line
     my $s = shift(@lines);
     print $fh "$pre1$s\n";
+    
+    # Print the rest
     foreach my $s ( @lines ) {
         print $fh "$pre2$s\n";
     }

@@ -1,6 +1,6 @@
 
 #
-# BioPerl module for Bio::Pfam::Annotation::Link
+# BioPerl module for Bio::Annotation::Link
 #
 # Cared for by Ewan Birney <pfam@sanger.ac.uk>
 #
