@@ -13,14 +13,15 @@ BEGIN {
         use lib 't';
     }
     use Test;
-    plan tests => 38;
+    plan tests => 69;
 }
-
 
 my $DEBUG = $ENV{'BIOPERLDEBUG'};
 
-
 use Bio::Seq::Meta;
+use Bio::Seq::Meta::Array;
+use Data::Dumper;
+
 ok(1);
 
 ok my $seq = Bio::Seq::Meta->new
@@ -49,7 +50,8 @@ $seq->verbose(1);
 # create some random meta values, but not for the last residue
 $metastring = "aa-bb  bb";
 ok $seq->meta($metastring), $metastring. " ";
-
+#print Dumper $seq;
+#exit;
 # truncate the sequence by assignment
 $seq->seq('AT-CGA');
 $seq->alphabet('dna');
@@ -160,3 +162,77 @@ END {
     unlink(Bio::Root::IO->catfile("t","data","test.metafasta.out"));
     unlink(Bio::Root::IO->catfile("t","data","testaln.metafasta.out"));
 }
+
+
+#
+##
+### tests for Meta::Array
+##
+#
+
+ok $seq = Bio::Seq::Meta::Array->new
+    ( -seq => "",
+      -meta => "",
+      -alphabet => 'dna',
+      -id => 'myid'
+    );
+
+# create a sequence object
+ok $seq = Bio::Seq::Meta::Array->new( -seq => "AT-CGATCGA",
+                               -id => 'test',
+                               -verbose => 2
+                             );
+
+ok $seq->meta, "          ";
+
+# create some random meta values, but not for the last residue
+$metastring = "a a - b b 0 b b 0";
+ok join (' ',  @{$seq->meta($metastring)}), $metastring. ' 0';
+ok $seq->meta_text, $metastring. ' 0';
+
+# truncate the sequence by assignment
+$seq->seq('AT-CGA');
+$seq->alphabet('dna');
+ok $seq->meta_text, 'a a - b b 0';
+
+# truncate the sequence with trunc()
+ok $seq->strand(-1), -1;
+ok $seq = $seq->trunc(1,5);
+ok $seq->seq, 'AT-CG';
+ok $seq->meta_text, 'a a - b b';
+ok $seq->strand, -1;
+
+# revcom
+ok $seq = $seq->revcom;
+ok $seq->seq, 'CG-AT';
+ok $seq->meta_text, 'b b - a a';
+ok $seq->strand, 1;
+
+# submeta
+
+ok $seq->subseq(2,4), 'G-A';
+ok $seq->submeta_text(2,4), 'b - a';
+
+ok $seq->submeta_text(2,undef, 'c - c'), 'c - c';
+ok $seq->submeta_text(2,4), 'c - c';
+ok $seq->meta_text, 'b c - c a';
+
+ok $seq->meta_text(''), '0 0 0 0 0';
+ok $seq->submeta_text(2,undef, 'c - c'), 'c - c';
+ok $seq->meta_text, '0 c - c 0';
+
+# add named meta annotations
+$first = '1 10 - 222 23';
+ok $seq->named_meta_text('first', $first), $first;
+ok $seq->named_meta_text('first'), $first;
+$second = '[ [ - ] ]';
+ok $seq->named_meta_text('second', $second);
+
+# undefined range arguments
+ok $seq->named_submeta_text('second', 3, 4), '- ]';
+ok $seq->named_submeta_text('second', 3), '- ] ]';
+ok $seq->named_submeta_text('second'), '[ [ - ] ]';
+
+@names =  $seq->meta_names;
+ok @names, 3;
+ok $names[0], 'DEFAULT';
