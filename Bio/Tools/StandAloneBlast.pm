@@ -250,8 +250,6 @@ use Bio::Root::Object;
 use Bio::Tools::BPbl2seq;
 use Bio::Tools::BPpsilite;
 use Bio::Tools::Blast;
-use File::Temp qw(tempdir tempfile);
-
 
 @ISA = qw(Bio::Root::RootI);
 
@@ -352,7 +350,6 @@ sub _initialize {
 # set default BLAST output file and _READMETHOD
     $self->outfile('./blastreport.out');
     $self->_READMETHOD('BPlite');
-    $self->{_tempfiles} = [];
     while (@args)  {
 	$attr =  shift @args;
 	$value =  shift @args;
@@ -563,18 +560,25 @@ sub _runblast {
 
     $self->throw("$executable call crashed: $? \n")  unless ($status==0) ;
     my $outfile = $self->o() ;	# get outputfilename
-    my $signif = $self->e()  || 1e-5  ; # set significance cutoff to set expectation value or default value
-				# ( may want to make this value vary for different executables)
-# Adjustment of Blast.pm parsing parameters not currently supported
+    my $signif = $self->e()  || 1e-5  ; 
+
+# set significance cutoff to set expectation value or default value
+# (may want to make this value vary for different executables)
+
+
+# Adjustment of Blast.pm parsing parameters not currently supported 
 #
-# If running bl2seq or psiblast (blastpgp with multiple iterations), the specific parsers
-# for these programs must be used (ie BPbl2seq or BPpsilite).  Otherwise either the Blast
-# parser or the BPlite parsers can be selected.
+# If running bl2seq or psiblast (blastpgp with multiple iterations),
+# the specific parsers for these programs must be used (ie BPbl2seq or
+# BPpsilite).  Otherwise either the Blast parser or the BPlite
+# parsers can be selected.
+
     if ($executable eq 'bl2seq')  {
 	open FH, $outfile ;
 	$blast_obj = Bio::Tools::BPbl2seq->new(\*FH);
     }
-    elsif ($executable eq 'blastpgp' && defined $self->j() && $self->j() > 1)  {
+    elsif ($executable eq 'blastpgp' && defined $self->j() && 
+	   $self->j() > 1)  {
 	open FH, $outfile ;
 	$blast_obj = Bio::Tools::BPpsilite->new(-fh=>\*FH);
     }
@@ -590,8 +594,6 @@ sub _runblast {
 	$blast_obj = Bio::Tools::BPlite->new(-fh=>\*FH);
     }
 
-    unlink @{$self->{_tempfiles}};
-    $self->{_tempfiles} = [];
     return $blast_obj;
 }
 
@@ -619,8 +621,7 @@ SWITCH:  {
     }
 #  $input may be an array of BioSeq objects...
     if (ref($input1) eq "ARRAY") {
-	($fh,$infilename1) = &tempfile();
-	push @{$self->{_tempfiles}}, $infilename1;
+	($fh,$infilename1) = $self->tempfile();
 	$temp =  Bio::SeqIO->new(-fh=> $fh, '-format' => 'Fasta');
 	foreach $seq (@$input1) {
 	    unless ($seq->isa("Bio::Seq")) {return 0;}
@@ -631,11 +632,12 @@ SWITCH:  {
     }
 #  $input may be a single BioSeq object...
     elsif ($input1->isa("Bio::Seq")) {
-	($fh,$infilename1) = &tempfile();
-	push @{$self->{_tempfiles}}, $infilename1;
+	($fh,$infilename1) = $self->tempfile();
 
-# just in case $input1 is taken from an alignment and has spaces (ie deletions) indicated
-# within it, we have to remove them - otherwise the BLAST programs will be unhappy
+# just in case $input1 is taken from an alignment and has spaces (ie
+# deletions) indicated within it, we have to remove them - otherwise
+# the BLAST programs will be unhappy
+
 	my $seq_id =  $input1->display_id();
 	my $seq_string =  $input1->seq();
 	$seq_string =~ s/\W+//g; # get rid of spaces in sequence
@@ -656,8 +658,8 @@ SWITCH2:  {
 	last SWITCH2; 
     }
     if ($input2->isa("Bio::Seq")  && $executable  eq 'bl2seq' ) {
-	($fh,$infilename2) = &tempfile();
-	push @{$self->{_tempfiles}}, $infilename2;
+	($fh,$infilename2) = $self->tempfile();
+	
 	$temp =  Bio::SeqIO->new(-fh=> $fh, '-format' => 'Fasta');
 	$temp->write_seq($input2);
 	close $fh;
@@ -667,8 +669,7 @@ SWITCH2:  {
     elsif ($input2->isa("Bio::SimpleAlign")  && 
 	   $executable  eq 'blastpgp' ) {
 # a bit of a lie since it won't be a fasta file
-	($fh,$infilename2) = &tempfile(); 
-	push @{$self->{_tempfiles}}, $infilename2;
+	($fh,$infilename2) = $self->tempfile(); 
 
 # first we retrieve the "mask" that determines which residues should
 # by scored according to their position and which should be scored
