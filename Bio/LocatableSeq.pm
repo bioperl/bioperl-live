@@ -1,4 +1,3 @@
-
 #
 # BioPerl module for Bio::LocatableSeq
 #
@@ -12,7 +11,7 @@
 
 =head1 NAME
 
-Bio::LocatableSeq - DESCRIPTION of Object
+Bio::LocatableSeq - A Sequence object with start/end points on it
 
 =head1 SYNOPSIS
 
@@ -20,11 +19,24 @@ Give standard usage here
 
 =head1 DESCRIPTION
 
-Describe the object here
+
+    # a normal sequence object
+    $locseq->seq();
+    $locseq->id();
+
+    # has start,end points
+    $locseq->start();
+    $locseq->end();
+    
+    # inheriets off RangeI, so range operations possible
+
+    $locseq->overlaps($seqfeature);
 
 =head1 FEEDBACK
 
+
 =head2 Mailing Lists
+
 
 User feedback is an integral part of the evolution of this and other
 Bioperl modules. Send your comments and suggestions preferably to one
@@ -32,6 +44,18 @@ of the Bioperl mailing lists.  Your participation is much appreciated.
 
   bioperl-l@bioperl.org          - General discussion
   http://bio.perl.org/MailList.html             - About the mailing lists
+
+
+The locatable sequence object was developed mainly because the 
+SimpleAlign object requires this functionality, and in the rewrite
+of the Sequence object we had to decide what to do with this.
+
+It is, to be honest, not well integrated with the rest of bioperl, for
+example, the ->trunc function does not return a LocatableSeq object,
+as some might have thought. There are all sorts of nasty gotcha's about
+interactions between coordinate systems when these sort of objects are
+used. 
+
 
 =head2 Reporting Bugs
 
@@ -42,15 +66,14 @@ or the web:
   bioperl-bugs@bio.perl.org
   http://bio.perl.org/bioperl-bugs/
 
+
 =head1 APPENDIX
 
 The rest of the documentation details each of the object methods. Internal methods are usually preceded with a _
 
 =cut
 
-
 # Let the code begin...
-
 
 package Bio::LocatableSeq;
 use vars qw(@ISA);
@@ -62,8 +85,6 @@ use Bio::RangeI;
 # Object preamble - inheriets from Bio::Root::Object
 
 use Bio::Root::Object;
-
-
 
 @ISA = qw(Bio::Seq Bio::RangeI);
 
@@ -93,7 +114,6 @@ sub _initialize {
  Returns : value of start
  Args    : newvalue (optional)
 
-
 =cut
 
 sub start{
@@ -114,7 +134,6 @@ sub start{
  Returns : value of end
  Args    : newvalue (optional)
 
-
 =cut
 
 sub end{
@@ -134,7 +153,6 @@ sub end{
  Function: 
  Returns : value of strand
  Args    : newvalue (optional)
-
 
 =cut
 
@@ -157,14 +175,15 @@ sub strand{
  Returns : 
  Args    :
 
-
 =cut
 
 sub get_nse{
-   my ($self) = @_;
+   my ($self,$char1,$char2) = @_;
   
-   return $self->id() . "/" . $self->start . "-" . $self->end ;
+   if( !defined $char1 ) { $char1 = "/"; }
+   if( !defined $char2 ) { $char2 = "-"; }
+
+   return $self->id() . $char1 . $self->start . $char2 . $self->end ;
 
 }
-
 

@@ -1,4 +1,3 @@
-
 #
 # BioPerl module for SimpleAlign
 #
@@ -81,9 +80,9 @@ User feedback is an integral part of the evolution of this and other Bioperl mod
 Send your comments and suggestions preferably to one of the Bioperl mailing lists.
 Your participation is much appreciated.
 
-    vsns-bcd-perl@lists.uni-bielefeld.de          - General discussion
-    vsns-bcd-perl-guts@lists.uni-bielefeld.de     - Technically-oriented discussion
-    http://bio.perl.org/MailList.html             - About the mailing lists
+   bioperl-l@bioperl.org             - General discussion
+   bioperl-guts-l@bioperl.org        - Automated bug and CVS messages
+   http://bioperl.org/MailList.shtml - About the mailing lists
 
 =head2 Reporting Bugs
 
@@ -111,9 +110,7 @@ The rest of the documentation details each of the object methods. Internal metho
 
 =cut
 
-
 # Let the code begin...
-
 
 package Bio::SimpleAlign;
 use vars qw(@ISA);
@@ -123,7 +120,6 @@ use strict;
 
 use Bio::Root::Object;
 use Bio::LocatableSeq;         # uses Seq's as list 
-
 
 @ISA = qw(Bio::Root::Object);
 # new() is inherited from Bio::Root::Object
@@ -149,9 +145,6 @@ sub _initialize {
   return $make; # success - we hope!
 }
 
-
-
-
 =head2 addSeq
 
  Title     : addSeq
@@ -167,7 +160,6 @@ sub _initialize {
 
 =cut
 
-
 sub addSeq {
     my $self = shift;
     my $seq  = shift;
@@ -181,7 +173,6 @@ sub addSeq {
     $id = $seq->id();
     $start = $seq->start();
     $end  = $seq->end(); 
-
 
     if( !defined $order ) {
 	$order = keys %{$self->{'seq'}};
@@ -204,11 +195,7 @@ sub addSeq {
 
     $self->{'seq'}->{$name} = $seq;
 
-
 }
-
-
-
 
 =head2 column_from_residue_number
 
@@ -264,9 +251,6 @@ sub column_from_residue_number {
 
 }
 
-
-
-
 =head2 consensus_string
 
  Title     : consensus_string
@@ -304,7 +288,6 @@ sub consensus_aa {
     my $point = shift;
     my ($seq,%hash,$count,$letter,$key);
 
-
     foreach $seq ( $self->eachSeq() ) {
 	$letter = substr($seq->seq,$point,1);
 	($letter =~ /\./) && next;
@@ -324,9 +307,6 @@ sub consensus_aa {
     }
     return $letter;
 }
-
-
-
 
 =head2 each_alphabetically
 
@@ -353,7 +333,6 @@ sub each_alphabetically {
 	$hash{$nse} = $seq;
     }
 
-
     foreach $nse ( sort alpha_startend keys %hash) {
 	push(@arr,$hash{$nse});
     }
@@ -375,9 +354,6 @@ sub alpha_startend {
     }
 
 }
-
-
-
 
     
 =head2 eachSeq
@@ -401,16 +377,12 @@ sub eachSeq {
 
     foreach $order ( sort { $a <=> $b } keys %{$self->{'order'}} ) {
 	if( exists $self->{'seq'}->{$self->{'order'}->{$order}} ) {
-	    #print STDOUT sprintf("Putting %s\n", $self->{'order'}->{$order});
 	    push(@arr,$self->{'seq'}->{$self->{'order'}->{$order}});
 	}
     }
 
     return @arr;
 }
-
-
-
 
     
 =head2 eachSeqWithId
@@ -439,11 +411,8 @@ sub eachSeqWithId {
     }
     return @arr; 
 
-
     return @arr;
 }
-
-
 
 sub get_displayname {
     my $self = shift;
@@ -455,8 +424,6 @@ sub get_displayname {
 	return $name;
     }
 }
-
-
 
 =head2 id
 
@@ -478,7 +445,6 @@ sub id {
     
     return $self->{'id'};
 }
-
 
 =head2 is_flush
 
@@ -517,7 +483,6 @@ sub is_flush {
     return 1;
 }
 
-
 =head2 length_aln
 
  Title     : length_aln()
@@ -549,8 +514,6 @@ sub length_aln {
     return $length;
 }
 
-
-
 =head2 map_chars
 
  Title     : map_chars
@@ -570,7 +533,6 @@ sub length_aln {
 
 =cut
 
-
 sub map_chars {
     my $self = shift;
     my $from = shift;
@@ -583,9 +545,6 @@ sub map_chars {
 	$seq->setseq($temp);
     }
 }
-
-
-
 
 sub maxdisplayname_length {
     my $self = shift;
@@ -603,8 +562,6 @@ sub maxdisplayname_length {
     return $maxname;
 }
 
-
-
 sub maxname_length {
     my $self = shift;
     my $maxname = (-1);
@@ -620,9 +577,6 @@ sub maxname_length {
 
     return $maxname;
 }
-
-
-
 
 sub maxnse_length {
     my $self = shift;
@@ -640,8 +594,6 @@ sub maxnse_length {
     return $maxname;
 }
 
-
-
 =head2 no_residues
 
  Title     : no_residues
@@ -657,7 +609,6 @@ sub maxnse_length {
 
 =cut
 
-
 sub no_residues {
     my $self = shift;
     my $count = 0;
@@ -670,8 +621,6 @@ sub no_residues {
 
     return $count;
 }
-
-
 
 =head2 no_sequences
 
@@ -693,8 +642,6 @@ sub no_sequences {
 
     return scalar($self->eachSeq);
 }
-
-
 
 =head2 percentage_identity
 
@@ -729,7 +676,6 @@ sub percentage_identity{
        }
    }
 
-
    foreach my $seq (@seqs)  {
        my @seqChars = $seq->ary();
        for( my $column=0; $column < @seqChars; $column++ ) {
@@ -753,8 +699,6 @@ sub percentage_identity{
    }
    return ($total / $divisor )*100.0;
 }
-
-
 
 =head2 purge
 
@@ -835,9 +779,6 @@ sub purge{
   
   return @ret;
 }
-
-
-
 
 =head2 read_fasta
 
@@ -920,8 +861,6 @@ sub read_fasta {
 }
 	    
 
-
-
 =head2 read_mase
 
  Title     : read_mase
@@ -978,7 +917,6 @@ sub read_mase {
 			    '-end'=>$end, 
 			    );
 
-
 	
 	$self->addSeq($add);
 
@@ -987,9 +925,6 @@ sub read_mase {
 
     return $count;
 }
-
-
-
 
 =head2 read_MSF
 
@@ -1002,7 +937,6 @@ sub read_mase {
  Example :
  Returns : 
  Args    : filehandle
-
 
 =cut
 
@@ -1068,9 +1002,6 @@ sub read_MSF{
    return $count;
 }
 
-
-
-
 =head2 read_Pfam
 
  Title     : read_Pfam
@@ -1111,7 +1042,6 @@ sub read_Pfam {
 	$end = $3;
 	$seq = $4;
 
-
 	$add = new Bio::LocatableSeq('-seq'=>$seq,
 			    '-id'=>$name,
 			    '-start'=>$start,
@@ -1125,7 +1055,6 @@ sub read_Pfam {
 
     return $count;
 }
-
 
 	
 
@@ -1160,8 +1089,6 @@ sub read_Pfam_file {
 
     return $out;
 }
-
-
 
 =head2 read_Prodom
 
@@ -1206,8 +1133,6 @@ sub read_Prodom{
        }
    }
 }
-
-
 
 =head2 read_selex
 
@@ -1286,8 +1211,6 @@ sub read_selex {
     return $count; 
 }
 
-
-
 =head2 read_stockholm
 
  Title     : read_stockholm
@@ -1326,10 +1249,6 @@ sub read_stockholm {
 
     return $self->read_selex($in);
 }
-
-
-
-
 
 =head2 removeSeq
 
@@ -1382,9 +1301,6 @@ sub removeSeq {
     # because eachSeq will handle it
 }
 
-
-
-
 sub set_displayname {
     my $self = shift;
     my $name = shift;
@@ -1393,8 +1309,6 @@ sub set_displayname {
     # print "Setting $name to $disname\n";
     $self->{dis_name}->{$name} = $disname;
 }
-
-
 
 =head2 set_displayname_count
 
@@ -1410,7 +1324,6 @@ sub set_displayname {
  Argument  : 
 
 =cut
-
 
 sub set_displayname_count {
     my $self= shift;
@@ -1437,9 +1350,6 @@ sub set_displayname_count {
 
 }
 
-
-
-
 =head2 set_displayname_flat
 
  Title     : set_displayname_flat
@@ -1464,8 +1374,6 @@ sub set_displayname_flat {
 	$self->set_displayname($nse,$seq->id());
     }
 }
-
-
 
 =head2 set_displayname_normal
 
@@ -1492,8 +1400,6 @@ sub set_displayname_normal {
     }
 }
 
-
-
    
 =head2 sort_alphabetically
 
@@ -1514,7 +1420,6 @@ sub sort_alphabetically {
     my $self = shift;
     my ($seq,$nse,@arr,%hash,$count);
 
-
     foreach $seq ( $self->eachSeq() ) {
 	$nse = $seq->get_nse("-","-");
 	$hash{$nse} = $seq;
@@ -1531,9 +1436,6 @@ sub sort_alphabetically {
     }
 
 }
-
-
-
 
 =head2 uppercase
 
@@ -1562,9 +1464,6 @@ sub uppercase {
       $seq->setseq($temp);
     }
 }
-
-
-
 
 =head2 write_clustalw
 
@@ -1603,7 +1502,6 @@ sub write_clustalw {
     
 }
 
-
 =head2 write_fasta
 
  Title     : write_fasta
@@ -1637,7 +1535,6 @@ sub write_fasta {
 	}
     }
 }
-
 
 =head2 write_MSF
 
@@ -1733,8 +1630,6 @@ sub write_MSF {
     }				
 }
 
-
-
 =head2 write_Pfam
 
  Title     : write_Pfam
@@ -1766,8 +1661,6 @@ sub write_Pfam {
     }
 }
 
-
-
 =head2 write_selex
 
  Title     : write_selex
@@ -1797,9 +1690,6 @@ sub write_selex {
 	print $out sprintf("%s  %s\n",$namestr,$seq->seq());
     }
 }
-
-
-
 
 1;
 
