@@ -2814,7 +2814,7 @@ $restriction_and_sigcleave = sub {
 #
 
 $run_standaloneblast = sub {
-    eval {Bio::Tools::Run::StandAloneBlast; }
+    eval {require Bio::Tools::Run::StandAloneBlast; };
 
 
     print "\nBeginning run_standaloneblast example... \n";
