@@ -1,8 +1,10 @@
 #!/usr/bin/perl
-# $Id: biogetseq,v 1.3 2003-02-20 21:57:03 heikki Exp $
+# $Id: biogetseq,v 1.4 2003-02-20 22:20:56 heikki Exp $
 #
 # OBDA Registry compliant sequence retrieval script
 #
+# Copyright Heikki Lehvaslaiho <heikki@ebi.ac.uk>
+# You may distribute this program under the same terms as perl itself
 
 
 use Bio::DB::Registry;
@@ -34,10 +36,10 @@ while (my $id = shift) {
 
 
 sub usage {
-    print "Usage: biogetseq --dbname embl --format embl -- namespace acc  id [ id ... ]*\n";
+    print "Usage: biogetseq --dbname embl --format embl --namespace acc  id [ id ... ]*\n";
     print "       dbname defaults to embl\n";
     print "       format defaults to embl\n";
     print "       namespace defaults to 'acc' ['id', 'acc', 'version']\n";
-    print "       rest of te arguments is  a list of ids in the given namespace\n";
+    print "       rest of the arguments is  a list of ids in the given namespace\n";
     exit;
 }
