@@ -149,6 +149,8 @@ sub _process {
 	Function : Parses the data between the <sciobj></sciobj> tags.
 	Args     : The string that holds the attributes for <sciobj>.
 	Returns  : Data structure holding the values parsed between the <sciobj></sciobj> tags.
+	Note     : Method(s) that calls this method: _process
+ 		   Method(s) that this method calls: _helper_store_attribute_list , _process_contig
 
 =cut
 sub _process_sciobj {
@@ -163,11 +165,25 @@ sub _process_sciobj {
 	while ($line =~ /<contig\s?(.*?)\s?>/){
 		my $contig = $self->_process_contig(\$line, $1);
 		push @{$sciobj->{'contig'}}, $contig;
+		print "line in _process_sciobj: $line\n"; # $line changes value within the subs called in this sub (_process_contig).
 	}
 
 	return $sciobj;
 }
 # ==================================================================================
+=head2
+
+	Title    : _process_contig
+	Usage    : $self->_process_contig
+	Function : Parses the data between the <contig></contig> tags.
+	Args     : 2 scalars:
+		   - scalar holding the line to be parsed.
+		   - scalar holding the attributes for the <contig> tag to be parsed.
+	Returns  : Data structure holding the values parsed between the <contig></contig> tags.
+	Note     : Method(s) that call this method  : _process_sciobj
+		   Method(s) that this method calls : _one_tag , _process_fragment_order
+
+=cut
 sub _process_contig {
 
 	my ($self, $line, $attribute_line) = @_;
@@ -176,39 +192,51 @@ sub _process_contig {
 	$$line = $self->_readline;
 
 	# One <db_id>:
-	# print "line: $$line\n"; exit;
 	$self->_one_tag($line, \$contig, 'db_id');
+
 
 	# Zero or more <fragment_order>
 	$self->_process_fragment_order($line, \$contig);
-
-
 
 	return $contig;
 
 }
 # ==================================================================================
+=head2
+
+	Title    : _process_fragment_order
+	Usage    : $self->_process_fragment_order
+	Function : Parses the data between the <fragment_order></fragment_order> tags.
+	Args     : 2 scalars:
+		   - scalar holding the value of the line to be parsed.
+		   - reference to a data structure to store the <fragment_order> data.
+	Returns  : Nothing.
+	Note     : Method(s) that call this method  : _process_contig
+	           Method(s) that this method calls : _helper_store_attribute_list , _process_fragment_orientation
+
+=cut
 sub _process_fragment_order {
 
 
-	my ($self, $line, $data_structure) = @_;
+	my ($self, $line, $data_structure) = @_;	# Because I'm passing a reference to a data structure, I don't need to return it
+							# after values have been added.
 
 	while ($$line =~ /<fragment_order\s?(.*?)\s?>/){
 
 		my $fragment_order;
-		$self->_helper_store_attribute_list($1, \$fragment_order);
+		$self->_helper_store_attribute_list($1, \$fragment_order);	# Store the attribute(s) for <fragment_order> into the
+										# $fragment_order data structure.
 		$$line = $self->_readline;
 
 		# One or more <fragment_orientation>
-		$self->_process_fragment_orientation($line, \$fragment_order);
+		$self->_process_fragment_orientation($line, \$fragment_order);  # Don't forget: $line is a reference to a scalar.
 
-		push @{$$data_structure->{'fragment_order'}}, $fragment_order;
+		push @{$$data_structure->{'fragment_order'}}, $fragment_order;  # Store the data between <fragment_order></fragment_order>
+										# in $$data_structure.
 
 	}
 
-	# print "line: $$line\n"; exit;
-
-
+	return;
 
 }
 # ==================================================================================
