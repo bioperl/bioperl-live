@@ -91,13 +91,13 @@ BioPerlTutorial - a tutorial for bioperl
      III.9.1 Extended DNA / RNA alphabet
      III.9.2 Amino Acid alphabet
 
-  IV.  Related projects - biocorba, biopython, biojava, EMBOSS, Ensembl, GFF, AnnotationWorkbench
+  IV.  Related projects - biocorba, biopython, biojava, EMBOSS, Ensembl, GFF, Genquire
      IV.1 Biocorba
      IV.2 Biopython and biojava
      IV.3 EMBOSS
      IV.4 Ensembl and bioperl-db
      IV.5 GFF format and Bio::DB::GFF*
-     IV.6 The Annotation Workbench and bioperl-gui
+     IV.6 Genquire, the Annotation Workbench and bioperl-gui
 
   V.  Appendices
      V.1 Finding out which methods are used by which Bioperl Objects
@@ -358,13 +358,12 @@ for Smith-Waterman alignments- bioperl-ext-0.6 from
 http://bioperl.org/Core/external.shtml
 
 for clustalw alignments-
-http://corba.ebi.ac.uk/Biocatalog/Alignment_Search_software.html/
+http://www.csc.fi/molbio/progs/clustalw/clustalw.html
 
 for tcoffee alignments-
 http://igs-server.cnrs-mrs.fr/~cnotred/Projects_home_page/t_coffee_home_page.html
 
-for local blast searching- ftp://ncbi.nlm.nih.gov/blast
-
+for local blast searching- ftp://ftp.ncbi.nlm.nih.gov/blast/server/current_release/
 =for html <A NAME ="i.3"></A>
 
 =head2  I.3 Installation
@@ -2094,7 +2093,9 @@ wealth of methods, here are just a few:
   @xyz = $atom->xyz;                # the 3D coordinates of the atom
 
 These lines show how one has access to a number of related objects and methods.
-See L<Bio::Structure::IO>, L<Bio::Structure::Entry>, L<Bio::Structure::Model>,
+For examples of typical usage of these modules, see the scripts in the
+examples/structure subdirectory. Also see L<Bio::Structure::IO>, 
+L<Bio::Structure::Entry>, L<Bio::Structure::Model>,
 L<Bio::Structure::Chain>, L<Bio::Structure::Residue>, and
 L<Bio::Structure::Atom> for more information.
 
@@ -2215,11 +2216,11 @@ are also acceptable in a biosequence:
 =for html <A NAME ="IV."></A>
 
 =head1 IV.  Related projects - biocorba, biopython, biojava, Ensembl,
- AnnotationWorkbench / bioperl-gui
+ Genquire /AnnotationWorkbench / bioperl-gui
 
 There are several "sister projects" to bioperl currently under
 development. These include biocorba, biopython, biojava, EMBOSS, Ensembl,
-and the Annotation Workbench (which includes Bioperl-gui).  These are all
+and Genquire / Annotation Workbench (which includes Bioperl-gui).  These are all
 large complex projects and describing them in detail here will not be
 attempted.  However a brief introduction seems appropriate since, in
 the future, they may each provide significant added utility to the
@@ -2315,22 +2316,20 @@ look at L<Bio::DB::GFF>and the load_gff.pl, bulk_load_gff.pl, gadfly_to_gff.pl,
 and sgd_to_gff.pl scripts in the scripts/Bio-DB-GFF directory.
 
 
-=head2 IV.6 The Annotation Workbench and bioperl-gui
+=head2 IV.6 Genquire, the Annotation Workbench and bioperl-gui
 
-The Annotation Workbench (AW) being developed at the Plant
-Biotechnology Institute of the National Research Council of Canada is
-designed to be an integrated suite of tools for examining a sequence,
-predicting gene structure, and creating annotations. The workbench
-features a graphical user interface and is implemented completely in
-perl.  Information about the AW is available at
-http://bioinfo.pbi.nrc.ca/dblock/wiki/html/Bioinfo/AnnotationWorkbench.htm.
-A goal of the AW team is to port much of the functionality of the AW to
-bioperl.  The porting process has begun and displaying a Seq object
-graphically is now possible.  You can download the current version of
-the gui software from the bioperl bioperl-gui CVS directory at
+The Annotation Workbench and Genquire were developed at the Plant
+Biotechnology Institute of the National Research Council of Canada  
+an integrated graphical suite of tools in Perl for examining a sequence,
+predicting gene structure, and creating annotations.  Information about 
+Genquire is available at http://bioinformatics.org/project/?group_id=99. 
+With Genquire and bioperl-gui one can display a Bioperl Seq object
+graphically.  You can download the current version of
+the gui software from the bioperl-gui CVS directory at
 http://cvs.bioperl.org/cgi-bin/viewcvs/viewcvs.cgi/bioperl-gui/?cvsroot=bioperl.
 
-=head2 V.1 Appendix: Finding out which methods are used by which Bioperl Objects
+=head2 V.1 Appendix: Finding out which methods are used by which
+Bioperl Objects
 
 At numerous places in the tutorial, the reader is directed to the
 "documentation included with each of the modules."  As was mentioned in
@@ -3826,7 +3825,7 @@ $bpinspect1 = sub {
 
     @runlist = @ARGV;
     if (scalar(@runlist)==0) {&$display_help;}; # display help if no option
-    if ($runlist[0] == 0) {@runlist = (1..25); }; # argument = 0 means run all tests
+    if ($runlist[0] == 0) {@runlist = (1..26); }; # argument = 0 means run all tests
     foreach $n  (@runlist) {
         if ($n ==100) {my $object = $runlist[1]; &$bpinspect1($object); last;}
         if ($n ==1) {&$access_remote_db; next;}
