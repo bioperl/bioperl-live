@@ -22,9 +22,9 @@ Bio::Tools::Sim4::Results - Results of one Sim4 run
    my $sim4 = Bio::Tools::Sim4::Results->new(-file => 'result.sim4',
                                              -estfirst => 1);
    # to let the order be determined automatically (by length comparison):
-   $sim4 = Bio::Tools::Sim4->new( -file => 'sim4.results' );
+   $sim4 = Bio::Tools::Sim4::Results->new( -file => 'sim4.results' );
    # filehandle:
-   $sim4 = Bio::Tools::Sim4->new( -fh   => \*INPUT );
+   $sim4 = Bio::Tools::Sim4::Results->new( -fh   => \*INPUT );
 
    # parse the results
    while(my $exonset = $sim4->next_exonset()) {
