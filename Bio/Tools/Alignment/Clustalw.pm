@@ -168,8 +168,7 @@ and other Bioperl modules. Send your comments and suggestions preferably
  to one of the Bioperl mailing lists.
 Your participation is much appreciated.
 
-  vsns-bcd-perl@lists.uni-bielefeld.de          - General discussion
-  vsns-bcd-perl-guts@lists.uni-bielefeld.de     - Technically-oriented discussion
+  bioperl-l@bioperl.org          - General discussion
   http://bio.perl.org/MailList.html             - About the mailing lists
 
 =head2 Reporting Bugs
@@ -190,7 +189,7 @@ Email schattner@alum.mit.edu
 The rest of the documentation details each of the object methods. Internal methods are usually preceded with a _
 
 =cut
-
+#'
 
 
 package Bio::Tools::Alignment::Clustalw;
@@ -218,7 +217,7 @@ my $clustaldir = $ENV{CLUSTALDIR} || '';
 my $program =   $clustaldir.'clustalw' ;
 
 unless (exists_clustal()) {
-	warn "Clustalw program not found or not executable. \n  Clustalw can be obtained from eg- http://corba.ebi.ac.uk/Biocatalog/Alignment_Search_software.html/ \n";
+	warn "Clustalw program not found as $program or not executable. \n  Clustalw can be obtained from eg- http://corba.ebi.ac.uk/Biocatalog/Alignment_Search_software.html/ \n";
 }
 # Object preamble - inherits from Bio::Root::Object
 
@@ -268,8 +267,6 @@ my %ok_field;
 # Authorize attribute fields
 foreach my $attr ( @clustal_params, @clustalw_switches, @other_switches ) { $ok_field{$attr}++; }
 
-return 1;     # Needed to keep compiler happy
-
 # new() is inherited from Bio::Root::Object
 
 # _initialize is where the heavy stuff will happen when new is called
@@ -277,7 +274,7 @@ return 1;     # Needed to keep compiler happy
 sub _initialize {
     my($self,@args) = @_;
     my ($attr, $value);
-    my $make = $self->SUPER::_initialize;
+    my $make = $self->SUPER::_initialize(@args);
     while (@args)  {
 	$attr =  shift @args;
 	$value =  shift @args;
@@ -320,10 +317,12 @@ Function: Determine whether clustalw program can be found on current host
 # is a little kludgy; there's probably a better way...
 
 sub exists_clustal {
-my $commandstring = "$program".' -options >/dev/null 2>/dev/null ';
-eval {my $status = system($commandstring); } ;
-if ($@)  {return 0;}
-return 1;
+    my $commandstring = "$program".' -options >/dev/null 2>&1';
+    eval {my $status = system($commandstring); } ;
+    if ($@ || ($? != 0))  {
+	return 0;
+    }
+    return 1;
 }
 
 =head2  align
@@ -570,3 +569,5 @@ if ($self->quiet()) { $param_string .= '  >/dev/null';}
 
 return $param_string;
 }
+
+1; # Needed to keep compiler happy
