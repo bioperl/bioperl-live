@@ -84,14 +84,11 @@ use Bio::SeqIO;
 
 @ISA = qw(Bio::SeqIO);
 
-sub new {
-  my $class = shift;
-  my $self = $class->SUPER::new(@_);
-  unless ($self->_filehandle) {
-    # special processing to simulate <>
-    unshift '-',@ARGV unless @ARGV;
-  }
-  $self;
+# _initialize is where the heavy stuff will happen when new is called
+
+sub _initialize {
+  my($self,@args) = @_;
+  return unless my $make = $self->SUPER::_initialize(@args);
 }
 
 =head2 next_seq
