@@ -114,7 +114,7 @@ email or the web:
 
 =head1 AUTHOR
 
-Ewan Birney <birney@ebi.ac.uk>
+Ewan Birney E<lt>birney@ebi.ac.ukE<gt>
 
 =cut
 

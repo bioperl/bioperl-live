@@ -17,7 +17,7 @@ Bio::SeqFeature::Exon
       -strand => '1',
       -source => 'cDNA_alignment',
       -score => '100',
-      type => 'internal');   # Descr. of the Exon type; *not* Cont.Vocab.
+      -type => 'internal');   # Descr. of the Exon type; *not* Cont.Vocab.
 
 
 =head1 DESCRIPTION
@@ -53,7 +53,7 @@ Mark Wilkinson (mwilkinson@gene.pbi.nrc.ca)
 
 identical to SeqFeature::Generic except for:
 
-=head2 type
+=head2 type()
 
   Usage:  $Exon->type($type);
   Args:   optional string indicating new type
@@ -142,6 +142,7 @@ sub new {
     }
 
 }
+
 =head2 valid_types
 
  Title   : valid_types

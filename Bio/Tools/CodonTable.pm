@@ -57,7 +57,6 @@ since that is what they try to represent. A bit more complete picture
 of the full complexity of codon usage in various taxonomic groups
 presented at the NCBI Genetic Codes Home page.
 
-
 CodonTable is a BioPerl class that knows all current translation
 tables that are used by primary nucleotide sequence databases
 (GenBank, EMBL and DDBJ). It provides methods to output information
@@ -72,9 +71,10 @@ acid transcripts. The CodonTable object accepts codons of both type as
 input and allows the user to set the mode for output when reverse
 translating. Its default for output is DNA.
 
-Note: This class deals with individual codons and amino acids, only.
-      Call it from your own objects to translate and reverse translate
-      longer sequences.
+Note: This class deals primarily with individual codons and amino
+      acids. However in the interest of speed you can L<translate>
+      longer sequence, too. The full complexity of protein translation
+      is tackled by L<Bio::PrimarySeqI::translate>.
 
 
 The amino acid codes are IUPAC recommendations for common amino acids:

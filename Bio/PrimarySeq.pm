@@ -191,6 +191,7 @@ BEGIN {
            -desc        => description text
            -moltype     => molecule type (dna,rna,prot)
            -id          => alias for display id
+
 =cut
 
 

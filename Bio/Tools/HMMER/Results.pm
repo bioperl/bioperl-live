@@ -23,7 +23,7 @@ Bio::Tools::HMMER::Results - Object representing HMMER output results
 	   " score ",$domain->bits,"\n";
        }
    }
-  
+
    # new result object on a sequence/domain cutoff of 25 bits sequence, 15 bits domain
    $newresult = $res->filter_on_cutoff(25,15);
 
@@ -399,7 +399,6 @@ sub write_ascii_out {
 	    
 }
 
-
 =head2 write_GDF_bits
 
  Title   : write_GDF_bits
@@ -409,7 +408,7 @@ sub write_ascii_out {
  Args    :
 
 =cut
-    
+
 sub write_GDF_bits {
     my $self = shift;
     my $seqt = shift;
