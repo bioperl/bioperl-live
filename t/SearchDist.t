@@ -4,20 +4,19 @@
 
 use Test;
 use strict;
+use vars qw($skip);
 BEGIN { 
-    plan tests => 5; 
-    eval {
-	require Bio::SearchDist;
-	require Bio::Ext::Align;
-    };
+    local * STDERR;
+    eval { require Bio::Ext::Align };
     if ( $@ ) {
-	for(my $i=1;$i<=5;$i++) {	    
-	    skip(1, 'could not find Bio::SearchDist');
-	}
+	plan tests => 1;
+	skip(1, 'Bio::Ext::Align no loaded', 'Bio::Ext::Align no loaded', 
+	     'Bio::Ext::Align no loaded');
 	exit(0);
     }
+    plan tests => 3; 
 }
-
+use Bio::SearchDist;
 ok(1);
 
 my $dist = new Bio::SearchDist;
@@ -32,5 +31,5 @@ ok $dis->fit_evd(), 1;
 
 foreach $score ( @scores ) {
     my $evalue = $dist->evalue($score);
-    print "Score $score had an evalue of $evalue\n";
+#    print SDTERR "Score $score had an evalue of $evalue\n";
 }
