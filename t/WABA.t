@@ -71,8 +71,10 @@ while( my $wabar = $wabain->next_result )  {
 	    ok(length($wabahsp->query_string), $wabahsp->length('total'));
 	    ok(length($wabahsp->hit_string), $wabahsp->length('total'));
 	    ok(length($wabahsp->hmmstate_string), $wabahsp->length('total'));
-	    ok($wabahsp->gaps('hit'), $wabahsp->hit_string =~ tr/\-//);
-	    ok($wabahsp->gaps('query'), $wabahsp->query_string =~ tr/\-//);
+	    my $hs = $wabahsp->hit_string;
+	    ok($wabahsp->gaps('hit'), $hs  =~ tr/\-//);
+	    my $qs = $wabahsp->query_string;
+	    ok($wabahsp->gaps('query'),  $qs =~ tr/\-//);
 	    ok(sprintf("%.1f",$wabahsp->percent_identity),shift @hsp);
 	}
     }
