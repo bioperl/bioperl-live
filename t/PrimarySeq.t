@@ -15,7 +15,7 @@ BEGIN {
 	use lib 't';
     }
     use Test;
-    plan tests => 20;
+    plan tests => 23;
 }
 use Bio::PrimarySeq;
 use Bio::Location::Simple;
@@ -61,9 +61,15 @@ ok( $seq->subseq($fuzzy), 'GGTGGC');
 
 my $trunc = $seq->trunc(1,4);
 ok defined $trunc;
-ok $trunc->length, 4;
 ok $trunc->seq(), 'TTGG', "Expecting TTGG. Got ".$trunc->seq();
 
+$trunc = $seq->trunc($splitlocation);
+ok( defined $trunc);
+ok( $trunc->seq(), 'TTGGTGACGC');
+
+$trunc = $seq->trunc($fuzzy);
+ok( defined $trunc);
+ok( $trunc->seq(), 'GGTGGC');
 
 my $rev = $seq->revcom();
 ok defined $rev; 

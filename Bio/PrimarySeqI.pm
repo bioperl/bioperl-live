@@ -456,26 +456,28 @@ sub revcom{
 
 sub trunc{
    my ($self,$start,$end) = @_;
-
-   if( !$end ) {
+   
+   my $str;
+   if( defined $start && ref($start) &&
+       $start->isa('Bio::LocationI') ) {
+       $str = $self->subseq($start); # start is a location actually
+   } elsif( !$end ) {
        if( $self->can('throw')  ) {
 	   $self->throw("trunc start,end");
        } else {
 	   confess("[$self] trunc start,end");
        }
-   }
-
-   if( $end < $start ) {
-        my $msg = "start $start is greater than end $end. if you want to truncated and reverse complement, you must call trunc followed by revcom. Sorry.";
+   } elsif( $end < $start ) {
+       my $msg = "start $start is greater than end $end. if you want to truncated and reverse complement, you must call trunc followed by revcom. Sorry.";
        if( $self->can('throw')  ) {
 	   $self->throw($msg);
        } else {
 	   confess($msg);
        }
+   } else { 
+       $str = $self->subseq($start,$end);
    }
-
-   my $str = $self->subseq($start,$end);
-
+   
    my $seqclass;
    if($self->can_call_new()) {
        $seqclass = ref($self);
@@ -483,6 +485,7 @@ sub trunc{
        $seqclass = 'Bio::PrimarySeq';
        $self->_attempt_to_load_Seq();
    }
+
    my $out = $seqclass->new( '-seq' => $str,
 			     '-display_id'  => $self->display_id,
 			     '-accession_number' => $self->accession_number,
