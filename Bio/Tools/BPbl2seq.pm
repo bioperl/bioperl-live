@@ -45,7 +45,7 @@ the report format is similar to that of a conventional BLAST, there are a
 few differences so that the standard bioperl BLAST parsers Blast.pm and
 BPlite are unable to read bl2seq reports directly.
 
-From the user's perspective, the main difference between bl2seq and
+From the user\'s perspective, the main difference between bl2seq and
 other blast reports is that the bl2seq report does not print out the
 name of the first of the two aligned sequences.  (The second sequence
 name is given in the report as the name of the "hit").  Consequently,
@@ -102,7 +102,6 @@ This software is provided "as is" without warranty of any kind.
 
 =cut
 
-#'
 
 package Bio::Tools::BPbl2seq;
 
@@ -141,7 +140,9 @@ sub new {
 
     my ($score,$bits,$match,$positive,$p,$qb,$qe,$sb,$se,$qs,
 	$ss,$hs,$qname,$sname,$qlength,$slength) = $self->_parsebl2seq($query);
-    unless ( $positive ) {
+    if( ! defined $bits && $score == 0 ) { 
+	return $self;
+    } elsif ( ! $positive ) {
 	$self->throw("No match found or other problem parsing bl2seq report");
     }
 
