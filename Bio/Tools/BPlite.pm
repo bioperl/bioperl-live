@@ -392,7 +392,7 @@ sub _parseHeader {
 	      $length = $1;
 	      $length =~ s/,//g;
 	  } else { 
-	      print "length is 0 for '$query'\n";
+	      $self->debug("length is 0 for '$query'\n");
 	  }
 	  $self->{'QUERY'} = $query;
 	  $self->{'LENGTH'} = $length;
