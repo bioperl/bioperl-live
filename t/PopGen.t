@@ -19,7 +19,7 @@ BEGIN {
 	use lib 't';
     }
     use vars qw($NTESTS);
-    $NTESTS = 53;
+    $NTESTS = 69;
     $error = 0;
 
     use Test;
