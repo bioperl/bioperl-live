@@ -370,18 +370,31 @@ sub add_relationship{
 =head2 get_relationships
 
  Title   : get_relationships
- Usage   : get_relationships(): RelationshipI[]
- Function: Retrieves all relationship objects.
+ Usage   : get_relationships(TermI term): RelationshipI[]
+ Function: Retrieves all relationship objects in the ontology, or all
+           relationships of a given term.
  Example :
- Returns : Array of RelationshipI objects
- Args    :
+ Returns : Array of Bio::Ontology::RelationshipI objects
+ Args    : Optionally, a Bio::Ontology::TermI compliant object
 
 
 =cut
 
 sub get_relationships{
     my $self = shift;
-    return grep { $_->ontology == $self;} $self->engine->get_relationships(@_);
+    my $term = shift;
+    if($term) {
+	# we don't need to filter in this case
+	return $self->engine->get_relationships($term);
+    } 
+    # else we need to filter by ontology
+    return grep { my $ont = $_->ontology;
+		  # the first condition is a superset of the second, but
+		  # we add it here for efficiency reasons, as many times
+		  # it will short-cut to true and is supposedly faster than
+		  # string comparison
+		  ($ont == $self) || ($ont->name eq $self->name);
+	      } $self->engine->get_relationships(@_);
 }
 
 =head2 get_predicate_terms
@@ -398,8 +411,8 @@ sub get_relationships{
 
 sub get_predicate_terms{
     my $self = shift;
-    return grep { $_->ontology == $self; }
-                $self->engine->get_predicate_terms(@_);
+    return grep { $_->ontology->name eq $self->name;
+	      } $self->engine->get_predicate_terms(@_);
 }
 
 =head2 get_child_terms
@@ -526,7 +539,13 @@ sub get_ancestor_terms{
 
 sub get_leaf_terms{
     my $self = shift;
-    return grep { $_->ontology == $self; } $self->engine->get_leaf_terms(@_);
+    return grep { my $ont = $_->ontology;
+		  # the first condition is a superset of the second, but
+		  # we add it here for efficiency reasons, as many times
+		  # it will short-cut to true and is supposedly faster than
+		  # string comparison
+		  ($ont == $self) || ($ont->name eq $self->name);
+	      } $self->engine->get_leaf_terms(@_);
 }
 
 =head2 get_root_terms()
@@ -545,7 +564,13 @@ sub get_leaf_terms{
 
 sub get_root_terms{
     my $self = shift;
-    return grep { $_->ontology == $self; } $self->engine->get_root_terms(@_);
+    return grep { my $ont = $_->ontology;
+		  # the first condition is a superset of the second, but
+		  # we add it here for efficiency reasons, as many times
+		  # it will short-cut to true and is supposedly faster than
+		  # string comparison
+		  ($ont == $self) || ($ont->name eq $self->name);
+	      } $self->engine->get_root_terms(@_);
 }
 
 =head2 get_all_terms
@@ -567,7 +592,13 @@ sub get_root_terms{
 
 sub get_all_terms{
     my $self = shift;
-    return grep { $_->ontology == $self; } $self->engine->get_all_terms(@_);
+    return grep { my $ont = $_->ontology;
+		  # the first condition is a superset of the second, but
+		  # we add it here for efficiency reasons, as many times
+		  # it will short-cut to true and is supposedly faster than
+		  # string comparison
+		  ($ont == $self) || ($ont->name eq $self->name);
+	      } $self->engine->get_all_terms(@_);
 }
 
 =head2 find_terms
@@ -594,7 +625,52 @@ sub get_all_terms{
 
 sub find_terms{
     my $self = shift;
-    return grep { $_->ontology == $self; } $self->engine->find_terms(@_);
+    return grep { $_->ontology->name eq $self->name;
+	      } $self->engine->find_terms(@_);
+}
+
+=head1 Factory for relationships and terms
+
+=cut
+
+=head2 relationship_factory
+
+ Title   : relationship_factory
+ Usage   : $fact = $obj->relationship_factory()
+ Function: Get (and set, if the engine supports it) the object
+           factory to be used when relationship objects are created by
+           the implementation on-the-fly.
+
+ Example : 
+ Returns : value of relationship_factory (a Bio::Factory::ObjectFactory
+           compliant object)
+ Args    : 
+
+
+=cut
+
+sub relationship_factory{
+    return shift->engine->relationship_factory(@_);
+}
+
+=head2 term_factory
+
+ Title   : term_factory
+ Usage   : $fact = $obj->term_factory()
+ Function: Get (and set, if the engine supports it) the object
+           factory to be used when term objects are created by
+           the implementation on-the-fly.
+
+ Example : 
+ Returns : value of term_factory (a Bio::Factory::ObjectFactory
+           compliant object)
+ Args    : 
+
+
+=cut
+
+sub term_factory{
+    return shift->engine->term_factory(@_);
 }
 
 

@@ -133,17 +133,17 @@ ok (scalar(@terms), 6);
 
 # pull out all relationships
 my @rels = $ont->get_relationships();
-my @relset = grep { $_->parent_term->name eq "sofa"; } @rels;
+my @relset = grep { $_->object_term->name eq "sofa"; } @rels;
 ok (scalar(@relset), 1);
-@relset = grep { $_->child_term->name eq "sofa"; } @rels;
+@relset = grep { $_->subject_term->name eq "sofa"; } @rels;
 ok (scalar(@relset), 1);
-@relset = grep { $_->parent_term->name eq "feature"; } @rels;
+@relset = grep { $_->object_term->name eq "feature"; } @rels;
 ok (scalar(@relset), 10);
-@relset = grep { $_->child_term->name eq "feature"; } @rels;
+@relset = grep { $_->subject_term->name eq "feature"; } @rels;
 ok (scalar(@relset), 1);
-@relset = grep { $_->parent_term->identifier eq "SO:0000233"; } @rels;
+@relset = grep { $_->object_term->identifier eq "SO:0000233"; } @rels;
 ok (scalar(@relset), 4);
-@relset = grep { $_->relationship_type->name eq "IS_A" } @relset;
+@relset = grep { $_->predicate_term->name eq "IS_A" } @relset;
 ok (scalar(@relset), 2);
 
 # relationships for a specific term only
@@ -153,7 +153,7 @@ ok ($term->identifier, "SO:0000233");
 ok ($term->name, "processed_transcript");
 @rels = $ont->get_relationships($term);
 ok (scalar(@rels), 5);
-@relset = grep { $_->relationship_type->name eq "IS_A"; } @rels;
+@relset = grep { $_->predicate_term->name eq "IS_A"; } @rels;
 ok (scalar(@relset), 3);
-@relset = grep { $_->parent_term->identifier eq "SO:0000233"; } @rels;
+@relset = grep { $_->object_term->identifier eq "SO:0000233"; } @rels;
 ok (scalar(@relset), 4);

@@ -67,12 +67,6 @@ email or the web:
 Email hlapp at gmx.net
 
 
-=head1 CONTRIBUTORS
-
-This is mostly copy-and-paste with subsequent adaptation from
-Bio::Seq::SeqFactory by Jason Stajich. Most credits should in fact go
-to him.
-
 =head1 APPENDIX
 
 The rest of the documentation details each of the object methods.
@@ -89,9 +83,9 @@ use vars qw(@ISA);
 use strict;
 
 use Bio::Root::Root;
-use Bio::Factory::ObjectFactoryI;
+use Bio::Factory::ObjectFactory;
 
-@ISA = qw(Bio::Root::Root Bio::Factory::ObjectFactoryI);
+@ISA = qw(Bio::Factory::ObjectFactory);
 
 =head2 new
 
@@ -110,11 +104,9 @@ sub new {
     my($class,@args) = @_;
 
     my $self = $class->SUPER::new(@args);
-  
-    my ($type) = $self->_rearrange([qw(TYPE)], @args);
 
-    $self->{'_loaded_types'} = {};
-    $self->type($type) if $type;
+    $self->interface("Bio::ClusterI");
+    $self->type($self->type) if $self->type;
 
     return $self;
 }
@@ -146,62 +138,10 @@ sub create_object {
    if(! $type) {
        # we need to guess this
        $type = $self->_guess_type(@args);
-       if(! $type) {
-	   $self->throw("No cluster type set and unable to guess.");
-       }
-       # load dynamically if it hasn't been loaded yet
-       if(! $self->{'_loaded_types'}->{$type}) {
-	   eval {
-	       $self->_load_module($type);
-	       $self->{'_loaded_types'}->{$type} = 1;
-	   };
-	   if($@) {
-	       $self->throw("Bio::ClusterI implementation $type ".
-			    "failed to load: ".$@);
-	   }
-       }
+       $self->throw("No cluster type set and unable to guess.") unless $type;
+       $self->type($type);
    }
    return $type->new(-verbose => $self->verbose, @args);
-}
-
-=head2 type
-
- Title   : type
- Usage   : $obj->type($newval)
- Function: Get/set the type of L<Bio::ClusterI> object to be created.
-
-           This may be changed at any time during the lifetime of this
-           factory.
-
- Returns : value of type
- Args    : newvalue (optional)
-
-
-=cut
-
-sub type{
-    my $self = shift;
-
-    if(@_) {
-	my $type = shift;
-	if($type && (! $self->{'_loaded_types'}->{$type})) {
-	    eval {
-		$self->_load_module($type);
-	    };
-	    if( $@ ) {
-		$self->throw("Cluster implementation '$type' failed to load: ".
-			     $@);
-	    }
-	    my $a = bless {},$type;
-	    if( ! $a->isa('Bio::ClusterI') ) {
-		$self->throw("'$type' does not implement Bio::ClusterI. ".
-			     "Too bad.");
-	    }
-	    $self->{'_loaded_types'}->{$type} = 1;
-	}
-	return $self->{'type'} = $type;
-    }
-    return $self->{'type'};
 }
 
 =head2 _guess_type
@@ -238,11 +178,5 @@ sub _guess_type{
     # what else could we look for?
     return $type;
 }
-
-#####################################################################
-# aliases for naming consistency or other reasons                   #
-#####################################################################
-
-*create = \&create_object;
 
 1;

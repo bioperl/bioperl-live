@@ -98,7 +98,7 @@ use vars qw( @ISA );
 use strict;
 use Bio::Root::Root;
 use Bio::Ontology::RelationshipType;
-use Bio::Ontology::Relationship;
+use Bio::Ontology::RelationshipFactory;
 use Bio::Ontology::OntologyEngineI;
 
 use constant TRUE     => 1;
@@ -154,6 +154,9 @@ sub init {
 
     $self->graph( Graph::Directed->new() );
 
+    # set defaults for the factories
+    $self->relationship_factory(Bio::Ontology::RelationshipFactory->new(
+				     -type => "Bio::Ontology::Relationship"));
 
 } # init
 
@@ -220,10 +223,7 @@ sub part_of_relationship {
 sub add_term {
     my ( $self, $term ) = @_;
 
-    if ( $self->has_term( $term ) ) {
-        $self->throw("Ontology already contains a term with an ".
-		     "identifier of \"".$self->_get_id($term)."\"" );
-    }
+    return TRUE if $self->has_term( $term );
 
     my $goid = $self->_get_id($term);
 
@@ -355,26 +355,31 @@ sub get_relationships {
     my @childs  = $self->get_child_terms( $term );
     my @parents = $self->get_parent_terms( $term );
 
+    my $relfact = $self->relationship_factory();
     my @rels = ();
 
     foreach my $child ( @childs ) {
-        my $rel = Bio::Ontology::Relationship->new();
-        $rel->object_term( $self->get_terms( $term ) );
-        $rel->subject_term( $child );
-        $rel->predicate_term($g->get_attribute(TYPE, $term,
-						  $child->identifier()));
-	$rel->ontology($g->get_attribute( ONTOLOGY,
-					  $term, $child->identifier()));
+        my $rel = $relfact->create_object(
+                    -object_term    => $self->get_terms( $term ),
+                    -subject_term   => $child,
+                    -predicate_term => $g->get_attribute(TYPE, $term,
+						  $child->identifier()),
+	            -ontology       => $g->get_attribute(ONTOLOGY, $term,
+					          $child->identifier())
+							     );
         push( @rels, $rel );
     }
     foreach my $parent ( @parents ) {
-        my $rel = Bio::Ontology::Relationship->new();
-        $rel->object_term( $parent );
-        $rel->subject_term( $self->get_terms( $term ) );
-        $rel->predicate_term($g->get_attribute(TYPE, $parent->identifier(),
-						  $term) );
-        $rel->ontology( $g->get_attribute(ONTOLOGY,
-					  $parent->identifier(), $term) );
+        my $rel = $relfact->create_object(
+                    -object_term    => $parent,
+                    -subject_term   => $self->get_terms( $term ),
+                    -predicate_term => $g->get_attribute(TYPE,
+							 $parent->identifier(),
+							 $term),
+                    -ontology       => $g->get_attribute(ONTOLOGY,
+							 $parent->identifier(),
+							 $term)
+							     );
         push( @rels, $rel );
     }
 
@@ -400,6 +405,7 @@ sub get_all_relationships {
 
     # we'll traverse the graph in breadth-first order and accumulate the
     # relationships from a node to each one's children 
+    my $relfact = $self->relationship_factory();
     my @rels = ();
     my @terms = $self->get_root_terms();
     # @terms is the stack to be processed: loop while something is on the
@@ -411,7 +417,7 @@ sub get_all_relationships {
 	my @children = $self->get_child_terms($term);
 	# and establish a relationship for each parent-child pair
 	foreach my $child (@children) {
-	    my $rel = Bio::Ontology::Relationship->new(
+	    my $rel = $relfact->create_object(
                           -object_term => $term,
                           -subject_term  => $child,
 			  -predicate_term => $g->get_attribute(TYPE,
@@ -420,7 +426,7 @@ sub get_all_relationships {
 			  -ontology       =>  $g->get_attribute( ONTOLOGY,
 					                 $term->identifier(),
 							 $child->identifier())
-						       );
+								 );
 	    push( @rels, $rel );
 	}
 	# now push the children onto the stack as we have to process them too
@@ -476,9 +482,6 @@ sub get_child_terms {
     return $self->_get_child_parent_terms_helper( $term, TRUE, @types );
 
 } # get_child_terms
-
-
-
 
 
 =head2 get_descendant_terms
@@ -683,7 +686,7 @@ sub get_all_terms {
  Usage   : ($term) = $oe->find_terms(-identifier => "SO:0000263");
  Function: Find term instances matching queries for their attributes.
 
-           This implementation can efficiently resolver queries by
+           This implementation can efficiently resolve queries by
            identifier.
 
  Example :
@@ -714,6 +717,57 @@ sub find_terms{
     return @terms;
 }
 
+=head2 relationship_factory
+
+ Title   : relationship_factory
+ Usage   : $fact = $obj->relationship_factory()
+ Function: Get/set the object factory to be used when relationship
+           objects are created by the implementation on-the-fly.
+
+ Example : 
+ Returns : value of relationship_factory (a Bio::Factory::ObjectFactory
+           compliant object)
+ Args    : on set, a Bio::Factory::ObjectFactory compliant object
+
+
+=cut
+
+sub relationship_factory{
+    my $self = shift;
+
+    return $self->{'relationship_factory'} = shift if @_;
+    return $self->{'relationship_factory'};
+}
+
+=head2 term_factory
+
+ Title   : term_factory
+ Usage   : $fact = $obj->term_factory()
+ Function: Get/set the object factory to be used when term objects are
+           created by the implementation on-the-fly.
+
+           Note that this ontology engine implementation does not
+           create term objects on the fly, and therefore setting this
+           attribute is meaningless.
+
+ Example : 
+ Returns : value of term_factory (a Bio::Factory::ObjectFactory
+           compliant object)
+ Args    : on set, a Bio::Factory::ObjectFactory compliant object
+
+
+=cut
+
+sub term_factory{
+    my $self = shift;
+
+    if(@_) {
+	$self->warn("setting term factory, but ".ref($self).
+		    " does not create terms on-the-fly");
+	return $self->{'term_factory'} = shift;
+    }
+    return $self->{'term_factory'};
+}
 
 =head2 graph
 

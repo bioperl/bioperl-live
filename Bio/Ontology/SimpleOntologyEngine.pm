@@ -76,8 +76,7 @@ use vars qw(@ISA);
 use strict;
 use Carp;
 use Bio::Root::Root;
-use Bio::Ontology::Relationship;
-use Bio::Ontology::Term;
+use Bio::Ontology::RelationshipFactory;
 use Bio::Ontology::OntologyEngineI;
 use Data::Dumper;
 
@@ -106,6 +105,9 @@ sub new{
   $self->_relationship_type_store( {} );
   $self->_instantiated_terms_store( {} );
 
+  # set defaults for the factories
+  $self->relationship_factory(Bio::Ontology::RelationshipFactory->new(
+				     -type => "Bio::Ontology::Relationship"));
   return $self;
 }
 
@@ -459,6 +461,7 @@ sub get_relationships{
     my $term = shift;
     my @rels;
     my $store = $self->_relationship_store;
+    my $relfact = $self->relationship_factory(); 
 
     my @parent_ids = $term ?
 	# if a term is supplied then only get the term's parents
@@ -476,11 +479,12 @@ sub get_relationships{
 	if($term && ($parent_id ne $term->identifier())) {
 	    my $parent_term = $self->get_term_by_identifier($parent_id);
 	    push(@rels,
-		 Bio::Ontology::Relationship->new(
-		    -object_term => $parent_term,
-		    -subject_term => $term,
-		    -predicate_term => $parent_entry->{$term->identifier},
-		    -ontology => $term->ontology())
+		 $relfact->create_object(-object_term    => $parent_term,
+					 -subject_term   => $term,
+					 -predicate_term =>
+					    $parent_entry->{$term->identifier},
+					 -ontology       => $term->ontology()
+					 )
 		 );
 		 
 	} else {
@@ -492,11 +496,13 @@ sub get_relationships{
 		my $rel_info = $parent_entry->{$child_id};
 
 		push(@rels,
-		     Bio::Ontology::Relationship->new(
-		       -object_term => $parent_term,
-		       -subject_term => $self->get_term_by_identifier($child_id),
-                       -predicate_term => $rel_info,
-		       -ontology => $parent_term->ontology())
+		     $relfact->create_object(-object_term    => $parent_term,
+					     -subject_term   =>
+					         $self->get_term_by_identifier(
+							            $child_id),
+					     -predicate_term => $rel_info,
+					     -ontology =>$parent_term->ontology
+					     )
 		     );
 	    }
 	}
@@ -639,7 +645,8 @@ sub get_child_terms{
 
 sub get_descendant_terms{
   my ($self, $term, @relationship_types) = @_;
-  die if !defined $term;
+
+  $self->throw("must provide TermI compliant object") unless defined $term;
 
   return $self->_filter_unmarked( $self->_filter_repeated( $self->get_term_by_identifier( $self->_typed_traversal($self->_relationship_store, 0, $term->identifier, @relationship_types) ) ) );
 }
@@ -817,6 +824,58 @@ sub find_terms{
     return @terms;
 }
 
+
+=head2 relationship_factory
+
+ Title   : relationship_factory
+ Usage   : $fact = $obj->relationship_factory()
+ Function: Get/set the object factory to be used when relationship
+           objects are created by the implementation on-the-fly.
+
+ Example : 
+ Returns : value of relationship_factory (a Bio::Factory::ObjectFactory
+           compliant object)
+ Args    : on set, a Bio::Factory::ObjectFactory compliant object
+
+
+=cut
+
+sub relationship_factory{
+    my $self = shift;
+
+    return $self->{'relationship_factory'} = shift if @_;
+    return $self->{'relationship_factory'};
+}
+
+=head2 term_factory
+
+ Title   : term_factory
+ Usage   : $fact = $obj->term_factory()
+ Function: Get/set the object factory to be used when term objects are
+           created by the implementation on-the-fly.
+
+           Note that this ontology engine implementation does not
+           create term objects on the fly, and therefore setting this
+           attribute is meaningless.
+
+ Example : 
+ Returns : value of term_factory (a Bio::Factory::ObjectFactory
+           compliant object)
+ Args    : on set, a Bio::Factory::ObjectFactory compliant object
+
+
+=cut
+
+sub term_factory{
+    my $self = shift;
+
+    if(@_) {
+	$self->warn("setting term factory, but ".ref($self).
+		    " does not create terms on-the-fly");
+	return $self->{'term_factory'} = shift;
+    }
+    return $self->{'term_factory'};
+}
 
 =head2 _filter_unmarked
 
