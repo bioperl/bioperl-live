@@ -2263,7 +2263,8 @@ See L<Bio::TreeIO> and L<Bio::Tree::Tree> for details.
 
 Using the Bio::Tools::Phylo::PAML module one can also parse the
 results of the PAML tree-building programs codeml, baseml, basemlg,
-codemlsites and yn00. See L<Bio::Tools::Phylo::PAML> for details.
+codemlsites and yn00. See L<Bio::Tools::Phylo::PAML> or the PAML HOWTO
+(http://bioperl.org/HOWTOs/html/PAML.html) for more information.
 
 =head2 III.9.3 Map objects for manipulating genetic maps (Map::MapI, MapIO)
 
