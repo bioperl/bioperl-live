@@ -457,17 +457,17 @@ sub write_seq {
         my($species, @class) = $spec->classification();
         my $genus = $class[0];
         my $OS = "$genus $species";
+	if ($class[$#class] =~ /viruses/i) {
+	    # different OS / OC syntax for viruses LP 09/16/2000
+	    shift @class;
+	}
 	if (my $ssp = $spec->sub_species) {
             $OS .= " $ssp";
         }
-        if (my $common = $spec->common_name) {
-            $OS .= " ($common).";
+	foreach (($spec->variant, $spec->common_name)) {
+            $OS .= " ($_)" if $_;
         }
-	if ($class[$#class] =~ /viruses/i) { # different OS / OC syntax
-	  $OS = $spec->common_name;          # for viruses LP 09/16/2000
-	  unshift @class, $species;
-	}
-        $self->_print( "OS   $OS\n");
+        $self->_print( "OS   $OS.\n");
         my $OC = join('; ', reverse(@class)) .'.';
         $self->_write_line_swissprot_regex("OC   ","OC   ",$OC,"\; \|\$",80);
 	if ($spec->organelle) {
