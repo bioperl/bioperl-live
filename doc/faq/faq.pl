@@ -332,7 +332,7 @@ sub answer {
 sub code {
     my( $t, $code)= @_;
     my $table = new XML::Twig::Elt( 'table');
-    $table->set_att( bgcolor => "light grey", border => 0, cellspacing => 0, cellpadding => 10);
+    $table->set_att( bgcolor => "pink", border => 0, cellspacing => 0, cellpadding => 10);
     my $tr = new XML::Twig::Elt( 'tr');
     $tr->paste($table);
     my $td = new XML::Twig::Elt( 'td');
