@@ -22,16 +22,18 @@
 
 =head1 NAME
 
-Relationship - a relationship type for an ontology
+RelationshipType - a relationship type for an ontology
 
 
 =head1 SYNOPSIS
 
- 
 
 =head1 DESCRIPTION
 
-This is a basic implementation of Bio::Ontology::RelationshipI. 
+This class can be used to model various types of relationships
+(such as "IS_A", "PART_OF", "CONTAINS", "FOUND_IN").
+ 
+This class extends Bio::Ontology::Term. 
 
 =head1 FEEDBACK
 
@@ -78,30 +80,37 @@ methods. Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::Ontology::RelationshipType;
-use vars qw( @ISA $IS_A $PART_OF );
+use vars qw( @ISA $IS_A $PART_OF $CONTAINS $FOUND_IN );
 use strict;
 use Bio::Ontology::Term;
 
 
-use constant PART_OF => "PART_OF";
-use constant IS_A    => "IS_A";
+use constant PART_OF  => "PART_OF";
+use constant IS_A     => "IS_A";
+use constant CONTAINS => "CONTAINS";
+use constant FOUND_IN => "FOUND_IN";
+
 
 @ISA = qw( Bio::Ontology::Term );
 
 
-$IS_A    = Bio::Ontology::RelationshipType->get_instance( IS_A );
-$PART_OF = Bio::Ontology::RelationshipType->get_instance( PART_OF );
+$IS_A     = Bio::Ontology::RelationshipType->get_instance( IS_A );
+$PART_OF  = Bio::Ontology::RelationshipType->get_instance( PART_OF );
+$CONTAINS = Bio::Ontology::RelationshipType->get_instance( CONTAINS );
+$FOUND_IN = Bio::Ontology::RelationshipType->get_instance( FOUND_IN );
 
 
 
 =head2 get_instance
 
  Title   : get_instance
- Usage   : $IS_A    = Bio::Ontology::RelationshipType->get_instance( "IS_A" );
-           $PART_OF = Bio::Ontology::RelationshipType->get_instance( "PART_OF" );  
+ Usage   : $IS_A     = Bio::Ontology::RelationshipType->get_instance( "IS_A" );
+           $PART_OF  = Bio::Ontology::RelationshipType->get_instance( "PART_OF" );
+           $CONTAINS = Bio::Ontology::RelationshipType->get_instance( "CONTAINS" );
+           $FOUND_IN = Bio::Ontology::RelationshipType->get_instance( "FOUND_IN" );   
  Function: Factory method to create instances of RelationshipType
  Returns : [Bio::Ontology::RelationshipType]
- Args    : "IS_A" or "PART_OF" [scalar]
+ Args    : "IS_A" or "PART_OF" or "CONTAINS" or "FOUND_IN" [scalar]
 
 =cut
 
@@ -121,8 +130,20 @@ sub get_instance {
         $instance->name( PART_OF );
         $instance->definition( PART_OF . " relationship type" );
     }
+    elsif ( $value eq CONTAINS ) {
+        $instance->identifier( CONTAINS );
+        $instance->name( CONTAINS );
+        $instance->definition( CONTAINS . " relationship type" );
+    }
+    elsif ( $value eq FOUND_IN ) {
+        $instance->identifier( FOUND_IN );
+        $instance->name( FOUND_IN );
+        $instance->definition( FOUND_IN . " relationship type" );
+    }
     else {
-        $class->throw( "Unknown type of relationship: " . $value );
+        my $msg = "Found unknown type of relationship: [" . $value . "]\n";
+        $msg .= "Known types are: [" . IS_A . "], [" . PART_OF . "], [" . CONTAINS . "], [" . FOUND_IN . "]";
+        $class->throw( $msg );
     }
     
     return $instance;
@@ -173,7 +194,7 @@ sub equals {
     $self->_check_class( $type, "Bio::Ontology::RelationshipType" );
     
     unless ( $self->identifier() && $type->identifier() ) {
-        $self->throw( "Cannot compare RelationshipType with a undef identifier " );
+        $self->throw( "Cannot compare RelationshipType with a undef identifier" );
     } 
     
     return( $self->identifier() eq $type->identifier() ); 
