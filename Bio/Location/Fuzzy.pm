@@ -116,8 +116,8 @@ BEGIN {
 
  Title   : new
  Usage   : my $fuzzyloc = new Bio::Location::Fuzzy( @args);
- Function:
- Returns : 
+ Function: Builds a location with ambiguous start/end range info
+ Returns : Bio::Location::Fuzzy object
  Args    : -start    => value for start  (initialize by superclass)
            -end      => value for end    (initialize by superclass)
            -strand   => value for strand (initialize by superclass)

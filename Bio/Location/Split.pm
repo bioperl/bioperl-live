@@ -87,6 +87,19 @@ BEGIN {
     @CORBALOCATIONOPERATOR= ('NONE','JOIN', undef, 'ORDER');  
 }
 
+=head2 new
+
+ Title   : new
+ Usage   : my $splitloc = new Bio::Location::Split( @args);
+ Function: Builds a location which contains multiple sub pieces
+ Returns : Bio::Location::Split
+ Args    : -split_type => 'JOIN' or 'ORDER'
+           -seq_id   => The ID of the containing sequence for this feature
+           -locations=> array ref of Bio::LocationI objects contained within
+                        this location
+=cut
+
+
 sub new {
     my ($class, @args) = @_;
     my $self = $class->SUPER::new(@args);
