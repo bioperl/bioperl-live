@@ -15,6 +15,8 @@ which has multiple locations (start/end points)
 
 =head1 SYNOPSIS
 
+    use Bio::Location::Split;
+
     my $splitlocation = new Bio::Location::Split();
     $splitlocation->add_sub_Location(new Bio::Location::Simple(-start=>1,
 							       -end=>30,

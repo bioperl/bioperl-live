@@ -14,6 +14,8 @@ Bio::Location::Simple - Implementation of a Simple Location on a Sequence
 
 =head1 SYNOPSIS
 
+    use Bio::Location::Simple;
+
     my $location = new Bio::Location::Simple(-start => 1, -end => 100,
 					     -strand => 1 );
 
