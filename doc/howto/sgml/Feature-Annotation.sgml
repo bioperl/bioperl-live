@@ -170,9 +170,11 @@
   <section id="feat_from_genbank">
     <title>Features from Genbank</title>
     <para>
-      I'll be focusing on the Genbank format but bear in my mind
-      that all of the code shown here will also work on other formats,
-      like EMBL or Swissprot. When the file comes from Genbank it's 
+      I'll be focusing on the Genbank format but bear in mind
+      that most of the code shown here will also work on other formats
+      containing features or annotations (EMBL, Swissprot, BSML,
+      Chado XML, GAME, KEGG, Locuslink, TIGR XML). 
+      When the file comes from Genbank it's 
       easy to see where most of the
       features are, they're in the Feature table section, something
       like this:
@@ -208,9 +210,10 @@ FEATURES             Location/Qualifiers
       Features in Bioperl are accessed using their tags, either a
       "primary tag" or a plain "tag". Examples of primary tags in this 
       text are "source", "gene", and "CDS". Plain tags in this table include
-      "organism" (/organism="Homo sapiens"), "note" (/note="ND"), 
-      "db_xref" (/db_xref="taxon:9606"), and "translation"
-      (/translation="MRKHVL...HCEECNS").
+      "organism" (<emphasis>/organism="Homo sapiens"</emphasis>), "note" 
+	(<emphasis>/note="ND"</emphasis>), 
+      "db_xref" (<emphasis>/db_xref="taxon:9606"</emphasis>), and "translation"
+      (<emphasis>/translation="MRKHVL...HCEECNS"</emphasis>).
     </para>
     <para>
       When a Genbank file like this is parsed the
@@ -515,7 +518,7 @@ FEATURES             Location/Qualifiers
 	</tgroup>
       </table>
     <para>
-      One that might not be self-explanatory is 'WITHIN'. The
+      One type that might not be self-explanatory is 'WITHIN'. The
       example means "starting somewhere between positions 5 and 10,
       inclusive, and ending at 100". 'BETWEEN' is interesting - the
       example means "between 99 and 100, exclusive". A biological example
@@ -679,7 +682,7 @@ tagname : date_changed
       keys in Bioperl, and what they're derived from in Genbank files: 
     </para>
     <table>
-  <title>Annotation Keys</title>
+  <title>Genbank Annotations</title>
       <tgroup cols="4">
 	<thead>
 	<row><entry>Genbank Text</entry><entry>Key</entry><entry>Object Type</entry><entry>Note</entry></row>  
@@ -789,23 +792,196 @@ start: 1
       </tgroup>
     </table>
     These <ulink
-	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Seq/RichSeq.html">Bio::Seq::RichSeq</ulink> objects are created 
-    automatically when you use SeqIO to read from EMBL, GenBank, and 
-    SwissProt files. However, it's not guaranteed that each of these
+      url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Seq/RichSeq.html">Bio::Seq::RichSeq</ulink> objects are created 
+    automatically when you use SeqIO to read from EMBL, GenBank, GAME,
+    Chado XML, TIGR XML, Locuslink, BSML, KEGG, and SwissProt sequence
+    files. However, it's not guaranteed that each of these
     formats will supply data for all of the methods above.
   </section>  
+
+  <section id="other_formats">
+    <title>Other sequence file formats</title>
+    <para>
+      It is worth mentioning other sequence file formats. The table 
+      below shows what sorts of objects, Annotation or 
+      SeqFeature, you'll get when you parse other sequence formats. 
+    </para>
+    <para>
+      <table>
+	<title>Formats, SeqFeatures, and Annotations</title>
+	<tgroup cols="4">
+	  <thead>
+	    <row><entry>Format</entry><entry>SeqIO name</entry>
+	      <entry>SeqFeature</entry><entry>Annotation</entry></row>  
+	  </thead>
+	  <tbody>
+	    <row><entry>Genbank</entry><entry>embl</entry><entry>yes</entry>
+	      <entry>yes</entry></row>
+	    <row><entry>EMBL</entry><entry>genbank</entry><entry>yes</entry>
+	      <entry>yes</entry></row>
+	    <row><entry>GAME</entry><entry>game</entry><entry>yes</entry>
+	      <entry>-</entry></row>
+	    <row><entry>Chado XML</entry><entry>chadoxml</entry><entry>yes</entry>
+	      <entry>yes</entry></row>
+	    <row><entry>TIGR XML</entry><entry>tigr</entry><entry>yes</entry>
+	      <entry>yes</entry></row>
+	    <row><entry>Locuslink</entry><entry>locuslink</entry><entry>-</entry>
+	      <entry>yes</entry></row>
+	    <row><entry>BSML</entry><entry>bsml</entry><entry>yes</entry>
+	      <entry>yes</entry></row>
+	    <row><entry>KEGG</entry><entry>kegg</entry><entry>yes</entry>
+	      <entry>yes</entry></row>
+	    <row><entry>SwissProt</entry><entry>swiss</entry><entry>yes</entry>
+	      <entry>yes</entry></row>
+	  </tbody>
+	</tgroup>
+      </table>
+    </para>
+    <para>
+      How does one find out what data is in which object in these
+      formats? In general the individual module documentation is not
+      going to provide all the answers, you'll need to do some
+      investigation yourself. Let's use an approach we used earlier
+      to dissect a Locuslink entry in a file, "148.ll". Here's the file:     
+    </para>
+    <para>
+      <programlisting>
+LOCUSID: 148
+LOCUS_CONFIRMED: yes
+LOCUS_TYPE: gene with protein product, function known or inferred
+ORGANISM: Homo sapiens
+STATUS: REVIEWED
+NM: NM_000680|4501960|na
+NP: NP_000671|4501961
+PROT: AAA93114|409029
+ACCNUM: M11313|177869|na|na|na
+TYPE: p
+PROT: P35348|1168246
+OFFICIAL_SYMBOL: ADRA1A
+OFFICIAL_GENE_NAME: adrenergic, alpha-1A-, receptor
+ALIAS_SYMBOL: ADRA1C
+SUMMARY: Summary: Alpha-1-ARs are members of the GPCR superfamily. 
+CHR: 8
+STS: SGC35557|8|8124|na|seq_map|epcr
+COMP: 10090|Adra1a|14|14  cM|11549|8|ADRA1A|ncbi_mgd
+ALIAS_PROT: adrenergic, alpha-1C-, receptor
+BUTTON: unigene.gif
+LINK: http://www.ncbi.nlm.nih.gov/UniGene/clust.cgi?ORG=Hs&amp;CID=52931
+UNIGENE: Hs.52931
+OMIM: 104221
+MAP: 8p21-p11.2|RefSeq|C|
+MAPLINK: default_human_gene|ADRA1A
+GO: cellular component|integral to plasma membrane|P|GO:0005887|Proteome|8396931
+      </programlisting>
+    </para>
+    <para>
+      First collect all the annotations:
+    </para>
+    <para>
+      <programlisting>
+	use Bio::SeqIO;
+
+	my @annotations = Bio::SeqIO->new
+	(-file => "148.ll", -format => "locuslink")
+	->next_seq->annotation->get_Annotations;
+      </programlisting>
+    </para>
+    <para>
+      And from this array of Annotations let's extract a hash containing 
+      the <function>as_text</function> strings as keys and
+      the concatenated tagnames and object types as values:
+    </para>
+    <para>
+      <programlisting>
+	my %tagname_type = map {$_->as_text,($_->tagname . " " . ref($_)) } 
+	@annotations;
+      </programlisting>
+    </para>
+    <para>
+      The contents of the <varname>%tagname_type</varname> hash will 
+      look like the table below.
+    </para>
+
+    <para>
+      <table>
+	<title>Locuslink Annotations</title>
+	<tgroup cols="3">
+	  <thead>
+	    <row><entry>as_text()</entry><entry>tagname()</entry>
+	      <entry>ref()</entry></row>  
+	  </thead>
+	  <tbody>
+<row><entry>Direct database link to AAA93114 in database GenBank</entry><entry>dblink</entry><entry>Bio::Anno
+tation::DBLink</entry></row>
+<row><entry>Value: http://www.ncbi.nlm.nih.gov/UniGene/clust.cgi?ORG=Hs&amp;CID=52931</entry><entry>URL</entry><entry>Bio:
+:Annotation::SimpleValue</entry></row>
+<row><entry>Value: 8</entry><entry>CHR</entry><entry>Bio::Annotation::SimpleValue</entry></row>
+<row><entry>Direct database link to NP_000671 in database RefSeq</entry><entry>dblink</entry><entry>Bio::Annotation::DBLink</entry></row>
+<row><entry>Direct database link to SGC35558 in database STS</entry><entry>dblink</entry><entry>Bio::Annotation::DBLink</entry></row>
+<row><entry>Comment: Summary: Alpha-1-ARs are members of the GPCR superfamily</entry><entry>comment</entry><entry>Bio::Annotation::Comment</entry></row>
+<row><entry>Value: adrenergic, alpha-1A-, receptor</entry><entry>OFFICIAL_GENE_NAME</entry><entry>Bio::Annotation::SimpleValue</entry></row>
+<row><entry>Value: ADRA1C</entry><entry>ALIAS_SYMBOL</entry><entry>Bio::Annotation::SimpleValue</entry></row>
+<row><entry>Value: adrenergic, alpha -1A-, receptor</entry><entry>ALIAS_PROT</entry><entry>Bio::Annotation::SimpleValue</entry></row>
+<row><entry>Direct database link to NM_000680 in database RefSeq</entry><entry>dblink</entry><entry>Bio::Annotation::DBLink</entry></row>
+<row><entry>Value: ADRA1A</entry><entry>OFFICIAL_SYMBOL</entry><entry>Bio::Annotation::SimpleValue</entry></row>
+<row><entry>Direct database link to SGC35557 in database STS</entry><entry>dblink</entry><entry>Bio::Annotation::DBLink</entry></row>
+<row><entry>Value: 8p21-p11.2</entry><entry>MAP</entry><entry>Bio::Annotation::SimpleValue</entry></row>
+<row><entry>Direct database link to 104221 in database MIM</entry><entry>dblink</entry><entry>Bio::Annotation::DBLink</entry></row>
+<row><entry>Direct database link to D8S2033 in database STS</entry><entry>dblink</entry><entry>Bio::Annotation::DBLink</entry></row>
+<row><entry>Direct database link to none in database GenBank</entry><entry>dblink</entry><entry>Bio::Annotation::DBLink</entry></row>
+<row><entry>cellular component|integral to plasma membrane|GO:0005887</entry><entry>cellular
+ component</entry><entry>Bio::Annotation::OntologyTerm</entry></row>
+<row><entry>Direct database link to Hs.52931 in database UniGene</entry><entry>dblink</entry><entry>Bio::Annotation::DBLink</entry></row>
+<row><entry>Direct database link to M11313 in database GenBank</entry><entry>dblink</entry><entry>Bio::Annotation::DBLink</entry></row>
+<row><entry>Direct database link to P35348 in database GenBank</entry><entry>dblink</entry><entry>Bio::Annotation::DBLink</entry></row>
+	  </tbody>
+	</tgroup>
+      </table>
+    </para>
+    <para>
+      The output from the script shows that Locuslink Annotations
+      come in a variety of types, including DBLink, OntologyTerm, 
+      Comment, and SimpleValue. In order to extract the exact value
+      you want, as opposed to the one returned by the
+      <function>as_text</function> method,
+      you'll need to find the desired method in the documentation for the 
+      Annotation in question.
+    </para>
+    <para>
+      If you were only interested in a certain type of Annotation
+      you could retrieve it efficently with something like this:
+      </para>
+    <para>
+      <programlisting>
+        @term_annotations = map { $_->isa("Bio::Ontology::TermI"); }
+	$seq_object->get_Annotations();
+      </programlisting>
+    </para>
+    <para>
+      To completely parse these sequence formats you may also need to 
+      use methods that don't have anything to do with Features or 
+      Annotations per se. For example, the
+      <function>display_id</function> method returns 
+      the LOCUS name of a Genbank entry or the ID from a SwissProt
+      file. The <function>desc()</function> method will return 
+      the DEFINITION line of a Genbank file or the DE field in a 
+      SwissProt file. Again, this is a situation where you may have to 
+      examine a module, perhaps a SeqIO::* module, to find out more 
+      of the details.
+    </para>
+  </section>
 
   <section id="annotation">
     <!-- 
     gff_format() - Get or set the GFF format interpreter 
     -->
-    <title>Building your own annotated sequences</title>
+    <title>Building your own sequences</title>
     <para>
       We've taken a look at getting data from SeqFeature and Annotation
       objects, but what about creating these objects when you
       already have the data? The
       <ulink
-	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqFeature/Generic.html">Bio::SeqFeature::Generic</ulink> object is 
+	url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqFeature/Generic.html">Bio::SeqFeature::Generic</ulink> object is 
       probably the best SeqFeature object for this purpose, in part because of
       its flexibility.
     </para>
@@ -870,8 +1046,8 @@ start: 1
     </para>
     <para>
       What if you wanted to add an Annotation to a sequence?
-      You'll create the Annotation object, create an
-      AnnotationCollection object to hold it, add the Annotation to
+      You'll create the Annotation object, add data to it, create an
+      AnnotationCollection object, add the Annotation to
       the AnnotationCollection along with a tag, and then add the 
       AnnotationCollection to the sequence object:  
     </para>
