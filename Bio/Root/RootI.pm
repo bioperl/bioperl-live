@@ -510,7 +510,9 @@ sub _unregister_for_cleanup {
 
 sub _cleanup_methods {
   my $self = shift;
-  carp("Use of Bio::Root::RootI is deprecated.  Please use Bio::Root::Root instead");
+  unless ( $ENV{'BIOPERLDEBUG'} || $self->verbose  > 0 ) {
+      carp("Use of Bio::Root::RootI is deprecated.  Please use Bio::Root::Root instead");
+  }
   return;
 }
 
