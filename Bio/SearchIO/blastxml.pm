@@ -148,8 +148,7 @@ BEGIN {
 		 'BlastOutput_query-len' => 'RESULT-query_length',
 		 'BlastOutput_db'        => 'RESULT-database_name',
 		 'BlastOutput_reference' => 'RESULT-program_reference',
-		 'BlastOutput_query-ID'  => 'runid',		 
-		 
+		 'BlastOutput_query-ID'  => 'runid',
 		 
 		 'Parameters_matrix'    => { 'RESULT-parameters' => 'matrix'},
 		 'Parameters_expect'    => { 'RESULT-parameters' => 'expect'},

@@ -157,7 +157,7 @@ sub end_result {
     my ($self,$type,$data) = @_;    
     if( defined $data->{'runid'} &&
 	$data->{'runid'} !~ /^\s+$/ ) {	
-	
+
 	if( $data->{'runid'} !~ /^lcl\|/) { 
 	    $data->{"RESULT-query_name"}= $data->{'runid'};
 	} else { 
@@ -292,6 +292,12 @@ sub start_hit{
 sub end_hit{
     my ($self,$type,$data) = @_;   
     my %args = map { my $v = $data->{$_}; s/HIT//; ($_ => $v); } grep { /^HIT/ } keys %{$data};
+
+    # I hate special cases, but this is here because NCBI BLAST XML
+    # doesn't play nice and is undergoing mutation -jason
+    if( $args{'-name'} =~ /BL_ORD_ID/ ) {
+	($args{'-name'}, $args{'-description'}) = split(/\s+/,$args{'-description'},2);
+    }
     $args{'-algorithm'} =  uc( $args{'-algorithm_name'} || $type);
     $args{'-hsps'}      = $self->{'_hsps'};
     $args{'-query_len'} =  $data->{'RESULT-query_length'};
