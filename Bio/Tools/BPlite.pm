@@ -88,7 +88,6 @@ thinking about it is that a subject is a gene and HSPs are the exons. Subjects
 have one attribute (name) and one method (nextHSP).
 
  $sbjct->name;    # access to the subject name
- "$sbjct";        # overloaded to return name
  $sbjct->nextHSP; # gets the next HSP from the sbjct
  while(my $hsp = $sbjct->nextHSP) {
      # canonical form is again a while loop
@@ -125,20 +124,14 @@ contain the alignment sequences from the blast report.
  $hsp->subject->start;
  $hsp->subject->end;
  ...
- "$hsp"; # overloaded for query->start..query->end bits
-
-I\'ve included a little bit of overloading for double quote variable
-interpolation convenience. A subject will return its name and an HSP will
-return its query-E<gt>start, query-E<gt>end, and bits in the alignment. Feel free 
-to modify this to whatever is most frequently used by you.
 
 So a very simple look into a BLAST report might look like this.
 
  my $report = new Bio::Tools::BPlite(-fh=>\*STDIN);
  while(my $sbjct = $report->nextSbjct) {
-     print "$sbjct\n";
+     print ">",$sbjct->name,"\n";
      while(my $hsp = $sbjct->nextHSP) {
-	 	print "\t$hsp\n";
+	 	print "\t",$hsp->start,"..",$hsp->end," ",$hsp->bits,"\n";
      }
  }
 
