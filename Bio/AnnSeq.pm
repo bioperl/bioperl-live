@@ -443,6 +443,27 @@ sub accession{
 
 }
 
+=head2 accession2
+
+ Title   : accession2
+ Usage   : $obj->accession2($newval)
+ Function: Secondary optional accession number
+ Example : 
+ Returns : value of accession2
+ Args    : newvalue (optional)
+
+
+=cut
+
+sub accession2{
+   my ($obj,$value) = @_;
+   if( defined $value) {
+      $obj->{'accession2'} = $value;
+    }
+    return $obj->{'accession2'};
+
+}
+
 =head2 sv
 
  Title   : sv

@@ -1,11 +1,11 @@
 
 
 #
-# BioPerl module for Bio::SeqIO::EMBL
+# BioPerl module for Bio::SeqIO::swissprot
 #
-# Cared for by Ewan Birney <birney@sanger.ac.uk>
+# Cared for by Elia Stupka <elia@ebi.ac.uk>
 #
-# Copyright Ewan Birney
+# Copyright Elia Stupka
 #
 # You may distribute this module under the same terms as perl itself
 
@@ -13,14 +13,14 @@
 
 =head1 NAME
 
-Bio::AnnSeqIO::EMBL - EMBL sequence input/output stream
+Bio::AnnSeqIO::swissprot - Swissprot sequence input/output stream
 
 =head1 SYNOPSIS
 
 It is probably best not to use this object directly, but
 rather go through the AnnSeqIO handler system. Go:
 
-    $stream = Bio::AnnSeqIO->new(-file => $filename, -format => 'EMBL');
+    $stream = Bio::AnnSeqIO->new(-file => $filename, -format => 'swiss');
 
     while ( my $annseq = $stream->next_annseq() ) {
 	# do something with $annseq
@@ -28,7 +28,7 @@ rather go through the AnnSeqIO handler system. Go:
 
 =head1 DESCRIPTION
 
-This object can transform Bio::AnnSeq objects to and from EMBL flat
+This object can transform Bio::AnnSeq objects to and from swissprot flat
 file databases.
 
 There is alot of flexibility here about how to dump things which I need
@@ -82,9 +82,9 @@ Report bugs to the Bioperl bug tracking system to help us keep track
   bioperl-bugs@bio.perl.org
   http://bio.perl.org/bioperl-bugs/
 
-=head1 AUTHOR - Ewan Birney
+=head1 AUTHOR - Elia Stupka
 
-Email birney@sanger.ac.uk
+Email elia@ebi.ac.uk
 
 Describe contact details here
 
@@ -98,7 +98,7 @@ The rest of the documentation details each of the object methods. Internal metho
 # Let the code begin...
 
 
-package Bio::AnnSeqIO::EMBL;
+package Bio::AnnSeqIO::swiss;
 use vars qw($AUTOLOAD @ISA);
 use strict;
 use Bio::AnnSeq;
@@ -133,12 +133,12 @@ sub _initialize {
   }
 
   if( !$file && !$fh ) {
-      $self->throw("Neither a file (-file) nor a filehandle (-fh) provided to EMBL opening");
+      $self->throw("Neither a file (-file) nor a filehandle (-fh) provided to swissprot opening");
   }
 
   if( $file ) {
       $fh = new FileHandle;
-      $fh->open($file) || $self->throw("Could not open $file for EMBL stream reading $!");
+      $fh->open($file) || $self->throw("Could not open $file for swissprot stream reading $!");
   }
   
   # hash for functions for decoding keys.
@@ -174,9 +174,10 @@ sub next_annseq{
    }
 
    $line = <$fh>;
+
    if( $line =~ /^\s+$/ ) {
        while( <$fh> ) {
-	   /\S/ && last;
+   	   /\S/ && last;
        }
        $line = $_;
    }
@@ -184,45 +185,47 @@ sub next_annseq{
    if( !defined $line ) {
        return undef; # end of file
    }
-   $line =~ /^ID\s+\S+/ || $self->throw("EMBL stream with no ID. Not embl in my book");
-   $line =~ /^ID\s+(\S+)\s+\S+\; (.+)\; (\S+)/;
+
+   $line =~ /^ID\s+\S+/ || $self->throw("swissprot stream with no ID. Not swissprot in my book");
+   $line =~ /^ID\s+(\S+)_(\S+)\s+\S+\s+(\S+)\;/ || $self->throw("FUCK!");
    $name = $1;
    
-   $mol= $2;
-   $mol =~ s/\;//;
-   if ($mol) {
-       $annseq->molecule($mol);
-   }
-   
-   $div = $3;
+   $div = $2;
    $div =~ s/\;//;
    if ($div) {
        $annseq->division($div);
    }
 
-#   $self->warn("not parsing upper annotation in EMBL file yet!");
+   $mol= $3;
+   if ($mol) {
+       $annseq->molecule($mol);
+   }
    my $buffer = $line;
 
- 
-   
    BEFORE_FEATURE_TABLE :
    until( eof($fh) ) {
        $_ = $buffer;
-
-
+       
        # Exit at start of Feature table
-       last if /^FH/;
+       last if /^FT/;
 
        # Description line(s)
        if (/^DE\s+(\S.*\S)/) {
            $desc .= $desc ? " $1" : $1;
        }
 
+       #Gene name
+       if (/^GN\s+(\S+)/) {
+	   $annseq->annotation->gene_name($1);
+       }  
+
        #accession number
-       if( /^AC\s+(\S+);?/ ) {
+       if( /^AC\s+(\S+); (\S+)?/ ) {
 	   $acc = $1;
-	   $acc =~ s/\;//;
+	   my $acc2 = $2 if $2;
+	   $acc2 =~ s/\;//;
 	   $annseq->accession($acc);
+	   $annseq->accession2($acc2);
        }
        
        #version number
@@ -239,25 +242,23 @@ sub next_annseq{
 	   $annseq->add_date($date);
        }
        
-       #keywords
-       if( /^KW   (.*)\S*$/ ) {
-	   my $keywords = $1;
-	   $annseq->keywords($keywords);
-       }
+     
 
        # Organism name and phylogenetic information
-       elsif (/^O[SC]/) {
-           my $species = _read_EMBL_Species(\$buffer, $fh);
+       if (/^O[SC]/) {
+           my $species = _read_swissprot_Species(\$buffer, $fh);
            $annseq->species( $species );
        }
 
        # References
-       elsif (/^R/) {
-	   my @refs = &_read_EMBL_References(\$buffer,$fh);
+       if (/^R/) {
+	   my @refs = &_read_swissprot_References(\$buffer,$fh);
 	   $annseq->annotation->add_Reference(@refs);
        }
-       
-       elsif (/^CC\s+(.*)/) {
+
+     
+       #Comments
+       if (/^CC\s+(.*)/) {
 	   $comment .= $1;
 	   $comment .= " ";
 	   while (<$fh>) {
@@ -270,31 +271,48 @@ sub next_annseq{
 	       }
 	   }
 	   my $commobj = Bio::Annotation::Comment->new();
+	   $comment =~ s/-\!- //g;
+	   $comment =~ s/    //g;
 	   $commobj->text($comment);
 	   $annseq->annotation->add_Comment($commobj);
 	   $comment = "";
        }
 
+       #DBLinks
+       if (/^DR\s+(\S+)\; (\S+)\; (\S+)\; (\S+)/) {
+	   my $dblinkobj =  Bio::Annotation::DBLink->new();
+	   $dblinkobj->database($1);
+	   $dblinkobj->primary_id($2);
+	   $dblinkobj->optional_id($3);
+	   $dblinkobj->comment($4);
+	   $annseq->annotation->add_DBLink($dblinkobj);
+       }
+
+       #keywords
+       if( /^KW   (.*)\S*$/ ) {
+	   my $keywords = $1;
+	   $annseq->keywords($keywords);
+       }
+
        # Get next line.
        $buffer = <$fh>;
    }
-
-   while( <$fh> ) {
-       /FT   \w/ && last;
-   }
+   
    $buffer = $_;
       
    FEATURE_TABLE :   
-   until( eof($fh) ) {
-       my $ftunit = &_read_FTHelper_EMBL($fh,\$buffer);
+   while (<$fh>) {
+
+       my $ftunit = &_read_FTHelper_swissprot($fh,\$buffer);
+       
        # process ftunit
        $ftunit->_generic_seqfeature($annseq);
-
+       
        if( $buffer !~ /^FT/ ) {
 	   last;
        }
    }
-	
+   
    if( $buffer !~ /^SQ/  ) {
        while( <$fh> ) {
 	   /^SQ/ && last;
@@ -346,14 +364,15 @@ sub write_annseq {
    my $div;
    my $len = $seq->seq_len();
 
-   if ( !$annseq->can('division') || ($div = $annseq->division()) == undef ) {
+   if ( !$annseq->can('division') || ($div = $annseq->division()) eq undef ) {
        $div = 'UNK';
    }
    else {
        $div=$annseq->division;
    }
-   
-   if( !$annseq->can('molecule')  || ($mol = $annseq->molecule()) == undef ) {
+   $mol = $annseq->molecule;
+  
+   if(!$annseq->can('molecule') || ($mol eq undef )) {
        $mol = 'XXX';
    }
    else {
@@ -364,119 +383,100 @@ sub write_annseq {
    if( $self->_id_generation_func ) {
        $temp_line = &{$self->_id_generation_func}($annseq);
    } else {
-       $temp_line = sprintf ("%-11sstandard; $mol; $div; %d BP.",$seq->id(),$len);
+       $temp_line = sprintf ("%s_$div    STANDARD;       $mol;   %d AA.",$seq->id(),$len);
    } 
 
    print $fh "ID   $temp_line\n";   
-   
-   print $fh "XX   \n";
-
 
    # if there, write the accession line
 
    if( $self->_ac_generation_func ) {
        $temp_line = &{$self->_ac_generation_func}($annseq);
        print $fh "AC   $temp_line\n";   
-       print $fh "XX   \n";
    } else {
-       if( $annseq->can('accession') ) {
-	   print "AC   ",$annseq->accession,";\n";
-	   print "XX   \n";
+       if ($annseq->can('accession') ) {
+	   print "AC   ",$annseq->accession,";";
+	   if ($annseq->can('accession2') ) {
+	       print " ",$annseq->accession2,";\n";
+	   }
+	   else {
+	       print "\n";
+	   }
        }
        # otherwise - cannot print <sigh>
    } 
 
-   # if there, write the sv line
-
-   if( $self->_sv_generation_func ) {
-       $temp_line = &{$self->_sv_generation_func}($annseq);
-       if( $temp_line ) {
-	   print $fh "SV   $temp_line\n";   
-	   print $fh "XX   \n";
-       }
-   } else {
-       if( $annseq->can('sv') ) {
-	   print $fh "SV   ",$annseq->sv,";\n";
-	   print $fh "XX   \n";
-       }
-   } 
-
    #Date lines
-   my $switch=0;
    foreach my $dt ( $annseq->each_date() ) {
-       _write_line_EMBL_regex($fh,"DT   ","DT   ",$dt,"\\s\+\|\$",80);
-       $switch=1;
-   }
-   if ($switch == 1) {
-       print $fh "XX   \n";
+       _write_line_swissprot_regex($fh,"DT   ","DT   ",$dt,"\\s\+\|\$",80);
    }
    
    #Definition lines
-   _write_line_EMBL_regex($fh,"DE   ","DE   ",$seq->desc(),"\\s\+\|\$",80);
-   print $fh "XX   \n";
+   _write_line_swissprot_regex($fh,"DE   ","DE   ",$seq->desc(),"\\s\+\|\$",80);
 
-   # if there, write the kw line
-
-   if( $self->_kw_generation_func ) {
-       $temp_line = &{$self->_kw_generation_func}($annseq);
-       print $fh "KW   $temp_line\n";   
-       print $fh "XX   \n";
-   } else {
-       if( $annseq->can('keywords') ) {
-	   print $fh "KW   ",$annseq->keywords,"\n";
-	   print $fh "XX   \n";
-       }
-   } 
-
-
+   #Gene name
+   if ($annseq->annotation->can('gene_name')) {
+       print "GN   ",$annseq->annotation->gene_name,"\n";
+   }
    
-    # Organism lines
-    if (my $spec = $annseq->species) {
-        my($sub_species, $species, $genus, @class) = $spec->classification();
-        my $OS = "$genus $species $sub_species";
-        if (my $common = $spec->common_name) {
-            $OS .= " ($common)";
-        }
-        print $fh "OS   $OS\n";
-        my $OC = join('; ', reverse(@class));
-	$OC =~ s/\;\s+$//;
-	$OC .= ".";
-        _write_line_EMBL_regex($fh,"OC   ","OC   ",$OC,"\; \|\$",80);
+   # Organism lines
+   if (my $spec = $annseq->species) {
+       my($sub_species, $species, $genus, @class) = $spec->classification();
+       my $OS = "$genus $species $sub_species";
+       if (my $common = $spec->common_name) {
+	   $OS .= " ($common)";
+       }
+       print $fh "OS   $OS\n";
+       my $OC = join('; ', reverse(@class));
+       $OC =~ s/\;\s+$//;
+       $OC .= ".";
+       _write_line_swissprot_regex($fh,"OC   ","OC   ",$OC,"\; \|\$",80);
 	if ($spec->organelle) {
-	    _write_line_EMBL_regex($fh,"OG   ","OG   ",$spec->organelle,"\; \|\$",80);
+	    _write_line_swissprot_regex($fh,"OG   ","OG   ",$spec->organelle,"\; \|\$",80);
 	}
-        print $fh "XX   \n";
-    }
-
-   # Comment lines
-
-   foreach my $comment ( $annseq->annotation->each_Comment() ) {
-       _write_line_EMBL_regex($fh,"CC   ","CC   ",$comment->text,"\\s\+\|\$",80);
-       print $fh "XX   \n";
    }
    
    # Reference lines
    my $t = 1;
    foreach my $ref ( $annseq->annotation->each_Reference() ) {
        print $fh "RN   [$t]\n";
-       $temp_line = sprintf ("RX   %d-%d",$ref->start,$ref->end);
-       print $fh "$temp_line\n";
-       &_write_line_EMBL_regex($fh,"RA   ","RA   ",$ref->authors,"\\s\+\|\$",80);       
-       &_write_line_EMBL_regex($fh,"RT   ","RT   ",$ref->title,"\\s\+\|\$",80);       
-       &_write_line_EMBL_regex($fh,"RL   ","RL   ",$ref->location,"\\s\+\|\$",80);
-       if ($ref->comment) {
-	   &_write_line_EMBL_regex($fh,"RC   ","RC   ",$ref->comment,"\\s\+\|\$",80); 
+       if ($ref->start && $ref->end) {
+	   print "RP   SEQUENCE OF ",$ref->start,"-",$ref->end," FROM N.A.\n";
        }
-       print $fh "XX   \n";
+       #else {
+	   #print "RP   SEQUENCE FROM N.A.\n";
+       #}
+       print $fh "RX   MEDLINE; ",$ref->medline,".\n";
+       &_write_line_swissprot_regex($fh,"RA   ","RA   ",$ref->authors,"\\s\+\|\$",80);       
+       &_write_line_swissprot_regex($fh,"RT   ","RT   ",$ref->title,"\\s\+\|\$",80);       
+       &_write_line_swissprot_regex($fh,"RL   ","RL   ",$ref->location,"\\s\+\|\$",80);
+       if ($ref->comment) {
+	   &_write_line_swissprot_regex($fh,"RC   ","RC   ",$ref->comment,"\\s\+\|\$",80); 
+       }
        $t++;
    }
+   
+   # Comment lines
 
+   foreach my $comment ( $annseq->annotation->each_Comment() ) {
+       _write_line_swissprot_regex($fh,"CC   ","CC   ",$comment->text,"\\s\+\|\$",80);
+   }
 
+   foreach my $dblink ( $annseq->annotation->each_DBLink() ) {
+       print $fh "DR   ",$dblink->database,"; ",$dblink->primary_id,"; ",$dblink->optional_id,"; ",$dblink->comment,"\n";
+   }
+   
 
-   print $fh "FH   Key             Location/Qualifiers\n";
-   print $fh "FH   \n";
-
-
+   # if there, write the kw line
+   
+   if( $self->_kw_generation_func ) {
+       $temp_line = &{$self->_kw_generation_func}($annseq);
+       print $fh "KW   $temp_line\n";   
+   } else {
+       if( $annseq->can('keywords') ) {
+	   print $fh "KW   ",$annseq->keywords,"\n";
+       }
+   } 
    if( defined $self->_post_sort ) {
        # we need to read things into an array. Process. Sort them. Print 'em
 
@@ -490,7 +490,7 @@ sub write_annseq {
        @fth = sort { &$post_sort_func($a,$b) } @fth;
        
        foreach my $fth ( @fth ) {
-	   &_print_EMBL_FTHelper($fth,$fh);
+	   &_print_swissprot_FTHelper($fth,$fh);
        }
    } else {
        # not post sorted. And so we can print as we get them.
@@ -503,12 +503,10 @@ sub write_annseq {
 		   $sf->throw("Cannot process FTHelper... $fth");
 	       }
 
-	       &_print_EMBL_FTHelper($fth,$fh);
+	       &_print_swissprot_FTHelper($fth,$fh);
 	   }
        }
    }
-
-   print $fh "XX   \n";
 
    if( $self->_show_dna() == 0 ) {
        return;
@@ -516,49 +514,23 @@ sub write_annseq {
 
    # finished printing features.
 
-    $str =~ tr/A-Z/a-z/;
-    
-    # Count each nucleotide
-    my $alen = $str =~ tr/a/a/;
-    my $clen = $str =~ tr/c/c/;
-    my $glen = $str =~ tr/g/g/;
-    my $tlen = $str =~ tr/t/t/;
-
-   my $olen = $len - ($alen + $tlen + $clen + $glen);
-   if( $olen < 0 ) {
-       $self->warn("Weird. More atgc than bases. Problem!");
-   }
-
-   print $fh "SQ   Sequence $len BP; $alen A; $clen C; $glen G; $tlen T; $olen other;\n";
+   print $fh "SQ   SEQUENCE   $len AA;\n";
    print $fh "     ";
    my $linepos;
    for ($i = 0; $i < length($str); $i += 10) {
-       
-       if( $i+10 >= length($str) ) {
-	   # last line.
-	   print $fh substr($str,$i);
-	   $linepos += length($str)-$i;
-	   print $fh ' ' x (70 - $linepos);
-	   print $fh sprintf(" %-5d\n",length($str));
-	   last;
-       }
        print $fh substr($str,$i,10), " ";
        $linepos += 11;
        if( ($i+10)%60 == 0 ) {
-	   my $end = $i+10;
-	   print $fh sprintf("%-5d\n     ",$end);
-	   $linepos = 5;
-       }
+	   print $fh "\n     ";
+      }
    }
-
-
-   print $fh "//\n";
+   print $fh "\n//\n";
    return 1;
 }
 
-=head2 _print_EMBL_FTHelper
+=head2 _print_swissprot_FTHelper
 
- Title   : _print_EMBL_FTHelper
+ Title   : _print_swissprot_FTHelper
  Usage   :
  Function:
  Example :
@@ -568,28 +540,30 @@ sub write_annseq {
 
 =cut
 
-sub _print_EMBL_FTHelper {
+sub _print_swissprot_FTHelper {
    my ($fth,$fh,$always_quote) = @_;
    
    if( ! ref $fth || ! $fth->isa('Bio::AnnSeqIO::FTHelper') ) {
        $fth->warn("$fth is not a FTHelper class. Attempting to print, but there could be tears!");
    }
-
-
-   #print $fh "FH   Key             Location/Qualifiers\n";
-   #print $fh  sprintf("FT   %-15s  %s\n",$fth->key,$fth->loc);
-   &_write_line_EMBL_regex($fh,sprintf("FT   %-15s ",$fth->key),"FT                   ",$fth->loc,"\,\|\$",80);
+   my $loc= $fth->loc;
+   $loc =~ /(\d+)..(\d+)/;
+   my $loc1 = $1;
+   my $loc2 = $2;
+#   my $line = sprintf ("FT   %-12s %-5s %s",$fth->key,$loc1,$loc2);
+#   print $fh "$line";
+   my $switch=0; 
    foreach my $tag ( keys %{$fth->field} ) {
        foreach my $value ( @{$fth->field->{$tag}} ) {
 	   $value =~ s/\"/\"\"/g;
-	   if ($value eq "_no_value") {
-	       &_write_line_EMBL_regex($fh,"FT                   ","FT                   ","/$tag","\.\|\$",80);
-	   }  
-           elsif( $always_quote == 1 || $value !~ /^\d+$/ ) {
-	      &_write_line_EMBL_regex($fh,"FT                   ","FT                   ","/$tag=\"$value\"","\.\|\$",80);
-           } else {
-              &_write_line_EMBL_regex($fh,"FT                   ","FT                   ","/$tag=$value","\.\|\$",80);
-           }
+	   if ($switch == 0) {
+	       my $line = sprintf ("FT   %-12s %-5s %-10s%s",$fth->key,$loc1,$loc2,$value);
+	       print $fh "$line\n";
+	   }
+           else {
+	       print $fh "FT                                /$tag\n";
+           } 
+	   $switch = 1;
 	  # print $fh "FT                   /", $tag, "=\"", $value, "\"\n";
        }
    }
@@ -597,11 +571,11 @@ sub _print_EMBL_FTHelper {
 }
 
 
-=head2 _read_EMBL_References
+=head2 _read_swissprot_References
 
- Title   : _read_EMBL_References
+ Title   : _read_swissprot_References
  Usage   :
- Function: Reads references from EMBL format. Internal function really
+ Function: Reads references from swissprot format. Internal function really
  Example :
  Returns : 
  Args    :
@@ -609,15 +583,10 @@ sub _print_EMBL_FTHelper {
 
 =cut
 
-sub _read_EMBL_References{
+sub _read_swissprot_References{
    my ($buffer,$fh) = @_;
    my (@refs);
    
-   # assumme things are starting with RN
-
-   if( $$buffer !~ /^RN/ ) {
-       warn("Not parsing line '$$buffer' which maybe important");
-   }
    my $b1;
    my $b2;
    my $title;
@@ -625,10 +594,16 @@ sub _read_EMBL_References{
    my $au;
    my $med;
    my $com;
-
+   if( $$buffer =~ /^RP/ ) {
+       if ($$buffer =~ /^RP   SEQUENCE OF (\d+)-(\d+)/) { 
+	   $b1=$1;
+	   $b2=$2; 
+       }
+       
+   }
    while( <$fh> ) {
-       /^R/ || last;
-       /^RP   (\d+)-(\d+)/ && do {$b1=$1;$b2=$2;};
+       /^CC/ && goto OUT;
+       /^RN/ && last;
        /^RX   MEDLINE;\s+(\d+)/ && do {$med=$1};
        /^RA   (.*)/ && do { $au .= $1;   next;};
        /^RT   (.*)/ && do { $title .= $1; next;};
@@ -636,10 +611,10 @@ sub _read_EMBL_References{
        /^RC   (.*)/ && do { $com .= $1; next;};
    }
    
-   my $ref = new Bio::Annotation::Reference;
+   OUT: my $ref = new Bio::Annotation::Reference;
    $au =~ s/;\s*$//g;
    $title =~ s/;\s*$//g;
-
+   
    $ref->start($b1);
    $ref->end($b2);
    $ref->authors($au);
@@ -647,19 +622,18 @@ sub _read_EMBL_References{
    $ref->location($loc);
    $ref->medline($med);
    $ref->comment($com);
-
+   
    push(@refs,$ref);
    $$buffer = $_;
-   
    return @refs;
 }
 
 
-=head2 _read_EMBL_Species
+=head2 _read_swissprot_Species
 
- Title   : _read_EMBL_Species
+ Title   : _read_swissprot_Species
  Usage   :
- Function: Reads the EMBL Organism species and classification
+ Function: Reads the swissprot Organism species and classification
            lines.
  Example :
  Returns : A Bio::Species object
@@ -667,7 +641,7 @@ sub _read_EMBL_References{
 
 =cut
 
-sub _read_EMBL_Species {
+sub _read_swissprot_Species {
     my( $buffer, $fh ) = @_;
     my $org;
 
@@ -741,10 +715,10 @@ sub _filehandle{
 
 }
 
-=head2 _read_FTHelper_EMBL
+=head2 _read_FTHelper_swissprot
 
- Title   : _read_FTHelper_EMBL
- Usage   : &_read_FTHelper_EMBL($fh,$buffer)
+ Title   : _read_FTHelper_swissprot
+ Usage   : &_read_FTHelper_swissprot($fh,$buffer)
  Function: reads the next FT key line
  Example :
  Returns : Bio::AnnSeqIO::FTHelper object 
@@ -753,38 +727,34 @@ sub _filehandle{
 
 =cut
 
-sub _read_FTHelper_EMBL {
+sub _read_FTHelper_swissprot {
    my ($fh,$buffer) = @_;
-   my ($key,$loc,$out);
-
-   if( $$buffer =~ /^FT\s+(\S+)\s+(\S+)/ ) {
+   my ($key,$loc,$out,$value);
+   if ( $$buffer !~ /^FT\s+(\S+)/) {
+       $out->throw("Weird location line in swissprot feature table: '$_'");
+   }
+   #Read key and location lines
+   if( $$buffer =~ /^FT\s+(\S+)\s+(\d+)\s+(\d+)\s+(.*)/ ) {
        $key = $1;
        $loc = $2;
+       $loc .= "..";
+       $loc .= $3;
+       $value = $4;
    }
 
    $out = new Bio::AnnSeqIO::FTHelper();
-
-   # Read the rest of the location
-   while( <$fh> ) {
-       # Exit loop on first qualifier - line is left in $_
-       last if /^XX/; # sometimes a trailing XX comment left in!
-       last if /^FT\s+\//;
-       last if /^FT\s+(\S+)\s+(\S+)/;
-       
-       # Get location line
-       /^FT\s+(\S+)/ or $out->throw("Weird location line in EMBL feature table: '$_'");
-       $loc .= $1;
-   }
-
    $loc =~ s/<//;
    $loc =~ s/>//;
    $out->key($key);
    $out->loc($loc);
-
+   $out->field->{$key};
+   $value =~ s/\"\"/\"/g;
+   push (@{$out->field->{$key}},$value);
+   
    # Now read in other fields
    # Loop reads $_ when defined (i.e. only in first loop), then $fh, until end of file
    while( defined($_ ||= <$fh>) ) {
-      
+       
        # Exit loop on non FT lines!
        /^FT/  || last;
        
@@ -799,7 +769,7 @@ sub _read_FTHelper_EMBL {
 	       $out->field->{$key} = [];
 	   }
 	   $value =~ s/\"\"/\"/g;
-
+	   
 	   push(@{$out->field->{$key}},$value);
        }
        # Field on on multilines:
@@ -834,14 +804,13 @@ sub _read_FTHelper_EMBL {
    }
 
    $$buffer = $_;
-   
    return $out;
 }
 
 
-=head2 _write_line_EMBL
+=head2 _write_line_swissprot
 
- Title   : _write_line_EMBL
+ Title   : _write_line_swissprot
  Usage   :
  Function: internal function
  Example :
@@ -851,10 +820,10 @@ sub _read_FTHelper_EMBL {
 
 =cut
 
-sub _write_line_EMBL{
+sub _write_line_swissprot{
    my ($fh,$pre1,$pre2,$line,$length) = @_;
 
-   $length || die "Miscalled write_line_EMBL without length. Programming error!";
+   $length || die "Miscalled write_line_swissprot without length. Programming error!";
    my $subl = $length - length $pre2;
    my $linel = length $line;
    my $i;
@@ -871,9 +840,9 @@ sub _write_line_EMBL{
 
 }
 
-=head2 _write_line_EMBL_regex
+=head2 _write_line_swissprot_regex
 
- Title   : _write_line_EMBL_regex
+ Title   : _write_line_swissprot_regex
  Usage   :
  Function: internal function for writing lines of specified
            length, with different first and the next line 
@@ -886,16 +855,16 @@ sub _write_line_EMBL{
 
 =cut
 
-sub _write_line_EMBL_regex {
+sub _write_line_swissprot_regex {
    my ($fh,$pre1,$pre2,$line,$regex,$length) = @_;
 
    
    #print STDOUT "Going to print with $line!\n";
 
-   $length || die "Miscalled write_line_EMBL without length. Programming error!";
+   $length || die "Miscalled write_line_swissprot without length. Programming error!";
 
    if( length $pre1 != length $pre2 ) {
-       die "Programming error - cannot called write_line_EMBL_regex with different length pre1 and pre2 tags!";
+       die "Programming error - cannot called write_line_swissprot_regex with different length pre1 and pre2 tags!";
    }
 
    my $subl = $length - (length $pre1) -1 ;

@@ -157,7 +157,7 @@ sub _generic_seqfeature {
 	   $lst = $len = $1;
        } else {
 	   $fth->loc =~ /\<?(\d+)\.\.\>?(\d+)/ || do {
-	       #$annseq->throw("Weird location line [" . $fth->loc . "] in reading GenBank");
+	       $annseq->throw("Weird location line [" . $fth->loc . "] in reading GenBank");
 	       last;
 	   };
 	   $lst = $1;
