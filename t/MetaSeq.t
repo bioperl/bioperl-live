@@ -13,7 +13,7 @@ BEGIN {
         use lib 't';
     }
     use Test;
-    plan tests => 69;
+    plan tests => 73;
 }
 
 my $DEBUG = $ENV{'BIOPERLDEBUG'};
@@ -59,8 +59,13 @@ ok $seq->meta, 'aa-bb ';
 ok $seq->meta_text, 'aa-bb ';
 
 # truncate the sequence with trunc()
+ok $seq->start, 1;
+ok $seq->end, 5;
+
 ok $seq->strand(-1), -1;
 ok $seq = $seq->trunc(1,5);
+ok $seq->start, 2;
+ok $seq->end, 5;
 ok $seq->seq, 'AT-CG';
 ok $seq->meta, 'aa-bb';
 ok $seq->strand, -1;
