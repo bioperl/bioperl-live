@@ -172,7 +172,13 @@ sub _initialize {
     $self->_not_first_record( FALSE );
     $self->_term( "" );
     $self->file_is_root($fileisroot) if defined($fileisroot);
-    $self->indent_string($indent || ' '); #reasonable default?
+    $indent = ' ' unless defined($indent); #reasonable default?
+    # the indentation string may have escaped chars
+    if (($indent =~ /\\/) && ($indent !~ /[\$\`]/)) {
+        $indent = "\$indent = \"$indent\"";
+        eval $indent;
+    }
+    $self->indent_string($indent); 
     delete $self->{'_ontologies'};
 
     # ontology engine (and possibly name if it's an OntologyI)
@@ -254,7 +260,7 @@ sub parse {
 	  # advance to next flat file if more are available
 	  if(@{$self->_flat_files()}) {
 	    $self->close();
-	    # reset the virtual root so that the next one if generated from
+	    # reset the virtual root so that the next one is generated from
 	    # the next file
 	    $self->_virtual_root(undef);
 	    # now re-initialize the IO object
@@ -445,13 +451,15 @@ sub _parse_flat_file {
 	chomp $current_term;
 	# remove extraneous delimiter characters at the end of the name if any
 	$current_term =~ s/[$indent_string]+$//;
+        # remove double quotes surrounding the entry, if any
+        $current_term =~ s/^\"(.*)\"$/$1/;
 	# also, the name might contain a synonym
 	my $syn = $current_term =~ s/\s+{([^}]+)}// ? $1 : undef;
 
  	if ( ! $self->_has_term( $current_term ) ) {
  	  my $term = $self->_create_ont_entry($current_term);
 	  # add synonym(s) if any
-	  $term->add_synonym(split(/;\s*/,$syn)) if $syn;
+	  $term->add_synonym(split(/[;,]\s*/,$syn)) if $syn;
 	  # add to the machine
  	  $self->_add_term( $term, $ont );
 
