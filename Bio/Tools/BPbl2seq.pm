@@ -159,7 +159,6 @@ sub new {
     } else { 
 	$self->warn("Must provide which type of BLAST was run (blastp,blastn, tblastn, tblastx, blastx) if you want strand information to get set properly for DNA query or subjects");
     }
-
     my $sbjct = $self->getSbjct();
     $self->{'_current_sbjct'} = $sbjct;
 
@@ -443,6 +442,15 @@ sub _fastForward {
 	}
     }
     $self->warn("Possible error (1) while parsing BLAST report!");
+}
+
+sub DESTROY { 
+    my $self = shift; 
+    if( defined  $self->{'_current_sbjct'} ) { 
+	$self->{'_current_sbjct'}->{'PARENT'} = undef;
+	$self->{'_current_sbjct'} = undef;
+    }
+    $self->_io_cleanup(); 
 }
 
 1;
