@@ -145,6 +145,12 @@ sub strand {
     return $self->{strand} if exists $self->{strand};
     return $self->{strand} = ($self->{feature}->strand || 0);
 }
+sub flip {
+  my $self = shift;
+  my $d    = $self->{flip};
+  $self->{flip} = shift if @_;
+  $d;
+}
 sub map_pt  { shift->{factory}->map_pt(@_) }
 sub map_no_trunc { shift->{factory}->map_no_trunc(@_) }
 

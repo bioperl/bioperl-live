@@ -22,6 +22,7 @@ my $IMAGEMAP = 'bgmap00001';
 # one by one
 sub new {
   my $class = shift;
+  $class    = ref($class) || $class;
   my %options = @_;
 
   $class->read_colors() unless %COLORS;
