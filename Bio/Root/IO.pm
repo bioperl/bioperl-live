@@ -338,15 +338,6 @@ sub close {
 
 sub _io_cleanup {
     my ($self,@args) = @_;
-    $self->DESTROY();
-}
-
-sub DESTROY {
-    my $self = shift;
-
-    # prevent loops in multiple inheritance situations
-    return if($self->{'_DESTROYED'});
-    $self->{'_DESTROYED'} = 1;
 
     $self->close();
 
@@ -372,7 +363,6 @@ sub DESTROY {
 	    rmdir($_); 
 	}
     }
-    $self->SUPER::DESTROY();
 }
 
 
