@@ -202,8 +202,7 @@ sub add_model {
 				if ( $self->_parent($m) ) {
 					$self->throw("$m already assigned to a parent\n");
 				}
-				$self->_parent($m, $entry);
-				$self->_child($entry, $m);
+				push @{$self->{'model'}}, $m;
 				# create a stringified version of our ref
 				# not used untill we get symbolic ref working
 				#my $str_ref = "$self";
@@ -214,8 +213,7 @@ sub add_model {
 			if ( $self->_parent($model) ) { # already assigned to a parent
 				$self->throw("$model already assigned\n");
 			}
-			$self->_parent($model, $entry);
-			$self->_child($entry, $model);
+			push @{$self->{'model'}}, $model;
 			# create a stringified version of our ref
 			#my $str_ref = "$self";
 			#$model->_grandparent($str_ref);
@@ -225,7 +223,7 @@ sub add_model {
 		}
 	}
 
-	my $array_ref = $self->_child($entry);
+	my $array_ref = $self->{'model'};
 	return $array_ref ? @{$array_ref} : ();
 }
 
@@ -327,7 +325,7 @@ sub add_chain {
 	my($self, $model, $chain) = @_;
 
 	if (ref($model) !~ /^Bio::Structure::Model/) {
-		$self->throw("add_chain: first argument needs to be a Model object\n");
+		$self->throw("add_chain: first argument needs to be a Model object ($model)\n");
 	}
 	if (defined $chain) {
 		if (ref($chain) eq "ARRAY") {
@@ -587,6 +585,69 @@ sub get_atoms {
 
 =cut
 
+=head2 conect()
+
+ Title   : conect
+ Usage   : $structure->conect($source);
+ Function: get/set method for conect
+ Returns : a list of serial numbers for atoms connected to source
+ 	(together with $entry->get_atom_by_serial($model, $serial) this should be OK for now)
+ Args    : the serial number for the source atom
+
+=cut
+
+sub conect {
+	my ($self, $source, $serial) = @_;
+	
+	if ( !defined $source ) {
+		$self->throw("You need to supply at least a source to conect");
+	}
+	if ( defined $serial ) {
+		if ( !exists(${$self->{'conect'}}{$source}) || ref(${$self->{'conect'}}{$source} !~ /^ARRAY/ ) ) {
+			${$self->{'conect'}}{$source} = [];
+		}
+		push @{ ${$self->{'conect'}}{$source} }, $serial;
+	}
+	return @{ ${$self->{'conect'}}{$source} };
+}
+
+
+=head2 get_atom_by_serial()
+
+ Title   : get_atom_by_serial
+ Usage   : $structure->get_atom_by_serial($module, $serial);
+ Function: get the Atom for a  for get_atom_by_serial
+ Returns : the Atom object with this serial number in the model
+ Args    : Model on which to work, serial number for atom
+ 	(if only a number is supplied, the first model is chosen)
+
+=cut
+
+sub get_atom_by_serial {
+	my ($self, $model, $serial) = @_;
+
+	if ($model =~ /^\d+$/ && !defined $serial) { # only serial given
+		$serial = $model;
+		my @m = $self->get_models($self);
+		$model = $m[0];
+	}
+	if ( !defined $model || ref($model) !~ /^Bio::Structure::Model/ ) {
+		$self->throw("Could not find (first) model\n");
+	}
+	if ( !defined $serial || ($serial !~ /^\d+$/) ) {
+		$self->throw("The serial number you provided looks fishy ($serial)\n");
+	}
+	for my $chain ($self->get_chains($model) ) {
+		for my $residue ($self->get_residues($chain) ) {
+			for my $atom ($self->get_atoms($residue) ) {
+				# this could get expensive, do we cache ???
+				next unless ($atom->serial == $serial);
+				return $atom;
+			}
+		}
+	}
+} 
+
 sub parent {
 	my ($self, $obj) = @_;
 	
@@ -601,14 +662,18 @@ sub parent {
 sub DESTROY {
 	my $self = shift;
 
-	for my $pc (keys %{ $self->{'p_c'} } ) {
-		next unless ( defined ${ $self->{'p_c'} }{$pc} );
-		delete ${$self->{'p_c'}}{$pc};
-	}
-	for my $cp (keys %{ $self->{'c_p'} } ) {
-		next unless ( defined ${ $self->{'c_p'} }{$cp} );
-		delete ${$self->{'c_p'}}{$cp};
-	}
+	#print STDERR "DESTROY on $self being called\n";
+
+##	for my $pc (keys %{ $self->{'p_c'} } ) {
+##		next unless ( defined ${ $self->{'p_c'} }{$pc} );
+##		delete ${$self->{'p_c'}}{$pc};
+##	}
+##	for my $cp (keys %{ $self->{'c_p'} } ) {
+##		next unless ( defined ${ $self->{'c_p'} }{$cp} );
+##		delete ${$self->{'c_p'}}{$cp};
+##	}
+	%{ $self->{'p_c'} } = ();
+	%{ $self->{'c_p'} } = ();
 }
 
 # copied from Bio::Seq.pm
@@ -657,7 +722,7 @@ sub _remove_models {
 }
 
 
-=HEAD2 _create_default_model()
+=head2 _create_default_model()
 
  Title   : _create_default_model
  Usage   : 
@@ -696,7 +761,7 @@ sub _create_default_chain {
 
 
 
-=HEAD2 _parent()
+=head2 _parent()
 
  Title   : _parent
  Usage   : This is an internal function only. It is used to have one 
@@ -706,7 +771,7 @@ sub _create_default_chain {
 	of reference cycles).
 	This method hides the details of manipulating references to an anonymous
 	hash.
- Function: To get/set an object's parent 
+ Function: To get/set an objects parent 
  Returns : a reference to the parent if it exist, undef otherwise. In the 
  	current implementation each node should have a parent (except Entry).
  Args    : 
@@ -714,16 +779,11 @@ sub _create_default_chain {
 =cut
 
 # manipulating the c_p hash
+
 sub _parent {
 	no strict "refs";
 	my ($self, $key, $value) = @_;
 	
-	my $tref = \%{$self};
-	bless $tref, "Bio::Structure::Entry";
-#print STDERR "_parent $self k ", $key ? $key : "", " v  ", $value ? $value : "","\n";
-#print STDERR "_parent key is ref: ", ref($key) ? "yes" : "no","\n";
-#print STDERR "_parent self is ref: ", ref($self) ? "yes" : "no","\n";
-#print STDERR "_parent tref is ref: ", ref($tref) ? "yes" : "no","\n";
 	if ( (!defined $key) || (ref($key) !~ /^Bio::/) ) {
 		$self->throw("First argument to _parent needs to be a reference to a Bio:: object ($key)\n");
 	}
@@ -733,20 +793,17 @@ sub _parent {
 	# no checking here for consistency of key and value, needs to happen in caller
 	
 	if (defined $value) {
-#print STDERR "_parent in setter\n";
 		# is this value already in, shout
 		if (exists( ${ $self->{'c_p'} }{$key} ) ) {
 			$self->throw("_parent: $key already has a parent ${$self->{'c_p'}}{$key}\n");
 		}
 		${$self->{'c_p'}}{$key} = $value;
 	}
-#print STDERR "_parent before return $key\n";
-#print STDERR "_parent $tref->{'c_p'}\n";
 	return ${$self->{'c_p'}}{$key}; 
 }
 
 
-=HEAD2 _child()
+=head2 _child()
 
  Title   : _child
  Usage   : This is an internal function only. It is used to have one 
@@ -786,7 +843,7 @@ sub _child {
 
 
 
-=HEAD2 _remove_from_graph()
+=head2 _remove_from_graph()
 
  Title   : _remove_from_graph
  Usage   : This is an internal function only. It is used to remove from

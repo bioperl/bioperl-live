@@ -216,6 +216,26 @@ sub icode {
 }
 
 
+=head2 serial()
+
+ Title   : serial
+ Usage   : $serial = $atom->serial($serial)
+ Function: Sets/gets the serial number
+ Returns : Returns the serial number for this atom
+ Args    : reference to an Atom
+
+=cut
+
+sub serial {
+	my($self, $value) = @_;
+
+	if (defined $value) {
+		$self->{'serial'} = $value;
+	}
+	return $self->{'serial'};
+}
+
+
 =head2 occupancy()
 
  Title   : occupancy
@@ -294,6 +314,190 @@ sub charge {
 	}
 	return $self->{'charge'};
 }
+
+
+=head2 sigx()
+
+ Title   : sigx
+ Usage   : $sigx = $atom->sigx($sigx)
+ Function: Sets/gets the sigx
+ Returns : Returns the sigx for this atom
+ Args    : reference to an Atom
+
+=cut
+
+sub sigx {
+	my($self, $value) = @_;
+
+	if (defined $value) {
+		$self->{'sigx'} = $value;
+	}
+	return $self->{'sigx'};
+}
+
+
+=head2 sigy()
+
+ Title   : sigy
+ Usage   : $sigy = $atom->sigy($sigy)
+ Function: Sets/gets the sigy
+ Returns : Returns the sigy for this atom
+ Args    : reference to an Atom
+
+=cut
+
+sub sigy {
+	my($self, $value) = @_;
+
+	if (defined $value) {
+		$self->{'sigy'} = $value;
+	}
+	return $self->{'sigy'};
+}
+
+
+=head2 sigz()
+
+ Title   : sigz
+ Usage   : $sigz = $atom->sigz($sigz)
+ Function: Sets/gets the sigz
+ Returns : Returns the sigz for this atom
+ Args    : reference to an Atom
+
+=cut
+
+sub sigz {
+	my($self, $value) = @_;
+
+	if (defined $value) {
+		$self->{'sigz'} = $value;
+	}
+	return $self->{'sigz'};
+}
+
+
+=head2 sigocc()
+
+ Title   : sigocc
+ Usage   : $sigocc = $atom->sigocc($sigocc)
+ Function: Sets/gets the sigocc
+ Returns : Returns the sigocc for this atom
+ Args    : reference to an Atom
+
+=cut
+
+sub sigocc {
+	my($self, $value) = @_;
+
+	if (defined $value) {
+		$self->{'sigocc'} = $value;
+	}
+	return $self->{'sigocc'};
+}
+
+
+=head2 sigtemp()
+
+ Title   : sigtemp
+ Usage   : $sigtemp = $atom->sigtemp($sigtemp)
+ Function: Sets/gets the sigtemp
+ Returns : Returns the sigtemp for this atom
+ Args    : reference to an Atom
+
+=cut
+
+sub sigtemp {
+	my($self, $value) = @_;
+
+	if (defined $value) {
+		$self->{'sigtemp'} = $value;
+	}
+	return $self->{'sigtemp'};
+}
+
+
+=head2 aniso()
+
+ Title   : aniso
+ Usage   : $u12 = $atom->aniso("u12", $u12)
+ Function: Sets/gets the anisotropic temperature factors
+ Returns : Returns the requested factor for this atom
+ Args    : reference to an Atom, name of the factor, value for the factor
+
+=cut
+
+sub aniso {
+	my($self, $name, $value) = @_;
+
+	if ( !defined $name) {
+		$self->throw("You need to supply a name of the anisotropic temp factor you want to get");
+	}
+	if (defined $value) {
+		$self->{$name} = $value;
+	}
+	return $self->{$name};
+}
+
+# placeholders 
+sub u11 {
+	my ($self, $name, $value) = @_;
+	$self->aniso($name,$value);
+}
+sub u22 {
+	my ($self, $name, $value) = @_;
+	$self->aniso($name,$value);
+}
+sub u33 {
+	my ($self, $name, $value) = @_;
+	$self->aniso($name,$value);
+}
+sub u12 {
+	my ($self, $name, $value) = @_;
+	$self->aniso($name,$value);
+}
+sub u13 {
+	my ($self, $name, $value) = @_;
+	$self->aniso($name,$value);
+}
+sub u23 {
+	my ($self, $name, $value) = @_;
+	$self->aniso($name,$value);
+}
+sub sigu11 {
+	my ($self, $name, $value) = @_;
+	$self->aniso($name,$value);
+}
+sub sigu22 {
+	my ($self, $name, $value) = @_;
+	$self->aniso($name,$value);
+}
+sub sigu33 {
+	my ($self, $name, $value) = @_;
+	$self->aniso($name,$value);
+}
+sub sigu12 {
+	my ($self, $name, $value) = @_;
+	$self->aniso($name,$value);
+}
+sub sigu13 {
+	my ($self, $name, $value) = @_;
+	$self->aniso($name,$value);
+}
+sub sigu23 {
+	my ($self, $name, $value) = @_;
+	$self->aniso($name,$value);
+}
+
+
+
+
+
+
+
+
+
+
+
 
 
 =head2 id()
