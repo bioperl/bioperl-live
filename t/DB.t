@@ -178,7 +178,7 @@ eval {
     ok( defined $seq);
     ok( $seq->length, 1611);
     # batch mode requires genbank format
-    $gb->request_format("genbank");
+    $gb->request_format("gb");
     ok(defined($seqio = $gb->get_Stream_by_batch([ qw(J00522 AF303112 
 							2981014)])));
     ok( $seqio->next_seq->length, 408);
