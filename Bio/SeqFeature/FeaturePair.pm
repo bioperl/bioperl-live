@@ -95,6 +95,7 @@ use Bio::SeqFeature::Generic;
 
 @ISA = qw(Bio::SeqFeature::Generic);
 
+
 sub new {
     my ($class, @args) = @_;
     my $self = $class->SUPER::new(@args);
@@ -157,6 +158,73 @@ sub feature2 {
     return $self->{'feature2'};
 }
 
+=head2 sub_SeqFeature
+
+ Title   : sub_SeqFeature
+ Usage   : @subfeats = $featpair->sub_SeqFeature
+ Function: gets subfeatures
+ Returns : list of features
+ Args    : none
+
+This fetches the subfeatures from feature1.
+
+=cut
+
+sub sub_SeqFeature {
+    my $self = shift;
+    return $self->feature1->sub_SeqFeature(@_);
+}
+
+=head2 start
+
+ Title   : start
+ Usage   : $start = $featpair->start
+           $featpair->start(20)
+ Function: Get/set on the start coordinate of feature1
+ Returns : integer
+ Args    : [optional] beginning of feature
+
+=cut
+
+sub start {
+    my ($self,$value) = @_;    
+    return $self->feature1->start($value);
+}
+
+=head2 end
+
+ Title   : end
+ Usage   : $end = $featpair->end
+           $featpair->end($end)
+ Function: get/set on the end coordinate of feature1
+ Returns : integer
+ Args    : [optional] ending point of feature
+
+
+=cut
+
+sub end{
+    my ($self,$value) = @_;    
+    return $self->feature1->end($value);    
+}
+
+=head2 strand
+
+ Title   : strand
+ Usage   : $strand = $feat->strand()
+           $feat->strand($strand)
+ Function: get/set on strand information, being 1,-1 or 0
+ Returns : -1,1 or 0
+ Args    : [optional] strand information to set
+
+
+=cut
+
+sub strand{
+    my ($self,$arg) = @_;
+    return $self->feature1->strand($arg);    
+}
+
 # Internal overridable getter/setter for the actual stored value of
 # seq_id.  Delegates to the same method in feature1.
 sub _seq_id {
@@ -184,6 +252,7 @@ sub _strand {
   my $self = shift;
   $self->feature1()->_strand( @_ );
 } # _strand(..)
+
 
 =head2 location
 
@@ -289,7 +358,28 @@ sub source_tag{
 
 sub seqname{
     my ($self,$arg) = @_;
-    return $self->feature1->seq_id($arg);    
+    return $self->feature1->seq_id($arg);
+}
+
+=head2 unique_id
+
+ Title   : unique_id
+ Usage   : $obj->unique_id($newval)
+ Function: This is a unique identifier that identifies this object.
+           If not set, will return the memory location.
+
+           This attribute should *not* be used in GFF dumping, as
+           that should come from the collection in which the seq
+           feature was found or from seq_id().
+ Returns : value of unique_id
+ Args    : newvalue (optional)
+
+
+=cut
+
+sub unique_id {
+    my ($self,$arg) = @_;
+    return $self->feature1->unique_id($arg);
 }
 
 =head2 hseqname
@@ -427,6 +517,27 @@ sub hprimary_tag{
 sub hsource_tag{
     my ($self,$arg) = @_;
     return $self->feature2->source_tag($arg);
+}
+
+=head2 hunique_id
+
+ Title   : hunique_id
+ Usage   : $obj->hunique_id($newval)
+ Function: This is a unique identifier that identifies this object.
+           If not set, will return the memory location.
+
+           This attribute should *not* be used in GFF dumping, as
+           that should come from the collection in which the seq
+           feature was found or from seq_id().
+ Returns : value of hunique_id
+ Args    : newvalue (optional)
+
+
+=cut
+
+sub hunique_id {
+    my ($self,$arg) = @_;
+    return $self->feature2->unique_id($arg);
 }
 
 =head2 invert

@@ -86,6 +86,8 @@ use strict;
 use Bio::Root::IO;
 use Bio::SeqAnalysisParserI;
 use Bio::SeqFeature::Generic;
+use Bio::SeqFeature::FeaturePair;
+use Bio::Location;
 
 @ISA = qw(Bio::Root::Root Bio::SeqAnalysisParserI Bio::Root::IO);
 
@@ -136,105 +138,95 @@ sub new {
 =cut
 
 sub features {
-   my $self = shift;
-
-   local $_;
-   my (%features,%parents,%ids);
-
-   while ( defined($_ = $self->_readline) ) {
-       if (/^\#\#gff-version\s+(\d+)/) {
-           $self->gff_version($1);
-       }
-     next if /^\#/;
-     next if /^\s*$/;
-     next if /^\/\//;
-     chomp;
-
-     $self->throw('This method is only valid with the GFF3 format')
-       unless $self->gff_version >= 3;
-
-     my $feat = Bio::SeqFeature::Generic->new();
-     my @groups = $self->from_gff_string($feat,$_);
-     my $id = $feat->unique_id || "$feat";  # either its unique ID or a memory location
-
-     # Have we seen a feature with the same ID before?  If so, then the GFF3
-     # semantics are trying to tell us that this is a disjunct location.
-     if (my $prev = $features{$id}) {
-       $self->_fixup_coordinates($feat,@features{@groups}); # BUG: MULTIPLE PARENTS?
-       $self->_add_disjunct_location($prev,$feat);
-       next;  # we're done with this feature
-     }
-
-     for my $group (@groups) {  # fix up group membership
-        $parents{$group}{$id}++;  # keep track of heritage
-	defined(my $parent = $features{$group}) or next;
-        $self->_fixup_coordinates($feat,$parent);
-        $parent->add_SeqFeature($feat);
-     }
-
-     $features{$id} = $feat;
-     $ids{"$feat"}  = $id;  # to avoid costly method call later
-   }
-
-   # final fixup.
-   # we need to go through all the features and find those that
-   # 1) have an instantiated parent, and therefore are not top level
-   #    and should be excluded.
-   # 2) have a parent ID, but no instantiated parent, and need to be
-   #    adopted.  They are then excluded too.
-   my %exclude;
-   for my $parent_id (keys %parents) {
-
-     if ($features{$parent_id}) {  # has an instantiated parent
-       $exclude{$_}++ foreach keys %{$parents{$parent_id}};
-       next;
-     }
-
-     my $parent = Bio::SeqFeature::Generic->new(-primary=>'region');
-     for my $child_id (keys %{$parents{$parent_id}}) {
-       $parent->add_SeqFeature($features{$child_id},'EXPAND');
-       $exclude{$child_id}++;
-     }
-   }
-#   use Data::Dumper;
-#   print Dumper \%ids;
-#   die Dumper \%exclude;
-
-   return grep {!$exclude{$ids{"$_"}}} values %features;
-}
-
-sub _add_disjunct_location {
   my $self = shift;
-  my ($prev,$feat) = @_;
+  $self->throw('This method is only valid with the GFF3 format')
+    unless $self->gff_version >= 3;
 
-     # The GFF3 semantics are trying to tell us that this is a
-     # disjunct location, such as a segment in a gapped alignment.
-     # Alternatively, somebody *might* by trying to indicate that this
-     # is an alternative coordinate system for the same feature; not a
-     # good idea, but we'll handle it gracefully.
-  if ($prev->seq_id eq $feat->seq_id) {
+  local $_;
+  my (%features,%parents,%ids);
 
-    # add a disjunct location to the primary coordinate space
-      $prev->location->add_sub_Location($feat->location);
-
-    # and to the alternative coordinate spaces, if any
-    for my $alt ($feat->alternative_locations) {
-      foreach ($prev->alternative_locations($alt->seq_id)) {
-	$_->add_sub_Location($alt);
-      }
+  while ( defined($_ = $self->_readline) ) {
+    if (/^\#\#gff-version\s+(\d+)/) {
+      $self->gff_version($1);
     }
+    next if /^\#/;
+    next if /^\s*$/;
+    next if /^\/\//;
+    chomp;
+
+    my $feat = Bio::SeqFeature::Generic->new();
+    my @groups = $self->from_gff_string($feat,$_);
+    my $id = $feat->unique_id || "$feat";  # either its unique ID or a memory location
+
+    # Have we seen a feature with the same ID before?  If so, then the GFF3
+    # semantics are trying to tell us that this is a split location.
+    if (my $prev = $features{$id}) {
+      # fix relative coordinates if the child's location is expressed
+      # in parent locations
+      $self->_fixup_coordinates($feat,@features{@groups});
+      # add the split location
+      $prev->location->add_sub_Location($feat->location);
+      # add tag values to parent
+      $prev->add_tag_value($_,$feat->get_tag_values($_)) foreach $feat->get_all_tags;
+      next;  # we're done with this feature
+    }
+
+    for my $parent (@groups) {  # fix up group membership
+      $parents{$id}{$parent}++;  # keep track of heritage
+      defined(my $parent = $features{$parent}) or next;
+      $self->_fixup_coordinates($feat,$parent);
+      $parent->add_SeqFeature($feat);
+    }
+
+    $features{$id} = $feat;
+    $ids{"$feat"}  = $id;  # to avoid costly method call later
   }
 
-  # never seen this seq_id before, so create a new alternative
-  # coordinate system for it (probably not a good idea in GFF format).
-  else {
-    $prev->add_alternative_location($feat->location);
+  # Final fixup.
+  # we need to go through all the parent features and find those that
+  # 1) themselves have a parent, and therefore are not top level
+  #    and should be excluded.
+  # 2) have a parent ID, but no instantiated parent, and need to be
+  #    adopted.  They are then excluded too.
+  # 3) have a Target attribute.  In this case, the feature is replaced
+  #    by a Bio::SeqFeature::FeaturePair
+  my %exclude;
+  for my $id (keys %features) {
+
+    if (my $p = $parents{$id}) { # has parents
+      for my $parent_id (keys %$p) {
+	unless ($features{$parent_id}) { # orphan
+	  my $parent = Bio::SeqFeature::Generic->new(-primary=>'region');
+	  $parent->add_SeqFeature($features{$id},'EXPAND');
+	  $features{"$parent"} = $parent;
+	}
+      }
+      $exclude{$id}++;
+    }
+
+    # Replace features with Target attributes with Bio::SeqFeature::FeaturePair
+    # objects.
+    if ($features{$id}->has_tag('Target')) {
+      my @target_locs = $features{$id}->get_tag_values('Target');
+      my $f = $features{$id};
+      my $target = Bio::SeqFeature::Generic->new(-primary=>'match');
+      $target->unique_id($target_locs[0]->seq_id);  # questionable; might be ok
+      $target->location($target_locs[0]);
+      shift @target_locs;
+      for my $loc (@target_locs) {
+	$target->location->add_sub_Location($loc);
+      }
+      my $source = bless {%$f},ref $f;
+      my $pair = Bio::SeqFeature::FeaturePair->new(-feature1=>$source,
+						   -feature2=>$target);
+      %{$features{$id}} = %$pair;
+      bless $features{$id},ref $pair;
+      $ids{$features{$id}} = $id;
+    }
+
   }
 
-  # last fix-up: copy tags
-  foreach ($feat->get_all_tags) {
-      $prev->add_tag_value($_,$prev->get_tag_values);
-  }
+  return grep {!exists $exclude{$ids{"$_"}}} values %features;
 }
 
 
@@ -476,31 +468,61 @@ sub _from_gff2_string {
 sub _from_gff3_string {
    my ($gff, $feat, $string) = @_;
    chomp($string);
+<<<<<<< GFF.pm
+   my ($seqname, $source, $type, $start, $end, $score, $strand, $frame, $attribs) = split(/\t+/,$string,9);
+=======
    my ($seqname, $source, $type, $start, $end, $score, $strand, $frame, $attribs) = split(/\t+/,$string,10);
+>>>>>>> 1.26.6.4
    $feat->throw("[$string] does not look like GFF3 to me") unless defined $frame;
    $frame = 0 unless $frame =~ /^\d+$/;
-   $feat->seq_id($seqname);
    $feat->primary_tag($type);
    $feat->source_tag($source);
+<<<<<<< GFF.pm
+   $feat->location(Bio::Location->new(-seq_id=>$seqname,
+				      -start =>$start,
+				      -end   =>$end,
+				      -strand=>$STRANDS{$strand}||0));
+
+   my @groups;
+=======
    $feat->start($start);
    $feat->end($end);
    $feat->strand($STRANDS{$strand}||0);
 # CJM
 # gff3 does not have groups, only attributes
 #   my @groups     = grep {$_ ne '.'} map {_unescape($_)} split /;\s*/,$groups;
+>>>>>>> 1.26.6.4
    my @attributes = split /;\s*/,$attribs if $attribs;
    my @groups = ();
    foreach (@attributes) {
       my ($name,$value) = split /=/,$_,2;
+      Bio::Root::Root->throw(qq("$_" is not a valid attribute=value pair)) unless defined $value;
       _unescape($name);
+<<<<<<< GFF.pm
+      my @values = split /,/,$value;
+      _unescape(@values);
+
+=======
       _unescape($value);
       if (!$value) {
 #          $gff->throw("BAD:$_");
           next;
       }
       my @values = split(/\,/, $value);
+>>>>>>> 1.26.6.4
       # handle special cases
       if ($name eq 'ID') {
+<<<<<<< GFF.pm
+	# only one unique ID is allowed, and cannot reset the unique
+	# id in the middle of the stream, thank-you-very-much
+	$feat->unique_id($values[0]) unless $feat->unique_id;
+	next;
+      }
+
+      if ($name eq 'Parent') {
+	push @groups,@values;
+	next;
+=======
           if (@values > 1) {
               $gff->throw("You said ID= @values; ID must have cardinality 1");
           }
@@ -510,31 +532,39 @@ sub _from_gff3_string {
       if ($name eq 'Parent') {
           # CJM I added this
           push(@groups, @values);
+>>>>>>> 1.26.6.4
       }
-      if ($name eq 'Target') {
+
+      if ($name eq 'Target') {  # turn into a location
           my ($target,$tstart,$tend) = $value =~ /^(.+):(\d+)\.\.(\d+)$/ or next;
           my $tstrand = ($start < $end) ? +1 : -1;
-          my $location = Bio::Location::Simple->new(
-						    -start  => $tstart,
-						    -end    => $tend,
-						    -seq_id => $target,
-						    -strand => $tstrand
+          my $location = Bio::Location->new(
+					    -start  => $tstart,
+					    -end    => $tend,
+					    -seq_id => $target,
+					    -strand => $tstrand
 						   );
-          $feat->add_alternative_locations($location);
+          $feat->add_tag_value(Target=>$location);
           next;
       }
 
-      $feat->add_tag_value($name => $value);
+      $feat->add_tag_value($name => $_) foreach @values;
    }
+<<<<<<< GFF.pm
+
+   return @groups;
+=======
    # CJM reurn groups
    (@groups)
+>>>>>>> 1.26.6.4
 }
 
 sub _unescape {
-  return unless defined($_[0]);
-  $_[0] =~ tr/+/ /;       # pluses become spaces
-  $_[0] =~ s/%([0-9a-fA-F]{2})/chr hex($1)/g;
-  $_[0];
+  foreach (@_) {
+    tr/+/ /;       # pluses become spaces
+    s/%([0-9a-fA-F]{2})/chr hex($1)/g;
+  }
+  @_;
 }
 
 =head2 _fixup_coordinates

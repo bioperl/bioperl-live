@@ -24,7 +24,9 @@ SeqFeatureIs passed in CollectionIs.
 
 =head1 DESCRIPTION
 
-A CollectionProviderI is an object that can return Bio::SeqFeature::CollectionIs of Bio::SeqFeatureIs, and can optionally update/add/remove SeqFeatures.
+A CollectionProviderI is an object that can return
+Bio::SeqFeature::CollectionIs of Bio::SeqFeatureIs, and can optionally
+update/add/remove SeqFeatures.
 
 Features can be filtered by the following attributes:
 
