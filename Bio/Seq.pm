@@ -2605,12 +2605,12 @@ sub Rna_to_Dna {
 
 sub translate {
   my($self) = shift;
-  my($stop,$unknown) = @_;
-  my($i,$len,$output) = (0,0,'');
+  my($stop, $unknown) = @_;
+  my($i, $len, $output) = (0,0,'');
   my($codon)   = "";
 
   my($seq) = $self->{"seq"};
-  
+
   ## User can pass in symbol for stop and unknown codons
   unless(defined($stop))    { $stop    = "*"; }
   unless(defined($unknown)) { $unknown = "X"; }
@@ -2632,17 +2632,17 @@ sub translate {
 
   # if the seq have T's at this point. Worry...
 
-    if( $seq =~ /(.?.?Tt.?.?)/ ) {
+    if( $seq =~ /[Tt]/ ) {
 	$self->warn("sequence [$1] in translation has some T's when we are very RNA based in our translate function. Could well be a problem in your sequence type. Likely to produce the *wrong* result.");
     }
 
-  for($len=length($seq),$seq =~ tr/a-z/A-Z/,$i=0; $i<($len-2) ; $i+=3) {
-    $codon = substr($seq,$i,3);
-
+#  for($len=length($seq),$seq =~ tr/a-z/A-Z/,$i=0; $i<($len-2) ; $i+=3) {
+#    $codon = substr($seq,$i,3);
+  for $codon ( grep { length == 3 } split(/(.{3})/, $seq) ) {
 
     # would this be easier with a hash system (?) EB
 
-    if   ($codon =~ /^UC/)     {$output .= 'S'; }       # Serine
+    if   ($codon =~ /^UC[AUGC]/)     {$output .= 'S'; }       # Serine
     elsif($codon =~ /^UU[UC]/) {$output .= 'F'; }       # Phenylalanine
     elsif($codon =~ /^UU[AG]/) {$output .= 'L'; }       # Leucine
     elsif($codon =~ /^UA[UC]/) {$output .= 'Y'; }       # Tyrosine
@@ -2650,23 +2650,23 @@ sub translate {
     elsif($codon =~ /^UG[UC]/) {$output .= 'C'; }       # Cysteine
     elsif($codon =~ /^UGA/)    {$output .= $stop; }     # Stop
     elsif($codon =~ /^UGG/)    {$output .= 'W'; }       # Tryptophan
-    elsif($codon =~ /^CU/)     {$output .= 'L'; }       # Leucine
-    elsif($codon =~ /^CC/)     {$output .= 'P'; }       # Proline
+    elsif($codon =~ /^CU[AUGC]/)     {$output .= 'L'; }       # Leucine
+    elsif($codon =~ /^CC[AUGC]/)     {$output .= 'P'; }       # Proline
     elsif($codon =~ /^CA[UC]/) {$output .= 'H'; }       # Histidine
     elsif($codon =~ /^CA[AG]/) {$output .= 'Q'; }       # Glutamine
-    elsif($codon =~ /^CG/)     {$output .= 'R'; }       # Arginine
+    elsif($codon =~ /^CG[AUGC]/)     {$output .= 'R'; }       # Arginine
     elsif($codon =~ /^AU[UCA]/){$output .= 'I'; }       # Isoleucine
     elsif($codon =~ /^AUG/)    {$output .= 'M'; }       # Methionine
-    elsif($codon =~ /^AC/)     {$output .= 'T'; }       # Threonine
+    elsif($codon =~ /^AC[AUGC]/)     {$output .= 'T'; }       # Threonine
     elsif($codon =~ /^AA[UC]/) {$output .= 'N'; }       # Asparagine
     elsif($codon =~ /^AA[AG]/) {$output .= 'K'; }       # Lysine
     elsif($codon =~ /^AG[UC]/) {$output .= 'S'; }       # Serine
     elsif($codon =~ /^AG[AG]/) {$output .= 'R'; }       # Arginine
-    elsif($codon =~ /^GU/)     {$output .= 'V'; }       # Valine
-    elsif($codon =~ /^GC/)     {$output .= 'A'; }       # Alanine
+    elsif($codon =~ /^GU[AUGC]/)     {$output .= 'V'; }       # Valine
+    elsif($codon =~ /^GC[AUGC]/)     {$output .= 'A'; }       # Alanine
     elsif($codon =~ /^GA[UC]/) {$output .= 'D'; }       # Aspartic Acid
     elsif($codon =~ /^GA[AG]/) {$output .= 'E'; }       # Glutamic Acid
-    elsif($codon =~ /^GG/)     {$output .= 'G'; }       # Glycine
+    elsif($codon =~ /^GG[AUGC]/)     {$output .= 'G'; }       # Glycine
     else {$output .= $unknown; }                        # Unknown Codon
   }
 
