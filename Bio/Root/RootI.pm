@@ -191,6 +191,35 @@ sub warn {
     0;
 }
 
+
+=head2 _set_warning
+
+ Purpose   : To record data regarding recoverable error conditions.
+ Usage     : n/a; called automatically by Bio::Root::Object::warn() 
+ Arguments : Arguments passed as-is to _set_err().
+ Comments  : An object with a warning should be considered 
+           : completely operational, so use this type of error sparingly. 
+           : These errors are intended for problem conditions which:
+           :  1. Don't destroy the basic functionality of the object.
+           :  2. Might be of incidental interest to the user.
+           :  3. Are of interest to the programmer but not the end user.
+
+See also   : L<warn>(), L<_set_err>(), L<err>()
+
+=cut
+
+#-----------------'
+sub _set_warning {  
+#-----------------
+    my( $self, @data ) = @_;  
+    
+    my $err = $self->_set_err(@data, -STACK_NUM=>4);
+    $err->last->set('type','WARNING');
+    $self->_set_err_state($err);
+}
+
+
+
 =head2 _set_err
 
  Purpose   : To create a Bio::Root::Err.pm object and optionally attach it
