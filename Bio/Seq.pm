@@ -36,18 +36,18 @@ also implements its interface.
 
 In Bioperl we have 3 main players that people are going to use frequently
 
-  Bio::PrimarySeq  - just the sequence and its names, nothing else.
-  Bio::SeqFeatureI - a location on a sequence, potentially with a sequence
+  L<Bio::PrimarySeq>  - just the sequence and its names, nothing else.
+  L<Bio::SeqFeatureI> - a location on a sequence, potentially with a sequence
                      and annotation.
-  Bio::Seq         - A sequence and a collection of sequence features
+  L<Bio::Seq>         - A sequence and a collection of sequence features
                      (an aggregate) with its own annotation.
 
 Although Bioperl is not tied heavily to file formats these distinctions do
 map to file formats sensibly and for some bioinformaticians this might help
 
-  Bio::PrimarySeq  - Fasta file of a sequence
-  Bio::SeqFeatureI - A single entry in an EMBL/GenBank/DDBJ feature table
-  Bio::Seq         - A single EMBL/GenBank/DDBJ entry
+  L<Bio::PrimarySeq>  - Fasta file of a sequence
+  L<Bio::SeqFeatureI> - A single entry in an EMBL/GenBank/DDBJ feature table
+  L<Bio::Seq>         - A single EMBL/GenBank/DDBJ entry
 
 By having this split we avoid a lot of nasty circular references
 (sequence features can hold a reference to a sequence without the sequence
@@ -244,8 +244,9 @@ Please see L<Bio::Species> for more information on this object.
 
   $seqobj->annotation();
 
-These annotations typically refer to entire sequences, unlike features.
-See L<Bio::Annotation>, L<Bio::Annotation::Reference>, and
+These annotations typically refer to entire sequences, unlike
+features.  See L<Bio::AnnotationCollectionI>,
+L<Bio::Annotation::Collection>, L<Bio::Annotation::Reference>, and
 L<Bio::Annotation::Comment> for details.
 
 It is also important to be able to describe defined portions of a
@@ -360,7 +361,7 @@ use Bio::RangeI;
 use Bio::Annotation::Collection;
 use Bio::PrimarySeq;
 
-$VERSION = '1.0';
+$VERSION = '1.1';
 @ISA = qw(Bio::Root::Root Bio::SeqI Bio::RangeI);
 
 =head2 new
@@ -1035,8 +1036,8 @@ sub _retrieve_subSeqFeature {
  Usage   : $species = $seq->species() or $seq->species($species)
  Function: Gets or sets the species
  Example :
- Returns : Bio::Species object
- Args    : None or Bio::Species object
+ Returns : L<Bio::Species> object
+ Args    : None or L<Bio::Species> object
 
 See L<Bio::Species> for more information
 
@@ -1058,10 +1059,11 @@ sub species {
  Usage   : $ann = $seq->annotation or $seq->annotation($annotation)
  Function: Gets or sets the annotation
  Example :
- Returns : Bio::AnnotationCollectionI object
- Args    : None or Bio::AnnotationCollectionI object
+ Returns : L<Bio::AnnotationCollectionI> object
+ Args    : None or L<Bio::AnnotationCollectionI> object
 
-See L<Bio::AnnotationCollectionI> for more information
+See L<Bio::AnnotationCollectionI> and L<Bio::Annotation::Collection>
+for more information
 
 =cut
 

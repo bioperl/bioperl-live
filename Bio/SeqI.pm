@@ -1,4 +1,4 @@
-
+# $Id$
 #
 # BioPerl module for Bio::SeqI
 #
