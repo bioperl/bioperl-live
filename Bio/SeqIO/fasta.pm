@@ -121,11 +121,11 @@ sub next_seq {
     
     if (defined $id && $id eq '') {$id=$fulldesc;} # FIX incase no space 
                                                    # between > and name \AE
-    $sequence =~ s/\s//g;	# Remove whitespace
+    defined $sequence && $sequence =~ s/\s//g;	# Remove whitespace
 
     # for empty sequences we need to know the mol.type
     $alphabet = $self->alphabet();
-    if(length($sequence) == 0) {
+    if(defined $sequence && length($sequence) == 0) {
 	if(! defined($alphabet)) {
 	    # let's default to dna
 	    $alphabet = "dna";
