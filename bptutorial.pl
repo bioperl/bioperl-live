@@ -132,8 +132,8 @@ In order to take advantage of bioperl, the user needs a basic
 understanding of the perl programming language including an
 understanding of how to use perl references, modules, objects and
 methods. If these concepts are unfamiliar the user is referred to any
-of the various introductory / intermediate books on perl. (I\'ve liked
-S. Holzmer\'s Perl Core Language, Coriolis Technology Press, for
+of the various introductory / intermediate books on perl. (I've liked
+S. Holzmer's Perl Core Language, Coriolis Technology Press, for
 example).  This tutorial is not intended to teach the fundamentals of
 perl to those with little or no experience in the perl language.  On
 the other hand, advanced knowledge of perl - such as how to write a
@@ -386,7 +386,7 @@ is designed to simply report that the desired capability is not available.
 However, since the testing of bioperl in these environments has been
 limited, the script may well crash in a less "graceful" manner.
 
-=head1 II. Brief introduction to bioperl\'s objects
+=head1 II. Brief introduction to bioperl's objects
 
 The purpose of this tutorial is to get you using bioperl to solve
 real-life bioinformatics problems as quickly as possible.  The aim is
@@ -507,12 +507,12 @@ Feature object to indicate where on a larger structure (eg a chromosome or
 contig) the feature can be found.  The reason why this simple concept has
 evolved in a collection of rather complicated objects is that
 
-1) Some objects have multiple locations or sub-locations (eg a gene\'s exons
+1) Some objects have multiple locations or sub-locations (e.g. a gene's exons
 may have multiple start and stop locations)
 2) In unfinished genomes, the precise locations of features is not known with
 certainty.
 
-Bioperl\'s various Location objects address these complications.  In addition
+Bioperl's various Location objects address these complications.  In addition
 there are "CoordinatePolicy" objects that allow the user to specify how to
 measure the "length" of a feature if its precise start and end coordinates are
 not know. In most cases, you will not need to worry about these complications
@@ -1842,12 +1842,26 @@ with methods including:
 See L<Bio::Annotation> and L<Bio::SeqFeature::Generic> as starting points
 for further exploration, and see the scripts/gff2ps.pl script.
 
-In general, storing and retrieving feature information should be
-straightforward.  However, one potential trap relates to features whose
-location is either "split" - as in a multi-exon gene - or "fuzzy"
-- as when genomic coordinates are not yet known with certainty.  In
-these cases, the SeqFeature objects need to be built with
-one of the alternate Location objects described in Section L<"II.3">.
+It is worth mentioning that one can also retrieve the start and end
+positions of a feature using a Bio::LocationI object:
+
+  $location = $feat->location # $location is a Bio::LocationI object
+  $location->start;           # start position
+  $location->end;             # end position
+
+This is useful because one needs a Bio::Location::SplitLocationI object
+in order to retrieve the split coordinates inside the Genbank or EMBL join()
+statements (e.g. "CDS    join(51..142,273..495,1346..1474)"):
+
+  if ( $feat->location->isa('Bio::Location::SplitLocationI') &&
+	       $feat->primary_tag eq 'CDS' )  {
+    foreach $loc ( $feat->location->sub_Location ) {
+      print $loc->start . ".." . $loc->end . "\n";
+    }
+  }
+
+See L<Bio::LocationI> and L<Bio::Location::SplitLocationI> for more
+information.
 
 If more detailed annotation than available in Seq objects is required,
 the RichSeq object may be used. It is applicable in particular to
