@@ -1,0 +1,54 @@
+LOCUS       AI129902       37 bp    mRNA            EST       27-OCT-1998
+DEFINITION  qc41b07.x1 Soares_pregnant_uterus_NbHPU Homo sapiens cDNA clone
+            IMAGE:1712149 3' similar to SW:ROA1_SCHAM P21522 HETEROGENEOUS
+            NUCLEAR RIBONUCLEOPROTEIN A1, A2/B1 HOMOLOG. ;contains MSR1.b2 MSR1
+            repetitive element ;, mRNA sequence.
+ACCESSION   AI129902
+NID         g3598416
+VERSION     AI129902.1  GI:3598416
+KEYWORDS    EST.
+SOURCE      human.
+  ORGANISM  Homo sapiens
+            Eukaryota; Metazoa; Chordata; Craniata; Vertebrata; Mammalia;
+            Eutheria; Primates; Catarrhini; Hominidae; Homo.
+REFERENCE   1  (bases 1 to 37)
+  AUTHORS   NCI-CGAP http://www.ncbi.nlm.nih.gov/ncicgap.
+  TITLE     National Cancer Institute, Cancer Genome Anatomy Project (CGAP),
+            Tumor Gene Index
+  JOURNAL   Unpublished (1997)
+COMMENT     On May 8, 1995 this sequence version replaced gi:800643
+
+            Contact: Robert Strausberg, Ph.D.
+            Tel: (301) 496-1550
+            Email: Robert_Strausberg@nih.gov
+            This clone is available royalty-free through LLNL ; contact the
+            IMAGE Consortium (info@image.llnl.gov) for further information. 
+            Trace considered overall poor quality
+            Insert Length: 525   Std Error: 0.00
+            Seq primer: -40m13 fwd. ET from Amersham
+            High quality sequence stop: 1.
+FEATURES             Location/Qualifiers
+     source          1..37
+                     /organism="Homo sapiens"
+                     /db_xref="taxon:9606"
+                     /clone="IMAGE:1712149"
+                     /clone_lib="Soares_pregnant_uterus_NbHPU"
+                     /sex="female"
+                     /dev_stage="adult"
+                     /lab_host="DH10B"
+                     /note="Organ: uterus; Vector: pT7T3-Pac; Site_1: Not I;
+                     Site_2: Eco RI; 1st strand cDNA was primed with a Not I -
+                     oligo(dT) primer [5'
+                     AACTGGAAGAATTCGCGGCCGCCTTTTTTTTTTTTTTTTTT 3'],
+                     double-stranded cDNA was ligated to Eco RI adaptors
+                     (Pharmacia), digested with Not I and cloned into the Not I
+                     and Eco RI sites of the modified pT7T3 vector. Library
+                     went through one round of normalization.  Library
+                     constructed by M. Fatima Bonaldo."
+BASE COUNT        5 a     28 c      2 g      2 t
+ORIGIN      
+        1 ctccgcgcca actcccccca cccccccccc acacccc
+//
+
+
+
