@@ -2,7 +2,7 @@
 #
 # BioPerl module for Bio::DB::Flat::OBDAIndex
 #
-# Cared for by Michele Clamp <michele@sanger.ac.uk>
+# Cared for by Michele Clamp <michele@sanger.ac.uk>>
 #
 # You may distribute this module under the same terms as perl itself
 
@@ -111,7 +111,7 @@ object
 Now you can happily fetch sequences either by the primary key or
 by the secondary keys.
 
-    my $seq = $index->get_entry_by_id('HBA_HUMAN');
+    my $entry = $index->get_entry_by_id('HBA_HUMAN');
 
 This returns just a string containing the whole entry.  This is
 useful is you just want to print the sequence to screen or write it to a file.
@@ -195,7 +195,7 @@ use Bio::Seq;
 use constant CONFIG_FILE_NAME => 'config.dat';
 use constant HEADER_SIZE      => 4;
 
-my @formats = {'FASTA','SWISSPROT','EMBL'};
+my @formats = ['FASTA','SWISSPROT','EMBL'];
 
 =head2 new
 
@@ -296,21 +296,22 @@ sub new_from_registry {
 
 sub get_Seq_by_id {
     my ($self,$id) = @_;
-
+   
     my ($fh,$length) = $self->get_stream_by_id($id);
-
+    
     if (!defined($self->format)) {
 	$self->throw("Can't create sequence - format is not defined");
     }
-
-    if (!defined($fh)) {
-       return;
+   
+    if(!$fh){
+      return;
     }
-
     if (!defined($self->{_seqio})) {
+     
 	$self->{_seqio} = new Bio::SeqIO(-fh => $fh,
 					 -format => $self->format);
     } else {
+      
 	$self->{_seqio}->fh($fh);
     }
     
@@ -371,9 +372,9 @@ sub get_stream_by_id {
     
     my ($fileid,$pos,$length) = split(/\t/,$rest);
 
-#    print "Found id entry $newid $fileid $pos $length:$rest\n";
+    #print STDERR "OBDAIndex Found id entry $newid $fileid $pos $length:$rest\n";
 
-    if (!defined($newid)) {
+    if (!$newid) {
       return;
     }
 
@@ -478,12 +479,11 @@ sub get_Seq_by_secondary {
     my $current_id = $newid;
     my %primary_id;
 
-    $primary_id =~ s/ //g;
     $primary_id{$primary_id} = 1;
 
     while ($current_id eq $newid) {
 	$record = $self->read_record($fh,$pos,$recsize);
-	#print "Record is :$record:\n";
+	print "Record is :$record:\n";
 	my ($secid,$primary_id) = split(/\t/,$record,2);
 	$current_id = $secid;
 
@@ -501,15 +501,12 @@ sub get_Seq_by_secondary {
       return;
     }
 
-    my @seqs;
+    my $entry;
 
     foreach my $id (keys %primary_id) {
-	my $seq = $self->get_Seq_by_id($id);
-        if (defined($seq)) {
-          push(@seqs,$seq);
-        }
+	$entry .= $self->get_Seq_by_id($id);
     }
-    return @seqs;
+    return $entry;
 
 }
 
@@ -643,7 +640,7 @@ sub make_index {
     if (! -d $rootdir) {
 	$self->throw("Index directory [$rootdir] is not a directory. Cant' build indices");
     }
-    if (!defined(@files)) {
+    if (!(@files)) {
 	$self->throw("Must enter an array of filenames to index");
     }
     
@@ -707,7 +704,7 @@ sub _index_file {
     my $new_primary_entry;
     
     my $length;
-    my $pos = 0;
+    #my $pos = 0;
     my $fh = \*FILE;
 
     my $done = -1;
@@ -1124,7 +1121,7 @@ sub make_config_file {
 
     my @second = keys %$second_patterns;
 
-    if (defined(@second))  {
+    if ((@second))  {
 	print CON "secondary_namespaces";
 
 	foreach my $second (@second) {
@@ -1240,7 +1237,7 @@ sub read_config_file {
 
     my @fileid_keys = keys (%{$self->{_fileid}});
     
-    if (!defined(@fileid_keys)) {
+    if (!(@fileid_keys)) {
 	$self->throw("No flatfile fileid files in config - check the index has been made correctly");
     }
 
@@ -1294,7 +1291,7 @@ sub get_filehandle_by_fileid {
     if (!defined($self->{_fileid}{$fileid})) {
 	$self->throw("ERROR: undefined fileid in index [$fileid]");
     }
-
+   
     return $self->{_fileid}{$fileid};
 }
 
