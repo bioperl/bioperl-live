@@ -1,6 +1,6 @@
 # $Id$
 #
-# BioPerl module for Bio::Index::Abstract
+# BioPerl module for Bio::Index::EMBL
 #
 # Cared for by Ewan Birney <birney@sanger.ac.uk>
 #
@@ -21,7 +21,7 @@ Bio::Index::EMBL - Interface for indexing (multiple) EMBL/Swissprot
     use strict;
 
     my $Index_File_Name = shift;
-    my $inx = Bio::Index::EMBL->new('-filename' => $Index_File_Name, 
+    my $inx = Bio::Index::EMBL->new('-filename' => $Index_File_Name,
 				    '-write_flag' => 'WRITE');
     $inx->make_index(@ARGV);
 
@@ -132,7 +132,7 @@ sub _index_file {
         $file, # File name
         $i     # Index-number of file being indexed
         ) = @_;
-    
+
     my( $begin, # Offset from start of file of the start
                 # of the last found record.
         $id,    # ID of last found record.
@@ -167,10 +167,10 @@ sub _index_file {
 	    $id = $1;
 	    # not sure if I like this. Assummes tell is in bytes.
 	    # we could tell before each line and save it.
-            $begin = tell(EMBL) - length( $_ ); 
-	    
-	} elsif (/^AC(.*)/) { # ignore ? if there.
-	    @accs = ($1 =~ /\s*(\S+);/g);
+            $begin = tell(EMBL) - length( $_ );
+	
+	} elsif (/^AC\s+(.*)?/) {
+            push @accs , split (/[; ]+/, $1);
 	} else {
 	    # do nothing
 	}
