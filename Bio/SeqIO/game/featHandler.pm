@@ -43,7 +43,7 @@ Your participation is much appreciated.
 Report bugs to the Bioperl bug tracking system to help us keep track
 of the bugs and their resolution.
 
-_Bug reports can be submitted via email or the web:
+Bug reports can be submitted via email or the web:
 
   bioperl-bugs@bioperl.org
   http://bugzilla.bioperl.org/
@@ -68,8 +68,7 @@ use Bio::SeqFeature::Gene::Transcript;
 use Bio::Location::Split;
 use strict;
 
-use vars qw { @ISA };                                                                                
-
+use vars qw { @ISA };
 @ISA = qw { Bio::SeqIO::game::gameSubs };
 
 =head2 new
@@ -89,8 +88,8 @@ sub new {
     my ($caller, $seq, $seq_h, $ann_l  ) = @_;
     my $class = ref($caller) || $caller;
 
-    my $self = bless ({                                                                             
-        seq           => $seq,                                                                           
+    my $self = bless ({
+        seq           => $seq,
         curr_feats    => [],
 	curr_coords   => [],
 	seq_h         => $seq_h,
@@ -126,6 +125,7 @@ sub add_source {
 }
 
 # get/set gene annotation
+
 =head2 has_gene
 
  Title   : has_gene
@@ -510,7 +510,7 @@ sub feature_set {
 	    $self->{curr_coords}->[1] = $_->end;
 	}
     }
-    delete $self->{seq_h}->{$set->{Attributes}->{produces_seq}};    
+    delete $self->{seq_h}->{$set->{Attributes}->{produces_seq}};
     $self->flush( $set );
 
     return @feats;
@@ -567,6 +567,7 @@ sub _build_feature_set {
 }
 
 # handle feature_spans
+
 =head2 _add_feature_span
 
  Title   : _add_feature_span
@@ -614,7 +615,7 @@ sub _add_feature_span {
     }
     else { 
 	if ( $type eq 'exon' ) {
-	    next unless $keep_subfeat;
+	    return unless $keep_subfeat;
 	}
 	push @{$self->{curr_subfeats}}, 
 	Bio::SeqFeature::Generic->new( -start   => $start,
@@ -623,9 +624,9 @@ sub _add_feature_span {
 				       -primary => $type );
     }
 
-    # identify the translation product                                             
+    # identify the translation product
     if ( $el->{Attributes}->{produces_seq} ) {
-	my $subseq = $self->{seq_h}->{$el->{Attributes}->{produces_seq}};                       
+	my $subseq = $self->{seq_h}->{$el->{Attributes}->{produces_seq}};
         $self->{curr_tags}->{product} = [$el->{Attributes}->{produces_seq}];
 	$self->{curr_tags}->{translation} = [$subseq->seq];
     }      
@@ -634,6 +635,7 @@ sub _add_feature_span {
 }
 
 # deal with protein-encoding genes	
+
 =head2 _add_CDS
 
  Title   : _add_CDS
@@ -642,7 +644,7 @@ sub _add_feature_span {
  Returns : a Bio::SeqFeature::Generic object
  Args    : $transcript -- a Bio::SeqFeature::Generic object for a transcript
            $tags       -- ref. to a hash of tag/value attributes
-           
+
 =cut
 
 sub _add_CDS {
