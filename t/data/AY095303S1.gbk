@@ -1,0 +1,126 @@
+LOCUS       AY095303S1              2375 bp    DNA     linear   PLN 21-JAN-2003
+DEFINITION  Chlamydomonas reinhardtii c-type cytochrome synthesis 1 (CCS1)
+            gene, ccs1-ac206 allele, 5'UTR and exons 1 through 6.
+ACCESSION   AY095303
+VERSION     AY095303.1  GI:25986619
+KEYWORDS    .
+SEGMENT     1 of 2
+SOURCE      Chlamydomonas reinhardtii
+  ORGANISM  Chlamydomonas reinhardtii
+            Eukaryota; Viridiplantae; Chlorophyta; Chlorophyceae; Volvocales;
+            Chlamydomonadaceae; Chlamydomonas.
+REFERENCE   1  (bases 1 to 2375)
+  AUTHORS   Dreyfuss,B.W., Hamel,P.P., Nakamoto,S.S. and Merchant,S.
+  TITLE     Functional Analysis of a Divergent System II Protein, Ccs1,
+            Involved in c-Type Cytochrome Biogenesis
+  JOURNAL   J. Biol. Chem. 278 (4), 2604-2613 (2003)
+   PUBMED   12427747
+REFERENCE   2  (bases 1 to 2375)
+  AUTHORS   Dreyfuss,B.W., Hamel,P., Nakamoto,S.S. and Merchant,S.
+  TITLE     Direct Submission
+  JOURNAL   Submitted (11-APR-2002) Department of Chemistry & Biochemistry,
+            University of California, Los Angeles, P.O. Box 951569, 405 Hilgard
+            Avenue, Los Angeles, CA 90095-1569, USA
+FEATURES             Location/Qualifiers
+     source          1..2375
+                     /organism="Chlamydomonas reinhardtii"
+                     /mol_type="genomic DNA"
+                     /strain="ccs1-ac206"
+                     /db_xref="taxon:3055"
+     gene            order(124..2375,AY095304.1:1..1465)
+                     /gene="CCS1"
+                     /allele="ccs1-ac206"
+     mRNA            join(124..330,512..825,1045..1233,1418..1798,2000..2131,
+                     2253..2345,AY095304.1:6..303,AY095304.1:495..677,
+                     AY095304.1:863..1465)
+                     /gene="CCS1"
+                     /product="c-type cytochrome synthesis 1"
+     exon            124..330
+                     /gene="CCS1"
+                     /number=1
+     5'UTR           124..206
+                     /gene="CCS1"
+     CDS             join(207..330,512..825,1045..1233,1418..1798,2000..2131,
+                     2253..2345,AY095304.1:6..303,AY095304.1:495..677,
+                     AY095304.1:863..1098)
+                     /gene="CCS1"
+                     /codon_start=1
+                     /product="c-type cytochrome synthesis 1"
+                     /protein_id="AAM44130.1"
+                     /db_xref="GI:25986621"
+                     /translation="MQPYASVSGRCLSRPDALHVIPFGRPLQAIAGRRFVRCFAKGGQ
+                     PGDKKKLNVTDKLRLGNTPPTLDVLKAPRPTDAPSAIDDAPSTSGLGLGGGVASPRTL
+                     VQSNAVQVAWRRLMKELSSLPRAIAIMALIAVLSGLGTFIPQNKSIEYYLVNYPDGAE
+                     KVLGFLTGDLILTLQLDHIYTADYFYLSMGLLAASLAACTYTRQWPAVKVAQRWRFLT
+                     QPKSLLKQGRTEVLPNARVSDLGAILLQRGYQVRESCACQRTAAALLLRFHSVAADPS
+                     PLLSFVLVAQVFVKDGSLYGFKGLAGKLGPIGVHAALLLCLFGTAWSGFGTLKGNVMC
+                     PEGQDFQVASFLQPSSPIASMPASASNVIHVNKFTIDYRPDGSVAQFYSDLSLLDPAQ
+                     GGKEMMRKTISVNDPFRFNGVTMYQTDWSLSAVTLRVLGQDAPLARAAQAAEAQAAAS
+                     TSGPTSSASSTSDALPQQRTAFNLPMASLEGKPGVAGRLWATFLPLAEPGQDGSAPKG
+                     ISILARDPQSVVFYDAKGQFVGVRRPGSGKPIEVEGLALVVEDVTGATGLELKSDPGV
+                     PAVYAGFGGLMVTTLISYLSHSQVWALQQGSSLFVSGRTNRAKLAFDRELDDILNAVP
+                     ELPPTAATTVASSASTAAPAPTAKQ"
+     exon            512..825
+                     /gene="CCS1"
+                     /number=2
+     exon            1045..1233
+                     /gene="CCS1"
+                     /number=3
+     exon            1418..1798
+                     /gene="CCS1"
+                     /number=4
+     variation       1648
+                     /gene="CCS1"
+                     /note="results in readthrough of typical intron 4 and
+                     addition of 36 amino acids within stromal loop"
+                     /replace="g"
+     exon            2000..2131
+                     /gene="CCS1"
+                     /number=5
+     exon            2253..2345
+                     /gene="CCS1"
+                     /number=6
+BASE COUNT      474 a    718 c    697 g    486 t
+ORIGIN      
+        1 cacatacgac cccaagcagg gccctgcgtg ggtgaaatgc cacacgcggc acgaatccgt
+       61 cggccactcc atgaattgcc cacaaggcca caattgagcc tacaaggatg tggaagtgat
+      121 aactacctag ctccactacc agctgcgact gcccagttct cgagctttct ttctgtccgg
+      181 ccccgcgctt gcacgcgtgc acaaaaatgc agccatacgc ttccgtgagc gggcgatgtc
+      241 tatctagacc agatgcattg catgtgatac cgtttgggcg accgctgcaa gcaattgccg
+      301 ggcggcggtt cgttcgctgt tttgcgaaag gtgcgcagcc ggggaaagaa cacacgaatg
+      361 ggtgtgcagg caattgatgg tttcactatc aattaattat cagggctggg ttgtacgcac
+      421 ttggcagtgg acttgcatgc gtggaagcga tgtcgccacg ctgctattca aatattaagt
+      481 tggagcctgc tctgctggac ccaaaacata ggaggacaac ctggtgacaa gaagaagctc
+      541 aacgtgacgg acaagctgcg cctcgggaac actcctccca cgctggacgt gcttaaagcg
+      601 ccacggccaa ccgacgctcc ctcagccatc gatgacgccc ccagcacttc gggcctgggg
+      661 ctgggcggag gagtggcgag ccccaggact ttggtgcagt ccaatgccgt gcaggtggcg
+      721 tggcgccggc tcatgaagga gctgtcgtcg ctcccacgcg ccatcgccat catggccctc
+      781 atcgccgtgc tgtcgggcct gggcaccttc atcccccaaa acaaggtgcg ggggaatgcg
+      841 acacatgaag ttaatgcaat tctgccaacc aagctgaagc acttgcattg gagccgcgcg
+      901 ggatgagcca gcacaccagc tttgacctgc gcgtaccgca accaggcacc tacgccctcc
+      961 cgcgcagtgc ctccctttcg gtctctccga ctcttccaac ctgtctgacc ctcatctcca
+     1021 ccccccaatg tatccatcca acagtccatc gagtactacc tggtcaacta cccagacggc
+     1081 gcggagaagg tgctggggtt cctgactggc gacctcattc tgaccctaca gctggaccac
+     1141 atctacaccg ctgactattt ctacctgtcc atggggctgc tggccgcctc cctggctgcc
+     1201 tgcacctaca cccgccagtg gcccgccgta aaggtgcgtg cgtaaagggt ttgggagtcg
+     1261 taggaggaag gcagggtaga tggcgggaag gggcggacag agaggaagga ttggggcgta
+     1321 ggttgtggtg acggagaagg cccggttgga gcctgcacgg gggttaggta aaggtgaaag
+     1381 gcaggcaaat accgcccact cgtcgtgttc ctgacaggtg gctcagcgct ggcgcttcct
+     1441 gacgcagccg aagtcgctgc ttaagcaggg gcgcacggag gtgttgccca acgcgcgtgt
+     1501 gtccgacctg ggcgctatcc tgctgcagcg gggctaccag gtgagggaga gctgtgcgtg
+     1561 tcagcgtacg gctgctgcat tacttcttag gtttcactcc gtcgctgctg acccttcacc
+     1621 tctgctttcc tttgttcttg tggctcaagt gtttgtgaag gacggctcct tatacggctt
+     1681 caagggcctg gccggcaaac tggggcccat cggcgtgcac gcggcgctgc tgctgtgcct
+     1741 gttcggtacg gcgtggagcg ggttcggcac cctcaagggc aacgtcatgt gcccggaggt
+     1801 gagggagcag aggacgcaca tggttgtctg gtggcggcac ggagacacgg tagtgacaag
+     1861 ccggctcagg gcagtttggg aaggtggtga tgcaagttgc tggccaggga agtacgctca
+     1921 cccatgttct ccgagtgctt gctatgttcc aacacgatcc cagaaatcgc acgaggacca
+     1981 atcaacgttg cgcctgcagg gtcaagactt ccaggtggct tccttcctgc agccgtcctc
+     2041 gccaattgcc agcatgcccg cctccgcctc caacgtcatc cacgtcaaca agttcaccat
+     2101 tgactaccgc ccagatggct cagtggcgca ggtgcgtgcg ctacaggttg gccggaacca
+     2161 tgccacactt tgcaccctca ccattcctgc gatagtgttg gttctcatca gtactgacgt
+     2221 attcatctcc ctccatctgc cctatcccgc agttctactc ggacttgtcg ctgcttgatc
+     2281 ccgcccaggg cggcaaggaa atgatgcgca agaccatcag cgtgaacgac cccttccgct
+     2341 tcaacgtgag aatacaacgc atgacggtac ctgct
+//
+
