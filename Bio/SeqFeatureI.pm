@@ -400,7 +400,7 @@ sub gff2_string{
          		$valuestr .= $value;								# with a trailing space in case there are multiple values
          															# for this tag (allowed in GFF2 and .ace format)		
             }
-            $str .= "$tag=$valuestr ; ";                              # semicolon delimited
+            $str .= "$tag $valuestr ; ";                              # semicolon delimited with no '=' sign
         }
    		chop $str; chop $str  # remove the trailing semicolon and space
     }
