@@ -26,7 +26,7 @@ Bio::Search::Result::ResultI - Abstract interface to Search Result objects
 
     use Bio::SearchIO;
     my $io = new Bio::SearchIO(-format => 'blast',
- 			       -file   => 't/data/HUMBETGLOA.tblastx');
+                                -file   => 't/data/HUMBETGLOA.tblastx');
     my $result = $io->next_result;
     while( $hit = $result->next_hit()) { # enter code here for hit processing
     }
@@ -48,6 +48,7 @@ Bio::Search::Result::ResultI - Abstract interface to Search Result objects
     my $kappa = $result->get_statistic('kappa');
 
     my @statnames = $result->available_statistics;
+
 
 =head1 DESCRIPTION
 
@@ -380,10 +381,11 @@ sub num_hits{
 
  Title   : hits
  Usage   : my @hits = $result->hits
- Function: Returns the available hits for this Result
- Returns : Array of L<Bio::Search::Hit::HitI> objects
+ Function: Returns the HitI objects contained within this Result
+ Returns : Array of Bio::Search::Hit::HitI objects
  Args    : none
 
+See Also: L<Bio::Search::Hit::HitI>
 
 =cut
 
@@ -392,9 +394,10 @@ sub hits{
    $self->throw_not_implemented();
 }
 
+
 =head2 no_hits_found
 
- Usage     : $nohits = $blast->no_hits_found( [iteration_number] ); 
+ Usage     : $nohits = $blast->no_hits_found();
  Purpose   : Get boolean indicator indicating whether or not any hits
              were present in the report.
 
@@ -406,10 +409,7 @@ sub hits{
              for hitless reports generated when filtering.
 
  Returns   : Boolean
- Argument  : (optional) integer indicating the iteration number (PSI-BLAST)
-             If iteration number is not specified and this is a PSI-BLAST result,
-             then this method will return true only if all iterations had
-             no hits found.
+ Argument  : none
 
 =cut
 
@@ -420,41 +420,15 @@ sub no_hits_found { shift->throw_not_implemented }
 
 =head2 set_no_hits_found
 
- Usage     : $blast->set_no_hits_found( [iteration_number] ); 
+ Usage     : $blast->set_no_hits_found(); 
  Purpose   : Set boolean indicator indicating whether or not any hits
              were present in the report.
  Returns   : n/a
- Argument  : (optional) integer indicating the iteration number (PSI-BLAST)
+ Argument  : none
 
 =cut
 
 sub set_no_hits_found { shift->throw_not_implemented }
-
-
-=head2 iterations
-
- Usage     : $num_iterations = $blast->iterations;  (get)
-             $blast->iterations($num_iterations);   (set)
- Purpose   : Set/get the number of iterations in the Blast Report (PSI-BLAST).
- Returns   : Total number of iterations in the report
- Argument  : integer  (when setting)
-
-=cut
-
-sub iterations { shift->throw_not_implemented }
-
-
-=head2 psiblast
-
- Usage     : if( $blast->psiblast ) { ... }
- Purpose   : Set/get a boolean indicator whether or not the report 
-             is a PSI-BLAST report.
- Returns   : 1 if PSI-BLAST, undef if not.
- Argument  : 1 (when setting)
-
-=cut
-
-sub psiblast { shift->throw_not_implemented }
 
 1;
 
