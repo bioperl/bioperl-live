@@ -300,7 +300,7 @@ sub validate_seq {
 =cut
 
 sub subseq {
-   my ($self,$start,$end) = @_;
+   my ($self,$start,$end,$replace) = @_;
 
    if( ref($start) && $start->isa('Bio::LocationI') ) {
        my $loc = $start;
@@ -324,6 +324,7 @@ sub subseq {
 	   }
        } else { 
 	   $seq = substr( $self->seq(), $loc->start - 1, $loc->length);
+			  
        }
        if( $loc->strand < 0 ) { 
 	   $seq = Bio::PrimarySeq->new('-seq' => $seq)->revcom()->seq();
@@ -343,8 +344,12 @@ sub subseq {
 
        # remove one from start, and then length is end-start
        $start--;
-
-       return substr $self->seq(), $start, ($end-$start);
+       if( defined $replace ) {
+	   return substr( $self->seq(), $start, ($end-$start), $replace);
+       } else {
+	   return substr( $self->seq(), $start, ($end-$start));
+       }
+	   
    } else {
        $self->warn("Incorrect parameters to subseq - must be two integers ".
 		   "or a Bio::LocationI object not ($start,$end)");
@@ -633,17 +638,10 @@ sub _guess_alphabet {
        $self->throw("Got a sequence with no letters in - ".
 		    "cannot guess alphabet [$str]");
    }
-
-   $str2 = $str;
-
-   $str2 =~ s/[ATGCNatgcn]//g;
-   $atgc = $total - CORE::length $str2;
-   $str = $str2;
-   $str2 =~ s/[Uu]//g;
-
-   $u = CORE::length($str) - CORE::length($str2);
-
-
+   
+   $u = ($str =~ tr/Uu//);
+   $atgc = ($str =~ tr/ATGCNatgcn//);
+   
    if( ($atgc / $total) > 0.85 ) {
        $type = 'dna';
    } elsif( (($atgc + $u) / $total) > 0.85 ) {
