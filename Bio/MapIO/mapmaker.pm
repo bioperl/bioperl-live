@@ -31,7 +31,7 @@ Bio::MapIO::mapmaker - A Mapmaker Map reader
 =head1 DESCRIPTION
 
 This object contains code for parsing and processing Mapmaker output
-and creating Bio::Map::MapI objects from it.
+and creating L<Bio::Map::MapI> objects from it.
 
 =head1 FEEDBACK
 
@@ -90,7 +90,7 @@ use Bio::Map::Marker;
  Title   : next_tree
  Usage   : my $map = $factory->next_map;
  Function: Get a map from the factory
- Returns : Bio::Map::MapI
+ Returns : L<Bio::Map::MapI>
  Args    : none
 
 =cut
@@ -144,7 +144,7 @@ sub next_map{
 
 sub write_map{
    my ($self,@args) = @_;
-   $self->_abstractDeath('write_map');
+   $self->throw_not_implemented();
 }
 
 1;
