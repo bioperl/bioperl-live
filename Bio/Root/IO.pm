@@ -93,7 +93,8 @@ The rest of the documentation details each of the object methods. Internal metho
 
 
 package Bio::Root::IO;
-use vars qw(@ISA $FILESPECLOADED $TEMPDIR $PATHSEP $ROOTDIR $OPENFLAGS);
+use vars qw(@ISA $FILESPECLOADED $FILETEMPLOADED
+	    $TEMPDIR $PATHSEP $ROOTDIR $OPENFLAGS);
 use strict;
 
 use Symbol;
@@ -106,6 +107,7 @@ my $TEMPCOUNTER;
 BEGIN {
     $TEMPCOUNTER = 0;
     $FILESPECLOADED = 0;
+    $FILETEMPLOADED = 0;
     # try to load those modules that may cause trouble on some systems
     eval {
 	require File::Spec;
@@ -113,6 +115,7 @@ BEGIN {
 	$TEMPDIR = File::Spec->tmpdir();
 	$ROOTDIR = File::Spec->rootdir();
 	require File::Temp; # tempfile creation
+	$FILETEMPLOADED = 1;
     };
     if( $@ ) { 
 	if(! defined($TEMPDIR)) { # File::Spec failed
@@ -190,6 +193,8 @@ sub new {
 
 sub _initialize_io {
     my($self, @args) = @_;
+
+    $self->_register_for_cleanup(\&_io_cleanup);
 
     my ($input, $file, $fh) = $self->_rearrange([qw(INPUT FILE FH)], @args);
 
@@ -331,9 +336,17 @@ sub close {
    delete $self->{'_readbuffer'};
 }
 
+sub _io_cleanup {
+    my ($self,@args) = @_;
+    $self->DESTROY();
+}
 
 sub DESTROY {
     my $self = shift;
+
+    # prevent loops in multiple inheritance situations
+    return if($self->{'_DESTROYED'});
+    $self->{'_DESTROYED'} = 1;
 
     $self->close();
 
@@ -359,6 +372,7 @@ sub DESTROY {
 	    rmdir($_); 
 	}
     }
+    $self->SUPER::DESTROY();
 }
 
 
@@ -392,7 +406,7 @@ sub tempfile {
     }
 
     $params{'DIR'} = $TEMPDIR if(! exists($params{'DIR'}));
-    if(exists($INC{"File/Temp.pm"})) {
+    if($FILETEMPLOADED) {
 	if(exists($params{'TEMPLATE'})) {
 	    my $template = $params{'TEMPLATE'};
 	    delete $params{'TEMPLATE'};
@@ -450,11 +464,11 @@ sub tempfile {
 
 sub tempdir {
     my ( $self, @args ) = @_;
-    if( exists($INC{"File/Temp.pm"}) && File::Temp->can('tempdir') ) {
+    if($FILETEMPLOADED && File::Temp->can('tempdir') ) {
 	return File::Temp::tempdir(@args);
     }
 
-    # we have to this ourselves, not good
+    # we have to do this ourselves, not good
     #
     # we are planning to cleanup temp files no matter what
     my %params = @args;
@@ -492,7 +506,7 @@ sub tempdir {
 sub catfile {
     my ($self, @args) = @_;
 
-    return File::Spec->catfile(@args) if(exists($INC{"File/Spec.pm"}));
+    return File::Spec->catfile(@args) if($FILESPECLOADED);
     # this is clumsy and not very appealing, but how do we specify the
     # root directory?
     if($args[0] eq '/') {
