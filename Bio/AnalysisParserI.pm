@@ -28,8 +28,9 @@ Bio::AnalysisParserI - Generic analysis output parser interface
 	print "Result:  ", $result->analysis_method, 
               ", Query:  ", $result->query_name, "\n";
 
-          while( my $result = $parser->next_result() ) {
-              print "Feature from ", $feature->start, " to ", $feature->end, "\n";
+          while( my $feature = $result->next_feature() ) {
+              print "Feature from ", $feature->start, " to ", 
+                    $feature->end, "\n";
           }
     }
 
