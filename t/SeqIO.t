@@ -8,7 +8,7 @@ $DEBUG = $ENV{'BIOPERLDEBUG'} || 0;
 BEGIN {
     eval { require Test; };
     if( $@ ) {
-use lib 't';
+        use lib 't';
     }
     use Test;
     $TESTCOUNT = 262;
