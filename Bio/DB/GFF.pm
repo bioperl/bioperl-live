@@ -2078,8 +2078,8 @@ sub preferred_groups {
   my $self = shift;
   my $d    = $self->{preferred_groups};
   if (@_) {
-     my $v = shift;
-     $self->{preferred_groups}= ref($v) eq 'ARRAY' ? $v : [$v];
+    my @v = map {ref($_) eq 'ARRAY' ? @$_ : $_} @_;
+    $self->{preferred_groups} = \@v;
   }
   return unless $d;
   return @$d;
