@@ -28,16 +28,16 @@ END {
 
 require 'dumpvar.pl';
 
-print("Checking if the Bio::SeqIO::csmscf module could be used, even though it shouldn't be directly use'd...\n") if( $DEBUG);
+print("Checking if the Bio::SeqIO::scf module could be used, even though it shouldn't be directly use'd...\n") if( $DEBUG);
         # test 1
-use Bio::SeqIO::csmscf;
+use Bio::SeqIO::scf;
 ok(1);
 
 print("Checking to see if SeqWithQuality objects can be created from an scf file...\n") if( $DEBUG );
 	# my $in_scf = Bio::SeqIO->new(-file => "<t/data/chad100.scf" , '-format' => 'csmscf');
 my $in_scf = Bio::SeqIO->new('-file' => Bio::Root::IO->catfile("t","data",
 							       "chad100.scf"),
-			     '-format' => 'csmscf',
+			     '-format' => 'scf',
 			     '-verbose' => $DEBUG || 0);
 ok(1);
 
@@ -78,7 +78,7 @@ ok (length($t_channel) > 10);
 print("Trying to create a new scf file from the existing object (from above)...\n");
 
 my $out_scf = Bio::SeqIO->new('-file' => ">write_scf.scf",
-			      '-format' => 'csmscf');
+			      '-format' => 'scf');
 $out_scf->write_seq(-SeqWithQuality	=>	$swq,
 		    -MACH		=>	'CSM sequence-o-matic 5000',
 		    -TPSW		=>	'trace processing software',
@@ -94,7 +94,7 @@ $swq = Bio::Seq::SeqWithQuality->new(-seq=>'ATCGTACGTACGTC',
 				     -qual=>"");
 
 $out_scf = Bio::SeqIO->new('-file' => ">write_scf_no_qualities.scf",
-			   '-format' => 'csmscf');
+			   '-format' => 'scf');
 $out_scf->write_seq(	-SeqWithQuality	=>	$swq,
 			-MACH		=>	'CSM sequence-o-matic 5000',
 			-TPSW		=>	'trace processing software',
@@ -107,7 +107,7 @@ $out_scf->write_seq(	-SeqWithQuality	=>	$swq,
 
 $out_scf = Bio::SeqIO->new('-verbose' => 1,
 			   '-file' => ">write_scf_no_sequence.scf",
-			   '-format' => 'csmscf');
+			   '-format' => 'scf');
 
 $swq = Bio::Seq::SeqWithQuality->new(-seq=>'',
 				     -qual=>"10 20 30 40 50 20 10 30 40 50",
