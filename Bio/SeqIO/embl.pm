@@ -385,9 +385,10 @@ sub write_seq {
         my( $sv );
         if (my $func = $self->_sv_generation_func) {
             $sv = &{$func}($seq);
-        } elsif( $seq->can('seq_version')) {
-            $sv = $seq->seq_version;
-        }
+        } elsif($seq->isa('Bio::Seq::RichSeqI') && 
+		defined($seq->seq_version)) {
+            $sv = $seq->accession_number() . ".". $seq->seq_version();
+        }	
         if (defined $sv) {
             $self->_print( "SV   $sv\n",
 			   "XX\n");
@@ -398,7 +399,7 @@ sub write_seq {
     my $switch=0;
     if( $seq->can('get_dates') ) {
 	foreach my $dt ( $seq->get_dates() ) {
-	    $self->_write_line_EMBL_regex("DT   ","DT   ",$dt,'\s+|$',80);
+	    $self->_write_line_EMBL_regex("DT   ","DT   ",$dt,'\s+|$',80);#'
             $switch=1;
         }
         if ($switch == 1) {
@@ -407,7 +408,7 @@ sub write_seq {
     }
 
     # Description lines
-    $self->_write_line_EMBL_regex("DE   ","DE   ",$seq->desc(),'\s+|$',80);
+    $self->_write_line_EMBL_regex("DE   ","DE   ",$seq->desc(),'\s+|$',80); #'
     $self->_print( "XX\n");
 
     # if there, write the kw line
@@ -438,9 +439,9 @@ sub write_seq {
         }
         $self->_print("OS   $OS\n");
         my $OC = join('; ', reverse(@class)) .'.';
-        $self->_write_line_EMBL_regex("OC   ","OC   ",$OC,'; |$',80);
+        $self->_write_line_EMBL_regex("OC   ","OC   ",$OC,'; |$',80); #'
 	if ($spec->organelle) {
-	    $self->_write_line_EMBL_regex("OG   ","OG   ",$spec->organelle,'; |$',80);
+	    $self->_write_line_EMBL_regex("OG   ","OG   ",$spec->organelle,'; |$',80); #'
 	}
         $self->_print("XX\n");
     }
@@ -464,21 +465,23 @@ sub write_seq {
 	    if (my $med = $ref->medline) {
 		$self->_print( "RX   MEDLINE; $med.\n");
 	    }
-	    
+	    if (my $pm = $ref->pubmed) {
+		$self->_print( "RX   PUBMED; $pm.\n");
+	    }
 	    $self->_write_line_EMBL_regex("RA   ", "RA   ", 
 					  $ref->authors . ";",
-					  '\s+|$', 80);
+					  '\s+|$', 80); #'
 
            # If there is no title to the reference, it appears
            # as a single semi-colon.  All titles must end in
            # a semi-colon.
            my $ref_title = $ref->title || '';
            $ref_title =~ s/[\s;]*$/;/;
-           $self->_write_line_EMBL_regex("RT   ", "RT   ", $ref_title,    '\s+|$', 80);       
+           $self->_write_line_EMBL_regex("RT   ", "RT   ", $ref_title,    '\s+|$', 80); #'       
 	    
-	   $self->_write_line_EMBL_regex("RL   ", "RL   ", $ref->location, '\s+|$', 80);
+	   $self->_write_line_EMBL_regex("RL   ", "RL   ", $ref->location, '\s+|$', 80); #'
            if ($ref->comment) {
-	       $self->_write_line_EMBL_regex("RC   ", "RC   ", $ref->comment, '\s+|$', 80); 
+	       $self->_write_line_EMBL_regex("RC   ", "RC   ", $ref->comment, '\s+|$', 80); #' 
            }
            $self->_print("XX\n");
            $t++;
@@ -493,14 +496,14 @@ sub write_seq {
               my $opt     = $dr->optional_id || '';
             
               my $line = "$db_name; $prim; $opt.";
-              $self->_write_line_EMBL_regex("DR   ", "DR   ", $line, '\s+|$', 80);
+              $self->_write_line_EMBL_regex("DR   ", "DR   ", $line, '\s+|$', 80); #'
           }
           $self->_print("XX\n");
        }
 
        # Comment lines
        foreach my $comment ( $seq->annotation->each_Comment() ) {
-           $self->_write_line_EMBL_regex("CC   ", "CC   ", $comment->text, '\s+|$', 80);
+           $self->_write_line_EMBL_regex("CC   ", "CC   ", $comment->text, '\s+|$', 80); #'
            $self->_print("XX\n");
        }
     }
@@ -614,20 +617,20 @@ sub _print_EMBL_FTHelper {
 
    #$self->_print( "FH   Key             Location/Qualifiers\n");
    #$self->_print( sprintf("FT   %-15s  %s\n",$fth->key,$fth->loc));
-   $self->_write_line_EMBL_regex(sprintf("FT   %-15s ",$fth->key),"FT                   ",$fth->loc,'\,|$',80);
+   $self->_write_line_EMBL_regex(sprintf("FT   %-15s ",$fth->key),"FT                   ",$fth->loc,'\,|$',80); #'
    foreach my $tag ( keys %{$fth->field} ) {
        if( ! defined $fth->field->{$tag} ) { next; } 
        foreach my $value ( @{$fth->field->{$tag}} ) {
 	   $value =~ s/\"/\"\"/g;
 	   if ($value eq "_no_value") {
-	       $self->_write_line_EMBL_regex("FT                   ","FT                   ","/$tag",'.|$',80);
+	       $self->_write_line_EMBL_regex("FT                   ","FT                   ","/$tag",'.|$',80); #'
 	   }
            elsif( $always_quote == 1 || $value !~ /^\d+$/ ) {
               my $pat = $value =~ /\s/ ? '\s|$' : '.|$';
 	      $self->_write_line_EMBL_regex("FT                   ","FT                   ","/$tag=\"$value\"",$pat,80);
            }
            else {
-              $self->_write_line_EMBL_regex("FT                   ","FT                   ","/$tag=$value",'.|$',80);
+              $self->_write_line_EMBL_regex("FT                   ","FT                   ","/$tag=$value",'.|$',80); #'
            }
 	  # $self->_print( "FT                   /", $tag, "=\"", $value, "\"\n");
        }
@@ -663,12 +666,14 @@ sub _read_EMBL_References {
    my $loc;
    my $au;
    my $med;
+   my $pm;
    my $com;
 
    while( defined ($_ = $self->_readline) ) {
        /^R/ || last;
        /^RP   (\d+)-(\d+)/ && do {$b1=$1;$b2=$2;};
        /^RX   MEDLINE;\s+(\d+)/ && do {$med=$1};
+       /^RX   PUBMED;\s+(\d+)/ && do {$pm=$1};       
        /^RA   (.*)/ && do {
 	   $au = $self->_concatenate_lines($au,$1); next;
        };
@@ -694,6 +699,7 @@ sub _read_EMBL_References {
    $ref->location($loc);
    $ref->medline($med);
    $ref->comment($com);
+   $ref->pubmed($pm);
 
    push(@refs,$ref);
    $$buffer = $_;
@@ -728,7 +734,12 @@ sub _read_EMBL_Species {
             $common      = $4 if $4;
         }
         elsif (s/^OC\s+//) {
-            push(@class, split /[\;\s\.]+/);
+	    # only split on ';' or '.' so that 
+	    # classification that is 2 words will 
+	    # still get matched
+	    # use map to remove trailing/leading spaces
+	    chomp;
+            push(@class,  map { s/^\s+//; s/\s+$//; $_; } split /[;\.]+/);
         }
 	elsif (/^OG\s+(.*)/) {
 	    $org = $1;
@@ -895,7 +906,7 @@ sub _read_FTHelper_EMBL {
             if (substr($value, 0, 1) eq '"') {
                 # Keep adding to value until we find the trailing quote
                 # and the quotes are balanced
-                while ($value !~ /"$/ or $value =~ tr/"/"/ % 2) {
+                while ($value !~ /"$/ or $value =~ tr/"/"/ % 2) { #" 
                     $i++;
                     my $next = $qual[$i];
                     unless (defined($next)) {
@@ -910,7 +921,7 @@ sub _read_FTHelper_EMBL {
                 # Trim leading and trailing quotes
                 $value =~ s/^"|"$//g;
                 # Undouble internal quotes
-                $value =~ s/""/"/g;
+                $value =~ s/""/"/g; #"
             }
         } else {
             $value = '_no_value';
