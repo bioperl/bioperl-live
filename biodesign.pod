@@ -1,6 +1,6 @@
 =head1 NAME
 
-Biodesign 1.3 - Bioperl Design Documentation
+Biodesign 1.4 - Bioperl Design Documentation
 
 =head1 SYNOPSIS
 
@@ -50,10 +50,11 @@ You might also want to examine the models, or class diagrams, in the models
 directory. These diagrams are not guaranteed to include every single class
 but may help you understand the overall layout of Bioperl's modules.
 
-Documentation on Bio::Root can also be found in the form of scripts - check
-the scripts/root_object directory for a start, as well as L<Bio::Root>. We
-have also created a "howto" directory that addresses specific design questions,
-not necessarily related to Bio::Root. See doc/howto.
+Documentation on Bio::Root::Root can also be found in the form of
+scripts - check the scripts/root_object directory for a start, as well
+as L<Bio::Root::Root>. We have also created a "howto" directory that
+addresses specific design questions, not necessarily related to
+Bio::Root::Root. See doc/howto.
 
 =head2 Respect people's code (in particular if it works)
 
@@ -118,9 +119,9 @@ have making new releases.
 
 =head1 Bioperl Bio::Root::Root Object
 
-All objects in Bioperl (but for interfaces) inherit from the Bio::Root::Root.
-The Bioperl root object allows a number of very useful concepts to be provided.
-In particular.
+All objects in Bioperl (but for interfaces) inherit from the
+L<Bio::Root::Root>.  The Bioperl root object allows a number of very
+useful concepts to be provided.  In particular.
 
 =over 3
 
@@ -157,7 +158,7 @@ a number of useful example scripts in the scripts/root_object directory.
 =head2 Using the root object
 
 To use the root object, the object has to inherit from it. This means
-the @ISA array should have (Bio::Root::Root) in it and that the module
+the @ISA array should have (L<Bio::Root::Root>) in it and that the module
 has a "use Bio::Root::Root". (If you are an emacs user, consider using
 the boilerplate methods in the bioperl.lisp to lay out your module
 initially for you).  The root object provides a top level -E<gt>new
@@ -170,7 +171,7 @@ to behave in an Object Oriented manner.
 
 The full code is given below for a basic skeleton object that uses bioperl.
 
-  # convention is that if you are using the Bio::Root object you
+  # convention is that if you are using the Bio::Root::Root object you
   # should put it inside the Bio namespace
 
   package Bio::MyNewObject;
