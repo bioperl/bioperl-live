@@ -719,70 +719,42 @@ sub _uncompress_string {
 
 =cut
 
-#sub get_compressed_freq {
-#   my $self=shift;
-#   my $base=shift;
-#   my $string='';
-#   my @prob;
-#   BASE: {
-#      if ($base eq 'A') {
-#         @prob = @{$self->{probA}} unless (!defined($self->{probA}));
-#         last BASE;
-#      }
-#         if ($base eq 'G') {
-#         @prob = @{$self->{probG}} unless (!defined($self->{probG}));
-#         last BASE;
-#      }
-#         if ($base eq 'C') {
-#         @prob = @{$self->{probC}} unless (!defined($self->{probC}));
-#         last BASE;
-#      }
-#         if ($base eq 'T') {
-#         @prob = @{$self->{probT}} unless (!defined($self->{probT}));
-#         last BASE;
-#      }
-#      $self->throw ("No such base: $base!\n");
-#   }
-#   my $str= _compress_array(\@prob,1,1);
-#   return $str;
-#}
-
-=head2 get_compressed_logs
-
- Title    : get_compressed_logs
- Usage    :
- Function : A method to provide a compressed log-odd vector. It uses one byte to
-            code the log value for one of the log-odds vectors for one position.
- Throws   :
- Example  : my $strA=$self->get_compressed_logs('A');
- Returns  : String
- Args     : char 
-
-=cut
-
-#sub get_compressed_logs {
-#   my $self=shift;
-#   my $base=shift;
-#   my $string='';
-#   my @prob;
-#   BASE: {
-#      if ($base eq 'A') {@prob= @{$self->{logA}} unless (!defined($self->{logA})); last BASE; }
-#      if ($base eq 'C') {@prob= @{$self->{logC}} unless (!defined($self->{logC})); last BASE; }
-#      if ($base eq 'G') {@prob= @{$self->{logG}} unless (!defined($self->{logG})); last BASE; }
-#      if ($base eq 'T') {@prob= @{$self->{logT}} unless (!defined($self->{logT})); last BASE; }
-#      $self->throw ("No such base: $base!\n");
-#   }
-#   return _compress_array(\@prob,1000,2);
-#}
+sub get_compressed_freq {
+   my $self=shift;
+   my $base=shift;
+   my $string='';
+   my @prob;
+   BASE: {
+      if ($base eq 'A') {
+         @prob = @{$self->{probA}} unless (!defined($self->{probA}));
+         last BASE;
+      }
+         if ($base eq 'G') {
+         @prob = @{$self->{probG}} unless (!defined($self->{probG}));
+         last BASE;
+      }
+         if ($base eq 'C') {
+         @prob = @{$self->{probC}} unless (!defined($self->{probC}));
+         last BASE;
+      }
+         if ($base eq 'T') {
+         @prob = @{$self->{probT}} unless (!defined($self->{probT}));
+         last BASE;
+      }
+      $self->throw ("No such base: $base!\n");
+   }
+   my $str= _compress_array(\@prob,1,1);
+   return $str;
+}
 
 =head2 sequence_match_weight
 
  Title    : sequence_match_weight
  Usage    :
- Function :   This method will calculate the score of a match, based on the PWM
-                  if such is associated with the matrix object. Returns undef if no
-                   PWM data is available.
- Throws   :    if the length of the sequence is different from the matrix width
+ Function :   This method will calculate the score of a match, based on the PSM
+              if such is associated with the matrix object. Returns undef if no
+              PSM data is available.
+ Throws   :   if the length of the sequence is different from the matrix width
  Example  :   my $score=$matrix->sequence_match_weight('ACGGATAG');
  Returns  :   Floating point
  Args     :   string
