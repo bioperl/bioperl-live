@@ -261,8 +261,6 @@ sub next_result {
    $self->throw_not_implemented;
 }
 
-sub next_report { shift->next_result( @_ ); }
-
 =head2 write_result
 
  Title   : write_result
