@@ -19,11 +19,11 @@ Bio::SeqUtils - Additional methods for PrimarySeq objects
     use Bio::SeqUtils;
     # get a Bio::PrimarySeqI compliant object, $seq, somehow
     $util = new Bio::SeqUtils;
-    $poplypeptide_3char = $util->seq3($seq);
-    #or
-    $poplypeptide_3char = Bio::SeqUtils->seq3($seq);
+    $polypeptide_3char = $util->seq3($seq);
+    # or
+    $polypeptide_3char = Bio::SeqUtils->seq3($seq);
 
-    #set the sequence string (stored in one char code in the object)
+    # set the sequence string (stored in one char code in the object)
     Bio::SeqUtils->seq3($seq, $polypeptide_3char);
 
     # translate a sequence in all six frames
@@ -31,22 +31,24 @@ Bio::SeqUtils - Additional methods for PrimarySeq objects
 
 =head1 DESCRIPTION
 
-This class is a holder of methods that work on L<Bio::PrimarySeqI>
-compliant sequence objects, e.g. L<Bio::PrimarySeq> and
-L<Bio::Seq>. These methods are not part of the L<Bio::PrimarySeqI>
-interface and should in general not essential to the primary function
+This class is a holder of methods that work on Bio::PrimarySeqI-
+compliant sequence objects, e.g. Bio::PrimarySeq and
+Bio::Seq. These methods are not part of the Bio::PrimarySeqI
+interface and should in general not be essential to the primary function
 of sequence objects. If you are thinking of adding essential
 functions, it might be better to create your own sequence class.
+See L<Bio::PrimarySeqI>, L<Bio::PrimarySeq>, and L<Bio::Seq> for more.
 
 The methods take as their first argument a sequence object. It is
 possible to use methods without first creating a SeqUtils object,
 i.e. use it as an anonymous hash.
 
-The first two methods give out or read in protein sequences coded in
-three letter IUPAC amino acid codes.
+The first two methods, seq3() and seq3in(), give out or read in protein
+sequences coded in three letter IUPAC amino acid codes.
 
-The next two methods wrap around the standard translate method to give
-back an array of three forward or all six frame translations.
+The next two methods, translate_3frames() and translate_6frames(), wrap
+around the standard translate method to give back an array of three
+forward or all six frame translations.
 
 =head1 FEEDBACK
 
@@ -168,9 +170,9 @@ sub seq3 {
  Usage   : $string = Bio::SeqUtils->seq3in($seq, 'MetGlyTer')
  Function:
 
-           Method for in-place changeing of the sequence of a
-           L<Bio::PrimarySeqI> sequence object. The three letter amino
-           acid input string is coverted into one letter code.  Any
+           Method for in-place changing of the sequence of a
+           Bio::PrimarySeqI sequence object. The three letter amino
+           acid input string is converted into one letter code.  Any
            unknown character triplet, including the default 'Xaa', is
            converted into 'X'.
 
@@ -218,7 +220,7 @@ sub seq3in {
            The IDs of the sequences are appended with '-0F', '-1F', '-2F'.
  Returns : An array of seq objects
  Args    : sequence object
-           same arguments as to L<Bio::PrimarySeqI::translate>
+           same arguments as to Bio::PrimarySeqI::translate
 
 =cut
 
@@ -250,7 +252,7 @@ sub translate_3frames {
            '-0R', '-1R', '-2R'.
  Returns : An array of seq objects
  Args    : sequence object
-           same arguments as to L<Bio::PrimarySeqI::translate>
+           same arguments as to Bio::PrimarySeqI::translate
 
 =cut
 

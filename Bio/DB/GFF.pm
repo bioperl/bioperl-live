@@ -77,7 +77,7 @@ The following operations are supported by this module:
     segment, or globally
   - conversion from absolute to relative coordinates and back again,
     using any arbitrary landmark for the relative coordinates
-  - using a sequence segment to creatie new segments based on relative 
+  - using a sequence segment to create new segments based on relative 
     offsets
 
 The data model used by Bio::DB::GFF is compatible with the GFF flat

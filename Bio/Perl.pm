@@ -12,52 +12,52 @@
 
 =head1 NAME
 
-Bio::Perl - Functional access to BioPerl for people who don't like objects
+Bio::Perl - Functional access to BioPerl for people who don't know objects
 
 =head1 SYNOPSIS
 
    use Bio::Perl qw(read_sequence read_all_sequences write_sequence new_sequence get_sequence);
 
-   # will guess file format from extension
+# will guess file format from extension
    $seq_object = read_sequence($filename); 
 
-   # forces genbank format
+# forces genbank format
    $seq_object = read_sequence($filename,'genbank'); 
 
-   # reads an array of sequences
+# reads an array of sequences
    @seq_object_array = read_all_sequences($filename,'fasta'); 
 
-   # sequences are Bio::Seq objects, so the following methods work
-   # (for more info see Bio::Seq documentation - try perldoc Bio::Seq)
+# sequences are Bio::Seq objects, so the following methods work
+# for more info see L<Bio::Seq>, or do 'perldoc Bio/Seq.pm'
 
    print "Sequence name is ",$seq_object->display_id,"\n";
    print "Sequence acc  is ",$seq_object->accession_number,"\n";
    print "First 5 bases is ",$seq_object->subseq(1,5),"\n";
 
-   # get the whole sequence as a single string
+# get the whole sequence as a single string
 
    $sequence_as_a_string = $seq_object->seq();
 
-
-   # writing sequences
+# writing sequences
 
    write_sequence(">$filename",'genbank',$seq_object);
 
    write_sequence(">$filename",'genbank',@seq_object_array);
 
-   # making a new sequence from just strings you have
-   # from something else
+# making a new sequence from just strings you have
+# from something else
 
    $seq_object = new_sequence("ATTGGTTTGGGGACCCAATTTGTGTGTTATATGTA","myname","AL12232");
 
 
-   # getting a sequence from a database (assummes internet connection)
+# getting a sequence from a database (assumes internet connection)
 
    $seq_object = get_sequence('swissprot',"ROA1_HUMAN");
 
    $seq_object = get_sequence('embl',"AI129902");
 
-   $seq_object = get_sequence('genbank',"AI129902");   
+   $seq_object = get_sequence('genbank',"AI129902");
+
 
 =head1 DESCRIPTION
 
@@ -76,8 +76,8 @@ of the Bioperl mailing lists.  Your participation is much appreciated.
 =head2 Reporting Bugs
 
 Report bugs to the Bioperl bug tracking system to help us keep track
- the bugs and their resolution.
- Bug reports can be submitted via email or the web:
+the bugs and their resolution. Bug reports can be submitted via email
+or the web:
 
   bioperl-bugs@bio.perl.org
   http://bio.perl.org/bioperl-bugs/
@@ -141,13 +141,14 @@ BEGIN {
            forces that format. The filename can be any valid perl open() string
            - in particular, you can put in pipes
 
- Returns : A Bio::Seq object - see perldoc Bio::Seq for more information
-           (quick synopsis - 
-            $seq_object->display_id - name of the sequence
-            $seq_object->seq        - sequence as a string )
+ Returns : A Bio::Seq object. A quick synopsis:
+           $seq_object->display_id - name of the sequence
+           $seq_object->seq        - sequence as a string
 
  Args    : Two strings, first the filename - any Perl open() string is ok
            Second string is the format, which is optional
+
+For more information on Seq objects see L<Bio::Seq>.
 
 =cut
 
@@ -183,15 +184,14 @@ sub read_sequence{
 
            For very large files, you will run out of memory. When this
            happens, you've got to use the SeqIO system directly (this is
-           not so hard! Don't worry about it!). See perldoc Bio::SeqIO
-           for more information
-
+           not so hard! Don't worry about it!).
 
  Returns : array of Bio::Seq objects
 
  Args    : two strings, first the filename (any open() string is ok)
            second the format (which is optional)
 
+See L<Bio::SeqIO> and L<Bio::Seq> for more information
 
 =cut
 
@@ -226,7 +226,7 @@ sub read_all_sequences{
  Usage   : write_sequence(">new_file.gb",'genbank',$seq)
            write_sequence(">new_file.gb",'genbank',@array_of_sequence_objects)
 
- Function: writes sequences in the specified format, 
+ Function: writes sequences in the specified format
 
  Returns : true
 
@@ -313,15 +313,14 @@ sub new_sequence{
  Title   : get_sequence
  Usage   : $seq_object = get_sequence('swiss',"ROA1_HUMAN");
 
- Function: If the computer has internet accessibility, gets
-           the sequence from internet accessible databases. Currently
+ Function: If the computer has Internet accessibility, gets
+           the sequence from Internet accessible databases. Currently
            this supports Swissprot, EMBL, GenBank and RefSeq.
 
            Swissprot and EMBL are more robust than GenBank fetching.
 
            If the user is trying to retrieve a RefSeq entry from
            GenBank/EMBL, the query is silently redirected.
-
 
  Returns : A Bio::Seq object
 
