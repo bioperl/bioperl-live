@@ -31,7 +31,7 @@ Bio::Factory::FTLocationFactory - DESCRIPTION of Object
 =head1 SYNOPSIS
 
     # parse a string into a location object
-    $loc = Bio::Factory::FTLocationFactory->from_string("join(100..200, 400..500);
+    $loc = Bio::Factory::FTLocationFactory->from_string("join(100..200, 400..500");
 =head1 DESCRIPTION
 
 Implementation of string-encoded location parsing for the Genbank feature table
@@ -195,7 +195,7 @@ sub _parse_location {
     my ($start, $end) = split(/\.\./, $locstr);
     # remove enclosing parentheses if any
     $start =~ s/\((.*)\)/$1/;
-    $end =~ s/\((.*)\)/$1/;
+    $end =~ s/\((.*)\)/$1/ if $end;
 
     # Is this a simple (exact) or a fuzzy location? Simples have exact start
     # and end, or is between two adjacent bases. Everything else is fuzzy.
