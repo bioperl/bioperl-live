@@ -148,7 +148,15 @@ use vars qw(@ISA);
  Title   : new
  Usage   : my $site=new Bio::Matrix::PSM::SiteMatrix
               (-pA=>$a,-pC=>$c,-pG=>$g,-pT=>$t,
+               -IC=>$ic,-e_val=>$score, -id=>$mid, model=>\%model);
+            or
+             my $site=new Bio::Matrix::PSM::SiteMatrix
+              (-pA=>$a,-pC=>$c,-pG=>$g,-pT=>$t,
+               -lA=>$la,-lC=>$lc,-lG=>$lg,-lT=>$lt,
                -IC=>$ic,-e_val=>$score, -id=>$mid);
+               The difference is that you could supply either background model
+               or weights in order for your object to be both frequency matrix
+               and weight(scoring) matrix. See also calc_weight method.
  Function: Creates a new Bio::Matrix::PSM::SiteMatrix object from memory
  Throws  : If inconsistent data for all vectors (A,C,G and T) is provided,
            if you mix input types (string vs array) or if a position freq is 0.
@@ -185,6 +193,25 @@ sub _initialize {
   my $self = shift;
   $self->throw_not_implemented();
 }
+
+=head2 calc_weight
+
+ Title   : calc_weight
+ Usage   : $self->calc_weight({A=>0.2562,C=>0.2438,G=>0.2432,T=>0.2568});
+ Function: Recalculates the PSM (or weights) based on the PFM (the frequency matrix)
+           and user supplied background model.
+ Throws  : if no model is supplied
+ Example :
+ Returns :
+ Args    : reference to a hash with background frequencies for A,C,G and T
+
+=cut
+
+sub calc_weight {
+  my $self = shift;
+  $self->throw_not_implemented();
+}
+
 
 =head2 next_pos
 
