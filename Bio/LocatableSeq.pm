@@ -288,9 +288,10 @@ sub column_from_residue_number {
 	my $count = $self->start();
 	my $i;
 	my ($start,$end,$inc,$test);
+        my $strand = $self->strand || 0;
 	# the following bit of "magic" allows the main loop logic to be the
 	# same regardless of the strand of the sequence
-	($start,$end,$inc,$test)= ($self->strand == -1)?
+	($start,$end,$inc,$test)= ($strand == -1)?
             (scalar(@residues-1),0,-1,sub{$i >= $end}) :
                 (0,scalar(@residues-1),1,sub{$i <= $end});
 
