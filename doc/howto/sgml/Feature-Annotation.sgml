@@ -143,9 +143,11 @@
     </para>
     <para>
       <programlisting>
-	# BAB55667.gb is a Genbank file
+	# BAB55667.gb is a Genbank file, and Bioperl knows that it
+         # is a Genbank file because of the '.gb' file suffix
 	use Bio::SeqIO;
-	my $seqio_object = Bio::SeqIO->new(-file => "BAB55667.gb );
+	
+	my $seqio_object = Bio::SeqIO->new(-file => "BAB55667.gb" );
 	my $seq_object = $seqio_object->next_seq;
       </programlisting>
     </para>
@@ -385,8 +387,10 @@ FEATURES             Location/Qualifiers
     </para>
     <para>
       <programlisting>
-        my $seqio_object = Bio::SeqIO->new(-file => $gb_file);
-        my $seq_object = $seqio_object->next_seq;
+        use Bio::SeqIO;
+
+	my $seqio_object = Bio::SeqIO->new(-file => $gb_file);
+         my $seq_object = $seqio_object->next_seq;
 
 	foreach my $feat_object ($seq_object->get_SeqFeatures) {
 	  if ($feat_object->primary_tag eq "CDS") {
@@ -462,11 +466,13 @@ FEATURES             Location/Qualifiers
       have crept into Genbank, like "bond". When the Bioperl Genbank 
       parser encounters a non-standard
       feature like this it's going to throw a fatal exception. The 
-      work-around is to use eval{} so you don't die, something like:
+      work-around is to use <function>eval{}</function> so your script doesn't 
+      die, something like:
     </para>
     <para>
       <programlisting>
 	use Bio::SeqIO;
+	
 	my $seq_object;
 	my $seqio_object = Bio::SeqIO->new(-file   => $gb_file,
                                            -format => "genbank");
@@ -488,8 +494,10 @@ FEATURES             Location/Qualifiers
       offer the user a number of useful methods to handle both exact and "fuzzy"
       locations, where the "start" and "end" of a particular
       sub-sequence are precise or themselves have start and end positions, or are
-      not precisely defined. You'll also find methods like union() and
-      intersection() that act on pairs of ranges. The table below is
+      not precisely defined. You'll also find methods like 
+      <function>union()</function> and
+      <function>intersection()</function> that act on pairs of
+      ranges. The table below is
       meant to illustrate some of the modules' capabilities.
     </para>
     <table>
@@ -512,7 +520,8 @@ FEATURES             Location/Qualifiers
       example means "starting somewhere between positions 5 and 10,
       inclusive, and ending at 100". 'BETWEEN' is interesting - the
       example means "between 99 and 100, exclusive". A biological example
-      of such a location would be a cleavage site, between two bases or residues.
+      of such a location would be a cleavage site, between two bases
+      or residues, but not including them.
     </para>
     <para>
       In their simplest form the Location objects are used to get or
@@ -529,8 +538,8 @@ FEATURES             Location/Qualifiers
     </para>
     <para>
       By now you know that the <function>location()</function> method returns
-      an object, in this case a Location object, with an <function>
-	end()</function> method.
+      a Location object, and this object has <function>end()</function> and 
+      <function>start()</function> methods.
     </para>
     <para>
       Another way of describing a feature in Genbank involves
@@ -658,8 +667,8 @@ tagname : date_changed
       </programlisting>
     </para>
     <para>
-      The following is a list of some of the common Annotations and
-      what they're derived from in Genbank files: 
+      The following is a list of some of the common Annotations, their
+      keys in Bioperl, and what they're derived from in Genbank files: 
     </para>
     <table>
   <title>Annotation Keys</title>
@@ -794,6 +803,7 @@ start: 1
     <para>
       <programlisting>
 	use Bio::SeqFeature::Generic;
+
 	# create the feature and add additional data while initializing, 
 	# an author and a note
 	my $feat = new Bio::SeqFeature::Generic(-start  => 10,
@@ -830,70 +840,78 @@ start: 1
       Since the value passed to "-tag" could be any kind of scalar,
       like a reference, it's clear that this approach should be able
       handle just about any sort of data.
-      </para>
+    </para>
     <para>
       Once the feature is created it can be associated with a sequence:
     </para>
     <para>
       <programlisting>
-	# we want a Sequence object
-	my $seq_obj = Bio::Seq->new(-seq => "attcccccttataaaattttttttttgaggggtggg");
-	# associate the sequence and the feature
-	$feat->attach_seq($seq_obj);
+	use Bio::Seq;
+
+	# create a simple Sequence object
+	my $seq_obj = Bio::Seq->new(-seq => "attcccccttataaaattttttttttgaggggtggg",
+                                    -display_id => "BIO52" );
+	# then add the feature to the sequence
+	$seq_obj->add_SeqFeature($feat);
       </programlisting>
     </para>
     <para>
+      The <function>add_SeqFeature()</function> method will also accept an array
+      of SeqFeature objects.
     </para>
     <para>
-      But we can also do it the other way!
+      What if you wanted to add an Annotation to a sequence?
+      You'll create the Annotation object, create an
+      AnnotationCollection object to hold it, add the Annotation to
+      the AnnotationCollection along with a tag, and then add the 
+      AnnotationCollection to the sequence object:  
     </para>
     <para>
       <programlisting>
-	# we want a Sequence object
-	my $seq_obj = Bio::Seq->new(-seq => "attcccccttataaaattttttttttgaggggtggg");
-	# then add the feature to the sequence
-	$seq_obj->add_SeqFeature($feat_object);
+	use Bio::Annotation::Collection;
+	use Bio::Annotation::Comment;
+
+	my $comment = Bio::Annotation::Comment->new;
+	$comment->text("This looks like a good TATA box");
+	my $coll = new Bio::Annotation::Collection;
+	$coll->add_Annotation('comment',$comment);
+	$seq_obj->annotation($coll);
       </programlisting>
-      </para>
-    <para>
-    The <function>add_SeqFeature()</function> method will also accept an array
-    of SeqFeature objects.
     </para>
     <para>
-      Once you have a feature you can add annotations to it using an
-      AnnotationCollection object:
-	<programlisting>
-	$db_link = new Bio::Annotation::DBLink();
-	$db_link->database('dbSNP');
-	$db_link->primary_id('2367');
-	$feat->annotation->add_Annotation('dblink',$db_link);
-	</programlisting>
+      Now let's examine what we've created by writing the contents of
+      <varname>$seq_obj</varname> to a Genbank file:
     </para>
     <para>
-      Note that the first argument to <function>add_Annotation()</function>
-      is the tag name, 'dblink', this is the general idiom for adding
-      Annotations.
-      </para>
-      <para>
-	What if you wanted to add an Annotation directly to a sequence?
-	This is an operation similar to the one above. Assume you already have
-	a sequence object, you'll create the Annotation object and simply
-	add the object to the sequence object: 
+      <programlisting>
+	use Bio::SeqIO;
+
+	my $io = Bio::SeqIO->new(-format => "genbank",
+	                         -file   => ">test.gb" );
+	$io->write_seq($seq_obj);
+      </programlisting>
     </para>
     <para>
-	<programlisting>
-      # first create an Ontology annotation
-      my $annterm = new Bio::Annotation::OntologyTerm(-label => 'ABC1',
-                                                      -tagname => 'Gene Name');
-      $seq_object->annotation->add_Annotation($annterm);
-	</programlisting>
-      </para>
-      <para>
-    This is a slightly different example because the OntologyTerm object was
-    created with a tag name, so you don't need to
-    specify it when you use the 
-    <function>add_Annotation()</function> method.
-      </para>
+      Voila!
+    </para>
+    <para>
+      <programlisting>
+LOCUS       BIO52                    36 bp    dna     linear   UNK
+DEFINITION
+ACCESSION   unknown
+COMMENT     This looks like a good TATA box
+FEATURES             Location/Qualifiers
+                     10..22
+                     /match2="PF002534 e-3.1"
+                     /match1="PF000123 e-7.2"
+                     /author="john"
+                     /note="TATA box"
+BASE COUNT        7 a      5 c      8 g     16 t
+ORIGIN
+        1 attccccctt ataaaatttt ttttttgagg ggtggg
+//	  
+      </programlisting>
+    </para>
   </section>
 
 <!--
@@ -960,7 +978,7 @@ start: 1
       or comments that aren't addressed herein then write the 
       Bioperl community at bioperl-l@bioperl.org.
     </para>
-<para>
+    <para>
       <emphasis>SeqFeature Modules</emphasis>
       <simplelist type="horiz" columns="1">
 <member><ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqFeatureI.html">SeqFeatureI.pm</ulink></member>
@@ -992,9 +1010,9 @@ start: 1
       </simplelist>
     </para>
     <para>
-<emphasis>Annotation Modules</emphasis>
+      <emphasis>Annotation Modules</emphasis>
       <simplelist type="horiz" columns="1">
-<member><ulink
+	<member><ulink
 	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/AnnotationI.html">AnnotationI.pm</ulink></member>  
 <member><ulink
 	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/AnnotatableI.html">AnnotatableI.pm</ulink></member>  
@@ -1011,9 +1029,9 @@ start: 1
       </simplelist>
     </para>
     <para>
-<emphasis>Location Modules</emphasis>
+      <emphasis>Location Modules</emphasis>
       <simplelist type="horiz" columns="1">
-<member><ulink
+	<member><ulink
 	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/LocationI.html">LocationI.pm</ulink></member>
 <member><ulink
 	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/LocatableSeq.html">LocatableSeq.pm</ulink></member>
@@ -1039,7 +1057,6 @@ start: 1
 	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Location/WidestCoordPolicy.html">Location/WidestCoordPolicy.pm</ulink></member>
       </simplelist>
     </para>
-
     <para>
 <emphasis>Range Modules</emphasis>
       <simplelist type="horiz" columns="1">
