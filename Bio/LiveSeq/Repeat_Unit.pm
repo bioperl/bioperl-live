@@ -51,7 +51,7 @@ $version=1.0;
 
 use strict;
 use vars qw($version @ISA);
-use Bio::LiveSeq::Repeat_Region 1.0; # uses Repeat_Region, inherits from it
+use Bio::LiveSeq::Repeat_Region; # uses Repeat_Region, inherits from it
 @ISA=qw(Bio::LiveSeq::Repeat_Region);
 
 =head2 new

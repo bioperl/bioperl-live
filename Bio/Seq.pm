@@ -93,7 +93,7 @@ The rest of the documentation details each of the object methods. Internal metho
 
 
 package Bio::Seq;
-use vars qw(@ISA);
+use vars qw(@ISA $VERSION);
 use strict;
 use Bio::SeqI;
 

@@ -67,7 +67,7 @@ $version=1.8;
 use strict;
 #use Carp qw(croak carp cluck);
 use vars qw($version @ISA);
-use Bio::LiveSeq::SeqI 3.2; # uses SeqI, inherits from it
+use Bio::LiveSeq::SeqI; # uses SeqI, inherits from it
 @ISA=qw(Bio::LiveSeq::Transcript ); 
 
 

@@ -60,7 +60,7 @@ $version=2.3;
 use strict;
 use Carp;
 use vars qw($version @ISA);
-use Bio::LiveSeq::Prim_Transcript 1.0; # needed to create maxtranscript obj
+use Bio::LiveSeq::Prim_Transcript; # needed to create maxtranscript obj
 
 #use Bio::LiveSeq::SeqI 2.11; # uses SeqI, inherits from it
 #@ISA=qw(Bio::LiveSeq::SeqI);

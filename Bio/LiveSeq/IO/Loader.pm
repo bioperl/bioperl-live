@@ -95,16 +95,16 @@ $version=4.44;
 use strict;
 use Carp qw(cluck croak carp);
 use vars qw($version @ISA);
-use Bio::LiveSeq::DNA 1.2;
-use Bio::LiveSeq::Exon 1.0;
-use Bio::LiveSeq::Transcript 2.4;
-use Bio::LiveSeq::Translation 1.4;
-use Bio::LiveSeq::Gene 1.1;
-use Bio::LiveSeq::Intron 1.0;
-use Bio::LiveSeq::Prim_Transcript 1.0;
-use Bio::LiveSeq::Repeat_Region 1.0;
-use Bio::LiveSeq::Repeat_Unit 1.0;
-use Bio::LiveSeq::AARange 1.4;
+use Bio::LiveSeq::DNA;
+use Bio::LiveSeq::Exon;
+use Bio::LiveSeq::Transcript;
+use Bio::LiveSeq::Translation;
+use Bio::LiveSeq::Gene;
+use Bio::LiveSeq::Intron;
+use Bio::LiveSeq::Prim_Transcript;
+use Bio::LiveSeq::Repeat_Region;
+use Bio::LiveSeq::Repeat_Unit;
+use Bio::LiveSeq::AARange;
 use Bio::Tools::CodonTable;
 
 #@ISA=qw(Bio::LiveSeq::); # not useful now

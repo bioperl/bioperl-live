@@ -83,7 +83,7 @@ $version=1.9;
 use Carp qw(croak);
 use strict; # this will be moved before when strict enforced in Chain.pm
 
-use Bio::LiveSeq::Chain 2.6; # package where all the subroutines are defined
+use Bio::LiveSeq::Chain; # package where all the subroutines are defined
 
 
 =head2 new

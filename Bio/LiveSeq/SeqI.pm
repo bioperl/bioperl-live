@@ -123,7 +123,7 @@ $version=3.3;
 
 use strict;
 use vars qw($version @ISA);
-use Bio::LiveSeq::ChainI 1.9; # to inherit from it
+use Bio::LiveSeq::ChainI; # to inherit from it
 use Bio::Tools::CodonTable; # for the translate() function
 
 @ISA=qw(Bio::LiveSeq::ChainI); # inherit from ChainI

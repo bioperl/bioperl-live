@@ -51,7 +51,7 @@ $version=1.0;
 
 use strict;
 use vars qw($version @ISA);
-use Bio::LiveSeq::Range 1.2; # uses Range, inherits from it
+use Bio::LiveSeq::Range; # uses Range, inherits from it
 @ISA=qw(Bio::LiveSeq::Range);
 
 =head2 new

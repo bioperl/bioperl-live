@@ -85,7 +85,7 @@ use Carp qw(cluck croak carp);
 use vars qw($version @ISA);
 use Bio::SeqIO;
 
-use Bio::LiveSeq::IO::Loader 2.0;
+use Bio::LiveSeq::IO::Loader;
 
 @ISA=qw(Bio::LiveSeq::IO::Loader);
 
