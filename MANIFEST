@@ -14,6 +14,7 @@ Bio/AlignIO/nexus.pm
 Bio/AlignIO/pfam.pm
 Bio/AlignIO/phylip.pm
 Bio/AlignIO/prodom.pm
+Bio/AlignIO/psi.pm
 Bio/AlignIO/selex.pm
 Bio/AlignIO/stockholm.pm
 Bio/AnalysisParserI.pm
@@ -409,6 +410,7 @@ Bio/Variation/SeqDiff.pm
 Bio/Variation/VariantI.pm
 Changes
 FAQ
+INSTALL
 LICENSE
 MANIFEST
 PLATFORMS
@@ -791,6 +793,7 @@ t/data/short.blx
 t/data/sim4.for.for
 t/data/sim4.for.rev
 t/data/sim4.rev
+t/data/sparsealn.needle
 t/data/stress_test_medline.xml
 t/data/swiss.dat
 t/data/swiss_unk.dat
