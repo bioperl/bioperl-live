@@ -121,7 +121,7 @@ ok $atom->y, $y;
 my $z = $atom->x - $y;
 $atom->z($z);
 ok $atom->z, -2.111;
-ok ($atom->xyz), 3;
+ok ($atom->xyz, 3);
 my @xyz = $atom->xyz;
 ok $xyz[0], 10.234;
 ok $xyz[1], 12.345;
@@ -139,7 +139,7 @@ ok $c3->id, "Chain 2";
 my $r3 = Bio::Structure::Residue->new(-id => "Residue 2");
 ok (1);
 ok $r3->id, "Residue 2";
-my $a2 = Bio::Structure::Atom->new(-id => "Atom 2");
+$a2 = Bio::Structure::Atom->new(-id => "Atom 2");
 ok (1);
 ok $a2->id, "Atom 2";
 
