@@ -152,6 +152,8 @@
       have a feature or an annotation? No. 
     </note>
     <para>
+    </para>
+    <para>
       Now that we have a sequence object in hand we can examine its 
       features and annotations.
     </para>
@@ -188,6 +190,8 @@ FEATURES             Location/Qualifiers
                      VDSISHPLYKCSSKMVLLARCEGHCSQASRSEPLVSFSTVLKQPFRSSCHCCRPQTSK
                      LKALRLRCSGGMRLTATYRYILSCHCEECNS"
       </programlisting>
+    </para>
+    <para>
       Features in Bioperl are accessed using their tags, either a
       "primary tag" or a plain "tag". Examples of primary tags in this 
       text are "source", "gene", and "CDS". Plain tags include
@@ -231,6 +235,8 @@ FEATURES             Location/Qualifiers
 	   }
 	}
       </programlisting>
+    </para>
+    <para>
       This bit would print out something like:
       <programlisting>
 primary tag: source
@@ -265,6 +271,8 @@ primary tag: CDS
       </programlisting>
     </para>
     <para>
+    </para>
+    <para>
     So to retrieve specific values, like all the database identifiers, 
     you could do:
     <programlisting>
@@ -274,11 +282,15 @@ primary tag: CDS
       }
     </programlisting>
     </para>
+    <para>
+    </para>
     <important>
       Make sure to include that "if ($feat_object->has_tag(&lt;tag&gt;))"
       part, otherwise you'll get errors when the feature does not
       have the tag you're requesting.
     </important>
+    <para>
+    </para>
     <para>
       One commonly asked question is "How do I get the sequence of a
       SeqFeature?" The answer is "it depends on what you're looking
@@ -288,6 +300,8 @@ primary tag: CDS
       <programlisting>
 	$seq_object = $feat_object->entire_seq;
       </programlisting>
+    </para>
+    <para>
       This doesn't return the parent's sequence directly but rather
       a <classname>Bio::PrimarySeq</classname> object corresponding to the parent
       sequence. Now that you have this object you can call its
@@ -296,6 +310,8 @@ primary tag: CDS
       <programlisting>
 	my $sequence_string = $feat_object->entire_seq->seq;
       </programlisting>
+    </para>
+    <para>
       There are 2 other useful methods, <function>seq()</function> and
       <function>spliced_seq()</function>. Consider the following
       Genbank example:
@@ -342,12 +358,16 @@ FEATURES             Location/Qualifiers
 	  if ($feat_object->primary_tag eq "CDS") {
 	    print $feat_object->spliced_seq->seq,"\n";
 	    # e.g. 'ATTATTTTCGCTCGCTTCTCGCGCTTTTTGAGATAAGGTCGCGT...'
-	    foreach my $val ($feat->get_tag_values('gene')) {
+	    foreach my $val ($feat->get_tag_values('gene')
+                             if ($feat->has_tag('gene')) {
 	      print "gene: ",$val,"\n";
 	      # e.g. 'NDP', from a line like '/gene="NDP"'
             }
-	}
+	  }
+        }
       </programlisting> 
+    </para>
+    <para>
     </para>
     <para>
       Many people wouldn't write code in the rather deliberate style
@@ -358,6 +378,8 @@ FEATURES             Location/Qualifiers
 	my @cds_features = grep { $_->primary_tag eq 'CDS' }
 	Bio::SeqIO->new(-file => $gb_file)->next_seq->get_SeqFeatures;
       </programlisting>
+    </para>
+    <para>
       With this array of SeqFeatures you could do all sorts of
       useful things, such as find all the values for
       the 'gene' tags and their corresponding spliced nucleotide
@@ -366,6 +388,8 @@ FEATURES             Location/Qualifiers
 	my %gene_sequences = map {$_->get_tag_values('gene'),
 	                          $_->spliced_seq->seq } @cds_features;
       </programlisting>
+    </para>
+    <para>
       Because you're asking for a specific primary tag and tag, 'CDS'
       and 'gene' respectively, this would only work when there are 
       features that looked something like this:
@@ -427,6 +451,8 @@ SOURCE      human.
             Eukaryota; Metazoa; Chordata; Craniata; Vertebrata; Euteleostomi;
             Mammalia; Eutheria; Primates; Catarrhini; Hominidae; Homo.
       </programlisting>
+    </para>
+    <para>
       You can create this Species object and use its methods or you can
       use the Perlish shorthand:
       <programlisting>
@@ -440,6 +466,8 @@ SOURCE      human.
 	# "sapiens Homo Hominidae Catarrhini Primates Eutheria Mammalia
 	# Euteleostomi Vertebrata Craniata Chordata Metazoa Eukaryota"
       </programlisting>
+    </para>
+    <para>
       The reason that ORGANISM isn't treated only as a plain tag is that
       there are a variety of things one would want to do with
       taxonomic information, so returning just an array wouldn't
@@ -460,6 +488,8 @@ SOURCE      human.
 	my $seq_obj = $io->next_seq;
 	my $anno_collection = $seq_obj->annotation;
       </programlisting>
+    </para>
+    <para>
       Now we can access each Annotation in the AnnotationCollection
       object. The Annotation objects can be retrieved in arrays: 
       <programlisting>
@@ -471,7 +501,9 @@ SOURCE      human.
 	    print "  annotation value: ", $value->as_text, "\n";
 	  }
 	}
-      </programlisting>    
+      </programlisting>
+    </para>
+    <para>
       It turns out the value of <varname>$key</varname>, above, and 
       $value->tagname are the same. The code will print something like:
       <programlisting>
@@ -484,6 +516,8 @@ tagname : reference
 tagname : date_changed
   annotation value: Value: 31-OCT-2000
       </programlisting>
+    </para>
+    <para>
       If you only wanted a specific annotation, like COMMENT, you
       could do:
       <programlisting>
@@ -533,7 +567,9 @@ tagname : date_changed
 	    print $key,": ",$ref->{$key},"\n";
 	  }
 	}
-    </programlisting>
+      </programlisting>
+    </para>
+    <para>
       Which yields:
     <programlisting>
 authors: Meitinger,T., Meindl,A., Bork,P., Rost,B., Sander,C., Haasemann,M. and
@@ -545,6 +581,8 @@ title: Molecular modelling of the Norrie disease protein predicts a cystine knot
 end: 1846
 start: 1
     </programlisting>
+    </para>
+    <para>
     Other Annotation objects, like SimpleValue, also have a
     <function>hash_tree()</function> method but the hash isn't
     populated with data and <function>as_text()</function> will suffice.
@@ -561,9 +599,15 @@ start: 1
 	if ($value->tagname eq "reference") {
 	  print "author: ",$value->authors(), "\n";
 	}
-	# as well as title(), location(), medline(), start(), and end()
       </programlisting>
+      There's also title(), publisher(), medline(), editors(),
+      database(), pubmed() and a number of other methods.
     </para>
+  </section>
+
+  <section id="swissprot">
+    <title>Swissprot Note</title>
+    There are other formats t
   </section>
 
   <section id="direct">
@@ -597,6 +641,7 @@ start: 1
   <section id="location">
     <title>Location Objects</title>
     <para>
+<!-- link to modules -->
       There's quite a bit to this idea of location, so much that it
       probably deserves its own HOWTO. This is my way of saying that
       if this topic interests you should take a closer look at the modules that
@@ -648,6 +693,8 @@ start: 1
 					        -tag    => {author => 'john',
 						            note   => 'TATA box' } );
 	</programlisting>
+    </para>
+    <para>
       The SeqFeature::Generic object offers the user a "tag system" for
       addition of data that's not explicitly accounted for by its
       methods, that's what the "-tag" is for, above.
@@ -665,6 +712,8 @@ start: 1
         # prints out:
 	# author:john  match1:PF000123 e-7.2  match2:PF002534 e-3.1  note:TATA box
       </programlisting>
+    </para>
+    <para>
       Since the value passed to "-tag" could be any kind of scalar,
       like a reference, it's clear that this approach should be able
       handle just about any sort of data.
@@ -677,6 +726,8 @@ start: 1
 	# associate the sequence and the feature
 	$feat->attach_seq($seq_obj);
       </programlisting>
+    </para>
+    <para>
       Once you have a feature you can add annotations to it using an
       AnnotationCollection object:
       <programlisting>
@@ -685,9 +736,9 @@ start: 1
 	$db_link->primary_id('2367');
 	$feat->annotation->add_Annotation('dblink',$db_link);
     </programlisting>
-      Note that the first argument to
-      <function>add_Annotation()</function>
-      is the tag name, 'dblink'.
+      Note that the first argument to <function>add_Annotation()</function>
+      is the tag name, 'dblink', this is the general idiom for adding
+      Annotations.
     </para>
   </section>
 <para>
@@ -701,14 +752,16 @@ start: 1
                                                       -tagname => 'Gene Name');
       $seq_object->annotation->add_Annotation($annterm);
     </programlisting>
-    This is an interesting example because the OntologyTerm object was
-    created with a tag name, so you don't need to specify it when you use the 
+  </para>
+  <para>
+    This is a slightly different example because the OntologyTerm object was
+    created <emphasis>with</emphasis> a tag name, so you don't need to
+    specify it when you use the 
     <function>add_Annotation()</function> method.
   </para>
 
 <!--
   <section id="feature_variations">
-    <!--  -->
     <title>The different SeqFeature objects</title>
     <para>
       
@@ -716,6 +769,7 @@ start: 1
   </section>
 -->
 
+<!--
   <section id="annotation_variations">
     <title>The different Annotation objects</title>
     <para>
@@ -746,10 +800,10 @@ start: 1
       <ulink url="http://doc.bioperl.org/">http://doc.bioperl.org/</ulink>.
     </para>
   </section>
+-->
 
 <!--
   <section id="unflattener">
-    <!--  -->
     <title>Unflattener</title>
     <para>
       
@@ -758,18 +812,109 @@ start: 1
 -->
 
   <section id="in_addition">
-    <!--  -->
     <title>Additional Information</title>
     <para>
       If you would like to learn about representing sequences and 
       features in graphical form take a look at the <ulink 
       url="http://bioperl.org/HOWTOs/html/Graphics-HOWTO.html">Graphics
-      HOWTO</ulink>. The documentation for each of the individual SeqFeature and 
-      Annotation modules is also very useful. If you have questions 
-      or comments that aren't addressed therein then write the 
+      HOWTO</ulink>. The documentation for each of the individual
+      SeqFeature, Range, Location and 
+      Annotation modules is also very useful, there's a list of them
+      below. If you have questions 
+      or comments that aren't addressed herein then write the 
       Bioperl community at bioperl-l@bioperl.org.
     </para>
+<para>
+      <emphasis>SeqFeature Modules</emphasis>
+      <simplelist type="horiz" columns="1">
+<member><ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqFeatureI.html">SeqFeatureI.pm</ulink></member>
+<member><ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqFeature/AnnotationAdaptor.html">SeqFeature/AnnotationAdaptor.pm</ulink></member>
+<member><ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqFeature/FeaturePair.html">SeqFeature/FeaturePair.pm</ulink></member>
+<member><ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqFeature/Similarity.html">SeqFeature/Similarity.pm</ulink></member>
+<member><ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqFeature/Generic.html">SeqFeature/Generic.pm</ulink></member>
+<member><ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqFeature/SimilarityPair.html">SeqFeature/SimilarityPair.pm</ulink></member>
+<member><ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqFeature/PositionProxy.html">SeqFeature/PositionProxy.pm</ulink></member>
+<member><ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqFeature/Computation.html">SeqFeature/Computation.pm</ulink></member>
+<member><ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqFeature/Primer.html">SeqFeature/Primer.pm</ulink></member>
+<member><ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqFeature/Collection.html">SeqFeature/Collection.pm</ulink></member>
+<member><ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqFeature/CollectionI.html">SeqFeature/CollectionI.pm</ulink></member>
+<member><ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqFeature/SiRNA/Pair.html">SeqFeature/SiRNA/Pair.pm</ulink></member>
+<member><ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqFeature/SiRNA/Oligo.html">SeqFeature/SiRNA/Oligo.pm</ulink></member>
+<member><ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqFeature/Gene/GeneStructure.html">SeqFeature/Gene/GeneStructure.pm</ulink></member>
+<member><ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqFeature/Gene/NC_Feature.html">SeqFeature/Gene/NC_Feature.pm</ulink></member>
+<member><ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqFeature/Gene/Transcript.html">SeqFeature/Gene/Transcript.pm</ulink></member>
+<member><ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqFeature/Gene/Exon.html">SeqFeature/Gene/Exon.pm</ulink></member>
+<member><ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqFeature/Gene/GeneStructureI.html">SeqFeature/Gene/GeneStructureI.pm</ulink></member>
+<member><ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqFeature/Gene/Poly_A_site.html">SeqFeature/Gene/Poly_A_site.pm</ulink></member>
+<member><ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqFeature/Gene/TranscriptI.html">SeqFeature/Gene/TranscriptI.pm</ulink></member>
+<member><ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqFeature/Gene/ExonI.html">SeqFeature/Gene/ExonI.pm</ulink></member>
+<member><ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqFeature/Gene/Intron.html">SeqFeature/Gene/Intron.pm</ulink></member>
+<member><ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqFeature/Gene/Promoter.html">SeqFeature/Gene/Promoter.pm</ulink></member>
+<member><ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqFeature/Gene/UTR.html">SeqFeature/Gene/UTR.pm</ulink></member>
+<member><ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqFeature/Tools/Unflattener.html">SeqFeature/Tools/Unflattener.pm</ulink></member>
+<member><ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqFeature/Tools/TypeMapper.html">SeqFeature/Tools/TypeMapper.pm</ulink></member>
+      </simplelist>
+    </para>
+    <para>
+<emphasis>Annotation Modules</emphasis>
+      <simplelist type="horiz" columns="1">
+<member><ulink
+	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/AnnotationI.html">AnnotationI.pm</ulink></member>  
+<member><ulink
+	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/AnnotatableI.html">AnnotatableI.pm</ulink></member>  
+<member><ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/AnnotationCollectionI.html">AnnotationCollectionI.pm</ulink></member>  
+<member><ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/AnnotationFactory.html">Annotation/AnnotationFactory.pm</ulink></member>  
+<member><ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/Comment.html">Annotation/Comment.pm</ulink></member>       
+<member><ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/Reference.html">Annotation/Reference.pm</ulink></member>        
+<member><ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/TypeManager.html">Annotation/TypeManager.pm</ulink></member>
+<member><ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/DBLink.html">Annotation/DBLink.pm</ulink></member>        
+<member><ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/SimpleValue.html">Annotation/SimpleValue.pm</ulink></member>
+<member><ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/Collection.html">Annotation/Collection.pm</ulink></member>         
+<member><ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/OntologyTerm.html">Annotation/OntologyTerm.pm</ulink></member>  
+<member><ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/StructuredValue.html">Annotation/StructuredValue.pm</ulink></member>
+      </simplelist>
+    </para>
+    <para>
+<emphasis>Location Modules</emphasis>
+      <simplelist type="horiz" columns="1">
+<member><ulink
+	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/LocationI.html">LocationI.pm</ulink></member>
+<member><ulink
+	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/LocatableSeq.html">LocatableSeq.pm</ulink></member>
+<member><ulink
+	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Location/Atomic.html">Location/Atomic.pm</ulink></member>
+<member><ulink
+	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Location/AvWithinCoordPolicy.html">Location/AvWithinCoordPolicy.pm</ulink></member>
+<member><ulink
+	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Location/CoordinatePolicyI.html">Location/CoordinatePolicyI.pm</ulink></member>
+<member><ulink
+	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Location/Fuzzy.html">Location/Fuzzy.pm</ulink></member>
+<member><ulink
+	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Location/FuzzyLocationI.html">Location/FuzzyLocationI.pm</ulink></member>
+<member><ulink
+	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Location/NarrowestCoordPolicy.html">Location/NarrowestCoordPolicy.pm</ulink></member>
+<member><ulink
+	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Location/Simple.html">Location/Simple.pm</ulink></member>
+<member><ulink
+	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Location/Split.html">Location/Split.pm</ulink></member>
+<member><ulink
+	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Location/SplitLocationI.html">Location/SplitLocationI.pm</ulink></member>
+<member><ulink
+	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Location/WidestCoordPolicy.html">Location/WidestCoordPolicy.pm</ulink></member>
+      </simplelist>
+    </para>
+
+    <para>
+<emphasis>Range Modules</emphasis>
+      <simplelist type="horiz" columns="1">
+<member><ulink
+	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/RangeI.html">RangeI.pm</ulink></member>
+<member><ulink
+	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Range.html">Range.pm</ulink></member>
+      </simplelist>
+    </para>
   </section>
+
   <section id="acknowledgements">
     <title>Acknowledgements</title>
     Thanks to Steven Lembark for comments and neat code discussions.
@@ -779,3 +924,4 @@ start: 1
 <!-- 
 <note>, <tip>, <warning>, <important> 
 -->
+
