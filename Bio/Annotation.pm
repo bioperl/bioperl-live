@@ -20,7 +20,7 @@ Bio::Annotation - A generic object for annotations
     # get an annotation somehow in $ann
 
     # description is a simple, one line description 
-    print "Description is ",$ann->description "\n";
+    print "Description is ",$ann->description, "\n";
 
 
     foreach $comment ( $ann->each_Comment ) {
@@ -30,7 +30,7 @@ Bio::Annotation - A generic object for annotations
 
     foreach $link ( $ann->each_DBLink ) {
        # link is a Bio::Annotation::DBLink object
-       print "Link to ",$link->primary_id, " in database", $link->database "\n";
+       print "Link to ",$link->primary_id, " in database", $link->database, "\n";
     }
 
     foreach $ref ( $ann->each_Reference ) {
