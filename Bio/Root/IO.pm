@@ -122,7 +122,7 @@ BEGIN {
     $FILESPECLOADED = 0;
     $FILETEMPLOADED = 0;
     $FILEPATHLOADED = 0;
-    $VERBOSE = 1;
+    $VERBOSE = 0;
 
     # try to load those modules that may cause trouble on some systems
     eval { 
@@ -262,7 +262,7 @@ sub _initialize_io {
       my $trymax = 5;
 
       if($HAS_LWP){ #use LWP::Simple::getstore()
-        use LWP::Simple;
+	require LWP::Simple;
         #$self->warn("has lwp");
         my $http_result;
         my($handle,$tempfile) = $self->tempfile();
@@ -438,14 +438,15 @@ sub file {
  Usage   : $obj->_print(@lines)
  Function:
  Example :
- Returns : writes output
+ Returns : 1 on success, undef on failure
 
 =cut
 
 sub _print {
     my $self = shift;
     my $fh = $self->_fh() || \*STDOUT;
-    print $fh @_;
+    my $ret = print $fh @_;
+    return $ret;
 }
 
 =head2 _readline
