@@ -87,25 +87,27 @@ information.
 
 =head1 DESCRIPTION
 
-ProtMatrix is designed to provide some basic methods when working with position
-scoring (weight) matrices related to protein sequences.  A protein PSM consists
-of 20 vectors with 20 frequencies (one per amino acid per position).  This is
-the minimum information you should provide to construct a PSM object.  The
-vectors can be provided as strings with frequencies where the frequency is
-{0..a} and a=1. This is the way MEME compressed representation of a matrix and
-it is quite useful when working with relational DB.   If arrays are provided as
-an input (references to arrays actually) they can be any number, real or
+ProtMatrix is designed to provide some basic methods when working with
+position scoring (weight) matrices related to protein sequences.  A
+protein PSM consists of 20 vectors with 20 frequencies (one per amino
+acid per position).  This is the minimum information you should
+provide to construct a PSM object.  The vectors can be provided as
+strings with frequencies where the frequency is {0..a} and a=1. This
+is the way MEME compressed representation of a matrix and it is quite
+useful when working with relational DB.  If arrays are provided as an
+input (references to arrays actually) they can be any number, real or
 integer (frequency or count).
 
-When creating the object the constructor will check for positions that equal 0.
-If such is found it will increase the count for all positions by one and
-recalculate the frequency.   Potential bug - if you are using frequencies and
-one of the positions is 0 it will change significantly.   However, you should
-never have frequency that equals 0.
+When creating the object the constructor will check for positions that
+equal 0.  If such is found it will increase the count for all
+positions by one and recalculate the frequency.  Potential bug - if
+you are using frequencies and one of the positions is 0 it will change
+significantly.  However, you should never have frequency that equals
+0.
 
 Throws an exception if: You mix as an input array and string (for
-example A matrix is given as array, C - as string).   The position
-vector is (0,0,0,0).   One of the probability vectors is shorter than
+example A matrix is given as array, C - as string).  The position
+vector is (0,0,0,0).  One of the probability vectors is shorter than
 the rest.
 
 Summary of the methods I use most frequently (details bellow):
@@ -126,10 +128,10 @@ Summary of the methods I use most frequently (details bellow):
    get_array - gets the probability vector for a single base as an array.
    get_logs_array - gets the log-odds vector for a single base as an array.
 
-New methods, which might be of interest to anyone who wants to store PSM in a relational
-database without creating an entry for each position is the ability to compress the
-PSM vector into a string with losing usually less than 1% of the data.
-this can be done with:
+New methods, which might be of interest to anyone who wants to store
+PSM in a relational database without creating an entry for each
+position is the ability to compress the PSM vector into a string with
+losing usually less than 1% of the data.  this can be done with:
 
    my $str=$matrix->get_compressed_freq('A');
 or
@@ -159,10 +161,9 @@ of the Bioperl mailing lists.   Your participation is much appreciated.
 =head2 Reporting Bugs
 
 Report bugs to the Bioperl bug tracking system to help us keep track
-the bugs and their resolution.   Bug reports can be submitted via email
+the bugs and their resolution.  Bug reports can be submitted via email
 or the web:
 
-   bioperl-bugs@bio.perl.org
    http://bugzilla.bioperl.org/
 
 =head1 AUTHOR - James Thompson

@@ -86,10 +86,10 @@ Summary of the methods I use most frequently (details bellow):
   get_array - gets the probability vector for a single base as an array.
   get_logs_array - gets the log-odds vector for a single base as an array.
 
-New methods, which might be of interest to anyone who wants to store PSM in a relational
-database without creating an entry for each position is the ability to compress the
-PSM vector into a string with losing usually less than 1% of the data.
-this can be done with:
+New methods, which might be of interest to anyone who wants to store
+PSM in a relational database without creating an entry for each
+position is the ability to compress the PSM vector into a string with
+losing usually less than 1% of the data.  this can be done with:
 
   my $str=$matrix->get_compressed_freq('A');
 or
@@ -122,7 +122,6 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 the bugs and their resolution.  Bug reports can be submitted via email
 or the web:
 
-  bioperl-bugs@bio.perl.org
   http://bugzilla.bioperl.org/
 
 =head1 AUTHOR - Stefan Kirov

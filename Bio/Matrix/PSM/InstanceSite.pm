@@ -51,10 +51,9 @@ of the Bioperl mailing lists.  Your participation is much appreciated.
 =head2 Reporting Bugs
 
 Report bugs to the Bioperl bug tracking system to help us keep track
- the bugs and their resolution.
- Bug reports can be submitted via email or the web:
+the bugs and their resolution.  Bug reports can be submitted via email
+or the web:
 
-  bioperl-bugs@bio.perl.org
   http://bugzilla.bioperl.org/
 
 =head2 Description
@@ -73,14 +72,12 @@ Email skirov@utk.edu
 
 # Let the code begin...
 package Bio::Matrix::PSM::InstanceSite;
-use Bio::Matrix::PSM::SiteMatrix;
-use Bio::Root::Root;
 use Bio::Matrix::PSM::InstanceSiteI;
 use Bio::LocatableSeq;
 use vars qw(@ISA);
 use strict;
 
- @ISA=qw(Bio::LocatableSeq  Bio::Matrix::PSM::InstanceSiteI Bio::Root::Root);
+ @ISA=qw(Bio::LocatableSeq Bio::Matrix::PSM::InstanceSiteI);
  
 =head2 new
 

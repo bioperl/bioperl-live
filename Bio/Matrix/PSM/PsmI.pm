@@ -1,6 +1,7 @@
 # $Id$
 #---------------------------------------------------------
 #ISA SiteMatrix, HAS InstanceSite
+
 =head1 NAME
 
 Bio::Matrix::PSM::PsmI - abstract interface to handler of site matricies
@@ -93,10 +94,9 @@ of the Bioperl mailing lists.  Your participation is much appreciated.
 =head2 Reporting Bugs
 
 Report bugs to the Bioperl bug tracking system to help us keep track
- the bugs and their resolution.
- Bug reports can be submitted via email or the web:
+the bugs and their resolution.  Bug reports can be submitted via email
+or the web:
 
-  bioperl-bugs@bio.perl.org
   http://bugzilla.bioperl.org/
 
 =head1 AUTHOR - Stefan Kirov
@@ -114,13 +114,12 @@ This software is provided "as is" without warranty of any kind.
 
 # Let the code begin...
 package Bio::Matrix::PSM::PsmI;
-use Bio::Root::Root;
-use Bio::Root::IO;
 use Bio::Matrix::PSM::SiteMatrix;
 use Bio::Matrix::PSM::InstanceSite;
 use vars qw(@ISA);
 use strict;
-@ISA=qw(Bio::Matrix::PSM::SiteMatrix Bio::Root::Root);
+
+@ISA=qw(Bio::Matrix::PSM::SiteMatrixI );
 
 =head2 new
 

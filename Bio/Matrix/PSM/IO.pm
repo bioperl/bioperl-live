@@ -81,7 +81,6 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 the bugs and their resolution.  Bug reports can be submitted via email
 or the web:
 
-  bioperl-bugs@bio.perl.org
   http://bugzilla.bioperl.org/
 
 =head1 AUTHOR - Stefan Kirov
@@ -96,12 +95,12 @@ Email skirov@utk.edu
 # Let the code begin...
 package Bio::Matrix::PSM::IO;
 use Bio::Root::IO;
-use vars qw(@ISA);
+use vars qw(@ISA @PSMFORMATS);
 use strict;
 
 @ISA=qw(Bio::Root::IO);
 
-@Bio::Matrix::PSM::IO::PSMFORMATS=qw(meme transfac mast psiblast);
+@PSMFORMATS = qw(meme transfac mast psiblast);
 
 =head2 new
 

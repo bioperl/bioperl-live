@@ -28,10 +28,9 @@ of the Bioperl mailing lists.  Your participation is much appreciated.
 =head2 Reporting Bugs
 
 Report bugs to the Bioperl bug tracking system to help us keep track
- the bugs and their resolution.
- Bug reports can be submitted via email or the web:
+the bugs and their resolution.  Bug reports can be submitted via email
+or the web:
 
-  bioperl-bugs@bio.perl.org
   http://bugzilla.bioperl.org/
 
 =head1 AUTHOR - James Thompson
@@ -49,11 +48,10 @@ use Bio::Matrix::PSM::Psm;
 use Bio::Matrix::PSM::IO;
 use Bio::Matrix::PSM::ProtMatrix;
 use Bio::Matrix::PSM::PsmHeader;
-use Bio::Root::Root;
 use vars qw(@ISA);
 use strict;
 
-@ISA = qw( Bio::Matrix::PSM::IO Bio::Matrix::PSM::PsmHeader );
+@ISA = qw( Bio::Matrix::PSM::PsmHeader Bio::Matrix::PSM::IO );
 
 # define the order in which amino acids are listed in the psiblast matrix file
 our @ordered_alphabet = qw/A  R  N  D  C  Q  E  G  H  I  L  K  M  F  P  S  T  W  Y  V/;

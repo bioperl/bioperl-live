@@ -46,10 +46,9 @@ Email skirov@utk.edu
 package Bio::Matrix::PSM::PsmHeader;
 
 use Bio::Matrix::PSM::InstanceSite;
-use Bio::Matrix::PSM::Psm;
-use Bio::Matrix::PSM::IO;
-use Bio::Root::Root;
 use Bio::Matrix::PSM::PsmHeaderI;
+use Bio::Root::Root;
+
 use strict;
 use vars qw(@ISA);
 @ISA=qw( Bio::Root::Root Bio::Matrix::PSM::PsmHeaderI);
@@ -285,12 +284,19 @@ sub release {
 sub _check {
     my ($self,$method) = @_;
     my $type= $self->{'_type'};
-  TYPE: {
-      if ($type eq 'meme') { return undef unless (grep(/$method/,@Bio::Matrix::PSM::PsmHeader::MEMEHEADER)); last TYPE; }
-      if ($type eq 'mast') { return undef unless (grep(/$method/,@Bio::Matrix::PSM::PsmHeader::MASTHEADER)); last TYPE; }
-      if ($type eq 'transfac') { return undef unless (grep(/$method/,@Bio::Matrix::PSM::PsmHeader::TRANSFACHEADER)); last TYPE; }
-      if ($type eq 'psiblast') { return undef unless (grep(/$method/,@Bio::Matrix::PSM::PsmHeader::PSIBLASTHEADER)); last TYPE; }
-  }
+    if ($type eq 'meme') { 
+	return undef unless (grep(/$method/,
+				  @Bio::Matrix::PSM::PsmHeader::MEMEHEADER)); 
+    } elsif ($type eq 'mast') { 
+	return undef unless (grep(/$method/,
+				  @Bio::Matrix::PSM::PsmHeader::MASTHEADER));
+    } elsif ($type eq 'transfac') { 
+	return undef unless (grep(/$method/,
+				  @Bio::Matrix::PSM::PsmHeader::TRANSFACHEADER)); 
+    } elsif ($type eq 'psiblast') { 
+	return undef unless (grep(/$method/,
+				  @Bio::Matrix::PSM::PsmHeader::PSIBLASTHEADER)); 
+    }
     return 1;
 }
 

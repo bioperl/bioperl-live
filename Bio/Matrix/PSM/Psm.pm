@@ -89,10 +89,9 @@ Your participation is much appreciated.
 =head2 Reporting Bugs
 
 Report bugs to the Bioperl bug tracking system to help us keep track
- the bugs and their resolution.
- Bug reports can be submitted via email or the web:
+the bugs and their resolution.  Bug reports can be submitted via email
+or the web:
 
-  bioperl-bugs@bio.perl.org
   http://bugzilla.bioperl.org/
 
 =head1 AUTHOR - Stefan Kirov
@@ -122,7 +121,8 @@ use Bio::Annotation::Collection;
 use vars qw(@ISA);
 use strict;
 
-@ISA=qw(Bio::Matrix::PSM::SiteMatrix Bio::Matrix::PSM::PsmI Bio::Annotation::Collection);
+@ISA=qw(Bio::Matrix::PSM::SiteMatrix Bio::Matrix::PSM::PsmI 
+        Bio::Annotation::Collection);
 
 @Bio::Matrix::PSM::Psm::HEADER = qw(e_val sites IC width);
 

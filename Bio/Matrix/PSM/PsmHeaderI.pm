@@ -56,10 +56,9 @@ Your participation is much appreciated.
 =head2 Reporting Bugs
 
 Report bugs to the Bioperl bug tracking system to help us keep track
- the bugs and their resolution.
- Bug reports can be submitted via email or the web:
+the bugs and their resolution.  Bug reports can be submitted via email
+or the web:
 
-  bioperl-bugs@bio.perl.org
   http://bugzilla.bioperl.org/
 
 =head1 AUTHOR - Stefan Kirov
@@ -78,7 +77,7 @@ use Bio::Matrix::PSM::Psm;
 use Bio::Matrix::PSM::IO;
 use strict;
 use vars qw(@ISA);
-@ISA=qw(Bio::Matrix::PSM::Psm Bio::Root::Root);
+@ISA=qw(Bio::Matrix::PSM::PsmI);
 
 #Accessor methods, based on the driver
 @Bio::Matrix::PSM::PsmHeader::MASTHEADER=qw(html version release 
@@ -100,7 +99,7 @@ use vars qw(@ISA);
  Function: Creates a new Bio::Matrix::PSM::PsmHeader object
  Throws  :
  Example :
- Returns :  Bio::Matrix::PSM::PsmHeader object
+ Returns :  Bio::Matrix::PSM::PsmHeaderI object
  Args    :  hash
 
 

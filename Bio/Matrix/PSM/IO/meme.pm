@@ -28,10 +28,9 @@ Your participation is much appreciated.
 =head2 Reporting Bugs
 
 Report bugs to the Bioperl bug tracking system to help us keep track
- the bugs and their resolution.
- Bug reports can be submitted via email or the web:
+the bugs and their resolution.  Bug reports can be submitted via email
+or the web:
 
-  bioperl-bugs@bio.perl.org
   http://bugzilla.bioperl.org/
 
 =head1 AUTHOR - Stefan Kirov
@@ -53,7 +52,7 @@ use Bio::Matrix::PSM::PsmHeader;
 use vars qw(@ISA @HEADER);
 use strict;
 
-@ISA=qw(Bio::Matrix::PSM::PsmHeader Bio::Matrix::PSM::IO Bio::Root::Root);
+@ISA=qw(Bio::Matrix::PSM::PsmHeader Bio::Matrix::PSM::IO);
 
 @Bio::Matrix::PSM::IO::meme::HEADER = qw(e_val sites IC width);
 

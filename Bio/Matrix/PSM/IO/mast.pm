@@ -37,7 +37,6 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 the bugs and their resolution.  Bug reports can be submitted via email
 or the web:
 
-  bioperl-bugs@bio.perl.org
   http://bugzilla.bioperl.org/
 
 =head1 AUTHOR - Stefan Kirov
@@ -61,7 +60,7 @@ use Bio::Root::Root;
 use strict;
 use vars qw(@ISA);
 
-@ISA=qw(Bio::Matrix::PSM::PsmHeader Bio::Root::Root Bio::Matrix::PSM::IO);
+@ISA=qw(Bio::Matrix::PSM::PsmHeader Bio::Matrix::PSM::IO);
 
 =head2 new
 

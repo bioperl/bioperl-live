@@ -75,10 +75,9 @@ Your participation is much appreciated.
 =head2 Reporting Bugs
 
 Report bugs to the Bioperl bug tracking system to help us keep track
- the bugs and their resolution.
- Bug reports can be submitted via email or the web:
+the bugs and their resolution. Bug reports can be submitted via email
+or the web:
 
-  bioperl-bugs@bio.perl.org
   http://bugzilla.bioperl.org/
 
 =head1 AUTHOR - James Thompson
@@ -101,8 +100,6 @@ ProtMatrix, meme, transfac, psiblast, InstanceSite
 
 # Let the code begin...
 package Bio::Matrix::PSM::ProtPsm;
-use Bio::Root::Root;
-use Bio::Root::IO;
 use Bio::Matrix::PSM::ProtMatrix;
 use Bio::Matrix::PSM::InstanceSite;
 use Bio::Matrix::PSM::PsmI;
@@ -110,7 +107,8 @@ use Bio::Annotation::Collection;
 use vars qw(@ISA);
 use strict;
 
-@ISA=qw(Bio::Matrix::PSM::ProtMatrix Bio::Root::Root Bio::Matrix::PSM::PsmI Bio::Annotation::Collection);
+@ISA=qw(Bio::Matrix::PSM::ProtMatrix Bio::Matrix::PSM::PsmI 
+        Bio::Annotation::Collection);
 
 @Bio::Matrix::PSM::Psm::HEADER = qw(e_val sites IC width);
 

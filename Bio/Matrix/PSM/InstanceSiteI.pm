@@ -7,13 +7,15 @@ Bio::Matrix::PSM::InstanceSiteI - InstanceSite interface, holds an instance of a
 =head1 SYNOPSIS
 
   use Bio::Matrix::PSM::InstanceSite;
-  #You can get an InstanceSite object either from a file:
+  #Y ou can get an InstanceSite object either from a file:
   my ($instances,$matrix)=$SomePSMFile->parse_next;
   #or from memory
-  my %params=(seq=>'TATAAT',
-              id=>"TATAbox1", accession='ENSG00000122304', mid=>'TB1',
-              desc=>'TATA box, experimentally verified in PRM1 gene',
-              relpos=>-35);
+  my %params=(seq       => 'TATAAT',
+              id        => "TATAbox1", 
+              accession => 'ENSG00000122304', 
+              mid       => 'TB1',
+              desc      => 'TATA box, experimentally verified in PRM1 gene',
+              relpos    => -35);
 
 =head1 DESCRIPTION
 
@@ -48,7 +50,6 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 the bugs and their resolution.  Bug reports can be submitted via email
 or the web:
 
-  bioperl-bugs@bio.perl.org
   http://bugzilla.bioperl.org/
 
 =head1 AUTHOR - Stefan Kirov
@@ -66,12 +67,11 @@ L<Bio::Matrix::PSM::SiteMatrix>, L<Bio::Matrix::PSM::Psm>, L<Bio::Matrix::PSM::I
 
 # Let the code begin...
 package Bio::Matrix::PSM::InstanceSiteI;
-use Bio::LocatableSeq;
 use Bio::Root::RootI;
 use vars qw(@ISA);
 use strict;
 
-@ISA=qw(Bio::Root::RootI  Bio::LocatableSeq);
+@ISA=qw(Bio::Root::RootI);
  
 =head2 mid
 
