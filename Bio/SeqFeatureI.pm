@@ -18,7 +18,7 @@ Bio::SeqFeatureI - Abstract interface of a Sequence Feature
 
     # get a seqfeature somehow, eg,
 
-    foreach $feat ( $annseq->all_seqfeatures() ) {
+    foreach $feat ( $annseq->all_SeqFeatures() ) {
             print "Feature from ", $feat->start, "to ", 
 	          $feat->end, " Primary tag  ", $feat->primary_tag, 
 	          ", produced by ", $feat->source_tag(), "\n";
