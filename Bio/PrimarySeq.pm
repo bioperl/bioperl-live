@@ -267,7 +267,7 @@ sub seq {
            lead to an exception if passed to seq().
 
            The implementation provided here does not take moltype() into
-           account. Allowed are all letters (A-Z) and '-','.', and '*'.
+           account. Allowed are all letters (A-Z) and '-','.', '*' and '?'.
 
  Example :
  Returns : TRUE if the supplied sequence string is valid for the object, and
@@ -280,7 +280,7 @@ sub seq {
 sub validate_seq {
    my ($self,$seqstr) = @_;
 
-   if((CORE::length($seqstr) > 0) && ($seqstr !~ /^[A-Za-z\-\.\*]+$/)) {
+   if((CORE::length($seqstr) > 0) && ($seqstr !~ /^[A-Za-z\-\.\*\?]+$/)) {
        return 0;
    }
    return 1;
