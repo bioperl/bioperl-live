@@ -213,9 +213,9 @@ sub next_prediction {
 	$self->debug( $_ ) if( $self->verbose > 0);
         ($score) = $_=~m/Score\s+(\d+[\.][\d]+)/;
         $self->_score($score) unless defined $self->_score;
-        ($prot_id) = $_=~m/Query protein:\s+([\w\.]+)/;
+        ($prot_id) = $_=~m/Query protein:\s+(\S+)/;
         $self->_prot_id($prot_id) unless defined $self->_prot_id;
-        ($target_id) = $_=~m/Target Sequence\s+([\w\.]+)/;	
+        ($target_id) = $_=~m/Target Sequence\s+(\S+)/;	
         $self->_target_id($target_id) unless defined $self->_target_id;
         next unless /Gene\s+\d+\n/;
 
