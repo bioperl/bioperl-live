@@ -185,7 +185,9 @@ sub next_seq {
        #Gene name
        elsif(/^GN\s+([^\.]+)/) {
 	   foreach my $gn (split(/ OR /,$1)) {
-	       $seq->annotation->add_gene_name($gn);
+	       my $sim = Bio::Annotation::SimpleValue->new();
+	       $sim->value($gn);
+	       $seq->annotation->add_Annotation('gene_name',$sim);
 	   }
        }     
        #accession number(s)
@@ -216,11 +218,10 @@ sub next_seq {
        # References
        elsif (/^R/) {
 	   my $refs = $self->_read_swissprot_References(\$buffer);
-	   #my $r;
-	   #foreach $r (@$refs)
-	   #{
-	     $seq->annotation->add_Reference(@$refs);
-	   #}
+
+	   foreach my $r (@$refs) {
+	       $seq->annotation->add_Annotation('reference',$r);
+	   }
 	   # now we are one line ahead -- so continue without reading the next
 	   # line   HL 05/11/2000
 	   next;
@@ -242,7 +243,7 @@ sub next_seq {
 	   # note: don't try to process comments here -- they may contain
            # structure. LP 07/30/2000
 	   $commobj->text($comment);
-	   $seq->annotation->add_Comment($commobj);
+	   $seq->annotation->add_Annotation('comment',$commobj);
 	   $comment = "";
 	   # now we are one line ahead -- so continue without reading the next
 	   # line   HL 05/11/2000
@@ -260,7 +261,7 @@ sub next_seq {
 	       $comment = s/^\s*(\S+)\..*/$1/;
 	       $dblinkobj->comment($comment);
 	   }
-	   $seq->annotation->add_DBLink($dblinkobj);
+	   $seq->annotation->add_Annotation('dblink',$dblinkobj);
        }
        #keywords
        elsif( /^KW\s+(.*)$/ ) {
@@ -434,7 +435,7 @@ sub write_seq {
    
    # Reference lines
    my $t = 1;
-   foreach my $ref ( $seq->annotation->each_Reference() ) {
+   foreach my $ref ( $seq->annotation->get_Annotations('reference') ) {
        $self->_print( "RN   [$t]\n");
 #       if ($ref->start && $ref->end) {
 #	   # changed by jason <jason@chg.mc.duke.edu> on 3/16/00 
@@ -478,7 +479,7 @@ sub write_seq {
    
    # Comment lines
 
-   foreach my $comment ( $seq->annotation->each_Comment() ) {
+   foreach my $comment ( $seq->annotation->get_Annotations('comment') ) {
        foreach my $cline (split ("\n", $comment->text)) {
 	 while (length $cline > 74) {
 	   $self->_print("CC   ",(substr $cline,0,74),"\n");
@@ -488,7 +489,7 @@ sub write_seq {
        }
    }
 
-   foreach my $dblink ( $seq->annotation->each_DBLink() ) {
+   foreach my $dblink ( $seq->annotation->get_Annotations('dblink') ) {
      if (defined($dblink->comment)&&($dblink->comment)) {
        $self->_print("DR   ",$dblink->database,"; ",$dblink->primary_id,"; ",
 		     $dblink->optional_id,"; ",$dblink->comment,".\n");

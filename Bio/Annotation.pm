@@ -13,7 +13,7 @@
 
 =head1 NAME
 
-Bio::Annotation - A generic object for annotations
+Bio::Annotation - A generic object for annotations.
 
 =head1 SYNOPSIS
 

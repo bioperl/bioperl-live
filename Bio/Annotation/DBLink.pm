@@ -54,8 +54,9 @@ use vars qw(@ISA);
 use strict;
 
 use Bio::Root::RootI;
+use Bio::AnnotationI;
 
-@ISA = qw(Bio::Root::RootI);
+@ISA = qw(Bio::AnnotationI Bio::Root::RootI);
 
 
 sub new {
@@ -77,6 +78,61 @@ sub new {
   
   return $self;
 }
+
+=head2 AnnotationI implementing functions
+
+=cut
+
+=head2 as_text
+
+ Title   : as_text
+ Usage   :
+ Function:
+ Example :
+ Returns : 
+ Args    :
+
+
+=cut
+
+sub as_text{
+   my ($self) = @_;
+
+   return "Direct database link to ".$self->primary_id." in database ".$self->database;
+}
+
+=head2 hash_tree
+
+ Title   : hash_tree
+ Usage   :
+ Function:
+ Example :
+ Returns : 
+ Args    :
+
+
+=cut
+
+sub hash_tree{
+   my ($self) = @_;
+   
+   my $h = {};
+   $h->{'database'}   = $self->database;
+   $h->{'primary_id'} = $self->primary_id;
+   if( defined $self->optional_id ) {
+       $h->{'optional_id'} = $self->optional_id;
+   }
+   if( defined $self->comment ) {
+       # we know that comments have hash_tree methods
+       $h->{'comment'} = $self->comment;
+   }
+
+   return $h;
+}
+
+=head2 Specific accessors for DBLinks
+
+=cut
 
 =head2 database
 

@@ -55,8 +55,9 @@ use vars qw(@ISA);
 use strict;
 
 use Bio::Annotation::DBLink;
+use Bio::AnnotationI;
 
-@ISA = qw(Bio::Annotation::DBLink);
+@ISA = qw(Bio::AnnotationI Bio::Annotation::DBLink);
 
 =head2 new
 
@@ -97,6 +98,66 @@ sub new{
 
     return $self;
 }
+
+
+=head2 AnnotationI implementing functions
+
+=cut
+
+=head2 as_text
+
+ Title   : as_text
+ Usage   :
+ Function:
+ Example :
+ Returns : 
+ Args    :
+
+
+=cut
+
+sub as_text{
+   my ($self) = @_;
+
+   # this could get out of hand!
+   return "Reference: ".$self->title;
+}
+
+
+=head2 hash_tree
+
+ Title   : hash_tree
+ Usage   :
+ Function:
+ Example :
+ Returns : 
+ Args    :
+
+
+=cut
+
+sub hash_tree{
+   my ($self) = @_;
+   
+   my $h = {};
+   $h->{'title'}   = $self->title;
+   $h->{'authors'} = $self->authors;
+   $h->{'location'} = $self->location;
+   if( defined $self->start ) {
+       $h->{'start'}   = $self->start;
+   }
+   if( defined $self->end ) {
+       $h->{'end'} = $self->end;
+   }
+   $h->{'medline'} = $self->medline;
+
+   return $h;
+}
+
+=head2 Specific accessors for References
+
+=cut
+
 
 =head2 start
 

@@ -240,13 +240,17 @@ sub next_seq {
        # References
        elsif (/^R/) {
 	   my @refs = $self->_read_EMBL_References(\$buffer);
-	   $seq->annotation->add_Reference(@refs);
+	   foreach my $ref ( @refs ) {
+	       $seq->annotation->add_Annotation('reference',$ref);
+	   }
        }
        
        # DB Xrefs
        elsif (/^DR/) {
 	   my @links = $self->_read_EMBL_DBLink(\$buffer);
-	   $seq->annotation->add_DBLink(@links);
+	   foreach my $dblink ( @links ) {
+	       $seq->annotation->add_Annotation('dblink',$dblink);
+	   }
        }
        
        # Comments
@@ -264,7 +268,7 @@ sub next_seq {
 	   }
 	   my $commobj = Bio::Annotation::Comment->new();
 	   $commobj->text($comment);
-	   $seq->annotation->add_Comment($commobj);
+	   $seq->annotation->add_Annotation('comment',$commobj);
 	   $comment = "";
        }
 
@@ -455,7 +459,7 @@ sub write_seq {
     # Reference lines
     my $t = 1;
     if ( defined $seq->annotation ) {
-	foreach my $ref ( $seq->annotation->each_Reference() ) {
+	foreach my $ref ( $seq->annotation->get_Annotations('reference') ) {
 	    $self->_print( "RN   [$t]\n");
 	    
 	    # Having no RP line is legal, but we need both
@@ -494,7 +498,7 @@ sub write_seq {
         
 
        # DB Xref lines
-       if (my @db_xref = $seq->annotation->each_DBLink) {
+       if (my @db_xref = $seq->annotation->get_Annotations('dblink') ) {
            foreach my $dr (@db_xref) {
               my $db_name = $dr->database;
               my $prim    = $dr->primary_id;
@@ -507,7 +511,7 @@ sub write_seq {
        }
 
        # Comment lines
-       foreach my $comment ( $seq->annotation->each_Comment() ) {
+       foreach my $comment ( $seq->annotation->get_Annotations('comment') ) {
            $self->_write_line_EMBL_regex("CC   ", "CC   ", $comment->text, '\s+|$', 80); #'
            $self->_print("XX\n");
        }

@@ -30,7 +30,22 @@ Bio::SeqIO - Handler for SeqIO Formats
 	$out->write_seq($seq);
     }
 
-or
+now, to actually get at the sequence object, use the standard Bio::Seq
+methods (look at Bio::Seq documentation if you don't know what they
+are)
+
+    use Bio::SeqIO;
+
+    $in  = Bio::SeqIO->new(-file => "inputfilename" , '-format' => 'genbank');
+
+    while ( my $seq = $in->next_seq() ) {
+       print "Sequence ",$seq->id," first 10 bases ",$seq->subseq(1,10),"\n";
+    }
+
+
+the SeqIO system does have a filehandle binding. Most people find this
+a little confusing, but it does mean you write the worlds smallest
+reformatter
 
     use Bio::SeqIO;
 
@@ -46,8 +61,14 @@ Bio::SeqIO is a handler module for the formats in the SeqIO set (eg,
 Bio::SeqIO::fasta). It is the officially sanctioned way of getting at
 the format objects, which most people should use.
 
-The SeqIO system replaces the old parse_XXX functions in the Seq
-object.
+The Bio::SeqIO system can be thought of like biological file handles.
+They are attached to filehandles with smart formatting rules (eg,
+genbank format, or EMBL format, or binary trace file format) and 
+can either read or write sequence objects (Bio::Seq objects, or
+more correctly, Bio::SeqI implementing objects, of which Bio::Seq is
+one such object). If you want to know what to do with a Bio::Seq
+object, read the Bio::Seq documentation
+
 
 The idea is that you request a stream object for a particular format.
 All the stream objects have a notion of an internal file that is read

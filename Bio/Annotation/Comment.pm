@@ -46,8 +46,9 @@ use vars qw(@ISA);
 use strict;
 
 use Bio::Root::RootI;
+use Bio::AnnotationI;
 
-@ISA = qw(Bio::Root::RootI);
+@ISA = qw(Bio::AnnotationI Bio::Root::RootI);
 
 =head2 new
 
@@ -73,6 +74,52 @@ sub new {
 
   return $self;
 }
+
+=head2 AnnotationI implementing functions
+
+=cut
+
+=head2 as_text
+
+ Title   : as_text
+ Usage   :
+ Function:
+ Example :
+ Returns : 
+ Args    :
+
+
+=cut
+
+sub as_text{
+   my ($self) = @_;
+
+   return "Comment: ".$self->text;
+}
+
+=head2 hash_tree
+
+ Title   : hash_tree
+ Usage   :
+ Function:
+ Example :
+ Returns : 
+ Args    :
+
+
+=cut
+
+sub hash_tree{
+   my ($self) = @_;
+   
+   my $h = {};
+   $h->{'text'} = $self->text;
+}
+
+=head2 Specific accessors for Comments
+
+=cut
+
 
 =head2 text
 

@@ -224,7 +224,9 @@ sub next_seq {
 	#References
 	if (/^REFERENCE/) {
 	    my @refs = $self->_read_GenBank_References(\$buffer);
-	    $seq->annotation->add_Reference(@refs);
+	    foreach my $ref ( @refs ) {
+		$seq->annotation->add_Annotation('reference',$ref);
+	    }
 	    next;
 	}
 	
@@ -237,7 +239,7 @@ sub next_seq {
 		    $comment =~ s/  +/ /g;
 		    my $commobj = Bio::Annotation::Comment->new();
 		    $commobj->text($comment);
-		    $seq->annotation->add_Comment($commobj);
+		    $seq->annotation->add_Annotation('comment',$commobj);
 		    last;
 		}
 		$comment .= $_; 
@@ -428,7 +430,7 @@ sub write_seq {
     
     # Reference lines
     my $count = 1;
-    foreach my $ref ( $seq->annotation->each_Reference() ) {
+    foreach my $ref ( $seq->annotation->get_Annotations('reference') ) {
 	$temp_line = sprintf ("REFERENCE   $count  (%s %d to %d)",
 			      ($seq->alphabet() eq "protein" ?
 			       "residues" : "bases"),
@@ -461,7 +463,7 @@ sub write_seq {
     }
     # Comment lines
     
-    foreach my $comment ( $seq->annotation->each_Comment() ) {
+    foreach my $comment ( $seq->annotation->get_Annotations('comment') ) {
 	$self->_write_line_GenBank_regex("COMMENT     ","            ",
 					 $comment->text,"\\s\+\|\$",80);
     }

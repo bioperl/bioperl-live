@@ -100,7 +100,7 @@ use Bio::SeqI;
 # Object preamble - inheriets from Bio::Root::Object
 
 use Bio::Root::RootI;
-use Bio::Annotation;
+use Bio::Annotation::Collection;
 use Bio::PrimarySeq;
 
 $VERSION = '0.9';
@@ -132,7 +132,7 @@ sub new {
     my $pseq = Bio::PrimarySeq->new(@args);
     $self->{'_as_feat'} = [];
 
-    my $ann = new Bio::Annotation;
+    my $ann = new Bio::Annotation::Collection;
     $self->annotation($ann);
     $self->primary_seq($pseq);
 
