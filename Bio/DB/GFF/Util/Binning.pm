@@ -76,7 +76,7 @@ bin range.
 
 *bin_top = \&bin_bot;
 
-sub bin_name { sprintf("%d.%06d",@_) }
+sub bin_name {my ($tier, $int) = @_;  sprintf("%d.%06d",$tier, abs($int)) }
 
 sub log10 {
   my $i = shift;
