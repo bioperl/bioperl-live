@@ -100,19 +100,22 @@ The rest of the documentation details each of the object methods. Internal metho
 
 package Bio::Root::IO;
 use vars qw(@ISA $FILESPECLOADED $FILETEMPLOADED $FILEPATHLOADED
-	    $TEMPDIR $PATHSEP $ROOTDIR $OPENFLAGS $VERBOSE $ONMAC);
+	    $TEMPDIR $PATHSEP $ROOTDIR $OPENFLAGS $VERBOSE $ONMAC
+            $HAS_LWP
+           );
 use strict;
 
 use Symbol;
 use POSIX qw(dup);
 use IO::Handle;
 use Bio::Root::Root;
-use LWP::Simple;
+use Bio::Root::HTTPget;
 
 @ISA = qw(Bio::Root::Root);
 
 my $TEMPCOUNTER;
 my $HAS_WIN32 = 0;
+#my $HAS_LWP = 1;
 
 BEGIN {
     $TEMPCOUNTER = 0;
@@ -131,6 +134,15 @@ BEGIN {
 	# do nothing
     }
 
+    eval {
+        require LWP::Simple;
+    };
+    if( $@ ) {
+	print STDERR "Cannot load LWP::Simple: $@" if( $VERBOSE > 0 );
+        $HAS_LWP = 0;
+    } else {
+        $HAS_LWP = 1;
+    }
 
     # If on Win32, attempt to find Win32 package
 
@@ -224,6 +236,7 @@ sub new {
 
            Currently recognizes the following named parameters:
               -file     name of file to open
+              -url      name of URL to open
               -input    name of file, or GLOB, or IO::Handle object
               -fh       file handle (mutually exclusive with -file)
               -flush    boolean flag to autoflush after each write
@@ -240,41 +253,33 @@ sub _initialize_io {
 
     $self->_register_for_cleanup(\&_io_cleanup);
 
-    my ($input, $noclose, $file, $fh, $flush) = $self->_rearrange([qw(INPUT 
+    my ($input, $noclose, $file, $fh, $flush, $url) = $self->_rearrange([qw(INPUT 
 							    NOCLOSE
 							    FILE FH 
-							    FLUSH)], @args);
+							    FLUSH URL)], @args);
 
-    if($input =~ m!^(http|https|ftp)://! or $file =~ m!^(http|https|ftp)://!){ #looks like a file on the 'net.
-      # why is it sometimes in $input and sometimes in $file ???
-      # i don't know...
+    if($url){
       my $trymax = 5;
-      my $http_result;
-      if(defined($input) && ! -f $input){
+
+      if($HAS_LWP){ #use LWP::Simple::getstore()
+        #$self->warn("has lwp");
+        my $http_result;
         my($handle,$tempfile) = $self->tempfile();
         close($handle);
 
         for(my $try = 1 ; $try <= $trymax ; $try++){
-          $http_result = getstore($input, $tempfile);
+          $http_result = LWP::Simple::getstore($input, $tempfile);
           $self->warn("[$try/$trymax] tried to fetch $input, but server threw $http_result.  retrying...") if $http_result != 200;
           last if $http_result == 200;
         }
         $self->throw("failed to fetch $input, server threw $http_result") if $http_result != 200;
 
         $input = $tempfile;
-      }
-      if(defined($file) && ! -f $file){
-        my($handle,$tempfile) = $self->tempfile();
-        close($handle);
-
-        for(my $try = 1 ; $try <= $trymax ; $try++){
-          $http_result = getstore($file, $tempfile);
-          $self->warn("[$try/$trymax] tried to fetch $input, but server threw $http_result.  retrying...") if $http_result != 200;
-          last if $http_result == 200;
-        }
-        $self->throw("failed to fetch $file, server threw $http_result") if $http_result != 200;
-
         $file  = $tempfile;
+      } else { #use Bio::Root::HTTPget
+        #$self->warn("no lwp");
+
+        $fh = Bio::Root::HTTPget->getFH($url);
       }
     }
 

@@ -9,7 +9,7 @@ use strict;
 
 
 BEGIN {
-    my $NUMTESTS = 26;
+    my $NUMTESTS = 27;
     # to handle systems with no installed Test module
     # we include the t dir (where a copy of Test.pm is located)
     # as a fallback
@@ -109,14 +109,30 @@ ok close(O);
 # <tests http retrieval>
 ##############################################
 
+#with LWP (if available)
 eval {
-  $rio = Bio::Root::IO->new(-file=>'http://www.google.com/index.html');
+  $rio = Bio::Root::IO->new(-url=>'http://www.google.com/index.html');
 };
 
 if($@){
-  skip("couldn't get google.com, network down?",1);  
+  skip("couldn't get google.com, network down? $@",1);  
 } else {
   ok(1);
+}
+
+if($Bio::Root::IO::HAS_LWP == 1){
+  $Bio::Root::IO::HAS_LWP = 0;
+  eval {
+    $rio = Bio::Root::IO->new(-url=>'http://www.google.com/index.html');
+  };
+
+  if($@){
+    skip("couldn't get google.com, network down? $@",1);  
+  } else {
+    ok(1);
+  }
+} else {
+  skip("didn't have LWP, no reason to test w/o it.",1);
 }
 
 ##############################################
