@@ -319,6 +319,23 @@ sub seq {
 
 *protein = *dna = \&seq;
 
+
+=head2 primary_seq
+
+ Title   : primary_seq
+ Usage   : $s->primary_seq
+ Function: returns a Bio::PrimarySeqI compatible object
+ Returns : a Bio::PrimarySeqI object
+ Args    : none
+ Status  : Public
+
+This is for compatibility with BioPerl's separation of SeqI
+from PrimarySeqI.  It just returns itself.
+
+=cut
+
+sub primary_seq { shift }
+
 =head2 type
 
  Title   : type
