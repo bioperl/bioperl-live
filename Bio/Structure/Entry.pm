@@ -611,6 +611,23 @@ sub conect {
 	return @{ ${$self->{'conect'}}{$source} };
 }
 
+=head2 master()
+
+ Title   : master
+ Usage   : $structure->master($source);
+ Function: get/set method for master
+ Returns : the master line
+ Args    : the master line for this entry
+
+=cut
+
+sub master {
+	my ($self, $value) = @_;
+	if (defined $value) {
+		$self->{'master'} = $value;
+	}
+	return $self->{'master'};
+}
 
 =head2 get_atom_by_serial()
 
