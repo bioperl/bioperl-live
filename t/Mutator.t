@@ -16,7 +16,7 @@ BEGIN {
     }
     $error=0;
     use Test;
-    $NUMTESTS=12;
+    $NUMTESTS=13;
     plan tests => $NUMTESTS;
     eval { require 'IO/String.pm' };
     if( $@ ) {
@@ -59,16 +59,31 @@ my $filename=Bio::Root::IO->catfile("t","data","ar.embl");
 my $loader=Bio::LiveSeq::IO::BioPerl->load('-file' => "$filename");
 my $gene_name='AR'; # was G6PD
 
-my $gene=$loader->gene2liveseq('-gene_name' => $gene_name, 
-			       '-getswissprotinfo' => 0);
+my $gene=$loader->gene2liveseq('-gene_name' => $gene_name);
 ok($gene);
 ok $a->gene($gene);
 
 my $results = $a->change_gene();
-
 ok($results);
-use Bio::Variation::IO;
-if ($results) {    
-    my $out = Bio::Variation::IO->new( '-format' => 'flat');
-    ok($out->write($results));    
+
+
+eval { require 'IO/String.pm' };
+if( $@ ) {
+
+    print STDERR "IO::String not installed. Skipping output test.\n";
+    skip(12,"IO::String not installed. Skipping output test.");
+
+} else {
+
+    use Bio::Variation::IO;
+    use IO::String;
+    
+    my $s;
+    my $io = IO::String->new($s);
+    my $out = Bio::Variation::IO->new('-fh'   => $io,
+				      '-format' => 'flat'
+				      );
+    ok($out->write($results));
+    #print $s;
+    ok ($s=~/DNA/ && $s=~/RNA/ && $s=~/AA/);
 }
