@@ -220,9 +220,9 @@
       Currently there are two indexing schemes supported: "bdb" and
       "flat."  "bdb" selects an index based on the Berkeley DB library.  
       It is generally the faster of the two, but it requires that the
-      Berkeley DB library (from Linux RPM or from www.sleepycat.com),
-      the Perl DB_File module, and the Perl BerkeleyDB module be installed 
-      on your system.  
+      Berkeley DB library (from Linux RPM or from www.sleepycat.com, 
+      version 2 or higher) and the Perl BerkeleyDB module be installed 
+      on your system. The Perl DB_File module will not work.
     </para>
     <para>
       "flat" is a sorted text-based index that uses a binary search algorithm to
