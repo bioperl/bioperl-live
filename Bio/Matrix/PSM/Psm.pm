@@ -228,6 +228,10 @@ sub matrix {
 						-pC=>$self->{probC},
 						-pG=>$self->{probG},
 						-pT=>$self->{probT},
+						-lA=>$self->{logA},
+						-lC=>$self->{logC},
+						-lG=>$self->{logG},
+						-lT=>$self->{logT},
 						-IC=>$self->{IC},
 						-e_val=>$self->{e_val},
 						-id=>$self->{id});
