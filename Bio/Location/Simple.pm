@@ -71,9 +71,7 @@ package Bio::Location::Simple;
 use vars qw(@ISA);
 use strict;
 
-use Bio::Root::Root;
 use Bio::Location::Atomic;
-
 
 @ISA = qw( Bio::Location::Atomic );
 
