@@ -30,7 +30,8 @@
 	     'DBD::mysql'               => '0.0/Mysql driver/loading and querying of Mysql-based GFF feature databases/Bio::DB::GFF',
 	     'GD'                       => '1.3/Graphical Drawing Toolkit/Rendering Sequences and Features/Bio::Graphics',
 	     'Text::Shellwords'         => '0.0/Execute shell commands/test scripts/Bio::Graphics',
-	     'SVG'                      => '2.26/Generate SVG output/Bio::Graphics::Pictogram',
+	     'SVG'                      => '2.26/Generate optional SVG output/Bio::Graphics',
+	     'DG::SVG'                  => '0.0/Generate optional SVG output/Bio::Graphics',
 	     'Storable'                 => '0.0/Persistent object storage and retrieval/Storing sequence objects in local file cache/Bio::DB::FileCache',
 	     'Graph::Directed'          => '0.0/Generic Graph data stucture and algorithms/Ontology Engine implementation for the GO parser/Bio::Ontology::SimpleOntologyEngine',
 # Bio::Microarray is not in core bioperl yet
