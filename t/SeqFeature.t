@@ -20,7 +20,7 @@ BEGIN {
     }
     use Test;
 
-    plan tests => 31;
+    plan tests => 33;
 }
 
 use Bio::Seq;
@@ -157,3 +157,20 @@ ok ( $comp_obj1->add_score_value('P', 33) );
     ok (@sft = $comp_obj1->all_sub_SeqFeature_types() );
     ok ($sft[0], 'exon');
 }
+
+# some tests for bug #947
+
+my $sfeat = new Bio::SeqFeature::Generic(-primary => 'test');
+
+$sfeat->add_sub_SeqFeature(new Bio::SeqFeature::Generic(-start => 2,
+							-end   => 4,
+							-primary => 'sub1'),
+			   'EXPAND');
+
+$sfeat->add_sub_SeqFeature(new Bio::SeqFeature::Generic(-start => 6,
+							-end   => 8,
+							-primary => 'sub2'),
+			   'EXPAND');
+
+ok($sfeat->start, 2);
+ok($sfeat->end, 8);
