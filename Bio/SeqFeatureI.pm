@@ -192,7 +192,7 @@ sub has_tag{
  Title   : get_tag_values
  Usage   : @values = $self->get_tag_values('some_tag')
  Function: 
- Returns : An array comprising the values of the specified tag.
+ Returns : A list comprising the values of the specified tag.
  Args    : a string
 
 throws an exception if there is no such tag
@@ -208,8 +208,8 @@ sub get_tag_values {
  Title   : get_tagset_values
  Usage   : @values = $self->get_tagset_values(qw(label transcript_id product))
  Function: 
- Returns : An array comprising the values of the specified tags, in order of tags
- Args    : An array of strings
+ Returns : A list comprising the values of the specified tags, in order of tags
+ Args    : A list of strings
 
 does NOT throw an exception if none of the tags are not present
 

@@ -263,7 +263,7 @@ sub frame {
 
 =cut
 
-=head2 get_Annotations
+=head2 get_Annotations()
 
  Usage   : my $parent   = $obj->get_Annotations('Parent');
            my @parents = $obj->get_Annotations('Parent');
@@ -285,19 +285,19 @@ sub frame {
 
 =cut
 
-sub get_Annotations{
-   my ($self,$tag) = @_;
+sub get_Annotations {
+  my ($self,$tag) = @_;
 
-   my @annotations = $self->annotation->get_Annotations($tag);
-   #@annotations ||= ();
+  my @annotations = $self->annotation->get_Annotations($tag);
+  #@annotations ||= ();
 
-   if(wantarray){
-     return @annotations;
-   } elsif(scalar(@annotations) == 1){
-     return $annotations[0];
-   } else {
-     return scalar(@annotations);
-   }
+  if(wantarray){
+    return @annotations;
+  } elsif(scalar(@annotations) == 1){
+    return $annotations[0];
+  } else {
+    return scalar(@annotations);
+  }
 }
 
 =head2 add_Annotation()
@@ -368,34 +368,6 @@ sub primary_tag {
   my $self = shift;
   $self->warn('primary_tag() is deprecated, use type()');
   return $self->type(@_);
-}
-
-=head2 start()
-
- Usage   : $obj->start($newval)
- Function: Get/set on the start coordinate of the feature
- Returns : integer
- Args    : on set, new value (a scalar or undef, optional)
-
-=cut
-
-sub start {
-  my ($self,$value) = @_;
-  return $self->location->start($value);
-}
-
-=head2 end()
-
- Usage   : $obj->end($newval)
- Function: Get/set on the end coordinate of the feature
- Returns : integer
- Args    : on set, new value (a scalar or undef, optional)
-
-=cut
-
-sub end {
-  my ($self,$value) = @_;
-  return $self->location->end($value);
 }
 
 =head2 source_tag()
@@ -476,6 +448,62 @@ sub entire_seq {
   return shift->{'seq'};
 }
 
+=head2 has_tag()
+
+ See Bio::AnnotationCollectionI::has_tag().
+
+=cut
+
+sub has_tag {
+  my $self = shift;
+  return shift->annotation->has_tag(@_);
+}
+
+=head2 add_tag_value()
+
+ See Bio::AnnotationCollectionI::add_tag_value().
+
+=cut
+
+sub add_tag_value {
+  my $self = shift;
+  return shift->annotation->add_tag_value(@_);
+}
+
+=head2 get_tag_values()
+
+ See Bio::AnnotationCollectionI::get_tag_values().
+
+=cut
+
+sub get_tag_values {
+  my $self = shift;
+  return shift->annotation->get_tag_values(@_);
+}
+
+=head2 get_all_tags()
+
+ See Bio::AnnotationCollectionI::get_all_tags().
+
+=cut
+
+sub get_all_tags {
+  my $self = shift;
+  return shift->annotation->get_all_tags(@_);
+}
+
+=head2 remove_tag()
+
+ See Bio::AnnotationCollectionI::remove_tag().
+
+=cut
+
+sub remove_tag {
+  my $self = shift;
+  return shift->annotation->remove_tag(@_);
+}
+
+
 ############################################################
 
 =head1 INTERFACE METHODS FOR Bio::RangeI
@@ -496,6 +524,34 @@ sub entire_seq {
 sub length {
   my $self = shift;
   return $self->end() - $self->start() + 1;
+}
+
+=head2 start()
+
+ Usage   : $obj->start($newval)
+ Function: Get/set on the start coordinate of the feature
+ Returns : integer
+ Args    : on set, new value (a scalar or undef, optional)
+
+=cut
+
+sub start {
+  my ($self,$value) = @_;
+  return $self->location->start($value);
+}
+
+=head2 end()
+
+ Usage   : $obj->end($newval)
+ Function: Get/set on the end coordinate of the feature
+ Returns : integer
+ Args    : on set, new value (a scalar or undef, optional)
+
+=cut
+
+sub end {
+  my ($self,$value) = @_;
+  return $self->location->end($value);
 }
 
 =head2 strand()
@@ -611,7 +667,6 @@ sub annotation {
 
 ############################################################
 
-
 =head2 location()
 
  Usage   : my $location = $seqfeature->location()
@@ -669,31 +724,6 @@ sub add_target {
 sub each_target {
   my ($self) = @_;
   return $self->{'targets'} ? @{ $self->{'targets'} } : ();
-}
-
-sub _no_tags {
-  my $self = shift;
-  $self->throw("tag methods are deprecated. use Bio::Annotation::Collection");
-}
-
-sub has_tag {
-  return shift->_no_tags();
-}
-
-sub add_tag_value {
-  return shift->_no_tags();
-}
-
-sub get_tag_values {
-  return shift->_no_tags();
-}
-
-sub get_all_tags {
-  return shift->_no_tags();
-}
-
-sub remove_tag {
-  return shift->_no_tags();
 }
 
 1;

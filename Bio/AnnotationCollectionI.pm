@@ -130,10 +130,14 @@ use Bio::Root::RootI;
 
 @ISA = qw(Bio::Root::RootI);
 
+=head1 ACCESSOR METHODS
 
-=head2 get_all_annotation_keys
+Use these for Bio::AnnotationI object access.
 
- Title   : get_all_annotation_keys
+=cut
+
+=head2 get_all_annotation_keys()
+
  Usage   : $ac->get_all_annotation_keys()
  Function: gives back a list of annotation keys, which are simple text strings
  Returns : list of strings
@@ -146,9 +150,8 @@ sub get_all_annotation_keys{
 }
 
 
-=head2 get_Annotations
+=head2 get_Annotations()
 
- Title   : get_Annotations
  Usage   : my @annotations = $collection->get_Annotations('key')
  Function: Retrieves all the Bio::AnnotationI objects for a specific key
  Returns : list of Bio::AnnotationI - empty if no objects stored for a key
@@ -157,22 +160,178 @@ sub get_all_annotation_keys{
 =cut
 
 sub get_Annotations{
-    shift->throw_not_implemented();    
+    shift->throw_not_implemented();
 }
 
-=head2 get_num_of_annotations
+=head2 add_Annotation()
 
- Title   : get_num_of_annotations
+ Usage   : $self->add_Annotation('reference',$object);
+           $self->add_Annotation($object,'Bio::MyInterface::DiseaseI');
+           $self->add_Annotation($object);
+           $self->add_Annotation('disease',$object,'Bio::MyInterface::DiseaseI');
+ Function: Adds an annotation for a specific key.
+
+           If the key is omitted, the object to be added must provide a value
+           via its tagname().
+
+           If the archetype is provided, this and future objects added under
+           that tag have to comply with the archetype and will be rejected
+           otherwise.
+
+ Returns : none
+ Args    : annotation key ('disease', 'dblink', ...)
+           object to store (must be Bio::AnnotationI compliant)
+           [optional] object archetype to map future storage of object
+           of these types to
+
+=cut
+
+sub add_Annotation {
+  shift->throw_not_implemented();
+}
+
+=head2 remove_Annotations()
+
+ Usage   :
+ Function: Remove the annotations for the specified key from this collection.
+ Returns : an list of Bio::AnnotationI compliant objects which were stored
+           under the given key(s)
+ Args    : the key(s) (tag name(s), one or more strings) for which to
+           remove annotations (optional; if none given, flushes all
+           annotations)
+
+=cut
+
+sub remove_Annotations{
+  shift->throw_not_implemented();
+}
+
+=head2 get_num_of_annotations()
+
  Usage   : my $count = $collection->get_num_of_annotations()
  Function: Returns the count of all annotations stored in this collection 
  Returns : integer
  Args    : none
 
-
 =cut
 
 sub get_num_of_annotations{
     shift->throw_not_implemented();
+}
+
+=head1 "*_tag_*" METHODS
+
+The methods below allow mapping of the old "get_tag_values()"-style
+annotation access to Bio::AnnotationCollectionI.  These need not be
+implemented in a Bio::AnnotationCollectionI compliant class, as they
+are built on top of the methods (see above L</ACCESSOR METHODS>).
+
+ B<DEPRECATED>: DO NOT USE THESE FOR FUTURE DEVELOPMENT.
+
+=cut
+
+=head2 has_tag()
+
+ Usage   : $count = $obj->has_tag($tag)
+ Function: returns the number of annotations corresponding to $tag
+ Returns : an integer
+ Args    : tag name
+ Note    : B<DEPRECATED>: this method is essentially scalar(L</get_Annotations()>).
+
+=cut
+
+sub has_tag {
+  my ($self,$tag) = @_;
+  $self->warn('has_tag() is deprecated.  use get_Annotations()');
+  return scalar($self->get_Annotations($tag));
+}
+
+=head2 add_tag_value()
+
+ Usage   : See L</add_Annotation()>.
+ Function:
+ Returns : 
+ Args    : B<DEPRECATED>: this method is essentially L</add_Annotation()>.
+
+=cut
+
+sub add_tag_value {
+  my ($self,@args) = @_;
+  $self->warn('add_tag_value() is deprecated.  use add_Annotation()');
+  return $self->add_Annotation(@args);
+}
+
+=head2 get_tag_values()
+
+ Usage   : @annotations = $obj->get_tag_values($tag)
+ Function: returns annotations corresponding to $tag
+ Returns : a list of Bio::AnnotationI objects
+ Args    : tag name
+ Note    : B<DEPRECATED>: this method is essentially L</get_Annotations()>.
+
+=cut
+
+sub get_tag_values {
+  my ($self,$tag) = @_;
+  $self->warn('get_tag_values() is deprecated.  use get_Annotations()');
+  return $self->get_Annotations($tag);
+}
+
+=head2 get_tagset_values()
+
+ Usage   : @annotations = $obj->get_tagset_values($tag1,$tag2)
+ Function: returns annotations corresponding to a list of tags.
+           this is a convenience method equivalent to multiple calls
+           to L</get_tag_values> with each tag in the list.
+ Returns : a list of Bio::AnnotationI objects.
+ Args    : a list of tag names
+ Note    : B<DEPRECATED>: this method is essentially multiple calls to
+           L</get_Annotations()>.
+
+=cut
+
+sub get_tagset_values {
+  my ($self,@tags) = @_;
+  $self->warn('get_tagset_values() is deprecated.  use get_Annotations()');
+  my @r = ();
+  foreach my $tag (@tags){
+    push @r, $self->get_Annnotations($tag);
+  }
+  return @r;
+}
+
+=head2 get_all_tags()
+
+ Usage   : @tags = $obj->get_all_tags()
+ Function: returns a list of annotation tag names.
+ Returns : a list of tag names
+ Args    : none
+ Note    : B<DEPRECATED>: use L</get_all_annotation_keys()>.
+
+=cut
+
+sub get_all_tags {
+  my ($self,@args) = @_;
+  $self->warn('get_all_tags() is deprecated.  use get_all_annotation_keys()');
+  return $self->get_all_annotation_keys(@args);
+}
+
+=head2 remove_tag()
+
+ Usage   : See L</remove_Annotations()>.
+ Function:
+ Returns : 
+ Args    : B<DEPRECATED>: use L</remove_Annotations()>.
+ Note    : Contrary to what the name suggests, this method removes
+           B<all> annotations corresponding to $tag, not just a
+           single anntoation.
+
+=cut
+
+sub remove_tag {
+  my ($self,@args) = @_;
+  $self->warn('remove_tag() is deprecated.  use remove_Annotations()');
+  return $self->remove_Annotations(@args);
 }
 
 1;
