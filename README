@@ -72,6 +72,54 @@ o System requirements
  - Additional information using Bioperl with OS X can be 
    found at http://www.tc.umn.edu/~cann0010/Bioperl_OSX_install.html
 
+ - External programs
+   Bioperl can interface with some external programs for executing
+   analyses.  These include clustalw and t_coffee for Multiple
+   Sequence Alignments (Bio::Tools::Run::Alignment::Clustalw and
+   Bio::Tools::Run::TCoffee) and blastall,blastpgp, & bl2seq for BLAST
+   analyses (Bio::Tools::Run::StandAloneBlast), and to all the
+   programs in the EMBOSS suite (Bio::Factory::EMBOSS).
+
+   Additionally Bioperl can submit and retrieve jobs from the NCBI
+   Blast queue via the Bio::Tools::Run::RemoteBlast module.
+  
+   See the documentation for these modules for more information
+
+ - Environment Variables
+
+   [optional]
+
+   Some modules which run external programs need certain environment
+   variables set.  If you do not have a local copy of the specific
+   executeable you do not need to set these variables.  Additionally
+   the modules will attempt to locate the specific applications in
+   your runtime PATH variable.  
+
+   Setting environment variables on unix means adding a line like the
+   following to your shell initialization:
+
+   (for bash,sh)  export BLASTDIR=/data1/blast
+   (for csh,tcsh) setenv BLASTDIR /data1/blast
+
+   The environment variables include:
+   Bio::Tools::Run::StandAloneBlast
+   o BLASTDIR - which specifies where the NCBI blastall, blastpgp,
+                bl2seq, etc.. are located.  A 'data' directory is
+		assumed to be present in this dir as well where the
+		blastable databases are located as well as 
+		substitution matricies.
+   o BLASTDB - (optional) if one does not want to locate the data dir
+	       within the same dir as where the BLASTDIR variable
+	       points, a BLASTDB variable can be set to point to a dir
+	       where BLAST database indexes are located.
+   Bio::Tools::Run::Alignment::Clustalw
+   o CLUSTALDIR - points to the directory where the clustalw
+                  executable is located.
+   Bio::Tools::Run::Alignment::TCoffee
+   o TCOFFEEDIR - points to the directory where the t_coffee
+                  executable is located.
+		 
+
  * Note that most modules will work with earlier versions of Perl. 
    The only ones that will not are Bio::SimpleAlign.pm and 
    the Bio::Index::* modules. If you don't need these modules
@@ -150,170 +198,6 @@ o Releases
  BUGS file.  See the Changes file for a listing of what features have
  been added or what APIs have changed between releases.
 
- The 0.9.x developer series releases are intended to be quick
- releases off the main trunk to provided FTPable code that has been
- test that it will compile and all tests pass reasonably.  In the
- future all odd numbered point releases will be developer releases and
- even point releases will be stable releases.
-
-o Install directions
-
- THE EASY WAY
-
- The Bioperl modules are distributed as a tar file in standard perl
- CPAN distribution form. This means that installation is very
- simple. Once you have unpacked the tar distribution there is a
- directory called bioperl-xx/, which is where this file is.  Move into
- that directory (you may well be already in the right place!) and
- issue the following commands:
-
-   perl Makefile.PL   # makes a system-specific makefile
-   make               # makes the distribution
-   make test          # runs the test code
-   make install       # [may need root access for system install.
-                      #  See below for how to get around this.]
-
- This should build, test and install the distribution cleanly on your
- system.  This installs the main perl part of bioperl, which is the
- majority of the bioperl modules. There is one module (Bio::Tools::pSW)
- which needs a compiled extension. This needs an extra installation
- step. The directions for installing this are given below - it is
- almost as easy as installing the standard distribution, so don't
- worry!
-
- You may have some errors from the pod2man part of the installation,
- such as 
-
-   /usr/bin/pod2man: Unrecognized pod directive in paragraph 168 of Bio/Tools/Blast.pm: head3
-
- You don't need to worry about them: they do not affect the documentation
- processing.
-
- To install you need write permission in the perl5/site_perl/ source area. 
- Quite often this will require you (or someone else) becoming root, 
- so you will want to talk to your systems manager if you don't 
- have the necessary access.
-
- It is possible to install the package outside of the standard Perl5 
- location. See below for details.
-
- To install the Compiled extension for pSW you will need to read the
- next section of the manual.
-
-
- INSTALLING THE COMPILED EXTENSIONS
-
- This Installation works out-of-the box for all platforms except *BSD
- and Solaris boxes. For notes on this, read on. For other platforms,
- skip ahead to the next section, BUILDING THE COMPILED EXTENSIONS.
-
- INSTALLING for *BSD and Solaris boxes.
-
- You should add the line -fPIC to the CFLAGS line in
- Compile/SW/libs/makefile.  This makes the compile generate position
- independent code, which is required for these architectures. In
- addition, on some Solaris boxes, the generated Makefile does not make
- the correct -fPIC/-fpic flags for the C compiler that is used. This
- requires manual editing of the generated Makefile to switch case. Try
- it out once, and if you get errors, try editing the -fpic line
-
- BUILDING THE COMPILED EXTENSIONS (OPTIONAL, ONLY FOR RUNNING LOCAL
- PROTEIN SMITH-WATERMAN ANALYSES FROM PERL)
-
- Move to the directory bioperl-ext.  This is available as a separate
- package released from ftp://bioperl.org/pub/DIST.  This is where the C
- code and XS extension for the bp_sw module is held and execute these
- commands: (possibly after making the change for *BSD and Solaris, as
- detailed above)
-
-   perl Makefile.PL   # makes the system specific makefile 
-                      # Solaris/BSD users might need to edit the Makefile here
-   make               # builds all the libaries
-   make test          # runs a short test
-   make install       # installs the package correctly.
-
- This should install the compiled extension. The Bio::Tools::pSW module
- will work cleanly now.
-
-
- INSTALLING BIOPERL IN A PERSONAL OR PRIVATE MODULE AREA
-
- If you lack permission to install perl modules into the
- standard site_perl/ system area you can configure bioperl to
- install itself anywhere you choose. Ideally this would
- be a personal perl directory or standard place where you
- plan to put all your 'local' or personal perl modules. 
-
- Note: you _must_ have write permission to this area.
-
- Simply pass a parameter to perl as it builds your system
- specific makefile.
-
- Example:
-
-   perl Makefile.PL  PREFIX=/home/dag/My_Local_Perl_Modules
-   make
-   make test
-   make install
-
- This will cause perl to install the bioperl modules in:
- /home/dag/My_Perl_Modules/lib/perl5/site_perl/
-
- And the bioperl man pages will go in:
- /home/dag/My_Perl_Modules/lib/perl5/man/
-
- To specify a directory besides lib/perl5/site_perl, 
- or if there are still permission problems, include
- an INSTALLSITELIB directive along with the PREFIX:
-
-   perl Makefile.PL  PREFIX=/home/dag/perl INSTALLSITELIB=/home/dag/perl/lib
-
- See below for how to use modules that are not installed in the
- standard Perl5 location.
-
-
- THE HARD WAY :)
-
- INSTALLING BIOPERL MODULES: LAST RESORT
-
- As a last resort, you can simply copy all files in Bio/
- to any directory in which you have write privileges. This is 
- generally NOT recommended since some modules may require
- special configuration (currently none do, but don't rely 
- on this.
-
- You will need to set "use lib '/path/to/my/bioperl/modules';" 
- in your perl scripts so that you can access these modules if
- they are not installed in the standard site_perl/ location.
- See below for an example.
-
- To get manpage documentation to work correctly you will have 
- to configure man so that it looks in the proper directory. 
- On most systems this will just involve adding an additional 
- directory to your $MANPATH environment variable.
-
- The installation of the Compile directory can be similarly
- redirected, but execute the make commands from the Compile/SW
- directory.
-
- If all else fails or are unable to access the perl distribution
- directories, ask your system administrator to place the files there 
- for you. You can always execute perl scripts in the same directory 
- as the location of the modules (Bio/ in the distribution) since perl 
- always checks the current working directory when looking for modules.
-
-
- USING MODULES NOT INSTALLED IN THE STANDARD PERL LOCATION
-
- You can explicitly tell perl where to look for modules by using the
- lib module which comes standard with perl.
-
- Example:
-
-    #!/usr/bin/perl
-
-    use lib "/home/users/dag/My_Local_Perl_Modules/";
-    use Bio::Seq;
-
-    <...insert whizzy perl code here...>
+ All odd numbered point releases will be developer releases and
+ even point releases are stable releases.
 
