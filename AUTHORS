@@ -16,7 +16,7 @@ Major Contributors
 for if you see fit)
 
 Kris Boulez <Kris.Boulez at pandora.be>
-David Block <dblock at gene.pbi.nrc.ca>
+David Block <dblock at gnf.org>
 Brad Chapman <chapmanb at arches.uga.edu>
 Steve Chervitz <sac at bioperl.org>
 Michele Clamp <michele at sanger.ac.uk>
@@ -54,3 +54,4 @@ Kai Wang <tumorimmunology at yahoo.com>
 Mark Wilkinson <mwilkinson at gene.pbi.nrc.ca>
 Helge Weissig <helgew at sdsc.edu>
 Alex Zelensky <alex_zelensky at mac.com> - Bioperl-DB 
+>>>>>>> 1.15
