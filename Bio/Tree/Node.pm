@@ -21,11 +21,10 @@ Bio::Tree::Node - A Simple Tree Node
     my $nodeL = new Bio::Tree::Node();
     my $nodeR = new Bio::Tree::Node();
     
-    my $node = new Bio::Tree::Node(-left   => $nodeL,
-				   -right  => $nodeR);
+    my $node = new Bio::Tree::Node();
+    $node->add_Descendents($nodeL);
+    $node->add_Descendents($nodeR);
 
-    $nodeA->set_Left_Descendent($node);
-    
     print "node is not a leaf \n" if( $node->is_leaf);
    
 =head1 DESCRIPTION
@@ -99,128 +98,93 @@ sub new {
   my($class,@args) = @_;
 
   my $self = $class->SUPER::new(@args);
-  my ($left,$right,$branchlen,$id,
-      $bootstrap, $desc) = $self->_rearrange([qw(LEFT RIGHT
+  my ($children, $branchlen,$id,
+      $bootstrap, $desc) = $self->_rearrange([qw(DESCENDENTS
 						 BRANCH_LENGTH
 						 ID
 						 BOOTSTRAP
 						 DESC
-						       )],
+						 )],
 					     @args);
-
+  $self->{'_descendents'} = {};
   defined $desc && $self->description($desc);  
   defined $bootstrap && $self->bootstrap($bootstrap);
   defined $id && $self->id($id);
   defined $branchlen && $self->branch_length($branchlen);
   
-  # these will operate fine if left or right is null
-  $self->set_Left_Descendent($left);
-  $self->set_Right_Descendent($right);
+  if( defined $children ) { 
+      if( ref($children) !~ /ARRAY/i ) { 
+	  $self->warn("Must specify a valid ARRAY reference to initialize a Node's Descendents");
+      }
+      foreach my $c ( @$children ) { 
+	  $self->add_Descendent($c);
+      }
+  }
   return $self;
 }
 
-=head get_Left_Descendent
+=head2 add_Descendent
 
- Title   : get_Left_Descendent
- Usage   : my $left_D = $node->get_Left_Descendent 
- Function: Get the Left Descendant of a node
- Returns : Bio::Tree::NodeI
- Args    : none
-
-=cut
-
-sub get_Left_Descendent {
-   my ($self) = @_;
-   return $self->{'_left'};
-}
-
-=head get_Right_Descendent
-
- Title   : get_Right_Descendent
- Usage   : my $right_D = $node->get_Right_Descendent 
- Function: Get the Right Descendant of a node
- Returns : Bio::Tree::NodeI
- Args    : none
+ Title   : add_Descendent
+ Usage   : $node->add_Descendant($node);
+ Function: Adds a descendent to a node
+ Returns : number of current descendents for this node
+ Args    : Bio::Node::NodeI
 
 =cut
 
-sub get_Right_Descendent {
-   my ($self) = @_;
-   return $self->{'_right'};
-}
-
-=head set_Left_Descendent
-
- Title   : set_Left_Descendent
- Usage   : $node->set_Left_Descendent($left) 
- Function: Set the Left Descendant of a node
- Returns : Bio::Tree::NodeI
- Args    : Bio::Tree::NodeI
-
-=cut
-
-sub set_Left_Descendent {
-   my ($self,$value) = @_;
-   if( defined $value ) {   
-     if(! $value->isa('Bio::Tree::NodeI') ) { 
-	 $self->throw("Must specify a valid Bio::Tree::NodeI when setting a descendent");
-     } 
-     
-     $self->{'_left'} = $value;
-     $self->{'_left'}->set_Ancestor($self);
+sub add_Descendent{
+   my ($self,$node) = @_;
+   return -1 if( ! defined $node ) ;
+   if( ! $node->isa('Bio::Tree::NodeI') ) {
+       $self->warn("Trying to add a Descendent who is not a Bio::Tree::NodeI");
+       return -1;
    }
-   return $self->{'_left'};
+   # do we care about order??
+   $self->{'_descendents'}->{$node} = $node;
+   return scalar keys %{$self->{'_descendents'}};
 }
 
-=head set_Right_Descendent
 
- Title   : set_Right_Descendent
- Usage   : $node->set_Right_Descendent($right) 
- Function: Set the Right Descendant of a node
- Returns : Bio::Tree::NodeI
- Args    : Bio::Tree::NodeI
+=head2 each_Descendent
 
-=cut
-
-sub set_Right_Descendent {
-   my ($self,$value) = @_;
-   if( defined $value ) {   
-     if(! $value->isa('Bio::Tree::NodeI') ) { 
-	 $self->throw("Must specify a valid Bio::Tree::NodeI when setting a descendent");
-     } 
-     $self->{'_right'} = $value;
-     $self->{'_right'}->set_Ancestor($self);
-   }
-   return $self->{'_right'};
-}
-
-=head2 get_Ancestor
-
- Title   : get_Ancestor
- Usage   : my $node = $node->get_Ancestor;
- Function: Gets a Node\'s ancestor node
- Returns : Null if this is top level node
+ Title   : each_Descendent
+ Usage   : my @nodes = $node->each_Descendent;
+ Function: all the descendents for this Node (but not their descendents 
+					      i.e. not a recursive fetchall)
+ Returns : Array of Bio::Tree::NodeI objects
  Args    : none
 
 =cut
 
-sub get_Ancestor{
-   my ($self,@args) = @_;
-   return $self->{'_ancestor'};
+sub each_Descendent{
+   my ($self) = @_;
+   values %{$self->{'_descendents'}};
+#   return @{$self->{'_descendents'}};
 }
 
+=head2 get_Descendents
 
-=head2 set_Ancestor
+ Title   : get_Descendents
+ Usage   : my @nodes = $node->get_Descendents;
+ Function: Recursively fetch all the nodes and their descendents
+           *NOTE* This is different from each_Descendent
+ Returns : Array or Bio::Tree::NodeI objects
+ Args    : none
 
- Title   : set_Ancestor
- Usage   : $obj->set_Ancestor($newval)
+=cut
+
+=head2 ancestor
+
+ Title   : ancestor
+ Usage   : $obj->ancestor($newval)
  Function: Set the Ancestor
- Returns : value of set_Ancestor
+ Returns : value of ancestor
  Args    : newvalue (optional)
 
 =cut
 
-sub set_Ancestor{
+sub ancestor{
    my ($self,$value) = @_;
    if( defined $value) {
        if(! $value->isa('Bio::Tree::NodeI') ) { 

@@ -68,7 +68,6 @@ use vars qw(@ISA);
 use strict;
 
 use Bio::Tree::Node;
-use Bio::Root::RootI;
 
 @ISA = qw(Bio::Tree::Node );
 

@@ -16,11 +16,34 @@ Bio::Tree::NodeI - Interface describing a Tree Node
 
 =head1 SYNOPSIS
 
-Give standard usage here
+# get a Tree::NodeI somehow
+# like from a TreeIO
+{
+    use Bio::TreeIO;
+    # read in a clustalw NJ in phylip/newick format
+    my $treeio = new Bio::TreeIO(-format => 'newick', -file => 'file.dnd');
+    my $tree = $treeio->next_tree; # we'll assume it worked for demo purposes
+    
+    my $rootnode = $tree->get_root_node;
+
+    # process just the next generation
+    foreach my $node ( $tree->each_Descendent() ) {
+	print "branch len is ", $node->branch_length, "\n";
+    }
+    # process all the children
+    foreach my $node ( $tree->get_Descendents() ) {
+	if( $node->is_Leaf ) { 
+	    print "node is a leaf ... "; 
+	}
+	print "branch len is ", $node->branch_length, "\n";
+    }    
 
 =head1 DESCRIPTION
 
-Describe the interface here
+A NodeI is capable of the basic structure of building a tree and
+storing the branch length between nodes.  The branch length is the
+length of the branch between the node and its ancestor, thus a root
+node in a Tree will not typically have a valid branch length.
 
 =head1 FEEDBACK
 
@@ -59,9 +82,7 @@ Internal methods are usually preceded with a _
 
 =cut
 
-
 # Let the code begin...
-
 
 package Bio::Tree::NodeI;
 use vars qw(@ISA);
@@ -76,27 +97,58 @@ sub _abstractDeath {
   confess "Abstract method '$caller' defined in interfaceBio::Tree::NodeI not implemented by pacakge $package. Not your fault - author of $package should be blamed!";
 }
 
+=head2 add_Descendent
+
+ Title   : add_Descendent
+ Usage   : $node->add_Descendant($node);
+ Function: Adds a descendent to a node
+ Returns : number of current descendents for this node
+ Args    : Bio::Node::NodeI
+
+
+=cut
+
+sub add_Descendent{
+   my ($self,@args) = @_;
+
+   $self->_abstractDeath;
+}
+
+
+=head2 each_Descendent
+
+ Title   : each_Descendent
+ Usage   : my @nodes = $node->each_Descendent;
+ Function: all the descendents for this Node (but not their descendents 
+					      i.e. not a recursive fetchall)
+ Returns : Array of Bio::Tree::NodeI objects
+ Args    : none
+
+=cut
+
+sub each_Descendent{
+   my ($self) = @_;
+   $self->_abstractDeath;   
+}
 
 =head2 get_Descendents
 
  Title   : get_Descendents
  Usage   : my @nodes = $node->get_Descendents;
- Function: Recursively fetches all the child nodes
- Returns : Array of Bio::Tree::NodeI objects
+ Function: Recursively fetch all the nodes and their descendents
+           *NOTE* This is different from each_Descendent
+ Returns : Array or Bio::Tree::NodeI objects
  Args    : none
 
 =cut
 
 sub get_Descendents{
    my ($self) = @_;
-   my @children;
-   if( my $left = $self->get_Left_Descendent ) { 
-       push @children, ($left, $left->get_Descendents); 
-   } 
-   if( my $right = $self->get_Right_Descendent ) { 
-       push @children, ($right, $right->get_Descendents); 
+   my @nodes;
+   foreach my $node ( $self->each_Descendent ) {
+       push @nodes, ($node->get_Descendents, $node);
    }
-   return @children;
+   return @nodes;
 }
 
 =head2 is_Leaf
@@ -111,10 +163,8 @@ sub get_Descendents{
 
 sub is_Leaf{
     my ($self) = @_;
-    return if( ! $self->get_Right_Descendent &&
-	       ! $self->get_Left_Descendent );
+    return ( ! $self->each_Descendent );
 }
-
 
 =head2 descendent_count
 
@@ -131,21 +181,16 @@ sub descendent_count{
    my ($self) = @_;
    my $count = 0;
    
-   # how to avoid the possiblility that a node has 2 places in a tree...
-   if( my $left = $self->get_Left_Descendent ) { 
-       $count += $left->descendent_count;
+   foreach my $node ( $self->each_Descendent ) { 
+       $count += 1 + $node->descendent_count;
    }
-   
-   if( my $right = $self->get_Right_Descendent ) { 
-       $count += $right->descendent_count;
-   }   
    return $count;
 }
 
 =head2 branch_length
 
  Title   : branch_length
- Usage   : $obj->branch_length($newval)
+ Usage   : $obj->branch_length()
  Function: 
  Example : 
  Returns : value of branch_length
@@ -157,9 +202,7 @@ sub descendent_count{
 sub branch_length{
     my ($self)= @_;
     $self->_abstractDeath;
-
 }
-
 
 =head2 to_string
 
@@ -178,5 +221,20 @@ sub to_string{
 		  $self->branch_length : ' ');
 }
 
+
+=head2 ancestor
+
+ Title   : ancestor
+ Usage   : my $node = $node->ancestor;
+ Function: Get/Set a Node\'s ancestor node
+ Returns : Null if this is top level node
+ Args    : none
+
+=cut
+
+sub ancestor{
+   my ($self,@args) = @_;
+   $self->_abstractDeath;
+}
 
 1;
