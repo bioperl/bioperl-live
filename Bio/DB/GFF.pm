@@ -2951,7 +2951,7 @@ sub _split_group {
 
     # if the tag eq 'Target' then the class name is embedded in the ID
     # (the GFF format is obviously screwed up here)
-    elsif ($tag eq 'Target' && /\"([^:\"]+):([^\"]+)\"/) {
+    elsif ($tag eq 'Target' && /([^:\"\s]+):([^\"\s]+)/) {
       ($gclass,$gname) = ($1,$2);
       ($tstart,$tstop) = /(\d+) (\d+)/;
     }
