@@ -51,7 +51,8 @@ my $_gi_link = '';
 
 =head1 NAME
 
-Bio::Tools::Blast::HTML.pm - Bioperl Utility module for HTML formatting Blast reports
+Bio::Tools::Blast::HTML.pm - Bioperl Utility module for HTML
+formatting Blast reports
 
 =head1 SYNOPSIS
 
@@ -87,23 +88,25 @@ Follow the installation instructions included in the README file.
 
 =head1 DESCRIPTION
 
-This module can be used to add HTML formatting to or remove HTML formatting from a 
-raw Blast sequence analysis report. Hypertext links to the appropriate database 
-are added for each hit sequence (GenBank, Swiss-Prot, PIR, PDB, SGD).
+This module can be used to add HTML formatting to or remove HTML
+formatting from a raw Blast sequence analysis report. Hypertext links
+to the appropriate database are added for each hit sequence (GenBank,
+Swiss-Prot, PIR, PDB, SGD).
 
 This module is intended for use by Bio::Tools::Blast.pm and related modules, 
 which provides a front-end to the methods in Bio::Tools::Blast::HTML.pm.
 
 =head1 DEPENDENCIES
 
-Bio::Tools::Blast::HTML.pm does not inherit from any other class besides Exporter.
-It is used by B<Bio::Tools::Blast.pm> only.
-This class relies on B<Bio::Tools::WWW.pm> to provide key URLS for adding links in the
-Blast report to specific databases.
+Bio::Tools::Blast::HTML.pm does not inherit from any other class
+besides Exporter.  It is used by B<Bio::Tools::Blast.pm> only.  This
+class relies on B<Bio::Tools::WWW.pm> to provide key URLS for adding
+links in the Blast report to specific databases.
 
-The greatest dependency comes from the dynamic state of the web. URLs are are likely to
-change in the future, so all links cannot be guaranteed to work indefinitely. 
-Feel free to report broken or incorrect database links (L<FEEDBACK>). Thanks!
+The greatest dependency comes from the dynamic state of the web. URLs
+are are likely to change in the future, so all links cannot be
+guaranteed to work indefinitely.  Feel free to report broken or
+incorrect database links (L<FEEDBACK>). Thanks!
 
 =head1 SEE ALSO
 
@@ -118,18 +121,19 @@ Feel free to report broken or incorrect database links (L<FEEDBACK>). Thanks!
 
 =head2 Mailing Lists 
 
-User feedback is an integral part of the evolution of this and other Bioperl modules.
-Send your comments and suggestions preferably to one of the Bioperl mailing lists.
-Your participation is much appreciated.
+User feedback is an integral part of the evolution of this and other
+Bioperl modules.  Send your comments and suggestions preferably to one
+of the Bioperl mailing lists.  Your participation is much appreciated.
 
-    vsns-bcd-perl@lists.uni-bielefeld.de          - General discussion
-    vsns-bcd-perl-guts@lists.uni-bielefeld.de     - Technically-oriented discussion
+    bioperl-l@bioperl.org          - General discussion
+    bioperl-guts-l@bioperl.org     - Technically-oriented discussion
     http://bio.perl.org/MailList.html             - About the mailing lists
 
 =head2 Reporting Bugs
 
-Report bugs to the Bioperl bug tracking system to help us keep track the bugs and 
-their resolution. Bug reports can be submitted via email or the web:
+Report bugs to the Bioperl bug tracking system to help us keep 
+track the bugs and  their resolution. Bug reports can be submitted 
+via email or the web:
 
     bioperl-bugs@bio.perl.org                   
     http://bio.perl.org/bioperl-bugs/           

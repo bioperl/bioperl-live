@@ -45,7 +45,8 @@ $VERSION = '0.01';
 
 =head1 NAME
 
-Bio::Tools::Blast::Run::LocalBlast.pm - Bioperl module for running Blast analyses locally.
+Bio::Tools::Blast::Run::LocalBlast.pm - Bioperl module for running
+Blast analyses locally.
 
 =head1 SYNOPSIS
 
@@ -66,9 +67,9 @@ Follow the installation instructions included in the README file.
 
 =head1 DESCRIPTION
 
-Bio::Tools::Blast::Run::LocalBlast.pm contains methods and data necessary for
-running Blast sequence analyses on a local machine. This module must be customized
-for a specific site.
+Bio::Tools::Blast::Run::LocalBlast.pm contains methods and data
+necessary for running Blast sequence analyses on a local machine. This
+module must be customized for a specific site.
 
 The basic requirements are that it conform to this minimal API:
 
@@ -76,7 +77,8 @@ The basic requirements are that it conform to this minimal API:
 
 =item 1 Export a method called L<blast_local>()
 
-that accepts a Bio::Tools::Blast.pm object + named parameters as specified by L<blast_local>().
+that accepts a Bio::Tools::Blast.pm object + named parameters as
+specified by L<blast_local>().
 
 =item 2 The L<blast_local>() method should return 
 
@@ -88,17 +90,18 @@ in the arrays C<@Blast_dbn_local> and C<@Blast_dbp_local>.
 
 =back
 
-The generic version of this module provides some rudimentary logic, but feel free
-to customize as necessary.
+The generic version of this module provides some rudimentary logic,
+but feel free to customize as necessary.
 
 
 =head2 Script Files
 
-Sometimes it is convenient to write an executable shell script for running a set of Blasts
-on a local machine. This script can be saved and re-executed as necessary or saved
-for documentation purposes. This module could provide a convenient way to consolidate
-the logic necessary for producing such script files or perhaps stubs of script file 
-that could be further modified for Blast-ing specific datasets.
+Sometimes it is convenient to write an executable shell script for
+running a set of Blasts on a local machine. This script can be saved
+and re-executed as necessary or saved for documentation purposes. This
+module could provide a convenient way to consolidate the logic
+necessary for producing such script files or perhaps stubs of script
+file that could be further modified for Blast-ing specific datasets.
 
 
 =head1 DEPENDENCIES
@@ -124,18 +127,19 @@ be updated along with that module.
 
 =head2 Mailing Lists 
 
-User feedback is an integral part of the evolution of this and other Bioperl modules.
-Send your comments and suggestions preferably to one of the Bioperl mailing lists.
-Your participation is much appreciated.
+User feedback is an integral part of the evolution of this and other
+Bioperl modules.  Send your comments and suggestions preferably to one
+of the Bioperl mailing lists.  Your participation is much appreciated.
 
-    vsns-bcd-perl@lists.uni-bielefeld.de          - General discussion
-    vsns-bcd-perl-guts@lists.uni-bielefeld.de     - Technically-oriented discussion
+    bioperl-l@bioperl.org          - General discussion
+    bioperl-guts-l@bioperl.org     - Technically-oriented discussion
     http://bio.perl.org/MailList.html             - About the mailing lists
 
 =head2 Reporting Bugs
 
-Report bugs to the Bioperl bug tracking system to help us keep track the bugs and 
-their resolution. Bug reports can be submitted via email or the web:
+Report bugs to the Bioperl bug tracking system to help us keep track
+the bugs and their resolution. Bug reports can be submitted via email
+or the web:
 
     bioperl-bugs@bio.perl.org                   
     http://bio.perl.org/bioperl-bugs/           

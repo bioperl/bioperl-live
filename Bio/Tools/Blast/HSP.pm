@@ -86,47 +86,50 @@ HSP objects (L<Links:>).
 
 =back
 
-Bio::Tools::Blast::HSP.pm has the ability to extract a list of all residue 
-indices for identical and conservative matches along both query and
-sbjct sequences. Since this degree of detail is not always needed, 
-this behavior does not occur during construction of the HSP object.
-These data will automatically be collected as necessary as the 
-HSP.pm object is used.
+Bio::Tools::Blast::HSP.pm has the ability to extract a list of all
+residue indices for identical and conservative matches along both
+query and sbjct sequences. Since this degree of detail is not always
+needed, this behavior does not occur during construction of the HSP
+object.  These data will automatically be collected as necessary as
+the HSP.pm object is used.
 
 =head1 DEPENDENCIES
 
-Bio::Tools::Blast::HSP.pm is a concrete class that inherits from B<Bio::Root::Object.pm>
-and relies on B<Bio::Tools::Sbjct.pm> as a container for HSP.pm objects.
-B<Bio::Seq.pm> and B<Bio::UnivAln.pm> are employed for creating sequence
-and alignment objects, respectively.
+Bio::Tools::Blast::HSP.pm is a concrete class that inherits from
+B<Bio::Root::Object.pm> and relies on B<Bio::Tools::Sbjct.pm> as a
+container for HSP.pm objects.  B<Bio::Seq.pm> and B<Bio::UnivAln.pm>
+are employed for creating sequence and alignment objects,
+respectively.
 
 
 =head2 Relationship to UnivAln.pm & Seq.pm
 
-HSP.pm can provide the query or sbjct sequence as a B<Bio::Seq.pm> object
-via the L<seq>() method. The HSP.pm object can also create a two-sequence 
-B<Bio::UnivAln.pm> alignment object using the the query and sbjct sequences 
-via the L<get_aln>() method. Creation of alignment objects is not automatic when
-constructing the HSP.pm object since this level of functionality is not always
-required and would generate a lot of extra overhead when crunching many reports.
+HSP.pm can provide the query or sbjct sequence as a B<Bio::Seq.pm>
+object via the L<seq>() method. The HSP.pm object can also create a
+two-sequence B<Bio::UnivAln.pm> alignment object using the the query
+and sbjct sequences via the L<get_aln>() method. Creation of alignment
+objects is not automatic when constructing the HSP.pm object since
+this level of functionality is not always required and would generate
+a lot of extra overhead when crunching many reports.
 
 
 =head1 FEEDBACK
 
 =head2 Mailing Lists 
 
-User feedback is an integral part of the evolution of this and other Bioperl modules.
-Send your comments and suggestions preferably to one of the Bioperl mailing lists.
-Your participation is much appreciated.
+User feedback is an integral part of the evolution of this and other
+Bioperl modules.  Send your comments and suggestions preferably to one
+of the Bioperl mailing lists.  Your participation is much appreciated.
 
-    vsns-bcd-perl@lists.uni-bielefeld.de          - General discussion
-    vsns-bcd-perl-guts@lists.uni-bielefeld.de     - Technically-oriented discussion
+    bioperl-l@bioperl.org          - General discussion
+    bioperl-guts-l@bioperl.org     - Technically-oriented discussion
     http://bio.perl.org/MailList.html             - About the mailing lists
 
 =head2 Reporting Bugs
 
-Report bugs to the Bioperl bug tracking system to help us keep track the bugs and 
-their resolution. Bug reports can be submitted via email or the web:
+Report bugs to the Bioperl bug tracking system to help us keep track
+the bugs and their resolution. Bug reports can be submitted via email
+or the web:
 
     bioperl-bugs@bio.perl.org                   
     http://bio.perl.org/bioperl-bugs/           

@@ -87,21 +87,26 @@ This module supports BLAST versions 1.x and 2.x, gapped and ungapped.
 
 =head2 HSP Tiling and Ambiguous Alignments
 
-If a Blast hit has more than one HSP, the Bio::Tools::Blast::Sbjct.pm object has
-the ability to merge overlapping HSPs into contiguous blocks. This permits the Sbjct object
-to sum data across all HSPs without counting data in the overlapping regions 
-multiple times, which would happen if data from each overlapping HSP are simply summed. 
-HSP tiling is performed automatically when methods of the Sbjct object that rely on 
-tiled data are invoked. These include L<frac_identical>(), L<frac_conserved>(), L<gaps>(),
-L<frac_aligned_query>(), L<frac_aligned_hit>(), L<num_unaligned_query>(), L<num_unaligned_hit>().
+If a Blast hit has more than one HSP, the Bio::Tools::Blast::Sbjct.pm
+object has the ability to merge overlapping HSPs into contiguous
+blocks. This permits the Sbjct object to sum data across all HSPs
+without counting data in the overlapping regions multiple times, which
+would happen if data from each overlapping HSP are simply summed.  HSP
+tiling is performed automatically when methods of the Sbjct object
+that rely on tiled data are invoked. These include
+L<frac_identical>(), L<frac_conserved>(), L<gaps>(),
+L<frac_aligned_query>(), L<frac_aligned_hit>(),
+L<num_unaligned_query>(), L<num_unaligned_hit>().
 
-It also permits the assessment of an "ambiguous alignment" if the query (or sbjct)
-sequences from different HSPs overlap. The existence of an overlap could indicate a
-biologically interesting region in the sequence, such as a repeated domain.
-The Sbjct object uses the -OVERLAP parameter to determine when two sequences overlap; 
-if this is set to 2 -- the default -- then any two sbjct or query HSP sequences 
-must overlap by more than two residues to get merged into the same contig and counted
-as an overlap. See the L<BUGS> section below for "issues" with HSP tiling.
+It also permits the assessment of an "ambiguous alignment" if the
+query (or sbjct) sequences from different HSPs overlap. The existence
+of an overlap could indicate a biologically interesting region in the
+sequence, such as a repeated domain.  The Sbjct object uses the
+-OVERLAP parameter to determine when two sequences overlap; if this is
+set to 2 -- the default -- then any two sbjct or query HSP sequences
+must overlap by more than two residues to get merged into the same
+contig and counted as an overlap. See the L<BUGS> section below for
+"issues" with HSP tiling.
 
 
 The results of the HSP tiling is reported with the following ambiguity codes:
@@ -139,18 +144,19 @@ Provides a container for Sbjct.pm objects.
 =back
 
 
-Bio::Tools::Blast::Sbjct.pm does not currently inherit from Bio::Root::Vector.pm
-since Bio::Root::Vector.pm may be re-designed to make it usable via delegation.
-Thus, a Blast.pm object would manage a vector of Sbjct.pm objects.
-Stay tuned.
+Bio::Tools::Blast::Sbjct.pm does not currently inherit from
+Bio::Root::Vector.pm since Bio::Root::Vector.pm may be re-designed to
+make it usable via delegation.  Thus, a Blast.pm object would manage a
+vector of Sbjct.pm objects.  Stay tuned.
 
 
 =head1 BUGS
 
-One consequence of the HSP tiling is that methods that rely on HSP tiling such as
-L<frac_identical>(), L<frac_conserved>(), L<gaps>() etc. may report misleading numbers 
-when C<-OVERLAP> is set to a large number.
-For example, say we have two HSPs and the query sequence tile as follows:
+One consequence of the HSP tiling is that methods that rely on HSP
+tiling such as L<frac_identical>(), L<frac_conserved>(), L<gaps>()
+etc. may report misleading numbers when C<-OVERLAP> is set to a large
+number.  For example, say we have two HSPs and the query sequence tile
+as follows:
 
             1      8             22      30        40             60 
  Full seq:  ------------------------------------------------------------
@@ -160,19 +166,22 @@ For example, say we have two HSPs and the query sequence tile as follows:
  HSP2:                        -------------           (6 identical matches)
 
 
-If C<-OVERLAP> is set to some number over 4, HSP1 and HSP2 will not be tiled into a single
-contig and their numbers of identical matches will be added, giving a total of 12,
-not 10 if they had be combined into one contig. This can lead to number greater than 1.0 for
-methods L<frac_identical>() and L<frac_conserved>(). This is less of an issue with gapped 
-Blast since it tends to combine HSPs that would be listed separately without gapping.
-(Fractions E<gt>1.0 can be viewed as a signal for an interesting alignment that warrants 
-further inspection, thus turning this bug into a feature).
+If C<-OVERLAP> is set to some number over 4, HSP1 and HSP2 will not be
+tiled into a single contig and their numbers of identical matches will
+be added, giving a total of 12, not 10 if they had be combined into
+one contig. This can lead to number greater than 1.0 for methods
+L<frac_identical>() and L<frac_conserved>(). This is less of an issue
+with gapped Blast since it tends to combine HSPs that would be listed
+separately without gapping.  (Fractions E<gt>1.0 can be viewed as a
+signal for an interesting alignment that warrants further inspection,
+thus turning this bug into a feature).
 
-Using large values for C<-OVERLAP> can lead to incorrect numbers reported by methods that
-rely on HSP tiling but can be useful if you care more about detecting ambiguous alignments. 
-Setting C<-OVERLAP> to zero will lead to the most accurate numbers for the tiling-dependent
-methods but will be useless for detecting overlapping HSPs since all HSPs will appear to
-overlap.
+Using large values for C<-OVERLAP> can lead to incorrect numbers
+reported by methods that rely on HSP tiling but can be useful if you
+care more about detecting ambiguous alignments.  Setting C<-OVERLAP>
+to zero will lead to the most accurate numbers for the
+tiling-dependent methods but will be useless for detecting overlapping
+HSPs since all HSPs will appear to overlap.
 
 
 =head1 SEE ALSO
@@ -194,18 +203,19 @@ Links:
 
 =head2 Mailing Lists 
 
-User feedback is an integral part of the evolution of this and other Bioperl modules.
-Send your comments and suggestions preferably to one of the Bioperl mailing lists.
-Your participation is much appreciated.
+User feedback is an integral part of the evolution of this and other
+Bioperl modules.  Send your comments and suggestions preferably to one
+of the Bioperl mailing lists.  Your participation is much appreciated.
 
-    vsns-bcd-perl@lists.uni-bielefeld.de          - General discussion
-    vsns-bcd-perl-guts@lists.uni-bielefeld.de     - Technically-oriented discussion
+    bioperl-l@bioperl.org          - General discussion
+    bioperl-guts-l@bioperl.org     - Technically-oriented discussion
     http://bio.perl.org/MailList.html             - About the mailing lists
 
 =head2 Reporting Bugs
 
-Report bugs to the Bioperl bug tracking system to help us keep track the bugs and 
-their resolution. Bug reports can be submitted via email or the web:
+Report bugs to the Bioperl bug tracking system to help us keep track
+the bugs and their resolution. Bug reports can be submitted via email
+or the web:
 
     bioperl-bugs@bio.perl.org                   
     http://bio.perl.org/bioperl-bugs/           
