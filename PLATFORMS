@@ -1,4 +1,4 @@
-# $Id: PLATFORMS,v 1.13.2.3 2002-06-04 22:58:22 jason Exp $
+# $Id: PLATFORMS,v 1.13.2.4 2002-06-05 22:36:38 dag Exp $
 
 Perl general comments:
 
@@ -95,4 +95,28 @@ Perl    : 5.6.0
 Comments: Steve Cannon has made available Bioperl OS X installation
 	  directions and notes online at the following URL:
 	  http://www.tc.umn.edu/~cann0010/Bioperl_OSX_install.html
+
+
+Machine : HP-UX / PA-RISC 11.0
+Compiler: gcc
+Perl    : 5.6.1
+Comments: Tested by (dag@sonsorol.org) on a barebones 8-cpu system without the
+          various dependencies installed. All tests pass except those
+          skipped by the test harness due to missing external packages. Thanks
+          due to HP for providing the OBF with an Itanium workstation plus
+          internet access to other HP test platforms. Feedback from HP-UX users
+          is appreciated.
+
+
+Machine : HP-UX / Itanium ('ia64') 11.0
+Compiler: gcc
+Perl    : 5.6.1
+Comments: Tested by (dag@sonsorol.org) on a barebones 4-cpu system without the
+          various dependencies installed. 96% of the tests pass; OBF is 
+          working on getting 100% pass rate. Thanks due to HP for providing 
+          the OBF with an Itanium workstation plus internet access to other 
+          HP test platforms. Feedback from HP-UX users is appreciated.
+
+
+
 
