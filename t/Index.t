@@ -20,7 +20,18 @@ use SDBM_File;
 ($Bio::Root::IO::FILESPECLOADED && File::Spec->can('cwd') && ($dir = File::Spec->cwd) ) ||
     ($dir = `pwd`) || ($dir = '.');
  
-END {  unlink qw( Wibbl Wibbl2 Wibbl3 Wibbl4 Wibbl5); }
+END { foreach my $f ( qw( Wibbl Wibbl2 Wibbl3 Wibbl4 Wibbl5) ) {
+	if( -e "$f.dir" ) {
+	    unlink("$f.dir");
+	} 
+	if( -e "$f.pag" ) {
+	    unlink("$f.pag");
+	} 
+	if( -e "$f" ) {
+	    unlink("$f");
+	} 
+    }
+}
 
 chomp( $dir );
 {
