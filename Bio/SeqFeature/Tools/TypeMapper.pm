@@ -239,5 +239,49 @@ sub map_types_to_SO{
 
 }
 
+=head2 get_relationship_type_between
+
+ Title   : get_relationship_type_between
+ Usage   : $type = $tm->get_relationship_type_between($parent_sf, $child_sf);
+ Function: given two features where the parent contains the child,
+           will determine what the relationship between them in
+ Example :
+ Returns : 
+ Args    : parent SeqFeature, child SeqFeature OR
+           parent type string, child type string OR
+
+bioperl Seq::FeatureHolderI hierarchies are equivalent to unlabeled
+graphs (where parent nodes are the containers, and child nodes are the
+features being contained). For example, a feature of type mRNA can
+contain features of type exon.
+
+Some external representations (eg chadoxml or chaosxml) require that
+the edges in the feature relationship graph are labeled. For example,
+the type between mRNA and exon would be B<part_of>. Although it
+stretches the bioperl notion of containment, we could have a CDS
+contained by an mRNA (for example, the
+L<Bio::SeqFeature::Tools::Unflattener> module takes genbank records
+and makes these kind of links. The relationship here would be
+B<produced_by>
+
+In chado speak, the child is the B<subject> feature and the parent is
+the B<object> feature
+
+=cut
+
+sub get_relationship_type_by_parent_child {
+   my ($self,$parent,$child) = @_;
+   $parent = ref($parent) ? $parent->primary_tag : $parent;
+   $child = ref($child) ? $child->primary_tag : $child;
+
+   my $type = 'part_of'; # default
+
+   # TODO - do this with metadata
+   if (lc($child) eq 'protein' or lc($child) eq 'cds') {
+       $type = 'produced_by';
+   }
+   return $type;
+}
+
 
 1;
