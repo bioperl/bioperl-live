@@ -94,75 +94,87 @@ use vars '@ISA';
 =head2 get
 
  Title   : get
- Usage   : 
- Function:
- Example :
+ Usage   : my $resp = get(-url => $url);
+ Function: 
  Returns : string
- Args    : 
+ Args    : -url   => URL to HTTPGet
+           -proxy => proxy to use
+           -user  => username for proxy or authentication
+           -pass  => password for proxy or authentication
 
 =cut
 
 sub get {
-  my ($url,$proxy,$timeout,$auth_user,$auth_pass) = 
-    __PACKAGE__->_rearrange([qw(URL PROXY TIMEOUT USER PASS)],@_);
-  my $dest  = $proxy || $url;
+    my $self;
+    if( ref($_[0]) ) {
+	$self = shift;
+    }
 
-  my ($host,$port,$path,$user,$pass) 
-    = _http_parse_url($dest) or __PACKAGE__->throw("invalid URL $url");
-  $auth_user ||= $user;
-  $auth_pass ||= $pass;
-  $path = $url if $proxy;
+    my ($url,$proxy,$timeout,$auth_user,$auth_pass) = 
+	__PACKAGE__->_rearrange([qw(URL PROXY TIMEOUT USER PASS)],@_);
+    my $dest  = $proxy || $url;
 
-  # set up the connection
-  my $socket = _http_connect($host,$port) or __PACKAGE__->throw("can't connect: $@");
+    my ($host,$port,$path,$user,$pass) 
+	= _http_parse_url($dest) or __PACKAGE__->throw("invalid URL $url");
+    $auth_user ||= $user;
+    $auth_pass ||= $pass;
+    if( $self ) { 
+	unless( $auth_user ) { 
+	    ($auth_user,$auth_pass) = $self->authentication;
+	}
+	unless( $proxy ) { $proxy = $self->proxy() }
+    }
+    $path = $url if $proxy;
+    # set up the connection
+    my $socket = _http_connect($host,$port) or __PACKAGE__->throw("can't connect: $@");
 
-  # the request
-  print $socket "GET $path HTTP/1.0$CRLF";
-  print $socket "User-Agent: Bioperl fallback fetcher/1.0$CRLF";
-  # Support virtual hosts
-  print $socket "HOST: $host$CRLF";
+    # the request
+    print $socket "GET $path HTTP/1.0$CRLF";
+    print $socket "User-Agent: Bioperl fallback fetcher/1.0$CRLF";
+    # Support virtual hosts
+    print $socket "HOST: $host$CRLF";
 
-  if ($auth_user && $auth_pass) {  # authentication information
-    my $token = _encode_base64("$auth_user:$auth_pass");
-    print $socket "Authorization: Basic $token$CRLF";
-  }
-  print $socket "$CRLF";
+    if ($auth_user && $auth_pass) { # authentication information
+	my $token = _encode_base64("$auth_user:$auth_pass");
+	print $socket "Authorization: Basic $token$CRLF";
+    }
+    print $socket "$CRLF";
 
-  # read the response
-  my $response;
-  {
-    local $/ = "$CRLF$CRLF";
-    $response = <$socket>;
-  }
+    # read the response
+    my $response;
+    {
+	local $/ = "$CRLF$CRLF";
+	$response = <$socket>;
+    }
 
-  my ($status_line,@other_lines) = split $CRLF,$response;
-  my ($stat_code,$stat_msg) = $status_line =~ m!^HTTP/1\.[01] (\d+) (.+)!
-    or __PACKAGE__->throw("invalid response from web server: got $response");
+    my ($status_line,@other_lines) = split $CRLF,$response;
+    my ($stat_code,$stat_msg) = $status_line =~ m!^HTTP/1\.[01] (\d+) (.+)!
+	or __PACKAGE__->throw("invalid response from web server: got $response");
 
-  my %headers = map {/^(\S+): (.+)/} @other_lines;
-  if ($stat_code == 302 || $stat_code == 301) {  # redirect
-    my $location = $headers{Location} or __PACKAGE__->throw("invalid redirect: no Location header");
-    return get($location,$proxy,$timeout);  # recursive call
-  }
+    my %headers = map {/^(\S+): (.+)/} @other_lines;
+    if ($stat_code == 302 || $stat_code == 301) { # redirect
+	my $location = $headers{Location} or __PACKAGE__->throw("invalid redirect: no Location header");
+	return get($location,$proxy,$timeout); # recursive call
+    }
 
-  elsif ($stat_code == 401) { # auth required
-    my $auth_required = $headers{'WWW-Authenticate'};
-    $auth_required =~ /^Basic realm="([^\"]+)"/
-      or __PACKAGE__->throw("server requires unknown type of authentication: $auth_required");
-    __PACKAGE__->throw("request failed: $status_line, realm = $1");
-  }
+    elsif ($stat_code == 401) { # auth required
+	my $auth_required = $headers{'WWW-Authenticate'};
+	$auth_required =~ /^Basic realm="([^\"]+)"/
+	    or __PACKAGE__->throw("server requires unknown type of authentication: $auth_required");
+	__PACKAGE__->throw("request failed: $status_line, realm = $1");
+    }
 
-  elsif ($stat_code != 200) {
-    __PACKAGE__->throw("request failed: $status_line");
-  }
+    elsif ($stat_code != 200) {
+	__PACKAGE__->throw("request failed: $status_line");
+    }
 
-  $response = '';
-  while (1) {
-    my $bytes = read($socket,$response,2048,length $response);
-    last unless $bytes > 0;
-  }
+    $response = '';
+    while (1) {
+	my $bytes = read($socket,$response,2048,length $response);
+	last unless $bytes > 0;
+    }
 
-  $response;
+    $response;
 }
 
 =head2 getFH
@@ -310,6 +322,50 @@ sub _encode_base64 {
         $res =~ s/(.{1,76})/$1$eol/g;
     }
     return $res;
+}
+
+
+=head2 proxy
+
+ Title   : proxy
+ Usage   : $httpproxy = $db->proxy('http')  or 
+           $db->proxy(['http','ftp'], 'http://myproxy' )
+ Function: Get/Set a proxy for use of proxy
+ Returns : a string indicating the proxy
+ Args    : $protocol : an array ref of the protocol(s) to set/get
+           $proxyurl : url of the proxy to use for the specified protocol
+           $username : username (if proxy requires authentication)
+           $password : password (if proxy requires authentication)
+
+=cut
+
+sub proxy {
+    my ($self,$protocol,$proxy,$username,$password) = @_;
+    $protocol ||= 'http';
+    return undef unless (  defined $protocol && defined $proxy );
+    $self->authentication($username, $password) 
+	if ($username && $password);
+    return $self->{'_proxy'}->{$protocol} = $proxy;
+}
+
+=head2 authentication
+
+ Title   : authentication
+ Usage   : $db->authentication($user,$pass)
+ Function: Get/Set authentication credentials
+ Returns : Array of user/pass 
+ Args    : Array or user/pass
+
+
+=cut
+
+sub authentication{
+   my ($self,$u,$p) = @_;
+
+   if( defined $u && defined $p ) {
+       $self->{'_authentication'} = [ $u,$p];
+   }
+   return @{$self->{'_authentication'} || []};
 }
 
 1;
