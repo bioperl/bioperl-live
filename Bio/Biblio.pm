@@ -93,6 +93,9 @@ way:
 
    -access => biofetch
 
+Lacking documentation:
+
+   -access => eutils
 
 =item Bio::DB::BiblioI
 
