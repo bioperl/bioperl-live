@@ -73,6 +73,10 @@ package Bio::Tools::Alignment::Trim;
 
 use Bio::Root::Root;
 use strict;
+use Dumpvalue;
+
+
+
 use vars qw($VERSION @ISA %DEFAULTS);
 
 $VERSION = '0.01';
@@ -83,6 +87,8 @@ BEGIN {
     %DEFAULTS = ( 'f_designator' => 'f',
 		  'r_designator' => 'r');
 }
+
+my $dumper = new Dumpvalue();
 
 =head2 new()
 

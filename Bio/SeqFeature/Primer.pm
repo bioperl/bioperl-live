@@ -315,84 +315,12 @@ sub display_id {
      return $self->seq()->display_id();
 }
 
-=head2 overlaps()
 
- Title   : overlaps()
- Usage   : 
- Function: 
- Returns : 
- Args    : 
-Developer Notes: Chad has no idea how to implement this at this time.
 
-=cut
 
-sub overlaps {
-     my $self = shift;
-     $self->warn("Chad has not implemented this method at this time.");
-}
 
-=head2 contains()
 
- Title   : contains()
- Usage   : 
- Function: 
- Returns : 
- Args    : 
-Developer Notes: Chad has no idea how to implement this at this time.
 
-=cut
 
-sub contains {
-     my $self = shift;
-     $self->warn("Chad has not implemented this method at this time.");
-}
-
-=head2 equals()
-
- Title   : equals()
- Usage   : 
- Function: 
- Returns : 
- Args    : 
-Developer Notes: Chad has no idea how to implement this at this time.
-
-=cut
-
-sub equals {
-     my $self = shift;
-     $self->warn("Chad has not implemented this method at this time.");
-}
-
-=head2 intersection()
-
- Title   : intersection()
- Usage   : 
- Function: 
- Returns : 
- Args    : 
-Developer Notes: Chad has no idea how to implement this at this time.
-
-=cut
-
-sub intersection {
-     my $self = shift;
-     $self->warn("Chad has not implemented this method at this time.");
-}
-
-=head2 union()
-
- Title   : union()
- Usage   : 
- Function: 
- Returns : 
- Args    : 
-Developer Notes: Chad has no idea how to implement this at this time.
-
-=cut
-
-sub union {
-     my $self = shift;
-     $self->warn("Chad has not implemented this method at this time.");
-}
 
 1;

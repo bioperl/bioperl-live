@@ -316,8 +316,12 @@ See L<get_quality_scalar()|get_quality_scalar>
 
 sub get_quality_array {
     my ($self,$contig) = @_;
-    my @qualities = split
-	(' ',($self->{'contigs'}->{$contig}->{'quality'}=~s/\s+//));
+     my $quality =  $self->{contigs}->{$contig}->{quality};
+          # chad, what is with the s/// ?
+          # my @qualities = split
+	     # (' ',($self->{contigs}->{$contig}->{quality} =~ s/\s+//));
+      my @qualities = split
+	     (' ',$self->{contigs}->{$contig}->{quality});
     return @qualities;
 }
 
@@ -776,6 +780,9 @@ sub set_trim_points_doublets {
 			 "The qualities for this doublet are $self->{'contigs'}->{$_}->{'quality'}\n".
 			 "Consed::set_trim_points_doublets: there are ".length($self->{'contigs'}->{$_}->{consensus})." bases in $_\n");
 	    # my ($self,$sequence,$quality,$name,$class) = @_;
+          my @quals = split(' ',$self->{'contigs'}->{$_}->{'quality'});
+          print("in set_trim_points_doublets Consed, there are this many qualities: ".scalar(@quals)."\n");
+          
 	    (@points) = $self->{o_trim}->trim_doublet($self->{'contigs'}->{$_}->{'consensus'},$self->{'contigs'}->{$_}->{'quality'},$self->{'contigs'}->{$_}->{name},$self->{'contigs'}->{$_}->{'class'});
 	    $self->{'contigs'}->{$_}->{'start_point'} = $points[0];
 	    $self->{'contigs'}->{$_}->{'end_point'} = $points[1];
@@ -1097,6 +1104,10 @@ sub set_singlet_quality {
 sub set_contig_quality {
     # note: contigs _include_ singletons but _not_ singlets
     my ($self) = shift;
+          # the unexpected results I am referring to here are a doubling of quality values.
+          # the profanity I uttered on discovering this reminded me of the simpsons:
+          # Ned Flanders: "That is the loudest profanity I have ever heard!"
+     $self->warn("set_contig_quality is deprecated and will likely produce unexpected results");
     my $full_filename = $self->{'filename'};
     # Run_SRC3700_2000-08-01_73+74.fasta.screen.contigs.qual
     # from Consed.pm
