@@ -21,8 +21,13 @@ sub draw {
   my @clip;
   if ($gd->can('clip')) {
     @clip = $gd->clip();
-    $gd->clip($left+$self->left,$top-6,$left+$self->width+$self->panel->extra_right_padding-3
-	      ,$top+$self->layout_height);
+    # glyphs are allowed a slop area of ~3 on either side and 6 on the top and bottom
+    # in order to spill out over their boundaries.  Beyond this they start overlapping
+    # with other glyphs in an ugly way.
+    $gd->clip($left+$self->left-3,
+	      $top-6,
+	      $left+$self->left+$self->width+$self->panel->extra_right_padding-3
+	      ,$top+$self->layout_height+6);
   }
 
   my @parts = $self->parts;

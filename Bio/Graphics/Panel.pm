@@ -362,6 +362,7 @@ sub _add_track {
 sub _expand_padding {
   my $self   = shift;
   my $track  = shift;
+  my $extra_padding = $self->extra_right_padding;
 
   my $keystyle          = $self->key_style;
   my $empty_track_style = $self->empty_track_style;
@@ -383,7 +384,7 @@ sub _expand_padding {
     my $width_i_have = $self->pad_left;
     $self->pad_left($width_needed)  if $width_needed > $width_i_have;
   } elsif ($keystyle eq 'right') {
-    $width_needed += EXTRA_RIGHT_PADDING;
+    $width_needed += $extra_padding;
     my $width_i_have = $self->pad_right;
     $self->pad_right($width_needed) if $width_needed > $width_i_have;
   }
