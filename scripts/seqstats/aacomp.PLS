@@ -1,7 +1,7 @@
 #!perl -w
 use strict;
 use Carp;
-# $Id: aacomp.PLS,v 1.1 2003-02-28 05:40:44 heikki Exp $
+# $Id: aacomp.PLS,v 1.2 2003-03-26 09:20:02 heikki Exp $
 
 use Bio::SeqIO;
 use Getopt::Long;
@@ -100,7 +100,7 @@ The sequence input can be provided using any of the three methods:
 
   aacomp < filename
 
-=cut
+=back
 
 =head1 FEEDBACK
 

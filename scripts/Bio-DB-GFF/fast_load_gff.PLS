@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# $Id: fast_load_gff.PLS,v 1.2 2003-03-05 12:02:05 lstein Exp $
+# $Id: fast_load_gff.PLS,v 1.3 2003-03-26 09:20:01 heikki Exp $
 
 use strict;
 use lib './blib/lib';
@@ -84,7 +84,7 @@ L<Bio::DB::GFF>, L<bulk_load_gff.pl>, L<load_gff.pl>
 
 =head1 AUTHOR
 
-Lincoln Stein <lstein@cshl.org>.
+Lincoln Stein, lstein@cshl.org
 
 Copyright (c) 2002 Cold Spring Harbor Laboratory
 

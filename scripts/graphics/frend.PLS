@@ -231,7 +231,7 @@ L<Bio::Graphics>, L<feature_draw.pl>
 
 =head1 AUTHOR
 
-Lincoln Stein <lstein@cshl.org>
+Lincoln Stein, lstein@cshl.org
 
 =cut
 

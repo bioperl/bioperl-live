@@ -1,5 +1,5 @@
 #!perl -w
-# $Id: chaos_plot.PLS,v 1.2 2003-02-28 04:59:02 heikki Exp $
+# $Id: chaos_plot.PLS,v 1.3 2003-03-26 09:20:02 heikki Exp $
 
 use strict;
 
@@ -129,7 +129,7 @@ The sequence input can be provided using any of the three methods:
 
   chaos_plot < filename
 
-=cut
+=back
 
 =head1 FEEDBACK
 

@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# $Id: process_sgd.PLS,v 1.1 2003-02-24 17:44:04 bosborne Exp $
+# $Id: process_sgd.PLS,v 1.2 2003-03-26 09:20:01 heikki Exp $
 # This script will convert from SGD format to GFF format
 # See http://genome-www4.stanford.edu/Saccharomyces/SGD/doc/db_specifications.html
 
@@ -113,7 +113,7 @@ L<Bio::DB::GFF>, L<bulk_load_gff.pl>, L<load_gff.pl>
 
 =head1 AUTHOR
 
-Lincoln Stein <lstein@cshl.org>.
+Lincoln Stein, lstein@cshl.org
 
 Copyright (c) 2002 Cold Spring Harbor Laboratory
 

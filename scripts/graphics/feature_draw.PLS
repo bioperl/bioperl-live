@@ -355,7 +355,7 @@ L<Bio::Graphics>
 
 =head1 AUTHOR
 
-Lincoln Stein <lstein@cshl.org>
+Lincoln Stein, lstein@cshl.org
 
 =cut
 

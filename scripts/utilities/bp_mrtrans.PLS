@@ -1,42 +1,44 @@
-#!/usr/bin/perl -w
-# $Id: bp_mrtrans.PLS,v 1.2 2003-02-26 14:39:40 jason Exp $
+#!perl
+# $Id: bp_mrtrans.PLS,v 1.3 2003-03-26 09:20:02 heikki Exp $
 use strict;
+use warnings;
 
 # Author:      Jason Stajich <jason@bioperl.org>
-# Description: Perl implementation of Bill Pearson's mrtrans 
+# Description: Perl implementation of Bill Pearson's mrtrans
 #              to project protein alignment back into cDNA coordinates
 #
+
 =head1 NAME
 
 bp_mrtrans - implement a transformer of alignments from protein to mrna coordinates
 
 =head1 SYNOPSIS
 
-Usage: 
+Usage:
   bp_mrtrans -i inputfile -o outputfile [-if input format] [-of output format] [-s cDNA sequence database]  [-sf cDNA sequence format] [-h]
- 
+
 =head1 DESCRIPTION
 
-This script will convert a protein alignment back into a cDNA.  Loosely 
+This script will convert a protein alignment back into a cDNA.  Loosely
 based on Bill Pearson's mrtrans.
 
 The options are:
 
    -o filename          - the output filename [default STDOUT]
-   -of format           - output sequence format 
+   -of format           - output sequence format
                           (multiple sequence alignment)
                           [default phylip]
    -i filename          - the input filename [required]
-   -if format           - input sequence format 
-                          (multiple sequence alignment) 
+   -if format           - input sequence format
+                          (multiple sequence alignment)
                           [ default clustalw]
    -s --seqdb filename  - the cDNA sequence database file
-   -sf --seqformat      - the cDNA seq db format (flatfile sequence format) 
+   -sf --seqformat      - the cDNA seq db format (flatfile sequence format)
    -h                   - this help menu
 
 =head1 AUTHOR
 
-Jason Stajich <jason@bioperl.org>
+Jason Stajich, jason@bioperl.org
 
 =cut
 
@@ -46,7 +48,7 @@ use Bio::AlignIO;
 use Bio::SeqIO;
 use Getopt::Long;
 
-# TODO - finish documentation, 
+# TODO - finish documentation,
 #      - add support for extra options in output alignment formats
 #        such as idnewline in phylip out to support Molphy input files
 
@@ -56,8 +58,8 @@ my ($help,$usage);
 
 $usage = "usage: bp_mrtrans.pl -i prot_alignment -if align_format -o out_dna_align -of output_format -s cDNA_seqdb -sf cDNA_seqdb\n".
 "defaults: -if clustalw
-           -of phylip
-           -sf fasta\n";
+          -of phylip
+          -sf fasta\n";
 
 GetOptions(
 	   'if|iformat:s'  => \$iformat,
@@ -74,10 +76,10 @@ GetOptions(
 $input ||= shift;
 $seqdb ||= shift;
 $output ||= shift;
-if( ! defined $seqdb ) { 
+if( ! defined $seqdb ) {
     die("cannot proceed without a valid seqdb\n$usage");
 }
-if( ! defined $input ) { 
+if( ! defined $input ) {
     die("cannot proceed without an input file\n$usage");
 }
 my $indb = new Bio::SeqIO(-file => $seqdb,
@@ -93,7 +95,7 @@ my $out = new Bio::AlignIO(-format => $oformat,
 			   -idlength => 22,
 			   -interleaved => 0,
 			   defined $output ? (-file   => ">$output") : () );
-			   
+
 while( my $aln = $in->next_aln ) {
     my $dnaaln = aa_to_dna_aln($aln,\%seqs);
     $dnaaln->set_displayname_flat(1);

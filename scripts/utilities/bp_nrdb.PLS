@@ -1,5 +1,5 @@
 #!/usr/bin/perl -w
-# $Id: bp_nrdb.PLS,v 1.2 2003-02-26 11:13:08 jason Exp $
+# $Id: bp_nrdb.PLS,v 1.3 2003-03-26 09:20:02 heikki Exp $
 
 # Author Jason Stajich <jason@bioperl.org>
 # 
@@ -37,7 +37,7 @@ This script will create a unique database of sequences
 
 =head1 AUTHOR
 
-Jason Stajich <jason@bioperl.org>
+Jason Stajich, jason@bioperl.org
 
 =cut
 

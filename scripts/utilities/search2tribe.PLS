@@ -1,5 +1,5 @@
 #!/usr/bin/perl -w
-# $Id: search2tribe.PLS,v 1.2 2003-03-20 14:27:50 jason Exp $
+# $Id: search2tribe.PLS,v 1.3 2003-03-26 09:20:02 heikki Exp $
 
 # Author:      Jason Stajich <jason@bioperl.org>
 # Description: Turn SearchIO parseable report(s) into a TRIBE matrix
@@ -10,9 +10,9 @@ search2tribe - Turn SearchIO parseable reports(s) into TRIBE matrix
 
 =head1 SYNOPSIS
 
-Usage: 
+Usage:
   search2tribe [-o outputfile] [-f reportformat] [-w/--weight] file1 file2 ..
- 
+
 =head1 DESCRIPTION
 
 This script will turn a protein Search report (BLASTP, FASTP, SSEARCH)
@@ -27,14 +27,13 @@ The options are:
                           to VALUE (default=200 (i.e. 1e-200) )
    -h                   - this help menu
 
-   Additionally specify the filenames you want to process on the
+Additionally specify the filenames you want to process on the
 command-line.  If no files are specified then STDIN input is assumed.
-You specify this by doing:
-  search2tribe < file1 file2 file3
+You specify this by doing: search2tribe E<lt> file1 file2 file3
 
 =head1 AUTHOR
 
-Jason Stajich <jason@bioperl.org>
+Jason Stajich, jason@bioperl.org
 
 =cut
 

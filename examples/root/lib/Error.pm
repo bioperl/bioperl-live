@@ -481,7 +481,7 @@ Error - Error/exception handling in an OO-ish way
 	record Error::Simple("A simple error")
 	    and return;
     }
- 
+
     unlink($file) or throw Error::Simple("$file: $!",$!);
 
     try {
@@ -731,14 +731,14 @@ None, but that does not mean there are not any.
 
 =head1 AUTHORS
 
-Graham Barr <gbarr@pobox.com>
+Graham Barr, gbarr@pobox.com
 
 The code that inspired me to write this was originally written by
-Peter Seibel <peter@weblogic.com> and adapted by Jesse Glick
-<jglick@sig.bsh.com>.
+Peter Seibel E<lt>peter@weblogic.comE<gt> and adapted by Jesse Glick
+E<lt>jglick@sig.bsh.comE<gt>.
 
 =head1 MAINTAINER
 
-Arun Kumar U <u_arunkumar@yahoo.com>
+Arun Kumar U, u_arunkumar@yahoo.com
 
 =cut

@@ -1,5 +1,5 @@
 #!perl -w
-# $Id: gccalc.PLS,v 1.1 2003-02-28 05:40:44 heikki Exp $
+# $Id: gccalc.PLS,v 1.2 2003-03-26 09:20:02 heikki Exp $
 
 use strict;
 
@@ -108,7 +108,7 @@ The sequence input can be provided using any of the three methods:
 
   gccalc < filename
 
-=cut
+=back
 
 =head1 FEEDBACK
 

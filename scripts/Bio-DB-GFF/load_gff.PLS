@@ -25,7 +25,7 @@ overwritten.
 This script uses the Bio::DB::GFF interface, and so works with all
 database adaptors currently supported by that module (MySQL, Oracle,
 PostgreSQL soon).  However, it is slow.  For faster loading, see the
-MySQL-specific L<bulk_load_gff.pl> and <fast_load_gff.pl> scripts.
+MySQL-specific L<bulk_load_gff.pl> and L<fast_load_gff.pl> scripts.
 
 NOTE: If no arguments are provided, or the filename is given as "-"
 then the input is taken from standard input. Compressed files (.gz,
@@ -59,7 +59,7 @@ L<Bio::DB::GFF>, L<bulk_load_gff.pl>, L<load_gff.pl>
 
 =head1 AUTHOR
 
-Lincoln Stein <lstein@cshl.org>.
+Lincoln Stein, lstein@cshl.org
 
 Copyright (c) 2002 Cold Spring Harbor Laboratory
 
