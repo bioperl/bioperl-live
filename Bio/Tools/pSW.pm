@@ -170,7 +170,7 @@ sub _initialize {
 
   if( $ext ) {
       $ext =~ /^\d+$/ || $self->throw("Extension penalty must be a number, not [$ext]");
-      $self->gap($gap);
+      $self->ext($ext);
   }
 
   return $make; # success - we hope!
@@ -250,8 +250,8 @@ sub pairwise_alignment{
     # end points = real residue end in 'C' coordinates = residue
     # end in biocoordinates. Oh... the wonder of coordinate systems!
 
-    $end1 = $alctemp->alu(0)->end;
-    $end2 = $alctemp->alu(1)->end;
+    $end1 = $alctemp->alu(0)->end+1;
+    $end2 = $alctemp->alu(1)->end+1;
 
     # get rid of the alnblock 
     $alc = 0;

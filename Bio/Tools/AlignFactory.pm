@@ -57,9 +57,9 @@ BEGIN {
 sub new {
   my($class,@args) = @_;
   my $self = $class->SUPER::new(@args);
-  
+  $self->_initialize(@args);
   # set up defaults
-
+  
   $self->{'kbyte'} = 20000;
   $self->{'report'} = 0;  
   return $self;
