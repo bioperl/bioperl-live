@@ -318,7 +318,8 @@ sub next_result{
                    $self->end_element({ 'Name' => 'Hsp'});
                $self->in_element('hit') && 
                    $self->end_element({ 'Name' => 'Hit'});
-               $self->end_element({ 'Name' => 'Iteration'});
+               $self->within_element('iteration') &&
+		   $self->end_element({ 'Name' => 'Iteration'});
                $self->end_element({ 'Name' => 'BlastOutput'});
                return $self->end_document();
            }
@@ -341,7 +342,8 @@ sub next_result{
                $self->end_element({ 'Name' => 'Hit'});
 
            if( defined $seeniteration ) {
-               $self->end_element({'Name' => 'Iteration'});
+	       $self->within_element('iteration') &&
+		   $self->end_element({ 'Name' => 'Iteration'});               
                $self->_start_iteration;
            } else { 
                $self->_start_iteration;
