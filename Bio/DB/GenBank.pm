@@ -1,4 +1,4 @@
-# test
+# $Id$
 #
 # $Id$
 #
@@ -84,7 +84,7 @@ $MODVERSION = '0.8';
 
 use Bio::DB::RandomAccessI;
 use Bio::SeqIO;
-use IO::Scalar;
+use IO::String;
 use IO::File;
 use Bio::Root::RootI;
 use LWP::UserAgent;
