@@ -79,25 +79,32 @@ sub draw_frame {
                                : ($feature,$feature->start);
   my ($frame,$offset) = frame_and_offset($pos,$strand,$phase);
   ($strand >= 0 ? $x1 : $x2) += $self->pixels_per_base * $offset;
-  my $lh = $self->height / 3;
-  $y1 += $lh * $frame;
+  my $lh;
+  if ($self->translation_type eq '6frame') {
+    $lh = $self->height / 6;
+    $y1 += $lh * $frame;
+    $y1 += $self->height/2 if $strand < 0;
+  } else {
+    $lh = $self->height / 3;
+    $y1 += $lh * $frame;
+  }
+
   $y2 = $y1;
 
   my $protein = $seq->translate(undef,undef,$base_offset)->seq;
   my $color   = $self->color("frame$frame") || $self->fgcolor;
   if ($self->protein_fits) {
-    $self->draw_protein(\$protein,$color,$gd,$x1,$y1,$x2,$y2);
+    $self->draw_protein(\$protein,$strand,$color,$gd,$x1,$y1,$x2,$y2);
   } else {
-    $self->draw_orfs(\$protein,$color,$gd,$x1,$y1,$x2,$y2);
+    $self->draw_orfs(\$protein,$strand,$color,$gd,$x1,$y1,$x2,$y2);
   }
 }
 
 sub draw_protein {
   my $self = shift;
-  my ($protein,$color,$gd,$x1,$y1,$x2,$y2) = @_;
+  my ($protein,$strand,$color,$gd,$x1,$y1,$x2,$y2) = @_;
   my $pixels_per_base = $self->pixels_per_base;
   my $font   = $self->font;
-  my $strand = $self->strand;
 
   my @residues = split '',$$protein;
   for (my $i=0;$i<@residues;$i++) {
@@ -110,11 +117,9 @@ sub draw_protein {
 
 sub draw_orfs {
   my $self     = shift;
-  my ($protein,$color,$gd,$x1,$y1,$x2,$y2) = @_;
+  my ($protein,$strand,$color,$gd,$x1,$y1,$x2,$y2) = @_;
   my $pixels_per_base = $self->pixels_per_base * 3;
   $y1++;
-
-  my $strand   = $self->strand;
 
   my $stops = $self->find_stop_codons($protein);
 

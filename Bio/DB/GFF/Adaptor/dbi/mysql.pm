@@ -249,7 +249,7 @@ sub new {
   my ($dsn,$other) = rearrange([
 				[qw(FEATUREDB DB DSN)],
 			       ],@_);
-  $dsn = "dbi:mysql:$dsn" if !ref($dsn) && $dsn !~ /^(?:dbi|DBI):mysql/;
+  $dsn = "dbi:mysql:$dsn" if !ref($dsn) && $dsn !~ /^(?:dbi|DBI):/;
   my $self = $class->SUPER::new(-dsn=>$dsn,%$other);
   $self;
 }
