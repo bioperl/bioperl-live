@@ -19,7 +19,7 @@ Bio::FeatureHolderI - the base interface an object with features must implement
     use Bio::SeqIO;
     # get a feature-holding object somehow: for example, Bio::SeqI objects
     # have features
-    my $seqio = Bio::SeqIO->new(-fh => \*STDIN, -format => 'genbank);
+    my $seqio = Bio::SeqIO->new(-fh => \*STDIN, -format => 'genbank');
     while (my $seq = $seqio->next_seq()) {
         # $seq is-a Bio::FeatureHolderI, hence:
         my @feas = $seq->get_SeqFeatures();
@@ -69,6 +69,8 @@ Describe contact details here
 
 Additional contributors names and emails here
 
+Steffen Grossmann [SG], grossman-at-molgen.mpg.de
+
 =head1 APPENDIX
 
 The rest of the documentation details each of the object methods.
@@ -78,7 +80,7 @@ Internal methods are usually preceded with a _
 
 
 # Let the code begin...
-#'
+
 
 
 package Bio::FeatureHolderI;
@@ -170,7 +172,14 @@ sub get_all_SeqFeatures{
 	push(@flatarr,$feat);
 	&_add_flattened_SeqFeatures(\@flatarr,$feat,@_);
     }
-    return @flatarr;
+
+    # needed to deal with subfeatures which appear more than once in the hierarchy [SG]
+    my %seen = ();
+    my @uniq_flatarr = ();
+    foreach my $feat (@flatarr) {
+	push(@uniq_flatarr, $feat) unless $seen{$feat}++;
+    }
+    return @uniq_flatarr;
 }
 
 sub _add_flattened_SeqFeatures {
