@@ -21,8 +21,11 @@ o About Bioperl
  are needed for some aspects of bioperl
 
  bioperl-ext - available from ftp://bio.perl.org/pub/DIST
- LWP         - available from CPAN
- Aceperl     - available from http://stein.cshl.org/AcePerl
+ LWP::       - available from CPAN
+ AcePerl     - available from http://stein.cshl.org/AcePerl
+
+ For more information on third party extentions and
+ dependencies please see http://bio.perl.org/Core/external.shtml
 
 
 o Contact info
