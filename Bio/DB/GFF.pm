@@ -1,5 +1,4 @@
 # $Id$
-
 =head1 NAME
 
 Bio::DB::GFF -- Storage and retrieval of sequence annotation data
@@ -3296,41 +3295,34 @@ sub _split_gff2_group {
   }
 
   # group assignment
-  if ( @attributes && !($gclass && $gname)) {
-    last if $gclass && $gname;    
-    for my $att ( @attributes ) {
-      my ($k, $v) = @$att;
-      # give acedb-style GFF first crack at it
-      if ( $k =~ /Sequence|Transcript/ && !$gclass) {
-        ($gclass, $gname) = ($k, $v);
-      }
-
-      # otherwise look for the preferred groups
-      elsif (ref($self)) {
-        for ($self->preferred_groups) {
-	  if (uc $k eq uc $_) {
-	    ($gclass, $gname) = ($k, $v);
-	    last;
-          }
-        }
+  if ( @attributes && !($gclass && $gname) ) {
+    my @preferred = $self->preferred_groups if ref($self);
+ 
+    # give acedb-style GFF first crack at group assignment
+    unshift @preferred, qw/Sequence Transcript/;
+ 
+    # Look for a preferred group (in order)
+    unless ($gclass && $gname) {
+      for my $pgrp ( @preferred ) {
+        my ($grp) = grep { $_->[0] =~ /^$pgrp$/i } @attributes;
+	if ( $grp ) {
+	  ($gclass, $gname) = @$grp;
+	  @attributes = grep { $_ ne $grp } @attributes;
+	  last;
+	}
       }
     }
-
-    # use the first tag/value if no group is assigned
-    unless ($gclass && $gname) {
+ 
+    # Otherwise, use the first attribute
+    unless ( $gclass && $gname ) {
       my $grp = shift @attributes;
       ($gclass, $gname) = @$grp;
     }
   }
+ 
+  push @attributes, @notes;
 
-  my @atts;
-  for ( @attributes ) {
-    next if $_->[0] eq $gclass && $_->[1] eq $gname;
-    push @atts, $_;
-  }
-  push @atts, @notes;  
-
-  return ($gclass,$gname,$tstart,$tstop,\@atts);
+  return ($gclass,$gname,$tstart,$tstop,\@attributes);
 }
 
 =head2 _split_gff3_group
