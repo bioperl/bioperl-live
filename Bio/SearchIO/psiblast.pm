@@ -276,7 +276,7 @@ sub new {
 
   $self->pause_between_reports( 1 );
 
-  $self->{'_report_count'} = 0;
+  $self->{'_result_count'} = 0;
 
   return $self;
 }
@@ -663,7 +663,7 @@ sub _process_header {
 #    print STDERR "Processing Header...\n";
 
     $current_iteration = 0;
-    $self->{'_report_count'}++;
+    $self->{'_result_count'}++;
     # Finish off the current Blast object, if any
     my $blast = $self->{'_current_blast'} = $self->result_factory->create_result();
 
@@ -1127,10 +1127,9 @@ sub pause_between_reports {
     $self->{'_pause_between_reports'};
 }
 
-# The number of reports that have been parsed.
-sub report_count {
+sub result_count {
     my $self = shift;
-    return $self->{'_report_count'};
+    return $self->{'_result_count'};
 }
 
 sub next_result {

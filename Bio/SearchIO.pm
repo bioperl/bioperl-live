@@ -387,6 +387,24 @@ sub result_factory {
     return $self->{'_result_factory'};
 }
 
+
+=head2 result_count
+
+ Title   : result_count
+ Usage   : $num = $stream->result_count;
+ Function: Gets the number of Blast results that have been parsed.
+ Returns : integer
+ Args    : none
+ Throws  : none
+
+=cut
+
+sub result_count {
+    my $self = shift;
+    $self->throw_not_implemented;
+}
+
+
 =head2 default_hit_factory_class
 
  Title   : default_hit_factory_class

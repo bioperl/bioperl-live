@@ -264,6 +264,7 @@ sub next_result {
 
     eval { 
 	$result = $self->{'_xmlparser'}->parse(%parser_args);
+        $self->{'_result_count'}++;
     };
     if( $@ ) {
 	$self->warn("error in parsing a report:\n $@");
@@ -425,6 +426,11 @@ sub use_tempfile{
       $self->{'_use_tempfile'} = $value;
     }
     return $self->{'_use_tempfile'};
+}
+
+sub result_count {
+    my $self = shift;
+    return $self->{'_result_count'};
 }
 
 1;

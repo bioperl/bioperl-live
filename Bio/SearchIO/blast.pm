@@ -226,6 +226,7 @@ sub next_result{
 	       $self->end_element({ 'Name' => 'BlastOutput'});
 	       return $self->end_document();
 	   }
+           $self->{'_result_count'}++;
 	   $self->start_element({ 'Name' => 'BlastOutput' } );
 	   $seentop = 1;
 	   $reporttype = $1;
@@ -826,5 +827,9 @@ sub write_result {
    $self->SUPER::write_result( $blast, @args );
 }
 
+sub result_count {
+    my $self = shift;
+    return $self->{'_result_count'};
+}
 
 1;
