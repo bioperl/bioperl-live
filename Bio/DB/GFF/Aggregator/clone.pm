@@ -15,7 +15,7 @@ Bio::DB::GFF::Aggregator::clone -- Clone aggregator
  ----------------------------------------------------------------------------
  Aggregator method: clone
  Main method:       -none-
- Sub methods:       Clone_left_end Clone_right_end Sequence:Genomic_canonical
+ Sub methods:       Clone_left_end Clone_right_end region:Genomic_canonical
  ----------------------------------------------------------------------------
 
 =head1 DESCRIPTION
@@ -23,7 +23,7 @@ Bio::DB::GFF::Aggregator::clone -- Clone aggregator
 Bio::DB::GFF::Aggregator::clone is one of the default aggregators, and
 was written to be compatible with the C elegans GFF files.  It
 aggregates raw "Clone_left_end", "Clone_right_end", and
-"Sequence:Genomic_canonical" features into composite features of type
+"region:Genomic_canonical" features into composite features of type
 "clone".
 
 =cut
@@ -71,7 +71,7 @@ sub aggregate {
 
     if ($feature->group && $matchsub->($feature)) {
 
-      if ($feature->method eq 'Sequence' && $feature->source eq 'Genomic_canonical') {
+      if ($feature->method eq 'region' && $feature->source eq 'Genomic_canonical') {
 	$clones{$feature->group}{canonical} = $feature;
       } elsif ($feature->method eq 'Clone_left_end') {
 	$clones{$feature->group}{left} = $feature;
@@ -125,7 +125,7 @@ sub method { 'clone' }
  Title   : part_names
  Usage   : $aggregator->part_names
  Function: return the methods for the sub-parts
- Returns : the list ("Clone_left_end", "Clone_right_end", "Sequence:Genomic_canonical")
+ Returns : the list ("Clone_left_end", "Clone_right_end", "region:Genomic_canonical")
  Args    : none
  Status  : Public
 
@@ -133,7 +133,7 @@ sub method { 'clone' }
 
 sub part_names {
   my $self = shift;
-  return qw(Clone_left_end Clone_right_end Sequence:Genomic_canonical);
+  return qw(Clone_left_end Clone_right_end region:Genomic_canonical);
 }
 
 1;

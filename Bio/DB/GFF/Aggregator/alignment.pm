@@ -15,7 +15,8 @@ Bio::DB::GFF::Aggregator::alignment -- Alignment aggregator
  -----------------------------
  Aggregator method: alignment
  Main method:       (none)
- Sub methods:       similarity, HSP
+ Sub methods:       nucleotide_match,EST_match,cDNA_match,expressed_sequence_match,
+                    translated_nucleotide_match,protein_match,HSP
  -----------------------------
 
 =head1 DESCRIPTION
@@ -122,7 +123,7 @@ sub method { 'alignment' }
  Title   : part_names
  Usage   : $aggregator->part_names
  Function: return the methods for the sub-parts
- Returns : the list ("similarity","HSP")
+ Returns : the full list of aggregated methods
  Args    : none
  Status  : Public
 
@@ -130,7 +131,10 @@ sub method { 'alignment' }
 
 sub part_names {
   my $self = shift;
-  return qw(similarity HSP);
+ return qw(nucleotide_match EST_match cDNA_match
+	   expressed_sequence_match
+	   translated_nucleotide_match
+	   protein_match HSP);
 }
 
 1;
