@@ -167,7 +167,7 @@ BEGIN {
 		 'Statistics_entropy'   => { 'stat' => 'entropy'},
 		 );
     eval {  require Time::HiRes };	
-    if( $@ ) { $DEBUG = -1; }
+    if( $@ ) { $DEBUG = 0; }
 }
 
 
@@ -260,7 +260,7 @@ sub next_result {
     }
     my $result;
     my $starttime;
-    if( $DEBUG ) {  $starttime = [ Time::HiRes::gettimeofday() ]; }
+    if(  $DEBUG ) {  $starttime = [ Time::HiRes::gettimeofday() ]; }
 
     eval { 
 	$result = $self->{'_xmlparser'}->parse(%parser_args);
