@@ -1017,12 +1017,12 @@ sub _read_FTHelper_GenBank {
         # Read all the lines up to the next feature
         while ( defined($_ = $self->_readline) ) {
             if (/^(\s+)(.+?)\s*$/o) {
-                # Lines inside features are preceeded by 21 spaces
-                # A new feature is preceeded by 5 spaces
+                # Lines inside features are preceded by 21 spaces
+                # A new feature is preceded by 5 spaces
                 if (length($1) > 6) {
                     # Add to qualifiers if we're in the qualifiers, or if it's
 		    # the first qualifier
-                    if (($#qual >= 0) || (substr($2, 0, 1) eq '/')) {
+                    if (@qual || (index($2,'/') == 0)) {
                         push(@qual, $2);
                     }
                     # We're still in the location line, so append to location
@@ -1074,34 +1074,22 @@ sub _read_FTHelper_GenBank {
                 # and the quotes are balanced
                 while ($value !~ /\"$/ or $value =~ tr/"/"/ % 2) {
 		    if($i >= $#qual) {
-			# We haven't found the closing douple quote ...
-			# Even though this should be considered as a malformed
-			# entry, we allow for a single exception, namely if the
-			# value ends exactly at the last char position of a
-			# GenBank line.
-			# At least 78 chars required, of which 21 are spaces
-			#Currently disabled, let's wait for an actual sequence
-			#entry that really requires this.
-			#if(length($qual[$i]) >= 57) {
-			#    $self->warn("unbalanced quotes in feature $key ".
-			#		"(location: $loc), ".
-			#		"qualifier $qualifier, ".
-			#		"accepting though");
-			#    last;
-			#} else {
-			    $self->warn("Unbalanced quote in:\n" .
-					join('', map("$_\n", @qual)) .
-					"No further qualifiers will " .
-					"be added for this feature");
-			    last QUAL;
-			#}
+		       $self->warn("Unbalanced quote in:\n" .
+				   join('', map("$_\n", @qual)) .
+				   "No further qualifiers will " .
+				   "be added for this feature");
+		       last QUAL;
                     }
                     $i++; # modifying a for-loop variable inside of the loop
 		          # is not the best programming style ...
                     my $next = $qual[$i];
 
-                    # Join to value with space if value or next line contains a space
-                    $value .= (grep /\s/, ($value, $next)) ? " $next" : $next;
+                    # add to value with a space unless the value appears
+		    # to be a sequence (translation for example)
+		    if(($value.$next) =~ /[^A-Za-z"-]/) {
+			$value .= " ";
+		    }
+                    $value .= $next;
                 }
                 # Trim leading and trailing quotes
                 $value =~ s/^"|"$//g;
@@ -1177,14 +1165,25 @@ sub _write_line_GenBank_regex {
    }
 
    my $subl = $length - (length $pre1) - 2;
-   my @lines;
+   my @lines = ();
 
-   while($line =~ m/(.{1,$subl})($regex)/g) {
-       # be strict about not padding spaces according to 
-       # genbank format
-       my $l = $1.$2;
-       $l =~ s/\s+$//;
-       push(@lines, $l);
+   CHUNK: while($line) {
+       foreach my $pat ($regex, '[,;\.\/-]\s|'.$regex, '[,;\.\/-]|'.$regex) {
+	   if($line =~ m/^(.{1,$subl})($pat)(.*)/) {
+	       $line = $3;
+	       # be strict about not padding spaces according to 
+	       # genbank format
+	       my $l = $1.$2;
+	       $l =~ s/\s+$//;
+	       push(@lines, $l);
+	       next CHUNK;
+	   }
+       }
+       # if we get here none of the patterns matched $subl or less chars
+       $self->warn("trouble dissecting \"$line\" into chunks ".
+		   "of $subl chars or less - this tag won't print right");
+       # insert a space char to prevent infinite loops
+       $line = substr($line,0,$subl) . " " . substr($line,$subl);
    }
    
    my $s = shift @lines;

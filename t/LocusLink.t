@@ -10,7 +10,7 @@ BEGIN {
 }
 
 END {
-    #unlink("locuslink-test.out.embl");
+    unlink("locuslink-test.out.embl");
 }
 
 use Bio::SeqIO;
