@@ -41,7 +41,7 @@ ok $matrix->curpos,0;
 
 ok $matrix->get_string('A'),$A;
 
-my %x= (base=>'A',pA=>1,pC=>0,pG=>0,pT=>0,prob=>10,rel=>0);
+my %x= (base=>'A',pA=>1,pC=>0,pG=>0,pT=>0,prob=>10,rel=>0, lA=>undef,lC=>undef,lG=>undef,lT=>undef);
 ok $matrix->next_pos, %x;
 
 ok $matrix->curpos,1;
