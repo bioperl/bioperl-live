@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 # -*-Perl-*- 
-# $Id: composite_LD.PLS,v 1.7 2003-11-11 02:41:29 jason Exp $
+# $Id: composite_LD.PLS,v 1.8 2003-11-13 00:32:09 jason Exp $
 
 =head1 NAME 
 
@@ -91,7 +91,7 @@ foreach my $site1 ( sort keys %LD_matrix ) {
 	if( $sortbyld ) {
 	    push @sites, [ $site1,$site2,@$LD];
 	} else { 
-	    print $out "$site1,$site2 - $LD\n";
+	    printf $out "%s,%s - LD=%.4f chisq=%.4f\n",$site1,$site2,@$LD;
 	}
     }
 }
