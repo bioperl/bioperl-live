@@ -24,9 +24,8 @@ use Bio::Root::Object  ();
 @ISA        = qw( Bio::Root::Object );
 
 use strict;
-use vars qw($ID $VERSION %SUMMARY_OFFSET $Revision);
+use vars qw($ID %SUMMARY_OFFSET $Revision);
 $ID = 'Bio::Tools::Blast::Sbjct';
-$VERSION = 0.091;
 $Revision = '$Id$';  #'
 
 my $_prog       = '';
@@ -208,13 +207,9 @@ Steve A. Chervitz, sac@genome.stanford.edu
 
 See the L<FEEDBACK> section for where to send bug reports and comments.
 
-=head1 VERSION
-
-Bio::Tools::Blast::Sbjct.pm, 0.091
-
 =head1 COPYRIGHT
 
-Copyright (c) 1996-98 Steve A. Chervitz. All Rights Reserved.
+Copyright (c) 1996-2000 Steve A. Chervitz. All Rights Reserved.
 This module is free software; you can redistribute it and/or 
 modify it under the same terms as Perl itself.
 
