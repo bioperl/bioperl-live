@@ -948,12 +948,24 @@ sub taste_file {
   ref($FH) eq 'FileHandle' or $self->throw("Can't taste file: not a FileHandle ref");
 
   $buffer = '';
+
+  # this is a quick hack to check for availability of alarm(); just copied
+  # from Bio/Root/IOManager.pm HL 02/19/01
+  my $alarm_available = 1;
+  eval {
+      alarm(0);
+  };
+  if($@) {
+      # alarm() not available (ActiveState perl for win32 doesn't have it.
+      # See jitterbug PR#98)
+      $alarm_available = 0;
+  }
   $SIG{ALRM} = sub { die "Timed out!"; };
   my $result;
   eval {
-    alarm( $wait );
+    $alarm_available && alarm( $wait );
     $result = read($FH, $buffer, $BUFSIZ); # read the $BUFSIZ characters of file
-    alarm(0);
+    $alarm_available && alarm(0);
   };
   if($@ =~ /Timed out!/) {
     $self->throw("Timed out while waiting for input.", 
