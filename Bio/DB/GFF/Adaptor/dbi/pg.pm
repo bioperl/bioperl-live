@@ -6,7 +6,25 @@ Bio::DB::GFF::Adaptor::dbi::pg -- Database adaptor for a specific postgres schem
 
 =head1 SYNOPSIS
 
-See L<Bio::DB::GFF>
+SQL commands that need to be executed before this adaptor will work:
+
+CREATE DATABASE <dbname>;
+
+If the bulk loader is not used, then select permission needs to be 
+granted for each table in the database to the owner of the httpd
+process (usually 'nobody', but for some RedHat systems it is 
+'apache'):
+
+CREATE USER nobody;
+GRANT SELECT ON TABLE fmeta                 TO nobody;
+GRANT SELECT ON TABLE fgroup                TO nobody;
+GRANT SELECT ON TABLE fdata                 TO nobody;
+GRANT SELECT ON TABLE fattribute_to_feature TO nobody;
+GRANT SELECT ON TABLE fdna                  TO nobody;
+GRANT SELECT ON TABLE fattribute            TO nobody;
+GRANT SELECT ON TABLE ftype                 TO nobody;
+
+See also L<Bio::DB::GFF>
 
 =cut
 
