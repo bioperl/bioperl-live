@@ -204,9 +204,10 @@ sub next_result{
        } elsif( s/^Description:\s+//o ) {
 	   s/\s+$//;
 	   $self->element({'Name' => 'HMMER_querydesc',
-			   'Data' => $_});
+			   'Data' => $_});	   
        } elsif(  defined $self->{'_reporttype'} &&
 		 $self->{'_reporttype'} eq 'HMMSEARCH' ) {
+	   # PROCESS HMMSEARCH RESULTS HERE
 	   if( /^Scores for complete sequences/o ) {
 	       while( defined($_ = $self->_readline) ) {
 		   last if( /^\s+$/);
@@ -248,24 +249,27 @@ sub next_result{
 		       if( $self->in_element('hsp')) {
 			   $self->end_element({'Name' => 'Hsp'});
 		       }
-		       $self->end_element({'Name' => 'Hit'});
+		       if( $self->within_element('hit')) {
+			   $self->end_element({'Name' => 'Hit'});
+		       }
 		       last;
 		   }
+
 		   chomp;
+
 		   if( /^\s*(\S+):\s+domain\s+(\d+)\s+of\s+(\d+)\,\s+from\s+(\d+)\s+to\s+(\d+)/o ) {
 		       my ($name,$domainct,$domaintotal,
 			   $from,$to) = ($1,$2,$3,$4,$5);
 		       $domaincounter{$name}++;		       
-
 		       if( ! defined $lastdomain || $lastdomain ne $name ) {
-			   if( $self->in_element('hit') ) {
-			       $self->end_element({'Name' => 'Hsp'});
+			   if( $self->within_element('hit') ) {
+			       if( $self->in_element('hsp') ) {
+				   $self->end_element({'Name' => 'Hsp'});
+			       }
 			       $self->end_element({'Name' => 'Hit'});
 			   }
 			   $self->start_element({'Name' => 'Hit'});
-			   
-			   my $info = $hitinfo{$name};
-
+			   my $info = $hitinfo[$hitinfo{$name}];
 			   if( $info->[0] ne $name ) { 
 			       $self->throw("Somehow the Model table order does not match the order in the domains (got ".$info->[0].", expected $name)"); 
 			   }
@@ -291,25 +295,22 @@ sub next_result{
 		       if( $id ne $name ) { 
 			   $self->throw("Somehow the domain list details do not match the table (got $id, expected $name)");
 		       }
-		       
 		       if( $domaincounter{$name} == $domainct) {
 			   $hitinfo[$hitinfo{$name}] = undef;
 		       }
 
-
-		       $self->element({'Name' => 'Hsp_query-from',
-				       'Data' => shift @$HSPinfo});
-		       $self->element({'Name' => 'Hsp_query-to',
-				       'Data' => shift @$HSPinfo});
 		       $self->element({'Name' => 'Hsp_hit-from',
 				       'Data' => shift @$HSPinfo});
 		       $self->element({'Name' => 'Hsp_hit-to',
+				       'Data' => shift @$HSPinfo});
+		       $self->element({'Name' => 'Hsp_query-from',
+				       'Data' => shift @$HSPinfo});
+		       $self->element({'Name' => 'Hsp_query-to',
 				       'Data' => shift @$HSPinfo});
 		       $self->element({'Name' => 'Hsp_score',
 				       'Data' => shift @$HSPinfo});
 		       $self->element({'Name' => 'Hsp_evalue',
 				       'Data' => shift @$HSPinfo});
-
 		       $lastdomain = $name;
 		   } else { 
 		       if( /^(\s+\*\-\>)(\S+)/o  || # start
@@ -323,8 +324,9 @@ sub next_result{
 		       } elsif( CORE::length($_) == 0 || /^\s+$/o ) { 
 			   next;
 		       } elsif( $count == 0 ) {
-			   if( ! defined $prelength) { 
-			       $self->warn("prelength not set"); 
+			   unless( defined $prelength) { 
+			       # $self->warn("prelength not set"); 
+			       next;
 			   }
 			   $self->element({'Name' => 'Hsp_hseq',
 					   'Data' => substr($_,$prelength)});
@@ -419,7 +421,7 @@ sub next_result{
 	       while( defined($_ = $self->_readline) ) {
 		   next if( /^Align/o );
 		   if( /^Histogram/o || m!^//!o ) { 
-		       if( $self->in_element('hsp')) {
+		       if( $self->within_element('hsp')) {
 			   $self->end_element({'Name' => 'Hsp'});
 		       }
 		       $self->end_element({'Name' => 'Hit'});
@@ -429,7 +431,7 @@ sub next_result{
 		   if( /^\s*(\S+):.*from\s+(\d+)\s+to\s+(\d+)/o ) {
 		       my ($name,$from,$to) = ($1,$2,$3);
 		       if( ! defined $lastdomain || $lastdomain ne $name ) {
-			   if( $self->in_element('hit') ) {
+			   if( $self->within_element('hit') ) {
 			       $self->end_element({'Name' => 'Hsp'});
 			       $self->end_element({'Name' => 'Hit'});
 			   }
@@ -517,7 +519,7 @@ sub next_result{
        }
        $last = $_;
    }
-   
+
    $self->end_element({'Name' => 'HMMER_Output'}) unless ! $seentop;
    return $self->end_document();
 }
@@ -589,8 +591,7 @@ sub end_element {
 	    $rc = $self->_eventHandler->$func($self->{'_reporttype'},
 					      $self->{'_values'});	    
 	}
-	shift @{$self->{'_elements'}};
-
+	my $lastelem = shift @{$self->{'_elements'}};
     } elsif( $MAPPING{$nm} ) { 	
 	if ( ref($MAPPING{$nm}) =~ /hash/i ) {
 	    my $key = (keys %{$MAPPING{$nm}})[0];	    
@@ -664,13 +665,11 @@ sub characters{
 
 sub within_element{
    my ($self,$name) = @_;  
-   return 0 if ( ! defined $name &&
+   return 0 if ( ! defined $name ||
 		 ! defined  $self->{'_elements'} ||
 		 scalar @{$self->{'_elements'}} == 0) ;
    foreach (  @{$self->{'_elements'}} ) {
-       if( $_ eq $name  ) {
-	   return 1;
-       } 
+       return 1 if( $_ eq $name  );
    }
    return 0;
 }
@@ -690,7 +689,7 @@ sub within_element{
 =cut
 
 sub in_element{
-   my ($self,$name) = @_;  
+   my ($self,$name) = @_; 
    return 0 if ! defined $self->{'_elements'}->[0];
    return ( $self->{'_elements'}->[0] eq $name)
 }
