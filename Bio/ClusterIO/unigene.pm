@@ -24,10 +24,9 @@ Do not use this module directly.  Use it via the Bio::ClusterIO class.
 
 =head1 DESCRIPTION
 
-This object reads from Unigene *.data files downloaded from ftp://ncbi.nlm.nih.gov/repository/UniGene/.
+This object reads from Unigene *.data files downloaded from ftp://ftp.ncbi.nih.gov/repository/UniGene/.
 It doesn't download and decompress the file, you have to do that yourself.
 
-This module requires that you have the Parse::RecDescent module.
 
 =head1 FEEDBACK
 
@@ -69,145 +68,8 @@ use vars qw(@ISA);
 use strict;
 
 use Bio::ClusterIO;
-use Parse::RecDescent;
-
-#$::RD_TRACE = 1;
-$::RD_WARN = 1;
-$::RD_HINT = 1;
 
 @ISA = qw(Bio::ClusterIO);
-
-
-# this is the guts of it, the grammar to parse the unigene records
-my $grammar = <<'EOGRAMMAR';
-
-{
-my $unigene_id;
-my @sequence;
-my @chromosome;
-my @sts;
-my @txmap;
-my @protsim;
-}
-
-record: <rulevar: local $UGobj = $arg[0]>
-
-record			:	id
-					title
-					gene(?)
-					cytoband(?)
-					mgi(?)
-					locuslink(?)
-					express(?)
-					gnm_terminus(?)
-					chromosome(s?)
-					sts(s?)
-					txmap(s?)
-					protsim(s?)
-					scount
-					sequence(s)
-					delimiter
-														{
-															
-															$UGobj->unigene_id($item{id});
-															$UGobj->title($item{title});
-															if (defined $item{gene}->[0]) { $UGobj->gene($item{gene}->[0]) };
-															if (defined $item{cytoband}->[0]) { $UGobj->cytoband($item{cytoband}->[0]) };
-															if (defined $item{locuslink}->[0]) { $UGobj->locuslink($item{locuslink}->[0]) };
-															if (defined $item{gnm_terminus}->[0]) { $UGobj->gnm_terminus($item{gnm_terminus}->[0]) };
-															$UGobj->scount($item{scount});
-															$UGobj->chromosome(\@chromosome);
-															$UGobj->sts(\@sts);
-															$UGobj->txmap(\@txmap);
-															$UGobj->protsim(\@protsim);
-															$UGobj->sequence(\@sequence);
-														}
-					| <error>
-					
-		
-
-
-id				:	'ID' organism '.' unigene_no		{
-															$unigene_id = "$item{organism}.$item{unigene_no}";
-															$return = "$item{organism}.$item{unigene_no}";
-														}
-
-title			:	'TITLE' /.+/
-
-gene			:	'GENE' /.+/
-
-cytoband		:	'CYTOBAND' /.+/
-
-mgi				:	'MGI' /.+/ 
-
-express			:	'EXPRESS' /.+/						{
-															$item[2] =~ s/^;//;
-															my @express = split /;/ , $item[2];
-															$UGobj->express(\@express);
-														}
-
-gnm_terminus	:	'GNM_TERMINUS' /.+/ 
-
-locuslink		:	'LOCUSLINK' /[0-9]+/
-
-chromosome		:	'CHROMOSOME' /[0-9XY|Un]+/			{ push @chromosome, $item[2]; }
-
-sts				:	'STS' /.+/							{ push @sts, $item[2]; }
-
-txmap			:	'TXMAP'	/.+/						{ push @txmap, $item[2]; }
-
-protsim			:	'PROTSIM' /.+/						{ push @protsim, $item[2]; }
-
-scount			:	'SCOUNT' /[0-9]+/
-
-sequence		:	'SEQUENCE'
-					acc(?)
-					nid(?)
-					pid(?)
-					clone(?)
-					end(?)
-					lid(?)
-					mgc(?)					{ 
-												my $seq = {};
-												$seq->{unigene_id} = $unigene_id;
-												$seq->{acc} = $item{acc}->[0] if defined $item{acc}->[0];
-												$seq->{nid} = $item{nid}->[0] if defined $item{nid}->[0];
-												$seq->{pid} = $item{pid}->[0] if defined $item{pid}->[0];
-												$seq->{clone} = $item{clone}->[0] if defined $item{clone}->[0];
-												$seq->{end} = $item{end}->[0] if defined $item{end}->[0];
-												$seq->{lid} = $item{lid}->[0] if defined $item{lid}->[0];
-												$seq->{mgc} = $item{mgc}->[0] if defined $item{mgc}->[0];
-												push @sequence, $seq;
-											}			
-
-
-organism		:	/At|Bt|Dr|Hs|Hv|Mm|Os|Rn|Ta|Xl|Zm/
-
-unigene_no		:	/[0-9]+/
-
-acc				:	'ACC=' /\w+/ seq_delimiter(s?)		{ $return =  $item[2] }
-
-nid				:	'NID=' /\w+/ seq_delimiter(s?)		{ $return =  $item[2] }
-
-pid				:	'PID=' /\w+/ seq_delimiter(s?)		{ $return =  $item[2] }
-
-clone			:	'CLONE=' /[^;\n]+/ seq_delimiter(s?)	{ $return =  $item[2] }
-
-end				:	'END=' /5'|3'/ seq_delimiter(s?)		{ $return =  $item[2] }
-
-lid				:	'LID=' /\w+/ seq_delimiter(s?)		{ $return =  $item[2] }
-
-mgc				:	'MGC=' /\w+/ seq_delimiter(s?)		{ $return =  $item[2] }
-
-
-
-seq_delimiter 	:	';'
-
-delimiter		:	/\/\/\Z/
-EOGRAMMAR
-
-
-my $parser = new Parse::RecDescent ($grammar);
 
 =head2 next_cluster
 
@@ -225,8 +87,140 @@ sub next_cluster {
 	return unless my $entry = $self->_readline;
 	
 	my $UGobj = Bio::Cluster::UniGene->new();
-	$parser->record($entry,1,$UGobj);
-	
+
+# set up the variables we'll need
+my (%unigene,@express,@locuslink,@chromosome,@sts,@txmap,@protsim,@sequence);
+
+# set up the regexes
+my $data = qr/(?:.+)/;
+my $num  = qr/(?:\d+)/;
+my $organism = qr/(?:At|Bt|Dr|Hs|Hv|Mm|Os|Rn|Ta|Xl|Zm)/;
+
+my %line_is = (
+			ID				=> 	qr/ID ($organism\.$num)/,
+			TITLE			=>	qr/TITLE ($data)/,
+			GENE			=>	qr/GENE ($data)/,
+			CYTOBAND		=>	qr/CYTOBAND ($data)/,
+			MGI				=>	qr/MGI ($data)/,
+			LOCUSLINK		=>	qr/LOCUSLINK ($data)/,
+			EXPRESS			=>	qr/EXPRESS ($data)/,
+			GNM_TERMINUS	=>	qr/GNM_TERMINUS ($data)/,
+			CHROMOSOME		=>	qr/CHROMOSOME ($data)/,
+			STS				=>	qr/STS ($data)/,
+			TXMAP			=>	qr/TXMAP ($data)/,
+			PROTSIM			=>	qr/PROTSIM ($data)/,
+			SCOUNT			=>	qr/SCOUNT ($num)/,
+			SEQUENCE		=>	qr/SEQUENCE ($data)/,
+			ACC				=>	qr/ACC=($data)/,
+			NID				=>	qr/NID=($data)/,
+			PID				=>	qr/PID=($data)/,
+			CLONE			=>	qr/CLONE=($data)/,
+			END				=>	qr/END=($data)/,
+			LID				=>	qr/LID=($data)/,
+			MGC				=>	qr/MGC=($data)/,
+			DELIMITER		=>	qr/^\/\//
+);
+
+
+foreach (values %line_is) {
+	$_ =~ s/\s+/\\s+/g;
+	$_ = qr/$_/x;
+}
+
+
+
+# run each line in an entry against the regexes
+	foreach my $line (split /\n/, $entry) {
+		if ($line =~ /$line_is{ID}/gcx) {
+				$unigene{ID} = $1;
+		}
+		elsif ($line =~ /$line_is{TITLE}/gcx) {
+				$unigene{TITLE} = $1;
+		}
+		elsif ($line =~ /$line_is{GENE}/gcx) {
+				$unigene{GENE} = $1;
+		}
+		elsif ($line =~ /$line_is{CYTOBAND}/gcx) {
+				$unigene{CYTOBAND} = $1;
+		}
+		elsif ($line =~ /$line_is{MGI}/gcx) {
+				$unigene{MGI} = $1;
+		}
+		elsif ($line =~ /$line_is{LOCUSLINK}/gcx) {
+				@locuslink = split /;/, $1;
+		}
+		elsif ($line =~ /$line_is{EXPRESS}/gcx) {
+				my $express = $1;
+				$express =~ s/^;//;	# remove initial semicolon if present
+				@express = split /;/, $express;
+		}
+		elsif ($line =~ /$line_is{GNM_TERMINUS}/gcx) {
+				$unigene{GNM_TERMINUS} = $1;
+		}
+		elsif ($line =~ /$line_is{CHROMOSOME}/gcx) {
+				push @chromosome, $1;
+		}
+		elsif ($line =~ /$line_is{TXMAP}/gcx) {
+				push @txmap, $1;
+		}
+		elsif ($line =~ /$line_is{STS}/gcx) {
+				push @sts, $1;
+		}
+		elsif ($line =~ /$line_is{PROTSIM}/gcx) {
+				push @protsim, $1;
+		}
+		elsif ($line =~ /$line_is{SCOUNT}/gcx) {
+				$unigene{SCOUNT} = $1;
+		}
+		elsif ($line =~ /$line_is{SEQUENCE}/gcx) {		# parse into each sequence line
+				my $seq = {};
+				$seq->{unigene_id} = $unigene{ID}; # add unigene id to each seq
+				my @items = split /;/,$1;
+				foreach (@items) {
+					if (/$line_is{ACC}/gcx) {
+						$seq->{acc} = $1;
+					}
+					elsif (/$line_is{NID}/gcx) {
+						$seq->{nid} = $1;
+					}
+					elsif (/$line_is{PID}/gcx) {
+						$seq->{pid} = $1;
+					}
+					elsif (/$line_is{CLONE}/gcx) {
+						$seq->{clone} = $1;
+					}
+					elsif (/$line_is{END}/gcx) {
+						$seq->{end} = $1;
+					}
+					elsif (/$line_is{LID}/gcx) {
+						$seq->{lid} = $1;
+					}
+					elsif (/$line_is{MGC}/gcx) {
+						$seq->{mgc} = $1;
+					}
+				}
+				push @sequence, $seq;			
+		}
+		elsif ($line =~ /$line_is{DELIMITER}/gcx) {		# at the end of the record, add data to the object
+					$UGobj->unigene_id($unigene{ID});
+					$UGobj->title($unigene{TITLE});
+					if ( defined ($unigene{GENE}) ) { $UGobj->gene($unigene{GENE}) };
+					if ( defined ($unigene{CYTOBAND}) ) { $UGobj->cytoband($unigene{CYTOBAND}) };
+					if ( defined ($unigene{MGI}) ) { $UGobj->mgi($unigene{MGI}) };
+					$UGobj->locuslink(\@locuslink);
+					$UGobj->express(\@express);
+					if ( defined ($unigene{GNM_TERMINUS}) ) { $UGobj->gnm_terminus($unigene{GNM_TERMINUS}) };
+					$UGobj->chromosome(\@chromosome);
+					$UGobj->sts(\@sts);
+					$UGobj->txmap(\@txmap);
+					$UGobj->protsim(\@protsim);
+					$UGobj->scount($unigene{SCOUNT});
+					$UGobj->sequence(\@sequence);
+					
+					
+					
+		}
+	}
 	return $UGobj;
 }
 
