@@ -24,8 +24,9 @@ SimpleAnalysis implementations
 This class is a generic implementation of SimpleAnalysisI and should
 be used as a base class for specific implementations.
 
-SimpleAnalysis predictions just need to provide a specific run()
-result() and _init() methods.
+SimpleAnalysis implementing modules just need to provide a specific _run()
+result() and _init() methods, plus any get/set methods for parameter
+to the analysis program.
 
 =head1 SEE ALSO
 
@@ -82,6 +83,18 @@ my %STATUS =  map { $_ => 1 } qw(CREATED COMPLETED TERMINATED_BY_ERROR);
 
 @ISA = qw(Bio::WebAgent Bio::SimpleAnalysisI );
 
+=head2 new
+
+ Usage   : $job->new(...)
+ Returns : a new analysis object, 
+ Args    : none (but an implementation may choose
+           to add arguments representing parameters for the analysis
+           program. Each key value of must have a method implemented
+           for it in a subclass. A seq () method is provided here as
+           this will probably be needed by all sequence analysis programs
+           
+=cut
+
 sub new {
     my $class = shift;
 
@@ -95,6 +108,13 @@ sub new {
     return $self;
 }
 
+=head2 seq
+
+ Usage   : $job->seq()
+ Returns : a Bio::PrimarySeqI implementing sequence object, or void
+ Args    : None, or a Bio::PrimarySeqI implementing object 
+        
+=cut
 
 sub seq {
     my ($self,$value) = @_;
@@ -111,23 +131,59 @@ sub seq {
     return $self->{'_seq'} ;
 }
 
+=head2  analysis_name
 
+    Useage   :  $analysis->analysis_name();
+    Returns  :  The analysis name
+    Arguments:  none
+    
+=cut
 
-# the next 4 subs are just 'getters'
 sub analysis_name {
     my $self = shift;
     return $self->{'_ANALYSIS_NAME'};
 }
+
+=head2  analysis_spec
+
+    Useage   :  $analysis->analysis_spec();
+    Returns  :  a hash reference to  a hash of analysis parameters. See
+                Bio::SimpleAnalysisI for a list of recommended key values.
+    Arguments:  none
+    
+=cut
 
 sub analysis_spec {
     my $self = shift;
     return $self->{'_ANALYSIS_SPEC'};
 }
 
+
+=head2  input_spec
+
+    Useage   :  $analysis->input_spec();
+    Returns  :  a  reference to  an array of  hashes of analysis parameters. See
+                Bio::SimpleAnalysisI for a list of recommended key values.
+    Arguments:  none
+    
+=cut
+
 sub input_spec {
     my $self = shift;
     return $self->{'_INPUT_SPEC'};
 }
+
+=head2  result_spec
+
+    Useage   :  $analysis->result_spec();
+    Returns  :  a  reference to  a   hashes of resultformats. See
+                Bio::SimpleAnalysisI for a list of recommended key values. The key
+                values can be used as parameters to the result() method, the values
+                provide descriptions.
+                
+    Arguments:  none
+    
+=cut
 
 sub result_spec {
     my $self = shift;
