@@ -347,14 +347,14 @@ sub next_result{
 	       my %data;
 	       @data{@labels} = splice(@line, @line - @labels);
 	       if ($line[-1] =~ m/\[([1-6rf])\]/o) {
-               my $fr = $1;
-               $data{lframe} = ($fr =~ /\d/o ?
-                                ($fr <= 3   ? "+$fr" : "-@{[$fr-3]}") :
-                                ($fr eq 'f' ? '+1'  : '-1')
-                               );
-               pop @line;
+		   my $fr = $1;
+		   $data{lframe} = ($fr =~ /\d/o ?
+				    ($fr <= 3   ? "+$fr" : "-@{[$fr-3]}") :
+				    ($fr eq 'f' ? '+1'  : '-1')
+				    );
+		   pop @line;
 	       } else {
-               $data{lframe} = '0';
+		   $data{lframe} = '0';
 	       }
 
 	       if ($line[-1] =~ m/^\(?(\d+)\)$/) {
@@ -424,14 +424,13 @@ sub next_result{
 	   $_ = $self->_readline();
 	   my ($score,$bits,$e) = /Z-score: \s* (\S+) \s*
                                (?: bits: \s* (\S+) \s+ )?
-                               (?: E|expect ) \s* \(\) :? \s*(\S+)/x;
+                               (?: E|expect ) \s* \(\) :? \s*(\S+)/ox;
 	   $bits = $score unless defined $bits;
 
 	   my $v = shift @hit_signifs;
 	   if( defined $v ) {
 	       @{$v}{qw(evalue bits z-sc)} = ($e, $bits, $score);
 	   }
-
 	   $self->element({'Name' => 'Hit_signif',
 			   'Data' => $v ? $v->{evalue} : $e });
 	   $self->element({'Name' => 'Hit_score',
@@ -445,12 +444,12 @@ sub next_result{
 	   $self->element({'Name' => 'Hsp_bit-score',
 			   'Data' => $v ? $v->{bits} : $bits });
 	   $_ = $self->_readline();
-	   if( /Smith-Waterman score:\s*(\d+)/ ) {
+	   if( s/Smith-Waterman score:\s*(\d+)\;?// ) {
 	       $self->element({'Name' => 'Hsp_sw-score',
 			       'Data' => $1});
 	   }
-	   if( / (\S+)\% \s* identity
-                 (?:\s* \(\s*(\S+)\% \s* ungapped \) )?
+	   if( / (\d*\.?\d+)\% \s* identity
+                 (?:\s* \(\s*(\S+)\% \s* (?:ungapped|similar) \) )?
                  \s* in \s* (\d+) \s+ (?:aa|nt) \s+ overlap \s*
                  \( (\d+) \- (\d+) : (\d+) \- (\d+) \)
                /x ) {
