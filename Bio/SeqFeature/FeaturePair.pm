@@ -94,9 +94,10 @@ use strict;
 
 use Bio::Root::Object;
 use Bio::SeqFeatureI;
+use Bio::SeqFeatureGeneric;
 
 
-@ISA = qw(Bio::Root::Object Bio::SeqFeatureI);
+@ISA = qw(Bio::SeqFeature::Generic);
 # new() is inherited from Bio::Root::Object
 
 # _initialize is where the heavy stuff will happen when new is called
@@ -565,77 +566,6 @@ sub invert {
     $self->feature1($self->feature2);
     $self->feature2($tmp);
 
-}
-
-=head2 sub_SeqFeature
-
- Title   : sub_SeqFeature
- Usage   : Function just for complying with SeqFeatureI
- Function:
- Example :
- Returns : an empty list
- Args    :
-
-
-=cut
-
-sub sub_SeqFeature{
-   my ($self,@args) = @_;
-
-   return ();
-}
-
-=head2 all_tags
-
- Title   : all_tags
- Usage   : Function just for complying with SeqFeatureI
- Function:
- Example :
- Returns : an empty list
- Args    :
-
-
-=cut
-
-sub all_tags{
-   my ($self,@args) = @_;
-   return ();
-
-}
-
-=head2 has_tag
-
- Title   : has_tag
- Usage   : Function just for complying with SeqFeatureI
- Function:
- Example :
- Returns : FALSE
- Args    :
-
-
-=cut
-
-sub has_tag {
-   my ($self,@args) = @_;
-   return 0;
-
-}
-
-=head2 each_tag_value
-
- Title   : each_tag_value
- Usage   : Function just for complying with SeqFeatureI
- Function:
- Example :
- Returns : undef
- Args    :
-
-
-=cut
-
-sub each_tag_value {
-   my ($self,@args) = @_;
-   return undef;
 }
 
 1;
