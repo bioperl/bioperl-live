@@ -2,7 +2,7 @@
 
 use lib '.';
 
-# $Id: bp_genbank2gff.PLS,v 1.4 2003-07-30 14:42:15 mwilkinson Exp $
+# $Id: bp_genbank2gff.PLS,v 1.5 2003-07-30 15:17:06 mwilkinson Exp $
 use strict;
 use Bio::DB::GFF;
 use Getopt::Long;
@@ -184,7 +184,8 @@ die $USAGE unless ($DSN || $STDOUT);  # at a minimum we need to have a place to 
 
 # some local defaults
 $DSN     ||= 'dbi:mysql:test';
-$ADAPTOR = $STDOUT ? 'biofetch_to_stdout' : 'biofetch';
+#$ADAPTOR = $STDOUT ? 'biofetch_to_stdout' : 'biofetch';
+$ADAPTOR = $STDOUT ? 'biofetch_to_stdout' : $ADAPTOR;
 
 my @auth;
 push @auth,(-user=>$USER)     if defined $USER;
