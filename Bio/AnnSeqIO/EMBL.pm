@@ -346,7 +346,7 @@ sub write_annseq {
     my $div;
     my $len = $seq->seq_len();
 
-    if ($annseq->can('division')) {
+    if ($annseq->can('division') && defined $annseq->division) {
         $div = $annseq->division();
     }
     $div ||= 'UNK';
@@ -585,6 +585,7 @@ sub _print_EMBL_FTHelper {
    #print $fh  sprintf("FT   %-15s  %s\n",$fth->key,$fth->loc);
    &_write_line_EMBL_regex($fh,sprintf("FT   %-15s ",$fth->key),"FT                   ",$fth->loc,"\,\|\$",80);
    foreach my $tag ( keys %{$fth->field} ) {
+       if( ! defined $fth->field->{$tag} ) { next; } 
        foreach my $value ( @{$fth->field->{$tag}} ) {
 	   $value =~ s/\"/\"\"/g;
 	   if ($value eq "_no_value") {
