@@ -1,17 +1,17 @@
 <!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.2//EN">
 <article lang="en">
 
- <articleinfo>
+  <articleinfo>
     <title>Feature and Annotation HOWTO</title>
     <author>
       <firstname>Brian</firstname>
       <surname>Osborne</surname>
       <affiliation>
-	<orgname>
-	  <ulink url="http://www.cognia.com">Cognia Corporation</ulink>
-	</orgname>
-	<address>
-	  <email>brian_osborne-at-cognia.com</email>
+		  <orgname>
+			 <ulink url="http://www.cognia.com">Cognia Corporation</ulink>
+		  </orgname>
+		  <address>
+			 <email>brian_osborne-at-cognia.com</email>
         </address>
       </affiliation>
     </author>
@@ -28,20 +28,19 @@
     -->    
     <legalnotice>
       <para>
-	This document is copyright Brian Osborne, 2003. For
-	reproduction other than personal use please contact brian at 
-	cognia.com
+		  This document is copyright Brian Osborne, 2003. For
+		  reproduction other than personal use please contact brian at 
+		  cognia.com
       </para>      
     </legalnotice>
 
     <abstract>      
       <para>
-	This is a HOWTO written in DocBook format that explains how to
-	use the SeqFeature and Annotation objects of Bioperl. 
+		  This is a HOWTO written in DocBook format that explains how to
+		  use the SeqFeature and Annotation objects of Bioperl. 
       </para>
     </abstract>
   </articleinfo>
- 
 
   <section id="introduction">
     <title>Introduction</title>
@@ -58,8 +57,10 @@
       discontinuous exons, a gene may have different numbered positions on
       different maps, a sequence may have a sub-sequence which itself
       possesses some characteristic, an experimental observation may be
-      associated with a literature reference, and so on. This HOWTO
-      describes aspects of Bioperl's approach. The problem is how to
+      associated with a literature reference, and so on. 
+	 </para>
+	 <para>
+		This HOWTO describes aspects of Bioperl's approach. The problem is how to
       create software that accepts, analyzes, and displays any and all of
       this sequence annotation with the required attention to detail
       yet remains flexible and easy to use. The general names for the
@@ -67,13 +68,12 @@
       SeqFeature and Annotation.
     </para>
     <para>
-      This HOWTO will discuss these objects, or modules, and the differences
-      between them. I'll also show how to parse 
-      files with these objects and discuss the basics of how to annotate sequence
+      The HOWTO will discuss these objects and the differences
+      between them. I'll also show how to get useful data from these
+      objects and discuss the basics of how to annotate sequence
       using the objects. 
     </para>
   </section>
-
 
   <section id="basics">
     <title>The Basics</title>
@@ -91,8 +91,7 @@
       this object to make a version of itself as a file, or pass this
       object to a "database object" for entry. This is a very flexible and
       logical way to design a complex piece of software like Bioperl, 
-      since each part
-      of the system can be created and evaluated separately. 
+      since each part of the system can be created and evaluated separately. 
     </para>
     <para>
       A central idea in OOP is inheritance,
@@ -185,7 +184,7 @@
       that most of the code shown here will also work on other formats
       containing features or annotations (EMBL, Swissprot, BSML,
       Chado XML, GAME, KEGG, Locuslink, TIGR XML). 
-      When the file comes from Genbank it's 
+      When the entry comes from Genbank it's 
       easy to see where most of the
       features are, they're in the Feature table section, something
       like this:
@@ -333,6 +332,40 @@ primary tag: CDS
     <para>
     </para>
     <para>
+      One last note on Genbank features. The Bioperl parsers for
+		Genbank and EMBL are
+      built to respect the specification for the feature tables agreed
+      upon by Genbank, EMBL, and DDBJ (see <ulink 
+		  url="http://www.ncbi.nlm.nih.gov/projects/collab/FT/">Feature
+		  Table Definition</ulink> for the details). Check this page if
+      you're interested in a complete listing and description of all the 
+      Genbank, EMBL, and DDBJ feature tags.
+    </para>
+    <para>
+      Despite this specification some non-standard feature descriptors 
+      have crept into Genbank, like "bond". When the Bioperl Genbank 
+      parser encounters a non-standard
+      feature like this it's going to throw a fatal exception. The 
+      work-around is to use <function>eval{}</function> so your 
+      script doesn't die, something like:
+    </para>
+    <para>
+      <programlisting>
+	use Bio::SeqIO;
+	
+	my $seq_object;
+	my $seqio_object = Bio::SeqIO->new(-file   => $gb_file,
+                                           -format => "genbank");
+	eval { $seq_object = $seqio_object->next_seq; };
+	# if there's an error
+   print "Problem in $gb_file. Bad feature perhaps?\n" if $@;
+      </programlisting>
+    </para>  
+  </section>
+
+  <section id="sequences">
+    <title>Getting Sequences</title>
+    <para>
       One commonly asked question is "How do I get the sequence of a
       SeqFeature?" The answer is "it depends on what you're looking
       for". If you'd like the sequence of the parent, the sequence
@@ -477,35 +510,6 @@ FEATURES             Location/Qualifiers
                      INFDFQGNSKYFLITSKSEPELKQILVPSR"
       </programlisting>
     </para>
-    <para>
-      One last note on Genbank features. The Bioperl parsers for Genbank and EMBL are
-      built to respect the specification for the feature tables agreed
-      upon by Genbank, EMBL, and DDBJ (see <ulink 
-	url="http://www.ncbi.nlm.nih.gov/projects/collab/FT/">Feature
-      Table Definition</ulink> for the details). Check this page if
-      you're interested in a complete listing and description of all the 
-      Genbank, EMBL, and DDBJ feature tags.
-    </para>
-    <para>
-      Despite this specification some non-standard feature descriptors 
-      have crept into Genbank, like "bond". When the Bioperl Genbank 
-      parser encounters a non-standard
-      feature like this it's going to throw a fatal exception. The 
-      work-around is to use <function>eval{}</function> so your 
-      script doesn't die, something like:
-    </para>
-    <para>
-      <programlisting>
-	use Bio::SeqIO;
-	
-	my $seq_object;
-	my $seqio_object = Bio::SeqIO->new(-file   => $gb_file,
-                                           -format => "genbank");
-	eval { $seq_object = $seqio_object->next_seq; };
-	# if there's an error
-	print "Problem in $gb_file. Bad feature perhaps?\n" if $@;
-      </programlisting>
-    </para>  
   </section>
  
   <section id="location">
@@ -564,7 +568,7 @@ FEATURES             Location/Qualifiers
     </para>
     <para>
       By now you know that the <function>location()</function> method returns
-      a Location object, and this object has <function>end()</function> and 
+      a Location object - this object has <function>end()</function> and 
       <function>start()</function> methods.
     </para>
     <para>
@@ -640,7 +644,7 @@ SOURCE      human.
     <title>Annotations from Genbank</title>
     <para>
       There's still quite a bit of data left our Genbank files that's
-      not in a SeqFeature, and much of it is parsed into Annotation objects. 
+      not in SeqFeature objects, and much of it is parsed into Annotation objects. 
       In order to get access to these objects we can get an
       AnnotationCollection object, which is exactly what it sounds like:
     </para>
@@ -865,7 +869,8 @@ start: 1
     <para>
       It is worth mentioning other sequence file formats. The table 
       below shows what sorts of objects, Annotation or 
-      SeqFeature, you'll get when you parse other sequence formats. 
+      SeqFeature, you'll get when you parse other sequence formats
+		using Bio::SeqIO. 
     </para>
     <para>
       <table>
@@ -942,9 +947,8 @@ GO: cellular component|integral to plasma membrane|P|GO:0005887|Proteome|8396931
       <programlisting>
 	use Bio::SeqIO;
 
-	my @annotations = Bio::SeqIO->new
-	(-file => "148.ll", -format => "locuslink")
-	->next_seq->annotation->get_Annotations;
+	my @annotations = Bio::SeqIO->new(-file => "148.ll", -format => "locuslink")->
+	       next_seq->annotation->get_Annotations;
       </programlisting>
     </para>
     <para>
@@ -954,8 +958,7 @@ GO: cellular component|integral to plasma membrane|P|GO:0005887|Proteome|8396931
     </para>
     <para>
       <programlisting>
-	my %tagname_type = map {$_->as_text,($_->tagname . " " . ref($_)) } 
-	@annotations;
+	my %tagname_type = map {$_->as_text,($_->tagname . " " . ref($_)) } @annotations;
       </programlisting>
     </para>
     <para>
@@ -1031,11 +1034,10 @@ GO: cellular component|integral to plasma membrane|P|GO:0005887|Proteome|8396931
     <para>
       If you were only interested in a certain type of Annotation
       you could retrieve it efficently with something like this:
-      </para>
+	 </para>
     <para>
       <programlisting>
-        @term_annotations = map { $_->isa("Bio::Ontology::TermI"); }
-	$seq_object->get_Annotations();
+        @term_annotations = map { $_->isa("Bio::Ontology::TermI"); } $seq_object->get_Annotations();
       </programlisting>
     </para>
     <para>
@@ -1047,7 +1049,7 @@ GO: cellular component|integral to plasma membrane|P|GO:0005887|Proteome|8396931
       file. The <function>desc()</function> method will return 
       the DEFINITION line of a Genbank file or the DE field in a 
       SwissProt file. Again, this is a situation where you may have to 
-      examine a module, perhaps a SeqIO::* module, to find out more 
+      examine a module, probably a SeqIO::* module, to find out more 
       of the details.
     </para>
   </section>
@@ -1061,7 +1063,8 @@ GO: cellular component|integral to plasma membrane|P|GO:0005887|Proteome|8396931
       <ulink
 	url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqFeature/Generic.html">Bio::SeqFeature::Generic</ulink> object is 
       probably the best SeqFeature object for this purpose, in part because of
-      its flexibility.
+      its flexibility. Let's assume we have a sequence that has an
+      interesting sub-sequence, going from position 10 to 22.
     </para>
     <para>
       <programlisting>
@@ -1072,7 +1075,7 @@ GO: cellular component|integral to plasma membrane|P|GO:0005887|Proteome|8396931
 	my $feat = new Bio::SeqFeature::Generic(-start  => 10,
 	                                        -end    => 22,
 					        -strand => 1,
-					        -tag    => {author => 'john',
+					        -tag    => {evidence => 'predicted',
 						            note   => 'TATA box' } );
 	</programlisting>
     </para>
@@ -1106,7 +1109,7 @@ GO: cellular component|integral to plasma membrane|P|GO:0005887|Proteome|8396931
       handle just about any sort of data.
     </para>
     <para>
-      Once the feature is created it can be associated with a sequence:
+      Once the feature is created it can be associated with our sequence:
     </para>
     <para>
       <programlisting>
@@ -1114,8 +1117,8 @@ GO: cellular component|integral to plasma membrane|P|GO:0005887|Proteome|8396931
 
 	# create a simple Sequence object
 	my $seq_obj = Bio::Seq->new(-seq => "attcccccttataaaattttttttttgaggggtggg",
-                                    -display_id => "BIO52" );
-	# then add the feature to the sequence
+                                     -display_id => "BIO52" );
+	# then add the feature we've created to the sequence
 	$seq_obj->add_SeqFeature($feat);
       </programlisting>
     </para>

@@ -3,20 +3,20 @@
   PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml"><head>
       <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
-   <title>Feature and Annotation HOWTO</title><link rel="stylesheet" href="ede.css" type="text/css"><meta name="generator" content="DocBook XSL Stylesheets V1.61.3"><meta name="description" content="&#xA;	This is a HOWTO written in DocBook format that explains how to&#xA;	use the SeqFeature and Annotation objects of Bioperl. &#xA;      "></head><body><div xmlns="" id="customheader">
+   <title>Feature and Annotation HOWTO</title><link rel="stylesheet" href="ede.css" type="text/css"><meta name="generator" content="DocBook XSL Stylesheets V1.61.3"><meta name="description" content="&#xA;		  This is a HOWTO written in DocBook format that explains how to&#xA;		  use the SeqFeature and Annotation objects of Bioperl. &#xA;      "></head><body><div xmlns="" id="customheader">
 BioPerl DocBook
 </div><div class="article" lang="en"><div class="titlepage"><div><div><h1 class="title"><a id="d3e1"></a>Feature and Annotation HOWTO</h1></div><div><div class="author"><h3 class="author"><span class="firstname">Brian</span> <span class="surname">Osborne</span></h3><div class="affiliation"><span class="orgname">
-	  <a href="http://www.cognia.com" target="_top">Cognia Corporation</a>
-	<br></span><div class="address"><p><br>
-	&nbsp;&nbsp;<tt class="email">&lt;<a href="mailto:brian_osborne-at-cognia.com">brian_osborne-at-cognia.com</a>&gt;</tt><br>
+			 <a href="http://www.cognia.com" target="_top">Cognia Corporation</a>
+		  <br></span><div class="address"><p><br>
+			&nbsp;<tt class="email">&lt;<a href="mailto:brian_osborne-at-cognia.com">brian_osborne-at-cognia.com</a>&gt;</tt><br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</p></div></div></div></div><div><div class="legalnotice"><p>
-	This document is copyright Brian Osborne, 2003. For
-	reproduction other than personal use please contact brian at 
-	cognia.com
+		  This document is copyright Brian Osborne, 2003. For
+		  reproduction other than personal use please contact brian at 
+		  cognia.com
       </p></div></div><div><p class="pubdate">2003-10-14</p></div><div><div class="abstract"><p class="title"><b>Abstract</b></p><p>
-	This is a HOWTO written in DocBook format that explains how to
-	use the SeqFeature and Annotation objects of Bioperl. 
-      </p></div></div></div><div></div><hr></div><div class="toc"><p><b>Table of Contents</b></p><dl><dt>1. <a href="#introduction">Introduction</a></dt><dt>2. <a href="#basics">The Basics</a></dt><dt>3. <a href="#feat_from_genbank">Features from Genbank</a></dt><dt>4. <a href="#location">Location Objects</a></dt><dt>5. <a href="#other_objects">Other objects</a></dt><dt>6. <a href="#anno_from_genbank">Annotations from Genbank</a></dt><dt>7. <a href="#direct">Directly from the Sequence object</a></dt><dt>8. <a href="#other_formats">Other sequence file formats</a></dt><dt>9. <a href="#annotation">Building your own sequences</a></dt><dt>10. <a href="#in_addition">Additional Information</a></dt><dt>11. <a href="#acknowledgements">Acknowledgements</a></dt></dl></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="introduction"></a>1.&nbsp;Introduction</h2></div></div><div></div></div><p>
+		  This is a HOWTO written in DocBook format that explains how to
+		  use the SeqFeature and Annotation objects of Bioperl. 
+      </p></div></div></div><div></div><hr></div><div class="toc"><p><b>Table of Contents</b></p><dl><dt>1. <a href="#introduction">Introduction</a></dt><dt>2. <a href="#basics">The Basics</a></dt><dt>3. <a href="#feat_from_genbank">Features from Genbank</a></dt><dt>4. <a href="#sequences">Getting Sequences</a></dt><dt>5. <a href="#location">Location Objects</a></dt><dt>6. <a href="#other_objects">Other objects</a></dt><dt>7. <a href="#anno_from_genbank">Annotations from Genbank</a></dt><dt>8. <a href="#direct">Directly from the Sequence object</a></dt><dt>9. <a href="#other_formats">Other sequence file formats</a></dt><dt>10. <a href="#annotation">Building your own sequences</a></dt><dt>11. <a href="#in_addition">Additional Information</a></dt><dt>12. <a href="#acknowledgements">Acknowledgements</a></dt></dl></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="introduction"></a>1.&nbsp;Introduction</h2></div></div><div></div></div><p>
       There's no more central notion in bioinformatics than the idea that
       portions of protein or nucleotide sequence have specific
       characteristics. A given stretch of DNA may have been found
@@ -29,17 +29,18 @@ BioPerl DocBook
       discontinuous exons, a gene may have different numbered positions on
       different maps, a sequence may have a sub-sequence which itself
       possesses some characteristic, an experimental observation may be
-      associated with a literature reference, and so on. This HOWTO
-      describes aspects of Bioperl's approach. The problem is how to
+      associated with a literature reference, and so on. 
+	 </p><p>
+		This HOWTO describes aspects of Bioperl's approach. The problem is how to
       create software that accepts, analyzes, and displays any and all of
       this sequence annotation with the required attention to detail
       yet remains flexible and easy to use. The general names for the
       modules or objects that serve these purposes in Bioperl are
       SeqFeature and Annotation.
     </p><p>
-      This HOWTO will discuss these objects, or modules, and the differences
-      between them. I'll also show how to parse 
-      files with these objects and discuss the basics of how to annotate sequence
+      The HOWTO will discuss these objects and the differences
+      between them. I'll also show how to get useful data from these
+      objects and discuss the basics of how to annotate sequence
       using the objects. 
     </p></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="basics"></a>2.&nbsp;The Basics</h2></div></div><div></div></div><p>
       Some Bioperl neophytes may also be new to object-oriented
@@ -55,8 +56,7 @@ BioPerl DocBook
       this object to make a version of itself as a file, or pass this
       object to a "database object" for entry. This is a very flexible and
       logical way to design a complex piece of software like Bioperl, 
-      since each part
-      of the system can be created and evaluated separately. 
+      since each part of the system can be created and evaluated separately. 
     </p><p>
       A central idea in OOP is inheritance,
       which means that a child object can derive some of its 
@@ -131,7 +131,7 @@ BioPerl DocBook
       that most of the code shown here will also work on other formats
       containing features or annotations (EMBL, Swissprot, BSML,
       Chado XML, GAME, KEGG, Locuslink, TIGR XML). 
-      When the file comes from Genbank it's 
+      When the entry comes from Genbank it's 
       easy to see where most of the
       features are, they're in the Feature table section, something
       like this:
@@ -260,6 +260,32 @@ primary tag: CDS
       have the tag you're requesting.
     </p></td></tr></table></div><p>
     </p><p>
+      One last note on Genbank features. The Bioperl parsers for
+		Genbank and EMBL are
+      built to respect the specification for the feature tables agreed
+      upon by Genbank, EMBL, and DDBJ (see <a href="http://www.ncbi.nlm.nih.gov/projects/collab/FT/" target="_top">Feature
+		  Table Definition</a> for the details). Check this page if
+      you're interested in a complete listing and description of all the 
+      Genbank, EMBL, and DDBJ feature tags.
+    </p><p>
+      Despite this specification some non-standard feature descriptors 
+      have crept into Genbank, like "bond". When the Bioperl Genbank 
+      parser encounters a non-standard
+      feature like this it's going to throw a fatal exception. The 
+      work-around is to use <tt class="function">eval{}</tt> so your 
+      script doesn't die, something like:
+    </p><p>
+      <pre class="programlisting">
+	use Bio::SeqIO;
+	
+	my $seq_object;
+	my $seqio_object = Bio::SeqIO-&gt;new(-file   =&gt; $gb_file,
+                                           -format =&gt; "genbank");
+	eval { $seq_object = $seqio_object-&gt;next_seq; };
+	# if there's an error
+   print "Problem in $gb_file. Bad feature perhaps?\n" if $@;
+      </pre>
+    </p></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="sequences"></a>4.&nbsp;Getting Sequences</h2></div></div><div></div></div><p>
       One commonly asked question is "How do I get the sequence of a
       SeqFeature?" The answer is "it depends on what you're looking
       for". If you'd like the sequence of the parent, the sequence
@@ -300,7 +326,7 @@ FEATURES             Location/Qualifiers
       each sub-sequence, use <tt class="function">spliced_seq()</tt>. Here
       are the methods and the corresponding example coordinates:
     </p><p>
-      <div class="table"><a id="d3e87"></a><table summary="Sequence retrieval methods" border="1"><colgroup><col><col></colgroup><thead><tr><th>Method</th><th>Coordinates</th></tr></thead><tbody><tr><td>entire_seq()</td><td>1..177</td></tr><tr><td>seq()</td><td>103..157</td></tr><tr><td>spliced_seq()</td><td>103..111,121..157</td></tr></tbody></table><p class="title"><b>Table&nbsp;1.&nbsp;Sequence retrieval methods</b></p></div>
+      <div class="table"><a id="d3e96"></a><table summary="Sequence retrieval methods" border="1"><colgroup><col><col></colgroup><thead><tr><th>Method</th><th>Coordinates</th></tr></thead><tbody><tr><td>entire_seq()</td><td>1..177</td></tr><tr><td>seq()</td><td>103..157</td></tr><tr><td>spliced_seq()</td><td>103..111,121..157</td></tr></tbody></table><p class="title"><b>Table&nbsp;1.&nbsp;Sequence retrieval methods</b></p></div>
     </p><p>
       It's not unusual for a Genbank file to have multiple CDS or gene
       features (and recall that 'CDS' or 'gene' are common primary tags
@@ -368,32 +394,7 @@ FEATURES             Location/Qualifiers
                      FLCDMQINSSELKIRAIVNNIGNSLEEISCLKFEGYKLNISFNPSSLLDHIESFESNE
                      INFDFQGNSKYFLITSKSEPELKQILVPSR"
       </pre>
-    </p><p>
-      One last note on Genbank features. The Bioperl parsers for Genbank and EMBL are
-      built to respect the specification for the feature tables agreed
-      upon by Genbank, EMBL, and DDBJ (see <a href="http://www.ncbi.nlm.nih.gov/projects/collab/FT/" target="_top">Feature
-      Table Definition</a> for the details). Check this page if
-      you're interested in a complete listing and description of all the 
-      Genbank, EMBL, and DDBJ feature tags.
-    </p><p>
-      Despite this specification some non-standard feature descriptors 
-      have crept into Genbank, like "bond". When the Bioperl Genbank 
-      parser encounters a non-standard
-      feature like this it's going to throw a fatal exception. The 
-      work-around is to use <tt class="function">eval{}</tt> so your 
-      script doesn't die, something like:
-    </p><p>
-      <pre class="programlisting">
-	use Bio::SeqIO;
-	
-	my $seq_object;
-	my $seqio_object = Bio::SeqIO-&gt;new(-file   =&gt; $gb_file,
-                                           -format =&gt; "genbank");
-	eval { $seq_object = $seqio_object-&gt;next_seq; };
-	# if there's an error
-	print "Problem in $gb_file. Bad feature perhaps?\n" if $@;
-      </pre>
-    </p></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="location"></a>4.&nbsp;Location Objects</h2></div></div><div></div></div><p>
+    </p></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="location"></a>5.&nbsp;Location Objects</h2></div></div><div></div></div><p>
       There's quite a bit to this idea of location, so much that it
       probably deserves its own HOWTO. This is my way of saying that
       if this topic interests you should take a closer look at the modules that
@@ -408,7 +409,7 @@ FEATURES             Location/Qualifiers
       <tt class="function">intersection()</tt> that act on pairs of
       ranges. The table below is
       meant to illustrate some of the modules' capabilities.
-    </p><div class="table"><a id="d3e128"></a><table summary="Location Examples" border="1"><colgroup><col><col></colgroup><thead><tr><th>Type</th><th>Example</th></tr></thead><tbody><tr><td>EXACT</td><td>(5..100)</td></tr><tr><td>BEFORE</td><td>(&lt;5..100)</td></tr><tr><td>AFTER</td><td>(&gt;5..100)</td></tr><tr><td>WITHIN</td><td>((5.10)..100)</td></tr><tr><td>BETWEEN</td><td>(99^100)</td></tr></tbody></table><p class="title"><b>Table&nbsp;2.&nbsp;Location Examples</b></p></div><p>
+    </p><div class="table"><a id="d3e131"></a><table summary="Location Examples" border="1"><colgroup><col><col></colgroup><thead><tr><th>Type</th><th>Example</th></tr></thead><tbody><tr><td>EXACT</td><td>(5..100)</td></tr><tr><td>BEFORE</td><td>(&lt;5..100)</td></tr><tr><td>AFTER</td><td>(&gt;5..100)</td></tr><tr><td>WITHIN</td><td>((5.10)..100)</td></tr><tr><td>BETWEEN</td><td>(99^100)</td></tr></tbody></table><p class="title"><b>Table&nbsp;2.&nbsp;Location Examples</b></p></div><p>
       One type that might not be self-explanatory is 'WITHIN'. The
       example means "starting somewhere between positions 5 and 10,
       inclusive, and ending at 100". 'BETWEEN' is interesting - the
@@ -428,7 +429,7 @@ FEATURES             Location/Qualifiers
          </pre>
     </p><p>
       By now you know that the <tt class="function">location()</tt> method returns
-      a Location object, and this object has <tt class="function">end()</tt> and 
+      a Location object - this object has <tt class="function">end()</tt> and 
       <tt class="function">start()</tt> methods.
     </p><p>
       Another way of describing a feature in Genbank involves
@@ -448,7 +449,7 @@ FEATURES             Location/Qualifiers
          }
        }
       </pre>
-    </p></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="other_objects"></a>5.&nbsp;Other objects</h2></div></div><div></div></div><p>
+    </p></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="other_objects"></a>6.&nbsp;Other objects</h2></div></div><div></div></div><p>
       As an aside I should mention that certain data
       associated in a Genbank file is accessible both 
       as a feature and through a specialized object. Taxonomic 
@@ -484,9 +485,9 @@ SOURCE      human.
       taxonomic information, so returning just an array wouldn't
       suffice. See the documentation on
       <a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Species.html" target="_top">Bio::Species</a> for more information.
-    </p></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="anno_from_genbank"></a>6.&nbsp;Annotations from Genbank</h2></div></div><div></div></div><p>
+    </p></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="anno_from_genbank"></a>7.&nbsp;Annotations from Genbank</h2></div></div><div></div></div><p>
       There's still quite a bit of data left our Genbank files that's
-      not in a SeqFeature, and much of it is parsed into Annotation objects. 
+      not in SeqFeature objects, and much of it is parsed into Annotation objects. 
       In order to get access to these objects we can get an
       AnnotationCollection object, which is exactly what it sounds like:
     </p><p>
@@ -541,7 +542,7 @@ tagname : date_changed
       The following is a list of some of the common Annotations, their
       keys in Bioperl, and what they're derived from in Genbank files: 
     </p><p>
-      <div class="table"><a id="d3e193"></a><table summary="Genbank Annotations" border="1"><colgroup><col><col><col><col></colgroup><thead><tr><th>Genbank Text</th><th>Key</th><th>Object Type</th><th>Note</th></tr></thead><tbody><tr><td>COMMENT</td><td>comment</td><td>Comment</td><td>&nbsp;</td></tr><tr><td>SEGMENT</td><td>segment</td><td>SimpleValue</td><td>e.g.
+      <div class="table"><a id="d3e196"></a><table summary="Genbank Annotations" border="1"><colgroup><col><col><col><col></colgroup><thead><tr><th>Genbank Text</th><th>Key</th><th>Object Type</th><th>Note</th></tr></thead><tbody><tr><td>COMMENT</td><td>comment</td><td>Comment</td><td>&nbsp;</td></tr><tr><td>SEGMENT</td><td>segment</td><td>SimpleValue</td><td>e.g.
 		"1 of 2"</td></tr><tr><td>ORIGIN</td><td>origin</td><td>SimpleValue</td><td>e.g.
 		"X Chromosome."</td></tr><tr><td>REFERENCE</td><td>reference</td><td>Reference</td><td>&nbsp;</td></tr><tr><td>INV</td><td>date_changed</td><td>SimpleValue</td><td>e.g.
 		"08-JUL-1994"</td></tr><tr><td>KEYWORDS</td><td>keyword</td><td>SimpleValue</td><td>&nbsp;</td></tr><tr><td>ACCESSION</td><td>secondary_accession</td><td>SimpleValue</td><td>2nd
@@ -602,7 +603,7 @@ start: 1
       <tt class="function">medline()</tt>, <tt class="function">editors()</tt>,
       <tt class="function">database()</tt>, <tt class="function">pubmed()</tt> 
       and a number of other methods.
-    </p></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="direct"></a>7.&nbsp;Directly from the Sequence object</h2></div></div><div></div></div><p>
+    </p></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="direct"></a>8.&nbsp;Directly from the Sequence object</h2></div></div><div></div></div><p>
       This is just a reminder that some of the "annotation" data 
       in your sequence
       files can be accessed directly, without looking at SeqFeatures or
@@ -610,19 +611,20 @@ start: 1
       a Seq::RichSeq
       object then here are some useful methods:
     </p><p>
-      <div class="table"><a id="d3e267"></a><table summary="RichSeq methods" border="1"><colgroup><col><col></colgroup><thead><tr><th>Method</th><th>Returns</th></tr></thead><tbody><tr><td>get_secondary_accessions</td><td>array</td></tr><tr><td>keywords</td><td>array</td></tr><tr><td>get_dates</td><td>array</td></tr><tr><td>seq_version</td><td>string</td></tr><tr><td>pid</td><td>string</td></tr><tr><td>division</td><td>string</td></tr></tbody></table><p class="title"><b>Table&nbsp;4.&nbsp;RichSeq methods</b></p></div>
+      <div class="table"><a id="d3e270"></a><table summary="RichSeq methods" border="1"><colgroup><col><col></colgroup><thead><tr><th>Method</th><th>Returns</th></tr></thead><tbody><tr><td>get_secondary_accessions</td><td>array</td></tr><tr><td>keywords</td><td>array</td></tr><tr><td>get_dates</td><td>array</td></tr><tr><td>seq_version</td><td>string</td></tr><tr><td>pid</td><td>string</td></tr><tr><td>division</td><td>string</td></tr></tbody></table><p class="title"><b>Table&nbsp;4.&nbsp;RichSeq methods</b></p></div>
     </p><p>
       These <a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Seq/RichSeq.html" target="_top">Bio::Seq::RichSeq</a> objects are created 
       automatically when you use SeqIO to read from EMBL, GenBank, GAME,
       Chado XML, TIGR XML, Locuslink, BSML, KEGG, and SwissProt sequence
       files. However, it's not guaranteed that each of these
       formats will supply data for all of the methods above.
-    </p></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="other_formats"></a>8.&nbsp;Other sequence file formats</h2></div></div><div></div></div><p>
+    </p></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="other_formats"></a>9.&nbsp;Other sequence file formats</h2></div></div><div></div></div><p>
       It is worth mentioning other sequence file formats. The table 
       below shows what sorts of objects, Annotation or 
-      SeqFeature, you'll get when you parse other sequence formats. 
+      SeqFeature, you'll get when you parse other sequence formats
+		using Bio::SeqIO. 
     </p><p>
-      <div class="table"><a id="d3e299"></a><table summary="Formats, SeqFeatures, and Annotations" border="1"><colgroup><col><col><col><col></colgroup><thead><tr><th>Format</th><th>SeqIO name</th><th>SeqFeature</th><th>Annotation</th></tr></thead><tbody><tr><td>Genbank</td><td>embl</td><td>yes</td><td>yes</td></tr><tr><td>EMBL</td><td>genbank</td><td>yes</td><td>yes</td></tr><tr><td>GAME</td><td>game</td><td>yes</td><td>-</td></tr><tr><td>Chado XML</td><td>chadoxml</td><td>yes</td><td>yes</td></tr><tr><td>TIGR XML</td><td>tigr</td><td>yes</td><td>yes</td></tr><tr><td>Locuslink</td><td>locuslink</td><td>-</td><td>yes</td></tr><tr><td>BSML</td><td>bsml</td><td>yes</td><td>yes</td></tr><tr><td>KEGG</td><td>kegg</td><td>yes</td><td>yes</td></tr><tr><td>SwissProt</td><td>swiss</td><td>yes</td><td>yes</td></tr></tbody></table><p class="title"><b>Table&nbsp;5.&nbsp;Formats, SeqFeatures, and Annotations</b></p></div>
+      <div class="table"><a id="d3e302"></a><table summary="Formats, SeqFeatures, and Annotations" border="1"><colgroup><col><col><col><col></colgroup><thead><tr><th>Format</th><th>SeqIO name</th><th>SeqFeature</th><th>Annotation</th></tr></thead><tbody><tr><td>Genbank</td><td>embl</td><td>yes</td><td>yes</td></tr><tr><td>EMBL</td><td>genbank</td><td>yes</td><td>yes</td></tr><tr><td>GAME</td><td>game</td><td>yes</td><td>-</td></tr><tr><td>Chado XML</td><td>chadoxml</td><td>yes</td><td>yes</td></tr><tr><td>TIGR XML</td><td>tigr</td><td>yes</td><td>yes</td></tr><tr><td>Locuslink</td><td>locuslink</td><td>-</td><td>yes</td></tr><tr><td>BSML</td><td>bsml</td><td>yes</td><td>yes</td></tr><tr><td>KEGG</td><td>kegg</td><td>yes</td><td>yes</td></tr><tr><td>SwissProt</td><td>swiss</td><td>yes</td><td>yes</td></tr></tbody></table><p class="title"><b>Table&nbsp;5.&nbsp;Formats, SeqFeatures, and Annotations</b></p></div>
     </p><p>
       How does one find out what data is in which object in these
       formats? In general the individual module documentation is not
@@ -664,9 +666,8 @@ GO: cellular component|integral to plasma membrane|P|GO:0005887|Proteome|8396931
       <pre class="programlisting">
 	use Bio::SeqIO;
 
-	my @annotations = Bio::SeqIO-&gt;new
-	(-file =&gt; "148.ll", -format =&gt; "locuslink")
-	-&gt;next_seq-&gt;annotation-&gt;get_Annotations;
+	my @annotations = Bio::SeqIO-&gt;new(-file =&gt; "148.ll", -format =&gt; "locuslink")-&gt;
+	       next_seq-&gt;annotation-&gt;get_Annotations;
       </pre>
     </p><p>
       And from this array of Annotations let's extract a hash containing 
@@ -674,14 +675,13 @@ GO: cellular component|integral to plasma membrane|P|GO:0005887|Proteome|8396931
       the concatenated tagnames and object types as values:
     </p><p>
       <pre class="programlisting">
-	my %tagname_type = map {$_-&gt;as_text,($_-&gt;tagname . " " . ref($_)) } 
-	@annotations;
+	my %tagname_type = map {$_-&gt;as_text,($_-&gt;tagname . " " . ref($_)) } @annotations;
       </pre>
     </p><p>
       The contents of the <tt class="varname">%tagname_type</tt> hash will 
       look like the table below.
     </p><p>
-      <div class="table"><a id="d3e367"></a><table summary="Locuslink Annotations" border="1"><colgroup><col><col><col></colgroup><thead><tr><th>as_text()</th><th>tagname()</th><th>ref()</th></tr></thead><tbody><tr><td>Direct database link to AAA93114 in database GenBank</td><td>dblink</td><td><a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/DBLink.html" target="_top">Bio::Annotation::DBLink</a></td></tr><tr><td>Value:
+      <div class="table"><a id="d3e370"></a><table summary="Locuslink Annotations" border="1"><colgroup><col><col><col></colgroup><thead><tr><th>as_text()</th><th>tagname()</th><th>ref()</th></tr></thead><tbody><tr><td>Direct database link to AAA93114 in database GenBank</td><td>dblink</td><td><a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/DBLink.html" target="_top">Bio::Annotation::DBLink</a></td></tr><tr><td>Value:
 	    http://www.ncbi.nlm.nih.gov/UniGene/clust.cgi?ORG=Hs&amp;CID=52931</td><td>URL</td><td><a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/SimpleValue.html" target="_top">Bio::Annotation::SimpleValue</a></td></tr><tr><td>Value: 8</td><td>CHR</td><td><a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/SimpleValue.html" target="_top">Bio::Annotation::SimpleValue</a></td></tr><tr><td>Direct database link to NP_000671 in database RefSeq</td><td>dblink</td><td><a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/DBLink.html" target="_top">Bio::Annotation::DBLink</a></td></tr><tr><td>Direct database link to SGC35558 in database STS</td><td>dblink</td><td><a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/DBLink.html" target="_top">Bio::Annotation::DBLink</a></td></tr><tr><td>Comment: Summary: Alpha-1-ARs are members of the GPCR superfamily</td><td>comment</td><td><a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/Comment.html" target="_top">Bio::Annotation::Comment</a></td></tr><tr><td>Value: adrenergic, alpha-1A-, receptor</td><td>OFFICIAL_GENE_NAME</td><td><a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/SimpleValue.html" target="_top">Bio::Annotation::SimpleValue</a></td></tr><tr><td>Value: ADRA1C</td><td>ALIAS_SYMBOL</td><td><a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/SimpleValue.html" target="_top">Bio::Annotation::SimpleValue</a></td></tr><tr><td>Value: adrenergic, alpha -1A-, receptor</td><td>ALIAS_PROT</td><td><a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/SimpleValue.html" target="_top">Bio::Annotation::SimpleValue</a></td></tr><tr><td>Direct database link to NM_000680 in database RefSeq</td><td>dblink</td><td><a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/DBLink.html" target="_top">Bio::Annotation::DBLink</a></td></tr><tr><td>Value: ADRA1A</td><td>OFFICIAL_SYMBOL</td><td><a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/SimpleValue.html" target="_top">Bio::Annotation::SimpleValue</a></td></tr><tr><td>Direct database link to SGC35557 in database STS</td><td>dblink</td><td><a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/DBLink.html" target="_top">Bio::Annotation::DBLink</a></td></tr><tr><td>Value: 8p21-p11.2</td><td>MAP</td><td><a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/SimpleValue.html" target="_top">Bio::Annotation::SimpleValue</a></td></tr><tr><td>Direct database link to 104221 in database MIM</td><td>dblink</td><td><a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/DBLink.html" target="_top">Bio::Annotation::DBLink</a></td></tr><tr><td>Direct database link to D8S2033 in database STS</td><td>dblink</td><td><a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/DBLink.html" target="_top">Bio::Annotation::DBLink</a></td></tr><tr><td>Direct database link to none in database GenBank</td><td>dblink</td><td><a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/DBLink.html" target="_top">Bio::Annotation::DBLink</a></td></tr><tr><td>cellular component|integral to plasma membrane|GO:0005887</td><td>cellular
  component</td><td><a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/OntologyTerm.html" target="_top">Bio::Annotation::OntologyTerm</a></td></tr><tr><td>Direct database link to Hs.52931 in database UniGene</td><td>dblink</td><td><a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/DBLink.html" target="_top">Bio::Annotation::DBLink</a></td></tr><tr><td>Direct database link to M11313 in database GenBank</td><td>dblink</td><td><a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/DBLink.html" target="_top">Bio::Annotation::DBLink</a></td></tr><tr><td>Direct database link to P35348 in database GenBank</td><td>dblink</td><td><a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/DBLink.html" target="_top">Bio::Annotation::DBLink</a></td></tr></tbody></table><p class="title"><b>Table&nbsp;6.&nbsp;Locuslink Annotations</b></p></div>
     </p><p>
@@ -695,10 +695,9 @@ GO: cellular component|integral to plasma membrane|P|GO:0005887|Proteome|8396931
     </p><p>
       If you were only interested in a certain type of Annotation
       you could retrieve it efficently with something like this:
-      </p><p>
+	 </p><p>
       <pre class="programlisting">
-        @term_annotations = map { $_-&gt;isa("Bio::Ontology::TermI"); }
-	$seq_object-&gt;get_Annotations();
+        @term_annotations = map { $_-&gt;isa("Bio::Ontology::TermI"); } $seq_object-&gt;get_Annotations();
       </pre>
     </p><p>
       To completely parse these sequence formats you may also need to 
@@ -709,15 +708,16 @@ GO: cellular component|integral to plasma membrane|P|GO:0005887|Proteome|8396931
       file. The <tt class="function">desc()</tt> method will return 
       the DEFINITION line of a Genbank file or the DE field in a 
       SwissProt file. Again, this is a situation where you may have to 
-      examine a module, perhaps a SeqIO::* module, to find out more 
+      examine a module, probably a SeqIO::* module, to find out more 
       of the details.
-    </p></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="annotation"></a>9.&nbsp;Building your own sequences</h2></div></div><div></div></div><p>
+    </p></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="annotation"></a>10.&nbsp;Building your own sequences</h2></div></div><div></div></div><p>
       We've taken a look at getting data from SeqFeature and Annotation
       objects, but what about creating these objects when you
       already have the data? The
       <a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqFeature/Generic.html" target="_top">Bio::SeqFeature::Generic</a> object is 
       probably the best SeqFeature object for this purpose, in part because of
-      its flexibility.
+      its flexibility. Let's assume we have a sequence that has an
+      interesting sub-sequence, going from position 10 to 22.
     </p><p>
       <pre class="programlisting">
 	use Bio::SeqFeature::Generic;
@@ -727,7 +727,7 @@ GO: cellular component|integral to plasma membrane|P|GO:0005887|Proteome|8396931
 	my $feat = new Bio::SeqFeature::Generic(-start  =&gt; 10,
 	                                        -end    =&gt; 22,
 					        -strand =&gt; 1,
-					        -tag    =&gt; {author =&gt; 'john',
+					        -tag    =&gt; {evidence =&gt; 'predicted',
 						            note   =&gt; 'TATA box' } );
 	</pre>
     </p><p>
@@ -755,15 +755,15 @@ GO: cellular component|integral to plasma membrane|P|GO:0005887|Proteome|8396931
       like a reference, it's clear that this approach should be able
       handle just about any sort of data.
     </p><p>
-      Once the feature is created it can be associated with a sequence:
+      Once the feature is created it can be associated with our sequence:
     </p><p>
       <pre class="programlisting">
 	use Bio::Seq;
 
 	# create a simple Sequence object
 	my $seq_obj = Bio::Seq-&gt;new(-seq =&gt; "attcccccttataaaattttttttttgaggggtggg",
-                                    -display_id =&gt; "BIO52" );
-	# then add the feature to the sequence
+                                     -display_id =&gt; "BIO52" );
+	# then add the feature we've created to the sequence
 	$seq_obj-&gt;add_SeqFeature($feat);
       </pre>
     </p><p>
@@ -816,7 +816,7 @@ ORIGIN
         1 attccccctt ataaaatttt ttttttgagg ggtggg
 //	  
       </pre>
-    </p></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="in_addition"></a>10.&nbsp;Additional Information</h2></div></div><div></div></div><p>
+    </p></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="in_addition"></a>11.&nbsp;Additional Information</h2></div></div><div></div></div><p>
       If you would like to learn about representing sequences and 
       features in graphical form take a look at the <a href="http://bioperl.org/HOWTOs/Graphics-HOWTO/index.html" target="_top">Graphics
       HOWTO</a>. The documentation for each of the individual
@@ -837,7 +837,7 @@ ORIGIN
     </p><p>
 <span class="emphasis"><em>Range Modules</em></span>
       <table class="simplelist" border="0" summary="Simple list"><tr><td><a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/RangeI.html" target="_top">RangeI.pm</a></td></tr><tr><td><a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Range.html" target="_top">Range.pm</a></td></tr></table>
-    </p></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="acknowledgements"></a>11.&nbsp;Acknowledgements</h2></div></div><div></div></div><p>
+    </p></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="acknowledgements"></a>12.&nbsp;Acknowledgements</h2></div></div><div></div></div><p>
       Thanks to Steven Lembark for comments and neat code discussions.
     </p></div></div><div xmlns="" id="customfooter">
 BioPerl DocBook

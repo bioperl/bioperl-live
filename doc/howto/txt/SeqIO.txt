@@ -136,6 +136,7 @@ my $seq_object = $seqio_object->next_seq;
    game       GAME XML                    
    gcg        GCG                          gcg
    genbank    GenBank                      gb|gbank|genbank
+   interpro   InterProScan XML            
    kegg       KEGG                        
    largefasta                           
    phd        Phred                        phd|phred
