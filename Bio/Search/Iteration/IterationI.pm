@@ -23,43 +23,53 @@ iteration from an iterated search result, such as PSI-BLAST.
     # Bio::Search::Iteration::IterationI interface, 
     # you can do the following things with it:
 
-    # First, get a ResultI object from a SearchIO stream
-
+    # First, open up a SearchIO stream
     use Bio::SearchIO;
-    my $io = new Bio::SearchIO(-format => 'blast',
-                                -file   => 't/data/HUMBETGLOA.tblastx');
-    my $result = $io->next_result;
+    my $file = shift or die "Usage: $0 <BLAST-report-file>\n";
+    my $in = new Bio::SearchIO(-format => 'blast',
+                               -file => $file # comment out this line to read STDIN
+                              );
+    # Iterate over all results in the input stream
+    while (my $result = $in->next_result) {
 
-    # Iterate over all iterations and
-    # process old and new hits separately.
+        printf "Result #%d: %s\n", $in->result_count, $result->to_string;
+        printf "Total Iterations: %d\n", $result->num_iterations();
 
-    while( my $it = $result->next_iteration()) {
-        printf "Round %d\n", $it->number;
+        # Iterate over all iterations and process old and new hits
+        # separately.
 
-        # Print out the hits not found in previous iteration
+        while( my $it = $result->next_iteration) { 
+            printf "\nIteration %d\n", $it->number;
+            printf "Converged: %d\n", $it->converged;
 
-        print "New hits:\n";
-        while( my $hit = $it->next_hit_new ) {
-            printf "  %s, Expect=%g\n", $hit->name, $hit->expect;
+            # Print out the hits not found in previous iteration
+            printf "New hits: %d\n", $it->num_hits_new;
+            while( my $hit = $it->next_hit_new ) {
+                printf "  %s, Expect=%g\n", $hit->name, $hit->expect; 
+            }
+
+            # Print out the hits found in previous iteration
+            printf "Old hits: %d\n", $it->num_hits_old; 
+            while( my $hit = $it->next_hit_old ) {
+                printf "  %s, Expect=%g\n", $hit->name, $hit->expect; 
+            }
         }
-
-        # Print out the number of hits found in previous iteration
-
-        printf "Old hit count: %d\n\n", $it->num_hits_old;
+        printf "%s\n\n", '-' x 50;
     }
 
-    # Print the total number of iterations
+    printf "Total Reports processed: %d: %s\n", $in->result_count;
 
-    print "Total iterations: %d\n", $result->num_iterations();
+    __END__
 
-    # NOTE: The following functionality is just proposed (does not yet exist):
+    # NOTE: The following functionality is just proposed
+    # (does not yet exist but might, given sufficient hew and cry):
 
     # Zero-in on the new hits found in last iteration.
     # By default, iteration() returns the last one.
 
     my $last_iteration = $result->iteration();
     while( my $hit = $last_iteration->next_hit) {
-          # Do something with new hit...
+        # Do something with new hit...
     }
 
     # Get the first iteration
@@ -243,6 +253,21 @@ use Bio::Root::RootI;
 =cut
 
 sub number {
+    my ($self,@args) = @_;
+    $self->throw_not_implemented;
+}
+
+=head2 converged
+
+ Title   : converged
+ Usage   : $it_converged = $iteration->converged();
+ Purpose : Indicates whether or not the iteration has converged 
+ Returns : boolean 
+ Args    : [optional] boolean value to set the converged of the iteration
+
+=cut
+
+sub converged {
     my ($self,@args) = @_;
     $self->throw_not_implemented;
 }
