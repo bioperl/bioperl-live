@@ -20,7 +20,7 @@ BEGIN {
 	use lib 't';
     }
     use vars qw($NTESTS);
-    $NTESTS = 389;
+    $NTESTS = 390;
     $LASTXMLTEST = 49;
     $error = 0;
 
@@ -553,7 +553,9 @@ $searchio = new Bio::SearchIO ('-format' => 'psiblast',
 $result = $searchio->next_result;
 
 ok($result);
-
+$hit = $result->next_hit;
+$hsp = $hit->next_hsp;
+ok($hsp->get_aln->isa('Bio::Align::AlignI'));
 my $writer = Bio::SearchIO::Writer::HitTableWriter->new( 
                                   -columns => [qw(
                                                   query_name
