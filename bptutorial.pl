@@ -931,7 +931,8 @@ current interpretations:
 
 * These formats require the bioperl-ext package
 
-For more information see L<Bio::SeqIO>.
+For more information see L<Bio::SeqIO> or the SeqIO HOWTO at 
+http://bioperl.org/HOWTOs/html/SeqIO.html.
 
 =for html <A NAME ="iii.2.2"></A>
 
@@ -1461,11 +1462,11 @@ Sample code to read a BLAST report might look like this:
   $hsp_start = $hsp->query->start;
 
 For more details there is an excellent description of how to use
-SearchIO in the bioperl "HOWTOs" directory at www.bioperl.org/HOWTOs/
+SearchIO at http://www.bioperl.org/HOWTOs/html/SearchIO.html
 or in the docs/ subdirectory of the distribution. Additional
 documentation can be found in: L<Bio::SearchIO::blast>,
 L<Bio::SearchIO::psiblast>, L<Bio::SearchIO::blastxml>,
-L<Bio::SearchIO::fasta>, and L<Bio::SearchIO>.  There is also sample
+L<Bio::SearchIO::fasta>, and L<Bio::SearchIO>. There is also sample
 code in the Bio/examples/searchio directory which illustrates how to
 use SearchIO.
 
