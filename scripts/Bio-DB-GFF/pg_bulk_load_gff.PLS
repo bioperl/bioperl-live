@@ -322,6 +322,7 @@ foreach (@files) {
   unlink $file;
 }
 
+warn "Creating indexes ...\n";
 $db->_create_indexes_etc();
 
 warn "done...\n";
