@@ -1192,6 +1192,11 @@ sub _removeJunkTagAndText {
    while (!eof(INPUT_FILE_FOR_REMOVE)) {
       $line=<INPUT_FILE_FOR_REMOVE>;
       # SAC: substituting in one step.
+      # rnc: not possible with PSI as it uses ACTION=.. for continuation of
+posting
+      #
+      # ACTION="/cgi-bin/BLAST" line added to get PSI to continue
+      $line =~ s|ACTION="/cgi-bin/BLAST|ACTION="http://$entryServerURLroot/cgi-bin/BLAST|;
       $line =~ s|<a href="/|<a href="http://$entryServerURLroot/|;
       print OUTPUT_FILE_FOR_REMOVE $line;
    }
