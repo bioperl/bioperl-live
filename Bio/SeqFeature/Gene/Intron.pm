@@ -12,7 +12,7 @@
 
 =head1 NAME
 
-Bio::SeqFeature::Gene::Intron - DESCRIPTION of Object
+Bio::SeqFeature::Gene::Intron - An intron feature
 
 =head1 SYNOPSIS
 
@@ -168,8 +168,8 @@ sub phase {
 
 sub acceptor_splice_site {
   my ($self,$ss_start,$ss_end) = @_;
-  $ss_start ||= 21;
-  $ss_end   ||= 3;
+  $ss_start = 21 unless defined $ss_start;
+  $ss_end   = 3 unless defined $ss_end;
   if($self->strand < 0){
     my $tmp= $ss_start;
     $ss_start = $ss_end;
@@ -221,8 +221,8 @@ sub acceptor_splice_site {
 
 sub donor_splice_site {
   my ($self,$ss_start,$ss_end) = @_;
-  $ss_start ||= 3;
-  $ss_end   ||= 10;
+  $ss_start = 3 unless defined $ss_start;
+  $ss_end   = 10 unless defined $ss_end;
   if($self->strand < 0){
     my $tmp= $ss_start;
     $ss_start = $ss_end;
