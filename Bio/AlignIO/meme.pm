@@ -1,7 +1,7 @@
 # $Id$
 #
 #  BioPerl module for Bio::AlignIO::meme
-#	based on the Bio::SeqIO modules
+#	Based on the Bio::SeqIO modules
 #  by Ewan Birney <birney@sanger.ac.uk>
 #  and Lincoln Stein  <lstein@cshl.org>
 #  and the SimpleAlign.pm module of Ewan Birney
@@ -18,19 +18,27 @@ Bio::AlignIO::meme - meme sequence input/output stream
 
 Do not use this module directly.  Use it via the Bio::AlignIO class.
 
+  use Bio::AlignIO;
+  # read in an alignment from meme
+  my $in = Bio::AlignIO->new(-format => 'meme',
+                             -file   => 'meme.out');
+  while( my $aln = $in->next_aln ) {
+     # do something with the alignment
+  }
+
 =head1 DESCRIPTION
 
-This object transforms the "sites sorted by p-value" sections of a meme
-(text) output file into a series of Bio::SimpleAlign objects.  Each
-SimpleAlign object contains Bio::LocatableSeq objects which represent the
-individual aligned sites as defined by the central portion of the "site"
-field in the meme file.  The start and end coordinates are derived from
-the "Start" field. See L<Bio::SimpleAlign> and L<Bio::LocatableSeq> for
-more information.
+This object transforms the "sites sorted by position p-value" sections 
+of a meme (text) output file into a series of Bio::SimpleAlign 
+objects.  Each SimpleAlign object contains Bio::LocatableSeq 
+objects which represent the individual aligned sites as defined by 
+the central portion of the "site" field in the meme file.  The start 
+and end coordinates are derived from the "Start" field. See 
+L<Bio::SimpleAlign> and L<Bio::LocatableSeq> for more information.
 
-This module can only parse MEME version 3.0 and greater.  Previous 
-versions have output formats that are more difficult to parse 
-correctly.  If the meme output file is not version 3.0 or greater, 
+This module can only parse MEME version 3.0 and greater.  Previous
+versions have output formats that are more difficult to parse
+correctly.  If the meme output file is not version 3.0 or greater,
 we signal an error.
 
 =head1 FEEDBACK
@@ -46,7 +54,7 @@ Bug reports can be submitted via email or the web:
 
 =head1 AUTHORS - Benjamin Berman
 
- (based on the Bio::SeqIO modules by Ewan Birney and others)
+ Bbased on the Bio::SeqIO modules by Ewan Birney and others
  Email: benb@fruitfly.berkeley.edu
 
 =head1 APPENDIX
@@ -62,7 +70,6 @@ underscore.
 package Bio::AlignIO::meme;
 use vars qw(@ISA);
 use strict;
-
 use Bio::AlignIO;
 use Bio::LocatableSeq;
 
@@ -88,7 +95,7 @@ my $HTML_VERS_ERR =
 
 sub next_aln {
 	my ($self) = @_;
-	my $aln =  Bio::SimpleAlign->new(-source => 'meme');
+	my $aln = Bio::SimpleAlign->new(-source => 'meme');
 	my $line;
 	my $good_align_sec = 0;
 	my $in_align_sec = 0;
@@ -100,28 +107,26 @@ sub next_aln {
 				$self->throw($MEME_VERS_ERR) unless ($self->{'meme_vers'} >= 3.0);
 				$self->{'seen_header'} = 1;
 	      }
-
 			# Check if they've output the HTML version
 			if ($line =~ /\<TITLE\>/i){
 				$self->throw($HTML_VERS_ERR);
 	      }
-
 			# Check if we're going into an alignment section
 			if ($line =~ /sites sorted by position/) {
 				$self->throw($MEME_NO_HEADER_ERR) unless ($self->{'seen_header'});
 				$in_align_sec = 1;
 			}
-		}elsif ($line =~ /^(\S+)\s+(\d+)\s+
-                       (\S+)\s+([\.ACTGactg]*)\s+([ACTGactg]+)\s+
-                       ([\.ACTGactg]*)/x ) {
+		}elsif ($line =~ /^(\S+)\s+([+-]?)\s+(\d+)\s+
+                       (\S+)\s+([.ACTG]*)\s+([ACTG]+)\s+
+                       ([.ACTG]*)/xi ) {
 			# Got a sequence line
 			my $seq_name = $1;
-			# my $strand = ($2 eq '+') ? 1 : -1;
-			my $start_pos = $2;
-			# my $p_val = $3;
-			# my $left_flank = uc($4);
-			my $central = uc($5);
-			# my $right_flank = uc($6);
+			my $strand = ($2 eq '+' || $2 eq undef) ? 1 : -1;
+			my $start_pos = $3;
+			# my $p_val = $4;
+			# my $left_flank = uc($5);
+			my $central = uc($6);
+			# my $right_flank = uc($7);
 
 			# Info about the sequence
 			my $seq_res = $central;
@@ -141,9 +146,8 @@ sub next_aln {
 													  -id     => $seq_name,
 													  -start  => $start_coord,
 													  -end    => $end_coord,
-													  -strand => "+"
+													  -strand => $strand
 													 );
-
 			# Make a seq_feature out of the motif
 			$aln->add_seq($seq);
 		}elsif (($line =~ /^\-/) || ($line =~ /Sequence name/)){
@@ -157,7 +161,6 @@ sub next_aln {
 			return 0;
 		}
 	}
-
 	# Signal an error if we didn't find a header section
 	$self->throw($MEME_NO_HEADER_ERR) unless ($self->{'seen_header'});
 
