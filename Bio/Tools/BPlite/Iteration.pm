@@ -64,6 +64,8 @@ use strict;
 use vars qw(@ISA);
 use Bio::Root::RootI; # root object to inherit from
 use Bio::Tools::BPlite; #
+use Bio::Tools::BPlite::Sbjct;
+
 @ISA = qw(Bio::Root::RootI);
 
 sub new {
@@ -76,8 +78,11 @@ sub new {
 			      ROUND
 			      )],@args);
     
-    if (ref $self->{'FH'} !~ /GLOB/)
-    { $self->throw("Expecting a GLOB reference, not $self->{'FH'} !"); }
+    if((! ref($self->{'FH'})) ||
+       ((ref($self->{'FH'}) ne 'GLOB') &&
+	(! $self->{'FH'}->isa('IO::Handle')))) {
+	$self->throw("Expecting a GLOB reference, not $self->{'FH'} !");
+    }
     
     $self->{'LASTLINE'} = "";
     $self->{'QUERY'} = $self->{'PARENT'}->{'QUERY'};
@@ -147,13 +152,13 @@ sub  oldhits  {shift->{'OLDHITS'}}
  Function : Method of iterating through all the Sbjct retrieved
             from parsing the report 
  Example  : while ( my $sbjct = $obj->nextSbjct ) {}
- Returns  : next Sbjct object or null if finished
+ Returns  : next Sbjct object or undef if finished
  Args     :
 =cut
 
 sub nextSbjct {
   my ($self) = @_;
-  $self->_fastForward or return 0;
+  $self->_fastForward or return undef;
   
   #######################
   # get all sbjct lines #
