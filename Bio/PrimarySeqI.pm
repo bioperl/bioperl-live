@@ -514,13 +514,15 @@ sub trunc{
            character for unknown amino acid (optional) defaults to 'X'
            frame (optional) valid values 0, 1, 3, defaults to 0
            codon table id (optional) defaults to 1
+           complete coding sequence expected, defaults to 0 (false)
+           boolean, throw exception if not complete CDS (true) or defaults to warning (false) 
 
 =cut
 
 
 sub translate {
   my($self) = shift;
-  my($stop, $unknown, $frame, $tableid) = @_;
+  my($stop, $unknown, $frame, $tableid, $fullCDS, $throw) = @_;
   my($i, $len, $output) = (0,0,'');
   my($codon)   = "";
   my $aa;
@@ -564,18 +566,31 @@ sub translate {
 	  $output .= $aa ;
       }   
   }
-  if( substr($output,-1,1) eq $stop ) {
-      chop $output;
-  }
-
-  # if the initiator codon is not ATG, the amino acid needs to changed into M
-  if ( substr($output,0,1) ne 'M' ) {
-      if ($codonTable->is_start_codon(substr($seq, 0, 3)) ) {
-	  $output = 'M'. substr($output,1);
+  # only if we are expecting to translate a complete coding region
+  if ($fullCDS) {
+      my $id = $self->display_id;
+      #remove the stop character
+      if( substr($output,-1,1) eq $stop ) {
+	  chop $output;
+      }
+      elsif ($throw) {
+	  $self->warn("Seq [$id]: Not using a valid terminator codon!");
       } else {
-	  my $id = $self->display_id;
-	  $self->warn("Seq [$id]: Not using a valid initiator codon!") if $self->verbose;
-      }      
+	  $self->throw("Seq [$id]: Not using a valid terminator codon!");
+      }
+      # test if there are terminator characters inside the protein sequence!
+      #
+      # if the initiator codon is not ATG, the amino acid needs to changed into M
+      if ( substr($output,0,1) ne 'M' ) {
+	  if ($codonTable->is_start_codon(substr($seq, 0, 3)) ) {
+	      $output = 'M'. substr($output,1);
+	  } 
+	  elsif ($throw) {
+	      $self->warn("Seq [$id]: Not using a valid initiator codon!");
+	  } else {
+	      $self->throw("Seq [$id]: Not using a valid initiator codon!");
+	  }
+      }
   }
 
   my($out,$id);
