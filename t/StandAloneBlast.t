@@ -1,8 +1,12 @@
-
+# -*-Perl-*-
+## Bioperl Test Harness Script for Modules
+## $Id$
+#
 
 use strict;
-use vars qw($NUMTESTS);
 BEGIN { 
+    use vars qw($NUMTESTS);
+
     eval { require Test; };
     if( $@ ) {
 	use lib 't';
@@ -33,7 +37,8 @@ my $amino_database = 'swissprot';
 
 my @params = ('program' => 'blastn', 'database' => $nt_database , 
 	      '_READMETHOD' => 'Blast', 'output' => 'blastreport.out');
-my  $factory = Bio::Tools::Run::StandAloneBlast->new(@params);
+my  $factory = Bio::Tools::Run::StandAloneBlast->new('-verbose' => -1,
+						     @params);
 
 ok $factory;
 
@@ -45,7 +50,7 @@ my $blast_present = Bio::Tools::Run::StandAloneBlast->exists_blast();
 unless ($blast_present) {
     warn "blast program not found. Skipping tests $Test::ntest to $NUMTESTS\n";
     foreach ($Test::ntest..$NUMTESTS) {
-	skip(1,1);
+	skip('blast program not found',1);
     }
     exit 0;
 }

@@ -345,7 +345,9 @@ sub new {
     $self->_initialize_io();
     
     unless (&Bio::Tools::Run::StandAloneBlast::exists_blast()) {
-	warn "Blast program not found or not executable. \n  Blast can be obtained from ftp://ncbi.nlm.nih.gov/blast\n";
+	if( $self->verbose >= 0 ) {
+	    warn "Blast program not found or not executable. \n  Blast can be obtained from ftp://ncbi.nlm.nih.gov/blast\n";
+	}
     }
     # to facilitiate tempfile cleanup
     $self->_initialize_io();
@@ -355,6 +357,7 @@ sub new {
     while (@args)  {
 	my $attr =   shift @args;
 	my $value =  shift @args;
+	next if( $attr eq '-verbose');
 	$self->$attr($value);
     }
     return $self;
