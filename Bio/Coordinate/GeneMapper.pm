@@ -296,7 +296,7 @@ sub out {
 
  Title   : strict
  Usage   : $obj->strict('peptide');
- Function: Set and read weather strict boundaried of coordinate
+ Function: Set and read whether strict boundaried of coordinate
            systems are enforced.
            When strict is on, the end of the coordinate range must be defined.
  Example :
