@@ -63,20 +63,12 @@ Internal methods are usually preceded with a _
 # Let the code begin...
 
 
-package Bio::Event::EventGeneratorI;
+package Bio::SearchIO::EventGeneratorI;
 use vars qw(@ISA);
 use strict;
-use Carp;
-#use Bio::Event::EventGeneratorI;
+use Bio::Event::EventGeneratorI;
 
-#@ISA = qw(Bio::Event::EventGeneratorI);
-
-sub _abstractDeath {
-  my $self = shift;
-  my $package = ref $self;
-  my $caller = (caller)[1];
-  confess "Abstract method '$caller' defined in interface Bio::SearchIO::EventGeneratorI not implemented by package $package. Not your fault - author of $package should be blamed!";
-}
+@ISA = qw(Bio::Event::EventGeneratorI);
 
 
 =head2 SAX methods
@@ -91,13 +83,6 @@ sub _abstractDeath {
  Args    :
 
 
-=cut
-
-sub start_document{
-   my ($self,@args) = @_;
-   $self->_abstractDeath;
-}
-
 =head2 end_document
 
  Title   : end_document
@@ -108,13 +93,6 @@ sub start_document{
  Args    :
 
 
-=cut
-
-sub end_document{
-   my ($self,@args) = @_;
-   $self->_abstractDeath;
-
-}
 
 =head2 start_element
 
@@ -126,12 +104,6 @@ sub end_document{
  Args    :
 
 
-=cut
-
-sub start_element{
-   my ($self,@args) = @_;
-   $self->_abstractDeath;
-}
 
 =head2 end_element
 
@@ -143,14 +115,6 @@ sub start_element{
  Args    :
 
 
-=cut
-
-sub end_element{
-   my ($self,@args) = @_;
-   $self->_abstractDeath;
-}
-
-
 =head2 in_element
 
  Title   : in_element
@@ -159,15 +123,6 @@ sub end_element{
  Example :
  Returns : 
  Args    :
-
-
-=cut
-
-sub in_element{
-   my ($self,@args) = @_;
-   $self->_abstractDeath;
-
-}
 
 =head2 within_element
 
@@ -178,13 +133,6 @@ sub in_element{
  Returns : 
  Args    :
 
-
-=cut
-
-sub within_element{
-   my ($self,@args) = @_;
-   $self->_abstractDeath;
-}
 
 =head2 characters
 
@@ -197,11 +145,5 @@ sub within_element{
 
 
 =cut
-
-sub characters{
-   my ($self,@args) = @_;
-   $self->_abstractDeath;
-
-}
 
 1;

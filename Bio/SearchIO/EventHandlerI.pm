@@ -69,15 +69,9 @@ use strict;
 use Carp;
 
 use Bio::Event::EventHandlerI;
+use Bio::Event::EventGeneratorI;
 
 @ISA = qw (Bio::Event::EventHandlerI);
-
-sub _abstractDeath {
-  my $self = shift;
-  my $package = ref $self;
-  my $caller = (caller)[1];
-  confess "Abstract method '$caller' defined in interface Bio::SearchIO::EventHandlerI not implemented by package $package. Not your fault - author of $package should be blamed!";
-}
 
 =head2 start_report
 
@@ -91,7 +85,7 @@ sub _abstractDeath {
 
 sub start_report {
     my ($self) = @_;
-    $self->_abstractDeath;
+    $self->_abstractDeath('start_report');
 }
 
 =head2 end_report
@@ -108,7 +102,7 @@ sub start_report {
 
 sub end_report{
    my ($self,@args) = @_;
-   $self->_abstractDeath;
+   $self->_abstractDeath('end_report');
 }
 
 =head2 start_hsp
@@ -125,7 +119,7 @@ sub end_report{
 
 sub start_hsp{
    my ($self,@args) = @_;
-   $self->_abstractDeath;
+   $self->_abstractDeath('start_hsp');
 }
 
 =head2 end_hsp
@@ -142,7 +136,7 @@ sub start_hsp{
 
 sub end_hsp{
    my ($self,@args) = @_;
-   $self->_abstractDeath;
+   $self->_abstractDeath('end_hsp');
 }
 
 =head2 start_subject
@@ -159,7 +153,7 @@ sub end_hsp{
 
 sub start_subject{
    my ($self,@args) = @_;
-   $self->_abstractDeath;
+   $self->_abstractDeath('start_subject');
 }
 
 =head2 end_subject
@@ -176,7 +170,7 @@ sub start_subject{
 
 sub end_subject{
    my ($self,@args) = @_;
-   $self->_abstractDeath;
+   $self->_abstractDeath('end_subject');
 }
 
 =head2 Bio::Event::EventHandlerI methods
@@ -204,13 +198,6 @@ sub end_subject{
  Args    :
 
 
-=cut
-
-sub start_document{
-   my ($self,@args) = @_;
-   $self->_abstractDeath;
-}
-
 =head2 end_document
 
  Title   : end_document
@@ -221,14 +208,6 @@ sub start_document{
  Args    :
 
 
-=cut
-
-sub end_document{
-   my ($self,@args) = @_;
-   $self->_abstractDeath;
-
-}
-
 =head2 start_element
 
  Title   : start_element
@@ -237,14 +216,6 @@ sub end_document{
  Example :
  Returns : 
  Args    :
-
-
-=cut
-
-sub start_element{
-   my ($self,@args) = @_;
-   $self->_abstractDeath;
-}
 
 =head2 end_element
 
@@ -256,14 +227,6 @@ sub start_element{
  Args    :
 
 
-=cut
-
-sub end_element{
-   my ($self,@args) = @_;
-   $self->_abstractDeath;
-}
-
-
 =head2 in_element
 
  Title   : in_element
@@ -273,15 +236,6 @@ sub end_element{
  Returns : 
  Args    :
 
-
-=cut
-
-sub in_element{
-   my ($self,@args) = @_;
-   $self->_abstractDeath;
-
-}
-
 =head2 within_element
 
  Title   : within_element
@@ -290,14 +244,6 @@ sub in_element{
  Example :
  Returns : 
  Args    :
-
-
-=cut
-
-sub within_element{
-   my ($self,@args) = @_;
-   $self->_abstractDeath;
-}
 
 =head2 characters
 
@@ -310,11 +256,5 @@ sub within_element{
 
 
 =cut
-
-sub characters{
-   my ($self,@args) = @_;
-   $self->_abstractDeath;
-
-}
 
 1;

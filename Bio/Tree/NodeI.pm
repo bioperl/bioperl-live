@@ -87,15 +87,9 @@ Internal methods are usually preceded with a _
 package Bio::Tree::NodeI;
 use vars qw(@ISA);
 use strict;
-use Carp;
+use Bio::Root::RootI;
+@ISA = qw(Bio::Root::RootI);
 
-
-sub _abstractDeath {
-  my $self = shift;
-  my $package = ref $self;
-  my $caller = (caller)[1];
-  confess "Abstract method '$caller' defined in interfaceBio::Tree::NodeI not implemented by pacakge $package. Not your fault - author of $package should be blamed!";
-}
 
 =head2 add_Descendent
 
@@ -111,7 +105,7 @@ sub _abstractDeath {
 sub add_Descendent{
    my ($self,@args) = @_;
 
-   $self->_abstractDeath;
+   $self->_abstractDeath('add_Descendent');
 }
 
 
@@ -128,7 +122,7 @@ sub add_Descendent{
 
 sub each_Descendent{
    my ($self) = @_;
-   $self->_abstractDeath;   
+   $self->_abstractDeath('each_Descendent');   
 }
 
 =head2 Decorated Interface methods
@@ -165,7 +159,7 @@ sub get_Descendents{
 
 sub is_Leaf{
     my ($self) = @_;
-    $self->_abstractDeath;
+    $self->_abstractDeath('is_Leaf');
 }
 
 =head2 descendent_count
@@ -252,7 +246,7 @@ sub height{
 
 sub branch_length{
     my ($self)= @_;
-    $self->_abstractDeath;
+    $self->_abstractDeath('branch_length');
 }
 
 =head2 id

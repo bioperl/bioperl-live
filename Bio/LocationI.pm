@@ -74,23 +74,6 @@ BEGIN {
     $coord_policy = Bio::Location::WidestCoordPolicy->new();
 }
 
-# utility method Prints out a method like: 
-# Abstract method stop defined in interface Bio::LocationI not
-# implemented by package You::BadLocation
-
-sub _abstractDeath {
-  my $self = shift;
-  my $package = ref $self;
-  my $caller = (caller)[1];
-  
-  my $msg = "Abstract method '$caller' defined in interface Bio::LocationI but not implemented by package $package";
-  if( $self->can('throw') ) {
-      $self->throw($msg);
-  } else {
-      confess($msg);
-  }
-}
-
 =head2 location_type
 
   Title   : location_type
@@ -103,7 +86,7 @@ sub _abstractDeath {
 
 sub location_type { 
     my ($self,@args) = @_;
-    $self->_abstractDeath();
+    $self->_abstractDeath('location_type');
 }
 
 =head2 start
@@ -130,7 +113,7 @@ sub location_type {
 sub start {
     my ($self,@args) = @_;
 
-    $self->_abstractDeath() if @args;
+    $self->_abstractDeath('start') if @args;
     return $self->coordinate_policy()->start($self);
 }
 
@@ -158,7 +141,7 @@ sub start {
 sub end {
     my ($self,@args) = @_;
 
-    $self->_abstractDeath() if @args;
+    $self->_abstractDeath('end') if @args;
     return $self->coordinate_policy()->end($self);
 }
 
@@ -177,7 +160,7 @@ sub end {
 
 sub min_start {
     my($self) = @_;
-    $self->_abstractDeath();
+    $self->_abstractDeath('min_start');
 }
 
 =head2 max_start
@@ -197,7 +180,7 @@ sub min_start {
 
 sub max_start {
     my($self) = @_;
-    $self->_abstractDeath();
+    $self->_abstractDeath('max_start');
 }
 
 =head2 start_pos_type
@@ -218,7 +201,7 @@ sub max_start {
 
 sub start_pos_type {
     my($self) = @_;
-    $self->_abstractDeath();
+    $self->_abstractDeath('start_pos_type');
 }
 
 =head2 min_end
@@ -238,7 +221,7 @@ sub start_pos_type {
 
 sub min_end {
     my($self) = @_;
-    $self->_abstractDeath();
+    $self->_abstractDeath('min_end');
 }
 
 =head2 max_end
@@ -258,7 +241,7 @@ sub min_end {
 
 sub max_end {
     my($self) = @_;
-    $self->_abstractDeath();
+    $self->_abstractDeath('max_end');
 }
 
 =head2 end_pos_type
@@ -279,7 +262,7 @@ sub max_end {
 
 sub end_pos_type {
     my($self) = @_;
-    $self->_abstractDeath();
+    $self->_abstractDeath('end_pos_type');
 }
 
 =head2 seq_id
@@ -358,7 +341,7 @@ sub coordinate_policy {
 
 sub to_FTstring { 
     my($self) = @_;
-    $self->_abstractDeath();
+    $self->_abstractDeath('to_FTstring');
 }
 1;
 

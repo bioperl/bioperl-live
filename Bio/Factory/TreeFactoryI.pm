@@ -67,13 +67,9 @@ package Bio::Factory::TreeFactoryI;
 use vars qw(@ISA);
 use strict;
 use Carp;
+use Bio::Root::RootI;
 
-sub _abstractDeath {
-  my $self = shift;
-  my $package = ref $self;
-  my $caller = (caller)[1];
-  confess "Abstract method '$caller' defined in interface Bio::Factory::TreeFactoryI not implemented by package $package. Not your fault - author of $package should be blamed!";
-}
+@ISA = qw(Bio::Root::RootI);
 
 =head2 next_tree
 
@@ -87,7 +83,7 @@ sub _abstractDeath {
 
 sub next_tree{
    my ($self,@args) = @_;
-   $self->_abstractDeath;
+   $self->_abstractDeath('next_tree');
 }
 
 1;

@@ -146,7 +146,6 @@ use Bio::Root::RootI;
 
 sub get_all_annotation_keys{
     my ($self) = @_;
-   
     $self->throw("Abstract method get_all_annotation_keys implementing class did not provide method");
 }
 

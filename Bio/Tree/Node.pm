@@ -78,7 +78,7 @@ use strict;
 use Bio::Root::Root;
 use Bio::Tree::NodeI;
 
-@ISA = qw(Bio::Tree::NodeI Bio::Root::Root);
+@ISA = qw(Bio::Root::Root Bio::Tree::NodeI);
 
 =head2 new
 

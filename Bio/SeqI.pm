@@ -109,7 +109,7 @@ use Carp;
 sub top_SeqFeatures{
    my ($self) = @_;
 
-   $self->_abstractDeath();
+   $self->_abstractDeath('top_SeqFeatures');
 
 }
 
@@ -128,7 +128,7 @@ sub top_SeqFeatures{
 sub all_SeqFeatures{
    my ($self) = @_;
    
-   $self->_abstractDeath();
+   $self->_abstractDeath('all_SeqFeatures');
 
 }
 
@@ -147,7 +147,7 @@ sub all_SeqFeatures{
 sub seq{
    my ($self) = @_;
 
-   $self->_abstractDeath();
+   $self->_abstractDeath('seq');
 
 }
 
@@ -188,7 +188,7 @@ sub write_GFF{
 
 sub annotation {
    my ($obj) = @_;
-   $obj->_abstractDeath();
+   $obj->_abstractDeath('annotation');
 }
 
 =head2 primary_seq
@@ -205,7 +205,7 @@ sub annotation {
 
 sub primary_seq {
     my ($obj) = @_;
-    $obj->_abstractDeath();
+    $obj->_abstractDeath('primary_seq');
 }
 
 =head2 feature_count
@@ -222,7 +222,7 @@ sub primary_seq {
 
 sub feature_count {
     my ($obj) = @_;
-    $obj->_abstractDeath();
+    $obj->_abstractDeath('feature_count');
 }
 
 =head2 species
@@ -239,7 +239,7 @@ sub feature_count {
 
 sub species {
     my ($self) = @_;
-    $self->_abstractDeath();
+    $self->_abstractDeath('species');
 }
 
 1;

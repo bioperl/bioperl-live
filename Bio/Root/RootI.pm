@@ -64,11 +64,12 @@ package Bio::Root::RootI;
 use vars qw($DEBUG $ID $Revision $VERSION $VERBOSITY);
 use strict;
 use Carp 'confess';
+
 #use Bio::Root::Err; # we don't use that any longer, right?
 
 BEGIN { 
     $ID        = 'Bio::Root::RootI';
-    $VERSION   = 0.7;
+    $VERSION   = 0.9;
     $Revision  = '$Id$ ';
     $DEBUG     = 0;
     $VERBOSITY = 0;
@@ -116,15 +117,15 @@ sub _initialize {
 sub _create_object {
   my $class = shift;
   my @args = @_;
-  $class->_abstractDeath();
+  $class->_abstractDeath('_create_object');
 }
 
-# Copied from Bio::SeqI.  Shouldn't Bio::SeqI inherit from Bio::RootI?
 sub _abstractDeath {
-  my $self = shift;
-  my $package = ref $self;
+  my ($self,$method) = @_;
+  $method = 'NOTSPECIFIED' unless defined $method;
+  my $package = ref $self || $self;
   my $caller = (caller)[1];
-  confess "Abstract method '$caller' defined in interface Bio::SeqI not implemented by pacakge $package. Not your fault - author of $package should be blamed!";
+  confess "Abstract method '$method' defined in interface $caller not implemented by package '$package'. Not your fault - author of '$package' should be blamed!";
 }
 
 =head2 throw
@@ -244,7 +245,7 @@ sub deprecated{
 
 sub verbose{
    my ($self,$value) = @_;
-   $self->_abstractDeath;
+   $self->_abstractDeath('verbose');
 }
 
 =head2 stack_trace_dump
@@ -446,7 +447,7 @@ cleanup methods.
 
 sub _register_for_cleanup {
   my ($self,$method) = @_;
-  $self->_abstractDeath;
+  $self->_abstractDeath('_register_for_cleanup');
 }
 
 =head2 _unregister_for_cleanup
@@ -463,7 +464,7 @@ sub _register_for_cleanup {
 
 sub _unregister_for_cleanup {
   my ($self,$method) = @_;
-  $self->_abstractDeath;
+  $self->_abstractDeath('_unregister_for_cleanup');
 }
 
 =head2 _cleanup_methods
@@ -478,7 +479,7 @@ sub _unregister_for_cleanup {
 
 sub _cleanup_methods {
   my $self = shift;
-  $self->_abstractDeath;
+  $self->_abstractDeath('_cleanup_methods');
 }
 
 sub DESTROY {

@@ -74,11 +74,11 @@ methods. Internal methods are usually preceded with a _
 package Bio::Factory::SeqAnalysisParserFactoryI;
 use strict;
 
-#use Bio::Root::Root;
+use Bio::Root::RootI;
 use Carp;
 
 use vars qw(@ISA );
-#@ISA = qw(Bio::Root::Root); 
+@ISA = qw(Bio::Root::RootI); 
 
 =head2 get_parser
 
@@ -107,15 +107,7 @@ use vars qw(@ISA );
 
 sub get_parser {
     my ( $self, @args) = @_;
-    $self->_abstractDeath();
-}
-
-sub _abstractDeath {
-  my $self = shift;
-  my $package = ref $self;
-  my $caller = (caller)[1];
-  
-  confess "Abstract method '$caller' defined in interface Bio::Factory::SeqAnalysisParserFactoryI not implemented by pacakge $package. Not your fault - author of $package should be blamed!";
+    $self->_abstractDeath('get_parser');
 }
 
 1;

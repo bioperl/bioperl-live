@@ -70,16 +70,10 @@ Internal methods are usually preceded with a _
 package Bio::Map::PositionI;
 use vars qw(@ISA);
 use strict;
-
+use Bio::Root::RootI;
 use Carp;
 
-sub _abstractDeath {
-  my $self = shift;
-  my $package = ref $self;
-  my $caller = (caller)[1];
-  
-  confess "Abstract method '$caller' defined in interface Bio::Map::PositionI not implemented by pacakge $package. Not your fault - author of $package should be blamed!";
-}
+@ISA = qw(Bio::Root::RootI);
 
 =head2 each_position
 
@@ -93,7 +87,7 @@ sub _abstractDeath {
 
 sub each_position{
    my ($self) = @_;
-   $self->_abstractDeath();
+   $self->_abstractDeath('each_position');
 }
 
 =head2 add_position
@@ -108,7 +102,7 @@ sub each_position{
 
 sub add_position{
    my ($self) = @_;
-   $self->_abstractDeath();
+   $self->_abstractDeath('add_position');
 
 }
 
@@ -124,8 +118,6 @@ sub add_position{
 
 sub purge_positions{
    my ($self) = @_;
-   $self->_abstractDeath;
+   $self->_abstractDeath('purge_positions');
 }
-
-
 1;

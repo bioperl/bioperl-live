@@ -15,7 +15,7 @@
 Bio::Search::ReportI - Interface for a Search Report (BLAST, FASTA, HMMER)
 
 =head1 SYNOPSIS
-{
+
     # get a Search Report somehow
     # like from a SearchIO
     my $searchio = new Bio::SearchIO(-format => 'blastxml', -file => 'report.xml');
@@ -86,14 +86,8 @@ Internal methods are usually preceded with a _
 package Bio::Search::ReportI;
 use vars qw(@ISA);
 use strict;
-use Carp;
-
-sub _abstractDeath {
-  my $self = shift;
-  my $package = ref $self;
-  my $caller = (caller)[1];
-  confess "Abstract method '$caller' defined in interface Bio::Search::ReportI not implemented by pacakge $package. Not your fault - author of $package should be blamed!";
-}
+use Bio::Root::RootI;
+@ISA = qw(Bio::Root::RootI);
 
 =head2 next_subject
 
@@ -107,7 +101,7 @@ sub _abstractDeath {
 
 sub next_subject{
    my ($self) = @_;
-   $self->_abstractDeath;
+   $self->_abstractDeath('next_subject');
 
 }
 
@@ -123,7 +117,7 @@ sub next_subject{
 
 sub database_name{
    my ($self,@args) = @_;
-   $self->_abstractDeath;
+   $self->_abstractDeath('database_name');
 }
 
 =head2 database_size
@@ -139,7 +133,7 @@ sub database_name{
 
 sub database_size{
    my ($self,@args) = @_;
-   $self->_abstractDeath;
+   $self->_abstractDeath('database_size');
 }
 
 =head2 query_name
@@ -155,7 +149,7 @@ sub database_size{
 
 sub query_name{
    my ($self,@args) = @_;
-   $self->_abstractDeath;
+   $self->_abstractDeath('query_name');
 }
 
 =head2 query_size
@@ -171,7 +165,7 @@ sub query_name{
 
 sub query_size{
    my ($self,@args) = @_;
-   $self->_abstractDeath;
+   $self->_abstractDeath('query_size');
 }
 
 =head2 program_name
@@ -187,7 +181,7 @@ sub query_size{
 
 sub program_name{
    my ($self,@args) = @_;
-   $self->_abstractDeath;
+   $self->_abstractDeath('program_name');
 
 }
 
@@ -205,8 +199,7 @@ sub program_name{
 
 sub program_version{
    my ($self,@args) = @_;
-   $self->_abstractDeath;   
-
+   $self->_abstractDeath('program_version');   
 }
 
 =head2 get_parameter
@@ -222,7 +215,7 @@ sub program_version{
 
 sub get_parameter{
    my ($self,@args) = @_;
-   $self->_abstractDeath;
+   $self->_abstractDeath('get_parameter');
 }
 
 =head2 available_parameters
@@ -237,7 +230,7 @@ sub get_parameter{
 
 sub available_parameters{
    my ($self) = @_;
-   $self->_abstractDeath;
+   $self->_abstractDeath('available_parameters');
 }
 
 =head2 get_statistic
@@ -253,7 +246,7 @@ sub available_parameters{
 
 sub get_statistic{
    my ($self,@args) = @_;
-   $self->_abstractDeath;
+   $self->_abstractDeath('get_statistic');
 }
 
 =head2 available_statistics
@@ -268,7 +261,7 @@ sub get_statistic{
 
 sub available_statistics{
    my ($self) = @_;
-   $self->_abstractDeath;
+   $self->_abstractDeath('available_statistics');
 }
 
 1;

@@ -66,14 +66,10 @@ Internal methods are usually preceded with a _
 package Bio::Event::EventHandlerI;
 use vars qw(@ISA);
 use strict;
+use Bio::Root::RootI;
 use Carp;
 
-sub _abstractDeath {
-  my $self = shift;
-  my $package = ref $self;
-  my $caller = (caller)[1];
-  confess "Abstract method '$caller' defined in interface Bio::Event::EventHandlerI not implemented by package $package. Not your fault - author of $package should be blamed!";
-}
+@ISA = qw(Bio::Root::RootI);
 
 =head2 will_handle
 
@@ -88,7 +84,7 @@ sub _abstractDeath {
 
 sub will_handle{
    my ($self,$type) = @_;
-   $self->_abstractDeath;
+   $self->_abstractDeath('will_handle');
 }
 
 1;

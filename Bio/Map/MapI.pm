@@ -16,13 +16,11 @@ Bio::Map::MapI - Interface for describing Map objects in bioperl
 
 =head1 SYNOPSIS
 
-{
     # get a MapI somehowe
     my $name   = $map->name();     # string
     my $length = $map->length();   # integer
     my $species= $map->species;    # Bio::Species
     my $type   = $map->type();     # genetic/sts/rh/
-}
 
 =head1 DESCRIPTION
 
@@ -73,16 +71,10 @@ Internal methods are usually preceded with a _
 package Bio::Map::MapI;
 use vars qw(@ISA);
 use strict;
-
+use Bio::Root::RootI;
 use Carp;
 
-sub _abstractDeath {
-  my $self = shift;
-  my $package = ref $self;
-  my $caller = (caller)[1];
-  
-  confess "Abstract method '$caller' defined in interface Bio::Map::MapI not implemented by pacakge $package. Not your fault - author of $package should be blamed!";
-}
+@ISA = qw(Bio::Root::RootI);
 
 =head2 species
 
@@ -95,8 +87,8 @@ sub _abstractDeath {
 =cut
 
 sub species{
-   my ($self,@args) = @_;
-   $self->_abstractDeath();
+   my ($self) = @_;
+   $self->_abstractDeath('species');
 }
 
 =head2 units
@@ -110,8 +102,8 @@ sub species{
 =cut
 
 sub units{
-   my ($self,@args) = @_;
-   $self->_abstractDeath();
+   my ($self) = @_;
+   $self->_abstractDeath('units');
 }
 
 =head2 type
@@ -125,8 +117,8 @@ sub units{
 =cut
 
 sub type {
-   my ($self,@args) = @_;
-   $self->_abstractDeath;
+   my ($self) = @_;
+   $self->_abstractDeath('type');
 }
 
 =head2 length
@@ -144,8 +136,8 @@ sub type {
 =cut
 
 sub length{
-   my ($self,@args) = @_;
-   $self->_abstractDeath();
+   my ($self) = @_;
+   $self->_abstractDeath('length');
 }
 
 =head2 add_element
@@ -159,8 +151,8 @@ sub length{
 =cut
 
 sub add_element{
-   my ($self,@args) = @_;
-   $self->_abstractDeath;
+   my ($self) = @_;
+   $self->_abstractDeath('add_element');
 }
 
 =head2 each_element
@@ -176,8 +168,8 @@ sub add_element{
 =cut
 
 sub each_element{
-   my ($self,@args) = @_;
-   $self->_abstractDeath;
+   my ($self) = @_;
+   $self->_abstractDeath('each_element');
 }
 
 1;

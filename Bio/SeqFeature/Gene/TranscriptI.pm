@@ -70,23 +70,6 @@ use Bio::SeqFeatureI;
 
 @ISA = qw(Bio::SeqFeatureI);
 
-# utility method Prints out a method like: 
-# Abstract method stop defined in interface Bio::LocationI not
-# implemented by package You::BadLocation
-
-sub _abstractDeath {
-    my $self = shift;
-    my $package = ref $self;
-    my $caller = (caller)[1];
-  
-    my $msg = "Abstract method '$caller' defined in interface Bio::SeqFeature::Gene::GeneStructureI but not implemented by package $package";
-    if( $self->can('throw') ) {
-	$self->throw($msg);
-    } else {
-	confess($msg);
-    }
-}
-
 =head2 promoters
 
  Title   : promoters()
@@ -106,7 +89,7 @@ sub _abstractDeath {
 sub promoters {
     my ($self) = @_;
 
-    $self->_abstractDeath();
+    $self->_abstractDeath('promotors');
 }
 
 =head2 exons
@@ -131,7 +114,7 @@ sub promoters {
 sub exons {
     my ($self, $type) = @_;
 
-    $self->_abstractDeath();
+    $self->_abstractDeath('exons');
 }
 
 =head2 introns
@@ -149,7 +132,7 @@ sub exons {
 sub introns {
     my ($self) = @_;
 
-    $self->_abstractDeath();    
+    $self->_abstractDeath('introns');    
 }
 
 =head2 poly_A_site
@@ -166,7 +149,7 @@ sub introns {
 sub poly_A_site {
     my ($self) = @_;
 
-    $self->_abstractDeath();
+    $self->_abstractDeath('poly_A_site');
 }
 
 =head2 utrs
@@ -187,7 +170,7 @@ sub poly_A_site {
 sub utrs {
     my ($self) = @_;
 
-    $self->_abstractDeath();
+    $self->_abstractDeath('utrs');
 }
 
 =head2 mrna
@@ -205,7 +188,7 @@ sub utrs {
 sub mrna {
     my ($self) = @_;
 
-    $self->_abstractDeath();
+    $self->_abstractDeath('mrna');
 }
 
 =head2 cds
@@ -224,7 +207,7 @@ sub mrna {
 sub cds {
     my ($self) = @_;
 
-    $self->_abstractDeath();
+    $self->_abstractDeath('cds');
 }
 
 =head2 protein
@@ -242,7 +225,7 @@ sub cds {
 sub protein {
     my ($self) = @_;
 
-    $self->_abstractDeath();
+    $self->_abstractDeath('protein');
 }
 
 =head2 parent

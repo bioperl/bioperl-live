@@ -71,16 +71,8 @@ use vars qw(@ISA);
 use Bio::SeqFeature::SimilarityPair;
 
 use strict;
-use Carp;
 
 @ISA = qw(Bio::SeqFeature::SimilarityPair);
-
-sub _abstractDeath {
-  my $self = shift;
-  my $package = ref $self;
-  my $caller = (caller)[1];
-  confess "Abstract method '$caller' defined in interface Bio::Search::HSPI not implemented by package $package. Not your fault - author of $package should be blamed!";
-}
 
 =head2 report_type
 
@@ -95,7 +87,7 @@ sub _abstractDeath {
 
 sub report_type{
    my ($self,@args) = @_;
-   $self->_abstractDeath;
+   $self->_abstractDeath('report_type');
 }
 
 =head2 P
@@ -125,7 +117,7 @@ sub P {
 
 sub evalue {
    my ($self) = @_;
-   $self->_abstractDeath;
+   $self->_abstractDeath('evalue');
 }
 
 =head2 percent_identical
@@ -141,7 +133,7 @@ sub evalue {
 
 sub percent_identical {
    my ($self) = @_;
-   $self->_abstractDeath;
+   $self->_abstractDeath('percent_identical');
 }
 
 =head2 positive
@@ -157,7 +149,7 @@ sub percent_identical {
 
 sub positive        {
     my ($self) = @_;
-    $self->_abstractDeath;
+    $self->_abstractDeath('positive');
 }
 
 =head2 gaps
@@ -172,7 +164,7 @@ sub positive        {
 
 sub gaps        {
     my ($self) = @_;
-    $self->_abstractDeath;
+    $self->_abstractDeath('gaps');
 }
 
 =head2 query_seq
@@ -188,7 +180,7 @@ sub gaps        {
 
 sub query_seq{
    my ($self,@args) = @_;
-   $self->_abstractDeath;
+   $self->_abstractDeath('query_seq');
 }
 
 =head2 subject_seq
@@ -204,7 +196,7 @@ sub query_seq{
 
 sub subject_seq{
    my ($self,@args) = @_;
-   $self->_abstractDeath;
+   $self->_abstractDeath('subject_seq');
 }
 
 =head2 homology_seq
@@ -219,7 +211,7 @@ sub subject_seq{
 
 sub homology_seq{
    my ($self,@args) = @_;
-   $self->_abstractDeath;
+   $self->_abstractDeath('homology_seq');
 }
 
 =head2 hsp_length
@@ -235,7 +227,7 @@ sub homology_seq{
 
 sub hsp_length{
    my ($self,@args) = @_;
-
+   $self->_abstractDeath('hsp_length');
 }
 
 =head2 Bio::SeqFeature::SimilarityPair methods

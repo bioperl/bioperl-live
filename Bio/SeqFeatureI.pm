@@ -40,11 +40,12 @@ Bio::SeqFeatureI - Abstract interface of a Sequence Feature
 
 =head1 DESCRIPTION
 
-This interface is the functions one can expect for any Sequence Feature, whatever
-its implemtation or whether it is a more complex type (eg, a Gene). This object
-doesn't actually provide any implemention, it just provides the definitions
-of what methods one can call. See Bio::SeqFeature::Generic for a good standard
-implementation of this object
+This interface is the functions one can expect for any Sequence
+Feature, whatever its implemtation or whether it is a more complex
+type (eg, a Gene). This object doesn\'t actually provide any
+implemention, it just provides the definitions of what methods one can
+call. See Bio::SeqFeature::Generic for a good standard implementation
+of this object
 
 =head1 FEEDBACK
 
@@ -71,7 +72,6 @@ methods. Internal methods are usually preceded with a _
 
 =cut
 
-#'
 
 # Let the code begin...
 
@@ -87,18 +87,7 @@ use Carp;
 
 @ISA = qw(Bio::RangeI);
 
-
-# utility method Prints out a method like: 
-# Abstract method stop defined in interface Bio::SeqFeatureI not
-# implemented by package You::BadFeature
-
-sub _abstractDeath {
-  my $self = shift;
-  my $package = ref $self;
-  my $caller = (caller)[1];
-  
-  confess "Abstract method '$caller' defined in interface Bio::SeqFeatureI not implemented by pacakge $package";
-}
+=head2 Bio::RangeI methods
 
 =head2 start
 
@@ -109,14 +98,6 @@ sub _abstractDeath {
  Args    : none
 
 
-=cut
-
-sub start{
-   my ($self,@args) = @_;
-
-   $self->_abstractDeath();
-}
-
 =head2 end
 
  Title   : end
@@ -124,17 +105,6 @@ sub start{
  Function: Returns the end coordinate of the feature
  Returns : integer
  Args    : none
-
-
-=cut
-
-sub end{
-   my ($self,@args) = @_;
-
-   $self->_abstractDeath();
-
-}
-
 
 =head2 strand
 
@@ -147,12 +117,7 @@ sub end{
 
 =cut
 
-sub strand{
-   my ($self,@args) = @_;
-
-   $self->_abstractDeath();
-
-}
+=head2 SeqFeatureI specific methods
 
 =head2 sub_SeqFeature
 
@@ -168,7 +133,7 @@ sub strand{
 sub sub_SeqFeature{
    my ($self,@args) = @_;
 
-   $self->_abstractDeath();
+   $self->_abstractDeath('sub_SeqFeature');
 }
 
 
@@ -187,8 +152,7 @@ sub sub_SeqFeature{
 sub primary_tag{
    my ($self,@args) = @_;
 
-   $self->_abstractDeath();
-
+   $self->_abstractDeath('primary_tag');
 }
 
 =head2 source_tag
@@ -206,8 +170,7 @@ sub primary_tag{
 sub source_tag{
    my ($self,@args) = @_;
 
-   $self->_abstractDeath();
-
+   $self->_abstractDeath('source_tag');
 }
 
 =head2 has_tag
@@ -223,9 +186,7 @@ sub source_tag{
 
 sub has_tag{
    my ($self,@args) = @_;
-
-   $self->_abstractDeath();
-
+   $self->_abstractDeath('has_tag');
 }
 
 =head2 each_tag_value
@@ -242,7 +203,7 @@ sub has_tag{
 sub each_tag_value {
    my ($self,@args) = @_;
 
-   $self->_abstractDeath();
+   $self->_abstractDeath('each_tag_value');
 }
 
 =head2 all_tags
@@ -259,8 +220,7 @@ sub each_tag_value {
 sub all_tags{
    my ($self,@args) = @_;
 
-   $self->_abstractDeath();
-
+   $self->_abstractDeath('all_tags');
 }
 
 =head2 gff_string
@@ -311,7 +271,6 @@ sub _static_gff_formatter{
    if( !defined $static_gff_formatter ) {
        $static_gff_formatter = Bio::Tools::GFF->new('-gff_version' => 2);
    }
-
    return $static_gff_formatter;
 }
 
@@ -391,7 +350,7 @@ triplets (start, stop, strand) from which new ranges could be built.
 sub location {
    my ($self) = @_;
 
-   $self->_abstractDeath();
+   $self->_abstractDeath('location');
 }
 
 

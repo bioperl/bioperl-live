@@ -66,15 +66,9 @@ Internal methods are usually preceded with a _
 package Bio::Event::EventGeneratorI;
 use vars qw(@ISA);
 use strict;
-use Carp;
+use Bio::Root::RootI;
 
-sub _abstractDeath {
-  my $self = shift;
-  my $package = ref $self;
-  my $caller = (caller)[1];
-  confess "Abstract method '$caller' defined in interface Bio::Event::EventGeneratorI not implemented by package $package. Not your fault - author of $package should be blamed!";
-}
-
+@ISA = qw(Bio::Root::RootI);
 
 =head2 SAX methods
 
@@ -92,7 +86,7 @@ sub _abstractDeath {
 
 sub start_document{
    my ($self,@args) = @_;
-   $self->_abstractDeath;
+   $self->_abstractDeath('start_document');
 }
 
 =head2 end_document
@@ -109,7 +103,7 @@ sub start_document{
 
 sub end_document{
    my ($self,@args) = @_;
-   $self->_abstractDeath;
+   $self->_abstractDeath('end_document');
 
 }
 
@@ -127,7 +121,7 @@ sub end_document{
 
 sub start_element{
    my ($self,@args) = @_;
-   $self->_abstractDeath;
+   $self->_abstractDeath('start_element');
 }
 
 =head2 end_element
@@ -144,7 +138,7 @@ sub start_element{
 
 sub end_element{
    my ($self,@args) = @_;
-   $self->_abstractDeath;
+   $self->_abstractDeath('end_element');
 }
 
 
@@ -162,7 +156,7 @@ sub end_element{
 
 sub in_element{
    my ($self,@args) = @_;
-   $self->_abstractDeath;
+   $self->_abstractDeath('in_element');
 
 }
 
@@ -180,7 +174,7 @@ sub in_element{
 
 sub within_element{
    my ($self,@args) = @_;
-   $self->_abstractDeath;
+   $self->_abstractDeath('within_element');
 }
 
 =head2 characters
@@ -197,7 +191,7 @@ sub within_element{
 
 sub characters{
    my ($self,@args) = @_;
-   $self->_abstractDeath;
+   $self->_abstractDeath('characters');
 
 }
 

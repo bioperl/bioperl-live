@@ -24,6 +24,7 @@ Bio::Map::MappableI - An object that can be placed in a map
     } elsif( $position->less_tha($p2) ) {} 
       elsif( $position->greater_than($p2) ) { }    
 
+
 =head1 DESCRIPTION
 
 This object handles the generic notion of an element placed on a
@@ -73,16 +74,10 @@ Internal methods are usually preceded with a _
 package Bio::Map::MappableI;
 use vars qw(@ISA);
 use strict;
-
+use Bio::Root::RootI
 use Carp;
 
-sub _abstractDeath {
-  my $self = shift;
-  my $package = ref $self;
-  my $caller = (caller)[1];
-  
-  confess "Abstract method '$caller' defined in interface Bio::Map::MappableI not implemented by pacakge $package. Not your fault - author of $package should be blamed!";
-}
+@ISA = qw(Bio::Root::RootI);
 
 =head2 position
 
@@ -96,7 +91,7 @@ sub _abstractDeath {
 
 sub position{
    my ($self,@args) = @_;
-   $self->_abstractDeath();
+   $self->_abstractDeath('position');
 }
 
 =head2 equals
@@ -111,7 +106,7 @@ sub position{
 
 sub equals{
    my ($self,@args) = @_;
-   $self->_abstractDeath();
+   $self->_abstractDeath('equals');
 }
 
 =head2 less_than
@@ -126,7 +121,7 @@ sub equals{
 
 sub less_than{
    my ($self,@args) = @_;
-   $self->_abstractDeath();
+   $self->_abstractDeath('less_than');
 }
 
 =head2 greater_than
@@ -141,7 +136,7 @@ sub less_than{
 
 sub greater_than{
    my ($self,@args) = @_;
-   $self->_abstractDeath();
+   $self->_abstractDeath('greater_than');
 }
 
 1;

@@ -71,23 +71,6 @@ use Carp;
 
 @ISA = qw(Bio::LocationI);
 
-# utility method Prints out a method like: 
-# Abstract method stop defined in interface Bio::LocationI not
-# implemented by package You::BadLocation
-
-sub _abstractDeath {
-  my $self = shift;
-  my $package = ref $self;
-  my $caller = (caller)[1];
-  
-  my $msg = "Abstract method '$caller' defined in interface Bio::ComplexLocationI but not implemented by package $package";
-  if( $self->can('throw') ) {
-      $self->throw($msg);
-  } else {
-      confess($msg);
-  }
-}
-
 =head1 LocationI methods
 
 =head2 location_type
@@ -95,15 +78,14 @@ sub _abstractDeath {
   Title   : loc_type
   Usage   : my $location_type = $location->location_type();
   Function: Get location type encoded as text
-  Returns : stri
-ng ('EXACT', 'WITHIN', 'BETWEEN')
+  Returns : string ('EXACT', 'WITHIN', 'BETWEEN')
   Args    : none
 
 =cut
 
 sub location_type {
     my ($self) = @_;
-    $self->_abstractDeath();
+    $self->_abstractDeath('location_type');
 }
 
 =head2 min_start

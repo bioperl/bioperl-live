@@ -76,8 +76,12 @@ package Bio::RangeI;
 
 use strict;
 use Carp;
+use Bio::Root::RootI;
+use vars qw(@ISA);
 use integer;
 use vars '%STRAND_OPTIONS';
+
+@ISA = qw(Bio::Root::RootI);
 
 BEGIN {
 # STRAND_OPTIONS contains the legal values for the strand options
@@ -89,18 +93,6 @@ BEGIN {
      );
 }
 
-# utility methods
-#
-# Prints out a method like:
-# Abstract method stop defined in interface Bio::RangeI 
-# not implemented by package You::BadRange
-sub _abstractDeath {
-    my $self = shift;
-    my $package = ref $self || $self;
-    my $caller = (caller)[1];
-    
-    confess "Abstract method '$caller' defined in interface Bio::RangeI not implemented by package $package";
-}
 
 # returns true if strands are equal and non-zero
 sub _strong {
@@ -135,23 +127,6 @@ sub _testStrand() {
 
 These methods must be implemented in all subclasses.
 
-=head2 new
-
-  Title   : new
-  Function: 
-
-            confesses if you try to instantiate a RangeI RangeI is an
-            interface, so RangeI->new should never be called To make a
-            range, instantiate one of the implementing classes. e.g.:
-
-	    $range = Bio::Range->new(-start=>20, -end=>2000, -strand=>1)
-
-=cut
-
-sub new {
-    shift->_abstractDeath();
-}
-
 =head2 start
 
   Title   : start
@@ -164,7 +139,7 @@ sub new {
 =cut
 
 sub start {
-    shift->_abstractDeath();
+    shift->_abstractDeath('start');
 }
 
 =head2 end
@@ -179,7 +154,7 @@ sub start {
 =cut
 
 sub end {
-    shift->_abstractDeath();
+    shift->_abstractDeath('end');
 }
 
 =head2 length
@@ -194,7 +169,7 @@ sub end {
 =cut
 
 sub length {
-    shift->_abstractDeath();
+    shift->_abstractDeath('length');
 }
 
 =head2 strand
@@ -209,7 +184,7 @@ sub length {
 =cut
 
 sub strand {
-    shift->_abstractDeath();
+    shift->_abstractDeath('strand');
 }
 
 =head1 Boolean Methods

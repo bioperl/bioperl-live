@@ -66,14 +66,8 @@ Internal methods are usually preceded with a _
 package Bio::Search::SubjectI;
 use vars qw(@ISA);
 use strict;
-use Carp;
 
-sub _abstractDeath {
-  my $self = shift;
-  my $package = ref $self;
-  my $caller = (caller)[1];
-  confess "Abstract method '$caller' defined in interface Bio::Search::SubjectI not implemented by pacakge $package. Not your fault - author of $package should be blamed!";
-}
+@ISA = qw(Bio::Root::RootI);
 
 =head2 name
 
@@ -86,7 +80,7 @@ sub _abstractDeath {
 
 =cut
 
-sub name { $_[0]->_abstractDeath; }
+sub name { shift->_abstractDeath('name'); }
 
 =head2 length
 
@@ -98,10 +92,7 @@ sub name { $_[0]->_abstractDeath; }
 
 =cut
 
-sub length{
-   my ($self,@args) = @_;
-   $self->_abstractDeath;
-}
+sub length { shift->_abstractDeath('length');}
 
 =head2 accession
 
@@ -113,10 +104,7 @@ sub length{
 
 =cut
 
-sub accession{
-   my ($self,@args) = @_;
-   $self->_abstractDeath;
-}
+sub accession { shift->_abstractDeath('accession');}
 
 =head2 description
 
@@ -128,10 +116,7 @@ sub accession{
 
 =cut
 
-sub description{
-   my ($self,@args) = @_;
-   $self->_abstractDeath;
-}
+sub description { shift->_abstractDeath('description');}
 
 =head2 report_type
 
@@ -148,9 +133,7 @@ sub description{
 
 =cut
 
-sub report_type {
-    $_[0]->_abstractDeath; 
-}
+sub report_type { shift->_abstractDeath('report_type'); }
 
 =head2 nextFeaturePair
 
@@ -164,7 +147,7 @@ sub report_type {
 =cut
 
 
-sub nextFeaturePair { shift->next_hsp } # just another name
+sub nextFeaturePair { shift->next_hsp; } # just another name
 
 =head2 next_hsp
 
@@ -177,8 +160,7 @@ sub nextFeaturePair { shift->next_hsp } # just another name
 
 =cut
 
-sub next_hsp {
-    $_[0]->_abstractDeath;
-}
+sub next_hsp {shift->_abstractDeath('next_hsp'); }
+
 
 1;

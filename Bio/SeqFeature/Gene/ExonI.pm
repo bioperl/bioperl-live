@@ -71,22 +71,6 @@ use Bio::SeqFeatureI;
 
 @ISA = qw(Bio::SeqFeatureI);
 
-# utility method Prints out a method like: 
-# Abstract method stop defined in interface Bio::LocationI not
-# implemented by package You::BadLocation
-
-sub _abstractDeath {
-    my $self = shift;
-    my $package = ref $self;
-    my $caller = (caller)[1];
-  
-    my $msg = "Abstract method '$caller' defined in interface Bio::SeqFeature::Gene::GeneStructureI but not implemented by package $package";
-    if( $self->can('throw') ) {
-	$self->throw($msg);
-    } else {
-	confess($msg);
-    }
-}
 
 =head2 is_coding
 
@@ -105,7 +89,7 @@ sub _abstractDeath {
 sub is_coding {
     my ($self) = @_;
 
-    $self->_abstractDeath();
+    $self->_abstractDeath('is_coding');
 }
 
 =head2 cds
@@ -128,8 +112,7 @@ sub is_coding {
 
 sub cds {
     my ($self) = @_;
-
-    $self->_abstractDeath();
+    $self->_abstractDeath('cds');
 }
 
 1;
