@@ -16,7 +16,8 @@ Bio::SeqIO::FTHelper - Helper class for Embl/Genbank feature tables
 
 =head1 SYNOPSIS
 
-Used by Bio::SeqIO::EMBL to help process the Feature Table
+Used by Bio::SeqIO::EMBL,Bio::SeqIO::genbank, and Bio::SeqIO::swiss to
+help process the Feature Table
 
 =head1 DESCRIPTION
 
@@ -119,10 +120,13 @@ sub _generic_seqfeature {
 
     # parse location; this may cause an exception, in which case we gently
     # recover and ignore this feature
+
+    
     my $loc;
     eval {
 	$loc = $locfac->from_string($fth->loc);
     };
+    
     if(! $loc) {
 	  $fth->warn("exception while parsing location line [" . $fth->loc .
 		      "] in reading $source, ignoring feature " .
