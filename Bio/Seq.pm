@@ -167,6 +167,24 @@ sub seq {
    return $self->primary_seq->seq();
 }
 
+
+=head2 length
+
+ Title   : length
+ Usage   : $len = $seq->length()
+ Function:
+ Example :
+ Returns : integer representing the length of the sequence.
+ Args    :
+
+=cut
+
+sub length {
+   my ($self) = @_;
+   return $self->primary_seq->length();
+}
+
+
 =head2 subseq
 
  Title   : subseq
@@ -185,7 +203,7 @@ sub seq {
 
 sub subseq {
    my ($self,$s,$e) = @_;
-   return $self->primary_seq->subseq($s,$e);
+   return $self->{'primary_seq'}->subseq($s,$e);
 }
 
 =head2 display_id
