@@ -12,7 +12,7 @@ BEGIN {
 	use lib 't';
     }
     use Test;
-    plan tests => 59; 
+    plan tests => 61; 
 }
 
 use Bio::Tools::BPbl2seq;
@@ -88,3 +88,8 @@ ok $hsp->subject->start, 22, "wrong hit start ";
 ok $hsp->subject->end, 464, "wrong hit end";
 ok $hsp->subject->seqname =~ /gi|4507985/;# "wrong hit name";
 ok $hsp->gaps, 30;
+
+$report = new Bio::Tools::BPbl2seq(-file =>  Bio::Root::IO->catfile("t","data","empty.bl2seq"));
+$report->verbose(2);
+ok( $report->isa('Bio::Tools::BPbl2seq'),1, " no report found");
+ok $report->sbjctName, '',"query found where none expected";
