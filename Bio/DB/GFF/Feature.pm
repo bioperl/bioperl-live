@@ -996,35 +996,59 @@ enclosing feature.
 # this works recursively, so subfeatures can contain other features
 sub adjust_bounds {
   my $self = shift;
+  my $shrink = shift;
   my $g = $self->{group};
 
+  my $first = 0;
+  my $tfirst = 0;
   if (my $subfeat = $self->{subfeatures}) {
     for my $list (values %$subfeat) {
       for my $feat (@$list) {
-
 	# fix up our bounds to hold largest subfeature
-	my($start,$stop,$strand) = $feat->adjust_bounds;
-	$self->{fstrand} = $strand unless defined $self->{fstrand};
-	my ($low,$high)  = $start < $stop ? ($start,$stop) : ($stop,$start);
-	if ($self->{fstrand} ne '-') {
-	  $self->{start} = $low   if !defined($self->{start}) || $low < $self->{start};
-	  $self->{stop}  = $high  if !defined($self->{stop})  || $high  > $self->{stop};
+	my($start,$stop,$strand) = $feat->adjust_bounds($shrink);
+
+	if (defined($self->{fstrand})) {
+	  $self->debug("Subfeature's strand ($strand) doesn't match parent strand ($self->{fstrand})\n") if $self->{fstrand} ne $strand;
 	} else {
-	  $self->{start} = $high  if !defined($self->{start}) || $high > $self->{start};
-	  $self->{stop}  = $low   if !defined($self->{stop})  || $low  < $self->{stop};
+	  $self->{fstrand} = $strand;
+	}
+
+	my ($low,$high)  = $start < $stop ? ($start,$stop) : ($stop,$start);
+	if ($shrink && !$first++) {
+	  # first subfeature resets start & stop:
+	  $self->{start} = $self->{fstrand} ne '-' ? $low : $high;
+	  $self->{stop}  = $self->{fstrand} ne '-' ? $high : $low;
+	} else {
+	  if ($self->{fstrand} ne '-') {
+	    $self->{start} = $low
+	      if (!defined($self->{start})) || $low < $self->{start};
+	    $self->{stop}  = $high
+	      if (!defined($self->{stop}))  || $high  > $self->{stop};
+	  } else {
+	    $self->{start} = $high
+	      if (!defined($self->{start})) || $high > $self->{start};
+	    $self->{stop}  = $low
+	      if (!defined($self->{stop}))  || $low  < $self->{stop};
+	  }
 	}
 
 	# fix up endpoints of targets too (for homologies only)
 	my $h = $feat->group;
 	next unless $h && $h->isa('Bio::DB::GFF::Homol');
 	next unless $g && $g->isa('Bio::DB::GFF::Homol');
+
 	($start,$stop) = ($h->{start},$h->{stop});
-	if ($start <= $stop) {
-	  $g->{start} = $start if !defined($g->{start}) || $start < $g->{start};
-	  $g->{stop}  = $stop  if !defined($g->{stop})  || $stop  > $g->{stop};
+	if ($shrink && !$tfirst++) {
+	    $g->{start} = $start;
+	    $g->{stop}  = $stop;
 	} else {
-	  $g->{start} = $start if !defined($g->{start}) || $start > $g->{start};
-	  $g->{stop}  = $stop  if !defined($g->{stop})  || $stop  < $g->{stop};
+	  if ($start <= $stop) {
+	    $g->{start} = $start if (!defined($g->{start})) || $start < $g->{start};
+	    $g->{stop}  = $stop  if (!defined($g->{stop}))  || $stop  > $g->{stop};
+	  } else {
+	    $g->{start} = $start if (!defined($g->{start})) || $start > $g->{start};
+	    $g->{stop}  = $stop  if (!defined($g->{stop}))  || $stop  < $g->{stop};
+	  }
 	}
       }
     }
