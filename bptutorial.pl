@@ -79,15 +79,15 @@ BioPerlTutorial - a tutorial for bioperl
   III.6 Searching for genes and other structures on genomic DNA
            (Genscan, Sim4, ESTScan, MZEF, Grail, Genemark, EPCR)
   III.7 Developing machine readable sequence annotations
-     III.7.1 Representing sequence annotations 
-           (Annotation::Collection, SeqFeature, RichSeq)
-     III.7.2 Representing and large and/or changing sequences 
-           (LiveSeq,LargeSeq)
-     III.7.3 Representing related sequences - mutations, polymorphisms etc 
+     III.7.1 Representing sequence annotations (SeqFeature,RichSeq,Location)
+     III.7.2 Representing sequence annotations (Annotation::Collection)
+     III.7.3 Representing large sequences (LargeSeq)
+     III.7.4 Representing changing sequences (LiveSeq)
+     III.7.5 Representing related sequences - mutations, polymorphisms
            (Allele, SeqDiff)
-     III.7.4 Incorpotating quality data in sequence annotation (SeqWithQuality)
-     III.7.5 Sequence XML representations - generation and parsing (SeqIO::game)
-     III.7.6 Representing Sequence Features using GFF (Bio:Tools:GFF )
+     III.7.6 Incorporating quality data in sequence annotation (SeqWithQuality)
+     III.7.7 Sequence XML representations - generation and parsing (SeqIO::game)
+     III.7.8 Representing Sequence Features using GFF (Bio:Tools:GFF)
   III.8 Manipulating clusters of sequences (Cluster, ClusterIO)
   III.9 Representing non-sequence data in Bioperl: structures, trees, 
              maps, graphics and bibliographic text
@@ -535,7 +535,7 @@ standard Seq objects.  If you are using sources with very rich
 sequence annotation, you may want to consider using these objects
 which are described in section L<"III.7.1">. SeqWithQuality objects are
 used to manipulate sequences with quality data, like those produced by
-phred.  These objects are described in section L<"III.7.4">,
+phred.  These objects are described in section L<"III.7.6">,
 L<Bio::Seq::RichSeqI>, and in L<Bio::Seq::SeqWithQuality>.
 
 What is called a LocatableSeq object for historical reasons
@@ -568,7 +568,7 @@ in detail.
 
 A LargeSeq object is a special type of Seq object used for
 handling very long sequences (e.g. E<gt> 100 MB).  If you need to
-manipulate such long sequences see section L<"III.7.2"> which describes
+manipulate such long sequences see section L<"III.7.3"> which describes
 LargeSeq objects, or L<Bio::Seq::LargeSeq>.
 
 A LiveSeq object is another specialized object for storing
@@ -579,7 +579,7 @@ sequenced genomes - locations which can change as higher quality
 sequencing data becomes available.  Although a LiveSeq object is not
 implemented in the same way as a Seq object, LiveSeq does implement
 the SeqI interface (see below). Consequently, most methods available
-for Seq objects will work fine with LiveSeq objects. Section L<"III.7.2">
+for Seq objects will work fine with LiveSeq objects. Section L<"III.7.4">
 and L<Bio::LiveSeq> contain further discussion of LiveSeq objects.
 
 SeqI objects are Seq "interface objects" (see section L<"II.4"> and
@@ -615,7 +615,8 @@ and stop locations.  However, if you are using bioperl to annotate partially
 or unfinished genomes or to read annotations of such genomes with bioperl,
 understanding the various Location objects will be important.  See the
 documentation of the various modules in the Bio::Locations directory or
-L<Bio::Location::CoordinatePolicyI> for more information.
+L<Bio::Location::CoordinatePolicyI> or section L<"III.7.1"> for more 
+information.
 
 =for html <A NAME ="ii.4"></A>
 
@@ -674,11 +675,11 @@ bioperl can manipulate sequences, it needs to have access to sequence
 data.  Now one can directly enter data sequence data into a bioperl
 Seq object, eg:
 
-  $seq = Bio::Seq->new('-seq'              =>'actgtggcgtcaact',
-                       '-desc'             =>'Sample Bio::Seq object',
-                       '-display_id'       =>'something',
-                       '-accession_number' =>'accnum',
-                       '-alphabet'         =>'dna' );
+  $seq = Bio::Seq->new(-seq              =>'actgtggcgtcaact',
+                       -desc             =>'Sample Bio::Seq object',
+                       -display_id       =>'something',
+                       -accession_number =>'accnum',
+                       -alphabet         =>'dna' );
 
 However, in most cases, it is preferable to access sequence data from
 some online data file or database. Note that in common with
@@ -1848,7 +1849,7 @@ several of which are described in the following sub-sections.
 
 =for html <A NAME ="iii.7.1"></A>
 
-=head2 III.7.1 Representing sequence annotations (Annotation::Collection,SeqFeature)
+=head2 III.7.1 Representing sequence annotations (SeqFeature,RichSeq,Location)
 
 In Bioperl, most sequence annotations are stored in sequence-feature
 (SeqFeature) objects.  A SeqFeature onject generally has (at least) a
@@ -1874,7 +1875,7 @@ they can be with retrieved, eg:
 
   @topfeatures = $seqobj->top_SeqFeatures(); # just top level, or
   @allfeatures = $seqobj->all_SeqFeatures(); # descend into sub features
-  $disease_annotation = $annotations->get_Annotations('disease'); 
+  $disease_annotation = $annotations->get_Annotations('disease');
 
 The individual components of a SeqFeature can also be set or retrieved
 with methods including:
@@ -1918,7 +1919,7 @@ statements (e.g. "CDS    join(51..142,273..495,1346..1474)"):
   if ( $feat->location->isa('Bio::Location::SplitLocationI') &&
 	       $feat->primary_tag eq 'CDS' )  {
     foreach $loc ( $feat->location->sub_Location ) {
-      print $loc->start . ".." . $loc->end . "\n";
+      print $loc->start,"..",$loc->end,"\n";
     }
   }
 
@@ -1937,32 +1938,53 @@ Sample usage might be:
 
 See L<Bio::Seq::RichSeqI> for more details.
 
+=head2 III.7.2 Representing sequence annotations (Annotation::Collection)
 
-=for html <A NAME ="iii.7.2"></A>
+Much of the interesting desciption of a sequence can be associated with
+sequence features but in Seq objects derived from Genbank or EMBL entries
+there can be useful information in other "annotation" sections, such as the 
+COMMENTS section of a Genbank entry. In order to access this information you'll 
+need to create an Annotation::Collection object. For example:
 
-=head2 III.7.2 Representing and large and/or changing sequences (LiveSeq,LargeSeq)
+  $db = new Bio::DB::GenBank;
+  $seqobj = $db->get_Seq_by_acc("NM_125788");
+  $ann_coll = $seqobj->annotation;
 
-Very large sequences and/or data files with sequences that are frequently being
-updated present special problems to automated sequence-annotation storage and
-retrieval projects.  Bioperl's LargeSeq and LiveSeq objects are designed to
-address these two situations.
+This Collection object is just a container for other specialized objects, and 
+its methods are described in L<Bio::Annotation::Collection>. You can find the 
+desired object within the Collection object by examining the "tagnames":
 
-LargeSeq
+  foreach $ann ($ann_coll->get_Annotations) {
+    print "Comment: ",$ann->as_text if ($ann->tagname eq "comment");
+  }
+
+Other possible tagnames include "date_changed", "keyword", and "reference". 
+Objects with the "reference" tagname are Bio::Annotation::Reference objects 
+and represent scientific articles. See L<Bio::Annotation::Reference> for 
+descriptions of the methods used to access the data in Reference objects.
+
+=for html <A NAME ="iii.7.3"></A>
+
+=head2 III.7.3 Representing large sequences (LargeSeq)
+
+Very large sequences present special problems to automated sequence-annotation 
+storage and retrieval projects.  Bioperl's LargeSeq object addresses this
+situation.
 
 A LargeSeq object is a SeqI compliant object that stores a sequence as
 a series of files in a temporary directory (see sect L<"II.1"> or
 L<Bio::SeqI> for a definition of SeqI objects). The aim is to enable
-storing very large sequences (eg, E<gt> 100MBases) without running out
+storing very large sequences (e.g. E<gt> 100 MBases) without running out
 of memory and, at the same time, preserving the familiar bioperl Seq
-object interface. As a result, from the users perspective, using a
+object interface. As a result, from the user's perspective, using a
 LargeSeq object is almost identical to using a Seq object. The
 principal difference is in the format used in the SeqIO calls. Another
 difference is that the user must remember to only read in small chunks
 of the sequence at one time.  These differences are illustrated in the
 following code:
 
-  $seqio = new Bio::SeqIO('-format'=>'largefasta',
-  			  '-file'  =>'t/data/genomic-seq.fasta');
+  $seqio = new Bio::SeqIO(-format => 'largefasta',
+  			  -file   => 't/data/genomic-seq.fasta');
   $pseq = $seqio->next_seq();
   $plength = $pseq->length();
   $last_4 = $pseq->subseq($plength-3,$plength);  # this is OK
@@ -1971,7 +1993,11 @@ following code:
   # probably cause the machine to run out of memory
   # $lots_of_data = $pseq->seq();  # NOT OK for a large LargeSeq object
 
-LiveSeq
+=head2 III.7.4 Representing changing sequences (LiveSeq)
+
+Data files with sequences that are frequently being updated present special
+problems to automated sequence-annotation storage and retrieval projects.
+Bioperl's LiveSeq object is designed to address this situation.
 
 The LiveSeq object addresses the need for a sequence object capable of
 handling sequence data that may be changing over time.  In such a
@@ -1979,7 +2005,7 @@ sequence, the precise locations of features along the sequence may
 change.  LiveSeq deals with this issue by re-implementing the sequence
 object internally as a "double linked chain." Each element of the
 chain is connected to other two elements (the PREVious and the NEXT
-one). There is no absolute position (like in an array), hence if
+one). There is no absolute position like in an array, hence if
 positions are important, they need to be computed (methods are
 provided). Otherwise it's easy to keep track of the elements with
 their "LABELs". There is one LABEL (think of it as a pointer) to each
@@ -1993,18 +2019,18 @@ PrimarySeqI interface (recall PrimarySeq is the subset of Seq without
 annotations or SeqFeatures - see section L<"II.1"> or L<Bio::PrimarySeq>).
 Consequently syntax for using LiveSeq objects is familiar although a
 modified version of SeqIO called Bio::LiveSeq::IO::Bioperl needs to be
-used to actually load the data, eg:
+used to actually load the data, e.g.:
 
-  $loader=Bio::LiveSeq::IO::BioPerl->load('-db'=>"EMBL",
-                                          '-file'=>"t/data/factor7.embl");
-  $gene=$loader->gene2liveseq('-gene_name' => "factor7");
+  $loader = Bio::LiveSeq::IO::BioPerl->load(-db   => "EMBL",
+                                            -file => "t/data/factor7.embl");
+  $gene = $loader->gene2liveseq(-gene_name => "factor7");
   $id = $gene->get_DNA->display_id ;
   $maxstart = $gene->maxtranscript->start;
 
 See L<Bio::LiveSeq::IO::BioPerl> for more details.
 
-=head2 III.7.3 Representing related sequences - mutations,
-polymorphisms etc (Allele, SeqDiff)
+=head2 III.7.5 Representing related sequences - mutations,
+               polymorphisms (Allele, SeqDiff)
 
 A Mutation object allows for a basic description of a sequence change
 in the DNA sequence of a gene. The Mutator object takes in mutations,
@@ -2042,9 +2068,9 @@ see L<Bio::LiveSeq::Mutator> and L<Bio::LiveSeq::Mutation> as well as
 the original documentation for the "Computational Mutation Expression
 Toolkit" project at http://www.ebi.ac.uk/mutations/toolkit/.
 
-=for html <A NAME ="iii.7.4"></A>
+=for html <A NAME ="iii.7.6"></A>
 
-=head2 III.7.4 Incorporating quality data in sequence annotation (SeqWithQuality)
+=head2 III.7.6 Incorporating quality data in sequence annotation (SeqWithQuality)
 
 SeqWithQuality objects are used to describe sequences with very
 specific annotations - that is, data quality annotations.  Data quality
@@ -2071,7 +2097,7 @@ Syntax for using SeqWithQuality objects is as follows:
   $swqobj->qual(); # the quality of the SeqWithQuality object
 
 A SeqWithQuality object is created automatically when phred output, a *phd
-file, is read by SeqIO, eg
+file, is read by SeqIO, e.g.
 
   $seqio = Bio::SeqIO->new(-file=>"my.phd",-format=>"phd");
   # or just 'Bio::SeqIO->new(-file=>"my.phd")'
@@ -2081,7 +2107,7 @@ See L<Bio::Seq::SeqWithQuality> for a detailed description of the methods,
 L<Bio::Seq::PrimaryQual>, and L<Bio::SeqIO::phd>.
 
 
-=head2 III.7.5 Sequence XML representations - generation and parsing (SeqIO::game, SeqIO::bsml)
+=head2 III.7.7 Sequence XML representations - generation and parsing (SeqIO::game, SeqIO::bsml)
 
 The previous subsections have described tools for automated sequence
 annotation by the creation of an "object layer" on top of a
@@ -2093,7 +2119,7 @@ flags and controlled vocabulary.
 In order to transfer data with XML in biology, one needs an agreed
 upon "vocabulary" of biological terms. Several of these have been
 proposed and bioperl has at least some support for three: "game", BSML
-and AGAVE. 
+and AGAVE.
 
 Once a vocabulary is agreed upon, it becomes possible to convert
 sequence XML sequence features can be turned into bioperl Seq
@@ -2105,21 +2131,21 @@ annotation will be lost when using XML in this manner since generally
 XML does not support all the annotation information available in Seq
 objects.
 
-  $str = Bio::SeqIO->new('-file'=> 't/data/test.game',
-  			 '-format' => 'game');
+  $str = Bio::SeqIO->new(-file   => 't/data/test.game',
+  			 -format => 'game');
   $seq = $str->next_primary_seq();
   $id = $seq->id;
   @feats = $seq->all_SeqFeatures();
   $first_primary_tag = $feats[0]->primary_tag;
 
-  $str = Bio::SeqIO->new('-file'=> 'bsmlfile.xml',
-  			 '-format' => 'bsml');
+  $str = Bio::SeqIO->new(-file   => 'bsmlfile.xml',
+  			 -format => 'bsml');
   $seq = $str->next_primary_seq();
   $id = $seq->id;
   @feats = $seq->all_SeqFeatures();
   $first_primary_tag = $feats[0]->primary_tag;
 
-=head2  III.7.6 Representing Sequences using GFF (Bio:DB:GFF )
+=head2  III.7.8 Representing Sequences using GFF (Bio:DB:GFF )
 
 Another format for transmitting machine-readable sequence-feature data
 is the Genome Feature Format (GFF).  This file type is well suited to
@@ -2130,20 +2156,19 @@ parser for converting between GFF files and SeqFeature objects.
 Typical syntax looks like:
 
   $gffio = Bio::Tools::GFF->new(-fh => \*STDIN, -gff_version => 2);
-  $feature;
     # loop over the input stream
   while($feature = $gffio->next_feature()) {
     # do something with feature
   }
   $gffio->close();
 
-Further information can be found at L<Bio::Tools::GFF>. Also see the
+Further information can be found at L<Bio::Tools::GFF>. Also see
 examples/tools/gff2ps.pl, examples/tools/gb_to_gff.pl, and the
 scripts in scripts/Bio-DB-GFF. Note: this module shouldn't be confused 
-with the module Bio::DB::GFF which is for implementing relational 
+with the module Bio::DB::GFF which is for implementing relational
 databases when using bioperl-db.
 
-=head2  III.8 Manipulating clusters of sequences (Cluster, ClusterIO)
+=head2 III.8 Manipulating clusters of sequences (Cluster, ClusterIO)
 
 Sequence alignments are not the only examples in which one might want
 to manipulate a group of sequences together.  Such groups of related 
@@ -2157,13 +2182,12 @@ available only for Unigene clusters.  To read in a Unigene cluster (in
 the NCBI XML format) and then extract individual sequences for the
 cluster for manipulation might look like this:
 
-  $stream  = Bio::ClusterIO->new('-file' => "Hs.data",  '-format' => "unigene");
-  # note: we quote -format to keep older perl's from complaining.
-  while ( my $in = $stream->next_cluster() ) {
+  my $stream = Bio::ClusterIO->new(-file => "Hs.data", -format => "unigene");
+  while ( my $in = $stream->next_cluster ) {
     print $in->unigene_id() . "\n";
-	while ( my $sequence = $in->next_seq() ) {
-	  print $sequence->accession_number() . "\n";
-	}
+      while ( my $sequence = $in->next_seq ) {
+	print $sequence->accession_number . "\n";
+      }
    }
 
 See L<Bio::Cluster::UniGene> for more details.
@@ -2190,10 +2214,10 @@ wealth of methods, here are just a few:
 
   $structio = Bio::Structure::IO->new( -file => "1XYZ.pdb");
   $struc = $structio->next_structure; # returns an Entry object
-  $pseq = $struc->seqres;    # returns a PrimarySeq object, thus
-  $pseq->subseq(1,20);              # returns a sequence string
-  @atoms = $struc->get_atoms($res); # Atom objects, given a Residue
-  @xyz = $atom->xyz;                # the 3D coordinates of the atom
+  $pseq = $struc->seqres;             # returns a PrimarySeq object, thus
+  $pseq->subseq(1,20);                # returns a sequence string
+  @atoms = $struc->get_atoms($res);   # Atom objects, given a Residue
+  @xyz = $atom->xyz;                  # the 3D coordinates of the atom
 
 These lines show how one has access to a number of related objects and methods.
 For examples of typical usage of these modules, see the scripts in the
@@ -2214,7 +2238,7 @@ tree format is supported.  Sample code might be:
   $treeio = new Bio::TreeIO( -format => 'newick', -file   => $treefile);
   $tree = $treeio->next_tree;   # get the tree
   @nodes = $tree->get_nodes;    # get all the nodes
-  $tree->get_root_node()->each_Descendent();  # get descendents of root node
+  $tree->get_root_node->each_Descendent;  # get descendents of root node
 
 See L<Bio::TreeIO> and L<Bio::Tree::Tree> for details.
 
@@ -2233,11 +2257,11 @@ Map I/O with various map data formats can be performed.  However
 currently only "mapmaker" format is supported.  Manipulation of
 genetic map data with Bioperl Map objects might look like this:
 
-  $mapio = new Bio::MapIO( '-format' => 'mapmaker', '-file' => $mapfile);
+  $mapio = new Bio::MapIO(-format => 'mapmaker', -file => $mapfile);
   $map = $mapio->next_map;  # get a map
   $maptype =  $map->type ;
-  foreach  $marker ( $map->each_element ) {
-    $marker_name =  $marker->name ;  # get the name of each map marker
+  foreach $marker ( $map->each_element ) {
+    $marker_name = $marker->name ;  # get the name of each map marker
   }
 
 See L<Bio::MapIO> and L<Bio::Map::SimpleMap> for more information.
@@ -2254,7 +2278,8 @@ like:
       print $collection->get_next;
   }
 
-See L<Bio::Biblio> or the scripts/biblio/biblio.PLS script for details.
+See L<Bio::Biblio>, the scripts/biblio/biblio.PLS script, or the 
+examples/biblio/biblio_examples.pl script for more information.
 
 
 =for html <A NAME ="iii.9.5"></A>
@@ -3655,7 +3680,7 @@ $sequence_annotation = sub {
     print $outputfh "\nBeginning sequence_annotation example... \n";
     my ($feat, $feature1, $feature2,$seqobj, @topfeatures, @allfeatures,
         $ann, $in, $infile, $other, $answer);
-    # III.9.1 Representing sequence annotations (SeqFeature)
+    # III.7.1 Representing sequence annotations (SeqFeature)
 
     $infile = $amino_seq_file;
 
@@ -3731,7 +3756,7 @@ $largeseqs = sub {
 
     print $outputfh "\nBeginning largeseqs example... \n";
 
-    # III.7.2 Representing and large sequences
+    # III.7.3 Representing large sequences
     my ( $tmpfile, $seqio, $pseq, $plength, $last_4);
 
 
@@ -3758,7 +3783,7 @@ $largeseqs = sub {
 #
 
 $liveseqs = sub {
-    
+
     use Bio::LiveSeq::IO::BioPerl;
     my ($loader, $gene, $id, $maxstart);
 
@@ -3925,7 +3950,7 @@ $demo_variations = sub {
 
     print $outputfh "\nBeginning demo_variations example... \n";
 
-    # III.8.3 Representing related sequences
+    # III.7.5 Representing related sequences
     # - mutations, polymorphisms etc (Allele, SeqDiff,)
 
     use Bio::Variation::SeqDiff;
