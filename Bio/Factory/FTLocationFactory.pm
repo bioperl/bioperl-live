@@ -123,21 +123,22 @@ sub from_string{
     # call if set
     my ($self,$locstr,$is_rec) = @_;
     my $loc;
-
+    
     # there is no place in FT-formatted location strings where whitespace 
     # carries meaning, so strip it off entirely upfront
     $locstr =~ s/\s+//g if ! $is_rec;
 
     # does it contain an operator?
     if($locstr =~ /^([A-Za-z]+)\((.*)\)$/) {
+
 	# yes:
-	my $op = $1;
+	my $op = lc($1);	
 	my $oparg = $2;
 	if($op eq "complement") {
 	    # parse the argument recursively, then set the strand to -1
 	    $loc = $self->from_string($oparg, 1);
 	    $loc->strand(-1);
-	} elsif(($op eq "join") || ($op eq "order") || ($op eq "bond")) {
+	} elsif($op eq "join" || $op eq "order" || $op eq "bond" ) {
 	    # This is a split location. Split into components and parse each
 	    # one recursively, then gather into a SplitLocationI instance.
 	    #
@@ -145,9 +146,35 @@ sub from_string{
 	    # joins (you want to have grammar-based parsing for that).
 	    $loc = Bio::Location::Split->new(-verbose   => $self->verbose,
 					     -splittype => $op);
-	    foreach my $substr (split(/,/, $oparg)) {
-		$loc->add_sub_Location($self->from_string($substr, 1));
+
+	    # have to do this to capture nested joins, something like this
+	    # join(11..21,join(100..300,complement(150..230)))
+	    # This fixes bug #1674
+	    my $re;
+	    $re = qr{
+             \(
+             (?:
+                (?> [^()]+ )    # Non-parens without backtracking
+              |
+                (??{ $re })     # Group with matching parens
+             )*
+             \)
+            }x;
+	    my @sections;
+	    if( $oparg =~ s/(.*),(join|order|bond)/$2/i) {
+		push @sections, split(/,/,$1);
 	    }
+	    # lets capture and remove all the sections which
+	    # are groups
+	    while( $oparg =~ s/(join|order|bond)$re//ig ) {
+		push @sections, $&;
+	    }
+	    push @sections, split(/,/,$oparg) if length($oparg);
+	    # end of fix for bug #1674
+	    foreach my $s (@sections) {
+		$loc->add_sub_Location($self->from_string($s, 1));
+	    }
+	    
 	} else {
 	    $self->throw("operator \"$op\" unrecognized by parser");
 	}
