@@ -3,6 +3,15 @@ Revision history for Bioperl core modules
 
 1.2.2 Stable release update
 
+    o A series of bug fixes of the Bio::OntologyIO dagflat-related parsers:
+      - auto-discover ontology name
+      - bug in parsing relationships when certain characters are in the term
+      - fixed hard-coded prefix for term identifiers
+      - various smaller issues 
+
+    o Fixed bug in Bio::Annotation::OntologyTerm of not implementing all
+      of Bio::Ontology::TermI
+
     o brought the OBDA Registry code up to latest specs 
 
     o eutils URL change in Bio::DB::GenBank
@@ -27,7 +36,9 @@ Revision history for Bioperl core modules
 
     o Bio::Tools::Genemark bug #1435 fixed which was missing last prediction
 
-    o Bio::SeqIO::genbank bug #1456 fixed which generated extra sequence lines
+    o Bio::SeqIO::genbank 
+      - bug #1456 fixed which generated extra sequence lines
+      - write moltype correctly for genpept
 
 1.2.1 Stable release update
 
