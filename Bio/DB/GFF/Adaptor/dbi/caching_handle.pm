@@ -132,14 +132,6 @@ sub do_query {
   $sth;
 }
 
-sub finish {
-  my $self = shift;
-  my $sth  = shift;
-  $sth->finish;
-  $self->{inuse}--;
-  $self->{inuse} = 0  if $self->{inuse} < 0;
-}
-
 sub dbh {
   my $self = shift;
   foreach (@{$self->{dbh}}) {

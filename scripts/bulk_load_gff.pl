@@ -26,7 +26,6 @@ Bulk-load a Bio::DB::GFF database from GFF files.
 
  Options:
    --database <dsn>      Mysql database name
-   --adaptor  <adaptor>  Schema adaptor ('dbi::mysql','dbi::mysqlopt')
    --create              Reinitialize/create data tables without asking
    --user                Username to log in as
    --password            Password to use for authentication
@@ -39,6 +38,9 @@ The nature of the bulk load requires that the database be on the local
 machine and that the indicated user have the "file" privilege to load
 the tables and have enough room in /usr/tmp (or whatever is specified
 by the \$TMPDIR environment variable), to hold the tables transiently.
+
+The adaptor used is dbi::mysqlopt.  There is no way to change this
+currently.
 USAGE
 ;
 
@@ -51,6 +53,17 @@ unless ($FORCE) {
   die "Aborted\n" unless $f =~ /^[yY]/;
   close TTY;
 }
+
+my $AUTH = '';
+$AUTH .= " -u$USER"     if defined $USER;
+$AUTH .= " -p$PASSWORD" if defined $PASSWORD;
+
+warn "\nLoading schema.  You may see duplicate table warnings here...\n";
+open (M,"| ${\MYSQL} $AUTH $DSN -f -B") or die "Couldn't open Mysql: $!";
+while (<DATA>) {
+  print M;
+}
+close M;
 
 foreach (@ARGV) {
   $_ = "gunzip -c $_ |" if /\.gz$/;
@@ -85,7 +98,8 @@ while (<>) {
   $phase  = '\N' if $phase  eq '.';
 
   # handle group parsing
-  $group =~ s/(\"[^\"]*);([^\"]*\")/$1$;$2/g;  # protect embedded semicolons in the group
+  $group =~ s/\\;/$;/g;  # protect embedded semicolons in the group
+  $group =~ s/( \"[^\"]*);([^\"]*\")/$1$;$2/g;
   my @groups = split(/\s*;\s*/,$group);
   foreach (@groups) { s/$;/;/g }
 
@@ -115,11 +129,7 @@ while (<>) {
 }
 $_->close foreach values %FH;
 
-warn "loading...\n";
-
-my $AUTH = '';
-$AUTH .= " -u$USER"     if defined $USER;
-$AUTH .= " -p$PASSWORD" if defined $PASSWORD;
+warn "Loading data.  You may see duplicate key warnings here...\n";
 
 foreach (FDATA,FGROUP,FTYPE,FNOTE) {
   my $command =<<END;
@@ -171,3 +181,49 @@ sub split_group {
 
   return ($gclass,$gname,$tstart,$tstop,\@notes);
 }
+
+__END__
+create table fdata (
+    fid	                int not null  auto_increment,
+    fref                varchar(20) not null,
+    fstart              int unsigned   not null,
+    fstop               int unsigned   not null,
+    fbin                double(20,6)  not null,
+    ftypeid             int not null,
+    fscore              float,
+    fstrand             enum('+','-'),
+    fphase              enum('0','1','2'),
+    gid                 int not null,
+    ftarget_start       int unsigned,
+    ftarget_stop        int unsigned,
+    primary key(fid),
+    unique index(fref,fbin,fstart,fstop,ftypeid,gid),
+    index(ftypeid),
+    index(gid)
+)\g
+create table fgroup (
+    gid	    int not null auto_increment,
+    gclass  varchar(20),
+    gname   varchar(100),
+    primary key(gid),
+    unique(gclass,gname)
+)\g
+create table fnote (
+    fid      int not null,
+    fnote    text,
+    index(fid)
+)\g
+create table ftype (
+    ftypeid      int not null  auto_increment,
+    fmethod       varchar(30) not null,
+    fsource       varchar(30),
+    primary key(ftypeid),
+    index(fmethod),
+    index(fsource),
+    unique ftype (fmethod,fsource)
+)\g
+create table fdna (
+    fref          varchar(20) not null,
+    fdna          longblob not null,
+    primary key(fref)
+)\g

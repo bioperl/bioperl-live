@@ -353,7 +353,7 @@ use Bio::Root::RootI;
 use vars qw($VERSION @ISA);
 @ISA = qw(Bio::Root::RootI);
 
-$VERSION = '0.38';
+$VERSION = '0.50';
 my %valid_range_types = (overlaps     => 1,
 			 contains     => 1,
 			 contained_in => 1);
@@ -1239,22 +1239,44 @@ sub add_aggregator {
 =head2 aggregators
 
  Title   : aggregators
- Usage   : $db->aggregators;
+ Usage   : $db->aggregators([@new_aggregators]);
  Function: retrieve list of aggregators
  Returns : list of aggregators
- Args    : none
+ Args    : a list of aggregators to set (optional)
  Status  : public
 
-This method will return a list of aggregators currently assigned to
-the object.
+This method will get or set the list of aggregators assigned to
+the database.  If 1 or more arguments are passed, the existing
+set will be cleared.
 
 =cut
 
 sub aggregators {
   my $self = shift;
-  return unless $self->{aggregators};
-  return @{$self->{aggregators}};
+  my $d = $self->{aggregators};
+  if (@_) {
+    $self->clear_aggregators;
+    $self->add_aggregator($_) foreach @_;
+  }
+  return unless $d;
+  return @$d;
 }
+
+=head2 clear_aggregators
+
+ Title   : clear_aggregators
+ Usage   : $db->clear_aggregators
+ Function: clears list of aggregators
+ Returns : nothing
+ Args    : none
+ Status  : public
+
+This method will clear the aggregators stored in the database object.
+Use aggregators() or add_aggregator() to add some back.
+
+=cut
+
+sub clear_aggregators { shift->{aggregators} = [] }
 
 =head2 abscoords
 
@@ -1361,7 +1383,8 @@ sub load_gff {
     next unless defined($ref) && defined($method) && defined($start) && defined($stop);
 
     # handle group parsing
-    $group =~ s/(\"[^\"]*);([^\"]*\")/$1$;$2/g;  # protect embedded semicolons in the group
+    $group =~ s/\\;/$;/g;  # protect embedded semicolons in the group; this probably breaks
+    $group =~ s/( \"[^\"]*);([^\"]*\")/$1$;$2/g;
     my @groups = split(/\s*;\s*/,$group);
     foreach (@groups) { s/$;/;/g }
 
@@ -1779,7 +1802,8 @@ sub make_aggregated_feature {
     }
     my @result = @$accumulated_features;
     @$accumulated_features = $feature ? ($feature) : ();
-    return \@result;
+    return unless @result;
+    return \@result ;
   }
   push @$accumulated_features,$feature;
   return;
@@ -1840,8 +1864,8 @@ sub make_match_sub {
   for my $type (@$types) {
     my ($method,$source) = @$type;
     $method ||= '.*';
-    $source ||= '.*';
-    push @expr,"$method:$source";
+    $source  = $source ? ":$source" : ":?.*";
+    push @expr,"${method}${source}";
   }
   my $expr = join '|',@expr;
   return $self->{match_subs}{$expr} if $self->{match_subs}{$expr};

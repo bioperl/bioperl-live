@@ -288,7 +288,7 @@ sub setup_load {
   my $dbh = $self->features_db;
 
   my $insert_data  = $dbh->prepare(<<END);
-INSERT INTO fdata (fref,fstart,fstop,fbin,ftypeid,fscore,
+REPLACE INTO fdata (fref,fstart,fstop,fbin,ftypeid,fscore,
 		   fstrand,fphase,gid,ftarget_start,ftarget_stop)
        VALUES(?,?,?,?,?,?,?,?,?,?,?)
 END
@@ -323,8 +323,12 @@ sub load_gff_line {
 
   warn $dbh->errstr,"\n" and return unless $result;
 
-  my $fid = $dbh->{mysql_insertid};
-  $s->{insert_fnote}->execute($fid,$_) foreach @{$gff->{notes}||[]};
+  my $fid = $dbh->{mysql_insertid} 
+    || $self->get_feature_id($gff->{ref},$gff->{start},$gff->{stop},$typeid,$groupid);
+
+  if (my $notes = $gff->{notes}) {
+    $s->{insert_fnote}->execute($fid,$_) foreach @$notes;
+  }
 
   if ( (++$s->{counter} % 1000) == 0) {
     print STDERR "$s->{counter} records loaded...";

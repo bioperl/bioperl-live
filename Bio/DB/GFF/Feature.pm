@@ -336,6 +336,9 @@ considerations).
 sub strand {
   my $self = shift;
   return 0 unless $self->{fstrand};
+  if ($self->absolute) {
+    return Bio::DB::GFF::RelSegment::_to_strand($self->{fstrand});
+  }
   return $self->SUPER::strand;
 #  return 0 unless defined $self->{start};
 #  return $self->{start} < $self->{stop} ? '+1' : '-1';
@@ -693,7 +696,7 @@ sub adjust_bounds {
 	# fix up our bounds to hold largest subfeature
 	my($start,$stop,$strand) = $feat->adjust_bounds;
 	$self->{fstrand} = $strand unless defined $self->{fstrand};
-	if ($start < $stop) {
+	if ($start <= $stop) {
 	  $self->{start} = $start if !defined($self->{start}) || $start < $self->{start};
 	  $self->{stop}  = $stop  if !defined($self->{stop})  || $stop  > $self->{stop};
 	} else {
@@ -785,13 +788,31 @@ sub asString {
 sub gff_string {
   my $self = shift;
   my ($start,$stop) = ($self->start,$self->stop);
-  ($start,$stop) = ($stop,$start) if $start > $stop;
+
+  # this prevents uninitialized variable warnings, when dealing with clone objects
+  # whose endpoints may be undefined
+  ($start,$stop) = ($stop,$start) if $start ne '' && $stop ne '' && $start > $stop;
+
   my ($class,$name) = ('','');
-  if (my $g = $self->group) {
-    $class = $g->class;
-    $name  = $g->name;
+  my @group;
+  if (my $t = $self->target) {
+    my $class = $t->class;
+    my $name  = $t->name;
+    my $start = $t->start;
+    my $stop  = $t->stop;
+    push @group,qq(Target "$class:$name" $start $stop);
   }
-  return join("\t",$self->ref,$self->source,$self->method,$start,$stop,$self->score||'.',$self->strand||'.',$self->phase||'.',"$class $name");
+
+  elsif (my $g = $self->group) {
+    $class = $g->class || '';
+    $name  = $g->name  || '';
+    push @group,"$class $name";
+  }
+  push @group,map {qq(Note "$_")} $self->notes;
+
+  my $group_field = join ' ; ',@group;
+  my $strand = ('-','.','+')[$self->strand+1];
+  return join("\t",$self->ref,$self->source,$self->method,$start,$stop,$self->score||'.',$strand||'.',$self->phase||'.',$group_field);
 }
 
 =head1 A Note About Similarities

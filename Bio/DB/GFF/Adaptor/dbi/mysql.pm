@@ -364,7 +364,7 @@ related methods.
 
 sub make_features_order_by_part {
   my $self = shift;
-  return "fdata.gid";
+  return "fgroup.gname";
 }
 
 =head2 refseq_query
@@ -833,14 +833,14 @@ sub setup_load {
   }
 
   my $lookup_type = $dbh->prepare_delayed('SELECT ftypeid FROM ftype WHERE fmethod=? AND fsource=?');
-  my $insert_type = $dbh->prepare_delayed('INSERT INTO ftype (fmethod,fsource) VALUES (?,?)');
+  my $insert_type = $dbh->prepare_delayed('REPLACE INTO ftype (fmethod,fsource) VALUES (?,?)');
 
   my $lookup_group = $dbh->prepare_delayed('SELECT gid FROM fgroup WHERE gname=? AND gclass=?');
-  my $insert_group = $dbh->prepare_delayed('INSERT INTO fgroup (gname,gclass) VALUES (?,?)');
+  my $insert_group = $dbh->prepare_delayed('REPLACE INTO fgroup (gname,gclass) VALUES (?,?)');
 
-  my $insert_note  = $dbh->prepare_delayed('INSERT INTO fnote (fid,fnote) VALUES (?,?)');
+  my $insert_note  = $dbh->prepare_delayed('REPLACE INTO fnote (fid,fnote) VALUES (?,?)');
   my $insert_data  = $dbh->prepare_delayed(<<END);
-INSERT INTO fdata (fref,fstart,fstop,ftypeid,fscore,
+REPLACE INTO fdata (fref,fstart,fstop,ftypeid,fscore,
 		   fstrand,fphase,gid,ftarget_start,ftarget_stop)
        VALUES(?,?,?,?,?,?,?,?,?,?)
 END
@@ -905,8 +905,12 @@ sub load_gff_line {
 
   warn $dbh->errstr,"\n" and return unless $result;
 
-  my $fid = $dbh->{mysql_insertid};
-  $s->{insert_fnote}->execute($fid,$_) foreach @{$gff->{notes}||[]};
+  my $fid = $dbh->{mysql_insertid} 
+    || $self->get_feature_id($gff->{ref},$gff->{start},$gff->{stop},$typeid,$groupid);
+
+  if (my $notes = $gff->{notes}) {
+    $s->{insert_fnote}->execute($fid,$_) foreach @$notes;
+  }
 
   if ( (++$s->{counter} % 1000) == 0) {
     print STDERR "$s->{counter} records loaded...";
@@ -967,7 +971,7 @@ have been created previously by setup_load().  It is here to overcome
 deficiencies in mysql's INSERT syntax.
 
 =cut
-
+#'
 
 # get the object ID from a named table
 sub get_table_id {
@@ -996,6 +1000,36 @@ sub get_table_id {
     return;
   }
   $id;
+}
+
+=head2 get_feature_id
+
+ Title   : get_feature_id
+ Usage   : $integer = $db->get_feature_id($ref,$start,$stop,$typeid,$groupid)
+ Function: get the ID of a feature
+ Returns : an integer ID or undef
+ Args    : none
+ Status  : private
+
+This internal method is called by load_gff_line to look up the integer
+ID of an existing feature.  It is ony needed when replacing a feature
+with new information.
+
+=cut
+# this method is called when needed to look up a feature's ID
+sub get_feature_id {
+  my $self = shift;
+  my ($ref,$start,$stop,$typeid,$groupid) = @_;
+  my $s = $self->{load_stuff};
+  unless ($s->{get_feature_id}) {
+    my $dbh = $self->features_db;
+    $s->{get_feature_id} =
+      $dbh->prepare_delayed('SELECT fid FROM fdata WHERE fref=? AND fstart=? AND fstop=? AND ftypeid=? AND gid=?');
+  }
+  my $sth = $s->{get_feature_id} or return;
+  $sth->execute($ref,$start,$stop,$typeid,$groupid) or return;
+  my ($fid) = $sth->fetchrow_array;
+  return $fid;
 }
 
 1;

@@ -747,6 +747,8 @@ sub _to_strand {
   return 0;
 }
 
+sub primary_tag { "Segment" }
+
 1;
 
 __END__

@@ -30,7 +30,7 @@ use strict;
 use Bio::DB::GFF::Aggregator;
 use vars qw($VERSION @ISA);
 
-$VERSION = '0.10';
+$VERSION = '0.20';
 @ISA = qw(Bio::DB::GFF::Aggregator);
 
 =head2 aggregate
@@ -50,6 +50,7 @@ for the start and/or stop if one or both of the ends are missing.
 
 =cut
 
+#'
 
 # we look for features of type Sequence and add them to a pseudotype transcript
 sub aggregate {
@@ -59,8 +60,9 @@ sub aggregate {
 
   my $matchsub    = $self->match_sub($factory) or return;
   my $passthru    = $self->passthru_sub($factory);
+  my $method      = $self->get_method;
 
-  my (%clones,@result);
+  my (%clones,%types,@result);
   for my $feature (@$features) {
 
     if ($matchsub->($feature)) {
@@ -84,6 +86,11 @@ sub aggregate {
     # the genomic_canonical doesn't tell us where the clone starts and stops
     # so don't assume it
     my $duplicate = $canonical->clone;   # make a duplicate of the feature
+    # munge the method and source fields
+    my $source    = $duplicate->source;
+    my $type = $types{$method,$source} ||= Bio::DB::GFF::Typename->new($method,$source);
+    $duplicate->type($type);
+
     my ($start,$stop) = $duplicate->strand > 0 ? ('start','stop') : ('stop','start');
     @{$duplicate}{$start,$stop} =(undef,undef);
 
@@ -114,7 +121,7 @@ sub method { 'clone' }
  Title   : part_names
  Usage   : $aggregator->part_names
  Function: return the methods for the sub-parts
- Returns : the list ("Clone_left_end", "Clone_right_end", "Sequence:genomic_canonical")
+ Returns : the list ("Clone_left_end", "Clone_right_end", "Sequence:Genomic_canonical")
  Args    : none
  Status  : Public
 
@@ -122,7 +129,7 @@ sub method { 'clone' }
 
 sub part_names {
   my $self = shift;
-  return qw(Clone_left_end Clone_right_end Sequence:genomic_canonical);
+  return qw(Clone_left_end Clone_right_end Sequence:Genomic_canonical);
 }
 
 1;

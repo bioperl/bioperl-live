@@ -299,10 +299,12 @@ sub aggregate {
   }
 
   # aggregate components
-  my $pseudo_method = $self->get_method;
+  my $pseudo_method        = $self->get_method;
+  my $require_whole_object = $self->require_whole_object;
   foreach (keys %aggregates) {
-#    next if $main_method and !exists($aggregates{$_}{base});
-#    next unless exists $aggregates{$_}{subparts};
+    if ($require_whole_object) {
+      next unless $aggregates{$_}{base} && $aggregates{$_}{subparts};
+    }
     my $base = $aggregates{$_}{base};
     unless ($base) { # no base, so create one
       my $first = $aggregates{$_}{subparts}[0];
@@ -388,6 +390,22 @@ sub part_names {
   my $self = shift;
   return;
 }
+
+=head2 require_whole_object
+
+ Title   : require_whole_object
+ Usage   : $bool = $a->require_whole_object
+ Function: see below
+ Returns : a boolean flag
+ Args    : none
+ Status  : Internal
+
+This method returns true if the aggregator should refuse to aggregate
+an object unless both its main part and its subparts are present.
+
+=cut
+
+sub require_whole_object {  0; }
 
 =head2 match_sub
 

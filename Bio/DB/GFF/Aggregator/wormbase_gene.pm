@@ -48,6 +48,8 @@ $VERSION = '0.10';
 
 sub method { 'transcript' }
 
+sub require_whole_object { 1; }
+
 =head2 part_names
 
  Title   : part_names
