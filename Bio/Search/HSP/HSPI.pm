@@ -628,11 +628,13 @@ sub matches {
 #-----------
     my( $self, %param ) = @_;
     my(@data);
-    my($seqType, $beg, $end) = ($param{-SEQ}, $param{-START}, $param{-STOP});
+    my($seqType, $beg, $end) = ($param{-SEQ}, 
+				$param{-START}, 
+				$param{-STOP});
     $seqType ||= 'query';
-   $seqType = 'sbjct' if $seqType eq 'hit';
+    $seqType = 'sbjct' if $seqType eq 'hit';
 
-    if(!defined $beg && !defined $end) {
+    if( !defined $beg && !defined $end) {
 	## Get data for the whole alignment.
 	push @data, ($self->num_identical, $self->num_conserved);
     } else {
@@ -654,13 +656,13 @@ sub matches {
 
 	## ML: START fix for substr out of range error ------------------
 	my $seq = "";
-	if (($self->algorithm eq 'TBLASTN') and ($seqType eq 'sbjct'))
+	if (($self->algorithm =~ /TBLAST[NX]/) && ($seqType eq 'sbjct'))
 	{
 	    $seq = substr($self->seq_str('match'),
-			  int(($beg-$start)/3), int(($end-$beg+1)/3));
+			  int(($beg-$start)/3), 
+			  int(($end-$beg+1)/3));
 
-	} elsif (($self->algorithm eq 'BLASTX') and ($seqType eq 'query'))
-	{
+	} elsif (($self->algorithm =~ /T?BLASTX/) && ($seqType eq 'query')) {
 	    $seq = substr($self->seq_str('match'),
 			  int(($beg-$start)/3), int(($end-$beg+1)/3));
 	} else {

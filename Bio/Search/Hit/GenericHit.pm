@@ -116,7 +116,7 @@ sub new {
 				     SIGNIFICANCE BITS ITERATION
 				     RANK )], @args);
   
-  $self->{'_query_length'} = $query_len;
+  defined $query_len && $self->query_length($query_len);
 
   if( ! defined $name ) { 
       $self->throw("Must have defined a valid name for Hit");
@@ -673,11 +673,14 @@ sub logical_length {
 
     # For the sbjct, return logical sbjct length
     if( $seqType eq 'sbjct' ) {
-	$length = $self->{'_logical_length'} || $self->{'_length'};
-    }
-    else {
+	$length = $self->length;
+        # Adjust length based on BLAST flavor.
+        if($self->algorithm =~ /TBLAST[NX]/ ) {
+            $length /= 3;
+        }
+    } else {
         # Otherwise, return logical query length
-        $length = $self->{'_query_length'};
+        $length = $self->query_length();
 	$self->throw("Must have defined query_len") unless ( $length );
 
         # Adjust length based on BLAST flavor.
@@ -685,7 +688,7 @@ sub logical_length {
             $length /= 3;
         }
     }
-    return $length;
+    return int($length);
 }
 
 =head2 length_aln
@@ -720,7 +723,7 @@ sub length_aln {
     $seqType ||= 'query';
     $seqType = 'sbjct' if $seqType eq 'hit';
 
-    Bio::Search::SearchUtils::tile_hsps($self) if not $self->{'_tiled_hsps'};
+    Bio::Search::SearchUtils::tile_hsps($self) unless $self->tiled_hsps;
 
     if( defined $num) {
         return $self->{'_length_aln_'.$seqType} = $num;
@@ -778,7 +781,7 @@ sub gaps {
     $seqType ||= (wantarray ? 'list' : 'total');
     $seqType = 'sbjct' if $seqType eq 'hit';
 
-    Bio::Search::SearchUtils::tile_hsps($self) if not $self->{'_tiled_hsps'};
+    Bio::Search::SearchUtils::tile_hsps($self) unless $self->tiled_hsps;
 
     $seqType = lc($seqType);
 
@@ -810,13 +813,12 @@ sub matches {
     my( $self, $arg1, $arg2) = @_;
     my(@data,$data);
 
-    Bio::Search::SearchUtils::tile_hsps($self) if not $self->{'_tiled_hsps'};
+    Bio::Search::SearchUtils::tile_hsps($self) unless $self->tiled_hsps;
 
-    if(!$arg1) {
+    unless( $arg1 ) {
 	@data = ($self->{'_totalIdentical'}, $self->{'_totalConserved'});
 
 	return @data if @data;
-
     } else {
 
         if( defined $arg2 ) {
@@ -880,7 +882,7 @@ sub start {
     if($self->num_hsps == 1) {
         return $self->hsp->start($seqType);
     } else {
-        Bio::Search::SearchUtils::tile_hsps($self) if not $self->{'_tiled_hsps'};
+        Bio::Search::SearchUtils::tile_hsps($self) unless $self->tiled_hsps;
         if($seqType =~ /list|array/i) {
             return ($self->{'_queryStart'}, $self->{'_sbjctStart'});
         } else {
@@ -935,7 +937,7 @@ sub end {
     if($self->num_hsps == 1) {
 	return $self->hsp->end($seqType);
     } else {
-	Bio::Search::SearchUtils::tile_hsps($self) if not $self->{'_tiled_hsps'};
+	Bio::Search::SearchUtils::tile_hsps($self) unless $self->tiled_hsps;
 	if($seqType =~ /list|array/i) {
 	    return ($self->{'_queryStop'}, $self->{'_sbjctStop'});
 	} else {
@@ -1019,10 +1021,10 @@ sub frac_identical {
     ## Sensitive to member name format.
     $seqType = lc($seqType);
 
-    Bio::Search::SearchUtils::tile_hsps($self) if not $self->{'_tiled_hsps'};
+    Bio::Search::SearchUtils::tile_hsps($self) unless $self->tiled_hsps;
 
-    my $ident = $self->{'_totalIdentical'};
-    my $total = $self->{'_length_aln_'.$seqType};
+    my ($ident) = $self->matches;
+    my $total = $self->length_aln($seqType);
     my $ratio = $ident / $total;
     my $ratio_rounded = sprintf( "%.3f", $ratio);
 
@@ -1030,7 +1032,6 @@ sub frac_identical {
     $ratio_rounded = 0.999 if (($ratio_rounded == 1) && ($ratio < 1));
     return $ratio_rounded;
 }
-
 
 
 =head2 frac_conserved
@@ -1080,10 +1081,10 @@ sub frac_conserved {
     ## Sensitive to member name format.
     $seqType = lc($seqType);
 
-    Bio::Search::SearchUtils::tile_hsps($self) if not $self->{'_tiled_hsps'};
+    Bio::Search::SearchUtils::tile_hsps($self) unless $self->tiled_hsps;
 
-    my $consv = $self->{'_totalConserved'};
-    my $total = $self->{'_length_aln_'.$seqType};
+    my ($ident,$consv) = $self->matches;
+    my $total = $self->length_aln($seqType);
     my $ratio = $consv / $total;
     my $ratio_rounded = sprintf( "%.3f", $ratio);
 
@@ -1124,9 +1125,10 @@ sub frac_aligned_query {
 #----------------------
     my $self = shift;
 
-    Bio::Search::SearchUtils::tile_hsps($self) if not $self->{'_tiled_hsps'};
-
-    sprintf( "%.2f", $self->{'_length_aln_query'}/ 
+    Bio::Search::SearchUtils::tile_hsps($self) unless $self->tiled_hsps;
+    print "logical len of the query is ",$self->logical_length('query'), "\n";
+    print "length of the aln query is ", $self->length_aln('query'), "\n";
+    sprintf( "%.2f", $self->length_aln('query') / 
 	     $self->logical_length('query'));
 }
 
@@ -1161,9 +1163,9 @@ sub frac_aligned_hit {
 #--------------------
     my $self = shift;
 
-    Bio::Search::SearchUtils::tile_hsps($self) if not $self->{'_tiled_hsps'};
-
-    sprintf( "%.2f", $self->{'_length_aln_sbjct'}/$self->logical_length('sbjct'));
+    Bio::Search::SearchUtils::tile_hsps($self) unless $self->tiled_hsps;
+    print "logical subject length is ", $self->logical_length('sbjct'), "\n";
+    sprintf( "%.2f", $self->length_aln('sbjct') / $self->logical_length('sbjct'));
 }
 
 
@@ -1175,9 +1177,7 @@ Same as L<frac_aligned_hit()|frac_aligned_hit>
 
 =cut
 
-#----------------
-sub frac_aligned_sbjct {  my $self=shift; $self->frac_aligned_hit(@_); }
-#----------------
+*frac_aligned_sbjct = \&fract_aligned_hit;
 
 =head2 num_unaligned_sbjct
 
@@ -1185,10 +1185,7 @@ Same as L<num_unaligned_hit()|num_unaligned_hit>
 
 =cut
 
-#----------------
-sub num_unaligned_sbjct {  my $self=shift; $self->num_unaligned_hit(@_); }
-#----------------
-
+*num_unaligned_sbjct = \&num_unaligned_hit;
 
 
 =head2 num_unaligned_hit
@@ -1216,9 +1213,9 @@ sub num_unaligned_hit {
 #---------------------
     my $self = shift;
 
-    Bio::Search::SearchUtils::tile_hsps($self) if not $self->{'_tiled_hsps'};
+    Bio::Search::SearchUtils::tile_hsps($self) unless $self->tiled_hsps;
 
-    my $num = $self->logical_length('sbjct') - $self->{'_length_aln_sbjct'};
+    my $num = $self->logical_length('sbjct') - $self->length_aln('sbjct');
     ($num < 0 ? 0 : $num );
 }
 
@@ -1248,9 +1245,9 @@ sub num_unaligned_query {
 #-----------------------
     my $self = shift;
 
-    Bio::Search::SearchUtils::tile_hsps($self) if not $self->{'_tiled_hsps'};
+    Bio::Search::SearchUtils::tile_hsps($self) unless $self->tiled_hsps;
 
-    my $num = $self->logical_length('query') - $self->{'_length_aln_query'};
+    my $num = $self->logical_length('query') - $self->length_aln('query');
     ($num < 0 ? 0 : $num );
 }
 
@@ -1319,7 +1316,7 @@ sub strand {
 #----------
     my ($self, $seqType, $strnd) = @_;
 
-    Bio::Search::BlastUtils::tile_hsps($self) if not $self->{'_tiled_hsps'};
+    Bio::Search::BlastUtils::tile_hsps($self) unless $self->tiled_hsps;
 
     $seqType ||= (wantarray ? 'list' : 'query');
     $seqType = 'sbjct' if $seqType eq 'hit';
@@ -1377,7 +1374,7 @@ sub frame {
 #----------
     my( $self, $frm ) = @_;
 
-    Bio::Search::SearchUtils::tile_hsps($self) if not $self->{'_tiled_hsps'};
+    Bio::Search::SearchUtils::tile_hsps($self) unless $self->tiled_hsps;
 
     if( defined $frm ) {
 	return $self->{'_frame'} = $frm;
@@ -1500,5 +1497,24 @@ sub tiled_hsps {
     return $self->{'_tiled_hsps'} = shift if @_;
     return $self->{'_tiled_hsps'};
 }
+
+=head2 query_length
+
+ Title   : query_length
+ Usage   : $obj->query_length($newval)
+ Function: Get/Set the query_length
+ Returns : value of query_length (a scalar)
+ Args    : on set, new value (a scalar or undef, optional)
+
+
+=cut
+
+sub query_length{
+    my $self = shift;
+
+    return $self->{'_query_length'} = shift if @_;
+    return $self->{'_query_length'};
+}
+
 
 1;
