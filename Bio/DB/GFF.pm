@@ -2211,6 +2211,7 @@ sub insert_sequence_chunk {
       substr($$seqp,0,$cs) = '';
     }
   }
+  return 1;  # the calling routine may expect success or failure
 }
 
 # used to store big pieces of DNA in itty bitty pieces
