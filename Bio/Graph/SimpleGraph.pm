@@ -21,7 +21,7 @@ Bio::Graph::SimpleGraph
   }
   my @nodes=graph->nodes;	    # get list of nodes
   my @edges=graph->edges;	    # get list of edges
-  for each $node (@nodes) {
+  foreach my $node (@nodes) {
     my @neighbors=$node->neighbors; # get list of neighboring nodes
   }
 

@@ -21,7 +21,7 @@ Bio::Index::Hmmer Indexes HMMER reports and supports retreival based on query
 	#!/usr/bin/perl -w
 	use strict;
 	use Bio::Index::Hmmer;
-	my indexfile = shift;
+	my $indexfile = shift;
 	my $index = new Bio::Index::Hmmer(
 		-filename => $indexfile,
 		-write_flag => 1

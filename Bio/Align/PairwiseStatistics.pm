@@ -18,7 +18,10 @@ Bio::Align::PairwiseStatistics - Base statistic object for Pairwise Alignments
 
   use strict;
   my $stats = Bio::Align::DNAStatistics->new();
-  print $stats>number_of_comparable_bases($pwaln);
+
+  # get alignment object of two sequences homehow
+  my $pwaln;
+  print $stats->number_of_comparable_bases($pwaln);
 
 =head1 DESCRIPTION
 
@@ -104,7 +107,7 @@ sub number_of_comparable_bases{
 
  Title   : number_of_differences
  Usage   : my $nd = $stat->number_of_distances($aln);
- Function: Returns the number of differences between two  
+ Function: Returns the number of differences between two sequences
  Returns : integer
  Args    : L<Bio::Align::AlignI>
 
@@ -142,7 +145,7 @@ sub number_of_differences{
 
  Title   : number_of_gaps
  Usage   : my $nd = $stat->number_of_gaps($aln);
- Function: Returns the number of gaps between two  
+ Function: Returns the number of gaps between two sequences
  Returns : integer
  Args    : L<Bio::Align::AlignI>
 

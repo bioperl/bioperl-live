@@ -9,13 +9,11 @@ Bio::PopGen::HtSNP.pm- Select htSNP from a haplotype set
 
 =head1 SYNOPSIS
 
-    use Bio::PopGen::HtSNP.pm;
+    use Bio::PopGen::HtSNP;
 
-    my $obj = Bio::PopGen::HtSNP.pm->new($hap,$snp,$pop);
+    my $obj = Bio::PopGen::HtSNP->new($hap,$snp,$pop);
 
 =head1 DESCRIPTION
-
-Bio::PopGen::HtSNP.pm
 
 Select the minimal set of SNP that contains the full information about
 the haplotype without redundancies.

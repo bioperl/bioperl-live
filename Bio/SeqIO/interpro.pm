@@ -11,13 +11,16 @@ interpro - DESCRIPTION of Object
 
 =head1 SYNOPSIS
 
-Bio::SeqIO::interpro will parse interpro scan XML (version 1.2) and create 
-Bio::SeqFeature::Generic objects based on the contents of the XML document. 
+  # do not call this module directly. Use Bio::SeqIO
 
 =head1 DESCRIPTION
 
-Bio::SeqIO::Interpro will also attach the annotation given in the XML file to the
-Bio::SeqFeature::Generic objects that it creates.
+Bio::SeqIO::interpro will parse interpro scan XML (version 1.2) and
+create Bio::SeqFeature::Generic objects based on the contents of the
+XML document.
+
+Bio::SeqIO::Interpro will also attach the annotation given in the XML
+file to the Bio::SeqFeature::Generic objects that it creates.
 
 =head1 FEEDBACK
 

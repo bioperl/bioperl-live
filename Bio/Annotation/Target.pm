@@ -23,12 +23,12 @@ Bio::Annotation::Target
                                           -strand     => 1,    # or -1
 					 );
 
-   #or 
+   # or
 
    $target2 = new Bio::Annotation::Target();
    $target2->target_id('Q75IM5');
    $target2->start(7);
-   ... etc ...
+   # ... etc ...
 
    # Target is-a Bio::AnnotationI object, can be added to annotation
    # collections, e.g. the one on features or seqs

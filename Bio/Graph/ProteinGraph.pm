@@ -59,12 +59,12 @@ Bio::Graph::ProteinGraph - a representation of a protein interaction graph.
   my $node      = $graph->nodes_by_id('NP_023232');
   my @neighbors = $graph->neighbors($node); 
   print "      NP_023232 interacts with ";
-  print join " ," map{$_->object_id()} @neighbors;
+  print join " ,", map{$_->object_id()} @neighbors;
   print "\n";
 
   # annotate your sequences with interaction info
 
-  my @my_seqs; ##array of sequence objects
+  my @seqs; ##array of sequence objects
   for my $seq(@seqs) {
     if ($graph->has_node($seq->accession_number)) {
        my $node = $graph->nodes_by_id( $seq->accession_number);
@@ -88,7 +88,7 @@ Bio::Graph::ProteinGraph - a representation of a protein interaction graph.
        push @hubs, $node;
     }
   }
-  print "the following proteins have > 10 interactors:\n"
+  print "the following proteins have > 10 interactors:\n";
   print join "\n", map{$_->object_id()} @hubs;
 
   # merge 2 graphs, flag duplicate edges ##
@@ -103,7 +103,7 @@ Bio::Graph::ProteinGraph - a representation of a protein interaction graph.
   # what to do if you have interaction data in your own format:
 
   # e.g.
-  edgeid node1  node2 node2 score
+  # edgeid node1  node2 node2 score
 
   my $io = Bio::Root::IO->new(-file => 'mydata');
   my $gr = Bio::Graph::ProteinGraph->new();
@@ -127,8 +127,8 @@ Bio::Graph::ProteinGraph - a representation of a protein interaction graph.
 
   # make an edge
   my $edge  = Bio::Graph::Edge->new(-nodes => \@nodes,
-                                    -id    => $e_id,
-                                    -weight=> $sc);
+                                    -id    => 'myid',
+                                    -weight=> 1);
   # add it to graph
   $gr->add_edge($edge);
 

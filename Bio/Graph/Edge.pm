@@ -7,11 +7,9 @@
 
 =head1 NAME
 
-Bio::Graph::Edge
+Bio::Graph::Edge - encapsulation of an interaction between 2 Bio::Seq objects
 
 =head1 SYNOPSIS
-
-An encapsulation of an interaction between 2 Bio::Seq objects
 
   ## get an interaction between two nodes ##
 
