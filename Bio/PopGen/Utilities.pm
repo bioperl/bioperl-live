@@ -145,12 +145,47 @@ sub aln_to_population{
        $self->warn("Must provide a valid Bio::SimpleAlign object to run aln_to_population");
        return undef;
    }
-   my $population = new Bio::PopGen::Population;
+   if( ! $aln->is_flush ) {
+       $self->warn("Must provide a Bio::SimpleAlign object with aligned sequences to aln_to_population!");
+       return undef;
+   }
+
+   my $population = Bio::PopGen::Population->new(-source => 'alignment');
    my @seqs = map { $_->seq() } $aln->each_seq;
-   my $codon_non_syn = &Bio::Align::DNAStatistics->get_syn_changes();
 
    if( ! defined $sitemodel ||
        $sitemodel =~ /all/i ) {
+       my $ct = 0;
+       my @inds;
+       my @seqs;
+       for my $seq ( $aln->each_seq ) {
+	   my $ind = Bio::PopGen::Individual->new(-unique_id => $seq->display_id);
+	   push @seqs, $seq->seq;
+	   push @inds, $ind;
+       }
+       for( my $i = 0; $i < $aln->length; $i++ ) {
+	   my $nm = "Site-$i";
+	   my (@genotypes,%set);
+	   # do we skip indels?
+	   for my $seq ( @seqs ) {
+	       my $site = substr($seq,$i,1);
+	       $set{$site}++;
+	       push @genotypes, $site;
+	   }
+	   if( keys %set > 1 || $includefixed ) {
+	       for( my $i = 0; $i < scalar @genotypes; $i++ ) {
+		   $inds[$i]->add_Genotype(Bio::PopGen::Genotype->new
+					   (-marker_name  => $nm,
+					    -individual_id=> $inds[$i]->unique_id,
+					    -alleles      => [$genotypes[$i]]));
+	       }
+	   }
+       }
+       for my $ind ( @inds ) { 
+	   $population->add_Individual($ind);
+       }
+   } else { 
+       $self->throw("Can only build sites based on all the data right now!");
        my ($sitecount,@sites) = ($aln->length);
        my @sitecat;
        # ToDo: categorize site a syn, non-syn, monomorphic
@@ -188,13 +223,10 @@ sub aln_to_population{
        for my $site ( @sites ) { 
 	   my %alleles = %{$site->{'alleles'}};
 	   my %codons = $codons_v[$i % 3]->[$seqctr];
-	   if( $ ) {
-	   }
 	   $i++;
 	   $seqctr++;
        }
    }
-   
    return $population;
 }
 
