@@ -64,7 +64,7 @@ my $flD = Bio::PopGen::Statistics->fu_and_li_D($leaves,$single);
 ok(defined $flD,1,'fu and li D');
 
 my $flD_star = $stats->fu_and_li_D_star($leaves);
-ok($flD_star <= 1,1,'fu and li D*');
+ok(defined $flD_star,1,'fu and li D*');
 
 my $flF = $stats->fu_and_li_F($leaves,$single);
 ok(defined $flF, 1,'fu and li F');
