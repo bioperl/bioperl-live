@@ -308,25 +308,55 @@ sub validate_seq {
  Args    : integer for start position
            integer for end position
 
+           OR
+           Bio::LocationI location for subseq (strand honored)
 =cut
 
 sub subseq {
    my ($self,$start,$end) = @_;
-
-   if( $start > $end ){
-       $self->throw("in subseq, start [$start] has to be greater than end [$end]");
-   }
-
-   if( $start <= 0 || $end > $self->length ) {
-       $self->throw("You have to have start positive and length less than the total length of sequence [$start:$end] Total ".$self->length."");
-   }
-
+  
+   if( ref($start) && $start->isa('Bio::LocationI') ) {
+       my $loc = $start;
+       if( $loc->length == 0 ) { 
+	   $self->warn("Expect location lengths to be > 0");
+	   return '';
+       } elsif( $loc->end < $loc->start ) { 
+	   # what about circular seqs
+	   $self->warn("Expect location start to come before location end");
+       }
+       my $seq = '';
+       if( $loc->isa('Bio::Location::SplitLocationI') ) {
+	   foreach my $subloc ( $loc->sub_Location ) {
+	       my $piece = substr( $self->seq(), $subloc->start - 1, 
+				   $subloc->length);
+	       if( $subloc->strand < 0 ) { 
+		   $piece = Bio::PrimarySeq->new(-seq => $piece)->revcom()->seq();
+	       }
+	       $seq .= $piece;
+	   }
+       } else { 
+	   $seq = substr( $self->seq(), $loc->start - 1, $loc->length);
+       }
+       if( $loc->strand < 0 ) { 
+	   $seq = Bio::PrimarySeq->new(-seq => $seq)->revcom()->seq();
+       }
+       return $seq;
+   } 
+   else { 
+       if( $start > $end ){
+	   $self->throw("in subseq, start [$start] has to be greater than end [$end]");
+       }
+       
+       if( $start <= 0 || $end > $self->length ) {
+	   $self->throw("You have to have start positive and length less than the total length of sequence [$start:$end] Total ".$self->length."");
+       }
+       
    # remove one from start, and then length is end-start
-
-   $start--;
-
-   return substr $self->seq(), $start, ($end-$start);
-
+       
+       $start--;
+       
+       return substr $self->seq(), $start, ($end-$start);
+   }
 }
 
 =head2 length

@@ -15,9 +15,12 @@ BEGIN {
 	use lib 't';
     }
     use Test;
-    plan tests => 17;
+    plan tests => 20;
 }
 use Bio::PrimarySeq;
+use Bio::Location::Simple;
+use Bio::Location::Fuzzy;
+use Bio::Location::Split;
 
 ok(1);
 
@@ -35,10 +38,32 @@ ok $seq->alphabet(), 'dna';
 ok $seq->is_circular(), undef;
 ok $seq->is_circular(1);
 
+my $location = new Bio::Location::Simple('-start' => 2, '-end' => 5,
+					 '-strand' => -1);
+ok ($seq->subseq($location), 'ACCA');
+
+my $splitlocation = new Bio::Location::Split();
+$splitlocation->add_sub_Location( new Bio::Location::Simple('-start' => 1,
+							    '-end'   => 4,
+							    '-strand' => 1));
+
+$splitlocation->add_sub_Location( new Bio::Location::Simple('-start' => 7,
+							    '-end'   => 12,
+							    '-strand' => -1));
+
+ok( $seq->subseq($splitlocation), 'TTGGTGACGC');
+
+my $fuzzy = new Bio::Location::Fuzzy(-start => '<3',
+				     -end   => '8',
+				     -strand => 1);
+
+ok( $seq->subseq($fuzzy), 'GGTGGC');
+
 my $trunc = $seq->trunc(1,4);
 ok defined $trunc;
 ok $trunc->length, 4;
 ok $trunc->seq(), 'TTGG', "Expecting TTGG. Got ".$trunc->seq();
+
 
 my $rev = $seq->revcom();
 ok defined $rev; 
