@@ -98,7 +98,7 @@ sub new {
   my $args = shift;
   my $self  = $class->SUPER::new($args);
   my ($preferred) = rearrange(['PREFERRED_TAGS'],$args);
-  $self->_preferred_tags($preferred?$preferred:\%default_preferred_tags);  # if the caller sent their own preferences, then use these, otherwise use defaults.
+  $self->_preferred_tags($preferred?$preferred:\%preferred_tags);  # if the caller sent their own preferences, then use these, otherwise use defaults.
 
   my ($proxy) = rearrange(['PROXY'],$args);
   if ($proxy) {
