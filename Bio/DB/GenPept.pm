@@ -45,8 +45,7 @@ and other Bioperl modules. Send your comments and suggestions preferably
 Your participation is much appreciated.
 
 
-  vsns-bcd-perl@lists.uni-bielefeld.de          - General discussion
-  vsns-bcd-perl-guts@lists.uni-bielefeld.de     - Technically-oriented discussion
+  bioperl-l@bioperl.org          - General discussion
   http://bio.perl.org/MailList.html             - About the mailing lists
 
 =head2 Reporting Bugs
@@ -90,8 +89,13 @@ use IO::File;
 sub _initialize {
   my($self,@args) = @_;
 
-  my $make = $self->SUPER::_initialize;
+  my $make = $self->SUPER::_initialize(@args);
 
+  my ($format) = $self->_rearrange([qw(FORMAT
+				       )],
+				   @args);
+  $format = "GenBank" unless $format;
+  $self->request_format($format);
 # set stuff in self from @args
  return $make; # success - we hope!
 }
@@ -111,9 +115,10 @@ sub get_Seq_by_id {
   my $self = shift;
   my $uid = shift or $self->throw("Must supply an identifier!\n");
 
-  my $entrez = "db=p&form=6&dopt=f&html=no&title=no&uid=$uid" ;
+  my ($fmt, $streamfmt) = $self->request_format();
+  my $entrez = "db=p&form=6&dopt=$fmt&html=no&title=no&uid=$uid" ;
 
-  my $stream = $self->_get_stream($entrez);
+  my $stream = $self->_get_stream($entrez, $streamfmt);
   my $seq = $stream->next_seq();
   $self->throw("Unable to get seq for id $uid, is it really a genpept id?\n")
       if( !defined $seq );
@@ -158,9 +163,10 @@ sub get_Stream_by_id {
   ref($id) eq "ARRAY" or $self->throw("Must supply an array ref!\n");
 
   my $uid = join(',', @{$id});
-  my $entrez = "db=p&form=6&dopt=f&html=no&title=no&uid=$uid" ;
+  my ($fmt, $streamfmt) = $self->request_format();
+  my $entrez = "db=p&form=6&dopt=$fmt&html=no&title=no&uid=$uid" ;
 
-  return $self->_get_stream($entrez);
+  return $self->_get_stream($entrez, $streamfmt);
 
 }
 
@@ -204,26 +210,34 @@ sub get_Stream_by_batch {
    my $ref = shift or $self->throw("Must supply an argument!\n");
    my $which = ref($ref);
    my $fh;
-   my $filename;
+   # my $filename; # not used; what was the purpose?
    if ( $which eq 'ARRAY') { # $ref is an array reference
        $fh = new_tmpfile IO::File;
        for ( @{$ref} ) {
            print $fh $_ . "\n";
        }
        seek $fh, 0, 0;
-       $filename = "tempfile.txt";
+       #$filename = "tempfile.txt";
    } elsif ( $which eq '') { # $ref is a filename
        $fh = IO::File->new($ref, "r") || 
 	   $self->throw("file $ref does not exist or is not readable");
 
-       $filename = $ref;
+       #$filename = $ref;
    } elsif ( $which eq 'GLOB' or $which eq 'IO::File') { # $ref is assumed to be a filehandle
        $fh = $ref;
-       $filename = "tempfile.txt";
+       #$filename = "tempfile.txt";
    } else {
        $self->throw("stream by batch did not get a valid argument\n");
    }
-   my $wwwbuf = "DB=n&REQUEST_TYPE=LIST_OF_GIS&FORMAT=1&HTML=FALSE&SAVETO=FALSE&NOHEADER=TRUE&UID=" . join(',', grep { chomp; } <$fh> );
+   my ($fmt, $streamfmt) = $self->request_format();
+   # unfortunately it seems that we must recode the format code ...
+   if($fmt eq 'g') {
+       # genbank
+       $fmt = "6";
+   } elsif($fmt eq 'f') {
+       $fmt = "1";
+   } # else we leave it as it is
+   my $wwwbuf = "DB=p&REQUEST_TYPE=LIST_OF_GIS&FORMAT=$fmt&HTML=FALSE&SAVETO=FALSE&NOHEADER=TRUE&UID=" . join(',', grep { chomp; } <$fh> );
    
    my $sock = $self->_get_sock();
 
@@ -245,12 +259,53 @@ sub get_Stream_by_batch {
        $self->throw("Entrez Error - check query sequences!\n") if m/^ERROR/i;
        last if m/Batch Entrez results/;
    }
-   return Bio::SeqIO->new(-fh => $sock, -format => 'Fasta');	  
+   return Bio::SeqIO->new('-fh' => $sock, '-format' => $streamfmt);	  
+}
+
+=head2 request_format
+
+ Title   : request_format
+ Usage   : $db->request_format("GenBank");
+           ($fmt, $streamfmt) = $db->request_format();
+ Function: Sets the format in which all sequences for following queries
+           shall be requested. At present, only "GenBank" and "Fasta" are
+           supported. Using "Fasta" when you are solely interested in the
+           sequence itself may pay off in performance, because the
+           feature table doesnt have to be downloaded.
+
+           As a Get method, returns an array of 2 strings, the first one
+           denoting the NCBI code for the format, and the second one
+           denoting the SeqIO format name. Should normally only be of use
+           internally (as a client, you already get a ready-to-read stream).
+
+ Returns : An array of two strings.
+ Args    : The desired format for sequence retrieval.
+
+=cut
+
+sub request_format {
+    my ($self, $fmt) = @_;
+
+    if(defined($fmt)) {
+	$fmt = lc $fmt;
+	# only two formats are supported at present (does anyone know how to
+	# request other formats from NCBI?)
+	if($fmt eq 'genbank') {
+	    $self->{'_format'} = "g";
+	    $self->{'_streamfmt'} = "genbank";
+	} elsif($fmt eq 'fasta') {
+	    $self->{'_format'} = "f";
+	    $self->{'_streamfmt'} = "fasta";
+	} else {
+	    $self->throw("currently only GenBank and Fasta supported");
+	}
+    }
+    return ($self->{'_format'}, $self->{'_streamfmt'});
 }
 
 sub _get_stream {
 
-  my($self, $entrez) = @_;
+  my($self, $entrez, $streamfmt) = @_;
 
 # most of this socket stuff is borrowed heavily from LWP::Simple, by
 # Gisle Aas and Martijn Koster.  They copyleft'ed it, but we should give
@@ -273,7 +328,11 @@ sub _get_stream {
     last if m/^------/; # Kludgy, but it's how L. Stein does Boulder too
   }
 
-  return Bio::SeqIO->new('-fh' => $sock, '-format' => 'Fasta');
+  if(! defined($streamfmt)) {
+      my $dummy;
+      ($dummy, $streamfmt) = $self->request_format();
+  }
+  return Bio::SeqIO->new('-fh' => $sock, '-format' => $streamfmt);
 
 }
 
