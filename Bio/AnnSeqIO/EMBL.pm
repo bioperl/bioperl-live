@@ -289,19 +289,30 @@ sub write_annseq {
    my $seq = $annseq->seq();
    my $i;
    my $str = $seq->seq;
-
+   
+   my $mol;
    my $div;
    my $len = $seq->seq_len();
 
-   if( !$annseq->can('division') || ($div = $annseq->division()) == undef ) {
+   if( !$annseq->can('division')) { #|| ($div = $annseq->division()) == undef ) {
        $div = 'UNK';
    }
+   else {
+       $div=$annseq->division;
+   }
 
+   if( !$annseq->can('molecule')) {
+       $mol = 'DNA';
+   }
+   else {
+       $mol = $annseq->molecule;
+   }
+   
    my $temp_line;
    if( $self->_id_generation_func ) {
        $temp_line = &{$self->_id_generation_func}($annseq);
    } else {
-       $temp_line = sprintf ("%-11sstandard; DNA; $div; %d BP.",$seq->id(),$len);
+       $temp_line = sprintf ("%-11sstandard; $mol; $div; %d BP.",$seq->id(),$len);
    } 
 
    print $fh "ID   $temp_line\n";   
@@ -316,7 +327,11 @@ sub write_annseq {
        print $fh "AC   $temp_line\n";   
        print $fh "XX   \n";
    } else {
-       # nothing at the moment
+       if( $annseq->can('accession') ) {
+	   print "AC   ",$annseq->accession,";\n";
+	   print "XX   \n";
+       }
+       # otherwise - cannot print <sigh>
    } 
 
    # if there, write the sv line
@@ -328,12 +343,15 @@ sub write_annseq {
 	   print $fh "XX   \n";
        }
    } else {
-       # nothing at the moment
+       if( $annseq->can('sv') ) {
+	   print $fh "SV   ",$annseq->sv,";\n";
+	   print $fh "XX   \n";
+       }
    } 
 
 
    # this next line screws up perl mode parsing. Sorry. It is a pain!
-   _write_line_EMBL_regex($fh,"DE   ","DE   ",$seq->desc(),'\s+|$',80);
+   _write_line_EMBL_regex($fh,"DE   ","DE   ",$seq->desc(),"\\s\+\|\$",80);
    print $fh "XX   \n";
 
    # if there, write the kw line
@@ -343,7 +361,10 @@ sub write_annseq {
        print $fh "KW   $temp_line\n";   
        print $fh "XX   \n";
    } else {
-       # nothing at the moment
+       if( $annseq->can('keywords') ) {
+	   print $fh "KW   ",$annseq->keywords,"\n";
+	   print $fh "XX   \n";
+       }
    } 
 
 
@@ -357,14 +378,14 @@ sub write_annseq {
         }
         print $fh "OS   $OS\n";
         my $OC = join('; ', reverse(@class)). '.';
-        _write_line_EMBL_regex($fh,"OC   ","OC   ",$OC,'; |$',80);
+        _write_line_EMBL_regex($fh,"OC   ","OC   ",$OC,"\; \|\$",80);
         print $fh "XX   \n";
     }
 
    # Comment lines
 
    foreach my $comment ( $annseq->annotation->each_Comment() ) {
-       _write_line_EMBL_regex($fh,"CC   ","CC   ",$comment->text(),'\s+|$',80);
+       _write_line_EMBL_regex($fh,"CC   ","CC   ",$comment->text(),"\\s\+\|\$",80);
        print $fh "XX   \n";
    }
    
@@ -372,9 +393,9 @@ sub write_annseq {
    my $t = 1;
    foreach my $ref ( $annseq->annotation->each_Reference() ) {
        print $fh "RN   [$t]\n";
-       &_write_line_EMBL_regex($fh,"RA   ","RA   ",$ref->authors,'\s+|$',80);       
-       &_write_line_EMBL_regex($fh,"RT   ","RT   ",$ref->title,'\s+|$',80);       
-       &_write_line_EMBL_regex($fh,"RL   ","RL   ",$ref->location,'\s+|$',80);
+       &_write_line_EMBL_regex($fh,"RA   ","RA   ",$ref->authors,"\\s\+\|\$",80);       
+       &_write_line_EMBL_regex($fh,"RT   ","RT   ",$ref->title,"\\s\+\|\$",80);       
+       &_write_line_EMBL_regex($fh,"RL   ","RL   ",$ref->location,"\\s\+\|\$",80);
        print $fh "XX   \n";
        $t++;
    }
@@ -486,13 +507,13 @@ sub _print_EMBL_FTHelper {
 
    #print $fh "FH   Key             Location/Qualifiers\n";
    #print $fh  sprintf("FT   %-15s  %s\n",$fth->key,$fth->loc);
-   &_write_line_EMBL_regex($fh,sprintf("FT   %-15s ",$fth->key),"FT                   ",$fth->loc,',|$',80);
+   &_write_line_EMBL_regex($fh,sprintf("FT   %-15s ",$fth->key),"FT                   ",$fth->loc,"\,\|\$",80);
    foreach my $tag ( keys %{$fth->field} ) {
        foreach my $value ( @{$fth->field->{$tag}} ) {
            if( $always_quote == 1 || $value !~ /^\d+$/ ) {
-	      &_write_line_EMBL_regex($fh,"FT                   ","FT                   ","/$tag=\"$value\"",'.|$',80);
+	      &_write_line_EMBL_regex($fh,"FT                   ","FT                   ","/$tag=\"$value\"","\.\|\$",80);
            } else {
-              &_write_line_EMBL_regex($fh,"FT                   ","FT                   ","/$tag=$value",'.|$',80);
+              &_write_line_EMBL_regex($fh,"FT                   ","FT                   ","/$tag=$value","\.\|\$",80);
            }
 	  # print $fh "FT                   /", $tag, "=\"", $value, "\"\n";
        }

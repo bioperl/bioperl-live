@@ -74,7 +74,7 @@ Report bugs to the Bioperl bug tracking system to help us keep track
   bioperl-bugs@bio.perl.org
   http://bio.perl.org/bioperl-bugs/
 
-=head1 AUTHOR - Ewan Birney, inspired by Ian Korf's objects
+=head1 AUTHOR - Ewan Birney, inspired by Ian Korf objects
 
 Email birney@sanger.ac.uk
 
@@ -340,6 +340,28 @@ sub division{
 
 }
 
+=head2 molecule
+
+ Title   : molecule
+ Usage   : $obj->molecule($newval)
+ Function: 
+ Returns : type of molecule (DNA, mRNA)
+ Args    : newvalue (optional)
+
+
+=cut
+
+sub molecule{
+   my $obj = shift;
+   if( @_ ) {
+      my $value = shift;
+      $obj->{'molecule'} = $value;
+    }
+    return $obj->{'molecule'};
+
+}
+
+
 =head2 accession
 
  Title   : accession
@@ -404,6 +426,25 @@ sub keywords{
     return $obj->{'keywords'};
 
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

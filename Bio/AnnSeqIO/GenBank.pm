@@ -163,7 +163,8 @@ sub _initialize {
 
 sub next_annseq{
     my ($self,@args) = @_;
-    my ($seq,$fh,$c,$line,$name,$desc,$acc,$seqc);
+    my ($seq,$fh,$c,$line,$name,$desc,$acc,$seqc,$mol,$div,$date);
+    my $annseq = Bio::AnnSeq->new();
     
     $fh = $self->_filehandle();
 #    $self->throw("This function has not been implemented yet!");
@@ -176,12 +177,28 @@ sub next_annseq{
 	return undef; # end of file
     }
     
-    $line =~ /^LOCUS\s+(\S+)/ || $self->throw("GenBank stream with no LOCUS. Not GenBank in my book. ");
+    $line =~ /^LOCUS\s+(\S+)\s+\S+\s+\S+\s+(\S+)\s+(\S+)\s+(\S+)/ || $self->throw("GenBank stream with no LOCUS. Not GenBank in my book. ");
     $name = $1;
-	
+    $mol=$2; 
+    if ($mol) {
+	$annseq->molecule($mol);
+    }
+    
+    print STDERR "MOLECULE: $mol\n"; 
+    $div=$3;
+    print STDERR "DIVISION: $div\n";
+    if ($div) {
+	$annseq->division($div);
+    }
+
+#    $date=$4;
+#    if ($date) {
+#	$annseq->date($date);
+#    }
+
     my $buffer = $line;
     
-    my $annseq = Bio::AnnSeq->new();
+#    my $annseq = Bio::AnnSeq->new();
     
     BEFORE_FEATURE_TABLE :
 	until( eof($fh) ) {
@@ -199,18 +216,19 @@ sub next_annseq{
 		    last;
 		}
 	    }		 
-	    if( /^ACCESSION\s+(\S+);?/ ) {
+	    if( /^ACCESSION\s+(\S+)/ ) {
 		$acc = $1;
 		$annseq->accession($acc);
 	    }
 	    
-	    if( /^VERSION\s+(\S+);?/ ) {
+	    if( /^VERSION\s+(\S+)/ ) {
 		my $sv = $1;
 		$annseq->sv($sv);
 	    }
 	    
 	    if( /^KEYWORDS\s+(.*)/ ) {
 		my $keywords = $1;
+		$keywords =~ s/\;//g;
 		$annseq->keywords($keywords);
 	    }
 	    
@@ -260,17 +278,17 @@ sub next_annseq{
 	    # process ftunit
 	    &_generic_seqfeature($annseq,$ftunit);
 	}
+    $seqc = "";	
     while (<$fh>) {
 	last if /^ORIGIN/;
     }
-    $seqc = "";	       
     while( <$fh> ) {
 	/^\/\// && last;
 	$_ = uc($_);
 	s/[^A-Za-z]//g;
 	$seqc .= $_;
     }
-    
+
     $seq = Bio::Seq->new(-seq => $seqc , -id => $name, -desc => $desc);
     $annseq->seq($seq);
     return $annseq;
@@ -319,8 +337,6 @@ sub write_annseq {
     } 
     
     print $fh "$temp_line\n";   
-    
-# this next line screws up perl mode parsing. Sorry. It is a pain!
     _write_line_GenBank_regex($fh,"DEFINITION  ","            ",$seq->desc(),"\\s\+\|\$",80);
     
     # if there, write the accession line
@@ -677,13 +693,18 @@ sub _read_FTHelper_GenBank {
    my ($fh,$buffer) = @_;
    my ($key,$loc,$out);
 
-   if( $$buffer =~ /^     (\S+)\s+(\S+)/ ) {
+   $_ = $$buffer;
+   if( $$buffer =~ /^\s+ (\S+)\s+(\S+)/ ) {
        $key = $1;
        $loc = $2;
        if ($$buffer !~ /^\s+\//) {
 	   while ( <$fh> ) {
+	       # read location line until feature, qualifier or end of feature table
+	       /^\s+\S+\s+\S+/ && last; # trigger for next feature
+	       /\s+\// && last; # trigger for qualifier
+	       /^BASE/ && last; # trigger for end of feature table
 	       /\s+(\S+)/ && do {$loc .= $1;};
-	       /\s+\// && last;
+	       
 	   }
        }
    }
@@ -693,7 +714,7 @@ sub _read_FTHelper_GenBank {
    $out->loc($loc);
 
    # Now read in other fields
-   while( defined($_ ||= <$fh>) ) {
+   while ( defined($_ ||= <$fh>) ) {
 
        # Exit loop on new primary key or end of features
        (/^     \S+/||/^BASE/) && last;
@@ -729,12 +750,12 @@ sub _read_FTHelper_GenBank {
 	   }
 	   push(@{$out->field->{$key}},$value);
        }
+
        # Empty $_ to trigger read from $fh
        undef $_;
    }
 
    $$buffer = $_;
-   
    return $out;
 }
 
