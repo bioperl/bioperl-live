@@ -191,7 +191,9 @@ sub get_count {
 }
 
 sub get_by_id {
-  my($self,$id) = @_;
+  my $self = shift;
+  my $id = shift;
+  $self->throw("must provide valid ID, not undef") unless defined($id);
   my $xml = get($EFETCH.'?rettype=abstract&retmode=xml&db=PubMed&id='.$id);
   return $xml;
 }
@@ -226,7 +228,7 @@ sub reset_retrieval {
 sub get_next {
   my $self = shift;
 
-  return undef if $self->cursor > $self->count;
+  return undef unless $self->has_next;
 
   my $xml = $self->get_by_id( @{ $self->ids }[$self->cursor] );
   $self->cursor( $self->cursor + 1 );
