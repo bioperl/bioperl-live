@@ -1,0 +1,112 @@
+# POD documentation - main docs before the code
+
+=head1 NAME
+
+Bio::Biblio::IO::ncbi_elink - NCBI Linkout information for one citation
+
+=head1 SYNOPSIS
+
+Objects of this type are returned by the Bio::Biblio::IO::ncbi_eutils
+format module.
+
+  use Bio::Biblio::IO;
+  my $biblio = new Bio::Biblio::IO (-data_source => 'ncbi_eutils',
+				    -what => 'links',
+                                    -query => 'goodman n [au] labbase [tiab]');
+  my $linkout = $biblio->get_next;
+  print "PubMed ID: ", $linkout->Id;
+  print " Full text URL: ", $linkout->Url, "\n";
+
+=head1 DESCRIPTION
+
+This class represents NCBI Linkout information obtained via NCBI's
+eutilities for one citation. The Bio::Biblio::IO::ncbi_eutils format
+module returns objects of this type.
+
+The basic structure mimics NCBI's elink format. The class defines an
+accessor method for each NCBI tag that we pass through. In addition, a
+few convenience methods are also defined.
+
+In most cases, a citation has at most one linkout, and it provides a
+url for getting the article's full-text. The convenience methods are
+designed to make this case easy.
+
+=head1 KNOWN BUGS AND CAVEATS
+
+This is still a work in progress.  
+
+=head2 Bugs, Caveats, and ToDos
+
+  TBD
+
+=head1 AUTHOR - Nat Goodman
+
+Email natg@shore.net
+
+=head1 COPYRIGHT
+
+Copyright (c) 2003 Institute for Systems Biology (ISB). All Rights Reserved.
+
+This module is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself.
+
+=head1 APPENDIX
+
+The rest of the documentation describes the methods.
+
+=head2 new 
+
+ Title   : new
+ Usage   : my $linkout=new Bio::Biblio::IO::ncbi_elink ($ncbi_elink)
+ Function: Create object
+ Returns : New object
+ Args    : one ncbi elink record
+ Notes   : Inherited from Root -- users should never need to call this
+
+=head2 HasFullText, has_full_text
+
+ Title   : HasFullText, has_full_text
+ Usage   : if ($linkout->HasFullTest) {
+             # process full-text link
+           }
+ Function: tests whether object has link to full-text
+ Returns : true value if object has link to full-text, else false
+
+=head2 Simple attributes
+
+These are methods for getting values from the object.  All of these
+should be read-only (more precisely, should only be written by code
+internal to the object), but this is not enforced. We assume,
+Perl-style, that programmers will behave nicely and not complain too
+loudly if the software lets them do something stupid.
+
+Methods have the same name as the attribute.  To get the value of
+attribute xxx, just say $xxx=$object->xxx
+
+ Attr    : Id, id
+ Function: PubMed ID of entry
+
+ Attr    : Url, full_text
+ Function: Url linking to full-text of article
+
+ Attr    : SubjectType, subject_type
+ Function: Subject type for link pointing to full-text.
+           Always 'publishers/providers' -- provided for consistency
+
+ Attr    : Provider, provider
+ Function: Provider for full-text of article
+           HASH ref of Name, NameAbbr, Id, Url, IconUrl
+
+ Attr    : ProviderName, provider_name
+ Attr    : ProviderNameAbbr, provider_abbr
+ Attr    : ProviderId, provider_id
+ Attr    : ProviderUrl, provider_url
+ Attr    : ProviderIconUrl, provider_icon
+ Function: Convenience methods to access fields of Provider
+
+ Attr    : ObjUrl, links
+ Function: ARRAY ref of links
+           Each link is a HASH ref of Url, SubjectType, Provider, Attribute
+           Only needed by users who wish to process entire list of links
+
+=cut

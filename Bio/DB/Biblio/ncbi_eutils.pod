@@ -1,0 +1,526 @@
+# POD documentation - main docs before the code
+
+=head1 NAME
+
+Bio::DB::Biblio::ncbi_eutils - Biblio access module for NCBI's eutils interace to PubMed
+
+=head1 SYNOPSIS
+
+Do not use this object directly. Most users should access this through
+the I<Bio::Biblio> module.  
+
+  use Bio::Biblio;
+  my $biblio = new Bio::Biblio (-access => 'ncbi_eutils',
+                                -query => 'goodman n [au] labbase [tiab]');
+  print "Number of publications satisfying query: ",$biblio->count,"\n";
+  my @refs=$biblio->get_all;
+
+ -- or --
+
+  use Bio::Biblio;
+  my $session = new Bio::Biblio (-access => 'ncbi_eutils');
+  my $goodman_n = $session->find('goodman n [au]');
+  my $labbase = $session->find('labbase [tiab]');
+  my $both = $session->find("$goodman_n AND $labbase");
+  $both->what('abstracts');
+  while (my $abstract=$both->get_next) {
+    # process abstract
+  }
+
+  -- or --
+
+  use Bio::Biblio;
+  my $session = new Bio::Biblio (-access => 'ncbi_eutils');
+  my $goodman_n = $session->find('goodman n [au]');
+  my $both = $goodman_n->find('labbase [tiab]');
+  my @links=$both->get_all('links');
+  for my $link (@links) {
+    # process link 
+  }
+
+A tied filehandle interface also exists. For example
+
+  use Bio::Biblio;
+  my $biblio = new Bio::Biblio (-access => 'ncbi_eutils',
+                                -query => 'goodman n [au] labbase [tiab]');
+  my $fh = $biblio->fh;
+  while(my $ref=<$fh>) {
+    # process reference
+  }
+
+Instead of accessing NCBI's eutils service directly, it is also
+possible to drive this module from files or filehandles.  This is not
+for the faint of heart, since it is not straightofrward to construct
+the intputs, but it may be useful in special circumstances.
+
+  use Bio::Biblio;
+  my $biblio = new Bio::Biblio (-file => 'abstracts.xml',
+                                -format => 'ncbi_eutils',
+                                -what => 'abstracts');
+  print "Number of publications in file: ",$biblio->count,"\n";
+  my @abstracts=$biblio->get_all;
+
+ -- or --
+
+  use Bio::Biblio;
+  open ($FH,"cat ids.xml |");
+   my $biblio = new Bio::Biblio (-filehandle => $FH,
+                                 -format => 'ncbi_eutils',
+                                 -what => 'ids');
+  print "Number of publications in file: ",$biblio->count,"\n";
+  my @ids=$biblio->get_all;
+
+=head1 DESCRIPTION
+
+This class is an access module for Martin Senger's Bio::Biblio
+system. It deviates from the protocol defined in Bio::Biblio (as does
+another access module, biofetch), so only the documentation here is
+relevant.
+
+We expect that most people will use this module to access PubMed
+online via NCBI's eutils capability. See
+http://eutils.ncbi.nlm.nih.gov/entrez/eutils/.  It is also possible to
+feed this module a file obtained by querying NCBI's eutils manually. 
+
+By default, this module generates output in a convenient Perl
+format. When retrieving references or abstracts, the results are
+I<Bio::Biblio::PubmedJournalArticle> objects. When retrieving ids, the
+results are simply PubMed ids (ie, Perl scalars).  When retrieving
+links, the results are I<Bio::Biblio::IO::ncbi_elink> objects.
+
+If -auto_parse is set to a false value, the module generates output in
+a pseudo-XML format that is processed by the 'parse' method of
+I<Bio::Biblio::IO::ncbi_eutils>. 
+
+=head2 Online Access to NCBI
+
+The general pattern is to define a query via the 'new' constructor,
+the 'find' method, or a combination of both, then get the data via
+calls to various 'get' methods. For PubMed aficionados, the first step
+is analogous to 'Preview'. This class can get complete references,
+abstracts, PubMed IDs, and links. Data can be returned all at once in
+a list, or entry by entry via an iterator. Data is returned in a
+peculiar XML format which can be parsed by
+Bio::Biblio::IO::ncbi_eutils.
+
+A 'complete reference' differs from an 'abstract' in that it also
+includes Linkout information.
+
+The first form in the SYNOPSIS shows a typical, simple usage. The call
+to 'new' defines a query and (in this implementation) executes an
+'esearch' at NCBI. It does NOT return the actual data. This is
+equivalent to doing a Preview at the NCBI PubMed website. The call to
+'count' tells the number of citations that satify the query. 'get_all'
+does the actual retrieval (via an 'efetch' at NCBI). afficionados
+afficionados
+
+The second example in the SYNOPSIS shows a more general way to use the
+class. The call to 'new' creates a session object. The main purpose is
+to establish a scope for subsequent queries, especially ones that use
+NCBI's history mechanism. The calls to 'find' run queries in the
+session (via esearch). They return Bio::DB::Biblio::ncbi_eutils
+objects representing the results of each query. We call these 'query
+objects'. They do not retrieve the actual data. The third 'find' runs
+a query that ANDS the previous two This demonstrates the use of the
+history mechanism, see below.
+
+The call to 'what' tells the system that we want to retrieve PubMed IDs
+(other choices are abstracts and links, see documentation for 'what'
+below). The actual retrieval is done via an iterator.
+
+(Note that in the first form, the session object exists underneath the
+covers and can be accessed via the 'session' method if necessary.)
+
+The third form is a shorthand that performs successive refinement. The
+second query ANDs the new query ('labbase [tiab]') with the previous
+query.  The retrieval is accomplished by 'get_all_links' which retrieves
+all links.
+
+=head2 History Mechanism
+
+When a query object (ie, a Bio::DB::Biblio::ncbi_eutils object that
+represents the result of a query) is used as a string, as in
+
+  "$goodman_na AND $labbase", 
+
+it 'prints itself' as a '#' followed by its history number which is
+how NCBI's history mechanism refers to a previous query. This example
+is equivalent to
+
+  "#1 AND #2"
+
+which is PubMed-speak for taking the AND of the two previous queries.
+
+=head2 Using File Input
+
+It is occasionally useful to drive this module from files obtained by
+querying NCBI manually. This is specified via the '-file' parameter to
+the 'new' method. We call this a file object.
+
+The file is not processed until a data retrieval operation is
+performed, such as 'get_all' or 'get_next'.  Note that 'count' is a
+data retrieval operation for this purpose. As with online access, the
+'what'parameter controls the kind of data expected in the input.  The
+user is responsible for ensuring that the file has the correct format
+for whatever is expected. Make sure 'what' is set correctly before
+attempting any retrieval operation, including 'count'!!
+
+It is not easy to manually obtain these files, because the NCBI
+interface is designed for use by programs. It takes two steps. First
+is an 'esearch' that defines the query to be run. This returns tow
+pieces of information -- WebEnv and query_key -- that can later be
+used to retrieve the data.  Next is either an 'efetch' or an 'elink'
+that actually retrieves the data.
+
+Here are example queries for each kind of data.  It should work to
+copy-and-paste the initial 'esearch' query into the Address window of
+a Web browser, or execute it on Linux via the LWP GET command (see
+example below).  You then have to extract the WebEnv info from the
+result and paste it into the subsequent 'efetch' and 'elink' commands.
+
+  http://www.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=Pubmed&retmax=0&usehistory=y&term=goodman n [au] labbase [tiab]
+
+  For abstracts:
+
+  http://www.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=Pubmed&usehistory=y&retmode=xml&retstart=0&rettype=abstract&query_key=1&WebEnv=0noxbMd0auacU0DR_XcUVDM8dl23J-qGRLKB_kUv7DRiIWLPG3SO5X
+
+  For ids:
+
+  http://www.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=Pubmed&usehistory=y&retmode=xml&retstart=0&rettype=uilist&query_key=1&WebEnv=0JbWjYbWhKWOhvXifcwswwp7qaCX2ly026WKrmRlmjCAiw4z7pWz
+
+  For links:
+
+  http://www.ncbi.nlm.nih.gov/entrez/eutils/elink.fcgi?dbfrom=Pubmed&usehistory=y&retmode=xml&cmd=prlinks&query_key=1&WebEnv=0JbWjYbWhKWOhvXifcwswwp7qaCX2ly026WKrmRlmjCAiw4z7pWz
+
+The only trick in running these through GET it to remember to quote
+them.  For example:
+
+  GET "http://www.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=Pubmed&usehistory=y&retmode=xml&retstart=0&rettype=abstract&query_key=1&WebEnv=0noxbMd0auacU0DR_XcUVDM8dl23J-qGRLKB_kUv7DRiIWLPG3SO5X" > abstracts.xml
+
+=head1 KNOWN BUGS AND CAVEATS
+
+This is still a work in progress.  
+
+=head2 Bugs, Caveats, and ToDos
+
+  TBD
+
+=head1 AUTHOR - Nat Goodman
+
+Email natg@shore.net
+
+=head1 COPYRIGHT
+
+Copyright (c) 2003 Institute for Systems Biology (ISB). All Rights Reserved.
+
+This module is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself.
+
+=head1 APPENDIX
+
+The rest of the documentation describes the methods.
+
+=head2 Constructors (call via Bio::Biblio)
+
+ Title   : new
+
+ Usage   : $session=new Bio::Biblio(-access=>'ncbi_eutils');
+ Function: Create session object
+ Returns : New session object
+
+ Usage   : $query=new Bio::Biblio(-access=>'ncbi_eutils',
+                                  -query=>'goodman n [au] labbase [tiab]');
+ Function: Create session object and run query
+ Returns : New query object
+
+ Args    : -access     'ncbi_eutils' for online access
+           -query      Query to run, if any. Fo online access only
+           -file       Filename for file access
+           -filehandle File GLOB (the kind of thing produced by open)
+                       or FileHandle object
+           -format     Optional if -access is set. 
+                       Must be 'ncbi_eutils' if -file or -filehandle is 
+                       set.
+
+ Notes   : Inherited from Bio::Biblio as extended by Root
+
+Bio::Biblio::new is used to create a new Bio::Biblio::DB object whose
+class and properties are determined by the combination of parameters.
+See I<Bio::Biblio> for hwo to specify access modules other than this
+one.
+
+To create an 'ncbi_eutils' access module, you must specify 
+
+  -access=>'ncbi_eutils'
+  -- or --
+  -format=>'ncbi_eutils'
+
+If -access or -format are so specfied, and there is no -file or
+-filehandle parameter, then access is online.  This is the normal
+case. If there is a -file or -filehandle, then that file or filehandle
+is used.  It is currently an error to specify -file or -filehandle
+without -format as we have not attempted to write code to guess 'what'
+based on the content of the file
+
+ Title   : newFh
+ Usage   : $fh=newFh Bio::Biblio(-access=>'ncbi_eutils'
+                                 -query=>'goodman n [au]');
+           while(my $abstract=<$fh>) {
+             # process abstract
+           }
+           -- or --
+           $fh=newFh Bio::Biblio(-access=>'ncbi_eutils'
+                                 -query=>'goodman n [au]');
+           @abstracts=<$fh>;
+
+ Function: Creates a new query object and returns a tied filehandle
+           for accessing it
+ Returns : Filehandle for query
+
+Each call using the <> operator does a get_next. If used in a list
+context, the entire rest of the data stream is processed.
+
+=head2 Simple attributes
+
+These are methods for getting and setting the values of simple
+attributes. Each of these can be set in the argument list to new, if
+desired.  Some of these should be read-only (more precisely, should
+only be written by code internal to the obkect), but this is not
+enforced. We assume, Perl-style, that programmers will behave nicely
+and not complain too loudly if the software lets them do something
+stupid.
+
+Methods have the same name as the attribute.  To get the value of
+attribute xxx, just say $xxx=$object->xxx; To set it, say
+$object->xxx($new_value); To clear it, say $object->xxx(undef);
+
+ Attr    : access
+ Function: must be ncbi_eutils -- generally set via 'new'
+ Access  : read-only 
+
+ Attr    : what
+ Function: What kind of data to get: references, abstracts, IDs, 
+           or links
+           Values are case insensitive and can be abbreviated. 
+           Default -- 'references'
+           The following are synonyms for IDs: pubmed_ids, pmids
+           The following are synonyms for references: refs
+ Access  : read-write
+
+ Attr    : query
+ Function: Query (as a string) from a query object
+ Access  : read-only
+
+ Attr    : file
+ Function: Filename from a file object
+ Access  : read-only
+
+ Attr    : parser
+ Function: Bio::Biblio::IO class used to parse results -- generally set via 'new'
+ Access  : read-only
+
+ Attr    : auto_parse
+ Function: Controls whether results are automatically parsed by 'parser'
+           Default true
+ Access  : read-write
+
+ Attr    : filehandle
+ Function: Filehandle from a file object
+ Access  : read-only
+
+ Attr    : session
+ Function: Session object for query; points to self for session objects
+ Access  : read-only
+
+ Attr    : query_key
+ Function: History number -- internal use
+ Access  : read-only
+
+ Attr    : webenv
+ Function: Session context -- internal use
+ Access  : read-only
+
+ Attr    : chunk_size
+ Function: Number of citations retrieved per efetch -- internal and advanced use
+ Access  : read-write
+
+ Attr    : collection_id
+ Function: string identifying the object -- for compatibility with Bio::DB::BiblioI
+ Access  : read-only
+ Synonym : get_collection_id -- read-only
+
+=head2 find
+
+ Title   : find
+
+ Usage   : $query=$session->find('goodman n [au] labbase [tiab]');
+ Function: Run a query in the context of a session
+ Returns : New object representing the query result. 
+           A Bio::DB::Biblio::ncbi_eutils object
+
+ Usage   : $new_query=$query->find('goodman n [au] labbase [tiab]');
+ Function: Run a query by ANDing a new query with an existing one
+ Returns : New object representing the query result. 
+           A Bio::DB::Biblio::ncbi_eutils object
+
+ Args    : Valid NCBI PubMed query as a string
+ Notes   : Only legal when using online access
+
+
+=head2 count
+
+ Usage   : $count=$query->count
+ Returns : Number of publications in query result
+ Synonym : get_count -- read-only
+
+=head2 Methods to get all data
+
+ Title   : get_all
+ Usage   : @data=$query->get_all('abstracts');
+ Function: Retrieve all data for query
+ Args    : What to retrieve (see 'what' above)
+           Default -- use current value of 'what' attribute
+ Returns : List of XML records, one per citation.
+           See specifics for each 'what' below
+
+ Title   : get_by_id, get_by_ids
+ Usage   : my $data=$query->get_by_id(8877508)
+           -- or --
+           my @data=$query->get_by_id(8877508,12180136);
+ Function: Retrieve one or entries given their PubMed IDs
+ Args    : List of PubMed IDs
+ Returns : List of XML records, one per citation.
+           See specifics for each 'what' below
+ Notes   : Included for compatibility with Bio::DB::BiblioI
+
+This does a combination find and get_all. 
+
+=head2 Iterator methods
+
+ Title   : has_next, has_more
+ Usage   : while($query->has_next) {...}
+           -- or --
+           while($query->has_more) {...}
+ Function: Test whether iterator has more data
+ Args    : None
+ Returns : true value if iterator has more data, else false value
+ Notes   : has_more included for linguistic consistency with get_more
+
+ Title   : get_next, get_more
+ Usage   : my $data=$query->get_next
+           -- or --
+           my @data=$query->get_next($n)
+           -- or --
+           my $data=$query->get_more
+           -- or --
+           my @data=$query->get_more($n)
+ Function: Get next n data entries for query
+ Args    : Number of entries to retrieve -- default 1
+ Returns : Next data entry or a list of the next n entries available 
+           via the iterator, or undef if the iterator is exhausted.
+           If the number of reemaining entries is between 1 and n,
+           returns them all
+ Notes   : get_more included for compatibility with Bio::DB::BiblioI
+
+This get_next, get_more behavior differs from Bio::DB::BiblioI which
+throws an exception if the iterator is exhausted whereas we return
+undef. By returning undef, the user can program an iteration loop as
+
+  while($data=$query->get_next) {
+    # process entry
+  }
+
+ Title   : get_this
+ Usage   : my $data=$query->get_this
+           -- or --
+           my @data=$query->get_this($n)
+ Function: Get current n data entries for query
+ Args    : Number of entries to retrieve -- default 1
+ Returns : Current data entry or a list of the current n entries available 
+           via the iterator, or undef if the iterator is exhausted.
+           If the number of reemaining entries is between 1 and n,
+           returns them all
+
+Similar to get_next, but successive calls get the same entries.
+
+ Title   : reset, reset_retrieval
+ Usage   : $query->reset
+           -- or --
+           $query->reset_retrieval
+           -- or --
+           $query->reset($what)
+           -- or --
+           $query->reset_retrieval($what)
+ Function: Reset iterator to beginning
+ Args    : What to retrieve -- default leave unchanged -- see 'what'
+ Returns : None
+ Notes : When accessing data via a filehandle, ie if -filehandle
+         parameter was set, this method will fail and throw an exception
+         if the filehandle refers to a pipeline. This is because 
+         pipelines cannot be reset.
+
+ Title   : fh
+ Usage   : my $fh=$query->fh;
+           while(my $abstract=<$fh>) {
+             # process abstract
+           }
+ Function: Create a tied filehandle for query. Subsequent calls to 
+           the <> operator calls get_next.
+ Returns : Filehandle for query
+
+=head2 Getting status information about objects
+
+ Title   : is_query
+ Usage   : print "I'm a query object" if $object->is_query
+ Function: Test whether object represents a query
+ Args    : None
+ Returns : true value if query object, else false value
+
+ Title   : is_session
+ Usage   : print "I'm a session object" if $object->is_session
+ Function: Test whether object represents a session
+ Args    : None
+ Returns : true value if session object, else false value
+
+ Title   : is_file
+ Usage   : print "I'm a file object" if $object->is_file
+ Function: Test whether object is configured to process a file
+ Args    : None
+ Returns : true value if file object, else false value
+
+ Title   : is_online
+ Usage   : print "I'm using online access" if $object->is_online
+ Function: Test whether object is being used for online access
+ Args    : None
+ Returns : true value if online, else false value
+
+ Title   : is_offline
+ Usage   : print "I'm using offline access" if $object->is_offline
+ Function: Test whether object is being used for offline access
+ Args    : None
+ Returns : true value if offline, else false value
+
+ Title   : is_connected
+ Usage   : print "Session is connected to NCBI" if $object->is_connected
+ Function: Test whether any query has yet been run for this session
+ Args    : None
+ Returns : true value if query has been run, else false
+
+=head2 set and get attributes (inherited from Root)
+
+These methods, inherited from Root, are a convenient way to manipulate
+the many attributes of this class.
+
+ Title   : set
+ Usage   : $query->set(-what=>'abstracts',-chunk_size=>100')
+ Function: Set multiple attributes in query object
+ Args    : Parameter list in same format as for new
+ Returns : nothing
+
+ Title   : get
+ Usage   : ($count,$query_string,$what)=$query->get qw(-count -query -what))
+ Function: Get values for multiple attributes
+ Args    : Attribute names
+ Returns : List of attribute values
+
+=cut

@@ -1,0 +1,373 @@
+# POD documentation - main docs before the code
+
+=head1 NAME
+
+Bio::DB::Biblio::alzforum - Biblio access module for NCBI's eutils interace to PubMed
+
+=head1 SYNOPSIS
+
+Do not use this object directly. Most users should access this through
+the I<Bio::Biblio> module.  
+
+  use Bio::DB::Biblio::AlzforumQuery;
+  use Bio::Biblio;
+  my $query=new Bio::DB::Biblio::AlzforumQuery (-author=>'hockly, e',
+                                                -phrase1=>'histone deacetylase inhibitor',
+                                                -phrase2=>'environmental enrichment',
+                                                -andOR=>'OR');
+  my $biblio = new Bio::Biblio (-access => 'alzforum',
+                                -query => $query);
+  print "Number of publications satisfying query: ",$biblio->count,"\n";
+  my @cits=$biblio->get_all;
+
+  my $session = new Bio::Biblio (-access => 'alzforum');
+  my biblio = $session->find($query);
+  while (my $cit=$biblio->get_next) {
+    # process citation
+  }
+
+A tied filehandle interface also exists. For example
+
+  use Bio::DB::Biblio::AlzforumQuery;
+  use Bio::Biblio;
+  my $query=new Bio::DB::Biblio::AlzforumQuery (-author=>'hockly, e',
+                                                -phrase1=>'histone deacetylase inhibitor',
+                                                -phrase2=>'environmental enrichment',
+                                                -andOR=>'OR');
+  my $fh = $biblio->fh;
+  while(my $cit=<$fh>) {
+    # process citation
+  }
+
+Instead of accessing Alzforumdirectly, it is also possible to drive
+this module from files or filehandles.  This is useful for testing.
+
+  use Bio::Biblio;
+  my $biblio = new Bio::Biblio (-file => 'citations.xml',
+                                -format => 'alzforum');
+  print "Number of publications in file: ",$biblio->count,"\n";
+  my @cits=$biblio->get_all;
+  open ($FH,"cat citations.xml |");
+  my $biblio = new Bio::Biblio (-filehandle => $FH,
+                                -format => 'alzforum');
+  print "Number of publications in file: ",$biblio->count,"\n";
+  my @cits=$biblio->get_all;
+
+=head1 DESCRIPTION
+
+This class is an access module for Martin Senger's Bio::Biblio
+system. It deviates from the protocol defined in Bio::Biblio (as do
+other access modules), so only the documentation here is relevant.
+
+We expect that most people will use this module to access Alzforum
+online. It is also possible to feed this module a file obtained by
+querying Alzforum manually. This is useful for testing.
+
+By default, this module generates output in a convenient Perl
+format. When retrieving references or abstracts, the results are
+I<Bio::Biblio::AlzforumCitation> objects. 
+
+If -auto_parse is set to a false value, the module generates output in
+a pseudo-XML format that is processed by the 'parse' method of
+I<Bio::Biblio::IO::alzforum>. 
+
+=head2 Online Access to Alzforum
+
+The general pattern is to define a query via the 'new' constructor,
+the 'find' method, or a combination of both, then get the data via
+calls to various 'get' methods. Data can be returned all at once in a
+list, or entry by entry via an iterator. Data is returned in a
+peculiar XML format which can be parsed by Bio::Biblio::IO::alzforum.
+
+The first form in the SYNOPSIS shows a typical, simple usage. The call
+to 'new' executes a query at AlzforumIt and returns the results. The
+call to 'count' tells the number of citations that satify the
+query. 'get_all' gets all the data.
+
+=head2 Using File Input
+
+It is occasionally useful to drive this module from files obtained by
+querying NCBI manually. This is specified via the '-file' parameter to
+the 'new' method. We call this a file object.
+
+The file is not processed until a data retrieval operation is
+performed, such as 'get_all' or 'get_next'.  Note that 'count' is a
+data retrieval operation for this purpose. As with online access, the
+'what'parameter controls the kind of data expected in the input.  The
+user is responsible for ensuring that the file has the correct format
+for whatever is expected. Make sure 'what' is set correctly before
+attempting any retrieval operation, including 'count'!!
+
+Here is an example that shows how to get the data.
+
+  http://www.alzforum.org/pap/hdpowsearch5.asp?author=hockly, e&phrase1=histone deacetylase&phrase2=Environmental enrichment&andOR=OR
+
+=head1 KNOWN BUGS AND CAVEATS
+
+This is still a work in progress.  
+
+=head2 Bugs, Caveats, and ToDos
+
+  TBD
+
+=head1 AUTHOR - Nat Goodman
+
+Email natg@shore.net
+
+=head1 COPYRIGHT
+
+Copyright (c) 2003 Institute for Systems Biology (ISB). All Rights Reserved.
+
+This module is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself.
+
+=head1 APPENDIX
+
+The rest of the documentation describes the methods.
+
+=head2 Constructors (call via Bio::Biblio)
+
+ Title   : new
+
+ Usage   : $session=new Bio::Biblio(-access=>'alzforum');
+ Function: Create session object
+ Returns : New session object
+
+ Usage   : $biblio=new Bio::Biblio(-access=>'alzforum',
+                                  -query=>$query)
+ Function: Create session object and run query
+ Returns : New query object
+
+ Args    : -access     'alzforum' for online access
+           -query      Query to run, if any. For online access only
+           -file       Filename for file access
+           -filehandle File GLOB (the kind of thing produced by open)
+                       or FileHandle object
+           -format     Optional if -access is set. 
+                       Must be 'alzforum' if -file or -filehandle is 
+                       set.
+
+ Notes   : Inherited from Bio::Biblio as extended by Root
+
+Bio::Biblio::new is used to create a new Bio::Biblio::DB object whose
+class and properties are determined by the combination of parameters.
+See I<Bio::Biblio> for hwo to specify access modules other than this
+one.
+
+To create an 'alzforum' access module, you must specify 
+
+  -access=>'alzforum'
+  -- or --
+  -format=>'alzforum'
+
+If -access or -format are so specfied, and there is no -file or
+-filehandle parameter, then access is online.  This is the normal
+case. If there is a -file or -filehandle, then that file or filehandle
+is used.  It is currently an error to specify -file or -filehandle
+without -format as we have not attempted to write code to guess 'what'
+based on the content of the file
+
+ Title   : newFh
+ Usage   : $fh=newFh Bio::Biblio(-access=>'alzforum'
+                                 -query=>$query);
+           while(my $abstract=<$fh>) {
+             # process abstract
+           }
+           -- or --
+           $fh=newFh Bio::Biblio(-access=>'alzforum'
+                                 -query=>$query);
+           @abstracts=<$fh>;
+
+ Function: Creates a new query object and returns a tied filehandle
+           for accessing it
+ Returns : Filehandle for query
+
+Each call using the <> operator does a get_next. If used in a list
+context, the entire rest of the data stream is processed.
+
+=head2 Simple attributes
+
+These are methods for getting and setting the values of simple
+attributes. Each of these can be set in the argument list to new, if
+desired.  Some of these should be read-only (more precisely, should
+only be written by code internal to the obkect), but this is not
+enforced. We assume, Perl-style, that programmers will behave nicely
+and not complain too loudly if the software lets them do something
+stupid.
+
+Methods have the same name as the attribute.  To get the value of
+attribute xxx, just say $xxx=$object->xxx; To set it, say
+$object->xxx($new_value); To clear it, say $object->xxx(undef);
+
+ Attr    : access
+ Function: must be alzforum -- generally set via 'new'
+ Access  : read-only 
+
+ Attr    : what
+ Function: What kind of data to get
+           Values are case insensitive and can be abbreviated. 
+           Default -- 'cits'
+           Anything that starts with 'c' is a synonym for 'cits'
+ Access  : read-write
+
+ Attr    : query
+ Function: Query (as an object)
+ Access  : read-only
+
+ Attr    : file
+ Function: Filename from a file object
+ Access  : read-only
+
+ Attr    : parser
+ Function: Bio::Biblio::IO class used to parse results -- generally set via 'new'
+ Access  : read-only
+
+ Attr    : auto_parse
+ Function: Controls whether results are automatically parsed by 'parser'
+           Default true
+ Access  : read-write
+
+ Attr    : filehandle
+ Function: Filehandle from a file object
+ Access  : read-only
+
+ Attr    : session
+ Function: Session object for query; points to self for session objects
+ Access  : read-only
+
+ Attr    : collection_id
+ Function: string identifying the object -- for compatibility with Bio::DB::BiblioI
+ Access  : read-only
+ Synonym : get_collection_id -- read-only
+
+=head2 find
+
+ Title   : find
+
+ Usage   : $biblio=$session->find($query)
+ Function: Run a query in the context of a session
+ Returns : New object representing the query result. 
+           A Bio::DB::Biblio::alzforum object
+
+=head2 count
+
+ Usage   : $count=$biblio->count
+ Returns : Number of publications in query result
+ Synonym : get_count -- read-only
+
+=head2 Methods to get all data
+
+ Title   : get_all
+ Usage   : @data=$biblio->get_all('cits');
+ Function: Retrieve all data for query
+ Args    : What to retrieve (see 'what' above)
+           Default -- use current value of 'what' attribute
+ Returns : List of XML records, one per citation.
+           See specifics for each 'what' below
+
+=head2 Iterator methods
+
+ Title   : has_next, has_more
+ Usage   : while($biblio->has_next) {...}
+           -- or --
+           while($biblio->has_more) {...}
+ Function: Test whether iterator has more data
+ Args    : None
+ Returns : true value if iterator has more data, else false value
+ Notes   : has_more included for linguistic consistency with get_more
+
+ Title   : get_next, get_more
+ Usage   : my $data=$biblio->get_next
+           -- or --
+           my @data=$biblio->get_next($n)
+           -- or --
+           my $data=$biblio->get_more
+           -- or --
+           my @data=$biblio->get_more($n)
+ Function: Get next n data entries for query
+ Args    : Number of entries to retrieve -- default 1
+ Returns : Next data entry or a list of the next n entries available 
+           via the iterator, or undef if the iterator is exhausted.
+           If the number of reemaining entries is between 1 and n,
+           returns them all
+ Notes   : get_more included for compatibility with Bio::DB::BiblioI
+
+This get_next, get_more behavior differs from Bio::DB::BiblioI which
+throws an exception if the iterator is exhausted whereas we return
+undef. By returning undef, the user can program an iteration loop as
+
+  while($data=$biblio->get_next) {
+    # process entry
+  }
+
+ Title   : get_this
+ Usage   : my $data=$biblio->get_this
+           -- or --
+           my @data=$biblio->get_this($n)
+ Function: Get current n data entries for query
+ Args    : Number of entries to retrieve -- default 1
+ Returns : Current data entry or a list of the current n entries available 
+           via the iterator, or undef if the iterator is exhausted.
+           If the number of reemaining entries is between 1 and n,
+           returns them all
+
+Similar to get_next, but successive calls get the same entries.
+
+ Title   : reset, reset_retrieval
+ Usage   : $biblio->reset
+           -- or --
+           $biblio->reset_retrieval
+           -- or --
+           $biblio->reset($what)
+           -- or --
+           $biblio->reset_retrieval($what)
+ Function: Reset iterator to beginning
+ Args    : What to retrieve -- default leave unchanged -- see 'what'
+ Returns : None
+ Notes : When accessing data via a filehandle, ie if -filehandle
+         parameter was set, this method will fail and throw an exception
+         if the filehandle refers to a pipeline. This is because 
+         pipelines cannot be reset.
+
+ Title   : fh
+ Usage   : my $fh=$biblio->fh;
+           while(my $cit=<$fh>) {
+             # process cit
+           }
+ Function: Create a tied filehandle for query. Subsequent calls to 
+           the <> operator calls get_next.
+ Returns : Filehandle for query
+
+=head2 Getting status information about objects
+
+ Title   : is_query
+ Usage   : print "I'm a query object" if $object->is_query
+ Function: Test whether object represents a query
+ Args    : None
+ Returns : true value if query object, else false value
+
+ Title   : is_session
+ Usage   : print "I'm a session object" if $object->is_session
+ Function: Test whether object represents a session
+ Args    : None
+ Returns : true value if session object, else false value
+
+ Title   : is_file
+ Usage   : print "I'm a file object" if $object->is_file
+ Function: Test whether object is configured to process a file
+ Args    : None
+ Returns : true value if file object, else false value
+
+ Title   : is_online
+ Usage   : print "I'm using online access" if $object->is_online
+ Function: Test whether object is being used for online access
+ Args    : None
+ Returns : true value if online, else false value
+
+ Title   : is_offline
+ Usage   : print "I'm using offline access" if $object->is_offline
+ Function: Test whether object is being used for offline access
+ Args    : None
+ Returns : true value if offline, else false value
+
+=cut

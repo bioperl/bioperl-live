@@ -1,0 +1,105 @@
+# POD documentation - main docs before the code
+
+=head1 NAME
+
+Bio::Biblio::IO::alzforum - Biblio parsing module for Alzforum citation data
+
+=head1 SYNOPSIS
+
+Do not use this object directly.  This class is used transparently by
+I<Bio::DB::Biblio::ncbi_eutils>, which in turn is accessed by
+I<Bio::Biblio>.  If a need arises to use it directly, it is
+recommended to access it through I<Bio::Biblio::IO>.
+
+  use Bio::Bublio;
+  use Bio::Biblio::IO;
+  my $biblio = new Bio::Biblio (-data_source => 'alzforum',
+                                -query => TBD,
+                                -auto_parse => 0);
+  while (my $xml_abstract = $biblio->get_next) {
+    my $reader = new Bio::Biblio::IO (-format=> 'alzforum');
+    my $citation = $reader->parse($xml_abstract)
+    # process citation further
+  }
+
+=head1 DESCRIPTION
+
+This class is a formatting module for Martin Senger's Bio::Biblio
+system. It deviates from the protocol defined in Bio::Biblio, so only
+the documentation here is relevant.
+
+At present, this class can only format Alzforum citations.
+The results are
+I<Bio::Biblio::AlzforumCitation> objects.
+
+=head1 KNOWN BUGS AND CAVEATS
+
+This is still a work in progress.  
+
+=head2 Bugs, Caveats, and ToDos
+
+  TBD
+
+=head1 AUTHOR - Nat Goodman
+
+Email natg@shore.net
+
+=head1 COPYRIGHT
+
+Copyright (c) 2003 Institute for Systems Biology (ISB). All Rights Reserved.
+
+This module is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself.
+
+=head1 APPENDIX
+
+The rest of the documentation describes the methods.
+
+=head2 new (call via Bio::Biblio::IO)
+
+ Title   : new
+
+ Usage   : 
+ Function: Create object
+ Returns : 
+ Args    : -format -- must be 'alzforum'
+ Notes   : Inherited from Bio::Biblio::IO as extended by Root
+
+=head2 Simple attributes
+
+These are methods for getting and setting the values of simple
+attributes. Each of these can be set in the argument list to new, if
+desired.  Some of these should be read-only (more precisely, should
+only be written by code internal to the obkect), but this is not
+enforced. We assume, Perl-style, that programmers will behave nicely
+and not complain too loudly if the software lets them do something
+stupid.
+
+Methods have the same name as the attribute.  To get the value of
+attribute xxx, just say $xxx=$object->xxx; To set it, say
+$object->xxx($new_value); To clear it, say $object->xxx(undef);
+
+ Attr    : format
+ Function: must be alzforum -- generally set via new
+ Access  : read-only 
+
+ Attr    : what
+ Function: What kind of data is being processed
+           Values are case insensitive and can be abbreviated. 
+           Default -- 'cits'
+           Anything that starts with 'c' is a synonym for 'cits'
+ Access  : read-write
+
+=head2 parse
+
+ Title   : parse
+
+ Usage   : @citations=$biblio->parse($data1,$data2)
+ Function: Parse the given data records
+ Returns : Object or a list of objects generating by converting
+           the input objects
+           See Description for details
+ Args    : Objects in the pseudo-XML format produced by 
+           I<Bio::DB::Biblio::alzforum>
+
+=cut

@@ -1,0 +1,99 @@
+# POD documentation - main docs before the code
+
+=head1 NAME
+
+Bio::DB::Biblio::AlzforumQuery - Represents and Alzforum bibliographic query
+
+=head1 SYNOPSIS
+
+  use Bio::Biblio;
+  use Bio::DB::Biblio::AlzforumQuery;
+  my $query=new Bio::DB::Biblio::AlzforumQuery (-author=>'hockly, e',
+                                                -phrase1=>'histone deacetylase inhibitor',
+                                                -phrase2=>'environmental enrichment',
+                                                -andOR=>'OR');
+  my $biblio = new Bio::Biblio (-access => 'alzforum',
+                                -query => $query);
+  print "Number of publications satisfying query: ",$biblio->count,"\n";
+  my @refs=$biblio->get_all;
+
+=head1 DESCRIPTION
+
+This is a simple class that represents an Alzforum query. The allowed attributes are precisely the legal search fields and are as follows.
+
+  phrase1
+  phrase2
+  andOr	         [AND or OR]
+  author
+  commentator
+  journal
+  PubDateLowMonth
+  PubDateLowYear
+  PubDateHighMonth
+  PubDateHighYear
+  commented      [1 or 0]
+  ARFRec         [1 or 0]
+  mileStone      [1 or 0]
+  sort           [1 or 0]
+
+These can be used with the given case or as all lowercase.
+
+Note that author is always the first author of the paper.  Author
+names are expressed as
+
+  lastname, initials
+
+The initials are optional.  The comma is MANDATORY if any initials are
+present.
+
+=head1 KNOWN BUGS AND CAVEATS
+
+This is still a work in progress.  
+
+=head2 Bugs, Caveats, and ToDos
+
+  TBD
+
+=head1 AUTHOR - Nat Goodman
+
+Email natg@shore.net
+
+=head1 COPYRIGHT
+
+Copyright (c) 2003 Institute for Systems Biology (ISB). All Rights Reserved.
+
+This module is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself.
+
+=head1 APPENDIX
+
+The rest of the documentation describes the methods.
+
+=head2 Constructor
+
+ Title   : new
+ Usage   : my $query=new Bio::DB::Biblio::AlzforumQuery 
+                         (-author=>'hockly, e',
+                          -phrase1=>'histone deacetylase inhibitor',
+                          -phrase2=>'environmental enrichment',
+                          -andOR=>'OR');
+ Function: Create query object
+ Returns : New query object
+
+ Usage   : $query=new Bio::Biblio(-access=>'alzforum',
+                                  -query=>'goodman n [au] labbase [tiab]');
+ Function: Create session object and run query
+ Returns : New query object
+
+=head2 as_string
+
+ Title   : as_string
+ Usage   : print $query->as_string;
+ Function: Produce string form of query for incorporation into URL.
+           Note that the result is NOT URI-escaped -- the calling
+           program has to take care of this
+ Returns : String
+
+ Notes   : the string operator ("") is overloaded to do this
+
+=cut

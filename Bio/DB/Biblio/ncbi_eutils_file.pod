@@ -1,0 +1,28 @@
+# POD documentation - main docs before the code
+
+=head1 NAME
+
+Bio::DB::Biblio::ncbi_eutils_file - Helper class for Biblio access module for NCBI's eutils
+
+=head1 SYNOPSIS
+
+Do not use this object directly.  See I<Bio::DB::Biblio::ncbi_eutils> for
+documentation.  
+
+=head1 DESCRIPTION
+
+This is a sublcass for handling file access for
+Bio::DB::Biblio::ncbi_eutils. It overrides a handful of methods.
+
+=head1 AUTHOR - Nat Goodman
+
+Email natg@shore.net
+
+=head1 COPYRIGHT
+
+Copyright (c) 2003 Institute for Systems Biology (ISB). All Rights Reserved.
+
+This module is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself.
+
+=cut

@@ -1,0 +1,337 @@
+# POD documentation - main docs before the code
+
+=head1 NAME
+
+Bio::DB::Biblio:pubmed_gdbm - Biblio access module for PubMed data stored in GDBM files
+
+=head1 SYNOPSIS
+
+Do not use this object directly. Most users should access this through
+the I<Bio::Biblio> module.  
+
+  use Bio::Biblio;
+  my $biblio = new Bio::Biblio (-access => 'pubmed_gdbm',
+                                -dbh => $dbh,
+				-collection => 'genome papers'	);
+  print "Number of publications in database: ",$biblio->count,"\n";
+  my @refs=$biblio->get_all;
+  my $ref=$biblio->get_by_id(12180136);
+  $biblio->what('ids');
+  while (my $id=$biblio->get_next) {
+    my $ref=get_by_id($id);
+  }
+  my $new_ref=new PubmedArticle(...);
+  $biblio->put($new_ref);
+
+Tied hash and tied filehandle interfaces also exist.
+
+  tie %biblio,'Bio::DB::Biblio::pubmed_gdbm',
+	      -access => 'pubmed_gdbm',
+              -dbh=>$dbh,
+              -collection=>'test_gdbm';
+
+  my @ids=keys %biblio;
+  my @refs=values %biblio;
+  my $ref=$biblio{12180136};
+  my $new_ref=new PubmedArticle(...);
+  $biblio{$new_ref->pmid}=$new_ref;
+
+  my $fh = $biblio->fh;
+  while(my $ref=<$fh>) {
+    # process reference
+  }
+  my $new_ref=new PubmedArticle(...);
+  print  $biblio $new_ref;
+
+  my $fh = newFh Bio::Biblio (-access => 'pubmed_gdbm',
+                              -dbh => $dbh,
+			      -collection => 'genome papers'	);
+  while(my $ref=<$fh>) {
+    # process reference
+  }
+  my $new_ref=new PubmedArticle(...);
+  print  $biblio $new_ref;
+
+
+=head1 DESCRIPTION
+
+This class is an access module for Martin Senger's Bio::Biblio
+system. It deviates from the protocol defined in Bio::Biblio (as do
+other access modules), so only the documentation here is relevant.
+
+This module provides a means to store PubMed entries locally. We
+expect that most people will use the ncbi_eutils module to retrieve
+PubMed entries from NCBI, then store them using this module.  Once
+stored via this module, they can be quickly re-accessed but only in
+limited ways: (1) specific entries can be retrieved by PubMed ID; (2)
+the entire database can be retrieved using the get_all method; or (3)
+the client program can iterate over the database using get_next.
+
+NOTE: This module provides no content-based retrieval capabilities.
+
+Unlike the ncbi_eutils module, this module deals only with complete
+PubMed references and IDs, and does not deal wth the separate
+'abstracts' and 'links' modes of ncbi_eutils.  There is no loss of
+capabilty here, since the complete references are capable of storing
+links, and, of course, contain abstracts.
+
+The PubMed entries used by the module are objects of class
+Bio::Biblio::PubmedArticle and subclasses thereof.
+
+=head1 KNOWN BUGS AND CAVEATS
+
+This is still a work in progress.  
+
+=head2 Bugs, Caveats, and ToDos
+
+  TBD
+
+=head1 AUTHOR - Nat Goodman
+
+Email natg@shore.net
+
+=head1 COPYRIGHT
+
+Copyright (c) 2003 Institute for Systems Biology (ISB). All Rights Reserved.
+
+This module is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself.
+
+=head1 APPENDIX
+
+The rest of the documentation describes the methods.
+
+=head2 Constructors (call via Bio::Biblio)
+
+ Title   : new
+
+ Usage   : $biblio=new Bio::Biblio(-access=>'pubmed_gdbm',
+                                   -file => 'myfile.db')
+ Function: Create biblio object which can then be used to access 
+           the database. By default, opens database for read-write
+           and creates the database if it does not yet exist.
+ Returns : New biblio object
+ Args    : -access     Must be 'pubmed_gdbm' for this module
+           -file       Name of DBM file
+                       This is passed to the DBM_File's open method
+                       which may append a suffix.
+           -read_only  If true, database is opened in read only mode
+           -create     If true, database is created even it already exists
+                       If undef, database is created if it does not 
+                       exist
+                       If defined but false, database is not created
+           -create_mode Permissions on database if created.
+                        Default 0666 (this is modified by umask)
+
+ Notes   : Inherited from Bio::Biblio as extended by Root
+ Notes   : Other Perl DBM_File modules such as SDBM_File cannot be used,
+           because they impose limits on the size of data values that are 
+           too small for practical use here
+
+Bio::Biblio::new is used to create a new Bio::Biblio::DB object whose
+class and properties are determined by the combination of parameters.
+See I<Bio::Biblio> for how to specify access modules other than this
+one.
+
+ Title  : tie
+ Usage  : tie %biblio,'Bio::DB::Biblio::pubmed_gdbm',
+	              -access => 'pubmed_gdbm',
+                      -dbh=>$dbh,
+                      -collection=>'test_gdbm';
+          my $ref=$biblio{12180136};
+          $biblio{$new_ref->pmid}=$new_ref;
+
+ Title   : newFh
+ Usage   : $fh=newFh Bio::Biblio(-access=>'pubmed_gdbm',
+                                 -file => 'myfile.db');
+           while(my $ref=<$fh>) {
+             # process reference
+           }
+           my @refss=<$fh>;
+           print $fh $new_ref;
+
+ Function: Creates a new biblio object and returns a tied filehandle
+           for accessing it
+ Args    : same as new
+ Returns : Filehandle for collection
+
+Each call using the <> operator does a get_next. If used in a list
+context, the entire rest of the data stream is processed.  Calls to
+print invoke the put operator.
+
+=head2 Simple attributes
+
+These are methods for getting and setting the values of simple
+attributes. Each of these can be set in the argument list to new, if
+desired.  Some of these should be read-only (more precisely, should
+only be written by code internal to the obkect), but this is not
+enforced. We assume, Perl-style, that programmers will behave nicely
+and not complain too loudly if the software lets them do something
+stupid.
+
+Methods have the same name as the attribute.  To get the value of
+attribute xxx, just say $xxx=$object->xxx; To set it, say
+$object->xxx($new_value); To clear it, say $object->xxx(undef);
+
+ Attr    : access
+ Function: must be pubmed_gdbm -- generally set via 'new'
+ Access  : read-only 
+
+ Attr    : dbm_module
+ Function: the DBM_File module for this biblio
+ Access  : read-only 
+
+ Attr    : file
+ Function: DBM file used to store the database
+ Access  : read-only
+
+ Attr    : read_only
+ Function: Controls whether database is opened in read-only mode
+ Access  : read-only
+
+ Attr    : create
+ Function: Controls whether database is created when opened
+           See 'new' for details
+ Access  : read-only
+
+ Attr    : create_mode
+ Function: Permissions on database when created
+ Access  : read-only
+
+ Attr    : what
+ Function: What kind of data to get: references or IDs
+           Values are case insensitive and can be abbreviated. 
+           Default -- 'references'
+           The following are synonyms for IDs: pubmed_ids, pmids
+           The following are synonyms for references: refs
+ Access  : read-write
+
+ Attr    : collection_id
+ Function: string identifying the object -- for compatibility with Bio::DB::BiblioI
+ Access  : read-only
+ Synonym : get_collection_id -- read-only
+
+=head2 count
+
+ Usage   : $count=$biblio->count
+ Returns : Number of publications in biblio file
+ Synonym : get_count -- read-only
+
+=head2 Storing and updating data
+
+ Title   : put
+ Usage   : $okay=$biblio->put(@objects)
+ Function: Store one or more PubmedArticle objects in database
+           Objects MUST HAVE PubMed IDs (attribute pmid)
+ Args    : Objects to store
+ Returns : Nothing
+
+ Title   : del
+ Usage   : $biblio->del(@objects)
+           -- or --
+           $biblio->del(@ids)
+ Function: Delete one or more PubmedArticle objects in database
+           Objects MUST HAVE PubMed IDs (attribute pmid)
+ Args    : Objects to delete or IDs of objects to delete
+ Returns : Nothing
+
+ Title   : del_all
+ Usage   : $biblio->del_all
+ Function: Delete entire contents of the collection
+           The collection itelf is NOT deleted
+ Args    : None
+ Returns : Nothing
+
+=head2 Methods to get all data
+
+ Title   : get_all
+ Usage   : @data=$biblio->get_all('references');
+ Function: Retrieve all data for biblio
+ Args    : What to retrieve (see 'what' above)
+           Default -- use current value of 'what' attribute
+ Returns : List of PubmedArticle objects if what is 'references'
+           List of PubMed IDs if what is 'ids'
+
+ Title   : get_by_id, get_by_ids
+ Usage   : my $data=$biblio->get_by_id(8877508)
+           -- or --
+           my @data=$biblio->get_by_id(8877508,12180136);
+ Function: Retrieve one or entries given their PubMed IDs
+ Args    : List of PubMed IDs
+ Returns : List of PubmedArticle objects if what is 'references'
+           List of PubMed IDs if what is 'ids'
+
+=head2 Iterator methods
+
+ Title   : get_next, get_more
+ Usage   : my $data=$biblio->get_next
+           -- or --
+           my @data=$biblio->get_next($n)
+           -- or --
+           my $data=$biblio->get_more
+           -- or --
+           my @data=$biblio->get_more($n)
+ Function: Get next n data entries for biblio
+ Args    : Number of entries to retrieve -- default 1
+ Returns : Next data entry or a list of the next n entries available 
+           via the iterator, or undef if the iterator is exhausted.
+           If the number of reemaining entries is between 1 and n,
+           returs them all
+ Notes   : get_more included for compatibility with Bio::DB::BiblioI
+
+This get_next, get_more behavior differs from Bio::DB::BiblioI which
+throws an exception if the iterator is exhausted whereas we return
+undef. By returning undef, the user can program an iteration loop as
+
+  while($data=$biblio->get_next) {
+    # process entry
+  }
+
+ Title   : reset, reset_retrieval
+ Usage   : $query->reset
+           -- or --
+           $query->reset_retrieval
+           -- or --
+           $query->reset($what)
+           -- or --
+           $query->reset_retrieval($what)
+ Function: Reset iterator to beginning
+ Args    : What to retrieve -- default leave unchanged -- see 'what'
+ Returns : None
+ Notes : When accessing data via a filehandle, ie if -filehandle
+         parameter was set, this method will fail and throw an exception
+         if the filehandle refers to a pipeline. This is because 
+         pipelines cannot be reset.
+
+ Title   : fh
+ Usage   : my $fh=$query->fh;
+           while(my $ref=<$fh>) {
+             # process ref
+           }
+ Function: Create a tied filehandle for query. 
+           Subsequent calls to the <> operator call get_next.
+           Subsequent calls to print call put.
+ Returns : Filehandle for query
+
+NOTE: The following iterator methods are not implemented:
+           has_next, has_more
+           get_this
+
+=head2 set and get attributes (inherited from Root)
+
+These methods, inherited from Root, are a convenient way to manipulate
+the many attributes of this class.
+
+ Title   : set
+ Usage   : $query->set(-what=>'refs',-chunk_size=>100')
+ Function: Set multiple attributes in query object
+ Args    : Parameter list in same format as for new
+ Returns : nothing
+
+ Title   : get
+ Usage   : ($count,$query_string,$what)=$query->get qw(-count -query -what))
+ Function: Get values for multiple attributes
+ Args    : Attribute names
+ Returns : List of attribute values
+
+=cut
