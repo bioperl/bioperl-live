@@ -325,43 +325,6 @@ sub frame {
 
 =cut
 
-=head2 get_Annotations()
-
- Usage   : my $parent   = $obj->get_Annotations('Parent');
-           my @parents = $obj->get_Annotations('Parent');
- Function: a wrapper around Bio::Annotation::Collection::get_Annotations().
- Returns : returns annotations as Bio::Annotation::Collection::get_Annotations() does,
-           but additionally returns a single scalar in scalar context instead of list context
-           so that if an annotation tag contains only a single value, you can do:
-
-           $parent = $feature->get_Annotations('Parent');
-
-           instead of (yuck):
-
-           ($parent) = ($feature->get_Annotations('Parent'))[0];
-
-           if the 'Parent' tag has multiple values and is called in a scalar context,
-           the number of annotations is returned.
- Args    : an annotation tag name.
-
-
-=cut
-
-sub get_Annotations {
-  my ($self,$tag) = @_;
-
-  my @annotations = $self->annotation->get_Annotations($tag);
-  #@annotations ||= ();
-
-  if(wantarray){
-    return @annotations;
-  } elsif(scalar(@annotations) == 1){
-    return $annotations[0];
-  } else {
-    return scalar(@annotations);
-  }
-}
-
 =head2 add_Annotation()
 
  Usage   :
@@ -463,7 +426,7 @@ sub attach_seq {
    $self->{'seq'} = $seq;
 
    # attach to sub features if they want it
-   foreach ( $self->sub_SeqFeature() ) {
+   foreach ( $self->get_SeqFeatures() ) {
        $_->attach_seq($seq);
    }
    return 1;
@@ -539,12 +502,12 @@ sub get_tag_values {
 
 =head2 get_all_tags()
 
- See Bio::AnnotationCollectionI::get_all_tags().
+ See Bio::AnnotationCollectionI::get_all_annotation_keys().
 
 =cut
 
 sub get_all_tags {
-  return shift->annotation->get_all_tags(@_);
+  return shift->annotation->get_all_annotation_keys(@_);
 }
 
 =head2 remove_tag()

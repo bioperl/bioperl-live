@@ -171,68 +171,67 @@ sub _generic_seqfeature {
 =cut
 
 sub from_SeqFeature {
-    my ($sf, $context_annseq) = @_;
-    my @ret;
+  my ($sf, $context_annseq) = @_;
+  my @ret;
 
-    #
-    # If this object knows how to make FThelpers, then let it
-    # - this allows us to store *really* weird objects that can write
-    # themselves to the EMBL/GenBank...
-    #
+  #
+  # If this object knows how to make FThelpers, then let it
+  # - this allows us to store *really* weird objects that can write
+  # themselves to the EMBL/GenBank...
+  #
 
-    if ( $sf->can("to_FTHelper") ) {
+  if ( $sf->can("to_FTHelper") ) {
 	return $sf->to_FTHelper($context_annseq);
-    }
+  }
 
-    my $fth = Bio::SeqIO::FTHelper->new();
-    my $key = $sf->primary_tag();
-    my $locstr = $sf->location->to_FTstring;
+  my $fth = Bio::SeqIO::FTHelper->new();
+  my $key = $sf->primary_tag();
+  my $locstr = $sf->location->to_FTstring;
+
+  # ES 25/06/01 Commented out this code, Jason to double check
+  #The location FT string for all simple subseqfeatures is already
+  #in the Split location FT string
+
+  # going into sub features
+  #foreach my $sub ( $sf->sub_SeqFeature() ) {
+  #my @subfth = &Bio::SeqIO::FTHelper::from_SeqFeature($sub);
+  #push(@ret, @subfth);    
+  #}
+
+  $fth->loc($locstr);
+  $fth->key($key);
+  $fth->field->{'note'} = [];
+  #$sf->source_tag && do { push(@{$fth->field->{'note'}},"source=" . $sf->source_tag ); };
     
-    # ES 25/06/01 Commented out this code, Jason to double check
-    #The location FT string for all simple subseqfeatures is already 
-    #in the Split location FT string
+  ($sf->can('score') && $sf->score) && do { push(@{$fth->field->{'note'}},
+                                                 "score=" . $sf->score ); };
+  ($sf->can('frame') && $sf->frame) && do { push(@{$fth->field->{'note'}},
+                                                 "frame=" . $sf->frame ); };
+  #$sf->strand && do { push(@{$fth->field->{'note'}},"strand=" . $sf->strand ); };
 
-    # going into sub features
-    #foreach my $sub ( $sf->sub_SeqFeature() ) {
-	#my @subfth = &Bio::SeqIO::FTHelper::from_SeqFeature($sub);
-	#push(@ret, @subfth);    
-    #}
-
-    $fth->loc($locstr);
-    $fth->key($key);
-    $fth->field->{'note'} = [];
-    #$sf->source_tag && do { push(@{$fth->field->{'note'}},"source=" . $sf->source_tag ); };
-    
-    ($sf->can('score') && $sf->score) && do { push(@{$fth->field->{'note'}},
-						   "score=" . $sf->score ); };
-    ($sf->can('frame') && $sf->frame) && do { push(@{$fth->field->{'note'}},
-						   "frame=" . $sf->frame ); };
-    #$sf->strand && do { push(@{$fth->field->{'note'}},"strand=" . $sf->strand ); };
-
-    foreach my $tag ( $sf->all_tags ) {
-        # Tags which begin with underscores are considered
-        # private, and are therefore not printed
-        next if $tag =~ /^_/;
+  foreach my $tag ( $sf->get_all_tags ) {
+    # Tags which begin with underscores are considered
+    # private, and are therefore not printed
+    next if $tag =~ /^_/;
 	if ( !defined $fth->field->{$tag} ) {
-	    $fth->field->{$tag} = [];
+      $fth->field->{$tag} = [];
 	}
-	foreach my $val ( $sf->each_tag_value($tag) ) {
-	    push(@{$fth->field->{$tag}},$val);
+	foreach my $val ( $sf->get_Annotations($tag) ) {
+      push(@{$fth->field->{$tag}},$val);
 	}
-    }
-    push(@ret, $fth);
+  }
+  push(@ret, $fth);
 
-    unless (@ret) {
+  unless (@ret) {
 	$context_annseq->throw("Problem in processing seqfeature $sf - no fthelpers. Error!");
-    }
-    foreach my $ft (@ret) {
+  }
+  foreach my $ft (@ret) {
 	if ( !$ft->isa('Bio::SeqIO::FTHelper') ) {
-	    $sf->throw("Problem in processing seqfeature $sf - made a $fth!");
+      $sf->throw("Problem in processing seqfeature $sf - made a $fth!");
 	}
-    }
+  }
 
-    return @ret;
-
+  return @ret;
 }
 
 
