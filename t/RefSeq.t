@@ -75,7 +75,7 @@ eval {
 ok $@;
 
 eval {
-    ok $seq = $db->get_Seq_by_acc('NM_006732');
+    ok($seq = $db->get_Seq_by_acc('NM_006732'));
     ok($seq && $seq->length eq 3775);
     ok $seq2 = $db2->get_Seq_by_acc('NM_006732');
     ok($seq2 && $seq2->length eq 3775);

@@ -149,10 +149,16 @@ sub get_Seq_by_id {
     my ($self,$seqid) = @_;
     $self->_sleep;
     my $seqio = $self->get_Stream_by_id([$seqid]);
-    $self->throw("id does not exist") if( !defined $seqio ) ;
+    unless( defined $seqio ) {
+	$self->warn("id ($seqid) does not exist");
+	return undef;
+    }
     my @seqs;
     while( my $seq = $seqio->next_seq() ) { push @seqs, $seq; }
-    $self->throw("id does not exist") unless @seqs;
+    unless( @seqs ) {
+	$self->warn("id ($seqid) does not exist");
+	return undef;
+    }
     if( wantarray ) { return @seqs } else { return shift @seqs }
 }
 
@@ -171,10 +177,16 @@ sub get_Seq_by_acc {
    my ($self,$seqid) = @_;
    $self->_sleep;
    my $seqio = $self->get_Stream_by_acc($seqid);
-   $self->throw("acc does not exist") if( ! defined $seqio );
+   if( ! defined $seqio ) { 
+       $self->warn("acc ($seqid) does not exist");
+       return undef;
+   }
    my @seqs;
    while( my $seq = $seqio->next_seq() ) { push @seqs, $seq; }
-   $self->throw("acc does not exist") unless @seqs;
+   unless( @seqs ) {
+       $self->warn("acc ($seqid) does not exist");
+       return undef;
+   }
    if( wantarray ) { return @seqs } else { return shift @seqs }
 }
 
@@ -194,10 +206,16 @@ sub get_Seq_by_gi {
    my ($self,$seqid) = @_;
     $self->_sleep;
    my $seqio = $self->get_Stream_by_gi($seqid);
-   $self->throw("gi does not exist") if( !defined $seqio );
+   unless( defined $seqio ) {
+       $self->warn("gi ($seqid) does not exist");
+       return undef;
+   }
    my @seqs;
    while( my $seq = $seqio->next_seq() ) { push @seqs, $seq; }
-   $self->throw("gi does not exist") unless @seqs;
+   unless( @seqs ) {
+       $self->warn("gi ($seqid) does not exist");
+       return undef;
+   }
    if( wantarray ) { return @seqs } else { return shift @seqs }
 }
 
@@ -216,10 +234,16 @@ sub get_Seq_by_version {
    my ($self,$seqid) = @_;
     $self->_sleep;
    my $seqio = $self->get_Stream_by_version($seqid);
-   $self->throw("accession.version does not exist") if( !defined $seqio );
+   unless( defined $seqio ) {
+       $self->warn("accession.version ($seqid) does not exist");
+       return undef;
+   }
    my @seqs;
    while( my $seq = $seqio->next_seq() ) { push @seqs, $seq; }
-   $self->throw("accession.version does not exist") unless @seqs;
+   unless( @seqs ) {
+       $self->warn("accession.version ($seqid) does not exist");
+       return undef;
+   }
    if( wantarray ) { return @seqs } else { return shift @seqs }
 }
 
@@ -437,8 +461,8 @@ sub get_seq_stream {
       }
       else {
 	  return Bio::SeqIO->new('-verbose' => $self->verbose,
-			       '-format'  => $ioformat,
-			       '-fh'      => \*STREAM);
+				 '-format'  => $ioformat,
+				 '-fh'      => \*STREAM);
       }
     }
     else {

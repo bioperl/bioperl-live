@@ -441,7 +441,7 @@ sub _check_id {
 	$self->warn("[$ids] is not a normal sequence database but a RefSeq entry.".
 		   " Redirecting the request.\n")
 	    if $self->verbose >= 0;
-	return  new Bio::DB::RefSeq;
+	return new Bio::DB::RefSeq;
     }
 }
 

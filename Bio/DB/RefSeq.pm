@@ -140,4 +140,19 @@ sub new {
     return $self;
 }
 
+
+sub get_seq_stream {
+   my ($self,%qualifiers) = @_;
+   if( exists $qualifiers{'-uids'} ) {
+       if( ref($qualifiers{'-uids'}) =~ /ARRAY/i ) {
+	   foreach my $u ( @{$qualifiers{'-uids'}} ) {
+	       $u =~ s/^(\S+)\|//;
+	   }
+       } else { 
+	   $qualifiers{'-uids'} =~ s/^(\S+)\|//;
+       }
+   }
+   $self->SUPER::get_seq_stream(%qualifiers);
+}
+
 1;
