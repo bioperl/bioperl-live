@@ -108,7 +108,7 @@ sub next_primary_seq {
   }
 
   my ($top,$sequence) = $entry =~ /^(.+?)\n([^>]*)/s
-    or $self->throw("Can't parse entry");
+    or $self->throw("Can't parse entry [$entry]");
   my ($id,$fulldesc) = $top =~ /^\s*(\S+)\s*(.*)/
     or $self->throw("Can't parse fasta header");
   $id =~ s/^>//;
