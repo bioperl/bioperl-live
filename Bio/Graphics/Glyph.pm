@@ -245,12 +245,17 @@ sub boxes {
   my @result;
 
   $self->layout;
+  my @parts = $self->parts;
+  @parts    = $self if !@parts && $self->option('box_subparts') && $self->level>0;
+
   for my $part ($self->parts) {
-    if (eval{$part->feature->primary_tag} eq 'group') {
-      push @result,$part->boxes($left+$self->left,$top+$self->top);
+    if (eval{$part->feature->primary_tag} eq 'group' or
+	($part->level == 0 && $self->option('box_subparts'))) {
+      push @result,$part->boxes($left+$self->left+$self->pad_left,$top+$self->top+$self->pad_top);
     } else {
       my ($x1,$y1,$x2,$y2) = $part->box;
-      push @result,[$part->feature,$x1,$top+$self->top+$y1,$x2,$top+$self->top+$y2];
+      push @result,[$part->feature,$x1,$top+$self->top+$self->pad_top+$y1,
+		                   $x2,$top+$self->top+$self->pad_top+$y2];
     }
   }
   return wantarray ? @result : \@result;
@@ -440,8 +445,9 @@ sub layout {
   my $self = shift;
   return $self->{layout_height} if exists $self->{layout_height};
 
-  (my @parts = $self->parts)
-    || return $self->{layout_height} = $self->height + $self->pad_top + $self->pad_bottom;
+  my @parts = $self->parts;
+  return $self->{layout_height}
+    = $self->height + $self->pad_top + $self->pad_bottom unless @parts;
 
   my $bump_direction = $self->bump;
 

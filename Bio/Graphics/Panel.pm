@@ -332,10 +332,13 @@ sub height {
 sub gd {
   my $self = shift;
 
+  local $^W = 0;  # can't track down the uninitialized variable warning
+
   return $self->{gd} if $self->{gd};
 
   my $width  = $self->width;
   my $height = $self->height;
+
 
   my $gd = GD::Image->new($width,$height);
   my %translation_table;
@@ -401,7 +404,9 @@ sub gd {
     $offset += $track->layout_height + $spacing;
   }
 
+
   $self->draw_bottom_key($gd,$pl,$offset) if $self->{key_style} eq 'bottom';
+
   return $self->{gd} = $gd;
 }
 
@@ -501,6 +506,7 @@ sub format_key {
     # determine how many glyphs become part of the key
     # and their max size
     for my $track (@{$self->{tracks}}) {
+
       next unless $track->option('key');
       next if $suppress && !$track->parts;
 
@@ -516,12 +522,14 @@ sub format_key {
       }
       next unless $glyph;
 
+
       $tracks{$track} = $glyph;
       my ($h,$w) = ($glyph->layout_height,
 		    $glyph->layout_width);
       $height = $h if $h > $height;
       $width  = $w if $w > $width;
       push @glyphs,$glyph;
+
     }
 
     $width += $self->key_spacing;
