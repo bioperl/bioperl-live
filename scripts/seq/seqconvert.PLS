@@ -1,5 +1,5 @@
-#!/usr/bin/env perl
-# $Id: seqconvert.PLS,v 1.2 2003-04-25 13:35:41 bosborne Exp $
+#!perl -w
+# $Id: seqconvert.PLS,v 1.3 2004-03-09 19:57:32 cjm Exp $
 
 use strict;
 use Getopt::Long;
