@@ -725,9 +725,9 @@ sub find_terms{
            objects are created by the implementation on-the-fly.
 
  Example : 
- Returns : value of relationship_factory (a Bio::Factory::ObjectFactory
+ Returns : value of relationship_factory (a Bio::Factory::ObjectFactoryI
            compliant object)
- Args    : on set, a Bio::Factory::ObjectFactory compliant object
+ Args    : on set, a Bio::Factory::ObjectFactoryI compliant object
 
 
 =cut
@@ -751,9 +751,9 @@ sub relationship_factory{
            attribute is meaningless.
 
  Example : 
- Returns : value of term_factory (a Bio::Factory::ObjectFactory
+ Returns : value of term_factory (a Bio::Factory::ObjectFactoryI
            compliant object)
- Args    : on set, a Bio::Factory::ObjectFactory compliant object
+ Args    : on set, a Bio::Factory::ObjectFactoryI compliant object
 
 
 =cut

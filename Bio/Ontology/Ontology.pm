@@ -642,7 +642,7 @@ sub find_terms{
            the implementation on-the-fly.
 
  Example : 
- Returns : value of relationship_factory (a Bio::Factory::ObjectFactory
+ Returns : value of relationship_factory (a Bio::Factory::ObjectFactoryI
            compliant object)
  Args    : 
 
@@ -662,7 +662,7 @@ sub relationship_factory{
            the implementation on-the-fly.
 
  Example : 
- Returns : value of term_factory (a Bio::Factory::ObjectFactory
+ Returns : value of term_factory (a Bio::Factory::ObjectFactoryI
            compliant object)
  Args    : 
 

@@ -388,4 +388,48 @@ just the name and description ...
 
 =cut
 
+=head1 Factory for relationships and terms
+
+=cut
+
+=head2 relationship_factory
+
+ Title   : relationship_factory
+ Usage   : $fact = $obj->relationship_factory()
+ Function: Get (and set, if the implementation supports it) the object
+           factory to be used when relationship objects are created by
+           the implementation on-the-fly.
+
+ Example : 
+ Returns : value of relationship_factory (a Bio::Factory::ObjectFactoryI
+           compliant object)
+ Args    : 
+
+
+=cut
+
+sub relationship_factory{
+    return shift->throw_not_implemented();
+}
+
+=head2 term_factory
+
+ Title   : term_factory
+ Usage   : $fact = $obj->term_factory()
+ Function: Get (and set, if the implementation supports it) the object
+           factory to be used when term objects are created by
+           the implementation on-the-fly.
+
+ Example : 
+ Returns : value of term_factory (a Bio::Factory::ObjectFactoryI
+           compliant object)
+ Args    : 
+
+
+=cut
+
+sub term_factory{
+    return shift->throw_not_implemented();
+}
+
 1;
