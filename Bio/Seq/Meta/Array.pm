@@ -12,8 +12,7 @@
 
 =head1 NAME
 
-Bio::Seq::Meta::Array - array-based generic implementation of a sequence class with
-residue-based meta information
+Bio::Seq::Meta::Array - array-based generic implementation of a sequence class with residue-based meta information
 
 =head1 SYNOPSIS
 
@@ -49,9 +48,8 @@ meta information. Meta sequences with meta data are Bio::LocatableSeq
 objects with additional methods to store that meta information. See
 L<Bio::LocatableSeq> and L<Bio::Seq::MetaI>.
 
-The meta information in this class can be a string of variable lenght
-and can be a complex structure.  Blank values are undef or
-zero.
+The meta information in this class can be a string of variable length
+and can be a complex structure.  Blank values are undef or zero.
 
 Application specific implementations should inherit from this class to
 override and add to these methods.
@@ -375,7 +373,7 @@ sub named_submeta {
 
         $self->warn("You are setting meta values beyond the length of the sequence\n".
                     "[$start > ". length($self->seq)."] in sequence ". $self->id)
-            if $start > length $self->seq;
+            if $start > $self->length;
 
         if (ref $value eq 'ARRAY' ) { # array ref
             $arrayref = $value;
@@ -403,8 +401,8 @@ sub named_submeta {
 
     } else {
 
-        $end or $end = length $self->seq;
-        $end = length $self->seq if $end > length $self->seq;
+        $end or $end = $self->length;
+        $end = $self->length if $end > $self->length;
         $end--;
         return [@{$metaref}[$start..$end]];
 
