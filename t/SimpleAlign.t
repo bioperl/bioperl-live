@@ -2,7 +2,7 @@
 ## Bioperl Test Harness Script for Modules
 ## $Id$
 use strict;
-use constant NUMTESTS => 52;
+use constant NUMTESTS => 53;
 
 BEGIN {     
     eval { require Test; };
@@ -62,7 +62,8 @@ ok ($aln->id('x') and $aln->id eq 'x');
 ok $aln->length, 242;
 ok $aln->no_residues, 103;
 ok $aln->no_sequences, 16;
-ok (sprintf("%.2f",$aln->percentage_identity()), 33.06);
+ok (sprintf("%.2f",$aln->overall_percentage_identity()), 33.06);
+ok (sprintf("%.2f",$aln->average_percentage_identity()), 66.91);
 
 ok $aln->set_displayname_count;
 ok $aln->displayname('1433_LYCES/9-246'), '1433_LYCES_1';
