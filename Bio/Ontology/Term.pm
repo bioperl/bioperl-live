@@ -92,7 +92,7 @@ methods.
 package Bio::Ontology::Term;
 use vars qw( @ISA );
 use strict;
-use Bio::Root::Root;
+use Bio::Root::Object;
 use Bio::Ontology::TermI;
 
 use constant TRUE    => 1;
@@ -100,6 +100,79 @@ use constant FALSE   => 0;
 
 @ISA = qw( Bio::Root::Root Bio::Ontology::TermI );
 
+
+
+=head2 new
+
+ Title   : new
+ Usage   : $term = Bio::Ontology::Term->new( -identifier  => "16847",
+                                             -name        => "1-aminocyclopropane-1-carboxylate synthase",
+                                             -definition  => "Catalysis of ...",
+                                             -is_obsolete => 0,
+                                             -comment     => "" );                   
+ Function: Creates a new Bio::Ontology::Term.
+ Returns : A new Bio::Ontology::Term object.
+ Args    : -identifier            => the identifier of this term [scalar]
+           -name                  => the name of this term [scalar]
+           -definition            => the definition of this term [scalar]  
+           -category              => a relationship between this Term and another Term [TermI or scalar]
+           -version               => version information [scalar]
+           -is_obsolete           => the obsoleteness of this term [0 or 1]   
+           -comment               => a comment [scalar]
+
+=cut
+
+sub new {
+
+    my( $class,@args ) = @_;
+    
+    my $self = $class->SUPER::new( @args );
+   
+    my ( $identifier,
+         $name,
+         $definition,
+         $category,
+         $version,     
+         $is_obsolete,       
+         $comment )
+    = $self->_rearrange( [ qw( IDENTIFIER
+                               NAME
+                               DEFINITION
+                               CATEGORY 
+                               VERSION    
+                               IS_OBSOLETE      
+                               COMMENT ) ], @args );
+   
+    $self->init(); 
+    
+    $identifier            && $self->identifier( $identifier );
+    $name                  && $self->name( $name );
+    $definition            && $self->definition( $definition );
+    $category              && $self->category( $category );   
+    $version               && $self->version( $version );   
+    $is_obsolete           && $self->is_obsolete( $is_obsolete );      
+    $comment               && $self->comment( $comment  ); 
+  
+                                                    
+    return $self;
+    
+} # new
+
+
+
+sub init {
+
+    my( $self ) = @_;
+
+    $self->identifier( "" );
+    $self->name( "" );
+    $self->definition( "" );
+    $self->version( "" );
+    $self->is_obsolete( FALSE );
+    $self->comment( "" );
+    $self->remove_synonyms();
+  
+} # init
 
 
 
@@ -179,6 +252,68 @@ sub definition {
 
 } # definition
 
+
+
+=head2 category
+
+ Title   : category
+ Usage   : $term->category( $top );
+           or 
+           $top = $term->category();
+ Function: Set/get for a relationship between this Term and
+           another Term (e.g. the top level of the ontology).
+ Returns : The category of this Term [TermI].
+ Args    : The category of this Term [TermI or scalar -- which
+           becomes the name of the catagory term] (optional).
+
+=cut
+
+sub category {
+     my ( $self, $value ) = @_;
+    
+    if ( defined $value ) {
+        if ( ! ref( $value ) ) {
+            my $term = $self->new();
+            $term->name( $value );
+            $self->{ "_category" } = $term; 
+        }
+        elsif ( $value->isa( "Bio::Ontology::TermI" ) ) {
+            $self->{ "_category" } = $value; 
+        } 
+        else {
+            $self->throw( "Found [". ref( $value ) 
+            . "] where [Bio::Ontology::TermI] or [scalar] expected" );
+        }
+    }
+    
+    return $self->{ "_category" };
+    
+} # category
+
+
+
+=head2 version
+
+ Title   : version
+ Usage   : $term->version( "1.00" );
+           or 
+           print $term->version();
+ Function: Set/get for version information.
+ Returns : The version [scalar].
+ Args    : The version [scalar] (optional).
+
+=cut
+
+sub version {
+    my ( $self, $value ) = @_;
+
+    if ( defined $value ) {
+        $self->{ "_version" } = $value;
+    }
+
+    return $self->{ "_version" };
+    
+} # version
 
 
 

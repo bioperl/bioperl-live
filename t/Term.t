@@ -15,56 +15,16 @@ BEGIN {
         use lib 't';
     }
     use Test;
-    plan tests => 66;
+    plan tests => 41;
 }
 
 use Bio::Ontology::GOterm;
   
-my $obj = Bio::Ontology::GOterm->new();
+my $obj = Bio::Ontology::Term->new();
 
-ok( $obj->isa( "Bio::Ontology::GOterm" ) );
+ok( $obj->isa( "Bio::Ontology::Term" ) );
 
 $obj->init();
-
-ok( $obj->to_string() );
-
-
-ok( $obj->GO_id( "GO:0003947" ), "GO:0003947" );
-ok( $obj->GO_id(), "GO:0003947" );
-
-
-ok( $obj->each_dblink(), 0 );
-
-ok( $obj->add_dblinks( ( "dAA", "dAB" ) ) );
-ok( $obj->each_dblink(), 2 );
-my @df1 = $obj->each_dblink();
-ok( $df1[ 0 ], "dAA" );
-ok( $df1[ 1 ], "dAB" );
-ok( $obj->each_dblink(), 2 );
-
-my @df2 = $obj->remove_dblinks();
-ok( $df2[ 0 ], "dAA" );
-ok( $df2[ 1 ], "dAB" );
-
-ok( $obj->each_dblink(), 0 );
-ok( $obj->remove_dblinks(), 0 );
-
-
-ok( $obj->each_secondary_GO_id(), 0 );
-
-ok( $obj->add_secondary_GO_ids( ( "GO:-------", "1234567" ) ) );
-ok( $obj->each_secondary_GO_id(), 2 );
-my @si1 = $obj->each_secondary_GO_id();
-ok( $si1[ 0 ], "GO:-------" );
-ok( $si1[ 1 ], "GO:1234567" );
-ok( $obj->each_secondary_GO_id(), 2 );
-
-my @si2 = $obj->remove_secondary_GO_ids();
-ok( $si2[ 0 ], "GO:-------" );
-ok( $si2[ 1 ], "GO:1234567" );
-
-ok( $obj->each_secondary_GO_id(), 0 );
-ok( $obj->remove_secondary_GO_ids(), 0 );
 
 
 
@@ -111,30 +71,27 @@ ok( $al2[ 1 ], "AB" );
 ok( $obj->each_synonym(), 0 );
 ok( $obj->remove_synonyms(), 0 );
 
-
-
 ok( $obj->add_synonyms( ( "AA", "AB" ) ) );
-ok( $obj->add_dblinks( ( "dAA", "dAB" ) ) );
-ok( $obj->add_secondary_GO_ids( ( "GO:1234567", "GO:1234567" ) ) );
+
 
 
 $obj->init();
-ok( $obj->identifier(), "GO:-------" );
+ok( $obj->identifier(), "" );
 ok( $obj->name(), "" );
 ok( $obj->definition(), "" );
 ok( $obj->is_obsolete(), 0 );
 ok( $obj->comment(), "" );
 
 
-$obj = Bio::Ontology::GOterm->new( -go_id       => "0016847",
-                                   -name        => "1-aminocyclopropane-1-carboxylate synthase",
-                                   -definition  => "Catalysis of ...",
-                                   -is_obsolete => 0,
-                                   -version     => "6.6.6",
-                                   -category    => "cat",
-                                   -comment     => "X" );  
+$obj = Bio::Ontology::Term->new( -identifier  => "0016847",
+                                 -name        => "1-aminocyclopropane-1-carboxylate synthase",
+                                 -definition  => "Catalysis of ...",
+                                 -is_obsolete => 0,
+                                 -version     => "6.6.6",
+                                 -category    => "cat",
+                                 -comment     => "X" );  
 
-ok( $obj->identifier(), "GO:0016847" );
+ok( $obj->identifier(), "0016847" );
 ok( $obj->name(), "1-aminocyclopropane-1-carboxylate synthase" );
 ok( $obj->definition(), "Catalysis of ..." );
 ok( $obj->is_obsolete(), 0 );

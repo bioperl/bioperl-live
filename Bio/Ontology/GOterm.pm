@@ -31,17 +31,18 @@ GOterm - representation of GO terms
                                       -name        => "1-aminocyclopropane-1-carboxylate synthase",
                                       -definition  => "Catalysis of ...",
                                       -is_obsolete => 0,
-                                      -comment     => "" );
-
-  $term->add_definition_references( @refs );
+                                      -comment     => "" );  
+           
+  $term->add_definition_references( @refs );                                    
   $term->add_secondary_GO_ids( @ids );
-  $term->add_aliases( @aliases );
+  $term->add_aliases( @aliases );                               
+  
   foreach my $dr ( $term->each_definition_reference() ) {
       print $dr, "\n";
   }
-
+  
   # etc.
-
+    
 
 =head1 DESCRIPTION
 
@@ -121,6 +122,8 @@ use constant FALSE        => 0;
                                      integer of seven digits)
            -name                  => the name of this GO term [scalar]
            -definition            => the definition of this GO term [scalar]  
+           -category              => a relationship between this Term and another Term [TermI or scalar]
+           -version               => version information [scalar]
            -is_obsolete           => the obsoleteness of this GO term [0 or 1]   
            -comment               => a comment [scalar]
 
@@ -134,12 +137,16 @@ sub new {
    
     my ( $GO_id,
          $name,
-         $definition,     
+         $definition,
+         $category,
+         $version,     
          $is_obsolete,       
          $comment )
     = $self->_rearrange( [ qw( GO_ID
                                NAME
-                               DEFINITION     
+                               DEFINITION
+                               CATEGORY 
+                               VERSION    
                                IS_OBSOLETE      
                                COMMENT ) ], @args );
    
@@ -147,7 +154,9 @@ sub new {
     
     $GO_id                 && $self->GO_id( $GO_id );
     $name                  && $self->name( $name );
-    $definition            && $self->definition( $definition );     
+    $definition            && $self->definition( $definition );
+    $category              && $self->category( $category );   
+    $version               && $self->version( $version );   
     $is_obsolete           && $self->is_obsolete( $is_obsolete );      
     $comment               && $self->comment( $comment  ); 
   
@@ -177,6 +186,7 @@ sub init {
     $self->GO_id( GOID_DEFAULT );
     $self->name( "" );
     $self->definition( "" );
+    $self->version( "" );
     $self->is_obsolete( FALSE );
     $self->comment( "" );
     $self->remove_dblinks();
@@ -382,6 +392,15 @@ sub to_string {
     $s .= $self->name()."\n";
     $s .= "-- Definition:\n";
     $s .= $self->definition()."\n";
+    $s .= "-- Category:\n";
+    if ( defined( $self->category() ) ) {
+        $s .= $self->category()->name()."\n";
+    }
+    else {
+        $s .= "\n";
+    }
+    $s .= "-- Version:\n";
+    $s .= $self->version()."\n";
     $s .= "-- Is obsolete:\n";
     $s .= $self->is_obsolete()."\n";
     $s .= "-- Comment:\n";

@@ -28,17 +28,17 @@ TermI - interface for ontology terms
 =head1 SYNOPSIS
 
 #get Bio::Ontology::TermI somehow.
-
+  
   print $term->identifier(), "\n";
   print $term->name(), "\n";
   print $term->definition(), "\n";
   print $term->is_obsolete(), "\n";
   print $term->comment(), "\n";
-
+  
   foreach my $synonym ( $term->each_synonym() ) {
       print $synonym, "\n";
   }
-
+    
 
 =head1 DESCRIPTION
 
@@ -92,9 +92,9 @@ methods.
 package Bio::Ontology::TermI;
 use vars qw( @ISA );
 use strict;
-use Bio::Root::RootI;
+use Bio::Root::Object;
 
-@ISA = qw( Bio::Root::RootI );
+@ISA = qw( Bio::Root::Root );
 
 
 
@@ -164,6 +164,50 @@ sub definition {
 
 
 
+=head2 category
+
+ Title   : category
+ Usage   : $term->category( $top );
+           or 
+           $top = $term->category();
+ Function: Set/get for a relationship between this Term and
+           another Term (e.g. the top level of the ontology).
+ Returns : The category of this Term [TermI].
+ Args    : The category of this Term [TermI or scalar -- which
+           becomes the name of the catagory term] (optional).
+
+=cut
+
+sub category {
+    my ( $self ) = @_;
+    
+    $self->throw_not_implemented();
+    
+} # category
+
+
+
+=head2 version
+
+ Title   : version
+ Usage   : $term->version( "1.00" );
+           or 
+           print $term->version();
+ Function: Set/get for version information.
+ Returns : The version [scalar].
+ Args    : The version [scalar] (optional).
+
+=cut
+
+sub version {
+    my ( $self ) = @_;
+    
+    $self->throw_not_implemented();
+    
+} # version
+
+
+
 
 =head2 is_obsolete
 
@@ -183,8 +227,6 @@ sub is_obsolete {
     $self->throw_not_implemented();
     
 } # is_obsolete
-
-
 
 
 
