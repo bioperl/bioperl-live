@@ -65,8 +65,6 @@ use vars qw($DEBUG $ID $Revision $VERSION $VERBOSITY);
 use strict;
 use Carp 'confess','carp';
 
-#use Bio::Root::Err; # we don't use that any longer, right?
-
 BEGIN { 
     $ID        = 'Bio::Root::RootI';
     $VERSION   = 0.9;
@@ -239,7 +237,7 @@ sub deprecated{
             0 = standard, small warning
             1 = warning with stack trace
             2 = warning becomes throw
- Returns : nothing
+ Returns : The current verbosity setting (integer between -1 to 2)
  Args    : -1,0,1 or 2
 
 
