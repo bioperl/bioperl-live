@@ -275,6 +275,7 @@ sub hash2liveseq {
   $dna->moltype(lc($entry->{Molecule}));
   $dna->display_id($entry->{ID});
   $dna->accession_number($entry->{AccNumber});
+  $dna->description($entry->{Description});
   my @cds=@{$entry->{CDS}};
   my ($swissacc,$swisshash); my @swisshashes;
   for $i (0..$#cds) {
@@ -361,6 +362,7 @@ sub hash2gene {
   $dna->source($entry->{Organism});
   $dna->display_id($entry->{ID});
   $dna->accession_number($entry->{AccNumber});
+  $dna->description($entry->{Description});
 
   my @transcripts=@{$genefeatureshash->{transcripts}};
   # create Translations, Transcripts, Exons out of the CDS
@@ -825,16 +827,18 @@ sub _findgenefeatures {
 	# multijoined ones to simple plain start-end features, taking only
 	# the start of the first "exon" and the end of the last "exon" as
 	# start and end of the entire feature
-	if ($entryfeature->{locationtype} eq "joined") { # joined location
+	if ($entryfeature->{locationtype} && $entryfeature->{locationtype} eq "joined") { # joined location
 	  @range=($range[0]->[0],$range[-1]->[1]);
 	}
 	push(@labels,$range[0],$range[1]); # start and end of every feature
 	if ($name eq "exon") {
 	  $desc=$entryfeature->{qualifiers}->{number};
-	  if ($desc) {
-	    $desc .= "|" . $entryfeature->{qualifiers}->{note};
-	  } else {
-	    $desc = $entryfeature->{qualifiers}->{note};
+	  if ($entryfeature->{qualifiers}->{note}) {
+	    if ($desc) {
+	      $desc .= "|" . $entryfeature->{qualifiers}->{note};
+	    } else {
+	      $desc = $entryfeature->{qualifiers}->{note};
+	    }
 	  }
 	  push (@exondescs,$desc || "unknown");
 	  push(@exons,\@range);

@@ -121,7 +121,6 @@ $VERSION=2.7;
 
 use Carp qw(croak cluck carp); # as of 2.3
 use strict; # as of 2.27
-use strict; 
 use integer; # WARNING: this is to increase performance
              # a little bit of attention has to be given if float need to
              # be stored as elements of the array
@@ -182,7 +181,7 @@ sub _updown_chain2string {
     unless($chain->{$last}) {
       cluck "label for last not defined"; return (-1); }
     if ($len) {
-      cluck "Warning chain2string: argument LAST:$last overriding LEN:$len!";
+      warn "Warning chain2string: argument LAST:$last overriding LEN:$len!";
       undef $len;
     }
   } else {

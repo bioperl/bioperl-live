@@ -472,7 +472,7 @@ sub labelsubseq {
       $endexon=$exon;
     }
     if ((!(defined($seq)) && (defined($startexon)))) { # initializes only once
-      if ($endexon eq $startexon) { # then perfect, we are finished
+      if ((defined($endexon)) && ($endexon eq $startexon)) { # then perfect, we are finished
 	if ($length) {
 	  $seq = $startexon->labelsubseq($start,$length,undef,"unsecuremoderequested");
 
