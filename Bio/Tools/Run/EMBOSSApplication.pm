@@ -17,12 +17,36 @@ Bio::Tools::Run::EMBOSSApplication -  class for EMBOSS Applications
 
 =head1 SYNOPSIS
 
+  use Bio::Factory::EMBOSS;
   # get an EMBOSS application object from the EMBOSS factory
   $factory = new Bio::Factory::EMBOSS
   $application = $factory->program('embossversion');
   # run the application with an optional hash containing parameters
   $result = $application->run(); # returns a string or creates a file
   print $result . "\n";
+
+  $water = $factory->program('water');
+
+  # here is an example of running the application
+  # water can compare 1 seq against 1->many sequences
+  # in a database using Smith-Waterman
+  my $seq_to_test; # this would have a seq here
+  my @seqs_to_check; # this would be a list of seqs to compare 
+                     # (could be just 1)
+  my $wateroutfile = 'out.water';
+  $water->run({ '-sequencea' => $seq_to_test,
+              '-seqall'    => \@seqs_to_check,
+              '-gapopen'   => '10.0',
+              '-gapextend' => '0.5',
+              '-outfile'   => $wateroutfile});
+  # now you might want to get the alignment
+  use Bio::AlignIO;
+  my $alnin = new Bio::AlignIO(-format => 'emboss',
+			       -file   => $wateroutfile);
+
+  while( my $aln = $alnin->next_aln ) {
+      # process the alignment -- these will be Bio::SimpleAlign objects
+  }
 
 =head1 DESCRIPTION
 
