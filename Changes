@@ -1,6 +1,116 @@
 $Id$
 Revision history for Bioperl core modules
 
+1.1 Developer release 
+
+    o Bio::Tools::Run has been broken off into a new pkg bioperl-run,
+      this separation removes some of the complexity in our test suite
+      and separates the core modules in bioperl from those that need
+      external programs to run.
+
+    o With latest ExtUtils::MakeMaker module installed SGI/IRIX should
+      not run into trouble running the makefile
+
+    o Bio::Location and Bio::SeqIO::FTHelper are fixed to properly 
+      read,create,and write locations for grouped/split locations
+      (like mRNA features on genomic sequence).  
+
+    o Bio::Tools::Phlyo added for wrappers for parsing Molphy (protml)
+      and PAML (codeml,aaml, etc) parsing.
+
+    o Bio::Tree:: objects expanded to handle testing monophyly,
+      paraphyly, least common ancestor, etc.
+
+    o Bio::Coordinate for mapping locations from different coordinate spaces 
+
+    o Bio::SearchIO::waba added for parsing WABA, Bio::SearchIO::hmmer
+      added for parsing hmmpfam and hmmsearch output.
+
+    o Bio::SearchIO::Writer::TextResultWriter for outputting
+      a pseudo-blast textfile format
+
+
+1.0.2 Bug fix release
+
+    o Note: The modules Bio::DB::GenBank and Bio::DB::GenPept provided
+      in this release will not work after December 2002 when NCBI
+      shuts off the old Entrez cgi scripts.  We have already fixed
+      on our main development branch and the functionality will be
+      available in the next stable bioperl release (1.2) slated for
+      Fall 2002.
+ 
+    o Numerous parsing bugs in Bio::SearchIO::fasta found through 
+      testset by Robin Emig.  These were fixed as was the get_aln
+      method in Bio::Search::HSP::GenericHSP to handle the extra 
+      context sequence that is provided with a FastA alignment.
+    
+    o Migrating differences between Bio::Search::XX::BlastXX to 
+      Bio::Search::XX::GenericXX objects.  This included mechanism
+      to retrieve whole list of HSPs from Hits and whole list of Hits from 
+      Results in addition to the current next_XX iterator methods that
+      are available.  Added seq_inds() method to GenericHSP which identifies
+      indexes in the query or hit sequences where conserved,identical,gaps, 
+      or mismatch residues are located (adapted from Steve Chervitz's 
+      implementation in BlastHSP).
+
+    o Bio::DB::GFF bugs fixed and are necessary for latest GBrowse release.
+      Bio::DB::GFF::RelSegment is now Bio::SeqI compliant.
+      
+    o Bio::Graphics glyph set improved and extended for GBrowse release
+
+    o Bio::Tree::Tree get_nodes implementation improvement thanks
+      to Howard Ross notice performance problem when writing out 
+      unbalanced trees.
+
+    o Bio::Location::Fuzzy::new named parameter -loc_type became
+      -location_type, Bio::Location::Simple::new named parameter
+      -seqid becamse -seq_id.
+   
+    o Fixed major Bio::AlignIO::emboss parsing bug on needle output,
+      was mis-detecting that gaps should be placed at the beginning of
+      the alignment when the best alignment starts internally in the
+      sequence.
+
+1.0.1 Bug fix release
+	
+    o Minor bug fixes to Bio::DB:GFF.  Glyph sets improved.
+ 
+    o Parser fixes in SearchIO blast, fasta for more complete WU BLAST 
+      and mixed (3.3 - 3.4) versions of FASTA.
+
+    o Small API change to add methods for completeness across 
+      implementations of Bio::Search objects.  These new methods
+      in the interface are implemented by the GenericXX object as well 	
+      as the BlastXX objects.
+	* Bio::Search::Result::ResultI 
+	 - hits() method returns list of all Hits (next_hit is an 
+	   iterator method)
+	 	
+	* Bio::Search::Hit::HitI
+	 - hsps() method returns list of all HSPs (next_hsp is an 
+           iterator method)
+	
+    o The Bio::SearchIO::Writer classes have been fixed to handle results 
+       created from either psiblast (Search::BlastXX objects) or 
+       blast|fasta|blastxml objects (Search::GenericXX objects).  More work 
+       has to be done here to make it work properly and will nee major 
+       API changes.
+
+    o Bugs in Bio::Tools::HMMER fixed, including
+       * #1178 - Root::IO destructor wasn't being called
+       * #1034 - filter_on_cutoff now behaves properly
+ 
+    o Bio::SeqFeature::Computation initialization args fixed and 
+      tests added.
+
+    o Tests are somewhat cleaner, flat.t now properly cleans up after itsself,
+      
+    o Updated FAQ with more example based answers to typical questions
+
+    o Bug #1202 was fixed which would improperly join together qual values
+      parsed by Bio::SeqIO::qual when a trailing space was not present before
+      the newline.
+
 1.0.0 Major Stable Release
 
   This represents a major release of bioperl with significant
