@@ -131,9 +131,7 @@ sub new{
    
    $self->samples(\@samples);
    $self->sample_size(scalar @samples);
-   if( defined $maxcount ) { 
-       $self->maxcount($maxcount);
-   }
+   defined $maxcount && $self->maxcount($maxcount);   
    return $self;
 }
 
@@ -232,18 +230,21 @@ sub next_tree{
  Returns : none
  Args    : $tree - Bio::Tree::TreeI 
            $nummut - number of mutations
+           $precision - optional # of digits for precision
 
 
 =cut
 
 sub add_Mutations{
-   my ($self,$tree, $nummut) = @_;
+   my ($self,$tree, $nummut,$precision) = @_;
+   $precision ||= $PRECISION_DIGITS;
+   $precision = 10**$precision;
+
    my @branches;
    my @lens;
    my $branchlen = 0;
    my $last = 0;
    my @nodes = $tree->get_nodes();
-   my $precision = 10**$PRECISION_DIGITS;
    my $i = 0;
 
    # Jason's somewhat simplistics way of doing a poission
@@ -278,7 +279,8 @@ sub add_Mutations{
    for( my $j = 0; $j < $nummut; $j++)  {
        my $index = int(rand($branchlen));
        my $branch = $branches[$index];
-       $nodes[$branch]->add_alleles("Mutation$j", [1]);
+       # basically we're using an infinite sites model
+       $nodes[$branch]->add_alleles("Mutation$j", 1);
    }
 }
 
