@@ -392,13 +392,11 @@ sub next_result{
 	   my $count = 0;
 	   my $len = $self->idlength + 1;
 	   my ($seq1_id);
-	   # guarantee we don't start with a blank line 
-	   while( defined($_) ) {
-	       last unless ( /^\s+$/);
-	       $_ = $self->_readline
-	   }
+
 	   while( defined($_ ) ) {
 	       chomp;
+	       $self->debug("$count $_\n");
+
 	       if( /residues in \d+\s+query\s+sequences/) {
 		   $self->_pushback($_);
 		   last;
@@ -406,15 +404,14 @@ sub next_result{
 		   $self->_pushback($_);
 		   last;
 	       }
-	       $self->debug("$count $_\n");
 	       if( $count == 0 ) {
-		   unless( /^\s+\d+\s+/ ) {
+		   unless( /^\s+\d+\s+/ || /^\s+$/) {		       
 		       $self->_pushback($_);
 		       $count = 2;
 		   }
 	       } elsif( $count == 1 || $count == 3 ) {
 		   if( /^(\S+)\s+/ ) {
-		       $len = CORE::length($1) unless $len > CORE::length($1);
+		       $len = CORE::length($1) if $len < CORE::length($1);
 		       s/\s+$//; # trim trailing spaces,we don't want them 
 		       $data[$count-1] = substr($_,$len);
 		   } elsif( /^\s+(\d+)\s+/ ) {
@@ -530,7 +527,7 @@ sub end_element {
 	    $self->{'_values'}->{$MAPPING{$nm}} = $self->{'_last_data'};
 	}
     } else { 
-	print "unknown nm $nm, ignoring\n";
+	$self->warn( "unknown nm $nm, ignoring\n");
     }
     $self->{'_last_data'} = ''; # remove read data if we are at 
 				# end of an element
@@ -572,7 +569,7 @@ sub element{
 sub characters{
    my ($self,$data) = @_;   
 
-   return unless ( defined $data->{'Data'} && $data->{'Data'} !~ /^\s+$/ );
+   return unless ( defined $data->{'Data'}  );
 
    if( $self->in_element('hsp') && 
        $data->{'Name'} =~ /Hsp\_(qseq|hseq|midline)/ ) {
