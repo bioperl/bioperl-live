@@ -1,4 +1,59 @@
 package Bio::DB::GFF::Adaptor::memory;
+
+=head1 NAME
+
+Bio::DB::GFF::Adaptor::dbi::mysql -- Database adaptor for a specific mysql schema
+
+=head1 SYNOPSIS
+
+  use Bio::DB::GFF;
+  my $db = Bio::DB::GFF->new(-adaptor=> 'memory',
+                             -file   => 'my_features.gff',
+                             -fasta  => 'my_dna.fa'
+                            );
+
+See L<Bio::DB::GFF> for other methods.
+
+=head1 DESCRIPTION
+
+This adaptor implements an in-memory version of Bio::DB::GFF.  It can be used to
+store and retrieve SHORT GFF files. It inherits from Bio::DB::GFF.
+
+=head1 CONSTRUCTOR
+
+Use Bio::DB::GFF->new() to construct new instances of this class.
+Three named arguments are recommended:
+
+   Argument         Description
+
+   -adaptor         Set to "memory" to create an instance of this class.
+   -file            Read the indicated .gff file.
+   -directory       Read the indicated directory of .gff files.
+   -fasta           Read the indicated file OR directory of fasta files.
+
+=head1 METHODS
+
+See L<Bio::DB::GFF> for inherited methods.
+
+=head1 BUGS
+
+none ;-)
+
+=head1 SEE ALSO
+
+L<Bio::DB::GFF>, L<bioperl>
+
+=head1 AUTHOR
+
+Shuly Avraham <lt>avraham@cshl.orgE<gt>.
+
+Copyright (c) 2002 Cold Spring Harbor Laboratory.
+
+This library is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself.
+
+=cut
+
 use strict;
 # $Id$
 # AUTHOR: Shulamit Avraham
@@ -25,13 +80,15 @@ $VERSION = '0.02';
 
 sub new {
   my $class = shift ;
-  my ($file) = rearrange([
-			  [qw(FILE DIRECTORY)]
-			 ],@_);
+  my ($file,$fasta) = rearrange([
+				 [qw(FILE DIRECTORY)],
+				 'fasta'
+				],@_);
 
   # fill in object
   my $self = bless{ data => [] },$class;
-  $self->load($file) if $file;
+  $self->load_gff($file)    if $file;
+  $self->load_fasta($fasta) if $fasta;
   return $self;
 }
 
