@@ -223,27 +223,26 @@ sub new {
     # This will likely change (see comment above.)
     $self->_set_data( @{$raw_data} );
     # Store the aligned query as sequence feature
-    my ($qb, $hb) = ($self->query->start(),
-		     $self->hit->start);
-    my ($qe, $he) = ($self->query->end,
-		     $self->hit->end());
-    my ($qs, $hs) = ($self->query->strand(),
-		     $self->hit->strand);
+    my ($qb, $hb) = ($self->start());
+    my ($qe, $he) = ($self->end());
+    my ($qs, $hs) = ($self->strand());
     my ($qf,$hf) = ($self->query->frame(),
 		    $self->hit->frame);
 
     $self->query( Bio::SeqFeature::Similarity->new (-start   =>$qb, 
 						    -end     =>$qe, 
 						    -strand  =>$qs, 
-						    -bits    => $self->bits,
+						    -bits    =>$self->bits,
+						    -score   =>$self->score, 
 						    -frame   =>$qf,
 						    -seq_id  => $qname,
 						    -source  =>$self->{'_prog'} ));
-
+    
     $self->hit( Bio::SeqFeature::Similarity->new (-start   =>$hb, 
 						  -end     =>$he, 
 						  -strand  =>$hs, 
 						  -bits    =>$self->bits,
+						  -score   =>$self->score,
                                                   -frame   =>$hf, 
 						  -seq_id  => $hname,
 						  -source  =>$self->{'_prog'} ));
