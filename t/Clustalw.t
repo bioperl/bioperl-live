@@ -84,7 +84,7 @@ my $aln2 = $str2->next_aln();
 
 $aln = $factory->profile_align($aln1,$aln2);
 ok($aln->get_seq_by_pos(2)->get_nse, 'CATH_HUMAN/1-335', 
-   "failed clustalw profile alignment using SimpleAlign input ");
+   "failed clustalw profile alignment using SimpleAlign input. \nThere is known bug in ClustalW 1.81 and before causing this test to fail.");
 
 $str1 = Bio::AlignIO->new(-file=> Bio::Root::IO->catfile("t","data","cysprot1a.msf"));
 $aln1 = $str1->next_aln();
@@ -93,4 +93,4 @@ my $seq = $str2->next_seq();
 $aln = $factory->profile_align($aln1,$seq);
 
 ok ($aln->get_seq_by_pos(2)->get_nse,  'CATH_HUMAN/1-335', 
-    "failed adding new sequence to alignment");
+    "failed adding new sequence to alignment \nThere is known bug in ClustalW 1.81 and before causing this test to fail.");
