@@ -287,12 +287,12 @@ sub get_Individuals{
    my @inds = @{$self->{'_individuals'}};
    return unless @inds;
    if( @args ) { # save a little time here if @args is empty
-       my ($id,$name,$marker) = $self->_rearrange([qw(UNIQUE_ID
-						      MARKER)], @args);
+       my ($id,$marker) = $self->_rearrange([qw(UNIQUE_ID MARKER)], @args);
 
+       
        if( defined $id ) { 
 	   @inds = grep { $_->unique_id eq $id } @inds;
-       } elsif (defined $marker) { 
+       } elsif (defined $marker) {
 	   @inds = grep { $_->has_Marker($marker) } @inds;
        }
    }
