@@ -4,7 +4,7 @@ TestInterface - A simple subclass of Interface
 
 =head1 DESCRIPTION
 
-This module demonstrates how to use the generic Bio::Root::Interface
+This module demonstrates how to use the generic Bio::Root::RootI
 superclass.
 
 =head1 AUTHOR
@@ -15,9 +15,9 @@ Steve Chervitz E<lt>sac@bioperl.orgE<gt>
 
 package TestInterface;
 
-use Bio::Root::Interface;
+use Bio::Root::RootI;
 
-@ISA = qw( Bio::Root::Interface );
+@ISA = qw( Bio::Root::RootI );
 
 sub data {
     my $self = shift;

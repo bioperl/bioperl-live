@@ -113,9 +113,9 @@ use vars qw(@ISA);
 use strict;
 use Carp;
 use Bio::Tools::CodonTable;
-use Bio::Root::Interface;
+use Bio::Root::RootI;
 
-@ISA = qw( Bio::Root::Interface );
+@ISA = qw( Bio::Root::RootI );
 
 =head1 Implementation Specific Functions
 
