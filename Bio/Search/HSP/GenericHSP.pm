@@ -12,7 +12,7 @@
 
 =head1 NAME
 
-Bio::Search::HSP::GenericHSP - DESCRIPTION of Object
+Bio::Search::HSP::GenericHSP - A "Generic" implementation of a High Scoring Pair 
 
 =head1 SYNOPSIS
 
@@ -46,7 +46,10 @@ Bio::Search::HSP::GenericHSP - DESCRIPTION of Object
 
 =head1 DESCRIPTION
 
-Describe the object here
+This implementation is "Generic", meaning it is is suitable for
+holding information about High Scoring pairs from most Search reports
+such as BLAST and FastA.  Specialized objects can be derived from
+this.
 
 =head1 FEEDBACK
 
@@ -285,12 +288,12 @@ sub new {
 	$self->frac_conserved( 'total', $conserved / $self->length('total'));
     }
     if( $hit_len ) {
-	$self->length('hit', $self->hit->length);
+#	$self->length('hit', $self->hit->length);
 	$self->frac_identical( 'hit', $identical / $self->length('hit'));
 	$self->frac_conserved( 'hit', $conserved / $self->length('hit'));
     }
     if( $query_len ) {
-	$self->length('query', $self->query->length);	
+#	$self->length('query', $self->query->length);	
 	$self->frac_identical( 'query', $identical / $self->length('query')) ;
 	$self->frac_conserved( 'query', $conserved / $self->length('query'));
     }
@@ -562,18 +565,26 @@ sub homology_string{
             arg 2: [optional] integer length value to set for specific type
 
 =cut
+sub length {
+    
+    my $self = shift;
+    my $type = shift;
 
-sub length{
-    my ($self, $type,$value) = @_;
-    $type = lc $type if defined $type;
-    $type = 'total' if( ! defined $type ||
-			$type !~ /query|hit|total/);
-    my $previous = $self->{'_length'}->{$type};
-    if( defined $value || ! defined $previous ) { 
-	$value = $previous = 0 unless defined $value;
-	$self->{'_length'}->{$type} = $value;
-    } 
-    return $previous;
+    $type = 'total' unless defined $type;
+    $type = lc $type;
+
+    if( $type =~ /^q/i ) {
+	return $self->query()->length(shift);
+    } elsif( $type =~ /^(hit|subject|sbjct)/ ) {
+	return $self->hit()->length(shift);
+    } else { 
+	my $v = shift;
+	if( defined $v ) { 
+	    $self->{'_hsplength'} = $v;
+	}
+	return $self->{'_hsplength'};
+   }
+    return 0; # should never get here
 }
 
 =head2 percent_identity
@@ -939,6 +950,18 @@ sub bits {
     return $previous;
 }
 
+
+=head2 strand
+
+ Title   : strand
+ Usage   : $hsp->strand('quer')
+ Function: Retrieves the strand for the HSP component requested
+ Returns : +1 or -1 (0 if unknown)
+ Args    : 'hit' or 'subject' or 'sbjct' to retrieve the strand of the subject
+           'query' to retrieve the query strand (default)
+      
+
+=cut
 
 =head1 Private methods
 

@@ -20,7 +20,7 @@ BEGIN {
 	use lib 't';
     }
     use vars qw($NTESTS);
-    $NTESTS = 616;
+    $NTESTS = 618;
     $LASTXMLTEST = 54;
     $error = 0;
 
@@ -277,9 +277,11 @@ while( $hit = $result->next_hit ) {
 	    ok($hsp->query->start, 1057);
 	    ok($hsp->query->end, 1134);
 	    ok($hsp->query->strand, 1);
+	    ok($hsp->strand('query'), $hsp->query->strand);
 	    ok($hsp->hit->end, 5893);
 	    ok($hsp->hit->start, 5816);
 	    ok($hsp->hit->strand, -1);
+	    ok($hsp->strand('sbjct'), $hsp->subject->strand);
 	    ok($hsp->length('hsp'), 26);
 	    
 	    ok($hsp->evalue == 0.13);
