@@ -183,7 +183,7 @@ sub next_seq {
 	   }
        }
        if ($alphabet) {
-	   $seq->primary_seq->alphabet($alphabet);
+	   $seq->alphabet($alphabet);
        }
 
    }
@@ -379,8 +379,8 @@ sub write_seq {
         $mol = $seq->molecule();
 	$mol = 'RNA' if $mol =~ /RNA/; # no 'mRNA' 
     }
-    elsif ($seq->can('primary_seq') && defined $seq->primary_seq->alphabet) {
-	my $alphabet =$seq->primary_seq->alphabet;
+    elsif ($seq->can('primary_seq') && defined $seq->alphabet) {
+	my $alphabet =$seq->alphabet;
 	if ($alphabet eq 'dna') {
 	    $mol ='DNA';
 	}
