@@ -1,4 +1,4 @@
-## $Id: MANIFEST,v 1.26 2000-12-17 22:54:22 jason Exp $
+## $Id: MANIFEST,v 1.27 2001-02-04 23:38:30 lapp Exp $
 ##
 ## This is the file listing for everything that
 ## comes with the bioperl distribution. The perl
@@ -29,8 +29,6 @@ Bio/AlignIO/prodom.pm
 Bio/AlignIO/selex.pm
 Bio/SeqAnalysisParserI.pm
 Bio/SeqFeatureI.pm
-Bio/SeqFeatureProducerI.pm
-Bio/SeqFeatureProducer.pm
 Bio/SeqIO.pm
 Bio/SimpleAlign.pm
 Bio/Species.pm
@@ -46,6 +44,9 @@ Bio/DB/RandomAccessI.pm
 Bio/DB/SeqI.pm
 Bio/DB/SwissProt.pm
 Bio/DB/UpdateableSeqI.pm
+Bio/Factory/DriverFactory.pm
+Bio/Factory/SeqAnalysisParserFactoryI.pm
+Bio/Factory/SeqAnalysisParserFactory.pm
 Bio/Index/Abstract.pm
 Bio/Index/AbstractSeq.pm
 Bio/Index/EMBL.pm
@@ -100,7 +101,6 @@ Bio/SeqIO/game/seqHandler.pm
 Bio/SeqIO/FTHelper.pm
 Bio/SeqIO/MultiFile.pm
 Bio/SeqIO/ace.pm
-Bio/SeqIO/bioxml.pm
 Bio/SeqIO/embl.pm
 Bio/SeqIO/fasta.pm
 Bio/SeqIO/game.pm
