@@ -193,7 +193,7 @@ sub get_Alleles{
            a given population - you may want to create different
            markers with the same name for different populations
            with this current implementation
- Returns : Associative array where keys are the names of the alleles
+ Returns : Associative array (hash) where keys are the names of the alleles
  Args    : none
 
 
