@@ -22,7 +22,6 @@ ok defined($str) && ref($str) && $str->isa('Bio::AlignIO');
 $aln = $str->next_aln();
 ok $aln->{order}->{'0'}, '1433_LYCES/9-246';
 
-
 $str = Bio::AlignIO->new(-file=> Bio::Root::IO->catfile("t","data","testaln.pfam"));
 ok defined($str) && ref($str) && $str->isa('Bio::AlignIO');
 $aln = $str->next_aln();
@@ -46,7 +45,7 @@ ok $status, 1, "  failed msf output test";
 
 $str = Bio::AlignIO->new(-file=> Bio::Root::IO->catfile("t","data","testaln.fasta"), '-format' => 'fasta');
 $aln = $str->next_aln();
-ok $aln->{order}->{'0'}, 'AK1H_ECOLI/1-378', " failed fasta input test ";
+ok $aln->{order}->{'0'}, 'AK1H_ECOLI/114-431', " failed fasta input test ";
 
 
 $strout = Bio::AlignIO->new(-file=> ">".Bio::Root::IO->catfile("t","data","testout.fasta"), '-format' => 'fasta');
@@ -64,7 +63,7 @@ ok $status, 1, "  failed selex output test";
 
 $str = Bio::AlignIO->new(-file=> Bio::Root::IO->catfile("t","data","testaln.mase"),'-format' => 'mase');
 $aln = $str->next_aln();
-ok $aln->{order}->{'0'}, 'AK1H_ECOLI/1-378', " failed mase input test ";
+ok $aln->{order}->{'0'}, 'AK1H_ECOLI/1-318', " failed mase input test ";
 
 $str = Bio::AlignIO->new(-file=> Bio::Root::IO->catfile("t","data","testaln.prodom"),'-format' => 'prodom');
 $aln = $str->next_aln();
@@ -84,7 +83,7 @@ ok $aln->{order}->{'0'}, 'P04777/1-33', "  failed clustalw (.aln) output test - 
 my $in  = Bio::AlignIO->newFh(-file => Bio::Root::IO->catfile("t","data","testaln.fasta"), '-format' => 'fasta');
 my $out = Bio::AlignIO->newFh(-file => ">".Bio::Root::IO->catfile("t","data","testout2.pfam"), '-format' => 'pfam');
 while ( $aln = <$in>) {
-	ok $aln->{order}->{'0'}, 'AK1H_ECOLI/1-378', "  failed filehandle input test  ";
+	ok $aln->{order}->{'0'}, 'AK1H_ECOLI/114-431', "  failed filehandle input test  ";
 	$status = print $out $aln;
 	last;
 }
