@@ -317,6 +317,57 @@ sub features_in_range{
        grep { $r->overlaps($_,$strandmatch)} @bins;
 }
 
+=head2 remove_features
+
+ Title   : remove_features
+ Usage   : $collection->remove_features(\@array)
+ Function: Removes the requested sequence features (based on features
+	   which have the same location)
+ Returns : Number of features removed
+ Args    : Arrayref of Bio::RangeI objects
+
+
+=cut
+
+sub remove_features{
+   my ($self,$feats) = @_;
+   if( ref($feats) !~ /ARRAY/i ) { 
+       $self->warn("Must provide a valid Array reference to remove_features");
+       return 0;
+   }
+   my $countprocessed = 0;
+   foreach my $f ( @$feats ) {
+       next if ! ref($f) || ! $f->isa('Bio::RangeI');
+       my $bin = bin($f->start,$f->end,$self->min_bin);
+       my @vals = $self->{'_btree'}->get_dup($bin);
+       if( @vals && $self->{'_btree'}->del($bin) == 0 ) {
+	   $countprocessed++;
+	   foreach my $v ( @vals ) { 
+	       # eventually this array will become sparse...
+	       $self->{'_features'}->[$v] = undef;
+	   }
+       }
+   }
+
+}
+
+=head2 get_all_features
+
+ Title   : get_all_features
+ Usage   : my @f = $col->get_all_features()
+ Function: Return all the features stored in this collection (Could be large)
+ Returns : Array of Bio::RangeI objects
+ Args    : None
+
+
+=cut
+
+sub get_all_features{
+   my ($self) = @_;
+   return grep {defined $_} @{ $self->{'_features'} };
+}
+
+
 =head2 min_bin
 
  Title   : min_bin
@@ -370,8 +421,6 @@ sub feature_count{
    my ($self) = @_;
    return scalar @{$self->{'_features'}};
 }
-
-
 
 sub _compare{ $_[0] <=> $_[1]}
 
