@@ -1,4 +1,4 @@
-## $Id: bioperl.pod,v 1.22 2002-02-27 18:51:38 bosborne Exp $
+## $Id: bioperl.pod,v 1.23 2002-03-08 16:55:34 bosborne Exp $
 
 ## Should contain general info about the distribution including
 ## links to many modules.
@@ -64,6 +64,10 @@ databases. To learn how to set this up, look at the biodatabases.pod
 documentation ('perldoc biodatabases.pod' should work once Bioperl has
 been installed).
 
+The bioperl-db, bioperl-gui, corba-server, and corba-client packages are
+installed separately from Bioperl. Please refer to their respective
+documentation for more information.
+
 
 =head1 GETTING STARTED
 
@@ -82,13 +86,13 @@ and driver code.
 
 If you have installed Bioperl in the standard way, as detailed in the
 README in the distribution, these examples should work by just running
-them. If you have a not installed it in a standard way you will
+them. If you have not installed it in a standard way you will
 have to change the 'use lib' to point to your installation.
 
 
 =head1 Examples/ Directory
 
-There are more than 50 scripts supplied that show how to use Bioperl.
+There are many scripts included in the distribution.
 Here are brief descriptions of the scripts in the I<examples/> directory:
 
 I<examples/aligntutorial.pl> - examples using EMBOSS, pSW, Clustalw,
@@ -97,6 +101,9 @@ TCoffee, and Blast to align sequences
 I<examples/biblio.pl> - a script that shows how to query bibliographic
 databases, such as Medline, using ids, keywords, and other fields. See
 L<Bio::Biblio> for details 
+
+I<examples/biblio_soap.pl> - connect to and test a SOAP server using a
+Bio::Biblio object
 
 I<examples/blast/*pl> - a set of scripts showing how to use Blast.pm.
 Please see L<Bio::Tools::Blast> for more information
@@ -220,6 +227,11 @@ positions of the start and stop codons in the sequence's ORF
 
 I<scripts/prosite2perl.pl> - convert Prosite motifs to Perl regular
 expressions
+
+I<scripts/render_sequence.pl> - this scripts fetchs a sequence from a remote
+database, extracts its features (CDS, gene, tRNA), and creates a graphic
+representation of the sequence in PNG or GIF format. See L<Bio::DB::BioFetch>
+and L<Bio::Graphics>
 
 I<scripts/seqstats/aacomp.pl> - calculate amino acid composition of a 
 protein using Tools::CodonTable and Tools::IUPAC. See L<Bio::Tools::IUPAC>
