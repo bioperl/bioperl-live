@@ -132,7 +132,7 @@ sub next_seq{
 
    $fh = $self->_filehandle();
 
-   if( $fh->eof ) {
+   if( eof $fh ) {
        return undef; # no throws - end of file
    }
 
@@ -150,7 +150,7 @@ sub next_seq{
        $_ = uc($_);
        s/\W//g;
        $seqc .= $_;
-       $fh->eof && last;
+       eof $fh && last;
    }
 
    $seq = Bio::Seq->new(-seq => $seqc , -id => $name, -desc => $desc);

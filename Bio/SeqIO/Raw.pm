@@ -148,7 +148,7 @@ sub next_seq{
 
    $fh = $self->_filehandle();
 
-   if( $fh->eof ) {
+   if( eof $fh ) {
        return undef; # no throws - end of file
    }
 
@@ -161,7 +161,7 @@ sub next_seq{
    $sequence = $_;
 
    $seq = Bio::Seq->new(-seq => $sequence);
-   
+
    return $seq;
 
 }
@@ -181,7 +181,7 @@ sub write_seq {
    my ($self,$seq) = @_;
    my $fh = $self->_filehandle();
    my $str = $seq->seq;
-   
+
    print $fh $str, "\n";
    return 1;
 }

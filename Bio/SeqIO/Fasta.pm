@@ -77,7 +77,7 @@ use Bio::Seq;
 # Object preamble - inheriets from Bio::Root::Object
 
 use Bio::Root::Object;
-use FileHandle;
+use IO::File;
 
 @ISA = qw(Bio::Root::Object Exporter);
 # new() is inherited from Bio::Root::Object
@@ -106,9 +106,9 @@ sub _initialize {
 
   if( $file ) {
 
-      $fh = new FileHandle;
+      $fh = new IO::File;
       $fh->open($file) || $self->throw("Could not open $file for Fasta stream reading $!");
-   }
+  }
 
 #  print "Setting filehandle to $fh\n";
   $self->_filehandle($fh);
@@ -137,7 +137,7 @@ sub next_seq{
 
    $fh = $self->_filehandle();
 
-   if( $fh->eof ) {
+   if( eof $fh ) {
        return undef; # no throws - end of file
    }
 
@@ -155,8 +155,8 @@ sub next_seq{
        s/\W//g;
        $seqc .= $_;
      GETC:
-       $fh->eof && last;
-       $c = $fh->getc();
+       eof $fh && last;
+       $c = getc $fh;
        if( $c eq '>' ) {
 	   $self->_pushbuffer($c);
 	   last;

@@ -148,7 +148,7 @@ sub next_seq{
 
    $fh = $self->_filehandle();
 
-   if( $fh->eof ) {
+   if( eof $fh ) {
        return undef; # no throws - end of file
    }
 
@@ -179,7 +179,7 @@ sub next_seq{
        s/[^a-zA-Z]//g;            ## remove anything that is not alphabet char
        $_ = uc($_);               ## uppercase sequence
        $sequence .= $_;
-       $fh->eof && last;
+       eof $fh && last;
    }
 
 
