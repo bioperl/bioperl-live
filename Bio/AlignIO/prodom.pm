@@ -21,11 +21,11 @@ Bio::AlignIO::prodom - prodom sequence input/output stream
 
 =head1 SYNOPSIS
 
-Do not use this module directly.  Use it via the Bio::AlignIO class.
+Do not use this module directly.  Use it via the L<Bio::AlignIO> class.
 
 =head1 DESCRIPTION
 
-This object can transform Bio::SimpleAlign objects to and from prodom flat
+This object can transform L<Bio::Align::AlignI> objects to and from prodom flat
 file databases.
 
 =head1 FEEDBACK
@@ -66,7 +66,7 @@ use Bio::AlignIO;
  Title   : next_aln
  Usage   : $aln = $stream->next_aln()
  Function: returns the next alignment in the stream.
- Returns : SimpleAlign object
+ Returns : L<Bio::Align::AlignI> object
  Args    : NONE
 
 =cut
@@ -123,7 +123,7 @@ sub next_aln {
  Usage   : $stream->write_aln(@aln)
  Function: writes the $aln object into the stream in prodom format  ###Not yet implemented!###
  Returns : 1 for success and 0 for error
- Args    : Bio::SimpleAlign object
+ Args    : L<Bio::Align::AlignI> object
 
 
 =cut

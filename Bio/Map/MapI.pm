@@ -1,4 +1,4 @@
-# $Id$
+# MapI.pm,v 1.5 2002/04/18 12:52:48 jason Exp
 #
 # BioPerl module for Bio::Map::MapI
 #
@@ -79,14 +79,14 @@ use Carp;
  Title   : species
  Usage   : my $species = $map->species;
  Function: Get/Set Species for a map
- Returns : Bio::Species object
+ Returns : L<Bio::Species> object
  Args    : (optional) Bio::Species
 
 =cut
 
 sub species{
    my ($self) = @_;
-   $self->_abstractDeath('species');
+   $self->throw_not_implemented();
 }
 
 =head2 units
@@ -101,7 +101,7 @@ sub species{
 
 sub units{
    my ($self) = @_;
-   $self->_abstractDeath('units');
+   $self->throw_not_implemented();
 }
 
 =head2 type
@@ -116,7 +116,7 @@ sub units{
 
 sub type {
    my ($self) = @_;
-   $self->_abstractDeath('type');
+   $self->throw_not_implemented();
 }
 
 =head2 name
@@ -131,7 +131,7 @@ sub type {
 
 sub name {
    my ($self) = @_;
-   $self->_abstractDeath('name');
+   $self->throw_not_implemented();
 }
 
 =head2 length
@@ -150,7 +150,7 @@ sub name {
 
 sub length{
    my ($self) = @_;
-   $self->_abstractDeath('length');
+   $self->throw_not_implemented();
 }
 
 =head2 unique_id
@@ -165,7 +165,7 @@ sub length{
 
 sub unique_id{
    my ($self,$id) = @_;
-   $self->_abstractDeath('unique_id');
+   $self->throw_not_implemented();
 }
 
 =head2 add_element
@@ -180,7 +180,7 @@ sub unique_id{
 
 sub add_element{
    my ($self) = @_;
-   $self->_abstractDeath('add_element');
+   $self->throw_not_implemented();
 }
 
 =head2 each_element
@@ -189,7 +189,7 @@ sub add_element{
  Usage   : my @elements = $map->each_element;
  Function: Retrieves all the elements in a map
            unordered
- Returns : 
+ Returns : Array of Map elements (L<Bio::Map::MarkerI>)
  Args    :
 
 
@@ -197,7 +197,7 @@ sub add_element{
 
 sub each_element{
    my ($self) = @_;
-   $self->_abstractDeath('each_element');
+   $self->throw_not_implemented();
 }
 
 1;

@@ -21,11 +21,11 @@ Bio::AlignIO::fasta - fasta sequence input/output stream
 
 =head1 SYNOPSIS
 
-Do not use this module directly.  Use it via the Bio::AlignIO class.
+Do not use this module directly.  Use it via the L<Bio::AlignIO> class.
 
 =head1 DESCRIPTION
 
-This object can transform Bio::SimpleAlign objects to and from fasta flat
+This object can transform L<Bio::SimpleAlign> objects to and from fasta flat
 file databases.
 
 =head1 FEEDBACK
@@ -68,7 +68,7 @@ use Bio::SimpleAlign;
  Title   : next_aln
  Usage   : $aln = $stream->next_aln()
  Function: returns the next alignment in the stream.
- Returns : Bio::Align::AlignI object - returns 0 on end of file
+ Returns : L<Bio::Align::AlignI> object - returns 0 on end of file
 	    or on error
  Args    : NONE
 
@@ -157,7 +157,7 @@ sub next_aln {
  Usage   : $stream->write_aln(@aln)
  Function: writes the $aln object into the stream in fasta format
  Returns : 1 for success and 0 for error
- Args    : Bio::SimpleAlign object
+ Args    : L<Bio::Align::AlignI> object
 
 
 =cut

@@ -88,8 +88,7 @@ use Bio::SeqFeatureI;
 
 sub promoters {
     my ($self) = @_;
-
-    $self->_abstractDeath('promotors');
+    $self->throw_not_implemented();
 }
 
 =head2 exons
@@ -113,8 +112,7 @@ sub promoters {
 
 sub exons {
     my ($self, $type) = @_;
-
-    $self->_abstractDeath('exons');
+    $self->throw_not_implemented();
 }
 
 =head2 introns
@@ -131,8 +129,7 @@ sub exons {
 
 sub introns {
     my ($self) = @_;
-
-    $self->_abstractDeath('introns');    
+    $self->throw_not_implemented();
 }
 
 =head2 poly_A_site
@@ -148,8 +145,7 @@ sub introns {
 
 sub poly_A_site {
     my ($self) = @_;
-
-    $self->_abstractDeath('poly_A_site');
+    $self->throw_not_implemented();
 }
 
 =head2 utrs
@@ -169,8 +165,7 @@ sub poly_A_site {
 
 sub utrs {
     my ($self) = @_;
-
-    $self->_abstractDeath('utrs');
+    $self->throw_not_implemented();
 }
 
 =head2 mrna
@@ -187,8 +182,7 @@ sub utrs {
 
 sub mrna {
     my ($self) = @_;
-
-    $self->_abstractDeath('mrna');
+    $self->throw_not_implemented();
 }
 
 =head2 cds
@@ -206,8 +200,7 @@ sub mrna {
 
 sub cds {
     my ($self) = @_;
-
-    $self->_abstractDeath('cds');
+    $self->throw_not_implemented();
 }
 
 =head2 protein
@@ -224,8 +217,7 @@ sub cds {
 
 sub protein {
     my ($self) = @_;
-
-    $self->_abstractDeath('protein');
+    $self->throw_not_implemented();
 }
 
 =head2 parent
@@ -249,7 +241,6 @@ sub parent{
        }
     }
     return $self->{'parent'};
-
 }
 
 

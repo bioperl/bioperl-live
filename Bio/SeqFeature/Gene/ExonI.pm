@@ -88,8 +88,7 @@ use Bio::SeqFeatureI;
 
 sub is_coding {
     my ($self) = @_;
-
-    $self->_abstractDeath('is_coding');
+    $self->throw_not_implemented();
 }
 
 =head2 cds
@@ -104,7 +103,7 @@ sub is_coding {
            An implementation may return undef, indicating that a coding
            sequence does not exist, e.g. for a UTR (untranslated region).
 
- Returns : A Bio::PrimarySeqI implementing object.
+ Returns : A L<Bio::PrimarySeqI> implementing object.
  Args    : 
 
 
@@ -112,7 +111,7 @@ sub is_coding {
 
 sub cds {
     my ($self) = @_;
-    $self->_abstractDeath('cds');
+    $self->throw_not_implemented();
 }
 
 1;

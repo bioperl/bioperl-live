@@ -100,7 +100,7 @@ BEGIN {
              (anything after '!TITLE: ') .  
            - Reads in the format parameters datatype 
 
- Returns : Bio::SimpleAlign object - returns 0 on end of file
+ Returns : L<Bio::Align::AlignI> object - returns 0 on end of file
 	    or on error
  Args    : NONE
 
@@ -170,12 +170,10 @@ sub next_aln{
 =head2 write_aln
 
  Title   : write_aln
- Usage   : my 
- Function:
- Example :
- Returns : 
- Args    :
-
+ Usage   : $stream->write_aln(@aln)
+ Function: writes the $aln object into the stream in MEGA format
+ Returns : 1 for success and 0 for error
+ Args    : L<Bio::Align::AlignI> object
 
 =cut
 

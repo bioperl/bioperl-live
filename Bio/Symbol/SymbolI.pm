@@ -76,17 +76,9 @@ Internal methods are usually preceded with a _
 
 package Bio::Symbol::SymbolI;
 use strict;
-
-use Carp;
-
-sub _abstractDeath {
-  my $self = shift;
-  my $package = ref $self;
-  my $caller = (caller)[1];
-
-  confess "Abstract method '$caller' defined in interface Bio::Symbol::SymbolI not implemented by pacakge $package. Not your fault - author of $package should be blamed!";
-
-}
+use Bio::Root::RootI;
+use vars qw(@ISA);
+@ISA = qw(Bio::Root::RootI);
 
 =head2 Bio::Symbol::SymbolI interface methods
 
@@ -104,7 +96,7 @@ sub _abstractDeath {
 
 sub name{
    my ($self,@args) = @_;
-   $self->_abstractDeath();
+   $self->throw_not_implemented();
 }
 
 =head2 token
@@ -120,7 +112,7 @@ sub name{
 
 sub token{
    my ($self,@args) = @_;
-   $self->_abstractDeath();
+   $self->throw_not_implemented();
 }
 
 =head2 symbols
@@ -137,7 +129,7 @@ sub token{
 
 sub symbols{
    my ($self,@args) = @_;
-   $self->_abstractDeath();
+   $self->throw_not_implemented();
 }
 
 =head2 matches
@@ -155,7 +147,7 @@ sub symbols{
 
 sub matches{
    my ($self,@args) = @_;
-   $self->_abstractDeath();   
+   $self->throw_not_implemented();   
 }
 
 =head2 equals
@@ -170,7 +162,7 @@ sub matches{
 
 sub equals{
    my ($self,@args) = @_;
-   $self->_abstractDeath;
+   $self->throw_not_implemented();
 }
 
 1;

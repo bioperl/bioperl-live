@@ -1,4 +1,4 @@
-# $Id$
+# NodeI.pm,v 1.10 2002/04/18 12:52:46 jason Exp
 #
 # BioPerl module for Bio::Tree::NodeI
 #
@@ -104,7 +104,7 @@ use Bio::Root::RootI;
 sub add_Descendent{
    my ($self,@args) = @_;
 
-   $self->_abstractDeath('add_Descendent');
+   $self->throw_not_implemented();
 }
 
 
@@ -121,7 +121,7 @@ sub add_Descendent{
 
 sub each_Descendent{
    my ($self) = @_;
-   $self->_abstractDeath('each_Descendent');   
+   $self->throw_not_implemented();
 }
 
 =head2 Decorated Interface methods
@@ -160,7 +160,7 @@ sub get_Descendents{
 
 sub is_Leaf{
     my ($self) = @_;
-    $self->_abstractDeath('is_Leaf');
+    $self->throw_not_implemented();
 }
 
 =head2 descendent_count
@@ -218,7 +218,7 @@ sub height{
    
    if( $self->is_Leaf ) { 
        if( !defined $self->branch_length ) { 
-	   $self->warn(sprintf("Trying to calculate height of a node when a Node (%s) has an undefined branch_length",$self->id || '?' ));
+	   $self->debug(sprintf("Trying to calculate height of a node when a Node (%s) has an undefined branch_length",$self->id || '?' ));
 	   return 0;
        }
        return $self->branch_length;
@@ -228,7 +228,7 @@ sub height{
        my $s = $subnode->height;
        if( $s > $max ) { $max = $s; }
    }
-   return $max + $self->branch_length;
+   return $max + ($self->branch_length || 0);
 }
 
 =head2 Get/Set methods
@@ -249,7 +249,7 @@ sub height{
 
 sub branch_length{
     my ($self)= @_;
-    $self->_abstractDeath('branch_length');
+    $self->throw_not_implemented();
 }
 
 =head2 id
@@ -266,7 +266,7 @@ sub branch_length{
 
 sub id{
     my ($self)= @_;
-    $self->_abstractDeath;
+    $self->throw_not_implemented();
 }
 
 =head2 description
@@ -283,7 +283,7 @@ sub id{
 
 sub description{
     my ($self) = @_;
-    $self->_abstractDeath;
+    $self->throw_not_implemented();
 }
 
 =head2 bootstrap
@@ -300,7 +300,7 @@ sub description{
 
 sub bootstrap{
     my ($self) = @_;
-    $self->_abstractDeath;
+    $self->throw_not_implemented();
 }
 
 =head2 ancestor
@@ -316,7 +316,7 @@ sub bootstrap{
 #'
 sub ancestor{
    my ($self,@args) = @_;
-   $self->_abstractDeath;
+    $self->throw_not_implemented();
 }
 
 1;

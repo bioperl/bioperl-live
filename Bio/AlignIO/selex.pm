@@ -21,11 +21,11 @@ Bio::AlignIO::selex - selex sequence input/output stream
 
 =head1 SYNOPSIS
 
-Do not use this module directly.  Use it via the Bio::AlignIO class.
+Do not use this module directly.  Use it via the L<Bio::AlignIO> class.
 
 =head1 DESCRIPTION
 
-This object can transform Bio::SimpleAlign objects to and from selex flat
+This object can transform L<Bio::Align::AlignI> objects to and from selex flat
 file databases.
 
 =head1 FEEDBACK
@@ -68,7 +68,7 @@ use Bio::AlignIO;
           It reads all non whitespace characters in the alignment
           area. For selexs with weird gaps (eg ~~~) map them by using
           $al->map_chars('~','-')
- Returns : SimpleAlign object
+ Returns : L<Bio::Align::AlignI> object
  Args    : NONE
 
 =cut
@@ -144,7 +144,7 @@ sub next_aln {
  Usage   : $stream->write_aln(@aln)
  Function: writes the $aln object into the stream in selex format
  Returns : 1 for success and 0 for error
- Args    : Bio::SimpleAlign object
+ Args    : L<Bio::Align::AlignI> object
 
 
 =cut

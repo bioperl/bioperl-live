@@ -37,7 +37,7 @@ SeqAnalysisParserI implementing parsers.
 
 The concept behind the interface is a generic analysis result parsing
 in high-throughput automated sequence annotation pipelines. See
-Bio::SeqAnalysisParserI for more documentation of this concept.
+L<Bio::SeqAnalysisParserI> for more documentation of this concept.
 
 =head1 FEEDBACK
 
@@ -62,7 +62,7 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 
 =head1 AUTHOR - Hilmar Lapp, Jason Stajich
 
-Email Hilmar Lapp E<lt>hlapp@gmx.netE<gt>, Jason Stajich E<lt>jason@chg.mc.duke.eduE<gt>
+Email Hilmar Lapp E<lt>hlapp@gmx.netE<gt>, Jason Stajich E<lt>jason@bioperl.orgE<gt>
 
 =head1 APPENDIX
 
@@ -107,7 +107,7 @@ use vars qw(@ISA );
 
 sub get_parser {
     my ( $self, @args) = @_;
-    $self->_abstractDeath('get_parser');
+    $self->throw_not_implemented();
 }
 
 1;

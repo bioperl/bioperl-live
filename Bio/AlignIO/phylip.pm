@@ -15,8 +15,11 @@ Bio::AlignIO::phylip - PHYLIP format sequence input/output stream
 
     use Bio::AlignIO;
     use Bio::SimpleAlign;
+	#you can set the name length to something other than the default 10
+	#if you use a version of phylip (hacked) that accepts ids > 10
     my $phylipstream = new Bio::AlignIO(-format => 'phylip',
-					-fh   => \*STDOUT);
+					-fh   => \*STDOUT,
+					-idlength=>30);
     # convert data from one format to another
     my $gcgstream     =  new Bio::AlignIO(-format => 'msf',
 					  -file   => 't/data/cysprot1a.msf');    
@@ -30,7 +33,8 @@ Bio::AlignIO::phylip - PHYLIP format sequence input/output stream
     # can also initialize the object like this
     $phylipstream = new Bio::AlignIO(-interleaved => 0,
 				     -format => 'phylip',
-				     -fh   => \*STDOUT);
+				     -fh   => \*STDOUT,
+					 -idlength=>10);
     $gcgstream     =  new Bio::AlignIO(-format => 'msf',
 				       -file   => 't/data/cysprot1a.msf');    
 
@@ -76,6 +80,7 @@ package Bio::AlignIO::phylip;
 use vars qw(@ISA);
 use strict;
 
+use Bio::SimpleAlign;
 use Bio::AlignIO;
 
 @ISA = qw(Bio::AlignIO);
@@ -85,9 +90,12 @@ sub _initialize {
   my($self,@args) = @_;
   $self->SUPER::_initialize(@args);
 
-  my ($interleave) = $self->_rearrange([qw(INTERLEAVED)],@args);
+  my ($interleave,$idlength) = $self->_rearrange([qw(INTERLEAVED IDLENGTH)],@args);
   if( ! defined $interleave ) { $interleave = 1 }  # this is the default
   $self->interleaved(1) if( $interleave);
+  if (!defined $idlength) {$idlength = 10}
+  $self->idlength($idlength);
+
 
   1;
 }
@@ -99,7 +107,7 @@ sub _initialize {
  Function: returns the next alignment in the stream.
            Throws an exception if trying to read in PHYLIP
            sequential format.
- Returns : SimpleAlign object
+ Returns : L<Bio::SimpleAlign> object
  Args    : 
 
 =cut
@@ -185,7 +193,7 @@ sub next_aln {
  Usage   : $stream->write_aln(@aln)
  Function: writes the $aln object into the stream in MSF format
  Returns : 1 for success and 0 for error
- Args    : Bio::SimpleAlign object
+ Args    : L<Bio::Align::AlignI> object
 
 =cut
 
@@ -194,20 +202,25 @@ sub write_aln {
     my $count = 0;
     my $wrapped = 0;
     my $maxname;
-    my ($length,$date,$name,$seq,$miss,$pad,%hash,@arr,$tempcount,$index);
+    my ($length,$date,$name,$seq,$miss,$pad,%hash,@arr,$tempcount,$index,$idlength);
     
     foreach my $aln (@aln) {
+	if( ! $aln || ! $aln->isa('Bio::Align::AlignI')  ) { 
+	    $self->warn("Must provide a Bio::Align::AlignI object when calling write_aln");
+	    next;
+	}
 	$self->throw("All sequences in the alignment must be the same length") 
 	    unless $aln->is_flush(1) ;
 
 	$aln->set_displayname_flat(); # plain
 	$length  = $aln->length();
 	$self->_print (sprintf(" %s %s\n", $aln->no_sequences, $aln->length));
-	
+
+	$idlength = $self->idlength();	
 	foreach $seq ( $aln->each_seq() ) {
 	    $name = $aln->displayname($seq->get_nse);
-	    $name = substr($name, 0, 10) if length($name) > 10;
-	    $name = sprintf("%-10s",$name);
+	    $name = substr($name, 0, $idlength) if length($name) > $idlength;
+	    $name = sprintf("%-".$idlength."s",$name);
 	    $name .= '   ' if( $self->interleaved());
 	    $hash{$name} = $seq->seq();
 	    push(@arr,$name);
@@ -220,7 +233,7 @@ sub write_aln {
 		foreach $name ( @arr ) {
 		    my $dispname = $name;
 		    $dispname = '' if $wrapped;
-		    $self->_print (sprintf("%13s  ",$dispname));
+		    $self->_print (sprintf("%".($idlength+3)."s",$dispname));
 		    $tempcount = $count;
 		    $index = 0;
 		    while( ($tempcount + 10 < $length) && ($index < 5)  ) {
@@ -271,4 +284,22 @@ sub interleaved{
    return $previous;
 }
 
+=head2 idlength
+
+ Title   : idlength
+ Usage   : my $idlength = $obj->interleaved
+ Function: Get/Set value of id length 
+ Returns : string 
+ Args    : string 
+
+
+=cut
+
+sub idlength {
+	my($self,$value) = @_;
+	if (defined $value){
+	   $self->{'_idlength'} = $value;
+	}
+	return $self->{'_idlength'};
+}
 1;

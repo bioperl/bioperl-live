@@ -88,8 +88,7 @@ use Bio::SeqFeatureI;
 
 sub transcripts {
     my ($self) = @_;
-
-    $self->_abstractDeath('transcripts');
+    $self->throw_not_implemented();
 }
 
 =head2 promoters
@@ -110,8 +109,7 @@ sub transcripts {
 
 sub promoters {
     my ($self) = @_;
-
-    $self->_abstractDeath('promotors');
+    $self->throw_not_implemented();
 }
 
 =head2 exons
@@ -136,8 +134,7 @@ sub promoters {
 
 sub exons {
     my ($self, $type) = @_;
-
-    $self->_abstractDeath('exons');
+    $self->throw_not_implemented();
 }
 
 =head2 introns
@@ -154,8 +151,7 @@ sub exons {
 
 sub introns {
     my ($self) = @_;
-
-    $self->_abstractDeath('introns');    
+    $self->throw_not_implemented();
 }
 
 =head2 poly_A_sites
@@ -172,8 +168,7 @@ sub introns {
 
 sub poly_A_sites {
     my ($self) = @_;
-
-    $self->_abstractDeath('poly_A_sites');
+    $self->throw_not_implemented();
 }
 
 =head2 utrs
@@ -194,12 +189,7 @@ sub poly_A_sites {
 
 sub utrs {
     my ($self) = @_;
-
-    $self->_abstractDeath('utrs');
+    $self->throw_not_implemented();
 }
 
 1;
-
-
-
-

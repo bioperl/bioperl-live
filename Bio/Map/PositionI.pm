@@ -1,4 +1,4 @@
-# $Id$
+# PositionI.pm,v 1.7 2002/04/18 12:52:48 jason Exp
 #
 # BioPerl module for Bio::Map::PositionI
 #
@@ -91,7 +91,7 @@ use Carp;
 
 sub map {
    my ($self, $value) = @_;
-   $self->_abstractDeath('map');
+   $self->throw_not_implemented();
 }
 
 =head2 marker
@@ -106,7 +106,7 @@ sub map {
 
 sub marker {
    my ($self, $value) = @_;
-   $self->_abstractDeath('marker');
+   $self->throw_not_implemented();
 }
 
 
@@ -122,7 +122,7 @@ sub marker {
 
 sub value {
    my ($self, $value) = @_;
-   $self->_abstractDeath('value');
+   $self->throw_not_implemented();
 }
 
 =head2 numeric
@@ -138,7 +138,7 @@ sub value {
 
 sub numeric {
    my ($self) = @_;
-   $self->_abstractDeath('numeric');
+   $self->throw_not_implemented();
 }
 
 1;

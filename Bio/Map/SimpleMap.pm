@@ -1,5 +1,5 @@
 # $Id$
-#
+
 # BioPerl module for Bio::Map::SimpleMap
 #
 # Cared for by Jason Stajich <jason@bioperl.org>

@@ -83,14 +83,14 @@ use Bio::Root::RootI;
  Title   : next_map
  Usage   : my $map = $factory->next_map;
  Function: Get a map from the factory
- Returns : Bio::Map::MapI
+ Returns : L<Bio::Map::MapI>
  Args    : none
 
 =cut
 
 sub next_map{
    my ($self,@args) = @_;
-   $self->_abstractDeath('next_map');
+   $self->throw_not_implemented();
 }
 
 =head2 write_map
@@ -99,13 +99,13 @@ sub next_map{
  Usage   : $factory->write_map($map);
  Function: Write a map out through the factory
  Returns : none
- Args    : Bio::Map::MapI
+ Args    : L<Bio::Map::MapI>
 
 =cut
 
 sub write_map{
    my ($self,@args) = @_;
-   $self->_abstractDeath('write_map');
+   $self->throw_not_implemented();
 }
 
 1;
