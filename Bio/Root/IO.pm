@@ -100,7 +100,7 @@ The rest of the documentation details each of the object methods. Internal metho
 
 package Bio::Root::IO;
 use vars qw(@ISA $FILESPECLOADED $FILETEMPLOADED $FILEPATHLOADED
-	    $TEMPDIR $PATHSEP $ROOTDIR $OPENFLAGS $VERBOSE);
+	    $TEMPDIR $PATHSEP $ROOTDIR $OPENFLAGS $VERBOSE $ONMAC);
 use strict;
 
 use Symbol;
@@ -192,6 +192,7 @@ BEGIN {
 	    $OPENFLAGS |= $bit if eval { $bit = &$func(); 1 };
 	}
     }
+    $ONMAC = "\015" eq "\n";
 }
 
 =head2 new
@@ -440,8 +441,12 @@ sub _readline {
     $line = shift @{$self->{'_readbuffer'}} || <$fh>;
 
     #don't strip line endings if -raw is specified
-    $line =~ s/\r\n/\n/g if( (!$param{-raw}) && (defined $line) );
-
+    # $line =~ s/\r\n/\n/g if( (!$param{-raw}) && (defined $line) );
+    # Dave Howorth's fix
+    if( (!$param{-raw}) && (defined $line) ) {
+       $line =~ s/\015?\012/\n/g;
+       $line =~ s/\015/\n/g unless $ONMAC;
+   }
     return $line;
 }
 
