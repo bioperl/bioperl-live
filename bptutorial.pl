@@ -796,7 +796,7 @@ systems.
 
 Bioperl also supplies Bio::DB::Fasta as a means to index and query Fasta
 format files. It's similar in spirit to Bio::Index::Fasta but offers more
-methods, eg
+methods, e.g.
 
   use Bio::DB::Fasta;
   use strict;
@@ -804,14 +804,14 @@ methods, eg
   my $db = Bio::DB::Fasta->new($file);  # one file or many files
   my $seqstring = $db->seq($id);        # get a sequence as string
   my $seqobj = $db->get_Seq_by_id($id); # get a PrimarySeq obj
-  my $desc = $db->header($id);          # get the header, or description, line
+  my $desc = $db->header($id);          # get the header, or description line
 
 See L<Bio::DB::Fasta> for more information on this fully-featured module.
 
 Both modules also offer the user the ability to designate a specific string
 within the fasta header as the desired id, such as the gi number within the
-string "gi|4556644|gb|X45555" (use the -makeid option for this capability in 
-Bio::DB::Fasta). Consider the following fasta-formatted sequence, "test.fa":
+string "gi|4556644|gb|X45555". Consider the following fasta-formatted 
+sequence, "test.fa":
 
   >gi|523232|emb|AAC12345|sp|D12567 titin fragment
   MHRHHRTGYSAAYGPLKJHGYVHFIMCVVVSWWASDVVTYIPLLLNNSSAGWKRWWWIIFGGE
@@ -853,7 +853,7 @@ with multiple gi's and Swissprots?
 
   >gi|523232|emb|AAC12345|sp|D12567|gi|7744242|sp|V11223 titin fragment
 
-Modify the function that's passed to the id_parser method!
+Modify the function that's passed to the id_parser method:
 
   sub get_id {
      my $header = shift;
@@ -861,6 +861,18 @@ Modify the function that's passed to the id_parser method!
      my (@gis) = $header =~ /gi\|(\d+)\b/g;
      return (@sps,@gis);
   }
+
+The Bio::DB::Fasta module uses the same principle, but the syntax is 
+slightly different, for example:
+
+my $db = Bio::DB::Fasta->new('test.fa', -makeid=>\&make_my_id);
+my $seqobj = $db->get_Seq_by_id($id);
+
+sub make_my_id {
+   my $description_line = shift;
+   $description_line =~ /gi\|(\d+)\|emb\|(\w+)/;
+   ($1,$2);
+}
 
 The core bioperl installation does not support accessing sequences
 and data stored in relational databases. However, this capability is
