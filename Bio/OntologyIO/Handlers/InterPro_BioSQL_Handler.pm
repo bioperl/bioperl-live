@@ -37,6 +37,8 @@ use Bio::Ontology::Ontology;
 use Bio::Ontology::Term;
 use Bio::Ontology::RelationshipType;
 use Bio::Ontology::Relationship;
+use Bio::Annotation::DBLink;
+
 @ISA = qw(Bio::OntologyIO::Handlers::BaseSAXHandler);
 
 my $is_a_rel;
@@ -97,6 +99,19 @@ sub start_element {
             -ontology => $ont
         );
         $self->_relationship($rel);
+    }elsif($tag eq 'example'){
+        my $example = Bio::Annotation::DBLink->new;
+        $self->_current_hash->{example} = $example;
+    }elsif($tag eq 'db_xref'){
+        my $top = $self->_top_tag;
+        if($top eq 'example'){
+            my $example = $self->_current_hash->{example};
+            $example->database($args{db});
+            $example->primary_id($args{dbkey});
+            print "EXAmPLE:\t", $example->database, '|', $example->primary_id, "\n";
+        }else{
+            print STDERR "Possible??\n";
+        }
     }
     $self->_visited_count_inc($tag);
     $self->_push_tag($tag);
@@ -131,6 +146,13 @@ sub end_element {
         $abstract =~ s/\n/ /g;
         $rel->subject_term->definition($abstract);
         $self->_chars_hash->{abstract} = '';
+    }elsif($tag eq 'example'){
+        my $example = $self->_current_hash->{example};
+        my $comment = $self->_chars_hash->{example};
+        $comment =~ s/^(\s+)//; $comment =~ s/(\s+)$//;
+        $example->comment($comment);
+        $self->_relationship->subject_term->add_dblink($example);
+        $self->_chars_hash->{example}='';
     }
     $self->_pop_tag;
     $self->_visited_count_dec($tag);
