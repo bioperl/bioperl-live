@@ -33,10 +33,10 @@ Bio::Tools::BPlite - Lightweight BLAST parser
 	 $hsp->homologySeq;
 	 $hsp->query->start;
 	 $hsp->query->end;
-	 $hsp->sbjct->start;
-	 $hsp->sbjct->end;
-	 $hsp->sbjct->seqname;
-	 $hsp->sbjct->overlaps($exon);
+	 $hsp->subject->start;
+	 $hsp->subject->end;
+	 $hsp->subject->seqname;
+	 $hsp->subject->overlaps($exon);
      }
  }
 
@@ -91,7 +91,7 @@ anyone who has seen a blast report.
 For lazy/efficient coders, two-letter abbreviations are available for the 
 attributes with long names (qs, ss, hs). Ranges of the aligned sequences in
 query/subject and other information (like seqname) are stored
-in SeqFeature objects (i.e.: $hsp-E<gt>query, $hsp-E<gt>sbjct which is equal to
+in SeqFeature objects (i.e.: $hsp-E<gt>query, $hsp-E<gt>subject which is equal to
 $hsp-E<gt>feature1, $hsp-E<gt>feature2). querySeq, sbjctSeq and homologySeq do only
 contain the alignment sequences from the blast report.
 
@@ -108,10 +108,10 @@ contain the alignment sequences from the blast report.
  $hsp->query->start;
  $hsp->query->end;
  $hsp->query->seqname;
- $hsp->sbjct->primary_tag; # "similarity"
- $hsp->sbjct->source_tag;  # "BLAST"
- $hsp->sbjct->start;
- $hsp->sbjct->end;
+ $hsp->subject->primary_tag; # "similarity"
+ $hsp->subject->source_tag;  # "BLAST"
+ $hsp->subject->start;
+ $hsp->subject->end;
  ...
  "$hsp"; # overloaded for query->start..query->end bits
 
@@ -122,7 +122,7 @@ to modify this to whatever is most frequently used by you.
 
 So a very simple look into a BLAST report might look like this.
 
- my $report = new BPlite(-fh=>\*STDIN);
+ my $report = new Bio::Tools::BPlite(-fh=>\*STDIN);
  while(my $sbjct = $report->nextSbjct) {
      print "$sbjct\n";
      while(my $hsp = $sbjct->nextHSP) {
@@ -208,11 +208,13 @@ sub new {
 
  Title   : next_feature
  Usage   : while( my $feat = $res->next_feature ) { # do something }
- Function: SeqAnalysisParserI implementing function
+ Function: SeqAnalysisParserI implementing function. This implementation
+           iterates over all HSPs. If the HSPs of the current subject match
+           are exhausted, it will automatically call nextSbjct().
  Example :
- Returns : A Bio::SeqFeatureI compliant object, in this case, 
-           each DomainUnit object, ie, flattening the Sequence
-           aspect of this.
+ Returns : A Bio::SeqFeatureI compliant object, in this case a
+           Bio::Tools::BPlite::HSP object, and FALSE if there are no more
+           HSPs.
  Args    : None
 
 =cut
@@ -261,7 +263,7 @@ sub qlength  {shift->{'LENGTH'}}
 
 =head2 pattern
 
- Title    : database
+ Title    : pattern
  Usage    : $pattern = $obj->pattern();
  Function : returns the pattern used in a PHIBLAST search
 
