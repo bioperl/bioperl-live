@@ -36,7 +36,7 @@ OMIMparser - parser for the OMIM database
   $omim_parser = Bio::Phenotype::OMIM::OMIMparser->new( -genemap  => "/path/to/genemap",
                                                         -omimtext => "/path/to/omim.txt" );
                                                         
-  while ( my $omim_entry = $omim_parser->next() ) {
+  while ( my $omim_entry = $omim_parser->next_OMIMentry() ) {
     # This prints everything.
     print( $omim_entry->to_string() );
     print "\n\n";
@@ -231,10 +231,10 @@ sub new {
 
 
 
-=head2 next
+=head2 next_OMIMentry
 
- Title   : next()
- Usage   : while ( my $omim_entry = $omim_parser->next() ) {
+ Title   : next_OMIMentry()
+ Usage   : while ( my $omim_entry = $omim_parser->next_OMIMentry() ) {
                # do something with $omim_entry
            }    
  Function: Returns an Bio::Phenotype::OMIM::OMIMentry or
@@ -244,7 +244,7 @@ sub new {
 
 =cut
 
-sub next  {
+sub next_OMIMentry  {
     my ( $self ) = @_;
     
     unless( defined( $self->_OMIM_text_file() ) ) {
@@ -360,7 +360,7 @@ sub next  {
     
     return $omim_entry;
 
-} # next
+} # next_OMIMentry
 
 
 

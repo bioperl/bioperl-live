@@ -28,7 +28,7 @@ my $omim_parser = Bio::Phenotype::OMIM::OMIMparser->new( -genemap  => "./t/data/
 
 ok( $omim_parser->isa( "Bio::Phenotype::OMIM::OMIMparser" ) );
 
-my $omim_entry = $omim_parser->next();
+my $omim_entry = $omim_parser->next_OMIMentry();
 
 
 ok( $omim_entry->isa( "Bio::Phenotype::OMIM::OMIMentry" ) );
@@ -162,7 +162,7 @@ ok( $avs[ 5 ]->additional_mutations(), "1-BP DEL, 1030C" );
 
 
 
-my $omim_entry2 = $omim_parser->next();
+my $omim_entry2 = $omim_parser->next_OMIMentry();
 
 
 ok( $omim_entry2->isa( "Bio::Phenotype::OMIM::OMIMentry" ) );
