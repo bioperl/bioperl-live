@@ -8,7 +8,6 @@
 my $error = 0;
 
 use strict;
-use lib '../';
 BEGIN {     
     # to handle systems with no installed Test module
     # we include the t dir (where a copy of Test.pm is located)
@@ -37,7 +36,7 @@ use Bio::Root::IO;
 # Volunteers welcomed
 
 my $in = new Bio::AlignIO(-format => 'emboss',
-			  -file   => Bio::Root::IO->catfile( 'data',
+			  -file   => Bio::Root::IO->catfile('t', 'data',
 							    'insulin.water'));
 my $aln = $in->next_aln();
 ok($aln);
@@ -63,7 +62,7 @@ $aln = $in->next_aln();
 ok(! defined $aln);
 
 $in = new Bio::AlignIO(-format => 'fasta',
-		       -file   => Bio::Root::IO->catfile('data',
+		       -file   => Bio::Root::IO->catfile('t','data',
 							 'hs_owlmonkey.fasta'));
 
 $aln = $in->next_aln();
@@ -96,7 +95,7 @@ if( 0 ) {
 
 ### now test Nei_gojobori methods ##
 $in = Bio::AlignIO->new(-format => 'fasta',
-		       -file   => Bio::Root::IO->catfile('data', 'nei_gojobori_test.aln'));
+		       -file   => Bio::Root::IO->catfile('t','data', 'nei_gojobori_test.aln'));
 my $alnobj = $in->next_aln();
 ok($alnobj);
 my $result = $stats->calc_KaKs_pair($alnobj, 'seq1', 'seq2');
