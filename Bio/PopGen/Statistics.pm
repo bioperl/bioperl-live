@@ -63,13 +63,13 @@ aligned sequence data given that you can calculate alleles, number of
 segregating sites.
 
 Currently implemented:
- Fu and Li's D  (fu_and_li_D)
- Fu and Li's D* (fu_and_li_D_star)
- Fu and Li's F  (fu_and_li_F)
- Tajima's D     (tajima_D)
- theta          (theta)
- pi             (pi) - number of pairwise differences
- composite_LD   (composite_LD)
+ Fu and Li's D    (fu_and_li_D)
+ Fu and Li's D*   (fu_and_li_D_star)
+ Fu and Li's F    (fu_and_li_F)
+ Tajima's D       (tajima_D)
+ Waterson's theta (theta)
+ pi               (pi) - number of pairwise differences
+ composite_LD     (composite_LD)
 
 In all cases where a the method expects an arrayref of
 L<Bio::PopGen::IndividualI> objects and L<Bio::PopGen::PopulationI>
@@ -605,10 +605,10 @@ sub tajima_D_counts {
 
  Title   : pi
  Usage   : my $pi = Bio::PopGen::Statistics->pi(\@inds)
- Function: Calculate pi (...explain here...) given a list of individuals 
-           which have the same number of markers/sites/mutation as 
-           available from the get_Genotypes() call in 
-           L<Bio::PopGen::IndividualI>
+ Function: Calculate pi (average number of pairwise differences) given
+           a list of individuals which have the same number of markers
+           (also called sites) as available from the get_Genotypes()
+           call in L<Bio::PopGen::IndividualI>
  Returns : decimal number
  Args    : Arg1= array ref of L<Bio::PopGen::IndividualI> objects
              which have markers/mutations.  We expect all individuals to
@@ -693,10 +693,11 @@ sub pi {
 
  Title   : theta
  Usage   : my $theta = Bio::PopGen::Statistics->theta($sampsize,$segsites);
- Function: Calculates theta (...explanation here... ) from the sample size 
+ Function: Calculates Waterson's theta from the sample size 
            and the number of segregating sites.
            Providing the third parameter, total number of sites will
-           return theta per site          
+           return theta per site.
+           This is also known as K-hat = K / a_n   
  Returns : decimal number 
  Args    : sample size (integer),
            num segregating sites (integer)
@@ -709,6 +710,8 @@ sub pi {
            total sites (integer)[optional]
 
 =cut
+
+#'
 
 sub theta {
     my $self = shift;    
@@ -1185,7 +1188,7 @@ sub composite_LD {
 
 	    my $homozA_site1 = join(",", ($allele1_site1,$allele1_site1));
 	    my $homozB_site2 = join(",", ($allele1_site2,$allele1_site2));
-	   	my $p_AA = ($genotypes{$site1}->{$homozA_site1} || 0) / $n;
+	my $p_AA = ($genotypes{$site1}->{$homozA_site1} || 0) / $n;
 	    my $p_BB = ($genotypes{$site2}->{$homozB_site2} || 0) / $n;
 	    my $p_A  = $allele_freqs{$site1}->{$allele1_site1} || 0;	# an individual allele freq
 	    my $p_a  =  1 - $p_A;
