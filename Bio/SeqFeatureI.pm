@@ -21,7 +21,7 @@ Bio::SeqFeatureI - Abstract interface of a Sequence Feature
     foreach $feat ( $annseq->all_seqfeatures() ) {
             print "Feature from ", $feat->start, "to ", 
 	          $feat->end, " Primary tag  ", $feat->primary_tag, 
-	          ", produced by ", $feat->source_tag() "\n";
+	          ", produced by ", $feat->source_tag(), "\n";
 
             if( $feat->strand == 0 ) {
 		print "Feature applicable to either strand\n";
