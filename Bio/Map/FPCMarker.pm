@@ -51,7 +51,7 @@ compared to an other MappableI using boolean methods.
 
 # Let the code begin...
 
-package Bio::Map::FPCarker;
+package Bio::Map::FPCMarker;
 use vars qw(@ISA);
 use strict;
 use Bio::Root::Root;
