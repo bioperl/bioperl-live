@@ -390,7 +390,7 @@ below. It prints out the accession number for each entry in the file.
      # We do this using the 'next_seq' method of SeqIO.
      
      while (my $seq = $inseq->next_seq) {
-           print $seq->accession_no."\n";
+           print $seq->accession_number,"\n";
      }
      exit;
      </programlisting>
