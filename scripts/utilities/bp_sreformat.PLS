@@ -107,6 +107,8 @@ if( $msa ) {
     
     bpsreformat - convert sequence formats
 
+=head1 DESCRIPTION
+
 This module is an implementation that allows conversion of sequence
 formats either sequence data or multiple sequence alignment data.  The
 name comes from the fact that Sean Eddy's program sreformat (part of
@@ -132,5 +134,12 @@ bpsreformat -if INFORMAT -of OUTFORMAT -i FILENAME -o output.FORMAT
                  (to pass data out on STDOUT omit this flag
 
 --msa            Specify this is multiple sequence alignment data
+
+--special        Will pass on special parameters to the AlignIO/SeqIO
+                 object -- most of these are for Bio::AlignIO objects
+                 Comma separated list of the following
+                 nointerleaved   -- for phylip,non-interleaved format
+                 idlinebreak     -- for phylip, makes it molphy format
+                 percentages     -- for clustalw, show % id per line
 
 =cut
