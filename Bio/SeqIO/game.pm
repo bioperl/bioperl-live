@@ -19,17 +19,20 @@ Bio::SeqIO::game -- a class for parsing and writing game-XML
 
  use Bio::SeqIO;
 
- my $in = Bio::SeqIO->new ( -file => 'file.xml', -format => 'game' );
-
- $in->verbose(1) # switch on non-fatal error messages
+ my $in = Bio::SeqIO->new ( -file    => 'file.xml', 
+                            -format  =>  'game',
+                            -verbose => 1 );
 
  my $seq = $in->next_seq;
 
 =head1 DESCRIPTION
 
 Bio::SeqIO::game will parse game XML (version 1.2) or write game XML from 
-another  Bio::SeqI format.  The game-XML format current;y used by apollo contains
-a single 'main' annotated sequence, so we do not really get a sequence stream.
+a Bio::SeqI implementing object.  The XML is readable by the genome annotation
+editor 'Apollo' (www.gmod.org).  It is not backwards compatible with the previous
+version of game XML.  The XML format currently used by Apollo 
+contains a single 'main' annotated sequence, so we will only get a single 
+annotated sequence in the stream when parsing a game-XML record.
 
 This modules is not used directly
 
@@ -69,21 +72,12 @@ methods. Internal methods are usually preceded with a _
 
 package Bio::SeqIO::game;
 
-use Data::Dumper;
 use Bio::SeqIO;
 use Bio::SeqIO::game::gameHandler;
 use Bio::SeqIO::game::gameWriter;
-use strict;
 
 use vars qw{ @ISA };
 @ISA = qw { Bio::SeqIO };
-
-=head2 _initialize
-
- Title   : _initialize
- Function: passed arguments to the XML handler
-
-=cut
 
 sub _initialize {
     my ($self, @args) = @_;
@@ -128,14 +122,15 @@ sub next_seq {
 sub write_seq {
     my ($self, $seq) = @_;
     my $writer = Bio::SeqIO::game::gameWriter->new($seq);
-    $writer->write_to_game;
+    my $xml = $writer->write_to_game;
+    $self->_print($xml);
 }
 
 =head2 _getseqs
 
  Title   : _getseqs
  Usage   : $self->_getseqs
- Function: An internal method to invoke the PerlSAX XML handler and retrieve
+ Function: An internal method to invoke the PerlSAX XML handler and get
            the sequence objects
  Returns : an reference to an array with sequence object and annotations
  Args    : none
@@ -144,27 +139,19 @@ sub write_seq {
 
 sub _getseqs {
     my $self = shift;
-    my $file = $self->{_file}
-      || $self->throw("No input file specified");
-
-    # check to see if there is a source feature
-    open XML, $file;
-    my $text = join '', <XML>;
-    close XML;
-    my $source = $text =~ /type>(source|origin|region)<\/type/gm ? 1 : 0;
-
-    # check for verbose reporting
-    my $verbose = $self->{verbose};
-
     if ( defined $self->{seq_l} ) {
         return $self->{seq_l};
     }
     else {
+	my $fh = $self->_fh;
+	my $text = join '', <$fh>;
+	$text || $self->throw("Input file is empty or does not exist");
+	my $source = $text =~ /type>(source|origin|\bregion\b)<\/type/gm ? 1 : 0;
         my $handler = Bio::SeqIO::game::gameHandler->new;
 	$handler->{has_source} = $source if $source;
-	$handler->{verbose} = 1 if $verbose;
+	$handler->{verbose} = 1 if $self->verbose;
         my $parser  = XML::Parser::PerlSAX->new( Handler => $handler );
-        my $game    = $parser->parse(Source => { SystemId => $file });
+        my $game    = $parser->parse( $text );
 	$self->{seq_l} = $game->load;
     }
 }
@@ -191,25 +178,5 @@ sub _hide_dna {
     return 0;
 }
 
-
-=head2 verbose
-
- Title   : verbose
- Usage   : $seqio->verbose(1)
- Function: turn on non-fatal warnings
- Returns : true if verbosity it set to 'on'
- Args    : a true value (optional)
-
-=cut
-
-sub verbose {
-    my ($self, $v) = @_;
-
-    if ($v) {
-	$self->{verbose} = $v;
-    }
-    
-    $self->{verbose};
-}
 
 1;

@@ -156,8 +156,8 @@ sub _order_feats {
     my $ann = $self->{ann_l};
 
     # make sure source comes first
-    my @src = grep { $_->primary_tag =~ /source|origin|region/ } @$ann;
-    my @other = grep { $_->primary_tag !~ /source|origin|region/ } @$ann;
+    my @src = grep { $_->primary_tag =~ /source|origin|\bregion\b/ } @$ann;
+    my @other = grep { $_->primary_tag !~ /source|origin|\bregion\b/ } @$ann;
 
     return [$seq, [@src, @other]];
 }
@@ -234,7 +234,7 @@ sub _add_seq {
     }
     if ($el->{_dbxref}) {
 	$tags->{dbxref} ||= [];
-        push @{$tags->{dbxref}}, $self->_dbxref( $el->{_dbxref} );
+        push @{$tags->{dbxref}}, $self->dbxref( $el->{_dbxref} );
     }
     if ($el->{_description}) {
         my $desc = $el->{_description}->{Characters};
@@ -310,7 +310,7 @@ sub _map_position {
     my $end   = $loc->{_end}->{Characters};
     
     # define the offset (may be a partial sequence)
-    # the coordinates will be relative but the CDS description
+    # The coordinates will be relative but the CDS description
     # coordinates may be absolute if the game-XML comes from apollo 
     # or gadfly
     $self->{offset} = $start - 1;
@@ -373,9 +373,8 @@ sub _annotation {
     my ($self, $el) = @_;
 
     my $id      = $el->{Attributes}->{id};
-    my $problem = $el->{Attributes}->{problem};
     my $type    = $el->{_type}->{Characters};
-    my $tags    = $problem ? { problem => [$problem] } : {};
+    my $tags    = {};
     my $gname   = $el->{_name}->{Characters} eq $id ? '' : $el->{_name}->{Characters};
 
     # 'transposable element' is too long (breaks Bio::SeqIO::GenBank)
@@ -393,11 +392,11 @@ sub _annotation {
 	# these elements require special handling
 	if ( $name eq 'dbxref' ) {
 	    $tags->{dbxref} ||= [];
-	    push @{$tags->{dbxref}}, $self->_dbxref( $child );
+	    push @{$tags->{dbxref}}, $self->dbxref( $child );
 	}
 	elsif ( $name eq 'aspect' ) {
 	    $tags->{dbxref} ||= [];
-	    push @{$tags->{dbxref}}, $self->_dbxref( $child->{_dbxref} );
+	    push @{$tags->{dbxref}}, $self->dbxref( $child->{_dbxref} );
 	}
         elsif ( $name eq 'feature_set' ) {
             push @feats, $featHandler->feature_set( $id, $gname, $child, $type );

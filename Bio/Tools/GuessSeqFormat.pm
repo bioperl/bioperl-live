@@ -615,7 +615,7 @@ From bioperl testdata.
 sub _possibly_game
 {
     my ($line, $lineno) = (shift, shift);
-    return ($line =~ /^<!DOCTYPE +game/);
+    return ($line =~ /^<!DOCTYPE game/);
 }
 
 =head2 _possibly_gcg

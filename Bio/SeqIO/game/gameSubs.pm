@@ -294,11 +294,11 @@ sub complain {
     my $msg  = join '', @_;
     $msg =~ s/\n/ /g;
     my @msg = split /\s+/, $msg;
-    my $new_msg;
+    my $new_msg = '';
     
     for ( @msg ) {
         my ($last_chunk) = $new_msg =~ /\n?(.+)$/;
-	my $l = length $last_chunk;
+	my $l = $last_chunk ? length $last_chunk : 0; 
 	if ( (length $_) + $l > 45 ) {
 	    $new_msg .= "\n$_ ";
 	}
@@ -310,17 +310,17 @@ sub complain {
     $self->warn($new_msg);
 }
 
-=head2 _dbxref
+=head2 dbxref
 
- Title   : _dbxref
- Usage   : $self->_db_xref 
+ Title   : dbxref
+ Usage   : $self->db_xref($el, $tags) 
  Function: an internal method to flatten dbxref elements
  Returns : the db_xref (eg wormbase:C02D5.1)
  Args    : an element object (reqd) and a hash ref of tag/values (optional)
 
 =cut
 
-sub _dbxref {                                                                                 
+sub dbxref {                                                                                 
     my ($self, $el, $tags) = @_;
     $tags ||= $self->{curr_tags};
     my $db  = $el->{_xref_db}->{Characters};
@@ -345,6 +345,8 @@ sub _dbxref {
  Function: a method to flatten comment elements
  Returns : a string
  Args    : an comment element (reqd) and a hash ref of tag/values (optional)
+ Note    : The hope here is that we can unflatten structured comments
+           in game-derived annotations happen to make a return trip
 
 =cut
 
@@ -392,9 +394,6 @@ sub property {
     push @{$tags->{$key}}, $value;
     $tags;
 }
-
-# flatten evidence element                                                                          
-
 
 =head2 evidence
 
