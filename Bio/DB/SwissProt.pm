@@ -69,8 +69,6 @@ The rest of the documentation details each of the object methods. Internal metho
 
 package Bio::DB::SwissProt;
 use strict;
-use HTTP::Request;
-use LWP::UserAgent;
 use vars qw(@ISA $MODVERSION %HOSTS $DEFAULTFORMAT $DEFAULTLOCATION 
 	    $DEFAULTSTYPE);
 
@@ -83,8 +81,8 @@ use Bio::SeqIO;
 use IO::File;
 use IO::String;
 use LWP::UserAgent;
+use HTTP::Request;
 use HTTP::Request::Common;
-use HTTP::Response;
 
 @ISA = qw(Bio::Root::RootI Bio::DB::RandomAccessI);
 
