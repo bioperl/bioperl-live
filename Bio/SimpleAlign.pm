@@ -1901,7 +1901,8 @@ sub set_displayname {
 sub displayname {
     my ($self, $name, $disname) = @_;
 
-    $self->throw("No sequence with name [$name]") unless $self->{'_seq'}->{$name};
+    $self->throw("No sequence with name [$name]")
+        unless defined $self->{'_seq'}->{$name};
 
     if(  $disname and  $name) {
 	$self->{'_dis_name'}->{$name} = $disname;
