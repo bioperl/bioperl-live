@@ -25,7 +25,7 @@ Bio::AlignIO::bl2seq - bl2seq sequence input/output stream
 
 =head1 SYNOPSIS
 
-Do not use this module directly.  Use it via the Bio::AlignIO class, as in:
+Do not use this module directly.  Use it via the L<Bio::AlignIO> class, as in:
 
     use Bio::AlignIO;
 
@@ -35,7 +35,7 @@ Do not use this module directly.  Use it via the Bio::AlignIO class, as in:
 
 =head1 DESCRIPTION
 
-This object can create Bio::SimpleAlign sequence alignment objects (of
+This object can create L<Bio::SimpleAlign> sequence alignment objects (of
 2 sequences) from bl2seq BLAST reports.
 
 A nice feature of this module is that- in combination with
@@ -106,7 +106,7 @@ use Bio::Tools::BPbl2seq;
  Title   : next_aln
  Usage   : $aln = $stream->next_aln()
  Function: returns the next alignment in the stream.
- Returns : SimpleAlign object - returns 0 on end of file
+ Returns : L<Bio::Align::AlignI> object - returns 0 on end of file
 	    or on error
  Args    : NONE
 
@@ -162,7 +162,7 @@ sub next_aln {
  Usage   : $stream->write_aln(@aln)
  Function: writes the $aln object into the stream in bl2seq format
  Returns : 1 for success and 0 for error
- Args    : Bio::SimpleAlign object
+ Args    : L<Bio::Align::AlignI> object
 
 
 =cut

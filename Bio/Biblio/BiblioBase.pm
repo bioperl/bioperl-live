@@ -92,21 +92,10 @@ use Bio::Root::Root;
 
 @ISA = qw(Bio::Root::Root);
 
-sub _abstractDeath {
-  my $self = shift;
-  my $package = ref $self;
-  my $caller = (caller(1))[3];
-
-  $self->throw ("Abstract method '$caller' should not been called.\n" .
-		"Not your fault - author of $package should be blamed!");
-
-}
-
 # these methods should not be called here;
 # they should be implemented by a subclass
-sub _accessible { shift->_abstractDeath; }
-sub _attr_type { shift->_abstractDeath; }
-
+sub _accessible { shift->throw_not_implemented(); }
+sub _attr_type { shift->throw_not_implemented(); }
 
 #
 # deal with 'set_' and 'get_' methods

@@ -88,7 +88,7 @@ use strict;
 
 sub get_nodes{
    my ($self) = @_;
-   $self->_abstractDeath('get_nodes');
+   $self->throw_not_implemented();
 }
 
 =head2 get_root_node
@@ -104,7 +104,7 @@ sub get_nodes{
 
 sub get_root_node{
    my ($self) = @_;
-   $self->_abstractDeath('get_root_node');
+   $self->throw_not_implemented();
 }
 
 =head2 number_nodes
@@ -141,7 +141,7 @@ sub number_nodes{
 
 sub branch_length {
    my ($self) = @_;
-   $self->_abstractDeath('branch_length');
+   $self->throw_not_implemented();
 }
 
 =head2 height

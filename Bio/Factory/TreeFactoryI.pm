@@ -31,7 +31,7 @@ Bio::Factory::TreeFactoryI - Factory Interface for getting and writing trees
 =head1 DESCRIPTION
 
 This interface describes the minimal functions needed to get and write
-trees from a data stream.  It is implemented by the Bio::TreeIO factory.
+trees from a data stream.  It is implemented by the L<Bio::TreeIO> factory.
 
 =head1 FEEDBACK
 
@@ -86,14 +86,14 @@ use Bio::Root::RootI;
  Title   : next_tree
  Usage   : my $tree = $factory->next_tree;
  Function: Get a tree from the factory
- Returns : Bio::Tree::TreeI
+ Returns : L<Bio::Tree::TreeI>
  Args    : none
 
 =cut
 
 sub next_tree{
    my ($self,@args) = @_;
-   $self->_abstractDeath('next_tree');
+   $self->throw_not_implemented();
 }
 
 =head2 write_tree
@@ -102,14 +102,14 @@ sub next_tree{
  Usage   : $treeio->write_tree($tree);
  Function: Writes a tree onto the stream
  Returns : none
- Args    : Bio::Tree::TreeI
+ Args    : L<Bio::Tree::TreeI>
 
 
 =cut
 
 sub write_tree{
    my ($self,@args) = @_;
-   $self->_abstractDeath('write_tree');
+   $self->throw_not_implemented();
 }
 
 1;

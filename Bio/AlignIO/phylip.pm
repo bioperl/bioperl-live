@@ -80,6 +80,7 @@ package Bio::AlignIO::phylip;
 use vars qw(@ISA);
 use strict;
 
+use Bio::SimpleAlign;
 use Bio::AlignIO;
 
 @ISA = qw(Bio::AlignIO);
@@ -106,7 +107,7 @@ sub _initialize {
  Function: returns the next alignment in the stream.
            Throws an exception if trying to read in PHYLIP
            sequential format.
- Returns : SimpleAlign object
+ Returns : L<Bio::SimpleAlign> object
  Args    : 
 
 =cut
@@ -192,7 +193,7 @@ sub next_aln {
  Usage   : $stream->write_aln(@aln)
  Function: writes the $aln object into the stream in MSF format
  Returns : 1 for success and 0 for error
- Args    : Bio::SimpleAlign object
+ Args    : L<Bio::Align::AlignI> object
 
 =cut
 
@@ -204,6 +205,10 @@ sub write_aln {
     my ($length,$date,$name,$seq,$miss,$pad,%hash,@arr,$tempcount,$index,$idlength);
     
     foreach my $aln (@aln) {
+	if( ! $aln || ! $aln->isa('Bio::Align::AlignI')  ) { 
+	    $self->warn("Must provide a Bio::Align::AlignI object when calling write_aln");
+	    next;
+	}
 	$self->throw("All sequences in the alignment must be the same length") 
 	    unless $aln->is_flush(1) ;
 

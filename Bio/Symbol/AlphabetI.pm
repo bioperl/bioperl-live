@@ -73,17 +73,7 @@ Internal methods are usually preceded with a _
 
 package Bio::Symbol::AlphabetI;
 use strict;
-
-use Carp;
-
-sub _abstractDeath {
-  my $self = shift;
-  my $package = ref $self;
-  my $caller = (caller)[1];
-
-  confess "Abstract method '$caller' defined in interface Bio::Symbol::AlphabetI not implemented by pacakge $package. Not your fault - author of $package should be blamed!";
-
-}
+use Bio::Root::RootI;
 
 =head2 AlphabetI Interface methods
 
@@ -95,14 +85,14 @@ sub _abstractDeath {
  Usage   : my @symbols = $alphabet->symbols();
  Function: Get/Set Symbol list for an alphabet
            List of symbols, which make up this alphabet.
- Returns : Array of Bio::Symbol::SymbolI objects
- Args    : (optional) Array of Bio::Symbol::SymbolI objects
+ Returns : Array of L<Bio::Symbol::SymbolI> objects
+ Args    : (optional) Array of L<Bio::Symbol::SymbolI> objects
 
 =cut
 
 sub symbols{
    my ($self,@args) = @_;
-   $self->_abstractDeath();
+   $self->throw_not_implemented();
 }
 
 =head2 alphabets
@@ -111,14 +101,14 @@ sub symbols{
  Usage   : my @alphabets = $alphabet->alphabets();
  Function: Get/Set Sub Alphabet list for an alphabet 
            Sub-alphabets. E.g. codons made from DNAxDNAxDNA alphabets
- Returns : Array of Bio::Symbol::AlphabetI objects
- Args    : (optional) Array of Bio::Symbol::AlphabetI objects
+ Returns : Array of L<Bio::Symbol::AlphabetI> objects
+ Args    : (optional) Array of L<Bio::Symbol::AlphabetI> objects
 
 =cut
 
 sub alphabets{
     my ($self,@args) = @_;
-    $self->_abstractDeath();
+    $self->throw_not_implemented();
 }
 
 =head2 contains
@@ -127,13 +117,13 @@ sub alphabets{
  Usage   : if($alphabet->contains($symbol)) { }
  Function: Tests of Symbol is contained in this alphabet
  Returns : Boolean
- Args    : Bio::Symbol::SymbolI
+ Args    : L<Bio::Symbol::SymbolI>
 
 =cut
 
 sub contains{
    my ($self,@args) = @_;
-   $self->_abstractDeath;
+   $self->throw_not_implemented();
 }
 
 # Other methods from BSANE - not sure if we will implement here or only in
