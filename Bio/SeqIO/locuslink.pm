@@ -508,7 +508,8 @@ sub next_seq{
 					   -identifier => $record{GO}->[$j],
 					   -name => $record{GO_DESC}->[$j],
 					   -ontology => $record{GO_CAT}->[$j]);
-		$ann->add_Annotation($goann);
+#		$ann->add_Annotation($goann);
+		$ann->add_Annotation('ontology_term',$goann);
 	    }
 	}
 
