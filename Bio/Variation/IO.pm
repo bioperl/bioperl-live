@@ -235,7 +235,6 @@ use strict;
 use vars '@ISA';
 
 use Bio::SeqIO;
-use Symbol();
 
 @ISA = 'Bio::SeqIO';
 
