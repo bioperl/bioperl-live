@@ -54,8 +54,7 @@ systems for read/writing alignments.
 
 SimpleAlign basically views an alignment as an immutable block of
 text.  SimpleAlign *is not* the object to be using if you want to
-perform complex alignment manipulations.  These functions are much
-better done by UnivAln by Georg Fuellen.
+perform complex alignment manipulations.
 
 However for lightweight display/formatting and minimal manipulation
 (e.g. removing all-gaps columns) - this is the one to use.
