@@ -105,7 +105,7 @@ sub maketmpdir {
 }
 sub cleanup {    
     eval { 
-      Bio::Root::IO->rmtree($tmpdir);
+      Bio::Root::IO->rmtree($tmpdir) if( defined $tmpdir && -d $tmpdir);
     };
 } 
 
