@@ -128,7 +128,7 @@ $str = Bio::AlignIO->new('-file' => Bio::Root::IO->catfile("t","data","testaln.n
 ok defined($str) && ref($str) && $str->isa('Bio::AlignIO');
 $aln = $str->next_aln();
 ok $aln->get_seq_by_pos(1)->get_nse, 'Homo_sapiens/1-45';
-$strout = Bio::AlignIO->new('-file'  => ">".Bio::Root::IO->catfile("testout.nexus"),
+$strout = Bio::AlignIO->new('-file'  => ">".Bio::Root::IO->catfile("t", "data", "testout.nexus"),
 			    '-format' => 'nexus', );
 $status = $strout->write_aln($aln);
 ok $status, 1, "  failed nexus output test";
@@ -141,6 +141,6 @@ unlink(Bio::Root::IO->catfile("t","data","testout2.pfam"),
      Bio::Root::IO->catfile("t","data","testout.fasta"), 
      Bio::Root::IO->catfile("t","data","testaln.clustal"),
      Bio::Root::IO->catfile("t","data","testout.phylip"),
-     Bio::Root::IO->catfile("t","data","testout.nexus")
+     Bio::Root::IO->catfile("t","data","testout.nexus"),
        );
 
