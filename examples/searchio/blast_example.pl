@@ -3,6 +3,8 @@
 # Note that some methods will return objects or arrays, not text.
 # For example, $hsp->get_aln will return a Bio::SimpleAlign object,
 # not the alignment in a printable form.
+# This script was used to create the table in the SearchIO HOWTO,
+# found at www.bioperl.org/HOWTOs.
 # Brian Osborne
 
 use strict;
