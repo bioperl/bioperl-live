@@ -7,38 +7,41 @@ use Getopt::Long;
 
 =head1 NAME
 
-load_gff.pl - Load a Bio::DB::GFF database from GFF files.
+bp_load_gff.pl - Load a Bio::DB::GFF database from GFF files.
 
 =head1 SYNOPSIS
 
-  % load_gff.pl -d testdb -f dna.fa features1.gff features2.gff ...
+  % bp_load_gff.pl -d testdb dna1.fa dna2.fa features1.gff features2.gff ...
 
 =head1 DESCRIPTION
 
 This script loads a Bio::DB::GFF database with the features contained
-in a list of GFF files.  You must use the exact variant of GFF
-described in L<Bio::DB::GFF>.  Various command-line options allow you
-to control which database to load, whether to load DNA (in fasta
-format) as well, and whether to allow an existing database to be
-overwritten.
+in a list of GFF files and/or FASTA sequence files.  You must use the
+exact variant of GFF described in L<Bio::DB::GFF>.  Various
+command-line options allow you to control which database to load and
+whether to allow an existing database to be overwritten.
 
 This script uses the Bio::DB::GFF interface, and so works with all
 database adaptors currently supported by that module (MySQL, Oracle,
 PostgreSQL soon).  However, it is slow.  For faster loading, see the
-MySQL-specific L<bulk_load_gff.pl> and L<fast_load_gff.pl> scripts.
+MySQL-specific L<bp_bulk_load_gff.pl> and L<bp_fast_load_gff.pl> scripts.
 
-NOTE: If no arguments are provided, or the filename is given as "-"
-then the input is taken from standard input. Compressed files (.gz,
-.Z, .bz2) are automatically uncompressed.  Fasta files must end in .fa
-optionally followed by a compression suffix in order to be recognized.
+=head2 NOTES
 
-To load FASTA files without GFF data, run like this:
+If the filename is given as "-" then the input is taken from standard
+input. Compressed files (.gz, .Z, .bz2) are automatically
+uncompressed.
 
- load_gff.pl --database my_database --fasta my_fasta_file_path </dev/null
+FASTA format files are distinguished from GFF files by their filename
+extensions.  Files ending in .fa, .fasta, .fast, .seq, .dna and their
+uppercase variants are treated as FASTA files.  Everything else is
+treated as a GFF file.  If you wish to load -fasta files from STDIN,
+then use the -f command-line swith with an argument of '-', as in 
 
-If you get a lot of errors on loading, it may be that the database
-schema is out of sync.  Run with the --upgrade option to update the
-schema in a non-destructive manner.
+    gunzip my_data.fa.gz | bp_fast_load_gff.pl -d test -f -
+
+On the first load of a database, you will see a number of "unknown
+table" errors.  This is normal.
 
 =head1 COMMAND-LINE OPTIONS
 
@@ -78,33 +81,7 @@ GetOptions ('dsn:s'       => \$DSN,
 	    'password:s'  => \$PASSWORD,
             'fasta:s'     => \$FASTA,
             'upgrade'     => \$UPGRADE,
-	    create        => \$CREATE) or die <<USAGE;
-Usage: $0 [options] <gff file 1> <gff file 2> ...
-Load a Bio::DB::GFF database from GFF files.
-
- Options:
-   --dsn     <dsn>       Data source (default dbi:mysql:test)
-   --adaptor <adaptor>   Schema adaptor (default dbi::mysqlopt)
-   --user    <user>      Username for mysql authentication
-   --pass    <password>  Password for mysql authentication
-   --fasta   <path>      Fasta file or directory containing fasta files for the DNA
-   --create              Force creation and initialization of database
-   --upgrade             Upgrade existing database to current schema
-
-If no GFF files are specified, or the file name is given as "-", then
-the data is taken from standard input.  Compressed files (.gz, .Z, .bz2)
-are uncompressed automatically.
-
-To load FASTA files without GFF data, run like this:
-
- load_gff.pl --database my_database --fasta my_fasta_file_path </dev/null
-
-If you get a lot of errors on loading, it may be that the database
-schema is out of sync.  Run with the --upgrade option to update the
-schema in a non-destructive manner.
-
-USAGE
-;
+	    create        => \$CREATE) or (system('pod2text',$0), exit -1);
 
 # some local defaults
 $DSN     ||= 'dbi:mysql:test';
@@ -132,15 +109,25 @@ if ($CREATE) {
   }
 }
 
-for my $file (@ARGV) {
+my (@gff,@fasta);
+foreach (@ARGV) {
+  if (/\.(fa|fasta|dna|seq|fast)\b/i) {
+    push @fasta,$_;
+  } else {
+    push @gff,$_;
+  }
+}
+
+for my $file (@gff) {
   warn "$file: loading...\n";
   my $loaded = $db->load_gff($file);
   warn "$file: $loaded records loaded\n";
 }
 
-if ($FASTA) {
-  warn "Loading fasta ",(-d $FASTA?"directory":"file"), " $FASTA\n";
-  my $loaded = $db->load_fasta($FASTA);
-  warn "$FASTA: $loaded records loaded\n";
-}
+unshift @fasta,$FASTA if defined $FASTA;
 
+for my $file (@fasta) {
+  warn "Loading fasta ",(-d $file?"directory":"file"), " $file\n";
+  my $loaded = $db->load_fasta($file);
+  warn "$file: $loaded records loaded\n";
+}

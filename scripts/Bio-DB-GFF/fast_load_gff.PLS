@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# $Id: fast_load_gff.PLS,v 1.3 2003-03-26 09:20:01 heikki Exp $
+# $Id: fast_load_gff.PLS,v 1.4 2003-06-29 23:12:57 lstein Exp $
 
 use strict;
 use lib './blib/lib';
@@ -22,38 +22,40 @@ my $DO_FAST = eval "use POSIX 'WNOHANG'; 1;";
 
 =head1 NAME
 
-fast_load_gff.pl - Fast-load a Bio::DB::GFF database from GFF files.
+bp_fast_load_gff.pl - Fast-load a Bio::DB::GFF database from GFF files.
 
 =head1 SYNOPSIS
 
-  % fast_load_gff.pl -d testdb -f dna.fa features1.gff features2.gff ...
+  % bp_fast_load_gff.pl -d testdb dna1.fa dna2.fa features1.gff features2.gff ...
 
 =head1 DESCRIPTION
 
 This script loads a Bio::DB::GFF database with the features contained
-in a list of GFF files.  You must use the exact variant of GFF
-described in L<Bio::DB::GFF>.  Various command-line options allow you
-to control which database to load, whether to load DNA (in fasta
-format) as well, and whether to allow an existing database to be
-overwritten.
+in a list of GFF files and/or FASTA sequence files.  You must use the
+exact variant of GFF described in L<Bio::DB::GFF>.  Various
+command-line options allow you to control which database to load and
+whether to allow an existing database to be overwritten.
 
 This script is similar to load_gff.pl, but is much faster.  However,
 it is hard-coded to use MySQL and probably only works on Unix
-platforms due to its reliance on pipes.  See L<load_gff.pl> for an
+platforms due to its reliance on pipes.  See L<bp_load_gff.pl> for an
 incremental loader that works with all databases supported by
-Bio::DB::GFF, and L<bulk_load_gff.pl> for a fast MySQL loader that
+Bio::DB::GFF, and L<bp_bulk_load_gff.pl> for a fast MySQL loader that
 supports all platforms.
 
 =head2 NOTES
 
-If no arguments are provided, or the filename is given as "-"
-then the input is taken from standard input. Compressed files (.gz,
-.Z, .bz2) are automatically uncompressed.  Fasta files must end in .fa
-optionally followed by a compression suffix in order to be recognized.
+If the filename is given as "-" then the input is taken from
+standard input. Compressed files (.gz, .Z, .bz2) are automatically
+uncompressed.
 
-To load FASTA files without GFF data, run like this:
+FASTA format files are distinguished from GFF files by their filename
+extensions.  Files ending in .fa, .fasta, .fast, .seq, .dna and their
+uppercase variants are treated as FASTA files.  Everything else is
+treated as a GFF file.  If you wish to load -fasta files from STDIN,
+then use the -f command-line swith with an argument of '-', as in 
 
- load_gff.pl --database my_database --fasta my_fasta_file_path </dev/null
+    gunzip my_data.fa.gz | bp_fast_load_gff.pl -d test -f -
 
 The nature of the load requires that the database be on the local
 machine and that the indicated user have the "file" privilege to load
@@ -127,52 +129,7 @@ GetOptions ('database:s'    => \$DSN,
             'local'         => \$LOCAL,
 	    'password:s'    => \$PASSWORD,
 	    'fasta:s'       => \$FASTA,
-	   ) or die <<USAGE;
-Usage: $0 [options] <gff file 1> <gff file 2> ...
-Fast load a Bio::DB::GFF database from GFF files.
-
- Options:
-   --database <dsn>      Mysql database name
-   --create              Reinitialize/create data tables (will drop existing data)
-   --local               Try to load a remote database using local data
-   --user                Username to log in as
-   --fasta               File or directory containing fasta files to load
-   --password            Password to use for authentication
-
-Options can be abbreviated.  For example, you can use -d for
---database.
-
-NOTES:
-
-If no arguments are provided, or the filename is given as "-"
-then the input is taken from standard input. Compressed files (.gz,
-.Z, .bz2) are automatically uncompressed.  Fasta files must end in .fa
-optionally followed by a compression suffix in order to be recognized.
-
-To load FASTA files without GFF data, run like this:
-
- load_gff.pl --database my_database --fasta my_fasta_file_path </dev/null
-
-The nature of the bulk load requires that the database be on the local
-machine and that the indicated user have the "file" privilege to load
-the tables and have enough room in /usr/tmp (or whatever is specified
-by the \$TMPDIR environment variable), to hold the tables transiently.
-
-The --local option *may* allow you to load remote databases from local
-files, for example:
-
-   fast_load_gff.pl -local -d 'test;host=brie3.cshl.org' test_data.gff
-
-However, for this to work, MySQL must have been compiled with the
---enable-local-file option, thereby allowing the "load data local
-infile" syntax to work.
-
-The adaptor used is dbi::mysqlopt.  There is currently no way to
-change this.  Note that this script uses very Unix-specific features,
-such as mknode.
-
-USAGE
-;
+	   ) or (system('pod2text',$0), exit -1);
 
 $DSN ||= 'test';
 
@@ -196,6 +153,16 @@ foreach (@ARGV) {
   $_ = "uncompress -c $_ |" if /\.Z$/;
   $_ = "bunzip2 -c $_ |" if /\.bz2$/;
 }
+my(@fasta,@gff);
+foreach (@ARGV) {
+  if (/\.(fa|fasta|dna|seq|fast)\b/i) {
+    push @fasta,$_;
+  } else {
+    push @gff,$_;
+  }
+}
+@ARGV = @gff;
+push @fasta,$FASTA if defined $FASTA;
 
 # initialize state variables
 my $FID     = 1;
@@ -307,11 +274,11 @@ while (<>) {
   }
 }
 
-if ($FASTA) {
-  warn "Loading fasta ",(-d $FASTA?"directory":"file"), " $FASTA\n";
+for my $fasta (@fasta) {
+  warn "Loading fasta ",(-d $fasta?"directory":"file"), " $fasta\n";
   my $old = select($FH{FDNA()});
-  my $loaded = $db->load_fasta($FASTA);
-  warn "$FASTA: $loaded records loaded\n";
+  my $loaded = $db->load_fasta($fasta);
+  warn "$fasta: $loaded records loaded\n";
   select $old;
 }
 

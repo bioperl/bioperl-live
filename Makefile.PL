@@ -108,7 +108,7 @@ sub MY::postamble {
 sub get_scripts_to_install {
   print "\n*** Script Install Section ****\n";
   print "\nBioperl comes with a number of useful scripts which you may wish to install.\n";
-  my $prompt_mode = prompt("Install [a]ll Bioperl scripts, [n]one, or choose groups [i]nteractively?",'i');
+  my $prompt_mode = prompt("Install [a]ll Bioperl scripts, [n]one, or choose groups [i]nteractively?",'a');
   return if $prompt_mode =~ /^[nN]/;
   my @scripts;
   my $script_dir = './scripts';
@@ -154,7 +154,7 @@ sub install_contents {
     my $in  = IO::File->new("$dir/$script")    or die "Can't open $dir/$script: $!";
     $script =~ s/\.PLS$/\.pl/;                   # change from .PLS to .pl
     $script =~ s/^/bp_/ unless $script =~ /^bp/; # add the "bp" prefix
-    print "\tInstalling $script....\n";
+    print "\tActivating $script....\n";
     unlink "$dest/$script" if -e "$dest/$script";
     my $out = IO::File->new(">$dest/$script")  or die "Can't open $dest/$script: $!";
     my $doneit;
