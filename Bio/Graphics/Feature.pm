@@ -199,7 +199,9 @@ sub add_segment {
   my $self        = shift;
   my $type = $self->{subtype} || $self->{type};
   $self->{segments} ||= [];
-  my $ref  = $self->seq_id;
+  my $ref   = $self->seq_id;
+  my $name  = $self->name;
+  my $class = $self->class;
 
   my @segments = @{$self->{segments}};
 
@@ -211,14 +213,15 @@ sub add_segment {
 
       if ($start > $stop) {
 	($start,$stop) = ($stop,$start);
-#	$strand *= -1;
 	$strand = -1;
       }
       push @segments,$self->new(-start  => $start,
 				-stop   => $stop,
 				-strand => $strand,
 				-ref    => $ref,
-				-type   => $type);
+				-type   => $type,
+			        -name   => $name,
+			        -class  => $class);
     } else {
       push @segments,$seg;
     }
