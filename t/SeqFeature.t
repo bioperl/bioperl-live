@@ -292,7 +292,7 @@ my $feat1 = new Bio::SeqFeature::Generic(-start => 1,
 					 -end   => 15,
 					 -strand=> 1);
 
-my $feat2 = new Bio::SeqFeature::Generic(-start => 10,
+$feat2 = new Bio::SeqFeature::Generic(-start => 10,
 					 -end   => 25,
 					 -strand=> 1);
 
