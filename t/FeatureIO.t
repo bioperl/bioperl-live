@@ -10,7 +10,7 @@ BEGIN {
   }
   use Test;
 
-  $TESTCOUNT = 19;
+  $TESTCOUNT = 22;
   plan tests => $TESTCOUNT;
 }
 
