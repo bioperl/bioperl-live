@@ -293,7 +293,7 @@ sub next_seq{
 	    # to the last line read before returning 
 	    my $ftunit = $self->_read_FTHelper_GenBank(\$buffer);
 	    # process ftunit
-	    $ftunit->_generic_seqfeature($seq);
+	    $ftunit->_generic_seqfeature($seq, 'GenBank');
 	}
     $seqc = "";	
     while (defined( $_ = $self->_readline)) {

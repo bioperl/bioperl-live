@@ -125,7 +125,7 @@ sub _initialize {
   $gff_string && $self->_from_gff_string($gff_string);
   $start && $self->start($start);
   $end   && $self->end($end);
-  $strand && $self->strand($strand);
+  defined($strand) && $self->strand($strand);
   $primary && $self->primary_tag($primary);
   $source  && $self->source_tag($source);
   $frame   && $self->frame($frame);
@@ -243,8 +243,8 @@ sub strand {
        if ( $value eq '-' ) { $value = -1; }
        if ( $value eq '.' ) { $value = 0; }
 
-       if ( $value != -1 && $value != 1 && $value != 0 ) {
-	   $self->throw("$value is not a valid strand info");
+       if ( $value !~ /^-?[01]$/ ) {
+	   $self->throw("'$value' is not a valid strand");
        }
        $self->{'_gsf_strand'} = $value
    }

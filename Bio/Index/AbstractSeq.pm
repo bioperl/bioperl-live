@@ -129,7 +129,8 @@ sub _file_format {
   Usage   : $index->fetch( $id )
   Function: Returns a Bio::Seq object from the index
   Example : $seq = $index->fetch( 'dJ67B12' )
-  Returns : Bio::Seq object
+  Returns : Bio::Seq object, or throws an exception
+            if the ID given is not in the index.
   Args    : ID
 
 =cut
@@ -150,6 +151,8 @@ sub fetch {
         seek($fh, $begin, 0);
 	
 	$seq = $seqio->next_seq();
+    } else {
+        $self->throw("No record found for '$id'");
     }
 
     # we essentially assumme that the primary_id for the database

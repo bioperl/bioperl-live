@@ -447,6 +447,27 @@ sub _type_and_version {
 
 =head2 
 
+  Title   : allow_relative_paths
+  Usage   : $index->allow_relative_paths()
+  Function: Allow files being indexed to have
+            non-absolute paths
+  Example : $index->allow_relative_paths(1)
+  Returns : TRUE or FALSE
+  Args    : TRUE or FALSE
+
+=cut
+
+sub allow_relative_paths {
+    my( $self, $arg ) = @_;
+    
+    if (defined $arg) {
+        $self->{'_allow_relative_paths'} = $arg;
+    }
+    return $self->{'_allow_relative_paths'};
+}
+
+=head2 
+
   Title   : _check_file_sizes
   Usage   : $index->_check_file_sizes()
   Function: Verifies that the files listed in the database
@@ -500,11 +521,15 @@ sub make_index {
 	$self->throw("Attempting to make an index on a read-only database. What about a WRITE flag on opening the index?");
     }
 
-    # We're really fussy/lazy, expecting all file names to be fully qualified
     $self->throw("No files to index provided") unless @files;
     foreach my $file (@files) {
-        $self->throw("File name not fully qualified : $file") unless $file =~ m|^/|;
-        $self->throw("File does not exist: $file")            unless -e $file;
+        # We're really fussy/lazy, expecting all file names to be
+        # fully qualified unless allow_relative_paths is set.
+        unless ($self->allow_relative_paths) {
+            $self->throw("File name not fully qualified : '$file'")
+                unless $file =~ m|^/|;
+        }
+        $self->throw("File does not exist: $file") unless -e $file;
     }
 
     # Add each file to the index
