@@ -164,7 +164,8 @@ sub _initialize {
 
 sub next_seq {
    my ($self,@args) = @_;
-   my ($pseq,$c,$line,$name,$desc,$acc,$seqc,$mol,$div,$date,$comment,@date_arr);
+   my ($pseq,$c,$line,$name,$desc,$acc,$seqc,$mol,$div,
+       $date,$comment,@date_arr, @sec);
    my ($keywords,$acc_string);
    my $seq = Bio::Seq->new();
    $line = $self->_readline;
@@ -332,7 +333,7 @@ sub next_seq {
    $seq->primary_seq($pseq);
    $seq->keywords($keywords);
    $acc_string =~ s/\;\s*/ /g;
-   my( $acc, @sec ) = split " ",$acc_string;
+   ( $acc, @sec ) = split " ",$acc_string;
    $seq->accession_number($acc);
    foreach my $s (@sec) {
      $seq->add_secondary_accession($s);
