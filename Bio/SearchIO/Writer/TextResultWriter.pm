@@ -31,6 +31,51 @@ Bio::SearchIO::Writer::TextResultWriter - Object to implement writing a Bio::Sea
 This object implements the SearchWriterI interface which will produce
 a set of Text for a specific Bio::Search::Report::ReportI interface.
 
+You can also provide the argument -filters => \%hash to filter the at
+the hsp, hit, or result level.  %hash is an associative array which
+contains any or all of the keys (HSP, HIT, RESULT).  The values
+pointed to by these keys would be references to a subroutine which
+expects to be passed an object - one of Bio::Search::HSP::HSPI,
+Bio::Search::Hit::HitI, and Bio::Search::Result::ResultI respectively.
+Each function needs to return a boolean value as to whether or not the
+passed element should be included in the output report - true if it is to be included, false if it to be omitted.
+
+For example to filter on sequences in the database which are too short
+for your criteria you would do the following.
+
+Define a hit filter method 
+
+  sub hit_filter { 
+      my $hit = shift;
+      return $hit->length E<gt> 100; # test if length of the hit sequence
+                                     # long enough    
+  }
+  my $writer = new Bio::SearchIO::Writer::TextResultWriter(
+       -filters => { 'HIT' =E<gt> \&hit_filter }  
+      );
+
+Another example would be to filter HSPs on percent identity, let's
+only include HSPs which are 75% identical or better.
+
+   sub hsp_filter {
+       my $hsp = shift;
+       return $hsp->percent_identity E<gt> 75;
+   }
+   my $writer = new Bio::SearchIO::Writer::TextResultWriter(
+       -filters => { 'HSP' =E<gt> \&hsp_filter }  
+      );
+
+See L<Bio::SearchIO::SearchWriterI> for more info on the filter method.
+
+
+This module will use the module Text::Wrap if it is installed to wrap
+the Query description line.  If you do not have Text::Wrap installed
+this module will work fine but you won't have the Query line wrapped.
+You will see a warning about this when you first instantiate a
+TextResultWriter - to avoid these warnings from showing up, simply set
+the verbosity upon initialization to -1 like this: my $writer = new
+Bio::SearchIO::Writer::TextResultWriter(-verbose => -1);
+
 =head1 FEEDBACK
 
 =head2 Mailing Lists
@@ -55,12 +100,6 @@ email or the web:
 
 Email jason@bioperl.org
 
-Describe contact details here
-
-=head1 CONTRIBUTORS
-
-Additional contributors names and emails here
-
 =head1 APPENDIX
 
 The rest of the documentation details each of the object methods.
@@ -73,14 +112,19 @@ Internal methods are usually preceded with a _
 
 
 package Bio::SearchIO::Writer::TextResultWriter;
-use vars qw(@ISA $MaxNameLen $MaxDescLen $AlignmentLineWidth);
+use vars qw(@ISA $MaxNameLen $MaxDescLen $AlignmentLineWidth 
+	    $DescLineLen $TextWrapLoaded);
 use strict;
 
 # Object preamble - inherits from Bio::Root::RootI
 
 BEGIN {
     $MaxDescLen = 65;
-    $AlignmentLineWidth = 60;
+    $AlignmentLineWidth = 60;    
+    eval { require Text::Wrap; $TextWrapLoaded = 1;};
+    if( $@ ) {
+	$TextWrapLoaded = 0;
+    }
 }
 
 use Bio::Root::Root;
@@ -95,7 +139,9 @@ use POSIX;
  Usage   : my $obj = new Bio::SearchIO::Writer::TextResultWriter();
  Function: Builds a new Bio::SearchIO::Writer::TextResultWriter object 
  Returns : Bio::SearchIO::Writer::TextResultWriter
- Args    :
+ Args    : -filters => hashref with any or all of the keys (HSP HIT RESULT)
+           which have values pointing to a subroutine reference
+           which will expect to get a 
 
 
 =cut
@@ -114,7 +160,11 @@ sub new {
 	  }
       }
   }
-
+  unless( $TextWrapLoaded ) {
+      $self->warn("Could not load Text::Wrap - the Query Description will not be line wrapped\n");
+  } else { 
+      $Text::Wrap::columns =  $MaxDescLen;
+  }
   return $self;
 }
 
@@ -135,17 +185,19 @@ sub new {
 =cut
 
 sub to_string {
-    my ($self,$result) = @_; 
-    return '' unless defined $result;
-    my ($resultfilter,$hitfilter,
-	$hspfilter) = ( $self->filter('RESULT'),
-			$self->filter('HIT'),
-			$self->filter('HSP'));
-    return '' if( defined $resultfilter && ! &{$resultfilter}($result) );
+    my ($self,$result,$num) = @_; 
+    $num ||= 0;
+    return unless defined $result;
+    my ($resultfilter,$hitfilter, $hspfilter) = ( $self->filter('RESULT'),
+						  $self->filter('HIT'),
+						  $self->filter('HSP') );
+    return '' if( defined $resultfilter && ! &{$resultfilter}($result) );    
 
     my ($qtype,$dbtype,$dbseqtype,$type);
     my $alg = $result->algorithm;
-    if(  $alg =~ /T(FAST|BLAST)([X|Y])/i ) {
+
+    # This is actually wrong for the FASTAs I think
+    if(  $alg =~ /T(FAST|BLAST)([XY])/i ) {
 	$qtype      = $dbtype = 'translated';
 	$dbseqtype = $type       = 'PROTEIN';
     } elsif( $alg =~ /T(FAST|BLAST)N/i ) {
@@ -156,69 +208,71 @@ sub to_string {
     } elsif( $alg =~ /(FAST|BLAST)N/i || 
 	     $alg =~ /(WABA|EXONERATE)/i ) {
 	$qtype      = $dbtype = '';
-	$type       = 'NUCLEOTIDE';
+	$type = $dbseqtype  = 'NUCLEOTIDE';
     } elsif( $alg =~ /(FAST|BLAST)P/  || $alg =~ /SSEARCH/i ) {
 	$qtype      = $dbtype = '';
 	$type = $dbseqtype  = 'PROTEIN';
+    } elsif( $alg =~ /(FAST|BLAST)[XY]/i ) {
+	$qtype      = 'translated';
+        $dbtype     = 'PROTEIN';
+	$dbseqtype  = $type      = 'PROTEIN';
     } else { 
 	print STDERR "algorithm was ", $result->algorithm, " couldn't match\n";
-    }    
+    }
+    
+    
     my %baselens = ( 'Sbjct:'   => ( $dbtype eq 'translated' )  ? 3 : 1,
-		     'Query:'   => ( $qtype    eq 'translated' )  ? 3 : 1);
-    my $reference = $result->algorithm_reference || $self->algorithm_reference($result);    
+		     'Query:'   => ( $qtype  eq 'translated' )  ? 3 : 1);
 
-    my $str = sprintf(
-qq{%s %s 
+    my $str;
+    if( ! defined $num || $num <= 1 ) { 
+	$str = &{$self->start_report}($result);
+    }
 
-Bioperl Reformatted BLAST Format report of %s Search output 
-with Bio::SearchIO Bioperl Reformatted BLAST Format Module %s
+    $str .= &{$self->title}($result);
 
-%s
+    $str .= $result->algorithm_reference || $self->algorithm_reference($result);
+    $str .= &{$self->introduction}($result);
 
-Query=%s %s 
-         (%d letters)
 
-Database: %s 
-          %d sequences; %d total letters
-
-Sequences producing significant alignments:         Score       E
-                                                    (bits)    value
-},
-		      $result->algorithm,  $result->algorithm_version,
-		      $result->algorithm, ref($result),
-		      $reference,
-		      $result->query_name, $result->query_description, 
-		      $result->query_length, 
-		      $result->database_name(),
-		      $result->database_entries(),
-		      $result->database_letters(),
-		      );
+    $str .= qq{
+                                                                 Score       E
+Sequences producing significant alignments:                      (bits)    value
+};
     my $hspstr = '';
-    $result->rewind();
+    if( $result->can('rewind')) {
+        $result->rewind(); # support stream based parsing routines
+    }
     while( my $hit = $result->next_hit ) {
 	next if( defined $hitfilter && ! &{$hitfilter}($hit) );
 	my $nm = $hit->name();
-	my $id_parser = $self->id_parser;
-	print STDERR "no $nm for name (",$hit->description(), ")\n" unless $nm;
-	my ($gi,$acc) = &$id_parser($nm);
-	my $p = "%-".$MaxDescLen. "s";
-	my $descsub = $hit->name . " " . $hit->description;
-	if( length($descsub) > ($MaxDescLen) ) {
-	    $descsub = substr($descsub,0,$MaxDescLen-3) . "...";
+	$self->debug( "no $nm for name (".$hit->description(). "\n") 
+	    unless $nm;
+	my ($gi,$acc) = &{$self->id_parser}($nm);
+	my $p = "%-$MaxDescLen". "s";
+	my $descsub;
+	my $desc = sprintf("%s %s",$nm,$hit->description);
+	if( length($desc) - 3 > $MaxDescLen) {
+	    $descsub = sprintf($p,
+			       substr($desc,0,$MaxDescLen-3) . 
+			       "...");
+	} else { 
+	    $descsub = sprintf($p,$desc);
 	}
 
-	$str .= sprintf("$p   %s %-4s  %s\n",
+	$str .= sprintf("%s   %-4s  %s\n",
 			$descsub,
 			defined $hit->raw_score ? $hit->raw_score : ' ',
 			defined $hit->significance ? $hit->significance : '?');
-
+	my @hsps = $hit->hsps;
+	
 	$hspstr .= sprintf(">%s %s\n%9sLength = %d\n\n",
 			   $hit->name, 
 			   defined $hit->description ? $hit->description : '', 
 			   '', # empty is for the %9s in the str formatting 
 			   $hit->length);
-	$hit->rewind(); # make sure we are at the beginning of the list
-	while( my $hsp = $hit->next_hsp ) {
+	
+	foreach my $hsp ( @hsps ) { 
 	    next if( defined $hspfilter && ! &{$hspfilter}($hsp) );
 	    $hspstr .= sprintf(" Score = %4s bits (%s), Expect = %s",
 			       $hsp->bits, $hsp->score, $hsp->evalue);
@@ -230,7 +284,8 @@ Sequences producing significant alignments:         Score       E
 			         ( $hsp->frac_identical('total') * 
 				   $hsp->length('total')),
 			       $hsp->length('total'),
-			     POSIX::floor($hsp->frac_identical('total') * 100));
+			       POSIX::floor($hsp->frac_identical('total') 
+					    * 100));
 
 	    if( $type eq 'PROTEIN' ) {
 		$hspstr .= sprintf(", Positives = %d/%d (%d%%)",
@@ -241,36 +296,62 @@ Sequences producing significant alignments:         Score       E
 		
 	    }
 	    if( $hsp->gaps ) {
-		$hspstr .= sprintf(", Gaps = %d/%d (%d%%)\n",
+		$hspstr .= sprintf(", Gaps = %d/%d (%d%%)",
 				   $hsp->gaps('total'),
 				   $hsp->length('total'),
 				   POSIX::floor(100 * $hsp->gaps('total') / 
 					       $hsp->length('total')));
 	    }
-	    
-	    my ($h,$q) = ( $hsp->hit->frame ,$hsp->query->frame);
-		
-	    if( $h || $q ) {
+	    $hspstr .= "\n";
+	    my ($hframe,$qframe)   = ( $hsp->hit->frame, 
+				       $hsp->query->frame);
+	    my ($hstrand,$qstrand) = ($hsp->hit->strand,$hsp->query->strand);
+	    # so TBLASTX will have Query/Hit frames
+	    #    BLASTX  will have Query frame
+	    #    TBLASTN will have Hit frame
+	    if( $hstrand || $qstrand ) {
 		$hspstr .= " Frame = ";
-		
-		if( $h && ! $q) {  $hspstr .= $h }
-		elsif( $q && ! $h) {  $hspstr .= $q }
-		else { 
-		    $hspstr .= " $h / $q \n";
+		my ($signq, $signh);
+		unless( $hstrand ) {
+		    $hframe = undef;
+		    # if strand is null or 0 then it is protein
+		    # and this no frame
+		} else { 
+		    $signh = $hstrand < 0 ? '-' : '+';
+		}
+		unless( $qstrand  ) {
+		    $qframe = undef;
+		    # if strand is null or 0 then it is protein
+		} else { 
+		    $signq =$qstrand < 0 ? '-' : '+';
+		}
+		# remember bioperl stores frames as 0,1,2 (GFF way)
+		# BLAST reports reports as 1,2,3 so
+		# we have to add 1 to the frame values
+		if( defined $hframe && ! defined $qframe) {  
+		    $hspstr .= "$signh".($hframe+1);
+		} elsif( defined $qframe && ! defined $hframe) {  
+		    $hspstr .= "$signq".($qframe+1);
+		} else { 
+		    $hspstr .= sprintf(" %s%d / %s%d",
+				       $signq,$qframe+1,
+				       $signh, $hframe+1);
 		}
 	    }
-	    $hspstr .= "\n";
+	    $hspstr .= "\n\n";
 	    
-	    my @hspvals = ( {'name' => 'Query:',
-			     'seq'  => $hsp->query_string,
-			     'start' => $hsp->query->strand >= 0 ? 
-				 $hsp->query->start : $hsp->query->end,
-			     'end'   => $hsp->query->strand >= 0 ? 
-				  $hsp->query->end : $hsp->query->start,
+	    my @hspvals = ( {'name'  => 'Query:',
+			     'seq'   => $hsp->query_string,
+			     'start' => ( $hstrand >= 0 ? 
+					  $hsp->query->start : 
+					  $hsp->query->end),
+			     'end'   => ($qstrand >= 0 ? 
+					 $hsp->query->end : 
+					 $hsp->query->start),
 			     'index' => 0,
-			     'direction' => $hsp->query->strand || 1
+			     'direction' => $qstrand || 1
 			     },
-			    { 'name' => ' 'x6,
+			    { 'name' => ' 'x6, # this might need to adjust for long coordinates??
 			      'seq'  => $hsp->homology_string,
 			      'start' => undef,
 			      'end'   => undef,
@@ -279,10 +360,12 @@ Sequences producing significant alignments:         Score       E
 			      },
 			    { 'name'  => 'Sbjct:',
 			      'seq'   => $hsp->hit_string,
-			      'start' => $hsp->hit->strand >= 0 ? $hsp->hit->start : $hsp->hit->end,
-			      'end'   => $hsp->hit->strand >= 0 ? $hsp->hit->end : $hsp->hit->start,
+			      'start' => ($hstrand >= 0 ? 
+					  $hsp->hit->start : $hsp->hit->end),
+			      'end'   => ($hstrand >= 0 ? 
+					  $hsp->hit->end : $hsp->hit->start),
 			      'index' => 0,
-			      'direction' => $hsp->hit->strand || 1
+			      'direction' => $hstrand || 1
 			      }
 			    );	    
 	    
@@ -330,19 +413,218 @@ Sequences producing significant alignments:         Score       E
 	$hspstr .= "\n";
     }
     $str .= "\n\n".$hspstr;
+    
+    $str .= sprintf(qq{  Database: %s
+    Posted date:  %s
+  Number of letters in database: %s
+  Number of sequences in database: %s
 
-    foreach my $param ( $result->available_parameters ) {
+Matrix: %s
+}, 		   
+		    $result->database_name(),
+		    $result->get_statistic('posted_date') || 
+		    POSIX::strftime("%b %d, %Y %I:%M %p",localtime),
+		    &_numwithcommas($result->database_entries()), 
+		    &_numwithcommas($result->database_letters()),
+		    $result->get_parameter('matrix') || '');
+
+    if( defined (my $open = $result->get_parameter('gapopen')) ) {
+	$str .= sprintf("Gap Penalties Existence: %d, Extension: %d\n",
+			$open || 0, $result->get_parameter('gapext') || 0);
+    }
+
+    # skip those params we've already output
+    foreach my $param ( grep { ! /matrix|gapopen|gapext/i } 
+			$result->available_parameters ) {
 	$str .= "$param: ". $result->get_parameter($param) ."\n";
 	
     }
     $str .= "Search Statistics\n";
-
-   foreach my $stat ( sort $result->available_statistics ) {
-	$str .= "$stat: ". $result->get_statistic($stat). "\n";
+    # skip posted date, we already output it
+   foreach my $stat ( sort grep { ! /posted_date/ } 
+		      $result->available_statistics ) {
+       my $expect = $result->get_parameter('expect');
+       my $v = $result->get_statistic($stat);
+       if( $v =~ /^\d+$/ ) {
+	   $v = &_numwithcommas($v);
+       }
+       if( defined $expect && 
+	   $stat eq 'seqs_better_than_cutoff' ) {
+	   $str .= "seqs_better_than_$expect: $v\n";
+       } else { 
+	   my $v = 
+	   $str .= "$stat: $v\n";
+       }
     }
     $str .=  "\n\n";
     return $str;
 }
+
+
+=head2 start_report
+
+  Title   : start_report
+  Usage   : $index->start_report( CODE )
+  Function: Stores or returns the code to
+            write the start of the <HTML> block, the <TITLE> block
+            and the start of the <BODY> block of HTML.   Useful
+            for (for instance) specifying alternative
+            HTML if you are embedding the output in
+            an HTML page which you have already started.
+            (For example a routine returning a null string).
+            Returns \&default_start_report (see below) if not
+            set. 
+  Example : $index->start_report( \&my_start_report )
+  Returns : ref to CODE if called without arguments
+  Args    : CODE
+
+=cut
+
+sub start_report {
+    my( $self, $code ) = @_; 
+    if ($code) {
+        $self->{'_start_report'} = $code;
+    }
+    return $self->{'_start_report'} || \&default_start_report;
+}
+
+=head2 default_start_report
+
+ Title   : default_start_report
+ Usage   : $self->default_start_report($result)
+ Function: The default method to call when starting a report.
+ Returns : sting
+ Args    : First argument is a Bio::Search::Result::ResultI
+
+=cut
+
+sub default_start_report {
+    my ($result) = @_;
+    return "";    
+}
+
+=head2 title
+
+ Title   : title
+ Usage   : $self->title($CODE)
+
+  Function: Stores or returns the code to provide HTML for the given
+            BLAST report that will appear at the top of the BLAST report
+            HTML output.  Useful for (for instance) specifying
+            alternative routines to write your own titles.
+            Returns \&default_title (see below) if not
+            set. 
+  Example : $index->title( \&my_title )
+  Returns : ref to CODE if called without arguments
+  Args    : CODE
+
+=cut
+
+sub title {
+    my( $self, $code ) = @_; 
+    if ($code) {
+        $self->{'_title'} = $code;
+    }
+    return $self->{'_title'} || \&default_title;
+}
+
+=head2 default_title
+
+ Title   : default_title
+ Usage   : $self->default_title($result)
+ Function: Provides HTML for the given BLAST report that will appear
+           at the top of the BLAST report output.
+ Returns : empty for text implementation
+ Args    : First argument is a Bio::Search::Result::ResultI
+
+=cut
+
+sub default_title {
+    my ($result) = @_;
+    return "";
+# The HTML implementation
+#    return sprintf(
+#        qq{<CENTER><H1><a href="http://bioperl.org">Bioperl</a> Reformatted HTML of %s Search Report<br> for %s</H1></CENTER>},
+#		    $result->algorithm,
+#		    $result->query_name());
+}
+
+
+=head2 introduction
+
+ Title   : introduction
+ Usage   : $self->introduction($CODE)
+
+  Function: Stores or returns the code to provide HTML for the given
+            BLAST report detailing the query and the
+            database information.
+            Useful for (for instance) specifying
+            routines returning alternative introductions.
+            Returns \&default_introduction (see below) if not
+            set. 
+  Example : $index->introduction( \&my_introduction )
+  Returns : ref to CODE if called without arguments
+  Args    : CODE
+
+=cut
+
+sub introduction {
+    my( $self, $code ) = @_; 
+    if ($code) {
+        $self->{'_introduction'} = $code;
+    }
+    return $self->{'_introduction'} || \&default_introduction;
+}
+
+=head2 default_introduction
+
+ Title   : default_introduction
+ Usage   : $self->default_introduction($result)
+ Function: Outputs HTML to provide the query
+           and the database information
+ Returns : string containing HTML
+ Args    : First argument is a Bio::Search::Result::ResultI
+           Second argument is string holding literature citation
+
+=cut
+
+sub default_introduction {
+    my ($result) = @_;
+
+    return sprintf(
+    qq{
+Query= %s
+       (%s letters)
+
+Database: %s
+           %s sequences; %s total letters
+}, 
+		   &_linewrap($result->query_name . " " . 
+			      $result->query_description), 
+		   &_numwithcommas($result->query_length), 
+		   $result->database_name(),
+		   &_numwithcommas($result->database_entries()), 
+		   &_numwithcommas($result->database_letters()),
+		   );
+}
+
+=head2 end_report
+
+ Title   : end_report
+ Usage   : $self->end_report()
+ Function: The method to call when ending a report, this is
+           mostly for cleanup for formats which require you to 
+           have something at the end of the document (</BODY></HTML>)
+           for HTML
+ Returns : string
+ Args    : none
+
+=cut
+
+sub end_report {
+    return "";
+}
+
 
 # copied from Bio::Index::Fasta
 # useful here as well
@@ -449,6 +731,23 @@ programs",  Nucleic Acids Res. 25:3389-3402.
        return '';
    }
 }
+
+# from Perl Cookbook 2.17
+sub _numwithcommas {
+    my $num = reverse( $_[0] );
+    $num =~ s/(\d{3})(?=\d)(?!\d*\.)/$1,/g;
+    return scalar reverse $num;
+}
+
+sub _linewrap {
+    my ($str) = @_;
+    if($TextWrapLoaded) {
+	return Text::Wrap::wrap("","",$str); # use Text::Wrap
+    } else { return $str; }     # cannot wrap
+}
+=head2 Methods Bio::SearchIO::SearchWriterI
+
+L<Bio::SearchIO::SearchWriterI> inherited methods.
 
 =head2 filter
 
