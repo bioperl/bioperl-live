@@ -583,7 +583,9 @@ sub next_result{
 #           $self->debug("blast.pm: Database: $1\n");
            my $db = $1;
            while( defined($_ = $self->_readline) ) {
-               if( /^\s+(\-?[\d\,]+)\s+sequences\;\s+(\-?[\d,]+)\s+total\s+letters/){
+               if( /^\s+(\-?[\d\,]+|\S+)\s+sequences\;
+                   \s+(\-?[\d,]+|\S+)\s+ # Deal with NCBI 2.2.8 OSX problems
+                   total\s+letters/ox){
                    my ($s,$l) = ($1,$2);
                    $s =~ s/,//g;
                    $l =~ s/,//g;
