@@ -723,6 +723,20 @@ S1: 32 (17.6 bits)
 	      <entry> </entry>
 	      <entry>Bio::SimpleAlign object</entry>
 	    </row>
+	    <row>
+	      <entry>HSP</entry>
+	      <entry>hsp_group</entry>
+	      <entry> </entry>
+	      <entry>Group field from WU-BLAST reports run
+		with -topcomboN or -topcomboE specified</entry>
+	    </row>
+	    <row>
+	      <entry>HSP</entry>
+	      <entry>links</entry>
+	      <entry> </entry>
+	      <entry>Links field from WU-BLAST reports run with
+	      -links showing consistent HSP linking</entry>
+	    </row>
 	  </tbody>
 	</tgroup>
       </table>
