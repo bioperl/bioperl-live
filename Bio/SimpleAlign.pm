@@ -1,3 +1,4 @@
+#$Id$
 #
 # BioPerl module for SimpleAlign
 #
@@ -19,47 +20,60 @@ SimpleAlign - Multiple alignments held as a set of sequences
 
 =head1 SYNOPSIS
 
-    $aln = new Bio::SimpleAlign;
+  # use Bio::AlignIO to read in the alignment
+  $str = Bio::AlignIO->new('-file' => 't/data/testaln.pfam');
+  $aln = $str->next_aln();
 
-    $aln->read_MSF(\*STDIN);
+  # some descriptors
+  print $aln->length, "\n";
+  print $aln->no_residues, "\n";
+  print $aln->is_flush, "\n";
+  print $aln->no_sequences, "\n";
+  print $aln->percentage_identity, "\n";
+  print $aln->consensus_string(50), "\n";
 
-    $aln->write_fasta(\*STDOUT);
+  # find the position in the alignment for a sequence location
+  $pos = $aln->column_from_residue_number('1433_LYCES', 14); # = 6; 
 
-=head1 INSTALLATION
-
-This module is included with the central Bioperl distribution:
-
-   http://bio.perl.org/Core/Latest
-   ftp://bio.perl.org/pub/DIST
-
-Follow the installation instructions included in the README file.
+  # extract sequences and check values for the alignment column $pos
+  foreach $seq ($aln->each_seq) {
+      $res = $seq->subseq($pos, $pos);
+      $count{$res}++;
+  }
+  foreach $res (keys %count) {
+      printf "Res: %s  Count: %2d\n", $res, $count{$res}; 
+  }
 
 =head1 DESCRIPTION
 
-SimpleAlign handles multiple alignments of sequences. It is very permissive
-of types (it wont insist on things being all same length etc): really
-it is a SequenceSet explicitly held in memory with a whole series of
-built in manipulations and especially file format systems for
-read/writing alignments.
+SimpleAlign handles multiple alignments of sequences. It is very
+permissive of types (it won\'t insist on things being all same length
+etc): really it is a SequenceSet explicitly held in memory with a
+whole series of built in manipulations and especially file format
+systems for read/writing alignments.
 
-SimpleAlign basically views an alignment as an immutable block of text.
-SimpleAlign *is not* the object to be using if you want to perform complex
-alignment alignment manipulations.
-These functions are much better done by UnivAln by Georg Fuellen.
+SimpleAlign basically views an alignment as an immutable block of
+text.  SimpleAlign *is not* the object to be using if you want to
+perform complex alignment alignment manipulations.  These functions
+are much better done by UnivAln by Georg Fuellen.
 
 However for lightweight display/formatting and minimal manipulation
 (e.g. removiung all-gaps columns) - this is the one to use.
 
+SimpleAlign uses a subclass of L<Bio::PrimarySeq> class
+L<Bio::LocatableSeq> to store its sequences. These are subsequences
+with a start and end positions in the parent reference sequence.
+
 Tricky concepts. SimpleAlign expects name,start,end to be 'unique' in
 the alignment, and this is the key for the internal hashes.
 (name,start,end is abreviated nse in the code). However, in many cases
-people don't want the name/start-end to be displayed: either multiple
+people don\'t want the name/start-end to be displayed: either multiple
 names in an alignment or names specific to the alignment
 (ROA1_HUMAN_1, ROA1_HUMAN_2 etc). These names are called
 'displayname', and generally is what is used to print out the
 alignment. They default to name/start-end
 
-The SimpleAlign Module came from Ewan Birney's Align module
+The SimpleAlign Module came from Ewan Birney\'s Align module
 
 =head1 PROGRESS
 
@@ -80,17 +94,18 @@ mainly by Ewan.
 
 =head2 Mailing Lists
 
-User feedback is an integral part of the evolution of this and other Bioperl modules.
-Send your comments and suggestions preferably to one of the Bioperl mailing lists.
-Your participation is much appreciated.
+User feedback is an integral part of the evolution of this and other
+Bioperl modules.  Send your comments and suggestions preferably to one
+of the Bioperl mailing lists.  Your participation is much appreciated.
 
    bioperl-l@bioperl.org             - General discussion
    http://bioperl.org/MailList.shtml - About the mailing lists
 
 =head2 Reporting Bugs
 
-Report bugs to the Bioperl bug tracking system to help us keep track the bugs and
-their resolution. Bug reports can be submitted via email or the web:
+Report bugs to the Bioperl bug tracking system to help us keep track
+the bugs and their resolution. Bug reports can be submitted via email
+or the web:
 
     bioperl-bugs@bio.perl.org
     http://bio.perl.org/bioperl-bugs/
@@ -101,15 +116,12 @@ Ewan Birney, birney@sanger.ac.uk
 
 =head1 SEE ALSO
 
- Bio::LocatableSeq.pm
-
- http://bio.perl.org/Projects/modules.html  - Online module documentation
- http://bio.perl.org/Projects/SeqAlign/     - Bioperl sequence alignment project
- http://bio.perl.org/                       - Bioperl Project Homepage
+L<Bio::LocatableSeq.pm>
 
 =head1 APPENDIX
 
-The rest of the documentation details each of the object methods. Internal methods are usually preceded with a _
+The rest of the documentation details each of the object
+methods. Internal methods are usually preceded with a _
 
 =cut
 
@@ -130,11 +142,11 @@ sub new {
 
   # we need to set up internal hashs first!
 
-  $self->{'seq'} = {};
-  $self->{'order'} = {};
-  $self->{'start_end_lists'} = {};
-  $self->{'dis_name'} = {};
-  $self->{'id'} = 'NoName';
+  $self->{'_seq'} = {};
+  $self->{'_order'} = {};
+  $self->{'_start_end_lists'} = {};
+  $self->{'_dis_name'} = {};
+  $self->{'_id'} = 'NoName';
 
   # maybe we should automatically read in from args. Hmmm...
 
@@ -171,27 +183,27 @@ sub addSeq {
     $end  = $seq->end();
 
     if( !defined $order ) {
-	$order = keys %{$self->{'seq'}};
+	$order = keys %{$self->{'_seq'}};
     }
 
     $name = sprintf("%s-%d-%d",$id,$start,$end);
 
-    if( $self->{'seq'}->{$name} ) {
+    if( $self->{'_seq'}->{$name} ) {
 	$self->warn("Replacing one sequence [$name]\n");
 
     }
     else {
 	#print STDERR "Assigning $name to $order\n";
 
-	$self->{'order'}->{$order} = $name;
+	$self->{'_order'}->{$order} = $name;
 
-	if (not exists( $self->{'start_end_lists'}->{$id})) {
-	    $self->{'start_end_lists'}->{$id} = [];
+	if (not exists( $self->{'_start_end_lists'}->{$id})) {
+	    $self->{'_start_end_lists'}->{$id} = [];
 	}
-	push @{$self->{'start_end_lists'}->{$id}}, $seq;
+	push @{$self->{'_start_end_lists'}->{$id}}, $seq;
     }
 
-    $self->{'seq'}->{$name} = $seq;
+    $self->{'_seq'}->{$name} = $seq;
 
 }
 
@@ -215,12 +227,14 @@ sub addSeq {
     An exception is thrown if the residue number would lie outside the length
     of the aligment (e.g. column_from_residue_number( "Seq2", 22 )
 
- Returns :
-    A column number for the postion in the alignment of the given residue in the given
-         sequence (1 = first column)
- Args    :
+
+ Returns : A column number for the postion in the alignment of the
+	   given residue in the given sequence (1 = first column)
+
+ Args    : 
     A sequence name (not a name/start-end)
-    A residue number in the whole sequence (not just that segment of it in the alignment)
+    A residue number in the whole sequence (not just that segment of it 
+					    in the alignment)
 
 =cut
 
@@ -388,9 +402,9 @@ sub eachSeq {
     my $self = shift;
     my (@arr,$order);
 
-    foreach $order ( sort { $a <=> $b } keys %{$self->{'order'}} ) {
-	if( exists $self->{'seq'}->{$self->{'order'}->{$order}} ) {
-	    push(@arr,$self->{'seq'}->{$self->{'order'}->{$order}});
+    foreach $order ( sort { $a <=> $b } keys %{$self->{'_order'}} ) {
+	if( exists $self->{'_seq'}->{$self->{'_order'}->{$order}} ) {
+	    push(@arr,$self->{'_seq'}->{$self->{'_order'}->{$order}});
 	}
     }
 
@@ -419,8 +433,8 @@ sub eachSeqWithId {
 
     my (@arr, $seq);
 
-    if (exists($self->{'start_end_lists'}->{$id})) {
-	@arr = @{$self->{'start_end_lists'}->{$id}};
+    if (exists($self->{'_start_end_lists'}->{$id})) {
+	@arr = @{$self->{'_start_end_lists'}->{$id}};
     }
     return @arr;
 
@@ -431,8 +445,8 @@ sub get_displayname {
     my $self = shift;
     my $name = shift;
 
-    if( defined $self->{'dis_name'}->{$name} ) {
-	return  $self->{'dis_name'}->{$name};
+    if( defined $self->{'_dis_name'}->{$name} ) {
+	return  $self->{'_dis_name'}->{$name};
     } else {
 	return $name;
     }
@@ -453,10 +467,10 @@ sub id {
     my ($self, $name) = @_;
 
     if (defined( $name )) {
-	$self->{'id'} = $name;
+	$self->{'_id'} = $name;
     }
 
-    return $self->{'id'};
+    return $self->{'_id'};
 }
 
 =head2 is_flush
@@ -688,7 +702,6 @@ sub percentage_identity{
 	   $countHashes[$index]->{$letter} = 0;
        }
    }
-
    foreach my $seq (@seqs)  {
        my @seqChars = split //, $seq->seq();
        for( my $column=0; $column < @seqChars; $column++ ) {
@@ -1281,26 +1294,26 @@ sub removeSeq {
     $end  = $seq->end();
     $name = sprintf("%s-%d-%d",$id,$start,$end);
 
-    if( !exists $self->{'seq'}->{$name} ) {
+    if( !exists $self->{'_seq'}->{$name} ) {
 	$self->throw("Sequence $name does not exist in the alignment to remove!");
     }
 
-    delete $self->{'seq'}->{$name};
+    delete $self->{'_seq'}->{$name};
 
     # we need to remove this seq from the start_end_lists hash
 
-    if (exists $self->{'start_end_lists'}->{$id}) {
+    if (exists $self->{'_start_end_lists'}->{$id}) {
 	# we need to find the sequence in the array.
 	
 	my ($i, $found);;
-	for ($i=0; $i < @{$self->{'start_end_lists'}->{$id}}; $i++) {
-	    if (${$self->{'start_end_lists'}->{$id}}[$i] eq $seq) {
+	for ($i=0; $i < @{$self->{'_start_end_lists'}->{$id}}; $i++) {
+	    if (${$self->{'_start_end_lists'}->{$id}}[$i] eq $seq) {
 		$found = 1;
 		last;
 	    }
 	}
 	if ($found) {
-	    splice @{$self->{'start_end_lists'}->{$id}}, $i, 1;
+	    splice @{$self->{'_start_end_lists'}->{$id}}, $i, 1;
 	}
 	else {
 	    $self->throw("Could not find the sequence to remoce from the start-end list");
@@ -1320,7 +1333,7 @@ sub set_displayname {
     my $disname = shift;
 
     # print "Setting $name to $disname\n";
-    $self->{'dis_name'}->{$name} = $disname;
+    $self->{'_dis_name'}->{$name} = $disname;
 }
 
 =head2 set_displayname_count
@@ -1440,10 +1453,10 @@ sub sort_alphabetically {
 
     $count = 0;
 
-    %{$self->{'order'}} = (); # reset the hash;
+    %{$self->{'_order'}} = (); # reset the hash;
 
     foreach $nse ( sort alpha_startend keys %hash) {
-	$self->{'order'}->{$count} = $nse;
+	$self->{'_order'}->{$count} = $nse;
 
 	$count++;
     }
@@ -1705,4 +1718,3 @@ sub write_selex {
 }
 
 1;
-
