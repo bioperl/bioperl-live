@@ -377,7 +377,6 @@ sub eachSeq {
 
     foreach $order ( sort { $a <=> $b } keys %{$self->{'order'}} ) {
 	if( exists $self->{'seq'}->{$self->{'order'}->{$order}} ) {
-	    #print STDOUT sprintf("Putting %s\n", $self->{'order'}->{$order});
 	    push(@arr,$self->{'seq'}->{$self->{'order'}->{$order}});
 	}
     }

@@ -156,9 +156,12 @@ sub strand{
 =cut
 
 sub get_nse{
-   my ($self) = @_;
+   my ($self,$char1,$char2) = @_;
   
-   return $self->id() . "/" . $self->start . "-" . $self->end ;
+   if( !defined $char1 ) { $char1 = "/"; }
+   if( !defined $char2 ) { $char2 = "-"; }
+
+   return $self->id() . $char1 . $self->start . $char2 . $self->end ;
 
 }
 
