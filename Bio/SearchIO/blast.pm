@@ -491,7 +491,7 @@ sub next_result{
                if( /(\d+)\s+([\d\.\-eE]+)\s*$/) {
                    my ($score, $evalue) = ($1, $2);
                    # Some data clean-up so e-value will appear numeric to perl
-                   $evalue = "1$evalue" if $evalue =~ /^e/;
+                   $evalue =~ s/^e/1e/i;
 		   push @hit_signifs, [ $evalue, $score ];
                } elsif( /^>/ ) {
                    $self->_pushback($_);
@@ -616,7 +616,7 @@ sub next_result{
 	   
            # Some data clean-up so e-value will appear numeric to perl
            my ($score, $bits, $evalue) = ($3, $1, $4);
-           
+           $evalue =~ s/^e/1e/i;
 	   $self->element( { 'Name' => 'Hsp_score',
                              'Data' => $score});
            $self->element( { 'Name' => 'Hsp_bit-score',
