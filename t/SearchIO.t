@@ -20,7 +20,7 @@ BEGIN {
 	use lib 't';
     }
     use vars qw($NTESTS);
-    $NTESTS = 885;
+    $NTESTS = 900;
     $LASTXMLTEST = 54;
     $error = 0;
 
@@ -1102,14 +1102,14 @@ while( my $hit = $r->next_hit ) {
 my $parser = new Bio::SearchIO(-format => 'blast',
 			       -file   => Bio::Root::IO->catfile(qw(t data ecoli_domains.rpsblast)));
 
-my $r = $parser->next_result;
+$r = $parser->next_result;
 ok($r->query_name, 'gi|1786183|gb|AAC73113.1|');
 ok($r->num_hits, 7);
-my $hit = $r->next_hit;
+$hit = $r->next_hit;
 ok($hit->name, 'gnl|CDD|3919');
 ok($hit->significance, 0.064);
 ok($hit->raw_score, 28);
-my $hsp = $hit->next_hsp;
+$hsp = $hit->next_hsp;
 ok($hsp->query->start, 599);
 ok($hsp->query->end,655);
 ok($hsp->hit->start,23);
@@ -1266,7 +1266,7 @@ $hsp = $hit->next_hsp;
 ok($hit->hsp->bits,$hsp->bits);
 
 ok($hsp->get_aln->isa('Bio::Align::AlignI'));
-my $writer = Bio::SearchIO::Writer::HitTableWriter->new( 
+$writer = Bio::SearchIO::Writer::HitTableWriter->new( 
                                   -columns => [qw(
                                                   query_name
                                                   query_length
@@ -1278,14 +1278,15 @@ my $writer = Bio::SearchIO::Writer::HitTableWriter->new(
                                                   expect
                                                   )]  );
 
-my $out = new Bio::SearchIO(-writer => $writer,
+$out = new Bio::SearchIO(-writer => $writer,
 			    -file   => ">searchio.out");
 $out->write_result($result, 1);
 ok(-e 'searchio.out');
-my $writerhtml = new Bio::SearchIO::Writer::HTMLResultWriter();
-my $outhtml = new Bio::SearchIO(-writer => $writerhtml,
-				-file   => ">searchio.html");
+$writerhtml = new Bio::SearchIO::Writer::HTMLResultWriter();
+$outhtml = new Bio::SearchIO(-writer => $writerhtml,
+			     -file   => ">searchio.html");
 $outhtml->write_result($result, 1);
+$outhtml->close();
 ok(-e "searchio.html");
 
 unlink 'searchio.out';
