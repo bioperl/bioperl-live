@@ -138,8 +138,7 @@ sub next_aln {
     my $self = shift;
     my $largeseq;
     my $aln =  Bio::SimpleAlign->new();
-    #$Bio::Seq::LargePrimarySeq::DEFAULT_TEMP_DIR = './';
-    while(defined ($largeseq = $self->next_seq) ) {
+    while (defined ($largeseq = $self->next_seq) ) {
         $aln->add_seq($largeseq);
         $self->debug("sequence readed\n");
     }

@@ -3,6 +3,12 @@
 #
 # Cared for by Albert Vilella <avilella@ebi.ac.uk, avilella@ub.edu>
 #
+#	based on the Bio::LargePrimarySeq module
+#       by Ewan Birney <birney@sanger.ac.uk>
+#
+#       and the Bio::LocatableSeq module
+#       by Ewan Birney <birney@sanger.ac.uk>
+#
 # Copyright Albert Vilella
 #
 # You may distribute this module under the same terms as perl itself
@@ -17,17 +23,27 @@ files in the tempdir
 =head1 SYNOPSIS
 
   # normal primary seq usage
+    use Bio::Seq::LargeLocatableSeq;
+    my $seq = new Bio::Seq::LargeLocatableSeq(-seq => "CAGT-GGT",
+				              -id  => "seq1",
+				              -start => 1,
+				              -end   => 7);
 
 =head1 DESCRIPTION
 
-This object stores a sequence as a series of files in a temporary
-directory. The aim is to allow someone the ability to store very large
-sequences (eg, E<gt> 100MBases) in a file system without running out
-of memory (eg, on a 64 MB real memory machine!).
+Bio::Seq::LargeLocatableSeq - object with start/end points on it that
+can be projected into a MSA or have coordinates relative to another
+seq.
+
+This object, unlike Bio::LocatableSeq, stores a sequence as a series
+of files in a temporary directory. The aim is to allow someone the
+ability to store very large sequences (eg, E<gt> 100MBases) in a file
+system without running out of memory (eg, on a 64 MB real memory
+machine!).
 
 Of course, to actually make use of this functionality, the programs
 which use this object B<must> not call $primary_seq-E<gt>seq otherwise
-the entire sequence will come out into memory and probably crach your
+the entire sequence will come out into memory and probably crash your
 machine. However, calls like $primary_seq-E<gt>subseq(10,100) will cause
 only 90 characters to be brought into real memory.
 
