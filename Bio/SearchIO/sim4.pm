@@ -312,8 +312,17 @@ sub next_result {
 		}
 	    }
             # Current alignment block does not contain HSPs boundary
-            # We only need to adjust details of the current HSP
             else {
+                # Start a new HSP if none is currently open
+	        # (Happens if last boundary finished at the very end of previous block)
+	        if ( !$self->in_element('hsp') ) {
+     	            $self->start_element({'Name' => 'Hsp'});
+                    $self->{'_currentHSP'} = @hsps ? shift @hsps : {
+                        'Hsp_query-from' => $alignment{Query}{start},
+                        'Hsp_hit-from' => $alignment{Sbjct}{start},
+     	            }
+		}
+                # Adjust details of the current HSP
                 $self->{'_currentHSP'}{'Hsp_query-from'} ||= 
 		    $alignment{Query}{start} - 
 		    length($self->{'_currentHSP'}{'Hsp_qseq'} || '');
