@@ -20,7 +20,10 @@ package Bio::Root::Object;
 
 require 5.002;
 use Bio::Root::Global qw(:devel $AUTHORITY $CGI);
+use Bio::Root::RootI;
+
 use Exporter ();
+
 #use AutoLoader; 
 #*AUTOLOAD = \&AutoLoader::AUTOLOAD;
 
@@ -28,7 +31,10 @@ use Exporter ();
 %EXPORT_TAGS = ( std => [qw(&stack_trace &containment)] );
 
 use strict;
-use vars qw($ID $VERSION %Objects_created $Revision);
+use vars qw($ID $VERSION %Objects_created $Revision @ISA);
+
+@ISA = qw(Bio::Root::RootI);
+
 
 # %Objects_created can be used for tracking all objects created.
 # See _initialize() for details.
@@ -999,140 +1005,6 @@ sub make {
 }
 
 
-
-=head2 throw
-
- Purpose   : Generate, report, and set a fatal error on the object.
-           : Uses Perl's die() function to report error data.
-           : This does not invalidate the object but will crash the script
-           : unless it is trapped with eval{}. 
-           : (fatal = un-recoverable)'
- Usage     : $object->throw([arguments for _set_err()])
- Returns   : die()s with the contents of the error object in a string.
-           : This string is human-readable and can be used to reconstruct
-           : the Bio::Root::Err.pm object (e.g., new  Bio::Root::Err($@) ).
-           :
-           : The behavior of throw() is affected by the current verbosity
-           : and strictness settings:
-           : If verbosity is < 0, the stack trace is not printed.
-           : If verbosity is > 0, all data including stack trace is shown and a
-           :   system beep is issued.
-           : If verbosity = 0, print all data but no beep (message, note, tech note,
-           :  containment hierarchy, stack).
-           : If strictness is less than -1, the throw() call is converted
-           : into a warn() call.
- Argument  : Arguments for _set_err() 
- Comments  : Calling $self->throw() method creates a Bio::Root::Err.pm object.
-           : There are two ways to generate errors:
-           :   1) $object->throw(<ERROR DATA>);
-           :   2) &Bio::Root::Err::throw($object, ERROR_DATA);
-           : To use the second option, include the line use Bio::Root::Err qw(:std);
-           : in your script or module. ERROR_DATA = arguments for _set_err().
-           :
-           : Some auxilliary issues:
-           :   * It would be great if Perl could throw an object reference with die().
-           :     This would permit more intelligent exception handlers. For now the
-           :     Err object is reconstructed from the output of Err::string().
-           :
-           : All errors are reported to STDERR. 
-           : Redirection to an alternate location for storing errors
-           : can be achieved by redirecting STDERR manually [ open(STDERR, ">>filename") ],
-           : or by using set_log_err().
-
-See also   : L<_set_err>(), L<warn>(), L<strict>(), L<verbose>(), L<set_log_err>(), L<STRICTNESS & VERBOSITY>, B<Bio::Root::Global:strictness()>, B<Bio::Root::Global:verbosity()>
-
-=cut
-
-#----------
-sub throw {
-#----------
-    my($self,@param) = @_;
-
-#    printf "Throwing exception for object %s \"%s\"\n",ref($self),$self->name;
-#    print "param: @param";<STDIN>;
-
-    my $verbosity = $self->verbose;
-
-    if($self->strict < -1) {
-	# Convert throw() to warn()
-	return $self->warn(@param);
-
-    } else {
-	if($verbosity < 0) {
-	    # Low verbosity: no stack trace.
-	    die $self->_set_err(@param)->string(-SHOW=>'msgnotechcontext', -CURRENT=>1);
-	} elsif($verbosity > 0) {
-	    # Extra verbosity: all data and beep.
-	    die $self->_set_err(@param)->string(-BEEP=>1, -CURRENT=>1);
-	} else {
-	    # Default: all data (msg, note, tech, context, stack trace) but no beep.
-	    die $self->_set_err(@param)->string(-CURRENT=>1);
-	}
-    }
-    0;
-}
-
-=head2 warn
-
- Usage     : $object->warn([arguments for _set_err()])
- Purpose   : Generate, report, and set a recoverable error on the object.
- Returns   : Prints the contents of the error to STDERR and returns false (0).
-           : The behavior of warn() is affected by the current verbosity
-           : and strictness settings:
-           : If verbose() is < 0, nothing is printed but a warning is still set.
-           : If verbose() is > 0, the full error listing is shown
-           :  (message, note, tech note, containment hierarchy, stack).
-           : If verbosity  = 0, the message, note, and tech note are shown.
-           : If the strict() indicator is greater than 1, warn() calls are 
-           : converted into throw() calls.
- Argument  : Arguments for _set_err() 
- Comments  : The return value is experimental. Typically, warnings are not
-           : programatically trappable: a method will issue a warning and 
-           : then go about its business. By allowing
-           : warn() calls to evaluate to zero, a method can halt execution 
-           : by returning a warning to signal the warning without setting a 
-           : fatal error on itself. Still, returning 0 does not guarantee
-           : the exception will be noticed. This sort of polling-based
-           : exception handling is generally frowned upon. Using throw()
-           : and trapping any exceptions is highly recommended unless
-           : the condition is truly inconsequential.
-           :
-           : All errors are reported to STDERR. 
-           : Redirection to an alternate location for storing errors
-           : can be achieved by redirecting STDERR manually [ open(STDERR, ">>filename") ],
-           : or by using set_log_err().
-
-See also   : L<_set_warning>(), L<throw>(), L<strict>(), L<verbose>(), L<set_log_err>(),  L<STRICTNESS & VERBOSITY>, B<Bio::Root::Global:strictness()>, B<Bio::Root::Global:verbosity()>
-
-=cut
-
-#---------
-sub warn {
-#---------
-    my($self,@param) = @_;
-
-    my $verbosity = $self->verbose;
-
-    if($self->strict > 1) {
-	# Convert warn() to throw()
-	$self->throw(@param);
-
-    } else {
-	if($verbosity < 0 || $CGI) {
-	    # Low verbosity or script is a cgi: don't print anything but set warning.
-	    $self->_set_warning(@param);
-	} elsif($verbosity > 0) {
-	    # Extra verbosity: print all data and beep
-	    print STDERR $self->_set_warning(@param)->string(-BEEP=>1, -CURRENT=>1);
-	} else {
-	    # Default: message and notes only. No beep.
-	    print STDERR $self->_set_warning(@param)->string(-SHOW=>'msgnotech', -CURRENT=>1);
-	}
-    }
-    0;
-}
-
-
 =head2 err
 
  Usage     : $self->err([$data], [$delimit])
@@ -1534,70 +1406,6 @@ sub _set_warning {
 }
 
 
-
-=head2 stack_trace
-
- Usage     : $stack_aref = $myObj->stack_trace([start_index, [end_index]]);
-           : @stack_list = $myObj->stack_trace([start_index, [end_index]]);
-           : @stack_list = stack_trace($object);  # As an exported method.
- Purpose   : Returns the contents of the current call stack
-           : in a slightly modified, more intuitive form. 
-           : Permits extraction of a portion of the stack. 
-           : Call stack is obtained from the perl caller() function.
-           : MODIFIED FORMAT: Line numbers are shifted down one
-           : level in the stack entries so that they correspond 
-           : to the location of the indicated method.
- Example   : @stackData = $self->stack_trace(2); 
- Argument  : start_index : number of the beginning entry in the
-           :               desired stack trace. The call to stack_trace()
-           :               is at index 0.
-           : end_index   : number of the last entry in the
-           :               desired stack trace.
- Returns   : A list or list reference (depending on wantarray)
-           : consisting of the desired portion of the call stack.
-
-See also   : B<Bio::Root::Err::format_stack_entry()>
-
-=cut
-
-#-----------------
-sub stack_trace {
-#-----------------
-    my($self,$beg,$end) = @_;
-    my(@call,@data);
-
-    ## Set the complete stack trace.
-    my $i = 0;
-    while( @call = caller($i++)) { 
-	my @callData = @call; 
-#	print "CALL DATA $i: \n";
-#	my $j = 0; for($j=0; $j<@callData; $j++) {print "$j: $callData[$j]\n"; }; <STDIN>;
-	next if $callData[3] eq '(eval)';  ## Screening out the (eval) calls.
-	push @data, \@callData;
-    }
-
-    ## Shift the line numbers down so that they correspond to 
-    ## the location of the shown method. This is more intuitive.
-    ## Processing stack in reverse.
-    my( @base_call, $temp);
-    for($i=$#data; $i > 0; $i--) {
-	$temp = $data[$i]->[2];
-	$data[$i]->[2] = $data[$i-1]->[2];
-	if($i == $#data) { @base_call = @{$data[$i]}; 
-			   $base_call[2] = $temp;
-			   $base_call[3] = "$data[$i]->[0]::$data[$i]->[1]";
-		       }
-    }
-    @data = (@data, \@base_call);
-#    print "FULL STACK:\n";foreach(@data){print "@$_\n";};<STDIN>;
-
-    ## Get everything but the call to stack_trace
-    $beg ||= 1;
-    $end ||= $#data;
-    @data = @data[$beg..$end];
-
-    wantarray ? @data : \@data;
-}
 
 
 

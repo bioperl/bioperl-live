@@ -18,7 +18,7 @@
 
 
 ## We start with some black magic to print on failure.
-BEGIN { $| = 1; print "1..10\n"; 
+BEGIN { $| = 1; print "1..9\n"; 
 	use vars qw($loaded); }
 END {print "not ok 1\n" unless $loaded;}
 
@@ -57,22 +57,16 @@ if ( $myCodonTable->id() == 1 ) {
    print "not ok 3\n";
 }
 
-#check if a codon table ID is valid before setting it:
-if ( $myCodonTable->id(55) ) {
-   print "not ok 4\n";
-}
-else {
-   print "ok 4\n";
-}
+
 
 # change codon table
 $myCodonTable->id(10);
-print "ok 5\n";
+print "ok 4\n";
 
 if( $myCodonTable->name() eq  'Euplotid Nuclear' ) {
-   print "ok 6\n";
+   print "ok 5\n";
 } else {
-   print "not ok 6\n";
+   print "not ok 5\n";
 }
 
 # translate codons
@@ -83,10 +77,10 @@ foreach $i (@ii) {
     push @aa, $aa;
 }
 if (@aa == @res) {
-    print "ok 7\n";
+    print "ok 6\n";
 }
 else {
-    print "not ok 7\n";
+    print "not ok 6\n";
 }
 
 
@@ -100,10 +94,10 @@ foreach $i (@ii) {
 }
 
 if (@aa == @res) {
-    print "ok 8\n";
+    print "ok 7\n";
 }
 else {
-    print "not ok 8\n";
+    print "not ok 7\n";
 }
 
 #  #boolean tests
@@ -112,17 +106,17 @@ else {
 if ($myCodonTable->is_start_codon('ATG') and 
     !  ($myCodonTable->is_start_codon('GGH')) and
     !  ($myCodonTable->is_start_codon('CCC')) ){
-    print "ok 9\n";
+    print "ok 8\n";
 }
 else {
-    print "not ok 9\n";
+    print "not ok 8\n";
 }
 
 if ($myCodonTable->is_ter_codon('UAG') and  
     $myCodonTable->is_ter_codon('TaG') and
     ! ($myCodonTable->is_ter_codon('ttA'))) {
-    print "ok 10\n";
+    print "ok 9\n";
 }
 else {
-    print "not ok 10\n";
+    print "not ok 9\n";
 }

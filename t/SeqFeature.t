@@ -21,7 +21,7 @@
 
 
 ## We start with some black magic to print on failure.
-BEGIN { $| = 1; print "1..16\n"; 
+BEGIN { $| = 1; print "1..17\n"; 
 	use vars qw($loaded); }
 
 END {print "not ok 1\n" unless $loaded;}
@@ -165,7 +165,7 @@ if( $pair->hsource_tag eq 'program_a' ) {
 
 $pair->invert;
 
-if( $pair->start == 440 ) {
+if( $pair->end == 440 ) {
     print "ok 17\n";
 } else {
     print "not ok 17\n";

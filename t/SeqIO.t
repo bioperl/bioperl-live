@@ -162,7 +162,7 @@ while( my $as = $ast->next_seq() ) {
 
 print "ok 14\n";
 
-$mf = Bio::SeqIO::MultiFile->new( -format => 'Fasta' , -files => ['t/multi_1.fa','t/multi_2.fa']);
+$mf = Bio::SeqIO::MultiFile->new( '-format' => 'Fasta' , -files => ['t/multi_1.fa','t/multi_2.fa']);
 
 print "ok 15\n";
 

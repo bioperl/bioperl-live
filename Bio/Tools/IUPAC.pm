@@ -253,6 +253,8 @@ sub next_seq{
 	    my $j = -1;
 	    $self->{'_SeqObj'}->seq(join('', map { $j++; $self->{'_alpha'}->[$j]->[$_]; } @{$self->{'_string'}}));
 	    my $desc = $self->{'_SeqObj'}->desc();
+	    if ( !defined $desc ) { $desc = ""; }
+
 	    $self->{'_num'}++;
 	    1 while $self->{'_num'} =~ s/(\d)(\d\d\d)(?!\d)/$1,$2/;
 	    $desc =~ s/( \[Bio::Tools::IUPAC-generated\sunique sequence # [^\]]*\])|$/ \[Bio::Tools::IUPAC-generated unique sequence # $self->{'_num'}\]/;

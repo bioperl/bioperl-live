@@ -184,7 +184,7 @@ sub _load_file{
    if( !defined $file ) {
        return 0;
    }
-   my $seqio = Bio::SeqIO->new( -format => $self->_format(), -file => $file);
+   my $seqio = Bio::SeqIO->new( '-format' => $self->_format(), -file => $file);
    # should throw an exception - but if not...
    if( !defined $seqio) {
        $self->throw("no seqio built for $file!");
