@@ -1,4 +1,4 @@
-## $Id: MANIFEST,v 1.22 2000-12-12 20:19:48 jason Exp $
+## $Id: MANIFEST,v 1.23 2000-12-12 20:23:02 jason Exp $
 ##
 ## This is the file listing for everything that
 ## comes with the bioperl distribution. The perl
@@ -138,7 +138,6 @@ Bio/Tools/pSW.pm
 Bio/Tools/BPlite/Sbjct.pm
 Bio/Tools/BPlite/HSP.pm
 Bio/Tools/BPlite/Iteration.pm
-Bio/Tools/Blast/Run
 Bio/Tools/Blast/Run/LocalBlast.pm
 Bio/Tools/Blast/Run/Makefile.PL
 Bio/Tools/Blast/Run/Webblast.pm
@@ -204,7 +203,6 @@ examples/blast/parse_multi.pl
 examples/blast/parse_positions.pl
 examples/blast/print_blasts.pl
 examples/blast/retrieve_blast.pl
-examples/blast/out
 examples/blast/out/blastp.1.gcg.gz
 examples/blast/out/blastn.2.gz
 examples/blast/out/blastn.2.wu.gz
@@ -220,13 +218,11 @@ examples/blast/out/blastx.2
 examples/blast/out/blastp.email.html.gz
 examples/blast/out/tblastn.206.out.gz
 examples/blast/out/blastx.208.gz
-examples/blast/seq
 examples/blast/seq/yal011w.dna.fasta
 examples/blast/seq/acc1.dna.fasta
 examples/blast/seq/seqs.fasta
 examples/blast/seq/yel009c.fasta
 examples/blast/seq/ymr284w.fasta
-examples/seq
 examples/seq/seq.fasta.gz
 examples/seq/id.list
 examples/seq/seqtools.pl
@@ -236,7 +232,6 @@ examples/seq/seqs1.pl
 examples/seq/seqs2.pl
 examples/seq/seqs3.pl
 examples/test-genscan.pl
-examples/root_object
 examples/root_object/Outer.pm
 examples/root_object/Bar.pm
 examples/root_object/Foo.pm
@@ -244,7 +239,6 @@ examples/root_object/filehandle.out
 examples/root_object/destroy.pl
 examples/root_object/error.out
 examples/root_object/error.pl
-examples/root_object/vector
 examples/root_object/vector/Person.pm
 examples/root_object/vector/vector.out
 examples/root_object/vector/PersonManager.pm
