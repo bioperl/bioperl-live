@@ -380,33 +380,38 @@ return 1;
 
 
 #################################################
+
+
 # create_mask(): creates a mask for the psiblast jumpstart alignment
-#	that determines at what residues position-specific scoring matrices (PSSMs)
-#	are used and at what residues default scoring matrices (eg BLOSUM)
-#	are used. See psiblast documentation for more details,
-#
+#                that determines at what residues position-specific
+#                scoring matrices (PSSMs) are used and at what
+#                residues default scoring matrices (eg BLOSUM) are
+#                used. See psiblast documentation for more details,
+
 #  args: 
 #	$aln  -  SimpleAlign object with alignment
 #	$maskvalue  -  label describing type of "tags"
-#  returns: actual mask, ie a string of 0's and 1's which is the same length as each
-#		sequence in the alignment and has a "1" at locations where (PSSMs) are to be used
-#		and a "0" at all other locations.
+#  returns: actual mask, ie a string of 0's and 1's which is the 
+#           same length as each sequence in the alignment and has 
+#           a "1" at locations where (PSSMs) are to be used
+#           and a "0" at all other locations.
+
 
 sub create_mask {
-my $aln = shift;
-my $maskvalue = shift;
-my $mask = "";
+    my $aln = shift;
+    my $maskvalue = shift;
+    my $mask = "";
 
-unless ( $aln->is_flush() )  { die "psiblast jumpstart requires all sequences to be same length \n"; }
-my $len = $aln->length_aln();
+    unless ( $aln->is_flush() )  { die "psiblast jumpstart requires all sequences to be same length \n"; }
+    my $len = $aln->length();
 
-if ($maskvalue =~ /^(\d){1,3}$/  ) {
-   $mask = $aln->consensus_string($maskvalue) ;
-   $mask =~ s/[^\?]/1/g ;
-   $mask =~ s/\?/0/g ;
-}
-else { die "maskvalue must be an integer between 0 and 100 \n"; }
-return $mask ;
+    if ($maskvalue =~ /^(\d){1,3}$/  ) {
+	$mask = $aln->consensus_string($maskvalue) ;
+	$mask =~ s/[^\?]/1/g ;
+	$mask =~ s/\?/0/g ;
+    }
+    else { die "maskvalue must be an integer between 0 and 100 \n"; }
+    return $mask ;
 }
 
 
