@@ -27,7 +27,7 @@ use Bio::Root::Object ();
 use strict;
 use vars qw($ID $VERSION $GAP_SYMBOL @SCORE_CUTOFFS $Revision);
 $ID       = 'Bio::Tools::Blast::HSP';
-$VERSION  = 0.073;
+$VERSION  = 0.074;
 $Revision = '$Id$';  #'
 
 $GAP_SYMBOL    = '-';          # Need a more general way to handle gap symbols.
@@ -138,7 +138,7 @@ Steve A. Chervitz, sac@genome.stanford.edu
 
 =head1 VERSION
 
-Bio::Tools::Blast::HSP.pm, 0.073
+Bio::Tools::Blast::HSP.pm, 0.074
 
 =head1 SEE ALSO
 
@@ -273,6 +273,9 @@ sub _set_data {
 	    $self->_set_score_stats( $line );
 	} elsif( $line =~ /^ ?Identities/ ) {
 	    $self->_set_match_stats( $line );
+	} elsif( $line =~ /^ ?Frame = ([\d+-]+)/ ) {
+	    # Version 2.0.8 has Frame information on a separate line.
+	   $self->{'_frame'} = $1;
 	} elsif( $line =~ /^(Query:?[\s\d]+)([^\s\d]+)/ ) {
 	    push @queryList, $line;
 	    $self->{'_match_indent'} = CORE::length $1;
