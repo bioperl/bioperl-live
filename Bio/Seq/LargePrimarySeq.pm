@@ -92,7 +92,7 @@ sub new {
 	delete $params{'-SEQ'};
     }
     my $self = $class->SUPER::new(%params);
-
+    $self->_initialize_io(%params);
     my $tempdir = $self->tempdir( CLEANUP => 1);
     my ($tfh,$file) = $self->tempfile( DIR => $tempdir );
 
@@ -223,7 +223,8 @@ sub DESTROY {
     my $self = shift;
     my $fh = $self->_fh();
     close($fh) if( defined $fh );
-    unlink $self->_filename;
+    # this should be handled by Tempfile removal, but we'll unlink anyways.
+    unlink $self->_filename()
     $self->SUPER::DESTROY();
 }
 
