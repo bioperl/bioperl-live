@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 
 # This shows how Error.pm-based objects can be thrown 
-# by Bio::Root::RootI::throw() when Error.pm is available.
+# by Bio::Root::Root::throw() when Error.pm is available.
 # When Error.pm isn't available, Bio::Root::Root::throw() 
 # works as usual.
 #
