@@ -1025,7 +1025,7 @@ sub cut_seq {
     my $seq = uc $self->_expanded_string;
 
     if(!$self->palindromic and $self->name ne 'N') {
-	my $revseq = $self->_expanded_string( $reSeq->revcom );
+	my $revseq = $self->_expanded_string( $reSeq->revcom->seq );
 	$seq .= '|'.uc($revseq);
     }
     $self->debug(sprintf("$ID: site seq: %s\n\n", $seq));
