@@ -140,9 +140,9 @@ sub next_feature {
 
     # be graceful about empty lines or comments, and make sure we return undef
     # if the input's consumed
-    while(($gff_string = $self->_readline()) && defined($gff_string)) {
-	next if($gff_string =~ /^\#/);
-	next if($gff_string =~ /^\s*$/);
+    while(($gff_string = $self->_readline()) && defined($gff_string)) {	
+	next if($gff_string =~ /^\#/ || $gff_string =~ /^\s*$/ ||
+		$gff_string =~ /^\/\//);
 	last;
     }
     return undef unless $gff_string;
