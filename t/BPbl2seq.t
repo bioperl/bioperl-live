@@ -20,7 +20,10 @@ use Bio::Tools::BPbl2seq;
 use Bio::Root::IO;
 ok(1);
 
-my $report = new Bio::Tools::BPbl2seq(-file => Bio::Root::IO->catfile("t","data","bl2seq.out"));
+my $report = new Bio::Tools::BPbl2seq(-file => Bio::Root::IO->catfile(qw(t
+									 data
+									 bl2seq.out)),
+				      -report_type => 'blastp');
 $report->verbose(2);
 ok $report->isa('Bio::Tools::BPbl2seq');# " no report";
 ok defined($report->sbjctName),1, " no hit";
@@ -43,7 +46,11 @@ ok $hsp->hit->start, 60, "wrong hit start ";
 ok $hsp->hit->end, 360, "wrong hit end";
 ok $report->sbjctName =~ /ALEU_HORVU/;# "wrong hit name";
 
-$report = new Bio::Tools::BPbl2seq(-file => Bio::Root::IO->catfile("t","data","bl2seq.bug940.out"));
+$report = new Bio::Tools::BPbl2seq(-file => Bio::Root::IO->catfile(qw(t data
+								      bl2seq.bug940.out)),
+				   -report_type => 'blastp'
+				   );
+								   
 
 $report->verbose(2);
 ok $report->isa('Bio::Tools::BPbl2seq');# " no report";
@@ -89,7 +96,9 @@ ok $hsp->hit->end, 464, "wrong hit end";
 ok $hsp->hit->seq_id =~ /gi|4507985/;# "wrong hit name";
 ok $hsp->gaps, 30;
 
-$report = new Bio::Tools::BPbl2seq(-file =>  Bio::Root::IO->catfile("t","data","empty.bl2seq"));
+$report = new Bio::Tools::BPbl2seq(-file =>  Bio::Root::IO->catfile(qw(t data
+								       empty.bl2seq)),
+				   -report_type => 'blastn');
 $report->verbose(2);
 ok( $report->isa('Bio::Tools::BPbl2seq'),1, " no report found");
 ok $report->sbjctName, '',"query found where none expected";
