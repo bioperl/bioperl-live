@@ -2152,8 +2152,8 @@ contains descriptions of various possible applications of the
 StandAloneBlast object. This script shows how the blast report object
 can access a blast parser directly, eg
 
-  while (my $sbjct = $blast_report->nextSbjct){
-     while (my $hsp = $sbjct->nextHSP){
+  while (my $sbjct = $blast_report->next_hit){
+     while (my $hsp = $sbjct->next_hsp){
         print $hsp->score . " " . $hsp->subject->seqname . "\n";
      }
   }
@@ -2919,15 +2919,14 @@ $run_standaloneblast = sub {
 
     $database = $_[0] || 'ecoli.nt'; # user can select local nt database
 
-    $blast_present = Bio::Tools::Run::StandAloneBlast->exists_blast();
-    unless ($blast_present) {
-        warn "blast program not found. Skipping StandAloneBlast example\n";
-        return 0;
-    }
     #@params = ('program' => 'blastn', 'database' => 'ecoli.nt');
     @params = ('program' => 'blastn', 'database' => $database);
     $factory = Bio::Tools::Run::StandAloneBlast->new(@params);
 
+    unless ($factory->executable('blastall')) {
+        warn "blast program not found. Skipping StandAloneBlast example\n";
+        return 0;
+    }
 
     $str = Bio::SeqIO->new('-file'=> Bio::Root::IO->catfile("t","data","dna2.fa") ,
 #    $str = Bio::SeqIO->new('-file'=>'t/data/dna2.fa' ,
@@ -2935,7 +2934,8 @@ $run_standaloneblast = sub {
     $seq1 = $str->next_seq();
 
     $blast_report = $factory->blastall($seq1);
-    $sbjct = $blast_report->nextSbjct;
+    my $result = $blast_report->next_result; 
+    $sbjct = $result->next_hit;
 
     print " Hit name is ", $sbjct->name, " \n";
 
@@ -3140,12 +3140,9 @@ $run_clustalw_tcoffee = sub {
 	while ($seq = $str->next_seq() ) { push (@seq_array, $seq) ;}
 	$seq_array_ref = \@seq_array;
 	# where @seq_array is an array of Bio::Seq objects
-
-	my $clustal_present =
-	  Bio::Tools::Run::Alignment::Clustalw->exists_clustal();
-	if ($clustal_present) {
-	    @params = ('ktuple' => 2, 'matrix' => 'BLOSUM', 'quiet' => 1);
-	    $factory = Bio::Tools::Run::Alignment::Clustalw->new(@params);
+	@params = ('ktuple' => 2, 'matrix' => 'BLOSUM', 'quiet' => 1);
+	$factory = Bio::Tools::Run::Alignment::Clustalw->new(@params);
+	unless( $factory->executable ) {
 	    $ktuple = 3;
 	    $factory->ktuple($ktuple);  # change the parameter before executing
 	    $aln = $factory->align($seq_array_ref);
@@ -3165,12 +3162,10 @@ $run_clustalw_tcoffee = sub {
         print STDERR "Skipping local TCoffee demo:\n";
 	return 0;
     }
-    my $tcoffee_present =
-      Bio::Tools::Run::Alignment::TCoffee->exists_tcoffee();
-    if ($tcoffee_present) {
-        @params = ('ktuple' => 2, 'matrix' => 'BLOSUM', 'quiet' => 1);
-        $factory = Bio::Tools::Run::Alignment::TCoffee->new(@params);
-        $ktuple = 3;
+    @params = ('ktuple' => 2, 'matrix' => 'BLOSUM', 'quiet' => 1);
+    $factory = Bio::Tools::Run::Alignment::TCoffee->new(@params);
+    unless( $factory->executable ) {
+	$ktuple = 3;
         $factory->ktuple($ktuple);  # change the parameter before executing
         $aln = $factory->align($seq_array_ref);
         $strout = Bio::AlignIO->newFh('-format' => 'msf');
@@ -3283,15 +3278,14 @@ $run_psw_bl2seq = sub {
 	return 0;
     }
 
-    @params = ('program' => 'blastp', 'outfile' => 'bl2seq.out');
+    @params = ('outfile' => 'bl2seq.out');
+    $factory = Bio::Tools::Run::StandAloneBlast->new(@params);
 
-    my $blast_present = Bio::Tools::Run::StandAloneBlast->exists_blast();
-    unless ($blast_present) {
+    unless ($factory->executable('bl2seq') ) {
         warn "\n Blast program not found. Skipping bl2seq example\n\n";
         return 0;
     }
 
-    $factory = Bio::Tools::Run::StandAloneBlast->new(@params);
     $factory->bl2seq($seq1, $seq2);
 
     # Use AlignIO.pm to create a SimpleAlign object from the bl2seq report
