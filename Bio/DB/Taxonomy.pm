@@ -150,6 +150,21 @@ sub get_taxonid {
     $self->throw_not_implemented();
 }
 
+=head2 get_Children_Taxids
+
+ Title   : get_Children_Taxids
+ Usage   : my @childrenids = $db->get_Children_Taxids 
+ Function: Get the children of a node in the taxonomy
+ Returns : Array of Ids
+ Args    : L<Bio::Taxonomy::Node> or a taxon_id
+
+
+=cut
+
+sub get_Children_Taxids{
+    shift->throw_not_implemented();
+}
+
 =head2 _load_tax_module
 
  Title   : _load_tax_module

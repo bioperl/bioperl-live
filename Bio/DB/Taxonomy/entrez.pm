@@ -75,7 +75,7 @@ use strict;
 
 use Bio::DB::Taxonomy;
 use Bio::Root::HTTPget;
-use Bio::Species;
+use Bio::Taxonomy::Node;
 
 eval {
     require XML::Twig;
@@ -155,8 +155,8 @@ sub get_Taxonomy_Node{
 	   my @taxaids = $self->get_taxonid($params{'-name'});
 	   if( @taxaids > 1 ) { 
 	       $self->warn("Got > 1 taxid for ".$params{'-name'}. " only using the first one");
-	       $taxonid = shift @taxaids;
 	   }
+	   $taxonid = shift @taxaids;
        } else { 
 	   $self->warn("Need to have provided either a -taxonid or -name value to get_Taxonomy_Node");
        } 
@@ -186,19 +186,19 @@ sub get_Taxonomy_Node{
        return undef;
    }
    my ($id) = map { $_->text } $list->children('Id');
-
-   my (%item) = map {  $_->{'att'}->{'Name'} => $_->text } $list->children('Item');
-
+   my (%item) = map {  uc($_->{'att'}->{'Name'}) => $_->text } $list->children('Item');
    if( $item{'RANK'} eq 'species') {
-       my $node = new Bio::Species(-ncbi_taxid     => $id,
-				   -common_name    => $item{'CommonName'},
-				   -division       => $item{'Division'});
-       my ($genus,$species,$subspecies) = split(' ',$item{'ScientificName'},3);
-       $node->genus($species);
-       $node->species($species);
+       my $node = Bio::Taxonomy::Node->new(-name      => $item{'COMMONNAME'},
+					   -object_id => $item{'TAXID'},
+					   -parent_id => undef,
+					   -rank      => $item{'RANK'},
+					   -division  => $item{'DIVISION'},
+					   -dbh       => $self);
+       $node->classification(reverse split(/\s+/,$item{'SCIENTIFICNAME'}));
        return $node;
    } else {
-       $self->warn(sprintf("can't create a species object for %s (%s) because it isn't a species but is a '%s' instead",$item{'ScientificName'},$item{'CommonName'}, $item{'RANK'}));
+       $self->warn(sprintf("can't create a species object for %s (%s) because it isn't a species but is a '%s' instead",$item{'SCIENTIFICNAME'},
+			   $item{'COMMONNAME'}, $item{'RANK'}));
    }
    \%item;
 }
