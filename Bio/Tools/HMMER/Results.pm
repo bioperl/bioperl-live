@@ -393,6 +393,7 @@ sub filter_on_cutoff {
     foreach $seq ( $self->each_Set()) {
 	next if( $seq->bits() < $seqthr );
 	$new->add_Set($seq);
+	
 	foreach $unit ( $seq->each_Domain() ) {
 	    next if( $unit->bits() < $domthr );
 	    $new->add_Domain($unit);
