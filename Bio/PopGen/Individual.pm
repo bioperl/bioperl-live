@@ -109,7 +109,6 @@ sub new {
   return $self;
 }
 
-
 =head2 unique_id
 
  Title   : unique_id
@@ -150,7 +149,8 @@ sub num_of_results {
  Returns : count of the number of genotypes associated with this individual
  Args    : $genotype - Bio::PopGen::GenotypeI object containing the alleles for
                        a marker
-
+           -marker_name => $name
+           -alleles     => $alleles,
 
 =cut
 
@@ -159,7 +159,7 @@ sub add_Genotype {
    foreach my $g ( @genotypes ) {
        if( ! defined $g || ! ref($g) || 
 	   ! $g->isa('Bio::PopGen::GenotypeI') ) {
-	   $self->warn("cannot add genotype, it is not a Bio::PopGen::GenotypeI object");
+	   $self->throw("cannot add genotype, it is not a Bio::PopGen::GenotypeI object");
 	   next;
        } elsif( ! length($g->marker_name) ) {
 	   $self->warn("cannot add genotype, it must have a valid marker_name associated with it");

@@ -16,8 +16,17 @@ Bio::PopGen::IndividualI - An individual who has Genotype or Sequence Results
 
 =head1 SYNOPSIS
 
-Give standard usage here
+  # Get a Bio::PopGen::IndividualI somehow
+  # test if it has alleles/genotypes for a given marker
+  if( $ind->has_marker($markername) ) {
+  }
+  # get the unique id
+  print $ind->unique_id, "\n";
 
+  # get the number of results (genotypes)
+  print $ind->num_results;
+
+  
 =head1 DESCRIPTION
 
 Describe the interface here
@@ -88,9 +97,9 @@ sub unique_id{
 }
 
 
-=head2 num_of_results
+=head2 num_genotypes
 
- Title   : num_of_results
+ Title   : num_genotypes
  Usage   : my $count = $person->num_results;
  Function: returns the count of the number of Results for a person
  Returns : integer
@@ -98,8 +107,14 @@ sub unique_id{
 
 =cut
 
-sub num_of_results { 
+sub num_genotypes { 
     shift->throw_not_implemented;
+}
+
+sub num_of_results{ 
+    my $self = shift;
+    $self->deprecated("num_of_results is deprecated, use num_genotypes instead");
+    $self->num_genotypes;
 }
 
 =head2 get_Genotypes
