@@ -1171,17 +1171,8 @@ convenience for the generic genome browser.
 sub link_pattern {
   my $self     = shift;
   my ($linkrule,$feature,$panel) = @_;
-  $panel ||= 'Bio::Graphics::Panel';
-  for my $label ($self->feature2label($feature)) {
-    my $linkrule     = $self->setting($label,'link');
-    $linkrule        = $self->setting(general=>'link') unless defined $linkrule;
-    return $self->make_link($linkrule,$feature,$panel);
-  }
-}
 
-sub make_link {
-  my $self = shift;
-  my ($linkrule,$feature,$panel) = @_;
+  $panel ||= 'Bio::Graphics::Panel';
 
   if (ref($linkrule) && ref($linkrule) eq 'CODE') {
     my $val = eval {$linkrule->($feature,$panel)};
@@ -1210,6 +1201,17 @@ sub make_link {
 	       )
 	/exg;
   return $linkrule;
+}
+
+sub make_link {
+  my $self             = shift;
+  my ($feature,$panel) = @_;
+
+  for my $label ($self->feature2label($feature)) {
+    my $linkrule     = $self->setting($label,'link');
+    $linkrule        = $self->setting(general=>'link') unless defined $linkrule;
+    return $self->link_pattern($linkrule,$feature,$panel);
+  }
 }
 
 sub make_title {

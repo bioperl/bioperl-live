@@ -916,8 +916,8 @@ sub make_link {
   my $self = shift;
   my ($linkrule,$feature) = @_;
   eval "require Bio::Graphics::FeatureFile;1"
-    unless Bio::Graphics::FeatureFile->can('make_link');
-  return Bio::Graphics::FeatureFile->make_link($linkrule,$feature,$self);
+    unless Bio::Graphics::FeatureFile->can('link_pattern');
+  return Bio::Graphics::FeatureFile->link_pattern($linkrule,$feature,$self);
 }
 
 sub make_title {
