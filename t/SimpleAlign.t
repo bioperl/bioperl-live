@@ -2,7 +2,7 @@
 ## Bioperl Test Harness Script for Modules
 ## $Id$
 use strict;
-use constant NUMTESTS => 55;
+use constant NUMTESTS => 58;
 
 BEGIN {
     eval { require Test; };
@@ -167,3 +167,17 @@ eval {
 };
 
 ok ($@ =~ /EX/ );
+
+
+#sort_alphabetically
+my $s3 = new Bio::LocatableSeq (-id => 'ABB',
+			    -seq => '-attat-tt-',
+			    -start => 1,
+			    -end => 7,
+  			    -alphabet => 'dna'
+			    );
+$a->add_seq($s3);
+
+ok $a->get_seq_by_pos(2)->id,"BBB";
+ok $a->sort_alphabetically;
+ok $a->get_seq_by_pos(2)->id,"ABB";

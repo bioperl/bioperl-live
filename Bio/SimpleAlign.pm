@@ -120,7 +120,9 @@ David J. Evans, David.Evans@vir.gla.ac.uk,
 Heikki Lehvaslaiho, heikki@ebi.ac.uk, 
 Allen Smith, allens@cpan.org, 
 Jason Stajich, jason@bioperl.org, 
-Xintao Wei & Giri Narasimhan, giri@cs.fiu.edu,
+Anthony Underwood, aunderwood@phls.org.uk, 
+Xintao Wei & Giri Narasimhan, giri@cs.fiu.edu
+
 
 =head1 SEE ALSO
 
@@ -200,7 +202,7 @@ sub new {
 
   $self->{'_seq'} = {};
   $self->{'_order'} = {};
-  $self->{'start_end_lists'} = {};
+  $self->{'_start_end_lists'} = {};
   $self->{'_dis_name'} = {};
   $self->{'_id'} = 'NoName';
   $self->{'_symbols'} = {};
@@ -430,7 +432,7 @@ sub sort_alphabetically {
     my ($seq,$nse,@arr,%hash,$count);
 
     foreach $seq ( $self->each_seq() ) {
-	$nse = $seq->get_nse();
+	$nse = $seq->get_nse;
 	$hash{$nse} = $seq;
     }
 
@@ -443,7 +445,7 @@ sub sort_alphabetically {
 
 	$count++;
     }
-
+    1;
 }
 
 =head1 Sequence selection methods
@@ -500,7 +502,7 @@ sub each_alphabetically {
     my ($seq,$nse,@arr,%hash,$count);
 
     foreach $seq ( $self->each_seq() ) {
-	$nse = $seq->get_nse("-","-");
+	$nse = $seq->get_nse;
 	$hash{$nse} = $seq;
     }
 
