@@ -204,11 +204,11 @@ sub _parse {
   my ($self,$name,$seq,$pattern) = @_;
     my @char = split('',$pattern);
     my $prev;
-    my $word;
+   my $word;
     my @words;
     foreach my $c(@char){
         $c=~/\s/ && next;
-        if($word eq ''){
+        if(!$word){
             $word .= $c;
             $prev = $c;
             next;
@@ -231,7 +231,6 @@ sub _parse {
     foreach my $w(@words){
         if($w !~ /^$/){
           my $index = index($pattern,$w);
-          $index += $last;
           my $subfeat = new Bio::SeqFeature::Generic ( -seq_id=>$name,
                                                     -start => $index+1, 
                                                     -end =>$index+length($w),
