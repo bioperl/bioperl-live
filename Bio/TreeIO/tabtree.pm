@@ -122,25 +122,14 @@ sub _write_tree_Helper {
 
     my @data;
     my @d = $node->each_Descendent();
-    my $half = ( int ( (scalar @d) / 2)) || 1;
+
+    push @data,sprintf("%s%s","\t"x$depth,
+		       $node->to_string);
     if( @d ) {
 	my $c = 0;
 	foreach my $n ( @d ) {
-	    if( $c++ == $half ) {
-		push @data,sprintf("%s%s","\t"x$depth,
-				   defined $node->id && $node->id ? 
-				   $node->id : 'O',
-				   defined $node->branch_length ? ":" .
-				   $node->branch_length : '');
-	    }   
 	    push @data, _write_tree_Helper($n,$depth+1);
 	}
-    } else {
-	push @data,sprintf("%s%s","\t"x$depth,
-			   defined $node->id && $node->id ? 
-			   $node->id : 'O',
-			   defined $node->branch_length ? ":" .
-			   $node->branch_length : '');
     }
 
     return @data;
