@@ -477,7 +477,7 @@ sub setup_load {
   my $insert_attribute = $dbh->prepare_delayed('INSERT INTO fattribute (fattribute_name) VALUES (?)');
   my $insertid_attribute = $dbh->prepare_delayed("SELECT currval('fattribute_fattribute_id_seq')");
 
-  my $insert_attribute_value = $dbh->prepare_delayed('INSERT INTO fattribute_to_feature (fattribute_id,fattribute_value) VALUES (?,?)');
+  my $insert_attribute_value = $dbh->prepare_delayed('INSERT INTO fattribute_to_feature (fid,fattribute_id,fattribute_value) VALUES (?,?,?)');
 
   my $insert_data  = $dbh->prepare_delayed(<<END);
 INSERT INTO fdata (fref,fstart,fstop,fbin,ftypeid,fscore,
@@ -563,11 +563,14 @@ sub load_gff_line {
 
   warn $dbh->errstr,"\n" and print "ref=",$gff->{ref}," start=",$gff->{start}," stop=",$gff->{stop}," bin=",$bin," typeid=",$typeid," groupid=",$groupid,"\n" 
     and return unless $result;
-  
+ 
+  my $fid = $self->insertid($s->{sth},'fdata') 
+    || $self->get_feature_id($gff->{ref},$gff->{start},$gff->{stop},$typeid,$groupid);
+ 
   # insert attributes
   foreach (@{$gff->{attributes}}) {
     defined(my $attribute_id = $self->get_table_id('fattribute',$_->[0])) or return;
-    $s->{sth}{insert_fattribute_value}->execute($attribute_id,$_->[1]);
+    $s->{sth}{insert_fattribute_value}->execute($fid,$attribute_id,$_->[1]);
   }
 
   if ( (++$s->{counter} % 1000) == 0) {
@@ -575,10 +578,25 @@ sub load_gff_line {
     print STDERR -t STDOUT && !$ENV{EMACS} ? "\r" : "\n";
   }
 
-  1;
+  $fid;
 }
 
 
+sub insertid {
+  my $self = shift;
+  my $sth = shift ;
+  my $table = shift;
+
+  my $insert_id;
+  if ($sth->{"insertid_$table"}->execute()){
+     $insert_id = ($sth->{"insertid_$table"}->fetchrow_array)[0];
+  }
+  else{
+    warn "No CURRVAL for SEQUENCE of table $table ",$sth->errstr,"\n";
+    return;
+  }
+  return $insert_id;
+}
 
 
 =head2 get_table_id
@@ -639,23 +657,6 @@ sub get_table_id {
     return;
   }
   $id;
-}
-
-sub insertid {
-  my $self = shift;
-  my $sth = shift ;
-  my $table = shift;
-
-  my $insert_id;
-
-  if ($sth->{"insertid_$table"}->execute()){
-     $insert_id = ($sth->{"insertid_$table"}->fetchrow_array)[0];
-  }
-  else{
-    warn "No CURRVAL for SEQUENCE of table $table ",$sth->errstr,"\n";
-    return;
-  }
-  return $insert_id;
 }
 
 
@@ -738,7 +739,7 @@ sub range_query {
   #  warn "bin_part: @bin_parts\n";
 
   my %a             = (refseq=>$refseq,class=>$class,start=>$start,stop=>$stop,types=>$types,attributes=>$attributes,bin_width=>$bin);
-  my ($query, @args, $order_by,$group_by,@more_args);
+  my ($query, @args, $order_by);
 
   if ($rangetype ne 'overlaps') {
 
@@ -747,28 +748,40 @@ sub range_query {
     my $join          = $self->make_features_join_part(\%a);
     my $where;
        ($where,@args) = $self->make_features_by_range_where_part($rangetype,\%a);
-       ($group_by,@more_args) = $self->make_features_group_by_part(\%a);
+    my ($group_by,@more_args) = $self->make_features_group_by_part(\%a);
        $order_by      = $self->make_features_order_by_part(\%a) if $order_by_group;
 
     $query         = "SELECT $select FROM $from WHERE $join";
     $query           .= " AND $where" if $where;
 
+    if ($group_by) {
+      $query           .= " GROUP BY $group_by";
+      push @args,@more_args;
+    }
+
   } else {  # most common case: overlaps query
 
-    my @bin_parts         = split /\s*OR/, $self->bin_query($start,$stop);
-    my $select            = $self->make_features_select_part(\%a);
-    my $from              = $self->make_features_from_part($sparse,\%a);
-    my $join              = $self->make_features_join_part(\%a);
+    my @bin_parts            = split /\s*OR/, $self->bin_query($start,$stop);
+    my $select               = $self->make_features_select_part(\%a);
+    my $from                 = $self->make_features_from_part($sparse,\%a);
+    my $join                 = $self->make_features_join_part(\%a);
     my $where;
-    ($where,@args)        = $self->pg_make_features_by_range_where_part($rangetype,\%a);
-    ($group_by,@more_args)= $self->make_features_group_by_part(\%a);
-    $order_by             = $self->pg_make_features_order_by_part(\%a) if $order_by_group;
+    ($where,@args)           = $self->pg_make_features_by_range_where_part($rangetype,\%a);
+    my ($group_by,@more_args)= $self->make_features_group_by_part(\%a);
+    $order_by                = $self->pg_make_features_order_by_part(\%a) if $order_by_group;
 
     my @temp_args;
     my @query_pieces; 
     foreach my $bin (@bin_parts) {
-      push @query_pieces, "SELECT $select FROM $from WHERE $join AND $where" . "AND $bin\n"; 
+      my $temp_query = "SELECT $select FROM $from WHERE $join AND $where AND $bin\n"; 
       push @temp_args, @args;
+
+      if ($group_by) {
+        $temp_query    .= " GROUP BY $group_by";
+        push @temp_args,@more_args;
+      }
+
+      push @query_pieces, $temp_query;
     }
     
     @args             = @temp_args;
@@ -776,10 +789,6 @@ sub range_query {
 
   }
 
-  if ($group_by) {
-    $query           .= " GROUP BY $group_by";
-    push @args,@more_args;
-  }
   $query           .= " ORDER BY $order_by" if $order_by;
 
   my $sth = $self->dbh->do_query($query,@args);
