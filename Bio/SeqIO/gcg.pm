@@ -42,17 +42,16 @@ Your participation is much appreciated.
 =head2 Reporting Bugs
 
 Report bugs to the Bioperl bug tracking system to help us keep track
- the bugs and their resolution.
- Bug reports can be submitted via email or the web:
+the bugs and their resolution.  Bug reports can be submitted via email
+or the web:
 
   bioperl-bugs@bio.perl.org
   http://bio.perl.org/bioperl-bugs/
 
 =head1 AUTHORS - Ewan Birney & Lincoln Stein
 
-Email: birney@ebi.ac.uk
-       lstein@cshl.org
-
+Email: E<lt>birney@ebi.ac.ukE<gt>
+       E<lt>lstein@cshl.orgE<gt>       
 
 =head1 APPENDIX
 
@@ -69,6 +68,7 @@ use strict;
 
 use Bio::SeqIO;
 use Bio::Seq;
+use Bio::Seq::RichSeq;
 
 @ISA = qw(Bio::SeqIO);
 
@@ -85,23 +85,25 @@ use Bio::Seq;
 
 sub next_seq {
    my ($self,@args)    = @_;
-   my($id,$type,$desc,$line,$chksum,$sequence);
-
+   my($id,$type,$desc,$line,$chksum,$sequence,$date,$len);
 
    while( defined($_ = $self->_readline()) ) {
 
        ## Get the descriptive info (anything before the line with '..')
        unless( /\.\.$/ ) { $desc.= $_; }
-
        ## Pull ID, Checksum & Type from the line containing '..'
        /\.\.$/ && do     { $line = $_; chomp; 
                            if(/Check\:\s(\d+)\s/) { $chksum = $1; }
                            if(/Type:\s(\w)\s/)    { $type   = $1; }
-                           if(/(.*)\s+Length/)    { $id     = $1; }
+                           if(/(\S+)\s+Length/) 
+			   { $id     = $1; }
+			   if(/Length:\s+(\d+)\s+(\S.+\S)\s+Type/ )
+			   { $len = $1; $date = $2;}
                            last; 
                          }
-   }
-
+   }   
+   return if ( !defined $_);
+   chomp($desc);  # remove last "\n"
 
    while( defined($_ = $self->_readline()) ) {
 
@@ -116,8 +118,6 @@ sub next_seq {
        $_ = uc($_);               ## uppercase sequence
        $sequence .= $_;
    }
-
-
    ##If we parsed out a checksum, we might as well test it
 
    if(defined $chksum) { 
@@ -134,14 +134,15 @@ sub next_seq {
    ## keyword that the constructor expects...
    if(defined $type) {
        if($type eq "N") { $type = "dna";      }
-       if($type eq "P") { $type = "amino";    }
+       if($type eq "P") { $type = "prot";    }
    }
 
-
-   return Bio::Seq->new(-seq  => $sequence, 
-                        -id   => $id, 
-                        -desc => $desc, 
-                        -type => $type );
+   return Bio::Seq::RichSeq->new(-seq  => $sequence, 
+				 -id   => $id, 
+				 -desc => $desc, 
+				 -type => $type,
+				 -dates => [ $date ]
+				 );
 }
 
 =head2 write_seq
@@ -156,49 +157,53 @@ sub next_seq {
 =cut
 
 sub write_seq {
-   my ($self,@seq) = @_;
-   for my $seq (@seq) {
-     my $str         = $seq->seq;
-     my $comment     = $seq->desc; 
-     my $id          = $seq->id;
-     my $type        = $seq->moltype();
-     my($timestamp)  = localtime;
-     my($sum,$offset,$len,$i,$j,$cnt,@out);
+    my ($self,@seq) = @_;
+    for my $seq (@seq) {
+	my $str         = $seq->seq;
+	my $comment     = $seq->desc; 
+	my $id          = $seq->id;
+	my $type        = ( $seq->moltype() =~ /[dr]na/i ) ? 'N' : 'P';
+	my $timestamp;
 
-     $len = length($str);
-     ## Set the offset if we have any non-standard numbering going on
-     $offset=1;
-     # checksum
-     $sum = $self->GCG_checksum($seq);
-     
-     #Output the sequence header info
-     push(@out,"$comment\n");                        
-     push(@out," $id Length: $len  $timestamp  $type Check: $sum  ..\n\n");
-     
-     #Format the sequence
-     $i = $#out + 1;
-     for($j = 0 ; $j < $len ; ) {
-       if( $j % 50 == 0) {
-	 $out[$i] = sprintf("%8d  ",($j+$offset)); #numbering 
-       }
-       $out[$i] .= sprintf("%s",substr($str,$j,10));
-       $j += 10;
-       if( $j < $len && $j % 50 != 0 ) {
-	 $out[$i] .= " ";
-       }elsif($j % 50 == 0 ) {
-	 $out[$i++] .= "\n";
-       }                           
-     }
-     local($^W) = 0;
-     if($j % 50 != 0 ) {
-       $out[$i] .= "\n";
-     }
-     $out[$i] .= "\n";
+	if( $seq->can('get_dates') ) {
+	    ($timestamp) = $seq->get_dates;
+	} else { 
+	    $timestamp = localtime(time);
+	}
+	my($sum,$offset,$len,$i,$j,$cnt,@out);
 
+	$len = length($str);
+	## Set the offset if we have any non-standard numbering going on
+	$offset=1;
+	# checksum
+	$sum = $self->GCG_checksum($seq);
 
-     return unless $self->_print(@out);
-   }
-   return 1;
+	#Output the sequence header info
+	push(@out,"$comment\n");                        
+	push(@out,"$id  Length: $len  $timestamp  Type: $type  Check: $sum  ..\n\n");
+
+	#Format the sequence
+	$i = $#out + 1;
+	for($j = 0 ; $j < $len ; ) {
+	    if( $j % 50 == 0) {
+		$out[$i] = sprintf("%8d  ",($j+$offset)); #numbering 
+	    }
+	    $out[$i] .= sprintf("%s",substr($str,$j,10));
+	    $j += 10;
+	    if( $j < $len && $j % 50 != 0 ) {
+		$out[$i] .= " ";
+	    }elsif($j % 50 == 0 ) {
+		$out[$i++] .= "\n\n";
+	    }                           
+	}
+	local($^W) = 0;
+	if($j % 50 != 0 ) {
+	    $out[$i] .= "\n";
+	}
+	$out[$i] .= "\n";
+	return unless $self->_print(@out);
+    }
+    return 1;
 }
 
 =head2 GCG_checksum
