@@ -131,7 +131,7 @@ sub next_aln {
 				 '-end'=>$end,
 				 );
 
-    $aln->addSeq($seq);
+    $aln->add_seq($seq);
 
     $seqchar = $bl2seqobj->sbjctSeq;
     $start = $bl2seqobj->subject->start;
@@ -146,7 +146,7 @@ sub next_aln {
 				 '-end'=>$end,
 				 );
 
-    $aln->addSeq($seq);
+    $aln->add_seq($seq);
 
     return $aln;
 

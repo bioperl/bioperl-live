@@ -125,7 +125,7 @@ sub next_aln {
 
 			    );
 
-	$aln->addSeq($seq);
+	$aln->add_seq($seq);
 	$count++;
     }
 
@@ -155,8 +155,8 @@ sub write_aln {
     my ($maxn);
   foreach my $aln (@aln) {
     $maxn = $aln->maxdisplayname_length();
-      foreach $seq ( $aln->eachSeq() ) {
-	$namestr = $aln->get_displayname($seq->get_nse());
+      foreach $seq ( $aln->each_seq() ) {
+	$namestr = $aln->displayname($seq->get_nse());
 	$add = $maxn - length($namestr) + 2;
 	$namestr .= " " x $add;
 	$self->_print (sprintf("%s  %s\n",$namestr,$seq->seq())) or return;

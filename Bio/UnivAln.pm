@@ -1034,6 +1034,7 @@ grep {$UnivAlnAlphs{$_.'Mg'} ||= [ @{ $UnivAlnAlphs{$_} },$_UNKN_SYMBOL ] } keys
 
 # the following PODs should always have a blank at the beginning (i.e. 
 # `` Usage'', not ``Usage'' !!) so that pod2html works fine !
+
 =head2 new()
 
  Usage    :  $myAln = Bio::UnivAln->new($file,$seqs,$id,$desc,$names,

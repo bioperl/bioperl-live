@@ -101,7 +101,7 @@ sub next_aln {
 			       '-end'=>$end,
 			       );
 	
-	   $aln->addSeq($add);
+	   $aln->add_seq($add);
        }
        elsif ($entry =~ /^CO/) {
 	   # the consensus line marks the end of the alignment part of the entry

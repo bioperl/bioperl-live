@@ -294,8 +294,8 @@ sub validate_seq {
            is 1 and the number is inclusive, ie 1-2 are the first two
            bases of the sequence
  Returns : a string
- Args    :
-
+ Args    : integer for start position
+           integer for end position
 
 =cut
 

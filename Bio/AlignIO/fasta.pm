@@ -101,7 +101,7 @@ sub next_aln {
 				    '-end'=>$end,
 				    );
 
-		$aln->addSeq($seq);
+		$aln->add_seq($seq);
 	     }
 	     $name = $tempname;
 	     $seqchar  = "";
@@ -143,7 +143,7 @@ sub next_aln {
 			'-end'=>$end,
 			);
 
-    $aln->addSeq($seq);
+    $aln->add_seq($seq);
 
     return $aln;
 
@@ -167,8 +167,8 @@ sub write_aln {
 
   foreach my $aln (@aln) {
 
-      foreach $rseq ( $aln->eachSeq() ) {
-	$name = $aln->get_displayname($rseq->get_nse());
+      foreach $rseq ( $aln->each_seq() ) {
+	$name = $aln->displayname($rseq->get_nse());
 	$seq  = $rseq->seq();	
 	$self->_print (">$name\n") or return ;	
 	$count =0;

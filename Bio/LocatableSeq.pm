@@ -29,9 +29,12 @@ Give standard usage here
     $locseq->start();
     $locseq->end();
     
-    # inheriets off RangeI, so range operations possible
-
+    # inherits off RangeI, so range operations possible
     $locseq->overlaps($seqfeature);
+
+    # new identifier name combines id, start and end 
+    # should be unique within an alignment
+    $locseq->name()
 
 =head1 FEEDBACK
 
@@ -70,7 +73,8 @@ or the web:
 
 =head1 APPENDIX
 
-The rest of the documentation details each of the object methods. Internal methods are usually preceded with a _
+The rest of the documentation details each of the object
+methods. Internal methods are usually preceded with a _
 
 =cut
 
@@ -167,7 +171,7 @@ sub strand{
 
  Title   : get_nse
  Usage   :
- Function:
+ Function: read-only name of form id/start-end 
  Example :
  Returns : 
  Args    :
@@ -177,8 +181,12 @@ sub strand{
 sub get_nse{
    my ($self,$char1,$char2) = @_;
   
-   if( !defined $char1 ) { $char1 = "/"; }
-   if( !defined $char2 ) { $char2 = "-"; }
+   $char1 ||= "/";
+   $char2 ||= "-";
+
+   $self->throw("Attribute id not set") unless $self->id();
+   $self->throw("Attribute start not set") unless $self->start();
+   $self->throw("Attribute end not set") unless $self->end();
 
    return $self->id() . $char1 . $self->start . $char2 . $self->end ;
 

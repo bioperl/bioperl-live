@@ -128,7 +128,7 @@ sub next_aln {
 			   '-end'=>$end,
 			   );
 
-       $aln->addSeq($seq);
+       $aln->add_seq($seq);
 
 
 #  If $end <= 0, we have either reached the end of
@@ -169,8 +169,8 @@ sub write_aln {
     $date = localtime(time);
     $msftag = "MSF";
     $type = "P";
-    $maxname = $aln->maxnse_length();
-    $length  = $aln->length_aln();
+    $maxname = $aln->maxdisplayname_length();
+    $length  = $aln->length();
     $name = $aln->id();
     if( !defined $name ) {
 	$name = "Align";
@@ -180,10 +180,10 @@ sub write_aln {
    $self->_print (sprintf("\n%s   MSF: %d  Type: P  %s  Check: 00 ..\n\n",$name,$aln->no_sequences,$date));
 
 
-      foreach $seq ( $aln->eachSeq() ) {
+      foreach $seq ( $aln->each_seq() ) {
 
 
-	$name = $aln->get_displayname($seq->get_nse());
+	$name = $aln->displayname($seq->get_nse());
 	$miss = $maxname - length ($name);
 	$miss += 2;
 	$pad  = " " x $miss;

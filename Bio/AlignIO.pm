@@ -46,9 +46,10 @@ or
 
 =head1 DESCRIPTION
 
-Bio::AlignIO is a handler module for the formats in the AlignIO set (eg,
-Bio::AlignIO::fasta). It is the officially sanctioned way of getting at
-the alignment objects, which most people should use.
+Bio::AlignIO is a handler module for the formats in the AlignIO set
+(eg, Bio::AlignIO::fasta). It is the officially sanctioned way of
+getting at the alignment objects, which most people should use. The
+resulting alignment is a L<Bio::SimpleAlign> object.
 
 The idea is that you request a stream object for a particular format.
 All the stream objects have a notion of an internal file that is read

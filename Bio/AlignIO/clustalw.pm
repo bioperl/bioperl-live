@@ -116,7 +116,7 @@ sub next_aln {
 					 '-id'    => $sname,
 					 '-start' => $start,
 					 '-end'   => $end);
-	$aln->addSeq($seq);
+	$aln->add_seq($seq);
     }
     undef $aln if( !defined $end || $end <= 0);
     return $aln;
@@ -143,9 +143,9 @@ sub write_aln {
 
     $self->_print (sprintf("CLUSTAL W(1.4) multiple sequence alignment\n\n\n")) or return;
 
-    $length = $aln->length_aln();
+    $length = $aln->length();
     $count = $tempcount = 0;
-    @seq = $aln->eachSeq();
+    @seq = $aln->each_seq();
 
     while( $count < $length ) {
 	foreach $seq ( @seq ) {
@@ -162,7 +162,7 @@ sub write_aln {
                 $substring = "";
 	}
 
-	   $self->_print (sprintf("%-22s %s\n",$aln->get_displayname($seq->get_nse()),$substring)) or return;
+	   $self->_print (sprintf("%-22s %s\n",$aln->displayname($seq->get_nse()),$substring)) or return;
 	}
 	$self->_print (sprintf("\n\n")) or return;
 	$count += 50;

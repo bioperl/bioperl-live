@@ -138,7 +138,7 @@ sub next_aln {
 
 			    );
 
-       $aln->addSeq($seq);
+       $aln->add_seq($seq);
 
    }
 

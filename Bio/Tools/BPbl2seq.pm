@@ -337,7 +337,7 @@ sub _parsebl2seq {
   }
   $def =~ s/\s+/ /g;
   $def =~ s/\s+$//g;
-  $def =~ s/Length = ([\d,]+)$//g;
+  $def =~ s/\W+Length = ([\d,]+)$//g;
   my $hlength = $1;
   return 0 unless $def =~ />/;
   $def =~ s/(.*)>//;
@@ -429,7 +429,7 @@ sub _parsebl2seq {
   elsif( $query->can('id') && $query->can('length') ) {
 	$queryid  =  $query->id;
 	$querylength = $query->length;
-  }
+    }
   my @returnarray = ($score,  $bits,   $match, $positive,  $p, $qb,  $qe,
 			  $sb, $se,  $ql,  $sl, $as,  $queryid, $def,
 			 $querylength, $hlength);

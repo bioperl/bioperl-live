@@ -116,7 +116,7 @@ sub next_aln {
 			    );
 
 
-       $aln->addSeq($add);
+       $aln->add_seq($add);
 
 
 #  If $end <= 0, we have either reached the end of

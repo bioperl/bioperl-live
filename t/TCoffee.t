@@ -1,5 +1,6 @@
-
-
+# -*-Perl-*-
+## Bioperl Test Harness Script for Modules
+## $Id$
 
 use strict;
 use vars qw($NUMTESTS);
@@ -61,7 +62,8 @@ $aln = $factory->align($inputfilename);
 ok ($aln->{order}->{'0'}, 'CYS1_DICDI-1-343', 
     "failed tcoffee alignment using input file");
 
-my $str = Bio::SeqIO->new(-file=> Bio::Root::IO->catfile("t","data","cysprot.fa"), '-format' => 'Fasta');
+my $str = Bio::SeqIO->new('-file' => Bio::Root::IO->catfile("t","data","cysprot.fa"), 
+			  '-format' => 'Fasta');
 my @seq_array =();
 
 while ( my $seq = $str->next_seq() ) {
