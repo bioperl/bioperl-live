@@ -61,6 +61,43 @@ BEGIN {
     %valid_type = map {$_, 1} qw( dna rna protein standard);
 }
 
+=head2 new
+
+ Title   : new
+ Usage   : $alignio = new Bio::AlignIO(-format => 'nexus', 
+				       -file => 'filename');
+ Function: returns a new Bio::AlignIO object to handle clustalw files
+ Returns : Bio::AlignIO::clustalw object
+ Args    : -verbose => verbosity setting (-1,0,1,2)
+           -file    => name of file to read in or with ">" - writeout
+           -fh      => alternative to -file param - provide a filehandle 
+                       to read from/write to 
+           -format  => type of Alignment Format to process or produce
+
+           Customization of nexus flavor output
+
+           -show_symbols => print the symbols="ATGC" in the data definition
+                            (MrBayes does not like this)
+                            boolean [default is 1] 
+           -show_endblock => print an 'endblock;' at the end of the data
+                            (MyBayes does not like this)
+                            boolean [default is 1] 
+=cut
+
+sub _initialize {
+    my ($self, @args) = @_;
+    $self->SUPER::_initialize(@args);
+    my ($show_symbols, $endblock) = 
+	$self->_rearrange([qw(SHOW_SYMBOLS SHOW_ENDBLOCK)], @args);
+    my @names = qw(symbols endblock);
+    for my $v ( $show_symbols, $endblock ) {
+	$v = 1 unless defined $v; # default value is 1
+	my $n = shift @names;
+	$self->flag($n, $v);
+    }
+}
+
+
 =head2 next_aln
 
  Title   : next_aln
@@ -296,7 +333,9 @@ sub write_aln {
 	$match = "match=". $aln->match_char if $aln->match_char;
 	$missing = "missing=". $aln->missing_char if $aln->missing_char;
 	$gap = "gap=". $aln->gap_char if $aln->gap_char;
-	$symbols = 'symbols="'.join('',$aln->symbol_chars). '"' if( $aln->symbol_chars);
+
+	$symbols = 'symbols="'.join('',$aln->symbol_chars). '"' 
+	    if( $self->flag('symbols') && $aln->symbol_chars);
 	$self->_print (sprintf("format interleave datatype=%s %s %s %s %s;\n\nmatrix\n",
 			       $aln->get_seq_by_pos(1)->alphabet, $match, $missing, $gap, $symbols));
 
@@ -334,10 +373,31 @@ sub write_aln {
 	    $count = $tempcount;
 	    $wrapped = 1;
 	}
-	$self->_print (";\n\nendblock;\n");
+	if( $self->flag('endblock') ) {
+	    $self->_print (";\n\nendblock;\n");
+	} else { 
+	    $self->_print (";\n\nend;\n");
+	}
     }
     $self->flush if $self->_flush_on_write && defined $self->_fh;
     return 1;
+}
+
+=head2 flag
+
+ Title   : flag
+ Usage   : $obj->flag($name,$value)
+ Function: Get/Set a flag value
+ Returns : value of flag (a scalar)
+ Args    : on set, new value (a scalar or undef, optional)
+
+
+=cut
+
+sub flag{
+    my ($self,$name,$val) = @_;
+    return $self->{'flag'}->{$name} = $val if defined $val;
+    return $self->{'flag'}->{$name};
 }
 
 1;
