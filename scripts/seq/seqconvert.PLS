@@ -1,5 +1,5 @@
 #!/usr/bin/env perl
-# $Id: seqconvert.PLS,v 1.1 2003-04-25 09:49:36 heikki Exp $
+# $Id: seqconvert.PLS,v 1.2 2003-04-25 13:35:41 bosborne Exp $
 
 use strict;
 use Getopt::Long;
@@ -11,8 +11,8 @@ my $to=undef;
 
 ### please add to this list (see the modules under Bio/SeqIO):
 my @known_formats=
-  qw(gcg fasta ace raw fastq phd pir scf swiss genbank
-     embl game qual bsml tab raw abi);
+  qw(gcg fasta ace raw fastq phd pir scf swiss genbank locuslink
+     embl game qual bsml tab raw abi chado alf ctf exp ztr pln);
 
 my $script=substr($0, 1+rindex($0,'/'));
 my $usage="Usage:
@@ -54,7 +54,7 @@ This script gives command line interface to BioPerl Bio::SeqIO.
 
 =head1 SEE ALSO
 
-L<BIo::SeqIO>
+L<Bio::SeqIO>
 
 =head1 FEEDBACK
 
