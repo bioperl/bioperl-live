@@ -26,8 +26,8 @@ Bio::DB::Query::GenBank - Build a GenBank Entrez Query
    my @ids   = $query->ids;
 
    # get a genbank database handle
-   $gb = new Bio::DB::GenBank;
-   my $stream = $db->get_Stream_by_query($query);
+   my $gb = new Bio::DB::GenBank;
+   my $stream = $gb->get_Stream_by_query($query);
    while (my $seq = $stream->next_seq) {
       # do something with the sequence object
    }
