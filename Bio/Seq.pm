@@ -552,14 +552,17 @@ of course, you are free to use these functions anyway.
 
  Title   : seq
  Usage   : $string = $obj->seq()
- Function: Returns the sequence as a string of letters. The
+ Function: Get/Set the sequence as a string of letters. The
            case of the letters is left up to the implementer.
            Suggested cases are upper case for proteins and lower case for
            DNA sequence (IUPAC standard),
            but implementations are suggested to keep an open mind about
            case (some users... want mixed case!)
  Returns : A scalar
- Args    : None
+ Args    : Optionally on set the new value (a string). An optional second
+           argument presets the alphabet (otherwise it will be guessed).
+           Both parameters may also be given in named paramater style
+           with -seq and -alphabet being the names.
 
 =cut
 
