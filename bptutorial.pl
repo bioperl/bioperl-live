@@ -40,7 +40,7 @@ III.3 Manipulating sequences
   III.3.2 Obtaining basic sequence statistics- MW, residue &codon frequencies (SeqStats)
   III.3.3 Identifying restriction enzyme sites (RestrictionEnzyme)
   III.3.4 Identifying amino acid cleavage sites (Sigcleave)
-  III.3.5 Miscellaneous sequence utilities: OddCodes, CodonTable, SeqPattern
+  III.3.5 Miscellaneous sequence utilities: OddCodes, SeqPattern
 III.4 Searching for "similar" sequences
    III.4.1 Running BLAST locally  (StandAloneBlast)
    III.4.2 Running BLAST remotely (using Blast.pm)
@@ -556,19 +556,72 @@ The following methods return an array of  Bio::SeqFeature objects
    $seqobj->all_SeqFeatures # All sequence features, including sub
                             # seq features
 
+Sequence features will be discussed further in section III.7 on
+machine-readable sequence annotation.
+
 The following methods returns new sequence objects, but do not transfer features across
    $seqobj->trunc(5,10)  # truncation from 5 to 10 as new object
    $seqobj->revcom       # reverse complements sequence
    $seqobj->translate    # translation of the sequence
 
-Most of these methods are self-explanatory.  However, note that some
-methods return strings, some return arrays and some return references
-to objects.  Here (as elsewhere in perl and bioperl) it is the user's
+Note that some methods return strings, some return arrays and some return
+references to objects.  Here (as elsewhere in perl and bioperl) it is the user's
 responsibility to check the relevant documentation so they know the
 format of the data being returned.
 
-Sequence features will be discussed further in section III.7 on
-machine-readable sequence annotation.
+Many of these methods are self-explanatory. However, bioperl's flexible
+translation methods warrant further comment. Translation in bioinformatics
+can mean two slightly different things:
+
+1. Translating a nucleotide sequence from start to end.
+or
+2. Taking into account the constraints of real coding regions in mRNAs.
+
+For historical reasons the bioperl implementation of translation does
+the first of these tasks easily. Any sequence object which is not of moltype
+'protein' can be translated by simply calling the method which returns
+a protein sequence object:
+
+$translation1 = $my_seq_object->translate;
+
+However, the translate method can also be passed several optional parameters
+to modify its behavior. For example, the first two arguments to "translate"
+can be used to modify the characters used to represent stop (default '*')
+and unknown amino acid ('X'). (These are normally best left untouched.)
+The third argument determines the frame of the translation. The default
+frame is "0".  To get translations in the other two forward frames,
+we would write:
+
+$translation2 = $my_seq_object->translate(undef,undef,1);
+$translation3 = $my_seq_object->translate(undef,undef,2);
+
+The fourth argument to "translate" makes it possible to use alternative
+genetic codes. There are currently 16 codon tables defined, including tables for
+'Verterbate Mitochondrial', 'Bacterial', 'Alternative Yeast Nuclear'
+and 'Ciliate, Dasycladacean and Hexamita Nuclear' translation. These
+tables are located in the object Bio::Tools::CodonTable which is used
+by the translate method. For example, for mitochondrial translation:
+
+$human_mitochondrial_translation = 
+    $my_seq_object->translate(undef,undef,undef, 2);
+
+If we want to translate full coding regions (CDS) the way major
+nucleotide databanks EMBL, GenBank and DDBJ do it, the translate
+method has to perform more tricks. Specifically, 'translate' needs
+to confirm that the sequence has appropriate start and terminator codons
+at the beginning and the end of the sequence and that there are no terminator
+codons present within the sequence.  In addition, if the genetic code being used has
+an atypical (non-ATG) start codon, the translate method needs to convert
+the initial amino acid to methionine.  These checks and conversions are triggered by
+setting the fifth argument of the translate method to evaluate to "true".  
+
+If argument 5 is set to true and the criteria for a proper CDS are 
+not met, the method, by default, issues a warning. By setting the 
+sixth argument to evaluate to "true", one can instead instruct
+the program to die if an improper CDS is found, e.g.
+
+$protein_object = 
+   $cds->translate(undef,undef,undef,undef,1,'die_if_errors');
 
 III.3.2 Obtaining basic sequence statistics- MW, residue &codon
 frequencies(SeqStats, SeqWord)
@@ -659,7 +712,7 @@ sequence) rather than a sequence object when it is created. Also note
 that the "type" in the Sigcleave object is "amino" whereas in a Seq
 object it is "protein".
 
- III.3.5 Miscellaneous sequence utilities: OddCodes, CodonTable, SeqPattern
+ III.3.5 Miscellaneous sequence utilities: OddCodes, SeqPattern
 
 OddCodes:
 
@@ -692,26 +745,6 @@ OddCodes also offers translation into alphabets showing alternate
 characteristics of the amino acid sequence such as hydrophobicity,
 "functionality" or grouping using Dayhoff's definitions.  See the
 documentation for OddCodes.pm for further details.
-
-CodonTable:
-
-CodonTable is an object used to translate nucleic acid codons using
-non-standard translation tables.  CodonTable includes 16 translation
-tables including those for Mitochondrial, Bacterial and 'Ciliate,
-Dasycladacean and Hexamita Nuclear'.)
-
-Each call to CodonTable translates a single 3 letter codon. However,
-it is of course straightforward to write a script using CodonTable to
-translate entire sequences.  CodonTable does allow the use of
-"ambiuguous bases" (eg Y for pyrimidine) and will translate them into
-the corresponding (generally ambiguous) amino acid.  use
-Bio::Tools::SeqPattern;
-
-$myCodonTable = Bio::Tools::CodonTable -> new ( -id => 16);
-# translate some codons
-@ii  = qw(act acc att ggg ttt aaa ytr yyy);
-@res =();
-for $i (0..$#ii) { $res[$i] = $myCodonTable->translate($ii[$i]); }
 
 SeqPattern:
 
@@ -1251,58 +1284,52 @@ $gene=$loader->gene2liveseq(-gene_name => "factor7");
 $id = $gene->get_DNA->display_id ;
 $maxstart = $gene->maxtranscript->start;
 
-Even mutation and polymorphism objects (see the next subsection) can
-be represented with the LiveSeq data structure:
+Creating, maintaining and querying of LiveSeq genes is quite memory
+and processor intensive.  Consequently, any additional information relating to
+mutational changes in a gene need to be stored separately from 
+the sequence data itself. The next section describes 
+the mutation and polymorphism objects used to accomplish this.
 
-$b = Bio::LiveSeq::Mutation->new(-seq=>'AC', 
-                                 -seqori => 'GG', 
-                                 -pos => 5, 
-                                 -len => 2, );
-
-For more details on using the LiveSeq data representation see the
-documentation for the objects in the Bio::LiveSeq directory.
 
    III.7.3 Representing related sequences - mutations, polymorphisms
    etc (Allele, SeqDiff,)
 
-Efficient storage and manipulation of data representing polymorphisms
-and mutations is another challenge to developing automated sequence
-annotation systems.  The objects in bioperl's Bio::Variation directory
-address this need.  Originally designed for the "Computational
-Mutation Expression Toolkit" project at European Bioinformatics
-Institute (EBI), these objects store sequence variation information as
-differences (called SeqDiff objects) between reference sequence and
-changes sequences.  For example,
+Bio::LiveSeq::Mutation object allows for a basic description of a
+sequence change in DNA or cDNA sequence of a gene.
+Bio::LiveSeq::Mutator takes in mutations, applies them to a LiveSeq
+gene and returns a set of Bio::Variation objects describing the net
+effect of the mutation on the gene at the DNA, RNA and protein stages.
 
-use Bio::Variation::SeqDiff
-use Bio::Variation::Allele
-use Bio::Variation::DNAMutation
+The objects in Bio::Variation and Bio::LiveSeq directory were
+originally designed for the "Computational Mutation Expression
+Toolkit" project at European Bioinformatics Institute (EBI). The
+result of using them to mutate a gene is a holder object, 'SeqDiff',
+that can be printed out or queried for specific information. For
+example, to find out if restriction enzyme changes caused by a
+mutation are exactly the same in DNA and RNA sequences, we can write:
 
-$a1 = Bio::Variation::Allele->new;
-$a1->seq('a');
-$a2 = Bio::Variation::Allele->new;
-$a2->seq('t');
+  use Bio::LiveSeq::IO::BioPerl;
+  use Bio::LiveSeq::Mutator;
+  use Bio::LiveSeq::Mutation; 
+  
+  $loader=Bio::LiveSeq::IO::BioPerl->load('-file' => "$filename");
+  $gene=$loader->gene2liveseq('-gene_name' => $gene_name);
+  $mutation = new Bio::LiveSeq::Mutation (-seq =>'G',
+  					  -pos => 100,
+  					 );
+  $mutate = Bio::LiveSeq::Mutator->new('-gene' => $gene,
+  				       '-numbering' => "coding"
+  				      );
+  $mutate->add_Mutation($mutation);
+  $seqdiff = $mutate->change_gene();  
+  $DNA_re_changes = $seqdiff->DNAMutation->restriction_changes;
+  $RNA_re_changes = $seqdiff->RNAChange->restriction_changes;
+  $DNA_re_changes eq $RNA_re_changes or print "Different!\n";
 
-$dnamut = Bio::Variation::DNAMutation->new 
-        ('-start'  => 1000, 
-         '-length'  => 1,
-         '-upStreamSeq'  => 'actggg', 
-         '-proof'  => 'experimental', 
-         '-isMutation' => 1, );
-$dnamut->allele_ori($a1);
-$dnamut->add_Allele($a2);
-
-$seqDiff = Bio::Variation::SeqDiff->new 
-          ( -id => 'M20132', 
-            -moltype => 'RNA',
-            -gene_symbol => 'AR',  
-            -chromosome => 'X', 
-            -numbering => 'coding');
-$seqDiff->add_Variant($dnamut);  # add it to a SeqDiff container object
-
-For more details on the use of the objects see the documentation in
-the modules in the Bio::Variation directory as well as the original
-documentation for the "Computational Mutation Expression Toolkit"
+For a complete working script, see the change_gene.pl script 
+in the examples directory. For more details on the use of these objects 
+see the documentation in the modules as well as the original 
+documentation for the "Computational Mutation Expression Toolkit" 
 project at http://www.ebi.ac.uk/mutations/toolkit/.
 
    III.7.4 Sequence XML representations - generation and parsing (SeqIO::game)
@@ -1671,6 +1698,35 @@ print "Primary id is ", $seqobj->primary_seq->primary_id(), " \n"; # a unique id
    print "Reverse complemented sequence 5 to 10  is ", $seqobj->revcom->subseq(5,10), "  \n";
 # translation of the sequence
    print "Translated sequence 6 to 15 is ", $seqobj->translate->subseq(6,15), " \n";
+
+
+my $c = shift;
+$c ||= 'ctgagaaaataa';
+
+print "\nBeginning 3-frame and alternate codon translation  example... \n";
+
+my $seq = new Bio::PrimarySeq('-SEQ' => $c, '-ID' => 'no.One');
+print "$c translated using method defaults   : ", $seq->translate->seq, "\n";
+
+# Bio::Seq uses same sequence methods as PrimarySeq
+my $seq2 = new Bio::Seq('-SEQ' => $c, '-ID' => 'no.Two');
+print "$c translated as a coding region (CDS): ", 
+    $seq2->translate(undef, undef, undef, undef, 1)->seq, "\n";
+
+print "\nTranslating in all six frames:\n";
+my @frames = (0, 1, 2);
+foreach my $frame (@frames) {
+    print  " frame: ", $frame, " forward: ", $seq->translate(undef, undef, $frame)->seq, "\n";
+    print  " frame: ", $frame, " reverse-complement: ", $seq->revcom->translate(undef, undef, $frame)->seq, "\n";
+}
+
+print "Translating with all codon tables using method defaults:\n";
+my @codontables = qw( 1 2 3 4 5 6 9 10 11 12 13 14 15 16 21 );
+foreach my $ct (@codontables) {
+    print $ct, " : ", $seq->translate(undef, undef, undef, $ct)->seq, "\n";
+
+}
+
 return 1;
 } ;
 
