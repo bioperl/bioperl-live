@@ -179,12 +179,7 @@ sub score {
 =cut
 
 
-sub start {
-    my $self = shift;
-    my $start = $self->{start};
-    return $start;
-}
-
+#Provided by LocatableSeq
 
 =head2 minstance
 
