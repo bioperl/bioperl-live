@@ -164,6 +164,7 @@ sub _initialize {
                                Bio::Factory::ObjectFactory->new(
                                        -type      => 'Bio::Search::HSP::HMMERHSP',
                                        -interface => 'Bio::Search::HSP::HSPI'));
+    $self->{'_hmmidline'} = 'HMMER 2.2g (August 2001)';
 }
 
 =head2 next_result
@@ -185,6 +186,7 @@ sub next_result{
    my @alignemnt_lines;
 
    $self->start_document();
+   local ($_);
    while( defined ($_ = $self->_readline )) {
        my $lineorig = $_;
        chomp;
@@ -270,7 +272,7 @@ sub next_result{
                        # when they've been processed
                        my $info = $hitinfo[$hitinfo{$n}];
                        if( !defined $info ) { 
-                           $self->warn("incomplete Sequence information, can't find $n hitinfo says $hitinfo{$n}"); 
+                           $self->warn("Incomplete Sequence information, can't find $n hitinfo says $hitinfo{$n}"); 
                            next;
                        }
                        push @hspinfo, [ $n, @vals];
@@ -499,7 +501,6 @@ sub next_result{
                my $second_tier=0;
                while( defined($_ = $self->_readline) ) {                   
                    next if( /^Align/o || /^\s+RF\s+[x\s]+$/o);
-                   
                    if( /^Histogram/o || m!^//!o || /^Query sequence/o ) {
                        if( $self->in_element('hsp')) {
                            $self->end_element({'Name' => 'Hsp'});
