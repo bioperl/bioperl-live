@@ -1054,35 +1054,53 @@ sub _delta {
 		# int i;
 		# uint_2 p_delta, p_sample;
 
-	my ($i,$num_samples,$p_delta,$p_sample,@samples_converted);
-
-		# c-programmers are funny people with their single-letter variables
+	my ($i,$num_samples,$p_delta,$p_sample,@samples_converted,$p_sample1,$p_sample2);
+        my $SLOW_BUT_CLEAR = 0;
+        $num_samples = scalar(@samples);
+	# c-programmers are funny people with their single-letter variables
 
 	if ( $direction eq "forward" ) {
+            if($SLOW_BUT_CLEAR){
 		$p_delta  = 0;
-		for ($i=0; $i < scalar(@samples); $i++) {
+		for ($i=0; $i < $num_samples; $i++) {
 			$p_sample = $samples[$i];
 			$samples[$i] = $samples[$i] - $p_delta;
 			$p_delta  = $p_sample;
 		}
 		$p_delta  = 0;
-		for ($i=0; $i < scalar(@samples); $i++) {
+		for ($i=0; $i < $num_samples; $i++) {
 			$p_sample = $samples[$i];
 			$samples[$i] = $samples[$i] - $p_delta;
 			$p_delta  = $p_sample;
 		}
+            } else {
+                for ($i = $num_samples-1; $i > 1; $i--){
+                    $samples[$i] = $samples[$i] - 2*$samples[$i-1] + $samples[$i-2];
+                }
+                $samples[1] = $samples[1] - 2*$samples[0];
+            }
 	}
 	elsif ($direction eq "backward") {
+            if($SLOW_BUT_CLEAR){
 		$p_sample = 0;
-		for ($i=0; $i < scalar(@samples); $i++) {
+		for ($i=0; $i < $num_samples; $i++) {
 			$samples[$i] = $samples[$i] + $p_sample;
 			$p_sample = $samples[$i];
 		}
 		$p_sample = 0;
-		for ($i=0; $i < scalar(@samples); $i++) {
+		for ($i=0; $i < $num_samples; $i++) {
 			$samples[$i] = $samples[$i] + $p_sample;
 			$p_sample = $samples[$i];
 		}
+            } else {
+                $p_sample1 = $p_sample2 = 0;
+                for ($i = 0; $i < $num_samples; $i++){
+                    $p_sample1 = $p_sample1 + $samples[$i];
+                    $samples[$i] = $p_sample1 + $p_sample2;
+                    $p_sample2 = $samples[$i];
+                }
+                
+            }
 	}
 	else {
 		$self->warn("Bad direction. Use \"forward\" or \"backward\".");
