@@ -199,6 +199,21 @@ of analysis in BioPerl other methods for estimating Ds and Dn can be
 provided later.
 
 
+Much of the code is based on implementations in EMBOSS (Rice et al,
+www.emboss.org) distmat.c and PHYLIP (J. Felsenstein et al) dnadist.c
+
+References for DNA Distance methods
+
+D_JukesCantor - "Phylogenetic Inference", Swoffrod, Olsen, Waddell and Hillis,
+                in Mol. Systematics, 2nd ed, 1996, Ch 11. 
+                Derived from "Evolution of Protein Molecules", Jukes & Cantor, 
+                in Mammalian Prot. Metab., III, 1969, pp. 21-132.
+D_Tamura - K Tamura, Mol. Biol. Evol. 1992, 9, 678.
+D_Kimura - M Kimura, J. Mol. Evol., 1980, 16, 111.
+D_JinNei - Jin and Nei, Mol. Biol. Evol. 82, 7, 1990.
+D_TajimaNei - Tajima and Nei, Mol. Biol. Evol. 1984, 1, 269.
+
+
 =head1 FEEDBACK
 
 =head2 Mailing Lists
@@ -244,14 +259,15 @@ Internal methods are usually preceded with a _
 package Bio::Align::DNAStatistics;
 use vars qw(@ISA %DNAChanges @Nucleotides %NucleotideIndexes
 	    $GapChars $SeqCount $DefaultGapPenalty %DistanceMethods
-            $CODONS %synchanges $synsites $Precision);
+            $CODONS %synchanges $synsites $Precision $GCChhars);
 use strict;
 use Bio::Align::PairwiseStatistics;
 use Bio::Root::Root;
 use Bio::Matrix::PhylipDist;
 
 BEGIN {
-    $GapChars = '(\.|\-)';
+    $GapChars = '[\.\-]';
+    $GCChhars = '[GCS]';
     @Nucleotides = qw(A G T C);
     $SeqCount = 2;
     $Precision = 5;
@@ -295,11 +311,13 @@ BEGIN {
 				     },
 		    );
     %DistanceMethods = ( 'jc|jukes|jukes-cantor' => 'JukesCantor',
+			 'jcuncor|uncorrected'   => 'Uncorrected',
 			 'f81'                   => 'F81',
-			 'k2|k2p|k80|kimura'        => 'Kimura',
+			 'k2|k2p|k80|kimura'     => 'Kimura',
 			 't92|tamura|tamura92'   => 'Tamura',
 			 'f84'                   => 'F84',
-			 'tajimanei|tajima-nei'  => 'TajimaNei' );
+			 'tajimanei|tajima\-nei' => 'TajimaNei',
+			 'jinnei|jin\-nei'       => 'JinNei');
 
 }
 @ISA = qw( Bio::Root::Root Bio::Align::StatisticsI );
@@ -395,8 +413,8 @@ sub available_distance_methods{
  Usage   : my $d = $stat->D_JukesCantor($aln)
  Function: Calculates D (pairwise distance) between 2 sequences in an 
            alignment using the Jukes-Cantor 1 parameter model. 
- Returns : ArrayRef of all pairwise distances of all sequence pairs in the alignment
- Args    : Bio::Align::AlignI of DNA sequences
+ Returns : L<Bio::Matrix::PhylipDist>
+ Args    : L<Bio::Align::AlignI> of DNA sequences
            double - gap penalty
 
 
@@ -449,8 +467,8 @@ sub D_JukesCantor{
  Usage   : my $d = $stat->D_F81($aln)
  Function: Calculates D (pairwise distance) between 2 sequences in an 
            alignment using the Felsenstein 1981 distance model. 
- Returns : ArrayRef of a 2d array of all pairwise distances in the alignment
- Args    : Bio::Align::AlignI of DNA sequences
+ Returns : L<Bio::Matrix::PhylipDist>
+ Args    : L<Bio::Align::AlignI> of DNA sequences
 
 
 =cut
@@ -459,6 +477,61 @@ sub D_F81{
    my ($self,$aln) = @_;
    return 0 unless $self->_check_arg($aln);
    $self->throw("This isn't implemented yet - sorry");
+}
+
+=head2 D_Uncorrected
+
+ Title   : D_Uncorrected
+ Usage   : my $d = $stats->D_Uncorrected($aln)
+ Function: Calculate a distance D, no correction for multiple substitutions 
+           is used.
+ Returns : L<Bio::Matrix::PhylipDist>
+ Args    : L<Bio::Align::AlignI> (DNA Alignment)
+           [optional] gap penalty
+
+=cut
+
+sub D_Uncorrected {
+   my ($self,$aln,$gappenalty) = @_;
+   $gappenalty = $DefaultGapPenalty unless defined $gappenalty;
+   return 0 unless $self->_check_arg($aln);
+   # ambiguities ignored at this point
+   my (@seqs,@names,@values,%dist);
+   my $seqct = 0;
+   foreach my $seq ( $aln->each_seq) {
+       push @names, $seq->display_id;
+       push @seqs, [ split(//,uc $seq->seq())];
+       $seqct++;
+   }
+
+   my $precisionstr = "%.$Precision"."f";
+   my $len = $aln->length;
+   for( my $i = 0; $i < $seqct-1; $i++ ) {
+       # (diagonals) distance is 0 for same sequence
+       $dist{$names[$i]}->{$names[$i]} = [$i,$i];
+       $values[$i][$i] = sprintf($precisionstr,0);
+       
+       for( my $j = $i+1; $j < $seqct; $j++ ) {
+	   my ($matrix,$pfreq,$gaps) = $self->_build_nt_matrix($seqs[$i],
+							       $seqs[$j]);
+	   my $m = ( $matrix->[0]->[0] + 
+		     $matrix->[1]->[1] +
+		     $matrix->[2]->[2] +
+		     $matrix->[3]->[3] ); 
+	   my $D = 1 - ( $m / ( $len - $gaps + ( $gaps * $gappenalty)));
+	   # fwd and rev lookup
+	   $dist{$names[$i]}->{$names[$j]} = [$i,$j];
+	   $dist{$names[$j]}->{$names[$i]} = [$i,$j];	   
+	   $values[$j][$i] = $values[$i][$j] = sprintf($precisionstr,$D);
+           # (diagonals) distance is 0 for same sequence
+	   $dist{$names[$j]}->{$names[$j]} = [$j,$j];	   
+	   $values[$j][$j] = sprintf($precisionstr,0); 
+       }
+   }
+   return Bio::Matrix::PhylipDist->new(-program => 'bioperl_DNAstats',
+				       -matrix  => \%dist,
+				       -names   => \@names,
+				       -values  => \@values); 
 }
 
 
@@ -470,8 +543,8 @@ sub D_F81{
  Usage   : my $d = $stat->D_Kimura($aln)
  Function: Calculates D (pairwise distance) between 2 sequences in an 
            alignment using the Kimura 2 parameter model.
- Returns : ArrayRef of pairwise distances between all sequences in alignment
- Args    : Bio::Align::AlignI of DNA sequences
+ Returns : L<Bio::Matrix::PhylipDist>
+ Args    : L<Bio::Align::AlignI> of DNA sequences
 
 
 =cut
@@ -525,10 +598,10 @@ sub D_Kimura{
 =head2 D_Tamura
 
  Title   : D_Tamura
- Usage   :
- Function:
- Returns : 
- Args    :
+ Usage   : Calculates D (pairwise distance) between 2 sequences in an 
+           alignment using Tamura 1992 distance model. 
+ Returns : L<Bio::Matrix::PhylipDist>
+ Args    : L<Bio::Align::AlignI> of DNA sequences
 
 
 =cut
@@ -539,6 +612,7 @@ sub D_Tamura{
    # ambiguities ignored at this point
    my (@seqs,@names,@values,%dist);
    my $seqct = 0;
+   my $length = $aln->length;
    foreach my $seq ( $aln->each_seq) {
        push @names, $seq->display_id;;
        push @seqs, [ split(//,uc $seq->seq())];
@@ -546,23 +620,57 @@ sub D_Tamura{
    }
 
    my $precisionstr = "%.$Precision"."f";
-   my $O = 0.25;
-   my $t = 0;
-   my $a = 0;
-   my $b = 0;
-
+   my (@gap,@gc,@trans,@tranv,@score);
+   my $i = 0;
+   for my $t1 ( @seqs ) {
+       my $j = 0;
+       for my $t2 ( @seqs ) {
+	   for( my $k = 0; $k < $length; $k++ ) {
+	       if( $seqs[$i][$k] =~ /^$GapChars$/ ||
+		   $seqs[$j][$k] =~ /^$GapChars$/ ) {
+		   $gap[$i][$j]++;	
+	       } elsif( $seqs[$j][$k] =~ /^$GCChhars$/i ) {
+		   $gc[$i][$j]++;
+	       } 
+	   }
+	   $gc[$i][$j] = ( $gc[$i][$j] / 
+			   ($length - $gap[$i][$j]) );
+	   $j++;
+       }
+       $i++;
+   }
+   
    for( my $i = 0; $i < $seqct-1; $i++ ) {
        # (diagonals) distance is 0 for same sequence
        $dist{$names[$i]}->{$names[$i]} = [$i,$i];
        $values[$i][$i] = sprintf($precisionstr,0);
-
+       
        for( my $j = $i+1; $j < $seqct; $j++ ) {
+	   
+	   my $pairwise = $aln->select_noncont($i+1,$j+1);
+	   my $L = $self->pairwise_stats->number_of_comparable_bases($pairwise);
+	   my $P = $self->transitions($pairwise) / $L;
+	   my $Q = $self->transversions($pairwise) / $L;
+	   my $C = $gc[$i][$j] + $gc[$j][$i]- 
+	       ( 2 * $gc[$i][$j] * $gc[$j][$i] );
+	   if( $P ) {
+	       $P = $P / $C;
+	   }
+	   my $d = -($C * log(1- $P - $Q)) -(0.5* ( 1 - $C) * log(1 - 2 * $Q));
+           # fwd and rev lookup
+	   $dist{$names[$i]}->{$names[$j]} = [$i,$j];
+	   $dist{$names[$j]}->{$names[$i]} = [$i,$j];	   
+	   $values[$j][$i] = $values[$i][$j] = sprintf($precisionstr,$d);
+           # (diagonals) distance is 0 for same sequence
+	   $dist{$names[$j]}->{$names[$j]} = [$j,$j];
+	   $values[$j][$j] = sprintf($precisionstr,0); 
        }
    }
-   
+   return Bio::Matrix::PhylipDist->new(-program => 'bioperl_DNAstats',
+				       -matrix  => \%dist,
+				       -names   => \@names,
+				       -values  => \@values); 
 
-   my $d = 4 * $O * ( 1 - $O ) * $a * $t  + 2 * $b * $t;
-   return $d;
 }
 
 =head2 D_F84
@@ -571,14 +679,14 @@ sub D_Tamura{
  Usage   : my $d = $stat->D_F84($aln)
  Function: Calculates D (pairwise distance) between 2 sequences in an 
            alignment using the Felsenstein 1984 distance model. 
- Returns : Distance value
- Args    : Bio::Align::AlignI of DNA sequences
-           double - gap penalty
+ Returns : L<Bio::Matrix::PhylipDist>
+ Args    : L<Bio::Align::AlignI> of DNA sequences
+           [optional] double - gap penalty
 
 =cut
 
 sub D_F84{
-   my ($self,$aln) = @_;
+   my ($self,$aln,$gappenalty) = @_;
    return 0 unless $self->_check_arg($aln);
    # ambiguities ignored at this point
    my (@seqs,@names,@values,%dist);
@@ -608,6 +716,13 @@ sub D_F84{
 }
 
 # Tajima and Nei, Mol. Biol. Evol. 1984, 1, 269.
+#  Tajima-Nei correction used for multiple substitutions in the calc
+# of the distance matrix. Nucleic acids only.
+#
+#  D = p-distance = 1 - (matches/(posns_scored + gaps)
+#
+#  distance = -b * ln(1-D/b)
+#
 
 =head2 D_TajimaNei
 
@@ -615,7 +730,7 @@ sub D_F84{
  Usage   : my $d = $stat->D_TajimaNei($aln)
  Function: Calculates D (pairwise distance) between 2 sequences in an 
            alignment using the TajimaNei 1984 distance model. 
- Returns : Distance value
+ Returns : L<Bio::Matrix::PhylipDist>
  Args    : Bio::Align::AlignI of DNA sequences
 
 
@@ -634,19 +749,18 @@ sub D_TajimaNei{
        $seqct++;
    }
    my $precisionstr = "%.$Precision"."f";
-   $self->warn("The result from this distance method (TajimaNei) is not correct right now");
-
-   for( my $i = 0; $i < $seqct-1; $i++ ) {
-       # (diagonals) distance is 0 for same sequence
+   
+   # pairwise
+   for( my $i =0; $i < $seqct -1; $i++ ) {
        $dist{$names[$i]}->{$names[$i]} = [$i,$i];
        $values[$i][$i] = sprintf($precisionstr,0);
 
-       for( my $j = $i+1; $j < $seqct; $j++ ) {
-	   
+       for ( my $j = $i+1; $j <$seqct;$j++ ) {
 	   my ($matrix,$pfreq,$gaps) = $self->_build_nt_matrix($seqs[$i],
 							       $seqs[$j]);
-	   my $fij2;
-	   my $slen = $aln->length - $gaps;
+	   my $pairwise = $aln->select_noncont($i+1,$j+1);
+	   my $slen = $self->pairwise_stats->number_of_comparable_bases($pairwise);	    
+	   my $fij2 = 0;
 	   for( my $bs = 0; $bs < 4; $bs++ ) {
 	       my $fi = 0;
 	       map {$fi += $matrix->[$bs]->[$_] } 0..3;
@@ -656,6 +770,7 @@ sub D_TajimaNei{
 	       my $fij = ( $fi && $fj ) ? ($fi + $fj) /( 2 * $slen) : 0;
 	       $fij2 += $fij**2;
 	   }
+	   
 	   my ($pair,$h) = (0,0);
 	   for( my $bs = 0; $bs < 3; $bs++ ) {
 	       for( my $bs1 = $bs+1; $bs1 <= 3; $bs1++ ) {
@@ -669,22 +784,23 @@ sub D_TajimaNei{
 		       map { $ci2 += $matrix->[$_]->[$bs1] } 0..3;
 		       map { $cj2 += $matrix->[$bs1]->[$_] } 0..3;
 		       
-		       $h += ( $fij*$fij / 2 ) / 
-			   (  ( ( $ci1 + $cj1 ) / 2 * $slen ) *
-			      ( ( $ci2 + $cj2 ) /2 * $slen ) 
-			      );
-
-		       $self->debug( "h is $h fij = $fij ci1 =$ci1 cj1=$cj1 ci2=$ci2 cj2=$cj2\n");
+		       if( $fij ) {
+			   $h += ( ($fij**2) / 2 ) / 
+			       (  ( ( $ci1 + $cj1 ) / (2 * $slen) ) *
+				  ( ( $ci2 + $cj2 ) / (2 * $slen) ) 
+				  );
+		       }
+		       $self->debug( "slen is $slen h is $h fij = $fij ci1 =$ci1 cj1=$cj1 ci2=$ci2 cj2=$cj2\n");
 		   }
 	       }
 	   }
-	   # just want diagonals first
+	   # just want diagonals which are matches (A matched A, C -> C)
 
 	   my $m = ( $matrix->[0]->[0] + $matrix->[1]->[1] + 
 		     $matrix->[2]->[2] + $matrix->[3]->[3] );
 	   my $D = 1 - ( $m / $slen);
-
-	   my $b = (1-$fij2+(($D**2)/$h)) / 2;
+	   
+	   my $b = (1 - $fij2 + (($D**2)/$h)) / 2;
 	   $self->debug("h is $h fij2 is $fij2 b is $b\n");
 
 	   my $d = (-1 * $b) * log ( 1 - $D/ $b);
@@ -705,6 +821,28 @@ sub D_TajimaNei{
 				       -values  => \@values); 
 
 }
+
+# Jin and Nei, Mol. Biol. Evol. 82, 7, 1990.
+
+=head2 D_JinNei
+
+ Title   : D_JinNei
+ Usage   : my $d = $stat->D_JinNei($aln)
+ Function: Calculates D (pairwise distance) between 2 sequences in an 
+           alignment using the Jin-Nei 1990 distance model. 
+ Returns : L<Bio::Matrix::PhylipDist>
+ Args    : L<Bio::Align::AlignI> of DNA sequences
+
+
+=cut
+
+
+sub D_JinNei{
+   my ($self,@args) = @_;
+
+
+}
+
 
 # HKY -- HASEGAWA, M., H. KISHINO, and T. YANO. 1985
 # Tamura and Nei 1993?
