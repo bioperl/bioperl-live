@@ -1,22 +1,22 @@
 #!/bin/perl -w
-package NetworkIO::psi_xml;
+package Bio::Graph::IO::psi_xml;
 use strict;
 use XML::Twig;
 use Bio::Seq::SeqFactory;
-use prot_graph;
-use edge;
-use NetworkIO;
+use Bio::Graph::ProteinGraph;
+use Bio::Graph::Edge;
+use Bio::Graph::IO;
 use Bio::Annotation::DBLink;
 use Bio::Annotation::Collection;
 use Bio::Species;
-use vars qw(@ISA  %species @g $c $fac);
-@ISA = qw(NetworkIO);
+use vars qw(@ISA  %species $g $c $fac);
+@ISA = qw(Bio::Graph::IO);
 
 BEGIN{
 		 $fac  = Bio::Seq::SeqFactory->new(
 							-type => 'Bio::Seq::RichSeq'
 						);
-$c = 0;
+         $g = Bio::Graph::ProteinGraph->new();
 }
 #parsing done by XML::Twig, not by RootIO, therefore override usual new
 sub new {
@@ -41,21 +41,20 @@ sub _initialize  {
  purpose    : to construct a protein interaction graph from xml data
  usage      : my $gr = $netowkio->next_network();
  arguments  : void
- returns    : A Bio::Network::Proteingraph object
+ returns    : A Bio::Graph::ProteinGraph object
 
 =cut
 
 sub next_network {
 
  my $self = shift;
- push @g, prot_graph->new();
  my $t    = XML::Twig->new
 				(  TwigHandlers => {
 									 proteinInteractor   => \&_proteinInteractor,
 								 	 interaction         => \&_addEdge
 									});
  $t->parsefile($self->file);
- return $g[$#g];	 
+ return $g;	 
 
 
 }
@@ -72,10 +71,6 @@ sub next_network {
 
 sub _proteinInteractor {
 	my ($twig, $pi) = @_;
-	$c++;
-	if ($c % 50 == 0) {
-		print  STDERR ".";
-	}
 
 	my ($acc, $sp, $desc, $taxid,  $prim_id);
 
@@ -86,9 +81,9 @@ sub _proteinInteractor {
 	if (!exists($species{$taxid})) {
 		my $full       =  $org->first_child('names')->first_child('fullName')->text;
 		my ($gen, $sp) = $full =~ /(\S+)\s+(.+)/;
-		my $sp_obj     = Bio::Species->new(-ncbi_taxid    => $taxid,
-									    -classification=> [$sp, $gen],
-									);
+		my $sp_obj     = Bio::Species->new(-ncbi_taxid     => $taxid,
+									       -classification => [$sp, $gen],
+									      );
 		$species{$taxid} = $sp_obj;
 		} 
 	
@@ -125,17 +120,17 @@ sub _proteinInteractor {
 	
 	## now fill hash with keys = ids and vals = node refs to have lookip
 	## hash for nodes by any id.	
-	$g[$#g]{'_id_map'}{$ids{'psixml'}}          = $node;
+	$g->{'_id_map'}{$ids{'psixml'}}          = $node;
 	if (defined($node->primary_id)) {
-		$g[$#g]{'_id_map'}{$node->primary_id} = $node;
+		$g->{'_id_map'}{$node->primary_id} = $node;
 		}
 	if (defined($node->accession_number)) {
-		$g[$#g]{'_id_map'}{$node->accession_number} = $node;
+		$g->{'_id_map'}{$node->accession_number} = $node;
 		}
 	## cycle thru annotations
 	 $ac = $node->annotation();
 	for my $an ($ac->get_Annotations('dblink')) {
-		$g[$#g]{'_id_map'}{$an->primary_id} = $node;
+		$g->{'_id_map'}{$an->primary_id} = $node;
 		}
 	$twig->purge();
 }
@@ -150,16 +145,15 @@ sub _proteinInteractor {
 =cut
 
 sub _addEdge {
-	$c++; 
-	if ($c % 50 ==0 ) {
-		print STDERR ",";
-		}
+
 	my ($twig, $i) = @_;
 	my @ints = $i->first_child('participantList')->children;
 	my @node = map{$_->first_child('proteinInteractorRef')->att('ref')} @ints;
-	$g[$#g]->add_edge(edge->new(
-					-nodes =>[($g[$#g]{'_id_map'}{$node[0]}, $g[$#g]{'_id_map'}{$node[1]})],
-					-id    => undef));
+    my $edge_id = $i->first_child('xref')->first_child('primaryRef')->att('id');
+	$g->add_edge(Bio::Graph::Edge->new(
+					-nodes =>[($g->{'_id_map'}{$node[0]}, 
+                               $g->{'_id_map'}{$node[1]})],
+					-id    => $edge_id));
 	$twig->purge();
 }
 1;
