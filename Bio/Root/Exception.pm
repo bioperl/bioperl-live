@@ -14,7 +14,57 @@ Bio::Root::Exception - Generic exception objects for Bioperl
 
 =head1 SYNOPSIS
 
-* Exceptions defined in this module, all inherit from Bio::Root::Exception:
+=head2 Throwing exceptions using B<Error::throw()>:
+
+    use Bio::Root::Exception;
+    use Error qw(:try);
+
+    $file = shift;
+
+    try {
+        open (IN, $file) || throw Bio::Root::FileOpenException (
+	  -text => "Can't open file $file for reading",
+          -value => $!,
+	  -object => $self );
+    } 
+    catch Bio::Root::FileOpenException with {
+        my $err = shift;
+        print STDERR "Using default input file: $default_file\n";
+        open (IN, $default_file) || die "Can't open $default_file";
+    }
+    otherwise {
+        my $err = shift;
+    	print STDERR "An unexpected exception occurred: \n$err";
+    
+	# By placing an the error object reference within double quotes,
+	# you're invoking its stringify() method.
+    }
+   finally {
+       # Any code that you want to execute regardless of whether or not
+       # an exception occurred.
+   };  
+   # the ending semicolon is essential!
+
+
+=head2 Throwing exceptions using B<Bio::Root::Root::throw()>:
+
+     # Note: You don't have to be within a try{} block
+     open (IN, $file) || $object->throw(
+			       -class => 'Bio::Root::FileOpenException',
+			       -text => "Can't open file $file for reading",
+			       -value => $!);
+
+=head2 Defining a new Exception type as a subclass of Bio::Root::Exception:
+
+    @Bio::TestException::ISA = qw( Bio::Root::Exception );
+
+
+=head1 DESCRIPTION
+
+=head2 Exceptions defined in B<Bio::Root::Exception>
+
+These are generic exceptions for typical problem situations that could arise
+in any module or script. 
 
 =over 8
 
@@ -36,54 +86,8 @@ Bio::Root::Exception - Generic exception objects for Bioperl
 
 =back
 
-* Throwing and catching a Bio::Root::FileOpenException:
-
-    use Bio::Root::Exception;
-    use Error qw(:try);
-
-    $file = shift;
-
-    try {
-        open (IN, $file) || throw Bio::Root::FileOpenException (
-	  -text => "Can't open file $file for reading",
-          -value => $!,
-	  -object => $self );
-    } 
-
-    catch Bio::Root::FileOpenException with {
-        my $err = shift;
-        print STDERR "Using default input file: $default_file\n";
-        open (IN, $default_file) || die "Can't open $default_file";
-    }
-
-    otherwise {
-        my $err = shift;
-    	print STDERR "An unexpected exception occurred: \n$err";
-    
-	# By placing an the error object reference within double quotes,
-	# you're invoking its stringify() method.
-
-    };   # IMPORTANT: Don't forget this final semicolon!
-
-
-* Throwing Bio::Root::Exceptions via B<Bio::Root::RootI::throw()>:
-
-     $obj->throw(-class => 'Bio::Root::BadParameter',
-                 -text  => "The value you supplied looks bad: $value",
-                 -value => $value );
-
-
-* Defining a new Exception type as a subclass of Bio::Root::Exception:
-
-    @Bio::TestException::ISA = qw( Bio::Root::Exception );
-
-
-=head1 DESCRIPTION
-
-B<Bio::Root::Exception> defines some generic exceptions intended for
-use within Bioperl modules and scripts. These Exceptions all derive
-from Bio::Root::Exception which can be used as a base class for all
-Bioperl exceptions. This would allow a user to write a handler for all
+All of these exceptions inherit from a common base class exception,
+Bio::Root::Exception. This allows a user to write a handler for all
 Bioperl-derived exceptions as follows:
 
            use Bio::Whatever;
@@ -97,34 +101,29 @@ Bioperl-derived exceptions as follows:
                print "A Bioperl exception occurred:\n$err\n";
            };
 
-Bio::Root::Exceptions can also be thrown indirectly via
-B<Bio::Root::RootI::throw()> which automatically uses Error.pm 
-when it's available. 
-
-To take advantage of this capability, you must specify the type 
-of exception you want to throw by using named parameters 
-in your throw call. The C<-class> parameter is a string containing
-the name of the Bio::Root::Exception subclass you want to throw.
-The C<-text> parameter should contain an informative error message.
-You can optionally define a C<-value> parameter to contain the value that
-caused the exception. This can be processed when the exception is caught.
-
-Note that Bio::Root::Exception does not need to be imported into
-your module (or script) namespace in order to throw exceptions
-via Bio::Root::RootI::throw().
-
 The exceptions in Bio::Root::Exception are extensions of Graham Barr's
 B<Error.pm> module available from CPAN.  Despite this dependency, the
 Bio::Root::Exception module does not explicitly C<require Error>.
 This permits Bio::Root::Exception to be loaded even when
 Error.pm is not available.
 
+=head2 Throwing exceptions within Bioperl modules
+
+Error.pm is not part of the Bioperl distibution, and may not be
+present within  any given perl installation. So, when you want to 
+throw an exception in a Bioperl module, the safe way to throw it
+is to use B<Bio::Root::Root::throw()> which can use Error.pm 
+when it's available. See documentation in Bio::Root::Root for details.
+
 =head1 SEE ALSO
 
 See the C<examples/exceptions> directory of the Bioperl distribution for 
 working demo code.
 
-B<Error.pm> (available from CPAN)
+B<Bio::Root::Root::throw()> for information about throwing 
+Bio::Root::Exception-based exceptions.
+
+B<Error.pm> (available from CPAN, author: GBARR)
 
 Error.pm is helping to guide the design of exception handling in Perl 6. 
 See these RFC's: 
@@ -181,7 +180,7 @@ my $debug = $Error::Debug;  # Prevents the "used only once" warning.
 
  Purpose : Get a nicely formatted string containing information about the 
            exception. Format is similar to that produced by 
-           Bio::Root::RootI::throw(), with the addition of the name of
+           Bio::Root::Root::throw(), with the addition of the name of
            the exception class in the EXCEPTION line and some other
            data available via the Error object.
  Example : print $error->pretty_format;
@@ -206,13 +205,14 @@ sub pretty_format {
 }
 
 
-# Modifications:
+# Reformatting of the stack performed by  _reformat_stacktrace:
 #   1. Shift the file:line data in line i to line i+1.
 #   2. change xxx::__ANON__() to "try{} block"
 #   3. skip the "require" and "Error::subs::try" stack entries (boring)
 # This means that the first line in the stack won't have any file:line data
 # But this isn't a big issue since it's for a Bio::Root::-based method 
 # that doesn't vary from exception to exception.
+
 sub _reformat_stacktrace {
     my $self = shift;
     my $msg = $self->text;
