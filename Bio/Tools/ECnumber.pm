@@ -108,10 +108,19 @@ or the web:
   bioperl-bugs@bio.perl.org
   http://bio.perl.org/bioperl-bugs/
 
-=head1 AUTHOR - Christian M. Zmasek
+=head1 AUTHOR
 
-Email czmasek@gnf.org or zmasek@yahoo.com
-WWW   http://www.genetics.wustl.edu/eddy/people/zmasek/
+Christian M. Zmasek
+
+Email: czmasek@gnf.org  or  zmasek@yahoo.com
+
+WWW:   http://www.genetics.wustl.edu/eddy/people/zmasek/
+
+Address: 
+
+  Genomics Institute of the Novartis Research Foundation
+  10675 John Jay Hopkins Drive
+  San Diego, CA 92121
 
 =head1 APPENDIX
 
