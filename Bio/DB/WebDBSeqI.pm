@@ -93,7 +93,7 @@ use Bio::Root::Root;
 @ISA = qw(Bio::DB::RandomAccessI);
 
 BEGIN {
-    $MODVERSION = '0.8';
+    $MODVERSION = $Bio::Root::Version::VERSION;
     %RETRIEVAL_TYPES = ( 'io_string' => 1,
 			 'tempfile'  => 1,
 			 'pipeline'  => 1,
@@ -125,7 +125,9 @@ sub new {
     
     $self->request_format($format);
     my $ua = new LWP::UserAgent;
-    $ua->agent(ref($self) ."/$MODVERSION");
+    my $nm = ref($self);
+    $nm =~ s/::/_/g;
+    $ua->agent("bioperl-$nm/$MODVERSION");
     $self->ua($ua);  
     $self->{'_authentication'} = [];
     return $self;
