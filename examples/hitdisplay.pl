@@ -122,7 +122,7 @@ my $hds = $mw->Scrolled('HitDisplay',
 					 90 => 'red'
 					},
 			-interval    => 15,
-			-hitdata     => \@data);
+			-hitdata     => \@hits);
 
 $hds->pack(-side => 'top', -fill => 'both', -expand => 1);
 $hds->waitVisibility;
