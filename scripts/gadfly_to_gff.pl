@@ -52,7 +52,7 @@ The resulting database will have the following feature types
 
 =head2 AUTHOR
 
-Lincoln Stein <lstein@cshl.org>
+Lincoln Stein E<lt>lstein@cshl.orgE<gt>
 
 =cut
 

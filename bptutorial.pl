@@ -176,6 +176,8 @@ objects related to one another.
 
 =head2 I.2 Software requirements
 
+=cut
+
 =head2   I.2.1 Minimal bioperl installation
 
 For a "minimal" installation of bioperl, you will need to have perl
@@ -662,6 +664,8 @@ develop customized local data-file indexing systems.
 
 =head2 III.2 Transforming formats of database/ file records
 
+=cut
+
 =head2   III.2.1 Transforming sequence files (SeqIO)
 
 A common - and tedious - bioinformatics task is that of converting
@@ -719,6 +723,8 @@ alignment objects.  IO for UnivAln objects can only be done for files
 in fasta data format.)
 
 =head2 III.3 Manipulating sequences
+
+=cut
 
 =head2 III.3.1  Manipulating sequence data with Seq methods
 
@@ -1027,11 +1033,11 @@ object for this purpose - unless you really know what you're doing!)
 
 A skeleton script to run a remote blast might look as follows:
 
-$remote_blast = Bio::Tools::Run::RemoteBlast->new(
-               '-prog' => 'blastp','-data' => 'ecoli','-expect' => '1e-10' );
-$r = $remote_blast->submit_blast(t/data/ecolitst.fa);
-while (@rids = $remote_blast->each_rid ) {
-    foreach $rid ( @rids ) {$rc = $remote_blast->retrieve_blast($rid);}}
+  $remote_blast = Bio::Tools::Run::RemoteBlast->new(
+  		 '-prog' => 'blastp','-data' => 'ecoli','-expect' => '1e-10' );
+  $r = $remote_blast->submit_blast(t/data/ecolitst.fa);
+  while (@rids = $remote_blast->each_rid ) {
+      foreach $rid ( @rids ) {$rc = $remote_blast->retrieve_blast($rid);}}
 
 Note that the script has to be broken into two parts.  The actual Blast
 submission and the subsequent retrieval of the results.  At times when the
@@ -1048,7 +1054,7 @@ the appendix to see some working code you could use.
 It should also be noted that the syntax for creating a remote blast factory
 is slightly different from that used in creating StandAloneBlast, Clustalw,
 and T-Coffee factories.  Specifically RemoteBlast requires parameters to
-be passed with a leading hyphen, as in '-prog' => 'blastp', while the other
+be passed with a leading hyphen, as in '-prog' =E<gt> 'blastp', while the other
 programs do not pass parameters with a leading hyphen.
 
 =head2   III.4.3 Parsing BLAST reports with Blast.pm
