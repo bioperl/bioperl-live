@@ -21,7 +21,7 @@ sub pad_left {
   my $self = shift;
   return $self->SUPER::pad_left unless $self->option('draw_target') && $self->option('ragged_start') && $self->dna_fits;
   return $self->SUPER::pad_left unless $self->level > 0;
-  my $target = $self->feature->hit;
+  my $target = eval {$self->feature->hit} or return $self->SUPER::pad_left;
   return $self->SUPER::pad_left unless $target->start<$target->end && $target->start < RAGGED_START_FUZZ;
   return ($target->start-1) * $self->scale;
 }
@@ -30,7 +30,7 @@ sub pad_right {
   my $self = shift;
   return $self->SUPER::pad_right unless $self->level > 0;
   return $self->SUPER::pad_right unless $self->option('draw_target') && $self->option('ragged_start') && $self->dna_fits;
-  my $target = $self->feature->hit;
+  my $target = eval {$self->feature->hit} or return $self->SUPER::pad_right;
   return $self->SUPER::pad_right unless $target->end < $target->start && $target->start < RAGGED_START_FUZZ;
   return ($target->end-1) * $self->scale;
 }

@@ -113,7 +113,7 @@ use Bio::SeqI;
 use Bio::LocationI;
 
 use vars '$VERSION','@ISA';
-$VERSION = '1.40';
+$VERSION = '1.41';
 @ISA  = qw(Bio::Root::Root Bio::SeqFeatureI Bio::LocationI Bio::SeqI);
 
 *stop        = \&end;
@@ -123,6 +123,9 @@ $VERSION = '1.40';
 *exons       = *sub_SeqFeature = *merged_segments = \&segments;
 *method      = \&type;
 *source      = \&source_tag;
+
+sub target { return; }
+sub hit    { return; }
 
 # usage:
 # Bio::Graphics::Feature->new(
