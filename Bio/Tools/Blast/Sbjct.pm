@@ -28,7 +28,7 @@ use Exporter           ();
 use strict;
 use vars qw($ID $VERSION %SUMMARY_OFFSET $Revision);
 $ID = 'Bio::Tools::Blast::Sbjct';
-$VERSION = 0.080;
+$VERSION = 0.085;
 $Revision = '$Id$';  #'
 
 my $_prog       = '';
@@ -220,7 +220,7 @@ See the L<FEEDBACK> section for where to send bug reports and comments.
 
 =head1 VERSION
 
-Bio::Tools::Blast::Sbjct.pm, 0.080
+Bio::Tools::Blast::Sbjct.pm, 0.085
 
 =head1 COPYRIGHT
 
@@ -511,7 +511,7 @@ sub _set_hsps {
 	   }
        } elsif( $start ) {
 	   ## This block is for setting the last HSP (which may be the first as well!).
-	   if( $line =~ /^(end|>|Parameters|CPU)/ ) {
+	   if( $line =~ /^(end|>|Parameters|CPU|Database:)/ ) {
 	       $hspCount++;
 	       $DEBUG and do{ print STDERR +( $hspCount % 10 ? "+" : "+\n" ); };
 
