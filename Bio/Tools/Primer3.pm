@@ -1,9 +1,23 @@
 #
+# This is the original copyright statement. I have relied on Chad's module
+# extensively for this module.
+#
 # Copyright (c) 1997-2001 bioperl, Chad Matsalla. All Rights Reserved.
 #           This module is free software; you can redistribute it and/or
 #           modify it under the same terms as Perl itself. 
 #
 # Copyright Chad Matsalla
+#
+# You may distribute this module under the same terms as perl itself
+# POD documentation - main docs before the code
+#
+# But I have modified lots of it, so I guess I should add:
+#
+# Copyright (c) 2003 bioperl, Rob Edwards. All Rights Reserved.
+#           This module is free software; you can redistribute it and/or
+#           modify it under the same terms as Perl itself. 
+#
+# Copyright Rob Edwards
 #
 # You may distribute this module under the same terms as perl itself
 # POD documentation - main docs before the code
@@ -15,552 +29,374 @@ program primer3
 
 =head1 SYNOPSIS
 
-Chad will put synopses here by the end of the second week of october, 2002.
+ # parse primer3 output to get some data
+ # this is also called from Bio::Tools::Run::Primer3
+
+ use Bio::Tools::Primer3;
+
+ # read a primer3 output file
+ my $p3=Bio::Tools::Primer3->new(-file=>"data/primer3_output.txt");
+
+ # how many results were there?
+ my $num=$p3->number_of_results;
+ print "There were $num results\n";
+
+ # get all the results
+ my $all_results=$p3->all_results;
+ print "ALL the results\n";
+ foreach my $key (keys %{$all_results}) {print "$key\t${$all_results}{$key}\n"}
+
+ # get specific results
+ my $result1=$p3->primer_results(1);
+ print "The first primer is\n";
+ foreach my $key (keys %{$result1}) {print "$key\t${$result1}{$key}\n"}
+
+ # get the results as a Bio::Seq::PrimedSeq stream
+ my $primer=$p3->next_primer;
+ print "The left primer in the stream is ", $primer->get_primer('-left_primer')->seq->seq, "\n";
 
 =head1 DESCRIPTION
 
-Bio::Tools::Primer3 creates the input files needed to design primers using
-primer3 and provides mechanisms to access data in the primer3 output files.
+ Bio::Tools::Primer3 creates the input files needed to design primers using
+ primer3 and provides mechanisms to access data in the primer3 output files.
+
+ This module provides a bioperl interface to the program primer3. See 
+ http://www-genome.wi.mit.edu/genome_software/other/primer3.html
+ for details and to download the software.
+
+ This module is based on one written by Chad Matsalla (bioinformatics1@dieselwurks.com)
+
+ I have ripped some of his code, and added a lot of my own. I hope he's not mad at me!
+
+ This is probably best run in one of the two following ways:
+  i. To parse the output from Bio::Tools::Run::Primer3. 
+     You'll most likely just use next_primer to get the results from Bio::Tools::Run::Primer3.
+  ii. To parse the output of primer3 handed to it as a file name.
 
 =head1 FEEDBACK
 
 =head2 Mailing Lists
 
-User feedback is an integral part of the evolution of this and other
-Bioperl modules. Send your comments and suggestions preferably to one
-of the Bioperl mailing lists.  Your participation is much appreciated.
+  User feedback is an integral part of the evolution of this and other
+  Bioperl modules. Send your comments and suggestions preferably to one
+  of the Bioperl mailing lists.  Your participation is much appreciated.
 
-  bioperl-l@bioperl.org          - General discussion
-  http://www.bioperl.org/MailList.html             - About the mailing lists
+    bioperl-l@bioperl.org          - General discussion
+    http://www.bioperl.org/MailList.html             - About the mailing lists
 
 =head2 Reporting Bugs
 
-Report bugs to the Bioperl bug tracking system to help us keep track
-the bugs and their resolution.  Bug reports can be submitted via email
-or the web:
+  Report bugs to the Bioperl bug tracking system to help us keep track
+  the bugs and their resolution.  Bug reports can be submitted via email
+  or the web:
 
-  bioperl-bugs@bio.perl.org
-  http://bugzilla.bioperl.org/
+    bioperl-bugs@bio.perl.org
+    http://bugzilla.bioperl.org/
 
 
-=head1 AUTHOR - Chad Matsalla
+=head1 AUTHOR - 
 
-bioinformatics1@dieselwurks.com
+  Rob Edwards
+
+  redwards@utmem.edu
+
+  Based heavily on work of 
+
+  Chad Matsalla
+
+  bioinformatics1@dieselwurks.com
 
 =head1 APPENDIX
 
-The rest of the documentation details each of the object methods. 
-Internal methods are usually preceded with a _
+  The rest of the documentation details each of the object methods. 
+  Internal methods are usually preceded with a _
 
 =cut
 
 # Let the code begin...
 
+
+
 package Bio::Tools::Primer3;
+
 
 use vars qw(@ISA);
 use strict;
 use Bio::Seq;
-use Bio::SeqFeature::Primer;
 use Bio::Seq::PrimedSeq;
+use Bio::SeqFeature::Primer;
 use Bio::Seq::SeqFactory;
-
 use Bio::Root::Root;
 use Bio::Root::IO;
 
-use Dumpvalue;
+use vars qw($AUTOLOAD @PRIMER3_PARAMS @ISA %OK_FIELD $ID $version);
+
+BEGIN {
+ @PRIMER3_PARAMS=qw(results seqobject);
+
+ foreach my $attr (@PRIMER3_PARAMS) {$OK_FIELD{$attr}++}
+}
+
 
 @ISA = qw(Bio::Root::Root Bio::Root::IO);
 
-     # Chad likes to use this to debug large hashes.
-my $dumper = new Dumpvalue;
 
-     # this was a bunch of the seqio things, now deprecated. delete it soon.
-		# sub _initialize {
-		#   my($self,@args) = @_;
-		#   $self->SUPER::_initialize(@args);
-		#   if( ! defined $self->sequence_factory ) {
-		#       $self->sequence_factory(new Bio::Seq::SeqFactory
-		#                      (-verbose => $self->verbose(),
-		#                       -type => 'Bio::Seq'));
-		#   }
-		# }
+sub AUTOLOAD {
+ my $self = shift;
+ my $attr = $AUTOLOAD;
+ $attr =~ s/.*:://;
+ $self->throw("Unallowed parameter: $attr !") unless $OK_FIELD{$attr};
+ $self->{$attr} = shift if @_;
+ return $self->{$attr};
+}
 
+$ID = 'Bio::Tools::Primer3';
+$version = 1.0;
 
 =head2 new()
 
  Title   : new()
- Usage   : 
- Function: 
- Returns : 
- Args    : 
+ Usage   : my $primer3 = Bio::Tools::Primer3->new(-file=>$file) to read a primer3 output file.
+ Function: Parse primer3 output
+ Returns : Doesn't return anything. If called with a filename will allow you to retrieve the results
+ Args    : -file (optional) file of primer3 results to parse -verbose (optional) set verbose output
  Notes   : 
 
 =cut
 
+
 sub new {
-     my($class,@args) = @_;
-     my $self = $class->SUPER::new(@args);
-     my($filename) = $self->_rearrange([qw(FILE)],@args);
-     if (!$filename) {
-          print("Ahh grasshopper, you are planning to create a primer3 infile\n");
-          return $self;
-     }
-     $self->{filename} = $filename;
-          # check to see that the file exists
-          # I think that catfile should be used here.
-     if (!-f $filename) {
-          print("That file doesn't exist. Bah.\n");
-     }
-     $self->_initialize_io( -file => $filename );
-     return $self;
+ my($class,%args) = @_;
+ my $self = $class->SUPER::new(%args);
+
+ if ($args{'-file'}) {$self->_readfile($args{'-file'})}
+ if ($args{'-verbose'}) {$self->{'verbose'}=1}
+ return $self;
 }
 
 
 
 
-=head2 null
+=head2 number_of_results()
 
- Title   : 
- Usage   : 
- Function: 
- Returns : 
- Args    : 
+ Title   : number_of_results()
+ Usage   : $primer3->number_of_results()
+ Function: Retrieve the number of primers returned from Primer3.
+ Returns : A scalar
+ Args    : None
+ Notes   : Returns the maximum number of primers returned from Primer3.
+
+=cut
+
+sub number_of_results {
+ my $self=shift;
+ return $self->{'maximum_primers_returned'};
+}
+
+
+=head2 all_results()
+
+ Title   : all_results()
+ Usage   : $primer3->all_results() to print all results or 
+           $primer3->all_results('primer3 result name', 'other results') to return a specific result
+ Function: Retrieve the results returned from Primer3.
+ Returns : A reference to a hash
+ Args    : Optional array of results to retrieve
+
+=cut
+
+sub all_results {
+ my ($self, @results) = @_;
+ my %hash;
+  if (@results) {
+  # we only want a few things
+  foreach my $result (@results) {$hash{$result}=$self->{'results'}->$result}
+ }
+ else {
+  foreach my $result (keys %{$self->{'results'}}) {
+   $hash{$result}=$self->{'results'}->{$result};
+  }
+ }
+
+
+ return \%hash;
+} 
+
+
+=head2 primer_results()
+
+ Title   : primer_results()
+ Usage   : $primer3->primer_results(2) to print results for the third choice primer (indexed on 0)
+ Function: Retrieve the results returned from Primer3 for specific primer pairs.
+ Returns : A reference to a hash
+ Args    : A number between 0 and the maximum number of primers to retrieve
+
+=cut
+
+sub primer_results {
+ my ($self, $toget) = @_;
+ if ($toget > $self->{'maximum_primers_returned'}) {
+  $self->warn("Didn't get any results for $toget");
+  return 0;
+ }
+ else {return \%{$self->{'results_by_number'}->{$toget}}}
+}
+
+=head2 _readfile()
+
+ Title   : _readfile()
+ Usage   : $self->_readfile();
+ Function: An internal function that reads a file and sets up the results
+ Returns : Nothing.
+ Args    : None
  Notes   : 
 
 =cut
 
+sub _readfile {
+ my ($self, $file) = @_;
+ $self->_initialize_io(-file=>$file);
+ my $line;
+ my $id='primer 3 parsed results'; # hopefully we'll get this, but we can set a temp id in case not.
+ while (defined($line=$self->_readline()) ) {
+  chomp $line;
+  next unless ($line);
+  my ($return, $value) = split /=/, $line;
+  if (uc($return) eq "SEQUENCE") {
+   $self->{seqobject}=Bio::Seq->new(-seq=>$value, $id=>$id);
+   next;
+  }
+  if (uc($return) eq "PRIMER_SEQUENCE_ID") {
+   if ($self->{seqobject}) {$self->{seqobject}->id($value)} else {$id=$value}
+  }
+
+  $self->{'results'}->{$return} = $value;
+ }
+
+ # convert the results to individual results
+ $self->_separate();
+}
+
+=head2 primer_stream()
+
+ Title   : primer_stream()
+ Usage   : while (my $primed_seq  = $primer3->primer_stream()) {
+ Function: Retrieve the primer/sequences one at a time
+ Returns : Returns a Bio::Seq::PrimedSeq feature, one at a time
+ Args    : None
+ Notes   : Deprecated. I should just delete this, but my test scripts will all break.
+           This will be removed before it goes really live, and is just a link to next_primer
 
 
+=cut
 
+sub primer_stream {
+ my $self=shift;
+ my $primedseq = $self->next_primer;
+ return $primedseq;
+}
 
 
 
 =head2 next_primer()
 
  Title   : next_primer()
- Usage   : $primer3 = $stream->next_primer()
- Function: returns the next primer in the stream
- Returns : Bio::Seq::PrimedSeq containing:
-     - 2 Bio::SeqFeature::Primer representing the primers
-     - 1 Bio::Seq representing the target sequence
-     - 1 Bio::Seq representing the amplified region
- Args    : NONE
- Notes   : 
+ Usage   : while (my $primed_seq  = $primer3->next_primer()) {
+ Function: Retrieve the primer/sequences one at a time
+ Returns : Returns a Bio::Seq::PrimedSeq feature, one at a time
+ Args    : None
+ Notes   : Use $primed_seq->annotated_seq to get an annotated sequence object you can write out.
 
 =cut
+
+
 
 sub next_primer {
-     my $self = shift;
-     my $fh = $self->_fh();
-     my ($line,%primer);
-          # first, read in the next set of primers
-     while ($line = $self->_readline()) {
-          chomp ($line);
-          last if ($line =~ /^=/);
-          $line =~ m/(^.*)\=(.*$)/;
-          $primer{$1} = $2; 
-     }
-               # then, get the primers as SeqFeature::Primer objects
-     
-     my ($left,$right) = &_create_primer_features(\%primer);
-               # then, create the sequence to place them on
-     my $sequence = Bio::Seq->new(-seq => $primer{SEQUENCE},
-                                         -id => $primer{PRIMER_SEQUENCE_ID});
-     # print("Sequence is ".$primer{SEQUENCE}." and id is ".$primer{PRIMER_SEQUENCE_ID}."\n");
-     my $primedseq = new Bio::Seq::PrimedSeq(
-                                           -target_sequence => $sequence,
-                                           -left_primer => $left,
-                                           -right_primer => $right,
-                                           -primer_sequence_id => $primer{PRIMER_SEQUENCE_ID},
-                                           -primer_comment => $primer{PRIMER_COMMENT},
-                                           -target => $primer{TARGET},
-                                           -primer_product_size_range => $primer{PRIMER_PRODUCT_SIZE_RANGE},
-                                           -primer_file_flag => $primer{PRIMER_FILE_FLAG},
-                                           -primer_liberal_base => $primer{PRIMER_LIBERAL_BASE},
-                                           -primer_num_return => $primer{PRIMER_NUM_RETURN},
-                                           -primer_first_base_index => $primer{PRIMER_FIRST_BASE_INDEX},
-                                           -primer_explain_flag => $primer{PRIMER_EXPLAIN_FLAG},
-                                           -primer_pair_compl_any => $primer{PRIMER_PAIR_COMPL_ANY},
-                                           -primer_pair_compl_end => $primer{PRIMER_PAIR_COMPL_END},
-                                           -primer_product_size => $primer{PRIMER_PRODUCT_SIZE}
-                                        );
-     return $primedseq;
+ my $self = shift;
+ # here we are going to convert the primers to Bio::SeqFeature::Primer objects
+ # and the primer/sequence to Bio::Seq::PrimedSeq objects
+ # the problem at the moment is that PrimedSeq can only take one sequence/primer pair, and
+ # yet for each sequence we can have lots of primer pairs. We need a way to overcome this.
+ # at the moment we can do this as a stream, I guess.
+
+ my $next=0;
+ if ($self->{'next_to_return'}) {$next=$self->{'next_to_return'}}
+ if ($next>$self->{'maximum_primers_returned'}) {return}
+ my $results=$self->primer_results($next);
+ unless (${$results}{'PRIMER_LEFT_SEQUENCE'}) {$self->throw("No left primer sequence")}
+ unless (${$results}{'PRIMER_RIGHT_SEQUENCE'}) {$self->throw("No right primer sequence")}
+ unless ($self->{'seqobject'}) {$self->throw("No target sequence")}
+
+ my $left_seq  = Bio::SeqFeature::Primer->new(-primer_sequence_id=>"left_primer", -sequence=>${$results}{'PRIMER_LEFT_SEQUENCE'});
+ my $right_seq = Bio::SeqFeature::Primer->new(-primer_sequence_id=>"right_primer", -sequence=>${$results}{'PRIMER_RIGHT_SEQUENCE'});
+ my $primed_seq = Bio::Seq::PrimedSeq->new(-target_sequence=>$self->{'seqobject'}, -left_primer=>$left_seq, -right_primer=>$right_seq);
+ my %product_hash; my %primer_left_hash; my %primer_right_hash;
+ # now we are going to add the remaining primer3 results to the appropriate place (either primer or primed seq)
+ foreach my $key (keys %$results) {
+  next if ($key eq 'PRIMER_LEFT_SEQUENCE' || $key eq 'PRIMER_RIGHT_SEQUENCE');
+  if ($key =~ /PRIMER_LEFT/i) {$primer_left_hash{$key}=$$results{$key}}
+  elsif ($key =~ /PRIMER_RIGHT/i) {$primer_right_hash{$key}=$$results{$key}}
+  else {$product_hash{$key}=$$results{$key}}
+ }
+ $left_seq->add_tag_value(%primer_left_hash);
+ $right_seq->add_tag_value(%primer_right_hash);
+ $primed_seq->add_tag_value(%product_hash);
+
+ $self->{'next_to_return'}=$next+1;
+ return $primed_seq;
 }
 
+=head2 _set_variable()
 
-=head2 _create_primer_features()
-
- Title   : _create_primer_features()
- Usage   : &_create_primer_features()
- Function: This is an internal method used by next_seq() to create the
-     Bio::SeqFeature::Primer objects necessary to represent the primers
-     themselves.
- Returns : An array of 2 Bio::SeqFeature::Primer objects.
- Args    : None.
- Notes   : This is an internal method. Do not call this method.
-
-=cut
-
-
-sub _create_primer_features {
-     my $rdat = shift;
-     my (%left,%right,$updir,$downdir,$var,$trunc);
-     my @variables = qw(
-        PRIMER_DIRECTION
-        PRIMER_DIRECTION_END_STABILITY
-        PRIMER_DIRECTION_EXPLAIN
-        PRIMER_DIRECTION_GC_PERCENT
-        PRIMER_DIRECTION_PENALTY
-        PRIMER_DIRECTION_SELF_ANY
-        PRIMER_DIRECTION_SELF_END
-        PRIMER_DIRECTION_SEQUENCE
-        PRIMER_DIRECTION_TM
-         PRIMER_FIRST_BASE_INDEX
-     );
-          # create the hash to pass into the creation routine
-          # I do it this way because the primer3 outfile variables are exactly the same for each of
-          # left and right. I create two hashes- one for the left and one for the right primer.
-     foreach $updir (qw(LEFT RIGHT)) {
-            my %dat;
-             foreach (@variables) {
-               ($var = $_) =~ s/DIRECTION/$updir/e;
-                    # should you truncate the name of each variable?
-                    # for example, should the value be: PRIMER_RIGHT_PENALTY or PENALTY?
-                    # i think it should be the second one
-                    if (/^PRIMER_DIRECTION$/) {
-                         $trunc = "PRIMER";
-                    }
-                    elsif (/^PRIMER_FIRST_BASE_INDEX/) {
-                         $trunc = "FIRST_BASE_INDEX";    
-				}
-				else {
-				     ($trunc = $_) =~ s/PRIMER_DIRECTION_//;
-				}
-               $dat{"-$trunc"} = $rdat->{$var};
-             }
-               if ($updir eq "LEFT") {
-                    %left = %dat;
-                    $left{-id} = $rdat->{PRIMER_SEQUENCE_ID}."-left";
-               }
-               else {
-                    %right = %dat;
-                    $right{-id} = $rdat->{PRIMER_SEQUENCE_ID}."-right";
-               }
-     }
-     my $primer_left = new Bio::SeqFeature::Primer(%left);
-     my $primer_right = new Bio::SeqFeature::Primer(%right);
-     return($primer_left,$primer_right);
-}
-
-
-
-
-
-
-
-
-
-=head2 get_amplified_region()
-
- Title   : get_amplified_region()
- Usage   : $primer->get_amplified_region()
- Function: Returns a Bio::Seq object representing the sequence amplified
- Returns : (I think) A Bio::Seq object
- Args    : None.
- Notes   : This is not implemented at this time.
-     Note to chad: implement this simple getter. 
- Developer notes: There obviously isn't a way for a single primer to know about
-     its amplified region unless it is paired with another primer. At this time
-     these object will generally be created with another so I will put in this
-     method. If there is no sequence null is returned.
-
-     THIS DOES NOT BELONG HERE. Put this into something else.
-
-
-=cut
-
-sub get_amplified_region {
-	my ($self) = @_;
-} # end get_amplified_region
-
-=head2 get_amplification_error()
-
- Title   : get_amplification_error()
- Usage   : 
- Function: 
- Returns : 
- Args    : 
- Notes   : 
-Developer Notes:
-     THIS DOES NOT BELONG HERE. Put this into something else.
-
-=cut
-
-sub get_amplification_error {
-	my $primer = $_[1];
-	my $error = $Primer3::primers{$primer}{PRIMER_ERROR};
-	if ($error) { return $error; }
-	else { return "Some error that primer3 didn't define.\n"; }
-}
-
-=head2 _set_target()
-
- Title   : _set_target()
- Usage   : &_set_target($self);
- Function: 
- Returns : 
- Args    : 
- Notes   : 
-Developer Notes: Really I have no idea why I put this in here.
-     It can is referenced by new_deprecated and by run_primer3
-
-
-=cut
-
-sub _set_target {
-	my $self = shift;
-	my ($sequence,$primer,$primer_left,$primer_right,$position_left,$position_right,$boggle);
-	$boggle = 1;
-	foreach $primer (sort keys %{$self->{primers}}) {
-		$sequence = $self->{primers}{$primer}{SEQUENCE};
-		$primer_left = $self->{primers}{$primer}{PRIMER_LEFT};
-		$primer_right = $self->{primers}{$primer}{PRIMER_RIGHT};
-		if (!$primer_left) {
-			$self->{primers}{$primer}{design_failed} = "1";
-		}
-		else {
-			$primer_left =~ m/(.*)\,(.*)/;
-			$position_left = $1+$2-1;
-			$primer_right =~ m/(.*)\,(.*)/;
-			$position_right = $1-$2;
-			$self->{primers}{$primer}{left} = $position_left;
-			$self->{primers}{$primer}{right} = $position_right;
-			$self->{primers}{$primer}{amplified} = substr($sequence,$position_left,$position_right-$position_left);
-		}
-	}
-}
-
-=head2 _read_file($self,$filename)
-
- Title   : _read_file($self,$filename)
- Usage   : 
- Function: 
- Returns : A scalar containing the contents of $filename
- Args    : $self and the name of a file to parse.
- Notes   : 
-Developer notes: Honestly, I have no idea what this is for.
-
-
-=cut
-
-sub _read_file {
-	     # my ($self,$filename) = @_;
-		# set this to keep track of things....
-	     # $self->{outfilename} = $filename;
-          # to make this better for bioperl, chad should really be using catfile and things.
-		# 
-		# 	my $fh = new FileHandle;
-		# 	open($fh,$filename) or die "I can't open the primer report ($filename) : $!\n";
-		# 		# _parse_report();
-		# 		# my %Primer3::primers;
-		# 	my ($output,$line);
-		# 	while ($line=<$fh>) {
-		# 			# print("Adding $line\n");
-		# 		$output .= $line;
-		# 	} # end while
-		# 		# print("\$output is $output\n");
-	     # return $output;
-}
-
-
-
-
-
-=head2 _parse_report()
-
- Title   : _parse_report()
- Usage   : &_parse_report($self,$filename);
- Function: Parse a primer3 outfile and place everything into an object under
-	{primers} with PRIMER_SEQUENCE_ID being the name of the keys for the
-	{primers} hash.
+ Title   : _set_variable()
+ Usage   : $self->_set_variable('variable name', 'value');
+ Function: An internal function that sets a variable
  Returns : Nothing.
- Args    : $self and the name of a file to parse.
+ Args    : None
+ Notes   : Mainly used by Bio::Tools::Run::Primer3 to set $self->{results} and $self->seqobject
+
+=cut
+
+sub _set_variable {
+ my ($self, $name, $value)=@_;
+ next unless ($name);
+ $self->{$name}=$value;
+ }
+
+=head2 _separate()
+
+ Title   : _separate()
+ Usage   : $self->_separate();
+ Function: An internal function that groups the results by number (e.g. primer pair 1, etc)
+ Returns : Nothing.
+ Args    : None
  Notes   : 
 
 =cut
 
-sub _parse_report {
-		# old
-		# my ($self,$filename) = @_;
-	my ($self,$outputs) = @_;
-		# print("\$self is $self, \$outputs are $outputs\n");
-		# print("in _parse_report, \$self is $self\n");
-		# set this to keep track of things....
-	my ($sequence_name,$line,$counter,$variable_name,$variable_value);
-	my @output = split/\n/,$outputs;	
-	foreach $line (@output) {
-			# print("Reading line $line\n");
-		next if ($line =~ /^\=/);
-		if ($line =~ m/^PRIMER_SEQUENCE_ID/) {
-			$line =~ m/(\S+)=(.*$)/;
-			$variable_name = $1;
-			$sequence_name = $2;
-			$variable_value = $2;
-		}
-		else {
-			$line =~ m/(\S+)=(.*$)/;
-			$variable_name = $1;
-			$variable_value = $2;
-		}
-			# print("$sequence_name\t$variable_name\t$variable_value\n");
-		$self->{primers}{$sequence_name}{$variable_name} = $variable_value;
-	} # end while <>
-} # end parse_report
+sub _separate {
+ my $self=shift;
+ my %results; # the results that we find
+ my $maxlocation=0; # the maximum number of primers returned
+ foreach my $key (keys %{$self->{'results'}}) {
+  next if (${$self->{'input_options'}}{$key}); # don't process it if it is an input key
 
-=head2 _construct_empty()
+  my $location; # the number of the primer pair
+  # names will have values like
+  # PRIMER_RIGHT_SEQUENCE, PRIMER_RIGHT_2_SEQUENCE, PRIMER_PRODUCT_SIZE, and PRIMER_PRODUCT_SIZE_3
+  # hence we need to find and remove the number
+  my $tempkey=$key;
+  if ($tempkey =~ s/_(\d+)//) {
+   $location=$1;
+   if ($location > $maxlocation) {$maxlocation = $location}
+   } else {$location = 0}
 
- Title   : _construct_empty()
- Usage   : &_construct_empty($self);
- Function: Construct an empty object that will be used to construct a primer3
-	input "file" so that it can be run.
- Returns : 
- Args    : 
- Notes   : 
-
-=cut
-
-sub _construct_empty {
-	my $self = shift;
-	$self->{inputs} = {};
-	return;
+  # we will hash the results by number, and then by name
+  ${$results{$location}}{$tempkey}=${$self->{'results'}}{$key};
+ }
+ $self->{'results_by_number'}=\%results;
+ $self->{'maximum_primers_returned'}=$maxlocation;
 }
-
-=head2 add_target(%stuff)
-
- Title   : add_target(%stuff)
- Usage   : $o_primer->add_target(%stuff);
- Function: Add an target to the infile constructor.
- Returns : 
- Args    : A hash. Looks something like this:
-	$o_primer2->add_target(
-		-PRIMER_SEQUENCE_ID     =>      "sN11902",
-		-PRIMER_COMMENT         =>      "3831",
-		-SEQUENCE               =>      "some_sequence",
-		-TARGET                 =>      "513,26",
-		-PRIMER_PRODUCT_SIZE_RANGE      =>      "100-500",
-		-PRIMER_FILE_FLAG       =>      "0",
-		-PRIMER_LIBERAL_BASE    =>      "1",
-		-PRIMER_NUM_RETURN      =>      "1",
-		-PRIMER_FIRST_BASE_INDEX        =>      "1",
-		-PRIMER_EXPLAIN_FLAG    =>      "1");
-	The add_target() method does not validate the things you put into
-	this parameter hash. Read the docs for Primer3 to see which fields
-	do what and how they should be used.
- Notes   : To design primers, first create a new CSM::Primer3 object with the
-	-construct_infile parameter. Then, add targets using this method
-	(add_target()) with the target hash as above in the Args: section.
-	Be careful. No validation will be done here. All of those parameters
-	will be fed straight into primer3.
-	Once you are done adding targets, invoke the function run_primer3().
-	Then retrieve the results using something like a loop around the array
-	from get_primer_sequence_IDs();
-
-=cut
-
-
-sub add_target {
-	my ($self,%args) = @_;
-	my ($currkey,$renamed,$sequence_id,$value);
-	if (!$args{-PRIMER_SEQUENCE_ID}) {
-		print("You cannot add an element to the primer3 infile without specifying the PRIMER_SEQUENCE_ID. Sorry.\n");
-	}
-	else {
-		$sequence_id = $args{-PRIMER_SEQUENCE_ID};
-		foreach $currkey (keys %args) {
-			# print("\$currkey is $currkey\n");
-			next if ($currkey eq "-PRIMER_SEQUENCE_ID");
-			($renamed = $currkey) =~ s/-//;
-				# print("Adding $renamed to the hash under $sequence_id\n");
-			$value = $args{$currkey};
-				# print("\$value is $value\n");
-			if ($renamed eq "SEQUENCE") { $value =~ s/\n//g; }
-			$self->{infile}{$sequence_id}{$renamed} = $value;
-		}
-	}
-}
-
-=head2 get_primer_sequence_IDs()
-
- Title   : get_primer_sequence_IDs()
- Usage   : $o_phred->get_primer_sequence_IDs();
- Function: Return the primer sequence ID's. These normally correspond to
-	the name of a sequence in a database but can be whatever was used when
-	the primer3 infile was constructed.
- Returns : An array containing the names of the primer sequence ID's
- Args    : None.
- Notes   : This would be used as the basis for an iterator to loop around each
-	primer that was designed.
-
-=cut
-
-sub get_primer_sequence_IDs {
-	my $self = shift;
-	return sort keys %{$self->{primers}};
-} # end get keys
-
-=head2 dump_hash()
-
- Title   : dump_hash()
- Usage   : $o_primer->dump_hash();
- Function: Dump out the CSM::Primer3 object.
- Returns : Nothing.
- Args    : None.
- Notes   : Used extensively in debugging.
-
-=cut
-
-sub dump_hash {
-	my $self = shift;
-	my $dumper = new Dumpvalue;
-	$dumper->dumpValue($self);
-} # end dump_hash
-
-=head2 dump_infile_hash()
-
- Title   : dump_infile_hash()
- Usage   : $o_primer->dump_infile_hash();
- Function: Dump out the contents of the infile hash.
- Returns : Nothing.
- Args    : None.
- Notes   : Used for debugging the construction of the infile.
-
-=cut
-
-sub dump_infile_hash {
-	my $self = shift;
-	my $dumper = new Dumpvalue;
-	$dumper->dumpValue($self->{infile});
-}
-
 
 
 1;
-__END__
-
-=head2 placeholder
-
- Title   : This is a place holder so chad can cut and paste
- Usage   : 
- Function: 
- Returns : 
- Args    : 
- Notes   : 
-
-=cut
-
-=head1 SEE ALSO
-
-perl(1).
-
-=cut
