@@ -882,14 +882,14 @@ sub start {
     if($self->num_hsps == 1) {
         return $self->hsp->start($seqType);
     } else {
-        Bio::Search::SearchUtils::tile_hsps($self) unless $self->tiled_hsps;
-        if($seqType =~ /list|array/i) {
-            return ($self->{'_queryStart'}, $self->{'_sbjctStart'});
-        } else {
-            ## Sensitive to member name changes.
-            $seqType = "_\L$seqType\E";
-            return $self->{$seqType.'Start'};
-        }
+        &Bio::Search::SearchUtils::tile_hsps($self) unless $self->tiled_hsps;
+	if($seqType =~ /list|array/i) {
+	    return ($self->{'_queryStart'}, $self->{'_sbjctStart'});
+	} else {
+	    ## Sensitive to member name changes.
+	    $seqType = "_\L$seqType\E";
+	    return $self->{$seqType.'Start'};
+	}
     }
 }
 
@@ -898,19 +898,23 @@ sub start {
 
  Usage     : $sbjct->end( [seq_type] );
  Purpose   : Gets the end coordinate for the query, sbjct, or both sequences
-           : in the BlastHit object. If there is more than one HSP, the largest end
+           : in the BlastHit object. If there is more than one HSP, 
+             the largest end
            : value of all HSPs is returned.
  Example   : $qend = $sbjct->end('query');
            : $send = $sbjct->end('hit');
            : ($qend, $send) = $sbjct->end();
  Returns   : scalar context: integer
-           : array context without args: list of two integers (queryEnd, sbjctEnd)
-           : Array context can be "induced" by providing an argument of 'list' or 'array'.
+           : array context without args: list of two integers 
+           : (queryEnd, sbjctEnd)
+           : Array context can be "induced" by providing an argument 
+           : of 'list' or 'array'.
  Argument  : In scalar context: seq_type = 'query' or 'sbjct'
            :  (case insensitive). If not supplied, 'query' is used.
  Throws    : n/a
- Comments  : This method requires that all HSPs be tiled. If there is more than one
-           : HSP and they have not already been tiled, they will be tiled first automatically..
+ Comments  : This method requires that all HSPs be tiled. If there is 
+           : more than one HSP and they have not already been tiled, 
+           : they will be tiled first automatically..
            : Remember that the start and end coordinates of all HSPs are 
            : normalized so that start < end. Strand information can be
            : obtained by calling $hit->strand().
@@ -926,7 +930,6 @@ sub end {
 
     $seqType ||= (wantarray ? 'list' : 'query');
     $seqType = 'sbjct' if $seqType eq 'hit';
-
 
     if( defined $num ) {
         $seqType = "_\L$seqType\E";
