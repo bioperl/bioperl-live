@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 # -*-Perl-*- 
-# $Id: composite_LD.PLS,v 1.6 2003-09-08 12:17:15 heikki Exp $
+# $Id: composite_LD.PLS,v 1.7 2003-11-11 02:41:29 jason Exp $
 
 =head1 NAME 
 
@@ -89,7 +89,7 @@ foreach my $site1 ( sort keys %LD_matrix ) {
     foreach my $site2 ( sort keys %{ $LD_matrix{$site1} } ) {
 	my $LD = $LD_matrix{$site1}->{$site2}; # LD for site1,site2 
 	if( $sortbyld ) {
-	    push @sites, [ $site1,$site2,$LD];
+	    push @sites, [ $site1,$site2,@$LD];
 	} else { 
 	    print $out "$site1,$site2 - $LD\n";
 	}
@@ -97,9 +97,9 @@ foreach my $site1 ( sort keys %LD_matrix ) {
 }
 
 if( $sortbyld ) {
-    foreach my $s ( sort { $b->[2] <=> $a->[2] } @sites ) {
-	my ($site1,$site2,$LD) = @$s;
-	print $out "$site1,$site2 - $LD\n";
+    foreach my $s ( sort { $b->[3] <=> $a->[3] } @sites ) {
+	my ($site1,$site2,$ld,$chisq) = @$s;
+	print $out "$site1,$site2 - LD=$ld, chisq=$chisq\n";
     }
 }
 
