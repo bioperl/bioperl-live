@@ -146,7 +146,7 @@ sub start_element {
 	if( $s > $e) { 
 	    ($s,$e,$strand) = ( $e,$s,-1);
 	}
-	
+	my $fname = $attr->{'{}FEAT_NAME'}->{'Value'};
 	my $f = Bio::SeqFeature::Generic->new
 	    (-seq_id      => $seqid,
 	     -start       => $s,
@@ -156,7 +156,7 @@ sub start_element {
 	     -source_tag  => $Default_Source,
 	     -tag         => { 
 		 'Note'         => $attr->{'{}COM_NAME'}->{'Value'},
-		 'ID'           => $attr->{'{}FEAT_NAME'}->{'Value'} || die,
+		 'ID'           => $fname,
 		 'locus'        => $attr->{'{}LOCUS'}->{'Value'},
 		 'pub_locus'    => $attr->{'{}PUB_LOCUS'}->{'Value'},
 		 'alt_locus'    => $attr->{'{}ALT_LOCUS'}->{'Value'},
