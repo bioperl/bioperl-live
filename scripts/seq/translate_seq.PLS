@@ -1,6 +1,6 @@
 #!perl -w
 use strict;
-# $Id: translate_seq.PLS,v 1.3 2004-01-10 23:01:52 jason Exp $
+# $Id: translate_seq.PLS,v 1.4 2005-01-24 02:31:57 jason Exp $
 
 
 =head1 NAME
@@ -43,7 +43,7 @@ email or the web:
 use Bio::SeqIO;
 use Getopt::Long;
 
-my ($format);
+my ($format) = 'fasta';
 
 GetOptions(
 	   'format:s'  => \$format,
