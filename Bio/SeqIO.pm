@@ -501,9 +501,16 @@ sub _print {
 
  Title   : _readline
  Usage   : $obj->_readline
- Function:
+ Function: Reads a line of input.
+
+           Note that this method implicitely uses the value of $/ that is
+           in effect when called.
+
+           Note also that the current implementation does not handle pushed
+           back input correctly unless the pushed back input ends with the
+           value of $/.
  Example :
- Returns : reads a line of input
+ Returns : 
 
 =cut
 
@@ -540,6 +547,27 @@ sub _pushback {
   $obj->{readbuffer} .= $value;
 }
 
+=head2 _concatenate_lines
+
+ Title   : _concatenate_lines
+ Usage   : $s = _concatenate_lines($line, $continuation_line)
+ Function: Private. Concatenates two strings assuming that the second stems
+           from a continuation line of the first. Adds a space between both
+           unless the first ends with a dash.
+
+           Takes care of either arg being empty.
+ Example :
+ Returns : A string.
+ Args    :
+
+=cut
+
+sub _concatenate_lines {
+    my ($self, $s1, $s2) = @_;
+
+    $s1 .= " " if($s1 && ($s1 !~ /-$/) && $s2);
+    return ($s1 ? $s1 : "") . ($s2 ? $s2 : "");
+}
 
 =head2 _filehandle
 
