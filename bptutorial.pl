@@ -682,7 +682,7 @@ data.  Now one can directly enter data sequence data into a bioperl
 Seq object, eg:
 
   $seq = Bio::Seq->new(-seq              => 'actgtggcgtcaact',
-                       -desc             => 'Sample Bio::Seq object',
+                       -description      => 'Sample Bio::Seq object',
                        -display_id       => 'something',
                        -accession_number => 'accnum',
                        -alphabet         => 'dna' );
@@ -1023,12 +1023,12 @@ These methods return strings or may be used to set values:
   $seqobj->alphabet();         # one of 'dna','rna','protein'
   $seqobj->primary_id();       # a unique id for this sequence irregardless
                                # of its display_id or accession number
-  $seqobj->desc();             # a description of the sequence
+  $seqobj->description();      # a description of the sequence
 
 It is worth mentioning that some of these values correspond to specific
 fields of given formats. For example, the display_id method returns
 the LOCUS name of a Genbank entry, the (\S+) following the E<gt> character
-in a Fasta file, the ID from a SwissProt file, and so on. The desc()
+in a Fasta file, the ID from a SwissProt file, and so on. The description()
 method will return the DEFINITION line of a Genbank file, the line
 following the display_id in a Fasta file, and the DE field in a SwissProt
 file.
@@ -1247,9 +1247,9 @@ The syntax for using Sigcleave is as follows:
 
   use Bio::Tools::Sigcleave;
   $sigcleave_object = new Bio::Tools::Sigcleave
-      ( -seq       => $seqobj,
-        -threshold => 3.5,
-        -desc      => 'test sigcleave protein seq',
+      ( -seq          => $seqobj,
+        -threshold    => 3.5,
+        -description  => 'test sigcleave protein seq',
       );
   %raw_results      = $sigcleave_object->signals;
   $formatted_output = $sigcleave_object->pretty_print;
@@ -4036,7 +4036,7 @@ $demo_xml = sub {
       print $outputfh "Seq object display id is ", $seqobj->display_id(),
       "\n"; # the human read-able id of the sequence
       print $outputfh "The sequence description is: \n";
-      print $outputfh "   ", $seqobj->desc(), " \n";
+      print $outputfh "   ", $seqobj->description() || '', " \n";
       print $outputfh "Acc num is ", $seqobj->accession_number(),
       " \n"; # when there, the accession number
       print $outputfh "Alphabet is ", $seqobj->alphabet(),
