@@ -39,6 +39,9 @@ sub draw_component {
   $dna           = $dna->seq if ref($dna) and $dna->can('seq'); # to catch Bio::PrimarySeqI objects
   $dna or return;
 
+  # workaround for my misreading of interface -- LS
+  $dna = $dna->seq if ref($dna) && $dna->can('seq');
+
   if ($self->dna_fits) {
     $self->draw_dna($gd,$dna,$x1,$y1,$x2,$y2);
   } elsif ($self->do_gc) {

@@ -1,11 +1,13 @@
-The BioDirectory Registry is a simple system for specifying where to
-find services which provide sequence databases.  This system allows
-you to create a single site-wide configuration file that tells BioPerl
-applications how to access sequence databases.  You can start out by
-accessing sequence data over the web, and later install a locally
-mirrored copy of GenBank.  By changing one line site-wide
-configuration file, all BioPerl applications will start using the
-mirrored local copy without making any source code changes.
+The BioDirectory Registry is a system for specifying how BioPerl
+programs find sequence databases.  It uses a site-wide configuration
+file, known as the registry, which defines one or more databases and
+the access methods to use to access them.  
+
+For instance, you might start out by accessing sequence data over the
+web, and later decide to install a locally mirrored copy of GenBank.
+By changing one line in the registry file, all BioPerl applications
+will start using the mirrored local copy automatically - no source
+code changes are necessary.
 
 INSTALLING THE REGISTRY FILE
 
@@ -49,35 +51,87 @@ The options under each stanza must have two non-optional tag=value lines being
 The Protocol Tag
 ----------------
 
-protocol currently can be one of
+The protocol tag species what access mode to use.  Currently it can be
+one of:
 
-  flat-index
-  flat-binary
+  flat-bdb
+  flat-binsearch
   biofetch
   bsane-corba
   biosql
   xembl
 
-"flat-index" is used to fetch sequences from local flat files that
-have been indexed using BerkeleyDB.  It corresponds to the
+"flat-bdb" is used to fetch sequences from local flat files that have
+been indexed using BerkeleyDB.  It corresponds to the
 Bio::DB::Flat::BDB module.
 
-"flat-binary" is used to fetch sequences from local flat files that
-use a binary indexing scheme.  It corresponds to the
-Bio::DB::Flat::Binary module.
+"flat-binsearch" is used to fetch sequences from local flat files that
+have been indexed using a binary search scheme.  It corresponds to the
+Bio::DB::Flat::BinarySearch module.
 
-"
+"biofetch" is used to fetch sequences from web-based databses.  Due to
+restrictions on the use of these databases, this is recommended only
+for lightweight applications.
+
+"bsane-corba" is used to fetch sequences from BSANE/CORBA services.
+To use this service you will need to download the bioperl-corba
+distribution.
+
+"biosql" fetches sequences from BioSQL databases.  To use this module
+you will need to install the bioperl-db distribution.
+
+"xembl" uses the EBI's XEMBL web service to fetch sequences.  It
+corresponds to Bio::DB::XEMBL;
 
 The Location Tag
 ----------------
 
-location is a string specific to the protocol. Any number of
-additional tag values are allowed in the stanza which should be passed
-to the appropiate constructor of the protocol to interpret. Some
-protocols will insist on other mandatory tags
+The location tag tells the bioperl sequence fetching code where the
+database is located.  Its interpretation depends on the protocol
+chosen.  For example, it might be a directory on the local file
+system, or a remote URL.
+
+Other Tags
+----------
+
+Any number of additional tag values are allowed.  The number and
+nature of these tags depends on the access protocol selected.  Some
+protocols require no additional tags, whereas others will require
+several.
+
+ Protocol       Tag       Description
+ --------       ---       -----------
+
+ flat-bdb       location  Directory in which the index is stored.
+                          The "config.dat" file generated during
+                          indexing must be found in this location.
+
+ flat-binsearch location   Directory in which the index is stored.
+                           The "config.dat" file generated during 
+			   indexing must be found in this location.
+
+ biofetch       location   Base URL for the web service.  Currently
+                           the only compatible biofetch service is 
+			   http://www.ebi.ac.uk/cgi-bin/dbfetch
+
+                biodbname  Name of the database.  Currently recognized
+                           values are "embl" (sequence and protein),
+                           "swall" (SwissProt + TREMBL), and "refseq"
+                           (NCBI RefSeq entries).
+
+ bsane-corba    location   <I don't know>
+                <others?>
+
+ biosql		location   <I don't know>
+                <others?>
+
+ xembl          location   The SOAP endpoint.  Currently the only
+                           known compatible service is 
+			   http://www.ebi.ac.uk:80/cgi-bin/xembl/XEMBL-SOAP.pl
 
 
 
+>>>> NOTES TO MYSELF <<<<
 Database Formats:
 
 urn:lsid:open-bio.org:dbformat:<format>/<alphabet>

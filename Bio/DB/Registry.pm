@@ -72,8 +72,8 @@ BEGIN {
 
 my %implement = (
 		 'biocorba'         => 'Bio::CorbaClient::SeqDB',
-		 'flat-index'       => 'Bio::DB::Flat::BDB',
-                 'flat-binary'      => 'Bio::DB::Flat::Binary',
+		 'flat-bdb'         => 'Bio::DB::Flat::BDB',
+                 'flat-binsearch'   => 'Bio::DB::Flat::BinarySearch',
 		 'biosql'           => 'Bio::DB::BioSQL::BioDatabaseAdaptor',
 		 'biofetch'         => 'Bio::DB::BioFetch'
 		 );

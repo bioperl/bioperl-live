@@ -180,5 +180,31 @@ sub get_Seq_by_version{
    return $self->get_Seq_by_id(@args);
 }
 
+=head2 new_from_registry
+
+ Title   : new_from_registry
+ Usage   : $db = Bio::DB::XEMBL->new_from_registry(%config)
+ Function: creates a new Bio::DB::XEMBL object in a Bio::DB::Registry-
+           compatible fashion
+ Returns : new Bio::DB::XEMBL
+ Args    : provided by the registry, see below
+ Status  : Public
+
+The following registry-configuration tags are recognized:
+
+  location     Endpoint for the XEMBL service.  Currently the only
+               known valid endpoint is 
+               http://www.ebi.ac.uk:80/cgi-bin/xembl/XEMBL-SOAP.pl
+
+NOTE: Since this info is supposed to be coming from WSDL, the location
+is currently ignored.
+
+=cut
+
+sub new_from_registry {
+    my ($self,%config) =  @_;
+    my $location = $config{'location'} or $self->throw('Location must be specified.');
+    my $index    = $self->new(-endpoint => $location);
+}
 
 1;
