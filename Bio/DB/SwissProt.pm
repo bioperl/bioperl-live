@@ -10,6 +10,7 @@
 # You may distribute this module under the same terms as perl itself
 
 # POD documentation - main docs before the code
+# Reworked to use Bio::DB::WebDBSeqI 2000-12-11
 
 =head1 NAME
 
@@ -17,21 +18,32 @@ Bio::DB::SwissProt - Database object interface to SwissProt retrieval
 
 =head1 SYNOPSIS
 
+    use Bio::DB::SwissProt;
+
     $sp = new Bio::DB::SwissProt;
 
-    $seq = $sp->get_Seq_by_id('P43780'); # Unique ID
-
+    $seq = $sp->get_Seq_by_id('P43780'); # SwissProtID
     # or ...
+    $seq = $sp->get_Seq_by_acc('P43780'); # SwissProtID     
+    # can only query on SwissProtID at expasy right now
 
-    $seq = $sp->get_Seq_by_acc('P43780'); # Accession Number
+    # choose a different server to query
+    $sp = new Bio::DB::SwissProt('-hostlocation' => 'canada');
+
+    $seq = $sp->get_Seq_by_id('P43780'); # SwissProtID
+    
 
 =head1 DESCRIPTION
 
 Allows the dynamic retrieval of Sequence objects (Bio::Seq) from the SwissProt
 database via an expasy retrieval.  Perhaps through SRS later.
 
-In order to make changes transparent we have host type (currently only expasy) 
-and location (default to switzerland) separated out.
+In order to make changes transparent we have host type (currently only
+expasy) and location (default to switzerland) separated out.  This
+allows the user to pick the closest expasy mirror for running their
+queries.
+
+
 
 =head1 FEEDBACK
 
@@ -70,24 +82,16 @@ The rest of the documentation details each of the object methods. Internal metho
 package Bio::DB::SwissProt;
 use strict;
 use vars qw(@ISA $MODVERSION %HOSTS $DEFAULTFORMAT $DEFAULTLOCATION 
-	    $DEFAULTSTYPE);
+	    $DEFAULTSERVERTYPE);
 
 $MODVERSION = '0.8';
-# Object preamble - inherits from Bio::DB::BioSeqI
-
-use Bio::DB::RandomAccessI;
-use Bio::Root::RootI;
-use Bio::SeqIO;
-use IO::File;
-use IO::String;
-use LWP::UserAgent;
-use HTTP::Request;
 use HTTP::Request::Common;
+use Bio::DB::WebDBSeqI;
 
-@ISA = qw(Bio::Root::RootI Bio::DB::RandomAccessI);
+@ISA = qw(Bio::DB::WebDBSeqI);
 
 # global vars
-$DEFAULTSTYPE = 'expasy';
+$DEFAULTSERVERTYPE = 'expasy';
 $DEFAULTFORMAT = 'swiss';
 $DEFAULTLOCATION = 'switzerland';
 # you can add your own here theoretically.
@@ -108,207 +112,175 @@ $DEFAULTLOCATION = 'switzerland';
 # should use Bio::Root::RootI
 sub new {
     my ($class, @args) = @_;
-    my $self = bless {
-	_stype         => $DEFAULTSTYPE,
-	_location      => $DEFAULTLOCATION,	    
-	_url           => '',
-	_ua            => undef,
-    }, $class;
-    my $host;
-    my ($format,$hostlocation,$stype) = 
-	$self->_rearrange([qw(FORMAT HOSTLOCATION  SERVERTYPE)],
-			  @args);
-    $format = $DEFAULTFORMAT unless $format;
-    $stype = $DEFAULTSTYPE unless $stype;
-    $self->throw("You gave an invalid server type ($stype) - available types are ".  
-		 keys %HOSTS) unless( $HOSTS{$stype} );
-    $self->throw('Must specify a location ('.
-		 join(',', keys %{$HOSTS{$stype}->{hosts}}) .')')
-	if( $hostlocation);    
-
-    $hostlocation = $DEFAULTLOCATION unless( $hostlocation );    
-    $self->stype($stype);
-    $self->streamfmt($DEFAULTFORMAT);
-    $self->_request_host($stype,$hostlocation);
-
-    my $ua = new LWP::UserAgent;
-    $ua->agent("$class/$MODVERSION");
-    $self->ua($ua);
+    my $self = bless {}, $class;
+    my $make = $self->_initialize(@args);
     return $self;
 }
 
-sub ua {
-    my ($self, $ua) = @_;
-    if( defined $ua && $ua->isa("LWP::UserAgent") ) {
-	$self->{_ua} = $ua;
-    }
-    return $self->{_ua};
+sub _initialize {
+    my ($self, @args) = @_;
+    $self->SUPER::_initialize(@args);
+
+    my ($format, $hostlocation,$servertype) = 
+	$self->_rearrange([qw(fFORMAT HOSTLOCATION SERVERTYPE)],
+			  @args);    
+
+    if( $format && $format !~ /swiss/i ) {
+	$self->warn("Requested Format $format is ignored because only SwissPort format is currently supported");
+    } 
+    $servertype = $DEFAULTSERVERTYPE unless $servertype;
+    $hostlocation = $DEFAULTLOCATION unless( $hostlocation );    
+
+    $self->request_format($self->default_format); # let's always override the format, as it must be swiss from this location
+
+    $hostlocation = lc $hostlocation;
+    $servertype = lc $servertype;
+    $self->servertype($servertype);
+    $self->hostlocation($hostlocation);
+    return $self;
 }
 
-sub streamfmt {
-    my ($self,$fmt) = @_;
-    if( defined $fmt ) {
-	$self->{_format} = $fmt;	
-    }
-    return $self->{_format};
-}
+=head2 Routines fro Bio::DB::WebDBSeqI
 
-sub stype {
-    my ($self, $stype) = @_;
-    if( defined $stype ) {
-	$self->{_stype} = $stype;
-    }
-    return $self->{_stype};
-}
+=head2 get_request
 
-=head2 proxy
-
- Title   : proxy
- Usage   : $httpproxy = $db->proxy('http')  or 
-           $db->proxy(['http','ftp'], 'http://myproxy' )
- Function: Get/Set a proxy for use
- Returns : a string indicating the proxy
- Args    : $protocol : an array ref of the protocol(s) to set/get
-           $proxyurl : url of the proxy to use for the specified protocol
-
-=cut
-
-
-sub proxy {
-    my ($self,$protocol,$proxy) = @_;
-    return undef if( !defined $self->ua );
-    return $self->ua->proxy($protocol,$proxy);
-}
-
-
-=head2 get_url
-
- Title   : get_url
- Usage   : my $url = $self->get_url
- Function: returns the url, urls are set through the request_host method
+ Title   : get_request
+ Usage   : my $url = $self->get_request
+ Function: returns a HTTP::Request object
  Returns : 
- Args    : 
-=cut
-
-sub get_url {
-    my ($self) = @_;
-    return $self->{_url} || $self->throw("Did not call _request_host, or url is set invalidly");
-}
-
-=head2 get_Seq_by_id
-
- Title   : get_Seq_by_id
- Usage   : $seq = $db->get_Seq_by_id($uid);
- Function: Gets a Bio::Seq object by its unique identifier/name
- Returns : a Bio::Seq object
- Args    : $uid : the id (as a string) of the desired sequence entry
+ Args    : %qualifiers = a hash of qualifiers (ids, format, etc)
 
 =cut
 
-sub get_Seq_by_id {
+sub get_request {
+    my ($self, @qualifiers) = @_;
+    my ($uids, $format) = $self->_rearrange([qw(UIDS FORMAT)],
+					    @qualifiers);
 
-  my $self = shift;
-  my $uid = shift or $self->throw("Must supply an identifier!\n");
-  $self->throw("Must have requested a host") 
-      unless ( defined $self->get_url()); 
-  my $stream = $self->_get_stream([$uid]);
-  my $seq = $stream->next_seq();
-  $self->throw("Unable to get seq for id $uid, is it really a swissprot id?\n")
-      if( !defined $seq );
-  return $seq;
-}
-
-=head2 get_Seq_by_acc
-
-  Title   : get_Seq_by_acc
-  Usage   : $seq = $db->get_Seq_by_acc($acc);
-  Function: Gets a Bio::Seq object by its accession number
-  Returns : a Bio::Seq object
-  Args    : $acc : the accession number of the desired sequence entry
-  Note    : For GenPept, this just calls the same code for get_Seq_by_id()
-
-=cut
-
-sub get_Seq_by_acc {
-
-  my $self = shift;
-  my $acc = shift or $self->throw("Must supply an accesion number!\n");
-  
-  return $self->get_Seq_by_id($acc);
-}
-
-=head2 get_Stream_by_id
-
-  Title   : get_Stream_by_id
-  Usage   : $stream = $db->get_Stream_by_id( [$uid1, $uid2] );
-  Function: Gets a series of Seq objects by unique identifiers
-  Returns : a Bio::SeqIO stream object
-  Args    : $ref : a reference to an array of unique identifiers for
-                   the desired sequence entries
-
-
-=cut
-
-sub get_Stream_by_id {
-
-  my $self = shift;
-  my $id = shift or $self->throw("Must supply a unique identifier!\n");
-  ref($id) eq "ARRAY" or $self->throw("Must supply an array ref!\n");
-
-  return $self->_get_stream([$id]);
-
-}
-
-=head2 get_Stream_by_acc
-
-  Title   : get_Stream_by_acc
-  Usage   : $seq = $db->get_Seq_by_acc($acc);
-  Function: Gets a series of Seq objects by accession numbers
-  Returns : a Bio::SeqIO stream object
-  Args    : $ref : a reference to an array of accession numbers for
-                   the desired sequence entries
-  Note    : For GenPept, this just calls the same code for get_Stream_by_id()
-
-=cut
-
-sub get_Stream_by_acc {
-
-  my $self = shift;
-  my $acc = shift or $self->throw("Must supply an accesion number!\n");
-
-  return $self->get_Seq_by_id($acc);
-}
-
-sub _get_stream {
-
-  my($self, $uid, $streamfmt) = @_;
-  my @all;
-  my $url = $self->get_url;  
-  foreach my $id ( @$uid ) {
-      my $resp;      
-      eval { 
-	  $resp = $self->ua->request(GET $url.$id);
-	  push @all, $resp->content if( $resp->is_success);
-      };
-      if( $@ || $resp->is_error ) {
-	  $self->throw($@);
-      }
-  }
-  my $stream = IO::String->new(join("\n", @all));
-  return Bio::SeqIO->new('-fh' => $stream, '-format' => $self->streamfmt);
-}
-
-sub _request_host {
-    my ($self,$stype,$location) = @_;    
-    if( defined $stype && defined $location )  {
-	$self->{_url} = sprintf($HOSTS{$stype}->{baseurl}, 
-				$HOSTS{$stype}->{hosts}->{$location});
-    } elsif( defined $stype ) {
-	return keys %{$HOSTS{$stype}->{hosts}};
-    } else {
-	return $self->{_url};
+    if( !defined $uids ) {
+	$self->throw("Must specify a value for uids to query");
     }
+    $self->request_format($format) if( defined $format );
+
+    my $url = $self->location_url();
+    my $uid;
+    if( ref($uids) =~ /ARRAY/i ) {
+	$uid = $uids->[0];
+	$self->warn("Currently can only process 1 swiss prot request at a time -- only processing $uid");
+    } else {
+	$uid = $uids;
+    }
+    return GET $url . $uid;
 }
+
+=head2 postprocess_data
+
+ Title   : postprocess_data
+ Usage   : $self->postprocess_data ( 'type' => 'string',
+				     'location' => \$datastr);
+ Function: process downloaded data before loading into a Bio::SeqIO
+ Returns : void
+ Args    : hash with two keys - 'type' can be 'string' or 'file'
+                              - 'location' either file location or string 
+                                           reference containing data
+
+=cut
+
+# don't need to do anything 
+
+sub postprocess_data {
+    my ($self, %args) = @_;    
+    return;
+}
+
+=head2 default_format
+
+ Title   : default_format
+ Usage   : my $format = $self->default_format
+ Function: Returns default sequence format for this module
+ Returns : string
+ Args    : none
+
+=cut
+
+sub default_format {
+    return $DEFAULTFORMAT;
+}
+
+=head2 Bio::DB::SwissProt specific routines
+ 
+=head2 servertype
+
+ Title   : servertype
+ Usage   : my $servertype = $self->servertype
+           $self->servertype($servertype);
+ Function: Get/Set server type
+ Returns : string
+ Args    : server type string [optional]
+
+=cut
+
+sub servertype {
+    my ($self, $servertype) = @_;
+    if( defined $servertype && $servertype ne '') {		
+	$self->throw("You gave an invalid server type ($servertype)".
+			 " - available types are ".  
+			 keys %HOSTS) unless( $HOSTS{$servertype} );
+	$self->{'_servertype'} = $servertype;
+    }
+    return $self->{'_servertype'};
+}
+
+
+=head2 hostlocation
+    
+ Title   : hostlocation
+ Usage   : my $location = $self->hostlocation() 
+          $self->hostlocation($location) 
+ Function: Set/Get Hostlocation 
+ Returns : string representing hostlocation
+ Args    : string specifying hostlocation [optional]
+    
+=cut    
+    
+sub hostlocation {
+    my ($self, $location ) = @_;
+    $location = lc $location;
+    my $servertype = $self->servertype;
+    $self->throw("Must have a valid servertype defined not $servertype")
+	unless defined $servertype; 
+    my %hosts = %{$HOSTS{$servertype}->{hosts}};
+    if( defined $location && $location ne '' ) {
+	if( ! $hosts{$location} ) {
+	    $self->throw("Must specify a known host, not $location,".
+			 " possible values (".
+			 join(",", sort keys %hosts ). ")"); 
+	}
+	$self->{'_hostlocation'} = $location;
+    }
+    return $self->{'_hostlocation'};
+}
+
+=head2 location_url
+ Title   : location
+ Usage   : my $url = $self->location_url()
+ Function: Get host url
+ Returns : string representing url
+ Args    : none
+
+=cut
+
+sub location_url {
+    my ($self) = @_;    
+    my $servertype = $self->servertype();
+    my $location = $self->hostlocation();
+
+    if( ! defined $location || !defined $servertype )  {	
+	$self->throw("must have a valid hostlocation and servertype set before calling location_url");
+    }
+    return sprintf($HOSTS{$servertype}->{baseurl}, 
+		   $HOSTS{$servertype}->{hosts}->{$location});
+}		   
 
 1;
 __END__
