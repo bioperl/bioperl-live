@@ -2,7 +2,7 @@
 #
 # BioPerl module for Bio::PopGen::IO::hapmap
 #
-# Cared for by Rich Dobson <dobbo-at-qmul.ac.uk>
+# Cared for by Rich Dobson <r.j.dobson-at-qmul.ac.uk>
 #
 # Copyright Rich Dobson
 #
