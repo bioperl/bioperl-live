@@ -17,43 +17,58 @@ Bio::Tools::SeqStats - Object holding statistics for one particular sequence
 =head1 SYNOPSIS
 
     # build a primary nucleic acid or protein sequence object somehow
-    # then build a statistics object from the sequence object
+    # then build a statistics object from the sequence object 
 
 	$seqobj = Bio::PrimarySeq->new(-seq=>'ACTGTGGCGTCAACTG', 
-				       -moltype = 'dna', -id = 'test');
+									-moltype=>'dna', 
+									-id=>'test');
 	$seq_stats  =  Bio::Tools::SeqStats->new(-seq=>$seqobj);
 
-      # obtain a hash of counts of each type of monomer 
-      # (ie amino or nucleic acid)
-	
-         $hash_ref = $seq_stats->count_monomers();  # eg for DNA sequence
-         foreach $base ( sort keys %$hash_ref) {
-	    print "Number of bases of type ",$base "= ",%$hash_ref{$base}"\n";
-	  }
-    # or obtain the count directly without creating a new statistics object
+	# obtain a hash of counts of each type of monomer 
+	# (ie amino or nucleic acid)
+	print "\nMonomer counts using statistics object\n";
+	$seq_stats  =  Bio::Tools::SeqStats->new(-seq=>$seqobj);
+	$hash_ref = $seq_stats->count_monomers();  # eg for DNA sequence
+	foreach $base (sort keys %$hash_ref) {
+		print "Number of bases of type ", $base, "= ", %$hash_ref->{$base},"\n";
+	}
+
+	# or obtain the count directly without creating a new statistics object
+	print "\nMonomer counts without statistics object\n";
 	$hash_ref = Bio::Tools::SeqStats->count_monomers($seqobj);
-	foreach $base ( sort keys $$hash_ref) {
-	    print "Number of bases of type ",$base "= ",%$hash_ref{$base}"\n";
+	foreach $base (sort keys %$hash_ref) {
+		print "Number of bases of type ", $base, "= ", %$hash_ref->{$base},"\n";
 	}
 
 
-    # obtain hash of counts of each type of codon in a nucleic acid sequence
+	# obtain hash of counts of each type of codon in a nucleic acid sequence
+	print "\nCodon counts using statistics object\n";
 	$hash_ref = $seq_stats-> count_codons();  # for nucleic acid sequence
-    #  or
+	foreach $base (sort keys %$hash_ref) {
+		print "Number of codons of type ", $base, "= ", %$hash_ref->{$base},"\n";
+	}
+
+	#  or
+	print "\nCodon counts without statistics object\n";
 	$hash_ref = Bio::Tools::SeqStats->count_codons($seqobj);
+	foreach $base (sort keys %$hash_ref) {
+		print "Number of codons of type ", $base, "= ", %$hash_ref->{$base},"\n";
+	}
 
+	# Obtain the molecular weight of a sequence. Since the sequence may contain 
+	# ambiguous monomers, the molecular weight is returned as a (reference to) a 
+	# two element array containing greatest lower bound (GLB) and least upper bound 
+	# (LUB) of the molecular weight 
+	$weight = $seq_stats->get_mol_wt();
+	print "\nMolecular weight (using statistics object) of sequence ", $seqobj->id(), 
+	     " is between ", $$weight[0], " and " , 
+	     $$weight[1], "\n";
 
-# Obtain the molecular weight of a sequence. Since the sequence may contain
-# ambiguous monomers, the molecular weight is returned as a (reference to) a
-# two element array containing greatest lower bound (GLB) and least upper bound
-# (LUB) of the molecular weight
-
-       $weight = $seq_stats->get_mol_wt();
-    #  or
+	#  or
 	$weight = Bio::Tools::SeqStats->get_mol_wt($seqobj);
-	print "Molecular weight of sequence ", $seqobj->id(), 
-              " is greater than ", $$weight[0], " and less than " , 
-              $$weight[1], "\n";
+	print "\nMolecular weight (without statistics object) of sequence ", $seqobj->id(), 
+	     " is between ", $$weight[0], " and " , 
+	     $$weight[1], "\n";
 
 =head1 DESCRIPTION
 
