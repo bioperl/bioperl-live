@@ -334,22 +334,19 @@ sub  _run {
     # delay repeated calls by default by 3 sec, set delay() to change
     $self->sleep;
     $self->status('TERMINATED_BY_ERROR');
-    my $request = POST 'http://npsa-pbil.ibcp.fr/cgi-bin/secpred_gor4.pl',
+    my $request = POST $self->url,
         Content_Type => 'form-data',
             Content  => [title => "",
                          notice => $self->seq->seq,
                          ali_width => 70,
                         ];
 
-    my $ua = LWP::UserAgent->new();
-
-    my $content = $ua->request($request);
+    my $content = $self->request($request);
     my $text = $content->content;
     my ($next) = $text =~ /Prediction.*?=(.*?)>/;
-    my $ua2 = LWP::UserAgent->new();
     my $out = "http://npsa-pbil.ibcp.fr/". "$next";
     my $req2 = HTTP::Request->new(GET=>$out);
-    my $resp2 = $ua->request ($req2);
+    my $resp2 = $self->request ($req2);
     $self->{'_result'} = $resp2->content;
 }
 
