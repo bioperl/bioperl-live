@@ -1,4 +1,4 @@
-## $Id: bioperl.pod,v 1.8 2000-07-12 14:35:32 dag Exp $
+## $Id: bioperl.pod,v 1.9 2001-01-31 16:50:31 paulc Exp $
 
 ## Should contain general info about the distribution including
 ## links to all the various modules.
@@ -202,8 +202,8 @@ We are very interested to hear how you experienced using bioperl. Did
 it install cleanly? Did you understand the documentation? Could you
 get the objects to do what you wanted it to do? If bioperl was useless
 we want to know why, and if it was great - that too. Post a message to
-vsns-bcd-perl-guts@lists.uni-bielefeld.de (the bioperl 'guts' mailing
-list, where all the developers are).
+bioperl-l@bioperl.org (the bioperl mailing list, where all the developers
+are).
 
 Only by getting people's feedback do we know whether we are providing
 anything useful.
@@ -233,8 +233,8 @@ except for Seq.pm). Talk to him or her and suggest changes.
 
 If you can make a useful object we will happily include it into the
 core. Probably you will want to read alot of the documentation 
-in the Bio::Root section and also talk to people on the 'guts'
-mailing list bioperl-guts-l@bioperl.org
+in the Bio::Root section and also talk to people on the bioperl
+mailing list bioperl-l@bioperl.org
 
 biodesign.pod provides documentation on the conventions and ideas
 used in bioperl. It is definitely worth a ready if you are interested
@@ -351,7 +351,7 @@ All modules included in the intial Bioperl distribution support 5.003 and
 higher. At some point we will begin adding features and modules that require
 later versions of perl. Individual modules perhaps should explicitly impose 
 their own perl version requirements. Consider this issue open for discussion
-on the guts (developer) mailing list.
+on the bioperl-l@bioperl.org mailing list.
 
 =back
 
