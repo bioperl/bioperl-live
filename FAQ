@@ -1,4 +1,4 @@
-# $Id: FAQ,v 1.9 2002-04-26 12:25:44 bosborne Exp $
+# $Id: FAQ,v 1.10 2002-05-10 16:05:44 bosborne Exp $
 
 Bioperl FAQ
 -----------
@@ -31,6 +31,9 @@ III. Report parsing
   3. I want to parse FastA, how do I do this?
   4. Let's say I want to do pairwise alignments of 2 sequences how can
      I do this?
+  5. I'm using BPLite.pm and its frame() to parse Blast but I'm seeing 0, 1,
+     or 2 instead of the expected -3, -2, -1, +1, +2, +3. Why am I seeing
+     these different numbers and how do I get the frame according to Blast?
 
 IV. Utilities
 
@@ -248,6 +251,29 @@ III. Report parsing
      alignments and is no longer a supported module.  Instead the
      EMBOSS implementation is the the best path ahead unless someone
      else wants to provide an Inline::C implementation.
+
+  5. I'm using BPLite.pm and its frame() to parse Blast but I'm seeing 0, 1,
+     or 2 instead of the expected -3, -2, -1, +1, +2, +3. Why am I seeing
+     these different numbers and how do I get the frame according to Blast?
+
+     These are GFF frames - so +1 is 0 in GFF, -3 will be encoded with a
+     frame of 2 with the strand being set to -1 (for more on GFF see 
+     http://www.sanger.ac.uk/Software/formats/GFF/GFF_Spec.shtml).
+
+     Frames are relative to the hit or query sequence so you need to query
+     it based on sequence you are interested in.
+
+     $hsp->hit->strand()
+     $hsp->hit->frame()
+
+     or
+     
+     $hsp->query->strand();
+     $hsp->query->frame();
+
+     So the value according to a blast report of -3 can be constructed as
+
+     my $blastvalue = ($hsp->query->frame + 1) * $hsp->query->strand;
 
 ------------------------------------------------------------------------
 IV. Utilities
