@@ -20,7 +20,7 @@ use Bio::SeqFeature::Tools::Unflattener;
 
 ok(1);
 
-my $verbosity = 0;   # Set to -1 for release version, so warnings aren't printed
+my $verbosity = -1;   # Set to -1 for release version, so warnings aren't printed
 #$verbosity = 1;
 
 my ($seq, @sfs);
@@ -39,23 +39,29 @@ if (1) {
     my @topsfs = $seq->get_SeqFeatures;
     my @cdss = grep {$_->primary_tag eq 'CDS'} @topsfs;
     my $n = scalar(@topsfs);
-    printf "TOP:%d\n", scalar(@topsfs);
-#    write_hier(@topsfs);
-    
+    if( $verbosity > 0 ) {
+	warn sprintf "TOP:%d\n", scalar(@topsfs);
+	write_hier(@topsfs);
+    }
     # UNFLATTEN
     @sfs = $unflattener->unflatten_seq(-seq=>$seq,
 				       -use_magic=>1,
 				      );
-    print "\n\nPOST PROCESSING:\n";
     @sfs = $seq->get_SeqFeatures;
-    write_hier(@sfs);
-    printf "PROCESSED/TOP:%d\n", scalar(@sfs);
+    if( $verbosity > 0 ) {
+	warn "\n\nPOST PROCESSING:\n";
+	write_hier(@sfs);
+	warn sprintf "PROCESSED/TOP:%d\n", scalar(@sfs);
+    }
     ok(@sfs == 28);
     my @allsfs = $seq->get_all_SeqFeatures;
-    printf "ALL:%d\n", scalar(@allsfs);
     ok(@allsfs == 202);
     my @mrnas = grep {$_->primary_tag eq 'mRNA'} @allsfs;
-    printf "mRNAs:%d\n", scalar(@mrnas);
+    if( $verbosity > 0 ) {
+	warn sprintf "ALL:%d\n", scalar(@allsfs);
+	warn sprintf "mRNAs:%d\n", scalar(@mrnas);
+    }
+
     # relationship between mRNA and CDS should be one-one
     ok(@mrnas == @cdss);
 }
@@ -69,23 +75,28 @@ if (1) {
     $seq = getseq(@path);
     
     my @topsfs = $seq->get_SeqFeatures;
-    printf "TOP:%d\n", scalar(@topsfs);
-#    write_hier(@topsfs);
-    
+    if( $verbosity > 0 ) {
+	warn sprintf "TOP:%d\n", scalar(@topsfs);
+	write_hier(@topsfs);
+    }
     # UNFLATTEN
     @sfs = $unflattener->unflatten_seq(-seq=>$seq,
 				       -use_magic=>1,
 				      );
-    print "\n\nPOST PROCESSING:\n";
     @sfs = $seq->get_SeqFeatures;
-    write_hier(@sfs);
-    printf "PROCESSED/TOP:%d\n", scalar(@sfs);
+    if( $verbosity > 0 ) {
+	warn "\n\nPOST PROCESSING:\n";
+	write_hier(@sfs);
+	warn sprintf "PROCESSED/TOP:%d\n", scalar(@sfs);
+    }
     ok scalar(@sfs), 1;
     my @exons = grep {$_->primary_tag eq 'exon'} $seq->get_all_SeqFeatures;
     ok scalar(@exons), 6;    # total number of exons per splice
     my %numberh = map {$_->get_tag_values("number") => 1} @exons;
     my @numbers = keys %numberh;
-    printf "DISTINCT EXONS: %d [@numbers]\n", scalar(@numbers);
+    if( $verbosity > 0 ) {
+	warn sprintf "DISTINCT EXONS: %d [@numbers]\n", scalar(@numbers);
+    }
     ok scalar(@numbers), 6;  # distinct exons
 }
 
@@ -97,9 +108,10 @@ if (1) {
     $seq = getseq(@path);
     
     my @topsfs = $seq->get_SeqFeatures;
-    printf "TOP:%d\n", scalar(@topsfs);
-#    write_hier(@topsfs);
-    
+    if( $verbosity > 0 ) {
+	warn sprintf "TOP:%d\n", scalar(@topsfs);
+	write_hier(@topsfs);
+    }
     # UNFLATTEN
     #
     # we EXPECT problems with this erroneous record
@@ -108,17 +120,20 @@ if (1) {
                                        -use_magic=>1,
                                       );
     my @probs = $unflattener->get_problems;
-    $unflattener->report_problems(\*STDOUT);
+    $unflattener->report_problems(\*STDERR) if $verbosity > 0;
     $unflattener->clear_problems;
-    print "\n\nPOST PROCESSING:\n";
     @sfs = $seq->get_SeqFeatures;
-    write_hier(@sfs);
-    printf "PROCESSED/TOP:%d\n", scalar(@sfs);
+    if( $verbosity > 0 ) {
+	warn "\n\nPOST PROCESSING:\n";
+	write_hier(@sfs);
+	warn sprintf "PROCESSED/TOP:%d\n", scalar(@sfs);
+    }
     ok scalar(@sfs), 2;
     my @exons = grep {$_->primary_tag eq 'exon'} $seq->get_all_SeqFeatures;
     ok scalar(@exons), 2;    # total number of exons per splice
-
-    printf "PROBLEMS ENCOUNTERED: %d (EXPECTED: 6)\n", scalar(@probs);
+    if( $verbosity > 0 ) {
+	warn sprintf "PROBLEMS ENCOUNTERED: %d (EXPECTED: 6)\n", scalar(@probs);
+    }
     ok scalar(@probs), 6;
 }
 
@@ -127,6 +142,7 @@ sub write_hier {
     my @sfs = @_;
     _write_hier(0, @sfs);
 }
+
 sub _write_hier {
     my $indent = shift;
     my @sfs = @_;

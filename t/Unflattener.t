@@ -37,7 +37,7 @@ if (1) {
     ok ($seq->accession_number, 'AE003644');
     my @topsfs = $seq->get_SeqFeatures;
     if( $verbosity > 0 ) {
-	printf "TOP:%d\n", scalar(@topsfs);
+	warn sprintf "TOP:%d\n", scalar(@topsfs);
 	write_hier(@topsfs);
     }
     

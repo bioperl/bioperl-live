@@ -1829,7 +1829,7 @@ sub unflatten_group{
 		 @container_sfs = 
 		   grep {
 		       my $match = 0;
-		       $self->_write_sf($_);
+		       $self->_write_sf($_) if $self->verbose > 0;
 		       foreach my $tag (qw(product symbol label)) {
 			   if ($_->has_tag($tag)) {
 			       my @vals =
