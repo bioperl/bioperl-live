@@ -506,8 +506,6 @@ use Bio::Root::IO;
 
 @ISA = qw(Bio::Root::RootI Bio::Root::IO);
 
-
-BEGIN {
 # You will need to enable TCoffee to find the tcoffee program. This can be done
 # in (at least) three ways:
 #  1. Modify your $PATH variable to include your tcoffee directory as in (for Linux):
@@ -518,8 +516,7 @@ BEGIN {
 #     use Bio::Tools::Run::Alignment::TCoffee.pm.
 #	BEGIN {$ENV{TCOFFEEDIR} = '/home/progs/tcoffee'; }
 
-    $PROGRAMDIR = $ENV{TCOFFEEDIR} || '';
-    $PROGRAM = Bio::Root::IO->catfile($PROGRAMDIR,'t_coffee');
+BEGIN {
 
     @TCOFFEE_PARAMS = qw(IN TYPE PARAMETERS DO_NORMALISE EXTEND
 			 DP_MODE KTUPLE NDIAGS DIAG_MODE SIM_MATRIX
@@ -542,6 +539,10 @@ sub new {
     my $self = $class->SUPER::new(@args);
     # to facilitiate tempfile cleanup
     $self->_initialize_io();
+
+    $PROGRAMDIR = $ENV{TCOFFEEDIR} || '';
+    $PROGRAM = Bio::Root::IO->catfile($PROGRAMDIR,'t_coffee');
+
     my ($attr, $value);
     (undef,$TMPOUTFILE) = $self->tempfile();
     while (@args)  {
