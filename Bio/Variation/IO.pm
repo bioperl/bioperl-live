@@ -258,10 +258,6 @@ sub new {
    my ($format);
    my ($handler, $stream);
 
-   if ( $class eq 'Bio::Variation::IO::MultiFile' ) {
-       return Bio::Root::Object::new($class, %param);
-   }
-
    @param{ map { lc $_ } keys %param } = values %param;  # lowercase keys
    $format = $param{'-format'}
              || $class->_guess_format( $param{-file} || $ARGV[0] )
