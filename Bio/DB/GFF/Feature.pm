@@ -464,7 +464,7 @@ sub flatten_target {
     my $start = $t->start;
     my $stop  = $t->stop;
 #    ($start, $stop) = ($stop, $start) if $start > $stop;  # not for GFF2.5 targets
-
+    $v ||=2;
     if ( $v == 2.5 ) {
 	
 	print STDERR qq(Target "$class:$name"), "tstart $start", "tstop $stop\n";
