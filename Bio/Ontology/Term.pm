@@ -136,7 +136,7 @@ use constant FALSE   => 0;
                                      [reference to array] 
            -references            => L<Bio::Annotation::Reference> objects
                                      [reference to array]
-                                     
+
 =cut
 
 sub new {
@@ -524,7 +524,7 @@ sub get_references {
             $self->add_reference($reference1, $reference2);
   Fuctnion: Add one or more references
   Returns : [none]
-  
+
 =cut
 
 sub add_reference {
