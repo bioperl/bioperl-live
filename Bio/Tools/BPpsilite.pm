@@ -140,31 +140,24 @@ use vars qw(@ISA);
 use Bio::Tools::BPlite::Iteration; #
 use Bio::Tools::BPlite::Sbjct; #   Debug code
 use Bio::Root::RootI; # root interface to inherit from
+use Bio::Root::IO;
 use Bio::Tools::BPlite; 
 
-@ISA = qw( Bio::Root::RootI);
+@ISA = qw(Bio::Root::RootI Bio::Root::IO);
 
 #  clean up temporary files when exiting
-END { system('rm -f iteration?.tmp ') ;}
+END {
+    #system('rm -f iteration?.tmp '); # this is not cross-platform compatible
+    # temp files created via tempfile() will be removed automatically
+}
 
 sub new {
   my ($class, @args) = @_; 
   my $self = $class->SUPER::new(@args);
 
-  my ($fh, $file) = $self->_rearrange([qw(FH FILE)],@args);
+  # initialize IO
+  $self->_initialize_io(@args);
 
-  if( defined $file && defined $fh ) {
-      $self->throw("Cannot define both a file and fh for input");
-  }
-  if( defined $file ) {
-      $fh = Symbol::gensym();
-      open ($fh,$file) || $self->throw("Could not open file [$file] $!");
-  } elsif( defined $fh ) {
-      if (ref $fh !~ /GLOB/)
-      { $self->throw("Expecting a GLOB reference, not $fh!"); }
-  }
-
-  $self->fh($fh);
   $self->{'LASTLINE'} = "";
   $self->{'QPATLOCATION'} = [];  # Anonymous array of query pattern locations for PHIBLAST
   $self->{'NEXT_ITERATION_NUMBER'} = 1;
@@ -268,38 +261,19 @@ sub number_of_iterations {
 sub round {
   my $self = shift;
   my $iter_num = shift;
-  my $iterationfile = "iteration$iter_num.tmp";
-  open (FILEHANDLE, "$iterationfile");
-  my $iter=new Bio::Tools::BPlite::Iteration( -fh => \*FILEHANDLE,
-					      -lastline=>$self->{'LASTLINE'},
-					      -lastline=>$self->{'LASTLINE'},
-					      -round=>$iter_num,
-					      -parent=>$self);
-
+  open FH, "iteration".$iter_num.".tmp" ||
+      $self->throw("unable to re-open iteration file for round ".$iter_num);
+  return Bio::Tools::BPlite::Iteration->new(-fh => \*FH,
+					    -lastline=>$self->{'LASTLINE'},
+					    -round=>$iter_num,
+					    -parent=>$self);
 }
 
-=head2 fh
-
- Title    : fh
- Usage    : $fh = $obj->fh();
- Function : get/set filehandle
- Returns  : file handle
- Args     :
-
-=cut
-
-sub fh {
-    my ($self, $value) = @_;
-    if( defined $value && ref($value) =~ /GLOB/i ) {
-	$self->{'FH'} = $value;
-    } 
-    return $self->{'FH'};
-}
 # begin private routines
 
 sub _parseHeader {
   my ($self) = @_;
-  my $FH = $self->fh();
+  my $FH = $self->_fh();
   
   while(<$FH>) {
     if ($_ =~ /^Query=\s+([^\(]+)/)    {
@@ -344,7 +318,7 @@ sub _parseHeader {
 sub _preprocess {
     my $self = shift;
 #	$self->throw(" PSIBLAST report preprocessing not implemented yet!");
-    my $FH = $self->fh();
+    my $FH = $self->_fh();
     my  $oldround = 0;
     my ($currentline, $currentfile, $round);
 
