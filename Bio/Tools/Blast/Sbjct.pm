@@ -1330,7 +1330,8 @@ sub desc {
  Returns   : String
  Argument  : n/a
  Throws    : n/a
- Status    : Experimental
+ Status    : Deprecated. Use Bio::Tools::Blast::database()
+             Extracting database name from the seq identifier is error prone.
  Comments  : Database id should be the same for all hits in a given 
            : BLAST report, however, they do not always have the same
            : name as the database name extraced by the Blast.pm object.
@@ -1339,7 +1340,11 @@ sub desc {
 =cut
 
 #--------------
-sub database { my $self = shift; return $self->{'_db'}; }
+sub database { 
+    my $self = shift; 
+    self->warn("Bio::Tools::Sbjct::database() is deprecated.\nNo useful information is provided by this method.\nUse Bio::Tools::Blast::database().\n");
+    return $self->{'_db'};
+}
 #--------------
 
 
