@@ -484,22 +484,21 @@ my %valid_range_types = (overlaps     => 1,
 
 These are the arguments:
 
- -adaptor           Name of the adaptor module to use.  If none
-                    provided, defaults to "dbi::mysqlopt".
+ -adaptor      Name of the adaptor module to use.  If none
+               provided, defaults to "dbi::mysqlopt".
 
- -aggregator        Array reference to a list of aggregators
-                    to apply to the database.  If none provided,
-	            defaults to ['processed_transcript','alignment'].
+ -aggregator   Array reference to a list of aggregators
+               to apply to the database.  If none provided,
+	       defaults to ['processed_transcript','alignment'].
 
- -preferred_groups  When interpreteting the 9th column of a GFF2 file,
-                    the indicated group names will have preference over
-                    other attributes, even if they do not come first in
-                    the list of attributes.  This can be a scalar value
-                    or an array reference.  The group names should be listed
-                    in order of preference.
+  -preferred_groups  When interpreteting the 9th column of a GFF2 file,
+                 the indicated group names will have preference over
+                 other attributes, even if they do not come first in
+                 the list of attributes.  This can be a scalar value
+                 or an array reference.
 
-  <other>           Any other named argument pairs are passed to
-                    the adaptor for processing.
+  <other>      Any other named argument pairs are passed to
+               the adaptor for processing.
 
 The adaptor argument must correspond to a module contained within the
 Bio::DB::GFF::Adaptor namespace.  For example, the
@@ -2070,8 +2069,7 @@ sub clear_aggregators { shift->{aggregators} = [] }
  Usage   : $db->preferred_groups([$group_name_or_arrayref])
  Function: get/set list of groups for altering GFF2 parsing
  Returns : a list of classes
- Args    : new list (scalar or array ref).  Group names should be
-           listed in order of preference
+ Args    : new list (scalar or array ref)
  Status  : public
 
 =cut
@@ -3294,34 +3292,28 @@ sub _split_gff2_group {
     }
   }
 
-  # group assignment -- save an attribute  lookup table and
-  # give acedb-style GFF first crack at group assignments
-  if ( @attributes && !($gclass && $gname)) { 
-    my %grp_h = ();    
+  # group assignment
+  if ( @attributes && !($gclass && $gname)) {
+    last if $gclass && $gname;    
     for my $att ( @attributes ) {
       my ($k, $v) = @$att;
-      $grp_h{$k} ||= [];
-      push @{$grp_h{$k}}, $v;
-      
-      # acedb flavor GFF?
-      if ( $k =~ /Sequence|Transcript/ ) {
+      # give acedb-style GFF first crack at it
+      if ( $k =~ /Sequence|Transcript/ && !$gclass) {
         ($gclass, $gname) = ($k, $v);
-        last;
       }
-    }
-    
-    # Try to assign a preferred group (in order of preference)
-    unless ( $gclass && $gname ) {
-      for my $grp ( $self->preferred_groups ) {
-	if ( defined $grp_h{$grp} ) {
-	  $gclass = $grp;
-          $gname  = $grp_h{$grp}->[0];
-	  last;
-	}
+
+      # otherwise look for the preferred groups
+      elsif (ref($self)) {
+        for ($self->preferred_groups) {
+	  if (uc $k eq uc $_) {
+	    ($gclass, $gname) = ($k, $v);
+	    last;
+          }
+        }
       }
     }
 
-    # Last resort: use the first tag/value
+    # use the first tag/value if no group is assigned
     unless ($gclass && $gname) {
       my $grp = shift @attributes;
       ($gclass, $gname) = @$grp;
