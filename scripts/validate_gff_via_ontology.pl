@@ -85,6 +85,7 @@ my @bad_types = ();
 my @good_types = ();
 
 my @bad_partofs = ();
+my @sugg = ();
 
 foreach my $f (@features) {
     check($f);
@@ -92,10 +93,12 @@ foreach my $f (@features) {
 @bad_types = uniquify @bad_types;
 @good_types = uniquify @good_types;
 @bad_partofs = uniquify @bad_partofs;
+@sugg = uniquify @sugg;
 print "BAD : @bad_types\n";
 print "GOOD: @good_types\n";
 
 print "BAD PART-OFS: @bad_partofs\n" if @bad_partofs;
+print "SUGGESTED CHANGES: @sugg\n" if @sugg;
 
 
 sub check {
@@ -171,6 +174,26 @@ sub check {
         }
         else {
             trace "**NAUGHTY**\n";
+
+            # find possible
+            my $suggested_fterms =
+              $graph->get_parent_terms_by_type($child_type_id, 'partof');
+            foreach (@$suggested_fterms) {
+                trace "SUGGESTION: how about making %s [now a %s] a %s\n",
+                  $f->unique_id || '?', $f->type->name, $_->name;
+                push(@sugg, 
+                     sprintf("[change %s (now %s) to a %s]",
+                             $f->unique_id || '?', $f->type->name, $_->name));
+            }         
+            my $suggested_subfterms =
+              $graph->get_parent_terms_by_type($parent_type_id, 'partof');
+            foreach (@$suggested_subfterms) {
+                trace "SUGGESTION: how about making %s [now a %s] a %s\n",
+                  $subf->unique_id || '?', $subf->type->name, $_->name;
+                push(@sugg, 
+                     sprintf("[change %s (now %s) to a %s]",
+                             $subf->unique_id || '?', $subf->type->name, $_->name));
+            }         
             push(@bad_partofs, sprintf("[%s PARTOF %s]",
                                        $subf->type_string,
                                        $f->type_string));
@@ -266,7 +289,8 @@ YES! 'mRNA' is a subclass of 'processed_transcript' is a subclass of 'transcript
 NO! 'exon' is a subclass of only the root term
     'mRNA' is a subclass of 'processed_transcript' is a subclass of 'transcript'
     'exon' is ONLY a part of 'primary_transcript',
-         which is NOT in the 'mRNA' subsumption hierarchy above
+         which is NOT in the 'mRNA' subsumption hierarchy
+
     therefore this is invalid
 
 =head2 SPECIFICATION
