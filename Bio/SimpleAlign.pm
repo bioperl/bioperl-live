@@ -799,7 +799,6 @@ sub match_line {
 		# look to see which groups it is in
 		foreach my $c ( @colresidues ) {
 		    foreach my $f ( grep /$c/, @{$CONSERVATION_GROUPS{$type}} ) {
-			print STDERR "$f for $c\n";
 			push @{$groups{$f}},$c; 
 		    }
 		}
