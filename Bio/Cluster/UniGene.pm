@@ -625,7 +625,7 @@ sub sequence {
 sub next_seq {
     my ($obj) = @_;
     return unless (my $seq = shift @{$obj->{'sequence'}});
-    my $seqobj = $obj->sequence_factory->create_sequence
+    my $seqobj = $obj->sequence_factory->create
 	( -accession_number => $seq->{acc},
 	  -pid => $seq->{pid},
 	  -id => $seq->{acc},
