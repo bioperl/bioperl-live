@@ -85,6 +85,7 @@ BEGIN {
 		    'WITHIN' => '.', 
 		    # 1^2
 		    'BETWEEN'    => '^',
+		    'IN-BETWEEN' => '^',
 		    # <100
 		    'BEFORE'  => '<',
 		    # >10
