@@ -112,6 +112,8 @@ use vars qw(@ISA);
 use strict;
 use Carp;
 
+use Bio::Tools::CodonTable;
+
 =head1 Implementation Specific Functions
 
 These functions are the ones that a specific implementation must
@@ -487,10 +489,101 @@ sub trunc{
    return $out;
 }
 
+
 =head2 translate
 
  Title   : translate
  Usage   : $protein_seq_obj = $dna_seq_obj->translate
+ Function: 
+
+           Provides the translation of the DNA sequence
+           using full IUPAC ambiguities in DNA/RNA and amino acid codes.
+
+           The resulting translation is identical to EMBL/TREMBL database 
+           translations.
+
+ Returns : A Bio::PrimarySeqI implementing object
+ Args    : character for terminator (optional) defaults to '*'
+           character for unknown amino acid (optional) defaults to 'X'
+           frame (optional) valid values 0, 1, 3, defaults to 0
+           codon table id (optional) defaults to 1
+=cut
+
+
+sub translate {
+  my($self) = shift;
+  my($stop, $unknown, $frame, $tableid) = @_;
+  my($i, $len, $output) = (0,0,'');
+  my($codon)   = "";
+  my $aa;
+
+
+  ## User can pass in symbol for stop and unknown codons
+  unless(defined($stop) and $stop ne '')    { $stop = "*"; }
+  unless(defined($unknown) and $unknown ne '') { $unknown = "X"; }
+  unless(defined($frame) and $frame ne '') { $frame = 0; }
+
+  ## the codon table ID 
+  unless(defined($tableid) and $tableid ne '')    { $tableid = 1; }
+
+  ##Error if monomer is "Amino"
+  $self->throw("Can't translate an amino acid sequence.") if
+      ($self->moltype eq 'protein');
+
+  ##Error if frame is not 0, 1 or 2
+  $self->throw("Valid values for frame are 0, 1, 2, not [$frame].") unless
+      ($frame == 0 or $frame == 1 or $frame == 2);
+
+  #thows a warning if ID is invalid 
+  my $codonTable = Bio::Tools::CodonTable->new( -id => $tableid);
+
+  my ($seq) = $self->seq();
+
+  # deal with frame offset.
+  if( $frame ) {
+      $seq = substr ($seq,$frame);
+  }
+
+  for $codon ( grep { length == 3 } split(/(.{3})/, $seq) ) {
+      my $aa = $codonTable->translate($codon);
+      if ($aa eq '*') {
+   	   $output .= $stop;
+      }
+      elsif ($aa eq 'X') {
+   	   $output .= $unknown;
+      }
+      else { 
+	  $output .= $aa ;
+      }   
+  }
+
+  my($out,$id);
+  $id = $self->id();
+  
+  if( $self->can_call_new == 1  ) {
+       $out = $self->new( '-seq' => $output,
+			  '-display_id'  => $self->display_id,
+			  '-accession_number' => $self->accession_number,
+			  '-moltype' => 'protein'
+			  );
+   } else {
+       $self->_attempt_to_load_Seq();
+       $out = Bio::PrimarySeq->new('-seq' => $output,
+			    '-display_id'  => $self->display_id,
+			    '-accession_number' => $self->accession_number,
+			    '-moltype' => 'protein'
+			    );
+   }
+   
+  return $out;
+
+}
+
+
+=head2 translate_old
+
+ Title   : translate_old
+ Usage   : $protein_seq_obj = $dna_seq_obj->translate_old
  Function: Provides the translation of the DNA sequence
 
  Returns : A Bio::PrimarySeqI implementing object
@@ -499,10 +592,12 @@ sub trunc{
 
  EB: this function is badly written and needs an overhaul
 
+ HL: delete this method when confident that the new translate works!
+
 =cut
 
 
-sub translate {
+sub translate_old {
   my($self) = shift;
   my($stop, $unknown,$frame) = @_;
   my($i, $len, $output) = (0,0,'');

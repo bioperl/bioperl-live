@@ -185,7 +185,7 @@ sub _initialize {
 				  X => [qw(G A T C)],
 				  N => [qw(G A T C)]
 				};
-	$self->{'_alpha'} = [ map { $self->{'_iupac_iub'}{uc($_)} } split('', $self->{'_SeqObj'}->str()) ];
+	$self->{'_alpha'} = [ map { $self->{'_iupac_iub'}{uc($_)} } split('', $self->{'_SeqObj'}->seq()) ];
     } elsif ($self->{'_SeqObj'}->moltype() =~ m/^protein$/i ) { # amino acid seq object
 	$self->{'_iupac_iup'} = { A => [qw(A)],
 				  B => [qw(D N)],

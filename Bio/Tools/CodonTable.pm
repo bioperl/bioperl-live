@@ -12,12 +12,13 @@
 
 =head1 NAME
 
-Bio::Tools::CodonTable - Bioperl codon table object
+  Bio::Tools::CodonTable - Bioperl codon table object
 
 =head1 SYNOPSIS
 
-  This is a read-only class for all known codon tables.
-  The IDs are the ones used by nucleotide sequence databases.
+  This is a read-only class for all known codon tables.  The IDs are
+  the ones used by nucleotide sequence databases.  All common IUPAC
+  ambiguity codes for DNA, RNA and animo acids are recognized.
 
   # to use
   use Bio::Tools:CodonTable;
@@ -36,15 +37,18 @@ Bio::Tools::CodonTable - Bioperl codon table object
   # translate a codon
   $aa = $myCodonTable->translate('ACU');
   $aa = $myCodonTable->translate('act');
+  $aa = $myCodonTable->translate('ytr');
 
   # reverse translate an amino acid 
   @codons = $myCodonTable->revtranslate('A');
   @codons = $myCodonTable->revtranslate('Ser');
+  @codons = $myCodonTable->revtranslate('Glx');
   @codons = $myCodonTable->revtranslate('cYS', 'rna');
 
   #boolean tests
    print "Is a start\n"       if $myCodonTable->is_start_codon('ATG');
-   print "Is a termianator\n" if $myCodonTable->is_ter_codon('ATG');
+   print "Is a termianator\n" if $myCodonTable->is_ter_codon('tar');
+   print "Is a unknown\n"     if $myCodonTable->is_unknown_codon('JTG');
 
 =head1 DESCRIPTION
 
@@ -59,6 +63,10 @@ tables that are used by primary nucleotide sequence databases
 (GenBank, EMBL and DDBJ). It provides methods to output information
 about tables and relationships between codons and amino acids.
 
+This class and its methods recognized all common IUPAC ambiguity codes
+for DNA, RNA and animo acids. The translation method follows the
+conventions in EMBL and TREMBL databases.
+
 It is a nuisance to separate RNA and cDNA representations of nucleic
 acid transcripts. The CodonTable object accepts codons of both type as
 input and allows the user to set the mode for output when reverse
@@ -67,6 +75,34 @@ translating. It default for output is DNA.
 Note: This class deals with individual codons and amino acids, only.
       Call it from your own objects to translate and reverse translate
       longer sequences.
+
+
+The amino acid codes are IUPAC recommendations for common amino acids:
+
+          A           Ala            Alanine
+          R           Arg            Arginine
+          N           Asn            Asparagine
+          D           Asp            Aspartic acid
+          C           Cys            Cysteine
+          Q           Gln            Glutamine
+          E           Glu            Glutamic acid
+          G           Gly            Glycine
+          H           His            Histidine
+          I           Ile            Isoleucine
+          L           Leu            Leucine
+          K           Lys            Lysine
+          M           Met            Methionine
+          F           Phe            Phenylalanine
+          P           Pro            Proline
+          S           Ser            Serine
+          T           Thr            Threonine
+          W           Trp            Tryptophan
+          Y           Tyr            Tyrosine
+          V           Val            Valine
+          B           Asx            Aspartic acid or Asparagine
+          Z           Glx            Glutamine or Glutamic acid
+          X           Xaa            Any or unknown amino acid 
+
 
 
 NCBI Genetic Codes home page:
@@ -206,7 +242,7 @@ my @starts =
        );
 
 
-my @nucs = ('t','c','a','g');
+my @nucs = qw(t c a g);
 my ($x) = 0;
 my ($i, $j, $k);
 my ($codons, $trCol);
@@ -221,29 +257,56 @@ for ($i=0;$i<4;$i++) {
     }   
 }
 
-my  %onecode =   (Ala => 'A',
-		  Cys => 'C',
-		  Asp => 'D',
-		  Glu => 'E',
-		  Phe => 'F',
-		  Gly => 'G',
-		  His => 'H',
-		  Ile => 'I',
-		  Lys => 'K',
-		  Leu => 'L',
-		  Met => 'M',
-		  Asn => 'N',
-		  Pro => 'P',
-		  Gln => 'Q',
-		  Arg => 'R',
-		  Ser => 'S',
-		  Thr => 'T',
-		  Val => 'V',
-		  Trp => 'W',
-		  Tyr => 'Y',
-		  Ter => 'X'
-		  );
-    
+my  %onecode =   
+    (Ala => 'A',     Asx => 'B',
+     Cys => 'C',     Asp => 'D',
+     Glu => 'E',     Phe => 'F',
+     Gly => 'G',     His => 'H',
+     Ile => 'I',     Lys => 'K',
+     Leu => 'L',     Met => 'M',
+     Asn => 'N',     Pro => 'P',
+     Gln => 'Q',     Arg => 'R',
+     Ser => 'S',     Thr => 'T',
+     Val => 'V',     Trp => 'W',
+     Xaa => 'X',     Tyr => 'Y',
+     Glx => 'Z',     Ter => '*'
+     );
+
+my %iupac_dna = 
+    (a => [qw(a)],
+     c => [qw(c)],
+     g => [qw(g)],
+     t => [qw(t)],
+     u => [qw(t)],
+     m => [qw(a c)],
+     r => [qw(a g)],
+     w => [qw(a t)],
+     k => [qw(g t)],
+     y => [qw(c t)],
+     s => [qw(c g)],
+     v => [qw(a c g)],
+     h => [qw(a c t)],
+     d => [qw(a g t)],
+     b => [qw(c g t)],
+     n => [qw(a c g t)],
+     x => [qw(a c g t)]
+     );
+
+my %iupac_aa =
+    ( A => [qw(A)],      B => [qw(D N)],
+      C => [qw(C)],      D => [qw(D)],
+      E => [qw(E)],      F => [qw(F)],
+      G => [qw(G)],      H => [qw(H)],
+      I => [qw(I)],      K => [qw(K)],
+      L => [qw(L)],      M => [qw(M)],
+      N => [qw(N)],      P => [qw(P)],
+      Q => [qw(Q)],      R => [qw(R)],
+      S => [qw(S)],      T => [qw(T)],
+      U => [qw(U)],      V => [qw(V)],
+      W => [qw(W)],      X => [qw(X)],
+      Y => [qw(Y)],      Z => [qw(E Q)],
+      '*' => ['*']
+      );
 
 sub _initialize {
     my($obj,@args) = @_;
@@ -317,13 +380,91 @@ sub name{
 =head2 translate
 
  Title   : translate
- Usage   : $obj->translate('ACT')
+ Usage   : $obj->translate('YTR')
+ Function: Returns one letter amino acid code for a codon input.
+
+           Returns 'X' for unknown codons and codons that code for
+           more than one amino acid. Returns an empty string if input
+           is not three characters long. Exceptions for these are:
+
+             - IUPAC amino acid code B for Aspartic Acid and
+               Asparagine, is used.
+             - IUPAC amino acid code Z for Glutamic Acid, Glutamine is
+               used.
+             - if the codon is two nucleotides long and if by adding
+               an a third character 'N', it codes for a single amino
+               acid (with exceptions above), return that, otherwise
+               return empty string.
+
+           Return empty string for input strings that are not three
+           characters long.
+
+ Example : 
+ Returns : One letter ambiguous IUPAC amino acid code
+ Args    : a codon = a three character, ambiguous IUPAC nucleotide  string
+
+
+=cut
+
+sub translate{
+   my ($obj, $value) = @_;
+   my ($id) = $obj->{'id'};
+   my ($partial) = 0;
+   my $result;
+
+   $value  = lc $value;
+   $value  =~ tr/u/t/;
+
+   if (length $value != 3 and length $value != 2) {
+       return '';
+   }
+   else {
+       if (length $value == 2 ) {
+	   $value = $value. 'n';
+	   $partial = 1;
+       }
+       my @codons = _unambiquous_codons($value);
+       
+       my %aas =(); 
+       foreach my $codon (@codons) {
+	   $aas{substr($tables[$id-1],$codons->{$codon},1)} = 1;	   
+       }
+       #foreach my $x (keys %aas) {print "$x\n";} ###
+       
+       my $count = scalar keys %aas;
+       if ( $count == 1 ) {
+	   return (keys %aas)[0];
+       }
+       elsif ( $count == 2 ) {
+	   if ($aas{'D'} and $aas{'N'}) {
+	       return 'B';
+	   }
+	   elsif ($aas{'E'} and $aas{'Q'}) {
+	       return 'Z';
+	   }
+	   else {
+	   $partial ? return '' :  return 'X';
+	   }
+       }
+       else {
+	   $partial ? return '' :  return 'X';
+       }
+   }
+}
+
+=head2 translate_strict
+
+ Title   : translate
+ Usage   : $obj->translate_strict('ACT')
  Function: returns one letter amino acid code for a codon input
 
            User is responsible to resolve ambiguous nucleotide codes
            before calling this method. Returns 'X' for unknown codons
            and an empty string for input strings that are not three
            characters long.
+
+           It is not recommended to use this method in a production
+           environment.
 
  Example : 
  Returns : A string
@@ -332,11 +473,12 @@ sub name{
 
 =cut
 
-sub translate{
+sub translate_strict{
    my ($obj, $value) = @_;
    my ($id) = $obj->{'id'};
 
-   $value  =~ tr/GACTUu/gacttt/;
+   $value  = lc $value;
+   $value  =~ tr/u/t/;
 
    if (length $value != 3 ) {
        return '';
@@ -349,20 +491,21 @@ sub translate{
    }
 }
 
-
 =head2 revtranslate
 
  Title   : revtranslate
  Usage   : $obj->revtranslate('G')
  Function: returns codons for an amino acid
 
-           User is responsible to resolve ambiguous amino acid codes
-           codes before calling this method. Returns an empty string
-           for unknown amino acid codes. Both single and three letter
-           amino acid codes are accepted. 
+           Returns an empty string for unknown amino acid
+           codes. Ambiquous IUPAC codes Asx,B, (Asp,D; Asn,N) and
+           Glx,Z (Glu,E; Gln,Q) are resolved. Both single and three
+           letter amino acid codes are accepted. '*' and 'Ter' are
+           used for terminator.
 
-           By default the output codons are shown in DNA.  If the output is
-           needed in RNA (tr/t/u/), add a second argument 'RNA'.
+           By default, the output codons are shown in DNA.  If the
+           output is needed in RNA (tr/t/u/), add a second argument
+           'RNA'.
 
  Example : $obj->revtranslate('Gly', 'RNA')
  Returns : An array of three lower case letter strings i.e. codons
@@ -373,19 +516,25 @@ sub translate{
 sub revtranslate {
     my ($obj, $value, $coding) = @_;
     my ($id) = $obj->{'id'};
-    my (@codons, $p);
+    my (@aas,  $p);
+    my (@codons) = ();
 
     if (length($value) == 3 ) {
 	$value = lc $value;
 	$value = ucfirst $value;
 	$value = $onecode{$value}; 
     }
-    if (defined $value and length($value) == 1 ) {
+    if ( defined $value and $value =~ /[ARNDCQEGHILKMFPSTWYVBZX]/ and length($value) == 1 ) {
 	$value = uc $value;
-	while ($tables[$id-1] =~ m/$value/g) {
-	    $p = pos $tables[$id-1];
-	    push (@codons, $trCol->{--$p});
-	} 
+	@aas = @ {$iupac_aa{$value}} ;	
+	foreach my $aa (@aas) {
+	    #print $aa, " -2\n";
+	    $aa = '\*' if $aa eq '*';
+	    while ($tables[$id-1] =~ m/$aa/g) {
+		$p = pos $tables[$id-1];
+		push (@codons, $trCol->{--$p});
+	    } 
+	}
     }
 
     if ($coding and uc ($coding) eq 'RNA') {
@@ -413,19 +562,20 @@ sub revtranslate {
 sub is_start_codon{
    my ($obj, $value) = @_;
    my ($id) = $obj->{'id'};
+   
+   $value  = lc $value;
+   $value  =~ tr/u/t/;
 
-   $value  =~ tr/GACTUu/gacttt/;
-
-   if (length $value != 3  or !(defined $codons->{$value}))  {
+   if (length $value != 3  )  {
        return 0;
    }
    else {
-       if ( substr($starts[$id-1],$codons->{$value},1) eq "M" ) {
-	   return 1 ;
+       my $result = 1;
+       my @ms = map { substr($starts[$id-1],$codons->{$_},1) } _unambiquous_codons($value);
+       foreach my $c (@ms) {
+	   $result = 0 if $c ne 'M';
        }
-       else {
-	   return 0;
-       }
+       return $result;
    }
 }
 
@@ -437,7 +587,7 @@ sub is_start_codon{
  Usage   : $obj->is_ter_codon('GAA')
  Function: returns true (1) for all codons that can be used as a
            translation tarminator, false (0) for others.
- Example : myCodonTable->is_ter_codon('ATG')
+ Example : $myCodonTable->is_ter_codon('ATG')
  Returns : boolean
  Args    : codon
 
@@ -448,20 +598,81 @@ sub is_ter_codon{
    my ($obj, $value) = @_;
    my ($id) = $obj->{'id'};
 
-   $value  =~ tr/GACTUu/gacttt/;
+   $value  = lc $value;
+   $value  =~ tr/u/t/;
 
-   if (length $value != 3  or !(defined $codons->{$value}))  {
+   if (length $value != 3  )  {
        return 0;
    }
    else {
-       if ( substr($tables[$id-1],$codons->{$value},1) eq '*' ) {
-	   return 1 ;
+       my $result = 1;
+       my @ms = map { substr($tables[$id-1],$codons->{$_},1) } _unambiquous_codons($value);
+       foreach my $c (@ms) {
+	   $result = 0 if $c ne '*';
        }
-       else {
-	   return 0;
-       }
+       return $result;
    }
 }
+
+=head2 is_unknown_codon
+
+ Title   : is_unknown_codon
+ Usage   : $obj->is_unknown_codon('GAJ')
+ Function: returns false (0) for all codons that are valid,
+	    true (1) for others.
+ Example : $myCodonTable->is_unknown_codon('NTG')
+ Returns : boolean
+ Args    : codon
+
+
+=cut
+
+sub is_unknown_codon{
+   my ($obj, $value) = @_;
+   my ($id) = $obj->{'id'};
+
+   $value  = lc $value;
+   $value  =~ tr/u/t/;
+
+   if (length $value != 3  )  {
+       return 1;
+   }
+   else {
+       my $result = 0;
+       my @cs = map { substr($tables[$id-1],$codons->{$_},1) } _unambiquous_codons($value);
+       $result = 1 if scalar @cs == 0;
+       return $result;
+   }
+}
+
+=head2 _unambiquous_codons
+
+ Title   : _unambiquous_codons
+ Usage   : @codons = _unambiquous_codons('ACN')
+ Function: 
+ Example : 
+ Returns : array of strings (one letter unambiguous amino acid codes) 
+ Args    : a codon = a three IUPAC nucleotide character string
+
+=cut
+
+sub _unambiquous_codons{
+    my ($value) = @_;
+    my @nts = ();   
+    my @codons = ();
+    my ($i, $j, $k);
+    @nts = map { $iupac_dna{$_} }  split(//, $value) ;
+    for $i (0..$#{$nts[0]}) {
+	for $j (0..$#{$nts[1]}) {
+	    for $k (0..$#{$nts[2]}) {
+		#print join ('', $nts[0][$i], $nts[1][$j], $nts[2][$k]), "\n"; ###
+		push @codons, join ('', $nts[0][$i], $nts[1][$j], $nts[2][$k]);
+	    }
+	}
+    }
+    return @codons;
+}
+
 
 }
 
