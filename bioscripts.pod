@@ -488,6 +488,10 @@ using Tools::Genscan. Please see L<Bio::Tools::Genscan> for more information.
 A script that shows how to use sequences as regular expressions using
 Tools::SeqPattern. Please see L<Bio::Tools::SeqPattern> for more information.
 
+=head2 examples/tools/standaloneblast.pl
+
+The many uses of StandAloneBlast, including BLAST and PSIBLAST.
+
 =head2 examples/tools/state-machine.pl
 
 A demonstration of how to create a state machine using
