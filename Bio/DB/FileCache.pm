@@ -141,7 +141,7 @@ sub get_Seq_by_id{
    return $obj if defined $obj;
 
    # get object from seqdb
-   my $obj = $self->seqdb->get_Seq_by_id($id);
+   $obj = $self->seqdb->get_Seq_by_id($id);
    $self->_store('id' => $id, $obj);
 
    return $obj;
@@ -167,7 +167,7 @@ sub get_Seq_by_acc{
    return $obj if defined $obj;
 
    # get object from seqdb
-   my $obj = $self->seqdb->get_Seq_by_acc($acc);
+   $obj = $self->seqdb->get_Seq_by_acc($acc);
    $self->_store('acc' => $acc, $obj);
 
    return $obj;
