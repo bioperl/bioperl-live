@@ -213,7 +213,7 @@ sub tempdir{
 
  Title   : cleanup
  Usage   : $wrapper->cleanup();
- Function: Will cleanup the tempdir directory after a PAML run
+ Function: Will cleanup the tempdir directory
  Returns : none
  Args    : none
 
