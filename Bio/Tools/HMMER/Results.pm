@@ -671,7 +671,7 @@ sub _parse_hmmpfam {
 
 	    while(<$file>) {
 		/^Align/ && last;
-		
+		/^\/\// && last;
 		# this is meant to match
 
 		#Sequence Domain  seq-f seq-t    hmm-f hmm-t      score  E-value
@@ -704,6 +704,8 @@ sub _parse_hmmpfam {
 		    $self->add_Domain($unit);
 		}
 	    }
+	    if( /^\/\// ) { next; }
+
 	    $_ = <$file>;
 
 

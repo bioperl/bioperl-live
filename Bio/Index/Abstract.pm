@@ -462,7 +462,7 @@ sub _check_file_sizes {
         my( $file, $stored_size ) = $self->unpack_record( $self->db->{"__FILE_$i"} );
         my $size = -s $file;
         unless ($size = $stored_size) {
-            $self->throw("file $i [ $file ] has changed size $stored_size -> $size");
+            $self->throw("file $i [ $file ] has changed size $stored_size -> $size. This probably means you need to rebuild the index.");
         }
     }
     return 1;

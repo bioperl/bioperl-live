@@ -26,7 +26,7 @@ Bio::SeqIO - Handler for SeqIO Formats
     $out = Bio::SeqIO->new(-file => ">outputfilename" , '-format' => 'EMBL');
     # note: we quote -format to keep older perl's from complaining.
 
-    while ( $seq = $in->next_seq() ) {
+    while ( my $seq = $in->next_seq() ) {
 	$out->write_seq($seq);
     }
 
@@ -554,6 +554,10 @@ sub _guess_format {
    return 'embl'    if /\.dat$/i;
    return 'raw'     if /\.(txt)$/i;
    return 'gcg'     if /\.gcg$/i;
+}
+
+sub DESTROY {
+    $self->close();
 }
 
 sub TIEHANDLE {

@@ -270,6 +270,11 @@ sub next_seq {
 	   $dblinkobj->optional_id($3);
 	   $dblinkobj->comment($4);
 	   $seq->annotation->add_DBLink($dblinkobj);
+       } elsif (/^DR\s+(\S+)\; (\S+)\;/) {
+	   my $dblinkobj =  Bio::Annotation::DBLink->new();
+	   $dblinkobj->database($1);
+	   $dblinkobj->primary_id($2);
+	   $seq->annotation->add_DBLink($dblinkobj);
        }
 
        #keywords

@@ -102,7 +102,7 @@ sub next_seq{
   chomp $next_line;
 
   my ($top,@lines) = split "\n",$next_line;
-  my ($id,$fulldesc) = $top =~ /^(\S+)\s*(.*)/;
+  my ($id,$fulldesc) = $top =~ /^\s*(\S+)\s*(.*)/;
   my $sequence = join '',@lines;
   # remove whitespace
   $sequence =~ s/\s//g;
