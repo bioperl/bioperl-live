@@ -22,7 +22,7 @@ BEGIN {
     }
     use Test;
 
-    $NUMTESTS =46; #51;
+    $NUMTESTS =51;
     plan tests => $NUMTESTS;
     eval { require IO::String };
     if( $@ ) {
@@ -78,9 +78,8 @@ $seq = $seqio = undef;
 eval {
     ok( defined($seqio = $gb->get_Stream_by_batch([ qw(J00522 AF303112 
 							 2981014)])));
-# batch mode not working very well right now - JES 2001-12-08
-#    ok($seqio->next_seq->length, 408);
-#    ok($seqio->next_seq->length, 1611);
+    ok($seqio->next_seq->length, 408);
+    ok($seqio->next_seq->length, 1611);
     ok($seqio->next_seq->length, 1156);
 };
 
@@ -100,8 +99,7 @@ eval {
     ok($seq->length, 353);
     $seqio = $gb->get_Stream_by_batch([ qw(AAC06201 195055)]);
     ok( defined $seqio);
-    # batch retrieval not working so well right now
-    # ok( $seqio->next_seq->length(), 353); 
+    ok( $seqio->next_seq->length(), 353); 
     ok( $seqio->next_seq->length(), 136);
 };
 
@@ -167,11 +165,11 @@ eval {
     $gb->request_format("genbank");
     ok(defined($seqio = $gb->get_Stream_by_batch([ qw(J00522 AF303112 
 							2981014)])));
-#    ok( $seqio->next_seq->length, 408);
-#    undef $gb;  # test the case where the db is gone, 
+    ok( $seqio->next_seq->length, 408);
+    undef $gb;  # test the case where the db is gone, 
                  # but a temp file should remain until seqio goes away. 
 
-#    ok($seqio->next_seq->length, 1611);
+    ok($seqio->next_seq->length, 1611);
     ok($seqio->next_seq->length, 1156);
     
 };

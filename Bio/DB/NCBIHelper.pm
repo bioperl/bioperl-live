@@ -62,7 +62,7 @@ web:
 
 =head1 AUTHOR - Jason Stajich
 
-Email jason@chg.mc.duke.edu
+Email jason@bioperl.org
 
 =head1 APPENDIX
 
@@ -76,17 +76,22 @@ preceded with a _
 
 package Bio::DB::NCBIHelper;
 use strict;
-use vars qw(@ISA $HOSTBASE %CGILOCATION %FORMATMAP $DEFAULTFORMAT);
+use vars qw(@ISA $HOSTBASE %CGILOCATION %FORMATMAP 
+	    $BOUNDARY $DEFAULTFORMAT $MAX_ENTRIES);
 
 use Bio::DB::WebDBSeqI;
 use HTTP::Request::Common;
-
+use Bio::Root::IO;
 @ISA = qw(Bio::DB::WebDBSeqI);
 
-BEGIN { 	    
+BEGIN {
+    $BOUNDARY = '-' x 30 . int rand(10E14); 	    
+    $MAX_ENTRIES = 19000;
     $HOSTBASE = 'http://www.ncbi.nlm.nih.gov';
-    %CGILOCATION = ( #'batch'  => '/entrez/batchentrez.cgi',
-		     'batch' => '/htbin-post/Entrez/query',
+    %CGILOCATION = ( 
+		     'batch'  => '/htbin-post/Entrez/query',
+# new style only returns HTML #'batch'  => '/entrez/batchentrez.cgi',
+# old style	              #'batch' => '/cgi-bin/Entrez/qserver.cgi/result',
 		     'single' => '/htbin-post/Entrez/query',
 		     'version'=> '/htbin-post/Entrez/girevhist',
 		     'gi'     => '/htbin-post/Entrez/query');
@@ -102,7 +107,9 @@ BEGIN {
 
 sub new {
     my ($class, @args ) = @_;
-    return $class->SUPER::new(@args);
+    my $self = $class->SUPER::new(@args);
+    
+    return $self;
 }
 
 
@@ -159,7 +166,6 @@ sub get_request {
 	$self->throw("must specify a valid retrival mode 'single' or 'batch' not '$mode'") 
     }
     my $url = $HOSTBASE . $CGILOCATION{$mode};
-#    print $url, "\t($mode)\n"; exit;
     if( !defined $uids ) {
 	$self->throw("Must specify a value for uids to query");
     }
@@ -168,24 +174,25 @@ sub get_request {
 	$params{'val'} = $uids;
     } else {
 	if( ref($uids) =~ /array/i ) {
-	    $uids = join(",", @$uids);
+	    $uids = join("+", @$uids);
 	}
 	$params{'term'} = $uids;
     }
 
     if( $mode eq 'batch' ) {
 	# has to be genbank at this point in time
-	my $sformat = $format;
-	if( $self->default_format !~ /$format/i ) {
-	    $self->warn("must reset format to ". $self->default_format. 
-			" for batch retrieval mode\n".
-			"the only format supported by NCBI batch mode");
-	    ($format) = $self->request_format($self->default_format);
-	}
+#	my $sformat = $format;
+#	if( $self->default_format !~ /$format/i ) {
+#	    $self->warn("must reset format to ". $self->default_format. 
+#			" for batch retrieval mode\n".
+#			"the only format supported by NCBI batch mode");
+#	    ($format) = $self->request_format($self->default_format);
+#	}
+#	
 	$params{'dopt'} = $format;
 	my $querystr = '?' . join("&", map { "$_=$params{$_}" } keys %params);
-	$self->debug( "url is $url$querystr \n");
-	return POST( $url . $querystr, \%params);
+	$self->debug("url is $url$querystr \n");
+	return GET $url . $querystr;
     } elsif( $mode eq 'single' || $mode eq 'gi') {
 	$params{'dopt'} = $format;
 	my $querystr = '?' . join("&", map { "$_=$params{$_}" } keys %params);
@@ -251,11 +258,18 @@ sub postprocess_data {
 	close TMP;
 	$data = join("", @in);
     }
-    # remove everything before <PRE>
-    $data =~ s/^[\s\S]+<pre>//i;
-    # remove everything after </PRE>
-    $data =~ s/<\/pre>[\s\S]+$//i;
-
+    my @final;
+    my $s = 0;
+    my $p = 0;
+    while( ($s = index($data,'<pre>',$p)) > $p &&
+	   $s > 0 ) {
+	$s+=5;
+	my $e = index($data,'</pre>',$s);
+	push @final, substr($data,$s,$e-$s);
+	$p = $s;
+    }
+    
+    $data = join("\n",@final);
     # transform links to appropriate descriptions
     if ($data =~ /\nCONTIG\s+/) {
 	$self->warn("CONTIG found. GenBank get_Stream_by_batch about to run."); 
@@ -328,7 +342,7 @@ sub postprocess_data {
 	} elsif ( $type eq 'STRING' ) {
 	    ${$args{'location'}} = $data;
     }
-    $self->debug("format is ". $self->request_format(). "data is $data\n");
+    $self->debug("format is ". $self->request_format(). " data is $data\n");
 }
 
 
@@ -349,7 +363,7 @@ sub postprocess_data {
 sub request_format {
     my ($self, $value) = @_;    
     if( defined $value ) {
-	$value = lc $value;
+	$value = lc $value;	
 	if( defined $FORMATMAP{$value} ) {
 	    $self->{'_format'} = [ $value, $FORMATMAP{$value}];
 	} else {

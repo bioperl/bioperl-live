@@ -14,6 +14,13 @@
 # completely reworked by Jason Stajich 2000-12-8
 # to use WebDBSeqI
 
+# Added batch entrez back when determined that new entrez cgi
+# will essentially work (there is a limit to the number of characters in a 
+# GET request so I am not sure how we can get around this).
+# The NCBI Batch Entrez form has changed some and it does not support
+# retrieval of text only data.  Still should investigate POST-ing (tried and
+# failed) a message to the entrez cgi to get around the GET limitations.
+
 =head1 NAME
 
 Bio::DB::GenBank - Database object interface to GenBank
@@ -51,14 +58,18 @@ Allows the dynamic retrieval of Sequence objects (Bio::Seq) from the GenBank
 database at NCBI, via an Entrez query.
 
 WARNING: Please do NOT spam the Entrez web server with multiple requests.
-NCBI offers Batch Entrez for this purpose.  Batch Entrez support will likely
-be supported in a future version of DB::GenBank.
+NCBI offers Batch Entrez for this purpose.  
 
 Note that when querying for GenBank accessions starting with 'NT_' you
 will need to call $gb-E<gt>request_format('fasta') beforehand, because in
 GenBank format (the default) the sequence part will be left out (the
 reason is that NT contigs are rather annotation with references to
 clones).
+
+Some work has been done to automatically detect and retrieve whole NT_
+clones when the data is in that format (NCBI RefSeq clones).  More
+testing and feedback from users is needed to achieve a good fit of
+functionality and ease of use.
 
 =head1 FEEDBACK
 
@@ -83,7 +94,7 @@ or the web:
 =head1 AUTHOR - Aaron Mackey, Jason Stajich
 
 Email amackey@virginia.edu
-Email jason@chg.mc.duke.edu
+Email jason@bioperl.org
 
 =head1 APPENDIX
 
@@ -102,23 +113,36 @@ use Bio::DB::NCBIHelper;
 
 @ISA = qw(Bio::DB::NCBIHelper);
 BEGIN {    
-    %PARAMSTRING = ( 'batch'=>   {  'db'    => 'n',
-				    'form'  => '1',			     
-				    'title' => 'no', 
-				},
-#		     'batch'  => { 'cmd' => 'Retrieve',
-#				   'db'  => 'n',
-#				   
-#			       },
+    %PARAMSTRING = ( 
+# new stype batch entrez - but only returns HTML
+#		     'batch'  => { 
+#			 'cmd' => 'Retrieve',
+#			 'db'  => 'nucleotide',
+#		     },
+# old style
+#		     'batch'  => { 
+#			 'db' => 'n',
+#			 'FORMAT'  => 0,
+#			 'REQUEST_TYPE' => 'LIST_OF_GIS',
+#			 'ORGNAME'  => '',
+#			 'LIST_ORG' => '(None)',
+#			 'QUERY'    => "",
+#			 'SAVETO'   => 'YES',
+#			 'NOHEADER' => 'YES',
+#		     },
+		     'batch'=>  { 'db'     => 'n',
+				   'form'   => '1',
+				   'title'  => 'no', 
+			       },
 		     'single'=>  { 'db'     => 'n',
-				   'form'   => '1',			     
+				   'form'   => '1',
 				   'title'  => 'no', 
 			       },
 		     'version'=> { 'pg'     => 'hist',
 				   'type'   => 'acc',
 			       },
 		     'gi' =>     {  'db'    => 'n',
-				    'form'  => '1',			     
+				    'form'  => '1',
 				    'title' => 'no',
 				}
 		     );

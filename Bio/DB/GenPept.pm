@@ -70,7 +70,7 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 =head1 AUTHOR - Aaron Mackey, Jason Stajich
 
 Email amackey@virginia.edu
-Email jason@chg.mc.duke.edu
+Email jason@bioperl.org
 
 =head1 APPENDIX
 

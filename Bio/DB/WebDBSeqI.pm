@@ -2,7 +2,7 @@
 #
 # BioPerl module for Bio::DB::WebDBSeqI
 #
-# Cared for by Jason Stajich <jason@chg.mc.duke.edu>
+# Cared for by Jason Stajich <jason@bioperl.org>
 #
 # Copyright Jason Stajich
 #
@@ -366,13 +366,14 @@ sub get_seq_stream {
 	($rformat,$ioformat) = $self->request_format();
 	if( $self->verbose > 0 ) {
 	    open(ERR, "<$tmpfile");
-	    while(<ERR>) { print STDERR;}
+	    while(<ERR>) { $self->debug($_);}
 	} 
 	$stream = new Bio::SeqIO('-format' => $ioformat,
 				 '-file'   => $tmpfile);
     } elsif( $self->retrieval_type =~ /io_string/i ) {
 	my ($resp) = $self->_request($request);
         my $content = $resp->content_ref;
+	$self->debug( "content is $$content\n");
 	if( ! $resp->is_success() || length(${$resp->content_ref()}) == 0 ) {
 	    $self->throw("WebDBSeqI Error - check query sequences!\n");	
         }  
