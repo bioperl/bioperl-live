@@ -1,7 +1,7 @@
 
 Bioperl FAQ
 -----------
-v. 1.0.1
+v. 1.0.2
 
 This FAQ maintained by:
 * Jason Stajich <jason@bioperl.org>
@@ -245,16 +245,16 @@ Contents
 
   Q1.11: I've got an idea for a module how do I contribute it?
 
-      A: We suggest the following.  Post your idea to the bioperl list. If
-	 it is a really new idea consider taking us through your thought
-	 process.  We'll help you tease out the necessary information such
-	 as what methods you'll want and how it can interact with other
-	 bioperl modules.  If it is a port of something you've already
-	 worked on, give us a summary of the current methods.  Make sure
-	 there is an interface to the module, not just an implementation
-	 (see the biodesign.pod for more info) and make sure there will be
-	 a set of tests that will be in the t/ directory to insure that
-	 your module is tested.
+      A: We suggest the following.  Post your idea to the bioperl list,
+	 bioperl-l@bioperl.org. If it is a really new idea consider taking
+	 us through your thought process.  We'll help you tease out the
+	 necessary information such as what methods you'll want and how it
+	 can interact with other bioperl modules.  If it is a port of
+	 something you've already worked on, give us a summary of the
+	 current methods.  Make sure there is an interface to the module,
+	 not just an implementation (see the biodesign.pod for more info)
+	 and make sure there will be a set of tests that will be in the t/
+	 directory to insure that your module is tested.
 
 
 ---------------------------------------------------------------------------
@@ -282,13 +282,13 @@ Contents
    Q2.3: How can I get NT_ or NM_ or NP_ accessions from NCBI
 	 (Reference Sequences)?
 
-      A: Use Bio::DB::RefSeq not Bio::DB::GenBank or
-	 Bio::DB::GenPept when you are retrieving these accessions. This is
-	 still an area of active development because the data providers
-	 have not provided the best interface for us to query.	EBI has
-	 provided a mirror with their dbfetch system which is accessible
-	 through the Bio::DB::RefSeq object however, there are cases where
-	 NT_ accessions will not be retrievable.
+      A: Use Bio::DB::RefSeq not Bio::DB::GenBank or Bio::DB::GenPept when
+	 you are retrieving these accessions. This is still an area of
+	 active development because the data providers have not provided
+	 the best interface for us to query.  EBI has provided a mirror
+	 with their dbfetch system which is accessible through the
+	 Bio::DB::RefSeq object however, there are cases where NT_
+	 accessions will not be retrievable.
 
 
    Q2.4: How can I use SeqIO to parse sequence data from a string?
@@ -345,7 +345,7 @@ Contents
    Q3.4: Let's say I want to do pairwise alignments of 2 sequences how can
 	 I do this?
 
-      A: See the Bio::Factory::EMBOSS to see how to use the 'water' and
+      A: Look at Bio::Factory::EMBOSS to see how to use the 'water' and
 	 'needle' alignment programs that are part of the EMBOSS suite.
 
 	 Additionally you can use the pSW module that is part of the
@@ -368,21 +368,18 @@ Contents
 	 Frames are relative to the hit or query sequence so you need to
 	 query it based on sequence you are interested in:
 
-	 
-	   $hsp->hit->strand();
-	   $hsp->hit->frame();
+	 $hsp->hit->strand();
+	 $hsp->hit->frame();
 
 	 or
 
-	 
-	   $hsp->query->strand();
-	   $hsp->query->frame();
+	 $hsp->query->strand();
+	 $hsp->query->frame();
 
 	 So the value according to a blast report of -3 can be constructed
 	 as:
 
-	 
-	   my $blastvalue = ($hsp->query->frame + 1) * $hsp->query->strand;
+	 my $blastvalue = ($hsp->query->frame + 1) * $hsp->query->strand;
 
 
 ---------------------------------------------------------------------------
@@ -422,18 +419,21 @@ Contents
    Q4.2: How do I do motif searches with Bioperl? Can I do "find all
 	 sequences that are 75% identical" to a given motif?
 
-      A: There are a number of approaches inside and outside of Bioperl.
-	 Within Bioperl take a look at Bio::Tools::SeqPattern, but it's
-	 also conceivable that the combination of Bioperl and Perl's
+      A: There are a number of approaches. Within Bioperl take a look at
+	 Bio::Tools::SeqPattern. Or, take a look at the TFBS package, at
+	 http://forkhead.cgb.ki.se/TFBS(Transcription Factor Binding Site).
+	 This Bioperl-compliant package specializes in pattern searching of
+	 nucleotide sequence using matrices.
+
+	 It's also conceivable that the combination of Bioperl and Perl's
 	 regular expressions could do the trick. You might also consider
 	 the CPAN module String::Approx (this module addresses the percent
-	 match query). Or, take a look at the TFBS package, at
-	 http://forkhead.cgb.ki.se/TFBS (Transcription Factor Binding
-	 Site). This Bioperl-compliant package specializes in pattern
-	 searching of nucleotide sequence using matrices. Finally, you
-	 could use EMBOSS, as discussed in the previous question (or you
-	 could use Pise to run EMBOSS applications). The relevant programs
-	 would be fuzzpro or fuzznuc.
+	 match query), but experienced users question whether its distance
+	 estimates are correct, the Unix agrep command is thought to be
+	 faster and more accurate.  Finally, you could use EMBOSS, as
+	 discussed in the previous question (or you could use Pise to run
+	 EMBOSS applications). The relevant programs would be fuzzpro or
+	 fuzznuc.
 
 
    Q4.3: Can I query MEDLINE or other bibliographic repositories using
@@ -475,22 +475,19 @@ Contents
 
       A: To get all the features:
 
-	 
-	   my @features = $seq->all_SeqFeatures();
+	 my @features = $seq->all_SeqFeatures();
 
 	 To get all the features filtering on only those which have the
 	 primary tag 'exon'.
 
-	 
-	   my @genes = grep { $_->primary_tag eq 'exon'} 
+	 my @genes = grep { $_->primary_tag eq 'exon'} 
 		       $seq->all_SeqFeatures();
 
 	 To get all the features filtering on this which have the tag
 	 'note' and within the note field contain the requested string
 	 $noteval.
 
-	 
-	   my @f_with_note = grep { 
+	 my @f_with_note = grep { 
 				    my @a = $_->has_tag('note') ?
 				    $_->each_tag_value('note') : (); 
 				    grep { /$noteval/ } @a; 
@@ -503,13 +500,12 @@ Contents
       A: You need to use a Location::SplitLocationI object to get the
 	 coordinates and primary_tag() to find the CDS features:
 
-	 
-	   if ( $feature->location->isa('Bio::Location::SplitLocationI') 
-		 && $feature->primary_tag eq 'CDS' )  {
-	     foreach $location ( $feature->location->sub_Location ) {
-	       print $location->start . ".." . $location->end . "\n";
-	     }
+	 if ( $feature->location->isa('Bio::Location::SplitLocationI') 
+			  && $feature->primary_tag eq 'CDS' )  {
+	   foreach $location ( $feature->location->sub_Location ) {
+	     print $location->start . ".." . $location->end . "\n";
 	   }
+	 }
 
 ---------------------------------------------------------------------------
 Copyright (c)2002 Open Bioinformatics Foundation. You may distribute this

@@ -107,7 +107,7 @@
       <q id="11">
          <question>I've got an idea for a module how do I contribute it?</question>
          <answer>
-            <p>We suggest the following.  Post your idea to the bioperl list. If it is a really new idea consider taking us through your thought process.  We'll help you tease out the necessary information such as what methods you'll want and how it can interact with other bioperl modules.  If it is a port of something you've already worked on, give us a summary of the current methods.  Make sure there is an interface to the module, not just an implementation (see the biodesign.pod for more info) and make sure there will be a set of tests that will be in the t/ directory to insure that your module is tested.</p>
+            <p>We suggest the following.  Post your idea to the bioperl list, bioperl-l@bioperl.org. If it is a really new idea consider taking us through your thought process.  We'll help you tease out the necessary information such as what methods you'll want and how it can interact with other bioperl modules.  If it is a port of something you've already worked on, give us a summary of the current methods.  Make sure there is an interface to the module, not just an implementation (see the biodesign.pod for more info) and make sure there will be a set of tests that will be in the t/ directory to insure that your module is tested.</p>
          </answer>
       </q>
    </section>
@@ -129,8 +129,7 @@
          <question>How can I get NT_ or NM_ or NP_ accessions from NCBI
 (Reference Sequences)?</question>
          <answer>
-            <p>Use Bio::DB::RefSeq not Bio::DB::GenBank or
-Bio::DB::GenPept when you are retrieving these accessions. This is still an area of active development because the data providers have not provided the best interface for us to query.  EBI has provided a mirror with their dbfetch system which is accessible through the Bio::DB::RefSeq object however, there are cases where NT_ accessions will not be retrievable.</p>
+            <p>Use Bio::DB::RefSeq not Bio::DB::GenBank or Bio::DB::GenPept when you are retrieving these accessions. This is still an area of active development because the data providers have not provided the best interface for us to query.  EBI has provided a mirror with their dbfetch system which is accessible through the Bio::DB::RefSeq object however, there are cases where NT_ accessions will not be retrievable.</p>
          </answer>
       </q>
       <q id="4">
@@ -175,7 +174,7 @@ Bio::DB::GenPept when you are retrieving these accessions. This is still an area
       <q id="4">
          <question>Let's say I want to do pairwise alignments of 2 sequences how can I do this?</question>
          <answer>
-            <p>See the Bio::Factory::EMBOSS to see how to use the 'water' and 'needle' alignment programs that are part of the EMBOSS suite.</p>
+            <p>Look at Bio::Factory::EMBOSS to see how to use the 'water' and 'needle' alignment programs that are part of the EMBOSS suite.</p>
             <p>Additionally you can use the pSW module that is part of the bioperl-ext package (distributed separated at <a href="ftp://bioperl.org/pub/DIST">ftp://bioperl.org/pub/DIST</a>). However note this only does protein alignments and is no longer a supported module.  Instead the EMBOSS implementation is the the best path ahead unless someone else wants to provide an Inline::C implementation.
             </p>
          </answer>
@@ -187,18 +186,15 @@ Bio::DB::GenPept when you are retrieving these accessions. This is still an area
             <p>These are GFF frames - so +1 is 0 in GFF, -3 will be encoded with a frame of 2 with the strand being set to -1 (for more on GFF see <a href="http://www.sanger.ac.uk/Software/formats/GFF/GFF_Spec.shtml">http://www.sanger.ac.uk/Software/formats/GFF/GFF_Spec.shtml</a>).
             </p>
             <p>Frames are relative to the hit or query sequence so you need to query it based on sequence you are interested in:</p>
-            <code>
-  $hsp-&gt;hit-&gt;strand();
-  $hsp-&gt;hit-&gt;frame();
+<code>$hsp-&gt;hit-&gt;strand();
+$hsp-&gt;hit-&gt;frame();
 </code>
             <p>or</p>
-            <code>
-  $hsp-&gt;query-&gt;strand();
-  $hsp-&gt;query-&gt;frame();
+<code>$hsp-&gt;query-&gt;strand();
+$hsp-&gt;query-&gt;frame();
 </code>
             <p>So the value according to a blast report of -3 can be constructed as:</p>
-            <code>
-  my $blastvalue = ($hsp-&gt;query-&gt;frame + 1) * $hsp-&gt;query-&gt;strand;
+<code>my $blastvalue = ($hsp-&gt;query-&gt;frame + 1) * $hsp-&gt;query-&gt;strand;
 </code>
          </answer>
       </q>
@@ -219,7 +215,8 @@ Bio::DB::GenPept when you are retrieving these accessions. This is still an area
       <q id="2">
          <question>How do I do motif searches with Bioperl? Can I do "find all sequences that are 75% identical" to a given motif?</question>
          <answer>
-            <p>There are a number of approaches inside and outside of Bioperl. Within Bioperl take a look at Bio::Tools::SeqPattern, but it's also conceivable that the combination of Bioperl and Perl's regular expressions could do the trick. You might also consider the CPAN module String::Approx (this module addresses the percent match query). Or, take a look at the TFBS package, at <a href="http://forkhead.cgb.ki.se/TFBS">http://forkhead.cgb.ki.se/TFBS</a> (Transcription Factor Binding Site). This Bioperl-compliant package specializes in pattern searching of nucleotide sequence using matrices. Finally, you could use EMBOSS, as discussed in the previous question (or you could use Pise to run EMBOSS applications). The relevant programs would be fuzzpro or fuzznuc.
+            <p>There are a number of approaches. Within Bioperl take a look at Bio::Tools::SeqPattern. Or, take a look at the TFBS package, at <a href="http://forkhead.cgb.ki.se/TFBS">http://forkhead.cgb.ki.se/TFBS</a>(Transcription Factor Binding Site). This Bioperl-compliant package specializes in pattern searching of nucleotide sequence using matrices.</p>
+<p>It's also conceivable that the combination of Bioperl and Perl's regular expressions could do the trick. You might also consider the CPAN module String::Approx (this module addresses the percent match query), but experienced users question whether its distance estimates are correct, the Unix agrep command is thought to be faster and more accurate.  Finally, you could use EMBOSS, as discussed in the previous question (or you could use Pise to run EMBOSS applications). The relevant programs would be fuzzpro or fuzznuc.
             </p>
          </answer>
       </q>
@@ -247,17 +244,14 @@ Bio::DB::GenPept when you are retrieving these accessions. This is still an area
       </question>
       <answer>
       <p>To get all the features:</p>
-      <code>
-  my @features = $seq-&gt;all_SeqFeatures();
+      <code>my @features = $seq-&gt;all_SeqFeatures();
       </code>
       <p>To get all the features filtering on only those which have the primary tag 'exon'.</p>
-      <code>
-  my @genes = grep { $_-&gt;primary_tag eq 'exon'} 
+      <code>my @genes = grep { $_-&gt;primary_tag eq 'exon'} 
               $seq-&gt;all_SeqFeatures();
       </code>
       <p>To get all the features filtering on this which have the tag 'note' and within the note field contain the requested string <i>$noteval</i>.</p>
-      <code>
-  my @f_with_note = grep { 
+      <code>my @f_with_note = grep { 
                            my @a = $_-&gt;has_tag('note') ?
                            $_-&gt;each_tag_value('note') : (); 
                            grep { /$noteval/ } @a; 
@@ -270,16 +264,16 @@ Bio::DB::GenPept when you are retrieving these accessions. This is still an area
       </question>
       <answer>
       <p>You need to use a Location::SplitLocationI object to get the coordinates and primary_tag() to find the CDS features:</p>
-      <code>
-  if ( $feature-&gt;location-&gt;isa('Bio::Location::SplitLocationI') 
-	&amp;&amp; $feature-&gt;primary_tag eq 'CDS' )  {
-    foreach $location ( $feature-&gt;location-&gt;sub_Location ) {
-      print $location-&gt;start . ".." . $location-&gt;end . "\n";
-    }
+<code>if ( $feature-&gt;location-&gt;isa('Bio::Location::SplitLocationI') 
+	         &amp;&amp; $feature-&gt;primary_tag eq 'CDS' )  {
+  foreach $location ( $feature-&gt;location-&gt;sub_Location ) {
+    print $location-&gt;start . ".." . $location-&gt;end . "\n";
   }
+}
       </code>
        </answer>
       </q>
    </section>
    <copyright>Copyright (c)2002 Open Bioinformatics Foundation. You may distribute this FAQ under the same terms as perl itself.</copyright>
 </faq>
+
