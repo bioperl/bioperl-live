@@ -279,7 +279,7 @@ sub validate_species_name {
 sub validate_name {
     my( $self, $string ) = @_;
 
-    return 1 if $string =~ /^[A-Z][a-z]+$/;
+    return 1 if $string =~ /^[A-Z][\sa-z]+$/;
     $self->throw("Invalid name '$string' (Wrong case?)");
 }
 
