@@ -16,11 +16,32 @@ Bio::Coordinate::Pair - Continuous match between two coordinate sets
 
 =head1 SYNOPSIS
 
-  # to use
+  use Bio::Location::Simple;
   use Bio::Coordinate::Pair;
 
-  $a  = Bio::Coordinate::Pair->new();
-  $b  = Bio::Coordinate::Pair -> new ( -id => 3 );
+  my $match1 = Bio::Location::Simple->new 
+      (-seq_id => 'propeptide', -start => 21, -end => 40, -strand=>1 );
+  my $match2 = Bio::Location::Simple->new
+      (-seq_id => 'peptide', -start => 1, -end => 20, -strand=>1 );
+  my $pair = Bio::Coordinate::Pair->new(-in => $match1,
+  					-out => $match2,
+  				        -negative => 0, # false, default
+  # location to match
+  $pos = Bio::Location::Simple->new 
+      (-start => 25, -end => 25, -strand=> -1 );
+
+  # results are in Bio::Coordinate::Result
+  # they can be Matches and Gaps; are  Bio::LocationIs
+  $res = $pair->map($pos);
+  $res->isa('Bio::Coordinate::Result');
+  $res->each_match, 1;
+  $res->each_gap, 0;
+  $res->each_location, 1;
+  $res->match->start, 5;
+  $res->match->end, 5;
+  $res->match->strand, -1;
+  $res->match->seq_id, 'peptide';
+
 
 =head1 DESCRIPTION
 
@@ -210,8 +231,8 @@ sub test {
  Function: Map the location from the input coordinate system 
            to a new value in the output coordinate system.
  Example :
- Returns : new value in the output coordiante system
- Args    : integer
+ Returns : new Bio::LocationI in the output coordiante system
+ Args    : Bio::LocationI object
 
 =cut
 
