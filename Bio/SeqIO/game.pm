@@ -503,8 +503,11 @@ sub write_seq {
   
   $writer->xmlDecl("UTF-8");
   $writer->doctype("bx-game:game", 'game', "http://www.bioxml.org/dtds/current/game.dtd");
-  
   $writer ->startTag([$bxgame, 'game']);
+  $writer->startTag([$bxgame, 'flavor']);
+  $writer->characters('chunkable');
+  $writer->endTag([$bxgame, 'flavor']);
+  
   foreach my $seq (@seqs) {
      $writer ->startTag([$bxseq, 'seq'], 
       		       [$bxseq, 'id'] => $seq->display_id,
