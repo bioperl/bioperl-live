@@ -479,8 +479,6 @@ sub iteration{
  Throws    : n/a
  Status    : Experimental
 
-See Also   : L<Bio::Search::BlastUtils::tile_hsps>, L<HSP Tiling and Ambiguous Alignments>
-
 =cut
 
 #--------------------
