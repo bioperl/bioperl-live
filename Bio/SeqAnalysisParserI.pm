@@ -98,7 +98,7 @@ use Carp;
 
 sub next_feature {
     my ($self);
-    $self->_abstractDeath('next_feature');
+    $self->throw_not_implemented();
 }
 
 1;
