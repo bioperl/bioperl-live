@@ -23,7 +23,7 @@ BEGIN {
     }
     use Test;
 
-    $NUMTESTS = 38;
+    $NUMTESTS = 40;
     plan tests => $NUMTESTS;
 
     unless( eval "require Parse::RecDescent; 1;" ) {
@@ -58,8 +58,8 @@ ok($unigene->gene, 'NAT2');
 ok($unigene->cytoband,'8p22');
 ok($unigene->locuslink,'10');
 ok($unigene->gnm_terminus,'T');
-ok($unigene->chromosome,'8');
 ok($unigene->scount,29);
+ok(scalar @{ $unigene->chromosome }, 10);
 ok(scalar @{ $unigene->express }, 4);
 ok(scalar @{ $unigene->sts }, 4);
 ok(scalar @{ $unigene->txmap }, 1);
@@ -67,6 +67,7 @@ ok(scalar @{ $unigene->protsim } , 4);
 
 ok(scalar @{ $unigene->sequence },29);
 
+ok($unigene->next_chromosome, '8');
 ok($unigene->next_express, 'colon');
 ok($unigene->next_sts, 'ACC=- NAME=GDB:386004 UNISTS=157141');
 ok($unigene->next_txmap, 'D8S549-D8S258; MARKER=stSG40; RHPANEL=GB4');
@@ -93,9 +94,6 @@ ok($unigene->locuslink, 'locuslink_test', 'locuslink was ' . $unigene->locuslink
 $unigene->gnm_terminus('gnm_terminus_test');
 ok($unigene->gnm_terminus, 'gnm_terminus_test', 'gnm_terminus was ' . $unigene->gnm_terminus);
 
-$unigene->chromosome('chromosome_test');
-ok($unigene->chromosome, 'chromosome_test', 'chromosome was ' . $unigene->chromosome);
-
 $unigene->scount('scount_test');
 ok($unigene->scount, 'scount_test', 'scount was ' . $unigene->scount);
 
@@ -111,6 +109,16 @@ while (my $tissue = $unigene->next_express) {
 	push @express_results, $tissue;
 }
 ok scalar(@express_results), 4, 'expected express to have 4 entries but it had ' . scalar(@express_results);
+
+my @chromosome_test = ( "7", "11" );
+$unigene->chromosome(\@chromosome_test);
+my @chromosome_results;
+while (my $chromosome = $unigene->next_chromosome) {
+	push @chromosome_results, $chromosome;
+}
+ok scalar(@chromosome_results), 2, 'expected chromosome to have 2 entries but it had ' . scalar(@chromosome_results);
+my $chromosome = shift @chromosome_results;
+ok $chromosome, '7', 'expected 7 but got ' . $chromosome;
 
 my @sts_test = ( "ACC=- NAME=sts-D90276 UNISTS=37687", "ACC=G29786 NAME=SHGC-35230 UNISTS=58455" );
 $unigene->sts(\@sts_test);
