@@ -106,7 +106,7 @@ sub next_tree{
     $self->debug("entry is $_\n");
     my $chars = '';
     $self->_eventHandler->start_document;
-    my ($prev_event,$lastevent) = ('','');
+    my ($prev_event,$lastevent,$last_leaf_event) = ('','','');
     my @ch = split(//, $_);
     foreach my $ch  (@ch) {
 	if( $ch eq ';' ) { 	   
@@ -130,7 +130,7 @@ sub next_tree{
 	    } else {
 		$self->_eventHandler->start_element( { Name => 'node' } );
 	    }
-	    my $leafstatus = ( $lastevent ne ')' ) ? 1 : 0;
+	    my $leafstatus = ( $last_leaf_event ne ')' ) ? 1 : 0;
 	    $self->_eventHandler->start_element({'Name' => 'leaf'});
 	    $self->_eventHandler->characters($leafstatus);
 	    $self->_eventHandler->end_element({'Name' => 'leaf'});	   
@@ -151,17 +151,21 @@ sub next_tree{
 			$self->throw("malformed input; end of node ) before ] found");
 		    }
 		} else { 
-		    $self->debug("id with no branchlength is $chars\n");
+		    $self->debug("id with no branchlength is '$chars'\n");
 		    $self->_eventHandler->start_element( { 'Name' => 'node' } );
 		    $self->_eventHandler->start_element( { 'Name' => 'id' } );
 		    $self->_eventHandler->characters($chars);
 		    $self->_eventHandler->end_element( { 'Name' => 'id' } );
 		}
-
 	    } elsif ( $lastevent ne ']' ) {
 		$self->_eventHandler->start_element( {'Name' => 'node'} );
 	    }
-	    my $leafstatus = ( $lastevent ne ')' ) ? 1 : 0;
+	    # problem here is that we need to detect if we coming up on
+	    # the end of a leaf node or a labeled internal node
+	    # each can have [] and each can have :, but only leaves are 
+	    # NOT proceeded by a ')'
+	    # the [] events throw us off
+	    my $leafstatus = ( $last_leaf_event ne ')' ) ? 1 : 0;
 	    $self->_eventHandler->start_element({'Name' => 'leaf'});
 	    $self->_eventHandler->characters($leafstatus);
 	    $self->_eventHandler->end_element({'Name' => 'leaf'});	   
@@ -169,6 +173,8 @@ sub next_tree{
 	    $self->_eventHandler->end_element( {'Name' => 'node'} );
 	    $self->_eventHandler->end_element( {'Name' => 'tree'} );
 	    $chars = '';
+	    $last_leaf_event = $ch;
+
 	} elsif ( $ch eq ',' ) {
 	    if( length $chars ) {
 		if( $lastevent eq ':' ) {
@@ -188,6 +194,7 @@ sub next_tree{
 	    }
 	    $self->_eventHandler->end_element( {'Name' => 'node'} );
 	    $chars = '';
+	    $last_leaf_event = $ch;
 	} elsif( $ch eq ':' ) {
 	    if ($self->_eventHandler->within_element('nhx_tag')) {
 		if ($lastevent eq '=') {
@@ -254,10 +261,11 @@ sub write_tree{
     my ($self,@trees) = @_;
    foreach my $tree ( @trees ) {
        my @data = _write_tree_Helper($tree->get_root_node);
-       if($data[-1] !~ /\)$/ ) {
-	   $data[0] = "(".$data[0];
-	   $data[-1] .= ")";
-       }
+       # per bug # 1471 do not include enclosing brackets.
+#       if($data[-1] !~ /\)$/ ) {
+#	   $data[0] = "(".$data[0];
+#	   $data[-1] .= ")";
+#       }
        $self->_print(join(',', @data), ";\n");
    }
    $self->flush if $self->_flush_on_write && defined $self->_fh;
@@ -267,13 +275,14 @@ sub write_tree{
 sub _write_tree_Helper {
     my ($node) = @_;
     return () unless defined $node;
-
+    # rebless
+    $node = bless $node,'Bio::Tree::NodeNHX';
     my @data;
     
     foreach my $n ( $node->each_Descendent() ) {
 	push @data, _write_tree_Helper($n);
     }
-        
+    
     if( @data > 1 ) {
 	$data[0] = "(" . $data[0];
 	$data[-1] .= ")";
