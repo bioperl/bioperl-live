@@ -119,7 +119,6 @@ sub new {
            the object.  The array provided must be in
            the order SPECIES, GENUS ---> KINGDOM.
            Checks are made that species is in lower case,
-           and all other elements are in title case.
  Example : $obj->classification(qw( sapiens Homo Hominidae
            Catarrhini Primates Eutheria Mammalia Vertebrata
            Chordata Metazoa Eukaryota));
@@ -152,9 +151,9 @@ sub classification {
 	if(! $force) {
 	    $self->validate_species_name($classif->[0]);
 	    # All other names must be in title case
-	    foreach  (@$classif) {
-		$self->validate_name( $_ );
-	    }
+	    #foreach  (@$classif) {
+	    #    $self->validate_name( $_ );
+	    #}
 	}
         # Store classification
         $self->{'_classification'} = $classif;
@@ -261,7 +260,7 @@ sub genus {
     my($self, $genus) = @_;
 
     if (defined $genus) {
-        $self->validate_name( $genus );
+        #$self->validate_name( $genus );
         $self->{'_classification'}[1] = $genus;
     }
     return $self->{'_classification'}[1];
