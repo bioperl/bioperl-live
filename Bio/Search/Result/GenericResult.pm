@@ -614,10 +614,10 @@ sub hits{
     return @hits;   
 }
 
-=head2 program_reference
+=head2 algorithm_reference
 
- Title   : program_reference
- Usage   : $obj->program_reference($newval)
+ Title   : algorithm_reference
+ Usage   : $obj->algorithm_reference($newval)
  Function: 
  Returns : value of the literature reference for the algorithm
  Args    : newvalue (optional)
@@ -625,12 +625,12 @@ sub hits{
 
 =cut
 
-sub program_reference{
+sub algorithm_reference{
    my ($self,$value) = @_;
    if( defined $value) {
-      $self->{'program_reference'} = $value;
+      $self->{'algorithm_reference'} = $value;
     }
-    return $self->{'program_reference'};
+    return $self->{'algorithm_reference'};
 }
 
 1;
