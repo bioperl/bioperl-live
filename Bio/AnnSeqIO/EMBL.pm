@@ -145,7 +145,7 @@ sub next_annseq{
    $line =~ /^ID\s+(\S+)/ || $self->throw("EMBL stream with no ID. Not embl in my book");
    $name = $1;
 
-   $self->warn("not parsing upper annotation in EMBL file yet!");
+#   $self->warn("not parsing upper annotation in EMBL file yet!");
 
    my $buffer = $_;
 
@@ -225,13 +225,14 @@ sub write_annseq{
    my $i;
    my $str = $seq->seq;
 
-   print $fh "ID   ", $seq->id(), "\nDE   ", $seq->desc(), "\n";
+   print $fh "ID   ", $seq->id(), "\nXX   \nDE   ", $seq->desc(), "\nXX   \n";
    my $t = 1;
    foreach my $ref ( $annseq->annotation->each_Reference() ) {
        print $fh "RN   [$t]\n";
-       print $fh "RA   ", $ref->authors, "\n";
-       print $fh "RT   ", $ref->title, "\n";
-       print $fh "RL   ", $ref->location, "\n";
+       &_write_line_EMBL_regex($fh,"RA   ","RA   ",$ref->authors,'\s+|$',80);       
+       &_write_line_EMBL_regex($fh,"RT   ","RT   ",$ref->title,'\s+|$',80);       
+       &_write_line_EMBL_regex($fh,"RL   ","RL   ",$ref->location,'\s+|$',80);
+       print $fh "XX   \n";
        $t++;
    }
 
@@ -273,10 +274,12 @@ sub _print_EMBL_FTHelper{
    my ($fth,$fh) = @_;
 
    #print $fh "FH   Key             Location/Qualifiers\n";
-   print $fh  sprintf("FT   %-15s %s\n",$fth->key,$fth->loc);
+   #print $fh  sprintf("FT   %-15s  %s\n",$fth->key,$fth->loc);
+   &_write_line_EMBL_regex($fh,sprintf("FT   %-15s ",$fth->key),"FT                   ",$fth->loc,',|$',80);
    foreach my $tag ( keys %{$fth->field} ) {
        foreach my $value ( @{$fth->field->{$tag}} ) {
-	   print $fh "FT                   /", $tag, "=\"", $value, "\"\n";
+	   &_write_line_EMBL_regex($fh,"FT                   ","FT                   ","/$tag=\"$value\"",'.|$',80);       
+	  # print $fh "FT                   /", $tag, "=\"", $value, "\"\n";
        }
    }
 
@@ -327,34 +330,6 @@ sub _read_EMBL_References{
    return @refs;
 }
 
-=head2 write_seq
-
- Title   : write_seq
- Usage   : $stream->write_seq($seq)
- Function: writes the $seq object into the stream
- Returns : 1 for success and 0 for error
- Args    : Bio::Seq object
-
-
-=cut
-
-sub write_seq {
-   my ($self,$seq) = @_;
-   my $fh = $self->_filehandle();
-   my $i;
-   my $str = $seq->seq;
-
-   print $fh "ID   ", $seq->id(), "\nDE    ", $seq->desc(), "\nCC   \nCC   Written by Bioperl SeqIO module.\nCC   Only the information in the Sequence object is written in this file\nCC   \nSQ   \n";
-   print $fh "    ";
-   for ($i = 10; $i < length($str); $i += 10) {
-       print $fh substr($str,$i,10), " ";
-       if( $i%50 == 0 ) {
-	   print $fh "\n    ";
-       }
-   }
-   print $fh "\n//\n";
-   return 1;
-}
 
 =head2 _filehandle
 
@@ -508,12 +483,22 @@ sub _generic_seqfeature{
        }
 
    } else {
-       $fth->loc =~ /(\d+)\.\.(\d+)/ || do {
-	   $annseq->throw("Weird location line [" . $fth->loc . "] in reading EMBL");
-	   last;
-       };
-       $sf->start($1);
-       $sf->end($2);
+       my $lst;
+       my $len;
+
+       if( $fth->loc =~ /^(\d+)$/ ) {
+	   $lst = $len = $1;
+       } else {
+	   $fth->loc =~ /(\d+)\.\.(\d+)/ || do {
+	       $annseq->throw("Weird location line [" . $fth->loc . "] in reading EMBL");
+	       last;
+	   };
+	   $lst = $1;
+	   $len = $2;
+       }
+
+       $sf->start($lst);
+       $sf->end($len);
        $sf->source_tag('EMBL');
        $sf->primary_tag($fth->key);
        if( $fth->loc =~ /complement/ ) {
@@ -536,17 +521,79 @@ sub _generic_seqfeature{
    $annseq->add_SeqFeature($sf);
 }
 
-sub DESTROY {
-    my $self = shift;
-    my $fh;
-    $fh = $self->_filehandle();
+=head2 _write_line_EMBL
 
-    if( defined $fh ) {
-	$fh->close();
-    }
+ Title   : _write_line_EMBL
+ Usage   :
+ Function: internal function
+ Example :
+ Returns : 
+ Args    :
 
-    $self->{'_filehandle'} = '';
+
+=cut
+
+sub _write_line_EMBL{
+   my ($fh,$pre1,$pre2,$line,$length) = @_;
+
+   $length || die "Miscalled write_line_EMBL without length. Programming error!";
+   my $subl = $length - length $pre2;
+   my $linel = length $line;
+   my $i;
+
+   my $sub = substr($line,0,$length - length $pre1);
+
+   print $fh "$pre1$sub\n";
+   
+   for($i= ($length - length $pre1);$i < $linel;) {
+       $sub = substr($line,$i,($subl));
+       print $fh "$pre2$sub\n";
+       $i += $subl;
+   }
+
 }
+
+=head2 _write_line_EMBL_regex
+
+ Title   : _write_line_EMBL_regex
+ Usage   :
+ Function: internal function for writing lines of specified
+           length, with different first and the next line 
+           left hand headers and split at specific points in the
+           text
+ Example :
+ Returns : nothing
+ Args    : file handle, first header, second header, text-line, regex for line breaks, total line length
+
+
+=cut
+
+sub _write_line_EMBL_regex {
+   my ($fh,$pre1,$pre2,$line,$regex,$length) = @_;
+
+   
+   #print STDOUT "Going to print with $line!\n";
+
+   $length || die "Miscalled write_line_EMBL without length. Programming error!";
+
+   if( length $pre1 != length $pre2 ) {
+       die "Programming error - cannot called write_line_EMBL_regex with different length pre1 and pre2 tags!";
+   }
+
+   my $subl = $length - length $pre1;
+   my @lines;
+
+   while($line =~ m/(.{1,$subl})($regex)/g) {
+       push(@lines, $1.$2);
+   }
+   
+   my $s = shift @lines;
+   print $fh "$pre1$s\n";
+   foreach my $s ( @lines ) {
+       print $fh "$pre2$s\n";
+   }
+}
+
     
 
 
