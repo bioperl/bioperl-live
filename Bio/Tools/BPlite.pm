@@ -381,13 +381,16 @@ sub _parseHeader {
       $self->{'QUERY'} = $query;
       $self->{'LENGTH'} = $length;
     }
+    elsif ($_ =~ /^(<b>)?(T?BLAST[NPX])\s+([\w-\.]+)\s+(\[[\w-]*\])/) { 
+		$self->{'BLAST_TYPE'} = $2; 
+		$self->{'BLAST_VERSION'} = $3;
+    }   # BLAST report type - not a valid header element # JB949
     elsif ($_ =~ /^Database:\s+(.+)/) {$header_flag = 1;$self->{'DATABASE'} = $1}   # valid header element found
     elsif ($_ =~ /^\s*pattern\s+(\S+).*position\s+(\d+)\D/) {   
-# For PHIBLAST reports
+		# For PHIBLAST reports
 		$header_flag = 1;    # valid header element found
 		$self->{'PATTERN'} = $1;
 		push (@{$self->{'QPATLOCATION'}}, $2);
-#			$self->{'QPATLOCATION'} = $2;
     } 
     elsif (($_ =~ /^>/) && ($header_flag==1)) {$self->{'LASTLINE'} = $_; return 1} # only leave if we have actually parsed a valid header!
     elsif (($_ =~ /^Parameters|^\s+Database:/) && ($header_flag==1)) {  # if we entered a header, and saw nothing before the stats at the end, then it was empty

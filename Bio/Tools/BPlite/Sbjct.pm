@@ -81,7 +81,7 @@ sub nextHSP {
   ############################
   # get and parse scorelines #
   ############################
-
+  my ($qframe, $sframe);
   my $scoreline = $self->{'LASTLINE'};
   my $FH = $self->{'FH'};
   my $nextline = <$FH>;
@@ -100,7 +100,9 @@ sub nextHSP {
   my ($match, $hsplength) = ($scoreline =~ /Identities = (\d+)\/(\d+)/);
   my ($positive) = ($scoreline =~ /Positives = (\d+)/);
   my ($gaps) = ($scoreline =~ /Gaps = (\d+)/);  
-  my $frame = '0';
+  if    ($self->{'PARENT'}->{'BLAST_TYPE'} eq 'TBLASTX') { ($qframe, $sframe) = $scoreline =~ /Frame = ([\+-]\d)\s+\/\s+([\+-]\d)/; } 
+  elsif ($self->{'PARENT'}->{'BLAST_TYPE'} eq 'BLASTX')  { ($qframe, $sframe) = $scoreline =~ /Frame = ([\+-]\d)/; }
+  else                                                   { ($sframe, $qframe) = $scoreline =~ /Frame = ([\+-]\d)/; }
   $positive = $match if not defined $positive;
   $gaps = '0' if not defined $gaps;
   my ($p)        = $scoreline =~ /[Sum ]*P[\(\d+\)]* = (\S+)/;
@@ -111,7 +113,7 @@ sub nextHSP {
   #######################
   # get alignment lines #
   #######################
-  my @hspline;
+  my (@hspline);
   while(<$FH>) {
     if ($_ =~ /^WARNING:|^NOTE:/) {
       while(<$FH>) {last if $_ !~ /\S/}
@@ -127,16 +129,17 @@ sub nextHSP {
       $self->{'HSP_ALL_PARSED'} = 1;
       last;
     }
-    elsif( $_ =~ /^\s*Frame\s*=\s*([-\+]\d+)/ ) {
-	$frame = $1;
+    elsif( $_ =~ /^\s*Frame/ ) {
+	  if    ($self->{'PARENT'}->{'BLAST_TYPE'} eq 'TBLASTX') { ($qframe, $sframe) = $_ =~ /Frame = ([\+-]\d)\s+\/\s+([\+-]\d)/; } 
+	  elsif ($self->{'PARENT'}->{'BLAST_TYPE'} eq 'BLASTX')  { ($qframe, $sframe) = $_ =~ /Frame = ([\+-]\d)/; }
+	  else                                                   { ($sframe, $qframe) = $_ =~ /Frame = ([\+-]\d)/; }
     }
 
     else {
       push @hspline, $_;           #      store the query line
       $nextline = <$FH> ;
-# Skip "pattern" line when parsing PHIBLAST reports, otherwise store the alignment line
+	  # Skip "pattern" line when parsing PHIBLAST reports, otherwise store the alignment line
       my $l1 = ($nextline =~ /^\s*pattern/) ? <$FH> : $nextline;
-#     my $l1 =  push @hspline, $l1; # grab/store the alignment line
       push @hspline, $l1; # store the alignment line
       my $l2 = <$FH>; push @hspline, $l2; # grab/store the sbjct line
     }
@@ -197,7 +200,9 @@ sub nextHSP {
        '-queryLength'=> $qlength,
 #					'-queryLength'=>$self->{'PARENT'}->qlength,
        '-sbjctLength'=> $self->{'LENGTH'},
-       '-frame'      => $frame);
+	   '-queryFrame' => $qframe,
+	   '-sbjctFrame' => $sframe,
+	   '-blastType'  => $self->{'PARENT'}->{'BLAST_TYPE'});
   return $hsp;
 }
 

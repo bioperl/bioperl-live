@@ -43,7 +43,7 @@ sub new {
     my $self = $class->SUPER::new(%newargs);
     
     my ($score,$bits,$match,$hsplength,$positive,$gaps,$p,$qb,$qe,$sb,$se,$qs,
-	$ss,$hs,$qname,$sname,$qlength,$slength, $frame) = 
+	$ss,$hs,$qname,$sname,$qlength,$slength,$qframe,$sframe,$blasttype) = 
 	    $self->_rearrange([qw(SCORE
 				  BITS
 				  MATCH
@@ -62,28 +62,49 @@ sub new {
 				  SBJCTNAME
 				  QUERYLENGTH
 				  SBJCTLENGTH
-				  FRAME
+				  QUERYFRAME
+				  SBJCTFRAME
+				  BLASTTYPE
 				  )],@args);
     
+	# Determine strand meanings
+	my ($queryfactor, $sbjctfactor);
+	if ($blasttype eq 'BLASTN' || 
+	    $blasttype eq 'BLASTX' || 
+	    $blasttype eq 'TBLASTX')  { $queryfactor = 1; }
+	else                          { $queryfactor = 0; }
+	if ($blasttype eq 'TBLASTN' || 
+	    $blasttype eq 'TBLASTX')  { $sbjctfactor = 1; }
+	else                          { $sbjctfactor = 0; }
+
+	# Set BLAST type
+	$self->{'BLAST_TYPE'} = $blasttype;
+	
     # Store the aligned query as sequence feature
+    my $strand;
     if ($qe > $qb) {		# normal query: start < end
-	$self->query( Bio::SeqFeature::Similarity->new
-		      (-start=>$qb, -end=>$qe, -strand=>1, 
+		if ($queryfactor) { $strand = 1; } else { $strand = undef; }
+		$self->query( Bio::SeqFeature::Similarity->new
+		      (-start=>$qb, -end=>$qe, -strand=>$strand, 
 		       -source=>"BLAST" ) ) }
     else {			# reverse query (i dont know if this is possible, but feel free to correct)
-	$self->query( Bio::SeqFeature::Similarity->new
-		      (-start=>$qe, -end=>$qb, -strand=>-1,
+		if ($queryfactor) { $strand = -1; } else { $strand = undef; }
+		$self->query( Bio::SeqFeature::Similarity->new
+		      (-start=>$qe, -end=>$qb, -strand=>$strand,
 		       -source=>"BLAST" ) ) }
 
     # store the aligned subject as sequence feature
     if ($se > $sb) {		# normal subject
-	$self->subject( Bio::SeqFeature::Similarity->new
-			(-start=>$sb, -end=>$se, -strand=>1,
+		if ($sbjctfactor) { $strand = 1; } else { $strand = undef; }
+		$self->subject( Bio::SeqFeature::Similarity->new
+			(-start=>$sb, -end=>$se, -strand=>$strand,
 			 -source=>"BLAST" ) ) }
     else {			# reverse subject: start bigger than end
-	$self->subject( Bio::SeqFeature::Similarity->new
-			(-start=>$se, -end=>$sb, -strand=>-1, 
+		if ($sbjctfactor) { $strand = -1; } else { $strand = undef; }
+		$self->subject( Bio::SeqFeature::Similarity->new
+			(-start=>$se, -end=>$sb, -strand=>$strand,
 			 -source=>"BLAST" ) ) }
+    
     # name the sequences
     $self->query->seqname($qname); # query
     $self->subject->seqname($sname); # subject
@@ -106,7 +127,7 @@ sub new {
     $self->{'SS'} = $ss;
     $self->{'HS'} = $hs;
     
-    defined $frame && $self->frame($frame);
+    $self->frame($qframe, $sframe);
     return $self;		# success - we hope!
 }
 
@@ -279,27 +300,43 @@ sub hs              {shift->{'HS'}}
 
 
 sub frame {
-    my ($self, $frame) = @_;
-    if( defined $frame ) {
-	if( $frame == 0 ) {
-	    $frame = undef;
-	} elsif( $frame !~ /^([+-])?([1-3])/ ) {	    
-	    $self->warn("Specifying an invalid frame ($frame)");
-	    $frame = undef;
-	} else { 
-	    # JB 949 - Creates too many warnings for blastx report.
-	    #          Future enhancement to BPLite::_parseHeader needed to set report type
-	    #          so that subject strand is used with tblastn and query strand with blastx
-	    # if( ($1 eq '-' && $self->subject->strand >= 0) ||
-		# ($1 eq '+' && $self->subject->strand <= 0) ) {
-		# $self->warn("Frame ($frame) did not match strand of query match (".
-		# 	    $self->subject->strand().")");
-	    # }
-	    
+    my ($self, $qframe, $sframe) = @_;
+    if( defined $qframe ) {
+	  if( $qframe == 0 ) {
+	    $qframe = undef;
+	  } elsif( $qframe !~ /^([+-])?([1-3])/ ) {	    
+	    $self->warn("Specifying an invalid query frame ($qframe)");
+	    $qframe = undef;
+	  } else { 
+	    if( ($1 eq '-' && $self->query->strand >= 0) || ($1 eq '+' && $self->query->strand <= 0) ) {
+			$self->warn("Query frame ($qframe) did not match strand of query (". $self->query->strand() . ")");
+	    }
+
 	    # Set frame to GFF [0-2]
-	    $frame = $2 - 1;
-	}
+	    $qframe = $2 - 1;
+	  }
+	  $self->{'QFRAME'} = $qframe;
     }
-    return $self->SUPER::frame($frame);
+    if( defined $sframe ) {
+	  if( $sframe == 0 ) {
+	    $sframe = undef;
+	  } elsif( $sframe !~ /^([+-])?([1-3])/ ) {	    
+	    $self->warn("Specifying an invalid subject frame ($sframe)");
+	    $sframe = undef;
+	  } else { 
+	    if( ($1 eq '-' && $self->subject->strand >= 0) || ($1 eq '+' && $self->subject->strand <= 0) ) {
+			$self->warn("Subject frame ($sframe) did not match strand of subject (". $self->subject->strand() . ")");
+	    }
+
+	    # Set frame to GFF [0-2]
+	    $sframe = $2 - 1;
+	  }
+      $self->{'SFRAME'} = $sframe;
+    }
+    (defined $qframe && $self->SUPER::frame($qframe) && ($self->{'FRAME'} = $qframe)) || (defined $sframe && $self->SUPER::frame($sframe) && ($self->{'FRAME'} = $sframe));
+    if    (wantarray() && 
+           $self->{'BLAST_TYPE'} eq 'TBLASTX') { return ($self->{'QFRAME'}, $self->{'SFRAME'}); } 
+    elsif (wantarray())                        { (defined $self->{'QFRAME'} && return ($self->{'QFRAME'}, undef)) || (defined $self->{'SFRAME'} && return (undef, $self->{'SFRAME'})); }
+    else                                       { (defined $self->{'QFRAME'} && return $self->{'QFRAME'}) || (defined $self->{'SFRAME'} && return $self->{'SFRAME'}); }
 }
 1;
