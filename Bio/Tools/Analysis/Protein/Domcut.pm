@@ -254,6 +254,11 @@ sub result {
         }
         ## convert parsed data into a meta array format
         elsif ($value eq 'all') {
+			#alter inheritance depending on type#
+			if ($self->seq->isa("Bio::SeqI")) {
+				 @Bio::Seq::Meta::Array::ISA = qw(Bio::Seq Bio::Seq::MetaI); 
+					}
+				
             bless ($self->seq, "Bio::Seq::Meta::Array");
             $self->seq->isa("Bio::Seq::MetaI")
                 || $self->throw("$self is not a Bio::Seq::MetaI");
