@@ -229,7 +229,7 @@ number of BLAST searches, please download the blast package locally.
 
   write_blast(">roa1.blast",$blast_result);
 
-Bio::Perl has a number of other "easy to use" functions, including
+Bio::Perl has a number of other easy-to-use functions, including
 
   get_sequence        - gets a sequence from standard, internet accessible
                         databases
@@ -265,7 +265,7 @@ What's required to run bioperl.
 
 =head2 I.3.1 Minimal bioperl installation (Bioperl "core" installation)
 
-For a "minimal" installation of bioperl, you will need to have perl
+For a minimal installation of bioperl, you will need to have perl
 itself installed as well as the bioperl "core modules".  Bioperl has
 been tested primarily using perl 5.005, 5.6, and 5.8.
 The minimal bioperl installation should still work under perl 5.004.
@@ -283,7 +283,7 @@ complex software system - especially when the software is not behaving
 in the way that you expect.  The free graphical debugger ptkdb
 is highly recommended - it's available as Devel::ptkdb from CPAN.
 The standard perl distribution also contains a powerful interactive
-debugger with a command-line interface (use it like "perl -d <script>).
+debugger with a command-line interface (use it like "perl -d <script>").
 
 The Perl tool Data::Dumper used with the syntax:
 
@@ -355,12 +355,11 @@ Decompress (with gunzip or a similiar utility)
 
 =item *
 
-Remove the file archive (e.g. with tar -xvf)
+Extract the file archive (e.g. with tar -xvf)
 
 =item *
 
-Create a "makefile" with "perl Makefile.PL" for perl modules or a
-supplied "install" or "configure" program for non-perl programs
+Create a Makefile with "perl Makefile.PL"
 
 =item *
 
@@ -440,7 +439,7 @@ script attempts to access these features from a non-unix OS, bioperl
 is designed to simply report that the desired capability is not
 available.  However, since the testing of bioperl in these
 environments has been limited, the script may well crash in a less
-"graceful" manner.
+graceful manner.
 
 =head2 I.6 Places to look for additional documentation
 
@@ -490,7 +489,7 @@ among the bioperl objects is not simple; however, understanding them
 in detail is fortunately not necessary for successfully using the
 package.
 
-Nevertheless, a little familiarity with the bioperl object "bestiary"
+Nevertheless, a little familiarity with the bioperl object bestiary
 can be very helpful even to the casual user of bioperl. For example
 there are (at least) eight different "sequence objects" - Seq,
 PrimarySeq, LocatableSeq, RelSegment, LiveSeq, LargeSeq, SeqI, and
@@ -522,7 +521,7 @@ On the other hand, if you need a script capable of simultaneously
 handling hundreds or thousands sequences at a time, then the
 overhead of adding annotations to each sequence can be significant.
 For such applications, you will want to use the PrimarySeq
-object. PrimarySeq is basically a "stripped down" version of Seq.
+object. PrimarySeq is basically a stripped-down version of Seq.
 It contains just the sequence data itself and a few identifying labels
 (id, accession number, alphabet = dna, rna, or protein), and no features.
 For applications with hundreds or thousands or sequences, using PrimarySeq
@@ -540,9 +539,9 @@ L<Bio::Seq::RichSeqI>, and in L<Bio::Seq::SeqWithQuality>.
 
 What is called a LocatableSeq object for historical reasons
 might be more appropriately called an "AlignedSeq" object.  It is a Seq
-object which is part of a multiple sequence alignment.  It has "start" and
-"end" positions indicating from where in a larger sequence it may have
-been extracted.  It also may have "gap" symbols corresponding to the
+object which is part of a multiple sequence alignment.  It has start and
+end positions indicating from where in a larger sequence it may have
+been extracted.  It also may have gap symbols corresponding to the
 alignment to which it belongs.  It is used by the alignment
 object SimpleAlign and other modules that use SimpleAlign objects
 (e.g. AlignIO.pm, pSW.pm).
@@ -608,8 +607,8 @@ may have multiple start and stop locations)
 certainty.
 
 Bioperl's various Location objects address these complications. In addition
-there are "CoordinatePolicy" objects that allow the user to specify how to
-measure the "length" of a feature if its precise start and end coordinates are
+there are CoordinatePolicy objects that allow the user to specify how to
+measure the length of a feature if its precise start and end coordinates are
 not known. In most cases, you will not need to worry about these complications
 if you are using bioperl to handle simple features with well-defined start
 and stop locations.  However, if you are using bioperl to annotate partially
@@ -817,7 +816,7 @@ See L<Bio::DB::Fasta> for more information on this fully-featured module.
 Both modules also offer the user the ability to designate a specific string
 within the fasta header as the desired id, such as the gi number within the
 string "gi|4556644|gb|X45555". Consider the following fasta-formatted 
-sequence, "test.fa":
+sequence, in "test.fa":
 
   >gi|523232|emb|AAC12345|sp|D12567 titin fragment
   MHRHHRTGYSAAYGPLKJHGYVHFIMCVVVSWWASDVVTYIPLLLNNSSAGWKRWWWIIFGGE
@@ -827,7 +826,8 @@ By default Bio::Index::Fasta and Bio::DB::Fasta will use the first "word"
 they encounter in the fasta header as the retrieval key, in this case 
 "gi|523232|emb|AAC12345|sp|D12567". What would be more useful as a key 
 would be a single id.  The code below will index the "test.fa" file and 
-create an index file called "test.fa.idx".
+create an index file called "test.fa.idx" where the keys are the Swissprot,
+or "sp", identifiers.
 
   $ENV{BIOPERL_INDEX_TYPE} = "SDBM_File";
   # look for the index in the current directory
@@ -959,7 +959,7 @@ For more information see L<Bio::SeqIO> or the SeqIO HOWTO
 =head2 III.2.2 Transforming alignment files (AlignIO)
 
 Data files storing multiple sequence alignments also appear in varied
-formats.  AlignIO is the bioperl object for data conversion of
+formats.  AlignIO is the bioperl object for conversion of
 alignment files. AlignIO is patterned on the SeqIO object and its commands
 have many of the same names as the commands in SeqIO. Just as in SeqIO the
 AlignIO object can be created with "-file" and "-format" options:
@@ -1078,7 +1078,7 @@ For a reference annotation, you can use:
 Sequence features will be discussed further in section L<"III.7"> on
 machine-readable sequence annotation. A general description of the
 object can be found in L<Bio::SeqFeature::Generic>, and a description
-of related, top-level "annotation" is found in L<Bio::Annotation::Collection>.
+of related, top-level annotation is found in L<Bio::Annotation::Collection>.
 
 Additional sample code for obtaining sequence features can be found in
 the script gb2features.pl in the subdirectory examples/DB. And finally,
@@ -1116,7 +1116,7 @@ sequence object:
 
 However, the translate method can also be passed several optional
 parameters to modify its behavior. For example, the first two
-arguments to "translate" can be used to modify the characters used to
+arguments to translate() can be used to modify the characters used to
 represent stop (default '*') and unknown amino acid ('X'). (These are
 normally best left untouched.)  The third argument determines the
 frame of the translation. The default frame is "0".  To get
@@ -1125,7 +1125,7 @@ translations in the other two forward frames, we would write:
   $translation2 = $my_seq_object->translate(undef,undef,1);
   $translation3 = $my_seq_object->translate(undef,undef,2);
 
-The fourth argument to "translate" makes it possible to use
+The fourth argument to translate() makes it possible to use
 alternative genetic codes. There are currently 16 codon tables
 defined, including tables for 'Vertebrate Mitochondrial', 'Bacterial',
 'Alternative Yeast Nuclear' and 'Ciliate, Dasycladacean and Hexamita
@@ -1158,7 +1158,7 @@ See L<Bio::Tools::CodonTable> for related details.
 =head2 III.3.2 Obtaining basic sequence statistics (SeqStats,SeqWord)
 
 In addition to the methods directly available in the Seq object,
-bioperl provides various "helper" objects to determine additional
+bioperl provides various helper objects to determine additional
 information about a sequence.  For example, SeqStats object provides
 methods for obtaining the molecular weight of the sequence as well the
 number of occurrences of each of the component residues (bases for a
@@ -1172,7 +1172,7 @@ example:
   $monomer_ref = $seq_stats->count_monomers();
   $codon_ref = $seq_stats->count_codons();  # for nucleic acid sequence
 
-Note: sometimes sequences will contain "ambiguous" codes.  For this
+Note: sometimes sequences will contain ambiguous codes.  For this
 reason, get_mol_wt() returns a reference to a two element array
 containing a greatest lower bound and a least upper bound of the
 molecular weight.
@@ -1250,14 +1250,14 @@ a program (originally part of the EGCG molecular biology package) to
 predict signal sequences, and to identify the cleavage site based on
 the von Heijne algorithm.
 
-The "threshold" setting controls the score reporting.  If no value for
+The threshold setting controls the score reporting.  If no value for
 threshold is passed in by the user, the code defaults to a reporting
 value of 3.5.  SigCleave will only return score/position
 pairs which meet the threshold limit.
 
-There are 2 accessor methods for this object. "signals" will return a
+There are 2 accessor methods for this object. signals() will return a
 perl hash containing the sigcleave scores keyed by amino acid
-position. "pretty_print" returns a formatted string similar to the
+position. pretty_print() returns a formatted string similar to the
 output of the original sigcleave utility.
 
 The syntax for using Sigcleave is as follows:
@@ -1317,7 +1317,7 @@ documentation in L<Bio::Tools::OddCodes> for further details.
 SeqPattern:
 
 The SeqPattern object is used to manipulate sequences
-that include perl "regular expressions".  A key motivation for
+using perl regular expressions.  A key motivation for
 SeqPattern is to have a way of generating a reverse complement of a
 nucleic acid sequence pattern that includes ambiguous bases and/or
 regular expressions.  This capability leads to significant performance
@@ -1342,21 +1342,22 @@ More detail can be found in L<Bio::Tools::SeqPattern>.
 
 Coordinate system conversion is a common requirement, for example, when 
 one wants to look at the relative positions of sequence features to one 
-another and convert those relative positions to "absolute" coordinates 
+another and convert those relative positions to absolute coordinates 
 along a chromosome or contig.  Although coordinate conversion sounds pretty 
-trivial it can get fairly tricky when one includes the possibilities of switching 
-to coordinates on negative (i.e. Crick) strands and/or having a coordinate 
-system "terminate" because you have reached the end of a clone or contig.  
-Bioperl has two different approaches to coordinate-system conversion (based 
-on the modules Bio::Coordinate::Pair and Bio::DB::GFF::RelSegment, respectively).
+trivial it can get fairly tricky when one includes the possibilities of 
+switching to coordinates on negative (i.e. Crick) strands and/or having 
+a coordinate system terminate because you have reached the end of a 
+clone or contig. Bioperl has two different approaches to coordinate-system 
+conversion (based on the modules Bio::Coordinate::Pair and 
+Bio::DB::GFF::RelSegment, respectively).
 
 The Coordinate::Pair approach is somewhat more "low level".  With it, you 
 define an input coordinate system and an output coordinate system, where 
 in each case a coordinate system is a triple of a start position, end position 
-and strand.  The "end position" is especially important when dealing with 
+and strand.  The end position is especially important when dealing with 
 unfinished assemblies where the coordinate system ends when one reaches 
 the end of the sequence of a clone or contig.  Once one has defined the 
-two coordinate systems, one defines a "Coordinate::Pair" to map between 
+two coordinate systems, one defines a Coordinate::Pair to map between 
 them.  Then one can map positions between the coordinates systems with 
 code such as this:
 
@@ -1378,7 +1379,7 @@ The Bio::DB::GFF::RelSegment approach is designed more for handling coordinate
 transformations of sequence features rather than for transforming arbitrary 
 coordinate systems.  With Bio::DB::GFF::RelSegment you define a coordinate 
 system relative to a specific feature (called the "refseq").  You also have 
-access to the "absolute" coordinate system (typically of the entire chromosome.)  
+access to the absolute coordinate system (typically of the entire chromosome.)  
 You can determine the position of a feature relative to some other feature 
 simply by redefining the relevant reference feature (i.e. the "refseq") with 
 code like this:
@@ -1444,7 +1445,7 @@ shows how to change the matrix:
 
 For a description of the many CGI parameters see:
 
-http://www.ncbi.nlm.nih.gov/BLAST/Doc/urlapi.html
+  http://www.ncbi.nlm.nih.gov/BLAST/Doc/urlapi.html
 
 Note that the script has to be broken into two parts. The actual Blast
 submission and the subsequent retrieval of the results. At times when the
@@ -1500,7 +1501,7 @@ SeqIO reads in the next sequence in a file into a Seq object.
 
 Once a report (i.e. a SearchIO object) has been read in and is available
 to the script, the report's overall attributes (e.g. the query) can be
-determined and its individual "hits" can be accessed with the
+determined and its individual hits can be accessed with the
 next_hit method.  Individual high-scoring segment pairs for each hit
 can then be accessed with the next_hsp method. Except for
 the additional syntax required to enable the reading of multiple
@@ -1525,13 +1526,13 @@ Sample code to read a BLAST report might look like this:
   $hsp = $hit->next_hsp;
   $hsp_start = $hsp->query->start;
 
-For more details there is an excellent description of how to use
+For more details there is a good description of how to use
 SearchIO at http://www.bioperl.org/HOWTOs/html/SearchIO.html
 or in the docs/howto subdirectory of the distribution. Additional
-documentation can be found in: L<Bio::SearchIO::blast>,
+documentation can be found in L<Bio::SearchIO::blast>,
 L<Bio::SearchIO::psiblast>, L<Bio::SearchIO::blastxml>,
 L<Bio::SearchIO::fasta>, and L<Bio::SearchIO>. There is also sample
-code in the Bio/examples/searchio directory which illustrates how to
+code in the examples/searchio directory which illustrates how to
 use SearchIO. And finally, there's a section with SearchIO questions
 in the FAQ (http://bioperl.org/Core/Latest/faq.html#3).
 
@@ -1552,8 +1553,8 @@ next_HSP, respectively - in contrast to Search's next_hit and next_hsp.
 BPlite
 
 The syntax for using BPlite is as follows where the method
-for retrieving hits is now called "nextSbjct" (for "subject"), while the
-method for retrieving high-scoring-pairs is called "nextHSP":
+for retrieving hits is now called nextSbjct() (for "subject"), while the
+method for retrieving high-scoring-pairs is called nextHSP():
 
   use Bio::Tools::BPlite;
   $report = new Bio::Tools::BPlite(-fh=>\*STDIN);
@@ -1608,7 +1609,7 @@ a second argument as in:
   $hsp = $report->next_feature;
   $answer=$hsp->score;
 
-In addition, since there will only be (at most) one "subject" (hit) in a
+In addition, since there will only be (at most) one subject (hit) in a
 bl2seq report one should use the method $report-E<gt>next_feature,
 rather than $report-E<gt>nextSbjct-E<gt>nextHSP to obtain the next high
 scoring pair. See L<Bio::Tools::BPbl2seq> for more details.
@@ -1681,7 +1682,7 @@ StandAloneBlast, one needs to have installed BLAST from NCBI locally as
 well as one or more blast-readable databases.
 
 Basic usage of the StandAloneBlast.pm module is simple.  Initially, a
-local blast "factory object" is created.
+local blast factory object is created.
 
   @params = (program  => 'blastn',
              database => 'ecoli.nt');
@@ -1700,7 +1701,7 @@ object or an array of Seq objects, eg
 The returned blast report will be in the form of a bioperl
 parsed-blast object.  The report object may be either a SearchIO, BPlite,
 BPpsilite, BPbl2seq or Blast object depending on the type of blast
-search - the SearchIO object is returned by default.  The "raw" blast
+search - the SearchIO object is returned by default.  The raw blast
 report is also available.
 
 The syntax for running PHIBLAST, PSIBLAST and bl2seq searches via
@@ -1859,7 +1860,7 @@ annotate a genomic sequence might look like this:
 Historically, annotations for sequence data have been entered and read
 manually in flat-file or relational databases with relatively little
 concern for machine readability.  More recent projects - such as EBI's
-Ensembl project and the efforts to develop an XML molecular biology
+ENSEMBL project and the efforts to develop an XML molecular biology
 data specification - have begun to address this limitation.  Because
 of its strengths in text processing and regular-expression handling,
 perl is a natural choice for the computer language to be used for this
@@ -1871,10 +1872,11 @@ several of which are described in the following sub-sections.
 =head2 III.7.1 Representing sequence annotations (SeqFeature,RichSeq,Location)
 
 In Bioperl, most sequence annotations are stored in sequence-feature
-(SeqFeature) objects.  A SeqFeature onject generally has (at least) a
-description (e.g. exon, promoter) and a location specified in as its
-start postion and length an a reference to the "parent" sequence of
-which it is a feature. In addition, A Seq object can also have an
+(SeqFeature) objects, where the SeqFeature object is associated with a
+parent Seq object.  A SeqFeature object generally has a
+description (e.g. "exon", "promoter"), a location specifying its
+start and end positions on the parent sequence, and a reference to its 
+parent sequence. In addition, a Seq object can also have an
 Annotation object associated with it, which could be used to store database 
 links, literature references and comments. Creating a new SeqFeature and
 Annotation and associating it with a Seq is accomplished with syntax
@@ -1899,20 +1901,22 @@ they can be with retrieved, eg:
 The individual components of a SeqFeature can also be set or retrieved
 with methods including:
 
-  # attributes which return numbers
+  # methods which return numbers
   $feat->start          # start position
   $feat->end            # end position
 
   $feat->strand         # 1 means forward, -1 reverse, 0 not relevant
 
-  # attributes which return strings
+  # methods which return strings
   $feat->primary_tag    # the main 'name' of the sequence feature,
                         # eg, 'exon'
-  $feat->source_tag     # where the feature comes from, eg'BLAST'
+  $feat->source_tag     # where the feature comes from, e.g. 'BLAST'
 
-  # attributes which return Bio::PrimarySeq objects
-  $feat->seq            # the sequence between start,end
+  # methods which return Bio::PrimarySeq objects
+  $feat->seq            # the sequence between start and end
   $feat->entire_seq     # the entire sequence
+  $feat->spliced_seq    # the "joined" sequence, when there are
+                        # multiple sub-locations
 
   # other useful methods include
   $feat->overlap($other)  # do SeqFeature $feat and SeqFeature $other overlap?
@@ -2096,21 +2100,23 @@ Toolkit" project at http://www.ebi.ac.uk/mutations/toolkit/.
 SeqWithQuality objects are used to describe sequences with very
 specific annotations - that is, data quality annotations.  Data quality
 information is important for documenting the reliability of base
-"calls" in newly sequenced or otherwise questionable sequence
+calls in newly sequenced or otherwise questionable sequence
 data. The quality data is contained within a Bio::Seq::PrimaryQual object.
 Syntax for using SeqWithQuality objects is as follows:
 
   # first, make a PrimarySeq object
-  $seqobj = Bio::PrimarySeq->new
-	  ( -seq => 'atcgatcg',            -id  => 'GeneFragment-12',
-	    -accession_number => 'X78121', -alphabet => 'dna');
+  $seqobj = Bio::PrimarySeq->new( -seq => 'atcgatcg',
+                                  -id  => 'GeneFragment-12',
+	                          -accession_number => 'X78121',
+                                  -alphabet => 'dna');
   # now make a PrimaryQual object
-  $qualobj = Bio::Seq::PrimaryQual->new
-	 ( -qual => '10 20 30 40 50 50 20 10', -id  => 'GeneFragment-12',
-	   -accession_number => 'X78121',      -alphabet => 'dna');
+  $qualobj = Bio::Seq::PrimaryQual->new(-qual => '10 20 30 40 50 50 20 10',
+                                        -id   => 'GeneFragment-12',
+	                                -accession_number => 'X78121',
+                                        -alphabet => 'dna');
   # now make the SeqWithQuality object
-  $swqobj = Bio::Seq::SeqQithQuality->new
-	  ( -seq  => $seqobj, -qual => $qualobj);
+  $swqobj = Bio::Seq::SeqQithQuality->new(-seq  => $seqobj,
+                                          -qual => $qualobj);
   # Now we access the sequence with quality object
   $swqobj->id(); # the id of the SeqWithQuality object may not match the
                  # id of the sequence or of the quality
@@ -2131,22 +2137,22 @@ L<Bio::Seq::PrimaryQual>, and L<Bio::SeqIO::phd>.
 =head2 III.7.7 Sequence XML representations - generation and parsing (SeqIO::game, SeqIO::bsml)
 
 The previous subsections have described tools for automated sequence
-annotation by the creation of an "object layer" on top of a
+annotation by the creation of an object layer on top of a
 traditional database structure.  XML takes a somewhat different
 approach.  In XML, the data structure is unmodified, but machine
 readability is facilitated by using a data-record syntax with special
 flags and controlled vocabulary.
 
 In order to transfer data with XML in biology, one needs an agreed
-upon "vocabulary" of biological terms. Several of these have been
-proposed and bioperl has at least some support for three: "game", BSML
+upon a vocabulary of biological terms. Several of these have been
+proposed and bioperl has at least some support for three: GAME, BSML
 and AGAVE.
 
 Once a vocabulary is agreed upon, it becomes possible to convert
 sequence XML sequence features can be turned into bioperl Seq
 annotations and SeqFeature objects.  Conversely Seq object features
 and annotations can be converted to XML so that they become available
-to any other systems.  Typical usage with "game" or "BSML" are shown
+to any other systems.  Typical usage with GAME or BSML are shown
 below. No special syntax is required by the user. Note that some Seq
 annotation will be lost when using XML in this manner since generally
 XML does not support all the annotation information available in Seq
@@ -2273,7 +2279,7 @@ data including genetic maps, STS maps etc.  Map I/O is performed with
 the MapIO object which works in a similar manner to the SeqIO,
 SearchIO and similar I/O objects described previously. In principle,
 Map I/O with various map data formats can be performed.  However
-currently only "mapmaker" format is supported.  Manipulation of
+currently only mapmaker format is supported.  Manipulation of
 genetic map data with Bioperl Map objects might look like this:
 
   $mapio = new Bio::MapIO(-format => 'mapmaker', -file => $mapfile);
@@ -2449,7 +2455,7 @@ the library with the auxiliary modules (say in
 
   use lib '/home/peter/auxmodules';
 
-or by adding a "switch" to your invocation of perl on the command
+or by adding a switch to your invocation of perl on the command
 line, e.g.:
 
   $perl -I/home/peter/auxmodules myscript.pl
@@ -2484,7 +2490,7 @@ identifying prospective antigenic sites) so if you cannot find
 the function you want in bioperl you might be able to find it in EMBOSS.
 
 EMBOSS programs are usually called from the command line but the
-bioperl-run auxiliary library provides a Perl "wrapper" for EMBOSS
+bioperl-run auxiliary library provides a Perl wrapper for EMBOSS
 function calls so that they can be executed from within a Perl script.
 Of course, the EMBOSS package as well as the bioperl-run must be
 installed in order for the Bioperl wrapper to function.
@@ -2602,7 +2608,7 @@ are the names of the modules themselves appearing in the initial "use"
 and constructor statements and the names of the some of the individual
 program options and parameters.
 
-In either case, initially, a "factory object" must be created. The
+In either case, initially, a factory object must be created. The
 factory may be passed most of the parameters or switches of the
 relevant program.  In addition, alignment parameters can be changed
 and/or examined after the factory has been created.  Any parameters
@@ -2722,7 +2728,7 @@ appropriate documentation to look for, because objects inherit methods
 from other objects (and the relevant documentation will be stored in the
 object from which the method was inherited.)
 
-For example, say you wanted to find documentation on the "parse" method
+For example, say you wanted to find documentation on the parse() method
 of the module Genscan.pm.  You would not find this documentation in
 the code for Genscan.pm, but rather in the code for AnalysisResult.pm
 from which Genscan.pm inherits the parse method!
@@ -2754,7 +2760,7 @@ you will receive the following output:
  next_prediction
 
 From this output, it is clear exactly from which object each method
-of Genscan.pm is taken, and, in particular that "parse" is
+of Genscan.pm is taken, and, in particular that parse() is
 taken from the package Bio::Tools::AnalysisResult.
 
 With this approach you can easily determine the source of any method
@@ -2782,8 +2788,8 @@ Some of the later demos require that you have an internet connection
 and/or that you have an auxiliary bioperl library and/or external
 cpan module and/or external program installed.  They may also fail if
 you are not running under Linux or Unix.  In all of these cases, the
-script should fail "gracefully" simply saying the demo is being
-skipped.  However if the script "crashes", simply run the other demos
+script should fail gracefully simply saying the demo is being
+skipped.  However if the script crashes, simply run the other demos
 individually (and perhaps send an email to bioperl-l@bioperl.org
 detailing the problem :-).
 
