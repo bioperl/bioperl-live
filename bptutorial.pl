@@ -71,7 +71,9 @@ BioPerlTutorial - a tutorial for bioperl
      III.7.4 Sequence XML representations - generation and parsing (SeqIO::game)
   III.8 Representing 3D structure
      III.8.1 Reading PDB files (Structure::IO)
-
+  III.9 Bioperl alphabets
+     III.9.1 Extended DNA / RNA alphabet
+     III.9.2 Amino Acid alphabet
   IV.  Related projects - biocorba, biopython, biojava, EMBOSS, Ensembl, AnnotationWorkbench
      IV.1 Biocorba
      IV.2 Biopython and biojava
@@ -379,6 +381,10 @@ Bundle::BioPerl, eg
   cpan>install B/BI/BIRNEY/bioperl-1.0.tar.gz
   <installation details....>
   cpan>quit
+
+The disadvantage of this approach is that if there's a problem
+installing any individual module it may be a bit more difficult to
+address.
 
 =back
 
@@ -774,9 +780,18 @@ The following methods return strings
   $seqobj->seq();        # string of sequence
   $seqobj->subseq(5,10); # part of the sequence as a string
   $seqobj->accession_number(); # when there, the accession number
-  $seqobj->alphabet();    # one of 'dna','rna','protein'
+  $seqobj->alphabet();   # one of 'dna','rna','protein'
   $seqobj->primary_id(); # a unique id for this sequence irregardless
                          # of its display_id or accession number
+  $seqobj->desc()        # a description of the sequence
+
+It is worth mentioning that some of these values correspond to specific
+fields of given formats. For example, the display_id method returns
+the LOCUS name of a Genbank entry, the (\S+) following the E<gt> character
+in a Fasta file, the ID from a SwissProt file, and so on. The desc
+method will return the DEFINITION line of a Genbank file, the line
+following the display_id in a Fasta file, and the DE field in a SwissProt
+file.
 
 The following methods return an array of Bio::SeqFeature objects
 
@@ -1755,6 +1770,83 @@ These lines show one has access to a number of related objects and methods.
 See L<Bio::Structure::IO>, L<Bio::Structure::Entry>, L<Bio::Structure::Model>,
 L<Bio::Structure::Chain>, L<Bio::Structure::Residue>, and
 L<Bio::Structure::Atom> for more information.
+
+
+=head2 III.9 Bioperl alphabets
+
+Bioperl modules use the standard extended single-letter genetic
+alphabets to represent nucleotide and amino acid sequences.
+
+In addition to the standard alphabet, the following symbols
+are also acceptable in a biosequence:
+
+ ?  (a missing nucleotide or amino acid)
+ -  (gap in sequence)
+
+
+=head2 III.9.1 Extended DNA / RNA alphabet
+
+ (includes symbols for nucleotide ambiguity)
+ ------------------------------------------
+ Symbol       Meaning      Nucleic Acid
+ ------------------------------------------
+  A            A           Adenine
+  C            C           Cytosine
+  G            G           Guanine
+  T            T           Thymine
+  U            U           Uracil
+  M          A or C
+  R          A or G
+  W          A or T
+  S          C or G
+  Y          C or T
+  K          G or T
+  V        A or C or G
+  H        A or C or T
+  D        A or G or T
+  B        C or G or T
+  X      G or A or T or C
+  N      G or A or T or C
+
+
+ IUPAC-IUB SYMBOLS FOR NUCLEOTIDE NOMENCLATURE:
+   Cornish-Bowden (1985) Nucl. Acids Res. 13: 3021-3030.
+
+
+=head2 III.9.2 Amino Acid alphabet
+
+ ------------------------------------------
+ Symbol   Meaning
+ ------------------------------------------
+ A        Alanine
+ B        Aspartic Acid, Asparagine
+ C        Cystine
+ D        Aspartic Acid
+ E        Glutamic Acid
+ F        Phenylalanine
+ G        Glycine
+ H        Histidine
+ I        Isoleucine
+ K        Lysine
+ L        Leucine
+ M        Methionine
+ N        Asparagine
+ P        Proline
+ Q        Glutamine
+ R        Arginine
+ S        Serine
+ T        Threonine
+ V        Valine
+ W        Tryptophan
+ X        Unknown
+ Y        Tyrosine
+ Z        Glutamic Acid, Glutamine
+ *        Terminator
+
+
+ IUPAC-IUP AMINO ACID SYMBOLS:
+   Biochem J. 1984 Apr 15; 219(2): 345-373
+   Eur J Biochem. 1993 Apr 1; 213(1): 2
 
 
 =head1 IV.  Related projects - biocorba, biopython, biojava, Ensembl,
