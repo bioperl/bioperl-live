@@ -373,7 +373,7 @@ sub next_result{
 	   	   
 	   $self->element({'Name' => 'Hsp_hit-frame',
 			   'Data' => $hitframe});
-       } elsif(  /^Parameters:/ || /\s+Database:/ ) {
+       } elsif(  /^Parameters:/ || /^\s+Database:/ ) {
 	   $self->in_element('hsp') && $self->end_element({'Name' => 'Hsp'});
 	   $self->in_element('hit') && $self->end_element({'Name' => 'Hit'});
 	   my $blast = ( /Parameters/ ) ? 'wublast' : 'ncbi'; 
@@ -417,6 +417,7 @@ sub next_result{
 				       'Data' => $entropy});
 		   } 
 	       } elsif ( $blast eq 'ncbi' ) {
+
 		   if( /^Matrix:\s+(\S+)/i ) {
 		       $self->element({'Name' => 'Parameters_matrix',
 				       'Data' => $1});		       
@@ -475,7 +476,7 @@ sub next_result{
 	   for( my $i = 0; 
 		defined($_) && $i < 3; 
 		$i++ ){
-	       chomp;	       
+	       chomp;		       
 	       if( /^((Query|Sbjct):\s+(\d+)\s*)(\S+)\s+(\d+)/ ) {
 		   $data{$2} = $4;
 		   $len = length($1);
@@ -494,7 +495,7 @@ sub next_result{
 	   $self->characters({'Name' => 'Hsp_midline',
 			      'Data' => $data{'Mid'} });
        } else { 
-	  # print "unrecognized line $_";
+	   $self->debug( "unrecognized line $_");
        }
    } 
    $self->end_element({'Name' => 'BlastOutput'}) unless ! $seentop;
