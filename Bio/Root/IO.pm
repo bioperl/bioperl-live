@@ -451,7 +451,7 @@ sub tempfile {
 sub tempdir {
     my ( $self, @args ) = @_;
     if( exists(&File::Temp::tempdir) && exists($INC{"File/Temp.pm"})) {
-	return File::Temp::tempdir(@args)));
+	return File::Temp::tempdir(@args);
     }
 
     # we have to this ourselves, not good
