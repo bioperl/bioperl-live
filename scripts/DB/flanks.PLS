@@ -1,6 +1,6 @@
 #!perl
 # -*-Perl-*-
-# $Id: flanks.PLS,v 1.1 2003-02-21 05:36:18 heikki Exp $
+# $Id: flanks.PLS,v 1.2 2003-02-26 09:32:39 heikki Exp $
 #
 # Heikki Lehvaslaiho <heikki@ebi.ac.uk>
 # Finding flanking sequences for a variant.
@@ -186,19 +186,19 @@ sub extract {
 
 flanks - finding flanking sequences for a variant in a sequence position
 
-=head1 DESCRIPTION
-
-This scripts allows you to extract a subsequence around a region of
-interest from an existing sequence. The output if fasta formatted
-sequence entry where the header line contains additional information
-about the location.
-
-=head1 USAGE
+=head1 SYNOPSIS
 
   flanks --position POS [-p POS ...]  [--flanklen INT]
          accession | filename
 
-=head1 ARGUMENTS
+=head1 DESCRIPTION
+
+This script allows you to extract a subsequence around a region of
+interest from an existing sequence. The output if fasta formatted
+sequence entry where the header line contains additional information
+about the location.
+
+=head1 OPTIONS
 
 The script takes one unnamed argument which be either a file name in
 the local file system or a nucleotide sequence accession number.
@@ -284,7 +284,37 @@ upper case and rest of the sequence in lower case characters.
 =head1 TODO
 
 The input files are assumed to be in EMBL format and the sequences are
-retrieved only from the EMB database. Make this more generic.
+retrieved only from the EMB database. Make this more generic and use
+the registry.
 
+
+head1 FEEDBACK
+
+=head2 Mailing Lists
+
+User feedback is an integral part of the evolution of this and other
+Bioperl modules. Send your comments and suggestions preferably to the
+Bioperl mailing lists  Your participation is much appreciated.
+
+  bioperl-l@bioperl.org                 - General discussion
+  http://bio.perl.org/MailList.html     - About the mailing lists
+
+=head2 Reporting Bugs
+
+Report bugs to the Bioperl bug tracking system to help us keep track
+the bugs and their resolution.  Bug reports can be submitted via email
+or the web:
+
+  bioperl-bugs@bio.perl.org
+  http://bugzilla.bioperl.org/
+
+=head1 AUTHOR - Heikki Lehvaslaiho
+
+Email:  heikki@ebi.ac.uk
+Address:
+
+     EMBL Outstation, European Bioinformatics Institute
+     Wellcome Trust Genome Campus, Hinxton
+     Cambs. CB10 1SD, United Kingdom
 
 =cut
