@@ -78,6 +78,11 @@ use overload
   '""' => 'toString',
   cmp   => '_cmp';
 
+use Bio::DB::GFF::Util::Rearrange; # for 'rearrange'
+
+use Bio::Root::Root;
+use Bio::SeqFeature::CollectionProviderI;
+
 $VERSION = '0.01';
 @ISA = qw( Bio::Root::Root Bio::SeqFeature::CollectionProviderI );
 
@@ -101,6 +106,7 @@ sub new {
 
   if( scalar( @args ) ) {
     foreach my $feature ( @args ) {
+      next unless( ref( $feature ) && $feature->isa( "Bio::SeqFeatureI" ) );
       unless( $self->_insert_feature( $feature ) ) {
         $self->throw( "duplicate feature: $feature" );
       }
@@ -136,49 +142,59 @@ If a range is specified using the -range argument then this range will
    "contains"      return features completely contained within the range
    "contained_in"  return features that completely contain the range
 
-Note that if the implementing class implements RangeI then the
+Note that if the implementing class implements L<Bio::LocationI> then the
 baselocation will default to that range.  If a baselocation is given
 or defaulted and a range is specified as an argument, then the
 coordinates of the given range will be interpreted relative to the
 implementing class\'s range.  If the implementing class does not
-implement RangeI and no range is given, then -rangetype may be
+implement LocationI and no range is given, then -rangetype may be
 ignored.
 
 -strandmatch is one of:
    "strong"        ranges must have the same strand
-                   (default ONLY when -strand is specified and non-zero)
-   "weak"          ranges must have the same strand or no strand
+   "weak"          ranges must have the same strand or no strand (default)
    "ignore"        ignore strand information
-                   (default unless -strand is specified and non-zero)
 
 Two types of argument lists are accepted.  In the positional argument
-form, the arguments are treated as a list of feature types.  In the
-named parameter form, the arguments are a series of -name=E<gt>value
-pairs.
+form, the arguments are treated as a list of feature types (as if they
+were given as -types => \@args).  In the named parameter form, the
+arguments are a series of -name=E<gt>value pairs.  Note that the table
+below is not exhaustive; implementations must support these but may
+support other arguments as well (and are responsible for documenting the
+difference).
 
   Argument       Description
   --------       ------------
 
-  -type          A type name or an object of type Bio::SeqFeature::TypeI
+  -type          A type name or an object of type L<Bio::SeqFeature::TypeI>
   -types         An array reference to multiple type names or TypeI objects
+
+  -unique_id     A (string) unique_id.  See also -namespace.
+  -unique_ids    An array reference to multiple unique_id values.
+
+  -name          A (string) display_name or unique_id.  See also -namespace.
+  -names         An array reference to multiple display_name/unique_id values.
+
+  -namespace     A (string) namespace qualifier to help resolve the name/id(s)
+  -class         same as -namespace
 
   -attributes    A hashref containing a set of attributes to match.  See
                  below.
 
-  -location      A Bio::LocationI object defining the range to search and
+  -location      A L<Bio::LocationI> object defining the range to search and
                  the rangetype.  Use -range (and -baselocation,
                  perhaps; see below) as an alternative to -location.
                  See also -strandmatch.  There may be a default value
                  for -location.
 
-  -baselocation  A Bio::LocationI object defining the location to which
+  -baselocation  A L<Bio::LocationI> object defining the location to which
                  the -range argument is relative.  There may be a
-                 default -baselocation.  If this CollectionI is also a
-                 Bio::RangeI, then the default -baselocation should be
-                 its range.
+                 default -baselocation.  If this CollectionProviderI is also a
+                 L<Bio::LocationI>, then the default -baselocation should be
+                 itself.
 
-  -range         A Bio::RangeI object defining the range to search.  See also
-                 -strandmatch and -rangetype.  Use instead of
+  -range         A L<Bio::RangeI> object defining the range to search.
+                 See also -strandmatch and -rangetype.  Use instead of
                  -location, when -baselocation is specified or
                  provided by default (see above).
 
@@ -195,21 +211,54 @@ attributes to match against:
 Attribute matching is simple string matching, and multiple attributes
 are ANDed together.
 
+The -unique_ids argument is a reference to a list of strings.  Every
+returned feature must have its unique_id value in this list or, if a
+feature has no defined unique_id, then its display_name value in the
+list if the list is provided.  A -unique_id argument is treated as a
+single-element list of unique_ids.
+
+The -names argument is a reference to a list of strings.  Every
+returned feature must have its display_name or its unique_id value in this
+list if the list is provided.  A -name argument is treated as a
+single-element list of names.
+
+If a -namespace is provided then names and ids (both queries and
+targets) will be prepended with "$namespace:" as a bonus.  So
+if you do features( -names => [ 'foo', 'bar' ], -namespace => 'ns' )
+then any feature with the display_name or unique_id 'foo', 'ns:foo',
+'bar', or 'ns:bar' will be returned.
+
 =cut
 
+## This is a hacky implementation that delegates all the work to a
+## CollectionI implementation (if this *is* one, then that's
+## delegating to our own features() method).  This works because the
+## argument list of get_collection is a subset of the argument list of
+## features().
 sub get_collection {
   my $self = shift;
-  my $collection_to_return = new Bio::SeqFeature::SimpleCollection();
-  ## TODO: Something more sophisticated.  This always returns all features.
-  $collection_to_return->add_features(
-    values $self->{ '_identifiable_features' }
-  );
-  foreach my $start ( keys $self->{ '_anonymous_features' } ) {
-    $collection_to_return->add_features(
-      @{ $self->{ '_anonymous_features' }{ $start } }
+  if( $self->isa( 'Bio::SeqFeature::CollectionI' ) ) {
+    ## Use our own features() method to do the hard work..
+    return new Bio::SeqFeature::SimpleCollection( $self->features( @_ ) );
+  } else {
+    # We're not a CollectionI.  Let's hijack one for our own nefarious needs.
+    my $hijacked_collection = new Bio::SeqFeature::SimpleCollection();
+    # Add everything to it.
+    $hijacked_collection->add_features(
+      values %{ $self->{ '_identifiable_features' } }
     );
+    foreach my $start ( keys %{ $self->{ '_anonymous_features' } } ) {
+      $hijacked_collection->add_features(
+        @{ $self->{ '_anonymous_features' }{ $start } }
+      );
+    }
+
+    # Now delegate to it.
+    return $hijacked_collection->get_collection( @_ );
+    ## A slightly more clever hack would keep the hijacked collection
+    ## as its backing store so that future calls to get_collection are
+    ## faster...
   }
-  return $collection_to_return;
 } # get_collection(..)
 
 =head2 insert_or_update_collection
@@ -325,6 +374,62 @@ sub remove_collection {
   }
 } # remove_collection(..)
 
+=head2 types
+
+ Title   : types
+ Usage   : my @types = $collectionprovider->types();
+           OR
+           my %types_and_counts = $collectionprovider->types( -count => 1 );
+ Function: Enumerate the feature types provided by this provider, and possibly
+           count the features in each type.
+ Returns : a list of L<Bio::SeqFeature::TypeI> objects
+           OR
+           a hash mapping type id strings to integer counts
+ Args    : see below
+
+This routine returns a list of feature types known to the provider.
+If the -count argument is given, it returns a hash of known types
+mapped to their occurrence counts in this provider.  Note that the
+returned list (or the keys of the returned hash) may include types for
+which the count is 0.  Also note that the hierarchy of TypeI objects
+is ignored, so if there are 4 features of type 'foo' which is a child
+of type 'bar', and only 1 feature (explicitly) of type 'bar', then the
+count for 'bar' will be 1, not 5.
+
+Arguments are -option=E<gt>value pairs as follows:
+
+  -count aka -enumerate  if true, count the features
+
+The returned value will be a list of L<Bio::SeqFeature::TypeI> objects
+or a hash with the string values of these objects as keys.
+
+The SimpleCollectionProvider implementation recalculates the types
+with each call to types(), so the method takes time proportional to
+the number of features provided by this provider.  Subclasses may not
+behave this way; they should document the difference if there is one.
+
+=cut
+
+sub types {
+  my $self = shift;
+  my $count;
+  if( scalar( @_ ) && $_[ 0 ] =~ /^-/ ) {
+    ( $count ) =
+      rearrange( [ qw( COUNT COUNTS ENUM ENUMERATE ) ], @_ );
+  }
+  my %types;
+  foreach my $feature ( ( values %{ $self->{ '_identifiable_features' } } ),
+                        ( map +( @{ $_ }, 1 ),
+                          ( values %{ $self->{ '_anonymous_features' } } ) ) ) {
+    $types{ $feature->type() }++;
+  }
+  if( $count ) {
+    return %types;
+  } else {
+    return keys %types;
+  }
+} # types(..)
+
 =head2 _insert_feature
 
  Title   : _insert_feature
@@ -339,6 +444,13 @@ sub remove_collection {
 sub _insert_feature {
   my $self = shift;
   my $feature = shift;
+
+  unless( defined( $feature ) ) {
+    $self->throw( "\$simple_collection_provider->_insert_feature( undef ): \$feature is undef!" );
+  }
+  unless( ref( $feature ) && $feature->isa( 'Bio::SeqFeatureI' ) ) {
+    $self->throw( "\$simple_collection_provider->_insert_feature( $feature ): \$feature is not a Bio::SeqFeatureI!" );
+  }
 
   if( defined( $feature->unique_id() ) ) {
     if( $self->{ '_identifiable_features' }{ $feature->unique_id() } ) {
@@ -385,6 +497,13 @@ sub _update_feature {
   my $self = shift;
   my $feature = shift;
 
+  unless( defined( $feature ) ) {
+    $self->throw( "\$simple_collection_provider->_update_feature( undef ): \$feature is undef!" );
+  }
+  unless( ref( $feature ) && $feature->isa( 'Bio::SeqFeatureI' ) ) {
+    $self->throw( "\$simple_collection_provider->_update_feature( $feature ): \$feature is not a Bio::SeqFeatureI!" );
+  }
+
   if( defined( $feature->unique_id() ) ) {
     if( $self->{ '_identifiable_features' }{ $feature->unique_id() } ) {
       $self->{ '_identifiable_features' }{ $feature->unique_id() } =
@@ -404,9 +523,9 @@ sub _update_feature {
            $i++
          ) {
         if(
-           ( $features_that_start_where_this_one_does[ $i ] == $feature )
+           ( $features_that_start_where_this_one_does->[ $i ] == $feature )
            ||
-           $features_that_start_where_this_one_does[ $i ]->equals( $feature )
+           $features_that_start_where_this_one_does->[ $i ]->equals( $feature )
           ) {
           $features_that_start_where_this_one_does = $feature;
           return 1;
@@ -434,6 +553,13 @@ sub _insert_or_update_feature {
   my $self = shift;
   my $feature = shift;
 
+  unless( defined( $feature ) ) {
+    $self->throw( "\$simple_collection_provider->_insert_or_update_feature( undef ): \$feature is undef!" );
+  }
+  unless( ref( $feature ) && $feature->isa( 'Bio::SeqFeatureI' ) ) {
+    $self->throw( "\$simple_collection_provider->_insert_or_update_feature( $feature ): \$feature is not a Bio::SeqFeatureI!" );
+  }
+
   if( defined( $feature->unique_id() ) ) {
     $self->{ '_identifiable_features' }{ $feature->unique_id() } =
       $feature;
@@ -449,9 +575,9 @@ sub _insert_or_update_feature {
            $i++
          ) {
         if(
-           ( $features_that_start_where_this_one_does[ $i ] == $feature )
+           ( $features_that_start_where_this_one_does->[ $i ] == $feature )
            ||
-           $features_that_start_where_this_one_does[ $i ]->equals( $feature )
+           $features_that_start_where_this_one_does->[ $i ]->equals( $feature )
           ) {
           $features_that_start_where_this_one_does = $feature;
           return 1;
@@ -481,9 +607,16 @@ sub _remove_feature {
   my $self = shift;
   my $feature = shift;
 
+  unless( defined( $feature ) ) {
+    $self->throw( "\$simple_collection_provider->_remove_feature( undef ): \$feature is undef!" );
+  }
+  unless( ref( $feature ) && $feature->isa( 'Bio::SeqFeatureI' ) ) {
+    $self->throw( "\$simple_collection_provider->_remove_feature( $feature ): \$feature is not a Bio::SeqFeatureI!" );
+  }
+
   if( defined( $feature->unique_id() ) ) {
     if( $self->{ '_identifiable_features' }{ $feature->unique_id() } ) {
-      $self->{ '_identifiable_features' }{ $feature->unique_id() } = undef;
+      delete $self->{ '_identifiable_features' }{ $feature->unique_id() };
       return 1;
     } else {
       return 0;
@@ -499,11 +632,11 @@ sub _remove_feature {
            $i++
          ) {
         if(
-           ( $features_that_start_where_this_one_does[ $i ] == $feature )
+           ( $features_that_start_where_this_one_does->[ $i ] == $feature )
            ||
-           $features_that_start_where_this_one_does[ $i ]->equals( $feature )
+           $features_that_start_where_this_one_does->[ $i ]->equals( $feature )
           ) {
-          slice( @$features_that_start_where_this_one_does, $i, 1 );
+          splice( @$features_that_start_where_this_one_does, $i, 1 );
           return 1;
         }
       }
@@ -513,6 +646,38 @@ sub _remove_feature {
     }
   }
 } # _remove_feature(..)
+
+=head2 toString
+
+ Title   : toString
+ Usage   : $str_val = $collection->toString()
+ Function: returns "A SimpleCollectionProvider.";
+ Returns : a String
+ Args    : None
+ Status  : Public
+
+  This method is a hack.
+
+=cut
+
+sub toString {
+  my $self = shift;
+
+  ## TODO: Dehackify
+  if( $self->isa( "Bio::SeqFeatureI" ) ) {
+    return Bio::SeqFeatureI::toString( $self );
+  }
+  return "A SimpleCollectionProvider.";
+} # toString()
+
+## method for overload for comparing two SimpleCollectionProvider objects.  Uses toString().
+sub _cmp {
+  my $self = shift;
+  my ( $b, $reversed ) = @_;
+  my $a = $self->toString();
+  ( $a, $b ) = ( $b, $a ) if $reversed;
+  return ( $a cmp $b );
+}
 
 1;
 
