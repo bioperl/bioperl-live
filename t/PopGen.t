@@ -19,7 +19,7 @@ BEGIN {
 	use lib 't';
     }
     use vars qw($NTESTS);
-    $NTESTS = 69;
+    $NTESTS = 72;
     $error = 0;
 
     use Test;
@@ -320,10 +320,10 @@ skip(sprintf("%.5f",Bio::PopGen::Statistics->fu_and_li_F_star(\@ingroup)),
 skip(sprintf("%.5f",Bio::PopGen::Statistics->fu_and_li_F_star($ingroup)),
    0.27834);
 
-ok(Bio::PopGen::Statistics->external_mutations(\@ingroup,\@outgroup), 1);
-ok(Bio::PopGen::Statistics->external_mutations($ingroup,\@outgroup), 1);
-ok(Bio::PopGen::Statistics->external_mutations(\@ingroup,$outgroup), 1);
-ok(Bio::PopGen::Statistics->external_mutations($ingroup,$outgroup), 1);
+ok((Bio::PopGen::Statistics->derived_mutations(\@ingroup,\@outgroup))[0], 1);
+ok((Bio::PopGen::Statistics->derived_mutations($ingroup,\@outgroup))[0], 1);
+ok((Bio::PopGen::Statistics->derived_mutations(\@ingroup,$outgroup))[0], 1);
+ok((Bio::PopGen::Statistics->derived_mutations($ingroup,$outgroup))[0], 1);
 
 # expect to have 1 external mutation
 ok(sprintf("%.5f",Bio::PopGen::Statistics->fu_and_li_D(\@ingroup,1)),0.75653);
@@ -344,3 +344,18 @@ skip(sprintf("%.5f",Bio::PopGen::Statistics->fu_and_li_F($ingroup,
 						       \@outgroup)),0.77499);
 skip(sprintf("%.5f",Bio::PopGen::Statistics->fu_and_li_F($ingroup,
 						       $outgroup)),0.77499);
+
+
+# Test composite LD
+
+my $io = new Bio::PopGen::IO(-format => 'prettybase',
+			     -file   => Bio::Root::IO->catfile
+			     (qw(t data compLD_test.prettybase)));
+
+my $pop = $io->next_population;
+
+my %LD = $stats->composite_LD($pop);
+
+ok($LD{'01'}->{'02'}, 10);
+ok($LD{'01'}->{'03'}, 0);
+ok($LD{'02'}->{'03'}, 0);
