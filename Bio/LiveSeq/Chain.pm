@@ -309,7 +309,7 @@ sub end {
 sub label_exists {
   my ($chain,$label)=@_;
   unless($chain) { cluck "no chain input"; return (-1); }
-  if ($chain->{$label}) { return (1); } else { return (0) };
+  if ($label && $chain->{$label}) { return (1); } else { return (0) };
 }
 
 
