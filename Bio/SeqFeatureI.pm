@@ -16,9 +16,9 @@ Bio::SeqFeatureI - Abstract interface of a Sequence Feature
 
 =head1 SYNOPSIS
 
-    # get a seqfeature somehow, eg,
+    # get a seqfeature somehow, eg, from a Sequence with Features attached
 
-    foreach $feat ( $seq->top_SeqFeatures() ) {
+    foreach $feat ( $seq->get_SeqFeatures() ) {
             print "Feature from ", $feat->start, "to ", 
 	          $feat->end, " Primary tag  ", $feat->primary_tag, 
 	          ", produced by ", $feat->source_tag(), "\n";
@@ -28,10 +28,14 @@ Bio::SeqFeatureI - Abstract interface of a Sequence Feature
             } else {
                 print "Feature on strand ", $feat->strand,"\n"; # -1,1
             }
-
-            foreach $tag ( $feat->all_tags() ) {
-		print "Feature has tag ", $tag, "with values, ",
-		      join(' ',$feat->each_tag_value($tag)), "\n";
+            print "feature location is ",$feat->start, "..",
+                  $feat->end, " on strand ", $feat->strand, "\n";
+            print "easy utility to print locations in GenBank/EMBL way ",
+                  $feat->location->to_FTstring(), "\n";
+            
+            foreach $tag ( $feat->get_all_tags() ) {
+		print "Feature has tag ", $tag, " with values, ",
+		      join(' ',$feat->get_tag_value($tag)), "\n";
             }
 	    print "new feature\n" if $feat->has_tag('new');
 	    # features can have sub features
@@ -42,7 +46,7 @@ Bio::SeqFeatureI - Abstract interface of a Sequence Feature
 
 This interface is the functions one can expect for any Sequence
 Feature, whatever its implementation or whether it is a more complex
-type (eg, a Gene). This object doesn\'t actually provide any
+type (eg, a Gene). This object does not actually provide any
 implemention, it just provides the definitions of what methods one can
 call. See Bio::SeqFeature::Generic for a good standard implementation
 of this object
