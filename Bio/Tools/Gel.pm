@@ -187,6 +187,13 @@ sub dilate {
   return $self->{dilate};
 }
 
+sub migrate {
+  my $self = shift;
+  my $arg  = shift;
+
+  return 4 - log10($arg);
+}
+
 =head2 bands
 
  Title   : bands
@@ -204,7 +211,7 @@ sub bands {
   my %bands = ();
 
   foreach my $band (@{$self->{bands}}){
-    my $distance = $self->dilate * (4 - log10($band->length));
+    my $distance = $self->dilate * migrate($band->length);
     $bands{$band->id} = $distance;
   }
 
