@@ -18,6 +18,7 @@ Bio::Index::Fasta - Interface for indexing (multiple) fasta files
     # Complete code for making an index for several
     # fasta files
     use Bio::Index::Fasta;
+    use strict;
 
     my $Index_File_Name = shift;
     my $inx = Bio::Index::Fasta->new(
@@ -28,6 +29,7 @@ Bio::Index::Fasta - Interface for indexing (multiple) fasta files
     # Print out several sequences present in the index
     # in Fasta format
     use Bio::Index::Fasta;
+    use strict;
 
     my $Index_File_Name = shift;
     my $inx = Bio::Index::Fasta->new('-filename' => $Index_File_Name);
@@ -40,13 +42,13 @@ Bio::Index::Fasta - Interface for indexing (multiple) fasta files
 
     # or, alternatively
 
-    my $seq = $inx->get_Seq_by_id($id); #identical to fetch   
+    my $seq = $inx->get_Seq_by_id($id); #identical to fetch
 
 =head1 DESCRIPTION
 
 Inherits functions for managing dbm files from Bio::Index::Abstract.pm,
 and provides the basic funtionallity for indexing fasta files, and
-retrieving the sequence from them. 
+retrieving the sequence from them. Note: for best results 'use strict'.
 
 Bio::Index::Fasta supports the Bio::DB::BioSeqI interface, meaning
 it can be used a a Sequence database for other parts of bioperl

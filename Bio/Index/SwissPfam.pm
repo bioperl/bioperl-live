@@ -17,6 +17,7 @@ Bio::Index::SwissPfam - Interface for indexing swisspfam files
 =head1 SYNOPSIS
 
     use Bio::Index::SwissPfam;
+    use strict;
 
     my $Index_File_Name = shift;
     my $inx = Bio::Index::SwissPfam->new('-filename' => $Index_File_Name, 
@@ -24,6 +25,7 @@ Bio::Index::SwissPfam - Interface for indexing swisspfam files
     $inx->make_index(@ARGV);
 
     use Bio::Index::SwissPfam;
+    use strict;
 
     my $Index_File_Name = shift;
     my $inx = Bio::Index::SwissPfam->new('-filename' => $Index_File_Name);
@@ -48,7 +50,8 @@ Inherits functions for managing dbm files from
 Bio::Index::Abstract.pm, and provides the basic funtionallity for
 indexing SwissPfam files.  Only retrieves FileStreams at the
 moment. Once we have something better (ie, an object!), will use
-that. Heavily snaffled from James Gilbert's Fasta system.
+that. Heavily snaffled from James Gilbert's Fasta system. Note: for
+best results 'use strict'.
 
 =head1 FEED_BACK
 

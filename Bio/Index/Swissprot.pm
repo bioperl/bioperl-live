@@ -20,6 +20,7 @@ Bio::Index::Swissprot - Interface for indexing (multiple) Swissprot
     # Complete code for making an index for several
     # Swissprot files
     use Bio::Index::Swissprot;
+    use strict;
 
     my $Index_File_Name = shift;
     my $inx = Bio::Index::Swissprot->new('-filename' => $Index_File_Name, 
@@ -30,6 +31,7 @@ Bio::Index::Swissprot - Interface for indexing (multiple) Swissprot
     # in gcg format
     use Bio::Index::Swissprot;
     use Bio::SeqIO;
+    use strict;
 
     my $out = Bio::SeqIO->new( '-format' => 'gcg', '-fh' => \*STDOUT );
     my $Index_File_Name = shift;
@@ -50,7 +52,7 @@ Bio::Index::Swissprot - Interface for indexing (multiple) Swissprot
 Inherits functions for managing dbm files from Bio::Index::Abstract.pm,
 and provides the basic funtionallity for indexing Swissprot files, and
 retrieving the sequence from them. Heavily snaffled from James Gilbert's
-Fasta system.
+Fasta system. Note: for best results 'use strict'.
 
 =head1 FEED_BACK
 

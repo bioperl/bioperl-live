@@ -16,6 +16,7 @@ Bio::Index::Blast - Indexes Blast reports and supports retrieval based on query 
 
 =head1 SYNOPSIS
 
+    use strict;
     use Bio::Index::Blast;
     my $index = new Bio::Index::Blast(-filename => $indexfile,
 				      -write_flag => 1);
@@ -37,6 +38,7 @@ Bio::Index::Blast - Indexes Blast reports and supports retrieval based on query 
 
 This object allows one to build an index on a blast file (or files)
 and provide quick access to the blast report for that accession.
+Note: for best results 'use strict'.
 
 =head1 FEEDBACK
 

@@ -17,6 +17,7 @@ Bio::Index::Fastq - Interface for indexing (multiple) fastq files
     # Complete code for making an index for several
     # fastq files
     use Bio::Index::Fastq;
+    use strict;
 
     my $Index_File_Name = shift;
     my $inx = Bio::Index::Fastq->new(
@@ -27,6 +28,7 @@ Bio::Index::Fastq - Interface for indexing (multiple) fastq files
     # Print out several sequences present in the index
     # in Fastq format
     use Bio::Index::Fastq;
+    use strict;
 
     my $Index_File_Name = shift;
     my $inx = Bio::Index::Fastq->new('-filename' => $Index_File_Name);
@@ -45,7 +47,7 @@ Bio::Index::Fastq - Interface for indexing (multiple) fastq files
 
 Inherits functions for managing dbm files from Bio::Index::Abstract.pm,
 and provides the basic funtionallity for indexing fastq files, and
-retrieving the sequence from them. 
+retrieving the sequence from them. Note: for best results 'use strict'.
 
 Bio::Index::Fastq supports the Bio::DB::BioSeqI interface, meaning
 it can be used as a Sequence database for other parts of bioperl

@@ -19,6 +19,7 @@ Bio::Index::GenBank - Interface for indexing (multiple) GenBank
     # Complete code for making an index for several
     # GenBank files
     use Bio::Index::GenBank;
+    use strict;
 
     my $Index_File_Name = shift;
     my $inx = Bio::Index::GenBank->new('-filename' => $Index_File_Name, 
@@ -29,6 +30,8 @@ Bio::Index::GenBank - Interface for indexing (multiple) GenBank
     # in gcg format
     use Bio::Index::GenBank;
     use Bio::SeqIO;
+    use strict;
+
     my $Index_File_Name = shift;
     my $inx = Bio::Index::GenBank->new('-filename' => $Index_File_Name);
     my $seqio = new Bio::SeqIO(-format => 'gcg');
@@ -47,7 +50,7 @@ Bio::Index::GenBank - Interface for indexing (multiple) GenBank
 Inherits functions for managing dbm files from Bio::Index::Abstract.pm,
 and provides the basic funtionallity for indexing GenBank files, and
 retrieving the sequence from them. Heavily snaffled from James Gilbert's
-Fasta system.
+Fasta system. Note: for best results 'use strict'.
 
 =head1 FEED_BACK
 

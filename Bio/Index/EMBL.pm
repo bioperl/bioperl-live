@@ -18,6 +18,7 @@ Bio::Index::EMBL - Interface for indexing (multiple) EMBL/Swissprot
     # Complete code for making an index for several
     # EMBL files
     use Bio::Index::EMBL;
+    use strict;
 
     my $Index_File_Name = shift;
     my $inx = Bio::Index::EMBL->new('-filename' => $Index_File_Name, 
@@ -27,6 +28,7 @@ Bio::Index::EMBL - Interface for indexing (multiple) EMBL/Swissprot
     # Print out several sequences present in the index
     # in Fasta format
     use Bio::Index::EMBL;
+    use strict;
 
     my $Index_File_Name = shift;
     my $inx = Bio::Index::EMBL->new('-filename' => $Index_File_Name);
@@ -40,14 +42,14 @@ Bio::Index::EMBL - Interface for indexing (multiple) EMBL/Swissprot
     # alternatively
 
     my $seq1 = $inx->get_Seq_by_id($id);
-    my $seq2 = $inx->get_Seq_by_acc($acc);   
+    my $seq2 = $inx->get_Seq_by_acc($acc);
 
 =head1 DESCRIPTION
 
 Inherits functions for managing dbm files from Bio::Index::Abstract.pm,
 and provides the basic funtionallity for indexing EMBL files, and
 retrieving the sequence from them. Heavily snaffled from James Gilbert's
-Fasta system.
+Fasta system. Note: for best results 'use strict'.
 
 =head1 FEED_BACK
 
