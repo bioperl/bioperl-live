@@ -174,8 +174,13 @@ sub get_Alleles{
     if( $showblank ) {
 	return @{$self->{'_alleles'} || []};
     } else {
+	return @{$self->{'_cached_noblank'}} 
+	   if( defined $self->{'_cached_noblank'} );
+	    
 	# one liners - woo hoo.
-	return grep { ! /^\s*$BlankAlleles\s*$/oi } @{$self->{'_alleles'} || []};
+	$self->{'_cached_noblank'} = [ grep { ! /^\s*$BlankAlleles\s*$/oi } 
+				       @{$self->{'_alleles'} || []}];
+	return @{$self->{'_cached_noblank'}};
     }
 }
 
@@ -195,6 +200,7 @@ sub get_Alleles{
 
 sub add_Allele {
     my ($self,@alleles) = @_;
+    $self->{'_cached_noblank'} = undef;
     push @{$self->{'_alleles'}}, @alleles;
     return scalar @{$self->{'_alleles'}};
 }
@@ -212,6 +218,7 @@ sub add_Allele {
 
 sub reset_Alleles{
    my ($self,@args) = @_;
+   $self->{'_cached_noblank'} = undef;
    $self->{'_alleles'} = [];
    return 0;
 }
