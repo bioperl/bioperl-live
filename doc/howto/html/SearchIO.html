@@ -29,7 +29,7 @@ BioPerl DocBook
 	goes about writing new adaptors to different output formats.  We will
 	also describe how the Bio::SearchIO::Writer modules work for outputting
 	various formats from Bio::Search objects.
-      </p></div></div></div><div></div><hr></div><div class="toc"><p><b>Table of Contents</b></p><dl><dt>1. <a href="#background">Background</a></dt><dt>2. <a href="#design">Design</a></dt><dt>3. <a href="#use">Parsing with Bio::SearchIO</a></dt><dt>4. <a href="#creating-reports">Creating Reports for SearchIO</a></dt><dt>5. <a href="#implementation">Implementation</a></dt><dt>6. <a href="#outputting">Writing and formatting output</a></dt><dt>7. <a href="#extending">Extending SearchIO</a></dt><dt>8. <a href="#links">Useful links</a></dt></dl></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="background"></a>1.&nbsp;Background</h2></div></div><div></div></div><p>
+      </p></div></div></div><div></div><hr></div><div class="toc"><p><b>Table of Contents</b></p><dl><dt>1. <a href="#background">Background</a></dt><dt>2. <a href="#design">Design</a></dt><dt>3. <a href="#use">Parsing with Bio::SearchIO</a></dt><dt>4. <a href="#creating-reports">Creating Reports for SearchIO</a></dt><dt>5. <a href="#implementation">Implementation</a></dt><dt>6. <a href="#outputting">Writing and formatting output</a></dt><dt>7. <a href="#extending">Extending SearchIO</a></dt><dt>8. <a href="#lightweight">Lightweight Objects</a></dt><dt>9. <a href="#links">Useful links</a></dt></dl></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="background"></a>1.&nbsp;Background</h2></div></div><div></div></div><p>
       One of the most common and necessary tasks in bioinformatics is
       parsing analysis reports so that one can write programs which can
       help interpret the sheer volume of data that can be produced by
@@ -48,9 +48,9 @@ BioPerl DocBook
       WU-BLAST and NCBI-BLAST output, they did not adequately
       genericize what they were doing.  By this we mean everything was
       written around the BLAST format and was not easily applicable to
-      parsing say, FastA alignments or a new alignment format.  One of
+      parsing, say, FastA alignments or a new alignment format.  One of
       the powerful features of the Object-Oriented framework in Bioperl
-      is the ability to read in say, a sequence file, in different
+      is the ability to read in, say, a sequence file in different
       formats or from different data sources like a database or
       XML-flatfile, and have the program code process the sequences
       objects in the same manner.  We wanted to have this capability in
@@ -352,7 +352,9 @@ S1: 32 (17.6 bits)
       when you hit the end of the report an end event is thrown.  So
       the report events are paired, and everything else that is thrown
       in between the paired start and end events is related to that
-      report.  Another way to think of it is as if you pick a number
+      report.  
+	 </p><p>
+		Another way to think of it is as if you pick a number
       and color for a card in a standard deck.  Let's say you pick red
       and 2.  The you start dealing cards from our deck and pile them
       one on top of each other.  When you see your first red 2 you
@@ -407,7 +409,7 @@ S1: 32 (17.6 bits)
       distribution handy you can navigate this at the bioperl <a href="http://cvs.open-bio.org/cgi-bin/viewcvs/viewcvs.cgi/bioperl-live/Bio/SearchIO/?cvsroot=bioperl" target="_top">CVS web page</a>.  
     </p><p>
       Let's use the blast.pm module as an example to describe the
-      relationship of the modules in this dir (could have substituted
+      relationship of the modules in this directory (could have substituted
       any of the other format parsers like fasta.pm or blastxml.pm -
       these are always lowercase for historical reasons).  The module
       has some features you should look for - the first is the hash in
@@ -425,7 +427,7 @@ S1: 32 (17.6 bits)
       a hash value in the subsequent object (in this example, keyed by
       the name 'dbentries').  The capital "RESULT", "HSP", or "HIT" in
       the value name allow us to encode the event state in the event so
-      we don't have to pass in two values.  It also easy for someone to
+      we don't have to pass in two values.  It is also easy for someone to
       quickly read the list of events and know which ones are related
       to Hits and which ones are related to HSPs.  The listener in our
       architecture is the <a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SearchIO/SearchResultEventBuilder.html" target="_top">Bio::SearchIO::SearchResultEventBuilder</a>.
@@ -435,8 +437,9 @@ S1: 32 (17.6 bits)
       method add_EventListener.  In fact you could have multiple event
       listeners and they could do different things.  In our case we
       want to create Bio::Search objects, but an event listener could
-      just as easily be propagating data directly into a database based
-      on the events.  The SearchResultEventBuilder takes the events
+      just as easily be writing data directly into a database or
+		writing to a file, based on the events.  The
+		SearchResultEventBuilder takes the events
       thrown by the SearchIO classes and builds the appropriate
       Bio::Search::HSP object from it.
     </p><p>
@@ -452,20 +455,21 @@ S1: 32 (17.6 bits)
       most comfortable with that output or if you want to visualize the
       context of a weakly aligned region to use human intuition to score
       the confidence of a putative homologue. The
-      Bio::SearchIO::Writer modules are for outputting the
+      Bio::SearchIO::Writer modules are for creating output using the
       information.
     </p><p>
-      Bio::SearchIO::Writer currently creates output in 4 formats:
-      text (recreating something like the BLAST report itself, in part or
-      entirely), HTML, BSML, and "ResultTable", which is a
-      tab-delimited format.
+      Bio::SearchIO::Writer currently creates output in a few
+		different formats: text (recreating something like the BLAST 
+		report itself, in part or entirely), HTML, BSML, "ResultTable" 
+		(tab-delimited format), "HSPTable" (tab-delimited, for HSPs),
+		and Gbrowse GFF.
     </p><p>
       The simplest way to output data in HTML format is as follows.
     </p><p>
       <pre class="programlisting">
    my $writerhtml = new Bio::SearchIO::Writer::HTMLResultWriter();
    my $outhtml = new Bio::SearchIO(-writer =&gt; $writerhtml,
-				   -file   =&gt; "&gt;searchio.html");
+				                       -file   =&gt; "&gt;searchio.html");
    # get a result from Bio::SearchIO parsing or build it up in memory
    $outhtml-&gt;write_result($result);
       </pre>
@@ -585,7 +589,58 @@ $searchio-&gt;_eventHandler-&gt;register_factory('hit', $hitfact);
       to be as efficient in parsing as we would like.  Future work will
       hopefully address speed and memory issues with this parser.
       Volunteers and improvement code are always welcome.
-    </p></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="links"></a>8.&nbsp;Useful links</h2></div></div><div></div></div><p>
+    </p></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="lightweight"></a>8.&nbsp;Lightweight Objects</h2></div></div><div></div></div><p>
+		The approaches described above will create a lot of objects, one for 
+		each of the components of a report. When you have 2000 hits in a
+		BLASTX result there will be quite a few objects built, and a lot of 
+		memory consumed. It may be that you will need to use an approach 
+		that's less memory-intensive if your result sets are large. One 
+		option is to use the tabular output from BLAST when dealing with 
+		large datasets.
+	 </p><p>
+		There are other workarounds depending on what kind of data you 
+		want. We designed SearchIO to be a modular system which separates 
+		parsing the data from instantiating objects by throwing events (like 
+		SAX) and having a listener build objects from these events.  One can 
+		instantiate a different listener which builds simpler objects
+		and throws away the data you don't want.
+	 </p><p>
+		Here is an example of how you can use an existing, lightweight
+		listener - FastHitEventBuilder - which just throws away the HSPs 
+		and only builds Result and Hit objects.
+	 </p><p>
+		<pre class="programlisting">
+		  use Bio::SearchIO;
+		  use Bio::SearchIO::FastHitEventBuilder;
+
+		  my $searchio = new Bio::SearchIO(-format =&gt; $format, -file =&gt; $file);
+
+		  $searchio-&gt;attach_EventHandler(new 
+		  Bio::SearchIO::FastHitEventBuilder);
+
+		  while( my $r = $searchio-&gt;next_result ) {
+		    while( my $h = $r-&gt;next_hit ) {
+		      # Hits will NOT have HSPs
+		      print $h-&gt;significance,"\n";
+		    }
+		  }
+		</pre>
+	 </p><p>
+		You could also build your own listener object - 
+		SearchResultEventBuilder and FastHitEventBuilder are 
+		2 example implementations that specify the type of 
+		Result/Hit/HSP objects that are created by the listeners.  
+		You could creating some lightweight Hit and HSP 
+		objects and have SearchResultEventBuilder create these instead
+		of the default full-fledged ones.
+	 </p><p>
+		The whole parser/listener design assumes that you want to process 
+		all the data for a result before moving on to the next one. 
+		From the listener's standpoint this means you have to store all the 
+		data you just got from the parser. Whether this is in memory, or 
+		potentially stored in a temporary file or database, would be up 
+		to the implementation.
+	 </p></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="links"></a>9.&nbsp;Useful links</h2></div></div><div></div></div><p>
       <span class="emphasis"><em>SearchIO Modules</em></span>
       <table class="simplelist" border="0" summary="Simple list"><tr><td><a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SearchIO.html" target="_top">
 	    SearchIO.pm</a></td></tr><tr><td><a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SearchIO/axt.html" target="_top">SearchIO/axt.pm</a></td></tr><tr><td><a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SearchIO/blast.html" target="_top">SearchIO/blast.pm</a></td></tr><tr><td><a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SearchIO/blasttable.html" target="_top">SearchIO/blasttable.pm</a></td></tr><tr><td><a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SearchIO/blastxml.html" target="_top">SearchIO/blastxml.pm</a></td></tr><tr><td><a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SearchIO/EventHandlerI.html" target="_top">SearchIO/EventHandlerI.pm</a></td></tr><tr><td><a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SearchIO/exonerate.html" target="_top">SearchIO/exonerate.pm</a></td></tr><tr><td><a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SearchIO/fasta.html" target="_top">SearchIO/fasta.pm</a></td></tr><tr><td><a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SearchIO/FastHitEventBuilder.html" target="_top">SearchIO/FastHitEventBuilder.pm</a></td></tr><tr><td><a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SearchIO/hmmer.html" target="_top">SearchIO/hmmer.pm</a></td></tr><tr><td><a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SearchIO/IteratedSearchResultEventBuilder.html" target="_top">SearchIO/IteratedSearchResultEventBuilder.pm</a></td></tr><tr><td><a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SearchIO/megablast.html" target="_top">SearchIO/megablast.pm</a></td></tr><tr><td><a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SearchIO/psl.html" target="_top">SearchIO/psl.pm</a></td></tr><tr><td><a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SearchIO/SearchResultEventBuilder.html" target="_top">SearchIO/SearchResultEventBuilder.pm</a></td></tr><tr><td><a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SearchIO/SearchWriterI.html" target="_top">SearchIO/SearchWriterI.pm</a></td></tr><tr><td><a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SearchIO/sim4.html" target="_top">SearchIO/sim4.pm</a></td></tr><tr><td><a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SearchIO/waba.html" target="_top">SearchIO/waba.pm</a></td></tr><tr><td><a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SearchIO/wise.html" target="_top">SearchIO/wise.pm</a></td></tr><tr><td><a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SearchIO/Writer/BSMLResultWriter.html" target="_top">SearchIO/Writer/BSMLResultWriter.pm</a></td></tr><tr><td><a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SearchIO/Writer/GbrowseGFF.html" target="_top">SearchIO/Writer/GbrowseGFF.pm</a></td></tr><tr><td><a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SearchIO/Writer/HitTableWriter.html" target="_top">SearchIO/Writer/HitTableWriter.pm</a></td></tr><tr><td><a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SearchIO/Writer/HSPTableWriter.html" target="_top">SearchIO/Writer/HSPTableWriter.pm</a></td></tr><tr><td><a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SearchIO/Writer/HTMLResultWriter.html" target="_top">SearchIO/Writer/HTMLResultWriter.pm</a></td></tr><tr><td><a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SearchIO/Writer/ResultTableWriter.html" target="_top">SearchIO/Writer/ResultTableWriter.pm</a></td></tr><tr><td><a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SearchIO/Writer/TextResultWriter.html" target="_top">SearchIO/Writer/TextResultWriter.pm</a></td></tr><tr><td><a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/BlastUtils.html" target="_top">Search/BlastUtils.pm</a></td></tr><tr><td><a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/DatabaseI.html" target="_top">Search/DatabaseI.pm</a></td></tr><tr><td><a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/GenericDatabase.html" target="_top">Search/GenericDatabase.pm</a></td></tr><tr><td><a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/Hit/BlastHit.html" target="_top">Search/Hit/BlastHit.pm</a></td></tr><tr><td><a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/Hit/Fasta.html" target="_top">Search/Hit/Fasta.pm</a></td></tr><tr><td><a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/Hit/GenericHit.html" target="_top">Search/Hit/GenericHit.html"&gt;Search/Hit/GenericHit.pm</a></td></tr><tr><td><a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/Hit/HitFactory.html" target="_top">Search/Hit/HitFactory.pm</a></td></tr><tr><td><a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/Hit/HitI.html" target="_top">Search/Hit/HitI.pm</a></td></tr><tr><td><a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/Hit/HMMERHit.html" target="_top">Search/Hit/HMMERHit.pm</a></td></tr><tr><td><a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/Hit/PsiBlastHit.html" target="_top">Search/Hit/PsiBlastHit.pm</a></td></tr><tr><td><a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/HSP/BlastHSP.html" target="_top">Search/HSP/BlastHSP.pm</a></td></tr><tr><td><a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/HSP/FastaHSP.html" target="_top">Search/HSP/FastaHSP.pm</a></td></tr><tr><td><a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/HSP/GenericHSP.html" target="_top">Search/HSP/GenericHSP.pm</a></td></tr><tr><td><a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/HSP/HMMERHSP.html" target="_top">Search/HSP/HMMERHSP.pm</a></td></tr><tr><td><a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/HSP/HSPFactory.html" target="_top">Search/HSP/HSPFactory.pm</a></td></tr><tr><td><a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/HSP/HSPI.html" target="_top">Search/HSP/HSPI.pm</a></td></tr><tr><td><a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/HSP/PsiBlastHSP.html" target="_top">Search/HSP/PsiBlastHSP.pm</a></td></tr><tr><td><a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/HSP/PSLHSP.html" target="_top">Search/HSP/PSLHSP.pm</a></td></tr><tr><td><a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/HSP/WABAHSP.html" target="_top">Search/HSP/WABAHSP.pm</a></td></tr><tr><td><a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/Iteration/GenericIteration.html" target="_top">Search/Iteration/GenericIteration.pm</a></td></tr><tr><td><a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/Iteration/IterationI.html" target="_top">Search/Iteration/IterationI</a></td></tr><tr><td><a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/Processor.html" target="_top">Search/Processor.pm</a></td></tr><tr><td><a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/Result/BlastResult.html" target="_top">Search/Result/BlastResult.pm</a></td></tr><tr><td><a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/Result/GenericResult.html" target="_top">Search/Result/GenericResult.pm</a></td></tr><tr><td><a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/Result/HMMERResult.html" target="_top">Search/Result/HMMERResult.pm</a></td></tr><tr><td><a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/Result/ResultFactory.html" target="_top">Search/Result/ResultFactory.pm</a></td></tr><tr><td><a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/Result/ResultI.html" target="_top">Search/Result/ResultI.pm</a></td></tr><tr><td><a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/Result/WABAResult.html" target="_top">Search/Result/WABAResult.pm</a></td></tr><tr><td><a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/SearchUtils.html" target="_top">Search/SearchUtils.pm</a></td></tr><tr><td><a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/BlastStatistics.html" target="_top">Search/BlastStatistics.pm</a></td></tr><tr><td><a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/GenericStatistics.html" target="_top">Search/GenericStatistics.pm</a></td></tr><tr><td><a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/StatisticsI.html" target="_top">Search/StatisticsI.pm</a></td></tr></table>

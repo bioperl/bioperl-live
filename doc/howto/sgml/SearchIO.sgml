@@ -124,9 +124,9 @@
       WU-BLAST and NCBI-BLAST output, they did not adequately
       genericize what they were doing.  By this we mean everything was
       written around the BLAST format and was not easily applicable to
-      parsing say, FastA alignments or a new alignment format.  One of
+      parsing, say, FastA alignments or a new alignment format.  One of
       the powerful features of the Object-Oriented framework in Bioperl
-      is the ability to read in say, a sequence file, in different
+      is the ability to read in, say, a sequence file in different
       formats or from different data sources like a database or
       XML-flatfile, and have the program code process the sequences
       objects in the same manner.  We wanted to have this capability in
@@ -870,7 +870,10 @@ S1: 32 (17.6 bits)
       when you hit the end of the report an end event is thrown.  So
       the report events are paired, and everything else that is thrown
       in between the paired start and end events is related to that
-      report.  Another way to think of it is as if you pick a number
+      report.  
+	 </para>
+	 <para>
+		Another way to think of it is as if you pick a number
       and color for a card in a standard deck.  Let's say you pick red
       and 2.  The you start dealing cards from our deck and pile them
       one on top of each other.  When you see your first red 2 you
@@ -930,7 +933,7 @@ S1: 32 (17.6 bits)
     </para>
     <para>
       Let's use the blast.pm module as an example to describe the
-      relationship of the modules in this dir (could have substituted
+      relationship of the modules in this directory (could have substituted
       any of the other format parsers like fasta.pm or blastxml.pm -
       these are always lowercase for historical reasons).  The module
       has some features you should look for - the first is the hash in
@@ -948,7 +951,7 @@ S1: 32 (17.6 bits)
       a hash value in the subsequent object (in this example, keyed by
       the name 'dbentries').  The capital "RESULT", "HSP", or "HIT" in
       the value name allow us to encode the event state in the event so
-      we don't have to pass in two values.  It also easy for someone to
+      we don't have to pass in two values.  It is also easy for someone to
       quickly read the list of events and know which ones are related
       to Hits and which ones are related to HSPs.  The listener in our
       architecture is the <ulink
@@ -960,8 +963,9 @@ S1: 32 (17.6 bits)
       method add_EventListener.  In fact you could have multiple event
       listeners and they could do different things.  In our case we
       want to create Bio::Search objects, but an event listener could
-      just as easily be propagating data directly into a database based
-      on the events.  The SearchResultEventBuilder takes the events
+      just as easily be writing data directly into a database or
+		writing to a file, based on the events.  The
+		SearchResultEventBuilder takes the events
       thrown by the SearchIO classes and builds the appropriate
       Bio::Search::HSP object from it.
     </para>
@@ -983,14 +987,15 @@ S1: 32 (17.6 bits)
       most comfortable with that output or if you want to visualize the
       context of a weakly aligned region to use human intuition to score
       the confidence of a putative homologue. The
-      Bio::SearchIO::Writer modules are for outputting the
+      Bio::SearchIO::Writer modules are for creating output using the
       information.
     </para>
     <para>
-      Bio::SearchIO::Writer currently creates output in 4 formats:
-      text (recreating something like the BLAST report itself, in part or
-      entirely), HTML, BSML, and "ResultTable", which is a
-      tab-delimited format.
+      Bio::SearchIO::Writer currently creates output in a few
+		different formats: text (recreating something like the BLAST 
+		report itself, in part or entirely), HTML, BSML, "ResultTable" 
+		(tab-delimited format), "HSPTable" (tab-delimited, for HSPs),
+		and Gbrowse GFF.
     </para>
     <para>
       The simplest way to output data in HTML format is as follows.
@@ -999,7 +1004,7 @@ S1: 32 (17.6 bits)
       <programlisting>
    my $writerhtml = new Bio::SearchIO::Writer::HTMLResultWriter();
    my $outhtml = new Bio::SearchIO(-writer => $writerhtml,
-				   -file   => ">searchio.html");
+				                       -file   => ">searchio.html");
    # get a result from Bio::SearchIO parsing or build it up in memory
    $outhtml->write_result($result);
       </programlisting>
@@ -1137,6 +1142,67 @@ $searchio->_eventHandler->register_factory('hit', $hitfact);
       hopefully address speed and memory issues with this parser.
       Volunteers and improvement code are always welcome.
     </para>
+  </section>
+
+  <section id="lightweight">
+	 <title>Lightweight Objects</title>
+	 <para>
+		The approaches described above will create a lot of objects, one for 
+		each of the components of a report. When you have 2000 hits in a
+		BLASTX result there will be quite a few objects built, and a lot of 
+		memory consumed. It may be that you will need to use an approach 
+		that's less memory-intensive if your result sets are large. One 
+		option is to use the tabular output from BLAST when dealing with 
+		large datasets.
+	 </para>
+	 <para>
+		There are other workarounds depending on what kind of data you 
+		want. We designed SearchIO to be a modular system which separates 
+		parsing the data from instantiating objects by throwing events (like 
+		SAX) and having a listener build objects from these events.  One can 
+		instantiate a different listener which builds simpler objects
+		and throws away the data you don't want.
+	 </para>
+	 <para>
+		Here is an example of how you can use an existing, lightweight
+		listener - FastHitEventBuilder - which just throws away the HSPs 
+		and only builds Result and Hit objects.
+	 </para>
+	 <para>
+		<programlisting>
+		  use Bio::SearchIO;
+		  use Bio::SearchIO::FastHitEventBuilder;
+
+		  my $searchio = new Bio::SearchIO(-format => $format, -file => $file);
+
+		  $searchio->attach_EventHandler(new 
+		  Bio::SearchIO::FastHitEventBuilder);
+
+		  while( my $r = $searchio->next_result ) {
+		    while( my $h = $r->next_hit ) {
+		      # Hits will NOT have HSPs
+		      print $h->significance,"\n";
+		    }
+		  }
+		</programlisting>
+	 </para>
+	 <para>
+		You could also build your own listener object - 
+		SearchResultEventBuilder and FastHitEventBuilder are 
+		2 example implementations that specify the type of 
+		Result/Hit/HSP objects that are created by the listeners.  
+		You could creating some lightweight Hit and HSP 
+		objects and have SearchResultEventBuilder create these instead
+		of the default full-fledged ones.
+	 </para>
+	 <para>
+		The whole parser/listener design assumes that you want to process 
+		all the data for a result before moving on to the next one. 
+		From the listener's standpoint this means you have to store all the 
+		data you just got from the parser. Whether this is in memory, or 
+		potentially stored in a temporary file or database, would be up 
+		to the implementation.
+	 </para>
   </section>
 
   <section id="links">
