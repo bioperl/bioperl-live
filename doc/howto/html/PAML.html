@@ -1,0 +1,253 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"><head><title>Bio::Tools::Phylo::PAML HOWTO</title><link rel="stylesheet" href="e-novative.css" type="text/css"/><meta name="generator" content="DocBook XSL Stylesheets V1.55.0"/><meta name="description" content="&#xA;	paml is a package of C programs that implement&#xA;	Phylogenetic&#xA;	Analyses using&#xA;	Maximum&#xA;	Likelihood, written by Dr. Ziheng Yang,&#xA;	University College London.  These programs implement a wide&#xA;	variety of models to explore the evolutionary relationships&#xA;	between sequences at either the protein, codon or raw DNA&#xA;	level.  This document's aim is to explore and document how the&#xA;	BioPerl paml parser and result objects &#34;work&#34;.&#xA;"/></head><body><div class="article"><div class="titlepage"><div><h1 class="title"><a id="d3e1"/>Bio::Tools::Phylo::PAML HOWTO</h1></div><div><div class="author"><h3 class="author">Aaron Mackey</h3><div class="affiliation"><span class="orgname">
+			<a href="http://www.virginia.edu" target="_top">University of Virginia</a>
+		<br/></span><div class="address"><p>
+			<tt>&lt;<a href="mailto:amackey@virginia.edu">amackey@virginia.edu</a>&gt;</tt>
+		</p></div></div></div></div><div><div class="author"><h3 class="author">Jason Stajich</h3><div class="affiliation"><span class="orgname"><a href="http://www.duke.edu" target="_top">Duke
+	University</a><br/></span><span class="orgdiv"><a href="http://upg.duke.edu" target="_top">University Program in Genetics</a><br/></span><span class="orgdiv"><a href="http://cgt.genetics.duke.edu" target="_top">Center for
+	Genome Technology</a><br/></span><div class="address"><p>
+	  Duke University Medical Center
+	  Box 3568
+	  Durham, 
+	  North Carolina 
+	  27710-3568 
+	  USA
+	  <tt>&lt;<a href="mailto:jason-at-bioperl.org">jason-at-bioperl.org</a>&gt;</tt>
+        </p></div></div></div></div><div><div class="legalnotice"><p>
+	This document is copyright Aaron Mackey, 2002.  For
+	reproduction other than personal use please contact me at
+	amackey@virginia.edu
+</p></div></div><div><p class="pubdate">2002-08-01</p></div><div><div class="revhistory"><table border="1" width="100%" summary="Revision history"><tr><th align="left" valign="top" colspan="3"><b>Revision History</b></th></tr><tr><td align="left">Revision 0.1</td><td align="left">2002-08-01</td><td align="left">ajm</td></tr><tr><td align="left" colspan="3">first draft</td></tr><tr><td align="left">Revision 0.2</td><td align="left">2003-03-01</td><td align="left">jes</td></tr><tr><td align="left" colspan="3">Added pairwise Ka,Ks example code and running code</td></tr></table></div></div><div><div class="abstract"><p class="title"><b>Abstract</b></p><p>
+	<span class="emphasis"><em>paml</em></span> is a package of C programs that implement
+	<span class="emphasis"><em>P</em></span>hylogenetic
+	<span class="emphasis"><em>A</em></span>nalyses using
+	<span class="emphasis"><em>M</em></span>aximum
+	<span class="emphasis"><em>L</em></span>ikelihood, written by Dr. Ziheng Yang,
+	University College London.  These programs implement a wide
+	variety of models to explore the evolutionary relationships
+	between sequences at either the protein, codon or raw DNA
+	level.  This document's aim is to explore and document how the
+	BioPerl <span class="emphasis"><em>paml</em></span> parser and result objects "work".
+</p></div></div><hr/></div><div class="toc"><p><b>Table of Contents</b></p><dl><dt>1. <a href="#background">Background</a></dt><dt>2. <a href="#results">Accessing paml results</a></dt><dt>3. <a href="#running">Running PAML from within Bioperl</a></dt></dl></div><div class="section"><div class="titlepage"><div><h2 class="title" style="clear: both"><a id="background"/>1. Background</h2></div></div><p>
+	The <span class="emphasis"><em>paml</em></span> package consists of many different executable
+	programs, but the BioPerl Bio::Tools::Phylo::PAML object
+	(hereafter referred to as simply <span class="emphasis"><em>the</em></span> <span class="emphasis"><em>paml</em></span>
+	object) focuses on dealing with the output of the main
+	analysis programs "baseml", "codeml" (sometimes called "aaml")
+	and "codemlsites" (a batch version of "codeml").  All of these
+	programs use maximum likelihood methods to fit a mathematical
+	model of evolution to sequence data provided by the user.  The
+	main difference between these programs is the type of sequence
+	on which they operate (baseml for raw DNA, codeml for DNA
+	organized as codons, aaml for amino acids).
+</p><p>
+	While the general maximum likelihood approach used by the <span class="emphasis"><em>paml</em></span>
+	programs is the same for all of them, the specific
+	evolutionary models available for each sequence type vary
+	greatly, as do the parameters specific to each model.  The
+	programs function in a handful of disparate modes, each
+	requiring slight variations of inputs that can possibly
+	include:
+
+	<div class="orderedlist"><ol type="1"><li><p>
+	multiply-aligned sequences. representing 1 or more distinct
+	genes [ <span class="emphasis"><em>paml</em></span> parameter <span class="emphasis"><em>Mgene</em></span> = 1 ], in 1
+	or more distinct datasets [ <span class="emphasis"><em>paml</em></span> <span class="emphasis"><em>ndata</em></span>
+	&gt; 1 ])
+	</p></li><li><p>
+	a user-provided tree topology (or multiple tree topologies to
+	be evaluated and contrasted)
+	</p></li><li><p>
+	a set of instructions in a control file that specify the model
+	(or models) to be used, various options to specify how to
+	handle the sequence data (e.g. whether to dismiss columns with
+	gaps or not [ <span class="emphasis"><em>cleandata</em></span> = 1 ]), initial
+	or fixed values for model parameters, and the filenames for
+	other input data.
+	</p></li></ol></div>
+
+	The output from <span class="emphasis"><em>paml</em></span> is directed to multiple "targets": data
+	is written to the user-specified primary output file
+	(conventionally named with an .mlc extension), as well as
+	various accessory files with fixed names
+	(e.g. <tt>2ML.t</tt>, <tt>2ML.dN</tt>,
+	<tt>2ML.dS</tt> for pairwise Maximum Likelihood
+	calculations) that appear in the same directory that the
+	output file is found.
+</p><p>
+	The upshot of these comments is that one <span class="emphasis"><em>paml</em></span> program "run"
+	can potentially generate results for many genes, many
+	datasets, many tree toplogies and many evolutionary models,
+	spread across multiple output files.  Currently, the <span class="emphasis"><em>paml</em></span>
+	programs deal with the various categories of multiple analyses
+	in the following "top-down" order: datasets, genes, models,
+	tree topologies.  So how shall the BioPerl <span class="emphasis"><em>paml</em></span> module treat
+	these sources of multiple results?
+</p></div><div class="section"><div class="titlepage"><div><h2 class="title" style="clear: both"><a id="results"/>2. Accessing <span class="emphasis"><em>paml</em></span> results</h2></div></div><p>
+	The BioPerl <span class="emphasis"><em>paml</em></span> result parser takes the view that a distinct
+	"recordset" or single, top-level PAML::Result object
+	represents a single <span class="emphasis"><em>dataset</em></span>.  Each
+	PAML::Result object may therefore contain data from multiple
+	genes, models, and/or tree topologies.  To parse the output
+	from a multiple-dataset <span class="emphasis"><em>paml</em></span> run, the familiar "next_result"
+	iterator common to other BioPerl modules is invoked.
+
+<div class="example"><a id="nextres"/><p class="title"><b>Example 1. Iterating over results with next_result</b></p><pre class="programlisting">
+use Bio::Tools::Phylo::PAML;
+
+my $parser = new Bio::Tools::Phylo::PAML (-file =&gt; "./output.mlc",
+                                          -dir  =&gt; "./",
+                                          -ctlf =&gt; "./codeml.ctl");
+
+while(my $result = $parser-&gt;next_result) {
+    # do something with the results from this dataset ...
+}
+</pre></div>
+
+	In this example, we've created a new top-level <span class="emphasis"><em>paml</em></span> parser,
+	specifying <span class="emphasis"><em>paml</em></span>'s primary output file, the directory in which
+	any other accessory files may be found, and the control file.
+	We then trigger the parser to begin parsing the data,
+	returning a new PAML::Result object for each dataset found in
+	the output.
+</p><p>
+	The PAML::Result object provides access to the wide variety of
+	data found in the output files.  The specific kinds of data
+	available depends on which <span class="emphasis"><em>paml</em></span> analysis program was run,
+	and the mode and models employed.  Generally, these include a
+	recapitulation of the input sequences and their multiple
+	alignment (which may differ slightly from the original input
+	sequences due to the data "cleansing" <span class="emphasis"><em>paml</em></span> performs),
+	descriptive statistics of the input sequences (e.g. codon
+	usage tables, nucleotide or amino acid composition), pairwise
+	Nei and Gojobori (NG) calculation matrices (for codon models),
+	fitted model parameter values (including branch-specific
+	parameters associated with any provided tree topology),
+	reconstructed ancestral sequences (again, associated with an
+	accompanying tree topology), or statistical comparisons of
+	multiple tree topologies.
+</p></div><div class="section"><div class="titlepage"><div><h2 class="title" style="clear: both"><a id="running"/>3. Running PAML from within Bioperl</h2></div></div><p>
+
+       Bioperl also has facilities for runnning <span class="emphasis"><em>paml</em></span> from within a
+       Perl script.  This allows you to compute Ka and Ks estimations
+       from within an analysis pipeline.  The following section will
+       describe the process of getting data into Bioperl, running the
+       alignment process, and setting up a <span class="emphasis"><em>paml</em></span> process.  This code
+       is focusing on estimations of all the pairwise Ka and Ks values
+       however it can be used to easily compute more sophisticated
+       questions about variable rates, etc. 
+              
+</p><p>
+
+       This code below is an excerpt from 
+       scripts/utilities/pairwise_kaks.PLS which will calculate all
+       pairwise Ka,Ks values for a set of cDNA sequences stored in a
+       file.  It will first translate the cDNA into protein and align
+       the protein sequences.  This is a simple way to insure gaps
+       only occur at codon boundaries and amino acid substitution
+       rates are applied when calculating the MSA.  The protein
+       alignment is them projected back into cDNA coordinates using a
+       method called aa_to_dna_aln.  Finally the cDNA alignment is
+       provided to a <span class="emphasis"><em>paml</em></span> executing module which sets up the running
+       parameters and converts the alignment to the appropriate format.
+
+ 
+<pre class="programlisting">
+
+use Bio::Tools::Run::Phylo::PAML::Codeml;
+use Bio::Tools::Run::Alignment::Clustalw;
+
+# for projecting alignments from protein to R/DNA space
+use Bio::Align::Utilities qw(aa_to_dna_aln);
+
+# for input of the sequence data
+use Bio::SeqIO;
+use Bio::AlignIO;
+
+my $aln_factory = new Bio::Tools::Run::Alignment::Clustalw();
+
+my $seqdata = 'cdna.fa';
+
+my $seqIO = new Bio::SeqIO(-file   =&gt; $seqdata,
+                           -format =&gt; 'fasta');
+my %seqs;
+my @prots;
+# process each sequence
+while( my $seq = $seqin-&gt;next_seq ) {
+    $seqs{$seq-&gt;display_id} = $seq;
+    # translate them into protein
+    my $protein = $seq-&gt;translate();
+    my $pseq = $protein-&gt;seq();
+    if( $pseq =~ /\*/ &amp;&amp; 
+	$pseq !~ /\*$/ ) {
+	warn("provided a cDNA sequence with a stop codon, PAML will choke!");
+	exit(0);
+    }
+    # Tcoffee can't handle '*' even if it is trailing
+    $pseq =~ s/\*//g;
+    $protein-&gt;seq($pseq);
+    push @prots, $protein;
+}
+
+if( @prots &lt; 2 ) {
+    warn("Need at least 2 cDNA sequences to proceed");
+    exit(0);
+}
+
+open(OUT, "&gt;align_output.txt") || 
+      die("cannot open output $output for writing");
+# Align the sequences with clustalw
+my $aa_aln = $aln_factory-&gt;align(\@prots);
+# project the protein alignment back to cDNA coordinates
+my $dna_aln = &amp;aa_to_dna_aln($aa_aln, \%seqs);
+
+my @each = $dna_aln-&gt;each_seq();
+
+my $kaks_factory = new Bio::Tools::Run::Phylo::PAML::Codeml
+                  ( -params =&gt; { 'runmode' =&gt; -2,
+		                 'seqtype' =&gt; 1,
+		               }
+	          );
+
+# set the alignment object
+$kaks_factory-&gt;alignment($dna_aln);
+
+# run the KaKs analysis
+my ($rc,$parser) = $kaks_factory-&gt;run();
+my $result = $parser-&gt;next_result;
+my $MLmatrix = $result-&gt;get_MLmatrix();
+
+my @otus = $result-&gt;get_seqs();
+# this gives us a mapping from the PAML order of sequences back to 
+# the input order (since names get truncated)
+my @pos = map { 
+    my $c= 1;
+    foreach my $s ( @each ) {
+	last if( $s-&gt;display_id eq $_-&gt;display_id );
+	$c++;
+    }
+    $c; 
+} @otus; 
+
+print OUT join("\t", qw(SEQ1 SEQ2 Ka Ks Ka/Ks PROT_PERCENTID CDNA_PERCENTID)), "\n";
+for( my $i = 0; $i &lt; (scalar @otus -1) ; $i++) {
+    for( my $j = $i+1; $j &lt; (scalar @otus); $j++ ) {
+	my $sub_aa_aln  = $aa_aln-&gt;select_noncont($pos[$i],$pos[$j]);
+	my $sub_dna_aln = $dna_aln-&gt;select_noncont($pos[$i],$pos[$j]);
+	print OUT join("\t",  
+		       $otus[$i]-&gt;display_id,
+		       $otus[$j]-&gt;display_id,$MLmatrix-&gt;[$i]-&gt;[$j]-&gt;{'dN'},
+		       $MLmatrix-&gt;[$i]-&gt;[$j]-&gt;{'dS'},
+		       $MLmatrix-&gt;[$i]-&gt;[$j]-&gt;{'omega'},
+		       sprintf("%.2f",$sub_aa_aln-&gt;percentage_identity),
+		       sprintf("%.2f",$sub_dna_aln-&gt;percentage_identity),
+		       ), "\n";
+    }
+}
+
+</pre>
+</p><p>
+
+</p></div></div></body></html>
