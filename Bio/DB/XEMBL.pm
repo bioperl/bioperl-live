@@ -43,8 +43,8 @@ Bio::DB::XEMBL - Database object interface for XEMBL entry retrieval
 
 =head1 DESCRIPTION
 
-Allows the dynamic retrieval of sequence objects L<Bio::Seq> from the
-XEMBL database.
+Allows the dynamic retrieval of Bio::Seq objects from the XEMBL
+database. See L<Bio::Seq> for details.
 
 =head1 FEEDBACK
 
