@@ -132,7 +132,7 @@ methods. Internal methods are usually preceded with a _
 package Bio::Tools::Run::RemoteBlast;
 
 use vars qw($AUTOLOAD @ISA %BLAST_PARAMS $URLBASE %HEADER %RETRIEVALHEADER
-	    $RIDLINE);
+	    $RIDLINE $MODVERSION);
 use strict;
 
 use Bio::Root::Root;
@@ -143,7 +143,11 @@ use Bio::Tools::BPlite;
 use Bio::SearchIO;
 use LWP;
 use HTTP::Request::Common;
+
+@ISA = qw(Bio::Root::Root Bio::Root::IO);
+
 BEGIN {
+    $MODVERSION = $Bio::Root::Version::VERSION;
     $URLBASE = 'http://www.ncbi.nlm.nih.gov/blast/Blast.cgi';
     %HEADER = ('CMD'                          => 'Put',
 	       'PROGRAM'                      => '',
@@ -174,8 +178,6 @@ BEGIN {
 		       );
 
 }
-
-@ISA = qw(Bio::Root::Root Bio::Root::IO);
 
 sub new {
     my ($caller, @args) = @_;
@@ -316,9 +318,12 @@ sub expect {
 =cut
 
 sub ua {
-    my ($self, $value) = @_;
+    my ($self, $value) = @_;    
     if( ! defined $self->{'_ua'} ) {
-	$self->{'_ua'} = new LWP::UserAgent;
+	$self->{'_ua'} = new LWP::UserAgent();
+	my $nm = ref($self);
+	$nm =~ s/::/_/g;
+	$self->{'_ua'}->agent("bioperl-$nm/$MODVERSION");
     }
     return $self->{'_ua'};
 }
