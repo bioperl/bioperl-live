@@ -145,7 +145,7 @@ sub hmmstate_string{
    return $self->{'_hmmstate_string'};
 }
 
-=head2 homolgy_string
+=head2 homology_string
 
  Title   : homolgy_string
  Usage   : my $homology_str = $hsp->homology_string();
@@ -157,7 +157,7 @@ sub hmmstate_string{
 
 =cut
 
-sub homolgy_string{
+sub homology_string{
    my ($self) = @_;
    return '';
 }
