@@ -83,7 +83,7 @@ $seq = getseq("t","data","AE003644_Adh-genomic.gb");
                                          }
                                          elsif (@container_sfs == 1) {
                                              # we got it!
-                                             return $container_sfs[0];
+                                             return ($container_sfs[0]=>0);
                                          }
                                          else {
                                              $self->throw("AMBIGUOUS");
@@ -138,7 +138,7 @@ sub _write_hier {
     my $indent = shift;
     my @sfs = @_;
     foreach my $sf (@sfs) {
-        my $label;
+        my $label = '?';
         if ($sf->has_tag('product')) {
             ($label) = $sf->get_tag_values('product');
         }

@@ -96,7 +96,7 @@ sub _write_hier {
     my $indent = shift;
     my @sfs = @_;
     foreach my $sf (@sfs) {
-        my $label;
+        my $label = '?';
         if ($sf->has_tag('gene')) {
             ($label) = $sf->get_tag_values('gene');
         }

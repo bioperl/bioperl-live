@@ -1657,10 +1657,13 @@ sub unflatten_group{
    # for instance, for a CDS, the possible containers are all
    # the mRNAs in the same group. For a mRNA, the possible
    # containers are any SFs of type 'gene' (should only be 1).
+   # (these container-type mappings can be overridden)
    #
    # contention is resolved by checking coordinates of splice sites
+   # (this is the default, but can be overridden)
 
-   my @containment_pairs = ();    # child->parent pairs
+   my @containment_pairs = ();    # child, parent pairs
+                                  # 3rd element is score
    my %idxsf = map {$sfs[$_]=>$_} (0..$#sfs);
    my @roots = ();
    for (my $i=0; $i<@sfs; $i++) {
@@ -1704,7 +1707,7 @@ sub unflatten_group{
                  $resolver_method->($self, $sf, @possible_container_sfs);
 	       foreach my $sf (keys %container_sfh) {
 		   my $j = $idxsf{$sf};
-		   push(@containment_pairs, [$i, $j, $container_sfh{$sf}]);
+		   push(@containment_pairs, [$i, $j, $container_sfh{$sf} || 0]);
 	       }
 	   }	   
        }
