@@ -113,11 +113,11 @@ ok $string, 'MW*LPHCGXYHXVVTT';
 
 #Translating with all codon tables using method defaults
 $string = '';
-my @codontables = qw( 1 2 3 4 5 6 9 10 11 12 13 14 15 16 21 );
+my @codontables = qw( 1 2 3 4 5 6 9 10 11 12 13 14 15 16 21 22 23);
 foreach my $ct (@codontables) {
     $string .= $seq->translate(undef, undef, undef, $ct)->seq;
 }
-ok $string, 'MW*MW*MW*MW*MW*MWQMW*MW*MW*MW*MW*MWYMW*MW*MW*';
+ok $string, 'MW*MW*MW*MW*MW*MWQMW*MW*MW*MW*MW*MWYMW*MW*MW*MW*MW*';
 
 # CDS translation set to throw an exception for internal stop codons
 $seq->seq('atgtggtaataa');

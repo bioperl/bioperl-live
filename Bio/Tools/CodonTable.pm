@@ -171,7 +171,6 @@ use Bio::Root::RootI;
 {
 # first set internal values for all translation tables
 
-
 my @names =  #id
     (
      'Standard', #1
@@ -191,7 +190,8 @@ my @names =  #id
      'Chlorophycean Mitochondrial',# 16
        '', '',  '', '',
      'Trematode Mitochondrial',# 21
-     'Scenedesmus obliquus mitochondrial' #22
+     'Scenedesmus obliquus Mitochondrial', #22
+     'Thraustochytrium Mitochondrial' #23
      );
 
 my @tables =
@@ -214,6 +214,7 @@ my @tables =
        '' '' '' ''
        FFLLSSSSYY**CCWWLLLLPPPPHHQQRRRRIIMMTTTTNNNKSSSSVVVVAAAADDEEGGGG   
        FFLLSS*SYY*LCC*WLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG
+       FF*LSSSSYY**CC*WLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG
        );
 
 
@@ -237,6 +238,7 @@ my @starts =
        '' ''  '' ''
        -----------------------------------M---------------M------------  
        -----------------------------------M----------------------------
+       --------------------------------M--M---------------M------------
        );
 
 
