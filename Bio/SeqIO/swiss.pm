@@ -183,6 +183,9 @@ sub next_seq {
 
    $line =~ /^ID\s+(\S+)/ || $self->throw("swissprot stream with no ID. Not swissprot in my book");
    $name = $1;
+    # this is important to have the id for display in e.g. FTHelper, otherwise
+    # you won't know which entry caused an error
+   $seq->display_id($name);
    
    my $buffer = $line;
 
@@ -691,7 +694,7 @@ sub _filehandle{
 =head2 _read_FTHelper_swissprot
 
  Title   : _read_FTHelper_swissprot
- Usage   : _read_FTHelper_swissprot($buffer)
+ Usage   : _read_FTHelper_swissprot(\$buffer)
  Function: reads the next FT key line
  Example :
  Returns : Bio::SeqIO::FTHelper object 
@@ -701,11 +704,50 @@ sub _filehandle{
 =cut
 
 sub _read_FTHelper_swissprot {
-   my ($self,$buffer) = @_;
-   
-   ### FIXME - not implemented
+    # initial version implemented by HL 05/10/2000
+    # FIXME this may not be perfect, so please review 
+    my ($self,$buffer) = @_;
+    my ($key,   # The key of the feature
+        $loc,   # The location line from the feature
+        $desc,  # The descriptive text
+        );
+    
+    if ($$buffer =~ /^FT   (\w+)\s+([\d\?]+)\s+([\d\?]+)\s*(.*)$/) {
+        $key = $1;
+        my $loc1 = ($2 eq '?' ? '<' : $2);
+        my $loc2 = ($3 eq '?' ? '>' : $3);
+	$loc = "$loc1..$loc2";
+	if($4 && (length($4) > 0)) {
+	    $desc = 4;
+	    chomp($desc);
+	} else {
+	    $desc = "";
+	}
+	# Read all the continuation lines up to the next feature
+	while (defined($_ = $self->_readline) && /^FT\s{20,}(\w.*)$/) {
+	    $desc .= $1;
+	    chomp($desc);
+	}
+	$desc =~ s/\.$//;
+    } else {
+        # No feature key
+        return;
+    } 
+    
+    # Put the first line of the next feature into the buffer
+    $$buffer = $_;
 
-
+    # Make the new FTHelper object
+    my $out = new Bio::SeqIO::FTHelper();
+    $out->key($key);
+    $out->loc($loc);
+    
+    # store the description if there is one
+    if($desc && (length($desc) > 0)) {
+	$out->field->{"description"} ||= [];
+	push(@{$out->field->{"description"}}, $desc);
+    }
+    return $out;
 }
 
 
