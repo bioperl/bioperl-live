@@ -341,6 +341,7 @@ sub intersection {
     Title   : union
     Usage   : ($start, $stop, $strand) = $r1->union($r2);
             : ($start, $stop, $strand) = Bio::RangeI->union(@ranges);
+              my $newrange = Bio::RangeI->union(@ranges);
     Function: finds the minimal range that contains all of the ranges
     Args    : a range or list of ranges to find the union of
     Returns : the range object containing all of the ranges
@@ -380,10 +381,14 @@ sub union {
 	}
     }
     return undef unless $start or $end;
-    return $self->new('-start' => $start,
-		      '-end' => $end,
-		      '-strand' => $union_strand
-		      );
+    if( wantarray() ) {
+	return ( $start,$end,$union_strand);
+    } else { 
+	return $self->new('-start' => $start,
+			  '-end' => $end,
+			  '-strand' => $union_strand
+			  );
+    }
 }
 
 =head2 overlap_extent
