@@ -515,7 +515,6 @@ sub _io_cleanup {
 
     $self->close();
     my $v = $self->verbose;
-    $self->debug("Calling io_cleanup for $self\n") if $v > 0;
 
     # we are planning to cleanup temp files no matter what    
     if( exists($self->{'_rootio_tempfiles'}) &&
