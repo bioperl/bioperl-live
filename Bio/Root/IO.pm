@@ -94,7 +94,7 @@ The rest of the documentation details each of the object methods. Internal metho
 
 package Bio::Root::IO;
 use vars qw(@ISA $FILESPECLOADED $FILETEMPLOADED $FILEPATHLOADED
-	    $TEMPDIR $PATHSEP $ROOTDIR $OPENFLAGS);
+	    $TEMPDIR $PATHSEP $ROOTDIR $OPENFLAGS $VERBOSE);
 use strict;
 
 use Symbol;
@@ -109,6 +109,7 @@ BEGIN {
     $FILESPECLOADED = 0;
     $FILETEMPLOADED = 0;
     $FILEPATHLOADED = 0;
+    $VERBOSE = 1;
 
     # try to load those modules that may cause trouble on some systems
     eval { 
@@ -116,8 +117,9 @@ BEGIN {
 	$FILEPATHLOADED = 1;
     }; 
     if( $@ ) {
+	print STDERR "Cannot load File::Path: $@" if( $VERBOSE > 0 );
 	# do nothing
-    }
+    } 
     eval {
 	require File::Spec;
 	$FILESPECLOADED = 1;
@@ -550,7 +552,7 @@ sub catfile {
 # taken straight from File::Path VERSION = "1.0403"
 sub rmtree {
     my($self,$roots, $verbose, $safe) = @_;
-    File::Path->rmtree ($roots, $verbose, $safe) if( $FILEPATHLOADED );
+    return File::Path->rmtree ($roots, $verbose, $safe) if( $FILEPATHLOADED );
     my $force_writeable = ($^O eq 'os2' || $^O eq 'dos' || $^O eq 'MSWin32'
 		       || $^O eq 'amigaos');
     my $Is_VMS = $^O eq 'VMS';
