@@ -103,7 +103,7 @@ ProtMatrix, meme, transfac, psiblast, InstanceSite
 package Bio::Matrix::PSM::ProtPsm;
 use Bio::Root::Root;
 use Bio::Root::IO;
-use Bio::Matrix::PSM::SiteMatrix;
+use Bio::Matrix::PSM::ProtMatrix;
 use Bio::Matrix::PSM::InstanceSite;
 use Bio::Matrix::PSM::PsmI;
 use Bio::Annotation::Collection;
