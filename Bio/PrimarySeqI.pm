@@ -896,6 +896,39 @@ sub out_fasta{
    return ">". $self->id(). "\n" . $str . "\n";  #ps 3/25/00
 }
 
+=head2 GCG_checksum
+
+ Title     : GCG_checksum
+ Usage     : $myseq->GCG_checksum;
+ Function  : returns a gcg checksum for the sequence
+ Example   : 
+ Returns   : 
+ Argument  : none
+
+=cut
+ 
+sub GCG_checksum {
+    my $self = shift;
+    my $seq;
+    my $index = 0;
+    my $checksum = 0;
+    my $char;
+
+
+    $seq = $self->seq();
+    $seq =~ tr/a-z/A-Z/;
+
+    foreach $char ( split(/[\.\-]*/, $seq)) {
+	$index++;
+	$checksum += ($index * (unpack("c",$char)));
+	if( $index ==  57 ) {
+	    $index = 0;
+	}
+    }
+
+    return ($checksum % 10000);
+}
+
 =head1 Private functions
 
 These are some private functions for the PrimarySeqI interface. You do not

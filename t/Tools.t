@@ -19,7 +19,7 @@
 
 
 ## We start with some black magic to print on failure.
-BEGIN { $| = 1; print "1..6\n"; 
+BEGIN { $| = 1; print "1..7\n"; 
 	use vars qw($loaded); }
 
 END {print "not ok 1\n" unless $loaded;}
@@ -27,6 +27,7 @@ END {print "not ok 1\n" unless $loaded;}
 use Bio::SeqIO;
 use Bio::Tools::SeqWords;
 use Bio::Tools::SeqStats;
+use Bio::Tools::SeqPattern;
 
 $loaded = 1;
 print "ok 1\n";    # 1st test passes.
@@ -60,3 +61,14 @@ $weight = $seq_stats->get_mol_wt();
 $weight = 0; # shut warn up
 print "ok 6\n";
 
+
+$npat = new Bio::Tools::SeqPattern(-seq => 'rgaatgx{2,}ygtttca(cag){5,}', -type =>'Dna');
+
+$npat->type;
+$npat->str;
+$npat->expand;
+$npat->revcom->str;
+$npat->revcom(1)->str;
+
+
+print "ok 7\n";

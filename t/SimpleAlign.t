@@ -18,7 +18,7 @@
 
 
 ## We start with some black magic to print on failure.
-BEGIN { $| = 1; print "1..6\n"; }
+BEGIN { $| = 1; print "1..7\n"; }
 END {print "not ok 1\n" unless $loaded;}
 
 use lib '../';
@@ -80,5 +80,10 @@ if( $aln ) {
 }	
 
 
+open(OUT,">t/out.msf");
+$aln->write_MSF(\*OUT);
+close(OUT);
+
+print "ok 7\n";
 
 

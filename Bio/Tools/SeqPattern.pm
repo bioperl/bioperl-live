@@ -12,9 +12,9 @@
 package Bio::Tools::SeqPattern;
 
 use Bio::Root::Global qw(:devel);
-use Bio::Seq ();
+use Bio::Root::Object;
 
-@ISA = qw(Bio::Seq);
+@ISA = qw(Bio::Root::Object);
 use strict;
 use vars qw ($ID $VERSION);
 $ID  = 'Bio::Tools::SeqPattern';
@@ -267,22 +267,18 @@ sub _initialize {
     my($seq, $type) = $self->_rearrange([qw(SEQ TYPE)], %param);
 
     $seq || $self->throw("Empty pattern.");
-
+    my $t;
     # Get the type ready for Bio::Seq.pm
     if ($type =~ /nuc|[dr]na/i) {
-	$param{-TYPE} = 'Dna';
+	$t = 'Dna';
     } elsif ($type =~ /amino|pep|prot/i) {
-	$param{-TYPE} = 'Amino';
+	$t = 'Amino';
     }
 
-    my $make = $self->SUPER::_initialize(%param);
-#	 if($self->make() =~ /^nuc/i) {
-#	     $param{-SEQ} = $self->_expand_nuc($param{-SEQ}); 
-#	 } else {
-##	    $param{-SEQ} = $self->_expand_pep($param{-SEQ});  #unimplemented here.
-#	 }
+    $self->str($seq);
+    $self->type($t);
 
-    $make;
+    return $self;
 }
 
 
@@ -329,6 +325,7 @@ sub alphabet_ok {
 #    print STDERR "\npattern ok: $pat\n";
     1;
 }
+
 
 
 
@@ -506,7 +503,9 @@ sub revcom {
 #    return $self->{'_rev'} if defined $self->{'_rev'};
 
     $expand ||= 0;
-    my $rev = $self->SUPER::revcom->str;  ## Invoke Bio::Seq::revcom()
+    my $str = $self->str;
+    $str =~ tr/acgtrymkswhbvdnxACGTRYMKSWHBVDNX/tgcayrkmswdvbhnxTGCAYRKMSWDVBHNX/;
+    my $rev = CORE::reverse $str;
     $rev    =~ tr/[](){}<>/][)(}{></;
 
     if($expand) {
@@ -799,6 +798,49 @@ sub _fixpat_5 {
 	last if not $pat;
     }
     return join('', reverse @done);
+}
+
+
+=head2 str
+
+ Title   : str
+ Usage   : $obj->str($newval)
+ Function: 
+ Returns : value of str
+ Args    : newvalue (optional)
+
+
+=cut
+
+sub str{
+   my $obj = shift;
+   if( @_ ) {
+      my $value = shift;
+      $obj->{'str'} = $value;
+    }
+    return $obj->{'str'};
+
+}
+
+=head2 type
+
+ Title   : type
+ Usage   : $obj->type($newval)
+ Function: 
+ Returns : value of type
+ Args    : newvalue (optional)
+
+
+=cut
+
+sub type{
+   my $obj = shift;
+   if( @_ ) {
+      my $value = shift;
+      $obj->{'type'} = $value;
+    }
+    return $obj->{'type'};
+
 }
 
 1;
