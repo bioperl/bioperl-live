@@ -16,13 +16,15 @@ BEGIN {
     }
     use Test;
 
-    plan tests => 89;
+    plan tests => 143;
 }
 use Bio::Location::Simple;
 use Bio::Coordinate::Pair;
 use Bio::Coordinate::Result;
 use Bio::Coordinate::Result::Match;
 use Bio::Coordinate::Result::Gap;
+use Bio::Coordinate::ExtrapolatingPair;
+use Bio::Coordinate::Collection;
 
 use Data::Dumper;
 
@@ -53,6 +55,7 @@ ok $pair->in->seq_id(), 'propeptide';
 
 my ($count, $pos, $pos2, $res, $match, $res2);
 
+
 #
 # match within
 #
@@ -66,7 +69,6 @@ ok $res->isa('Bio::Coordinate::Result');
 ok $res->each_match, 1;
 ok $res->each_gap, 0;
 ok $res->each_location, 1;
-#print Dumper $res;
 # match() warns if first match is not the only one
 #ok $res->match->isa('Bio::Coordinate::Result::Match');
 ok $res->match->isa('Bio::LocationI');
@@ -99,7 +101,7 @@ ok $res->each_gap, 1;
 
 ok $res->gap->isa('Bio::Coordinate::Result::Gap');
 ok $res->gap->isa('Bio::LocationI');
-ok $res->gap->strand, 1;
+ok $res->gap->strand, 0; # no guessing of strand
 ok $res->gap->start, 5;
 ok $res->gap->length, $pos->length;
 ok $res->gap->seq_id, 'propeptide';
@@ -117,8 +119,6 @@ ok $res = $pair->map($pos2);
 ok $res->each_match, 1;
 ok $res->each_gap, 1;
 ok $res->each_location, 2;
-#print "---------------------", $res->match->length, "\n";
-#print "---------------------", $res->gap->length, "\n";
 ok $res->match->length + $res->gap->length, $pos2->length;
 
 ok $res->match->start, 1;
@@ -130,21 +130,27 @@ ok $res->gap->end, 20;
 ok $res->gap->seq_id, 'propeptide';
 ok $res->gap->strand, -1;
 
-# partial match2 =  match & gap 
+#
+# partial match2 =  match & gap
+#
 $pos2 = Bio::Location::Simple->new (-start => 40, -end => 41, -strand=> 1 );
 ok $res = $pair->map($pos2);
-#print Dumper $res;
 ok $res->match->length + $res->gap->length, $pos2->length;
 
+#
 #enveloping
+#
 $pos2 = Bio::Location::Simple->new (-start => 19, -end => 41, -strand=> 1 );
 ok $res = $pair->map($pos2);
 $count = 0; map {$count += $_->length} $res->each_location;
 ok $count, $pos2->length;
 
 
-# Testing insertions
 
+
+#
+# Testing insertions
+#
 #out
 $pos = Bio::Location::Simple->new (-start => 5, -end => 6, -location_type=>'^');
 $res = $pair->map($pos);
@@ -169,23 +175,111 @@ $res = $pair->map($pos);
 ok $res->each_gap, 1;
 ok $res->each_location, 1;
 
-#print Dumper $res;
+#
+# strandness
+#
+#   11   6 4 2
+#  -|--------|-
+#  -|--------|-
+#   2    7 9 11
+#
+
+# from
+$match1 = Bio::Location::Simple->new
+    (-seq_id => 'from', -start => 2, -end => 11, -strand=>1 );
+# to
+$match2 = Bio::Location::Simple->new
+    (-seq_id => 'to', -start => 2, -end => 11, -strand=>-1 );
+$pair = Bio::Coordinate::Pair->new(-in => $match1,
+				   -out => $match2
+				  );
+#
+# match within
+#
+
+ok $pair->test;
+ok $pair->strand(), -1;
+$pos = Bio::Location::Simple->new
+    (-seq_id => 'from', -start => 7, -end => 9, -strand=>1 );
+$res = $pair->map($pos);
+ok $res->match->start, 4;
+ok $res->match->end, 6;
+ok $res->match->strand, -1;
+
+$pos = Bio::Location::Simple->new
+    (-seq_id => 'from', -start => 3, -end => 10, -strand=>-1 );
+$res = $pair->map($pos);
+ok $res->match->start, 3;
+ok $res->match->end, 10;
+ok $res->match->strand, 1;
+
+#
+# match outside = Gap
+#
+$pos = Bio::Location::Simple->new
+    (-seq_id => 'from', -start => 1, -end => 1, -strand=>1 );
+$res = $pair->map($pos);
+ok $res->gap->start, 1;
+ok $res->gap->end, 1;
+ok $res->gap->strand, 1;
+$pos = Bio::Location::Simple->new
+    (-seq_id => 'from', -start => 12, -end => 12, -strand=>-1 );
+$res = $pair->map($pos);
+ok $res->gap->start, 12;
+ok $res->gap->end, 12;
+ok $res->gap->strand, -1;
 
 
 #
-# Extrapolating pairs
+# partial match1 = gap & match
 #
-#    No gaps returned, matches extrapolated
-#     returns always a match or undef
+$pos = Bio::Location::Simple->new
+    (-seq_id => 'from', -start => 1, -end => 7, -strand=>-1 );
+$res = $pair->map($pos);
+ok $res->gap->start, 1;
+ok $res->gap->end, 1;
+ok $res->gap->strand, -1;
+ok $res->match->start, 6;
+ok $res->match->end, 11;
+ok $res->match->strand, 1;
 
-use Bio::Coordinate::ExtrapolatingPair;
+#
+# partial match2 =  match & gap 
+#
+
+$pos = Bio::Location::Simple->new
+    (-seq_id => 'from', -start => 9, -end => 12, -strand=>-1 );
+$res = $pair->map($pos);
+ok $res->match->start, 2;
+ok $res->match->end, 4;
+ok $res->match->strand, 1;
+ok $res->gap->start, 12;
+ok $res->gap->end, 12;
+ok $res->gap->strand, -1;
+
+#
+#enveloping
+#
+
+$pos = Bio::Location::Simple->new
+    (-seq_id => 'from', -start => 1, -end => 12, -strand=>-1 );
+$res = $pair->map($pos);
+ok $res->match->start, 2;
+ok $res->match->end, 11;
+ok $res->match->strand, 1;
+
+my ($gap1, $gap2) = $res->each_gap;
+ok $gap1->start, 1;
+ok $gap1->end, 1;
+ok $gap1->strand, -1;
+ok $gap2->start, 12;
+ok $gap2->end, 12;
+ok $gap2->strand, -1;
+
+
 
 #
 # Collection
-#
-
-use Bio::Coordinate::Collection;
-
 #
 #         1   5     6   10
 #         |---|     |---|
@@ -220,19 +314,15 @@ ok $pair2->test;
 ok my $transcribe = Bio::Coordinate::Collection->new;
 ok $transcribe->add_mapper($pair1);
 ok $transcribe->add_mapper($pair2);
-#print Dumper $transcribe;
-#map {print Dumper $_} $transcribe->each_mapper;
 ok $transcribe->test;
 
 
 # simple match
 $pos = Bio::Location::Simple->new (-start => 5, -end => 9 );
 ok $res = $transcribe->map($pos);
-#print Dumper $res->match;
 ok $res->match->start, 1;
 ok $res->match->end, 5;
 ok $res->match->seq_id, 'exon1';
-#$res->match->
 
 # flank pre
 $pos = Bio::Location::Simple->new (-start => 2, -end => 9 );
@@ -255,21 +345,9 @@ $pos = Bio::Location::Simple->new (-start => 5, -end => 19 );
 ok $res = $transcribe->map($pos);
 ok $res->each_gap, 2;
 ok $res->each_match, 2;
-#ok $res->match->start, 1;
-#ok $res->match->end, 5;
-#print Dumper $res;
-# ok sort of....
-
-
-
-#$pos = Bio::Location::Simple->new (-start => 10, -end => 15 );
-#ok $transcribe->swap;
-#print Dumper $transcribe;
-
-#$transcribe->swap; # revert to 
 
 #
-# Test using genommic data
+# Test using genomic data
 #
 
 my $mapper = Bio::Coordinate::Collection->new;
@@ -287,60 +365,59 @@ ok $res->match->end, 5;
 ok $res->match->strand, -1;
 
 ## now a split coord
-#test_transform ($mapper,
-#		["chr1", 383700, 444000, +1, "virtualcontig"],
-#		[314696, 31917, 31937, -1],  # not right!!!!!!!Ewan!!!!!!!!!
-#		[341, 126, 59773, -1],       # ok
-#		[315843, 5332, 5963, +1]);
-
-#the data lines:
-#chr1	314696	359545	383720	31917	56092	-1
-#chr1	341	383721	443368	126	59773	-1
-
-# results:
-#$VAR1 = bless( {
-#                 '_seqid' => '314696',
-#                 '_start' => '56072',
-#                 '_end' => '56092'
-#                 '_strand' => '-1',
-#                 '_location_type' => 'EXACT',
-#               }, 'Bio::Coordinate::Result::Match' );
-#VAR2 = bless( {
-#                 '_seqid' => '341',
-#                 '_start' => '126',
-#                 '_end' => '59773'
-#                 '_strand' => '-1',
-#                 '_location_type' => 'EXACT',
-#               }, 'Bio::Coordinate::Result::Match' );
-
+my @testres = (
+	     [314696, 31917, 31937, -1],
+	     [341, 126, 59773, -1],
+	     [315843, 5332, 5963, +1]
+);
+#print Dumper \@testres;
 $pos = Bio::Location::Simple->new (-start => 383700, -end => 444000, -strand => 1);
 $res = $mapper->map($pos);
-ok $res->each_match, 3;
-print Dumper $res->each_match;
+#print Dumper $res;
+my @res =  $res->each_match;
+compare (shift @res, shift @testres);
+compare (shift @res, shift @testres);
+compare (shift @res, shift @testres);
+
 
 ## now a simple gap
-#test_transform ($mapper,
-#		["chr1", 273701, 273781, +1, "virtualcontig"],
-#		[627011, 7447, 7507, +1],
-#		["chr1", 273762, 273781, 0]);
+@testres = (
+	    [627011, 7447, 7507, +1],
+	    ["chr1", 273762, 273781, 1]
+	   );
 $pos = Bio::Location::Simple->new (-start => 273701, -end => 273781, -strand => 1);
 $res = $mapper->map($pos);
 ok $res->each_match, 1;
 ok $res->each_gap, 1;
-#print Dumper $res->each_location;
-
-#ok $res->match->start, 2;
-#ok $res->match->end, 5;
-#ok $res->match->strand, -1;
-
+#print Dumper $res;
+@res =  $res->each_location;
+compare (shift @res, shift @testres);
+compare (shift @res, shift @testres);
 
 
-exit;
-#
+
 
 #
+# Extrapolating pairs
+#
+#    No gaps returned, matches extrapolated
+#     returns always a match or undef
 
 
+
+exit; # end of tests
+#
+# subroutines only after this
+#
+
+sub compare {
+    my ($match, $test) = @_;
+#    print Dumper ($match, $test);
+    ok $match->seq_id eq $test->[0];
+    ok $match->start  == $test->[1];
+    ok $match->end == $test->[2];
+    ok $match->strand == $test->[3];
+}
 
 
 sub load_data {
