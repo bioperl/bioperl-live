@@ -944,7 +944,7 @@ sub _print_stats_pc {
 	my ($self) =@_;
 	my $pc = scalar keys %{$self->{'p_c'}};
 	my $cp = scalar keys %{$self->{'c_p'}};
-	my $now_time = Time::HiRes::time;
+	my $now_time = Time::HiRes::time();
 	$self->debug("pc stats: P_C $pc C_P $cp $now_time\n");
 }
 
