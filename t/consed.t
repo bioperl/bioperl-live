@@ -26,83 +26,85 @@ BEGIN {
     plan tests => 12;
 }
 
+use Bio::Root::IO;
 use Bio::Tools::Alignment::Consed;
+use vars qw($DEBUG);
+$DEBUG = $ENV{'BIOPERLDEBUG'} || -1;
 
-print("Checking if the Bio::Tools::Alignment::Consed module could be used...\n");
+print("Checking if the Bio::Tools::Alignment::Consed module could be used...\n") if $DEBUG > 0;
 	# test 1
 ok(1);
 
 	# scope some variables
 my($o_consed,@singlets,@singletons,@pairs,@doublets,@multiplets,$invoker);
 
-	# instantiate a new object
-my $passed_in_acefile = "t/data/acefile.ace.1";
-$o_consed = Bio::Tools::Alignment::Consed->new(	-acefile	=>	$passed_in_acefile);
-print("Checking if a new CSM::Consed object was created...\n");
+# instantiate a new object
+my $passed_in_acefile = Bio::Root::IO->catfile("t","data","acefile.ace.1");
+$o_consed = Bio::Tools::Alignment::Consed->new(-acefile => $passed_in_acefile);
+print("Checking if a new CSM::Consed object was created...\n") if( $DEBUG > 0);
 ok defined $o_consed;
 
 	# set the verbosity to a valid value (1)
-my $verbosity = $o_consed->set_verbose(1);
+my $verbosity = $o_consed->verbose(1);
 
-	# set the verbosity to "none"
-$o_consed->set_verbose(0);
-	#
-print("Checking if the new object is a reference to a Bio::Tools::Alignment::Consed object...\n");
-	# test 3
-ok ref($o_consed),'Bio::Tools::Alignment::Consed';
+# set the verbosity to "none"
+$o_consed->verbose(0);
+#
+print("Checking if the new object is a reference to a Bio::Tools::Alignment::Consed object...\n") if($DEBUG > 0);
+# test 3
+ok( ref($o_consed),'Bio::Tools::Alignment::Consed');
 
-print("Checking if singlets can be successfully set...\n");
-	# test 4
+print("Checking if singlets can be successfully set...\n"), if( $DEBUG > 0);
+# test 4
 ok ($o_consed->set_singlets() != 1);
 
-print("Checking if the number of singlets can be retrieved and if that number is correct (65)...\n");	
+print("Checking if the number of singlets can be retrieved and if that number is correct (65)...\n") if($DEBUG > 0);	
 @singlets = $o_consed->get_singlets();
-ok (scalar(@singlets) == 65);
+ok (scalar(@singlets), 65);
 
-print("Checking if the doublets can be set...\n");
+print("Checking if the doublets can be set...\n"), if( $DEBUG> 0);
 ok ($o_consed->set_doublets() != 1);
 
-print("Checking if the doublets can be retreived...\n");
+print("Checking if the doublets can be retreived...\n") if($DEBUG > 0);
 ok @doublets = $o_consed->get_doublets();
 
-print(scalar(@doublets)." doublets were found\n");
-print("Checking if the number of doublets can be retrieved and if that number is correct (45)...\n");
-ok (scalar(@doublets) == 45);
+print(scalar(@doublets)." doublets were found\n") if ($DEBUG > 0);
+print("Checking if the number of doublets can be retrieved and if that number is correct (45)...\n") if($DEBUG > 0);
+ok (scalar(@doublets), 45);
 
-print("Checking if the number of pairs can be retrieved and if that number is correct (1)...\n");
+print("Checking if the number of pairs can be retrieved and if that number is correct (1)...\n") if($DEBUG > 0);
 @pairs = $o_consed->get_pairs();
-ok (scalar(@pairs) == 1);
+ok (scalar(@pairs),1);
 
-print("Checking if the number of multiplets can be retrieved and if that number is correct (4)...\n");
+print("Checking if the number of multiplets can be retrieved and if that number is correct (4)...\n") if($DEBUG > 0);
 @multiplets = $o_consed->get_multiplets();
-ok (scalar(@multiplets) == 4);
+ok (scalar(@multiplets), 4);
 
-print("Checking if the number of singletons can be retrieved and if that number is correct (3)...\n");
+print("Checking if the number of singletons can be retrieved and if that number is correct (3)...\n") if($DEBUG > 0);
 @singletons = $o_consed->get_singletons();
-ok (scalar(@singletons) == 3);
+ok (scalar(@singletons), 3);
 
-print("Finding out, via grep, how many sequences there are in the acefile _and_ in the singlets file...\n");
+print("Finding out, via grep, how many sequences there are in the acefile _and_ in the singlets file...\n") if($DEBUG > 0);
 $invoker = $o_consed->count_sequences_with_grep();
 my $total_grep_sequences = $invoker;
-print("($total_grep_sequences)\n");
+print("($total_grep_sequences)\n")if($DEBUG > 0) ;
 
-print("Getting the statistics from the Bio::Tools::Alignment::Consed object to compare the total number of sequences accounted for there to the number of sequences found via grep...\n");
+print("Getting the statistics from the Bio::Tools::Alignment::Consed object to compare the total number of sequences accounted for there to the number of sequences found via grep...\n") if($DEBUG > 0);
 $invoker = $o_consed->sum_lets("total_only");
 my $total_object_sequences = $invoker;
 $total_object_sequences =~ s/.*,//;
-print("($total_object_sequences)\n");
-print("Match?\n");
-ok ($total_object_sequences == $total_grep_sequences);
+print("($total_object_sequences)\n") if($DEBUG > 0) ;
+print("Match?\n") if($DEBUG > 0) ;
+ok ($total_object_sequences, $total_grep_sequences);
 
-print("These are the statistics. Look right? ".$o_consed->sum_lets()."\n");
+print("These are the statistics. Look right? ".$o_consed->sum_lets()."\n") if($DEBUG > 0);
 
 
-print("Dumping out the hash in a compact way...\n");
-$o_consed->dump_hash_compact();
+print("Dumping out the hash in a compact way...\n")if($DEBUG > 0)  ;
+$o_consed->dump_hash_compact()if($DEBUG > 0)  ;
 
 # print("Dumping out the hash in an ugly way...\n");
 # $o_consed->dump_hash();
-
 
 sub allele_script {
 	my($a,$trunc,$rev);
