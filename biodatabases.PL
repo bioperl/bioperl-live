@@ -174,7 +174,7 @@ go
    bpindex.pl swissprot /nfs/datadisk/swiss/swissprot.dat
 
 etc. You are now ready to use bpfetch.pl. See L<Bio::Index::Fasta>, 
-L<Bio::Index::Genbank>, L<Bio::Index::Blast>, L<Bio::Index::EMBL>,
+L<Bio::Index::GenBank>, L<Bio::Index::Blast>, L<Bio::Index::EMBL>,
 L<Bio::Index::SwissPfam>, and L<Bio::Index::Swissprot> for more.	
 
 Flat file indexing of Fasta files is also provided by Bio::DB::Fasta,
