@@ -635,9 +635,10 @@ sub _read_swissprot_Species {
         if (/^OS\s+(\S+)(?:\s+([^\(]\S*))?(?:\s+([^\(]\S*))?(?:\s+\((.*)\))?/) {
             $genus   = $1;
 	    if ($2) {
-		$species = $2
-		}
-	    else {
+		$species = $2;
+		# remove trailing dot -- TrEMBL has that. HL 05/11/2000
+		$species =~ s/.$//;
+	    } else {
 		$species = "sp.";
 	    }
 	    $sub_species = $3 if $3;
