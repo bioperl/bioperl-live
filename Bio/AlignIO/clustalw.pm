@@ -5,13 +5,12 @@
 #	based on the Bio::SeqIO modules
 #       by Ewan Birney <birney@sanger.ac.uk>
 #       and Lincoln Stein  <lstein@cshl.org>
-#
 #       and the Bio::SimpleAlign module of Ewan Birney
 #
 # Copyright Peter Schattner
 #
 # You may distribute this module under the same terms as perl itself
-# _history
+# History
 # September 5, 2000
 # POD documentation - main docs before the code
 
@@ -25,8 +24,8 @@ Do not use this module directly.  Use it via the Bio::AlignIO class.
 
 =head1 DESCRIPTION
 
-This object can transform Bio::Align::AlignI objects to and from clustalw flat
-file databases.
+This object can transform Bio::Align::AlignI objects to and from clustalw
+files.
 
 =head1 FEEDBACK
 
@@ -82,25 +81,24 @@ $LINELENGTH = 60;
 				       -file => 'filename');
  Function: returns a new Bio::AlignIO object to handle clustalw files
  Returns : Bio::AlignIO::clustalw object
- Args    : -verbose => verbosity setting (-1,0,1,2)
-           -file    => name of file to read in or with ">" - writeout
+ Args    : -verbose => verbosity setting (-1, 0, 1, 2)
+           -file    => name of file to read in or to write, with ">"
            -fh      => alternative to -file param - provide a filehandle 
-                       to read from/write to 
-           -format  => type of Alignment Format to process or produce
-           -percentages => (clustalw only) display a percentage of identity
-                           in each line of the alignment.
-
-           -linelength=> Set the alignment output line length (default 60)
+                       to read from or write to
+           -format  => alignment format to process or produce
+           -percentages => display a percentage of identity
+                           in each line of the alignment (clustalw only)
+           -linelength=> alignment output line length (default 60)
 
 =cut
 
 sub _initialize {
-    my ($self, @args) = @_;
-    $self->SUPER::_initialize(@args);
-    my ($percentages,
-	$ll) = $self->_rearrange([qw(PERCENTAGES LINELENGTH)], @args);
-    defined $percentages && $self->percentages($percentages);
-    $self->line_length($ll || $LINELENGTH);
+   my ($self, @args) = @_;
+   $self->SUPER::_initialize(@args);
+   my ($percentages,
+       $ll) = $self->_rearrange([qw(PERCENTAGES LINELENGTH)], @args);
+   defined $percentages && $self->percentages($percentages);
+   $self->line_length($ll || $LINELENGTH);
 }
 
 =head2 next_aln
@@ -116,71 +114,74 @@ See L<Bio::Align::AlignI> for details
 =cut
 
 sub next_aln {
-    my ($self) = @_;
+   my ($self) = @_;
+   my $first_line;
 
-    my $first_line;
-    
-    while($first_line = $self->_readline){
-	last if $first_line!~/^$/;
-    }
-    $self->_pushback($first_line);
-    if( defined ($first_line  = $self->_readline ) 
-	&& $first_line !~ /CLUSTAL/ ) {	
-	$self->warn("trying to parse a file which does not start with a CLUSTAL header");
-    }
-    my %alignments;
-    my $aln =  Bio::SimpleAlign->new(-source  => 'clustalw',
+   while($first_line = $self->_readline){
+      last if $first_line!~/^$/;
+   }
+   $self->_pushback($first_line);
+   if( defined ($first_line  = $self->_readline ) 
+       && $first_line !~ /CLUSTAL/ ) {	
+      $self->warn("trying to parse a file which does not start with a CLUSTAL header");
+   }
+   my %alignments;
+   my $aln =  Bio::SimpleAlign->new(-source  => 'clustalw',
 				     -verbose => $self->verbose);
-    my $order = 0;
-    my %order;
-    $self->{_lastline} = '';
-    while( defined ($_ = $self->_readline) ) {
-	next if ( /^\s+$/ );	
-	#break the loop if we come to the end of the current alignment
-	#and push back the CLUSTAL header
-	if(/CLUSTAL/){
-	    $self->_pushback($_);
-	    last;
-	}
+   my $order = 0;
+   my %order;
+   $self->{_lastline} = '';
+   while( defined ($_ = $self->_readline) ) {
+      next if ( /^\s+$/ );
+      # break the loop if we come to the end of the current alignment
+      # and push back the CLUSTAL header
+      if (/CLUSTAL/){
+	 $self->_pushback($_);
+	 last;
+      }
 
-	my ($seqname, $aln_line) = ('', '');	
-	if( /^\s*(\S+)\s*\/\s*(\d+)-(\d+)\s+(\S+)\s*$/ox ) {
-	    # clustal 1.4 format
-	    ($seqname,$aln_line) = ("$1:$2-$3",$4);
-	} elsif( /^\s*(\S+)\s+(\S+)\s*$/ox ) {
-	    ($seqname,$aln_line) = ($1,$2);
-	    if( $seqname =~ /^[\*\.\+\:]+$/ ) {
-		$self->{_lastline} = $_;
-		next;
-	    }
-	} else { $self->{_lastline} = $_; next }
-	
-	if( !exists $order{$seqname} ) {
-	    $order{$seqname} = $order++;
-	}
-	$alignments{$seqname} .= $aln_line;
-    }
-    my ($sname,$start,$end);
-    foreach my $name ( sort { $order{$a} <=> $order{$b} } keys %alignments ) {
-	if( $name =~ /(\S+):(\d+)-(\d+)/ ) {
-	    ($sname,$start,$end) = ($1,$2,$3);	    
-	} else {
-	    ($sname, $start) = ($name,1);
-	    my $str  = $alignments{$name};
-	    $str =~ s/[^A-Za-z]//g;
-	    $end = length($str);
-	}
-	my $seq = new Bio::LocatableSeq('-seq'   => $alignments{$name},
-					'-id'    => $sname,
-					'-start' => $start,
-					'-end'   => $end);
-	$aln->add_seq($seq);
-    }
-    # not sure if this should be a default option - or we can pass in 
-    # an option to do this in the future? --jasonstajich
-    #$aln->map_chars('\.','-');
-    undef $aln if( !defined $end || $end <= 0);
-    return $aln;
+      my ($seqname, $aln_line) = ('', '');
+      if( /^\s*(\S+)\s*\/\s*(\d+)-(\d+)\s+(\S+)\s*$/ox ) {
+	 # clustal 1.4 format
+	 ($seqname,$aln_line) = ("$1:$2-$3",$4);
+	 # } elsif( /^\s*(\S+)\s+(\S+)\s*$/ox ) { without trailing numbers
+      } elsif( /^\s*(\S+)\s+(\S+)\s*\d*\s*$/ox ) { # with numbers
+	 ($seqname,$aln_line) = ($1,$2);
+	 if( $seqname =~ /^[\*\.\+\:]+$/ ) {
+	    $self->{_lastline} = $_;
+	    next;
+	 }
+      } else {
+	 $self->{_lastline} = $_;
+	 next;
+      }
+
+      if( !exists $order{$seqname} ) {
+	 $order{$seqname} = $order++;
+      }
+      $alignments{$seqname} .= $aln_line;
+   }
+   my ($sname,$start,$end);
+   foreach my $name ( sort { $order{$a} <=> $order{$b} } keys %alignments ) {
+      if( $name =~ /(\S+):(\d+)-(\d+)/ ) {
+	 ($sname,$start,$end) = ($1,$2,$3);
+      } else {
+	 ($sname, $start) = ($name,1);
+	 my $str  = $alignments{$name};
+	 $str =~ s/[^A-Za-z]//g;
+	 $end = length($str);
+      }
+      my $seq = new Bio::LocatableSeq(-seq   => $alignments{$name},
+				      -id    => $sname,
+				      -start => $start,
+				      -end   => $end);
+      $aln->add_seq($seq);
+   }
+   # not sure if this should be a default option - or we can pass in 
+   # an option to do this in the future? --jason stajich
+   # $aln->map_chars('\.','-');
+   undef $aln if( !defined $end || $end <= 0);
+   return $aln;
 }
 
 =head2 write_aln
@@ -189,73 +190,72 @@ sub next_aln {
  Usage   : $stream->write_aln(@aln)
  Function: writes the clustalw-format object (.aln) into the stream
  Returns : 1 for success and 0 for error
- Args    : L<Bio::Align::AlignI> object
+ Args    : Bio::Align::AlignI object
 
 
 =cut
 
 sub write_aln {
-    my ($self,@aln) = @_;
-    my ($count,$length,$seq,@seq,$tempcount,$line_len);
-    $line_len = $self->line_length || $LINELENGTH;    
-    foreach my $aln (@aln) {
-	if( ! $aln || ! $aln->isa('Bio::Align::AlignI')  ) { 
-	    $self->warn("Must provide a Bio::Align::AlignI object when calling write_aln");
-	    next;
-	}
-	my $matchline = $aln->match_line;
-	if( $self->force_displayname_flat ) {
-	    $aln->set_displayname_flat(1);
-	}
-	$self->_print (sprintf("CLUSTAL W(1.81) multiple sequence alignment\n\n\n")) or return;
-
-	$length = $aln->length();
-	$count = $tempcount = 0;
-	@seq = $aln->each_seq();
-	my $max = 22;
-	foreach $seq ( @seq ) {
-	    $max = length ($aln->displayname($seq->get_nse())) 
-		if( length ($aln->displayname($seq->get_nse())) > $max );
-	}
-	while( $count < $length ) {
-	    foreach $seq ( @seq ) {
+   my ($self,@aln) = @_;
+   my ($count,$length,$seq,@seq,$tempcount,$line_len);
+   $line_len = $self->line_length || $LINELENGTH;
+   foreach my $aln (@aln) {
+      if( ! $aln || ! $aln->isa('Bio::Align::AlignI')  ) { 
+	 $self->warn("Must provide a Bio::Align::AlignI object when calling write_aln");
+	 next;
+      }
+      my $matchline = $aln->match_line;
+      if( $self->force_displayname_flat ) {
+	 $aln->set_displayname_flat(1);
+      }
+      $self->_print (sprintf("CLUSTAL W(1.81) multiple sequence alignment\n\n\n")) 
+	or return;
+      $length = $aln->length();
+      $count = $tempcount = 0;
+      @seq = $aln->each_seq();
+      my $max = 22;
+      foreach $seq ( @seq ) {
+	 $max = length ($aln->displayname($seq->get_nse())) 
+	   if( length ($aln->displayname($seq->get_nse())) > $max );
+      }
+      while( $count < $length ) {
+	 foreach $seq ( @seq ) {
 #
 #  Following lines are to suppress warnings
 #  if some sequences in the alignment are much longer than others.
 
-		my ($substring);
-		my $seqchars = $seq->seq();		
-	      SWITCH: {
-		  if (length($seqchars) >= ($count + $line_len)) {
-		      $substring = substr($seqchars,$count,$line_len); 
-		      last SWITCH; 
-		  } elsif (length($seqchars) >= $count) {
-		      $substring = substr($seqchars,$count); 
-		      last SWITCH; 
-		  }
-		  $substring = "";
-	      }
-		
-		$self->_print (sprintf("%-".$max."s %s\n",
-				       $aln->displayname($seq->get_nse()),
-				       $substring)) or return;
-	    }		
-	    
-	    my $linesubstr = substr($matchline, $count,$line_len);
-	    my $percentages = '';
-	    if( $self->percentages ) {
-		my ($strcpy) = ($linesubstr);
-		my $count = ($strcpy =~ tr/\*//);
-		$percentages = sprintf("\t%d%%", 100 * ($count / length($linesubstr)));
+	    my ($substring);
+	    my $seqchars = $seq->seq();
+	  SWITCH: {
+	       if (length($seqchars) >= ($count + $line_len)) {
+		  $substring = substr($seqchars,$count,$line_len); 
+		  last SWITCH; 
+	       } elsif (length($seqchars) >= $count) {
+		  $substring = substr($seqchars,$count); 
+		  last SWITCH; 
+	       }
+	       $substring = "";
 	    }
-	    $self->_print (sprintf("%-".$max."s %s%s\n", '', $linesubstr,
-				   $percentages));	    
-	    $self->_print (sprintf("\n\n")) or return;
-	    $count += $line_len;
-	}
-    }
-    $self->flush if $self->_flush_on_write && defined $self->_fh;
-    return 1;
+	    $self->_print (sprintf("%-".$max."s %s\n",
+				   $aln->displayname($seq->get_nse()),
+				   $substring)) or return;
+	 }
+
+	 my $linesubstr = substr($matchline, $count,$line_len);
+	 my $percentages = '';
+	 if( $self->percentages ) {
+	    my ($strcpy) = ($linesubstr);
+	    my $count = ($strcpy =~ tr/\*//);
+	    $percentages = sprintf("\t%d%%", 100 * ($count / length($linesubstr)));
+	 }
+	 $self->_print (sprintf("%-".$max."s %s%s\n", '', $linesubstr,
+				$percentages));
+	 $self->_print (sprintf("\n\n")) or return;
+	 $count += $line_len;
+      }
+   }
+   $self->flush if $self->_flush_on_write && defined $self->_fh;
+   return 1;
 }
 
 =head2 percentages
@@ -271,11 +271,11 @@ sub write_aln {
 =cut
 
 sub percentages { 
-    my ($self,$value) = @_; 
-    if( defined $value) {
-	$self->{'_percentages'} = $value; 
-    } 
-    return $self->{'_percentages'}; 
+   my ($self,$value) = @_; 
+   if( defined $value) {
+      $self->{'_percentages'} = $value; 
+   }
+   return $self->{'_percentages'}; 
 }
 
 =head2 line_length
@@ -290,11 +290,11 @@ sub percentages {
 =cut
 
 sub line_length {
-    my ($self,$value) = @_;
-    if( defined $value) {
-	$self->{'_line_length'} = $value;
-    }
-    return $self->{'_line_length'};
+   my ($self,$value) = @_;
+   if( defined $value) {
+      $self->{'_line_length'} = $value;
+   }
+   return $self->{'_line_length'};
 }
 
 1;
