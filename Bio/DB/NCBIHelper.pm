@@ -92,7 +92,7 @@ $VERSION = '0.8';
 
 BEGIN {
     $MAX_ENTRIES = 19000;
-    $HOSTBASE = 'http://www.ncbi.nih.gov';
+    $HOSTBASE = 'http://www.ncbi.nlm.nih.gov';
     %CGILOCATION = (
 		    'batch'  => ['post' => '/entrez/eutils/efetch.fcgi'],
 		    'query'  => ['get'  => '/entrez/eutils/efetch.fcgi'],
