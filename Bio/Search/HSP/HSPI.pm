@@ -36,6 +36,8 @@ Bio::Search::HSP::HSPI - Interface for a High Scoring Pair in a similarity searc
     $homology_string = $hsp->homology_string;
 
     $len = $hsp->length( ['query'|'hit'|'total'] );
+  
+    $rank = $hsp->rank;
 
 =head1 DESCRIPTION
 
@@ -194,6 +196,36 @@ sub frac_identical {
 sub frac_conserved {
     my ($self, $type) = @_;
     $self->throw_not_implemented;
+}
+
+=head2 num_identical
+
+ Title   : num_identical
+ Usage   : $obj->num_identical($newval)
+ Function: returns the number of identical residues in the alignment
+ Returns : integer
+ Args    : integer (optional)
+
+
+=cut
+
+sub num_identical{
+    shift->throw_not_implemented;
+}
+
+=head2 num_conserved
+
+ Title   : num_conserved
+ Usage   : $obj->num_conserved($newval)
+ Function: returns the number of conserved residues in the alignment
+ Returns : inetger
+ Args    : integer (optional)
+
+
+=cut
+
+sub num_conserved{
+    shift->throw_not_implemented();
 }
 
 =head2 gaps
@@ -492,5 +524,118 @@ sub seq_str {
 	$self->warn("unknown sequence type $type");
     }
     return '';
+}
+
+
+=head2 rank
+
+ Usage     : $hsp->rank( [string] );
+ Purpose   : Get the rank of the HSP within a given Blast hit.
+ Example   : $rank = $hsp->rank;
+ Returns   : Integer (1..n) corresponding to the order in which the HSP
+             appears in the BLAST report.
+
+=cut
+
+sub rank { shift->throw_not_implemented }
+
+=head2 matches
+
+ Usage     : $hsp->matches([seq_type], [start], [stop]);
+ Purpose   : Get the total number of identical and conservative matches 
+           : in the query or sbjct sequence for the given HSP. Optionally can
+           : report data within a defined interval along the seq.
+           : (Note: 'conservative' matches are called 'positives' in the
+	   : Blast report.)
+ Example   : ($id,$cons) = $hsp_object->matches('hit');
+           : ($id,$cons) = $hsp_object->matches('query',300,400);
+ Returns   : 2-element array of integers 
+ Argument  : (1) seq_type = 'query' or 'hit' or 'sbjct' (default = query)
+           :  ('sbjct' is synonymous with 'hit') 
+           : (2) start = Starting coordinate (optional)
+           : (3) stop  = Ending coordinate (optional)
+ Throws    : Exception if the supplied coordinates are out of range.
+ Comments  : Relies on seq_str('match') to get the string of alignment symbols
+           : between the query and sbjct lines which are used for determining
+           : the number of identical and conservative matches.
+
+See Also   : L<length()|length>, L<gaps()|gaps>, L<seq_str()|seq_str>, L<Bio::Search::Hit::BlastHit::_adjust_contigs()|Bio::Search::Hit::BlastHit>
+
+=cut
+
+#-----------
+sub matches {
+#-----------
+    my( $self, %param ) = @_;
+    my(@data);
+    my($seqType, $beg, $end) = ($param{-SEQ}, $param{-START}, $param{-STOP});
+    $seqType ||= 'query';
+   $seqType = 'sbjct' if $seqType eq 'hit';
+
+    if(!defined $beg && !defined $end) {
+	## Get data for the whole alignment.
+	push @data, ($self->num_identical, $self->num_conserved);
+    } else {
+	## Get the substring representing the desired sub-section of aln.
+	$beg ||= 0;
+	$end ||= 0;
+	my($start,$stop) = $self->range($seqType);
+	if($beg == 0) { $beg = $start; $end = $beg+$end; }
+	elsif($end == 0) { $end = $stop; $beg = $end-$beg; }
+
+	if($end >= $stop) { $end = $stop; } ##ML changed from if (end >stop)
+	else { $end += 1;}   ##ML moved from commented position below, makes
+                             ##more sense here
+#	if($end > $stop) { $end = $stop; }
+	if($beg < $start) { $beg = $start; }
+#	else { $end += 1;}
+
+#	my $seq = substr($self->seq_str('match'), $beg-$start, ($end-$beg));
+
+	## ML: START fix for substr out of range error ------------------
+	my $seq = "";
+	if (($self->algorithm eq 'TBLASTN') and ($seqType eq 'sbjct'))
+	{
+	    $seq = substr($self->seq_str('match'),
+			  int(($beg-$start)/3), int(($end-$beg+1)/3));
+
+	} elsif (($self->algorithm eq 'BLASTX') and ($seqType eq 'query'))
+	{
+	    $seq = substr($self->seq_str('match'),
+			  int(($beg-$start)/3), int(($end-$beg+1)/3));
+	} else {
+	    $seq = substr($self->seq_str('match'), 
+			  $beg-$start, ($end-$beg));
+	}
+	## ML: End of fix for  substr out of range error -----------------
+
+	
+	## ML: debugging code
+	## This is where we get our exception.  Try printing out the values going
+	## into this:
+	##
+#	 print STDERR 
+#	     qq(*------------MY EXCEPTION --------------------\nSeq: ") , 
+#	     $self->seq_str("$seqType"), qq("\n),$self->rank,",(  index:";
+#	 print STDERR  $beg-$start, ", len: ", $end-$beg," ), (HSPRealLen:", 
+#	     CORE::length $self->seq_str("$seqType");
+#	 print STDERR ", HSPCalcLen: ", $stop - $start +1 ," ), 
+#	     ( beg: $beg, end: $end ), ( start: $start, stop: stop )\n";
+	 ## ML: END DEBUGGING CODE----------
+
+	if(!CORE::length $seq) {
+	    $self->throw("Undefined sub-sequence ($beg,$end). Valid range = $start - $stop");
+	}
+	## Get data for a substring.
+#	printf "Collecting HSP subsection data: beg,end = %d,%d; start,stop = %d,%d\n%s<---\n", $beg, $end, $start, $stop, $seq;
+#	printf "Original match seq:\n%s\n",$self->seq_str('match');
+	$seq =~ s/ //g;  # remove space (no info).
+	my $len_cons = CORE::length $seq;
+	$seq =~ s/\+//g;  # remove '+' characters (conservative substitutions)
+	my $len_id = CORE::length $seq;
+	push @data, ($len_id, $len_cons);
+#	printf "  HSP = %s\n  id = %d; cons = %d\n", $self->rank, $len_id, $len_cons; <STDIN>;
+    }
+    @data;
 }
 1;

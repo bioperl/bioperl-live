@@ -409,6 +409,130 @@ See Also   : L<found_again()|found_again>
 sub found_again { shift->throw_not_implemented }
 #----------------
 
+
+=head2 overlap
+
+ Usage     : $blast_object->overlap( [integer] );
+ Purpose   : Gets/Sets the allowable amount overlap between different HSP sequences.
+ Example   : $blast_object->overlap(5);
+           : $overlap = $blast_object->overlap;
+ Returns   : Integer.
+ Argument  : integer.
+ Throws    : n/a
+ Status    : Experimental
+ Comments  : Any two HSPs whose sequences overlap by less than or equal
+           : to the overlap() number of resides will be considered separate HSPs
+           : and will not get tiled by Bio::Search::BlastUtils::_adjust_contigs().
+
+See Also   : L<Bio::Search::BlastUtils::_adjust_contigs()|Bio::Search::BlastUtils>, L<BUGS | BUGS>
+
+=cut
+
+#-------------
+sub overlap { shift->throw_not_implemented }
+
+
+=head2 n
+
+ Usage     : $hit_object->n();
+ Purpose   : Gets the N number for the current Blast hit.
+           : This is the number of HSPs in the set which was ascribed
+           : the lowest P-value (listed on the description line).
+           : This number is not the same as the total number of HSPs.
+           : To get the total number of HSPs, use num_hsps().
+ Example   : $n = $hit_object->n();
+ Returns   : Integer
+ Argument  : n/a
+ Throws    : Exception if HSPs have not been set (BLAST2 reports).
+ Comments  : Note that the N parameter is not reported in gapped BLAST2.
+           : Calling n() on such reports will result in a call to num_hsps().
+           : The num_hsps() method will count the actual number of
+           : HSPs in the alignment listing, which may exceed N in
+           : some cases.
+
+See Also   : L<num_hsps()|num_hsps>
+
+=cut
+
+#-----
+sub n { shift->throw_not_implemented }
+
+=head2 p
+
+ Usage     : $hit_object->p( [format] );
+ Purpose   : Get the P-value for the best HSP of the given BLAST hit.
+           : (Note that P-values are not provided with NCBI Blast2 reports).
+ Example   : $p =  $sbjct->p;
+           : $p =  $sbjct->p('exp');  # get exponent only.
+           : ($num, $exp) =  $sbjct->p('parts');  # split sci notation into parts
+ Returns   : Float or scientific notation number (the raw P-value, DEFAULT).
+           : Integer if format == 'exp' (the magnitude of the base 10 exponent).
+           : 2-element list (float, int) if format == 'parts' and P-value
+           :                is in scientific notation (See Comments).
+ Argument  : format: string of 'raw' | 'exp' | 'parts'
+           :    'raw' returns value given in report. Default. (1.2e-34)
+           :    'exp' returns exponent value only (34)
+           :    'parts' returns the decimal and exponent as a 
+           :            2-element list (1.2, -34) (See Comments).
+ Throws    : Warns if no P-value is defined. Uses expect instead.
+ Comments  : Using the 'parts' argument is not recommended since it will not
+           : work as expected if the P-value is not in scientific notation.
+           : That is, floats are not converted into sci notation before
+           : splitting into parts.
+
+See Also   : L<expect()|expect>, L<signif()|signif>, L<Bio::Search::BlastUtils::get_exponent()|Bio::Search::BlastUtils>
+
+=cut
+
+#--------
+sub p { shift->throw_not_implemented() }
+
+=head2 hsp
+
+ Usage     : $hit_object->hsp( [string] );
+ Purpose   : Get a single HSPI object for the present HitI object.
+ Example   : $hspObj  = $hit_object->hsp;  # same as 'best'
+           : $hspObj  = $hit_object->hsp('best');
+           : $hspObj  = $hit_object->hsp('worst');
+ Returns   : Object reference for a Bio::Search::HSP::BlastHSP.pm object.
+ Argument  : String (or no argument).
+           :   No argument (default) = highest scoring HSP (same as 'best').
+           :   'best' or 'first' = highest scoring HSP.
+           :   'worst' or 'last' = lowest scoring HSP.
+ Throws    : Exception if the HSPs have not been collected.
+           : Exception if an unrecognized argument is used.
+
+See Also   : L<hsps()|hsps>, L<num_hsps>()
+
+=cut
+
+#----------
+sub hsp { shift->throw_not_implemented }
+
+=head2 logical_length
+
+ Usage     : $hit_object->logical_length( [seq_type] );
+           : (mostly intended for internal use).
+ Purpose   : Get the logical length of the hit sequence.
+           : If the Blast is a TBLASTN or TBLASTX, the returned length 
+           : is the length of the would-be amino acid sequence (length/3).
+           : For all other BLAST flavors, this function is the same as length().
+ Example   : $len    = $hit_object->logical_length();
+ Returns   : Integer 
+ Argument  : seq_type = 'query' or 'hit' or 'sbjct' (default = 'query')
+             ('sbjct' is synonymous with 'hit')
+ Throws    : n/a
+ Comments  : This is important for functions like frac_aligned_query()
+           : which need to operate in amino acid coordinate space when dealing
+           : with [T]BLAST[NX] type reports.
+
+See Also   : L<length()|length>, L<frac_aligned_query()|frac_aligned_query>, L<frac_aligned_hit()|frac_aligned_hit>
+
+=cut
+
+#--------------------
+sub logical_length { shift->throw_not_implemented() }
+
 1;
 
 
