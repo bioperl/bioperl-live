@@ -227,14 +227,12 @@ sub new {
 
   # confirm that indicated sequence is actually in the database!
   my($absref,$absclass,$absstart,$absstop,$absstrand);
-#  if ($force_absolute) { # absolute position is given to us
-#    (undef,undef,$absstart,$absstop,undef) = $factory->abscoords($name,$class,$name);
-#    $start = 1 unless defined $start;
-#    ($absref,$absclass,$absstart,$absstop,$absstrand) = ($name,$class,1,$absstop-$absstart+1,'+');
-#  } else {
-  ($absref,$absclass,$absstart,$absstop,$absstrand)
-    = $factory->abscoords($name,$class,$force_absolute ? $name : ()) or return;
- #  }
+
+  if ($force_absolute && defined($start)) { # absolute position is given to us
+    ($absref,$absclass,$absstart,$absstop,$absstrand) = ($name,$class,$start,$stop,'+');
+  } else {
+    ($absref,$absclass,$absstart,$absstop,$absstrand) = $factory->abscoords($name,$class,$force_absolute ? $name : ()) or return;
+  }
 
   $absstrand ||= '+';
 

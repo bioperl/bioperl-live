@@ -70,7 +70,7 @@ use Bio::DB::GFF::Util::Rearrange;
 
 use vars qw($VERSION @ISA);
 @ISA = qw(Bio::DB::GFF::Adaptor::dbi::mysql);
-$VERSION = 0.32;
+$VERSION = 0.33;
 
 # this is the largest that any reference sequence can be (100 megabases)
 use constant MAX_BIN    => 100_000_000;
@@ -265,8 +265,8 @@ sub bin_query {
   $stop  = $self->{maxbin} unless defined($stop);
 
   my @bins;
-  my $minbin = defined $minbin ? $minbin : $self->{minbin};
-  my $maxbin = defined $maxbin ? $maxbin : $self->{maxbin};
+  $minbin = defined $minbin ? $minbin : $self->{minbin};
+  $maxbin = defined $maxbin ? $maxbin : $self->{maxbin};
   my $tier = $maxbin;
   while ($tier >= $minbin) {
     push @bins,'fbin between ? and ?';

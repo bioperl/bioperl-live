@@ -288,7 +288,7 @@ retrieval of sequences.  Note the double-colon between the words.
 The GFF format uses a "group" field to indicate aggregation properties
 of individual features.  For example, a set of exons and introns may
 share a common transcript group, and multiple transcripts may share
-the same gene group.  
+the same gene group.
 
 Aggregators are small modules that use the group information to
 rebuild the hierarchy.  When a Bio::DB::GFF object is created, you
@@ -320,6 +320,18 @@ Three aggregators are currently provided:
 
 The existing aggregators are easily customized.
 
+Note that aggregation will not occur unless you specifically request
+the aggregation type.  For example, this call:
+
+  @features = $segment->features('alignment');
+
+will generate an array of aggregated alignment features.  However,
+this call:
+
+  @features = $segment->features();
+
+will return a list of unaggregated similarity segments.
+
 =back
 
 =head1 API
@@ -341,7 +353,7 @@ use Bio::Root::RootI;
 use vars qw($VERSION @ISA);
 @ISA = qw(Bio::Root::RootI);
 
-$VERSION = '0.37';
+$VERSION = '0.38';
 my %valid_range_types = (overlaps     => 1,
 			 contains     => 1,
 			 contained_in => 1);
@@ -385,6 +397,32 @@ pass it to the GFF constructor this way:
   my $db = Bio::DB::GFF->new(-aggregator=>[$transcript,'clone','alignment],
                              -adaptor   => 'dbi:mysql',
                              -dsn      => 'dbi:mysql:elegans42');
+
+The commonly used 'dbi:mysql' adaptor recognizes the following
+adaptor-specific arguments:
+
+  Argument       Description
+  --------       -----------
+
+  -dsn           the DBI data source, e.g. 'dbi:mysql:ens0040'
+                 If a partial name is given, such as "ens0040", the
+                 "dbi:mysql:" prefix will be added automatically.
+
+  -user          username for authentication
+
+  -pass          the password for authentication
+
+The commonly used 'dbi:mysqlopt' adaptor also recogizes the following
+arguments.
+
+  Argument       Description
+  --------       -----------
+
+  -fasta         path to a directory containing FASTA files for the DNA
+                 contained in this database (e.g. "/usr/local/share/fasta")
+
+  -acedb         an acedb URL to use when converting features into ACEDB
+                    objects (e.g. sace://localhost:2005)
 
 =cut
 
@@ -728,7 +766,9 @@ same physical segment, the method will return a segment that spans the
 minimum and maximum positions.  If the reference sequence occupies
 ranges on different physical segments, then it returns undef.
 
-See also the fetch_group() method.
+The segments() method, described below, can be used to retrieve all
+the segments spanned by a named feature, regardless of whether it is
+on a contiguous physical segment.
 
 =cut
 #'
@@ -752,14 +792,8 @@ sub segment {
  Args    : numerous, see below
  Status  : public
 
-This method behaves in the same way as segment(), but it avoids the
-initial database lookup to find the absolute start and stop positions
-of the provided landmark on the genomic sequence.  This is slightly
-faster, but since the module has no way of automatically determining
-the length of the segment, it has the drawback that unless you
-explicitly specify the stop and end points of the segment, the start()
-method will always return 1, and the end() and length() methods will
-return undef.
+This method behaves in the same way as segment(), but it forces the
+method to return the segment in absolute coordinates.
 
 =cut
 
@@ -1027,28 +1061,30 @@ sub features {
   $self->_features('contains',undef,undef,undef,undef,$types,undef,$automerge,$iterator);
 }
 
-=head2 fetch_group
+=head2 segments
 
- Title   : fetch_group
- Usage   : $db->fetch_group($class => $name)
- Function: fetch features by group name
+ Title   : segments
+ Usage   : $db->segments($class => $name)
+ Function: fetch segments by group name
  Returns : a list of Bio::DB::GFF::Feature objects
  Args    : the class and name of the desired feature
  Status  : public
 
-This method can be used to fetch a named feature from the database.
-GFF annotations are named using the group class and name fields, so
-for features that belong to a group of size one, this method can be
-used to retrieve that group (and is equivalent to the segment() method).
+This method can be used to fetch a set of one or more named features 
+from the database.  GFF annotations are named using the group class and 
+name fields, so for features that belong to a group of size one, this method 
+can be used to retrieve that group (and is equivalent to the segment() method).
 
 This method may return zero, one, or several Bio::DB::GFF::Feature
 objects.
 
 Aggregation is performed on features as usual.
 
+The fetch_group() method is an alias for this one.
+
 =cut
 
-sub fetch_group {
+sub segments {
   my $self = shift;
   my ($gclass,$gname);
   if (@_ == 1) {
@@ -1063,6 +1099,8 @@ sub fetch_group {
   $self->get_feature_by_name($gclass,$gname,$callback);
   @$features;
 }
+
+*fetch_group = \&segments;
 
 =head2 get_seq_stream()
 
@@ -1714,7 +1752,9 @@ sub make_aggregated_feature {
     }
     $self->warn("bad aggregator: turned one group into ",scalar(@aggregated)," features") if @aggregated > 1;
     @$accumulated_features = $feature ? ($feature) : ();  # remember this feature
-    return $aggregated[0];
+    return $aggregated[0] if $aggregated[0];
+    return $feature if $matchsub->($feature);
+    return;
   } else {
     return unless defined($feature);
     push @$accumulated_features,$feature if defined $feature->group;
@@ -1786,7 +1826,7 @@ sub make_match_sub {
 
   my $sub =<<END;
 sub {
-  my \$feature = shift;
+  my \$feature = shift or return;
   return \$feature->type =~ /^$expr\$/i;
 }
 END
@@ -1963,6 +2003,7 @@ sub _split_group {
   for (@groups) {
 
     my ($tag,$value) = /^(\S+)(?:\s+(.+))?/;
+    $value ||= '';
     if ($value =~ /^\"(.+)\"$/) {  #remove quotes
       $value = $1;
     }
@@ -1973,6 +2014,7 @@ sub _split_group {
     # notes array. Do the same thing with
     # additional groups, since we don't handle
     # complex groupings (yet)
+    $tag ||= '';
     if ($tag eq 'Note' or ($gclass && $gname)) {
       push @notes,$value;
     }

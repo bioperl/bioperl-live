@@ -1036,6 +1036,9 @@ sub get_table_id {
   my $s = $self->{load_stuff};
   my $dbh = $self->features_db;
 
+  $id1 ||= '';
+  $id2 ||= '';
+
   unless (defined($s->{$table}{$id1,$id2})) {
 
     if ( (my $result = $s->{"lookup_$table"}->execute($id1,$id2)) > 0) {
