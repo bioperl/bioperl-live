@@ -179,7 +179,7 @@ sub next_psm {
     #Parses the next prediction and returns a psm objects
     my $self=shift;
     return undef if ($self->{end});
-    my ($endm,$line,$instances,$tr,$width,$motif_id,$sites,$e_val,$id,$ic);
+    my ($endm,$line,$instances,$tr,$width,$motif_id,$sites,$e_val,$id,$ic,$lA,$lC,$lG,$lT);
     while (defined( $line = $self->_readline) ) {
 	if ($line=~ m/\sSite\s/) {
 	    $instances=$self->_parseInstance;
@@ -201,14 +201,22 @@ sub next_psm {
 	    ($ic)=split(/\s/,$line);
 	}
         #Last info-prob matrix data
-	if ($line=~/letter\-probability\s+matrix/) {
+	if ($line=~/position-specific\s+scoring matrix/) {
+		($lA,$lC,$lG,$lT)=_parse_logs($self);
+	}
+	if ($line=~/^letter-probability\smatrix/) {
 	    my %matrix_dat=$self->_parseMatrix($motif_id);
 	    my $psm= new Bio::Matrix::PSM::Psm(%matrix_dat, 
 					       -instances=>$instances, 
 					       -e_val=>$e_val,
 					       -IC=>$ic, 
 					       -width=>$width, 
-					       -sites=>$sites);
+					       -sites=>$sites,
+						   -lA=>$lA,
+						   -lC=>$lC,
+						   -lG=>$lG,
+						   -lT=>$lT,
+						   );
 	    return $psm;
 	}
 	if ($line=~"SUMMARY OF MOTIFS") {
@@ -246,8 +254,8 @@ sub _parseMatrix {
     do {
 	chomp $line;
 	last if ($line eq '');
-	$line=~s/\s\s/,/g;
-	$line=~s/\s//g;
+  $line=~s/^\s+//;
+	$line=~s/\s+/,/g;
 	($pA[$i],$pC[$i],$pG[$i],$pT[$i])=split(/,/,$line);
 	$i++;
 	$line=$self->_readline;
@@ -256,6 +264,37 @@ sub _parseMatrix {
     return (-pA=>\@pA,-pC=>\@pC,-pG=>\@pG,-pT=>\@pT,-id=>$id);
 }
 
+=head2 _parse_logs
+
+ Title   : _parse_logs
+ Usage   :
+ Function: Parses the next site matrix log values in the meme file
+ Throws  :
+ Example :  Internal stuff
+ Returns :  array of array refs
+ Args    :  string
+
+=cut
+
+sub _parse_logs {
+    my $self=shift;
+    my (@lA,@lC,@lG,@lT);
+    my $i=0;
+    $self->_readline;   $self->_readline;
+    my $line = $self->_readline;
+    #Most important part- the probability matrix
+    do {
+	chomp $line;
+	last if ($line eq '');
+  $line=~s/^\s+//;
+	$line=~s/\s+/,/g;
+	($lA[$i],$lC[$i],$lG[$i],$lT[$i])=split(/,/,$line);
+	$i++;
+	$line=$self->_readline;
+    } until $line =~ /\-{10,}/;
+    
+    return (\@lA,\@lC,\@lG,\@lT);
+}
 
 =head2 _parseInstance
 
@@ -296,5 +335,8 @@ sub _parseInstance {
     $self->{instances} = \@instance;
     return \@instance;
 }
+
+				
+			
 
 1;
