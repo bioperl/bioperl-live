@@ -143,8 +143,8 @@ numbers, Accession.version numbers and locus names.
 sub new {
   my $class = shift;
   my $self  = $class->SUPER::new(@_);
-  my ($db,$reldate,$mindate,$maxdate,$datetype,$ids)
-    = $self->_rearrange([qw(DB RELDATE MINDATE MAXDATE DATETYPE IDS)],@_);
+  my ($query,$db,$reldate,$mindate,$maxdate,$datetype,$ids)
+    = $self->_rearrange([qw(QUERY DB RELDATE MINDATE MAXDATE DATETYPE IDS)],@_);
   $self->db($db || DEFAULT_DB);
   $reldate  && $self->reldate($reldate);
   $mindate  && $self->mindate($mindate);

@@ -39,15 +39,14 @@ Bio::DB::GenBank - Database object interface to GenBank
     $seq = $gb->get_Seq_by_gi('405830'); # GI Number
 
     # get a stream via a query string
-    my $seqio = $gb->get_Stream_by_query('Oryza sativa[Organism] AND EST');
+    my $query = Bio::DB::Query::GenBank->new(-query   =>'Oryza sativa[Organism] AND EST',
+                                             -reldate => '30',
+					     -db      => 'nucleotide');
+    my $seqio = $gb->get_Stream_by_query($query);
+
     while( my $seq =  $seqio->next_seq ) {
       print "seq length is ", $seq->length,"\n";
     }
-
-    # or using a Bio::DB::Query::GenBank query
-    my $query = Bio::DB::Query::GenBank->new(-query   =>'Oryza sativa AND EST',
-                                             -reldate => '30');
-    my $seqio = $gb->get_Stream_by_query($query);
 
     # or ... best when downloading very large files, prevents
     # keeping all of the file in memory
