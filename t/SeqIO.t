@@ -9,7 +9,7 @@ BEGIN {
 	use lib 't';
     }
     use Test;
-    $TESTCOUNT = 138;
+    $TESTCOUNT = 142;
     plan tests => $TESTCOUNT;
 }
 
@@ -99,6 +99,7 @@ ok defined $as->seq;
 ok($as->display_id, 'HSHNCPA1');
 ok($as->accession_number, 'X79536');
 ok($as->seq_version, 1);
+ok($as->version, 1);
 ok($as->desc, 'H.sapiens mRNA for hnRNPcore protein A1');
 ok($as->molecule, 'RNA');
 ok($as->alphabet, 'rna');
@@ -350,8 +351,9 @@ print "Sequence 1 of 1 from GCG stream:\n", $seq->seq, "\n" if( $DEBUG);
 
 
 $str  = new Bio::SeqIO(-format => 'genbank',
-			    -file   => Bio::Root::IO->catfile("t","data","AF165282.gb"),
-			    -verbose => $verbosity);
+		       -file   => Bio::Root::IO->catfile("t","data",
+							 "AF165282.gb"),
+		       -verbose => $verbosity);
 
 $seq = $str->next_seq;
 @features = $seq->all_SeqFeatures();
@@ -362,7 +364,11 @@ $location = $features[1]->location;
 ok($location->isa('Bio::Location::SplitLocationI'));
 @sublocs = $location->sub_Location();
 ok(@sublocs, 29);
- 
+
+# version and primary ID - believe it or not, this wasn't working
+ok ($seq->version, 1);
+ok ($seq->seq_version, 1);
+ok ($seq->primary_id, "5734104");
 
 # PIR testing
 

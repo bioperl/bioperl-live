@@ -237,9 +237,15 @@ sub next_seq {
 	      $params{'-pid'} = $1;
 	  }
 	  #Version number
-	  elsif( /^VERSION\s+(\S+)\.?(\d+)?\s*(GI:\d+)?/ ) {
-	      $params{'-seq_version'} = $2 if ($2);
-	      #$params{'-primary_id'} = substr($3, 3) if( $3);
+	  elsif( /^VERSION\s+(.+)$/ ) {
+	      my ($acc,$gi) = split(' ',$1);
+	      if($acc =~ /^\w+\.(\d+)/) {
+		  $params{'-version'} = $1;
+		  $params{'-seq_version'} = $1;
+	      }
+	      if($gi && (index($gi,"GI:") == 0)) {
+		  $params{'-primary_id'} = substr($gi,3);
+	      }
 	  }
 	  #Keywords
 	  elsif( /^KEYWORDS\s+(.*)/ ) {

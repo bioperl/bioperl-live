@@ -215,8 +215,9 @@ sub next_seq {
        #version number
        if( /^SV\s+\S+\.(\d+);?/ ) {
 	   my $sv = $1;
-	   $sv =~ s/\;//;
+	   #$sv =~ s/\;//;
 	   $params{'-seq_version'} = $sv;
+	   $params{'-version'} = $sv;
        }
 
        #date (NOTE: takes last date line)
