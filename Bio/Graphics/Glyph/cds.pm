@@ -22,9 +22,8 @@ sub draw {
   my ($gd,$left,$top) = @_;
 
   my @parts = $self->parts;
-  @parts    = $self unless @parts;
-
-#  return $self->SUPER::draw(@_) unless @parts;
+  @parts    = $self if !@parts && $self->level == 0;
+  return $self->SUPER::draw(@_) unless @parts;
 
   my $fits = $self->protein_fits;
 

@@ -1,4 +1,5 @@
 package Bio::Graphics::Glyph::segments;
+#$Id$
 
 use strict;
 use Bio::Location::Simple;

@@ -1,4 +1,5 @@
 package Bio::Graphics::Glyph::graded_segments;
+#$Id$
 
 use strict;
 use Bio::Graphics::Glyph::generic;
@@ -14,7 +15,7 @@ sub draw {
   # handle both das-style and Bio::SeqFeatureI style,
   # which use different names for subparts.
   my @parts = $self->parts;
-  @parts    = $self unless @parts;
+  @parts    = $self if !@parts && $self->level == 0;
   return $self->SUPER::draw(@_) unless @parts;
 
   # figure out the colors

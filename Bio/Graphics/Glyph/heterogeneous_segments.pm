@@ -7,6 +7,8 @@ package Bio::Graphics::Glyph::heterogeneous_segments;
 # -waba_weak   => 'red'
 # -waba_coding => 'green' 
 
+# $Id$
+
 use strict;
 use Bio::Graphics::Glyph::graded_segments;
 use vars '@ISA';
@@ -20,6 +22,7 @@ sub draw {
   # handle both das-style and Bio::SeqFeatureI style,
   # which use different names for subparts.
   my @parts = $self->parts;
+  @parts    = $self if !@parts && $self->level == 0;
   return $self->SUPER::draw(@_) unless @parts;
 
   # figure out the colors
