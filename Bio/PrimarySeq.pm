@@ -284,7 +284,7 @@ sub seq {
 	   $obj->_guess_alphabet();
        } # else (seq not changed and alphabet was defined) do nothing
        # if the seq is changed, make sure we unset a possibly set length
-       $obj->length(undef) if $is_changed_seq;
+       $obj->length(undef) if $is_changed_seq || $obj->{'seq'};
    }
    return $obj->{'seq'};
 }
