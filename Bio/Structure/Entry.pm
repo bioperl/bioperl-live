@@ -67,6 +67,7 @@ use Bio::Structure::Model;
 use Bio::Structure::Chain;
 use Bio::Annotation::Collection;
 use Tie::RefHash;
+
 @ISA = qw(Bio::Root::Root Bio::StructureI);
 
 
@@ -131,7 +132,6 @@ sub new {
 }
 
 
-
 =head2 model()
 
  Title   : model
@@ -154,6 +154,7 @@ sub model {
 			if (@obj) {
 				for my $m (@obj) {
 					$self->_remove_from_graph($m);
+					$self->{'model'} = [];
 				}
 			}
 			# add the new ones
@@ -377,7 +378,7 @@ sub get_chains {
 	my ($self, $model) = @_;
 
 	if (! defined $model) {
-		$self->throw("You need to supply a model the get_chains\n");
+		$model = ($self->get_models)[0];
 	}
 	# pass through to add_chain
 	$self->add_chain($model);
@@ -538,7 +539,8 @@ sub add_atom {
 				#$r->_grandparent($str_ref);
 			}
 		}
-		elsif ( $atom->isa('Bio::Structure::Atom') ) { 
+		#elsif ( $atom->isa('Bio::Structure::Atom') ) { 
+		elsif ( ref($atom) =~ /^Bio::Structure::Atom/ ) { 
 			if ( $self->_parent($atom) ) {
 				$self->throw("$atom already belongs to a parent\n");
 			}
@@ -627,6 +629,52 @@ sub master {
 		$self->{'master'} = $value;
 	}
 	return $self->{'master'};
+}
+
+
+=head2 seqres()
+
+ Title   : seqres
+ Usage   : $seqobj = $structure->seqres("A");
+ Function: gets a sequence object containing the sequence from the SEQRES record.
+ 	    if a chain-ID is given , the sequence for this chain is given, if none
+	    is provided the first chain is choosen
+ Returns : a Bio::PrimarySeq
+ Args    : the chain-ID of the chain you want the sequence from
+
+=cut
+
+sub seqres {
+	my ($self, $chainid) = @_;
+	my $s_u = "x4 A1 x7 A3 x1 A3 x1 A3 x1 A3 x1 A3 x1 A3 x1 A3 x1 A3 x1 A3 x1 A3 x1 A3 x1 A3 x1 A3";
+	my $seq;
+	if ( !defined $chainid) {
+		my $m = ($self->get_models($self))[0];
+		my $c = ($self->get_chains($m))[0];
+		$chainid = $c->id;
+	}
+	my $seqres = ($self->annotation->get_Annotations("seqres"))[0];
+	my $seqres_string = $seqres->as_text;
+$self->debug("seqres : $seqres_string\n");
+	$seqres_string =~ s/^Value: //;
+	my $pos = 0;
+	while ($pos < length $seqres_string) {
+		my $st = substr($seqres_string, $pos, 63);
+		$pos += 63;
+$self->debug("seqres: $st\n");
+		my ($chain,@res) = unpack $s_u, $st;
+		$chain = 'default' if ($chain =~ /^\s*$/);
+		next if ($chain ne $chainid);
+		for my $res (@res) {
+			next if $res =~ /^\s*$/;
+			$seq .= $self->_three_to_one($res);
+		}
+	}
+	my $pseq = Bio::PrimarySeq->new;
+	$pseq->seq($seq);
+	my $id = $self->id . "_" . $chainid;
+	$pseq->id($id);
+	return $pseq;
 }
 
 =head2 get_atom_by_serial()
@@ -891,6 +939,52 @@ sub _remove_from_graph {
 }
 
 			
+sub _print_stats_pc {
+	# print stats about the parent/child hashes
+	my ($self) =@_;
+	my $pc = scalar keys %{$self->{'p_c'}};
+	my $cp = scalar keys %{$self->{'c_p'}};
+	my $now_time = Time::HiRes::time;
+	$self->debug("pc stats: P_C $pc C_P $cp $now_time\n");
+}
+
+sub _three_to_one {
+	# convert three letter AA codes to one letter, return X if unknown
+	my ($self, $three) = @_;
+	my $one;
+	my %three_to_one = (
+		"ALA" => "A",
+		"ARG" => "R",
+		"ASN" => "N",
+		"ASP" => "D",
+		"CYS" => "C",
+		"GLN" => "Q",
+		"GLU" => "E",
+		"GLY" => "G",
+		"HIS" => "H",
+		"ILE" => "I",
+		"LEU" => "L",
+		"LYS" => "K",
+		"MET" => "M",
+		"PHE" => "F",
+		"PRO" => "P",
+		"SER" => "S",
+		"THR" => "T",
+		"TRP" => "W",
+		"TYR" => "Y",
+		"VAL" => "V"
+	);
+	if(exists $three_to_one{$three}) {
+		$one = $three_to_one{$three};
+	} 
+	else {
+		$one = "X";
+	}
+	return $one;
+}
+
+
+	
 
 
 1;
