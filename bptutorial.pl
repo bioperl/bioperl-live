@@ -698,11 +698,11 @@ sequence data among the many widely used data formats.  Bioperl\'s
 SeqIO object, however, makes this chore a breeze.  SeqIO can
 read a stream of sequences - located in a single or in multiple files -
 in a number of formats: Fasta, EMBL, GenBank, Swissprot, PIR, GCG, SCF,
-phd/phred, Ace, or raw (plain sequence). Once the sequence data has
-been read in with SeqIO, it is available to bioperl in the form of Seq
-objects.  Moreover, the Seq objects can then be written to another file
-(again using SeqIO) in any of the supported data formats making data
-converters simple to implement, for example:
+phd/phred, Ace, fastq, or raw (plain sequence). Once the sequence data
+has been read in with SeqIO, it is available to bioperl in the form of
+Seq objects.  Moreover, the Seq objects can then be written to another
+file (again using SeqIO) in any of the supported data formats making
+data converters simple to implement, for example:
 
   use Bio::SeqIO;
   $in  = Bio::SeqIO->new('-file' => "inputfilename",
@@ -737,7 +737,7 @@ current interpretations:
    bsml     bsm|bsml
    swiss    swiss|sp
    phd      phd|phred
-
+   fastq    fastq
 
 For more information see L<Bio::SeqIO>.
 
@@ -748,14 +748,15 @@ For more information see L<Bio::SeqIO>.
 Data files storing multiple sequence alignments also appear in varied
 formats.  AlignIO is the bioperl object for data conversion of
 alignment files. AlignIO is patterned on the SeqIO object and shares
-most of SeqIO\'s features.  AlignIO currently supports input in the
+most of SeqIO's features.  AlignIO currently supports input in the
 following formats: fasta, mase, stockholm, prodom, selex, bl2seq, clustalw,
 msf/gcg, water (from EMBOSS, see L<"III.3.6">), needle (from EMBOSS, see
-L<"III.3.6">) and output in these formats: fasta, mase, selex, clustalw,
-msf/gcg.  One significant difference between AlignIO and SeqIO is that
-AlignIO handles IO for only a single alignment at a time (SeqIO.pm
-handles IO for multiple sequences in a single stream.)  Syntax for
-AlignIO is almost identical to that of SeqIO:
+L<"III.3.6">), and phylip (interleaved). AlignIO supports output in
+these formats: fasta, mase, selex, clustalw, msf/gcg, and phylip 
+(interleaved).  One significant difference between AlignIO and SeqIO is
+that AlignIO handles IO for only a single alignment at a time but
+SeqIO.pm handles IO for multiple sequences in a single stream. Syntax
+for AlignIO is almost identical to that of SeqIO:
 
   use Bio::AlignIO;
   $in  = Bio::AlignIO->new('-file' => "inputfilename" ,
@@ -831,7 +832,7 @@ features across:
 Note that some methods return strings, some return arrays and some
 return references to objects.  See L<Bio::Seq> for more information.
 
-Many of these methods are self-explanatory. However, bioperl\'s flexible
+Many of these methods are self-explanatory. However, bioperl's flexible
 translation methods warrant further comment. Translation in bioinformatics
 can mean two slightly different things:
 
@@ -952,6 +953,7 @@ Once the custom enzyme object has been created, cut_seq() can be
 called in the usual manner. See L<Bio::Tools::RestrictionEnzyme> for
 details.
 
+
 =head2    III.3.4 Identifying amino acid cleavage sites (Sigcleave)
 
 For amino acid sequences we may be interested to know whether the
@@ -990,6 +992,7 @@ Note that Sigcleave is passed a raw sequence rather than a sequence
 object. Also note that the "type" in the Sigcleave object is "amino"
 whereas in a Seq object it would be called "protein". Please see
 L<Bio::Tools::Sigcleave> for details.
+
 
 =head2 III.3.5 Miscellaneous sequence utilities: OddCodes, SeqPattern
 
@@ -1045,6 +1048,7 @@ examples in the script seq_pattern.pl in the examples/ directory.
   $pattern_obj->revcom(1); # returns expanded rev complement pattern.
 
 More detail can be found in L<Bio::Tools::SeqPattern>.
+
 
 =for html <A NAME ="iii.3.6"></A>
 
@@ -1155,8 +1159,8 @@ one can call one of the supported blast executables.  The input
 sequence(s) to these executables may be fasta file(s), a Seq
 object or an array of Seq objects, eg
 
-  $input = Bio::Seq->new('-id'=>"test query",
-  			 '-seq'=>"ACTAAGTGGGGG");
+  $input = Bio::Seq->new(-id  =>"test query",
+  			 -seq =>"ACTAAGTGGGGG");
   $blast_report = $factory->blastall($input);
 
 The returned blast report will be in the form of a bioperl
