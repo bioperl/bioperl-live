@@ -163,7 +163,6 @@ semantics.
 Specify the format of the file.  Supported formats include:
 
    fasta       FASTA format
-   pfam        pfam format
    selex       selex (hmmer) format
    stockholm   stockholm format
    prodom      prodom (protein domain) format
@@ -174,13 +173,18 @@ Specify the format of the file.  Supported formats include:
    nexus       Swofford et al NEXUS format
    pfam        Pfam sequence alignment format
    phylip      Felsenstein's PHYLIP format
+   emboss      water and needle format
+   mega        MEGA format
+   meme        MEME format
+   psi         PSI-BLAST format
 
 Currently only those formats which were implemented in L<Bio::SimpleAlign>
 have been incorporated in AlignIO.pm.  Specifically, mase, stockholm
-and prodom have only been implemented for input.
+and prodom have only been implemented for input. See the specific module
+(e.g. L<Bio::AlignIO::meme>) for notes on supported versions.
 
 If no format is specified and a filename is given, then the module
-will attempt to deduce it from the filename.  If this is unsuccessful,
+will attempt to deduce it from the filename suffix.  If this is unsuccessful,
 Fasta format is assumed.
 
 The format name is case insensitive.  'FASTA', 'Fasta' and 'fasta' are
