@@ -131,8 +131,56 @@ methods. Internal methods are usually preceded with a _
 package Bio::Tools::IUPAC;
 
 use strict;
-use vars qw(@ISA $AUTOLOAD);
+use vars qw(@ISA %IUP %IUB $AUTOLOAD);
 
+BEGIN {
+    %IUB = ( A => [qw(A)],
+	     C => [qw(C)],
+	     G => [qw(G)],
+	     T => [qw(T)],
+	     U => [qw(U)],
+	     M => [qw(A C)],
+	     R => [qw(A G)],
+	     W => [qw(A T)],
+	     S => [qw(C G)],
+	     Y => [qw(C T)],
+	     K => [qw(G T)],
+	     V => [qw(A C G)],
+	     H => [qw(A C T)],
+	     D => [qw(A G T)],
+	     B => [qw(C G T)],
+	     X => [qw(G A T C)],
+	     N => [qw(G A T C)]
+	     );
+
+    %IUP = (A => [qw(A)],
+	    B => [qw(D N)],
+	    C => [qw(C)],
+	    D => [qw(D)],
+	    E => [qw(E)],
+	    F => [qw(F)],
+	    G => [qw(G)],
+	    H => [qw(H)],
+	    I => [qw(I)],
+	    K => [qw(K)],
+	    L => [qw(L)],
+	    M => [qw(M)],
+	    N => [qw(N)],
+	    P => [qw(P)],
+	    Q => [qw(Q)],
+	    R => [qw(R)],
+	    S => [qw(S)],
+	    T => [qw(T)],
+	    U => [qw(U)],
+	    V => [qw(V)],
+	    W => [qw(W)],
+	    X => [qw(X)],
+	    Y => [qw(Y)],
+	    Z => [qw(E Q)],
+	    '*' => ['*']
+	    );
+    
+}
 use Bio::Root::Root;
 @ISA = qw(Bio::Root::Root);
 
@@ -161,53 +209,9 @@ sub new {
     $seq->isa('Bio::Seq') or $self->throw("Must supply a Seq.pm object to IUPAC!");
     $self->{'_SeqObj'} = $seq;
     if ($self->{'_SeqObj'}->alphabet() =~ m/^[dr]na$/i ) { # nucleotide seq object
-	$self->{'_iupac_iub'} = { A => [qw(A)],
-				  C => [qw(C)],
-				  G => [qw(G)],
-				  T => [qw(T)],
-				  U => [qw(U)],
-				  M => [qw(A C)],
-				  R => [qw(A G)],
-				  W => [qw(A T)],
-				  S => [qw(C G)],
-				  Y => [qw(C T)],
-				  K => [qw(G T)],
-				  V => [qw(A C G)],
-				  H => [qw(A C T)],
-				  D => [qw(A G T)],
-				  B => [qw(C G T)],
-				  X => [qw(G A T C)],
-				  N => [qw(G A T C)]
-				};
-	$self->{'_alpha'} = [ map { $self->{'_iupac_iub'}{uc($_)} } split('', $self->{'_SeqObj'}->seq()) ];
+	$self->{'_alpha'} = [ map { $IUB{uc($_)} } split('', $self->{'_SeqObj'}->seq()) ];
     } elsif ($self->{'_SeqObj'}->alphabet() =~ m/^protein$/i ) { # amino acid seq object
-	$self->{'_iupac_iup'} = { A => [qw(A)],
-				  B => [qw(D N)],
-				  C => [qw(C)],
-				  D => [qw(D)],
-				  E => [qw(E)],
-				  F => [qw(F)],
-				  G => [qw(G)],
-				  H => [qw(H)],
-				  I => [qw(I)],
-				  K => [qw(K)],
-				  L => [qw(L)],
-				  M => [qw(M)],
-				  N => [qw(N)],
-				  P => [qw(P)],
-				  Q => [qw(Q)],
-				  R => [qw(R)],
-				  S => [qw(S)],
-				  T => [qw(T)],
-				  U => [qw(U)],
-				  V => [qw(V)],
-				  W => [qw(W)],
-				  X => [qw(X)],
-				  Y => [qw(Y)],
-				  Z => [qw(E Q)],
-				  '*' => ['*']
-				};
-	$self->{'_alpha'} = [ map { $self->{'_iupac_iup'}{uc($_)} } split('', $self->{'_SeqObj'}->seq()) ];
+	$self->{'_alpha'} = [ map { $IUP{uc($_)} } split('', $self->{'_SeqObj'}->seq()) ];
     } else { # unknown type: we could make a guess, but let's not.
 	$self->throw("You must specify the 'type' of sequence provided to IUPAC");
     }
@@ -255,6 +259,35 @@ sub next_seq{
 	    return $self->{'_SeqObj'};
 	}
     }
+}
+
+=head2 iupac_iup
+
+ Title   : iupac_iup
+ Usage   : my %aasymbols = $iupac->iupac_iup
+ Function: Returns a hash of PROTEIN symbols -> symbol components
+ Returns : Hash
+ Args    : none
+
+=cut
+
+sub iupac_iup{
+   return %IUP;
+
+}
+
+=head2 iupac_iub
+
+ Title   : iupac_iub
+ Usage   : my %dnasymbols = $iupac->iupac_iub
+ Function: Returns a hash of DNA symbols -> symbol components
+ Returns : Hash
+ Args    : none
+
+=cut
+
+sub iupac_iub{
+   return %IUB;
 }
 
 sub AUTOLOAD {
