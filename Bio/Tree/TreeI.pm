@@ -20,9 +20,10 @@ Bio::Tree::TreeI - A Tree object suitable for lots of things, designed
   # get a Bio::Tree::TreeI somehow
   # like from a TreeIO
   my $treeio = new Bio::TreeIO(-format => 'newick', -file => 'treefile.dnd');
-  my $tree = $treeio->next_tree;
-  my @nodes = $tree->get_nodes;
-  my $root = $tree->get_root_node;
+  my $tree   = $treeio->next_tree;
+  my @nodes  = $tree->get_nodes;
+  my @leaves = $tree->get_leaf_nodes;
+  my $root   = $tree->get_root_node;
 
 =head1 DESCRIPTION
 
@@ -138,7 +139,7 @@ sub number_nodes{
 
 =cut
 
-sub branch_length {
+sub total_branch_length {
    my ($self) = @_;
    $self->throw_not_implemented();
 }
@@ -196,5 +197,22 @@ sub score{
    my ($self,$value) = @_;
    $self->throw_not_implemented();
 }
+
+=head2 get_leaf_nodes
+
+ Title   : get_leaf_nodes
+ Usage   : my @leaves = $tree->get_leaf_nodes()
+ Function: Returns the leaves (tips) of the tree
+ Returns : Array of Bio::Tree::NodeI objects
+ Args    : none
+
+
+=cut
+
+sub get_leaf_nodes{
+   my ($self) = @_;
+   return grep { $_->is_Leaf() } $self->get_nodes(-sortby => 'creation');
+}
+
 
 1;
