@@ -218,28 +218,6 @@ list containing reference sequence name, class, start, stop and strand.
 
 =cut
 
-# given sequence name, return (reference,start,stop,strand)
-sub get_abscoords_b {
-  my $self = shift;
-  my ($name,$class,$refseq)  = @_;
-
-  my $sth = $self->make_abscoord_query($name,$class,$refseq);
-
-  my @result;
-  while ( my @row = $sth->fetchrow_array) {
-    push @result,\@row
-  }
-  $sth->finish;
-
-  if (@result == 0) {
-    $self->error("$name not found in database");
-    return;
-  } else {
-    return \@result;
-  }
-}
-
-
 sub get_abscoords {
   my $self = shift;
   my ($name,$class,$refseq)  = @_;
@@ -260,15 +238,13 @@ sub get_abscoords {
         push @result,\@row2
     }
     $sth->finish;
-    
+
     if (@result == 0){
         $self->error("$name not found in database");
         return;
     }
   }
-  #} else {
   return \@result;
-  #}
 }
 
 

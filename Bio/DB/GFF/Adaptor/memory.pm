@@ -230,9 +230,6 @@ sub get_abscoords {
   if (! %refs) {
     $self->error("$name not found in database");
     return;
-  } elsif (keys %refs > 1) {
-    $self->error("$name has more than one reference sequence in database");
-    return;
   }
 
   # compute min and max

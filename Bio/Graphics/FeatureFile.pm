@@ -624,6 +624,8 @@ sub add_feature {
   my $self = shift;
   my ($feature,$type) = @_;
   $type = $feature->primary_tag unless defined $type;
+  $self->{visible}{$feature}++;
+  $self->{feature_count}++;
   push @{$self->{features}{$type}},$feature;
 }
 

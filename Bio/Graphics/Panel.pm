@@ -458,7 +458,6 @@ sub gd {
   my $gd  = $existing_gd || $pkg->new($width,$height,
 				      ($self->{truecolor} && $pkg->can('isTrueColor') ? 1 : ())
 				     );
-
   my %translation_table;
   for my $name ('white','black',keys %COLORS) {
     my $idx = $gd->colorAllocate(@{$COLORS{$name}});
