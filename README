@@ -4,20 +4,23 @@ This is the README file for the Bioperl central distribution.
 
 o Version
 
- This is Bioperl version 1.2.2., a stable bug fix release 
+ This is Bioperl version 1.2.3., a stable bug fix release.
 
 o Getting Started
  
  Thanks for downloading this distribution!
 
- For tutorials see Bioperl's bptutorial.pl (in this directory) or 
- howto documents in docs/howto or the online Bioperl tutorial
- at http://www.pasteur.fr/recherche/unites/sis/formation/bioperl. For
- information on databases and Bioperl see biodatabases.pod. To look at
- example code browse the scripts/ directories, and look at
- bioscripts.pod for a descriptions of all these scripts. The bioperl.pod file
- also gives a overview of the history and purpose of Bioperl. The FAQ
- may also be useful if you have a particular question.
+ For tutorials see Bioperl's bptutorial.pl (in this directory) or
+ howto documents in docs/howto or from our website at
+ http://bioperl.org/Docs and http://bioperl.org/HOWTOs.  An online
+ Bioperl tutorial at
+ http://www.pasteur.fr/recherche/unites/sis/formation/bioperl is also
+ available. For information on databases and Bioperl see
+ biodatabases.pod. To look at example code browse the scripts/
+ directories, and look at bioscripts.pod for a descriptions of all
+ these scripts. The bioperl.pod file also gives a overview of the
+ history and purpose of Bioperl. The FAQ may also be useful if you
+ have a particular question.
 
  For people starting out with Perl and Bioperl, look at the Bio::Perl
  module (go perldoc Bio::Perl from the directory you are reading this file

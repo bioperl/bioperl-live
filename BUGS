@@ -1,6 +1,22 @@
-# $Id: BUGS,v 1.4 2002-12-31 13:09:05 birney Exp $
+# $Id: BUGS,v 1.4.2.1 2003-09-14 19:45:59 jason Exp $
 
 Known Bugs 
+
+
+For all releases, because the number of modules is so large there can
+be problems with shell limits on the number of arguments on a line
+which are part of the makefile.  Often this will manifest itself like:
+
+ couldn't load shell: Argument list too long
+
+Solution: Insure that you have installed the latest ExtUtils::MakeMaker on
+your system. For more details see the bug report.
+http://bugzilla.open-bio.org/show_bug.cgi?id=1256
+
+
+You can see past bugs, their fixes, and workarounds as well report any
+new bugs you find at http://bugzilla.bioperl.org/.
+
 
 Bioperl 1.2
 ===========
