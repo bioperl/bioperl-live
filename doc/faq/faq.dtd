@@ -1,0 +1,25 @@
+<!ELEMENT faq ( header, credits?, overview?, section+, copyright ) >
+
+<!ELEMENT header ( title, version, author+ ) >
+<!ELEMENT title ( #PCDATA ) >
+<!ELEMENT version ( #PCDATA ) >
+<!ELEMENT author ( #PCDATA ) >
+
+<!ELEMENT credits ( p+ ) >
+<!ELEMENT overview ( p+ ) >
+
+<!ELEMENT section ( section_name, q+ ) >
+<!ATTLIST section id NMTOKEN #REQUIRED >
+<!ELEMENT section_name ( #PCDATA ) >
+
+<!ELEMENT q ( question, answer ) >
+<!ATTLIST q id NMTOKEN #REQUIRED >
+
+<!ELEMENT question ( #PCDATA ) >
+
+<!ELEMENT answer ( #PCDATA | ( code | p )* ) >
+<!ELEMENT code ( #PCDATA ) >
+<!ELEMENT p ( #PCDATA )* >
+
+<!ELEMENT copyright ( #PCDATA ) >
+
