@@ -109,44 +109,47 @@ use Bio::Tools::Analysis::SimpleAnalysisBase;
 
 @ISA = qw(Bio::Tools::Analysis::SimpleAnalysisBase);
 
-
-
     $FLOAT = '[+-]?\d*\.\d*';
     my $URL = 'http://www.cbs.dtu.dk/cgi-bin/nph-webface';
 
 
     my $ANALYSIS_SPEC =
-        {'name' => 'NetPhos',
-         'type' => 'Protein',
-         'version' => '2.0',
-         'supplier' => 'Center for Biological Sequence Analysis, Technical University of Denmark',
-         'description' => 'Prediction of serine, threonine and tyrosine phosphorylation sites in eukaryotic proteins',
+        {
+         'name'        => 'NetPhos',
+         'type'        => 'Protein',
+         'version'     => '2.0',
+         'supplier'    => 'Center for Biological Sequence Analysis,
+                           Technical University of Denmark',
+         'description' => 'Prediction of serine, threonine and tyrosine
+                             phosphorylation sites in eukaryotic proteins',
         };
 
     my $INPUT_SPEC =
         [
          {
           'mandatory' => 'true',
-          'type' => 'Bio::PrimarySeqI',
-          'name' => 'seq'
+          'type'      => 'Bio::PrimarySeqI',
+          'name'      => 'seq',
          },
          {
           'mandatory' => 'false',
-          'type' => 'float',
-          'name' => 'threshold'
+          'type'      => 'float',
+          'name'      => 'threshold',
+          'default'   => 0.8,
          }
         ];
 
     my $RESULT_SPEC =
         {
-         '' => 'bulk',  # same as undef
+         ''                 => 'bulk',  # same as undef
          'Bio::SeqFeatureI' => 'ARRAY of Bio::SeqFeeature::Generic',
-         'raw' => 'Array of [ position, score, residue ]'
+         'raw'              => 'Array of [ position, score, residue ]'
         };
 
 
 =head2 result
-
+ 
+ Name    : result
  Usage   : $job->result (...)
  Returns : a result created by running an analysis
  Args    : none (but an implementation may choose
@@ -200,13 +203,13 @@ sub result {
         if ($value eq 'Bio::SeqFeatureI') {
             foreach  (@predictions) {
                 push @fts, Bio::SeqFeature::Generic->new
-                    (-start => $_->[0],
-                     -end => $_->[0] ,
-                     -source => 'NetPhos',
+                    (-start   => $_->[0],
+                     -end     => $_->[0] ,
+                     -source  => 'NetPhos',
                      -primary => 'NetPhos_p',
-                     -tag => {
-                              score => $_->[1],
-                              residue => $_->[2] });
+                     -tag     => {
+                               score   => $_->[1],
+                               residue => $_->[2] });
             }
             return @fts;
         }
@@ -218,10 +221,10 @@ sub result {
 
 =head2  threshold
 
-	Useage: $job->threshold(...)
-	Returns: The significance threshold of a prediction
-	Args: None (retrieves value) or a value beween 0 and 1.
-	Purpose: This method gets/sets the threshold to be sumitted for analysis.
+ Usage   : $job->threshold(...)
+ Returns  : The significance threshold of a prediction
+ Args     : None (retrieves value) or a value beween 0 and 1.
+ Purpose  : Get/setter of the threshold to be sumitted for analysis.
 
 =cut
 
@@ -234,7 +237,7 @@ sub threshold {
        $self->{'_threshold'} = $value;
        return $self;
    }
-   return $self->{'_threshold'} || 0.8 ;
+   return $self->{'_threshold'} || $self->input_spec->[1]{'default'} ;
 }
 
 sub _init 
@@ -246,7 +249,7 @@ sub _init
 	$self->{'_RESULT_SPEC'} =$RESULT_SPEC;
 	$self->{'_ANALYSIS_NAME'} =$ANALYSIS_SPEC->{name};
 	return $self;
-	}
+}
 
 sub _run {
     my $self = shift;
@@ -265,21 +268,21 @@ sub _run {
     $self->status('TERMINATED_BY_ERROR');
 
     my $request = POST $self->url,
-        Content_Type => 'form-data',
-            Content => [configfile => '/usr/opt/www/pub/CBS/services/NetPhos-2.0/NetPhos.cf',
-                        SEQPASTE => $seq_fasta];
+            Content_Type => 'form-data',
+            Content      => [configfile => '/usr/opt/www/pub/CBS/services/NetPhos-2.0/NetPhos.cf',
+                             SEQPASTE   => $seq_fasta];
     my $content = $self->request($request);
-    my $text = $content->content;
+    my $text    = $content->content;
 
     my ($result_url) = $text =~ /follow <a href="(.*?)"/;
     return 0 unless $result_url;
     $self->debug("url is $result_url\n\n");
 
-    my $ua2 = $self->clone;
+    my $ua2      = $self->clone;
     my $content2 = $ua2->request(POST $result_url);
 
-    my $ua3 = $self->clone;
-    $result_url =~ s/&.*//;
+    my $ua3      = $self->clone;
+    $result_url  =~ s/&.*//;
     $self->debug("final result url is $result_url\n");
     my $content3 = $ua3->request(POST $result_url);
     #print Dumper $content3;

@@ -151,27 +151,28 @@ use Bio::Seq::Meta::Array;
 
 use constant MIN_STRUC_LEN => 3;
 my $URL = 'http://npsa-pbil.ibcp.fr/cgi-bin/secpred_gor4.pl';
-my $ANALYSIS_NAME= 'GOR4';
-my $ANALYSIS_SPEC= {name => 'Gor4', type => 'Protein'};
-my $INPUT_SPEC = [
-                  {mandatory=>'true',
-                   type => 'Bio::PrimarySeqI',
-                   'name'=> 'seq',
+my $ANALYSIS_NAME = 'GOR4';
+my $ANALYSIS_SPEC = {name => 'Gor4', type => 'Protein'};
+my $INPUT_SPEC    = [
+                     {mandatory =>'true',
+                      type      => 'Bio::PrimarySeqI',
+                      'name'    => 'seq',
                   },
                  ];
 my  $RESULT_SPEC =
     {
-     '' => 'bulk',              # same as undef
+     ''                 => 'bulk',              # same as undef
      'Bio::SeqFeatureI' => 'ARRAY of Bio::SeqFeature::Generic',
-     raw => 'Array of [Struc_type, helix, sheet , coil ]',
-     all => 'Bio::Seq::Meta::Array object',
+     raw                => '[ {struc =>, helix=> ,sheet=>, coil=>}]',
+     meta                => 'Bio::Seq::Meta::Array object',
     };
 
 =head2 result
 
+ Name    : result
  Usage   : $job->result (...)
  Returns : a result created by running an analysis
- Args    : various
+ Args    : see keys of $RESULT_SPEC
 
 The method returns a result of an executed job. If the job was
 terminated by an error the result may contain an error message instead
@@ -260,10 +261,16 @@ sub result {
                 push @{$type_scores{'sheet'}}, $aa->{'sheet'};
                 push @{$type_scores{'coil'}}, $aa->{'coil'};
             }
-            bless ($self->seq, "Bio::Seq::Meta::Array");
+			
+			## bless if necessary ##
+			if (!$self->seq->isa("Bio::Seq::Meta::Array")){
+            	bless ($self->seq, "Bio::Seq::Meta::Array");
+				}
             $self->seq->isa("Bio::Seq::MetaI")
                 || $self->throw("$self is not a Bio::Seq::MetaI");
             $Bio::Seq::Meta::Array::DEFAULT_NAME = 'GOR4_struc';
+
+            ## now make meta_Sequence
             for my $struc_type (keys %type_scores) {
                 my $meta_name = "GOR4". "_" . "$struc_type";
                 my @meta = map{$_->{$struc_type}} @{$self->{'_parsed'}};
@@ -276,10 +283,11 @@ sub result {
             # return  seq array object implementing meta sequence #
             return $self->seq;
 
-        } elsif ($value eq 'parsed') {
-            return $self->{'_parsed'};
-        }
-    }                           #endif ($value)
+        } 
+		else  {
+           return $self->{'_parsed'};
+         }
+    }  #endif ($value)
 
     #return raw result if no return fomrt stated
     return $self->{'_result'};
@@ -349,6 +357,7 @@ sub  _run {
     my $out = "http://npsa-pbil.ibcp.fr/". "$next";
     my $req2 = HTTP::Request->new(GET=>$out);
     my $resp2 = $self->request ($req2);
+	$self->status('COMPLETED') if $resp2 ne '';
     $self->{'_result'} = $resp2->content;
 }
 

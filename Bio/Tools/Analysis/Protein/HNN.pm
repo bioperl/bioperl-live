@@ -87,8 +87,8 @@ single array of HNN prediction scores.  e.g.,
   print "helix scores from residues 10-20 are ",
       $meta_sequence->named_submeta_text("HNN_helix",10,20), "\n";			
 
-Meta sequence names are : HNN_helix, HNN_sheet, HNN_coil, HNN_struc,
-representing the scores for each residue.
+Meta sequence default names are : HNN_helix, HNN_sheet, HNN_coil,
+HNN_struc, representing the scores for each residue.
 
 Many methods common to all analyses are inherited from
 Bio::Tools::Analysis::SimpleAnalysisBase.
@@ -155,27 +155,27 @@ my $URL = 'http://npsa-pbil.ibcp.fr/cgi-bin/secpred_hnn.pl';
 my $ANALYSIS_NAME= 'HNN';
 my $ANALYSIS_SPEC= {name => 'HNN', type => 'Protein'};
 my $INPUT_SPEC = [
-                  {mandatory=>'true',
-                   type => 'Bio::PrimarySeqI',
-                   'name'=> 'seq',
+                  { mandatory => 'true',
+                    type      => 'Bio::PrimarySeqI',
+                    'name'    => 'seq',
                   },
                  ];
 my  $RESULT_SPEC =
     {
-     '' => 'bulk',  # same as undef
+     ''                 => 'bulk',  # same as undef
      'Bio::SeqFeatureI' => 'ARRAY of Bio::SeqFeature::Generic',
-     raw => 'Array of [ SRprotein, position , motif,score]',
-     all => 'Bio::Seq::Meta::Array object',
+     raw                => '[ {helix=>, sheet=>, struc=>, coil=>}]',
+     meta               => 'Bio::Seq::Meta::Array object',
     };
 use constant MIN_STRUC_LEN => 3; 
 
 sub _init {
     my $self = shift;
     $self->url($URL);
-    $self->{'_ANALYSIS_SPEC'} =$ANALYSIS_SPEC;
-    $self->{'_INPUT_SPEC'} =$INPUT_SPEC;
-    $self->{'_RESULT_SPEC'} =$RESULT_SPEC;
-    $self->{'_ANALYSIS_NAME'} =$ANALYSIS_NAME;
+    $self->{'_ANALYSIS_SPEC'} = $ANALYSIS_SPEC;
+    $self->{'_INPUT_SPEC'}    = $INPUT_SPEC;
+    $self->{'_RESULT_SPEC'}   = $RESULT_SPEC;
+    $self->{'_ANALYSIS_NAME'} = $ANALYSIS_NAME;
     return $self;
 }
 
@@ -200,15 +200,19 @@ sub  _run {
     my $out = "http://npsa-pbil.ibcp.fr/". "$next";
     my $req2 = HTTP::Request->new(GET=>$out);
     my $resp2 = $self->request ($req2);
+	$self->status('COMPLETED') if $resp2 ne '';
     $self->{'_result'} = $resp2->content;
+	return $self;
+		
 }
 
 
 =head2 result
 
+ NAme    : result
  Usage   : $job->result (...)
  Returns : a result created by running an analysis
- Args    : various
+ Args    : see keys of $INPUT_SPEC
 
 The method returns a result of an executed job. If the job was
 terminated by an error the result may contain an error message instead
@@ -263,7 +267,7 @@ sub result {
                 push @scores, { struc => $1,
                                 helix => $2,
                                 sheet => $3,
-                                coil => $4,
+                                coil  => $4,
                               };
             }
             $self->{'_parsed'} = \@scores;
@@ -297,10 +301,15 @@ sub result {
                 push @{$type_scores{'sheet'}}, $aa->{'sheet'};
                 push @{$type_scores{'coil'}}, $aa->{'coil'};
             }
-            require Bio::Seq::Meta::Array;
-            bless ($self->seq, "Bio::Seq::Meta::Array");
+			
+			## bless as metasequence if necessary
+			if (!$self->seq->isa("Bio::Seq::MetaI")) {
+            	bless ($self->seq, "Bio::Seq::Meta::Array");
+			  }
             $self->seq->isa("Bio::Seq::MetaI")
                 || $self->throw("$self is not a Bio::Seq::MetaI");
+
+			## now make meta sequence
             $Bio::Seq::Meta::Array::DEFAULT_NAME = 'HNN_struc';
             for my $struc_type (keys %type_scores) {
                 my $meta_name = "HNN". "_" . "$struc_type";
@@ -314,9 +323,11 @@ sub result {
             # return  seq array object implementing meta sequence #
             return $self->seq;
 
-        } elsif ($value eq 'parsed') {
-            return $self->{'_parsed'};
         }
+		 ## else for aa true value get data structure back ##
+		 else  {
+            return $self->{'_parsed'};
+        	}	
     }                           #endif ($value)
 
     #return raw result if no return fomrt stated
@@ -329,7 +340,6 @@ sub _get_2ary_coords {
     ##extracts runs of structure > MIN_STRUC_LENresidues or less if Turn:
     #i.e., helical prediction for 1 residue isn't very meaningful...
     ## and poulates array of hashes with start/end values.
-    ##keys of $Result are 'H' 'T' 'C' 'E'. 
     #could be put into a secondary base class if need be
     my ($self) = @_;
     my @prot = @{$self->{'_parsed'}};

@@ -33,8 +33,8 @@ the likelihood of existing in each of four different states (helix,
 coil, turn or sheet), e.g.,
 
   my $analysis_object = Bio::Tools::SimpleAnalysis::Protein::Sopma->new
-      ( -seq => $seq,
-        -states =>4,
+      ( -seq          => $seq,
+        -states       =>4,
         -window_width =>15,
       );
 
@@ -156,31 +156,31 @@ my $ANALYSIS_NAME= 'Sopma';
 my $ANALYSIS_SPEC= {name => 'Sopma', type => 'Protein'};
 my $INPUT_SPEC = [
                   {mandatory=>'true',
-                   type => 'Bio::PrimarySeqI',
-                   'name'=> 'seq',
+                   type     => 'Bio::PrimarySeqI',
+                   'name'   => 'seq',
                   },
-                  {mandatory=>'false',
-                   type => 'integer',
-                   name=> 'similarity_threshold',
-                   default_value => 8,
+                  {mandatory =>'false',
+                   type      => 'integer',
+                   name      => 'similarity_threshold',
+                   default   => 8,
                   },
-                  {mandatory=>'false',
-                   type => 'integer',
-                   name=> 'window_width',
-                   default_value => 17,
+                  {mandatory  =>'false',
+                   type       => 'integer',
+                   name       => 'window_width',
+                   default    => 17,
                   },
-                  {mandatory=>'false',
-                   type => 'integer',
-                   name=> 'states',
-                   default_value => 4,
+                  {mandatory  =>'false',
+                   type       => 'integer',
+                   name       => 'states',
+                   default    => 4,
                   },
                  ];
 my  $RESULT_SPEC =
     {
-     '' => 'bulk',              # same as undef
-     'Bio::SeqFeatureI' => 'ARRAY of Bio::SeqFeature::Generic',
-     raw => 'Array of [ SRprotein, position , motif,score]',
+     ''   => 'bulk',              # same as undef
+     raw  => '[{struc=>, helix=>, turn=>, coil=>, sheet=>}]',
      meta => 'Bio::Seq::Meta::Array object',
+     'Bio::SeqFeatureI' => 'ARRAY of Bio::SeqFeature::Generic',
     };
 use constant MIN_STRUC_LEN => 3; 
 
@@ -203,7 +203,7 @@ sub similarity_threshold {
             unless $value =~ /^\d+$/;
         $self->{'_similarity_threshold'} = $value;
     }
-    $self->{'_similarity_threshold'} ||= $self->input_spec->[1]{'default_value'};
+    $self->{'_similarity_threshold'} ||= $self->input_spec->[1]{'default'};
     return $self->{'_similarity_threshold'};
 }
 
@@ -226,7 +226,7 @@ sub window_width {
             unless $value =~ /^\d+$/;
         $self->{'_window_width'} = $value;
     }
-    $self->{'_window_width'} ||= $self->input_spec->[2]{'default_value'};
+    $self->{'_window_width'} ||= $self->input_spec->[2]{'default'};
     $self->warn ("window width longer than sequence!")
         unless $self->{'_window_width'} < $self->seq->length;
     return $self->{'_window_width'};
@@ -251,7 +251,7 @@ sub states {
             unless $value == 3 or $value ==4;
         $self->{'_states'} = $value;
     }
-    $self->{'_states'} ||= $self->input_spec->[3]{'default_value'};
+    $self->{'_states'} ||= $self->input_spec->[3]{'default'};
     return $self->{'_states'};
 }
 
@@ -299,7 +299,7 @@ Sopma_coil, Sopma_turn (if defined) Sopma_struc.
 =cut
 
 sub result {
-    my ($self,$value) = @_;
+    my ($self,$value, $run_id) = @_;
 
     my @score;
     my @fts;
@@ -325,16 +325,24 @@ sub result {
             $self->_get_2ary_coords();
             for my $type (keys %{$self->{'_parsed_coords'}} ) {
                 next if $type =~  /\w{2,}/; #if not H,C,E or T
+
+				## these 2 are added to distinguish features on same
+               ## sequence run with different params
+				my $tag_hash = {
+								type   => $type,
+                                method => $self->analysis_name,
+								};
+				$self->_add_params_to_result($tag_hash);
+
+				## now make feature object
                 for my $loc (@{$self->{'_parsed_coords'}{$type}} ) {
-                    push @fts, Bio::SeqFeature::Generic->new
-                        (-start => $loc->{'start'},
-                         -end => $loc->{'end'},
-                         -source => 'Conc',
+                    push  @fts,   Bio::SeqFeature::Generic->new
+                        (-start   => $loc->{'start'},
+                         -end     => $loc->{'end'},
+                         -source  => 'Conc',
                          -primary => '2ary',
-                         -tag => {
-                                  type => $type,
-                                  method => $self->analysis_name,
-                                 });
+                         -tag => $tag_hash,
+                                 );
                 }               #end of array of strucs of type
             }                   # end of all 2nd struc elements
             delete $self->{'_parsed_coords'}; #remove temp data
@@ -350,13 +358,21 @@ sub result {
                 }
                 push @{$type_scores{'turn'}}, $aa->{'turn'} if  exists $aa->{'turn'};
             }
-            require Bio::Seq::Meta::Array;
-            bless ($self->seq, "Bio::Seq::Meta::Array");
+			
+			## convert to meta sequence array ##
+			if (!$self->seq->isa("Bio::Seq::Meta::Array")) {
+           		 bless ($self->seq, "Bio::Seq::Meta::Array");
+				}
             $self->seq->isa("Bio::Seq::MetaI")
                 || $self->throw("$self is not a Bio::Seq::MetaI");
+
+
             $Bio::Seq::Meta::Array::DEFAULT_NAME = 'Sopma_struc';
             for my $struc_type (keys %type_scores) {
                 my $meta_name = "Sopma". "_" . "$struc_type";
+				if ($run_id) {
+					$meta_name .= "|$run_id";
+				}
                 my @meta = map{$_->{$struc_type}} @{$self->{'_parsed'}};
                 if (grep{$_ eq $meta_name}$self->seq->meta_names >0) {
                     $self->warn ("$meta_name already exists , not overwriting!");
@@ -367,7 +383,9 @@ sub result {
             # return  seq array object implementing meta sequence #
             return $self->seq;
 
-        } elsif ($value eq 'parsed') {
+        }
+		## else return parsed data if $value is defined
+		 else {
             return $self->{'_parsed'};
         }
 
@@ -379,10 +397,10 @@ sub result {
 sub _init {
     my $self = shift;
     $self->url($URL);
-    $self->{'_ANALYSIS_SPEC'} =$ANALYSIS_SPEC;
-    $self->{'_INPUT_SPEC'} =$INPUT_SPEC;
-    $self->{'_RESULT_SPEC'} =$RESULT_SPEC;
-    $self->{'_ANALYSIS_NAME'} =$ANALYSIS_NAME;
+    $self->{'_ANALYSIS_SPEC'} = $ANALYSIS_SPEC;
+    $self->{'_INPUT_SPEC'}    = $INPUT_SPEC;
+    $self->{'_RESULT_SPEC'}   = $RESULT_SPEC;
+    $self->{'_ANALYSIS_NAME'} = $ANALYSIS_NAME;
     return $self;
 }
 
@@ -426,12 +444,12 @@ sub  _run {
     $self->status('TERMINATED_BY_ERROR');
     my $request = POST 'http://npsa-pbil.ibcp.fr/cgi-bin/secpred_sopma.pl',
         Content_Type => 'form-data',
-            Content  => [title => "",
-                         notice => $self->seq->seq,
+            Content  => [title     => "",
+                         notice    => $self->seq->seq,
                          ali_width => 70,
-                         states  => $self->states,
-                         threshold =>$self->similarity_threshold ,
-                         width =>$self->window_width,
+                         states    => $self->states,
+                         threshold => $self->similarity_threshold ,
+                         width     => $self->window_width,
                         ];
 
     my $text = $self->request($request)->content;
@@ -439,12 +457,28 @@ sub  _run {
 
     #### get text only version of results ## 
     my ($next) = $text =~ /Prediction.*?=(.*?)>/;
-    my $out = "http://npsa-pbil.ibcp.fr/". "$next";
-    my $req2 = HTTP::Request->new(GET=>$out);
-    my $resp2 = $self->request ($req2);
+    my $out    = "http://npsa-pbil.ibcp.fr/". "$next";
+    my $req2   = HTTP::Request->new(GET=>$out);
+    my $resp2  = $self->request ($req2);
     $self->{'_result'} = $resp2->content;
     $self->status('COMPLETED') if $resp2 ne '';
     return $self;
+}
+
+sub _add_params_to_result{
+	## called when making Seqfeature objects
+	my ($self, $tag_hash) = @_;
+	my $hash;
+	## adds input parameter values to SeqFeatureI results where multiple
+    ##  parameter values are possible. Only adds value if not default. 
+	map{$hash->{$_->{'name'}} = $_}@{$self->input_spec()};
+
+	for my $p (keys %$hash) {
+		if (!ref($self->$p) && $self->$p ne $hash->{$p}{'default'}) {
+			$tag_hash->{$p} = $self->$p;
+		}
+	}
+				 
 }
 
 

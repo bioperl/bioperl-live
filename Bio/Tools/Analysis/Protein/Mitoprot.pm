@@ -146,10 +146,10 @@ my $ANALYSIS_NAME = "Mitoprot";
 
 my $ANALYSIS_SPEC =
     {
-     'name' => 'Mitoprot',
-     'type' => 'Protein',
-     'version' => '1.0a4',
-     'supplier' => 'Munich Information Center for ProteinSequences',
+     'name'        => 'Mitoprot',
+     'type'        => 'Protein',
+     'version'     => '1.0a4',
+     'supplier'    => 'Munich Information Center for ProteinSequences',
      'description' => 'mitochondrial sig seq prediction',
     };
 
@@ -157,8 +157,8 @@ my $INPUT_SPEC =
     [
      {
       'mandatory' => 'true',
-      'type' => 'Bio::PrimarySeqI',
-      'name' => 'seq',          #value must be name of method used to set value
+      'type'      => 'Bio::PrimarySeqI',
+      'name'      => 'seq',          #value must be name of method used to set value
      },
     ];
 
@@ -242,33 +242,31 @@ sub result {
         }
 
         if ($value eq 'Bio::SeqFeatureI') {
-            #make new ese object for each row of results
             push @fts, Bio::SeqFeature::Generic->new
                 (
                  -start => 1,
                  -end => ($results{'cleavage_site'} =~
                           /^\d+$/)?$results{'cleavage_site'}:$self->seq->length,
                  -source => 'Mitoprot',
-                 -primary => 'Sig_Seq',
+                 -primary => 'Region',
                  -tag =>{
-                         export_prob =>$results{'export_prob'},
-                         charge=> $results{'charge'},
-                         basic_aas=> $results{'basic_aas'},
-                         acid_aas=> $results{'acidic_aas'},
-                         method=> 'Mitoprot',
-                         cleavage_site=>$results{'cleavage_site'},
+                         export_prob   => $results{'export_prob'},
+                         charge        => $results{'charge'},
+                         basic_aas     => $results{'basic_aas'},
+                         acid_aas      => $results{'acidic_aas'},
+                         region_name   => 'Transit_peptide',
+                         method        => 'MitoProt',
+                         cleavage_site => $results{'cleavage_site'},
                         },
                 );
-            return @fts;        #return Bioseqfeature ref
+            return @fts;        #return Bioseqfeature array 
         }
         ## convert parsed data into a meta array format
-        elsif ($value eq 'parsed') {
+        else  {
             return \%results;   # hash based results ref
         }
     }
     return $self->{'_result'};
-
-
 }
 
 sub _init {
