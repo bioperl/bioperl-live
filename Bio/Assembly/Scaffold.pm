@@ -390,11 +390,10 @@ sub add_contig {
 =cut
 
 sub add_singlet {
-    my $self = shift;
-    my $singlet = shift;
+    my ($self,$singlet) = @_;
 
-    if( !ref $singlet || ! $singlet->isa('Bio::PrimarySeqI') ) {
-	$self->warn("Unable to process non Bio::SeqI object [", ref($singlet), "]");
+    if ( !ref $singlet || ! $singlet->isa('Bio::PrimarySeqI') ) {
+	$self->warn("Unable to process non Bio::SeqI object whos reference is (".ref($singlet).")");
 	return 0;
     }
 

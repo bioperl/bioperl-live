@@ -100,6 +100,9 @@ use Bio::LocatableSeq;
 use Bio::Annotation::SimpleValue;
 use Bio::Seq::PrimaryQual;
 use Bio::SeqFeature::Generic;
+use Dumpvalue();
+my $dumper = new Dumpvalue();
+$dumper->veryCompact(1);
 
 @ISA = qw(Bio::Assembly::IO);
 
@@ -117,6 +120,7 @@ use Bio::SeqFeature::Generic;
 
 sub next_assembly {
     my $self = shift; # Object reference
+    my $lingering_read;
     local $/="\n";
 
     # Resetting assembly data structure
@@ -232,7 +236,7 @@ sub next_assembly {
 					      -id=>$read_name,
 					      -primary_id=>$read_name,
 					      -alphabet=>'dna');
-
+          $lingering_read = $read;
 	    # Adding read location and sequence to contig ("gapped consensus" coordinates)
 	    my $padded_start = $read_data->{$read_name}{'padded_start'};
 	    my $padded_end   = $padded_start + $read_data->{$read_name}{'length'} - 1;
@@ -271,34 +275,36 @@ sub next_assembly {
 		$contigOBJ->add_features([ $qual_feat ], 0);
 	    }
 	};
-
-	# Loading read description (DeScription fields)
-#	/^DS / && do {
-#	    /CHEM: (\S+)/ && do {
-#		$self->{'contigs'}[$contig]{'reads'}{$read_name}{'chemistry'} = $1;
-#	    };
-#	    /CHROMAT_FILE: (\S+)/ && do {
-#		$self->{'contigs'}[$contig]{'reads'}{$read_name}{'chromat_file'} = $1;
-#	    };
-#	    /DIRECTION: (\w+)/ && do {
-#		my $ori = $1;
-#		if    ($ori eq 'rev') { $ori = 'C' }
-#		elsif ($ori eq 'fwd') { $ori = 'U' }
-#		$self->{'contigs'}[$contig]{'reads'}{$read_name}{'strand'} = $ori;
-#	    };
-#	    /DYE: (\S+)/ && do {
-#		$self->{'contigs'}[$contig]{'reads'}{$read_name}{'dye'} = $1;
-#	    };
-#	    /PHD_FILE: (\S+)/ && do {
-#		$self->{'contigs'}[$contig]{'reads'}{$read_name}{'phd_file'} = $1;
-#	    };
-#	    /TEMPLATE: (\S+)/ && do {
-#		$self->{'contigs'}[$contig]{'reads'}{$read_name}{'template'} = $1;
-#	    };
-#	    /TIME: (\S+ \S+ \d+ \d+\:\d+\:\d+ \d+)/ && do {
-#		$self->{'contigs'}[$contig]{'reads'}{$read_name}{'phd_time'} = $1;
-#	    };
-#	};
+	     # Loading read description (DeScription fields)
+          # chad was here! easter 2004.
+          # lingering read is a locatableseq. is there a better way to do this?
+          # i am simply adding more keys to the locatableseq
+ 	/^DS / && do {
+ 	    /CHEM: (\S+)/ && do {
+ 		$lingering_read->{'chemistry'} = $1;
+ 	    };
+ 	    /CHROMAT_FILE: (\S+)/ && do {
+ 		$lingering_read->{'chromatfilename'} = $1;
+ 	    };
+ 	    /DIRECTION: (\w+)/ && do {
+ 		my $ori = $1;
+ 		if    ($ori eq 'rev') { $ori = 'C' }
+ 		elsif ($ori eq 'fwd') { $ori = 'U' }
+ 		$lingering_read->{'strand'} = $ori;
+ 	    };
+ 	    /DYE: (\S+)/ && do {
+ 		$lingering_read->{'dye'} = $1;
+ 	    };
+ 	    /PHD_FILE: (\S+)/ && do {
+ 		$lingering_read->{'phdfilename'} = $1;
+ 	    };
+ 	    /TEMPLATE: (\S+)/ && do {
+ 		$lingering_read->{'template'} = $1;
+ 	    };
+ 	    /TIME: (\S+ \S+ \d+ \d+\:\d+\:\d+ \d+)/ && do {
+ 		$lingering_read->{'phd_time'} = $1;
+ 	    };
+ 	};
 
 	# Loading contig tags ('tags' in phrap terminology, but Bioperl calls them features)
 	/^CT\s*\{/ && do {
@@ -358,6 +364,32 @@ sub next_assembly {
 
     } # while ($_ = $self->_readline)
 
+          # hmm. what about singlets?
+     my $singletsfilename = $self->file();
+     $singletsfilename =~ s/\.ace.*$/.singlets/;
+     $singletsfilename =~ s/\<//;
+     if (!-f $singletsfilename) {
+               # oh deario, no singlets here
+          return $assembly;
+     }
+     my $singlets_fh = Bio::SeqIO->new(-file   => "<$singletsfilename",
+                                          -format => 'fasta');
+     my $adder;
+     while (my $seq = $singlets_fh->next_seq()) {
+               # find the name of this singlet and attempt to get the phd from phd_dir instead
+          my $phdfilename = $seq->display_id();
+          (my $phdfile = $singletsfilename) =~ s/edit_dir.*//;
+          $phdfile .= "phd_dir/$phdfilename";
+          if (-f $phdfile) {
+               my $phd_fh = new Bio::SeqIO( -file =>   "<$phdfile", -format     =>   'phd');
+               my $swq = $phd_fh->next_seq();
+               $adder = $swq;
+          }
+          else {
+               $adder = $seq;
+          }
+          $assembly->add_singlet($adder);      
+     }
     $assembly->update_seq_list();
     return $assembly;
 }
