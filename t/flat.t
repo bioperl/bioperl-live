@@ -100,6 +100,27 @@ ok($seq->length,12850);
 
 
 undef $db;
+
+&cleanup();
+&maketmpdir();
+
+
+$db = Bio::DB::Flat->new(-directory  => $tmpdir,
+			 -index      => 'binarysearch',
+			 -format     => 'fasta',
+			 -dbname     => 'mybinfa',
+			 -verbose    => $verbose,
+			 -write_flag => 1
+			 );
+
+$dir= Bio::Root::IO->catfile($cd,qw(t data dbfa 1.fa));
+$result = $db->build_index($dir);
+ok($result);
+$seq = $db->get_Seq_by_id('AW057119');
+ok($seq);
+ok($seq->length,808);
+undef $db;
+
 &cleanup();
 &maketmpdir();
 $db = Bio::DB::Flat->new(-directory  => $tmpdir,
@@ -122,25 +143,6 @@ ok($seq && ref($seq));
 
 undef $db;
 
-&cleanup();
-&maketmpdir();
-
-
-$db = Bio::DB::Flat->new(-directory  => $tmpdir,
-			 -index      => 'binarysearch',
-			 -format     => 'fasta',
-			 -dbname     => 'mybinfa',
-			 -verbose    => $verbose,
-			 -write_flag => 1
-			 );
-
-$dir= Bio::Root::IO->catfile($cd,qw(t data dbfa 1.fa));
-$result = $db->build_index($dir);
-ok($result);
-$seq = $db->get_Seq_by_id('AW057119');
-ok($seq);
-ok($seq->length,808);
-undef $db;
 
 &cleanup();
 
