@@ -143,8 +143,10 @@ use POSIX;
  Returns : Bio::SearchIO::Writer::TextResultWriter
  Args    : -filters => hashref with any or all of the keys (HSP HIT RESULT)
            which have values pointing to a subroutine reference
-           which will expect to get a 
-
+           which will expect to get a Hit,HSP, Result object respectively
+           -no_wublastlinks => boolean. Do not display WU-BLAST lines even if 
+                               they are parsed out
+                               Links = (1) 
 
 =cut
 
@@ -152,7 +154,9 @@ sub new {
   my($class,@args) = @_;
 
   my $self = $class->SUPER::new(@args);
-  my ($filters) = $self->_rearrange([qw(FILTERS)],@args);
+  my ($filters,$nowublastlinks) = $self->_rearrange([qw(FILTERS 
+							NO_WUBLASTLINKS)],
+						    @args);
   if( defined $filters ) {
       if( !ref($filters) =~ /HASH/i ) { 
 	  $self->warn("Did not provide a hashref for the FILTERS option, ignoring.");
@@ -162,6 +166,7 @@ sub new {
 	  }
       }
   }
+  $self->no_wublastlinks(! $nowublastlinks);
   unless( $TextWrapLoaded ) {
       $self->warn("Could not load Text::Wrap - the Query Description will not be line wrapped\n");
   } else { 
@@ -190,6 +195,7 @@ sub to_string {
     my ($self,$result,$num) = @_; 
     $num ||= 0;
     return unless defined $result;
+    my $links = $self->no_wublastlinks;
     my ($resultfilter,$hitfilter, $hspfilter) = ( $self->filter('RESULT'),
 						  $self->filter('HIT'),
 						  $self->filter('HSP') );
@@ -288,7 +294,7 @@ Sequences producing significant alignments:                      (bits)    value
 				   $hsp->length('total'),
 				   POSIX::floor($hsp->frac_identical('total') 
 						* 100));
-
+		
 		if( $type eq 'PROTEIN' ) {
 		    $hspstr .= sprintf(", Positives = %d/%d (%d%%)",
 				       ( $hsp->frac_conserved('total') * 
@@ -339,6 +345,11 @@ Sequences producing significant alignments:                      (bits)    value
 					   $signq,$qframe+1,
 					   $signh, $hframe+1);
 		    }
+		}
+		
+		if( $links && 
+		    $hsp->can('links') && defined(my $lnks = $hsp->links) ) {
+		    $hspstr .= sprintf(" Links = %s\n",$lnks);
 		}
 		$hspstr .= "\n\n";
 
@@ -763,6 +774,26 @@ L<Bio::SearchIO::SearchWriterI> inherited methods.
 
 
 =cut
+
+=head2 no_wublastlinks
+
+ Title   : no_wublastlinks
+ Usage   : $obj->no_wublastlinks($newval)
+ Function: Get/Set boolean value regarding whether or not to display
+           Link = (1) 
+           type output in the report output (WU-BLAST only)
+ Returns : boolean
+ Args    : on set, new boolean value (a scalar or undef, optional)
+
+
+=cut
+
+sub no_wublastlinks{
+    my $self = shift;
+
+    return $self->{'no_wublastlinks'} = shift if @_;
+    return $self->{'no_wublastlinks'};
+}
 
 
 1;

@@ -125,19 +125,25 @@ use Bio::SearchIO::SearchWriterI;
  Args    : -filters => hashref with any or all of the keys (HSP HIT RESULT)
            which have values pointing to a subroutine reference
            which will expect to get a 
-
+           -nucleotide_url => URL sprintf string base for the nt sequences
+           -protein_url => URL sprintf string base for the aa sequences
+           -no_wublastlinks => boolean. Do not display WU-BLAST lines 
+                               even if they are parsed out.
+                               Links = (1) 
 =cut
 
 sub new {
   my($class,@args) = @_;
 
   my $self = $class->SUPER::new(@args);
-  my ($p,$n,$filters) = $self->_rearrange([qw(PROTEIN_URL 
-					     NUCLEOTIDE_URL 
-					     FILTERS)],@args);
+  my ($p,$n,$filters,
+      $nowublastlinks) = $self->_rearrange([qw(PROTEIN_URL 
+					       NUCLEOTIDE_URL 
+					       FILTERS
+					       NO_WUBLASTLINKS)],@args);
   $self->remote_database_url('p',$p || $RemoteURLDefault{'PROTEIN'});
   $self->remote_database_url('n',$n || $RemoteURLDefault{'NUCLEOTIDE'});
-
+  $self->no_wublastlinks(! $nowublastlinks);
   if( defined $filters ) {
       if( !ref($filters) =~ /HASH/i ) { 
 	  $self->warn("Did not provide a hashref for the FILTERS option, ignoring.");
@@ -197,6 +203,7 @@ sub to_string {
     my ($self,$result,$num) = @_; 
     $num ||= 0;
     return unless defined $result;
+    my $links = $self->no_wublastlinks;
     my ($resultfilter,$hitfilter, $hspfilter) = ( $self->filter('RESULT'),
 						  $self->filter('HIT'),
 						  $self->filter('HSP') );
@@ -362,6 +369,11 @@ sub to_string {
 					   $signh, $hframe+1);
 		    }
 		}
+		if($links && 
+		   $hsp->can('links') && defined(my $lnks = $hsp->links) ) {
+		    $hspstr .= sprintf("<br>\nLinks = %s\n",$lnks);
+		}
+
 		$hspstr .= "</a><p>\n<pre>";
 
 		my @hspvals = ( {'name' => 'Query:',
@@ -858,5 +870,26 @@ L<Bio::SearchIO::SearchWriterI> inherited methods.
 
 
 =cut
+
+
+=head2 no_wublastlinks
+
+ Title   : no_wublastlinks
+ Usage   : $obj->no_wublastlinks($newval)
+ Function: Get/Set boolean value regarding whether or not to display
+           Link = (1) 
+           type output in the report output (WU-BLAST only)
+ Returns : boolean
+ Args    : on set, new boolean value (a scalar or undef, optional)
+
+
+=cut
+
+sub no_wublastlinks{
+    my $self = shift;
+
+    return $self->{'no_wublastlinks'} = shift if @_;
+    return $self->{'no_wublastlinks'};
+}
 
 1;
