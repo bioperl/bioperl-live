@@ -119,24 +119,41 @@ BEGIN {
 		 'BlastOutput_version'  => 'programver',
 		 'BlastOutput_query-def'=> 'queryname',
 		 'BlastOutput_query-len'=> 'querylen',
+		 'BlastOutput_query-acc'=> 'queryacc',
 		 'BlastOutput_db'       => 'dbname',
 		 'BlastOutput_db-len'   => 'dbsize',
+		 'BlastOutput_db-let'   => 'dblets',
+		 'BlastOutput_query-acc'=> 'queryacc',
+
 		 'Iteration_iter-num'   => 'iternum',
 		 'Parameters_matrix'    => { 'param' => 'matrix'},
 		 'Parameters_expect'    => { 'param' => 'expect'},
 		 'Parameters_include'   => { 'param' => 'include'},
 		 'Parameters_sc-match'  => { 'param' => 'match'},
 		 'Parameters_sc-mismatch' => { 'param' => 'mismatch'},
-		 'Parameters_gap-open'  => { 'param' => 'gapopen'},
-		 'Parameters_gap-extend'=> { 'param' => 'gapext'},
-		 'Parameters_filter'    => {'param' => 'filter'},
-		 'Statistics_db-num'    => { 'stat' => 'dbnum'},
-		 'Statistics_db-len'    => { 'stat' => 'dblength'},
+		 'Parameters_gap-open'  =>   { 'param' => 'gapopen'},
+		 'Parameters_gap-extend'=>   { 'param' => 'gapext'},
+		 'Parameters_filter'    =>  {'param' => 'filter'},
+		 'Statistics_db-len'    => {'stat' => 'dbentries'},
+		 'Statistics_db-let'    => { 'stat' => 'dbletters'},
 		 'Statistics_hsp-len'   => { 'stat' => 'hsplength'},
+		 'Statistics_query-len'   => { 'stat' => 'querylength'},
 		 'Statistics_eff-space' => { 'stat' => 'effectivespace'},
+		 'Statistics_eff-spaceused' => { 'stat' => 'effectivespaceused'},
+		 'Statistics_eff-dblen'    => { 'stat' => 'effectivedblength'},
 		 'Statistics_kappa'     => { 'stat' => 'kappa' },
 		 'Statistics_lambda'    => { 'stat' => 'lambda' },
 		 'Statistics_entropy'   => { 'stat' => 'entropy'},
+		 'Statistics_framewindow'=> { 'stat' => 'frameshiftwindow'},
+		 'Statistics_decay'=> { 'stat' => 'decayconst'},
+
+		 'Statistics_T'=> { 'stat' => 'T'},
+		 'Statistics_A'=> { 'stat' => 'A'},
+		 'Statistics_X1'=> { 'stat' => 'X1'},
+		 'Statistics_X2'=> { 'stat' => 'X2'},
+		 'Statistics_S1'=> { 'stat' => 'S1'},
+		 'Statistics_S2'=> { 'stat' => 'S2'},
+		 
 		 );
 }
 
@@ -196,12 +213,14 @@ sub next_result{
 	   my $size = 0;      
 	   $_ = $self->_readline;
 	   while( defined ($_) && $_ !~ /^\s+$/ ) {	       
-	       if( /([\d,]+)\s+letters/ ) {		   
+	       if( /\(([\d,]+)\s+letters\)/ ) {		   
 		   $size = $1;
 		   $size =~ s/,//g;
 		   last;
 	       } else { 
-		   $q .= $_;
+		   $q .= " $_";
+		   $q =~ s/ +/ /g;
+		   $q =~ s/^ | $//g;
 	       }
 	       $_ = $self->_readline;
 	   }
@@ -210,15 +229,22 @@ sub next_result{
 			    'Data' => $q});
 	   $self->element({ 'Name' => 'BlastOutput_query-len', 
 			    'Data' => $size});
-
+	   my ($firstpart) = split(/\s+/,$q);
+	   my @pieces = split(/\|/,$firstpart);
+	   my $acc = pop @pieces;
+	   $self->element({ 'Name' =>  'BlastOutput_query-acc',
+			    'Data'  => $acc});	   
        } elsif ( /^Database:\s*(.+)$/ ) {
 	   $self->element({'Name' => 'BlastOutput_db',
 			   'Data' => $1});
-	   if( $self->_readline =~ /([\d,]+) total letters/ ) {
-	       my $s = $1;
+	   if( $self->_readline =~ /^\s+([\d\,]+)\s+sequences\;\s+([\d,]+)\s+total\s+letters/ ) {
+	       my ($s,$l) = ($1,$2);
 	       $s =~ s/,//g;
+	       $l =~ s/,//g;
 	       $self->element({'Name' => 'BlastOutput_db-len',
-			       'Data' => $s});	
+			       'Data' => $s});	       
+	       $self->element({'Name' => 'BlastOutput_db-let',
+			       'Data' => $l});
 	   }
        } elsif( /^>(\S+)\s*(.*)?/ ) {
 	   if( $self->in_element('hsp') ) {
@@ -233,11 +259,12 @@ sub next_result{
 			    'Data' => $id});
 	   my @pieces = split(/\|/,$id);
 	   my $acc = pop @pieces;
-	   $acc =~ s/\.\d+$//;
 	   $self->element({ 'Name' =>  'Hit_accession',
 			    'Data'  => $acc});	   
 	   $self->element({ 'Name' => 'Hit_def',
 			    'Data' => $2});	   
+      } elsif( /\s+(Plus|Minus) Strand HSPs:/i ) {
+	   next;
        } elsif( $self->_mode eq 'hit' && /Length\s*=\s*(\d+)/ ) {
 	   $self->element({ 'Name' => 'Hit_len',
 			    'Data' => $1 });
@@ -311,14 +338,16 @@ sub next_result{
 	       }
 	       # here is where difference between wublast and ncbiblast
 	       # is better handled by different logic
-	       if( /Number of Sequences:\s+(\d+)/ ||
-			/of sequences in database:\s+(\d+)/) {
-		   $self->element({'Name' => 'Statistics_db-num',
-				   'Data' => $1});
-	       } elsif ( /letters in database:\s+([\d,]+)/) {	   
+	       if( /Number of Sequences:\s+([\d\,]+)/i ||
+			/of sequences in database:\s+([\d,]+)/i) {
+		   my $c = $1;
+		   $c =~ s/\,//g;
+		   $self->element({'Name' => 'Statistics_db-len',
+				   'Data' => $c});
+	       } elsif ( /letters in database:\s+([\d,]+)/i) {	   
 		   my $s = $1;
 		   $s =~ s/,//g;
-		   $self->element({'Name' => 'Statistics_db-len',
+		   $self->element({'Name' => 'Statistics_db-let',
 				   'Data' => $s});
 	       } elsif( $blast eq 'wublast' ) {
 		   if( /E=(\S+)/ ) {
@@ -326,7 +355,10 @@ sub next_result{
 				       'Data' => $1});
 		   } elsif( $last =~ /Frame\s+MatID\s+Matrix name/ ) {
 		       s/^\s+//;
-		       my (undef,undef,$matrix,$lambda,$kappa,$entropy) = split;
+                       #throw away first two slots
+		       my @vals = split;
+		       splice(@vals, 0,2);
+		       my ($matrix,$lambda,$kappa,$entropy) = @vals;
 		       $self->element({'Name' => 'Parameters_matrix',
 				       'Data' => $matrix});
 		       $self->element({'Name' => 'Statistics_lambda',
@@ -350,18 +382,39 @@ sub next_result{
 				       'Data' => $kappa});
 		       $self->element({'Name' => 'Statistics_entropy',
 				       'Data' => $entropy});
-		   } elsif( /effective search space: (\d+)/ ) {
+		   } elsif( /effective\s+search\s+space\s+used:\s+(\d+)/ ) {
+		       $self->element({'Name' => 'Statistics_eff-spaceused',
+				       'Data' => $1});		       
+		   } elsif( /effective\s+search\s+space:\s+(\d+)/ ) {
 		       $self->element({'Name' => 'Statistics_eff-space',
 				       'Data' => $1});
-		   } elsif( /Gap Penalties:\s+Existence:\s+(\d+),\s+Extension:\s+(\d+)/) {
+		   } elsif( /Gap\s+Penalties:\s+Existence:\s+(\d+)\,\s+Extension:\s+(\d+)/) {
 		       $self->element({'Name' => 'Parameters_gap-open',
 				       'Data' => $1});
 		       $self->element({'Name' => 'Parameters_gap-extend',
 				       'Data' => $2});
-		   } elsif( /effective HSP length:\s+(\d+)/ ) {
+		   } elsif( /effective\s+HSP\s+length:\s+(\d+)/ ) {
 		        $self->element({'Name' => 'Statistics_hsp-len',
 					'Data' => $1});
-		   }
+		   } elsif( /effective\s+length\s+of\s+query:\s+([\d\,]+)/ ) {
+		       my $c = $1;
+		       $c =~ s/\,//g;
+		        $self->element({'Name' => 'Statistics_query-len',
+					'Data' => $c});
+		   } elsif( /effective\s+length\s+of\s+database:\s+([\d\,]+)/){
+		       my $c = $1;
+		       $c =~ s/\,//g;
+		       $self->element({'Name' => 'Statistics_eff-dblen',
+				       'Data' => $c});
+		   } elsif( /^(T|A|X1|X2|S1|S2):\s+(\d+)/ ) {
+		       $self->element({'Name' => "Statistics_$1",
+				       'Data' => $2})
+		       } elsif( /frameshift\s+window\,\s+decay\s+const:\s+(\d+)\,\s+([\.\d]+)/ ) {
+			   $self->element({'Name'=> 'Statistics_framewindow',
+					   'Data' => $1});
+			   $self->element({'Name'=> 'Statistics_decay',
+					   'Data' => $2});
+		       }
 	       }
 	       $last = $_;
 	   }
@@ -396,7 +449,7 @@ sub next_result{
 	  # print "unrecognized line $_";
        }
    } 
-   $self->end_element({'Name' => 'BlastOutput'});
+   $self->end_element({'Name' => 'BlastOutput'}) unless ! $seentop;
    return $self->end_document();
 }
 
@@ -426,7 +479,7 @@ sub start_element{
     }
     if($nm eq 'BlastOutput') {
 	$self->{'_values'} = {};
-	$self->{'_report'}= undef;
+	$self->{'_result'}= undef;
 	$self->{'_mode'} = '';
     }
 
@@ -491,7 +544,7 @@ sub end_element {
     }
     $self->{'_last_data'} = ''; # remove read data if we are at 
 				# end of an element
-    $self->{'_report'} = $rc if( $nm eq 'BlastOutput' );
+    $self->{'_result'} = $rc if( $nm eq 'BlastOutput' );
     return $rc;
 
 }
@@ -594,7 +647,7 @@ sub start_document{
     my ($self) = @_;
     $self->{'_lasttype'} = '';
     $self->{'_values'} = {};
-    $self->{'_report'}= undef;
+    $self->{'_result'}= undef;
     $self->{'_mode'} = '';
     $self->{'_elements'} = [];
 }
@@ -613,7 +666,7 @@ sub start_document{
 
 sub end_document{
    my ($self,@args) = @_;
-   return $self->{'_report'};
+   return $self->{'_result'};
 }
 
 1;
