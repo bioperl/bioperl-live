@@ -18,14 +18,17 @@ at http://www.kazusa.or.jp/codon.
 =head1 SYNOPSIS
 
 	use Bio::CodonUsage::Table;
-	my $cdtable = Bio::CodonUsage::Table->new(-sp => 'Mus musculus'
+	use Bio::DB::CUTG;
+
+	## get  a codon usage table from web database ##
+	my $cdtable = Bio::DB::CUTG->new(-sp => 'Mus musculus'
                                                -gc => 1);
 
-
-	## or, to initialize from local file..
-	##my $cdtable = Bio::CodonUsage::Table->new
-                   (-file => 'your_codontablefile');
-
+	## or from local file
+	
+    my $io = Bio::CodonUsage::IO->new(-file=>"file");
+	my $cdtable= $io->next_data(); 
+	
 	print "leu frequency is ", $cdtable->aa_frequency('LEU'), "\n";
 	print "freqof ATG is ", $cdtable->codon_rel_frequency('ttc'), "\n";
 	print "abs freq of ATG is ", $cdtable->codon_abs_frequency('ATG'), "\n";
@@ -36,36 +39,7 @@ at http://www.kazusa.or.jp/codon.
 =head1 DESCRIPTION
 
 
-This class retrieves and objectifies codon usage tables. If
- initialized with a species name
-
-e.g., my $cdtable = Bio::CodonUsage::Table->new
-							(-sp => 'Mus musculus')
-
-the table will be retrieved from the online Codon usage
-DataBase at http://www.kazusa.or.jp/codon.  The species
-name must be a Latin name, as  described in the online
-documentation for the database. The string is used to 
-do a regular expression search of the database and may 
-retrieve multiple species names if not specified exactly.
-If this is the case the CUT from the first species in
- the list will be chosen. 
-
-If initialized using a file:
-
- e.g., my $cdtable = Bio::CodonUsage::Table->new
-                            (-file => 'your_codontablefile')
-the codon table will be initialized from a local file. This
- will only work if the file is in a GCG style format like
- the format of the online database. An example format can
-be seen at <INSert file name here>.
-
-The 'gc' key value is used to determine the genetic code 
-and is the standard code for the different genetic codes.
-In practice the database seems to ignore incongruous 
-genetic codes, e.g., if you try to retrieve a human codon
-usage table with a yeast mitochondrial
-genetic code it will return the standard CU table.
+This class provides methods for accessing codon usage table data. 
 
 All of the methods at present are simple look-ups of the
  table or are derived from simple calculations from the
@@ -76,7 +50,9 @@ usage of a sequence , for example, or provide methods
 =head1 SEE ALSO
 
 L<Bio::Tools::CodonTable>, 
-L<Bio::WebAgent>
+L<Bio::WebAgent>,
+L<Bio::CodonUsage::IO>,
+L<Bio::DB::CUTG>
 
 =head1 FEEDBACK
 
@@ -147,20 +123,6 @@ sub new {
 	my $self= $class->SUPER::new(@args);
 	return $self;
 }
-
-=head2 raw
-
- Title   : raw
- Usage   : my $rawtable = $cdtable->raw();
- Returns : a formatted multiline string containing the codon table data
- Args    : none
-
-=cut
-
-sub raw {
-	my $self= shift;
-	return $self->{'_raw_cud'};
-	}
 
 =head2 all_aa_frequencies
 
@@ -323,6 +285,42 @@ sub set_coding_gc {
 	$self->{'_coding_gc'}{$key} = $value;
 	
 
+}
+
+=head2 species
+
+ Title     : species
+ Usage     : my $sp = $cut->species();
+ Purpose   : Get/setter for species name of codon table
+ Returns   : Void or species name string
+ Args      : None or species name string
+
+=cut
+
+sub species {
+	my $self = shift;
+	if (@_ ){
+		$self->{'_species'} = shift;
+		}
+	return $self->{'_species'};
+}
+
+=head2 genetic_code
+
+ Title     : genetic_code
+ Usage     : my $sp = $cut->genetic_code();
+ Purpose   : Get/setter for genetic_code name of codon table
+ Returns   : Void or genetic_code id
+ Args      : None or genetic_code id
+
+=cut
+
+sub genetic_code {
+	my $self = shift;
+	if (@_ ){
+		$self->{'_genetic_code'} = shift;
+		}
+	return $self->{'_genetic_code'};
 }
 
 =head2 cds_count
