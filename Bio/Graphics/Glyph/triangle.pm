@@ -49,17 +49,32 @@ sub draw_component {
   elsif($orient eq 'E'){$vx1=$x1;$vy1=$y1;$vx2=$x1;$vy2=$y2;$vx3=$x1+$p;$vy3=$ymid;}
 
   # now draw the triangle
-  $gd->line($vx1,$vy1,$vx2,$vy2,$fg);
-  $gd->line($vx2,$vy2,$vx3,$vy3,$fg);
-  $gd->line($vx3,$vy3,$vx1,$vy1,$fg);
-  $xmid = $self->panel->left+1  if $xmid <= $self->panel->left;
-  $xmid = $self->panel->right-1 if $xmid >= $self->panel->right;
+  #  $gd->line($vx1,$vy1,$vx2,$vy2,$fg);
+  #  $gd->line($vx2,$vy2,$vx3,$vy3,$fg);
+  #  $gd->line($vx3,$vy3,$vx1,$vy1,$fg);
+
+  #  $xmid = $self->panel->left+1  if $xmid <= $self->panel->left;
+  #  $xmid = $self->panel->right-1 if $xmid >= $self->panel->right;
+
+  #if (my $c = $self->bgcolor){
+  #  $gd->fillToBorder($xmid,$ymid,$fg,$c) if $orient eq 'S' || $orient eq 'N';
+  #  $gd->fillToBorder($x1+1,$ymid,$fg,$c) if $orient eq 'E';
+  #  $gd->fillToBorder($x2-1,$ymid,$fg,$c) if $orient eq 'W';
+  #}
+
+  # Let's try drawing this as a polygon instead
+  # so I can support it with GD::SVG
+  my $poly_pkg = $self->_image_class . '::Polygon';
+  my $poly     = $poly_pkg->new();
+  
+  $poly->addPt($vx1,$vy1);
+  $poly->addPt($vx2,$vy2);
+  $poly->addPt($vx3,$vy3);
 
   if (my $c = $self->bgcolor){
-    $gd->fillToBorder($xmid,$ymid,$fg,$c) if $orient eq 'S' || $orient eq 'N';
-    $gd->fillToBorder($x1+1,$ymid,$fg,$c) if $orient eq 'E';
-    $gd->fillToBorder($x2-1,$ymid,$fg,$c) if $orient eq 'W';
+    $gd->filledPolygon($poly,$c);
   }
+  $gd->polygon($poly,$fg);
 }
 
 1;
