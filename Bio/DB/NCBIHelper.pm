@@ -169,7 +169,7 @@ sub get_request {
     my %params = $self->get_params($mode);
     if( ! %params ) {
 	$self->throw("must specify a valid retrieval mode 'single' or 'batch' not '$mode'") 
-    }
+	}
     my $url = URI->new($HOSTBASE . $CGILOCATION{$mode}[1]);
 
     unless( defined $uids or defined $query) {
@@ -177,28 +177,28 @@ sub get_request {
     }
 
     if ($uids) {
-      if( ref($uids) =~ /array/i ) {
-	$uids = join(",", @$uids);
-      }
-      $params{'id'}      = $uids;
+	if( ref($uids) =~ /array/i ) {
+	    $uids = join(",", @$uids);
+	}
+	$params{'id'}      = $uids;
     }
 
     elsif ($query && $query->can('cookie')) {
-      @params{'WebEnv','query_key'} = $query->cookie;
-      $params{'db'}                 = $query->db;
+	@params{'WebEnv','query_key'} = $query->cookie;
+	$params{'db'}                 = $query->db;
     }
 
     elsif ($query) {
-      $params{'id'} = join ',',$query->ids;
+	$params{'id'} = join ',',$query->ids;
     }
 
     $params{'rettype'} = $format;
     if ($CGILOCATION{$mode}[0] eq 'post') {
-      return POST $url,[%params];
+	return POST $url,[%params];
     } else {
-      $url->query_form(%params);
-      $self->debug("url is $url \n");
-      return GET $url;
+	$url->query_form(%params);
+	$self->debug("url is $url \n");
+	return GET $url;
     }
 }
 
@@ -279,6 +279,7 @@ sub postprocess_data {
 	close TMP;
 	$data = join("", @in);
     }
+
     # transform links to appropriate descriptions
     if ($data =~ /\nCONTIG\s+/) {	
 	$self->warn("CONTIG found. GenBank get_Stream_by_acc about to run."); 
@@ -355,7 +356,6 @@ sub postprocess_data {
     } elsif ( $type eq 'STRING' ) {
 	${$args{'location'}} = $data;
     }
-    
     $self->debug("format is ". join(',',$self->request_format()). 
 		 " data is\n$data\n");
 }
@@ -397,7 +397,7 @@ Overriding WebDBSeqI method to help newbies to retrieve sequences
 =head2 get_Stream_by_acc
 
   Title   : get_Stream_by_acc
-  Usage   : $seq = $db->get_Seq_by_acc([$acc1, $acc2]);
+  Usage   : $seq = $db->get_Stream_by_acc([$acc1, $acc2]);
   Function: Gets a series of Seq objects by accession numbers
   Returns : a Bio::SeqIO stream object
   Args    : $ref : a reference to an array of accession numbers for
