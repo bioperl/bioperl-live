@@ -73,8 +73,10 @@ Internal methods are usually preceded with a _
 
 
 package Bio::SearchIO::Writer::HTMLResultWriter;
-use vars qw(@ISA %RemoteURLDefault $MaxDescLen $DATE $AlignmentLineWidth);
+use vars qw(@ISA %RemoteURLDefault
+            $MaxDescLen $DATE $AlignmentLineWidth $Revision);
 use strict;
+$Revision = '$Id';
 
 # Object preamble - inherits from Bio::Root::RootI
 
@@ -177,16 +179,15 @@ sub to_string {
 						  $self->filter('HSP') );
     return '' if( defined $resultfilter && ! &{$resultfilter}($result) );    
 
-    my $type = ( $result->algorithm =~ /(P|X|Y)$/i ) ? 'PROTEIN' : 'NUCLEOTIDE';
     my $reference = $result->algorithm_reference || $self->algorithm_reference($result);
     $reference =~ s/\~/\n/g;
     my $str;
     if( ! defined $num || $num <= 1 ) { 
 	$str = $self->start_report($result);
     }
-    $str .= sprintf(	    
+    $str .= sprintf(
 qq{
-    <CENTER><H1>Bioperl Reformatted HTML of %s Search Report<br> for %s</H1></CENTER>
+    %s
     <hr>
 	<pre>%s</pre>
     <b>Query=</b>%s %s<br><dd>(%s letters)</dd>
@@ -197,8 +198,7 @@ qq{
     <tr><th>Sequences producing significant alignments:</th>
 	<th>Score<br>(bits)</th><th>E<br>value</th></tr>
   }, 
-		    $result->algorithm,		      
-		    $result->query_name(), 
+                    $self->title($result),
 		    $reference,
 		    $result->query_name, 
 		    $result->query_description, $result->query_length, 
@@ -226,10 +226,8 @@ qq{
 	    $descsub = sprintf($p,$hit->description);
 	}
 	
-	my $url = length($self->remote_database_url($type)) > 0 ? 
-	    sprintf('<a href="%s">%s</a>',
-		    sprintf($self->remote_database_url($type),$gi || $acc), 
-		    $hit->name()) :  $hit->name();
+	my $url_desc  = $self->hit_link_desc($hit, $result);
+	my $url_align = $self->hit_link_align($hit, $result);
 
 	my @hsps = $hit->hsps;
 	
@@ -237,7 +235,7 @@ qq{
 	# bitscore/significance value for the Hit (NCBI XML data for one)
 	
 	$str .= sprintf('<tr><td>%s %s</td><td>%s</td><td><a href="#%s">%.2g</a></td></tr>'."\n",
-			$url, $descsub, 
+			$url_desc, $descsub, 
 			($hit->raw_score ? $hit->raw_score : 
 			(defined $hsps[0] ? $hsps[0]->score : ' ')),
 			$acc,
@@ -246,7 +244,7 @@ qq{
 			);
 
 	$hspstr .= "<a name=\"$acc\"><pre>\n".
-	    sprintf("><b>%s</b> %s\n<dd>Length = %d</dd><p>\n\n", $hit->name, 
+	    sprintf("><b>%s</b> %s\n<dd>Length = %d</dd><p>\n\n", $url_align, 
 			defined $hit->description ? $hit->description : '', 
 		    $hit->length);
 	
@@ -379,6 +377,93 @@ qq{
     return $str;
 }
 
+=head2 hit_link_desc
+
+ Title   : hit_link_desc
+ Usage   : $self->hit_link_desc($hit, $result)
+ Function: Provides an HTML link(s) for the given hit to be used
+           within the description section at the top of the BLAST report.
+           This allows a person reading the report within
+           a web browser to go to one or more database entries for
+           the given hit from the description section.
+ Returns : string containing HTML markup "<a href...")
+
+           The default implementation returns an HTML link to the
+           URL supplied by the remote_database_url() method
+           and using the identifier supplied by the id_parser() method.
+           It will use the NCBI GI if present, and the accession if not.
+
+ Args    : First argument is a Bio::Search::Hit::HitI
+           Second argument is a Bio::Search::Result::ResultI
+
+See Also: hit_link_align(), remote_database(), id_parser()
+
+=cut
+
+sub hit_link_desc {
+    my($self, $hit, $result) = @_;
+    my $type = ( $result->algorithm =~ /(P|X|Y)$/i ) ? 'PROTEIN' : 'NUCLEOTIDE';
+    my $id_parser = $self->id_parser;
+    my ($gi,$acc) = &$id_parser($hit->name);
+
+    my $url = length($self->remote_database_url($type)) > 0 ? 
+              sprintf('<a href="%s">%s</a>',
+                      sprintf($self->remote_database_url($type),$gi || $acc), 
+                      $hit->name()) :  $hit->name();
+
+    return $url;
+}
+
+=head2 hit_link_align
+
+ Title   : hit_link_align
+ Usage   : $self->hit_link_align($hit, $result)
+ Function: Provides an HTML link(s) for the given hit to be used
+           within the HSP alignment section of the BLAST report.
+           This allows a person reading the report within
+           a web browser to go to one or more database entries for
+           the given hit from the alignment section.
+ Returns : string containing HTML markup "<a href...")
+
+           The default implementation delegates to hit_link_desc().
+
+ Args    : First argument is a Bio::Search::Hit::HitI
+           Second argument is a Bio::Search::Result::ResultI
+
+See Also: hit_link_desc(), remote_database(), id_parser()
+
+=cut
+
+sub hit_link_align { shift->hit_link_desc(@_) }
+
+
+=head2 title
+
+ Title   : title
+ Usage   : $self->title($result)
+ Function: Provides HTML for the given BLAST report that will appear
+           at the top of the BLAST report HTML output.
+ Returns : string containing HTML markup
+
+           The default implementation returns <CENTER> <H1> HTML
+           containing text such as:
+           "Bioperl Reformatted HTML of BLASTP Search Report
+                     for gi|1786183|gb|AAC73113.1|"
+
+ Args    : First argument is a Bio::Search::Result::ResultI
+
+=cut
+
+sub title {
+    my ($self, $result) = @_;
+
+    return sprintf(
+qq{    <CENTER><H1><a href="http://bioperl.org">Bioperl</a> Reformatted HTML of %s Search Report<br> for %s</H1></CENTER>},
+		    $result->algorithm,
+		    $result->query_name());
+}
+
+
 =head2 end_report
 
  Title   : end_report
@@ -412,8 +497,13 @@ sub start_report {
     return sprintf(
 qq{<HTML>
        <HEAD> <CENTER><TITLE>Bioperl Reformatted HTML of %s output with Bioperl Bio::SearchIO system</TITLE></CENTER></HEAD>
+    <!------------------------------------------------------------------->
+    <!-- Generated by Bio::SearchIO::Writer::HTMLResultWriter          -->
+    <!-- $Revision -->
+    <!-- http://bioperl.org                                            -->
+    <!------------------------------------------------------------------->
     <BODY BGCOLOR="WHITE">
-},$result->algorithm);
+},$result->algorithm, $Revision);
     
 }
 
@@ -458,6 +548,12 @@ sub id_parser {
             Returns $1 from applying the regexp /^>\s*(\S+)/
             to $header.
   Returns : ID string
+
+            The default implementation checks for NCBI-style
+            identifiers in the given string ('gi|12345|AA54321').
+            For these IDs, it extracts the GI and accession and
+            returns a two-element list of strings (GI, acc).
+
   Args    : a fasta header line string
 
 =cut
