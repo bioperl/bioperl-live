@@ -917,7 +917,8 @@ sub derived_mutations{
 
  Returns : Hash of Hashes - first key is site 1,second key is site 2
            and value is LD for those two sites.
-           my $LD_site1_site2 = $matrix{$site1}->{$site2};
+           my $LDarrayref = $matrix{$site1}->{$site2};
+           my ($ldval, $chisquared) = @$LDarrayref;
  Args    : L<Bio::PopGen::PopulationI> or arrayref of 
            L<Bio::PopGen::IndividualI>s 
  Reference: Weir B.S. (1996) "Genetic Data Analysis II", 
@@ -940,33 +941,29 @@ sub composite_LD {
     }
 
     my @marker_names = $pop->get_marker_names;
-    my $site_count = scalar @marker_names;
     my @inds = $pop->get_Individuals;
     my $num_inds = scalar @inds;
-    my %allele_freqs;		# key is marker name
     my( %genotypes,%pairwise_genotypes);
     my %lookup;
-    my (%total_genotype_count,%total_pairwisegeno_count,%allelef);
+    my (%total_genotype_count,%total_pairwisegeno_count);
 
     # calculate allele frequencies for each marker from the population
     # use the built-in get_Marker to get the allele freqs
     # we still need to calculate the genotype frequencies
     foreach my $marker_name ( @marker_names ) { 
+	my %allelef;
 	foreach my $ind ( @inds ) {
 	    my ($genotype) = $ind->get_Genotypes(-marker => $marker_name);
 	    my @alleles  = sort $genotype->get_Alleles;
 	    next if( scalar @alleles != 2);
-
 	    my $genostr  = join(',', @alleles);
-            $allelef{$marker_name}->{$alleles[0]}++;
-            $allelef{$marker_name}->{$alleles[1]}++;
-	    
-	    $genotypes{$marker_name}->{$genostr}++;
-	    $total_genotype_count{$marker_name}++;
+            $allelef{$alleles[0]}++;
+            $allelef{$alleles[1]}++;
 	}
+
 	# we should check for cases where there > 2 alleles or
 	# only 1 allele and throw out those markers.
-	my @alleles      = sort keys %{$allelef{$marker_name}};
+	my @alleles      = sort keys %allelef;
 	my $allele_count = scalar @alleles;
 	# test if site is polymorphic
 	if( $allele_count != 2) { 
@@ -982,8 +979,6 @@ sub composite_LD {
 	    $self->warn("An individual has an allele which is not a single base, this is currently not supported in composite_LD - consider recoding the allele as a single character");
 	    next;
 	}
-	
-	%{$allele_freqs{$marker_name}} = $pop->get_Marker($marker_name)->get_Allele_Frequencies();
 
 	# fix the call for allele 1 (A or B) and 
 	# allele 2 (a or b) in terms of how we'll do the 
@@ -993,8 +988,8 @@ sub composite_LD {
 	$lookup{$marker_name}->{'2'} = $alleles[1];
     }
 
-    @marker_names = sort keys %allele_freqs;
-    $site_count   = scalar @marker_names;
+    @marker_names = sort keys %lookup;
+    my $site_count   = scalar @marker_names;
     # where the final data will be stored
     my %stats_for_sites;
 
@@ -1006,38 +1001,56 @@ sub composite_LD {
 	my $site1 = $marker_names[$i];
 	for( my $j = $i+1; $j < $site_count ; $j++) { 
 	    my $site2 = $marker_names[$j];
+	    my (%allele_count,%allele_freqs) = (0,0);
 	    foreach my $ind ( @inds ) {
 		# build string of genotype at site 1
 		my ($genotype1) = $ind->get_Genotypes(-marker => $site1);
 		my @alleles1  = sort $genotype1->get_Alleles;
-		my $genostr1  = join(',', @alleles1);
-		
+
                 # if an individual has only one available allele
 		# (has a blank or N for one of the chromosomes)
 		# we don't want to use it in our calculation
-		
+
 		next unless( scalar @alleles1 == 2);
+		my $genostr1  = join(',', @alleles1);
 
 		# build string of genotype at site 2
 		my ($genotype2) = $ind->get_Genotypes(-marker => $site2);
 		my @alleles2  = sort $genotype2->get_Alleles;
 		my $genostr2  = join(',', @alleles2);
-		next unless( scalar @alleles2 == 2);
 		
+		next unless( scalar @alleles2 == 2);
+		for (@alleles1) {
+		    $allele_count{$site1}++;
+		    $allele_freqs{$site1}->{$_}++;
+		}
+		$genotypes{$site1}->{$genostr1}++;
+		$total_genotype_count{$site1}++;
+
+		for (@alleles2) {
+		    $allele_count{$site2}++;
+		    $allele_freqs{$site2}->{$_}++;
+		}
+		$genotypes{$site2}->{$genostr2}++;
+		$total_genotype_count{$site2}++;
+
 		# We are using the $site1,$site2 to signify
 		# a unique key
 		$pairwise_genotypes{"$site1,$site2"}->{"$genostr1,$genostr2"}++;
 		# some individuals 
 		$total_pairwisegeno_count{"$site1,$site2"}++;
 	    }
-
-	    my $numindividuals = $pop->get_number_individuals;
-
+	    for my $site ( %allele_freqs ) {
+		for my $al ( keys %{ $allele_freqs{$site} } ) {
+		    $allele_freqs{$site}->{$al} /= $allele_count{$site};
+		}
+	    }
+	    my $n = $total_pairwisegeno_count{"$site1,$site2"};	# number of inds
 	    # 'A' and 'B' are two loci or in our case site1 and site2  
-	    my $allele1_site1 = $lookup{$site1}->{'1'}; # this is the BigA allele
-	    my $allele1_site2 = $lookup{$site2}->{'1'}; # this is the BigB allele
-	    my $allele2_site1 = $lookup{$site1}->{'2'}; # this is the LittleA allele
-	    my $allele2_site2 = $lookup{$site2}->{'2'}; # this is the LittleB allele
+	    my $allele1_site1 = $lookup{$site1}->{'1'};	# this is the BigA allele
+	    my $allele1_site2 = $lookup{$site2}->{'1'};	# this is the BigB allele
+	    my $allele2_site1 = $lookup{$site1}->{'2'};	# this is the LittleA allele
+	    my $allele2_site2 = $lookup{$site2}->{'2'};	# this is the LittleB allele
 	    # AABB
 	    my $N1genostr = join(",",( $allele1_site1, $allele1_site1,
 				       $allele1_site2, $allele1_site2));
@@ -1065,14 +1078,12 @@ sub composite_LD {
 
 	    my $homozA_site1 = join(",", ($allele1_site1,$allele1_site1));
 	    my $homozB_site2 = join(",", ($allele1_site2,$allele1_site2));
-
-	    my $p_AA = ($genotypes{$site1}->{$homozA_site1} || 0) / $numindividuals;
-	    my $p_BB = ($genotypes{$site2}->{$homozB_site2} || 0) / $numindividuals;
-
-	    my $p_A  = $allele_freqs{$site1}->{$allele1_site1};	# an individual allele freq
+	   	    my $p_AA = ($genotypes{$site1}->{$homozA_site1} || 0) / $n;
+	    my $p_BB = ($genotypes{$site2}->{$homozB_site2} || 0) / $n;
+	    my $p_A  = $allele_freqs{$site1}->{$allele1_site1} || 0;	# an individual allele freq
 	    my $p_a  =  1 - $p_A;
 
-	    my $p_B  = $allele_freqs{$site2}->{$allele1_site2};	# an individual allele freq
+	    my $p_B  = $allele_freqs{$site2}->{$allele1_site2} || 0;	# an individual allele freq
 	    my $p_b  =  1 - $p_B;
 
 	    # variance of allele frequencies
@@ -1082,19 +1093,24 @@ sub composite_LD {
 	    # hardy weinberg
 	    my $D_A  = $p_AA - $p_A**2;
 	    my $D_B  = $p_BB - $p_B**2;
-	    my $n = $total_pairwisegeno_count{"$site1,$site2"};	# number of inds
 	    my $n_AB = 2*$n1 + $n2 + $n4 + 0.5 * $n5;
 	    $self->debug("n_AB=$n_AB -- n1=$n1, n2=$n2 n4=$n4 n5=$n5\n");
-	    
+
 	    my $delta_AB = (1 / $n ) * ( $n_AB ) - ( 2 * $p_A * $p_B );
 	    $self->debug("delta_AB=$delta_AB -- n=$n, n_AB=$n_AB p_A=$p_A, p_B=$p_B\n");
 	    $self->debug(sprintf(" (%d * %.4f) / ( %.2f + %.2f) * ( %.2f + %.2f) \n",
 				 $n,$delta_AB**2, $pi_A, $D_A, $pi_B, $D_B));
-	    my $chisquared = ( $n * ($delta_AB**2) ) / 
-		( ( $pi_A + $D_A) * ( $pi_B + $D_B) );
-
+	    
+	    my $chisquared;
+	    eval { $chisquared = ( $n * ($delta_AB**2) ) / 
+		       ( ( $pi_A + $D_A) * ( $pi_B + $D_B) );
+	       };
+	    if( $@ ) {
+		$self->debug("Skipping the site because the denom is 0.\nsite1=$site1, site2=$site2 : pi_A=$pi_A, pi_B=$pi_B D_A=$D_A, D_B=$D_B\n");
+		next;
+	    }
 	    # this will be an upper triangular matrix
-	    $stats_for_sites{$site1}->{$site2} = $chisquared;
+	    $stats_for_sites{$site1}->{$site2} = [$delta_AB,$chisquared];
 	}
     }
     return %stats_for_sites;
