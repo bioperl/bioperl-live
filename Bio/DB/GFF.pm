@@ -1928,8 +1928,8 @@ sub do_load_gff {
 			    start  => $2,
 			    stop   => $3,
 			    score  => undef,
-			    strand => '.',
-			    phase  => '.',
+			    strand => undef,
+			    phase  => undef,
 			    gclass => 'Sequence',
 			    gname  => $1,
 			    tstart => undef,
@@ -1943,6 +1943,9 @@ sub do_load_gff {
     next if /^\#/;
     my ($ref,$source,$method,$start,$stop,$score,$strand,$phase,$group) = split "\t";
     next unless defined($ref) && defined($method) && defined($start) && defined($stop);
+    foreach (\$score,\$strand,\$phase) {
+      undef $$_ if $$_ eq '.';
+    }
 
     # handle group parsing
     # protect embedded semicolons in the group; there must be faster/more elegant way

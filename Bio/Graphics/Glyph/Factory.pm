@@ -343,7 +343,11 @@ sub feature_to_glyph {
 
   return scalar $self->{stylesheet}->glyph($feature) if $self->{stylesheet};
   my $map = $self->glyph_map    or return 'generic';
-  return $map->($feature)              || 'generic' if ref($map) eq 'CODE';
+  if (ref($map) eq 'CODE') {
+    my $val = eval {$map->($feature)};
+    warn $@ if $@;
+    return $val || 'generic';
+  }
   return $map->{$feature->primary_tag} || 'generic';
 }
 
@@ -384,7 +388,8 @@ sub option {
       my $feature = $glyph->feature;
       return $value unless ref $value eq 'CODE';
       return unless $feature->isa('Bio::SeqFeatureI');
-      my $val = $value->($feature,$option_name,$partno,$total_parts,$glyph);
+      my $val = eval { $value->($feature,$option_name,$partno,$total_parts,$glyph)};
+      warn $@ if $@;
       return defined $val && $val eq '*default*' ? $GENERIC_OPTIONS{$option_name} : $val;
     }
   }
