@@ -17,7 +17,7 @@ BEGIN {
         use lib 't';
     }
     use Test;
-    plan tests => 12;
+    plan tests => 14;
 }
 
 END {
@@ -72,6 +72,25 @@ my $g_channel = $in_scf->get_trace("g");
 ok (length($g_channel) > 10);
 my $t_channel = $in_scf->get_trace("t");
 ok (length($t_channel) > 10);
+
+print("Now checking to see if peak indices can be pulled for a v2 scf...\n");
+my @indices = @{$in_scf->get_peak_indices()};
+     # print ("@indices\n");
+ok (scalar(@indices) == 761);
+
+print("Now checking to see if peak indices can be pulled for a version 3 scf...\n");
+my $in_scf_v3 = Bio::SeqIO->new('-file' => Bio::Root::IO->catfile("t","data",
+							       "version3.scf"),
+			     '-format' => 'scf',
+			     '-verbose' => $DEBUG || 0);
+
+my $v3 = $in_scf_v3->next_seq();
+@indices = @{$in_scf_v3->get_peak_indices()};
+     # print("The peak indices for a v3 scf were there: @indices\n");
+ok (scalar(@indices) == 1106);
+
+
+
 
 	# everything ok? <deep breath> ok, now we test the writing components
 	# 1. try to create an empty file

@@ -135,7 +135,7 @@ sub _next_scf {
     $self->_set_header($buffer);
 		# the rest of the the information is different between the
 		# the different versions of scf.
-	if ($self->{'version'} lt "3") {
+	if ($self->{'version'} lt "3.00") {
 			# first gather the trace information
 		$length = $self->{'samples'}*$self->{sample_size}*4;
 		$buffer = $self->read_from_buffer($fh,$buffer,$length);
@@ -243,7 +243,7 @@ sub _set_v3_peak_indices {
 	my $length = length($buffer);
 	my ($offset,@read,@positions);
 	@read = unpack "N$length",$buffer;
-	@{$self->{'parsed'}->{'peak_indices'}} = @read;
+     $self->{'parsed'}->{'peak_indices'} = join(' ',@read);
 }
 
 =head2 _set_v3_base_accuracies($buffer)
@@ -355,10 +355,11 @@ sub _set_header {
 sub _set_v2_bases {
     my ($self,$buffer) = @_;
     my $length = length($buffer);
-    my ($offset2,$currbuff,$currbase,$currqual,$sequence,@qualities);
+    my ($offset2,$currbuff,$currbase,$currqual,$sequence,@qualities,@indices);
     my @read;
     for ($offset2=0;$offset2<$length;$offset2+=12) {
 	@read = unpack "N C C C C a C3", substr($buffer,$offset2,$length);
+     push @indices,$read[0];
 	$currbase = uc($read[5]);
 	if ($currbase eq "A") { $currqual = $read[1]; }
 	elsif ($currbase eq "C") { $currqual = $read[2]; }
@@ -368,7 +369,9 @@ sub _set_v2_bases {
 	$sequence .= $currbase;
 	push @qualities,$currqual;
     }
-
+     unless (!@indices) {
+          $self->{'parsed'}->{'peak_indices'} = join(' ',@indices);
+     }
     $self->{'parsed'}->{'sequence'} = $sequence;
 	unless (!@qualities) {
 		$self->{'parsed'}->{'qualities'} = join(' ',@qualities);
@@ -444,6 +447,24 @@ sub get_trace {
      return \@temp;
     }
 }
+
+=head2 get_peak_indices()
+
+ Title   : get_peak_indices()
+ Usage   : @a_trace = @{$obj->get_peak_indices("A")};
+ Function: Return the peak indices for this scf.
+ Returns : A reference to an array containing the peak indices for this scf. 
+ Args    : None.
+ Notes   :
+
+=cut
+
+sub get_peak_indices {
+    my ($self) = shift;
+     my @temp = split(' ',$self->{'parsed'}->{'peak_indices'});
+     return \@temp;
+}
+
 
 =head2 _dump_traces_incoming($transformed)
 
