@@ -284,19 +284,20 @@ sub next_result{
 	   $self->element({'Name' => 'BlastOutput_db',
 			   'Data' => $db});
        } elsif( /^>(\S+)\s*(.*)?/ ) {
+	   chomp;
 	   $self->in_element('hsp') && $self->end_element({ 'Name' => 'Hsp'});
 	   $self->in_element('hit') && $self->end_element({ 'Name' => 'Hit'});
 	   
 	   $self->start_element({ 'Name' => 'Hit'});
 	   my $id = $1;	  
+	   my $restofline = $2;
 	   $self->element({ 'Name' => 'Hit_id',
 			    'Data' => $id});
 	   my @pieces = split(/\|/,$id);
 	   my $acc = pop @pieces;
 	   $self->element({ 'Name' =>  'Hit_accession',
 			    'Data'  => $acc});	   
-	   $self->element({ 'Name' => 'Hit_def',
-			    'Data' => $2});
+
 	   my $v = shift @hit_signifs;
 	   if( defined $v ) {
 	       $self->element({'Name' => 'Hit_signif',
@@ -304,15 +305,30 @@ sub next_result{
 	       $self->element({'Name' => 'Hit_score',
 			       'Data' => $v->[1]});
 	   }
-
+	   while(defined($_ = $self->_readline()) ) {
+	       next if( /^\s+$/ );
+	       chomp;
+	       if(  /Length\s*=\s*([\d,]+)/ ) {
+		   my $l = $1;
+		   $l =~ s/\,//g;
+		   $self->element({ 'Name' => 'Hit_len',
+				    'Data' => $l });
+		   last;
+	       }  elsif ( /Score/ ) {
+		   $self->_pushback($_);
+		   last;
+	       } else { 
+		   $restofline .= $_;
+	       }
+	   }
+	   $restofline =~ s/\s+/ /g;
+	   $self->element({ 'Name' => 'Hit_def',
+			    'Data' => $restofline});       
       } elsif( /\s+(Plus|Minus) Strand HSPs:/i ) {
 	   next;
-       } elsif(  /Length\s*=\s*([\d,]+)/ ) {
-	   $self->element({ 'Name' => 'Hit_len',
-			    'Data' => $1 });
        } elsif( ($self->in_element('hit') || 
 		 $self->in_element('hsp')) && # wublast
-	       /Score\s*=\s*(\d+)\s*\(([\d\.]+)\s*bits\),\s*Expect\s*=\s*([^,\s]+),\s*(Sum)?\s*P(\(\d+\))\s*=\s*([^,\s]+)/ 
+	       /Score\s*=\s*(\S+)\s*\(([\d\.]+)\s*bits\),\s*Expect\s*=\s*([^,\s]+),\s*(Sum)?\s*P(\(\d+\))?\s*=\s*([^,\s]+)/ 
 		  ) {
 	   $self->in_element('hsp') && $self->end_element({'Name' => 'Hsp'});
 	   $self->start_element({'Name' => 'Hsp'});
@@ -320,10 +336,10 @@ sub next_result{
 			     'Data' => $1});
 	   $self->element( { 'Name' => 'Hsp_bit-score',
 			     'Data' => $2});
-	   $self->element( { 'Name' => 'Hsp_evalue',
+	   $self->element( { 'Name' => 'Hsp_evalue',			     
 			     'Data' => $3});
 	   $self->element( {'Name'  => 'Hsp_pvalue',
-			    'Data'  =>$6});
+			    'Data'  =>$6});       
        } elsif( ($self->in_element('hit') || $self->in_element('hsp')) && # ncbi blast
 		/Score\s*=\s*(\S+)\s*bits\s*\((\d+)\),\s*Expect(\(\d+\))?\s*=\s*(\S+)/) {
 	   $self->in_element('hsp') && $self->end_element({ 'Name' => 'Hsp'});
@@ -349,27 +365,29 @@ sub next_result{
 	   if( defined $6 ) { 
 	       $self->element( { 'Name' => 'Hsp_gaps',
 				 'Data' => $7});	   
-	   } else { 
-	       $self->element( { 'Name' => 'Hsp_gaps',
-				 'Data' => 0});
-	   }
-	   $self->{'_Query'} = {'begin' => 0, 'end' => 0};
+	   } 
+	   $self->{'_Query'} = { 'begin' => 0, 'end' => 0};
 	   $self->{'_Sbjct'} = { 'begin' => 0, 'end' => 0};
+
+	   if( /(Frame\s*=\s*.+)$/ ) {
+	       # handle wu-blast Frame listing on same line
+	       $self->_pushback($1);
+	   }	   
        } elsif( $self->in_element('hsp') &&
 		/Strand\s*=\s*(Plus|Minus)\s*\/\s*(Plus|Minus)/i ) {
+	   # consume this event
 	   next;
        } elsif( $self->in_element('hsp') &&
 		/Frame\s*=\s*([\+\-][1-3])\s*(\/\s*([\+\-][1-3]))?/ ){
-
 	   my ($queryframe,$hitframe);
 	   if( $reporttype eq 'TBLASTX' ) {
 	       ($queryframe,$hitframe) = ($1,$2);
 	       $hitframe =~ s/\/\s*//g;
 	   } elsif( $reporttype eq 'TBLASTN' ) {
-	       ($hitframe,$queryframe) = ($1,0);
-	   } else { 
+	       ($hitframe,$queryframe) = ($1,0);	       
+	   } elsif( $reporttype eq 'BLASTX' ) {	       
 	       ($queryframe,$hitframe) = ($1,0);
-	   }
+	   } 
 	   $self->element({'Name' => 'Hsp_query-frame',
 			   'Data' => $queryframe});
 	   	   
