@@ -242,7 +242,7 @@ sub direct_new {
  Function: returns a location object suitable for identifying location 
 	   of feature on sequence or parent feature  
  Returns : Bio::LocationI object
- Args    : none
+ Args    : [optional] Bio::LocationI object to set the value to.
 
 
 =cut
