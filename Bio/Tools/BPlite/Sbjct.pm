@@ -31,7 +31,7 @@ sub new {
 			       LASTLINE
 			       PARENT
 			       )],@args);
-    
+    $self->report_type($self->{'PARENT'}->{'BLAST_TYPE'} || 'UNKNOWN');
     $self->{'HSP_ALL_PARSED'} = 0;
     
   return $self;
@@ -49,6 +49,29 @@ sub new {
 =cut
 
 sub name {shift->{'NAME'}}
+
+=head2 report_type
+
+ Title    : report_type
+ Usage    : $type = $sbjct->report_type()
+ Function : Returns the type of report from which this subject was obtained.
+            This usually pertains only to BLAST and friends reports, for which
+            the report type denotes what type of sequence was aligned against
+            what (BLASTN: dna-dna, BLASTP prt-prt, BLASTX translated dna-prt, 
+            TBLASTN prt-translated dna, TBLASTX translated dna-translated dna).
+ Example  : 
+ Returns  : A string (BLASTN, BLASTP, BLASTX, TBLASTN, TBLASTX, UNKNOWN)
+ Args     : a string on set (you should know what you are doing)
+
+=cut
+
+sub report_type {
+    my ($self, $rpt) = @_;
+    if($rpt) {
+	$self->{'_report_type'} = $rpt;
+    }
+    return $self->{'_report_type'};
+}
 
 =head2 nextFeaturePair
 
@@ -99,10 +122,14 @@ sub nextHSP {
   
   my ($match, $hsplength) = ($scoreline =~ /Identities = (\d+)\/(\d+)/);
   my ($positive) = ($scoreline =~ /Positives = (\d+)/);
-  my ($gaps) = ($scoreline =~ /Gaps = (\d+)/);  
-  if    ($self->{'PARENT'}->{'BLAST_TYPE'} eq 'TBLASTX') { ($qframe, $sframe) = $scoreline =~ /Frame = ([\+-]\d)\s+\/\s+([\+-]\d)/; } 
-  elsif ($self->{'PARENT'}->{'BLAST_TYPE'} eq 'BLASTX')  { ($qframe, $sframe) = $scoreline =~ /Frame = ([\+-]\d)/; }
-  else                                                   { ($sframe, $qframe) = $scoreline =~ /Frame = ([\+-]\d)/; }
+  my ($gaps) = ($scoreline =~ /Gaps = (\d+)/);
+  if($self->report_type() eq 'TBLASTX') {
+      ($qframe, $sframe) = $scoreline =~ /Frame =\s+([+-]\d)\s+\/\s+([+-]\d)/;
+  } elsif ($self->report_type() eq 'TBLASTN')  {
+      ($sframe) = $scoreline =~ /Frame =\s+([+-]\d)/;
+  } else {
+      ($qframe) = $scoreline =~ /Frame =\s+([+-]\d)/;
+  }
   $positive = $match if not defined $positive;
   $gaps = '0' if not defined $gaps;
   my ($p)        = $scoreline =~ /[Sum ]*P[\(\d+\)]* = (\S+)/;
@@ -130,9 +157,13 @@ sub nextHSP {
       last;
     }
     elsif( $_ =~ /^\s*Frame/ ) {
-	  if    ($self->{'PARENT'}->{'BLAST_TYPE'} eq 'TBLASTX') { ($qframe, $sframe) = $_ =~ /Frame = ([\+-]\d)\s+\/\s+([\+-]\d)/; } 
-	  elsif ($self->{'PARENT'}->{'BLAST_TYPE'} eq 'BLASTX')  { ($qframe, $sframe) = $_ =~ /Frame = ([\+-]\d)/; }
-	  else                                                   { ($sframe, $qframe) = $_ =~ /Frame = ([\+-]\d)/; }
+	  if    ($self->report_type() eq 'TBLASTX') {
+	      ($qframe, $sframe) = $_ =~ /Frame = ([\+-]\d)\s+\/\s+([\+-]\d)/;
+	  } elsif ($self->report_type() eq 'TBLASTN') {
+	      ($sframe) = $_ =~ /Frame = ([\+-]\d)/;
+	  } else {
+	      ($qframe) = $_ =~ /Frame = ([\+-]\d)/;
+	  }
     }
 
     else {
@@ -202,7 +233,7 @@ sub nextHSP {
        '-sbjctLength'=> $self->{'LENGTH'},
 	   '-queryFrame' => $qframe,
 	   '-sbjctFrame' => $sframe,
-	   '-blastType'  => $self->{'PARENT'}->{'BLAST_TYPE'});
+	   '-blastType'  => $self->report_type());
   return $hsp;
 }
 
