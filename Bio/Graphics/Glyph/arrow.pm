@@ -79,6 +79,9 @@ sub draw_parallel {
   $x1 = $self->panel->left  if $trunc_left;
   $x2 = $self->panel->right if $trunc_right;
 
+  $trunc_left = 0  if $self->no_trunc;
+  $trunc_right = 0 if $self->no_trunc;
+
   my ($sw,$ne,$base_w,$base_e) = $self->arrowheads;
   $gd->line($x1,$center,$x2,$center,$fg);
   $self->arrowhead($gd,$x1,$center,$a2,-1) if $sw && !$trunc_left;  # west arrow
@@ -194,6 +197,8 @@ sub arrowheads {
 	  (!$sw && $self->feature->start>= $self->panel->start),
 	  (!$ne && $self->feature->end  <= $self->panel->end));
 }
+
+sub no_trunc { 0; }
 
 sub calculate_units {
   my $self   = shift;

@@ -1,10 +1,11 @@
 package Bio::Graphics::Glyph::span;
-# DAS-compatible package to use for drawing a "span"
 
 use strict;
 use vars '@ISA';
-@ISA = 'Bio::Graphics::Glyph::generic';
-use Bio::Graphics::Glyph::generic;
+@ISA = 'Bio::Graphics::Glyph::anchored_arrow';
+use Bio::Graphics::Glyph::anchored_arrow;
+
+sub no_trunc { 0 }
 
 1;
 
@@ -20,8 +21,19 @@ Bio::Graphics::Glyph::span - The "span" glyph
 
 =head1 DESCRIPTION
 
-This draws the same thing as box.  It is used to support DAS
-stylesheets.
+This glyph draws a span that looks like this:
+
+    |-----------------------------|
+
+If one or both ends go off the edges of the panel, they are truncated:
+
+ ----------------------|                    left end off picture
+         |----------------------------      right end off picture
+ -------------------------------------      both ends off picture
+
+=head1 OPTIONS
+
+The standard options are recognized.
 
 =head1 BUGS
 
@@ -32,6 +44,7 @@ Please report them.
 
 L<Bio::Graphics::Panel>,
 L<Bio::Graphics::Glyph>,
+L<Bio::Graphics::Glyph::anchored_arrow>,
 L<Bio::Graphics::Glyph::arrow>,
 L<Bio::Graphics::Glyph::cds>,
 L<Bio::Graphics::Glyph::crossbox>,

@@ -25,7 +25,7 @@ sub draw_label {
           $x = $new_x if ($new_x > $x);
       }
       $x = $self->panel->left + 1 if $x <= $self->panel->left;
-      #detect collision (mostlikely no bump when want centering label)
+      #detect collision (most likely no bump when want centering label)
       #lay down all features on one line e.g. cyto bands
       return if (!$self->option('bump') && ($label_width + $x) > $self->right);
       $gd->string($font,
@@ -58,6 +58,10 @@ sub arrowheads {
   return ($sw,$ne,!$sw,!$ne);
 }
 
+sub no_trunc {
+  !shift->option('no_arrows');
+}
+
 1;
 
 __END__
@@ -82,6 +86,10 @@ continues.  For example:
          |---------------------------->      right end off picture
  <------------------------------------>      both ends off picture
 
+You can also set the glyph so that the end is just truncated at the
+end of the picture.
+
+         |-----------------------------
 
 =head2 OPTIONS
 
@@ -118,10 +126,13 @@ In addition to the standard options, this glyph recognizes the following:
 
   Option         Description                Default
 
-  -tick          draw a scale               0
+  -tick          draw a scale               0 (false)
 
-  -rel_coords    use relative coordinates   false
+  -rel_coords    use relative coordinates   0 (false)
                  for scale
+
+  -no_arrows     don't draw an arrow when   0 (false)
+                 glyph is partly offscreen
 
 The argument for B<-tick> is an integer between 0 and 2 and has the same
 interpretation as the B<-tick> option in Bio::Graphics::Glyph::arrow.
