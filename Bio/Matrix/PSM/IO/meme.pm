@@ -319,9 +319,10 @@ sub _parseInstance {
 	last if ($line =~ /\-{5}/ );
 	chomp($line);
 	my @comp=split(/\s+/,$line);
-	my ($id,$start,$score,$strand,$s1,$s2,$s3);
+	my ($id,$start,$score,$strand,$s1,$s2,$s3,$mstr);
 	if ( $self->{_strand}) {
-	    ($id,$strand,$start,$score,$s1,$s2,$s3)=@comp;
+	    ($id,$mstr,$start,$score,$s1,$s2,$s3)=@comp;
+      $strand= $mstr eq '+' ? 1 : 0 ;
 	} else {
 	    ($id,$start,$score,$s1,$s2,$s3)=@comp;
 	    $strand=1;
