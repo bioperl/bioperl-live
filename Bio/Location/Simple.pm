@@ -313,7 +313,11 @@ sub to_FTstring {
     if( $self->start == $self->end ) {
 	return $self->start;
     }
-    return ( $self->start . ".." . $self->end);
+    my $str = $self->start . ".." . $self->end;
+    if( $self->strand == -1 ) {
+	$str = sprintf("complement(%s)", $str);
+    }
+    return $str;
 }
 
 1;

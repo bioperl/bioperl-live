@@ -414,8 +414,11 @@ sub to_FTstring {
     my @strs;
     foreach my $loc ( $self->sub_Location() ) {
 	push @strs, $loc->to_FTstring();
-    }
+    }    
     my $str = sprintf("%s(%s)",$self->splittype, join(",", @strs));
+    if( $self->strand == -1 ) {
+	$str = sprintf("complement(%s)",$str);
+    }
     return $str;
 }
 

@@ -353,8 +353,9 @@ sub to_FTstring {
     # I'm lazy, lets do this in a loop since behaviour will be the same for 
     # start and end
     foreach my $point ( qw(start end) ) {
-	if( !defined $vals{$point} ) {	
-	    if( (!defined $vals{"min_$point"} || !defined $vals{"max_$point"})
+	if( $vals{$point} ne 'EXACT' ) {
+	    if( (!defined $vals{"min_$point"} || 
+		 !defined $vals{"max_$point"})
 		&& ( $vals{"$point\_code"} eq 'WITHIN' || 
 		     $vals{"$point\_code"} eq 'BETWEEN')
 		     ) {
@@ -369,33 +370,22 @@ sub to_FTstring {
 	    }
 	    
 	    if( defined $vals{"min_$point"} ) {
-		$strs{$point} .= &_create_point_location($vals{"min_$point"}, 
-							 $vals{"$point\_code"});
+		$strs{$point} .= $vals{"min_$point"};
 	    }
 	    if( defined $vals{"$point\_code"} ) {
-		$strs{$point} .= $FUZZYCODES{$vals{"$point\_code"}}
+		$strs{$point} .= $FUZZYCODES{$vals{"$point\_code"}};
 	    }
 	    if( defined $vals{"max_$point"} ) {
-		$strs{$point} .= &_create_point_location($vals{"max_$point"}, 
-							 $vals{"$point\_code"});
+		$strs{$point} .= $vals{"max_$point"};
 	    }
-	    
 	} else { 
 	    $strs{$point} = $vals{$point};
 	}
     }
     my $str = $strs{'start'} . $delimiter . $strs{'end'};
-    return $str;
-}
-
-sub _create_point_location {
-    my ($point,$code) = @_;
-    my $str = '';
-    return $str if( !defined $point );
-    $str = $point;
-    return $str if( ! defined $code );
-    if( $code eq 'BEFORE') { $str = "<" . $str; }
-    elsif( $code eq 'AFTER' ) { $str .= ">"; }    
+    if( $self->strand == -1 ) {
+	$str = sprintf("complement(%s)", $str);
+    }
     return $str;
 }
 
