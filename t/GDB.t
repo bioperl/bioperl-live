@@ -8,6 +8,8 @@
 
 use strict;
 my $error;
+my $SKIPTEST = 1;  # set this to 0 if you want to run the GDB test
+
 BEGIN {
     # to handle systems with no installed Test module
     # we include the t dir (where a copy of Test.pm is located)
@@ -22,6 +24,12 @@ BEGIN {
     $NUMTESTS = 11;
     plan tests => $NUMTESTS;
     
+    unless( $SKIPTEST ) {
+	foreach ( 1..$NUMTESTS ) {
+	    skip('GDB test skipped to avoid timeouts',1);
+	    $error = 1;
+	}
+    }
     eval { require ('LWP/UserAgent.pm'); require('HTML/Parser.pm');	
 	   require ('HTTP/Request/Common.pm');
 	 };
