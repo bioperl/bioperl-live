@@ -220,9 +220,7 @@ sub next_seq {
    
 #   $self->warn("not parsing upper annotation in EMBL file yet!");
    my $buffer = $line;
-
    local $_;
- 
    BEFORE_FEATURE_TABLE :
    until( !defined $buffer ) {
        $_ = $buffer;
@@ -397,7 +395,7 @@ sub next_seq {
  Title   : write_seq
  Usage   : $stream->write_seq($seq)
  Function: writes the $seq object (must be seq) to the stream
- Returns : 1 for success and 0 for error
+ Returns : 1 for success and undef for error
  Args    : array of 1 to n Bio::SeqI objects
 
 
@@ -456,7 +454,7 @@ sub write_seq {
 	    $temp_line = sprintf("%-11s standard; $mol; $div; %d BP.", $seq->id(), $len);
 	} 
 
-	$self->_print( "ID   $temp_line\n","XX\n");
+	$self->_print( "ID   $temp_line\n","XX\n") || return;
 
 	# Write the accession line if present
 	my( $acc );
@@ -473,7 +471,7 @@ sub write_seq {
 
 	    if (defined $acc) {
 		$self->_print("AC   $acc;\n",
-			      "XX\n");
+			      "XX\n") || return;
 	    }
 	}
 
@@ -489,7 +487,7 @@ sub write_seq {
 	    }	
 	    if (defined $sv) {
 		$self->_print( "SV   $sv\n",
-			       "XX\n");
+			       "XX\n") || return;
 	    }
 	}
 
@@ -497,17 +495,17 @@ sub write_seq {
 	my $switch=0;
 	if( $seq->can('get_dates') ) {
 	    foreach my $dt ( $seq->get_dates() ) {
-		$self->_write_line_EMBL_regex("DT   ","DT   ",$dt,'\s+|$',80);#'
+		$self->_write_line_EMBL_regex("DT   ","DT   ",$dt,'\s+|$',80) || return; #'
 		    $switch=1;
 	    }
 	    if ($switch == 1) {
-		$self->_print("XX\n");
+		$self->_print("XX\n") || return;
 	    }
 	}
 
 	# Description lines
-	$self->_write_line_EMBL_regex("DE   ","DE   ",$seq->desc(),'\s+|$',80);	#'
-	$self->_print( "XX\n");
+        $self->_write_line_EMBL_regex("DE   ","DE   ",$seq->desc(),'\s+|$',80) || return; #'
+	$self->_print( "XX\n") || return;
 
 	# if there, write the kw line
 	{
@@ -518,8 +516,8 @@ sub write_seq {
 		$kw = $seq->keywords;
 	    }
 	    if (defined $kw) {
-		$self->_write_line_EMBL_regex("KW   ", "KW   ", $kw, '\s+|$', 80); #'
-		$self->_print( "XX\n");
+		$self->_write_line_EMBL_regex("KW   ", "KW   ", $kw, '\s+|$', 80) || return; #'
+		$self->_print( "XX\n") || return;
 	    }
 	}
 
@@ -535,52 +533,52 @@ sub write_seq {
 	    if (my $common = $spec->common_name) {
 		$OS .= " ($common)";
 	    }
-	    $self->_print("OS   $OS\n");
+	    $self->_print("OS   $OS\n") || return;
 	    my $OC = join('; ', reverse(@class)) .'.';
-	    $self->_write_line_EMBL_regex("OC   ","OC   ",$OC,'; |$',80); #'
+	    $self->_write_line_EMBL_regex("OC   ","OC   ",$OC,'; |$',80) || return; #'
 	    if ($spec->organelle) {
-		$self->_write_line_EMBL_regex("OG   ","OG   ",$spec->organelle,'; |$',80); #'
+		$self->_write_line_EMBL_regex("OG   ","OG   ",$spec->organelle,'; |$',80) || return; #'
 	    }
-	    $self->_print("XX\n");
+	    $self->_print("XX\n") || return;
 	}
 
 	# Reference lines
 	my $t = 1;
 	if ( $seq->can('annotation') && defined $seq->annotation ) {
 	    foreach my $ref ( $seq->annotation->get_Annotations('reference') ) {
-		$self->_print( "RN   [$t]\n");
+		$self->_print( "RN   [$t]\n") || return;
 
 		# Having no RP line is legal, but we need both
 		# start and end for a valid location.
 		my $start = $ref->start;
 		my $end   = $ref->end;
 		if ($start and $end) {
-		    $self->_print( "RP   $start-$end\n");
+		    $self->_print( "RP   $start-$end\n") || return;
 		} elsif ($start or $end) {
 		    $self->throw("Both start and end are needed for a valid RP line.  Got: start='$start' end='$end'");
 		}
 
 		if (my $med = $ref->medline) {
-		    $self->_print( "RX   MEDLINE; $med.\n");
+		    $self->_print( "RX   MEDLINE; $med.\n") || return;
 		}
 		if (my $pm = $ref->pubmed) {
-		    $self->_print( "RX   PUBMED; $pm.\n");
+		    $self->_print( "RX   PUBMED; $pm.\n") || return;
 		}
 		$self->_write_line_EMBL_regex("RA   ", "RA   ", 
 					      $ref->authors . ";",
-					      '\s+|$', 80); #'
+					      '\s+|$', 80) || return; #'
 
 		# If there is no title to the reference, it appears
 		# as a single semi-colon.  All titles must end in
 		# a semi-colon.
 		my $ref_title = $ref->title || '';
 		$ref_title =~ s/[\s;]*$/;/;
-		$self->_write_line_EMBL_regex("RT   ", "RT   ", $ref_title,    '\s+|$', 80); #'
-		$self->_write_line_EMBL_regex("RL   ", "RL   ", $ref->location, '\s+|$', 80); #'
+		$self->_write_line_EMBL_regex("RT   ", "RT   ", $ref_title,    '\s+|$', 80) || return; #'
+		$self->_write_line_EMBL_regex("RL   ", "RL   ", $ref->location, '\s+|$', 80) || return; #'
 		if ($ref->comment) {
-		    $self->_write_line_EMBL_regex("RC   ", "RC   ", $ref->comment, '\s+|$', 80); #' 
+		    $self->_write_line_EMBL_regex("RC   ", "RC   ", $ref->comment, '\s+|$', 80) || return; #' 
 		}
-		$self->_print("XX\n");
+		$self->_print("XX\n") || return;
 		$t++;
 	    }
 
@@ -593,23 +591,23 @@ sub write_seq {
 		    my $opt     = $dr->optional_id || '';
 
 		    my $line = $opt ? "$db_name; $prim; $opt." : "$db_name; $prim.";
-		    $self->_write_line_EMBL_regex("DR   ", "DR   ", $line, '\s+|$', 80); #'
+		    $self->_write_line_EMBL_regex("DR   ", "DR   ", $line, '\s+|$', 80) || return; #'
 		}
-		$self->_print("XX\n");
+		$self->_print("XX\n") || return;
 	    }
 
 	    # Comment lines
 	    foreach my $comment ( $seq->annotation->get_Annotations('comment') ) {
-		$self->_write_line_EMBL_regex("CC   ", "CC   ", $comment->text, '\s+|$', 80); #'
-		$self->_print("XX\n");
+		$self->_write_line_EMBL_regex("CC   ", "CC   ", $comment->text, '\s+|$', 80) || return; #'
+		$self->_print("XX\n") || return;
 	    }
 	}
 	# "\\s\+\|\$"
 
 	## FEATURE TABLE
 
-	$self->_print("FH   Key             Location/Qualifiers\n");
-	$self->_print("FH\n");
+	$self->_print("FH   Key             Location/Qualifiers\n") || return;
+	$self->_print("FH\n") || return;
 
 	my @feats = $seq->can('top_SeqFeatures') ? $seq->top_SeqFeatures : ();
 	if ($feats[0]) {
@@ -627,7 +625,7 @@ sub write_seq {
 		@fth = sort { &$post_sort_func($a,$b) } @fth;
 
 		foreach my $fth ( @fth ) {
-		    $self->_print_EMBL_FTHelper($fth);
+		    $self->_print_EMBL_FTHelper($fth) || return;
 		}
 	    } else {
 		# not post sorted. And so we can print as we get them.
@@ -639,17 +637,17 @@ sub write_seq {
 			if( $fth->key eq 'CONTIG') {
 			    $self->_show_dna(0);
 			}
-			$self->_print_EMBL_FTHelper($fth);
+			$self->_print_EMBL_FTHelper($fth) || return;
 		    }
 		}
 	    }
 	}
 
 	if( $self->_show_dna() == 0 ) {
-	    $self->_print( "//\n");
+	    $self->_print( "//\n") || return;
 	    return;
 	}
-	$self->_print( "XX\n");
+	$self->_print( "XX\n") || return;
 
 	# finished printing features.
 	
@@ -666,7 +664,7 @@ sub write_seq {
 	    $self->warn("Weird. More atgc than bases. Problem!");
 	}
 
-	$self->_print("SQ   Sequence $len BP; $alen A; $clen C; $glen G; $tlen T; $olen other;\n");
+	$self->_print("SQ   Sequence $len BP; $alen A; $clen C; $glen G; $tlen T; $olen other;\n") || return;
 
 	my $nuc = 60;		# Number of nucleotides per line
 	my $whole_pat = 'a10' x 6; # Pattern for unpacking a whole line
@@ -682,7 +680,7 @@ sub write_seq {
 	    my $blocks = pack $out_pat,
 	    unpack $whole_pat,
 	    substr($str, $i, $nuc);
-	    $self->_print(sprintf("     $blocks%9d\n", $i + $nuc));
+	    $self->_print(sprintf("     $blocks%9d\n", $i + $nuc)) || return;
 	}
 
 	# Print the last line
@@ -691,14 +689,14 @@ sub write_seq {
 	    my $last_pat = 'a10' x int($last_len / 10) .'a'. $last_len % 10;
 	    my $blocks = pack $out_pat,
 	    unpack($last_pat, $last);
-	    $self->_print(sprintf("     $blocks%9d\n", $length)); # Add the length to the end
+	    $self->_print(sprintf("     $blocks%9d\n", $length)) || return; # Add the length to the end
 	}
 
-	$self->_print( "//\n");
+	$self->_print( "//\n") || return;
 
 	$self->flush if $self->_flush_on_write && defined $self->_fh;
-	return 1;
     }
+    return 1;
 }
 
 =head2 _print_EMBL_FTHelper
@@ -706,7 +704,7 @@ sub write_seq {
  Title   : _print_EMBL_FTHelper
  Usage   :
  Function: Internal function
- Returns : 
+ Returns : 1 if writing suceeded, otherwise undef 
  Args    :
 
 
@@ -724,15 +722,15 @@ sub _print_EMBL_FTHelper {
    #$self->_print( sprintf("FT   %-15s  %s\n",$fth->key,$fth->loc));
    # let
    if( $fth->key eq 'CONTIG' ) {
-       $self->_print("XX\n");
+       $self->_print("XX\n") || return;
        $self->_write_line_EMBL_regex("CO   ",
 				     "CO   ",$fth->loc,
-				     '\,|$',80); #'
-       return;
+				     '\,|$',80) || return; #'
+       return 1;
    } 
    $self->_write_line_EMBL_regex(sprintf("FT   %-15s ",$fth->key),
 				 "FT                   ",$fth->loc,
-				 '\,|$',80); #'
+				 '\,|$',80) || return; #'
    foreach my $tag ( keys %{$fth->field} ) {
        if( ! defined $fth->field->{$tag} ) { next; } 
        foreach my $value ( @{$fth->field->{$tag}} ) {
@@ -740,7 +738,7 @@ sub _print_EMBL_FTHelper {
 	   if ($value eq "_no_value") {
 	       $self->_write_line_EMBL_regex("FT                   ",
 					     "FT                   ",
-					     "/$tag",'.|$',80); #'
+					     "/$tag",'.|$',80) || return; #'
 	   }
            # there are almost 3x more quoted qualifier values and they
            # are more common too so we take quoted ones first
@@ -748,14 +746,16 @@ sub _print_EMBL_FTHelper {
               my $pat = $value =~ /\s/ ? '\s|\-|$' : '.|\-|$';
 	      $self->_write_line_EMBL_regex("FT                   ",
 					    "FT                   ",
-					    "/$tag=\"$value\"",$pat,80);
+					    "/$tag=\"$value\"",$pat,80) || return;
            } else {
               $self->_write_line_EMBL_regex("FT                   ",
 					    "FT                   ",
-					    "/$tag=$value",'.|$',80); #'
+					    "/$tag=$value",'.|$',80) || return; #'
            }
        }
    }
+   
+   return 1;
 }
 
 #'
@@ -1080,7 +1080,7 @@ sub _read_FTHelper_EMBL {
  Usage   :
  Function: internal function
  Example :
- Returns : 
+ Returns : 1 if writing suceeded, else undef
  Args    :
 
 
@@ -1096,14 +1096,15 @@ sub _write_line_EMBL {
 
    my $sub = substr($line,0,$length - length $pre1);
 
-   $self->_print( "$pre1$sub\n");
+   $self->_print( "$pre1$sub\n") || return;
    
    for($i= ($length - length $pre1);$i < $linel;) {
        $sub = substr($line,$i,($subl));
-       $self->_print( "$pre2$sub\n");
+       $self->_print( "$pre2$sub\n") || return;
        $i += $subl;
    }
 
+   return 1;
 }
 
 =head2 _write_line_EMBL_regex
@@ -1151,10 +1152,12 @@ sub _write_line_EMBL_regex {
         $line = substr($line,0,$subl) . " " . substr($line,$subl);
     }
     my $s = shift @lines;
-    $self->_print("$pre1$s\n") if $s;
+    ($self->_print("$pre1$s\n") || return) if $s;
     foreach my $s ( @lines ) {
-        $self->_print("$pre2$s\n");
+        $self->_print("$pre2$s\n") || return;
     }
+    
+    return 1;
 }
 
 =head2 _post_sort
