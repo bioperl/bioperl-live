@@ -157,12 +157,50 @@
   <section id="feat_from_genbank">
     <title>Features from Genbank</title>
     <para>
-      In the other parts of the Bioperl documentation one finds discussions
+      When the file comes from Genbank it's easy to see where most of the
+      features are, they're in the Feature table section, something
+      like this:
+      <programlisting>
+FEATURES             Location/Qualifiers
+     source          1..1846
+                     /organism="Homo sapiens"
+                     /db_xref="taxon:9606"
+                     /chromosome="X"
+                     /map="Xp11.4"
+     gene            1..1846
+                     /gene="NDP"
+                     /note="ND"
+                     /db_xref="LocusID:4693"
+                     /db_xref="MIM:310600"
+     CDS             409..810
+                     /gene="NDP"
+                     /note="Norrie disease (norrin)"
+                     /codon_start=1
+                     /product="Norrie disease protein"
+                     /protein_id="NP_000257.1"
+                     /db_xref="GI:4557789"
+                     /db_xref="LocusID:4693"
+                     /db_xref="MIM:310600"
+                     /translation="MRKHVLAASFSMLSLLVIMGDTDSKTDSSFIMDSDPRRCMRHHY
+                     VDSISHPLYKCSSKMVLLARCEGHCSQASRSEPLVSFSTVLKQPFRSSCHCCRPQTSK
+                     LKALRLRCSGGMRLTATYRYILSCHCEECNS"
+      </programlisting>
+      Examples of "primary_tag" in this example are "source", "gene",
+      and "CDS". Other tags include "note", "db_xref", and
+      "translation", but these are plain tags, not primary.
+    </para>
+    <para>
+      When a file containing a feature table like this is parsed the
+      feature data is converted into objects, specifically a 
+      Bio::SeqFeature::Generic object. In the other parts of
+      the Bioperl documentation one finds discussions
       of the "SeqFeature object", but there's more
       than one of these, so what is this a reference to? More
-      than likely it's referring to a Bio::SeqFeature::Generic
-      object, which is what is created automatically when parsing a 
-      Genbank or EMBL entry. Think of it as the default SeqFeature object.
+      than likely it's referring to this same Bio::SeqFeature::Generic
+      object. Think of it as the default SeqFeature object. Now,
+      should you care what kind of object is being made? For the most 
+      part, no, you can write lots of useful and powerful Bioperl code
+      without ever knowing these specific details.
     </para>
       <tip>
 	By the way, how does one know what kind of object one has in hand? Try
@@ -189,7 +227,7 @@
 	}
       </programlisting>
       This bit would print out something like:
-<programlisting>
+      <programlisting>
 feature: source
   tag: chromosome
     value: X
@@ -219,36 +257,9 @@ feature: CDS
     value: MRKHVLAASFSMLSLLVIMGDTDSKTDSSFIMDSDPRRCMRHHYVDSI
            SHPLYKCSSKMVLLARCEGHCSQASRSEPLVSFSTVLKQPFRSSCHCC
            RPQTSKLKALRLRCSGGMRLTATYRYILSCHCEECNS
-</programlisting>
-    </para>
-    <para>
-      Where the input file has a feature table like this:
-      <programlisting>
-FEATURES             Location/Qualifiers
-     source          1..1846
-                     /organism="Homo sapiens"
-                     /db_xref="taxon:9606"
-                     /chromosome="X"
-                     /map="Xp11.4"
-     gene            1..1846
-                     /gene="NDP"
-                     /note="ND"
-                     /db_xref="LocusID:4693"
-                     /db_xref="MIM:310600"
-     CDS             409..810
-                     /gene="NDP"
-                     /note="Norrie disease (norrin)"
-                     /codon_start=1
-                     /product="Norrie disease protein"
-                     /protein_id="NP_000257.1"
-                     /db_xref="GI:4557789"
-                     /db_xref="LocusID:4693"
-                     /db_xref="MIM:310600"
-                     /translation="MRKHVLAASFSMLSLLVIMGDTDSKTDSSFIMDSDPRRCMRHHY
-                     VDSISHPLYKCSSKMVLLARCEGHCSQASRSEPLVSFSTVLKQPFRSSCHCCRPQTSK
-                     LKALRLRCSGGMRLTATYRYILSCHCEECNS"
       </programlisting>
     </para>
+    <para>
     So to retrieve specific values, like all the database identifiers, 
     you could do:
     <programlisting>
@@ -257,6 +268,12 @@ FEATURES             Location/Qualifiers
               if ($feat_object->has_tag("db_xref"));
       }
     </programlisting>
+    </para>
+    <important>
+      Make sure to include that "if ($feat_object->has_tag(&lt;tag&gt;))"
+      part, otherwise you'll get errors when the feature does not
+      have the tag you're requesting.
+    </important>
     <para>
       One commonly asked question is "How do I get the sequence of a
       SeqFeature?" The answer is "it depends on what you're looking
@@ -274,7 +291,7 @@ FEATURES             Location/Qualifiers
 	my $sequence_string = $feat_object->entire_seq->seq;
       </programlisting>
       There are 2 other useful methods, seq() and
-      spliced_seq(). Consider the following part of a Genbank feature table:
+      spliced_seq(). Consider the following Genbank example:
 <programlisting>
 FEATURES             Location/Qualifiers
      source          1..177
@@ -321,6 +338,21 @@ FEATURES             Location/Qualifiers
             }
 	}
       </programlisting> 
+    </para>
+    <para>
+      Many people wouldn't write code in the rather deliberate style
+      I've used above. The following is a more compact bit of code
+      that gets all the features with a primary tag of 'gene',
+      starting with a Genbank file:
+      <programlisting>
+	my @gene_features = grep { $_->primary_tag eq 'gene' }
+	Bio::SeqIO->new(-file => "BAB55667.gb")->next_seq->get_SeqFeatures;
+      </programlisting>
+      So...
+      <programlisting>
+	$gene_features[0]->spliced_seq->seq;
+      </programlisting>
+      Would give you the spliced nucleotide sequence, of course. 
     </para>
     <para>
       As an aside I should mention that certain data
@@ -473,9 +505,14 @@ start: 1
       built to respect the specification for the feature tables agreed
       upon by Genbank, EMBL, and DDBJ (see <ulink 
 	url="http://www.ncbi.nlm.nih.gov/projects/collab/FT/">Feature
-      Table Definition</ulink> for the details). Despite this
-      agreement some non-standard feature descriptors have crept into Genbank,
-      like "bond". When the Genbank parser encounters a non-standard
+      Table Definition</ulink> for the details). Check this page if
+      you're interested in a complete listing and description of all the 
+      Genbank, EMBL, and DDBJ feature tags.
+    </para>
+    <para>
+      Despite this specification some non-standard feature descriptors 
+      have crept into Genbank, like "bond". When the Bioperl Genbank 
+      parser encounters a non-standard
       feature like this it's going to throw a fatal exception. The 
       work-around is to use eval{} so you don't die, something like:
       <programlisting>
