@@ -750,8 +750,9 @@ sub merged_segments {
     my $previous = $merged[-1] if @merged;
     my ($pscore,$score) = (eval{$previous->score}||0,eval{$s->score}||0);
     if (defined($previous)
+	&& warn($previous->method.'=='.$s->method)
 	&& $previous->stop+1 >= $s->start
-	&& $pscore == $score 
+	&& $pscore == $score
 	&& $previous->method eq $s->method
        ) {
       if ($self->absolute && $self->strand < 0) {
@@ -765,11 +766,16 @@ sub merged_segments {
 	my $cg = $s->{group};
 	$g->{stop} = $cg->{stop};
       }
-    } elsif (defined($previous)
-	     && $previous->start == $s->start
-	     && $previous->stop == $s->stop) {
-      next;
-    } else {
+    }
+     elsif (defined($previous)
+	    && $previous->start == $s->start
+	    && $previous->stop  == $s->stop
+	    && $previous->method eq $s->method
+	   ) {
+       next;
+     }
+
+  else {
       my $copy = $s->clone;
       push @merged,$copy;
     }
