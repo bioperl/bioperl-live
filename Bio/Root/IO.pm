@@ -416,8 +416,8 @@ sub _print {
 sub _readline {
     my $self = shift;
     my %param =@_;
-
-    my $fh = $self->_fh || \*STDIN;
+    
+    my $fh = $self->_fh || \*ARGV;
     my $line;
 
     # if the buffer been filled by _pushback then return the buffer
@@ -461,7 +461,7 @@ sub _pushback {
 =cut
 
 sub close {
-   my ($self, @args) = @_;
+   my ($self) = @_;
 
    $self->{'_filehandle'} = undef;
    delete $self->{'_readbuffer'};
