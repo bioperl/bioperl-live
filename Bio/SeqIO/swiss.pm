@@ -339,6 +339,14 @@ sub write_seq {
        $self->warn(" $seq is not a SeqI compliant module. Attempting to dump, but may fail!");
    }
 
+   # FIXME the implementation here doesn't print all the information correctly.
+   # Tell people in order to avoid being flooded by bug reports -- watch out
+   # for the 0.7 release if you indeed find the printed entries incorrect
+   $self->warn("SwissProt printing facility incomplete yet -- ".
+	       "printed entries may be misformatted or missing information.\n".
+	       "Use the CVS main development trunk or watch out for ".
+	       "BioPerl 0.7 if you need SwissProt printing.");
+
    my $i;
    my $str = $seq->seq;
    
