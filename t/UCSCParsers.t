@@ -61,21 +61,21 @@ ok($q_gapblocks->[1]->[0],123856);
 #-----------------------------------
 
 
-my $pslparser = new Bio::SearchIO(-format => 'psl',
-				  -file   => Bio::Root::IO->catfile
-				  (qw(t data blat.psLayout3)));
+$pslparser = new Bio::SearchIO(-format => 'psl',
+			       -file   => Bio::Root::IO->catfile
+			       (qw(t data blat.psLayout3)));
 
-my $result = $pslparser->next_result;
+$result = $pslparser->next_result;
 ok($result->query_name, 'sequence_10');
 ok($result->query_length, 1775);
 
-my $hit    = $result->next_hit;
+$hit    = $result->next_hit;
 ok($hit->name, 'sequence_10');
 ok($hit->length, 1775);
-my $hsp    = $hit->next_hsp;
+$hsp    = $hit->next_hsp;
 ok($hsp->query->start,1);
 ok($hsp->query->end,1776);
-my $q_gapblocks = $hsp->gap_blocks('query');
+$q_gapblocks = $hsp->gap_blocks('query');
 ok(scalar @$q_gapblocks, 1);
 ok($q_gapblocks->[0]->[1],1775);
 ok($q_gapblocks->[1]->[1],undef);

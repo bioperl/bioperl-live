@@ -366,7 +366,9 @@ sub end_element {
     }
     $self->{'_last_data'} = ''; # remove read data if we are at 
 				# end of an element
-    $self->{'_result'} = $rc if( $MODEMAP{$nm} eq 'result' );
+    $self->{'_result'} = $rc if( defined $nm &&
+				 defined $MODEMAP{$nm} &&
+				 $MODEMAP{$nm} eq 'result' );
     return $rc;
 
 }
