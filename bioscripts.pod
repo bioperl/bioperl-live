@@ -148,6 +148,10 @@ expansion.
 
 Simple script to filter by SearchIO criteria and print.
 
+=head2 scripts/searchio/search2table.PLS
+
+Turn SearchIO reports into a tabular format like blastall's "-m 9" output.
+
 =head2 scripts/seq/seqconvert.PLS
 
 Bioperl sequence format converter.
