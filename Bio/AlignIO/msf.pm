@@ -87,19 +87,19 @@ sub next_aln {
 
     my $aln =  Bio::SimpleAlign->new(-source => 'gcg' );
 
-
     while( $entry = $self->_readline) {
         $entry =~ /\/\// && last; # move to alignment section
-        $entry =~ /Name:\s+(\S+)/ && do { $name = $1;
-			       		$hash{$name} = ""; # blank line
-			       		push(@names,$name); # we need it ordered!
-			   		};
+	$entry =~ /Name:\s+(\S+)/ && do { $name = $1;
+					  $hash{$name} = ""; # blank line
+					  push(@names,$name); # we need it ordered!
+				       };
        # otherwise - skip
     }
 
    # alignment section
 
    while( $entry = $self->_readline) {
+       next if ( $entry =~ /^\s+(\d+)/ ) ;
        $entry =~ /^\s*(\S+)\s+(.*)$/ && do {
 	   $name = $1;
 	   $str = $2;
