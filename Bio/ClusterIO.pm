@@ -37,6 +37,7 @@ Bio::ClusterIO - Handler for Cluster Formats
       while ( my $sequence = $in->next_seq() ) {
           print $sequence->accession_number() . "\n";
       }
+  }
   # Parsing errors are printed to STDERR.
 
 =head1 DESCRIPTION
