@@ -7,7 +7,12 @@ Bio::FeatureIO::gff - DESCRIPTION of Object
 =head1 SYNOPSIS
 
   my $feature; #get a Bio::SeqFeature::Annotated somehow
-  my $featureOut = Bio::FeatureIO->new(-format => 'gff', -version => 3, -fh => \*STDOUT);
+  my $featureOut = Bio::FeatureIO->new(-format => 'gff',
+                                       -version => 3,
+                                       -fh => \*STDOUT,
+                                       -validate_terms => 1, #boolean. validate ontology
+                                                             #terms online?  default false.
+                                      );
   $featureOut->write_feature($feature);
 
 =head1 DESCRIPTION
@@ -88,6 +93,7 @@ sub _initialize {
   $self->SUPER::_initialize(%arg);
 
   $self->version($arg{-version} || DEFAULT_VERSION);
+  $self->validate($arg{-validate_terms} || 0);
 
   #read headers
   my $directive;
@@ -146,7 +152,7 @@ sub _write_feature_25 {
     $group = ($feature->get_Annotations('ID'))[0]->value;
   }
 
-  my $seq    = $feature->seqid->value;
+  my $seq    = $feature->seq_id->value;
   my $source = $feature->source->value;
   my $type   = $feature->type->name;
   $type = 'EXON' if $type eq 'exon'; #a GTF peculiarity, incosistent with the sequence ontology.
@@ -172,11 +178,7 @@ sub _write_feature_25 {
 
 sub _write_feature_3 {
   my($self,$feature) = @_;
-     # it is a mystery to Chad which applies here: id(), seqid() (deprecated), seqid(), ???
-     # it is also a mystery why calls violating Demeter would be made when there are no assurances
-     # the first call in the chain will succeed
-     # I fixed those.
-  my $seq    = $feature->seqid->value || $feature->id;
+  my $seq    = $feature->seq_id->value;
   my $source;
   if ($feature->source()) {
     $source = $feature->source->value;
@@ -254,7 +256,7 @@ sub _next_feature_or_directive {
   }
 
   return undef unless $gff_string;
-    
+
   if($gff_string =~ /^##/ or $gff_string =~ /^>/){
     $self->_handle_directive($gff_string);
     return 'directive';   # we have to be able to detect when we processed a directive
@@ -307,7 +309,7 @@ sub next_feature_group {
 	}
 	push(@all_feats, $feat);
     }
-    
+
     # assemble the top-level features
     foreach $feat (@all_feats) {
 	my @parents = $feat->get_Annotations('Parent');
@@ -390,29 +392,41 @@ sub _handle_feature {
 
   my($seq,$source,$type,$start,$end,$score,$strand,$phase,$attribute_string) = split /\t/, $feature_string;
 
-  $feat->seqid($seq);
+  $feat->seq_id($seq);
   $feat->source($source);
   $feat->start($start) unless $start eq '.';
   $feat->end($end) unless $end eq '.';
   $feat->strand($strand eq '+' ? 1 : $strand eq '-' ? -1 : 0);
   $feat->score($score);
   $feat->phase($phase);
-#  $feat->frame($phase); NO!
 
-  my $feature_type;
-  if($type =~ /^\D+:\d+$/){
-    #looks like an identifier
-    ($feature_type) = $self->so->find_terms(-identifier => $type);
-  } else {
-    #looks like a name
-    ($feature_type) = $self->so->find_terms(-name => $type);
-  }
-
-  if(!$feature_type){
-    $self->throw("couldn't find ontology term for '$type'.");
-  }
   my $fta = Bio::Annotation::OntologyTerm->new();
-  $fta->term($feature_type);
+
+  if($self->validate()){
+
+    my $feature_type;
+    if($type =~ /^\D+:\d+$/){
+      #looks like an identifier
+      ($feature_type) = $self->so->find_terms(-identifier => $type);
+    } else {
+      #looks like a name
+      ($feature_type) = $self->so->find_terms(-name => $type);
+    }
+
+    if(!$feature_type){
+      $self->throw("couldn't find ontology term for '$type'.");
+    }
+    $fta->term($feature_type);
+  } else {
+
+    if($type =~ /^\D+:\d+$/){
+      #looks like an identifier
+      $fta->identifier($type)
+    } else {
+      $fta->name($type);
+    }
+  }
+
   $feat->type($fta);
 
   my %attr = ();
@@ -443,13 +457,19 @@ sub _handle_feature {
 
   #Handle Ontology_term attributes
   if($attr{Ontology_term}){
-
     foreach my $id (@{ $attr{Ontology_term} }){
-      my $ont_name = Bio::Ontology::OntologyStore->guess_ontology($id);
-      my $ont = Bio::Ontology::OntologyStore->get_ontology($ont_name);
-      my($term) = $ont->find_terms(-identifier => $id);
+
       my $a = Bio::Annotation::OntologyTerm->new();
-      $a->term($term);
+
+      if($self->validate()){
+        my $ont_name = Bio::Ontology::OntologyStore->guess_ontology($id);
+        my $ont = Bio::Ontology::OntologyStore->get_ontology($ont_name);
+        my($term) = $ont->find_terms(-identifier => $id);
+        $a->term($term);
+      } else {
+        $a->identifier($id);
+      }
+
       $feat->add_Annotation('Ontology_term',$a);
     }
   }
@@ -483,7 +503,7 @@ sub _handle_feature {
       } else {
         $strand = '';
       }
-      
+
       $a->strand($strand) if $strand;
       $feat->add_Annotation('Target',$a); 
     }
@@ -592,5 +612,23 @@ sub so {
   $self->{so} = $val if defined($val);
   return $self->{so};
 }
+
+=head2 validate()
+
+ Usage   : $obj->validate($newval)
+ Function: true if encountered ontology terms in next_feature()
+           mode should be validated.
+ Returns : value of validate (a scalar)
+ Args    : on set, new value (a scalar or undef, optional)
+
+
+=cut
+
+sub validate {
+  my($self,$val) = @_;
+  $self->{'validate'} = $val if defined($val);
+  return $self->{'validate'};
+}
+
 
 1;

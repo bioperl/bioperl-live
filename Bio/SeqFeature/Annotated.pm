@@ -46,8 +46,8 @@ sub _initialize {
   my (
       $start, $end, $strand, $frame, $phase, $score,
       $name, $id, $annot, $location,
-      $display_name, $seq_id, #deprecated
-      $type,$source
+      $display_name, #deprecate
+      $seq_id, $type,$source
      ) =
         $self->_rearrange([qw(START
                               END
@@ -56,7 +56,6 @@ sub _initialize {
                               PHASE
                               SCORE
                               NAME
-                              ID
                               ANNOTATION
                               LOCATION
                               DISPLAY_NAME
@@ -76,13 +75,10 @@ sub _initialize {
   defined $annot        && $self->annotation($annot);
 
   if( (defined($display_name) && defined($name))
-      ||
-      (defined($seq_id) && defined($id))
     ){
     $self->throw('cannot define ((-id and -seq_id) or (-name and -display_name)) attributes');
   }
-  defined $seq_id        && $self->seqid($seq_id);
-  defined $id           && $self->id($id || $seq_id);
+  defined $seq_id       && $self->seq_id($seq_id);
   defined $name         && $self->name($name || $display_name);
 }
 
@@ -90,34 +86,18 @@ sub _initialize {
 
 =cut
 
-=head2 id()
+=head2 seq_id()
 
- Usage   : $obj->id($newval)
- Function: a unique identifier for the sequence
-           (e.g. database accession or primary key).
- Returns : value of id (a scalar)
- Args    : on set, new value (a scalar or undef, optional)
-
-=cut
-
-sub id {
-  my($self,$val) = @_;
-  $self->{'id'} = $val if defined($val);
-  return $self->{'id'};
-}
-
-=head2 seqid()
-
- Usage   : $obj->seqid($newval)
+ Usage   : $obj->seq_id($newval)
  Function: holds a string corresponding to the unique
-           seqid of the sequence underlying the feature
+           seq_id of the sequence underlying the feature
            (e.g. database accession or primary key).
- Returns : a Bio::Annotation::SimpleValue object representing the seqid.
+ Returns : a Bio::Annotation::SimpleValue object representing the seq_id.
  Args    : on set, some string or a Bio::Annotation::SimpleValue object.
 
 =cut
 
-sub seqid {
+sub seq_id {
   my($self,$val) = @_;
   if (defined($val)) {
       my $term = undef;
@@ -127,15 +107,15 @@ sub seqid {
 	  $term = $val;
       }
       if (!defined($term) || ($term->value =~ /^>/)) {
-	  $self->throw('give seqid() a scalar or Bio::Annotation::SimpleValue object, not '.$val);
+	  $self->throw('give seq_id() a scalar or Bio::Annotation::SimpleValue object, not '.$val);
       }
-      $self->remove_Annotations('seqid');
-      $self->add_Annotation('seqid', $term);
+      $self->remove_Annotations('seq_id');
+      $self->add_Annotation('seq_id', $term);
   }
 
-  $self->seqid('.') unless ($self->get_Annotations('seqid')); # make sure we always have something
+  $self->seq_id('.') unless ($self->get_Annotations('seq_id')); # make sure we always have something
 
-  return $self->get_Annotations('seqid');
+  return $self->get_Annotations('seq_id');
 }
 
 =head2 name()
@@ -429,21 +409,6 @@ sub display_name {
   #$self->warn('display_name() is deprecated, use name()');
 
   return $self->name(@_);
-}
-
-=head2 seq_id()
-
- Deprecated, use L</id()>.  Will raise a warning
-
-=cut
-
-sub seq_id {
-  my $self = shift;
-
-  #1.6
-  #$self->warn('seq_id() is deprecated, use id()');
-
-  return $self->id(@_);
 }
 
 =head2 primary_tag()
