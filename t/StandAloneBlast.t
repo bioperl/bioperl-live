@@ -48,7 +48,12 @@ my $inputfilename = Bio::Root::IO->catfile("t","data","test.txt");
 my $program = 'blastn';
 
 my $blast_present = Bio::Tools::Run::StandAloneBlast->exists_blast();
-ok($blast_present);
+if( ! $blast_present ) {
+    skip('Blast not installed',1);
+    exit;
+} else { 
+    ok($blast_present);
+}
 if( ! defined $Bio::Tools::Run::StandAloneBlast::DATADIR ) {
     print STDERR "must have BLASTDIR and BLASTDB or BLASTDATADIR env variable set\n";
     exit();

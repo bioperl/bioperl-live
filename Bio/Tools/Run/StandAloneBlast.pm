@@ -414,7 +414,7 @@ sub exists_blast {
 	$PROGRAMS{$exe} = $f if( -e $f );
 	return 1;
     }
-    &debug("exe is $exe blastall is $f\n");
+    #debug("exe is $exe blastall is $f\n");
     return 0;
 }
 
