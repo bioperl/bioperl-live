@@ -139,13 +139,30 @@ sub _initialize {
             OR
            -name   => string (to query by a taxonomy name: common name,
                               species, genus, etc)
-
+           or just a single value which is the taxid.
 
 =cut
 
 sub get_Taxonomy_Node{
-   my ($self,$taxaid) = @_;
+   my ($self) = shift;
    my %p = $self->entrez_params;
+   my $taxaid;
+   if( @_ > 1 ) {
+       my %params = @_;
+       if( $params{'-taxaid'} ) {
+	   $taxaid = $params{'-taxaid'};
+       } elsif( $params{'-name'} ) {
+	   my @taxaids = $self->get_taxaid($params{'-name'});
+	   if( @taxaids > 1 ) { 
+	       $self->warn("Got > 1 taxid for ".$params{'-name'}. " only using the first one");
+	       $taxaid = shift @taxaids;
+	   }
+       } else { 
+	   $self->warn("Need to have provided either a -taxaid or -name value to get_Taxonomy_Node");
+       } 
+   } else { 
+       $taxaid= shift;
+   }
    $p{'id'}      = $taxaid;
 
    my $params = join($UrlParamSeparatorValue, map { "$_=".$p{$_} } keys %p);
@@ -164,6 +181,10 @@ sub get_Taxonomy_Node{
    $twig->parse($response);
    my $root = $twig->root;
    my $list = $root->first_child('DocSum');
+   if( ! $list ) { 
+       $self->warn("Could not find any value for $taxaid");
+       return undef;
+   }
    my ($id) = map { $_->text } $list->children('Id');
 
    my (%item) = map {  $_->{'att'}->{'Name'} => $_->text } $list->children('Item');
@@ -177,7 +198,7 @@ sub get_Taxonomy_Node{
        $node->species($species);
        return $node;
    } else {
-       $self->warn("can't create a species object for ",$item{'CommonName'}, " because it isn't a species");
+       $self->warn(sprintf("can't create a species object for %s (%s) because it isn't a species but is a '%s' instead",$item{'ScientificName'},$item{'CommonName'}, $item{'RANK'}));
    }
    \%item;
 }
