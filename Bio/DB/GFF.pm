@@ -480,7 +480,7 @@ These are the arguments:
 
  -aggregator   Array reference to a list of aggregators
                to apply to the database.  If none provided,
-	       defaults to ['processed_transcript','clone','alignment'].
+	       defaults to ['processed_transcript','alignment'].
 
   <other>      Any other named argument pairs are passed to
                the adaptor for processing.
