@@ -52,7 +52,7 @@ package Bio::Graphics::Glyph::Factory;
 
 use strict;
 use Carp qw(:DEFAULT cluck);
-use GD;
+#use GD;
 use Bio::Root::Version;
 
 my %LOADED_GLYPHS = ();
@@ -62,7 +62,7 @@ my %GENERIC_OPTIONS = (
 		       fontcolor  => 'black',
 		       font2color => 'turquoise',
 		       height     => 8,
-		       font       => gdSmallFont,
+		       font       => 'gdSmallFont', # This must be a string not method call
 		       bump       => +1,       # bump by default (perhaps a mistake?)
 		       );
 
