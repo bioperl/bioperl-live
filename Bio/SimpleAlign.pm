@@ -791,7 +791,11 @@ sub unmatch {
 
 =head1 MSE attibutes
 
-Methods for setting and reading the MSE attributes.
+Methods for setting and reading the MSE attributes. 
+
+Note that the methods defining character semantics depent on user to
+set them sensibly.  They are needed only by certain input/output
+methods. The defaults are used if attributes are unset.
 
 =head2 id
 
@@ -816,81 +820,98 @@ sub id {
 =head2 missing_char
 
  Title     : missing_char
- Usage     : $myalign->missing_char("Ig")
- Function  : Gets/sets the missing_char field of the alignment
- Returns   : An missing_char string
+ Usage     : $myalign->missing_char("_")
+ Function  : Gets/sets the missing_char attribute of the alignment
+ Returns   : An missing_char string, 
+             defaults to 'n' for nucleotides and 'X' for protein. 
  Argument  : An missing_char string (optional)
 
 =cut
 
 sub missing_char {
-    my ($self, $name) = @_;
+    my ($self, $char) = @_;
 
-    if (defined( $name )) {
-	$self->{'missing_char'} = $name;
+    if (defined( $char )) {
+	$self->throw("Single missing character, not [$char]!") if CORE::length($char) > 1;
+	$self->{'_missing_char'} = $char;
+    } else { # guess
+	$self->throw('Can not quess the missing_char for alignment with no sequences')
+	    if $self->no_sequences == 0;
+	my $mc = 'n';
+	$mc = 'X' if $self->get_seq_by_pos(1)->moltype eq 'protein';
+	$self->{'_missing_char'} = $mc;
     }
     
-    return $self->{'missing_char'};
+    return $self->{'_missing_char'};
 }
 
 =head2 unknown_char
 
  Title     : unknown_char
- Usage     : $myalign->unknown_char("Ig")
- Function  : Gets/sets the unknown_char field of the alignment
- Returns   : An unknown_char string
+ Usage     : $myalign->unknown_char('?')
+ Function  : Gets/sets the unknown_char attribute of the alignment
+ Returns   : An unknown_char string, defaults to '?'
  Argument  : An unknown_char string (optional)
 
 =cut
 
 sub unknown_char {
-    my ($self, $name) = @_;
+    my ($self, $char) = @_;
 
-    if (defined( $name )) {
-	$self->{'unknown_char'} = $name;
+    if (defined( $char )) {
+	$self->throw("Single unknown character not [$char]!") if CORE::length($char) > 1;
+	$self->{'_unknown_char'} = $char;
+    } else {
+	$self->{'_unknown_char'} = '?';
     }
     
-    return $self->{'unknown_char'};
+    return $self->{'_unknown_char'};
 }
 
 =head2 match_char
 
  Title     : match_char
- Usage     : $myalign->match_char("Ig")
- Function  : Gets/sets the match_char field of the alignment
- Returns   : An match_char string
+ Usage     : $myalign->match_char('.')
+ Function  : Gets/sets the match_char attribute of the alignment
+ Returns   : An match_char string, defaults to '.'
  Argument  : An match_char string (optional)
 
 =cut
 
 sub match_char {
-    my ($self, $name) = @_;
+    my ($self, $char) = @_;
 
-    if (defined( $name )) {
-	$self->{'match_char'} = $name;
+    if (defined( $char )) {
+	$self->throw("Single match character, not [$char]!") if CORE::length($char) > 1;
+	$self->{'_match_char'} = $char;
+    } else {
+	$self->{'_match_char'} = '.';
     }
-    
-    return $self->{'match_char'};
+
+    return $self->{'_match_char'};
 }
 
 =head2 gap_char
 
  Title     : gap_char
- Usage     : $myalign->gap_char("Ig")
- Function  : Gets/sets the gap_char field of the alignment
- Returns   : An gap_char string
+ Usage     : $myalign->gap_char('-')
+ Function  : Gets/sets the gap_char attribute of the alignment
+ Returns   : An gap_char string, defaults to '-'
  Argument  : An gap_char string (optional)
 
 =cut
 
 sub gap_char {
-    my ($self, $name) = @_;
-
-    if (defined( $name )) {
-	$self->{'gap_char'} = $name;
+    my ($self, $char) = @_;
+    
+    if (defined( $char )) {
+	$self->throw("Single gap character, not [$char]!") if CORE::length($char) > 1;
+	$self->{'_gap_char'} = $char;
+    } else {
+	$self->{'_gap_char'} = '-';
     }
     
-    return $self->{'gap_char'};
+    return $self->{'_gap_char'};
 }
 
 =head1 Alignment descriptors
