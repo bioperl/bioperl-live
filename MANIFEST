@@ -177,6 +177,7 @@ Bio/LiveSeq/Exon.pm
 Bio/LiveSeq/Gene.pm
 Bio/LiveSeq/IO/BioPerl.pm
 Bio/LiveSeq/IO/Loader.pm
+Bio/LiveSeq/IO/README
 Bio/LiveSeq/IO/SRS.pm
 Bio/LiveSeq/Intron.pm
 Bio/LiveSeq/Mutation.pm
@@ -549,6 +550,7 @@ scripts/Bio-DB-GFF/gadfly_to_gff.pl
 scripts/Bio-DB-GFF/load_gff.pl
 scripts/Bio-DB-GFF/sgd_to_gff.pl
 scripts/DB/dbfetch
+scripts/DB/flanks.pl
 scripts/align_on_codons.pl
 scripts/bioperl.pl
 scripts/blast_fetch.pl
