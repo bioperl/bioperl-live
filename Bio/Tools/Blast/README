@@ -11,13 +11,13 @@ in the Bio/Tools/Blast/ directory of the bioperl distribution.
 
 $Id$
 
-
 ### Notice:
 ###
 ### The Bio::Tools::Blast:: modules are no longer being
 ### maintained due to support issues. Please take a look
-### at the Bio::Tools::BPlite modules. Questions? Drop an
-### email to the bioperl mailing list at bioperl-l@bioperl.org 
+### at the Bio::Tools::BPlite modules and the Bio::SearchIO. 
+### Questions? Drop an email to the bioperl mailing list at 
+### bioperl-l@bioperl.org 
 ###  
 
 
