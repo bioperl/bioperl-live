@@ -380,11 +380,15 @@ sub next_result{
 	   my $len = 0;
 	   
 	   while( defined($_ ) ) {
+	       
 	       chomp;
 	       if( /residues in \d+\s+query\s+sequences/) {
 		   $self->_pushback($_);
 		   last;
-	       }
+	       } elsif( /^>>/ ) {
+		   $self->_pushback($_);
+		   last;
+	       }	       
 	       if( $count == 0 ) {
 	       } elsif( $count == 1 || $count == 3 ) {
 		   if( /^(\S+\s+)(\S+)/ ) {
