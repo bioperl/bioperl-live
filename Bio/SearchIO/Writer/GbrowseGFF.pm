@@ -106,7 +106,7 @@ sub to_string {
         my $significance = $hit->significance;
         next unless ($significance < $self->{_evalue} &&  ($self->{_evalue} > 0)); 
         my $refseq = $hit->name;
-        my $seqname = $hit->locus?$hit->locus:$hit->description;  # hopefully this will be a simple identifier without a full description line!!
+        my $seqname = $result->query_name;  # hopefully this will be a simple identifier without a full description line!!
         my $score = $hit->raw_score;
         $self->throw("No reference sequence name found in hit; required for GFF (this may not be your fault if your report type does not include reference sequence names)\n") unless $refseq;
         my $source = $hit->algorithm;
