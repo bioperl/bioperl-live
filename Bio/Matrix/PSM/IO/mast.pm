@@ -89,7 +89,8 @@ sub new {
     $self->_initialize_io(@args) || warn "Did you intend to use STDIN?"; #Read only for now
     $self->{_end}=0;
     undef $self->{hid};
-    my $buf;
+    my $buf=$self->_readline;
+	$self->throw('Cannot parse HTML format yet') if ($buf =~/^<HTML>/); 
     # this should probably be moved to its own function
     while ( defined($buf=$self->_readline)) {
 	chomp($buf);
