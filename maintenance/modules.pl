@@ -6,9 +6,9 @@ modules.pl - information about modules in BioPerl core
 
 =head1 SYNOPSIS
 
-B<modules.pl> [B<-c|--count>] | [B<-l|--list>] | [B<-u|--untested>] |
-  [B<-i|--info> class] | [B<-i|--inherit> | [B<-v|--version> |
-  [B<-?|-h|--help>]
+B<modules.pl> [B<-V|--verbose>] [B<-c|--count>] | [B<-l|--list>] |
+  [B<-u|--untested>] | [B<-i|--info> class] | [B<-i|--inherit> |
+  [B<-v|--version> | [B<-?|-h|--help>]
 
 =head1 DESCRIPTION
 
@@ -107,13 +107,14 @@ sub synopsis;
 sub version;
 
 # command line options
-my ($dir, $count,$list, $verbose,$info,$untested, $inherit, $synopsis, $version);
+my ($dir, $count,$list, $verbose,$info,$untested, $inherit, $synopsis,
+    $version);
 GetOptions(
 	   'dir:s'      => \$dir,
 	   'count'    => \$count,
 	   'list'     => \$list,
            'test_BioClass' => \&_test_BioClass,
-           'verbose'  => \$verbose,
+           'V|verbose'  => \$verbose,
            'untested' => \$untested,
            'info:s' =>  \$info,
            'inherit' => \$inherit,
@@ -166,12 +167,12 @@ sub _test_BioClass {
 sub modules {
     return unless /\.pm$/ ;
     #return unless -e $_;
-    print "file: $_\n" if $verbose;
+    #print "file: $_\n" if $verbose;
     open (F, $_) or warn "can't open file $_: $!" && return;
     my $class;
     while (<F>) {
         if (/^package\s+([\w:]+)\s*;/) {
-            print $1, "\n" if $verbose;
+            #print $1, "\n" if $verbose;
             $_ = $1;
             $class = new BioClass($_);
             $MODULES{$_} = $class;
@@ -188,14 +189,14 @@ sub modules {
         }
         if (/^\w*use/ && /(Bio[\w:]+)\W*;/) {
 	    next unless $class;
-            print "\t$1\n" if $verbose;
+            #print "\t$1\n" if $verbose;
             $class->add_used_class($1);
         }
         if ((/\@ISA/ || /use base/) && /Bio/) {
             next unless $class;
             my $line = $_;
             while ( $line =~ /(Bio[\w:]+)/g) {
-                print "\t$1\n" if $verbose;
+                #print "\t$1\n" if $verbose;
                 $class->add_superclass($1);
             }
         }
@@ -203,7 +204,7 @@ sub modules {
             next unless $class;
             my $line = $_;
             while ( $line =~ /(Bio[\w:]+)/g) {
-                print "\t$1\n" if $verbose;
+                #print "\t$1\n" if $verbose;
                 $class->add_superclass($1);
             }
         }
@@ -214,9 +215,19 @@ sub modules {
 
 =head1 OPTIONS
 
-Only one option is processed on each run of the script.
+Only one option is processed on each run of the script. The --verbose
+is an exception, it modifies the amount of output.
 
 =over 4
+
+=item B<-V | --verbose>
+
+B<INACTIVE>
+
+Set this option if you want to see more verbose output. Often that
+will mean seeing warnings normally going into STDERR.
+
+=cut
 
 =item B<-c | --count>
 
@@ -387,26 +398,26 @@ Bio::Root::Variation. Print out the different ones.
 =cut
 
 sub version {
+
     use Bio::Root::Version;
-    print "|", $Bio::Root::Version::VERSION, "|\n";
     my $version =  $Bio::Root::Version::VERSION;
+
+    my %skip = ( # these are defined together with an other module
+                 # and can not be use independently
+                'Bio::AnalysisI::JobI' => 1,
+                'Bio::PrimarySeq::Fasta' => 1,
+                'Bio::DB::Fasta::Stream' => 1,
+                'Bio::DB::GFF::ID_Iterator' => 1,
+                'Bio::DB::GFF::Adaptor::dbi::faux_dbh' =>1,
+                'Bio::LiveSeq::IO::SRS' =>1 # tries to call an external module
+               );
 
     foreach ( sort keys %MODULES) {
         my $n=$MODULES{$_}->name;
-        next unless $n =~ /Root/;
-#        next if $n =~ /Root/;
-        next if $n =~ /SRS/i;
-        {
-            eval "require $n";
-            printf "%50s ", $n;
-            my $v = eval "\$${n}::VERSION";
-            if (defined $v) {
-                #print $v unless $v eq $version;
-                print "$v\n";
-            } else {
-                print "---\n";
-            }
-        }
+        next if $skip{$n};
+        my $vv= "\$${n}::VERSION";
+        my $v = `perl -we 'use $n; print $vv;'`;
+        printf "%50s %-3s\n", $n, $v unless $version eq $v;
     }
 }
 
