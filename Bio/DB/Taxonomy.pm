@@ -16,11 +16,13 @@ Bio::DB::Taxonomy - Access to a taxonomy database
 
 =head1 SYNOPSIS
 
-Give standard usage here
+  use Bio::DB::Taxonomy;
+  my $db = new Bio::DB::Taxonomy(-source => 'entrez'); # use NCBI Entrez over HTTP
+  my $taxaid = $db->get_taxonid('Homo sapiens');
 
 =head1 DESCRIPTION
 
-Describe the object here
+This is a front end module for access to a taxonomy database.
 
 =head1 FEEDBACK
 
@@ -110,10 +112,10 @@ sub _initialize { }
 =head2 get_Taxonomy_Node
 
  Title   : get_Taxonomy_Node
- Usage   : my $species = $db->get_Taxonomy_Node(-taxaid => $taxaid)
- Function: Get a Bio::Taxonomy::Taxon object for a taxaid
+ Usage   : my $species = $db->get_Taxonomy_Node(-taxonid => $taxaid)
+ Function: Get a Bio::Taxonomy::Taxon object for a taxonid
  Returns : Bio::Taxonomy::Taxon object
- Args    : -taxaid => taxonomy id (to query by taxaid)
+ Args    : -taxonid => taxonomy id (to query by taxonid)
             OR
            -name   => string (to query by a taxonomy name: common name, 
                               species, genus, etc)
@@ -128,11 +130,11 @@ sub get_Taxonomy_Node{
 }
 
 
-=head2 get_taxaid
+=head2 get_taxonid
 
- Title   : get_taxaid
- Usage   : my $taxaid = $db->get_taxaid('Homo sapiens');
- Function: Searches for a taxaid (typically ncbi_taxa_id) 
+ Title   : get_taxonid
+ Usage   : my $taxonid = $db->get_taxonid('Homo sapiens');
+ Function: Searches for a taxonid (typically ncbi_taxon_id) 
            based on a query string 
  Returns : Integer ID
  Args    : String representing species/node name 
@@ -140,7 +142,9 @@ sub get_Taxonomy_Node{
 
 =cut
 
-sub get_taxaid {
+*get_taxaid = \&get_taxonid;
+
+sub get_taxonid {
    my ($self) = @_;
 
     $self->throw_not_implemented();

@@ -132,10 +132,10 @@ sub _initialize {
 =head2 get_Taxonomy_Node
 
  Title   : get_Taxonomy_Node
- Usage   : my $species = $db->get_Taxonomy_Node(-taxaid => $taxaid)
+ Usage   : my $species = $db->get_Taxonomy_Node(-taxonid => $taxonid)
  Function: Get a Bio::Taxonomy::Taxon object
  Returns : Bio::Taxonomy::Taxon object(s) [more than one
- Args    : -taxaid => taxonomy id (to query by taxaid)
+ Args    : -taxonid => taxonomy id (to query by taxonid)
             OR
            -name   => string (to query by a taxonomy name: common name,
                               species, genus, etc)
@@ -146,24 +146,24 @@ sub _initialize {
 sub get_Taxonomy_Node{
    my ($self) = shift;
    my %p = $self->entrez_params;
-   my $taxaid;
+   my $taxonid;
    if( @_ > 1 ) {
        my %params = @_;
-       if( $params{'-taxaid'} ) {
-	   $taxaid = $params{'-taxaid'};
+       if( $params{'-taxonid'} ) {
+	   $taxonid = $params{'-taxonid'};
        } elsif( $params{'-name'} ) {
-	   my @taxaids = $self->get_taxaid($params{'-name'});
+	   my @taxaids = $self->get_taxonid($params{'-name'});
 	   if( @taxaids > 1 ) { 
 	       $self->warn("Got > 1 taxid for ".$params{'-name'}. " only using the first one");
-	       $taxaid = shift @taxaids;
+	       $taxonid = shift @taxaids;
 	   }
        } else { 
-	   $self->warn("Need to have provided either a -taxaid or -name value to get_Taxonomy_Node");
+	   $self->warn("Need to have provided either a -taxonid or -name value to get_Taxonomy_Node");
        } 
    } else { 
-       $taxaid= shift;
+       $taxonid= shift;
    }
-   $p{'id'}      = $taxaid;
+   $p{'id'}      = $taxonid;
 
    my $params = join($UrlParamSeparatorValue, map { "$_=".$p{$_} } keys %p);
    my $url = sprintf("%s%s?%s",$self->entrez_url,$EntrezSummary,$params);
@@ -182,7 +182,7 @@ sub get_Taxonomy_Node{
    my $root = $twig->root;
    my $list = $root->first_child('DocSum');
    if( ! $list ) { 
-       $self->warn("Could not find any value for $taxaid");
+       $self->warn("Could not find any value for $taxonid");
        return undef;
    }
    my ($id) = map { $_->text } $list->children('Id');
@@ -204,11 +204,11 @@ sub get_Taxonomy_Node{
 }
 
 
-=head2 get_taxaid
+=head2 get_taxonid
 
- Title   : get_taxaid
- Usage   : my $taxaid = $db->get_taxaid('Homo sapiens');
- Function: Searches for a taxaid (typically ncbi_taxa_id)
+ Title   : get_taxonid
+ Usage   : my $taxonid = $db->get_taxonid('Homo sapiens');
+ Function: Searches for a taxonid (typically ncbi_taxon_id)
            based on a query string
  Returns : Integer ID
  Args    : Array of Strings representing species/node name
@@ -216,7 +216,7 @@ sub get_Taxonomy_Node{
 
 =cut
 
-sub get_taxaid {
+sub get_taxonid {
    my ($self,$query) = @_;
    my %p = $self->entrez_params;
    $query        =~ s/\s/\+/g;
