@@ -151,6 +151,24 @@ sub exons {
     $self->_abstractDeath();
 }
 
+=head2 introns
+
+ Title   : introns()
+ Usage   : @introns = $gene->introns();
+ Function: Get all introns of this gene structure.
+ Returns : An array of Bio::SeqFeatureI implementing objects representing the
+           introns.
+ Args    : 
+
+
+=cut
+
+sub introns {
+    my ($self) = @_;
+
+    $self->_abstractDeath();    
+}
+
 =head2 poly_A_sites
 
  Title   : poly_A_sites()
