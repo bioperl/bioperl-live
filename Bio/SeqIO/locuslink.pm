@@ -250,12 +250,12 @@ my @ll_firstelements = qw(
 # these fields need to be flattened into a single string, using the given
 # join string
 my %flatten_tags = (
-		    ASSEMBLY            => '',
-		    ORGANISM            => '',
-		    OFFICIAL_SYMBOL     => '',
-		    OFFICIAL_GENE_NAME  => '',
-		    LOCUSID             => '',
-		    PMID                => '',
+		    ASSEMBLY            => ',',
+		    ORGANISM            => '',  # this should occur only once
+		    OFFICIAL_SYMBOL     => '',  # this should occur only once
+		    OFFICIAL_GENE_NAME  => '',  # this should occur only once
+		    LOCUSID             => '',  # this should occur only once
+		    PMID                => ',',
 		    PREFERRED_SYMBOL    => ', ',
 		    PREFERRED_GENE_NAME => ', '
 );
@@ -407,7 +407,7 @@ sub make_unique{
     
     my %seen = ();
     foreach my $dbl ($ann->remove_Annotations($key)) {
-	if(! $seen{$dbl->as_text()}) {
+	if(!exists($seen{$dbl->as_text()})) {
 	    $seen{$dbl->as_text()} = 1;
 	    $ann->add_Annotation($dbl);
 	} 
@@ -429,7 +429,7 @@ sub next_seq{
 	# slurp in a whole entry and return if no more entries
 	return unless my $entry = $self->_readline;
 
-	# strip the leading '>>' is it's the first entry
+	# strip the leading '>>' if it's the first entry
 	if (index($entry,'>>') == 0) { #first entry
 	    $entry = substr($entry,2);
 	}
@@ -515,9 +515,6 @@ sub next_seq{
 	$ann=add_annotation_ref($ann,'URL',$record{LINK});
 	$ann=add_annotation_ref($ann,'URL',$record{DB_LINK});
 
-	# presently we can't store types of dblinks - hence make unique
-	make_unique($ann,'dblink');
-
 	# everything else gets a simple tag or comment value annotation
 	foreach my $anntype (keys %anntype_map) {
 	    foreach my $key (@{$anntype_map{$anntype}}){
@@ -551,6 +548,10 @@ sub next_seq{
 		$record{$fieldval}=$record{$alternate_map{$fieldval}};
 	    }
 	}
+
+	# presently we can't store types or context of dblinks - therefore
+	# we need to remove duplicates that only differ in context
+	make_unique($ann,'dblink');
 
 	# create sequence object (i.e., let seq.factory create one)
 	my $seq = $self->sequence_factory->create(
