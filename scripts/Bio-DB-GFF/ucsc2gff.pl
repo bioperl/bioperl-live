@@ -45,24 +45,27 @@ my %nolandmark = map {$_=>1} qw(gap cpgIsland recombRate_decode recombRate_marsh
 								twinscan twinscan_CDS
 								refFlat_CDS
 							   );
+my %relativecoords = map {$_=>1} qw( uniGene_2 nci60 affyRatio );
+
 
 foreach my $filename (@ARGV){
+  warn $filename;
+  next if $filename =~ /Pep\./;
   my $newfilename = $filename;
   $newfilename =~ s/txt\.gz/gff/;
   open(my $fhi, "zcat $filename |");
+#  $newfilename =~ s/txt/gff/;
+#  open(my $fhi, "$filename");
+
   open(my $fho, ">$newfilename");
 
   while(my $line = <$fhi>){
-	$line =~ s/^chr//;
 
   # $filename =~ /rnaCluster/              ? toGFF($line,$fho,['rnaCluster',              '', 4, 1, 2, 3, 5, 6,-1,' ',' ',11,12]) :
   # $filename =~ /estOrientInfo/           ? toGFF($line,$fho,['estOrientInfo',           '',]) : wtf?
 
     $filename =~ /cpgIsland/               ? toGFF($line,$fho,['cpgIsland',               '', 'CpG', 0, 1, 2,-1,'+',-1]) :
-    $filename =~ /nci60/                   ? toGFF($line,$fho,['nci60',                   '', 3, 0, 1, 2, 4, 5,-1,' ',' ',10,11]) :
-    $filename =~ /affyRatio/               ? toGFF($line,$fho,['affyRatio',               '', 3, 0, 1, 2, 4, 5,-1,' ',' ',10,11]) :
-    $filename =~ /uniGene_2/               ? toGFF($line,$fho,['uniGene_2',               '', 4, 1, 2, 3, 5, 6,-1,' ',' ',11,12]) :
-	$filename =~ /all_bacends/             ? toGFF($line,$fho,['bacends',                 '', 9,13,15,16,-1, 8,-1,11,12,18,20]) :
+    $filename =~ /all_bacends/             ? toGFF($line,$fho,['bacends',                 '', 9,13,15,16,-1, 8,-1,11,12,18,20]) :
     $filename =~ /all_est/                 ? toGFF($line,$fho,['est',                     '',10,14,16,17,-1, 9,-1,12,13,19,21]) :
     $filename =~ /all_mrna/                ? toGFF($line,$fho,['mrna',                    '',10,14,16,17,-1, 9,-1,12,13,19,21]) :
     $filename =~ /all_sts_primer/          ? toGFF($line,$fho,['sts_primer',              '', 9,13,15,16,-1, 8,-1,11,12,18,20]) :
@@ -99,6 +102,11 @@ foreach my $filename (@ARGV){
     $filename =~ /zoom2500_humMusL/        ? toGFF($line,$fho,['zoom2500_humMusL',        '', 4, 1, 2, 3, 5, 6,-1]) :
     $filename =~ /zoom50_humMusL/          ? toGFF($line,$fho,['zoom50_humMusL',          '', 4, 1, 2, 3, 5, 6,-1]) :
     $filename =~ /humMusL/                 ? toGFF($line,$fho,['humMusL',                 '', 4, 1, 2, 3, 5, 6,-1]) :
+
+    $filename =~ /nci60/                   ? toGFF($line,$fho,['nci60',                   '', 3, 0, 1, 2, 4, 5,-1,' ',' ',10,11]) :
+    $filename =~ /affyRatio/               ? toGFF($line,$fho,['affyRatio',               '', 3, 0, 1, 2, 4, 5,-1,' ',' ',10,11]) :
+    $filename =~ /uniGene_2/               ? toGFF($line,$fho,['uniGene_2',               '', 4, 1, 2, 3, 5, 6,-1,' ',' ',11,12]) :
+
     $filename =~ /refGene/                 ? eval { toGFF2($line,$fho,['refGene',                '', 0, 1, 2,-1,-1, 3, 4, 8, 9]);
                                                     toGFF2($line,$fho,['refGene_CDS',            '', 0, 1, 2,-1,-1, 5, 6, 8, 9]); } :
     $filename =~ /genscan/                 ? eval { toGFF2($line,$fho,['genscan',                '', 0, 1, 2,-1,-1, 3, 4, 8, 9]);
@@ -198,13 +206,15 @@ sub toGFF {
 													   u_refstrand,
 													   u_refphase);
   print $fho "\t";
-  print $fho $maps->[u_qrystart] ? "Target: " . render($maps->[u_refmethod],\@fields) . ':' : render($maps->[u_refmethod],\@fields) . " ";
+  print $fho $maps->[u_qrystart] ? "Target " . render($maps->[u_refmethod],\@fields) . ':' : render($maps->[u_refmethod],\@fields) . " ";
   print $fho &render($maps->[u_refgroup],\@fields) . " " .
 	         &render($maps->[u_qrystart],\@fields) . " " .
 	         &render($maps->[u_qrystop], \@fields);
   print $fho "\n";
 
   if(defined($maps->[u_starts]) and defined($maps->[u_sizes])){
+	my $offset = render($maps->[u_refstart],\@fields) if $relativecoords{render($maps->[u_refmethod],\@fields)};
+
 	my @starts = split /,/, render($maps->[u_starts],\@fields);
 	my @sizes = split /,/, render($maps->[u_sizes],\@fields);
 	while(defined(my $start = shift @starts)){
@@ -212,8 +222,8 @@ sub toGFF {
 	  print $fho join "\t", (render($maps->[u_refseq],\@fields),
 							 render($maps->[u_refsource],\@fields),
 							 render($maps->[u_refmethod],\@fields),
-							 $start,
-							 $start + $size,
+							 $offset + $start,
+							 $offset + $start + $size,
 							 render($maps->[u_refscore],\@fields),
 							 render($maps->[u_refstrand],\@fields),
 							 render($maps->[u_refphase],\@fields),
@@ -227,5 +237,10 @@ sub render {
   my($index,$fields) = @_;
   return '.' if $index == -1;
   return $index unless $index =~ /^\d+$/;
+
+  $fields->[$index] =~ s/^chr([0-9XYM]+)$/$1/;
+  $fields->[$index] = '+' if $fields->[$index] eq '+-' or $fields->[$index] eq '++';
+  $fields->[$index] = '-' if $fields->[$index] eq '-+' or $fields->[$index] eq '--';
+
   return $fields->[$index];
 }
