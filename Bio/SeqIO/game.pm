@@ -91,6 +91,12 @@ use Bio::Seq;
 # new() is inherited from Bio::Root::Object
 
 # _initialize is where the heavy stuff will happen when new is called
+sub new {
+    my ($class, @args) = @_;
+    my $self = bless { }, $class;
+    $self->_initialize(@args);
+    return $self;
+}
 
 sub _initialize {
   my($self,@args) = @_;
@@ -99,7 +105,7 @@ sub _initialize {
   $self->{counter} = 0;
   $self->{id_counter} = 1;
   
-  $self->{file}=@args[1];
+  ($self->{file}) = $self->_rearrange( [qw(FILE)] , @args);
 
   eval {
     my $handler = Bio::SeqIO::idHandler->new();
@@ -108,7 +114,7 @@ sub _initialize {
     $self->{seqs} = $parser->parse(Source => { SystemId => $self->{file} });
   };
   if ($@) {
-    $self->throw("There was an error parsing the xml document $args[1].  It may not be well-formed.");
+    $self->throw("There was an error parsing the xml document ".$self->{file}.".  It may not be well-formed.");
     exit(0);
   }
   return unless my $make = $self->SUPER::_initialize(@args);
@@ -125,27 +131,27 @@ sub _initialize {
 =cut
 
 sub next_seq {
-  my $self = shift;
-  
-  my $seq = shift(@{$self->{seqs}});
-  if ($seq) {
-    my $handler = Bio::SeqIO::seqHandler->new($seq);
-    my $options = {Handler=>$handler};
-    my $parser = XML::Parser::PerlSAX->new($options);
-    my $pseq = $parser->parse(Source => { SystemId => $self->{file} });
+    my $self = shift;
 
-    my $handler = Bio::SeqIO::featureHandler->new($pseq->length(), $pseq->moltype());
-    my $options = {Handler=>$handler};
+    my $seq = shift(@{$self->{seqs}});
+    if ($seq) {
+	my $handler = Bio::SeqIO::seqHandler->new($seq);
+	my $options = {Handler=>$handler};
+	my $parser = XML::Parser::PerlSAX->new($options);
+	my $pseq = $parser->parse(Source => { SystemId => $self->{file} });
 
-    my $parser = XML::Parser::PerlSAX->new($options);
-    my $features = $parser->parse(Source => { SystemId => $self->{file} });
-    my $seq = Bio::Seq->new();
-    foreach my $feature (@{$features}) {
-      $seq->add_SeqFeature($feature);
+	my $handler = Bio::SeqIO::featureHandler->new($pseq->length(), $pseq->moltype());
+	my $options = {Handler=>$handler};
+
+	my $parser = XML::Parser::PerlSAX->new($options);
+	my $features = $parser->parse(Source => { SystemId => $self->{file} });
+	my $seq = Bio::Seq->new();
+	foreach my $feature (@{$features}) {
+	    $seq->add_SeqFeature($feature);
+	}
+	$seq->primary_seq($pseq);
+	return $seq;
     }
-    $seq->primary_seq($pseq);
-    return $seq;
-  }
 }
 
 =head2 next_primary_seq

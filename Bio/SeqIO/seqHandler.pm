@@ -6,15 +6,16 @@
 
 package Bio::SeqIO::seqHandler;
 use vars qw{ $AUTOLOAD @ISA };
+use XML::Handler::Subs;
 
 @ISA = qw(XML::Handler::Subs);
 
 sub new {
-    my $class = shift;
-    my $seq = shift;
-    my $self = {};
-    $self->{seq}=$seq;
-    return bless ($self, $class);
+    my ($class,$seq) = @_;
+    my $self = bless ( {
+	seq  => $seq,
+    }, $class);
+    return $self;
 }
 
 # Basic PerlSAX
