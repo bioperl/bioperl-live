@@ -75,14 +75,19 @@ The rest of the documentation details each of the object methods. Internal metho
 
 
 package Bio::SeqFeatureI;
-use vars qw(@ISA);
+use vars qw(@ISA $GFF_FORMATTER);
 use strict;
 
 # Object preamble - inheriets from Bio::Root::Object
 use Bio::RangeI;
+use Bio::Tools::GFF;
 use Carp;
 
 @ISA = qw(Bio::RangeI);
+
+BEGIN {
+    $GFF_FORMATTER = Bio::Tools::GFF->new('-gff_version' => 2);
+}
 
 # utility method Prints out a method like: 
 # Abstract method stop defined in interface Bio::SeqFeatureI not
@@ -262,150 +267,31 @@ sub all_tags{
 =head2 gff_string
 
  Title   : gff_string
- Usage   : $str = $feat->gff_string
- Function: provides the feature information in GFF
-           version 2 format.
+ Usage   : $str = $feat->gff_string;
+           $str = $feat->gff_string($gff_formatter);
+ Function: Provides the feature information in GFF format.
+
+           The implementation provided here returns GFF2 by default. If you
+           want a different version, supply an object implementing a method
+           gff_string() accepting a SeqFeatureI object as argument. E.g., to
+           obtain GFF1 format, do the following:
+
+                my $gffio = Bio::Tools::GFF->new(-gff_version => 1);
+                $gff1str = $feat->gff_string($gff1io);
+
  Returns : A string
- Args    : None
+ Args    : Optionally, an object implementing gff_string().
 
 
 =cut
 
 sub gff_string{
-   my ($feat) = @_;
-   my ($str,$score,$frame,$name,$strand);
+   my ($self,$formatter) = @_;
 
-   if( $feat->can('score') ) {
-       $score = $feat->score();
-   }
-   $score = '.' unless defined $score;
-
-   if( $feat->can('frame') ) {
-       $frame = $feat->frame();
-   }
-   $frame = '.' unless defined $frame;
-
-   $strand = $feat->strand();
-   if(! $strand) {
-       $strand = ".";
-   } elsif( $strand == 1 ) {
-       $strand = '+';
-   } elsif ( $feat->strand == -1 ) {
-       $strand = '-';
-   }
-   
-   if( $feat->can('seqname') ) {
-       $name = $feat->seqname();
-       $name ||= 'SEQ';
-   } else {
-       $name = 'SEQ';
-   }
-
-
-   $str = join("\t",
-                 $name,
-		 $feat->source_tag(),
-		 $feat->primary_tag(),
-		 $feat->start(),
-		 $feat->end(),
-		 $score,
-		 $strand,
-		 $frame);
-
-   foreach my $tag ( $feat->all_tags ) {
-       foreach my $value ( $feat->each_tag_value($tag) ) {
-	   $str .= " $tag=$value";
-       }
-   }
-
-
-   return $str;
+   $formatter = $GFF_FORMATTER unless $formatter;
+   return $formatter->gff_string($self);
 }
 
-=head2 gff2_string
-
- Title   : gff2_string
- Usage   : $str = $feat->gff_string
- Function: provides the feature information in GFF
-           version 2 format (semicolon-separated attributes
-           with quoted free-text-translated values).
- Returns : A string
- Args    : None
-
-
-=cut
-
-sub gff2_string{
-   my ($feat) = @_;
-   my ($str,$score,$frame,$name,$strand);
-
-   if( $feat->can('score') ) {
-       $score = $feat->score();
-   }
-   $score = '.' unless defined $score;
-
-   if( $feat->can('frame') ) {
-       $frame = $feat->frame();
-   }
-   $frame = '.' unless defined $frame;
-
-   $strand = $feat->strand();
-   if(! $strand) {
-       $strand = ".";
-   } elsif( $strand == 1 ) {
-       $strand = '+';
-   } elsif ( $feat->strand == -1 ) {
-       $strand = '-';
-   }
-
-   if( $feat->can('seqname') ) {
-       $name = $feat->seqname();
-       $name ||= 'SEQ';
-   } else {
-       $name = 'SEQ';
-   }
-
-
-   $str = join("\t",
-                 $name,
-		 $feat->source_tag(),
-		 $feat->primary_tag(),
-		 $feat->start(),
-		 $feat->end(),
-		 $score,
-		 $strand,
-		 $frame);
-
-   # the routine below is the only modification I made to the original
-   # ->gff_string routine (above) as on November 17th, 2000, the
-   # Sanger webpage describing GFF2 format reads: "From version 2
-   # onwards, the attribute field must have a tag value structure
-   # following the syntax used within objects in a .ace file,
-   # flattened onto one line by semicolon separators. Tags must be
-   # standard identifiers ([A-Za-z][A-Za-z0-9_]*).  Free text values
-   # must be quoted with double quotes".
-
-   # MW
-
-   my $valuestr;
-   if ($feat->all_tags){  # only play this game if it is worth playing...
-        $str .= "\t";     # my interpretation of the GFF2 specification suggests the need for this additional TAB character...??
-        foreach my $tag ( $feat->all_tags ) {
-            my $valuestr; # a string which will hold one or more values for this tag, with quoted free text and space-separated individual values.
-            foreach my $value ( $feat->each_tag_value($tag) ) {
-         		if ($value =~ /[^A-Za-z0-9_]/){
-         			$value =~ s/\t/\\t/g;         # substitute tab and newline characters
-         			$value =~ s/\n/\\n/g;          # to their UNIX equivalents
-         			$value = '"' . $value . '" '}  # if the value contains anything other than valid tag/value characters, then quote it
-         		$valuestr .= $value;								# with a trailing space in case there are multiple values
-         															# for this tag (allowed in GFF2 and .ace format)		
-            }
-            $str .= "$tag $valuestr ; ";                              # semicolon delimited with no '=' sign
-        }
-   		chop $str; chop $str  # remove the trailing semicolon and space
-    }
-   return $str;
-}
 
 =head1 RangeI methods
 
