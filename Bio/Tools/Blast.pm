@@ -3072,8 +3072,8 @@ sub hit {
 
     my @hits = @{$self->{'_hits'}};
     
-    return $hits[0]      if $option =~ /best|first|1/i;
-    return $hits[$#hits] if $option =~ /worst|last/i;
+    return $hits[0]      if $option =~ /^(best|first|1)$/i;
+    return $hits[$#hits] if $option =~ /^(worst|last)$/i;
 
     # Get hit by name.	    
     foreach ( @hits ) {
