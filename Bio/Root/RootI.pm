@@ -517,12 +517,9 @@ sub throw_not_implemented {
     # Checking if Error.pm is available in case the object isn't decended from
     # Bio::Root::Root, which knows how to check for Error.pm.
 
-    if( $Bio::Root::Root::ERRORLOADED ) {
-	throw Bio::Root::NotImplemented ( -text   => $message,
-                                          -value  => $meth
-                                        );
-    }
-    elsif( $self->can('throw') ) {
+    # EB - this wasn't working and I couldn't figure out!
+
+    if( $self->can('throw') ) {
 	 $self->throw( $message );
     }
     else {

@@ -382,12 +382,15 @@ sub write_seq {
     my( $acc );
     {
         if( my $func = $self->_ac_generation_func ) {
-            $acc = &{$func}($seq);
+	  $acc = &{$func}($seq);
         } elsif( $seq->isa('Bio::Seq::RichSeqI') && 
 		 defined($seq->accession_number) ) {
-            $acc = $seq->accession_number;
-	    $acc = join(";", $acc, $seq->get_secondary_accessions);
+	  $acc = $seq->accession_number;
+	  $acc = join(";", $acc, $seq->get_secondary_accessions);
+	} elsif ( $seq->can('accession_number') ) {
+	  $acc = $seq->accession_number;
 	}
+
         if (defined $acc) {
             $self->_print("AC   $acc;\n",
 			  "XX\n");
