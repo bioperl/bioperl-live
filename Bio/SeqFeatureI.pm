@@ -403,7 +403,7 @@ sub spliced_seq {
 	    if( defined $_->seq_id ) {
 		$mixedloc = 1 if( $_->seq_id ne $seqid );
 	    }
-	    [ $_, $_->start* ($_->strand || 1)];	    
+	    [ $_, $_->start * ($_->strand || 1)];	    
 	} @locset; 
 
 	if ( $mixed ) { 
@@ -458,7 +458,11 @@ sub spliced_seq {
 	    if( $loc->strand == 1 ) {
 		$seqstr .= $called_seq->subseq($loc->start,$loc->end);
 	    } else {
-		$seqstr = $called_seq->trunc($loc->start,$loc->end)->revcom->seq() . $seqstr;
+		if( $nosort ) {
+		    $seqstr = $called_seq->trunc($loc->start,$loc->end)->revcom->seq() . $seqstr;
+		} else {
+		    $seqstr .= $called_seq->trunc($loc->start,$loc->end)->revcom->seq();
+		}
 	    }
 	}
     }
