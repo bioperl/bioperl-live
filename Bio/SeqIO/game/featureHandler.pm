@@ -154,8 +154,8 @@ sub start_element             {
     if ($self->in_element('bx-annotation:annotation')) {
 	$self->{'feat'} = {};
 	$self->{'feat'}->{'annotation_id'} = $element->{'Attributes'}->{'bx-annotation:id'};
+	$self->{'feat'}->{'annotation_name'} = $element->{'Attributes'}->{'bx-annotation:name'};
     }
-
 
     return 0;
 }
@@ -216,6 +216,7 @@ sub end_element               {
     }
 
     if ($self->in_element('bx-feature:seq_relationship')) {
+	
 	if ($self->{'feat'}->{'start'} > $self->{'feat'}->{'end'}) {
 	    my $new_start = $self->{'feat'}->{'end'};
 	    $self->{'feat'}->{'end'} = $self->{'feat'}->{'start'};
@@ -224,17 +225,22 @@ sub end_element               {
 	} else {
 	    $self->{'feat'}->{'strand'} = 1;
 	}
-	my $new_feat = new Bio::SeqFeature::Generic(
-						    -start=>$self->{'feat'}->{'start'},
-						    -end=>$self->{'feat'}->{'end'},
-						    -source=>$self->{'feat'}->{'source_tag'},
-						    -primary=>$self->{'feat'}->{'primary_tag'},
-						    -score=>$self->{'feat'}->{'score'}
-						    );
+	my $new_feat = new Bio::SeqFeature::Generic
+	    (
+	     -start   => $self->{'feat'}->{'start'},
+	     -end     => $self->{'feat'}->{'end'},
+	     -strand  => $self->{'feat'}->{'strand'},
+	     -source  => $self->{'feat'}->{'source_tag'},
+	     -primary => $self->{'feat'}->{'primary_tag'},
+	     -score   => $self->{'feat'}->{'score'},
+	     );
+	
 	if (defined $self->{'feat'}->{'computation_id'}) {
-	    $new_feat->add_tag_value('computation_id', $self->{'feat'}->{'computation_id'} );
+	    $new_feat->add_tag_value('computation_id', 
+				     $self->{'feat'}->{'computation_id'} );
 	} elsif (defined $self->{'feat'}->{'annotation_id'}) {
-	    $new_feat->add_tag_value('annotation_id', $self->{'feat'}->{'annotation_id'} );
+	    $new_feat->add_tag_value('annotation_id', 
+				     $self->{'feat'}->{'annotation_id'} );
 	}
 	if (defined $self->{'feat'}->{'id'}) {
 	    $new_feat->add_tag_value('id', $self->{'feat'}->{'id'} );
