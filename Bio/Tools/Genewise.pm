@@ -201,13 +201,15 @@ sub _target_id {
 
 sub next_prediction {
     my ($self) = @_;
+
     my $genes = new Bio::SeqFeature::Gene::GeneStructure(-source => $Srctag);
     my $transcript = new Bio::SeqFeature::Gene::Transcript(-source => $Srctag);
-    $/ = "//";
+
+    local ($/) = "//";
     my $score;
     my $prot_id;
     my $target_id;
-    while ($_ = $self->_readline) {
+    while ( defined($_ = $self->_readline) ) {
 	$self->debug( $_ ) if( $self->verbose > 0);
         ($score) = $_=~m/Score\s+(\d+[\.][\d]+)/;
         $self->_score($score) unless defined $self->_score;
