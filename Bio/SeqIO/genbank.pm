@@ -110,6 +110,9 @@ use Bio::SeqFeature::Generic;
 use Bio::Species;
 use Bio::Seq::SeqFactory;
 use Bio::Annotation::Collection;
+use Bio::Annotation::Comment;
+use Bio::Annotation::Reference;
+use Bio::Annotation::DBLink;
 
 @ISA = qw(Bio::SeqIO);
  
