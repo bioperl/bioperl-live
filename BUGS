@@ -1,10 +1,48 @@
 Known Bugs 
 
+Bioperl 0.9.0 
+=============
+ * Bio::Tools::Blast continues to cause problems for some people.  As
+   it is not actively maintained there are a slew of reported bugs for 
+   it that have not been fixed.  
+
+ * Bio::Tools::Run::Alignment::TCoffee - t_coffee binary does not get 
+   all parameters it needs when aligning (two) two DNA sequences
+   (jitterbug #966).
+
+ * Bio::Tools::Run::ClustalW and t/ClustalW will report errors for
+   clustalw versions 1.8x due to a bug in clustalw.
+
+ * Bio::DB::GenBank continues to have intermittent errors.  Bio::DB::GDB 
+   is also unreliable at times and one can safely ignore errors from
+   these during a make test.  
+   Bio::DB::GenBank is unable to download whole contig files as well
+   as NCBI ref seqs like NT_* numbers unless the -format flag is
+   passed in and specified as 'fasta' in the constructor.
+   get_Stream_by_batch() also has intermittent errors which are being
+   tracked down.
 
 Bioperl 0.7.1
 =============
  * Bio::Tools::BPlite does not parse and set frame properly for
    tblastx reports (Jitterbug bug # 978).
+
+ * Bio::Tools::BPlite interface needs to be updated to fix parsing
+   more than bl2seq report report (Jitterbug bug #940), this has been
+   fixed on the main code trunk and will be part of the next major
+   bioperl release.
+ 
+ * If File::Temp is not installed, tempdirs are not cleaned up
+   properly.  This is fixed on main code trunk with the introduction
+   of rmtree method in Bio::Root::IO, however, it is best to install
+   File::Temp when running 0.7 branch code.
+ 
+ * Bio::Tools::Blast does not allow users to run blast, instead use
+   Bio::Tools::Run::StandAloneBlast to run local blasts.  To submit
+   jobs to a remote blast server like NCBI a module
+   Bio::Tools::Run::RemoteBlast has been written but is part of the
+   main trunk code and must be obtained through CVS until the next
+   major bioperl release.
 
 Bioperl 0.7
 ===========

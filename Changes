@@ -1,6 +1,35 @@
 $Id$
 Revision history for Bioperl core modules
 
+0.9.0 Developer's release
+
+    o Bio::Tools::Run::RemoteBlast is available for running remote 
+      blast jobs at NCBI.
+
+    o Bio::Tools::BPbl2seq was fixed to handle multiple HSPs.
+
+    o Bio::SeqFeature::GeneStructure migrated to Bio::SeqFeature::Gene.
+      Also added are related modules UTR3, UTR5, Exon, Intron, 
+      Promotor, PolyA and Transcript.
+
+    o Speedup of translate method in PrimarySeq     
+
+    o Bio::SimpleAlign has new methods: location_from_column(), slice(),
+      select(), dot(), get_seq_by_pos(), column_from_residue_number()
+
+    o Various fixes to Variation toolkit
+    
+    o Bio::DB::EMBL provides database access to EMBL sequence data.
+      Bio::DB::Universal provides a central way to point to indexes
+      and dbs in a single interface.
+
+    o Bio::DB::GFF - a database suitable for running DAS servers locally.
+
+    o Bio::Factory::EMBOSS is still in design phase as is  
+      Bio::Factory::ApplicationFactoryI
+
+    o Dia models for bioperl design are provided in the models/ directory
+
 0.7.2 Bug fix release
 
     o documentation fix 
