@@ -7,7 +7,7 @@ modules.pl - information about modules in BioPerl core
 =head1 SYNOPSIS
 
 B<modules.pl> [B<-c|--count>] | [B<-l|--list>] | [B<-u|--untested>] |
-  [B<-i | --info> class] |  [B<-?|-h|--help>]
+  [B<-i|--info> class] | [B<-i|--inherit> | [B<-?|-h|--help>]
 
 =head1 DESCRIPTION
 
@@ -92,9 +92,10 @@ sub count;
 sub list_all;
 sub untested;
 sub info;
+sub inherit;
 
 # command line options
-my ($count,$list, $verbose,$info,$untested);
+my ($count,$list, $verbose,$info,$untested, $inherit);
 GetOptions(
 	   'count'    => \$count,
 	   'list'     => \$list,
@@ -102,6 +103,7 @@ GetOptions(
            'verbose'  => \$verbose,
            'untested' => \$untested,
            'info:s' =>  \$info,
+           'inherit' => \$inherit,
 	   'h|help|?' => sub{ exec('perldoc',$0); exit(0) }
 	   );
 
@@ -122,6 +124,9 @@ elsif ($untested) {
 }
 elsif ($info) {
     info($info);
+}
+elsif ($inherit) {
+    inherit;
 } else {
     count;
 }
@@ -158,6 +163,8 @@ sub modules {
             $MODULES{$_} = $class;
             if (/.*:[a-z]/) {
                 $class->type('component');
+            } elsif (/:Base/ | /Base$/) {
+                $class->type('base');
             } elsif (/[^A-Z]I$/) {
                 $class->type('interface');
             } else {
@@ -167,6 +174,14 @@ sub modules {
         if (/^\w*use/ && /(Bio[\w:]+)\W*;/) {
             print "\t$1\n" if $verbose;
             $class->add_used_class($1);
+        }
+        if ((/\@ISA/ || /use base/) && /Bio/) {
+            next unless $class;
+            my $line = $_;
+            while ( $line =~ /(Bio[\w:]+)/g) {
+                print "\t$1\n" if $verbose;
+                $class->add_superclass($1);
+            }
         }
         if (/\@ISA/ && /Bio/) {
             next unless $class;
@@ -189,19 +204,24 @@ Only one option is processed on each run of the script.
 =item B<-c | --count>
 
 The default action if no other option is given. Gives the count of
-modules broken to B<intantance> ("usable"), B<interface> (the "I"
-files) and B<component> (used from instantiable parent) modules, in
-addition to total number of modules.
+modules broken to B<intantance> ("usable"), B<base> ( (abstract)?
+superclass) , B<interface> (the "I" files) and B<component> (used from
+instantiable parent) modules, in addition to total number of modules.
 
-Nota that we are unable to separate abstact superclasses from instance
-classes based on name only.
+Note that abstact superclass in bioperl is not an enforced concept and
+they are not clearly indicateded in the class name.
 
 =cut
 
 sub count {
-    printf "Instance : %3d\n", scalar (grep $MODULES{$_}->type =~ /instance/ , keys %MODULES);
-    printf "Interface: %3d\n", scalar (grep $MODULES{$_}->type =~ /interface/ , keys %MODULES);
-    printf "Component: %3d\n", scalar (grep $MODULES{$_}->type =~ /component/ , keys %MODULES);
+    printf "Instance : %3d\n",
+        scalar (grep $MODULES{$_}->type =~ /instance/ , keys %MODULES);
+    printf "Base     : %3d\n",
+        scalar (grep $MODULES{$_}->type =~ /base/ , keys %MODULES);
+    printf "Interface: %3d\n",
+        scalar (grep $MODULES{$_}->type =~ /interface/ , keys %MODULES);
+    printf "Component: %3d\n",
+        scalar (grep $MODULES{$_}->type =~ /component/ , keys %MODULES);
     print  "--------------\n";
     printf "Total    : %3d\n", scalar (keys %MODULES);
 
@@ -238,18 +258,22 @@ sub untested {
         next unless /^Bio/;
         s/[\W;]+$//;
         next unless $MODULES{$_};
-        $MODULES{$_}->tested(1) unless defined $MODULES{$_} and $MODULES{$_}->tested;
+        $MODULES{$_}->tested(1) 
+            unless defined $MODULES{$_} and $MODULES{$_}->tested;
         foreach ($MODULES{$_}->each_superclass) {
-            $MODULES{$_}->tested(1) unless defined $MODULES{$_} or $MODULES{$_}->tested;
+            $MODULES{$_}->tested(1)
+                unless defined $MODULES{$_} or $MODULES{$_}->tested;
         }
         foreach ($MODULES{$_}->each_used_class) {
-            $MODULES{$_}->tested(1) unless defined $MODULES{$_} and $MODULES{$_}->tested;
+            $MODULES{$_}->tested(1)
+                unless defined $MODULES{$_} and $MODULES{$_}->tested;
         }
 
     }
 
     foreach ( sort keys %MODULES) {
-        print "$_\n" if $MODULES{$_}->type eq 'instance' and ($MODULES{$_}->tested == 0) ;
+        print "$_\n" if
+            $MODULES{$_}->type eq 'instance' and ($MODULES{$_}->tested == 0) ;
     }
 
 }
@@ -268,12 +292,32 @@ sub info {
     print $c->name, "\n";
     printf "  Type:\n\t%s\n", $c->type;
     print "  Superclasses:\n";
-    foreach ($c->each_superclass) {
+    foreach (sort $c->each_superclass) {
         print "\t$_\n";
     }
     print "  Used classes:\n";
     foreach (sort $c->each_used_class) {
         print "\t$_\n";
+    }
+}
+
+
+=item B<-i | --inherit>
+
+Finds inteface modules which inherit from an instantiable class.
+
+Could be extended to check other bad inheritance patterns.
+
+=cut
+
+sub inherit {
+    foreach ( sort keys %MODULES) {
+        my $c=$MODULES{$_};
+        next unless $c->type =~ /interface/;
+        foreach my $super ($c->each_superclass) {
+            next if $super =~ /I$/;
+            print "Check this inheritance: ", $c->name, " <-- $super\n";
+        }
     }
 }
 
