@@ -231,18 +231,18 @@ sub postprocess_data {
     my $type = uc $args{'type'};
     my $location = $args{'location'};
     if( !defined $type || $type eq '' || !defined $location) {
-	return;
+		return;
     } elsif( $type eq 'STRING' ) {
-	$data = ${$location}; 
+		$data = ${$location}; 
     } elsif ( $type eq 'FILE' ) {
-	open(TMP, $location) or $self->throw("could not open file $location");
-	my @in = <TMP>;
-	close TMP;
-	$data = join("", @in);
+		open(TMP, $location) or $self->throw("could not open file $location");
+		my @in = <TMP>;
+		close TMP;
+		$data = join("", @in);
     }
     my ($format) = $self->request_format();    
     if( $format =~ /fasta/i ) {
-	$data =~ s/^[\s\S]+<dd>([\s\S]+)<pre>/$1/i;
+		$data =~ s/^[\s\S]+<dd>([\s\S]+)<pre>/$1/i;
     } else { 
        # remove everything before <PRE>
        $data =~ s/^[\s\S]+<pre>//i;
@@ -251,16 +251,75 @@ sub postprocess_data {
     $data =~ s/<\/pre>[\s\S]+$//i;
 
     # transform links to appropriate descriptions
-    $data =~ s/<a href=.+>(\S+)<\/a\>/$1/ig;
+    if ($data =~ /\nCONTIG\s+/) {
+		$self->warn("CONTIG found. GenBank get_Stream_by_batch about to run."); 
+    	my(@batch,@accession,%accessions,@location,$id,$contig,$stream,$aCount,$cCount,$gCount,$tCount);
+    	my $gb = new Bio::DB::GenBank();
+    	
+    	# process GenBank CONTIG join(...) into two arrays
+    	$data =~ /(?:CONTIG\s+join\()((?:.+\n)+)(?:\/\/)/;
+    	my $contig = $1;
+    	$contig =~ s/\n|\)//g;
+		foreach (split /,/,$contig){
+			if (/>(.+)<.+>:(.+)/) {
+				($id) = split /\./, $1;
+				if (!$accessions{$id}) { push @batch, $id; }
+				push @accession, $id;
+				push @location, $2;
+				$accessions{$id}->{'count'}++;
+			}
+		}
+			
+		# grab multiple sequnces by batch and join based location variable
+		#$stream = $gb->get_Stream_by_batch(\@accession);
+		$stream = $gb->get_Stream_by_batch(\@batch);
+		$contig = "";
+		
+		for (my $i = 0; $i < @accession; $i++) {
+			my $seq;
+			if ($accessions{$accession[$i]}->{'seq'} ne '') {
+				# retrieve stored sequence
+				#my $seq =  $accessions{$accession[$i]}->{'seq'}   ;
+				$seq = Bio::Seq::RichSeq->new(-seq => $accessions{$accession[$i]}->{'seq'});
+			} else {
+				# seq not cached, get next sequence
+				$seq = $stream->next_seq();
+				if ($accessions{$accession[$i]}->{'count'} > 1) {
+					# cache sequence for later use
+					$accessions{$accession[$i]}->{'seq'} = $seq->seq();
+				}
+			}
+			my($start,$end) = split(/\.\./, $location[$i]);
+			$contig .= $seq->subseq($start,$end);
+		}
+	
+		# count number of each letter in sequence
+		$aCount = () = $contig =~ /a/ig;
+		$cCount = () = $contig =~ /c/ig;
+		$gCount = () = $contig =~ /g/ig;
+		$tCount = () = $contig =~ /t/ig;
+	
+		# remove everything after and including CONTIG
+		$data =~ s/(CONTIG[\s\S]+$)//i;
+	
+		# build ORIGIN part of data file using sequence and counts
+		$data .= "BASE COUNT     $aCount a   $cCount c   $gCount g   $tCount t\n";
+		$data .= "ORIGIN      \n";
+		$data .= "$contig\n//";
+    }
+    else {
+    	$data =~ s/<a href=.+>(\S+)<\/a\>/$1/ig;
+    }
+    
     # fix gt and lt
     $data =~ s/&gt;/>/ig;
     $data =~ s/&lt;/</ig;
     if( $type eq 'FILE'  ) {
-	open(TMP, ">$location") or $self->throw("could overwrite file $location");
-	print TMP $data;
-	close TMP;
+		open(TMP, ">$location") or $self->throw("could overwrite file $location");
+		print TMP $data;
+		close TMP;
     } elsif ( $type eq 'STRING' ) {
-	${$args{'location'}} = $data;
+		${$args{'location'}} = $data;
     }
     print STDERR "format is ", $self->request_format(), "data is $data\n" if( $self->verbose > 1 );
 }
