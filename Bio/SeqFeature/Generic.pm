@@ -748,7 +748,13 @@ sub get_tag_values {
    if ( ! exists $self->{'_gsf_tag_hash'}->{$tag} ) {
        $self->throw("asking for tag value that does not exist $tag");
    }
-   return @{$self->{'_gsf_tag_hash'}->{$tag}};
+   if( wantarray ) {
+     return @{$self->{'_gsf_tag_hash'}->{$tag}};
+   } elsif( $self->{'_gsf_tag_hash'}->{$tag} ) {
+     return $self->{'_gsf_tag_hash'}->{$tag}->[ 0 ];
+   } else {
+     return undef;
+   }
 }
 
 

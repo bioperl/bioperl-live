@@ -267,7 +267,8 @@ sub new {
       }
 
       unless( defined( $seq_id_sname ) ) {
-        $seq_id_sname = $seq_id; # Yes, $seq_id, not $seq_id_seq_id.
+        # Yes, $seq_id, not $seq_id_seq_id.
+        $seq_id_sname = $seq_id || 'unknown'; ## TODO: REMOVE unkown hack?
       }
       $seq_id_strand ||= '+';
 
@@ -1709,7 +1710,7 @@ sub features {
 
   my %args = (
     '-ref' => ( $ranges && @$ranges ? $ranges->[ 0 ]->seq_id() : undef ) ||
-      $self->abs_seq_id(),
+      $self->abs_seq_id() || ( $names ? shift @$names : undef ),
     '-class' => $namespace || $self->class(),
     '-start' => ( $ranges && @$ranges ? $ranges->[ 0 ]->low( 'plus' ) : undef ) ||
       ( $self->{ 'whole' } ? undef : $self->abs_start( 'plus' ) ),
@@ -1727,8 +1728,8 @@ sub features {
     '-parent' => $self
   );
   ## TODO: REMOVE
-  #warn "Args to features() of ".$self->factory(). " are ( ".join( ', ', ( my @args = %args ) )." ).  names are { ".($names?join( ', ', @$names ):'')." }.  types are { ".($types?join( ', ', @$types ):''). " }.";
-  #eval { $self->throw( "Args to features() of ".$self->factory(). " are ( ".join( ', ', ( my @args = %args ) )." )"."-names are ".($names&&@$names?'[ '.join( ', ', @$names ).' ]':'undef')."." ) };
+  #warn "Args to features_in_range() of ".$self->factory(). " are ( ".join( ', ', ( my @args = %args ) )." ).  names are { ".($names?join( ', ', @$names ):'')." }.  types are { ".($types?join( ', ', @$types ):''). " }.";
+  #eval { $self->throw( "Args to features_in_range() of ".$self->factory(). " are ( ".join( ', ', ( my @args = %args ) )." )"."-names are ".($names&&@$names?'[ '.join( ', ', @$names ).' ]':'undef')."." ) };
   #warn $@ if $@;
   if( $iterator ) {
     ## TODO: Do what we do for the list, but in an iterator.
@@ -2251,6 +2252,8 @@ sub _seq_id {
           ( $newref->isa( 'Bio::RangeI' ) ?
             $newref->seq_id() :
             undef ) );
+      ## TODO: REMOVE?  This helps with Michelle's jdrf_lod stuff.
+      $name ||= 'unknown';
       ## TODO: Perhaps we don't *always* have to do this.. but this
       ## works for now.
       $new_seq_id = Bio::DB::GFF::Segment_NamedRelRange->new(
@@ -2271,6 +2274,9 @@ sub _seq_id {
 	last if( !defined( $abs_seq_id ) ||
                  ( $newref_abs_seq_id ne $abs_seq_id ) );
       }
+      ## TODO: REMOVE?  This helps with Michelle's jdrf_lod stuff.
+      $sname ||= 'unknown';
+
       $new_seq_id = Bio::DB::GFF::Segment_NamedRelRange->new(
         '-name' => $sname,
         '-seq_id' => $newref_abs_seq_id,

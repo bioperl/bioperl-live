@@ -179,6 +179,8 @@ sub normalize {
     #warn "Hey, got current name '$name'.";
 
     if( my $hugo_name = $self->{ '_hugo_names' }->{ $name } ) {
+      ## TODO: REMOVE.  This is a hack.
+      $seq_feature->add_tag_value( 'alias', $name );
       $seq_feature->display_name( $hugo_name );
       return $seq_feature;
     }
@@ -210,7 +212,25 @@ sub normalize {
       $found_it = $hugo_name;
       ## Save it for later.
       $self->{ '_hugo_names' }->{ $name } = $hugo_name;
+      ## TODO: REMOVE.  This is a hack.
+      $seq_feature->add_tag_value( 'alias', $name );
       $seq_feature->display_name( $hugo_name );
+
+
+      ############ TODO: REMOVE.  TESTING. ###################
+      #my $q_hugo_name = $dbh->quote( $hugo_name );
+      #
+      #my $sth		= $dbh->prepare("
+      #    SELECT	        srh.location_string
+      #    FROM            single_region_hugo srh
+      #    WHERE	        srh.hugo_name     = $q_hugo_name
+      #");
+      #$sth->execute() || warn "Got SQL problem: ".$sth->errstr();
+      #
+      ### TODO: Deal with the fact that there could be multiple of these.
+      #while (my ($location) = $sth->fetchrow_array() ) {
+      #  warn "Dude! got $location";
+      #}
     }
 
   }
