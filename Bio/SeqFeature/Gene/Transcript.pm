@@ -255,18 +255,18 @@ sub flush_exons {
  Usage   : @introns = $gene->introns();
  Function: Get all intron features this gene structure.
 
-           Note that this implementation generates these features on-the-fly,
-           that is, it simply treats all regions between exons as introns,
-           assuming that exons do not overlap. A consequence is that a
-           consistent correspondence between the elements in the returned
-           array and the array exons() returns will exist only if the
-           exons are properly sorted within their types (forward for plus-
-           strand and reverse for minus-strand transcripts). To ensure
-           correctness the elements in the array returned will always be
-           sorted.
+           Note that this implementation generates these features
+           on-the-fly, that is, it simply treats all regions between
+           exons as introns, assuming that exons do not overlap. A
+           consequence is that a consistent correspondence between the
+           elements in the returned array and the array that exons()
+           returns will exist only if the exons are properly sorted
+           within their types (forward for plus- strand and reverse
+           for minus-strand transcripts). To ensure correctness the
+           elements in the array returned will always be sorted.
 
- Returns : An array of Bio::SeqFeature::Gene::Intron objects representing the
-           intron regions.
+ Returns : An array of Bio::SeqFeature::Gene::Intron objects representing
+           the intron regions.
  Args    : 
 
 
@@ -287,13 +287,13 @@ sub introns {
 	last if $strand; # we're done if we've got 1 or -1
     }
     $rev_order = ($exons[0]->end() < $exons[1]->start() ? 0 : 1);
+
     # Make sure exons are sorted. Because we assume they don't overlap, we
     # simply sort by start position.
-
     if((! defined($strand)) || ($strand != -1) || (! $rev_order)) {
 	# always sort forward for plus-strand transcripts, and for negative-
 	# strand transcripts that appear to be unsorted or forward sorted
-        @exons = map { $_->[0] } sort { $a->[1] <=> $b->[1] } map { [ $_, $_->start()* $_->strand ] } @exons;
+        @exons = map { $_->[0] } sort { $a->[1] <=> $b->[1] } map { [ $_, $_->start()] } @exons;
     } else {
 	# sort in reverse order for transcripts on the negative strand and
 	# found to be in reverse order
@@ -306,8 +306,8 @@ sub introns {
 
 	if(defined($exons[$i]->strand()) &&
 	   (($exons[$i]->strand() * $strand) < 0)) {
-	    $self->throw("Transcript mixes plus and minus strand. ".
-			 "This makes no sense.");
+	    $self->throw("Transcript mixes plus and minus strand exons. ".
+			 "Computing introns makes no sense then.");
 	}
 	$start = $exons[$i+$rev_order]->end() + 1;     # $i or $i+1
 	$end = $exons[$i+1-$rev_order]->start() - 1;   # $i+1 or $i
@@ -489,17 +489,18 @@ sub flush_sub_SeqFeature {
 
  Title   : cds
  Usage   : $seq = $transcript->cds();
- Function: Returns the CDS (coding sequence) as defined by the exons of this
-           transcript and the attached sequence.
+ Function: Returns the CDS (coding sequence) as defined by the exons
+           of this transcript and the attached sequence.
 
            If no sequence is attached this method will return undef.
 
-           Note that the implementation provided here returns a concatenation
-           of all coding exons, thereby assuming that exons do not overlap. 
+           Note that the implementation provided here returns a
+           concatenation of all coding exons, thereby assuming that
+           exons do not overlap.
 
-           Note also that you cannot set the CDS via this method. Set a single
-           CDS feature as a single exon, or derive your own class if you want
-           to store a predicted CDS.
+           Note also that you cannot set the CDS via this method. Set
+           a single CDS feature as a single exon, or derive your own
+           class if you want to store a predicted CDS.
 
  Example :
  Returns : A Bio::PrimarySeqI implementing object.
