@@ -11,7 +11,6 @@ use Bio::SeqFeature::Generic;
 use Bio::Root::Root;
 use Bio::SeqFeature::SiRNA::Oligo;
 use Bio::SeqFeature::SiRNA::Pair;
-use GD::Text::Align;
 
 
 our @ISA = qw(Bio::Root::Root);
