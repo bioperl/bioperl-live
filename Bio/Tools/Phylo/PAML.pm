@@ -373,7 +373,7 @@ sub _parse_summary {
 	$self->_parse_patterns();  # codon patterns - not very interesting	        
 	$self->_parse_seqs();  # the sequences data used for analysis
 	$self->_parse_codoncts();    # counts and distributions of codon/nt usage
-	$self->_parse_codon_freqs(); # codon frequencies
+	$self->_parse_codon_freqs($seqtype); # codon frequencies
 	$self->_parse_distmat(); # NG distance matrices
 	
 
@@ -387,7 +387,7 @@ sub _parse_summary {
 	$self->throw( -class => 'Bio::Root::NotImplemented',
 		      -text => 'BASEML parsing not yet implemented!');
     } elsif ($seqtype eq "YN00") {
-	$self->_parse_codon_freqs();
+	$self->_parse_codon_freqs($seqtype);
 	$self->_parse_codoncts();	
 	$self->_parse_distmat(); # NG distance matrices
 	
@@ -409,6 +409,7 @@ sub _parse_inputparams {
 sub _parse_codon_freqs {
     my ($self) = @_;
     my ($okay,$done) = (0,0);
+    
     while( defined($_ = $self->_readline ) ) {
 	if( /^Nei/ ) { $self->_pushback($_); last }
 	last if( $done);
@@ -424,7 +425,7 @@ sub _parse_codon_freqs {
 		$self->{'_summary'}->{'codonposition'}->[$pos-1]->{$base} = $freq;
 	    }
 	    $done = 1 if $pos == 3;
-	}
+	} 
     }
     $done = 0;
     while( defined( $_ = $self->_readline) ) {
@@ -496,6 +497,7 @@ sub _parse_seqs {
 	}
     }
     $self->{'_summary'}->{'seqs'} = \@seqs;
+    1;
 }
 
 sub _parse_codoncts { }
@@ -515,12 +517,16 @@ sub _parse_distmat {
 	$self->_readline;
     }
     my $seqct = 0;
+    my @seqs;
     while( defined ($_ = $self->_readline ) ) {
 	last if( /^\s+$/ && exists $self->{'_summary'}->{'ngmatrix'} );
 	next if( /^\s+$/ );
 	chomp;
 	my ($seq,$rest) = split(/\s+/,$_,2);
 	my $j = 0;
+	if( $self->{'_summary'}->{'seqtype'} eq 'YN00') {
+	    push @seqs, Bio::PrimarySeq->new(-display_id => $seq);
+	}
 	while( $rest =~ 
 	       /(\-?\d+(\.\d+)?)\s*\(\-?(\d+(\.\d+)?)\s+(\-?\d+(\.\d+)?)\)/g ) {
 	    $self->{'_summary'}->{'ngmatrix'}->[$j++]->[$seqct] = 
@@ -530,7 +536,11 @@ sub _parse_distmat {
 	}
 	$seqct++;
     }
+    $self->{'_summary'}->{'seqs'} = \@seqs 
+	if($self->{'_summary'}->{'seqtype'} eq 'YN00' && @seqs );
+    1;
 }
+
 
 sub _parse_PairwiseCodon {
     my ($self) = @_;
