@@ -1,4 +1,4 @@
-
+# $Id$
 #
 # BioPerl module for Bio::Tools::Alignment::Clustalw
 #
@@ -209,15 +209,15 @@ methods. Internal methods are usually preceded with a _
 
 package Bio::Tools::Alignment::Clustalw;
 
-use vars qw($AUTOLOAD @ISA);
+use vars qw($AUTOLOAD @ISA $TMPOUTFILE $DEBUG $PROGRAM $PROGRAMDIR);
 use strict;
 use Bio::Seq;
 use Bio::SeqIO;
 use Bio::SimpleAlign;
 use Bio::AlignIO;
-use Bio::Root::Object;
+use Bio::Root::RootI;
 
-@ISA = qw(Bio::Root::Object);
+@ISA = qw(Bio::Root::RootI);
 
 # You will need to enable Clustalw to find the clustalw program. This can be done
 # in (at least) three ways:
@@ -228,15 +228,15 @@ use Bio::Root::Object;
 #  3. include a definition of an environmental variable CLUSTALDIR in every script that will
 #     use Clustal.pm.
 #	BEGIN {$ENV{CLUSTALDIR} = '/home/peter/clustalw1.8/'; }
-my $clustaldir = $ENV{CLUSTALDIR} || '';
-my $program =   $clustaldir.'clustalw' ;
+$PROGRAMDIR = $ENV{CLUSTALDIR} || '';
+$PROGRAMDIR .= '/' if( substr($PROGRAMDIR, -1) ne '/' ); 
+$PROGRAM =   $PROGRAMDIR.'clustalw';
+$TMPOUTFILE = './clustalw.tmp';
+$DEBUG = 0;
 
 unless (exists_clustal()) {
-	warn "Clustalw program not found as $program or not executable. \n  Clustalw can be obtained from eg- http://corba.ebi.ac.uk/Biocatalog/Alignment_Search_software.html/ \n";
+	warn "Clustalw program not found as $PROGRAM or not executable. \n  Clustalw can be obtained from eg- http://corba.ebi.ac.uk/Biocatalog/Alignment_Search_software.html/ \n";
 }
-# Object preamble - inherits from Bio::Root::Object
-
-
 
 #***Pairwise alignments:***
 #	KTUPLE      	#:(=n) word size
@@ -282,7 +282,7 @@ my %ok_field;
 # Authorize attribute fields
 foreach my $attr ( @clustal_params, @clustalw_switches, @other_switches ) { $ok_field{$attr}++; }
 
-# new() is inherited from Bio::Root::Object
+# new() is inherited from Bio::Root::RootI
 
 # _initialize is where the heavy stuff will happen when new is called
 
@@ -312,9 +312,6 @@ sub AUTOLOAD {
 }
 
 
-
-
-
 =head2  exists_clustal()
 
  Title   : exists_clustal
@@ -328,7 +325,7 @@ sub AUTOLOAD {
 
 
 sub exists_clustal {
-    my $returnvalue = (-e "$program") ;
+    my $returnvalue = (-e $PROGRAM) ;
 }
 
 
@@ -407,10 +404,11 @@ sub profile_align {
 
 
 # Create parameter string to pass to clustalw program
-    my $param_string = &_setparams($self);
+    my $param_string = $self->_setparams();
 
 # run clustalw
-    my $aln = &_runclustalw($self, 'profile-aln', $infilename1, $infilename2, $param_string);
+    my $aln = $self->_runclustalw('profile-aln', $infilename1, 
+				  $infilename2, $param_string);
 
 }
 #################################################
@@ -422,7 +420,7 @@ sub profile_align {
  Function:   makes actual system call to clustalw program
  Example :
  Returns : nothing; clustalw output is written to a 
-           temporary file ./clustalw.tmp
+           temporary file $TMPOUTFILE
  Args    : Name of a file containing a set of unaligned fasta sequences
            and hash of parameters to be passed to clustalw
 
@@ -447,27 +445,33 @@ sub _runclustalw {
     }
     my $param_string = shift;
 
-    my $commandstring = "$program"." $command"." $instring".
+    my $commandstring = $PROGRAM." $command"." $instring".
 	" -output=gcg". " $param_string";
 
 # next line is for debugging purposes
-#print "clustal command = $commandstring \n";
-
+    if( $DEBUG ) {
+	print "clustal command = $commandstring \n";
+    }
     my $status = system($commandstring);
-    die "Clustalw call crashed: $? \n" unless $status==0;
+    $self->throw( "Clustalw call crashed: $? \n") unless $status==0;
 
-    my $outfile = $self->outfile() || "clustalw.tmp" ;
+    my $outfile = $self->outfile() || $TMPOUTFILE ;
 # retrieve alignment (Note: MSF format for AlignIO = GCG format of clustalw)
     my $in  = Bio::AlignIO->new(-file => $outfile, '-format' => 'MSF');
     my $aln = $in->next_aln();
 
 # Clean up the temporary files created along the way...
-    system('rm -f clustalw.tmp tmp.fa tmp1.fa tmp2.fa tmp.dnd tmp1.dnd tmp2.dnd') ;
+    foreach my $f ( $TMPOUTFILE, "tmp.fa", 'tmp1.fa', 'tmp2.fa', 
+		    'tmp.dnd', 'tmp1.dnd', 'tmp2.dnd')  {
+	unlink($f);
+    }
     # Replace file suffix with dnd to find name of dendrogram file(s) to delete
     $infilename =~ s/\.[^\.]*// ;
     $infile1 =~ s/\.[^\.]*// ;
     $infile2 =~ s/\.[^\.]*// ;
-    system("rm -f $infilename.dnd $infile1.dnd $infile2.dnd") ;
+    foreach my $f ( "$infilename.dnd", "$infile1.dnd", "$infile2.dnd")  {
+	unlink($f);
+    }
 
     return $aln;
 }
@@ -571,7 +575,7 @@ sub _setparams {
 
 # Set default output file if no explicit output file selected
     unless ($param_string =~ /outfile/) {
-	$param_string .= ' -outfile=clustalw.tmp' ;
+	$param_string .= " -outfile=$TMPOUTFILE" ;
     }
 
     if ($self->quiet()) { $param_string .= '  >/dev/null';}
@@ -579,4 +583,8 @@ sub _setparams {
     return $param_string;
 }
 
+sub DESTROY {
+    my ($self) = @_;
+    unlink($TMPOUTFILE);
+}
 1; # Needed to keep compiler happy
