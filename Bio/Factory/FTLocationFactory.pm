@@ -196,6 +196,8 @@ sub _parse_location {
     # remove enclosing parentheses if any
     $start =~ s/^\((.*)\)$/$1/;
     $end   =~ s/^\((.*)\)$/$1/ if $end;
+    $start =~ s/^\(//;
+    $end   =~ s/\)$// if $end;
 
     # Is this a simple (exact) or a fuzzy location? Simples have exact start
     # and end, or is between two adjacent bases. Everything else is fuzzy.
