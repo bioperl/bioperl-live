@@ -24,6 +24,16 @@ BEGIN {
 
     $NUMTESTS = 12;
     plan tests => $NUMTESTS;
+
+    eval { require DB_File; };
+    if( $@ ) {
+	print STDERR "DB_File not installed. This means the SeqFeatCollection wont work\n";
+	for( 1..$NUMTESTS ) {
+	    skip("DB_File",1);
+	}
+       $error = 1; 
+    }
+
 }
 
 if( $error ==  1 ) {
