@@ -191,15 +191,12 @@
       the query, the database searched, and the full collection of Hits
       found for the query.
     </para>
-  </section>
-
-  <section id="functionality">
-    <title>New Functionality</title>    
     <para>
       The generality of the SearchIO approach is demonstrated by large number
       of report formats that have appeared since its introduction. These
       formats include AXT format reports (BLAT, BLASTZ), NCBI tabular
-      output (-m 8 or -m 9 options), NCBI Blast XML, chadosxpr format flat databases,
+      output (-m 8 or -m 9 options), NCBI Blast XML, chadosxpr format 
+      flat databases,
       Exonerate output, FASTA output, hmmsearch output (HMMER),
       megablast output, PSL format output (BLAT), sim4 output, WABA
       output, and output from Wise.
