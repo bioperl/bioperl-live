@@ -113,7 +113,7 @@ sub _load_registry {
 	$f = \*F;
     } else {
 	# waiting for information
-	$self->warn("No conf file found in ~/.bioinformatics/ \nor in /etc/.bioinformatics/.\n".
+	$self->warn("No seqdatabase.ini file found in ~/.bioinformatics/ \nor in /etc/bioinformatics/.\nor in directory specified by $OBDA_SEARCH_PATH".
                     "Using web to get database registry from \n$fallbackRegistryURL");
 
 	# Last gasp. Try to use HTTPget module to retrieve the registry from
