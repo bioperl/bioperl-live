@@ -20,16 +20,31 @@ Bio::PopGen::Statistics - Population Genetics statistical tests
   use Bio::AlignIO;
   use Bio::PopGen::Simulation::Coalescent;
  
-  my $sim = new Bio::PopGen::Simulation::Coalescent( -samplesample_size => 12);
+  my $sim = new Bio::PopGen::Simulation::Coalescent( -sample_size => 12);
 
   my $tree = $sim->next_tree;
-  
+   
+ 
   $factory->add_Mutations($tree,20);
 
   my $stats = new Bio::PopGen::Statistics();
-  my $pi = $stats->pi($tree);
-  my $D = $stats->tajima_d($tree);
-  
+  my $individuals = [ $tree->get_leaf_nodes];
+  my $pi = $stats->pi($individuals);
+  my $D  = $stats->tajima_d($individuals);
+
+  # Alternatively to do this on input data from
+  # See the tests in t/PopGen.t for more examples
+  my $parser = new Bio::PopGen::IO(-format => 'prettybase',
+                                   -file   => 't/data/popstats.prettybase');
+  my $pop = $parser->next_population;
+  # Note that you can also call the stats as a class method if you like
+  # the only reason to instantiate it (as above) is if you want
+  # to set the verbosity for debugging
+  $pi     = Bio::PopGen::Statistics->pi($pop);   
+  $theta  = Bio::PopGen::Statistics->theta($pop);
+ 
+  # Pi and Theta also take additional arguments,
+  # see the documentation for more information  
 
 =head1 DESCRIPTION
 
