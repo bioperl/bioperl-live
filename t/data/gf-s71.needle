@@ -1,0 +1,66 @@
+########################################
+# Program:  needle
+# Rundate:  Thu Jun 20 10:53:54 2002
+# Report_file: /tmp/jason/water/1/gf.s71.44_Y50C1A.2.water
+########################################
+#=======================================
+#
+# Aligned_sequences: 2
+# 1: gf.s71.44
+# 2: Y50C1A.2
+# Matrix: EBLOSUM62
+# Gap_penalty: 10.0
+# Extend_penalty: 0.5
+#
+# Length: 468
+# Identity:     285/468 (60.9%)
+# Similarity:   339/468 (72.4%)
+# Gaps:          82/468 (17.5%)
+# Score: 1394.0
+# 
+#
+#=======================================
+
+gf.s71.44          1 MEDVTLHHFRWRKPVENKNGEIVYKTSETQTAEISRKDVECVANFQKSQE     50
+                     ||||||..|.||||: ...||||||||||||.|.::||||||||||:::|
+Y50C1A.2           1 MEDVTLFQFTWRKPI-RLQGEIVYKTSETQTIETNKKDVECVANFQENKE     49
+
+gf.s71.44         51 SQTDDFMQNGVGDGIKKEIRISKEVLGHIYDFLRDDSKVNYDRLLEFHKF    100
+                     .|||. :.||||:.:||:|.||||||..:|||:|||||||||||||||||
+Y50C1A.2          50 VQTDS-VDNGVGENVKKDITISKEVLNLLYDFVRDDSKVNYDRLLEFHKF     98
+
+gf.s71.44        101 DKVSLETVQKYHVETRNENIILMISNSSRKTLILFGGLSHETFCSHQARA    150
+                     |||:|||||||||||||||||||||:|||||||||||:||||||||||||
+Y50C1A.2          99 DKVALETVQKYHVETRNENIILMISSSSRKTLILFGGISHETFCSHQARA    148
+
+gf.s71.44        151 VLCSSSTTSSLPLPVCAISAVFYSSTQFLLGDISGNISMWTKEKMIFENK    200
+                     :||||||:.|:|||||||||||||||||:|||:||||||.:|:|:|||.|
+Y50C1A.2         149 LLCSSSTSFSIPLPVCAISAVFYSSTQFILGDVSGNISMCSKDKIIFEKK    198
+
+gf.s71.44        201 VTDGSVTSLELCRYGLLSGSDDGNVILWKVEESKIEKIEGIKLTVSDLSR    250
+                     :|||:||.||:||:||||||||||:|||::..|.:||:.|.|||||||||
+Y50C1A.2         199 ITDGAVTCLEMCRHGLLSGSDDGNIILWQIGTSGLEKLGGTKLTVSDLSR    248
+
+gf.s71.44        251 KIRRSSTSNKPVAIVSMQV----SGDEVCVATETGGLYLLTLPTLESKPL    296
+                     |||||||||||||||||||    ||:|.|||||||||||||||||:.|||
+Y50C1A.2         249 KIRRSSTSNKPVAIVSMQVYVWPSGEEACVATETGGLYLLTLPTLDYKPL    298
+
+gf.s71.44        297 T-QSATSIFKILYEHPYIAVVYHTSNSAIFNSEGLVDEIPFVATLAVRCG    345
+                     : |:||||.|||:|:.::||:|||||:|:|||||||||||||||||||  
+Y50C1A.2         299 SHQTATSINKILFENQFVAVIYHTSNAAVFNSEGLVDEIPFVATLAVR--    346
+
+gf.s71.44        346 AYFIFSNQSRLIIWSMNTRSTVIDENLNCHS-ICSLSND-----------    383
+                             .:|:::  .|...|.|..|||.| ....:|:           
+Y50C1A.2         347 --------PKLVLF--YTSVCVQDITLNCTSPFREFNNEYNPVIKFSKIR    386
+
+gf.s71.44        384 ---TLQVLDGDFNLNSQSENSATSESENLRISDLQNLRMLKLQNLRTSEF    430
+                        .|.|::| |..:|.:.|:                             
+Y50C1A.2         387 FSADLSVING-FRTSSPNSNN                                 406
+
+gf.s71.44        431 QNFRTSESQYFKKDNGEL    448
+                                       
+Y50C1A.2         407                       406
+
+
+#---------------------------------------
+#---------------------------------------
