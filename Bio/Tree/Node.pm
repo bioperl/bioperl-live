@@ -628,7 +628,8 @@ sub get_all_tags{
 
 sub get_tag_values{
    my ($self,$tag) = @_;
-   return @{$self->{'_tags'}->{$tag} || []};
+   return wantarray ? @{$self->{'_tags'}->{$tag} || []} :
+                     (@{$self->{'_tags'}->{$tag} || []})[0];
 }
 
 =head2 has_tag
