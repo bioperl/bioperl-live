@@ -223,7 +223,7 @@ sub next_seq {
   $params{'-seq'}              = $nt_seq;
   $params{'-display_id'}       = $name;
   $params{'-accession_number'} = $entry_id;
-  $params{'-species'}          = $entry_species;
+  $params{'-species'}          = Bio::Species->new(-common_name => $entry_species);
   $params{'-annotation'}       = $annotation;
 
   $builder->add_slot_value(%params);
