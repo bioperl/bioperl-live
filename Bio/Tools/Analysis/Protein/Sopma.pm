@@ -57,18 +57,20 @@ The raw text of the program output
 
 =item 2
 
-An reference to an array of hashes of scores for each state and the
+A reference to an array of hashes of scores for each state and the
 assigned state.
 
   my $data_ref = $analysis_object->result('parsed');
   print "score for helix at residue 2 is $data_ref->[1]{'helix'}\n";
   print "predicted struc  at residue 2 is $data_ref->[1]{'struc}\n";
+Hash keys are 'helix', 'struc', 'sheet', 'coil', 'turn'.
+
 
 =item 3
 
 An array of Bio::SeqFeature::Generic objects where each feature is a
 predicted unit of secondary structure. Only stretches of helix/sheet
-predictions for longer than 4 residues are defined as helices.
+predictions for longer than 4 residues are defined as helices/sheets.
 
   my @fts = $analysis_object->result(Bio::SeqFeatureI);
   for my $ft (@fts) {
@@ -346,7 +348,7 @@ sub result {
                 }
                 push @{$type_scores{'turn'}}, $aa->{'turn'} if  exists $aa->{'turn'};
             }
-            require Array;
+            require Bio::Seq::Meta::Array;
             bless ($self->seq, "Bio::Seq::Meta::Array");
             $self->seq->isa("Bio::Seq::MetaI")
                 || $self->throw("$self is not a Bio::Seq::MetaI");
@@ -363,7 +365,7 @@ sub result {
             # return  seq array object implementing meta sequence #
             return $self->seq;
 
-        } elsif ($value eq 'raw') {
+        } elsif ($value eq 'parsed') {
             return $self->{'_parsed'};
         }
 
