@@ -210,9 +210,9 @@ The group field is also used to store information about the target of
 sequence similarity hits, and miscellaneous notes.  See the next
 section for a description of how to describe similarity targets.
 
-The format of the group fields is "Class:ID" with a ":" separating the
-class from the ID. It is VERY IMPORTANT to follow this format, or
-grouping will not work properly.
+The format of the group fields is "Class ID" with a single space (not
+a tab) separating the class from the ID. It is VERY IMPORTANT to
+follow this format, or grouping will not work properly.
 
 =back
 
@@ -275,7 +275,7 @@ have an entry in the GFF file similar to this one:
 This indicates that the reference sequence named "Chr1" has length
 14972282 bp, method "chromosome" and source "assembly".  In addition,
 as indicated by the group field, Chr1 has class "Sequence" and name
-"Chr".
+"Chr1".
 
 The object class "Sequence" is used by default when the class is not
 specified in the segment() call.  This allows you to use a shortcut
@@ -1141,6 +1141,61 @@ sub get_feature_by_gid {
   return wantarray ? @$features : $features->[0];
 }
 *fetch_feature_by_gid = \&get_feature_by_gid;
+
+=head2 delete_features
+
+ Title   : delete_features
+ Usage   : $db->delete_features(@ids_or_features)
+ Function: delete one or more features
+ Returns : count of features deleted
+ Args    : list of features or feature ids
+ Status  : public
+
+Pass this method a list of numeric feature ids or a set of features.
+It will attempt to remove the features from the database and return a
+count of the features removed.  
+
+NOTE: This method is also called delete_feature().  Also see
+delete_groups().
+
+=cut
+
+*delete_feature = \&delete_features;
+
+sub delete_features {
+  my $self = shift;
+  my @features_or_ids = @_;
+  my @ids = map {$_->isa('Bio::DB::GFF::Feature') ? $_->id : $_} @features_or_ids;
+  $self->_delete_features(@ids);
+}
+
+=head2 delete_groups
+
+ Title   : delete_groups
+ Usage   : $db->delete_groups(@ids_or_features)
+ Function: delete one or more feature groups
+ Returns : count of features deleted
+ Args    : list of features or feature group ids
+ Status  : public
+
+Pass this method a list of numeric group ids or a set of features.  It
+will attempt to recursively remove the features and ALL members of
+their group from the database.  It returns a count of the number of
+features (not groups) returned.
+
+NOTE: This method is also called delete_group().  Also see
+delete_features().
+
+=cut
+
+*delete_group = \&delete_groupss;
+
+sub delete_groups {
+  my $self = shift;
+  my @features_or_ids = @_;
+  my @ids = map {$_->isa('Bio::DB::GFF::Feature') ? $_->group_id : $_} @features_or_ids;
+  $self->_delete_groups(@ids);
+}
 
 =head2 absolute
 
@@ -3069,6 +3124,30 @@ sub _split_gff3_group {
     push @attributes,[$tag=>$_] foreach @values;
   }
   return ($gclass,$gname,$tstart,$tstop,\@attributes);
+}
+
+=head2 _delete_features(), _delete_groups()
+
+ Title   : _delete_features(), _delete_groups()
+ Usage   : $count = $db->_delete_features(@ids)
+           $count = $db->_delete_groups(@ids)
+ Function: low-level feature/group deleter
+ Returns : count of features removed
+ Args    : list of feature or group ids removed
+ Status  : for implementation by subclasses
+
+=cut
+
+sub _delete_features {
+  my $self = shift;
+  my @feature_ids = @_;
+  $self->throw('_delete_features is not implemented in this adaptor');
+}
+
+sub _delete_groups {
+  my $self = shift;
+  my @group_ids = @_;
+  $self->throw('_delete_groups is not implemented in this adaptor');
 }
 
 sub unescape {

@@ -40,6 +40,7 @@ sub new {
   my $flip         = $options{-flip}       || 0;
   my $empty_track_style   = $options{-empty_tracks} || 'key';
   my $truecolor    = $options{-truecolor}  || 0;
+  $options{-stop}||= $options{-end};  # damn damn damn
 
   if (my $seg = $options{-segment}) {
     $offset = eval {$seg->start-1} || 0;
@@ -1111,6 +1112,8 @@ a set of tag/value pairs as follows:
 
   -stop       Stop of range, in 1-based              none
 	      coordinates.
+
+  -end        Same as -stop.
 
   -segment    A Bio::SeqI or Das::Segment            none
               object, used to derive sequence

@@ -1,6 +1,8 @@
 #!/usr/bin/perl -w
 
-# $Id: bp_genbank2gff.PLS,v 1.1 2003-06-30 21:04:12 lstein Exp $
+use lib '.';
+
+# $Id: bp_genbank2gff.PLS,v 1.2 2003-07-29 19:35:38 lstein Exp $
 use strict;
 use Bio::DB::GFF;
 use Getopt::Long;
