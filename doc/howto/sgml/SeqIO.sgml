@@ -486,11 +486,11 @@ takes a gzipped file of a given format and writes out a FASTA file,
       my $outformat = shift or die $usage;
                               
       # create one SeqIO object to read in, and another to write out
-      my $seqin = Bio::SeqIO->new('-file' => "/usr/local/bin/gunzip $infile |",
-                                  '-format' => $informat);
+      my $seqin = Bio::SeqIO->new(-file   => "/usr/local/bin/gunzip -c $infile |",
+                                  -format => $informat);
      
-      my $seqout = Bio::SeqIO->new('-file' => ">$outfile",
-                                   '-format' => 'Fasta');
+      my $seqout = Bio::SeqIO->new(-file   => ">$outfile",
+                                   -format => 'Fasta');
 
       # write each entry in the input to the output file
       while (my $inseq = $seqin->next_seq) {
