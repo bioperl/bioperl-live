@@ -157,9 +157,9 @@ sub _index_file {
         if (/^>/) {
             # $begin is the position of the first character after the '>'
             my $begin = tell(FASTA) - length( $_ ) + 1;
-
+	    
             foreach my $id (&$id_parser($_)) {
-                $self->add_record($id, $i, $begin);
+		$self->add_record($id, $i, $begin);
             }
         }
     }
