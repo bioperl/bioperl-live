@@ -110,10 +110,18 @@ sub get_SeqFeatures {
 
 =head2 add_SeqFeature()
 
- Usage   :
- Function: add a Bio::SeqFeatureI object to this holder.
+ Usage   : $feat->add_SeqFeature($subfeat);
+           $feat->add_SeqFeature($subfeat,'EXPAND')
+ Function: adds a SeqFeature into the subSeqFeature array.
+           with no 'EXPAND' qualifer, subfeat will be tested
+           as to whether it lies inside the parent, and throw
+           an exception if not.
+
+           If EXPAND is used, the parent''s start/end/strand will
+           be adjusted so that it grows to accommodate the new
+           subFeature
  Example :
- Returns : an array of Bio::SeqFeatureI implementing objects
+ Returns : nothing
  Args    : a Bio::SeqFeatureI object
 
 =cut
