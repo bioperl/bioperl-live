@@ -37,7 +37,7 @@ information.
              'lD' => [ '-4', '-1', '-3', '1', '-3', '-1', '-3', '4' ],
              'lR' => [ '-2', '-1', '-3', '0', '-4', '4', '-4', '-3' ],
              'lI' => [ '0', '-3', '0', '-4', '6', '-4', '-2', '-2' ],
-             'lG' => [ '-4', '-2', '-4', '-2', '-5', '-3', '-1', '-2' ]
+             'lG' => [ '-4', '-2', '-4', '-2', '-5', '-3', '-1', '-2' ],
              'pS' => [ '0', '33', '0', '16', '1', '12', '11', '25' ],
              'pF' => [ '0', '0', '2', '0', '3', '0', '0', '0' ],
              'pT' => [ '0', '8', '7', '10', '1', '2', '7', '8' ],
@@ -502,7 +502,7 @@ sub get_string {
 
  Title    : width
  Usage    :
- Function: Returns the length of the site
+ Function : Returns the length of the site
  Throws   :
  Example  :
  Returns  : number
@@ -576,9 +576,6 @@ sub id {
       if (@_) { $self->{id} = shift; }
       return $self->{id};
 }
-
-
-
 
 =head2 regexp
 

@@ -59,7 +59,7 @@ use vars qw(@ISA);
 					    length instances unstructured);
 @Bio::Matrix::PSM::PsmHeader::MEMEHEADER=qw(html version release hid weight length unstructured);
 @Bio::Matrix::PSM::PsmHeader::TRANSFACHEADER=qw(unstructured version release);
-@Bio::Matrix::PSM::PsmHeader::PSIBLASTHEADER=qw(seq width);
+@Bio::Matrix::PSM::PsmHeader::PSIBLASTHEADER=qw(seq width ic);
 @Bio::Matrix::PSM::PsmHeader::ALLHEADER=qw(header release type version html 
 					   release weight length id 
 					   seq instances unstructured);
