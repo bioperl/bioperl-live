@@ -86,8 +86,9 @@ Email richard.adams@ed.ac.uk
  Usage      : $io = Bio::Graph::IO->new(-file=>'myfile.dat', -format=>'dip');
  Returns    : A Bio::Graph::IO stream initialised to the appropriate format.
  Args       : Named parameters: 
-                  -file   => $filename
-                  -format => format
+                  -file      => $filename
+                  -format    => format
+				  -threshold => a confidence score for the interaction, optional
 
 =cut
 
