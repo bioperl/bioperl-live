@@ -135,7 +135,7 @@ use vars qw(@ISA);
 use strict;
 use English;
 
-use lib $ENV{CodeBase};
+#use lib $ENV{CodeBase};
 use XML::Writer;
 use IO::File;
 use IO::Handle;
@@ -812,7 +812,7 @@ EOUSAGE
 
 	#the top-level features other than 'source'
 	foreach $feat (@top_sfs) {
-		print $feat->primary_tag, "\n";
+		#print $feat->primary_tag, "\n";
 
 		my $r = $self->_subfeat2featrelhash($name, $ftype, $feat, \%srcfhash);
 
@@ -1029,7 +1029,7 @@ sub _subfeat2featrelhash {
 		#generate feature unique name as <genename>-<feature-type>-<span>
 		$sfname = $self->_genFeatUniqueName($genename, $feat);
 	}
-	print $sfname, "\n";
+	#print $sfname, "\n";
 	$sfunique = $sfname;
 
 	#feature type translation
@@ -1144,7 +1144,7 @@ sub _subfeat2featrelhash {
 	}
 
 	foreach my $sf ($feat->get_SeqFeatures()) {
-		print $sf->primary_tag, "\n";
+		#print $sf->primary_tag, "\n";
 		my $rref = $self->_subfeat2featrelhash($genename, $sftype, $sf, \%srcf);
 		if (defined $rref) {
 			push(@ssfeatrel, $rref);
