@@ -118,13 +118,6 @@ None
 =cut
 
 sub get_instance {
-  my ($self,%arg) = @_;
-
-
-}
-
-
-sub get_instance {
   return $instance;
 }
 
