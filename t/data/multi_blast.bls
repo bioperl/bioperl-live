@@ -22,36 +22,6 @@ F41E6.6 CE10254   cysteine protease and a protease inhibitor...   166  2e-41
 R09F10.1 CE28755   peptidase (ST.LOUIS) TR:Q23030 protein_id...   162  3e-40
 R07E3.1 CE02295   cysteine proteinase (HINXTON) TR:Q21810 pr...   126  2e-29
 Y40H7A.10 CE21821   Cysteine protease (HINXTON) TR:Q9XWA4 pr...   123  1e-28
-Y113G7B.15 CE23295    (HINXTON) TR:Q9U2X1 protein_id:CAB54334.1   120  9e-28
-K02E7.10 CE11640   protease (ST.LOUIS) TR:O17255 protein_id:...   114  1e-25
-C32B5.7 CE08515   cathepsin-like peptidase (ST.LOUIS) TR:P91...   108  5e-24
-Y51A2D.8 CE19204   Cysteine proteases (2 domains) (HINXTON) ...   106  2e-23
-Y71H2AR.2 CE22930    (ST.LOUIS) protein_id:AAK29985.1             103  1e-22
-C50F4.3 CE05468   thiol protease (HINXTON) TR:Q18740 protein...   102  3e-22
-Y51A2D.1 CE18411   Cysteine proteases (2 domains) (HINXTON) ...    94  9e-20
-T10H4.12 CE27590  locus:cpr-3 protease (HINXTON) TR:Q9TW93 p...    91  1e-18
-F26E4.3 CE17714   cysteine protease (HINXTON) TR:P90850 prot...    87  1e-17
-F44C4.3 CE07251  locus:cpr-4 cathepsin B-like cysteine prote...    86  4e-17
-C52E4.1 CE08943  locus:cpr-1 cathepsin-like cysteine proteas...    85  5e-17
-C25B8.3 CE04078  locus:cpr-6  (ST.LOUIS) protein_id:AAK39189.1     82  5e-16
-W07B8.4 CE14680   thiol protease (ST.LOUIS) TR:O16288 protei...    80  1e-15
-W07B8.5 CE14682  locus:cpr-5 thiol protease (ST.LOUIS) SW:P4...    78  9e-15
-F36D3.9 CE15973   cysteine protease (HINXTON) TR:O45466 prot...    78  9e-15
-M04G12.2 CE12424   cysteine protease (HINXTON) TR:P92005 pro...    75  6e-14
-F15D4.4 CE28917   cysteine protease (HINXTON) TR:Q93512 prot...    75  6e-14
-Y71H2AM.3 CE26272    (ST.LOUIS) protein_id:AAK29976.1              74  1e-13
-F57F5.1 CE05999   cysteine protease (HINXTON) TR:Q20950 prot...    73  2e-13
-C32B5.13 CE08521    (ST.LOUIS) TR:P91110 protein_id:AAB37968.1     72  6e-13
-W07B8.1 CE14674   thiol protease (ST.LOUIS) TR:O16289 protei...    64  2e-10
-F32B5.8 CE09855   cysteine proteinase (ST.LOUIS) TR:O01850 p...    55  5e-08
-Y65B4A.2 CE27300    (ST.LOUIS) protein_id:AAK29958.1               44  1e-04
-Y40H7A.9 CE21820   Cysteine protease (HINXTON) TR:Q9XW98 pro...    37  0.017
-F32H5.1 CE09885   cathepsin B like cysteine protease (HINXTO...    33  0.24
-C49C3.2 CE19741   serine\/threonine kinase (2 domains) (HINX...    31  0.93
-Y82E9BR.13 CE23388    (ST.LOUIS) protein_id:AAK26141.1             30  2.7
-R07D5.2 CE06280    (HINXTON) TR:Q21807 protein_id:CAA94606.1       30  2.7
-R08E3.4 CE28754   C2H2-type zinc finger (ST.LOUIS) TR:Q21847...    28  6.0
-K03B8.5 CE06079   zinc metalloprotease (HINXTON) TR:Q21181 p...    28  6.0
 
 >T03E6.7 CE16333   cathepsin-like protease (HINXTON) TR:O45734
            protein_id:CAB07275.1
@@ -376,66 +346,6 @@ Query: 304 XXXXXXYFLIERGKNMCGL 322
 Sbjct: 345 DWGDDGYARIVRGEDWCSI 363
 
 
->Y51A2D.1 CE18411   Cysteine proteases (2 domains) (HINXTON) TR:O62484
-           protein_id:CAA16404.1
-          Length = 382
-
- Score = 94.4 bits (233), Expect = 9e-20
- Identities = 95/354 (26%), Positives = 141/354 (38%), Gaps = 94/354 (26%)
-
-Query: 33  FTSWMKQHQKTYSSR-EYSHRLQVFANNWRKIQAHNQ------RNHTFKMGLNQFSDMSF 85
-           F  + K+  +TY S  E   RLQ F  +   +   N+      RN  F   +NQFSD++ 
-Sbjct: 44  FVEFKKKFSRTYKSEAENQLRLQNFVKSRNNVVRLNKNAQKAGRNSNF--AVNQFSDLTT 101
-
-Query: 86  AEIKHKYLWSEPQNCSAT------------KSNYLRGTGPYPSSMDWR-KKGN---VVSP 129
-           +E+ H+ L   P N +              K+   R    +  + D R +K N   +V P
-Sbjct: 102 SEL-HQRLSRFPPNLTENSVFHKNFKKLLGKTRTKRQNSEFARNFDLRSQKVNGRYIVGP 160
-
-Query: 130 VKNQGACGSCWTFSTTGALESAVAIASGKM------------------------------ 159
-           +KNQG C  CW F+ T  LE+  A+  G+                               
-Sbjct: 161 IKNQGQCACCWGFAVTAMLETIYAVNVGRFKLMSHIPALAPNFSDFDFFFFEFLAKLNMF 220
-
-Query: 160 MTLAEQQLVDCAQNFNNHGCQGGLPSQAFEYILYNKGIMGEDSYPYIGKN-----GQCKF 214
-           ++ ++Q++ DCA +    GC GG      EY + N G+  E  YP   +N     G C+ 
-Sbjct: 221 LSFSDQEMCDCATDGTKAGCAGGGLMWGVEYAI-NNGLASEFDYPEFDQNRATRPGTCE- 278
-
-Query: 215 NPEKAVAFVKNVVNITLNDEAAMVEAVALYNPVSFAFEVTEDFMMYKSGVYSSNSCHKTP 274
-                           ++D+         + PV+FA      F+ YKSGV  +  C    
-Sbjct: 279 ---------------AMDDDKT-------FPPVNFAAGTA--FLQYKSGVLVTEDC-DLA 313
-
-Query: 275 DKVNHAVLAVGYGEQNGL-----LYWIVKXX-XXXXXXXXXYFLIERGKNMCGL 322
-             V HA   VGYGE+N L      +WI+K            Y  + RGKN CG+
-Sbjct: 314 GTVWHAGAIVGYGEENDLRGRSQRFWIMKNSWGVSGWGTGGYVKLIRGKNWCGI 367
-
-
->T10H4.12 CE27590  locus:cpr-3 protease (HINXTON) TR:Q9TW93
-           protein_id:CAB61024.2
-          Length = 370
-
- Score = 90.9 bits (224), Expect = 1e-18
- Identities = 70/282 (24%), Positives = 119/282 (41%), Gaps = 45/282 (15%)
-
-Query: 79  QFSDMSFAEIKHKYL---WSEP--QNCSATKSNYLRGT---GPYPSSMDWRKKG---NVV 127
-           + +++S  E+K K +   ++EP  ++       ++RG     P P + D R+K    N +
-Sbjct: 49  EHNEISEFEMKFKVMDVKFAEPLEKDSDVASELFVRGEIVPEPLPDTFDAREKWPDCNTI 108
-
-Query: 128 SPVKNQGACGSCWTFSTTGALESAVAIASG--KMMTLAEQQLVDCAQNFNNHGCQGGLPS 185
-             ++NQ  CGSCW F     +   V I S   +   ++ + ++ C      +GC+GG   
-Sbjct: 109 KLIRNQATCGSCWAFGAAEVISDRVCIQSNGTQQPVISVEDILSCCGTTCGYGCKGGYSI 168
-
-Query: 186 QAFEYILYNKGIMGED---------SYPYIGKNGQCKFNP---------------EKAVA 221
-           +A  +   +  + G D         S+    KN      P               +K   
-Sbjct: 169 EALRFWASSGAVTGGDYGGHGCMPYSFAPCTKNCPESTTPSCKTTCQSSYKTEEYKKDKH 228
-
-Query: 222 FVKNVVNITLNDEAAMVEA-VALYNPVSFAFEVTEDFMMYKSGVYSSNSCHKTPDKV--N 278
-           +  +   +T       ++  +  Y PV  +++V EDF  YKSGVY     H T  K+   
-Sbjct: 229 YGASAYKVTTTKSVTEIQTEIYHYGPVEASYKVYEDFYHYKSGVY-----HYTSGKLVGG 283
-
-Query: 279 HAVLAVGYGEQNGLLYWIVKXXXXXXXXXXXYFLIERGKNMC 320
-           HAV  +G+G +NG+ YW++            +F I RG N C
-Sbjct: 284 HAVKIIGWGVENGVDYWLIANSWGTSFGEKGFFKIRRGTNEC 325
-
-
 >F26E4.3 CE17714   cysteine protease (HINXTON) TR:P90850
            protein_id:CAB03007.1
           Length = 491
@@ -458,34 +368,6 @@ Sbjct: 342 PSGSQDSTAFKMTPPYKVSSREEDIQTELMTNGPVQATFVVHEDFFMYAGGVYQHSDLAA 401
 Query: 271 HKTPDKV---NHAVLAVGYGEQNG----LLYWIVKXXXXXXXXXXXYFLIERGKNMC 320
             K    V    H+V  +G+G  +     + YW+             YF + RG+N C
 Sbjct: 402 QKGASSVAEGYHSVRVLGWGVDHSTGKPIKYWLCANSWGTQWGEDGYFKVLRGENHC 458
-
-
->F44C4.3 CE07251  locus:cpr-4 cathepsin B-like cysteine proteinase 4
-           precursor (ST.LOUIS) SW:P43508 protein_id:AAA92327.1
-          Length = 335
-
- Score = 85.5 bits (210), Expect = 4e-17
- Identities = 67/245 (27%), Positives = 103/245 (41%), Gaps = 44/245 (17%)
-
-Query: 127 VSPVKNQGACGSCWTFSTTGALESAVAIASGKMMT--LAEQQLVDCAQNFNNHGCQGGLP 184
-           ++ +++Q  CGSCW F+   A      IAS   +   L+ + ++ C  N   +GC+GG P
-Sbjct: 97  INNIRDQSDCGSCWAFAAAEAASDRFCIASNGAVNTLLSAEDVLSCCSNCG-YGCEGGYP 155
-
-Query: 185 SQAFEYILYNKGIMGEDSY-------PY-IGKNGQ---------CKFNPEKAVAFVKNVV 227
-             A++Y++   G     SY       PY +   G+         C  +     A V    
-Sbjct: 156 INAWKYLV-KSGFCTGGSYEAQFGCKPYSLAPCGETVGNVTWPSCPDDGYDTPACVNKCT 214
-
-Query: 228 NITLN-----------------DEAAMVEA-VALYNPVSFAFEVTEDFMMYKSGVYSSNS 269
-           N   N                  + + ++A +  + PV  AF V EDF  YK+GVY    
-Sbjct: 215 NKNYNVAYTADKHFGSTAYAVGKKVSQIQAEIIAHGPVEAAFTVYEDFYQYKTGVY---- 270
-
-Query: 270 CHKTPDKVN-HAVLAVGYGEQNGLLYWIVKXXXXXXXXXXXYFLIERGKNMCGLAACASY 328
-            H T  ++  HA+  +G+G  NG  YW+V            YF I RG N CG+      
-Sbjct: 271 VHTTGQELGGHAIRILGWGTDNGTPYWLVANSWNVNWGENGYFRIIRGTNECGIEHAVVG 330
-
-Query: 329 PIPQV 333
-            +P+V
-Sbjct: 331 GVPKV 335
 
 
 >C52E4.1 CE08943  locus:cpr-1 cathepsin-like cysteine protease (HINXTON)
@@ -514,116 +396,6 @@ Sbjct: 244 AASIQAEIYANGPVEAAFSVYEDFYKYKSGVYKHTAGKYLG---GHAIKIIGWGTESGSP 300
 Query: 294 YWIVKXXXXXXXXXXXYFLIERGKNMCGL 322
            YW+V            +F I RG + CG+
 Sbjct: 301 YWLVANSWGVNWGESGFFKIYRGDDQCGI 329
-
-
->C25B8.3 CE04078  locus:cpr-6  (ST.LOUIS) protein_id:AAK39189.1
-          Length = 379
-
- Score = 82.0 bits (201), Expect = 5e-16
- Identities = 82/312 (26%), Positives = 130/312 (41%), Gaps = 54/312 (17%)
-
-Query: 65  AHNQRNHTFKMGLNQFSDMSFAEIKHKYLWSE-PQNCSATKSNYLRGTGPYPSSMDWRKK 123
-           A  QR  +   G N  +      + H  L  +  Q+ S TK   L     + S  +W K 
-Sbjct: 59  AKKQRRFSSVYGENDKAKWGLMGVNHVRLSVKGKQHLSKTKDLDLDIPESFDSRDNWPKC 118
-
-Query: 124 GNVVSPVKNQGACGSCWTFSTTGALESAVAIAS-GKM-MTLAEQQLVDCAQNFNNHGCQG 181
-            ++   +++Q +CGSCW F    A+   + IAS G++ +TL+   L+ C ++    GC G
-Sbjct: 119 DSI-KVIRDQSSCGSCWAFGAVEAMSDRICIASHGELQVTLSADDLLSCCKSC-GFGCNG 176
-
-Query: 182 GLPSQAFEYILYNKGIMGEDSYPYIGKNGQCK---------------FNP---------- 216
-           G P  A+ Y + +  + G +   Y   NG CK               F+P          
-Sbjct: 177 GDPLAAWRYWVKDGIVTGSN---YTANNG-CKPYPFPPCEHHSKKTHFDPCPHDLYPTPK 232
-
-Query: 217 --EKAVA-----------FVKNVVNITLNDEAAMVEAVALYNPVSFAFEVTEDFMMYKSG 263
-             +K V+           F         +D  A+ + +  + P+  AFEV EDF+ Y  G
-Sbjct: 233 CEKKCVSDYTDKTYSEDKFFGASAYGVKDDVEAIQKELMTHGPLEIAFEVYEDFLNYDGG 292
-
-Query: 264 VYSSNSCHKTPDKV--NHAVLAVGYGEQNGLLYWIVKXXXXXXXXXXXYFLIERGKNMCG 321
-           VY       T  K+   HAV  +G+G  +G+ YW V            +F I RG + CG
-Sbjct: 293 VYV-----HTGGKLGGGHAVKLIGWGIDDGIPYWTVANSWNTDWGEDGFFRILRGVDECG 347
-
-Query: 322 LAACASYPIPQV 333
-           + +     IP++
-Sbjct: 348 IESGVVGGIPKL 359
-
-
->W07B8.4 CE14680   thiol protease (ST.LOUIS) TR:O16288 protein_id:AAB65345.1
-          Length = 335
-
- Score = 80.5 bits (197), Expect = 1e-15
- Identities = 70/248 (28%), Positives = 105/248 (42%), Gaps = 46/248 (18%)
-
-Query: 127 VSPVKNQGACGSCWTFSTTGALESAVAIAS-GKMMTL--AEQQLVDCAQNFN-NHGCQGG 182
-           V+ +++Q  CGSCW  +   A+     IAS G + TL  AE  L  C   FN   GC+GG
-Sbjct: 89  VNNIRDQSHCGSCWAVAAAEAISDRTCIASNGDVNTLLSAEDILTCCTGKFNCGDGCEGG 148
-
-Query: 183 LPSQAFEYILYNKGIMG---EDSY---PY--------------------IGKNGQCKFNP 216
-            P QA+ Y + N  + G   E  Y   PY                    I    +C+ + 
-Sbjct: 149 YPIQAWRYWVKNGLVTGGSFESQYGCKPYSIAPCGETIDGVTWPECPMKISDTPKCEHHC 208
-
-Query: 217 ----------EKAVAFVKNVVNITLNDEAAMVEAVALYNPVSFAFEVTEDFMMYKSGVYS 266
-                     ++   F  +   I  + +    E +A + PV   F V EDF +YK+G+Y+
-Sbjct: 209 TGNNSYPIPYDQDKHFGASAYAIGRSAKQIQTEILA-HGPVEVGFIVYEDFYLYKTGIYT 267
-
-Query: 267 SNSCHKTPDKVN-HAVLAVGYGEQNGLLYWIVKXXXXXXXXXXXYFLIERGKNMCGLAAC 325
-               H    ++  HAV  +G+G  NG  YW+             YF I RG + CG+ + 
-Sbjct: 268 ----HVAGGELGGHAVKMLGWGVDNGTPYWLAANSWNTVWGEKGYFRILRGVDECGIESA 323
-
-Query: 326 ASYPIPQV 333
-           A   +P +
-Sbjct: 324 AVAGMPDL 331
-
-
->W07B8.5 CE14682  locus:cpr-5 thiol protease (ST.LOUIS) SW:P43509
-           protein_id:AAB65346.1
-          Length = 344
-
- Score = 77.8 bits (190), Expect = 9e-15
- Identities = 65/246 (26%), Positives = 100/246 (40%), Gaps = 42/246 (17%)
-
-Query: 127 VSPVKNQGACGSCWTFSTTGALESAVAIAS-GKMMTL--AEQQLVDCAQNFN-NHGCQGG 182
-           ++ +++Q  CGSCW F+   A+     IAS G + TL  +E  L  C   F+  +GC+GG
-Sbjct: 98  INNIRDQSDCGSCWAFAAAEAISDRTCIASNGAVNTLLSSEDLLSCCTGMFSCGNGCEGG 157
-
-Query: 183 LPSQAFEYILYNKGIMG------------------------------EDSYPYIGKNGQC 212
-            P QA+++ + +  + G                              ED+ P       C
-Sbjct: 158 YPIQAWKWWVKHGLVTGGSYETQFGCKPYSIAPCGETVNGVKWPACPEDTEPTPKCVDSC 217
-
-Query: 213 KFNPEKAVAFVKNV----VNITLNDEAAMVEAVALYN-PVSFAFEVTEDFMMYKSGVYSS 267
-                 A  ++++         +  +   ++   L N P+  AF V EDF  Y +GVY  
-Sbjct: 218 TSKNNYATPYLQDKHFGSTAYAVGKKVEQIQTEILTNGPIEVAFTVYEDFYQYTTGVYVH 277
-
-Query: 268 NSCHKTPDKVNHAVLAVGYGEQNGLLYWIVKXXXXXXXXXXXYFLIERGKNMCGLAACAS 327
-            +         HAV  +G+G  NG  YW+V            YF I RG N CG+   A 
-Sbjct: 278 TAGASLG---GHAVKILGWGVDNGTPYWLVANSWNVAWGEKGYFRIIRGLNECGIEHSAV 334
-
-Query: 328 YPIPQV 333
-             IP +
-Sbjct: 335 AGIPDL 340
-
-
->F36D3.9 CE15973   cysteine protease (HINXTON) TR:O45466
-           protein_id:CAB04322.1
-          Length = 345
-
- Score = 77.8 bits (190), Expect = 9e-15
- Identities = 65/225 (28%), Positives = 90/225 (39%), Gaps = 41/225 (18%)
-
-Query: 130 VKNQGACGSCWTFSTTGALESAVAIASG--KMMTLAEQQLVDCAQNFNNHGCQGGLPSQA 187
-           ++ Q  CGSCW FST   +     IAS   +   ++   L+ C       GC GG P +A
-Sbjct: 120 IREQSNCGSCWAFSTAEVISDRTCIASNGTQQPIISPTDLLTCCGMSCGEGCDGGFPYRA 179
-
-Query: 188 FEYILYNKGIMGEDSYPYIGKNGQCKFNPEKAVAFVKNVVNITL---------------- 231
-           F++      + G D   Y+G    CK  P +      N VN+                  
-Sbjct: 180 FQWWARRGVVTGGD---YLGTG--CKPYPIRPCNS-DNCVNLQTPPCRLSCQPGYRTTYT 233
-
-Query: 232 NDE-------------AAMVEAVALYN-PVSFAFEVTEDFMMYKSGVYSSNSCHKTPDKV 277
-           ND+              A ++A   YN PV  AF V EDF  YKSG+Y   +      K 
-Sbjct: 234 NDKNYGSNSAYPVPRTVAAIQADIYYNGPVVAAFIVYEDFEKYKSGIYRHIAGRS---KG 290
-
-Query: 278 NHAVLAVGYGEQNGLLYWIVKXXXXXXXXXXXYFLIERGKNMCGL 322
-            HAV  +G+G + G  YW+              F I RG + CG+
-Sbjct: 291 GHAVKLIGWGTERGTPYWLAVNSWGSQWGESGTFRILRGVDECGI 335
 
 
 >M04G12.2 CE12424   cysteine protease (HINXTON) TR:P92005
@@ -701,34 +473,6 @@ Query: 211 QCKFNPEKAVAFVKNVVNITLNDEAAMVEAVALYNPVSFAFEVTEDFMMYKSGVYS 266
 Sbjct: 176 -----------------NGKLSNETQGKELVTNYGPAFFTMRAPPSLYDYKIGIYN 214
 
 
->F57F5.1 CE05999   cysteine protease (HINXTON) TR:Q20950
-           protein_id:CAB00098.1
-          Length = 400
-
- Score = 73.2 bits (178), Expect = 2e-13
- Identities = 57/243 (23%), Positives = 96/243 (39%), Gaps = 40/243 (16%)
-
-Query: 127 VSPVKNQGACGSCWTFSTTGALESAVAIASGK--MMTLAEQQLVDCAQNFNNHGCQGGLP 184
-           +S +++Q +CGSCW  S    +   + IAS    +++++   +  C      +GC GG P
-Sbjct: 162 ISKIRDQSSCGSCWAVSAAETISDRICIASNAKTILSISADDINACCGMVCGNGCNGGYP 221
-
-Query: 185 SQAFEYILYNKGIMGED--------SYPY------------------IGKNGQCKFNPEK 218
-            +A+ + +    + G           YPY                  +    +C+ + + 
-Sbjct: 222 IEAWRHYVKKGYVTGGSYQDKTGCKPYPYPPCEHHVNGTHYKPCPSNMYPTDKCERSCQA 281
-
-Query: 219 AVA--------FVKNVVNITLNDEAAMVEAVALYNPVSFAFEVTEDFMMYKSGVYSSNSC 270
-             A        F ++   ++    A + + +  + PV  AF V EDF  Y  GVY   + 
-Sbjct: 282 GYALTYQQDLHFGQSAYAVS-KKAAEIQKEIMTHGPVEVAFTVYEDFEHYSGGVYVHTAG 340
-
-Query: 271 HKTPDKVNHAVLAVGYGEQNGLLYWIVKXXXXXXXXXXXYFLIERGKNMCGLAACASYPI 330
-                   HAV  +G+G  NG  YW+             YF I RG N CG+       I
-Sbjct: 341 ASLG---GHAVKMLGWGVDNGTPYWLCANSWNEDWGENGYFRIIRGVNECGIEGGVVGGI 397
-
-Query: 331 PQV 333
-           P++
-Sbjct: 398 PKL 400
-
-
 >C32B5.13 CE08521    (ST.LOUIS) TR:P91110 protein_id:AAB37968.1
           Length = 150
 
@@ -746,186 +490,6 @@ Sbjct: 65  KIKLWPTNMLLVGNLPETLLKLFIKEHGPGYFRMKAPPSFFNYKTGIYSPTQEECGKATD 124
 Query: 276 KVNHAVLAVGYGEQNGLLYWIVK 298
                ++  VGYG + G  YWIVK
 Sbjct: 125 A--RSLTIVGYGIEGGQNYWIVK 145
-
-
->W07B8.1 CE14674   thiol protease (ST.LOUIS) TR:O16289 protein_id:AAB65343.1
-          Length = 335
-
- Score = 63.5 bits (153), Expect = 2e-10
- Identities = 58/243 (23%), Positives = 96/243 (38%), Gaps = 47/243 (19%)
-
-Query: 127 VSPVKNQGACGSCWTFSTTGALESAVAIASG--KMMTLAEQQLVDCAQNFNN--HGCQGG 182
-           +  + +   C + W F+   ++   + I SG  K   L+ ++L+ C     +   GC+GG
-Sbjct: 92  IPQINDISECKTSWAFAAAESMSDRLCINSGGFKNTILSAEELLSCCTGMFSCGEGCEGG 151
-
-Query: 183 LPSQAFEYILYNKGIMGEDSY-----------PYIGKN----------------GQCKFN 215
-            P +A++YI    GI    SY           P  GK                   C+  
-Sbjct: 152 NPFKAWQYI-QKHGIPTGGSYESQFGCKPYSIPPCGKTVGNVTYPACTNTTSPTPSCEKK 210
-
-Query: 216 PEKAVAFVKNV---------VNITLNDEAAMVEAVALYNPVSFAFEVTEDFMMYKSGVYS 266
-               + +  ++         V+   N +  +   V L  P+   FEV +DF+ Y +G+Y 
-Sbjct: 211 CTSRIGYPIDIDKDRHYGVSVDQLPNSQIEIQSDVMLNGPIQATFEVYDDFLQYTTGIY- 269
-
-Query: 267 SNSCHKTPDKVNH-AVLAVGYGEQNGLLYWIVKXXXXXXXXXXXYFLIERGKNMCGLAA- 324
-               H T +K  H +V  +G+G   G+ YW+              F + RG N CGL + 
-Sbjct: 270 ---VHLTGNKQGHLSVRIIGWGVWQGVPYWLCANSWGRQWGENGTFRVLRGTNECGLESN 326
-
-Query: 325 CAS 327
-           C S
-Sbjct: 327 CVS 329
-
-
->F32B5.8 CE09855   cysteine proteinase (ST.LOUIS) TR:O01850
-           protein_id:AAB54210.1
-          Length = 427
-
- Score = 55.5 bits (132), Expect = 5e-08
- Identities = 52/205 (25%), Positives = 86/205 (41%), Gaps = 31/205 (15%)
-
-Query: 115 PSSMDWRKKG--NVVSPVKNQGA---CGSCWTFSTTGALESAVAIA---SGKMMTLAEQQ 166
-           P + DWR     N  S  +NQ     CGSCW F  T AL   + I    +     L+ Q+
-Sbjct: 187 PKTWDWRDANGINYASADRNQHIPQYCGSCWAFGATSALADRINIKRKNAWPQAYLSVQE 246
-
-Query: 167 LVDCAQNFNNHGCQGGLPSQAFEYILYNKGIMGEDSYPYIGKNGQC-KFN------PEKA 219
-           ++DC+         GG P   ++Y  +  GI  E    Y  ++G+C  +N      P + 
-Sbjct: 247 VIDCSG--AGTCVMGGEPGGVYKY-AHEHGIPHETCNNYQARDGKCDPYNRCGSCWPGEC 303
-
-Query: 220 VAFVKNVVNI------TLNDEAAMVEAVALYNPVSFAFEVTEDFMMYKSGVYSSNSCHKT 273
-            + +KN          T++    M   +    P++     T+ F  Y  G+Y       T
-Sbjct: 304 FS-IKNYTLYKVSEYGTVHGYEKMKAEIYHKGPIACGIAATKAFETYAGGIYK----EVT 358
-
-Query: 274 PDKVNHAVLAVGYG--EQNGLLYWI 296
-            + ++H +   G+G   ++G+ YWI
-Sbjct: 359 DEDIDHIISVHGWGVDHESGVEYWI 383
-
-
->Y65B4A.2 CE27300    (ST.LOUIS) protein_id:AAK29958.1
-          Length = 421
-
- Score = 44.3 bits (103), Expect = 1e-04
- Identities = 36/135 (26%), Positives = 58/135 (42%), Gaps = 9/135 (6%)
-
-Query: 69  RNHTFKMGLNQFSDMSFAEIKHKYLWSEPQNCSATKSNYLRGTGPYPSSMDWRKKGN--- 125
-           R++ FK   NQ +   + E   K+  S+       +      +   P + D R+K     
-Sbjct: 94  RSYGFKYTRNQTAVEEYVEQIRKFFESDAMKRHLDELENFNSSD-VPKNFDARQKWPNCP 152
-
-Query: 126 VVSPVKNQGACGSCWTFSTTGALESAVAIASGKMM--TLAEQQLVDCAQNFNNHGCQGGL 183
-            +S V NQG CGSC+  +  G       I S       L+E+ ++ C     N  C GG 
-Sbjct: 153 SISNVPNQGGCGSCFAVAAAGVASDRACIHSNGTFKSLLSEEDIIGCCSVCGN--CYGGD 210
-
-Query: 184 PSQAFEYILYNKGIM 198
-           P +A  Y + N+G++
-Sbjct: 211 PLKALTYWV-NQGLV 224
-
-
- Score = 41.2 bits (95), Expect = 9e-04
- Identities = 21/59 (35%), Positives = 32/59 (53%), Gaps = 3/59 (5%)
-
-Query: 241 VALYNPVSFAFEVTEDFMMYKSGVYSSNSCHKTPDKVN--HAVLAVGYGE-QNGLLYWI 296
-           + LY P + AF V E+F+ Y SGV+         D++   H V  +G+GE  +G  YW+
-Sbjct: 329 ILLYGPTTMAFPVPEEFLHYSSGVFRPYPTDGFDDRIVYWHVVRLIGWGESDDGTHYWL 387
-
-
->Y40H7A.9 CE21820   Cysteine protease (HINXTON) TR:Q9XW98
-           protein_id:CAA22068.1
-          Length = 239
-
- Score = 37.0 bits (84), Expect = 0.017
- Identities = 16/49 (32%), Positives = 24/49 (48%), Gaps = 4/49 (8%)
-
-Query: 274 PDKVNHAVLAVGYGEQNGLLYWIVKXXXXXXXXXXXYFLIERGKNMCGL 322
-           P +  HA++ +GYG      YWI+K           Y  ++RG N CG+
-Sbjct: 14  PTEPTHALIVIGYGPD----YWILKNTYSKVWGEKGYMRVKRGVNWCGI 58
-
-
->F32H5.1 CE09885   cathepsin B like cysteine protease (HINXTON) TR:P91991
-           protein_id:CAB04249.1
-          Length = 356
-
- Score = 33.1 bits (74), Expect = 0.24
- Identities = 49/227 (21%), Positives = 80/227 (34%), Gaps = 49/227 (21%)
-
-Query: 115 PSSMDWRKKG---NVVSPVKNQGACGSCWTFSTTGALESAVAIASGKMMT--LAEQQLVD 169
-           PSS D R+K    + +  V++Q  CGS               IAS       L+ Q  + 
-Sbjct: 93  PSSFDSRQKWPSCSQIGAVRDQSDCGSAAHLVAVEIASDRTCIASNGTFNWPLSAQDPLS 152
-
-Query: 170 CAQNF-----NNHGCQGGLPSQAFE---------------------YILY---NKGIMGE 200
-           C         +  GC G  P    +                     Y +Y    K   G 
-Sbjct: 153 CCVGLMSICGDGWGCDGSWPKDILKWWQTHGLCTGGNYNDQFGCKPYSIYPCDKKYANGT 212
-
-Query: 201 DSYPYIGKNG-----QCKFNPEKAVAFVKNV----VNITLNDEAAMVEAVALYN-PVSFA 250
-            S P  G +       C  N    +A+ ++      +  +  +   ++   + N PV  +
-Sbjct: 213 TSVPCPGYHTPTCEEHCTSNITWPIAYKQDKHFGKAHYNVGKKMTDIQIEIMTNGPVIAS 272
-
-Query: 251 FEVTEDFMMYKSGVYSSNSCHKTPDKVNHA-VLAVGYGEQNGLLYWI 296
-           F + +DF  YK+G+Y     H   D+        +G+G  NG+ YW+
-Sbjct: 273 FIIYDDFWDYKTGIY----VHTAGDQEGGMDTKIIGWGVDNGVPYWL 315
-
-
->C49C3.2 CE19741   serine\/threonine kinase (2 domains) (HINXTON) TR:Q9XUG0
-           protein_id:CAB05158.1
-          Length = 330
-
- Score = 31.2 bits (69), Expect = 0.93
- Identities = 21/63 (33%), Positives = 28/63 (44%), Gaps = 1/63 (1%)
-
-Query: 229 ITLNDEAAMVEAVALYNPVSFAFEVTEDFMMYKSGVYSSNSCHKTPDKVNHAVLAVGYGE 288
-           + L D    + A     P S  F V ED + Y   V +  SC +   K++HAVL    G 
-Sbjct: 19  LRLGDHEYKLSAPIATGPFSSVFLVEEDGVPYAMKVEAEKSCVRPVLKLDHAVL-TALGN 77
-
-Query: 289 QNG 291
-           Q G
-Sbjct: 78  QTG 80
-
-
->Y82E9BR.13 CE23388    (ST.LOUIS) protein_id:AAK26141.1
-          Length = 307
-
- Score = 29.6 bits (65), Expect = 2.7
- Identities = 19/59 (32%), Positives = 29/59 (48%), Gaps = 3/59 (5%)
-
-Query: 53  LQVFANNWRKIQAHNQRNHTFKMGLNQFSDMSFAEIKHKYLWSEPQNCSATKSNYLRGT 111
-           L +F  +  K+  HN RN+ FK   N+ +         K+  S  ++ SA +SN LR T
-Sbjct: 25  LHIFPKHQGKLVVHNHRNYKFKF-KNKLTTSPKMNFSSKF--SSEKSISAQQSNLLRRT 80
-
-
->R07D5.2 CE06280    (HINXTON) TR:Q21807 protein_id:CAA94606.1
-          Length = 391
-
- Score = 29.6 bits (65), Expect = 2.7
- Identities = 15/49 (30%), Positives = 24/49 (48%)
-
-Query: 48 EYSHRLQVFANNWRKIQAHNQRNHTFKMGLNQFSDMSFAEIKHKYLWSE 96
-          ++SH +  F  +WR  Q    +N    +G  Q SD+SF   K+   W +
-Sbjct: 20 QFSHYIPPFNESWRIYQLCTDQNDKIFLGNIQQSDISFYLEKYILCWPD 68
-
-
->R08E3.4 CE28754   C2H2-type zinc finger (ST.LOUIS) TR:Q21847
-           protein_id:AAC48197.2
-          Length = 361
-
- Score = 28.5 bits (62), Expect = 6.0
- Identities = 24/107 (22%), Positives = 42/107 (38%), Gaps = 14/107 (13%)
-
-Query: 18  GATAELTVNAIEKFHFTSWMKQHQKTYSSREYSHRLQVFANNWRKIQAHNQRNHTFKMGL 77
-           G   + TV+     +FT+ M QH K++      H+ Q++            +    KM  
-Sbjct: 95  GTKGQKTVHVCPHCNFTTCMSQHMKSHLEAHERHQGQMY------------QCDICKMQF 142
-
-Query: 78  NQFSDMSFAEIKHKYLWSEPQNCSATKSNYLRGTGPYPSSMDWRKKG 124
-           +Q ++M    ++H  +  +P  C   K  + R       SM   K G
-Sbjct: 143 SQKANMHRHRMRHSGV--KPYECRFCKKRFFRKDQMQEHSMTHIKTG 187
-
-
->K03B8.5 CE06079   zinc metalloprotease (HINXTON) TR:Q21181
-           protein_id:CAA98504.1
-          Length = 479
-
- Score = 28.5 bits (62), Expect = 6.0
- Identities = 16/52 (30%), Positives = 25/52 (47%)
-
-Query: 192 LYNKGIMGEDSYPYIGKNGQCKFNPEKAVAFVKNVVNITLNDEAAMVEAVAL 243
-           L  K   G  +Y Y  KN + K   E A+A++ N   I  N++   V+ V +
-Sbjct: 129 LGTKWSYGVVNYYYADKNNEIKEMVESAIAYIANHTCIRFNEDQNAVQRVQI 180
 
 
   Database: /data_2/jason/blastdb/wormpep62
@@ -947,11 +511,11 @@ Number of Hits to DB: 5933049
 Number of Sequences: 20085
 Number of extensions: 243404
 Number of successful extensions: 614
-Number of sequences better than 10.0: 35
-Number of HSP's better than 10.0 without gapping: 31
-Number of HSP's successfully gapped in prelim test: 4
-Number of HSP's that attempted gapping in prelim test: 509
-Number of HSP's gapped (non-prelim): 47
+Number of sequences better than 1.0e-10: 17
+Number of HSP's better than  0.0 without gapping: 1
+Number of HSP's successfully gapped in prelim test: 16
+Number of HSP's that attempted gapping in prelim test: 568
+Number of HSP's gapped (non-prelim): 17
 length of query: 333
 length of database: 8,813,425
 effective HSP length: 46
@@ -965,7 +529,7 @@ X1: 16 ( 7.4 bits)
 X2: 38 (14.6 bits)
 X3: 64 (24.7 bits)
 S1: 41 (21.8 bits)
-S2: 61 (28.1 bits)
+S2: 155 (64.3 bits)
 BLASTP 2.1.3 [Apr-11-2001]
 
 
@@ -990,36 +554,6 @@ F41E6.6 CE10254   cysteine protease and a protease inhibitor...   194  6e-50
 R09F10.1 CE28755   peptidase (ST.LOUIS) TR:Q23030 protein_id...   176  2e-44
 Y40H7A.10 CE21821   Cysteine protease (HINXTON) TR:Q9XWA4 pr...   133  1e-31
 R07E3.1 CE02295   cysteine proteinase (HINXTON) TR:Q21810 pr...   130  1e-30
-Y51A2D.8 CE19204   Cysteine proteases (2 domains) (HINXTON) ...   123  2e-28
-K02E7.10 CE11640   protease (ST.LOUIS) TR:O17255 protein_id:...   119  3e-27
-Y71H2AR.2 CE22930    (ST.LOUIS) protein_id:AAK29985.1             119  3e-27
-Y51A2D.1 CE18411   Cysteine proteases (2 domains) (HINXTON) ...   105  4e-23
-F26E4.3 CE17714   cysteine protease (HINXTON) TR:P90850 prot...   100  1e-21
-Y113G7B.15 CE23295    (HINXTON) TR:Q9U2X1 protein_id:CAB54334.1   100  2e-21
-F15D4.4 CE28917   cysteine protease (HINXTON) TR:Q93512 prot...    98  8e-21
-C50F4.3 CE05468   thiol protease (HINXTON) TR:Q18740 protein...    94  9e-20
-C32B5.7 CE08515   cathepsin-like peptidase (ST.LOUIS) TR:P91...    94  1e-19
-M04G12.2 CE12424   cysteine protease (HINXTON) TR:P92005 pro...    92  4e-19
-C52E4.1 CE08943  locus:cpr-1 cathepsin-like cysteine proteas...    89  5e-18
-F32B5.8 CE09855   cysteine proteinase (ST.LOUIS) TR:O01850 p...    88  6e-18
-F57F5.1 CE05999   cysteine protease (HINXTON) TR:Q20950 prot...    86  3e-17
-T10H4.12 CE27590  locus:cpr-3 protease (HINXTON) TR:Q9TW93 p...    77  1e-14
-F36D3.9 CE15973   cysteine protease (HINXTON) TR:O45466 prot...    77  1e-14
-C25B8.3 CE04078  locus:cpr-6  (ST.LOUIS) protein_id:AAK39189.1     77  1e-14
-W07B8.4 CE14680   thiol protease (ST.LOUIS) TR:O16288 protei...    76  3e-14
-F44C4.3 CE07251  locus:cpr-4 cathepsin B-like cysteine prote...    75  6e-14
-W07B8.5 CE14682  locus:cpr-5 thiol protease (ST.LOUIS) SW:P4...    72  5e-13
-Y71H2AM.3 CE26272    (ST.LOUIS) protein_id:AAK29976.1              69  5e-12
-W07B8.1 CE14674   thiol protease (ST.LOUIS) TR:O16289 protei...    64  2e-10
-C32B5.13 CE08521    (ST.LOUIS) TR:P91110 protein_id:AAB37968.1     55  5e-08
-Y65B4A.2 CE27300    (ST.LOUIS) protein_id:AAK29958.1               55  6e-08
-F32H5.1 CE09885   cathepsin B like cysteine protease (HINXTO...    39  0.003
-Y40H7A.9 CE21820   Cysteine protease (HINXTON) TR:Q9XW98 pro...    39  0.004
-C45G7.6 CE17552    (ST.LOUIS) TR:O76356 protein_id:AAC19184.1      30  2.1
-Y37E11AR.6 CE27606  locus:vab-2  (ST.LOUIS) protein_id:AAK68...    30  2.7
-F52B5.5 CE05720    (HINXTON) TR:Q20646 protein_id:CAA99857.1       29  3.5
-C31B8.2 CE08482    (ST.LOUIS) TR:O16904 protein_id:AAG23973.1      28  6.0
-F53A9.5 CE02765   G-protein coupled receptor (ST.LOUIS) TR:Q...    28  7.9
 
 >T03E6.7 CE16333   cathepsin-like protease (HINXTON) TR:O45734
            protein_id:CAB07275.1
@@ -1646,62 +1180,6 @@ Query: 320 NHCGIASAA 328
 Sbjct: 316 DECGIESAA 324
 
 
->F44C4.3 CE07251  locus:cpr-4 cathepsin B-like cysteine proteinase 4
-           precursor (ST.LOUIS) SW:P43508 protein_id:AAA92327.1
-          Length = 335
-
- Score = 75.1 bits (183), Expect = 6e-14
- Identities = 63/245 (25%), Positives = 98/245 (39%), Gaps = 45/245 (18%)
-
-Query: 120 WREKGYVTPVKNQGQCGSCWAFSATGALEGQMFRKTGRLIS--LSEQNLVDCSGPQGNEG 177
-           W     +  +++Q  CGSCWAF+A  A   +    +   ++  LS ++++ C    G  G
-Sbjct: 91  WPNCMSINNIRDQSDCGSCWAFAAAEAASDRFCIASNGAVNTLLSAEDVLSCCSNCGY-G 149
-
-Query: 178 CNGGLMDYAFQYVQDNG---GLDSEESY---PYE----------ATEESC---------- 211
-           C GG    A++Y+  +G   G   E  +   PY            T  SC          
-Sbjct: 150 CEGGYPINAWKYLVKSGFCTGGSYEAQFGCKPYSLAPCGETVGNVTWPSCPDDGYDTPAC 209
-
-Query: 212 -------KYNPKYSVANDTGFVD--IPKQEKALMKAVATVGPISVAIDAGHESFLFYKEG 262
-                   YN  Y+     G     + K+   +   +   GP+  A    +E F  YK G
-Sbjct: 210 VNKCTNKNYNVAYTADKHFGSTAYAVGKKVSQIQAEIIAHGPVEAAFTV-YEDFYQYKTG 268
-
-Query: 263 IYFEPDCSSEDMDHGVLVVGYGFESTESDNNKYWLVKNSWGEEWGMGGYVKMAKDRRNHC 322
-           +Y       E   H + ++G+G ++       YWLV NSW   WG  GY ++ +   N C
-Sbjct: 269 VYVHTT-GQELGGHAIRILGWGTDN----GTPYWLVANSWNVNWGENGYFRIIRG-TNEC 322
-
-Query: 323 GIASA 327
-           GI  A
-Sbjct: 323 GIEHA 327
-
-
->W07B8.5 CE14682  locus:cpr-5 thiol protease (ST.LOUIS) SW:P43509
-           protein_id:AAB65346.1
-          Length = 344
-
- Score = 72.0 bits (175), Expect = 5e-13
- Identities = 62/251 (24%), Positives = 102/251 (39%), Gaps = 51/251 (20%)
-
-Query: 120 WREKGYVTPVKNQGQCGSCWAFSATGALEGQMFRKTGRLIS--LSEQNLVDCSGPQ---G 174
-           W     +  +++Q  CGSCWAF+A  A+  +    +   ++  LS ++L+ C       G
-Sbjct: 92  WPNCMSINNIRDQSDCGSCWAFAAAEAISDRTCIASNGAVNTLLSSEDLLSCCTGMFSCG 151
-
-Query: 175 NEGCNGGLMDYAFQYVQDNGGLDS------------------------------EESYPY 204
-           N GC GG    A+++   +G +                                E++ P 
-Sbjct: 152 N-GCEGGYPIQAWKWWVKHGLVTGGSYETQFGCKPYSIAPCGETVNGVKWPACPEDTEPT 210
-
-Query: 205 EATEESCKYNPKYSVA-------NDTGFVDIPKQEKALMKAVATVGPISVAIDAGHESFL 257
-               +SC     Y+           T +  + K+ + +   + T GPI VA    +E F 
-Sbjct: 211 PKCVDSCTSKNNYATPYLQDKHFGSTAYA-VGKKVEQIQTEILTNGPIEVAFTV-YEDFY 268
-
-Query: 258 FYKEGIYFEPDCSSEDMDHGVLVVGYGFESTESDNNKYWLVKNSWGEEWGMGGYVKMAKD 317
-            Y  G+Y     +S    H V ++G+G ++       YWLV NSW   WG  GY ++ + 
-Sbjct: 269 QYTTGVYVHTAGASLG-GHAVKILGWGVDN----GTPYWLVANSWNVAWGEKGYFRIIRG 323
-
-Query: 318 RRNHCGIASAA 328
-             N CGI  +A
-Sbjct: 324 -LNECGIEHSA 333
-
-
 >Y71H2AM.3 CE26272    (ST.LOUIS) protein_id:AAK29976.1
           Length = 716
 
@@ -1719,179 +1197,6 @@ Sbjct: 145 GCEEQPAINAVSYFIFH-GIETEADYPYAGKENG-------KLSNET-------QGKEL- 188
 Query: 237 KAVATVGPISVAIDAGHESFLFYKEGIYFE--PDCSSEDMDHGVLVVG 282
              V   GP    + A   S   YK GIY     +C+S      +++VG
 Sbjct: 189 --VTNYGPAFFTMRA-PPSLYDYKIGIYNPSIEECTSTHEIRSMVIVG 233
-
-
->W07B8.1 CE14674   thiol protease (ST.LOUIS) TR:O16289 protein_id:AAB65343.1
-          Length = 335
-
- Score = 63.5 bits (153), Expect = 2e-10
- Identities = 59/248 (23%), Positives = 95/248 (37%), Gaps = 49/248 (19%)
-
-Query: 120 WREKGYVTPVKNQGQCGSCWAFSATGALEGQMFRKTG---RLISLSEQNLVDCSGPQG-N 175
-           W E   +  + +  +C + WAF+A  ++  ++   +G     I  +E+ L  C+G     
-Sbjct: 86  WPECMSIPQINDISECKTSWAFAAAESMSDRLCINSGGFKNTILSAEELLSCCTGMFSCG 145
-
-Query: 176 EGCNGGLMDYAFQYVQDNG---GLDSEESY---------------------------PYE 205
-           EGC GG    A+QY+Q +G   G   E  +                           P  
-Sbjct: 146 EGCEGGNPFKAWQYIQKHGIPTGGSYESQFGCKPYSIPPCGKTVGNVTYPACTNTTSPTP 205
-
-Query: 206 ATEESCKYNPKYSVAND------TGFVDIPKQEKALMKAVATVGPISVAIDAGHESFLFY 259
-           + E+ C     Y +  D           +P  +  +   V   GPI    +  ++ FL Y
-Sbjct: 206 SCEKKCTSRIGYPIDIDKDRHYGVSVDQLPNSQIEIQSDVMLNGPIQATFEV-YDDFLQY 264
-
-Query: 260 KEGIYFEPDCSSEDMDH-GVLVVGYGFESTESDNNKYWLVKNSWGEEWGMGGYVKMAKDR 318
-             GIY     +     H  V ++G+G          YWL  NSWG +WG  G  ++ +  
-Sbjct: 265 TTGIYVH--LTGNKQGHLSVRIIGWGVWQ----GVPYWLCANSWGRQWGENGTFRVLRG- 317
-
-Query: 319 RNHCGIAS 326
-            N CG+ S
-Sbjct: 318 TNECGLES 325
-
-
->C32B5.13 CE08521    (ST.LOUIS) TR:P91110 protein_id:AAB37968.1
-          Length = 150
-
- Score = 55.5 bits (132), Expect = 5e-08
- Identities = 43/150 (28%), Positives = 71/150 (46%), Gaps = 14/150 (9%)
-
-Query: 158 LISLSEQNLVDCSGPQGNEGCNGGLMDYAFQYVQDNGGLDSEESYPYEATE-ESCKYNPK 216
-           ++S SEQ ++DC        C   ++ +  ++++ N G+ +E  YPY   E E CKY+  
-Sbjct: 10  VLSFSEQQIIDCG--NFTSPCQENILSH--EFIKKN-GVVTEADYPYVGKENEKCKYDEN 64
-
-Query: 217 YSVANDTGFVDIPKQEKALMKA-VATVGPISVAIDAGHESFLFYKEGIY--FEPDCSSED 273
-                 T  + +    + L+K  +   GP    + A   SF  YK GIY   + +C    
-Sbjct: 65  KIKLWPTNMLLVGNLPETLLKLFIKEHGPGYFRMKA-PPSFFNYKTGIYSPTQEECGKAT 123
-
-Query: 274 MDHGVLVVGYGFESTESDNNKYWLVKNSWG 303
-               + +VGYG E  ++    YW+VK S+G
-Sbjct: 124 DARSLTIVGYGIEGGQN----YWIVKGSFG 149
-
-
->Y65B4A.2 CE27300    (ST.LOUIS) protein_id:AAK29958.1
-          Length = 421
-
- Score = 55.1 bits (131), Expect = 6e-08
- Identities = 73/284 (25%), Positives = 102/284 (35%), Gaps = 78/284 (27%)
-
-Query: 113 EAPRSVDWREKGYVTP----VKNQGQCGSCWAFSATG-ALEGQMFRKTGRLISL-SEQNL 166
-           + P++ D R+K    P    V NQG CGSC+A +A G A +       G   SL SE+++
-Sbjct: 137 DVPKNFDARQKWPNCPSISNVPNQGGCGSCFAVAAAGVASDRACIHSNGTFKSLLSEEDI 196
-
-Query: 167 VDCSGPQGNEGCNGGLMDYAFQYVQDNG----GLDSEESYPY--------------EATE 208
-           + C    GN  C GG    A  Y  + G    G D    Y +              EA E
-Sbjct: 197 IGCCSVCGN--CYGGDPLKALTYWVNQGLVTGGRDGCRPYSFDLSCGVPCSPATFFEAEE 254
-
-Query: 209 --------ESCKYNPKYS----------------------------VANDTGFVDIPKQE 232
-                   ++  Y  KY                             V    G  +  K E
-Sbjct: 255 KRTCMKRCQNIYYQQKYEEDKHFATFAYSMYPRSMTVSPDGKERVKVPTIIGHFNDKKTE 314
-
-Query: 233 KA--------LMKAVATVGPISVAIDAGHESFLFYKEGIYFE-PDCSSEDMD---HGVLV 280
-           K         + K +   GP ++A     E FL Y  G++   P    +D     H V +
-Sbjct: 315 KLNVTEYRDIIKKEILLYGPTTMAFPVPEE-FLHYSSGVFRPYPTDGFDDRIVYWHVVRL 373
-
-Query: 281 VGYGFESTESDNNKYWLVKNSWGEEWGMGGYVKMAKDRRNHCGI 324
-           +G+G      D   YWL  NS+G  WG  G  K+  D     G+
-Sbjct: 374 IGWG---ESDDGTHYWLAVNSFGNHWGDNGLFKINTDDMEKYGL 414
-
-
->F32H5.1 CE09885   cathepsin B like cysteine protease (HINXTON) TR:P91991
-           protein_id:CAB04249.1
-          Length = 356
-
- Score = 39.3 bits (90), Expect = 0.003
- Identities = 31/123 (25%), Positives = 57/123 (46%), Gaps = 16/123 (13%)
-
-Query: 202 YPYEATEESCKYNPKYSVA--NDTGF----VDIPKQEKALMKAVATVGPISVAIDAGHES 255
-           Y     EE C  N  + +A   D  F     ++ K+   +   + T GP+ +A    ++ 
-Sbjct: 220 YHTPTCEEHCTSNITWPIAYKQDKHFGKAHYNVGKKMTDIQIEIMTNGPV-IASFIIYDD 278
-
-Query: 256 FLFYKEGIYFEPDCSSEDMDHGV--LVVGYGFESTESDNNKYWLVKNSWGEEWGMGGYVK 313
-           F  YK GIY     ++ D + G+   ++G+G ++       YWL  + WG ++G  G+V+
-Sbjct: 279 FWDYKTGIYVH---TAGDQEGGMDTKIIGWGVDN----GVPYWLCVHQWGTDFGENGFVR 331
-
-Query: 314 MAK 316
-             +
-Sbjct: 332 FLR 334
-
-
->Y40H7A.9 CE21820   Cysteine protease (HINXTON) TR:Q9XW98
-           protein_id:CAA22068.1
-          Length = 239
-
- Score = 38.9 bits (89), Expect = 0.004
- Identities = 18/49 (36%), Positives = 30/49 (60%), Gaps = 9/49 (18%)
-
-Query: 276 HGVLVVGYGFESTESDNNKYWLVKNSWGEEWGMGGYVKMAKDRRNHCGI 324
-           H ++V+GYG +        YW++KN++ + WG  GY+++ K   N CGI
-Sbjct: 19  HALIVIGYGPD--------YWILKNTYSKVWGEKGYMRV-KRGVNWCGI 58
-
-
->C45G7.6 CE17552    (ST.LOUIS) TR:O76356 protein_id:AAC19184.1
-          Length = 1329
-
- Score = 30.0 bits (66), Expect = 2.1
- Identities = 23/83 (27%), Positives = 33/83 (39%), Gaps = 4/83 (4%)
-
-Query: 181  GLMDYAFQYVQDNGGLDSEESYPYEATEESCKYNPKYSVANDTGFVDIPKQEKALMKAVA 240
-            GLM  AF +    G L  ++   YE  +E+ K       + + GF    K E  LM  V 
-Sbjct: 950  GLMSDAFDFNGTTGELKIKQRIDYETLDEAQKTFNLTLSSGENGF----KSEAILMVQVT 1005
-
-Query: 241  TVGPISVAIDAGHESFLFYKEGI 263
-             V   S  +D G    +   E +
-Sbjct: 1006 DVDDNSPVVDVGDAEMISLPENL 1028
-
-
->Y37E11AR.6 CE27606  locus:vab-2  (ST.LOUIS) protein_id:AAK68436.1
-          Length = 279
-
- Score = 29.6 bits (65), Expect = 2.7
- Identities = 19/71 (26%), Positives = 30/71 (41%)
-
-Query: 180 GGLMDYAFQYVQDNGGLDSEESYPYEATEESCKYNPKYSVANDTGFVDIPKQEKALMKAV 239
-           G  +D    +  +N    +E+S  Y  TEE  +   + S A + G    P QE+ L  A 
-Sbjct: 44  GDTLDIVCPFFDENSDELTEQSIIYRVTEEEYENCERRSKAKELGRCTQPYQEEKLKVAF 103
-
-Query: 240 ATVGPISVAID 250
-             + P    +D
-Sbjct: 104 RLMSPNPSGLD 114
-
-
->F52B5.5 CE05720    (HINXTON) TR:Q20646 protein_id:CAA99857.1
-          Length = 429
-
- Score = 29.3 bits (64), Expect = 3.5
- Identities = 16/42 (38%), Positives = 21/42 (49%)
-
-Query: 248 AIDAGHESFLFYKEGIYFEPDCSSEDMDHGVLVVGYGFESTE 289
-           AI AGH+S LF   GIY   D   E   H  +    G +S++
-Sbjct: 366 AIKAGHDSVLFNANGIYTMGDMIREFEKHNDIFERIGIDSSK 407
-
-
->C31B8.2 CE08482    (ST.LOUIS) TR:O16904 protein_id:AAG23973.1
-          Length = 280
-
- Score = 28.5 bits (62), Expect = 6.0
- Identities = 20/71 (28%), Positives = 28/71 (39%), Gaps = 6/71 (8%)
-
-Query: 67  REGKHSFTMAMNAFGDMTSEEFRQVMNGFQNRKPRKGKVFQEPLFYEAPRSVDWREKGYV 126
-           R G   + M M  FG   ++    +++  Q RKP  G  F     Y    ++DW      
-Sbjct: 168 RRGNDIWCMGMTVFGMCLNQSHADMISQLQTRKPIAGFEFNYLDTYAPNPTLDW------ 221
-
-Query: 127 TPVKNQGQCGS 137
-            P K  G  GS
-Sbjct: 222 LPNKPDGIIGS 232
-
-
->F53A9.5 CE02765   G-protein coupled receptor (ST.LOUIS) TR:Q20686
-           protein_id:AAC46560.1
-          Length = 154
-
- Score = 28.1 bits (61), Expect = 7.9
- Identities = 9/20 (45%), Positives = 11/20 (55%)
-
-Query: 120 WREKGYVTPVKNQGQCGSCW 139
-           WR   +  P+ N  QCGS W
-Sbjct: 62  WRSTPWTLPISNIAQCGSVW 81
 
 
   Database: /data_2/jason/blastdb/wormpep62
@@ -1913,11 +1218,11 @@ Number of Hits to DB: 6230268
 Number of Sequences: 20085
 Number of extensions: 270881
 Number of successful extensions: 651
-Number of sequences better than 10.0: 35
-Number of HSP's better than 10.0 without gapping: 32
-Number of HSP's successfully gapped in prelim test: 3
-Number of HSP's that attempted gapping in prelim test: 549
-Number of HSP's gapped (non-prelim): 46
+Number of sequences better than 1.0e-10: 23
+Number of HSP's better than  0.0 without gapping: 4
+Number of HSP's successfully gapped in prelim test: 19
+Number of HSP's that attempted gapping in prelim test: 588
+Number of HSP's gapped (non-prelim): 27
 length of query: 333
 length of database: 8,813,425
 effective HSP length: 45
@@ -1931,7 +1236,7 @@ X1: 16 ( 7.3 bits)
 X2: 38 (14.6 bits)
 X3: 64 (24.7 bits)
 S1: 41 (21.6 bits)
-S2: 61 (28.1 bits)
+S2: 155 (64.3 bits)
 BLASTP 2.1.3 [Apr-11-2001]
 
 
@@ -1956,35 +1261,6 @@ F41E6.6 CE10254   cysteine protease and a protease inhibitor...   203  1e-52
 R09F10.1 CE28755   peptidase (ST.LOUIS) TR:Q23030 protein_id...   192  2e-49
 R07E3.1 CE02295   cysteine proteinase (HINXTON) TR:Q21810 pr...   139  2e-33
 Y40H7A.10 CE21821   Cysteine protease (HINXTON) TR:Q9XWA4 pr...   131  5e-31
-K02E7.10 CE11640   protease (ST.LOUIS) TR:O17255 protein_id:...   128  6e-30
-Y71H2AR.2 CE22930    (ST.LOUIS) protein_id:AAK29985.1             120  1e-27
-Y51A2D.8 CE19204   Cysteine proteases (2 domains) (HINXTON) ...   108  4e-24
-Y113G7B.15 CE23295    (HINXTON) TR:Q9U2X1 protein_id:CAB54334.1    99  3e-21
-C50F4.3 CE05468   thiol protease (HINXTON) TR:Q18740 protein...    98  6e-21
-F26E4.3 CE17714   cysteine protease (HINXTON) TR:P90850 prot...    98  8e-21
-F15D4.4 CE28917   cysteine protease (HINXTON) TR:Q93512 prot...    97  2e-20
-C32B5.7 CE08515   cathepsin-like peptidase (ST.LOUIS) TR:P91...    90  2e-18
-Y51A2D.1 CE18411   Cysteine proteases (2 domains) (HINXTON) ...    88  8e-18
-C52E4.1 CE08943  locus:cpr-1 cathepsin-like cysteine proteas...    87  1e-17
-F32B5.8 CE09855   cysteine proteinase (ST.LOUIS) TR:O01850 p...    86  3e-17
-M04G12.2 CE12424   cysteine protease (HINXTON) TR:P92005 pro...    83  2e-16
-F57F5.1 CE05999   cysteine protease (HINXTON) TR:Q20950 prot...    80  2e-15
-Y71H2AM.3 CE26272    (ST.LOUIS) protein_id:AAK29976.1              75  4e-14
-T10H4.12 CE27590  locus:cpr-3 protease (HINXTON) TR:Q9TW93 p...    75  7e-14
-C25B8.3 CE04078  locus:cpr-6  (ST.LOUIS) protein_id:AAK39189.1     73  3e-13
-F44C4.3 CE07251  locus:cpr-4 cathepsin B-like cysteine prote...    72  6e-13
-F36D3.9 CE15973   cysteine protease (HINXTON) TR:O45466 prot...    72  6e-13
-W07B8.5 CE14682  locus:cpr-5 thiol protease (ST.LOUIS) SW:P4...    71  8e-13
-W07B8.4 CE14680   thiol protease (ST.LOUIS) TR:O16288 protei...    68  9e-12
-W07B8.1 CE14674   thiol protease (ST.LOUIS) TR:O16289 protei...    67  2e-11
-C32B5.13 CE08521    (ST.LOUIS) TR:P91110 protein_id:AAB37968.1     57  2e-08
-Y65B4A.2 CE27300    (ST.LOUIS) protein_id:AAK29958.1               52  7e-07
-Y40H7A.9 CE21820   Cysteine protease (HINXTON) TR:Q9XW98 pro...    42  4e-04
-F32H5.1 CE09885   cathepsin B like cysteine protease (HINXTO...    34  0.11
-T10B9.3 CE01657   cytochrome P450 (HINXTON) SW:Q27515 protei...    30  2.7
-Y77E11A.10 CE25611    (ST.LOUIS) TR:Q9N4B2 protein_id:AAF360...    28  6.1
-ZK1248.10 CE02894    (ST.LOUIS) TR:Q23419 protein_id:AAC71091.1    28  8.0
-F47C12.2 CE10672    (ST.LOUIS) TR:Q20531 protein_id:AAC24389.1     28  8.0
 
 >T03E6.7 CE16333   cathepsin-like protease (HINXTON) TR:O45734
            protein_id:CAB07275.1
@@ -2457,34 +1733,6 @@ Query: 271 SKDLDHGVLVVGYGYEGTDSNKDKYWLVKNSWGKEWGMDGYIKIAKDR 318
 Sbjct: 394 DLESNHIISLTGWG---VDENGVEYWIARNSWGEAWGELGWFRVVTSK 438
 
 
->F57F5.1 CE05999   cysteine protease (HINXTON) TR:Q20950
-           protein_id:CAB00098.1
-          Length = 400
-
- Score = 80.1 bits (196), Expect = 2e-15
- Identities = 59/241 (24%), Positives = 105/241 (43%), Gaps = 43/241 (17%)
-
-Query: 120 WREKGCVTPVKNQGQCGSCWAFSASGCLEGQMFLKTGK--LISLSEQNLVDCSHDQGNQG 177
-           W     ++ +++Q  CGSCWA SA+  +  ++ + +    ++S+S  ++  C       G
-Sbjct: 156 WPNCPSISKIRDQSSCGSCWAVSAAETISDRICIASNAKTILSISADDINACCGMVCGNG 215
-
-Query: 178 CNGGLMDFAFQ-YIKEN---GGLDSEES--------------------------YPYEAK 207
-           CNGG    A++ Y+K+    GG   +++                          YP +  
-Sbjct: 216 CNGGYPIEAWRHYVKKGYVTGGSYQDKTGCKPYPYPPCEHHVNGTHYKPCPSNMYPTDKC 275
-
-Query: 208 DGSCKYRAEYAVANDTGFVD----IPQQEKALMKAVATVGPISVAMDASHPSLQFYSSGI 263
-           + SC+         D  F      + ++   + K + T GP+ VA    +   + YS G+
-Sbjct: 276 ERSCQAGYALTYQQDLHFGQSAYAVSKKAAEIQKEIMTHGPVEVAFTV-YEDFEHYSGGV 334
-
-Query: 264 YYEPNCSSKDLDHGVLVVGYGYEGTDSNKDKYWLVKNSWGKEWGMDGYIKIAKDRNNHCG 323
-           Y     +S    H V ++G+G +    N   YWL  NSW ++WG +GY +I +   N CG
-Sbjct: 335 YVHTAGASLG-GHAVKMLGWGVD----NGTPYWLCANSWNEDWGENGYFRIIRG-VNECG 388
-
-Query: 324 L 324
-           +
-Sbjct: 389 I 389
-
-
 >Y71H2AM.3 CE26272    (ST.LOUIS) protein_id:AAK29976.1
           Length = 716
 
@@ -2532,61 +1780,6 @@ Query: 310 GYIKIAKDRN 319
 Sbjct: 314 GFFKIRRGTN 323
 
 
->C25B8.3 CE04078  locus:cpr-6  (ST.LOUIS) protein_id:AAK39189.1
-          Length = 379
-
- Score = 72.8 bits (177), Expect = 3e-13
- Identities = 70/289 (24%), Positives = 116/289 (39%), Gaps = 61/289 (21%)
-
-Query: 80  FGDMTNEEFRQIVNGYRHQKHKKGRLFQEPLMLQIPKTVD----WREKGCVTPVKNQGQC 135
-           +G M     R  V G +H    K       L L IP++ D    W +   +  +++Q  C
-Sbjct: 77  WGLMGVNHVRLSVKGKQHLSKTKD------LDLDIPESFDSRDNWPKCDSIKVIRDQSSC 130
-
-Query: 136 GSCWAFSASGCLEGQMFLKT-GKL-ISLSEQNLVDCSHDQGNQGCNGGLMDFAFQYIKEN 193
-           GSCWAF A   +  ++ + + G+L ++LS  +L+ C    G  GCNGG    A++Y  ++
-Sbjct: 131 GSCWAFGAVEAMSDRICIASHGELQVTLSADDLLSCCKSCG-FGCNGGDPLAAWRYWVKD 189
-
-Query: 194 GGLDSEESYPYEAKDGSCKY-------------------------RAEYAVAND------ 222
-           G +       Y A +G   Y                         + E    +D      
-Sbjct: 190 GIVTGSN---YTANNGCKPYPFPPCEHHSKKTHFDPCPHDLYPTPKCEKKCVSDYTDKTY 246
-
-Query: 223 -------TGFVDIPQQEKALMKAVATVGPISVAMDASHPSLQFYSSGIYYEPNCSSKDLD 275
-                       +    +A+ K + T GP+ +A +     L  Y  G+Y           
-Sbjct: 247 SEDKFFGASAYGVKDDVEAIQKELMTHGPLEIAFEVYEDFLN-YDGGVYVHTG-GKLGGG 304
-
-Query: 276 HGVLVVGYGYEGTDSNKDKYWLVKNSWGKEWGMDGYIKIAKDRNNHCGL 324
-           H V ++G+G +    +   YW V NSW  +WG DG+ +I +   + CG+
-Sbjct: 305 HAVKLIGWGID----DGIPYWTVANSWNTDWGEDGFFRILRG-VDECGI 348
-
-
->F44C4.3 CE07251  locus:cpr-4 cathepsin B-like cysteine proteinase 4
-           precursor (ST.LOUIS) SW:P43508 protein_id:AAA92327.1
-          Length = 335
-
- Score = 71.6 bits (174), Expect = 6e-13
- Identities = 63/259 (24%), Positives = 104/259 (39%), Gaps = 57/259 (22%)
-
-Query: 114 IPKTVD----WREKGCVTPVKNQGQCGSCWAFSASGCLEGQMFLKTGKLIS--LSEQNLV 167
-           IP T D    W     +  +++Q  CGSCWAF+A+     +  + +   ++  LS ++++
-Sbjct: 81  IPATFDARTQWPNCMSINNIRDQSDCGSCWAFAAAEAASDRFCIASNGAVNTLLSAEDVL 140
-
-Query: 168 DCSHDQGNQGCNGGLMDFAFQYIKENGGLDSEESYPYEAKDG------------------ 209
-            C  + G  GC GG    A++Y+ ++G         YEA+ G                  
-Sbjct: 141 SCCSNCG-YGCEGGYPINAWKYLVKSGFCTGGS---YEAQFGCKPYSLAPCGETVGNVTW 196
-
-Query: 210 -SC-----------------KYRAEYAVANDTGFVDIPQQEKA--LMKAVATVGPISVAM 249
-            SC                  Y   Y      G       +K   +   +   GP+  A 
-Sbjct: 197 PSCPDDGYDTPACVNKCTNKNYNVAYTADKHFGSTAYAVGKKVSQIQAEIIAHGPVEAAF 256
-
-Query: 250 DASHPSLQFYSSGIYYEPNCSSKDLD-HGVLVVGYGYEGTDSNKDKYWLVKNSWGKEWGM 308
-                  Q Y +G+Y   + + ++L  H + ++G+G +    N   YWLV NSW   WG 
-Sbjct: 257 TVYEDFYQ-YKTGVYV--HTTGQELGGHAIRILGWGTD----NGTPYWLVANSWNVNWGE 309
-
-Query: 309 DGYIKIAKDRNNHCGLATA 327
-           +GY +I +   N CG+  A
-Sbjct: 310 NGYFRIIRG-TNECGIEHA 327
-
-
 >F36D3.9 CE15973   cysteine protease (HINXTON) TR:O45466
            protein_id:CAB04322.1
           Length = 345
@@ -2611,222 +1804,6 @@ Query: 271 SKDLDHGVLVVGYGYE-GTDSNKDKYWLVKNSWGKEWGMDGYIKIAKDRNNHCGL 324
 Sbjct: 288 SKG-GHAVKLIGWGTERGTP-----YWLAVNSWGSQWGESGTFRILRG-VDECGI 335
 
 
->W07B8.5 CE14682  locus:cpr-5 thiol protease (ST.LOUIS) SW:P43509
-           protein_id:AAB65346.1
-          Length = 344
-
- Score = 71.2 bits (173), Expect = 8e-13
- Identities = 61/251 (24%), Positives = 104/251 (41%), Gaps = 51/251 (20%)
-
-Query: 120 WREKGCVTPVKNQGQCGSCWAFSASGCLEGQMFLKTGKLIS--LSEQNLVDCSHDQ---G 174
-           W     +  +++Q  CGSCWAF+A+  +  +  + +   ++  LS ++L+ C       G
-Sbjct: 92  WPNCMSINNIRDQSDCGSCWAFAAAEAISDRTCIASNGAVNTLLSSEDLLSCCTGMFSCG 151
-
-Query: 175 NQGCNGGLMDFAFQYIKENGGLDS------------------------------EESYPY 204
-           N GC GG    A+++  ++G +                                E++ P 
-Sbjct: 152 N-GCEGGYPIQAWKWWVKHGLVTGGSYETQFGCKPYSIAPCGETVNGVKWPACPEDTEPT 210
-
-Query: 205 EAKDGSCKYRAEYAVA-------NDTGFVDIPQQEKALMKAVATVGPISVAMDASHPSLQ 257
-                SC  +  YA           T +  + ++ + +   + T GPI VA        Q
-Sbjct: 211 PKCVDSCTSKNNYATPYLQDKHFGSTAYA-VGKKVEQIQTEILTNGPIEVAFTVYEDFYQ 269
-
-Query: 258 FYSSGIYYEPNCSSKDLDHGVLVVGYGYEGTDSNKDKYWLVKNSWGKEWGMDGYIKIAKD 317
-            Y++G+Y     +S    H V ++G+G +    N   YWLV NSW   WG  GY +I + 
-Sbjct: 270 -YTTGVYVHTAGASLG-GHAVKILGWGVD----NGTPYWLVANSWNVAWGEKGYFRIIRG 323
-
-Query: 318 RNNHCGLATAA 328
-             N CG+  +A
-Sbjct: 324 L-NECGIEHSA 333
-
-
->W07B8.4 CE14680   thiol protease (ST.LOUIS) TR:O16288 protein_id:AAB65345.1
-          Length = 335
-
- Score = 67.8 bits (164), Expect = 9e-12
- Identities = 66/260 (25%), Positives = 106/260 (40%), Gaps = 53/260 (20%)
-
-Query: 114 IPKTVD----WREKGCVTPVKNQGQCGSCWAFSASGCLEGQMFLKTGKLIS--LSEQNLV 167
-           IP + D    W +   V  +++Q  CGSCWA +A+  +  +  + +   ++  LS ++++
-Sbjct: 73  IPDSYDVRDHWPQCISVNNIRDQSHCGSCWAVAAAEAISDRTCIASNGDVNTLLSAEDIL 132
-
-Query: 168 DCSHDQGN--QGCNGGLMDFAFQYIKENG---GLDSEESY---PY------EAKDG---- 209
-            C   + N   GC GG    A++Y  +NG   G   E  Y   PY      E  DG    
-Sbjct: 133 TCCTGKFNCGDGCEGGYPIQAWRYWVKNGLVTGGSFESQYGCKPYSIAPCGETIDGVTWP 192
-
-Query: 210 --------------SCKYRAEYAVAND------TGFVDIPQQEKALMKAVATVGPISVAM 249
-                          C     Y +  D           I +  K +   +   GP+ V  
-Sbjct: 193 ECPMKISDTPKCEHHCTGNNSYPIPYDQDKHFGASAYAIGRSAKQIQTEILAHGPVEVGF 252
-
-Query: 250 DASHPSLQFYSSGIYYEPNCSSKDLD-HGVLVVGYGYEGTDSNKDKYWLVKNSWGKEWGM 308
-              +     Y +GIY   + +  +L  H V ++G+G +    N   YWL  NSW   WG 
-Sbjct: 253 IV-YEDFYLYKTGIY--THVAGGELGGHAVKMLGWGVD----NGTPYWLAANSWNTVWGE 305
-
-Query: 309 DGYIKIAKDRNNHCGLATAA 328
-            GY +I +   + CG+ +AA
-Sbjct: 306 KGYFRILRG-VDECGIESAA 324
-
-
->W07B8.1 CE14674   thiol protease (ST.LOUIS) TR:O16289 protein_id:AAB65343.1
-          Length = 335
-
- Score = 67.0 bits (162), Expect = 2e-11
- Identities = 59/246 (23%), Positives = 101/246 (40%), Gaps = 49/246 (19%)
-
-Query: 120 WREKGCVTPVKNQGQCGSCWAFSASGCLEGQMFLKTG--KLISLSEQNLVDCSHDQGN-- 175
-           W E   +  + +  +C + WAF+A+  +  ++ + +G  K   LS + L+ C     +  
-Sbjct: 86  WPECMSIPQINDISECKTSWAFAAAESMSDRLCINSGGFKNTILSAEELLSCCTGMFSCG 145
-
-Query: 176 QGCNGGLMDFAFQYIKENG---GLDSEESY---------------------------PYE 205
-           +GC GG    A+QYI+++G   G   E  +                           P  
-Sbjct: 146 EGCEGGNPFKAWQYIQKHGIPTGGSYESQFGCKPYSIPPCGKTVGNVTYPACTNTTSPTP 205
-
-Query: 206 AKDGSCKYRAEYAVAND------TGFVDIPQQEKALMKAVATVGPISVAMDASHPSLQFY 259
-           + +  C  R  Y +  D           +P  +  +   V   GPI    +     LQ Y
-Sbjct: 206 SCEKKCTSRIGYPIDIDKDRHYGVSVDQLPNSQIEIQSDVMLNGPIQATFEVYDDFLQ-Y 264
-
-Query: 260 SSGIYYEPNCSSKDLDHGVLVVGYG-YEGTDSNKDKYWLVKNSWGKEWGMDGYIKIAKDR 318
-           ++GIY      +K     V ++G+G ++G       YWL  NSWG++WG +G  ++ +  
-Sbjct: 265 TTGIYVHLT-GNKQGHLSVRIIGWGVWQGVP-----YWLCANSWGRQWGENGTFRVLRG- 317
-
-Query: 319 NNHCGL 324
-            N CGL
-Sbjct: 318 TNECGL 323
-
-
->C32B5.13 CE08521    (ST.LOUIS) TR:P91110 protein_id:AAB37968.1
-          Length = 150
-
- Score = 56.6 bits (135), Expect = 2e-08
- Identities = 45/150 (30%), Positives = 71/150 (47%), Gaps = 14/150 (9%)
-
-Query: 158 LISLSEQNLVDCSHDQGNQGCNGGLMDFAFQYIKENGGLDSEESYPYEAKDG-SCKYRAE 216
-           ++S SEQ ++DC +      C   ++  + ++IK+N G+ +E  YPY  K+   CKY   
-Sbjct: 10  VLSFSEQQIIDCGN--FTSPCQENIL--SHEFIKKN-GVVTEADYPYVGKENEKCKYDEN 64
-
-Query: 217 YAVANDTGFVDIPQQEKALMKA-VATVGPISVAMDASHPSLQFYSSGIY--YEPNCSSKD 273
-                 T  + +    + L+K  +   GP    M A  PS   Y +GIY   +  C    
-Sbjct: 65  KIKLWPTNMLLVGNLPETLLKLFIKEHGPGYFRMKAP-PSFFNYKTGIYSPTQEECGKAT 123
-
-Query: 274 LDHGVLVVGYGYEGTDSNKDKYWLVKNSWG 303
-               + +VGYG EG  +    YW+VK S+G
-Sbjct: 124 DARSLTIVGYGIEGGQN----YWIVKGSFG 149
-
-
->Y65B4A.2 CE27300    (ST.LOUIS) protein_id:AAK29958.1
-          Length = 421
-
- Score = 51.6 bits (122), Expect = 7e-07
- Identities = 65/281 (23%), Positives = 105/281 (37%), Gaps = 74/281 (26%)
-
-Query: 114 IPKTVDWREK--GC--VTPVKNQGQCGSCWAFSASGCLEGQMFLKTGKLIS--LSEQNLV 167
-           +PK  D R+K   C  ++ V NQG CGSC+A +A+G    +  + +       LSE++++
-Sbjct: 138 VPKNFDARQKWPNCPSISNVPNQGGCGSCFAVAAAGVASDRACIHSNGTFKSLLSEEDII 197
-
-Query: 168 DCSHDQGN-----------------------QGCNGGLMDFA----------FQYIKENG 194
-            C    GN                        GC     D +          F+  ++  
-Sbjct: 198 GCCSVCGNCYGGDPLKALTYWVNQGLVTGGRDGCRPYSFDLSCGVPCSPATFFEAEEKRT 257
-
-Query: 195 GLDSEESYPYEAKDGSCKYRAEYAVA-------------------------ND--TGFVD 227
-            +   ++  Y+ K    K+ A +A +                         ND  T  ++
-Sbjct: 258 CMKRCQNIYYQQKYEEDKHFATFAYSMYPRSMTVSPDGKERVKVPTIIGHFNDKKTEKLN 317
-
-Query: 228 IPQQEKALMKAVATVGPISVAMDASHPSLQFYSSGIYYEPNCSSKD----LDHGVLVVGY 283
-           + +    + K +   GP ++A       L  YSSG++        D      H V ++G+
-Sbjct: 318 VTEYRDIIKKEILLYGPTTMAFPVPEEFLH-YSSGVFRPYPTDGFDDRIVYWHVVRLIGW 376
-
-Query: 284 GYEGTDSNKDKYWLVKNSWGKEWGMDGYIKIAKDRNNHCGL 324
-           G E  D     YWL  NS+G  WG +G  KI  D     GL
-Sbjct: 377 G-ESDDGTH--YWLAVNSFGNHWGDNGLFKINTDDMEKYGL 414
-
-
->Y40H7A.9 CE21820   Cysteine protease (HINXTON) TR:Q9XW98
-           protein_id:CAA22068.1
-          Length = 239
-
- Score = 42.4 bits (98), Expect = 4e-04
- Identities = 19/51 (37%), Positives = 31/51 (60%), Gaps = 9/51 (17%)
-
-Query: 276 HGVLVVGYGYEGTDSNKDKYWLVKNSWGKEWGMDGYIKIAKDRNNHCGLAT 326
-           H ++V+GYG +        YW++KN++ K WG  GY+++ K   N CG+ T
-Sbjct: 19  HALIVIGYGPD--------YWILKNTYSKVWGEKGYMRV-KRGVNWCGINT 60
-
-
->F32H5.1 CE09885   cathepsin B like cysteine protease (HINXTON) TR:P91991
-           protein_id:CAB04249.1
-          Length = 356
-
- Score = 34.3 bits (77), Expect = 0.11
- Identities = 21/83 (25%), Positives = 42/83 (50%), Gaps = 10/83 (12%)
-
-Query: 239 VATVGPISVAMDASHPSLQFYSSGIYYEPNCSSKDLDHGV--LVVGYGYEGTDSNKDKYW 296
-           + T GP+ +A    +     Y +GIY     ++ D + G+   ++G+G +    N   YW
-Sbjct: 263 IMTNGPV-IASFIIYDDFWDYKTGIYVH---TAGDQEGGMDTKIIGWGVD----NGVPYW 314
-
-Query: 297 LVKNSWGKEWGMDGYIKIAKDRN 319
-           L  + WG ++G +G+++  +  N
-Sbjct: 315 LCVHQWGTDFGENGFVRFLRGVN 337
-
-
->T10B9.3 CE01657   cytochrome P450 (HINXTON) SW:Q27515 protein_id:CAA88605.1
-          Length = 518
-
- Score = 29.6 bits (65), Expect = 2.7
- Identities = 15/47 (31%), Positives = 22/47 (45%), Gaps = 1/47 (2%)
-
-Query: 21  FDQTFNAQWHQWKSTHR-RLYGTNEEEWRRAVWEKNMRMIQLHNGEY 66
-           FD+  N Q   W   H  R++G + E+++   WE        HNG Y
-Sbjct: 407 FDEGMNIQVDTWTLHHNPRIWGEDVEDFKPERWENGACEHLEHNGSY 453
-
-
->Y77E11A.10 CE25611    (ST.LOUIS) TR:Q9N4B2 protein_id:AAF36079.1
-          Length = 790
-
- Score = 28.5 bits (62), Expect = 6.1
- Identities = 51/208 (24%), Positives = 80/208 (37%), Gaps = 40/208 (19%)
-
-Query: 132 QGQCGSCWAFSASGCL--EGQMFLKTGKLISLSEQNL--------------VDCSHDQGN 175
-           QG  G+CW  +A+  L    ++F +         +N               VD   D   
-Sbjct: 206 QGSLGNCWFLAAAATLAQRDELFYRVVPPDQSFTENYAGIFHFQFWRYGEWVDVVIDDRL 265
-
-Query: 176 QGCNGGLMDFAFQYIKENGGLDSEESY-----PYEAKDGSCKYRA-EYAVANDTGFVDIP 229
-              NG L+  + Q   E  G   E++Y      YE  DG     A E      T F D+ 
-Sbjct: 266 PTVNGKLIYMSSQDGDECWGPLLEKAYAKLYGTYEHLDGGTTTEALEDFTGGLTEFYDLT 325
-
-Query: 230 QQEKALMKAVATVGPISVAMDASHPSLQFYSSGIYYEPNCSSKDLDHGVLVVGYGYEGT- 288
-             +K ++ A+   G   + M +       ++  I  +P      L +G LV G+ Y  T 
-Sbjct: 326 STDKTMILAMIMKG---MQMGS------LFACSIDPDPREKEAQLANG-LVRGHAYSVTG 375
-
-Query: 289 ----DSNKDKYWL--VKNSWG-KEWGMD 309
-               +++K+K  L  ++N WG  EW  D
-Sbjct: 376 VHTVETDKEKVALLRIRNPWGDTEWNGD 403
-
-
->ZK1248.10 CE02894    (ST.LOUIS) TR:Q23419 protein_id:AAC71091.1
-          Length = 856
-
- Score = 28.1 bits (61), Expect = 8.0
- Identities = 18/66 (27%), Positives = 29/66 (43%), Gaps = 1/66 (1%)
-
-Query: 41  GTNEEEWRRAVWEKNMRMIQLHNGEYSNGKHGFTME-MNAFGDMTNEEFRQIVNGYRHQK 99
-           G N+EE R  + EK  ++ +LH     N +    +E  N   + T  + +Q V  +R   
-Sbjct: 324 GDNKEEMREYILEKERQVTELHISNSMNARRVRDLEDQNVRLEDTINDLQQSVEAFRESL 383
-
-Query: 100 HKKGRL 105
-             K  L
-Sbjct: 384 RTKEEL 389
-
-
->F47C12.2 CE10672    (ST.LOUIS) TR:Q20531 protein_id:AAC24389.1
-          Length = 391
-
- Score = 28.1 bits (61), Expect = 8.0
- Identities = 17/60 (28%), Positives = 23/60 (38%), Gaps = 2/60 (3%)
-
-Query: 146 CLEGQMFLKTGKLISLSEQ--NLVDCSHDQGNQGCNGGLMDFAFQYIKENGGLDSEESYP 203
-           C++G  F  +G  IS S++     DC      Q C          Y K   G  S  +YP
-Sbjct: 183 CVQGSYFCSSGSCISESKKCNGHNDCDDGSDEQNCPSAFQPNCRTYEKGESGQLSSTNYP 242
-
-
   Database: /data_2/jason/blastdb/wormpep62
     Posted date:  Sep 3, 2001  2:17 PM
   Number of letters in database: 8,813,425
@@ -2846,11 +1823,11 @@ Number of Hits to DB: 6241552
 Number of Sequences: 20085
 Number of extensions: 276768
 Number of successful extensions: 629
-Number of sequences better than 10.0: 34
-Number of HSP's better than 10.0 without gapping: 29
-Number of HSP's successfully gapped in prelim test: 5
-Number of HSP's that attempted gapping in prelim test: 544
-Number of HSP's gapped (non-prelim): 41
+Number of sequences better than 1.0e-10: 20
+Number of HSP's better than  0.0 without gapping: 4
+Number of HSP's successfully gapped in prelim test: 16
+Number of HSP's that attempted gapping in prelim test: 578
+Number of HSP's gapped (non-prelim): 20
 length of query: 334
 length of database: 8,813,425
 effective HSP length: 44
@@ -2864,7 +1841,7 @@ X1: 16 ( 7.3 bits)
 X2: 38 (14.6 bits)
 X3: 64 (24.7 bits)
 S1: 41 (21.6 bits)
-S2: 61 (28.1 bits)
+S2: 156 (64.7 bits)
 BLASTP 2.1.3 [Apr-11-2001]
 
 
@@ -2889,33 +1866,6 @@ T03E6.7 CE16333   cathepsin-like protease (HINXTON) TR:O4573...   171  5e-43
 Y40H7A.10 CE21821   Cysteine protease (HINXTON) TR:Q9XWA4 pr...   160  8e-40
 F41E6.6 CE10254   cysteine protease and a protease inhibitor...   156  2e-38
 Y51A2D.8 CE19204   Cysteine proteases (2 domains) (HINXTON) ...   127  1e-29
-R07E3.1 CE02295   cysteine proteinase (HINXTON) TR:Q21810 pr...   114  7e-26
-C50F4.3 CE05468   thiol protease (HINXTON) TR:Q18740 protein...   114  7e-26
-F15D4.4 CE28917   cysteine protease (HINXTON) TR:Q93512 prot...   110  1e-24
-Y113G7B.15 CE23295    (HINXTON) TR:Q9U2X1 protein_id:CAB54334.1   103  2e-22
-Y71H2AR.2 CE22930    (ST.LOUIS) protein_id:AAK29985.1              94  2e-19
-K02E7.10 CE11640   protease (ST.LOUIS) TR:O17255 protein_id:...    94  2e-19
-F57F5.1 CE05999   cysteine protease (HINXTON) TR:Q20950 prot...    91  8e-19
-C25B8.3 CE04078  locus:cpr-6  (ST.LOUIS) protein_id:AAK39189.1     87  1e-17
-T10H4.12 CE27590  locus:cpr-3 protease (HINXTON) TR:Q9TW93 p...    86  3e-17
-C52E4.1 CE08943  locus:cpr-1 cathepsin-like cysteine proteas...    86  4e-17
-F36D3.9 CE15973   cysteine protease (HINXTON) TR:O45466 prot...    82  4e-16
-F26E4.3 CE17714   cysteine protease (HINXTON) TR:P90850 prot...    80  1e-15
-W07B8.5 CE14682  locus:cpr-5 thiol protease (ST.LOUIS) SW:P4...    79  3e-15
-F44C4.3 CE07251  locus:cpr-4 cathepsin B-like cysteine prote...    79  3e-15
-W07B8.4 CE14680   thiol protease (ST.LOUIS) TR:O16288 protei...    78  7e-15
-W07B8.1 CE14674   thiol protease (ST.LOUIS) TR:O16289 protei...    75  6e-14
-C32B5.7 CE08515   cathepsin-like peptidase (ST.LOUIS) TR:P91...    74  1e-13
-Y51A2D.1 CE18411   Cysteine proteases (2 domains) (HINXTON) ...    72  4e-13
-Y71H2AM.3 CE26272    (ST.LOUIS) protein_id:AAK29976.1              71  9e-13
-F32B5.8 CE09855   cysteine proteinase (ST.LOUIS) TR:O01850 p...    70  2e-12
-M04G12.2 CE12424   cysteine protease (HINXTON) TR:P92005 pro...    61  9e-10
-Y40H7A.9 CE21820   Cysteine protease (HINXTON) TR:Q9XW98 pro...    52  7e-07
-F32H5.1 CE09885   cathepsin B like cysteine protease (HINXTO...    51  1e-06
-Y65B4A.2 CE27300    (ST.LOUIS) protein_id:AAK29958.1               44  2e-04
-C32B5.13 CE08521    (ST.LOUIS) TR:P91110 protein_id:AAB37968.1     33  0.26
-K07A12.1 CE18019    (HINXTON) TR:P90919 protein_id:CAB03183.1      29  3.7
-F40F4.8 CE28317    (ST.LOUIS) protein_id:AAK84527.1                29  4.8
 
 >R09F10.1 CE28755   peptidase (ST.LOUIS) TR:Q23030 protein_id:AAC69091.2
           Length = 383
@@ -3272,37 +2222,6 @@ Query: 320 IRIKRGTGNSYGVCG 334
 Sbjct: 378 FRIIRGV-NECGIEG 391
 
 
->C25B8.3 CE04078  locus:cpr-6  (ST.LOUIS) protein_id:AAK39189.1
-          Length = 379
-
- Score = 87.0 bits (214), Expect = 1e-17
- Identities = 93/332 (28%), Positives = 146/332 (43%), Gaps = 62/332 (18%)
-
-Query: 59  YKNIDEKIYRFEIFKDNLKYIDETNKKNNSYWLGLNV--FADMSNDEFKEKYTGSIAGNY 116
-           Y+N +      E+  D+L  ID  N+ N + W       F+ +  +  K K+ G +  N+
-Sbjct: 29  YRNREIDSEAAELDGDDL--IDYVNE-NQNLWTAKKQRRFSSVYGENDKAKW-GLMGVNH 84
-
-Query: 117 TTTELSYEEVLN---DGDVNIPEYVD----WRQKGAVTPVKNQGSCGSCWAFSAVVTIEG 169
-               +  ++ L+   D D++IPE  D    W +  ++  +++Q SCGSCWAF AV  +  
-Sbjct: 85  VRLSVKGKQHLSKTKDLDLDIPESFDSRDNWPKCDSIKVIRDQSSCGSCWAFGAVEAMSD 144
-
-Query: 170 IIKIRT-GNLN-EYSEQELLDCDRR-SYGCNGGYPWSALQLVAQYGI----HYR-----N 217
-            I I + G L    S  +LL C +   +GCNGG P +A +   + GI    +Y       
-Sbjct: 145 RICIASHGELQVTLSADDLLSCCKSCGFGCNGGDPLAAWRYWVKDGIVTGSNYTANNGCK 204
-
-Query: 218 TYPYEGVQRYCRSREKGP-----YAAKTDGVRQVQPYNE---------GALLYSIANQ-- 261
-            YP+   + + +     P     Y       + V  Y +         GA  Y + +   
-Sbjct: 205 PYPFPPCEHHSKKTHFDPCPHDLYPTPKCEKKCVSDYTDKTYSEDKFFGASAYGVKDDVE 264
-
-Query: 262 ----------PVSVVLEAAGKDFQLYRGGIFVGPCGNKV--DHAVAAVGYGPN----YIL 305
-                     P+ +  E   +DF  Y GG++V   G K+   HAV  +G+G +    Y  
-Sbjct: 265 AIQKELMTHGPLEIAFEVY-EDFLNYDGGVYV-HTGGKLGGGHAVKLIGWGIDDGIPYWT 322
-
-Query: 306 IKNSWGTGWGENGYIRIKRGT---GNSYGVCG 334
-           + NSW T WGE+G+ RI RG    G   GV G
-Sbjct: 323 VANSWNTDWGEDGFFRILRGVDECGIESGVVG 354
-
-
 >T10H4.12 CE27590  locus:cpr-3 protease (HINXTON) TR:Q9TW93
            protein_id:CAB61024.2
           Length = 370
@@ -3355,34 +2274,6 @@ Query: 314 WGENGYIRIKRG 325
 Sbjct: 312 WGESGFFKIYRG 323
 
 
->F36D3.9 CE15973   cysteine protease (HINXTON) TR:O45466
-           protein_id:CAB04322.1
-          Length = 345
-
- Score = 82.4 bits (202), Expect = 4e-16
- Identities = 75/270 (27%), Positives = 106/270 (38%), Gaps = 39/270 (14%)
-
-Query: 99  MSNDEFKEKYTGSIAGNYTTTELSYEEVLNDGDVNIPEYVDWRQKGAVTPVKNQGSCGSC 158
-           M      EK+       +  TE  +  VL+   +N      W Q  ++  ++ Q +CGSC
-Sbjct: 72  MHTRSMHEKFNAPFPDEFRATEREF--VLDATPLNFDARTRWPQCKSMKLIREQSNCGSC 129
-
-Query: 159 WAFSAVVTIEGIIKIRTGNLNE--YSEQELLDCDRRS--YGCNGGYPWSALQLVAQYGIH 214
-           WAFS    I     I +    +   S  +LL C   S   GC+GG+P+ A Q  A+ G+ 
-Sbjct: 130 WAFSTAEVISDRTCIASNGTQQPIISPTDLLTCCGMSCGEGCDGGFPYRAFQWWARRGVV 189
-
-Query: 215 YRNTYPYEGVQRY-----------------CRSREKGPYAA-----KTDGVRQVQPY--N 250
-               Y   G + Y                 CR   +  Y       K  G     P    
-Sbjct: 190 TGGDYLGTGCKPYPIRPCNSDNCVNLQTPPCRLSCQPGYRTTYTNDKNYGSNSAYPVPRT 249
-
-Query: 251 EGALLYSIANQPVSVVLEAAGKDFQLYRGGIFVGPCG-NKVDHAVAAVGYGPN----YIL 305
-             A+   I      V      +DF+ Y+ GI+    G +K  HAV  +G+G      Y L
-Sbjct: 250 VAAIQADIYYNGPVVAAFIVYEDFEKYKSGIYRHIAGRSKGGHAVKLIGWGTERGTPYWL 309
-
-Query: 306 IKNSWGTGWGENGYIRIKRGTGNSYGVCGL 335
-             NSWG+ WGE+G  RI RG       CG+
-Sbjct: 310 AVNSWGSQWGESGTFRILRGVDE----CGI 335
-
-
 >F26E4.3 CE17714   cysteine protease (HINXTON) TR:P90850
            protein_id:CAB03007.1
           Length = 491
@@ -3405,62 +2296,6 @@ Sbjct: 343 SGSQDSTAFKMTPPYKVSSREEDIQTELMTNGPVQATF-VVHEDFFMYAGGVYQHSDLAA 401
 Query: 284 ---GPCGNKVDHAVAAVGYGPN--------YILIKNSWGTGWGENGYIRIKRG 325
                    +  H+V  +G+G +        Y L  NSWGT WGE+GY ++ RG
 Sbjct: 402 QKGASSVAEGYHSVRVLGWGVDHSTGKPIKYWLCANSWGTQWGEDGYFKVLRG 454
-
-
->W07B8.5 CE14682  locus:cpr-5 thiol protease (ST.LOUIS) SW:P43509
-           protein_id:AAB65346.1
-          Length = 344
-
- Score = 79.3 bits (194), Expect = 3e-15
- Identities = 75/290 (25%), Positives = 115/290 (38%), Gaps = 63/290 (21%)
-
-Query: 105 KEKYTGSIAG-NYTTTELSYEEVLNDGDVNIPEYVD----WRQKGAVTPVKNQGSCGSCW 159
-           KEK T  +    Y       + V  +    IP++ D    W    ++  +++Q  CGSCW
-Sbjct: 52  KEKITKKLMDVKYLVPHKDEDIVATEVSDAIPDHFDARDQWPNCMSINNIRDQSDCGSCW 111
-
-Query: 160 AFSAVVTIEGIIKIRT-GNLNEY-SEQELLDCDRRSY----GCNGGYPWSALQLVAQYGI 213
-           AF+A   I     I + G +N   S ++LL C    +    GC GGYP  A +   ++G+
-Sbjct: 112 AFAAAEAISDRTCIASNGAVNTLLSSEDLLSCCTGMFSCGNGCEGGYPIQAWKWWVKHGL 171
-
-Query: 214 HYRNTYPYEGVQRYCRSREKGPYAAKTDGVR---------------------------QV 246
-               +Y     Q  C+     P     +GV+                            +
-Sbjct: 172 VTGGSYE---TQFGCKPYSIAPCGETVNGVKWPACPEDTEPTPKCVDSCTSKNNYATPYL 228
-
-Query: 247 QPYNEGALLYSIA------------NQPVSVVLEAAGKDFQLYRGGIFVGPCGNKVD-HA 293
-           Q  + G+  Y++             N P+ V      +DF  Y  G++V   G  +  HA
-Sbjct: 229 QDKHFGSTAYAVGKKVEQIQTEILTNGPIEVAFTVY-EDFYQYTTGVYVHTAGASLGGHA 287
-
-Query: 294 VAAVGYGPN----YILIKNSWGTGWGENGYIRIKRGTGNSYGVCGLYTSS 339
-           V  +G+G +    Y L+ NSW   WGE GY RI RG       CG+  S+
-Sbjct: 288 VKILGWGVDNGTPYWLVANSWNVAWGEKGYFRIIRGLNE----CGIEHSA 333
-
-
->F44C4.3 CE07251  locus:cpr-4 cathepsin B-like cysteine proteinase 4
-           precursor (ST.LOUIS) SW:P43508 protein_id:AAA92327.1
-          Length = 335
-
- Score = 79.3 bits (194), Expect = 3e-15
- Identities = 62/241 (25%), Positives = 95/241 (38%), Gaps = 52/241 (21%)
-
-Query: 140 WRQKGAVTPVKNQGSCGSCWAFSAVVTIEGIIKIRT-GNLNEY--SEQELLDCDRRSYGC 196
-           W    ++  +++Q  CGSCWAF+A         I + G +N    +E  L  C    YGC
-Sbjct: 91  WPNCMSINNIRDQSDCGSCWAFAAAEAASDRFCIASNGAVNTLLSAEDVLSCCSNCGYGC 150
-
-Query: 197 NGGYPWSALQLVAQYGIHYRNTYPYEGVQRYCRSREKGPYAA------------------ 238
-            GGYP +A + + + G     +Y     Q  C+     P                     
-Sbjct: 151 EGGYPINAWKYLVKSGFCTGGSYE---AQFGCKPYSLAPCGETVGNVTWPSCPDDGYDTP 207
-
-Query: 239 --------KTDGVRQVQPYNEGALLYSIANQPVSVVLEAAG-----------KDFQLYRG 279
-                   K   V      + G+  Y++  +   +  E              +DF  Y+ 
-Sbjct: 208 ACVNKCTNKNYNVAYTADKHFGSTAYAVGKKVSQIQAEIIAHGPVEAAFTVYEDFYQYKT 267
-
-Query: 280 GIFVGPCGNKVD-HAVAAVGYGPN----YILIKNSWGTGWGENGYIRIKRGTGNSYGVCG 334
-           G++V   G ++  HA+  +G+G +    Y L+ NSW   WGENGY RI RGT      CG
-Sbjct: 268 GVYVHTTGQELGGHAIRILGWGTDNGTPYWLVANSWNVNWGENGYFRIIRGTNE----CG 323
-
-Query: 335 L 335
-           +
-Sbjct: 324 I 324
 
 
 >W07B8.4 CE14680   thiol protease (ST.LOUIS) TR:O16288 protein_id:AAB65345.1
@@ -3490,33 +2325,6 @@ Query: 320 IRIKRGTGNSYGVCGLYTSS 339
 Sbjct: 309 FRILRGVDE----CGIESAA 324
 
 
->W07B8.1 CE14674   thiol protease (ST.LOUIS) TR:O16289 protein_id:AAB65343.1
-          Length = 335
-
- Score = 75.1 bits (183), Expect = 6e-14
- Identities = 68/243 (27%), Positives = 96/243 (38%), Gaps = 52/243 (21%)
-
-Query: 140 WRQKGAVTPVKNQGSCGSCWAFSAVVTIEGIIKIRTGNLNE--YSEQELLDCDRRSY--- 194
-           W +  ++  + +   C + WAF+A  ++   + I +G       S +ELL C    +   
-Sbjct: 86  WPECMSIPQINDISECKTSWAFAAAESMSDRLCINSGGFKNTILSAEELLSCCTGMFSCG 145
-
-Query: 195 -GCNGGYPWSALQLVAQYGIHYRNTY-------------------------------PYE 222
-            GC GG P+ A Q + ++GI    +Y                               P  
-Sbjct: 146 EGCEGGNPFKAWQYIQKHGIPTGGSYESQFGCKPYSIPPCGKTVGNVTYPACTNTTSPTP 205
-
-Query: 223 GVQRYCRSREKGPYAAKTD---GVRQVQPYNEGALLYS--IANQPVSVVLEAAGKDFQLY 277
-             ++ C SR   P     D   GV   Q  N    + S  + N P+    E    DF  Y
-Sbjct: 206 SCEKKCTSRIGYPIDIDKDRHYGVSVDQLPNSQIEIQSDVMLNGPIQATFEVYD-DFLQY 264
-
-Query: 278 RGGIFVGPCGNKVDH-AVAAVGYGP----NYILIKNSWGTGWGENGYIRIKRGTGNSYGV 332
-             GI+V   GNK  H +V  +G+G      Y L  NSWG  WGENG  R+ RGT      
-Sbjct: 265 TTGIYVHLTGNKQGHLSVRIIGWGVWQGVPYWLCANSWGRQWGENGTFRVLRGTNE---- 320
-
-Query: 333 CGL 335
-           CGL
-Sbjct: 321 CGL 323
-
-
 >C32B5.7 CE08515   cathepsin-like peptidase (ST.LOUIS) TR:P91111
            protein_id:AAB37963.1
           Length = 250
@@ -3539,38 +2347,6 @@ Sbjct: 183 LALVFIDERGPGLFTMNTPPSFFNYKSGIY-NPTEEECKSTNEKRALTIVGYGNDKGQNY 241
 Query: 304 ILIKNSWGT 312
             ++K S+GT
 Sbjct: 242 WIVKGSFGT 250
-
-
->Y51A2D.1 CE18411   Cysteine proteases (2 domains) (HINXTON) TR:O62484
-           protein_id:CAA16404.1
-          Length = 382
-
- Score = 72.4 bits (176), Expect = 4e-13
- Identities = 83/355 (23%), Positives = 133/355 (37%), Gaps = 92/355 (25%)
-
-Query: 37  DLTSTERLIQLFESWMLKHNKIYKNIDEKIYRFEIFKDNLKYIDETNK------KNNSYW 90
-           D    E++ Q F  +  K ++ YK+  E   R + F  +   +   NK      +N+++ 
-Sbjct: 33  DRDHPEKVYQEFVEFKKKFSRTYKSEAENQLRLQNFVKSRNNVVRLNKNAQKAGRNSNF- 91
-
-Query: 91  LGLNVFADMSNDEFKEK---YTGSIAGNY------------TTTELSYEEVLNDGDVNIP 135
-             +N F+D++  E  ++   +  ++  N             T T+    E   + D+   
-Sbjct: 92  -AVNQFSDLTTSELHQRLSRFPPNLTENSVFHKNFKKLLGKTRTKRQNSEFARNFDLR-S 149
-
-Query: 136 EYVDWRQKGAVTPVKNQGSCGSCWAFSAVVTIEGIIKIRTGNLN---------------- 179
-           + V+ R    V P+KNQG C  CW F+    +E I  +  G                   
-Sbjct: 150 QKVNGRY--IVGPIKNQGQCACCWGFAVTAMLETIYAVNVGRFKLMSHIPALAPNFSDFD 207
-
-Query: 180 --------------EYSEQELLDC--DRRSYGCNGGYPWSALQLVAQYGIHYRNTYPYEG 223
-                          +S+QE+ DC  D    GC GG     ++     G+     YP   
-Sbjct: 208 FFFFEFLAKLNMFLSFSDQEMCDCATDGTKAGCAGGGLMWGVEYAINNGLASEFDYP--- 264
-
-Query: 224 VQRYCRSREKGPYAAKTDGVRQVQPYNEGALLYSIANQPVSVVLEAAGKDFQLYRGGIFV 283
-                          + D  R  +P    A+       PV+    AAG  F  Y+ G+ V
-Sbjct: 265 ---------------EFDQNRATRPGTCEAMDDDKTFPPVNF---AAGTAFLQYKSGVLV 306
-
-Query: 284 GP---CGNKVDHAVAAVGYGPN---------YILIKNSWG-TGWGENGYIRIKRG 325
-                    V HA A VGYG           + ++KNSWG +GWG  GY+++ RG
-Sbjct: 307 TEDCDLAGTVWHAGAIVGYGEENDLRGRSQRFWIMKNSWGVSGWGTGGYVKLIRG 361
 
 
 >Y71H2AM.3 CE26272    (ST.LOUIS) protein_id:AAK29976.1
@@ -3612,142 +2388,6 @@ Query: 292 HAVAAVGYGPN------YILIKNSWGTGWGENGYIRI 322
 Sbjct: 364 HIISVHGWGVDHESGVEYWIGRNSWGEPWGEHGWFKI 400
 
 
->M04G12.2 CE12424   cysteine protease (HINXTON) TR:P92005
-           protein_id:CAB03209.1
-          Length = 467
-
- Score = 61.2 bits (147), Expect = 9e-10
- Identities = 57/240 (23%), Positives = 98/240 (40%), Gaps = 33/240 (13%)
-
-Query: 133 NIPEYVDWRQKGAV---TPVKNQGS---CGSCWAFSAVVTIEGIIKI-RTGN--LNEYSE 183
-           ++P   DWR    V   +P +NQ     CGSCW F     +     + R G   + + S 
-Sbjct: 220 DLPTGWDWRNVSGVNYCSPTRNQHIPVYCGSCWVFGTTGALNDRFNVARKGRWPMTQLSP 279
-
-Query: 184 QELLDCDRRSYGCNGGYPWSALQLVAQYGIHYRNTYPYEGVQRYCRSREK------GPYA 237
-           QE++DC+ +   C GG   + L+     G+       Y      C    +          
-Sbjct: 280 QEIIDCNGKG-NCQGGEIGNVLEHAKIQGLVEEGCNVYRATNGECNPYHRCGSCWPNECF 338
-
-Query: 238 AKTDGVRQ-VQPYNEGALLYSIANQ-----PVSVVLEAAGKDFQLYRGGIFVGPCGNKVD 291
-           + T+  R  V+ Y +      I ++     P++  + A  K    Y  G++      + +
-Sbjct: 339 SLTNYTRYYVKDYGQVQGRDKIMSEIKKGGPIACAIGATKKFEYEYVKGVYSEKSDLESN 398
-
-Query: 292 HAVAAVGYGPN-----YILIKNSWGTGWGENGYIRI-----KRGTGNSYGVCGLYTSSFY 341
-           H ++  G+G +     Y + +NSWG  WGE G+ R+     K G G+ Y + G+    +Y
-Sbjct: 399 HIISLTGWGVDENGVEYWIARNSWGEAWGELGWFRVVTSKFKDGQGDQYNM-GIERDCYY 457
-
-
->Y40H7A.9 CE21820   Cysteine protease (HINXTON) TR:Q9XW98
-           protein_id:CAA22068.1
-          Length = 239
-
- Score = 51.6 bits (122), Expect = 7e-07
- Identities = 21/46 (45%), Positives = 31/46 (66%), Gaps = 4/46 (8%)
-
-Query: 292 HAVAAVGYGPNYILIKNSWGTGWGENGYIRIKRGTGNSYGVCGLYT 337
-           HA+  +GYGP+Y ++KN++   WGE GY+R+KRG       CG+ T
-Sbjct: 19  HALIVIGYGPDYWILKNTYSKVWGEKGYMRVKRGV----NWCGINT 60
-
-
->F32H5.1 CE09885   cathepsin B like cysteine protease (HINXTON) TR:P91991
-           protein_id:CAB04249.1
-          Length = 356
-
- Score = 50.8 bits (120), Expect = 1e-06
- Identities = 75/279 (26%), Positives = 103/279 (36%), Gaps = 71/279 (25%)
-
-Query: 100 SNDEFKEKYTGSIAGNYTTTELSYEEVLNDGDVNIPEYVDWRQK----GAVTPVKNQGSC 155
-           SNDE  EK      GN        + VL    V+IP   D RQK      +  V++Q  C
-Sbjct: 75  SNDEVSEK-----TGN--------DNVL----VDIPSSFDSRQKWPSCSQIGAVRDQSDC 117
-
-Query: 156 GSCWAFSAV-VTIEGIIKIRTGNLN-EYSEQELLDCD-------RRSYGCNGGYP----- 201
-           GS     AV +  +       G  N   S Q+ L C           +GC+G +P     
-Sbjct: 118 GSAAHLVAVEIASDRTCIASNGTFNWPLSAQDPLSCCVGLMSICGDGWGCDGSWPKDILK 177
-
-Query: 202 -WSALQLVA------QYGIHYRNTYPYEG------------------VQRYCRSREKGPY 236
-            W    L        Q+G    + YP +                    + +C S    P 
-Sbjct: 178 WWQTHGLCTGGNYNDQFGCKPYSIYPCDKKYANGTTSVPCPGYHTPTCEEHCTSNITWPI 237
-
-Query: 237 AAKTDGVRQVQPYNEGALLYSI-----ANQPVSVVLEAAGKDFQLYRGGIFVGPCGNK-- 289
-           A K D       YN G  +  I      N PV +       DF  Y+ GI+V   G++  
-Sbjct: 238 AYKQDKHFGKAHYNVGKKMTDIQIEIMTNGPV-IASFIIYDDFWDYKTGIYVHTAGDQEG 296
-
-Query: 290 -VDHAVAAVGY--GPNYILIKNSWGTGWGENGYIRIKRG 325
-            +D  +   G   G  Y L  + WGT +GENG++R  RG
-Sbjct: 297 GMDTKIIGWGVDNGVPYWLCVHQWGTDFGENGFVRFLRG 335
-
-
->Y65B4A.2 CE27300    (ST.LOUIS) protein_id:AAK29958.1
-          Length = 421
-
- Score = 43.5 bits (101), Expect = 2e-04
- Identities = 38/137 (27%), Positives = 59/137 (42%), Gaps = 13/137 (9%)
-
-Query: 85  KNNSYWLGLNVFADMSNDEFKEKYTGSIAGNYTTTELS--YEEVLNDGDVNIPEYVDWRQ 142
-           KN SY      F    N    E+Y   I   + +  +    +E+ N    ++P+  D RQ
-Sbjct: 92  KNRSYG-----FKYTRNQTAVEEYVEQIRKFFESDAMKRHLDELENFNSSDVPKNFDARQ 146
-
-Query: 143 KG----AVTPVKNQGSCGSCWAFSA--VVTIEGIIKIRTGNLNEYSEQELLDCDRRSYGC 196
-           K     +++ V NQG CGSC+A +A  V +    I       +  SE++++ C      C
-Sbjct: 147 KWPNCPSISNVPNQGGCGSCFAVAAAGVASDRACIHSNGTFKSLLSEEDIIGCCSVCGNC 206
-
-Query: 197 NGGYPWSALQLVAQYGI 213
-            GG P  AL      G+
-Sbjct: 207 YGGDPLKALTYWVNQGL 223
-
-
- Score = 33.5 bits (75), Expect = 0.20
- Identities = 16/46 (34%), Positives = 23/46 (49%), Gaps = 5/46 (10%)
-
-Query: 292 HAVAAVGYGPN-----YILIKNSWGTGWGENGYIRIKRGTGNSYGV 332
-           H V  +G+G +     Y L  NS+G  WG+NG  +I       YG+
-Sbjct: 369 HVVRLIGWGESDDGTHYWLAVNSFGNHWGDNGLFKINTDDMEKYGL 414
-
-
->C32B5.13 CE08521    (ST.LOUIS) TR:P91110 protein_id:AAB37968.1
-          Length = 150
-
- Score = 33.1 bits (74), Expect = 0.26
- Identities = 33/140 (23%), Positives = 54/140 (38%), Gaps = 10/140 (7%)
-
-Query: 181 YSEQELLDCDRRSYGCNGGYPWSALQLVAQYGIHYRNTYPYEGVQRYCRSREKGPYAAKT 240
-           +SEQ+++DC   +  C       + + + + G+     YPY G +      ++       
-Sbjct: 13  FSEQQIIDCGNFTSPCQENI--LSHEFIKKNGVVTEADYPYVGKENEKCKYDENKIKLWP 70
-
-Query: 241 DGVRQVQPYNEGALLYSIANQPVSVVLEAAGKDFQLYRGGIFVGP---CGNKVD-HAVAA 296
-             +  V    E  L   I           A   F  Y+ GI+      CG   D  ++  
-Sbjct: 71  TNMLLVGNLPETLLKLFIKEHGPGYFRMKAPPSFFNYKTGIYSPTQEECGKATDARSLTI 130
-
-Query: 297 VGYG----PNYILIKNSWGT 312
-           VGYG     NY ++K S+GT
-Sbjct: 131 VGYGIEGGQNYWIVKGSFGT 150
-
-
->K07A12.1 CE18019    (HINXTON) TR:P90919 protein_id:CAB03183.1
-          Length = 581
-
- Score = 29.3 bits (64), Expect = 3.7
- Identities = 28/118 (23%), Positives = 46/118 (38%), Gaps = 8/118 (6%)
-
-Query: 49  ESWMLKHNKIYKNIDEKIYRFEIFKDNL---KYIDETNKKNN----SYWLGLNVFADMSN 101
-           E W  K NK+Y      + RF    D +      D    +N     S   G+N+   M +
-Sbjct: 416 EEWREKRNKMYHGRSPNVDRFGQLLDEIPGQSLSDPVPPQNGRCGYSKEGGVNIARQMMD 475
-
-Query: 102 DEFKEKYTGSIAGNYTTTELSYEEVLNDGDVNIPEYVDWRQKGAVTPVKNQGSCGSCW 159
-           D F   +  S+  ++   ELS++E LN        ++  R  GA   + +     + W
-Sbjct: 476 DTFLGGFINSLLPHF-DGELSFQEQLNRYGGEFIRFLTNRLTGAEQGINDALDIANGW 532
-
-
->F40F4.8 CE28317    (ST.LOUIS) protein_id:AAK84527.1
-          Length = 447
-
- Score = 28.9 bits (63), Expect = 4.8
- Identities = 18/57 (31%), Positives = 22/57 (38%), Gaps = 9/57 (15%)
-
-Query: 275 QLYRGGIFVGPCGNKVDHAVAAVGYGPNYILIKNSWGTGWGENGYIRIKRGTGNSYG 331
-           Q +  G F  P G  +  A+      P    + N W  GWG NG      G GN  G
-Sbjct: 218 QHHWNGRFWEPAGQAISEAIR----NPIQNTVGNGWQGGWGSNG-----NGQGNGGG 265
-
-
   Database: /data_2/jason/blastdb/wormpep62
     Posted date:  Sep 3, 2001  2:17 PM
   Number of letters in database: 8,813,425
@@ -3767,11 +2407,11 @@ Number of Hits to DB: 6611257
 Number of Sequences: 20085
 Number of extensions: 311359
 Number of successful extensions: 788
-Number of sequences better than 10.0: 32
-Number of HSP's better than 10.0 without gapping: 29
-Number of HSP's successfully gapped in prelim test: 3
-Number of HSP's that attempted gapping in prelim test: 698
-Number of HSP's gapped (non-prelim): 43
+Number of sequences better than 1.0e-10: 19
+Number of HSP's better than  0.0 without gapping: 6
+Number of HSP's successfully gapped in prelim test: 13
+Number of HSP's that attempted gapping in prelim test: 741
+Number of HSP's gapped (non-prelim): 23
 length of query: 345
 length of database: 8,813,425
 effective HSP length: 44
@@ -3785,4 +2425,4 @@ X1: 16 ( 7.3 bits)
 X2: 38 (14.6 bits)
 X3: 64 (24.7 bits)
 S1: 41 (21.7 bits)
-S2: 61 (28.1 bits)
+S2: 156 (64.7 bits)
