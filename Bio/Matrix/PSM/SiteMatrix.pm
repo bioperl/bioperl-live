@@ -599,10 +599,10 @@ sub get_array {
 sub get_logs_array {
 	my $self=shift;
 	my $base=uc(shift);
-	return  @{$self->{logA}} if (($base eq 'A')  && ({$self->{logA}}));
-	return  @{$self->{logC}} if (($base eq 'C')  && ({$self->{logC}}));
-	return  @{$self->{logG}} if (($base eq 'G')  && ({$self->{logG}}));
-	return  @{$self->{logT}} if (($base eq 'T')  && ({$self->{logT}}));
+	return  @{$self->{logA}} if (($base eq 'A')  && ($self->{logA}));
+	return  @{$self->{logC}} if (($base eq 'C')  && ($self->{logC}));
+	return  @{$self->{logG}} if (($base eq 'G')  && ($self->{logG}));
+	return  @{$self->{logT}} if (($base eq 'T')  && ($self->{logT}));
 	$self->throw ("No such base: $base!\n") if (!grep(/$base/,qw(A C G T)));
   return ();
 }
