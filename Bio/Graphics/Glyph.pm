@@ -395,34 +395,42 @@ sub layout {
 
   if (abs($bump_direction) <= 1) {  # original bump algorithm
 
-    my %occupied;
+    my %occupied; # format of occupied: key={top,bottom}, value=right
     for my $g (sort { $a->left <=> $b->left } @parts) {
 
       my $pos = 0;
+      my $left   = $g->left;
+      my $right  = $g->right;
+      my $height = $g->{layout_height};
 
       while (1) {
 	# look for collisions
-	my $bottom = $pos + $g->{layout_height};
+	my $bottom = $pos + $height;
 
 	my $collision;
-	for my $old (sort {$b->[2]<=> $a->[2]} values %occupied) {
-	  last if $old->[2] + 2 < $g->left;
-	  next if $old->[3] < $pos;
-	  next if $old->[1] > $bottom;
-	  $collision = $old;
+	for my $key (keys %occupied) {
+	  my ($oldtop,$oldbottom) = split /,/,$key;
+	  my $oldright = $occupied{$key};
+	  next if $oldright+2  < $left;
+	  next if $oldbottom   < $pos;
+	  next if $oldtop      > $bottom;
+	  $collision = [$oldtop,$oldbottom,$oldright];
 	  last;
 	}
 	last unless $collision;
 
 	if ($bump_direction > 0) {
-	  $pos += $collision->[3]-$collision->[1] + BUMP_SPACING;                    # collision, so bump
+	  $pos += $collision->[1]-$collision->[0] + BUMP_SPACING;    # collision, so bump
 
 	} else {
 	  $pos -= BUMP_SPACING;
 	}
-    }
+
+      }
+
       $g->move(0,$pos);
-      $occupied{$g} = [$g->left,$g->top,$g->right,$g->bottom];
+      my $key = join ',',$g->top,$g->bottom;
+      $occupied{$key} = $right if !exists $occupied{$key} or $occupied{$key} < $right;
     }
   }
 
@@ -431,7 +439,8 @@ sub layout {
     my $last;
     for my $g (sort { $a->left <=> $b->left } @parts) {
       next if !defined($last);
-      $pos += $bump_direction > 0 ? $last->{layout_height} + BUMP_SPACING : - ($g->{layout_height}+BUMP_SPACING);
+      $pos += $bump_direction > 0 ? $last->{layout_height} + BUMP_SPACING 
+                                  : - ($g->{layout_height}+BUMP_SPACING);
       $g->move(0,$pos);
     } continue {
       $last = $g;
