@@ -64,10 +64,11 @@ Internal methods are usually preceded with a _
 
 
 package Bio::AlignIO::psi;
-use vars qw(@ISA $BlockLen);
+use vars qw(@ISA $BlockLen $IdLength);
 use strict;
 
-BEGIN { $BlockLen = 100; }
+$BlockLen = 100; 
+$IdLength = 13;
 
 # Object preamble - inherits from Bio::Root::Root
 
@@ -143,16 +144,18 @@ sub write_aln {
     my @seqs = $aln->each_seq;
     my $len = 1;
     my $alnlen = $aln->length;
+    my $idlen = $IdLength;
+    my @ids = map { substr($_->display_id,0,$idlen) } @seqs;
     while( $len < $alnlen ) {
 	my $start = $len;
 	my $end   = $len + $BlockLen;
 	if( $end > $alnlen ) { $end = $alnlen; }
+	my $c = 0;
 	foreach my $seq ( @seqs ) {
-	    $self->_print(sprintf("%-13s %s\n",
-				  $seq->display_id,
+	    $self->_print(sprintf("%-".$idlen."s %s\n",
+				  $ids[$c++],
 				  $seq->subseq($start,$end)));
 	}
-	print TMP "\n";
 	$self->_print("\n");
 	$len += $BlockLen+1;
     }
