@@ -89,7 +89,7 @@ use strict;
 use Bio::Root::Root;
 use Bio::Seq;
 
-@ISA = qw(Bio::Root::Root Bio::Seq);
+@ISA = qw(Bio::Root::Root);
 
 =head2 new
 
