@@ -45,7 +45,7 @@ BioPerlTutorial - a tutorial for bioperl
   II. Brief overview to bioperl\'s objects
   II.1 Sequence objects:
          (Seq, PrimarySeq, LocatableSeq, LiveSeq, LargeSeq, RichSeq, SeqWithQuality, SeqI)
-  II.2 Alignment objects (SimpleAlign, UnivAln)
+  II.2 Alignment objects (SimpleAlign)
   II.3  Location objects (Simple, Split, Fuzzy)
   II.4  Interface objects and implementation objects
 
@@ -74,7 +74,7 @@ BioPerlTutorial - a tutorial for bioperl
      III.5.1 Aligning 2 sequences with Smith-Waterman (pSW)
      III.5.2 Aligning 2 sequences with Blast using  bl2seq and AlignIO
      III.5.3 Aligning multiple sequences (Clustalw.pm, TCoffee.pm)
-     III.5.4 Manipulating / displaying alignments (SimpleAlign, UnivAln)
+     III.5.4 Manipulating and displaying alignments (SimpleAlign)
   III.6 Searching for genes and other structures on genomic DNA
                         (Genscan, Sim4, ESTScan, MZEF, Grail, Genemark, EPCR)
   III.7 Developing machine readable sequence annotations
@@ -83,10 +83,11 @@ BioPerlTutorial - a tutorial for bioperl
      III.7.3 Representing related sequences - mutations, polymorphisms etc (Allele, SeqDiff)
      III.7.4 Incorpotating quality data in sequence annotation (SeqWithQuality)
      III.7.5 Sequence XML representations - generation and parsing (SeqIO::game)
-  III.8 Representing non-sequence data in Bioperl: structures, trees and maps
-     III.8.1 Using 3D structure objects and reading PDB files (STructureI, Structure::IO)
+  III.8 Representing non-sequence data in Bioperl: structures, trees,maps, and bibliographic text
+     III.8.1 Using 3D structure objects and reading PDB files (StructureI, Structure::IO)
      III.8.2 Tree objects and phylogentic trees (Tree::Tree, TreeIO)
      III.8.3 Map objects for manipulating genetic maps (Map::MapI, MapIO)
+     III.8.4 Bibliographic objects for querying bibliographic databases (Biblio)
   III.9 Bioperl alphabets
      III.9.1 Extended DNA / RNA alphabet
      III.9.2 Amino Acid alphabet
@@ -575,26 +576,15 @@ likely to be relevant to the casual bioperl user.
 
 =for html <A NAME ="ii.2"></A>
 
-=head2 II.2 Alignment objects (SimpleAlign, UnivAln)
+=head2 II.2 Alignment objects (SimpleAlign)
 
-There are two "alignment objects" in bioperl: SimpleAlign and
-UnivAln. Both store an array of sequences as an alignment.
-However their internal data structures are quite different and converting
-between them - though certainly possible - is rather awkward.  In
-contrast to the sequence objects - where there are good reasons for having
-6 different classes of objects, the presence of two alignment objects is
-just an unfortunate relic of the two systems having been designed
-independently at different times.
+Early versions of bioperl used both UnivAln and SimpleAlign objects to
+represent and manipulate alignments but as of v. 1.0 only SimpleAlign.pm is
+supported. This module allows the user to convert between alignment formats
+as well as more sophisticated operations, like extracting specific regions
+of the alignment and generating consensus sequences. For more information
+see section L<"III.5.4"> and L<Bio::SimpleAlign>.
 
-In earlier releases of bioperl, SimpleAlign and UnivAln
-each had some significant capabilities that the other lacked.  However,
-as of the current release, most of the basic features of UnivAln have been
-implemented in SimpleAlign.  Consequently, except in cases where you want
-to do very intricate "slicing and dicing" of alignments, you will be best
-off to use SimpleAlign objects for your multiple sequence
-alignments. Both modules offer straightforward methods for creating
-"consensus sequences" from alignments. For more details on these objects
-see section L<"III.5.4">, L<Bio::SimpleAlign>, and L<Bio::UnivAln>.
 
 =for html <A NAME ="ii.3"></A>
 
@@ -852,9 +842,8 @@ is to a SimpleAlign object rather than a Seq object.
 
 AlignIO also supports the tied filehandle syntax described above for
 SeqIO.  Note that currently AlignIO is usable only with SimpleAlign
-alignment objects.  IO for UnivAln objects can only be done for
-files in fasta data format. See L<Bio::AlignIO> and L<Bio::UnivAln>
-and section L<"III.5.4"> for more information.
+alignment objects. See L<Bio::AlignIO> and section L<"III.5.4"> for more
+information.
 
 =head2 III.3 Manipulating sequences
 
@@ -1668,19 +1657,13 @@ encouraged to examine the script clustalw.pl in the examples/ directory.
 
 =for html <A NAME ="iii.5.4"></A>
 
-=head2 III.5.4 Manipulating / displaying alignments (SimpleAlign, UnivAln)
+=head2 III.5.4 Manipulating / displaying alignments (SimpleAlign)
 
-As described in section L<"II.2">, bioperl includes two alignment
-objects, SimpleAlign and UnivAln.  SimpleAlign objects are
-nearly always what you will want to use. Only SimpleAlign objects are
-produced by bioperl alignment creation objects (eg Clustalw.pm and pSW)
-and only they can read and write multiple alignment formats via AlignIO.
-In addition SimpleAlign objects can perform most multiple sequence alignment
-manipulations some of which are described in the next paragraph.  For some
-very intricate alignment slicing and dicing, UnivAln may be useful
-to you - see L<Bio::UnivAln> - and remember that to use UnivAln you need to
-first convert your alignment to fasta format (eg using SimpleAlign and
-AlignIO).
+As described in section L<"II.2">, bioperl previously included two alignment
+objects, SimpleAlign and UnivAln, but UnivAln.pm is not supported as of v.
+1.0. SimpleAlign objects are produced by bioperl alignment creation objects
+(eg Clustalw.pm, BLAST's bl2seq, and pSW) and they can read and write multiple
+alignment formats via AlignIO.
 
 Some of the manipulations possible with SimpleALign include:
 
@@ -2144,6 +2127,21 @@ genetic map data with Bioperl Map objects might look like this:
   }
 
 See L<Bio::MapIO> and L<Bio::Map::SimpleMap> for more information.
+
+
+=head2 III.8.4 Bibliographic objects for querying bibliographic databases (Biblio)
+
+Bio::Biblio objects are used to query bibliographic databases, such as MEDLINE.
+The associated modules are built to work with OpenBQS-compatible databases
+(see http://industry.ebi.ac.uk/openBQS). A Bio::Biblio object can execute a query
+like:
+
+  my $collection = $biblio->find ('brazma', 'authors');
+  while ( $collection->has_next ) {
+      print $collection->get_next;
+  }
+
+See L<Bio::Biblio> or the examples/biblio.pl script for details.
 
 
 =head2 III.9 Bioperl alphabets
@@ -3205,23 +3203,23 @@ $simplealign_univaln = sub {
     print "The IUPAC consensus of the dna alignment is... \t",$iupac_consensus  , "\n";
 
 
-    use Bio::UnivAln;
+    #use Bio::UnivAln;
 
-    print "\nBeginning univaln example... \n";
+    #print "\nBeginning univaln example... \n";
     #$aln = Bio::UnivAln->new('-file'=>'test.tmp',
-    $aln = Bio::UnivAln->new('-file'=>Bio::Root::IO->catfile("t","data","alnfile.fasta"),
-                             '-desc'=>'Sample alignment',
-                             '-type'=>'amino',
-                             '-ffmt'=>'fasta'
-                             );
+    #$aln = Bio::UnivAln->new('-file'=>Bio::Root::IO->catfile("t","data","alnfile.fasta"),
+     #                        '-desc'=>'Sample alignment',
+     #                        '-type'=>'amino',
+     #                        '-ffmt'=>'fasta'
+     #                        );
 
-    print "\nCurrent alignment:\n",$aln->layout;
+    #print "\nCurrent alignment:\n",$aln->layout;
 
-    $resSlice1 = $aln->remove_gaps(); # original sequences without gaps
-    print "Alignment without gaps  is \n $resSlice1\n";
-    $resSlice3 = $aln->consensus(0.2, [1,3]); # 60% majority, columns 1+3 only
-    print "Consensus with 20% threshold for columns".
-        " 1 and 3 is \n $resSlice3\n";
+    #$resSlice1 = $aln->remove_gaps(); # original sequences without gaps
+    #print "Alignment without gaps  is \n $resSlice1\n";
+    #$resSlice3 = $aln->consensus(0.2, [1,3]); # 60% majority, columns 1+3 only
+    #print "Consensus with 20% threshold for columns".
+    #    " 1 and 3 is \n $resSlice3\n";
     #unlink $tmpfile;
     return 1;
 } ;
