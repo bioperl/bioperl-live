@@ -1,4 +1,4 @@
-## $Id: bioperl.pod,v 1.4 1999-04-12 18:10:00 birney Exp $
+## $Id: bioperl.pod,v 1.5 1999-09-09 19:59:11 birney Exp $
 
 ## Should contain general info about the distribution including
 ## links to all the various modules.
@@ -232,6 +232,7 @@ core. Probably you will want to read alot of the documentation
 in the Bio::Root section and also talk to people on the 'guts'
 mailing list vsns-bcd-perl-guts@lists.uni-bielefeld.de
 
+biodesign.pod provides documentation
 
 =head1 CONVENTIONS
 

@@ -25,7 +25,7 @@ Bio::SeqI - Interface definition for a Bio::SeqI
     # accessors
 
     $string = $obj->seq();
-    $substring = $obj->seq(12,50);
+    $substring = $obj->subseq(12,50);
     $id        = $obj->id();
     $unique_key= $obj->accession(); # unique idenitifer assign to the sequence by the system
     
@@ -58,7 +58,10 @@ This interface defines what bioperl consideres necessary to "be" a sequence,
 without providing an implementation of this. (An implementation is provided in
 Bio::Seq). If you want to provide a Bio::Seq 'compliant' object which in fact
 wraps another object/database/out-of-perl experience, then this is the correct
-thing to wrap.
+thing to wrap, generally by providing a wrapper class which would inheriet
+from your object and this Bio::SeqI interface. The wrapper class then would
+have methods lists in the "Implementation Specific Functions" which would
+provide these methods for your object.
 
 =head1 FEEDBACK
 
@@ -112,15 +115,13 @@ define.
 
  Title   : seq
  Usage   : $string    = $obj->seq()
-           $substring = $obj->seq(10,40)
  Function: Returns the sequence as a string of letters. The
            case of the letters is left up to the implementer.
-           Suggested cases are upper case at all times (IUPAC standard),
+           Suggested cases are upper case for proteins and lower case for
+           DNA sequence (IUPAC standard),
            but implementations are suggested to keep an open mind about
-           case (some users... want lower case!)
+           case (some users... want mixed case!)
  Returns : A scalar
- Args    : Optional start,end paramters. This start,end is in absolute
-           coordinates.
 
 
 =cut
@@ -135,21 +136,48 @@ sub seq{
    }
 }
 
+=head2 subseq
+
+ Title   : subseq
+ Usage   : $substring = $obj->subseq(10,40);
+ Function: returns the subseq from start to end, where the first base
+           is 1 and the number is inclusive, ie 1-2 are the first two
+           bases of the sequence
+ Returns : a string
+ Args    :
+
+
+=cut
+
+sub subseq{
+   my ($self) = @_;
+
+   if( $self->can('throw') ) {
+       $self->throw("Bio::SeqI definition of subseq - implementing class did not provide this method");
+   } else {
+       confess("Bio::SeqI definition of subseq - implementing class did not provide this method");
+   }
+
+}
 
 =head2 id
 
  Title   : id
  Usage   : $id_string = $obj->id();
- Function: returns the id, aka the common name of the Sequence object.
-           
-         The semantics of this is that it is the most likely string to be
-         used as an identifier of the sequence, and likely to have "human" readability.
-         The id is equivalent to the ID field of the GenBank/EMBL databanks and
-         the id field of the Swissprot/sptrembl database. In fasta format, the >(\S+)
-         is presumed to be the id, though some people overload the id to embed other 
-         information. Bioperl does not use any embedded information in the ID field,
-         and people are encouraged to use other mechanisms (accession field for example)
-         to solve this. 
+ Function: 
+
+           returns the id, aka the common name of the Sequence object.
+
+           The semantics of this is that it is the most likely string
+           to be used as an identifier of the sequence, and likely to
+           have "human" readability.  The id is equivalent to the ID
+           field of the GenBank/EMBL databanks and the id field of the
+           Swissprot/sptrembl database. In fasta format, the >(\S+) is
+           presumed to be the id, though some people overload the id
+           to embed other information. Bioperl does not use any
+           embedded information in the ID field, and people are
+           encouraged to use other mechanisms (accession field for
+           example, or extending the sequence object) to solve this.
 
  Returns : A string
  Args    : None
@@ -177,33 +205,36 @@ sub id{
            accession field name was chosen as in bioinformatics accession
            numbers are a known concept and well understood.
 
-           The aim of this field is that it provides a unique placeholder
-           of where this sequence came from. This allows the rest of the
-           bioperl system to retrieve additional information on the sequence
-           that it might want to store. Effectively it is the computer's unique id.
+           The aim of this field is that it provides a unique
+           placeholder of where this sequence came from. This allows
+           the rest of the bioperl system to retrieve additional
+           information on the sequence that it might want to
+           store. Effectively it is the computer's unique id.
 
-           The semantics for this should follow the URL type system (or interoperable
-           name service from the OMG standard) being
-   
+           The semantics for this should follow the URL type system
+           (or interoperable name service from the OMG standard) being
+
            /xxx/yyy/zzz/unique_key.<version_number>
 
            any of these portions can be omitted except for unique key.
 
-           The unique key indicates the actual unique key for this sequence object.
-           For sequences from the public databases these should be the accession
-           numbers from GenBank/EMBL/DDBJ and accession numbers from swissprot/sptrembl.
-           For internal databases, the natural thing is to use your own database's
-           primary key for the sequence.
+           The unique key indicates the actual unique key for this
+           sequence object.  For sequences from the public databases
+           these should be the accession numbers from
+           GenBank/EMBL/DDBJ and accession numbers from
+           swissprot/sptrembl.  For internal databases, the natural
+           thing is to use your own database's primary key for the
+           sequence.
 
-           The version number is optional, and indicates a version which changes on
-           the semantics for the underlying database. The only semantics which is
-           enforced about version numbers is that higher numbers are more up to date
-           than smaller numbers. 
+           The version number is optional, and indicates a version
+           which changes on the semantics for the underlying
+           database. The only semantics which is enforced about
+           version numbers is that higher numbers are more up to date
+           than smaller numbers.
 
-           The information before the unique_key is also optional but indicates
-           the database (also called 'context') of the key. For example,
- 
-           /mycompany/dna/DID138338 
+           The information before the unique_key is also optional but
+           indicates the database (also called 'context') of the
+           key. For example, /mycompany/dna/DID138338
 
            would have a unique id of DID138338 and a context of /mycompany/dna
 
@@ -221,22 +252,25 @@ sub id{
 
           Sequence From Files:
 
-          A number of times in bioinformatics, one doesn't have a database but rather
-          a sequence from a file. Here there is some ambiguity of what happens to this
-          field. If the sequence file contains an accession number field then
-          one should use that as providing the accession number information,
-          probably interpreting it as one of the "standard" contexts above.
-          However, a different view is to claim that the accession number
-          should indicate the file this was made from. For file formats that
-          have no accession number field (eg, plain FASTA format, with no
-          overloading of the ID line, or raw format, or PIR format), this
-          provides a mechanism for identifying the sequence. The proposal is
-          to extend the context now into a full URL, including the filename, 
-          with the "unique_id" now becoming the byte offset into the file
-          for this sequence. To make this concept useful, the format of the
-          file also needs to be encoded, so that this context can be used. 
-          The proposal is that a ::<format-string> is placed after the
-          machine specification of the URL. For example:
+          A number of times in bioinformatics, one doesn't have a
+          database but rather a sequence from a file. Here there is
+          some ambiguity of what happens to this field. If the
+          sequence file contains an accession number field then one
+          should use that as providing the accession number
+          information, probably interpreting it as one of the
+          "standard" contexts above.  However, a different view is to
+          claim that the accession number should indicate the file
+          this was made from. For file formats that have no accession
+          number field (eg, plain FASTA format, with no overloading of
+          the ID line, or raw format, or PIR format), this provides a
+          mechanism for identifying the sequence. The proposal is to
+          extend the context now into a full URL, including the
+          filename, with the "unique_id" now becoming the byte offset
+          into the file for this sequence. To make this concept
+          useful, the format of the file also needs to be encoded, so
+          that this context can be used.  The proposal is that a
+          ::<format-string> is placed after the machine specification
+          of the URL. For example:
 
           file://localhost::EMBL/nfs/data/roa1.dat/556760
 
@@ -276,9 +310,17 @@ sub accession{
 	 }
  Function: can_call_new returns 1 or 0 depending
            on whether an implementation allows new
-           constructor 
+           constructor to be called. If a new constructor
+           is allowed, then it should take the followed hashed
+           constructor list.
+
+           $myobject->new( -seq => $sequence_as_string,
+			   -id  => $id
+			   -accession => $accession
+			   -moltype => 'dna',
+			   );
  Example :
- Returns : 
+ Returns : 1 or 0
  Args    :
 
 
@@ -287,8 +329,340 @@ sub accession{
 sub can_call_new{
    my ($self,@args) = @_;
 
+   # we default to 0 here
+
+   return 0;
+}
+
+=head2 moltype
+
+ Title   : moltype
+ Usage   : if( $obj->moltype eq 'dna' ) { /Do Something/ }
+ Function: Returns the type of sequence being one of 
+           'dna', 'rna' or 'protein'. This is case sensitive.
+
+           This is not called <type> because this would cause
+           upgrade problems from the 0.5 and earlier Seq objects.
+           
+ Returns : a string either 'dna','rna','protein'. NB - the object must
+           make a call of the type - if there is no type specified it
+           has to guess.
+ Args    : none
+
+
+=cut
+
+sub moltype{
+   my ($self,@args) = @_;
+
+   if( $self->can('throw') ) {
+       $self->throw("Bio::SeqI definition of seq - implementing class did not provide this method");
+   } else {
+       confess("Bio::SeqI definition of seq - implementing class did not provide this method");
+   }
+
 
 }
+
+=head1 Optional Implementation Functions
+
+The following functions rely on the above functions. A implementing
+class does not need to provide these functions, as they will be
+provided by this class, but is free to override these functions.
+
+All these functions are type of object constructor, which use the
+$obj->can_call_new() to see whether the new object should be made
+with the current implementation. If this is not possible, then they
+attempt a run-time loading of the Bio::Seq class which is then
+used to make the new objects.
+
+Implementors which really want to control how objects are created
+(eg, for object persistence over a database, or objects in a CORBA
+framework), they are encouraged to override these methods
+
+=head2 revcom
+
+ Title   : revcom
+ Usage   : $rev = $seq->revcom()
+ Function: Produces a new Bio::SeqI implementing object which
+           is the reversed complement of the sequence. For protein
+           sequences this throws an exception of "Sequence is a protein. Cannot revcom"
+
+           The id is the same id as the orginal sequence, and the accession number
+           is also indentical. If someone wants to track that this sequence has be
+           reversed, it needs to define its own extensions
+
+           To do an inplace edit of an object you can go:
+   
+           $seq = $seq->revcom();
+
+           This of course, causes Perl to handle the garbage collection of the old
+           object, but it is roughly speaking as efficient as an inplace edit.
+
+ Returns : A new (fresh) Bio::SeqI object
+ Args    : none
+
+
+=cut
+
+sub revcom{
+   my ($self) = @_;
+   
+
+   # check the type is good first.
+   my $t = $self->moltype;
+
+   if( $t eq 'protein' ) {
+       if( $self->can('throw') ) {
+	   $self->throw("Sequence is a protein. Cannot revcom");
+       } else {
+	   confess("[$self] Sequence is a protein. Cannot revcom");
+       }
+   }
+
+   if( $t ne 'dna' && $t ne 'rna' ) {
+       if( $self->can('warn') ) {
+	   $self->warn("Sequence is not dna or rna, but [$t]. Attempting to revcom, but unsure if this is right");
+       } else {
+	   warn("[$self] Sequence is not dna or rna, but [$t]. Attempting to revcom, but unsure if this is right");
+       }
+   }
+
+   # yank out the sequence string
+   
+   my $str = $self->seq();
+
+   # if is RNA - map to DNA then map back
+
+   if( $t eq 'rna' ) {
+       $str =~ tr/uU/tT/;
+   }
+
+   # revcom etc...
+
+   $str =~ tr/acgtrymkswhbvdnxACGTRYMKSWHBVDNX/tgcayrkmswdvbhnxTGCAYRKMSWDVBHNX/;
+   my $revseq = CORE::reverse $str;
+
+   if( $t eq 'rna' ) {
+       $revseq =~ tr/tT/uU/;
+   }
+
+   my $out;
+
+   if( $self->can_call_new == 1  ) {
+       $out = $self->new( -seq => $revseq,
+			  -id  => $self->id,
+			  -accession => $self->accession,
+			  -moltype => $self->moltype
+			  );
+   } else {
+       $self->_attempt_to_load_Seq();
+       $out = Bio::Seq->new(-seq => $revseq,
+			  -id  => $self->id,
+			  -accession => $self->accession,
+			  -moltype => $self->moltype
+			  );
+   }
+
+   return $out;
+
+}
+
+=head2 trunc
+
+ Title   : trunc
+ Usage   : $subseq = $myseq->trunc(10,100);
+ Function: Provides a truncation of a sequence,
+           
+ Example :
+ Returns : a fresh Bio::SeqI implementing object
+ Args    :
+
+
+=cut
+
+sub trunc{
+   my ($self,$start,$end) = @_;
+
+   if( !$end ) {
+       if( $self->can('throw')  ) {
+	   $self->throw("trunc start,end");
+       } else {
+	   confess("[$self] trunc start,end");
+       }
+   }
+
+   if( $end < $start ) {
+       if( $self->can('throw')  ) {
+	   $self->throw("$end is smaller than $start. if you want to truncated and reverse complement, you must call trunc followed by revcom. Sorry.");
+       } else {
+	   confess("[$self] $end is smaller than $start. If you want to truncated and reverse complement, you must call trunc followed by revcom. Sorry.");
+       }
+   }
+       
+   my $str = $self->subseq($start,$end);
+
+   my $out;
+   if( $self->can_call_new == 1  ) {
+       $out = $self->new( -seq => $str,
+			  -id  => $self->id,
+			  -accession => $self->accession,
+			  -moltype => $self->moltype
+			  );
+   } else {
+       $self->_attempt_to_load_Seq();
+       $out = Bio::Seq->new(-seq => $str,
+			    -id  => $self->id,
+			    -accession => $self->accession,
+			    -moltype => $self->moltype
+			    );
+   }
+   
+
+   return $out;
+}
+
+=head1 Methods for Backward Compatibility
+
+These methods are here for backward compatibility with the old, 0.5
+Seq objects. They all throw warnings that someone is using a 
+deprecated method, and may eventually be removed completely from
+this object. However, they are important to ease the transition from
+the old system.
+
+=head2 str
+
+ Title   : str
+ Usage   :
+ Function:
+ Example :
+ Returns : 
+ Args    :
+
+
+=cut
+
+sub str{
+   my ($self,$start,$end) = @_;
+
+   # we assumme anyone using this is using vanilla bioperl object
+   my ($p,$f,$l) = caller;
+   $self->warn("$f:$l Seq::str - deprecated method. You should use \$obj->seq in preference");
+
+   return $self->seq($start,$end);
+}
+
+=head2 ary
+
+ Title   : ary
+ Usage   :
+ Function:
+ Example :
+ Returns : 
+ Args    :
+
+
+=cut
+
+sub ary{
+   my ($self,$start,$end) = @_;
+
+   # we assumme anyone using this is using vanilla bioperl object
+   my ($p,$f,$l) = caller;
+   $self->warn("$f:$l Seq::ary - deprecated method. You should use \$obj->seq in preference, followed by your split to an array");
+
+   my $str = $self->seq($start,$end);
+   return split(//,$str);
+}
+
+=head2 getseq
+
+ Title   : getseq
+ Usage   :
+ Function:
+ Example :
+ Returns : 
+ Args    :
+
+
+=cut
+
+sub getseq{
+   my ($self,@args) = @_;
+
+   if( wantarray ) {
+       return $self->ary(@args);
+   } else {
+       return $self->str(@args);
+   }
+}
+
+=head2 type
+
+ Title   : type
+ Usage   :
+ Function:
+ Example :
+ Returns :
+ Args    :
+
+
+=cut
+
+sub type{
+   my ($self) = @_;
+
+   # we assumme anyone using this is using vanilla bioperl object
+   my ($p,$f,$l) = caller;
+   $self->warn("$f:$l Seq::type - deprecated method. You should use \$obj->moltype in preference (notice that moltype returns lowercase strings)");
+
+   my $t = $self->moltype;
+   $t eq "dna" && return "DNA";
+   $t eq "rna" && return "RNA";
+   $t eq "protein" && return "PROTEIN";
+   return "UNKNOWN";
+}
+
+=head1 Private functions
+
+These are some private functions for the SeqI interface. You do not
+need to implement these functions
+
+=head2 _attempt_to_load_Seq
+
+ Title   : _attempt_to_load_Seq
+ Usage   :
+ Function:
+ Example :
+ Returns : 
+ Args    :
+
+
+=cut
+
+sub _attempt_to_load_Seq{
+   my ($self) = @_;
+
+   if( $main::{'Bio::Seq'} ) {
+       return 1;
+   } else {
+       eval {
+	   require "Bio::Seq";
+       };
+       if( $@ ) {
+	   if( $self->can('throw') ) {
+	       $self->throw("Bio::Seq could not be loaded for $self\nThis indicates that you are usnig Bio::SeqI without Bio::Seq loaded and without providing a complete solution\nThe most likely problem is that there has been a misconfiguration of the bioperl environment\nActual exception\n\n$@\n");
+	   } else {
+	       confess("Bio::Seq could not be loaded for $self\nThis indicates that you are usnig Bio::SeqI without Bio::Seq loaded and without providing a complete solution\nThe most likely problem is that there has been a misconfiguration of the bioperl environment\nActual exception\n\n$@\n");
+	   }
+	   return 0;
+       }
+       return 1;
+   }
+   
+}
+
+
 
 
 1;

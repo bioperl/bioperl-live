@@ -1,0 +1,81 @@
+
+=head1 NAME
+
+Bioperl Design Documentation
+
+=head1 SYNOPSIS
+
+Not appropiate. Read on...
+
+=head1 DESCRIPTION
+
+Bioperl is a coordinated project which has a number of design features
+to allow bioperl to be well used, extended and collaborate with other
+packages. This design can be focused in a number of areas.
+
+  bioperl root object - exception throwing, exceptions etc.
+  bioperl interface design
+  bioperl sequence object design notes
+
+=head1 Bioperl Root Object
+
+All objects in bioperl (but for interfaces - see the next section) inheriet
+from the Root Object. The bioperl root object allows a number of very useful
+concepts to be provided. In particular.
+
+   Bioperl root object allow exceptions to be throw on the object with very
+nice debugging output
+
+   Bioperl root object have a context which allows, in particular, exceptions
+that are thrown to say which object as throwing the exception.
+
+   Bioperl root object have some helper methods, in particular rearrange to
+help functions which take hash inputs.
+
+=head2 Using the root object.
+
+To use the root object, the object has to inheriet from it. This means the @ISA
+array should have (Bio::Roo::Object) in it and that the module goes 
+"use Bio::Root::Object". The root object provides the ->new function. This new
+function builds a hash, sets some root object management issues and then calls
+the _initialize function. It is this function which your object needs to implement.
+The full code is given below.
+
+   # convention is that if you are using the Bio::Root object you should put it
+   # inside the Bio namespace
+
+   package Bio::MyNewObject;
+   use vars qw(@ISA);
+   use strict;
+
+   use Bio::Root::Object;
+   @ISA = qw(Bio::Root::Object);
+
+   # new() is inherited from Bio::Root::Object
+   # _initialize is where the heavy stuff will happen when new is called
+
+  sub _initialize {
+     my($self,@args) = @_;
+     # call superclasses initialize
+
+     my $make = $self->SUPER::_initialize(@args);
+ 
+     # do your own argument processing here
+     # set default attributes etc...
+
+     return $make; # success - we hope!
+  }
+
+=head2 Throwing Exceptions
+
+ Exceptions are die functions, in which the $@ variable (a scalar) is used to indicate
+how it died. The exceptions  can be caught using the eval {} system. The bioperl root
+object has a method called "->throw" which calls die but also provides a full stack
+trace of where this throw happened on (and also which object the exception was thrown
+- see the context section). So an exception like
+
+  $obj->throw("I am throwing an exception");
+
+ Provides the following output on STDERR if is not caught. 
+
+ 
