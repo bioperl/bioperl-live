@@ -155,11 +155,16 @@ sub type {
 sub primary_tag {
   my $self = shift;
   my $type = $self->type();
+  my $current_string_value;
   if( ref( $type ) && $type->isa( 'Bio::SeqFeature::TypeI' ) ) {
-    return $type->toString();
+    $current_string_value = $type->toString();
   } else {
-    return "$type";
+    $current_string_value = "$type";
   }
+  if( @_ ) {
+    $self->type( @_ );
+  }
+  return $current_string_value;
 } # primary_tag()
 
 =head2 type_string
