@@ -1,6 +1,6 @@
 =head1 NAME
 
-Bioperl 1.3 - Perl Modules for Biology
+Bioperl 1.4 - Perl Modules for Biology
 
 =head1 SYNOPSIS
 
@@ -157,7 +157,7 @@ except for Seq.pm). Talk to him or her and suggest changes.
 
 If you can make a useful object we will happily include it into the
 core. Probably you will want to read a lot of the documentation 
-in L<Bio::Root>, talk to people on the Bioperl mailing list,
+in L<Bio::Root::Root>, talk to people on the Bioperl mailing list,
 B<bioperl-l@bioperl.org>, and read biodesign.pod. biodesign.pod provides
 documentation on the conventions and ideas used in Bioperl, it's definitely
 worth a read if you would like to be a Bioperl developer.
