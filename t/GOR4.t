@@ -5,7 +5,6 @@
 # Before `make install' is performed this script should be runnable with
 # `make test'. After `make install' it should work as `perl test.t'
 use strict;
-use lib '../';
 use vars qw($NUMTESTS $DEBUG $ERROR $METAERROR);
 $DEBUG = $ENV{'BIOPERLDEBUG'} || 0;
 BEGIN {
@@ -76,7 +75,7 @@ my @res = $tool->result('Bio::SeqFeatureI');
 if (scalar @res > 0) {
     ok 1;
 } else {
-    skip('No network access - could not connect to NetPhos server', 1);
+    skip('No network access - could not connect to GOR4 server', 1);
 }
 ok my $meta = $tool->result('all');
 
