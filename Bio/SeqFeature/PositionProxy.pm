@@ -57,13 +57,12 @@ Ewan Birney E<lt>birney@sanger.ac.ukE<gt>
 =head1 DEVELOPERS
 
 This class has been written with an eye out of inheritence. The fields
-the actual object hash are:
+the actual object hash (in addition to those defined in superclasses) are:
 
-   _gsf_tag_hash  = reference to a hash for the tags
-   _gsf_sub_array = reference to an array for sub arrays
-   _gsf_start     = scalar of the start point
-   _gsf_end       = scalar of the end point
-   _gsf_strand    = scalar of the strand
+  _gsf_peer      = the seqfeature peer object
+  _gsf_seq
+  _gsf_location
+  _gsf_alternative_locations
 
 =head1 APPENDIX
 
@@ -75,166 +74,168 @@ methods. Internal methods are usually preceded with a _
 
 # Let the code begin...
 
-
 package Bio::SeqFeature::PositionProxy;
-use vars qw(@ISA);
+use vars qw( @ISA $AUTOLOAD );
 use strict;
 
-use Bio::Root::Root;
+use Bio::RelRange;
+use Bio::SeqFeature::SegmentI;
 use Bio::SeqFeatureI;
-use Bio::Tools::GFF;
+use Bio::AnnotatableI;
+use Bio::AlternativeLocationHolderI;
+@ISA = qw( Bio::RelRange
+           Bio::SeqFeature::SegmentI
+           Bio::SeqFeatureI
+           Bio::AnnotatableI
+           Bio::AlternativeLocationHolderI );
 
-
-@ISA = qw(Bio::Root::Root Bio::SeqFeatureI);
+use Bio::DB::GFF::Util::Rearrange; # for 'rearrange'
 
 sub new {
-    my ($caller, @args) = @_;
-    my $self = $caller->SUPER::new(@args);
+  my ( $caller, @args ) = @_;
+  my $self = $caller->SUPER::new( @args );
 
-    my ($feature,$location) = $self->_rearrange([qw(PARENT LOC)],@args);
+  my ( $feature, $location );
+  if( scalar( @args ) && $args[ 0 ] =~ /^-/ ) {
+    ( $feature, $location ) =
+      rearrange( [ [ qw( PARENT PEER ) ],
+                   [ qw( LOCATION LOC ) ] ], @args );
+  }
 
-    if( !defined $feature || !ref $feature || !$feature->isa('Bio::SeqFeatureI') ) {
-      $self->throw("Must have a parent feature, not a [$feature]");
+  if( !defined( $feature ) ||
+      !ref( $feature ) ||
+      !$feature->isa( 'Bio::SeqFeatureI' ) ) {
+    $self->throw( "Must have a Bio::SeqFeatureI peer, not $feature, a ".ref( $feature ) );
+  }
+
+  if( $feature->isa( "Bio::SeqFeature::PositionProxy" ) ) {
+    $feature = $feature->peer();
+  }
+  $self->peer( $feature );
+
+  if( defined( $location ) &&
+      ( !ref( $location ) || !$location->isa( 'Bio::LocationI' ) ) ) {
+    $self->throw( "Must have a location, not a [$location]" );
+  }
+  $self->location( $location ) if defined( $location );
+
+  return $self;
+} # new(..)
+
+=head2 peer
+
+ Title   : peer
+ Usage   : my $peer_feature = $proxy->peer()
+ Function: Get/Set the L<Bio::SeqFeatureI> peer of this proxy
+ Returns : The current (or former, if used as a set method) L<Bio::SeqFeatureI>
+           peer of this PositionProxy.
+ Args    : [optional] a new peer.
+
+=cut
+
+sub peer {
+  my $self = shift;
+  my $new_value = shift;
+
+  my $old_value = $self->{ '_gsf_peer' };
+  if( defined( $new_value ) ) {
+    unless( ref( $new_value ) && $new_value->isa( 'Bio::SeqFeatureI' ) ) {
+      $self->throw( "Unable to set the peer to $new_value.  It is a ".
+                    ref( $new_value ).
+                    ", not a Bio::SeqFeatureI." );
     }
-
-    if( $feature->isa("Bio::SeqFeature::PositionProxy") ) {
-      $feature = $feature->parent();
-    }
-
-    if( !defined $location || !ref $location || !$location->isa('Bio::LocationI') ) {
-      $self->throw("Must have a location, not a [$location]");
-    }
-
-
-    return $self;
-}
-
+    $self->{ '_gsf_peer' } = $new_value;
+  }
+  return $old_value;
+} # peer(..)
 
 =head2 location
 
  Title   : location
  Usage   : my $location = $seqfeature->location()
- Function: returns a location object suitable for identifying location 
-	   of feature on sequence or parent feature  
+ Function: returns a location object suitable for identifying location
+	   of feature on sequence or parent feature
  Returns : Bio::LocationI object
- Args    : none
+ Args    : [optional] Bio::LocationI object to set the value to.
 
 
 =cut
 
 sub location {
-    my($self, $value ) = @_;  
+  my $self = shift;
+  my $new_location = shift;
 
-    if (defined($value)) {
-        unless (ref($value) and $value->isa('Bio::LocationI')) {
-	    $self->throw("object $value pretends to be a location but ".
-			 "does not implement Bio::LocationI");
-        }
-        $self->{'_location'} = $value;
+  my $old_location = $self->{ '_location' } ||
+    Bio::Location::Simple->new(
+      '-seq_id' => $self->seq_id(),
+      '-start' => $self->start(),
+      '-end' => $self->end(),
+      '-strand' => $self->strand()
+    );
+  if( defined( $new_location ) ) {
+    unless( ref( $new_location ) and $new_location->isa( 'Bio::LocationI' ) ) {
+      $self->throw( "object $new_location pretends to be a location but ".
+                    "does not implement Bio::LocationI" );
     }
-    elsif (! $self->{'_location'}) {
-        # guarantees a real location object is returned every time
-        $self->{'_location'} = Bio::Location::Simple->new();
+    $self->{ '_location' } = $new_location;
+  }
+  return $old_location;
+} # location(..)
+
+sub add_alternative_locations {
+    my $self = shift;
+    foreach (@_) {
+      $self->throw("object $_ pretends to be a location but ".
+			 "does not implement Bio::LocationI")
+          unless ref($_) and $_->isa('Bio::LocationI');
+      push @{$self->{'_gsf_alternative_locations'}},$_;
     }
-    return $self->{'_location'};
 }
 
+*add_alternative_location = \&add_alternative_locations;
 
-=head2 parent
+=head2 alternative_locations
 
- Title   : parent
- Usage   : my $sf = $proxy->parent()
- Function: returns the seqfeature parent of this proxy
- Returns : Bio::SeqFeatureI object
- Args    : none
-
+ Title   : alternative_locations
+ Usage   : @locations = $seqfeature->alternative_locations([$seq_id])
+ Function: returns alternative locations
+ Returns : list of alternative locations
+ Args    : optionally, a seq_id to filter on
 
 =cut
 
-sub parent {
-    my($self, $value ) = @_;  
-
-    if (defined($value)) {
-        unless (ref($value) and $value->isa('Bio::SeqFeatureI')) {
-	    $self->throw("object $value pretends to be a location but ".
-			 "does not implement Bio::SeqFeatureI");
-        }
-        $self->{'_parent'} = $value;
+sub alternative_locations {
+    my $self = shift;
+    my $seqid_filter = shift;
+    return unless $self->{'_gsf_alternative_locations'};
+    if ( $seqid_filter ) {
+       return grep {$seqid_filter eq $_->seq_id} @{$self->{'_gsf_alternative_locations'}};
+    } else {
+       return @{$self->{'_gsf_alternative_locations'}};
     }
-
-    return $self->{'_parent'};
 }
 
+=head2 clear_alternative_locations
 
-
-=head2 start
-
- Title   : start
- Usage   : $start = $feat->start
-           $feat->start(20)
- Function: Get
- Returns : integer
- Args    : none
-
+ Title   : clear_alternative_locations
+ Usage   : $seqfeature->clear_alternative_locations([$seqid])
+ Function: clears all alternative locations
+ Returns : void
+ Args    : optionally, a seq_id to clear locations on
 
 =cut
 
-sub start {
-   my ($self,$value) = @_;
-   return $self->location->start($value);
+sub clear_alternative_locations {
+    my $self = shift;
+    my $seqid_filter = shift;
+    return unless $self->{'_gsf_alternative_locations'};
+    if ( $seqid_filter ) {
+       my @locations = grep {$seqid_filter ne $_->seq_id} @{$self->{'_gsf_alternative_locations'}};
+       return $self->{'_gsf_alternative_locations'} = \@locations;
+    } else {
+       $self->{'_gsf_alternative_locations'} = [];
+   }
 }
-
-=head2 end
-
- Title   : end
- Usage   : $end = $feat->end
-           $feat->end($end)
- Function: get
- Returns : integer
- Args    : none
-
-
-=cut
-
-sub end {
-   my ($self,$value) = @_;
-   return $self->location->end($value);
-}
-
-=head2 length
-
- Title   : length
- Usage   :
- Function:
- Example :
- Returns :
- Args    :
-
-
-=cut
-
-sub length {
-   my ($self) = @_;
-   return $self->end - $self->start() + 1;
-}
-
-=head2 strand
-
- Title   : strand
- Usage   : $strand = $feat->strand()
-           $feat->strand($strand)
- Function: get/set on strand information, being 1,-1 or 0
- Returns : -1,1 or 0
- Args    : none
-
-
-=cut
-
-sub strand {
-   my ($self,$value) = @_;
-   return $self->location->strand($value);
-}
-
 
 =head2 attach_seq
 
@@ -245,29 +246,33 @@ sub strand {
            from 1 to 10000
  Example :
  Returns : TRUE on success
- Args    :
-
+ Args    : a Bio::PrimarySeqI compliant object
 
 =cut
 
 sub attach_seq {
-   my ($self, $seq) = @_;
+  my ( $self, $seq ) = @_;
 
-   if ( !defined $seq || !ref $seq || ! $seq->isa("Bio::PrimarySeqI") ) {
-       $self->throw("Must attach Bio::PrimarySeqI objects to SeqFeatures");
-   }
+  if( !( $seq && ref( $seq ) && $seq->isa( "Bio::PrimarySeqI" ) ) ) {
+    $self->throw( "Must attach Bio::PrimarySeqI objects to SeqFeatures" );
+  }
 
-   $self->{'_gsf_seq'} = $seq;
+  $self->{ '_gsf_seq' } = $seq;
 
-   # attach to sub features if they want it
+  # If we share the same abs_seq_id with our peer then we can attatch
+  # it to the peer as well.
+  if( ( $self->abs_seq_id() eq $self->peer()->abs_seq_id() ) &&
+      not defined( $self->peer()->seq() ) ) {
+    $self->peer()->attach_seq( $seq );
+  }
 
-   foreach my $sf ( $self->sub_SeqFeature() ) {
-       if ( $sf->can("attach_seq") ) {
-	   $sf->attach_seq($seq);
-       }
-   }
-   return 1;
-}
+  # Attatch to sub features if they want it
+  foreach ( $self->sub_SeqFeature() ) {
+    $_->attach_seq($seq);
+  }
+
+  return 1;
+} # attach_seq(..)
 
 =head2 seq
 
@@ -275,35 +280,44 @@ sub attach_seq {
  Usage   : $tseq = $sf->seq()
  Function: returns the truncated sequence (if there) for this
  Example :
- Returns : sub seq on attached sequence bounded by start & end
+ Returns : sub seq (a Bio::PrimarySeqI compliant object) on attached sequence
+           bounded by start & end, or undef if there is no sequence attached
  Args    : none
 
 
 =cut
 
 sub seq {
-   my ($self, $arg) = @_;
+  my ( $self, $arg ) = @_;
 
-   if ( defined $arg ) {
-       $self->throw("Calling SeqFeature::PositionProxy->seq with an argument. You probably want attach_seq");
-   }
+  if( defined $arg ) {
+    $self->throw("Calling SeqFeature::Generic->seq with an argument. You probably want attach_seq");
+  }
 
-   if ( ! exists $self->{'_gsf_seq'} ) {
-       return undef;
-   }
+  if ( !exists $self->{ '_gsf_seq' } ) {
+    if( $self->abs_seq_id() eq $self->peer()->abs_seq_id() ) {
+      my $peer_seq = $self->peer()->entire_seq();
+      if( defined( $peer_seq ) ) {
+        $self->attach_seq( $peer_seq );
+      }
+    } else {
+      return undef;
+    }
+  }
 
-   # assumming our seq object is sensible, it should not have to yank
-   # the entire sequence out here.
+  # assumming our seq object is sensible, it should not have to yank
+  # the entire sequence out here.
+  my $seq = $self->{'_gsf_seq'}->trunc( $self->start(), $self->end() );
 
-   my $seq = $self->{'_gsf_seq'}->trunc($self->start(), $self->end());
+  if ( $self->strand == -1 ) {
+    # ok. this does not work well (?)
+    #print STDERR "Before revcom", $seq->str, "\n";
+    $seq = $seq->revcom;
+    #print STDERR "After  revcom", $seq->str, "\n";
+  }
 
-
-   if ( $self->strand == -1 ) {
-       $seq = $seq->revcom;
-   }
-
-   return $seq;
-}
+  return $seq;
+} # seq(..)
 
 =head2 entire_seq
 
@@ -311,139 +325,182 @@ sub seq {
  Usage   : $whole_seq = $sf->entire_seq()
  Function: gives the entire sequence that this seqfeature is attached to
  Example :
- Returns :
+ Returns : a Bio::PrimarySeqI compliant object, or undef if there is no
+           sequence attached
  Args    :
 
 
 =cut
 
 sub entire_seq {
-   my ($self) = @_;
+  my ( $self ) = @_;
 
-   return undef unless exists($self->{'_gsf_seq'});
-   return $self->{'_gsf_seq'};
-}
-
-
-=head2 seqname
-
- Title   : seqname
- Usage   : $obj->seq_id($newval)
- Function: There are many cases when you make a feature that you
-           do know the sequence name, but do not know its actual
-           sequence. This is an attribute such that you can store
-           the seqname.
-
-           This attribute should *not* be used in GFF dumping, as
-           that should come from the collection in which the seq
-           feature was found.
- Returns : value of seqname
- Args    : newvalue (optional)
-
-
-=cut
-
-sub seqname {
-    my ($obj,$value) = @_;
-    if ( defined $value ) {
-	$obj->{'_gsf_seqname'} = $value;
+  if ( !exists $self->{ '_gsf_seq' } ) {
+    if( $self->abs_seq_id() eq $self->peer()->abs_seq_id() ) {
+      my $peer_seq = $self->peer()->seq();
+      if( defined( $peer_seq ) ) {
+        $self->attach_seq( $peer_seq );
+      }
+    } else {
+      return undef;
     }
-    return $obj->{'_gsf_seqname'};
-}
+  }
+  return $self->{'_gsf_seq'};
+} # entire_seq(..)
 
+=head2 orientation_policy
 
+  Title   : orientation_policy
+  Usage   : my $orientation_policy =
+              $range->orientation_policy( [new_policy] );
+  Function: Get/Set the oriention policy that this RelRangeI uses.
+  Returns : The current (or former, if used as a set method) value of
+            the orientation policy.
+  Args    : [optional] A new (string) orientation_policy value.
 
-=head2 Proxies
+  The BioPerl community has various opinions about how coordinates
+  should be returned when the strand is negative.  Some folks like the
+  start to be the lesser-valued position in all circumstances
+  ('independent' of the strand value).  Others like the start to be
+  the lesser-valued position when the strand is 0 or 1 and the
+  greater-valued position when the strand is -1 ('dependent' on the
+  strand value).  Others expect that the start and end values are
+  whatever they were set to ('ignorant' of the strand value).
 
-These functions chain back to the parent for all non sequence related stuff.
+  Legal values of orientation_policy are:
+      Value          Assertion
+   ------------   -------------------
+   'independent'  ( start() <= end() )
+   'dependent'    (( strand() < 0 )?( end() <= start() ):( start() <= end() ))
+   'ignorant'     # No assertion.
 
-
-=cut
-
-=head2 primary_tag
-
- Title   : primary_tag
- Usage   : $tag = $feat->primary_tag()
- Function: Returns the primary tag for a feature,
-           eg 'exon'
- Returns : a string 
- Args    : none
-
-
-=cut
-
-sub primary_tag{
-   my ($self,@args) = @_;
-
-   return $self->parent->primary_tag();
-}
-
-=head2 source_tag
-
- Title   : source_tag
- Usage   : $tag = $feat->source_tag()
- Function: Returns the source tag for a feature,
-           eg, 'genscan' 
- Returns : a string 
- Args    : none
-
+  See also ensure_orientation().  Note that changing the
+  orientation_policy will not automatically ensure that the
+  orientation policy assertion holds, so you should call
+  ensure_orientation() also.
 
 =cut
 
-sub source_tag{
-   my ($self) = @_;
+sub orientation_policy {
+  my $self = shift;
+  unless( $self->peer() ) {
+    return 'ignorant';
+  }
+  $self->peer()->orientation_policy( @_ );
+} # orientation_policy(..)
 
-   return $self->parent->source_tag();
-}
+# Internal overridable getter/setter for the actual stored value of
+# seq_id.  Delegates to the location object at $self->{ '_location' }
+# if there is one; otherwise delegates to the superclass _seq_id(..).
+sub _seq_id {
+  my $self = shift;
+  if( $self->{ '_location' } ) {
+    my ( $new_val ) = @_;
+    my $old_val = $self->{ '_location' }->seq_id();
+    if( defined $new_val ) {
+      $self->{ '_location' }->seq_id( $new_val );
+    }
+    return $old_val;
+  } else {
+    return $self->SUPER::_seq_id( @_ );
+  }
+} # _seq_id(..)
 
+# Internal overridable getter/setter for the actual stored value of
+# start.  Delegates to the location object at $self->{ '_location' }
+# if there is one; otherwise delegates to the superclass _start(..).
+sub _start {
+  my $self = shift;
+  if( $self->{ '_location' } ) {
+    my ( $new_val ) = @_;
+    my $old_val = $self->{ '_location' }->start();
+    if( defined $new_val ) {
+      $self->{ '_location' }->start( $new_val );
+    }
+    return $old_val;
+  } else {
+    return $self->SUPER::_start( @_ );
+  }
+} # _start(..)
 
-=head2 has_tag
+# Internal overridable getter/setter for the actual stored value of
+# end.  Delegates to the location object at $self->{ '_location' }
+# if there is one; otherwise delegates to the superclass _end(..).
+sub _end {
+  my $self = shift;
+  if( $self->{ '_location' } ) {
+    my ( $new_val ) = @_;
+    my $old_val = $self->{ '_location' }->end();
+    if( defined $new_val ) {
+      $self->{ '_location' }->end( $new_val );
+    }
+    return $old_val;
+  } else {
+    return $self->SUPER::_end( @_ );
+  }
+} # _end(..)
 
- Title   : has_tag
- Usage   : $tag_exists = $self->has_tag('some_tag')
- Function: 
- Returns : TRUE if the specified tag exists, and FALSE otherwise
- Args    :
+# Internal overridable getter/setter for the actual stored value of
+# strand.  Delegates to the location object at $self->{ '_location' }
+# if there is one; otherwise delegates to the superclass _strand(..).
+sub _strand {
+  my $self = shift;
+  if( $self->{ '_location' } ) {
+    my ( $new_val ) = @_;
+    my $old_val = $self->{ '_location' }->strand();
+    if( defined $new_val ) {
+      $self->{ '_location' }->strand( $new_val );
+    }
+    return $old_val;
+  } else {
+    return $self->SUPER::_strand( @_ );
+  }
+} # _strand(..)
 
+=head2 add_alternative_locations
+
+ Title   : add_alternative_locations
+ Usage   : $seqfeature->add_alternative_locations(@locationi)
+ Function: adds new alternative location to the object
+ Returns : void
+ Args    : one or more LocationI-implementing object
+
+ This adds one or more alternative locations to the feature.  These are
+ to be viewed as alternative coordinate systems, such as
+ assembly-to-assembly alignments, and not as alternative locations in
+ the same coordinate space.
 
 =cut
 
-sub has_tag{
-   my ($self,$tag) = @_;
+=head2 Autogenerated Methods
 
-   return $self->parent->has_tag($tag);
-}
+Any method that does not pertain to location/range/position will be delegated
+to AUTOLOAD and treated as a call to the peer's method of the same name.
+For instance, this call:
 
-=head2 each_tag_value
+  @subfeatures = $feature->sub_SeqFeature();
 
- Title   : each_tag_value
- Usage   : @values = $self->each_tag_value('some_tag')
- Function: 
- Returns : An array comprising the values of the specified tag.
- Args    :
+is equivalent to this call:
 
+  @subfeatures = $feature->peer()->sub_SeqFeature();
 
 =cut
 
-sub each_tag_value {
-   my ($self,$tag) = @_;
+sub AUTOLOAD {
+  my( $pack, $func_name ) = ( $AUTOLOAD =~ /(.+)::([^:]+)$/ );
+  my $self = shift;
 
-   return $self->parent->each_tag_value($tag);
-}
+  # ignore DESTROY calls
+  return if $func_name eq 'DESTROY';
 
-=head2 all_tags
+  if( $self->{ '_gsf_peer' }->can( $func_name ) ) {
+    return $self->{ '_gsf_peer' }->$func_name( @_ );
+  } else {
+    # error message of last resort
+    $self->throw( "Can't locate object method \"$func_name\" via package \"$pack\"" );
+  }
+} # AUTOLOAD(..)
 
- Title   : all_tags
- Usage   : @tags = $feat->all_tags()
- Function: gives all tags for this feature
- Returns : an array of strings
- Args    : none
+1;
 
-
-=cut
-
-sub all_tags{
-   my ($self) = @_;
-
-   return $self->parent->all_tags();
-}
+__END__
