@@ -608,6 +608,8 @@ sub overlap_extent {
 
 =head2 Bio::SeqI implementation
 
+=cut
+
 =head2 primary_id
 
  Title   : primary_id

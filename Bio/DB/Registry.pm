@@ -14,11 +14,11 @@ Bio::DB::Registry - Access to the Open Bio Database Access registry scheme
     $registry = new Bio::DB::Registry();
 
     @available_services = $registry->services;
-    
+
     $db = $registry->get_database('embl'); 
     # $db is a Bio::DB::SeqI implementing class
 
-    $seq = $db->get_Seq_by_acc("J02231");    
+    $seq = $db->get_Seq_by_acc("J02231");
 
 =head1 DESCRIPTION
 
@@ -169,7 +169,7 @@ sub _load_registry {
 
 
 =cut
-	
+
 sub get_database {
     my ($self,$dbname) = @_;
 

@@ -14,20 +14,21 @@ Bio::Tools::Alignment::Consed - A module to work with objects from consed .ace f
 
 =head1 SYNOPSIS
 
-        # a report for sequencing stuff
-my $o_consed = new Bio::Tools::Alignment::Consed( -acefile => "/path/to/an/acefile.ace.1",
-				-verbose => 1);
-my $foo = $o_consed->set_reverse_designator("r");
-my $bar = $o_consed->set_forward_designator("f");
+  # a report for sequencing stuff
+  my $o_consed = new Bio::Tools::Alignment::Consed
+        ( -acefile => "/path/to/an/acefile.ace.1",
+	  -verbose => 1);
+  my $foo = $o_consed->set_reverse_designator("r");
+  my $bar = $o_consed->set_forward_designator("f");
 
-        # get the contig numbers
-my @keys = $o_consed->get_contigs();
+  # get the contig numbers
+  my @keys = $o_consed->get_contigs();
 
-        # construct the doublets
-my $setter_doublets = $o_consed->choose_doublets();
+  # construct the doublets
+  my $setter_doublets = $o_consed->choose_doublets();
 
-        # get the doublets
-my @doublets = $o_consed->get_doublets();
+  # get the doublets
+  my @doublets = $o_consed->get_doublets();
 
 =head1 DESCRIPTION
 
@@ -214,7 +215,7 @@ sub get_filename {
 
            This method was reimplemented to be platform independent with a 
            pure perl implementation.  The above note can be ignored.
-          
+
 =cut
 
 sub count_sequences_with_grep {
