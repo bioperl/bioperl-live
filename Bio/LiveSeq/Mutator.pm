@@ -1192,7 +1192,7 @@ sub _post_mutation {
 	     $aachange->end($aachange->start);
 	     $aachange->length(1);
 	 }
-	elsif ( length($rlenori) == length($rlenmut) and 
+	elsif ( $rlenori == $rlenmut and 
 		$aachange->allele_ori->seq ne '*' ) { #complex inframe mutation
 	    $aachange->allele_mut->seq(substr $aachange->allele_mut->seq, 
 				       0, 
