@@ -74,12 +74,14 @@ sub new {
     my ($class, @args) = @_;
     my $self = $class->SUPER::new(@args);
 
-    my ($start,$end,$strand) = $self->_rearrange([qw(START 
+    my ($start,$end,$strand,$seqid) = $self->_rearrange([qw(START 
 						     END 
-						     STRAND)],@args);
+						     STRAND 
+						     SEQID)],@args);
     $start && $self->start($start);
     $end && $self->end($end);
     $strand && $self->strand($strand);
+    $seqid && $self->seq_id($seqid);
 
     return $self;
 }
