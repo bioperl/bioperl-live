@@ -196,7 +196,7 @@ not stranded.
 
 For annotations that are linked to proteins, this field describes the
 phase of the annotation on the codons.  It is a number from 0 to 2, or
-"." for features that have no phase.
+"." for features that have no phase\.
 
 =item 9. group
 
@@ -530,6 +530,8 @@ adaptor-specific arguments:
 
   -pass          the password for authentication
 
+  -refclass      landmark Class; defaults to "Sequence"
+
 The commonly used 'dbi::mysqlopt' adaptor also recogizes the following
 arguments.
 
@@ -548,16 +550,17 @@ arguments.
 
 sub new {
   my $package   = shift;
-  my ($adaptor,$aggregators,$args);
+  my ($adaptor,$aggregators,$args,$refclass);
 
   if (@_ == 1) {  # special case, default to dbi::mysqlopt
     $adaptor = 'dbi::mysqlopt';
     $args = {DSN => shift};
   } else {
-    ($adaptor,$aggregators,$args) = rearrange([
-					       [qw(ADAPTOR FACTORY)],
-					       [qw(AGGREGATOR AGGREGATORS)]
-					      ],@_);
+    ($adaptor,$aggregators,$refclass,$args) = rearrange([
+							 [qw(ADAPTOR FACTORY)],
+							 [qw(AGGREGATOR AGGREGATORS)],
+							 'REFCLASS',
+							],@_);
   }
 
   $adaptor    ||= 'dbi::mysqlopt';
@@ -566,6 +569,7 @@ sub new {
   $package->throw("Unable to load $adaptor adaptor: $@") if $@;
 
   my $self = $class->new($args);
+  $self->default_class($refclass) if defined $refclass;
 
   # handle the aggregators.
   # aggregators are responsible for creating complex multi-part features
@@ -1436,10 +1440,11 @@ old method name is also recognized.
 sub load_gff {
   my $self              = shift;
   my $file_or_directory = shift || '.';
-  open SAVEIN,"<&STDIN";
+  my $tied_stdin = tied(*STDIN);
+  open SAVEIN,"<&STDIN" unless $tied_stdin;
   local @ARGV = $self->setup_argv($file_or_directory,'gff') or return;  # to play tricks with reader
-  my $result = $self->do_load_gff;
-  open STDIN,"<&SAVEIN";  # restore STDIN
+  my $result = $self->do_load_gff();
+  open STDIN,"<&SAVEIN" unless $tied_stdin;  # restore STDIN
   return $result;
 }
 
@@ -1493,10 +1498,11 @@ web server can be loaded with an expression like this:
 sub load_fasta {
   my $self              = shift;
   my $file_or_directory = shift || '.';
-  open SAVEIN,"<&STDIN";
+  my $tied = tied(*STDIN);
+  open SAVEIN,"<&STDIN" unless $tied;
   local @ARGV = $self->setup_argv($file_or_directory,'fa','dna','fasta') or return;  # to play tricks with reader
   my $result = $self->load_sequence();
-  open STDIN,"<&SAVEIN";  # restore STDIN
+  open STDIN,"<&SAVEIN" unless $tied;  # restore STDIN
   return $result;
 }
 
@@ -3042,7 +3048,7 @@ L<Bio::DB::GFF::Aggregator>,
 L<Bio::DB::GFF::Feature>,
 L<Bio::DB::GFF::Adaptor::dbi::mysqlopt>,
 L<Bio::DB::GFF::Adaptor::dbi::oracle>,
-L<Bio::DB::GFF::Adaptor::dbi::memory>
+L<Bio::DB::GFF::Adaptor::memory>
 
 =head1 AUTHOR
 

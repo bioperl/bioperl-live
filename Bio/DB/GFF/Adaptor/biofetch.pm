@@ -70,6 +70,8 @@ all adaptors, the following class-specific arguments are recgonized:
 
   -proxy         [['http','ftp'],'http://proxy:8080']
 
+  -stdout        write result to stdout rather than a database
+
 -dsn,-user and -pass indicate the local database to cache results in,
 and as are per Bio::DB::GFF::Adaptor::dbi.  The -proxy argument allows
 you to set the biofetch web proxy, and uses the same syntax described

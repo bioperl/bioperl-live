@@ -27,9 +27,13 @@ Three named arguments are recommended:
    Argument         Description
 
    -adaptor         Set to "memory" to create an instance of this class.
-   -file            Read the indicated .gff file.
-   -directory       Read the indicated directory of .gff files.
-   -fasta           Read the indicated file OR directory of fasta files.
+   -gff             Read the indicated file or directory of .gff file.
+   -fasta           Read the indicated file or directory of fasta files.
+   -dsn             Indicates a directory containing .gff and .fa files
+
+If you use the -dsn option and the indicated directory is writable by
+the current process, then this library will create a FASTA file index
+that greatly diminishes the memory usage of this module.
 
 =head1 METHODS
 
@@ -71,29 +75,52 @@ use strict;
 use Bio::DB::GFF;
 use Bio::DB::GFF::Util::Rearrange; # for rearrange()
 use Bio::DB::GFF::Adaptor::memory_iterator;
-#use vars qw($VERSION @ISA);
+use File::Basename 'dirname';
+
 use vars qw(@ISA);
 
 use constant MAX_SEGMENT => 100_000_000;  # the largest a segment can get
 
 @ISA =  qw(Bio::DB::GFF);
-#$VERSION = '0.02';
 
 sub new {
   my $class = shift ;
-  my ($file,$fasta) = rearrange([
-				 [qw(FILE DIRECTORY)],
-				 'fasta'
+  my ($file,$fasta,$dbdir) = rearrange([
+					[qw(GFF FILE DIRECTORY)],
+					'FASTA',
+					[qw(DSN DB DIR)],
 				],@_);
 
   # fill in object
   my $self = bless{ data => [] },$class;
-  $self->load_gff($file)    if $file;
-  $self->load_fasta($fasta) if $fasta;
+  $file  ||= $dbdir;
+  $fasta ||= $dbdir;
+  $self->load_gff($file)             if $file;
+  $self->load_or_store_fasta($fasta) if $fasta;
   return $self;
 }
 
+sub load_or_store_fasta {
+  my $self  = shift;
+  my $fasta = shift;
+  if ((-f $fasta && -w dirname($fasta))
+      or
+      (-d $fasta && -w $fasta)) {
+    require Bio::DB::Fasta;
+    my $dna_db = Bio::DB::Fasta->new($fasta)
+      or $self->throw("Couldn't create a new Bio::DB::Fasta index from $fasta");
+    $self->dna_db($dna_db);
+  } else {
+    $self->load_fasta($fasta);
+  }
+}
 
+sub dna_db {
+  my $self = shift;
+  my $d    = $self->{dna_db};
+  $self->{dna_db} = shift if @_;
+  $d;
+}
 
 sub insert_sequence {
   my $self = shift;
@@ -101,16 +128,18 @@ sub insert_sequence {
   $self->{dna}{$id} .= $seq;
 }
 
-
-
 # low-level fetch of a DNA substring given its
 # name, class and the desired range.
 sub get_dna {
   my $self = shift;
   my ($id,$start,$stop,$class) = @_;
+  if (my $dna_db = $self->dna_db) {
+    return $dna_db->seq($id,$start=>$stop);
+  }
+
   return $self->{dna}{$id} if !defined $start || !defined $stop;
   $start = 1 if !defined $start;
-  
+
   my $reversed = 0;
   if ($start > $stop) {
     $reversed++;
@@ -125,7 +154,6 @@ sub get_dna {
   $dna;
 }
 
-
 # this method loads the feature as a hash into memory -
 # keeps an array of features-hashes as an in-memory db
 sub load_gff_line {
@@ -135,7 +163,6 @@ sub load_gff_line {
   $feature_hash->{phase} = ''  if $feature_hash->{phase}  && $feature_hash->{phase} eq '.';
   push @{$self->{data}},$feature_hash;
 }
-
 
 # given sequence name, return (reference,start,stop,strand)
 sub get_abscoords {
@@ -244,8 +271,6 @@ sub search_notes {
   @results;
 }
 
-
-
 # attributes -
 
 # Some GFF version 2 files use the groups column to store a series of
@@ -263,7 +288,6 @@ sub do_attributes{
   my $attr ;
 
   my $feature = ${$self->{data}}[$feature_id];
-  
   my @result;
   for my $attr (@{$feature->{attributes}}) {
     my ($attr_name,$attr_value) = @$attr ;
@@ -279,7 +303,6 @@ sub _feature_by_attribute{
   my $self = shift;
   my ($attributes,$callback) = @_;
   $callback || $self->throw('must provide a callback argument');
-  
   my $count = 0;
   my $feature_id = -1;
   my $feature_group_id = undef;
@@ -289,11 +312,9 @@ sub _feature_by_attribute{
     $feature_id++;
     for my $attr (@{$feature->{attributes}}) {
       my ($attr_name,$attr_value) = @$attr ;
-      
       #there could be more than one set of attributes......
       foreach (keys %$attributes) {
 	if ($_ eq $attr_name && $attributes->{$_} eq $attr_value){
-	   
            $callback->($feature->{ref},
 	        $feature->{start},
 	        $feature->{stop},
@@ -308,8 +329,8 @@ sub _feature_by_attribute{
 		$feature->{tstop},
 	        $feature_id,
 		$feature_group_id);
-	   $count++;						    
-        }						       
+	   $count++;
+        }
       }
     }
   }
@@ -326,18 +347,17 @@ sub _feature_by_attribute{
 sub get_features{
   my $self = shift;
   my $count = 0;
-  
-  my ($search,$options,$callback) = @_;				       
+  my ($search,$options,$callback) = @_;
   my $data = \@{$self->{data}};
 
   my $found_features;
 
   $found_features = _get_features_by_search_options($data,$search,$options);
-  
+
   # only true if the sort by group option was specified
   @{$found_features} = sort {"$a->{gclass}:$a->{gname}" cmp "$b->{gclass}:$b->{gname}"} 
     @{$found_features} if $options->{sort_by_group} ;
-  
+
   for my $feature (@{$found_features}) {  # only true if the sort by group option was specified
     $count++;
     $callback->(

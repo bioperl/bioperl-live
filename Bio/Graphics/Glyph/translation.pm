@@ -114,6 +114,7 @@ sub draw_component {
 sub draw_frame {
   my $self = shift;
   my ($feature,$strand,$base_offset,$phase,$gd,$x1,$y1,$x2,$y2) = @_;
+  return unless $feature->seq;  # no sequence, arggh.
   my ($seq,$pos) = $strand < 0 ? ($feature->revcom,$feature->end)
                                : ($feature,$feature->start);
   my ($frame,$offset) = frame_and_offset($pos,$strand,$phase);
