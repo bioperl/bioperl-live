@@ -14,7 +14,8 @@ Bio::Species - Generic species object
 
 =head1 SYNOPSIS
 
-    $species = Bio::Species->new(); # Can also pass classification
+    $species = Bio::Species->new(-classification => [@classification]); 
+                                    # Can also pass classification
                                     # array to new as below
                                     
     $species->classification(qw( sapiens Homo Hominidae
@@ -66,25 +67,24 @@ use strict;
 
 # Object preamble - inheriets from Bio::Root::Object
 
-use Bio::Root::Object;
+use Bio::Root::RootI;
 
 
-@ISA = qw(Bio::Root::Object);
-# new() is inherited from Bio::Root::Object
+@ISA = qw(Bio::Root::RootI);
 
-# _initialize is where the heavy stuff will happen when new is called
+sub new {
+  my($class,@args) = @_;
 
-sub _initialize {
-  my($self,@args) = @_;
-
-  my $make = $self->SUPER::_initialize;
+  my $self = $class->SUPER::new(@args);
 
   $self->{'classification'} = [];
   $self->{'common_name'} = undef;
-  if (@args) {
-    $self->classification(@args);
+  my ($classification) = $self->_rearrange([qw(CLASSIFICATION)], @args);
+  if( defined $classification && 
+      (ref($classification) =~ /array/i) ) { 
+      $self->classification(@$classification);
   }
-  return $make; # success - we hope!
+  return $self; 
 }
 
 =head2 classification
@@ -108,25 +108,23 @@ sub _initialize {
 
 
 sub classification {
-    my $self = shift;
+    my ($self,@args) = @_;
 
-    if (@_) {
-        my @classification = @_;
+    if (@args) {
         
         # Check the names supplied in the classification string
         {
             # Species should be in lower case
-            my $species = $classification[0];
+            my $species = $args[0];
             $self->validate_species_name( $species );
 
             # All other names must be in title case
-            for (my $i = 1; $i < @classification; $i++) {
-                $self->validate_name( $classification[$i] );
+            for (my $i = 1; $i < @args; $i++) {
+                $self->validate_name( $args[$i] );
             }
         }
-
         # Store classification
-        $self->{'classification'} = [ @classification ];
+        $self->{'classification'} = [ @args ];
     }
     return @{$self->{'classification'}};
 }
@@ -259,6 +257,11 @@ sub binomial {
     my( $self, $full ) = @_;
     
     my( $species, $genus ) = $self->classification();
+    unless( defined $species) { 
+	$species = ''; 
+	$self->warn("classification was not set"); 
+    }
+    $genus = ''   unless( defined $genus);
     my $bi = "$genus $species";
     if (defined($full) && ($full eq 'FULL')) {
 	my $ssp = $self->sub_species;
