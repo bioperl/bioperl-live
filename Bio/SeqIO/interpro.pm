@@ -1,15 +1,93 @@
-# BioPerl module for Bio::SeqIO::interpro
+# $Id$
 #
-# Author: Jared Fox (jaredfox@ucla.edu)
-# Contributor: Allen Day (allenday@ucla.edu)
-# Copyright Jared Fox and Allen Day
-#
+# BioPerl module for interpro
 # You may distribute this module under the same terms as perl itself
+
+# POD documentation - main docs before the code
+
+=head1 NAME
+
+interpro - DESCRIPTION of Object
+
+=head1 SYNOPSIS
+
+Bio::SeqIO::interpro will parse interpro scan XML (version 1.2) and create 
+Bio::SeqFeature::Generic objects based on the contents of the XML document. 
+
+=head1 DESCRIPTION
+
+Bio::SeqIO::Interpro will also attach the annotation given in the XML file to the
+Bio::SeqFeature::Generic objects that it creates.
+
+=head1 FEEDBACK
+
+=head2 Mailing Lists
+
+User feedback is an integral part of the evolution of this and other
+Bioperl modules. Send your comments and suggestions preferably to
+the Bioperl mailing list.  Your participation is much appreciated.
+
+  bioperl-l@bioperl.org              - General discussion
+  http://bioperl.org/MailList.shtml  - About the mailing lists
+
+=head2 Reporting Bugs
+
+Report bugs to the Bioperl bug tracking system to help us keep track
+of the bugs and their resolution. Bug reports can be submitted via
+the web:
+
+  http://bugzilla.bioperl.org/
+
+=head1 AUTHOR - Jared Fox
+
+Email jaredfox@ucla.edu
+
+=head1 CONTRIBUTORS
+
+Allen Day allenday@ucla.edu
+
+=head1 APPENDIX
+
+The rest of the documentation details each of the object methods.
+Internal methods are usually preceded with a _
+
+=cut
+
+
+# Let the code begin...
+
+
+package interpro;
+use vars qw(@ISA);
+use strict;
+
+# Object preamble - inherits from Bio::Root::Root
+
+use Bio::Root::Root;
+
+
+@ISA = qw(Bio::Root::Root );
+
+=head2 new
+
+ Title   : new
+ Usage   : my $obj = new interpro();
+ Function: Builds a new interpro object 
+ Returns : an instance of interpro
+ Args    :
+
+
+=cut
+
+sub new {
+  my($class,@args) = @_;
+
+  my $self = $class->SUPER::new(@args);
+  return $self;
+}
+
+1;
 #
-# Bio::SeqIO::interpro will parse interpro scan XML (version 1.2) and create 
-# Bio::SeqFeature::Generic objects based on the contents of the XML document. 
-# Bio::SeqIO::Interpro will also attach the annotation given in the XML file to the
-# Bio::SeqFeature::Generic objects that it creates.
 
 package Bio::SeqIO::interpro;
 use vars qw(@ISA);
