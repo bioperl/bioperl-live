@@ -183,7 +183,11 @@ package Bio::DB::Flat::OBDAIndex;
 use strict;
 use vars qw(@ISA);
 
-use FileHandle;
+use Fcntl qw(SEEK_END SEEK_CUR);
+# rather than using tell which might be buffered
+sub systell{ sysseek($_[0], 0, SEEK_CUR) }
+sub syseof{ sysseek($_[0], 0, SEEK_END) }
+
 
 use Bio::DB::RandomAccessI;
 use Bio::Root::RootI;
@@ -240,15 +244,16 @@ sub new {
 
     bless $self, $class;
 
-    my ($index_dir,$dbname,$format,$primary_pattern,$primary_namespace,$start_pattern,$secondary_patterns) =  
-	$self->_rearrange([qw(INDEX_DIR
-			      DBNAME
-			      FORMAT
-			      PRIMARY_PATTERN
-			      PRIMARY_NAMESPACE
-			      START_PATTERN
-			      SECONDARY_PATTERNS)], @args);
-
+    my ($index_dir,$dbname,$format,$primary_pattern,$primary_namespace,
+	$start_pattern,$secondary_patterns) =  
+	    $self->_rearrange([qw(INDEX_DIR
+				  DBNAME
+				  FORMAT
+				  PRIMARY_PATTERN
+				  PRIMARY_NAMESPACE
+				  START_PATTERN
+				  SECONDARY_PATTERNS)], @args);
+    
     $self->index_directory($index_dir);
     $self->database_name     ($dbname);
 
@@ -361,9 +366,9 @@ sub get_stream_by_id {
 
     my $indexfh = $self->primary_index_filehandle;
 
-    sysseek ($indexfh,0,2);
+    syseof ($indexfh);
 
-    my $filesize = (tell $indexfh);
+    my $filesize = systell($indexfh);
 
     my $end = ($filesize-$self->{_start_pos})/$self->record_size;
 
@@ -443,9 +448,9 @@ sub get_Seq_by_secondary {
 
     my $fh = $self->open_secondary_index($name);
 
-    sysseek ($fh,0,2);
+    syseof ($fh);
 
-    my $filesize = (tell $fh);
+    my $filesize = systell($fh);
 
     my $recsize = $self->{_secondary_record_size}{$name};
 #    print "Name " . $recsize . "\n";
