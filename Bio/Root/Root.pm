@@ -234,6 +234,7 @@ sub _unregister_for_cleanup {
 
 sub _cleanup_methods {
   my $self = shift;
+  return unless ref $self eq "HASH";
   my $methods = $self->{'_root_cleanup_methods'} or return;
   @$methods;
 }
