@@ -531,8 +531,7 @@ sub _request {
     } else { $resp =  $self->ua->request($url); } 
 
     if( $resp->is_error  ) {
-	$self->warn($resp->as_string());
-	$self->throw("WebDBSeqI Request Error\n");
+	$self->throw("WebDBSeqI Request Error:\n".$resp->as_string);
     }
     return $resp;
 }
