@@ -314,9 +314,11 @@ sub refseq {
   if (@_) {
     my $newref   = shift;
 
+    defined $newref or $self->throw('refseq() called with an undef reference sequence');
+
     # support for Featname objects
     my $newclass = shift;
-    $newclass = $newref->class if $newref->can('class');
+    $newclass = $newref->class if ref($newref) && $newref->can('class');
     $newclass ||= 'Sequence';
 
     $self->throw("Cannot define a segment's reference sequence in terms of itself!")
