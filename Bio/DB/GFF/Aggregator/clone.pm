@@ -1,3 +1,28 @@
+=head1 NAME
+
+Bio::DB::GFF::Aggregator::clone -- Clone aggregator
+
+=head1 SYNOPSIS
+
+  use Bio::DB::GFF;
+
+  # Open the sequence database
+  my $db      = Bio::DB::GFF->new( -adaptor => 'dbi:mysql',
+                                   -dsn     => 'dbi:mysql:elegans42',
+				   -aggregator => ['transcript','clone'],
+				 );
+
+
+=head1 DESCRIPTION
+
+Bio::DB::GFF::Aggregator::clone is one of the default aggregators, and
+was written to be compatible with the C elegans GFF files.  It
+aggregates raw "Clone_left_end", "Clone_right_end", and
+"Sequence:Genomic_canonical" features into composite features of type
+"clone".
+
+=cut
+
 package Bio::DB::GFF::Aggregator::clone;
 
 use strict;
@@ -7,6 +32,24 @@ use vars qw($VERSION @ISA);
 
 $VERSION = '0.10';
 @ISA = qw(Bio::DB::GFF::Aggregator);
+
+=head2 aggregate
+
+ Title   : aggregate
+ Usage   : $features = $a->aggregate($features,$factory)
+ Function: aggregate a feature list into composite features
+ Returns : an array reference containing modified features
+ Args    : see L<Bio::DB::GFF::Aggregator>
+ Status  : Public
+
+The WormBase GFF model is unusual in that clones aren't identified as
+a single feature with start and stop positions, but as two features, a
+"left end" and a "right end".  One or both of these features may be
+absent.  In order to accomodate this, the aggregator will return undef
+for the start and/or stop if one or both of the ends are missing.
+
+=cut
+
 
 # we look for features of type Sequence and add them to a pseudotype transcript
 sub aggregate {
@@ -48,11 +91,56 @@ sub aggregate {
   \@result;
 }
 
+=head2 method
+
+ Title   : method
+ Usage   : $aggregator->method
+ Function: return the method for the composite object
+ Returns : the string "clone"
+ Args    : none
+ Status  : Public
+
+=cut
+
 sub method { 'clone' }
-sub get_part_names {
+
+=head2 part_names
+
+ Title   : part_names
+ Usage   : $aggregator->part_names
+ Function: return the methods for the sub-parts
+ Returns : the list ("Clone_left_end", "Clone_right_end", "Sequence:genomic_canonical")
+ Args    : none
+ Status  : Public
+
+=cut
+
+sub part_names {
   my $self = shift;
-  return @{$self->{parts}} if exists $self->{parts};
   return qw(Clone_left_end Clone_right_end Sequence:genomic_canonical);
 }
 
 1;
+
+__END__
+
+=head1 BUGS
+
+None reported.
+
+
+=head1 SEE ALSO
+
+L<Bio::DB::GFF>, L<Bio::DB::GFF::Aggregator>
+
+=head1 AUTHOR
+
+Lincoln Stein E<lt>lstein@cshl.orgE<gt>.
+
+Copyright (c) 2001 Cold Spring Harbor Laboratory.
+
+This library is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself.
+
+=cut
+

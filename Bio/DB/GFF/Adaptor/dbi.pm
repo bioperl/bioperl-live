@@ -1,3 +1,19 @@
+=head1 NAME
+
+Bio::DB::GFF::Adaptor::dbi -- Database adaptor for DBI (SQL) databases
+
+=head1 SYNOPSIS
+
+See L<Bio::DB::GFF>
+
+=head1 DESCRIPTION
+
+This is the base class for DBI-based adaptors.  It does everything
+except generating the text of the queries to be used.  See the section
+QUERIES TO IMPLEMENT for the list of queries that must be implemented.
+
+=cut
+
 package Bio::DB::GFF::Adaptor::dbi;
 
 # base class for dbi-based implementations
@@ -12,6 +28,30 @@ use vars qw($VERSION @ISA);
 $VERSION = '0.20';
 
 use constant MAX_SEGMENT => 100_000_000;  # the largest a segment can get
+
+=head2 new
+
+ Title   : new
+ Usage   : $db = Bio::DB::GFF->new(-adaptor => 'dbi:some_subclass',@args)
+ Function: create a new adaptor
+ Returns : a Bio::DB::GFF object
+ Args    : see below
+ Status  : Public
+
+This is the constructor for the adaptor.  It is called automatically
+by Bio::DB::GFF->new.  In addition to arguments that are common among
+all adaptors, the following class-specific arguments are recgonized:
+
+  Argument       Description
+  --------       -----------
+
+  -dsn           the DBI data source, e.g. 'dbi:mysql:ens0040'
+
+  -user          username for authentication
+
+  -pass          the password for authentication
+
+=cut
 
 # Create a new Bio::DB::GFF::Adaptor::dbi object
 sub new {
@@ -42,7 +82,35 @@ sub new {
 	       },$class;
 }
 
+=head2 features_db
+
+ Title   : features_db
+ Usage   : $dbh = $db->features_db
+ Function: get database handle
+ Returns : a DBI handle
+ Args    : none
+ Status  : Public
+
+=cut
+
 sub features_db { shift->{features_db} }
+
+
+=head2 do_query
+
+ Title   : do_query
+ Usage   : $sth = $db->do_query($query,@args)
+ Function: perform a DBI query
+ Returns : a statement handler
+ Args    : query string and list of bind arguments
+ Status  : Public
+
+This method performs a DBI prepare() and execute(), returning a
+statement handler.  You will typically call fetch() of
+fetchrow_array() on the statement handle.  The parsed statement handle
+is cached for later use.
+
+=cut
 
 sub do_query {
   my $self = shift;
@@ -54,6 +122,20 @@ sub do_query {
     || $self->throw("Couldn't execute query $query:\n ".DBI->errstr."\n");
   $sth;
 }
+
+=head2 get_dna
+
+ Title   : get_dna
+ Usage   : $string = $db->get_dna($name,$class,$start,$stop)
+ Function: get DNA string
+ Returns : a string
+ Args    : name, class, start and stop of desired segment
+ Status  : Public
+
+This method performs the low-level fetch of a DNA substring given its
+name, class and the desired range.
+
+=cut
 
 # given sequence name, and optional (start,stop) give raw dna
 sub get_dna {
@@ -82,9 +164,19 @@ sub get_dna {
   $dna;
 }
 
-sub make_dna_query {
-  shift->throw("make_dna_query(): must be implemented by a subclass");
-}
+=head2 get_abscoords
+
+ Title   : get_abscoords
+ Usage   : ($refseq,$refclass,$start,$stop,$strand) = $db->get_abscoords($name,$class)
+ Function: get absolute coordinates for landmark
+ Returns : five-element list containing reference sequence name, class, start, stop and strand
+ Args    : name and class of desired landmark
+ Status  : Public
+
+This method performs the low-level resolution of a landmark into a
+reference sequence and position.
+
+=cut
 
 # given sequence name, return (reference,start,stop,strand)
 sub get_abscoords {
@@ -110,6 +202,69 @@ sub get_abscoords {
     return @{$result[0]};
   }
 }
+
+=head2 get_features
+
+ Title   : get_features
+ Usage   : $db->get_features(@args)
+ Function: fetrieve features from the database
+ Returns : number of features retrieved
+ Args    : see below
+ Status  : Public
+
+This is the low-level method that is called to retrieve GFF lines from
+the database.  It is responsible for retrieving features that satisfy
+range and feature type criteria, and passing the GFF fields to a
+callback subroutine.
+
+The seven arguments are as follows:
+
+  $isrange    true if this is a range query, false if an overlap query
+              In a range query all features are completely contained between
+              start and stop (inclusive).  An overlap query requests any feature
+              that overlaps start and stop.
+
+  $refseq     The reference sequence for this range.  This may be undef if no
+              range restriction is desired.
+
+  $refclass   The class of the reference sequence.  This can be ignored by
+              database that do not recognize different types of reference
+              sequence.
+
+  $start      Start of range.  May be undef.
+
+  $stop       Stop of range.  May be undef.
+
+  $types      An array reference containing a list of [method,source] pairs.  If
+              passed, only features that match method and/or source are requested.
+              May be empty or undef.
+
+  $callback   A code reference.  As features are retrieved, they are
+              passed to this callback.
+
+The callback expects thirteen arguments, which can be parsed directly out of GFF files:
+
+  $refseq       The reference sequence
+  $start        Start position
+  $stop         Stop position
+  $source       Feature source
+  $method       Feature method
+  $score        Feature score
+  $strand       Feature strand
+  $phase        Feature phase
+  $group_class  Group class (may be undef)
+  $group_name   Group name  (may be undef)
+  $target_start Start of homology hit (target coordinates; may be undef)
+  $target_stop  Stop of homology hit (target coordinates; may be undef)
+  $feature_id   Unique feature ID (may be undef)
+
+The group class, group name, target start, and target stop are all
+variants of the GFF "group" field.  The feature ID, if provided, is
+something that uniquely identifies this feature line, such as a unique
+table ID or a line number.  The group name and all arguments to the
+right of it are optional.
+
+=cut
 
 # Given sequence name, range, and optional filter, retrieve list of all
 # features.  Passes features through callback.
@@ -184,20 +339,6 @@ sub range_or_overlap {
   $sth;
 }
 
-sub do_straight_join { 0 }  # false by default
-
-sub make_features_select_part {
-  shift->throw("make_features_select_part(): must be implemented by subclass");
-}
-
-sub make_features_from_part {
-  shift->throw("make_features_from_part(): must be implemented by subclass");
-}
-
-sub make_features_join_part {
-  shift->throw("make_features_join_part(): must be implemented by subclass");
-}
-
 sub make_features_where_part {
   my $self = shift;
   my($isrange,$srcseq,$class,$start,$stop,$types) = @_;
@@ -231,6 +372,24 @@ sub make_features_where_part {
   return wantarray ? ($query,@args) : $self->dbi_quote($query,@args);
 }
 
+sub do_straight_join { 0 }  # false by default
+
+sub make_dna_query {
+  shift->throw("make_dna_query(): must be implemented by a subclass");
+}
+
+sub make_features_select_part {
+  shift->throw("make_features_select_part(): must be implemented by subclass");
+}
+
+sub make_features_from_part {
+  shift->throw("make_features_from_part(): must be implemented by subclass");
+}
+
+sub make_features_join_part {
+  shift->throw("make_features_join_part(): must be implemented by subclass");
+}
+
 # generate the fragment of SQL responsible for returning the
 # reference sequence, start, stop and strand given a sequence class
 # and name.
@@ -241,7 +400,6 @@ sub make_abscoord_query {
   # in scalar context, return a query string.
   # in array context, return a query string and bind arguments
 }
-
 
 sub srcseq_query {
   my $self = shift;

@@ -864,7 +864,6 @@ system ("+" for forward strand, "-" for reverse strand).
 
 =cut
 
-# given a sequence class and name, return its coordinates in format (reference,start,stop,strand)
 sub abscoords {
   my $self = shift;
   my ($name,$class) = @_;
