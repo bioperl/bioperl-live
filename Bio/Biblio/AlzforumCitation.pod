@@ -1,0 +1,83 @@
+# POD documentation - main docs before the code
+
+=head1 NAME
+
+Bio::Biblio::AlzforumCitation - Representation of an Alzforum bibliographic reference
+
+=head1 SYNOPSIS
+
+    $obj = new Bio::Biblio::AlzforumRef (...)
+
+=head1 DESCRIPTION
+
+A storage object for a bibliographic reference (citation) retrieved
+from Alzforum.
+
+=head2 Attributes
+
+The following attributes are defined.  These can be used with the
+given case or as all lower case.
+
+  Country
+  DerivedPubDate
+  langID
+  ReaderChoice
+  CopyrightInfo
+  MileStone
+  PubDay
+  ARFRec
+  Affiliation
+  WFStatus
+  PubMonth
+  initials
+  lastName
+  Pagination
+  Volume
+  Issue
+  citID
+  PubYear
+  IpID
+  IpDateCreated
+  PubStatus
+  SourceTypeID
+  MedlineTA
+  DateChanged
+  ISSN
+  DateCreated
+  ArticleTitle
+
+In addition, the following synonyms are defined
+
+  pmid           IpID
+  alzid	         citID
+  medline_page   Pagination
+  pubmed_status  PubStatus
+  title          ArticleTitle
+  date           DerivedPubDate
+
+=head1 KNOWN BUGS AND CAVEATS
+
+This is still a work in progress.  
+
+=head2 Bugs, Caveats, and ToDos
+
+  TBD
+
+=head1 AUTHOR - Nat Goodman
+
+Email natg@shore.net
+
+=head1 COPYRIGHT
+
+Copyright (c) 2003 Institute for Systems Biology (ISB). All Rights Reserved.
+
+This module is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself.
+
+=head1 APPENDIX
+
+The rest of the documentation details each of the object
+methods. Internal methods are preceded with a _
+
+=cut
+

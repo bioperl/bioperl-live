@@ -118,6 +118,7 @@ use Bio::Biblio::MedlineArticle;
 	 _pubmed_history_list => 'ARRAY',
 	 _pubmed_article_id_list => 'ARRAY',
 	 _pubmed_url_list => 'ARRAY',
+	 _linkout => 'Bio::Biblio::PubmedLinkout', # NG 03-06-18
 	 );
 
     # return 1 if $attr is allowed to be set/get in this class
