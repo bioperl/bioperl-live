@@ -20,13 +20,12 @@ sub draw {
 
   #only point ovals allowed now
   my $r = $self->height ;
-    $gd->arc($xmid,$ymid,$r,$r,0,360,$fg);
-
 
   if ($self->option('bgcolor')){
     my $c = $self->color('bgcolor');
-    $gd->fill($xmid,$ymid,$c);
+    $gd->filledEllipse($xmid,$ymid,$r,$r,$c);
   }
+  $gd->ellipse($xmid,$ymid,$r,$r,$fg);
 
   #how about a fuse for the bomb?
   #work in degrees, not radians.  So we define PI above
