@@ -88,6 +88,7 @@ sub aggregate {
   warn "running aligner adjuster" if $factory->debug;
   for my $alignment (values %alignments) {
     $alignment->adjust_bounds;
+    $alignment->compound(1);
     push @result,$alignment;
   }
   warn "aligner done" if $factory->debug;

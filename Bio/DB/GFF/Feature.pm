@@ -77,7 +77,7 @@ use Bio::LocationI;
 use vars qw($VERSION @ISA $AUTOLOAD);
 @ISA = qw(Bio::DB::GFF::RelSegment Bio::SeqFeatureI Bio::LocationI Bio::Root::Root);
 
-$VERSION = '0.50';
+$VERSION = '0.60';
 #' 
 
 *segments = \&sub_SeqFeature;
@@ -490,6 +490,26 @@ sub clone {
   $clone;
 }
 
+=head2 compound
+
+ Title   : compound
+ Usage   : $flag = $f->compound([$newflag])
+ Function: get or set the compound flat
+ Returns : a boolean
+ Args    : a new flag (optional)
+ Status  : Public
+
+This method gets or sets a flag indicated that the feature is not a
+primary one from the database, but the result of aggregation.
+
+=cut
+
+sub score  {
+  my $self = shift;
+  my $d    = $self->{score};
+  $self->{score} = shift if @_;
+  $d;
+}
 
 =head2 sub_SeqFeature
 
@@ -869,10 +889,10 @@ sub adjust_bounds {
   ($self->{start},$self->{stop},$self->strand);
 }
 
-sub aggregated {
+sub compound {
   my $self = shift;
-  my $d = $self->{aggregated};
-  $self->{aggregated} = shift if @_;
+  my $d = $self->{compound};
+  $self->{compound} = shift if @_;
   $d;
 }
 
