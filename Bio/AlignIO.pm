@@ -175,7 +175,7 @@ Specify the format of the file.  Supported formats include:
    pfam        Pfam sequence alignment format
    phylip      Felsenstein's PHYLIP format
 
-Currently only those formats which were implemented in SimpleAlign.pm
+Currently only those formats which were implemented in L<Bio::SimpleAlign>
 have been incorporated in AlignIO.pm.  Specifically, mase, stockholm
 and prodom have only been implemented for input.
 
