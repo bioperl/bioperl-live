@@ -20,7 +20,7 @@ BEGIN {
 	use lib 't';
     }
     use vars qw($NTESTS);
-    $NTESTS = 387;
+    $NTESTS = 389;
     $LASTXMLTEST = 49;
     $error = 0;
 
@@ -43,6 +43,8 @@ if( $error == 1 ) {
 
 use Bio::SearchIO;
 use Bio::Root::IO;
+use Bio::SearchIO::Writer::HitTableWriter;
+use Bio::SearchIO::Writer::HTMLResultWriter;
 
 ok(1);
 my ($searchio, $result,$hit,$hsp);
@@ -552,4 +554,27 @@ $result = $searchio->next_result;
 
 ok($result);
 
+my $writer = Bio::SearchIO::Writer::HitTableWriter->new( 
+                                  -columns => [qw(
+                                                  query_name
+                                                  query_length
+                                                  hit_name
+                                                  hit_length
+                                                  frac_identical_query
+                                                  expect
+                                                  )]  );
 
+my $out = new Bio::SearchIO(-writer => $writer,
+			    -file   => ">searchio.out");
+$out->write_result($result, 1);
+ok(-e 'searchio.out');
+my $writerhtml = new Bio::SearchIO::Writer::HTMLResultWriter();
+my $outhtml = new Bio::SearchIO(-writer => $writerhtml,
+				-file   => ">searchio.html");
+ok(-e "searchio.html");
+
+END { 
+    unlink 'searchio.out';
+    unlink 'searchio.html';
+
+}
