@@ -237,7 +237,7 @@ methods. Internal methods are usually preceded with a _
 package Bio::Tools::Run::StandAloneBlast;
 
 use vars qw($AUTOLOAD @ISA $PROGRAMDIR  $DATADIR $BLASTTYPE
-	    @BLASTALL_PARAMS @BLASTPGP_PARAMS @WUBLAST_PARAMS
+	    @BLASTALL_PARAMS @BLASTPGP_PARAMS @WUBLAST_PARAMS @WUBLAST_SWITCH
 	    @BL2SEQ_PARAMS @OTHER_PARAMS %OK_FIELD 
 	    $DEFAULTREADMETHOD
 	    );
@@ -262,13 +262,19 @@ BEGIN {
      $DEFAULTREADMETHOD = 'BLAST';
      $BLASTTYPE = 'ncbi';
      @WUBLAST_PARAMS = qw( E S E2 S2 W T X M Y Z L K H V  B
-                          matrix Q R kap sump poissonp top bottom filter wordmask filter maskextra lcfilter lcmask echofilter 
-                          hitdist wink stats ctxfactor nogap gapall gapE gapS gapE2 gapS2 gapW gapX pingpong nosegs olf golf 
-                          olmax golmax gapdecayrate span2 span1 span prune consistency links topcomboN topcomboE sumstatsmethod 
-                          hspsepqmax hspsepsmax gapsepqmax gapsepsmax altscore hspmax gspmax qoffset nwstart nwlen qrecmin qrecmax 
-                          dbrecmin dbrecmax ucdb vdbdescmax dbchunks gi noseqs qtype qres sort_by_pvalue sort_by_count sort_by_highscore 
-                          sort_by_totalscore sort_by_subjectlength cpus mmio nonnegok novalidctxok shortqueryok notes warnings errors putenv 
-                          endputenv getenv endgetenv compat1 compat1 abortonerror abortonfatal progress o database input);
+                          matrix Q R filter wordmask filter maskextra 
+                          hitdist wink ctxfactor gapE gapS gapE2 gapS2 gapW gapX olf golf 
+                          olmax golmax gapdecayrate topcomboN topcomboE sumstatsmethod 
+                          hspsepqmax hspsepsmax gapsepqmax gapsepsmax altscore hspmax gspmax 
+                          qoffset nwstart nwlen qrecmin qrecmax 
+                          dbrecmin dbrecmax vdbdescmax dbchunks sort_by_pvalue 
+                          cpus putenv getenv progress o database input);
+    @WUBLAST_SWITCH = qw(kap sump poissonp lcfilter lcmask echofilter stats nogap gapall pingpong 
+                         nosegs postsw span2 span1 span prune consistency 
+                         links ucdb gi noseqs qtype qres sort_by_pvalue sort_by_count 
+                         sort_by_highscore sort_by_totalscore sort_by_subjectlength
+                         mmio nonnegok novalidctxok shortqueryok notes warnings errors endputenv 
+                         getenv endgetenv abortonerror abortonfatal); 
 
 # Non BLAST parameters start with underscore to differentiate them
 # from BLAST parameters
@@ -280,7 +286,7 @@ BEGIN {
 
 # Authorize attribute fields
      foreach my $attr (@BLASTALL_PARAMS,  @BLASTPGP_PARAMS, 
-		       @BL2SEQ_PARAMS, @OTHER_PARAMS ,@WUBLAST_PARAMS )
+		       @BL2SEQ_PARAMS, @OTHER_PARAMS ,@WUBLAST_PARAMS, @WUBLAST_SWITCH )
      { $OK_FIELD{$attr}++; }
 
 # You will need to enable Blast to find the Blast program. This can be done
@@ -348,6 +354,7 @@ program with the option "-" as in blastall -
     default = 3
 
 =head2 WU-Blast
+
   -p Program Name [String] 
         Input should be one of "wublastp", "wublastn", "wublastx", 
         "wutblastn", or "wutblastx".
@@ -359,7 +366,6 @@ program with the option "-" as in blastall -
   -E  Expectation value (E) [Real] default = 10.0
   -o  BLAST report Output File [File Out]  Optional,
 	default = ./blastreport.out ; set by StandAloneBlast.pm		
-
 
 =cut
 
@@ -954,6 +960,14 @@ sub _setparams {
 	$param_string .= " $attr  $value ";
     }
 
+  if($executable eq 'wublast'){
+    foreach my $attr(@WUBLAST_SWITCH){
+        my $value = $self->$attr();
+        next unless (defined $value);
+        my $attr_key = ' -'.(lc $attr);
+        $param_string .=$attr_key;
+    }
+  }
 # if ($self->quiet()) { $param_string .= '  >/dev/null';}
 
     return $param_string;
