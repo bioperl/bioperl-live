@@ -470,5 +470,5 @@ $seq = $seqio->next_seq;
 ok(scalar @kw, 118);
 ok($kw[-1], 'yabO');
 @sec_acc = $seq->get_secondary_accessions();
-ok(scalar @sec_acc,23);
+ok(scalar @sec_acc,14);
 ok($sec_acc[-1], 'X56742');

@@ -247,7 +247,6 @@ sub next_seq {
 	      my @desc = ($1);
 	      while ( defined($_ = $self->_readline) ) { 
 		  if( /^\s+(.*)/ ) { push (@desc, $1); next };		  
- 		  $self->_pushback($_);
 		  last;
 	      }
 	      $builder->add_slot_value(-desc => join(' ', @desc));
@@ -259,9 +258,10 @@ sub next_seq {
 	      push(@acc, split(/\s+/,$1));
 	      while( defined($_ = $self->_readline) ) { 
 		  /^\s+(.*)/ && do { push (@acc, split(/\s+/,$1)); next };
-		  $self->_pushback($_);
 		  last;
 	      }
+	      $buffer = $_;
+	      next;
 	  }
 	  # PID
 	  elsif( /^PID\s+(\S+)/ ) {
@@ -280,17 +280,17 @@ sub next_seq {
 	  }
 	  #Keywords
 	  elsif( /^KEYWORDS\s+(.*)/ ) {
-	      
 	      my @kw = split(/\s*\;\s*/,$1);
 	      while( defined($_ = $self->_readline) ) { 
 		  chomp;
 		  /^\s+(.*)/ && do { push (@kw, split(/\s*\;\s*/,$1)); next };
-		  $self->_pushback($_);
 		  last;
 	      }
 	      
 	      $kw[-1] =~ s/\.$//;
 	      $params{'-keywords'} = \@kw;
+	      $buffer = $_;
+	      next;
 	  }
 	  # Organism name and phylogenetic information
 	  elsif (/^SOURCE/) {
@@ -787,7 +787,6 @@ sub _print_GenBank_FTHelper {
  Title   : _read_GenBank_References
  Usage   :
  Function: Reads references from GenBank format. Internal function really
- Example :
  Returns : 
  Args    :
 
