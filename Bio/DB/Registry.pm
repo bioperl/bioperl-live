@@ -137,63 +137,62 @@ sub _load_registry {
 
     while( <$f> ) {
 	/^VERSION=([\d\.]+)/;
-        $self->throw("Do not about this version [$1] > $OBDA_SPEC_VERSION")
+        $self->throw("Do not know about this version [$1] > $OBDA_SPEC_VERSION")
             if $1 > $OBDA_SPEC_VERSION or !$1;
         last;
     }
 
     while( <$f> ) {
-	if( /^#/ ) {
-	    next;
-	}
+      if( /^#/ ) {
+	  next;
+       }
 	if( /^\s/ ) {
-	    next;
+	  next;
 	}
 
-	if( /\[(\w+)\]/ )  {
-	    my $db;
-	    $db = $1;
-	    my $hash = {};
-	    while( <$f> ) {
-		chomp();
-		/^#/ && next;
-		/^$/ && last;
-		my ($tag,$value) = split('=',$_);
-		$value =~ s/\s//g;
-		$tag =~ s/\s//g;
-		$hash->{"\L$tag"} = lc $value;
-	    }
-
-	    if( !exists $self->{'_dbs'}->{$db} ) {
-		my $failover = Bio::DB::Failover->new();
-		$self->{'_dbs'}->{$db}=$failover;
-	    }
-	    my $class;
-	    if (defined $implement{$hash->{'protocol'}}) {
-		$class = $implement{$hash->{'protocol'}};
-	    }
-	    else {
-		$self->warn("Registry does not support protocol ".$hash->{'protocol'});
-		next;
-	    }
-	    eval "require $class";
-
-	    if ($@) {
-		$self->verbose && $self->warn("Couldn't load $class");
-		next;
-	    }
-
-	    else {
-		eval {
-		    my $randi = $class->new_from_registry(%$hash);
-		    $self->{'_dbs'}->{$db}->add_database($randi); };
-		if ($@) {
-		    $self->verbose && $self->warn("Couldn't call new_from_registry on [$class]\n$@");
-		}
-	    }
-	    next; # back to main loop
+      if( /\[(\w+)\]/ )  {
+	my $db = $1;
+	my $hash = {};
+	while( <$f> ) {
+	  chomp();
+	  /^#/ && next;
+	    /^$/ && last;
+	  my ($tag,$value) = split('=',$_);
+	  $value =~ s/\s//g;
+	  $tag =~ s/\s//g;
+	  $hash->{"\L$tag"} = lc $value;
 	}
-	$self->warn("Uninterpretable line in registry, $_");
+
+	if( !exists $self->{'_dbs'}->{$db} ) {
+	  my $failover = Bio::DB::Failover->new();
+	  $self->{'_dbs'}->{$db}=$failover;
+	}
+	my $class;
+	if (defined $implement{$hash->{'protocol'}}) {
+	  $class = $implement{$hash->{'protocol'}};
+	}
+	else {
+	  $self->warn("Registry does not support protocol ".$hash->{'protocol'});
+	  next;
+	}
+	eval "require $class";
+
+	if ($@) {
+	  $self->verbose && $self->warn("Couldn't load $class");
+	  next;
+	}
+
+	else {
+	  eval {
+	    my $randi = $class->new_from_registry(%$hash);
+	    $self->{'_dbs'}->{$db}->add_database($randi); };
+	  if ($@) {
+	    $self->warn("Couldn't call new_from_registry on [$class]\n$@");
+	  }
+	}
+	next; # back to main loop
+      }
+      $self->warn("Uninterpretable line in registry, $_");
     }
 }
 

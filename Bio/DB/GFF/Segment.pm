@@ -319,6 +319,22 @@ sub seq {
 
 *protein = *dna = \&seq;
 
+=head2 type
+
+ Title   : type
+ Usage   : $s->type
+ Function: return the string "feature"
+ Returns : the string "feature"
+ Args    : none
+ Status  : Public
+
+This is for future sequence ontology-compatibility and
+represents the default type of a feature on the genome
+
+=cut
+
+sub type { "feature" }
+
 =head2 equals
 
  Title   : equals

@@ -102,37 +102,42 @@ use constant DEFAULT_LOCATION => 'http://www.ebi.ac.uk/cgi-bin/dbfetch';
 
 BEGIN {
 
-    %FORMATMAP = (
-		   'embl' => {
-		       default => 'embl', # default BioFetch format/SeqIOmodule pair
-		       embl => 'embl',    # alternative BioFetch format/module pair 
-		       fasta => 'fasta',   # alternative BioFetch format/module pair 
-		       namespace => 'embl',
-		       },
-		   'swissprot' => {
-		       default => 'swiss',
-		       swissprot => 'swiss',
-		       fasta => 'fasta',
-                       namespace => 'swall',
-		       },
-		   'refseq' => {
-		       default => 'genbank',
-		       genbank => 'genbank',
-		       fasta => 'fasta',
-                       namespace => 'RefSeq',
-		       },
-		   'swall' => {
-		       default => 'swiss',
-		       swissprot => 'swiss',
-		       fasta => 'fasta',
-                       namespace => 'swall',
-		       },
-		   'genbank' => {
-		       default => 'genbank',
-		       genbank => 'genbank',
-                       namespace => 'genbank',
-		       },
-		   );
+  %FORMATMAP = (
+		'embl' => {
+			   default => 'embl', # default BioFetch format/SeqIOmodule pair
+			   embl => 'embl',    # alternative BioFetch format/module pair 
+			   fasta => 'fasta',   # alternative BioFetch format/module pair 
+			   namespace => 'embl',
+			  },
+		'swissprot' => {
+				default => 'swiss',
+				swissprot => 'swiss',
+				fasta => 'fasta',
+				namespace => 'swall',
+			       },
+		'refseq' => {
+			     default => 'genbank',
+			     genbank => 'genbank',
+			     fasta => 'fasta',
+			     namespace => 'RefSeq',
+			    },
+		'swall' => {
+			    default => 'swiss',
+			    swissprot => 'swiss',
+			    fasta => 'fasta',
+			    namespace => 'swall',
+			   },
+		'genbank' => {
+			      default => 'genbank',
+			      genbank => 'genbank',
+			      namespace => 'genbank',
+			     },
+		'genpep' => {
+			     default => 'genbank',
+			     genbank => 'genbank',
+			     namespace => 'genpep',
+			    },
+	       );
 }
 
 =head2 new
