@@ -79,8 +79,10 @@ use Bio::Root::RootI;
 use Bio::Root::IO;
 use Bio::Event::EventGeneratorI;
 use Bio::TreeIO::TreeEventBuilder;
+use Bio::Factory::TreeFactoryI;
 
-@ISA = qw(Bio::Root::RootI Bio::Root::IO Bio::Event::EventGeneratorI);
+@ISA = qw(Bio::Root::RootI Bio::Root::IO 
+	Bio::Event::EventGeneratorI Bio::Factory::TreeFactoryI);
 
 =head2 new
 
