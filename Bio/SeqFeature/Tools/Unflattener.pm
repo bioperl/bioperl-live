@@ -1137,6 +1137,9 @@ sub unflatten_seq{
 	   #
 	   # see GenBank entry AE003677 (version 3) for an example
 	   $group_tag = 'locus_tag';
+           if ($self->verbose) {
+               print "Set group tag to: $group_tag\n";
+           }
        }
    }
    if (!$group_tag) {
@@ -1251,19 +1254,28 @@ sub unflatten_seq{
 	 scalar(grep {$_->primary_tag eq 'mRNA'} @flat_seq_features);
        my $n_mrnas_attached_to_gene =
 	 scalar(grep {$_->primary_tag eq 'mRNA' &&
-			$_->has_tag("gene")} @flat_seq_features);
+			$_->has_tag($group_tag)} @flat_seq_features);
        my $n_cdss =
 	 scalar(grep {$_->primary_tag eq 'CDS'} @flat_seq_features);
 	   
+       # Are there any CDS features in the record?
        if ($n_cdss) {
-	   # a pc gene model should contain at the least a CDS
+           # YES
+           
+	   # - a pc gene model should contain at the least a CDS
+
+           # Are there any mRNA features in the record?
 	   if (!$n_mrnas) {
 	       # looks like structure_type == 1
 	       $structure_type = 1;
 	       $need_to_infer_mRNAs = 1;
 	   }
 	   elsif (!$n_mrnas_attached_to_gene) {
-	       # this is an annoying file that has some floating
+               # The files _does_ have at least one mRNA feature,
+               # but none of them are part of a group, i.e. they
+               # are 'floating'
+
+	       # this is an annoying weird file that has some floating
 	       # mRNA features; 
 	       # eg ftp.ncbi.nih.gov/genomes/Schizosaccharomyces_pombe/
 

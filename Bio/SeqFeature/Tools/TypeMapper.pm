@@ -230,6 +230,9 @@ sub map_types_to_SO{
 
                      # this should really be subtyped...
                      variation=>'sequence_variant',
+
+		     "5'UTR"=>'five_prime_UTR',
+		     "3'UTR"=>'three_prime_UTR',
 		     
 		    }));
    return $self->map_types(@args);
