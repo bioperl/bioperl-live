@@ -404,12 +404,17 @@ glyph-specific options:
                "boxes", "line", "points",
                or "linepoints".
 
-  -point_symbol Symbol to use. Options are    None
+  -point_symbol Symbol to use. Options are    none
                 "triangle", "square", "disc",
                 "point", and "none".
 
   -point_radius Radius of the symbol, in      1
                 pixels
+
+  -scale        Position where the Y axis     none
+                scale is drawn if any.
+                It should be one of
+                "left", "right" or "none"
 
   -graph_height Specify height of the graph   Same as the
                                               "height" option.
