@@ -706,6 +706,8 @@ sub read {
     my $FH = $Util->create_filehandle( -client => $self, @param);
 
     # Set the record separator (if necessary) using dynamic scope.
+    my $prev_rec_sep;
+    $prev_rec_sep = $/  if scalar $rec_sep;  # save the previous rec_sep
     local $/ = $rec_sep if scalar $rec_sep;
 
     # Verify that we have a proper reference to a function.
@@ -734,6 +736,8 @@ sub read {
 	    alarm(0);  # Deactivate the alarm as soon as we start reading.
 	    my($result);
 	    if($func_ref) {
+		# Need to reset $/ for any called function.
+		local $/ = $prev_rec_sep if defined $prev_rec_sep;
 		$result = &$func_ref($_) or last READ_LOOP;
 	    } else {
 		$data .= $_;
