@@ -67,18 +67,19 @@ sub new {
 				  BLASTTYPE
 				  )],@args);
     
-	# Determine strand meanings
-	my ($queryfactor, $sbjctfactor);
-	if ($blasttype eq 'BLASTN' || 
-	    $blasttype eq 'BLASTX' || 
-	    $blasttype eq 'TBLASTX')  { $queryfactor = 1; }
-	else                          { $queryfactor = 0; }
-	if ($blasttype eq 'TBLASTN' || 
-	    $blasttype eq 'TBLASTX')  { $sbjctfactor = 1; }
-	else                          { $sbjctfactor = 0; }
-
-	# Set BLAST type
-	$self->{'BLAST_TYPE'} = $blasttype;
+    $blasttype = 'UNKNOWN' unless $blasttype;
+    $self->report_type($blasttype);
+    # Determine strand meanings
+    my ($queryfactor, $sbjctfactor) = (1,0); # default
+    if ($blasttype eq 'BLASTP' || $blasttype eq 'TBLASTN') {
+	$queryfactor = 0;
+    }
+    if ($blasttype eq 'TBLASTN' || $blasttype eq 'TBLASTX')  {
+	$sbjctfactor = 1;
+    }
+    
+    # Set BLAST type
+    $self->{'BLAST_TYPE'} = $blasttype;
 	
     # Store the aligned query as sequence feature
     my $strand;
@@ -135,6 +136,29 @@ sub new {
 sub _overload {
 	my $self = shift;
 	return $self->start."..".$self->end." ".$self->bits;
+}
+
+=head2 report_type
+
+ Title    : report_type
+ Usage    : $type = $sbjct->report_type()
+ Function : Returns the type of report from which this subject was obtained.
+            This usually pertains only to BLAST and friends reports, for which
+            the report type denotes what type of sequence was aligned against
+            what (BLASTN: dna-dna, BLASTP prt-prt, BLASTX translated dna-prt, 
+            TBLASTN prt-translated dna, TBLASTX translated dna-translated dna).
+ Example  : 
+ Returns  : A string (BLASTN, BLASTP, BLASTX, TBLASTN, TBLASTX, UNKNOWN)
+ Args     : a string on set (you should know what you are doing)
+
+=cut
+
+sub report_type {
+    my ($self, $rpt) = @_;
+    if($rpt) {
+	$self->{'_report_type'} = $rpt;
+    }
+    return $self->{'_report_type'};
 }
 
 =head2 P
@@ -206,8 +230,9 @@ sub hsplength              {shift->{'HSPLENGTH'}}
 
  Title    : positive
  Usage    : $hsp->positive();
- Function : returns the number of positive hits 
- Returns  : (int) number of positive residue hits 
+ Function : returns the number of positive matches (symbols in the alignment
+            with a positive score)
+ Returns  : (int) number of positive matches in the alignment
  Args     : none
 
 =cut
