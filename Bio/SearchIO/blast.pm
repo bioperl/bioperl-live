@@ -485,7 +485,7 @@ sub next_result{
            $seenquery = $q;
            $_ = $self->_readline;
            while( defined ($_) ) {
-               if( /^Database:/ ) {
+	       if( /^Database:/ ) {
 		   $self->_pushback($_);
 		   last;
 	       }
@@ -499,7 +499,6 @@ sub next_result{
                    $q =~ s/ +/ /g;
                    $q =~ s/^ | $//g;
                }
-
                $_ = $self->_readline;
            }
            chomp($q);
@@ -526,10 +525,9 @@ sub next_result{
            if (! $self->in_element('iteration')) {
                $self->_start_iteration;
            }
-	   
          descline:
            while( defined ($_ = $self->_readline() )) {
-               if( /^>/ ) {
+	       if( /^>/ ) {
                    $self->_pushback($_);
                    last descline;
                } elsif( /(\d+)\s+([\d\.\-eE]+)(\s+\d+)?\s*$/) {
@@ -581,8 +579,12 @@ sub next_result{
        } elsif ( /^Database:\s*(.+)$/ ) {
 #           $self->debug("blast.pm: Database: $1\n");
            my $db = $1;
+
            while( defined($_ = $self->_readline) ) {
-               if( /^\s+(\-?[\d\,]+)\s+sequences\;\s+(\-?[\d,]+)\s+total\s+letters/){
+	       
+               if( /^\s+(\-?[\d\,]+|\S+)\s+sequences\;\s+
+                     (\-?[\d,]+|\S+)\s+     # the N is for problems on OSX and NCBI blast
+                     total\s+letters/ox ){
                    my ($s,$l) = ($1,$2);
                    $s =~ s/,//g;
                    $l =~ s/,//g;
@@ -921,7 +923,7 @@ sub next_result{
 						 entropy_gapped) ) {
 				   next if $type eq 'n/a';
 				   if( ! @fields ) {
-				       warn "fields is empty for $type\n";
+				       $self->warn( "fields is empty for $type\n");
 				       next;
 				   }
 				   $self->element({'Name' => "Statistics_frame$frame\_$type",
