@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-#$Id: genbank2gff3.PLS,v 1.3 2005-01-10 19:03:52 scain Exp $;
+#$Id: genbank2gff3.PLS,v 1.4 2005-01-10 21:31:55 scain Exp $;
 
 =pod
 
@@ -218,11 +218,13 @@ for my $file ( @files ) {
 
 	    # unflattened gene parts will have this tag
             if ( $feature->has_tag('gene') ) {
-                print $out &gene_features($feature,$gffio);
+                my $tempstr = &gene_features($feature,$gffio);
+                print $out "$tempstr\n" if $tempstr;
             }
 	    # otherwise handle as generic feats with IDHandler labels 
             else {
-                print $out &generic_features($feature,$gffio,$seq_name);
+                my $tempstr = &generic_features($feature,$gffio,$seq_name);
+                print $out "$tempstr\n" if $tempstr;
             }
 	}
 
@@ -300,7 +302,7 @@ sub gene_features {
 	$f->add_tag_value( Parent => $gene_id );
     }
     
-    $io->gff_string($f) . "\n";
+    $io->gff_string($f) ;
 }
 
 sub generic_features {
@@ -317,7 +319,7 @@ sub generic_features {
 	$idh->generate_unique_persistent_id($f);
     }
 
-    $io->gff_string($f) . "\n";
+    $io->gff_string($f) ;
 }
 
 sub gff_header {
