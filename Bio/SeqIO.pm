@@ -606,7 +606,7 @@ sub _filehandle {
 sub _guess_format {
    my $class = shift;
    return unless $_ = shift;
-   return 'fasta'   if /\.(fasta|fast|seq|fa|fsa|nt|aa)$/i;
+   return 'fasta'   if /\.(fasta|fast|fas|seq|fa|fsa|nt|aa)$/i;
    return 'genbank' if /\.(gb|gbank|genbank)$/i;
    return 'scf'     if /\.scf$/i;
    return 'scf'     if /\.scf$/i;
