@@ -1,4 +1,4 @@
-## $Id: MANIFEST,v 1.28 2001-02-19 05:34:07 lapp Exp $
+## $Id: MANIFEST,v 1.29 2001-02-26 11:21:20 lapp Exp $
 ##
 ## This is the file listing for everything that
 ## comes with the bioperl distribution. The perl
@@ -75,6 +75,7 @@ Bio/LiveSeq/Transcript.pm
 Bio/LiveSeq/Translation.pm
 Bio/Root/Global.pm
 Bio/Root/Err.pm
+Bio/Root/IO.pm
 Bio/Root/IOManager.pm
 Bio/Root/Object.pm
 Bio/Root/RootI.pm
@@ -350,7 +351,6 @@ t/test.mase
 t/test.pfam
 t/test.raw
 t/test.txt
-t/testaln.clustal
 t/testaln.fasta
 t/testaln.mase
 t/testaln.msf
