@@ -20,7 +20,7 @@ BEGIN {
 	use lib 't';
     }
     use vars qw($NTESTS);
-    $NTESTS = 297;
+    $NTESTS = 298;
     $LASTXMLTEST = 49;
     $error = 0;
 
@@ -74,7 +74,7 @@ if( ! $SKIPXML ) {
     ok($hit->length, 310);
 
     $hsp = $hit->next_hsp;
-    ok($hsp->p, 1.46134e-90);
+    ok($hsp->pvalue, undef);
     ok($hsp->evalue, 1.46134e-90);
     ok($hsp->score, 838);
     ok($hsp->bits,327.405);
@@ -210,6 +210,7 @@ while( $hit = $result->next_hit ) {
 	    ok($hsp->length('hsp'), 820);
 	    
 	    ok($hsp->evalue == 0.0);
+	    ok($hsp->pvalue == 0.0);
 	    ok($hsp->score, 4141);
 	    ok($hsp->bits,1462.8);	    	    
 	    ok($hsp->percent_identity, 100);
