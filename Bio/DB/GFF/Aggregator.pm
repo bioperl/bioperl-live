@@ -235,6 +235,7 @@ sub disaggregate {
   @$types = (@unchanged,@synthetic_types);
 }
 
+
 =head2 aggregate
 
  Title   : aggregate
@@ -430,6 +431,12 @@ sub components {
   $self->{components} = shift if @_;
   return unless ref $d;
   return wantarray ? @$d : $d;
+}
+
+sub clone {
+  my $self = shift;
+  my %new = %{$self};
+  return bless \%new,ref($self);
 }
 
 =head2 get_part_names

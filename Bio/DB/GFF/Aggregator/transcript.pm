@@ -17,8 +17,8 @@ Bio::DB::GFF::Aggregator::transcript -- Transcript aggregator
 
 Bio::DB::GFF::Aggregator::transcript is one of the default
 aggregators, and was written to be compatible with the C elegans GFF
-files.  It aggregates raw "Sequence", "intron", "exon" and "CDS"
-features into "transcript" features.
+files.  It aggregates raw "Sequence", "exon", "CDS", "5'UTR", "3'UTR",
+"polyA" and "TSS" features into "transcript" features.
 
 =cut
 
@@ -57,7 +57,7 @@ sub method { 'transcript' }
 =cut
 
 sub part_names {
-  return qw(intron exon CDS);
+  return qw(exon CDS 5'UTR 3'UTR TSS PolyA);
 }
 
 =head2 main_name

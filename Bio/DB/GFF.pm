@@ -1734,19 +1734,18 @@ sub make_feature {
 
 sub make_aggregated_feature {
   my $self                 = shift;
-  my $matchsub             = shift;
-  my $accumulated_features = shift;
-  my $parent               = shift;
-
+  my ($matchsub,$accumulated_features,$parent,$aggregators) = splice(@_,0,4);
   my $feature = $self->make_feature($parent,undef,@_);
 
   # if we have accumulated features and either: 
   # (1) make_feature() returned undef, indicated very end or
   # (2) the current group is different from the previous one
+
+  local $^W = 0;  # irritating uninitialized value warning in next statement
   if (@$accumulated_features &&
       (!defined($feature) || ($accumulated_features->[-1]->group ne $feature->group))) {
     my @aggregated;
-    foreach my $a (reverse $self->aggregators) {  # last aggregator gets first shot
+    foreach my $a (reverse @$aggregators) {  # last aggregator gets first shot
       my $agg = $a->aggregate($accumulated_features,$self) or next;
       push @aggregated,@$agg;
     }
@@ -1755,6 +1754,7 @@ sub make_aggregated_feature {
     return $aggregated[0] if $aggregated[0];
     return $feature if $matchsub->($feature);
     return;
+
   } else {
     return unless defined($feature);
     push @$accumulated_features,$feature if defined $feature->group;
@@ -1909,17 +1909,19 @@ sub _features {
   my @aggregated_types = @$types;         # keep a copy
 
   # allow the aggregators to operate on the original
-  my $match;
+  my ($match,@aggregators);
   if ($automerge) {
     $match = $self->make_match_sub($types);
     for my $a ($self->aggregators) {
+      $a = $a->clone if $iterator;
       $a->disaggregate(\@aggregated_types,$self);
+      push @aggregators,$a;
     }
   }
 
   if ($iterator) {
     my @accumulated_features;
-    my $callback = $automerge ? sub { $self->make_aggregated_feature($match,\@accumulated_features,$parent,@_) }
+    my $callback = $automerge ? sub { $self->make_aggregated_feature($match,\@accumulated_features,$parent,\@aggregators,@_) }
                               : sub { $self->make_feature($parent,undef,@_) };
     return $self->get_features_iterator($range_type,
 					$refseq,$class,
