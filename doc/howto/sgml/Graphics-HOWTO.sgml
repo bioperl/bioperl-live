@@ -21,10 +21,10 @@
  
 <revhistory>
 	<revision>
-		<revnumber>0.1</revnumber>
-		<date>2002-09-01</date>
+		<revnumber>0.2</revnumber>
+		<date>2003-05-15</date>
 		<authorinitials>lds</authorinitials>
-		<revremark>first draft</revremark>
+		<revremark>Current as of BioPerl 1.2.2</revremark>
 	</revision>
 </revhistory>
 
@@ -217,7 +217,7 @@ Our first attempt to parse and render this file looks like this:
   8    chomp;
   9    next if /^\#/;  # ignore comments
  10    my($name,$score,$start,$end) = split /\t+/;
- 11    my $feature = Bio::SeqFeature::Generic-&gt;new(-seq_id=&gt;$name,-score=&gt;$score,
+ 11    my $feature = Bio::SeqFeature::Generic-&gt;new(-display_name=&gt;$name,-score=&gt;$score,
  12                                                -start=&gt;$start,-end=&gt;$end);
  13    $track-&gt;add_feature($feature);
  14  }
@@ -234,21 +234,21 @@ also load <classname>Bio::SeqFeature::Generic</classname> in order to
 create a series of Bio::SeqFeatureI objects for rendering.  We then
 create a Bio::Graphics::Panel object by calling its new() method,
 specifying that the panel is to correspond to a sequence that is 1000
-residues long, and has a physical width of 800 bp (line 5).  The Panel
-can contain multiple horizontal tracks, each of which has its own way
-of rendering features (called a "glyph"), color, labeling convention,
-and so forth.  In this simple example, we create a single track by
-calling the panel object's add_track() method (line 6), specify a
-glyph type of "generic", and ask that the objects in the track be
-labeled by providing a true value to the -label argument.  This gives
-us a track object that we can add our hits to.
+nucleotides long, and has a physical width of 800 pixels (line 5).
+The Panel can contain multiple horizontal tracks, each of which has
+its own way of rendering features (called a "glyph"), color, labeling
+convention, and so forth.  In this simple example, we create a single
+track by calling the panel object's add_track() method (line 6),
+specify a glyph type of "generic", and ask that the objects in the
+track be labeled by providing a true value to the -label argument.
+This gives us a track object that we can add our hits to.
 </para>
 
 <para>
 We're now ready to render the blast hit file.  We loop through it
 (line 7-14), stripping off the comments, and parsing out the name,
-score and range (line 10).  We now need a Bio::SeqI object to place in
-the track.  The easiest way to do this is to create a
+score and range (line 10).  We now need a Bio::SeqFeatureI object to
+place in the track.  The easiest way to do this is to create a
 Bio::SeqFeature::Generic object, which is similar to Bio::PrimarySeq,
 except that it provides a way of attaching start and end positions to
 the sequence, as well as such nebulous but useful attributes as the
@@ -267,6 +267,18 @@ After processing all the hits, we call the panel's png() method to
 render them and convert it into a Portable Network Graphics file, the
 contents of which are printed to standard output.  We can now view the
 result by piping it to our favorite image display program.
+</para>
+
+<para>
+IMPORTANT NOTE: If you are on a Windows platform, you need to put
+STDOUT into binary mode so that the PNG file does not go through
+Window's carriage return/linefeed transformations.  Before the
+final print statement, put the statement "binmode(STDOUT)".
+</para>
+
+<para>
+This advice also applies to certain versions of RedHat, which ship
+with a patched (and possibly broken) version of Perl.
 </para>
 
 <para>
@@ -342,7 +354,7 @@ scores.
  24    chomp;
  25    next if /^\#/;  # ignore comments
  26    my($name,$score,$start,$end) = split /\t+/;
- 27    my $feature = Bio::SeqFeature::Generic-&gt;new(-seq_id=&gt;$name,-score=&gt;$score,
+ 27    my $feature = Bio::SeqFeature::Generic-&gt;new(-display_name=&gt;$name,-score=&gt;$score,
  28                                                -start=&gt;$start,-end=&gt;$end);
  29    $track-&gt;add_feature($feature);
  30  }
@@ -414,6 +426,13 @@ When we run the modified script, we get this image.
 </figure>
 </para>
 
+<para>
+IMPORTANT NOTE: Remember that if you are on a Windows platform, you need to put
+STDOUT into binary mode so that the PNG file does not go through
+Window's carriage return/linefeed transformations.  Before the
+final print statement, write binmode(STDOUT).
+</para>
+
 </section>
 
 <section id="improving">
@@ -468,7 +487,7 @@ The changes are shown in Example 3.
  32    next if /^\#/;  # ignore comments
  33    my($name,$score,$start,$end) = split /\t+/;
  34    my $feature = Bio::SeqFeature::Generic-&gt;new(-score=&gt;$score,
- 35                                                -seq_id=&gt;$name,
+ 35                                                -display_name=&gt;$name,
  36                                                -start=&gt;$start,-end=&gt;$end);
  37    $track-&gt;add_feature($feature);
  38  }
@@ -515,7 +534,7 @@ of the options passed to add_track().
 <para>
 Another minor change is the use of
 <parameter>-font2color</parameter> in line 23. This simply
-sets the color used for the description strings.  Figure 4 shows the
+sets the color used for the description strings.  Figure 3 shows the
 effect of these changes.
 </para>
 
@@ -573,7 +592,7 @@ Code example 4 shows the new utility.
  14                                       );
 
  15  my $full_length = Bio::SeqFeature::Generic-&gt;new(-start=&gt;1,-end=&gt;$result-&gt;query_length,
- 16                                                  -seq_id=&gt;$result-&gt;query_name);
+ 16                                                  -display_name=&gt;$result-&gt;query_name);
  17  $panel-&gt;add_track($full_length,
  18                    -glyph   =&gt; 'arrow',
  19                    -tick    =&gt; 2,
@@ -599,7 +618,7 @@ Code example 4 shows the new utility.
  37  while( my $hit = $result-&gt;next_hit ) {
  38    next unless $hit-&gt;significance &lt; 1E-20;
  39    my $feature = Bio::SeqFeature::Generic-&gt;new(-score   =&gt; $hit-&gt;raw_score,
- 40                                                -seq_id =&gt; $hit-&gt;name,
+ 40                                                -display_name =&gt; $hit-&gt;name,
  41                                                -tag     =&gt; {
  42                                                             description =&gt; $hit-&gt;description
  43                                                            },
@@ -670,7 +689,7 @@ the track as before using the track's
 </para>
 
 <para>
-Figure 5 shows the output from a sample BLAST hit file.
+Figure 4 shows the output from a sample BLAST hit file.
 </para>
 
 <para>
@@ -687,6 +706,13 @@ Figure 5 shows the output from a sample BLAST hit file.
 <para>
 The next section will demonstrate how to parse and display feature
 tables from GenBank and EMBL.
+</para>
+
+<para>
+IMPORTANT NOTE: Remember that if you are on a Windows platform, you need to put
+STDOUT into binary mode so that the PNG file does not go through
+Window's carriage return/linefeed transformations.  Before the
+final print statement, write binmode(STDOUT).
 </para>
 
 </section>
@@ -731,11 +757,11 @@ Code example 5 shows the code for rendering an EMBL or GenBank entry.
  10  my $io = Bio::SeqIO-&gt;new(-file=&gt;$file) or die "couldn't create Bio::SeqIO";
  11  my $seq = $io-&gt;next_seq                or die "couldn't find a sequence in the file";
  12  my $wholeseq = Bio::SeqFeature::Generic-&gt;new(-start=&gt;1,-end=&gt;$seq-&gt;length,
- 13                                               -seq_id=&gt;$seq-&gt;display_name);
+ 13                                               -display_name=&gt;$seq-&gt;display_name);
 
  14  my @features = $seq-&gt;all_SeqFeatures;
 
- 15  # sort features by their primary tags
+ 15  # partition features by their primary tags
  16  my %sorted_features;
  17  for my $f (@features) {
  18    my $tag = $f-&gt;primary_tag;
@@ -840,11 +866,13 @@ to choose useful label and description values on its own.
 <para>
 After adding all the feature types, we call the panel's
 <function>png()</function> method to generate a graphic file, which we
-print to STDOUT.
+print to STDOUT.  If we are on a Windows platform, we would have to include
+<function>binmode(STDOUT)</function> prior to this statement in order to
+avoid Windows textmode carriage return/linefeed transformations.
 </para>
 
 <para>
-Figure 6 shows an exmaple of the output of this script.
+Figure 5 shows an example of the output of this script.
 </para>
 
 <para>
@@ -910,7 +938,7 @@ into a generally useful utility.  The revised code is shown in example
  19  my $io = Bio::SeqIO-&gt;new(-file=&gt;$file) or die USAGE;
  20  my $seq = $io-&gt;next_seq                or die USAGE;
  21  my $wholeseq = Bio::SeqFeature::Generic-&gt;new(-start=&gt;1,-end=&gt;$seq-&gt;length,
- 22                                               -seq_id=&gt;$seq-&gt;display_name);
+ 22                                               -display_name=&gt;$seq-&gt;display_name);
 
  23  my @features = $seq-&gt;all_SeqFeatures;
 
@@ -1100,7 +1128,7 @@ print to STDOUT.
 </para>
 
 <para>
-Figure 7 shows an exmaple of the output of this script.
+Figure 6 shows an example of the output of this script.
 </para>
 
 <para>

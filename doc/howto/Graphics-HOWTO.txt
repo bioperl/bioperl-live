@@ -132,7 +132,7 @@ PRES1           127     310     700
   8    chomp;
   9    next if /^\#/;  # ignore comments
  10    my($name,$score,$start,$end) = split /\t+/;
- 11    my $feature = Bio::SeqFeature::Generic->new(-seq_id=>$name,-score=>$scor
+ 11    my $feature = Bio::SeqFeature::Generic->new(-display_name=>$name,-score=>$scor
 e,
  12                                                -start=>$start,-end=>$end);
  13    $track->add_feature($feature);
@@ -226,7 +226,7 @@ This is all very nice, but it's missing two essential components:
  24    chomp;
  25    next if /^\#/;  # ignore comments
  26    my($name,$score,$start,$end) = split /\t+/;
- 27    my $feature = Bio::SeqFeature::Generic->new(-seq_id=>$name,-score=>$scor
+ 27    my $feature = Bio::SeqFeature::Generic->new(-display_name=>$name,-score=>$scor
 e,
  28                                                -start=>$start,-end=>$end);
  29    $track->add_feature($feature);
@@ -322,7 +322,7 @@ Example 3.
  32    next if /^\#/;  # ignore comments
  33    my($name,$score,$start,$end) = split /\t+/;
  34    my $feature = Bio::SeqFeature::Generic->new(-score=>$score,
- 35                                                -seq_id=>$name,
+ 35                                                -display_name=>$name,
  36                                                -start=>$start,-end=>$end);
  37    $track->add_feature($feature);
  38  }
@@ -398,7 +398,7 @@ Code example 4 shows the new utility.
 
  15  my $full_length = Bio::SeqFeature::Generic->new(-start=>1,-end=>$result->q
 uery_length,
- 16                                                  -seq_id=>$result->query_na
+ 16                                                  -display_name=>$result->query_na
 me);
  17  $panel->add_track($full_length,
  18                    -glyph   => 'arrow',
@@ -427,7 +427,7 @@ ue('description');
  37  while( my $hit = $result->next_hit ) {
  38    next unless $hit->significance < 1E-20;
  39    my $feature = Bio::SeqFeature::Generic->new(-score   => $hit->raw_score,
- 40                                                -seq_id => $hit->name,
+ 40                                                -display_name => $hit->name,
  41                                                -tag     => {
  42                                                             description =>
 $hit->description
@@ -520,7 +520,7 @@ the argument";
  11  my $seq = $io->next_seq                or die "couldn't find a sequence in
  the file";
  12  my $wholeseq = Bio::SeqFeature::Generic->new(-start=>1,-end=>$seq->length,
- 13                                               -seq_id=>$seq->display_name);
+ 13                                               -display_name=>$seq->display_name);
 
  14  my @features = $seq->all_SeqFeatures;
 
@@ -659,7 +659,7 @@ generally useful utility. The revised code is shown in example 6.
  19  my $io = Bio::SeqIO->new(-file=>$file) or die USAGE;
  20  my $seq = $io->next_seq                or die USAGE;
  21  my $wholeseq = Bio::SeqFeature::Generic->new(-start=>1,-end=>$seq->length,
- 22                                               -seq_id=>$seq->display_name);
+ 22                                               -display_name=>$seq->display_name);
 
  23  my @features = $seq->all_SeqFeatures;
 
