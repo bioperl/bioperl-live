@@ -106,16 +106,8 @@ sub new {
 	# is this a call to duplicate an object?
 	my $caller_is_obj = ref($caller);
     my $class = $caller_is_obj || $caller;
-	
-	my $Feature;
-	if ($caller_is_obj){
-		my %Feat = %{$caller};  # this makes a semi-independent copy of $caller
-		$Feature = \%Feat;      # Exon-specific properties may be changed, but not generic qualities
-	} else {	
-		$Feature = Bio::SeqFeature::Generic->new(%args);
-    }
-	
-    my $self = bless $Feature, $class;
+
+    my $self = $caller->SUPER::new(%args);
 
     foreach my $attrname ( $self->_standard_keys ) {
     	if (exists $args{$attrname}) {
