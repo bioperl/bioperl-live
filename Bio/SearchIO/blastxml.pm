@@ -16,11 +16,35 @@ Bio::SearchIO::blastxml - A SearchIO implementation of NCBI Blast XML parsing.
 
 =head1 SYNOPSIS
 
-    # do not use this object directly.  See Bio::SearchIO documentation
+    use Bio::SearchIO;
+    my $searchin = new Bio::SearchIO(-format => 'blastxml',
+				     -file   => 't/data/plague_yeast.bls.xml');
+    while( my $result = $searchin->next_result ) {
+    }
+    
+    # one can also request that the parser NOT keep the XML data in memory
+    # by using the tempfile initialization flag.
+    my $searchin = new Bio::SearchIO(-tempfile => 1,
+				     -format => 'blastxml',
+				     -file   => 't/data/plague_yeast.bls.xml');
+    while( my $result = $searchin->next_result ) {
+    }
+ 
 
 =head1 DESCRIPTION
 
-This object implements a NCBI Blast XML parser. 
+This object implements a NCBI Blast XML parser.
+
+There is one additional initialization flag from the SearchIO defaults
+- that is the -tempfile flag.  If specified as true, then the parser
+will write out each report to a temporary filehandle rather than
+holding the entire report as a string in memory.  The reason this is
+done in the first place is NCBI reports have an uncessary <?xml
+version="1.0"?> at the beginning of each report and RPS-BLAST reports
+have an additional unecessary RPS-BLAST tag at the top of each report.
+So we currently have implemented the work around by preparsing the
+file (yes it makes the process slower, but it works).
+
 
 =head1 FEEDBACK
 
@@ -73,6 +97,7 @@ use Bio::SearchIO::EventGeneratorI;
 use Bio::SearchIO;
 use XML::Parser::PerlSAX;
 use XML::Handler::Subs;
+use IO::File;
 
 BEGIN { 
     # mapping of NCBI Blast terms to Bioperl hash keys
@@ -133,6 +158,20 @@ BEGIN {
 
 @ISA = qw(Bio::SearchIO );
 
+=head2 new
+
+ Title   : new
+ Usage   : my $searchio = new Bio::SearchIO(-format => 'blastxml',
+					    -file   => 'filename',
+					    -tempfile => 1);
+ Function: Initializes the object - this is chained through new in SearchIO
+ Returns : Bio::SearchIO::blastxml object
+ Args    : One additional argument from the format and file/fh parameters.
+           -tempfile => boolean.  Defaults to false.  Write out XML data
+                                  to a temporary filehandle to send to 
+                                  PerlSAX parser.
+=cut
+
 =head2 _initialize
 
  Title   : _initialize
@@ -144,6 +183,8 @@ BEGIN {
 sub _initialize{
    my ($self,@args) = @_;   
    $self->SUPER::_initialize(@args);
+   my ($usetempfile) = $self->_rearrange([qw(TEMPFILE)],@args);
+   defined $usetempfile && $self->use_tempfile($usetempfile);
    $self->{'_xmlparser'} = new XML::Parser::PerlSAX();
 }
 
@@ -162,6 +203,12 @@ sub next_result {
  
     my $data = '';
     my $firstline = 1;
+    my ($tfh);
+    if( $self->use_tempfile ) {
+	$tfh = IO::File->new_tmpfile or $self->throw("Unable to open temp file: $!");	
+	$tfh->autoflush(1);
+    }
+    my $okaytoprocess;
     while( defined( $_ = $self->_readline) ) {
 	if( /^RPS-BLAST/i ) {
 	    $self->{'_type'} = 'RPSBLAST';
@@ -171,19 +218,38 @@ sub next_result {
 	    $self->_pushback($_);
 	    last;
 	}
-	s/&apos;/\`/g;	
-	$data .= $_;
+	s/\&apos;/\`/g;	
+	s/\&gt;/\>/g;
+	s/\&lt;/\</g;
+	$okaytoprocess = 1;
+	if( defined $tfh ) {
+	    print $tfh $_;
+	} else {
+	    $data .= $_;
+	}
 	$firstline = 0;
     }
 
-    return undef unless( $data);
-    my %parser_args = ('Source' => { 'String' => $data },
-		       'Handler' => $self);
+    return undef unless( $okaytoprocess);
     
-    my $result = $self->{'_xmlparser'}->parse(%parser_args);
-
-   # parsing magic here - but we call event handlers rather than 
-   # instantiating things 
+    my %parser_args;
+    if( defined $tfh ) {
+	seek($tfh,0,0);
+	%parser_args = ('Source' => { 'ByteStream' => $tfh },
+			'Handler' => $self);
+    } else {
+	%parser_args = ('Source' => { 'String' => $data },
+			'Handler' => $self);
+    }
+    my $result;
+    eval { 
+	$result = $self->{'_xmlparser'}->parse(%parser_args);
+    };
+    if( $@ ) {
+	$self->warn("error in parsing a report:\n $@");
+    }
+    # parsing magic here - but we call event handlers rather than 
+    # instantiating things 
     return $result;
 }
 
@@ -337,4 +403,26 @@ sub _mode{
     return $self->{'_mode'};
 
 }
+
+=head2 use_tempfile
+
+ Title   : use_tempfile
+ Usage   : $obj->use_tempfile($newval)
+ Function: Get/Set boolean flag on whether or not use a tempfile
+ Example : 
+ Returns : value of use_tempfile
+ Args    : newvalue (optional)
+
+
+=cut
+
+sub use_tempfile{
+   my ($self,$value) = @_;
+   if( defined $value) {
+      $self->{'_use_tempfile'} = $value;
+    }
+    return $self->{'_use_tempfile'};
+
+}
+
 1;
