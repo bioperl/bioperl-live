@@ -104,11 +104,11 @@ package Bio::DasI;
 use strict;
 
 use vars qw(@ISA);
-use Bio::Root;
+use Bio::Root::Root;
 use Carp;
 
-# Object preamble - inherits from Bio::Root;
-@ISA = qw(Bio::Root);
+# Object preamble - inherits from Bio::Root::Root;
+@ISA = qw(Bio::Root::Root);
 
 =head2 types
 
