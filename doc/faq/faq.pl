@@ -92,13 +92,13 @@ exit;
 
 sub title { 
     my( $t, $title)= @_;
-    $title->set_gi( 'h1');      # title -> h1
+    $title->set_gi( 'b');      # title -> h1
     $G_TITLE= $title->text;     # store the title
 }
 
 sub version { 
     my( $t, $version)= @_;
-    $version->set_gi( 'h2');    # version -> h2
+    $version->set_gi( 'b');    # version -> h2
     $G_VERSION= $version->text; # store the version
     $version->prefix( 'Version ');
 }
@@ -162,7 +162,7 @@ sub section  {
     $hr->paste( $section);
     # add the title
     my $section_title= ucfirst( $section->gi);
-    my $title= new XML::Twig::Elt( 'h3', $section_title);
+    my $title= new XML::Twig::Elt( 'b', $section_title);
     $title->paste( 'after', $hr);
     $section->set_gi( 'div');
 
@@ -187,7 +187,7 @@ sub block {
 
     my $blocktext = $block->text;
 
-    my $section=  new XML::Twig::Elt( 'h2', "$target. $blocktext" );
+    my $section=  new XML::Twig::Elt( 'b', "$target. $blocktext" );
     $section->paste( 'after', $hr);
 
     # add a target element (so the ToC can link there)
@@ -206,7 +206,7 @@ sub block {
 	my $q= $block->parent;
         $TOC= new XML::Twig::Elt( 'blockquote');
         $TOC->paste( 'before', $q);
-        my $toc_title=  new XML::Twig::Elt( 'h3', 'Contents');
+        my $toc_title=  new XML::Twig::Elt( 'b', 'Contents');
         $toc_title->paste( 'before', $TOC);
 	my $hr= new XML::Twig::Elt ( 'hr');
 	$hr->paste( 'before', $toc_title);
@@ -264,7 +264,7 @@ sub question {
 	my $q= $question->parent->parent;
         $TOC= new XML::Twig::Elt( 'ul');
         $TOC->paste( 'before', $q);
-        my $toc_title=  new XML::Twig::Elt( 'h3', 'Contents');
+        my $toc_title=  new XML::Twig::Elt( 'b', 'Contents');
         $toc_title->paste( 'before', $TOC);
 	my $hr= new XML::Twig::Elt ( 'hr');
 	$hr->paste( 'before', $toc_title);
@@ -280,7 +280,7 @@ sub question {
 	print wrap(" " x $indent_length, " " x ($INDENT+2), $question->text. "\n");
     }
 
-    $question->set_gi( 'h3');
+    $question->set_gi( 'b');
 }
 
 sub answer { 
