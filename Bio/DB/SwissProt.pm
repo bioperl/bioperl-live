@@ -37,7 +37,6 @@ Bio::DB::SwissProt - Database object interface to SwissProt retrieval
     $sp = new Bio::DB::SwissProt('-hostlocation' => 'canada');
 
     $seq = $sp->get_Seq_by_id('BOLA_HAEIN'); # SwissProtID
-    
 
 =head1 DESCRIPTION
 
@@ -76,12 +75,12 @@ or the web:
 
 =head1 AUTHOR - Jason Stajich
 
-Email Jason Stajich <jason@chg.mc.duke.edu>
+Email Jason Stajich  E<lt>jason@chg.mc.duke.edu E<lt>
 
-Thanks go to Alexandre Gattiker <gattiker@isb-sib.ch> of Swiss
+Thanks go to Alexandre Gattiker E<lt>gattiker@isb-sib.chE<gt> of Swiss
 Institute of Bioinformatics for helping point us in the direction of
 the correct expasy scripts and for swissknife references.
-  
+
 =head1 APPENDIX
 
 The rest of the documentation details each of the object
@@ -249,9 +248,9 @@ sub servertype {
  Function: Set/Get Hostlocation 
  Returns : string representing hostlocation
  Args    : string specifying hostlocation [optional]
-    
-=cut    
-    
+
+=cut
+
 sub hostlocation {
     my ($self, $location ) = @_;
     $location = lc $location;
