@@ -100,9 +100,11 @@ BEGIN {
 		    'gi'   =>   ['get'  => '/entrez/eutils/efetch.fcgi'],
 		     );
 
-    %FORMATMAP = ( 'gb' => 'genbank',
-		   'gp' => 'genbank',
-		   'fasta'   => 'fasta',
+    %FORMATMAP = (
+                  'gb'          => 'genbank',
+                  'gbwithparts' => 'genbank',
+                  'gp'          => 'genbank',
+                  'fasta'       => 'fasta',
 		   );
 
     $DEFAULTFORMAT = 'gb';
