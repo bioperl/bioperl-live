@@ -291,7 +291,7 @@ can also be helpful for obtaining debugging information on perl objects.
 
 Some of the capabilities of bioperl require software beyond that of
 the minimal installation.  This additional software includes perl
-modules from CPAN, package-libraries from bioperl\'s auxilliary
+modules from CPAN, package-libraries from bioperl's auxilliary
 code-repositories, a bioperl xs-extension, and several standard
 compiled bioinformatics programs.
 
@@ -302,7 +302,7 @@ please see the L<INSTALL> file.
 
 B<Bioperl auxilliary repositories>
 
-Some features of bioperl that require modules from bioperl\'s
+Some features of bioperl that require modules from bioperl's
 auxilliary code repositories. See section IV and references therein
 for further installation instructions for these modules.
 
@@ -412,7 +412,7 @@ Bioperl has mainly been developed and tested under various unix
 environments (including Linux and MacOSX).  In addition, this tutorial
 has been written largely from a Unix perspective.  
 
-Mac users may find Steve Cannon\'s installation notes and suggestions
+Mac users may find Steve Cannon's installation notes and suggestions
 for Bioperl on OS X at
 http://www.tc.umn.edu/~cann0010/Bioperl_OSX_install.html helpful. Also
 Todd Richmond has written of his experiences with BioPerl on MacOS 9
@@ -951,7 +951,7 @@ features across:
 Note that some methods return strings, some return arrays and some
 return references to objects.  See L<Bio::Seq> for more information.
 
-Many of these methods are self-explanatory. However, bioperl\'s flexible
+Many of these methods are self-explanatory. However, bioperl's flexible
 translation methods warrant further comment. Translation in bioinformatics
 can mean two slightly different things:
 
@@ -1742,7 +1742,7 @@ See L<Bio::Seq::RichSeqI> for more details.
 
 Very large sequences and/or data files with sequences that are frequently being
 updated present special problems to automated sequence-annotation storage and
-retrieval projects.  Bioperl\'s LargeSeq and LiveSeq objects are designed to
+retrieval projects.  Bioperl's LargeSeq and LiveSeq objects are designed to
 address these two situations.
 
 LargeSeq
@@ -2272,7 +2272,7 @@ bioperl can read in with the AlignIO system
   my $in = new Bio::AlignIO(-format => 'emboss', -file => 'filename');
   my $aln = $in->next_aln();
  
-The Pise interface is another approach to extending Bioperl\'s
+The Pise interface is another approach to extending Bioperl's
 sequence manipulation capabilities by using standard bioinformatics
 programs.  To use EMBOSS programs within Bioperl you need to
 have EMBOSS locally installed (in addition to having the auxiliary
