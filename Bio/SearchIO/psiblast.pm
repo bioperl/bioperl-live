@@ -137,6 +137,7 @@ use vars qw( @ISA
 	     $MAX_HSP_OVERLAP 
 	     $DEFAULT_MATRIX  
 	     $DEFAULT_SIGNIF  
+	     $DEFAULT_SCORE
 	     $DEFAULT_BLAST_WRITER_CLASS 
 	     $DEFAULT_HIT_FACTORY_CLASS 
 	     $DEFAULT_RESULT_FACTORY_CLASS  
@@ -154,6 +155,7 @@ use Bio::Tools::StateMachine::IOStateMachine qw($INITIAL_STATE $FINAL_STATE);
 $MAX_HSP_OVERLAP  = 2;  # Used when tiling multiple HSPs.
 $DEFAULT_MATRIX   = 'BLOSUM62';
 $DEFAULT_SIGNIF   = 999;# Value used as significance cutoff if none supplied.
+$DEFAULT_SCORE    = 0;  # Value used as score cutoff if none supplied.
 $DEFAULT_BLAST_WRITER_CLASS    = 'Bio::Search::Writer::HitTableWriter';
 $DEFAULT_HIT_FACTORY_CLASS     = 'Bio::Factory::BlastHitFactory';
 $DEFAULT_RESULT_FACTORY_CLASS  = 'Bio::Factory::BlastResultFactory';
@@ -188,13 +190,19 @@ my $current_iteration;  # psiblast
 =head2 new
 
  Usage     : Bio::SearchIO::psiblast->new( %named_parameters )
- Purpose   : Parse tranditional BLAST or PSI-BLAST data a file or input stream.
+ Purpose   : Parse traditional BLAST or PSI-BLAST data a file or input stream.
+           : Handles Blast1, Blast2, NCBI and WU Blast reports.
            : Populates Bio::Search:: objects with data extracted from the report.
+           : (The exact type of Bio::Search objects depends on the type of
+           : Bio::Factory::ResultFactory and Bio::Factory::HitFactory you hook up
+           : to the SearchIO object.)
  Returns   : Bio::SearchIO::psiblast object.
  Argument  : Named parameters:  (PARAMETER TAGS CAN BE UPPER OR LOWER CASE).
            : These are in addition to those specified by Bio::SearchIO::new() (see).
 	   : -SIGNIF     => number (float or scientific notation number to be used
-	   :                         as a P- or Expect value cutoff; default = 999.
+	   :                         as a P- or Expect value cutoff; default = 999.)
+	   : -SCORE     => number (integer or scientific notation number to be used
+	   :                         as a score value cutoff; default = 0.)
 	   : -HIT_FILTER  => func_ref (reference to a function to be used for
            :                          filtering out hits based on arbitrary criteria.
            :                          This function should take a
@@ -417,9 +425,9 @@ sub _init_parse_params {
 
     # -FILT_FUNC has been replaced by -HIT_FILTER.
     # Leaving -FILT_FUNC in place for backward compatibility
-    my($signif, $filt_func, $hit_filter, $min_len, $check_all, $overlap, $stats,
-       $best, $shallow_parse, $hold_raw) =
-	$self->_rearrange([qw(SIGNIF FILT_FUNC HIT_FILTER MIN_LEN CHECK_ALL_HITS
+    my($signif, $filt_func, $hit_filter, $min_len, $check_all, $gapped, $score, 
+       $overlap, $stats, $best, $shallow_parse, $hold_raw) =
+	$self->_rearrange([qw(SIGNIF FILT_FUNC HIT_FILTER MIN_LEN CHECK_ALL_HITS GAPPED SCORE
 			      OVERLAP STATS BEST SHALLOW_PARSE HOLD_RAW_DATA)], @param);
 
     $self->{'_hit_filter'} = $hit_filter || $filt_func || 0;
@@ -427,11 +435,15 @@ sub _init_parse_params {
     $self->{'_shallow_parse'} = $shallow_parse || 0;
     $self->{'_hold_raw_data'} = $hold_raw || 0;
 
-    $self->_set_signif($signif, $min_len, $hit_filter);
+    $self->_set_signif($signif, $min_len, $self->{'_hit_filter'}, $score);
     $self->best_hit_only($best) if $best;
     $self->{'_blast_count'} = 0;
 
     $self->{'_collect_stats'} = defined($stats) ? $stats : 0;
+
+    # TODO: Automatically determine whether gapping was used.
+    # e.g., based on version number. Otherwise, have to read params.
+    $self->{'_gapped'} = $gapped || 1;
 
     # Clear any errors from previous parse.
     $self->_clear_errors;
@@ -455,13 +467,13 @@ sub _init_parse_params {
 #           : Exception if $hit_filter if defined and is not a func ref.
 # Comments  : The significance of a BLAST report can be based on
 #           : the P (or Expect) value and/or the length of the query sequence.
-#           : P (or Expect) values GREATER than '_significance' are not significant.
+#           : P (or Expect) values GREATER than '_max_significance' are not significant.
 #           : Query sequence lengths LESS than '_min_length' are not significant.
 #           :
 #           : Hits can also be screened using arbitrary significance criteria
 #           : as discussed in the parse() method.
 #           :
-#           : If no $signif is defined, the '_significance' level is set to
+#           : If no $signif is defined, the '_max_significance' level is set to
 #           : $DEFAULT_SIGNIF (999).
 #
 #See Also   : L<signif>(), L<min_length>(), L<_init_parse_params>(), L<parse>()
@@ -471,19 +483,30 @@ sub _init_parse_params {
 #-----------------
 sub _set_signif {
 #-----------------
-    my( $self, $sig, $len, $func ) = @_;
+    my( $self, $sig, $len, $func, $score ) = @_;
 
     if(defined $sig) {
 	$self->{'_confirm_significance'} = 1;
 	if( $sig =~ /[^\d.e-]/ or $sig <= 0) {
 	    $self->throw(-class => 'Bio::Root::BadParameter',
                          -text => "Invalid significance value: $sig\n".
-			 "Must be greater than zero.");
+			 "Must be a number greater than zero.");
 	}
-	$self->{'_significance'} = $sig;
+	$self->{'_max_significance'} = $sig;
     } else {
-	$self->{'_significance'}   = $DEFAULT_SIGNIF;
-	$self->{'_check_all'}      = 1 if not $self->{'_hit_filter'};
+	$self->{'_max_significance'}   = $DEFAULT_SIGNIF;
+    }
+
+    if(defined $score) {
+	$self->{'_confirm_significance'} = 1;
+	if( $score =~ /[^\de+]/ or $score <= 0) {
+	    $self->throw(-class => 'Bio::Root::BadParameter',
+                         -text => "Invalid score value: $score\n".
+			 "Must be an integer greater than zero.");
+	}
+	$self->{'_min_score'} = $score;
+    } else {
+	$self->{'_min_score'}  = $DEFAULT_SCORE;
     }
 
     if(defined $len) {
@@ -496,6 +519,7 @@ sub _set_signif {
     }
 
     if(defined $func) {
+        $self->{'_check_all'} = 1;
 	$self->{'_confirm_significance'} = 1;
 	if($func and not ref $func eq 'CODE') {
 	    $self->throw("Not a function reference: $func",
@@ -506,7 +530,17 @@ sub _set_signif {
 
 =head2 signif
 
- Usage     : $obj->signif();
+  Synonym for max_significance().
+
+=cut
+
+#-----------
+sub signif { shift->max_significance }
+
+
+=head2 max_significance
+
+ Usage     : $obj->max_significance();
  Purpose   : Gets the P or Expect value used as significance screening cutoff.
  Returns   : Scientific notation number with this format: 1.0e-05.
  Argument  : n/a
@@ -517,11 +551,29 @@ sub _set_signif {
 =cut
 
 #-----------
-sub signif {
+sub max_significance {
 #-----------
     my $self = shift;
-    my $sig = $self->{'_significance'};
+    my $sig = $self->{'_max_significance'};
     sprintf "%.1e", $sig;
+}
+
+=head2 min_score
+
+ Usage     : $obj->min_score();
+ Purpose   : Gets the Blast score used as significance screening cutoff.
+ Returns   : Integer or scientific notation number.
+ Argument  : n/a
+ Comments  : Screening of significant hits uses the data provided on the
+           : description line. 
+
+=cut
+
+#-----------
+sub min_score {
+#-----------
+    my $self = shift;
+    return $self->{'_min_score'};
 }
 
 =head2 min_length
@@ -558,7 +610,7 @@ sub _process_header {
     my ($query_start, $query_desc);
     
     foreach my $line (@data) {
-      if( $line =~ /^(<.*>)?(T?BLAST[NPX])\s+(.*)$/ ) {
+        if( $line =~ /^(<.*>)?(T?BLAST[NPX])\s+(.*)$/ ) {
             $blast->analysis_method( $2 );
             $blast->analysis_method_version( $3 );
             $set_method = 1;
@@ -626,7 +678,8 @@ sub _process_descriptions {
     # meet the significance requirement, we can skip the report.
     # BUT: we want to collect data for all hits anyway to get min/max signif.
 
-    my $my_signif = $self->signif;
+    my $max_signif = $self->max_significance;
+    my $min_score  = $self->min_score;
     my $layout_set = $self->{'_layout'} || 0;
     my ($layout, $sig, $hitid, $score, $is_p_value);
 
@@ -640,7 +693,7 @@ sub _process_descriptions {
 
     desc_loop:
   foreach my $line (@data) {
-      last desc_loop if $line =~ / NONE |End of List/;
+      last desc_loop if $line =~ / NONE |End of List|Results from round/;
       next desc_loop if $line =~ /^\.\./;
 
       if($line =~ /^Sequences used in model/ ) {
@@ -674,7 +727,7 @@ sub _process_descriptions {
       }
       not $layout_set and ($self->_layout($layout), $layout_set = 1);
 
-      $sig = &_parse_signif( $line, $layout );
+      $sig = &_parse_signif( $line, $layout, $self->{'_gapped'} );
 
 #      print STDERR "  Parsed signif for $hitid: $sig (layout=$layout)\n";
 
@@ -683,8 +736,10 @@ sub _process_descriptions {
       $self->{'_hit_hash'}->{$hitid}->{'found_again'} = $hit_found_again;
       $self->{'_hit_hash'}->{'is_pval'} = $is_p_value;
 
-      last desc_loop if ($sig > $my_signif and not $self->{'_check_all'});
-      $self->_process_significance($sig, $my_signif);
+      last desc_loop if (not $self->{'_check_all'} and 
+                         ($sig > $max_signif or $score < $min_score));
+
+      $self->_process_significance($sig, $score);
     }
 
 #  printf "\n%d SIGNIFICANT HITS.\nDONE PARSING DESCRIPTIONS.\n", $self->{'_num_hits_significant'};
@@ -724,18 +779,24 @@ sub _set_query_length {
 
 
 sub _process_significance {
-    my($self, $sig, $my_signif) = @_;
+    my($self, $sig, $score) = @_;
 
-    $self->{'_highestSignif'} = (defined $self->{'_highestSignif'} &&
-				 $sig > $self->{'_highestSignif'})
+    $self->{'_highestSignif'} = ($sig > $self->{'_highestSignif'})
    	                        ? $sig : $self->{'_highestSignif'};
 
-    $self->{'_lowestSignif'} = (defined $self->{'_lowestSignif'} && 
-				$sig < $self->{'_lowestSignif'})
+    $self->{'_lowestSignif'} = ($sig < $self->{'_lowestSignif'})
                                  ? $sig : $self->{'_lowestSignif'};
 
+    $self->{'_highestScore'} = ($score > $self->{'_highestScore'})
+   	                        ? $score : $self->{'_highestScore'};
+
+    $self->{'_lowestScore'} = ($score < $self->{'_lowestScore'})
+                                 ? $score : $self->{'_lowestScore'};
+
     # Significance value assessment.
-    $sig <= $my_signif and $self->{'_num_hits_significant'}++;
+    if($sig <= $self->{'_max_significance'} and $score >= $self->{'_min_score'}) {
+        $self->{'_num_hits_significant'}++;
+    }
     $self->{'_num_hits'}++;
 
     $self->{'_is_significant'} = 1 if $self->{'_num_hits_significant'};
@@ -846,7 +907,8 @@ sub _process_alignment {
 
 #    print STDERR "\nALIGNMENT DATA:\n@data\n";
 
-    my $my_signif  = $self->signif;
+    my $max_signif  = $self->max_significance;
+    my $min_score   = $self->min_score;
 
     my ($hitid, $score, $signif, $is_pval, $found_again);
     if( $data[0] =~ /^(\S+)\s+/ ) {
@@ -890,21 +952,25 @@ sub _process_alignment {
     #printf STDERR "NEW HIT: %s, SIGNIFICANCE = %g\n", $hit->name, $hit->expect;  <STDIN>;
     # The BLAST report may have not had a description section.
     if(not $self->{'_has_descriptions'}) {
-      $self->_process_significance($hit->signif, $my_signif);
+      $self->_process_significance($hit->signif, $score);
     }
     
     # Collect overall signif data if we don't already have it,
-    # (as occurs if no -signif parameter is supplied).
+    # (as occurs if no -signif or -score parameter are supplied).
     my $hit_signif = $hit->signif;
     
     if (not $self->{'_confirm_significance'} ) {
-      $self->{'_highestSignif'} = (defined $self->{'_highestSignif'} &&
-				   $hit_signif > $self->{'_highestSignif'})
-	? $hit_signif : $self->{'_highestSignif'};
-      
-      $self->{'_lowestSignif'} = (defined $self->{'_lowestSignif'} &&
-				  $hit_signif < $self->{'_lowestSignif'})
-	? $hit_signif : $self->{'_lowestSignif'};
+        $self->{'_highestSignif'} = ($hit_signif > $self->{'_highestSignif'})
+            ? $hit_signif : $self->{'_highestSignif'};
+
+        $self->{'_lowestSignif'} = ($hit_signif < $self->{'_lowestSignif'})
+            ? $hit_signif : $self->{'_lowestSignif'};
+
+        $self->{'_highestScore'} = ($score > $self->{'_highestScore'})
+            ? $score : $self->{'_highestScore'};
+
+        $self->{'_lowestScore'} = ($score < $self->{'_lowestScore'})
+            ? $score : $self->{'_lowestScore'};
     }
 
     # Test significance using custom function (if supplied)
@@ -913,11 +979,11 @@ sub _process_alignment {
     my $hit_filter  = $self->{'_hit_filter'} || 0;
 
     if($hit_filter) {
-      if(&$hit_filter($hit)) {
-	$add_hit = 1;
-      }
-    } elsif($hit_signif <= $my_signif) {
-      $add_hit = 1;
+        if(&$hit_filter($hit)) {
+            $add_hit = 1;
+        }
+    } elsif($hit_signif <= $max_signif and $score >= $min_score) {
+        $add_hit = 1;
     }
 
     $add_hit && $self->{'_current_blast'}->add_hit( $hit );
