@@ -44,7 +44,7 @@ Swissprot files.
     # alternatively
     my ($id, $acc);
     my $seq1 = $inx->get_Seq_by_id($id);
-    my $seq2 = $inx->get_Seq_by_acc($ac);
+    my $seq2 = $inx->get_Seq_by_acc($acc);
 
 =head1 DESCRIPTION
 

@@ -32,7 +32,7 @@ based on query accession(s)
     while( my $result = $blast_report->next_result ) {
   	    print $result->algorithm, "\n";
 	    while( my $hsp = $result->next_hit ) {
-	      print "\t name ", $hit->name,
+	      print "\t name ", $hsp->name,
 	    }
 	    print "\n";
     }
