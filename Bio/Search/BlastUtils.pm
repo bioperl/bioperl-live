@@ -49,9 +49,12 @@ use Carp;
  	   : TODO: Re-write this to the Bio::Search::Hit::HitI interface.
  	   :
            : This method performs more careful summing of data across
-           : all HSPs in the Sbjct object. Simply summing the data from all HSPs
-           : will overestimate the actual length of the alignment if there is 
-           : overlap between different HSPs (often the case).
+           : all HSPs in the Sbjct object. Only HSPs that are in the same strand 
+           : and frame are tiled. Simply summing the data from all HSPs
+           : in the same strand and frame will overestimate the actual 
+           : length of the alignment if there is overlap between different HSPs 
+           : (often the case).
+           :
            : The strategy is to tile the HSPs and sum over the
            : contigs, collecting data separately from overlapping and
            : non-overlapping regions of each HSP. To facilitate this, the
@@ -136,6 +139,7 @@ sub tile_hsps {
     ## More than one HSP. Must tile HSPs.
 #    print "\nTiling HSPs for $sbjct\n";
     my($hsp, $qstart, $qstop, $sstart, $sstop);
+    my($frame, $strand, $qstrand, $sstrand);
     my(@qcontigs, @scontigs);
     my $qoverlap = 0;
     my $soverlap = 0;
@@ -146,6 +150,9 @@ sub tile_hsps {
 #	printf "  Length = %d; Identical = %d; Conserved = %d; Conserved(1-10): %d",$hsp->length, $hsp->length(-TYPE=>'iden'), $hsp->length(-TYPE=>'cons'), $hsp->length(-TYPE=>'cons',-START=>0,-STOP=>10); 
 	($qstart, $qstop) = $hsp->range('query');
 	($sstart, $sstop) = $hsp->range('sbjct');
+	$frame = $hsp->frame;
+	$frame = -1 unless defined $frame;
+	($qstrand, $sstrand) = $hsp->strand;
 
 	my ($qgaps, $sgaps)  = $hsp->gaps();
 	$sbjct->{'_gaps_query'} += $qgaps;
@@ -153,10 +160,10 @@ sub tile_hsps {
 
 	$sbjct->{'_length_aln_total'} += $hsp->length;
 	## Collect contigs in the query sequence.
-	$qoverlap = &_adjust_contigs('query', $hsp, $qstart, $qstop, \@qcontigs, $max_overlap);
+	$qoverlap = &_adjust_contigs('query', $hsp, $qstart, $qstop, \@qcontigs, $max_overlap, $frame, $qstrand);
 
 	## Collect contigs in the sbjct sequence (needed for domain data and gapped Blast).
-	$soverlap = &_adjust_contigs('sbjct', $hsp, $sstart, $sstop, \@scontigs, $max_overlap);
+	$soverlap = &_adjust_contigs('sbjct', $hsp, $sstart, $sstop, \@scontigs, $max_overlap, $frame, $sstrand);
 
 	## Collect overall start and stop data for query and sbjct over all HSPs.
 	if(not defined $sbjct->{'_queryStart'}) {
@@ -177,13 +184,28 @@ sub tile_hsps {
 #    print "\nQUERY CONTIGS:\n";
 #    print "  gaps = $sbjct->{'_gaps_query'}\n";
 
+    # TODO: Account for strand/frame issue!
+    # Strategy: collect data on a per strand+frame basis and save the most significant one.
+    my (%qctg_dat);
     foreach(@qcontigs) {
 #	print "  query contig: $_->{'start'} - $_->{'stop'}\n";
 #	print "         iden = $_->{'iden'}; cons = $_->{'cons'}\n";
-	$sbjct->{'_length_aln_query'} += $_->{'stop'} - $_->{'start'} + 1;
-	$sbjct->{'_totalIdentical'}   += $_->{'iden'};
-	$sbjct->{'_totalConserved'}   += $_->{'cons'};
+	($frame, $strand) = ($_->{'frame'}, $_->{'strand'});
+	$qctg_dat{ "$frame$strand" }->{'length_aln_query'} += $_->{'stop'} - $_->{'start'} + 1;
+	$qctg_dat{ "$frame$strand" }->{'totalIdentical'}   += $_->{'iden'};
+	$qctg_dat{ "$frame$strand" }->{'totalConserved'}   += $_->{'cons'};
+	$qctg_dat{ "$frame$strand" }->{'qstrand'}   = $strand;
     }
+
+    # Find longest contig.
+    my @sortedkeys = reverse sort { $qctg_dat{ $a }->{'length_aln_query'} <=> $qctg_dat{ $b }->{'length_aln_query'} } keys %qctg_dat;
+
+    # Save the largest to the sbjct:
+    my $longest = $sortedkeys[0];
+    $sbjct->{'_length_aln_query'} = $qctg_dat{ $longest }->{'length_aln_query'};
+    $sbjct->{'_totalIdentical'}   = $qctg_dat{ $longest }->{'totalIdentical'};
+    $sbjct->{'_totalConserved'}   = $qctg_dat{ $longest }->{'totalConserved'};
+    $sbjct->{'_qstrand'} = $qctg_dat{ $longest }->{'qstrand'};
 
     ## Collect data for sbjct contigs. Important for gapped Blast.
     ## The totalIdentical and totalConserved numbers will be the same
@@ -192,12 +214,25 @@ sub tile_hsps {
 #    print "\nSBJCT CONTIGS:\n";
 #    print "  gaps = $sbjct->{'_gaps_sbjct'}\n";
 
+    my (%sctg_dat);
     foreach(@scontigs) {
 #	print "  sbjct contig: $_->{'start'} - $_->{'stop'}\n";
 #	print "         iden = $_->{'iden'}; cons = $_->{'cons'}\n";
-	$sbjct->{'_length_aln_sbjct'} += $_->{'stop'} - $_->{'start'} + 1;
+	($frame, $strand) = ($_->{'frame'}, $_->{'strand'});
+	$sctg_dat{ "$frame$strand" }->{'length_aln_sbjct'}   += $_->{'stop'} - $_->{'start'} + 1;
+	$sctg_dat{ "$frame$strand" }->{'frame'}  = $frame;
+	$sctg_dat{ "$frame$strand" }->{'sstrand'}  = $strand;
     }
-    
+
+    @sortedkeys = reverse sort { $sctg_dat{ $a }->{'length_aln_sbjct'} <=> $sctg_dat{ $b }->{'length_aln_sbjct'} } keys %sctg_dat;
+
+    # Save the largest to the sbjct:
+    $longest = $sortedkeys[0];
+
+    $sbjct->{'_length_aln_sbjct'} = $sctg_dat{ $longest }->{'length_aln_sbjct'};
+    $sbjct->{'_frame'} = $sctg_dat{ $longest }->{'frame'};
+    $sbjct->{'_sstrand'} = $sctg_dat{ $longest }->{'sstrand'};
+
     if($qoverlap) {
 	if($soverlap) { $sbjct->ambiguous_aln('qs'); 
 #			print "\n*** AMBIGUOUS ALIGNMENT: Query and Sbjct\n\n";
@@ -247,25 +282,28 @@ See Also   : L<tile_hsps>(), L<Bio::Search::Hit::BlastHSP::matches|Bio::Search::
 #-------------------
 sub _adjust_contigs {
 #-------------------
-    my ($seqType, $hsp, $start, $stop, $contigs_ref, $max_overlap) = @_;
+    my ($seqType, $hsp, $start, $stop, $contigs_ref, $max_overlap, $frame, $strand) = @_;
 
     my $overlap = 0;
     my ($numID, $numCons);
 
-#    print "Testing $seqType data: HSP (${\$hsp->name});  $start, $stop\n"; 
+#    print STDERR "Testing $seqType data: HSP (${\$hsp->name});  $start, $stop, strand=$strand, frame=$frame\n"; 
     foreach(@$contigs_ref) {
-#	print "  Contig: $_->{'start'} - $_->{'stop'}, iden= $_->{'iden'}, cons= $_->{'cons'}\n";
+#	print STDERR "  Contig: $_->{'start'} - $_->{'stop'}, strand=$_->{'strand'}, frame=$_->{'frame'}, iden= $_->{'iden'}, cons= $_->{'cons'}\n";
+
+	# Don't merge things unless they have matching strand/frame.
+	next unless ($_->{'frame'} == $frame and $_->{'strand'} == $strand);
 
 	## Test special case of a nested HSP. Skip it.
 	if($start >= $_->{'start'} and $stop <= $_->{'stop'}) { 
-#	    print "----> Nested HSP. Skipping.\n";
+#	    print STDERR "----> Nested HSP. Skipping.\n";
 	    $overlap = 1; 
 	    next;
 	}
 
 	## Test for overlap at beginning of contig.
 	if($start < $_->{'start'} and $stop > ($_->{'start'} + $max_overlap)) { 
-#	    print "----> Overlaps beg: existing beg,end: $_->{'start'},$_->{'stop'}, new beg,end: $start,$stop\n";
+#	    print STDERR "----> Overlaps beg: existing beg,end: $_->{'start'},$_->{'stop'}, new beg,end: $start,$stop\n";
 	    # Collect stats over the non-overlapping region.
 	    eval {
 		($numID, $numCons) = $hsp->matches(-SEQ   =>$seqType, 
@@ -283,7 +321,7 @@ sub _adjust_contigs {
 
 	## Test for overlap at end of contig.
 	if($stop > $_->{'stop'} and $start < ($_->{'stop'} - $max_overlap)) { 
-#	    print "----> Overlaps end: existing beg,end: $_->{'start'},$_->{'stop'}, new beg,end: $start,$stop\n";
+#	    print STDERR "----> Overlaps end: existing beg,end: $_->{'start'},$_->{'stop'}, new beg,end: $start,$stop\n";
 	    # Collect stats over the non-overlapping region.
 	    eval {
 		($numID,$numCons) = $hsp->matches(-SEQ   =>$seqType, 
@@ -299,17 +337,18 @@ sub _adjust_contigs {
 	    }
 	}
 	$overlap && do {
-#		print " New Contig data:\n";
-#		print "  Contig: $_->{'start'} - $_->{'stop'}, iden= $_->{'iden'}, cons= $_->{'cons'}\n";
+#		print STDERR " New Contig data:\n";
+#		print STDERR "  Contig: $_->{'start'} - $_->{'stop'}, iden= $_->{'iden'}, cons= $_->{'cons'}\n";
 		last;
 	    };
     }
     ## If there is no overlap, add the complete HSP data.
     !$overlap && do {
-#	print "No overlap. Adding new contig.\n";
+#	print STDERR "No overlap. Adding new contig.\n";
 	($numID,$numCons) = $hsp->matches(-SEQ=>$seqType); 
 	push @$contigs_ref, {'start'=>$start, 'stop'=>$stop,
-			     'iden'=>$numID,  'cons'=>$numCons };
+			     'iden'=>$numID,  'cons'=>$numCons,
+			     'strand'=>$strand, 'frame'=>$frame};
     };
     $overlap;
 }
