@@ -21,7 +21,7 @@ BEGIN {
     }
     use Test;
 
-    $NUMTESTS = 120;
+    $NUMTESTS = 136;
     plan tests => $NUMTESTS;
     eval { require IO::String; 
 	   require Bio::Tools::Phylo::PAML;}; 
