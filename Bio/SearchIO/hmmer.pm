@@ -175,14 +175,16 @@ sub next_result{
 
    $self->start_document();
    while( defined ($_ = $self->_readline )) {
+       my $lineorig = $_;
        chomp;
-       if( /^HMMER\s+(\S+)\s+\((.+)\)/o ) {
+       if( /^HMMER\s+(\S+)\s+\((.+)\)/o ) {	   
 	   my ($prog,$version) = split;
 	   if( $seentop ) {
 	       $self->_pushback($_);
 	       $self->end_element({'Name' => 'HMMER_Output'});
 	       return $self->end_document();
 	   }
+	   $self->{'_hmmidline'} = $_;
 	   $self->start_element({'Name' => 'HMMER_Output'});
 	   $seentop = 1;
 	   ($reporttype) = split(/\s+/,$last);
@@ -191,12 +193,22 @@ sub next_result{
 	   $self->element({'Name' => 'HMMER_version',
 			   'Data' => $version});
        } elsif( s/^HMM file:\s+//o ) {
+	   $self->{'_hmmfileline'} = $lineorig;
 	   $self->element({'Name' => 'HMMER_hmm',
 			   'Data' => $_});
        } elsif( s/^Sequence\s+(file|database):\s+//o ) {
+	   $self->{'_hmmseqline'} = $lineorig;
 	   $self->element({'Name' => 'HMMER_seqfile',
 			   'Data' => $_});
-       } elsif( s/^Query(\s+(sequence|HMM))?:\s+//) {
+       } elsif( s/^Query(\s+(sequence|HMM))?:\s+//o) {
+	   if( ! $seentop ) {
+	       # we're in a multi-query report
+	       $self->_pushback($self->{'_hmmidline'});
+	       $self->_pushback($self->{'_hmmfileline'});	       
+	       $self->_pushback($self->{'_hmmseqline'});
+	       $self->_pushback($lineorig);
+	       next;
+	   }
 	   s/\s+$//;
 	   $self->element({'Name' => 'HMMER_query-def',
 			   'Data' => $_});
@@ -256,7 +268,7 @@ sub next_result{
 		       }
 		       if( $self->within_element('hit')) {
 			   $self->end_element({'Name' => 'Hit'});
-		       }
+		       }		       
 		       last;
 		   }
 		   chomp;
@@ -398,7 +410,7 @@ sub next_result{
 		   $self->element({'Name' => 'Hsp_positive',
 				   'Data' => 0});
 		   $self->end_element({'Name' => 'Hsp'});
-		   $self->end_element({'Name' => 'Hit'});
+		   $self->end_element({'Name' => 'Hit'});		   
 	       }
 	       @hitinfo = ();
 	       %hitinfo = ();
@@ -435,12 +447,16 @@ sub next_result{
 	       $count = 0;
 	       my $second_tier=0;
 	       while( defined($_ = $self->_readline) ) {
+
 		   next if( /^Align/o || /^\s+RF\s+[x\s]+$/o);
 		   if( /^Histogram/o || m!^//!o ) { 
 		       if( $self->within_element('hsp')) {
 			   $self->end_element({'Name' => 'Hsp'});
 		       }
 		       $self->end_element({'Name' => 'Hit'});
+		       
+		       $self->end_element({'Name' => 'HMMER_Output'});
+		       return $self->end_document();		       
 		       last;
 		   }
 		   chomp;
