@@ -191,8 +191,7 @@ sub algorithm {
 =cut
 
 sub raw_score {
-    my ($self,@args) = @_;
-    $self->throw_not_implemented;
+    $_[0]->throw_not_implemented;
 }
 
 =head2 significance
@@ -209,8 +208,26 @@ sub raw_score {
 =cut
 
 sub significance {
-    my ($self,@args) = @_;
-    $self->throw_not_implemented;
+    $_[0]->throw_not_implemented;
+}
+
+=head2 bits
+
+ Usage     : $hit_object->bits();
+ Purpose   : Gets the bit score of the best HSP for the current hit.
+ Example   : $bits = $hit_object->bits();
+ Returns   : Integer or double for FASTA reports
+ Argument  : n/a
+ Comments  : For BLAST1, the non-bit score is listed in the summary line.
+
+See Also   : L<score()|score>
+
+=cut
+
+#---------
+sub bits { 
+#---------
+    $_[0]->throw_not_implemented();
 }
 
 =head2 next_hsp

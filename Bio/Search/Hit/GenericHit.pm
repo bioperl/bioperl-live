@@ -98,10 +98,10 @@ sub new {
 
   my $self = $class->SUPER::new(@args);
   my ($hsps, $name,$desc, $acc, $length,
-      $score,$algo,$signif) = $self->_rearrange([qw(HSPS NAME DESCRIPTION
+      $score,$algo,$signif,$bits) = $self->_rearrange([qw(HSPS NAME DESCRIPTION
 						   ACCESSION
 						   LENGTH SCORE ALGORITHM 
-						   SIGNIFICANCE)], @args);
+						   SIGNIFICANCE BITS)], @args);
 
   if( ! defined $name ) { 
       $self->throw("Must have defined a valid name for Hit");
@@ -114,7 +114,8 @@ sub new {
   defined $algo   && $self->algorithm($algo);
   defined $signif && $self->significance($signif);
   defined $score  && $self->raw_score($score);
-  
+  defined $bits   && $self->bits($bits);
+
   $self->{'_iterator'} = 0;
   $self->{'_hsps'} = [];
   if( defined $hsps  ) {
@@ -304,6 +305,32 @@ sub significance {
 	$self->{'_significance'} = $value;
     } 
     return $previous;
+}
+
+=head2 bits
+
+ Usage     : $hit_object->bits();
+ Purpose   : Gets the bit score of the best HSP for the current hit.
+ Example   : $bits = $hit_object->bits();
+ Returns   : Integer or undef if bit score is not set
+ Argument  : n/a
+ Comments  : For BLAST1, the non-bit score is listed in the summary line.
+
+See Also   : L<score()|score>
+
+=cut
+
+#---------
+sub bits { 
+#---------
+    my ($self) = @_; 
+    
+    my $bits = $self->{'_bits'};
+    if( ! defined $bits ) {
+	$bits = $self->{'_hsps'}->bits();
+	$self->{'_bits'} = $bits;
+    } 
+    return $bits;
 }
 
 =head2 next_hsp
