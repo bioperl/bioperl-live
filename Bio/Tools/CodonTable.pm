@@ -401,8 +401,10 @@ sub name{
 
 sub translate {
     my ($self, $seq) = @_;
-    my $id = $self->id;
+    $self->throw("Calling translate without a seq argument!") unless defined $seq;
+    return '' unless $seq;
 
+    my $id = $self->id;
     my ($partial) = 0;
     $partial = 2 if length($seq) % 3 == 2;
     

@@ -16,7 +16,7 @@ BEGIN {
     }
     use Test;
 
-    plan tests => 28;
+    plan tests => 30;
 }
 use Bio::Tools::CodonTable;
 use vars qw($DEBUG);
@@ -41,6 +41,13 @@ ok $myCodonTable->name(), 'Euplotid Nuclear';
 
 # translate codons
 $myCodonTable->id(1);
+
+eval {
+    $myCodonTable->translate();
+};
+ok $@;
+
+ok $myCodonTable->translate(''), '';
 
 my @ii  = qw(ACT acu ATN gt ytr sar);
 my @res = qw(T   T   X   V  L   Z  );
