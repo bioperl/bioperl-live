@@ -2547,7 +2547,7 @@ sub _set_length {
     my ($self, $data) = @_;
 
     my ($length);
-    if( $data =~ m/$Newline\s+\(([\d|,]+) letters\)/so ) {
+    if( $data =~ m/$Newline\s+\(([\d|,]+) letters[\);]/so ) {
 	$length = $1;
 	$length =~ s/,//g;
 #	printf "Length = $length in BLAST for %s$Newline",$self->name; <STDIN>;
