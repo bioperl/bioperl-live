@@ -1,0 +1,2 @@
+These are scripts related to parsing Search Result output like HMMER, FASTA, BLAST.
+Not all of these scripts use Bioperl objects.
