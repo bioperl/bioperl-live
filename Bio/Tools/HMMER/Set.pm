@@ -1,4 +1,3 @@
-
 #
 # BioPerl module for Bio::Tools::HMMER::Set
 #
@@ -13,7 +12,6 @@
 =head1 NAME
 
 Bio::Tools::HMMER::Set - Set of identical domains from HMMER matches
-
 
 =head1 SYNOPSIS
 
@@ -42,9 +40,9 @@ and other Bioperl modules. Send your comments and suggestions preferably
  to one of the Bioperl mailing lists.
 Your participation is much appreciated.
 
-  vsns-bcd-perl@lists.uni-bielefeld.de          - General discussion
-  vsns-bcd-perl-guts@lists.uni-bielefeld.de     - Technically-oriented discussion
-  http://bio.perl.org/MailList.html             - About the mailing lists
+   bioperl-l@bioperl.org             - General discussion
+   bioperl-guts-l@bioperl.org        - Automated bug and CVS messages
+   http://bioperl.org/MailList.shtml - About the mailing lists
 
 =head2 Reporting Bugs
 
@@ -66,9 +64,7 @@ The rest of the documentation details each of the object methods. Internal metho
 
 =cut
 
-
 # Let the code begin...
-
 
 package Bio::Tools::HMMER::Set;
 use vars qw(@ISA);
@@ -104,12 +100,10 @@ sub _initialize {
  Returns : nothing
  Args    : A Bio::Tools::HMMER::Domain object
 
-
 =cut
 
 sub add_Domain{
    my ($self,$domain) = @_;
-
 
    if( ! defined $domain || ! $domain->isa("Bio::Tools::HMMER::Domain") ) {
        $self->throw("[$domain] is not a Bio::Tools::HMMER::Domain. aborting");
@@ -127,7 +121,6 @@ sub add_Domain{
  Returns : array
  Args    : none
 
-
 =cut
 
 sub each_Domain{
@@ -144,7 +137,6 @@ sub each_Domain{
  Example : 
  Returns : value of name
  Args    : newvalue (optional)
-
 
 =cut
 
@@ -164,7 +156,6 @@ sub name{
  Example : 
  Returns : value of bits
  Args    : newvalue (optional)
-
 
 =cut
 
@@ -187,7 +178,6 @@ sub bits{
  Returns : value of evalue
  Args    : newvalue (optional)
 
-
 =cut
 
 sub evalue{
@@ -198,7 +188,6 @@ sub evalue{
     return $obj->{'evalue'};
 
 }
-
 
 sub addHMMUnit {
     my $self = shift;
@@ -213,9 +202,6 @@ sub eachHMMUnit {
     $self->warn("Using old eachHMMUnit call on Bio::Tools::HMMER::Set. Should replace with each_Domain");
     return $self->each_Domain();
 }
-
-
-
 
 1;  # says use was ok
 __END__

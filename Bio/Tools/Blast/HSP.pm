@@ -100,7 +100,6 @@ and relies on B<Bio::Tools::Sbjct.pm> as a container for HSP.pm objects.
 B<Bio::Seq.pm> and B<Bio::UnivAln.pm> are employed for creating sequence
 and alignment objects, respectively.
 
-
 =head2 Relationship to UnivAln.pm & Seq.pm
 
 HSP.pm can provide the query or sbjct sequence as a B<Bio::Seq.pm> object
@@ -110,7 +109,6 @@ via the L<get_aln>() method. Creation of alignment objects is not automatic when
 constructing the HSP.pm object since this level of functionality is not always
 required and would generate a lot of extra overhead when crunching many reports.
 
-
 =head1 FEEDBACK
 
 =head2 Mailing Lists 
@@ -119,9 +117,9 @@ User feedback is an integral part of the evolution of this and other Bioperl mod
 Send your comments and suggestions preferably to one of the Bioperl mailing lists.
 Your participation is much appreciated.
 
-    vsns-bcd-perl@lists.uni-bielefeld.de          - General discussion
-    vsns-bcd-perl-guts@lists.uni-bielefeld.de     - Technically-oriented discussion
-    http://bio.perl.org/MailList.html             - About the mailing lists
+   bioperl-l@bioperl.org             - General discussion
+   bioperl-guts-l@bioperl.org        - Automated bug and CVS messages
+   http://bioperl.org/MailList.shtml - About the mailing lists
 
 =head2 Reporting Bugs
 
@@ -162,8 +160,6 @@ This module is free software; you can redistribute it and/or
 modify it under the same terms as Perl itself.
 
 =cut
-
-
 
 #
 ##
@@ -224,7 +220,6 @@ sub _initialize {
 #####################################################################################
 ##                                  ACCESSORS                                      ##
 #####################################################################################
-
 
 =head2 _set_data
 
@@ -309,8 +304,6 @@ sub _set_data {
       }
 }
 
-
-
 =head2 _set_score_stats
 
  Usage     : n/a; called automatically by _set_data()
@@ -373,8 +366,6 @@ sub _set_score_stats {
 
 }
 
-
-
 =head2 _set_match_stats
 
  Usage     : n/a; called automatically by _set_data()
@@ -432,8 +423,6 @@ sub _set_match_stats {
 #    }
 }
 
-
-
 =head2 _set_seq_data
 
  Usage     : n/a; called automatically when sequence data is requested.
@@ -463,8 +452,6 @@ sub _set_seq_data {
 
     $self->{'_set_seq_data'} = 1;
 }
-
-
 
 =head2 _set_seq
 
@@ -549,7 +536,6 @@ sub _set_seq {
 #    }
 }
 
-
 =head2 _set_residues
 
  Usage     : n/a; called automatically when residue data is requested.
@@ -621,9 +607,6 @@ sub _set_residues {
 
 }
 
-
-
-
 =head2 _set_match_seq
 
  Usage     : n/a. Internal method.
@@ -677,8 +660,6 @@ sub _set_match_seq {
     $self->{'_matchSeq'};
 }
 
-
-
 =head2 score
 
  Usage     : $hsp_obj->score()
@@ -695,8 +676,6 @@ See Also   : L<bits>()
 sub score { my $self = shift; $self->{'_score'}; }
 #---------
 
-
-
 =head2 bits
 
  Usage     : $hsp_obj->bits()
@@ -705,7 +684,6 @@ sub score { my $self = shift; $self->{'_score'}; }
  Argument  : n/a
  Throws    : n/a
 
-
 See Also   : L<score>()
 
 =cut
@@ -713,8 +691,6 @@ See Also   : L<score>()
 #--------
 sub bits { my $self = shift; $self->{'_bits'}; }
 #--------
-
-
 
 =head2 n
 
@@ -738,8 +714,6 @@ See Also   : L<score>()
 sub n { my $self = shift; $self->{'_n'} || ''; }
 #-----
 
-
-
 =head2 frame
 
  Usage     : $hsp_obj->frame()
@@ -753,8 +727,6 @@ sub n { my $self = shift; $self->{'_n'} || ''; }
 #---------
 sub frame { my $self = shift; $self->{'_frame'} || ''; }
 #---------
-
-
 
 =head2 signif()
 
@@ -781,8 +753,6 @@ sub signif {
     $val; 
 }
 
-
-
 =head2 expect
 
  Usage     : $hsp_obj->expect()
@@ -801,8 +771,6 @@ See Also   : L<p>()
 #----------
 sub expect { my $self = shift; $self->{'_expect'}; }
 #----------
-
-
 
 =head2 p
 
@@ -823,7 +791,6 @@ See Also   : L<expect>()
 #-----
 sub p { my $self = shift; $self->{'_p'}; }
 #-----
-
 
 =head2 length
 
@@ -855,8 +822,6 @@ sub length {
     $type = "_\L$type\E";
     $self->{$type.'Length'};
 }
-
-
 
 =head2 gaps
 
@@ -899,8 +864,6 @@ sub gaps {
 	return $self->{$seqType.'Gaps'} || 0;
     }
 }
-
-
 
 =head2 matches
 
@@ -1000,8 +963,6 @@ sub matches {
     @data;
 }
 
-
-
 =head2 frac_identical
 
  Usage     : $hsp_object->frac_identical( [seq_type] );
@@ -1047,7 +1008,6 @@ sub frac_identical {
 
     sprintf( "%.2f", $self->{'_numIdentical'}/$self->{$seqType.'Length'});
 }
-
 
 =head2 frac_conserved
 
@@ -1098,7 +1058,6 @@ sub frac_conserved {
     sprintf( "%.2f", $self->{'_numConserved'}/$self->{$seqType.'Length'});
 }
 
-
 =head2 num_identical
 
  Usage     : $hsp_object->num_identical();
@@ -1120,7 +1079,6 @@ sub num_identical {
     $self->{'_numIdentical'};
 }
 
-
 =head2 num_conserved
 
  Usage     : $hsp_object->num_conserved();
@@ -1141,8 +1099,6 @@ sub num_conserved {
 
     $self->{'_numConserved'};
 }
-
-
 
 =head2 range
 
@@ -1248,8 +1204,6 @@ sub end {
     }
 }
 
-
-
 =head2 strand
 
  Usage     : $hsp_object->strand( [seq_type] )
@@ -1293,11 +1247,9 @@ sub strand {
     $STRAND_SYMBOL{$self->{$seqType.'Strand'}} || 0;
 }
 
-
 #####################################################################################
 ##                            INSTANCE METHODS                                     ##
 #####################################################################################
-
 
 =head2 seq
 
@@ -1334,8 +1286,6 @@ sub seq {
 		  -DESC => "Blast HSP #$num, $seqType sequence",
 		  );
 }
-
-
 
 =head2 seq_str
 
@@ -1387,9 +1337,6 @@ sub seq_str {
     }
 }
 
-
-
-
 =head2 seq_inds
 
  Usage     : $hsp->seq_inds( seq_type, class, collapse );
@@ -1439,9 +1386,6 @@ sub seq_inds {
     return $collapse ? &collapse_nums(@ary) : @ary;
 }
 
-
-
-
 =head2 get_aln
 
  Usage     : $hsp->get_aln()
@@ -1483,7 +1427,6 @@ sub get_aln {
 		       -type => $type,
 		       );
 }
-
 
 =head2 display
 
@@ -1540,9 +1483,6 @@ sub display {
     $self->_display_matches($queryName, $sbjctName, $OUT);
 }
 
-
-
-
 =head2 _display_seq
 
  Usage     : n/a; called automatically by display()
@@ -1576,7 +1516,6 @@ sub _display_seq {
 	printf( $OUT "%15s%s\n", "", $_);
     }
 }
-
 
 =head2 _display_matches
 
@@ -1651,9 +1590,6 @@ sub _display_matches {
     }
 }
 
-
-
-
 =head2 homol_data
 
  Usage     : $data = $hsp_object->homo_data( %named_params );
@@ -1689,7 +1625,6 @@ sub homol_data {
     return ( $homolScore.' '.$self->{$seq.'Start'}.' '.$self->{$seq.'Stop'});
 }
 
-
 =head2 homol_score
 
  Usage     : $self->homol_score();
@@ -1722,7 +1657,6 @@ sub homol_score {
 	  $self->{'_bits'} >= $SCORE_CUTOFFS[1] ) { 2 }
     else  { 3 }
 }
-
 
 #####################################################################################
 ##                                  CLASS METHODS                                  ##
@@ -1778,7 +1712,6 @@ sub collapse_nums {
 
     @ca;
 }
-
 
 1;
 __END__
@@ -1856,7 +1789,6 @@ all or some of the following fields:
 		:
  _parent        : From Bio::Root::Object.pm. This member contains a reference to the
 		: Bio::Tools::Blast::Sbjct.pm object to which this hit belongs.
-
 
 =cut
 

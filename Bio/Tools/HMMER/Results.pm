@@ -1,4 +1,3 @@
-
 #
 # Perl Module for HMMResults
 #
@@ -37,7 +36,6 @@ This object represents HMMER output, either from hmmsearch or hmmpfam. For hmmse
 a series of HMMER::Set objects are made, one for each sequence, which have the 
 the bits score for the object. For hmmpfam searches, only one Set object is made.
 
-
 These objects come from the original HMMResults modules used internally in Pfam,
 written by Ewan. Ewan then converted them to bioperl objects in 1999. That conversion
 is meant to be backwardly compatible, but may not be (caveat emptor).
@@ -51,9 +49,9 @@ and other Bioperl modules. Send your comments and suggestions preferably
  to one of the Bioperl mailing lists.
 Your participation is much appreciated.
 
-  vsns-bcd-perl@lists.uni-bielefeld.de          - General discussion
-  vsns-bcd-perl-guts@lists.uni-bielefeld.de     - Technically-oriented discussion
-  http://bio.perl.org/MailList.html             - About the mailing lists
+   bioperl-l@bioperl.org             - General discussion
+   bioperl-guts-l@bioperl.org        - Automated bug and CVS messages
+   http://bioperl.org/MailList.shtml - About the mailing lists
 
 =head2 Reporting Bugs
 
@@ -120,7 +118,6 @@ sub _initialize {
       $self->throw("No parse type provided. should be hmmsearch or hmmpfam");
   }
 
-
   if( $parsetype eq 'hmmsearch' ) {
       $self->_parse_hmmsearch($fh);
   } elsif ( $parsetype eq 'hmmpfam' ) {
@@ -158,7 +155,6 @@ sub number {
  Function: adds a domain to the results array. Mainly used internally.
  Args    : A Bio::Tools::HMMER::Domain
 
-
 =cut
 
 sub add_Domain {
@@ -176,7 +172,6 @@ sub add_Domain {
     push(@{$self->{'domain'}},$unit);
 }
 
-
 =head2 each_Domain
 
  Title   : each_Domain
@@ -184,7 +179,6 @@ sub add_Domain {
  Function: array of Domain units which are held in this report
  Returns : array
  Args    : none
-
 
 =cut
 
@@ -198,7 +192,6 @@ sub each_Domain {
 
     return @arr;
 }
-
 
 =head2 domain_bits_cutoff_from_evalue
 
@@ -223,7 +216,6 @@ sub domain_bits_cutoff_from_evalue {
     my ($dom,$prev,@doms,$cutoff,$sep,$seen);
 
     @doms = $self->each_Domain;
-
 
     @doms = sort { $b->bits <=> $a->bits } @doms;
     $seen = 0;
@@ -254,7 +246,6 @@ sub domain_bits_cutoff_from_evalue {
     
 }
 
-
 sub dictate_hmm_acc {
     my $self = shift;
     my $acc = shift;
@@ -274,9 +265,7 @@ sub dictate_hmm_acc {
  Returns : 
  Args    :
 
-
 =cut
-
 
 sub write_FT_output {
     my $self = shift;
@@ -307,9 +296,7 @@ sub write_FT_output {
  Args    : sequence cutoff and domain cutoff. in bits score
            if you want one cutoff, simply use same number both places
 
-
 =cut
-
 
 sub filter_on_cutoff {
     my $self = shift;
@@ -366,7 +353,6 @@ sub write_ascii_out {
 	$fh = \*STDOUT;
     }
 
-
     foreach $seq ( $self->each_Set()) {
 	foreach $unit ( $seq->each_Domain()) {
 	    print $fh sprintf("%s %4d %4d %s %4d %4d %4.2f %4.2g %s\n",$unit->seqname(),$unit->start(),$unit->end(),$unit->hmmacc,$unit->start_hmm,$unit->end_hmm,$unit->bits,$unit->evalue,$unit->hmmname);
@@ -374,7 +360,6 @@ sub write_ascii_out {
     }
 	    
 }
-
 
 =head2 write_GDF_bits
 
@@ -483,7 +468,6 @@ sub write_GDF {
 	$file = \*STDOUT;
     }
 
-
     foreach $unit ( $self->eachHMMUnit() ) {
 	print $file sprintf("%-24s\t%6d\t%6d\t%15s\t%.1f\t%g\n",$unit->get_nse(),$unit->start(),$unit->end(),$unit->seqname(),$unit->bits(),$unit->evalue);
     }
@@ -511,11 +495,9 @@ sub highest_noise {
 	}
     }
 
-
     return ($noiseseq,$noisedom);
    
 }
-
 
 sub lowest_true {
     my $self = shift;
@@ -548,12 +530,9 @@ sub lowest_true {
 	}
     }
 
-
     return ($trueseq,$truedom);
     
 }
-
-
 
 =head2 add_Set
 
@@ -562,7 +541,6 @@ sub lowest_true {
  Function:
  Returns : 
  Args    :
-
 
 =cut
 
@@ -579,7 +557,6 @@ sub add_Set {
     $self->{'seq'}->{$name} = $seq;
 }
 
-
 =head2 each_Set
 
  Title   : each_Set
@@ -588,20 +565,17 @@ sub add_Set {
  Returns : 
  Args    :
 
-
 =cut
 
 sub each_Set {
     my $self = shift;
     my (@array,$name);
 
-
     foreach $name ( keys %{$self->{'seq'}} ) {
 	push(@array,$self->{'seq'}->{$name});
     }
     return @array;
 }
-
 
 =head2 get_Set
 
@@ -610,7 +584,6 @@ sub each_Set {
  Function: returns the Set for a particular sequence
  Returns : a HMMER::Set object
  Args    : name of the sequence
-
 
 =cut
 
@@ -621,7 +594,6 @@ sub get_Set {
     return $self->{'seq'}->{$name};
 }
 
-
 =head2 _parse_hmmpfam
 
  Title   : _parse_hmmpfam
@@ -629,7 +601,6 @@ sub get_Set {
  Function:
  Returns : 
  Args    :
-
 
 =cut
 
@@ -708,7 +679,6 @@ sub _parse_hmmpfam {
 
 	    $_ = <$file>;
 
-
 	    # parses alignment lines. Icky as we have to break on the same line
 	    # that we need to read to place the alignment lines with the unit.
 
@@ -772,7 +742,6 @@ sub get_unit_nse {
     return undef;
 }
 
-
 =head2 _parse_hmmsearch
 
  Title   : _parse_hmmsearch
@@ -780,7 +749,6 @@ sub get_unit_nse {
  Function:
  Returns : 
  Args    :
-
 
 =cut
 
@@ -832,10 +800,6 @@ sub _parse_hmmsearch {
     return $count;
 }
 
-
-
-
 1;  # says use was ok
 __END__
-
 

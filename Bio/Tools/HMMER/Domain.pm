@@ -1,4 +1,3 @@
-
 #
 # BioPerl module for Bio::Tools::HMMER::Domain
 #
@@ -45,7 +44,6 @@ use vars qw(@ISA);
 use Bio::SeqFeature::FeaturePair;
 use Bio::SeqFeature::Generic;
 use strict;
-
 
 @ISA = qw(Bio::SeqFeature::FeaturePair);
 
@@ -94,7 +92,6 @@ sub add_alignment_line {
  Returns : 
  Args    : None
 
-
 =cut
 
 sub each_alignment_line {
@@ -113,10 +110,7 @@ sub each_alignment_line {
  Returns : A string
  Args    : Optional seperator 1 and seperator 2 (default / and -)
 
-
 =cut
-
-
 
 sub get_nse {
     my $self = shift;
@@ -133,7 +127,6 @@ sub get_nse {
     return sprintf("%s%s%d%s%d",$self->seqname,$sep1,$self->start,$sep2,$self->end);
 }
 
-
 =head2 start_seq
 
  Title   : start_seq
@@ -143,7 +136,6 @@ sub get_nse {
  Example :
  Returns : 
  Args    :
-
 
 =cut
 
@@ -165,7 +157,6 @@ sub start_seq {
  Returns : 
  Args    :
 
-
 =cut
 
 sub end_seq {
@@ -186,16 +177,13 @@ sub end_seq {
  Returns : 
  Args    :
 
-
 =cut
-
 
 sub start_hmm { 
     my $self = shift; 
     my $start = shift; 
     return $self->hstart($start); 
 }
-
 
 =head2 end_hmm
 
@@ -206,7 +194,6 @@ sub start_hmm {
  Example :
  Returns : 
  Args    :
-
 
 =cut
 
@@ -226,7 +213,6 @@ sub end_hmm {
  Example :
  Returns : 
  Args    :
-
 
 =cut
 
@@ -249,12 +235,10 @@ sub hmmacc{
  Returns : 
  Args    :
 
-
 =cut
 
 sub hmmname {
    my ($self,$hname) = @_;
-
 
    if( defined $hname ) {
        $self->hseqname($hname);
@@ -272,7 +256,6 @@ sub hmmname {
  Returns : 
  Args    :
 
-
 =cut
 
 sub bits{
@@ -289,7 +272,6 @@ sub bits{
  Example :
  Returns : 
  Args    :
-
 
 =cut
 
@@ -312,7 +294,6 @@ sub evalue{
  Returns : 
  Args    :
 
-
 =cut
 
 sub seqbits {
@@ -324,7 +305,6 @@ sub seqbits {
    return shift @vals;
 }
 
-
 =head2 seq_range
 
  Title   : seq_range
@@ -333,7 +313,6 @@ sub seqbits {
  Example :
  Returns : 
  Args    :
-
 
 =cut
 
@@ -352,7 +331,6 @@ sub seq_range{
  Returns : 
  Args    :
 
-
 =cut
 
 sub hmm_range{
@@ -361,10 +339,6 @@ sub hmm_range{
    $self->throw("You have accessed an old method. Please recode your script to the new bioperl HMMER module");
 }
 
-
-
 1;  # says use was ok
 __END__
-
-
 

@@ -1,4 +1,3 @@
-
 #
 # BioPerl module for Bio::DB::AbstractSeq
 #
@@ -41,9 +40,9 @@ and other Bioperl modules. Send your comments and suggestions preferably
  to one of the Bioperl mailing lists.
 Your participation is much appreciated.
 
-  vsns-bcd-perl@lists.uni-bielefeld.de          - General discussion
-  vsns-bcd-perl-guts@lists.uni-bielefeld.de     - Technically-oriented discussion
-  http://bio.perl.org/MailList.html             - About the mailing lists
+   bioperl-l@bioperl.org             - General discussion
+   bioperl-guts-l@bioperl.org        - Automated bug and CVS messages
+   http://bioperl.org/MailList.shtml - About the mailing lists
 
 =head2 Reporting Bugs
 
@@ -73,9 +72,7 @@ not necessarily sequence files).
 
 =cut
 
-
 # Let's begin the code ...
-
 
 package Bio::Index::AbstractSeq;
 use vars qw(@ISA);
@@ -84,7 +81,6 @@ use strict;
 use Bio::SeqIO::MultiFile;
 use Bio::Index::Abstract;
 use Bio::DB::SeqI;
-
 
 @ISA = qw(Bio::Index::Abstract Bio::DB::SeqI);
 
@@ -112,7 +108,6 @@ sub _initialize {
  Example :
  Returns : 
  Args    :
-
 
 =cut
 
@@ -195,7 +190,6 @@ sub _get_SeqIO_object {
  Returns : new Bio::Seq object
  Args    : string represents the id
 
-
 =cut
 
 sub get_Seq_by_id {
@@ -213,7 +207,6 @@ sub get_Seq_by_id {
  Returns : new Bio::Seq object
  Args    : string represents the accession number
 
-
 =cut
 
 sub get_Seq_by_acc {
@@ -230,7 +223,6 @@ sub get_Seq_by_acc {
            which provides a single method, next_primary_seq
  Returns : Bio::DB::SeqStreamI
  Args    : none
-
 
 =cut
 
@@ -261,7 +253,6 @@ sub get_PrimarySeq_stream {
  Example :
  Returns : an array of strings
  Args    : none
-
 
 =cut
 
@@ -294,7 +285,6 @@ sub get_all_primary_ids {
    return values %bytepos;
 }
 
-
 =head2 get_Seq_by_primary_id
 
  Title   : get_Seq_by_primary_id
@@ -310,7 +300,6 @@ sub get_all_primary_ids {
  Returns : A Bio::Seq object
  Args    : primary id (as a string)
  Throws  : "acc does not exist" exception
-
 
 =cut
 

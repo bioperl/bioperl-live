@@ -46,7 +46,6 @@ $Revision = '$Id$';  #'
 my $_set_markup = 0;
 my $_gi_link = '';
 
-
 ## POD Documentation:
 
 =head1 NAME
@@ -66,7 +65,6 @@ Bio::Tools::Blast::HTML.pm - Bioperl Utility module for HTML formatting Blast re
 See L<get_html_func>() for details.
 Also see B<Bio::Tools::Blast::to_html> for an example of usage.
 
-
 =head2 Removing HTML-formatting
 
     use Bio::Tools::Blast::HTML qw(&strip_html);
@@ -74,7 +72,6 @@ Also see B<Bio::Tools::Blast::to_html> for an example of usage.
     &strip_html(\$blast_report_string)
 
 See L<strip_html>() for details.
-
 
 =head1 INSTALLATION
 
@@ -122,9 +119,9 @@ User feedback is an integral part of the evolution of this and other Bioperl mod
 Send your comments and suggestions preferably to one of the Bioperl mailing lists.
 Your participation is much appreciated.
 
-    vsns-bcd-perl@lists.uni-bielefeld.de          - General discussion
-    vsns-bcd-perl-guts@lists.uni-bielefeld.de     - Technically-oriented discussion
-    http://bio.perl.org/MailList.html             - About the mailing lists
+   bioperl-l@bioperl.org             - General discussion
+   bioperl-guts-l@bioperl.org        - Automated bug and CVS messages
+   http://bioperl.org/MailList.shtml - About the mailing lists
 
 =head2 Reporting Bugs
 
@@ -148,9 +145,7 @@ Copyright (c) 1998 Steve A. Chervitz. All Rights Reserved.
 This module is free software; you can redistribute it and/or 
 modify it under the same terms as Perl itself.
 
-
 =cut
-
 
 #
 ##
@@ -160,7 +155,6 @@ modify it under the same terms as Perl itself.
 ##
 #'
 
-
 ######################  BEGIN FUNCTIONS  ########################
 
 =head1 APPENDIX
@@ -169,8 +163,6 @@ Methods beginning with a leading underscore are considered private
 and are intended for internal use by this module. They are
 B<not> considered part of the public interface and are described here
 for documentation purposes only.
-
-
 
 =head2 get_html_func
 
@@ -310,9 +302,6 @@ sub get_html_func {
     } # end sub {}
 }
 
-
-
-
 =head2 _set_markup_data
 
  Usage     : n/a; utility method used by get_html_func()
@@ -340,7 +329,6 @@ sub _set_markup_data {
     
     $_set_markup = 1;
 }
-
 
 =head2 _markup_database
 
@@ -370,7 +358,6 @@ sub _markup_database {
 
     $$line_ref = $_;
 }
-
 
 =head2 _markup_report
 
@@ -473,10 +460,8 @@ sub _markup_report {
     # SwissProt hits:
   s@^>sp\|($Word)\|($Word)?( .*)$@<a name=$1_A></a><b><a href="$DbUrl{'swpr'}$1">sp</a>:<a href="$DbUrl{'gb_p'}$1">$1|$2</a></b>$3<br>(<a href="\#$1_H">Back|<a href="\#top">Top</a>)@o;
 
-
   ## PDB ids with or without a chain identifier (GenBank format)
   s@^>pdb\|(\d\w{3})\|[\w ] (.*)$@<a name=$1_A></A><b><a href=\"$DbUrl{'3db'}$1\">pdb</A>:<a href="$DbUrl{'gb_struct'}$1">$1</a></b> (<a href="\#$1_H">Back</a>|<a href="\#top">Top</a>)  $2@o;
-
 
     ### SGD-specific markups for HSP alignment section lines:
 
@@ -542,9 +527,7 @@ sub _markup_report {
 
   s@^ ?(gnl)\|($Word)?(\|$Word +)\(($Word)\)($Descrip)($Int)  ($Signif)(.*)$@$1:<a href="$DbUrl{'gb_n'}$4">$2$3</a>($4)$5$6  <A href="\#$4_A">$7</a>$8<a name="$4_H"></a>@o;
 
-
   s@^ ?(bbs|prf)\|\|?($Word)($Descrip)($Int)  ($Signif)(.*)$@$1:<a href="$DbUrl{'gb_n'}$2">$2</a> $3$4  <A href="\#$2_A">$5</a>$6<a name="$2_H"></a>@o;
-
 
   ## SwissProt accessions (GenBank format)
   s@^ ?sp\|($Word)(\|$Word)?($Descrip)($Int)  ($Signif)(.*)$@<a href="$DbUrl{'swpr'}$1">sp</a>:<a href="$DbUrl{'gb_p'}$1">$1$2</a>$3$4  <a href="\#$1_A">$5</a>$6<a name="$1_H"></a>@o;
@@ -552,16 +535,13 @@ sub _markup_report {
   ## PDB ids with or without a chain ID (GenBank format)
   s@^ ?pdb\|($Word)\|($Word)?($Descrip)($Int)  ($Signif)(.*)$@<a href="$DbUrl{'3db'}$1">pdb</a>:<a href="$DbUrl{'gb_struct'}$1">$1_$2</a>$3$4  <a href="\#$1_A">$5</a>$6<a name="$1_H"></a>@o;
 
-
  ### SGD-specific markups for description lines:
 
   ## PDB ids without chain identifier
   s@^ ?PDB_UNIQUEP:(\d\w{3})_($Descrip)($Int)  ($Signif)(.*)$@<a href="$DbUrl{'3db'}$1">PDB</a>:<A HREF="$DbUrl{'gb_struct'}$1">$1</A>       $2$3  <a href="\#$1_A">$4</a>$5<a name="$1_H"></a>@o;
 
-
   ## PDB ids with chain identifier
   s@^ ?PDB_UNIQUEP:(\d\w{3})_(\w)($Descrip)($Int)  ($Signif)(.*)$@<a href="$DbUrl{'3db'}$1">PDB</a>:<A HREF="$DbUrl{'gb_struct'}$1">$1</A> Chain:$2$3$4  <a href="\#$1_A">$5</a>$6<a name="$1_H"></a>@o;
-
 
   s@^ ?($Word)PEPT:GI_(\d+)($Descrip)($Int)  ($Signif)(.*)$@$1:<A HREF="$DbUrl{'gb_p'}$2">GI_$2</A> $3 $4  <a href="\#$2_A">$5</a> $6<a name="$2_H"></a>@o;
 
@@ -599,9 +579,6 @@ sub _markup_report {
 
     $$line_ref = $_;
 }
-
-
-
 
 =head2 _prog_ref_html
 
@@ -646,7 +623,6 @@ QQ_REF_QQ
 
 }
 
-
 =head2 _genbank_alert
 
  Usage     : n/a; utility method used by get_html_func().
@@ -671,8 +647,6 @@ sub _genbank_alert {
          be listed as gene X, since gene Y had not yet been identified). </b>
 QQ_GENBANK_QQ
 }
-
-
 
 =head2 strip_html
 
@@ -749,6 +723,4 @@ __END__
 #####################################################################################
 #                                END OF CLASS                                       #
 #####################################################################################
-
-
 

@@ -1,4 +1,3 @@
-
 #
 # BioPerl module for Bio::LocatableSeq
 #
@@ -42,7 +41,6 @@ used.
 
 Please post to the guts list for more about this, or contact Ewan Birney.
 
-
 =head1 CONTACT
 
 Ewan Birney <birney@ebi.ac.uk>
@@ -53,9 +51,7 @@ The rest of the documentation details each of the object methods. Internal metho
 
 =cut
 
-
 # Let the code begin...
-
 
 package Bio::LocatableSeq;
 use vars qw(@ISA);
@@ -67,8 +63,6 @@ use Bio::RangeI;
 # Object preamble - inheriets from Bio::Root::Object
 
 use Bio::Root::Object;
-
-
 
 @ISA = qw(Bio::Seq Bio::RangeI);
 
@@ -98,7 +92,6 @@ sub _initialize {
  Returns : value of start
  Args    : newvalue (optional)
 
-
 =cut
 
 sub start{
@@ -119,7 +112,6 @@ sub start{
  Returns : value of end
  Args    : newvalue (optional)
 
-
 =cut
 
 sub end{
@@ -139,7 +131,6 @@ sub end{
  Function: 
  Returns : value of strand
  Args    : newvalue (optional)
-
 
 =cut
 
@@ -162,7 +153,6 @@ sub strand{
  Returns : 
  Args    :
 
-
 =cut
 
 sub get_nse{
@@ -171,8 +161,4 @@ sub get_nse{
    return $self->id() . "/" . $self->start . "-" . $self->end ;
 
 }
-
-
-
-
 

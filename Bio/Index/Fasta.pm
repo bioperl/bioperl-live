@@ -1,4 +1,3 @@
-
 #
 # BioPerl module for Bio::Index::Abstract
 #
@@ -58,9 +57,9 @@ User feedback is an integral part of the evolution of this and other
 Bioperl modules. Send your comments and suggestions preferably to one
 of the Bioperl mailing lists.  Your participation is much appreciated.
 
-  vsns-bcd-perl@lists.uni-bielefeld.de          - General discussion
-  vsns-bcd-perl-guts@lists.uni-bielefeld.de     - Technically-oriented discussion
-  http://bio.perl.org/MailList.html             - About the mailing lists
+   bioperl-l@bioperl.org             - General discussion
+   bioperl-guts-l@bioperl.org        - Automated bug and CVS messages
+   http://bioperl.org/MailList.shtml - About the mailing lists
 
 =head2 Reporting Bugs
 
@@ -81,9 +80,7 @@ The rest of the documentation details each of the object methods. Internal metho
 
 =cut
 
-
 # Let the code begin...
-
 
 package Bio::Index::Fasta;
 
@@ -108,7 +105,6 @@ sub _version {
     return $VERSION;
 }
 
-
 =head2 _initialize
 
   Title   : _initialize
@@ -127,7 +123,6 @@ sub _initialize {
     $self->SUPER::_initialize(@_);
 }
 
-
 =head2 _file_format
 
  Title   : _file_format
@@ -140,8 +135,6 @@ sub _initialize {
 sub _file_format {
     return 'Fasta';
 }
-
-
 
 =head2 _index_file
 
@@ -217,8 +210,6 @@ sub id_parser {
     return $self->{'_id_parser'} || \&default_id_parser;
 }
 
-
-
 =head2 default_id_parser
 
   Title   : default_id_parser
@@ -240,6 +231,4 @@ sub default_id_parser {
 }
 
 1;
-
-
 

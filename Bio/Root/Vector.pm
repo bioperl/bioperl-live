@@ -62,7 +62,6 @@ This module is included with the central Bioperl distribution:
 
 Follow the installation instructions included in the README file.
 
-
 =head1 DESCRIPTION
 
 Bio::Root::Vector.pm  provides an interface for creating and manipulating 
@@ -88,7 +87,6 @@ This is not necessarily ideal and is expected to change.
 For a usage demo of Bio::Root::Vector.pm, see:
 
     http://bio.perl.org/Core/Examples/Root_object/Vector
-
 
 =head1 DEPENDENCIES
 
@@ -117,9 +115,9 @@ User feedback is an integral part of the evolution of this and other Bioperl mod
 Send your comments and suggestions preferably to one of the Bioperl mailing lists.
 Your participation is much appreciated.
 
-    vsns-bcd-perl@lists.uni-bielefeld.de          - General discussion
-    vsns-bcd-perl-guts@lists.uni-bielefeld.de     - Technically-oriented discussion
-    http://bio.perl.org/MailList.html             - About the mailing lists
+   bioperl-l@bioperl.org             - General discussion
+   bioperl-guts-l@bioperl.org        - Automated bug and CVS messages
+   http://bioperl.org/MailList.shtml - About the mailing lists
 
 =head2 Reporting Bugs
 
@@ -175,7 +173,6 @@ modify it under the same terms as Perl itself.
 
 =cut
 
-
 #'
 ##
 ###
@@ -216,7 +213,6 @@ sub destroy {
 #####################################################################################
 ##                                  ACCESSORS                                      ##
 #####################################################################################
-
 
 =head2 set_rank
 
@@ -299,7 +295,6 @@ sub _destroy_master {
     undef $master;
 }
 
-
 =head2 clone_vector
 
  Purpose  : Call this method to clone the whole vector. 
@@ -325,7 +320,6 @@ sub clone_vector {
     $self->{'_master'} = $obj->{'_master'};
 }
 
-
 =head2 prev
 
  Purpose  : Returns the previous object in the Vector or undef 
@@ -338,8 +332,6 @@ sub clone_vector {
 sub prev { my $self = shift; $self->{'_prev'}; }
 #--------
 
-
-
 =head2 next
 
  Purpose  : Returns the next object in the Vector or undef 
@@ -351,8 +343,6 @@ sub prev { my $self = shift; $self->{'_prev'}; }
 #--------
 sub next { my $self = shift; $self->{'_next'}; }
 #--------
-
-
 
 =head2 first
 
@@ -369,7 +359,6 @@ sub first  {
     defined $self->{'_master'} ? $self->{'_master'}->{'_first'} : $self; 
 }
 
-
 =head2 last
 
  Purpose  : Returns the last object in the Vector or 
@@ -385,8 +374,6 @@ sub last   {
     defined $self->{'_master'} ? $self->{'_master'}->{'_last'} : $self; 
 }
 
-
-
 =head2 rank
 
  Purpose  : Returns the rank of the current object or 1
@@ -400,8 +387,6 @@ See Also  : L<set_rank>()
 #---------
 sub rank { my $self = shift; $self->{'_rank'} || 1; }
 #---------
-
-
 
 =head2 rank_by
 
@@ -421,8 +406,6 @@ sub rank_by {
 	: 'unranked'; 
 }
 
-
-
 =head2 size
 
  Purpose  : Returns the number of objects currently in the Vector.
@@ -437,7 +420,6 @@ sub size {
     defined $self->{'_master'} ? $self->{'_master'}->{'_size'} : 1; 
 }
 
-
 =head2 master
 
  Purpose  : Returns the master object associated with the Vector.
@@ -450,7 +432,6 @@ sub size {
 sub master { my $self = shift; $self->{'_master'}; }
 #-----------
 
-
 ## Not sure what these potentially dangerous methods are used for.
 ## Should be unnecessary and probably can be removed.
 sub set_prev { my($self,$obj) = @_; $self->{'_prev'} = $obj;  }
@@ -459,7 +440,6 @@ sub set_next { my($self,$obj) = @_; $self->{'_next'} = $obj; }
 #############################################################################
 #                           INSTANCE METHODS                               ##
 #############################################################################
-
 
 =head2 is_first
 
@@ -472,7 +452,6 @@ sub set_next { my($self,$obj) = @_; $self->{'_next'} = $obj; }
 sub is_first { my($self) = shift; return not defined $self->{'_prev'}; }
 #------------
 
-
 =head2 is_last
 
  Purpose  : Test whether the current object is the last in the Vector.
@@ -483,9 +462,6 @@ sub is_first { my($self) = shift; return not defined $self->{'_prev'}; }
 #------------
 sub is_last { my($self) = shift; return not defined $self->{'_next'}; }
 #------------
-
-
-
 
 =head2 get
 
@@ -532,9 +508,6 @@ sub get {
 #	     
 #	 } while($obj = $current->prev());
 
-
-
-
 =head2 add
 
  Purpose  : Add an object to the end of a Vector.
@@ -570,7 +543,6 @@ sub add {
 #    <STDIN>;
 }    
 
-
 sub _index {
     my($self) = @_;
     my $name = $self->name;
@@ -590,7 +562,6 @@ sub _incrementRank {
     return if not defined $self->{'_prev'};
     $self->{'_rank'} = $self->{'_prev'}->rank() + 1;
 }
-
 
 =head2 remove
 
@@ -681,7 +652,6 @@ sub _update_last {
     $self->{'_master'}->{'_last'} = $last;
 }
 
-
 =head2 remove_all
 
  Purpose  : Remove all objects currently in the Vector. 
@@ -708,7 +678,6 @@ sub remove_all {
     }
 }
 
-
 =head2 shift
 
  Purpose  : Remove the first object from the Vector. 
@@ -728,7 +697,6 @@ sub shift {
     $self = $self->remove(%param);
 }
 
-
 =head2 chop
 
  Purpose  : Remove the last object from the Vector. 
@@ -747,8 +715,6 @@ sub chop {
     $self = $self->last();
     $self = $self->remove(%param);
 }
-
-
 
 =head2 insert
 
@@ -804,7 +770,6 @@ sub _update_rank {
     } while($current = $current->next());
 }
 
-
 =head2 list
 
  Purpose  : Returns objects in the Vector as an array or array slice.
@@ -845,7 +810,6 @@ sub list {
 
     @list;
 }
-
 
 =head2 sort
 
@@ -902,7 +866,6 @@ sub sort {
 	@sortedList = sort _sort_by_rank @unsortedList;
     }
 
-
 #    if($reverse) { @sortedList = reverse sort @sortedList;  }
 
 #    print "SORTED LIST:\n";
@@ -929,8 +892,6 @@ sub _sort_by_rank { my $aRank = $a->rank(); my $bRank = $b->rank(); $aRank <=> $
 
 sub _sort_by_name { my $aName = $a->name(); my $bName = $b->name(); $aName cmp $bName; }
 
-
-
 =head2 valid_any
 
  Purpose  : Determine if at least one object in the Vector is valid.
@@ -955,7 +916,6 @@ sub valid_any {
 
    return undef;
 }
-
 
 =head2 valid_all
 

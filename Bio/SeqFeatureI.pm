@@ -1,4 +1,3 @@
-
 #
 # BioPerl module for Bio::SeqFeatureI
 #
@@ -52,9 +51,7 @@ The rest of the documentation details each of the object methods. Internal metho
 
 =cut
 
-
 # Let the code begin...
-
 
 package Bio::SeqFeatureI;
 use vars qw(@ISA);
@@ -87,7 +84,6 @@ sub _abstractDeath {
  Returns : integer
  Args    : none
 
-
 =cut
 
 sub start{
@@ -104,7 +100,6 @@ sub start{
  Returns : integer
  Args    : none
 
-
 =cut
 
 sub end{
@@ -114,7 +109,6 @@ sub end{
 
 }
 
-
 =head2 strand
 
  Title   : strand
@@ -122,7 +116,6 @@ sub end{
  Function: Returns strand information, being 1,-1 or 0
  Returns : -1,1 or 0
  Args    : none
-
 
 =cut
 
@@ -141,7 +134,6 @@ sub strand{
  Returns : An array
  Args    : none
 
-
 =cut
 
 sub sub_SeqFeature{
@@ -149,7 +141,6 @@ sub sub_SeqFeature{
 
    $self->_abstractDeath();
 }
-
 
 =head2 primary_tag
 
@@ -159,7 +150,6 @@ sub sub_SeqFeature{
            eg 'exon'
  Returns : a string 
  Args    : none
-
 
 =cut
 
@@ -179,7 +169,6 @@ sub primary_tag{
  Returns : a string 
  Args    : none
 
-
 =cut
 
 sub source_tag{
@@ -198,7 +187,6 @@ sub source_tag{
  Returns : 
  Args    :
 
-
 =cut
 
 sub has_tag{
@@ -216,7 +204,6 @@ sub has_tag{
  Returns : An array comprising the values of the specified tag.
  Args    :
 
-
 =cut
 
 sub each_tag_value {
@@ -232,7 +219,6 @@ sub each_tag_value {
  Function: gives all tags for this feature
  Returns : an array of strings
  Args    : none
-
 
 =cut
 
@@ -251,7 +237,6 @@ sub all_tags{
            version 2 format.
  Returns : A string
  Args    : None
-
 
 =cut
 
@@ -285,7 +270,6 @@ sub gff_string{
        $name = 'SEQ';
    }
 
-
    $str = join("\t",
                  $name,
 		 $feat->source_tag(),
@@ -301,7 +285,6 @@ sub gff_string{
 	   $str .= " $tag=$value";
        }
    }
-
 
    return $str;
 }
@@ -322,7 +305,6 @@ can use a feature ($r in the below documentation).
   Args    : a RangeI to test for overlap with, or a point
   Returns : true if the Range overlaps with the feature, false otherwise
 
-
 =head2 contains
 
   Title   : contains
@@ -331,7 +313,6 @@ can use a feature ($r in the below documentation).
   Args    : a RangeI to test for being contained
   Returns : true if the argument is totaly contained within this range
 
-
 =head2 equals
 
   Title   : equals
@@ -339,7 +320,6 @@ can use a feature ($r in the below documentation).
   Function: test whether $feat has the same start, end, strand as $r
   Args    : a RangeI to test for equality
   Returns : true if they are describing the same range
-
 
 =head1 Geometrical methods
 
@@ -354,7 +334,6 @@ triplets (start, stop, strand) from which new ranges could be built.
   Args    : a RangeI to compare this one to
   Returns : nothing if they don't overlap, or the range that they do overlap
 
-
 =head2 union
 
   Title   : union
@@ -367,10 +346,4 @@ triplets (start, stop, strand) from which new ranges could be built.
 =cut
 
 1;
-
-
-
-
-
-
 

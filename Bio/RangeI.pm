@@ -375,7 +375,6 @@ sub union {
  Returns : 
  Args    :
 
-
 =cut
 
 sub overlap_extent{

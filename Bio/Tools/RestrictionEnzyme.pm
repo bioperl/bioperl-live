@@ -220,7 +220,6 @@ Bio::Tools::RestrictionEnzyme.pm - Bioperl object for a restriction endonuclease
     $re2 = new Bio::Tools::RestrictionEnzyme(-NAME =>'EcoRV--GAT^ATC', 
 				  	     -MAKE =>'custom');
 
-
 =head1 INSTALLATION
 
 This module is included with the central Bioperl distribution:
@@ -253,7 +252,6 @@ This module is currently in use at
 
 B<This module is at an early stage of development and is not yet ready for general use. API documentation is presently incomplete.>
 
-
 =head1 DEPENDENCIES 
 
 Bio::Tools::RestrictionEnzyme.pm is a concrete class that inherits from B<Bio::Root::Object.pm>
@@ -267,9 +265,9 @@ User feedback is an integral part of the evolution of this and other Bioperl mod
 Send your comments and suggestions preferably to one of the Bioperl mailing lists.
 Your participation is much appreciated.
 
-    vsns-bcd-perl@lists.uni-bielefeld.de          - General discussion
-    vsns-bcd-perl-guts@lists.uni-bielefeld.de     - Technically-oriented discussion
-    http://bio.perl.org/MailList.html             - About the mailing lists
+   bioperl-l@bioperl.org             - General discussion
+   bioperl-guts-l@bioperl.org        - Automated bug and CVS messages
+   http://bioperl.org/MailList.shtml - About the mailing lists
 
 =head2 Reporting Bugs
 
@@ -312,7 +310,6 @@ modify it under the same terms as Perl itself.
 ##
 #'
 
-
 =head1 APPENDIX
 
 Methods beginning with a leading underscore are considered private
@@ -322,11 +319,9 @@ for documentation purposes only.
 
 =cut
 
-
 #######################################################
 #               CONSTRUCTOR/DESTRUCTOR                #
 #######################################################
-
 
 =head1 _initialize
 
@@ -366,7 +361,6 @@ sub _initialize {
     $make;
 }
 
-
 =head1 _make_standard
 
  Title     : _make_standard
@@ -401,7 +395,6 @@ sub _make_standard {
 
     return %dat;
 }
-
 
 =head1 _make_custom
 
@@ -478,8 +471,6 @@ sub cuts_after {
     $self->{'_cuts_after'}; 
 }
 
-
-
 =head1 site
 
  Title     : site
@@ -502,8 +493,6 @@ sub site {
 }
     
 
-
-
 =head1 seq
 
  Title     : seq
@@ -522,8 +511,6 @@ See Also   : L<string>(), L<revcom>()
 sub seq    {  my $self = shift; $self->{'_seq'}; }
 #---------
 
-
-
 =head1 string
 
  Title     : string
@@ -541,8 +528,6 @@ See Also   : L<seq>(), L<revcom>()
 #-----------
 sub string {  my $self = shift; $self->{'_seq'}->seq; }
 #-----------
-
-
 
 =head1 revcom
 
@@ -564,8 +549,6 @@ See Also   : L<seq>(), L<string>()
 #-----------
 sub revcom {  my $self = shift; $self->{'_seq'}->revcom->seq(); }
 #-----------
-
-
 
 =head1 cut_seq
 
@@ -645,7 +628,6 @@ sub cut_seq {
     @re_frags;
 }
 
-
 =head1 annotate_seq
 
  Title     : annotate_seq
@@ -679,7 +661,6 @@ sub annotate_seq {
     return $seq;
 }    
 
-
 =head1 palindromic
 
  Title     : palindromic
@@ -701,8 +682,6 @@ sub palindromic {
     my $self = shift;
     $self->string eq $self->revcom;
 }
-
-
 
 =head1 is_available
 
@@ -846,7 +825,6 @@ sub cuts_seq_at {
     @positions = @tempArray;
     return(@positions);
 }
-
 
 1;
 __END__

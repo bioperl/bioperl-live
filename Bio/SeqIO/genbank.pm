@@ -31,7 +31,6 @@ file databases.
 There is alot of flexibility here about how to dump things which I need
 to document fully.
 
-
 =head2 Optional functions
 
 =over
@@ -66,9 +65,9 @@ and other Bioperl modules. Send your comments and suggestions preferably
  to one of the Bioperl mailing lists.
 Your participation is much appreciated.
 
-  vsns-bcd-perl@lists.uni-bielefeld.de          - General discussion
-  vsns-bcd-perl-guts@lists.uni-bielefeld.de     - Technically-oriented discussion
-  http://bio.perl.org/MailList.html             - About the mailing lists
+   bioperl-l@bioperl.org             - General discussion
+   bioperl-guts-l@bioperl.org        - Automated bug and CVS messages
+   http://bioperl.org/MailList.shtml - About the mailing lists
 
 =head2 Reporting Bugs
 
@@ -91,9 +90,7 @@ The rest of the documentation details each of the object methods. Internal metho
 
 =cut
 
-
 # Let the code begin...
-
 
 package Bio::SeqIO::genbank;
 use vars qw(@ISA);
@@ -104,7 +101,6 @@ use Bio::SeqIO;
 use Bio::SeqIO::FTHelper;
 use Bio::SeqFeature::Generic;
 use Bio::Species;
-
 
 # Object preamble - inherits from Bio::Root::Object
 
@@ -149,7 +145,6 @@ sub _initialize {
     return $make; # success - we hope!
 }
 
-
 =head2 next_seq
 
  Title   : next_seq
@@ -157,7 +152,6 @@ sub _initialize {
  Function: returns the next sequence in the stream
  Returns : Bio::Seq object
  Args    :
-
 
 =cut
 
@@ -319,7 +313,6 @@ sub next_seq{
  Function: writes the $seq object (must be seq) to the stream
  Returns : 1 for success and 0 for error
  Args    : Bio::Seq
-
 
 =cut
 
@@ -528,7 +521,6 @@ sub write_seq {
  Returns : 
  Args    :
 
-
 =cut
 
 sub _print_GenBank_FTHelper {
@@ -566,7 +558,6 @@ sub _print_GenBank_FTHelper {
 
 }
 
-
 =head2 _read_GenBank_References
 
  Title   : _read_GenBank_References
@@ -575,7 +566,6 @@ sub _print_GenBank_FTHelper {
  Example :
  Returns : 
  Args    :
-
 
 =cut
 
@@ -674,7 +664,6 @@ sub _read_GenBank_References{
    return @refs;
 }
 
-
 =head2 _read_GenBank_Species
 
  Title   : _read_GenBank_Species
@@ -748,7 +737,6 @@ sub _read_GenBank_Species {
  Returns : value of _filehandle
  Args    : newvalue (optional)
 
-
 =cut
 
 sub _filehandle{
@@ -768,7 +756,6 @@ sub _filehandle{
  Example :
  Returns : Bio::SeqIO::FTHelper object 
  Args    : filehandle and reference to a scalar
-
 
 =cut
 
@@ -875,7 +862,6 @@ sub _read_FTHelper_GenBank {
  Returns : 
  Args    :
 
-
 =cut
 
 sub _write_line_GenBank{
@@ -909,7 +895,6 @@ sub _write_line_GenBank{
  Example :
  Returns : nothing
  Args    : file handle, first header, second header, text-line, regex for line breaks, total line length
-
 
 =cut
 
@@ -946,7 +931,6 @@ sub _write_line_GenBank_regex {
  Returns : value of _post_sort
  Args    : newvalue (optional)
 
-
 =cut
 
 sub _post_sort{
@@ -966,7 +950,6 @@ sub _post_sort{
  Function: 
  Returns : value of _show_dna
  Args    : newvalue (optional)
-
 
 =cut
 
@@ -988,7 +971,6 @@ sub _show_dna{
  Returns : value of _id_generation_func
  Args    : newvalue (optional)
 
-
 =cut
 
 sub _id_generation_func{
@@ -1008,7 +990,6 @@ sub _id_generation_func{
  Function: 
  Returns : value of _ac_generation_func
  Args    : newvalue (optional)
-
 
 =cut
 
@@ -1030,7 +1011,6 @@ sub _ac_generation_func{
  Returns : value of _sv_generation_func
  Args    : newvalue (optional)
 
-
 =cut
 
 sub _sv_generation_func{
@@ -1051,7 +1031,6 @@ sub _sv_generation_func{
  Returns : value of _kw_generation_func
  Args    : newvalue (optional)
 
-
 =cut
 
 sub _kw_generation_func{
@@ -1066,8 +1045,4 @@ sub _kw_generation_func{
 
 1;
     
-
-
-
-
 

@@ -1,5 +1,3 @@
-
-
 #
 # BioPerl module for Bio::SeqIO::EMBL
 #
@@ -71,9 +69,9 @@ and other Bioperl modules. Send your comments and suggestions preferably
  to one of the Bioperl mailing lists.
 Your participation is much appreciated.
 
-  vsns-bcd-perl@lists.uni-bielefeld.de          - General discussion
-  vsns-bcd-perl-guts@lists.uni-bielefeld.de     - Technically-oriented discussion
-  http://bio.perl.org/MailList.html             - About the mailing lists
+   bioperl-l@bioperl.org             - General discussion
+   bioperl-guts-l@bioperl.org        - Automated bug and CVS messages
+   http://bioperl.org/MailList.shtml - About the mailing lists
 
 =head2 Reporting Bugs
 
@@ -96,9 +94,7 @@ The rest of the documentation details each of the object methods. Internal metho
 
 =cut
 
-
 # Let the code begin...
-
 
 package Bio::SeqIO::embl;
 use vars qw(@ISA);
@@ -107,7 +103,6 @@ use Bio::Seq;
 use Bio::SeqIO::FTHelper;
 use Bio::SeqFeature::Generic;
 use Bio::Species;
-
 
 # Object preamble - inheriets from Bio::Root::Object
 
@@ -152,7 +147,6 @@ sub _initialize {
  return $make; # success - we hope!
 }
 
-
 =head2 next_seq
 
  Title   : next_seq
@@ -161,14 +155,12 @@ sub _initialize {
  Returns : Bio::Seq object
  Args    :
 
-
 =cut
 
 sub next_seq {
    my ($self,@args) = @_;
    my ($pseq,$c,$line,$name,$desc,$acc,$seqc,$mol,$div, $date, $comment, @date_arr);
    my $seq = Bio::Seq->new();
-
 
    $line = $self->_readline;   # This needs to be before the first eof() test
 
@@ -331,7 +323,6 @@ sub next_seq {
  Function: writes the $seq object (must be seq) to the stream
  Returns : 1 for success and 0 for error
  Args    : Bio::Seq
-
 
 =cut
 
@@ -605,7 +596,6 @@ sub write_seq {
  Returns : 
  Args    :
 
-
 =cut
 
 sub _print_EMBL_FTHelper {
@@ -615,7 +605,6 @@ sub _print_EMBL_FTHelper {
    if( ! ref $fth || ! $fth->isa('Bio::SeqIO::FTHelper') ) {
        $fth->warn("$fth is not a FTHelper class. Attempting to print, but there could be tears!");
    }
-
 
    #$self->_print( "FH   Key             Location/Qualifiers\n");
    #$self->_print( sprintf("FT   %-15s  %s\n",$fth->key,$fth->loc));
@@ -648,7 +637,6 @@ sub _print_EMBL_FTHelper {
  Example :
  Returns : 
  Args    :
-
 
 =cut
 
@@ -696,7 +684,6 @@ sub _read_EMBL_References {
    
    return @refs;
 }
-
 
 =head2 _read_EMBL_Species
 
@@ -805,7 +792,6 @@ sub _read_EMBL_DBLink {
  Returns : value of _filehandle
  Args    : newvalue (optional)
 
-
 =cut
 
 sub _filehandle{
@@ -825,7 +811,6 @@ sub _filehandle{
  Example :
  Returns : Bio::SeqIO::FTHelper object 
  Args    : filehandle and reference to a scalar
-
 
 =cut
 
@@ -930,7 +915,6 @@ sub _read_FTHelper_EMBL {
  Returns : 
  Args    :
 
-
 =cut
 
 sub _write_line_EMBL {
@@ -964,7 +948,6 @@ sub _write_line_EMBL {
  Example :
  Returns : nothing
  Args    : file handle, first header, second header, text-line, regex for line breaks, total line length
-
 
 =cut
 
@@ -1005,7 +988,6 @@ sub _write_line_EMBL_regex {
  Returns : value of _post_sort
  Args    : newvalue (optional)
 
-
 =cut
 
 sub _post_sort{
@@ -1025,7 +1007,6 @@ sub _post_sort{
  Function: 
  Returns : value of _show_dna
  Args    : newvalue (optional)
-
 
 =cut
 
@@ -1047,7 +1028,6 @@ sub _show_dna{
  Returns : value of _id_generation_func
  Args    : newvalue (optional)
 
-
 =cut
 
 sub _id_generation_func{
@@ -1067,7 +1047,6 @@ sub _id_generation_func{
  Function: 
  Returns : value of _ac_generation_func
  Args    : newvalue (optional)
-
 
 =cut
 
@@ -1089,7 +1068,6 @@ sub _ac_generation_func{
  Returns : value of _sv_generation_func
  Args    : newvalue (optional)
 
-
 =cut
 
 sub _sv_generation_func{
@@ -1110,7 +1088,6 @@ sub _sv_generation_func{
  Returns : value of _kw_generation_func
  Args    : newvalue (optional)
 
-
 =cut
 
 sub _kw_generation_func{
@@ -1125,8 +1102,4 @@ sub _kw_generation_func{
 
 1;
     
-
-
-
-
 

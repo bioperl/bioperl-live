@@ -1,4 +1,3 @@
-
 #
 # BioPerl module for Bio::Index::SwissPfam
 #
@@ -32,7 +31,6 @@ Bio::Index::SwissPfam - Interface for indexing swisspfam files
 	    print;
     }
 
-
 =head1 DESCRIPTION
 
 SwissPfam is one of the flat files released with Pfam. This modules
@@ -52,9 +50,9 @@ User feedback is an integral part of the evolution of this and other
 Bioperl modules. Send your comments and suggestions preferably to one
 of the Bioperl mailing lists.  Your participation is much appreciated.
 
-  vsns-bcd-perl@lists.uni-bielefeld.de          - General discussion
-  vsns-bcd-perl-guts@lists.uni-bielefeld.de     - Technically-oriented discussion
-  http://bio.perl.org/MailList.html             - About the mailing lists
+   bioperl-l@bioperl.org             - General discussion
+   bioperl-guts-l@bioperl.org        - Automated bug and CVS messages
+   http://bioperl.org/MailList.shtml - About the mailing lists
 
 =head2 Reporting Bugs
 
@@ -75,9 +73,7 @@ The rest of the documentation details each of the object methods. Internal metho
 
 =cut
 
-
 # Let's begin the code...
-
 
 package Bio::Index::SwissPfam;
 
@@ -102,8 +98,6 @@ sub _version {
     return $VERSION;
 }
 
-
-
 =head2 _initialize
 
   Title   : _initialize
@@ -120,7 +114,6 @@ sub _initialize {
     
     $self->SUPER::_initialize(@_);
 }
-
 
 =head2 _index_file
 
@@ -181,7 +174,6 @@ sub _index_file {
     close SP;
     return 1;
 }
-
 
 =head2 fetch
 

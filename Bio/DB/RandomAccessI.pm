@@ -43,7 +43,6 @@ The rest of the documentation details each of the object methods. Internal metho
 
 =cut
 
-
 # Let the code begin...
 
 package Bio::DB::RandomAccessI;
@@ -59,7 +58,6 @@ use Bio::Root::RootI;
 
 # _initialize is where the heavy stuff will happen when new is called
 
-
 =head2 get_Seq_by_id
 
  Title   : get_Seq_by_id
@@ -68,7 +66,6 @@ use Bio::Root::RootI;
  Returns : a Bio::Seq object
  Args    : the id (as a string) of a sequence
  Throws  : "id does not exist" exception
-
 
 =cut
 
@@ -87,7 +84,6 @@ sub get_Seq_by_id{
  Args    : accession number (as a string)
  Throws  : "acc does not exist" exception
 
-
 =cut
 
 sub get_Seq_by_acc{
@@ -95,7 +91,6 @@ sub get_Seq_by_acc{
 
    $self->throw("Abstract database call of get_Seq_by_acc. Your database has not implemented this method!");
 }
-
 
 ## End of Package
 

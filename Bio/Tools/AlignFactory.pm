@@ -1,4 +1,3 @@
-
 #
 # BioPerl module for Bio::Tools::AlignFactory
 #
@@ -33,9 +32,7 @@ The rest of the documentation details each of the object methods. Internal metho
 
 =cut
 
-
 # Let the code begin...
-
 
 package Bio::Tools::AlignFactory;
 use vars qw(@ISA);
@@ -55,7 +52,6 @@ BEGIN {
     }
 }
 
-
 @ISA = qw(Bio::Root::Object);
 # new() is inherited from Bio::Root::Object
 
@@ -72,7 +68,6 @@ sub _initialize {
 # set stuff in self from @args
  return $make; # success - we hope!
 }
-
 
 =head2 kbyte
 
@@ -95,7 +90,6 @@ sub kbyte {
 
     return $self->{'kbyte'};
 }
-
 
 =head2 report
 
@@ -132,7 +126,6 @@ sub report {
  Returns : 
  Args    :
 
-
 =cut
 
 sub set_memory_and_report{
@@ -150,6 +143,4 @@ sub set_memory_and_report{
        &Bio::Ext::Align::error_on(16);
    }
 }
-
-
 

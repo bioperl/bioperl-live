@@ -1,4 +1,3 @@
-
 #
 # BioPerl module for Bio::PrimarySeqI
 #
@@ -44,8 +43,6 @@ Bio::PrimarySeqI - Interface definition for a Bio::PrimarySeq
     
     # $rev and $trunc are Bio::PrimarySeqI compliant objects
 
-
-
 =head1 DESCRIPTION
 
 This object defines an abstract interface to basic sequence
@@ -57,7 +54,6 @@ please read that module first. This module defines the interface, and
 is of more interest to people who want to wrap their own Perl
 Objects/RDBs/FileSystems etc in way that they "are" bioperl sequence
 objects, even though it is not using Perl to store the sequence etc.
-
 
 This interface defines what bioperl consideres necessary to "be" a
 sequence, without providing an implementation of this. (An
@@ -78,9 +74,9 @@ and other Bioperl modules. Send your comments and suggestions preferably
  to one of the Bioperl mailing lists.
 Your participation is much appreciated.
 
-  vsns-bcd-perl@lists.uni-bielefeld.de          - General discussion
-  vsns-bcd-perl-guts@lists.uni-bielefeld.de     - Technically-oriented discussion
-  http://bio.perl.org/MailList.html             - About the mailing lists
+   bioperl-l@bioperl.org             - General discussion
+   bioperl-guts-l@bioperl.org        - Automated bug and CVS messages
+   http://bioperl.org/MailList.shtml - About the mailing lists
 
 =head2 Reporting Bugs
 
@@ -103,9 +99,7 @@ The rest of the documentation details each of the object methods. Internal metho
 
 =cut
 
-
 # Let the code begin...
-
 
 package Bio::PrimarySeqI;
 use vars qw(@ISA);
@@ -158,7 +152,6 @@ sub seq {
  Args    :
  Status  : Virtual
 
-
 =cut
 
 sub subseq{
@@ -195,7 +188,6 @@ sub subseq{
  Args    : None
  Status  : Virtual
 
-
 =cut
 
 sub display_id {
@@ -208,7 +200,6 @@ sub display_id {
    }
 
 }
-
 
 =head2 accession_number
 
@@ -227,7 +218,6 @@ sub display_id {
  Args    : None
  Status  : Virtual
 
-
 =cut
 
 sub accession_number {
@@ -240,8 +230,6 @@ sub accession_number {
    }
 
 }
-
-
 
 =head2 primary_id
 
@@ -258,7 +246,6 @@ sub accession_number {
  Args    : None
  Status  : Virtual
 
-
 =cut
 
 sub primary_id {
@@ -271,7 +258,6 @@ sub primary_id {
    }
 
 }
-
 
 =head2 can_call_new
 
@@ -293,7 +279,6 @@ sub primary_id {
  Example :
  Returns : 1 or 0
  Args    :
-
 
 =cut
 
@@ -321,7 +306,6 @@ sub can_call_new{
  Args    : none
  Status  : Virtual
 
-
 =cut
 
 sub moltype{
@@ -332,7 +316,6 @@ sub moltype{
    } else {
        confess("Bio::PrimarySeqI definition of seq - implementing class did not provide this method");
    }
-
 
 }
 
@@ -373,7 +356,6 @@ framework), they are encouraged to override these methods
 
  Returns : A new (fresh) Bio::PrimarySeqI object
  Args    : none
-
 
 =cut
 
@@ -450,7 +432,6 @@ sub revcom{
  Returns : a fresh Bio::PrimarySeqI implementing object
  Args    :
 
-
 =cut
 
 sub trunc{
@@ -493,7 +474,6 @@ sub trunc{
    return $out;
 }
 
-
 =head2 translate
 
  Title   : translate
@@ -518,14 +498,12 @@ sub trunc{
 
 =cut
 
-
 sub translate {
   my($self) = shift;
   my($stop, $unknown, $frame, $tableid,$no_amino_edit) = @_;
   my($i, $len, $output) = (0,0,'');
   my($codon)   = "";
   my $aa;
-
 
   ## User can pass in symbol for stop and unknown codons
   unless(defined($stop) and $stop ne '')    { $stop = "*"; }
@@ -601,7 +579,6 @@ sub translate {
 
 }
 
-
 =head2 translate_old
 
  Title   : translate_old
@@ -617,7 +594,6 @@ sub translate {
  HL: delete this method when confident that the new translate works!
 
 =cut
-
 
 sub translate_old {
   my($self) = shift;
@@ -697,7 +673,6 @@ sub translate_old {
 
 }
 
-
 =head2 id
 
  Title   : id
@@ -706,7 +681,6 @@ sub translate_old {
  Example :
  Returns : 
  Args    :
-
 
 =cut
 
@@ -725,7 +699,6 @@ sub  id {
  Returns : integer representing the length of the sequence.
  Args    :
  Status  : Virtual
-
 
 =cut
 
@@ -756,7 +729,6 @@ the old system.
  Returns : 
  Args    :
 
-
 =cut
 
 sub str{
@@ -781,7 +753,6 @@ sub str{
  Example :
  Returns : 
  Args    :
-
 
 =cut
 
@@ -811,7 +782,6 @@ sub ary{
  Returns : 
  Args    :
 
-
 =cut
 
 sub getseq{
@@ -833,7 +803,6 @@ sub getseq{
  Returns : 
  Args    :
 
-
 =cut
 
 sub setseq {
@@ -854,7 +823,6 @@ sub setseq {
  Example :
  Returns :
  Args    :
-
 
 =cut
 
@@ -880,7 +848,6 @@ sub type{
  Example :
  Returns : 
  Args    :
-
 
 =cut
 
@@ -936,7 +903,6 @@ sub GCG_checksum {
     my $checksum = 0;
     my $char;
 
-
     $seq = $self->seq();
     $seq =~ tr/a-z/A-Z/;
 
@@ -965,7 +931,6 @@ need to implement these functions
  Returns : 
  Args    :
 
-
 =cut
 
 sub _attempt_to_load_Seq{
@@ -990,9 +955,5 @@ sub _attempt_to_load_Seq{
    
 }
 
-
-
-
 1;
-
 

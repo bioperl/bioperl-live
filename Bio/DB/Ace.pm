@@ -1,4 +1,3 @@
-
 #
 # BioPerl module for Bio::DB::Ace
 #
@@ -57,9 +56,9 @@ and other Bioperl modules. Send your comments and suggestions preferably
  to one of the Bioperl mailing lists.
 Your participation is much appreciated.
 
-  vsns-bcd-perl@lists.uni-bielefeld.de          - General discussion
-  vsns-bcd-perl-guts@lists.uni-bielefeld.de     - Technically-oriented discussion
-  http://bio.perl.org/MailList.html             - About the mailing lists
+   bioperl-l@bioperl.org             - General discussion
+   bioperl-guts-l@bioperl.org        - Automated bug and CVS messages
+   http://bioperl.org/MailList.shtml - About the mailing lists
 
 =head2 Reporting Bugs
 
@@ -100,7 +99,6 @@ BEGIN {
   }
 }
 
-
 @ISA = qw(Bio::DB::RandomAccessI);
 
 # new() is inherited from Bio::DB::Abstract
@@ -126,7 +124,6 @@ sub _initialize {
 			      $self->throw("Could not make acedb object to $host:$port");
 
   $self->_aceobj($aceobj);
-
 
   return $make; # success - we hope!
 }
@@ -168,7 +165,6 @@ sub get_Seq_by_id {
   Function: Gets a Bio::Seq object by its accession number
   Returns : a Bio::Seq object
   Args    : $acc : the accession number of the desired sequence entry
-
 
 =cut
 

@@ -16,7 +16,6 @@ use Bio::Root::Vector ();
 
 my $ID = 'Person';
 
-
 ####################################
 sub _initialize {
 	
@@ -29,7 +28,6 @@ sub _initialize {
 
     $DEBUG and print "---> Initialized $ID (${\ref($self)}) ",$self->name(),"\n";
 }
-
 
 sub _display_stats {
     # Prints most recent Person first.

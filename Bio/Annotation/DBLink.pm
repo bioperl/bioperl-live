@@ -1,4 +1,3 @@
-
 #
 # BioPerl module for Bio::Annotation::Link
 #
@@ -20,7 +19,6 @@ Bio::Annotation::DBLink - Database Link
 	print "Linked to ",$link->primary_id()," in ",$link->database,"\n";
     }
 
-
 =head1 DESCRIPTION
 
 Provides an object which represents a link from one onbject to something
@@ -39,9 +37,7 @@ The rest of the documentation details each of the object methods. Internal metho
 
 =cut
 
-
 # Let the code begin...
-
 
 package Bio::Annotation::DBLink;
 use vars qw(@ISA);
@@ -50,7 +46,6 @@ use strict;
 # Object preamble - inheriets from Bio::Root::Object
 
 use Bio::Root::Object;
-
 
 @ISA = qw(Bio::Root::Object);
 # new() is inherited from Bio::Root::Object
@@ -75,7 +70,6 @@ sub _initialize {
  Returns : value of database
  Args    : newvalue (optional)
 
-
 =cut
 
 sub database{
@@ -95,7 +89,6 @@ sub database{
  Example : 
  Returns : value of primary_id
  Args    : newvalue (optional)
-
 
 =cut
 
@@ -117,7 +110,6 @@ sub primary_id{
  Returns : value of optional_id
  Args    : newvalue (optional)
 
-
 =cut
 
 sub optional_id{
@@ -137,7 +129,6 @@ sub optional_id{
  Example : 
  Returns : value of comment
  Args    : newvalue (optional)
-
 
 =cut
 

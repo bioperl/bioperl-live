@@ -1,4 +1,3 @@
-
 #
 # BioPerl module for Bio::Annotation::Comment
 #
@@ -42,9 +41,7 @@ The rest of the documentation details each of the object methods. Internal metho
 
 =cut
 
-
 # Let the code begin...
-
 
 package Bio::Annotation::Comment;
 use vars qw(@ISA);
@@ -53,7 +50,6 @@ use strict;
 # Object preamble - inheriets from Bio::Root::Object
 
 use Bio::Root::Object;
-
 
 @ISA = qw(Bio::Root::Object);
 # new() is inherited from Bio::Root::Object
@@ -79,7 +75,6 @@ sub _initialize {
  Returns : value of text
  Args    : newvalue (optional)
 
-
 =cut
 
 sub text{
@@ -90,7 +85,5 @@ sub text{
     return $self->{'text'};
 
 }
-
-
 
 1;

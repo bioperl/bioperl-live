@@ -1,4 +1,3 @@
-
 #
 # BioPerl module for Bio::SeqIO
 #
@@ -97,7 +96,6 @@ This makes the simplest ever reformatter
     #note: you might want to quote -format to keep older perl's from complaining.
 
     print $out $_ while <$in>;
-
 
 =head1 CONSTRUCTORS
 
@@ -202,9 +200,9 @@ and other Bioperl modules. Send your comments and suggestions preferably
  to one of the Bioperl mailing lists.
 Your participation is much appreciated.
 
-  vsns-bcd-perl@lists.uni-bielefeld.de          - General discussion
-  vsns-bcd-perl-guts@lists.uni-bielefeld.de     - Technically-oriented discussion
-  http://bio.perl.org/MailList.html             - About the mailing lists
+   bioperl-l@bioperl.org             - General discussion
+   bioperl-guts-l@bioperl.org        - Automated bug and CVS messages
+   http://bioperl.org/MailList.shtml - About the mailing lists
 
 =head2 Reporting Bugs
 
@@ -310,7 +308,6 @@ sub newFh {
 
 =cut
 
-
 sub fh {
   my $self = shift;
   my $class = ref($self) || $self;
@@ -407,7 +404,6 @@ sub next_seq {
  Returns : A Bio::PrimarySeqI object
  Args    : none
 
-
 =cut
 
 sub next_primary_seq{
@@ -435,7 +431,6 @@ sub write_seq {
     my ($self,$seq) = @_;
     $self->throw("Sorry, you cannot write to a generic Bio::SeqIO object.");
 }
-
 
 =head2 moltype
 
@@ -469,7 +464,6 @@ sub moltype {
  Example :
  Returns : 
  Args    :
-
 
 =cut
 
@@ -520,7 +514,6 @@ sub _readline {
  Example : 
  Returns : value of _filehandle
  Args    : newvalue (optional)
-
 
 =cut
 

@@ -137,8 +137,6 @@ Amino acid alphabet support is different from that of Seq.pm (see below).
   N      G or A or T or C 
   .      G or A or T or C 
 
-
-
  ------------------------------------------
  Symbol           Meaning   
  ------------------------------------------
@@ -167,7 +165,6 @@ Amino acid alphabet support is different from that of Seq.pm (see below).
  Z        Any hydrophilic: TSHEDQNKR
  X        Any amino acid
  .        Any amino acid
-
 
 =head2   Multiple Format Support
 
@@ -198,9 +195,9 @@ User feedback is an integral part of the evolution of this and other
 Bioperl modules.  Send your comments and suggestions preferably to one
 of the Bioperl mailing lists.  Your participation is much appreciated.
 
-    vsns-bcd-perl@lists.uni-bielefeld.de          - General discussion
-    vsns-bcd-perl-guts@lists.uni-bielefeld.de     - Technically-oriented discussion
-    http://bio.perl.org/MailList.html             - About the mailing lists
+   bioperl-l@bioperl.org             - General discussion
+   bioperl-guts-l@bioperl.org        - Automated bug and CVS messages
+   http://bioperl.org/MailList.shtml - About the mailing lists
 
 =head2 Reporting Bugs
 
@@ -236,12 +233,9 @@ modify it under the same terms as Perl itself.
 ##
 #'
 
-
-
 #####################################################################################
 ##                                 CONSTRUCTOR                                     ##
 #####################################################################################
-
 
 =head1 _initialize
 
@@ -280,7 +274,6 @@ sub _initialize {
 
     return $self;
 }
-
 
 =head1 alphabet_ok
 
@@ -326,9 +319,6 @@ sub alphabet_ok {
     1;
 }
 
-
-
-
 =head1 expand
 
  Title     : expand
@@ -355,7 +345,6 @@ sub expand {
 	$self->throw("Don't know how to expand ${\$self->type} patterns.\n");
     }
 }
-
 
 =head1 _expand_pep
 
@@ -395,8 +384,6 @@ sub _expand_pep {
 
     return $pat;
 }
-
-
 
 =head1 _expand_nuc
 
@@ -463,8 +450,6 @@ sub _expand_nuc {
 
     return $pat;  
 }
-
-
 
 =head1 revcom
 
@@ -536,8 +521,6 @@ sub revcom {
      return new Bio::Tools::SeqPattern(-seq =>$fixrev, -type =>$self->type);
 }
 
-
-
 =head1 _fixpat_1
 
  Title     : _fixpat_1
@@ -607,7 +590,6 @@ sub _fixpat_1 {
     
 }
 
-
 =head1 _fixpat_2
 
  Title     : _fixpat_2
@@ -645,7 +627,6 @@ sub _fixpat_2 {
     }
     return join('', reverse @done);
 }
-
 
 =head1 _fixpat_3
 
@@ -695,7 +676,6 @@ sub _fixpat_3 {
     }
     return join('', reverse @done);
 }
-
 
 =head1 _fixpat_4
 
@@ -749,7 +729,6 @@ sub _fixpat_4 {
     return join('', reverse @done);
 }
 
-
 =head1 _fixpat_5
 
  Title     : _fixpat_5
@@ -800,7 +779,6 @@ sub _fixpat_5 {
     return join('', reverse @done);
 }
 
-
 =head2 str
 
  Title   : str
@@ -808,7 +786,6 @@ sub _fixpat_5 {
  Function: 
  Returns : value of str
  Args    : newvalue (optional)
-
 
 =cut
 
@@ -829,7 +806,6 @@ sub str{
  Function: 
  Returns : value of type
  Args    : newvalue (optional)
-
 
 =cut
 
@@ -884,8 +860,5 @@ containing all or some of the following fields:
  _seq     : (From Bio::Seq.pm) The original, unexpanded input sequence after untainting.
  _type    : (From Bio::Seq.pm) 'Dna' or 'Amino' 
 
-
 =cut
-
-
 

@@ -87,9 +87,9 @@ User feedback is an integral part of the evolution of this and other Bioperl mod
 Send your comments and suggestions preferably to one of the Bioperl mailing lists.
 Your participation is much appreciated.
 
-    vsns-bcd-perl@lists.uni-bielefeld.de          - General discussion
-    vsns-bcd-perl-guts@lists.uni-bielefeld.de     - Technically-oriented discussion
-    http://bio.perl.org/MailList.html             - About the mailing lists
+   bioperl-l@bioperl.org             - General discussion
+   bioperl-guts-l@bioperl.org        - Automated bug and CVS messages
+   http://bioperl.org/MailList.shtml - About the mailing lists
 
 =head2 Reporting Bugs
 
@@ -109,9 +109,7 @@ The rest of the documentation details each of the object methods. Internal metho
 
 =cut
 
-
 # Let the code begin...
-
 
 package Bio::Tools::pSW;
 use vars qw(@ISA);
@@ -120,7 +118,6 @@ no strict ( 'refs');
 
 use Bio::Tools::AlignFactory;
 use Bio::SimpleAlign;
-
 
 @ISA = qw(Bio::Tools::AlignFactory);
 
@@ -134,15 +131,12 @@ BEGIN {
     }
 }
 
-
 # new() is inherited from Bio::Root::Object
 
 # _initialize is where the heavy stuff will happen when new is called
 
 sub _initialize {
   my($self,@p) = @_;
-
-
 
   my($matrix,$gap,$ext) = $self->_rearrange([qw(MATRIX
 						GAP
@@ -176,7 +170,6 @@ sub _initialize {
   return $make; # success - we hope!
 }
 
-
 =head2 pairwise_alignment
 
  Title   : pairwise_alignment
@@ -184,7 +177,6 @@ sub _initialize {
  Function: Makes a SimpleAlign object from two sequences
  Returns : A SimpleAlign object
  Args    :
-
 
 =cut
 
@@ -201,7 +193,6 @@ sub pairwise_alignment{
     if( ! defined $aln || $aln == 0 ) {
 	$self->throw("Unable to build an alignment");
     }
-
 
     # free sequence engine objects
 
@@ -334,8 +325,6 @@ sub matrix {
     $self->{'matrix'} = $temp;
 }
 
-
-
 =head2 gap
 
  Title     : gap
@@ -360,7 +349,6 @@ sub gap {
     }
     return $self->{'gap'};
 }
-
 
 =head2 ext
 

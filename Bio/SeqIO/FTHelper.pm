@@ -34,9 +34,9 @@ and other Bioperl modules. Send your comments and suggestions preferably
  to one of the Bioperl mailing lists.
 Your participation is much appreciated.
 
-  vsns-bcd-perl@lists.uni-bielefeld.de          - General discussion
-  vsns-bcd-perl-guts@lists.uni-bielefeld.de     - Technically-oriented discussion
-  http://bio.perl.org/MailList.html             - About the mailing lists
+   bioperl-l@bioperl.org             - General discussion
+   bioperl-guts-l@bioperl.org        - Automated bug and CVS messages
+   http://bioperl.org/MailList.shtml - About the mailing lists
 
 =head2 Reporting Bugs
 
@@ -59,9 +59,7 @@ The rest of the documentation details each of the object methods. Internal metho
 
 =cut
 
-
 # Let the code begin...
-
 
 package Bio::SeqIO::FTHelper;
 use vars qw(@ISA);
@@ -70,7 +68,6 @@ use strict;
 # Object preamble - inheriets from Bio::Root::Object
 
 use Bio::Root::Object;
-
 
 @ISA = qw(Bio::Root::Object);
 # new() is inherited from Bio::Root::Object
@@ -98,7 +95,6 @@ sub _initialize {
  Returns : an array of FThelpers
  Args    : seq features
 
-
 =cut
 
 =head2 _generic_seqfeature
@@ -108,7 +104,6 @@ sub _initialize {
  Function: processes fthelper into a generic seqfeature
  Returns : TRUE on success and otherwise FALSE
  Args    : Bio::Seq, string indicating the source (GenBank/EMBL/SwissProt)
-
 
 =cut
 
@@ -214,7 +209,6 @@ sub _generic_seqfeature {
            Note that this method is private.
  Returns : TRUE on success and otherwise FALSE
  Args    : Bio::SeqFeatureI, string
-
 
 =cut
 
@@ -472,7 +466,6 @@ sub from_SeqFeature {
  Returns : value of key
  Args    : newvalue (optional)
 
-
 =cut
 
 sub key {
@@ -493,7 +486,6 @@ sub key {
  Returns : value of loc
  Args    : newvalue (optional)
 
-
 =cut
 
 sub loc {
@@ -505,7 +497,6 @@ sub loc {
 
 }
 
-
 =head2 field
 
  Title   : field
@@ -514,7 +505,6 @@ sub loc {
  Example :
  Returns :
  Args    :
-
 
 =cut
 
@@ -533,7 +523,6 @@ sub field {
  Returns :
  Args    :
 
-
 =cut
 
 sub add_field {
@@ -545,5 +534,4 @@ sub add_field {
    push( @{$self->field->{$key}} , $val);
 
 }
-
 

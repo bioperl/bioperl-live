@@ -40,7 +40,6 @@ use vars qw( $ID $VERSION);
 $ID      = 'Bio::Tools::Blast::Run::LocalBlast';
 $VERSION = '0.01';
 
-
 ## POD Documentation
 
 =head1 NAME
@@ -91,7 +90,6 @@ in the arrays C<@Blast_dbn_local> and C<@Blast_dbp_local>.
 The generic version of this module provides some rudimentary logic, but feel free
 to customize as necessary.
 
-
 =head2 Script Files
 
 Sometimes it is convenient to write an executable shell script for running a set of Blasts
@@ -99,7 +97,6 @@ on a local machine. This script can be saved and re-executed as necessary or sav
 for documentation purposes. This module could provide a convenient way to consolidate
 the logic necessary for producing such script files or perhaps stubs of script file 
 that could be further modified for Blast-ing specific datasets.
-
 
 =head1 DEPENDENCIES
 
@@ -115,7 +112,6 @@ be updated along with that module.
  Bio::Tools::Blast::HTML.pm              - Blast HTML-formating utility class.
  Bio::Seq.pm                             - Biosequence object  
 
-
  http://bio.perl.org/Projects/modules.html  - Online module documentation
  http://bio.perl.org/Projects/Blast/        - Bioperl Blast Project     
  http://bio.perl.org/                       - Bioperl Project Homepage
@@ -128,9 +124,9 @@ User feedback is an integral part of the evolution of this and other Bioperl mod
 Send your comments and suggestions preferably to one of the Bioperl mailing lists.
 Your participation is much appreciated.
 
-    vsns-bcd-perl@lists.uni-bielefeld.de          - General discussion
-    vsns-bcd-perl-guts@lists.uni-bielefeld.de     - Technically-oriented discussion
-    http://bio.perl.org/MailList.html             - About the mailing lists
+   bioperl-l@bioperl.org             - General discussion
+   bioperl-guts-l@bioperl.org        - Automated bug and CVS messages
+   http://bioperl.org/MailList.shtml - About the mailing lists
 
 =head2 Reporting Bugs
 
@@ -163,7 +159,6 @@ modify it under the same terms as Perl itself.
 ###
 ##
 #'
-
 
 use vars qw(@Blast_dbp_local @Blast_dbn_local @Blast_matrix_local);
 
@@ -198,7 +193,6 @@ my $_out_dir                = '';    # where to save the Blast output files.
 my $_blastObj               = undef;
 my $_errmsg                 = '';
 
-
 ######################  BEGIN FUNCTIONS  ########################
 
 =head1 APPENDIX
@@ -207,7 +201,6 @@ Methods beginning with a leading underscore are considered private
 and are intended for internal use by this module. They are
 B<not> considered part of the public interface and are described here
 for documentation purposes only.
-
 
 =head2 blast_local
 
@@ -348,7 +341,6 @@ sub _validate_options {
     }
 }
 
-
 #---------------
 sub _blast_seqs {
 #---------------
@@ -384,7 +376,6 @@ sub _blast_seqs {
     }
 }
 
-
 #---------------
 sub _blast_files {
 #---------------
@@ -401,7 +392,6 @@ sub _blast_files {
 	$count++;
     }
 }
-
 
 #------------------
 sub _validate_seq {
@@ -452,5 +442,4 @@ __END__
 #####################################################################################
 #                                END OF CLASS                                       #
 #####################################################################################
-
 

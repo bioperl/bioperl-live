@@ -43,9 +43,9 @@ your comments and suggestions preferably to one
 of the Bioperl mailing lists. Your participation
 is much appreciated.
 
-  vsns-bcd-perl@lists.uni-bielefeld.de          - General discussion
-  vsns-bcd-perl-guts@lists.uni-bielefeld.de     - Technically-oriented discussion
-  http://bio.perl.org/MailList.html             - About the mailing lists
+   bioperl-l@bioperl.org             - General discussion
+   bioperl-guts-l@bioperl.org        - Automated bug and CVS messages
+   http://bioperl.org/MailList.shtml - About the mailing lists
 
 =head2 Reporting Bugs
 
@@ -149,7 +149,6 @@ sub get_Seq_by_acc {
   Args    : $ref : a reference to an array of unique identifiers for
                    the desired sequence entries
 
-
 =cut
 
 sub get_Stream_by_id {
@@ -247,8 +246,6 @@ sub get_Stream_by_batch {
 
 }
 
-
-
 sub _get_stream {
 
   my($self, $entrez) = @_;
@@ -294,17 +291,6 @@ sub _get_sock {
     return $sock;
 }
 
-
 1;
 __END__
-
-
-
-
-
-
-
-
-
-
 

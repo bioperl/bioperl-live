@@ -1,4 +1,3 @@
-
 #
 # BioPerl module for Bio::Pfam::Annotation::Comment
 #
@@ -56,9 +55,7 @@ methods. Internal methods are usually preceded with a _
 
 =cut
 
-
 #' Let the code begin...
-
 
 package Bio::Species;
 use vars qw(@ISA);
@@ -67,7 +64,6 @@ use strict;
 # Object preamble - inheriets from Bio::Root::Object
 
 use Bio::Root::Object;
-
 
 @ISA = qw(Bio::Root::Object);
 # new() is inherited from Bio::Root::Object
@@ -104,8 +100,6 @@ sub _initialize {
  Args    : Classification array
 
 =cut
-
-
 
 sub classification {
     my $self = shift;
@@ -187,7 +181,6 @@ sub organelle {
 
 =cut
 
-
 sub species {
     my($self, $species) = @_;
     
@@ -211,7 +204,6 @@ sub species {
 
 =cut
 
-
 sub genus {
     my($self, $genus) = @_;
     
@@ -229,7 +221,6 @@ sub genus {
  Function: 
  Returns : value of sub_species
  Args    : newvalue (optional)
-
 
 =cut
 
@@ -253,7 +244,6 @@ sub sub_species {
            the subspecies.
 
 =cut
-
 
 sub binomial {
     my( $self, $full ) = @_;
@@ -280,7 +270,6 @@ sub validate_name {
     return $string =~ /^[A-Z][a-z]+$/ or
         $self->throw("Invalid name '$string' (Wrong case?)");
 }
-
 
 1;
 

@@ -1,4 +1,3 @@
-
 #
 # BioPerl module for Bio::Search::Result::ResultI.pm
 #
@@ -36,9 +35,9 @@ and other Bioperl modules. Send your comments and suggestions preferably
  to one of the Bioperl mailing lists.
 Your participation is much appreciated.
 
-  vsns-bcd-perl@lists.uni-bielefeld.de          - General discussion
-  vsns-bcd-perl-guts@lists.uni-bielefeld.de     - Technically-oriented discussion
-  http://bio.perl.org/MailList.html             - About the mailing lists
+   bioperl-l@bioperl.org             - General discussion
+   bioperl-guts-l@bioperl.org        - Automated bug and CVS messages
+   http://bioperl.org/MailList.shtml - About the mailing lists
 
 =head2 Reporting Bugs
 
@@ -59,9 +58,7 @@ The rest of the documentation details each of the object methods. Internal metho
 
 =cut
 
-
 # Let the code begin...
-
 
 package Bio::Search::Result::ResultI;
 
@@ -132,7 +129,6 @@ sub get_library_name {
            the information was not available to the Processor object.
  Args    : <none>
 
-
 =cut
 
 sub get_library_size {
@@ -149,7 +145,6 @@ sub get_library_size {
  Returns : a scalar integer representing the number of entities in the library
            or undef if the information was not available.
  Args    : <none>
-
 
 =cut
 
@@ -169,7 +164,6 @@ sub get_library_count {
            algorithm), or undef if there were none.
  Args    : <none>
 
-
 =cut
 
 sub get_hits {
@@ -178,7 +172,5 @@ sub get_hits {
    return $self->throw("Abstract interface call.");
 }
 
-
 1;
-
 

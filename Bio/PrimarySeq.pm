@@ -1,4 +1,3 @@
-
 #
 # bioperl module for Bio::PrimarySeq
 #
@@ -123,9 +122,9 @@ User feedback is an integral part of the evolution of this and other
 Bioperl modules. Send your comments and suggestions preferably to one
 of the Bioperl mailing lists.  Your participation is much appreciated.
 
-  vsns-bcd-perl@lists.uni-bielefeld.de          - General discussion
-  vsns-bcd-perl-guts@lists.uni-bielefeld.de     - Technically-oriented discussion
-  http://bio.perl.org/MailList.html             - About the mailing lists
+   bioperl-l@bioperl.org             - General discussion
+   bioperl-guts-l@bioperl.org        - Automated bug and CVS messages
+   http://bioperl.org/MailList.shtml - About the mailing lists
 
 =head2 Reporting Bugs
 
@@ -148,9 +147,7 @@ The rest of the documentation details each of the object methods. Internal metho
 
 =cut
 
-
 # Let the code begin...
-
 
 package Bio::PrimarySeq;
 use vars qw(@ISA);
@@ -160,7 +157,6 @@ use strict;
 
 use Bio::Root::Object;
 use Bio::PrimarySeqI;
-
 
 @ISA = qw(Bio::Root::Object Bio::PrimarySeqI);
 
@@ -238,7 +234,6 @@ sub seq {
  Returns : a string
  Args    :
 
-
 =cut
 
 sub subseq {
@@ -300,7 +295,6 @@ sub length {
  Returns : A string
  Args    : None
 
-
 =cut
 
 sub display_id {
@@ -311,7 +305,6 @@ sub display_id {
     return $obj->{'display_id'};
 
 }
-
 
 =head2 accession_number
 
@@ -342,7 +335,6 @@ sub accession_number {
     return $obj->{'accession_number'};
 }
 
-
 =head2 primary_id
 
  Title   : primary_id
@@ -371,7 +363,6 @@ sub primary_id {
 
 }
 
-
 =head2 moltype
 
  Title   : moltype
@@ -386,7 +377,6 @@ sub primary_id {
            make a call of the type - if there is no type specified it
            has to guess.
  Args    : none
-
 
 =cut
 
@@ -416,7 +406,6 @@ BEGIN {
  Returns : value of desc
  Args    : newvalue (optional)
 
-
 =cut
 
 sub desc {
@@ -436,7 +425,6 @@ sub desc {
  Example :
  Returns : 
  Args    :
-
 
 =cut
 
@@ -489,7 +477,6 @@ implemented on Bio::PrimarySeqI
  Returns : a fresh Bio::SeqI implementing object
  Args    :
 
-
 =cut
 
 =head1 Internal methods
@@ -506,7 +493,6 @@ These are internal methods to PrimarySeq
  Example :
  Returns : 
  Args    :
-
 
 =cut
 
@@ -531,7 +517,6 @@ sub _guess_type {
    
    $u = CORE::length($str) - CORE::length($str2);
 
-
    if( ($atgc / $total) > 0.85 ) {
        $type = 'dna';
    } elsif( (($atgc + $u) / $total) > 0.85 ) {
@@ -544,18 +529,5 @@ sub _guess_type {
 
 }
 
-
-
 1;
-
-
-
-
-
-
-
-
-
-
-
 

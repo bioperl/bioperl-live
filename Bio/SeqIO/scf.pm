@@ -48,9 +48,9 @@ and other Bioperl modules. Send your comments and suggestions preferably
  to one of the Bioperl mailing lists.
 Your participation is much appreciated.
 
-  vsns-bcd-perl@lists.uni-bielefeld.de          - General discussion
-  vsns-bcd-perl-guts@lists.uni-bielefeld.de     - Technically-oriented discussion
-  http://bio.perl.org/MailList.html             - About the mailing lists
+   bioperl-l@bioperl.org             - General discussion
+   bioperl-guts-l@bioperl.org        - Automated bug and CVS messages
+   http://bioperl.org/MailList.shtml - About the mailing lists
 
 =head2 Reporting Bugs
 
@@ -75,7 +75,6 @@ methods. Internal methods are usually preceded with a _
 
 # Let the code begin...
 
-
 package Bio::SeqIO::scf;
 use vars qw(@ISA);
 use strict;
@@ -98,7 +97,6 @@ sub _initialize {
  Function: returns the next sequence in the stream
  Returns : Bio::Seq object
  Args    :
-
 
 =cut
 
@@ -173,7 +171,6 @@ sub next_seq{
  Function: writes the $seq object into the stream
  Returns : 1 for success and 0 for error
  Args    : Bio::Seq object
-
 
 =cut
 

@@ -22,7 +22,6 @@ use vars qw($ID $VERSION @ISA);
 $ID = 'Bio::Tools::SeqAnal';
 $VERSION  = 0.011;  
 
-
 ## POD Documentation:
 
 =head1 NAME
@@ -60,7 +59,6 @@ To read an existing report without parsing:
     $hit = new Bio::Tools::SeqAnal ( -file  => 'filename.data',
 				     -read  => 1);
 
-
 =head1 INSTALLATION
 
 This module is included with the central Bioperl distribution:
@@ -69,7 +67,6 @@ This module is included with the central Bioperl distribution:
    ftp://bio.perl.org/pub/DIST
 
 Follow the installation instructions included in the README file.
-
 
 =head1 DESCRIPTION
 
@@ -97,8 +94,6 @@ a specialized module such as:
 Some of these functionalities (reading, file maipulation) are inherited from 
 B<Bio::Root::Object.pm>, from which Bio::Tools::SeqAnal.pm derives.
 
-
-
 =head1 RUN, PARSE, and READ
 
 A SeqAnal.pm object can be created using one of three modes: run, parse, or read.
@@ -116,8 +111,6 @@ A SeqAnal.pm object can be created using one of three modes: run, parse, or read
             SeqAnal.pm objects. This mode is considered experimental.
 
 The mode is set by supplying switches to the constructor, see L<_initialize>().
-
-
 
 A key feature of SeqAnal.pm is the ability to access raw data in a generic
 fashion. Regardless of what sequence analysis method is used, the raw data
@@ -142,7 +135,6 @@ This can be useful when cruching through thousands of reports.
 For examples of this, see the L<parse>() methods defined in B<Bio::Tools::Blast.pm> and
 B<Bio::Tools::Fasta.pm>.
 
-
 =head2 Parsing & Running
 
 Parsing and running of sequence analysis reports must be implemented for each 
@@ -150,14 +142,12 @@ specific subclass of SeqAnal.pm. No-op stubs ("virtual methods") are provided he
 the L<parse>() and L<run>() methods. See B<Bio::Tools::Blast.pm> and B<Bio::Tools::Fasta.pm>
 for examples.
 
-
 =head1 DEPENDENCIES
 
 Bio::Tools::SeqAnal.pm is a concrete class that inherits from B<Bio::Root::Object.pm>.
 This module also makes use of a number of functionalities inherited from
 B<Bio::Root::Object.pm> (file manipulations such as reading, compressing, decompressing,
 deleting, and obtaining date.
-
 
 =head1 FEEDBACK
 
@@ -167,9 +157,9 @@ User feedback is an integral part of the evolution of this and other Bioperl mod
 Send your comments and suggestions preferably to one of the Bioperl mailing lists.
 Your participation is much appreciated.
 
-    vsns-bcd-perl@lists.uni-bielefeld.de          - General discussion
-    vsns-bcd-perl-guts@lists.uni-bielefeld.de     - Technically-oriented discussion
-    http://bio.perl.org/MailList.html             - About the mailing lists
+   bioperl-l@bioperl.org             - General discussion
+   bioperl-guts-l@bioperl.org        - Automated bug and CVS messages
+   http://bioperl.org/MailList.shtml - About the mailing lists
 
 =head2 Reporting Bugs
 
@@ -195,17 +185,13 @@ Copyright (c) 1998 Steve A. Chervitz. All Rights Reserved.
 This module is free software; you can redistribute it and/or 
 modify it under the same terms as Perl itself.
 
-
 =head1 SEE ALSO
 
  http://bio.perl.org/Projects/modules.html  - Online module documentation
  http://bio.perl.org/Projects/Blast/        - Bioperl Blast Project     
  http://bio.perl.org/                       - Bioperl Project Homepage
 
-
 =cut
-
-
 
 #
 ##
@@ -227,7 +213,6 @@ for documentation purposes only.
 ##############################################################################
 ##                          CONSTRUCTOR                                     ##
 ##############################################################################
-
 
 =head2 _initialize
 
@@ -293,7 +278,6 @@ sub destroy {
     $self->SUPER::destroy;
 }
 
-
 ###############################################################################
 #                                 ACCESSORS                                 
 ###############################################################################
@@ -356,8 +340,6 @@ sub best {
     $self->{'_best'}; 
 }
 
-
-
 =head2 _set_db_stats
 
  Usage     : $object->_set_db_stats(<named parameters>);
@@ -381,7 +363,6 @@ sub _set_db_stats {
     
 }
 
-
 =head2 database
 
  Usage     : $object->database();
@@ -398,8 +379,6 @@ sub database {
     if(@_) { $self->{'_db'} = shift; }
     $self->{'_db'};
 }
-
-
 
 =head2 database_release
 
@@ -418,7 +397,6 @@ sub database_release {
     $self->{'_dbRelease'};
 }
 
-
 =head2 database_letters
 
  Usage     : $object->database_letters();
@@ -436,8 +414,6 @@ sub database_letters {
     $self->{'_dbLetters'};
 }
 
-
-
 =head2 database_seqs
 
  Usage     : $object->database_seqs();
@@ -454,8 +430,6 @@ sub database_seqs {
     if(@_) { $self->{'_dbSeqs'} = shift; }
     $self->{'_dbSeqs'};
 }
-
-
 
 =head2 set_date
 
@@ -500,8 +474,6 @@ sub set_date {
     $self->{'_date'} = $date;
 }
 
-
-
 =head2 date
 
  Usage     : $object->date();
@@ -517,9 +489,6 @@ See Also   : L<set_date>()
 #----------
 sub date {  my $self = shift;  $self->{'_date'}; }
 #----------
-
-
-
 
 =head2 length
 
@@ -539,8 +508,6 @@ sub length {
     $self->{'_length'}; 
 }
 
-
-
 =head2 program
 
  Usage     : $object->program();
@@ -557,8 +524,6 @@ sub program {
     if(@_) { $self->{'_prog'} = shift; }
     $self->{'_prog'}; 
 }
-
-
 
 =head2 program_version
 
@@ -578,7 +543,6 @@ sub program_version {
     $self->{'_progVersion'}; 
 }
 
-
 =head2 query
 
  Usage     : $name = $object->query();
@@ -592,7 +556,6 @@ sub program_version {
 #--------
 sub query { my $self = shift; $self->name; }
 #--------
-
 
 =head2 query_desc
 
@@ -610,9 +573,6 @@ sub query_desc {
     if(@_) { $self->{'_qDesc'} = shift; }
     $self->{'_qDesc'};
 }
-
-
-
 
 =head2 display
 
@@ -641,8 +601,6 @@ sub display {
     1;
 }
 
-
-
 =head2 _display_file
 
  Usage     : n/a; called automatically by display()
@@ -664,8 +622,6 @@ sub _display_file {
     print $OUT scalar($self->read);
     1;
 }
-
-
 
 =head2 _display_stats
 
@@ -700,7 +656,6 @@ sub _display_stats {
     printf( $OUT "%-15s: %s\n", "DB-SEQUENCES", ($self->database_seqs) ? $self->database_seqs : 'UNKNOWN');
 }
 
-
 #####################################################################################
 ##                                 VIRTUAL METHODS                                 ##
 #####################################################################################
@@ -734,8 +689,6 @@ sub parse {
     $self->read(@param);
 }
 
-
-
 =head2 run
 
  Usage     : $object->run( %named_parameters )
@@ -755,7 +708,6 @@ sub run {
     my ($self, %param) = @_;
     $self->throw("Virtual method run() not defined ${ref($self)} objects.");
 }
-
 
 1;
 __END__

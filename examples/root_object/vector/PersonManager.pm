@@ -58,7 +58,6 @@ sub _make_person {
     my $p = new Person(%param);
 }
 
-
 ###################################
 sub insert_person {
     my($self,%param) = @_;
@@ -139,5 +138,4 @@ sub _display_stats {
 
 ######################################
 1;
-
 

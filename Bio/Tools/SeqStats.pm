@@ -1,4 +1,3 @@
-
 #
 # BioPerl module for Bio::Tools::SeqStats
 #
@@ -22,7 +21,6 @@ Bio::Tools::SeqStats - Object holding statistics for one particular sequence
 	$seqobj = Bio::PrimarySeq->new(-seq=>'ACTGTGGCGTCAACTG', -moltype = 'dna', -id = 'test');
 	$seq_stats  =  Bio::Tools::SeqStats->new($seqobj);
 
-
     # obtain a hash of counts of each type of monomer (ie amino or nucleic acid)
 	$hash_ref = $seq_stats->count_monomers();  # eg for DNA sequence
 	foreach $base ( sort keys $$hash_ref) {
@@ -34,12 +32,10 @@ Bio::Tools::SeqStats - Object holding statistics for one particular sequence
 	    print "Number of bases of type ",$base "= ",%$hash_ref{$base}"\n";
 	}
 
-
     # obtain hash of counts of each type of codon in a nucleic acid sequence
 	$hash_ref = $seq_stats-> count_codons();  # for nucleic acid sequence
     #  or
 	$hash_ref = Bio::Tools::SeqStats->count_codons($seqobj);
-
 
     # Obtain the molecular weight of a sequence. Since the sequence may contain
     # ambiguous monomers, the molecular weight is returned as a (reference to) a
@@ -49,8 +45,6 @@ Bio::Tools::SeqStats - Object holding statistics for one particular sequence
     #  or
 	$weight = Bio::Tools::SeqStats->get_mol_wt($seqobj);
 	print "Molecular weight of sequence ", $seqobj->id(), " is greater than ", $$weight[0], " and less than " , $$weight[1], "\n";
-
-
 
 =head1 DESCRIPTION
 
@@ -91,13 +85,11 @@ ambiguous monomers, the two elements of the returned array will be equal.) The m
 count_codons() handles ambiguous bases by simply counting all ambiguous codons together
 and issuing a warning to that effect.
 
-
 =head1 DEVELOPERS NOTES
 
 Ewan moved it from Bio::SeqStats to Bio::Tools::SeqStats
 
 =head1 STILL TO WRITE
-
 
 =head1 FEEDBACK
 
@@ -108,9 +100,9 @@ and other Bioperl modules. Send your comments and suggestions preferably
  to one of the Bioperl mailing lists.
 Your participation is much appreciated.
 
-  vsns-bcd-perl@lists.uni-bielefeld.de          - General discussion
-  vsns-bcd-perl-guts@lists.uni-bielefeld.de     - Technically-oriented discussion
-  http://bio.perl.org/MailList.html             - About the mailing lists
+   bioperl-l@bioperl.org             - General discussion
+   bioperl-guts-l@bioperl.org        - Automated bug and CVS messages
+   http://bioperl.org/MailList.shtml - About the mailing lists
 
 =head2 Reporting Bugs
 
@@ -131,8 +123,6 @@ The rest of the documentation details each of the object methods. Internal metho
 
 =cut
 
-
-
 package Bio::Tools::SeqStats;
 use vars qw(@ISA);
 use strict;
@@ -141,7 +131,6 @@ use strict;
 
 use Bio::Root::Object;
 use Bio::Seq;
-
 
 my %Alphabets =   (
      'dna'     => [ "A","C","G","T","R","Y","M","K","S","W","H","B","V","D","X",
@@ -160,8 +149,6 @@ my %Alphabets_strict = (
 			     "P","S","T","W","Y","V"],
   );
 
-
-
 # Extended Dna / Rna alphabet
 
 # (includes symbols for nucleotide ambiguity)
@@ -173,7 +160,6 @@ my $dna_A_wt = 347;
 my $dna_C_wt = 323;
 my $dna_G_wt = 363;
 my $dna_T_wt = 322;
-
 
 my $dna_weights = {
   'A'              => [$dna_A_wt,$dna_A_wt],          #  Adenine
@@ -200,8 +186,6 @@ my $rna_C_wt = $dna_C_wt + $oxy_wt;
 my $rna_G_wt = $dna_G_wt + $oxy_wt;
 my $rna_U_wt = 340;
 
-
-
 my $rna_weights =  {
   'A'              => [$rna_A_wt,$rna_A_wt],          #  Adenine
   'C'              => [$rna_C_wt,$rna_C_wt],          #  Cytosine
@@ -224,13 +208,11 @@ my $rna_weights =  {
 #  IUPAC-IUB SYMBOLS FOR NUCLEOTIDE NOMENCLATURE:
 #   Cornish-Bowden (1985) Nucl. Acids Res. 13: 3021-3030.
 
-
 #  Amino Acid alphabet
 
 # ------------------------------------------
 # Symbol           Meaning   
 # ------------------------------------------
-
 
 my $amino_A_wt = 89;
 my $amino_C_wt = 121;
@@ -252,10 +234,6 @@ my $amino_T_wt = 119;
 my $amino_V_wt = 117;
 my $amino_W_wt = 204;
 my $amino_Y_wt = 181;
-
-
-
-
 
 my $amino_weights = {
    'A'     => [$amino_A_wt, $amino_A_wt],            #    Alanine
@@ -290,8 +268,6 @@ my %Weights =   (
      'protein'    => $amino_weights,
      );
 
-
-
 @ISA = qw(Bio::Root::Object);
 # new() is inherited from Bio::Root::Object
 
@@ -323,7 +299,6 @@ in the sequence.
 
   Throws an exception if type of sequence is unknown (ie amino or nucleic)or if
 unknown letter in alphabet. Ambiguous elements are allowed.
-
 
 =cut
 
@@ -365,7 +340,6 @@ sub count_monomers{
 	
     my $seqstring = uc $seqobj->seq();   # convert everything to upper case to be safe
 
-
    #  For each letter, count the number of times it appears in
    #  the sequence
   LETTER:
@@ -384,7 +358,6 @@ sub count_monomers{
     
 }
 
-
 =head2  get_mol_wt
 
  Title   : get_mol_wt
@@ -398,7 +371,6 @@ in array are equal to molecular weight of molecule.
 
   Throws an exception if type of sequence is unknown (ie not amino or nucleic)or if
 unknown letter in alphabet. Ambiguous elements are allowed.
-
 
 =cut
 
@@ -443,7 +415,6 @@ sub get_mol_wt {
 # However, this decrease in performance will be minor and leads to (IMO) significantly
 # more readable code.
 
-
      my	$weight_lower_bound = 0;
      my	$weight_upper_bound = 0;
     my	$weight_table =  $Weights{$moltype};
@@ -462,8 +433,6 @@ sub get_mol_wt {
     return $weight_array ;
 }
 
-
-
 =head2 count_codons
     
  Title   : count_codons
@@ -477,7 +446,6 @@ sub get_mol_wt {
  Args    : None or reference to sequence object
 
   Throws an exception if type of sequence is unknown or protein.
-
 
 =cut
 
@@ -552,9 +520,6 @@ sub count_codons {
     return $rcount;
 }
 
-
-
-
 =head2  _is_alphabet_strict
 
  Title   :   _is_alphabet_strict
@@ -567,7 +532,6 @@ in the current sequence
 
   Throws an exception if type of sequence is unknown (ie amino or nucleic) or if
 unknown letter in alphabet. Ambiguous monomers are allowed.
-
 
 =cut
 

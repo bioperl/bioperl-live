@@ -1,4 +1,3 @@
-
 #
 # BioPerl module for Bio::Annotation
 #
@@ -20,7 +19,6 @@ Bio::Annotation - A generic object for annotations
 
     # description is a simple, one line description 
     print "Description is ",$ann->description "\n";
-
 
     foreach $comment ( $ann->each_Comment ) {
        # $comment is a Bio::Annotation::Comment object
@@ -70,7 +68,6 @@ It does not have the following abilities
        This should be a property of whatever database this
        object comes from
 
-
 =head1 CONTACT
 
 Mail birney@sanger.ac.uk with any queries
@@ -81,9 +78,7 @@ The rest of the documentation details each of the object methods. Internal metho
 
 =cut
 
-
 # Let the code begin...
-
 
 package Bio::Annotation;
 use vars qw(@ISA);
@@ -119,7 +114,6 @@ sub _initialize {
   return $make; # success - we hope!
 }
 
-
 =head2 description
 
  Title   : description
@@ -128,7 +122,6 @@ sub _initialize {
  Example : 
  Returns : value of description
  Args    : newvalue (optional)
-
 
 =cut
 
@@ -150,7 +143,6 @@ sub description{
  Returns : value of gene name
  Args    : newvalue (optional)
 
-
 =cut
 
 sub gene_name{
@@ -162,7 +154,6 @@ sub gene_name{
 
 }
 
-
 =head2 add_Reference
 
  Title   : add_Reference
@@ -171,7 +162,6 @@ sub gene_name{
  Example :
  Returns : 
  Args    :
-
 
 =cut
 
@@ -191,7 +181,6 @@ sub add_Reference{
  Returns : 
  Args    :
 
-
 =cut
 
 sub each_Reference{
@@ -199,8 +188,6 @@ sub each_Reference{
    
    return @{$self->{'refs'}}; 
 }
-
-
 
 =head2 add_Comment
 
@@ -210,7 +197,6 @@ sub each_Reference{
  Example :
  Returns : 
  Args    :
-
 
 =cut
 
@@ -234,7 +220,6 @@ sub add_Comment{
  Returns : 
  Args    :
 
-
 =cut
 
 sub each_Comment{
@@ -242,7 +227,6 @@ sub each_Comment{
    
    return @{$self->{'comment'}}; 
 }
-
 
 =head2 add_DBLink
 
@@ -252,7 +236,6 @@ sub each_Comment{
  Example :
  Returns : 
  Args    :
-
 
 =cut
 
@@ -270,7 +253,6 @@ sub add_DBLink{
  Returns : 
  Args    :
 
-
 =cut
 
 sub each_DBLink{
@@ -279,10 +261,5 @@ sub each_DBLink{
    return @{$self->{'link'}}; 
 }
 
-
 1;
-
-
-
-
 

@@ -48,7 +48,6 @@ to map numbers to roman numerals.
 These functions are generally called by Bio::Root::Object
 or somewhere similar, and not directly
 
-
 =head1 INSTALLATION
 
 This module is included with the central Bioperl distribution:
@@ -156,7 +155,6 @@ $NEWLINE   = $ENV{'NEWLINE'} || undef;
 $GLOBAL = {};
 bless $GLOBAL, 'Bio::Root::Object';
 $GLOBAL->{'_name'} = 'Global object';
-
 
 ######################################
 ##         Methods                  ##

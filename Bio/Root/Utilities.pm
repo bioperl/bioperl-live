@@ -131,9 +131,9 @@ User feedback is an integral part of the evolution of this and other Bioperl mod
 Send your comments and suggestions preferably to one of the Bioperl mailing lists.
 Your participation is much appreciated.
 
-    vsns-bcd-perl@lists.uni-bielefeld.de          - General discussion
-    vsns-bcd-perl-guts@lists.uni-bielefeld.de     - Technically-oriented discussion
-    http://bio.perl.org/MailList.html             - About the mailing lists
+   bioperl-l@bioperl.org             - General discussion
+   bioperl-guts-l@bioperl.org        - Automated bug and CVS messages
+   http://bioperl.org/MailList.shtml - About the mailing lists
 
 =head2 Reporting Bugs
 
@@ -175,7 +175,6 @@ modify it under the same terms as Perl itself.
 ##
 #'
 
-
 =head1 APPENDIX
 
 Methods beginning with a leading underscore are considered private
@@ -185,11 +184,9 @@ for documentation purposes only.
 
 =cut
 
-
 ##########################################################################################
 ##                               INSTANCE METHODS                                       ##
 ##########################################################################################
-
 
 =head2 date_format
 
@@ -320,7 +317,6 @@ sub date_format {
     return $date || join(" ", @date);
 }
 
-
 =head2 month2num
 
  Title      : month2num
@@ -438,7 +434,6 @@ sub compress {
     return $compressed;
 }
 
-
 =head2 uncompress
 
  Title     : uncompress
@@ -512,7 +507,6 @@ sub uncompress {
     return $uncompressed;
 }
 
-
 =head2 file_date
 
  Title    : file_date
@@ -568,7 +562,6 @@ sub file_date {
     $date;
 }
 
-
 =head2 untaint
 
  Title   : untaint
@@ -619,7 +612,6 @@ sub untaint {
     $untainted;
 }
 
-
 =head2 is_tainted
 
  Title  : is_tainted
@@ -644,8 +636,6 @@ sub is_tainted {
 #    };
 }
 
-
-
 =head2 mean_stdev
 
  Title    : mean_stdev
@@ -669,7 +659,6 @@ sub mean_stdev {
     my $stdev = sqrt(abs($sum_diff_sqd/(scalar @data)-1));
     return ($mean, $stdev);
 }
-
 
 =head2 count_files
 
@@ -733,7 +722,6 @@ sub count_files {
     }
 }
 
-
 #=head2 file_info
 #
 # Title   : file_info 
@@ -769,7 +757,6 @@ sub file_info {
     }
 }
 
-
 #------------
 sub delete { 
 #------------
@@ -783,7 +770,6 @@ sub delete {
   my $ulval = unlink($fileName) > 0 or
     $self->throw("Failed to delete file $fileName: $!"); 
 }
-
 
 =head2 create_filehandle
 
@@ -918,7 +904,6 @@ sub get_newline {
     return $NEWLINE || $DEFAULT_NEWLINE;
   }
 
-
 =head2 taste_file
 
  Usage     : $object->taste_file( <FileHandle> );
@@ -1029,7 +1014,6 @@ sub mail_authority {
 
 }
 
-
 =head2 send_mail
 
  Title    : send_mail
@@ -1055,7 +1039,6 @@ sub mail_authority {
 See Also  : L<mail_authority>()
 
 =cut
-
 
 #-------------'
 sub send_mail {
@@ -1084,11 +1067,9 @@ QQ_EOF_QQ
     if ($?) { warn "sendmail didn't exit nicely: $?" }
 }
 
-
 ######################################
 ###   Interactive Functions      #####
 ######################################
-
 
 =head2 yes_reply
 
@@ -1115,8 +1096,6 @@ sub yes_reply {
     chomp( $reply = <STDIN> );
     $reply =~ /^y/i;
 }
-
-
 
 =head2 request_data
 
@@ -1152,7 +1131,6 @@ sub quit_reply {
     $reply =~ /^q.*/i;
 }
 
-
 =head2 verify_version
 
  Purpose : Checks the version of Perl used to invoke the script.
@@ -1173,7 +1151,6 @@ sub verify_version {
 	exit(1);
     }
 }
-
 
 1;
 __END__
@@ -1206,6 +1183,4 @@ MODIFICATION NOTES:
       if the first attempt to compress/uncompress fails.
       This allows users to access compressed files in directories in which they
       lack write permission.
-
-
 

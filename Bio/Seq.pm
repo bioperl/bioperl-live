@@ -1,4 +1,3 @@
-
 #
 # BioPerl module for Bio::Seq
 #
@@ -64,9 +63,9 @@ and other Bioperl modules. Send your comments and suggestions preferably
  to one of the Bioperl mailing lists.
 Your participation is much appreciated.
 
-  vsns-bcd-perl@lists.uni-bielefeld.de          - General discussion
-  vsns-bcd-perl-guts@lists.uni-bielefeld.de     - Technically-oriented discussion
-  http://bio.perl.org/MailList.html             - About the mailing lists
+   bioperl-l@bioperl.org             - General discussion
+   bioperl-guts-l@bioperl.org        - Automated bug and CVS messages
+   http://bioperl.org/MailList.shtml - About the mailing lists
 
 =head2 Reporting Bugs
 
@@ -89,9 +88,7 @@ The rest of the documentation details each of the object methods. Internal metho
 
 =cut
 
-
 # Let the code begin...
-
 
 package Bio::Seq;
 use vars qw(@ISA $VERSION);
@@ -115,7 +112,6 @@ sub _initialize {
   my($self,@args) = @_;
   my($ann);
   my $make = $self->SUPER::_initialize(@args);
-
 
   # this is way too sneaky probably. We delegate the construction of
   # the Seq object onto PrimarySeq and then pop primary_seq into
@@ -158,7 +154,6 @@ of course, you are free to use these functions anyway.
            case (some users... want mixed case!)
  Returns : A scalar
 
-
 =cut
 
 sub seq {
@@ -168,7 +163,6 @@ sub seq {
    }
    return $self->primary_seq->seq();
 }
-
 
 =head2 length
 
@@ -186,7 +180,6 @@ sub length {
    return $self->primary_seq->length();
 }
 
-
 =head2 subseq
 
  Title   : subseq
@@ -199,7 +192,6 @@ sub length {
 
  Returns : a string
  Args    :
-
 
 =cut
 
@@ -230,7 +222,6 @@ sub subseq {
  Returns : A string
  Args    : None
 
-
 =cut
 
 sub display_id {
@@ -240,8 +231,6 @@ sub display_id {
    }
    return $self->primary_seq->display_id();
 }
-
-
 
 =head2 accession_number
 
@@ -259,7 +248,6 @@ sub display_id {
  Returns : A string
  Args    : None
 
-
 =cut
 
 sub accession_number {
@@ -270,7 +258,6 @@ sub accession_number {
    return $self->primary_seq->accession_number();
 }
 
-
 =head2 desc
 
  Title   : desc
@@ -279,7 +266,6 @@ sub accession_number {
  Example :
  Returns : 
  Args    :
-
 
 =cut
 
@@ -291,9 +277,6 @@ sub desc {
    }
    return $self->primary_seq->desc();
 }
-
-
-
 
 =head2 primary_id
 
@@ -311,7 +294,6 @@ sub desc {
            internal PrimarySeq object
  Returns : A string
  Args    : None
-
 
 =cut
 
@@ -350,7 +332,6 @@ sub primary_id {
  Returns : 1 or 0
  Args    :
 
-
 =cut
 
 sub can_call_new {
@@ -373,7 +354,6 @@ sub can_call_new {
            make a call of the type - if there is no type specified it
            has to guess.
  Args    : none
-
 
 =cut
 
@@ -417,7 +397,6 @@ dealing with this is welcome to give it a go.
  Returns : A new (fresh) Bio::Seq object
  Args    : none
 
-
 =cut
 
 =head2 trunc
@@ -430,7 +409,6 @@ dealing with this is welcome to give it a go.
  Returns : a fresh Bio::Seq object
  Args    :
 
-
 =cut
 
 =head2 id
@@ -441,7 +419,6 @@ dealing with this is welcome to give it a go.
  Example :
  Returns : 
  Args    :
-
 
 =cut
 
@@ -459,7 +436,6 @@ sub  id {
  Example :
  Returns : 
  Args    :
-
 
 =cut
 
@@ -480,7 +456,6 @@ the old system.
  Returns : 
  Args    :
 
-
 =cut
 
 =head2 ary
@@ -491,7 +466,6 @@ the old system.
  Example :
  Returns : 
  Args    :
-
 
 =cut
 
@@ -504,7 +478,6 @@ the old system.
  Returns : 
  Args    :
 
-
 =cut
 
 =head2 type
@@ -515,7 +488,6 @@ the old system.
  Example :
  Returns :
  Args    :
-
 
 =cut
 
@@ -532,7 +504,6 @@ found on the Bio::PrimarySeq object
  Example : 
  Returns : value of primary_seq
  Args    : newvalue (optional)
-
 
 =cut
 
@@ -570,7 +541,6 @@ sub primary_seq {
  Returns : value of annotation
  Args    : newvalue (optional)
 
-
 =cut
 
 sub annotation {
@@ -591,13 +561,11 @@ sub annotation {
  Returns : 
  Args    :
 
-
 =cut
 
 sub add_SeqFeature {
    my ($self,@feat) = @_;
    my ($fseq,$aseq);
-
 
    foreach my $feat ( @feat ) {
        if( !$feat->isa("Bio::SeqFeatureI") ) {
@@ -635,7 +603,6 @@ sub add_SeqFeature {
  Returns : 
  Args    :
 
-
 =cut
 
 sub top_SeqFeatures {
@@ -654,7 +621,6 @@ sub top_SeqFeatures {
  Returns : 
  Args    :
 
-
 =cut
 
 sub all_SeqFeatures {
@@ -667,7 +633,6 @@ sub all_SeqFeatures {
 
    return @array;
 }
-
 
 sub _retrieve_subSeqFeature {
     my ($arrayref,$feat) = @_;
@@ -688,7 +653,6 @@ sub _retrieve_subSeqFeature {
  Returns : 
  Args    :
 
-
 =cut
 
 sub fetch_SeqFeatures {
@@ -696,7 +660,6 @@ sub fetch_SeqFeatures {
 
    $self->throw("Not implemented yet");
 }
-
 
 =head2 species
 
@@ -706,7 +669,6 @@ sub fetch_SeqFeatures {
  Example : $species = $self->species();
  Returns : Bio::Species object
  Args    : Bio::Species object or none;
-
 
 =cut
 
@@ -741,7 +703,6 @@ all the information that is required.
  Returns : value of division
  Args    : newvalue (optional)
 
-
 =cut
 
 sub division {
@@ -761,7 +722,6 @@ sub division {
  Function: 
  Returns : type of molecule (DNA, mRNA)
  Args    : newvalue (optional)
-
 
 =cut
 
@@ -784,7 +744,6 @@ sub molecule {
  Returns : 
  Args    :
 
-
 =cut
 
 sub add_date {
@@ -802,7 +761,6 @@ sub add_date {
  Example :
  Returns : 
  Args    :
-
 
 =cut
 
@@ -822,7 +780,6 @@ sub each_date {
  Returns : value of accession
  Args    : newvalue (optional)
 
-
 =cut
 
 sub accession {
@@ -839,7 +796,6 @@ sub accession {
  Example :
  Returns : 
  Args    :
-
 
 =cut
 
@@ -859,7 +815,6 @@ sub add_secondary_accession {
  Returns : 
  Args    :
 
-
 =cut
 
 sub each_secondary_accession {
@@ -874,7 +829,6 @@ sub each_secondary_accession {
  Function: 
  Returns : value of sv
  Args    : newvalue (optional)
-
 
 =cut
 
@@ -896,7 +850,6 @@ sub sv {
  Returns : value of keywords
  Args    : newvalue (optional)
 
-
 =cut
 
 sub keywords {
@@ -908,12 +861,4 @@ sub keywords {
     return $obj->{'keywords'};
 
 }
-
-
-
-
-
-
-
-
 

@@ -1,6 +1,3 @@
-
-
-
 # PACKAGE    : SeqWords.pm
 # PURPOSE    : To count n-mers in any sequence of characters
 # AUTHOR     : Derek Gatherer (D.Gatherer@organon.nhe.akzonobel.nl)
@@ -16,7 +13,6 @@
 # LICENCE    : You may distribute this module under the same terms 
 #	     : as the rest of BioPerl.
 #---------------------------------------------------------------------------
-
 
 =head1 NAME
 
@@ -75,7 +71,6 @@ there are quite a few of these shortened alphabets, this module does
 not specify any particular alphabet.
 
 See Synopsis above for object creation code.
-
 
 =head1 DEVELOPERS' NOTES
 

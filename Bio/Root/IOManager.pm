@@ -47,7 +47,6 @@ which delegates various I/O tasks to this module.
     $myIO = new Bio::Root::IOManager(-WHERE   =>'/usr/tmp/data.out', 
    				     -PARENT =>$self);
 
-
 =head1 INSTALLATION
 
 This module is included with the central Bioperl distribution:
@@ -56,7 +55,6 @@ This module is included with the central Bioperl distribution:
    ftp://bio.perl.org/pub/DIST
 
 Follow the installation instructions included in the README file.
-
 
 =head1 DESCRIPTION
 
@@ -89,7 +87,6 @@ The additional functionality is not often utilized in typical
 applications. Is the extra complexity worth it?
 
 B<The API for this module is under development.>
-
 
 =head2 Generic Data Access & Manipulation
 
@@ -137,9 +134,9 @@ User feedback is an integral part of the evolution of this and other Bioperl mod
 Send your comments and suggestions preferably to one of the Bioperl mailing lists.
 Your participation is much appreciated.
 
-    vsns-bcd-perl@lists.uni-bielefeld.de          - General discussion
-    vsns-bcd-perl-guts@lists.uni-bielefeld.de     - Technically-oriented discussion
-    http://bio.perl.org/MailList.html             - About the mailing lists
+   bioperl-l@bioperl.org             - General discussion
+   bioperl-guts-l@bioperl.org        - Automated bug and CVS messages
+   http://bioperl.org/MailList.shtml - About the mailing lists
 
 =head2 Reporting Bugs
 
@@ -181,7 +178,6 @@ modify it under the same terms as Perl itself.
 ##
 #'
 
-
 =head1 APPENDIX
 
 Methods beginning with a leading underscore are considered private
@@ -191,17 +187,13 @@ for documentation purposes only.
 
 =cut
 
-
-
 #####################################################################################
 ##                                 CONSTRUCTOR                                     ##
 #####################################################################################
 
-
 ## Using default constructor and destructor inherited from Bio::Root::Object.pm
 
 ## Could perhaps set the file data member.
-
 
 #####################################################################################
 ##                                 ACCESSORS                                       ##
@@ -236,8 +228,6 @@ sub file {
     }
     $self->{'_file'};
 }
-
-
 
 =head2 set_fh
 
@@ -318,8 +308,6 @@ sub set_fh {
     }
 }
 
-
-
 =head2 _open_fh
 
  Purpose   : Creates a new FileHandle object and returns it. 
@@ -358,8 +346,6 @@ sub _open_fh {
     return $filehandle;
 }
 
-
-
 =head2 _close_fh
 
  Purpose   : Destroy a FileHandle object.
@@ -383,7 +369,6 @@ sub _close_fh {
 	undef $self->{'_fh'}; 
     }
 }	       
-
 
 =head2 set_display
 
@@ -452,8 +437,6 @@ sub set_display {
     return $self->{'_fh'};
 }
 
-
-
 =head2 set_read
 
  Purpose   : Sets a new FileHandle object for input.
@@ -499,8 +482,6 @@ sub set_read {
     return $self->{'_fh'};
 }
 
-
-
 =head2 set_display_err
 
  Purpose   : Sets a new FileHandle object for outputing error information.
@@ -539,11 +520,9 @@ sub set_display_err {
     return $self->{'_fherr'};
 }
 
-
 #####################################
 #    GET ACCESSORS
 #####################################
-
 
 =head2 show
 
@@ -560,8 +539,6 @@ See also   : L<set_display>()
 #----------
 sub show { my $self= shift; $self->{'_show'}; }
 #----------
-
-
 
 =head2 fh
 
@@ -605,16 +582,13 @@ sub fh {
     }
 }
 
-
 #####################################################################################
 ##                             INSTANCE METHODS                                    ##
 #####################################################################################
 
-
 ##
 ##  INPUT METHODS:
 ##
-
 
 =head2 read
 
@@ -779,11 +753,9 @@ sub read {
     undef;
 }
 
-
 ##
 ##  OUTPUT METHODS:
 ##
-
 
 =head2 display
 
@@ -822,8 +794,6 @@ sub display {
     1;
 }
 
-
-
 =head2 _print_stats_header
 
  Usage     : n/a; internal method.
@@ -844,14 +814,9 @@ sub _print_stats_header {
     printf $OUT "%s\n", '-'x60;
 }
 
-
-
-
 ##
 ##  FILE MANIPULATION METHODS:
 ##
-
-
 
 =head2 file_date
 
@@ -886,8 +851,6 @@ sub file_date {
     $fmt ||= '';
     $Util->file_date($file, $fmt);  
 }
-
-
 
 =head2 compress_file
 
@@ -955,8 +918,6 @@ sub compress_file {
     $newfile;
 }
 
-
-
 =head2 uncompress_file
 
  Usage     : $object->uncompress_file([filename]);
@@ -1010,7 +971,6 @@ sub uncompress_file {
     $newfile;
 }
 
-
 =head2 delete_file
 
  Usage     : $object->delete_file([filename]);
@@ -1059,8 +1019,6 @@ sub delete_file {
     }
     $file;
 }
-
-
 
 1;
 __END__
@@ -1112,7 +1070,6 @@ all or some of the following fields:
  
 =cut
 
-
 MODIFICATION NOTES:
 -------------------
 
@@ -1146,5 +1103,4 @@ MODIFICATION NOTES:
 
 0.031, 2 Sep 1998, sac:
    * Doc changes only
-
 

@@ -1,4 +1,3 @@
-
 #
 # BioPerl module for Bio::Annotation::Reference
 #
@@ -52,9 +51,7 @@ The rest of the documentation details each of the object methods. Internal metho
 
 =cut
 
-
 # Let the code begin...
-
 
 package Bio::Annotation::Reference;
 use vars qw(@ISA);
@@ -63,7 +60,6 @@ use strict;
 # Object preamble - inheriets from Bio::Root::Object
 
 use Bio::Annotation::DBLink;
-
 
 @ISA = qw(Bio::Annotation::DBLink);
 # new() is inherited from Bio::Root::Object
@@ -88,7 +84,6 @@ sub _initialize {
  Returns : value of authors
  Args    : newvalue (optional)
 
-
 =cut
 
 sub authors{
@@ -108,7 +103,6 @@ sub authors{
  Example : 
  Returns : value of location
  Args    : newvalue (optional)
-
 
 =cut
 
@@ -130,7 +124,6 @@ sub location{
  Returns : value of title
  Args    : newvalue (optional)
 
-
 =cut
 
 sub title{
@@ -150,7 +143,6 @@ sub title{
  Example : 
  Returns : value of medline
  Args    : newvalue (optional)
-
 
 =cut
 
@@ -172,7 +164,6 @@ sub medline{
  Returns : value of comment
  Args    : newvalue (optional)
 
-
 =cut
 
 sub comment{
@@ -193,7 +184,6 @@ sub comment{
  Returns : 
  Args    :
 
-
 =cut
 
 sub database{
@@ -211,7 +201,6 @@ sub database{
  Returns : 
  Args    :
 
-
 =cut
 
 sub primary_id{
@@ -219,7 +208,6 @@ sub primary_id{
 
    return $self->medline();
 }
-
 
 =head2 start
 
@@ -229,7 +217,6 @@ sub primary_id{
  Example : 
  Returns : value of start
  Args    : newvalue (optional)
-
 
 =cut
 
@@ -249,7 +236,6 @@ sub start{
  Example : 
  Returns : value of end
  Args    : newvalue (optional)
-
 
 =cut
 
@@ -272,7 +258,6 @@ sub end{
  Returns : value of rp
  Args    : newvalue (optional)
 
-
 =cut
 
 sub rp{
@@ -284,15 +269,5 @@ sub rp{
 
 }
 
-
 1;
-
-
-
-
-
-
-
-
-
 

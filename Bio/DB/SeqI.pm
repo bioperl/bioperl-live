@@ -1,4 +1,3 @@
-
 #
 # BioPerl module for Bio::DB::SeqI.pm
 #
@@ -27,7 +26,6 @@ Bio::DB::SeqI - Abstract Interface for Sequence databases
       # $seq is a PrimarySeqI compliant object
    }
 
-
 =head1 DESCRIPTION
 
 Abstract interface for a sequence database
@@ -41,9 +39,9 @@ and other Bioperl modules. Send your comments and suggestions preferably
  to one of the Bioperl mailing lists.
 Your participation is much appreciated.
 
-  vsns-bcd-perl@lists.uni-bielefeld.de          - General discussion
-  vsns-bcd-perl-guts@lists.uni-bielefeld.de     - Technically-oriented discussion
-  http://bio.perl.org/MailList.html             - About the mailing lists
+   bioperl-l@bioperl.org             - General discussion
+   bioperl-guts-l@bioperl.org        - Automated bug and CVS messages
+   http://bioperl.org/MailList.shtml - About the mailing lists
 
 =head2 Reporting Bugs
 
@@ -66,9 +64,7 @@ The rest of the documentation details each of the object methods. Internal metho
 
 =cut
 
-
 # Let the code begin...
-
 
 package Bio::DB::SeqI;
 use vars qw(@ISA);
@@ -90,7 +86,6 @@ use Bio::DB::RandomAccessI;
  Args    : the id (as a string) of a sequence
  Throws  : "id does not exist" exception
 
-
 =cut
 
 =head2 get_Seq_by_acc
@@ -101,7 +96,6 @@ use Bio::DB::RandomAccessI;
  Returns : A Bio::Seq object
  Args    : accession number (as a string)
  Throws  : "acc does not exist" exception
-
 
 =cut
 
@@ -115,7 +109,6 @@ use Bio::DB::RandomAccessI;
            which provides a single method, next_primary_seq
  Returns : Bio::DB::SeqStreamI
  Args    : none
-
 
 =cut
 
@@ -139,14 +132,12 @@ sub get_PrimarySeq_stream{
  Returns : an array of strings
  Args    : none
 
-
 =cut
 
 sub get_all_primary_ids{
    my ($self,@args) = @_;
    $self->throw("Object did not provide a get_all_ids method");
 }
-
 
 =head2 get_Seq_by_primary_id
 
@@ -164,7 +155,6 @@ sub get_all_primary_ids{
  Args    : accession number (as a string)
  Throws  : "acc does not exist" exception
 
-
 =cut
 
 sub get_Seq_by_primary_id {
@@ -175,6 +165,4 @@ sub get_Seq_by_primary_id {
 }
 
 1;
-
-
 

@@ -1,4 +1,3 @@
-
 #
 # bioperl module for Bio::Tools::CodonTable
 #
@@ -57,7 +56,6 @@ since that is what they try to represent. A bit more complete picture
 of the full complexity of codon usage in various taxonomic groups
 presented at the NCBI Genetic Codes Home page.
 
-
 CodonTable is a BioPerl class that knows all current translation
 tables that are used by primary nucleotide sequence databases
 (GenBank, EMBL and DDBJ). It provides methods to output information
@@ -75,7 +73,6 @@ translating. It default for output is DNA.
 Note: This class deals with individual codons and amino acids, only.
       Call it from your own objects to translate and reverse translate
       longer sequences.
-
 
 The amino acid codes are IUPAC recommendations for common amino acids:
 
@@ -103,8 +100,6 @@ The amino acid codes are IUPAC recommendations for common amino acids:
           Z           Glx            Glutamine or Glutamic acid
           X           Xaa            Any or unknown amino acid 
 
-
-
 NCBI Genetic Codes home page:
      http://www.ncbi.nlm.nih.gov/htbin-post/Taxonomy/wprintgc?mode=c
 
@@ -125,9 +120,9 @@ User feedback is an integral part of the evolution of this and other
 Bioperl modules. Send your comments and suggestions preferably to one
 of the Bioperl mailing lists.  Your participation is much appreciated.
 
-  vsns-bcd-perl@lists.uni-bielefeld.de          - General discussion
-  vsns-bcd-perl-guts@lists.uni-bielefeld.de     - Technically-oriented discussion
-  http://bio.perl.org/MailList.html             - About the mailing lists
+   bioperl-l@bioperl.org             - General discussion
+   bioperl-guts-l@bioperl.org        - Automated bug and CVS messages
+   http://bioperl.org/MailList.shtml - About the mailing lists
 
 =head2 Reporting Bugs
 
@@ -154,9 +149,7 @@ methods. Internal methods are usually preceded with a _
 
 =cut
 
-
 # Let the code begin...
-
 
 package Bio::Tools::CodonTable;
 use vars qw(@ISA);
@@ -172,10 +165,8 @@ use Bio::Root::Object;
 
 # _initialize is where the heavy stuff will happen when new is called
 
-
 {
 # first set internal values for all translation tables
-
 
 my @names =  #id
     (
@@ -219,7 +210,6 @@ my @tables =
        FFLLSSSSYY**CCWWLLLLPPPPHHQQRRRRIIMMTTTTNNNKSSSSVVVVAAAADDEEGGGG   
        );
 
-
 my @starts = 
     qw(
        ---M---------------M---------------M----------------------------
@@ -240,7 +230,6 @@ my @starts =
        '' ''  '' ''
        -----------------------------------M---------------M------------  
        );
-
 
 my @nucs = qw(t c a g);
 my ($x) = 0;
@@ -325,7 +314,6 @@ sub _initialize {
     return $make; # success - we hope!
 }
 
-
 =head2 id
 
  Title   : id
@@ -336,7 +324,6 @@ sub _initialize {
            integers from 1 to 15, excluding 7 and 8 which have been
            removed as redundant. If an invalid ID is given the method
            returns 0, false.
-
 
  Example : 
  Returns : value of id, a scalar, 0 if not a valid 
@@ -365,7 +352,6 @@ sub id{
  Returns : A string
  Args    : None
 
-
 =cut
 
 sub name{
@@ -375,7 +361,6 @@ sub name{
    return $names[$id-1];
 
 }
-
 
 =head2 translate
 
@@ -402,7 +387,6 @@ sub name{
  Example : 
  Returns : One letter ambiguous IUPAC amino acid code
  Args    : a codon = a three character, ambiguous IUPAC nucleotide  string
-
 
 =cut
 
@@ -452,7 +436,6 @@ sub translate{
    }
 }
 
-
 =head2 translate_strict
 
  Title   : translate
@@ -470,7 +453,6 @@ sub translate{
  Example : 
  Returns : A string
  Args    : a codon = a three nucleotide character string
-
 
 =cut
 
@@ -557,7 +539,6 @@ sub revtranslate {
  Returns : boolean
  Args    : codon
 
-
 =cut
 
 sub is_start_codon{
@@ -580,8 +561,6 @@ sub is_start_codon{
    }
 }
 
-
-
 =head2 is_ter_codon
 
  Title   : is_ter_codon
@@ -591,7 +570,6 @@ sub is_start_codon{
  Example : $myCodonTable->is_ter_codon('ATG')
  Returns : boolean
  Args    : codon
-
 
 =cut
 
@@ -624,7 +602,6 @@ sub is_ter_codon{
  Example : $myCodonTable->is_unknown_codon('NTG')
  Returns : boolean
  Args    : codon
-
 
 =cut
 
@@ -673,7 +650,6 @@ sub _unambiquous_codons{
     }
     return @codons;
 }
-
 
 }
 

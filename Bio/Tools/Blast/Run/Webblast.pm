@@ -225,7 +225,6 @@ my $_out_dir                = '';    # where to save the Blast output files.
 my $_blastObj               = undef;
 my $_errmsg                 = '';
 
-
 # SAC: defunct options and variables:
 #my $notAsk             =  $_default{'notAsk'};
 #my $sequenceFormat     = $_default{'sequenceFormat'};
@@ -235,8 +234,6 @@ my $_errmsg                 = '';
 #my @username   = split(//, $username);  # convert the first case into upper
 #$username[0] =~ tr/a-z/A-Z/;
 #$username    = join("", @username);
-
-
 
 ## POD Documentation
 
@@ -263,7 +260,6 @@ subclass. See L<blast_remote>() for a description of available parameters.
 
     @amino_dbs      = @Blast_dbp_remote;
     @nucleotide_dbs = @Blast_dbn_remote;
-
 
 =head1 INSTALLATION
 
@@ -300,7 +296,6 @@ In principle, this module can be customized to use different servers
 that provide a Blast interface like the NCBI or WashU style servers. 
 Such servers could be remote or local. This hasn't been well-tested however. 
 
-
 =head1 DEPENDENCIES
 
 Bio::Tools::Blast::Run::Webblast.pm is used by B<Bio::Tools::Blast.pm>.
@@ -314,7 +309,6 @@ The development of this is thus linked with the Blast.pm module.
  Bio::Seq.pm                             - Biosequence object  
  Bio::Root::Object.pm                    - Bioperl base object class.
 
-
  http://bio.perl.org/Projects/modules.html  - Online module documentation
  http://bio.perl.org/Projects/Blast/        - Bioperl Blast Project     
  http://bio.perl.org/                       - Bioperl Project Homepage
@@ -327,9 +321,9 @@ User feedback is an integral part of the evolution of this and other Bioperl mod
 Send your comments and suggestions preferably to one of the Bioperl mailing lists.
 Your participation is much appreciated.
 
-    vsns-bcd-perl@lists.uni-bielefeld.de          - General discussion
-    vsns-bcd-perl-guts@lists.uni-bielefeld.de     - Technically-oriented discussion
-    http://bio.perl.org/MailList.html             - About the mailing lists
+   bioperl-l@bioperl.org             - General discussion
+   bioperl-guts-l@bioperl.org        - Automated bug and CVS messages
+   http://bioperl.org/MailList.shtml - About the mailing lists
 
 =head2 Reporting Bugs
 
@@ -385,7 +379,6 @@ Methods beginning with a leading underscore are considered private
 and are intended for internal use by this module. They are
 B<not> considered part of the public interface and are described here
 for documentation purposes only.
-
 
 =head2 blast_remote
 
@@ -528,7 +521,6 @@ for documentation purposes only.
   -------------------------------------------------------------
   Available sequence complexity filters:
        SEG, SEG+XNU, XNU, dust, none.
-
 
 See Also : _set_options(), _adjust_options(), _validate_options(), _blast(), B<Bio::Tools::Blast.pm>
 
@@ -682,7 +674,6 @@ sub _set_options {
     }
 }
 
-
 #--------------------
 sub _adjust_options {
 #--------------------
@@ -749,7 +740,6 @@ sub _adjust_options {
 
     $blastServerURL = 'http://' . $blastServerURL unless $blastServerURL =~ /^http:/i;
 }
-
 
 #----------------------
 sub _validate_options {
@@ -1185,7 +1175,6 @@ sub _blast {
 	#    $MONITOR && print STDERR "All done!\a\n\n";
     }
 
-
 #------------------
 sub _get_request {
 #------------------
@@ -1217,7 +1206,6 @@ sub _get_request {
 
     return POST $blastServerURL, [ %param ];
 }
-
 
 #------------------
 sub _validate_seq {
@@ -1261,8 +1249,6 @@ sub _validate_seq {
     }
     1;
 }
-
-
 
 #--------------------------
 sub _removeJunkTagAndText {
@@ -1384,8 +1370,6 @@ sub _removeJunkTagAndText {
    return 1;
 }
 
-
-
 #--------------------------------------------
 sub _removeJunkTagAndTextForEmailResponse {
 #--------------------------------------------
@@ -1415,7 +1399,6 @@ sub _removeJunkTagAndTextForEmailResponse {
 
    return 1;
 }
-
 
 #----------------------
 sub _removeHTMLtags {
@@ -1513,9 +1496,7 @@ should dicontinue use of ungapped blast), Blast2 (NCBI), PSI-Blast2
 These lists of parameters for posting to blast servers were
 obtained directly from the respective WWW forms for each server.
 
-
 =head2 Basic ungapped BLAST Search Server Parameters
-
 
 PROGRAM 
 [default value]:blastn
@@ -1581,7 +1562,6 @@ HTML
 [default value]:''
 HTML
 
-
 =head2 Basic Blast 2
 
 PROGRAM
@@ -1621,7 +1601,6 @@ HTML
 [default value]:''
 IS_SET
 
-
 =head2 BLAST2 ADVANCED
 
 PROGRAM
@@ -1657,16 +1636,13 @@ FILTER
 [default value]:default
 none
 
-
 NCBI_GI
 [default value]:''
 is_set
 
-
 OVERVIEW
 [default value]:is_set
 ''
-
 
 DESCRIPTIONS
 [default value]:500
@@ -1748,10 +1724,7 @@ HTML
 [default value]:''
 IS_SET
 
-
-
 =head2 PSI BLAST2
-
 
 PROGRAM
 [default value]:blastp
@@ -2010,9 +1983,7 @@ default
 
 sequence
 
-
 =cut
-
 
 1;
 __END__

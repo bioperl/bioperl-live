@@ -1,5 +1,3 @@
-
-
 #
 # BioPerl module for Bio::SearchDist
 #
@@ -31,7 +29,6 @@ Bio::SearchDist - A perl wrapper around Sean Eddy's histogram object
     warn("Could not fit histogram to an EVD!");
   }
 
-
 =head1 DESCRIPTION
 
 The Bio::SearchDist object is a wrapper around Sean Eddy's excellent
@@ -51,13 +48,11 @@ positives are discarded in the fitting procedure. This comes from
 an orginally idea of Richard Mott's and the likelhood fitting
 is from a book by Lawless [should ref here].
 
-
 The object relies on the fact that the scores are sensibly distributed
 around about 0 and that integer bins are sensible for the
 histogram. Scores based on bits are often ideal for this (bits based
 scoring mechanisms is what this histogram object was originally
 designed for).
-
 
 =head1 CONTACT
 
@@ -68,7 +63,6 @@ Its use in Bioperl is via the Compiled XS extension which is cared for
 by Ewan Birney (birney@sanger.ac.uk). Please contact Ewan first about
 the use of this module
 
-
 =head2 Reporting Bugs
 
 Report bugs to the Bioperl bug tracking system to help us keep track
@@ -78,7 +72,6 @@ or the web:
     bioperl-bugs@bio.perl.org                   
     http://bio.perl.org/bioperl-bugs/           
 
-
 =head1 APPENDIX
 
 The rest of the documentation details each of the object
@@ -86,9 +79,7 @@ methods. Internal methods are usually preceded with a _
 
 =cut
 
-
 # Let the code begin...
-
 
 package Bio::SearchDist;
 use vars qw(@ISA);
@@ -107,7 +98,6 @@ BEGIN {
 	exit(1);
     }
 }
-
 
 @ISA = qw(Bio::Root::Object);
 # new() is inherited from Bio::Root::Object
@@ -146,7 +136,6 @@ sub _initialize {
  Returns : nothing
  Args    : 
 
-
 =cut
 
 sub add_score{
@@ -165,7 +154,6 @@ sub add_score{
  Returns : 1 if it fits successfully, 0 if not
  Args    :
 
-
 =cut
 
 sub fit_evd{
@@ -183,7 +171,6 @@ sub fit_evd{
  Returns : float 
  Args    :
 
-
 =cut
 
 sub evalue{
@@ -193,8 +180,6 @@ sub evalue{
 
 }
 
-
-
 =head2 _engine
 
  Title   : _engine
@@ -202,7 +187,6 @@ sub evalue{
  Function: underlyine bp_sw:: histogram engine
  Returns : value of _engine
  Args    : newvalue (optional)
-
 
 =cut
 
@@ -214,7 +198,6 @@ sub _engine{
     return $obj->{'_engine'};
 
 }
-
 
 ## End of Package
 

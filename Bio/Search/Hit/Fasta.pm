@@ -1,4 +1,3 @@
-
 #
 # BioPerl module for Bio::Search::Hit::Fasta
 #
@@ -19,7 +18,6 @@ Bio::Search::Hit::Fasta - Hit object specific for Fasta-generated hits
     These objects are generated automatically by Bio::Search::Processor::Fasta,
 and shouldn't be used directly.
 
-
 =head1 DESCRIPTION
 
     Bio::Search::Hit::* objects are data structures that contain information
@@ -36,9 +34,9 @@ and other Bioperl modules. Send your comments and suggestions preferably
  to one of the Bioperl mailing lists.
 Your participation is much appreciated.
 
-  vsns-bcd-perl@lists.uni-bielefeld.de          - General discussion
-  vsns-bcd-perl-guts@lists.uni-bielefeld.de     - Technically-oriented discussion
-  http://bio.perl.org/MailList.html             - About the mailing lists
+   bioperl-l@bioperl.org             - General discussion
+   bioperl-guts-l@bioperl.org        - Automated bug and CVS messages
+   http://bioperl.org/MailList.shtml - About the mailing lists
 
 =head2 Reporting Bugs
 
@@ -58,7 +56,6 @@ Email amackey@virginia.edu
 The rest of the documentation details each of the object methods. Internal methods are usually preceded with a _
 
 =cut
-
 
 # Let the code begin...
 

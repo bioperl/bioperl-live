@@ -51,9 +51,7 @@ methods. Internal methods are usually preceded with a _
 
 =cut
 
-
 # Let the code begin...
-
 
 package Bio::Root::RootI;
 use vars qw(@ISA);
@@ -115,7 +113,6 @@ sub throw {
     } else {
 	$verbosity = 0;
     }
-
 
     if($verbosity < 0) {
 	# Low verbosity: no stack trace.
@@ -191,7 +188,6 @@ sub warn {
     0;
 }
 
-
 =head2 _set_warning
 
  Purpose   : To record data regarding recoverable error conditions.
@@ -217,8 +213,6 @@ sub _set_warning {
     $err->last->set('type','WARNING');
     $self->_set_err_state($err);
 }
-
-
 
 =head2 _set_err
 
@@ -377,8 +371,6 @@ sub _set_err {
     return $err;
 }
 
-
-
 =head2 _set_err_state
 
  Usage     : n/a; called automatically by _set_err()
@@ -424,8 +416,6 @@ sub _set_err_state {
 #    $self->{'_err'}->last;
     return $err;
 }
-
-
 
 =head2 stack_trace
 
@@ -490,8 +480,6 @@ sub stack_trace {
 
     wantarray ? @data : \@data;
 }
-
-
 
 =head2 _rearrange
 
@@ -610,8 +598,4 @@ sub _rearrange {
 }
 
 1;
-
-
-
-
 

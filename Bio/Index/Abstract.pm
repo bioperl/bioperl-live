@@ -1,4 +1,3 @@
-
 #
 # BioPerl module for Bio::Index::Abstract
 #
@@ -43,9 +42,9 @@ User feedback is an integral part of the evolution of this and other
 Bioperl modules. Send your comments and suggestions preferably to one
 of the Bioperl mailing lists.  Your participation is much appreciated.
 
-  vsns-bcd-perl@lists.uni-bielefeld.de          - General discussion
-  vsns-bcd-perl-guts@lists.uni-bielefeld.de     - Technically-oriented discussion
-  http://bio.perl.org/MailList.html             - About the mailing lists
+  bioperl-l@bioperl.org             - General discussion
+  bioperl-guts-l@bioperl.org        - Automated bug and CVS messages
+  http://bioperl.org/MailList.shtml - About the mailing lists
 
 =head2 Reporting Bugs
 
@@ -66,7 +65,6 @@ The rest of the documentation details each of the object methods. Internal
 methods are usually preceded with an "_" (underscore).
 
 =cut
-
 
 # Let the code begin...
 
@@ -126,8 +124,6 @@ sub _initialize {
     # Open database
     $self->open_dbm() if $filename;
 }
-
-
 
 =pod
 
@@ -200,7 +196,6 @@ sub dbm_package {
     return $self->{'_dbm_package'};
 }
 
-
 # Generate accessor methods for simple object fields
 BEGIN {
     foreach my $func (qw(filename write_flag)) {
@@ -236,7 +231,6 @@ BEGIN {
 sub db {
     return $_[0]->{'_DB'};
 }
-
 
 =head2 get_stream
 
@@ -295,8 +289,6 @@ sub get_stream {
        $self->throw("Unable to find a record for $id in the flat file index");
    }
 }
-
-
 
 =head2 open_dbm
 
@@ -391,7 +383,6 @@ sub _version {
  Returns : Code package to be used with this 
  Args    :
 
-
 =cut
 
 sub _code_base {
@@ -408,7 +399,6 @@ sub _code_base {
        return $code;
    }
 }
-
 
 =head2 _type_and_version
 
@@ -443,7 +433,6 @@ sub _type_and_version {
     }
     return 1;
 }
-
 
 =head2 
 
@@ -493,7 +482,6 @@ sub _check_file_sizes {
     }
     return 1;
 }
-
 
 =head2 make_index
 
@@ -566,7 +554,6 @@ sub make_index {
 	# this is supplied by the subclass and does the serious work
         $self->_index_file( $file, $i ); # Specific method for each type of index
 
-
         # Save file name and size for this index
         $self->add_record("__FILE_$i", $file, -s $file)
             or $self->throw("Can't add data to file: $file");
@@ -601,8 +588,6 @@ sub _index_file {
     $self->throw("Error: '$pkg' does not provide the _index_file() method");
 }
 
-
-
 =head2 _file_handle
 
   Title   : _file_handle
@@ -632,7 +617,6 @@ sub _file_handle {
     return $self->{'_filehandle'}[$i];
 }
 
-
 =head2 _file_count
 
   Title   : _file_count
@@ -654,7 +638,6 @@ sub _file_count {
     }
     return $self->db->{'__FILE_COUNT'};
 }
-
 
 =head2 add_record
 
@@ -678,7 +661,6 @@ sub add_record {
     $self->db->{$id} = $self->pack_record( @rec );
     return 1;
 }
-
 
 =head2 pack_record
 
@@ -725,7 +707,6 @@ sub unpack_record {
  Returns : value of verbose
  Args    : newvalue (optional)
 
-
 =cut
 
 sub verbose {
@@ -737,7 +718,6 @@ sub verbose {
 
 }
 
-
 =head2 DESTROY
 
  Title   : DESTROY
@@ -746,7 +726,6 @@ sub verbose {
            sequence files
  Returns : NEVER
  Args    : NONE
-
 
 =cut
 
@@ -757,8 +736,4 @@ sub DESTROY {
 }
 
 1;
-
-
-
-
 

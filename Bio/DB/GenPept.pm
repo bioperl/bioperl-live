@@ -1,4 +1,3 @@
-
 #
 # BioPerl module for Bio::DB::GenPept
 #
@@ -42,9 +41,9 @@ and other Bioperl modules. Send your comments and suggestions preferably
  to one of the Bioperl mailing lists.
 Your participation is much appreciated.
 
-  vsns-bcd-perl@lists.uni-bielefeld.de          - General discussion
-  vsns-bcd-perl-guts@lists.uni-bielefeld.de     - Technically-oriented discussion
-  http://bio.perl.org/MailList.html             - About the mailing lists
+   bioperl-l@bioperl.org             - General discussion
+   bioperl-guts-l@bioperl.org        - Automated bug and CVS messages
+   http://bioperl.org/MailList.shtml - About the mailing lists
 
 =head2 Reporting Bugs
 
@@ -145,7 +144,6 @@ sub get_Seq_by_acc {
   Args    : $ref : a reference to an array of unique identifiers for
                    the desired sequence entries
 
-
 =cut
 
 sub get_Stream_by_id {
@@ -192,7 +190,6 @@ sub get_Stream_by_acc {
   Returns : a Bio::SeqIO stream object
   Args    : $ref : either an array reference, a filename, or a filehandle
             from which to get the list of unique ids/accession numbers.
-
 
 =cut
 
@@ -295,19 +292,4 @@ sub _get_sock {
 
 1;
 __END__
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 

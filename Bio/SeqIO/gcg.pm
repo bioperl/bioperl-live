@@ -35,9 +35,9 @@ and other Bioperl modules. Send your comments and suggestions preferably
  to one of the Bioperl mailing lists.
 Your participation is much appreciated.
 
-  vsns-bcd-perl@lists.uni-bielefeld.de          - General discussion
-  vsns-bcd-perl-guts@lists.uni-bielefeld.de     - Technically-oriented discussion
-  http://bio.perl.org/MailList.html             - About the mailing lists
+   bioperl-l@bioperl.org             - General discussion
+   bioperl-guts-l@bioperl.org        - Automated bug and CVS messages
+   http://bioperl.org/MailList.shtml - About the mailing lists
 
 =head2 Reporting Bugs
 
@@ -52,7 +52,6 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 
 Email: birney@sanger.ac.uk
        lstein@cshl.org
-
 
 =head1 APPENDIX
 
@@ -79,13 +78,11 @@ use Bio::SeqIO;
  Returns : Bio::Seq object
  Args    :
 
-
 =cut
 
 sub next_seq{
    my ($self,@args)    = @_;
    my($id,$type,$desc,$line,$chksum,$sequence);
-
 
    while( defined($_ = $self->_readline()) ) {
 
@@ -100,7 +97,6 @@ sub next_seq{
                          }
    }
 
-
    while( defined($_ = $self->_readline()) ) {
 
        ## This is where we grab the sequence info.
@@ -114,7 +110,6 @@ sub next_seq{
        $_ = uc($_);               ## uppercase sequence
        $sequence .= $_;
    }
-
 
    ##If we parsed out a checksum, we might as well test it
 
@@ -135,7 +130,6 @@ sub next_seq{
        if($type eq "P") { $type = "amino";    }
    }
 
-
    return Bio::Seq->new(-seq  => $sequence, 
                         -id   => $id, 
                         -desc => $desc, 
@@ -149,7 +143,6 @@ sub next_seq{
  Function: writes the fromatted $seq object into the stream
  Returns : 1 for success and 0 for error
  Args    : Bio::Seq object, sequence string
-
 
 =cut
 
@@ -216,7 +209,6 @@ sub write_seq {
  Returns : 1 for success, 0 for failure
  Args    : string containing parsed seq, value of parsed cheksum
 
-
 =cut
 
 sub _validate_checksum {
@@ -239,7 +231,6 @@ sub _validate_checksum {
     if($parsed_sum == $computed_sum) {
 	return 1;
     } else { return 0; }
-
 
 }
 

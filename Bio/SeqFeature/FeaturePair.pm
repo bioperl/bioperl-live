@@ -1,4 +1,3 @@
-
 #
 # BioPerl module for Bio::SeqFeature::FeaturePair
 #
@@ -65,7 +64,6 @@ so...
 
     $feat->start # etc. returns data in $feature2 object
 
-
 No sub_SeqFeatures or tags can be stored in this object directly.
 Any features or tags are expected to be stored in the contained objects
 feature1, and feature2.
@@ -82,9 +80,7 @@ The rest of the documentation details each of the object methods. Internal metho
 
 =cut
 
-
 # Let the code begin...
-
 
 package Bio::SeqFeature::FeaturePair;
 use vars qw(@ISA);
@@ -95,7 +91,6 @@ use strict;
 use Bio::Root::Object;
 use Bio::SeqFeatureI;
 use Bio::SeqFeature::Generic;
-
 
 @ISA = qw(Bio::SeqFeature::Generic);
 # new() is inherited from Bio::Root::Object
@@ -120,7 +115,6 @@ sub _initialize {
   return $make; # success - we hope!
 }
 
-
 =head2 feature1
 
  Title   : feature1
@@ -130,9 +124,7 @@ sub _initialize {
  Returns : Bio::SeqFeatureI
  Args    : none
 
-
 =cut
-
 
 sub feature1 {
     my ($self,$arg) = @_;
@@ -153,7 +145,6 @@ sub feature1 {
  Function: Get/set for the hit feature
  Returns : Bio::SeqFeatureI
  Args    : none
-
 
 =cut
 
@@ -198,7 +189,6 @@ sub start {
  Returns : integer
  Args    : none
 
-
 =cut
 
 sub end{
@@ -220,7 +210,6 @@ sub end{
  Returns : 
  Args    :
 
-
 =cut
 
 sub length {
@@ -228,7 +217,6 @@ sub length {
 
    return $self->end - $self->start +1;
 }
-
 
 =head2 strand
 
@@ -238,7 +226,6 @@ sub length {
  Function: get/set on strand information, being 1,-1 or 0
  Returns : -1,1 or 0
  Args    : none
-
 
 =cut
 
@@ -261,7 +248,6 @@ sub strand{
  Returns : float
  Args    : none if get, the new value if set
 
-
 =cut
 
 sub score {
@@ -283,7 +269,6 @@ sub score {
  Returns : 0,1,2
  Args    : none if get, the new value if set
 
-
 =cut
 
 sub frame {
@@ -303,7 +288,6 @@ sub frame {
  Function: get/set on the primary_tag of feature1
  Returns : 0,1,2
  Args    : none if get, the new value if set
-
 
 =cut
 
@@ -326,7 +310,6 @@ sub primary_tag{
            eg, 'genscan' 
  Returns : a string 
  Args    : none
-
 
 =cut
 
@@ -355,7 +338,6 @@ sub source_tag{
  Returns : value of seqname
  Args    : newvalue (optional)
 
-
 =cut
 
 sub seqname{
@@ -377,7 +359,6 @@ sub seqname{
  Returns : value of $feature2->seqname
  Args    : newvalue (optional)
 
-
 =cut
 
 sub hseqname {
@@ -389,7 +370,6 @@ sub hseqname {
 
     return $self->feature2->seqname;
 }
-
 
 =head2 hstart
 
@@ -422,7 +402,6 @@ sub hstart {
  Returns : integer
  Args    : none
 
-
 =cut
 
 sub hend{
@@ -435,8 +414,6 @@ sub hend{
     }
 }
 
-
-
 =head2 hstrand
 
  Title   : hstrand
@@ -445,7 +422,6 @@ sub hend{
  Function: get/set on strand information, being 1,-1 or 0
  Returns : -1,1 or 0
  Args    : none
-
 
 =cut
 
@@ -468,7 +444,6 @@ sub hstrand{
  Returns : float
  Args    : none if get, the new value if set
 
-
 =cut
 
 sub hscore {
@@ -490,7 +465,6 @@ sub hscore {
  Returns : 0,1,2
  Args    : none if get, the new value if set
 
-
 =cut
 
 sub hframe {
@@ -510,7 +484,6 @@ sub hframe {
  Function: Get/set on the primary_tag of feature2
  Returns : 0,1,2
  Args    : none if get, the new value if set
-
 
 =cut
 
@@ -534,7 +507,6 @@ sub hprimary_tag{
  Returns : a string 
  Args    : none
 
-
 =cut
 
 sub hsource_tag{
@@ -554,7 +526,6 @@ sub hsource_tag{
  Function: Swaps feature1 and feature2 around
  Returns : Nothing
  Args    : none
-
 
 =cut
 

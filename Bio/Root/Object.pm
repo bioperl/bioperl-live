@@ -36,7 +36,6 @@ use vars qw($ID $VERSION %Objects_created $Revision @ISA);
 
 @ISA = qw(Bio::Root::RootI);
 
-
 # %Objects_created can be used for tracking all objects created.
 # See _initialize() for details.
 
@@ -61,10 +60,8 @@ Bio::Root::Object - A core Perl 5 object.
 			         -parent  => $dad,
 			         -make    => 'full');
 
-
 See the L<new>() method for a complete description of parameters.
 See also L<USAGE>.
-
 
 =head1 INSTALLATION
 
@@ -201,13 +198,11 @@ Bio::Root::Err.pm objects can be reconstructed from the contents of C<$@>:
         printf "Stack trace: %s\n". $err->stack;
     }
 
-
 =head2 Demo Scripts
 
 Some demo script that illustrate working with Bio::Root::Objects are included with the distribution (see L<INSTALLATION>). These are also available at:
 
     http://bio.perl.org/Core/Examples/Root_object
-
 
 =head1 STRICTNESS & VERBOSITY
 
@@ -219,7 +214,6 @@ B<Bio::Root::Global.pm>.
   $STRICTNESS  - Regulates the sensitivity of the object to exceptions and warnings.
 
   $VERBOSITY   - Regulates the amount of reporting by an object.
-
 
 The L<strict>() and L<verbose>() methods of B<Bio::Root::Object.pm>
 originally operated at the the object level, to permit individual
@@ -276,7 +270,6 @@ are sensitive to these values as indicated in the tables below:
 See the methods L<verbose>(), L<strict>(), L<throw>(), L<warn>(), and
 L<record_err>() for more details.
 
-
 =head1 DEPENDENCIES
 
 As the B<Bio::Root::Object.pm> does not inherit from any modules 
@@ -299,7 +292,6 @@ Since this module is at the root of potentially many different objects
 in a particular application, efficiency is important. Bio::Root::Object.pm is 
 intended to be a lightweight, lean and mean module. 
 
-
 =head1 FEEDBACK
 
 =head2 Mailing Lists 
@@ -309,7 +301,7 @@ Send your comments and suggestions preferably to one of the Bioperl mailing list
 Your participation is much appreciated.
 
   bioperl-l@bioperl.org             - General discussion
-  bioperl-guts-l@bioperl.org        - Technically-oriented discussion
+  bioperl-guts-l@bioperl.org        - Automated bug and CVS messages
   http://bioperl.org/MailList.shtml - About the mailing lists
 
 =head2 Reporting Bugs
@@ -329,7 +321,6 @@ See the L<FEEDBACK> section for where to send bug reports and comments.
 =head1 VERSION
 
 Bio::Root::Object.pm, 0.041
-
 
 =head1 TODO
 
@@ -354,7 +345,6 @@ Consider incorporating a more widely-used Error/Exception module
 
   http://bio.perl.org/Projects/modules.html  - Online module documentation
   http://bio.perl.org/                       - Bioperl Project Homepage 
-
 
 =head2 Other Exception Modules
 
@@ -381,7 +371,6 @@ modify it under the same terms as Perl itself.
 
 =cut
 
-
 # 
 ## 
 ### 
@@ -389,7 +378,6 @@ modify it under the same terms as Perl itself.
 ###
 ##
 # 
-
 
 =head1 APPENDIX
 
@@ -400,11 +388,9 @@ for documentation purposes only.
 
 =cut
 
-
 #######################################################
 #               CONSTRUCTOR/DESTRUCTOR                #
 #######################################################
-
 
 =head2 new
 
@@ -462,7 +448,6 @@ sub new {
     $self->_initialize(@param);
     $self;
 }
-
 
 =head2 _initialize
 
@@ -565,8 +550,6 @@ sub _initialize {
     return $make || 'default';
 }
 
-
-
 =head2 DESTROY
 
  Purpose   : Provides indication that the object is being reclaimed
@@ -592,7 +575,6 @@ sub DESTROY {
 
     $DEBUG==2 && print STDERR "DESTROY called in $ID for ${\$self->to_string} ($self)\n";
 }  
-
 
 =head2 destroy
 
@@ -651,7 +633,6 @@ sub destroy {
 
     $self->_remove_from_index if scalar %Objects_created;
 }
-
 
 =head2 _drop_child
 
@@ -727,12 +708,9 @@ sub _drop_child {
     undef;
 }
 
-
 #################################################################
 #                    ACCESSORS & INSTANCE METHODS
 #################################################################
-
-
 
 =head2 name
 
@@ -761,7 +739,6 @@ sub name {
     return defined $self->{'_name'} ? $self->{'_name'} : 'anonymous '.ref($self);
 }
 
-
 =head2 to_string
 
  Usage     : $object->to_string();
@@ -782,7 +759,6 @@ sub to_string {
     my $self = shift;
     return sprintf "Object %s \"%s\"", ref($self), $self->name;
 }
-
 
 =head2 parent
 
@@ -825,7 +801,6 @@ sub parent {
     $self->{'_parent'};
 }
 
-
 =head2 src_obj
 
  Usage     : $object->src_obj([object | 'null']);
@@ -841,7 +816,6 @@ sub src_obj {
     $self->warn("DEPRECATED METHOD src_obj() CALLED. USE parent() INSTEAD.\n");
     $self->parent(@_);
 }
-
 
 =head2 has_name
 
@@ -864,8 +838,6 @@ See also   : L<name>()
 #--------------'
 sub has_name { my $self = shift; return defined $self->{'_name'}; }
 #--------------
-
-
 
 =head2 make
 
@@ -895,7 +867,6 @@ sub make {
     if(@_) { $self->{'_make'} = shift; }
     $self->{'_make'} || 'default'; 
 }
-
 
 =head2 err
 
@@ -966,7 +937,6 @@ sub err {
     return $self->{'_err'}->get_all($data, $delimit );
 }	
 
-
 =head2 record_err
 
  Usage     : $object->record_err([0|1]);
@@ -996,7 +966,6 @@ sub record_err {
     return $self->{'_record_err'} || 0;
 }
 
-
 =head2 err_state
 
  Usage     : $object->err_state();
@@ -1017,7 +986,6 @@ sub err_state {
     $self->{'_errState'} || 'OKAY'; 
 }
 
-
 =head2 clear_err
 
  Purpose   : To remove any error associated with the given object.
@@ -1033,10 +1001,6 @@ sub clear_err {
     my $self = shift;
     $self->_set_err();
 }
-
-
-
-
 
 =head2 containment
 
@@ -1078,7 +1042,6 @@ sub containment {
     return \@hierarchy;
 }
 
-
 =head2 set_stats
 
  Usage     : $object->set_stats(KEY => DATA [,KEY2 => DATA2])
@@ -1113,7 +1076,6 @@ sub set_stats {
 	$self->{$_} = $val;  
     }
 }
-
 
 =head2 strict
 
@@ -1168,9 +1130,6 @@ sub strict {
 	: (ref $self->{'_parent'} ? $self->{'_parent'}->strict : 0);
 }
 
-
-
-
 =head2 clone
 
  Purpose   : To deeply copy an object.
@@ -1212,8 +1171,6 @@ sub clone {
     $clone; 
 } 
 
-
-
 =head2 _set_clone
 
  Usage     : n/a; internal method used by _initialize()
@@ -1250,8 +1207,6 @@ sub _set_clone {
     $self->{'_io'}       = ref($obj->{'_io'}) and $obj->{'_io'}->clone;
     $self->{'_err'}      = ref($obj->{'_err'}) and $obj->{'_err'}->clone;
 }
-
-
 
 =head2 verbose
 
@@ -1290,8 +1245,6 @@ sub verbose {
 	: (ref $self->{'_parent'} ? $self->{'_parent'}->verbose : 0);
 }
 
-
-
 =head1 I/O-RELATED METHODS (Delegated to B<Bio::Root::IOManager.pm>)
 
 =head2 _io
@@ -1306,8 +1259,6 @@ See also   : L<display>(), L<read>(), L<file>()
 #-------
 sub _io  {  my $self = shift;   return $self->{'_io'}; }
 #-------
-
-
 
 =head2 _set_io
 
@@ -1329,8 +1280,6 @@ sub _set_io {
 #    $self->{'_io'} = new Bio::Root::IOManager(-PARENT=>$self, @_);
     $self->{'_io'} = new Bio::Root::IOManager(-PARENT=>$self);
 }
-
-
 
 =head2 set_display
 
@@ -1365,7 +1314,6 @@ sub set_display {
 
    return $self->{'_io'}->fh;
 }
-
 
 =head2 display
 
@@ -1430,9 +1378,6 @@ sub display {
     $self->{'_io'}->display(@param); 
 }
 
-
-
-
 =head2 _display_stats
 
  Usage     : n/a; called automatically by Bio::Root::Object::display(-SHOW=>'stats');
@@ -1464,8 +1409,6 @@ sub _display_stats {
     }
 }
 
-
-
 =head2 read
 
  Usage     : $object->read( named parameters)
@@ -1494,8 +1437,6 @@ sub read {
     $self->{'_io'}->read(@_); 
 }
 
-
-
 =head2 fh
 
  Usage     : $object->fh(['name'])
@@ -1516,7 +1457,6 @@ sub fh      {
     $self->_set_io(@_) if !defined $self->{'_io'};
     $self->{'_io'}->fh(@_); 
 }
-
 
 =head2 show
 
@@ -1540,8 +1480,6 @@ sub show    {
     $self->{'_io'}->show; 
 }
 
-
-
 =head2 file
 
  Usage     : $object->file()
@@ -1562,7 +1500,6 @@ sub file    {
     $self->_set_io(@_) if !defined $self->{'_io'};
     $self->{'_io'}->file(@_); 
 }
-
 
 =head2 compress_file
 
@@ -1586,8 +1523,6 @@ sub compress_file {
     $self->{'_io'}->compress_file(@_); 
 }
 
-
-
 =head2 uncompress_file
 
  Usage     : $object->uncompress_file([filename])
@@ -1608,7 +1543,6 @@ sub uncompress_file {
     $self->_set_io(@_) if !defined $self->{'_io'};
     $self->{'_io'}->uncompress_file(@_); 
 }
-
 
 =head2 delete_file
 
@@ -1631,7 +1565,6 @@ sub delete_file {
     $self->_set_io(@_) if !defined $self->{'_io'};
     $self->{'_io'}->delete_file(@_); 
 }
-
 
 =head2 file_date
 
@@ -1656,10 +1589,7 @@ sub file_date {
     $self->{'_io'}->file_date(@_); 
 }
 
-
-
 =head1 EXPERIMENTAL METHODS 
-
 
 =head2 xref
 
@@ -1706,8 +1636,6 @@ sub xref  {
     $self->{'_xref'}; 
 }
 
-
-
 =head2 index
 
  Purpose   : To add an object to a package global hash of objects
@@ -1750,8 +1678,6 @@ sub _remove_from_index {
     undef $Objects_created{$class}->{$objName} if exists $Objects_created{$class}->{$objName};
 }
 
-
-
 =head2 find_object
 
  Purpose   : To obtain any object reference based on its unique name
@@ -1786,8 +1712,6 @@ sub find_object {
     $object;
 }
 
-
-
 =head2 has_warning
 
  Purpose   : Test whether or not an object has a non-fatal error (warning).
@@ -1809,8 +1733,6 @@ sub has_warning {
     return 1 if $errData =~ /WARNING/;
     0;
 }
-
-
 
 =head2 print_err
 
@@ -1844,8 +1766,6 @@ sub print_err {
     
 #    print "$ID: done print_err()\n";
 }
-
-
 
 =head2 err_string
 
@@ -1882,9 +1802,6 @@ sub err_string {
     }
     $out;
 }
-
-
-
 
 #################################################################
 #            DEPRECATED or HIGHLY EXPERIMENTAL METHODS
@@ -1924,7 +1841,6 @@ sub terse {
 
     return $verbosity * -1;
 }
-
 
 #----------------------
 =head2 set_err_data()
@@ -1977,8 +1893,6 @@ sub set_read {
     $self->{'_io'}->set_read(%param);
 }
 
-
-
 =head2 set_log_err
 
  Usage     : see Bio::Root::IOManager::set_log_err()
@@ -2002,10 +1916,8 @@ sub set_log_err {
     $self->{'_io'}->set_log_err(%param);
 }
 
-
 1;
 __END__
-
 
 #####################################################################################
 #                                  END OF CLASS                                     #
@@ -2078,7 +1990,6 @@ all or some of the following fields:
 
 =cut
 
-
 MODIFICATION NOTES:
 -----------------------
 0.041, sac --- Thu Feb  4 03:50:58 1999
@@ -2125,5 +2036,4 @@ MODIFICATION NOTES:
   * Touched up _set_clone().
   * Refined documentation in this and other Bio::Root modules
     (converted to use pod2html in Perl 5.004)
-
 
