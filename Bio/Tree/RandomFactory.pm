@@ -26,6 +26,11 @@ Bio::Tree::RandomFactory - TreeFactory for generating Random Trees
   my $factory = new Bio::Tree::RandomFactory( -sample_size => 6,
 					      -maxcount => 50);
 
+
+  my $tree = $factory->next_tree;
+
+  $factory->add_Mutations($tree,20);
+
 =head1 DESCRIPTION
 
 Builds a random tree every time next_tree is called or up to -maxcount times.
