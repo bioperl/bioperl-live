@@ -14,41 +14,48 @@ BEGIN {
 	use lib 't';
     }
     use Test;
-    plan tests => 13;
-
+    plan tests => 17;
 }
+
 use Bio::Tree::Node;
-use Bio::Tree::PhyloNode;
+use Bio::Tree::AlleleNode;
 
 ok(1);
 
-my $node = new Bio::Tree::Node(-leaf => 0,
-			       -parent => undef);
+my $node1 = new Bio::Tree::Node();
+my $node2 = new Bio::Tree::Node();
+ok(! $node1->is_leaf);
+ok($node1->get_Ancestor, undef);
 
-ok(! $node->is_leaf);
-ok($node->get_parent, undef);
+my $pnode = new Bio::Tree::Node();
+$pnode->set_Left_Descendent($node1);
+ok($node1->get_Ancestor, $pnode);
+$pnode->set_Left_Descendent($node2);
+ok($node2->get_Ancestor, $pnode);
 
-my $node1 = new Bio::Tree::PhyloNode(-leaf => 1,
-				     -parent => $node,
-				     -bootstrap => 0.25,
-				     -id => 'ADH_BOV',
-				     -desc => 'Taxon 1');
+ok(! $pnode->is_leaf);
 
-ok($node1->is_leaf);
-ok($node1->get_parent, $node);
-ok($node1->id, 'ADH_BOV');
-ok($node1->bootstrap, 0.25);
-ok($node1->description, 'Taxon 1');
+my $phylo_node = new Bio::Tree::Node(-bootstrap => 0.25,
+					  -id => 'ADH_BOV',
+					  -desc => 'Taxon 1');
+$node1->set_Left_Descendent($phylo_node);
+ok(! $node1->is_leaf);
+ok($phylo_node->get_Ancestor, $node1);
+ok($phylo_node->id, 'ADH_BOV');
+ok($phylo_node->bootstrap, 0.25);
+ok($phylo_node->description, 'Taxon 1');
 
-my $node2 = new Bio::Tree::PhyloNode(-leaf => 1,
-				     -parent => $node,
-				     -bootstrap => 0.30,
-				     -id => 'ADH_MUS',
-				     -desc => 'Taxon 2');
+my $allele_node = new Bio::Tree::AlleleNode(-alleles => { 'm1' => [ 0 ],
+							  'm2' => [ 1 ],
+							  'm3' => [ 0,4] });
+ok($allele_node);
+my @mkrs = $allele_node->get_marker_names;
 
+ok(@mkrs, 3);
+ok($allele_node->get_alleles('m3'), 2);
+my ($a1) = $allele_node->get_alleles('m1');
+ok($a1, 0);
 
-ok($node2->is_leaf);
-ok($node2->get_parent, $node);
-ok($node2->id, 'ADH_MUS');
-ok($node2->bootstrap, 0.30);
-ok($node2->description, 'Taxon 2');
+my ($a2,$a3) = $allele_node->get_alleles('m3');
+ok($a2, 0);
+ok($a3, 4);

@@ -44,20 +44,49 @@ ok(1);
 my $treeio = new Bio::TreeIO(-verbose => $verbose,
 			     -format => 'newick',
 			     -file   => Bio::Root::IO->catfile('t','data', 
-							       'LOAD_Ccd1.dnd'));
+							       'cysprot1b.dnd'));
+#							       'LOAD_Ccd1.dnd'));
 ok($treeio);
 my $tree = $treeio->next_tree;
 
 ok(ref($tree) && $tree->isa('Bio::Tree::TreeI'));
 
 my @nodes = $tree->get_nodes;
+ok(@nodes, 7);
 
 foreach my $node ( @nodes ) {
     if( $node->isa('Bio::Tree::PhyloNode') ) {
-	if( $verbose ) { print "id=", $node->id, 
-			 "; branch_len=", $node->branch_length, "\n"; }
+#	if( $verbose ) { print "id=", $node->id, 
+#			 "; branch_len=", $node->branch_length, "\n"; }
     } else { 
-	print "node was $node\n" if( $verbose );
+#	print "node was ", $node->to_string(), "\n" if( $verbose );
     }
 }
-ok(@nodes, 51);
+$treeio = new Bio::TreeIO(-verbose => $verbose,
+			  -format => 'newick', 
+			  -file   => '>testnewick.phylip');
+$treeio->write_tree($tree);
+
+$treeio = new Bio::TreeIO(-verbose => $verbose,
+			  -format => 'newick',
+			  -file   => Bio::Root::IO->catfile('t','data', 
+							    'LOAD_Ccd1.dnd'));
+ok($treeio);
+$tree = $treeio->next_tree;
+
+ok(ref($tree) && $tree->isa('Bio::Tree::TreeI'));
+
+@nodes = $tree->get_nodes;
+ok(@nodes, 53);
+
+foreach my $node ( @nodes ) {
+    if( $node->isa('Bio::Tree::PhyloNode') ) {
+	print $node->id, ":", $node->branch_length(), "\n" if( $verbose );
+
+#	if( $verbose ) { print "id=", $node->id, 
+#			 "; branch_len=", $node->branch_length, "\n"; }
+    } else { 
+	print ":", $node->branch_length(), "\n" if( $verbose );
+    }
+}
+
