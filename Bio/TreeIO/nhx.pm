@@ -99,144 +99,145 @@ sub _initialize {
 =cut
 
 sub next_tree{
-   my ($self) = @_;
-   local $/ = ";\n";
-   return unless $_ = $self->_readline;
-   s/\s+//g;
-   $self->debug("entry is $_\n");
-#   my $empty = chr(20);
- 
-   # replace empty labels with a tag
-#   s/\(,/\($empty,/ig;
-#   s/,,/,$empty,/ig;
-#   s/,,/,/ig;
-#   s/,\)/,$empty\)/ig;
-#   s/\"/\'/ig;
+    my ($self) = @_;
+    local $/ = ";\n";
+    return unless $_ = $self->_readline;
+    s/\s+//g;
+    $self->debug("entry is $_\n");
+    my $chars = '';
+    $self->_eventHandler->start_document;
+    my ($prev_event,$lastevent) = ('','');
+    my @ch = split(//, $_);
+    foreach my $ch  (@ch) {
+	if( $ch eq ';' ) { 	   
+	    $self->_eventHandler->in_element('node') && 
+		$self->_eventHandler->end_element( {'Name' => 'node'});
+	    return $self->_eventHandler->end_document;
+	} elsif ($ch eq '[') {
+	    if ( length $chars ) {
+		if ( $lastevent eq ':' ) {
+		    $self->_eventHandler->start_element( { Name => 'branch_length' } );
+		    $self->_eventHandler->characters($chars);
+		    $self->_eventHandler->end_element( { Name => 'branch_length' });
+		    $lastevent = $prev_event;
+		} else {
+		    $self->debug("id with no branchlength is $chars\n");
+		    $self->_eventHandler->start_element( { 'Name' => 'node' } );
+		    $self->_eventHandler->start_element( { 'Name' => 'id' } );
+		    $self->_eventHandler->characters($chars);
+		    $self->_eventHandler->end_element( { 'Name' => 'id' } );		   
+		}
+	    } else {
+		$self->_eventHandler->start_element( { Name => 'node' } );
+	    }
+	    my $leafstatus = ( $lastevent ne ')' ) ? 1 : 0;
+	    $self->_eventHandler->start_element({'Name' => 'leaf'});
+	    $self->_eventHandler->characters($leafstatus);
+	    $self->_eventHandler->end_element({'Name' => 'leaf'});	   
+	    $chars = '';
+	    
+	    $self->_eventHandler->start_element( { Name => 'nhx_tag' });
+	} elsif( $ch eq '(' ) {
+	    $chars = '';
+	    $self->_eventHandler->start_element( {'Name' => 'tree'} );
+	} elsif($ch eq ')' ) {
+	    if( length $chars ) {
+		if( $lastevent eq ':') {
+		    unless ($self->_eventHandler->within_element('nhx_tag')) {
+			$self->_eventHandler->start_element( { 'Name' => 'branch_length'});
+			$self->_eventHandler->characters($chars);
+			$self->_eventHandler->end_element( {'Name' => 'branch_length'});
+		    } else {
+			$self->throw("malformed input; end of node ) before ] found");
+		    }
+		} else { 
+		    $self->debug("id with no branchlength is $chars\n");
+		    $self->_eventHandler->start_element( { 'Name' => 'node' } );
+		    $self->_eventHandler->start_element( { 'Name' => 'id' } );
+		    $self->_eventHandler->characters($chars);
+		    $self->_eventHandler->end_element( { 'Name' => 'id' } );
+		}
 
-   my $chars = '';
-   $self->_eventHandler->start_document;
-   my $lastevent = '';
-   my @ch = split(//, $_);
-   for (my $i = 0 ; $i < @ch ; $i++) {
-       my $ch = $ch[$i];
-       if( $ch eq ';' ) { 	   
-	   return $self->_eventHandler->end_document;
-       } elsif ($ch eq '[') {
-	   if ( length $chars ) {
-	       if ( $lastevent eq ':' ) {
-		   $self->_eventHandler->start_element( { Name => 'branch_length' } );
-		   $self->_eventHandler->characters($chars);
-		   $self->_eventHandler->end_element( { Name => 'branch_length' });
-	       } else {
-		   $self->debug("id with no branchlength is $chars\n");
-		   $self->_eventHandler->start_element( { 'Name' => 'node' } );
-		   $self->_eventHandler->start_element( { 'Name' => 'id' } );
-		   $self->_eventHandler->characters($chars);
-		   $self->_eventHandler->end_element( { 'Name' => 'id' } );		   
-	       }
-	   } else {
-	       $self->_eventHandler->start_element( { Name => 'node' } );
-	   }
-           $chars = '';
-	   $self->_eventHandler->start_element( { Name => 'nhx_tag' });
-	   $lastevent = $ch;
-       } elsif( $ch eq '(' ) {
-	   $chars = '';
-	   $self->_eventHandler->start_element( {'Name' => 'tree'} );
-	   $lastevent = $ch;
-       } elsif($ch eq ')' ) {
-	   if( length $chars ) {
-	       if( $lastevent eq ':') {
-		   unless ($self->_eventHandler->within_element('nhx_tag')) {
-		       $self->_eventHandler->start_element( { 'Name' => 'branch_length'});
-		       $self->_eventHandler->characters($chars);
-		       $self->_eventHandler->end_element( {'Name' => 'branch_length'});
-		   } else {
-		       $self->throw("malformed input; end of node ) before ] found");
-		   }
-	       } else { 
-		   $self->debug("id with no branchlength is $chars\n");
-		   $self->_eventHandler->start_element( { 'Name' => 'node' } );
-		   $self->_eventHandler->start_element( { 'Name' => 'id' } );
-		   $self->_eventHandler->characters($chars);
-		   $self->_eventHandler->end_element( { 'Name' => 'id' } );
-	       }
-	       
-	   } elsif ( $lastevent ne ']' ) {
-	       $self->_eventHandler->start_element( {'Name' => 'node'} )
-	   }
-	   $self->_eventHandler->end_element( {'Name' => 'node'} );
-	   $self->_eventHandler->end_element( {'Name' => 'tree'} );
-	   $chars = '';
-	   $lastevent = $ch;
-       } elsif ( $ch eq ',' ) {
-	   if( length $chars ) {
-	       if( $lastevent eq ':' ) {
-		   $self->_eventHandler->start_element( { 'Name' => 'branch_length'});
-		   $self->_eventHandler->characters($chars);
-		   $self->_eventHandler->end_element( {'Name' => 'branch_length'});
-	       } else { 
-		   $self->debug("id with no branchlength is $chars\n");
-		   $self->_eventHandler->start_element( { 'Name' => 'node' } );
-		   $self->_eventHandler->start_element( { 'Name' => 'id' } );
-		   $self->_eventHandler->characters($chars);
-		   $self->_eventHandler->end_element( { 'Name' => 'id' } );
-	       }   
-	   } elsif ( $lastevent ne ']' ) {
-	       $self->_eventHandler->start_element( { 'Name' => 'node' } );
-	   }
-	   $self->_eventHandler->end_element( {'Name' => 'node'} );
-	   $chars = '';
-	   $lastevent = $ch;
-       } elsif( $ch eq ':' ) {
-	   if ($self->_eventHandler->within_element('nhx_tag')) {
-	       if ($lastevent eq '=') {
-		   $self->_eventHandler->start_element( { Name => 'tag_value' } );
-		   $self->_eventHandler->characters($chars);
-		   $self->_eventHandler->end_element( { Name => 'tag_value' } );
-		   $chars = '';
-	       } else {
-		   if ($chars eq '&&NHX') {
-		       $chars = ''; # get rid of &&NHX:
-		   } else {
-		       $self->throw("Unrecognized, non \&\&NHX string: >>$chars<<");
-		   }
-	       }
-	   } elsif ($lastevent ne ']') {
-	       $self->debug("id with a branchlength coming is $chars\n");
-	       $self->_eventHandler->start_element( { 'Name' => 'node' } );
-	       $self->_eventHandler->start_element( { 'Name' => 'id' } );	   
-	       $self->_eventHandler->characters($chars);
-	       $self->_eventHandler->end_element( { 'Name' => 'id' } );	   
-	       $chars = '';
-	   }
-	   $lastevent = $ch;
-       } elsif ( $ch eq '=' ) {
-	   if ($self->_eventHandler->within_element('nhx_tag')) {
-	       $self->_eventHandler->start_element( { Name => 'tag_name' } );
-	       $self->_eventHandler->characters($chars);
-	       $self->_eventHandler->end_element( { Name => 'tag_name' } );
-	       $chars = '';
-	       $lastevent = $ch;
-	   } else {
-	       $chars .= $ch;
-	   }
-       } elsif ( $ch eq ']' ) {
-	   if ($self->_eventHandler->within_element('nhx_tag') && $lastevent eq '=') {
-	       $self->_eventHandler->start_element( { Name => 'tag_value' } );
-	       $self->_eventHandler->characters($chars);
-	       $self->_eventHandler->end_element( { Name => 'tag_value' } );
-	       $chars = '';
-	       $self->_eventHandler->end_element( { Name => 'nhx_tag' } );
-	       $lastevent = $ch;
-	   } else {
-	       $chars .= $ch;
-	   }
-       } else { 	   
-	   $chars .= $ch;
-       }
-   }
-   return undef;
+	    } elsif ( $lastevent ne ']' ) {
+		$self->_eventHandler->start_element( {'Name' => 'node'} );
+	    }
+	    my $leafstatus = ( $lastevent ne ')' ) ? 1 : 0;
+	    $self->_eventHandler->start_element({'Name' => 'leaf'});
+	    $self->_eventHandler->characters($leafstatus);
+	    $self->_eventHandler->end_element({'Name' => 'leaf'});	   
+	    
+	    $self->_eventHandler->end_element( {'Name' => 'node'} );
+	    $self->_eventHandler->end_element( {'Name' => 'tree'} );
+	    $chars = '';
+	} elsif ( $ch eq ',' ) {
+	    if( length $chars ) {
+		if( $lastevent eq ':' ) {
+		    $self->_eventHandler->start_element( { 'Name' => 'branch_length'});
+		    $self->_eventHandler->characters($chars);
+		    $self->_eventHandler->end_element( {'Name' => 'branch_length'});
+		    $lastevent = $prev_event;
+		} else { 
+		    $self->debug("id with no branchlength is $chars\n");
+		    $self->_eventHandler->start_element( { 'Name' => 'node' } );
+		    $self->_eventHandler->start_element( { 'Name' => 'id' } );
+		    $self->_eventHandler->characters($chars);
+		    $self->_eventHandler->end_element( { 'Name' => 'id' } );
+		}   
+	    } elsif ( $lastevent ne ']' ) {
+		$self->_eventHandler->start_element( { 'Name' => 'node' } );
+	    }
+	    $self->_eventHandler->end_element( {'Name' => 'node'} );
+	    $chars = '';
+	} elsif( $ch eq ':' ) {
+	    if ($self->_eventHandler->within_element('nhx_tag')) {
+		if ($lastevent eq '=') {
+		    $self->_eventHandler->start_element( { Name => 'tag_value' } );
+		    $self->_eventHandler->characters($chars);
+		    $self->_eventHandler->end_element( { Name => 'tag_value' } );
+		    $chars = '';
+		} else {
+		    if ($chars eq '&&NHX') {
+			$chars = ''; # get rid of &&NHX:
+		    } else {
+			$self->throw("Unrecognized, non \&\&NHX string: >>$chars<<");
+		    }
+		}
+	    } elsif ($lastevent ne ']') {
+		$self->debug("id with a branchlength coming is $chars\n");
+		$self->_eventHandler->start_element( { 'Name' => 'node' } );
+		$self->_eventHandler->start_element( { 'Name' => 'id' } );
+		$self->_eventHandler->characters($chars);
+		$self->_eventHandler->end_element( { 'Name' => 'id' } );
+		$chars = '';
+	    }
+	} elsif ( $ch eq '=' ) {
+	    if ($self->_eventHandler->within_element('nhx_tag')) {
+		$self->_eventHandler->start_element( { Name => 'tag_name' } );
+		$self->_eventHandler->characters($chars);
+		$self->_eventHandler->end_element( { Name => 'tag_name' } );
+		$chars = '';
+	    } else {
+		$chars .= $ch;
+	    }
+	} elsif ( $ch eq ']' ) {
+	    if ($self->_eventHandler->within_element('nhx_tag') && $lastevent eq '=') {
+		$self->_eventHandler->start_element( { Name => 'tag_value' } );
+		$self->_eventHandler->characters($chars);
+		$self->_eventHandler->end_element( { Name => 'tag_value' } );
+		$chars = '';
+		$self->_eventHandler->end_element( { Name => 'nhx_tag' } );
+	    } else {
+		$chars .= $ch;
+		next;
+	    }
+	} else { 	   
+	    $chars .= $ch;
+	    next;
+	}
+	$prev_event = $lastevent;
+	$lastevent = $ch;
+    }       
+    return undef;
 }
 
 =head2 write_tree
@@ -250,7 +251,7 @@ sub next_tree{
 =cut
 
 sub write_tree{
-   my ($self,@trees) = @_;
+    my ($self,@trees) = @_;
    foreach my $tree ( @trees ) {
        my @data = _write_tree_Helper($tree->get_root_node);
        if($data[-1] !~ /\)$/ ) {
@@ -265,21 +266,28 @@ sub write_tree{
 
 sub _write_tree_Helper {
     my ($node) = @_;
-    return () if (!defined $node);
+    return () unless defined $node;
 
     my @data;
     
     foreach my $n ( $node->each_Descendent() ) {
 	push @data, _write_tree_Helper($n);
     }
-
+        
     if( @data > 1 ) {
 	$data[0] = "(" . $data[0];
 	$data[-1] .= ")";
-	$data[-1] .= ":". $node->branch_length if $node->branch_length;
-	$data[-1] .= '[' . join(":", "&&NHX", map { "$_=" . $node->nhx_tag($_) } keys %{$node->nhx_tag || {}}) . ']' if $node->can('nhx_tag');
-    } else {
-	push @data, $node->to_string;
+	$data[-1] .= ":". $node->branch_length if $node->branch_length;	
+	# this is to not print out an empty NHX for the root node which is 
+	# a convience for how we get a handle to the whole tree
+	if( $node->ancestor || $node->id || defined $node->branch_length ) {
+	    $data[-1] .= '[' . 
+		join(":", "&&NHX", 
+		     map { "$_=" .join(',',$node->get_tag_values($_)) } 
+		     $node->get_all_tags() ) . ']';
+	}
+    } else { 
+	push @data, $node->to_string; # a leaf
     }
     return @data;
 }

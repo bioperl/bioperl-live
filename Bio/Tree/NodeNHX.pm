@@ -101,9 +101,7 @@ sub new {
 
   my $self = $class->SUPER::new(@args);
   my ($nhx) = $self->_rearrange([qw(NHX)], @args);
-
   $self->nhx_tag($nhx);
-
   return $self;
 }
 
@@ -126,33 +124,48 @@ sub to_string{
    my ($self) = @_;
    return sprintf("%s%s%s",
 		  defined $self->id ? $self->id : '',
-		  defined $self->branch_length ? ':' . $self->branch_length : ' ',
-		  '[' . join(":", "&&NHX", map { "$_=" . $self->nhx_tag($_) } keys %{$self->nhx_tag || {}}) . ']'
-		 );
+		  defined $self->branch_length ? ':' . 
+		  $self->branch_length : ' ',
+		  '[' . join(":", "&&NHX", 
+			     map { "$_=" .join(',',
+					       $self->get_tag_values($_))}
+		 $self->get_all_tags() ) . ']'
+		  );
 }
 
+=head2 nhx_tag
+
+ Title   : nhx_tag
+ Usage   : my $tag = $nodenhx->nhx_tag(%tags);
+ Function: Set tag-value pairs for NHX nodes
+ Returns : none
+ Args    : hashref to update the tags/value pairs
+           OR 
+           with a scalar value update the bootstrap value by default
+
+
+=cut
+
 sub nhx_tag {
-
     my ($self, $tags) = @_;
-
-    if (defined $self->bootstrap) {
-	$self->{'_nhx_tag'}->{'B'} = $self->bootstrap;
-    }
-
-    if (defined $tags && (ref $tags eq 'HASH')) {
-	$self->{'_nhx_tag'} = $tags;
-	if (exists $self->{'_nhx_tag'}->{'B'}) {
-	    if (defined $self->bootstrap &&
-		($self->bootstrap != $self->{'_nhx_tag'}) ) {
-		$self->warn("bootstrap value (" . $self->bootstrap . ") being overwritten by NHX B: value ($self->{'_nhx_tag'}->{'B'})!");
+    if (defined $tags && (ref($tags) =~ /HASH/i)) {
+	while( my ($tag,$val) = each %$tags ) {
+	    if( ref($val) =~ /ARRAY/i ) {
+		for my $v ( @$val ) {
+		    $self->add_tag_value($tag,$v);
+		}
+	    } else {
+		$self->add_tag_value($tag,$val);
 	    }
-	    $self->bootstrap($self->{'_nhx_tag'}->{'B'});
 	}
-    } elsif (defined $tags and ! ref $tags) {
-	return $self->{'_nhx_tag'}->{$tags};
+	if (exists $tags->{'B'}) {
+	    $self->bootstrap($tags->{'B'});
+	}
+    } elsif (defined $tags and ! ref ($tags)) {
+	print STDERR "here with $tags\n";
+        # bootstrap by default
+	$self->bootstrap($tags);
     }
-        return $self->{'_nhx_tag'};
 }
 
 1;
-

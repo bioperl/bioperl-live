@@ -169,10 +169,8 @@ sub next_tree{
 	   } else {
 	       $self->_eventHandler->start_element( { 'Name' => 'node' } );
 	   }
-	   my $leafstatus = 0;
-	   if( $lastevent ne ')' ) {
-	       $leafstatus = 1;
-	   }
+	   my $leafstatus = ( $lastevent ne ')' ) ? 1 : 0;
+
 	   $self->_eventHandler->start_element({'Name' => 'leaf'});
 	   $self->_eventHandler->characters($leafstatus);
 	   $self->_eventHandler->end_element({'Name' => 'leaf'});

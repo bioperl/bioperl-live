@@ -34,7 +34,7 @@ Bio::Tree::NodeI - Interface describing a Tree Node
 
     # process all the children
     my $example_leaf_node;
-    foreach my $node ( $rootnode->get_Descendents() ) {
+    foreach my $node ( $rootnode->get_all_Descendents() ) {
 	if( $node->is_Leaf ) { 
 	    print "node is a leaf ... "; 
             # for example use below
@@ -152,10 +152,10 @@ sub each_Descendent{
 
 =cut
 
-=head2 get_Descendents
+=head2 get_all_Descendents
 
- Title   : get_Descendents($sortby)
- Usage   : my @nodes = $node->get_Descendents;
+ Title   : get_all_Descendents($sortby)
+ Usage   : my @nodes = $node->get_all_Descendents;
  Function: Recursively fetch all the nodes and their descendents
            *NOTE* This is different from each_Descendent
  Returns : Array or Bio::Tree::NodeI objects
@@ -164,15 +164,17 @@ sub each_Descendent{
 
 =cut
 
-sub get_Descendents{
+sub get_all_Descendents{
    my ($self, $sortby) = @_;
    $sortby ||= 'height';
    my @nodes;
    foreach my $node ( $self->each_Descendent($sortby) ) {
-       push @nodes, ($node->get_Descendents($sortby), $node);
+       push @nodes, ($node->get_all_Descendents($sortby), $node);
    }
    return @nodes;
 }
+
+*get_Descendents = \&get_all_Descendents;
 
 =head2 is_Leaf
 
@@ -224,9 +226,10 @@ sub descendent_count{
 
 sub to_string{
    my ($self) = @_;
-   return sprintf("%s%s",
+   return sprintf("%s%s%s",
 		  defined $self->id ? $self->id : '',
-		  defined $self->branch_length ? ':' . $self->branch_length : ' '
+		  defined $self->branch_length ? ':' . $self->branch_length : ' ',
+		  $self->is_Leaf() ? '(leaf)' : ''
 		 );
 }
 
@@ -267,8 +270,7 @@ sub height{
 
  Title   : branch_length
  Usage   : $obj->branch_length()
- Function: 
- Example : 
+ Function: Get/Set the branch length
  Returns : value of branch_length
  Args    : newvalue (optional)
 
@@ -284,9 +286,8 @@ sub branch_length{
 
  Title   : id
  Usage   : $obj->id($newval)
- Function: 
- Example : 
- Returns : value of id
+ Function: The human readable identifier for the node 
+ Returns : value of human readable id
  Args    : newvalue (optional)
 
 
@@ -316,8 +317,7 @@ sub internal_id{
 
  Title   : description
  Usage   : $obj->description($newval)
- Function: 
- Example : 
+ Function: Get/Set the description string
  Returns : value of description
  Args    : newvalue (optional)
 
@@ -333,8 +333,7 @@ sub description{
 
  Title   : bootstrap
  Usage   : $obj->bootstrap($newval)
- Function: 
- Example : 
+ Function: Get/Set the bootstrap value
  Returns : value of bootstrap
  Args    : newvalue (optional)
 
@@ -350,7 +349,7 @@ sub bootstrap{
 
  Title   : ancestor
  Usage   : my $node = $node->ancestor;
- Function: Get/Set a Node's ancestor node
+ Function: Get/Set the ancestor node pointer for a Node
  Returns : Null if this is top level node
  Args    : none
 
@@ -366,15 +365,108 @@ sub ancestor{
 
  Title   : invalidate_height
  Usage   : private helper method
- Function: Invalidate our cached value of the node'e height in the tree
+ Function: Invalidate our cached value of the node height in the tree
  Returns : nothing
  Args    : none
 
 =cut
 
-#'
-
 sub invalidate_height { 
+    shift->throw_not_implemented();
+}
+
+=head2 Methods for associating Tag/Values with a Node
+
+These methods associate tag/value pairs with a Node
+
+=head2 add_tag_value
+
+ Title   : add_tag_value
+ Usage   : $node->add_tag_value($tag,$value)
+ Function: Adds a tag value to a node 
+ Returns : number of values stored for this tag
+ Args    : $tag   - tag name
+           $value - value to store for the tag
+
+
+=cut
+
+sub add_tag_value{
+    shift->throw_not_implemented();
+}
+
+=head2 remove_tag
+
+ Title   : remove_tag
+ Usage   : $node->remove_tag($tag)
+ Function: Remove the tag and all values for this tag
+ Returns : boolean representing success (0 if tag does not exist)
+ Args    : $tag - tagname to remove
+
+
+=cut
+
+sub remove_tag {
+    shift->throw_not_implemented();
+}
+
+=head2 remove_all_tags
+
+ Title   : remove_all_tags
+ Usage   : $node->remove_all_tags()
+ Function: Removes all tags 
+ Returns : None
+ Args    : None
+
+
+=cut
+
+sub remove_all_tags{
+    shift->throw_not_implemented();  
+}
+
+=head2 get_all_tags
+
+ Title   : get_all_tags
+ Usage   : my @tags = $node->get_all_tags()
+ Function: Gets all the tag names for this Node
+ Returns : Array of tagnames
+ Args    : None
+
+
+=cut
+
+sub get_all_tags {
+    shift->throw_not_implemented();
+}
+
+=head2 get_tag_values
+
+ Title   : get_tag_values
+ Usage   : my @values = $node->get_tag_value($tag)
+ Function: Gets the values for given tag ($tag)
+ Returns : Array of values or empty list if tag does not exist
+ Args    : $tag - tag name
+
+
+=cut
+
+sub get_tag_values{
+    shift->throw_not_implemented();
+}
+
+=head2 has_tag
+
+ Title   : has_tag
+ Usage   : $node->has_tag($tag)
+ Function: Boolean test if tag exists in the Node
+ Returns : Boolean
+ Args    : $tag - tagname
+
+
+=cut
+
+sub has_tag{
     shift->throw_not_implemented();
 }
 

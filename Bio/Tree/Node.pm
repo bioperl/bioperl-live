@@ -22,8 +22,8 @@ Bio::Tree::Node - A Simple Tree Node
     my $nodeR = new Bio::Tree::Node();
 
     my $node = new Bio::Tree::Node();
-    $node->add_Descendents($nodeL);
-    $node->add_Descendents($nodeR);
+    $node->add_Descendent($nodeL);
+    $node->add_Descendent($nodeR);
 
     print "node is not a leaf \n" if( $node->is_leaf);
 
@@ -81,6 +81,7 @@ BEGIN {
     $CREATIONORDER = 0;
 }
 
+
 =head2 new
 
  Title   : new
@@ -92,14 +93,14 @@ BEGIN {
 	   -branch_length => branch length [integer] (optional)
            -bootstrap     => value   bootstrap value (string)
            -description   => description of node
-           -id            => unique id for node
+           -id            => human readable id for node
+
 =cut
 
 sub new {
   my($class,@args) = @_;
 
   my $self = $class->SUPER::new(@args);
-  $self->_register_for_cleanup(\&node_cleanup);
   my ($children, $branchlen,$id,
       $bootstrap, $desc,$d) = $self->_rearrange([qw(DESCENDENTS
 						 BRANCH_LENGTH
@@ -109,7 +110,8 @@ sub new {
 						 DESCRIPTION
 						 )],
 					     @args);
-#  $self->{'_desc'} = {};
+  $self->_register_for_cleanup(\&node_cleanup);
+  $self->{'_desc'} = {}; # for descendents
   if( $d && $desc ) { 
       $self->warn("can only accept -desc or -description, not both, accepting -description");
       $desc = $d;
@@ -155,7 +157,7 @@ sub add_Descendent{
        return -1;
    }
    # do we care about order?
-   $node->{'_ancestor'} = $self;
+   $node->ancestor($self);
    if( $self->{'_desc'}->{$node->internal_id} && ! $ignoreoverwrite ) {
        $self->throw("Going to overwrite a node which is $node that is already stored here, set the ignore overwrite flag (parameter 2) to true to ignore this in the future");
    }
@@ -218,18 +220,34 @@ sub each_Descendent{
 
 sub remove_Descendent{
    my ($self,@nodes) = @_;
+   my $c= 0;
    foreach my $n ( @nodes ) { 
        if( $self->{'_desc'}->{$n->internal_id} ) {
-	   $n->{'_ancestor'} = undef;
-	   $self->{'_desc'}->{$n->internal_id}->{'_ancestor'} = undef;
+	   $n->ancestor(undef);
+	   # should be redundant
+	   $self->{'_desc'}->{$n->internal_id}->ancestor(undef);
 	   delete $self->{'_desc'}->{$n->internal_id};
-	   
+	   my $a1 = $self->ancestor;
+	   # remove unecessary nodes if we have removed the part 
+	   # which branches.
+	   # if( $a1 ) {
+	   #    my $bl = $self->branch_length || 0;
+	   #    my @d = $self->each_Descendent;
+	   #    if (scalar @d == 1) {
+	   #	   $d[0]->branch_length($bl + ($d[0]->branch_length || 0));
+	   #	   $a1->add_Descendent($d[0]);
+	   #    }
+	   #    $a1->remove_Descendent($self);
+	   #}
+	   $c++;
        } else { 
-	   $self->debug(sprintf("no node %s (%s) listed as a descendent in this node %s (%s)\n",$n->id, $n,$self->id,$self));
-	   $self->debug("Descendents are " . join(',', keys %{$self->{'_desc'}})."\n");
+	   if( $self->verbose ) {
+	       $self->debug(sprintf("no node %s (%s) listed as a descendent in this node %s (%s)\n",$n->id, $n,$self->id,$self));
+	       $self->debug("Descendents are " . join(',', keys %{$self->{'_desc'}})."\n");
+	   }
        }
    }
-   1;
+   $c;
 }
 
 
@@ -239,7 +257,7 @@ sub remove_Descendent{
  Usage   : $node->remove_All_Descendents()
  Function: Cleanup the node's reference to descendents and reset
            their ancestor pointers to undef, if you don't have a reference
-           to these objects after this call they will be cleanedup - so
+           to these objects after this call they will be cleaned up - so
            a get_nodes from the Tree object would be a safe thing to do first
  Returns : nothing
  Args    : none
@@ -252,16 +270,16 @@ sub remove_all_Descendents{
    # this won't cleanup the nodes themselves if you also have
    # a copy/pointer of them (I think)...
    while( my ($node,$val) = each %{ $self->{'_desc'} } ) {
-       $val->{'_ancestor'} = undef;
+       $val->ancestor(undef);
    }
    $self->{'_desc'} = {};
    1;
 }
 
-=head2 get_Descendents
+=head2 get_all_Descendents
 
- Title   : get_Descendents
- Usage   : my @nodes = $node->get_Descendents;
+ Title   : get_all_Descendents
+ Usage   : my @nodes = $node->get_all_Descendents;
  Function: Recursively fetch all the nodes and their descendents
            *NOTE* This is different from each_Descendent
  Returns : Array or Bio::Tree::NodeI objects
@@ -270,7 +288,6 @@ sub remove_all_Descendents{
 =cut
 
 # implemented in the interface 
-
 
 =head2 ancestor
 
@@ -291,9 +308,8 @@ sub ancestor{
 =head2 branch_length
 
  Title   : branch_length
- Usage   : $obj->branch_length($newval)
- Function:
- Example :
+ Usage   : $obj->branch_length()
+ Function: Get/Set the branch length
  Returns : value of branch_length
  Args    : newvalue (optional)
 
@@ -302,34 +318,45 @@ sub ancestor{
 
 sub branch_length{
     my $self = shift;
-    $self->{'_branch_length'} = shift @_ if @_;
+    if( @_ ) {
+	my $bl = shift;
+	if( defined $bl &&
+	    $bl =~ s/\[(\d+)\]// ) {
+	    $self->bootstrap($1);
+	}
+	$self->{'_branch_length'} = $bl;
+    }
     return $self->{'_branch_length'};
 }
+
 
 =head2 bootstrap
 
  Title   : bootstrap
  Usage   : $obj->bootstrap($newval)
- Function:
- Example :
+ Function: Get/Set the bootstrap value
  Returns : value of bootstrap
  Args    : newvalue (optional)
 
 
 =cut
 
-sub bootstrap{
+sub bootstrap { 
     my $self = shift;
-    $self->{'_bootstrap'} = shift @_ if @_;
-    return $self->{'_bootstrap'};
+    if( @_ ) {
+	if( $self->has_tag('B') ) {
+	    $self->remove_tag('B');
+	}
+	$self->add_tag_value('B',shift);
+    }
+    return ($self->get_tag_values('B'))[0];
 }
 
 =head2 description
 
  Title   : description
  Usage   : $obj->description($newval)
- Function:
- Example :
+ Function: Get/Set the description string
  Returns : value of description
  Args    : newvalue (optional)
 
@@ -346,33 +373,30 @@ sub description{
 
  Title   : id
  Usage   : $obj->id($newval)
- Function:
- Example :
- Returns : value of id
+ Function: The human readable identifier for the node 
+ Returns : value of human readable id
  Args    : newvalue (optional)
+ Note    : id cannot contain the chracters '();:'
 
+"A name can be any string of printable characters except blanks,
+colons, semicolons, parentheses, and square brackets. Because you may
+want to include a blank in a name, it is assumed that an underscore
+character ("_") stands for a blank; any of these in a name will be
+converted to a blank when it is read in."
+
+from L<http://evolution.genetics.washington.edu/phylip/newicktree.html>
 
 =cut
 
 sub id{
-    my $self = shift;
-    $self->{'_id'} = shift @_ if @_;
-    return $self->{'_id'};
-}
-
-sub DESTROY {
-    my ($self) = @_;
-    # try to insure that everything is cleaned up
-    $self->SUPER::DESTROY();
-    if( defined $self->{'_desc'} &&
-	ref($self->{'_desc'}) =~ /ARRAY/i ) {
-	while( my ($nodeid,$node) = each %{ $self->{'_desc'} } ) {
-	    $node->{'_ancestor'} = undef; # insure no circular references
-	    $node->DESTROY();
-	    $node = undef;
-	}
-	$self->{'_desc'} = {};
+    my ($self, $value) = @_;
+    if ($value) {
+        $self->warn("Illegal characters ();:  and space in the id [$value], converting to _ ")
+            if $value =~ /\(\);:/ and $self->verbose >= 0;
+        $value =~ s/[\(\);:\s]/_/g;
+        $self->{'_id'} = $value;
     }
+    return $self->{'_id'};
 }
 
 =head2 internal_id
@@ -405,15 +429,15 @@ sub internal_id{
 =cut
 
 sub _creation_id{
-    my ($self,$value) = @_;
-    if( defined $value) {
-	$self->{'_creation_id'} = $value;
-    }
+    my $self = shift @_;
+    $self->{'_creation_id'} = shift @_ if( @_);
     return $self->{'_creation_id'} || 0;
 }
 
+=head2 Bio::Node::NodeI decorated interface implemented
 
-# The following methods are implemented by NodeI decorated interface
+The following methods are implemented by L<Bio::Node::NodeI> decorated
+interface.
 
 =head2 is_Leaf
 
@@ -427,10 +451,9 @@ sub _creation_id{
 
 sub is_Leaf {
     my ($self) = @_;
-    my $rc = 0;
-    $rc = 1 if( ! defined $self->{'_desc'} ||	
-		keys %{$self->{'_desc'}} == 0);
-    return $rc;
+    my $isleaf = ! (defined $self->{'_desc'} &&
+		 (keys %{$self->{'_desc'}} > 0) );
+    return $isleaf;
 }
 
 =head2 to_string
@@ -494,7 +517,112 @@ sub invalidate_height {
     }
 }
 
-# -- private internal methods --
+=head2 add_tag_value
+
+ Title   : add_tag_value
+ Usage   : $node->add_tag_value($tag,$value)
+ Function: Adds a tag value to a node 
+ Returns : number of values stored for this tag
+ Args    : $tag   - tag name
+           $value - value to store for the tag
+
+
+=cut
+
+sub add_tag_value{
+    my ($self,$tag,$value) = @_;
+    if( ! defined $tag || ! defined $value ) {
+	$self->warn("cannot call add_tag_value with an undefined value");
+    }
+    push @{$self->{'_tags'}->{$tag}}, $value;
+    return scalar @{$self->{'_tags'}->{$tag}};
+}
+
+=head2 remove_tag
+
+ Title   : remove_tag
+ Usage   : $node->remove_tag($tag)
+ Function: Remove the tag and all values for this tag
+ Returns : boolean representing success (0 if tag does not exist)
+ Args    : $tag - tagname to remove
+
+
+=cut
+
+sub remove_tag {
+   my ($self,$tag) = @_;
+   if( exists $self->{'_tags'}->{$tag} ) {
+       $self->{'_tags'}->{$tag} = undef;
+       delete $self->{'_tags'}->{$tag};
+       return 1;
+   }
+   return 0;
+}
+
+=head2 remove_all_tags
+
+ Title   : remove_all_tags
+ Usage   : $node->remove_all_tags()
+ Function: Removes all tags 
+ Returns : None
+ Args    : None
+
+
+=cut
+
+sub remove_all_tags{
+   my ($self) = @_;
+   $self->{'_tags'} = {};
+   return;
+}
+
+=head2 get_all_tags
+
+ Title   : get_all_tags
+ Usage   : my @tags = $node->get_all_tags()
+ Function: Gets all the tag names for this Node
+ Returns : Array of tagnames
+ Args    : None
+
+
+=cut
+
+sub get_all_tags{
+   my ($self) = @_;
+   return sort keys %{$self->{'_tags'} || {}};
+}
+
+=head2 get_tag_values
+
+ Title   : get_tag_values
+ Usage   : my @values = $node->get_tag_value($tag)
+ Function: Gets the values for given tag ($tag)
+ Returns : Array of values or empty list if tag does not exist
+ Args    : $tag - tag name
+
+
+=cut
+
+sub get_tag_values{
+   my ($self,$tag) = @_;
+   return @{$self->{'_tags'}->{$tag} || []};
+}
+
+=head2 has_tag
+
+ Title   : has_tag
+ Usage   : $node->has_tag($tag)
+ Function: Boolean test if tag exists in the Node
+ Returns : Boolean
+ Args    : $tag - tagname
+
+
+=cut
+
+sub has_tag {
+   my ($self,$tag) = @_;
+   return exists $self->{'_tags'}->{$tag};
+}
 
 sub node_cleanup {
     my $self = shift;
@@ -509,4 +637,3 @@ sub node_cleanup {
 }
 
 1;
-

@@ -48,7 +48,6 @@ END {
 use Bio::TreeIO;
 use Bio::Root::IO;
 my $verbose = $ENV{'BIOPERLDEBUG'} || 0;
-ok(1);
 
 my $treeio = new Bio::TreeIO(-verbose => $verbose,
 			     -format => 'newick',
@@ -124,7 +123,8 @@ my @vals = qw(SINFRUP0000006110);
 my $saw = 0;
 foreach my $node ( $tree->get_root_node()->each_Descendent() ) {
 	foreach my $v ( @vals ) {
-	   if( $node->id eq $v ){ $saw = 1; last; }
+	   if( defined $node->id && 
+	       $node->id eq $v ){ $saw = 1; last; }
 	}
 	last if $saw;
 }
@@ -146,48 +146,6 @@ if( $verbose > 0  ) {
     $treeout->write_tree($tree);
     $treeout2->write_tree($tree);
 }
-@nodes = $tree->get_nodes;
-
-my( $i, $c, $g);
-
-for ($i = 0; $i <= $#nodes; $i++) {
-    next unless defined $nodes[$i]->id;
-    if ($nodes[$i]->id eq 'C') {
-	$c = $i;
-    }
-    if ($nodes[$i]->id eq 'G') {
-	$g = $i;
-    }
-}
-$nodes[$c]->ancestor;
-$nodes[$g]->ancestor;
-my $cancestor = $nodes[$c]->ancestor;
-my $gancestor = $nodes[$g]->ancestor; 
-$cancestor->id('C-ancestor'); # let's provide a way to test if we suceeded
-$gancestor->id('G-ancestor'); # in our swapping
-
-$cancestor->remove_Descendent($nodes[$c]);
-$gancestor->remove_Descendent($nodes[$g]);
-$cancestor->add_Descendent($nodes[$g],1);
-$gancestor->add_Descendent($nodes[$c],1);
-
-@nodes = $tree->get_nodes();
-
-for ($i = 0; $i <= $#nodes; $i++) {
-    next unless defined $nodes[$i]->id;
-    if ($nodes[$i]->id eq 'C') {
-	ok($nodes[$i]->ancestor->id, 'G-ancestor');
-	$c = $i;
-    }
-    if ($nodes[$i]->id eq 'G') {
-	$g = $i;
-	ok($nodes[$i]->ancestor->id, 'C-ancestor');
-    }
-}
-
-if( $verbose > 0  ) {
-    $treeout2->write_tree($tree);
-}
 
 $treeio = new Bio::TreeIO(-verbose => $verbose,
 			  -file   => Bio::Root::IO->catfile('t','data', 
@@ -199,9 +157,12 @@ $tree = $treeio->next_tree;
 ok(ref($tree) && $tree->isa('Bio::Tree::TreeI'));
 
 @nodes = $tree->get_nodes;
-ok(@nodes, 12, scalar @nodes);
+ok(@nodes, 13, scalar @nodes);
 
-
+my $adhy = $tree->find_node('ADHY');
+ok($adhy->branch_length, 0.1);
+ok(($adhy->get_tag_values('S'))[0], 'nematode');
+ok(($adhy->get_tag_values('E'))[0], '1.1.1.1');
 
 __DATA__
 (((A:1,B:1):1,(C:1,D:1):1):1,((E:1,F:1):1,(G:1,H:1):1):1);
