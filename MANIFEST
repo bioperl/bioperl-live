@@ -670,7 +670,6 @@ t/Tempfile.t
 t/Test.pm
 t/Tools.t
 t/TreeIO.t
-t/UnivAln.t
 t/Variation_IO.t
 t/XEMBL_DB.t
 t/consed.t
