@@ -695,12 +695,12 @@ sub _parse_YN_Pairwise {
 	    (\d+(\.\d+))\s+ # t
 	    (\d+(\.\d+))\s+ # kappa
 	    (\d+(\.\d+))\s+ # omega
-	    (\d+(\.\d+))\s+ # dN
+	    \-??(\d+(\.\d+))\s+ # dN
 	    \+\-\s+
-	    (\d+(\.\d+))\s+ # dN SE
-	    (\d+(\.\d+))\s+ # dS
+	    \-??(\d+(\.\d+))\s+ # dN SE
+	    \-??(\d+(\.\d+))\s+ # dS
 	    \+\-\s+
-	    (\d+(\.\d+))\s+ # dS SE
+	    \-??(\d+(\.\d+))\s+ # dS SE
 	    /ox 
 	    ) {
 	    
