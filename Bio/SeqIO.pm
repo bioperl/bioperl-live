@@ -36,7 +36,7 @@ or
     tie OUTPUT, 'Bio::SeqIO::Handler', $out;
 
     while $seq ( <INPUT> ) {
-	write OUTPUT $seq;
+	print OUTPUT $seq;
     }
 
 =head1 DESCRIPTION
@@ -99,7 +99,7 @@ This makes the simplest ever reformatter
     tie OUTPUT, 'Bio::SeqIO::Handler', $out;
 
     while $seq ( <INPUT> ) {
-	write OUTPUT $seq;
+	print OUTPUT $seq;
     }
 
 =head1 FEEDBACK
