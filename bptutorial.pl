@@ -2418,7 +2418,7 @@ use Bio::Tools::CodonTable;
 
 my ( $oddcode_obj, $amino_obj, $in, $infile, $chargeseq, $chemseq);
 my (@ii, $i, @res, $myCodonTable);
-my ( $pattern,$pattern_obj, $pattern_obj2);
+my ( $pattern,$pattern_obj,$pattern_obj2, $pattern_obj3);
 
 print "\nBeginning sequence utilities example... \n";
 
@@ -2451,9 +2451,15 @@ print "\nBeginning sequence utilities example... \n";
     #   III.4.2.2 utilities for ambiguous residues (SeqPattern, IUPAC)
 
    #   III.4.2.3 regex-like nucleotide pattern manipulation (SeqPattern)se Bio::Tools::SeqPattern ();
-#	$pattern     = '(CCCCT)N{1,200}(agggg)N{1,200}(agggg)';
-#    	$pattern_obj = new Bio::Tools::SeqPattern(-SEQ =>$pattern, -TYPE =>'dna');
-#	$pattern_obj2  = $pattern_obj->revcom();
+	print "\nBeginning demo of SeqPattern object \n ";
+
+	$pattern     = '(CCCCT)N{1,200}(agyyg)N{1,80}(agggg)';
+	print "\nInput regular expression = $pattern \n ";
+    	$pattern_obj = new Bio::Tools::SeqPattern(-SEQ =>$pattern, -TYPE =>'dna');
+	$pattern_obj2  = $pattern_obj->revcom();
+	print "\nReverse-complemented expression = ",$pattern_obj2->str, "\n ";
+        $pattern_obj3 = $pattern_obj->revcom(1); ## returns expanded rev complement pattern.
+	print "\nExpanded reverse-complemented expression = ",$pattern_obj3->str, "\n ";
 #        $pattern_obj->revcom(1); ## returns expanded rev complement pattern.
 
 return 1;

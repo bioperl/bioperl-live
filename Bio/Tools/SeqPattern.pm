@@ -12,9 +12,9 @@
 package Bio::Tools::SeqPattern;
 
 use Bio::Root::Global qw(:devel);
-use Bio::Seq ();
+use Bio::Root::Object;
 
-@ISA = qw(Bio::Seq);
+@ISA = qw(Bio::Root::Object);
 use strict;
 use vars qw ($ID $VERSION);
 $ID  = 'Bio::Tools::SeqPattern';
@@ -60,10 +60,12 @@ Follow the installation instructions included in the README file.
 
 =head1 DESCRIPTION
 
-The Bio::Tools::SeqPattern.pm module encapsulates generic data and methods for manipulating 
-regular expressions describing nucleic or amino acid sequence patterns (a.k.a, "motifs").
+The Bio::Tools::SeqPattern.pm module encapsulates generic data and
+methods for manipulating regular expressions describing nucleic or
+amino acid sequence patterns (a.k.a, "motifs").
 
-Bio::Tools::SeqPattern.pm is a concrete class that inherits from B<Bio::Seq.pm>.
+Bio::Tools::SeqPattern.pm is a concrete class that inherits from
+B<Bio::Seq.pm>.
 
 This class grew out of a need to have a standard module for doing routine
 tasks with sequence patterns such as:
@@ -175,8 +177,8 @@ Currently, this module only supports patterns using a grep-like syntax.
 
 =head1 USAGE
 
-A simple demo script is included with the central Bioperl distribution (L<INSTALLATION>)
-and is also available from:
+A simple demo script is included with the central Bioperl distribution
+(L<INSTALLATION>) and is also available from:
 
     http://bio.perl.org/Core/Examples/seq_pattern.pl
 
@@ -192,9 +194,9 @@ and is also available from:
 
 =head2 Mailing Lists 
 
-User feedback is an integral part of the evolution of this and other Bioperl modules.
-Send your comments and suggestions preferably to one of the Bioperl mailing lists.
-Your participation is much appreciated.
+User feedback is an integral part of the evolution of this and other
+Bioperl modules.  Send your comments and suggestions preferably to one
+of the Bioperl mailing lists.  Your participation is much appreciated.
 
     vsns-bcd-perl@lists.uni-bielefeld.de          - General discussion
     vsns-bcd-perl-guts@lists.uni-bielefeld.de     - Technically-oriented discussion
@@ -265,22 +267,18 @@ sub _initialize {
     my($seq, $type) = $self->_rearrange([qw(SEQ TYPE)], %param);
 
     $seq || $self->throw("Empty pattern.");
-
+    my $t;
     # Get the type ready for Bio::Seq.pm
     if ($type =~ /nuc|[dr]na/i) {
-	$param{-TYPE} = 'Dna';
+	$t = 'Dna';
     } elsif ($type =~ /amino|pep|prot/i) {
-	$param{-TYPE} = 'Amino';
+	$t = 'Amino';
     }
+    $seq =~ tr/a-z/A-Z/;  #ps 8/8/00 Canonicalize to upper case
+    $self->str($seq);
+    $self->type($t);
 
-    my $make = $self->SUPER::_initialize(%param);
-#	 if($self->make() =~ /^nuc/i) {
-#	     $param{-SEQ} = $self->_expand_nuc($param{-SEQ}); 
-#	 } else {
-##	    $param{-SEQ} = $self->_expand_pep($param{-SEQ});  #unimplemented here.
-#	 }
-
-    $make;
+    return $self;
 }
 
 
@@ -327,6 +325,7 @@ sub alphabet_ok {
 #    print STDERR "\npattern ok: $pat\n";
     1;
 }
+
 
 
 
@@ -492,7 +491,6 @@ sub _expand_nuc {
 See Also   : B<Bio::Seq::revcom()>, L<_fixpat_1>(), L<_fixpat_2>(), L<_fixpat_3>(), L<_fixpat_4>(), L<_fixpat_5>()
 
 =cut
-#'
 
 #-----------
 sub revcom {
@@ -505,7 +503,9 @@ sub revcom {
 #    return $self->{'_rev'} if defined $self->{'_rev'};
 
     $expand ||= 0;
-    my $rev = $self->SUPER::revcom->str;  ## Invoke Bio::Seq::revcom()
+    my $str = $self->str;
+    $str =~ tr/acgtrymkswhbvdnxACGTRYMKSWHBVDNX/tgcayrkmswdvbhnxTGCAYRKMSWDVBHNX/;
+    my $rev = CORE::reverse $str;
     $rev    =~ tr/[](){}<>/][)(}{></;
 
     if($expand) {
@@ -530,7 +530,11 @@ sub revcom {
     
      $fixrev = _fixpat_5($fixrev);
 #    print "FIX 5: $fixrev";<STDIN>;
-    
+
+##### Added by ps 8/7/00 to allow non-greedy matching
+     $fixrev = _fixpat_6($fixrev);
+#    print "FIX 6: $fixrev";<STDIN>;
+
 #    $self->{'_rev'} = $fixrev;
 
      return new Bio::Tools::SeqPattern(-seq =>$fixrev, -type =>$self->type);
@@ -671,17 +675,17 @@ sub _fixpat_3 {
 #	$pat =~ s/(.+)(\{\S+\})(\(\w+\))(.*)/$1#$3$2$4/ or do{ push @done, $pat; last; };
 	if( $pat =~ /(.*)(.)(\{\S+\})(\(\w+\))(.*)/) {
 	    $newpat = "$1#$2$4$3$5";
-	    $oldpat = "$1#$2$3$4$5";
+##ps	    $oldpat = "$1#$2$3$4$5";
 #	    print "1: $1\n2: $2\n3: $3\n4: $4\n5: $5\n";
-	    $braces = $3;
-	    $braces =~ s/[{}]//g;
-	    if( exists $Processed_braces{"$2$braces"} || exists $Processed_asterics{$2}) {
-		$pat = $oldpat;  # Don't change it. Already processed.
+##ps	    $braces = $3;
+##ps	    $braces =~ s/[{}]//g;
+##ps	    if( exists $Processed_braces{"$2$braces"} || exists $Processed_asterics{$2}) {
+##ps		$pat = $oldpat;  # Don't change it. Already processed.
 #		print "saved pat: $pat";<STDIN>;
-	    } else {
+##ps	    } else {
 #		print "new pat: $newpat";<STDIN>;
 		$pat = $newpat;  # Change it.
-	    }
+##ps	    }
 	} elsif( $pat =~ /^(\{\S+\})(\(\w+\))(.*)/) {
 	    $pat = "#$2$1$3";
 	} else { 
@@ -798,6 +802,99 @@ sub _fixpat_5 {
 	last if not $pat;
     }
     return join('', reverse @done);
+}
+
+
+
+
+
+############################
+#
+#  PS: Added 8/7/00 to allow non-greedy matching patterns
+#
+######################################
+
+=head1 _fixpat_6
+
+ Title     : _fixpat_6
+ Usage     : n/a; called automatically by revcom()
+ Purpose   : Utility method for revcom()
+           : Converts all ?Y{5,7}  ---> Y{5,7}?
+           :          and ?(XXX){5,7}  ---> (XXX){5,7}?
+           :          and ?[XYZ]{5,7}  ---> [XYZ]{5,7}?
+ Returns   : String (the new, partially reversed pattern)
+ Argument  : String (the expanded, partially reversed pattern)
+ Throws    : n/a
+
+See Also   : L<revcom>()
+
+=cut
+
+#--------------
+sub _fixpat_6 {
+#--------------
+    my $pat = shift;
+    my (@done,@parts);
+
+   @done = ();
+    while(1) {
+	$pat =~   /(.*)\?(\[\w+\]|\(\w+\)|\w)(\{\S+?\})?(.*)/ or do{ push @done, $pat; last; };
+     my $quantifier = $3 ? $3 : ""; # Shut up warning if no explicit quantifier
+ 	$pat = $1.'#'.$2.$quantifier.'?'.$4;
+#	$pat = $1.'#'.$2.$3.'?'.$4;
+
+#	print "1: $1\n2: $2\n3: $3\n";
+#	print "modified pat: $pat";<STDIN>;
+	@parts = split '#', $pat;
+	push @done, $parts[1];
+	$pat = $parts[0];
+#	print "done: $parts[1]<---\nnew pat: $pat<---";<STDIN>;
+	last if not $pat;
+    }
+    return join('', reverse @done);
+
+ }
+
+=head2 str
+
+ Title   : str
+ Usage   : $obj->str($newval)
+ Function: 
+ Returns : value of str
+ Args    : newvalue (optional)
+
+
+=cut
+
+sub str{
+   my $obj = shift;
+   if( @_ ) {
+      my $value = shift;
+      $obj->{'str'} = $value;
+    }
+    return $obj->{'str'};
+
+}
+
+=head2 type
+
+ Title   : type
+ Usage   : $obj->type($newval)
+ Function: 
+ Returns : value of type
+ Args    : newvalue (optional)
+
+
+=cut
+
+sub type{
+   my $obj = shift;
+   if( @_ ) {
+      my $value = shift;
+      $obj->{'type'} = $value;
+    }
+    return $obj->{'type'};
+
 }
 
 1;
