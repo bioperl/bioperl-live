@@ -60,7 +60,7 @@ Internal methods are usually preceded with a _
 
 # Let the code begin...
 use strict;
-use vars qw( @ISA );
+use vars qw( @ISA %ABS_STRAND_OPTIONS );
 
 use Bio::RangeI;
 @ISA = qw( Bio::RangeI );
@@ -68,12 +68,73 @@ use Bio::RangeI;
 use vars '$VERSION';
 $VERSION = '1.00';
 
+use overload 
+  '""'     => 'toString',
+  eq       => 'equals',
+  fallback => 1;
+
+BEGIN {
+  # ABS_STRAND_OPTIONS contains the legal values for the strand options
+  %ABS_STRAND_OPTIONS = map { $_, '_abs_'.$_ }
+  (
+   'strong', # ranges must have the same strand
+   'weak',   # ranges must have the same strand or no strand
+   'ignore', # ignore strand information
+  );
+}
+
 =head1 Bio::RelRangeI methods
 
 These methods are unique to Bio::RelRangeI (that is, they are not
 inherited from above).
 
 =cut
+
+=head2 low
+
+  Title   : low
+  Usage   : my $low = $range->low();
+  Function: Get the least-valued position of this range.
+  Returns : The current lowest position of this range, relative to the
+            seq_id.
+  Args    : none
+
+  This will return either start() or end(), depending on which
+  is lower.
+
+  This method is implemented in the interface, and need not be
+  overridden in concrete subclasses.
+
+=cut
+
+sub low {
+  my $self = shift;
+  my ( $a, $b ) = ( $self->start(), $self->end() );
+  return ( ( $a < $b ) ? $a : $b );
+} # low()
+
+=head2 high
+
+  Title   : high
+  Usage   : my $high = $range->high();
+  Function: Get the greatest-valued position of this range.
+  Returns : The current highest position of this range, relative to the
+            seq_id.
+  Args    : none
+
+  This will return either start() or end(), depending on which
+  is higher.
+
+  This method is implemented in the interface, and need not be
+  overridden in concrete subclasses.
+
+=cut
+
+sub high {
+  my $self = shift;
+  my ( $a, $b ) = ( $self->start(), $self->end() );
+  return ( ( $a > $b ) ? $a : $b );
+} # high()
 
 =head2 absolute
 
@@ -92,6 +153,31 @@ inherited from above).
 =cut
 
 sub absolute {
+  shift->throw_not_implemented();
+}
+
+=head2 abs_range
+
+  Title   : abs_range
+  Usage   : my $abs_range = $range->abs_range();
+  Function: Get the range of the abs_seq_id that this RangeI is defined over.
+  Returns : The root range, or undef if there is none.
+  Args    : none
+
+  Ranges may have no defined abs_range, but this should be considered
+  deprecated.  The concept of a 'range' requires that it is a range
+  over some sequence; this method returns the range of that sequence.
+  If the value of seq_id() is a string (the unique_id or primary_id of
+  a L<Bio::PrimarySeqI>) then this method will return a range that is
+  equal to this one (to $self).  If the value of seq_id() is another
+  L<Bio::RangeI>, then this method will return it if its seq_id() if
+  is a string, or keep searching up the tree until a range with a
+  seq_id that is a string (or undef) is reached, and return that
+  range.
+
+=cut
+
+sub abs_range {
   shift->throw_not_implemented();
 }
 
@@ -292,7 +378,7 @@ sub abs2rel {
   my $abs_strand = $self->abs_strand();
   @result = (
              ( $abs_strand < 0 ) ?
-             map { $abs_start - $_ + 1 } @_ :
+             map { -( $_ - ( $abs_start + 1 ) ) } @_ :
              map { $_ - $abs_start + 1 } @_
             );
 
@@ -340,12 +426,72 @@ sub rel2abs_strand {
   relative to what seq_id() would be if absolute() were false.
 
   This method turns out to be identical to rel2abs_strand, so it is
-  implemented in the interface as a (glob ref) alias for
+  implemented in the interface as an inheritable alias for
   rel2abs_strand.
 
 =cut
 
-  *abs2rel_strand = \&abs2rel_strand;
+sub abs2rel_strand {
+  shift->rel2abs_strand( @_ );
+}
+
+=head2 orientation_policy
+
+  Title   : orientation_policy
+  Usage   : my $orientation_policy =
+              $range->orientation_policy( [new_policy] );
+  Function: Get/Set the oriention policy that this RelRangeI uses.
+  Returns : The current (or former, if used as a set method) value of
+            the orientation policy.
+  Args    : [optional] A new (string) orientation_policy value.
+
+  The BioPerl community has various opinions about how coordinates
+  should be returned when the strand is negative.  Some folks like the
+  start to be the lesser-valued position in all circumstances
+  ('independent' of the strand value).  Others like the start to be
+  the lesser-valued position when the strand is 0 or 1 and the
+  greater-valued position when the strand is -1 ('dependent' on the
+  strand value).  Others expect that the start and end values are
+  whatever they were set to ('ignorant' of the strand value).
+
+  Legal values of orientation_policy are:
+      Value          Assertion
+   ------------   -------------------
+   'independent'  ( start() <= end() )
+   'dependent'    (( strand() < 0 )?( end() <= start() ):( start() <= end() ))
+   'ignorant'     # No assertion.
+
+  See also ensure_orientation().  Note that changing the
+  orientation_policy will not automatically ensure that the
+  orientation policy assertion holds, so you should call
+  ensure_orientation() also.
+
+=cut
+
+sub orientation_policy {
+  shift->throw_not_implemented();
+}
+
+=head2 ensure_orientation
+
+  Title   : ensure_orientation
+  Usage   : $range->ensure_orientation();
+  Function: After calling this method, the orientation_policy assertion
+            will be true.
+  Returns : nothing
+  Args    : none
+
+  The orientation_policy is an assertion about the relative values of
+  the start() and end() positions.  This assertion might fail when the
+  start and end positions change.  This method reorients the values in
+  case the assertion fails.  After calling this method the assertion
+  will be true.
+
+=cut
+
+sub ensure_orientation {
+  shift->throw_not_implemented();
+}
 
 =head1 Bio::RangeI methods
 
@@ -489,7 +635,7 @@ sub strand {
             of this range.
   Args    : [optional] a new length
 
-  length = ( ( end - start ) + 1 ) = ( ( abs_high - abs_low ) + 1 ).
+  length = ( ( abs_high - abs_low ) + 1 ).
 
   Note the interdependence of start()|end()|abs_start()|abs_end() and
   length().  Changing start() or end() will change the length.
@@ -537,7 +683,7 @@ sub overlaps {
   my ( $other, $strand_option ) = @_;
   if( defined( $other ) && $other->isa( 'Bio::RelRangeI' ) ) {
     return (
-            $self->_testStrand( $other, $strand_option ) and
+            $self->_absTestStrand( $other, $strand_option ) and
             ( ( defined( $self->abs_seq_id() ) &&
                 defined( $other->abs_seq_id() ) ) ?
               ( $self->abs_seq_id() eq $other->abs_seq_id() ) : 1 ) and
@@ -581,7 +727,7 @@ sub contains {
   my ( $other, $strand_option ) = @_;
   if( defined( $other ) && $other->isa( 'Bio::RelRangeI' ) ) {
     return (
-            $self->_testStrand( $other, $strand_option ) and
+            $self->_absTestStrand( $other, $strand_option ) and
             ( ( defined( $self->abs_seq_id() ) &&
                 defined( $other->abs_seq_id() ) ) ?
               ( $self->abs_seq_id() eq $other->abs_seq_id() ) : 1 ) and
@@ -621,7 +767,7 @@ sub equals {
   my ( $other, $strand_option ) = @_;
   if( defined( $other ) && $other->isa( 'Bio::RelRangeI' ) ) {
     return (
-            $self->_testStrand( $other, $strand_option ) and
+            $self->_absTestStrand( $other, $strand_option ) and
             ( ( defined( $self->abs_seq_id() ) &&
                 defined( $other->abs_seq_id() ) ) ?
               ( $self->abs_seq_id() eq $other->abs_seq_id() ) : 1 ) and
@@ -632,6 +778,37 @@ sub equals {
     return $self->SUPER::equals( @_ );
   }
 } # equals(..)
+
+## utility methods for testing absolute strand equality
+
+# works out what test to use for the strictness and returns true/false
+# e.g. $r1->_absTestStrand( $r2, 'strong' )
+sub _absTestStrand {
+  my ( $r1, $r2, $comp ) = @_;
+  return 1 unless $comp;
+  my $func = $ABS_STRAND_OPTIONS{ $comp };
+  return $r1->$func( $r2 );
+}
+
+# returns true if abs_strands are equal and non-zero
+sub _abs_strong {
+  my ( $r1, $r2 ) = @_;
+  my ( $s1, $s2 ) = ( absStrand( $r1 ), absStrand( $r2 ) );
+    
+  return 1 if( ( $s1 != 0 ) && ( $s1 == $s2 ) );
+} # _abs_strong
+
+# returns true if abs_strands are equal or either is zero
+sub _abs_weak {
+  my ( $r1, $r2 ) = @_;
+  my ( $s1, $s2 ) = ( absStrand( $r1 ), absStrand( $r2 ) );
+  return 1 if( ( $s1 == 0 ) || ( $s2 == 0 ) || ( $s1 == $s2 ) );
+} # _abs_weak
+
+# returns true always
+sub _abs_ignore {
+  return 1;
+} # _abs_ignore
 
 =head2 intersection
 
@@ -664,7 +841,7 @@ sub intersection {
   my ( $other, $strand_option ) = @_;
 
   if( $other->isa( 'Bio::RelRangeI' ) ) {
-    unless( $self->_testStrand( $other, $strand_option ) &&
+    unless( $self->_absTestStrand( $other, $strand_option ) &&
             ( ( defined( $self->abs_seq_id() ) &&
                 defined( $other->abs_seq_id() ) ) ?
               ( $self->abs_seq_id() eq $other->abs_seq_id() ) : 1 ) ) {
@@ -847,6 +1024,28 @@ sub overlap_extent {
     return $self->SUPER::overlap_extent( @_ );
   }
 } # overlap_extent(..)
+
+## TODO: Document & dehackify
+sub toString {
+  my $self = shift;
+  ## This one also shows the absolute interpretation:
+  #return $self->seq_id().'('.$self->strand_string().'):'.$self->start().'-'.$self->end().'{'.$self->abs_seq_id().'('.$self->strand_string( $self->abs_strand() ).'):'.$self->abs_start().'-'.$self->abs_end().'}';
+  ## This one does not show the absolute interpretation:
+  return $self->seq_id().'('.$self->strand_string().'):'.$self->start().'-'.$self->end();
+}
+
+## TODO: Document & dehackify
+sub strand_string {
+  my $self = shift;
+  my $strand = shift || $self->strand();
+  if( $strand > 0 ) {
+    return '+';
+  } elsif( $strand < 0 ) {
+    return '-';
+  } else {
+    return '.';
+  }
+} # strand_string(..)
 
 1;
 
