@@ -10,7 +10,7 @@ BEGIN {
     }
     use Test;
     use vars qw($NTESTS);
-    $NTESTS = 199;
+    $NTESTS = 19;
     plan tests => $NTESTS;
 }
 use Bio::Matrix::PhylipDist;
