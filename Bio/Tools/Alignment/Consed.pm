@@ -293,6 +293,22 @@ sub get_contigs {
     return @keys;
 }
 
+=head2 get_class($contig_keyname)
+
+ Title   : get_class($contig_keyname)
+ Usage   : $o_consed->get_class($contig_keyname);
+ Function: Return the class name for this contig
+ Returns : A scalar representing the class of this contig.
+ Args    : None.
+ Notes   : 
+
+=cut
+
+sub get_class {
+    my ($self,$contig) = @_;
+    return $self->{contigs}->{$contig}->{class};
+}
+
 =head2 get_quality_array($contig_keyname)
 
  Title   : get_quality_array($contig_keyname)
