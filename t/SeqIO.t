@@ -8,7 +8,7 @@ BEGIN {
 	use lib 't';
     }
     use Test;
-    plan tests => 83;
+    plan tests => 82;
 }
 
 use Bio::Seq;
@@ -278,8 +278,8 @@ ok($seq->alphabet, 'protein');
 ok(scalar $seq->all_SeqFeatures(), 2);
 
 my $seen = 0;
-foreach my $gn ( $seq->annotation->each_gene_name() ) {
-    if( $gn =~ /SF2/ ) {
+foreach my $gn ( $seq->annotation->get_Annotations('gene_name') ) {
+    if( $gn->value =~ /SF2/ ) {
 	$seen = 1;
     }	       
 }
