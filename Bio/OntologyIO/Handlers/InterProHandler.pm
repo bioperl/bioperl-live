@@ -108,6 +108,7 @@ sub new{
   $contains_rel = Bio::Ontology::RelationshipType->get_instance( "CONTAINS" );
   $found_in_rel = Bio::Ontology::RelationshipType->get_instance( "FOUND_IN" );
   $self->_cite_skip(0);
+  $self->secondary_accessions_map( {} );
 
   return $self;
 }
@@ -222,7 +223,7 @@ sub _top{
   my ($self, $_stack) = @_;
   my @stack = @{$_stack};
 
-  return $stack[@stack - 1];
+  return (@stack >= 1) ? $stack[@stack - 1] : undef;
 }
 
 =head2 _term
@@ -251,9 +252,9 @@ sub _term{
 
  Title   : _clear_term
  Usage   :
- Function:
+ Function: Removes the current term from the handler
  Example :
- Returns : 
+ Returns :
  Args    :
 
 
@@ -291,7 +292,7 @@ sub _names{
 
  Title   : _create_relationship
  Usage   :
- Function:
+ Function: Helper function. Adds relationships to one of the relationship stores.
  Example :
  Returns : 
  Args    :
@@ -309,7 +310,9 @@ sub _create_relationship{
     $term_temp = $ont_eng->add_term( Bio::Ontology::InterProTerm->new( -InterPro_id => $ref_id ) );
     $ont_eng->mark_uninstantiated($term_temp);
   }
-  if ($self->_top($self->_names) eq 'parent_list') {
+  my $rel_type_name = $self->_top($self->_names);
+
+  if ($rel_type_name eq 'parent_list' || $rel_type_name eq 'found_in') {
     $rel->parent_term( $term_temp );
     $rel->child_term( $self->_term );
   } else {
@@ -500,8 +503,7 @@ sub end_element {
 	  my $ttt = $pub_record->{author_list}->[0];
 
 	  $ref->authors( $ttt->{accumulated_text_12345} );
-	  $ref->medline( scalar($ttt->{dbkey}) ) if defined $ttt->{db} && 
-	      $ttt->{db} eq "MEDLINE";
+	  $ref->medline( scalar($ttt->{dbkey}) ) if $ttt->{db} eq "MEDLINE";
 	  push @refs, $ref;
 	}
  	$self->_term->references(\@refs);
@@ -529,7 +531,8 @@ sub end_element {
 	foreach my $sec_ac ( @{ $current_hash->{sec_ac} } ) {
 	  push @refs, $sec_ac->{sec_ac};
 	}
- 	$self->_term->member_list(\@refs);
+ 	$self->_term->secondary_ids(\@refs);
+	$self->secondary_accessions_map->{$self->_term->identifier} = \@refs;
       }
       elsif ($element->{Name} eq 'example_list') {
 	my @refs = ();
@@ -574,6 +577,30 @@ sub end_element {
     }
     $self->_char_storage( '' ) if !$self->_cite_skip;
   }
+}
+
+=head2 secondary_accessions_map
+
+ Title   : secondary_accessions_map
+ Usage   : $obj->secondary_accessions_map($newval)
+ Function: 
+ Example : $map = $interpro_handler->secondary_accessions_map();
+ Returns : Reference to a hash that maps InterPro identifier to an
+  array reference of secondary accessions following the InterPro
+ xml schema.
+ Args    : Empty hash reference
+
+
+=cut
+
+sub secondary_accessions_map{
+  my ($self, $value) = @_;
+
+  if( defined $value) {
+    $self->{'secondary_accessions_map'} = $value;
+  }
+
+  return $self->{'secondary_accessions_map'};
 }
 
 =head2 _increment_record_count

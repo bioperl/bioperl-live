@@ -418,11 +418,9 @@ sub to_string {
     $s .= $self->is_obsolete()."\n";
     $s .= "-- Comment:\n";
     $s .= $self->comment()."\n"; 
-    #   print "size: ".scalar(@{$self->references})."\n";
     if (defined $self->references) {
       $s .= "-- References:\n";
       foreach my $ref ( @{$self->references} ) {
-#       print "check ".$ref->isa("Bio::Annotation::Reference")."\n";
 	$s .= $ref->authors."\n".$ref->title."\n".$ref->location."\n\n";
       };
       $s .= "\n";

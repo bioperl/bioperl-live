@@ -441,6 +441,202 @@ angstroms, which causes the cognate DNA to bend.&lt;/p&gt;
       <db_xref db="PDOC" dbkey="PDOC00040"/>
     </external_doc_list>
   </interpro>
+	<interpro id="IPR000010" type="Family" short_name="Cystatin" protein_count="219">
+		<name>Cysteine proteases inhibitor</name>
+		<abstract>
+Members of this family are inhibitors of cysteine  proteases <cite idref="PUB00005324"/>, <cite idref="PUB00003412"/>, <cite idref="PUB00001614"/>, which are found in the tissues and body fluids of <taxon tax_id="33208">animals</taxon>, as well as in <taxon tax_id="3193">plants</taxon>. They can be grouped into three distinct but related families. These are the type 1 cystatins (or stefins), type 2 cystatins, and the kininogens.
+&lt;p&gt;Kininogen is the precursor  of  the  active  peptide  bradykinin that  plays a role in blood coagulation by  helping  to  position optimally prekallikrein and factor XI next  to factor XII. They  are  also  inhibitors  of  cysteine  proteases. Structurally,  kininogens  are  made  of  three  contiguous type-2 cystatin domains, followed  by an  additional  domain  (of  variable  length)  which contains  the  sequence of bradykinin.  The  first  of  the  three cystatin domains seems to have lost its inhibitory activity.&lt;/p&gt;
+</abstract>
+		<class_list>
+			<classification id="GO:0004869" class_type="GO">
+				<category>Molecular Function</category>
+				<description>cysteine protease inhibitor</description>
+			</classification>
+		</class_list>
+		<example_list>
+			<example>
+				<db_xref dbkey="P09229" db="SWISS"/>Cysteine proteinase inhibitor of rice
+      </example>
+			<example>
+				<db_xref dbkey="P29701" db="SWISS"/>Mammalian fetuin
+      </example>
+			<example>
+				<db_xref dbkey="P28325" db="SWISS"/>Type 2 cystatin
+      </example>
+			<example>
+				<db_xref dbkey="P37842" db="SWISS"/>Potato  multicystatin, an eight-domain cysteine proteinase inhibitor
+      </example>
+			<example>
+				<db_xref dbkey="P01045" db="SWISS"/>Kininogen
+      </example>
+			<example>
+				<db_xref dbkey="Q28986" db="SWISS"/>Type 1 cystatin
+      </example>
+			<example>
+				<db_xref dbkey="P31727" db="SWISS"/>Sarcocystatin A from the flesh fish
+      </example>
+		</example_list>
+		<pub_list>
+			<publication id="PUB00005324">
+				<author_list>Barrett A.J.</author_list>
+				<journal>Trends Biochem. Sci.</journal>
+				<location firstpage="193" lastpage="196" volume="12"/>
+				<year>1987</year>
+			</publication>
+			<publication id="PUB00003412">
+				<author_list>Rawlings N.D., Barrett A.J.</author_list>
+				<title>Evolution of proteins of the cystatin superfamily.</title>
+				<db_xref db="MEDLINE" dbkey="90189177"/>
+				<journal>J. Mol. Evol.</journal>
+				<location firstpage="60" lastpage="71" volume="30"/>
+				<year>1990</year>
+			</publication>
+			<publication id="PUB00001614">
+				<author_list>Bode W., Turk V.</author_list>
+				<title>The cystatins: protein inhibitors of cysteine proteinases.</title>
+				<db_xref db="MEDLINE" dbkey="91309737"/>
+				<journal>FEBS Lett.</journal>
+				<location firstpage="213" lastpage="219" volume="285"/>
+				<year>1991</year>
+			</publication>
+		</pub_list>
+		<child_list>
+			<rel_ref ipr_ref="IPR001363"/>
+			<rel_ref ipr_ref="IPR001713"/>
+			<rel_ref ipr_ref="IPR003243"/>
+			<rel_ref ipr_ref="IPR003244"/>
+		</child_list>
+		<member_list>
+			<db_xref protein_count="199" db="PROSITE" dbkey="PS00287" name="CYSTATIN"/>
+			<db_xref protein_count="209" db="PFAM" dbkey="PF00031" name="cystatin"/>
+			<db_xref protein_count="205" db="SMART" dbkey="SM00043" name="CY"/>
+		</member_list>
+		<external_doc_list>
+			<db_xref db="BLOCKS" dbkey="IPB000010"/>
+			<db_xref db="PDOC" dbkey="PDOC00259"/>
+		</external_doc_list>
+		<sec_list>
+			<sec_ac acc="IPR000078"/>
+		</sec_list>
+	</interpro>
+	<interpro id="IPR000413" type="Family" short_name="Integrin_alpha" protein_count="126">
+		<name>Integrins alpha chain</name>
+		<abstract>
+Integrins <cite idref="PUB00000811"/>, <cite idref="PUB00001505"/> are a large family of cell surface receptors that mediate cell
+to cell as well as cell to matrix adhesion. Some integrins recognize the R-G-D
+sequence in their extracellular matrix protein ligand. Structurally, integrins
+consist of a dimer of an alpha and a beta chain.  Each  subunit  has  a  large
+N-terminal extracellular domain followed by a transmembrane domain and a short
+C-terminal cytoplasmic  region.    Some    alpha  subunits   are cleaved post-
+translationally to produce  a  heavy  and a  light chain linked by a disulfide
+bond. Integrin alpha chains  share a  conserved sequence which is found at
+the  beginning  of  the  cytoplasmic  domain,  just   after  the  end  of  the
+transmembrane region. The exact pairing of alpha- and beta-subunits determines
+ligand specificity, localisation and function. Within the N-terminal domain of alpha subunits, seven sequence repeats, each
+of approximately 60 amino acids, have been found <cite idref="PUB00006166"/>. It has been predicted 
+that these repeats assume a beta-propeller fold. The domains contain seven 
+four-stranded beta-sheets arranged in a torus around a pseudosymmetry axis
+<cite idref="PUB00005772"/>. Integrin ligands and a putative Mg&lt;sup&gt;2+&lt;/sup&gt; ion are predicted to bind to the
+upper face of the propeller, in a manner analogous to the way in which the
+trimeric G-protein beta subunit (G beta) (which also has a beta-propeller
+fold) binds the G protein alpha subunit <cite idref="PUB00005772"/>.
+</abstract>
+		<class_list>
+			<classification id="GO:0004895" class_type="GO">
+				<category>Molecular Function</category>
+				<description>cell adhesion receptor</description>
+			</classification>
+			<classification id="GO:0007155" class_type="GO">
+				<category>Biological Process</category>
+				<description>cell adhesion</description>
+			</classification>
+			<classification id="GO:0007160" class_type="GO">
+				<category>Biological Process</category>
+				<description>cell-matrix adhesion</description>
+			</classification>
+			<classification id="GO:0008305" class_type="GO">
+				<category>Cellular Component</category>
+				<description>integrin</description>
+			</classification>
+		</class_list>
+		<example_list>
+			<example>
+				<db_xref dbkey="P23229" db="SWISS"/>The alpha-6 chain (VLA-6) which,  with  the beta-1  chain, forms a platelet laminin receptor.
+      </example>
+			<example>
+				<db_xref dbkey="P53708" db="SWISS"/>The alpha-8 chain which, with the  beta-1 chain  plays  a  possible role in cell-cell interactions during axon-growth and fasciculation.
+      </example>
+			<example>
+				<db_xref dbkey="P08648" db="SWISS"/>The alpha-5 chain (VLA-5) (CD49e) which,  with  the beta-1 chain,  forms  a receptor specific to fibronectin.
+      </example>
+			<example>
+				<db_xref dbkey="P12080" db="SWISS"/>The Drosophila position-specific antigen 2 alpha chain (PS2).
+      </example>
+			<example>
+				<db_xref dbkey="P26006" db="SWISS"/>The alpha-3 chain (VLA-3) (Galactoprotein B3).
+      </example>
+			<example>
+				<db_xref dbkey="P56199" db="SWISS"/>The alpha-1 chain (VLA-1) (CD49a)  which,  with the beta-1 chain, acts as a receptor for laminin and collagen.
+      </example>
+			<example>
+				<db_xref dbkey="P13612" db="SWISS"/>The alpha-4 chain (VLA-4) (CD49d)  which,  with the beta-1 chain, interacts with vascular cell adhesion protein 1 (VCAM-1).
+      </example>
+			<example>
+				<db_xref dbkey="P17301" db="SWISS"/>The alpha-2 chain (VLA-2) (CD49b)  which,  with the beta-1 chain, acts as a receptor that binds collagen.
+      </example>
+		</example_list>
+		<pub_list>
+			<publication id="PUB00000811">
+				<author_list>Hynes R.O.</author_list>
+				<title>Integrins: a family of cell surface receptors.</title>
+				<db_xref db="MEDLINE" dbkey="87131067"/>
+				<journal>Cell</journal>
+				<location firstpage="549" lastpage="554" volume="48"/>
+				<year>1987</year>
+			</publication>
+			<publication id="PUB00001505">
+				<author_list>Albelda S.M., Buck C.A.</author_list>
+				<title>Integrins and other cell adhesion molecules.</title>
+				<db_xref db="MEDLINE" dbkey="90337122"/>
+				<journal>FASEB J.</journal>
+				<location firstpage="2868" lastpage="2880" volume="4"/>
+				<year>1990</year>
+			</publication>
+			<publication id="PUB00006166">
+				<author_list>Springer T.A., Corbi A.L., Miller L.J., O'Connor K., Larson R.S.</author_list>
+				<title>cDNA cloning and complete primary structure of the alpha subunit of a leukocyte adhesion glycoprotein, p150,95.</title>
+				<db_xref db="MEDLINE" dbkey="88166645"/>
+				<journal>EMBO J.</journal>
+				<location firstpage="4023" lastpage="4028" volume="6" issue="13"/>
+				<year>1987</year>
+			</publication>
+			<publication id="PUB00005772">
+				<author_list>Springer T.A.</author_list>
+				<title>Folding of the N-terminal, ligand-binding region of integrin alpha-subunits into a beta-propeller domain.</title>
+				<db_xref db="MEDLINE" dbkey="97144395"/>
+				<journal>Proc. Natl. Acad. Sci. U.S.A.</journal>
+				<location firstpage="65" lastpage="72" volume="94" issue="1"/>
+				<year>1997</year>
+			</publication>
+		</pub_list>
+		<member_list>
+			<db_xref protein_count="79" db="PRINTS" dbkey="PR01185" name="INTEGRINA"/>
+			<db_xref protein_count="112" db="PREFILE" dbkey="PS50107" name="INTEGRIN_ALPHA_2"/>
+			<db_xref protein_count="104" db="PROSITE" dbkey="PS00242" name="INTEGRIN_ALPHA"/>
+			<db_xref protein_count="75" db="PFAM" dbkey="PF00357" name="integrin_A"/>
+			<db_xref protein_count="117" db="PFAM" dbkey="PF01839" name="FG-GAP"/>
+			<db_xref protein_count="110" db="SMART" dbkey="SM00191" name="Int_alpha"/>
+		</member_list>
+		<external_doc_list>
+			<db_xref db="BLOCKS" dbkey="IPB000413"/>
+			<db_xref db="PDOC" dbkey="PDOC00215"/>
+			<db_xref db="PROPRO" dbkey="integrins_alpha"/>
+		</external_doc_list>
+		<sec_list>
+			<sec_ac acc="IPR002458"/>
+			<sec_ac acc="IPR002476"/>
+		</sec_list>
+	</interpro>
   <deleted_entries>
     <del_ref id="IPR000001"/>
     <del_ref id="IPR000005"/>

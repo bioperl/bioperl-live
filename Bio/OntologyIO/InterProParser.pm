@@ -1,4 +1,4 @@
-# $GNF: projects/gi/symgene/src/perl/seqproc/Bio/OntologyIO/InterProParser.pm,v 1.4 2003/02/04 03:16:26 pdimitro Exp $
+# $GNF: projects/gi/symgene/src/perl/seqproc/Bio/OntologyIO/InterProParser.pm,v 1.5 2003/02/07 22:05:58 pdimitro Exp $
 #
 # BioPerl module for InterProParser
 #
@@ -115,6 +115,7 @@ sub new{
   $self->{_parser} = XML::Parser::PerlSAX->new( Handler => $ip_h );
   $self->{_ontology_engine} = $ont_eng;
   $self->{_file_name} = $param{'-file'};
+  $self->{_interpro_handler} = $ip_h;
 
   return $self;
 }
@@ -182,6 +183,27 @@ sub _is_parsed{
 
     return $self->{'_is_parsed'} = shift if @_;
     return $self->{'_is_parsed'};
+}
+
+=head2 secondary_accessions_map
+
+ Title   : secondary_accessions_map
+ Usage   : $obj->secondary_accessions_map()
+ Function:  This method is merely for convinience, and one should
+ normally use the InterProTerm secondary_ids method to access
+ the secondary accessions.
+ Example : $map = $interpro_parser->secondary_accessions_map;
+ Returns : Reference to a hash that maps InterPro identifier to an
+  array reference of secondary accessions following the InterPro
+ xml schema.
+ Args    : Empty hash reference
+
+=cut
+
+sub secondary_accessions_map{
+  my ($self) = @_;
+
+  return $self->{_interpro_handler}->{secondary_accessions_map};
 }
 
 1;
