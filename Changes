@@ -5,11 +5,11 @@ Revision history for Bioperl core modules
 
     o Bio::Search and Bio::SearchIO system introduced for event based
       parsing of Blast,Fasta reports Bio::SearchIO supports ncbi BLAST
-      in text and XML and FASTA reports in standard output format
+      in text and XML and FASTA reports in standard output format.
 
     o Bio::Tree and Bio::TreeIO for phylogenetic trees.  A Random tree
       generator is included in Bio::TreeIO::RandomTrees and a
-      statistics module for evaluating
+      statistics module for evaluating.
       
     o Bio::DB::GFF, Lincoln Stein's GFF database suitable as a DB
       server for DAS servers.
@@ -19,7 +19,7 @@ Revision history for Bioperl core modules
       for the data stream.
 	
     o Bio::Tools::Alignment for Consed and sequence Trimming
-      functionality
+      functionality.
  
     o Bio::Structure for Protein structure information and parsing
 
@@ -38,7 +38,7 @@ Revision history for Bioperl core modules
       information (dblinks, references, etc) and is more robust that
       previous system.
  
-    o Bio::Tools::FASTAParser introduced
+    o Bio::Tools::FASTAParser introduced.
 
     o Scripts from the bioperl script submission project and new
       scripts from bioperl authors are included in "scripts" directory.
@@ -48,6 +48,9 @@ Revision history for Bioperl core modules
 	
     o Bio::Root::Root introduced as the base object while
       Bio::Root::RootI is now simply an interface.
+
+    o Bio::DB::RefSeq provides database access to copy of the NCBI
+      RefSeq database using the EBI dbfetch script.
 
 0.9.0 Developer's release
 
