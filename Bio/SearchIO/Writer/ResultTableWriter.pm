@@ -299,17 +299,20 @@ sub _set_row_data_func {
     my $code = join( ",", @data);
 
 ## Begin Debugging
-#    print "Data to print:\n";
-#    foreach( 0..$#data) { print " [", $_+1, "] $data[$_]\n";   }
-#    print "CODE:\n$code\n";
-#    print "Printf format: ", $self->printf_fmt, "\n";
+    $self->debug( "Data to print:\n");
+    if( $self->verbose > 0 ) {
+	foreach( 0..$#data) { $self->debug( " [". $_+1 . "] $data[$_]\n");   }
+    }
+    $self->debug( "CODE:\n$code\n");
+    $self->debug( "Printf format: ". $self->printf_fmt. "\n");
 ## End Debugging
 
     my $func = sub {
         my ($result, $hit, $hsp) = @_;
-        return eval ($code);
+        my $r = eval ($code);
+	if( $@ ) { $self->debug($@); }
+	return $r;
     };
-
     $self->{'_row_data_func'} = $func;
 }
 
