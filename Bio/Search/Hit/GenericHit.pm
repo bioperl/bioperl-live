@@ -15,11 +15,12 @@
 Bio::Search::Hit::GenericHit - A generic implementation of the Bio::Search::Hit::HitI interface
 
 =head1 SYNOPSIS
-{
+
+  {
     use Bio::Search::Hit::GenericHit;
-    my $hit = new Bio::Search::Hit::GenericHit(-algorithm => 'blastp',
-					       );
-}
+    my $hit = new Bio::Search::Hit::GenericHit(-algorithm => 'blastp');
+
+  }
 
 =head1 DESCRIPTION
 

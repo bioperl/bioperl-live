@@ -43,12 +43,12 @@ system.
 =head2 Start and End coordinates
 
 Sequence endpoints are swapped so that B<start is always less than
-end>. This affects For TBLASTN/X hits on the minus strand. Strand
+end. This affects For TBLASTN/X hits on the minus strand. Strand
 information can be recovered using the strand() method. This
 normalization step is standard Bioperl practice. It also facilitates
 use of range information by methods such as match().
 
-=over 0
+=over 1
 
 =item * Supports BLAST versions 1.x and 2.x, gapped and ungapped.
 
@@ -101,7 +101,7 @@ or the web:
 
 =head1 AUTHOR 
 
-Steve Chervitz <sac@bioperl.org>
+Steve Chervitz E<lt>sac@bioperl.orgE<gt>
 
 See L<the FEEDBACK section | FEEDBACK> for where to send bug reports and comments.
 

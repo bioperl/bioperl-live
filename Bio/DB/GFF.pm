@@ -732,7 +732,7 @@ Other named arguments may be recognized by subclasses.  They become database
 meta values that control various settable options.
 
 As a shortcut (and for backward compatibility) a single true argument
-is the same as initialize(-erase=>1).
+is the same as initialize(-erase=E<gt>1).
 
 =cut
 
@@ -791,7 +791,7 @@ sub meta {
  Args    : none
  Status  : protected
 
-This method returns a list of tag=>value pairs that contain default
+This method returns a list of tag=E<gt>value pairs that contain default
 meta information about the database.  It is invoked by initialize() to
 write out the default meta values.  The base class version returns an
 empty list.

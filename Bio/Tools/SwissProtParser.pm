@@ -71,7 +71,7 @@ use Bio::Annotation::Reference in the reference() method.
 
 =head1 AUTHOR
 
-Allen Day <allenday@ucla.edu>
+Allen Day E<lt>allenday@ucla.eduE<gt>
 
 =head1 SEE ALSO
 

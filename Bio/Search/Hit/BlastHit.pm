@@ -170,7 +170,7 @@ or the web:
 
 =head1 AUTHOR 
 
-Steve Chervitz <sac@bioperl.org>
+Steve Chervitz E<lt>sac@bioperl.orgE<gt>
 
 See L<the FEEDBACK section | FEEDBACK> for where to send bug reports and comments.
 
@@ -731,7 +731,7 @@ sub _set_id {
  Throws    : n/a
  Status    : Experimental
 
-See Also   : L<Bio::Search::BlastUtils::tile_hsps()|Bio::Search::BlastUtils::tile_hsps>,  L<HSP Tiling and Ambiguous Alignments | HSP Tiling and Ambiguous Alignments>
+See Also   : L<Bio::Search::BlastUtils::tile_hsps>, L<HSP Tiling and Ambiguous Alignments>
 
 =cut
 
@@ -1331,7 +1331,7 @@ sub matches {
            : normalized so that start < end. Strand information can be
            : obtained by calling $hit->strand().
 
-See Also   : L<end()|end>, L<range()|range>, L<strand()|strand>, L<HSP Tiling and Ambiguous Alignments | HSP Tiling and Ambiguous Alignments>, L<Bio::Search::HSP::BlastHSP::start|Bio::Search::HSP::BlastHSP>
+See Also   : L<end()|end>, L<range()|range>, L<strand()|strand>, L<HSP Tiling and Ambiguous Alignments>, L<Bio::Search::HSP::BlastHSP::start|Bio::Search::HSP::BlastHSP>
 
 =cut
 
@@ -1380,7 +1380,7 @@ sub start {
            : normalized so that start < end. Strand information can be
            : obtained by calling $hit->strand().
 
-See Also   : L<start()|start>, L<range()|range>, L<strand()|strand>, L<HSP Tiling and Ambiguous Alignments | HSP Tiling and Ambiguous Alignments>, L<Bio::Search::HSP::BlastHSP::end|Bio::Search::HSP::BlastHSP>
+See Also   : L<start()|start>, L<range()|range>, L<strand()|strand>, L<HSP Tiling and Ambiguous Alignments>, L<Bio::Search::HSP::BlastHSP::end|Bio::Search::HSP::BlastHSP>
 
 =cut
 

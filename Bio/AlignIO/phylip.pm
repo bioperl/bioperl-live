@@ -43,8 +43,9 @@ Bio::AlignIO::phylip - PHYLIP format sequence input/output stream
 This object can transform Bio::SimpleAlign objects to and from PHYLIP
 interleaved format. It will not work with PHYLIP sequencial format.
 
-This module will output PHYLIP sequential format.  By specifying the flag
--interleaved => 0 in the initialization the module can output data in interleaved format.
+This module will output PHYLIP sequential format.  By specifying the
+flag -interleaved =E<gt> 0 in the initialization the module can output
+data in interleaved format.
 
 =head1 FEEDBACK
 

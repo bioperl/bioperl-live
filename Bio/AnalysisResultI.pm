@@ -75,7 +75,8 @@ This software is provided "as is" without warranty of any kind.
 
 =head1 APPENDIX
 
-The rest of the documentation details each of the object methods. Internal methods are usually preceded with a _
+The rest of the documentation details each of the object
+methods. Internal methods are usually preceded with a _
 
 =cut
 
@@ -100,6 +101,7 @@ use Bio::Root::RootI;
  Argument  : n/a
  Returns   : A Bio::PrimarySeqI-compatible object without sequence information.
              The sequence will have display_id, description, moltype, and length data.
+
 =cut
 
 #---------------------
@@ -123,6 +125,7 @@ sub analysis_query {
  Argument  : n/a
  Comments  : Implementation of this method is optional.
              AnalysisResultI provides a default behavior of returning undef.
+
 =cut
 
 #---------------
@@ -140,6 +143,7 @@ sub analysis_subject {
  Argument  : n/a
  Comments  : Implementation of this method is optional.
              AnalysisResultI provides a default behavior of returning undef.
+
 =cut
 
 #---------------

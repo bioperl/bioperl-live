@@ -443,9 +443,9 @@ sub get_trace {
     }
 }
 
-=head2 _dump_traces_outgoing($transformed)
+=head2 _dump_traces_incoming($transformed)
 
- Title   : _dump_traces("transformed")
+ Title   : _dump_traces_incoming("transformed")
  Usage   : &_dump_traces($ra,$rc,$rg,$rt);
  Function: Used in debugging. Prints all traces one beside each other.
  Returns : Nothing.
@@ -475,8 +475,8 @@ sub _dump_traces_incoming {
 
 =head2 _dump_traces_outgoing($transformed)
 
- Title   : _dump_traces("transformed")
- Usage   : &_dump_traces($ra,$rc,$rg,$rt);
+ Title   : _dump_traces_outgoing("transformed")
+ Usage   : &_dump_traces_outgoing(($ra,$rc,$rg,$rt);
  Function: Used in debugging. Prints all traces one beside each other.
  Returns : Nothing.
  Args    : References to the arrays containing the traces for A,C,G,T.

@@ -102,14 +102,15 @@ or the web:
 
 =head1 AUTHOR 
 
-Steve Chervitz <sac@bioperl.org>
+Steve Chervitz E<lt>sac@bioperl.orgE<gt>
 
-See L<the FEEDBACK section | FEEDBACK> for where to send bug reports and comments.
+See L<the FEEDBACK section | FEEDBACK> for where to send bug reports
+and comments.
 
 =head1 SEE ALSO
 
-L<Bio::SearchIO::Writer::HitTableWriter|Bio::SearchIO::Writer::HitTableWriter>
-L<Bio::SearchIO::Writer::HSPTableWriter|Bio::SearchIO::Writer::HSPTableWriter>
+L<Bio::SearchIO::Writer::HitTableWriter>,
+L<Bio::SearchIO::Writer::HSPTableWriter>
 
 =head1 METHODS
 

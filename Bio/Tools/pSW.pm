@@ -16,7 +16,7 @@
 Bio::Tools::pSW - pairwise Smith Waterman object
 
 =head1 SYNOPSIS
-{
+
     use Bio::Tools::pSW;
     use Bio::AlignIO;
     my $factory = new Bio::Tools::pSW( '-matrix' => 'blosum62.bla',

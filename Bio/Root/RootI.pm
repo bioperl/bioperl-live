@@ -473,7 +473,7 @@ sub _cleanup_methods {
   return;
 }
 
-=head2 throw_not_implemented()>
+=head2 throw_not_implemented()
 
  Purpose : Throws a Bio::Root::NotImplemented exception.
            Intended for use in the method definitions of 

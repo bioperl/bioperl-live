@@ -75,9 +75,9 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 
 =head1 AUTHOR 
 
-Aaron Mackey <amackey@virginia.edu>  (original author)
+Aaron Mackey E<lt>amackey@virginia.eduE<gt>  (original author)
 
-Steve Chervitz <sac@bioperl.org>
+Steve Chervitz E<lt>sac@bioperl.orgE<gt>
 
 See L<the FEEDBACK section | FEEDBACK> for where to send bug reports and comments.
 

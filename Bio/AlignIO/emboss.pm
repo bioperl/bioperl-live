@@ -16,7 +16,7 @@ Bio::AlignIO::emboss - Parse EMBOSS alignment output (from applications water an
 
 =head1 SYNOPSIS
 
-# do not use the object directly
+    # do not use the object directly
     use Bio::AlignIO;
     # read in an alignment from the EMBOSS program water
     my $in = new Bio::AlignIO(-format => 'emboss',

@@ -285,7 +285,7 @@ sub _clear_resume_state {
     undef $self->{'_resume_state'};
 }
 
-=head2 running()
+=head2 running
 
 The machine is either running or not running. 
 Once the machine has stopped running, it cannot be re-started.
@@ -369,7 +369,7 @@ sub resume {
     $self->run();
 }
 
-=head2 transition_table()
+=head2 transition_table
 
  Arg      : n/a
  Returns  : An array of array references to two-element arrays.
@@ -416,7 +416,7 @@ sub _set_transition_table {
     }
 }
 
-=head2 add_transition()
+=head2 add_transition
 
  Arg      : Two string arguments where:
             First string = name of the "from" state.
@@ -440,7 +440,7 @@ sub add_transition {
 }
 
 
-=head2 change_state()
+=head2 change_state
 
  Purpose  : To cause the machine to change its state.
  Argument : A String containing the name of the the new state.
@@ -469,7 +469,7 @@ sub change_state {
 }
 
 
-=head2 get_transitions_from()
+=head2 get_transitions_from
 
  Purpose  : Returns a list array references that have the indicated state
             in their 'from' slot.
@@ -487,7 +487,7 @@ sub get_transitions_from {
     return @trans;
 }
 
-=head2 validate_transition()
+=head2 validate_transition
 
  Purpose  : Determines if the desired state change is defined within 
             the set of registered transitions for this StateMachine.
@@ -533,7 +533,7 @@ sub validate_transition {
     return $to_state;
 }
 
-=head2 check_for_new_state()
+=head2 check_for_new_state
 
  Purpose : To do whatever checking is necessary to determine if 
             a state transition should occur. 
@@ -581,7 +581,7 @@ sub clear_state_change_cache {
 }
 
 
-=head2 finalize_state_change()
+=head2 finalize_state_change
 
  Purpose  : Performs routine operations to finish changing state.
             This method should be called at the end of change_state().

@@ -17,12 +17,6 @@ Bio::Search::HSP::HSPI - Interface for a High Scoring Pair in a similarity searc
 
 =head1 SYNOPSIS
 
-Bio::Search::HSP::HSPI objects cannot be instantiated since this
-module defines a pure interface.
-
-Given an object that implements the Bio::Search::HSP::HSPI  interface,
-you can do the following things with it:
-
     $r_type = $hsp->algorithm
 
     $pvalue = $hsp->p();
@@ -46,6 +40,12 @@ you can do the following things with it:
     $len = $hsp->length( ['query'|'hit'|'total'] );
 
 =head1 DESCRIPTION
+
+Bio::Search::HSP::HSPI objects cannot be instantiated since this
+module defines a pure interface.
+
+Given an object that implements the Bio::Search::HSP::HSPI  interface,
+you can do the following things with it:
 
 =head1 SEE ALSO
 

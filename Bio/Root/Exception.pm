@@ -68,21 +68,14 @@ in any module or script.
 
 =over 8
 
-=item B<Bio::Root::Exception>
-
-=item B<Bio::Root::NotImplemented>
-
-=item B<Bio::Root::IOException>
-
-=item B<Bio::Root::FileOpenException>
-
-=item B<Bio::Root::SystemException>
-
-=item B<Bio::Root::BadParameter>
-
-=item B<Bio::Root::OutOfRange>
-
-=item B<Bio::Root::NoSuchThing>
+=item Bio::Root::Exception    
+=item Bio::Root::NotImplemented
+=item Bio::Root::IOException
+=item Bio::Root::FileOpenException
+=item Bio::Root::SystemException
+=item Bio::Root::BadParameter
+=item Bio::Root::OutOfRange
+=item Bio::Root::NoSuchThing
 
 =back
 
@@ -179,10 +172,6 @@ my $DEFAULT_VALUE = "__DUMMY__";  # Permits eval{} based handlers to work
 
 =item B< new() >
 
-=cut
-
-=item B< new() >
-
  Purpose : Guarantees that -value is set properly before
            calling Error::new().
 
@@ -228,7 +217,7 @@ sub new {
     return $self;
 }
 
-=item B< pretty_format() >
+=item pretty_format()
 
  Purpose : Get a nicely formatted string containing information about the 
            exception. Format is similar to that produced by 
@@ -313,7 +302,7 @@ sub _reformat_stacktrace {
               print "$error";
            }
 
-See Also: L<pretty_format()>
+ See Also: L<pretty_format()>
 
 =cut
 
