@@ -1,7 +1,23 @@
 $Id$
 Revision history for Bioperl core modules
 
-0.9.1 Developer's release
+
+0.9.3 Developer's release
+    
+    o Event based parsing system improved (SearchIO).  With parsers for
+      XML Blast (blastxml), Text Blast (blast), and FASTA results (fasta).  
+      Additionally a lazy parsing system for text and html blast reports was
+      added and is called psiblast (name subject to change in future releases).
+
+    o Bio::Search objects improved and standardized with associated Interfaces
+      written.  The concept of a search "Hit" was standardized to be called
+      "hit" consistently and the use of "subject" was deprecated in all active
+      modules.
+
+    o Bio::Structure added (since 0.9.1) for Protein structure objects 
+      and PDB parser to retrieve these structures from data files. 
+
+0.9.2 Developer's release
 
     o Bio::Search and Bio::SearchIO system introduced for event based
       parsing of Blast,Fasta reports Bio::SearchIO supports ncbi BLAST
