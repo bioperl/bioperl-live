@@ -22,7 +22,7 @@ BEGIN {
     }
     use Test;
 
-    $NUMTESTS = 7;
+    $NUMTESTS = 11;
     plan tests => $NUMTESTS;
     eval { 
 	require DB_File; 
@@ -73,6 +73,11 @@ ok($result);
 my $seq = $db->get_Seq_by_id('AAC12660');
 ok($seq);
 ok($seq->length,504);
+
+$seq = $db->get_Seq_by_acc('AAC12660');
+ok($seq);
+ok($seq->length,504);
+
 undef $db;
 &cleanup();
 &maketmpdir();
@@ -89,6 +94,12 @@ ok($result);
 $seq = $db->get_Seq_by_id('HSCFVII');
 ok($seq);
 ok($seq->length,12850);
+
+# deal with wantarray conditions
+$seq = $db->get_Seq_by_acc('J02933');
+ok($seq && ref($seq));
+ok($seq->length,12850);
+
 undef $db;
 
 #&maketmpdir();
