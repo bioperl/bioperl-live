@@ -1329,18 +1329,23 @@ CTGGAATTTGCTGGCATGTTATGCAATTTGCATATCAAATGGTTAATTTTTGCACAGGAC
 		You have access to a large number of sequence analysis programs 
 		within Bioperl. Typically this means you have a means to run
 		the program, and frequently a means of parsing the resulting 
-		output as well. Certainly the most popular analytical program
-		is 
+		output, or report, as well. Certainly the most popular 
+		analytical program is 
 <ulink
 		url="http://bioinformatics.ubc.ca/resources/tools/index.php?name=blastall">BLAST</ulink>,
-		so let's use this as an example. This example assumes that you 
-		have BLAST, also known as blastall, installed on your machine
-		and that you used the formatdb program to index the sequence
-		file "db.fa".
+		so let's use it as an example. First you'll need to get 
+		BLAST, also known as blastall, installed on your machine
+		and running. This example assumes that you used the formatdb 
+		program to index the sequence file "db.fa" as well.
 	 </para>
     <para>
 		As usual, we start by choosing a module to use, in this case
-<ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Tools/Run/StandAloneBlast.html">Bio::Tools::Run::StandAloneBlast</ulink>:
+<ulink
+		  url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Tools/Run/StandAloneBlast.html">Bio::Tools::Run::StandAloneBlast</ulink>.
+		You stipulate the parameters used by the blastall program by
+		populating an array called
+		<varname>@params</varname>, but any name for the array 
+		will work:
 	 </para>
 	 <para>
       <programlisting>
@@ -1351,16 +1356,13 @@ my @params = (program  => 'blastn',
       </programlisting>
     </para>
 	 <para>
-		You stipulate the parameters used by the blastall program by
-		populating an array, called, arbitrarily,
-		<varname>@params</varname> in this example:
 	 </para>
 	 <para>
 		<programlisting>
 use Bio::Tools::Run::StandAloneBlast;
 
 @params = (program  => 'blastn',
-	           database => 'testnt.fa' );
+	        database => 'db.fa' );
 
 $blast_obj = Bio::Tools::Run::StandAloneBlast->new(@params);
 		</programlisting>
@@ -1368,7 +1370,7 @@ $blast_obj = Bio::Tools::Run::StandAloneBlast->new(@params);
 	 
 	 <para>
 		<programlisting>
-my $input = Bio::Seq->new(-id  =>"test query",
+my $seq_obj = Bio::Seq->new(-id  =>"test query",
 			  -seq =>"TTTAAATATATTTTGAAGTATAGATTATATGTT");
 
 $report_obj = $blast_obj->blastall($input);
