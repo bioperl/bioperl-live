@@ -229,7 +229,7 @@ sub _filename{
 =cut
 
 sub moltype{
-   my ($obj,$value) = @_;
+   my ($self,$value) = @_;
    if( defined $value) {
       $self->SUPER::moltype($value);
     }
