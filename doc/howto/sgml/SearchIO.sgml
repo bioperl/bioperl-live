@@ -1,0 +1,309 @@
+<!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook V4.1//EN">
+<article>
+
+<articleinfo>
+
+<title>Bio::SearchIO HOWTO</title>
+    <author>
+      <!-- one of (CONTRIB AUTHORBLURB AFFILIATION OTHERNAME LINEAGE
+      SURNAME FIRSTNAME HONORIFIC) -->
+      <firstname>Jason</firstname>
+      <surname>Stajich</surname>
+      <authorblurb>
+	<para>Bioperl Core Developer</para>
+      </authorblurb>
+      <affiliation>
+	<orgname><ulink url="http://www.duke.edu">Duke University</ulink></orgname>
+	<address><email>jason-at-bioperl.org</email></address>
+      </affiliation>
+    </author>
+
+
+ <pubdate>2002-07-14</pubdate>
+ 
+ <revhistory>
+  <revision>
+   <revnumber>0.1</revnumber>
+   <date>2002-07-14</date>
+   <authorinitials>js</authorinitials>
+   <revremark>first draft</revremark>
+  </revision>
+ </revhistory>
+
+ <legalnotice>
+
+ <para>This document is copyright Jason Stajich, 2002.  For
+ reproduction other than personal use please contact me at the above
+ address. </para>
+
+ </legalnotice>
+
+ <abstract>
+  <para>
+  This is a HOWTO written in DocBook (SGML) for the reasoning behind
+  the creation of the Bio::SearchIO system, how to use it, and how one
+  goes about writing new adaptors to different output formats.  We will
+  also describe how the Bio::SearchIO::Writer modules work for outputting
+  various formats from Bio::Search objects. 
+  </para>
+ </abstract>
+</articleinfo>
+
+<section id="background">
+    <title>Background</title>
+    
+     <para>
+     One of the most common and necessary tasks in bioinformatics is
+     parsing analysis reports so that one can write programs which can
+     help interpret the sheer volume of data that can be produced by
+     processing many sequences.  To this end the Bioperl project has
+     produced a number of parsers for the ubiquitous BLAST report.
+     Steve Chervitz wrote one of the first Bioperl modules for BLAST
+     called Bio::Tools::Blast.  Ian Korf allowed us to import and
+     modify his BPlite (<emphasis>B</emphasis>last
+     <emphasis>P</emphasis>arser) Bio::Tools::BPlite module into
+     Bioperl.  This is of course in a sea of BLAST parsers that have
+     been written by numerous people, but we will only cover the ones
+     associated directly with the Bioperl project in this document.
+     One of the reasons for writing yet another BLAST parser in the
+     form of Bio::SearchIO is that even though both Bio::Tools::Blast
+     and Bio::Tools::BPlite did their job correctly, could parse
+     WU-BLAST and NCBI-BLAST output, they did not adequately
+     genericize what they were doing.  By this we mean everything was
+     written around the BLAST format and was not easily applicable to
+     parsing say, FastA alignments or a new alignment format.  One of
+     the powerful features of the Object-Oriented framework in Bioperl
+     is the ability to read in say, a sequence file, in different
+     formats or from different data sources like a database or
+     XML-flatfile, and have the program code process the sequences
+     objects in the same manner.  We wanted to have this capability in
+     place for analysis reports as well and thus the generic design of
+     the Bio::SearchIO module.
+     </para>
+
+</section>
+
+<section id="design">
+    <title>Design</title>
+
+     <para>
+     The Bio::SearchIO system was designed with the following
+     assumptions.  That all reports parsed with it could be separated
+     into a hierarchy of components. The Result which is the entire
+     analysis for a single query sequence.  Multiple results can be
+     concatenated together into a single file (i.e. running blastall
+     with a fasta database as the input file rather than a single
+     sequence).  Each result is a set of Hits for the query sequence.
+     Hits are sequences in the searched database which could be
+     aligned to the query sequence and met the minimal search
+     parameters such as e-value threshold.  Each Hit has one or more
+     High-scoring segment Pairs (HSP)s which are the alignments of the
+     query and hit sequence.  So each Result has a set of one or more
+     Hits and each Hit has a set of one or more HSPs.  This
+     relationship can be used to describe results from all pairwise
+     alignment programs including BLAST, FastA,
+     and implementations of the Smith-Waterman and Needleman-Wunsch
+     algorithms.
+     </para>
+     <para>
+     A design pattern, called Factory, is utilized in object
+     oriented programming to separate the entity which process data
+     from objects which will hold the information produced.  In the
+     same manner that the Bio::SeqIO module is used to parse different
+     file formats and produces objects which are Bio::PrimarySeqI
+     compliant, we have written Bio::SearchIO to produce the
+     Bio::Search objects.  Sequences are a little less complicated so
+     there is only one primary object (Bio::PrimarySeqI) which Search
+     results need three main components to represent the data
+     processed in a file: Bio::Search::Result::ResultI (top level results),
+     Bio::Search::Hit::HitI (hits) and Bio::Search::HSP::HSPI (HSPs).   
+     The Bio::SearchIO object is then a factory which produces
+     Bio::Search::Result::ResultI objects  and the
+     Bio::Search::Result::ResultI objects contain information about
+     the query, the database searched, and the full collection of Hits
+     found for the query.
+     </para>
+</section>
+
+<section id="use">
+    <title>Parsing with Bio::SearchIO</title>
+    <para>
+    This section is going to describe how to use the SearchIO system
+    to process reports.  We'll describe BLAST and FastA reports.  The
+    idea is that once you understand the methods associated with the
+    objects you won't need to know anything special about new parsers.
+    </para>
+    <para>
+    Here's an example which processes a BLAST report finding all the
+    hits where the HSPs are > 100 residues and the percent identity is
+    gt; 75 percent.
+    
+    <programlisting>
+    use strict;
+    use Bio::SearchIO;
+   
+    my $in = new Bio::SearchIO(-format => 'blast', 
+                               -file   => 'report.bls');
+    while( my $result = $in->next_result ) {
+      while( my $hit = $result->next_hit ) {
+        while( my $hsp = $hit->next_hsp ) {
+          if( $hsp->length('total') > 100 &&
+              $hsp->percent_identity >= 75 ) {
+              print "Hit= ", $hit->name, 
+                    ", len=",$hsp->length('total'), 
+                    ", percent_id=", $hsp->percent_identity, "\n";
+          }
+        }  
+      }
+    }
+   </programlisting>
+   
+   You can read up on the Bio::Search::HSP::HSPI object that is
+   produced by Bio::SearchIO to see what other methods besides length
+   and percent_identity are supported.  The best place for this
+   <ulink url="http://doc.bioperl.org">http://doc.bioperl.org</ulink>
+   which provides HTML-ified version of the Perl POD (Plain Old
+   Documentation) that is embedded in every (well written) Perl module.
+   </para>
+  
+   <para>
+   Note.  There is some confusion often associated by the objects
+   because of the nature of the active development of this system.
+   Steve Chervitz and myself (Jason) have implemented different
+   parsers in this system.  Steve created the psiblast parser (which
+   does parse regular blast files too) and a host of objects named
+   Bio::Search::XXX::BlastXXX where XXX is HSP, Hit, and Result.
+   These objects are created by his Bio::SearchIO::psiblast
+   implementation.  The objects I have created are called
+   Bio::Search::XXX::GenericXXX where again XXX is HSP, Hit, and
+   Result.  Because of some of the assumptions made in Steve's
+   implementation and his utilization of what is known as 'lazy
+   parsing', it is probably not going to be very easy to maintain his
+   system without his help.  While I have tried (perhaps
+   unsuccessfully?) to make my implementations much easier to follow
+   because all the parsing is done in one module.  The important
+   take home message is that you cannot assume that methods in the
+   BlastXXX objects are in fact implemented by the GenericHSP objects.
+   More than likely the BlastXXX objects will be deprecated and
+   dismantled as their functionality is ported to the GenericHSP
+   objects.
+   </para>
+</section>
+
+<section id="implementation">
+     <title>Implementation</title>
+     <para>
+     This section is going to describe how the SearchIO system was
+     implemented, it is probably not necessary to understand all of
+     this unless you are curious or want to implement your own
+     Bio::SearchIO parser.  We have utilized an event-based system to
+     process these reports.  This is analagous to the SAX (Simple API
+     for XML) system used to process XML documents.  Event based
+     parsing can be simply thought of as simple start and end events.
+     When you hit the beginning of a report a start event is thrown,
+     when you hit the end of the report an end event is thrown.  So
+     the report events are paired, and everything else that is thrown
+     in between the paired start and end events is related to that
+     report.  Another way to think of it is as if you pick a number
+     and color for a card in a standard deck.  Let's say you pick red
+     and 2.  The you start dealing cards from our deck and pile them
+     one on top of each other.  When you see your first red 2 you
+     start a new pile, and start dealing cards onto that pile until
+     you see the next red 2.  Everything in your pile that happened
+     between when you saw the beginning red 2 and ending red 2 is data
+     you'll want to keep and process.  In the same way all the events
+     you see between a pair of start and end events (like 'report' or
+     'hsp') are data associated with object or child object in its
+     hierarchy.  A listener object processes all of these events, in
+     our example the listener is the table where the stack of cards is
+     sitting, and later it is the hand which moves the pile of cards
+     when a new stack is started.  The listener will take the events
+     and process them.  We've neglected to tell you of a third event
+     that is thrown and caught.  This is the characters event in SAX
+     terminology which is simply data.  So one sends a start event,
+     then some data, then an end event.  This process is analagous to
+     a finite state machine in computer science (and I'm sure the
+     computer scientists reading this right are already yawning) where
+     what we do with data received is dependent on the state we're in.
+     The state that the listener is in is affected by the events that
+     are processed.
+     </para>
+
+     <para>
+     A small caveat, in an ideal situation a processor would throw
+     events and not need to keep any state about where it is, it would
+     just be processing data and the listener would manage the
+     information and state.  However, a lot of the parsing of these
+     human readable reports requires contextual information to apply
+     the correct regular expressions.  So in fact the event thrower
+     has to know what state it is in and apply different methods based
+     on this.  In contrast the XML parsers simply keep track of what
+     state they are in, but can process all the data with the same
+     system of reading the tag and sending the data that is inbetween
+     the XML start and end tags.
+     </para>
+
+     <para>
+     All of this framework has been built up so to implement a new
+     parser one only needs to write a module that produces the
+     appropriate start and end events and the existing framework will
+     do the work of creating the objects for you.  Here's how we've
+     implemented event-based parsing for Bio::SearchIO.  The
+     Bio::SearchIO is just the front-end to this process, in fact the
+     processing of these reports is done by different modules in the
+     Bio/SearchIO directory.  So if you look at your bioperl
+     distribution at the modules in Bio/SearchIO you'll see modules in
+     there like: blast.pm, fasta.pm, blastxml.pm,
+     SearchResultEventBuilder.pm, EventHandlerI.pm (depending on what
+     version of the toolkit there may be more modules in there).
+     There is also a SearchWriterI.pm and Writer directory in there
+     but we'll save that for later.  If you don't have the
+     distribution handy you can navigate this at the bioperl <ulink
+     url="http://cvs.open-bio.org/cgi-bin/viewcvs/viewcvs.cgi/bioperl-live/Bio/SearchIO/?cvsroot=bioperl">CVSweb
+     page</ulink>.  
+     </para>
+
+     <para>
+     Lets use the blast.pm module as an example to describe the
+     relationship of the modules in this dir (could have subsituted
+     any of the other format parsers like fasta.pm or blastxml.pm -
+     these are always lowercase for historical reasons).  The module
+     has some features you should look for - the first is the hash in
+     the BEGIN block called %MAPPING.  This key value pairs here are
+     the shorthand for how we map events from this module to general
+     event names.  This is only necessary because if we have an XML
+     processor (see the blastxml.pm module) the event names will be
+     the same as the XML tag names (like &lt;Hsp_bit-score&gt; in the
+     NCBI BLAST XML DTD).  So to make this general we'll make sure all
+     of the events inside our parser map to the values in the %MAPPING
+     hash - we can call them whatever we want inside this module.
+     Some of the events map to hash references (like
+     Statistics_db-len) this is so we can map multiple values to the
+     same top-level attribute field but we know they will be stored as
+     a hash value in the subsequent object (in this example, keyed by
+     the name 'dbentries').  The capital "RESULT", "HSP", or "HIT" in
+     the value name allow us to encode the event state in the event so
+     we don't have to pass in two values.  It also easy for someone to
+     quickly read the list of events and know which ones are related
+     to Hits and which ones are related to HSPs.  The listener in our
+     architecture is the Bio::SearchIO::SearchResultEventBuilder.
+     This object is attatched as a listener through the Bio::SearchIO
+     method add_EventListener.  In fact you could have multiple event
+     listeners and they could do different things.  In our case we
+     want to create Bio::Search objects, but an event listener could
+     just as easily be propigating data directly into a database based
+     on the events.  The SearchResultEventBuilder takes the events
+     thrown by the SearchIO classes and builds the appropriate
+     Bio::Search::HSP:: object from it.
+     </para>
+     <para>
+     Sometimes special objects are needed that are extensions beyond
+     what the GenericHSP or GenericHit objects are meant to
+     represent.  For this case we have implemented
+     Bio::SearchIO::SearchResultEventBuilder so that it can use
+     factories for creating its resulting Bio::Search objects - see
+     Bio::SearchIO::hmmer _initialize method for an example of how
+     this can be set.
+     </para>
+</section>
+</article>
