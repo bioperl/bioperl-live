@@ -46,9 +46,20 @@ Bio::PopGen::Statistics - Population Genetics statistical tests
   # Pi and Theta also take additional arguments,
   # see the documentation for more information
 
+  use Bio::PopGen::Utilities;
+  use Bio::AlignIO;
 
-  # To come -- examples for creating pops/individuals from
-  # Aligned sequence data
+  my $in = new Bio::AlignIO(-file   => 't/data/t7.aln',
+                            -format => 'clustalw');
+  my $aln = $in->next_aln;
+  # get a population, each sequence is an individual and 
+  # for the default case, every site which is not monomorphic
+  # is a 'marker'.  Each individual will have a 'genotype' for the
+  # site which will be the specific base in the alignment at that
+  # site
+
+  my $pop = Bio::PopGen::Utilities->aln_to_population(-alignment => $aln);
+
 
 =head1 DESCRIPTION
 
