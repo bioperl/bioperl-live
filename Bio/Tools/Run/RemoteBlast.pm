@@ -77,21 +77,29 @@ use Bio::Tools::BPlite;
 use Bio::Tools::Blast;
 use LWP;
 use HTTP::Request::Common;
-
 BEGIN {      
-    $URLBASE = 'http://www.ncbi.nlm.nih.gov/blast/blast.cgi';
-    %HEADER = ('PROGRAM' => '',
-	       'DATALIB' => '',
-	       'FILTER'  => 'L',
-	       'EXPECT'  => '',
-	       'SEQUENCE'=>  '');
+    $URLBASE = 'http://www.ncbi.nlm.nih.gov/blast/Blast.cgi';
+    %HEADER = ('CMD'                          => 'Put',
+	       'PROGRAM'                      => '',
+	       'DATABASE'                     => '',
+	       'FILTER'                       => 'L',
+	       'EXPECT'                       => '',
+	       'QUERY'                        =>  '',
+	       'CDD_SEARCH'                   => 'off',
+	       'COMPOSITION_BASED_STATISTICS' => 'off',
+	       'FORMAT_OBJECT'                => 'Alignment',
+	       'SERVICE'                      => 'plain',
+	       );
     
-    %RETRIEVALHEADER = ('RID'            => '',
+    %RETRIEVALHEADER = ('CMD'            => 'Get',
+			'RID'            => '',
 			'ALIGNMENT_VIEW' => 'Pairwise',
 			'DESCRIPTIONS'   => 100,
-			'ALIGNMENTS'     => 50);
+			'ALIGNMENTS'     => 50,
+			'FORMAT_TYPE'    => 'Text',
+			);
     
-    $RIDLINE = 'RID';
+    $RIDLINE = 'RID\s+=\s+(\d+-\d+-\d+)';
 
      %BLAST_PARAMS = ( 'prog' => 'blastp',
 		       'data' => 'nr',
@@ -141,7 +149,7 @@ sub header {
     my ($self) = @_;
     my %h = %HEADER;
     $h{'PROGRAM'} = $self->program;
-    $h{'DATALIB'} = $self->database;
+    $h{'DATABASE'} = $self->database;
     $h{'EXPECT'}  = $self->expect;    
     return %h;
 }
@@ -306,20 +314,23 @@ sub submit_blast {
     my $tcount = 0;
     my %header = $self->header;    
     foreach my $seq ( @seqs ) {
-	$header{'SEQUENCE'} = $seq->seq();
-	my $request = POST $URLBASE, \%header;
+	$header{'QUERY'} = $seq->seq();
+	my $request = POST $URLBASE, [%header];
 	$self->warn($request->as_string) if ( $self->verbose > 0);
 	my $response = $self->ua->request( $request);
 
 	if( $response->is_success ) {
+	    if( $self->verbose > 0 ) {
+		open(TMP, ">$ENV{TEMPDIR}/j.html");
+		print TMP $response->content;
+	    }
 	    my @subdata = split(/\n/, $response->content );
 	    my $count = 0;
 	    foreach ( @subdata ) {
 		if( /$RIDLINE/ ) {
 		    $count++;
 		    print STDERR $_ if( $self->verbose > 0);
-		    my @rid = split('"', $_);
-		    $self->add_rid($rid[5]);
+		    $self->add_rid($1);		    
 		    last;
 		}	      
 	    }
@@ -343,35 +354,24 @@ sub retrieve_blast {
     my %hdr = %RETRIEVALHEADER;
     $hdr{'RID'} = $rid;
     my $req = POST $URLBASE, [%hdr];
+    if( $self->verbose > 0 ) {
+	$self->warn("retrieve request is " . $req->as_string());
+    }
     my $response = $self->ua->request($req, $tempfile);
-
-    if( $response->is_success ) {
+    if( $self->verbose > 0 ) {
+	open(TMP, $tempfile) or $self->throw("cannot open $tempfile");
+	while(<TMP>) { print $_ }
+	close TMP;
+    }
+    if( $response->is_success ) {	
 	my $size = -s $tempfile;
 	if( $size > 1000 ) {
-	    my ($fh2,$tempfile2) = $self->tempfile();
 	    my $blastobj;
-
-	    # make fh2 unbuffered
-	    my $outfh = select($fh2);
-	    $| = 1;
-	    select($outfh);
-	    
-	    open(TMP, $tempfile) or $self->throw("cannot open $tempfile");
-	    # use second tmpfile to store HTML stripped data
-	    # this must not be buffered due to being opened subsequently
-	    # by the BLAST parser
-	    while(<TMP>) {
-		s/<[^>^<.]+>//g;
-		print $fh2 $_;
-		print $_ if ( $self->verbose > 0 );
-	    }
 	    if( $self->readmethod =~ /Blast/ ) {
-		$blastobj = new Bio::Tools::Blast(-file => $tempfile2);
+		$blastobj = new Bio::Tools::Blast(-file => $tempfile);
 	    } else { 
-		$blastobj = new Bio::Tools::BPlite(-file => $tempfile2);
+		$blastobj = new Bio::Tools::BPlite(-file => $tempfile);
 	    }
-	    close($fh2);
-	    close(TMP);
 	    return $blastobj;
 	} elsif( $size < 500 ) { # search had a problem
 	    open(ERR, "<$tempfile") or $self->throw("cannot open file $tempfile");
