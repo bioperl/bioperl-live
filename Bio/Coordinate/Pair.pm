@@ -206,7 +206,7 @@ sub strand {
    $self->warn("Incoming coordinates are not defined")
        unless $self->in;
 
-   return $self->in->strand * $self->out->strand;
+   return ($self->in->strand || 0) * ($self->out->strand || 0);
 }
 
 =head2 test

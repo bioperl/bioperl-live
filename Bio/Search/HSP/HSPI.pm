@@ -457,12 +457,15 @@ sub strand {
     $val =~ s/^\s+//;
 
     if( $val =~ /^q/i ) {
-	return $self->query->strand(shift);
+	return $self->query->strand(@_);
     } elsif( $val =~ /^hi|^s/i ) {
-	return $self->hit->strand(shift);
-    } elsif (  $val =~ /^list|array/i ) {	
-	return ($self->query->strand(shift), 
-		$self->hit->strand(shift) );
+	return $self->hit->strand(@_);
+    } elsif (  $val =~ /^list|array/i ) {
+	# do we really need to pass on additional arguments here? HL
+	# (formerly this was strand(shift) which is really bad coding because
+	# it breaks if the callee allows setting to undef)
+	return ($self->query->strand(@_), 
+		$self->hit->strand(@_) );
     } else { 
 	$self->warn("unrecognized component '$val' requested\n");
     }
@@ -487,12 +490,15 @@ sub start {
     $val =~ s/^\s+//;
 
     if( $val =~ /^q/i ) { 
-        return $self->query->start(shift);
+        return $self->query->start(@_);
     } elsif( $val =~ /^(hi|s)/i ) {
-	return $self->hit->start(shift);
+	return $self->hit->start(@_);
     } elsif (  $val =~ /^list|array/i ) {	
-	return ($self->query->start(shift), 
-		$self->hit->start(shift) );
+	# do we really need to pass on additional arguments here? HL
+	# (formerly this was strand(shift) which is really bad coding because
+	# it breaks if the callee allows setting to undef)
+	return ($self->query->start(@_), 
+		$self->hit->start(@_) );
     } else { 
 	$self->warn("unrecognized component '$val' requested\n");
     }
@@ -517,12 +523,15 @@ sub end {
     $val =~ s/^\s+//;
 
     if( $val =~ /^q/i ) { 
-        return $self->query->end(shift);
+        return $self->query->end(@_);
     } elsif( $val =~ /^(hi|s)/i ) {
-	return $self->hit->end(shift);
+	return $self->hit->end(@_);
     } elsif (  $val =~ /^list|array/i ) {	
-	return ($self->query->end(shift), 
-		$self->hit->end(shift) );
+	# do we really need to pass on additional arguments here? HL
+	# (formerly this was strand(shift) which is really bad coding because
+	# it breaks if the callee allows setting to undef)
+	return ($self->query->end(@_), 
+		$self->hit->end(@_) );
     } else {
 	$self->warn("unrecognized end component '$val' requested\n");
     }
@@ -591,9 +600,9 @@ sub seq_str {
     my $self = shift;
     my $type = shift || 'query';
 
-    if( $type =~ /^q/i ) { return $self->query_string(shift) }
-    elsif( $type =~ /^(s)|(hi)/i ) { return $self->hit_string(shift)}
-    elsif ( $type =~ /^(ho)|(ma)/i  ) { return $self->homology_string(shift) }
+    if( $type =~ /^q/i ) { return $self->query_string(@_) }
+    elsif( $type =~ /^(s)|(hi)/i ) { return $self->hit_string(@_)}
+    elsif ( $type =~ /^(ho)|(ma)/i  ) { return $self->homology_string(@_) }
     else { 
         $self->warn("unknown sequence type $type");
     }

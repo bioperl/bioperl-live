@@ -162,21 +162,23 @@ sub end {
 =cut
 
 sub strand {
-  my ($self, $value) = @_;
+  my $self = shift;
 
-  if ( defined $value ) {
-       if ( $value eq '+' ) { $value = 1; }
-       elsif ( $value eq '-' ) { $value = -1; }
-       elsif ( $value eq '.' ) { $value = 0; }
-       elsif ( $value != -1 && $value != 1 && $value != 0 ) {
-	   $self->throw("$value is not a valid strand info");
+  if ( @_ ) {
+       my $value = shift;
+       if ( defined($value) ) {
+	   if ( $value eq '+' ) { $value = 1; }
+	   elsif ( $value eq '-' ) { $value = -1; }
+	   elsif ( $value eq '.' ) { $value = 0; }
+	   elsif ( $value != -1 && $value != 1 && $value != 0 ) {
+	       $self->throw("$value is not a valid strand info");
+	   }
        }
-       $self->{'_strand'} = $value
-   }
-  # let's go ahead and force to '0' if
-  # we are requesting the strand without it
-  # having been set previously
-   return $self->{'_strand'} || 0;
+       $self->{'_strand'} = $value;
+  }
+  # do not pretend the strand has been set if in fact it wasn't
+  return $self->{'_strand'};
+  #return $self->{'_strand'} || 0;
 }
 
 =head2 length

@@ -13,7 +13,7 @@
 
 =head1 NAME
 
-Bio::Coordinate::Result::Gap - An other name for Bio::Location::Simple
+Bio::Coordinate::Result::Gap - Another name for Bio::Location::Simple
 
 =head1 SYNOPSIS
 

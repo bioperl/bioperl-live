@@ -180,9 +180,9 @@ sub warn{
 	$verbose = 0;
     }
 
-    if( $verbose == 2 ) {
+    if( $verbose >= 2 ) {
 	$self->throw($string);
-    } elsif( $verbose == -1 ) {
+    } elsif( $verbose <= -1 ) {
 	return;
     } elsif( $verbose == 1 ) {
 	my $out = "\n-------------------- WARNING ---------------------\n".

@@ -103,7 +103,7 @@ ok $res->each_gap, 1;
 
 ok $res->gap->isa('Bio::Coordinate::Result::Gap');
 ok $res->gap->isa('Bio::LocationI');
-ok $res->gap->strand, 0; # no guessing of strand
+ok $res->gap->strand, undef; # no guessing of strand
 ok $res->gap->start, 5;
 ok $res->gap->length, $pos->length;
 ok $res->gap->seq_id, 'propeptide';

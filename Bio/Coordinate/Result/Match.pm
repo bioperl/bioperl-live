@@ -13,7 +13,7 @@
 
 =head1 NAME
 
-Bio::Coordinate::Result::Match - An other name for Bio::Location::Simple
+Bio::Coordinate::Result::Match - Another name for Bio::Location::Simple
 
 =head1 SYNOPSIS
 

@@ -115,7 +115,7 @@ sub new {
     # which will lead to an error in Bio::Search::HSP::BlastHSP 
     # because parsing hasn't yet occurred.
     # TODO: Remove this when BlastHSP doesn't do lazy parsing.
-    $self->{'_initializing'} = 1;
+    $self->{'_initializing'} = 0;
 
     my ($primary, $hit, $query, $fea1, $source,$sbjct) =
         $self->_rearrange([qw(PRIMARY
@@ -146,7 +146,6 @@ sub new {
     } 
 
     $source && $self->source_tag($source);
-    $self->strand(0) unless( defined $self->strand() );
 
     $self->{'_initializing'} = 0;  # See "Hack" note above
     return $self;
