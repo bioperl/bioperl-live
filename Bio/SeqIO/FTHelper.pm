@@ -188,7 +188,7 @@ sub _parse_loc {
 #    my %compl_of = ("5" => "3", "3" => "5");
     my ($fea_type, $tagval) = ('','');
     my ($start,$end, $strand);
-#    $self->warn( "Processing $locstr\n");
+    $self->warn( "Processing $locstr\n") if( $self->verbose > 0 );
 
     # Two numbers separated by anything of '.', '^', and spaces (SRS puts a
     # space between the two dots), optionally surrounded by parentheses and a
@@ -215,7 +215,13 @@ sub _parse_loc {
     # *not* be passed to this method.
     #
     # HL 05/16/2000
-
+    #
+    # FuzzyLocation management works now, 
+    # however the location strings
+    # (5.12)..17 
+    # (5.18)..(300.305)
+    # will not be parsed by the regex below.  Something to work on
+    
     $strand = ( $locstr =~ /complement/ ) ? -1 : 1;
     my ($delim) = '';
     if($locstr =~ /^\s*(\w+[A-Za-z])?\(?([\<\>\?]?\d+[\<\>\?]?)([.\^\s]{1,3})([\<\>\?]?\d+[\<\>\?]?)[,;\" ]*([A-Za-z]\w*)?\"?\)?\s*$/) {
@@ -241,10 +247,11 @@ sub _parse_loc {
     my @args = ('-start'=>$start, '-end' => $end,
 		'-strand' => $strand);
     if ( $start =~ /[\>\<\?]/ || 
-	 $end    =~ /[\>\<\?]/ || $delim =~ /^[\.^]$/ )
+	 $end    =~ /[\>\<\?]/ || 
+	 $delim =~ /^[\.^]$/ )
     {
 	$type = 'Bio::Location::Fuzzy';
-	push @args, ('-rangefuzzy' => $delim); 
+	push @args, ('-loc_type' => $delim); 
     } 
     my $location = $type->new(@args);
     
@@ -291,19 +298,8 @@ sub from_SeqFeature {
     my $fth = Bio::SeqIO::FTHelper->new();
     my $key = $sf->primary_tag();
 
-    my $locstr = '';
+    my $locstr = $sf->location->to_FTstring;
 
-    if( $sf->location->isa('Bio::Location::SplitLocationI') ) {
-	my @locationstrs;
-	foreach my $location ( sort { $a->start <=> $b->start } 
-			       $sf->location->sub_Location() ) {
-	    push @locationstrs, $fth->_output_single_location($location);
-	}
-	$locstr = sprintf("%s(%s)", $sf->location->splittype, 
-			  join(",", @locationstrs));
-    }  else { 
-	$locstr = $fth->_output_single_location($sf->location);
-    }    
     # going into sub features
     foreach my $sub ( $sf->sub_SeqFeature() ) {
 	my @subfth = &Bio::SeqIO::FTHelper::from_SeqFeature($sub);
@@ -345,29 +341,6 @@ sub from_SeqFeature {
 
 }
 
-sub _output_single_location {
-    my ($fth, $location) = @_;
-    if( !ref($location) || ! $location->isa('Bio::LocationI') ) {
-	$fth->throw("Cannot call _output_single_location w/o a valid LocationI object");
-    }
-    # handle fuzziness here as well
-    my ( $delim,$start, $end ) = ( '..', $location->start, $location->end );
-    if( $start == $end ) {
-	$delim = $end = '';
-    }	
-    if( $location->isa('Bio::Location::FuzzyLocationI') &&
-	$location->fuzzy_range ne '^' ) { 
-	$delim = $location->fuzzy_range;
-	($start,$end) = ($location->fuzzy_start,
-			 $location->fuzzy_end);    
-    }
-    my $str = $start . $delim . $end;
-    
-    if( $location->strand == -1 ) {
-	$str = "complement($str)";
-    }
-    return $str;
-}
 
 =head2 key
 
