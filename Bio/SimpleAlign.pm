@@ -771,7 +771,9 @@ sub match_line {
     my %matchchars = ( 'match'  => $matchlinechar || '*',
 		       'weak'   => $weak          || '.',
 		       'strong' => $strong        || ':',
-		       );    
+		       'mismatch'=> ' ', 
+	       );    
+              
 
     my @seqchars;
     my $seqcount = 0;
@@ -787,15 +789,16 @@ sub match_line {
 	my $refchar = $refseq->[$pos];
 	next unless $refchar; # skip '' 
 	my %col = ($refchar => 1);
-	my $dash = 0;
+	my $dash = ($refchar eq '-' || $refchar eq '.' || $refchar eq ' ');
 	foreach my $seq ( @seqchars ) {
-	    $dash = 1 if( $seq->[$pos] eq '-' || $seq->[$pos] eq '.');
+	    $dash = 1 if( $seq->[$pos] eq '-' || $seq->[$pos] eq '.' || 
+			  $seq->[$pos] eq ' ' );
 	    $col{$seq->[$pos]}++;
 	}
 	my @colresidues = sort keys %col;
-	my $char = ' ';
+	my $char = $matchchars{'mismatch'};
 	# if all the values are the same
-	if( $dash ) { $char = ' ' }
+	if( $dash ) { $char =  $matchchars{'mismatch'} }
 	elsif( @colresidues == 1 ) { $char = $matchchars{'match'} }
 	elsif( $alphabet eq 'protein' ) { # only try to do weak/strong
 	                                  # matches for protein seqs
