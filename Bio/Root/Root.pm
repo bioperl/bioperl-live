@@ -150,7 +150,9 @@ methods. Internal methods are usually preceded with a _
 use vars qw(@ISA $DEBUG $ID $Revision $VERSION $VERBOSITY $ERRORLOADED);
 use strict;
 use Bio::Root::RootI;
+use Bio::Root::IO;
 use Carp 'confess';
+
 @ISA = 'Bio::Root::RootI';
 
 BEGIN { 
