@@ -20,7 +20,7 @@ BEGIN {
 	use lib 't';
     }
     use vars qw($NTESTS);
-    $NTESTS = 822;
+    $NTESTS = 885;
     $LASTXMLTEST = 54;
     $error = 0;
 
@@ -54,7 +54,8 @@ END {
 }
 
 ok(1);
-my ($searchio, $result,$hit,$hsp);
+my ($searchio, $result,$iter,$hit,$hsp);
+
 if( ! $SKIPXML ) {
     # test with RPSBLAST data first 
     $searchio = new Bio::SearchIO ('-tempfile' => 1,
@@ -927,9 +928,7 @@ ok($hsp->hit_string, 'CSAEFDFIQYSTIEKLCGTLLIPLALISLVTFVFNFVKNT-NLLWRNSEEIG----EN
 ok($hsp->homology_string, 'C+AEFDF++  T  +   T                 + +   +L +    +     ++GE++Y+ +QL   T +  LIMRLKLF+TP++C++A+L  + +L G   +   +   A+V VI A +  +G  N++ Q');
 
 
-# TODO: Flesh this test out!
-$searchio = new Bio::SearchIO ('-format' => 'psiblast',
-			       '-stats'  => 1,
+$searchio = new Bio::SearchIO ('-format' => 'blast',
 			       '-file'   => Bio::Root::IO->catfile('t','data','HUMBETGLOA.tblastx'));
 
 $result = $searchio->next_result;
@@ -955,7 +954,7 @@ my $writer = Bio::SearchIO::Writer::HitTableWriter->new(
                                                   )]  );
 
 my $out = new Bio::SearchIO(-writer => $writer,
-			    -file   => ">searchio.out");
+			 -file   => ">searchio.out");
 $out->write_result($result, 1);
 ok(-e 'searchio.out');
 my $writerhtml = new Bio::SearchIO::Writer::HTMLResultWriter();
@@ -966,38 +965,6 @@ ok(-e "searchio.html");
 
 unlink 'searchio.out';
 unlink 'searchio.html';
-
-$searchio = new Bio::SearchIO ('-format' => 'blast',
-			       '-file'   => Bio::Root::IO->catfile('t','data','HUMBETGLOA.tblastx'));
-
-$result = $searchio->next_result;
-
-ok($result);
-$hit = $result->next_hit;
-ok($hit->accession, 'AE000479');
-$hsp = $hit->next_hsp;
-ok($hsp->get_aln->isa('Bio::Align::AlignI'));
-$writer = Bio::SearchIO::Writer::HitTableWriter->new( 
-                                  -columns => [qw(
-                                                  query_name
-                                                  query_length
-                                                  hit_name
-                                                  hit_length
-						  bits
-						  score
-                                                  frac_identical_query
-                                                  expect
-                                                  )]  );
-
-$out = new Bio::SearchIO(-writer => $writer,
-			 -file   => ">searchio.out");
-$out->write_result($result, 1);
-ok(-e 'searchio.out');
-$writerhtml = new Bio::SearchIO::Writer::HTMLResultWriter();
-$outhtml = new Bio::SearchIO(-writer => $writerhtml,
-				-file   => ">searchio.html");
-$outhtml->write_result($result, 1);
-ok(-e "searchio.html");
 
 #test all the database accession number formats
 $searchio = new Bio::SearchIO(-format => 'blast',
@@ -1063,7 +1030,7 @@ my @dcompare = ( ['Contig3700', 5631, 785, '0.0', 785, '0.0', 396, 639, 12,
 		  8723,9434, 1, 4083, 4794, -1],
                  ['Contig3997', 12734, 664, '0.0', 664, '0.0', 335, 401, 0, 
 		  1282, 1704, 1, 1546, 1968,-1 ],
-                 ['Contig634', 858, 486, 'e-136', 486, 'e-136', 245, 304, 3, 
+                 ['Contig634', 858, 486, '1e-136', 486, '1e-136', 245, 304, 3, 
 		  7620, 7941, 1, 1, 321, -1],
                  ['Contig1853', 2314, 339, '1e-91',339, '1e-91', 171, 204, 0,
 		  6406, 6620, 1, 1691, 1905, 1]
@@ -1125,7 +1092,7 @@ while( my $hit = $r->next_hit ) {
     ok($hsp->query->strand, shift @$d);
     ok($hsp->hit->start, shift @$d);
     ok($hsp->hit->end, shift @$d);
-    ok($hsp->hit->strand, shift @$d);           
+    ok($hsp->hit->strand, shift @$d);
 }
 		 
 
@@ -1135,15 +1102,233 @@ while( my $hit = $r->next_hit ) {
 my $parser = new Bio::SearchIO(-format => 'blast',
 			       -file   => Bio::Root::IO->catfile(qw(t data ecoli_domains.rpsblast)));
 
-$r = $parser->next_result;
+my $r = $parser->next_result;
 ok($r->query_name, 'gi|1786183|gb|AAC73113.1|');
-$hit = $r->next_hit;
+ok($r->num_hits, 7);
+my $hit = $r->next_hit;
 ok($hit->name, 'gnl|CDD|3919');
 ok($hit->significance, 0.064);
 ok($hit->raw_score, 28);
-$hsp = $hit->next_hsp;
+my $hsp = $hit->next_hsp;
 ok($hsp->query->start, 599);
 ok($hsp->query->end,655);
 ok($hsp->hit->start,23);
 ok($hsp->hit->end,76);
+
+
+# Test PSI-BLAST parsing
+
+$searchio = new Bio::SearchIO ('-format' => 'blast',
+			       '-file'   => Bio::Root::IO->catfile('t','data','psiblastreport.out'));
+
+$result = $searchio->next_result;
+
+ok($result->database_name, '/home/peter/blast/data/swissprot.pr');
+ok($result->database_entries, 88780);
+ok($result->database_letters, 31984247);
+
+ok($result->algorithm, 'BLASTP');
+ok($result->algorithm_version, qr/^2\.0\.14/);
+ok($result->query_name, 'CYS1_DICDI');
+ok($result->query_length, 343);
+ok($result->get_statistic('kappa') == 0.0491);
+ok($result->get_statistic('lambda') == 0.270);
+ok($result->get_statistic('entropy') == 0.230);
+ok($result->get_statistic('dbletters'), 31984247);
+ok($result->get_statistic('dbentries'), 88780);
+ok($result->get_statistic('hsplength'), 49);
+ok($result->get_statistic('effectivespace'), 8124403938);
+ok($result->get_parameter('matrix'), 'BLOSUM62');
+ok($result->get_parameter('gapopen'), 11);
+ok($result->get_parameter('gapext'), 1);
+
+my @valid_hit_data = ( [ 'sp|P04988|CYS1_DICDI', 343, 'P04988', '0', 721],
+		       [ 'sp|P43295|A494_ARATH', 313, 'P43295', '1e-75', 281],
+		       [ 'sp|P25804|CYSP_PEA', 363, 'P25804', '1e-74', 278]);
+my @valid_iter_data = ( [ 127, 127, 0, 109, 18, 0, 0, 0, 0],
+			[ 157, 40, 117, 2, 38, 0, 109, 3, 5]);
+my $iter_count = 0;
+while( $iter = $result->next_iteration ) {
+    $iter_count++;
+    my $di = shift @valid_iter_data;
+    ok($iter->number, $iter_count);
+
+    ok($iter->num_hits, shift @$di);
+    ok($iter->num_hits_new, shift @$di);
+    ok($iter->num_hits_old, shift @$di);
+    ok(scalar($iter->newhits_below_threshold), shift @$di);
+    ok(scalar($iter->newhits_not_below_threshold), shift @$di);
+    ok(scalar($iter->newhits_unclassified), shift @$di);
+    ok(scalar($iter->oldhits_below_threshold), shift @$di);
+    ok(scalar($iter->oldhits_newly_below_threshold), shift @$di);
+    ok(scalar($iter->oldhits_not_below_threshold), shift @$di);
+
+    my $hit_count = 0;
+    if ($iter_count == 1) {
+	while( $hit = $result->next_hit ) {
+	    my $d = shift @valid_hit_data;
+
+	    ok($hit->name, shift @$d);
+	    ok($hit->length, shift @$d);
+	    ok($hit->accession, shift @$d);
+	    ok(sprintf("%g",$hit->significance), sprintf("%g",shift @$d) );
+	    ok($hit->bits, shift @$d );
+
+	    if( $hit_count == 1 ) {
+		while( my $hsp = $hit->next_hsp ){
+		    ok($hsp->query->start, 32);
+		    ok($hsp->query->end, 340);
+		    ok($hsp->hit->start, 3);
+		    ok($hsp->hit->end, 307);
+		    ok($hsp->length('hsp'), 316);
+		    ok($hsp->start('hit'), $hsp->hit->start);
+		    ok($hsp->end('query'), $hsp->query->end);
+		    ok($hsp->strand('sbjct'), $hsp->subject->strand);# alias for hit
+		    ok($hsp->evalue == 1e-75);
+		    ok($hsp->score, 712);
+		    ok($hsp->bits, 281);
+		    ok(sprintf("%.1f",$hsp->percent_identity), 46.5);
+		    ok(sprintf("%.4f",$hsp->frac_identical('query')), 0.4757);
+		    ok(sprintf("%.3f",$hsp->frac_identical('hit')), 0.482);
+		    ok($hsp->gaps, 18);
+		}
+	    }
+	    last if( $hit_count++ > @valid_hit_data );
+	}
+    }
+}
+
+# Test filtering
+
+$searchio = new Bio::SearchIO ( '-format' => 'blast', 
+                                '-file'   => Bio::Root::IO->catfile('t','data','ecolitst.bls'),
+                                '-signif' => 1e-100);
+
+@valid = qw(gb|AAC73113.1|);
+$r = $searchio->next_result;
+
+while( my $hit = $r->next_hit ) {
+    ok($hit->name, shift @valid);
+}
+
+$searchio = new Bio::SearchIO ( '-format' => 'blast', 
+                                '-file'   => Bio::Root::IO->catfile('t','data','ecolitst.bls'),
+                                '-score' => 100);
+
+@valid = qw(gb|AAC73113.1| gb|AAC76922.1| gb|AAC76994.1|);
+$r = $searchio->next_result;
+
+while( my $hit = $r->next_hit ) {
+    ok($hit->name, shift @valid);
+}
+
+$searchio = new Bio::SearchIO ( '-format' => 'blast', 
+                                '-file'   => Bio::Root::IO->catfile('t','data','ecolitst.bls'),
+                                '-bits' => 200);
+
+@valid = qw(gb|AAC73113.1| gb|AAC76922.1|);
+$r = $searchio->next_result;
+
+while( my $hit = $r->next_hit ) {
+    ok($hit->name, shift @valid);
+}
+
+
+my $filt_func = sub{ my $hit=shift; 
+                     $hit->frac_identical('query') >= 0.31
+                     };
+
+$searchio = new Bio::SearchIO ( '-format' => 'blast', 
+                                '-file'   => Bio::Root::IO->catfile('t','data','ecolitst.bls'),
+                                '-hit_filter' => $filt_func);
+
+@valid = qw(gb|AAC73113.1| gb|AAC76994.1|);
+$r = $searchio->next_result;
+
+while( my $hit = $r->next_hit ) {
+    ok($hit->name, shift @valid);
+}
+
+
+# SearchIO::psiblast test  (remove when psiblast.pm goes away)
+
+$searchio = new Bio::SearchIO ('-format' => 'psiblast',
+			       '-stats'  => 1,
+			       '-file'   => Bio::Root::IO->catfile('t','data','HUMBETGLOA.tblastx'));
+
+$result = $searchio->next_result;
+
+ok($result);
+$hit = $result->next_hit;
+ok($hit->accession, 'AE000479');
+ok($hit->bits, 33.6);
+$hsp = $hit->next_hsp;
+ok($hit->hsp->bits,$hsp->bits);
+
+ok($hsp->get_aln->isa('Bio::Align::AlignI'));
+my $writer = Bio::SearchIO::Writer::HitTableWriter->new( 
+                                  -columns => [qw(
+                                                  query_name
+                                                  query_length
+                                                  hit_name
+                                                  hit_length
+						  bits
+						  score
+                                                  frac_identical_query
+                                                  expect
+                                                  )]  );
+
+my $out = new Bio::SearchIO(-writer => $writer,
+			    -file   => ">searchio.out");
+$out->write_result($result, 1);
+ok(-e 'searchio.out');
+my $writerhtml = new Bio::SearchIO::Writer::HTMLResultWriter();
+my $outhtml = new Bio::SearchIO(-writer => $writerhtml,
+				-file   => ">searchio.html");
+$outhtml->write_result($result, 1);
+ok(-e "searchio.html");
+
+unlink 'searchio.out';
+unlink 'searchio.html';
+
+
+__END__
+
+Useful for debugging:
+
+    if ($iter_count == 3) {
+	print "NEWHITS:\n";
+	foreach ($iter->newhits) {
+	    print "  " . $_->name . "\n";
+	}
+	print "\nOLDHITS:\n";
+	foreach ($iter->oldhits) {
+	    print "  " . $_->name . "\n";
+	}
+	print "\nNEWHITS BELOW:\n";
+	foreach ($iter->newhits_below_threshold) {
+	    print "  " . $_->name . "\n";
+	}
+	print "\nNEWHITS NOT BELOW:\n";
+	foreach ($iter->newhits_not_below_threshold) {
+	    print "  " . $_->name . "\n";
+	}
+	print "\nNEWHITS UNCLASSIFIED:\n";
+	foreach ($iter->newhits_unclassified) {
+	    print "  " . $_->name . "\n";
+	}
+	print "\nOLDHITS BELOW:\n";
+	foreach ($iter->oldhits_below_threshold) {
+	    print "  " . $_->name . "\n";
+	}
+	print "\nOLDHITS NEWLY BELOW:\n";
+	foreach ($iter->oldhits_newly_below_threshold) {
+	    print "  " . $_->name . "\n";
+	}
+	print "\nOLDHITS NOT BELOW:\n";
+	foreach ($iter->oldhits_not_below_threshold) {
+	    print "  " . $_->name . "\n";
+	}
+    }
+
 
