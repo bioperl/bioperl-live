@@ -18,7 +18,7 @@ BEGIN {
     }
 
     use Test;
-    plan tests => 51;
+    plan tests => 49;
 }
 
 if( $error == 1 ) {
