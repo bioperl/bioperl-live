@@ -197,4 +197,20 @@ sub each_feature_quantitation {
   return @values;
 }
 
+=head2 is_qc
+
+ Title   : is_qc
+ Usage   : $is_quality_control = $featureset->is_qc
+ Function: get/set whether or not the featureset is used for quality control purposes
+ Returns : a boolean (equivalent)
+ Args    : a new value
+
+=cut
+
+sub is_qc {
+  my $self = shift;
+  $self->{is_qc} = shift if defined @_;
+  return $self->{is_qc};
+}
+
 1;
