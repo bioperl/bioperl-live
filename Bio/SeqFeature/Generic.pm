@@ -474,15 +474,16 @@ sub has_tag {
  Title   : add_tag_value
  Usage   : $self->add_tag_value('note',"this is a note");
  Returns : TRUE on success
- Args    : tag (string) and value (any scalar)
+ Args    : tag (string) and one or more values (any scalar(s))
 
 
 =cut
 
 sub add_tag_value {
-    my ($self, $tag, $value) = @_;    
+    my $self = shift;
+    my $tag = shift;
     $self->{'_gsf_tag_hash'}->{$tag} ||= [];
-    push(@{$self->{'_gsf_tag_hash'}->{$tag}},$value);
+    push(@{$self->{'_gsf_tag_hash'}->{$tag}},@_);
 }
 
 

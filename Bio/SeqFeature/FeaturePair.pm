@@ -92,21 +92,74 @@ use strict;
 
 use Bio::SeqFeatureI;
 use Bio::SeqFeature::Generic;
+use Bio::Factory::ObjectFactory;
 
 @ISA = qw(Bio::SeqFeature::Generic);
 
+=head2 new
+
+ Title   : new
+ Usage   :
+ Function: Constructor for this module. Accepts the following parameters:
+
+             -feature1   Bio::SeqFeatureI-compliant object
+             -feature2   Bio::SeqFeatureI-compliant object
+             -feature_factory  Bio::Factory::ObjectFactoryI compliant
+                         object to be used when feature1 and/or feature2
+                         are accessed without explicitly set before. This
+                         is mostly useful for derived classes who want to
+                         set their preferred class for feature objects.
+
+ Example :
+ Returns : 
+ Args    : see above
+
+
+=cut
+
 sub new {
     my ($class, @args) = @_;
-    my $self = $class->SUPER::new(@args);
-    
-    my ($feature1,$feature2) = 
+
+    #
+    # We've got a certain problem here that somewhat relates to chicken and
+    # eggs. The problem is, we override a lot of SeqFeatureI methods here
+    # to delegate them to either feature1 or feature2. If we pass along
+    # those attributes right away, we need feature1 or feature2 or the feature
+    # factory in place, or there is no way around the dreaded default, which
+    # is ugly too (as it necessitates subsequent copying if you wanted a
+    # different feature object class).
+    #
+    # So I decided to go with the lesser of two evils here: we need to assume
+    # here that we can set all attributes through set_attributes(), which we
+    # assume is no different from setting them through the constructor. This
+    # gives us a window to set the feature objects and the factory, such that
+    # any derived class doesn't have to worry about this any more.
+    #
+    # I'm happy to hear a better solution, but I think this one isn't so bad.
+    #
+    my $self = $class->SUPER::new();
+    my ($feature1,$feature2,$featfact) = 
 	$self->_rearrange([qw(FEATURE1
 			      FEATURE2
+			      FEATURE_FACTORY
 			      )],@args);
     
     # Store the features in the object
     $feature1 && $self->feature1($feature1);
     $feature2 && $self->feature2($feature2);
+    # initialize the feature object factory if not provided
+    if(! $featfact) {
+	$featfact = Bio::Factory::ObjectFactory->new(
+				   -type => "Bio::SeqFeature::Generic",
+				   -interface => "Bio::SeqFeatureI");
+    }
+    $self->feature_factory($featfact);
+    
+    # OK. Now we're setup to store all the attributes, and they'll go right
+    # away into the right objects.
+    $self->set_attributes(@args);
+
+    # done - we hope
     return $self;
 }
 
@@ -125,7 +178,9 @@ sub new {
 sub feature1 {
     my ($self,$arg) = @_;    
     if ( defined($arg) || !defined $self->{'feature1'} ) {
-	$arg = new Bio::SeqFeature::Generic() unless( defined $arg);
+	$self->throw("internal error: feature factory not set!") 
+	    unless $self->feature_factory;
+	$arg = $self->feature_factory->create_object() unless( defined $arg);
 	$self->throw("Argument [$arg] must be a Bio::SeqFeatureI") 
 	    unless (ref($arg) && $arg->isa("Bio::SeqFeatureI"));
 	$self->{'feature1'} = $arg;
@@ -149,7 +204,9 @@ sub feature2 {
     my ($self,$arg) = @_;
 
     if ( defined($arg) || ! defined $self->{'feature2'}) {
-	$arg = new Bio::SeqFeature::Generic unless( defined $arg);
+	$self->throw("internal error: feature factory not set!") 
+	    unless $self->feature_factory;
+	$arg = $self->feature_factory->create_object() unless( defined $arg);
 	$self->throw("Argument [$arg] must be a Bio::SeqFeatureI") 
 	    unless (ref($arg) && $arg->isa("Bio::SeqFeatureI"));
 	$self->{'feature2'} = $arg;
@@ -453,6 +510,35 @@ sub invert {
     $self->feature1($self->feature2);
     $self->feature2($tmp);
     return undef;
+}
+
+=head2 feature_factory
+
+ Title   : feature_factory
+ Usage   : $obj->feature_factory($newval)
+ Function: Get/set the feature object factory for this feature pair.
+
+           The feature object factory will be used to create a feature
+           object if feature1() or feature2() is called in get mode
+           without having been set before.
+
+           The default is an instance of Bio::Factory::ObjectFactory
+           and hence allows the type to be changed dynamically at any
+           time.
+
+ Example : 
+ Returns : The feature object factory in use (a 
+           Bio::Factory::ObjectFactoryI compliant object)
+ Args    : on set, a Bio::Factory::ObjectFactoryI compliant object
+
+
+=cut
+
+sub feature_factory{
+    my $self = shift;
+
+    return $self->{'feature_factory'} = shift if @_;
+    return $self->{'feature_factory'};
 }
 
 #################################################################

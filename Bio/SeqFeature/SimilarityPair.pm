@@ -80,7 +80,7 @@ use strict;
 
 use Bio::SeqFeature::FeaturePair;
 use Bio::SeqFeature::Similarity;
-use Bio::SearchIO;
+use Bio::Factory::ObjectFactory;
 
 @ISA = qw(Bio::SeqFeature::FeaturePair);
 
@@ -102,6 +102,13 @@ use Bio::SearchIO;
 sub new {
     my($class,@args) = @_;
 
+    if(! grep { lc($_) eq "-feature_factory"; } @args) {
+	# if no overriding factory is provided, provide our preferred one
+	my $fact = Bio::Factory::ObjectFactory->new(
+                                    -type => "Bio::SeqFeature::Similarity",
+				    -interface => "Bio::SeqFeatureI");
+	push(@args, '-feature_factory', $fact);
+    }
     my $self = $class->SUPER::new(@args);
 
     # Hack to deal with the fact that SimilarityPair calls strand()
@@ -128,12 +135,11 @@ sub new {
         }
     }
 
-    # make sure at least the query feature exists -- this refers to feature1
-    if($query && ! $fea1) { $self->query( $query);  } 
-    else { $self->query('null'); } # call with no args sets a default value for query
-    
+    # set the query and subject feature if provided
+    $self->query( $query) if $query && ! $fea1;
     $hit && $self->hit($hit);
-    # the following refer to feature1, which has been ensured to exist
+
+    # the following refer to feature1, which is guaranteed to exist
     if( defined $primary || ! defined $self->primary_tag) { 
         $primary = 'similarity' unless defined $primary;
         $self->primary_tag($primary);
@@ -164,33 +170,7 @@ See L<Bio::SeqFeature::Similarity>, L<Bio::SeqFeature::FeaturePair>
 =cut
 
 sub query {
-    my ($self, @args) = @_;
-    my $f = $self->feature1();
-    if( ! @args || ($args[0] eq 'null') ) {
-        if( ! defined( $f) ) {
-            @args = Bio::SeqFeature::Similarity->new();
-        } elsif( ! $f->isa('Bio::SeqFeature::Similarity') && 
-                 $f->isa('Bio::SeqFeatureI') ) {
-            # a Bio::SeqFeature::Generic was placeholder for feature1            
-            my $newf = new 
-              Bio::SeqFeature::Similarity( -start   => $f->start(),
-                                           -end     => $f->end(),
-                                           -strand  => $f->strand(),
-                                           -primary => $f->primary_tag(),
-                                           -source  => $f->source_tag(),
-                                           -seq_id  => $f->seq_id(),
-                                           -score   => $f->score(),
-                                           -frame   => $f->frame(),
-                                           );
-            foreach my $tag ( $newf->all_tags ) {
-                $tag->add_tag($tag, $newf->each_tag($tag));
-            }
-            @args = $newf;           
-        } else {
-            @args = ();
-        }
-    }
-    return $self->feature1(@args);
+    return shift->feature1(@_);
 }
 
 
@@ -227,31 +207,7 @@ sub subject {
 =cut
 
 sub hit {
-    my ($self, @args) = @_;
-    my $f = $self->feature2();
-    if(! @args || (!ref($args[0]) && $args[0] eq 'null') ) {
-        if( ! defined( $f) ) {
-            @args = Bio::SeqFeature::Similarity->new();
-        } elsif( ! $f->isa('Bio::SeqFeature::Similarity') && 
-                 $f->isa('Bio::SeqFeatureI')) {
-            # a Bio::SeqFeature::Generic was placeholder for feature2            
-            my $newf = new 
-              Bio::SeqFeature::Similarity( -start   => $f->start(),
-                                           -end     => $f->end(),
-                                           -strand  => $f->strand(),
-                                           -primary => $f->primary_tag(),
-                                           -source  => $f->source_tag(),
-                                           -seq_id  => $f->seq_id(),
-                                           -score   => $f->score(),
-                                           -frame   => $f->frame(),
-                                           );
-            foreach my $tag ( $newf->all_tags ) {
-                $tag->add_tag($tag, $newf->each_tag($tag));
-            }
-            @args = $newf;
-        }
-    }
-    return $self->feature2(@args);
+    return shift->feature2(@_);
 }
 
 =head2 source_tag
@@ -340,5 +296,11 @@ sub bits {
     }
     return $self->query()->bits(@args);
 }
+
+#################################################################
+# aliases for backwards compatibility or convenience            #
+#################################################################
+
+*sbjct = \&subject;
 
 1;
