@@ -148,7 +148,7 @@ sub new {
   defined $rank   && $self->rank($rank);
 
   $self->{'_iterator'} = 0;
-  $self->{'_hsps'} = [];
+  #$self->{'_hsps'} = [];
   if( defined $hsps  ) {
       if( ref($hsps) !~ /array/i ) {
           $self->warn("Did not specify a valid array ref for the param HSPS ($hsps)");
@@ -404,9 +404,11 @@ sub bits {
 =cut
 
 sub next_hsp {
-    my ($self) = @_;
+    my $self = shift;
     $self->{'_iterator'} = 0 unless defined $self->{'_iterator'};
-    return undef if $self->{'_iterator'} > scalar @{$self->{'_hsps'}};
+    return undef unless
+        defined($self->{'_hsps'}) 
+        && $self->{'_iterator'} <= scalar @{$self->{'_hsps'}};
     return $self->{'_hsps'}->[$self->{'_iterator'}++];    
 }
 
@@ -759,7 +761,7 @@ sub length_aln {
 
     unless ($self->{'_hsps'}) {
         #return wantarray ? ('-','-') : '-';
-        $self->_warn_about_no_hsps;
+        Bio::Search::SearchUtils::_warn_about_no_hsps($self);
         return '-';
     }
 
@@ -818,7 +820,7 @@ sub gaps {
     $seqType = 'sbjct' if $seqType eq 'hit';
 
     unless ($self->{'_hsps'}) {
-        $self->_warn_about_no_hsps;
+        Bio::Search::SearchUtils::_warn_about_no_hsps($self);
         return wantarray ? ('-','-') : '-';
         #return '-';
     }
@@ -856,7 +858,7 @@ sub matches {
     my(@data,$data);
 
     unless ($self->{'_hsps'}) {
-        $self->_warn_about_no_hsps;
+        Bio::Search::SearchUtils::_warn_about_no_hsps($self);
         return wantarray ? ('-','-') : '-';
     }
 
@@ -923,7 +925,7 @@ sub start {
     my ($self, $seqType, $num) = @_;
 
     unless ($self->{'_hsps'}) {
-        $self->_warn_about_no_hsps;
+        Bio::Search::SearchUtils::_warn_about_no_hsps($self);
         return wantarray ? ('-','-') : '-';
     }
 
@@ -1098,7 +1100,7 @@ sub frac_identical {
     $seqType = lc($seqType);
 
     unless ($self->{'_hsps'}) {
-        $self->_warn_about_no_hsps;
+        Bio::Search::SearchUtils::_warn_about_no_hsps($self);
         #return wantarray ? ('-','-') : '-';
         return '-';
     }
@@ -1176,7 +1178,7 @@ sub frac_conserved {
     $seqType = lc($seqType);
 
     unless ($self->{'_hsps'}) {
-        $self->_warn_about_no_hsps;
+        Bio::Search::SearchUtils::_warn_about_no_hsps($self);
         #return wantarray ? ('-','-') : '-';
         return '-';
     }
@@ -1221,7 +1223,7 @@ sub frac_aligned_query {
     my $self = shift;
 
     unless ($self->{'_hsps'}) {
-        $self->_warn_about_no_hsps;
+        Bio::Search::SearchUtils::_warn_about_no_hsps($self);
         #return wantarray ? ('-','-') : '-';
         return '-';
     }
@@ -1259,7 +1261,7 @@ sub frac_aligned_hit {
     my $self = shift;
 
     unless ($self->{'_hsps'}) {
-        $self->_warn_about_no_hsps;
+        Bio::Search::SearchUtils::_warn_about_no_hsps($self);
         #return wantarray ? ('-','-') : '-';
         return '-';
     }
@@ -1315,7 +1317,7 @@ sub num_unaligned_hit {
     my $self = shift;
 
     unless ($self->{'_hsps'}) {
-        $self->_warn_about_no_hsps;
+        Bio::Search::SearchUtils::_warn_about_no_hsps($self);
         #return wantarray ? ('-','-') : '-';
         return '-';
     }
@@ -1353,7 +1355,7 @@ sub num_unaligned_query {
     my $self = shift;
 
     unless ($self->{'_hsps'}) {
-        $self->_warn_about_no_hsps;
+        Bio::Search::SearchUtils::_warn_about_no_hsps($self);
         #return wantarray ? ('-','-') : '-';
         return '-';
     }
@@ -1430,7 +1432,7 @@ sub strand {
     my ($self, $seqType, $strnd) = @_;
 
     unless ($self->{'_hsps'}) {
-        $self->_warn_about_no_hsps;
+        Bio::Search::SearchUtils::_warn_about_no_hsps($self);
         return wantarray ? ('-','-') : '-';
         #return '-';
     }
@@ -1494,7 +1496,7 @@ sub frame {
     my( $self, $frm ) = @_;
 
     unless ($self->{'_hsps'}) {
-        $self->_warn_about_no_hsps;
+        Bio::Search::SearchUtils::_warn_about_no_hsps($self);
         #return wantarray ? ('-','-') : '-';
         return '-';
     }
@@ -1645,14 +1647,5 @@ sub query_length{
     return $self->{'_query_length'};
 }
 
-
-sub _warn_about_no_hsps {
-    my $self = shift;
-    my $prev_func=(caller(1))[3];
-    $self->warn("There is no HSP data for hit '".$self->name."'.\n".
-                 "You have called a method ($prev_func)\n".
-                 "that requires HSP data. HSP data was not collected for this\n".
-                 "hit, most likely because it was absent from the BLAST report.\n");
-}
 
 1;

@@ -111,11 +111,7 @@ sub tile_hsps {
 
     if( $sbjct->num_hsps == 0 || $sbjct->n == 0 ) { 		
 	#print STDERR "_tile_hsps(): no hsps, nothing to tile! (", $sbjct->num_hsps, ")\n";
-        my $prev_func=(caller(1))[3];
-        $sbjct->warn("Cannot tile HSPs: No HSP data for hit '".$sbjct->name."'\n".
-                     "You have called a hit function ($prev_func)\n".
-                     "that requires HSP tiling. HSP data could not be collected\n".
-                     "for this hit, most likely because it was absent from the BLAST report.\n");
+        _warn_about_no_hsp($sbjct);
         return undef;
 
     } elsif( $sbjct->n == 1 or $sbjct->num_hsps == 1) {
@@ -607,6 +603,23 @@ sub strip_blast_html {
     $stripped;
 }
 
+
+
+sub _warn_about_no_hsps {
+    my $hit = shift;
+    my $prev_func=(caller(1))[3];
+    $hit->warn("There is no HSP data for hit '".$hit->name."'.\n".
+               "You have called a method ($prev_func)\n".
+               "that requires HSP data and there was no HSP data for this hit,\n".
+               "most likely because it was absent from the BLAST report.\n".
+               "Note that by default, BLAST lists alignments for the first 250 hits,\n".
+               "but it lists descriptions for 500 hits. If this is the case,\n".
+               "and you care about these hits, you should re-run BLAST using the\n".
+               "-b option (or equivalent if not using blastall) to increase the number\n".
+               "of alignments.\n"
+              );
+
+}
 
 1;
 
