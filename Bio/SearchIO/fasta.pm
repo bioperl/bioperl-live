@@ -335,11 +335,20 @@ sub next_result{
 		   $data{lframe} = '0';
 	       }
 
-	       if ($line[0] =~ m/^\(?(\d+)\)$/) {
+	       if ($line[-1] =~ m/^\(?(\d+)\)$/) {
 		   $data{hit_len} = $1;
+		   pop @line;
+		   if ($line[-1] =~ m/^\($/) {
+		       pop @line;
+		   }
 	       } else {
 		   $data{hit_len} = 0;
 	       }
+
+	       # figure out where the last bit of the description ends:
+	       $_ =~ m/\Q$line[$#line]\E/g;
+	       # then truncate the line past that:
+	       $_ = substr($_, 0, pos($_));
 
 	       my ($id, $desc) = split(/\s+/,$_,2);
 	       my @pieces = split(/\|/,$id);
@@ -448,17 +457,26 @@ sub next_result{
 	       $self->element({'Name' => 'Hsp_querygaps', 'Data' => $v->{qgaps} }) if exists $v->{qgaps};
 	       $self->element({'Name' => 'Hsp_hitgaps', 'Data' => $v->{lgaps} }) if exists $v->{lgaps};
 
-	       if ($self->{'_reporttype'} =~ m/^FAST[NXY]$/o &&
-		   4 == scalar grep { exists $v->{$_} } qw(an0 ax0 pn0 px0)) {
-		   if ($v->{ax0} < $v->{an0}) {
-		       $self->element({'Name' => 'Hsp_query-frame', 'Data' => "-@{[(($v->{px0} - $v->{ax0}) % 3) + 1]}" });
+	       if ($self->{'_reporttype'} =~ m/^FAST[NXY]$/o) {
+		   if( 8 == scalar grep { exists $v->{$_} } qw(an0 ax0 pn0 px0 an1 ax1 pn1 px1) ) {
+		       if ($v->{ax0} < $v->{an0}) {
+			   $self->element({'Name' => 'Hsp_query-frame', 'Data' => "-@{[(($v->{px0} - $v->{ax0}) % 3) + 1]}" });
+		       } else {
+			   $self->element({'Name' => 'Hsp_query-frame', 'Data' => "+@{[(($v->{an0} - $v->{pn0}) % 3) + 1]}" });
+		       }
+		       if ($v->{ax1} < $v->{an1}) {
+			   $self->element({'Name' => 'Hsp_hit-frame', 'Data' => "-@{[(($v->{px1} - $v->{ax1}) % 3) + 1]}" });
+		       } else {
+			   $self->element({'Name' => 'Hsp_hit-frame', 'Data' => "+@{[(($v->{an1} - $v->{pn1}) % 3) + 1]}" });
+		       }
 		   } else {
-		       $self->element({'Name' => 'Hsp_query-frame', 'Data' => "+@{[(($v->{an0} - $v->{pn0}) % 3) + 1]}" });
+		       $self->element({'Name' => 'Hsp_query-frame', 'Data' => $v->{lframe} });
+		       $self->element({'Name' => 'Hsp_hit-frame', 'Data' => 0 });
 		   }
 	       } else {
 		   $self->element({'Name' => 'Hsp_query-frame', 'Data' => 0 });
+		   $self->element({'Name' => 'Hsp_hit-frame', 'Data' => $v->{lframe} });
 	       }
-	       $self->element({'Name' => 'Hsp_hit-frame', 'Data' => $v->{lframe} });
 
 	   } else {
 	       $self->warn( "unable to parse FASTA score line: $_");
@@ -529,18 +547,26 @@ sub next_result{
 		   $self->element({'Name' => 'Hsp_querygaps', 'Data' => $h->{qgaps} }) if exists $h->{qgaps};
 		   $self->element({'Name' => 'Hsp_hitgaps', 'Data' => $h->{lgaps} }) if exists $h->{lgaps};
 
-		   if ($self->{'_reporttype'} =~ m/^FAST[NXY]$/o &&
-		       4 == scalar grep { exists $h->{$_} } qw(an0 ax0 pn0 px0)) {
-		       if ($h->{ax0} < $h->{an0}) {
-			   $self->element({'Name' => 'Hsp_query-frame', 'Data' => "-@{[(($h->{px0} - $h->{ax0}) % 3) + 1]}" });
+		   if ($self->{'_reporttype'} =~ m/^FAST[NXY]$/o) {
+		       if( 8 == scalar grep { exists $h->{$_} } qw(an0 ax0 pn0 px0 an1 ax1 pn1 px1) ) {
+			   if ($h->{ax0} < $h->{an0}) {
+			       $self->element({'Name' => 'Hsp_query-frame', 'Data' => "-@{[(($h->{px0} - $h->{ax0}) % 3) + 1]}" });
+			   } else {
+			       $self->element({'Name' => 'Hsp_query-frame', 'Data' => "+@{[(($h->{an0} - $h->{pn0}) % 3) + 1]}" });
+			   }
+			   if ($h->{ax1} < $h->{an1}) {
+			       $self->element({'Name' => 'Hsp_hit-frame', 'Data' => "-@{[(($h->{px1} - $h->{ax1}) % 3) + 1]}" });
+			   } else {
+			       $self->element({'Name' => 'Hsp_hit-frame', 'Data' => "+@{[(($h->{an1} - $h->{pn1}) % 3) + 1]}" });
+			   }
 		       } else {
-			   $self->element({'Name' => 'Hsp_query-frame', 'Data' => "+@{[(($h->{an0} - $h->{pn0}) % 3) + 1]}" });
+			   $self->element({'Name' => 'Hsp_query-frame', 'Data' => $h->{lframe} });
+			   $self->element({'Name' => 'Hsp_hit-frame', 'Data' => 0 });
 		       }
 		   } else {
 		       $self->element({'Name' => 'Hsp_query-frame', 'Data' => 0 });
+		       $self->element({'Name' => 'Hsp_hit-frame', 'Data' => $h->{lframe} });
 		   }
-
-		   $self->element({'Name' => 'Hsp_hit-frame', 'Data' => $h->{lframe} });
 
 		   $self->end_element({'Name' => 'Hsp'});
 		   $self->end_element({'Name' => 'Hit'});
@@ -600,18 +626,26 @@ sub next_result{
 		       $self->element({'Name' => 'Hsp_querygaps', 'Data' => $h->{qgaps} }) if exists $h->{qgaps};
 		       $self->element({'Name' => 'Hsp_hitgaps', 'Data' => $h->{lgaps} }) if exists $h->{lgaps};
 		       
-		       if ($self->{'_reporttype'} =~ m/^FAST[NXY]$/o &&
-			   4 == scalar grep { exists $h->{$_} } qw(an0 ax0 pn0 px0)) {
-			   if ($h->{ax0} < $h->{an0}) {
-			       $self->element({'Name' => 'Hsp_query-frame', 'Data' => "-@{[(($h->{px0} - $h->{ax0}) % 3) + 1]}" });
+		       if ($self->{'_reporttype'} =~ m/^FAST[NXY]$/o) {
+			   if( 8 == scalar grep { exists $h->{$_} } qw(an0 ax0 pn0 px0 an1 ax1 pn1 px1) ) {
+			       if ($h->{ax0} < $h->{an0}) {
+				   $self->element({'Name' => 'Hsp_query-frame', 'Data' => "-@{[(($h->{px0} - $h->{ax0}) % 3) + 1]}" });
+			       } else {
+				   $self->element({'Name' => 'Hsp_query-frame', 'Data' => "+@{[(($h->{an0} - $h->{pn0}) % 3) + 1]}" });
+			       }
+			       if ($h->{ax1} < $h->{an1}) {
+				   $self->element({'Name' => 'Hsp_hit-frame', 'Data' => "-@{[(($h->{px1} - $h->{ax1}) % 3) + 1]}" });
+			       } else {
+				   $self->element({'Name' => 'Hsp_hit-frame', 'Data' => "+@{[(($h->{an1} - $h->{pn1}) % 3) + 1]}" });
+			       }
 			   } else {
-			       $self->element({'Name' => 'Hsp_query-frame', 'Data' => "+@{[(($h->{an0} - $h->{pn0}) % 3) + 1]}" });
+			       $self->element({'Name' => 'Hsp_query-frame', 'Data' => $h->{lframe} });
+			       $self->element({'Name' => 'Hsp_hit-frame', 'Data' => 0 });
 			   }
 		       } else {
 			   $self->element({'Name' => 'Hsp_query-frame', 'Data' => 0 });
+			   $self->element({'Name' => 'Hsp_hit-frame', 'Data' => $h->{lframe} });
 		       }
-
-		       $self->element({'Name' => 'Hsp_hit-frame', 'Data' => $h->{lframe} });
 
 		       $self->end_element({'Name' => 'Hsp'});
 		       $self->end_element({'Name' => 'Hit'});
