@@ -31,6 +31,22 @@
         </address>
       </affiliation>
     </author>
+    <author>
+      <firstname>James</firstname>
+      <surname>Thompson</surname>
+      <authorblurb>
+		  <para></para>
+      </authorblurb>
+      <affiliation>
+		  <orgname>
+			 <ulink url=""></ulink>
+		  </orgname>
+		  <address>
+			 <email>tex-at-biocompute.net</email>
+        </address>
+      </affiliation>
+    </author>
+
     <pubdate>2004-12-14</pubdate>
 <!--
     <revhistory>
@@ -78,7 +94,7 @@
 		You will also see some discussions of software concepts, this
 		can't be avoided. The more you understand about
 		programming the better but all efforts will be made
-		not to introduce too much unfamiliar material. 
+		to not introduce too much unfamiliar material. 
 		However, there will be an introducton to modularity, or objects. This is 
 		one of the aspects of the Bioperl package that you'll have
 		to come to grips with as you attempt more complex tasks with
@@ -430,7 +446,7 @@ Internet, point your browser at http://www.perl.com/, the Perl Home Page.
 	 </para>
 	 <para>
 		The object was described as a data container, but it is more
-		than that. It is also a variable that can do work, that can call
+		than that. It can also do work, it can call
 		specific methods taken from the module or modules that were used
 		to create it. For example, the <classname>Bio::Seq</classname> 
 		module has a method
@@ -455,6 +471,8 @@ Internet, point your browser at http://www.perl.com/, the Perl Home Page.
 		its methods. Yes, the
 		same method, <function>seq()</function>, can be used to 
 		<emphasis>get</emphasis> or <emphasis>set</emphasis> values.
+		You're setting values when you create the object, you're
+		getting values when you ask the object what values it has.
 	 </para>
 	 <para>
 		Let's make our example a bit more true-to-life, since a typical
@@ -505,8 +523,8 @@ Internet, point your browser at http://www.perl.com/, the Perl Home Page.
 		<programlisting>
 		  use Bio::SeqIO;
 
-		  $seq_io = Bio::SeqIO->new(-file => '>sequence.fasta', 
-		                            -format => 'fasta' );
+		  $seqio_obj = Bio::SeqIO->new(-file => '>sequence.fasta', 
+		                               -format => 'fasta' );
 		</programlisting> 
 	 </para> 
 	 <para>
@@ -532,10 +550,10 @@ Internet, point your browser at http://www.perl.com/, the Perl Home Page.
 		                           -display_id => "#12345",
 		                           -desc => "example 1" );
 
-		  $seq_io = Bio::SeqIO->new(-file => '>sequence.fasta', 
-		                            -format => 'fasta' );
+		  $seqio_obj = Bio::SeqIO->new(-file => '>sequence.fasta', 
+		                               -format => 'fasta' );
 
-		  $seq_io->write_seq($seq_obj);
+		  $seqio_obj->write_seq($seq_obj);
 		</programlisting> 
 	 </para> 
 	 <para>
@@ -564,9 +582,9 @@ aaaatgggggggggggccccgtt
 		</programlisting>
 	 </para>
 	 <para>
-		To demonstrate the intelligence of the SeqIO object the example
-		below shows what file content is created when "-format" uses
-		the argument "genbank" instead of "fasta":
+		Let's demonstrate the intelligence of the SeqIO object - the example
+		below shows what file content is created when "-format" is set to
+		"genbank" instead of "fasta":
 	 </para>
 	 <para>
 		<programlisting>
@@ -625,15 +643,16 @@ ORIGIN
 
 		  use Bio::SeqIO;
 
-		  $seqio = Bio::SeqIO->new(-file => "sequence.fasta",
-                                 -format => "fasta" );
+		  $seqio_obj = Bio::SeqIO->new(-file => "sequence.fasta",
+                                     -format => "fasta" );
 		  
 		  $seq_obj = $seqio->next_seq;
 		</programlisting>
 	 </para>
 	 <para>
 		Here we've used the <function>next_seq()</function> method of the
-		Bio::SeqIO object. When you call <function>next_seq()</function> the
+		Bio::SeqIO object. When you use, or call, 
+		<function>next_seq()</function> the
 		SeqIO	object will get the next available sequence, in this case
 		the first sequence in the file that was just opened. The
 		Sequence object, <varname>$seq_obj</varname>, that's created
@@ -695,7 +714,7 @@ ORIGIN
 	 <para>
 		In this case we've created an object using the 
 		<function>new</function> method but without arguments. 
-		In fact, when creating this sort of object no arguments or
+		In fact, when creating this sort of database object no arguments or
 		options are possible. Let's ask the object to do something
 		useful:
 	 </para>
@@ -712,12 +731,62 @@ ORIGIN
 		method is an identifier, 2, a Genbank GI number. You could
 		also use the <function>get_Seq_by_acc</function> method, this
 		would accept an accession number, "A12345" for example. Make
-		sure to use the proper identifier for the method, they are
-		not interchangeable.
+		sure to use the proper identifier for the method you use, they 
+		are not interchangeable.
 	 </para>
+	 <para>
+		There are more sophisticated ways to query Genbank than
+		this. This next example attempts to do something "biological",
+		using the module Bio::DB::Query::GenBank. Want all Arabidopsis
+		topoisomerases from Genbank Nucleotide?
+	 </para>
+	  <para>
+		<programlisting>
+		  use Bio::DB::Query::GenBank;
 
-<!-- Bio::DB::Query? -->
-	 
+		  $query = "Arabidopsis[ORGN] AND topoisomerase[TITL]";
+		  $query_obj = Bio::DB::Query::GenBank->new(-db    => 'nucleotide',
+		                                            -query => $query ); 
+		</programlisting>
+	 </para>
+	 <para>
+		That is how we would construct a "query object", but we
+		haven't retrieved sequences yet. To do so we will have to create
+		a "database object", some object that can get Sequence objects
+		for us, just as we did initially:
+	 </para>
+	  <para>
+		<programlisting>
+		  use Bio::DB::GenBank;
+		  use Bio::DB::Query::GenBank;
+
+		  $query = "Arabidopsis[ORGN] AND topoisomerase[TITL]";
+		  $query_obj = Bio::DB::Query::GenBank->new(-db    => 'nucleotide',
+		                                            -query => $query ); 
+
+		  $gb_obj = Bio::DB::GenBank->new;
+		  $stream_obj = $gb_obj->get_Stream_by_query($query_obj);
+		  
+		  while ($seq_obj = $stream_obj->next_seq) {
+	        # do something with the sequence object
+     		  print $seq_obj->display_id,"\t",$seq_obj->length,"\n";
+		  }
+		</programlisting>
+	 </para>
+	 <para>
+		
+	 </para>
+	 <warning>
+		<para>
+		  Be careful what you ask for, many of today's public database
+		  entries are genome-size, and you will run out of memory
+		  if you attempt to access them this way.
+		</para>
+	 </warning>
+	 <para>
+		You can find detailed information on Genbank's query fields
+		<ulink url="http://www.ncbi.nlm.nih.gov/entrez/query/static/help/Summary_Matrices.html">here</ulink>.
+	 </para>
   </section>
 
   <section id="blast">
