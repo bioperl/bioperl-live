@@ -20,6 +20,7 @@ usage:
   perl install_bioperl_scripts.pl  install_dir  prompt_mode
 
 prompt_mode = 'a' (all) | 'i' (interactive) | 'n' (none)
+Note:  this script must be run from the parent directory of /scripts
 
 ";
 
