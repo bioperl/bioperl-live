@@ -248,6 +248,16 @@ details.
 
 Connect to and test a SOAP server using a Bio::Biblio object.
 
+=head2 examples/biographics/dynamic_glyphs.pl
+
+Creates a complex image of a gene with confirmed and predicted exons,
+transcripts, and text labels.
+
+=head2 examples/biographics/lots_of_glyphs.pl
+
+Creates a complex image of a gene with confirmed and predicted exons,
+transcripts, and text labels.
+
 =head2 examples/bioperl.pl
 
 A Bioperl shell!
