@@ -303,9 +303,12 @@ sub throw{
        } else {
            $class ||= "Bio::Root::Exception";
    
-           my %args = @args;
-           $args{-text} = $text;
-           $args{-object} = $self;
+	   my %args;
+	   if( @args % 2 == 0 ) {
+	       %args = @args;
+	   }
+	   $args{-text} = $text;
+	   $args{-object} = $self;       
  
            throw $class ( %args );
        }
