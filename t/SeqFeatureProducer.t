@@ -46,7 +46,7 @@ $seqio = new Bio::SeqIO(-format=>'Fasta', -file=>'t/HUMBETGLOA.fasta');
 my $seq2 = $seqio->next_seq;
 
 # for debugging
-$seqio = new Bio::SeqIO(-format=>'GenBank', -fh=>\*STDERR);
+#$seqio = new Bio::SeqIO(-format=>'GenBank', -fh=>\*STDERR);
 
 print "not ok 2\n" unless ( defined $seq );
 
@@ -57,23 +57,23 @@ if( ! $seqprod->add_features($seq) ) {
     print "not ok 3\n";
 }
 else { 
-    print "GFF features are for ", $seq->display_id(), "\n";
+#    print "GFF features are for ", $seq->display_id(), "\n";
     foreach my $feat ( $seq->top_SeqFeatures() ) {
-	print "Feature from ", $feat->start(), "to ", 
-	$feat->end(), " Primary tag  ", $feat->primary_tag(),
-	" From", $feat->source_tag(), "\n";
+#	print "Feature from ", $feat->start(), "to ", 
+#	$feat->end(), " Primary tag  ", $feat->primary_tag(),
+#	" From", $feat->source_tag(), "\n";
 	if( $feat->strand == 0 ) {
-	    print "Feature applicable to either strand\n";
+#	    print "Feature applicable to either strand\n";
 	} else {
-	    print "Feature on strand ", $feat->strand(),"\n"; # -1,1
+#	    print "Feature on strand ", $feat->strand(),"\n"; # -1,1
 	}
 	
 	foreach $tag ( $feat->all_tags() ) {
-	    print "Feature has tag ",$tag,"with value,", $feat->has_tag($tag), "\n";
+#	    print "Feature has tag ",$tag,"with value,", $feat->has_tag($tag), "\n";
 	}
     }	
 }
-$seqio->write_seq($seq);
+#$seqio->write_seq($seq);
 print "ok 3\n";
 
 $seqprod = new Bio::SeqFeatureProducer::MZEF(-mzef=>'t/HUMBETGLOA.mzef');
@@ -82,23 +82,23 @@ if( ! $seqprod->add_features($seq2) ) {
     print "not ok 4\n";
 }
 else { 
-    print "\n\nMZEF features are for ", $seq2->display_id(), "\n";
+#    print "\n\nMZEF features are for ", $seq2->display_id(), "\n";
     foreach my $feat ( $seq2->top_SeqFeatures() ) {
-	print "Feature from ", $feat->start(), "to ", 
-	$feat->end(), " Primary tag  ", $feat->primary_tag(),
-	" From", $feat->source_tag(), "\n";
+#	print "Feature from ", $feat->start(), "to ", 
+#	$feat->end(), " Primary tag  ", $feat->primary_tag(),
+#	" From", $feat->source_tag(), "\n";
 	if( $feat->strand == 0 ) {
-	    print "Feature applicable to either strand\n";
+#	    print "Feature applicable to either strand\n";
 	} else {
-	    print "Feature on strand ", $feat->strand(),"\n"; # -1,1
+#	    print "Feature on strand ", $feat->strand(),"\n"; # -1,1
 	}
 
 	foreach $tag ( $feat->all_tags() ) {
-	    print "Feature has tag ",$tag,"with value,", $feat->has_tag($tag), "\n";
+#	    print "Feature has tag ",$tag,"with value,", $feat->has_tag($tag), "\n";
 	}
     }	
 }
-$seqio->write_seq($seq2);
+#$seqio->write_seq($seq2);
 
 
 print "ok 4\n";

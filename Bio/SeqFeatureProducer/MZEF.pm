@@ -117,7 +117,7 @@ sub _parse_rpt {
 		 $orf, $ss5, $cds, $ss3) = split;
 	    my $gffstr = join("\t", ($seqnm,$prognm,$label,$start,$end,
 				     $prob,$strand, substr($orf,0,1)));	    
-	    print STDERR "$gffstr\n";
+#	    print STDERR "$gffstr\n";
 	    my $feat = new Bio::SeqFeature::Generic( -gff_string=> $gffstr );
 	    push @feats, $feat;
 	    next;
