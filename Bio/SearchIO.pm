@@ -155,7 +155,7 @@ sub new {
         }
         my $output_module = "Bio::SearchIO::Writer::".$output_format;
         $class->_load_module($output_module);
-        $writer = $output_module->new();
+        $writer = $output_module->new(@args);
         push(@args,"-writer",$writer);
     }
 
