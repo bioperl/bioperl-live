@@ -175,7 +175,8 @@ sub next_result{
 		$self->warn("Unable to parse the rest of the WABA alignment info for: $_");
 		last;
 	    }
-	    
+	    $self->{'_reporttype'} = 'WABA'; # hardcoded - only 
+	                                     # one type of WABA AFAIK	    
 	    if( defined $curquery && 
 		$curquery ne $qid ) { 
 		$self->end_element({'Name' => 'Hit'});
