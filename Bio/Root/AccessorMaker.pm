@@ -144,7 +144,7 @@ Bio::Root::AccessorMaker -- making the accessors directly in symbol table.
 
 =head1 SYNOPSIS
 
-    use Bio::Root::AccessMaker (
+    use Bio::Root::AccessorMaker (
         '$' => [qw(first_name sex)],
         '@' => ['alias', ['child', 'children']
     );
@@ -192,4 +192,3 @@ such as in the example of child/children.
 Juguang Xiao, juguang at tll.org.sg
 
 =cut
-

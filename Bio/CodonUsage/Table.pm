@@ -513,7 +513,7 @@ sub common_codon{
 
  Title   : rare_codon
  Usage   : my $freq = $cdtable->rare_codon('Leu');
- Purpose : To retrieve the frquency of the least common codon of that aa
+ Purpose : To retrieve the frequency of the least common codon of that aa
  Returns : a percentage
  Args    : a 1 letter or 3 letter string representing the amino acid
 
