@@ -15,7 +15,7 @@ BEGIN {
 	use lib 't';
     }
     use Test;
-    plan test => 1;
+    plan test => 2;
 }
 
 #use Bio::Tools::SeqAnal; # deprecated, don't use any more
@@ -24,16 +24,18 @@ use Bio::Seq;
 
 # test IUPAC
 
-my $ambiseq = new Bio::Seq (-seq => 'ARTCGTTGR', -type =>
-			    'Dna'); 
+my $ambiseq = new Bio::Seq (-seq => 'ARTCGTTGR',
+			    -alphabet => 'dna'); 
 
 my $stream  = new Bio::Tools::IUPAC('-seq' => $ambiseq);
+ok $stream->count(), 4;
 
 my $b = 1; 
 while (my $uniqueseq = $stream->next_seq()) {
     if( ! $uniqueseq->isa('Bio::Seq') ) {
-	$b =0;
+	$b = 0;
 	last; # no point continuing if we get here
     }
 }
 ok $b;
+
