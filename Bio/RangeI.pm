@@ -502,9 +502,9 @@ sub disconnected_ranges {
 	else {
 	    # no intersections found - new range
 	    push(@outranges, 
-		 $self->new(-start=>$inrange->start,
-			    -end=>$inrange->end,
-			    -strand=>$inrange->strand,
+		 $self->new('-start'=>$inrange->start,
+			    '-end'=>$inrange->end,
+			    '-strand'=>$inrange->strand,
 			   ));
 	}
 #	printf "IN_INT:%d N_OUT:%d [%s]\n", scalar(@intersecting_ranges), scalar(@outranges), $inrange->primary_tag;
