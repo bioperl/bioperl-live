@@ -29,7 +29,11 @@ Bio::Factory::SequenceFactoryI - This interface allows for generic building of s
 
 =head1 DESCRIPTION
 
-Describe the interface here
+A generic way to build Sequence objects via a pluggable factory.  This
+reduces the amount of code that looks like
+
+  if( $type  eq 'Bio::PrimarySeq' ) { ... } 
+  elsif( $type eq 'Bio::Seq::RichSeq' ) { ... }
 
 =head1 FEEDBACK
 
@@ -53,13 +57,7 @@ email or the web:
 
 =head1 AUTHOR - Jason Stajich
 
-Email jason@bioperl.org
-
-Describe contact details here
-
-=head1 CONTRIBUTORS
-
-Additional contributors names and emails here
+Email jason-at-bioperl.org
 
 =head1 APPENDIX
 
