@@ -20,7 +20,7 @@ Bio::Tools::Run::TribeMCL
   #3 methods to input the blast results
 
   #straight forward raw blast output (NCBI or WU-BLAST)
-  my @params = ('blastfile'=>'blast.out');
+  my @params = ('inputtype'=>'blastfile');
 
   OR
 
@@ -43,12 +43,12 @@ Bio::Tools::Run::TribeMCL
   #than required for us here
 
   my $sio = Bio::SearchIO->new(-format=>'blast',
-                                                   -file=>'blast.out');
-  my @params=('searchio'=>$sio,I=>'2.0');
+                               -file=>'blast.out');
+  my @params=('inputtype'=>'searchio',I=>'2.0');
 
 
   #you can specify the path to the executable manually in the following way
-  my @params=('blastfile'=>'blast.out',I=>'2.0','
+  my @params=('inputtype'=>'blastfile',I=>'2.0','
                        mcl'=>'/home/shawn/software/mcl-02-150/src/shmcl/mcl','
                        matrix'=>'/home/shawn/software/mcl-02-150/src/contrib/tribe/tribe-matrix');
   my $fact = Bio::Tools::Run::TribeMCL->new(@params);
@@ -68,7 +68,8 @@ Bio::Tools::Run::TribeMCL
   #for example :2 clusters with 3 members per cluster:
   # $fam = [ [mem1 mem2 mem3],[mem1 mem2 mem3]]
 
-  my $fam = $fact->run;
+  #pass in either the blastfile path/searchio obj/the array ref to scores
+  my $fam = $fact->run($sio); 
 
   #print out your clusters
   
@@ -166,7 +167,7 @@ use Bio::Factory::ApplicationFactoryI;
 #3. Manually set the path to the executabes in your code:
 #
 
-#my @params=('blastfile'=>'blast.out',I=>'2.0','
+#my @params=('inputtype'=>'blastfile',I=>'2.0','
 #                       mcl'=>'/home/shawn/software/mcl-02-150/src/shmcl/mcl','
 #                       matrix'=>'/home/shawn/software/mcl-02-150/src/contrib/tribe/tribe-matrix');
 #my $fact = Bio::Tools::Run::TribeMCL->new(@params);
@@ -336,8 +337,8 @@ sub matrix_exe{
 =cut
 
 sub run {
-  my ($self) = @_;
-  my $file = $self->_setup_input();
+  my ($self,$input) = @_;
+  my $file = $self->_setup_input($input);
   defined($file) || $self->throw("Error setting up input ");
   #run tribe-matrix to generate matrix for mcl
   my ($index_file, $mcl_infile) = $self->_run_matrix($file);
@@ -406,17 +407,23 @@ sub _run_matrix {
 =cut
 
 sub _setup_input {
-  my ($self) = @_;
+  my ($self,$input) = @_;
   my ($type,$array);
- 
-  if($self->blastfile){
+  my $type = $self->inputtype();
+  if($type =~/blastfile/i){
+    $self->blastfile($input);
     $array = $self->_parse_blastfile($self->BLASTFILE);
   }
-  elsif($self->searchio){
+  elsif($type=~/searchio/i){
+    $self->searchio($input);
     $array = $self->_get_from_searchio($self->SEARCHIO);
   }
-  else {
+  elsif($type=~/pairs/) {
+    $self->pairs($input);
     $array = $self->pairs;
+  }
+  else {
+    $self->throw("Must set inputtype to either blastfile,searchio or paris using \$fact->blastfile |\$fact->searchio| \$fact->pairs");
   }
   defined($array) || $self->throw("Need inputs for running tribe mcl, nothing provided"); 
   my ($tfh,$outfile) = $self->tempfile(-dir=>$TMPDIR);
