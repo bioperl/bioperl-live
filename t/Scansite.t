@@ -76,6 +76,6 @@ exit if $tool->status eq 'TERMINATED_BY_ERROR';
 ok my $raw = $tool->result('');
 print $raw if $verbose;
 ok my $parsed = $tool->result('parsed');
-ok $parsed->[0]{'percentile'}, '0.230';
+ok $parsed->[0]{'site'}, 'T101';
 ok my @res = $tool->result('Bio::SeqFeatureI');
 ok $res[0]->start, 101;
