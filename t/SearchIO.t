@@ -893,6 +893,7 @@ ok(-e 'searchio.out');
 my $writerhtml = new Bio::SearchIO::Writer::HTMLResultWriter();
 my $outhtml = new Bio::SearchIO(-writer => $writerhtml,
 				-file   => ">searchio.html");
+$out->write_result($result, 1);
 ok(-e "searchio.html");
 
 END { 
