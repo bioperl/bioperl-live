@@ -2,7 +2,7 @@
 ## Bioperl Test Harness Script for Modules
 ## $Id$
 use strict;
-use constant NUMTESTS => 76;
+use constant NUMTESTS => 80;
 
 BEGIN {
     eval { require Test; };
@@ -154,3 +154,7 @@ ok $seq2->seq, 'tg--';
 ok $seq2->start, 4;
 ok $seq2->end, 5;
 
+ok $seq = new Bio::LocatableSeq();
+ok $seq->seq, undef;
+ok $seq->start, undef;
+ok $seq->end, undef;
