@@ -554,7 +554,7 @@ sub _ont_engine {
 sub _create_ont_entry {
     my ( $self, $termid ) = @_;
 
-    my $term = $self->term_factory->create_object(-identifier => $termid);
+    my $term = $self->term_factory->create_object(-identifier => $termid, -name => $termid);
 #    my $term = $self->term_factory->create_object(-name => $name,
 #						  -identifier => $termid);
 
