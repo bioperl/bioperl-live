@@ -5,8 +5,8 @@
 # Cared for by Peter Dimitrov <dimitrov@gnf.org>
 #
 # Copyright Peter Dimitrov
-# (c) Peter Dimitrov, dimitrov@gnf.org, 2002.
-# (c) GNF, Genomics Institute of the Novartis Research Foundation, 2002.
+# (c) Peter Dimitrov, dimitrov@gnf.org, 2003.
+# (c) GNF, Genomics Institute of the Novartis Research Foundation, 2003.
 #
 # You may distribute this module under the same terms as perl itself.
 # Refer to the Perl Artistic License (see the license accompanying this
@@ -49,13 +49,11 @@ of the bugs and their resolution. Bug reports can be submitted via
 email or the web:
 
 bioperl-bugs@bioperl.org
-http://bioperl.org/bioperl-bugs/
+http://bugzilla.bioperl.org/
 
 =head1 AUTHOR - Peter Dimitrov
 
 Email dimitrov@gnf.org
-
-Describe contact details here
 
 =head1 CONTRIBUTORS
 
@@ -133,12 +131,44 @@ sub ontology_engine{
     }
     else {
       $self->{'ontology_engine'} = $value;
-      $self->debug("Registering ontology engine (".ref($value)."):\n".
+      $self->debug(ref($self) .
+		   "::ontology_engine: registering ontology engine (".
+		   ref($value)."):\n".
 		   $value->to_string."\n");
     }
   }
 
   return $self->{'ontology_engine'};
+}
+
+=head2 ontology
+
+ Title   : ontology
+ Usage   :
+ Function: Get the ontology to add the InterPro terms to.
+
+           The value is determined automatically once ontology_engine
+           has been set and if it hasn't been set before.
+
+ Example :
+ Returns : A L<Bio::Ontology::OntologyI> implementing object.
+ Args    : On set, a L<Bio::Ontology::OntologyI> implementing object.
+
+=cut
+
+sub ontology{
+    my ($self,$ont) = @_;
+
+    if(defined($ont)) {
+	$self->{'_ontology'} = $ont;
+    } elsif(! exists($self->{'_ontology'})) {
+	$self->throw("must set ontology engine before asking for ontology")
+	    unless $self->ontology_engine();
+	$self->{'_ontology'} =
+	    Bio::Ontology::Ontology->new(-name => "InterPro",
+					 -engine => $self->ontology_engine());
+    }
+    return $self->{'_ontology'};
 }
 
 =head2 _cite_skip
@@ -301,13 +331,13 @@ sub _names{
 
 sub _create_relationship{
   my ($self, $ref_id, $rel_type_term) = @_;
-  my $ont_eng = $self->ontology_engine;
-  my $term_temp = ($ont_eng->get_term_by_identifier($ref_id))[0];
+  my $ont = $self->ontology();
+  my $term_temp = ($ont->engine->get_term_by_identifier($ref_id))[0];
   my $rel = Bio::Ontology::Relationship->new( -relationship_type => $rel_type_term );
 	
   if (!defined $term_temp) {
-    $term_temp = $ont_eng->add_term( Bio::Ontology::InterProTerm->new( -InterPro_id => $ref_id ) );
-    $ont_eng->mark_uninstantiated($term_temp);
+    $term_temp = $ont->engine->add_term( Bio::Ontology::InterProTerm->new( -InterPro_id => $ref_id ) );
+    $ont->engine->mark_uninstantiated($term_temp);
   }
   my $rel_type_name = $self->_top($self->_names);
 
@@ -318,14 +348,18 @@ sub _create_relationship{
     $rel->parent_term( $self->_term );
     $rel->child_term( $term_temp );
   }
-  $ont_eng->add_relationship($rel);
+  $rel->ontology($ont);
+  $ont->add_relationship($rel);
 }
 
 =head2 start_element
 
  Title   : start_element
  Usage   :
- Function: This is a method that is derived from XML::SAX::Base and has to be overridden for processing start of xml element events. Used internally only.
+ Function: This is a method that is derived from XML::SAX::Base and
+           has to be overridden for processing start of xml element
+           events. Used internally only.
+
  Example :
  Returns : 
  Args    :
@@ -335,29 +369,29 @@ sub _create_relationship{
 
 sub start_element {
   my ($self, $element) = @_;
-  my $ont_eng = $self->ontology_engine;
+  my $ont = $self->ontology();
 
   if ($element->{Name} eq 'interprodb') {
-    $ont_eng->add_term( Bio::Ontology::Term->new( -identifier => "Family",
-						 -name => "Family") );
-    $ont_eng->add_term( Bio::Ontology::Term->new( -identifier => "Domain",
-						  -name => "Domain") );
-    $ont_eng->add_term( Bio::Ontology::Term->new( -identifier => "Repeat",
-						  -name => "Repeat") );
-    $ont_eng->add_term( Bio::Ontology::Term->new( -identifier => "PTM",
-						  -name => "PTM") );
+    $ont->add_term( Bio::Ontology::Term->new( -identifier => "Family",
+					      -name => "Family") );
+    $ont->add_term( Bio::Ontology::Term->new( -identifier => "Domain",
+					      -name => "Domain") );
+    $ont->add_term( Bio::Ontology::Term->new( -identifier => "Repeat",
+					      -name => "Repeat") );
+    $ont->add_term( Bio::Ontology::Term->new( -identifier => "PTM",
+					      -name => "PTM") );
   } elsif ($element->{Name} eq 'interpro') {
     my %record_args = %{$element->{Attributes}};
     my $id = $record_args{"id"};
-    my $term_temp = ($ont_eng->get_term_by_identifier($id))[0];
+    my $term_temp = ($ont->engine->get_term_by_identifier($id))[0];
 
     $self->_term(
 		 (!defined $term_temp)
-		 ? $ont_eng->add_term( Bio::Ontology::InterProTerm->new( -InterPro_id => $id ) )
+		 ? $ont->add_term( Bio::Ontology::InterProTerm->new( -InterPro_id => $id ) )
 		 : $term_temp
 		);
 
-    $self->_term->category( $record_args{"type"} );
+    $self->_term->ontology( $record_args{"type"} );
     $self->_term->short_name( $record_args{"short_name"} );
     $self->_term->protein_count( $record_args{"protein_count"} );
     $self->_increment_record_count();
@@ -368,9 +402,10 @@ sub start_element {
     ## and the term describing its type
 
     my $rel = Bio::Ontology::Relationship->new( -relationship_type => $is_a_rel );
-    $rel->parent_term( ($ont_eng->get_term_by_identifier($record_args{"type"}))[0] );
+    $rel->parent_term( ($ont->engine->get_term_by_identifier($record_args{"type"}))[0] );
     $rel->child_term( $self->_term );
-    $ont_eng->add_relationship($rel);
+    $rel->ontology($ont);
+    $ont->add_relationship($rel);
   }
   elsif (defined $self->_stack) {
     my %hash = ();
@@ -498,7 +533,8 @@ sub end_element {
 	  my $ttt = $pub_record->{author_list}->[0];
 
 	  $ref->authors( $ttt->{accumulated_text_12345} );
-	  $ref->medline( scalar($ttt->{dbkey}) ) if $ttt->{db} eq "MEDLINE";
+	  $ref->medline( scalar($ttt->{dbkey}) )
+	      if exists($ttt->{db}) && $ttt->{db} eq "MEDLINE";
 	  push @refs, $ref;
 	}
  	$self->_term->references(\@refs);

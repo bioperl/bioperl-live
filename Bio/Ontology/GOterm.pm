@@ -163,8 +163,10 @@ sub init {
 
     my $self = shift;
 
+    # first call the inherited version to properly chain up the hierarchy
     $self->SUPER::init(@_);
 
+    # then only initialize what we implement ourselves here
     $self->GO_id( GOID_DEFAULT );
     $self->remove_dblinks();
     $self->remove_secondary_GO_ids();
@@ -209,17 +211,17 @@ sub GO_id {
 
 
 
-=head2 each_dblink
+=head2 get_dblinks
 
- Title   : each_dblink()
- Usage   : @ds = $term->each_dblink();                 
+ Title   : get_dblinks()
+ Usage   : @ds = $term->get_dblinks();
  Function: Returns a list of each dblinks of this GO term.
  Returns : A list of dblinks [array of [scalars]].
  Args    :
 
 =cut
 
-sub each_dblink {
+sub get_dblinks {
     my ( $self ) = @_;
     
     if ( $self->{ "_dblinks" } ) {
@@ -229,15 +231,15 @@ sub each_dblink {
         return my @a = (); 
     }
     
-} # each_dblink
+} # get_dblinks
 
 
-=head2 add_dblinks
+=head2 add_dblink
 
- Title   : add_dblinks
- Usage   : $term->add_dblinks( @dbls );
+ Title   : add_dblink
+ Usage   : $term->add_dblink( @dbls );
            or
-           $term->add_dblinks( $dbl );                  
+           $term->add_dblink( $dbl );                  
  Function: Pushes one or more dblinks
            into the list of dblinks.
  Returns : 
@@ -246,14 +248,14 @@ sub each_dblink {
 
 =cut
 
-sub add_dblinks {
+sub add_dblink {
     my ( $self, @values ) = @_;
     
     return unless( @values );
         
     push( @{ $self->{ "_dblinks" } }, @values );
     
-} # add_dblinks
+} # add_dblink
 
 
 =head2 remove_dblinks
@@ -278,10 +280,10 @@ sub remove_dblinks {
 
 
 
-=head2 each_secondary_GO_id
+=head2 get_secondary_GO_ids
 
- Title   : each_secondary_GO_id()
- Usage   : @ids = $term->each_secondary_GO_id();                 
+ Title   : get_secondary_GO_ids
+ Usage   : @ids = $term->get_secondary_GO_ids();
  Function: Returns a list of secondary goids of this Term.
  Returns : A list of secondary goids [array of [GO:nnnnnnn]]
            (nnnnnnn is a zero-padded integer of seven digits).
@@ -289,7 +291,7 @@ sub remove_dblinks {
 
 =cut
 
-sub each_secondary_GO_id {
+sub get_secondary_GO_ids {
     my ( $self ) = @_;
     
     if ( $self->{ "_secondary_GO_ids" } ) {
@@ -299,15 +301,15 @@ sub each_secondary_GO_id {
         return my @a = (); 
     }
     
-} # each_secondary_GO_id
+} # get_secondary_GO_ids
 
 
-=head2 add_secondary_GO_ids
+=head2 add_secondary_GO_id
 
- Title   : add_secondary_GO_ids
- Usage   : $term->add_secondary_GO_ids( @ids );
+ Title   : add_secondary_GO_id
+ Usage   : $term->add_secondary_GO_id( @ids );
            or
-           $term->add_secondary_GO_ids( $id );                  
+           $term->add_secondary_GO_id( $id );                  
  Function: Pushes one or more secondary goids into
            the list of secondary goids.
  Returns : 
@@ -317,7 +319,7 @@ sub each_secondary_GO_id {
 
 =cut
 
-sub add_secondary_GO_ids {
+sub add_secondary_GO_id {
     my ( $self, @values ) = @_;
     
     return unless( @values );
@@ -328,7 +330,7 @@ sub add_secondary_GO_ids {
     
     push( @{ $self->{ "_secondary_GO_ids" } }, @values );
     
-} # add_secondary_GO_ids
+} # add_secondary_GO_id
 
 
 =head2 remove_secondary_GO_ids
@@ -376,8 +378,8 @@ sub to_string {
     $s .= "-- Definition:\n";
     $s .= ($self->definition() || '') ."\n";
     $s .= "-- Category:\n";
-    if ( defined( $self->category() ) ) {
-        $s .= $self->category()->name()."\n";
+    if ( defined( $self->ontology() ) ) {
+        $s .= $self->ontology()->name()."\n";
     }
     else {
         $s .= "\n";
@@ -440,5 +442,13 @@ sub _array_to_string {
     
 } # _array_to_string
 
+#################################################################
+# aliases or forwards to maintain backward compatibility
+#################################################################
+
+*each_dblink = \&get_dblinks;
+*add_dblinks = \&add_dblink;
+*each_secondary_GO_id = \&get_secondary_GO_ids;
+*add_secondary_GO_ids = \&add_secondary_GO_id;
 
 1;

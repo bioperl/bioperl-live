@@ -92,9 +92,9 @@ methods.
 package Bio::Ontology::TermI;
 use vars qw( @ISA );
 use strict;
-use Bio::Root::Object;
+use Bio::Root::RootI;
 
-@ISA = qw( Bio::Root::Root );
+@ISA = qw( Bio::Root::RootI );
 
 
 
@@ -164,26 +164,36 @@ sub definition {
 
 
 
-=head2 category
+=head2 ontology
 
- Title   : category
- Usage   : $term->category( $top );
+ Title   : ontology
+ Usage   : $ont = $term->ontology();
            or 
-           $top = $term->category();
- Function: Set/get for a relationship between this Term and
-           another Term (e.g. the top level of the ontology).
- Returns : The category of this Term [TermI].
- Args    : The category of this Term [TermI or scalar -- which
-           becomes the name of the catagory term] (optional).
+           $term->ontology( $ont );
+ Function: Get the ontology this term is in.
+
+           An implementation may not permit the value of this
+           attribute to be changed once it is set, since that may have
+           serious consequences (note that with the ontology in hand
+           you can query for all related terms etc).
+
+           Note for implementors: you will almost certainly have to
+           take special precaution in order not to create cyclical
+           references in memory.
+
+ Returns : The ontology of this Term as a L<Bio::Ontology::OntologyI>
+           implementing object.
+ Args    : On set, the  ontology of this Term as a L<Bio::Ontology::OntologyI>
+           implementing object or a string representing its name.
 
 =cut
 
-sub category {
+sub ontology {
     my ( $self ) = @_;
     
     $self->throw_not_implemented();
     
-} # category
+} # ontology
 
 
 
@@ -252,60 +262,22 @@ sub comment {
 
 
 
-=head2 each_synonym
+=head2 get_synonyms
 
- Title   : each_synonym()
- Usage   : @aliases = $term->each_synonym();                 
+ Title   : get_synonyms
+ Usage   : @aliases = $term->get_synonyms();
  Function: Returns a list of aliases of this Term.
  Returns : A list of aliases [array of [scalar]].
  Args    :
 
 =cut
 
-sub each_synonym {
+sub get_synonyms {
     my ( $self ) = @_;
     
     $self->throw_not_implemented();
 
 } # each_synonym
-
-
-=head2 add_synonyms
-
- Title   : add_synonyms
- Usage   : $term->add_synonyms( @asynonyms );
-           or
-           $term->add_synonyms( $synonym );                  
- Function: Pushes one or more synonyms into the list of synonyms.
- Returns : 
- Args    : One synonym [scalar] or a list of synonyms [array of [scalar]].
-
-=cut
-
-sub add_synonyms {
-    my ( $self ) = @_;
-    
-    $self->throw_not_implemented();
-
-} # add_synonyms
-
-
-=head2 remove_synonyms
-
- Title   : remove_synonyms()
- Usage   : $term->remove_synonyms();
- Function: Deletes (and returns) the synonyms of this Term.
- Returns : A list of synonyms [array of [scalar]].
- Args    :
-
-=cut
-
-sub remove_synonyms {
-    my ( $self ) = @_;
-    
-    $self->throw_not_implemented();
-
-} # remove_synonyms
 
 
 1;

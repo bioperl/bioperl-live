@@ -101,12 +101,13 @@ use Bio::Ontology::RelationshipType;
 use Bio::Ontology::Relationship;
 use Bio::Ontology::OntologyEngineI;
 
-use constant TRUE    => 1;
-use constant FALSE   => 0;
-use constant IS_A    => "IS_A";
-use constant PART_OF => "PART_OF";
-use constant TERM    => "TERM";
-use constant TYPE    => "TYPE";
+use constant TRUE     => 1;
+use constant FALSE    => 0;
+use constant IS_A     => "IS_A";
+use constant PART_OF  => "PART_OF";
+use constant TERM     => "TERM";
+use constant TYPE     => "TYPE";
+use constant ONTOLOGY => "ONTOLOGY";
 
 @ISA = qw( Bio::Root::Root
            Bio::Ontology::OntologyEngineI );
@@ -274,9 +275,9 @@ sub has_term {
            $engine->add_relatioship( $parent_id, $child_id, $relationship_type);
  Function: Adds a relationship to this engine
  Returns : true if successfully added, false otherwise
- Args    : GO id, GO id, Bio::Ontology::RelationshipType
+ Args    : GO id, GO id, Bio::Ontology::RelationshipType, ontology 
            or
-           Bio::Ontology::GOterm, Bio::Ontology::GOterm, Bio::Ontology::RelationshipType
+           Bio::Ontology::GOterm, Bio::Ontology::GOterm, Bio::Ontology::RelationshipType, ontology
            or
            Bio::Ontology::RelationshipI
 
@@ -284,7 +285,7 @@ sub has_term {
 
 # term objs or term ids
 sub add_relationship {
-    my ( $self, $parent, $child, $type ) = @_;
+    my ( $self, $parent, $child, $type, $ont ) = @_;
 
     if ( scalar( @_ ) == 2 ) {
         $self->_check_class( $parent, "Bio::Ontology::RelationshipI" );
@@ -299,20 +300,24 @@ sub add_relationship {
     $parent = $self->_get_id( $parent );
     $child = $self->_get_id( $child );
 
-    if ( ! $self->graph()->has_vertex( $child ) ) {
+    my $g = $self->graph();
+
+    if ( ! $g->has_vertex( $child ) ) {
         $self->throw( "Ontology does not contain a GO term with an identifier of \"$child\"" );
     }
-    if ( ! $self->graph()->has_vertex( $parent ) ) {
+    if ( ! $g->has_vertex( $parent ) ) {
         $self->throw( "Ontology does not contain a GO term with an identifier of \"$parent\"" );
     }
 
     # This prevents multi graphs.
-    if ( $self->graph()->has_edge( $parent, $child ) ) {
+    if ( $g->has_edge( $parent, $child ) ) {
         return FALSE;
     }
 
-    $self->graph()->add_edge( $parent, $child );
-    $self->graph()->set_attribute( TYPE, $parent, $child, $type );
+    $g->add_edge( $parent, $child );
+    $g->set_attribute( TYPE, $parent, $child, $type );
+    $g->set_attribute( ONTOLOGY, $parent, $child,
+		       ref($ont) ? $ont->name() : $ont );
 
     return TRUE;
 
@@ -337,9 +342,11 @@ sub add_relationship {
 sub get_relationships {
     my ( $self, $term ) = @_;
 
+    my $g = $self->graph();
+
     $term = $self->_get_id( $term );
 
-    if ( ! $self->graph()->has_vertex( $term ) ) {
+    if ( ! $g->has_vertex( $term ) ) {
         $self->throw( "Ontology does not contain a GO term with an identifier of \"$term\"" );
     }
 
@@ -352,14 +359,20 @@ sub get_relationships {
         my $rel = Bio::Ontology::Relationship->new();
         $rel->parent_term( $self->get_terms( $term ) );
         $rel->child_term( $child );
-        $rel->relationship_type( $self->graph()->get_attribute( TYPE, $term, $child->GO_id() ) );
+        $rel->relationship_type($g->get_attribute(TYPE, $term,
+						  $child->GO_id()));
+	$rel->ontology($g->get_attribute( ONTOLOGY,
+					  $term, $child->GO_id()));
         push( @rels, $rel );
     }
     foreach my $parent ( @parents ) {
         my $rel = Bio::Ontology::Relationship->new();
         $rel->parent_term( $parent );
         $rel->child_term( $self->get_terms( $term ) );
-        $rel->relationship_type( $self->graph()->get_attribute( TYPE, $parent->GO_id(), $term ) );
+        $rel->relationship_type($g->get_attribute(TYPE,
+						  $parent->GO_id(), $term) );
+        $rel->ontology( $g->get_attribute(ONTOLOGY,
+					  $parent->GO_id(), $term) );
         push( @rels, $rel );
     }
 

@@ -93,12 +93,19 @@ use vars qw( @ISA );
 use strict;
 use Bio::Root::Object;
 use Bio::Ontology::TermI;
+use Bio::Ontology::Ontology;
+use Bio::Ontology::OntologyStore;
+use Bio::IdentifiableI;
+use Bio::DescribableI;
 
 use constant TRUE    => 1;
 use constant FALSE   => 0;
 
 @ISA = qw( Bio::Root::Root
-           Bio::Ontology::TermI );
+           Bio::Ontology::TermI
+           Bio::IdentifiableI
+           Bio::DescribableI
+         );
 
 
 
@@ -115,7 +122,8 @@ use constant FALSE   => 0;
  Args    : -identifier            => the identifier of this term [scalar]
            -name                  => the name of this term [scalar]
            -definition            => the definition of this term [scalar]  
-           -category              => a relationship between this Term and another Term [TermI or scalar]
+           -ontology              => the ontology this term lives in
+                                     (a L<Bio::Ontology::OntologyI> object)
            -version               => version information [scalar]
            -is_obsolete           => the obsoleteness of this term [0 or 1]   
            -comment               => a comment [scalar]
@@ -132,13 +140,15 @@ sub new {
          $name,
          $definition,
          $category,
+	 $ont,
          $version,     
          $is_obsolete,       
          $comment )
 	= $self->_rearrange( [ qw( IDENTIFIER
 				   NAME
 				   DEFINITION
-				   CATEGORY 
+				   CATEGORY
+                                   ONTOLOGY
 				   VERSION    
 				   IS_OBSOLETE      
 				   COMMENT ) ], @args );
@@ -148,7 +158,8 @@ sub new {
     $identifier            && $self->identifier( $identifier );
     $name                  && $self->name( $name );
     $definition            && $self->definition( $definition );
-    $category              && $self->category( $category );   
+    $category              && $self->category( $category );
+    $ont                   && $self->ontology( $ont );
     $version               && $self->version( $version );   
     $is_obsolete           && $self->is_obsolete( $is_obsolete );      
     $comment               && $self->comment( $comment  ); 
@@ -252,47 +263,54 @@ sub definition {
 } # definition
 
 
+=head2 ontology
 
-=head2 category
-
- Title   : category
- Usage   : $term->category( $top );
+ Title   : ontology
+ Usage   : $ont = $term->ontology();
            or 
-           $top = $term->category();
- Function: Set/get for a relationship between this Term and
-           another Term (e.g. the top level of the ontology).
- Returns : The category of this Term [TermI].
- Args    : The category of this Term [TermI or scalar -- which
-           becomes the name of the catagory term] (optional).
+           $term->ontology( $ont );
+ Function: Get the ontology this term is in.
+
+           Note that with the ontology in hand you can query for all
+           related terms etc. See L<Bio::Ontology::OntologyI>.
+
+ Returns : The ontology of this Term as a L<Bio::Ontology::OntologyI>
+           implementing object.
+ Args    : On set, the  ontology of this Term as a L<Bio::Ontology::OntologyI>
+           implementing object or a string representing its name.
 
 =cut
 
-sub category {
-     my ( $self, $value ) = @_;
-    
-    if ( defined $value ) {
-	if(! $value) {
-            # no empty string here
-	    $self->{"_category"} = undef;
-	}
-	elsif ( ! ref( $value ) ) {
-            my $term = $self->new();
-            $term->name( $value );
-            $self->{ "_category" } = $term; 
-        }
-        elsif ( $value->isa( "Bio::Ontology::TermI" ) ) {
-            $self->{ "_category" } = $value; 
-        } 
-        else {
-            $self->throw( "Found [". ref( $value ) 
-            . "] where [Bio::Ontology::TermI] or [scalar] expected" );
-        }
-    }
-    
-    return $self->{ "_category" };
-    
-} # category
+sub ontology {
+    my $self = shift;
+    my $ont;
 
+    my $store = Bio::Ontology::OntologyStore->get_instance();
+    if(@_) {
+	$ont = shift;
+	if($ont) {
+	    # first we need to find out whether it's already in the store
+	    my $name = ref($ont) ? $ont->name() : $ont;
+	    my $o = $store->get_ontology(-name => $name);
+	    # was it found in the store?
+	    if(defined($o)) {
+		# yes; use the found version (it may be richer)
+		$ont = $o;
+	    } else {
+		# no; if we were passed a scalar we need to instantiate one
+		$ont = Bio::Ontology::Ontology->new(-name => $ont)
+		    unless ref($ont);
+		# register it
+		$store->register_ontology($ont);
+	    }
+	} 
+	# store the name as a 'weak' reference to the ontology
+	$self->{"_ontology"} = $ont ? $ont->name() : $ont;
+    } elsif(exists($self->{"_ontology"})) {
+	$ont = $store->get_ontology(-name => $self->{"_ontology"});
+    }
+    return $ont;
+} # ontology
 
 
 =head2 version
@@ -374,17 +392,17 @@ sub comment {
 
 
 
-=head2 each_synonym
+=head2 get_synonyms
 
- Title   : each_synonym()
- Usage   : @aliases = $term->each_synonym();                 
+ Title   : get_synonyms
+ Usage   : @aliases = $term->get_synonyms;
  Function: Returns a list of aliases of this Term.
  Returns : A list of aliases [array of [scalar]].
  Args    :
 
 =cut
 
-sub each_synonym {
+sub get_synonyms {
     my ( $self ) = @_;
     
     if ( $self->{ "_synonyms" } ) {
@@ -394,29 +412,29 @@ sub each_synonym {
         return my @a = (); 
     }
     
-} # each_synonym
+} # get_synonyms
 
 
-=head2 add_synonyms
+=head2 add_synonym
 
- Title   : add_synonyms
- Usage   : $term->add_synonyms( @asynonyms );
+ Title   : add_synonym
+ Usage   : $term->add_synonym( @asynonyms );
            or
-           $term->add_synonyms( $synonym );                  
+           $term->add_synonym( $synonym );                  
  Function: Pushes one or more synonyms into the list of synonyms.
  Returns : 
  Args    : One synonym [scalar] or a list of synonyms [array of [scalar]].
 
 =cut
 
-sub add_synonyms {
+sub add_synonym {
     my ( $self, @values ) = @_;
     
     return unless( @values );
         
     push( @{ $self->{ "_synonyms" } }, @values );
     
-} # add_synonyms
+} # add_synonym
 
 
 =head2 remove_synonyms
@@ -432,7 +450,7 @@ sub add_synonyms {
 sub remove_synonyms {
     my ( $self ) = @_;
      
-    my @a = $self->each_synonym();
+    my @a = $self->get_synonyms();
     $self->{ "_synonyms" } = [];
     return @a;
 
@@ -453,5 +471,191 @@ sub _is_true_or_false {
     }
 } # _is_true_or_false
 
+=head1
+
+  Methods implementing L<Bio::IdentifiableI> and L<Bio::DescribableI>.
+
+=cut
+
+=head2 object_id
+
+ Title   : object_id
+ Usage   : $string    = $obj->object_id()
+ Function: a string which represents the stable primary identifier
+           in this namespace of this object.
+
+           This is a synonym for identifier().
+
+ Returns : A scalar
+
+=cut
+
+sub object_id {
+    return shift->identifier(@_);
+}
+
+=head2 version
+
+ Title   : version
+ Usage   : $version    = $obj->version()
+ Function: a number which differentiates between versions of
+           the same object.
+
+           This is already defined in L<Bio::Ontology::TermI>.
+
+ Returns : A number
+
+=cut
+
+
+=head2 authority
+
+ Title   : authority
+ Usage   : $authority    = $obj->authority()
+ Function: a string which represents the organisation which
+           granted the namespace, written as the DNS name for  
+           organisation (eg, wormbase.org)
+
+           This forwards to ontology()->authority(). Note that you
+           cannot set the authority before having set the ontology or
+           the namespace (which will set the ontology).
+
+ Returns : A scalar
+ Args    : on set, the new value (a scalar)
+
+=cut
+
+sub authority {
+    my $self = shift;
+    my $ont = $self->ontology();
+
+    return $ont->authority(@_) if $ont;
+    $self->throw("cannot manipulate authority prior to ".
+		 "setting the namespace or ontology") if @_;
+    return undef;
+}
+
+
+=head2 namespace
+
+ Title   : namespace
+ Usage   : $string    = $obj->namespace()
+ Function: A string representing the name space this identifier
+           is valid in, often the database name or the name
+           describing the collection.
+
+           This forwards to ontology() (set mode) and
+           ontology()->name() (get mode). I.e., setting the namespace
+           will set the ontology to one matching that name in the
+           ontology store, or to one newly created.
+
+ Returns : A scalar
+ Args    : on set, the new value (a scalar)
+
+=cut
+
+sub namespace {
+    my $self = shift;
+
+    $self->ontology(@_) if(@_);
+    my $ont = $self->ontology();
+    return defined($ont) ? $ont->name() : undef;
+}
+
+=head2 display_name
+
+ Title   : display_name
+ Usage   : $string    = $obj->display_name()
+ Function: A string which is what should be displayed to the user.
+
+           The definition in L<Bio::DescribableI> states that the
+           string should not contain spaces. As this isn't very
+           sensible for ontology terms, we relax this here. The
+           implementation just forwards to name().
+
+ Returns : A scalar
+ Args    : on set, the new value (a scalar)
+
+=cut
+
+sub display_name {
+    return shift->name(@_);
+}
+
+
+=head2 description
+
+ Title   : description
+ Usage   : $string    = $obj->description()
+ Function: A text string suitable for displaying to the user a 
+           description. This string is likely to have spaces, but
+           should not have any newlines or formatting - just plain
+           text.
+
+           This forwards to definition(). The caveat is that the text
+           will often be longer for ontology term definitions than the
+           255 characters stated in the definition in
+           L<Bio::DescribableI>.
+
+ Returns : A scalar
+ Args    : on set, the new value (a scalar)
+
+=cut
+
+sub description {
+    return shift->definition(@_);
+}
+
+#################################################################
+# aliases or forwards to maintain backward compatibility
+#################################################################
+
+=head1
+
+  Deprecated methods. Use for looking up the methods that supercedes
+  them.
+
+=cut
+
+=head2 category
+
+ Title   : category
+ Usage   :
+ Function: This method is deprecated. Use ontology() instead.
+ Example :
+ Returns : 
+ Args    :
+
+
+=cut
+
+sub category {
+    my $self = shift;
+
+    $self->warn("TermI::category is deprecated and being phased out. ".
+		"Use TermI::ontology instead.");
+
+    # called in set mode?
+    if(@_) {
+	# yes; what is incompatible with ontology() is if we were given
+	# a TermI object
+	my $arg = shift;
+	$arg = $arg->name() if ref($arg) && $arg->isa("Bio::Ontology::TermI");
+	return $self->ontology($arg,@_);
+    } else {
+	# No, called in get mode. This is always incompatible with ontology()
+	# since category is supposed to return a TermI.
+	my $ont = $self->ontology();
+	my $term;
+	if(defined($ont)) {
+	    $term = Bio::Ontology::Term->new(-name => $ont->name(),
+					     -identifier =>$ont->identifier());
+	}
+	return $term;
+    }
+} # category
+
+*each_synonym = \&get_synonyms;
+*add_synonyms = \&add_synonym;
 
 1;

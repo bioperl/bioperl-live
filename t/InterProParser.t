@@ -18,17 +18,17 @@ BEGIN {
     plan tests => 18;
 }
 
-use Bio::OntologyIO::InterProParser;
+use Bio::OntologyIO;
 use Bio::Root::IO;
 
 my $io = Bio::Root::IO->new();
 
 ok (1);
 
-my $ipp = Bio::OntologyIO::InterProParser->new( -file =>
-						$io->catfile('t','data',
-							'interpro_short.xml'),
-						-ontology_engine => 'simple' );
+my $ipp = Bio::OntologyIO->new( -format => 'interpro',
+				-file =>
+				$io->catfile('t','data','interpro_short.xml'),
+				-ontology_engine => 'simple' );
 ok ($ipp);
 
 my $ip = $ipp->next_ontology();

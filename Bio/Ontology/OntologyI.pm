@@ -1,51 +1,44 @@
-# $Id$
+# $Id $
 #
-# BioPerl module for OntologyEngineI
+# BioPerl module for Bio::Ontology::OntologyI
 #
-# Cared for by Peter Dimitrov <dimitrov@gnf.org>
+# Cared for by Hilmar Lapp <hlapp at gmx.net>
 #
-# (c) Peter Dimitrov
-# (c) GNF, Genomics Institute of the Novartis Research Foundation, 2002.
+# Copyright Hilmar Lapp
+#
+# You may distribute this module under the same terms as perl itself
+
+#
+# (c) Hilmar Lapp, hlapp at gmx.net, 2003.
+# (c) GNF, Genomics Institute of the Novartis Research Foundation, 2003.
 #
 # You may distribute this module under the same terms as perl itself.
 # Refer to the Perl Artistic License (see the license accompanying this
 # software package, or see http://www.perl.com/language/misc/Artistic.html)
 # for the terms under which you may use, modify, and redistribute this module.
-#
+# 
 # THIS PACKAGE IS PROVIDED "AS IS" AND WITHOUT ANY EXPRESS OR IMPLIED
 # WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF
 # MERCHANTIBILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 #
-# You may distribute this module under the same terms as perl itself
 
 # POD documentation - main docs before the code
 
 =head1 NAME
 
-OntologyEngineI - Interface a minimal Ontology implementation should satisfy
+Bio::Ontology::OntologyI - Interface for an ontology implementation
 
 =head1 SYNOPSIS
 
-    # see documentation of methods
+    # see method documentation
 
 =head1 DESCRIPTION
 
-This describes the minimal interface an ontology query engine should
-provide.  It intentionally doesn't make explicit references to the
-ontology being a DAG, nor does it mandate that the ontology be a
-vocabulary. Rather, it tries to generically express what should be
-accessible (queriable) about an ontology.
+This describes the minimal interface an ontology implementation must
+provide. In essence, it represents a namespace with description on top
+of the query interface OntologyEngineI.
 
-The idea is to allow for different implementations for different
-purposes, which may then differ as to which operations are efficient
-and which aren't, and how much richer the functionality is on top of
-this minimalistic set of methods. Check modules in the Bio::Ontology
-namespace to find out which implementations exist. At the time of
-writing, there is a SimpleOntologyEngine (which does not use
-Graph.pm), and a Graph.pm-based implementation in SimpleGOEngine.
-
-Ontology parsers in Bio::OntologyIO are required to return an
-implementation of this interface.
+This interface inherits from L<Bio::Ontology::OntologyEngineI>.
 
 =head1 FEEDBACK
 
@@ -64,14 +57,11 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 of the bugs and their resolution. Bug reports can be submitted via
 email or the web:
 
-  bioperl-bugs@bioperl.org
   http://bugzilla.bioperl.org/
 
-=head1 AUTHOR - Peter Dimitrov
+=head1 AUTHOR - Hilmar Lapp
 
-Email dimitrov@gnf.org
-
-Describe contact details here
+Email hlapp at gmx.net
 
 =head1 CONTRIBUTORS
 
@@ -88,29 +78,145 @@ Internal methods are usually preceded with a _
 # Let the code begin...
 
 
-package Bio::Ontology::OntologyEngineI;
+package Bio::Ontology::OntologyI;
 use vars qw(@ISA);
 use strict;
-use Carp;
-use Bio::Root::RootI;
 
-@ISA = qw( Bio::Root::RootI );
+use Bio::Ontology::OntologyEngineI;
+
+@ISA = qw( Bio::Ontology::OntologyEngineI );
+
+=head1
+
+  Methods defined in this interface.
+
+=cut
+
+=head2 name
+
+ Title   : name
+ Usage   : $obj->name($newval)
+ Function: Get/set the name of this ontology.
+ Example : 
+ Returns : value of name (a scalar)
+ Args    : 
+
+
+=cut
+
+sub name{
+    shift->throw_not_implemented();
+}
+
+=head2 authority
+
+ Title   : authority
+ Usage   : $auth = $obj->authority()
+ Function: Get/set the authority for this ontology, for instance the
+           DNS base for the organization granting the name of the
+           ontology and identifiers for the terms.
+
+           This attribute is optional and should not generally
+           expected by applications to have been set. It is here to
+           follow the rules for namespaces, which ontologies serve as
+           for terms.
+
+ Example : 
+ Returns : value of authority (a scalar)
+ Args    : 
+
+
+=cut
+
+sub authority{
+    shift->throw_not_implemented();
+}
+
+=head2 identifier
+
+ Title   : identifier
+ Usage   : $id = $obj->identifier()
+ Function: Get an identifier for this ontology.
+
+           This is primarily intended for look-up purposes. Clients
+           should not expect the value to be modifiable, and it may
+           not be allowed to set its value from outside. Also, the
+           identifier's uniqueness may only hold within the scope of a
+           particular application's run time, i.e., it may be a memory
+           location.
+
+ Example : 
+ Returns : value of identifier (a scalar)
+ Args    : 
+
+
+=cut
+
+sub identifier{
+    shift->throw_not_implemented();
+}
+
+=head2 definition
+
+ Title   : definition
+ Usage   : $def = $obj->definition()
+ Function: Get a descriptive definition for this ontology.
+ Example : 
+ Returns : value of definition (a scalar)
+ Args    : 
+
+
+=cut
+
+sub definition{
+    shift->throw_not_implemented();
+}
+
+=head2 close
+
+ Title   : close
+ Usage   :
+ Function: Release any resources this ontology may occupy. In order
+           to efficiently release used memory or file handles, you
+           should call this method once you are finished with an
+           ontology.
+
+ Example :
+ Returns : TRUE on success and FALSE otherwise
+ Args    : none
+
+
+=cut
+
+sub close{
+    shift->throw_not_implemented();
+}
+
+=head1
+
+  Methods inherited from L<Bio::Ontology::OntologyEngineI>. Their
+  documentations are copied here for completeness. In most use cases,
+  you will want to access the query methods of an ontology, not just
+  the name and description ...
+
+=cut
 
 =head2 add_term
 
  Title   : add_term
  Usage   : add_term(TermI term): TermI
- Function: Adds TermI object to the ontology engine term store
+ Function: Adds TermI object to the ontology engine term store.
+
+           For ease of use, if the ontology property of the term
+           object was not set, an implementation is encouraged to set
+           it to itself upon adding the term.
+
  Example : $oe->add_term($term)
  Returns : its argument.
  Args    : object of class TermI.
 
 
 =cut
-
-sub add_term{
-    shift->throw_not_implemented();
-}
 
 =head2 add_relationship
 
@@ -125,10 +231,6 @@ sub add_term{
 
 =cut
 
-sub add_relationship{
-    shift->throw_not_implemented();
-}
-
 =head2 get_relationships
 
  Title   : get_relationships
@@ -141,10 +243,6 @@ sub add_relationship{
 
 =cut
 
-sub get_relationships{
-    shift->throw_not_implemented();
-}
-
 =head2 get_relationship_types
 
  Title   : get_relationship_types
@@ -156,10 +254,6 @@ sub get_relationships{
 
 
 =cut
-
-sub get_relationship_types{
-    shift->throw_not_implemented();
-}
 
 =head2 get_child_terms
 
@@ -179,10 +273,6 @@ sub get_relationship_types{
 
 =cut
 
-sub get_child_terms{
-    shift->throw_not_implemented();
-}
-
 =head2 get_descendant_terms
 
  Title   : get_descendant_terms
@@ -197,10 +287,6 @@ sub get_child_terms{
 
 
 =cut
-
-sub get_descendant_terms{
-    shift->throw_not_implemented();
-}
 
 =head2 get_parent_terms
 
@@ -220,10 +306,6 @@ sub get_descendant_terms{
 
 =cut
 
-sub get_parent_terms{
-    shift->throw_not_implemented();
-}
-
 =head2 get_ancestor_terms
 
  Title   : get_ancestor_terms
@@ -240,10 +322,6 @@ sub get_parent_terms{
 
 =cut
 
-sub get_ancestor_terms{
-    shift->throw_not_implemented();
-}
-
 =head2 get_leaf_terms
 
  Title   : get_leaf_terms
@@ -257,10 +335,6 @@ sub get_ancestor_terms{
 
 
 =cut
-
-sub get_leaf_terms{
-    shift->throw_not_implemented();
-}
 
 =head2 get_root_terms()
 
@@ -276,8 +350,5 @@ sub get_leaf_terms{
 
 =cut
 
-sub get_root_terms{
-    shift->throw_not_implemented();
-}
 
 1;

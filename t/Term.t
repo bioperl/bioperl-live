@@ -41,14 +41,14 @@ ok( $obj->definition(), "Catalysis of ..." );
 ok( $obj->version( "666" ), "666" );
 ok( $obj->version(), "666" );
 
-ok( $obj->category( "category 1 name" ) );
-ok( $obj->category()->name(), "category 1 name" );
+ok( $obj->ontology( "category 1 name" ) );
+ok( $obj->ontology()->name(), "category 1 name" );
 
-my $cat = Bio::Ontology::Term->new();
-ok( $cat->name( "category 2 name" ) );
+my $ont = Bio::Ontology::Ontology->new();
+ok( $ont->name( "category 2 name" ) );
 
-ok( $obj->category( $cat ) );
-ok( $obj->category()->name(), "category 2 name" );
+ok( $obj->ontology( $ont ) );
+ok( $obj->ontology()->name(), "category 2 name" );
 
 ok( $obj->is_obsolete( 1 ), 1 );
 ok( $obj->is_obsolete(), 1 );
@@ -89,7 +89,7 @@ $obj = Bio::Ontology::Term->new( -identifier  => "0016847",
                                  -definition  => "Catalysis of ...",
                                  -is_obsolete => 0,
                                  -version     => "6.6.6",
-                                 -category    => "cat",
+                                 -ontology    => "cat",
                                  -comment     => "X" );  
 
 ok( $obj->identifier(), "0016847" );
@@ -98,7 +98,7 @@ ok( $obj->definition(), "Catalysis of ..." );
 ok( $obj->is_obsolete(), 0 );
 ok( $obj->comment(), "X" );
 ok( $obj->version(), "6.6.6" );
-ok( $obj->category()->name(), "cat" );
+ok( $obj->ontology()->name(), "cat" );
 
 # test object factory for terms
 my $fact = Bio::Ontology::TermFactory->new();
@@ -117,7 +117,7 @@ ok ($obj->identifier, "GO:987654");
 $fact->type("Bio::Annotation::OntologyTerm");
 $obj = $fact->create_object(-name => "some ontology term",
 			    -identifier => "GO:987654",
-			    -category => "nonsense");
+			    -ontology => "nonsense");
 ok $obj->isa("Bio::Ontology::TermI");
 ok $obj->isa("Bio::AnnotationI");
 ok ($obj->name, "some ontology term");

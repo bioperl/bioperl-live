@@ -259,6 +259,49 @@ sub relationship_type {
 }
 
 
+=head2 ontology
+
+ Title   : ontology
+ Usage   : $ont = $obj->ontology()
+ Function: Get/set the ontology that defined this relationship.
+ Example : 
+ Returns : an object implementing L<Bio::Ontology::OntologyI>
+ Args    : on set, undef or an object implementing 
+           L<Bio::Ontology::OntologyI> (optional)
+
+
+=cut
+
+sub ontology{
+    my $self = shift;
+    my $ont;
+
+    my $store = Bio::Ontology::OntologyStore->get_instance();
+    if(@_) {
+	$ont = shift;
+	if($ont) {
+	    # first we need to find out whether it's already in the store
+	    my $name = ref($ont) ? $ont->name() : $ont;
+	    my $o = $store->get_ontology(-name => $name);
+	    # was it found in the store?
+	    if(defined($o)) {
+		# yes; use the found version (it may be richer)
+		$ont = $o;
+	    } else {
+		# no; if we were passed a scalar we need to instantiate one
+		$ont = Bio::Ontology::Ontology->new(-name => $ont)
+		    unless ref($ont);
+		# register it
+		$store->register_ontology($ont);
+	    }
+	} 
+	# store the name as a 'weak' reference to the ontology
+	$self->{"_ontology"} = $ont ? $ont->name() : $ont;
+    } elsif(exists($self->{"_ontology"})) {
+	$ont = $store->get_ontology(-name => $self->{"_ontology"});
+    }
+    return $ont;
+}
 
 =head2 to_string
 

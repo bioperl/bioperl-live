@@ -291,7 +291,7 @@ sub sub_species {
  Usage   : $binomial = $self->binomial();
            $binomial = $self->binomial('FULL');
  Function: Returns a string "Genus species", or "Genus species subspecies",
-           the first argument is 'FULL' (and the species has a subspecies).
+           if the first argument is 'FULL' (and the species has a subspecies).
  Args    : Optionally the string 'FULL' to get the full name including
            the subspecies.
 
@@ -304,7 +304,7 @@ sub binomial {
     my( $species, $genus ) = $self->classification();
     unless( defined $species) {
 	$species = 'sp.';
-	$self->warn("classification was not set");
+	$self->warn("requested binomial but classification was not set");
     }
     $genus = ''   unless( defined $genus);
     my $bi = "$genus $species";

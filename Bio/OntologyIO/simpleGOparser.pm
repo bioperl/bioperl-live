@@ -104,9 +104,16 @@ use constant FALSE        => 0;
 
 @ISA = qw( Bio::Root::Root );
 
-
-
-
+#
+# The map from the GO branch to the name of the respective sub-ontology.
+# The name of the GO branch should translate into the name of a method
+# returning the respective file name, by just appending "file_name".
+#
+my %go_file_ont_map = (
+		       "components" => "GO Components Ontology",
+		       "functions"  => "GO Functions Ontology",
+		       "processes"  => "GO Processes Ontology"
+		       );
 
 =head2 new
 
@@ -132,11 +139,12 @@ sub new {
     my ( $go_defs_file_name,
          $components,
          $functions,
-         $processes, ) 
-    = $self->_rearrange( [ qw( GO_DEFS_FILE_NAME
-                               COMPONENTS_FILE_NAME
-                               FUNCTIONS_FILE_NAME
-                               PROCESSES_FILE_NAME ) ], @args );
+         $processes ) 
+	= $self->_rearrange( [ qw( GO_DEFS_FILE_NAME
+                                   COMPONENTS_FILE_NAME
+                                   FUNCTIONS_FILE_NAME
+                                   PROCESSES_FILE_NAME ) ],
+			     @args );
 
     $self->init(); 
     
@@ -183,7 +191,7 @@ sub init {
 
  Title   : parse()
  Usage   : $parser->parse();   
- Function: Parses the files set wirh "new" or with methods
+ Function: Parses the files set with "new" or with methods
            go_defs_file_name, components_file_name, functions_file_name,
            processes_file_name.
  Returns : [Bio::Ontology::SimpleGOEngine]
@@ -192,27 +200,48 @@ sub init {
 =cut
 
 sub parse {
-    my ( $self ) = @_;
-    my $x = 0;
+    my $self = shift;
     
     while( my $goterm = $self->_next_term() ) {
         $self->_add_term( $goterm );
     }
 
-    if ( $self->components_file_name() ) {
-        $self->_parse_relationships_file( $self->components_file_name(), "components ontology" );
-    }
-    if ( $self->functions_file_name() ) {
-        $self->_parse_relationships_file( $self->functions_file_name(), "functions ontology" );
-    }
-    if ( $self->processes_file_name() ) {
-        $self->_parse_relationships_file( $self->processes_file_name(), "processes ontology" );
+    foreach my $subont (keys %go_file_ont_map) {
+	my $filename = $subont."_file_name";
+	if ( $self->$filename() ) {
+	    my $ont = $self->_parse_relationships_file($self->$filename(),
+						    $go_file_ont_map{$subont});
+	    $self->_add_ontology($ont) if $ont;
+	}
     }
     
     return $self->_go_engine();
     
 } # parse
 
+=head2 next_ontology
+
+ Title   : next_ontology
+ Usage   :
+ Function: Get the next available ontology from the parser. This is the
+           method prescribed by Bio::OntologyIO.
+ Example :
+ Returns : An object implementing Bio::Ontology::OntologyI, and undef if
+           there is no more ontology in the input.
+ Args    :
+
+
+=cut
+
+sub next_ontology{
+    my $self = shift;
+
+    # parse if not done already
+    $self->parse() unless exists($self->{'_ontologies'});
+    # return next available ontology
+    return shift(@{$self->{'_ontologies'}}) if exists($self->{'_ontologies'});
+    return undef;
+}
 
 
 =head2 go_defs_file_name
@@ -316,6 +345,15 @@ sub processes_file_name {
 # INTERNAL METHODS
 # ----------------
 
+sub _add_ontology {
+    my $self = shift;
+    $self->{'_ontologies'} = [] unless exists($self->{'_ontologies'});
+    foreach my $ont (@_) {
+	$self->throw(ref($ont)." does not implement Bio::Ontology::OntologyI")
+	    unless ref($ont) && $ont->isa("Bio::Ontology::OntologyI");
+	push(@{$self->{'_ontologies'}}, $ont);
+    }
+}
 
 # This simply delegates. See SimpleGOEngine.
 sub _add_term {
@@ -352,13 +390,13 @@ sub _is_a_relationship {
 
 # This simply delegates. See SimpleGOEngine
 sub _add_relationship {
-    my ( $self, $parent, $child, $type ) = @_;
+    my ( $self, $parent, $child, $type, $ont ) = @_;
 
    
-    $self->_go_engine()->add_relationship( $parent, $child, $type );
+    $self->_go_engine()->add_relationship( $parent, $child, $type, $ont );
 
 
-} # _add_term 
+} # _add_relationship
 
 
 # This simply delegates. See SimpleGOEngine
@@ -379,7 +417,8 @@ sub _parse_relationships_file {
     my ( $self, $file_name, $category ) = @_;
     
     my $file = new Bio::Root::IO->new( -file => $file_name );
-    my $cat = Bio::Ontology::Term->new( -name => $category );
+    my $ont = Bio::Ontology::Ontology->new( -name => $category,
+					    -engine => $self->_go_engine());
     
     my @stack       = ();
     my $prev_spaces = -1;
@@ -407,11 +446,11 @@ sub _parse_relationships_file {
         
         my $current_term_object = $self->_go_engine()->get_term( $current_term );
         
-        $current_term_object->add_dblinks( @cross_refs );
-        $current_term_object->add_secondary_GO_ids( @sec_go_ids );
-        $current_term_object->add_synonyms( @syns );
+        $current_term_object->add_dblink( @cross_refs );
+        $current_term_object->add_secondary_GO_id( @sec_go_ids );
+        $current_term_object->add_synonym( @syns );
         unless ( $line =~ /^\$/ ) {
-            $current_term_object->category( $cat );
+            $current_term_object->ontology( $ont );
         }
         foreach my $parent ( @isa_parents ) {
             if ( ! $self->_has_term( $parent ) ) {
@@ -421,7 +460,8 @@ sub _parse_relationships_file {
             
             $self->_add_relationship( $parent,
                                       $current_term,
-                                      $self->_is_a_relationship() );
+                                      $self->_is_a_relationship(),
+				      $ont);
              
         }
         foreach my $parent ( @partof_parents ) {
@@ -432,7 +472,8 @@ sub _parse_relationships_file {
            
             $self->_add_relationship( $parent,
                                       $current_term,
-                                      $self->_part_of_relationship() );
+                                      $self->_part_of_relationship(),
+				      $ont);
         }
         
         my $current_spaces = $self->_count_spaces( $line );
@@ -449,7 +490,7 @@ sub _parse_relationships_file {
                 }
             }
             else {
-                die( "format error" );
+		$self->throw( "format error (file $file_name, $category)" );
             } 
         }
         
@@ -461,15 +502,17 @@ sub _parse_relationships_file {
         elsif ( $line =~ /^\s*</ ) {
             $self->_add_relationship( $parent,
                                       $current_term,
-                                      $self->_part_of_relationship() );
+                                      $self->_part_of_relationship(),
+				      $ont);
         }
         elsif ( $line =~ /^\s*%/ ) {
             $self->_add_relationship( $parent,
                                       $current_term,
-                                      $self->_is_a_relationship() );
+                                      $self->_is_a_relationship(),
+				      $ont);
         }
         else {
-            die( "format error" );
+            $self->throw( "format error (file $file_name, $category)" );
         }
         
         
@@ -478,6 +521,7 @@ sub _parse_relationships_file {
         $prev_term = $current_term;
         
     } 
+    return $ont;
 } # _parse_relationships_file
 
 
@@ -490,7 +534,7 @@ sub _get_first_goid {
         return $1;
     }
     else {
-        die( "format error" );
+        $self->throw( "format error: no GO id in line \"$line\"" );
     }
     
 } # _get_first_goid

@@ -28,17 +28,17 @@ InterProTerm - Implementation of InterProI term interface
   my $term = Bio::Ontology::InterProTerm->new( -interpro_id => "IPR000001",
 					       -name => "Kringle",
 					       -definition => "Kringles are autonomous structural domains ...",
-					       -category => "Domain"
+					       -ontology => "Domain"
 					     );
   print $term->interpro_id(), "\n";
   print $term->name(), "\n";
   print $term->definition(), "\n";
   print $term->is_obsolete(), "\n";
-  print $term->category(), "\n";
+  print $term->ontology->name(), "\n";
 
 =head1 DESCRIPTION
 
-This is a simple implementation for InterPro terms.
+This is a simple extension of L<Bio::Ontology::Term> for InterPro terms.
 
 =head1 FEEDBACK
 
@@ -58,7 +58,7 @@ of the bugs and their resolution. Bug reports can be submitted via
 email or the web:
 
   bioperl-bugs@bioperl.org
-  http://bioperl.org/bioperl-bugs/
+  http://bugzilla.bioperl.org/
 
 =head1 AUTHOR - Peter Dimitrov
 
@@ -96,7 +96,7 @@ use constant INTERPRO_ID_DEFAULT => "IPR000000";
  Usage   : $term = Bio::Ontology::InterProTerm->new( -interpro_id => "IPR000002",
 						     -name => "Cdc20/Fizzy",
 						     -definition => "The Cdc20/Fizzy region is almost always ...",
-						     -category => "Domain"
+						     -ontology => "Domain"
 						     -comment => ""
 						   );
  Function: Creates a new Bio::Ontology::InterProTerm.
@@ -106,7 +106,7 @@ use constant INTERPRO_ID_DEFAULT => "IPR000000";
   -interpro_id => the InterPro ID of the term. Has the form IPRdddddd, where dddddd is a zero-padded six digit number
   -name => the name of this InterPro term [scalar]
   -definition => the definition/abstract of this InterPro term [scalar]
-  -category => type of InterPro term: "Domain", "Family", "Repeat", "PTM" (post-translational modification) [scalar]
+  -ontology => type of InterPro term: "Domain", "Family", "Repeat", "PTM" (post-translational modification) [scalar]
   -comment => a comment [scalar]
 
 =cut
@@ -116,27 +116,14 @@ sub new{
   my $self = $class->SUPER::new(@args);
 
   my ( $interpro_id,
-       $name,
-       $short_name,
-       $definition,
-       $category,
-       $comment )
-    = $self->_rearrange( [ qw( INTERPRO_ID
-			       NAME
-			       SHORT_NAME
-			       DEFINITION
-			       CATEGORY
-			       COMMENT ) ], @args );
-
-  $self->init();
+       $short_name)
+      = $self->_rearrange( [qw( INTERPRO_ID
+				SHORT_NAME
+				)
+			    ], @args );
 
   $interpro_id && $self->interpro_id( $interpro_id );
-  $name && $self->name( $name );
-  $short_name && $self->short_name( $name );
-  $definition && $self->definition( $definition );
-  $category && $self->category( $category );
-  $comment && $self->comment( $comment  );
-  $self->identifier( $interpro_id );
+  $short_name && $self->short_name( $short_name );
 
   return $self;
 }
@@ -154,14 +141,14 @@ sub new{
 =cut
 
 sub init{
-  my ($self) = @_;
+    my $self = shift;
 
-  $self->interpro_id( INTERPRO_ID_DEFAULT );
-  $self->name("");
-  $self->short_name("");
-  $self->definition( "" );
-  $self->comment( "" );
-  $self->category( "" );
+    # first call the inherited version to properly chain up the hierarchy
+    $self->SUPER::init(@_);
+
+    # then only initialize what we implement ourselves here
+    $self->interpro_id( INTERPRO_ID_DEFAULT );
+    $self->short_name("");
 
 }
 
@@ -407,8 +394,8 @@ sub to_string {
     $s .= "-- Definition:\n";
     $s .= $self->definition()."\n";
     $s .= "-- Category:\n";
-    if ( defined( $self->category() ) ) {
-      $s .= $self->category()->name()."\n";
+    if ( defined( $self->ontology() ) ) {
+      $s .= $self->ontology()->name()."\n";
     } else {
       $s .= "\n";
     }

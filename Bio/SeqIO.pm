@@ -443,15 +443,18 @@ sub _initialize {
  Usage   : $seq = stream->next_seq
  Function: Reads the next sequence object from the stream and returns it.
 
-           Certain driver modules may encounter entries in the stream that
-           are either misformatted or that use syntax not yet understood
-           by the driver. If such an incident is recoverable, e.g., by
-           dismissing a feature of a feature table or some other non-mandatory
-           part of an entry, the driver will issue a warning. In the case
-           of a non-recoverable situation an exception will be thrown.
-           Do not assume that you can resume parsing the same stream after
-           catching the exception. Note that you can always turn recoverable
-           errors into exceptions by calling $stream->verbose(2).
+           Certain driver modules may encounter entries in the stream
+           that are either misformatted or that use syntax not yet
+           understood by the driver. If such an incident is
+           recoverable, e.g., by dismissing a feature of a feature
+           table or some other non-mandatory part of an entry, the
+           driver will issue a warning. In the case of a
+           non-recoverable situation an exception will be thrown.  Do
+           not assume that you can resume parsing the same stream
+           after catching the exception. Note that you can always turn
+           recoverable errors into exceptions by calling
+           $stream->verbose(2).
+
  Returns : a Bio::Seq sequence object
  Args    : none
 

@@ -138,5 +138,20 @@ sub relationship_type{
     shift->throw_not_implemented();
 }
 
+=head2 ontology
+
+ Title   : ontology
+ Usage   : $ont = $obj->ontology()
+ Function: Get the ontology that defined this relationship.
+ Example : 
+ Returns : an object implementing L<Bio::Ontology::OntologyI>
+ Args    : 
+
+
+=cut
+
+sub ontology{
+    shift->throw_not_implemented();
+}
 
 1;
