@@ -33,10 +33,12 @@ use enum qw(:simpleRepeat__ bin chrom chromStart chromEnd name period copyNum co
 use enum qw(:stsAlias__ alias identNo trueName);
 use enum qw(:stsInfo__ identNo name gbCount genbank gdbCount gdb nameCount otherNames dbSTSid otherDbstsCount otherDbSTS leftPrimer rightPrimer distance organism sequence otherUCSCcount otherUCSC mergeUCSCcount mergeUCSC genethonName genethonChr genethonPos genethonLOD marshfieldName marshfieldChr marshfieldPos marshfieldLOD wiyacName wiyacChr wiyacPos wiyacLOD wirhName wirhChr wirhPos wirhLOD gm99gb4Name gm99gb4Chr gm99gb4Pos gm99gb4LOD gm99g3Name gm99g3Chr gm99g3Pos gm99g3LOD tngName tngChr tngPos tngLOD);
 use enum qw(:stsMap__ chrom chromStart chromEnd name score identNo ctgAcc otherAcc genethonChrom genethonPos marshfieldChrom marshfieldPos gm99Gb4Chrom gm99Gb4Pos shgcTngChrom shgcTngPos shgcG3Chrom shgcG3Pos wiYacChrom wiYacPos wiRhChrom wiRhPos fishChrom beginBand endBand lab);
+use enum qw(:uniGene_2__ bin chrom chromStart chromEnd name score strand txStart txEnd reserved exonCount exonStarts exonEnds);
 ###############################################
 # end enum
 ###############################################
 
+my %parentpos;
 my %nolandmark = map {$_=>1} qw(gap cpgIsland recombRate_decode recombRate_marshfield recombRate_genethon
 								humMusL zoom1_humMusL zoom50_humMusL zoom2500_humMusL
 								genscanSubopt simpleRepeat snpNih snpTsc
@@ -49,16 +51,20 @@ foreach my $filename (@ARGV){
   open(my $fho, ">$newfilename");
 
   while(my $line = <$fhi>){
-  # $filename =~ /affyRatio/               ? toGFF($line,$fho,['affyRatio',               '', 3, 0, 1, 2, 4, 5,-1,-1,-1,10,11]) :exons
-  # $filename =~ /nci60/                   ? toGFF($line,$fho,['nci60',                   '', 3, 0, 1, 2, 4, 5,-1,-1,-1,10,11]) :exons
 
-  # $filename =~ /cpgIsland/               ? toGFF($line,$fho,['cpgIsland',               '', 3, 0, 1, 2,-1,-1,-1]) : wtf?
-  # $filename =~ /estOrientInfo/           ? toGFF($line,$fho,['estOrientInfo',           '',]) : wtf?
+  #these three should work the same way as unigene, but the fields are different order
+  # $filename =~ /affyRatio/               ? toGFF($line,$fho,['affyRatio',               '', 3, 0, 1, 2, 4, 5,-1,-1,-1,10,11]) :
+  # $filename =~ /nci60/                   ? toGFF($line,$fho,['nci60',                   '', 3, 0, 1, 2, 4, 5,-1,-1,-1,10,11]) :
+  # $filename =~ /rnaCluster/              ? toGFF($line,$fho,['rnaCluster',              '', 4, 1, 2, 3, 5, 6,-1, 7, 8,11,12]) :
 
-  # $filename =~ /uniGene_2/               ? toGFF($line,$fho,['uniGene_2',               '', 4, 1, 2, 3, 5, 6,-1,-1,-1,11,12]) :exons
-  # $filename =~ /rnaCluster/              ? toGFF($line,$fho,['rnaCluster',              '', 4, 1, 2, 3, 5, 6,-1, 7, 8,11,12]) :exons
+  #these two are not yet handled
+  # $filename =~ /cpgIsland/               ? toGFF($line,$fho,['cpgIsland',               '', 3, 0, 1, 2,-1,-1,-1]) :
+  # $filename =~ /estOrientInfo/           ? toGFF($line,$fho,['estOrientInfo',           '',]) :
 
-	$filename =~ /all_bacends/             ? toGFF($line,$fho,['bacends',                 '', 9,13,15,16,-1, 8,-1,11,12,18,20]) :
+
+    $filename =~ /uniGene_2/               ? toGFF($line,$fho,['uniGene_2',               '', 4, 1, 2, 3, 5, 6,-1,-1,-1,11,12]) :
+
+    $filename =~ /all_bacends/             ? toGFF($line,$fho,['bacends',                 '', 9,13,15,16,-1, 8,-1,11,12,18,20]) :
     $filename =~ /all_est/                 ? toGFF($line,$fho,['est',                     '',10,14,16,17,-1, 9,-1,12,13,19,21]) :
     $filename =~ /all_mrna/                ? toGFF($line,$fho,['mrna',                    '',10,14,16,17,-1, 9,-1,12,13,19,21]) :
     $filename =~ /all_sts_primer/          ? toGFF($line,$fho,['sts_primer',              '', 9,13,15,16,-1, 8,-1,11,12,18,20]) :
@@ -106,6 +112,7 @@ foreach my $filename (@ARGV){
     $filename =~ /sanger22/                ? toGFF2($line,$fho,['sanger22',               '', 0, 1, 2,-1,-1, 3, 4, 5, 6, 8, 9]) :
     $filename =~ /softberryGene/           ? toGFF2($line,$fho,['softberryGene',          '', 0, 1, 2,-1,-1, 3, 4, 5, 6, 8, 9]) :
     $filename =~ /twinscan/                ? toGFF2($line,$fho,['twinscan',               '', 0, 1, 2,-1,-1, 3, 4, 5, 6, 8, 9]) :
+
     0;
   }
 
@@ -189,7 +196,6 @@ sub toGFF {
 	print "Sequence " . render($maps->[u_refgroup],\@fields);
 	print "\n";
   }
-
   print join "\t", map {render($maps->[$_],\@fields)} (u_refseq,
 													   u_refsource,
 													   u_refmethod,
@@ -199,19 +205,37 @@ sub toGFF {
 													   u_refstrand,
 													   u_refphase);
   print "\t";
-  print $maps->[u_qrystart] ? "Target:" : render($maps->[u_refmethod],\@fields) . " ";
-  print render($maps->[u_refgroup],\@fields) . " " .
+  if($maps->[u_qrystart] >= 0){
+    print "Target:" . render($maps->[u_refmethod],\@fields) . " ";
+    print render($maps->[u_refgroup],\@fields) . " " .
 	    render($maps->[u_qrystart],\@fields) . " " .
 	    render($maps->[u_qrystop], \@fields);
+  } else {
+    print "Sequence " . render($maps->[u_refgroup],\@fields) . " ";
+  }
   print "\n";
 
   if(defined($maps->[u_starts]) and defined($maps->[u_sizes])){
 	my @starts = split /,/, render($maps->[u_starts],\@fields);
 	my @sizes = split /,/, render($maps->[u_sizes],\@fields);
 
-	while(my $start = shift @starts){
+	my $start;
+	while(defined($start = shift @starts)){
 	  my $size = shift @sizes;
-	  print join "\t", (render($maps->[u_refseq],\@fields),
+
+	  if($maps->[u_qrystart] < 1 and $maps->[u_qrystop] < 1){
+	    print join "\t", (render($maps->[u_refseq],\@fields),
+						render($maps->[u_refsource],\@fields),
+						render($maps->[u_refmethod],\@fields),
+						render($maps->[u_refstart],\@fields) + $start,
+						render($maps->[u_refstart],\@fields) + $start + $size,
+						render($maps->[u_refscore],\@fields),
+						render($maps->[u_refstrand],\@fields),
+						render($maps->[u_refphase],\@fields),
+						render($maps->[u_refmethod],\@fields) . " " . render($maps->[u_refgroup],\@fields)
+					   ), "\n";
+	  } else {
+	    print join "\t", (render($maps->[u_refseq],\@fields),
 						render($maps->[u_refsource],\@fields),
 						render($maps->[u_refmethod],\@fields),
 						$start,
@@ -221,6 +245,7 @@ sub toGFF {
 						render($maps->[u_refphase],\@fields),
 						render($maps->[u_refmethod],\@fields) . " " . render($maps->[u_refgroup],\@fields)
 					   ), "\n";
+	  }
 	}
   }
 }
