@@ -708,13 +708,8 @@ sub miniMIM {
 sub each_AllelicVariant {
     my ( $self ) = @_;
     
-    if ( $self->{ "_allelic_variants" } ) {
-        return @{ $self->{ "_allelic_variants" } };
-    }
-    else {
-        return my @a = (); 
-    }
-    
+    return @{$self->{"_allelic_variants"}} if exists($self->{"_allelic_variants"});
+    return ();    
 } # each_AllelicVariant
 
 
