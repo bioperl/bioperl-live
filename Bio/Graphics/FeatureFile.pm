@@ -1194,6 +1194,7 @@ sub link_pattern {
       : $1 eq 'segstart'     ? $panel->start
       : $1 eq 'segend'       ? $panel->end
       : $1 eq 'description'  ? eval {join '',$feature->notes} || ''
+      : $1 eq 'id'           ? $feature->feature_id
       : $1
 	       )
        /exg;
