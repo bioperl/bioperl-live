@@ -208,10 +208,9 @@ sub next_seq {
 
   my($ortholog_db,$ortholog_id,$ortholog_desc) = $FIELDS{ORTHOLOG} =~ /^ORTHOLOG\s+(\S+):\s+(\S+)\s+(\S*)\s*$/;
   $annotation->add_Annotation('dblink',Bio::Annotation::DBLink->new(-database => $ortholog_db,
-																	-primary_id => $ortholog_id,
-																	-comment => $ortholog_desc
-																   )
-							 );
+                                                                    -primary_id => $ortholog_id,
+								    -comment => $ortholog_desc)
+                             );
 
   $FIELDS{CLASS} =~ s/^CLASS\s+//;
   $FIELDS{'CLASS'} =~ s/\n//g;
