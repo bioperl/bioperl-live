@@ -59,9 +59,6 @@ ok my $io = Bio::Graph::IO->new(
   -threshold => 0.6);
 
 ok  $gr = $io->next_network();
-#ok my @conns = $gr->components();
-#print STDERR scalar @conns, "s\n";
-
 
 ok my $node   = $gr->nodes_by_id('A64696');
 ok $node->accession_number, 'A64696';
@@ -82,6 +79,7 @@ $gr->remove_nodes($gr->nodes_by_id('3082N'), $gr->nodes_by_id('3083N'));
 ok $gr->edge_count, 68;
  @nodes = $gr->articulation_points();
 ok grep {$_->object_id eq 'B64701'} @nodes;
+ok scalar @nodes, 14;
 
 ok $node   = $gr->nodes_by_id('A64696');
 ok $node->accession_number, 'A64696';
@@ -94,12 +92,6 @@ ok my $io2 = Bio::Graph::IO->new(
 ok	my $g2     = $io2->next_network();
 ok  $node      = $g2->nodes_by_id('A64696');
 ok $node->accession_number, 'A64696';
-
-############## now lets test the XML format.....
-if (!$XML_ERROR){
-
-
-}
 
 ##### now lets test some graph properties.....##
 ## basic properties from SImpleGraph.
@@ -218,7 +210,6 @@ $gr = $io->next_network();
 $io2 = Bio::Graph::IO->new(
     -format => 'dip',
     -file   => Bio::Root::IO->catfile("t","data","tab2part.mif"));
-
 $g2 = $io2->next_network();
 ok $gr->edge_count, 72;
 ok $gr->node_count, 74;
