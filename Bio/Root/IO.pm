@@ -155,7 +155,7 @@ BEGIN {
 	    $OPENFLAGS |= $bit if eval { $bit = &$func(); 1 };
 	}
     }
-}
+};
 
 =head2 new
 

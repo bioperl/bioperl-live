@@ -168,7 +168,6 @@ use strict;
 use Bio::Root::RootI;
 @ISA = qw(Bio::Root::RootI);
 
-{
 # first set internal values for all translation tables
 
 my @names =  #id
@@ -241,19 +240,17 @@ my @starts =
        --------------------------------M--M---------------M------------
        );
 
-
 my @nucs = qw(t c a g);
-my ($x) = 0;
-my ($i, $j, $k);
+my $x = 0;
 my ($codons, $trCol);
-
-for ($i=0;$i<4;$i++) {
-    for ($j=0;$j<4;$j++) {
-	for ($k=0;$k<4;$k++) {
-	    $codons->{$nucs[$i]. $nucs[$j]. $nucs[$k]} = $x;
-	    $trCol->{$x} = $nucs[$i]. $nucs[$j]. $nucs[$k];
-	    $x++;
-	}
+for my $i (@nucs) {
+    for my $j (@nucs) {
+        for my $k (@nucs) {
+            my $codon = "$i$j$k";
+            $codons->{$codon} = $x;
+            $trCol->{$x} = $codon;
+            $x++;
+        }
     }
 }
 
@@ -322,7 +319,6 @@ sub new {
     return $self; # success - we hope!
 }
 
-
 =head2 id
 
  Title   : id
@@ -373,12 +369,12 @@ sub name{
 
 }
 
-
 =head2 translate
 
  Title   : translate
  Usage   : $obj->translate('YTR')
- Function: Returns one letter amino acid code for a codon input.
+ Function: Returns a string of one letter amino acid codes from 
+           nucleotide sequence input. The imput can be of any length.
 
            Returns 'X' for unknown codons and codons that code for
            more than one amino acid. Returns an empty string if input
@@ -397,13 +393,83 @@ sub name{
            three characters long.
 
  Example :
- Returns : One letter ambiguous IUPAC amino acid code
- Args    : a codon = a three character, ambiguous IUPAC nucleotide string
+ Returns : a string of one letter ambiguous IUPAC amino acid codes
+ Args    : ambiguous IUPAC nucleotide string
 
 
 =cut
 
-sub translate{
+sub translate {
+    my ($self, $seq) = @_;
+    my $id = $self->id;
+
+    my ($partial) = 0;
+    $partial = 2 if length($seq) % 3 == 2;
+    
+    $seq = lc $seq; 
+    $seq =~ tr/u/t/;
+    my $protein = "";
+    if ($seq =~ /[^actg]/ ) { #ambiguous chars
+        for (my $i = 0; $i < (length($seq) - 2 ); $i+=3) {
+            my $triplet = substr($seq, $i, 3);
+	    if (exists $codons->{$triplet}) {
+		$protein .= substr($tables[$id-1], $codons->{$triplet},1);
+	    } else {
+		$protein .= $self->_translate_ambiguous_codon($triplet);
+	    }
+	}
+    } else { # simple, strict translation
+	for (my $i = 0; $i < (length($seq) - 2 ); $i+=3) {
+            my $triplet = substr($seq, $i, 3); 
+            if (exists $codons->{$triplet}) {
+                $protein .= substr($tables[$id-1], $codons->{$triplet}, 1);
+	    } else {
+                $protein .= 'X';
+            }
+        }
+    }
+    if ($partial == 2) { # 2 overhanging nucleotides
+	my $triplet = substr($seq, ($partial -4)). "n";
+	if (exists $codons->{$triplet}) {
+	    my $aa = substr($tables[$id-1], $codons->{$triplet},1);       
+	    $protein .= $aa;
+	} else {
+	    $protein .= $self->_translate_ambiguous_codon($triplet, $partial);
+	}
+    }
+    return $protein;
+}
+
+sub _translate_ambiguous_codon {
+    my ($self, $triplet, $partial) = @_;
+    $partial ||= 0;
+    my $id = $self->id;
+    my $aa;
+    my @codons = _unambiquous_codons($triplet);
+    my %aas =();
+    foreach my $codon (@codons) {
+	$aas{substr($tables[$id-1],$codons->{$codon},1)} = 1;
+    }
+    my $count = scalar keys %aas;
+    if ( $count == 1 ) {
+	$aa = (keys %aas)[0];
+    }
+    elsif ( $count == 2 ) {
+	if ($aas{'D'} and $aas{'N'}) {
+	    $aa = 'B';
+	}
+	elsif ($aas{'E'} and $aas{'Q'}) {
+	    $aa = 'Z';
+	} else {
+	    $partial ? ($aa = '') : ($aa = 'X');
+	}
+    } else {
+	$partial ? ($aa = '') :  ($aa = 'X');
+    }
+    return $aa;
+}
+
+sub translate_old{
    my ($self, $value) = @_;
    my ($id) = $self->{'id'};
    my ($partial) = 0;
@@ -658,19 +724,16 @@ sub _unambiquous_codons{
     my @nts = ();
     my @codons = ();
     my ($i, $j, $k);
-    @nts = map { $iupac_dna{$_} }  split(//, $value) ;
-    for $i (0..$#{$nts[0]}) {
-	for $j (0..$#{$nts[1]}) {
-	    for $k (0..$#{$nts[2]}) {
-		#print join ('', $nts[0][$i], $nts[1][$j], $nts[2][$k]), "\n"; ###
-		push @codons, join ('', $nts[0][$i], $nts[1][$j], $nts[2][$k]);
+    @nts = map { $iupac_dna{$_} }  split(//, $value);
+    for my $i (@{$nts[0]}) {
+	for my $j (@{$nts[1]}) {
+	    for my $k (@{$nts[2]}) {
+		push @codons, "$i$j$k";
 	    }
 	}
     }
     return @codons;
 }
 
-
-}
 
 1;

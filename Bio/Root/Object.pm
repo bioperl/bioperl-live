@@ -533,11 +533,11 @@ sub _initialize {
     local($^W) = 0;
     my($self, %param) = @_;
     
-    if(! grep { ref($self) =~ /$_/; } @inheriting_modules) {
-	$self->warn("Class " . ref($self) .
-		    " inherits from Bio::Root::Object, which is deprecated. ".
-		    "Try changing your inheritance to Bio::Root::RootI.");
-    }
+#   if(! grep { ref($self) =~ /$_/; } @inheriting_modules) {
+#	$self->warn("Class " . ref($self) .
+#		    " inherits from Bio::Root::Object, which is deprecated. ".
+#		    "Try changing your inheritance to Bio::Root::RootI.");
+#    }
     my($name, $parent, $make, $strict, $verbose, $obj, $record_err) = (
 	($param{-NAME}||$param{'-name'}), ($param{-PARENT}||$param{'-parent'}), 
 	($param{-MAKE}||$param{'-make'}), ($param{-STRICT}||$param{'-strict'}),
