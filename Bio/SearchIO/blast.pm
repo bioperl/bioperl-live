@@ -602,7 +602,7 @@ sub next_result{
            }
            $self->element({'Name' => 'BlastOutput_db',
                            'Data' => $db});
-       } elsif( /^>(\S+)\s*(.*)?/ ) {
+       } elsif( /^>\s*(\S+)\s*(.*)?/ ) {
            chomp;
 #           $self->debug("blast.pm: Hit: $1\n");
            $self->in_element('hsp') && $self->end_element({ 'Name' => 'Hsp'});
