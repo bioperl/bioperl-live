@@ -19,18 +19,29 @@ Bio::Search::Hit::GenericHit - A generic implementation of the Bio::Search::Hit:
     use Bio::Search::Hit::GenericHit;
     my $hit = new Bio::Search::Hit::GenericHit(-algorithm => 'blastp');
 
-    # more likely
+    # typically one gets HitI objects from a SearchIO stream via a ResultI
     use Bio::SearchIO;
     my $parser = new Bio::SearchIO(-format => 'blast', -file => 'result.bls');
 
     my $result = $parser->next_result;
     my $hit    = $result->next_hit;
 
+# TODO: Describe how to configure a SearchIO stream so that it generates
+#       GenericHit objects.
 
 =head1 DESCRIPTION
 
 This object handles the hit data from a Database Sequence Search such
 as FASTA or BLAST.
+
+Unless you're writing a parser, you won't ever need to create a
+GenericHit or any other HitI-implementing object. If you use
+the SearchIO system, HitI objects are created automatically from
+a SearchIO stream which returns Bio::Search::Hit::HitI objects.
+
+For documentation on what you can do with GenericHit (and other HitI
+objects), please see the API documentation in
+L<Bio::Search::Hit::HitI|Bio::Search::Hit::HitI>.
 
 =head1 FEEDBACK
 
@@ -93,10 +104,12 @@ require Bio::Search::SearchUtils;
            -accession    => Accession number (optional)
            -length       => Length of the Hit (optional)
            -score        => Raw Score for the Hit (optional)
+           -bits         => Bit Score for the Hit (optional)
            -significance => Significance value for the Hit (optional)
            -algorithm    => Algorithm used (BLASTP, FASTX, etc...)
            -hsps         => Array ref of HSPs for this Hit. 
-           -iteration    => integer for the PSI-Blast iteration number
+           -found_again  => boolean, true if hit appears in a 
+                            "previously found" section of a PSI-Blast report.
 
 =cut
 
@@ -106,15 +119,15 @@ sub new {
   my $self = $class->SUPER::new(@args);
   my ($hsps, $name,$query_len,$desc, $acc, $locus, $length,
       $score,$algo,$signif,$bits,
-      $iter,$rank) = $self->_rearrange([qw(HSPS 
-				     NAME 
-				     QUERY_LEN
-				     DESCRIPTION
-				     ACCESSION
-				     LOCUS
-				     LENGTH SCORE ALGORITHM 
-				     SIGNIFICANCE BITS ITERATION
-				     RANK )], @args);
+      $rank) = $self->_rearrange([qw(HSPS 
+                                     NAME 
+                                     QUERY_LEN
+                                     DESCRIPTION
+                                     ACCESSION
+                                     LOCUS
+                                     LENGTH SCORE ALGORITHM 
+                                     SIGNIFICANCE BITS
+                                     RANK )], @args);
   
   defined $query_len && $self->query_length($query_len);
 
@@ -132,18 +145,17 @@ sub new {
   defined $signif && $self->significance($signif);
   defined $score  && $self->raw_score($score);
   defined $bits   && $self->bits($bits);
-  defined $iter   && $self->iteration($iter);
   defined $rank   && $self->rank($rank);
 
   $self->{'_iterator'} = 0;
   $self->{'_hsps'} = [];
   if( defined $hsps  ) {
       if( ref($hsps) !~ /array/i ) {
-	  $self->warn("Did not specify a valid array ref for the param HSPS ($hsps)");
+          $self->warn("Did not specify a valid array ref for the param HSPS ($hsps)");
       } else {
-	  while( @$hsps ) { 
-	      $self->add_hsp(shift @$hsps );
-	  }
+          while( @$hsps ) { 
+              $self->add_hsp(shift @$hsps );
+          }
       }
   } 
   return $self;
@@ -163,9 +175,10 @@ sub new {
 sub add_hsp {
    my ($self,$hsp) = @_;
    if( !defined $hsp || ! $hsp->isa('Bio::Search::HSP::HSPI') ) { 
-       $self->warn("Must provide a valid Bio::Search::HSP::HSPI object to object: $self method: add_hsp value: $hsp");
+       $self->throw("Must provide a valid Bio::Search::HSP::HSPI object to object: $self method: add_hsp value: $hsp");
        return undef;
    }
+#   print STDERR "GenericHit::add_hsp()\n";
    push @{$self->{'_hsps'}}, $hsp;
    return scalar @{$self->{'_hsps'}};
 }
@@ -190,8 +203,8 @@ sub name {
     my ($self,$value) = @_;
     my $previous = $self->{'_name'};
     if( defined $value || ! defined $previous ) {
-	$value = $previous = '' unless defined $value;
-	$self->{'_name'} = $value;
+        $value = $previous = '' unless defined $value;
+        $self->{'_name'} = $value;
     } 
     return $previous;
 }
@@ -210,10 +223,10 @@ sub accession {
     my ($self,$value) = @_;
     my $previous = $self->{'_accession'};
     if( defined $value || ! defined $previous ) { 
-	$value = $previous = '' unless defined $value;
-	$self->{'_accession'} = $value;
+        $value = $previous = '' unless defined $value;
+        $self->{'_accession'} = $value;
     } 
-	return $previous;
+        return $previous;
 }
 
 =head2 description
@@ -230,8 +243,8 @@ sub description {
     my ($self,$value) = @_;
     my $previous = $self->{'_description'};
     if( defined $value || ! defined $previous ) { 
-	$value = $previous = '' unless defined $value;
-	$self->{'_description'} = $value;
+        $value = $previous = '' unless defined $value;
+        $self->{'_description'} = $value;
     } 
     return $previous;
 }
@@ -250,8 +263,8 @@ sub length {
     my ($self,$value) = @_;
     my $previous = $self->{'_length'};
     if( defined $value || ! defined $previous ) { 
-	$value = $previous = 0 unless defined $value;
-	$self->{'_length'} = $value;
+        $value = $previous = 0 unless defined $value;
+        $self->{'_length'} = $value;
     } 
     return $previous;
 }
@@ -275,8 +288,8 @@ sub algorithm {
     my ($self,$value) = @_;
     my $previous = $self->{'_algorithm'};
     if( defined $value || ! defined $previous ) { 
-	$value = $previous = '' unless defined $value;
-	$self->{'_algorithm'} = $value;
+        $value = $previous = '' unless defined $value;
+        $self->{'_algorithm'} = $value;
     } 
     return $previous;
 }
@@ -297,11 +310,19 @@ sub raw_score {
     my ($self,$value) = @_;
     my $previous = $self->{'_score'};
     if( defined $value || ! defined $previous ) { 
-	$value = $previous = '' unless defined $value;
-	$self->{'_score'} = $value;
+        $value = $previous = '' unless defined $value;
+        $self->{'_score'} = $value;
     } 
     return $previous;
 }
+
+=head2 score
+
+Equivalent to L<raw_score()|raw_score>
+
+=cut
+
+sub score { shift->raw_score(@_); }
 
 =head2 significance
 
@@ -319,10 +340,13 @@ sub raw_score {
 sub significance {
     my ($self,$value) = @_;
     my $previous = $self->{'_significance'};
-    if( defined $value || ! defined $previous ) { 
-	$value = $previous = '' unless defined $value;
-	$self->{'_significance'} = $value;
-    } 
+    if( defined $value ) { 
+        $self->{'_significance'} = $value;
+    } elsif ( ! defined $previous ) {
+        # Set the significance of the Hit to that of the top HSP.
+        $self->{'_significance'} = ($self->hsps)[0]->significance;
+    }
+
     return $previous;
 }
 
@@ -346,8 +370,8 @@ sub bits {
     
     my $bits = $self->{'_bits'};
     if( ! defined $bits ) {
-	$bits = $self->{'_hsps'}->[0]->bits();
-	$self->{'_bits'} = $bits;
+        $bits = $self->{'_hsps'}->[0]->bits();
+        $self->{'_bits'} = $bits;
     } 
     return $bits;
 }
@@ -422,7 +446,7 @@ sub num_hsps {
     my $self = shift;
     
     if (not defined $self->{'_hsps'}) {
-	$self->throw("Can't get HSPs: data not collected.");
+        $self->throw("Can't get HSPs: data not collected.");
     }
 
     return scalar(@{$self->{'_hsps'}});
@@ -432,7 +456,7 @@ sub num_hsps {
 
  Title   : rewind
  Usage   : $hit->rewind;
- Function: Allow one to reset the HSP iteration to the beginning
+ Function: Allow one to reset the HSP iterator to the beginning
            Since this is an in-memory implementation
  Returns : none
  Args    : none
@@ -443,27 +467,6 @@ sub rewind{
    my ($self) = @_;
    $self->{'_iterator'} = 0;
 }
-
-=head2 iteration
-
- Title   : iteration
- Usage   : $obj->iteration($newval)
- Function: PSI-BLAST iteration
- Returns : value of iteration
- Args    : newvalue (optional)
-
-
-=cut
-
-sub iteration{
-   my ($self,$value) = @_;
-   if( defined $value) {
-      $self->{'_psiblast_iteration'} = $value;
-    }
-    return $self->{'_psiblast_iteration'};
-
-}
-
 
 =head2 ambiguous_aln
 
@@ -482,7 +485,7 @@ sub iteration{
            :          of similar domains.
  Argument  : n/a
  Throws    : n/a
- Status    : Experimental
+ Comment   : Note: "sbjct" is synonymous with "hit"
 
 =cut
 
@@ -542,9 +545,9 @@ sub n {
 
     my ($n);
     if(not defined($self->{'_n'})) {
-	$n = $self->hsp->n;
+        $n = $self->hsp->n;
     } else {
-	$n = $self->{'_n'}; 
+        $n = $self->{'_n'}; 
     } 
     $n ||= $self->num_hsps;
 
@@ -629,7 +632,7 @@ sub hsp {
     $option ||= 'best';
     
     if (not ref $self->{'_hsps'}) {
-	$self->throw("Can't get HSPs: data not collected.");
+        $self->throw("Can't get HSPs: data not collected.");
     }
 
     my @hsps = @{$self->{'_hsps'}};
@@ -638,7 +641,7 @@ sub hsp {
     return $hsps[$#hsps] if $option =~ /worst|last/i;
 
     $self->throw("Can't get HSP for: $option\n" .
-		 "Valid arguments: 'best', 'worst'");
+                 "Valid arguments: 'best', 'worst'");
 }
 
 =head2 logical_length
@@ -673,7 +676,7 @@ sub logical_length {
 
     # For the sbjct, return logical sbjct length
     if( $seqType eq 'sbjct' ) {
-	$length = $self->length;
+        $length = $self->length;
         # Adjust length based on BLAST flavor.
         if($self->algorithm =~ /TBLAST[NX]/ ) {
             $length /= 3;
@@ -681,7 +684,7 @@ sub logical_length {
     } else {
         # Otherwise, return logical query length
         $length = $self->query_length();
-	$self->throw("Must have defined query_len") unless ( $length );
+        $self->throw("Must have defined query_len") unless ( $length );
 
         # Adjust length based on BLAST flavor.
         if($self->algorithm =~ /T?BLASTX/ ) {
@@ -733,9 +736,9 @@ sub length_aln {
     
     ## If we don't have data, figure out what went wrong.
     if(!$data) {
-	$self->throw("Can't get length aln for sequence type \"$seqType\". " . 
-		     "Valid types are 'query', 'hit', 'sbjct' ('sbjct' = 'hit')");
-    }		
+        $self->throw("Can't get length aln for sequence type \"$seqType\". " . 
+                     "Valid types are 'query', 'hit', 'sbjct' ('sbjct' = 'hit')");
+    }                
     return $data;
 }    
 
@@ -791,12 +794,12 @@ sub gaps {
         return $self->{'_gaps_'.$seqType} = $num;
     }
     elsif($seqType =~ /list|array/i) {
-	return ($self->{'_gaps_query'}, $self->{'_gaps_sbjct'});
+        return ($self->{'_gaps_query'}, $self->{'_gaps_sbjct'});
     }
     elsif($seqType eq 'total') {
-	return ($self->{'_gaps_query'} + $self->{'_gaps_sbjct'}) || 0;
+        return ($self->{'_gaps_query'} + $self->{'_gaps_sbjct'}) || 0;
     } else {
-	return $self->{'_gaps_'.$seqType} || 0;
+        return $self->{'_gaps_'.$seqType} || 0;
     }
 }    
 
@@ -816,22 +819,22 @@ sub matches {
     Bio::Search::SearchUtils::tile_hsps($self) unless $self->tiled_hsps;
 
     unless( $arg1 ) {
-	@data = ($self->{'_totalIdentical'}, $self->{'_totalConserved'});
+        @data = ($self->{'_totalIdentical'}, $self->{'_totalConserved'});
 
-	return @data if @data;
+        return @data if @data;
     } else {
 
         if( defined $arg2 ) {
-	    $self->{'_totalIdentical'} = $arg1;
-	    $self->{'_totalConserved'} = $arg2;
+            $self->{'_totalIdentical'} = $arg1;
+            $self->{'_totalConserved'} = $arg2;
             return ( $arg1, $arg2 );
         }
-	elsif($arg1 =~ /^id/i) { 
-	    $data = $self->{'_totalIdentical'};
-	} else {
-	    $data = $self->{'_totalConserved'};
-	}
-	return $data if $data;
+        elsif($arg1 =~ /^id/i) { 
+            $data = $self->{'_totalIdentical'};
+        } else {
+            $data = $self->{'_totalConserved'};
+        }
+        return $data if $data;
     }
     
     ## Something went wrong if we make it to here.
@@ -938,16 +941,16 @@ sub end {
 
     # If there is only one HSP, defer this call to the solitary HSP.
     if($self->num_hsps == 1) {
-	return $self->hsp->end($seqType);
+        return $self->hsp->end($seqType);
     } else {
-	Bio::Search::SearchUtils::tile_hsps($self) unless $self->tiled_hsps;
-	if($seqType =~ /list|array/i) {
-	    return ($self->{'_queryStop'}, $self->{'_sbjctStop'});
-	} else {
-	    ## Sensitive to member name changes.
-	    $seqType = "_\L$seqType\E";
-	    return $self->{$seqType.'Stop'};
-	}
+        Bio::Search::SearchUtils::tile_hsps($self) unless $self->tiled_hsps;
+        if($seqType =~ /list|array/i) {
+            return ($self->{'_queryStop'}, $self->{'_sbjctStop'});
+        } else {
+            ## Sensitive to member name changes.
+            $seqType = "_\L$seqType\E";
+            return $self->{$seqType.'Stop'};
+        }
     }
 }
 
@@ -1026,7 +1029,7 @@ sub frac_identical {
 
     Bio::Search::SearchUtils::tile_hsps($self) unless $self->tiled_hsps;
 
-    my ($ident) = $self->matches;
+    my $ident = $self->matches('id');
     my $total = $self->length_aln($seqType);
     my $ratio = $ident / $total;
     my $ratio_rounded = sprintf( "%.3f", $ratio);
@@ -1086,7 +1089,7 @@ sub frac_conserved {
 
     Bio::Search::SearchUtils::tile_hsps($self) unless $self->tiled_hsps;
 
-    my ($ident,$consv) = $self->matches;
+    my $consv = $self->matches('cons');
     my $total = $self->length_aln($seqType);
     my $ratio = $consv / $total;
     my $ratio_rounded = sprintf( "%.3f", $ratio);
@@ -1130,7 +1133,7 @@ sub frac_aligned_query {
 
     Bio::Search::SearchUtils::tile_hsps($self) unless $self->tiled_hsps;
     sprintf( "%.2f", $self->length_aln('query') / 
-	     $self->logical_length('query'));
+             $self->logical_length('query'));
 }
 
 
@@ -1291,14 +1294,14 @@ sub seq_inds {
 
     my (@inds, $hsp);
     foreach $hsp ($self->hsps) {
-	# This will merge data for all HSPs together.
-	push @inds, $hsp->seq_inds($seqType, $class);
+        # This will merge data for all HSPs together.
+        push @inds, $hsp->seq_inds($seqType, $class);
     }
     
     # Need to remove duplicates and sort the merged positions.
     if(@inds) {
-	my %tmp = map { $_, 1 } @inds;
-	@inds = sort {$a <=> $b} keys %tmp;
+        my %tmp = map { $_, 1 } @inds;
+        @inds = sort {$a <=> $b} keys %tmp;
     }
 
     $collapse ?  &Bio::Search::SearchUtils::collapse_nums(@inds) : @inds; 
@@ -1332,7 +1335,7 @@ sub strand {
     my ($qstr, $hstr);
     # If there is only one HSP, defer this call to the solitary HSP.
     if($self->num_hsps == 1) {
-	return $self->hsp->strand($seqType);
+        return $self->hsp->strand($seqType);
     } 
     elsif( defined $self->{'_strand_query'}) {
         # Get the data computed during hsp tiling.
@@ -1340,7 +1343,7 @@ sub strand {
         $hstr = $self->{'_strand_sbjct'}
     }
     else {
-	# otherwise, iterate through all HSPs collecting strand info.
+        # otherwise, iterate through all HSPs collecting strand info.
         # This will return the string "-1/1" if there are HSPs on different strands.
         # NOTE: This was the pre-10/21/02 procedure which will no longer be used,
         # (unless the above elsif{} is commented out).
@@ -1377,7 +1380,7 @@ sub frame {
     Bio::Search::SearchUtils::tile_hsps($self) unless $self->tiled_hsps;
 
     if( defined $frm ) {
-	return $self->{'_frame'} = $frm;
+        return $self->{'_frame'} = $frm;
     }
 
     # The check for $self->{'_frame'} is a remnant from the 'query' mode days
@@ -1385,9 +1388,9 @@ sub frame {
 
     my ($frame);
     if(not defined($self->{'_frame'})) {
-	$frame = $self->hsp->frame;
+        $frame = $self->hsp->frame;
     } else {
-	$frame = $self->{'_frame'}; 
+        $frame = $self->{'_frame'}; 
     } 
     return $frame;
 }
@@ -1426,14 +1429,14 @@ sub locus {
     if( defined $value || ! defined $previous ) { 
       unless (defined $value) {
         if ($self->{'_name'} =~/(gb|emb|dbj|ref)\|(.*)\|(.*)/) {
-		  $value = $previous = $3;
-		} else {
+                  $value = $previous = $3;
+                } else {
           $value = $previous = '';
         }
       }
-	  $self->{'_locus'} = $value;
+          $self->{'_locus'} = $value;
     } 
-	return $previous;
+        return $previous;
 }
 
 =head2 each_accession_number
@@ -1458,13 +1461,13 @@ sub each_accession_number {
       while ($desc =~ /(\b\S+\|\S*\|\S*\s?)/g) {
         my $id = $1;
         my ($acc, $version);
-	    if ($id =~ /(gb|emb|dbj|sp|pdb|bbs|ref|lcl)\|(.*)\|(.*)/) {
-	      ($acc, $version) = split /\./, $2; 
-	    } elsif ($id =~ /(pir|prf|pat|gnl)\|(.*)\|(.*)/) {
-	      ($acc, $version) = split /\./, $3;  
-	    } else {
-	   	  #punt, not matching the db's at ftp://ftp.ncbi.nih.gov/blast/db/README
-	   	  #Database Name                     Identifier Syntax
+            if ($id =~ /(gb|emb|dbj|sp|pdb|bbs|ref|lcl)\|(.*)\|(.*)/) {
+              ($acc, $version) = split /\./, $2; 
+            } elsif ($id =~ /(pir|prf|pat|gnl)\|(.*)\|(.*)/) {
+              ($acc, $version) = split /\./, $3;  
+            } else {
+                     #punt, not matching the db's at ftp://ftp.ncbi.nih.gov/blast/db/README
+                     #Database Name                     Identifier Syntax
           #============================      ========================
           #GenBank                           gb|accession|locus
           #EMBL Data Library                 emb|accession|locus
@@ -1475,13 +1478,13 @@ sub each_accession_number {
           #Brookhaven Protein Data Bank      pdb|entry|chain
           #Patents                           pat|country|number 
           #GenInfo Backbone Id               bbs|number 
-          #General database identifier	   gnl|database|identifier
+          #General database identifier           gnl|database|identifier
           #NCBI Reference Sequence           ref|accession|locus
           #Local Sequence identifier         lcl|identifier
-	      $acc=$id;
-	    }
-	    push(@accnums, $acc);
-	  }
+              $acc=$id;
+            }
+            push(@accnums, $acc);
+          }
     }  
     return @accnums;
 }
