@@ -63,7 +63,7 @@ methods. Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::AlignIO::clustalw;
-use vars qw(@ISA $LINELENGTH);
+use vars qw(@ISA $LINELENGTH $CLUSTALPRINTVERSION);
 use strict;
 
 use Bio::AlignIO;
@@ -71,7 +71,7 @@ use Bio::LocatableSeq;
 use Bio::SimpleAlign; # to be Bio::Align::Simple
 
 $LINELENGTH = 60;
-
+$CLUSTALPRINTVERSION = '1.81';
 @ISA = qw(Bio::AlignIO);
 
 =head2 new
@@ -208,8 +208,8 @@ sub write_aln {
       if( $self->force_displayname_flat ) {
 	 $aln->set_displayname_flat(1);
       }
-      $self->_print (sprintf("CLUSTAL W(1.81) multiple sequence alignment\n\n\n")) 
-	or return;
+      $self->_print(sprintf("CLUSTAL W(%s) multiple sequence alignment\n\n\n",
+			    $CLUSTALPRINTVERSION)) or return;
       $length = $aln->length();
       $count = $tempcount = 0;
       @seq = $aln->each_seq();
@@ -218,7 +218,9 @@ sub write_aln {
 	 $max = length ($aln->displayname($seq->get_nse())) 
 	   if( length ($aln->displayname($seq->get_nse())) > $max );
       }
+
       while( $count < $length ) {
+	  my ($linesubstr,$first)= ('',1);
 	 foreach $seq ( @seq ) {
 #
 #  Following lines are to suppress warnings
@@ -228,10 +230,18 @@ sub write_aln {
 	    my $seqchars = $seq->seq();
 	  SWITCH: {
 	       if (length($seqchars) >= ($count + $line_len)) {
-		  $substring = substr($seqchars,$count,$line_len); 
+		   $substring   = substr($seqchars,$count,$line_len); 
+		   if( $first ) {
+		       $linesubstr = substr($matchline, $count,$line_len);
+		       $first = 0;
+		   }
 		  last SWITCH; 
 	       } elsif (length($seqchars) >= $count) {
 		  $substring = substr($seqchars,$count); 
+		  if( $first ) {
+		      $linesubstr = substr($matchline, $count);
+		      $first = 0;
+		  }
 		  last SWITCH; 
 	       }
 	       $substring = "";
@@ -239,9 +249,8 @@ sub write_aln {
 	    $self->_print (sprintf("%-".$max."s %s\n",
 				   $aln->displayname($seq->get_nse()),
 				   $substring)) or return;
-	 }
-
-	 my $linesubstr = substr($matchline, $count,$line_len);
+	}
+	  
 	 my $percentages = '';
 	 if( $self->percentages ) {
 	    my ($strcpy) = ($linesubstr);
