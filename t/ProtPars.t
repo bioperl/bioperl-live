@@ -71,9 +71,16 @@ $inputfilename = Bio::Root::IO->catfile("t","data","cysprot.fa");
 @params = ('ktuple' => 2, 'matrix' => 'BLOSUM', 
 	   -verbose => $verbose);
 my  $align_factory = Bio::Tools::Run::Alignment::Clustalw->new(@params);
-my $aln = $align_factory->align($inputfilename);
-$tree = $tree_factory->create_tree($aln);
+my $clustal_present = $align_factory->exists_clustal();
 
+unless ($clustal_present) {
+    warn("Clustalw program not found. Skipping tests $Test::ntest to $NTESTS.\n");    
+    exit 0;
+}
+
+my $aln = $align_factory->align($inputfilename);
+
+$tree = $tree_factory->create_tree($aln);
 
 @nodes = sort { defined $a->id && defined $b->id && $a->id cmp $b->id } $tree->get_nodes();
 ok ($nodes[6]->id, 'CYS1_DICDI', 

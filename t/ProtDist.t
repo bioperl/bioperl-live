@@ -85,6 +85,13 @@ $inputfilename = Bio::Root::IO->catfile("t","data","cysprot.fa");
 @params = ('ktuple' => 2, 'matrix' => 'BLOSUM', 
 	   -verbose => $verbose);
 my  $align_factory = Bio::Tools::Run::Alignment::Clustalw->new(@params);
+my $clustal_present = $align_factory->exists_clustal();
+
+unless ($clustal_present) {
+    warn("Clustalw program not found. Skipping tests $Test::ntest to $NTESTS.\n");    
+    exit 0;
+}
+
 my $aln = $align_factory->align($inputfilename);
 $matrix = $dist_factory->create_distance_matrix($aln);
 
