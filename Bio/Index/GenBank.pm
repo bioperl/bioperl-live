@@ -158,8 +158,9 @@ sub _index_file {
 	    foreach my $acc (@accs) {
 		if( $acc ne $id ) {
 		    $self->add_record($acc, $i, $begin);
-		}
+		}		
 	    }
+	    @accs = ();
 	} elsif (/^LOCUS\s+(\S+)/) {
 	    $id = $1;
 	    # not sure if I like this. Assummes tell is in bytes.
@@ -168,6 +169,12 @@ sub _index_file {
 	    
 	} elsif (/^ACCESSION(.*)/) { # ignore ? if there.
 	    @accs = ($1 =~ /\s*(\S+)/g);
+	} elsif( /^VERSION(.*)/) {
+	    my $a = $1;
+	    $a =~ s/^\s+//;
+	    $a =~ s/\s+$//;
+	    $a =~ s/GI\://;
+	    push @accs, split(/\s+/,$a);
 	} else {
 	    # do nothing
 	}
