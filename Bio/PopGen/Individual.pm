@@ -207,6 +207,8 @@ sub get_Genotypes{
 
 sub has_Marker{
    my ($self,$name) = @_;
+   return 0 if ! defined $name;
+   $name = $name->name if $name->isa('Bio::PopGen::MarkerI');
    return defined $self->{'_genotypes'}->{$name};
 }
 
