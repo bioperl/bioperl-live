@@ -500,7 +500,8 @@ sub end_element {
 	  my $ttt = $pub_record->{author_list}->[0];
 
 	  $ref->authors( $ttt->{accumulated_text_12345} );
-	  $ref->medline( scalar($ttt->{dbkey}) ) if $ttt->{db} eq "MEDLINE";
+	  $ref->medline( scalar($ttt->{dbkey}) ) if defined $ttt->{db} && 
+	      $ttt->{db} eq "MEDLINE";
 	  push @refs, $ref;
 	}
  	$self->_term->references(\@refs);
