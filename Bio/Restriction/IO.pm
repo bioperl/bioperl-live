@@ -22,7 +22,7 @@ Bio::Restriction::IO - Handler for sequence variation IO Formats
                                      -format => 'withrefm');
     $out = Bio::Restriction::IO->new(-file => ">outputfilename" ,
                                      -format => 'withrefm');
-    my $res = $in->read;
+    my $res = $in->read; # a Bio::Restriction::EnzymeCollection
     $out->write($res);
 
   # or
@@ -131,7 +131,6 @@ use Bio::SeqIO;
  Args    : -file => $filename
            -format => format
            -fh => filehandle to attach to
-
 =cut
 
 
@@ -175,7 +174,7 @@ END
  Title   : read
  Usage   : $renzs = $stream->read
  Function: reads all the restrction enzymes from the stream
- Returns : a Bio::Restriction::Restriction object
+ Returns : a Bio::Restriction::EnzymeCollection object
  Args    :
 
 =cut
@@ -201,7 +200,7 @@ sub next_seq {
  Usage   : $stream->write($seq)
  Function: writes the $seq object into the stream
  Returns : 1 for success and 0 for error
- Args    : Bio::Restriction::SeqDiff object
+ Args    : Bio::Restriction::EnzymeCOllection object
 
 =cut
 

@@ -36,7 +36,7 @@ enzymes
   # Bio::Restriction::EnzymeCollection object
   my $enzymes=$ra->unique_cutters;
   print "Unique cutters: ", join (', ', 
-      map {$_->name} $enzymes->each_enzyme), "\n";
+      map {$_->name} $enzymes->unique_cutters), "\n";
 
   # AluI is one them. Where does it cut?
   # This is will return an array of the sequence strings
@@ -49,9 +49,8 @@ enzymes
   # You can also bypass fragments and call sizes directly:
   # to see all the fragment sizes
   print "All sizes: ", join " ", $ra->sizes($enz), "\n";
-  # to see all the fragment sizes sorted
+  # to see all the fragment sizes sorted by size like on a gel
   print "All sizes, sorted ", join (" ", $ra->sizes($enz, 0, 1)), "\n";
-
 
   # how many times does each enzyme cut
   my $cuts=$ra->cuts_by_enzyme('BamHI');
@@ -121,11 +120,13 @@ for further analysis. This fragment will also be checked for cuts
 by the enzyme(s).  However, this will change the start of the
 sequence!
 
-=head1 COMMENTS
-
-I am trying to make this backwards compatible with
-Bio::Tools::Restriction::Analysis Undoubtedly some things will break,
-but we can fix things as we progress.....!
+There are two separate algorithms used depending on whether your
+enzyme has ambiguity. The non-ambiguous algoritm is a lot faster,
+and if you are using very large sequences you should try and use
+this algorithm. If you have a large sequence (e.g. genome) and 
+want to use ambgiuous enzymes you may want to make seperate
+Bio::Restriction::Enzyme objects for each of the possible
+alternatives and make sure that you don't set is_ambiguous!
 
 =head1 FEEDBACK
 
@@ -209,7 +210,6 @@ like the number of zero cutters or single cutters.
 sub new {
     my($class, @args) = @_;
     my $self = $class->SUPER::new(@args);
-
     my ($seq,$enzymes) =
         $self->_rearrange([qw(
                               SEQ
@@ -223,6 +223,13 @@ sub new {
 
     # keep track of status
     $self->{'_cut'} = 0;
+    
+    $self->{maximum_cuts} = 0;
+
+    $self->{'_number_of_cuts_by_enzyme'} = {};
+    $self->{'_number_of_cuts_by_cuts'} = {};
+    $self->{'_fragments'} = {};
+    $self->{'_cut_positions'} = {}; # cut position is the real position 
 
     return $self;
 
@@ -297,43 +304,50 @@ sub enzymes {
  Title    : cut
  Usage    : $re->cut()
  Function : Cut the sequence with the enzymes
- Example  : $re->cut(); $re->cut('original');
+ Example  : $re->cut(); $re->cut('single'); or $re->cut('multiple', $enzymecollection);
  Returns  : $self
- Args     : 'original', optional
+ Args     : 'single' (optional), 'multiple' with enzyme collection.
 
-An explicit cut method is needed to pass arguments to it. The default
-behaviour is to cut with each enzymes in the list separately. The
-(unimplemented) option is to perform the cut with all the enzymes at
-the same time: "double digest".
+An explicit cut method is needed to pass arguments to it. 
+
+There are two varieties of cut. Single is the default, and need
+not be explicitly called. This cuts the sequence with each
+enzyme separately.
+
+Multiple cuts a sequence with more than one enzyme. You must pass
+it a Bio::Restriction::EnzymeCollection object of the set
+of enzymes that you want to use in the double digest. The results
+will be stored as an enzyme named "multiple_digest", so you can
+use all the retrieval methods to get the data.
 
 If you want to use the default setting there is no need to call cut
 directly. Every method in the class that needs output checks the
 object's internal status and recalculates the cuts if needed.
 
-While the module is under construction, passing the string 'original'
-as an argument, will run the code from older
-Bio::Tools::RestrictionEnzyme module. Otherwise, the newer, untested
-code will be executed. You have been warned.
+Note: cut doesn't now re-initialize everything before figuring
+out cuts. This is so that you can do multiple digests, or add more
+data or whatever. You'll have to use new to reset everything.
+
+See also the comments in above about ambiguous and non-ambiguous
+sequences.
 
 =cut
 
 sub cut {
-    my ($self, $opt) = @_;
+    my ($self, $opt, $ec) = @_;
 
+    # for the moment I have left this as a separate routine so
+    # the user calls cuts rather than _cuts. This also initializes
+    # some stuff we need to use.
+  
     $self->throw("A sequence must be supplied")
         unless $self->seq;
 
-    $self->{maximum_cuts} = 0;
+    if (uc($opt) eq "MULTIPLE") {
+      $self->throw("You must supply a separate enzyme collection for multiple digests") unless $ec;
+      $self->_multiple_cuts($ec); # multiple digests
+    } else {$self->_cuts}
 
-    $self->{'_number_of_cuts_by_enzyme'} = {};
-    $self->{_number_of_cuts_by_cuts} = {};
-    $self->{'_fragments'} = {};
-
-    if ($opt and $opt eq 'original') {
-        $self->_cuts;
-    } else {
-        $self->_new_cuts;
-    }
     $self->{'_cut'} = 1;
     return $self;
 }
@@ -343,14 +357,36 @@ sub cut {
 
 =cut
 
+=head2 positions
+
+  Title    : positions
+  Function : Retrieve the positions that an enzyme cuts at
+  Returns  : An array of the positions that an enzyme cuts at
+  Arguments: An enzyme name to retrieve the positions for
+  Comments : The cut occurs after the base specified.
+             Returns an empty array if the enzyme doesn't cut
+
+=cut
+
+sub positions {
+    my ($self, $enz) = @_;
+    $self->cut unless $self->{'_cut'};
+    $self->throw('no enzyme selected to get positions for')
+        unless $enz;
+    
+    if ($self->{'_cut_positions'}->{$enz}) {
+       return @{$self->{'_cut_positions'}->{$enz}};
+    }
+    else {
+       return ();
+    }
+}
+
 =head2 fragments
 
   Title    : fragments
   Function : Retrieve the fragments that we cut
-  Returns  : At the moment just returns a reference to an array of
-             sequences, but I'd like this to return a collection of
-             Bio::Seq objects, perhaps as a stream?  Returns 0 if not
-             defined.
+  Returns  : An array of the fragments retrieved. 
   Arguments: An enzyme name to retrieve the fragments for
 
 For example this code will retrieve the fragments for all enzymes that
@@ -368,23 +404,52 @@ sub fragments {
     $self->cut unless $self->{'_cut'};
     $self->throw('no enzyme selected to get fragments for')
         unless $enz;
-    return @{$self->{'_fragments'}->{$enz}} if defined $self->{'_fragments'}->{$enz};
-    return ();
+    
+    # get the default cut positions
+    my $cp= $self->{'_cut_positions'}->{$enz};
+    
+    my @fragments; 
+    # if the sequence was not cut, $cp is not defined, 
+    # and we can just return the whole sequence
+    unless (defined $$cp[0]) {
+       push (@fragments, $self->{'_seq'}->seq);
+       return @fragments;
+    }
+    
+    # make sure the list is in order. It should be for
+    # most everything except multiple cuts.
+    @$cp=sort {$a <=> $b} @$cp;
+
+    # add each of the fragments to an array
+    # we want to add the first and last fragments separately
+    # add first fragment
+    push @fragments, $self->{'_seq'}->subseq(1, ${$cp}[0]);
+    # add all the intermediate fragments
+    for (my $i=0; $i<$#$cp; $i++) {
+      push (@fragments, $self->{'_seq'}->subseq(${$cp}[$i]+1, ${$cp}[$i+1]));
+    }
+    # add the last fragment. Remember this is not normally in $cp
+    push @fragments, $self->{'_seq'}->subseq(${$cp}[$#$cp]+1, $self->{'_seq'}->length);	
+
+    # if the sequence is circular we want to add the last and first
+    # sequences together. UNLESS we have a site at the end of the sequence
+    if ($self->{'_seq'}->is_circular && ${$cp}[$#$cp] != $self->{'_seq'}->length) {
+     my ($first, $last)=(shift @fragments, pop @fragments);
+     unshift @fragments, $last.$first;
+    }
+
+    $self->{'_fragments'}->{$enz}=\@fragments;
+    # now we can return either a reference to an array or an array of references!
+    return @fragments;
 }
 
 =head2 sizes
 
   Title    : sizes
   Function : Retrieves an array with the sizes of the fragments
-  Returns  : 
-
-             Array that has the sizes of the fragments ordered from
+  Returns  : Array that has the sizes of the fragments ordered from 
              largest to smallest like they would appear in a gel.
-
-  Arguments: 
-
-             An enzyme name to retrieve the sizes for is required and
-             if the optional second entry is set the sizes will be in
+  Arguments: An enzyme name to retrieve the sizes for is required and
              kilobases to the nearest 0.1 kb, else it will be in
              bp. If the optional third entry is set the results will
              be sorted.
@@ -409,6 +474,8 @@ sub sizes {
         unless $enz;
     $self->cut unless $self->{'_cut'};
     my @frag;
+    $self->fragments($enz) unless (defined $self->{'_fragments'}->{$enz});
+    
     if (defined $self->{'_fragments'}->{$enz}) {
         foreach my $frag (@{$self->{'_fragments'}->{$enz}}) {
             my $len=length($frag);
@@ -421,6 +488,7 @@ sub sizes {
             @frag = sort {$b <=> $a} @frag;
         }
     }
+     
     return @frag;
 }
 
@@ -546,10 +614,9 @@ sub zero_cutters {
 =head2 max_cuts
 
  Title     : max_cuts
- Function  : Find enzymes that cut a given number of times
- Returns   : a Bio::Restriction::EnzymeCollection
- Arguments : exact time or lower limit, non-negative integer, optional
-             upper limit, non-negative integer, optional
+ Function  : Find the most number of cuts
+ Returns   : The number of times the enzyme that cuts most cuts.
+ Arguments : None
 
 This is not a very practical method, but if you are curious...
 
@@ -570,93 +637,17 @@ sub max_cuts { return shift->{maximum_cuts} }
 =head2 _cuts
 
  Title     : _cuts
- Function  : Figures out which enzymes we know about and cuts the seequence
- Returns   : The Restriction::Analysis object 
- Arguments : This is an internal method that cuts the sequence and whatnot.
- Comments  : 
-
-=cut
-
-
-sub _cuts {
-    my $self = shift;
-
-    my $target_seq = uc $self->{_seq}->seq; # I have been burned on this before :)
-
-    # first, find out all the enzymes that we have
-    foreach my $enz ($self->{'_enzymes'}->each_enzyme) {
-        # this part of the code came from Steve's module....originally
-        my $cuts_after = $enz->cut;
-        my ($site_3prime_seq, $site_5prime_seq);
-        my $reSeq = $enz->seq;
-        if ($cuts_after == 0) {
-            $site_3prime_seq = '';
-            $site_5prime_seq = $reSeq->seq();
-        } elsif ($cuts_after == $reSeq->length) {
-            $site_3prime_seq = $reSeq->seq();
-            $site_5prime_seq = '';
-        } elsif ($cuts_after > 0 && $cuts_after < $reSeq->length) {
-            # it cuts within the sequence
-            $site_3prime_seq = $reSeq->subseq(1, $enz->cut);
-            $site_5prime_seq = $reSeq->subseq($enz->cut+1, $reSeq->length);
-        } else {
-            # man, we are screwed here, I am coming back to this
-            if ($self->verbose) {
-                $self->warn("Cutting outside the sequence is not implemented yet");
-            }
-            next;
-        }
-
-        my(@re_frags);
-        my $seq = uc $self->_expanded_string($enz->string);
-
-        if (!$enz->palindromic) {
-            my $revseq = $self->_expanded_string($reSeq->revcom);
-            $seq .= '|'.uc($revseq);
-        }
-
-
-        @re_frags = split(/$seq/i, $target_seq);
-        ## Re-attach the split recognition site back to the frags
-        ## since perl zapped them in the split() call.
-        my($i);
-        my $numFrags = scalar @re_frags;
-        for ($i=0; $i<$numFrags; $i++) {
-            $i < $#re_frags  and $re_frags[$i] = $re_frags[$i].$site_3prime_seq;
-            $i > 0           and $re_frags[$i] = $site_5prime_seq.$re_frags[$i];
-        }
-
-        # get the number of times this enzyme cuts the sequence
-        my $number_of_cuts = $#re_frags;
-        $self->{_number_of_cuts_by_enzyme}->{$enz->name}=$number_of_cuts;
-        @{$self->{$enz}->{fragments}} = @re_frags;
-        push (@{$self->{_number_of_cuts_by_cuts}->{$number_of_cuts}}, $enz);
-        if ($number_of_cuts > $self->{maximum_cuts}) {
-            $self->{maximum_cuts}=$number_of_cuts;
-        }
-    }
-}
-
-
-
-=head2 _new_cuts
-
- Title     : _new_cuts
  Function  : Figures out which enzymes we know about and cuts the sequence.
  Returns   : Nothing.
  Arguments : None.
- Comments  : An internal method. This is the development part of rewriting _cuts().
-             This will figure out where the sequence should be cut, and provide the 
-	     appropriate fragments.
-
-I have left _cuts() in for now, so I can compare this rewritten
-version with the original to see that I have done it right!
+ Comments  : An internal method. This will figure out where the sequence 
+             should be cut, and provide the appropriate results.
 
 =cut
 
 
 
-sub _new_cuts {
+sub _cuts {
     my $self = shift;
 
     my $target_seq=uc $self->{'_seq'}->seq; # I have been burned on this before :)
@@ -664,109 +655,392 @@ sub _new_cuts {
 
     # first, find out all the enzymes that we have
     foreach my $enz ($self->{'_enzymes'}->each_enzyme) {
-        # get the cut site. This will have a ^ and N's in it.
-        my $site=$enz->site;
-        # split it into the two fragments for the sequence before and after.
+        my ($beforeseq, $afterseq)=$self->_decon_enzyme($enz);
+        # cut the sequence
+	# this returns the number of cuts per enzyme
 
-        # BIG assumption - if the enzyme doesn't have a cut site, we're just guessing.
-        # we should really throw a warning here
-        unless ($site =~ /\^/) {
-            $site .= "^";
-            $self->warn("No cut site is known for $enz. \n".
-                        "Therefore we are guessing that it is $site\n")
-                if $self->verbose;
-        }
-
-        # the default values just stop an error from an undefined
-        # string. But they don't affect the split.
-        my ($beforeseq, $afterseq)= ('.', '.');
-        # now perlify the sequences into a regexp
-        ($beforeseq, $afterseq)=split /\^/, $self->_expanded_string($site);
-
-        # now cut the sequence
-        my @cuts = split /($beforeseq)($afterseq)/i, $target_seq;
-        # now the array has extra elements --- the before and after!
-        # we have:
-        # element 0 sequence
-        # element 1 3' end
-        # element 2 5' end of next sequence
-        # element 3 sequence
-        # ....
-
-        # we need to loop through the array and add the ends to the
-        # appropriate parts of the sequence
-        my $i=0;
-        my @re_frags;
-
-        if ($#cuts) {           # there is >1 element
-            while ($i<$#cuts) {
-                my $joinedseq;
-                # the first sequence is a special case
-                if ($i == 0) {
-                    $joinedseq=$cuts[$i].$cuts[$i+1];
-                } else {
-                    $joinedseq=$cuts[$i-1].$cuts[$i].$cuts[$i+1];
-                }
-                push @re_frags, $joinedseq;
-                $i+=3;
-            }
-
-
-            # for the last cut, we want to join the last two elements only
-            # because of the last $i+=3, we should now be at the last position
-            my $joinedseq;
-
-            # there is a rare and unusual case where if the enzyme
-            # cuts on the last base, it doesn't leave a sequence in
-            # $i!
-
-            unless ($cuts[$i]) {
-                $joinedseq=$cuts[$i-1];
-            } else {
-                $joinedseq=$cuts[$i-1].$cuts[$i];
-            }
-            push @re_frags, $joinedseq;
-
-
-            # now find out if the sequence is circular. If so, join
-            # the first and last fragments
-
-            if ($self->{'_seq'}->is_circular) {
-                my $first = shift @re_frags;
-                my $last = pop @re_frags;
-
-		my $newfrag=$last.$first;
-                my @cuts = split /($beforeseq)($afterseq)/i, $newfrag;
-                my @newfrags;
-		if ($#cuts) {
-		    # there is another cut
-		    for (my $i=0; $i<=$#cuts; $i+=2) {
-			push (@newfrags, 
-			      $cuts[$i].$cuts[$i+1])}
-		}
-		else {
-		    # there isn't another cut
-		    push (@newfrags, $newfrag);
-		}
-                push @re_frags, @newfrags;
-
-                unshift (@re_frags, $last.$first);
-            }
-
+        # if the enzyme is ambiguous we need to use a regexp to find the cut site
+	# otherwise we can use index (much faster)
+	
+	my $cut_positions;
+	if ($enz->is_ambiguous) {
+	   $cut_positions= $self->_ambig_cuts($beforeseq, $afterseq, $target_seq, $enz);
         } else {
-            @re_frags=@cuts;
-        } # the sequence was not cut.
+	   $cut_positions= $self->_nonambig_cuts($beforeseq, $afterseq, $target_seq, $enz);
+	}
+	
+	# deal with is_circular
+	my $more_cut_positions=$self->_circular($beforeseq, $afterseq, $enz) if ($self->{'_seq'}->is_circular);
 
-        # get the number of times this enzyme cuts the sequence
-        my $number_of_cuts = $#re_frags;
-        $self->{_number_of_cuts_by_enzyme}->{$enz->name}=$number_of_cuts;
-        @{$self->{'_fragments'}->{$enz->name}} = @re_frags;
+	# now deal with MultiSite and MultiCut enzymes
+	# note I decided to do it this way because if you just cut with all the 
+	# enzymes you'll get the default sites back, but I'll also add methods to retrieve
+	# alternate data for multi enzymes
+
+	# we do everything here that we did above, but without the explanation!!
+        my @all_cuts;
+	if ($enz->isa("Bio::Restriction::Enzyme::MultiSite") || $enz->isa("Bio::Restriction::Enzyme::MultiCut")) {
+	     foreach my $other ($enz->others) {
+    	          my ($beforeseq, $afterseq)=$self->_decon_enzyme($other);
+        	  my $more_results=[];
+	          if ($other->is_ambiguous) {
+	              $more_results= $self->_ambig_cuts($beforeseq, $afterseq, $target_seq, $enz);
+                  } else {
+        	      $more_results= $self->_nonambig_cuts($beforeseq, $afterseq, $target_seq, $enz);
+	          }
+          
+	          # deal with is_circular
+	          my $more_more=[];
+                  $more_more=$self->_circular($beforeseq, $afterseq, $enz) if ($self->{'_seq'}->is_circular);
+                  my $non_pal_others=[];
+                  unless ($other->is_palindromic) {
+                       $non_pal_others=$self->_non_pal_enz($target_seq, $other);
+                  }
+	          push (@all_cuts, @$more_more, @$more_results, @$non_pal_others);
+             }
+	}
+ 
+        # we need to deal with non-palindromic enzymes separately
+        my $non_pal=[];
+	unless ($enz->is_palindromic) {
+	     $non_pal=$self->_non_pal_enz($target_seq, $enz);
+         }
+
+        # I pulled this out as a separate routine as I was using it a couple of times, then decided I only need it once.
+        $self->{'_cut_positions'}->{$enz->name}=$self->_decon_cuts(@$cut_positions, @$more_cut_positions, @all_cuts, @$non_pal);
+        my $number_of_cuts=scalar @{$self->{'_cut_positions'}->{$enz->name}};
+    
+        # now just store the number of cuts
+	$self->{_number_of_cuts_by_enzyme}->{$enz->name}=$number_of_cuts;
         push (@{$self->{_number_of_cuts_by_cuts}->{$number_of_cuts}}, $enz);
         if ($number_of_cuts > $self->{maximum_cuts}) {
             $self->{maximum_cuts}=$number_of_cuts;
         }
+
     }
 }
+
+=head2 _non_pal_enz
+  Title    : _non_pal_enz
+  Function : Analyses non_palindromic enzymes for cuts in both ways
+  Returns  : A reference to an array of cut positions
+  Arguments: The sequence to check and the enzyme object
+
+=cut
+
+sub _non_pal_enz {
+    my ($self, $target_seq, $enz) =@_;
+    # add support for non-palindromic sequences
+    # the enzyme is not the same forwards and backwards
+    my $enzseq=$enz->revcom_site;
+    unless ($enzseq =~ /\^/) {$enzseq .= "^"}
+    my ($beforeseq, $afterseq)=('.', '.');
+    ($beforeseq, $afterseq)=split /\^/, $enzseq;
+    my $rc_cut=$enz->complementary_cut;
+    
+    # complementary cut is the position on the forward strand
+    # correct for reverse strand - I think this is right
+    my @all_cuts; # more cuts that we find
+    my $more_results=[];
+    if ($enz->is_ambiguous) {
+          $more_results= $self->_ambig_cuts($beforeseq, $afterseq, $target_seq, $enz);
+    } else {
+          $more_results= $self->_nonambig_cuts($beforeseq, $afterseq, $target_seq, $enz);
+    }
+            
+    # deal with is_circular
+    my $more_more=[];
+    $more_more=$self->_circular($beforeseq, $afterseq, $enz) if ($self->{'_seq'}->is_circular);
+    push (@all_cuts, @$more_more, @$more_results);
+    return \@all_cuts;
+} 
+
+=head2 _decon_enzyme
+
+ Title     : _decon_enzyme
+ Function  : An internal method to deconvolute and check the enzyme
+ Returns   : The sequence before the cut and the sequence after the cut
+ Arguments : A Bio::Restriction::Enzyme object
+
+=cut
+
+sub _decon_enzyme {
+    my ($self, $enz)=@_;
+    # get the cut site. This will have a ^ and N's in it.
+    my $site=$enz->site;
+    # split it into the two fragments for the sequence before and after.
+
+    # BIG assumption - if the enzyme doesn't have a cut site, we're just guessing.
+    # we should really throw a warning here
+    unless ($site =~ /\^/) {
+        $site = "^$site";
+        $self->warn("No cut site is known for $enz. \n".
+                    "Therefore we are guessing that it is $site\n")
+            if $self->verbose;
+    }
+
+    # the default values just stop an error from an undefined
+    # string. But they don't affect the split.
+    my ($beforeseq, $afterseq)= ('.', '.');
+    # now perlify the sequences into a regexp
+    ($beforeseq, $afterseq)=split /\^/, $self->_expanded_string($site);
+    return ($beforeseq, $afterseq);
+}
+
+
+=head2 _decon_cuts
+
+ Title     : _decon_cuts
+ Function  : An internal method to deconvolute the cut sites
+ Returns   : The deconvoluted list
+ Arguments : A list of cuts sites
+
+=cut
+
+sub _decon_cuts {
+    my $self=shift;
+    # there is a problem with circular that it can find a site that we have already found
+    # but actually, the solution is simple. Because at the moment _cut_positions are the
+    # actual locations along the sequence, they can't be redundant
+
+    my %unique_cuts=map {$_=>1} @_;
+    my @cuts;
+    if (scalar keys %unique_cuts) {
+	@cuts=sort {$a <=> $b} keys %unique_cuts;
+    }
+    return \@cuts;
+}
+
+=head2 _ambig_cuts
+
+ Title     : _ambig_cuts
+ Function  : An internal method to localize the cuts in the sequence
+ Returns   : A reference to an array of cut positions
+ Arguments : The separated enzyme site, the target sequence, and the enzyme object
+ Comments  : This is a slow implementation but works for ambiguous sequences.
+             Whenever possible, _nonambig_cuts should be used as it is a lot faster.
+
+=cut
+
+sub _ambig_cuts {
+    my ($self, $beforeseq, $afterseq, $target_seq, $enz) = @_;
+    
+    # cut the sequence. This is done with split so we can use
+    # regexp. Index would be faster!
+    
+    my @cuts = split /($beforeseq)($afterseq)/i, $target_seq;
+    
+    # now the array has extra elements --- the before and after!
+    # we have:
+    # element 0 sequence
+    # element 1 3' end
+    # element 2 5' end of next sequence
+    # element 3 sequence
+    # ....
+
+    # we need to loop through the array and add the ends to the
+    # appropriate parts of the sequence
+    
+    my $i=0;
+    my @re_frags;
+    if ($#cuts) {           # there is >1 element
+        while ($i<$#cuts) {
+            my $joinedseq;
+            # the first sequence is a special case
+            if ($i == 0) {
+                $joinedseq=$cuts[$i].$cuts[$i+1];
+            } else {
+                $joinedseq=$cuts[$i-1].$cuts[$i].$cuts[$i+1];
+            }
+            push @re_frags, $joinedseq;
+            $i+=3;
+        }
+
+    # I don't think we want the last fragment in. It is messing up the _circular
+    # part of things. So I deleted this part of the code :)
+
+    } else {
+            # if we don't cut, leave the array empty
+            #@re_frags=@cuts;
+	    return [];
+    } # the sequence was not cut.
+
+    # now @re_frags has the fragments of all the sequences
+    # but some people want to have this return the lengths
+    # of the fragments.
+    
+    # in theory the actual cut sites should be the length
+    # of the fragments in @re_frags
+    
+    # note, that now this is the only data that we are saving. We
+    # will have to go back add regenerate re_frags. The reason is
+    # that we can use this in _circular easier
+
+    my @cut_positions = map {length($_)} @re_frags;
+
+    # the cut positions are right now the lengths of the sequence, but
+    # we need to add them all onto each other
+
+    for (my $i=1; $i<=$#cut_positions; $i++) {
+     $cut_positions[$i]+=$cut_positions[$i-1];
+    }
+   
+    # in one of those oddities in life, 2 fragments mean an enzyme cut once
+    # so $#re_frags is the number of cuts
+    return \@cut_positions;
+}
+
+
+=head2 _nonambig_cuts
+
+ Title     : _nonambig_cuts
+ Function  : Figures out which enzymes we know about and cuts the sequence.
+ Returns   : Nothing.
+ Arguments : The separated enzyme site, the target sequence, and the enzyme object
+ Comments  : An internal method. This will figure out where the sequence 
+             should be cut, and provide the appropriate results.
+	     This is a much faster implementation because it doesn't use a regexp,
+	     but it can not deal with ambiguous sequences
+
+=cut
+
+sub _nonambig_cuts {
+    my ($self, $beforeseq, $afterseq, $target_seq, $enz) = @_;
+    
+    my $index_posn=index($target_seq, $beforeseq.$afterseq);
+    return [] if ($index_posn == -1); # there is no match to the sequence
+    
+    # there is at least one cut site
+    my @cuts;
+    while ($index_posn > -1) {
+	  push (@cuts, $index_posn+length($beforeseq));
+	  $index_posn=index($target_seq, $beforeseq.$afterseq, $index_posn+1);
+    }
+ 
+    return \@cuts;
+}
+
+
+=head2 _mulitple_cuts
+
+ Title     : _multiple_cuts
+ Function  : Figures out multiple digests
+ Returns   : An array of the cut sites for multiply digested DNA
+ Arguments : A Bio::Restriction::EnzymeCollection object
+ Comments  : Double digests is one subset of this, but you can use
+             as many enzymes as you want.
+
+=cut
+
+sub _multiple_cuts {
+    my ($self, $ec)=@_;
+    $self->cut unless $self->{'_cut'};
+   
+    # now that we are using positions rather than fragments
+    # this is really easy
+    my @cuts;
+    foreach my $enz ($ec->each_enzyme) { 
+       push @cuts, @{$self->{'_cut_positions'}->{$enz->name}} if defined $self->{'_cut_positions'}->{$enz->name};
+    }
+    @{$self->{'_cut_positions'}->{'multiple_digest'}}=sort {$a <=> $b} @cuts;
+
+    my $number_of_cuts;
+    
+    $number_of_cuts=scalar @{$self->{'_cut_positions'}->{'multiple_digest'}};
+    $self->{_number_of_cuts_by_enzyme}->{'multiple_digest'}=$number_of_cuts;
+    push (@{$self->{_number_of_cuts_by_cuts}->{$number_of_cuts}}, 'multiple_digest');
+    if ($number_of_cuts > $self->{maximum_cuts}) {
+        $self->{maximum_cuts}=$number_of_cuts;
+    }
+}
+
+
+=head2 _circular
+
+ Title     : _circular
+ Function  : Deals with circular sequences
+ Returns   : Nothing.
+ Arguments : None.
+ Comments  : Help?!
+
+There are two problems with circular sequences.
+
+1. When you cut a sequence and rejoin fragments you could generate new cut sites.
+2. There could be a cut site at the end of the sequence.
+
+I think these may be the same problem, and so we're working on #2 first!
+
+=cut
+
+sub _circular {
+    my ($self, $beforeseq, $afterseq, $enz) = @_;
+    my $target_seq=uc $self->{'_seq'}->seq; # I have been burned on this before :)
+   
+    # the approach I am taking is to find out the longest enzyme in the collection
+    # (I'll have to add a new function in enzyme collection for this)
+    # and then add more than that sequence from the end of the sequence to the start
+    # of the sequence, and map the new cut sites for each of the enzymes.
+
+    # The cut sites that we are interested in must be within the length of the 
+    # enzyme sequence from the start or the end.
+
+    my $longest_enz=$self->{'_enzymes'}->longest_cutter;
+    my $longest_cut=$longest_enz->recognition_length;
+    # this is an error that I don't want to deal with at the moment
+    $self->throw("Crap. The longest recognition site ($longest_cut) is longer than the".
+      " length of the sequence") if ($longest_cut > $self->{'_seq'}->length);
+   
+   # newseq is just the last part of the sequence and the first part of the sequence
+   # we don't want to go through and check the whole sequence again
+   
+   my ($first, $last)=(substr($target_seq, 0, $longest_cut),substr($target_seq, -$longest_cut));
+   my $newseq=$last.$first;
+   
+   # now find the cut sites
+   # if the enzyme is ambiguous we need to use a regexp to find the cut site
+   # otherwise we can use index (much faster)
+   my $cut_positions;
+   if ($enz->is_ambiguous) {
+      $cut_positions= $self->_ambig_cuts($beforeseq, $afterseq, $newseq, $enz);
+   } else {
+      $cut_positions=$self->_nonambig_cuts($beforeseq, $afterseq, $newseq, $enz);
+   }
+	
+   
+   return [] if (!$cut_positions); # the enzyme doesn't cut in the new fragment - likely to be default
+   
+
+   # now we are going to add things to _cut_positions
+   # in this shema it doesn't matter if the site is there twice - 
+   # we will take care of that later. Because we are using position
+   # rather than frag or anything else, we can just
+   # remove duplicates.
+   my @circ_cuts;
+   foreach my $cut (@$cut_positions) {
+    if ($cut == length($last)) {
+     # the cut is actually at position 0, but we're going to call this the
+     # length of the sequence so we don't confuse no cuts with a 0 cut
+     push (@circ_cuts, $self->{'_seq'}->length);
+    }
+    elsif ($cut < length($last)) {
+     # the cut is before the end of the sequence
+     # there is VERY likely to be an off by one error here
+     push (@circ_cuts, $self->{'_seq'}->length - (length($last) - $cut));
+    }
+    else {
+     # the cut is at the start of the sequence (position >=1)
+     # there is VERY likely to be an off by one error here
+     # note, we put this at the beginning of the array rather than the end!
+     unshift (@circ_cuts, $cut-length($last));
+    }
+   }
+   return \@circ_cuts;
+}
+    
+
+
+
+
 
 
 =head2 _expanded_string

@@ -225,7 +225,7 @@ sub _coordinate_shift_to_cut {
            the collection object) into
            Bio::Restriction::Enzyme::MultiSite and clone it as many
            times as there are alternative sites. The new objects are
-           added into the collection and into others list of sister
+           added into the collection and into the others list of 
            objects.
 
  Returns : nothing, does in place editing
@@ -294,9 +294,9 @@ sub _make_multisites {
            Bless a Bio::Restriction::Enzyme (which is already part of
            the collection object) into
            Bio::Restriction::Enzyme::MultiCut and clone it. The precut
-           string is processed to replase the cut sites in the cloned
-           object which is added into the collection. Both object
-           refere to each other through others() method.
+           string is processed to replace the cut sites in the cloned
+           object which is added into the collection. Both objects
+           refer to each other through others() method.
 
  Returns : nothing, does in place editing
  Args    : 1. a Bio::Restriction::EnzymeCollection
@@ -392,6 +392,7 @@ AccB1I	GGYRCC	1
 AccB7I	CCANNNNNTGG	7
 AccI	GTMKAC	2
 AccIII	TCCGGA	1
+AciI	CCGC	1
 AclI	AACGTT	2
 AcsI	RAATTY	1
 AcvI	CACGTG	3
@@ -682,6 +683,7 @@ Hin1I	GRCGYC	2
 Hin6I	GCGC	1
 HinP1I	GCGC	1
 HincII	GTYRAC	3
+HindI	CAC	2
 HindII	GTYRAC	3
 HindIII	AAGCTT	1
 HinfI	GANTC	1

@@ -25,10 +25,15 @@ Bio::Restriction::Enzyme::MultiSite - A single restriction endonuclease
 
 =head1 DESCRIPTION
 
-This module defines a restriction endonuclease class where one object
-represents one of the distinct recognition sites for that enzyme. The
-method L<others|others> stores references to other objects with
-alternative sites.
+This module is used for restriction enzymes that recogonize more than
+one site. There are some enzymes that recognize sites that cannot be
+represented by the ambiguous genetic code. For example, M.PhiBssHII
+recognizes the sites: ACGCGT,CCGCGG,RGCGCY,RCCGGY, and GCGCGC
+
+Each site gets its own object that Bio::Restriction::Enzyme will
+refer to. Each also correlates with the other sites using the 
+method L<others|others> which stores references to other objects 
+with alternative sites.
 
 In this schema each object within an EnzymeCollection can be checked
 for matching a sequence.
@@ -118,15 +123,12 @@ sub new {
 =head2 others
 
  Title     : others
- Usage     : $re->vendor(@list_of_companies);
- Function  : Gets/Sets the a list of companies that you can get the enzyme from.
-             Also sets the commercially_available boolean
- Arguments : A reference to an array containing the names of companies
-             that you can get the enzyme from
- Returns   : A reference to an array containing the names of companies
-             that you can get the enzyme from
-
-Added for compatibility to REBASE
+ Usage     : $re->others(@others);
+ Function  : Gets/Sets the a list of other sites that this enzyme recoginizes
+ Arguments : An array containing the other Bio::Restriction::Enzyme::MultiSite
+             objects.
+ Returns   : An array containing the other Bio::Restriction::Enzyme::MultiSite
+             objects.
 
 =cut
 

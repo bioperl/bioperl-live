@@ -270,6 +270,27 @@ sub available_list {
     return sort keys %{$self->{'_enzymes'}};
 }
 
+=head2 longest_cutter
+
+ Title     : longest_cutter
+ Function  : Gets the enzyme with the longest recognition site
+ Returns   : A Bio::Restriction::Enzyme object
+ Arguments : Nothing
+ Comments  : Note, this is used by Bio::Restriction::Analysis
+             to figure out what to do with circular sequences
+
+=cut
+
+sub longest_cutter {
+    my ($self)=@_;
+    my $longest=0; my $longest_enz='.';
+    foreach my $enz ($self->each_enzyme) {
+     my $len=$enz->recognition_length;
+     if ($len > $longest) {$longest=$len; $longest_enz=$enz}
+    }
+    return $longest_enz;
+}
+
 =head2 Filter enzymes
 
 =cut

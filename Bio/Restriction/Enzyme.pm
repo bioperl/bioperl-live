@@ -436,7 +436,7 @@ Acc36I cuts at ACCTGC(4/8). This will be returned as ACCTGCNNNN^
 
 Note that the common notation ACCTGC(4/8) means that the forward
 strand cut is four nucleotides after the END of the recognition
-site. The forwad cut() in the coordinates used here in Acc36I
+site. The forward cut() in the coordinates used here in Acc36I
 ACCTGC(4/8) is at 6+4 i.e. 10.
 
 ** This is the main setable method for the recognition site.
@@ -471,11 +471,71 @@ sub site {
         if (defined $first) {
             $self->cut(length $first);
             $self->complementary_cut(length $second);
+        $self->revcom_site($self->{_seq}->revcom->seq);
         }
+        
+  
     }
     return $self->{'_site'};
 }
 
+=head2 revcom_site
+
+ Title     : revcom_site
+ Usage     : $re->revcom_site();
+ Function  : Gets/sets the complementary recognition sequence for the enzyme.
+ Example   : $seq_string = $re->revcom_site();
+ Returns   : String containing recognition sequence indicating
+           : cleavage site as in  'G^AATTC'.
+ Argument  : Sequence of the site
+ Throws    : n/a
+  
+This is the same as site, except it returns the revcom site. For palindromic enzymes
+these two are identical. For non-palindromic enzymes they are not!
+
+See also L<site|site> above.
+
+=cut
+
+sub revcom_site {
+    my ($self, $site)=@_;
+    if ($self->is_palindromic) {
+      $self->{'_revcom_site'}=$self->{'_site'};
+      return $self->{'_revcom_site'};
+    }
+    if ($site) {
+        $self->throw("Unrecognized characters in revcom site: [$site]")
+	    unless $site =~ /[ATGCMRWSYKVHDBN\^]+/i;
+	
+        # we may have to redefine this if there is a ^ in the sequence
+
+        # first, check and see if we have a cut site in the sequence
+        # if so, find the position, and set the target sequence and cut site
+        my $pos=$self->complementary_cut;
+        $site =~ s/(.{$pos})/$1\^/;
+        $self->{'_revcom_site'} = $site;
+
+    }
+    unless ($self->{'_revcom_site'}) {
+       my $revcom=$self->revcom;
+       my $cc=$self->complementary_cut;
+       my $hat=length($revcom)-$cc+1; # we need it on the other strand!
+       if ($cc > length($revcom)) {
+        my $pad= "N" x ($cc-length($revcom));
+	$revcom = $pad. $revcom;
+	$hat=length($revcom)-$cc+1;
+       }
+       elsif ($cc < 0) {
+        my $pad = "N" x -$cc;
+	$revcom .= $pad;
+	$hat=length($revcom);
+       }
+       $revcom =~ s/(.{$hat})/$1\^/;
+       $self->{'_revcom_site'}=$revcom;
+   }
+       
+    return $self->{'_revcom_site'};
+}
 
 =head2 cut
 
@@ -530,6 +590,7 @@ sub cut {
          $self->throw("The cut position needs to be an integer [$value]")
              unless $value =~ /[-+]?\d+/;
          $self->{'_cut'} = $value;
+
          $self->complementary_cut(length ($self->seq->seq) - $value )
              if $self->type eq 'II';
 
@@ -764,10 +825,10 @@ sub cutter {
 =cut
 
 
-=head2 palindromic
+=head2 is_palindromic
 
- Title     : palindromic
- Usage     : $re->palindromic();
+ Title     : is_palindromic
+ Usage     : $re->is_palindromic();
  Function  : Determines if the recognition sequence is palindromic
            : for the current restriction enzyme.
  Returns   : Boolean
@@ -779,10 +840,16 @@ A palindromic site (EcoRI):
   5-GAATTC-3
   3-CTTAAG-5
 
-
 =cut
 
+# I just renamed this because is_palindromic fits in better
+# with the other is_? methods
 sub palindromic {
+ my $self=shift;
+ return $self->is_palindromic(@_);
+}
+
+sub is_palindromic {
     my $self = shift;
     if ($self->string eq $self->revcom) {
         $self->{_palindromic}=1;
