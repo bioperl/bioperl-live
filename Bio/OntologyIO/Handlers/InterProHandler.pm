@@ -58,6 +58,8 @@ Email dimitrov@gnf.org
 
 =head1 CONTRIBUTORS
 
+Juguang Xiao, juguang@tll.org.sg
+
 Additional contributors names and emails here
 
 =head1 APPENDIX
@@ -720,7 +722,7 @@ sub _increment_record_count{
 
 sub _increment_processed_count{
   $processed_count++;
-  print $processed_count."\n" if $processed_count % 100 == 0;
+  print STDERR $processed_count."\n" if $processed_count % 100 == 0;
 }
 
 1;
