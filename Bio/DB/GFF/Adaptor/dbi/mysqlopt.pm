@@ -191,6 +191,10 @@ INSERT INTO fdata (fref,fstart,fstop,fbin,ftypeid,fscore,
 END
 ;
 
+  my @tables = map {"$_ WRITE"} $self->tables;
+  my $lock_tables = join ', ',@tables;
+#   $dbh->do("LOCK TABLES $lock_tables");
+
   $self->{load_stuff}{insert_data}  = $insert_data;
   $self->{load_stuff}{insert_note}  = $insert_note;
 }
@@ -273,6 +277,7 @@ sub finish_load {
   my $self = shift;
   $self->{load_stuff}{insert_note}->finish;
   $self->SUPER::finish_load;
+#   $self->features_db->do("UNLOCK TABLES");
 }
 
 sub tables {

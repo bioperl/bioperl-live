@@ -393,7 +393,7 @@ use vars qw($VERSION @ISA);
 
 @ISA = qw(Bio::DB::SeqI Bio::Root::RootI);
 
-$VERSION = '1.01';
+$VERSION = '1.02';
 
 *seq = *sequence = \&subseq;
 *ids = \&get_all_ids;
@@ -522,11 +522,12 @@ sub index_dir {
   my $indextime = (stat($index))[9] || 0;
 
   # get the most recent modification time of any of the contents
-  my ($modtime,%modtime);
+  my $modtime = 0;
+  my %modtime;
   foreach (@files) {
     my $m = (stat($_))[9];
     $modtime{$_} = $m;
-    $modtime = $m unless ( defined $modtime && $modtime < $m);
+    $modtime = $m if $modtime < $m;
   }
 
   my %offsets;
