@@ -23,7 +23,7 @@ BEGIN {
     if( $@ ) {
 	print STDERR "XML::Parser::PerlSAX not loaded. This means game test cannot be executed. Skipping\n";
 	foreach ( 1..9 ) {
-	    skip(1,1);
+	    skip('XML::Parser::PerlSAX installed',1);
 	}
        $error = 1;
 	

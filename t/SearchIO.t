@@ -19,7 +19,8 @@ BEGIN {
     }
     use vars qw($NTESTS);
     $NTESTS = 245;
-    $LASTXMLTEST = 47;
+    $LASTXMLTEST = 46;
+    $error = 0;
 
     use Test;
     plan tests => $NTESTS; 
@@ -31,8 +32,6 @@ BEGIN {
 	foreach ( 1..$LASTXMLTEST ) {
 	    skip('No XML::Parser::PerlSAX loaded',1);
 	}
-    } else {
-	$error = 0;
     }
 }
 
