@@ -1,5 +1,7 @@
 # BioPerl module for Bio::Matrix::PhylipDist
 #
+# $Id$
+#
 # Cared for by Shawn Hoon <shawnh@fugu-sg.org>
 #
 # Copyright Shawn Hoon
@@ -75,6 +77,9 @@ or the web:
 
 Email shawnh@fugu-sg.org
 
+=head1 CONTRIBUTORS
+
+Jason Stajich, jason-at-bioperl-dot-org
 
 =head1 APPENDIX
 
@@ -166,8 +171,8 @@ sub get_row {
     my @values = @{$self->_values};
     my @names = @{$self->names};
     $matrix{$row} || return;
-    my @row = $matrix{$row};
-    my $row_pointer = $row[1]->[0];
+    my ($val) = values %{$matrix{$row}};
+    my $row_pointer = $val->[0];
     my $index = scalar(@names)-1;
     return @{$values[$row_pointer]}[0..$index];
 }
@@ -189,14 +194,14 @@ sub get_column {
     my %matrix = %{$self->_matrix};
     my @values = @{$self->_values};
     my @names = @{$self->names}; 
-    $matrix{$column} || return;
-    my @column = $matrix{$column};
-    my $row_pointer = $column[1]->[0];
-    my @return;
-    for(my $i=0; $i < scalar(@names); $i++){
-      push @return, $values[$i][$row_pointer];
+    $matrix{$column} || return ();
+    my ($val) = values %{$matrix{$column}};
+    my $row_pointer = $val->[0];
+    my @ret;
+    for(my $i=0; $i < scalar(@names); $i++) {
+	push @ret, $values[$i][$row_pointer];
     }
-    return @return;
+    return @ret;
 } 
 
 =head2 get_diagonal
