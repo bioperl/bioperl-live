@@ -431,7 +431,7 @@ but can be validly overwritten by subclasses
 sub spliced_seq {
     my ($self,$db) = shift;
 
-    if( !$self->location->isa("Bio::Location::SplitLocationI") ) {
+    if( ! $self->location->isa("Bio::Location::SplitLocationI") ) {
 	return $self->seq(); # nice and easy!
     }
 
@@ -442,13 +442,39 @@ sub spliced_seq {
 
     my $seqstr;
     my $seqid = $self->entire_seq->id;
+    # This is to deal with reverse strand features
+    # so we are really sorting features 5' -> 3' on their strand
+    # i.e. rev strand features will be sorted largest to smallest
+    # as this how revcom CDSes seem to be annotated in genbank.
+    # Might need to eventually allow this to be programable?    
+    # (can I mention how much fun this is NOT! --jason)
+    
+    my ($mixed,$fstrand) = (0);
+    my @locs = map { $_->[0] }
+    # sort so that most negative is first basically to order
+    # the features on the opposite strand 5'->3' on their strand
+    # rather than they way most are input which is on the fwd strand
 
-    foreach my $loc ( $self->location->sub_Location() ) {
+    sort { $a->[1] <=> $b->[1] } # Yes Tim, Schwartzian transformation
+    map { 
+	$fstrand = $_->strand unless defined $fstrand;
+	$mixed = 1 if defined $_->strand && $fstrand != $_->strand;
+	[ $_, $_->start* $_->strand];	    
+    } $self->location->each_Location; 
+    
+    if ( $mixed ) { 
+	$self->warn("Mixed strand locations, spliced seq using the input order rather than trying to sort");    
+	@locs = $self->location->each_Location; 
+    }
+
+    foreach my $loc ( @locs  ) {
 	if( ! $loc->isa("Bio::Location::Atomic") ) {
 	    $self->throw("Can only deal with one level deep locations");
 	}
 	my $called_seq;
+	if( $fstrand != $loc->strand ) {
 
+	}
 	# deal with remote sequences
 
 	if( $loc->seq_id ne $seqid ) {
@@ -472,14 +498,11 @@ sub spliced_seq {
 	} else {
 	    $called_seq = $self->entire_seq;
 	}
-
-
 	if( $loc->strand == 1 ) {
 	    $seqstr .= $called_seq->subseq($loc->start,$loc->end);
 	} else {
 	    $seqstr .= $called_seq->trunc($loc->start,$loc->end)->revcom->seq();
 	}
-
     }
     
     my $out = Bio::Seq->new( -id => $self->entire_seq->id . "_spliced_feat",
