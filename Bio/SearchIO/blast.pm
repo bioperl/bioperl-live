@@ -128,6 +128,7 @@ BEGIN {
 		 'BlastOutput_query-def'=> 'queryname',
 		 'BlastOutput_query-len'=> 'querylen',
 		 'BlastOutput_query-acc'=> 'queryacc',
+		 'BlastOutput_querydesc'=> 'querydesc',
 		 'BlastOutput_db'       => 'dbname',
 		 'BlastOutput_db-len'   => 'dbsize',
 		 'BlastOutput_db-let'   => 'dblets',
@@ -218,9 +219,9 @@ sub next_result{
    my $reporttype;
    $self->start_document();
    my @hit_signifs;
-   while( defined ($_ = $self->_readline )) {
+   while( defined ($_ = $self->_readline )) {       
        next if( /^\s+$/); # skip empty lines
-       next if( /CPU time:/);
+       next if( /CPU time:/ || /^>\s*$/);       
        if( /^([T]?BLAST[NPX])\s*(.+)$/i ) {
 	   if( $seentop ) {
 	       $self->_pushback($_);
@@ -253,15 +254,21 @@ sub next_result{
 	       $_ = $self->_readline;
 	   }
 	   chomp($q);
+	   my ($nm,$desc) = split(/\s+/,$q,2);
 	   $self->element({ 'Name' => 'BlastOutput_query-def',
-			    'Data' => $q});
+			    'Data' => $nm});
 	   $self->element({ 'Name' => 'BlastOutput_query-len', 
 			    'Data' => $size});
-	   my ($firstpart) = split(/\s+/,$q);
-	   my @pieces = split(/\|/,$firstpart);
-	   my $acc = pop @pieces;
-	   $self->element({ 'Name' =>  'BlastOutput_query-acc',
-			    'Data'  => $acc});	   
+	   defined $desc && $desc =~ s/\s+$//;
+	   $self->element({ 'Name' => 'BlastOutput_querydesc', 
+			    'Data' => $desc});
+	   
+	   if( my @pieces = split(/\|/,$nm) ) {
+	       my $acc = pop @pieces;
+	       $acc = pop @pieces if( ! defined $acc || $acc =~ /^\s+$/);
+	       $self->element({ 'Name' =>  'BlastOutput_query-acc',
+				'Data'  => $acc});
+	   }
        } elsif( /Sequences producing significant alignments:/ ) {
 	   # skip the next whitespace line
 	   $_ = $self->_readline();
