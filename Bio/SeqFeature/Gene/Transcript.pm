@@ -708,21 +708,23 @@ sub get_feature_type {
     return $self->_stranded_sort($self->get_unordered_feature_type(@_));
 }
 
+#This was fixed by Gene Cutler - the indexing on the list being reversed
+#fixed a bad bug.  Thanks Gene!
 sub _flush {
-    my ($self, $type, $pri)=@_;
-    my @list=$self->features;
-    my @cut;
-    for (0..$#list) {
-	if ($list[$_]->isa($type)) {
-	    if ($pri && $list[$_]->primary_tag !~ /$pri/i) {
-		next;
-	    }
-	    push @cut, splice @list, $_, 1;  #remove the element of $type from @list
-	                                     #and return each of them in @cut
-	}
-    }
-    $self->{'_features'}=\@list;
-    return @cut;
+     my ($self, $type, $pri)=@_;
+     my @list=$self->features;
+     my @cut;
+     for (reverse (0..$#list)) {
+         if ($list[$_]->isa($type)) {
+             if ($pri && $list[$_]->primary_tag !~ /$pri/i) {
+                 next;
+             }
+             push @cut, splice @list, $_, 1;  #remove the element of $type from @list
+                                              #and return each of them in @cut
+         }
+     }
+     $self->{'_features'}=\@list;
+     return reverse @cut;
 }
 
 sub _add {
