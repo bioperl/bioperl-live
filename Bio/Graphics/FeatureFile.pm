@@ -287,7 +287,7 @@ sub parse_line {
     ($type,$name,$bounds,$description,$url) = @tokens;
   }
 
-  $type ||= $self->{grouptype};
+  $type ||= $self->{grouptype} || '';
   $type =~ s/\s+$//;  # get rid of excess whitespace
 
   # the reference is specified by the GFF reference line first,
@@ -312,6 +312,9 @@ sub parse_line {
     return unless $ref;
   }
 
+  $type = '' unless defined $type;
+  $name = '' unless defined $name;
+
   # either create a new feature or add a segment to it
   if (my $feature = $self->{seenit}{$type,$name}) {
     $feature->add_segment(@parts);
@@ -323,7 +326,7 @@ sub parse_line {
 				  -segments => \@parts,
 				  -source   => $description,
 				  -ref      => $ref,
-				  -url      => $url,
+				  defined($url) ? (-url      => $url) : (),
 				 );
     $feature->configurator($self) if $self->smart_features;
     if ($self->{grouptype}) {
