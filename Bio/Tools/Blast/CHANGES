@@ -11,6 +11,11 @@ Revision history for Perl extension Bio::Tools::Blast.pm and related modules.
         - Changed the #! line of Bio/Tools/Blast/Run/postclient.pl
           to the more standard /usr/bin/perl and predeclared some vars
           to avoid compiler warnings.
+        - Bug fix in Bio::Tools::Blast::HTML.pm regarding detection of
+          existing HTML formatting.
+        - Touch-ups to scripts: blast_config.pl, blast_seq.pl, and
+          seqtools.pl were modified to include support for the -wait
+          option (sets timeout during file/stream reading). 
 
 0.073  Mon Dec 28 15:18:29 1998
         - Made changes in Sbjct.pm and HSP.pm to allow parsing of older
