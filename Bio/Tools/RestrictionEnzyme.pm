@@ -786,7 +786,7 @@ sub _make_standard {
     my @data = split( ' ', $RE{$name});
     my (%dat);
     $dat{-SEQ} = $data[0];
-    $dat{-NAME} = $dat{-ID}= $name;
+    $dat{-NAME} = $dat{-ID}= $name;    
     $self->{'_cuts_after'} = $data[1];
 
     return %dat;
@@ -895,7 +895,11 @@ sub site {
     my $seq = $self->seq;
     my $cuts_after = $self->cuts_after;
     if($cuts_after > 0) {
-        return $seq->subseq(1, $self->cuts_after).'^'.$seq->subseq($self->cuts_after+1, $seq->length); 
+	if( $cuts_after >= $seq->length) {
+	    return $seq->seq.'^';
+	} else { 
+	    return $seq->subseq(1, $self->cuts_after).'^'.$seq->subseq($self->cuts_after+1, $seq->length); 
+	}
     } else {
         return $seq->seq;
     }
