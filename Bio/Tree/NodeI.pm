@@ -166,10 +166,10 @@ sub each_Descendent{
 
 sub get_all_Descendents{
    my ($self, $sortby) = @_;
-   $sortby ||= 'height';
+   $sortby ||= 'height';   
    my @nodes;
    foreach my $node ( $self->each_Descendent($sortby) ) {
-       push @nodes, ($node->get_all_Descendents($sortby), $node);
+       push @nodes, ($node,$node->get_all_Descendents($sortby));
    }
    return @nodes;
 }
@@ -236,7 +236,7 @@ sub to_string{
  Title   : height
  Usage   : my $len = $node->height
  Function: Returns the height of the tree starting at this
-           node.  Height is the maximum branchlength.
+           node.  Height is the maximum branchlength to get to the tip.
  Returns : The longest length (weighting branches with branch_length) to a leaf
  Args    : none
 
@@ -245,19 +245,37 @@ sub to_string{
 sub height{
    my ($self) = @_;
    
-   if( $self->is_Leaf ) { 
-       if( !defined $self->branch_length ) { 
-	   $self->debug(sprintf("Trying to calculate height of a node when a Node (%s) has an undefined branch_length\n",$self->id || '?' ));
-	   return 0;
-       }
-       return $self->branch_length;
-   }
+   return 0 if( $self->is_Leaf );
+
    my $max = 0;
    foreach my $subnode ( $self->each_Descendent ) { 
        my $s = $subnode->height;
        if( $s > $max ) { $max = $s; }
    }
-   return $max + ($self->branch_length || 1);
+   return $max + $self->branch_length;
+}
+
+=head2 depth
+
+ Title   : depth
+ Usage   : my $len = $node->depth
+ Function: Returns the depth of the tree starting at this
+           node.  Depth is the distance from this node to the root.
+ Returns : The branch length to the root.
+ Args    : none
+
+=cut
+
+sub depth{
+   my ($self) = @_;
+   
+   my $depth = 0;
+   my $node = $self;
+   while( defined $node->ancestor ) { 
+       $depth += $node->branch_length;
+       $node = $node->ancestor;
+   }
+   return $depth;
 }
 
 =head2 Get/Set methods
