@@ -168,7 +168,7 @@ sub next_tree {
 		$data{'outgroup'} = [$1,$2];
 	    }
 	    $nodes[$1 - 1] = { '-id' => $2 }; 
-	} elsif( m/^\s*(\d+)\s+and\s+(\d+)\s+(\d+\.\d+)(?:\s+(\d+))?/ox ) {
+	} elsif( m/^\s*(\d+)\s+and\s+(\d+)\s+(\-?\d+\.\d+)(?:\s+(\d+))?/ox ) {
 	    my ($node,$descend,$blength,$bootstrap) = ( $1, $2, $3, $4 );
 	    # need to -- descend and node because
 	    # array is 0 based
