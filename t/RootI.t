@@ -19,9 +19,9 @@ BEGIN {
     plan tests => 7;
 }
 
-use Bio::Root::RootI;
+use Bio::Root::Root;
 
-my $obj = new Bio::Root::RootI();
+my $obj = new Bio::Root::Root();
 
 ok defined($obj) && $obj->isa('Bio::Root::RootI');
 
@@ -71,7 +71,7 @@ ok $@ =~ /Testing throw/;# 'verbose(1) throw did not work properly' . $@;
 my @stack = $obj->stack_trace();
 ok scalar @stack, 2;
 
-my $verbobj = new Bio::Root::RootI(-verbose=>1,-strict=>1);
+my $verbobj = new Bio::Root::Root(-verbose=>1,-strict=>1);
 ok $verbobj->verbose(), 1;
 
 1;
