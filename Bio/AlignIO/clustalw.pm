@@ -71,12 +71,9 @@ use Bio::AlignIO;
 use Bio::LocatableSeq;
 use Bio::SimpleAlign; # to be Bio::Align::Simple
 
-BEGIN { 
-    $LINELENGTH = 60;
-}
+$LINELENGTH = 60;
 
 @ISA = qw(Bio::AlignIO);
-
 
 =head2 new
 
@@ -93,13 +90,16 @@ BEGIN {
            -percentages => (clustalw only) display a percentage of identity
                            in each line of the alignment.
 
+           -linelength=> Set the alignment output line length (default 60)
 =cut
 
 sub _initialize {
     my ($self, @args) = @_;
     $self->SUPER::_initialize(@args);
-    my ($percentages) = $self->_rearrange([qw(PERCENTAGES)], @args);
+    my ($percentages,
+	$ll) = $self->_rearrange([qw(PERCENTAGES LINELENGTH)], @args);
     defined $percentages && $self->percentages($percentages);
+    $self->line_length($ll || $LINELENGTH);
 }
 
 =head2 next_aln
@@ -177,7 +177,8 @@ sub next_aln {
 
 sub write_aln {
     my ($self,@aln) = @_;
-    my ($count,$length,$seq,@seq,$tempcount);
+    my ($count,$length,$seq,@seq,$tempcount,$line_len);
+    $line_len = $self->line_length || $LINELENGTH;
     foreach my $aln (@aln) {
 	if( ! $aln || ! $aln->isa('Bio::Align::AlignI')  ) { 
 	    $self->warn("Must provide a Bio::Align::AlignI object when calling write_aln");
@@ -204,8 +205,8 @@ sub write_aln {
 		my ($substring);
 		my $seqchars = $seq->seq();		
 	      SWITCH: {
-		  if (length($seqchars) >= ($count + $LINELENGTH)) {
-		      $substring = substr($seqchars,$count,$LINELENGTH); 
+		  if (length($seqchars) >= ($count + $line_len)) {
+		      $substring = substr($seqchars,$count,$line_len); 
 		      last SWITCH; 
 		  } elsif (length($seqchars) >= $count) {
 		      $substring = substr($seqchars,$count); 
@@ -219,7 +220,7 @@ sub write_aln {
 				       $substring)) or return;
 	    }		
 	    
-	    my $linesubstr = substr($matchline, $count,$LINELENGTH);
+	    my $linesubstr = substr($matchline, $count,$line_len);
 	    my $percentages = '';
 	    if( $self->percentages ) {
 		my ($strcpy) = ($linesubstr);
@@ -229,7 +230,7 @@ sub write_aln {
 	    $self->_print (sprintf("%-".$max."s %s%s\n", '', $linesubstr,
 				   $percentages));	    
 	    $self->_print (sprintf("\n\n")) or return;
-	    $count += $LINELENGTH;
+	    $count += $line_len;
 	}
     }
     $self->_fh->flush if $self->_flush_on_write && defined $self->_fh;
@@ -254,6 +255,25 @@ sub percentages {
 	$self->{'_percentages'} = $value; 
     } 
     return $self->{'_percentages'}; 
+}
+
+=head2 line_length
+
+ Title   : line_length
+ Usage   : $obj->line_length($newval)
+ Function: Set the alignment output line length
+ Returns : value of line_length
+ Args    : newvalue (optional)
+
+
+=cut
+
+sub line_length {
+    my ($self,$value) = @_;
+    if( defined $value) {
+	$self->{'_line_length'} = $value;
+    }
+    return $self->{'_line_length'};
 }
 
 1;
