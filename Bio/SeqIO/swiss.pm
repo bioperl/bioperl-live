@@ -2,7 +2,7 @@
 #
 # BioPerl module for Bio::SeqIO::swiss
 #
-# Cared for by Elia Stupka <elia@ebi.ac.uk>
+# Cared for by Elia Stupka <elia@tll.org.sg>
 #
 # Copyright Elia Stupka
 #
@@ -93,13 +93,14 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 
 =head1 AUTHOR - Elia Stupka
 
-Email elia@ebi.ac.uk
+Email elia@tll.org.sg
 
 Describe contact details here
 
 =head1 APPENDIX
 
-The rest of the documentation details each of the object methods. Internal methods are usually preceded with a _
+The rest of the documentation details each of the object
+methods. Internal methods are usually preceded with a _
 
 =cut
 
@@ -154,8 +155,8 @@ sub _initialize {
 sub next_seq {
    my ($self,@args) = @_;
    my ($pseq,$c,$line,$name,$desc,$acc,$seqc,$mol,$div,
-       $date,$comment,@date_arr, @sec);
-   my ($keywords,$acc_string);
+       $date,$comment,@date_arr);
+   
    my $genename = "";
    my ($annotation, %params, @features) = ( new Bio::Annotation::Collection);
 
@@ -225,7 +226,10 @@ sub next_seq {
        }
        #accession number(s)
        elsif( /^AC\s+(.+)/) {
-           $acc_string .= $acc_string ? " $1" : $1;
+	   my @accs = split(/[; ]+/, $1); # allow space in addition
+	   $params{'-accession_number'} = shift @accs 
+	       unless defined $params{'-accession_number'};
+	   push @{$params{'-secondary_accessions'}}, @accs;
        }
        #version number
        elsif( /^SV\s+(\S+);?/ ) {
@@ -301,8 +305,11 @@ sub next_seq {
        }
        #keywords
        elsif( /^KW\s+(.*)$/ ) {
-           $keywords .= $keywords ? " $1" : $1;
+	   my @kw = split(/\s*\;\s+/,$1);
+	   defined $kw[-1] && $kw[-1] =~ s/\.$//;
+	   push @{$params{'-keywords'}}, @kw;
        }
+
 
        # Get next line. Getting here assumes that we indeed need to read the
        # line.
@@ -340,17 +347,12 @@ sub next_seq {
        s/[^A-Za-z]//g;
        $seqc .= $_;
    }
-   $acc_string =~ s/\;\s*/ /g;
-   ( $acc, @sec ) = split " ",$acc_string;
 
    my $seq=  $self->sequence_factory->create
        (-verbose  => $self->verbose,
 	%params,
 	-seq      => $seqc,
 	-desc     => $desc,
-	-keywords => $keywords,
-	-accession_number => $acc,
-	-secondary_accessions => \@sec,
 	-features => \@features,
 	-annotation => $annotation,
 	);
@@ -541,12 +543,13 @@ sub write_seq {
 		$self->_print("DR   ",$dblink->database,"; ",$dblink->primary_id,"; ",
 			      $dblink->optional_id,"; ",$dblink->comment,".\n");
 	    } elsif($dblink->optional_id) {
-		$self->_print("DR   ",$dblink->database,"; ",$dblink->primary_id,"; ",
+		$self->_print("DR   ",$dblink->database,"; ",
+			      $dblink->primary_id,"; ",
 			      $dblink->optional_id,".\n");
 	    }
 	    else {
-		$self->_print("DR   ",$dblink->database,"; ",$dblink->primary_id,"; ",
-			      "-.\n");
+		$self->_print("DR   ",$dblink->database,
+			      "; ",$dblink->primary_id,"; ","-.\n");
 	    }
 	}   
 
@@ -554,11 +557,13 @@ sub write_seq {
 
 	if( $self->_kw_generation_func ) {
 	    $temp_line = &{$self->_kw_generation_func}($seq);
-	    $self->_print( "KW   $temp_line\n");
+	    $self->_print( "KW   $temp_line.\n");
 	} else {
-	    if( $seq->can('keywords') ) {
+	    if( $seq->can('get_keywords') ) {
 		$self->_write_line_swissprot_regex("KW   ","KW   ",
-						   $seq->keywords,"\\s\+\|\$",80);       
+						   join('; ', 
+							$seq->get_keywords),
+						   "\\s\+\|\$",80);       
 	    }
 	}
 
@@ -789,7 +794,7 @@ sub _print_swissprot_FTHelper {
 					      substr($fth->key,0,8),
 					      $start,$end),
 				      "FT                                ",
-				      $desc,'\s+|$',80);
+				      $desc.'.','\s+|$',80);
 }
 #'
 

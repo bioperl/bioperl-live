@@ -12,7 +12,7 @@ Revision history for Bioperl core modules
     o Fixed bug in Bio::Annotation::OntologyTerm of not implementing all
       of Bio::Ontology::TermI
 
-    o brought the OBDA Registry code up to latest specs 
+    o brought the OBDA Registry code Bio::DB::Registry up to latest specs 
 
     o eutils URL change in Bio::DB::GenBank
 
@@ -37,8 +37,18 @@ Revision history for Bioperl core modules
     o Bio::Tools::Genemark bug #1435 fixed which was missing last prediction
 
     o Bio::SeqIO::genbank 
+      - remarks in references are now parsed in, bug 1449
       - bug #1456 fixed which generated extra sequence lines
       - write moltype correctly for genpept
+      - allow feature table keys longer then 15 characters
+
+    o Bio::SeqIO::embl
+      - allow feature table keys longer then 15 characters
+      - fix bug #1393; multiple keywords now handled properly
+   
+    o Bio::SeqIO::swiss
+      - fix bug #1393; multiple keywords now handled properly
+
 
 1.2.1 Stable release update
 
