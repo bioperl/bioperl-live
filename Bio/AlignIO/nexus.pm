@@ -261,12 +261,12 @@ sub write_aln {
     my $wrapped = 0;
     my $maxname;
     my ($length,$date,$name,$seq,$miss,$pad,%hash,@arr,$tempcount,$index );
-    my ($match, $missing, $gap) = ('', '', '');
+    my ($match, $missing, $gap,$symbols) = ('', '', '','');
 
     foreach my $aln (@aln) {
-	 
+	
 	 $self->throw("All sequences in the alignment must be the same length") 
-	     unless $aln->is_flush ;
+	     unless $aln->is_flush($self->verbose);
 
 	 $length  = $aln->length();
 
@@ -275,15 +275,15 @@ sub write_aln {
 	 $match = "match=". $aln->match_char if $aln->match_char;
 	 $missing = "missing=". $aln->missing_char if $aln->missing_char;
 	 $gap = "gap=". $aln->gap_char if $aln->gap_char;
-
-	 $self->_print (sprintf("format interleave datatype=%s %s %s %s;\n\nmatrix\n",
-				$aln->get_seq_by_pos(1)->alphabet, $match, $missing, $gap));
+	 $symbols = 'symbols="'.join('',$aln->symbol_chars). '"' if( $aln->symbol_chars);
+	 $self->_print (sprintf("format interleave datatype=%s %s %s %s %s;\n\nmatrix\n",
+				$aln->get_seq_by_pos(1)->alphabet, $match, $missing, $gap, $symbols));
 
 	 my $indent = $aln->maxdisplayname_length;
 
 	 foreach $seq ( $aln->each_seq() ) {
 	     $name = $aln->displayname($seq->get_nse());
-	     $name =~ s/\/(\S+)/\[$1\]/; # to insure PAUP readable files
+	     $name =~ s/\/(\S+)//;#\[$1\]/; # to insure PAUP readable files
 	     $name = sprintf("%-${indent}s", $name); 
 	     $hash{$name} = $seq->seq();
 	     push(@arr,$name);
