@@ -80,7 +80,7 @@ baseml, basemlg, codemlsites and yn00
   for my $node ($tree->get_nodes()) {
      # inspect the tree: the "t" (time) parameter is available via
      # $node->branch_length(); all other branch-specific parameters
-     # ("omega", "dN", etc.) are available via $node->param('omega');
+     # ("omega", "dN", etc.) are available via ($omega) = $node->get_tag_values('omega');
   }
 
   # get any general model parameters: kappa (the
@@ -132,15 +132,14 @@ the Bioperl mailing list.  Your participation is much appreciated.
 =head2 Reporting Bugs
 
 Report bugs to the Bioperl bug tracking system to help us keep track
-of the bugs and their resolution. Bug reports can be submitted via
-email or the web:
+of the bugs and their resolution. Bug reports can be submitted via the
+web:
 
-  bioperl-bugs@bioperl.org
   http://bugzilla.bioperl.org/
 
 =head1 AUTHOR - Jason Stajich, Aaron Mackey
 
-Email jason-at=bioperl.org
+Email jason-at-bioperl.org
 Email amackey-at-virginia.edu
 
 =head1 TODO
