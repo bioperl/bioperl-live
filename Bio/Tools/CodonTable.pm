@@ -1,4 +1,4 @@
-
+# $Id$
 #
 # bioperl module for Bio::Tools::CodonTable
 #
@@ -31,7 +31,7 @@
   $myCodonTable->id(5);
 
   # examine codon table
-  print  join (' ', "The name of the codon table no.", $myCodonTable->id(4), 
+  print  join (' ', "The name of the codon table no.", $myCodonTable->id(4),
 	       "is:", $myCodonTable->name(), "\n");
 
   # translate a codon
@@ -39,7 +39,7 @@
   $aa = $myCodonTable->translate('act');
   $aa = $myCodonTable->translate('ytr');
 
-  # reverse translate an amino acid 
+  # reverse translate an amino acid
   @codons = $myCodonTable->revtranslate('A');
   @codons = $myCodonTable->revtranslate('Ser');
   @codons = $myCodonTable->revtranslate('Glx');
@@ -70,7 +70,7 @@ conventions in EMBL and TREMBL databases.
 It is a nuisance to separate RNA and cDNA representations of nucleic
 acid transcripts. The CodonTable object accepts codons of both type as
 input and allows the user to set the mode for output when reverse
-translating. It default for output is DNA. 
+translating. Its default for output is DNA.
 
 Note: This class deals with individual codons and amino acids, only.
       Call it from your own objects to translate and reverse translate
@@ -101,7 +101,7 @@ The amino acid codes are IUPAC recommendations for common amino acids:
           V           Val            Valine
           B           Asx            Aspartic acid or Asparagine
           Z           Glx            Glutamine or Glutamic acid
-          X           Xaa            Any or unknown amino acid 
+          X           Xaa            Any or unknown amino acid
 
 
 It is worth noting that, "Bacterial" codon table no. 11 produces an
@@ -126,7 +126,7 @@ of these tables.
 =head2 Mailing Lists
 
 User feedback is an integral part of the evolution of this and other
-Bioperl modules. Send your comments and suggestions preferably to the 
+Bioperl modules. Send your comments and suggestions preferably to the
 Bioperl mailing lists  Your participation is much appreciated.
 
   bioperl-l@bioperl.org                         - General discussion
@@ -144,11 +144,11 @@ report bugs to the Bioperl bug tracking system to help us keep track
 =head1 AUTHOR - Heikki Lehvaslaiho
 
 Email:  heikki@ebi.ac.uk
-Address: 
+Address:
 
      EMBL Outstation, European Bioinformatics Institute
      Wellcome Trust Genome Campus, Hinxton
-     Cambs. CB10 1SD, United Kingdom 
+     Cambs. CB10 1SD, United Kingdom
 
 =head1 APPENDIX
 
@@ -160,21 +160,13 @@ methods. Internal methods are usually preceded with a _
 
 # Let the code begin...
 
-
 package Bio::Tools::CodonTable;
 use vars qw(@ISA);
 use strict;
 
-# Object preamble - inherits from Bio::Root::Object
-
-use Bio::Root::Object;
-
-@ISA = qw(Bio::Root::Object);
-
-# new() is inherited from Bio::Root::Object
-
-# _initialize is where the heavy stuff will happen when new is called
-
+# Object preamble - inherits from Bio::Root::RootI
+use Bio::Root::RootI;
+@ISA = qw(Bio::Root::RootI);
 
 {
 # first set internal values for all translation tables
@@ -182,14 +174,14 @@ use Bio::Root::Object;
 
 my @names =  #id
     (
-     'Standard', #1 
-     'Vertebrate Mitochondrial',#2 
-     'Yeast Mitochondrial',# 3 
+     'Standard', #1
+     'Vertebrate Mitochondrial',#2
+     'Yeast Mitochondrial',# 3
      'Mold, Protozoan, and CoelenterateMitochondrial and Mycoplasma/Spiroplasma',#4
-     'Invertebrate Mitochondrial',#5 
-     'Ciliate, Dasycladacean and Hexamita Nuclear',# 6 
+     'Invertebrate Mitochondrial',#5
+     'Ciliate, Dasycladacean and Hexamita Nuclear',# 6
        '', '',
-     'Echinoderm Mitochondrial',#9 
+     'Echinoderm Mitochondrial',#9
      'Euplotid Nuclear',#10
      '"Bacterial"',# 11
      'Alternative Yeast Nuclear',# 12
@@ -198,10 +190,11 @@ my @names =  #id
      'Blepharisma Nuclear',# 15
      'Chlorophycean Mitochondrial',# 16
        '', '',  '', '',
-     'Trematode Mitochondrial'# 21
+     'Trematode Mitochondrial',# 21
+     'Scenedesmus obliquus mitochondrial' #22
      );
 
-my @tables = 
+my @tables =
     qw(
        FFLLSSSSYY**CC*WLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG
        FFLLSSSSYY**CCWWLLLLPPPPHHQQRRRRIIMMTTTTNNKKSS**VVVVAAAADDEEGGGG
@@ -220,10 +213,11 @@ my @tables =
        FFLLSSSSYY*LCC*WLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG
        '' '' '' ''
        FFLLSSSSYY**CCWWLLLLPPPPHHQQRRRRIIMMTTTTNNNKSSSSVVVVAAAADDEEGGGG   
+       FFLLSS*SYY*LCC*WLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG
        );
 
 
-my @starts = 
+my @starts =
     qw(
        ---M---------------M---------------M----------------------------
        --------------------------------MMMM---------------M------------
@@ -242,6 +236,7 @@ my @starts =
        -----------------------------------M----------------------------
        '' ''  '' ''
        -----------------------------------M---------------M------------  
+       -----------------------------------M----------------------------
        );
 
 
@@ -256,11 +251,11 @@ for ($i=0;$i<4;$i++) {
 	    $codons->{$nucs[$i]. $nucs[$j]. $nucs[$k]} = $x;
 	    $trCol->{$x} = $nucs[$i]. $nucs[$j]. $nucs[$k];
 	    $x++;
-	}   
-    }   
+	}
+    }
 }
 
-my  %onecode =   
+my  %onecode =
     (Ala => 'A',     Asx => 'B',
      Cys => 'C',     Asp => 'D',
      Glu => 'E',     Phe => 'F',
@@ -275,7 +270,7 @@ my  %onecode =
      Glx => 'Z',     Ter => '*'
      );
 
-my %iupac_dna = 
+my %iupac_dna =
     ( 'a' => [qw( a       )],
       'c' => [qw( c       )],
       'g' => [qw( g       )],
@@ -311,21 +306,20 @@ my %iupac_aa =
       '*' => ['*']
       );
 
-sub _initialize {
-    my($obj,@args) = @_;
-    
+sub new {
+    my($class,@args) = @_;
+    my $self;
+    $self = {};
+    bless $self, $class;
+
     my($id) =
-	$obj->_rearrange([qw(ID
+	$self->_rearrange([qw(ID
 			     )],
 			 @args);
-    
+
     $id = 1 if ( ! $id );
-    
-    my $make = $obj->SUPER::_initialize(@args);
-    
-    $id  && $obj->id($id);
-    
-    return $make; # success - we hope!
+    $id  && $self->id($id);
+    return $self; # success - we hope!
 }
 
 
@@ -333,7 +327,7 @@ sub _initialize {
 
  Title   : id
  Usage   : $obj->id(3); $id_integer = $obj->id();
- Function: 
+ Function:
 
            Sets or returns the id of the translation table.  IDs are
            integers from 1 to 15, excluding 7 and 8 which have been
@@ -341,22 +335,22 @@ sub _initialize {
            returns 0, false.
 
 
- Example : 
- Returns : value of id, a scalar, 0 if not a valid 
+ Example :
+ Returns : value of id, a scalar, 0 if not a valid
  Args    : newvalue (optional)
 
 =cut
 
 sub id{
-   my ($obj,$value) = @_;
+   my ($self,$value) = @_;
    if( defined $value) {
        if (  !(defined $tables[$value-1]) or $tables[$value-1] eq '') {
-	   $obj->warn("Not a valid codon table ID [$value] ");
+	   $self->warn("Not a valid codon table ID [$value] ");
 	   $value = 0;
        }
-       $obj->{'id'} = $value;
+       $self->{'id'} = $value;
    }
-   return $obj->{'id'};
+   return $self->{'id'};
 }
 
 =head2 name
@@ -364,7 +358,7 @@ sub id{
  Title   : name
  Usage   : $obj->name()
  Function: returns the descriptive name of the translation table
- Example : 
+ Example :
  Returns : A string
  Args    : None
 
@@ -372,9 +366,9 @@ sub id{
 =cut
 
 sub name{
-   my ($obj) = @_;
+   my ($self) = @_;
 
-   my ($id) = $obj->{'id'};
+   my ($id) = $self->{'id'};
    return $names[$id-1];
 
 }
@@ -402,7 +396,7 @@ sub name{
            Return empty string for input strings that are not three
            characters long.
 
- Example : 
+ Example :
  Returns : One letter ambiguous IUPAC amino acid code
  Args    : a codon = a three character, ambiguous IUPAC nucleotide  string
 
@@ -410,8 +404,8 @@ sub name{
 =cut
 
 sub translate{
-   my ($obj, $value) = @_;
-   my ($id) = $obj->{'id'};
+   my ($self, $value) = @_;
+   my ($id) = $self->{'id'};
    my ($partial) = 0;
    my $result;
 
@@ -420,20 +414,20 @@ sub translate{
 
    if (length $value != 3 and length $value != 2) {
        return '';
-   } 
-   elsif ($value =~ /[^atgc]/i or length $value == 2 ) {  
+   }
+   elsif ($value =~ /[^atgc]/i or length $value == 2 ) {
        if (length $value == 2 ) {
 	   $value = $value. 'n';
 	   $partial = 1;
        }
        my @codons = _unambiquous_codons($value);
-       
-       my %aas =(); 
+
+       my %aas =();
        foreach my $codon (@codons) {
-	   $aas{substr($tables[$id-1],$codons->{$codon},1)} = 1;	   
+	   $aas{substr($tables[$id-1],$codons->{$codon},1)} = 1;	
        }
        #foreach my $x (keys %aas) {print "$x\n";} ###
-       
+
        my $count = scalar keys %aas;
        if ( $count == 1 ) {
 	   return (keys %aas)[0];
@@ -449,27 +443,27 @@ sub translate{
 	   }
        } else {
 	   $partial ? return '' :  return 'X';
-       } 
+       }
    } else {
-       return translate_strict (@_); 
+       return translate_strict (@_);
    }
 }
 
 =head2 translate_strict
 
- Title   : translate
+ Title   : translate_strict
  Usage   : $obj->translate_strict('ACT')
  Function: returns one letter amino acid code for a codon input
 
-           User is responsible to resolve ambiguous nucleotide codes
-           before calling this method. Returns 'X' for unknown codons
-           and an empty string for input strings that are not three
-           characters long.
+           Fast and simple translation. User is responsible to resolve
+           ambiguous nucleotide codes before calling this
+           method. Returns 'X' for unknown codons and an empty string
+           for input strings that are not three characters long.
 
            It is not recommended to use this method in a production
-           environment.
+           environment. Use method translate, instead.
 
- Example : 
+ Example :
  Returns : A string
  Args    : a codon = a three nucleotide character string
 
@@ -477,8 +471,8 @@ sub translate{
 =cut
 
 sub translate_strict{
-   my ($obj, $value) = @_;
-   my ($id) = $obj->{'id'};
+   my ($self, $value) = @_;
+   my ($id) = $self->{'id'};
 
    $value  = lc $value;
    $value  =~ tr/u/t/;
@@ -517,15 +511,15 @@ sub translate_strict{
 =cut
 
 sub revtranslate {
-    my ($obj, $value, $coding) = @_;
-    my ($id) = $obj->{'id'};
+    my ($self, $value, $coding) = @_;
+    my ($id) = $self->{'id'};
     my (@aas,  $p);
     my (@codons) = ();
 
     if (length($value) == 3 ) {
 	$value = lc $value;
 	$value = ucfirst $value;
-	$value = $onecode{$value}; 
+	$value = $onecode{$value};
     }
     if ( defined $value and $value =~ /[ARNDCQEGHILKMFPSTWYVBZX*]/ and length($value) == 1 ) {
 	$value = uc $value;
@@ -536,7 +530,7 @@ sub revtranslate {
 	    while ($tables[$id-1] =~ m/$aa/g) {
 		$p = pos $tables[$id-1];
 		push (@codons, $trCol->{--$p});
-	    } 
+	    }
 	}
     }
 
@@ -546,7 +540,7 @@ sub revtranslate {
 	}
     }
 
-    return @codons; 
+    return @codons;
 }
 
 =head2 is_start_codon
@@ -563,9 +557,9 @@ sub revtranslate {
 =cut
 
 sub is_start_codon{
-   my ($obj, $value) = @_;
-   my ($id) = $obj->{'id'};
-   
+   my ($self, $value) = @_;
+   my ($id) = $self->{'id'};
+
    $value  = lc $value;
    $value  =~ tr/u/t/;
 
@@ -598,8 +592,8 @@ sub is_start_codon{
 =cut
 
 sub is_ter_codon{
-   my ($obj, $value) = @_;
-   my ($id) = $obj->{'id'};
+   my ($self, $value) = @_;
+   my ($id) = $self->{'id'};
 
    $value  = lc $value;
    $value  =~ tr/u/t/;
@@ -631,8 +625,8 @@ sub is_ter_codon{
 =cut
 
 sub is_unknown_codon{
-   my ($obj, $value) = @_;
-   my ($id) = $obj->{'id'};
+   my ($self, $value) = @_;
+   my ($id) = $self->{'id'};
 
    $value  = lc $value;
    $value  =~ tr/u/t/;
@@ -652,16 +646,16 @@ sub is_unknown_codon{
 
  Title   : _unambiquous_codons
  Usage   : @codons = _unambiquous_codons('ACN')
- Function: 
- Example : 
- Returns : array of strings (one letter unambiguous amino acid codes) 
+ Function:
+ Example :
+ Returns : array of strings (one letter unambiguous amino acid codes)
  Args    : a codon = a three IUPAC nucleotide character string
 
 =cut
 
 sub _unambiquous_codons{
     my ($value) = @_;
-    my @nts = ();   
+    my @nts = ();
     my @codons = ();
     my ($i, $j, $k);
     @nts = map { $iupac_dna{$_} }  split(//, $value) ;
@@ -680,4 +674,3 @@ sub _unambiquous_codons{
 }
 
 1;
-

@@ -19,7 +19,7 @@
 
 
 ## We start with some black magic to print on failure.
-BEGIN { $| = 1; print "1..13\n"; 
+BEGIN { $| = 1; print "1..14\n";
 	use vars qw($loaded $DEBUG); }
 END {print "not ok 1\n" unless $loaded;}
 
@@ -154,3 +154,8 @@ test 12, ($myCodonTable->is_ter_codon('UAG') and
 test 13, ($myCodonTable->is_unknown_codon('jAG') and
 	  $myCodonTable->is_unknown_codon('jg') and
 	  ! ($myCodonTable->is_unknown_codon('UAG')) );
+
+
+@empty = ();
+test 14, ($myCodonTable->translate_strict('ATG') eq 'M');
+

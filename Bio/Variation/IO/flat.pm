@@ -454,13 +454,13 @@ sub write {
 			     push (@entry, $text) ;
 			 }
 			 #location
-			 $text = $tag{FeatureQual}. '/location: '. 
+			 $text = $tag{FeatureQual}. '/location: ';
 			     #$mut->id. '; '. $mut->start; 
-			     $mut->start; 
 			 
 			 if ($mut->length > 1 ) {#	    if ($mut->end - $mut->start ) {
+
 			     my $l = $mut->start + $mut->length -1;
-			     $text .= '..'.  $l;
+			     $text .= $mut->start. '..'.  $l;
 			     
 			     #$tmp2 = $mut->end - $h->offset;
 			     #if ($tmp <= 0) {
@@ -469,7 +469,9 @@ sub write {
 			     
 			 }
 			 elsif ($mut->length == 0) {
-			     $text .= '^'. $mut->end;
+			     $text .= $mut->end. '^'. $mut->start;
+			 } else {
+			     $text .= $mut->start;
 			 }
 			 if ($h->moltype && $h->moltype eq 'dna') {
 			     #$offset = $atgnumber-1;
@@ -478,13 +480,15 @@ sub write {
 				 $tmp -= 1;
 			     }
 			     
-			     $text.= ' ('. $h->id. '::'. $tmp;
+			     $text.= ' ('. $h->id. '::';
 			     $tmp2 = $mut->end + $h->offset;
 			     if ( $mut->length > 1 ) {
-				 $text.= "..". $tmp2;
+				 $text.= $mut->start. "..". $tmp2;
 			     }
 			     elsif ($mut->length == 0) {
-				 $text .= '^'. $tmp2;
+				 $text .= $tmp2.  '^'. $mut->start ;
+			     } else {
+				 $text.= $tmp;
 			     }
 			     $text .= ')';
 			 }
@@ -585,21 +589,22 @@ sub write {
 			     push (@entry, $text) ;
 			 }
 			 #location
-			 $text = $tag{FeatureQual}. '/location: '. 
+			 $text = $tag{FeatureQual}. '/location: ';
 			     #$mut->id. '; '. $mut->start; 
-			     $mut->start; 
-			 
+
 			 if ($mut->length > 1 ) {
-			     $text .= '..'. $mut->end;
+			     $text .= $mut->start. '..'. $mut->end;
 			     
-			     $tmp2 = $mut->end + $h->offset;
+			     #$tmp2 = $mut->end + $h->offset;
 			     #if ($tmp <= 0) {
 			     #    $tmp -= 1;
 			     #}
 			 }
 			 elsif ($mut->length == 0) {
-			     $text .= '^'. $mut->end;
+			     $tmp = $mut->start -1;
+			     $text .= $tmp. '^'. $mut->end;
 			 }
+			 $text .= $mut->start;
 			 if ($h->moltype && $h->moltype eq 'rna') {
 			     #$offset = $atgnumber-1;
 			     $tmp = $mut->start + $h->offset;
@@ -607,14 +612,16 @@ sub write {
 				 $tmp -= 1;
 			     }
 			     
-			     $text.= ' ('. $h->id. '::'. $tmp;
+			     $text.= ' ('. $h->id. '::';
 			     $tmp2 = $mut->end + $h->offset;
 			     if ( $mut->length > 1 ) {
-				 $text.= "..". $tmp2;
+				 $text.= $tmp. "..". $tmp2;
 			     }
 			     elsif ($mut->length == 0) {
-				 $text .= '^'. $tmp2;
+				 $tmp--;
+				 $text .= $tmp. '^'. $tmp2;
 			     }
+			     $text.= $tmp;
 			     $text .= ')';
 			 }
 			 push (@entry, $text);
