@@ -27,7 +27,7 @@ alignment using the BLAST algorithm.
   my $report = Bio::Tools::BPbl2seq->new(-file => 't/bl2seq.out');
   $report->sbjctName;
   $report->sbjctLength;
- while(my $hsp = $report->next_feature) {
+  while(my $hsp = $report->next_feature) {
          $hsp->score;
          $hsp->bits;
          $hsp->percent;
@@ -54,7 +54,7 @@ the report format is similar to that of a conventional BLAST, there are a
 few differences so that the standard bioperl BLAST parsers Blast.pm and
 BPlite are unable to read bl2seq reports directly.
 
-From the user's perspective, one difference between bl2seq and
+From the user\'s perspective, one difference between bl2seq and
 other blast reports is that the bl2seq report does not print out the
 name of the first of the two aligned sequences.  (The second sequence
 name is given in the report as the name of the "hit").  Consequently,
@@ -63,21 +63,24 @@ unless it is passed to constructor as a second argument as in:
 
 	my $report = Bio::Tools::BPbl2seq->new(\*FH, "ALEU_HORVU");
 
-If the name of the first sequence (the "query") is not passed to BPbl2seq.pm in this
-manner, the name of the first sequence will be left as "unknown".
-(Note that to preserve a common interface with the other BLAST
-programs the two sequences being compared are referred to in bl2seq as
-"query" and "subject" although this is perhaps a bit misleading when
-simply comparing 2 sequences as opposed to querying a database.)
+If the name of the first sequence (the "query") is not passed to
+BPbl2seq.pm in this manner, the name of the first sequence will be
+left as "unknown".  (Note that to preserve a common interface with the
+other BLAST programs the two sequences being compared are referred to
+in bl2seq as "query" and "subject" although this is perhaps a bit
+misleading when simply comparing 2 sequences as opposed to querying a
+database.)
 
-In addition, since there will only be (at most) one "subject" (hit) in a
-bl2seq report, one should use the method $report-E<gt>next_feature,
-rather than $report-E<gt>nextSbjct-E<gt>nextHSP to obtain the next high scoring pair.
+In addition, since there will only be (at most) one "subject" (hit) in
+a bl2seq report, one should use the method $report-E<gt>next_feature,
+rather than $report-E<gt>nextSbjct-E<gt>nextHSP to obtain the next
+high scoring pair.
 
-One should note that the previous (0.7) version of BPbl2seq used slightly
-different syntax. That version had a bug and consequently the old syntax
-has been eliminated.  Attempts to use the all syntax will return error
-messages explaining the (minor) recoding required to use the current syntax.
+One should note that the previous (0.7) version of BPbl2seq used
+slightly different syntax. That version had a bug and consequently the
+old syntax has been eliminated.  Attempts to use the all syntax will
+return error messages explaining the (minor) recoding required to use
+the current syntax.
 
 =head1 FEEDBACK
 
@@ -109,9 +112,11 @@ Based on work of:
 Ian Korf (ikorf@sapiens.wustl.edu, http://sapiens.wustl.edu/~ikorf),
 Lorenz Pollak (lorenz@ist.org, bioperl port)
 
-=cut
+=head1 CONTRIBUTORS
+ 
+Jason Stajich, jason@cgt.mc.duke.edu
 
-#'
+=cut
 
 package Bio::Tools::BPbl2seq;
 
@@ -128,7 +133,6 @@ use Symbol;
 
 #@ISA = qw(Bio::Tools::BPlite);
 
-
 =head2 new
 
  Title   : new
@@ -143,9 +147,8 @@ use Symbol;
 sub new {
     my ($class, @args) = @_;
     my $self = $class->SUPER::new(@args);
-  # initialize IO
+    # initialize IO
     $self->_initialize_io(@args);
-    $self->{'LASTLINE'} = "";
 
     my $sbjct = $self->getSbjct();
     $self->{'_current_sbjct'} = $sbjct;
@@ -175,10 +178,9 @@ sub getSbjct {
   #######################
   # get bl2seq "sbjct" name and length #
   #######################
-  my $def = $self->{'LASTLINE'};
   my $length;
-  my $FH = $self->_fh();
-  READLOOP: while(<$FH>) {
+  my $def;
+ READLOOP: while(defined ($_ = $self->_readline) ) {
      if ($_ =~ /^>(.+)$/) {
 	$def = $1;
 	next READLOOP;
@@ -188,7 +190,7 @@ sub getSbjct {
 	next READLOOP;
      }
     elsif ($_ =~ /^\s{0,2}Score/) {
-	$self->{'LASTLINE'} = $_; 	
+	$self->_pushback($_); 	
 	last READLOOP;
      }
   }
@@ -200,8 +202,6 @@ sub getSbjct {
   ####################
   my $sbjct = new Bio::Tools::BPlite::Sbjct('-name'=>$def,
 					    '-length'=>$length,
-                                            '-fh'=>$self->_fh(),
-					    '-lastline'=>$self->{'LASTLINE'},
 					    '-parent'=>$self);
   return $sbjct;
 }
@@ -235,7 +235,6 @@ sub next_feature{
    return $hsp || undef;
 }
 
-
 =head2  queryName
 
  Title    :
@@ -248,16 +247,12 @@ sub next_feature{
 =cut
 
 sub  queryName {
-	my ($self, $queryname) = @_;
-	if( $queryname ) {
-       		$self->{'_query'}->{'NAME'} = $queryname;
-   	}
-	$self->{'_query'}->{'NAME'};
+    my ($self, $queryname) = @_;
+    if( $queryname ) {
+	$self->{'_query'}->{'NAME'} = $queryname;
+    }
+    $self->{'_query'}->{'NAME'};
 }
-
-
-
-
 
 =head2  sbjctName
 
@@ -429,26 +424,16 @@ sub hs   {
 	$self->throw("Syntax used is no longer supported.\n  See BPbl2seq.pm documentation for current syntax.\n ") ;
 }
 
-
 sub _fastForward {
     my ($self) = @_;
     return 0 if $self->{'REPORT_DONE'}; # empty report
-    return 1 if $self->{'LASTLINE'} =~ /^>/;
-
-# Following line is added to BPlite routine because of differences in the end of
-# the report formats between Blast and bl2seq.
-    return 1 if $self->{'LASTLINE'} =~ /^\s*Lambda/;
-
-    my $FH = $self->_fh();
-    my $capture;
-    while(<$FH>) {
-	if ($_ =~ /^>|^Parameters|^\s+Database:|^\s+Posted date:/) {
-	    $self->{'LASTLINE'} = $_;
+    while(defined( $_ = $self->_readline() ) ) {
+	if ($_ =~ /^>|^Parameters|^\s+Database:|^\s+Posted date:|^\s*Lambda/) {
+	    $self->_pushback($_);	
 	    return 1;
 	}
     }
-
-    $self->warn("Possible error while parsing BLAST report!");
+    $self->warn("Possible error (1) while parsing BLAST report!");
 }
 
 1;

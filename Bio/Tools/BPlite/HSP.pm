@@ -8,6 +8,104 @@
 #
 # You may distribute this module under the same terms as perl itself
 
+
+#
+# BioPerl module for Bio::Tools::BPlite::HSP
+#
+# Cared for by Peter Schattner <schattner@alum.mit.edu>
+#
+# Copyright Peter Schattner
+#
+# You may distribute this module under the same terms as perl itself
+
+# POD documentation - main docs before the code
+
+=head1 NAME
+
+Bio::Tools::BPlite::HSP - Blast report High Scoring Pair (HSP)
+
+=head1 SYNOPSIS
+
+ use Bio::Tools::BPlite;
+ my $report = new Bio::Tools::BPlite(-fh=>\*STDIN);
+ {
+    while(my $sbjct = $report->nextSbjct) {
+	while (my $hsp = $sbjct->nextHSP) {
+	    $hsp->score;
+	    $hsp->bits;
+	    $hsp->percent;
+	    $hsp->P;
+	    $hsp->match;
+	    $hsp->positive;
+	    $hsp->length;
+	    $hsp->querySeq;
+	    $hsp->sbjctSeq;
+	    $hsp->homologySeq;
+	    $hsp->query->start;
+	    $hsp->query->end;
+	    $hsp->subject->start;
+	    $hsp->subject->end;
+	    $hsp->subject->seqname;
+	    $hsp->subject->overlaps($exon);
+	}
+    }
+
+    # the following line takes you to the next report in the stream/file
+    # it will return 0 if that report is empty,
+    # but that is valid for an empty blast report.
+    # Returns -1 for EOF.
+
+    last if ($report->_parseHeader == -1));
+
+ redo
+ }
+
+=head1 DESCRIPTION
+
+This object handles the High Scoring Pair data for a Blast report.
+This is where the percent identity, query and subject sequence length,
+P value, etc are stored and where most of the necessary information is located when building logic around parsing a Blast report.
+
+See L<Bio::Tools::BPlite> for more detailed information on the entire
+BPlite Blast parsing system.
+
+=head1 FEEDBACK
+
+=head2 Mailing Lists
+
+User feedback is an integral part of the evolution of this and other
+Bioperl modules. Send your comments and suggestions preferably to
+the Bioperl mailing list.  Your participation is much appreciated.
+
+  bioperl-l@bioperl.org            - General discussion
+http://bioperl.org/MailList.shtml  - About the mailing lists
+
+=head2 Reporting Bugs
+
+Report bugs to the Bioperl bug tracking system to help us keep track
+of the bugs and their resolution. Bug reports can be submitted via
+email or the web:
+
+  bioperl-bugs@bioperl.org
+  http://bioperl.org/bioperl-bugs/
+
+=head1 AUTHOR - Peter Schattner
+
+Email: schattner@alum.mit.edu
+
+=head1 CONTRIBUTORS
+
+Jason Stajich, jason@cgt.mc.duke.edu
+
+=head1 APPENDIX
+
+The rest of the documentation details each of the object methods.
+Internal methods are usually preceded with a _
+
+=cut
+
+# Let the code begin...
+
 package Bio::Tools::BPlite::HSP;
 
 use vars qw(@ISA);
@@ -323,24 +421,23 @@ sub ss              {shift->{'SS'}}
 
 sub hs              {shift->{'HS'}}
 
-
 sub frame {
     my ($self, $qframe, $sframe) = @_;
     if( defined $qframe ) {
-	  if( $qframe == 0 ) {
+	if( $qframe == 0 ) {
 	    $qframe = undef;
-	  } elsif( $qframe !~ /^([+-])?([1-3])/ ) {	    
+	} elsif( $qframe !~ /^([+-])?([1-3])/ ) {	    
 	    $self->warn("Specifying an invalid query frame ($qframe)");
 	    $qframe = undef;
-	  } else { 
-	    if( ($1 eq '-' && $self->query->strand >= 0) || ($1 eq '+' && $self->query->strand <= 0) ) {
-			$self->warn("Query frame ($qframe) did not match strand of query (". $self->query->strand() . ")");
+	} else { 
+	    if( ($1 eq '-' && $self->query->strand >= 0) || 
+		($1 eq '+' && $self->query->strand <= 0) ) {
+		$self->warn("Query frame ($qframe) did not match strand of query (". $self->query->strand() . ")");
 	    }
-
 	    # Set frame to GFF [0-2]
 	    $qframe = $2 - 1;
-	  }
-	  $self->{'QFRAME'} = $qframe;
+	}
+	$self->{'QFRAME'} = $qframe;
     }
     if( defined $sframe ) {
 	  if( $sframe == 0 ) {
@@ -349,19 +446,38 @@ sub frame {
 	    $self->warn("Specifying an invalid subject frame ($sframe)");
 	    $sframe = undef;
 	  } else { 
-	    if( ($1 eq '-' && $self->subject->strand >= 0) || ($1 eq '+' && $self->subject->strand <= 0) ) {
-			$self->warn("Subject frame ($sframe) did not match strand of subject (". $self->subject->strand() . ")");
-	    }
-
-	    # Set frame to GFF [0-2]
-	    $sframe = $2 - 1;
+	      if( ($1 eq '-' && $self->subject->strand >= 0) || 
+		  ($1 eq '+' && $self->subject->strand <= 0) ) 
+	      {
+		  $self->warn("Subject frame ($sframe) did not match strand of subject (". $self->subject->strand() . ")");
+	      }
+	      
+	      # Set frame to GFF [0-2]
+	      $sframe = $2 - 1;
 	  }
-      $self->{'SFRAME'} = $sframe;
+	  $self->{'SFRAME'} = $sframe;
+      }
+
+    (defined $qframe && $self->SUPER::frame($qframe) && 
+     ($self->{'FRAME'} = $qframe)) || 
+    (defined $sframe && $self->SUPER::frame($sframe) && 
+     ($self->{'FRAME'} = $sframe));
+
+    if (wantarray() && 
+	$self->{'BLAST_TYPE'} eq 'TBLASTX') 
+    { 
+	return ($self->{'QFRAME'}, $self->{'SFRAME'}); 
+    } elsif (wantarray())  { 
+	(defined $self->{'QFRAME'} && 
+	 return ($self->{'QFRAME'}, undef)) || 
+	     (defined $self->{'SFRAME'} && 
+	      return (undef, $self->{'SFRAME'})); 
+    } else { 
+	(defined $self->{'QFRAME'} && 
+	 return $self->{'QFRAME'}) || 
+	(defined $self->{'SFRAME'} && 
+	 return $self->{'SFRAME'}); 
     }
-    (defined $qframe && $self->SUPER::frame($qframe) && ($self->{'FRAME'} = $qframe)) || (defined $sframe && $self->SUPER::frame($sframe) && ($self->{'FRAME'} = $sframe));
-    if    (wantarray() && 
-           $self->{'BLAST_TYPE'} eq 'TBLASTX') { return ($self->{'QFRAME'}, $self->{'SFRAME'}); } 
-    elsif (wantarray())                        { (defined $self->{'QFRAME'} && return ($self->{'QFRAME'}, undef)) || (defined $self->{'SFRAME'} && return (undef, $self->{'SFRAME'})); }
-    else                                       { (defined $self->{'QFRAME'} && return $self->{'QFRAME'}) || (defined $self->{'SFRAME'} && return $self->{'SFRAME'}); }
 }
+
 1;

@@ -8,6 +8,88 @@
 #
 # You may distribute this module under the same terms as perl itself
 
+
+#
+# BioPerl module for Bio::Tools::BPlite::Sbjct
+#
+# Cared for by Peter Schattner <schattner@alum.mit.edu>
+#
+# Copyright Peter Schattner
+#
+# You may distribute this module under the same terms as perl itself
+
+# POD documentation - main docs before the code
+
+=head1 NAME
+
+Bio::Tools::BPlite::Sbjct - A Blast Subject (database search Hit)
+
+=head1 SYNOPSIS
+
+ use Bio::Tools::BPlite
+ my $report = new Bio::Tools::BPlite(-fh=>\*STDIN);
+ while(my $sbjct = $report->nextSbjct) {
+     $sbjct->name;    # access to the subject name
+     "$sbjct";        # overloaded to return name
+     $sbjct->nextHSP; # gets the next HSP from the sbjct
+     while(my $hsp = $sbjct->nextHSP) {
+	 # canonical form is again a while loop
+     }
+
+=head1 DESCRIPTION
+
+See L<Bio::Tools::BPlite> for a more detailed information about the
+BPlite BLAST parsing objects.
+
+The original BPlite.pm module has been written by Ian Korf!
+See http://sapiens.wustl.edu/~ikorf
+
+The Sbjct object encapsulates a Subject Hit in a Blast database
+search.  The Subjects are the "Hits" for a particular query.  A
+Subject may be made up of multiple High Scoring Pairs (HSP) which are
+accessed through the nextHSP method.
+
+If you are searching for the P-value or percent identity that is
+specific to each HSP and you will need to use the nextHSP method to
+get access to that data.
+
+=head1 FEEDBACK
+
+=head2 Mailing Lists
+
+User feedback is an integral part of the evolution of this and other
+Bioperl modules. Send your comments and suggestions preferably to
+the Bioperl mailing list.  Your participation is much appreciated.
+
+  bioperl-l@bioperl.org            - General discussion
+http://bioperl.org/MailList.shtml  - About the mailing lists
+
+=head2 Reporting Bugs
+
+Report bugs to the Bioperl bug tracking system to help us keep track
+of the bugs and their resolution. Bug reports can be submitted via
+email or the web:
+
+  bioperl-bugs@bioperl.org
+  http://bioperl.org/bioperl-bugs/
+
+=head1 AUTHOR - Peter Schattner
+
+Email: schattner@alum.mit.edu
+
+=head1 CONTRIBUTORS
+
+Jason Stajich, jason@cgt.mc.duke.edu
+
+=head1 APPENDIX
+
+The rest of the documentation details each of the object methods.
+Internal methods are usually preceded with a _
+
+=cut
+
+# Let the code begin...
+
 package Bio::Tools::BPlite::Sbjct;
 
 use strict;
@@ -23,12 +105,10 @@ sub new {
     my ($class, @args) = @_;
     my $self = $class->SUPER::new(@args);
     
-    ($self->{'NAME'},$self->{'LENGTH'},$self->{'FH'},
-     $self->{'LASTLINE'},$self->{'PARENT'}) =
+    ($self->{'NAME'},$self->{'LENGTH'},
+     $self->{'PARENT'}) =
 	 $self->_rearrange([qw(NAME
 			       LENGTH
-			       FH
-			       LASTLINE
 			       PARENT
 			       )],@args);
     $self->report_type($self->{'PARENT'}->{'BLAST_TYPE'} || 'UNKNOWN');
@@ -98,16 +178,15 @@ sub nextFeaturePair {shift->nextHSP}; # just another name
 =cut
 
 sub nextHSP {
-  my ($self) = @_;
+  my ($self) = @_;  
   return undef if $self->{'HSP_ALL_PARSED'};
   
   ############################
   # get and parse scorelines #
   ############################
   my ($qframe, $sframe);
-  my $scoreline = $self->{'LASTLINE'};
-  my $FH = $self->{'FH'};
-  my $nextline = <$FH>;
+  my $scoreline = $self->_readline();
+  my $nextline = $self->_readline();
   return undef if not defined $nextline;
   $scoreline .= $nextline;
   my ($score, $bits);
@@ -140,39 +219,41 @@ sub nextHSP {
   # get alignment lines #
   #######################
   my (@hspline);
-  while(<$FH>) {
-    if ($_ =~ /^WARNING:|^NOTE:/) {
-      while(<$FH>) {last if $_ !~ /\S/}
-    }
-    elsif ($_ !~ /\S/)            {next}
-    elsif ($_ =~ /Strand HSP/)    {next} # WU-BLAST non-data
-    elsif ($_ =~ /^\s*Strand/)    {next} # NCBI-BLAST non-data
-    elsif ($_ =~ /^\s*Score/)     {$self->{'LASTLINE'} = $_; last}
-    elsif ($_ =~ /^>|^Parameters|^\s+Database:|^CPU\stime|^\s*Lambda/)   {    #ps 5/28/01
-#    elsif ($_ =~ /^>|^Parameters|^\s+Database:|^CPU\stime/)   {
-      $self->{'LASTLINE'} = $_;
-      $self->{'PARENT'}->{'LASTLINE'} = $_;
-      $self->{'HSP_ALL_PARSED'} = 1;
-      last;
-    }
-    elsif( $_ =~ /^\s*Frame/ ) {
-	  if    ($self->report_type() eq 'TBLASTX') {
+  while( defined($_ = $self->_readline()) ) {
+      if ($_ =~ /^WARNING:|^NOTE:/) {
+	  while(defined($_ = $self->_readline())) {last if $_ !~ /\S/}
+      }
+      elsif ($_ !~ /\S/)            {next}
+      elsif ($_ =~ /Strand HSP/)    {next} # WU-BLAST non-data
+      elsif ($_ =~ /^\s*Strand/)    {next} # NCBI-BLAST non-data
+      elsif ($_ =~ /^\s*Score/)     {$self->_pushback($_); last}
+
+      elsif ($_ =~ /^>|^Parameters|^\s+Database:|^CPU\stime|^\s*Lambda/)   
+      {    
+	  #ps 5/28/01	
+	  # elsif ($_ =~ /^>|^Parameters|^\s+Database:|^CPU\stime/)   {
+	  $self->_pushback($_);
+
+	  $self->{'HSP_ALL_PARSED'} = 1;
+	  last;
+      }
+      elsif( $_ =~ /^\s*Frame/ ) {
+	  if ($self->report_type() eq 'TBLASTX') {
 	      ($qframe, $sframe) = $_ =~ /Frame = ([\+-]\d)\s+\/\s+([\+-]\d)/;
 	  } elsif ($self->report_type() eq 'TBLASTN') {
 	      ($sframe) = $_ =~ /Frame = ([\+-]\d)/;
 	  } else {
 	      ($qframe) = $_ =~ /Frame = ([\+-]\d)/;
 	  }
-    }
-
-    else {
-      push @hspline, $_;           #      store the query line
-      $nextline = <$FH> ;
+      }
+      else {
+	  push @hspline, $_;	#      store the query line
+	  $nextline = $self->_readline();
 	  # Skip "pattern" line when parsing PHIBLAST reports, otherwise store the alignment line
-      my $l1 = ($nextline =~ /^\s*pattern/) ? <$FH> : $nextline;
-      push @hspline, $l1; # store the alignment line
-      my $l2 = <$FH>; push @hspline, $l2; # grab/store the sbjct line
-    }
+	  my $l1 = ($nextline =~ /^\s*pattern/) ? $self->_readline() : $nextline;
+	  push @hspline, $l1;	# store the alignment line
+	  my $l2 = $self->_readline(); push @hspline, $l2; # grab/store the sbjct line
+      }
   }
   
   #########################
@@ -230,10 +311,48 @@ sub nextHSP {
        '-queryLength'=> $qlength,
 #					'-queryLength'=>$self->{'PARENT'}->qlength,
        '-sbjctLength'=> $self->{'LENGTH'},
-	   '-queryFrame' => $qframe,
-	   '-sbjctFrame' => $sframe,
-	   '-blastType'  => $self->report_type());
+       '-queryFrame' => $qframe,
+       '-sbjctFrame' => $sframe,
+       '-blastType'  => $self->report_type());
   return $hsp;
+}
+
+=head2 _readline
+
+ Title   : _readline
+ Usage   : $obj->_readline
+ Function: Reads a line of input.
+
+           Note that this method implicitely uses the value of $/ that is
+           in effect when called.
+
+           Note also that the current implementation does not handle pushed
+           back input correctly unless the pushed back input ends with the
+           value of $/.
+ Example :
+ Returns : 
+
+=cut
+
+sub _readline{
+   my ($self) = @_;
+   return $self->{'PARENT'}->_readline();
+}
+
+=head2 _pushback
+
+ Title   : _pushback
+ Usage   : $obj->_pushback($newvalue)
+ Function: puts a line previously read with _readline back into a buffer
+ Example :
+ Returns :
+ Args    : newvalue
+
+=cut
+
+sub _pushback {
+   my ($self, $arg) = @_;   
+   return $self->{'PARENT'}->_pushback($arg);    
 }
 
 1;

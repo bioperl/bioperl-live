@@ -117,6 +117,10 @@ or the web:
 
 Email: schattner@alum.mit.edu
 
+=head1 CONTRIBUTORS
+
+Jason Stajich, jason@cgt.mc.duke.edu
+
 =head1 ACKNOWLEDGEMENTS
 
 Based on work of:
@@ -152,7 +156,6 @@ sub new {
   # initialize IO
   $self->_initialize_io(@args);
   $self->{'_tempdir'} = $self->tempdir('CLEANUP' => 1);
-  $self->{'LASTLINE'} = "";
   $self->{'QPATLOCATION'} = [];  # Anonymous array of query pattern locations for PHIBLAST
   $self->{'NEXT_ITERATION_NUMBER'} = 1;
   $self->{'TOTAL_ITERATION_NUMBER'} = -1;  # -1 indicates preprocessing not yet done
@@ -255,12 +258,12 @@ sub number_of_iterations {
 sub round {
   my $self = shift;
   my $iter_num = shift;
-  open( FH, Bio::Root::IO->catfile($self->{'_tempdir'}, 
-				  "iteration".$iter_num.".tmp")) ||
+  $self->_initialize_io(-file => Bio::Root::IO->catfile
+			($self->{'_tempdir'},"iteration".$iter_num.".tmp"));
+  if( ! $self->_fh ) {
       $self->throw("unable to re-open iteration file for round ".$iter_num);
-  return Bio::Tools::BPlite::Iteration->new(-fh => \*FH,
-					    -lastline=>$self->{'LASTLINE'},
-					    -round=>$iter_num,
+  }
+  return Bio::Tools::BPlite::Iteration->new(-round=>$iter_num,
 					    -parent=>$self);
 }
 
@@ -268,12 +271,12 @@ sub round {
 
 sub _parseHeader {
   my ($self) = @_;
-  my $FH = $self->_fh();
+
   
-  while(<$FH>) {
+  while(defined ($_ = $self->_readline) ) {
     if ($_ =~ /^Query=\s+([^\(]+)/)    {
       my $query = $1;
-      while(<$FH>) {
+      while(defined ($_ = $self->_readline)) {
         last if $_ !~ /\S/;
 	$query .= $_;
       }
@@ -285,14 +288,16 @@ sub _parseHeader {
       $self->{'LENGTH'} = $length;
     }
     elsif ($_ =~ /^Database:\s+(.+)/) {$self->{'DATABASE'} = $1}
-    elsif ($_ =~ /^\s*pattern\s+(\S+).*position\s+(\d+)\D/) {   # For PHIBLAST reports
-			$self->{'PATTERN'} = $1;
-			push (@{$self->{'QPATLOCATION'}}, $2);
-			}
-    elsif ($_ =~ /^>|^Results from round 1/)    {$self->{'LASTLINE'} = $_; return 1;}
-    elsif ($_ =~ /^Parameters|^\s+Database:/) {
-      $self->{'LASTLINE'} = $_;
-      return 0; # there's nothing in the report
+    elsif ($_ =~ /^\s*pattern\s+(\S+).*position\s+(\d+)\D/) 
+    {   # For PHIBLAST reports
+	$self->{'PATTERN'} = $1;
+	push (@{$self->{'QPATLOCATION'}}, $2);
+    } elsif ($_ =~ /^>|^Results from round 1/)    {
+	$self->_pushback($_); 
+	return 1;
+    } elsif ($_ =~ /^Parameters|^\s+Database:/) {
+	$self->_pushback($_); 
+	return 0; # there's nothing in the report
     }
   }
 }
@@ -304,16 +309,15 @@ sub _parseHeader {
  Function :  determines number of iterations in report and prepares
 	data so individual iterations canbe parsed in non-sequential order 
  Example  :  
- Returns  :  nothing. Sets TOTAL_ITERATION_NUMBER in object's hash
+ Returns  :  nothing. Sets TOTAL_ITERATION_NUMBER in object\'s hash
  Args     :  reference to calling object
 
 =cut
 
-#'
 sub _preprocess {
     my $self = shift;
 #	$self->throw(" PSIBLAST report preprocessing not implemented yet!");
-    my $FH = $self->_fh();
+
     my  $oldround = 0;
     my ($currentline, $currentfile, $round);
 
@@ -324,7 +328,7 @@ sub _preprocess {
     open (FILEHANDLE, ">$currentfile") || 
 	$self->throw("cannot open filehandle to write to file $currentfile");
 
-    while($currentline = <$FH>) {
+    while(defined ($currentline = $self->_readline()) ) {
 	if ($currentline =~ /^Results from round\s+(\d+)/) {
 	    if ($oldround) { close (FILEHANDLE) ;}
 	    $round = $1;
@@ -336,17 +340,17 @@ sub _preprocess {
 		$self->throw("cannot open filehandle to write to file $currentfile");
 	    $oldround = $round;
 	}elsif ($currentline =~ /CONVERGED/){ # This is a fix for psiblast parsing with -m 6 /AE
-	  $round--;
+	    $round--;
 	}
 	print FILEHANDLE $currentline ;
-
+	
     }
     $self->{'TOTAL_ITERATION_NUMBER'}= $round;
-# It is necessary to close filehandel otherwise the whole file will not be read later !!
+# It is necessary to close filehandle otherwise the whole
+# file will not be read later !!
     close FILEHANDLE;
 }
 
 1;
 
 __END__
-

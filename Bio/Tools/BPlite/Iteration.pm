@@ -66,6 +66,10 @@ Iteration.pm module.
 
 Email: schattner@alum.mit.edu
 
+=head1 CONTRIBUTORS
+
+Jason Stajich, jason@cgt.mc.duke.edu
+
 =head1 ACKNOWLEDGEMENTS
 
 Based on work of:
@@ -96,24 +100,16 @@ sub new {
     my ($class, @args) = @_;
     my $self = $class->SUPER::new(@args);
 
-    ($self->{'FH'},$self->{'PARENT'},$self->{'ROUND'}) =
-	$self->_rearrange([qw(FH
-			      PARENT
+    ($self->{'PARENT'},$self->{'ROUND'}) =
+	$self->_rearrange([qw(PARENT
 			      ROUND
 			      )],@args);
     
-    if((! ref($self->{'FH'})) ||
-       ((ref($self->{'FH'}) ne 'GLOB') &&
-	(! $self->{'FH'}->isa('IO::Handle')))) {
-	$self->throw("Expecting a GLOB reference, not $self->{'FH'} !");
-    }
-    
-    $self->{'LASTLINE'} = "";
     $self->{'QUERY'} = $self->{'PARENT'}->{'QUERY'};
     $self->{'LENGTH'} = $self->{'PARENT'}->{'LENGTH'};
 
-    if ($self->_parseHeader) {$self->{'REPORT_DONE'} = 0} # there are alignments
-    else                     {$self->{'REPORT_DONE'} = 1} # empty report
+    if($self->_parseHeader) {$self->{'REPORT_DONE'} = 0} # there are alignments
+    else                    {$self->{'REPORT_DONE'} = 1} # empty report
   
     return $self; # success - we hope!
 }
@@ -188,40 +184,38 @@ sub nextSbjct {
   #######################
   # get all sbjct lines #
   #######################
-  my $def = $self->{'LASTLINE'};
-  my $FH = $self->{'FH'};
-  while(<$FH>) {
+  my $def = $self->_readline();
+
+  while(defined ($_ = $self->_readline) )  {
     if    ($_ !~ /\w/)            {next}
     elsif ($_ =~ /Strand HSP/)    {next} # WU-BLAST non-data
-    elsif ($_ =~ /^\s{0,2}Score/) {$self->{'LASTLINE'} = $_; last}
+    elsif ($_ =~ /^\s{0,2}Score/) {$self->_pushback( $_); last}
     elsif ($_ =~ /^(\d+) .* \d+$/) {   # This is not correct at all
-       $self->{'LASTLINE'} = $_;       # 1: HSP does not work for -m 6 flag
-       $def=$1;                        # 2: length/name are incorrect     
-       my $length=undef;	       # 3: Names are repeated many times.
+       $self->_pushback($_);           # 1: HSP does not work for -m 6 flag
+       $def = $1;                      # 2: length/name are incorrect     
+       my $length = undef;	       # 3: Names are repeated many times.
        my $sbjct = new Bio::Tools::BPlite::Sbjct('-name'=>$def,
-					    '-length'=>$length,
-                                            '-fh'=>$self->{'FH'}, 
-					    '-lastline'=>$self->{'LASTLINE'}, 
-					    '-parent'=>$self);
+						 '-length'=>$length,
+						 '-parent'=>$self);
        return $sbjct;
-      } # m-6
-    elsif ($_ =~ /^Parameters|^\s+Database:|^\s+Posted date:/) {$self->{'LASTLINE'} = $_; last}
-    else                          {$def .= $_}
-  }
+   } # m-6 
+    elsif ($_ =~ /^Parameters|^\s+Database:|^\s+Posted date:/) {
+	$self->_pushback( $_); 
+	last;
+    } else {$def .= $_}
+}
   $def =~ s/\s+/ /g;
   $def =~ s/\s+$//g;
   $def =~ s/Length = ([\d,]+)$//g;
   my $length = $1;
   return 0 unless $def =~ /^>/;
   $def =~ s/^>//;
-
+  
   ####################
   # the Sbjct object #
   ####################
   my $sbjct = new Bio::Tools::BPlite::Sbjct('-name'=>$def,
 					    '-length'=>$length,
-                                            '-fh'=>$self->{'FH'}, 
-					    '-lastline'=>$self->{'LASTLINE'}, 
 					    '-parent'=>$self);
   return $sbjct;
 }
@@ -242,70 +236,69 @@ sub nextSbjct {
 =cut
 
 sub Align {
-  use Bio::SimpleAlign;
-  my ($self) = @_;
-  $self->_fastForward or return undef;
-  return undef unless $self->{'LASTLINE'} =~ /^QUERY/;  # If psiblast not run correctly
-  my $FH = $self->{'FH'};  
-  my $lastline = $self->{'LASTLINE'};  
-  my (%sequence,%first,%last,$num);
-  if ( $lastline =~ /^QUERY\s+(\d*)\s*([-\w]+)\s*(\d*)\s*$/){
-     my $name='QUERY';
-     my $start=$1; 
-     my $seq=$2; 
-     my $stop=$3; 
-     $seq =~ s/-/\./g; 
-     $start =~ s/ //g; 
-     $stop =~ s/ //g; 
-     $sequence{$name} .= $seq; 
-     if ($first{$name} eq ''){$first{$name}=$start;} 
-     if ($stop ne ''){$last{$name}=$stop;} 
+    use Bio::SimpleAlign;
+    my ($self) = @_;
+    $self->_fastForward or return undef;
+    my $lastline = $self->_readline();
+    return undef unless $lastline =~ /^QUERY/; # If psiblast not run correctly
+    my (%sequence,%first,%last,$num);
+
+    if ( $lastline =~ /^QUERY\s+(\d*)\s*([-\w]+)\s*(\d*)\s*$/){
+	my $name='QUERY';
+	my $start=$1; 
+	my $seq=$2; 
+	my $stop=$3; 
+	$seq =~ s/-/\./g; 
+	$start =~ s/ //g; 
+	$stop =~ s/ //g; 
+	$sequence{$name} .= $seq; 
+	if ($first{$name} eq ''){$first{$name}=$start;} 
+	if ($stop ne ''){$last{$name}=$stop;} 
 #     print "FOUND:\t$seq\t$start\t$stop\n"; 
-     $num=0;
-  } 
-  while(<$FH>){
-    chomp;
-    if ( $_ =~ /^QUERY\s+(\d+)\s*([\-A-Z]+)\s*(\+)\s*$/){
-       my $name='QUERY';
-       my $start=$1; 
-       my $seq=$2; 
-       my $stop=$3; 
-       $seq =~ s/-/\./g; 
-       $start =~ s/ //g; 
-       $stop =~ s/ //g; 
-       $sequence{$name} .= $seq; 
-       if ($first{$name} eq ''){$first{$name}=$start;} 
-       if ($stop ne ''){$last{$name}=$stop;} 
-       $num=0;
-     }elsif ( $_ =~ /^(\d+)\s+(\d+)\s*([\-A-Z]+)\s*(\d+)\s*$/ ){
-       my $name=$1.".".$num;
-       my $start=$2;
-       my $seq=$3;
-       my $stop=$4;
-       $seq =~ s/-/\./g;
-       $start =~ s/ //g;
-       $stop =~ s/ //g;
-       $sequence{$name} .= $seq;
-       if ($first{$name} eq ''){$first{$name}=$start;}
-       if ($stop ne ''){$last{$name}=$stop;}
-       $num++;
-     } 
-  } 
-  my $align = new Bio::SimpleAlign();
-  my @keys=sort keys(%sequence);
-  foreach my $name (@keys){
-    my $nse=$name."/".$first{$name}."-".$last{$name};
-    my $seqobj=Bio::LocatableSeq->new( -seq => $sequence{$name},
-                                    -id  => $name,
-                                    -name  => $nse,
-                                    -start  => $first{$name},
-                                    -end  => $last{$name}
-				   );
+	$num=0;
+    } 
+    while(defined($_ = $self->_readline()) ){
+	chomp($_);
+	if ( $_ =~ /^QUERY\s+(\d+)\s*([\-A-Z]+)\s*(\+)\s*$/){
+	    my $name='QUERY';
+	    my $start=$1; 
+	    my $seq=$2; 
+	    my $stop=$3; 
+	    $seq   =~ s/-/\./g; 
+	    $start =~ s/ //g; 
+	    $stop  =~ s/ //g; 
+	    $sequence{$name} .= $seq; 
+	    if ($first{$name} eq '') { $first{$name} = $start;} 
+	    if ($stop ne '') { $last{$name}=$stop;} 
+	    $num=0;
+	} elsif ( $_ =~ /^(\d+)\s+(\d+)\s*([\-A-Z]+)\s*(\d+)\s*$/ ){
+	    my $name=$1.".".$num;
+	    my $start=$2;
+	    my $seq=$3;
+	    my $stop=$4;
+	    $seq =~ s/-/\./g;
+	    $start =~ s/ //g;
+	    $stop =~ s/ //g;
+	    $sequence{$name} .= $seq;
+	    if ($first{$name} eq ''){$first{$name}=$start;}
+	    if ($stop ne ''){$last{$name}=$stop;}
+	    $num++;
+	} 
+    } 
+    my $align = new Bio::SimpleAlign();
+    my @keys=sort keys(%sequence);
+    foreach my $name (@keys){
+	my $nse = $name."/".$first{$name}."-".$last{$name};
+	my $seqobj = Bio::LocatableSeq->new( -seq => $sequence{$name},
+					     -id  => $name,
+					     -name  => $nse,
+					     -start  => $first{$name},
+					     -end  => $last{$name}
+					     );
 
-    $align->add_seq($seqobj);
-  }
-
-  return $align;
+	$align->add_seq($seqobj);
+    }
+    return $align;
 }
 
 # Start of internal subroutines.
@@ -313,11 +306,11 @@ sub Align {
 sub _parseHeader {
   my ($self) = @_;
   my (@old_hits, @new_hits);
-  my $FH = $self->{'FH'};
+
   my $newhits_true = ($self->{'ROUND'} < 2) ? 1  : 0 ;
-  while(<$FH>) {
+  while(defined($_ = $self->_readline()) ) {
     if ($_ =~ /(\w\w|.*|\w+.*)\s\s+(\d+)\s+([-\.e\d]+)$/)    {
-	my $id= $1;
+	my $id = $1;
 	my $score= $2;	#not used currently
 	my $evalue= $3; 	#not used currently
     	if ($newhits_true) { push ( @new_hits, $id);}
@@ -326,14 +319,14 @@ sub _parseHeader {
     elsif ($_ =~ /^Sequences not found previously/)  {$newhits_true = 1 ;}
 # This is changed for "-m 6" option /AE
     elsif ($_ =~ /^>/ || $_ =~ /^QUERY/)
-        {$self->{'LASTLINE'} = $_;
-	 $self->{'OLDHITS'} = \@old_hits;
-	 $self->{'NEWHITS'} = \@new_hits;
-	 $self->{'LASTLINE'} = $_;	
-	 return 1;
+    {
+	$self->_pushback($_);
+	$self->{'OLDHITS'} = \@old_hits;
+	$self->{'NEWHITS'} = \@new_hits;
+	return 1;
     }
     elsif ($_ =~ /^Parameters|^\s+Database:|^\s*Results from round\s+(d+)/) {
-      	$self->{'LASTLINE'} = $_;
+      	$self->_pushback($_);
       	return 0; #  no sequences found in this iteration
     }
   }
@@ -343,19 +336,59 @@ sub _parseHeader {
 sub _fastForward {
   my ($self) = @_;
   return 0 if $self->{'REPORT_DONE'}; # empty report
-  return 1 if $self->{'LASTLINE'} =~ /^>/ ;
-  return 1 if $self->{'LASTLINE'} =~ /^QUERY|^\d+ .* \d+$/; # Changed to also handle "-m 6" /AE
 
-  my $FH = $self->{'FH'};
-  while(<$FH>) {
+  while(defined($_ = $self->_readline()) ) {
+      if( $_ =~ /^>/ ||
+	  $_ =~ /^QUERY|^\d+ .* \d+$/ ) { # Changed to also handle "-m 6" /AE
+	  $self->_pushback($_);
+	  return 1;
+      }
 #    print "FASTFORWARD",$_,"\n";
-    if ($_ =~ /^>|^Parameters|^\s+Database:/) {
-      $self->{'LASTLINE'} = $_;
-      return 1;
-    }
+      if ($_ =~ /^>|^Parameters|^\s+Database:/) {
+	  $self->_pushback($_);
+	  return 1;
+      }
   }
   $self->warn("Possible error (2) while parsing BLAST report!");
 }
 
+
+=head2 _readline
+
+ Title   : _readline
+ Usage   : $obj->_readline
+ Function: Reads a line of input.
+
+           Note that this method implicitely uses the value of $/ that is
+           in effect when called.
+
+           Note also that the current implementation does not handle pushed
+           back input correctly unless the pushed back input ends with the
+           value of $/.
+ Example :
+ Returns : 
+
+=cut
+
+sub _readline{
+   my ($self) = @_;
+   return $self->{'PARENT'}->_readline();
+}
+
+=head2 _pushback
+
+ Title   : _pushback
+ Usage   : $obj->_pushback($newvalue)
+ Function: puts a line previously read with _readline back into a buffer
+ Example :
+ Returns :
+ Args    : newvalue
+
+=cut
+
+sub _pushback {
+   my ($self, $arg) = @_;   
+   return $self->{'PARENT'}->_pushback($arg);    
+}
 1;
 __END__
