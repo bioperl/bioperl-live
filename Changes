@@ -57,6 +57,7 @@ of the bug are at http://bugzilla.bioperl.org/.
       - Bug/enhancement #1517 fixed so that SEGMENT line can be parsed 
         and written with Genbank format.  Similarly bug #1515 is fixed to
         parse in the ORIGIN text.
+     o Unigene parsing updated to handle file format changes by NCBI
 
 1.2.2 Stable release update
 
