@@ -105,42 +105,12 @@ __END__
 
 =head1 NAME
 
-remote_blast.pl -  script for submitting jobs to a remote blast server (ncbi queue at this time)
+remote_blast.pl - script for submitting jobs to a remote blast server
+(ncbi blast queue at this time)
 
 =head1 SYNOPSIS
 
-% remote_blast.pl -p blastp -d ecoli -e 1e-5 -o output.bls myseqs.fa
-
-=head1 DESCRIPTION
-
-This module will run a remote blast on a set of sequences by
-submitting them to the NCBI blast queue and printing the output of the
-request.
-
-=head1 FEEDBACK
-
-=head2 Mailing Lists
-
-User feedback is an integral part of the evolution of this and other
-Bioperl modules. Send your comments and suggestions preferably to
-the Bioperl mailing list.  Your participation is much appreciated.
-
-  bioperl-l@bioperl.org               - General discussion
-  http://bioperl.org/MailList.shtml   - About the mailing lists
-
-=head2 Reporting Bugs
-
-Report bugs to the Bioperl bug tracking system to help us keep track the bugs and their resolution.  Bug reports can be submitted via#
-
-=pod 
-
-=head1 NAME
-
-remote_blast.pl -  script for submitting jobs to a remote blast server (ncbi queue at this time)
-
-=head1 SYNOPSIS
-
-% remote_blast.pl -p blastp -d ecoli -e 1e-5 -o output.bls myseqs.fa
+% remote_blast.pl -p blastp -d ecoli -e 1e-5 -i myseqs.fa
 
 =head1 DESCRIPTION
 
