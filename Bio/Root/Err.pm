@@ -984,7 +984,7 @@ sub is_fatal { my $self = shift; $self->{'_type'} eq 'FATAL'; }
            : This method is an alternative to Bio::Root::Object::throw()
            : and is not as well developed or documented as that method.
 
-See Also   : L<warning>(), B<Bio::Root::Object::throw()>, B<Bio::Root::Global::strictness()
+See Also   : L<warning>(), B<Bio::Root::Object::throw()> B<Bio::Root::Global::strictness>()
 
 =cut
 
