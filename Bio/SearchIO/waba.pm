@@ -165,18 +165,17 @@ sub next_result{
 		      (\d+(\.\d+)?)\%\s+     # get the percentage
 		      of\s+(\d+)\s+  # get the length of the alignment
 		      (\S+)\s+           # this is the query database
-		      (\S+):(\d+)\-(\d+) # The accession:start-end for query
+		      (\S+):(\-?\d+)\-(\-?\d+) # The accession:start-end for query
 		      \s+([\-\+])        # query strand
 		      \s+(\S+)\.         # hit db
-		      (\S+):(\d+)\-(\d+) # The accession:start-end for hit
+		      (\S+):(\-?\d+)\-(\-?\d+) # The accession:start-end for hit
 		      \s+([\-\+])\s*$    # hit strand
 		      /ox );
 	    
 	    # Curses.  Jim's code is 0 based, the following is to readjust
 	    $hstart++; $hend++; $qstart++; $qend++;
-	    
 	    if( ! defined $alnlen ) {
-		$self->warn("Unable to parse the rest of the WABA alignment info for: $_");
+		$self->warn("Unable to parse the rest of the WABA alignment info for: '$_'");
 		last;
 	    }
 	    $self->{'_reporttype'} = 'WABA'; # hardcoded - only 
