@@ -27,15 +27,16 @@ Bio::Index::Fasta - Interface for indexing (multiple) fasta files
     $inx->make_index(@ARGV);
 
     # Print out several sequences present in the index
-    # in gcg format
+    # in Fasta format
     use Bio::Index::Fasta;
 
     my $Index_File_Name = shift;
     my $inx = Bio::Index::Fasta->new($Index_File_Name);
+    my $out = Bio::SeqIO->new('-format' => 'Fasta','-fh' => \*STDOUT);
 
     foreach my $id (@ARGV) {
         my $seq = $inx->fetch($id); # Returns Bio::Seq object
-        print $seq->layout('GCG');
+	$out->write_seq($seq);
     }
 
     # or, alternatively
@@ -177,19 +178,13 @@ sub _index_file {
     # Main indexing loop
     while (<FASTA>) {
         if (/^>/) {
-            my $new_begin = tell(FASTA) - length( $_ );
+            # $begin is the position of the first character after the '>'
+            my $begin = tell(FASTA) - length( $_ ) + 1;
 
-            foreach my $id (@id_list) {
+            foreach my $id (&$id_parser($_)) {
                 $self->add_record($id, $i, $begin);
             }
-
-            $begin = $new_begin;
-            @id_list = &$id_parser($_);
         }
-    }
-    # Don't forget to add the last record
-    foreach my $id (@id_list) {
-        $self->add_record($id, $i, $begin);
     }
 
     close FASTA;
