@@ -95,6 +95,8 @@ sub next_seq {
 
 sub next_primary_seq {
   my( $self, $as_next_seq ) = @_;
+  my $seq;
+  my $moltype;
   local $/ = "\n>";
 
   return unless my $entry = $self->_readline;
@@ -103,36 +105,46 @@ sub next_primary_seq {
     return unless $entry = $self->_readline;
   }
 
-  #  my $next_rec = $entry;
-  #while($next_rec =~ /(^|.)>$/) {
-      # HL 05/25/2000
-      # a greater sign not preceded by a newline indicates that there is a
-      # '>' within the description, so we need more to complete the record
-      #return unless defined($next_rec = $self->_readline());
-      #$entry .= $next_rec;
-  #}
-
-  my ($top,$sequence) = $entry =~ /^(.+?)\n([^>]+)/s
+  my ($top,$sequence) = $entry =~ /^(.+?)\n([^>]*)/s
     or $self->throw("Can't parse entry");
   my ($id,$fulldesc) = $top =~ /^\s*(\S+)\s*(.*)/
     or $self->throw("Can't parse fasta header");
   $id =~ s/^>//;
   $sequence =~ s/\s//g; # Remove whitespace
 
+  # for empty sequences we need to know the mol.type
+  $moltype = $self->moltype();
+  if(length($sequence) == 0) {
+      if(! defined($moltype)) {
+	  # let's default to dna
+	  $moltype = "dna";
+      }
+  } else {
+      # we don't need it really, so disable
+      $moltype = undef;
+  }
+
+  # create the seq object
   if ($as_next_seq) {
     # Return a Bio::Seq if asked for
-    return Bio::Seq->new(-seq        => $sequence,
+    $seq = Bio::Seq->new(-seq        => $sequence,
 		         -id         => $id,
 		         -primary_id => $id,
 		         -desc       => $fulldesc,
+			 -moltype    => $moltype
 		         );
   } else {
-    return Bio::PrimarySeq->new(-seq        => $sequence,
+    $seq = Bio::PrimarySeq->new(-seq        => $sequence,
 		                -id         => $id,
 		                -primary_id => $id,
 		                -desc       => $fulldesc,
+				-moltype    => $moltype
 		                );
   }
+  # if there wasn't one before, set the guessed type
+  $self->moltype($seq->moltype());
+  
+  return $seq;
 }
 
 =head2 write_seq
@@ -155,7 +167,11 @@ sub write_seq {
 	 $desc =~ s/\n//g;
         $top .= " $desc";
      }
-     $str =~ s/(.{1,60})/$1\n/g;
+     if(length($str) > 0) {
+	 $str =~ s/(.{1,60})/$1\n/g;
+     } else {
+	 $str = "\n";
+     }
      $self->_print (">",$top,"\n",$str) or return;
    }
    return 1;
