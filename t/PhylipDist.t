@@ -20,7 +20,7 @@ END {
         skip("Error in PhylipDist.pm",1);
     }
 }
-
+use Bio::Tools::Phylo::Phylip::ProtDist;
 
 my $inputfilename= Bio::Root::IO->catfile("t","data","phylipdist.out");
 my $parser = Bio::Tools::Phylo::Phylip::ProtDist->new(-program => 'phylipdist',

@@ -96,6 +96,7 @@ use strict;
 
 use vars qw(@ISA);
 use Bio::Matrix::MatrixI;
+use Bio::Root::Root;
 
 @ISA = qw(Bio::Root::Root Bio::Matrix::MatrixI);
 
