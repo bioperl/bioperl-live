@@ -13,22 +13,22 @@
 
 =head1 NAME
 
-Bio::AnnSeqIO::swissprot - Swissprot sequence input/output stream
+Bio::SeqIO::swissprot - Swissprot sequence input/output stream
 
 =head1 SYNOPSIS
 
 It is probably best not to use this object directly, but
-rather go through the AnnSeqIO handler system. Go:
+rather go through the SeqIO handler system. Go:
 
-    $stream = Bio::AnnSeqIO->new(-file => $filename, -format => 'swiss');
+    $stream = Bio::SeqIO->new(-file => $filename, -format => 'swiss');
 
-    while ( my $annseq = $stream->next_annseq() ) {
-	# do something with $annseq
+    while ( my $seq = $stream->next_seq() ) {
+	# do something with $seq
     }
 
 =head1 DESCRIPTION
 
-This object can transform Bio::AnnSeq objects to and from swissprot flat
+This object can transform Bio::Seq objects to and from swissprot flat
 file databases.
 
 There is alot of flexibility here about how to dump things which I need
@@ -52,7 +52,7 @@ before printing
 
 This is function which is called as 
 
-   print "ID   ", $func($annseq), "\n";
+   print "ID   ", $func($seq), "\n";
 
 To generate the ID line. If it is not there, it generates a sensible ID
 line using a number of tools.
@@ -98,21 +98,21 @@ The rest of the documentation details each of the object methods. Internal metho
 # Let the code begin...
 
 
-package Bio::AnnSeqIO::swiss;
+package Bio::SeqIO::swiss;
 use vars qw($AUTOLOAD @ISA);
 use strict;
-use Bio::AnnSeq;
-use Bio::AnnSeqIO::FTHelper;
+use Bio::Seq;
+use Bio::SeqIO::FTHelper;
 use Bio::SeqFeature::Generic;
 use Bio::Species;
-use Bio::AnnSeqIO::StreamI;
+use Bio::SeqIO::StreamI;
 
 # Object preamble - inheriets from Bio::Root::Object
 
 use Bio::Root::Object;
 use FileHandle;
 
-@ISA = qw(Bio::Root::Object Bio::AnnSeqIO::StreamI);
+@ISA = qw(Bio::SeqIO);
 # new() is inherited from Bio::Root::Object
 
 # _initialize is where the heavy stuff will happen when new is called
@@ -151,21 +151,21 @@ sub _initialize {
 }
 
 
-=head2 next_annseq
+=head2 next_seq
 
- Title   : next_annseq
- Usage   : $seq = $stream->next_annseq()
+ Title   : next_seq
+ Usage   : $seq = $stream->next_seq()
  Function: returns the next sequence in the stream
- Returns : Bio::AnnSeq object
+ Returns : Bio::Seq object
  Args    :
 
 
 =cut
 
-sub next_annseq{
+sub next_seq{
    my ($self,@args) = @_;
-   my ($seq,$fh,$c,$line,$name,$desc,$acc,$seqc,$mol,$div, $date, $comment, @date_arr);
-   my $annseq = Bio::AnnSeq->new();
+   my ($pseq,$fh,$c,$line,$name,$desc,$acc,$seqc,$mol,$div, $date, $comment, @date_arr);
+   my $seq = Bio::Seq->new();
 
    $fh = $self->_filehandle();
 
@@ -187,18 +187,18 @@ sub next_annseq{
    }
 
    $line =~ /^ID\s+\S+/ || $self->throw("swissprot stream with no ID. Not swissprot in my book");
-   $line =~ /^ID\s+(\S+)_(\S+)\s+\S+\s+(\S+)\;/ || $self->throw("FUCK!");
+   $line =~ /^ID\s+(\S+)_(\S+)\s+\S+\s+(\S+)\;/ || $self->throw("problem.... not looking like swissprot!");
    $name = $1;
    
    $div = $2;
    $div =~ s/\;//;
    if ($div) {
-       $annseq->division($div);
+       $seq->division($div);
    }
 
    $mol= $3;
    if ($mol) {
-       $annseq->molecule($mol);
+       $seq->molecule($mol);
    }
    my $buffer = $line;
 
@@ -216,7 +216,7 @@ sub next_annseq{
 
        #Gene name
        if (/^GN\s+(\S+)/) {
-	   $annseq->annotation->gene_name($1);
+	   $seq->annotation->gene_name($1);
        }  
 
        #accession number
@@ -224,22 +224,22 @@ sub next_annseq{
 	   $acc = $1;
 	   my $acc2 = $2 if $2;
 	   $acc2 =~ s/\;//;
-	   $annseq->accession($acc);
-	   $annseq->add_secondary_accession($acc2);
+	   $seq->accession($acc);
+	   $seq->add_secondary_accession($acc2);
        }
        
        #version number
        if( /^SV\s+(\S+);?/ ) {
 	   my $sv = $1;
 	   $sv =~ s/\;//;
-	   $annseq->sv($sv);
+	   $seq->sv($sv);
        }
 
        #date (NOTE: takes last date line)
        if( /^DT\s+(\S+)/ ) {
 	   my $date = $1;
 	   $date =~ s/\;//;
-	   $annseq->add_date($date);
+	   $seq->add_date($date);
        }
        
      
@@ -247,13 +247,13 @@ sub next_annseq{
        # Organism name and phylogenetic information
        if (/^O[SC]/) {
            my $species = _read_swissprot_Species(\$buffer, $fh);
-           $annseq->species( $species );
+           $seq->species( $species );
        }
 
        # References
        if (/^R/) {
 	   my @refs = &_read_swissprot_References(\$buffer,$fh);
-	   $annseq->annotation->add_Reference(@refs);
+	   $seq->annotation->add_Reference(@refs);
        }
 
      
@@ -274,7 +274,7 @@ sub next_annseq{
 	   $comment =~ s/-\!- //g;
 	   $comment =~ s/    //g;
 	   $commobj->text($comment);
-	   $annseq->annotation->add_Comment($commobj);
+	   $seq->annotation->add_Comment($commobj);
 	   $comment = "";
        }
 
@@ -285,13 +285,13 @@ sub next_annseq{
 	   $dblinkobj->primary_id($2);
 	   $dblinkobj->optional_id($3);
 	   $dblinkobj->comment($4);
-	   $annseq->annotation->add_DBLink($dblinkobj);
+	   $seq->annotation->add_DBLink($dblinkobj);
        }
 
        #keywords
        if( /^KW   (.*)\S*$/ ) {
 	   my $keywords = $1;
-	   $annseq->keywords($keywords);
+	   $seq->keywords($keywords);
        }
 
        # Get next line.
@@ -306,7 +306,7 @@ sub next_annseq{
        my $ftunit = &_read_FTHelper_swissprot($fh,\$buffer);
        
        # process ftunit
-       $ftunit->_generic_seqfeature($annseq);
+       $ftunit->_generic_seqfeature($seq);
        
        if( $buffer !~ /^FT/ ) {
 	   last;
@@ -327,36 +327,36 @@ sub next_annseq{
        $seqc .= $_;
    }
 
-   $seq = Bio::Seq->new(-seq => $seqc , -id => $name, -desc => $desc);
-   $annseq->seq($seq);
-   return $annseq;
+   $pseq = Bio::PrimaySeq->new(-seq => $seqc , -id => $name, -desc => $desc);
+   $seq->seq($pseq);
+   return $seq;
 
 }
 
-=head2 write_annseq
+=head2 write_seq
 
- Title   : write_annseq
- Usage   : $stream->write_annseq($seq)
- Function: writes the $seq object (must be annseq) to the stream
+ Title   : write_seq
+ Usage   : $stream->write_seq($seq)
+ Function: writes the $seq object (must be seq) to the stream
  Returns : 1 for success and 0 for error
- Args    : Bio::AnnSeq
+ Args    : Bio::Seq
 
 
 =cut
 
-sub write_annseq {
-   my ($self,$annseq) = @_;
+sub write_seq {
+   my ($self,$seq) = @_;
 
-   if( !defined $annseq ) {
-       $self->throw("Attempting to write with no annseq!");
+   if( !defined $seq ) {
+       $self->throw("Attempting to write with no seq!");
    }
 
-   if( ! ref $annseq || ! $annseq->isa('Bio::AnnSeqI') ) {
-       $self->warn(" $annseq is not a AnnSeqI compliant module. Attempting to dump, but may fail!");
+   if( ! ref $seq || ! $seq->isa('Bio::SeqI') ) {
+       $self->warn(" $seq is not a SeqI compliant module. Attempting to dump, but may fail!");
    }
 
    my $fh = $self->_filehandle();
-   my $seq = $annseq->seq();
+   my $seq = $seq->seq();
    my $i;
    my $str = $seq->seq;
    
@@ -364,24 +364,24 @@ sub write_annseq {
    my $div;
    my $len = $seq->seq_len();
 
-   if ( !$annseq->can('division') || ($div = $annseq->division()) eq undef ) {
+   if ( !$seq->can('division') || ($div = $seq->division()) eq undef ) {
        $div = 'UNK';
    }
    else {
-       $div=$annseq->division;
+       $div=$seq->division;
    }
-   $mol = $annseq->molecule;
+   $mol = $seq->molecule;
   
-   if(!$annseq->can('molecule') || ($mol eq undef )) {
+   if(!$seq->can('molecule') || ($mol eq undef )) {
        $mol = 'XXX';
    }
    else {
-       $mol = $annseq->molecule;
+       $mol = $seq->molecule;
    }
    
    my $temp_line;
    if( $self->_id_generation_func ) {
-       $temp_line = &{$self->_id_generation_func}($annseq);
+       $temp_line = &{$self->_id_generation_func}($seq);
    } else {
        $temp_line = sprintf ("%s_$div    STANDARD;       $mol;   %d AA.",$seq->id(),$len);
    } 
@@ -391,13 +391,13 @@ sub write_annseq {
    # if there, write the accession line
 
    if( $self->_ac_generation_func ) {
-       $temp_line = &{$self->_ac_generation_func}($annseq);
+       $temp_line = &{$self->_ac_generation_func}($seq);
        print $fh "AC   $temp_line\n";   
    } else {
-       if ($annseq->can('accession') ) {
-	   print "AC   ",$annseq->accession,";";
-	   if ($annseq->can('each_secondary_accession') ) {
-	       print " ",$annseq->each_secondary_accession,";\n";
+       if ($seq->can('accession') ) {
+	   print "AC   ",$seq->accession,";";
+	   if ($seq->can('each_secondary_accession') ) {
+	       print " ",$seq->each_secondary_accession,";\n";
 	   }
 	   else {
 	       print "\n";
@@ -407,7 +407,7 @@ sub write_annseq {
    } 
 
    #Date lines
-   foreach my $dt ( $annseq->each_date() ) {
+   foreach my $dt ( $seq->each_date() ) {
        _write_line_swissprot_regex($fh,"DT   ","DT   ",$dt,"\\s\+\|\$",80);
    }
    
@@ -415,12 +415,12 @@ sub write_annseq {
    _write_line_swissprot_regex($fh,"DE   ","DE   ",$seq->desc(),"\\s\+\|\$",80);
 
    #Gene name
-   if ($annseq->annotation->can('gene_name')) {
-       print "GN   ",$annseq->annotation->gene_name,"\n";
+   if ($seq->annotation->can('gene_name')) {
+       print "GN   ",$seq->annotation->gene_name,"\n";
    }
    
    # Organism lines
-   if (my $spec = $annseq->species) {
+   if (my $spec = $seq->species) {
        my($sub_species, $species, $genus, @class) = $spec->classification();
        my $OS = "$genus $species $sub_species";
        if (my $common = $spec->common_name) {
@@ -438,7 +438,7 @@ sub write_annseq {
    
    # Reference lines
    my $t = 1;
-   foreach my $ref ( $annseq->annotation->each_Reference() ) {
+   foreach my $ref ( $seq->annotation->each_Reference() ) {
        print $fh "RN   [$t]\n";
        if ($ref->start && $ref->end) {
 	   print "RP   SEQUENCE OF ",$ref->start,"-",$ref->end," FROM N.A.\n";
@@ -458,11 +458,11 @@ sub write_annseq {
    
    # Comment lines
 
-   foreach my $comment ( $annseq->annotation->each_Comment() ) {
+   foreach my $comment ( $seq->annotation->each_Comment() ) {
        _write_line_swissprot_regex($fh,"CC   ","CC   ",$comment->text,"\\s\+\|\$",80);
    }
 
-   foreach my $dblink ( $annseq->annotation->each_DBLink() ) {
+   foreach my $dblink ( $seq->annotation->each_DBLink() ) {
        print $fh "DR   ",$dblink->database,"; ",$dblink->primary_id,"; ",$dblink->optional_id,"; ",$dblink->comment,"\n";
    }
    
@@ -470,11 +470,11 @@ sub write_annseq {
    # if there, write the kw line
    
    if( $self->_kw_generation_func ) {
-       $temp_line = &{$self->_kw_generation_func}($annseq);
+       $temp_line = &{$self->_kw_generation_func}($seq);
        print $fh "KW   $temp_line\n";   
    } else {
-       if( $annseq->can('keywords') ) {
-	   print $fh "KW   ",$annseq->keywords,"\n";
+       if( $seq->can('keywords') ) {
+	   print $fh "KW   ",$seq->keywords,"\n";
        }
    } 
    if( defined $self->_post_sort ) {
@@ -483,8 +483,8 @@ sub write_annseq {
        my $post_sort_func = $self->_post_sort();
        my @fth;
 
-       foreach my $sf ( $annseq->top_SeqFeatures ) {
-	   push(@fth,Bio::AnnSeqIO::FTHelper::from_SeqFeature($sf,$annseq));
+       foreach my $sf ( $seq->top_SeqFeatures ) {
+	   push(@fth,Bio::SeqIO::FTHelper::from_SeqFeature($sf,$seq));
        }
 
        @fth = sort { &$post_sort_func($a,$b) } @fth;
@@ -496,10 +496,10 @@ sub write_annseq {
        # not post sorted. And so we can print as we get them.
        # lower memory load...
        
-       foreach my $sf ( $annseq->top_SeqFeatures ) {
-	   my @fth = Bio::AnnSeqIO::FTHelper::from_SeqFeature($sf,$annseq);
+       foreach my $sf ( $seq->top_SeqFeatures ) {
+	   my @fth = Bio::SeqIO::FTHelper::from_SeqFeature($sf,$seq);
 	   foreach my $fth ( @fth ) {
-	       if( ! $fth->isa('Bio::AnnSeqIO::FTHelper') ) {
+	       if( ! $fth->isa('Bio::SeqIO::FTHelper') ) {
 		   $sf->throw("Cannot process FTHelper... $fth");
 	       }
 
@@ -543,7 +543,7 @@ sub write_annseq {
 sub _print_swissprot_FTHelper {
    my ($fth,$fh,$always_quote) = @_;
    
-   if( ! ref $fth || ! $fth->isa('Bio::AnnSeqIO::FTHelper') ) {
+   if( ! ref $fth || ! $fth->isa('Bio::SeqIO::FTHelper') ) {
        $fth->warn("$fth is not a FTHelper class. Attempting to print, but there could be tears!");
    }
    my $loc= $fth->loc;
@@ -722,7 +722,7 @@ sub _filehandle{
  Usage   : &_read_FTHelper_swissprot($fh,$buffer)
  Function: reads the next FT key line
  Example :
- Returns : Bio::AnnSeqIO::FTHelper object 
+ Returns : Bio::SeqIO::FTHelper object 
  Args    : filehandle and reference to a scalar
 
 
@@ -743,7 +743,7 @@ sub _read_FTHelper_swissprot {
        $value = $4;
    }
 
-   $out = new Bio::AnnSeqIO::FTHelper();
+   $out = new Bio::SeqIO::FTHelper();
    $loc =~ s/<//;
    $loc =~ s/>//;
    $out->key($key);
