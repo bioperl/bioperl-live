@@ -118,9 +118,13 @@ sub new {
 				'-gaps'      => $gapct,
 				'-homology_seq' => $homol_seq,
 				@args);
-  
+    
   my ($hmmst) = $self->_rearrange([qw(HMMSTATE_SEQ)],@args);
   defined $hmmst && $self->hmmstate_string($hmmst);
+  
+  $self->add_tag_value('Target' , join(" ","Sequence:".$self->hit->seqname, 
+				       $self->hit->start, $self->hit->end));
+
   return $self;
 }
 
