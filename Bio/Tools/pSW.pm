@@ -16,11 +16,13 @@
 Bio::Tools::pSW - pairwise Smith Waterman object
 
 =head1 SYNOPSIS
-
-    $factory = new Bio::Tools::pSW( '-matrix' => 'blosum62.bla',
-				    '-gap' => 12,
-				    '-ext' => 2,
-				   );
+{
+    use Bio::Tools::pSW;
+    use Bio::AlignIO;
+    my $factory = new Bio::Tools::pSW( '-matrix' => 'blosum62.bla',
+				       '-gap' => 12,
+				       '-ext' => 2,
+				       );
 
     #use the factory to make some output
 
@@ -28,9 +30,11 @@ Bio::Tools::pSW - pairwise Smith Waterman object
 
     # make a Bio::SimpleAlign and do something with it
 
-    $aln = $factory->pairwise_alignment($seq1,$seq2);
-
-    $aln->write_MSF(\*STDOUT);
+    my $aln = $factory->pairwise_alignment($seq1,$seq2);
+    my $alnout = new Bio::AlignIO(-format => 'msf',
+				  -fh     => \*STDOUT);
+    
+    $alnout->write_aln($aln);
 
 =head1 INSTALLATION
 
@@ -79,38 +83,45 @@ warning - this module is under active development. Eventually it should
 contain the ability to make alignment objects such as Bio::SimpleAlign
 or Bio::UnivAlign 
 
+(Which has been done as of bioperl 0.7 series)
+
+
 =head1 FEEDBACK
 
 =head2 Mailing Lists 
 
-User feedback is an integral part of the evolution of this and other Bioperl modules.
-Send your comments and suggestions preferably to one of the Bioperl mailing lists.
-Your participation is much appreciated.
+User feedback is an integral part of the evolution of this and other
+Bioperl modules.  Send your comments and suggestions preferably to one
+of the Bioperl mailing lists.  Your participation is much appreciated.
 
     bioperl-l@bioperl.org              - General discussion
     http://bioperl.org/MailList.shtml  - About the mailing lists
 
 =head2 Reporting Bugs
 
-Report bugs to the Bioperl bug tracking system to help us keep track the bugs and 
-their resolution. Bug reports can be submitted via email or the web:
+Report bugs to the Bioperl bug tracking system to help us keep track
+the bugs and their resolution. Bug reports can be submitted via email
+or the web:
 
     bioperl-bugs@bio.perl.org                   
     http://bioperl.org/bioperl-bugs/           
 
 =head1 AUTHOR
 
-Ewan Birney, birney@sanger.ac.uk
+Ewan Birney, birney@sanger.ac.uk or birney@ebi.ac.uk
+
+=head1 CONTRIBUTORS
+
+Jason Stajich, jason@bioperl.org
 
 =head1 APPENDIX
 
-The rest of the documentation details each of the object methods. Internal methods are usually preceded with an underscore "_".
+The rest of the documentation details each of the object
+methods. Internal methods are usually preceded with an underscore "_".
 
 =cut
 
-
 # Let the code begin...
-
 
 package Bio::Tools::pSW;
 use vars qw(@ISA);
@@ -134,22 +145,17 @@ use Bio::SimpleAlign;
 @ISA = qw(Bio::Tools::AlignFactory);
 
 
-# new() is inherited from Bio::Root::Object
 
-# _initialize is where the heavy stuff will happen when new is called
-
-sub _initialize {
-  my($self,@p) = @_;
-
-
+sub new {
+  my($class,@args) = @_;
+  
+  my $self = $class->SUPER::new(@args);
 
   my($matrix,$gap,$ext) = $self->_rearrange([qw(MATRIX
 						GAP
 						EXT
-						)],@p);
+						)],@args);
   
-  my $make = $self->SUPER::_initialize(@p);
-
   #default values - we have to load matrix into memory, so 
   # we need to check it out now
   if( ! defined $matrix || !($matrix =~ /\w/) ) {
@@ -157,29 +163,24 @@ sub _initialize {
   }
 
   $self->matrix($matrix); # will throw exception if it can't load it
-  $self->gap(12);
-  $self->ext(2);
+  $self->gap(12) unless defined $gap;
+  $self->ext(2) unless defined $ext;
 
-  #I'm pretty sure I am not doing this right... ho hum...
+  # I'm pretty sure I am not doing this right... ho hum...
   # This was not roght ($gap and $ext could not be 0) It is fixed now /AE
-  if(  $gap =~ /^\d+$/ ) 
-  {
+  if(  $gap =~ /^\d+$/ ) {
       $self->gap($gap);
-  }
-  else
-  {
+  } else {
       $self->throw("Gap penalty must be a number, not [$gap]");
   }
-  if( $ext =~ /^\d+$/ ) 
-  {
+
+  if( $ext =~ /^\d+$/ )  {
       $self->ext($ext);
-  }
-  else
-  {
+  } else {
       $self->throw("Extension penalty must be a number, not [$ext]");
   }
  
-  return $make; # success - we hope!
+  return $self; 
 }
 
 
@@ -197,7 +198,12 @@ sub _initialize {
 sub pairwise_alignment{
     my ($self,$seq1,$seq2) = @_;
     my($t1,$t2,$aln,$out,@str1,@str2,@ostr1,@ostr2,$alc,$tstr,$tid,$start1,$end1,$start2,$end2,$alctemp);
-
+    
+    if( ! defined $seq1 || ! $seq1->isa('Bio::PrimarySeqI') ||
+	! defined $seq2 || ! $seq2->isa('Bio::PrimarySeqI') ) {
+	$self->warn("Cannot call pairwise_alignment without specifing 2 sequences (Bio::PrimarySeqI objects)");
+	return undef;
+    }
     # fix Jitterbug #1044
     if( $seq1->length() < 2 || 
 	$seq2->length() < 2 ) {
@@ -217,7 +223,6 @@ sub pairwise_alignment{
     if( ! defined $aln || $aln == 0 ) {
 	$self->throw("Unable to build an alignment");
     }
-
 
     # free sequence engine objects
 
@@ -306,6 +311,11 @@ sub align_and_show {
     my($self,$seq1,$seq2,$fh) = @_;
     my($t1,$t2,$aln,$id,$str);
 
+if( ! defined $seq1 || ! $seq1->isa('Bio::PrimarySeqI') ||
+	! defined $seq2 || ! $seq2->isa('Bio::PrimarySeqI') ) {
+	$self->warn("Cannot call align_and_show without specifing 2 sequences (Bio::PrimarySeqI objects)");
+	return undef;
+    }
     # fix Jitterbug #1044
     if( $seq1->length() < 2 || 
 	$seq2->length() < 2 ) {
