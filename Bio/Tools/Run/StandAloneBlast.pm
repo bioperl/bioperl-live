@@ -1033,8 +1033,8 @@ sub _setparams {
 
  Title   : io
  Usage   : $obj->io($newval)
- Function:  Gets a L<Bio::Root::IO> object
- Returns : L<Bio::Root::IO>
+ Function:  Gets a Bio::Root::IO object
+ Returns : Bio::Root::IO
  Args    : none
 
 

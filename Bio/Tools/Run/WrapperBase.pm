@@ -233,8 +233,8 @@ sub cleanup{
 
  Title   : io
  Usage   : $obj->io($newval)
- Function: Gets a L<Bio::Root::IO> object
- Returns : L<Bio::Root::IO> object
+ Function: Gets a Bio::Root::IO object
+ Returns : Bio::Root::IO object
  Args    : none
 
 
