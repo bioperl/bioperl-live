@@ -308,7 +308,7 @@ ok(!$inconsistency);
 
 # relative addressing in aggregated features
 my $transcript1 = $db->segment($features[0]);
-## Paul notes that the next line because it is redundant, or should be.
+## Paul notes that the next line is redundant, or should be.
 $transcript1->ref($features[0]);
 my @overlap     = sort {$a->start <=> $b->start } $transcript1->features;
 ok(scalar(@overlap),11);

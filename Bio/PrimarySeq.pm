@@ -151,6 +151,7 @@ my %valid_type = map {$_, 1} qw( dna rna protein );
            -display_id  => display id of the sequence (locus name) 
            -accession_number => accession number
            -primary_id  => primary id (Genbank id)
+           -unique_id   => locally unique id (must be unique or undef!)
            -namespace   => the namespace for the accession
            -authority   => the authority for the namespace
            -desc        => description text
@@ -165,10 +166,11 @@ sub new {
     my ($class, @args) = @_;
     my $self = $class->SUPER::new(@args);
 
-    my($seq,$id,$acc,$pid,$ns,$auth,$v,$oid,
+    my($seq,$id,$unique_id,$acc,$pid,$ns,$auth,$v,$oid,
        $desc,$alphabet,$given_id,$is_circular,$direct,$ref_to_seq,$len) =
 	$self->_rearrange([qw(SEQ
 			      DISPLAY_ID
+			      UNIQUE_ID
 			      ACCESSION_NUMBER
 			      PRIMARY_ID
 			      NAMESPACE
@@ -217,6 +219,7 @@ sub new {
     $id          && $self->display_id($id);
     $acc         && $self->accession_number($acc);
     defined $pid && $self->primary_id($pid);
+    defined( $unique_id ) && $self->unique_id( $unique_id );
     $desc        && $self->desc($desc);
     $is_circular && $self->is_circular($is_circular);
     $ns          && $self->namespace($ns);
@@ -492,6 +495,33 @@ sub accession_number {
     }
     return $acc;
 }
+
+=head2 unique_id
+
+ Title   : unique_id
+ Usage   : my $unique_id = $seq->unique_id( [$new_unique_id] )
+ Function: This is a unique identifier that identifies this sequence object.
+           If not set, will return undef per L<Bio::LocallyIdentifiableI>
+           If a value is given, the unique_id will be set to it, unless that
+           value is the string 'undef', in which case the unique_id will
+           become undefined.
+ Returns : The current (or former, if used as a set method) value of unique_id
+ Args    : [optional] a new string unique_id or 'undef'
+
+=cut
+
+sub unique_id {
+  my ( $self, $value ) = @_;
+  my $current_value = $self->{ '_unique_id' };
+  if ( defined $value ) {
+    if( !$value || ( $value eq 'undef' ) ) {
+      $self->{ '_unique_id' } = undef;
+    } else {
+      $self->{ '_unique_id' } = $value;
+    }
+  }
+  return $current_value;
+} # unique_id()
 
 =head2 primary_id
 

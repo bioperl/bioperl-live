@@ -145,21 +145,23 @@ use Bio::Annotation::Collection;
 use Bio::Location::Simple;
 use Bio::Tools::GFF;
 
+use overload 
+  '==' => 'equals';
+
 sub new {
-    my ( $caller, @args) = @_;   
-    my ($self) = $caller->SUPER::new(@args); 
-
-    $self->{'_parse_h'}       = {};
-    $self->{'_gsf_tag_hash'}  = {};
-#    tie %{$self->{'_gsf_tag_hash'}}, "Tie::IxHash";
-
-    # bulk-set attributes
-    $self->set_attributes(@args);
-
-    # done - we hope
-    return $self;
+  my ( $caller, @args) = @_;   
+  my ( $self ) = $caller->SUPER::new( @args ); 
+  
+  $self->{ '_gsf_parse_h' }       = {};
+  $self->{ '_gsf_tag_hash' }  = {};
+  #tie %{$self->{'_gsf_tag_hash'}}, "Tie::IxHash";
+  
+  # bulk-set attributes
+  $self->set_attributes( @args );
+  
+  # done - we hope
+  return $self;
 }
-
 
 =head2 set_attributes
 
@@ -193,24 +195,23 @@ sub set_attributes {
     my ($self,@args) = @_;
     my ($start, $end, $strand, $unique_id, $display_name, $primary_tag, $source_tag, $primary, $source, $frame, 
 	$score, $tag, $type, $gff_string, $gff1_string,
-	$seqname, $seqid, $annot, $location, $orientation_policy) =
+	$seqid, $annot, $location, $orientation_policy) =
 	    rearrange( [ [ qw( START BEGIN LOW ) ],
                          [ qw( STOP END HIGH ) ],
                          qw( STRAND ),
-                         qw( UNIQUE_ID ),
-                         qw( DISPLAY_NAME ),
+                         [ qw( UNIQUE_ID PRIMARY_ID ) ],
+                         [ qw( DISPLAY_NAME DISPLAY_ID NAME ) ],
                          qw( PRIMARY_TAG ),
 			 qw( SOURCE_TAG ),
                          qw( PRIMARY ),
                          qw( SOURCE ),
-                         qw( FRAME ),
+                         [ qw( FRAME PHASE ) ],
                          qw( SCORE ),
-                         qw( TAG ),
+                         [ qw( TAG ATTRIBUTES ) ],
                          qw( TYPE ),
                          qw( GFF_STRING ),
                          qw( GFF1_STRING ),
-                         qw( SEQNAME ),
-                         [ qw( SEQ_ID SEQ SEQID ID ) ],
+                         [ qw( SEQ_ID SEQ SEQID ID SEQNAME SEQ_NAME REF ) ],
                          qw( ANNOTATION ),
                          qw( LOCATION ),
                          [ qw( ORIENTATION_POLICY ORIENTATIONPOLICY
@@ -237,10 +238,6 @@ sub set_attributes {
     defined $frame  && $self->frame($frame);
     $score          && $self->score($score);
     $annot          && $self->annotation($annot);
-    if($seqname) {
-	$self->warn("-seqname is deprecated. Please use -seq_id instead.");
-	$seqid = $seqname unless $seqid;
-    }
     $seqid          && $self->seq_id($seqid);
     $tag            && do {
 	foreach my $t ( keys %$tag ) {
@@ -273,6 +270,53 @@ sub direct_new {
     return $self;
 }
 
+=head2 new_from_feature
+
+ Title   : new_from_feature
+ Usage   : my $new_feature =
+             Bio::SeqFeature::Generic->new_from_feature( $copy_from );
+ Function: Create a new Bio::SeqFeature::Generic object by copying
+           values from another Generic object.
+ Returns : A new L<Bio::SeqFeature::Generic> object
+ Args    : Another L<Bio::SeqFeature::Generic> object
+ Status  : Protected
+
+  This is a special copy constructor.  It forces the new feature into
+  the L<Bio::SeqFeature::Generic> package, regardless of the
+  package that it is called from.  This causes subclass-specfic
+  information to be dropped.
+
+  This also does not copy into the new feature the features held in
+  the existing feature.  If you would like the new feature to hold the
+  same features you must explicitly add them, like so:
+    $new_feature->add_features( $copy_from->features() );
+
+  As a special bonus you may also pass an existing hash and it will be the
+  blessed an anointed object that is returned, like so:
+    $new_feature =
+      Bio::SeqFeature::Generic->new_from_feature(
+        $copy_from,
+        $new_feature
+      );
+
+=cut
+
+sub new_from_feature {
+  my $pack = shift; # ignored
+  my $feature = shift || $pack;
+  my $new_feature = shift;
+  $new_feature =
+    Bio::SeqFeature::SimpleSegment->new_from_segment(
+      $feature,
+      $new_feature
+    );
+  foreach my $key ( grep { /^_gsf_/ } keys %$feature ) {
+    next if( $key eq '_gsf_unique_id' );
+    $new_feature->{ $key } = $feature->{ $key };
+  }
+  return bless $new_feature, __PACKAGE__;
+} # new_from_feature(..)
+
 =head2 location
 
  Title   : location
@@ -292,7 +336,7 @@ sub location {
   # TODO: The problem with this approach is that if the user changes
   # the returned location, the location of this feature doesn't
   # change (or maybe this isn't a problem, I dunno. -Paul
-  my $old_location = $self->{ '_location' } ||
+  my $old_location = $self->{ '_gsf_location' } ||
     Bio::Location::Simple->new(
       '-seq_id' => $self->seq_id(),
       '-start' => $self->start(),
@@ -304,21 +348,21 @@ sub location {
       $self->throw( "object $new_location pretends to be a location but ".
                     "does not implement Bio::LocationI" );
     }
-    $self->{ '_location' } = $new_location;
+    $self->{ '_gsf_location' } = $new_location;
   }
   return $old_location;
 } # location(..)
 
 # Internal overridable getter/setter for the actual stored value of
-# seq_id.  Delegates to the location object at $self->{ '_location' }
+# seq_id.  Delegates to the location object at $self->{ '_gsf_location' }
 # if there is one; otherwise delegates to the superclass _seq_id(..).
 sub _seq_id {
   my $self = shift;
-  if( $self->{ '_location' } ) {
+  if( $self->{ '_gsf_location' } ) {
     my ( $new_val ) = @_;
-    my $old_val = $self->{ '_location' }->seq_id();
+    my $old_val = $self->{ '_gsf_location' }->seq_id();
     if( defined $new_val ) {
-      $self->{ '_location' }->seq_id( $new_val );
+      $self->{ '_gsf_location' }->seq_id( $new_val );
     }
     return $old_val;
   } else {
@@ -327,15 +371,15 @@ sub _seq_id {
 } # _seq_id(..)
 
 # Internal overridable getter/setter for the actual stored value of
-# start.  Delegates to the location object at $self->{ '_location' }
+# start.  Delegates to the location object at $self->{ '_gsf_location' }
 # if there is one; otherwise delegates to the superclass _start(..).
 sub _start {
   my $self = shift;
-  if( $self->{ '_location' } ) {
+  if( $self->{ '_gsf_location' } ) {
     my ( $new_val ) = @_;
-    my $old_val = $self->{ '_location' }->start();
+    my $old_val = $self->{ '_gsf_location' }->start();
     if( defined $new_val ) {
-      $self->{ '_location' }->start( $new_val );
+      $self->{ '_gsf_location' }->start( $new_val );
     }
     return $old_val;
   } else {
@@ -344,15 +388,15 @@ sub _start {
 } # _start(..)
 
 # Internal overridable getter/setter for the actual stored value of
-# end.  Delegates to the location object at $self->{ '_location' }
+# end.  Delegates to the location object at $self->{ '_gsf_location' }
 # if there is one; otherwise delegates to the superclass _end(..).
 sub _end {
   my $self = shift;
-  if( $self->{ '_location' } ) {
+  if( $self->{ '_gsf_location' } ) {
     my ( $new_val ) = @_;
-    my $old_val = $self->{ '_location' }->end();
+    my $old_val = $self->{ '_gsf_location' }->end();
     if( defined $new_val ) {
-      $self->{ '_location' }->end( $new_val );
+      $self->{ '_gsf_location' }->end( $new_val );
     }
     return $old_val;
   } else {
@@ -361,15 +405,15 @@ sub _end {
 } # _end(..)
 
 # Internal overridable getter/setter for the actual stored value of
-# strand.  Delegates to the location object at $self->{ '_location' }
+# strand.  Delegates to the location object at $self->{ '_gsf_location' }
 # if there is one; otherwise delegates to the superclass _strand(..).
 sub _strand {
   my $self = shift;
-  if( $self->{ '_location' } ) {
+  if( $self->{ '_gsf_location' } ) {
     my ( $new_val ) = @_;
-    my $old_val = $self->{ '_location' }->strand();
+    my $old_val = $self->{ '_gsf_location' }->strand();
     if( defined $new_val ) {
-      $self->{ '_location' }->strand( $new_val );
+      $self->{ '_gsf_location' }->strand( $new_val );
     }
     return $old_val;
   } else {
@@ -497,42 +541,46 @@ sub frame {
   return $self->{'_gsf_frame'};
 }
 
-=head2 primary_tag
-
- Title   : primary_tag
- Usage   : $tag = $feat->primary_tag()
-           $feat->primary_tag('exon')
- Function: get/set on the primary tag for a feature,
-           eg 'exon'
- Returns : a string
- Args    : none if get, the new value if set
-
-=cut
-
-sub primary_tag {
-   my ($self,$value) = @_;
-   my $type = $self->type;
-   if ( defined $value ) {
-       if (!$type) {
-           require "Bio/Ontology/TermFactory.pm";
-           my $factory = Bio::Ontology::TermFactory->new(-type => 'Bio::Ontology::Term');
-           $type = 
-             $factory->create_object(-name => $value,
-                                     -category => 'adhoc_sequence');
-           $self->type($type);
-       }
-       else {
-           $type->name($value);
-       }
-   }
-   if ($type) {
-       return $type->name;
-   }
-   else {
-       return;
-   }
-}
-
+## Just use the one inherited from SeqFeatureI.
+#=head2 primary_tag
+#
+# Title   : primary_tag
+# Usage   : $tag = $feat->primary_tag()
+#           $feat->primary_tag('exon')
+# Function: get/set on the primary tag for a feature,
+#           eg 'exon'
+# Returns : a string
+# Args    : none if get, the new value if set
+#
+#=cut
+#
+#sub primary_tag {
+#   my ($self,$value) = @_;
+#   my $type = $self->type;
+#   if ( defined $value ) {
+#       if (!$type) {
+#           require "Bio/Ontology/TermFactory.pm";
+#           my $factory = Bio::Ontology::TermFactory->new(-type => 'Bio::Ontology::Term');
+#           $type = 
+#             $factory->create_object(-name => $value,
+#                                     -category => 'adhoc_sequence');
+#           $self->type($type);
+#       }
+#       else {
+#           $type->name($value);
+#       }
+#   }
+#   if( defined $type ) {
+#     if( ref( $type ) && $type->isa( 'Bio::Ontology::Term' ) ) {
+#       return $type->name();
+#     } else {
+#       return $type;
+#     }
+#   } else {
+#     return;
+#   }
+#}
+#
 =head2 type_string
 
  Title   : type_string
@@ -567,9 +615,13 @@ sub type {
   my $self = shift;
   my ( $new_value ) = @_;
 
-  my $old_value = $self->{ '_type' };
+  my $old_value = $self->{ '_gsf_type' };
   if( defined( $new_value ) ) {
-    $self->{ '_type' } = $new_value;
+    if( $new_value eq 'undef' ) {
+      undef $self->{ '_gsf_type' };
+    } else {
+      $self->{ '_gsf_type' } = $new_value;
+    }
   }
   return $old_value;
 } # type(..)
@@ -588,22 +640,24 @@ sub type {
 
 =cut
 
-sub resolve_type{
-   my ($self, $graph, $mapping) = @_;
+sub resolve_type {
+  my ( $self, $graph, $mapping ) = @_;
 
-   my $tname = $self->type_string;
-   $tname = $mapping->{$tname} if $mapping->{$tname};
-   my $term = $graph->get_term_by_name($tname);
-   if ($term) {
-       # turn GO object into Bio object
-       $self->type_string($term->name);
-       $self->type->identifier($term->acc);
-       $self->type->category("sequence");
-       $term = $self->type;
-   }
-   return $term;
-}
-
+  my $tname = $self->type_string;
+  $tname = $mapping->{ $tname } if $mapping->{ $tname };
+  my $term = $graph->get_term_by_name( $tname );
+  if( $term ) {
+    # turn GO object into Bio object
+    $self->type_string( $term->name() );
+    if( ref( $self->type() ) &&
+        $self->type()->isa( 'Bio::Ontology::TermI' ) ) {
+      $self->type()->identifier( $term->acc );
+      $self->type()->category( 'sequence' );
+      $term = $self->type();
+    }
+  }
+  return $term;
+} # resolve_type(..)
 
 
 =head2 source_tag
@@ -620,12 +674,12 @@ sub resolve_type{
 =cut
 
 sub source_tag {
-   my ($self,$value) = @_;
+  my ( $self, $value ) = @_;
 
-   if( defined $value ) {
-       $self->{'_source_tag'} = $value;
-   }
-   return $self->{'_source_tag'};
+  if( defined $value ) {
+    $self->{'_gsf_source_tag'} = $value;
+  }
+  return $self->{'_gsf_source_tag'};
 }
 
 =head2 has_tag
@@ -831,15 +885,17 @@ sub entire_seq {
 
 =cut
 
+# Note that this method notifies observers.
 sub unique_id {
-  my ($obj,$value) = @_;
-  my $current_value = $obj->{'_gsf_unique_id'};
+  my ($self,$value) = @_;
+  my $current_value = $self->{'_gsf_unique_id'};
   if ( defined $value ) {
     if( !$value || ( $value eq 'undef' ) ) {
-      $obj->{'_gsf_unique_id'} = undef;
+      $self->{'_gsf_unique_id'} = undef;
     } else {
-      $obj->{'_gsf_unique_id'} = $value;
+      $self->{'_gsf_unique_id'} = $value;
     }
+    $self->notify_observers( 'unique_id', '-old'=>$current_value, '-new'=>$value );
   }
   return $current_value;
 } # unique_id()
@@ -847,7 +903,7 @@ sub unique_id {
 =head2 display_name
 
  Title   : display_name
- Usage   : $featname = $obj->display_name
+ Usage   : $featname = $feature->display_name
  Function: Implements the display_name() method, which is a human-readable
            name for the feature. 
  Returns : value of display_name (a string)
@@ -855,11 +911,11 @@ sub unique_id {
 
 =cut
 
-sub display_name{
+sub display_name {
     my $self = shift;
 
-    return $self->{'display_name'} = shift if @_;
-    return $self->{'display_name'};
+    return $self->{'_gsf_display_name'} = shift if @_;
+    return $self->{'_gsf_display_name'};
 }
 
 =head1 Methods for implementing Bio::AnnotatableI
@@ -921,13 +977,13 @@ sub gff_format {
 
     if(defined($gffio)) {
 	if(ref($self)) {
-	    $self->{'_gffio'} = $gffio;
+	    $self->{'_gsf_gffio'} = $gffio;
 	} else {
 	    $Bio::SeqFeatureI::static_gff_formatter = $gffio;
 	}
     }
-    return (ref($self) && exists($self->{'_gffio'}) ?
-	    $self->{'_gffio'} : $self->_static_gff_formatter);
+    return (ref($self) && exists($self->{'_gsf_gffio'}) ?
+	    $self->{'_gsf_gffio'} : $self->_static_gff_formatter);
 }
 
 =head2 gff_string
@@ -946,7 +1002,7 @@ sub gff_format {
 
 =cut
 
-sub gff_string{
+sub gff_string {
    my ($self,$formatter) = @_;
 
    $formatter = $self->gff_format() unless $formatter;
@@ -1012,36 +1068,6 @@ sub _from_gff_string {
 }
 
 
-=head2 _expand_region
-
- Title   : _expand_region
- Usage   : $self->_expand_region($feature);
- Function: Expand the total region covered by this feature to
-           accomodate for the given feature.
- Returns : 
- Args    : A Bio::SeqFeatureI implementing object.
-
-
-=cut
-
-sub _expand_region {
-    my ($self, $feat) = @_;
-    if(! $feat->isa('Bio::SeqFeatureI')) {
-	$self->warn("$feat does not implement Bio::SeqFeatureI");
-    }
-    # if this doesn't have start/end set - forget it!
-    if((! defined($self->start())) && (! defined $self->end())) {
-	$self->strand($feat->strand) unless defined($self->strand());
-	$self->start($feat->start());
-	$self->end($feat->end());
-    } else {
-	my $range = $self->union($feat);
-	$self->strand($range->strand);
-	$self->start($range->start);
-	$self->end($range->end);
-    }
-}
-
 =head2 _parse
 
  Title   : _parse
@@ -1057,7 +1083,7 @@ sub _expand_region {
 sub _parse {
    my ($self) = @_;
 
-   return $self->{'_parse_h'};
+   return $self->{'_gsf_parse_h'};
 }
 
 =head2 _tag_value
@@ -1104,85 +1130,6 @@ sub each_tag_value { return shift->get_tag_values(@_); }
 sub all_tags { return shift->get_all_tags(@_); }
 
 
-# Things that might be in Bio::FeatureHolderI, but aren't.
-=head2 add_SeqFeature
-
- Title   : add_SeqFeature
- Usage   : $computation->add_SeqFeature( $feature );
-           OR
-           $computation->add_SeqFeature( $feature, $type );
-           OR
-           $computation->add_SeqFeature( $feature, $expand, $type );
- Function: Adds a subfeature to this feature, optionally with the given type.
- Returns : nothing
- Args    : 1 or 2 or 3 arguments: the first is a L<Bio::SeqFeatureI>
-           object; the second if there's 3 arguments is a boolean
-           EXPAND value; the third if there's 3 or second if there's 2
-           arguments is a L<Bio::SeqFeature::TypeI> object or a type
-           id string.
-
-  If a type is given then before the feature is added its type(..)
-  method will be called with the given value as an argument.  If a
-  true value for $expand is given (when there's 3 arguments) then this
-  feature will grow to accomodate the new subfeature.  Note that if
-  only 2 arguments are given but the second argument is the string
-  'EXPAND', the value will be interpreted as a true $expand argument,
-  and the type of the feature will not be changed.
-
-=cut
-
-sub add_SeqFeature {
-  my $self = shift;
-  my $feature = shift;
-
-  ## Assertion: It's a feature.
-  # Paul's Note: this used to just issue a warning.  I've upgraded it.
-  # Why would we ever allow non-features?
-  unless( $feature->isa( 'Bio::SeqFeatureI' ) ) {
-    $self->throw( "The given feature ('$feature') is not a Bio::SeqFeatureI." );
-  }
-
-  my $type = shift;
-  my $expand;
-  if( $_[ 0 ] ) {
-    $expand = $type;
-    $type = shift;
-  } elsif( $type eq 'EXPAND' ) {
-    $expand = $type;
-    undef $type;
-  }
-
-  if( $expand ) {
-    $self->_expand_region( $feature );
-  } else {
-    unless( $self->contains( $feature ) ) {
-      $self->throw( "The given feature ('$feature') is not contained within the parent feature, and expansion has not been requested." );
-    }
-  }
-
-  if( $type ) {
-    $feature->type( $type );
-  }
-  $self->add_features( $feature );
-} # add_SeqFeature(..)
-
-=head2 remove_SeqFeatures
-
- Title   : remove_SeqFeatures
- Usage   : $feature->remove_SeqFeatures();
-           OR
-           $feature->remove_SeqFeatures( @types );
- Function: Removes all sub features or all sub features of the given types
- Returns : The array of L<Bio::SeqFeatureI> objects removed.
- Args    : none
-
-=cut
-
-sub remove_SeqFeatures {
-  my $self = shift;
-  return $self->remove_features( $self->features( @_ ) );
-} # remove_SeqFeatures(..)
-
 # Aliases because we can never quite settle on the right method names.
 sub sub_SeqFeature {
   shift->Bio::SeqFeature::SimpleSegment::get_SeqFeatures( @_ );
@@ -1190,10 +1137,113 @@ sub sub_SeqFeature {
 sub all_sub_SeqFeature_types {
   shift->Bio::SeqFeature::SimpleSegment::types( @_ );
 }
+sub add_SeqFeature {
+  shift->add_SeqFeatures( @_ );
+}
+sub add_sub_SeqFeature {
+  shift->add_SeqFeatures( @_ );
+}
+sub flush_sub_SeqFeatures {
+  shift->remove_SeqFeatures( @_ );
+}
+sub flush_sub_SeqFeature {
+  shift->remove_SeqFeatures( @_ );
+}
 
-*add_sub_SeqFeature = \&add_SeqFeature;
-*flush_sub_SeqFeatures = \&remove_SeqFeatures;
-*flush_sub_SeqFeature = \&remove_SeqFeatures;
+=head2 equals
+
+  Title   : equals
+  Usage   : if( $seq_feature->equals( $another_seq_feature ) )
+  Function: Return true iff the other feature is 'equal' to this one
+            (see below); if the argument is a RangeI but not a
+            SeqFeatureI, then return true iff it has the same start,
+            end, length as this SeqFeatureI does; if it is any other
+            object, return false.
+  Args    : a Bio::SeqFeatureI
+  Returns : true iff they are describing the same feature
+
+   This method is implemented in the interface to use the following
+   equality test for other SeqFeatureIs:
+
+   * If either SeqFeatureI returns something other than undef from its
+     unique_id() method, then return false unless they are the same
+     (by eq).
+   * Return false unless they have the same range (using the RelRangeI
+     superclass equals method).
+   * If they have the same range and either returns something other
+     than undef from its display_name() method, then return false
+     unless they are the same (by eq).
+   * If all other tests do not fail (ie. they have the same range and
+     no unique_id or display_name), return true.
+
+  Implementing classes may override or augment this behavior.
+
+=cut
+
+sub equals {
+  my ( $self, $other, @args ) = @_;
+
+  return unless( defined $other );
+
+  if( ref( $other ) && $other->isa( 'Bio::SeqFeatureI' ) ) {
+    my $my_unique_id = $self->unique_id();
+    my $other_unique_id = $other->unique_id();
+    if( defined( $my_unique_id ) ) {
+      if( defined( $other_unique_id ) ) {
+        ## TODO: REMOVE
+        #if( $my_unique_id eq $other_unique_id ) {
+        #  print STDERR "$self and $other ARE equal because their unique_ids are the same ($my_unique_id)\n";
+        #} else {
+        #  print STDERR "$self and $other are not equal because their unique_ids are different.\n";
+        #}
+        return ( $my_unique_id eq $other_unique_id );
+      }
+      ## TODO: REMOVE
+      #print STDERR "$self and $other are not equal because $self has a unique_id but $other does not.\n";
+      return 0;
+    }
+    if( defined( $other_unique_id ) ) {
+      ## TODO: REMOVE
+      #print STDERR "$self and $other are not equal because $other has a unique_id but $self does not.\n";
+      return 0;
+    }
+    ## Okay, neither has a unique_id.
+    unless( $self->Bio::RelRangeI::equals( $other ) ) {
+      ## TODO: REMOVE
+      #print STDERR "$self and $other are not equal because RelRangeI says so.\n";
+      return 0;
+    }
+    my $my_display_name = $self->display_name();
+    my $other_display_name = $other->display_name();
+    if( defined( $my_display_name ) ) {
+      if( defined( $other_display_name ) ) {
+        ## TODO: REMOVE
+        #if( $my_display_name eq $other_display_name ) {
+        #  print STDERR "$self and $other ARE equal because their display_names are the same ($my_display_name)\n";
+        #} else {
+        #  print STDERR "$self and $other are not equal because their display_names are different.\n";
+        #}
+        return ( $my_display_name eq $other_display_name );
+      }
+      ## TODO: REMOVE
+      #print STDERR "$self and $other are not equal because $self has a display_name but $other does not.\n";
+      return 0;
+    }
+    if( defined( $other_display_name ) ) {
+      ## TODO: REMOVE
+      #print STDERR "$self and $other are not equal because $other has a display_name but $self does not.\n";
+      return 0;
+    }
+    ## Okay, neither has a display_name
+    ## TODO: REMOVE
+    #print STDERR "$self and $other ARE equal because neither has a display_name.\n";
+    return 1;
+  } else {
+    ## TODO: REMOVE
+    #print STDERR "$self and $other are not equal because $other isn't even a feature.\n";
+    return 0;
+  }
+} # equals(..)
 
 1;
 

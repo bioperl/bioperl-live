@@ -507,13 +507,30 @@ sub _cleanup_methods {
 =cut
 
 #'
-
 sub throw_not_implemented {
     my $self = shift;
     my $package = ref $self;
+
     my $iface = caller(0);
     my @call = caller(1);
     my $meth = $call[3];
+
+    ## As a last resort, try AUTOLOAD.
+    # NOTE that arguments and return values must be passed through
+    # throw_not_implemented, so it should be called with the line
+    # return shift->throw_not_implemented( @_ );
+    # (although 'return' is unnecessary if this is the only line in the
+    # method, which it probably is)
+    # Also NOTE that we can't, in general, get access to the right $AUTOLOAD
+    # variable, so we pass the value that it would be as the first argument
+    # to the AUTOLOAD method.  This means that your AUTOLOAD method must
+    # do something like this:
+    # my $self = shift;
+    # $AUTOLOAD |= shift;
+    if( $self->can( 'AUTOLOAD' ) ) {
+      my $AUTOLOAD = "$package::$meth";
+      return $self->AUTOLOAD( $AUTOLOAD, @_ );
+    }
 
     my $message = "Abstract method \"$meth\" is not implemented by package $package.\n" .
 		   "This is not your fault - author of $package should be blamed!\n";

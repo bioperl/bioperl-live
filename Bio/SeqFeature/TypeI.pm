@@ -88,7 +88,7 @@ $VERSION = '0.01';
 =cut
 
 sub parents {
-  shift->throw_not_implemented();
+  shift->throw_not_implemented( @_ );
 }
 
 =head2 children
@@ -104,7 +104,7 @@ sub parents {
 =cut
 
 sub children {
-  shift->throw_not_implemented();
+  shift->throw_not_implemented( @_ );
 }
 
 =head2 ancestors
@@ -122,7 +122,7 @@ sub children {
 =cut
 
 sub ancestors {
-  shift->throw_not_implemented();
+  shift->throw_not_implemented( @_ );
 }
 
 =head2 descendents
@@ -140,7 +140,7 @@ sub ancestors {
 =cut
 
 sub descendents {
-  shift->throw_not_implemented();
+  shift->throw_not_implemented( @_ );
 }
 
 =head2 is_parent
@@ -155,7 +155,7 @@ sub descendents {
 =cut
 
 sub is_parent {
-  shift->throw_not_implemented();
+  shift->throw_not_implemented( @_ );
 }
 
 =head2 is_ancestor
@@ -170,7 +170,7 @@ sub is_parent {
 =cut
 
 sub is_ancestor {
-  shift->throw_not_implemented();
+  shift->throw_not_implemented( @_ );
 }
 
 =head2 is_child
@@ -185,7 +185,7 @@ sub is_ancestor {
 =cut
 
 sub is_child {
-  shift->throw_not_implemented();
+  shift->throw_not_implemented( @_ );
 }
 
 =head2 is_descendent
@@ -200,7 +200,7 @@ sub is_child {
 =cut
 
 sub is_descendent {
-  shift->throw_not_implemented();
+  shift->throw_not_implemented( @_ );
 }
 
 =head2 id
@@ -212,11 +212,13 @@ sub is_descendent {
  Args    : a new value (optional)
  Status  : Public
 
-  This is a (glob ref) alias for identifier().
+  This is an alias for identifier().
 
 =cut
 
-  *id = \&identifier;
+sub id {
+  shift->identifier( @_ );
+}
 
 =head2 accession
 
@@ -227,11 +229,13 @@ sub is_descendent {
  Args    : a new value (optional)
  Status  : Public
 
-  This is a (glob ref) alias for identifier().
+  This is an alias for identifier().
 
 =cut
 
-  *accession = \&identifier;
+sub accession {
+  shift->identifier( @_ );
+}
 
 =head2 label
 
@@ -242,11 +246,13 @@ sub is_descendent {
  Args    : a new value (optional)
  Status  : Public
 
-  This is a (glob ref) alias for name().
+  This is an alias for name().
 
 =cut
 
-  *label = \&name;
+sub label {
+  shift->name( @_ );
+}
 
 =head2 toString
 

@@ -119,8 +119,7 @@ define.
 =cut
 
 sub object_id {
-   my ($self) = @_;
-   $self->throw_not_implemented();
+  shift->throw_not_implemented( @_ );
 }
 
 =head2 version
@@ -138,8 +137,7 @@ sub object_id {
 =cut
 
 sub version {
-   my ($self) = @_;
-   $self->throw_not_implemented();
+  shift->throw_not_implemented( @_ );
 }
 
 
@@ -157,8 +155,7 @@ sub version {
 =cut
 
 sub authority {
-   my ($self) = @_;
-   $self->throw_not_implemented();
+  shift->throw_not_implemented( @_ );
 }
 
 
@@ -176,8 +173,7 @@ sub authority {
 =cut
 
 sub namespace {
-   my ($self) = @_;
-   $self->throw_not_implemented();
+  shift->throw_not_implemented( @_ );
 }
 
 =head2 unique_id
@@ -199,8 +195,7 @@ B<must> return undef from its unique_id() method.
 =cut
 
 sub unique_id {
-  my ($self) = @_;
-  return $self->lsid_string();
+  return shift->lsid_string( @_ );
 }
 
 
@@ -222,13 +217,12 @@ the interface but can be overridden if so wished
 
 =cut
 
+## TODO: Allow setting..
 sub lsid_string {
   my ($self) = @_;
 
   return $self->authority.":".$self->namespace.":".$self->object_id;
 }
-
-
 
 =head2 namespace_string
 

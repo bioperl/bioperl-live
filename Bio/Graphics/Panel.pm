@@ -5,7 +5,6 @@ use Bio::Graphics::Glyph::Factory;
 use Bio::Graphics::Feature;
 use GD;
 use vars '$VERSION';
-
 $VERSION = 1.04;
 
 use constant KEYLABELFONT => gdMediumBoldFont;
@@ -152,8 +151,7 @@ sub map_no_trunc {
 
 sub scale {
   my $self = shift;
-#  $self->{scale} ||= ($self->{width}-$self->pad_left-$self->pad_right-1)/($self->length-1);  # wrong!
-  $self->{scale} ||= ($self->{width}-$self->pad_left-$self->pad_right)/($self->length);   # right, but I don't want to fix regression tests!
+  $self->{scale} ||= ($self->{width}-$self->pad_left-$self->pad_right)/($self->length||1); ## Paul added the ||1 for div/0 fixing
 }
 
 sub start { shift->{offset}+1}
@@ -232,12 +230,19 @@ sub _do_add_track {
 
   # due to indecision, we accept features
   # and/or glyph types in the first two arguments
-  my ($features,$glyph_name) = ([],undef);
-  while ( @_ && $_[0] !~ /^-/) {
-    my $arg = shift;
-    $features   = $arg and next if ref($arg);
-    $glyph_name = $arg and next unless ref($arg);
+  my $features = [];
+  my( $glyph_name, $arg );
+  while( @_ && $_[ 0 ] !~ /^-/ ) {
+    $arg = shift;
+    if( ref( $arg ) ) {
+      $features = $arg;
+    } else {
+      $glyph_name = $arg;
+    }
   }
+
+  ## TODO: REMOVE
+  #warn "_do_add_track( $position, ..): \$features is $features, a ".ref( $features )."." if Bio::Graphics::Browser::DEBUG;
 
   my %args = @_;
   my ($map,$ss,%options);
@@ -258,22 +263,39 @@ sub _do_add_track {
   $glyph_name = $map if defined $map;
   $glyph_name ||= 'generic';
 
+  local $^W = 0;  # uninitialized variable warnings under 5.00503
+
   my $panel_map =
     ref($map) eq 'CODE' ?  sub {
       my $feature = shift;
-      return 'track' if eval { $feature->primary_tag  eq 'track' };
+      if( eval { $feature->primary_tag  eq 'track' } ) {
+        if( $options{ 'track_glyph' } ) {
+          return $map->( $feature );
+        }
+        return 'track';
+      }
       return 'group' if eval { $feature->primary_tag  eq 'group' };
       return $map->($feature);
     }
    : ref($map) eq 'HASH' ? sub {
      my $feature = shift;
-     return 'track' if eval { $feature->primary_tag  eq 'track' };
+     if( eval { $feature->primary_tag  eq 'track' } ) {
+       if( $options{ 'track_glyph' } ) {
+         return $options{ 'track_glyph' };
+       }
+       return 'track';
+     }
      return 'group' if eval { $feature->primary_tag  eq 'group' };
      return eval {$map->{$feature->primary_tag}} || 'generic';
    }
    : sub {
      my $feature = shift;
-     return 'track' if eval { $feature->primary_tag  eq 'track' };
+     if( eval { $feature->primary_tag  eq 'track' } ) {
+       if( $options{ 'track_glyph' } ) {
+         return $options{ 'track_glyph' };
+       }
+       return 'track';
+     }
      return 'group' if eval { $feature->primary_tag  eq 'group' };
      return $glyph_name;
    };
@@ -286,24 +308,42 @@ sub _add_track {
   my ($position,$features,@options) = @_;
 
   # build the list of features into a Bio::Graphics::Feature object
-  $features = [$features] unless ref $features eq 'ARRAY';
+  my $seq_id;
+  unless( ref $features eq 'ARRAY' ) {
+    unless( $features->isa( 'Bio::SeqFeature::SegmentI' ) ) {
+      $seq_id = $features;
+      $features = Bio::SeqFeature::SimpleSegment->new( '-seq_id' => $seq_id, '-start' => $seq_id->start(), '-end' => $seq_id->end() );
+    } else {
+      $seq_id = $features->abs_range();
+    }
+    $features = [ $features ];
+  } elsif( @$features ) {
+    $seq_id = $features->[ 0 ]->abs_range();
+  }
 
   # optional middle-level glyph is the group
   foreach my $f (grep {ref $_ eq 'ARRAY'} @$features) {
     next unless ref $f eq 'ARRAY';
     $f = Bio::Graphics::Feature->new(
-				     -segments=>$f,
+				     #-segments=>$f,
+                                     -features=>$f,
 				     -type => 'group'
 				    );
   }
 
   # top-level glyph is the track
   my $feature = Bio::Graphics::Feature->new(
-					    -segments=>$features,
+					    #-segments => $features,
+                                            -features => $features,
+                                            -seq_id => $seq_id,
 					    -start => $self->offset+1,
 					    -stop  => $self->offset+$self->length,
 					    -type => 'track'
 					   );
+
+  ## TODO: REMOVE
+  #warn "Panel::_add_track( $position, [ ".join( ', ', @$features )." ], @options ): creating factory and glyph." if Bio::Graphics::Browser::DEBUG;
+  #warn "Panel::_add_track( $position, [ ".join( ', ', $feature->features() )." ], @options ): creating factory and glyph." if Bio::Graphics::Browser::DEBUG;
 
   my $factory = Bio::Graphics::Glyph::Factory->new($self,@options);
   my $track   = $factory->make_glyph(-1,$feature);
@@ -342,41 +382,52 @@ sub gd {
   my $self        = shift;
   my $existing_gd = shift;
 
-  local $^W = 0;  # can't track down the uninitialized variable warning
+  #local $^W = 0;  # can't track down the uninitialized variable warning
 
-  return $self->{gd} if $self->{gd};
+  return $self->{ 'gd' } if $self->{ 'gd' };
 
-  my $width  = $self->width;
-  my $height = $self->height;
+  # GD will crash if these values are 0, so jic we ||= 1.
+  my $width  = $self->width() || 1;
+  my $height = $self->height() || 1;
 
-  my $gd = $existing_gd || GD::Image->new($width,$height,
-					  ($self->{truecolor} && GD::Image->can('isTrueColor') ? 1 : ())
-					 );
+  ## TODO: REMOVE
+  #warn "Panel::gd(..): \$width is $width, \$height is $height, \$self->{key_style} is ".$self->{ 'key_style' }."." if Bio::Graphics::Browser::DEBUG;
+
+  my $gd = $existing_gd ||
+    GD::Image->new(
+      $width,
+      $height,
+      (
+       ( $self->{ 'truecolor' } && GD::Image->can( 'isTrueColor' ) ) ?
+       1 :
+       ()
+      )
+    );
 
   my %translation_table;
-  for my $name ('white','black',keys %COLORS) {
-    my $idx = $gd->colorAllocate(@{$COLORS{$name}});
-    $translation_table{$name} = $idx;
+  for my $name ( 'white', 'black', keys %COLORS ) {
+    my $idx = $gd->colorAllocate( @{ $COLORS{ $name } } );
+    $translation_table{ $name } = $idx;
   }
 
-  $self->{translations} = \%translation_table;
-  $self->{gd}           = $gd;
-  if ($self->bgcolor) {
-    $gd->fill(0,0,$self->bgcolor);
-  } elsif (eval {$gd->isTrueColor}) {
-    $gd->fill(0,0,$translation_table{'white'});
+  $self->{ 'translations' } = \%translation_table;
+  $self->{ 'gd' }           = $gd;
+  if( $self->bgcolor() ) {
+    $gd->fill( 0, 0, $self->bgcolor() );
+  } elsif( eval { $gd->isTrueColor() } ) {
+    $gd->fill( 0, 0, $translation_table{ 'white' } );
   }
 
-  my $pl = $self->pad_left;
-  my $pt = $self->pad_top;
+  my $pl = $self->pad_left();
+  my $pt = $self->pad_top();
   my $offset = $pt;
-  my $keyheight   = $self->{key_font}->height;
-  my $bottom_key  = $self->{key_style} eq 'bottom';
-  my $between_key = $self->{key_style} eq 'between';
-  my $left_key    = $self->{key_style} eq 'left';
-  my $right_key   = $self->{key_style} eq 'right';
-  my $empty_track_style = $self->empty_track_style;
-  my $spacing = $self->spacing;
+  my $keyheight   = $self->{ 'key_font' }->height;
+  my $bottom_key  = $self->{ 'key_style' } eq 'bottom';
+  my $between_key = $self->{ 'key_style' } eq 'between';
+  my $left_key    = $self->{ 'key_style' } eq 'left';
+  my $right_key   = $self->{ 'key_style' } eq 'right';
+  my $empty_track_style = $self->empty_track_style();
+  my $spacing = $self->spacing();
 
   # we draw in two steps, once for background of tracks, and once for
   # the contents.  This allows the grid to sit on top of the track background.
@@ -446,9 +497,15 @@ sub boxes {
     $offset += $keyheight if $draw_between;
     my $boxes = $track->boxes(0,$offset+$pt);
     $self->track_position($track,$offset);
+    # Add to each box the Config section that the track corresponds to.
+    my $config_section = $track->option( 'config_section' );
+    foreach my $box ( @$boxes ) {
+      push( @$box, $config_section );
+    }
     push @boxes,@$boxes;
     $offset += $track->layout_height + $self->spacing;
   }
+
   return wantarray ? @boxes : \@boxes;
 }
 
@@ -462,6 +519,8 @@ sub track_position {
 
 # draw the keys -- between
 sub draw_between_key {
+  ## TODO: REMOVE
+  #warn "Drawing between key.";
   my $self   = shift;
   my ($gd,$track,$offset) = @_;
   my $key = $track->option('key') or return 0;
@@ -891,6 +950,56 @@ wheat                F5           DE            B3
 whitesmoke           F5           F5            F5
 yellow               FF           FF            00
 yellowgreen          9A           CD            32
+gradient1	00 ff 00
+gradient2	0a ff 00
+gradient3	14 ff 00
+gradient4	1e ff 00
+gradient5	28 ff 00
+gradient6	32 ff 00
+gradient7	3d ff 00
+gradient8	47 ff 00
+gradient9	51 ff 00
+gradient10	5b ff 00
+gradient11	65 ff 00
+gradient12	70 ff 00
+gradient13	7a ff 00
+gradient14	84 ff 00
+gradient15	8e ff 00
+gradient16	99 ff 00
+gradient17	a3 ff 00
+gradient18	ad ff 00
+gradient19	b7 ff 00
+gradient20	c1 ff 00
+gradient21	cc ff 00
+gradient22	d6 ff 00
+gradient23	e0 ff 00
+gradient24	ea ff 00
+gradient25	f4 ff 00
+gradient26	ff ff 00
+gradient27	ff f4 00
+gradient28	ff ea 00
+gradient29	ff e0 00
+gradient30	ff d6 00
+gradient31	ff cc 00
+gradient32	ff c1 00
+gradient33	ff b7 00
+gradient34	ff ad 00
+gradient35	ff a3 00
+gradient36	ff 99 00
+gradient37	ff 8e 00
+gradient38	ff 84 00
+gradient39	ff 7a 00
+gradient40	ff 70 00
+gradient41	ff 65 00
+gradient42	ff 5b 00
+gradient43	ff 51 00
+gradient44	ff 47 00
+gradient45	ff 3d 00
+gradient46	ff 32 00
+gradient47	ff 28 00
+gradient48	ff 1e 00
+gradient49	ff 14 00
+gradient50	ff 0a 00
 __END__
 
 =head1 NAME
@@ -1203,6 +1312,10 @@ Currently, the following glyphs are available:
   primers     Two inward pointing arrows connected by a line.
 	      Used for STSs.
 
+  redgreen_box A box that changes from green->yellow->red as the score
+              of the feature increases from 0.0 to 1.0.  Useful for
+              representing microarray results.
+
   rndrect     A round-cornered rectangle.
 
   segments    A set of filled rectangles connected by solid lines.
@@ -1231,6 +1344,8 @@ Currently, the following glyphs are available:
               translation.
 
   triangle    A triangle whose width and orientation can be altered.
+
+  xyplot      Histograms and other graphs plotted against the genome.
 
 If the glyph name is omitted from add_track(), the "generic" glyph
 will be used by default.  To get more information about a glyph, run
@@ -1678,12 +1793,14 @@ L<Bio::Graphics::Glyph::pinsertion>,
 L<Bio::Graphics::Glyph::primers>,
 L<Bio::Graphics::Glyph::rndrect>,
 L<Bio::Graphics::Glyph::segments>,
+L<Bio::Graphics::Glyph::redgreen_box>,
 L<Bio::Graphics::Glyph::ruler_arrow>,
 L<Bio::Graphics::Glyph::toomany>,
 L<Bio::Graphics::Glyph::transcript>,
 L<Bio::Graphics::Glyph::transcript2>,
 L<Bio::Graphics::Glyph::translation>,
 L<Bio::Graphics::Glyph::triangle>,
+L<Bio::Graphics::Glyph::xyplot>,
 L<Bio::SeqI>,
 L<Bio::SeqFeatureI>,
 L<Bio::Das>,

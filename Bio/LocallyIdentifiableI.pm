@@ -91,8 +91,7 @@ unique_id() method.
 =cut
 
 sub unique_id {
-   my ($self) = @_;
-   $self->throw_not_implemented();
+  shift->throw_not_implemented( @_ );
 }
 
 1;

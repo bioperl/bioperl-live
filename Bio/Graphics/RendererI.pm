@@ -1,3 +1,5 @@
+package Bio::Graphics::RendererI;
+
 # $Id $
 
 =head1 NAME
@@ -63,7 +65,6 @@ Internal methods are usually preceded with a _
 
 # Let the code begin...
 
-package Bio::Graphics::RendererI;
 use vars qw( @ISA );
 use strict;
 use Bio::Root::RootI;
@@ -93,3 +94,5 @@ sub render {
 }
 
 1;
+
+__END__

@@ -95,9 +95,8 @@ use Carp;
 =cut
 
 sub add_alternative_locations {
-    my $self = shift;
-    my @locations = @_;
-    $self->throw_not_implemented();
+  my @locations = @_;
+  shift->throw_not_implemented( @_ );
 }
 *add_alternative_location = \&add_alternative_locations;
 
@@ -112,9 +111,8 @@ sub add_alternative_locations {
 =cut
 
 sub alternative_locations {
-    my $self = shift;
-    my $seqid_filter = shift;
-    $self->throw_not_implemented();
+  my $seqid_filter = shift;
+  shift->throw_not_implemented( @_ );
 }
 
 =head2 clear_alternative_locations
@@ -128,10 +126,11 @@ sub alternative_locations {
 =cut
 
 sub clear_alternative_locations {
-    my $self = shift;
-    my $seqid_filter = shift;
-    $self->throw_not_implemented();
+  my $seqid_filter = shift;
+  shift->throw_not_implemented( @_ );
 }
 
 1;
+
+__END__
 

@@ -1,6 +1,6 @@
 package Bio::SeqFeature::SimpleCollection;
 
-# $Id $
+# $Id$
 ## A simple implementation of the Bio::SeqFeature::CollectionI interface.
 
 =head1 NAME
@@ -208,10 +208,10 @@ sub sorted {
 =head2 add_features
 
  Title   : add_features
- Usage   : $collection->add_features( @feature_list );
+ Usage   : my @added = $collection->add_features( @feature_list );
  Function: Adds the given features to this Collection.
  Returns : The features added (or their count, in scalar context).
- Args    : An array of L<Bio::SeqFeatureI>s
+ Args    : An array of L<Bio::SeqFeature::SegmentI>s
  Status  : Public
 
 =cut
@@ -223,7 +223,7 @@ sub add_features {
   my $count = 0;
   my @added;
   foreach my $feature ( @feature_list ) {
-    if( $self->_insert_feature( $feature ) ) {
+    if( $feature = $self->_insert_feature( $feature ) ) {
       if( wantarray ) {
         push( @added, $feature );
       } else {
@@ -238,10 +238,10 @@ sub add_features {
 =head2 remove_features
 
  Title   : remove_features
- Usage   : $collection->remove_features( @feature_list )
+ Usage   : my @removed = $collection->remove_features( @feature_list )
  Function: Removes the requested sequence features
  Returns : The removed features (or their count, in scalar context)
- Args    : An array of L<Bio::SeqFeatureI>s or their unique_ids
+ Args    : An array of L<Bio::SeqFeature::SegmentI>s or their unique_ids
  Status  : Public
 
 =cut
@@ -257,7 +257,7 @@ sub remove_features {
     if( ref \$feature eq 'STRING' ) {
       $feature = Bio::SeqFeature::Generic->new( '-unique_id' => $feature );
     }
-    if( $self->_remove_feature( $feature ) ) {
+    if( $feature = $self->_remove_feature( $feature ) ) {
       if( wantarray ) {
         push( @removed, $feature );
       } else {
@@ -274,7 +274,7 @@ sub remove_features {
  Usage   : @features = $collection->features( %args );
            OR
            @features = $collection->features( @types );
- Returns : a list of L<Bio::SeqFeatureI> objects,
+ Returns : a list of L<Bio::SeqFeature::SegmentI> objects,
            OR
            (when the -iterator option is true) an L<Bio::SeqFeature::IteratorI>
            OR
@@ -396,7 +396,7 @@ then any feature with the display_name or unique_id 'foo', 'ns:foo',
 
 If -iterator is true, then the method returns an object of type
 Bio::SeqFeature::IteratorI.  Each call to next_seq() on this
-object returns a Bio::SeqFeatureI object from this collection.
+object returns a Bio::SeqFeature::SegmentI object from this collection.
 
 If -callback is passed a code reference, the code reference will be
 invoked on each feature returned.  The code will be passed two
@@ -637,7 +637,7 @@ sub features {
     ) {
 
     ## TODO: REMOVE
-    unless( ref( $feature ) && $feature->isa( 'Bio::SeqFeatureI' ) ) {
+    unless( ref( $feature ) && $feature->isa( 'Bio::SeqFeature::SegmentI' ) ) {
       print STDERR "--------------Hey, man.  $feature ain't a feature!=======\n";
     }
 
@@ -837,6 +837,107 @@ sub feature_count {
 
   return $count;
 } # feature_count()
+
+=head2 _insert_feature
+
+ Title   : _insert_feature
+  Usage   : $provider->_insert_feature( $feature );
+ Function: Inserts the given feature into the store.
+ Args    : L<Bio::SeqFeature::SegmentI> object
+ Returns : The feature added, or undef iff the feature already existed.
+ Status  : Protected
+
+  Note that the returned feature might not be the same object as the
+  given feature if, for example, the _create_feature(..) method was
+  invoked on the argument.
+
+=cut
+
+# Enveloped to add $self as an observer of the added feature.
+sub _insert_feature {
+  my $self = shift;
+  my $added_feature = $self->SUPER::_insert_feature( @_ );
+  if( defined $added_feature ) {
+    $added_feature->add_observer( $self );
+  }
+  return $added_feature;
+} # _insert_feature(..)
+
+=head2 _insert_or_update_feature
+
+ Title   : _insert_or_update_feature
+ Usage   : $provider->_insert_or_update_feature( $feature );
+ Function: Inserts or updates the given feature in the store.
+ Args    : L<Bio::SeqFeature::SegmentI> object
+ Returns : The feature that was added or updated.
+ Status  : Protected
+
+  Note that the returned feature might not be the same object as the
+  given feature if, for example, the _create_feature(..) method was
+  invoked on the argument.
+
+=cut
+
+# Enveloped to ensure that $self is an observer of the feature.
+sub _insert_or_update_feature {
+  my $self = shift;
+  my $inserted_or_updated_feature =
+    $self->SUPER::_insert_or_update_feature( @_ );
+
+  if( defined $inserted_or_updated_feature ) {
+    $inserted_or_updated_feature->delete_observer( $self );
+    $inserted_or_updated_feature->add_observer( $self );
+  }
+  return $inserted_or_updated_feature;
+} # _insert_or_update_feature(..)
+
+=head2 _remove_feature
+
+ Title   : _remove_feature
+ Usage   : $provider->_remove_feature( $feature );
+ Function: Removes the given feature from the store.
+ Args    : L<Bio::SeqFeature::SegmentI> object
+ Returns : The removed feature, or false iff the feature was not
+           previously in the store.
+ Status  : Protected
+
+=cut
+
+# Enveloped to remove $self as an observer from the removed feature.
+sub _remove_feature {
+  my $self = shift;
+  my $removed_feature = $self->SUPER::_remove_feature( @_ );
+  if( defined $removed_feature ) {
+    $removed_feature->delete_observer( $self );
+  }
+  return $removed_feature;
+} # _remove_feature(..)
+
+# For observing features.  Their notify_observers(..) method calls this.
+sub update {
+  my ( $self, $object, $action, %params ) = @_;
+  # We need to know if the features stored by start position change
+  # their start position, and if the features stored by unique_id
+  # change their unique_id, and if features stored by start position
+  # gain a unique_id.
+  ## TODO: REMOVE
+  #print STDERR "for action '$action', params are { ", join( ", ", %params ), " }.\n";
+  return unless( $action );
+  if( $action eq 'start' ) {
+    return if( defined( $object->unique_id() ) );
+    ## TODO: REMOVE
+    #print STDERR "start changed: ",$params{ '-old' }," to ",$params{ '-new' },"\n";
+    ## TODO: Dehackify.
+    $self->remove_features( $object );
+    $self->add_features( $object );
+  } elsif( $action eq 'unique_id' ) {
+    ## TODO: REMOVE
+    #print STDERR "unique_id changed: ",$params{ '-old' }," to ",$params{ '-new' },"\n";
+    ## TODO: Dehackify.
+    $self->remove_features( $object );
+    $self->add_features( $object );
+  }
+} # update(..)
 
 1;
 

@@ -239,6 +239,8 @@ for you.
 
 =cut
 
+#"
+
 sub render {
   my $self = shift;
   my $panel = shift;
@@ -385,20 +387,21 @@ sub parse_line {
   return if /^\s*[\#]/;
 
   if (/^\s+(.+)/ && $self->{current_tag}) { # continuation line
-      my $value = $1;
-      my $cc = $self->{current_config} ||= 'general';       # in case no configuration named
-      $self->{config}{$cc}{$self->{current_tag}} .= ' ' . $value;
-      # respect newlines in code subs
-      $self->{config}{$cc}{$self->{current_tag}} .= "\n" if $self->{config}{$cc}{$self->{current_tag}}=~ /^sub\s*{/;
-      return;
+    my $value = $1;
+    my $cc = $self->{current_config} ||= 'general';       # in case no configuration named
+    $self->{config}{$cc}{$self->{current_tag}} .= ' ' . $value;
+    # respect newlines in code subs
+    $self->{config}{$cc}{$self->{current_tag}} .= "\n"
+      if $self->{config}{$cc}{$self->{current_tag}}=~ /^sub\s*\{/;
+    return;
   }
 
   if (/^\s*\[([^\]]+)\]/) {  # beginning of a configuration section
-     my $label = $1;
-     my $cc = $label =~ /^(general|default)$/i ? 'general' : $label;  # normalize
-     push @{$self->{types}},$cc unless $cc eq 'general';
-     $self->{current_config} = $cc;
-     return;
+    my $label = $1;
+    my $cc = $label =~ /^(general|default)$/i ? 'general' : $label;  # normalize
+    push @{$self->{types}},$cc unless $cc eq 'general';
+    $self->{current_config} = $cc;
+    return;
   }
 
   if (/^([\w: -]+?)\s*=\s*(.*)/) {   # key value pair within a configuration section
@@ -483,17 +486,42 @@ sub parse_line {
   $type = '' unless defined $type;
   $name = '' unless defined $name;
 
+  # attribute handling
+  my %attributes;
+  my $score;
+  if (defined $description && $description =~ /\w+=\w+/) { # attribute line
+    my @attributes = split /;\s*/,$description;
+    foreach (@attributes) {
+      my ($name,$value) = split /=/,$_,2;
+      Bio::Root::Root->throw(qq("$_" is not a valid attribute=value pair)) unless defined $value;
+      _unescape($name);
+      my @values = split /,/,$value;
+      _unescape(@values);
+      if ($name =~ /^(note|description)/) {
+	$description = "@values";
+      } elsif ($name eq 'url') {
+	$url = $value;
+      } elsif ($name eq 'score') {
+	$score = $value;
+      } else {
+	push @{$attributes{$name}},@values;
+      }
+    }
+  }
+
   # either create a new feature or add a segment to it
   if (my $feature = $self->{seenit}{$type,$name}) {
     $feature->add_segment(@parts);
   } else {
     $feature = $self->{seenit}{$type,$name} = 
-      Bio::Graphics::Feature->new(-name     => $name,
-				  -type     => $type,
+      Bio::Graphics::Feature->new(-name       => $name,
+				  -type       => $type,
 				  $strand ? (-strand   => make_strand($strand)) : (),
-				  -segments => \@parts,
-				  -desc     => $description,
-				  -ref      => $ref,
+				  defined $score ? (-score=>$score) : (),
+				  -segments   => \@parts,
+				  -desc       => $description,
+				  -ref        => $ref,
+				  -attributes => \%attributes,
 				  defined($url) ? (-url      => $url) : (),
 				 );
     $feature->configurator($self) if $self->smart_features;
@@ -505,6 +533,13 @@ sub parse_line {
   }
 }
 
+sub _unescape {
+  foreach (@_) {
+    tr/+/ /;       # pluses become spaces
+    s/%([0-9a-fA-F]{2})/chr hex($1)/g;
+  }
+  @_;
+}
 
 =over 4
 
@@ -1001,8 +1036,10 @@ sub feature2label {
   my $feature = shift;
   my $type  = eval {$feature->type} || $feature->primary_tag or return;
   (my $basetype = $type) =~ s/:.+$//;
-  my $label = $self->type2label($type) || $self->type2label($basetype) || $type;
-  $label;
+  my @labels = $self->type2label($type);
+  @labels = $self->type2label($basetype) unless @labels;
+  @labels = ($type) unless @labels;;
+  wantarray ? @labels : $labels[0];
 }
 
 =over 4
@@ -1020,11 +1057,13 @@ convenience for the generic genome browser.
 sub make_link {
   my $self     = shift;
   my $feature  = shift;
-  my $label    = $self->feature2label($feature) or return;
-  my $link     = $self->setting($label,'link');
-  $link        = $self->setting(general=>'link') unless defined $link;
-  return unless $link;
-  return $self->link_pattern($link,$feature);
+  for my $label ($self->feature2label($feature)) {
+    my $link     = $self->setting($label,'link');
+    $link        = $self->setting(general=>'link') unless defined $link;
+    next unless $link;
+    return $self->link_pattern($link,$feature);
+  }
+  return;
 }
 
 sub link_pattern {
@@ -1033,10 +1072,10 @@ sub link_pattern {
   $pattern =~ s/\$(\w+)/
     $1 eq 'ref'           ? $feature->location->seq_id
       : $1 eq 'name'      ? $feature->display_name
-      : $1 eq 'class'     ? $feature->class
-      : $1 eq 'type'      ? $feature->method
-      : $1 eq 'method'    ? $feature->method
-      : $1 eq 'source'    ? $feature->source
+      : $1 eq 'class'     ? eval {$feature->class}  || ''
+      : $1 eq 'type'      ? eval {$feature->method} || $feature->primary_tag
+      : $1 eq 'method'    ? eval {$feature->method} || $feature->primary_tag
+      : $1 eq 'source'    ? eval {$feature->source} || $feature->source_tag
       : $1 eq 'start'     ? $feature->start
       : $1 eq 'end'       ? $feature->end
       : $1 eq 'segstart'  ? $panel->start
@@ -1046,12 +1085,13 @@ sub link_pattern {
   return $pattern;
 }
 
-# given a feature type, return its label
+# given a feature type, return its label(s)
 sub type2label {
   my $self = shift;
   my $type = shift;
   $self->{_type2label} ||= $self->invert_types;
-  $self->{_type2label}{$type};
+  my @labels = keys %{$self->{_type2label}{$type}};
+  wantarray ? @labels : $labels[0]
 }
 
 sub invert_types {
@@ -1061,7 +1101,7 @@ sub invert_types {
   for my $label (keys %{$config}) {
     my $feature = $config->{$label}{feature} or next;
     foreach (shellwords($feature||'')) {
-      $inverted{$_} = $label;
+      $inverted{$_}{$label}++;
     }
   }
   \%inverted;

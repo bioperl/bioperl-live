@@ -7,7 +7,7 @@ use strict;
 require Exporter;
 use vars '@ISA','@EXPORT','@EXPORT_OK';
 @ISA = 'Exporter';
-@EXPORT = 'frame_and_offset';
+@EXPORT = qw( frame_and_offset commas );
 
 =over 4
 
@@ -36,4 +36,17 @@ sub frame_and_offset {
 }
 
 
+# I know there must be a more elegant way to insert commas into a long number...
+sub commas {
+  my $i = shift;
+  return $i if $i=~ /\./;
+  $i = reverse $i;
+  $i =~ s/(\d{3})/$1,/g;
+  chop $i if $i=~/,$/;
+  $i = reverse $i;
+  $i;
+}
+
 1;
+
+__END__

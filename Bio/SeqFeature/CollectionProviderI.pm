@@ -17,6 +17,7 @@ objects as Bio::SeqFeature::CollectionIs that can update/add/remove
 SeqFeatureIs passed in CollectionIs.
 
 =head1 SYNOPSIS
+#TODO
 
     # get a CollectionProviderI somehow, perhaps a SimpleCollectionProvider
     my $provider = new Bio::SeqFeature::SimpleCollectionProvider();
@@ -25,7 +26,7 @@ SeqFeatureIs passed in CollectionIs.
 =head1 DESCRIPTION
 
 A CollectionProviderI is an object that can return
-Bio::SeqFeature::CollectionIs of Bio::SeqFeatureIs, and can optionally
+Bio::SeqFeature::CollectionIs of Bio::SeqFeature::SegmentIs, and can optionally
 update/add/remove SeqFeatures.
 
 Features can be filtered by the following attributes:
@@ -212,8 +213,7 @@ then any feature with the display_name or unique_id 'foo', 'ns:foo',
 =cut
 
 sub get_collection {
-   my ($self) = @_;
-   $self->throw_not_implemented();
+  shift->throw_not_implemented( @_ );
 }
 
 =head2 insert_or_update_collection
@@ -228,8 +228,7 @@ sub get_collection {
 =cut
 
 sub insert_or_update_collection {
-   my ($self) = @_;
-   $self->throw_not_implemented();
+  shift->throw_not_implemented( @_ );
 }
 
 =head2 insert_collection
@@ -244,8 +243,7 @@ sub insert_or_update_collection {
 =cut
 
 sub insert_collection {
-   my ($self) = @_;
-   $self->throw_not_implemented();
+   shift->throw_not_implemented( @_ );
 }
 
 =head2 update_collection
@@ -267,8 +265,7 @@ sub insert_collection {
 =cut
 
 sub update_collection {
-   my ($self) = @_;
-   $self->throw_not_implemented();
+   shift->throw_not_implemented( @_ );
 }
 
 =head2 remove_collection
@@ -283,8 +280,7 @@ sub update_collection {
 =cut
 
 sub remove_collection {
-  my ($self) = @_;
-  $self->throw_not_implemented();
+  shift->throw_not_implemented( @_ );
 }
 
 =head2 types
@@ -319,7 +315,35 @@ or a hash with the string values of these objects as keys.
 =cut
 
 sub types {
-  shift->throw_not_implemented;
+  shift->throw_not_implemented();
+}
+
+=head2 seq_ids
+
+ Title   : seq_ids
+ Usage   : my @seq_ids = $collectionprovider->seq_ids();
+           OR
+           my %seq_ids_and_counts =
+               $collectionprovider->seq_ids( -count => 1 );
+ Function: Enumerate all root seq_ids of features provided by this
+           provider, and possibly count the features with each seq_id.
+ Returns : a list of strings
+           OR
+           a hash mapping seq_id strings to integer counts
+ Args    : see below
+
+This routine returns a list of feature root seq_ids known to the
+provider.  If the -count argument is given, it returns a hash of known
+seq_ids mapped to their occurrence counts in this provider.
+
+Arguments are -option=E<gt>value pairs as follows:
+
+  -count aka -enumerate  if true, count the features
+
+=cut
+
+sub seq_ids {
+  shift->throw_not_implemented();
 }
 
 =head2 parent_collection_provider

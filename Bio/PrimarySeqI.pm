@@ -122,11 +122,15 @@ methods. Internal methods are usually preceded with a _
 package Bio::PrimarySeqI;
 use vars qw(@ISA );
 use strict;
-use Bio::Root::RootI;
+use Bio::RangeI;
 use Bio::LocallyIdentifiableI;
 use Bio::Tools::CodonTable;
 
-@ISA = qw( Bio::Root::RootI Bio::LocallyIdentifiableI );
+@ISA = qw( Bio::RangeI Bio::LocallyIdentifiableI );
+
+use overload 
+  '""'     => 'toString',
+  fallback => 1;
 
 =head1 Implementation Specific Functions
 
@@ -234,19 +238,29 @@ sub accession_number {
 =head2 unique_id
 
  Title   : unique_id
- Usage   : $unique_implementation_key = $obj->unique_id();
- Function: Returns the unique id for this object in this
-           implementation.  This allows implementations to manage their
-           own object ids in a way the implementation can control
-           clients can expect one id to map to one object.
-
-           Since this implements L<Bio::LocallyIdentifiableI>, the
-           unique_id() value B<must be unique> or else I<undef>.
- Returns : A unique string or undef if no B<unique> id exists.
- Args    : None
- Status  : Virtual
+ Usage   : my $unique_id = $seq->unique_id( [$new_unique_id] )
+ Function: This is a unique identifier that identifies this sequence object.
+           If not set, will return undef per L<Bio::LocallyIdentifiableI>
+           If a value is given, the unique_id will be set to it, unless that
+           value is the string 'undef', in which case the unique_id will
+           become undefined.
+ Returns : The current (or former, if used as a set method) value of unique_id
+ Args    : [optional] a new string unique_id or 'undef'
 
 =cut
+
+sub unique_id {
+  my ( $self, $value ) = @_;
+  my $current_value = $self->{ '_unique_id' };
+  if ( defined $value ) {
+    if( !$value || ( $value eq 'undef' ) ) {
+      $self->{ '_unique_id' } = undef;
+    } else {
+      $self->{ '_unique_id' } = $value;
+    }
+  }
+  return $current_value;
+} # unique_id()
 
 sub unique_id {
   shift->throw_not_implemented();
@@ -255,24 +269,27 @@ sub unique_id {
 =head2 primary_id
 
  Title   : primary_id
- Usage   : $unique_implementation_key = $obj->primary_id();
+ Usage   : $unique_key = $obj->primary_id;
  Function: Returns the unique id for this object in this
            implementation. This allows implementations to manage their
            own object ids in a way the implementaiton can control
            clients can expect one id to map to one object.
- Returns : A unique string or undef if no B<unique> id exists.
- Args    : None
- Status  : Virtual
 
-  This method is implemented in the interface as an overridable alias
-  for unique_id().  Subclassers should note that unique_id() must
-  maintain the contract of L<Bio::LocallyIdentifiableI>, though
-  primary_id() need not do so.
+           For sequences with no natural primary id, this method
+           should return a stringified memory location.
+
+ Returns : A string
+ Args    : A string (optional, for setting)
 
 =cut
 
 sub primary_id {
-  shift->unique_id( @_ );
+  shift->throw_not_implemented();
+}
+
+# implements RangeI
+sub seq_id {
+  return shift->primary_id( @_ );
 }
 
 =head2 can_call_new
@@ -636,9 +653,25 @@ sub  id {
 
 =cut
 
+# implements RangeI
 sub  length {
    my ($self)= @_;
    $self->throw_not_implemented();
+}
+
+# implements RangeI
+sub start {
+  return 1;
+}
+
+# implements RangeI
+sub end {
+  shift->length( @_ );
+}
+
+# implements RangeI
+sub strand {
+  return 1;
 }
 
 =head2 desc
@@ -677,6 +710,31 @@ sub is_circular{
     }
     return $self->{'_is_circular'};
 }
+
+=head2 toString
+
+ Title   : toString
+ Usage   : $str_val = $feature->toString()
+ Function: returns $self->unique_id() || $self->display_name() ||
+           $overload->StrVal( $self )
+ Returns : a String
+ Args    : None
+ Status  : Public
+
+  This method is a hack.
+
+=cut
+
+sub toString {
+  my $self = shift;
+
+  return
+    $self->display_id() ||
+    $self->accession_number() ||
+    $self->primary_id() ||
+    $self->unique_id() ||
+    overload::StrVal( $self );
+} # toString()
 
 =head1 Private functions
 
@@ -720,3 +778,5 @@ sub _attempt_to_load_Seq{
 }
 
 1;
+
+__END__

@@ -1,6 +1,6 @@
 package Bio::SeqFeature::SimpleSegment;
 
-# $Id $
+# $Id$
 # A simple implementation of a Bio::SeqFeature::CollectionI that is
 # also a Bio::RelRangeI.  Implemented as a
 # Bio::SeqFeature::SimpleCollection that is also a Bio::RelRange.
@@ -80,9 +80,11 @@ use strict;
 use vars qw( @ISA );
 
 use Bio::RelRange qw( &absSeqId );
+use Bio::DB::SimpleSegmentProvider;
 use Bio::SeqFeature::SimpleCollection;
 use Bio::SeqFeature::SegmentI;
 @ISA = qw( Bio::RelRange
+           Bio::DB::SimpleSegmentProvider
            Bio::SeqFeature::SimpleCollection
            Bio::SeqFeature::SegmentI );
 
@@ -111,7 +113,7 @@ $VERSION = '1.00';
           : -strand (defaults to 0)
           : -seq_id (a L<Bio::RangeI> or a (string) id of a sequence)
           : -absolute (defaults to 0)
-          : -features (an optional array ref of L<Bio::SeqFeatureI> objects)
+          : -features (an optional array ref of L<Bio::SeqFeature::SegmentI> objects)
           : -type     (an optional L<Bio::SeqFeature::TypeI> or string)
           : -parent   (an optional L<Bio::DB::SegmentProviderI> parent object)
 
@@ -121,33 +123,109 @@ sub new {
   my ( $caller, @args ) = @_;
 
   # Rely on RelRange's new(..) to do most of the work.
-  my $self = $caller->Bio::RelRange::new( @args );
-  my ( $features, $type, $parent ) =
-    rearrange( [ 'FEATURES',
-                 'TYPE',
-                 'PARENT'
-               ], @args );
+  my $self = $caller->SUPER::new( @args );
+  $self->_initialize_simple_segment( @args );
+  return $self;
+} # new(..)
+
+sub _initialize_simple_segment {
+  my $self = shift;
+  my @args = @_;
+
+  ## TODO: REMOVE
+  #warn "_initialize_simple_segment( ".join( ', ', @args )." )";
+
+  return if( $self->{ '_simple_segment_initialized' } );
+
+  my ( $features, $type, $parent, $rest );
+  if( scalar( @args ) && ( $args[ 0 ] =~ /^-/ ) ) {
+    ( $features, $type, $parent, $rest ) =
+      rearrange( [ [ qw( FEATURES SEGMENTS ) ],
+                   'TYPE',
+                   [ qw( PARENT FACTORY ) ]
+                 ], @args );
+  }
+
+  ## TODO: REMOVE
+  if( $features && ref( $features ) eq 'ARRAY' && @$features ) {
+    #warn "_initialize_simple_segment( ".join( ', ', @args )." ): \$features is [ ".join( ', ', @$features )." ]";
+  } else {
+    #warn "_initialize_simple_segment( ".join( ', ', @args )." ): \$features is $features";
+  }
+
+  ## This bizarre -foooo business is to trick the
+  ## SimpleSegmentProvider initializer into recognizing that these are
+  ## hash arguments (because rearrange(..)'s $rest output has all of
+  ## the key names de-dashified, and it looks for a leading dash).
+  $self->_initialize_simple_segment_provider( '-foooooo' => 'baaar', %$rest );
+
+  my $added_features = 0;
   if( $features ) {
     # It could be a reference to a list or maybe it is just a single feature..
     if( ref( $features ) eq 'ARRAY' ) {
       foreach my $feature ( @$features ) {
-        next unless( ref( $feature ) && $feature->isa( "Bio::SeqFeatureI" ) );
+        unless( ref( $feature ) &&
+                ( ref( $feature ) ne 'ARRAY' ) &&
+                $feature->isa( "Bio::SeqFeature::SegmentI" ) ) {
+          $feature = $self->_create_feature( $feature );
+        }
+        unless( ref( $feature ) && $feature->isa( "Bio::SeqFeature::SegmentI" ) ) {
+          $self->throw( "The given feature $feature is not a Bio::SeqFeature::SegmentI.  It is a ".ref( $feature ) );
+        }
         unless( $self->_insert_feature( $feature ) ) {
           $self->throw( "duplicate feature: $feature" );
         }
-      }
-    } elsif( ref( $features ) && $features->isa( 'Bio::SeqFeatureI' ) ) {
-      unless( $self->_insert_feature( $features ) ) {
-        $self->throw( "duplicate feature: $features" );
+        $added_features++;
       }
     } else {
-      $self->throw( "Expecting the value of the -features argument to be a list of Bio::SeqFeatureI objects, but it isn't.  It is '$features', a ".ref( $features )."." );
+      unless( ref( $features ) &&
+              $features->isa( "Bio::SeqFeature::SegmentI" ) ) {
+        $features = $self->_create_feature( $features );
+      }
+      if( ref( $features ) && $features->isa( 'Bio::SeqFeature::SegmentI' ) ) {
+        unless( $self->_insert_feature( $features ) ) {
+          $self->throw( "duplicate feature: $features" );
+        }
+        $added_features++;
+      } else {
+        $self->throw( "The given feature $features is not a Bio::SeqFeature::SegmentI.  It is a ".ref( $features ) );
+      }
     }
   }
+
   $self->type( $type ) if defined( $type );
   $self->parent_segment_provider( $parent ) if defined( $parent );
+
+  ## TODO: REMOVE.  Testing.
+  #unless( $self->start() ) {
+  #  $self->start( 1 );
+  #  if( $added_features ) {
+  #    $self->end( 1 );
+  #    $self->adjust_bounds( 1 ); # The argument means yes, shrink if necessary.
+  #    ## TODO: REMOVE
+  #    if( $self->end() == 1 ) {
+  #      #warn "!==! End of $self is 1 after adjust_bounds.  \$features are [ " . join( ', ', @$features ) . " ]";
+  #    }
+  #    ## TODO: REMOVE
+  #    unless( $self->start() ) {
+  #      $self->throw( "adjust_bounds caused the start to become 0." );
+  #    }
+  #  } elsif( ref( $self->seq_id() ) &&
+  #           $self->seq_id()->isa( 'Bio::RangeI' ) ) {
+  #    ## TODO: REMOVE
+  #    #warn "!==! Setting end of $self to " . $self->seq_id()->length() . ".";
+  #    # Take on the seq_id's range.
+  #    $self->end( $self->seq_id()->length() );
+  #  } else {
+  #    ## TODO: REMOVE
+  #    #warn "!==! Setting end of $self to 1 because its seq_id, " . $self->seq_id() . " is not a RangeI.";
+  #    $self->end( 1 );
+  #  }
+  #}
+
+  $self->{ '_simple_segment_initialized' }++;
   return $self;
-} # new(..)
+} # _initialize_simple_segment(..)
 
 =head2 new_from_segment
 
@@ -193,6 +271,94 @@ sub new_from_segment {
   return bless $new_segment, __PACKAGE__;
 } # new_from_segment(..)
 
+=head2 _create_feature
+
+ Title   : create_feature
+ Usage   : my $new_seq_feature = $segment->_create_feature( $feature_data );
+ Function: Factory method for instantiating a SeqFeatureI object.
+ Returns : A new L<Bio::SeqFeature::SegmentI> object, or $feature_data.
+ Args    : A single argument of any data type (see below).
+ Status  : Protected
+
+ The single argument may be of any type.  _create_feature(..) will be
+ called by _insert_feature whenever the feature argument to that
+ method is not a SeqFeatureI object.  If _create_feature(..) is unable
+ to make a feature from the given data it must return the argument it
+ was given.
+
+=cut
+
+## This one makes features when given [ $start, $end ] pairs.  If this
+## SimpleSegment implements the SeqFeatureI interface then
+## $self->new(..) will be used instead of
+## Bio::SeqFeature::Generic->new(..).  New features will have the same
+## type as $self does and will have $self as their $seq_id.  The given
+## start and end positions are interpreted relative to $self.
+sub _create_feature {
+  my $self = shift;
+  my $feature_data = shift;
+  if( ref( $feature_data ) eq 'ARRAY' ) {
+    # This is for feature data like [ [ start0, end0 ], [ start1, end1 ] ].
+    my ( $start, $end ) = @{ $feature_data };
+    
+    # The following line should be unnecessary.
+    #next unless defined $start && defined $end;
+    
+    # Strandedness defaults to our own, but start > end forces -1.
+    my $strand = $self->strand();
+    if( $start > $end ) {
+      ( $start, $end ) = ( $end, $start );
+      $strand = -1;
+    }
+    if( $self->isa( 'Bio::SeqFeature::SegmentI' ) ) {
+      return $self->new( -start  => $start,
+                         -end    => $end,
+                         -strand => $strand,
+                         -type   => $self->type(),
+                         -seq_id => $self,
+                         -parent => $self ) || $feature_data;
+    } else {
+      return Bio::SeqFeature::Generic->new(
+        -start  => $start,
+        -end    => $end,
+        -strand => $strand,
+        -type   => $self->type(),
+        -seq_id => $self,
+        -parent => $self
+      ) || $feature_data;
+    }
+  }
+  # If we're at this point then we've been unable to make a new feature.
+  return $feature_data;
+} # _create_feature(..)
+
+=head2 unique_id
+
+ Title   : unique_id
+ Usage   : my $unique_id = $segment->unique_id( [$new_unique_id] )
+ Function: This is a unique identifier that identifies this segment object.
+           If not set, will return undef per L<Bio::LocallyIdentifiableI>
+           If a value is given, the unique_id will be set to it, unless that
+           value is the string 'undef', in which case the unique_id will
+           become undefined.
+ Returns : The current (or former, if used as a set method) value of unique_id
+ Args    : [optional] a new string unique_id or 'undef'
+
+=cut
+
+sub unique_id {
+  my ( $self, $value ) = @_;
+  my $current_value = $self->{ '_unique_id' };
+  if ( defined $value ) {
+    if( !$value || ( $value eq 'undef' ) ) {
+      $self->{ '_unique_id' } = undef;
+    } else {
+      $self->{ '_unique_id' } = $value;
+    }
+  }
+  return $current_value;
+} # unique_id()
+
 #                   --Coders beware!--
 # Changes to the interface pod need to be copied to here.
 
@@ -202,7 +368,7 @@ sub new_from_segment {
  Usage   : @features = $segment->features( %args );
            OR
            @features = $segment->features( @types );
- Returns : a list of L<Bio::SeqFeatureI> objects,
+ Returns : a list of L<Bio::SeqFeature::SegmentI> objects,
            OR
            (when the -iterator option is true) an L<Bio::SeqFeature::IteratorI>
            OR
@@ -355,7 +521,7 @@ then any feature with the display_name or unique_id 'foo', 'ns:foo',
 
 If -iterator is true, then the method returns an object of type
 Bio::SeqFeature::IteratorI.  Each call to next_seq() on this
-object returns a Bio::SeqFeatureI object from this collection.
+object returns a Bio::SeqFeature::SegmentI object from this collection.
 
 If -callback is passed a code reference, the code reference will be
 invoked on each feature returned.  The code will be passed two
@@ -440,6 +606,7 @@ sub features {
   }
   $args{ '-baserange' } = $baserange;
   # Oh yeah and make sure it's the only baserange argument..
+  ## TODO: What if they're uppercase?
   delete @args{ qw( -base_range -baselocation -base_location -base
                     baserange base_range baselocation base_location base ) };
 
@@ -453,6 +620,7 @@ sub features {
     $args{ '-absolute' } = 1;
   }
   # Oh yeah and make sure it's the only absolute argument..
+  ## TODO: What if they're uppercase?
   delete @args{ qw( -abs absolute abs ) };
 
   # If $rangetype is given but not $ranges then we delegate up to daddy.
@@ -496,13 +664,15 @@ sub features {
     ## SimpleSegment_IteratorWrapper is defined in this file, below.
     return Bio::SeqFeature::SimpleSegment_IteratorWrapper->new(
       $baserange,
-      $iterator
+      $super_iterator
     );
   } elsif( $callback ) {
     # Wrap the callback in our own..
-    my $new_callback = $self->_create_callback_wrapper( $baserange, $callback );
+    my $new_callback =
+      $self->_create_callback_wrapper( $baserange, $callback );
     $args{ '-callback' } = $new_callback;
     # Oh and make sure it's the only callback argument..
+    ## TODO: What if they're uppercase?
     delete @args{ qw( -call_back callback call_back ) };
     return $self->SUPER::features( %args );
   } else {
@@ -643,24 +813,100 @@ then any feature with the display_name or unique_id 'foo', 'ns:foo',
 
 sub get_collection {
   my $self = shift;
-  my ( $types, $absolute, $baserange, $ranges );
+  my ( $types, $unique_ids, $names, $attributes, $baserange, $ranges,
+       $absolute );
   my %args;
   if( scalar( @_ ) && $_[ 0 ] =~ /^-/ ) {
-    ( $types, $absolute, $baserange, $ranges ) =
+    ( $types, $unique_ids, $names, $attributes, $baserange, $ranges,
+      $absolute ) =
       rearrange(
         [ [ qw( TYPE TYPES ) ],
-          [ qw( ABSOLUTE ABS ) ],
+          [ qw( UNIQUE_IDS UNIQUEIDS IDS UNIQUE_ID UNIQUEID ID ) ],
+          [ qw( NAME NAMES DISPLAY_NAME DISPLAY_NAMES DISPLAYNAME DISPLAYNAMES ) ],
+          [ qw( ATTRIBUTE ATTRIBUTES ) ],
           [ qw( BASERANGE BASE_RANGE BASELOCATION BASE_LOCATION BASE ) ],
-          [ qw( RANGE RANGES LOCATION LOCATIONS LOC ) ]
+          [ qw( RANGE RANGES LOCATION LOCATIONS LOC ) ],
+          [ qw( ABSOLUTE ABS ) ]
         ],
         @_
       );
     %args = @_;
-  } else {
+  } elsif( scalar( @_ ) ) {
     ## Types.
     $types = \@_;
-    %args = ( -types => $types );
+    %args = ( '-types' => $types );
   }
+
+  ## Fix up types.
+  if( $types ) {
+    unless( ref $types eq 'ARRAY' ) {
+      ## The incoming value might be a simple scalar instead of a list.
+      $types = [ $types ];
+    }
+    ## Just in case it's an array ref to an empty string:
+    if(
+       !scalar( @$types ) ||
+       ( ( scalar( @$types ) == 1 ) && !( $types->[ 0 ] ) )
+      ) {
+      undef $types;
+    }
+  }
+
+  ## Fix up unique_ids.
+  if( $unique_ids ) {
+    unless( ref $unique_ids eq 'ARRAY' ) {
+      ## The incoming value might be a simple scalar instead of a list.
+      $unique_ids = [ $unique_ids ];
+    }
+    ## Just in case it's an array ref to an empty string:
+    if(
+       !scalar( @$unique_ids ) ||
+       ( ( scalar( @$unique_ids ) == 1 ) && !( $unique_ids->[ 0 ] ) )
+      ) {
+      undef $unique_ids;
+    }
+  }
+
+  ## Fix up names.
+  if( $names ) {
+    unless( ref $names eq 'ARRAY' ) {
+      ## The incoming value might be a simple scalar instead of a list.
+      $names = [ $names ];
+    }
+    ## Just in case it's an array ref to an empty string:
+    if(
+       !scalar( @$names ) ||
+       ( ( scalar( @$names ) == 1 ) && !( $names->[ 0 ] ) )
+      ) {
+      undef $names;
+    }
+  }
+
+  ## Attributes better be a hash ref if it is anything.
+  if( $attributes ) {
+    unless( ref( $attributes ) eq 'HASH' ) {
+      $self->throw( "The -attributes argument must be a HASH REF." );
+    }
+  }
+
+  ## Fix up ranges.
+  if( $ranges ) {
+    unless( ref $ranges eq 'ARRAY' ) {
+      ## The incoming value might be a simple scalar instead of a list.
+      $ranges = [ $ranges ];
+    }
+    ## Just in case it's an array ref to an empty string:
+    if(
+       !scalar( @$ranges ) ||
+       ( ( scalar( @$ranges ) == 1 ) && !( $ranges->[ 0 ] ) )
+      ) {
+      undef $ranges;
+    }
+  }
+
+  ## TODO: REMOVE
+  #warn "SimpleSegment->get_collection( ".join( ', ', ( my @foo = %args ) ). " )" if Bio::Graphics::Browser::DEBUG;
+
   # If -baserange is given but is not a RangeI then the
   # -baserange argument to the superclass should be
   # $self->abs_seq_id().  If -baserange is not given then the argument
@@ -680,6 +926,7 @@ sub get_collection {
   }
   $args{ '-baserange' } = $baserange;
   # Oh yeah and make sure it's the only baserange argument..
+  ## TODO: What if they're uppercase?
   delete @args{ qw( -base_range -baselocation -base_location -base
                     baserange base_range baselocation base_location base ) };
 
@@ -687,19 +934,47 @@ sub get_collection {
   # a Segment after all; we do this by overriding the _create_collection
   # method with our own _create_segment method.
   # So we're done!
-  return $self->SUPER::get_collection( %args );
+  ## TODO: REMOVE
+  #warn "SimpleSegment->Bio::SeqFeature::SimpleCollectionProvider::get_collection( ".join( ', ', ( my @foo = %args ) ). " )" if Bio::Graphics::Browser::DEBUG;
+
+  my $segment =
+    $self->Bio::SeqFeature::SimpleCollectionProvider::get_collection( %args );
+
+  ## TODO: REMOVE. Testing.
+  if( defined( $segment ) && !ref( $segment ) ) {
+    $self->throw( "Geez.  The result of SimpleSegment->Bio::SeqFeature::SimpleCollectionProvider::get_collection( ".join( ', ', ( my @foo = %args ) ). " ) is $segment, a ".ref( $segment )."." );
+  }
+
+  # If there's no features, AND the request named something in
+  # particular, then we have to return undef to indicate that the
+  # request failed.
+  if(
+     ( !defined( $segment ) || ( $segment->feature_count() == 0 ) ) &&
+     ( $types || $unique_ids || $names || $attributes || $ranges )
+    ) {
+    return ( wantarray ? () : undef );
+  } else {
+    return $segment;
+  }
 } # get_collection(..)
 
 =head2 _create_collection
 
  Title   : _create_collection
  Usage   : my $segment = $provider->_create_collection(
-                              \@args_to_get_collection,
-                              @features
-                            );
- Function: Factory method for instantiating a collection.
+                           \@args_to_get_collection,
+                           @features
+                         );
+           or
+           my $segment = $provider->_create_collection(
+                           \@args_to_get_collection,
+                           'lookup'
+                         );
+ Function: Factory method for instantiating a segment.
  Args    : a ref to the args used by the get_collection method, and some
-           L<Bio::SeqFeatureI> objects to add to the new collection.
+           L<Bio::SeqFeature::SegmentI> objects to add to the new
+           segment, or 'lookup', meaning that the args should be used
+           to add the features to the new collection.
  Returns : a new L<Bio::SeqFeature::SegmentI> object
  Status  : Protected
 
@@ -714,19 +989,26 @@ behavior anyway, but it should be noted, just in case.
 
 # This implementation just delegates to _create_segment.
 sub _create_collection {
-  shift->_create_segment( @_ );
+  return shift->_create_segment( @_ );
 } # _create_collection
 
 =head2 _create_segment
 
  Title   : _create_segment
  Usage   : my $segment = $provider->_create_segment(
-                              \@args_to_get_collection,
-                              @features
-                            );
+                           \@args_to_get_collection,
+                           @features
+                         );
+           or
+           my $segment = $provider->_create_segment(
+                           \@args_to_get_collection,
+                           'lookup'
+                         );
  Function: Factory method for instantiating a segment.
  Args    : a ref to the args used by the get_collection method, and some
-           L<Bio::SeqFeatureI> objects to add to the new collection.
+           L<Bio::SeqFeature::SegmentI> objects to add to the new
+           segment, or 'lookup', meaning that the args should be used
+           to add the features to the new collection.
  Returns : a new L<Bio::SeqFeature::SegmentI> object
  Status  : Protected
 
@@ -750,33 +1032,64 @@ behavior anyway, but it should be noted, just in case.
 sub _create_segment {
   my $self = shift;
   my $args = shift;
+  ## HACK because sometimes the args are passed in as a hash and
+  ## sometimes as a list.
+  if( $args && ( ref( $args ) eq 'HASH' ) ) {
+    my @args_list = %$args;
+    $args = \@args_list;
+  }
   my @features = @_;
+  if( @features && ( $features[ 0 ] eq 'lookup' ) ) {
+    @features = $self->features( @$args );
+  }
 
-  my ( $absolute, $baserange, $ranges );
+  ## TODO: REMOVE
+  #warn "SimpleSegment::_create_segment( { ".join( ', ', @$args )." }, ( ".join( ', ', @features )." )" if Bio::Graphics::Browser::DEBUG;
+
+  ## TODO: REMOVE
+  if( @features ) {
+    #warn "creating segment with these features: ( ", join( ', ', @features ), " )" if Bio::Graphics::Browser::DEBUG;
+    #warn "The first one of those has " . $features[ 0 ]->feature_count() . " features." if Bio::Graphics::Browser::DEBUG;
+  } else {
+    #warn "creating segment with no features.\n";
+  }
+
+  my ( $absolute, $baserange, $ranges, $carryover_args );
   if( scalar( @$args ) && $args->[ 0 ] =~ /^-/ ) {
-    ( $absolute, $baserange, $ranges ) =
+    ( $absolute, $baserange, $ranges, $carryover_args ) =
       rearrange(
         [ [ qw( ABSOLUTE ABS ) ],
           [ qw( BASERANGE BASE_RANGE BASELOCATION BASE_LOCATION BASE ) ],
           [ qw( RANGE RANGES LOCATION LOCATIONS LOC ) ]
         ],
-        @_
+        @$args
       );
+    if( $carryover_args ) {
+      # Unfortunately it changes the rest of the args, so let's make
+      # them nice again.
+      my @ca_list = %$carryover_args;
+      for( my $i = 0; $i < $#ca_list; $i += 2 ) {
+        $ca_list[ $i ] = '-'.lc( $ca_list[ $i ] );
+      }
+      %$carryover_args = @ca_list;
+    }
   }
   # If -baserange is given but is not a RangeI then the
   # -seq_id should be $self->abs_seq_id().  If -baserange is not given
   # then it should be $self unless -absolute is given and true or
   # absolute() is true.
-  if( not defined( $baserange ) ) {
+  if( !defined( $baserange ) ) {
     if( $absolute || $self->absolute() ) {
-      $baserange = $self->abs_seq_id();
+      $baserange = $self->abs_range();
     } else {
       $baserange = $self;
     }
   } elsif( defined( $baserange ) &&
-           ( not ref( $baserange ) || not $baserange->isa( 'Bio::RangeI' ) )
+           ( !ref( $baserange ) || !$baserange->isa( 'Bio::RangeI' ) )
          ) {
-    $baserange = $self->abs_seq_id();
+    ## TODO: REMOVE?
+    warn "The baserange that was given, $baserange, isa ".ref( $baserange ).", but we need a RangeI.  Using \$self->abs_range().";
+    $baserange = $self->abs_range();
   }
   my $union_range;
   if( defined( $ranges ) && ref( $ranges ) ) {
@@ -785,16 +1098,35 @@ sub _create_segment {
     } else { # It's gotta be a 'Bio::RangeI'
       $union_range = $ranges;
     }
+  } elsif( @features ) {
+    $union_range = Bio::RelRange->union( @features );
+  } else {
+    $union_range = $self;
   }
-  my %args_to_new = ( '-seq_id' => $baserange );
+  ## TODO: REMOVE
+  #warn "SimpleSegment::_create_segment(..): union_range is $union_range, baserange is " . $baserange->Bio::RelRangeI::toString() . '.' if Bio::Graphics::Browser::DEBUG;
+  my %args_to_new =
+    (
+     '-seq_id'   => $baserange,
+     '-parent'   => $self,
+     '-features' => \@features,
+     ( ( defined $carryover_args ) ? ( my @foo = %$carryover_args ) : () )
+    );
   if( $baserange ) {
-    my $abs_baserange = absSeqId( $baserange );
+    ## TODO: Put back
+    #my $abs_baserange = $baserange->abs_seq_id();
+    ## TODO: REMOVE.  Testing.
+    my $abs_baserange = $baserange->abs_range();
     if( $abs_baserange && ( $baserange eq $abs_baserange ) ) {
+      ## TODO: REMOVE
+      #warn "baserange $baserange is absolute already.";
       # $baserange is absolute already..
-      $args_to_new{ '-start' } = $union_range->start();
-      $args_to_new{ '-end' } = $union_range->end();
+      $args_to_new{ '-start' }  = $union_range->start();
+      $args_to_new{ '-end' }    = $union_range->end();
       $args_to_new{ '-strand' } = $union_range->strand();
     } else {
+      ## TODO: REMOVE
+      #warn "baserange $baserange is not absolute.  \$abs_baserange is $abs_baserange.";
       # $baserange is relative, so we need to relativize the union range.
       my $rel_baserange;
       if( $baserange->isa( 'Bio::RelRangeI' ) ) {
@@ -811,10 +1143,12 @@ sub _create_segment {
     }
   } else {
     # No $baserange.  Oh well.
-    $args_to_new{ '-start' } = $union_range->start();
-    $args_to_new{ '-end' } = $union_range->end();
+    $args_to_new{ '-start' }  = $union_range->start();
+    $args_to_new{ '-end' }    = $union_range->end();
     $args_to_new{ '-strand' } = $union_range->strand();
   }
+  ## TODO: REMOVE
+  #warn "SimpleSegment::_create_segment(..): \%args_to_new are { ".join( ', ', ( my @foo = %args_to_new ) )." }" if Bio::Graphics::Browser::DEBUG;
   return $self->new( %args_to_new );
 } # _create_segment(..)
 
@@ -831,6 +1165,9 @@ sub _relativize_feature {
   my $self = shift;
   my ( $baserange, $feature ) = @_;
 
+  ## TODO: REMOVE
+  #warn "SimpleSegment::_relativize_feature( $baserange, $feature )" if Bio::Graphics::Browser::DEBUG;
+
   my $abs_baserange = absSeqId( $baserange );
   # Our strategy if the coords are relative to a different range is
   # to get absolute coords and then rerelativize them to the
@@ -838,6 +1175,8 @@ sub _relativize_feature {
   my $abs_feature_range;
   if( $feature->seq_id() ) {
     if( $feature->seq_id() eq $baserange ) {
+      ## TODO: REMOVE
+      #warn "                                                $feature" if Bio::Graphics::Browser::DEBUG;
       return $feature; # It's already ready.
     }
     my $abs_seq_id = $feature->abs_seq_id();
@@ -856,6 +1195,8 @@ sub _relativize_feature {
     # If it doesn't have a seq_id, assume it's already absolute.
     if( $abs_baserange eq $baserange ) {
       # If abs_baserange & $baserange are the same, then it's already ready.
+      ## TODO: REMOVE
+      #warn "                                                $feature" if Bio::Graphics::Browser::DEBUG;
       return $feature;
     }
     # The feature is already in absolute coords. 
@@ -881,7 +1222,16 @@ sub _relativize_feature {
   if( ( $new_strand >= 0 ) && ( $new_end < $new_start ) ) {
     ( $new_start, $new_end ) = ( $new_end, $new_start );
   }
-  return $self->_create_feature_view(
+  #return $self->_create_feature_view(
+  #  $feature,
+  #  (
+  #    '-seq_id' => $baserange,
+  #    '-start' => $new_start,
+  #    '-end' => $new_end,
+  #    '-strand' => $new_strand
+  #  )
+  #);
+  my $new_feature = $self->_create_feature_view(
     $feature,
     (
       '-seq_id' => $baserange,
@@ -890,6 +1240,9 @@ sub _relativize_feature {
       '-strand' => $new_strand
     )
   );
+  ## TODO: REMOVE
+  #warn "                                                $new_feature" if Bio::Graphics::Browser::DEBUG;
+  return $new_feature;
 } # _relativize_feature(..)
 
 # Create a feature just like the one given only with a different range
@@ -969,7 +1322,7 @@ sub new {
  Usage   : $seq_feature = $iterator->next_feature()
  Function: returns and removes the next feature from the peer iterator,
            relativized.
- Returns : a Bio::SeqFeatureI, or undef if there are no more
+ Returns : a Bio::SeqFeature::SegmentI, or undef if there are no more
  Args    : none
  Status  : Public
 

@@ -1,28 +1,28 @@
-package Bio::SeqFeature::SimpleIterator;
+package Bio::Seq::SimpleIterator;
 
-# $Id$
-# An iterator over Bio::SeqFeatureI objects.
+# $Id $
+# An iterator over Bio::PrimarySeqI objects.
 
 =head1 NAME
 
-Bio::SeqFeature::SimpleIterator - An iterator over Bio::SeqFeatureI objects.
+Bio::Seq::SimpleIterator - An iterator over Bio::PrimarySeqI objects.
 
 =head1 SYNOPSIS
 
-  my $iterator = $seq_feature_collection->iterator( @args );
+  my $iterator = $sequence_provider->get_Seq_stream( @args );
   while( $iterator->has_more_elements() ) {
-    my $seq_feature = $iterator->next_feature();
-    # do something with the features...
+    my $sequence = $iterator->next_seq();
+    # do something with the sequences...
   }
 
 =head1 DESCRIPTION
 
-  An iterator over Bio::SeqFeatureI objects.  This is an autodeleting
+  An iterator over Bio::PrimarySeqI objects.  This is an autodeleting
   list, aka a stream.  Reading from the iterator (using
-  $iterator->next_feature) removes the returned feature from the
+  $iterator->next_sequence) removes the returned sequence from the
   iterator.  An iterator may return new objects or it may return
   preexisting objects.  In some circumstances it may return the same
-  object twice.  See Bio::SeqFeature::CollectionI.
+  object twice.  See L<Bio::DB::SequenceProviderI>.
 
 =head1 FEEDBACK
 
@@ -67,21 +67,21 @@ Internal methods are usually preceded with a _
 
 use strict;
 use Bio::Root::Root;
-use Bio::SeqFeature::IteratorI;
+use Bio::Seq::IteratorI;
 use vars qw( $VERSION @ISA );
 
 $VERSION = '0.01';
-@ISA = qw( Bio::Root::Root Bio::SeqFeature::IteratorI );
+@ISA = qw( Bio::Root::Root Bio::Seq::IteratorI );
 
 =head2 new
 
  Title   : new
- Usage   : $iterator = new Bio::SeqFeature::SimpleIterator( $feature_list_ref )
+ Usage   : $iterator = new Bio::Seq::SimpleIterator( $sequence_list_ref )
            OR
-           $iterator = new Bio::SeqFeature::SimpleIterator( @feature_list )
- Function: Instantiates a new iterator over the given features
- Returns : a new Bio::SeqFeature::SimpleIterator
- Args    : A list (or list ref) of SeqFeatureI objects
+           $iterator = new Bio::Seq::SimpleIterator( @sequence_list )
+ Function: Instantiates a new iterator over the given sequences
+ Returns : a new Bio::Seq::SimpleIterator
+ Args    : A list (or list ref) of L<Bio::PrimarySeqI> objects
  Status  : Public
 
 =cut
@@ -90,57 +90,57 @@ sub new {
   my $class = shift;
   $class = ref($class) if ref($class);
 
-  my $features;
+  my $sequences;
   if( scalar( @_ ) > 1 ) {
-    $features = [];
-    push( @$features, @_ );
+    $sequences = [];
+    push( @$sequences, @_ );
   } elsif( scalar( @_ ) == 1 ) {
     if( ref $_[ 0 ] eq 'ARRAY' ) {
-      $features = shift;
+      $sequences = shift;
     } else {
-      $features = [ shift ];
+      $sequences = [ shift ];
     }
   }
   return bless {
-                 '_features'  => $features
+                 '_sequences'  => $sequences
 	       },$class;
 } # new(..)
 
-=head2 next_feature
+=head2 next_seq
 
- Title   : next_feature
- Usage   : $seq_feature = $iterator->next_feature()
- Function: returns and removes the next feature from this iterator
- Returns : a Bio::SeqFeatureI, or undef if there are no more
+ Title   : next_seq
+ Usage   : $sequence = $iterator->next_seq()
+ Function: returns and removes the next sequence from this iterator
+ Returns : a L<Bio::PrimarySeqI>, or undef if there are no more
  Args    : none
  Status  : Public
 
 =cut
 
-sub next_feature {
+sub next_seq {
   my $self = shift;
 
-  if( $self->{ '_features' } ) {
-    return shift @{ $self->{ '_features' } };
+  if( $self->{ '_sequences' } ) {
+    return shift @{ $self->{ '_sequences' } };
   }
   return undef;
-} # next_feature()
+} # next_sequence()
 
-=head2 has_more_features
+=head2 has_more_sequences
 
- Title   : has_more_features
- Usage   : while( $iterator->has_more_features() ) { do something }
- Function: returns true iff there are features in this iterator
- Returns : true iff there are more features in this iterator
+ Title   : has_more_sequences
+ Usage   : while( $iterator->has_more_sequences() ) { do something }
+ Function: returns true iff there are sequences in this iterator
+ Returns : true iff there are more sequences in this iterator
  Args    : none
  Status  : Public
 
 =cut
 
-sub has_more_features {
+sub has_more_sequences {
   my $self = shift;
-  return ( $self->{ '_features' } && scalar( @{ $self->{ '_features' } } ) );
-} # has_more_features()
+  return ( $self->{ '_sequences' } && scalar( @{ $self->{ '_sequences' } } ) );
+} # has_more_sequences()
 
 1;
 

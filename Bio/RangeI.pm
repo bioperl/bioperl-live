@@ -122,6 +122,7 @@ sub _testStrand() {
     my ($r1, $r2, $comp) = @_;
     return 1 unless $comp;
     my $func = $STRAND_OPTIONS{$comp};
+    Bio::Root::Root->throw( "Unrecognized strand option '$comp'" ) unless $func;
     return $r1->$func($r2);
 }
 
@@ -303,10 +304,11 @@ sub equals {
       return 0;
     }
 
-    $self->throw("start is undefined") unless defined $self->start;
-    $self->throw("end is undefined") unless defined $self->end;
-    $other->throw("start is undefined") unless defined $other->start;
-    $other->throw("end is undefined") unless defined $other->end;
+    ## TODO: Put back?
+    #$self->throw("start is undefined") unless defined $self->start;
+    #$self->throw("end is undefined") unless defined $self->end;
+    #$other->throw("start is undefined") unless defined $other->start;
+    #$other->throw("end is undefined") unless defined $other->end;
 
     return ($self->_testStrand($other, $so)   and
             ( ( defined( $self->seq_id() ) && defined( $other->seq_id() ) ) ?

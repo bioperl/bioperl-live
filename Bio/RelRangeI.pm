@@ -1,6 +1,6 @@
 package Bio::RelRangeI;
 
-# $Id $
+# $Id$
 # A Bio::RangeI with additional methods to support shifting between
 # relative and absolute views.
 
@@ -62,15 +62,18 @@ Internal methods are usually preceded with a _
 use strict;
 use vars qw( @ISA %ABS_STRAND_OPTIONS );
 
+use Class::Observable;
 use Bio::RangeI;
-@ISA = qw( Bio::RangeI );
+@ISA = qw( Bio::RangeI Class::Observable );
 
 use vars '$VERSION';
 $VERSION = '1.00';
 
+use Bio::RelRange qw( &absStrand );
+
 use overload 
   '""'     => 'toString',
-  eq       => 'equals',
+  eq       => 'eq',
   fallback => 1;
 
 BEGIN {
@@ -765,7 +768,7 @@ sub contains {
 sub equals {
   my $self = shift;
   my ( $other, $strand_option ) = @_;
-  if( defined( $other ) && $other->isa( 'Bio::RelRangeI' ) ) {
+  if( defined( $other ) && ref( $other ) && $other->isa( 'Bio::RelRangeI' ) ) {
     return (
             $self->_absTestStrand( $other, $strand_option ) and
             ( ( defined( $self->abs_seq_id() ) &&
@@ -778,6 +781,15 @@ sub equals {
     return $self->SUPER::equals( @_ );
   }
 } # equals(..)
+
+# This is used for overriding 'eq'.
+sub eq {
+  my $self = shift;
+  my ( $other, $reversed ) = @_;
+
+  # Ignore the reversal.
+  return $self->equals( $other );
+} # eq(..)
 
 ## utility methods for testing absolute strand equality
 
@@ -793,7 +805,7 @@ sub _absTestStrand {
 # returns true if abs_strands are equal and non-zero
 sub _abs_strong {
   my ( $r1, $r2 ) = @_;
-  my ( $s1, $s2 ) = ( absStrand( $r1 ), absStrand( $r2 ) );
+  my ( $s1, $s2 ) = ( Bio::RelRange::absStrand( $r1 ), Bio::RelRange::absStrand( $r2 ) );
     
   return 1 if( ( $s1 != 0 ) && ( $s1 == $s2 ) );
 } # _abs_strong
@@ -801,7 +813,7 @@ sub _abs_strong {
 # returns true if abs_strands are equal or either is zero
 sub _abs_weak {
   my ( $r1, $r2 ) = @_;
-  my ( $s1, $s2 ) = ( absStrand( $r1 ), absStrand( $r2 ) );
+  my ( $s1, $s2 ) = ( Bio::RelRange::absStrand( $r1 ), Bio::RelRange::absStrand( $r2 ) );
   return 1 if( ( $s1 == 0 ) || ( $s2 == 0 ) || ( $s1 == $s2 ) );
 } # _abs_weak
 
@@ -912,52 +924,55 @@ sub intersection {
 sub union {
   my $self = shift;
   my @ranges = @_;
-  if( ref $self ) {
-    unshift @ranges, $self;
+  if( ref( $self ) ) {
+    unshift( @ranges, $self );
   }
-  my $abs_seq_id = $self->abs_seq_id();
-  my $union_strand = $self->strand();
 
-  my ( $low, $high );
-  foreach my $other ( @ranges ) {
+  my ( $abs_seq_id, $union_strand, $low, $high );
+  foreach my $range ( @ranges ) {
+    next unless(
+                defined( $range ) &&
+                ref( $range ) &&
+                $range->isa( 'Bio::RangeI' )
+               );
     if( defined( $union_strand ) ) {
-      if( $union_strand != $other->strand() ) {
+      if( $union_strand != $range->strand() ) {
         $union_strand = 0;
       }
     } else {
-      $union_strand = $other->strand();
+      $union_strand = $range->strand();
     }
-    if( $other->isa( 'Bio::RelRangeI' ) ) {
+    if( $range->isa( 'Bio::RelRangeI' ) ) {
       if( defined( $abs_seq_id ) &&
-          defined( $other->abs_seq_id() ) &&
-          ( $abs_seq_id ne $other->abs_seq_id() )
+          defined( $range->abs_seq_id() ) &&
+          ( $abs_seq_id ne $range->abs_seq_id() )
         ) {
         $self->throw( "At least one of the given RelRangeI objects has an incompatible abs_seq_id() value." );
       }
       unless( defined( $abs_seq_id ) ) {
-        $abs_seq_id = $other->abs_seq_id();
+        $abs_seq_id = $range->abs_seq_id();
       }
-      if( !defined( $low ) or ( $low > $other->abs_low() ) ) {
-        $low = $other->abs_low();
+      if( !defined( $low ) or ( $low > $range->abs_low() ) ) {
+        $low = $range->abs_low();
       }
-      if( !defined( $high ) or ( $high < $other->abs_high() ) ) {
-        $high = $other->abs_high();
+      if( !defined( $high ) or ( $high < $range->abs_high() ) ) {
+        $high = $range->abs_high();
       }
     } else { # It's not a RelRangeI; must be a RangeI.  Assume absoluteness.
       if( defined( $abs_seq_id ) &&
-          defined( $other->seq_id() ) &&
-          ( $abs_seq_id ne $other->seq_id() )
+          defined( $range->seq_id() ) &&
+          ( $abs_seq_id ne $range->seq_id() )
         ) {
         $self->throw( "At least one of the given RangeI objects has an incompatible seq_id() value.  It must be the same as the abs_seq_id() value of this RelRangeI object." );
       }
       unless( defined( $abs_seq_id ) ) {
-        $abs_seq_id = $other->seq_id();
+        $abs_seq_id = $range->seq_id();
       }
-      if( !defined( $low ) or ( $low > $other->start() ) ) {
-        $low = $other->start();
+      if( !defined( $low ) or ( $low > $range->start() ) ) {
+        $low = $range->start();
       }
-      if( !defined( $high ) or ( $high < $other->end() ) ) {
-        $high = $other->end();
+      if( !defined( $high ) or ( $high < $range->end() ) ) {
+        $high = $range->end();
       }
     }
   }
@@ -1028,6 +1043,24 @@ sub overlap_extent {
 ## TODO: Document & dehackify
 sub toString {
   my $self = shift;
+
+  ## TODO: REMOVE.  This is a hack.  Somebody is calling Bio::RelRangeI::toString(..) on objects that are Bio::RangeIs but not Bio::RelRangeIs.  It's me, elsewhere, for debugging porpuses.  Darned porpuses!
+  unless( $self->isa( 'Bio::RelRangeI' ) ) {
+    if( $self->isa( 'Bio::RangeI' ) ) {     # oops.
+      my $strand = $self->strand();
+      my $strand_string;
+      if( $strand > 0 ) {
+        $strand_string = '+';
+      } elsif( $strand < 0 ) {
+        $strand_string = '-';
+      } else {
+        $strand_string = '.';
+      }
+      return $self->seq_id().'('.$strand_string.'):'.$self->start().'-'.$self->end();
+    } else {
+    Bio::Root::RootI->throw( "eegads.  \$self is $self, not a Bio::RelRangeI but a ".ref( $self )."." );
+    }
+  }
   ## This one also shows the absolute interpretation:
   #return $self->seq_id().'('.$self->strand_string().'):'.$self->start().'-'.$self->end().'{'.$self->abs_seq_id().'('.$self->strand_string( $self->abs_strand() ).'):'.$self->abs_start().'-'.$self->abs_end().'}';
   ## This one does not show the absolute interpretation:
@@ -1046,6 +1079,11 @@ sub strand_string {
     return '.';
   }
 } # strand_string(..)
+
+sub DESTROY {
+  # Because we're a Class::Observable
+  shift->delete_observers();
+} # DESTROY()
 
 1;
 

@@ -89,34 +89,12 @@ use overload
 use strict;
 
 use Bio::SeqFeature::SegmentI;
-use Bio::LocallyIdentifiableI;
-@ISA = qw( Bio::SeqFeature::SegmentI Bio::LocallyIdentifiableI );
+@ISA = qw( Bio::SeqFeature::SegmentI );
 
 use Bio::Seq;
 use Carp;
 
 =head1 Identification methods
-
-=head2 unique_id (from Bio::LocallyIdentifiableI)
-
- Title   : unique_id
- Usage   : $id = $feat->unique_id( [$new_id] )
- Function: Getter/setter for the unique id for this feature
- Returns : the current (or former, if used as a set method) unique identifier (or undef)
- Args    : (optional) A new unique identifier, or "undef" if there is none
- Status  : Public
-
-  This method will return undef if a unique identifier has not been
-  set for this feature.  If the argument is the string "undef" then
-  the unique_id will become undefined.  Note that the unique_id may
-  not be changed (if, for instance, the implementing class does not
-  allow unique_id changes).
-
-=cut
-
-sub unique_id {
-  shift->throw_not_implemented();
-}
 
 =head2 display_name
 
@@ -131,7 +109,7 @@ sub unique_id {
 =cut
 
 sub display_name { 
-  shift->throw_not_implemented();
+  shift->throw_not_implemented( @_ );
 }
 
 =head2 type
@@ -148,7 +126,7 @@ sub display_name {
 =cut
 
 sub type {
-  shift->throw_not_implemented();
+  shift->throw_not_implemented( @_ );
 }
 
 =head1 Tag methods
@@ -212,7 +190,7 @@ sub type_string {
 =cut
 
 sub source_tag {
-  shift->throw_not_implemented();
+  shift->throw_not_implemented( @_ );
 }
 
 =head2 has_tag
@@ -227,7 +205,7 @@ sub source_tag {
 =cut
 
 sub has_tag {
-  shift->throw_not_implemented();
+  shift->throw_not_implemented( @_ );
 }
 
 =head2 get_tag_values
@@ -242,7 +220,7 @@ sub has_tag {
 =cut
 
 sub get_tag_values {
-  shift->throw_not_implemented();
+  shift->throw_not_implemented( @_ );
 }
 
 =head2 get_all_tags
@@ -257,7 +235,7 @@ sub get_tag_values {
 =cut
 
 sub get_all_tags {
-  shift->throw_not_implemented();
+  shift->throw_not_implemented( @_ );
 }
 
 =head2 get_SeqFeatures
@@ -272,7 +250,7 @@ sub get_all_tags {
 =cut
 
 sub get_SeqFeatures {
-  shift->throw_not_implemented();
+  shift->throw_not_implemented( @_ );
 }
 
 =head2 attach_seq
@@ -305,7 +283,7 @@ sub get_SeqFeatures {
 =cut
 
 sub attach_seq {
-  shift->throw_not_implemented();
+  shift->throw_not_implemented( @_ );
 }
 
 =head2 seq
@@ -323,7 +301,7 @@ sub attach_seq {
 =cut
 
 sub seq {
-  shift->throw_not_implemented();
+  shift->throw_not_implemented( @_ );
 }
 
 =head2 entire_seq
@@ -340,7 +318,7 @@ sub seq {
 =cut
 
 sub entire_seq {
-  shift->throw_not_implemented();
+  shift->throw_not_implemented( @_ );
 }
 
 =head2 gff_string
@@ -512,6 +490,90 @@ sub spliced_seq {
     return $out;
 }
 
+=head1 SeqFeatureI-unique variations on Bio::SeqFeature::CollectionI methods
+
+=head2 add_SeqFeatures
+
+ Title   : add_SeqFeatures
+ Usage   : my @added_features = $feature->add_SeqFeatures( $sub_feature );
+           OR
+           $feature->add_SeqFeatures( $sub_feature, $type );
+           OR
+           $feature->add_SeqFeatures( $sub_feature, $expand, $type );
+ Function: Adds subfeatures to this feature, optionally with the given
+           type, optionally expanding this feature to accommodate them.
+ Returns : nothing
+ Args    : 1 or 2 or 3 arguments: the first is a L<Bio::SeqFeatureI>
+           object or a reference to a list of them; the second if
+           there's 3 arguments is a boolean EXPAND value; the third if
+           there's 3 or second if there's 2 arguments is a
+           L<Bio::SeqFeature::TypeI> object or a type id string.
+
+  Note that the $sub_feature argument may be a reference to a list of them.
+  If a type is given then before the feature is added its type(..)
+  method will be called with the given value as an argument.  If a
+  true value for $expand is given (when there's 3 arguments) then this
+  feature will grow to accomodate the new sub_feature.  Note that if
+  only 2 arguments are given but the second argument is the string
+  'EXPAND', the value will be interpreted as a true $expand argument,
+  and the type of the feature will not be changed.
+
+=cut
+
+sub add_SeqFeatures {
+  my $self = shift;
+  my @sub_features = ( shift );
+
+  if( ref( $sub_features[ 0 ] ) eq 'ARRAY' ) {
+    @sub_features = @{ $sub_features[ 0 ] };
+  }
+  my $type = shift;
+  my $expand;
+  if( $_[ 0 ] ) {
+    $expand = $type;
+    $type = shift;
+  } elsif( $type eq 'EXPAND' ) {
+    $expand = $type;
+    undef $type;
+  }
+
+  # Add them, and replace the list with those actually added.
+  @sub_features = $self->add_features( @sub_features );
+
+  ## TODO: REMOVE
+  #print STDERR "add_SeqFeatures(..): \@sub_features are ( ", join( ", ", @sub_features ), " ), \$expand is $expand, \$type is $type\n";
+
+  if( defined( $type ) ) {
+    foreach my $sub_feature ( @sub_features ) {
+      $sub_feature->type( $type );
+    } # End foreach $sub_feature, 
+  } # End if a $type was given.
+
+  # Adjust for the features if requested
+  if( $expand ) {
+    # Adjust the bounds, don't shrink.
+    $self->adjust_bounds( 0, @sub_features );
+  }
+  return ( wantarray ? @sub_features : $sub_features[ 0 ] );
+} # add_SeqFeatures(..)
+
+=head2 remove_SeqFeatures
+
+ Title   : remove_SeqFeatures
+ Usage   : $feature->remove_SeqFeatures();
+           OR
+           $feature->remove_SeqFeatures( @types );
+ Function: Removes all sub features or all sub features of the given types
+ Returns : The array of L<Bio::SeqFeatureI> objects removed.
+ Args    : none
+
+=cut
+
+sub remove_SeqFeatures {
+  my $self = shift;
+  return $self->remove_features( $self->features( @_ ) );
+} # remove_SeqFeatures(..)
+
 =head1 Bio::SeqFeature::SegmentI methods
 
 List of methods inherited from Bio::SeqFeature::SegmentI (see
@@ -540,7 +602,7 @@ prevents the inheritance of documentation for inherited methods.
            a hash mapping type id strings to integer counts
  Args    : see below
 
-This routine returns a list of the types of subfeatures contained in
+This routine returns a list of the types of sub_features contained in
 this feature.  If the -count argument is given, it returns a hash of
 types mapped to their occurrence counts.  Note that the hierarchy of
 TypeI objects is ignored, so if there are 4 features of type 'foo'
@@ -1526,11 +1588,13 @@ sub toString {
          overload::StrVal( $self );
 } # toString()
 
-## method for overload for comparing two SeqFeature objects.  Uses toString().
+## method for overload for comparing two SeqFeature objects.
 sub _cmp {
   my $self = shift;
   my ( $b, $reversed ) = @_;
-  my $a = $self->toString();
+  my $a = ( $self->unique_id() ||
+            $self->display_name() ||
+          overload::StrVal( $self ) );
   ( $a, $b ) = ( $b, $a ) if $reversed;
   return ( $a cmp $b );
 }

@@ -16,11 +16,13 @@ sub draw {
   # which use different names for subparts.
   my @parts = $self->parts;
   @parts    = $self if !@parts && $self->level == 0;
+
   return $self->SUPER::draw(@_) unless @parts;
 
   # figure out the colors
   my $max_score = $self->option('max_score');
   my $min_score = $self->option('min_score');
+
   unless (defined $max_score && defined $min_score) {
     for my $part (@parts) {
       my $s = eval { $part->feature->score };
@@ -42,16 +44,22 @@ sub draw {
 
   foreach my $part (@parts) {
     my $s = eval { $part->feature->score };
+
     unless (defined $s) {
       $part->{partcolor} = $fill;
       next;
     }
-    my($r,$g,$b) = map { 255 - (255-$_) * min(max( ($s-$min_score)/$span, 0), 1) }
-      ($red,$green,$blue);
+    my ($r,$g,$b) = $self->calculate_color($s,[$red,$green,$blue],$min_score,$span);
     my $idx      = $self->panel->translate_color($r,$g,$b);
     $part->{partcolor} = $idx;
   }
   $self->SUPER::draw(@_);
+}
+
+sub calculate_color {
+  my $self = shift;
+  my ($s,$rgb,$min_score,$span) = @_;
+  return map { 255 - (255-$_) * min(max( ($s-$min_score)/$span, 0), 1) } @$rgb;
 }
 
 sub min { $_[0] < $_[1] ? $_[0] : $_[1] }

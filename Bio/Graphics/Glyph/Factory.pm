@@ -50,9 +50,12 @@ methods. Internal methods are usually preceded with an "_"
 
 package Bio::Graphics::Glyph::Factory;
 
+use Bio::Root::Root;
 use strict;
 use Carp qw(:DEFAULT cluck);
 use GD;
+use vars '@ISA';
+@ISA = qw( Bio::Root::Root );
 
 my %LOADED_GLYPHS = ();
 my %GENERIC_OPTIONS = (
@@ -297,10 +300,19 @@ subfeatures.
 # create a glyph
 sub make_glyph {
   my $self  = shift;
+
+  ## TODO: REMOVE
+  #warn "Factory::make_glyph( ".join( ', ', @_ ). " )" if Bio::Graphics::Browser::DEBUG;
+
   my $level = shift;
   my @result;
   my $panel = $self->panel;
   my ($leftmost,$rightmost) = ($panel->left,$panel->right);
+
+  ## TODO: REMOVE
+  #if( $level > 0 ) {
+  #  $self->throw( "level > 0" );
+  #}
 
   for my $f (@_) {
 
@@ -313,6 +325,8 @@ sub make_glyph {
       carp("the requested glyph class, ``$type'' is not available: $@")
 	unless (eval "require $glyphclass");
     }
+    ## TODO: REMOVE
+    #warn "make_glyph( $level, $f ): glyphclass is $glyphclass." if Bio::Graphics::Browser::DEBUG;
     my $glyph = $glyphclass->new(-feature  => $f,
 				 -factory  => $self,
 				 -level    => $level);

@@ -1,6 +1,6 @@
 package Bio::SeqFeature::SegmentI;
 
-# $Id $
+# $Id$
 # A Bio::SeqFeature::CollectionI that is also a Bio::RelRangeI.
 
 =head1 NAME
@@ -84,12 +84,36 @@ use vars qw( @ISA );
 use Bio::RelRangeI;
 use Bio::SeqFeature::CollectionI;
 use Bio::DB::SegmentProviderI;
+use Bio::LocallyIdentifiableI;
 @ISA = qw( Bio::RelRangeI
            Bio::SeqFeature::CollectionI
-           Bio::DB::SegmentProviderI );
+           Bio::DB::SegmentProviderI
+           Bio::LocallyIdentifiableI );
 
 use vars '$VERSION';
 $VERSION = '1.00';
+
+=head2 unique_id (from Bio::LocallyIdentifiableI)
+
+ Title   : unique_id
+ Usage   : $id = $segment->unique_id( [$new_id] )
+ Function: Getter/setter for the unique id for this segment
+ Returns : the current (or former, if used as a set method) unique identifier
+           (or undef)
+ Args    : (optional) A new unique identifier, or "undef" if there is none
+ Status  : Public
+
+  This method will return undef if a unique identifier has not been
+  set for this segment.  If the argument is the string "undef" then
+  the unique_id will become undefined.  Note that the unique_id may
+  not be changed (if, for instance, the implementing class does not
+  allow unique_id changes).
+
+=cut
+
+sub unique_id {
+  shift->throw_not_implemented( @_ );
+}
 
 #                   --Coders beware!--
 # This pod is a modification of the pod for features() in
@@ -106,7 +130,7 @@ $VERSION = '1.00';
  Usage   : @features = $segment->features( %args );
            OR
            @features = $segment->features( @types );
- Returns : a list of L<Bio::SeqFeatureI> objects,
+ Returns : a list of L<Bio::SeqFeature::SegmentI> objects,
            OR
            (when the -iterator option is true) an L<Bio::SeqFeature::IteratorI>
            OR
@@ -290,7 +314,7 @@ then any feature with the display_name or unique_id 'foo', 'ns:foo',
 
 If -iterator is true, then the method returns an object of type
 Bio::SeqFeature::IteratorI.  Each call to next_seq() on this
-object returns a Bio::SeqFeatureI object from this collection.
+object returns a Bio::SeqFeature::SegmentI object from this collection.
 
 If -callback is passed a code reference, the code reference will be
 invoked on each feature returned.  The code will be passed two
@@ -335,7 +359,7 @@ need to be explicitly implemented.
 =cut
 
 sub features {
-  shift->throw_not_implemented();
+  shift->throw_not_implemented( @_ );
 }
 
 =head2 segments
@@ -344,7 +368,7 @@ sub features {
  Usage   : @features = $segment->segments( %args );
            OR
            @features = $segment->segments( @types );
- Returns : a list of L<Bio::SeqFeatureI> objects,
+ Returns : a list of L<Bio::SeqFeature::SegmentI> objects,
            OR
            (when the -iterator option is true) an L<Bio::SeqFeature::IteratorI>
            OR
@@ -357,7 +381,9 @@ sub features {
 
 =cut
 
-  *segments = \&features;
+sub segments {
+  shift->features( @_ );
+}
 
 #                   --Coders beware!--
 # This pod is a modification of the pod for get_collection() in
@@ -509,7 +535,212 @@ then any feature with the display_name or unique_id 'foo', 'ns:foo',
 =cut
 
 sub get_collection {
-  shift->throw_not_implemented();
+  shift->throw_not_implemented( @_ );
+}
+
+=head2 adjust_bounds
+
+ Title   : adjust_bounds
+ Usage   : $segment->adjust_bounds( [ $shrink ], [ @sub_features ] );
+ Function: Adjust the bounds of this feature to include all sub-features.
+ Returns : nothing.
+ Args    : [optional] a boolean value indicating whether or not to allow
+           the bounds to shrink.
+           [optional] a list of sub_features to adjust for.
+ Status  : Public
+
+  This method adjusts the boundaries of the feature to enclose all its
+  sub_features (or, if a list of features is provided, then to enclose
+  those).  If the $shrink argument is provided and true then the new
+  boundaries will be the minimal bounds to include all sub_features.
+  Otherwise the new bounds will never be smaller than the original
+  bounds.  Note that, in either case, if the strand value of this
+  feature is 0 when adjust_bounds() is called then it will be set to
+  1.
+
+=cut
+
+## TODO: Test this! -Paul E
+sub adjust_bounds {
+  my $self = shift;
+  my $shrink = shift;
+
+  my $absolute = $self->absolute();
+  if( $absolute ) {
+    $self->absolute( 0 );
+  }
+
+  my @sub_features;
+  if( defined( $shrink ) &&
+      ref( $shrink ) &&
+      $shrink->isa( 'Bio::SeqFeature::SegmentI' ) ) {
+    @sub_features = ( $shrink, @_ );
+    undef( $shrink );
+  } else {
+    @sub_features = @_;
+  }
+  unless( @sub_features ) {
+    @sub_features = $self->features();
+    ## TODO: REMOVE
+    #print STDERR "$self->adjust_bounds(..): using all subfeatures.\n";
+  } else {
+    ## TODO: REMOVE
+    #print STDERR "$self->adjust_bounds(..): \@sub_features are ( ", join( ", ", @sub_features ), " )\n";
+  }
+  # Don't adjust if there's no subfeatures.
+  unless( @sub_features ) {
+    ## TODO: REMOVE
+    #print STDERR "No subfeatures to adjust around.\n";
+    # Done.  No change.
+    if( $absolute ) {
+      $self->absolute( 1 );
+    }
+    return;
+  }
+
+  my ( $self_abs_low,
+       $self_abs_high,
+       $self_abs_strand );
+  unless( $shrink ) {
+    ( $self_abs_low,
+      $self_abs_high ) =
+        ( $self->abs_low(),
+          $self->abs_high() );
+  }
+  unless( $self->strand() ) {
+    $self->strand( 1 );
+  }
+  $self_abs_strand = $self->abs_strand();
+  my ( $sub_feature_abs_low,
+       $sub_feature_abs_high );
+  foreach my $sub_feature ( @sub_features ) {
+    ## TODO: REMOVE
+    #print STDERR "                   adjusting for $sub_feature.\n";
+    # As an added bonus we will clean up any sloppy features that
+    # don't know where they are.  We do this by telling them that
+    # they are here.
+    unless( defined $sub_feature->seq_id() ) {
+      ## TODO: REMOVE
+      #print STDERR "                   -> setting its seq_id to $self.\n";
+      $sub_feature->seq_id( $self );
+    }
+
+    # All sub_features must recursively adjust their bounds.
+    $sub_feature->adjust_bounds( $shrink );
+
+    # Skip any sub_features that are not on the same sequence.
+    if( $sub_feature->abs_seq_id() ne $self->abs_seq_id() ) {
+      ## TODO: Remove warning?
+      warn "'$sub_feature', a subfeature of '$self', is defined on the sequence '", $sub_feature->abs_seq_id(), "', but '$self' is on the sequence '", $self->abs_seq_id(), "'.";
+      next;
+    }
+
+    ( $sub_feature_abs_low,
+      $sub_feature_abs_high ) =
+        ( $sub_feature->abs_low(),
+          $sub_feature->abs_high() );
+    if( !$self_abs_low ||
+        ( $sub_feature_abs_low &&
+          ( $sub_feature_abs_low < $self_abs_low ) )
+      ) {
+      ## TODO: REMOVE
+      #print STDERR "                   -> taking on its low value.\n";
+      $self_abs_low = $sub_feature_abs_low;
+    }
+    if( !$self_abs_high ||
+        ( $sub_feature_abs_high > $self_abs_high ) ) {
+      ## TODO: REMOVE
+      #print STDERR "                   -> taking on its high value.\n";
+      $self_abs_high = $sub_feature_abs_high;
+    }
+  } # End foreach sub_feature.
+
+  my ( $delta_low, $delta_high ) =
+    ( ( $self_abs_low - $self->abs_low() ),
+      ( $self_abs_high - $self->abs_high() ) );
+  if( ( $delta_low == 0 ) && ( $delta_high == 0 ) ) {
+    ## TODO: REMOVE
+    #print STDERR "                   no change.\n";
+    # Done.  No change.
+    if( $absolute ) {
+      $self->absolute( 1 );
+    }
+    return;
+  }
+  # We want delta_high to be for the 'end' value, which is not
+  # necessarily high.
+  if( $self_abs_strand < 0 ) {
+    # flip the delta values.
+    ( $delta_low, $delta_high ) = ( $delta_high, $delta_low );
+  }
+  # Now change each sub_feature's bounds by the deltas.
+  my ( $sub_feature_low,
+       $sub_feature_high,
+       $sub_feature_strand,
+       $sub_feature_ancestor,
+       $last_sub_feature_ancestor );
+  foreach my $sub_feature ( $self->features() ) {
+    # Skip any sub_features that are not physically contained herein.
+    $last_sub_feature_ancestor = $sub_feature;
+    $sub_feature_ancestor = $sub_feature->seq_id();
+    while( ref( $sub_feature_ancestor ) &&
+           $sub_feature_ancestor->isa( 'Bio::SeqFeature::SegmentI' ) &&
+           !( $sub_feature_ancestor == $self ) ) {
+      $last_sub_feature_ancestor = $sub_feature_ancestor;
+      $sub_feature_ancestor = $sub_feature_ancestor->seq_id();
+    }
+    next unless( $sub_feature_ancestor == $self );
+
+    ( $sub_feature_low,
+      $sub_feature_high,
+      $sub_feature_strand ) =
+        ( $sub_feature->low(),
+          $sub_feature->high(),
+          $sub_feature->strand() );
+    if( $sub_feature_strand < 0 ) {
+      next unless $delta_high;
+      ## TODO: REMOVE
+      #print STDERR "                   readjusting $sub_feature by ( $delta_high ) (subfeature is on - strand).\n";
+      $sub_feature->start( $sub_feature_low + $delta_high );
+      $sub_feature->end( $sub_feature_high + $delta_high );
+    } else {
+      next unless $delta_low;
+      ## TODO: REMOVE
+      #print STDERR "                   readjusting $sub_feature by ( $delta_low ) (subfeature is on + strand).\n";
+      $sub_feature->start( $sub_feature_low - $delta_low );
+      $sub_feature->end( $sub_feature_high - $delta_low );
+    }
+    $sub_feature->ensure_orientation();
+    # Just in case its ancestor ceases to be == us after we adjust
+    # ourself, we'll force it to be...
+    $last_sub_feature_ancestor->seq_id( $self );
+    ## TODO: REMOVE
+    #print STDERR "$sub_feature bounds is now ", $sub_feature->Bio::RelRangeI::toString(), "\n";
+  } # End foreach sub_feature, rebound it so that when we change our
+    # bounds, their absolute bounds remain the same.
+
+  # Now, finally, change our own bounds.
+  if( $self_abs_strand < 0 ) {
+    # Remember that we already flipped delta_low and delta_high.
+    $self->start( $self->start() - $delta_low );
+    $self->end( $self->end() - $delta_high );
+  } else {
+    $self->start( $self->start() + $delta_low );
+    $self->end( $self->end() + $delta_high );
+  }
+  $self->ensure_orientation();
+  ## TODO: REMOVE
+  #print STDERR "$self bounds is now ", $self->Bio::RelRangeI::toString(), "\n";
+
+  if( $absolute ) {
+    $self->absolute( 1 );
+  }
+  return;
+} # adjust_bounds(..)
+
+## TODO: I dunno what.  Bio::DB::GFF::Browser expects this field to exist.
+sub class {
+  return;
 }
 
 1;

@@ -1,6 +1,6 @@
 package Bio::DB::SequenceProviderI;
 
-# $Id $
+# $Id$
 # A provider of Bio::PrimarySeqI objects.
 
 =head1 NAME
@@ -82,7 +82,8 @@ use Bio::DB::SeqI;
 
 ## Note: This is to support Bio::DB::SeqI and might be removeable
 ## later on.  A grep turns up no usage references (there are a few
-## implementations though, just no calls to this method).
+## implementations though, just no calls to this method).  But see
+## also seq_ids().
 =head2 get_all_primary_ids
 
  Title   : get_all_primary_ids
@@ -103,6 +104,40 @@ sub get_all_primary_ids {
   shift->throw_not_implemented();
 }
 
+=head2 unique_ids
+
+ Title     : unique_ids
+ Usage     : my @unique_ids = $sequenceprovider->unique_ids();
+ Function  : Return a list of the unique_ids of all sequences provided
+             by this SequenceProvider.  Note that although some
+             sequences may have undefined unique_ids, the returned
+             list will not include undef.
+ Returns   : an array of strings.
+ Args      : none
+ Status    : Public
+
+=cut
+
+sub unique_ids {
+  shift->throw_not_implemented();
+} # unique_ids(..)
+
+=head2 seq_ids
+
+ Title     : seq_ids
+ Usage     : my @seq_ids = $sequenceprovider->seq_ids();
+ Function  : Return a list of the unique_ids of all sequences provided
+             by this SequenceProvider.
+ Returns   : an array of strings.
+ Args      : none
+ Status    : Public
+
+=cut
+
+sub seq_ids {
+  shift->throw_not_implemented();
+}
+
 =head2 sequences
 
  Title   : sequences
@@ -113,7 +148,7 @@ sub get_all_primary_ids {
  Returns : a list of L<Bio::PrimarySeqI> objects
            OR
            (when the -iterator option is true)
-             a L<Bio::Factory::SequenceStreamI> object
+             a L<Bio::Seq::IteratorI> object
            OR
            (when the -callback option is true) true iff the callbacks
              completed.
@@ -156,7 +191,7 @@ difference).
   -namespace     A (string) namespace qualifier to help resolve the names.
   -class         same as -namespace
 
-  -iterator      Return a L<Bio::Factory::SequenceStreamI>
+  -iterator      Return a L<Bio::Seq::IteratorI>
   -stream        same as -iterator
 
   -callback      A callback to invoke on each sequence
@@ -203,7 +238,7 @@ sequence with the accession, unique_id, primary_id, or display_id
 'foo', 'ns:foo', 'bar', or 'ns:bar' will be returned.
 
 If -iterator is true, then the method returns an object of type
-L<Bio::Factory::SequenceStreamI>.  Each call to next_seq() on this
+L<Bio::Seq::IteratorI>.  Each call to next_seq() on this
 object returns a L<Bio::PrimarySeqI> object from this provider.
 
 If -callback is passed a code reference, the code reference will be
@@ -531,7 +566,7 @@ sub get_Seq_by_version {
  Title   : get_Seq_stream
  Usage   : my $iterator = $provider->get_Seq_stream( %args )
  Function: get an iterator over the sequences provided by this provider
- Returns : a L<Bio::Factory::SequenceStreamI>
+ Returns : a L<Bio::Seq::IteratorI>
  Args    : same as sequences()
  Status  : Public
 
@@ -557,7 +592,7 @@ sub get_Seq_stream {
  Title   : get_PrimarySeq_stream [deprecated]
  Usage   : my $iterator = $provider->get_PrimarySeq_stream( %args )
  Function: get an iterator over the sequences provided by this provider
- Returns : a L<Bio::Factory::SequenceStreamI>
+ Returns : a L<Bio::Seq::IteratorI>
  Args    : same as sequences()
  Status  : Public
 
@@ -572,6 +607,27 @@ deprecated.  get_Seq_stream() should be used instead.
 sub get_PrimarySeq_stream {
   shift->get_Seq_stream( @_ );
 }
+
+=head2 sequence_count
+
+ Title   : sequence_count
+ Usage   : $collection->sequence_count()
+ Function: Return the number of L<Bio::PrimarySeqI> objects that would
+           be returned by a call to sequences() with no arguments.
+ Returns : integer representing the number of sequence objects
+ Args    : None
+
+  This method is implemented in the interface to return
+    scalar( $self->sequences() )
+  Because this is not particularly efficient, implementers are
+  encouraged to override it, but the result should of course be the
+  same.
+
+=cut
+
+sub sequence_count {
+  return scalar( shift->sequences() );
+} # sequence_count()
 
 1;
 

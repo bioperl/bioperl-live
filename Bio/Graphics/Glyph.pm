@@ -37,9 +37,12 @@ sub new {
   $self->{top} = 0;
 
   my @subglyphs;
-  my @subfeatures = $self->subseq($feature);
-
-  if (@subfeatures) {
+  ## TODO: ERE I AM.  I just added a 'shallow' entry to the add_track call, so maybe we don't have to get the subfeatures here.  Eventually we should avoid it altogether...
+  my @subfeatures;
+  unless( $self->option( 'shallow' ) && ( $level >= 0 ) ) {
+    @subfeatures = $self->subseq( $feature );
+  }
+  if( @subfeatures ) {
 
     # dynamic glyph resolution
     @subglyphs = map { $_->[0] }
@@ -61,7 +64,9 @@ sub new {
   if (@subglyphs) {
       my $l            = $subglyphs[0]->left;
       $self->{left}    = $l if !defined($self->{left}) || $l < $self->{left};
-      my $right        = (sort { $b<=>$a } map {$_->right} @subglyphs)[0];
+      my $right        = (
+			  sort { $b<=>$a } 
+			  map {$_->right} @subglyphs)[0];
       my $w            = $right - $self->{left} + 1;
       $self->{width}   = $w if !defined($self->{width}) || $w > $self->{width};
   }
@@ -98,7 +103,7 @@ sub scale   { shift->factory->scale }
 sub start   {
   my $self = shift;
   return $self->{start} if exists $self->{start};
-  $self->{start} = $self->{feature}->start;
+  $self->{start} = $self->{feature}->abs_start;
 
   # handle the case of features whose endpoints are undef
   # (this happens with wormbase clones where one or more clone end is not defined)
@@ -110,7 +115,7 @@ sub start   {
 sub stop    {
   my $self = shift;
   return $self->{stop} if exists $self->{stop};
-  $self->{stop} = $self->{feature}->end;
+  $self->{stop} = $self->{feature}->abs_end;
 
   # handle the case of features whose endpoints are undef
   # (this happens with wormbase clones where one or more clone end is not defined)
@@ -129,19 +134,37 @@ sub score {
 sub strand {
     my $self = shift;
     return $self->{strand} if exists $self->{strand};
-    return $self->{strand} = ($self->{feature}->strand || 0);
+    return $self->{strand} = ($self->{feature}->abs_strand || 0);
 }
 sub map_pt  { shift->{factory}->map_pt(@_) }
 sub map_no_trunc { shift->{factory}->map_no_trunc(@_) }
 
+## TODO: Implement set_feature_collection in Glyph.pm
+#$track->set_feature_collection( $collection );
+sub set_feature_collection {
+  my $self = shift;
+  my ( $collection ) = @_;
+
+  ## TODO: Something cooler.
+  my @features = $collection->features();
+
+  ## TODO: REMOVE
+  #warn "Glyph::set_feature_collection(..): features are ( " . join( ', ', @features ) . " )" if Bio::Graphics::Browser::DEBUG;
+
+  $self->add_feature( @features );
+} # set_feature_collection(..)
+
 # add a feature (or array ref of features) to the list
 sub add_feature {
   my $self       = shift;
+
   my $factory    = $self->factory;
   for my $feature (@_) {
     if (ref $feature eq 'ARRAY') {
       $self->add_group(@$feature);
     } else {
+      ## TODO: REMOVE
+      #warn "Glyph::add_feature(..): Adding a glyph for $feature" if Bio::Graphics::Browser::DEBUG;
       push @{$self->{parts}},$factory->make_glyph(0,$feature);
     }
   }
@@ -425,22 +448,24 @@ sub layout_sort {
 
        # not sure I can make this schwartzian transfored
        for my $sortby (@sortbys) {
-           if ($sortby eq "left" || $sortby eq "default") {
-               $sortfunc .= '($a->left <=> $b->left) || ';
-               $sawleft++;
-           } elsif ($sortby eq "right") {
-               $sortfunc .= '($a->right <=> $b->right) || ';
-           } elsif ($sortby eq "low_score") {
-               $sortfunc .= '($a->score <=> $b->score) || ';
-           } elsif ($sortby eq "high_score") {
-               $sortfunc .= '($b->score <=> $a->score) || ';
-           } elsif ($sortby eq "longest") {
-               $sortfunc .= '(($b->length) <=> ($a->length)) || ';
-           } elsif ($sortby eq "shortest") {
-               $sortfunc .= '(($a->length) <=> ($b->length)) || ';
-           } elsif ($sortby eq "strand") {
-               $sortfunc .= '($b->strand <=> $a->strand) || ';
-           }
+	 if ($sortby eq "left" || $sortby eq "default") {
+	   $sortfunc .= '($a->left <=> $b->left) || ';
+	   $sawleft++;
+	 } elsif ($sortby eq "right") {
+	   $sortfunc .= '($a->right <=> $b->right) || ';
+	 } elsif ($sortby eq "low_score") {
+	   $sortfunc .= '($a->score <=> $b->score) || ';
+	 } elsif ($sortby eq "high_score") {
+	   $sortfunc .= '($b->score <=> $a->score) || ';
+	 } elsif ($sortby eq "longest") {
+	   $sortfunc .= '(($b->length) <=> ($a->length)) || ';
+	 } elsif ($sortby eq "shortest") {
+	   $sortfunc .= '(($a->length) <=> ($b->length)) || ';
+	 } elsif ($sortby eq "strand") {
+	   $sortfunc .= '($b->strand <=> $a->strand) || ';
+	 } elsif ($sortby eq "name") {
+	   $sortfunc .= '($a->feature->display_name cmp $b->feature->display_name) || ';
+	 }
        }
        unless ($sawleft) {
            $sortfunc .= ' ($a->left <=> $b->left) ';
@@ -451,8 +476,7 @@ sub layout_sort {
        $sortfunc = eval $sortfunc;
     }
 
-    # would be nice to cache this somehow, but won't this override the
-    # settings for other tracks?
+    # cache this
     # $self->factory->set_option(sort_order => $sortfunc);
 
     return sort $sortfunc @_;
@@ -1304,7 +1328,9 @@ features to be sorted from lowest to highest score (or vice versa).
 sorted by their position in the sequence.  "longer" (or "shorter")
 will cause the longest (or shortest) features to be sorted first, and
 "strand" will cause the features to be sorted by strand: "+1"
-(forward) then "0" (unknown, or NA) then "-1" (reverse).
+(forward) then "0" (unknown, or NA) then "-1" (reverse).  Lastly,
+"name" will sort features alphabetically by their display_name()
+attribute.
 
 In all cases, the "left" position will be used to break any ties.  To
 break ties using another field, options may be strung together using a

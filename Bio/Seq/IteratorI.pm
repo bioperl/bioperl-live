@@ -2,25 +2,25 @@
 
 =head1 NAME
 
-Bio::SeqFeature::IteratorI - An iterator over Bio::SeqFeatureI objects.
+Bio::Seq::IteratorI - An iterator over Bio::PrimarySeqI objects.
 
 =head1 SYNOPSIS
 
-  my $iterator = $seq_feature_collection->iterator( @args );
+  my $iterator = $sequence_provider->get_Seq_stream( @args );
   while( $iterator->has_more_elements() ) {
-    my $seq_feature = $iterator->next_feature();
-    # do something with the features...
+    my $sequence = $iterator->next_seq();
+    # do something with the sequences...
   }
 
 =head1 DESCRIPTION
 
-  An iterator over L<Bio::SeqFeatureI> objects.  This is an autodeleting
+  An iterator over L<Bio::PrimarySeqI> objects.  This is an autodeleting
   list, aka a stream.  Reading from the iterator (using
   $iterator->next_feature) removes the returned feature from the
   iterator.  An iterator may return new objects or it may return
   preexisting objects.  In some circumstances it may return the same
   object twice (eg. if it is iterating over a list that contains that
-  object twice).  See L<Bio::SeqFeature::CollectionI>.
+  object twice).  See L<Bio::DB::SequenceProviderI>.
 
 =head1 FEEDBACK
 
@@ -63,7 +63,7 @@ Internal methods are usually preceded with a _
 
 # Let the code begin...
 
-package Bio::SeqFeature::IteratorI;
+package Bio::Seq::IteratorI;
 
 use strict;
 use vars qw( $VERSION @ISA );
@@ -71,52 +71,35 @@ use vars qw( $VERSION @ISA );
 $VERSION = '0.01';
 @ISA = qw( Bio::Root::RootI );
 
-=head2 next_feature
-
- Title   : next_feature
- Usage   : $seq_feature = $iterator->next_feature()
- Function: returns and removes the next feature from this iterator
- Returns : a L<Bio::SeqFeatureI>, or undef if there are no more
- Args    : none
- Status  : Public
-
-=cut
-
-sub next_feature {
-  shift->throw_not_implemented( @_ );
-} # next_feature()
-
 =head2 next_seq
 
  Title   : next_seq
  Usage   : $seq_feature = $iterator->next_seq()
  Function: returns and removes the next feature from this iterator
- Returns : a L<Bio::SeqFeatureI>, or undef if there are no more
+ Returns : a L<Bio::PrimarySeqI>, or undef if there are no more
  Args    : none
  Status  : Public
-
-  This method is an alias for next_feature.
 
 =cut
 
 sub next_seq {
-  shift->next_feature( @_ );
+  shift->throw_not_implemented( @_ );
 }
 
-=head2 has_more_features
+=head2 has_more_sequences
 
- Title   : has_more_features
- Usage   : while( $iterator->has_more_features() ) { do something }
- Function: returns true iff there are features in this iterator
- Returns : true iff there are more features in this iterator
+ Title   : has_more_sequences
+ Usage   : while( $iterator->has_more_sequences() ) { do something }
+ Function: returns true iff there are sequences in this iterator
+ Returns : true iff there are more sequences in this iterator
  Args    : none
  Status  : Public
 
 =cut
 
-sub has_more_features {
+sub has_more_sequences {
   shift->throw_not_implemented( @_ );
-} # has_more_features()
+} # has_more_sequences()
 
 1;
 

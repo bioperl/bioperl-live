@@ -161,12 +161,13 @@ sub new_from_parent {
       '-orientation_policy' => 'dependent'
     );
   my $self = $pack->SUPER::new( %args );
-  $self->{ 'score' } = $score;
-  $self->{ 'phase' } = $phase;
-  $self->{ 'group' } = $group;
-  $self->{ 'db_id' } = $db_id;
-  $self->{ 'group_id' } = $group_id;
-  $self->{ 'class' } = $class;
+  $self->score( $score ) if defined( $score );
+  $self->phase( $phase ) if defined( $phase );
+  $self->group( $group ) if defined( $group );
+  $self->class( $class ) if defined( $class );
+  $self->{ '_db_id' } = $db_id;
+  $self->{ '_group_id' } = $group_id;
+  $self->{ 'merged_seqs' } = undef;
   # Default to sorted
   $self->sorted( 1 );
 
@@ -243,14 +244,66 @@ sub new {
       '-orientation_policy' => 'dependent'
     );
   my $self = $pack->SUPER::new( %args );
-  $self->{ 'score' } = $score;
-  $self->{ 'phase' } = $phase;
-  $self->{ 'group' } = $group;
-  $self->{ 'db_id' } = $db_id;
-  $self->{ 'group_id' } = $group_id;
-  $self->{ 'class' } = $class;
+  $self->{ '_db_id' } = $db_id;
+  $self->{ '_group_id' } = $group_id;
+  $self->{ 'merged_seqs' } = undef;
+  $self->score( $score ) if defined( $score );
+  $self->group( $group ) if defined( $group );
+  $self->phase( $phase ) if defined( $phase );
+  $self->class( $class ) if defined( $class );
   return $self;
 } # new(..)
+
+=head2 new_from_feature
+
+ Title   : new_from_feature
+ Usage   : my $new_feature =
+             Bio::DB::GFF::Feature->new_from_feature( $copy_from );
+ Function: Create a new Bio::DB::GFF::Feature object by copying
+           values from another Feature object.
+ Returns : A new L<Bio::DB::GFF::Feature> object
+ Args    : Another L<Bio::DB::GFF::Feature> object
+ Status  : Protected
+
+  This is a special copy constructor.  It forces the new feature into
+  the L<Bio::DB::GFF::Feature> package, regardless of the package that
+  it is called from.  This causes subclass-specfic information to be
+  dropped.
+
+  This also does not copy into the new feature the features held in
+  the existing feature.  If you would like the new feature to hold the
+  same features you must explicitly add them, like so:
+    $new_feature->add_features( $copy_from->features() );
+
+  As a special bonus you may also pass an existing hash and it will be the
+  blessed an anointed object that is returned, like so:
+    $new_feature =
+      Bio::DB::GFF::Feature->new_from_feature(
+        $copy_from,
+        $new_feature
+      );
+
+=cut
+
+sub new_from_feature {
+  my $pack = shift; # ignored
+  my $feature = shift || $pack;
+  my $new_feature = shift;
+  $new_feature =
+    Bio::SeqFeature::Generic->new_from_feature(
+      $feature,
+      $new_feature
+    );
+  $new_feature =
+    Bio::DB::GFF::Segment->new_from_segment(
+      $feature,
+      $new_feature
+    );
+  @{ $new_feature }{ qw( _db_id _group_id merged_seqs ) } =
+    @{ $feature }{ qw( _db_id _group_id merged_seqs ) };
+
+  return bless $new_feature, __PACKAGE__;
+} # new_from_feature(..)
 
 =head2 new_from_segment
 
@@ -321,10 +374,20 @@ feature that delegates the task to the feature's type object.
 
 sub method {
   my $self = shift;
-  my $d = $self->type->method;
-  $self->type->method(shift) if @_;
-  $d;
-}
+  my $type = $self->type();
+  if( !defined( $type ) ) {
+    if( @_ ) {
+      $type = Bio::DB::GFF::Typename->new();
+    } else {
+      return;
+    }
+  } 
+  if( $type->can( 'method' ) ) {
+    my $d = $type->method();
+    $type->method( shift ) if @_;
+    $d;
+  }
+} # method
 
 =head2 source
 
@@ -342,30 +405,20 @@ feature that delegates the task to the feature's type object.
 
 sub source {
   my $self = shift;
-  my $d = $self->type->source;
-  $self->type->source(shift) if @_;
-  $d;
-}
-
-=head2 score
-
- Title   : score
- Usage   : $score = $f->score([$newscore])
- Function: get or set the feature score
- Returns : a string
- Args    : a new score (optional)
- Status  : Public
-
-This method gets or sets the feature score.
-
-=cut
-
-sub score  {
-  my $self = shift;
-  my $d    = $self->{score};
-  $self->{score} = shift if @_;
-  $d;
-}
+  my $type = $self->type;
+  if( !defined( $type ) ) {
+    if( @_ ) {
+      $type = Bio::DB::GFF::Typename->new();
+    } else {
+      return;
+    }
+  } 
+  if( $type->can( 'source' ) ) {
+    my $d = $type->source();
+    $type->source( shift ) if @_;
+    $d;
+  }
+} # source
 
 =head2 phase
 
@@ -381,10 +434,7 @@ This method gets or sets the feature phase.
 =cut
 
 sub phase  {
-  my $self = shift;
-  my $d    = $self->{phase};
-  $self->{phase} = shift if @_;
-  $d;
+  shift->frame( @_ );
 }
 
 =head2 group
@@ -401,10 +451,10 @@ Bio::DB::GFF::Featname object, which has an ID and a class.
 
 =cut
 
-sub group  {
+sub group {
   my $self = shift;
-  my $d    = $self->{group};
-  $self->{group} = shift if @_;
+  my $d = $self->{ '_gsf_tag_hash' }->{'group'};
+  $self->{ '_gsf_tag_hash' }->{'group'} = shift if @_;
   $d;
 }
 
@@ -479,7 +529,7 @@ cannot be changed.
 
 =cut
 
-sub id        { shift->{db_id}   }
+sub id        { shift->{ '_db_id' }   }
 
 =head2 group_id
 
@@ -497,7 +547,7 @@ containing subparts.
 
 =cut
 
-sub group_id  { shift->{group_id}   }
+sub group_id  { shift->{ '_group_id' }   }
 
 =head2 clone
 
@@ -543,10 +593,10 @@ primary one from the database, but the result of aggregation.
 
 =cut
 
-sub compound  {
+sub compound {
   my $self = shift;
-  my $d    = $self->{compound};
-  $self->{compound} = shift if @_;
+  my $d = $self->{ '_gsf_tag_hash' }->{'compound'};
+  $self->{ '_gsf_tag_hash' }->{'compound'} = shift if @_;
   $d;
 }
 
@@ -677,7 +727,6 @@ attribute=E<gt>value pairs.  This lets you do:
 
 =cut
 
-## TODO: What about this one? --Paul
 sub attributes {
   my $self = shift;
   my $factory = $self->factory;
@@ -685,6 +734,64 @@ sub attributes {
   $factory->attributes($id,@_)
 }
 
+=head2 has_tag
+
+ Title   : has_tag
+ Usage   : $tag_exists = $self->has_tag('some_tag')
+ Function: 
+ Returns : TRUE if the specified tag exists, and FALSE otherwise
+ Args    : a tag name
+ Status  : Public
+
+=cut
+
+sub has_tag {
+  my $self = shift;
+  my ( $tag ) = @_;
+  return $self->SUPER::has_tag( $tag ) || scalar( $self->attributes( $tag ) );
+} # has_tag(..)
+
+=head2 get_tag_values
+
+ Title   : get_tag_values
+ Usage   : @values = $self->get_tag_values( 'some_tag' );
+ Function: 
+ Returns : An array comprising the values of the specified tag.
+ Args    :
+
+
+=cut
+
+sub get_tag_values {
+  my $self = shift;
+  my ( $tag ) = @_;
+  my @tag_values =
+    ( $self->SUPER::has_tag( $tag ) ?
+      $self->SUPER::get_tag_values( $tag ) :
+      () );
+  push( @tag_values, $self->attributes( $tag ) );
+  return @tag_values;
+} # get_tag_values(..)
+
+=head2 get_all_tags
+
+ Title   : get_all_tags
+ Usage   : @tags = $feat->get_all_tags()
+ Function: gives all tags for this feature
+ Returns : an array of strings
+ Args    : none
+ Status  : Public
+
+=cut
+
+sub get_all_tags {
+  my $self = shift;
+  my @tags = $self->SUPER::get_all_tags();
+  my @all_attributes = $self->attributes();
+  my %all_attributes_hash = @all_attributes;
+  push( @tags, keys( %all_attributes_hash ) );
+  return @tags;
+} # get_all_tags()
 
 =head2 notes
 
@@ -764,62 +871,6 @@ sub AUTOLOAD {
   $self->throw( "Can't locate object method \"$func_name\" via package \"$pack\"" );
 }
 
-## TODO: --paul
-=head2 adjust_bounds
-
- Title   : adjust_bounds
- Usage   : $feature->adjust_bounds
- Function: adjust the bounds of a feature
- Returns : ($start,$stop,$strand)
- Args    : none
- Status  : Public
-
-This method adjusts the boundaries of the feature to enclose all its
-subfeatures.  It returns the new start, stop and strand of the
-enclosing feature.
-
-=cut
-
-# adjust a feature so that its boundaries are synched with its subparts' boundaries.
-# this works recursively, so subfeatures can contain other features
-sub adjust_bounds {
-  my $self = shift;
-  my $g = $self->{group};
-
-  if (my $subfeat = $self->{subfeatures}) {
-    for my $list (values %$subfeat) {
-      for my $feat (@$list) {
-
-	# fix up our bounds to hold largest subfeature
-	my($start,$stop,$strand) = $feat->adjust_bounds;
-	$self->{fstrand} = $strand unless defined $self->{fstrand};
-	if ($start <= $stop) {
-	  $self->{start} = $start if !defined($self->{start}) || $start < $self->{start};
-	  $self->{stop}  = $stop  if !defined($self->{stop})  || $stop  > $self->{stop};
-	} else {
-	  $self->{start} = $start if !defined($self->{start}) || $start > $self->{start};
-	  $self->{stop}  = $stop  if !defined($self->{stop})  || $stop  < $self->{stop};
-	}
-
-	# fix up endpoints of targets too (for homologies only)
-	my $h = $feat->group;
-	next unless $h && $h->isa('Bio::DB::GFF::Homol');
-	next unless $g && $g->isa('Bio::DB::GFF::Homol');
-	($start,$stop) = ($h->{start},$h->{stop});
-	if ($h->strand >= 0) {
-	  $g->{start} = $start if !defined($g->{start}) || $start < $g->{start};
-	  $g->{stop}  = $stop  if !defined($g->{stop})  || $stop  > $g->{stop};
-	} else {
-	  $g->{start} = $start if !defined($g->{start}) || $start > $g->{start};
-	  $g->{stop}  = $stop  if !defined($g->{stop})  || $stop  < $g->{stop};
-	}
-      }
-    }
-  }
-
-  ($self->{start},$self->{stop},$self->strand);
-}
-
 =head2 sort_features
 
  Title   : sort_features
@@ -860,14 +911,14 @@ is called by the overloaded "" operator.
 sub asString {
   my $self = shift;
   ## TODO: REMOVE?
-  return $self->Bio::SeqFeatureI::toString();
-##  my $type = $self->type;
-##  my $name = $self->group;
-##  return "$type($name)" if $name;
-##  return $type;
-#  my $type = $self->method;
-#  my $id   = $self->group || 'unidentified';
-#  return join '/',$id,$type,$self->SUPER::asString;
+  #return $self->Bio::SeqFeatureI::toString();
+#  my $type = $self->type;
+#  my $name = $self->group;
+#  return "$type($name)" if $name;
+#  return $type;
+  my $type = $self->method;
+  my $id   = $self->group || 'unidentified';
+  return join '/',$id,$type,$self->SUPER::asString;
 }
 
 sub name {

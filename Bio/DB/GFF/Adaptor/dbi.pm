@@ -511,6 +511,7 @@ fragment-generating functions are described below.
 sub get_types {
   my $self = shift;
   my ($srcseq,$class,$start,$stop,$want_count,$typelist) = @_;
+
   my $straight      = $self->do_straight_join($srcseq,$start,$stop,[]) ? 'straight_join' : '';
   my ($select,@args1) = $self->make_types_select_part($srcseq,$start,$stop,$want_count,$typelist);
   my ($from,@args2)   = $self->make_types_from_part($srcseq,$start,$stop,$want_count,$typelist);
@@ -529,6 +530,7 @@ sub get_types {
     $result{$type} = $count;
     $obj{$type} = $type;
   }
+
   return $want_count ? %result : values %obj;
 }
 

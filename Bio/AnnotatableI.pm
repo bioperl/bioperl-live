@@ -98,10 +98,10 @@ use Bio::Root::RootI;
 
 =cut
 
-sub annotation{
-    shift->throw_not_implemented();
+sub annotation {
+  shift->throw_not_implemented( @_ );
 }
 
-
-
 1;
+
+__END__

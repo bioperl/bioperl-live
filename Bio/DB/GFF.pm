@@ -658,6 +658,345 @@ sub classes {
   return ();
 }
 
+#                   --Coders beware!--
+# Changes to the interface pod need to be copied to here.
+
+=head2 get_collection
+
+ Title   : get_collection
+ Usage   : my $segment = $segment->get_collection( %args );
+           OR
+           my $segment = $segment->get_collection( @types );
+ Returns : A L<Bio::SeqFeature::SegmentI> object
+ Args    : see below
+ Status  : Public
+
+This routine will retrieve a L<Bio::SeqFeature::SegmentI> object based
+on feature type, location or attributes.  The SeqFeatureI objects in
+the returned SegmentI may or may not be newly instantiated by this
+request.  They will have as their range the range searched, if any, or
+the smallest range that encloses the returned features.  They will
+have as their seq_id() the -baserange used here (if the baserange is
+absolute by any means then their seq_id() will be this SegmentI's
+abs_seq_id()).
+
+If you make a modification to a feature you must call
+update_collection with a collection that contains that feature to
+ensure that the data provider is in sync with your change.  You may
+not, however, assume that modifications to the feature do not
+auto-sync (they might!).
+
+If a range is specified using the -range argument then this range will
+ be used to narrow the results, according to the specified -rangetype
+ and -strandtype arguments.
+
+-rangetype is one of:
+   "overlaps"      return all features that overlap the range (default)
+   "contains"      return features completely contained within the range
+   "contained_in"  return features that completely contain the range
+
+-strandmatch is one of:
+   "strong"        ranges must have the same strand
+                   (default ONLY when -strand is specified and non-zero)
+   "weak"          ranges must have the same strand or no strand
+   "ignore"        ignore strand information
+                   (default unless -strand is specified and non-zero)
+
+Two types of argument lists are accepted.  In the positional argument
+form, the arguments are treated as a list of feature types (as if they
+were given as -types => \@_).  In the named parameter form, the
+arguments are a series of -name=E<gt>value pairs.  Note that the table
+below is not exhaustive; implementations must support these but may
+support other arguments as well (and are responsible for documenting the
+difference).
+
+  Argument       Description
+  --------       ------------
+
+  -type          A type name or an object of type L<Bio::SeqFeature::TypeI>
+  -types         An array reference to multiple type names or TypeI objects
+
+  -unique_id     A (string) unique_id.  See also -namespace.
+  -unique_ids    An array reference to multiple unique_id values.
+
+  -name          A (string) display_name or unique_id.  See also -namespace.
+  -names         An array reference to multiple display_name/unique_id values.
+
+  -namespace     A (string) namespace qualifier to help resolve the name/id(s)
+  -class         same as -namespace
+
+  -attributes    A hashref containing a set of attributes to match.  See
+                 below.
+
+  -baserange     A L<Bio::RangeI> object defining the range to which
+                 the -range argument is relative.  The default
+                 baserange depends on the value of the absolute()
+                 flag.  If absolute() is true then the default is the
+                 value of the abs_seq_id() method.  If absolute() is
+                 false then the default is $self.  Note that the
+                 baserange affects the sort order.  See also
+                 -absolute.
+
+  -absolute      If -absolute is given and true then all behavior will be as
+                 if this SegmentI's absolute() flag was set to true,
+                 even if it isn't.  If -absolute is given and false
+                 then all behavior will be as if this SegmentI's
+                 absolute() flag was set to false, even if it isn't.
+                 Note that -baserange can still be given and can force
+                 relativeness, and that takes precedence over -absolute.
+
+  -range         A L<Bio::RangeI> object defining the range to search.
+                 See also -strandmatch, -rangetype, and -baserange.
+  -ranges        An array reference to multiple ranges.
+
+  -rangetype     One of "overlaps", "contains", or "contained_in".
+
+  -strandmatch   One of "strong", "weak", or "ignore".  Note that the strand
+                 attribute of a given -range must be non-zero for this to work
+                 (a 0/undef strand forces a 'weak' strandmatch to become
+                 'ignore' and cripples the 'strong' strandmatch).
+
+All plural arguments are interchangeable with their singular counterparts.
+
+The -attributes argument is a hashref containing one or more
+attributes to match against:
+
+  -attributes => { Gene => 'abc-1',
+                   Note => 'confirmed' }
+
+Attribute matching is simple string matching, and multiple attributes
+are ANDed together.
+
+The -unique_ids argument is a reference to a list of strings.  Every
+returned feature must have its unique_id value in this list or, if a
+feature has no defined unique_id, then its display_name value in the
+list if the list is provided.  A -unique_id argument is treated as a
+single-element list of unique_ids.
+
+The -names argument is a reference to a list of strings.  Every
+returned feature must have its display_name or its unique_id value in this
+list if the list is provided.  A -name argument is treated as a
+single-element list of names.
+
+If a -namespace is provided then names and ids (both queries and
+targets) will be prepended with "$namespace:" as a bonus.  So
+if you do features( -names => [ 'foo', 'bar' ], -namespace => 'ns' )
+then any feature with the display_name or unique_id 'foo', 'ns:foo',
+'bar', or 'ns:bar' will be returned.
+
+=cut
+
+sub get_collection {
+  my $self = shift;
+
+  ## TODO: Add offset stuff...  See the segment() method.
+  my ( $types, $unique_ids, $namespace, $names, $attributes, $baserange, $ranges, $strandmatch, $rangetype, $sort, $sparse, $merge, $seq_id, $start, $end, $refclass, $absolute, $force );
+  if( scalar( @_ ) && $_[ 0 ] =~ /^-/ ) {
+    ( $types, $unique_ids, $namespace, $names, $attributes, $baserange, $ranges, $strandmatch, $rangetype, $sort, $sparse, $merge, $seq_id, $start, $end, $refclass, $absolute, $force ) =
+      rearrange(
+        [ [ qw( TYPE TYPES ) ],
+          [ qw( UNIQUE_IDS UNIQUEIDS IDS UNIQUE_ID UNIQUEID ID ) ],
+          [ qw( NAMESPACE NAME_SPACE CLASS SEQCLASS SEQ_CLASS ) ],
+          [ qw( NAME NAMES DISPLAY_NAME DISPLAY_NAMES DISPLAYNAME DISPLAYNAMES ) ],
+          [ qw( ATTRIBUTE ATTRIBUTES ) ],
+          [ qw( BASERANGE BASE_RANGE BASELOCATION BASE_LOCATION BASE ) ],
+          [ qw( RANGE RANGES LOCATION LOCATIONS LOC ) ],
+          [ qw( STRANDMATCH STRAND_MATCH ) ],
+          [ qw( RANGETYPE RANGE_TYPE ) ],
+          [ qw( SORT SORTED ) ],
+          [ qw( RARE SPARSE ) ],
+          [ qw( MERGE AUTOMERGE ) ],
+          [ qw( SEQ_ID SEQID SEQ ID REF REF_SEQ REFSEQ ) ],
+          [ qw( START BEGIN LOW ) ],
+          [ qw( STOP END HIGH ) ],
+          [ qw( REFCLASS REF_CLASS ) ],
+          [ qw( ABSOLUTE ABS ) ],
+          [ qw( FORCE NOCHECK NO_CHECK ) ]
+        ],
+        @_
+      );
+  } else {
+    ## Types.
+    $types = \@_;
+  }
+
+  ## Fix up types.
+  if( $types ) {
+    unless( ref $types eq 'ARRAY' ) {
+      ## The incoming value might be a simple scalar instead of a list.
+      $types = [ $types ];
+    }
+    ## Just in case it's an array ref to an empty string:
+    if(
+       !scalar( @$types ) ||
+       ( ( scalar( @$types ) == 1 ) && !( $types->[ 0 ] ) )
+      ) {
+      undef $types;
+    }
+  }
+
+  ## Fix up unique_ids.
+  if( $unique_ids ) {
+    unless( ref $unique_ids eq 'ARRAY' ) {
+      ## The incoming value might be a simple scalar instead of a list.
+      $unique_ids = [ $unique_ids ];
+    }
+    ## Just in case it's an array ref to an empty string:
+    if(
+       !scalar( @$unique_ids ) ||
+       ( ( scalar( @$unique_ids ) == 1 ) && !( $unique_ids->[ 0 ] ) )
+      ) {
+      undef $unique_ids;
+    }
+  }
+
+  ## Fix up names.
+  if( $names ) {
+    unless( ref $names eq 'ARRAY' ) {
+      ## The incoming value might be a simple scalar instead of a list.
+      $names = [ $names ];
+    }
+    ## Just in case it's an array ref to an empty string:
+    if(
+       !scalar( @$names ) ||
+       ( ( scalar( @$names ) == 1 ) && !( $names->[ 0 ] ) )
+      ) {
+      undef $names;
+    }
+  }
+
+  ## Attributes better be a hash ref if it is anything.
+  if( $attributes ) {
+    unless( ref( $attributes ) eq 'HASH' ) {
+      $self->throw( "The -attributes argument must be a HASH REF." );
+    }
+  }
+
+  ## Fix up ranges.
+  if( $ranges ) {
+    unless( ref $ranges eq 'ARRAY' ) {
+      ## The incoming value might be a simple scalar instead of a list.
+      $ranges = [ $ranges ];
+    }
+    ## Just in case it's an array ref to an empty string:
+    if(
+       !scalar( @$ranges ) ||
+       ( ( scalar( @$ranges ) == 1 ) && !( $ranges->[ 0 ] ) )
+      ) {
+      undef $ranges;
+    }
+  } elsif( defined( $seq_id ) || defined( $start ) || defined( $end ) ) {
+    $ranges = [ Bio::RelRange->new(
+                  '-seq_id' => $seq_id,
+                  '-start' => $start,
+                  '-end' => $end,
+                   -orientation_policy => 'dependent'
+                ) ];
+  }
+
+  ## We can use ourselves as the baserange, if we are a Bio::RangeI.
+  if( $self->isa( 'Bio::RangeI' ) && !$baserange ) {
+    $baserange = $self;
+  }
+
+  ## Derelativize, man.
+  if( $ranges && @$ranges && $baserange ) {
+    my @new_ranges;
+    foreach my $range ( @$ranges ) {
+      unless( ref( $range ) && $range->isa( 'Bio::RangeI' ) ) {
+        $self->throw( "Expected the -ranges argument to be a reference to a list of Bio::RangeI objects, but it contains something incompatible: " . overload::StrVal( $range ) );
+      }
+      unless( defined $range->seq_id() ) {
+        $range = Bio::RelRange->new(
+                   -seq_id => $baserange,
+                   -start =>  $range->start(),
+                   -end =>    $range->end(),
+                   -strand => $range->strand(),
+                   -orientation_policy => 'dependent'
+                 );
+      } elsif( !$range->isa( 'Bio::RelRangeI' ) ) {
+        $range = Bio::RelRange->new(
+                   -seq_id => $range->seq_id(),
+                   -start =>  $range->start(),
+                   -end =>    $range->end(),
+                   -strand => $range->strand(),
+                   -orientation_policy => 'dependent'
+                 );
+      }
+      $range->absolute( 1 );
+      push( @new_ranges, $range );
+    }
+    $ranges = \@new_ranges;
+  } # End derelativizing ranges.  Now they're absolute.
+
+  ## -strandmatch defaults to 'weak'
+  unless( defined $strandmatch ) {
+    $strandmatch = 'weak';
+  }
+
+  ## -rangetype defaults to 'overlaps'
+  unless( defined $rangetype ) {
+    $rangetype = 'overlaps';
+  }
+
+  ## -sort is redundant if sorted() is true.
+  if( $sort && $self->sorted() ) {
+    undef $sort;
+  }
+
+  ## TODO: REMOVE.. Testing.
+  my $seq;
+  if( $ranges && @$ranges ) {
+    $seq = $ranges->[ 0 ]->seq_id();
+  } elsif( $names && @$names ) {
+    $seq = shift( @$names );
+  }
+
+  ## TODO: Fix this up a bit.
+  my %args = (
+    '-seq' => $seq,
+    '-refseq' => $seq,
+    '-class' => $namespace || $self->default_class(),
+    '-start' => ( $ranges && @$ranges ? $ranges->[ 0 ]->start() : undef ),
+    '-end' => ( $ranges && @$ranges ? $ranges->[ 0 ]->end() : undef ),
+    '-closure_options' =>
+      {
+       '-types' => $types,
+       '-unique_ids' => $unique_ids,
+       '-names' => $names,
+       '-namespace' => $namespace,
+       '-attributes' => $attributes,
+       '-baserange' => $baserange,
+       '-absolute'  => $absolute,
+       '-ranges'    => $ranges,
+       '-range_type' => $rangetype,
+       '-strand_match' => $strandmatch,
+       '-sparse' => $sparse,
+       '-merge' => $merge,
+       '-force' => $force
+      },
+    '-sparse' => $sparse,
+    '-merge'  => $merge,
+    '-parent' => $self,
+    '-absolute' => $absolute,
+    '-force' => $force
+  );
+  ## TODO: REMOVE
+  #warn "Args to segment() of ".$self. " are ( ".join( ', ', ( my @args = %args ) )." ).  Closure options are { ".join( ', ', ( my @co = %{ $args{ '-closure_options' } } ) )." }.  names are { ".($names?join( ', ', @$names ):'')." }.  types are { ".($types?join( ', ', @$types ):''). " }.";
+  #return $self->segment( %args );
+  if( wantarray ) {
+    my @r = $self->segment( %args );
+    ## TODO: REMOVE
+    #warn "Got ( ".join( ', ', @r )." )\n";
+    return @r;
+  } else {
+    my $r = $self->segment( %args );
+    ## TODO: REMOVE
+    #warn "Got $r\n";
+    return $r;
+  }
+} # get_collection(..)
+
 =head2 segment
 
  Title   : segment
@@ -1293,6 +1632,326 @@ sub get_Stream_by_group {
   my $id = ref($ids[0]) ? $ids[0] : \@ids;
   Bio::DB::GFF::ID_Iterator->new($self,$id,'group');
 }
+
+=head2 sequences
+
+ Title   : sequences
+ Usage   : my @seqs = $provider->sequences( @names );
+           OR
+           my @seqs = $provider->sequences( %args );
+ Function: Retrieves a list of L<Bio::PrimarySeqI> objects.
+ Returns : a list of L<Bio::PrimarySeqI> objects
+           OR
+           (when the -iterator option is true)
+             a L<Bio::Seq::IteratorI> object
+           OR
+           (when the -callback option is true) true iff the callbacks
+             completed.
+ Args    : see below
+ Status  : Public
+ Throws  : "$some_text does not exist" ($some_text might be anything)
+            if a version is given and a matching sequence exists,
+            but not of that version.
+
+Two types of argument lists are accepted.  In the positional argument
+form, the arguments are treated as a list of sequence names (as if they
+were given as -names => \@_).  In the named parameter form, the
+arguments are a series of -name=E<gt>value pairs.  Note that the table
+below is not exhaustive; implementations must support these but may
+support other arguments as well (and are responsible for documenting the
+difference).
+
+  Argument       Description
+  --------       ------------
+
+  -unique_id     A (string) unique_id.  See also -namespace and -id.
+  -unique_ids    An array reference to multiple unique_id values.
+
+  -primary_id    A (string) primary_id.  See also -namespace and -id.
+  -primary_ids   An array reference to multiple primary_id values.
+
+  -display_id    A (string) display_id.  See also -namespace and -id.
+  -display_ids   An array reference to multiple display_id values.
+
+  -id            A (string) unique_id or primary_id or display_id.
+                 See also -namespace.
+  -ids           An array reference to multiple id values.
+
+  -accession     A (string) accession.  See also -namespace and -name.
+  -accessions    An array reference to multiple accession values.
+
+  -name          A (string) accession or id.  See also -namespace and -id.
+  -names         An array reference to multiple accession/id values.
+
+  -namespace     A (string) namespace qualifier to help resolve the names.
+  -class         same as -namespace
+
+  -iterator      Return a L<Bio::Seq::IteratorI>
+  -stream        same as -iterator
+
+  -callback      A callback to invoke on each sequence
+
+All plural arguments are interchangeable with their singular counterparts.
+
+The -unique_ids argument is a reference to a list of strings.  Every
+returned sequence must have its unique_id value in this list if the
+list is provided*.  Iff a sequence has no unique_id value then its
+primary_id will be used instead.  A -unique_id argument is treated as
+a single-element list of unique_ids.
+
+The -ids argument is a reference to a list of strings.  Every returned
+sequence must have its unique_id, primary_id, or display_id value in
+this list if the list is provided*.  An -id argument is treated as a
+single-element list of ids.
+
+The -accessions argument is a reference to a list of strings.  Every
+returned sequence must have its accession value in this list if the
+list is provided*.  An -accession argument is treated as a
+single-element list of names.  If the accession value contains a dot
+('.') then the suffix after the final dot will be interpreted as a
+version number.  If the accession is available but not in the given
+version then an exception (ending in ' does not exist') will be
+thrown.  An empty version value is acceptable and means 'latest version',
+which is also the default, so -accession => 'foo' and -accession =>
+'foo.' mean the same thing.
+
+NOTE: If your accession value contains a dot (unrelated to version
+number) then you should postpend the value with a dot to disambiguate:
+'accession.that.contains.dots' will be interpreted as the accession
+'accession.that.contains' with version 'dots' unless you postpend it
+with a dot, like so: -accession => 'accession.that.contains.dots.'
+
+The -names argument is a reference to a list of strings.  Every
+returned sequence must have its accession, unique_id, primary_id,
+or display_id value in this list if the list is provided*.  A -name
+argument is treated as a single-element list of names.
+
+If a -namespace is provided then names and ids (both queries and
+targets) will be prepended with "$namespace:" as a bonus.  So if you
+do sequences( -names => [ 'foo', 'bar' ], -namespace => 'ns' ) then any
+sequence with the accession, unique_id, primary_id, or display_id
+'foo', 'ns:foo', 'bar', or 'ns:bar' will be returned.
+
+If -iterator is true, then the method returns an object of type
+L<Bio::Seq::IteratorI>.  Each call to next_seq() on this
+object returns a L<Bio::PrimarySeqI> object from this provider.
+
+If -callback is passed a code reference, the code reference will be
+invoked on each sequence returned.  The code will be passed two
+arguments consisting of the current sequence and this SequenceProviderI
+object, and must return a true value.  If the code returns a false
+value, sequence retrieval will be aborted.
+
+-callback and -iterator are mutually exclusive options.  If -iterator
+is defined, then -callback is ignored.
+
+Footnote (*): -unique_ids, -primary_ids, -display_ids, -ids,
+-accessions, and -names will be ORed together if they appear together,
+so if you do $provider->sequences( -unique_id => 'foo', -accession =>
+'bar' ) then you will get all sequences with unique_id 'foo' and
+(also) all sequences with accession 'bar'.
+
+NOTE: the following methods all build on top of sequences(), and do not
+need to be explicitly implemented.
+
+    get_Seq_by_id()
+    get_Seq_by_primary_id()
+    get_Seq_by_accession()
+    get_Seq_by_version()
+    get_Seq_stream()
+    get_PrimarySeq_stream()
+
+=cut
+
+## TODO: Finish implementing this!
+sub sequences {
+  my $self = shift;
+
+  my ( $unique_ids, $primary_ids, $display_ids, $ids, $accessions, $names, $namespace, $iterator, $callback );
+  if( scalar( @_ ) && $_[ 0 ] =~ /^-/ ) {
+    ( $unique_ids, $primary_ids, $display_ids, $ids, $accessions, $names, $namespace, $iterator, $callback ) =
+      rearrange(
+        [ [ qw( UNIQUE_IDS UNIQUEIDS UNIQUE_ID UNIQUEID ) ],
+          [ qw( PRIMARY_IDS PRIMARYIDS PRIMARY_ID PRIMARYID ) ],
+          [ qw( DISPLAY_IDS DISPLAYIDS DISPLAY_ID DISPLAYID ) ],
+          [ qw( IDS ID ) ],
+          [ qw( ACCESSIONS ACCESSION ACCESSION_NUMBERS ACCESSION_NUMBER
+                ACCESSIONNUMBERS ACCESSIONNUMBER ) ],
+          [ qw( NAME NAMES ) ],
+          [ qw( NAMESPACE NAME_SPACE CLASS ) ],
+          [ qw( ITERATOR STREAM ) ],
+          [ qw( CALLBACK CALL_BACK ) ]
+        ],
+        @_
+      );
+  } else {
+    ## Names.
+    $names = \@_;
+  }
+
+  ## Fix up unique_ids.
+  if( $unique_ids ) {
+    unless( ref $unique_ids eq 'ARRAY' ) {
+      ## The incoming value might be a simple scalar instead of a list.
+      $unique_ids = [ $unique_ids ];
+    }
+    ## Just in case it's an array ref to an empty string:
+    if(
+       !scalar( @$unique_ids ) ||
+       ( ( scalar( @$unique_ids ) == 1 ) && !( $unique_ids->[ 0 ] ) )
+      ) {
+      undef $unique_ids;
+    }
+  }
+
+  ## Fix up primary_ids.
+  if( $primary_ids ) {
+    unless( ref $primary_ids eq 'ARRAY' ) {
+      ## The incoming value might be a simple scalar instead of a list.
+      $primary_ids = [ $primary_ids ];
+    }
+    ## Just in case it's an array ref to an empty string:
+    if(
+       !scalar( @$primary_ids ) ||
+       ( ( scalar( @$primary_ids ) == 1 ) && !( $primary_ids->[ 0 ] ) )
+      ) {
+      undef $primary_ids;
+    }
+  }
+
+  ## Fix up display_ids.
+  if( $display_ids ) {
+    unless( ref $display_ids eq 'ARRAY' ) {
+      ## The incoming value might be a simple scalar instead of a list.
+      $display_ids = [ $display_ids ];
+    }
+    ## Just in case it's an array ref to an empty string:
+    if(
+       !scalar( @$display_ids ) ||
+       ( ( scalar( @$display_ids ) == 1 ) && !( $display_ids->[ 0 ] ) )
+      ) {
+      undef $display_ids;
+    }
+  }
+
+  ## Fix up ids.
+  if( $ids ) {
+    unless( ref $ids eq 'ARRAY' ) {
+      ## The incoming value might be a simple scalar instead of a list.
+      $ids = [ $ids ];
+    }
+    ## Just in case it's an array ref to an empty string:
+    if(
+       !scalar( @$ids ) ||
+       ( ( scalar( @$ids ) == 1 ) && !( $ids->[ 0 ] ) )
+      ) {
+      undef $ids;
+    }
+  }
+
+  ## Fix up accessions.
+  if( $accessions ) {
+    unless( ref $accessions eq 'ARRAY' ) {
+      ## The incoming value might be a simple scalar instead of a list.
+      $accessions = [ $accessions ];
+    }
+    ## Just in case it's an array ref to an empty string:
+    if(
+       !scalar( @$accessions ) ||
+       ( ( scalar( @$accessions ) == 1 ) && !( $accessions->[ 0 ] ) )
+      ) {
+      undef $accessions;
+    }
+  }
+
+  ## Fix up names.
+  if( $names ) {
+    unless( ref $names eq 'ARRAY' ) {
+      ## The incoming value might be a simple scalar instead of a list.
+      $names = [ $names ];
+    }
+    ## Just in case it's an array ref to an empty string:
+    if(
+       !scalar( @$names ) ||
+       ( ( scalar( @$names ) == 1 ) && !( $names->[ 0 ] ) )
+      ) {
+      undef $names;
+    }
+  }
+
+  # names are just accessions OR ids
+  if( $names ) {
+    $accessions = [] unless defined( $accessions );
+    push( @{ $accessions }, @$names );
+    $ids = [] unless defined( $ids );
+    push( @{ $ids }, @$names );
+  }
+
+  # ids are just unique_ids, primary_ids, or display_ids
+  if( $ids ) {
+    $unique_ids = [] unless defined( $unique_ids );
+    push( @{ $unique_ids }, @$ids );
+    $primary_ids = [] unless defined( $primary_ids );
+    push( @{ $primary_ids }, @$ids );
+    $display_ids = [] unless defined( $display_ids );
+    push( @{ $display_ids }, @$ids );
+  }
+
+  ## -iterator and -callback are mutually exclusive.
+  if( $iterator && $callback ) {
+    $self->throw( "The -iterator and -callback options are mutually exclusive, and yet both have been specified.  Perhaps you could apply your callback method to each element returned by the iterator?" );
+  }
+
+  ## TODO: Right now we're not supporting namespaces or versions.  We should.
+
+  ## TODO: Dehackify.  For now we just treat all of these ids as the
+  ## same thing.
+  my @all_names = ();
+  if( $unique_ids ) {
+    push( @all_names, @$unique_ids );
+  }
+  if( $primary_ids ) {
+    push( @all_names, @$primary_ids );
+  }
+  if( $display_ids ) {
+    push( @all_names, @$display_ids );
+  }
+  if( $accessions ) {
+    push( @all_names, @$accessions );
+  }
+
+  ## TODO: Dehackify: when we iterate, we're actually building a list
+  ## and then iterating over it.
+  my @sequences_to_return;
+
+  foreach my $name ( @all_names ) {
+    my $segment = Bio::DB::GFF::Segment->new(
+      '-factory' => $self,
+      '-seq_id' => $name
+    );
+    if( defined $callback ) {
+      unless( $callback->( $segment, $self ) ) {
+        return 0; # return false when the callback fails.
+      }
+    } else {
+      push( @sequences_to_return, $segment );
+    }
+  }
+
+  # If they've not given anything specific then they want everything.
+  unless( @all_names ) {
+    ## TODO: Implement the ability to get unnamed sequences...
+    return;
+  } # End if no ids or accessions have been given, then return all sequences.
+
+  if( $iterator ) {
+    return Bio::Seq::SimpleIterator->new( @sequences_to_return );
+  } elsif( defined $callback ) {
+    return 1;
+  } else {
+    return @sequences_to_return;
+  }
+} # sequences(..)
 
 =head2 all_seqfeatures
 

@@ -104,18 +104,60 @@ sub new {
   my( $class, @args ) = @_;
 
   my $self = $class->SUPER::new( @args );
+  $self->_initialize_simple_collection_provider();
+  return $self;
+} # new(..)
+
+sub _initialize_simple_collection_provider {
+  my $self = shift;
+  my @args = @_;
+
+  return if( $self->{ '_simple_collection_provider_initialized' } );
+
   $self->{ '_seq_id_to_feature_table' } = {};
 
-  if( scalar( @args ) ) {
-    foreach my $feature ( @args ) {
-      next unless( ref( $feature ) && $feature->isa( "Bio::SeqFeatureI" ) );
+  my ( $features );
+  if( scalar( @args ) && ( $args[ 0 ] =~ /^-/ ) ) {
+    ( $features ) =
+      rearrange(
+        [
+         [ qw( FEATURES FEATURE ) ],
+        ],
+        @args
+      );
+  } else {
+    # features
+    $features = \@args;
+  }
+  ## Fix up features.
+  if( $features ) {
+    unless( ref $features eq 'ARRAY' ) {
+      ## The incoming value might be a simple scalar instead of a list.
+      $features = [ $features ];
+    }
+    ## Just in case it's an array ref to an empty string:
+    if(
+       !scalar( @$features ) ||
+       ( ( scalar( @$features ) == 1 ) && !( $features->[ 0 ] ) )
+      ) {
+      undef $features;
+    }
+  }
+
+  if( $features ) {
+    foreach my $feature ( @$features ) {
+      unless( ref( $feature ) && $feature->isa( "Bio::SeqFeature::SegmentI" ) ) {
+        $self->throw( "The given feature $feature is not a Bio::SeqFeature::SegmentI.  It is a ".ref( $feature ) );
+      }
       unless( $self->_insert_feature( $feature ) ) {
         $self->throw( "duplicate feature: $feature" );
       }
     }
   }
+
+  $self->{ '_simple_collection_provider_initialized' }++;
   return $self;
-} # new(..)
+} # _initialize_simple_collection_provider(..)
 
 =head2 new_from_collectionprovider
 
@@ -287,9 +329,13 @@ then any feature with the display_name or unique_id 'foo', 'ns:foo',
 ## construction.  See it for info about how to override it.
 sub get_collection {
   my $self = shift;
+
+  ## TODO: REMOVE
+  #warn "SimpleCollectionProvider::get_collection( ( ".join( ', ', @_ )." )";# if Bio::Graphics::Browser::DEBUG;
+
   if( $self->isa( 'Bio::SeqFeature::CollectionI' ) ) {
     ## Use our own features() method to do the hard work..
-    return $self->_create_collection( \@_, $self->features( @_ ) );
+    return $self->_create_collection( \@_, 'lookup' );
   } else {
     # We're not a CollectionI.  Let's hijack one for our own nefarious needs.
     my $hijacked_collection = $self->_create_collection( \@_ );
@@ -502,6 +548,39 @@ sub types {
   }
 } # types(..)
 
+sub seq_ids {
+  my $self = shift;
+  my $count;
+  if( scalar( @_ ) && $_[ 0 ] =~ /^-/ ) {
+    ( $count ) =
+      rearrange( [ qw( COUNT COUNTS ENUM ENUMERATE ) ], @_ );
+  }
+  # Note here that the seq_ids that are used to store features are
+  # absolute seq_ids, so we can just use our _seq_id_to_feature_table hash.
+  my %seq_ids;
+  foreach my $seq_id ( keys %{ $self->{ '_seq_id_to_feature_table' } } ) {
+    ## TODO: There's probably a more efficient way to do this.
+    foreach my $feature (
+      ( values %{ $self->{ '_seq_id_to_feature_table' }->
+                         { $seq_id }->
+                         { '_identifiable_features' }
+                } ),
+      ( map @{ $_ },
+        ( values %{ $self->{ '_seq_id_to_feature_table' }->
+                           { $seq_id }->
+                           { '_anonymous_features' }
+                  } ) )
+    ) {
+      $seq_ids{ $seq_id }++;
+    }
+  }
+  if( $count ) {
+    return %seq_ids;
+  } else {
+    return keys %seq_ids;
+  }
+} # seq_ids(..)
+
 =head2 parent_collection_provider
 
  Title   : parent_collection_provider
@@ -549,9 +628,14 @@ sub parent_collection_provider {
 
  Title   : _create_collection
  Usage   : my $collection = $provider->_create_collection(
-                              \@args_to_get_collection,
-                              @features
-                            );
+                           \@args_to_get_collection,
+                           @features
+                         );
+           or
+           my $collection = $provider->_create_collection(
+                           \@args_to_get_collection,
+                           'lookup'
+                         );
  Function: Factory method for instantiating a collection.
  Args    : a ref to the args used by the get_collection method, and some
            L<Bio::SeqFeatureI> objects to add to the new collection.
@@ -571,19 +655,78 @@ behavior anyway, but it should be noted, just in case.
 sub _create_collection {
   my $self = shift;
   my $args = shift;
+  ## HACK because sometimes the args are passed in as a hash and
+  ## sometimes as a list.
+  if( $args && ( ref( $args ) eq 'HASH' ) ) {
+    my @args_list = %$args;
+    $args = \@args_list;
+  }
   my @features = @_;
+  if( @features && ( $features[ 0 ] eq 'lookup' ) ) {
+    @features = $self->features( @$args );
+  }
+
+  ## TODO: REMOVE
+  #warn "SimpleCollectionProvider::_create_segment( { ".join( ', ', ( my @foo = %$args ) )." }, ( ".join( ', ', @features )." )" if Bio::Graphics::Browser::DEBUG;
 
   return Bio::SeqFeature::SimpleCollection->new( @features );
 } # _create_collection
+
+=head2 _create_feature
+
+ Title   : create_feature
+ Usage   : my $new_seq_feature = $provider->_create_feature( $feature_data );
+ Function: Factory method for instantiating a SeqFeatureI object.
+ Returns : A new L<Bio::SeqFeature::SegmentI> object, or $feature_data.
+ Args    : A single argument of any data type (see below).
+ Status  : Protected
+
+ The single argument may be of any type.  _create_feature(..) will be
+ called by _insert_feature whenever the feature argument to that
+ method is not a SeqFeatureI object.  If _create_feature(..) is unable
+ to make a feature from the given data it must return the argument it
+ was given.
+
+=cut
+
+## This one makes Generic features when given [ $start, $end ] pairs.
+sub _create_feature {
+  my $self = shift;
+  my $feature_data = shift;
+  if( ref( $feature_data ) eq 'ARRAY' ) {
+    # This is for feature data like [ [ start0, end0 ], [ start1, end1 ] ].
+    my ( $start, $end ) = @{ $feature_data };
+    
+    # The following line should be unnecessary.
+    #next unless defined $start && defined $end;
+    
+    # Strandedness defaults to 1, but start > end forces -1.
+    my $strand = 1;
+    if( $start > $end ) {
+      ( $start, $end ) = ( $end, $start );
+      $strand = -1;
+    }
+    return $self->new( -start  => $start,
+                       -end    => $end,
+                       -strand => $strand,
+                       -parent => $self ) || $feature_data;
+  }
+  # If we're at this point then we've been unable to make a new feature.
+  return $feature_data;
+} # _create_feature(..)
 
 =head2 _insert_feature
 
  Title   : _insert_feature
   Usage   : $provider->_insert_feature( $feature );
  Function: Inserts the given feature into the store.
- Args    : L<Bio::SeqFeatureI> object
- Returns : False iff the feature already existed.
+ Args    : L<Bio::SeqFeature::SegmentI> object
+ Returns : The feature added, or undef iff the feature already existed.
  Status  : Protected
+
+  Note that the returned feature might not be the same object as the
+  given feature if, for example, the _create_feature(..) method was
+  invoked on the argument.
 
 =cut
 
@@ -594,8 +737,14 @@ sub _insert_feature {
   unless( defined( $feature ) ) {
     $self->throw( "\$simple_collection_provider->_insert_feature( undef ): \$feature is undef!" );
   }
-  unless( ref( $feature ) && $feature->isa( 'Bio::SeqFeatureI' ) ) {
-    $self->throw( "\$simple_collection_provider->_insert_feature( $feature ): \$feature is not a Bio::SeqFeatureI!" );
+  unless( ref( $feature ) &&
+          ( ref( $feature ) ne 'ARRAY' ) &&
+          $feature->isa( "Bio::SeqFeature::SegmentI" ) ) {
+    # Try to make a feature out of it.
+    $feature = $self->_create_feature( $feature );
+  }
+  unless( ref( $feature ) && $feature->isa( 'Bio::SeqFeature::SegmentI' ) ) {
+    $self->throw( "\$simple_collection_provider->_insert_feature( $feature ): \$feature is not a Bio::SeqFeature::SegmentI!" );
   }
 
   my $seq_id = absSeqId( $feature );
@@ -608,14 +757,14 @@ sub _insert_feature {
                { '_identifiable_features' }->
                { $feature->unique_id() }
       ) {
-      return 0;
+      return undef;
     } else {
       $self->{ '_seq_id_to_feature_table' }->
              { $seq_id }->
              { '_identifiable_features' }->
              { $feature->unique_id() } =
                $feature;
-      return 1;
+      return $feature;
     }
   } else { # it does not have a unique id.  Store it by start location.
     my $features_that_start_where_this_one_does =
@@ -626,21 +775,20 @@ sub _insert_feature {
     if( $features_that_start_where_this_one_does &&
         scalar( @$features_that_start_where_this_one_does ) ) {
       foreach my $other_feature ( @$features_that_start_where_this_one_does ) {
-        if( ( $other_feature == $feature )
-            ||
-            $other_feature->equals( $feature )
-          ) {
-          return 0;
+        if( $other_feature == $feature ) {
+          ## TODO: REMOVE. Testing.
+          #warn "SimpleCollectionProvider::_insert_feature(..): $feature == $other_feature.  \$feature isa ".ref( $feature ).", \$other_feature isa ".ref( $other_feature ).".  \$feature's display_name is ".$feature->display_name().", \$other_feature's display_name is ".$other_feature->display_name()."\n";
+          return undef;
         }
       }
       push( @$features_that_start_where_this_one_does, $feature );
-      return 1;
+      return $feature;
     } else {
       $self->{ '_seq_id_to_feature_table' }->
              { $seq_id }->
              { '_anonymous_features' }->
              { $feature->start() } = [ $feature ];
-      return 1;
+      return $feature;
     }
   }
 } # _insert_feature(..)
@@ -650,8 +798,9 @@ sub _insert_feature {
  Title   : _update_feature
  Usage   : $provider->_update_feature( $feature );
  Function: Updates the given feature in the store.
- Args    : L<Bio::SeqFeatureI> object
- Returns : False iff the feature is not in the store (it won\'t be added!)
+ Args    : L<Bio::SeqFeature::SegmentI> object
+ Returns : The updated feature, or false iff the feature is not in the
+           store (it won\'t be added!)
  Status  : Protected
 
 =cut
@@ -663,8 +812,8 @@ sub _update_feature {
   unless( defined( $feature ) ) {
     $self->throw( "\$simple_collection_provider->_update_feature( undef ): \$feature is undef!" );
   }
-  unless( ref( $feature ) && $feature->isa( 'Bio::SeqFeatureI' ) ) {
-    $self->throw( "\$simple_collection_provider->_update_feature( $feature ): \$feature is not a Bio::SeqFeatureI!" );
+  unless( ref( $feature ) && $feature->isa( 'Bio::SeqFeature::SegmentI' ) ) {
+    $self->throw( "\$simple_collection_provider->_update_feature( $feature ): \$feature is not a Bio::SeqFeature::SegmentI!" );
   }
 
   my $seq_id = absSeqId( $feature );
@@ -682,9 +831,12 @@ sub _update_feature {
              { '_identifiable_features' }->
              { $feature->unique_id() } =
         $feature;
-      return 1;
+      return $self->{ '_seq_id_to_feature_table' }->
+             { $seq_id }->
+             { '_identifiable_features' }->
+             { $feature->unique_id() };
     } else {
-      return 0;
+      return undef;
     }
   } else { # it does not have a unique id.  It is stored by start location.
     my $features_that_start_where_this_one_does =
@@ -694,23 +846,20 @@ sub _update_feature {
              { $feature->start() };
     if( $features_that_start_where_this_one_does &&
         scalar( @$features_that_start_where_this_one_does ) ) {
-      my $other_feature;
       for( my $i = 0;
            $i < scalar( @$features_that_start_where_this_one_does );
            $i++
          ) {
         if(
-           ( $features_that_start_where_this_one_does->[ $i ] == $feature )
-           ||
-           $features_that_start_where_this_one_does->[ $i ]->equals( $feature )
+           $features_that_start_where_this_one_does->[ $i ] == $feature
           ) {
           $features_that_start_where_this_one_does->[ $i ] = $feature;
-          return 1;
+          return $features_that_start_where_this_one_does->[ $i ];
         }
       }
-      return 0;
+      return undef;
     } else {
-      return 0;
+      return undef;
     }
   }
 } # _update_feature(..)
@@ -720,9 +869,13 @@ sub _update_feature {
  Title   : _insert_or_update_feature
  Usage   : $provider->_insert_or_update_feature( $feature );
  Function: Inserts or updates the given feature in the store.
- Args    : L<Bio::SeqFeatureI> object
- Returns : True
+ Args    : L<Bio::SeqFeature::SegmentI> object
+ Returns : The feature that was added or updated.
  Status  : Protected
+
+  Note that the returned feature might not be the same object as the
+  given feature if, for example, the _create_feature(..) method was
+  invoked on the argument.
 
 =cut
 
@@ -733,8 +886,14 @@ sub _insert_or_update_feature {
   unless( defined( $feature ) ) {
     $self->throw( "\$simple_collection_provider->_insert_or_update_feature( undef ): \$feature is undef!" );
   }
-  unless( ref( $feature ) && $feature->isa( 'Bio::SeqFeatureI' ) ) {
-    $self->throw( "\$simple_collection_provider->_insert_or_update_feature( $feature ): \$feature is not a Bio::SeqFeatureI!" );
+  unless( ref( $feature ) &&
+          ( ref( $feature ) ne 'ARRAY' ) &&
+          $feature->isa( "Bio::SeqFeature::SegmentI" ) ) {
+    # Try to make a feature out of it.
+    $feature = $self->_create_feature( $feature );
+  }
+  unless( ref( $feature ) && $feature->isa( 'Bio::SeqFeature::SegmentI' ) ) {
+    $self->throw( "\$simple_collection_provider->_insert_or_update_feature( $feature ): \$feature is not a Bio::SeqFeature::SegmentI!" );
   }
 
   my $seq_id = absSeqId( $feature );
@@ -747,7 +906,10 @@ sub _insert_or_update_feature {
            { '_identifiable_features' }->
            { $feature->unique_id() } =
       $feature;
-    return 1;
+    return $self->{ '_seq_id_to_feature_table' }->
+           { $seq_id }->
+           { '_identifiable_features' }->
+           { $feature->unique_id() };
   } else { # it does not have a unique id.  It is stored by start location.
     my $features_that_start_where_this_one_does =
       $self->{ '_seq_id_to_feature_table' }->
@@ -756,28 +918,25 @@ sub _insert_or_update_feature {
              { $feature->start() };
     if( $features_that_start_where_this_one_does &&
         scalar( @$features_that_start_where_this_one_does ) ) {
-      my $other_feature;
       for( my $i = 0;
            $i < scalar( @$features_that_start_where_this_one_does );
            $i++
          ) {
         if(
-           ( $features_that_start_where_this_one_does->[ $i ] == $feature )
-           ||
-           $features_that_start_where_this_one_does->[ $i ]->equals( $feature )
+           $features_that_start_where_this_one_does->[ $i ] == $feature
           ) {
           $features_that_start_where_this_one_does->[ $i ] = $feature;
-          return 1;
+          return $features_that_start_where_this_one_does->[ $i ];
         }
       }
       push( @$features_that_start_where_this_one_does, $feature );
-      return 1;
+      return $feature;
     } else {
       $self->{ '_seq_id_to_feature_table' }->
              { $seq_id }->
              { '_anonymous_features' }->
              { $feature->start() } = [ $feature ];
-      return 1;
+      return $feature;
     }
   }
 } # _insert_or_update_feature(..)
@@ -787,8 +946,9 @@ sub _insert_or_update_feature {
  Title   : _remove_feature
  Usage   : $provider->_remove_feature( $feature );
  Function: Removes the given feature from the store.
- Args    : L<Bio::SeqFeatureI> object
- Returns : False iff the feature was not previously in the store.
+ Args    : L<Bio::SeqFeature::SegmentI> object
+ Returns : The removed feature, or false iff the feature was not
+           previously in the store.
  Status  : Protected
 
 =cut
@@ -800,8 +960,8 @@ sub _remove_feature {
   unless( defined( $feature ) ) {
     $self->throw( "\$simple_collection_provider->_remove_feature( undef ): \$feature is undef!" );
   }
-  unless( ref( $feature ) && $feature->isa( 'Bio::SeqFeatureI' ) ) {
-    $self->throw( "\$simple_collection_provider->_remove_feature( $feature ): \$feature is not a Bio::SeqFeatureI!" );
+  unless( ref( $feature ) && $feature->isa( 'Bio::SeqFeature::SegmentI' ) ) {
+    $self->throw( "\$simple_collection_provider->_remove_feature( $feature ): \$feature is not a Bio::SeqFeature::SegmentI!" );
   }
 
   my $seq_id = absSeqId( $feature );
@@ -818,9 +978,12 @@ sub _remove_feature {
                     { $seq_id }->
                     { '_identifiable_features' }->
                     { $feature->unique_id() };
-      return 1;
+      return $self->{ '_seq_id_to_feature_table' }->
+                    { $seq_id }->
+                    { '_identifiable_features' }->
+                    { $feature->unique_id() };
     } else {
-      return 0;
+      return undef;
     }
   } else { # it does not have a unique id.  It is stored by start location.
     my $features_that_start_where_this_one_does =
@@ -830,15 +993,12 @@ sub _remove_feature {
              { $feature->start() };
     if( $features_that_start_where_this_one_does &&
         scalar( @$features_that_start_where_this_one_does ) ) {
-      my $other_feature;
       for( my $i = 0;
            $i < scalar( @$features_that_start_where_this_one_does );
            $i++
          ) {
         if(
-           ( $features_that_start_where_this_one_does->[ $i ] == $feature )
-           ||
-           $features_that_start_where_this_one_does->[ $i ]->equals( $feature )
+           $features_that_start_where_this_one_does->[ $i ] == $feature
           ) {
           if( scalar( @$features_that_start_where_this_one_does ) == 1 ) {
             delete $self->{ '_seq_id_to_feature_table' }->
@@ -848,12 +1008,12 @@ sub _remove_feature {
           } else {
             splice( @$features_that_start_where_this_one_does, $i, 1 );
           }
-          return 1;
+          return $features_that_start_where_this_one_does->[ $i ];
         }
       }
-      return 0;
+      return undef;
     } else {
-      return 0;
+      return undef;
     }
   }
 } # _remove_feature(..)

@@ -26,7 +26,7 @@ BEGIN {
     }
     use Test;
 
-    $NUMTESTS = 14;
+    $NUMTESTS = 17;
     plan tests => $NUMTESTS;
 
     eval { 
@@ -92,6 +92,11 @@ ok $data->configured_types == 5;
 ok @{$data->features('EST')} == 5;
 
 my $thing = $data->features('EST');
+
+my ($feature) = grep {$_->name eq 'Predicted gene 1'} @{$data->features('FGENESH')};
+ok $feature;
+ok $feature->desc eq "Pfam";
+ok $feature->score == 20;
 
 sub do_write {
   my $test = shift;

@@ -60,7 +60,25 @@ sub new    {
     $method = $1;
     $source = $2;
   }
+  ## TODO: Put back
   return $OBJECT_CACHE{"$method:$source"} ||= bless [$method,$source],$package;
+  ## TODO: REMOVE
+  #return bless( [ $method, $source ], $package );
+
+  ## TODO: REMOVE.  Testing.
+  #my $cached = $OBJECT_CACHE{ "$method:$source" };
+  #if( defined( $cached ) ) {
+  #  ## TODO: REMOVE
+  #  warn "Returning cached Typename $cached\n";
+  #  return $cached;
+  #} else {
+  #  my $new =
+  #    ( $OBJECT_CACHE{ "$method:$source" } =
+  #      bless( [ $method, $source ], $package ) );
+  #  ## TODO: REMOVE
+  #  warn "Returning new Typename $new\n";
+  #  return $new;
+  #}
 }
 
 =head2 method
@@ -116,6 +134,10 @@ operator.
 
 sub asString {
   $_[0]->[1] ? join ':',@{$_[0]} : $_[0]->[0];
+}
+
+sub name {
+  shift->asString();
 }
 
 =head2 clone

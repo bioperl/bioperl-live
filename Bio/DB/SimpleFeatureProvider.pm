@@ -108,12 +108,33 @@ Internal methods are usually preceded with a _
 use strict;
 use vars qw( @ISA );
 
-use Bio::Root::Root;
+use Bio::SeqFeature::SimpleCollectionProvider;
 use Bio::DB::FeatureProviderI;
-@ISA = qw( Bio::Root::Root Bio::SeqFeature::CollectionProviderI );
+@ISA = qw( Bio::SeqFeature::SimpleCollectionProvider
+           Bio::DB::FeatureProviderI );
 
 use vars '$VERSION';
 $VERSION = '1.00';
+
+sub new {
+  my( $class, @args ) = @_;
+
+  my $self = $class->SUPER::new( @args );
+  $self->_initialize_simple_feature_provider( @_ );
+  return $self;
+} # new(..)
+
+sub _initialize_simple_feature_provider {
+  my $self = shift;
+  my @args = @_;
+
+  return if( $self->{ '_simple_feature_provider_initialized' } );
+
+  $self->_initialize_simple_collection_provider( @args );
+
+  $self->{ '_simple_feature_provider_initialized' }++;
+  return $self;
+} # _initialize_simple_feature_provider(..)
 
 1;
 

@@ -1,6 +1,6 @@
 package Bio::RelRange;
 
-# $Id $
+# $Id$
 # A simple implementation of Bio::RelRangeI, a Bio::RangeI with
 # additional methods to support shifting between relative and absolute
 # views.
@@ -514,16 +514,16 @@ sub new {
     $self->start( $start );
     if( defined $end ) {
       $self->end( $end );
-    } elsif( defined $length ) {
+    } elsif( $length ) {
       $self->length( $length );
     }
-  } elsif( defined $end && defined $length ) {
+  } elsif( defined $end && $length ) {
     $self->end( $end );
     $self->start( $self->end() - $length + 1 );
   } elsif( defined $end ) {
     $self->end( $end );
     $self->start( 1 );
-  } elsif( defined $length ) {
+  } elsif( $length ) {
     $self->start( 1 );
     $self->length( $length );
   } else {
@@ -531,7 +531,12 @@ sub new {
     # parent range.
     if( ref( $seq_id ) && $seq_id->isa( 'Bio::RangeI' ) ) {
       $self->start( 1 );
-      $self->length( $seq_id->length() );
+      $length = $seq_id->length();
+      if( $length ) {
+        $self->length( $length );
+      } else {
+        $self->end( 1 );
+      }
     }
   }
 
@@ -1230,7 +1235,10 @@ sub start {
     unless( $new_val =~ /^[-+]?\d+$/ ) {
       $self->throw( "'$new_val' is not an integer.\n" );
     }
-    $self->_start( $new_val );
+    if( $old_val != $new_val ) {
+      $self->_start( $new_val );
+      $self->notify_observers( 'start', '-old'=>$old_val, '-new'=>$new_val );
+    }
   }
   return $old_val;
 } # start(..)
@@ -1270,7 +1278,10 @@ sub end {
     unless( $new_val =~ /^[-+]?\d+$/ ) {
       $self->throw( "'$new_val' is not an integer.\n" );
     }
-    $self->_end( $new_val );
+    if( $old_val != $new_val ) {
+      $self->_end( $new_val );
+      $self->notify_observers( 'end', '-old'=>$old_val, '-new'=>$new_val );
+    }
   }
   return $old_val;
 } # end(..)
@@ -1311,7 +1322,10 @@ sub strand {
     unless( ( $new_val == -1 ) || ( $new_val == 0 ) || ( $new_val == 1 ) ) {
       $self->throw( "'$new_val' is not in the set { '-1', '0', '1' }." );
     }
-    $self->_strand( $new_val );
+    if( $old_val != $new_val ) {
+      $self->_strand( $new_val );
+      $self->notify_observers( 'strand', '-old'=>$old_val, '-new'=>$new_val );
+    }
   }
   return $old_val;
 } # strand(..)
@@ -1461,9 +1475,14 @@ sub length {
 sub _seq_id {
   my $self = shift;
   my ( $new_val ) = @_;
+
   my $old_val = $self->{ '_seq_id' };
   if( defined $new_val ) {
-    $self->{ '_seq_id' } = $new_val;
+    if( $new_val eq 'undef' ) {
+      undef $self->{ '_seq_id' };
+    } else {
+      $self->{ '_seq_id' } = $new_val;
+    }
   }
   return $old_val;
 } # _seq_id(..)

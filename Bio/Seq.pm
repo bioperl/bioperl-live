@@ -706,6 +706,38 @@ sub desc {
    return shift->primary_seq->desc(@_);
 }
 
+=head2 unique_id
+
+ Title   : unique_id
+ Usage   : my $unique_id = $seq->unique_id( [$new_unique_id] )
+ Function: This is a unique identifier that identifies this sequence object.
+           If not set, will return undef per L<Bio::LocallyIdentifiableI>
+           If a value is given, the unique_id will be set to it, unless that
+           value is the string 'undef', in which case the unique_id will
+           become undefined.
+
+           Also notice that this method is not delegated to the
+           internal Bio::PrimarySeq object, because it is required to
+           be unique even across object types.
+
+ Returns : The current (or former, if used as a set method) value of unique_id
+ Args    : [optional] a new string unique_id or 'undef'
+
+=cut
+
+sub unique_id {
+  my ( $self, $value ) = @_;
+  my $current_value = $self->{ '_unique_id' };
+  if ( defined $value ) {
+    if( !$value || ( $value eq 'undef' ) ) {
+      $self->{ '_unique_id' } = undef;
+    } else {
+      $self->{ '_unique_id' } = $value;
+    }
+  }
+  return $current_value;
+} # unique_id()
+
 =head2 primary_id
 
  Title   : primary_id

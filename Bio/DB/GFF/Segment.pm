@@ -82,15 +82,59 @@ Arguments may either be in named argument form or positional.
    -refclass   => The namespace of new_seq_id
    -absolute   => use absolute coordinate addressing
    -nocheck    => turn off checking, force segment to be constructed
+
+  -type          A type name or an object of type L<Bio::SeqFeature::TypeI>
+  -types         An array reference to multiple type names or TypeI objects
+
+  -unique_id     A (string) unique_id.  See also -namespace.
+  -unique_ids    An array reference to multiple unique_id values.
+
+  -name          A (string) display_name or unique_id.  See also -namespace.
+  -names         An array reference to multiple display_name/unique_id values.
+
+  -namespace     A (string) namespace qualifier to help resolve the name/id(s)
+  -class         same as -namespace
+
+  -attributes    A hashref containing a set of attributes to match.  See
+                 below.
+
+  -baserange     A L<Bio::RangeI> object defining the range to which
+                 the -range argument is relative.  The default
+                 baserange depends on the value of the absolute()
+                 flag.  If absolute() is true then the default is the
+                 value of the abs_seq_id() method.  If absolute() is
+                 false then the default is $self.  Note that the
+                 baserange affects the sort order.  See also
+                 -absolute.
+
+  -absolute      If -absolute is given and true then all behavior will be as
+                 if this SegmentI's absolute() flag was set to true,
+                 even if it isn't.  If -absolute is given and false
+                 then all behavior will be as if this SegmentI's
+                 absolute() flag was set to false, even if it isn't.
+                 Note that -baserange can still be given and can force
+                 relativeness, and that takes precedence over -absolute.
+
+  -range         A L<Bio::RangeI> object defining the range to search.
+                 See also -strandmatch, -rangetype, and -baserange.
+  -ranges        An array reference to multiple ranges.
+
+  -rangetype     One of "overlaps", "contains", or "contained_in".
+
+  -strandmatch   One of "strong", "weak", or "ignore".  Note that the strand
+                 attribute of a given -range must be non-zero for this to work
+                 (a 0/undef strand forces a 'weak' strandmatch to become
+                 'ignore' and cripples the 'strong' strandmatch).
+
 =cut
  
 sub new {
   my $pack = shift;
   $pack = ref $pack if ref $pack;
 
-  my ($parent,$seq_id,$start,$stop,$new_seq_id,$class,$new_class,$offset,$length,$force_absolute,$nocheck);
+  my ($parent,$seq_id,$start,$stop,$new_seq_id,$class,$new_class,$offset,$length,$force_absolute,$nocheck,$closure_options);
   if( scalar( @_ ) && $_[ 0 ] =~ /^-/ ) {
-    ($parent,$seq_id,$start,$stop,$new_seq_id,$class,$new_class,$offset,$length,$force_absolute,$nocheck) =
+    ($parent,$seq_id,$start,$stop,$new_seq_id,$class,$new_class,$offset,$length,$force_absolute,$nocheck,$closure_options) =
       rearrange([
                   [qw(FACTORY PARENT)],
                   [qw(NAME SEQ SEQUENCE SOURCESEQ SEQ_ID SEQID)],
@@ -102,7 +146,8 @@ sub new {
                   [qw(OFFSET OFF)],
                   [qw(LENGTH LEN)],
                   [qw(ABSOLUTE)],
-                  [qw(NOCHECK FORCE)]
+                  [qw(NOCHECK FORCE)],
+                  [qw(CLOSURE OPTIONS CLOSURE_OPTIONS CLOSURE_OPTIONS)]
                 ], @_ );
   } else {
     ( $parent, $class, $seq_id, $start, $stop ) = @_;
@@ -113,7 +158,13 @@ sub new {
           ref( $parent ) &&
           $parent->isa( 'Bio::DB::GFF' )
         ) {
-    $pack->throw( "new(): you must provide a factory argument that isa Bio::DB::GFF object.".( defined( $parent ) ? ( ref( $parent ) ? '  The object given is a '.ref( $parent ). '.' : "  The value given, '$parent', is not an object." ) : '  No factory was given.' ) );
+    if( defined( $parent ) &&
+        ref( $parent ) &&
+        $parent->isa( 'Bio::DB::GFF::Segment' ) ) {
+      $parent = $parent->factory();
+    } else {
+      $pack->throw( "new(): you must provide a factory argument that isa Bio::DB::GFF object.".( defined( $parent ) ? ( ref( $parent ) ? '  The object given is a '.ref( $parent ). '.' : "  The value given, '$parent', is not an object." ) : '  No factory was given.' ) );
+    }
   }
 
   # support for Featname objects
@@ -363,6 +414,168 @@ sub new {
       $a_possible_self->absolute( 1 );
     }
 
+    ## TODO: REMOVE.  Testing.
+    if( $closure_options ) {
+      my @co = %{ $closure_options };
+      ## TODO: REMOVE
+      #warn "Segment::new(): Using these closure options: { ".join( ', ', @co )." }";
+      my ( $co_types, $co_unique_ids, $co_namespace, $co_names, $co_attributes, $co_baserange, $co_ranges, $co_strandmatch, $co_rangetype, $co_sort, $co_sparse, $co_merge, $more_closure_options ) =
+        rearrange(
+          [ [ qw( TYPE TYPES ) ],
+            [ qw( UNIQUE_IDS UNIQUEIDS IDS UNIQUE_ID UNIQUEID ID ) ],
+            [ qw( NAMESPACE NAME_SPACE CLASS ) ],
+            [ qw( NAME NAMES DISPLAY_NAME DISPLAY_NAMES DISPLAYNAME DISPLAYNAMES ) ],
+            [ qw( ATTRIBUTE ATTRIBUTES ) ],
+            [ qw( BASERANGE BASE_RANGE BASELOCATION BASE_LOCATION BASE ) ],
+            [ qw( RANGE RANGES LOCATION LOCATIONS LOC ) ],
+            [ qw( STRANDMATCH STRAND_MATCH ) ],
+            [ qw( RANGETYPE RANGE_TYPE ) ],
+            [ qw( SORT SORTED ) ],
+            [ qw( RARE SPARSE ) ],
+            [ qw( MERGE AUTOMERGE ) ]
+          ],
+          @co
+        );
+  
+      $closure_options = $more_closure_options;
+
+      ## Fix up types.
+      if( $co_types ) {
+        unless( ref $co_types eq 'ARRAY' ) {
+          ## The incoming value might be a simple scalar instead of a list.
+          $co_types = [ $co_types ];
+        }
+        ## Just in case it's an array ref to an empty string:
+        if(
+           !scalar( @$co_types ) ||
+           ( ( scalar( @$co_types ) == 1 ) && !( $co_types->[ 0 ] ) )
+          ) {
+          undef $co_types;
+        }
+      }
+      if( $co_types ) {
+        $closure_options->{ 'types' } = $co_types;
+      }
+      
+      ## Fix up unique_ids.
+      if( $co_unique_ids ) {
+        unless( ref $co_unique_ids eq 'ARRAY' ) {
+          ## The incoming value might be a simple scalar instead of a list.
+          $co_unique_ids = [ $co_unique_ids ];
+        }
+        ## Just in case it's an array ref to an empty string:
+        if(
+           !scalar( @$co_unique_ids ) ||
+           ( ( scalar( @$co_unique_ids ) == 1 ) && !( $co_unique_ids->[ 0 ] ) )
+          ) {
+          undef $co_unique_ids;
+        }
+      }
+      if( $co_unique_ids ) {
+        $closure_options->{ 'unique_ids' } = $co_unique_ids;
+      }
+      
+      ## Fix up names.
+      if( $co_names ) {
+        unless( ref $co_names eq 'ARRAY' ) {
+          ## The incoming value might be a simple scalar instead of a list.
+          $co_names = [ $co_names ];
+        }
+        ## Just in case it's an array ref to an empty string:
+        if(
+           !scalar( @$co_names ) ||
+           ( ( scalar( @$co_names ) == 1 ) && !( $co_names->[ 0 ] ) )
+          ) {
+          undef $co_names;
+        }
+      }
+      if( $co_names ) {
+        $closure_options->{ 'names' } = $co_names;
+      }
+      
+      ## Attributes better be a hash ref if it is anything.
+      if( $co_attributes ) {
+        unless( ref( $co_attributes ) eq 'HASH' ) {
+          $a_possible_self->throw(
+            "The -attributes argument must be a HASH REF."
+          );
+        }
+        $closure_options->{ 'attributes' } = $co_attributes;
+      }
+      
+      ## Fix up ranges.
+      if( $co_ranges ) {
+        unless( ref $co_ranges eq 'ARRAY' ) {
+          ## The incoming value might be a simple scalar instead of a list.
+          $co_ranges = [ $co_ranges ];
+        }
+        ## Just in case it's an array ref to an empty string:
+        if(
+           !scalar( @$co_ranges ) ||
+           ( ( scalar( @$co_ranges ) == 1 ) && !( $co_ranges->[ 0 ] ) )
+          ) {
+          undef $co_ranges;
+        }
+      }
+      
+      ## Derelativize, man.
+      if( $co_ranges && @$co_ranges && $co_baserange ) {
+        my @new_ranges;
+        foreach my $co_range ( @$co_ranges ) {
+          unless( ref( $co_range ) && $co_range->isa( 'Bio::RangeI' ) ) {
+            $a_possible_self->throw( "Expected the -ranges argument to be a reference to a list of Bio::RangeI objects, but it contains something incompatible: " . overload::StrVal( $co_range ) );
+          }
+          unless( defined $co_range->seq_id() ) {
+            $co_range = Bio::RelRange->new(
+                       -seq_id => $co_baserange,
+                       -start =>  $co_range->start(),
+                       -end =>    $co_range->end(),
+                       -strand => $co_range->strand(),
+                       -orientation_policy => 'dependent'
+                     );
+          } elsif( !$co_range->isa( 'Bio::RelRangeI' ) ) {
+            $co_range = Bio::RelRange->new(
+                       -seq_id => $co_range->seq_id(),
+                       -start =>  $co_range->start(),
+                       -end =>    $co_range->end(),
+                       -strand => $co_range->strand(),
+                       -orientation_policy => 'dependent'
+                     );
+          }
+          $co_range->absolute( 1 );
+          push( @new_ranges, $co_range );
+        }
+        $co_ranges = \@new_ranges;
+      } # End derelativizing ranges.  Now they're absolute.
+      if( $co_ranges ) {
+        $closure_options->{ 'ranges' } = $co_ranges;
+      }
+
+      if( $co_namespace ) {
+        $closure_options->{ 'namespace' } = $co_namespace;
+      }
+      if( $co_baserange ) {
+        $closure_options->{ 'baserange' } = $co_baserange;
+      }
+      if( $co_strandmatch ) {
+        $closure_options->{ 'strandmatch' } = $co_strandmatch;
+      }
+      if( $co_rangetype ) {
+        $closure_options->{ 'rangetype' } = $co_rangetype;
+      }
+      if( $co_sort ) {
+        $closure_options->{ 'sort' } = $co_sort;
+      }
+      if( $co_sparse ) {
+        $closure_options->{ 'sparse' } = $co_sparse;
+      }
+      if( $co_merge ) {
+        $closure_options->{ 'merge' } = $co_merge;
+      }
+
+      #warn "!+++++++ Adding closure options.";
+      $a_possible_self->{ '_closure_options' } = $closure_options;
+    }
     push( @object_results, $a_possible_self );
   } # End creating all of the possible $selfs.
 
@@ -415,6 +628,622 @@ sub new_from_segment {
   $new_segment->ensure_orientation();
   return $new_segment;
 } # new_from_segment
+
+#                   --Coders beware!--
+# Changes to the interface pod need to be copied to here.
+
+=head2 get_collection
+
+ Title   : get_collection
+ Usage   : my $segment = $segment->get_collection( %args );
+           OR
+           my $segment = $segment->get_collection( @types );
+ Returns : A L<Bio::SeqFeature::SegmentI> object
+ Args    : see below
+ Status  : Public
+
+This routine will retrieve a L<Bio::SeqFeature::SegmentI> object based
+on feature type, location or attributes.  The SeqFeatureI objects in
+the returned SegmentI may or may not be newly instantiated by this
+request.  They will have as their range the range searched, if any, or
+the smallest range that encloses the returned features.  They will
+have as their seq_id() the -baserange used here (if the baserange is
+absolute by any means then their seq_id() will be this SegmentI's
+abs_seq_id()).
+
+If you make a modification to a feature you must call
+update_collection with a collection that contains that feature to
+ensure that the data provider is in sync with your change.  You may
+not, however, assume that modifications to the feature do not
+auto-sync (they might!).
+
+If a range is specified using the -range argument then this range will
+ be used to narrow the results, according to the specified -rangetype
+ and -strandtype arguments.
+
+-rangetype is one of:
+   "overlaps"      return all features that overlap the range (default)
+   "contains"      return features completely contained within the range
+   "contained_in"  return features that completely contain the range
+
+-strandmatch is one of:
+   "strong"        ranges must have the same strand
+                   (default ONLY when -strand is specified and non-zero)
+   "weak"          ranges must have the same strand or no strand
+   "ignore"        ignore strand information
+                   (default unless -strand is specified and non-zero)
+
+Two types of argument lists are accepted.  In the positional argument
+form, the arguments are treated as a list of feature types (as if they
+were given as -types => \@_).  In the named parameter form, the
+arguments are a series of -name=E<gt>value pairs.  Note that the table
+below is not exhaustive; implementations must support these but may
+support other arguments as well (and are responsible for documenting the
+difference).
+
+  Argument       Description
+  --------       ------------
+
+  -type          A type name or an object of type L<Bio::SeqFeature::TypeI>
+  -types         An array reference to multiple type names or TypeI objects
+
+  -unique_id     A (string) unique_id.  See also -namespace.
+  -unique_ids    An array reference to multiple unique_id values.
+
+  -name          A (string) display_name or unique_id.  See also -namespace.
+  -names         An array reference to multiple display_name/unique_id values.
+
+  -namespace     A (string) namespace qualifier to help resolve the name/id(s)
+  -class         same as -namespace
+
+  -attributes    A hashref containing a set of attributes to match.  See
+                 below.
+
+  -baserange     A L<Bio::RangeI> object defining the range to which
+                 the -range argument is relative.  The default
+                 baserange depends on the value of the absolute()
+                 flag.  If absolute() is true then the default is the
+                 value of the abs_seq_id() method.  If absolute() is
+                 false then the default is $self.  Note that the
+                 baserange affects the sort order.  See also
+                 -absolute.
+
+  -absolute      If -absolute is given and true then all behavior will be as
+                 if this SegmentI's absolute() flag was set to true,
+                 even if it isn't.  If -absolute is given and false
+                 then all behavior will be as if this SegmentI's
+                 absolute() flag was set to false, even if it isn't.
+                 Note that -baserange can still be given and can force
+                 relativeness, and that takes precedence over -absolute.
+
+  -range         A L<Bio::RangeI> object defining the range to search.
+                 See also -strandmatch, -rangetype, and -baserange.
+  -ranges        An array reference to multiple ranges.
+
+  -rangetype     One of "overlaps", "contains", or "contained_in".
+
+  -strandmatch   One of "strong", "weak", or "ignore".  Note that the strand
+                 attribute of a given -range must be non-zero for this to work
+                 (a 0/undef strand forces a 'weak' strandmatch to become
+                 'ignore' and cripples the 'strong' strandmatch).
+
+All plural arguments are interchangeable with their singular counterparts.
+
+The -attributes argument is a hashref containing one or more
+attributes to match against:
+
+  -attributes => { Gene => 'abc-1',
+                   Note => 'confirmed' }
+
+Attribute matching is simple string matching, and multiple attributes
+are ANDed together.
+
+The -unique_ids argument is a reference to a list of strings.  Every
+returned feature must have its unique_id value in this list or, if a
+feature has no defined unique_id, then its display_name value in the
+list if the list is provided.  A -unique_id argument is treated as a
+single-element list of unique_ids.
+
+The -names argument is a reference to a list of strings.  Every
+returned feature must have its display_name or its unique_id value in this
+list if the list is provided.  A -name argument is treated as a
+single-element list of names.
+
+If a -namespace is provided then names and ids (both queries and
+targets) will be prepended with "$namespace:" as a bonus.  So
+if you do features( -names => [ 'foo', 'bar' ], -namespace => 'ns' )
+then any feature with the display_name or unique_id 'foo', 'ns:foo',
+'bar', or 'ns:bar' will be returned.
+
+=cut
+
+sub get_collection {
+  my $self = shift;
+
+  ## TODO: REMOVE.  Testing.
+  #return $self->factory()->segment( @_ );
+
+  ## NEW: Testing..
+
+  ## TODO: Add offset stuff...  See GFF.pm's segment() method.
+  my ( $types, $unique_ids, $namespace, $names, $attributes, $baserange, $ranges, $strandmatch, $rangetype, $sort, $sparse, $merge, $seq_id, $start, $end, $refclass, $absolute, $force );
+  if( scalar( @_ ) && $_[ 0 ] =~ /^-/ ) {
+    ( $types, $unique_ids, $namespace, $names, $attributes, $baserange, $ranges, $strandmatch, $rangetype, $sort, $sparse, $merge, $seq_id, $start, $end, $refclass, $absolute, $force ) =
+      rearrange(
+        [ [ qw( TYPE TYPES ) ],
+          [ qw( UNIQUE_IDS UNIQUEIDS IDS UNIQUE_ID UNIQUEID ID ) ],
+          [ qw( NAMESPACE NAME_SPACE CLASS SEQCLASS SEQ_CLASS ) ],
+          [ qw( NAME NAMES DISPLAY_NAME DISPLAY_NAMES DISPLAYNAME DISPLAYNAMES ) ],
+          [ qw( ATTRIBUTE ATTRIBUTES ) ],
+          [ qw( BASERANGE BASE_RANGE BASELOCATION BASE_LOCATION BASE ) ],
+          [ qw( RANGE RANGES LOCATION LOCATIONS LOC ) ],
+          [ qw( STRANDMATCH STRAND_MATCH ) ],
+          [ qw( RANGETYPE RANGE_TYPE ) ],
+          [ qw( SORT SORTED ) ],
+          [ qw( RARE SPARSE ) ],
+          [ qw( MERGE AUTOMERGE ) ],
+          [ qw( SEQ_ID SEQID SEQ ID REF REF_SEQ REFSEQ ) ],
+          [ qw( START BEGIN LOW ) ],
+          [ qw( STOP END HIGH ) ],
+          [ qw( REFCLASS REF_CLASS ) ],
+          [ qw( ABSOLUTE ABS ) ],
+          [ qw( FORCE NOCHECK NO_CHECK ) ]
+        ],
+        @_
+      );
+  } else {
+    ## Types.
+    $types = \@_;
+  }
+
+  my $closure_options = $self->{ '_closure_options' } || {};
+
+  unless( defined $namespace ) {
+    $namespace = $closure_options->{ 'namespace' };
+  }
+
+  ## Fix up types.
+  if( $types ) {
+    unless( ref $types eq 'ARRAY' ) {
+      ## The incoming value might be a simple scalar instead of a list.
+      $types = [ $types ];
+    }
+    ## Just in case it's an array ref to an empty string:
+    if(
+       !scalar( @$types ) ||
+       ( ( scalar( @$types ) == 1 ) && !( $types->[ 0 ] ) )
+      ) {
+      undef $types;
+    }
+  }
+
+  if( $closure_options->{ 'types' } ) {
+    if( $types ) {
+      unshift( @$types, @$closure_options->{ 'types' } );
+    } else {
+      $types = $closure_options->{ 'types' };
+    }
+  }
+
+  ## Fix up unique_ids.
+  if( $unique_ids ) {
+    unless( ref $unique_ids eq 'ARRAY' ) {
+      ## The incoming value might be a simple scalar instead of a list.
+      $unique_ids = [ $unique_ids ];
+    }
+    ## Just in case it's an array ref to an empty string:
+    if(
+       !scalar( @$unique_ids ) ||
+       ( ( scalar( @$unique_ids ) == 1 ) && !( $unique_ids->[ 0 ] ) )
+      ) {
+      undef $unique_ids;
+    }
+  }
+
+  if( $closure_options->{ 'unique_ids' } ) {
+    if( $unique_ids ) {
+      unshift( @$unique_ids, @$closure_options->{ 'unique_ids' } );
+    } else {
+      $unique_ids = $closure_options->{ 'unique_ids' };
+    }
+  }
+
+  ## Now we need to remove from $unique_ids the id of this Segment, if
+  ## it is in there.
+  if( $self->unique_id() && $unique_ids ) {
+    my $unique_id = $self->unique_id();
+
+    # Remove any entries that are the same as the unique_id, perhaps
+    # taking into account the namespace..
+    @$unique_ids =
+      grep { ( $_ ne $unique_id ) && ( $namespace ? ( ( ( $namespace.$_ ) ne $unique_id ) && ( $_ ne ( $namespace.$unique_id ) ) ) : 1 ) } @$unique_ids;
+  }
+
+  ## Fix up names.
+  if( $names ) {
+    unless( ref $names eq 'ARRAY' ) {
+      ## The incoming value might be a simple scalar instead of a list.
+      $names = [ $names ];
+    }
+    ## Just in case it's an array ref to an empty string:
+    if(
+       !scalar( @$names ) ||
+       ( ( scalar( @$names ) == 1 ) && !( $names->[ 0 ] ) )
+      ) {
+      undef $names;
+    }
+  }
+
+  if( $closure_options->{ 'names' } ) {
+    if( $names ) {
+      unshift( @$names, @$closure_options->{ 'names' } );
+    } else {
+      $names = $closure_options->{ 'names' };
+    }
+  }
+
+  ## Alas, now we need to remove from $names the name of this Segment,
+  ## if that name is in there.
+  my $unique_id = $self->unique_id();
+  my $display_name = eval{ $self->display_name() };
+  my $display_id = $self->display_id();
+  my $primary_id = $self->primary_id();
+  my $accession_number = $self->accession_number();
+  if( $names && ( $unique_id || $display_name || $display_id || $primary_id || $accession_number ) ) {
+
+    # Remove any entries that are the same as the name of this segment,
+    # perhaps taking into account the namespace..
+    @$names =
+      grep { ( $_ ne $unique_id ) && ( $namespace ? ( ( ( $namespace.$_ ) ne $unique_id ) && ( $_ ne ( $namespace.$unique_id ) ) ) : 1 ) && ( $_ ne $display_name ) && ( $namespace ? ( ( ( $namespace.$_ ) ne $display_name ) && ( $_ ne ( $namespace.$display_name ) ) ) : 1 ) && ( $_ ne $display_id ) && ( $namespace ? ( ( ( $namespace.$_ ) ne $display_id ) && ( $_ ne ( $namespace.$display_id ) ) ) : 1 ) && ( $_ ne $primary_id ) && ( $namespace ? ( ( ( $namespace.$_ ) ne $primary_id ) && ( $_ ne ( $namespace.$primary_id ) ) ) : 1 ) && ( $_ ne $accession_number ) && ( $namespace ? ( ( ( $namespace.$_ ) ne $accession_number ) && ( $_ ne ( $namespace.$accession_number ) ) ) : 1 ) } @$names;
+  }
+
+  ## Attributes better be a hash ref if it is anything.
+  if( $attributes ) {
+    unless( ref( $attributes ) eq 'HASH' ) {
+      $self->throw( "The -attributes argument must be a HASH REF." );
+    }
+  }
+
+  if( $closure_options->{ 'attributes' } ) {
+    if( $attributes ) {
+      unshift( @$attributes, @$closure_options->{ 'attributes' } );
+    } else {
+      $attributes = $closure_options->{ 'attributes' };
+    }
+  }
+
+  ## Fix up ranges.
+  if( $ranges ) {
+    unless( ref $ranges eq 'ARRAY' ) {
+      ## The incoming value might be a simple scalar instead of a list.
+      $ranges = [ $ranges ];
+    }
+    ## Just in case it's an array ref to an empty string:
+    if(
+       !scalar( @$ranges ) ||
+       ( ( scalar( @$ranges ) == 1 ) && !( $ranges->[ 0 ] ) )
+      ) {
+      undef $ranges;
+    }
+  } elsif( defined( $seq_id ) || defined( $start ) || defined( $end ) ) {
+    $ranges = [ Bio::RelRange->new(
+                  '-seq_id' => $seq_id,
+                  '-start' => $start,
+                  '-end' => $end,
+                   -orientation_policy => 'dependent'
+                ) ];
+  }
+
+  if( $closure_options->{ 'ranges' } ) {
+    if( $ranges ) {
+      unshift( @$ranges, @$closure_options->{ 'ranges' } );
+    } else {
+      $ranges = $closure_options->{ 'ranges' };
+    }
+  }
+
+  if( !$baserange && $closure_options->{ 'baserange' } ) {
+    $baserange = $closure_options->{ 'baserange' };
+  }
+
+  ## We can use ourselves as the baserange, if we are a Bio::RangeI.
+  if( $self->isa( 'Bio::RangeI' ) && !$baserange ) {
+    $baserange = $self;
+  }
+
+  ## Derelativize, man.
+  if( $ranges && @$ranges && $baserange ) {
+    my @new_ranges;
+    foreach my $range ( @$ranges ) {
+      unless( ref( $range ) && $range->isa( 'Bio::RangeI' ) ) {
+        $self->throw( "Expected the -ranges argument to be a reference to a list of Bio::RangeI objects, but it contains something incompatible: " . overload::StrVal( $range ) );
+      }
+      unless( defined $range->seq_id() ) {
+        $range = Bio::RelRange->new(
+                   -seq_id => $baserange,
+                   -start =>  $range->start(),
+                   -end =>    $range->end(),
+                   -strand => $range->strand(),
+                   -orientation_policy => 'dependent'
+                 );
+      } elsif( !$range->isa( 'Bio::RelRangeI' ) ) {
+        $range = Bio::RelRange->new(
+                   -seq_id => $range->seq_id(),
+                   -start =>  $range->start(),
+                   -end =>    $range->end(),
+                   -strand => $range->strand(),
+                   -orientation_policy => 'dependent'
+                 );
+      }
+      $range->absolute( 1 );
+      push( @new_ranges, $range );
+    }
+    $ranges = \@new_ranges;
+  } # End derelativizing ranges.  Now they're absolute.
+
+  ## -strandmatch defaults to 'weak'
+  unless( defined $strandmatch ) {
+    $strandmatch = $closure_options->{ 'strandmatch'} || 'weak';
+  }
+
+  ## -rangetype defaults to 'overlaps'
+  unless( defined $rangetype ) {
+    $rangetype = $closure_options->{ 'rangetype'} || 'overlaps';
+  }
+
+  ## -sort is redundant if sorted() is true.
+  unless( defined( $sort ) ) {
+    $sort = $closure_options->{ 'sort' };
+  }
+  if( $sort && $self->sorted() ) {
+    undef $sort;
+  }
+
+  unless( defined $sparse ) {
+    $sparse = $closure_options->{ 'sparse' };
+  }
+  unless( defined $merge ) {
+    $merge = $closure_options->{ 'merge' };
+  }
+  unless( defined $absolute ) {
+    $absolute = $closure_options->{ 'absolute' };
+  }
+  unless( defined $force ) {
+    $force = $closure_options->{ 'force' };
+  }
+
+  ## TODO: REMOVE.  Testing.
+  ## TODO: Fix this up a bit.
+  my %args = (
+    '-seq' => ( $ranges && @$ranges ? $ranges->[ 0 ]->seq_id() : undef ) ||
+      $self->abs_seq_id(),
+    '-refseq' => ( $ranges && @$ranges ? $ranges->[ 0 ]->seq_id() : undef ) ||
+      $self->abs_seq_id(),
+    '-class' => $namespace || $self->class(),
+    '-start' => ( $ranges && @$ranges ? $ranges->[ 0 ]->start() : undef ) ||
+      ( $self->{ 'whole' } ? undef : $self->abs_start() ),
+    '-end' => ( $ranges && @$ranges ? $ranges->[ 0 ]->end() : undef ) ||
+      ( $self->{ 'whole' } ? undef : $self->abs_end() ),
+    '-closure_options' =>
+      {
+       '-types' => $types,
+       '-unique_ids' => $unique_ids,
+       '-names' => $names,
+       '-namespace' => $namespace,
+       '-attributes' => $attributes,
+       '-baserange' => $baserange,
+       '-absolute'  => $absolute,
+       '-ranges'    => $ranges,
+       '-range_type' => $rangetype,
+       '-strand_match' => $strandmatch,
+       '-sparse' => $sparse,
+       '-merge' => $merge,
+       '-force' => $force
+      },
+    '-sparse' => $sparse,
+    '-merge'  => $merge,
+    '-parent' => $self,
+    '-absolute' => $absolute,
+    '-force' => $force
+  );
+  ## TODO: REMOVE
+  #warn "Args to segment() of ".$self->factory(). " are ( ".join( ', ', ( my @args = %args ) )." ).  Closure options are { ".join( ', ', ( my @co = %{ $args{ '-closure_options' } } ) )." }.  names are { ".($names?join( ', ', @$names ):'')." }.  types are { ".($types?join( ', ', @$types ):''). " }.";
+  #eval { $self->throw( "Args to segment() of ".$self->factory(). " are ( ".join( ', ', ( my @args = %args ) )." )"."-names are ".($names&&@$names?'[ '.join( ', ', @$names ).' ]':'undef')."." ) };
+  #warn $@ if $@;
+
+  ## TODO: REMOVE.  Testing.
+  #return $self->factory()->segment( %args );
+  if( wantarray ) {
+    my @r = $self->factory()->segment( %args );
+    ## TODO: REMOVE
+    #warn "Got ( ".join( ', ', @r )." )\n";
+    return @r;
+  } else {
+    my $r = $self->factory()->segment( %args );
+    ## TODO: REMOVE
+    #warn "Got $r\n";
+    return $r;
+  }
+
+  # END NEW. Testing...
+
+  # OLD:
+
+  my ( $types, $absolute, $baserange, $ranges );
+  my %args;
+  if( scalar( @_ ) && $_[ 0 ] =~ /^-/ ) {
+    ( $types, $absolute, $baserange, $ranges ) =
+      rearrange(
+        [ [ qw( TYPE TYPES ) ],
+          [ qw( ABSOLUTE ABS ) ],
+          [ qw( BASERANGE BASE_RANGE BASELOCATION BASE_LOCATION BASE ) ],
+          [ qw( RANGE RANGES LOCATION LOCATIONS LOC ) ]
+        ],
+        @_
+      );
+    %args = @_;
+  } elsif( scalar( @_ ) ) {
+    ## Types.
+    $types = \@_;
+    %args = ( '-types' => $types );
+  }
+
+  # If -baserange is given but is not a RangeI then the
+  # -baserange argument to the superclass should be
+  # $self->abs_seq_id().  If -baserange is not given then the argument
+  # to the superclass method should be $self unless -absolute is given
+  # and true or absolute() is true.
+  if( not defined( $baserange ) ) {
+    if( $absolute || $self->absolute() ) {
+      $baserange = $self->abs_range();
+      $absolute = 1;
+    } else {
+      $baserange = $self;
+    }
+  } elsif( defined( $baserange ) &&
+           ( not ref( $baserange ) || not $baserange->isa( 'Bio::RangeI' ) )
+         ) {
+    $baserange = $self->abs_range();
+  }
+  $args{ '-baserange' } = $baserange;
+  # Oh yeah and make sure it's the only baserange argument..
+  ## TODO: What if they're uppercase?
+  delete @args{ qw( -base_range -baselocation -base_location -base
+                    baserange base_range baselocation base_location base ) };
+
+  ## TODO: Dehackify
+  @_ = %args;
+
+  my $seq_id = $self->seq_id();
+
+  # If the user named the sequence itself in their request, give it to 'em.
+  # This entails removing from the request any args that name
+  # the sequence.
+  ## TODO: Dehackify
+  my ( $unique_ids, $namespace, $names );
+  if( scalar( @_ ) && $_[ 0 ] =~ /^-/ ) {
+    ( $unique_ids, $namespace, $names ) =
+      rearrange(
+        [ [ qw( UNIQUE_IDS UNIQUEIDS IDS UNIQUE_ID UNIQUEID ID ) ],
+          [ qw( NAMESPACE NAME_SPACE CLASS ) ],
+          [ qw( NAME NAMES DISPLAY_NAME DISPLAY_NAMES DISPLAYNAME DISPLAYNAMES ) ],
+        ],
+        @_
+      );
+  }
+  ## Fix up unique_ids.
+  if( $unique_ids ) {
+    unless( ref $unique_ids eq 'ARRAY' ) {
+      ## The incoming value might be a simple scalar instead of a list.
+      $unique_ids = [ $unique_ids ];
+    }
+    ## Just in case it's an array ref to an empty string:
+    if(
+       !scalar( @$unique_ids ) ||
+       ( ( scalar( @$unique_ids ) == 1 ) && !( $unique_ids->[ 0 ] ) )
+      ) {
+      undef $unique_ids;
+    }
+  }
+  if( $unique_ids ) {
+    my @to_be_removed;
+    for( my $i = 0; $i < scalar( @$unique_ids ); $i++ ) {
+      if( ( $unique_ids->[ $i ] eq $seq_id ) ||
+          ( $namespace.':'.$unique_ids->[ $i ] eq $seq_id ) ||
+          ( $unique_ids->[ $i ] eq $namespace.':'.$seq_id ) ) {
+        ## TODO: REMOVE
+        #warn "\$unique_ids->[ $i ] is $seq_id" if Bio::Graphics::Browser::DEBUG;
+        push( @to_be_removed, $i );
+      }
+    }
+    my $offset = 0;
+    foreach my $i ( @to_be_removed ) {
+      splice( @$unique_ids, $i + $offset++, 1 );
+    }
+    # If we removed any unique_ids, modify @_.
+    if( $offset ) {
+      if( scalar( @$unique_ids ) ) {
+        $args{ '-unique_ids' } = $unique_ids;
+      } else {
+        delete $args{ '-unique_ids' };
+      }
+      # Oh yeah and make sure it's the only unique_ids argument..
+      ## TODO: What if they're uppercase?
+      [ qw( UNIQUE_IDS UNIQUEIDS IDS UNIQUE_ID UNIQUEID ID ) ],
+      delete @args{ qw( -unique_id -ids -id -uniqueids -uniqueid
+                        uniqueids unique_id ids id uniqueids uniqueid ) };
+      ## TODO: REMOVE
+      #warn "\$unique_ids is now [ ".join( ', ', @$unique_ids )." ]" if Bio::Graphics::Browser::DEBUG;
+    }
+  }
+  ## Fix up names.
+  if( $names ) {
+    unless( ref $names eq 'ARRAY' ) {
+      ## The incoming value might be a simple scalar instead of a list.
+      $names = [ $names ];
+    }
+    ## Just in case it's an array ref to an empty string:
+    if(
+       !scalar( @$names ) ||
+       ( ( scalar( @$names ) == 1 ) && !( $names->[ 0 ] ) )
+      ) {
+      undef $names;
+    }
+  }
+  if( $names ) {
+    my @to_be_removed;
+    for( my $i = 0; $i < scalar( @$names ); $i++ ) {
+      if( ( $names->[ $i ] eq $seq_id ) ||
+          ( $namespace.':'.$names->[ $i ] eq $seq_id ) ||
+          ( $names->[ $i ] eq $namespace.':'.$seq_id ) ) {
+        ## TODO: REMOVE
+        #warn "\$names->[ $i ] is $seq_id" if Bio::Graphics::Browser::DEBUG;
+        push( @to_be_removed, $i );
+      }
+    }
+    my $offset = 0;
+    foreach my $i ( @to_be_removed ) {
+      splice( @$names, $i + $offset++, 1 );
+    }
+    # If we removed any names, modify @_.
+    if( $offset ) {
+      if( scalar( @$names ) ) {
+        $args{ '-names' } = $names;
+      } else {
+        delete $args{ '-names' };
+      }
+      # Oh yeah and make sure it's the only names argument..
+      ## TODO: What if they're uppercase?
+      delete @args{ qw( -name -display_name -display_names
+                        -displaynames -displaynames
+                        name names display_name display_names
+                        displaynames displaynames ) };
+      ## TODO: REMOVE
+      #warn "\$names is now [ ".join( ', ', @$names )." ]" if Bio::Graphics::Browser::DEBUG;
+    }
+  }
+  
+  unless( %args ) {
+    ## TODO: REMOVE
+    warn "Returning \$self.";
+    return $self;
+  }
+
+  ## TODO: Dehackify
+  @_ = %args;
+  
+  ## Use our own features() method to do the hard work..
+  my @features = $self->features( @_ );
+  return unless( @features ); ## NOTE: We return if there's no features...
+  ## TODO: REMOVE
+  warn "Bio::DB::GFF::Segment [$self]: got these features: [ ".join( ', ', @features )." ]\n";
+  my $segment = $self->_create_collection( \@_, @features );
+  ## TODO: REMOVE?  Testing.
+  ## TODO: REMOVE
+  warn "bouts to adjust bounds of $segment, which has these features: [ ".join( ', ', $segment->features() )." ]\n";
+  $segment->adjust_bounds();
+  return $segment;
+} # get_collection(..)
 
 =head2 features
 
@@ -651,6 +1480,8 @@ sub features {
     $types = \@_;
   }
 
+  my $closure_options = $self->{ '_closure_options' } || {};
+
   ## Fix up types.
   if( $types ) {
     unless( ref $types eq 'ARRAY' ) {
@@ -663,6 +1494,14 @@ sub features {
        ( ( scalar( @$types ) == 1 ) && !( $types->[ 0 ] ) )
       ) {
       undef $types;
+    }
+  }
+
+  if( $closure_options->{ 'types' } ) {
+    if( $types ) {
+      unshift( @$types, @$closure_options->{ 'types' } );
+    } else {
+      $types = $closure_options->{ 'types' };
     }
   }
 
@@ -681,6 +1520,25 @@ sub features {
     }
   }
 
+  if( $closure_options->{ 'unique_ids' } ) {
+    if( $unique_ids ) {
+      unshift( @$unique_ids, @$closure_options->{ 'unique_ids' } );
+    } else {
+      $unique_ids = $closure_options->{ 'unique_ids' };
+    }
+  }
+
+  ## Now we need to remove from $unique_ids the id of this Segment, if
+  ## it is in there.
+  if( $self->unique_id() && $unique_ids ) {
+    my $unique_id = $self->unique_id();
+
+    # Remove any entries that are the same as the unique_id, perhaps
+    # taking into account the namespace..
+    @$unique_ids =
+      grep { ( $_ ne $unique_id ) && ( $namespace ? ( ( ( $namespace.$_ ) ne $unique_id ) && ( $_ ne ( $namespace.$unique_id ) ) ) : 1 ) } @$unique_ids;
+  }
+
   ## Fix up names.
   if( $names ) {
     unless( ref $names eq 'ARRAY' ) {
@@ -696,10 +1554,41 @@ sub features {
     }
   }
 
+  if( $closure_options->{ 'names' } ) {
+    if( $names ) {
+      unshift( @$names, @$closure_options->{ 'names' } );
+    } else {
+      $names = $closure_options->{ 'names' };
+    }
+  }
+
+  ## Alas, now we need to remove from $names the name of this Segment,
+  ## if that name is in there.
+  my $unique_id = $self->unique_id();
+  my $display_name = eval{ $self->display_name() };
+  my $display_id = $self->display_id();
+  my $primary_id = $self->primary_id();
+  my $accession_number = $self->accession_number();
+  if( $names && ( $unique_id || $display_name || $display_id || $primary_id || $accession_number ) ) {
+
+    # Remove any entries that are the same as the name of this segment,
+    # perhaps taking into account the namespace..
+    @$names =
+      grep { ( $_ ne $unique_id ) && ( $namespace ? ( ( ( $namespace.$_ ) ne $unique_id ) && ( $_ ne ( $namespace.$unique_id ) ) ) : 1 ) && ( $_ ne $display_name ) && ( $namespace ? ( ( ( $namespace.$_ ) ne $display_name ) && ( $_ ne ( $namespace.$display_name ) ) ) : 1 ) && ( $_ ne $display_id ) && ( $namespace ? ( ( ( $namespace.$_ ) ne $display_id ) && ( $_ ne ( $namespace.$display_id ) ) ) : 1 ) && ( $_ ne $primary_id ) && ( $namespace ? ( ( ( $namespace.$_ ) ne $primary_id ) && ( $_ ne ( $namespace.$primary_id ) ) ) : 1 ) && ( $_ ne $accession_number ) && ( $namespace ? ( ( ( $namespace.$_ ) ne $accession_number ) && ( $_ ne ( $namespace.$accession_number ) ) ) : 1 ) } @$names;
+  }
+
   ## Attributes better be a hash ref if it is anything.
   if( $attributes ) {
     unless( ref( $attributes ) eq 'HASH' ) {
       $self->throw( "The -attributes argument must be a HASH REF." );
+    }
+  }
+
+  if( $closure_options->{ 'attributes' } ) {
+    if( $attributes ) {
+      unshift( @$attributes, @$closure_options->{ 'attributes' } );
+    } else {
+      $attributes = $closure_options->{ 'attributes' };
     }
   }
 
@@ -723,6 +1612,18 @@ sub features {
                   '-end' => $end,
                    -orientation_policy => 'dependent'
                 ) ];
+  }
+
+  if( $closure_options->{ 'ranges' } ) {
+    if( $ranges ) {
+      unshift( @$ranges, @$closure_options->{ 'ranges' } );
+    } else {
+      $ranges = $closure_options->{ 'ranges' };
+    }
+  }
+
+  if( !$baserange && $closure_options->{ 'baserange' } ) {
+    $baserange = $closure_options->{ 'baserange' };
   }
 
   ## We can use ourselves as the baserange, if we are a Bio::RangeI.
@@ -762,12 +1663,12 @@ sub features {
 
   ## -strandmatch defaults to 'weak'
   unless( defined $strandmatch ) {
-    $strandmatch = 'weak';
+    $strandmatch = $closure_options->{ 'strandmatch'} || 'weak';
   }
 
   ## -rangetype defaults to 'overlaps'
   unless( defined $rangetype ) {
-    $rangetype = 'overlaps';
+    $rangetype = $closure_options->{ 'rangetype'} || 'overlaps';
   }
 
   ## -iterator and -callback are mutually exclusive.
@@ -776,6 +1677,9 @@ sub features {
   }
 
   ## -sort is redundant if sorted() is true.
+  unless( defined( $sort ) || $callback ) {
+    $sort = $closure_options->{ 'sort' };
+  }
   if( $sort && $self->sorted() ) {
     undef $sort;
   }
@@ -783,6 +1687,18 @@ sub features {
   ## -sort and -callback are mutually exclusive.
   if( $sort && $callback ) {
     $self->throw( "The -sort and -callback options are mutually exclusive, and yet both have been specified.  Perhaps you could first set the sorted() property of this collection to true, and then try again." );
+  }
+
+  unless( defined $namespace ) {
+    $namespace = $closure_options->{ 'namespace' };
+  }
+
+  unless( defined $sparse ) {
+    $sparse = $closure_options->{ 'sparse' };
+  }
+
+  unless( defined $merge ) {
+    $merge = $closure_options->{ 'merge' };
   }
 
   ## We actually implement the sorting on-the-fly anyway, so the above
@@ -810,15 +1726,194 @@ sub features {
     '-callback' => $callback,
     '-parent' => $self
   );
+  ## TODO: REMOVE
+  #warn "Args to features() of ".$self->factory(). " are ( ".join( ', ', ( my @args = %args ) )." ).  names are { ".($names?join( ', ', @$names ):'')." }.  types are { ".($types?join( ', ', @$types ):''). " }.";
+  #eval { $self->throw( "Args to features() of ".$self->factory(). " are ( ".join( ', ', ( my @args = %args ) )." )"."-names are ".($names&&@$names?'[ '.join( ', ', @$names ).' ]':'undef')."." ) };
+  #warn $@ if $@;
+  if( $iterator ) {
+    ## TODO: Do what we do for the list, but in an iterator.
+    ## TODO: REMOVE
+    warn "May not be filtering appropriately\n";
+    return $self->factory()->features_in_range( %args );
+  } elsif( $callback ) {
+    ## TODO: Do what we do for the list, but in a callback.
+    ## TODO: REMOVE
+    warn "May not be filtering appropriately\n";
+    return $self->factory()->features_in_range( %args );
+  }
   ## TODO: This doesn't account for the whole picture.  Update.
-  return $self->factory()->features_in_range( %args );
+  my @features = $self->factory()->features_in_range( %args );
+
+  ## The implementation may not do the filtering correctly, so we have
+  ## to do it again, alas.
+  my @features_to_return;
+  ## This next line is fancy speak for "for each feature we've got,
+  ## perhaps sorted, perhaps reverse-sorted.."
+  foreach my $feature ( @features ) {
+    ## TODO: REMOVE
+    unless( ref( $feature ) && $feature->isa( 'Bio::SeqFeature::SegmentI' ) ) {
+      print STDERR "--------------Hey, man.  $feature ain't a feature!=======\n";
+    }
+
+    ## Filter them:
+    my $passes_filter = 1;
+
+    ## Filter on types
+    if( $passes_filter && $types ) {
+      # Failure until proven success:
+      $passes_filter = 0;
+      my $feature_type = $feature->type();
+      foreach my $type ( @$types ) {
+        if( ref( $feature_type ) &&
+            $feature_type->isa( 'Bio::DB::GFF::Typename' ) &&
+            $feature_type->match( $type ) ) {
+          # success
+          $passes_filter = 1;
+          last;
+        } elsif( ref( $type ) && $type->isa( 'Bio::SeqFeature::TypeI' ) ) {
+          if( ( $type eq $feature_type ) ||
+              $type->is_descendent( $feature_type ) ) {
+            # success
+            $passes_filter = 1;
+            last;
+          }
+        } elsif( ref( $type ) && $type->isa( 'Bio::DB::GFF::Typename' ) ) {
+          ## I've added this to support the Typename stuff used by GFF.
+          if( $type->match( $feature_type ) ) {
+            # success
+            $passes_filter = 1;
+            last;
+          }
+        } else {
+          ## $type is a string.
+          if( ref( $feature_type ) &&
+              $feature_type->isa( 'Bio::SeqFeature::TypeI' ) ) {
+            if( ( $feature_type eq $type ) ||
+                $feature_type->is_ancestor( $type ) ) {
+              # success
+              $passes_filter = 1;
+              last;
+            }
+          } else {
+            ## $feature_type is also a string.
+            if( $type =~ /$feature_type/i ) { # ignore case (should we? ok)
+              # success
+              $passes_filter = 1;
+              last;
+            }
+          }
+        } # End if $type is a TypeI .. else ..
+      } # End for each $type
+    } # End if we're filtering on types
+
+    ## Filter on unique_ids
+    ## If they've provided a $namespace, also try "$namespace:$feature_id"
+    ## and "$namespace:$id"
+    if( $passes_filter && $unique_ids ) {
+      # Failure until proven success:
+      $passes_filter = 0;
+      my $feature_id = $feature->unique_id() || $feature->display_name();
+      foreach my $unique_id ( @$unique_ids ) {
+        if( ( $feature_id eq $unique_id ) ||
+            ( $namespace && ( ( $namespace.':'.$feature_id ) eq $unique_id ) ) ||
+            ( $namespace && ( $feature_id eq ( $namespace.':'.$unique_id ) ) )
+          ) {
+          # success
+          $passes_filter = 1;
+          last;
+        }
+      } # End for each $unique_id
+    } # End if we're filtering on unique_ids
+
+    ## Filter on names
+    ## If they've provided a $namespace, also try "$namespace:$feature_name"
+    ## and "$namespace:$name" and "$namespace:$feature_id"
+    if( $passes_filter && $names ) {
+      # Failure until proven success:
+      $passes_filter = 0;
+      my $feature_name = $feature->display_name();
+      my $feature_id = $feature->unique_id();
+      foreach my $name ( @$names ) {
+        if( ( $feature_name eq $name ) ||
+            ( $namespace && ( ( $namespace.':'.$feature_name ) eq $name ) ) ||
+            ( $namespace && ( $feature_name eq ( $namespace.':'.$name ) ) ) ||
+            ( $feature_id eq $name ) ||
+            ( $namespace && ( ( $namespace.':'.$feature_id ) eq $name ) ) ||
+            ( $namespace && ( $feature_id eq ( $namespace.':'.$name ) ) )
+          ) {
+          # success
+          $passes_filter = 1;
+          last;
+        }
+      } # End for each $name
+    } # End if we're filtering on names
+
+    ## Filter on attributes
+    if( $passes_filter && $attributes ) {
+      foreach my $tag ( keys %$attributes ) {
+        if( !$feature->has_tag( $tag ) ) {
+          $passes_filter = 0;
+          last;
+        }
+        $passes_filter = 0;
+        foreach my $value ( $feature->get_tag_values( $tag ) ) {
+          if( $value eq $attributes->{ $tag } ) {
+            $passes_filter = 1;
+            last;
+          }
+        } # End for each $value
+        last unless( $passes_filter );
+      } # End for each $tag
+    } # End if we're filtering on attributes
+
+    ## Filter on range
+    if( $passes_filter && $ranges ) {
+      foreach my $range ( @$ranges ) {
+        if( $range->seq_id() &&
+            $feature->seq_id() &&
+            !( $feature->seq_id() eq $range->seq_id() )
+          ) {
+          ## If they both define seq_id(), and they don't match, then
+          ## the ranges don't match.
+          $passes_filter = 0;
+        } elsif(
+            ( $rangetype eq 'overlaps' ) &&
+            !$range->overlaps( $feature, $strandmatch )
+          ) {
+          $passes_filter = 0;
+        } elsif(
+            ( $rangetype eq 'contains' ) &&
+            !$range->contains( $feature, $strandmatch )
+          ) {
+          $passes_filter = 0;
+        } elsif(
+            ( $rangetype eq 'contained_in' ) &&
+            !$feature->contains( $range, $strandmatch )
+          ) {
+          $passes_filter = 0;
+        }
+        last unless $passes_filter;
+      } # End foreach $range in @$ranges
+    } # End if we're filtering on range
+
+    next unless( $passes_filter );
+
+    if( defined $callback ) {
+      unless( $callback->( $feature, $self ) ) {
+        return 0; # return false when the callback fails.
+      }
+    } else {
+      push( @features_to_return, $feature );
+    }
+  } # End for each $feature
+
+  return @features_to_return;
 } # features(..)
 
-## TODO: bring types back up to speed.
 =head2 types
 
  Title   : types
- Usage   : @types = $s->types([-enumerate=>1])
+ Usage   : @types = $s->types( [ '-enumerate' => 1 ] )
  Function: list feature types that overlap this segment
  Returns : a list of Bio::DB::GFF::Typename objects or a hash
  Args    : see below
@@ -840,17 +1935,30 @@ sub types {
   my $self = shift;
 
   my @args;
-  if (@_ && $_[0] !~ /^-/) {
-    @args = (-type => \@_)
+  if( @_ && $_[ 0 ] !~ /^-/ ) {
+    @args = ( '-type' => \@_ );
   } else {
     @args = @_;
   }
-  $self->factory->types(-ref  => $self->abs_seq_id(),
-			-class => $self->class(),
-			-start=> $self->abs_start(),
-			-stop => $self->abs_end(),
-			@args);
+  $self->factory->types(
+    '-ref'   => $self->abs_seq_id(),
+    '-class' => $self->class(),
+    '-start' => $self->abs_start(),
+    '-stop'  => $self->abs_end(),
+    @args
+  );
 } # types(..)
+
+sub feature_count {
+  my $self = shift;
+
+  # count all feature types in the segment
+  my %type_counts = $self->types( '-enumerate' => 1 );
+
+  my $count = 0;
+  map { $count += $type_counts{ $_ } } keys %type_counts;
+  return $count;
+} # feature_count(..)
 
 =head2 stop
 
@@ -1024,13 +2132,13 @@ is:
 =cut
 
 sub asString {
-  shift->toString();
+  #shift->toString();
   ## TODO: Put back the old stuff.. I guess..
-#  my $self = shift;
-#  my $label = $self->refseq();
-#  my $start = $self->start();
-#  my $stop  = $self->stop();
-#  return "$label:$start,$stop";
+  my $self = shift;
+  my $label = $self->refseq();
+  my $start = $self->start();
+  my $stop  = $self->stop();
+  return "$label:$start,$stop";
 }
 
 =head2 clone
@@ -1476,9 +2584,9 @@ use vars qw( @ISA );
 @ISA = qw( Bio::RelRange );
 
 use overload 
-#  '""'     => 'name',
+  '""'     => 'name',
 # For debugging, try using:
-  '""'     => 'toString',
+#  '""'     => 'toString',
   eq       => 'equals',
   fallback => 1;
 

@@ -1,6 +1,6 @@
 package Bio::DB::SegmentProviderI;
 
-# $Id $
+# $Id$
 # An interface for objects that are both Bio::DB::SequenceProviderIs and
 # Bio::DB::FeatureProviderIs.
 
@@ -131,7 +131,9 @@ $VERSION = '1.00';
 # , so changes must be kept in sync.
 # Also note that
 #   Bio/SeqFeature/SegmentI.pm
-# copies and modifies this pod, changes must be kept in sync.
+#   Bio/SeqFeature/SimpleSegmentProvider.pm
+#   Bio/SeqFeature/CompoundSegmentProvider.pm
+# copies and modifies this pod, so changes must be kept in sync.
 
 =head2 get_collection
 
@@ -139,12 +141,17 @@ $VERSION = '1.00';
  Usage    : my $segment = $segmentprovider->get_collection( %args );
             OR
             my $segment = $segmentprovider->get_collection( @types );
- Returns  : A L<Bio::SeqFeature::SegmentI> object
+            OR
+            my @segments = $segmentprovider->get_collection( %args );
+            OR
+            my @segments = $segmentprovider->get_collection( @types );
+ Returns  : A L<Bio::SeqFeature::SegmentI> object or a list thereof.
  Args     : see below
  Status   : Public
- Exception: "Those features do not share a common sequence" if the
-            features that would otherwise be included in the resulting
-            segment do not all fall on the same sequence.
+ Exception: "Those features do not share a common sequence" if this
+            method is called in scalar context and the features that
+            would otherwise be included in the resulting segment do
+            not all fall on the same sequence.
 
 NOTE: This method is (almost) identical to the get_collection() method
 from L<Bio::DB::FeatureProviderI> that it overrides.  The entire
@@ -155,19 +162,25 @@ documentation follows, but first a brief summary of the changes:
     The returned SegmentI objects will have as their range the range
     searched, if any, or the smallest range that encloses the returned
     features.
-  * This method will throw an exception if the features that would be
-    included in the resulting SegmentI do not all share a common
-    sequence. The returned SegmentI will have as its seq_id the common
-    sequences' unique_id() or primary_id().
+  * This method will return a list of objects if called in list
+    context; one L<Bio::SeqFeature::SegmentI> object per root sequence
+    of the requested features.  Each returned SegmentI will have as
+    its seq_id the common sequences' unique_id() or primary_id().
+  * This method will throw an exception if called in scalar context
+    and the features that would be included in the resulting SegmentI
+    do not all share a common sequence.
 
-This routine will retrieve a L<Bio::SeqFeature::SegmentI> object based
-on feature type, location or attributes.  The SeqFeatureI objects in
-the returned SegmentI may or may not be newly instantiated by this
-request.  They will have as their range the range searched, if any, or
-the smallest range that encloses the returned features.  They will
-have as their seq_id() the unique_id() or primary_id() of the returned
-features' common sequence.  If the returned features do not share a
-common sequence then an exception will be thrown.
+This routine will retrieve one or more L<Bio::SeqFeature::SegmentI>
+objects based on feature type, location or attributes.  The
+SeqFeatureI objects in the returned SegmentIs may or may not be newly
+instantiated by this request.  They will have as their range the range
+searched, if any, or the smallest range that encloses the returned
+features.  They will have as their seq_id() the unique_id() or
+primary_id() of the returned features' common sequence.  If this
+method is called in list context then one SegmentI object will be
+returned per root sequence.  If this method is called in scalar
+context and the returned features do not share a common sequence then
+an exception will be thrown.
 
 If you make a modification to a feature you must call
 update_collection with a collection that contains that feature to
@@ -185,8 +198,8 @@ If a range is specified using the -range argument then this range will
    "contained_in"  return features that completely contain the range
 
 -strandmatch is one of:
-   "strong"        ranges must have the same strand
    "weak"          ranges must have the same strand or no strand (default)
+   "strong"        ranges must have the same strand
    "ignore"        ignore strand information
 
 Two types of argument lists are accepted.  In the positional argument
@@ -281,8 +294,15 @@ sub get_collection {
 =cut
 
 sub segment {
-  shift->get_collection( @_ );
-}
+  my $self = shift;
+  if( wantarray ) {
+    my @s = $self->get_collection( @_ );
+    return @s;
+  } else {
+    my $s = $self->get_collection( @_ );
+    return $s;
+  }
+} # segment(..)
 
 =head2 parent_segment_provider
 
@@ -317,6 +337,38 @@ sub segment {
 sub parent_segment_provider {
   shift->parent_collection_provider( @_ );
 } # parent_segment_provider()
+
+=head2 seq_ids
+
+ Title   : seq_ids
+ Usage   : my @seq_ids = $segmentprovider->seq_ids();
+           OR
+           my %seq_ids_and_counts =
+               $segmentprovider->seq_ids( -count => 1 );
+ Function: Enumerate all root seq_ids of features provided by this
+           provider, and all seq_ids of sequences provided by this
+           provider, and possibly count the features with each seq_id.
+ Returns : a list of strings
+           OR
+           a hash mapping seq_id strings to integer counts
+ Args    : see below
+
+This routine returns a list of feature root seq_ids known to the
+provider.  If the -count argument is given, it returns a hash of known
+seq_ids mapped to their occurrence counts in this provider.  Note that
+the returned list (or the keys of the returned hash) may include
+seq_ids for which the count is 0, which indicates that the sequence is
+provided but there are no features on it.
+
+Arguments are -option=E<gt>value pairs as follows:
+
+  -count aka -enumerate  if true, count the features
+
+=cut
+
+sub seq_ids {
+  shift->throw_not_implemented();
+}
 
 1;
 

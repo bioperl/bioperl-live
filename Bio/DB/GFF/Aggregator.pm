@@ -305,7 +305,7 @@ sub aggregate {
   for my $feature (@$features) {
     if ($feature->group && $matchsub->($feature)) {
       if ($main_method && lc $feature->method eq lc $main_method) {
-	$aggregates{$feature->group,$feature->refseq}{base} ||= $feature->clone;
+	$aggregates{$feature->group,$feature->refseq}{base} ||= $feature->new_from_feature();
       } else {
 	push @{$aggregates{$feature->group,$feature->refseq}{subparts}},$feature;
       }
@@ -322,20 +322,31 @@ sub aggregate {
   # aggregate components
   my $pseudo_method        = $self->get_method;
   my $require_whole_object = $self->require_whole_object;
-  foreach (keys %aggregates) {
+  foreach my $aggregate (keys %aggregates) {
     if ($require_whole_object && $self->components) {
-      next unless $aggregates{$_}{base} && $aggregates{$_}{subparts};
+      next unless $aggregates{$aggregate}{base} && $aggregates{$aggregate}{subparts};
     }
-    my $base = $aggregates{$_}{base};
+    my $base = $aggregates{$aggregate}{base};
     unless ($base) { # no base, so create one
-      my $first = $aggregates{$_}{subparts}[0];
-      $base = $first->clone;     # to inherit parent coordinate system, etc
+      my $first = $aggregates{$aggregate}{subparts}[0];
+      $base = $first->new_from_feature();     # to inherit parent coordinate system, etc
+        #$first->clone();     # to inherit parent coordinate system, etc
       $base->score(undef);
       $base->phase(undef);
     }
-    $base->method($pseudo_method);
-    $base->add_subfeature($_) foreach @{$aggregates{$_}{subparts}};
-    $base->adjust_bounds;
+    $base->type(
+      Bio::DB::GFF::Typename->new( $pseudo_method, $base->source() )
+    );
+    if( $aggregates{$aggregate}{subparts} ) {
+      ## TODO: REMOVE
+      #warn "subparts are ( ".join( ', ', @{ $aggregates{$aggregate}{subparts}}  )." )";
+      $base->add_features( @{$aggregates{$aggregate}{subparts}} );
+      ## TODO: REMOVE
+      #warn "aggregate $aggregate: about to adjust_bounds of $base.\n";
+      $base->adjust_bounds( 0 );
+      ## TODO: REMOVE
+      #warn "aggregate $aggregate: now it is                 $base.\n";
+    }
     $base->compound(1);  # set the compound flag
     $changed = 1;
     push @result,$base;

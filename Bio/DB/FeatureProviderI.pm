@@ -1,6 +1,6 @@
 package Bio::DB::FeatureProviderI;
 
-# $Id $
+# $Id$
 # A Bio::SeqFeature::CollectionProviderI with additional methods
 # suiting an implementation with an external or non-simple backing
 # store.

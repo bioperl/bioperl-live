@@ -91,6 +91,12 @@ use Bio::AlternativeLocationHolderI;
 
 use Bio::DB::GFF::Util::Rearrange; # for 'rearrange'
 
+# Make sure to use the right overloaded stuff.
+use overload 
+  '""' => 'toString',
+  cmp   => '_cmp',
+  '==' => 'equals';
+
 sub new {
   my ( $caller, @args ) = @_;
   my $self = $caller->SUPER::new( @args );
@@ -104,8 +110,8 @@ sub new {
 
   if( !defined( $feature ) ||
       !ref( $feature ) ||
-      !$feature->isa( 'Bio::SeqFeatureI' ) ) {
-    $self->throw( "Must have a Bio::SeqFeatureI peer, not $feature, a ".ref( $feature ) );
+      !$feature->isa( 'Bio::SeqFeature::SegmentI' ) ) {
+    $self->throw( "Must have a Bio::SeqFeature::SegmentI peer, not $feature, a ".ref( $feature ) );
   }
 
   if( $feature->isa( "Bio::SeqFeature::PositionProxy" ) ) {
@@ -126,8 +132,8 @@ sub new {
 
  Title   : peer
  Usage   : my $peer_feature = $proxy->peer()
- Function: Get/Set the L<Bio::SeqFeatureI> peer of this proxy
- Returns : The current (or former, if used as a set method) L<Bio::SeqFeatureI>
+ Function: Get/Set the L<Bio::SeqFeature::SegmentI> peer of this proxy
+ Returns : The current (or former, if used as a set method) L<Bio::SeqFeature::SegmentI>
            peer of this PositionProxy.
  Args    : [optional] a new peer.
 
@@ -139,10 +145,10 @@ sub peer {
 
   my $old_value = $self->{ '_gsf_peer' };
   if( defined( $new_value ) ) {
-    unless( ref( $new_value ) && $new_value->isa( 'Bio::SeqFeatureI' ) ) {
+    unless( ref( $new_value ) && $new_value->isa( 'Bio::SeqFeature::SegmentI' ) ) {
       $self->throw( "Unable to set the peer to $new_value.  It is a ".
                     ref( $new_value ).
-                    ", not a Bio::SeqFeatureI." );
+                    ", not a Bio::SeqFeature::SegmentI." );
     }
     $self->{ '_gsf_peer' } = $new_value;
   }
@@ -487,8 +493,10 @@ is equivalent to this call:
 =cut
 
 sub AUTOLOAD {
-  my( $pack, $func_name ) = ( $AUTOLOAD =~ /(.+)::([^:]+)$/ );
   my $self = shift;
+  $AUTOLOAD |= shift;
+  my( $pack, $func_name ) = ( $AUTOLOAD =~ /^(.+)::([^:]+)$/ );
+  undef $AUTOLOAD;
 
   # ignore DESTROY calls
   return if $func_name eq 'DESTROY';
@@ -496,10 +504,31 @@ sub AUTOLOAD {
   if( $self->{ '_gsf_peer' }->can( $func_name ) ) {
     return $self->{ '_gsf_peer' }->$func_name( @_ );
   } else {
+    ## TODO: Dehackify.
+    # If the peer is a Segment but not a SeqFeatureI, then we have to do something.. What?  For now we'll just silently return...
+    if( !$self->{ '_gsf_peer' }->isa( 'Bio::SeqFeatureI' ) &&
+        $self->can( $func_name ) ) {
+      return;
+    }
     # error message of last resort
-    $self->throw( "Can't locate object method \"$func_name\" via package \"$pack\"" );
+    $self->throw( "Can't locate object method \"$func_name\" via package \"$pack\".  Checked in " . $self->{ '_gsf_peer' } . ", a " . ref( $self->{ '_gsf_peer' } ). ", to no avail." );
   }
 } # AUTOLOAD(..)
+
+## Make sure to use the right overloaded stuff.
+sub toString {
+  my $self = shift;
+  unless( defined $self->{ '_gsf_peer' } ) {
+    return $self->SUPER::toString();
+  }
+  return $self->{ '_gsf_peer' }->toString( @_ );
+}
+sub _cmp {
+  return shift->{ '_gsf_peer' }->_cmp( @_ );
+}
+sub equals {
+  return shift->{ '_gsf_peer' }->equals( @_ );
+}
 
 1;
 

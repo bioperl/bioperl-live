@@ -129,7 +129,7 @@ what it was beforehand.
 =cut
 
 sub sorted {
-  shift->throw_not_implemented();
+  shift->throw_not_implemented( @_ );
 }
 
 =head2 add_features
@@ -138,13 +138,13 @@ sub sorted {
  Usage   : $collection->add_features( @feature_list );
  Function: Adds the given features to this Collection.
  Returns : The features added (or their count, in scalar context).
- Args    : An array of L<Bio::SeqFeatureI>s
+ Args    : An array of L<Bio::SeqFeature::SegmentI>s
  Status  : Public
 
 =cut
 
 sub add_features {
-    shift->throw_not_implemented();
+  shift->throw_not_implemented( @_ );
 }
 
 =head2 remove_features
@@ -153,13 +153,13 @@ sub add_features {
  Usage   : $collection->remove_features( @feature_list )
  Function: Removes the requested sequence features
  Returns : The removed features (or their count, in scalar context)
- Args    : An array of L<Bio::SeqFeatureI>s or their unique_ids
+ Args    : An array of L<Bio::SeqFeature::SegmentI>s or their unique_ids
  Status  : Public
 
 =cut
 
 sub remove_features {
-    shift->throw_not_implemented();
+  shift->throw_not_implemented( @_ );
 }
 
 #                   --Coders beware!--
@@ -178,7 +178,7 @@ sub remove_features {
  Usage   : @features = $collection->features( %args );
            OR
            @features = $collection->features( @types );
- Returns : a list of L<Bio::SeqFeatureI> objects,
+ Returns : a list of L<Bio::SeqFeature::SegmentI> objects,
            OR
            (when the -iterator option is true) an L<Bio::SeqFeature::IteratorI>
            OR
@@ -300,7 +300,7 @@ then any feature with the display_name or unique_id 'foo', 'ns:foo',
 
 If -iterator is true, then the method returns an object of type
 Bio::SeqFeature::IteratorI.  Each call to next_seq() on this
-object returns a Bio::SeqFeatureI object from this collection.
+object returns a Bio::SeqFeature::SegmentI object from this collection.
 
 If -callback is passed a code reference, the code reference will be
 invoked on each feature returned.  The code will be passed two
@@ -352,7 +352,7 @@ sub features { shift->throw_not_implemented }
  Title   : overlapping_features
  Usage   : @features = $collection->overlapping_features( %args )
  Function: get features that overlap the range of this collection
- Returns : a list of L<Bio::SeqFeatureI> objects,
+ Returns : a list of L<Bio::SeqFeature::SegmentI> objects,
            OR
            an iterator (when the -iterator option is true)
            OR
@@ -383,7 +383,7 @@ sub overlapping_features {
  Title   : contained_features
  Usage   : @features = $collection->contained_features( %args )
  Function: get features that are contained in the range of this collection
- Returns : a list of L<Bio::SeqFeatureI> objects,
+ Returns : a list of L<Bio::SeqFeature::SegmentI> objects,
            OR
            an iterator (when the -iterator option is true)
            OR
@@ -414,7 +414,7 @@ sub contained_features {
  Title   : contained_in
  Usage   : @features = $collection->contained_in( %args )
  Function: get features that contain the range of this collection
- Returns : a list of L<Bio::SeqFeatureI> objects,
+ Returns : a list of L<Bio::SeqFeature::SegmentI> objects,
            OR
            an iterator (when the -iterator option is true)
            OR
@@ -474,7 +474,7 @@ sub get_feature_stream {
            @features = $collection->features_in_range( %args );
  Function: Retrieves a list of features which were contained or overlap the
            the requested range
- Returns : a list of L<Bio::SeqFeatureI> objects,
+ Returns : a list of L<Bio::SeqFeature::SegmentI> objects,
            OR
            an iterator (when the -iterator option is true)
            OR
@@ -514,7 +514,7 @@ sub features_in_range {
            OR
            my @features = $collection->get_feature_by_name( %args )
  Function: fetch features by their name
- Returns : a list of L<Bio::SeqFeatureI> objects,
+ Returns : a list of L<Bio::SeqFeature::SegmentI> objects,
            OR
            an iterator (when the -iterator option is true)
            OR
@@ -570,7 +570,7 @@ sub get_feature_by_name {
            OR
            my @features = $collection->get_feature_by_id( %args )
  Function: fetch features by their unique_ids
- Returns : a list of L<Bio::SeqFeatureI> objects,
+ Returns : a list of L<Bio::SeqFeature::SegmentI> objects,
            OR
            an iterator (when the -iterator option is true)
            OR
@@ -612,7 +612,7 @@ sub get_feature_by_id {
            OR
            my @features = $collection->get_feature_by_attribute( $attrs_ref, %args )
  Function: fetch features by their attributes
- Returns : a list of L<Bio::SeqFeatureI> objects,
+ Returns : a list of L<Bio::SeqFeature::SegmentI> objects,
            OR
            an iterator (when the -iterator option is true)
            OR
@@ -685,7 +685,7 @@ sub feature_count {
  Title   : get_all_SeqFeatures
  Usage   : @all_features = $collection->get_all_SeqFeatures( %args )
  Function: Get the flattened tree of features held by this collection.
- Returns : a list of L<Bio::SeqFeatureI> objects,
+ Returns : a list of L<Bio::SeqFeature::SegmentI> objects,
  Args    : same as features(), except no -iterator or -callback
  Status  : Public
 

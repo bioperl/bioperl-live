@@ -45,21 +45,23 @@ feature that contains no subfeatures, or a hierarchically nested object.
 
 Arguments are as follows:
 
-  -start       the start position of the feature
-  -end         the stop position of the feature
-  -stop        an alias for end
-  -name        the feature name (returned by seqname())
-  -type        the feature type (returned by primary_tag())
-  -source      the source tag
+*  -start       the start position of the feature
+*  -end         the stop position of the feature
+*  -stop        an alias for end
+*  -name        the feature name (returned by seqname())
+*  -type        the feature type (returned by primary_tag())
+*  -source      the source tag
   -desc        a description of the feature
-  -segments    a list of subfeatures (see below)
+*  -segments    a list of subfeatures (see below)
   -subtype     the type to use when creating subfeatures
-  -strand      the strand of the feature (one of -1, 0 or +1)
-  -id          an alias for -name
-  -seqname     an alias for -name
-  -primary_id  an alias for -name
-  -display_id  an alias for -name
-  -display_name an alias for -name  (do you get the idea the API has changed?)
+*  -strand      the strand of the feature (one of -1, 0 or +1)
+*  -id          an alias for -name (but now for -seq_id)
+*  -seqname     an alias for -name
+*  -primary_id  an alias for -name (but now for unique_id)
+*  -display_id  an alias for -name (but now for display_name)
+*  -display_name an alias for -name  (no longer an alias)
+*  -attributes  a hashref of tag value attributes, in which the key is the tag
+               and the value is an array reference of values
 
 The subfeatures passed in -segments may be an array of
 Bio::Graphics::Feature objects, or an array of [$start,$stop]
@@ -107,25 +109,11 @@ An alias for sub_SeqFeature() (you don't want to know why!)
 =cut
 
 use strict;
-use Bio::Root::Root;
-use Bio::SeqFeatureI;
-use Bio::SeqI;
-use Bio::LocationI;
+use Bio::SeqFeature::Generic;
 
 use vars '$VERSION','@ISA';
 $VERSION = '1.41';
-@ISA  = qw(Bio::Root::Root Bio::SeqFeatureI Bio::LocationI Bio::SeqI);
-
-*stop        = \&end;
-*info        = \&name;
-*seqname     = \&name;
-*type        = \&primary_tag;
-*exons       = *sub_SeqFeature = *merged_segments = \&segments;
-*method      = \&type;
-*source      = \&source_tag;
-
-sub target { return; }
-sub hit    { return; }
+@ISA  = qw( Bio::SeqFeature::Generic );
 
 # usage:
 # Bio::Graphics::Feature->new(
@@ -137,162 +125,163 @@ sub hit    { return; }
 # Alternatively, use -segments => [ [start,stop],[start,stop]...]
 # to create a multisegmented feature.
 sub new {
-  my $class= shift;
-  $class = ref($class) if ref $class;
-  my %arg = @_;
+  my $caller = shift;
+  my $self = $caller->SUPER::new( @_ ); 
 
-  my $self = bless {},$class;
+  my ( $desc, $subtype, $url ) =
+    $self->_rearrange( [
+      'DESC',
+      'SUBTYPE',
+      'URL'
+    ], @_ );
 
-  $arg{-strand} ||= 0;
-  $self->{strand}  = $arg{-strand} ? ($arg{-strand} >= 0 ? +1 : -1) : 0;
-  $self->{name}    = $arg{-name}   || $arg{-seqname} || $arg{-display_id} 
-    || $arg{-display_name} || $arg{-id} || $arg{-primary_id};
-  $self->{type}    = $arg{-type}   || 'feature';
-  $self->{subtype} = $arg{-subtype} if exists $arg{-subtype};
-  $self->{source}  = $arg{-source} || $arg{-source_tag} || '';
-  $self->{score}   = $arg{-score}   if exists $arg{-score};
-  $self->{start}   = $arg{-start};
-  $self->{stop}    = $arg{-end} || $arg{-stop};
-  $self->{ref}     = $arg{-ref};
-  $self->{class}   = $arg{-class} if exists $arg{-class};
-  $self->{url}     = $arg{-url}   if exists $arg{-url};
-  $self->{seq}     = $arg{-seq}   if exists $arg{-seq};
-  $self->{phase}   = $arg{-phase} if exists $arg{-phase};
-  $self->{desc}    = $arg{-desc}  if exists $arg{-desc};
+  $self->desc( $desc ) if defined( $desc );
+  $self->subtype( $subtype ) if defined( $subtype );
+  $self->url( $url ) if defined( $url );
 
-  # fix start, stop
-  if (defined $self->{stop} && defined $self->{start}
-      && $self->{stop} < $self->{start}) {
-    @{$self}{'start','stop'} = @{$self}{'stop','start'};
-    $self->{strand} *= -1;
+  unless( $self->type() ) {
+    $self->type( 'feature' );
   }
 
-  my @segments;
-  if (my $s = $arg{-segments}) {
-    $self->add_segment(@$s);
-  }
-  $self;
-}
+  return $self;
+} # new(..)
 
-sub add_segment {
-  my $self        = shift;
-  my $type = $self->{subtype} || $self->{type};
-  $self->{segments} ||= [];
+=head2 subtype
 
-  my @segments = @{$self->{segments}};
-
-  for my $seg (@_) {
-    if (ref($seg) eq 'ARRAY') {
-      my ($start,$stop) = @{$seg};
-      next unless defined $start && defined $stop;  # fixes an obscure bug somewhere above us
-      my $strand = $self->{strand};
-
-      if ($start > $stop) {
-	($start,$stop) = ($stop,$start);
-#	$strand *= -1;
-	$strand = -1;
-      }
-      push @segments,$self->new(-start  => $start,
-				-stop   => $stop,
-				-strand => $strand,
-				-type   => $type);
-    } else {
-      push @segments,$seg;
-    }
-  }
-  if (@segments) {
-    local $^W = 0;  # some warning of an uninitialized variable...
-    $self->{segments} = [ sort {$a->start <=> $b->start } @segments ];
-    $self->{start}    = $self->{segments}[0]->start;
-    ($self->{stop})   = sort { $b <=> $a } map { $_->end } @segments;
-  }
-}
-
-sub segments {
-  my $self = shift;
-  my $s = $self->{segments} or return wantarray ? () : 0;
-  @$s;
-}
-sub score    {
-  my $self = shift;
-  my $d = $self->{score};
-  $self->{score} = shift if @_;
-  $d;
-}
-sub primary_tag     { shift->{type}        }
-sub name            {
-  my $self = shift;
-  my $d    = $self->{name};
-  $self->{name} = shift if @_;
-  $d;
-}
-sub seq_id          { shift->ref()         }
-sub ref {
-  my $self = shift;
-  my $d = $self->{ref};
-  $self->{ref} = shift if @_;
-  $d;
-}
-sub start    {
-  my $self = shift;
-  my $d = $self->{start};
-  $self->{start} = shift if @_;
-  $d;
-}
-sub end    {
-  my $self = shift;
-  my $d = $self->{stop};
-  $self->{stop} = shift if @_;
-  $d;
-}
-sub strand {
-  my $self = shift;
-  my $d = $self->{strand};
-  $self->{strand} = shift if @_;
-  $d;
-}
-sub length {
-  my $self = shift;
-  return $self->end - $self->start + 1;
-}
-
-sub seq {
-  my $self = shift;
-  my $dna =  exists $self->{seq} ? $self->{seq} : '';
-  # $dna .= 'n' x ($self->length - CORE::length($dna));
-  return $dna;
-}
-*dna = \&seq;
-
-=head2 display_name
-
- Title   : display_name
- Usage   : $id = $obj->display_name or $obj->display_name($newid);
- Function: Gets or sets the display id, also known as the common name of
-           the Seq object.
-
-           The semantics of this is that it is the most likely string
-           to be used as an identifier of the sequence, and likely to
-           have "human" readability.  The id is equivalent to the LOCUS
-           field of the GenBank/EMBL databanks and the ID field of the
-           Swissprot/sptrembl database. In fasta format, the >(\S+) is
-           presumed to be the id, though some people overload the id
-           to embed other information. Bioperl does not use any
-           embedded information in the ID field, and people are
-           encouraged to use other mechanisms (accession field for
-           example, or extending the sequence object) to solve this.
-
-           Notice that $seq->id() maps to this function, mainly for
-           legacy/convenience issues.
- Returns : A string
- Args    : None or a new id
-
+ Title   : subtype
+ Usage   : $feature->subtype( [$new_subtype] )
+ Function: Getter/setter for the type of new subfeatures of this feature.
+ Returns : the current (or former, if used as a set method) subtype (either a
+           string or a Bio::SeqFeature::TypeI)
+ Args    : (optional) A new subtype (either a string or, preferably, a
+           Bio::SeqFeature::TypeI)
+ Status  : Public
 
 =cut
 
-sub display_name { shift->name }
+sub subtype {
+  my $self = shift;
+  my ( $new_value ) = @_;
 
-*display_id = \&display_name;
+  my $old_value = $self->{ '_subtype' };
+  if( defined( $new_value ) ) {
+    $self->{ '_subtype' } = $new_value;
+  }
+  return $old_value;
+} # subtype(..)
+
+=head2 _create_feature
+
+ Title   : create_feature
+ Usage   : my $new_seq_feature = $feature->_create_feature( $feature_data );
+ Function: Factory method for instantiating a SeqFeatureI object.
+ Returns : A new L<Bio::Graphics::Feature> object, or $feature_data.
+ Args    : A single argument of any data type (see below).
+ Status  : Protected
+
+ The single argument may be of any type.  _create_feature(..) will be
+ called by _insert_feature whenever the feature argument to that
+ method is not a SeqFeatureI object.  If _create_feature(..) is unable
+ to make a feature from the given data it must return the argument it
+ was given.
+
+=cut
+
+## This one makes features when given [ $start, $end ] pairs.  New
+## features will have the type returned by the $self->subtype() method
+## or, if that is undef, the result of $self->type().  They will have
+## $self as their $seq_id.  The given start and end positions are
+## interpreted relative to $self.
+sub _create_feature {
+  my $self = shift;
+  my $feature_data = shift;
+  if( ref( $feature_data ) eq 'ARRAY' ) {
+    # This is for feature data like [ [ start0, end0 ], [ start1, end1 ] ]
+    my ( $start, $end ) = @{ $feature_data };
+    
+    # The following line should be unnecessary.
+    #next unless defined $start && defined $end;
+    
+    # Strandedness defaults to our own, but start > end forces -1.
+    my $strand = $self->strand();
+    if( $start > $end ) {
+      ( $start, $end ) = ( $end, $start );
+      $strand = -1;
+    }
+    return $self->new( -start  => $start,
+                       -end    => $end,
+                       -strand => $strand,
+                       -type   => $self->subtype() || $self->type(),
+                       -seq_id => $self,
+                       -parent => $self ) || $feature_data;
+  } elsif( !ref( $feature_data ) ) {
+    # This is for feature data like [ 'ref1:start1-end1', 'ref2:start2-end2' ].
+    my ( $seq_id, $start, $end ) =
+      ( $feature_data =~ /(.+):(-?\d+)(?:-|\.\.)(-?\d+)/ );
+
+    ## TODO: REMOVE
+    #print STDERR "_create_feature(..): $seq_id:$start-$end\n";
+    
+    # Strandedness defaults to our own, but start > end forces -1.
+    my $strand = $self->strand();
+    if( $start > $end ) {
+      ( $start, $end ) = ( $end, $start );
+      $strand = -1;
+    }
+    ## TODO: ERE I AM.  Need to make the coords relative to $self if possible.
+    return $self->new( -start  => $start,
+                       -end    => $end,
+                       -strand => $strand,
+                       -type   => $self->subtype() || $self->type(),
+                       -seq_id => $seq_id,
+                       -parent => $self ) || $feature_data;
+  }
+  # If we're at this point then we've been unable to make a new feature.
+  return $feature_data;
+} # _create_feature(..)
+
+sub add_segment {
+  shift->add_feature( @_ );
+}
+
+sub name {
+  return shift->display_name( @_ );
+}
+
+sub info {
+  shift->name( @_ );
+}
+sub exons {
+  shift->features( @_ );
+}
+sub merged_segments {
+  shift->features( @_ );
+}
+sub segments {
+  shift->features( @_ );
+}
+sub method {
+  shift->type( @_ );
+}
+sub source {
+  shift->source_tag( @_ );
+}
+sub stop {
+  shift->end( @_ );
+}
+sub target { return; }
+sub hit    { return; }
+sub ref {
+  shift->seq_id( @_ );
+}
+
+sub phase {
+  shift->frame( @_ );
+}
+
+sub dna {
+  shift->seq( @_ );
+}
 
 =head2 accession_number
 
@@ -314,7 +303,7 @@ sub display_name { shift->name }
 =cut
 
 sub accession_number {
-    return 'unknown';
+  return 'unknown';
 }
 
 =head2 alphabet
@@ -337,10 +326,8 @@ sub accession_number {
 =cut
 
 sub alphabet{
-    return 'dna'; # no way this will be anything other than dna!
+  return 'dna'; # no way this will be anything other than dna!
 }
-
-
 
 =head2 desc
 
@@ -356,51 +343,42 @@ sub alphabet{
 
 sub desc {
   my $self = shift;
-  my $d    = $self->{desc};
-  $self->{desc} = shift if @_;
+  my $d    = $self->{ '_desc' };
+  $self->{ '_desc' } = shift if @_;
   $d;
 }
 
-sub low {
-  my $self = shift;
-  return $self->start < $self->end ? $self->start : $self->end;
-}
-
-sub high {
-  my $self = shift;
-  return $self->start > $self->end ? $self->start : $self->end;
-}
-
-=head2 location
-
- Title   : location
- Usage   : my $location = $seqfeature->location()
- Function: returns a location object suitable for identifying location
-	   of feature on sequence or parent feature
- Returns : Bio::LocationI object
- Args    : none
-
-=cut
-
-sub location {
-   my $self = shift;
-   require Bio::Location::Split unless Bio::Location::Split->can('new');
-   my $location;
-   if (my @segments = $self->segments) {
-       $location = Bio::Location::Split->new();
-       foreach (@segments) {
-	 $location->add_sub_Location($_);
-       }
-   } else {
-       $location = $self;
-   }
-   $location;
-}
-
-sub coordinate_policy {
-   require Bio::Location::WidestCoordPolicy unless Bio::Location::WidestCoordPolicy->can('new');
-   return Bio::Location::WidestCoordPolicy->new();
-}
+## TODO: ?
+#=head2 location
+#
+# Title   : location
+# Usage   : my $location = $seqfeature->location()
+# Function: returns a location object suitable for identifying location
+#	   of feature on sequence or parent feature
+# Returns : Bio::LocationI object
+# Args    : none
+#
+#=cut
+#
+#sub location {
+#   my $self = shift;
+#   require Bio::Location::Split unless Bio::Location::Split->can('new');
+#   my $location;
+#   if (my @segments = $self->segments) {
+#       $location = Bio::Location::Split->new();
+#       foreach (@segments) {
+#	 $location->add_sub_Location($_);
+#       }
+#   } else {
+#       $location = $self;
+#   }
+#   $location;
+#}
+#
+#sub coordinate_policy {
+#   require Bio::Location::WidestCoordPolicy unless Bio::Location::WidestCoordPolicy->can('new');
+#   return Bio::Location::WidestCoordPolicy->new();
+#}
 
 sub min_start { shift->low }
 sub max_start { shift->low }
@@ -414,67 +392,26 @@ sub to_FTstring {
   my $high = $self->max_end;
   return "$low..$high";
 }
-sub phase { shift->{phase} }
-sub class {
-  my $self = shift;
-  my $d = $self->{class};
-  $self->{class} = shift if @_;
-  return defined($d) ? $d : ucfirst $self->method;
-}
-
-sub gff_string {
-  my $self = shift;
-  my $name  = $self->name;
-  my $class = $self->class;
-  my $group = "$class $name" if $name;
-  my $string;
-  $string .= join("\t",$self->ref,$self->source||'.',$self->method||'.',
-                       $self->start,$self->stop,
-                       $self->score||'.',$self->strand||'.',$self->phase||'.',
-                       $group);
-  $string .= "\n";
-  foreach ($self->sub_SeqFeature) {
-    # add missing data if we need it
-    $_->ref($self->ref)     unless defined $_->ref;
-    $_->name($self->name);
-    $_->class($self->class);
-    $string .= $_->gff_string;
-  }
-  $string;
-}
-
-
 sub db { return }
 
-sub source_tag {
-  my $self = shift;
-  my $d = $self->{source};
-  $self->{source} = shift if @_;
-  $d;
-}
 
 # This probably should be deleted.  Not sure why it's here, but might
 # have been added for Ace::Sequence::Feature-compliance.
-sub introns {
-  my $self = shift;
-  return;
-}
-
-sub has_tag { }
+sub introns { return; }
 
 # get/set the configurator (Bio::Graphics::FeatureFile) for this feature
 sub configurator {
   my $self = shift;
-  my $d = $self->{configurator};
-  $self->{configurator} = shift if @_;
+  my $d = $self->{ '_configurator' };
+  $self->{ '_configurator' } = shift if @_;
   $d;
 }
 
 # get/set the url for this feature
 sub url {
   my $self = shift;
-  my $d = $self->{url};
-  $self->{url} = shift if @_;
+  my $d = $self->{ '_url' };
+  $self->{ '_url' } = shift if @_;
   $d;
 }
 
@@ -492,11 +429,9 @@ sub make_link {
   else {
     return;
   }
-}
+} # make_link(..)
 
-sub each_tag_value { return }
-sub all_tags { return }
-
+## TODO: REMOVE?  Why is this here?
 sub DESTROY { }
 
 1;

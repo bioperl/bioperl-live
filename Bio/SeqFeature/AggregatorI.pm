@@ -1,6 +1,6 @@
 package Bio::SeqFeature::AggregatorI;
 
-# $Id $
+# $Id$
 # Factory for grouping features into components of a containing feature.
 
 =head1 NAME
