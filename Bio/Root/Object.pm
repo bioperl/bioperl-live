@@ -9,6 +9,10 @@
 # (preferably from Perl v5.004 or better).
 #
 # MODIFIED: 
+#    0.041, sac --- Thu Feb  4 03:50:58 1999
+#     * warn() utilizes the Global $CGI indicator to supress output
+#       when script is running as a CGI.
+#
 #    0.04, sac --- Tue Dec  1 04:32:01 1998
 #     *  Incorporated the new globals $STRICTNESS and $VERBOSITY
 #        and eliminated WARN_ON_FATAL, FATAL_ON_WARN and DONT_WARN.
@@ -2231,7 +2235,6 @@ sub delete_file {
     $self->_set_io(@_) if !defined $self->{'_io'};
     $self->{'_io'}->delete_file(@_); 
 }
-
 
 
 =head2 file_date
