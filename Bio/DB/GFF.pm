@@ -3408,6 +3408,12 @@ sub _split_gff3_group {
       my ($gname,$tstart,$tstop) = split /\s+/,shift @values;
       $id{$tag} = [_gff3_name_munging($gname,$dc),$tstart,$tstop];
     }
+    elsif ($tag eq 'Name') {
+      push @attributes,[Alias=>$_] foreach @values;
+    }
+    elsif ($tag =~ /synonym/i) {
+      $tag = 'Alias';
+    }
     push @attributes,[$tag=>$_] foreach @values;
   }
 

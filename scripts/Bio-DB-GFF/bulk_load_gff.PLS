@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# $Id: bulk_load_gff.PLS,v 1.28 2005-03-21 16:25:32 lstein Exp $
+# $Id: bulk_load_gff.PLS,v 1.29 2005-03-21 18:56:39 lstein Exp $
 
 
 use strict;
@@ -321,7 +321,7 @@ foreach (@ARGV) {
 
 my (@gff,@fasta);
 foreach (@ARGV) {
-  if (/\.(fa|fasta|dna|seq|fast)(?:\.|$)/i) {
+  if (/\.(fa|fasta|dna|seq|fast)(?:$|\.)/i) {
     push @fasta,$_;
   } else {
     push @gff,$_;
@@ -341,11 +341,11 @@ foreach (@files) {
 }
 
 if ( $use_pg ) {
-$FH{FDATA()                }->print("COPY fdata (fid, fref, fstart, fstop, fbin, ftypeid, fscore, fstrand, fphase, gid, ftarget_start, ftarget_stop) FROM stdin;\n");
-$FH{FTYPE()                }->print("COPY ftype (ftypeid, fmethod, fsource) FROM stdin;\n");
-$FH{FGROUP()               }->print("COPY fgroup (gid, gclass, gname) FROM stdin;\n");
-$FH{FATTRIBUTE()           }->print("COPY fattribute (fattribute_id, fattribute_name) FROM stdin;\n");
-$FH{FATTRIBUTE_TO_FEATURE()}->print("COPY fattribute_to_feature (fid, fattribute_id, fattribute_value) FROM stdin;\n");
+  $FH{FDATA()                }->print("COPY fdata (fid, fref, fstart, fstop, fbin, ftypeid, fscore, fstrand, fphase, gid, ftarget_start, ftarget_stop) FROM stdin;\n");
+  $FH{FTYPE()                }->print("COPY ftype (ftypeid, fmethod, fsource) FROM stdin;\n");
+  $FH{FGROUP()               }->print("COPY fgroup (gid, gclass, gname) FROM stdin;\n");
+  $FH{FATTRIBUTE()           }->print("COPY fattribute (fattribute_id, fattribute_name) FROM stdin;\n");
+  $FH{FATTRIBUTE_TO_FEATURE()}->print("COPY fattribute_to_feature (fid, fattribute_id, fattribute_value) FROM stdin;\n");
 }
 my $FID     = 1;
 my $GID     = 1;
@@ -366,7 +366,7 @@ $db->preferred_groups(split (/[,\s]+/,$GROUP_TAG)) if defined $GROUP_TAG;
 my $last  = Time::HiRes::time() if $timer;
 my $start = $last;
 
-# avoid hanging on standalone --fasta load
+  # avoid hanging on standalone --fasta load
 if (!@ARGV) {
     $FH{NULL} = IO::File->new(">$tmpdir/null");
     push @ARGV, "$tmpdir/null";
@@ -374,25 +374,25 @@ if (!@ARGV) {
 
 my ($cmap_db);
 if ($use_mysqlcmap){
-    my $options = {
-            AutoCommit       => 1,
-            FetchHashKeyName => 'NAME_lc',
-            LongReadLen      => 3000,
-            LongTruncOk      => 1,
-            RaiseError       => 1,
-        };
+  my $options = {
+		 AutoCommit       => 1,
+		 FetchHashKeyName => 'NAME_lc',
+		 LongReadLen      => 3000,
+		 LongTruncOk      => 1,
+		 RaiseError       => 1,
+		};
 
-    $cmap_db = DBI->connect( $DSN, $USER, $PASSWORD, $options );
+  $cmap_db = DBI->connect( $DSN, $USER, $PASSWORD, $options );
 }
 # Only load CMap::Utils if using cmap
 unless (!$use_mysqlcmap or
-    eval {
-        require Bio::GMOD::CMap::Utils;
-        Bio::GMOD::CMap::Utils->import('next_number');
-        1;
-    } 
-) {
-    print STDERR "Error loading Bio::GMOD::CMap::Utils\n";
+	eval {
+	  require Bio::GMOD::CMap::Utils;
+	  Bio::GMOD::CMap::Utils->import('next_number');
+	  1;
+	} 
+       ) {
+  print STDERR "Error loading Bio::GMOD::CMap::Utils\n";
 }
 
 
@@ -433,7 +433,7 @@ while (<>) {
     ($ref,$source,$method,$start,$stop,$score,$strand,$phase,$group) =
 	($1,'reference','Component',$2,$3,'.','.','.',$gff3 ? "ID=Sequence:$1": qq(Sequence "$1"));
   }
-
+  
   elsif (/^\#/) {
     next;
   }
@@ -488,7 +488,7 @@ while (<>) {
 			    ) unless $DONE{"G$gid"}++;
     }
     else {
-      $FH{ FGROUP() }->print(    join("\t",$gid,$group_class->[$i],$group_name->[$i]),"\n"              )    unless $DONE{"G$gid"}++;
+      $FH{ FGROUP() }->print(    join("\t",$gid,$group_class->[$i],$group_name->[$i]),"\n")    unless $DONE{"G$gid"}++;
     }
     $FH{ FTYPE()  }->print(    join("\t",$ftypeid,$method,$source),"\n"                   ) unless $DONE{"T$ftypeid"}++;
 
@@ -506,7 +506,6 @@ while (<>) {
       print STDERR "$fid features parsed$elapsed...";
       print STDERR -t STDOUT && !$ENV{EMACS} ? "\r" : "\n";
     }
-
   }
 }
 
@@ -523,12 +522,13 @@ for my $file (@fasta) {
   warn "done...\n";
   select $old;
 }
+
 if ($use_pg) { 
-$FH{FDATA()                }->print("\\.\n\n");
-$FH{FTYPE()                }->print("\\.\n\n");
-$FH{FGROUP()               }->print("\\.\n\n");
-$FH{FATTRIBUTE()           }->print("\\.\n\n");
-$FH{FATTRIBUTE_TO_FEATURE()}->print("\\.\n\n");
+  $FH{FDATA()                }->print("\\.\n\n");
+  $FH{FTYPE()                }->print("\\.\n\n");
+  $FH{FGROUP()               }->print("\\.\n\n");
+  $FH{FATTRIBUTE()           }->print("\\.\n\n");
+  $FH{FATTRIBUTE_TO_FEATURE()}->print("\\.\n\n");
 }
 
 
@@ -537,34 +537,35 @@ printf STDERR "Total parse time %5.2fs\n",(Time::HiRes::time() - $start) if $tim
 warn "Loading feature data.  You may see duplicate key warnings here...\n";
 
 if ($use_pg){
-warn "Loading feature data.  You may see Postgres comments...\n";
+  warn "Loading feature data.  You may see Postgres comments...\n";
 
-foreach (@files) {
-  my $file = "$tmpdir/$_.$$";
+  foreach (@files) {
+    my $file = "$tmpdir/$_.$$";
 
-  $AUTH ? system("psql $AUTH -f $file $DSN")
-        : system('psql','-f', $file, $DSN);
+    $AUTH ? system("psql $AUTH -f $file $DSN")
+          : system('psql','-f', $file, $DSN);
 
-  unlink $file;
+    unlink $file;
+  }
+
+  warn "Updating sequences ...\n";
+  $db->update_sequences();
+
+  warn "Creating indexes ...\n";
+  $db->_create_indexes_etc();
+
+  warn "done...\n";
+
 }
 
-warn "Updating sequences ...\n";
-$db->update_sequences();
-
-warn "Creating indexes ...\n";
-$db->_create_indexes_etc();
-
-warn "done...\n";
-
-}
 elsif( $use_mysql or $use_mysqlcmap ) {
-$start = time();
+  $start = time();
 
-my $success = 1;
-my $TERMINATEDBY = $bWINDOWS ? q( LINES TERMINATED BY '\r\n') : ''; 
-foreach (@files) {
-  my $command = qq[
-    ${\MYSQL} $AUTH -e "lock tables ]
+  my $success = 1;
+  my $TERMINATEDBY = $bWINDOWS ? q( LINES TERMINATED BY '\r\n') : ''; 
+  foreach (@files) {
+    my $command = qq[
+     ${\MYSQL} $AUTH -e "lock tables ]
     . function_to_table($_,$ADAPTOR)
     . qq[ write; delete from ]
     . function_to_table($_,$ADAPTOR)
