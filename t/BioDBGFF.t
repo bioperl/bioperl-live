@@ -23,6 +23,8 @@ BEGIN {
     use Test;
     plan test => TEST_COUNT;
 }
+
+
 sub bail ($;$);
 sub prompt ($;$);
 eval { require DBI } or bail(TEST_COUNT,'DBI driver is missing');

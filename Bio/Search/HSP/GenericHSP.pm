@@ -398,7 +398,7 @@ sub frac_identical {
    if( defined $value || ! defined $previous ) { 
        $value = $previous = '' unless defined $value;
        if( $type eq 'hit' || $type eq 'query' ) {
-	   $self->$type->frac_identical( $value);
+	   $self->$type()->frac_identical( $value);
        }
        $self->{'_frac_identical'}->{$type} = $value;
    } 
