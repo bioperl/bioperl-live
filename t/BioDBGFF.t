@@ -28,7 +28,7 @@ BEGIN {
 sub bail ($;$);
 sub user_prompt ($;$);
 sub fail ($);
-use lib './blib/lib';
+use lib '..','./blib/lib';
 use lib "$ENV{HOME}/cvswork/bioperl-live/";
 use Bio::DB::GFF;
 use Bio::SeqIO;
@@ -100,7 +100,7 @@ ok($t->attributes('Note'),'function unknown');
 ok(join(' ',sort $t->attributes('Gene')),'abc-1 xyz-2');
 my $att = $t->attributes;
 ok(scalar @{$att->{Gene}},2);
-@t = $db->fetch_feature_by_attribute('Gene'=>'abc-1');
+@t = sort $db->fetch_feature_by_attribute('Gene'=>'abc-1');
 ok(@t>0);
 ok($t[0] eq $t);
 my $seg = $db->segment('Contig1');
@@ -242,7 +242,7 @@ my $aggregator = Bio::DB::GFF::Aggregator->new('-method'      => 'aggregated_tra
 					       '-sub_parts'   => ['exon','CDS']);
 $db->add_aggregator($aggregator);
 $segment1 = $db->segment('Contig1');
-@features = $segment1->features('aggregated_transcript');
+@features = sort $segment1->features('aggregated_transcript');  # sort so that trans-1 comes first
 ok(scalar @features,2);
 ok($features[0]->Exon > 0);
 ok($features[0]->Cds > 0);

@@ -22,7 +22,6 @@ use strict;
 use DBI;
 use Bio::DB::GFF;
 use Bio::DB::GFF::Util::Rearrange; # for rearrange()
-use Bio::DB::Fasta;
 use Bio::DB::GFF::Util::Binning;
 use Bio::DB::GFF::Adaptor::dbi::iterator;
 use Bio::DB::GFF::Adaptor::dbi::caching_handle;
@@ -60,33 +59,11 @@ all adaptors, the following class-specific arguments are recgonized:
 # Create a new Bio::DB::GFF::Adaptor::dbi object
 sub new {
   my $class = shift;
-  my ($features_db,$username,$auth,$dna_db,$acedb,$other) = rearrange([
-						 [qw(FEATUREDB DB DSN)],
-						 [qw(USERNAME USER)],
-						 [qw(PASSWORD PASS)],
-                                                 [qw(DNADB DNA FASTA FASTA_DIR)],
-					         'ACEDB'
-						],@_);
-
-###############################################################
-# Moved from mysqlopt.pm - with the arguments $dna_db,$acedb
-###############################################################
-if ($dna_db) {
-    if (!ref($dna_db)) {
-      my $fasta_dir = $dna_db;
-      $dna_db = Bio::DB::Fasta->new($fasta_dir);
-      $dna_db or $class->throw("new(): Failed to create new Bio::DB::Fasta from files in $fasta_dir");
-    } else {
-      $dna_db->isa('Bio::DB::Fasta') or $class->throw("new(): $dna_db is not a Bio::DB::Fasta object");
-    }
-    $class->{dna_db} = $dna_db;
-  }
-
-  if ($acedb) {
-    $acedb->isa('Ace') or $class->throw("$acedb is not an acedb accessor object");
-    $class->{acedb} = $acedb;
-  }
-################################################################
+  my ($features_db,$username,$auth,$other) = rearrange([
+							[qw(FEATUREDB DB DSN)],
+							[qw(USERNAME USER)],
+							[qw(PASSWORD PASS)],
+						       ],@_);
 
   $features_db  || $class->throw("new(): Provide a data source or DBI database");
 
@@ -145,46 +122,11 @@ consistency checking.
 
 =cut
 
-# given sequence name, and optional (start,stop) give raw dna
-sub get_dna_old {
-  my $self = shift;
-  my ($name,$start,$stop,$class) = @_;
-  my ($offset,$length);
-  if ($stop > $start) {
-    $offset = $stop - 1;
-    $length = $stop - $start + 1;
-  } elsif ($start > $stop) {
-    $offset = $stop - 1;
-    $length = $start - $start + 1;
-  } else {
-    return;   # zero length == empty string
-  }
-
-  my $sth = $self->make_dna_query($name,$class,$start,$stop);
-  my @row = $sth->fetchrow_array;
-  $sth->finish;
-
-  my $dna = $row[0];
-  if ($stop < $start) {
-    $dna = reverse $dna;
-    $dna =~ tr/gatcGATC/ctagCTAG/;
-  }
-  $dna;
-}
-
 sub get_dna {
   my $self = shift;
   my ($ref,$start,$stop,$class) = @_;
   
-  # my $dna_db = $self->dna_db or return $self->SUPER::get_dna(@_);
-  # in actuality, the class is simply ignored by Bio::DB::Fasta
-  #$dna_db->seq($name,$start,$stop,$class);
-
-    # in actuality, the class is simply ignored by Bio::DB::Fasta
-   my $dna_db = $self->dna_db ;
-   return $dna_db->seq($ref,$start,$stop,$class) if $dna_db;
-
-   my ($offset_start,$offset_stop);
+  my ($offset_start,$offset_stop);
 
   my $has_start = defined $start;
   my $has_stop  = defined $stop;
@@ -1126,25 +1068,6 @@ sub make_features_select_part {
   shift->throw("make_features_select_part(): must be implemented by subclass");
 }
 
-=head2 make_dna_query
-
- Title   : make_dna_query
- Usage   : $sth = $db->make_dna_query($name,$class,$start,$stop);
- Function: create query that returns raw DNA sequence from database
- Returns : a DBI statement handle
- Args    : reference sequence name and class, and a range
- Status  : Abstract
-
-The statement handler should return rows containing just one field,
-the extracted DNA string.
-
-=cut
-
-sub make_dna_query {
-  shift->throw("make_dna_query(): must be implemented by a subclass");
-}
-
-
 =head2 tables
 
  Title   : tables
@@ -1868,37 +1791,6 @@ sub getaliascoords_query {
   shift->throw("getaliascoords_query(): must be implemented by a subclass");
 }
 
-#########################
-# Moved from mysqlopt.pm
-#########################
-sub make_object {
-  my $self = shift;
-  my ($class,$name,$start,$stop) = @_;
-
-  if (my $db = $self->acedb) {
-
-    # for Notes we just return a text, no database associated
-    return $class->new(Text=>$name) if $class eq 'Note';
-
-    # for homols, we create the indicated Protein or Sequence object
-    # then generate a bogus Homology object (for future compatability??)
-    if ($start ne '') {
-      require Ace::Sequence::Homol;
-      return Ace::Sequence::Homol->new_homol($class,$name,$db,$start,$stop);
-    }
-
-    # General case:
-    my $obj = $db->class->new($class=>$name,$self->acedb);
-
-    return $obj if defined $obj;
-
-    # Last resort, return a Text
-    return $class->new(Text=>$name);
-  }
-
-  return $self->SUPER::make_object($class,$name,$start,$stop);
-}
-
 sub bin_query {
   my $self = shift;
   my ($start,$stop,$minbin,$maxbin) = @_;
@@ -1925,32 +1817,6 @@ sub bin_query {
   $query = join("\n\t OR ",@bins);
   return wantarray ? ($query,@args)
                    : $self->dbh->dbi_quote($query,@args);
-}
-
-
-sub dna_db      { shift->{dna_db}      }
-sub acedb       { shift->{acedb}       }
-
-
-=head2 freshen_ace
-
- Title   : freshen
- Usage   : $flag = Bio::DB::GFF->freshen_ace;
- Function: Refresh internal acedb handle
- Returns : flag if correctly freshened
- Args    : none
- Status  : Public
-
-ACeDB has an annoying way of timing out, leaving dangling database
-handles.  This method will invoke the ACeDB reopen() method, which
-causes dangling handles to be refreshed.  It has no effect if you are
-not using ACeDB to create ACeDB objects.
-
-=cut
-
-sub freshen_ace {
-  my $acedb = shift->acedb or return;
-  $acedb->reopen();
 }
 
 # find features that overlap a given range
