@@ -37,8 +37,6 @@ Bio::Search::HSP::HSPI - Interface for a High Scoring Pair in a similarity searc
 
     $len = $hsp->length( ['query'|'hit'|'total'] );
 
-    $len = $hsp->length( ['query'|'hit'|'total'] );
-
 =head1 DESCRIPTION
 
 Bio::Search::HSP::HSPI objects cannot be instantiated since this
