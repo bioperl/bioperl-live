@@ -478,8 +478,8 @@ sub write_seq {
     my $bxgame  = "http://www.bioxml.org/dtds/current/game.dtd";
     my $bxlink  = "http://www.bioxml.org/dtds/current/link.dtd";
     my $bxseq   = "http://www.bioxml.org/dtds/current/seq.dtd";
-    
-    my $writer = new XML::Writer(OUTPUT      => $self->_fh,
+
+    my $writer = new XML::Writer(OUTPUT      => $self->_fh || \*STDOUT,
 				 NAMESPACES  => 1,
 				 DATA_MODE   => 1,
 				 DATA_INDENT => 4,
@@ -492,8 +492,6 @@ sub write_seq {
 				     $bxlink => 'bx-link',
 				     $bxseq =>  'bx-seq'
 				     });
-
-
     $writer->xmlDecl("UTF-8");
     $writer->doctype("bx-game:game", 'game', $bxgame);
     $writer ->startTag ([$bxgame, 'game']);
