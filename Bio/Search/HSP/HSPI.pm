@@ -19,7 +19,7 @@ Bio::Search::HSP::HSPI - Interface for a High Scoring Pair in a similarity searc
 
     $r_type = $hsp->algorithm
 
-    $pvalue = $hsp->p();
+    $pvalue = $hsp->pvalue();
 
     $evalue = $hsp->evalue();
 
