@@ -293,7 +293,7 @@ sub peak_index_at {
 
 sub alphabet {
 	my $self = shift;
-	return $self->{swq}->{seq_ref}->alphabet();	
+	return $self->{swq}->{seq_ref}->alphabet(@_);
 }
 
 =head2 display_id()
