@@ -1,9 +1,10 @@
-#BioPerl module for Bio::Tools::Blat
+# $Id$
 #
-# Cared for by  Balamurugan Kumarasamy
+# BioPerl module for Bio::Tools::Blat
+#
+# Written by Balamurugan Kumarasamy
 #
 # You may distribute this module under the same terms as perl itself
-# POD documentation - main docs before the code
 #
 
 =head1 NAME
@@ -51,7 +52,6 @@ Bio::Tools::Blat
  The rest of the documentation details each of the object methods.
  Internal methods are usually preceded with a _
 
-
 =cut
 
 package Bio::Tools::Blat;
@@ -63,8 +63,6 @@ use Bio::SeqFeature::FeaturePair;
 use Bio::Root::IO;
 use Bio::SeqFeature::Generic;
 @ISA = qw(Bio::Root::Root Bio::Root::IO );
-
-
 
 =head2 new
 
@@ -85,7 +83,6 @@ sub new {
 
       return $self;
 }
-
 
 =head2 next_result
 
@@ -108,38 +105,38 @@ sub next_result {
 		$line = $_;
 		chomp $line;
 
-		my (
-			 $matches,      $mismatches,    $rep_matches, $n_count, $q_num_insert, $q_base_insert,
-			 $t_num_insert, $t_base_insert, $strand,      $q_name,  $q_length,     $q_start,
-			 $q_end,        $t_name,        $t_length,    $t_start, $t_end,        $block_count,
-			 $block_sizes,  $q_starts,      $t_starts
-			)
-		  = split;
+		my ($matches, $mismatches, $rep_matches, $n_count, $q_num_insert,
+			 $q_base_insert, $t_num_insert, $t_base_insert, $strand, $q_name,
+			 $q_length, $q_start, $q_end, $t_name, $t_length, 
+			 $t_start, $t_end, $block_count, $block_sizes, $q_starts,
+			 $t_starts
+			) = split;
 
 		my $superfeature = Bio::SeqFeature::Generic->new();
 
 		# ignore any preceeding text
-		unless ( $matches =~/^\d+$/ ){
-			next;
-		}
+		next unless ( $matches =~/^\d+$/ );
 
 		# create as many features as blocks there are in each output line
 		my (%feat1, %feat2);
 		$feat1{name} = $t_name;
 		$feat2{name} = $q_name;
 
+		$strand = $1 if ($strand =~/([+-])[+-]/);
+
 		$feat2{strand} = 1;
 		$feat1{strand} = $strand;
 
 		my $percent_id = sprintf "%.2f",
-		  ( 100 * ($matches + $rep_matches)/( $matches + $mismatches + $rep_matches ));
+		(100 * ($matches + $rep_matches)/( $matches + $mismatches + $rep_matches));
 
 		unless ( $q_length ){
 			$self->warn("length of query is zero, something is wrong!");
 			next;
 		}
-		my $score   = sprintf "%.2f", 
-		  ( 100 * ( $matches + $mismatches + $rep_matches ) / $q_length );
+
+		my $score   = sprintf "%.2f",
+		(100 * ( $matches + $mismatches + $rep_matches ) / $q_length);
 
 		# size of each block of alignment (inclusive)
 		my @block_sizes     = split ",",$block_sizes;
@@ -151,7 +148,6 @@ sub next_result {
 
 		$superfeature->seq_id($q_name);
 		$superfeature->score( $score );
-		#$superfeature->percent_id( $percent_id );
 		$superfeature->add_tag_value('percent_id',$percent_id);
 
 		# each line of output represents one possible entire aligment 
@@ -161,15 +157,10 @@ sub next_result {
 
 			my ($query_start,$query_end);
 
-			if($strand =~/([+-])[+-]/) {
-				$strand = $1;
-			}
-
 			if ( $strand eq '+' ){
 				$query_start = $q_start_positions[$i] + 1;
 				$query_end   = $query_start + $block_sizes[$i] - 1;
-			}
-			else{
+			}else{
 				$query_end   = $q_length  - $q_start_positions[$i];
 				$query_start = $query_end - $block_sizes[$i] + 1;
 			}
@@ -206,8 +197,7 @@ sub next_result {
 			my $feature_pair = $self->create_feature(\%feat1, \%feat2);
 			$superfeature->add_sub_SeqFeature( $feature_pair,'EXPAND');
 		}
-		#push(@features_within_features, $superfeature);
-		return $superfeature; 
+		return $superfeature;
 	}
 }
 
@@ -224,44 +214,32 @@ sub next_result {
 
 sub create_feature {
     my ($self, $feat1,$feat2) = @_;
+    my $feature1= Bio::SeqFeature::Generic->new(
+							  -seq_id     =>$feat1->{name},
+							  -start      =>$feat1->{start},
+                       -end        =>$feat1->{end},
+                       -strand     =>$feat1->{strand},
+                       -score      =>$feat1->{score},
+                       -source     =>$feat1->{source},
+                       -primary    =>$feat1->{primary} );
 
-
-
-    my $feature1= Bio::SeqFeature::Generic->new( -seq_id     =>$feat1->{name},
-                                                 -start      =>$feat1->{start},
-                                                 -end        =>$feat1->{end},
-                                                 -strand     =>$feat1->{strand},
-                                                 -score      =>$feat1->{score},
-                                                 -source     =>$feat1->{source},
-                                                 -primary    =>$feat1->{primary},
-                                                   );
-    
-
-
-    my $feature2= Bio::SeqFeature::Generic->new( -seq_id     =>$feat2->{name}, 
-                                                 -start      =>$feat2->{start},
-                                                 -end        =>$feat2->{end},
-                                                 -strand     =>$feat2->{strand},
-                                                 -score      =>$feat2->{score},
-                                                 -source     =>$feat2->{source},
-                                                 -primary    =>$feat2->{primary},
-                                                  );
-
-
-
+    my $feature2= Bio::SeqFeature::Generic->new(
+                       -seq_id     =>$feat2->{name},
+							  -start      =>$feat2->{start},
+                       -end        =>$feat2->{end},
+                       -strand     =>$feat2->{strand},
+                       -score      =>$feat2->{score},
+                       -source     =>$feat2->{source},
+                       -primary    =>$feat2->{primary} );
 
     my $featurepair = Bio::SeqFeature::FeaturePair->new;
     $featurepair->feature1 ($feature1);
     $featurepair->feature2 ($feature2);
-   
-   $featurepair->add_tag_value('evalue',$feat2->{p});
-   $featurepair->add_tag_value('percent_id',$feat2->{percent});
-   $featurepair->add_tag_value("hid",$feat2->{primary});
-    return  $featurepair; 
-        
+
+	 $featurepair->add_tag_value('evalue',$feat2->{p});
+	 $featurepair->add_tag_value('percent_id',$feat2->{percent});
+	 $featurepair->add_tag_value("hid",$feat2->{primary});
+    return  $featurepair;
 }
 
-
 1;
-
-
