@@ -18,7 +18,7 @@
 
 
 ## We start with some black magic to print on failure.
-BEGIN { $| = 1; print "1..10\n"; 
+BEGIN { $| = 1; print "1..11\n"; 
 	use vars qw($loaded); }
 END {print "not ok 1\n" unless $loaded;}
 
@@ -64,7 +64,7 @@ print "ok 3\n";
 
 ($exon1,$exon2,$exon3) = $trans->each_Exon();
 #print STDERR "$exon1:$exon2:$exon3 ", join(' ',$exon1->start,$exon2->start,$exon3->start);
-if( $exon1->start == 10 && $exon2->start == 50 && $exon3->start == 110 ) {
+if( $exon1->start == 10 && $exon2->start == 50 && $exon3->start == 110 && $trans->start == 10 && $trans->end == 130) {
     print "ok 4\n";
 } else {
     print "not ok 4\n";
@@ -121,12 +121,17 @@ print "ok 10\n";
 
 foreach $trans ( $gene->each_Transcript() ) {
     $seq = $trans->seq();
-    print STDERR $seq->out_fasta();
+    #print STDERR $seq->out_fasta();
 }
 
 foreach $tls ( $gene->each_Translation() ) {
     $seq = $tls->seq();
-    print STDERR $seq->out_fasta();
+    #print STDERR $seq->out_fasta();
 }
 
+print "ok 11\n";
+print STDERR "\n";
+foreach $sf ( $aseq->all_SeqFeatures() ) {
+    print STDERR $sf->gff_string() , "\n";
+}
 

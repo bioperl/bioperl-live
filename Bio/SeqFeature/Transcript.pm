@@ -108,10 +108,43 @@ sub _initialize {
   my($self,@args) = @_;
 
   my $make = $self->SUPER::_initialize;
+  $self->primary_tag("Transcript");
+  $self->source_tag("Bioperl");
 
   $self->{'_trans_exon_ary'} = [];
 # set stuff in self from @args
  return $make; # success - we hope!
+}
+
+=head2 sub_SeqFeature
+
+ Title   : sub_SeqFeature
+ Usage   : @sf = $trans->sub_SeqFeature
+ Function:
+ Example :
+ Returns : 
+ Args    :
+
+
+=cut
+
+sub sub_SeqFeature{
+   my ($self) = @_;
+   my @out;
+   push(@out,$self->SUPER::sub_SeqFeature());
+   push(@out,$self->each_Exon());
+   my @exons = $self->each_Exon();
+   for(my $i=0;$i < $#exons;$i++) {
+       my $in = Bio::SeqFeature::Generic->new();
+       $in->primary_tag("Intron");
+       $in->source_tag("Bioperl");
+       $in->start($exons[$i]->end+1);
+       $in->end ($exons[$i+1]->start-1);
+       $in->strand($self->strand);
+       push(@out,$in);
+   }
+       
+   return @out;
 }
 
 =head2 Translation
@@ -199,9 +232,20 @@ sub add_Exon{
 	   $self->warn("Exons have to be at least SeqFeatureI's - which should be easy to add to $exon");
        }
        push(@{$self->{'_trans_exon_ary'}},$exon);
+       my $start;
+       my $end;
+       if( defined $self->start ) {
+	   ($start,$end) = $self->union($exon);
+       } else {
+	   $start = $exon->start();
+	   $end = $exon->end();
+       }
+
+       $self->start($start);
+       $self->end($end);
+       $self->strand($exon->strand);
        
    }
-
    $self->_sort_Exons();
 }
 
@@ -321,12 +365,11 @@ sub create_Translation{
 	   $tls->_add_internal_exon($exon);
        }
    }
-		   
+   $tls->start($start);
+   $tls->end($end);
+   $tls->strand($self->strand());
    return $tls;
 }
-
-
-
 
 1;
 

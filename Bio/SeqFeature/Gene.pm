@@ -16,6 +16,8 @@ Bio::SeqFeature::Gene - Object holding one particular gene, with Transcripts, Tr
 
 =head1 SYNOPSIS
 
+    # building a gene
+
     $gene  = Bio::SeqFeature::Gene->new();
     
     # build up a set of exons into an array
@@ -93,6 +95,7 @@ Bio::SeqFeature::Gene - Object holding one particular gene, with Transcripts, Tr
     }
 
 
+
 =head1 DESCRIPTION
 
 This object represents genes on dna sequences. It basically provides
@@ -101,8 +104,65 @@ translations, which are the two key objects that manage genes. Transcripts
 manage the alternative processing products of a gene: translations manage
 the alternative protein products of a gene. 
 
-I need to write more docs about this!
+The object design is as follows:
 
+A Gene is a collection of transcript and translation objects.
+
+A Transcript is a particular RNA transcription and splicing pattern:
+it is built from Exon objects. A Transcript might be associated with
+a Translation or not.
+
+A Translation is a particular protein encoding path in genomic DNA.
+A particular Translation can be associated with more than one Transcript.
+Translations can only be created from Transcripts.
+
+An Exon represents a single start/end point in DNA which is spliced. When
+an Translation is made from a Transcript, it immeadaitely promotes the
+Exon into having protein coding properties, including frame.
+
+If the gene object is attached to an AnnSeq object, then automatic
+dumps of the processed sequences can occur. From Transcripts one can
+get Bio::Seq objects representing the cDNA of the Transcript. From
+Translations one can get Bio::Seq objects representing the protein
+translations.
+
+=head2 Interactions with SeqFeature attributes
+
+Genes, Transcripts, Translations and Exons are all SeqFeatureI compliant objects.
+The notional SeqFeature tree that they have is as follows:
+
+                 Gene
+                  |	     
+          ________|__________  	 
+          |    	       	    |
+     Transcript	       Translation
+      	  |    	       	       	  
+      ____|_____
+     | 	       	|    
+   Exon	      Intron(created)   	
+      		     
+The Intron seq features are different from the rest as they are created 'on-the-fly'
+when the Transcript object is asked for sub_SeqFeatures. This guarentees consistency
+with the Exon objects.
+
+
+A drawback of this system is that for transcripts which share many Exons and Introns, the
+objects get duplicated in the sub_SeqFeature descent. Therefore "all_SeqFeatures" called
+from aseq can get confused.
+
+=head1 DEVELOPERS NOTES
+
+These objects are pretty confusing, with some interacting arrays and hashes
+Bascially we build on SeqFeature::Generic via inheritence which gives us
+automatic attributes, an array of seq features for clients of the objects
+to use and inheritence of the SeqFeatureI system. We set the primary and
+source tags to the correct types in the intialisation systems.
+
+Alot of effort has been put in to make the system have no circular references.
+This means that clients need to access certain information through the Gene
+object whereas it might have been more natural to access through the Transcript/Translation
+object.
+       
 =head1 FEEDBACK
 
 =head2 Mailing Lists
@@ -142,7 +202,7 @@ The rest of the documentation details each of the object methods. Internal metho
 
 
 package Bio::SeqFeature::Gene;
-use vars qw($AUTOLOAD @ISA);
+use vars qw(@ISA);
 use strict;
 
 # Object preamble - inheriets from Bio::Root::Object
@@ -157,11 +217,44 @@ sub _initialize {
 
   my $make = $self->SUPER::_initialize;
 
+  $self->primary_tag("Gene");
+  $self->source_tag("Bioperl");
+  
   $self->{'_transcript_hash'} = {};
   $self->{'_translation_hash'} = {};
 
   # set stuff in self from @args
   return $make; # success - we hope!
+}
+
+=head2 sub_SeqFeature
+
+ Title   : sub_SeqFeature
+ Usage   : @sf = $gene->sub_SeqFeature();
+ Function: Retrieves sequence features which are part of this
+           gene - in particular the transcripts and the translations
+           will be there, along with the exons, and any other features
+           attached to the object
+ Example : 
+ Returns : Array of SeqFeatureI compliant objects
+ Args    : None
+
+ Don't use this to get out Transcripts or Translations specifically:
+ use each_Transcript or each_Translation. Exons can be retrieved using
+ each_Exon and each_coding_Exon
+
+
+=cut
+
+sub sub_SeqFeature{
+   my ($self) = @_;
+   my @out;
+
+   push(@out,$self->SUPER::sub_SeqFeature());
+   push(@out,$self->each_Transcript());
+   push(@out,$self->each_Translation());
+   
+   return @out;
 }
 
 =head2 each_Transcript
@@ -227,9 +320,45 @@ sub add_Transcript{
        if( $trans->is_protein_coding ) {
 	   $self->_add_Translation($trans->Translation);
        }
+       if( !defined $self->start() ) {
+	   $self->start($trans->start);
+	   $self->end($trans->end);
+       } else {
+	   my ($start,$end) = $self->union($trans);
+	   $self->start($start);
+	   $self->end($end);
+       }
+       $self->strand($trans->strand);
    }
 
 }
+
+
+=head2 each_Exon
+
+ Title   : each_Exon
+ Usage   : @exons = $gene->each_Exon()
+ Function: Provides all exons of all transcripts in a single array
+ Example :
+ Returns : 
+ Args    :
+
+
+=cut
+
+sub each_Exon{
+   my ($self,@args) = @_;
+   my %th;
+
+   foreach my $trans ( $self->each_Transcript) {
+       foreach my $exon ( $trans->each_Exon ) {
+	   my $key = "$exon";
+	   $th{$key} = $exon;
+       } 
+   }
+   return values %th;
+}
+
 =head2 attach_seq
 
  Title   : attach_seq
@@ -247,6 +376,9 @@ sub attach_seq{
    
    foreach my $trans ( $self->each_Transcript() ) {
        $trans->_attach_seq($seq);
+   }
+   foreach my $tls   ( $self->each_Translation() ) {
+       $tls->_attach_seq($seq);
    }
 }
 
@@ -279,6 +411,11 @@ sub _add_Translation {
    }
 
 }
+
+
+
+1;
+
 
 
 

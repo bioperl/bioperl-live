@@ -85,6 +85,7 @@ sub _initialize {
   my $make = $self->SUPER::_initialize(@args);
   
   $self->primary_tag('Exon');
+  $self->source_tag("Bioperl");
 # set stuff in self from @args
   return $make; # success - we hope!
 }

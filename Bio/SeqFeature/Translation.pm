@@ -12,11 +12,21 @@
 
 =head1 NAME
 
-Bio::SeqFeature::Translation - DESCRIPTION of Object
+Bio::SeqFeature::Translation - Represents one coding path on genomic DNA
 
 =head1 SYNOPSIS
 
-Give standard usage here
+   # Really a coordinating object with Gene. Read Bio::SeqFeature::Gene
+   # documentation
+
+    foreach $tls ( $gene->each_Translation ) {
+	print "Translation start at ",$tls->start," end  ",$tls->end,"\n";
+
+	# assumming this gene has been attached to an annseq
+	# $pep is a Bio::Seq object
+	$pep = $tls->seq();
+    }
+   
 
 =head1 DESCRIPTION
 
@@ -78,9 +88,12 @@ sub _initialize {
   my($self,@args) = @_;
 
   my $make = $self->SUPER::_initialize;
+  $self->primary_tag("Translation");
+  $self->source_tag("Bioperl");
+
   $self->{'_internal_exons'} = [];
 # set stuff in self from @args
- return $make; # success - we hope!
+  return $make; # success - we hope!
 }
 
 =head2 seq
@@ -191,7 +204,23 @@ sub last_exon{
 
 }
 
+=head2 _attach_seq
+
+ Title   : _attach_seq
+ Usage   : used internally to attach sequences to seqfeatures
+ Function:
+ Example :
+ Returns : 
+ Args    :
+
+
+=cut
+
+sub _attach_seq{
+   my ($self,$seq) = @_;
+
+   $self->first_exon->attach_seq($seq);
+   $self->last_exon->attach_seq($seq);
+}
+
 1;
-
-
-
