@@ -7,6 +7,7 @@
 use strict;
 use vars qw($DEBUG);
 $DEBUG = $ENV{'BIOPERLDEBUG'};
+my $verbose = $DEBUG ? 0 : -1;
 
 BEGIN {
     # to handle systems with no installed Test module
@@ -184,7 +185,8 @@ my $pq = $in_qual->next_seq();
 
 print("Trying to write a primary qual object to a file...\n") if $DEBUG;
 my $out_qual = Bio::SeqIO->new('-file' => ">write_qual.qual",
-			       '-format' => 'qual');
+			       '-format' => 'qual',
+			       '-verbose' => $verbose);
 $out_qual->write_seq(-source	=>	$pq);
 
 print("Now creating a SeqWithQuality object and trying to write _that_...\n") 
@@ -198,10 +200,12 @@ $out_qual->write_seq(-source	=>	$swq545);
 
 print("Now trying to write quals from one file to another, batchwise...\n") if $DEBUG;
 $in_qual = Bio::SeqIO->new('-file' => Bio::Root::IO->catfile("t","data","qualfile.qual") , 
-			   '-format' => 'qual');
+			   '-format' => 'qual',
+			   '-verbose' => $verbose);
 
 my $out_qual2 = Bio::SeqIO->new('-file' => ">batch_write_qual.qual",
-				'-format' => 'qual');
+				'-format' => 'qual',
+				'-verbose' => $verbose);
 
 while ( my $batch_qual = $in_qual->next_seq() ) {
 	print("Sending ".$batch_qual->id()," to write_qual\n") if $DEBUG;
