@@ -66,7 +66,6 @@ ok(($feat2->each_tag_value('sillytag'))[0], 'this is silly!;breakfast');
 $gff2in = Bio::Tools::GFF->new(-gff_version => 2, -file => Bio::Root::IO->catfile("t","data","hg16_chroms.gff"));
 ok($gff2in->next_feature(),undef);
 my $seq = $gff2in->next_segment;
-warn $seq->length;
 ok($seq->display_id, 'chr1');
 ok($seq->end, 246127941);
 ok($seq->start, 1);
