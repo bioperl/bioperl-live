@@ -1068,22 +1068,7 @@ sub base2package {
 
 sub split_group {
   my $self = shift;
-  if ($self->{gff_version} > 2) {
-    my @groups = split /[;&]/,shift;  # so easy!
-    return Bio::DB::GFF->_split_gff3_group(@groups);
-  }
-
-  else { #gff2 parsing
-    # handle group parsing
-    # protect embedded semicolons in the group; there must be faster/more elegant way
-    # to do this.
-    my $group = shift;
-    $group =~ s/\\;/$;/g;
-    while ($group =~ s/( \"[^\"]*);([^\"]*\")/$1$;$2/) { 1 }
-    my @groups = split(/\s*;\s*/,$group);
-    foreach (@groups) { s/$;/;/g }
-    return Bio::DB::GFF->split_group(@groups);
-  }
+  return Bio::DB::GFF->split_group(shift, $self->{gff_version} > 2);
 }
 
 # create a panel if needed
