@@ -5,7 +5,7 @@ use strict;
 use Carp 'croak';
 use constant BUMP_SPACING => 2; # vertical distance between bumped glyphs
 use vars '$VERSION';
-$VERSION = '1.00';
+$VERSION = '1.01';
 
 my %LAYOUT_COUNT;
 
@@ -345,7 +345,7 @@ sub fillcolor {
 # we also look for the "background-color" option for Ace::Graphics compatibility
 sub bgcolor {
   my $self = shift;
-  my $index = $self->option('fillcolor') || $self->option('bgcolor') || return 0;
+  my $index = $self->option('bgcolor') || $self->option('fillcolor') || return 0;
   $self->factory->translate_color($index);
 }
 sub font {

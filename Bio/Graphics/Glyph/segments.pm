@@ -4,10 +4,11 @@ use strict;
 use Bio::Location::Simple;
 use Bio::Graphics::Glyph::generic;
 use Bio::Graphics::Glyph::segmented_keyglyph;
-use vars '@ISA';
+use vars '@ISA','$VERSION';
 @ISA = qw( Bio::Graphics::Glyph::segmented_keyglyph
 	   Bio::Graphics::Glyph::generic
 	 );
+$VERSION = '1.00';
 
 # group sets connector to 'solid'
 sub connector {
@@ -46,7 +47,9 @@ sub _subseq {
   my @subseq  = $self->SUPER::_subseq($feature);
   return @subseq if @subseq;
   if ($self->level == 0 && !@subseq && !eval{$feature->compound}) {
-    return Bio::Location::Simple->new(-start=>$feature->start,-end=>$feature->end);
+    my($start,$end) = ($feature->start,$feature->end);
+    ($start,$end) = ($end,$start) if $start > $end; # to keep Bio::Location::Simple from bitching
+    return Bio::Location::Simple->new(-start=>$start,-end=>$end);
   } else {
     return;
   }
