@@ -114,7 +114,7 @@ sub new {
   $query && $self->query($query);
   $verbose && $self->verbose($verbose);
 
-  my $ua = new LWP::UserAgent;
+  my $ua = new LWP::UserAgent(env_proxy => 1);
   $ua->agent(ref($self) ."/".($Bio::DB::Query::WebQuery::VERSION || '0.1'));
   $self->ua($ua);
   $self->{'_authentication'} = [];

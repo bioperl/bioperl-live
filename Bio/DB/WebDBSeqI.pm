@@ -124,7 +124,7 @@ sub new {
 					     $format ne '' );
     
     $self->request_format($format);
-    my $ua = new LWP::UserAgent;
+    my $ua = new LWP::UserAgent(env_proxy => 1);
     my $nm = ref($self);
     $nm =~ s/::/_/g;
     $ua->agent("bioperl-$nm/$MODVERSION");
