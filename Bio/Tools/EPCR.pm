@@ -1,4 +1,4 @@
-
+# $Id$
 #
 # BioPerl module for Bio::Tools::EPCR
 #
@@ -12,15 +12,34 @@
 
 =head1 NAME
 
-Bio::Tools::EPCR - DESCRIPTION of Object
+Bio::Tools::EPCR - Parse ePCR output and make features
 
 =head1 SYNOPSIS
 
-Give standard usage here
+    # A simple annotation pipeline wrapper for ePCR data
+    # assuming ePCR data is already generated in file seq1.epcr
+    # and sequence data is in fasta format in file called seq1.fa
+    
+    use Bio::Tools::EPCR;
+    use Bio::SeqIO;
+    my $parser = new Bio::Tools::EPCR(-file => 'seq1.epcr');
+    my $seqio = new Bio::SeqIO(-format => 'fasta', -file => 'seq1.fa');
+    my $seq = $seqio->next_seq || die("cannot get a seq object from SeqIO");
+    
+    while( my $feat = $parser->next_feature ) {
+	# add EPCR annotation to a sequence
+	$seq->add_SeqFeature($feat);
+    }
+    my $seqout = new Bio::SeqIO(-format => 'embl');
+    $seqout->write_seq($seq);
+
 
 =head1 DESCRIPTION
 
-Describe the object here
+This object serves as a parser for ePCR data, creating a
+Bio::SeqFeatureI for each ePCR hit.  These can be processed or added
+as annotation to an existing Bio::SeqI object for the purposes of
+automated annotation.
 
 =head1 FEEDBACK
 
