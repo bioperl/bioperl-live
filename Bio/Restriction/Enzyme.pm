@@ -265,7 +265,6 @@ use strict;
 use Bio::Root::Root;
 use Bio::PrimarySeq;
 use Bio::Restriction::EnzymeI;
-use Storable;
 
 use Data::Dumper;
 
@@ -314,12 +313,13 @@ sub new {
     my($class, @args) = @_;
     my $self = $class->SUPER::new(@args);
 
-    my ($name,$enzyme,$site,$cut,$complementary_cut, $is_prototype, $prototype,
+    my ($name,$enzyme,$site,$seq,$cut,$complementary_cut, $is_prototype, $prototype,
         $isoschizomers, $meth, $microbe, $source, $vendors, $references) =
             $self->_rearrange([qw(
                                   NAME
                                   ENZYME
                                   SITE
+                                  SEQ
                                   CUT
                                   COMPLEMENTARY_CUT
                                   IS_PROTOTYPE
@@ -343,6 +343,7 @@ sub new {
     $name && $self->name($name);
     $enzyme && $self->name($enzyme);
     $site && $self->site($site);
+    $seq && $self->site($seq);
     $self->throw('At the minimum, you must define a name and '.
                  'recognition site for the restriction enzyme')
         unless $self->{'_name'} && $self->{'_seq'};
@@ -1268,25 +1269,64 @@ sub purge_references {
 
 }
 
-
-
-
 =head2 clone
 
  Title     : clone
  Usage     : $re->clone
- Function  : Deep clone the object
+ Function  : Deep copy of the object
  Arguments : -
  Returns   : new Bio::Restriction::EnzymeI object
+
+This works as long as the object is a clean in-memory object using
+scalars, arrays and hashes. You have been warned.
+
+If you have module Storable, it is used, otherwise local code is used.
+Todo: local code cuts circular references.
 
 =cut
 
 sub clone {
-    my ($self) = shift;
-    return Storable::dclone($self);
+    my ($self, $this) = @_;
+
+    eval { require Storable; };
+    return Storable::dclone($self) unless $@;
+    # modified from deep_copy() @ http://www.stonehenge.com/merlyn/UnixReview/col30.html
+    unless ($this) {
+        my $new;
+        foreach my $k (keys %$self) {
+            if (not ref $self->{$k}) {
+                $new->{$k} = $self->{$k};
+            } else {
+                $new->{$k} = $self->clone($self->{$k});
+            }
+            #print Dumper $new;
+        }
+        bless $new, ref($self);
+        return $new;
+    }
+    if (not ref $this) {
+        $this;
+    }
+    elsif (ref $this eq "ARRAY") {
+        [map $self->clone($_), @$this];
+    }
+    elsif (ref $this eq "HASH") {
+        +{map { $_ => $self->clone($this->{$_}) } keys %$this};
+    } else { # objects
+        return  if $this->isa('Bio::Restriction::EnzymeI');
+        return $this->clone if $this->can('clone');
+        my $obj;
+        foreach my $k (keys %$this) {
+            if (not ref $this->{$k}) {
+                $obj->{$k} = $this->{$k};
+            } else {
+                $obj->{$k} = $this->clone($this->{$k});
+            }
+        }
+        bless $obj, ref($this);
+        return $obj;
+    }
 }
-
-
 
 
 1;
