@@ -10,7 +10,7 @@ BEGIN {
     eval { require Test; };
     if( $@ ) { use lib 't'; }
     use Test;
-    plan tests => 26;
+    plan tests => 28;
 }
 
 use Bio::PrimarySeq;
@@ -80,3 +80,9 @@ ok $$wt[1], 2891;
 ok $seqobj = Bio::PrimarySeq->new(-seq=>'TGCCGTGTGTGCTGCTGCT', -alphabet=>'rna');
 $wt = Bio::Tools::SeqStats->get_mol_wt($seqobj);
 ok $$wt[0], 6104 ;
+
+# selenocysteine
+ok $seqobj = Bio::PrimarySeq->new(-seq=>'MQSERGITIDISLWKFETSKYYVT',
+                                  -alphabet=>'protein');
+$wt = Bio::Tools::SeqStats->get_mol_wt($seqobj);
+ok $$wt[0], 2896 ;
