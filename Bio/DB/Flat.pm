@@ -135,7 +135,8 @@ sub new {
   my $self = $class->SUPER::new(@_);
 
   # first we initialize ourselves
-  my ($flat_directory,$dbname) = $self->_rearrange([qw(DIRECTORY DBNAME)],@_);
+  my ($flat_directory,$dbname,$format) = 
+    $self->_rearrange([qw(DIRECTORY DBNAME FORMAT)],@_);
 
   defined $flat_directory
     or $self->throw('Please supply a -directory argument');
@@ -166,7 +167,8 @@ sub new {
   # now we figure out what subclass to instantiate
   my $index_type = $self->indexing_scheme eq 'BerkeleyDB/1' ? 'BDB'
                   :$self->indexing_scheme eq 'flat/1'       ? 'Binary'
-                  :$self->throw("unknown indexing scheme: ".$self->indexing_scheme);
+                  :$self->throw("unknown indexing scheme: " .
+				$self->indexing_scheme);
   my $format     = $self->file_format;
 
   # because Michele and Lincoln did it differently
