@@ -184,12 +184,16 @@ sub next_seq {
        }
        #Gene name
        elsif(/^GN\s+([^\.]+)/) {
-	   foreach my $gn (split(/ OR /,$1)) {
-	       my $sim = Bio::Annotation::SimpleValue->new();
-	       $sim->value($gn);
-	       $seq->annotation->add_Annotation('gene_name',$sim);
-	   }
-       }     
+           # Drop trailing spaces and dots
+           s/[\. ]*$//;  # imported from swiss knife by cjm
+           if (/^GN\s+(.*)/) {
+               foreach my $gn (split(/ OR /,$1)) {
+                   my $sim = Bio::Annotation::SimpleValue->new();
+                   $sim->value($gn);
+                   $seq->annotation->add_Annotation('gene_name',$sim);
+               }
+           }
+       }
        #accession number(s)
        elsif( /^AC\s+(.+)/) {
            $acc_string .= $acc_string ? " $1" : $1;
@@ -405,7 +409,7 @@ sub write_seq {
    $self->_write_line_swissprot_regex("DE   ","DE   ",$seq->desc(),"\\s\+\|\$",80);
 
    #Gene name
-   if ($seq->annotation->can('get_Annotations') && 
+   if ($seq->annotation->can('get_Annotations') &&
        (my @genes = $seq->annotation->get_Annotations('gene_name') ) ) {
        $self->_print("GN   ",join(' OR ', map { $_->value } @genes),".\n");
    }
@@ -430,6 +434,9 @@ sub write_seq {
         $self->_write_line_swissprot_regex("OC   ","OC   ",$OC,"\; \|\$",80);
 	if ($spec->organelle) {
 	    $self->_write_line_swissprot_regex("OG   ","OG   ",$spec->organelle,"\; \|\$",80);
+	}
+	if ($spec->ncbi_taxid) {
+	    $self->_print("OX   NCBI_TaxID=".$spec->ncbi_taxid.";\n");
 	}
    }
    
@@ -827,7 +834,7 @@ sub _read_swissprot_Species {
     my $org;
 
     $_ = $$buffer;
-    my( $sub_species, $species, $genus, $common, @class, $osline );
+    my( $sub_species, $species, $genus, $common, @class, $osline, $ncbi_taxid );
     while (defined( $_ ||= $self->_readline )) {
         if (/^OS\s+((\S+)(?:\s+([^\(]\S*))?(?:\s+([^\(]\S*))?(?:\s+\((.*)\))?.*)/) {
 	    $osline = $1;
@@ -851,6 +858,15 @@ sub _read_swissprot_Species {
         }
 	elsif (/^OG\s+(.*)/) {
 	    $org = $1;
+	}
+	elsif (/^OX\s+(.*)\;/) {
+            my $taxstring = $1;
+            if ($taxstring =~ /NCBI_TaxID=(.*)/) {
+                $ncbi_taxid = $1;
+            }
+            else {
+                $self->throw("$taxstring doesn't look like NCBI_TaxID");
+            }
 	}
         else {
             last;
@@ -879,6 +895,7 @@ sub _read_swissprot_Species {
     $make->common_name( $common      ) if $common;
     $make->sub_species( $sub_species ) if $sub_species;
     $make->organelle  ( $org         ) if $org;
+    $make->ncbi_taxid ( $ncbi_taxid  ) if $ncbi_taxid;
     return $make;
 }
 

@@ -284,6 +284,25 @@ sub validate_name {
         $self->throw("Invalid name '$string' (Wrong case?)");
 }
 
+=head2 ncbi_taxid
+
+ Title   : ncbi_taxid
+ Usage   : $obj->ncbi_taxid($newval)
+ Function:
+ Returns : value of ncbi_taxid as string
+ Args    : newvalue (optional)
+
+
+=cut
+
+sub ncbi_taxid {
+    my( $self, $sub ) = @_;
+
+    if ($sub) {
+        $self->{'_ncbi_taxid'} = $sub;
+    }
+    return $self->{'_ncbi_taxid'};
+}
 
 1;
 
