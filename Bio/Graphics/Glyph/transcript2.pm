@@ -1,4 +1,5 @@
 package Bio::Graphics::Glyph::transcript2;
+
 # $Id$
 
 use strict;

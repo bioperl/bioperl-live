@@ -125,7 +125,7 @@ sub option {
       my $feature = $glyph->feature;
       return $value unless ref $value eq 'CODE';
       return unless $feature->isa('Bio::SeqFeatureI');
-      my $val = $value->($feature,$option_name,$partno,$total_parts);
+      my $val = $value->($feature,$option_name,$partno,$total_parts,$glyph);
       return defined $val && $val eq '*default*' ? $GENERIC_OPTIONS{$option_name} : $val;
     }
   }
