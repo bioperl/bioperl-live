@@ -20,7 +20,7 @@ BEGIN {
 	use lib 't';
     }
     use vars qw($NTESTS);
-    $NTESTS = 814;
+    $NTESTS = 822;
     $LASTXMLTEST = 54;
     $error = 0;
 
@@ -1129,4 +1129,21 @@ while( my $hit = $r->next_hit ) {
 }
 		 
 
+
+# Let's test RPS-BLAST
+
+my $parser = new Bio::SearchIO(-format => 'blast',
+			       -file   => Bio::Root::IO->catfile(qw(t data ecoli_domains.rpsblast)));
+
+$r = $parser->next_result;
+ok($r->query_name, 'gi|1786183|gb|AAC73113.1|');
+$hit = $r->next_hit;
+ok($hit->name, 'gnl|CDD|3919');
+ok($hit->significance, 0.064);
+ok($hit->raw_score, 28;
+$hsp = $hit->next_hsp;
+ok($hsp->query->start, 599);
+ok($hsp->query->end,655);
+ok($hsp->hit->start,23);
+ok($hsp->hit->end,76);
 
