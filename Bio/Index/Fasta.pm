@@ -90,7 +90,7 @@ use strict;
 use Bio::Index::Abstract;
 use Bio::Seq;
 
-@ISA = qw(Bio::Index::Abstract Exporter);
+@ISA = qw(Bio::Index::Abstract Bio::DB::BioSeqI Exporter);
 @EXPORT_OK = qw();
 
 sub _type_stamp {

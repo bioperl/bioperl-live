@@ -386,7 +386,6 @@ sub make_index {
             $i = 0; $self->_file_count(0);
         }
 
-
 	# see whether this file has been already indexed
 	my ($record,$number,$size);
 
@@ -416,7 +415,10 @@ sub make_index {
             or $self->throw("Can't add data to file: $file");
 
         # increment file lines
-	$count++; $self->_file_count($count);
+	$i++; $self->_file_count($i);
+	my $temp;
+	$temp = $self->_file_count();
+	
 
     }
     return $count;
