@@ -96,7 +96,7 @@ directory under a subdirectory named Bio::DB::GFF:
 
 =over 4
 
-=item load_gff.pl
+=item bp_load_gff.pl
 
 This script will load a Bio::DB::GFF database from a flat GFF file of
 sequence annotations.  Only the relational database version of
@@ -110,7 +110,7 @@ for most of their functionality.
 load_gff.pl also has a --upgrade option, which will perform a
 non-destructive upgrade of older schemas to newer ones.
 
-=item bulk_load_gff.pl
+=item bp_bulk_load_gff.pl
 
 This script will populate a Bio::DB::GFF database from a flat GFF file
 of sequence annotations.  Only the MySQL database version of
@@ -121,6 +121,15 @@ for the initial load, and not for updates.
 This script takes a --fasta argument to load raw DNA into the database
 as well.  However, GFF databases do not require access to the raw DNA
 for most of their functionality.
+
+=item bp_fast_load_gff.pl
+
+This script is as fast as bp_bulk_load_gff.pl but uses Unix pipe
+tricks to allow for incremental updates.  It only supports the MySQL
+database version of Bio::DB::GFF and is guaranteed not to work on
+non-Unix platforms.
+
+Arguments are the same as bp_load_gff.pl
 
 =item gadfly_to_gff.pl
 
@@ -1581,7 +1590,8 @@ suffixes .gff, .gff.gz, .gff.Z or .gff.bz2.
 
 =item 4. filehandle
 
-An open filehandle from which to read the GFF data.
+An open filehandle from which to read the GFF data.  Tied filehandles
+now work as well.
 
 =item 5. a pipe expression
 
@@ -1603,10 +1613,12 @@ old method name is also recognized.
 sub load_gff {
   my $self              = shift;
   my $file_or_directory = shift || '.';
+  return $self->do_load_gff($file_or_directory) if tied $file_or_directory;
+
   my $tied_stdin = tied(*STDIN);
   open SAVEIN,"<&STDIN" unless $tied_stdin;
   local @ARGV = $self->setup_argv($file_or_directory,'gff') or return;  # to play tricks with reader
-  my $result = $self->do_load_gff();
+  my $result = $self->do_load_gff('ARGV');
   open STDIN,"<&SAVEIN" unless $tied_stdin;  # restore STDIN
   return $result;
 }
@@ -1661,10 +1673,12 @@ web server can be loaded with an expression like this:
 sub load_fasta {
   my $self              = shift;
   my $file_or_directory = shift || '.';
+  return $self->load_sequence($file_or_directory) if tied $file_or_directory;
+
   my $tied = tied(*STDIN);
   open SAVEIN,"<&STDIN" unless $tied;
   local @ARGV = $self->setup_argv($file_or_directory,'fa','dna','fasta') or return;  # to play tricks with reader
-  my $result = $self->load_sequence();
+  my $result = $self->load_sequence('ARGV');
   open STDIN,"<&SAVEIN" unless $tied;  # restore STDIN
   return $result;
 }
@@ -1699,7 +1713,7 @@ sub setup_argv {
 
   if (-d $file_or_directory) {
     @argv = map { glob("$file_or_directory/*.{$_,$_.gz,$_.Z,$_.bz2}")} @suffixes;
-  } elsif (my $fd = fileno($file_or_directory)) {
+  }elsif (my $fd = fileno($file_or_directory)) {
     open STDIN,"<&=$fd" or $self->throw("Can't dup STDIN");
     @argv = '-';
   } elsif (ref $file_or_directory) {
@@ -2081,10 +2095,10 @@ sub default_aggregators {
 =head2 do_load_gff
 
  Title   : do_load_gff
- Usage   : $db->do_load_gff
+ Usage   : $db->do_load_gff($handle)
  Function: load a GFF input stream
  Returns : number of features loaded
- Args    : none
+ Args    : A filehandle.
  Status  : protected
 
 This method is called to load a GFF data stream.  The method will read
@@ -2095,17 +2109,22 @@ Note that the method is responsible for parsing the GFF lines.  This
 is to allow for differences in the interpretation of the "group"
 field, which are legion.
 
+You probably want to use load_gff() instead.  It is more flexible
+about the arguments it accepts.
+
 =cut
 
 # load from <>
 sub do_load_gff {
-  my $self = shift;
+  my $self      = shift;
+  my $io_handle = shift;
+
   local $self->{gff3_flag} = 0;
   $self->setup_load();
 
   my $fasta_sequence_id;
 
-  while (<>) {
+  while (<$io_handle>) {
     chomp;
     $self->{gff3_flag}++ if /^\#\#gff-version\s+3/;
     if (/^>(\S+)/) {  # uh oh, sequence coming
@@ -2190,17 +2209,37 @@ sub do_load_gff {
   }
 
   my $result = $self->finish_load();
-  $result += $self->load_sequence($fasta_sequence_id) if defined $fasta_sequence_id;
+  $result += $self->load_sequence($io_handle,$fasta_sequence_id) 
+    if defined $fasta_sequence_id;
   $result;
 
 }
 
+=head2 load_sequence
+
+ Title   : load_sequence
+ Usage   : $db->load_sequence($handle [,$id])
+ Function: load a FASTA data stream
+ Returns : number of sequences
+ Args    : a filehandle and optionally the ID of
+  the first sequence in the stream.
+ Status  : protected
+
+You probably want to use load_fasta() instead.  The $id argument is a
+hack used to switch from GFF loading to FASTA loading when load_gff()
+discovers FASTA data hiding at the bottom of the GFF file (as Artemis
+does).
+
+=cut
+
 sub load_sequence {
   my $self = shift;
-  my $id   = shift;   # hack for GFF files that contain fasta data
+  my $io_handle = shift;
+  my $id        = shift;   # hack for GFF files that contain fasta data
+
   # read fasta file(s) from ARGV
   my ($seq,$offset,$loaded) = (undef,0,0);
-  while (<>) {
+  while (<$io_handle>) {
     chomp;
     if (/^>(\S+)/) {
       $self->insert_sequence($id,$offset,$seq) if $id;

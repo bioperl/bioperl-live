@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# $Id: fast_load_gff.PLS,v 1.5 2003-09-07 23:54:36 lstein Exp $
+# $Id: fast_load_gff.PLS,v 1.6 2003-09-11 23:49:13 lstein Exp $
 
 use strict;
 use lib './blib/lib';
@@ -286,7 +286,7 @@ while (<>) {
 if (defined $fasta_sequence_id) {
   warn "Preparing embedded sequence....\n";
   my $old = select($FH{FDNA()});
-  $db->load_sequence($fasta_sequence_id);
+  $db->load_sequence('ARGV',$fasta_sequence_id);
   warn "done....\n";
   select $old;
 }

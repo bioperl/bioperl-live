@@ -264,7 +264,7 @@ while (<>) {
 if (defined $fasta_sequence_id) {
   warn "Preparing embedded sequence....\n";
   my $old = select($FH{FDNA()});
-  $db->load_sequence($fasta_sequence_id);
+  $db->load_sequence('ARGV',$fasta_sequence_id);
   warn "done....\n";
   select $old;
 }

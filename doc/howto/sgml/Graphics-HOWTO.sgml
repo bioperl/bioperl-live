@@ -273,7 +273,12 @@ result by piping it to our favorite image display program.
 IMPORTANT NOTE: If you are on a Windows platform, you need to put
 STDOUT into binary mode so that the PNG file does not go through
 Window's carriage return/linefeed transformations.  Before the
-final print statement, write binmode(STDOUT).
+final print statement, put the statement "binmode(STDOUT)".
+</para>
+
+<para>
+This advice also applies to certain versions of RedHat, which ship
+with a patched (and possibly broken) version of Perl.
 </para>
 
 <para>
