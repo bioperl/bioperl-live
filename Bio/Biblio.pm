@@ -24,7 +24,7 @@ Bio::Biblio - A Bibliographic Query Service module
       print $collection->get_next;
   }
 
-  #The new() method can get parameters, for example:
+  # The new() method can accept parameters, for example:
 
   $biblio = Bio::Biblio
     (-access          => 'soap',
@@ -86,10 +86,9 @@ I<Bio::DB::BiblioI> (see L<Bio::DB::BiblioI>) by delegating
 calls to a loaded low-level module (e.g. see
 L<Bio::DB::Biblio::soap>).
 
-Note that there is also another module (and perhaps more) which does
-not use SOAP protocol and do not implement all query methods -
-nevertheless it has retrieval methods and it can be used in the same
-way:
+Note that there are other modules which do not use the SOAP protocol 
+and do not implement all query methods - nevertheless they have retrieval 
+methods and can be used in the same way:
 
    -access => biofetch
 
