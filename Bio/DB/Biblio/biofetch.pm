@@ -231,7 +231,6 @@ sub get_seq_stream {
 	($rformat,$ioformat) = $self->request_format();
 	$self->postprocess_data('type'=> 'string',
 				'location' => $content);
-        print STDERR "str is $$content\n" if ( $self->verbose > 0);
 	$stream = new Bio::Biblio::IO('-format' => $ioformat,
 #				      '-data'   => "<tag>". $$content. "</tag>");
 				      '-data'   => $$content
