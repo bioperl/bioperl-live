@@ -83,6 +83,10 @@ Address:
      Wellcome Trust Genome Campus, Hinxton
      Cambs. CB10 1SD, United Kingdom 
 
+=head1 CONTRIBUTORS
+
+Eckhard Lehmann, ecky@e-lehmann.de
+
 =head1 APPENDIX
 
 The rest of the documentation details each of the object
@@ -696,7 +700,7 @@ sub add_Gene {
 
 sub each_Gene{
    my ($self,@args) = @_;
-   
+
    return @{$self->{'genes'}}; 
 }
 
@@ -719,7 +723,7 @@ sub each_Gene{
 sub dna_ori {
   my ($self,$value) = @_;
   if (defined $value) {
-    $self->{'dna_ori'} = $value;
+      $self->{'dna_ori'} = $value;
   }
   else {
       return $self->{'dna_ori'};
@@ -734,6 +738,8 @@ sub dna_ori {
  Function: 
 
 	    Sets or returns the mutated DNA sequence of the seqDiff.
+            If sequence has not been set generates it from the
+            original sequence and DNA mutations.
 
  Example : 
  Returns : value of dna_mut, a scalar
@@ -745,11 +751,52 @@ sub dna_ori {
 sub dna_mut {
   my ($self,$value) = @_;
   if (defined $value) {
-    $self->{'dna_mut'} = $value;
+      $self->{'dna_mut'} = $value;
   }
   else {
+      $self->_set_dnamut() unless $self->{'dna_mut'};
       return $self->{'dna_mut'};
   }
+}
+
+sub _set_dnamut {
+    my $self = shift;
+
+    return undef unless $self->{'dna_ori'}  && $self->each_Variant;
+
+    $self->{'dna_mut'} = $self->{'dna_ori'};
+    foreach ($self->each_Variant) {
+	next unless $_->isa('Bio::Variation::DNAMutation');
+	next unless $_->isMutation;
+
+	my ($s, $la, $le);
+	#lies the mutation less than 25 bases after the start of sequence?
+	if ($_->start < 25) {
+	    $s = 0; $la = $_->start - 1;
+	} else {
+	    $s = $_->start - 25; $la = 25;
+	}
+
+	#is the mutation an insertion?
+	$_->end($_->start) unless $_->allele_ori->seq;
+
+	#does the mutation end greater than 25 bases before the end of
+	#sequence?
+	if (($_->end + 25) > length($self->{'dna_mut'})) {
+	    $le = length($self->{'dna_mut'}) - $_->end;
+	} else {
+	    $le = 25;
+	}
+
+	$_->dnStreamSeq(substr($self->{'dna_mut'}, $s, $la));
+	$_->upStreamSeq(substr($self->{'dna_mut'}, $_->end, $le));
+
+	my $s_ori = $_->dnStreamSeq . $_->allele_ori->seq . $_->upStreamSeq;
+	my $s_mut = $_->dnStreamSeq . $_->allele_mut->seq . $_->upStreamSeq;
+
+	(my $str = $self->{'dna_mut'}) =~ s/$s_ori/$s_mut/;
+	$self->{'dna_mut'} = $str;
+    }
 }
 
 
