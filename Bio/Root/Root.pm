@@ -155,7 +155,8 @@ use Carp 'confess';
 
 @ISA = 'Bio::Root::RootI';
 
-BEGIN { 
+INIT { 
+
     $ID        = 'Bio::Root::Root';
     $VERSION   = 1.0;
     $Revision  = '$Id$ ';
@@ -167,7 +168,7 @@ BEGIN {
 
     # $main::DONT_USE_ERROR is intended for testing purposes and also
     # when you don't want to use the Error module, even if it is installed.
-    # Just put a BEGIN { $DONT_USE_ERROR = 1; } at the top of your script.
+    # Just put a INIT { $DONT_USE_ERROR = 1; } at the top of your script.
     if( not $main::DONT_USE_ERROR ) {
         if ( eval "require Error"  ) {
             import Error qw(:try);

@@ -105,14 +105,13 @@ use vars qw($DEBUG $ID $Revision $VERSION $VERBOSITY);
 use strict;
 use Carp 'confess','carp';
 
-BEGIN { 
+INIT { 
     $ID        = 'Bio::Root::RootI';
     $VERSION   = 1.0;
     $Revision  = '$Id$ ';
     $DEBUG     = 0;
     $VERBOSITY = 0;
 }
-
 
 =head2 new
 
@@ -122,12 +121,11 @@ BEGIN {
 =cut
 
 sub new {
-    local($^W) = 0;
-    my ($caller, @args) = @_;
+    # local($^W) = 0;
+    my ($caller, %param) = @_;
 
-    my $self = $caller->_create_object(@args);
+    my $self = $caller->_create_object(%param);
 
-    my %param = @args;
     my $verbose =  $param{'-VERBOSE'} || $param{'-verbose'};
 
     ## See "Comments" above regarding use of _rearrange().
@@ -423,7 +421,7 @@ sub _rearrange {
     #return ('') x $#{$order} unless @param;
     
     # ...all we need to do is return an empty array:
-    return unless @param;
+    # return unless @param;
     
     # If we've got parameters, we need to check to see whether
     # they are named or simply listed. If they are listed, we
@@ -431,7 +429,7 @@ sub _rearrange {
 
     # The mod test fixes bug where a single string parameter beginning with '-' gets lost.
     # This tends to happen in error messages such as: $obj->throw("-id not defined")
-    return @param unless (defined($param[0]) && $param[0]=~/^-/ && ($#param+1) % 2 == 0);
+    return @param unless (defined($param[0]) && $param[0]=~/^-/o && ($#param % 2));
 
     # Tester
 #    print "\n_rearrange() named parameters:\n";
@@ -440,33 +438,34 @@ sub _rearrange {
     # Now we've got to do some work on the named parameters.
     # The next few lines strip out the '-' characters which
     # preceed the keys, and capitalizes them.
-    my $i;
-    for ($i=0;$i<@param;$i+=2) {
+    for (my $i=0;$i<@param;$i+=2) {
 	$param[$i]=~s/^\-//;
 	$param[$i]=~tr/a-z/A-Z/;
     }
     
     # Now we'll convert the @params variable into an associative array.
-    local($^W) = 0;  # prevent "odd number of elements" warning with -w.
+    # local($^W) = 0;  # prevent "odd number of elements" warning with -w.
     my(%param) = @param;
     
-    my(@return_array);
+    # my(@return_array);
     
     # What we intend to do is loop through the @{$order} variable,
     # and for each value, we use that as a key into our associative
     # array, pushing the value at that key onto our return array.
-    my($key);
+    # my($key);
     
-    foreach $key (@{$order}) {
-	my($value) = $param{$key};
-	delete $param{$key};
-	push(@return_array,$value);
-    }
+    #foreach (@{$order}) {
+	# my($value) = $param{$key};
+	# delete $param{$key};
+	#push(@return_array,$param{$_});
+    #}
+
+    return @param{@{$order}};
     
 #    print "\n_rearrange() after processing:\n";
 #    my $i; for ($i=0;$i<@return_array;$i++) { printf "%20s => %s\n", ${$order}[$i], $return_array[$i]; } <STDIN>;
 
-    return @return_array;
+    # return @return_array;
 }
 
 =head2 _register_for_cleanup
