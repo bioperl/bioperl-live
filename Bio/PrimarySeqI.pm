@@ -32,12 +32,10 @@ Bio::PrimarySeqI [Developers] - Interface definition for a Bio::PrimarySeq
     # accessors
 
     $string    = $obj->seq();
-    $substring = $obj->subseq(12,50);
+    $substring = $obj->subseq( 12, 50 );
     $display   = $obj->display_id(); # for human display
-    $id        = $obj->primary_id(); # unique id for this object,
-                                     # implementation defined
-    $unique_key= $obj->accession_number();
-                       # unique biological id
+    $id        = $obj->unique_id();  # unique id for this object, or undef
+    $unique_key= $obj->accession_number(); # unique biological id
 
     # object manipulation
 
@@ -125,9 +123,10 @@ package Bio::PrimarySeqI;
 use vars qw(@ISA );
 use strict;
 use Bio::Root::RootI;
+use Bio::LocallyIdentifiableI;
 use Bio::Tools::CodonTable;
 
-@ISA = qw(Bio::Root::RootI);
+@ISA = qw( Bio::Root::RootI Bio::LocallyIdentifiableI );
 
 =head1 Implementation Specific Functions
 
@@ -214,7 +213,7 @@ sub display_id {
  Function: Returns the unique biological id for a sequence, commonly
            called the accession_number. For sequences from established
            databases, the implementors should try to use the correct
-           accession number. Notice that primary_id() provides the
+           accession number. Notice that unique_id() provides the
            unique id for the implemetation, allowing multiple objects
            to have the same accession number in a particular implementation.
 
@@ -232,34 +231,49 @@ sub accession_number {
    $self->throw_not_implemented();
 }
 
+=head2 unique_id
 
+ Title   : unique_id
+ Usage   : $unique_implementation_key = $obj->unique_id();
+ Function: Returns the unique id for this object in this
+           implementation.  This allows implementations to manage their
+           own object ids in a way the implementation can control
+           clients can expect one id to map to one object.
+
+           Since this implements L<Bio::LocallyIdentifiableI>, the
+           unique_id() value B<must be unique> or else I<undef>.
+ Returns : A unique string or undef if no B<unique> id exists.
+ Args    : None
+ Status  : Virtual
+
+=cut
+
+sub unique_id {
+  shift->throw_not_implemented();
+}
 
 =head2 primary_id
 
  Title   : primary_id
- Usage   : $unique_implementation_key = $obj->primary_id;
+ Usage   : $unique_implementation_key = $obj->primary_id();
  Function: Returns the unique id for this object in this
            implementation. This allows implementations to manage their
            own object ids in a way the implementaiton can control
            clients can expect one id to map to one object.
-
-           For sequences with no accession number, this method should
-           return a stringified memory location.
-
-           [Note this method name is likely to change in 1.3]
-
- Returns : A string
+ Returns : A unique string or undef if no B<unique> id exists.
  Args    : None
  Status  : Virtual
 
+  This method is implemented in the interface as an overridable alias
+  for unique_id().  Subclassers should note that unique_id() must
+  maintain the contract of L<Bio::LocallyIdentifiableI>, though
+  primary_id() need not do so.
 
 =cut
 
 sub primary_id {
-   my ($self,@args) = @_;
-   $self->throw_not_implemented();
+  shift->unique_id( @_ );
 }
-
 
 =head2 can_call_new
 
