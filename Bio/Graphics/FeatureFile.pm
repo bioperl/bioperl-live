@@ -455,12 +455,12 @@ sub parse_line {
     return 1;
   }
 
-  my($ref,$type,$name,$strand,$bounds,$description,$url);
+  my($ref,$type,$name,$strand,$bounds,$description,$url,$score,%attributes);
 
   if (@tokens >= 8) { # conventional GFF file
-    my ($r,$source,$method,$start,$stop,$score,$s,$phase,@rest) = @tokens;
+    my ($r,$source,$method,$start,$stop,$scor,$s,$phase,@rest) = @tokens;
     my $group = join ' ',@rest;
-    $type   = join(':',$method,$source);
+    $type   = defined $source && $source ne '.' ? join(':',$method,$source) : $method;
     $bounds = join '..',$start,$stop;
     $strand = $s;
     if ($group) {
@@ -475,6 +475,7 @@ sub parse_line {
 	}
       }
       $description = join '; ',@notes if @notes;
+      $score       = $scor if defined $scor && $scor ne '.';
     }
     $name ||= $self->{group}->display_id if $self->{group};
     $ref = $r;
@@ -515,8 +516,6 @@ sub parse_line {
   $name = '' unless defined $name;
 
   # attribute handling
-  my %attributes;
-  my $score;
   if (defined $description && $description =~ /\w+=\w+/) { # attribute line
     my @attributes = split /;\s*/,$description;
     foreach (@attributes) {
@@ -540,29 +539,21 @@ sub parse_line {
   # either create a new feature or add a segment to it
   if (my $feature = $self->{seenit}{$type,$name}) {
 
-    # create a new first part
+    # create a new segment to hold the parts
     if (!$feature->segments) {
-      $feature->add_segment(Bio::Graphics::Feature->new(-type   => $feature->type,
-							-strand => $feature->strand,
-							-start  => $feature->start,
-							-end    => $feature->end));
+      my $new_segment  = bless {%$feature},ref $feature;
+      $feature->add_segment($new_segment);
     }
-    $feature->add_segment(@parts);
+    # add the segments
+    $feature->add_segment(map {
+      _make_feature($name,$type,$strand,$description,$ref,\%attributes,$url,$score,[$_])
+    }  @parts);
   }
 
   else {
-    my @coordinates = @parts > 1 ? (-segments => \@parts) : (-start=>$parts[0][0],-end=>$parts[0][1]);
-    $feature = $self->{seenit}{$type,$name} =
-      Bio::Graphics::Feature->new(-name       => $name,
-				  -type       => $type,
-				  $strand ? (-strand   => make_strand($strand)) : (),
-				  defined $score ? (-score=>$score) : (),
-				  -desc       => $description,
-				  -ref        => $ref,
-				  -attributes => \%attributes,
-				  defined($url) ? (-url      => $url) : (),
-				  @coordinates,
-				 );
+    $feature = $self->{seenit}{$type,$name} = _make_feature($name,$type,$strand,
+							    $description,$ref,
+							    \%attributes,$url,$score,\@parts);
     $feature->configurator($self) if $self->smart_features;
     if ($self->{group}) {
       $self->{group}->add_segment($feature);
@@ -580,6 +571,21 @@ sub _unescape {
     s/%([0-9a-fA-F]{2})/chr hex($1)/g;
   }
   @_;
+}
+
+sub _make_feature {
+  my ($name,$type,$strand,$description,$ref,$attributes,$url,$score,$parts) = @_;
+  my @coordinates = @$parts > 1 ? (-segments => $parts) : (-start=>$parts->[0][0],-end=>$parts->[0][1]);
+  Bio::Graphics::Feature->new(-name       => $name,
+			      -type       => $type,
+			      $strand ? (-strand   => make_strand($strand)) : (),
+			      -desc       => $description,
+			      -ref        => $ref,
+			      -attributes => $attributes,
+			      defined $url   ? (-url  => $url) : (),
+			      defined $score ? (-score=>$score) : (),
+			      @coordinates,
+			     );
 }
 
 =over 4
@@ -798,7 +804,11 @@ sub style {
   my $type = shift;
 
   my $config  = $self->{config}  or return;
-  my $hashref = $config->{$type} or return;
+  my $hashref = $config->{$type};
+  unless ($hashref) {
+    $type =~ s/:.+$//;
+    $hashref = $config->{$type} or return;
+  }
 
   return map {("-$_" => $hashref->{$_})} keys %$hashref;
 }

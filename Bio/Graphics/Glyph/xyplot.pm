@@ -411,6 +411,11 @@ glyph-specific options:
   -graph_height Specify height of the graph   Same as the
                                               "height" option.
 
+Note that when drawing scales on the left or right that the scale is
+actually drawn a few pixels B<outside> the boundaries of the glyph.
+You may wish to add some padding to the image using -pad_left and
+-pad_right when you create the panel.
+
 =head1 BUGS
 
 Please report them.
