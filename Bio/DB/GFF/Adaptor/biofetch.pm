@@ -1,5 +1,5 @@
 package Bio::DB::GFF::Adaptor::biofetch;
-
+#$Id$
 =head1 NAME
 
 Bio::DB::GFF::Adaptor::biofetch -- Cache BioFetch objects in a Bio::DB::GFF database
