@@ -20,7 +20,7 @@ This module will parse PSI-BLAST output of the format seqid XXXX
 
 =head1 DESCRIPTION
 
-Describe the object here
+This is for parser for a psi-blast blocks.
 
 =head1 FEEDBACK
 
