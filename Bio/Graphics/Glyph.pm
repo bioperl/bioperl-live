@@ -1050,9 +1050,10 @@ sub default_factory {
 sub finished {
   my $self = shift;
   delete $self->{factory};
-  foreach (@{$self->{parts}}) {
+  foreach (@{$self->{parts} || []}) {
     $_->finished;
   }
+  delete $self->{parts};
 }
 
 1;

@@ -830,9 +830,11 @@ sub color_names {
 }
 
 sub finished {
-  for my $track (@{shift->{tracks}}) {
-    $track->finished();
-  }
+    my $self = shift;
+    for my $track (@{$self->{tracks} || []}) {
+	$track->finished();
+    }
+    delete $self->{tracks};
 }
 
 1;

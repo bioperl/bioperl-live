@@ -720,7 +720,7 @@ sub _setting {
   my $config = $self->{config} or return;
   return keys %{$config} unless @_;
   return keys %{$config->{$_[0]}} if @_ == 1;
-  return $config->{$_[0]}{$_[1]}  if @_ > 1;
+  return $config->{$_[0]}{$_[1]}  if @_ > 1 && exists $config->{$_[0]};
 }
 
 
