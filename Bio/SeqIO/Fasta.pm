@@ -139,7 +139,7 @@ sub next_seq{
    my ($seq,$fh,$c,$line,$name,$desc,$sfs, $seqc, $fulldesc, $sfsep);
 
    $fh = $self->_filehandle();
-   $sfsep = $self->_superfamily();
+   $sfsep = $self->_superfamily() || '.';
 
    if( eof $fh ) {
        return undef; # no throws - end of file
