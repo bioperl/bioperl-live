@@ -207,13 +207,12 @@ sub next_seq {
 	if( /^PID\s+(\S+)/ ) {
 	    $params{'-pid'} = $1;
 	}
-
-	#Version number
-	if( /^VERSION\s+(\S+)\.(\d+)\s*(GI:\d+)?/ ) {
-	    $params{'-seq_version'} = $2;
+	
+        #Version number
+	if( /^VERSION\s+(\S+)\.?(\d+)?\s*(GI:\d+)?/ ) {
+            $params{'-seq_version'} = $2 if ($2);
 	    $params{'-primary_id'} = substr($3, 3) if( $3);
-	}
-
+}
 	#Keywords
 	if( /^KEYWORDS\s+(.*)/ ) {
 	    my $keywords = $1;
