@@ -120,7 +120,8 @@ methods. Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::Coordinate::GeneMapper;
-use vars qw(@ISA %COORDINATE_SYSTEMS  %COORDINATE_INTS $TRANSLATION $DAG);
+use vars qw(@ISA %COORDINATE_SYSTEMS  %COORDINATE_INTS $TRANSLATION $DAG
+            $NOZERO_VALUES $NOZERO_KEYS);
 use strict;
 
 # Object preamble - inherits from Bio::Root::Root
@@ -138,7 +139,7 @@ use Bio::Coordinate::Graph;
 		       propeptide       => 8,
 		       frame            => 7,
 		       cds              => 6,
-		       negative_introns => 5,
+		       negative_intron  => 5,
 		       intron           => 4,
 		       exon             => 3,
 		       gene             => 2,
@@ -150,7 +151,7 @@ use Bio::Coordinate::Graph;
 		    8 => 'propeptide',
 		    7 => 'frame',
 		    6 => 'cds',
-		    5 => 'negative_introns',
+		    5 => 'negative_intron',
 		    4 => 'intron',
 		    3 => 'exon',
 		    2 => 'gene',
@@ -172,6 +173,9 @@ $DAG = {
 	1  => [2]
        };
 
+$NOZERO_VALUES = {0 => 0, 'in' => 1, 'out' => 2, 'in&out' => 3 };
+$NOZERO_KEYS = { 0 => 0, 1 => 'in', 2 => 'out', 3 => 'in&out' };
+
 
 sub new {
     my($class,@args) = @_;
@@ -182,13 +186,15 @@ sub new {
     $graph->hash_of_arrays($DAG);
     $self->graph($graph);
 
-    my($in, $out, $peptide_offset, $transcript, $exons, $cds, $strict) =
+    my($in, $out, $peptide_offset, $transcript, $exons, 
+       $cds, $nozero, $strict) =
 	$self->_rearrange([qw(IN
                               OUT
                               PEPTIDE_OFFSET
                               TRANSCRIPT
                               EXONS
                               CDS
+                              NOZERO
                               STRICT
 			     )],
 			 @args);
@@ -202,7 +208,7 @@ sub new {
     $exons  && $self->exons($exons);
     $transcript  && $self->transcript($transcript);
     $peptide_offset && $self->peptide_offset($peptide_offset);
-
+    $nozero && $self->nozero($nozero);
     $strict && $self->strict($strict);
 
     return $self; # success - we hope!
@@ -249,7 +255,6 @@ sub in {
 
        $self->{'_in'} = $COORDINATE_SYSTEMS{$value};
    }
-   #return $self->{'_in'};
    return $COORDINATE_INTS{ $self->{'_in'} };
 }
 
@@ -274,7 +279,6 @@ sub out {
 
        $self->{'_out'} = $COORDINATE_SYSTEMS{$value};
    }
-   #return $self->{'_out'};
    return $COORDINATE_INTS{ $self->{'_out'} };
 }
 
@@ -298,6 +302,35 @@ sub strict {
        ## update in each mapper !!
    }
    return $self->{'_strict'} || 0 ;
+}
+
+
+=head2 nozero
+
+ Title   : nozero
+ Usage   : $obj->nozero(1);
+ Function: Flag to disable the use of zero in the input,
+           output or both coordinate systems. Use of coordinate
+           systems without zero is a peculiarity  common in
+           human genetics community.
+ Example :
+ Returns : 0 (default), or 'in', 'out', 'in&out'
+ Args    : 0 (default), or 'in', 'out', 'in&out'
+
+=cut
+
+sub nozero {
+   my ($self,$value) = @_;
+
+   if (defined $value) {
+       $self->throw("Not a valid value for nozero [$value]\n".
+		    "Valid values are ". join(", ", keys %{$NOZERO_VALUES} ))
+	   unless defined $NOZERO_VALUES->{$value};
+       $self->{'_nozero'} = $NOZERO_VALUES->{$value};
+   }
+
+   my $res = $self->{'_nozero'} || 0;
+   return $NOZERO_KEYS->{$res};
 }
 
 =head2 peptide
@@ -438,7 +471,7 @@ sub exons {
    my $intron_exon_mapper =
        $COORDINATE_SYSTEMS{'gene'}. "-". $COORDINATE_SYSTEMS{'exon'};
    my $negative_intron_mapper =
-       $COORDINATE_SYSTEMS{'gene'}. "-". $COORDINATE_SYSTEMS{'negative_introns'};
+       $COORDINATE_SYSTEMS{'gene'}. "-". $COORDINATE_SYSTEMS{'negative_intron'};
 
    if(@value) {
        $self->throw("I need an array , not [@value]")
@@ -683,6 +716,15 @@ sub map {
        $value->end. " (". $value->strand. ")\n" if $self->verbose > 0;
 
 
+   # if nozero coordinate system is used in the input values
+   if ( defined $self->{'_nozero'} && 
+	( $self->{'_nozero'} == 1 || $self->{'_nozero'} == 3 ) ) {
+       $value->start($value->start + 1)
+	   if defined $value->start && $value->start < 1;
+       $value->end($value->end + 1)
+	   if defined $value->end && $value->end < 1;
+   }
+
    my @steps = $self->_get_path();
    print "mapping ", $self->{'_in'}, "->", $self->{'_out'},
        "  Mappers: ", join(", ", @steps), "\n"  if $self->verbose > 0;
@@ -724,6 +766,17 @@ sub map {
 	   }
        }
    }
+
+   # if nozero coordinate system is asked to be used in the output values
+   if ( defined $value && defined $self->{'_nozero'} && 
+	( $self->{'_nozero'} == 2 || $self->{'_nozero'} == 3 ) ) {
+
+       $value->start($value->start - 1)
+	   if defined $value->start && $value->start < 1;
+       $value->end($value->end - 1) 
+	   if defined $value->end && $value->end < 1;
+   }
+
    return $value;
 }
 
