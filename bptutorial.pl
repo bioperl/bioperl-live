@@ -817,6 +817,25 @@ and write sequence objects, eg:
   $out = Bio::SeqIO->newFh('-format' => 'EMBL');
   print $out $_ while <$in>;
 
+If the "-format" argument isn't used then Bioperl will guess the format
+based on the file's suffix in a case-insensitive manner. Here are the
+current interpretations:
+
+   Format   Suffixes
+
+   fasta    fasta|fast|seq|fa|fsa|nt|aa
+   genbank  gb|gbank|genbank
+   scf      scf
+   pir      pir
+   embl     embl|ebl|emb|dat
+   raw      txt
+   gcg      gcg
+   ace      ace
+   bsml     bsm|bsml
+   swiss    swiss|sp
+   phd      phd|phred
+
+
 For more information see L<Bio::SeqIO>.
 
 =for html <A NAME ="iii.2.2"></A>
