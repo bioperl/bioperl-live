@@ -105,13 +105,19 @@ use Bio::Root::IO;
 sub new {
     my ($class,@args) = @_;
     my $self = $class->SUPER::new(@args);
-    my ($file, $fh,$program) = $self->_rearrange([qw(FILE FH PROGRAM)],@args);
+    my ($matrix,$values, $names,$file, $fh,$program) = $self->_rearrange([qw(MATRIX VALUES NAMES FILE FH PROGRAM)],@args);
 
-    $file || $fh || $self->throw("Need a file or file handle!");
+    ($matrix && $values && $names) || $file || $fh || $self->throw("Need a file or file handle!");
 
     $program && $self->program($program);
     $self->_initialize_io(@args);
-    $self->_parse();
+
+    $self->_matrix($matrix) if $matrix;
+    $self->_values($values) if $values;
+    $self->names($names) if $names;
+    if(!$matrix && !$values && !$names){
+      $self->_parse();
+    }
 
     return $self;
 }
@@ -152,7 +158,6 @@ sub _parse {
   $self->names(\@names);
   $self->_values(\@values);
 }
-
 
 =head2 get_entry
 
