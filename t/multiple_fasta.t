@@ -18,7 +18,7 @@ BEGIN {
 	use lib 't';
     }
     use Test;
-    plan tests => 5;
+    plan tests => 8;
 }
 
 use Bio::SeqIO;
@@ -30,4 +30,4 @@ while ( my $seq = $in->next_seq() ) {
     ok($seq);
     $c++;
 }
-ok $c,3, " missing sequences in the file";
+ok $c,6, " missing sequences in the file";
