@@ -142,6 +142,8 @@ use Bio::PrimarySeqI;
 sub new {
     my ($class, @args) = @_;
     my $self = $class->SUPER::new(@args);
+	# default: turn OFF the warnings (duh)
+	$self->{supress_warnings} = 1;
     my($qual,$seq,$id,$acc,$pid,$desc,$given_id,$alphabet) =
 	$self->_rearrange([qw(
 			      QUAL
@@ -173,7 +175,9 @@ sub new {
     # else { print("just before (\!seq) id is $id\n"); }
     if (!$seq) {
 	my $id;
-	$self->warn("You did not provide sequence information during the construction of a Bio::Seq::SeqWithQuality object. Sequence components for this object will be empty.");
+	unless ($self->{supress_warnings} == 1) {
+		$self->warn("You did not provide sequence information during the construction of a Bio::Seq::SeqWithQuality object. Sequence components for this object will be empty.");
+	}
 	if (!$alphabet) {
 	    $self->throw("If you want me to create a PrimarySeq object for your empty sequence <boggle> you must specify a -alphabet to satisfy the constructor requirements for a Bio::PrimarySeq object with no sequence. Read the POD for it, luke.");		
 	}
@@ -608,18 +612,24 @@ sub qual {
 sub length {
 	my $self = shift;
 	if (!$self->{seq_ref}) {
-		$self->warn("Can't find {seq_ref} here in length().");
+		unless ($self->{supress_warnings} == 1) {
+			$self->warn("Can't find {seq_ref} here in length().");
+		}
 		return;
 	}
 	if (!$self->{qual_ref}) {
-		$self->warn("Can't find {qual_ref} here in length().");
+		unless ($self->{supress_warnings} == 1) {
+			$self->warn("Can't find {qual_ref} here in length().");
+		}
 		return;
 	}
 	my $seql = $self->{seq_ref}->length();
     
 	if ($seql != $self->{qual_ref}->length()) {
-		$self->warn("Sequence length (".$seql.") is different from quality length (".$self->{qual_ref}->length().") in the SeqWithQuality object. This can only lead to problems later.");		
-		$self->{'length'} = "DIFFERENT";
+		unless ($self->{supress_warnings} == 1) {
+			$self->warn("Sequence length (".$seql.") is different from quality length (".$self->{qual_ref}->length().") in the SeqWithQuality object. This can only lead to problems later.");		
+			$self->{'length'} = "DIFFERENT";
+		}
 	}
 	else {
 		$self->{'length'} = $seql;
@@ -646,10 +656,14 @@ sub qual_obj {
 	if (defined($value)) {
 		if (ref($value) eq "Bio::Seq::PrimaryQual") {
 			$self->{qual_ref} = $value;
-			$self->warn("You successfully changed the PrimaryQual object within a SeqWithQuality object. ID's for the SeqWithQuality object may now not be what you expect. Use something like set_common_descriptors() to fix them if you care,");
+			unless ($self->{supress_warnings} == 1) {
+				$self->warn("You successfully changed the PrimaryQual object within a SeqWithQuality object. ID's for the SeqWithQuality object may now not be what you expect. Use something like set_common_descriptors() to fix them if you care,");
+			}
 		}
 		else {
-			$self->warn("You tried to change the PrimaryQual object within a SeqWithQuality object but you passed a reference to an object that was not a Bio::Seq::PrimaryQual object. Thus your change failed. Sorry.\n");
+			unless ($self->{supress_warnings} == 1) {
+				$self->warn("You tried to change the PrimaryQual object within a SeqWithQuality object but you passed a reference to an object that was not a Bio::Seq::PrimaryQual object. Thus your change failed. Sorry.\n");
+			}
 		}
 	}
 	return $self->{qual_ref};
@@ -673,10 +687,14 @@ sub seq_obj {
 	my ($self,$value) = @_;
 	if( defined $value) {
 		if (ref($value) eq "Bio::PrimarySeq") {
-			$self->warn("You successfully changed the PrimarySeq object within a SeqWithQuality object. ID's for the SeqWithQuality object may now not be what you expect. Use something like set_common_descriptors() to fix them if you care,");
+			unless ($self->{supress_warnings} == 1) {
+				$self->warn("You successfully changed the PrimarySeq object within a SeqWithQuality object. ID's for the SeqWithQuality object may now not be what you expect. Use something like set_common_descriptors() to fix them if you care,");
+			}
 		}
 		else {
-			$self->warn("You tried to change the PrimarySeq object within a SeqWithQuality object but you passed a reference to an object that was not a Bio::PrimarySeq object. Thus your change failed. Sorry.\n");
+			unless ($self->{supress_warnings} == 1) {
+				$self->warn("You tried to change the PrimarySeq object within a SeqWithQuality object but you passed a reference to an object that was not a Bio::PrimarySeq object. Thus your change failed. Sorry.\n");
+			}
 		}
 	}
 	return $self->{seq_ref};
@@ -793,4 +811,22 @@ sub qualat {
 	my ($self,$val) = @_;
 	return $self->{qual_ref}->qualat($val);
 }
+
+=head2 quiet($mode)
+
+ Title   : quiet($mode)
+ Usage   : $obj->quiet(1);
+ Function: Shuit off warnings. Used pretty much exclusively so that make test
+	doesn't spill out warnings. I wouldn't advise you turn these off
+	because they are there for your own good.
+ Returns : Nothing
+ Args    : "1" for supression of warnings, "0" for normal mode.
+
+=cut
+
+sub quiet {
+	my ($self,$mode) = @_;
+	$self->{supress_warnings} = $mode;
+}
+
 1;
