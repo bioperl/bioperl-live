@@ -9,7 +9,8 @@
 #
 # The DTD for AGAVE XML can be located here:
 # http://www.lifecde.com/products/agave/schema/v2_3/agave.dtd
-
+#
+#
 =head1 NAME
 
 Bio::SeqIO::agave - AGAVE sequence output stream.
@@ -31,7 +32,7 @@ rather go through the SeqIO handler system. Go:
 
 =head1 DESCRIPTION
 
-This object can transform Bio::Seq objects to agave xml file.
+This object can transform Bio::Seq objects to agave xml file and vice-versa.
 
 =cut
 
@@ -65,17 +66,9 @@ methods. Internal methods are usually preceded with a _
 
 =cut
 
-=head1 Author's Musings...
-
-The one thing that annoys me to no end is poorly documented code.
-
-
-=cut
-
-
+# ===================
 
 # Let the code begin...
-
 package Bio::SeqIO::agave;
 use vars qw(@ISA);
 use strict;
@@ -84,7 +77,7 @@ use strict;
 use IO::File;
 
 
-use lib '/home/skchan/gq/BIO_SUPPORT/bioperl-live';
+use lib '/home/skchan/checkout/bioperl-live';
 use Bio::SeqIO;
 use Bio::SeqFeature::Generic;
 use Bio::Seq;
@@ -126,7 +119,7 @@ sub _initialize {
 	Returns  : Nothing.
 	Note     : Method(s) that call(s) this method : _initialize
 		   Method(s) that this method calls   : _process_sciobj
-
+		   FIRST/START sub.
 =cut
 sub _process {
 
@@ -144,7 +137,7 @@ sub _process {
 
 		} elsif ($line =~ /\<!DOCTYPE (\w+) SYSTEM "([\w\.]+)"\>/){
 
-			die "This xml file is not in AGAVE format!"
+			$self->throw("Error: This xml file is not in AGAVE format! DOCTYPE: $1 , SYSTEM: $2\n\n") 
 			if $1 ne 'sciobj' || $2 ne 'sciobj.dtd';
 
 		} elsif ($line =~ /<sciobj (.*)>/){
@@ -156,10 +149,15 @@ sub _process {
 			last; # It is finished.
 
 		} else {
-			# throw an error message?
-		}	
+
+			# throw an error message.  The above conditions should take care all of the possible options...?
+			# $self->throw("Error: Do not recognize this AGAVE xml line: $line\n\n");
+
+		}
+
 
 	} # close while loop
+
 
 	return;
 
@@ -680,7 +678,7 @@ sub _process_seq_feature {
                    - reference to a data structure to store the <qualifer> data.
 	Returns  : Nothing.
 	Note     : Method(s) that call(s) this method : _process_seq_feature
-		   Method(s) that this method calls   : _helper_store_attribute_list , _question_mark_tag
+		   Method(s) that this method calls   : _star_tag
 
 
 =cut
@@ -688,14 +686,10 @@ sub _process_qualifier {
 
 	my ($self, $line, $data_structure) = @_;
 
-	while ($$line =~ /<qualifier\s?(.*?)\s?>(.*?)<\/qualifier>/){
+	my $qualifier;
+	$self->_star_tag($line, \$qualifier, 'qualifier');
+	push @{$$data_structure->{'qualifier'}},$qualifier; 		
 
-		my $qualifier;
-		$self->_helper_store_attribute_list($1, \$qualifier);
-		$self->_star_tag($line, \$qualifier, 'qualifier');
-		push @{$$data_structure->{'qualifier'}},$qualifier; 		
-		
-	}
 
 	return;		# No need to return the data structure since its reference was what was modified.
 
@@ -951,6 +945,7 @@ sub _tag_processing_helper {
 	my ($self, $attribute_list, $data_structure, $tag_name, $tag_value, $caller) = @_;
  
 	# Add the attributes to the $$data_structure if they exist.
+	# print "tag_name: $tag_name , attribute_list: $attribute_list\n";
         if (defined $attribute_list){
                 $self->_helper_store_attribute_list($attribute_list, $data_structure);
         }
@@ -986,42 +981,85 @@ sub _one_tag {
 	$self->throw("Error:  Missing <$tag_name></$tag_name>.  Got: $$line\n\n") if $$line !~ /\<$tag_name/; # check to see if $$line
 													      # is in correct format.
 
-	if ($$line =~ /<$tag_name\s?(.*?)\s?\/?>((.*?)<\/$tag_name>)?/){
+	if ($$line =~ /<$tag_name\s?(.*?)\s?\/?>(.*?)<\/$tag_name>/){
+
 		$self->_tag_processing_helper($1, $data_structure, $tag_name, $2, 'one');  # $1 = attributes
 											   # $data_structure = to hold the parsed values												# $tag_name = name of the tag
 											   # $2 = tag value
 											   # 'one' = lets _tag_processing_helper know that
 											   # it was called from the _one_tag method.
-		$$line = $self->_readline; # get the next line.
+		
+	} elsif ($$line =~ /<$tag_name\s?(.*?)\s?\/?>/){
+
+		$self->_tag_processing_helper($1, $data_structure, $tag_name, '', 'one');
+
 	} else {
 		$self->throw("Error:  Cannot parse this line: $$line\n\n");
 	}
 
+	$$line = $self->_readline;	# get the next line.
+
 	return;
 
 }
+# ==================================================================================
+=head2
 
+	Title    : _question_mark_tag
+	Usage    : $self->_question_mark_tag
+	Function : Parses values from tags that occurs zero or one time. ie: tag_name?
+	Args     : 3 scalars:
+                   - reference to a scalar holding the value of the line to be parsed.
+                   - reference to a data structure to store the data for <$tag_name>
+                   - scalar holding the name of the tag.
+	Returns  : Nothing.
+	Note     : Method(s) that call(s) this method : many.
+		   Method(s) that this method calls   : _tag_processing_helper
+
+
+=cut
 sub _question_mark_tag {
 
 	my ($self, $line, $data_structure, $tag_name) = @_;
-	# $line =~ /<$tag_name (.*)\s?>(\w+)<\/$tag_nam
+
 	if ($$line =~ /<$tag_name\s?(.*?)\s?>(.*?)<\/$tag_name>/){
 		$self->_tag_processing_helper($1, $data_structure, $tag_name, $2, 'question mark');
 		$$line = $self->_readline;
 	}
 
+	return;
+
 }
+# ==================================================================================
+=head2
 
+	Title    : _star_tag
+	Usage    : $self->_star_tag
+	Function : Parses values from tags that occur zero or more times. ie: tag_name*
+	Args     : 3 scalars:
+		   - reference to a scalar holding the value of the line to be parsed.
+		   - reference to a data structure to store the data for <$tag_name>
+		   - scalar holding the name of the tag.
+	Returns  : Nothing.
+	Note     : Method(s) that call(s) this method : many.
+		   Method(s) that this method calls   : _tag_processing_helper 
 
+=cut
 sub _star_tag {
 
 	my ($self, $line, $data_structure, $tag_name) = @_;
-print "tag_name in _star_tag: $tag_name\n"; exit;
 
+	#print "tag_name: $tag_name\n";
 	while ($$line =~ /<$tag_name\s?(.*?)\s?>(.*?)<\/$tag_name>/){
-		$self->_tag_processing_helper($1, $data_structure, $tag_name, $2, 'star');
+		$self->_tag_processing_helper($1, $data_structure, $tag_name, $2, 'star'); # The tag and attribute values are stored within
+											   # $$data_structure within the 
+											   # _tag_processing_helper method.
 		$$line = $self->_readline;
 	}
+	#if ($tag_name eq 'qualifier'){
+	#	print "this one:\n";
+	#	print Data::Dumper->Dump([$data_structure]); exit;
+	#}
 
 	return;
 
@@ -1037,25 +1075,30 @@ print "tag_name in _star_tag: $tag_name\n"; exit;
                    - reference to a data structure to store the data for <$tag_name>
 		   - scalar holding the name of the tag.
 	Returns  : Nothing.
-	Note     : Method(s) that call(s) this method: many.
-		Method(s) that this method calls:
+	Note     : Method(s) that call(s) this method : many.
+		   Method(s) that this method calls   : _star_tag
 
 =cut
 sub _plus_tag {
 
 	my ($self, $line, $data_structure, $tag_name) = @_;
-	
-print "tag_name: $tag_name\n"; exit;
+
 	if ($$line =~ /<$tag_name\s?(.*?)\s?>(.*?)<\/$tag_name>/){
 
+		# Store value of the first occurence of $tag_name.
+		# All subsequent values, if any, will be stored in the method _star_tag.
+		$self->_tag_processing_helper($1, $data_structure, $tag_name, $2, 'plus');		
 
+
+		# If the flow gets within this block, we've already determined that there's at least one of <$tag_name>
+		# Are there more?  To answer this, we could just treat the tag as a * tag now (zero or more).  We've already determined
+		# that it's NOT zero, so how many more?  Thus, call _star_tag.
 		$$line = $self->_readline;
-		$self->_star_tag($line, $data_structure, $tag_name);		
-
+		$self->_star_tag($line, $data_structure, $tag_name);
 
 
 	} else {
-		die "Error.  Missing <$tag_name></$tag_name>.  Got: $$line";		
+		$self->throw("Error:  Missing <$tag_name></$tag_name>.  Got: $$line\n\n");		
 	}
 
 	return;
@@ -1066,7 +1109,7 @@ print "tag_name: $tag_name\n"; exit;
 
 	Title    : _helper_store_attribute_list
 	Usage    : $self->_helper_store_attribute_list
-	Function : A helper method used to extract the attributes from tags.
+	Function : A helper method used to store the attributes from the tags into the data structure.
 	Args     : 2 scalars:
                    - scalar holding the attribute values to be parsed.
                    - reference to a data structure to store the data between the 2 tags.
@@ -1083,68 +1126,80 @@ sub _helper_store_attribute_list {
                                                                                                                                              
         my $attribute_list;
         for my $key (keys %attribs){
-                $$data_structure->{$key} = $attribs{$key};
+		# print "\tkey: $key , value: $attribs{$key}\n";
+                ###$$data_structure->{$key} = $attribs{$key}; # the ORIGINAL
+		push @{$$data_structure->{$key}}, $attribs{$key};
         }
 
 	return;
 
 }
+# ==================================================================================
+=head2
 
+	Title    : _store_seqs
+	Usage    : $self->_store_seqs
+	Function : This method is called once in the life time of the script.  It stores the data parsed from the agave xml file into
+		   the Bio::Seq object.
+	Args     : None.
+	Returns  : Nothing.
+	Note     : Method(s) that call(s) this method : next_seq
+		   Method(s) that this method calls   : None.
 
-
+=cut
 sub _store_seqs {
 
 	my ($self) = @_;
 
-	# print Data::Dumper->Dump([$self]);	exit;
-	# get all the biosequences...
-	# my $bio_sequence_objects = $self->{'sciobj'}->{'contig'};
-
-	my $sciobj = $self->{'sciobj'};
-
-	for my $contig (@{$sciobj->{'contig'}}){
 
 
-		for my $fragment_order (@{$contig->{'fragment_order'}}){
+	my $sciobj = $self->{'sciobj'};		# The root node.
+
+
+	for my $contig (@{$sciobj->{'contig'}}){	# Each contig has a fragment order.
+
+		for my $fragment_order (@{$contig->{'fragment_order'}}){	# Each fragment order has a fragment_orientation.
 			
-			for my $fragment_orientation (@{$fragment_order->{'fragment_orientation'}}){
-
-				# for my $bio_sequence (@{$fragment_orientation->{'bio_sequence'}}){
+			for my $fragment_orientation (@{$fragment_order->{'fragment_orientation'}}){	# Each fragment_orientation contains
+													# bio sequences.
 
 					my $bio_sequence = $fragment_orientation->{'bio_sequence'};
 
-			                my $sequence = $bio_sequence->{sequence};
-	        		        my $accession_number = $bio_sequence->{sequence_id}; # also use for primary_id
-			                my $organism = $bio_sequence->{organism};
-			                my $description = $bio_sequence->{description};
-	                                                                                                                                             
+			                my $sequence         = $bio_sequence->{'sequence'};
+	        		        my $accession_number = $bio_sequence->{'sequence_id'}->[0]; # also use for primary_id
+			                my $organism         = $bio_sequence->{'organism'};
+			                my $description      = $bio_sequence->{'description'};
+					my $molecule_type    = $bio_sequence->{'molecule_type'}->[0];
+
 	        		        my $primary_seq = Bio::PrimarySeq->new(
-                                                                -id => $accession_number,
-                                                                -alphabet => 'dna',
-                                                                -seq => $sequence,
-                                                                -desc => $description,
-                                                        );
+                                                                		-id       => $accession_number,
+		                                                                -alphabet => $molecule_type,
+                		                                                -seq      => $sequence,
+                                		                                -desc     => $description,
+                                        );
 
                                         my $seq = Bio::Seq->new (
-                                                -display_id => $accession_number,
-                                                -accession_number => $accession_number,
-                                                -primary_seq => $primary_seq,
-                                                -seq => $sequence,
-                                                -description => $description,
+			                                                -display_id       => $accession_number,
+			                                                -accession_number => $accession_number,
+			                                                -primary_seq      => $primary_seq,
+                        	        	        	        -seq              => $sequence,
+                                	        	        	-description      => $description,
                                         );
                                                                                                                                              
                                         my $organism_name = $bio_sequence->{organism_name};
 					if (defined $organism_name){
-#						my ($genus_name, $species_name) = split(' ', $organism_name);
-#	                                        my $species = Bio::Species->new();
-#						$species->classification(qw($species_name $genus_name));
- #                                       	$seq->species($organism_name);
+					#	my @classification = split(' ', $organism_name);
+	                                 #       my $species = Bio::Species->new();
+					#	# $species->classification(@classification);
+                                       	#$seq->species($organism_name);
 					}                                                                    
-                                                                         
+                                        
+					# Pull out the keywords: $keywords is an array ref.                                 
                                         my $keywords = $bio_sequence->{keyword};
                                         my %key_to_value;
                                                                                                                                              
                                         for my $keywords (@$keywords){
+						# print "keywords: $keywords\n";
                                                 my @words = split(':', $keywords);
                                                 for (my $i = 0; $i < scalar @words - 1; $i++){
                                                         if ($i % 2 == 0){
@@ -1153,6 +1208,7 @@ sub _store_seqs {
                                                                 $key_to_value{$words[$i]} = $words[$j];
                                                         }
                                                 }
+						# print Data::Dumper->Dump([%key_to_value]);
                                                 my $reference = Bio::Annotation::Reference->new(-authors => $key_to_value{authors},
                                                                         -title => $key_to_value{title},
                                                                         -database => $key_to_value{database},
@@ -1175,68 +1231,79 @@ sub _store_seqs {
 							if (defined $sequence_map->{annotations} && 
 										ref($sequence_map->{annotations}) eq 'HASH'){
 
-	 							# print Data::Dumper->Dump([$sequence_map->{'annotations'}]); exit;
+	 							# Get the sequence features (ie genes, exons, etc) from this $sequence_map
 								for my $seq_feature (@{$sequence_map->{'annotations'}->{'seq_feature'}}){
 
 									# print Data::Dumper->Dump([$seq_feature]); exit;
-									my $seq_location = $seq_feature->{'seq_location'};
-                                                                        my $start_coord = $seq_feature->{'least_start'};
-                                                                        my $feature_type = $seq_feature->{'feature_type'};
-                                                                        my $end_coord = $seq_feature->{'greatest_end'};
-                                                                        my $is_on_complement = $seq_feature->{'is_on_complement'};
+									my $seq_location     = $seq_feature->{'seq_location'};
+                                                                        my $start_coord      = $seq_feature->{'least_start'}->[0];
+                                                                        my $feature_type     = $seq_feature->{'feature_type'}->[0];
+                                                                        my $end_coord        = $seq_feature->{'greatest_end'}->[0];
+                                                                        my $is_on_complement = $seq_feature->{'is_on_complement'}->[0];
 
-
+									# Specify the coordinates and the tag for this seq feature.
+									# print "Primary Tag for this SeqFeature: $feature_type\n";
 			                                                my $feat = Bio::SeqFeature::Generic->new(
-                                                                                                                                             
-			                                                                -start => $start_coord,
-			                                                                -end => $end_coord,
-			                                                                #-source_tag => $feature_name,
-			                                                                #-display_name => $feature_name,
-			                                                                -primary_tag => $feature_type,
+													-start       => $start_coord,
+													-end         => $end_coord,
+													-primary_tag => $feature_type,
 			                                                );
-
 
 
 
 									if (defined $seq_feature->{'qualifier'} && 
 											ref($seq_feature->{'qualifier'}) eq 'ARRAY'){
-									# print Data::Dumper->Dump([$seq_feature->{'qualifier'}]); exit;
+
 										for my $feature (@{$seq_feature->{'qualifier'}}){
-											
+
 											my $value = $feature->{'qualifier'};
 				                                                        my $feature_type = $feature->{'qualifier_type'};
-				                                                        $feat->add_tag_value($feature_type => $value);
-								
+
+											for (my $i = 0;
+											     $i < scalar @{$value};
+											     $i++){
+				                                                        	$feat->add_tag_value(
+													$feature_type->[$i] => $value->[$i]
+												);
+											} # close the for loop
+
 										}
 
-							
-									}
+									} # close if (defined $seq_feature->...
 
-									 $seq->add_SeqFeature($feat);
-#									 push @{$self->{'sequence_objects'}}, $seq;
+
+									$seq->add_SeqFeature($feat);
+
 
 								} # close for my $seq_feature (@{$sequence_map->...
 
+
 							} # close if (defined $sequence_map->{annotations} &&
+
 
 						} # close for my $sequence_map (@{$bio_sequence->{'sequence_map'}}){
 
 					} # close if (defined $bio_sequence->{'sequence_map'}){
 
 
-				#} # close for my $bio_sequence
-
+				# This is where the Bio::Seq objects are stored:
 				push @{$self->{'sequence_objects'}}, $seq;
+
 
 			} # close for my $fragment_orientation
 
+
 		} # close for my $fragment_order
+
 
 	} # close for my $contig
 
 
+
 	# Flag is set so that we know that the sequence objects are now stored in $self.
 	$self->{'seqs_stored'} = 1;
+
+	return;
 
 }
 
@@ -1259,7 +1326,7 @@ sub next_seq {
   
 	$self->_store_seqs if $self->{'seqs_stored'} == 0;
 	# print Data::Dumper->Dump([$self]); exit;
-	die "_store_seqs not executed yet!" if !defined $self->{'sequence_objects'};
+	$self->throw("Error: No Bio::Seq objects stored yet!\n\n") if !defined $self->{'sequence_objects'};
 	if (scalar @{$self->{'sequence_objects'}} > 0){
 		return shift @{$self->{'sequence_objects'}};
 	} else {
@@ -1286,8 +1353,7 @@ sub next_primary_seq {
   my $self=shift;
   return 0;
 }
-
-
+# ==================================================================================
 =head2 write_seq
 
  Title   : write_seq
@@ -1298,15 +1364,17 @@ sub next_primary_seq {
 
 Convert embl/fasta/gb, whatever to agave.
 
-
 =cut
-
 sub write_seq {
-  my ($self,@seqs) = @_;
+
+	my ($self,@seqs) = @_;
   
-  foreach my $seq ( @seqs ){
-     $self->_write_each_record( $seq ) ;
-  }
+	foreach my $seq ( @seqs ){
+		$self->_write_each_record( $seq ) ;
+	}
+
+	return;
+
 }
 
 =head2 _write_each_record
