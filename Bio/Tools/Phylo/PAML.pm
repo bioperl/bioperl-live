@@ -2,7 +2,7 @@
 #
 # BioPerl module for Bio::Tools::Phylo::PAML
 #
-# Cared for by Jason Stajich <jason@bioperl.org>
+# Cared for by Jason Stajich <jason-at-bioperl.org>
 #
 # Copyright Jason Stajich, Aaron J Mackey
 #
@@ -134,8 +134,8 @@ email or the web:
 
 =head1 AUTHOR - Jason Stajich, Aaron Mackey
 
-Email jason@bioperl.org
-Email amackey@virginia.edu
+Email jason-at=bioperl.org
+Email amackey-at-virginia.edu
 
 =head1 TODO
 
@@ -669,11 +669,11 @@ sub _parse_PairwiseCodon {
 		 dS\=\s*(\d+(\.\d+)?)/ox ) {
 	    $result[$b-1]->[$a-1] = { 
 		'lnL' => $log,
-		't' => $t,
+		't' => defined $t && length($t) ? $t : $1,
 		'S' => $3,
 		'N' => $5,
 		'kappa' => $kappa,
-		'omega' => $omega,
+		'omega' => defined $omega && length($omega) ? $omega : $7,
 		'dN' => $9,
 		'dS' => $11 };
 	} elsif( /^\s+$/ ) { 
