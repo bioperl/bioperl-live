@@ -24,12 +24,13 @@ Bio::PrimarySeq - Bioperl lightweight Sequence Object
 
   #make from memory
   $seqobj = Bio::PrimarySeq->new ( -seq => 'ATGGGGTGGGCGGTGGGTGGTTTG',
-			    -id  => 'GeneFragment-12',
-			    -accession_number => 'X78121',
-			    -alphabet => 'dna',
-			    -is_circular => 1
-			    );
-  print "Sequence ", $seqobj->id(), " with accession ", $seqobj->accession_number, "\n";
+				   -id  => 'GeneFragment-12',
+				   -accession_number => 'X78121',
+				   -alphabet => 'dna',
+				   -is_circular => 1
+				   );
+  print "Sequence ", $seqobj->id(), " with accession ", 
+    $seqobj->accession_number, "\n";
 
   # read from file
   $inputstream = Bio::SeqIO->new(-file => "myseq.fa",-format => 'Fasta');
@@ -42,7 +43,8 @@ Bio::PrimarySeq - Bioperl lightweight Sequence Object
 
   # to get out parts of the sequence.
 
-  print "Sequence ", $seqobj->id(), " with accession ", $seqobj->accession_number, " and desc ", $seqobj->desc, "\n";
+  print "Sequence ", $seqobj->id(), " with accession ", 
+    $seqobj->accession_number, " and desc ", $seqobj->desc, "\n";
 
   $string  = $seqobj->seq();
   $string2 = $seqobj->subseq(1,40);
@@ -99,7 +101,6 @@ For writing files, a similar system is used
      $outputstream = Bio::SeqIO->new( -fh => \*OUTPUT, -format => 'Fasta');
      $outputstream->write_seq($seqobj);
 
-=back
 
 =head1 FEEDBACK
 
@@ -129,7 +130,8 @@ Describe contact details here
 
 =head1 APPENDIX
 
-The rest of the documentation details each of the object methods. Internal methods are usually preceded with a _
+The rest of the documentation details each of the object
+methods. Internal methods are usually preceded with a _
 
 =cut
 
@@ -200,7 +202,8 @@ sub new {
 
     if( defined $id && defined $given_id ) {
 	if( $id ne $given_id ) {
-	    $self->throw("Provided both id and display_id constructor functions. [$id] [$given_id]");	
+	    $self->throw("Provided both id and display_id constructor ".
+			 "functions. [$id] [$given_id]");	
 	}
     }
     if( defined $given_id ) { $id = $given_id; }
@@ -236,7 +239,8 @@ sub seq {
 
    if( defined $value) {
        if(! $obj->validate_seq($value)) {
-	   $obj->throw("Attempting to set the sequence to [$value] which does not look healthy");
+	   $obj->throw("Attempting to set the sequence to [$value] ".
+		       "which does not look healthy");
        }
        # if a sequence was already set we make sure that we re-adjust the
        # mol.type, otherwise we skip guessing if mol.type is already set
@@ -314,7 +318,8 @@ sub subseq {
 	       my $piece = substr( $self->seq(), $subloc->start - 1, 
 				   $subloc->length);
 	       if( $subloc->strand < 0 ) { 
-		   $piece = Bio::PrimarySeq->new('-seq' => $piece)->revcom()->seq();
+		   $piece = Bio::PrimarySeq->new('-seq' => 
+						 $piece)->revcom()->seq();
 	       }
 	       $seq .= $piece;
 	   }
@@ -328,10 +333,13 @@ sub subseq {
    } 
    elsif(  defined  $start && defined $end ) {
        if( $start > $end ){
-	   $self->throw("in subseq, start [$start] has to be greater than end [$end]");
+	   $self->throw("in subseq, start [$start] has to be ".
+			"greater than end [$end]");
        }
        if( $start <= 0 || $end > $self->length ) {
-	   $self->throw("You have to have start positive and length less than the total length of sequence [$start:$end] Total ".$self->length."");
+	   $self->throw("You have to have start positive \nand length less ".
+			"than the total length of sequence [$start:$end] ".
+			"Total ".$self->length."");
        }
 
        # remove one from start, and then length is end-start
@@ -339,7 +347,8 @@ sub subseq {
 
        return substr $self->seq(), $start, ($end-$start);
    } else {
-       $self->warn("Incorrect parameters to subseq - must be two integers or a Bio::LocationI object not ($start,$end)");
+       $self->warn("Incorrect parameters to subseq - must be two integers ".
+		   "or a Bio::LocationI object not ($start,$end)");
    }
 }
 
@@ -367,14 +376,16 @@ sub length {
  Usage   : $id_string = $obj->display_id();
  Function: returns the display id, aka the common name of the Sequence object.
 
-         The semantics of this is that it is the most likely string to be
-         used as an identifier of the sequence, and likely to have "human" readability.
-         The id is equivalent to the ID field of the GenBank/EMBL databanks and
-         the id field of the Swissprot/sptrembl database. In fasta format, the >(\S+)
-         is presumed to be the id, though some people overload the id to embed other
-         information. Bioperl does not use any embedded information in the ID field,
-         and people are encouraged to use other mechanisms (accession field for example,
-         or extending the sequence object) to solve this.
+           The semantics of this is that it is the most likely string to
+           be used as an identifier of the sequence, and likely to have
+           "human" readability.  The id is equivalent to the ID field of
+           the GenBank/EMBL databanks and the id field of the
+           Swissprot/sptrembl database. In fasta format, the >(\S+) is
+           presumed to be the id, though some people overload the id to
+           embed other information. Bioperl does not use any embedded
+           information in the ID field, and people are encouraged to use
+           other mechanisms (accession field for example, or extending
+           the sequence object) to solve this.
 
  Returns : A string
  Args    : None
@@ -403,8 +414,9 @@ sub display_id {
            unique id for the implemetation, allowing multiple objects
            to have the same accession number in a particular implementation.
 
-           For sequences with no accession number, this method should return
-           "unknown".
+           For sequences with no accession number, this method should
+           return "unknown".
+
  Returns : A string
  Args    : A string (optional) for setting
 
@@ -428,12 +440,13 @@ sub accession_number {
  Title   : primary_id
  Usage   : $unique_key = $obj->primary_id;
  Function: Returns the unique id for this object in this
-           implementation. This allows implementations to manage
-           their own object ids in a way the implementaiton can control
+           implementation. This allows implementations to manage their
+           own object ids in a way the implementaiton can control
            clients can expect one id to map to one object.
 
-           For sequences with no natural primary id, this method should return
-           a stringified memory location.
+           For sequences with no natural primary id, this method
+           should return a stringified memory location.
+
  Returns : A string
  Args    : A string (optional, for setting)
 
@@ -476,7 +489,8 @@ sub alphabet {
 	$value = lc $value;
 	unless ( $valid_type{$value} ) {
 	    $obj->throw("Molecular type '$value' is not a valid type (".
-			join(',', map "'$_'", sort keys %valid_type) .") lowercase");
+			join(',', map "'$_'", sort keys %valid_type) .
+			") lowercase");
 	}
 	$obj->{'alphabet'} = $value;
     }
@@ -510,7 +524,7 @@ sub desc {
  Usage   :
  Function:
  Example :
- Returns :
+ Returns : true
  Args    :
 
 
@@ -545,10 +559,10 @@ sub  id {
 }
 
 
-=head1 Methods Inherieted from Bio::PrimarySeqI
+=head1 Methods Inherited from Bio::PrimarySeqI
 
-These methods are available on Bio::PrimarySeq, although they are actually
-implemented on Bio::PrimarySeqI
+These methods are available on Bio::PrimarySeq, although they are
+actually implemented on Bio::PrimarySeqI
 
 =head2 revcom
 
@@ -617,7 +631,8 @@ sub _guess_alphabet {
 
    $total = CORE::length($str);
    if( $total == 0 ) {
-       $self->throw("Got a sequence with no letters in - cannot guess alphabet [$str]");
+       $self->throw("Got a sequence with no letters in - ".
+		    "cannot guess alphabet [$str]");
    }
 
    $str2 = $str;
