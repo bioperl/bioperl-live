@@ -152,9 +152,12 @@ sub new {
 
 sub add_Descendent{
    my ($self,$node,$ignoreoverwrite) = @_;
-   return -1 if( ! defined $node ) ;
-   if( ! $node->isa('Bio::Tree::NodeI') ) {
-       $self->warn("Trying to add a Descendent who is not a Bio::Tree::NodeI");
+   return -1 if( ! defined $node );
+   
+   if( ! ref($node) ||
+       ref($node) =~ /HASH/ ||
+       ! $node->isa('Bio::Tree::NodeI') ) {
+       $self->throw("Trying to add a Descendent who is not a Bio::Tree::NodeI");
        return -1;
    }
    # do we care about order?
@@ -513,7 +516,7 @@ sub invalidate_height {
     my ($self) = @_;
     
     $self->{'_height'} = undef;
-    if( $self->ancestor ) {
+    if( defined $self->ancestor ) {
 	$self->ancestor->invalidate_height;
     }
 }
