@@ -24,6 +24,10 @@ BEGIN {
 
 my $dumper = new Dumpvalue();
 
+print("Checking to see if Bio::SeqFeature::Primer is available.\n");
+use Bio::SeqFeature::Primer;
+ok(1);
+
 print("Checking to see if a primer outfile can be read...\n");
      # ph = "primer handle"
 my $ph = Bio::SeqIO->new('-file' => Bio::Root::IO->catfile("t","data",
@@ -32,22 +36,24 @@ my $ph = Bio::SeqIO->new('-file' => Bio::Root::IO->catfile("t","data",
 ok(ref($ph) eq "Bio::SeqIO::primer3");
 print("Getting an object from the primer file...\n");
 
-my $thingy = $ph->next_seq();
-ok (ref($thingy) eq "Bio::Seq");
-
-     # print("Here is the primer object that I got back:\n");
-     # $dumper->dumpValue($thingy);
-
-sub feature_things {
-        my @features = $thingy->all_SeqFeatures();
-        print("These are the seqfeatures: @features\n");
-        print("Dumping out those features names...\n");
-        foreach (@features) {
-             print("Name: ".$_->seqname()."\n");
-             print("\tSequence ".$_->entire_seq()->seq()."\n");
-        }
-}
-
+# this will work something like this but at this time it is incomplete
+# my $thingy = $ph->next_seq();
+# print("That thingy isa $thingy\n");
+# ok (ref($thingy) eq "Bio::Seq");
+# 
+#      # print("Here is the primer object that I got back:\n");
+#      # $dumper->dumpValue($thingy);
+# 
+# sub feature_things {
+#         my @features = $thingy->all_SeqFeatures();
+#         print("These are the seqfeatures: @features\n");
+#         print("Dumping out those features names...\n");
+#         foreach (@features) {
+#              print("Name: ".$_->seqname()."\n");
+#              print("\tSequence ".$_->entire_seq()->seq()."\n");
+#         }
+# }
+# 
 
 
 

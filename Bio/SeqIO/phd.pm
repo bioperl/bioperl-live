@@ -94,12 +94,10 @@ sub _initialize {
 
 sub next_seq {
     my ($self,@args) = @_;
-    my $entry;
+    my ($entry,$done,$qual,$seq);
     if (!($entry = $self->_readline)) { return; }
-    my ($qual,$seq);
     my $in_dna = 0;
     my $base_number = 0;
-    my $done;
     my ($id,@lines, @bases, @qualities) = ('');
     while ($entry = $self->_readline) {
 	return if (!$entry);
