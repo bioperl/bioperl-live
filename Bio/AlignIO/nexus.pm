@@ -194,9 +194,9 @@ sub next_aln {
     $self->throw("Not a valid NEXUS sequence file. Datatype should not be [$alphabet]")
 	unless $valid_type{$alphabet};
     $self->throw("\"$gap\" is not a valid gap character. For compatability, gap char can not be one of: ()[]{}/\,;:=*'`\"<>^")
-	if $gap =~ /[\(\)\[\]\{\}\/\\\,\;\:\=\*\'\`\<\>\^]/;
+    	if $gap && $gap =~ /[\(\)\[\]\{\}\/\\\,\;\:\=\*\'\`\<\>\^]/;
     $self->throw("\"$missing\" is not a valid missing character. For compatability, missing char can not be one of: ()[]{}/\,;:=*'`\"<>^")
-	if $missing =~ /[\(\)\[\]\{\}\/\\\,\;\:\=\*\'\`\<\>\^]/;
+    	if $missing && $missing =~ /[\(\)\[\]\{\}\/\\\,\;\:\=\*\'\`\<\>\^]/;
 
     $aln->gap_char($gap);
     $aln->missing_char($missing);
