@@ -26,16 +26,16 @@ sub start_document            {
     $self->{Names} = [];
     $self->{string} = '';
 }
+
 sub end_document              {
     my ($self, $document) = @_;
     delete $self->{Names};
-
     return new Bio::PrimarySeq( -seq => $self->{residues},
 				-moltype => $self->{moltype},
 				-id => $self->{seq},
 				-accession => $self->{accession},
 				-desc => $self->{desc},
-				-length => $self->{length}
+				-length => $self->{length},
 			      );
 
   }
@@ -47,11 +47,15 @@ sub start_element             {
      $self->{string} = '';
 
      if ($element->{Name} eq 'bx-seq:seq') {
-       if ($element->{Attributes}->{'bx-seq:id'} == $self->{seq}) {
+       if ($element->{Attributes}->{'bx-seq:id'} eq $self->{seq}) {
 	 $self->{in_current_seq} = 'true';
 	 $self->{moltype} = $element->{Attributes}->{'bx-seq:type'};
-	 $self->{length} = $element->{Attributes}->{'bx-seq:length'};
-       } else {
+	 $self->{length} =  $element->{Attributes}->{'bx-seq:length'};
+	 if( !$self->{length} ) {
+	     print STDERR "seq ", $self->{seq}, " does not have length\n";
+	     $self->{length} = length($self->{resoidues});
+	 }
+     } else {
 	 if ($self->can('warn')) {
 	   $self->warn('WARNING: Attribute bx-seq:id is required on bx-seq:seq. Sequence will not be parsed.');
 	 } else {

@@ -143,22 +143,24 @@ sub next_seq {
   }
   my $seq = shift(@{$self->{seqs}});
   if ($seq) {
-    my $handler = Bio::SeqIO::game::seqHandler->new($seq);
-    my $options = {Handler=>$handler};
-    my $parser = XML::Parser::PerlSAX->new($options);
-    my $pseq = $parser->parse(Source => { SystemId => $self->{file} });
+      my $shandler = Bio::SeqIO::game::seqHandler->new($seq);
+      my $options = {Handler=>$shandler};
+      my $parser = XML::Parser::PerlSAX->new($options);
+      my $pseq = $parser->parse(Source => { SystemId => $self->{file} });
 
-    my $handler = Bio::SeqIO::game::featureHandler->new($pseq->length(), $pseq->moltype());
-    my $options = {Handler=>$handler};
+      my $fhandler = Bio::SeqIO::game::featureHandler->new($pseq->id(),
+							   $pseq->length(), 
+							   $pseq->moltype());
+      $options = {Handler=>$fhandler};
 
-    my $parser = XML::Parser::PerlSAX->new($options);
-    my $features = $parser->parse(Source => { SystemId => $self->{file} });
-    my $seq = Bio::Seq->new();
-    foreach my $feature (@{$features}) {
-      $seq->add_SeqFeature($feature);
-    }
-    $seq->primary_seq($pseq);
-    return $seq;
+      $parser = XML::Parser::PerlSAX->new($options);
+      my $features = $parser->parse(Source => { SystemId => $self->{file} });
+      my $seq = Bio::Seq->new();
+      foreach my $feature (@{$features}) {
+	  $seq->add_SeqFeature($feature);
+      }
+      $seq->primary_seq($pseq);
+      return $seq;
   }
 }
 
@@ -167,7 +169,7 @@ sub next_seq {
  Title   : next_primary_seq
  Usage   : $seq = $stream->next_primary_seq()
  Function: returns the next primary sequence (ie no seq_features) in the stream
- Returns : Bio::Primary_Seq object
+ Returns : Bio::PrimarySeq object
  Args    : NONE
 
 =cut
@@ -257,10 +259,10 @@ sub write_seq {
     foreach my $feature (@feats) {
       if ($feature->has_tag('annotation_id')) {
 	my @ann_id = $feature->each_tag_value('annotation_id');
-	push (@{$features->{annotations}->{@ann_id[0]}}, $feature);
+	push (@{$features->{annotations}->{$ann_id[0]}}, $feature);
       } elsif ($feature->has_tag('computation_id')) {
 	my @comp_id = $feature->each_tag_value('computation_id');
-	push (@{$features->{computations}->{@comp_id[0]}}, $feature);
+	push (@{$features->{computations}->{$comp_id[0]}}, $feature);
       } else {
 	push (@{$features->{everybody_else}}, $feature);
       }

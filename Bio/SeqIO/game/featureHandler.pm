@@ -14,19 +14,17 @@ use strict;
 @ISA = qw(XML::Handler::Subs);
 
 sub new {
-    my $class = shift;
-    my $seq = shift;
-    my $length = shift;
-    my $type = shift;
-    my $self = {};
-    $self->{seq}=$seq;
-    $self->{length} = $length;
-    $self->{type} = $type;
-    $self->{string}="";
-    $self->{feat} = {};
-    $self->{feats} = [];
-    $self->{comp_id} = 1;
-    return bless ($self, $class);
+    my ($class,$seq,$length,$type) = @_;
+    my $self = bless {
+	seq      => $seq,
+	type     => $type,
+	length   => $length,
+	string   => '',
+	feat     => {},
+	feats    => [],
+	comp_id  => 1,
+    }, $class;
+    return $self;
 }
 
 # Basic PerlSAX
@@ -50,12 +48,14 @@ sub start_element             {
      my ($self, $element) = @_;
 
      push @{$self->{Names}}, $element->{Name};
-    $self->{string} = '';
-
+     $self->{string} = '';
+         
      if ($self->in_element('bx-feature:seq_relationship')) {
-       if ($element->{Attributes}->{'bx-feature:seq'} eq $self->{seq}) {
-	 $self->{in_current_seq} = 'true';
-       } 
+	 if (defined $element->{Attributes}->{'bx-feature:seq'} && 
+	     defined $self->{seq} &&
+	     $element->{Attributes}->{'bx-feature:seq'} eq $self->{seq}) {
+	     $self->{in_current_seq} = 'true';
+	 } 
      }
      
 
@@ -178,8 +178,9 @@ sub characters   {
 
 sub in_element {
     my ($self, $name) = @_;
-
-    return ($self->{Names}[-1] eq $name);
+    
+    return (defined $self->{Names}[-1] && 
+	    $self->{Names}[-1] eq $name);
 }
 
 sub within_element {
