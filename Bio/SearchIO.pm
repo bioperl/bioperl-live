@@ -93,6 +93,11 @@ use Bio::Event::EventGeneratorI;
 use Bio::SearchIO::SearchResultEventBuilder;
 use Bio::AnalysisParserI;
 
+# Special exception class for exceptions during parsing.
+# End users should not ever see these.
+# For an example of usage, see blast.pm.
+@Bio::SearchIO::InternalParserError::ISA = qw(Bio::Root::Exception);
+
 use Symbol();
 
 @ISA = qw( Bio::Root::IO Bio::Event::EventGeneratorI Bio::AnalysisParserI);
