@@ -1616,7 +1616,7 @@ sub _get_parse_blast_func {
         ## from a Blast report:
         ##   1. Header with description section,
         ##   2. An alignment section for a single hit, or
-        ##   3. An alignment section plus the footer section.
+        ##   3. The final alignment section plus the footer section.
 	## (record separator = "Newline>").
 
 #	print STDERR "\n(BLAST) DATA CHUNK: $data\n";
@@ -1684,19 +1684,20 @@ sub _get_parse_blast_func {
 	    # At this point, we know if there are any significant hits.
 	    if($Blast->{'_confirm_significance'} and not $current_blast->is_signif) {
 	      $current_blast->throw("No significant BLAST hits for ${\$current_blast->name}");
-	    }
+	  }
+	} # Done parsing header/description section
 
-	  } elsif(ref $Blast->{'_current_blast'}) {
+	elsif(ref $Blast->{'_current_blast'}) {
 	    # Process an alignment section. 
 	    $current_blast = $Blast->{'_current_blast'};
 #	    print STDERR "\nCONTINUING PROCESSING ALN WITH ", $current_blast->name, "\n";
 	    $current_blast->_parse_alignment($data);
-	  }
+	}
 	
 	# If the current Blast object has been completely parsed
 	# (occurs with a single Blast stream), or if there is a previous 
 	# Blast object (occurs with a multi Blast stream), 
-	# exect a supplied function on it or store it in a supplied array.
+	# execute a supplied function on it or store it in a supplied array.
 
 	if( defined $prev_blast or $current_blast->{'_found_params'}) {
 	  my $finished_blast = defined($prev_blast) ? $prev_blast : $current_blast;
@@ -1978,15 +1979,13 @@ sub _parse_alignment {
 	not ($Blast->{'_check_all'} or $Blast->{'_get_stats'});
     }
 
-    # Check for the presence of the Blast parameters (footer) section .
-    # _parse_parameters returns the alignment section.
-    $data = $self->_parse_parameters($data);
+    # Check for the presence of the Blast footer section.
+    # _parse_footer returns the alignment section.
+    $data = $self->_parse_footer($data);
 
-#    print "RETURNED FROM _parse_parameters($self)\n";
+#    print "RETURNED FROM _parse_footer (", $self->to_string, ")";
 #    print "\n  --> FOUND PARAMS.\n" if $self->{'_found_params'};
 #    print "\n  --> DID NOT FIND PARAMS.\n" unless $self->{'_found_params'};
-
-    return if $self->{'_found_params'} and not $Blast->{'_check_all'};
 
     require Bio::Tools::Blast::Sbjct;
 
@@ -2055,7 +2054,7 @@ sub _parse_alignment {
   }
 
 
-=head2 _parse_parameters
+=head2 _parse_footer
 
  Usage     : n/a; internal function. called by _parse_alignment()
  Purpose   : Extracts statistical and other parameters from the BLAST report.
@@ -2071,21 +2070,22 @@ sub _parse_alignment {
            : parse() parameter is false. The reason is that the layout
            : of the report  and the presence of gapping must always be set.
            : The determination whether to set additional stats is made 
-           : by methods called by _parse_parameters().
+           : by methods called by _parse_footer().
 
 See Also   : L<parse>(), L<_parse_alignment>(), L<_set_database>(), L<_set_program>()
 
 =cut
 
 #---------------------
-sub _parse_parameters {
+sub _parse_footer {
 #---------------------
-# Revamping. Needs to 
+# Basic strategy:
 # 1. figure out if we're supposed to get the stats,
 # 2. figure out if the stats are to be shared. some, not all can be shared 
 #    (eg., db info and matrix can be shared, karlin altschul params cannot.
 #    However, this method assumes they are all sharable.)
-# 3. return the block before the parameters section if the supplied data
+# 3. Parse the stats.
+# 4. return the block before the parameters section if the supplied data
 #    contains a footer parameters section.
 
     my ($self, $data) = @_;
@@ -2094,7 +2094,7 @@ sub _parse_parameters {
 #    printf STDERR "\nPARSING PARAMETERS for %s $self.\n", $self->name;
 
     # Should the parameters be shared?
-    # If so, set $self to the static $Blast object and return if 
+    # If so, set $self to be the static $Blast object and return if 
     # the parameters were already set.
     # Before returning, we need to extract the last alignment section
     # from the parameter section, if any.
@@ -2110,22 +2110,23 @@ sub _parse_parameters {
 	# NCBI-Blast2 format (v2.04).
 	($last_align, $params) = ($1, $2);
 	return $last_align if $client->{'_found_params'};
-	$self->_set_blast2_stats($params) if $get_stats;
+	$self->_set_blast2_stats($params);
 
     } elsif( $data =~ /(.+?)${Newline}Parameters:(.*)/so) {
-	# NCBI-Blast1 or WashU-Blast2 format.
-	($last_align, $params) = ($1, $2);
-	return $last_align if $client->{'_found_params'};
-	$self->_set_blast1_stats($params) if $get_stats;
+    # NCBI-Blast1 or WashU-Blast2 format.
+    ($last_align, $params) = ($1, $2);
+    return $last_align if $client->{'_found_params'};
+    $self->_set_blast1_stats($params);
 
     } elsif( $data =~ /(.+?)$Newline\s+Database:(.*)/so) {
         # Gotta watch out for confusion with the Database: line in the header
-        # which will be present in the last hit using the new parsing strategy.
+        # which will be present in the last hit of an internal Blast report 
+        # in a multi-report stream.
 
 	# NCBI-Blast2 format (v2.05).
 	($last_align, $params) = ($1, $2);
 	return $last_align if $client->{'_found_params'};
-	$self->_set_blast2_stats($params) if $get_stats;
+        $self->_set_blast2_stats($params);
     }
     
     # If parameter section was found, set a boolean, 
@@ -2159,14 +2160,14 @@ sub _parse_parameters {
 
 =head2 _set_blast2_stats
 
- Usage     : n/a; internal function called by _parse_parameters()
- Purpose   : Extracts statistical and other parameters from BLAST2 report.
+ Usage     : n/a; internal function called by _parse_footer()
+ Purpose   : Extracts statistical and other parameters from BLAST2 report footer.
            : Stats collected: database release, gapping,
            : posted date, matrix used, filter used, Karlin-Altschul parameters, 
            : E, S, T, X, W.
  Throws    : Exception if cannot get "Parameters" section of Blast report.
 
-See Also   : L<parse>(), L<_parse_parameters>(), L<_set_database>(), B<Bio::Tools::SeqAnal::set_date()>,L<Links to related modules>
+See Also   : L<parse>(), L<_parse_footer>(), L<_set_database>(), B<Bio::Tools::SeqAnal::set_date()>,L<Links to related modules>
 
 =cut
 
@@ -2182,7 +2183,7 @@ sub _set_blast2_stats {
     }
 
     # Other stats are not always essential.
-    return unless $self->{'_get_stats'};
+    return unless $Blast->{'_get_stats'};
 
     # Blast2 Doesn't report what filter was used in the parameters section.
     # It just gives a warning that *some* filter was used in the header. 
@@ -2233,14 +2234,14 @@ sub _set_blast2_stats {
 
 =head2 _set_blast1_stats
 
- Usage     : n/a; internal function called by _parse_parameters()
+ Usage     : n/a; internal function called by _parse_footer()
  Purpose   : Extracts statistical and other parameters from BLAST 1.x style eports.
            : Handles NCBI Blast1 and WashU-Blast2 formats.
            : Stats collected: database release, gapping, 
            : posted date, matrix used, filter used, Karlin-Altschul parameters, 
            : E, S, T, X, W.
 
-See Also   : L<parse>(), L<_parse_parameters>(), L<_set_database>(), B<Bio::Tools::SeqAnal::set_date()>,L<Links to related modules>
+See Also   : L<parse>(), L<_parse_footer>(), L<_set_database>(), B<Bio::Tools::SeqAnal::set_date()>,L<Links to related modules>
 
 =cut
 
@@ -2256,7 +2257,7 @@ sub _set_blast1_stats {
     }
 
     # Other stats are not always essential.
-    return unless $self->{'_get_stats'};
+    return unless $Blast->{'_get_stats'};
 
     if($data =~ /filter=(.+?)$Newline/so) {
 	$self->{'_filter'} = $1;
@@ -2345,13 +2346,13 @@ sub _set_gapping_wu {
 
 =head2 _set_date
 
- Usage     : n/a; internal function called by _parse_parameters()
+ Usage     : n/a; internal function called by _parse_footer()
  Purpose   : Determine the date on which the Blast analysis was performed.
  Comments  : Date information is not consistently added to Blast output.
            : Uses superclass method set_date() to set date from the file,
            : (if any).
 
-See Also   : L<_parse_parameters>(), B<Bio::Tools::SeqAnal::set_date()>,L<Links to related modules>
+See Also   : L<_parse_footer>(), B<Bio::Tools::SeqAnal::set_date()>,L<Links to related modules>
 
 =cut
 
@@ -2755,8 +2756,8 @@ sub gapped {
  Usage     : n/a; internal method.
  Purpose   : Set/Get indicator for collecting full statistics from report.
  Returns   : Boolean (0 | 1)
- Comments  : Obtains info from the static $Blast object if it has not been set
-           : for the current object.
+ Comments  : Obtains info from the static $Blast object which gets set
+           : by _init_parse_params().
 
 =cut
 
@@ -2764,10 +2765,8 @@ sub gapped {
 sub _get_stats { 
 #---------------
     my $self = shift; 
-    if(@_) { $self->{'_get_stats'} = shift; }
-    defined($self->{'_get_stats'}) ? $self->{'_get_stats'} : $Blast->{'_get_stats'}; 
+    $Blast->{'_get_stats'};
 }
-
 
 
 =head2 _layout
@@ -2814,8 +2813,10 @@ sub _layout {
            : Get the numbers of significant hits.
  Examples  : @hits       = $blast->hits();
            : $num_signif = $blast->hits();
- Returns   : List context : list of Bio::Tools::Blast::Sbjct.pm objects.
-           : Scalar context: integer (number of significant hits).
+ Returns   : List context : list of Bio::Tools::Blast::Sbjct.pm objects
+           :                or an empty list if there are no hits.
+           : Scalar context: integer (number of significant hits)
+           :                 or zero if there are no hits.
            :                 (Equivalent to num_hits()).
  Argument  : n/a. Relies on wantarray.
  Throws    : n/a.
@@ -3743,7 +3744,7 @@ sub _display_stats {
     printf( $OUT "%-15s: %s (OVERALL)$Newline", "HIGHEST $signif_str", $self->highest_signif('overall'));
     
 
-    if($self->_get_stats) {
+    if($Blast->_get_stats) {
 	my $warn = ($Blast->{'_share'}) ? '(SHARED STATS)' : '';
 	printf( $OUT "%-15s: %s$Newline", "MATRIX", $self->matrix() || 'UNKNOWN');
 	printf( $OUT "%-15s: %s$Newline", "FILTER", $self->filter() || 'UNKNOWN');
