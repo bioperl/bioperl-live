@@ -21,7 +21,7 @@ Bio::Tools::SeqStats - Object holding statistics for one particular sequence
 
 	$seqobj = Bio::PrimarySeq->new(-seq=>'ACTGTGGCGTCAACTG', 
 				       -moltype = 'dna', -id = 'test');
-	$seq_stats  =  Bio::Tools::SeqStats->new($seqobj);
+	$seq_stats  =  Bio::Tools::SeqStats->new(-seq=>$seqobj);
 
       # obtain a hash of counts of each type of monomer 
       # (ie amino or nucleic acid)
