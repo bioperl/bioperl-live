@@ -134,6 +134,7 @@
       the Bio::SearchIO module.
     </para>
   </section>
+
   <section id="design">
     <title>Design</title>
     <para>
@@ -163,34 +164,35 @@
 	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqIO.html">
 	Bio::SeqIO</ulink> module is used to parse different
       file formats and produces objects which are 
-<ulink
-	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/PrimarySeq.html">
-Bio::PrimarySeqI</ulink>
+      <ulink
+	url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/PrimarySeq.html">
+	Bio::PrimarySeqI</ulink>
       compliant, we have written <ulink
-	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SearchIO.html">
-Bio::SearchIO</ulink> to produce the
+	url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SearchIO.html">
+	Bio::SearchIO</ulink> to produce the
       Bio::Search objects.  Sequences are a little less complicated so
       there is only one primary object (Bio::PrimarySeqI) which Search
       results need three main components to represent the data
       processed in a file: 
-<ulink
-	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/Result/ResultI.html">Bio::Search::Result::ResultI</ulink> (top level results),
       <ulink
-	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/Hit/HitI.html">Bio::Search::Hit::HitI</ulink> (hits) and 
-<ulink
-	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/HSP/HSPI.html">
-Bio::Search::HSP::HSPI</ulink> (HSPs).   
+	url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/Result/ResultI.html">Bio::Search::Result::ResultI</ulink> (top level results),
+      <ulink
+	url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/Hit/HitI.html">Bio::Search::Hit::HitI</ulink> (hits) and 
+      <ulink
+	url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/HSP/HSPI.html">
+	Bio::Search::HSP::HSPI</ulink> (HSPs).   
       The <ulink
-	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SearchIO.html">
-Bio::SearchIO</ulink> object is then a factory which produces
+	url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SearchIO.html">
+	Bio::SearchIO</ulink> object is then a factory which produces
       <ulink
-	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/Result/ResultI.html">Bio::Search::Result::ResultI</ulink> objects  and the
+	url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/Result/ResultI.html">Bio::Search::Result::ResultI</ulink> objects  and the
       <ulink
-	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/Result/ResultI.html">Bio::Search::Result::ResultI</ulink> objects contain information about
+	url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/Result/ResultI.html">Bio::Search::Result::ResultI</ulink> objects contain information about
       the query, the database searched, and the full collection of Hits
       found for the query.
     </para>
   </section>
+
   <section id="functionality">
     <title>New Functionality</title>    
     <para>
@@ -203,6 +205,7 @@ Bio::SearchIO</ulink> object is then a factory which produces
       output, and output from Wise.
     </para>
   </section>
+
   <section id="use">
     <title>Parsing with Bio::SearchIO</title>
     <para>
@@ -228,7 +231,7 @@ Bio::SearchIO</ulink> object is then a factory which produces
       system without his help.  On the other hand Jason has tried 
       to make his implementations much easier to follow
       because all the parsing is done in one module.  
-      </para>
+    </para>
     <para>
       The important take home message is that you cannot assume that methods in the
       BlastXXX objects are in fact implemented by the GenericHSP objects.
@@ -267,6 +270,7 @@ Bio::SearchIO</ulink> object is then a factory which produces
       available in SearchIO. In order to display all these methods
       and what they return let's use a report as input, a simple BLASTX result: 
     </para>
+    <para>
     <programlisting>      
 BLASTX 2.2.4 [Aug-26-2002]
 
@@ -338,389 +342,391 @@ X1: 16 ( 7.3 bits)
 X2: 38 (14.6 bits)
 X3: 64 (24.7 bits)
 S1: 32 (17.6 bits)
-    </programlisting>
+      </programlisting>
+    </para>
     <para>
       Table 1 shows all the data returned by methods used by the
       Result, Hit, and HSP objects when the report shown above is used as
       input. Note that many of the methods shown can be used to either
       get or set values, but we're just showing what they get.
     </para>
-    <table>
-      <title>SearchIO Methods</title>
-      <tgroup cols="4">
-	<thead>
-	  <row>
-	    <entry>Object</entry>
-	    <entry>Method</entry>
-	    <entry>Example</entry>
-	    <entry>Description</entry>
-	  </row>
-	</thead>
-	<tbody>
-	  <row>
-	    <entry>Result</entry>
-	    <entry>algorithm</entry>
-	    <entry>BLASTX</entry>
-	    <entry>algorithm</entry>
-	  </row>
-	  <row>
-	    <entry>Result</entry>
-	    <entry>algorithm_version</entry>
-	    <entry>2.2.4 [Aug-26-2002]</entry>
-	    <entry>algorithm version</entry>
-	  </row>
-	  <row>
-	    <entry>Result</entry>
-	    <entry>query_name</entry>
-	    <entry>gi|20521485|dbj|AP004641.2</entry>
-	    <entry>query name</entry>
-	  </row>
-	  <row>
-	    <entry>Result</entry>
-	    <entry>query_accession</entry>
-	    <entry>AP004641.2</entry>
-	    <entry>query accession</entry>
-	  </row>
-	  <row>
-	    <entry>Result</entry>
-	    <entry>query_length</entry>
-	    <entry>3059</entry>
-	    <entry>query length</entry>
-	  </row>
-	  <row>
-	    <entry>Result</entry>
-	    <entry>query_description</entry>
-	    <entry>Oryza sativa ... 977CE9AF checksum.</entry>
-	    <entry>query description</entry>
-	  </row>
-	  <row>
-	    <entry>Result</entry>
-	    <entry>database_name</entry>
-	    <entry>test.fa </entry>
-	    <entry>database name</entry>
-	  </row>
-	  <row>
-	    <entry>Result</entry>
-	    <entry>database_letters</entry>
-	    <entry>1291</entry>
-	    <entry>number of residues in database</entry>
-	  </row>
-	  <row>
-	    <entry>Result</entry>
-	    <entry>database_entries</entry>
-	    <entry>5</entry>
-	    <entry>number of database entries</entry>
-	  </row>
-	  <row>
-	    <entry>Result</entry>
-	    <entry>available_statistics</entry>
-	    <entry>effectivespaceused ... dbletters</entry>
-	    <entry>statistics used</entry>
-	  </row>
-	  <row>
-	    <entry>Result</entry>
-	    <entry>available_parameters</entry>
-	    <entry>gapext matrix allowgaps gapopen</entry>
-	    <entry>parameters used</entry>
-	  </row>
-	  <row>
-	    <entry>Result</entry>
-	    <entry>num_hits</entry>
-	    <entry>1</entry>
-	    <entry>number of hits</entry>
-	  </row>
-	  <row>
-	    <entry>Result</entry>
-	    <entry>hits</entry>
-	    <entry> </entry>
-	    <entry>Search::Hit::GenericHit object</entry>
-	  </row>
-	  <row>
-	    <entry>Hit</entry>
-	    <entry>name</entry>
-	    <entry>gb|443893|124775</entry>
-	    <entry>hit name</entry>
-	  </row>
-	  <row>
-	    <entry>Hit</entry>
-	    <entry>length</entry>
-	    <entry>331</entry>
-	    <entry>Length of the Hit sequence</entry>
-	  </row>
-	  <row>
-	    <entry>Hit</entry>
-	    <entry>accession</entry>
-	    <entry>443893</entry>
-	    <entry>accession</entry>
-	  </row>
-	  <row>
-	    <entry>Hit</entry>
-	    <entry>description</entry>
-	    <entry>LaForas sequence</entry>
-	    <entry>hit description</entry>
-	  </row>
-	  <row>
-	    <entry>Hit</entry>
-	    <entry>algorithm</entry>
-	    <entry>BLASTX</entry>
-	    <entry>algorithm</entry>
-	  </row>
-	  <row>
-	    <entry>Hit</entry>
-	    <entry>raw_score</entry>
-	    <entry>92</entry>
-	    <entry>hit raw score</entry>
-	  </row>
-	  <row>
-	    <entry>Hit</entry>
-	    <entry>significance</entry>
-	    <entry>2e-022</entry>
-	    <entry>hit significance</entry>
-	  </row>
-	  <row>
-	    <entry>Hit</entry>
-	    <entry>bits</entry>
-	    <entry>92.0</entry>
-	    <entry>hit bits</entry>
-	  </row>
-	  <row>
-	    <entry>Hit</entry>
-	    <entry>hsps</entry>
-	    <entry> </entry>
-	    <entry>Search::HSP::GenericHSP object</entry>
-	  </row>
-	  <row>
-	    <entry>Hit</entry>
-	    <entry>num_hsps</entry>
-	    <entry>1</entry>
-	    <entry>number of HSPs in hit</entry>
-	  </row>
-	  <row>
-	    <entry>Hit</entry>
-	    <entry>locus</entry>
-	    <entry>124775</entry>
-	    <entry>locus name</entry>
-	  </row>
-	  <row>
-	    <entry>Hit</entry>
-	    <entry>accession_number</entry>
-	    <entry>443893</entry>
-	    <entry>accession number</entry>
-	  </row>
-	  <row>
+    <para>
+      <table>
+	<title>SearchIO Methods</title>
+	<tgroup cols="4">
+	  <thead>
+	    <row>
+	      <entry>Object</entry>
+	      <entry>Method</entry>
+	      <entry>Example</entry>
+	      <entry>Description</entry>
+	    </row>
+	  </thead>
+	  <tbody>
+	    <row>
+	      <entry>Result</entry>
+	      <entry>algorithm</entry>
+	      <entry>BLASTX</entry>
+	      <entry>algorithm</entry>
+	    </row>
+	    <row>
+	      <entry>Result</entry>
+	      <entry>algorithm_version</entry>
+	      <entry>2.2.4 [Aug-26-2002]</entry>
+	      <entry>algorithm version</entry>
+	    </row>
+	    <row>
+	      <entry>Result</entry>
+	      <entry>query_name</entry>
+	      <entry>gi|20521485|dbj|AP004641.2</entry>
+	      <entry>query name</entry>
+	    </row>
+	    <row>
+	      <entry>Result</entry>
+	      <entry>query_accession</entry>
+	      <entry>AP004641.2</entry>
+	      <entry>query accession</entry>
+	    </row>
+	    <row>
+	      <entry>Result</entry>
+	      <entry>query_length</entry>
+	      <entry>3059</entry>
+	      <entry>query length</entry>
+	    </row>
+	    <row>
+	      <entry>Result</entry>
+	      <entry>query_description</entry>
+	      <entry>Oryza sativa ... 977CE9AF checksum.</entry>
+	      <entry>query description</entry>
+	    </row>
+	    <row>
+	      <entry>Result</entry>
+	      <entry>database_name</entry>
+	      <entry>test.fa </entry>
+	      <entry>database name</entry>
+	    </row>
+	    <row>
+	      <entry>Result</entry>
+	      <entry>database_letters</entry>
+	      <entry>1291</entry>
+	      <entry>number of residues in database</entry>
+	    </row>
+	    <row>
+	      <entry>Result</entry>
+	      <entry>database_entries</entry>
+	      <entry>5</entry>
+	      <entry>number of database entries</entry>
+	    </row>
+	    <row>
+	      <entry>Result</entry>
+	      <entry>available_statistics</entry>
+	      <entry>effectivespaceused ... dbletters</entry>
+	      <entry>statistics used</entry>
+	    </row>
+	    <row>
+	      <entry>Result</entry>
+	      <entry>available_parameters</entry>
+	      <entry>gapext matrix allowgaps gapopen</entry>
+	      <entry>parameters used</entry>
+	    </row>
+	    <row>
+	      <entry>Result</entry>
+	      <entry>num_hits</entry>
+	      <entry>1</entry>
+	      <entry>number of hits</entry>
+	    </row>
+	    <row>
+	      <entry>Result</entry>
+	      <entry>hits</entry>
+	      <entry> </entry>
+	      <entry>Search::Hit::GenericHit object</entry>
+	    </row>
+	    <row>
+	      <entry>Hit</entry>
+	      <entry>name</entry>
+	      <entry>gb|443893|124775</entry>
+	      <entry>hit name</entry>
+	    </row>
+	    <row>
+	      <entry>Hit</entry>
+	      <entry>length</entry>
+	      <entry>331</entry>
+	      <entry>Length of the Hit sequence</entry>
+	    </row>
+	    <row>
+	      <entry>Hit</entry>
+	      <entry>accession</entry>
+	      <entry>443893</entry>
+	      <entry>accession</entry>
+	    </row>
+	    <row>
+	      <entry>Hit</entry>
+	      <entry>description</entry>
+	      <entry>LaForas sequence</entry>
+	      <entry>hit description</entry>
+	    </row>
+	    <row>
+	      <entry>Hit</entry>
+	      <entry>algorithm</entry>
+	      <entry>BLASTX</entry>
+	      <entry>algorithm</entry>
+	    </row>
+	    <row>
+	      <entry>Hit</entry>
+	      <entry>raw_score</entry>
+	      <entry>92</entry>
+	      <entry>hit raw score</entry>
+	    </row>
+	    <row>
+	      <entry>Hit</entry>
+	      <entry>significance</entry>
+	      <entry>2e-022</entry>
+	      <entry>hit significance</entry>
+	    </row>
+	    <row>
+	      <entry>Hit</entry>
+	      <entry>bits</entry>
+	      <entry>92.0</entry>
+	      <entry>hit bits</entry>
+	    </row>
+	    <row>
+	      <entry>Hit</entry>
+	      <entry>hsps</entry>
+	      <entry> </entry>
+	      <entry>Search::HSP::GenericHSP object</entry>
+	    </row>
+	    <row>
+	      <entry>Hit</entry>
+	      <entry>num_hsps</entry>
+	      <entry>1</entry>
+	      <entry>number of HSPs in hit</entry>
+	    </row>
+	    <row>
+	      <entry>Hit</entry>
+	      <entry>locus</entry>
+	      <entry>124775</entry>
+	      <entry>locus name</entry>
+	    </row>
+	    <row>
+	      <entry>Hit</entry>
+	      <entry>accession_number</entry>
+	      <entry>443893</entry>
+	      <entry>accession number</entry>
+	    </row>
+	    <row>
+	      <entry>HSP</entry>
+	      <entry>algorithm</entry>
+	      <entry>BLASTX</entry>
+	      <entry>algorithm</entry>
+	    </row>
+	    <row>
+	      <entry>HSP</entry>
+	      <entry>evalue</entry>
+	      <entry>2e-022</entry>
+	      <entry>e-value</entry>
+	    </row>
+	    <row>
+	      <entry>HSP</entry>
+	      <entry>expect</entry>
+	      <entry>2e-022</entry>
+	      <entry>alias for evalue()</entry>
+	    </row>
+	    <row>
+	      <entry>HSP</entry>
+	      <entry>frac_identical</entry>
+	      <entry>0.884615384615385</entry>
+	      <entry>Fraction identical</entry>
+	    </row>
+	    <row>
+	      <entry>HSP</entry>
+	      <entry>frac_conserved</entry>
+	      <entry>0.923076923076923</entry>
+	      <entry>desc</entry>
+	    </row>
+	    <row>
+	      <entry>HSP</entry>
+	      <entry>gaps</entry>
+	      <entry>2</entry>
+	      <entry>number of gaps</entry>
+	    </row>
+	    <row>
+	      <entry>HSP</entry>
+	      <entry>query_string</entry>
+	      <entry>DMGRCSSG ...</entry>
+	      <entry>string from alignment</entry>
+	    </row>
+	    <row>
+	      <entry>HSP</entry>
+	      <entry>hit_string</entry>
+	      <entry>DIVQNSS ...</entry>
+	      <entry>string from alignment</entry>
+	    </row>
+	    <row>
+	      <entry>HSP</entry>
+	      <entry>homology_string</entry>
+	      <entry>D+ + SSGCN ...</entry>
+	      <entry>string from alignment</entry>
+	    </row>
+	    <row>
+	      <entry>HSP</entry>
+	      <entry>length('total')</entry>
+	      <entry>52</entry>
+	      <entry>length of HSP (including gaps)</entry>
+	    </row>
+	    <row>
+	      <entry>HSP</entry>
+	      <entry>length('hit')</entry>
+	      <entry>50</entry>
+	      <entry>length of hit participating in alignment minus gaps</entry>
+	    </row>
+	    <row>
+	      <entry>HSP</entry>
+	      <entry>length('query')</entry>
+	      <entry>156</entry>
+	      <entry>length of query participating in alignment minus gaps</entry>
+	    </row>
+	    <row>
+	      <entry>HSP</entry>
+	      <entry>hsp_length</entry>
+	      <entry>52</entry>
+	      <entry>Length of the HSP (including gaps) alias for length('total')</entry>
+	    </row>
+	    <row>
+	      <entry>HSP</entry>
+	      <entry>frame</entry>
+	      <entry>0</entry>
+	      <entry>$hsp->query->frame,$hsp->hit->frame</entry>
+	    </row>
+	    <row>
+	      <entry>HSP</entry>
+	      <entry>num_conserved</entry>
+	      <entry>48</entry>
+	      <entry>number of conserved residues</entry>
+	    </row>
+	    <row>
+	      <entry>HSP</entry>
+	      <entry>num_identical</entry>
+	      <entry>46</entry>
+	      <entry>number of identical residues</entry>
+	    </row>
+	    <row>
+	      <entry>HSP</entry>
+	      <entry>rank</entry>
+	      <entry>1</entry>
+	      <entry>rank of HSP</entry>
+	    </row>
+	    <row>
+	      <entry>HSP</entry>
+	      <entry>seq_inds('query','identical')</entry>
+	      <entry>(966,971,972,973,974,975 ...)</entry>
+	      <entry>identical positions as array</entry>
+	    </row>
+	    <row>
+	      <entry>HSP</entry>
+	      <entry>seq_inds('query','conserved')</entry>
+	      <entry>(967,969)</entry>
+	      <entry>conserved positions as array</entry>
+	    </row>
+	    <row>
+	      <entry>HSP</entry>
+	      <entry>seq_inds('hit','identical')</entry>
+	      <entry>(197,202,203,204,205 ...)</entry>
+	      <entry>identical positions as array</entry>
+	    </row>
+	    <row>
+	      <entry>HSP</entry>
+	      <entry>seq_inds('hit','conserved')</entry>
+	      <entry>(198,200)</entry>
+	      <entry>conserved positions as array</entry>
+	    </row>
+	    <row>
+	      <entry>HSP</entry>
+	      <entry>score</entry>
+	      <entry>227</entry>
+	      <entry>score</entry>
+	    </row>
+	    <row>
+	      <entry>HSP</entry>
+	      <entry>bits</entry>
+	      <entry>92.0</entry>
+	      <entry>bits</entry>
+	    </row>
+	    <row>
+	      <entry>HSP</entry>
+	      <entry>range('query')</entry>
+	      <entry>(2896,3051)</entry>
+	      <entry>start and end as array</entry>
+	    </row>
+	    <row>
 	    <entry>HSP</entry>
-	    <entry>algorithm</entry>
-	    <entry>BLASTX</entry>
-	    <entry>algorithm</entry>
-	  </row>
-	  <row>
-	    <entry>HSP</entry>
-	    <entry>evalue</entry>
-	    <entry>2e-022</entry>
-	    <entry>e-value</entry>
-	  </row>
-	   <row>
-	    <entry>HSP</entry>
-	    <entry>expect</entry>
-	    <entry>2e-022</entry>
-	    <entry>alias for evalue()</entry>
-	  </row>
-	  <row>
-	    <entry>HSP</entry>
-	    <entry>frac_identical</entry>
-	    <entry>0.884615384615385</entry>
-	    <entry>Fraction identical</entry>
-	  </row>
-	  <row>
-	    <entry>HSP</entry>
-	    <entry>frac_conserved</entry>
-	    <entry>0.923076923076923</entry>
-	    <entry>desc</entry>
-	  </row>
-	  <row>
-	    <entry>HSP</entry>
-	    <entry>gaps</entry>
-	    <entry>2</entry>
-	    <entry>number of gaps</entry>
-	  </row>
-	  <row>
-	    <entry>HSP</entry>
-	    <entry>query_string</entry>
-	    <entry>DMGRCSSG ...</entry>
-	    <entry>string from alignment</entry>
-	  </row>
-	  <row>
-	    <entry>HSP</entry>
-	    <entry>hit_string</entry>
-	    <entry>DIVQNSS ...</entry>
-	    <entry>string from alignment</entry>
-	  </row>
-	  <row>
-	    <entry>HSP</entry>
-	    <entry>homology_string</entry>
-	    <entry>D+ + SSGCN ...</entry>
-	    <entry>string from alignment</entry>
-	  </row>
-	  <row>
-	    <entry>HSP</entry>
-	    <entry>length('total')</entry>
-	    <entry>52</entry>
-	    <entry>length of HSP (including gaps)</entry>
-	  </row>
-	  <row>
-	    <entry>HSP</entry>
-	    <entry>length('hit')</entry>
-	    <entry>50</entry>
-	    <entry>length of hit participating in alignment minus gaps</entry>
-	  </row>
-	  <row>
-	    <entry>HSP</entry>
-	    <entry>length('query')</entry>
-	    <entry>156</entry>
-	    <entry>length of query participating in alignment minus gaps</entry>
-	  </row>
-	  <row>
-	    <entry>HSP</entry>
-	    <entry>hsp_length</entry>
-	    <entry>52</entry>
-	    <entry>Length of the HSP (including gaps) alias for length('total')</entry>
-	  </row>
-	  <row>
-	    <entry>HSP</entry>
-	    <entry>frame</entry>
-	    <entry>0</entry>
-	    <entry>$hsp->query->frame,$hsp->hit->frame</entry>
-	  </row>
-	  <row>
-	    <entry>HSP</entry>
-	    <entry>num_conserved</entry>
-	    <entry>48</entry>
-	    <entry>number of conserved residues</entry>
-	  </row>
-	  <row>
-	    <entry>HSP</entry>
-	    <entry>num_identical</entry>
-	    <entry>46</entry>
-	    <entry>number of identical residues</entry>
-	  </row>
-	  <row>
-	    <entry>HSP</entry>
-	    <entry>rank</entry>
-	    <entry>1</entry>
-	    <entry>rank of HSP</entry>
-	  </row>
-	  <row>
-	    <entry>HSP</entry>
-	    <entry>seq_inds('query','identical')</entry>
-	    <entry>(966,971,972,973,974,975 ...)</entry>
-	    <entry>identical positions as array</entry>
-	  </row>
-	  <row>
-	    <entry>HSP</entry>
-	    <entry>seq_inds('query','conserved')</entry>
-	    <entry>(967,969)</entry>
-	    <entry>conserved positions as array</entry>
-	  </row>
-	  <row>
-	    <entry>HSP</entry>
-	    <entry>seq_inds('hit','identical')</entry>
-	    <entry>(197,202,203,204,205 ...)</entry>
-	    <entry>identical positions as array</entry>
-	  </row>
-	  <row>
-	    <entry>HSP</entry>
-	    <entry>seq_inds('hit','conserved')</entry>
-	    <entry>(198,200)</entry>
-	    <entry>conserved positions as array</entry>
-	  </row>
-	  <row>
-	    <entry>HSP</entry>
-	    <entry>score</entry>
-	    <entry>227</entry>
-	    <entry>score</entry>
-	  </row>
-	  <row>
-	    <entry>HSP</entry>
-	    <entry>bits</entry>
-	    <entry>92.0</entry>
-	    <entry>bits</entry>
-	  </row>
-	  <row>
-	    <entry>HSP</entry>
-	    <entry>range('query')</entry>
-	    <entry>(2896,3051)</entry>
-	    <entry>start and end as array</entry>
-	  </row>
-	  <row>
-	    <entry>HSP</entry>
-	    <entry>range('hit')</entry>
-	    <entry>(197,246)</entry>
-	    <entry>start and end as array</entry>
-	  </row>
-	  <row>
-	    <entry>HSP</entry>
-	    <entry>percent_identity</entry>
-	    <entry>88.4615384615385</entry>
-	    <entry>% identical</entry>
-	  </row>
-	  <row>
-	    <entry>HSP</entry>
-	    <entry>strand('hit')</entry>
-	    <entry>1</entry>
-	    <entry>strand of the hit</entry>
-	  </row>
-	  <row>
-	    <entry>HSP</entry>
-	    <entry>strand('query')</entry>
-	    <entry>1</entry>
-	    <entry>strand of the query</entry>
-	  </row>
-	  <row>
-	    <entry>HSP</entry>
-	    <entry>start('query')</entry>
-	    <entry>2896</entry>
-	    <entry>start position from alignment</entry>
-	  </row>
-	  <row>
-	    <entry>HSP</entry>
-	    <entry>end('query')</entry>
-	    <entry>3051</entry>
-	    <entry>end position from alignment</entry>
-	  </row>
-	  <row>
-	    <entry>HSP</entry>
-	    <entry>start('hit')</entry>
-	    <entry>197</entry>
-	    <entry>start position from alignment</entry>
-	  </row>
-	  <row>
-	    <entry>HSP</entry>
-	    <entry>end('hit')</entry>
-	    <entry>246</entry>
-	    <entry>end position from alignment</entry>
-	  </row>
-	  <row>
-	    <entry>HSP</entry>
-	    <entry>matches('hit')</entry>
-	    <entry>(46,48)</entry>
-	    <entry>number of identical and conserved as array</entry>
-	  </row>
-	  <row>
-	    <entry>HSP</entry>
-	    <entry>matches('query')</entry>
-	    <entry>(46,48)</entry>
-	    <entry>number of identical and conserved as array</entry>
-	  </row>
-	  <row>
-	    <entry>HSP</entry>
-	    <entry>alignment</entry>
-	    <entry> </entry>
-	    <entry>Bio::SimpleAlign object</entry>
-	  </row>
-	</tbody>
-      </tgroup>
-    </table>
-    
+	      <entry>range('hit')</entry>
+	      <entry>(197,246)</entry>
+	      <entry>start and end as array</entry>
+	    </row>
+	    <row>
+	      <entry>HSP</entry>
+	      <entry>percent_identity</entry>
+	      <entry>88.4615384615385</entry>
+	      <entry>% identical</entry>
+	    </row>
+	    <row>
+	      <entry>HSP</entry>
+	      <entry>strand('hit')</entry>
+	      <entry>1</entry>
+	      <entry>strand of the hit</entry>
+	    </row>
+	    <row>
+	      <entry>HSP</entry>
+	      <entry>strand('query')</entry>
+	      <entry>1</entry>
+	      <entry>strand of the query</entry>
+	    </row>
+	    <row>
+	      <entry>HSP</entry>
+	      <entry>start('query')</entry>
+	      <entry>2896</entry>
+	      <entry>start position from alignment</entry>
+	    </row>
+	    <row>
+	      <entry>HSP</entry>
+	      <entry>end('query')</entry>
+	      <entry>3051</entry>
+	      <entry>end position from alignment</entry>
+	    </row>
+	    <row>
+	      <entry>HSP</entry>
+	      <entry>start('hit')</entry>
+	      <entry>197</entry>
+	      <entry>start position from alignment</entry>
+	    </row>
+	    <row>
+	      <entry>HSP</entry>
+	      <entry>end('hit')</entry>
+	      <entry>246</entry>
+	      <entry>end position from alignment</entry>
+	    </row>
+	    <row>
+	      <entry>HSP</entry>
+	      <entry>matches('hit')</entry>
+	      <entry>(46,48)</entry>
+	      <entry>number of identical and conserved as array</entry>
+	    </row>
+	    <row>
+	      <entry>HSP</entry>
+	      <entry>matches('query')</entry>
+	      <entry>(46,48)</entry>
+	      <entry>number of identical and conserved as array</entry>
+	    </row>
+	    <row>
+	      <entry>HSP</entry>
+	      <entry>alignment</entry>
+	      <entry> </entry>
+	      <entry>Bio::SimpleAlign object</entry>
+	    </row>
+	  </tbody>
+	</tgroup>
+      </table>
+    </para>
     <para>
       Table 1 shows that a method can return a string, an array,
       or an object. When an object is returned some
@@ -728,15 +734,15 @@ S1: 32 (17.6 bits)
       interest. For example, if you wanted a printable alignment after
       you'd parsed BLAST output you could use the get_aln() method,
       retrieve a <ulink
-	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SimpleAlign.html">
-Bio::SimpleAlign</ulink> object and use it like this:
+	url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SimpleAlign.html">
+	Bio::SimpleAlign</ulink> object and use it like this:
       <programlisting>
 	use Bio::AlignIO;
 	# $aln will be a Bio::SimpleAlign object
 	my $aln = $hsp->get_aln;
 	my $alnIO = Bio::AlignIO->new(-format=>"msf");
 	my $alignment_as_string = $alnIO->write_aln($aln);
-   </programlisting>
+      </programlisting>
       On one hand it appears to be a complication, but by entering the
       worlds of the AlignIO and SimpleAlign objects you now have access to their
       functionality and flexibility. This is the beauty of Bioperl!
@@ -753,17 +759,17 @@ Bio::SimpleAlign</ulink> object and use it like this:
       <simplelist type="horiz" columns="2">
 	<member><emphasis>q</emphasis></member>
 	<member>query sequence contains overlapping sub-sequences
-             while hit sequence does not</member>
+	  while hit sequence does not</member>
 	<member><emphasis>s</emphasis></member>
 	<member>hit sequence contains overlapping sub-sequences
-             while query does not</member>
+	  while query does not</member>
 	<member><emphasis>qw</emphasis></member>
 	<member>query and hit sequences contain overlapping sub-sequences
-             relative to each other</member>
+	  relative to each other</member>
 	<member><emphasis>-</emphasis></member>
 	<member>query and hit sequence do not contain multiple domains
-             relative to each other OR both contain the same distribution
-             of similar domains</member>
+	  relative to each other OR both contain the same distribution
+	  of similar domains</member>
       </simplelist>
     </para>
     <para>
@@ -777,7 +783,7 @@ Bio::SimpleAlign</ulink> object and use it like this:
 	foreach ( $hsp->seq_inds('query','conserved') ){
 	   push @conserved,$str_array[$_ - 1];
 	}
-    </programlisting>
+      </programlisting>
     </para>
     <para>
       seq_inds() can be very useful for extracting the mismatch bases
@@ -896,9 +902,9 @@ Bio::SimpleAlign</ulink> object and use it like this:
       appropriate start and end events and the existing framework will
       do the work of creating the objects for you.  Here's how we've
       implemented event-based parsing for 
-<ulink
-	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SearchIO.html">
-Bio::SearchIO</ulink>.  The
+      <ulink
+	url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SearchIO.html">
+	Bio::SearchIO</ulink>.  The
       Bio::SearchIO is just the front-end to this process, in fact the
       processing of these reports is done by different modules in the
       Bio/SearchIO directory.  So if you look at your bioperl
@@ -935,11 +941,11 @@ Bio::SearchIO</ulink>.  The
       quickly read the list of events and know which ones are related
       to Hits and which ones are related to HSPs.  The listener in our
       architecture is the <ulink
-	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SearchIO/SearchResultEventBuilder.html">Bio::SearchIO::SearchResultEventBuilder</ulink>.
+	url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SearchIO/SearchResultEventBuilder.html">Bio::SearchIO::SearchResultEventBuilder</ulink>.
       This object is attached as a listener through the 
-<ulink
-	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SearchIO.html">
-Bio::SearchIO</ulink>
+      <ulink
+	url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SearchIO.html">
+	Bio::SearchIO</ulink>
       method add_EventListener.  In fact you could have multiple event
       listeners and they could do different things.  In our case we
       want to create Bio::Search objects, but an event listener could
@@ -1018,8 +1024,8 @@ Bio::SearchIO</ulink>
     <title>Extending SearchIO</title>
     <para>
       The framework for <ulink
-	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SearchIO.html">
-Bio::SearchIO</ulink> is just a starting point for parsing
+	url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SearchIO.html">
+	Bio::SearchIO</ulink> is just a starting point for parsing
       these reports and creating objects which represent the information.
       If you would like to create your own set of objects which extend the
       current functionality we have built the system so that it will
@@ -1043,13 +1049,13 @@ Bio::SearchIO</ulink> is just a starting point for parsing
     <para>
       So, you're going to write your new special module, you do need to
       make sure it inherits from the base 
-<ulink
-	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/HSP/HSPI.html">
-Bio::Search::HSP::HSPI</ulink> object.
+      <ulink
+	url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/HSP/HSPI.html">
+	Bio::Search::HSP::HSPI</ulink> object.
       Additionally unless you want to reimplement all the initialization
       state in the current 
-<ulink
-	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/HSP/GenericHSP.html">Bio::Search::HSP::GenericHSP</ulink> you should just
+      <ulink
+	url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/HSP/GenericHSP.html">Bio::Search::HSP::GenericHSP</ulink> you should just
       plan to extend that object.  You need to follow the chained
       constructor system that we have set up so that the arguments are
       properly processed.  Here is a sample of what your code might look
@@ -1123,7 +1129,7 @@ $searchio->_eventHandler->register_factory('hit', $hitfact);
   </section>
 
   <section id="links">
-  <title>Useful links</title>
+    <title>Useful links</title>
     <para>
       <emphasis>SearchIO Modules</emphasis>
       <simplelist type="horiz" columns="1">
@@ -1131,114 +1137,112 @@ $searchio->_eventHandler->register_factory('hit', $hitfact);
 	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SearchIO.html">
 	    SearchIO.pm</ulink></member>
 	
-<member><ulink
+	<member><ulink
 	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SearchIO/axt.html">SearchIO/axt.pm</ulink></member>
-<member><ulink
+	<member><ulink
 	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SearchIO/blast.html">SearchIO/blast.pm</ulink></member>
-<member><ulink
+	<member><ulink
 	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SearchIO/blasttable.html">SearchIO/blasttable.pm</ulink></member>
-<member><ulink
+	<member><ulink
 	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SearchIO/blastxml.html">SearchIO/blastxml.pm</ulink></member>
-<member><ulink
+	<member><ulink
 	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SearchIO/EventHandlerI.html">SearchIO/EventHandlerI.pm</ulink></member>
-<member><ulink
+	<member><ulink
 	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SearchIO/exonerate.html">SearchIO/exonerate.pm</ulink></member>
 <member><ulink
 	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SearchIO/fasta.html">SearchIO/fasta.pm</ulink></member>
 <member><ulink
 	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SearchIO/FastHitEventBuilder.html">SearchIO/FastHitEventBuilder.pm</ulink></member>
-<member><ulink
+	<member><ulink
 	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SearchIO/hmmer.html">SearchIO/hmmer.pm</ulink></member>
-<member><ulink
+	<member><ulink
 	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SearchIO/IteratedSearchResultEventBuilder.html">SearchIO/IteratedSearchResultEventBuilder.pm</ulink></member>
-<member><ulink
+	<member><ulink
 	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SearchIO/megablast.html">SearchIO/megablast.pm</ulink></member>
-<member><ulink
+	<member><ulink
 	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SearchIO/psl.html">SearchIO/psl.pm</ulink></member>
-<member><ulink
+	<member><ulink
 	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SearchIO/SearchResultEventBuilder.html">SearchIO/SearchResultEventBuilder.pm</ulink></member>
-<member><ulink
+	<member><ulink
 	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SearchIO/SearchWriterI.html">SearchIO/SearchWriterI.pm</ulink></member>
-<member><ulink
+	<member><ulink
 	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SearchIO/sim4.html">SearchIO/sim4.pm</ulink></member>
-<member><ulink
+	<member><ulink
 	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SearchIO/waba.html">SearchIO/waba.pm</ulink></member>
-<member><ulink
+	<member><ulink
 	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SearchIO/wise.html">SearchIO/wise.pm</ulink></member>
-<member><ulink
+	<member><ulink
 	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SearchIO/Writer/BSMLResultWriter.html">SearchIO/Writer/BSMLResultWriter.pm</ulink></member>
-<member><ulink
+	<member><ulink
 	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SearchIO/Writer/GbrowseGFF.html">SearchIO/Writer/GbrowseGFF.pm</ulink></member>
-<member><ulink
+	<member><ulink
 	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SearchIO/Writer/HitTableWriter.html">SearchIO/Writer/HitTableWriter.pm</ulink></member>
-<member><ulink
+	<member><ulink
 	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SearchIO/Writer/HSPTableWriter.html">SearchIO/Writer/HSPTableWriter.pm</ulink></member>
-<member><ulink
+	<member><ulink
 	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SearchIO/Writer/HTMLResultWriter.html">SearchIO/Writer/HTMLResultWriter.pm</ulink></member>
-<member><ulink
+	<member><ulink
 	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SearchIO/Writer/ResultTableWriter.html">SearchIO/Writer/ResultTableWriter.pm</ulink></member>
-<member><ulink
+	<member><ulink
 	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SearchIO/Writer/TextResultWriter.html">SearchIO/Writer/TextResultWriter.pm</ulink></member>
-
-<member><ulink
+	<member><ulink
 	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/BlastUtils.html">Search/BlastUtils.pm</ulink></member>
-<member><ulink
+	<member><ulink
 	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/DatabaseI.html">Search/DatabaseI.pm</ulink></member>
-<member><ulink
+	<member><ulink
 	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/GenericDatabase.html">Search/GenericDatabase.pm</ulink></member>
-<member><ulink
+	<member><ulink
 	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/Hit/BlastHit.html">Search/Hit/BlastHit.pm</ulink></member>
-<member><ulink
+	<member><ulink
 	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/Hit/Fasta.html">Search/Hit/Fasta.pm</ulink></member>
-<member><ulink
+	<member><ulink
 	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/Hit/GenericHit.html">Search/Hit/GenericHit.html">Search/Hit/GenericHit.pm</ulink></member>
-<member><ulink
+	<member><ulink
 	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/Hit/HitFactory.html">Search/Hit/HitFactory.pm</ulink></member>
-<member><ulink
+	<member><ulink
 	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/Hit/HitI.html">Search/Hit/HitI.pm</ulink></member>
-<member><ulink
+	<member><ulink
 	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/Hit/HMMERHit.html">Search/Hit/HMMERHit.pm</ulink></member>
-<member><ulink
+	<member><ulink
 	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/Hit/PsiBlastHit.html">Search/Hit/PsiBlastHit.pm</ulink></member>
-<member><ulink
+	<member><ulink
 	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/HSP/BlastHSP.html">Search/HSP/BlastHSP.pm</ulink></member>
-<member><ulink
+	<member><ulink
 	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/HSP/FastaHSP.html">Search/HSP/FastaHSP.pm</ulink></member>
-<member><ulink
+	<member><ulink
 	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/HSP/GenericHSP.html">Search/HSP/GenericHSP.pm</ulink></member>
-<member><ulink
+	<member><ulink
 	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/HSP/HMMERHSP.html">Search/HSP/HMMERHSP.pm</ulink></member>
-<member><ulink
+	<member><ulink
 	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/HSP/HSPFactory.html">Search/HSP/HSPFactory.pm</ulink></member>
-<member><ulink
+	<member><ulink
 	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/HSP/HSPI.html">Search/HSP/HSPI.pm</ulink></member>
-<member><ulink
+	<member><ulink
 	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/HSP/PsiBlastHSP.html">Search/HSP/PsiBlastHSP.pm</ulink></member>
-<member><ulink
+	<member><ulink
 	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/HSP/PSLHSP.html">Search/HSP/PSLHSP.pm</ulink></member>
-<member><ulink
+	<member><ulink
 	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/HSP/WABAHSP.html">Search/HSP/WABAHSP.pm</ulink></member>
-<member><ulink
+	<member><ulink
 	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/Iteration/GenericIteration.html">Search/Iteration/GenericIteration.pm</ulink></member>
-<member><ulink
+	<member><ulink
 	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/Iteration/IterationI.html">Search/Iteration/IterationI</ulink></member>
-<member><ulink
+	<member><ulink
 	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/Processor.html">Search/Processor.pm</ulink></member>
-<member><ulink
+	<member><ulink
 	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/Result/BlastResult.html">Search/Result/BlastResult.pm</ulink></member>
-<member><ulink
+	<member><ulink
 	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/Result/GenericResult.html">Search/Result/GenericResult.pm</ulink></member>
-<member><ulink
+	<member><ulink
 	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/Result/HMMERResult.html">Search/Result/HMMERResult.pm</ulink></member>
-<member><ulink
+	<member><ulink
 	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/Result/ResultFactory.html">Search/Result/ResultFactory.pm</ulink></member>
-<member><ulink
+	<member><ulink
 	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/Result/ResultI.html">Search/Result/ResultI.pm</ulink></member>
-<member><ulink
+	<member><ulink
 	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/Result/WABAResult.html">Search/Result/WABAResult.pm</ulink></member>
-<member><ulink
+	<member><ulink
 	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Search/Utils.html">Search/Utils.pm</ulink></member>
-
       </simplelist>
     </para>
   </section>
