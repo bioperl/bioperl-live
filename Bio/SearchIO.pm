@@ -253,7 +253,7 @@ sub _initialize {
     $self->_initialize_io(@args);
     $self->attach_EventHandler(new Bio::SearchIO::SearchResultEventBuilder(@args));
     $self->{'_reporttype'} = '';
-
+    $self->{_notfirsttime} = 0;
     my ( $writer ) = $self->_rearrange([qw(WRITER)], @args);
 
     $self->writer( $writer ) if $writer;
