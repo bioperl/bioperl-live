@@ -1,5 +1,17 @@
 Revision history for Bioperl core modules
 
+0.04.2  Wed Dec 30 02:27:36 1998
+        - Bug fixes in Bio::Tools::Blast modules, version 0.073
+          (see Bio::Tools::Blast::CHANGES).
+        - Changed reverse calls in Bio/Seq.pm and Bio/UnivAln.pm
+          to CORE::reverse (prevents ambiguous warnings with 5.005).
+        - Appending '.tmp.bioperl' to temporary files created by
+          Bio::Root::Utilities::compress() or uncompress() to
+          make it easy to identify & cleanup these files as needed.
+        - Developers: Created CVS branch release-0-04-bug from
+          release-0-04-1. Before making bug fixes to the 0.04.1 release,
+          be sure to cvs checkout this branch into a clean area.
+
 0.04.1  Wed Dec 16 05:39:15 1998
         - Bug fixes in Bio::Tools::Blast modules, version 0.072
           (see Bio::Tools::Blast::CHANGES).
