@@ -4,11 +4,13 @@
 use strict;
 BEGIN {     
     eval { require Test; };
+    use vars qw($NUMTESTS);
+    $NUMTESTS = 32;
     if( $@ ) {
 	use lib 't';
     }
     use Test;
-    plan tests => 32;
+    plan tests => $NUMTESTS;
 }
 
 use Bio::Root::IO;
@@ -23,13 +25,19 @@ use Bio::DB::GenBank;
 
 eval { require Bio::DB::FileCache };
 
+
 use vars qw ($dir);
 
 ($Bio::Root::IO::FILESPECLOADED && File::Spec->can('cwd') && ($dir = File::Spec->cwd) ) ||
     ($dir = `pwd`) || ($dir = '.');
  
-END { foreach my $root ( qw( Wibbl Wibbl2 Wibbl3 Wibbl4 Wibbl5 
-			      ) ) {
+END { 
+    foreach ( $Test::ntest..$NUMTESTS) {
+	skip('Bio::DB::FileCache not loaded because one or more of Storable, DB_File or File::Temp not installed',1);
+    }
+
+    foreach my $root ( qw( Wibbl Wibbl2 Wibbl3 Wibbl4 Wibbl5 
+			   ) ) {
 	if( -e "$root" ) { unlink $root;}
 	if( -e "$root.pag") { unlink "$root.pag";}
 	if( -e "$root.dir") { unlink "$root.dir";}
