@@ -99,7 +99,7 @@ sub _abstractDeath {
   Usage   : $start = $policy->start($location);
   Function: Get the integer-valued start coordinate of the given location as
             computed by this computation policy.
-  Returns : An integer number.
+  Returns : A positive integer number.
   Args    : A Bio::LocationI implementing object.
 
 =cut
@@ -115,7 +115,7 @@ sub start {
   Usage   : $end = $policy->end($location);
   Function: Get the integer-valued end coordinate of the given location as
             computed by this computation policy.
-  Returns : An integer number.
+  Returns : A positive integer number.
   Args    : A Bio::LocationI implementing object.
 
 =cut
