@@ -353,8 +353,8 @@ sub store{
   my $statefile = $self->statefile;
   my $store_obj = $self->serialise;
   my $io = Bio::Root::IO->new( ">$statefile" );
-  $io->_print( $self->_freeze( $store_obj ) );
-  $self->debug( "STORING $store_obj to $statefile\n" );
+  $io->_print( $store_obj );
+  $self->debug( "STORING $self to $statefile\n" );
   return $statefile;
 }
 
@@ -433,7 +433,7 @@ sub serialise{
     else{ $store_obj->{$key} = $value }
   }
   $store_obj->retrievable(0); # Once deserialised, obj not retrievable
-  return $store_obj;
+  return $self->_freeze( $store_obj );
 }
 
 
@@ -472,7 +472,7 @@ sub retrieve{
   }
   my $io = Bio::Root::IO->new( $statefile );
   local $/ = undef();
-  my $state_str = $io->_readline;
+  my $state_str = $io->_readline('-raw'=>1);
 
   # Dynamic-load modules required by stored object
   my $stored_obj;
@@ -482,7 +482,7 @@ sub retrieve{
     if( ! $@ ){ $success=1; last }
     my $package;
     if( $@ =~ /Cannot restore overloading/i ){
-      my $postmatch = $';
+      my $postmatch = $'; #'
       if( $postmatch =~ /\(package +([\w\:]+)\)/ ) {
 	$package = $1;
       }

@@ -52,7 +52,8 @@ foreach my $mode( "BINARY", "ASCII" ){
     my $file = $obj->store;
     ok $file && -f $obj->statefile;
 
-    my $retrieved = Bio::Root::Storable->retrieve( $file );
+    my $retrieved;
+    eval { $retrieved = Bio::Root::Storable->retrieve( $file ) };
     ok defined($retrieved) && $retrieved->isa('Bio::Root::Storable');
     ok $retrieved->{_test} eq "_TEST" && ! exists $retrieved->{__test};
 
@@ -61,7 +62,7 @@ foreach my $mode( "BINARY", "ASCII" ){
     ok ! exists $skel->{_test} && ! exists $skel->{__test};
     ok $skel->retrievable;
 
-    $skel->retrieve;
+    eval { $skel->retrieve };
     ok ! $skel->retrievable;
     ok $skel->{_test} eq "_TEST" && ! exists $skel->{__test};
 
@@ -75,7 +76,8 @@ foreach my $mode( "BINARY", "ASCII" ){
     # Test recursive file IO
     $obj->{_test_lazy} = $obj2;
     $obj->store;
-    my $retrieved2 = Bio::Root::Storable->retrieve( $obj->token );
+    my $retrieved2;
+    eval { $retrieved2 = Bio::Root::Storable->retrieve( $obj->token ) };
     ok $retrieved2->{_test_lazy} && $retrieved2->{_test_lazy}->retrievable;
 
     #------------------------------
