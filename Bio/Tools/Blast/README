@@ -3,6 +3,16 @@ in the Bio/Tools/Blast/ directory of the bioperl distribution.
 
 $Id$
 
+
+### Notice:
+###
+### The Bio::Tools::Blast:: modules are no longer being
+### maintained due to support issues. Please take a look
+### at the Bio::Tools::BPlite modules. Questions? Drop an
+### email to the bioperl mailing list at bioperl-l@bioperl.org 
+###  
+
+
 The Bioperl Blast module provides an API to the BLAST program, and
 thereby permits the parsing, running, HTML-formatting, and general
 manipulation of Blast data by simple method calls on Perl objects. 
@@ -29,8 +39,7 @@ bioperl-bugs@bio.perl.org.
 Send general comments, questions, and feature requests to the bioperl
 mailing lists:
 
-  vsns-bcd-perl@lists.uni-bielefeld.de      (discussion)
-  vsns-bcd-perl-guts@lists.uni-bielefeld.de (more technical)
+  bioperl-l@bioperl.org      (discussion)
 
 Have a Blast!
 
