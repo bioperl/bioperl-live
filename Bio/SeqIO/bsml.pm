@@ -356,7 +356,7 @@ sub next_seq {
 	}
 	push @refs, $reference;
     }
-    $bioSeq->annotation->add_Reference(@refs);
+    $bioSeq->annotation->add_Annotation('reference'=>$_) foreach @refs;
     
     # Extract the <Feature>s for this <Sequence>
     foreach my $feat ( $xmlSeq->getElementsByTagName("Feature") ) {
@@ -548,7 +548,7 @@ sub to_bsml {
     # <Sequences> #
     ###############
 
-    my $seqsElem = $xml->getElementsByTagName("Sequences")->item(0);
+   $seqsElem = $xml->getElementsByTagName("Sequences")->item(0);
     
     # Inspect the sequence reference that has been passed
     my @seqs = ($seqref);
