@@ -20,6 +20,7 @@ sub get_Seq_by_id {
   my $entrez = ($alpha =~ m/^p/i ? 'db=p&' : 'db=n&') .
     "form=6&dopt=f&html=no&title=no&uid=$uid" ;
 
+  print STDOUT $entrez;
   my $hostname = `hostname`;
   chop $hostname;
   my $sock = IO::Socket::INET->new(PeerAddr => 'www3.ncbi.nlm.nih.gov',
@@ -41,12 +42,13 @@ sub get_Seq_by_id {
 		   "", "");
 
   while( <$sock> ) {
-    print STDOUT;
+    last if /----------/; # this is kludgy
   }
 
-#  return Bio::SeqIO->new(-fh => $sock, -format => 'Fasta')->next_seq()
+  return Bio::SeqIO->new(-fh => $sock, -format => 'Fasta')->next_seq()
 }
 
 1;
 
 __END__
+
