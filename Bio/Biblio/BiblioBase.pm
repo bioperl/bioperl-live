@@ -97,6 +97,7 @@ sub AUTOLOAD {
 
 	# remember this method in a system table so it is not
 	# autoloaded costly next time
+        no strict 'refs'; 
 	*{$AUTOLOAD} = sub { return $_[0]->{$attr_name} };
 
 	# do what a 'get_' method is supposed to do
