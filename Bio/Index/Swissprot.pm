@@ -1,5 +1,7 @@
 
 #
+# $Id$
+#
 # BioPerl module for Bio::Index::Abstract
 #
 # Cared for by Ewan Birney <birney@sanger.ac.uk>

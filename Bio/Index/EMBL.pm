@@ -1,4 +1,4 @@
-
+# $Id$
 #
 # BioPerl module for Bio::Index::Abstract
 #
@@ -55,9 +55,11 @@ User feedback is an integral part of the evolution of this and other
 Bioperl modules. Send your comments and suggestions preferably to one
 of the Bioperl mailing lists.  Your participation is much appreciated.
 
-  vsns-bcd-perl@lists.uni-bielefeld.de          - General discussion
-  vsns-bcd-perl-guts@lists.uni-bielefeld.de     - Technically-oriented discussion
-  http://bio.perl.org/MailList.html             - About the mailing lists
+  bioperl-l@bioperl.org             - General discussion
+  bioperl-guts-l@bioperl.org        - Technically-oriented discussion
+  http://bioperl.org/MailList.shtml - About the mailing lists
+
+
 
 =head2 Reporting Bugs
 
