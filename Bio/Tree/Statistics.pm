@@ -12,7 +12,7 @@
 
 =head1 NAME
 
-Bio::Tree::Statistics - DESCRIPTION of Object
+Bio::Tree::Statistics - Calculate certain statistics for a Tree
 
 =head1 SYNOPSIS
 
@@ -20,7 +20,13 @@ Give standard usage here
 
 =head1 DESCRIPTION
 
-Describe the object here
+This object is a place to accumulate routines for calculating various
+tree statistics from population genetic and phylogenetic methods.  
+
+Currently Fu and Li\'s D is implemented.
+Tajima\'s D planned.
+
+References forthcoming.
 
 =head1 FEEDBACK
 
