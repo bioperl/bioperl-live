@@ -516,6 +516,10 @@ use Bio::Root::IO;
 
 BEGIN {
 
+    $PROGRAMDIR = $ENV{TCOFFEEDIR} || '';
+    $PROGRAM = Bio::Root::IO->catfile($PROGRAMDIR,
+				      't_coffee'.($^O =~ /mswin/i ?'.exe':''));
+
     @TCOFFEE_PARAMS = qw(IN TYPE PARAMETERS DO_NORMALISE EXTEND
 			 DP_MODE KTUPLE NDIAGS DIAG_MODE SIM_MATRIX
 			 MATRIX GAPOPEN GAPEXT COSMETIC_PENALTY TG_MODE
@@ -537,9 +541,6 @@ sub new {
     my $self = $class->SUPER::new(@args);
     # to facilitiate tempfile cleanup
     $self->_initialize_io();
-
-    $PROGRAMDIR = $ENV{TCOFFEEDIR} || '';
-    $PROGRAM = Bio::Root::IO->catfile($PROGRAMDIR,'t_coffee');
 
     my ($attr, $value);
     (undef,$TMPOUTFILE) = $self->tempfile();
@@ -577,7 +578,7 @@ sub AUTOLOAD {
 
 
 sub exists_tcoffee {
-    my $returnvalue = (-e $PROGRAM) ;
+    return Bio::Root::IO->exists_exe($PROGRAM);
 }
 
 =head2  align
