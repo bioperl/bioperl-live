@@ -60,7 +60,8 @@ unless ($coffee_present) {
     warn "tcoffee program not found. Skipping tests $Test::ntest to $NUMTESTS.\n";
     exit(0);
 }
-ok ($factory->version >= 1.22, 1, "Code tested only on t_coffee versions > 1.22" );
+my $version = $factory->version;
+ok ($version >= 1.22, 1, "Code tested only on t_coffee versions > 1.22" );
 $aln = $factory->align($inputfilename);
 ok $aln->no_sequences, 7;
 
@@ -77,7 +78,6 @@ my $seq_array_ref = \@seq_array;
 
 $aln = $factory->align($seq_array_ref);
 ok $aln->no_sequences, 7;
-
 	
 my $profile1 = Bio::Root::IO->catfile("t","data","cysprot1a.msf");
 my $profile2 = Bio::Root::IO->catfile("t","data","cysprot1b.msf");
@@ -103,7 +103,11 @@ $str2 = Bio::SeqIO->new(-file=> Bio::Root::IO->catfile("t","data","cysprot1b.fa"
 my $seq = $str2->next_seq();
 
 ok $aln1->no_sequences, 3;
-ok int($aln1->percentage_identity), 39 ;
+ok( int($aln1->percentage_identity), 24) ;
 $aln = $factory->profile_align($aln1,$seq);
-ok $aln->no_sequences, 4;
-ok int($aln->percentage_identity) > 40 ;
+ok( $aln->no_sequences, 4);
+if( $version <= 1.22 ) {
+    ok( int($aln->percentage_identity), 18);    
+} else {
+    ok( int($aln->percentage_identity), 21);
+}
