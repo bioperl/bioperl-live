@@ -48,7 +48,11 @@ Bio::SeqI - Interface definition for a Bio::SeqI
 
  This object defines an abstract interface to sequences. There is a
 pure perl implementation of this in Bio::Seq. If you just want to use
-Bio::Seq objects, then please read that module first.
+Bio::Seq objects, then please read that module first. This module
+defines the interface, and is of more interest to people who want to 
+wrap their own Perl Objects/RDBs/FileSystems etc in way that they "are"
+bioperl sequence objects, even though it is not using Perl to store the
+sequence etc.
 
 This interface defines what bioperl consideres necessary to "be" a sequence,
 without providing an implementation of this. (An implementation is provided in
@@ -210,11 +214,34 @@ sub id{
            /bio/protein/P09651 - accession number from swissprot/sptrembl
            /bio/pdb/1HA1   - PDB identifier for protein structures
 
+           For sequences with no context, ie accession numbers by themselves
+           the correct interpretation is that for dna sequences these are
+           /bio/dna/accession_number and for protein sequences these are
+           /bio/protein/accession_number.
+
           Sequence From Files:
 
           A number of times in bioinformatics, one doesn't have a database but rather
           a sequence from a file. Here there is some ambiguity of what happens to this
-          field. Should it represent
+          field. If the sequence file contains an accession number field then
+          one should use that as providing the accession number information,
+          probably interpreting it as one of the "standard" contexts above.
+          However, a different view is to claim that the accession number
+          should indicate the file this was made from. For file formats that
+          have no accession number field (eg, plain FASTA format, with no
+          overloading of the ID line, or raw format, or PIR format), this
+          provides a mechanism for identifying the sequence. The proposal is
+          to extend the context now into a full URL, including the filename, 
+          with the "unique_id" now becoming the byte offset into the file
+          for this sequence. To make this concept useful, the format of the
+          file also needs to be encoded, so that this context can be used. 
+          The proposal is that a ::<format-string> is placed after the
+          machine specification of the URL. For example:
+
+          file://localhost::EMBL/nfs/data/roa1.dat/556760
+
+          would indicate a EMBL formatted file found on the nfs system 
+          with byte offset 556760.
 
 
           Sequence From Raw Memory:
@@ -237,6 +264,29 @@ sub accession{
    } else {
        confess("Bio::SeqI definition of seq - implementing class did not provide this method");
    }
+
+}
+
+
+=head2 can_call_new
+
+ Title   : can_call_new
+ Usage   : if( $obj->can_call_new ) {
+             $newobj = $obj->new( %param );
+	 }
+ Function: can_call_new returns 1 or 0 depending
+           on whether an implementation allows new
+           constructor 
+ Example :
+ Returns : 
+ Args    :
+
+
+=cut
+
+sub can_call_new{
+   my ($self,@args) = @_;
+
 
 }
 
