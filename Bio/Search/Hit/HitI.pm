@@ -38,8 +38,6 @@ you can do the following things with it:
 
     while( $hsp = $obj->next_hsp()) { ... }
 
-    while( $hsp = $obj->next_hsp()) { ... }
-
 =head1 DESCRIPTION
 
     Bio::Search::Hit::* objects are data structures that contain information
