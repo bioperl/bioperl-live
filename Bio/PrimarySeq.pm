@@ -219,7 +219,7 @@ sub _initialize {
 sub seq{
    my ($obj,$value) = @_;
    if( defined $value) {
-       if( $value !~ /^[A-Za-z\-\.]+$/ ) {
+       if( $value !~ /^[A-Za-z\-\.\*]+$/ ) {
 	   $obj->throw("Attempting to set the sequence to [$value] which does not look healthy");
        }
        $obj->{'seq'} = $value;
