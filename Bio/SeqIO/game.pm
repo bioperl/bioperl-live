@@ -311,7 +311,7 @@ sub next_seq {
   #  If there's more sequences:
   if ($seq) {
     # Get the next seq.
-    my $handler = Bio::SeqIO::game::seqHandler->new($seq);
+    my $handler = Bio::SeqIO::game::seqHandler->new(-seq => $seq);
     my $options = {Handler=>$handler};
     my $parser  = XML::Parser::PerlSAX->new($options);
     my $pseq = $parser->parse(Source => { String => $xmldoc });
@@ -447,7 +447,7 @@ sub next_primary_seq {
     
   if ($seq) {
     # Get the next seq.
-    my $handler = Bio::SeqIO::game::seqHandler->new($seq);
+    my $handler = Bio::SeqIO::game::seqHandler->new(-seq => $seq);
     my $options = {Handler=>$handler};
     my $parser  = XML::Parser::PerlSAX->new($options);
     my $pseq = $parser->parse(Source => { String => $xmldoc });
