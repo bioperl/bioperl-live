@@ -306,13 +306,13 @@ sub throw{
            $class ||= "Bio::Root::Exception";
    
 	   my %args;
-	   if( @args % 2 == 0 ) {
+	   if( @args % 2 == 0 && $args[0] =~ /^-/ ) {
 	       %args = @args;
+	       $args{-text} = $text;
+	       $args{-object} = $self;
 	   }
-	   $args{-text} = $text;
-	   $args{-object} = $self;       
  
-           throw $class ( %args );
+           throw $class ( %args || @args );
        }
    }
    else {
@@ -322,8 +322,8 @@ sub throw{
        my $title = "------------- EXCEPTION $class -------------";
        my $footer = "\n" . '-' x CORE::length($title);
 
-       my $out = $title . "\n" .
-           "MSG: ".$text."\n". $std . $footer . "\n";
+       my $out = "\n$title\n" .
+           "MSG: $text\n". $std . $footer . "\n";
 
        die $out;
    }
