@@ -491,7 +491,7 @@ sub theta {
 	$sample_size = $pop->number_individuals;
 	$seg_sites = 0;
 	foreach my $marker( $pop->get_Markers ) {
-	    $seg_sites if ( scalar $marker->get_Alleles > 1 );
+	    $seg_sites++ if ( scalar $marker->get_Alleles > 1 );
 	}
     }
     my $a1 = 0; 
