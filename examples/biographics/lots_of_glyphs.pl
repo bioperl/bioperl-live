@@ -1,18 +1,16 @@
 #!/usr/bin/perl
 
-use lib '.','..','./blib/lib','../blib/lib','../..';
+use lib '.','../..','./blib/lib','../../blib/lib','../..';
 use strict;
-
 use Bio::Graphics::Panel;
 use Bio::Graphics::Feature;
-
-my $ftr = 'Bio::Graphics::Feature';
 
 chomp (my $CLASS = shift);
 $CLASS or die "\nUsage: lots_of_glyphs IMAGE_CLASS
 \t- where IMAGE_CLASS is one of GD or GD::SVG
 \t- GD generate png output; GD::SVG generates SVG.\n";
 
+my $ftr = 'Bio::Graphics::Feature';
 my $segment = $ftr->new(-start=>-100,-end=>1000,-name=>'ZK154',-type=>'clone');
 my $zk154_1 = $ftr->new(-start=>-50,-end=>800,-name=>'ZK154.1',-type=>'gene');
 my $zk154_2 = $ftr->new(-start=>380,-end=>500,-name=>'ZK154.2',-type=>'gene');

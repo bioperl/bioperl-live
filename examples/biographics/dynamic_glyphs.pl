@@ -1,4 +1,4 @@
-#!/usr/bin/perl -w
+#!/usr/bin/perl
 
 use lib '.','../..','./blib/lib','../../blib/lib','../..';
 use strict;
@@ -79,7 +79,7 @@ my $panel = Bio::Graphics::Panel->new(
 				      -pad_left => 20,
 				      -pad_right=> 20,
 				      -key_style => 'between',
-         		 	      -image_class=> 'GD::SVG',
+         		 	      -image_class=> $PKG,
 				     );
 my @colors = $panel->color_names();
 
