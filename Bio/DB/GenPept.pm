@@ -89,15 +89,17 @@ use Bio::DB::NCBIHelper;
 @ISA = qw(Bio::DB::NCBIHelper);
 BEGIN { 
     $DEFAULTFORMAT = 'genpept';	    
-    %PARAMSTRING = ( batch  => { 'DB'          => 'p',
-				 'REQUEST_TYPE'=> 'LIST_OF_GIS',
-				 'HTML'        => 'FALSE',
-				 'SAVETO'      => 'FALSE',
-				 'NOHEADER'    => 'TRUE' },
-		     single => { 'db'    => 'p',
-				 'form'  => '6',			     
-				 'title' => 'no',			     
-			     }
+    %PARAMSTRING = ( 'batch'=>   {  'db'    => 'p',
+				    'form'  => '1',			     
+				    'title' => 'no' },
+		     'single'=>  { 'db'     => 'p',
+				   'form'   => '1',			     
+				   'title'  => 'no'},
+		     'version'=> { 'pg'     => 'hist',
+				   'type'   => 'acc'},
+		     'gi' =>     {  'db'    => 'p',
+				    'form'  => '1',			     
+				    'title' => 'no',}
 		     );
 }
 

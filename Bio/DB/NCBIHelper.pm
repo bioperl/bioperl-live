@@ -85,10 +85,11 @@ use HTTP::Request::Common;
 
 BEGIN { 	    
     $HOSTBASE = 'http://www.ncbi.nlm.nih.gov';
-    %CGILOCATION = ( 'batch' => '/cgi-bin/Entrez/qserver.cgi',
-		     'single'=> '/entrez/utils/qmap.cgi',
+    %CGILOCATION = ( #'batch'  => '/entrez/batchentrez.cgi',
+		     'batch' => '/htbin-post/Entrez/query',
+		     'single' => '/htbin-post/Entrez/query',
 		     'version'=> '/htbin-post/Entrez/girevhist',
-		     'gi'=> '/entrez/query.fcg');
+		     'gi'     => '/htbin-post/Entrez/query');
 
     %FORMATMAP = ( 'genbank' => 'genbank',
 		   'genpept' => 'genbank',
@@ -169,7 +170,7 @@ sub get_request {
 	if( ref($uids) =~ /array/i ) {
 	    $uids = join(",", @$uids);
 	}
-	$params{'uid'} = $uids;
+	$params{'term'} = $uids;
     }
 
     if( $mode eq 'batch' ) {
@@ -181,22 +182,18 @@ sub get_request {
 			"the only format supported by NCBI batch mode");
 	    ($format) = $self->request_format($self->default_format);
 	}
-	$params{'format'} = $format;
+	$params{'dopt'} = $format;
 	my $querystr = '?' . join("&", map { "$_=$params{$_}" } keys %params);
-	print STDERR "url is ", $HOSTBASE . 
-	    $CGILOCATION{$mode} . $querystr, "\n"
-	    unless ( $self->verbose == 0 ); 	
-	return POST ( $url, \%params );
+	$self->debug( "url is $url$querystr \n");
+	return POST( $url . $querystr, \%params);
     } elsif( $mode eq 'single' || $mode eq 'gi') {
 	$params{'dopt'} = $format;
 	my $querystr = '?' . join("&", map { "$_=$params{$_}" } keys %params);
-	print STDERR "url is ", $url . $querystr, "\n"
-	    unless ( $self->verbose == 0 );	
+	$self->debug("url is $url$querystr \n");
 	return GET $url . $querystr;
     } elsif( $mode eq 'version') {
 	my $querystr = '?' . join("&", map { "$_=$params{$_}" } keys %params);
-	print STDERR "url is ", $url . $querystr, "\n"
-	    unless ( $self->verbose == 0 );	
+	$self->debug("url is $url$querystr \n");
 	return GET $url . $querystr;
     }  else { 
 	return undef;
@@ -245,95 +242,91 @@ sub postprocess_data {
     my $type = uc $args{'type'};
     my $location = $args{'location'};
     if( !defined $type || $type eq '' || !defined $location) {
-		return;
+	return;
     } elsif( $type eq 'STRING' ) {
-		$data = ${$location}; 
+	$data = $$location; 
     } elsif ( $type eq 'FILE' ) {
-		open(TMP, $location) or $self->throw("could not open file $location");
-		my @in = <TMP>;
-		close TMP;
-		$data = join("", @in);
+	open(TMP, $location) or $self->throw("could not open file $location");
+	my @in = <TMP>;
+	close TMP;
+	$data = join("", @in);
     }
-    my ($format) = $self->request_format();    
-    if( $format =~ /fasta/i ) {
-		$data =~ s/^[\s\S]+<dd>([\s\S]+)<pre>/$1/i;
-    } else { 
-       # remove everything before <PRE>
-       $data =~ s/^[\s\S]+<pre>//i;
-    }
+    # remove everything before <PRE>
+    $data =~ s/^[\s\S]+<pre>//i;
     # remove everything after </PRE>
     $data =~ s/<\/pre>[\s\S]+$//i;
 
     # transform links to appropriate descriptions
     if ($data =~ /\nCONTIG\s+/) {
-		$self->warn("CONTIG found. GenBank get_Stream_by_batch about to run."); 
-    	my(@batch,@accession,%accessions,@location,$id,$contig,$stream,$aCount,$cCount,$gCount,$tCount);
+	$self->warn("CONTIG found. GenBank get_Stream_by_batch about to run."); 
+    	my(@batch,@accession,%accessions,@location,$id,
+	   $contig,$stream,$aCount,$cCount,$gCount,$tCount);
     	my $gb = new Bio::DB::GenBank();
-    	
+
     	# process GenBank CONTIG join(...) into two arrays
     	$data =~ /(?:CONTIG\s+join\()((?:.+\n)+)(?:\/\/)/;
     	$contig = $1;
     	$contig =~ s/\n|\)//g;
-		foreach (split /,/,$contig){
-			if (/>(.+)<.+>:(.+)/) {
-				($id) = split /\./, $1;
-				if (!$accessions{$id}) { push @batch, $id; }
-				push @accession, $id;
-				push @location, $2;
-				$accessions{$id}->{'count'}++;
-			}
-		}
-			
-		# grab multiple sequnces by batch and join based location variable
-		#$stream = $gb->get_Stream_by_batch(\@accession);
-		$stream = $gb->get_Stream_by_batch(\@batch);
-		$contig = "";
-		
-		for (my $i = 0; $i < @accession; $i++) {
-			my $seq;
-			if ($accessions{$accession[$i]}->{'seq'} ne '') {
+	foreach (split /,/,$contig){
+	    if (/>(.+)<.+>:(.+)/) {
+		($id) = split /\./, $1;
+		if (!$accessions{$id}) { push @batch, $id; }
+		push @accession, $id;
+		push @location, $2;
+		$accessions{$id}->{'count'}++;
+	    }
+	}
+
+	# grab multiple sequnces by batch and join based location variable
+	#$stream = $gb->get_Stream_by_batch(\@accession);
+	$stream = $gb->get_Stream_by_batch(\@batch);
+	$contig = "";
+
+	for (my $i = 0; $i < @accession; $i++) {
+	    my $seq;
+	    if ($accessions{$accession[$i]}->{'seq'} ne '') {
 				# retrieve stored sequence
 				#my $seq =  $accessions{$accession[$i]}->{'seq'}   ;
-				$seq = Bio::Seq::RichSeq->new(-seq => $accessions{$accession[$i]}->{'seq'});
-			} else {
+		$seq = Bio::Seq::RichSeq->new(-seq => $accessions{$accession[$i]}->{'seq'});
+	    } else {
 				# seq not cached, get next sequence
-				$seq = $stream->next_seq();
-				if ($accessions{$accession[$i]}->{'count'} > 1) {
-					# cache sequence for later use
-					$accessions{$accession[$i]}->{'seq'} = $seq->seq();
-				}
-			}
-			my($start,$end) = split(/\.\./, $location[$i]);
-			$contig .= $seq->subseq($start,$end);
+		$seq = $stream->next_seq();
+		if ($accessions{$accession[$i]}->{'count'} > 1) {
+		    # cache sequence for later use
+		    $accessions{$accession[$i]}->{'seq'} = $seq->seq();
 		}
-	
-		# count number of each letter in sequence
-		$aCount = () = $contig =~ /a/ig;
-		$cCount = () = $contig =~ /c/ig;
-		$gCount = () = $contig =~ /g/ig;
-		$tCount = () = $contig =~ /t/ig;
-	
-		# remove everything after and including CONTIG
-		$data =~ s/(CONTIG[\s\S]+$)//i;
-	
-		# build ORIGIN part of data file using sequence and counts
-		$data .= "BASE COUNT     $aCount a   $cCount c   $gCount g   $tCount t\n";
-		$data .= "ORIGIN      \n";
-		$data .= "$contig\n//";
-    }
-    else {
-    	$data =~ s/<a href=.+>(\S+)<\/a\>/$1/ig;
-    }
-    
-    # fix gt and lt
-    $data =~ s/&gt;/>/ig;
-    $data =~ s/&lt;/</ig;
-    if( $type eq 'FILE'  ) {
-		open(TMP, ">$location") or $self->throw("could overwrite file $location");
-		print TMP $data;
-		close TMP;
-    } elsif ( $type eq 'STRING' ) {
-		${$args{'location'}} = $data;
+	    }
+	    my($start,$end) = split(/\.\./, $location[$i]);
+	    $contig .= $seq->subseq($start,$end);
+	}
+
+	# count number of each letter in sequence
+	$aCount = () = $contig =~ /a/ig;
+	$cCount = () = $contig =~ /c/ig;
+	$gCount = () = $contig =~ /g/ig;
+	$tCount = () = $contig =~ /t/ig;
+
+	# remove everything after and including CONTIG
+	$data =~ s/(CONTIG[\s\S]+$)//i;
+
+		    # build ORIGIN part of data file using sequence and counts
+		    $data .= "BASE COUNT     $aCount a   $cCount c   $gCount g   $tCount t\n";
+		    $data .= "ORIGIN      \n";
+		    $data .= "$contig\n//";
+		}
+	else {
+	    $data =~ s/<a href=.+>(\S+)<\/a\>/$1/ig;
+	}
+
+	# fix gt and lt
+	$data =~ s/&gt;/>/ig;
+	$data =~ s/&lt;/</ig;
+	if( $type eq 'FILE'  ) {
+	    open(TMP, ">$location") or $self->throw("could overwrite file $location");
+	    print TMP $data;
+	    close TMP;
+	} elsif ( $type eq 'STRING' ) {
+	    ${$args{'location'}} = $data;
     }
     $self->debug("format is ". $self->request_format(). "data is $data\n");
 }

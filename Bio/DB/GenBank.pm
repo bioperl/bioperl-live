@@ -102,21 +102,25 @@ use Bio::DB::NCBIHelper;
 
 @ISA = qw(Bio::DB::NCBIHelper);
 BEGIN {    
-    %PARAMSTRING = ( 'batch'=> { 'DB'          => 'n',
-				 'REQUEST_TYPE'=> 'LIST_OF_GIS',
-				 'HTML'        => 'FALSE',
-			         'SAVETO'      => 'FALSE',
-				 'NOHEADER'    => 'TRUE' },
-		     'single'=> { 'db'    => 'n',
-				  'form'  => '6',			     
-				  'title' => 'no'},
-		     'version'=> { 'pg'   => 'hist',
-				   'type' => 'acc'},
-		     'gi' => {  'cmd'    => 'Retrieve',
-				'db' => 'Nucleotide',
-				'dopt' => 'GenBank'
-			 
-		     }
+    %PARAMSTRING = ( 'batch'=>   {  'db'    => 'n',
+				    'form'  => '1',			     
+				    'title' => 'no', 
+				},
+#		     'batch'  => { 'cmd' => 'Retrieve',
+#				   'db'  => 'n',
+#				   
+#			       },
+		     'single'=>  { 'db'     => 'n',
+				   'form'   => '1',			     
+				   'title'  => 'no', 
+			       },
+		     'version'=> { 'pg'     => 'hist',
+				   'type'   => 'acc',
+			       },
+		     'gi' =>     {  'db'    => 'n',
+				    'form'  => '1',			     
+				    'title' => 'no',
+				}
 		     );
 }
 
