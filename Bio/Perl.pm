@@ -90,11 +90,12 @@ Describe contact details here
 
 =head1 APPENDIX
 
-The rest of the documentation details each of the object methods. Internal methods are usually preceded with a _
+The rest of the documentation details each of the object methods. 
+Internal methods are usually preceded with a _
 
 =cut
 
-
+#'
 # Let the code begin...
 
 
@@ -109,6 +110,7 @@ use Bio::Seq;
 use Bio::DB::EMBL;
 use Bio::DB::GenBank;
 use Bio::DB::SwissProt;
+use Bio::DB::RefSeq;
 
 @ISA = qw(Exporter);
 
@@ -216,7 +218,7 @@ sub read_all_sequences{
 
  Function: writes sequences in the specified format, 
 
- Returns : Nothing
+ Returns : true
 
  Args    : filename as a string, must provide an open() output file
            format as a string
@@ -265,6 +267,7 @@ sub write_sequence{
        # finally... we get to write out the sequence!
        $seqio->write_seq($seq_obj);
    }
+   1;
 }
 
 =head2 new_sequence
@@ -302,14 +305,17 @@ sub new_sequence{
 
  Function: If the computer has internet accessibility, gets
            the sequence from internet accessible databases. Currently
-           this supports Swissprot, EMBL and GenBank.
+           this supports Swissprot, EMBL, GenBank and RefSeq.
 
-           Swissprot and EMBL are more robust than GenBank fetching
+           Swissprot and EMBL are more robust than GenBank fetching.
+
+           If the user is trying to retrieve a RefSeq entry from
+           GenBank/EMBL, the query is silently redirected.
 
 
  Returns : A Bio::Seq object
 
- Args    : database type - one of swiss, embl or genbank
+ Args    : database type - one of swiss, embl, genbank or refseq
            identifier or accession number
 
 =cut
@@ -317,6 +323,7 @@ sub new_sequence{
 my $genbank_db = undef;
 my $embl_db = undef;
 my $swiss_db = undef;
+my $refseq_db = undef;
 
 sub get_sequence{
    my ($db_type,$identifier) = @_;
@@ -346,6 +353,13 @@ sub get_sequence{
        $db = $embl_db;
    }
 
+   if( $db_type =~ /refseq/ or ($db_type !~ /swiss/ and $identifier =~ /_/)) {
+       if( !defined $refseq_db ) {
+	   $refseq_db = Bio::DB::RefSeq->new();
+       } 
+       $db = $refseq_db;
+   }
+
    my $seq;
 
    if( $identifier =~ /^\w+\d+$/ ) {
@@ -358,11 +372,3 @@ sub get_sequence{
 }
 
 1;
-
-
-
-
-
-
-
-
