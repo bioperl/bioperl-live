@@ -104,7 +104,7 @@ sub new {
   my( $class, @args ) = @_;
 
   my $self = $class->SUPER::new( @args );
-  $self->_initialize_simple_collection_provider();
+  $self->_initialize_simple_collection_provider( @args );
   return $self;
 } # new(..)
 
@@ -974,14 +974,15 @@ sub _remove_feature {
                { '_identifiable_features' }->
                { $feature->unique_id() }
       ) {
+      my $r_val = $self->{ '_seq_id_to_feature_table' }->
+                         { $seq_id }->
+                         { '_identifiable_features' }->
+                         { $feature->unique_id() };
       delete $self->{ '_seq_id_to_feature_table' }->
                     { $seq_id }->
                     { '_identifiable_features' }->
                     { $feature->unique_id() };
-      return $self->{ '_seq_id_to_feature_table' }->
-                    { $seq_id }->
-                    { '_identifiable_features' }->
-                    { $feature->unique_id() };
+      return $r_val;
     } else {
       return undef;
     }
@@ -1000,6 +1001,7 @@ sub _remove_feature {
         if(
            $features_that_start_where_this_one_does->[ $i ] == $feature
           ) {
+          my $r_val = $features_that_start_where_this_one_does->[ $i ];
           if( scalar( @$features_that_start_where_this_one_does ) == 1 ) {
             delete $self->{ '_seq_id_to_feature_table' }->
                           { $seq_id }->
@@ -1008,7 +1010,7 @@ sub _remove_feature {
           } else {
             splice( @$features_that_start_where_this_one_does, $i, 1 );
           }
-          return $features_that_start_where_this_one_does->[ $i ];
+          return $r_val;
         }
       }
       return undef;

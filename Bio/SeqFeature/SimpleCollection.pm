@@ -95,7 +95,8 @@ use strict;
 use vars qw( $VERSION @ISA );
 use overload 
   '""' => 'toString',
-  cmp   => '_cmp';
+  cmp  => '_cmp',
+  '==' => '_cmp';
 
 use Bio::DB::GFF::Util::Rearrange; # for 'rearrange'
 

@@ -1116,7 +1116,7 @@ sub _create_segment {
     ## TODO: Put back
     #my $abs_baserange = $baserange->abs_seq_id();
     ## TODO: REMOVE.  Testing.
-    my $abs_baserange = $baserange->abs_range();
+    my $abs_baserange = eval{ $baserange->abs_range() } || $baserange;
     if( $abs_baserange && ( $baserange eq $abs_baserange ) ) {
       ## TODO: REMOVE
       #warn "baserange $baserange is absolute already.";

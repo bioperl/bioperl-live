@@ -377,6 +377,7 @@ sub _start {
   my $self = shift;
   if( $self->{ '_gsf_location' } ) {
     my ( $new_val ) = @_;
+
     my $old_val = $self->{ '_gsf_location' }->start();
     if( defined $new_val ) {
       $self->{ '_gsf_location' }->start( $new_val );
@@ -834,7 +835,7 @@ sub seq {
 
   # assumming our seq object is sensible, it should not have to yank
   # the entire sequence out here.
-  my $seq = $self->{'_gsf_seq'}->trunc( $self->start(), $self->end() );
+  my $seq = $self->{'_gsf_seq'}->trunc( $self->abs_start(), $self->abs_end() );
 
   if ( $self->strand == -1 ) {
 
@@ -1112,6 +1113,10 @@ sub _tag_value {
 # aliases for methods that changed their names in an attempt to make  #
 # bioperl names more consistent                                       #
 #######################################################################
+
+sub _expand_region {
+  shift->adjust_bounds( 0, @_ );
+} # _expand_region(..)
 
 sub seqname {
     my $self = shift;

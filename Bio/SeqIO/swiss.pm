@@ -766,7 +766,7 @@ sub _print_swissprot_FTHelper {
    my ($self,$fth,$always_quote) = @_;
    $always_quote ||= 0;
    my ($start,$end) = ('?', '?');
-   
+
    if( ! ref $fth || ! $fth->isa('Bio::SeqIO::FTHelper') ) {
        $fth->warn("$fth is not a FTHelper class. ".
 		  "Attempting to print, but there could be tears!");
@@ -1004,6 +1004,7 @@ sub _read_FTHelper_swissprot {
         $desc,  # The descriptive text
         );
     
+    ## TODO: ERE I AM, trying to figure out why the $$buffer is $_, but without the key, so changing the below regexp to \w+ where it is now \w* fixes a bug...
     if ($$buffer =~ /^FT   (\w+)\s+([\d\?\<]+)\s+([\d\?\>]+)\s*(.*)$/) {
         $key = $1;
         my $loc1 = $2;

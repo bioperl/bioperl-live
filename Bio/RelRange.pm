@@ -62,6 +62,7 @@ The rest of the documentation details each of the object methods.
 Internal methods are usually preceded with a _
 
 =cut
+#'
 
 # Let the code begin...
 use strict;
@@ -70,8 +71,8 @@ use vars qw( @ISA @EXPORT_OK );
 use Bio::Root::Root;
 use Bio::RelRangeI;
 require Exporter;
-@ISA = qw( Bio::Root::Root Bio::RelRangeI Exporter );
-@EXPORT_OK = qw( absRange absSeqId absStart absEnd absStrand );
+@ISA = qw( Exporter Bio::Root::Root Bio::RelRangeI );
+@EXPORT_OK = qw( &absRange &absSeqId &absStart &absEnd &absStrand );
 
 use vars '$VERSION';
 $VERSION = '1.00';
@@ -898,9 +899,11 @@ sub abs_low {
           $next_ancestor_seq_id->isa( 'Bio::RangeI' ) ) ||
         ( $low != 1 ) ) {
       if( $abs_strand < 0 ) {
-        $abs_low = ( $high - $abs_low + 1 );
-        $abs_high = ( $high - $abs_high + 1 );
-      } else {
+        if( defined $high ) {
+          $abs_low = ( $high - $abs_low + 1 );
+          $abs_high = ( $high - $abs_high + 1 );
+        }
+      } elsif( defined $low ) {
         $abs_low += ( $low - 1 );
         $abs_high += ( $low - 1 );
       }
@@ -1012,9 +1015,11 @@ sub abs_high {
           $next_ancestor_seq_id->isa( 'Bio::RangeI' ) ) ||
         ( $low != 1 ) ) {
       if( $abs_strand < 0 ) {
-        $abs_low = ( $high - $abs_low + 1 );
-        $abs_high = ( $high - $abs_high + 1 );
-      } else {
+        if( defined $high ) {
+          $abs_low = ( $high - $abs_low + 1 );
+          $abs_high = ( $high - $abs_high + 1 );
+        }
+      } elsif( defined $low ) {
         $abs_low += ( $low - 1 );
         $abs_high += ( $low - 1 );
       }
@@ -1235,7 +1240,7 @@ sub start {
     unless( $new_val =~ /^[-+]?\d+$/ ) {
       $self->throw( "'$new_val' is not an integer.\n" );
     }
-    if( $old_val != $new_val ) {
+    if( !defined( $old_val ) || ( $old_val != $new_val ) ) {
       $self->_start( $new_val );
       $self->notify_observers( 'start', '-old'=>$old_val, '-new'=>$new_val );
     }
@@ -1278,7 +1283,7 @@ sub end {
     unless( $new_val =~ /^[-+]?\d+$/ ) {
       $self->throw( "'$new_val' is not an integer.\n" );
     }
-    if( $old_val != $new_val ) {
+    if( !defined( $old_val ) || ( $old_val != $new_val ) ) {
       $self->_end( $new_val );
       $self->notify_observers( 'end', '-old'=>$old_val, '-new'=>$new_val );
     }
@@ -1322,7 +1327,7 @@ sub strand {
     unless( ( $new_val == -1 ) || ( $new_val == 0 ) || ( $new_val == 1 ) ) {
       $self->throw( "'$new_val' is not in the set { '-1', '0', '1' }." );
     }
-    if( $old_val != $new_val ) {
+    if( !defined( $old_val ) || ( $old_val != $new_val ) ) {
       $self->_strand( $new_val );
       $self->notify_observers( 'strand', '-old'=>$old_val, '-new'=>$new_val );
     }
@@ -1492,6 +1497,7 @@ sub _seq_id {
 sub _start {
   my $self = shift;
   my ( $new_val ) = @_;
+
   my $old_val =
     ( ( ( $self->{ '_orientation_policy' } eq 'dependent' ) &&
         ( $self->{ '_strand' } < 0 ) ) ?

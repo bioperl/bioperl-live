@@ -556,8 +556,12 @@ sub add_SeqFeatures {
 
   # Adjust for the features if requested
   if( $expand ) {
+    ## TODO: REMOVE
+    #warn "Before expanding, I am ".$self.", starting at ".$self->start();
     # Adjust the bounds, don't shrink.
     $self->adjust_bounds( 0, @sub_features );
+    ## TODO: REMOVE
+    #warn "After expanding, I am ".$self.", starting at ".$self->start();
   }
   return ( wantarray ? @sub_features : $sub_features[ 0 ] );
 } # add_SeqFeatures(..)

@@ -97,13 +97,13 @@ BEGIN {
     # converted to undef, except for 'EXACT', for which max is set to equal
     # min.
     %FUZZYPOINTENCODE = ( 
-			  '\>(\d+)(.{0})' => 'AFTER',
-			  '\<(.{0})(\d+)' => 'BEFORE',
-			  '(\d+)'  => 'EXACT',
-			  '(\d+)(.{0})\>' => 'AFTER',
-			  '(.{0})(\d+)\<' => 'BEFORE',
-			  '(\d+)\.(\d+)' => 'WITHIN',
-			  '(\d+)\^(\d+)' => 'BETWEEN',
+			  '\>(-?\d+)(.{0})' => 'AFTER',
+			  '\<(.{0})(-?\d+)' => 'BEFORE',
+			  '(-?\d+)'  => 'EXACT',
+			  '(-?\d+)(.{0})\>' => 'AFTER',
+			  '(.{0})(-?\d+)\<' => 'BEFORE',
+			  '(-?\d+)\.(-?\d+)' => 'WITHIN',
+			  '(-?\d+)\^(-?\d+)' => 'BETWEEN',
 		     );
     
     %FUZZYRANGEENCODE  = ( '\.' => 'WITHIN',

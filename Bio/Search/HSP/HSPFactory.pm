@@ -118,7 +118,7 @@ sub create{
    my ($self,@args) = @_;
    my $type = $self->type;
    eval { $self->_load_module($type) };
-   if( $@ ) { $self->throw("Unable to load module $type"); }
+   if( $@ ) { $self->throw("Unable to load module $type: $@"); }
    return $type->new(@args);
 }
 

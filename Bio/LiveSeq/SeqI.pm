@@ -467,11 +467,47 @@ sub primary_id {
     $self->{'primary_id'} = $value;
   }
   unless (exists $self->{'primary_id'}) {
-    return "$self";
+     ## TODO: Put back?
+     #return "$self";
+     ## TODO: REMOVE?
+     return
+       (
+        $self->unique_id() ||
+        $self->accession_number() ||
+        $self->display_id() ||
+        overload::StrVal( $self )
+       );
   } else {
     return $self->{'primary_id'};
   }
 }
+
+=head2 unique_id
+
+ Title   : unique_id
+ Usage   : my $unique_id = $seq->unique_id( [$new_unique_id] )
+ Function: This is a unique identifier that identifies this sequence object.
+           If not set, will return undef per L<Bio::LocallyIdentifiableI>
+           If a value is given, the unique_id will be set to it, unless that
+           value is the string 'undef', in which case the unique_id will
+           become undefined.
+ Returns : The current (or former, if used as a set method) value of unique_id
+ Args    : [optional] a new string unique_id or 'undef'
+
+=cut
+
+sub unique_id {
+  my ( $self, $value ) = @_;
+  my $current_value = $self->{ '_unique_id' };
+  if ( defined $value ) {
+    if( !$value || ( $value eq 'undef' ) ) {
+      $self->{ '_unique_id' } = undef;
+    } else {
+      $self->{ '_unique_id' } = $value;
+    }
+  }
+  return $current_value;
+} # unique_id()
 
 =head2 change
 
@@ -1227,5 +1263,25 @@ sub delete_Obj {
   }
   return(1);
 }
+
+# Overridden to never return 'unknown'.
+sub toString {
+  my $self = shift;
+
+  my $str_val =
+    $self->display_id();
+  return $str_val if( $str_val && ( $str_val ne 'unknown' ) );
+
+  $str_val = $self->accession_number();
+  return $str_val if( $str_val && ( $str_val ne 'unknown' ) );
+
+  $str_val = $self->primary_id();
+  return $str_val if( $str_val && ( $str_val ne 'unknown' ) );
+
+  $str_val = $self->unique_id();
+  return $str_val if( $str_val && ( $str_val ne 'unknown' ) );
+
+  return overload::StrVal( $self );
+} # toString()
 
 1;

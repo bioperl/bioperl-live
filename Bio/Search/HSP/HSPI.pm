@@ -447,6 +447,11 @@ sub strand {
     my $self = shift;
     my $val = shift;
     $val = 'query' unless defined $val;
+    if( $val =~ /^[\d+\-\.]+$/ ) {
+      # oops.  That argument was for setting the value.
+      unshift( @_, $val );
+      $val = 'query';
+    }
     $val =~ s/^\s+//;
 
     if( $val =~ /^q/i ) { 
@@ -476,6 +481,11 @@ sub start {
     my $self = shift;
     my $val = shift;
     $val = 'query' unless defined $val;
+    if( $val =~ /^[\d+\-]+$/ ) {
+      # oops.  That argument was for setting the value.
+      unshift( @_, $val );
+      $val = 'query';
+    }
     $val =~ s/^\s+//;
 
     if( $val =~ /^q/i ) { 
@@ -503,6 +513,11 @@ sub end {
     my $self = shift;
     my $val = shift;
     $val = 'query' unless defined $val;
+    if( $val =~ /^[\d+\-]+$/ ) {
+      # oops.  That argument was for setting the value.
+      unshift( @_, $val );
+      $val = 'query';
+    }
     $val =~ s/^\s+//;
 
     if( $val =~ /^q/i ) { 

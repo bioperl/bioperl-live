@@ -128,6 +128,10 @@ sub add_transcript {
 	$self->{'_transcripts'} = [];
     }
     $self->_expand_region($fea);
+
+    ## TODO: This appears to be using 'parent' differently than we're
+    ## used to (as in, the encloser versus the data source).  What is
+    ## the intention?  Does this matter?
     $fea->parent($self);
     push(@{$self->{'_transcripts'}}, $fea);
 }

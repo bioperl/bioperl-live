@@ -571,6 +571,7 @@ sub adjust_bounds {
   }
 
   my @sub_features;
+  my @all_features;
   if( defined( $shrink ) &&
       ref( $shrink ) &&
       $shrink->isa( 'Bio::SeqFeature::SegmentI' ) ) {
@@ -580,7 +581,8 @@ sub adjust_bounds {
     @sub_features = @_;
   }
   unless( @sub_features ) {
-    @sub_features = $self->features();
+    @all_features = $self->features();
+    @sub_features = @all_features;
     ## TODO: REMOVE
     #print STDERR "$self->adjust_bounds(..): using all subfeatures.\n";
   } else {
@@ -616,17 +618,40 @@ sub adjust_bounds {
   foreach my $sub_feature ( @sub_features ) {
     ## TODO: REMOVE
     #print STDERR "                   adjusting for $sub_feature.\n";
+
     # As an added bonus we will clean up any sloppy features that
-    # don't know where they are.  We do this by telling them that
-    # they are here.
+    # don't know where they are.  We do this by telling them that they
+    # are here.  In this case, though, we should treat their coords as
+    # having been absolute already.
     unless( defined $sub_feature->seq_id() ) {
       ## TODO: REMOVE
       #print STDERR "                   -> setting its seq_id to $self.\n";
+      ( $sub_feature_abs_low,
+        $sub_feature_abs_high ) =
+          ( $sub_feature->low(),
+            $sub_feature->high() );
+      if( $sub_feature->strand() < 0 ) {
+        if( defined $self->end() ) {
+          $sub_feature->start( $self->end() + 1 - $sub_feature_abs_high );
+          $sub_feature->end( $self->end() + 1 - $sub_feature_abs_low );
+        }
+      } elsif( defined $self->start() ) {
+        $sub_feature->start( $sub_feature_abs_low + 1 - $self->start() );
+        $sub_feature->end( $sub_feature_abs_high + 1 - $self->start() );
+      }
       $sub_feature->seq_id( $self );
+      ## TODO: REMOVE
+      #print STDERR "                   ->   (so now it is $sub_feature).\n";
     }
+
+    ## TODO: REMOVE
+    #print STDERR "                   -> adjusting its bounds, with shrink = $shrink.\n";
 
     # All sub_features must recursively adjust their bounds.
     $sub_feature->adjust_bounds( $shrink );
+
+    ## TODO: REMOVE
+    #print STDERR "                   ->   now it is $sub_feature.\n";
 
     # Skip any sub_features that are not on the same sequence.
     if( $sub_feature->abs_seq_id() ne $self->abs_seq_id() ) {
@@ -644,13 +669,14 @@ sub adjust_bounds {
           ( $sub_feature_abs_low < $self_abs_low ) )
       ) {
       ## TODO: REMOVE
-      #print STDERR "                   -> taking on its low value.\n";
+      #print STDERR "                   -> taking on its low value ($sub_feature_abs_low).\n";
       $self_abs_low = $sub_feature_abs_low;
     }
     if( !$self_abs_high ||
-        ( $sub_feature_abs_high > $self_abs_high ) ) {
+        ( $sub_feature_abs_high &&
+          ( $sub_feature_abs_high > $self_abs_high ) ) ) {
       ## TODO: REMOVE
-      #print STDERR "                   -> taking on its high value.\n";
+      #print STDERR "                   -> taking on its high value ($sub_feature_abs_high).\n";
       $self_abs_high = $sub_feature_abs_high;
     }
   } # End foreach sub_feature.
@@ -667,19 +693,44 @@ sub adjust_bounds {
     }
     return;
   }
+
+  ## TODO: We should be able to remove the readjustment code below
+  ## when all features are observers of their seq_feature parents and
+  ## respond to the change in the parent's range by auto-adjusting..
+
   # We want delta_high to be for the 'end' value, which is not
   # necessarily high.
   if( $self_abs_strand < 0 ) {
     # flip the delta values.
     ( $delta_low, $delta_high ) = ( $delta_high, $delta_low );
   }
+
+  # We're going to have to go through all features that we contain,
+  # plus those passed in as arguments (which may or may not be
+  # subfeatures, really, despite the fact that we store it in an array
+  # called @sub_features, just to be confusing).
+  unless( @all_features ) {
+    @all_features = $self->features();
+    my @new_features;
+    foreach my $sub_feature ( @sub_features ) {
+      unless( grep { $sub_feature == $_ } @all_features ) {
+        push( @new_features, $sub_feature );
+      }
+    }
+    if( @new_features ) {
+      push( @all_features, @new_features );
+    }
+  }
+
   # Now change each sub_feature's bounds by the deltas.
   my ( $sub_feature_low,
        $sub_feature_high,
        $sub_feature_strand,
        $sub_feature_ancestor,
        $last_sub_feature_ancestor );
-  foreach my $sub_feature ( $self->features() ) {
+  foreach my $sub_feature ( @all_features ) {
+    ## TODO: REMOVE
+    #print STDERR "                   adjusting $sub_feature for change to self.\n";
     # Skip any sub_features that are not physically contained herein.
     $last_sub_feature_ancestor = $sub_feature;
     $sub_feature_ancestor = $sub_feature->seq_id();
@@ -689,7 +740,13 @@ sub adjust_bounds {
       $last_sub_feature_ancestor = $sub_feature_ancestor;
       $sub_feature_ancestor = $sub_feature_ancestor->seq_id();
     }
-    next unless( $sub_feature_ancestor == $self );
+    ## TODO: Put back.
+    #next unless( $sub_feature_ancestor == $self );
+    ## TODO: REMOVE.
+    unless( $sub_feature_ancestor == $self ) {
+      warn "EEgad, man, subfeature $sub_feature doesn't have self as an ancestor.";
+      next;
+    }
 
     ( $sub_feature_low,
       $sub_feature_high,

@@ -69,8 +69,6 @@ use Bio::RangeI;
 use vars '$VERSION';
 $VERSION = '1.00';
 
-use Bio::RelRange qw( &absStrand );
-
 use overload 
   '""'     => 'toString',
   eq       => 'eq',
@@ -805,16 +803,117 @@ sub _absTestStrand {
 # returns true if abs_strands are equal and non-zero
 sub _abs_strong {
   my ( $r1, $r2 ) = @_;
-  my ( $s1, $s2 ) = ( Bio::RelRange::absStrand( $r1 ), Bio::RelRange::absStrand( $r2 ) );
+  my ( $s1, $s2 );
+  unless( $r1 && ref( $r1 ) && $r1->isa( 'Bio::RangeI' ) ) {
+    return 0;
+  }
+  unless( $r2 && ref( $r2 ) && $r2->isa( 'Bio::RangeI' ) ) {
+    return 0;
+  }
+
+  ## TODO: Note that this code is duplicated in RelRange::absStrong.
+  ## It used to be consolodated there but the circular includes were
+  ## confusing the perl interpreter (occasionally), since RelRangeI
+  ## uses RelRange's absStrand function, but RelRange uses RelRangeI
+  ## (it ISA RelRangeI)...
+  if( ref( $r1 ) && $r1->isa( 'Bio::RelRangeI' ) ) {
+    $s1 = $r1->abs_strand();
+  } else {
+    ## Okay so it's a RangeI but not a RelRangeI.
+    my $seq_id = $r1->seq_id();
+    my $abs_strand = $r1->strand();
+    while( defined( $seq_id ) &&
+           ref( $seq_id ) &&
+           $seq_id->isa( 'Bio::RangeI' ) ) {
+      unless( $abs_strand ) {
+        return $abs_strand;
+      }
+      $abs_strand *= $seq_id->strand();
+      $seq_id = $seq_id->seq_id();
+    }
+    $s1 = $abs_strand;
+  }
+  if( $s1 == 0 ) {
+    return 0;
+  }
+  if( ref( $r2 ) && $r2->isa( 'Bio::RelRangeI' ) ) {
+    $s2 = $r2->abs_strand();
+  } else {
+    ## Okay so it's a RangeI but not a RelRangeI.
+    my $seq_id = $r2->seq_id();
+    my $abs_strand = $r2->strand();
+    while( defined( $seq_id ) &&
+           ref( $seq_id ) &&
+           $seq_id->isa( 'Bio::RangeI' ) ) {
+      unless( $abs_strand ) {
+        return $abs_strand;
+      }
+      $abs_strand *= $seq_id->strand();
+      $seq_id = $seq_id->seq_id();
+    }
+    $s2 = $abs_strand;
+  }
     
-  return 1 if( ( $s1 != 0 ) && ( $s1 == $s2 ) );
+  return ( $s1 == $s2 );
 } # _abs_strong
 
 # returns true if abs_strands are equal or either is zero
 sub _abs_weak {
   my ( $r1, $r2 ) = @_;
-  my ( $s1, $s2 ) = ( Bio::RelRange::absStrand( $r1 ), Bio::RelRange::absStrand( $r2 ) );
-  return 1 if( ( $s1 == 0 ) || ( $s2 == 0 ) || ( $s1 == $s2 ) );
+  my ( $s1, $s2 );
+  unless( $r1 && ref( $r1 ) && $r1->isa( 'Bio::RangeI' ) ) {
+    return 0;
+  }
+  unless( $r2 && ref( $r2 ) && $r2->isa( 'Bio::RangeI' ) ) {
+    return 0;
+  }
+
+  ## TODO: Note that this code is duplicated in RelRange::absStrong.
+  ## It used to be consolodated there but the circular includes were
+  ## confusing the perl interpreter (occasionally), since RelRangeI
+  ## uses RelRange's absStrand function, but RelRange uses RelRangeI
+  ## (it ISA RelRangeI)...
+  if( ref( $r1 ) && $r1->isa( 'Bio::RelRangeI' ) ) {
+    $s1 = $r1->abs_strand();
+  } else {
+    ## Okay so it's a RangeI but not a RelRangeI.
+    my $seq_id = $r1->seq_id();
+    my $abs_strand = $r1->strand();
+    while( defined( $seq_id ) &&
+           ref( $seq_id ) &&
+           $seq_id->isa( 'Bio::RangeI' ) ) {
+      unless( $abs_strand ) {
+        return $abs_strand;
+      }
+      $abs_strand *= $seq_id->strand();
+      $seq_id = $seq_id->seq_id();
+    }
+    $s1 = $abs_strand;
+  }
+  if( $s1 == 0 ) {
+    return 1;
+  }
+  if( ref( $r2 ) && $r2->isa( 'Bio::RelRangeI' ) ) {
+    $s2 = $r2->abs_strand();
+  } else {
+    ## Okay so it's a RangeI but not a RelRangeI.
+    my $seq_id = $r2->seq_id();
+    my $abs_strand = $r2->strand();
+    while( defined( $seq_id ) &&
+           ref( $seq_id ) &&
+           $seq_id->isa( 'Bio::RangeI' ) ) {
+      unless( $abs_strand ) {
+        return $abs_strand;
+      }
+      $abs_strand *= $seq_id->strand();
+      $seq_id = $seq_id->seq_id();
+    }
+    $s2 = $abs_strand;
+  }
+  if( $s2 == 0 ) {
+    return 1;
+  }
+  return ( $s1 == $s2 );
 } # _abs_weak
 
 # returns true always

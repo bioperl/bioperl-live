@@ -541,14 +541,23 @@ sub unique_id {
 =cut
 
 sub primary_id {
-   my ($obj,$value) = @_;
+   my ($self,$value) = @_;
    if( defined $value) {
-      $obj->{'primary_id'} = $value;
+      $self->{'primary_id'} = $value;
     }
-   if( ! exists $obj->{'primary_id'} ) {
-       return "$obj";
+   if( ! exists $self->{'primary_id'} ) {
+     ## TODO: Put back?
+     #return "$self";
+     ## TODO: REMOVE?
+     return
+       (
+        $self->unique_id() ||
+        $self->accession_number() ||
+        $self->display_id() ||
+        overload::StrVal( $self )
+       );
    }
-   return $obj->{'primary_id'};
+   return $self->{'primary_id'};
 
 }
 
