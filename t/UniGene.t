@@ -23,7 +23,7 @@ BEGIN {
     }
     use Test;
 
-    $NUMTESTS = 58;
+    $NUMTESTS = 61;
     plan tests => $NUMTESTS;
     
 }
@@ -115,6 +115,8 @@ $seq = $unigene->next_seq;
 ok($seq->isa('Bio::PrimarySeqI'), 1,'expected a Bio::PrimarySeq object but got a ' . ref($seq));
 my $accession = $seq->accession_number;
 ok($accession, 'BC015878');
+my $version = $seq->version();
+ok($version, "");
 
 
 # test the sequence parsing is working
@@ -187,4 +189,12 @@ my $protsim = shift @protsim_results;
 ok $protsim, 'ORG=Homo sapiens; PROTGI=107211; PROTID=pir:A40428; PCT=100; ALN=243', 'expected ORG=Homo sapiens; PROTGI=107211; PROTID=pir:A40428; PCT=100; ALN=243 but got ' . $protsim;
 
 
+
+# do a quick test on Rn record included as the next cluster in the test data file because it has version numbers tacked on the end of the accession numbers in each seq line - NCBI has started doing this now (Sept 2003).
+
+$unigene = $str->next_cluster();
+$seq = $unigene->next_seq;
+ok($seq->isa('Bio::PrimarySeqI'), 1,'expected a Bio::PrimarySeq object but got a ' . ref($seq));
+$version = $seq->version();
+ok($version, '1');
 
