@@ -63,8 +63,8 @@ if( $DEBUG ) {
     my $cdtable =  $db->get_request(-sp =>'Pan troglodytes');
     exit unless $cdtable;
 #tests for Table.pm
-    ok $cdtable->cds_count(), 442;
-    ok int($cdtable->aa_frequency('LEU')), 9;
+    ok $cdtable->cds_count(), 485;
+    ok int($cdtable->aa_frequency('LEU')), 10;
     ok $cdtable->get_coding_gc('all');
     ok $cdtable->codon_rel_frequency('ttc'), "0.62"; 
     
