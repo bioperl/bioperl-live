@@ -1,5 +1,5 @@
 #!perl -w
-# $Id: pairwise_kaks.PLS,v 1.1 2003-01-10 15:35:30 jason Exp $
+# $Id: pairwise_kaks.PLS,v 1.2 2003-01-10 20:04:12 jason Exp $
 use strict;
 # Author Jason Stajich <jason@bioperl.org>
 
@@ -44,6 +44,8 @@ the Bioperl mailing list.  Your participation is much appreciated.
 Report bugs to the Bioperl bug tracking system to help us keep track
 of the bugs and their resolution. Bug reports can be submitted via
 email or the web:
+
+ http://bugzilla.bioperl.org/
 
 =head1 AUTHOR
 
@@ -148,6 +150,7 @@ $kaks_factory->alignment($dna_aln);
 my ($rc,$parser) = $kaks_factory->run();
 my $result = $parser->next_result;
 my $MLmatrix = $result->get_MLmatrix();
+
 my @otus = $result->get_seqs();
 print join("\t", qw(SEQ1 SEQ2 Ka Ks Ka/Ks)), "\n";
 for( my $i = 0; $i < (scalar @otus -1) ; $i++) {
