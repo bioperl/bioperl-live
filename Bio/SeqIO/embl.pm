@@ -984,6 +984,8 @@ sub _write_line_EMBL_regex {
 
     my $subl = $length - (length $pre1) -1 ;
 
+
+
     my( @lines );
     while($line =~ m/(.{1,$subl})($regex)/g) {
         push(@lines, $1.$2);

@@ -232,26 +232,26 @@ my $rna_weights =  {
 # ------------------------------------------
 
 
-my $amino_A_wt = 89;
-my $amino_C_wt = 121;
-my $amino_D_wt = 133;
-my $amino_E_wt = 147;
-my $amino_F_wt = 165;
-my $amino_G_wt = 75;
-my $amino_H_wt = 155;
-my $amino_I_wt = 131;
-my $amino_K_wt = 146;
-my $amino_L_wt = 131;
-my $amino_M_wt = 149;
-my $amino_N_wt = 132;
-my $amino_P_wt = 115;
-my $amino_Q_wt = 146;
-my $amino_R_wt = 174;
-my $amino_S_wt = 105;
-my $amino_T_wt = 119;
-my $amino_V_wt = 117;
-my $amino_W_wt = 204;
-my $amino_Y_wt = 181;
+my $amino_A_wt = 89.09;
+my $amino_C_wt = 121.15;
+my $amino_D_wt = 133.1;
+my $amino_E_wt = 147.13;
+my $amino_F_wt = 165.19;
+my $amino_G_wt = 75.07;
+my $amino_H_wt = 155.16;
+my $amino_I_wt = 131.18;
+my $amino_K_wt = 146.19;
+my $amino_L_wt = 131.18;
+my $amino_M_wt = 149.22;
+my $amino_N_wt = 132.12;
+my $amino_P_wt = 115.13;
+my $amino_Q_wt = 146.15;
+my $amino_R_wt = 174.21;
+my $amino_S_wt = 105.09;
+my $amino_T_wt = 119.12;
+my $amino_V_wt = 117.15;
+my $amino_W_wt = 204.22;
+my $amino_Y_wt = 181.19;
 
 
 
@@ -444,22 +444,28 @@ sub get_mol_wt {
 # more readable code.
 
 
-     my	$weight_lower_bound = 0;
-     my	$weight_upper_bound = 0;
-    my	$weight_table =  $Weights{$moltype};
+    my $weight_lower_bound = 0;
+    my $weight_upper_bound = 0;
+    my $weight_table =  $Weights{$moltype};
+    my $water = 18.015;
 
     foreach $element (keys %$rcount) {
 	$weight_lower_bound += $$rcount{$element} * $$weight_table{$element}->[0];
 	$weight_upper_bound += $$rcount{$element} * $$weight_table{$element}->[1];
     }
-    
+
+    # Added by kdj: removal of H2O during peptide bond formation!
+    $weight_lower_bound -= $water * ($seqobj->length - 1);
+    $weight_upper_bound -= $water * ($seqobj->length - 1);
+    $weight_lower_bound = sprintf("%.0f", $weight_lower_bound);
+    $weight_upper_bound = sprintf("%.0f", $weight_upper_bound);
+
     $weight_array = [$weight_lower_bound, $weight_upper_bound];
-    
+
     if ($_is_instance) {
-	$self->{'_mol_wt'}= $weight_array;  # Save in case called again later
+	$self->{'_mol_wt'} = $weight_array;  # Save in case called again later
     }
-    
-    return $weight_array ;
+    return $weight_array;
 }
 
 
