@@ -168,7 +168,7 @@ qq{<HTML>
     <CENTER><H1>Bioperl Reformatted HTML of %s Search Report<br> for %s</H1></CENTER>
     <hr>
 	<pre>%s</pre>
-    <b>Query=</b>%s %s<br><dd>(%d letters)</dd>
+    <b>Query=</b>%s %s<br><dd>(%s letters)</dd>
     <p>
     <b>Database:</b> %s<br><dd>%d sequences; %d total letters<p></dd>
     <p>
