@@ -89,7 +89,7 @@ eval {
     ok($seq->division, 'YEAST');
     $db2->request_format('fasta');
     ok(defined($seq = $db2->get_Seq_by_acc('P43780')));
-    ok( $seq->length, 103); 
+    ok($seq->length,103); 
 
 };
 
@@ -111,7 +111,7 @@ eval {
 				 -format => 'fasta',
 				 -verbose => $verbose
 				);
-    ok( defined($seqio = $db->get_Stream_by_batch(['J00522 AF303112 J02231'])));
+    ok( defined($seqio = $db->get_Stream_by_id('J00522 AF303112 J02231')));
     ok($seqio->next_seq->length, 408);
     ok($seqio->next_seq->length, 1611);
     ok($seqio->next_seq->length, 200);

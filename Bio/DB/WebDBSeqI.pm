@@ -460,10 +460,24 @@ sub get_seq_stream {
       open(ERR, "<$tmpfile");
       while(<ERR>) { $self->debug($_);}
     }
+    #All these gimmicks are to get rid of empty lines in the file that screw up
+    #SeqIO later on
+    open (FILE,$tmpfile);
+    my ($fh2, $tmpfile2) = $self->io()->tempfile( DIR => $dir );
+    close $fh2;
+    open (FILE2,">$tmpfile2");
+    while (<FILE>) {
+        if ($_ =~ /\S/) {
+        	print FILE2 $_;
+	}
+    }
+    close (FILE);
+    close (FILE2);
+    # End of the gimmicks, new file in $tmpfile2
 
     return Bio::SeqIO->new('-verbose' => $self->verbose,
 			   '-format' => $ioformat,
-			   '-file'   => $tmpfile);
+			   '-file'   => $tmpfile2);
   }
 
   if ($self->retrieval_type =~ /io_string/i ) {
