@@ -8,7 +8,7 @@
 
 use strict;
 use vars qw($NUMTESTS $DEBUG);
-$DEBUG=1;
+$DEBUG=0;
 my $error;
 
 BEGIN { 
@@ -82,7 +82,9 @@ eval {
 				     -retrievaltype => 'tempfile'
 				     )); 
 
-    ok(defined($refio = $db->get_Stream_by_batch(['20063307', '98276153'])));
+
+    my $ids = ['20063307', '98276153'];
+    ok(defined($refio = $db->get_all($ids)));
     ok($refio->next_bibref->identifier, '20063307');
     ok($refio->next_bibref->identifier, '98276153');
 };
