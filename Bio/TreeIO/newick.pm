@@ -209,7 +209,9 @@ sub _write_tree_Helper {
     if( @data > 1 ) {
 	$data[0] = "(" . $data[0];
 	$data[-1] .= ")";
+	$data[-1] .= $node->id if defined $node->id;
 	$data[-1] .= ":". $node->branch_length if( $node->branch_length);
+	
     } else {
 	if( defined $node->id || defined $node->branch_length ) { 
 	    push @data, sprintf("%s%s",
