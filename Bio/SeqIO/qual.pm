@@ -171,10 +171,10 @@ sub next_primary_qual {
   return $qual;
 }
 
-=head2 write_qual
+=head2 write_seq
 
- Title   : write_qual(-source => $source, -header => "some information")
- Usage   : $obj->write_qual(	-source => $source,
+ Title   : write_seq(-source => $source, -header => "some information")
+ Usage   : $obj->write_seq(	-source => $source,
 				-header => "some information");
  Function: Write out an list of quality values to a fasta-style file.
  Returns : Nothing.
@@ -191,31 +191,32 @@ sub next_primary_qual {
 =cut
 
 sub write_seq {
-	my ($self,%args) = @_;
-	my ($source)  = $self->_rearrange([qw(SOURCE)], %args);
-	
-	if (!$source || ( ref($source) ne "Bio::Seq::SeqWithQuality" && 
-			  ref($source) ne "Bio::Seq::PrimaryQual")) {
-	    $self->throw("You must pass a Bio::Seq::SeqWithQuality or a Bio::Seq::PrimaryQual object to write_qual as a parameter named \"source\"");
-	}
-	my $header = $source->id();
-	if (!$header) { $header = "unknown"; }
-	my @quals = $source->qual();
-	# ::dumpValue(\@quals);
-	$self->_print (">$header \n");
-	my (@slice,$max,$length);
-	$length = $source->length();
-	if ($length eq "DIFFERENT") {
-		print("You passed a SeqWithQuality object that contains a sequence and quality of differing lengths. Using the length of the PrimaryQual component of the SeqWithQuality object.");
-		$length = $source->qual_obj()->length();
-	}
-		# print("Printing $header to a file.\n");
-	for (my $count = 1; $count<$length; $count+= 50) {
-		if ($count+50 > $length) { $max = $length; }
-		else { $max = $count+49; }
-		my @slice = @{$source->subqual($count,$max)};
-		$self->_print (join(' ',@slice), " \n");
-	}
+    my ($self,%args) = @_;
+    my ($source)  = $self->_rearrange([qw(SOURCE)], %args);
+
+    if (!$source || ( ref($source) ne "Bio::Seq::SeqWithQuality" && 
+		      ref($source) ne "Bio::Seq::PrimaryQual")) {
+	$self->throw("You must pass a Bio::Seq::SeqWithQuality or a Bio::Seq::PrimaryQual object to write_seq as a parameter named \"source\"");
+    }
+    my $header = $source->id();
+    if (!$header) { $header = "unknown"; }
+    my @quals = $source->qual();
+    # ::dumpValue(\@quals);
+    $self->_print (">$header \n");
+    my (@slice,$max,$length);
+    $length = $source->length();
+    if ($length eq "DIFFERENT") {
+	$self->warn("You passed a SeqWithQuality object that contains a sequence and quality of differing lengths. Using the length of the PrimaryQual component of the SeqWithQuality object.");
+	$length = $source->qual_obj()->length();
+    }
+    # print("Printing $header to a file.\n");
+    for (my $count = 1; $count<$length; $count+= 50) {
+	if ($count+50 > $length) { $max = $length; }
+	else { $max = $count+49; }
+	my @slice = @{$source->subqual($count,$max)};
+	$self->_print (join(' ',@slice), " \n");
+    }
+    return 1;
 }
 
 
