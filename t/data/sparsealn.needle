@@ -1,0 +1,42 @@
+########################################
+# Program:  needle
+# Rundate:  Wed Mar 13 14:01:53 2002
+# Report_file: out.water
+########################################
+#=======================================
+#
+# Aligned_sequences: 2
+# 1: KV1K_HUMAN
+# 2: IF1Y_HUMAN
+# Matrix: EBLOSUM62
+# Gap_penalty: 10.0
+# Extend_penalty: 0.5
+#
+# Length: 238
+# Identity:       5/238 ( 2.1%)
+# Similarity:     9/238 ( 3.8%)
+# Gaps:         225/238 (94.5%)
+# Score: 18.0
+# 
+#
+#=======================================
+
+KV1K_HUMAN         1 DIQMTQSPSTLSVSVGDRVTITCEASQTVLSYLNWYQQKPGKAPKLLIYA     50
+                                                                       
+IF1Y_HUMAN         1                                                         0
+
+KV1K_HUMAN        51 ASSLETGVPSRFSGQGSGTBFTFTISSVZPZBFATYYCQZYLDLPRTFGQ    100
+                                                                 |:..|:
+IF1Y_HUMAN         1                                             PKNKGK      6
+
+KV1K_HUMAN       101 GTKVDLKR                                              108
+                     |.| :.:|                                          
+IF1Y_HUMAN         7 GGK-NRRRGKNENESEKRELVFKEDGQEYAQVIKMLGNGRLEALCFDGVK     55
+
+KV1K_HUMAN       109                                                       108
+                                                                       
+IF1Y_HUMAN        56 RLCHIRGKLRKKVWINTSDIILVGLRDYQDNKADVILKYNADEARSLKAY    105
+
+KV1K_HUMAN       109                                           108
+                                                           
+IF1Y_HUMAN       106 GGLPEHAKINETDTFGPGDDDEIQFDDIGDDDEDIDDI    143
