@@ -1,6 +1,50 @@
 $Id$
 Revision history for Bioperl core modules
 
+1.2.2 Stable release update
+
+    o brought the OBDA Registry code up to latest specs 
+
+    o eutils URL change in Bio::DB::GenBank
+
+    o Bio::SearchIO::blast - fix bug #1443 (missing last hits), parse megablast
+
+    o Bio::SearchIO::Writer::(HTML|Text)ResultWriter fix bugs #1458, 
+      #1459 which now properly report alignment start/end info
+      for translated BLAST/FASTA searches.
+    
+    o Bio::TreeIO::newick can parse labeled internal nodes
+
+    o Bio::Tools::BPbl2seq can properly report strand info for HSPs 
+      for BLASTX if if you provide -report_type => 'BLASTX' when
+      initializing a BPbl2seq object.  Bioperl 1.3 will have better
+      support for bl2seq in the SearchIO system.
+
+    o Bio::Root::IO support a -noclose boolean flag which will not
+      close a filehandle upon object cleanup - useful when sharing
+      a filehandle among objects.  Additionally code added s.t.
+      STDOUT/STDIN/STDERR will never be closed by Root::IO cleanup.
+
+    o Bio::Tools::Genemark bug #1435 fixed which was missing last prediction
+
+    o Bio::SeqIO::genbank bug #1456 fixed which generated extra sequence lines
+
+1.2.1 Stable release update
+
+    o Inclusion of WrapperBase, a needed component for StandAloneBlast
+
+    o Addition from main trunk of Ontology objects, principly to allow
+      BioSQL releases against 1.2.1
+
+    o Fixes and cleanup of Bio::Coordinate modules
+
+    o A fix to Bio::Index::EMBL allowing  retrieval of entries using
+      the primary accession number
+ 
+    o Other bug fixes, including bpindex GenBank fix
+   
+    o Bio::SeqIO::genbank bug #1389 fixed
+
 1.2  Stable major release
  
     o More functionality added to Bio::Perl, the newbie module
