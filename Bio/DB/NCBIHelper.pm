@@ -114,7 +114,6 @@ BEGIN {
 sub new {
     my ($class, @args ) = @_;
     my $self = $class->SUPER::new(@args);
-
     return $self;
 }
 
@@ -281,53 +280,51 @@ sub postprocess_data {
 	$data = join("", @in);
     }
     # transform links to appropriate descriptions
-    if ($data =~ /\nCONTIG\s+/) {
-	$self->warn("CONTIG found. GenBank get_Stream_by_batch about to run."); 
+    if ($data =~ /\nCONTIG\s+/) {	
+	$self->warn("CONTIG found. GenBank get_Stream_by_acc about to run."); 
     	my(@batch,@accession,%accessions,@location,$id,
 	   $contig,$stream,$aCount,$cCount,$gCount,$tCount);
-    	my $gb = new Bio::DB::GenBank();
-	
+
     	# process GenBank CONTIG join(...) into two arrays
     	$data =~ /(?:CONTIG\s+join\()((?:.+\n)+)(?:\/\/)/;
-    	$contig = $1;
+	$contig = $1;
     	$contig =~ s/\n|\)//g;
-	foreach (split /,/,$contig){
+	foreach (split /\s*,\s*/,$contig){	    
 	    if (/>(.+)<.+>:(.+)/) {
-		($id) = split /\./, $1;
-		if (!$accessions{$id}) { push @batch, $id; }
+		($id) = split /\./, $1;		
 		push @accession, $id;
 		push @location, $2;
 		$accessions{$id}->{'count'}++;
+	    } elsif( /([\w\.]+):(.+)/ ) { 
+		($id) = split /\./, $1;
+		$accessions{$id}->{'count'}++;
+		push @accession, $id;
+		push @location, $2;
 	    }
 	}
 
 	# grab multiple sequences by batch and join based location variable
-	#$stream = $gb->get_Stream_by_batch(\@accession);
-
-	$stream = $gb->get_Stream_by_batch(\@batch);
+	my @unique_accessions = keys %accessions;
+	$stream = $self->get_Stream_by_acc(\@unique_accessions);
 	$contig = "";
-	
+	my $ct = 0;
+	while( my $seq = $stream->next_seq() ) {	    
+	    if( $seq->accession_number !~ /$unique_accessions[$ct]/ ) {
+		printf STDERR "warning, %s does not match %s\n",
+		$seq->accession_number, $unique_accessions[$ct];
+	    }
+	    $accessions{$unique_accessions[$ct]}->{'seq'} = $seq;
+	    $ct++;
+	}
 	for (my $i = 0; $i < @accession; $i++) {
-	    my $seq;
-	    if ($accessions{$accession[$i]}->{'seq'} ne '') {
-				# retrieve stored sequence
-				#my $seq =  $accessions{$accession[$i]}->{'seq'}   ;
-		$seq = Bio::Seq::RichSeq->new(-seq => $accessions{$accession[$i]}->{'seq'});
-	    } else {
-				# seq not cached, get next sequence
-		$seq = $stream->next_seq();
-		if( defined $seq ) {
-		    if ($accessions{$accession[$i]}->{'count'} > 1) {
-			# cache sequence for later use		    
-			$accessions{$accession[$i]}->{'seq'} = $seq->seq();
-		    }
-		} else { 
-		    $self->warn("No Sequence available on stream");
-		    return undef;
-		}
+	    my $seq = $accessions{$accession[$i]}->{'seq'};
+	    unless( defined $seq ) {
+		# seq not cached, get next sequence
+		$self->warn("unable to find sequence $accession[$i]\n");
+		return undef;
 	    }
 	    my($start,$end) = split(/\.\./, $location[$i]);
-	    $contig .= $seq->subseq($start,$end);
+	    $contig .= $seq->subseq($start,$end-$start);
 	}
 
 	# count number of each letter in sequence
@@ -337,28 +334,30 @@ sub postprocess_data {
 	$tCount = () = $contig =~ /t/ig;
 
 	# remove everything after and including CONTIG
-	$data =~ s/(CONTIG[\s\S]+$)//i;
+	$data =~ s/(CONTIG[\s\S]+)$//i;
 
-		    # build ORIGIN part of data file using sequence and counts
-		    $data .= "BASE COUNT     $aCount a   $cCount c   $gCount g   $tCount t\n";
-		    $data .= "ORIGIN      \n";
-		    $data .= "$contig\n//";
-		}
-	else {
-	    $data =~ s/<a\s+href\s*=.+>\s*(\S+)\s*<\s*\/a\s*\>/$1/ig;
-	}
-
-	# fix gt and lt
-	$data =~ s/&gt;/>/ig;
-	$data =~ s/&lt;/</ig;
-	if( $type eq 'FILE'  ) {
-	    open(TMP, ">$location") or $self->throw("couldn't overwrite file $location");
-	    print TMP $data;
-	    close TMP;
-	} elsif ( $type eq 'STRING' ) {
-	    ${$args{'location'}} = $data;
+	# build ORIGIN part of data file using sequence and counts
+	$data .= "BASE COUNT     $aCount a   $cCount c   $gCount g   $tCount t\n";
+	$data .= "ORIGIN      \n";
+	$data .= "$contig\n//";
     }
-    $self->debug("format is ". join(',',$self->request_format()). " data is $data\n");
+    else {
+	$data =~ s/<a\s+href\s*=.+>\s*(\S+)\s*<\s*\/a\s*\>/$1/ig;
+    }
+    
+    # fix gt and lt
+    $data =~ s/&gt;/>/ig;
+    $data =~ s/&lt;/</ig;
+    if( $type eq 'FILE'  ) {
+	open(TMP, ">$location") or $self->throw("couldn't overwrite file $location");
+	print TMP $data;
+	close TMP;
+    } elsif ( $type eq 'STRING' ) {
+	${$args{'location'}} = $data;
+    }
+    
+    $self->debug("format is ". join(',',$self->request_format()). 
+		 " data is\n$data\n");
 }
 
 
