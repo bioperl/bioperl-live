@@ -110,29 +110,34 @@ sub new {
 
 sub write_tree{
    my ($self,$tree) = @_;      
-   my @data = _write_tree_Helper($tree->get_root_node,0);
-   $self->_print(join("\n", @data), "\n");   
+   my $line = _write_tree_Helper($tree->get_root_node,"");
+   $self->_print($line. "\n");   
    $self->flush if $self->_flush_on_write && defined $self->_fh;
    return;
 }
 
 sub _write_tree_Helper {
-    my ($node,$depth) = @_;
-    return () if (!defined $node);
+    my ($node,$indent) = @_;
+    return unless defined $node;
 
-    my @data;
     my @d = $node->each_Descendent();
-
-    push @data,sprintf("%s%s","\t"x$depth,
-		       $node->to_string);
-    if( @d ) {
-	my $c = 0;
-	foreach my $n ( @d ) {
-	    push @data, _write_tree_Helper($n,$depth+1);
+    my $line = "";
+    my ($i,$lastchild) = (0,scalar @d - 1);
+    for my $n ( @d ) {
+	if( $n->is_Leaf ) {
+	    $line .= sprintf("%s| \n%s\\-%s\n",
+			     $indent,$indent,$n->id || '');
+	} else { 
+	    $line .= sprintf("$indent|  %s\n",( $n->id ? 
+					       sprintf("(%s)",$n->id) : ''));
+	}
+	my $new_indent = $indent . (($i == $lastchild) ? "| " : "  ");
+	if( $n != $node ) {
+	    # avoid the unlikely case of cycles
+	    $line .= _write_tree_Helper($n,$new_indent);	
 	}
     }
-
-    return @data;
+    return $line;
 }
 
 =head2 next_tree
