@@ -1,4 +1,4 @@
-## $Id: bioperl.pod,v 1.7 2000-03-23 14:43:05 birney Exp $
+## $Id: bioperl.pod,v 1.7.2.1 2000-09-20 12:05:46 pvh Exp $
 
 ## Should contain general info about the distribution including
 ## links to all the various modules.
@@ -234,7 +234,7 @@ except for Seq.pm). Talk to him or her and suggest changes.
 If you can make a useful object we will happily include it into the
 core. Probably you will want to read alot of the documentation 
 in the Bio::Root section and also talk to people on the 'guts'
-mailing list vsns-bcd-perl-guts@lists.uni-bielefeld.de
+mailing list bioperl-guts-l@bioperl.org
 
 biodesign.pod provides documentation on the conventions and ideas
 used in bioperl. It is definitely worth a ready if you are interested
@@ -373,7 +373,6 @@ C code XS extensions were provided by Ewan Birney. Bioperl is used in
 anger at these sites, indicating that is both useful and that it
 works.
 
-Uni-bielefeld provides us with our Mailing lists.
 
 Jon Orwant at The Perl Journal (http://www.tpj.com) gave us permission to reprint 
 Lincoln Stein's great article on our website. He also worked with the Perl Institute 
@@ -382,8 +381,8 @@ Lincoln Stein's great article on our website. He also worked with the Perl Insti
 Hardware for bio.perl.org was donated by Compaq.
 
 
-Bandwith and internet connectivity (ISDN) donated by The Genetics
-Institute (http://www.genetics.com).
+Bandwith and internet connectivity (ISDN) donated by Genetics
+Institute Inc. (http://www.genetics.com).
 
 
 =head1 COPYRIGHT
