@@ -451,7 +451,7 @@ use Bio::Root::Root;
 use vars qw($VERSION @ISA);
 @ISA = qw(Bio::Root::Root);
 
-$VERSION = '1.03';
+$VERSION = '1.04';
 my %valid_range_types = (overlaps     => 1,
 			 contains     => 1,
 			 contained_in => 1);
@@ -2649,7 +2649,7 @@ sub make_match_sub {
   my $sub =<<END;
 sub {
   my \$feature = shift or return;
-  return \$feature->type =~ /^($expr)\$/;
+  return \$feature->type =~ /^($expr)\$/i;
 }
 END
   warn "match sub: $sub\n" if $self->debug;
