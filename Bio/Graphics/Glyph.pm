@@ -354,10 +354,6 @@ sub connector {
 #              0    no bumping
 #              +1   bump down
 #              -1   bump up
-#              +2   simple (hyper) bump up
-#              -2   simple (hyper) bump down
-#              +3   bump down, not position dependent
-#              -3   bump up, not position dependent
 sub bump {
   my $self = shift;
   return $self->option('bump');
@@ -468,7 +464,6 @@ sub layout {
   my $bump_direction = $self->bump;
   my $bump_limit = $self->option('bump_limit') || -1;
 
-
   $_->layout foreach @parts;  # recursively lay out
 
   # no bumping requested, or only one part here
@@ -481,89 +476,43 @@ sub layout {
     return $self->{layout_height} = $highest + $self->pad_top + $self->pad_bottom;
   }
 
-  if (abs($bump_direction) <= 1) {  # original bump algorithm
+  my (%bin1,%bin2);
+  for my $g ($self->layout_sort(@parts)) {
 
-    my (%bin1,%bin2);
-    for my $g ($self->layout_sort(@parts)) {
+    my $pos = 0;
+    my $bumplevel = 0;
+    my $left   = $g->left;
+    my $right  = $g->right;
+    my $height = $g->{layout_height};
 
-      my $pos = 0;
-      my $bumplevel = 0;
-      my $left   = $g->left;
-      my $right  = $g->right;
-      my $height = $g->{layout_height};
+    while (1) {
 
-      while (1) {
-
-	# stop bumping if we've gone too far down
-	last if ($bump_limit > 0 ? $bumplevel++ > $bump_limit : 0);
-
-	# look for collisions
-	my $bottom = $pos + $height;
-	$self->collides(\%bin1,CM1,CM2,$left,$pos,$right,$bottom) or last;
-	my $collision = $self->collides(\%bin2,CM3,CM4,$left,$pos,$right,$bottom) or last;
-
-	if ($bump_direction > 0) {
-	  $pos += $collision->[3]-$collision->[1] + BUMP_SPACING;    # collision, so bump
-
-	} else {
-	  $pos -= BUMP_SPACING;
+      # stop bumping if we've gone too far down
+      if ($bump_limit > 0 && $bumplevel++ >= $bump_limit) {
+	$g->{overbumped}++;  # this flag can be used to suppress label and description
+	foreach ($g->parts) {
+	  $_->{overbumped}++;
 	}
-
+	last;
       }
 
-      $g->move(0,$pos);
-      $self->add_collision(\%bin1,CM1,CM2,$left,$g->top,$right,$g->bottom);
-      $self->add_collision(\%bin2,CM3,CM4,$left,$g->top,$right,$g->bottom);
-    }
-  }
+      # look for collisions
+      my $bottom = $pos + $height;
+      $self->collides(\%bin1,CM1,CM2,$left,$pos,$right,$bottom) or last;
+      my $collision = $self->collides(\%bin2,CM3,CM4,$left,$pos,$right,$bottom) or last;
 
-  elsif(abs($bump_direction) == 2) {  # abs(bump) == 2 -- simple bump algorithm
-    my $pos = 0;
-    my $last;
-    my $bumplevel = 0;
-    for my $g ($self->layout_sort(@parts)) {
-      next if !defined($last);
-      $pos += $bump_direction > 0 ? $last->{layout_height} + BUMP_SPACING
-                                  : - ($g->{layout_height}+BUMP_SPACING)
-				    if ($bump_limit > 0 ? $bumplevel++ < $bump_limit : 1);
-      $g->move(0,$pos);
-    } continue {
-      $last = $g;
-    }
-  } else {
-    # abs(bump) >=3 -- yet another bump algorithm that doesn't
-    # depend on left position:
-    my @overlaps;
-    for my $g ($self->layout_sort(@parts)) {
-      my $j;
-      LEVEL : for ($j = 0; $j < @overlaps; $j++) {
-       for my $h (@{$overlaps[$j]}) {
-         # do they overlap?
-         if ( ($g->right >= $h->left && $g->right <= $h->right) ||
-              ($h->right >= $g->left && $h->right <= $g->right)
-            ) {
-           next LEVEL; # yep, try again at the next level ...
-         }
-        }
-       last LEVEL; # nope, no overlap to any $h at this level;
-                   # $g can go in this level ...
+      if ($bump_direction > 0) {
+	$pos += $collision->[3]-$collision->[1] + BUMP_SPACING;    # collision, so bump
+
+      } else {
+	$pos -= BUMP_SPACING;
       }
-      unshift @{$overlaps[$j]}, $g; # most likely to overlap at
-                                    # the beginning of the list;
-                                    # this is a small optimization.
+
     }
 
-    my $pos = 0;
-    my $bumplevel = 0;
-    for (my $j = 1; $j < @overlaps ; $j++) {
-      $pos += $bump_direction > 0 ? $overlaps[$j-1]->[0]->{layout_height} + BUMP_SPACING
-                                 : - ($overlaps[$j-1]->[0]->{layout_height} + BUMP_SPACING)
-          if ($bump_limit > 0 ? $bumplevel++ < $bump_limit : 1);
-
-      for my $h (@{$overlaps[$j]}) {
-       $h->move(0, $pos);
-      }
-    }
+    $g->move(0,$pos);
+    $self->add_collision(\%bin1,CM1,CM2,$left,$g->top,$right,$g->bottom);
+    $self->add_collision(\%bin2,CM3,CM4,$left,$g->top,$right,$g->bottom);
   }
 
   # If -1 bumping was allowed, then normalize so that the top glyph is at zero
@@ -667,6 +616,7 @@ sub level {
 
 sub draw_connectors {
   my $self = shift;
+  return if $self->{overbumped};
   my $gd = shift;
   my ($dx,$dy) = @_;
   my @parts = sort { $a->left <=> $b->left } $self->parts;

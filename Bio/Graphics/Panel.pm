@@ -1453,10 +1453,8 @@ B<Collision control:> The -bump argument controls what happens when
 glyphs collide.  By default, they will simply overlap (value 0).  A
 -bump value of +1 will cause overlapping glyphs to bump downwards
 until there is room for them.  A -bump value of -1 will cause
-overlapping glyphs to bump upwards.  Bump values of +2 and -2
-implement a simpler bump algorithm in which each horizontal position
-is occupied by one and only one feature.  The bump argument can also
-be a code reference; see below.
+overlapping glyphs to bump upwards.  The bump argument can also be a
+code reference; see below.
 
 B<Keys:> The -key argument declares that the track is to be shown in a
 key appended to the bottom of the image.  The key contains a picture
@@ -1529,9 +1527,22 @@ object, C<$option_name>, the name of the option to configure,
 C<$part_no>, an integer index indicating which subpart of the feature
 is being drawn, C<$total_parts>, an integer indicating the total
 number of subfeatures in the feature, and finally C<$glyph>, the Glyph
-object itself.  The latter fields are useful in the common case of
-treating the first or last subfeature differently, such as using a
-different color for the terminal exon of a gene.
+object itself.  The latter fields are useful in the case of treating
+the first or last subfeature differently, such as using a different
+color for the terminal exon of a gene.  Usually you will only need to
+examine the first argument.  This example shows a callback examining
+the score() attribute of a feature (possibly a BLAST hit) and return
+the color "red" for high-scoring features, and "green" for low-scoring
+features:
+
+  sub callback {
+     my $feature = shift;
+     if ($feature->score > 90) {
+       return 'red';
+     else {
+       return 'green';
+    }
+  }
 
 The callback should return a string indicating the desired value of
 the option.  To tell the panel to use the default value for this

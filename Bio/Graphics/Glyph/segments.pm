@@ -23,18 +23,6 @@ sub bump {
   return $self->SUPER::bump(@_) if $self->all_callbacks;
   return 0;
 }
-sub label {
-  my $self = shift;
-  return $self->SUPER::label(@_) if $self->all_callbacks;
-  return unless $self->{level} == 0;
-  return $self->SUPER::label(@_);
-}
-sub description {
-  my $self = shift;
-  return $self->SUPER::description(@_) if $self->all_callbacks;
-  return unless $self->{level} == 0;
-  return $self->SUPER::description(@_);
-}
 
 # Override _subseq() method to make it appear that a top-level feature that
 # has no subfeatures appears as a feature that has a single subfeature.

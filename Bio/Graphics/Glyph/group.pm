@@ -10,7 +10,7 @@ sub connector {
   my $self = shift;
   my $super = $self->SUPER::connector(@_);
   return $super if $self->all_callbacks;
-  return 'dashed' unless defined($super) && $super eq 'none';
+  return 'dashed' unless defined($super) && ($super eq 'none' or !$super);
 }
 
 # we don't label group (yet)
