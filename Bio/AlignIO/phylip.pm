@@ -34,7 +34,7 @@ Bio::AlignIO::phylip - PHYLIP format sequence input/output stream
     $phylipstream = new Bio::AlignIO(-interleaved => 0,
 				     -format => 'phylip',
 				     -fh   => \*STDOUT,
-					 -idlength=>10);
+				     -idlength=>10);
     $gcgstream     =  new Bio::AlignIO(-format => 'msf',
 				       -file   => 't/data/cysprot1a.msf');    
 
