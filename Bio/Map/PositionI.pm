@@ -12,7 +12,8 @@
 
 =head1 NAME
 
-Bio::Map::PositionI - Abstracts the notion of an element having multiple positions for a marker within a Map 
+Bio::Map::PositionI - Abstracts the notion of an element having
+  multiple positions for a marker within a Map
 
 =head1 SYNOPSIS
 

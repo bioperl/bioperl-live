@@ -29,7 +29,10 @@ Bio::Map::MappableI - An object that can be placed in a map
 
 This object handles the generic notion of an element placed on a
 (linear) Map.  Elements can have multiple positions in a map such as
-is the case of Restriction enzyme cut sites on a sequence map.  For exact information about an element\'s position in a map one must query the associate PositionI object which is accessible through the position() method.
+is the case of Restriction enzyme cut sites on a sequence map.  For
+exact information about an element\'s position in a map one must query
+the associate PositionI object which is accessible through the
+position() method.
 
 =head1 FEEDBACK
 

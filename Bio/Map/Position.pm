@@ -12,7 +12,8 @@
 
 =head1 NAME
 
-Bio::Map::Position - Abstracts the notion of multiple positions for a marker within a Map
+Bio::Map::Position - Abstracts the notion of multiple positions 
+  for a marker within a Map
 
 =head1 SYNOPSIS
 
@@ -124,8 +125,8 @@ sub new {
 
 =head2 each_position
 
- Title   : positions
- Usage   : my @positions = $position->positions();
+ Title   : each_position
+ Usage   : my @positions = $position->each_position();
  Function: Retrieve a list of positions coded as strings or ints 
  Returns : Array of position values 
  Args    : none
