@@ -259,6 +259,7 @@ sub search_notes {
   my ($search_string,$limit) = @_;
   my @results;
   my @words = map {quotemeta($_)} $search_string =~ /(\w+)/g;
+  my $search = join '|',@words;
 
   for my $feature (@{$self->{data}}) {
     next unless defined $feature->{gclass} && defined $feature->{gname}; # ignore NULL objects
@@ -267,16 +268,17 @@ sub search_notes {
     my @values     = map {$_->[1]} @attributes;
     my $value      = "@values";
     my $matches    = 0;
-    my $note;
     for my $w (@words) {
       my @hits = $value =~ /($w)/ig;
-      $note ||= $value if @hits;
       $matches += @hits;
     }
     next unless $matches;
 
     my $relevance = 10 * $matches;
     my $featname = Bio::DB::GFF::Featname->new($feature->{gclass}=>$feature->{gname});
+    my $note;
+    $note   = join ' ',map {$_->[1]} grep {$_->[0] eq 'Note'}                @{$feature->{attributes}};
+    $note  .= join ' ',grep /$search/,map {$_->[1]} grep {$_->[0] ne 'Note'} @{$feature->{attributes}};
     push @results,[$featname,$note,$relevance];
     last if @results >= $limit;
   }
