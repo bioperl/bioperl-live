@@ -179,7 +179,8 @@ of the two sequences produced by bl2seq as in:
  my $seq4 = $str->next_seq();
 
  # Run bl2seq on them
- $factory = Bio::Tools::Run::StandAloneBlast->new('outfile' => 'bl2seq.out');
+ $factory = Bio::Tools::Run::StandAloneBlast->new('program' => 'blastp',
+						  'outfile' => 'bl2seq.out');
  my $bl2seq_report = $factory->bl2seq($seq3, $seq4);
 
  # Use AlignIO.pm to create a SimpleAlign object from the bl2seq report
