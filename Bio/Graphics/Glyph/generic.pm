@@ -14,10 +14,6 @@ my %complement = (g=>'c',a=>'t',t=>'a',c=>'g',
 # If a flag, label will be taken from seqname, if it exists or primary_tag().
 #            description will be taken from source_tag().
 
-sub font {
-  my $self = shift;
-  $self->factory->font($self);
-}
 sub pad_top {
   my $self = shift;
   my $pad = $self->SUPER::pad_top;

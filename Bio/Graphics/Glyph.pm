@@ -385,7 +385,20 @@ sub bgcolor {
   $self->factory->translate_color($index);
 }
 sub font {
-  shift->option('font');
+  my $self = shift;
+  my $font = $self->option('font');
+  unless (UNIVERSAL::isa($font,'GD::Font')) {
+    my $ref    = {
+		  gdTinyFont  => gdTinyFont,
+		  gdSmallFont => gdSmallFont,
+		  gdMediumBoldFont => gdMediumBoldFont,
+		  gdLargeFont => gdLargeFont,
+		  gdGiantFont => gdGiantFont};
+    my $gdfont = $ref->{$font} || $font;
+    $self->configure(font=>$gdfont);
+    return $gdfont;
+  }
+  return $font;
 }
 sub fontcolor {
   my $self = shift;

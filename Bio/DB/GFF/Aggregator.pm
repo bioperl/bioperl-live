@@ -226,7 +226,7 @@ sub disaggregate {
     my (@synthetic_types,@unchanged);
     foreach (@$types) {
       my ($method,$source) = @$_;
-      if (lc($method) eq $self->get_method) { # e.g. "transcript"
+      if (lc $method eq lc $self->get_method) { # e.g. "transcript"
 	push @synthetic_types,map { [$_->[0],$_->[1] || $source] } @$sub_features,@$main_feature;
       }
       else {

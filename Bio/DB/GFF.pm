@@ -1783,8 +1783,8 @@ sub add_aggregator {
   elsif ($aggregator =~ /^(\w+)\{([^\/\}]+)\/?(.*)\}$/) {
     my($agg_name,$subparts,$mainpart) = ($1,$2,$3);
     my @subparts = split /,\s*/,$subparts;
-    my @args = (-method    => $agg_name,
-		-sub_parts => \@subparts);
+    my @args = (-method      => $agg_name,
+		-sub_parts   => \@subparts);
     push @args,(-main_method => $mainpart) if $mainpart;
     warn "making an aggregator with (@args), subparts = @subparts" if $self->debug;
     push @$list,Bio::DB::GFF::Aggregator->new(@args);
