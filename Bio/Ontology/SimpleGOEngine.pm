@@ -813,7 +813,8 @@ sub _get_id {
     }
     # don't fuss if it looks remotely standard, and we trust GO terms
     return $id
-	if $term->isa("Bio::Ontology::GOterm")||($id =~ /^[A-Z_]{1,8}:\d{1,}$/);
+#	if $term->isa("Bio::Ontology::GOterm")||($id =~ /^[A-Z_]{1,8}:\d{1,}$/);
+	if $term->isa("Bio::Ontology::GOterm")||($id =~ /^\w+:\w+$/);
     # prefix with something if only numbers
     if($id =~ /^\d+$/) {
 	$self->warn(ref($self).": identifier [$id] is only numbers - ".

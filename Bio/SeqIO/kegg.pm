@@ -75,7 +75,7 @@ FIXME, NOT IMPLEMENTED
 
 =item AASEQ
 
-$seq-E<gt>primary_seq-E<gt>->translate->seq
+$seq-E<gt>translate->seq
 
 =item NTSEQ
 
@@ -199,7 +199,7 @@ sub next_seq {
   my($nt_length,$nt_seq) = $FIELDS{NTSEQ} =~ /^NTSEQ\s+(\d+)\n(.+)$/s;
   $nt_seq =~ s/\s+//g;
 
-  my $annotation = Bio::Annotation::Collection->new();
+  $annotation = Bio::Annotation::Collection->new();
   $annotation->add_Annotation('description',Bio::Annotation::Comment->new(-text => $definition));
 
   my($ortholog_db,$ortholog_id,$ortholog_desc) = $FIELDS{ORTHOLOG} =~ /^ORTHOLOG\s+(\S+):\s+(\S+)\s+(\S*)\s*$/;

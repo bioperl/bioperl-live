@@ -403,7 +403,6 @@ sub _add_ontology {
 # This simply delegates. See SimpleGOEngine.
 sub _add_term {
     my ( $self, $term, $ont ) = @_;
-
     $term->ontology($ont) if $ont && (! $term->ontology);
     $self->_ont_engine()->add_term( $term );
 } # _add_term 
@@ -577,8 +576,9 @@ warn $line;
 # Parses the 1st term id number out of line.
 sub _get_first_termid {
     my ( $self, $line ) = @_;
-    
-    if ( $line =~ /;\s*([A-Z_]{1,8}:\d{3,})/ ) {
+#    if ( $line =~ /;\s*([A-Z_]{1,8}:\d{3,})/ ) {
+#    if ( $line =~ /;\s*(\w+:\w+)/ ) {
+    if ( $line =~ /;\s*(\w+:\w+)/ ) {
         return $1;
     }
     else {
@@ -658,7 +658,8 @@ sub _get_secondary_termids {
     my ( $self, $line ) = @_;
     my @secs = ();
    
-    while ( $line =~ /,\s*([A-Z]{1,8}:\d{3,})/g ) {
+#    while ( $line =~ /,\s*([A-Z]{1,8}:\d{3,})/g ) {
+    while ( $line =~ /,\s*(\w+:\w+)/g ) {
         my $sec = $1;
         push( @secs, $sec );
     }
@@ -673,10 +674,13 @@ sub _get_isa_termids {
     my ( $self, $line ) = @_;
     
     my @ids = ();
-    
-    $line =~ s/[A-Z]{1,8}:\d{3,}//;
-    
-    while ( $line =~ /%[^<^,]*?([A-Z]{1,8}:\d{3,})/g ) {
+
+#    $line =~ s/[A-Z]{1,8}:\d{3,}//;
+    $line =~ s/\w+:\w+//;
+
+#    while ( $line =~ /%[^<^,]*?([A-Z]{1,8}:\d{3,})/g ) {
+    while ( $line =~ /%[^<^,]*?(\w+:\w+)/g ) {
+	  next if $1 =~ /^synonym/;
         push( @ids, $1 );
     }
     return @ids; 
@@ -692,7 +696,9 @@ sub _get_partof_termids {
     
     $line =~ s/[A-Z]{1,8}:\d{3,}//;
     
-    while ( $line =~ /<[^%^,]*?([A-Z]{1,8}:\d{3,})/g ) {
+#    while ( $line =~ /<[^%^,]*?([A-Z]{1,8}:\d{3,})/g ) {
+    while ( $line =~ /<[^%^,]*?(\w+:\w+)/g ) {
+	  next if $1 =~ /^synonym/;
         push( @ids, $1 );
     }
     return @ids; 

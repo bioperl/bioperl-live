@@ -140,7 +140,7 @@ ok($kegg->accession, '10768');
 ok($kegg->display_id, 'AHCYL1');
 ok($kegg->alphabet, 'dna');
 ok($kegg->seq);
-ok($kegg->primary_seq->translate->seq);
+ok($kegg->translate->seq);
 ok(($kegg->annotation->get_Annotations('description'))[0]->text, 'S-adenosylhomocysteine hydrolase-like 1 [EC:3.3.1.1]');
 ok( (grep {$_->database eq 'KO'} $kegg->annotation->get_Annotations('dblink'))[0]->comment, 'adenosylhomocysteinase' );
 ok( (grep {$_->database eq 'PATH'} $kegg->annotation->get_Annotations('dblink'))[0]->primary_id, 'hsa00271' );

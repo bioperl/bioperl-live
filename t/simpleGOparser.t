@@ -6,6 +6,7 @@
 # `make test'. After `make install' it should work as `perl test.t'
 
 use strict;
+use Data::Dumper;
 BEGIN {
     # to handle systems with no installed Test module
     # we include the t dir (where a copy of Test.pm is located)
@@ -24,7 +25,7 @@ BEGIN {
 	    exit( 0 );
     }
 
-    plan tests => 88;
+    plan tests => 98;
 }
 
 
@@ -74,7 +75,6 @@ ok( $term->name(), "dibenzothiophene desulfurization" );
 @synos = ();
 
 $term = $engine->get_terms( "GO:0004796" );
-
 @dblinks = sort ( $term->get_dblinks() );
 @synos = sort ( $term->get_synonyms() );
 my @sec = sort ( $term->get_secondary_GO_ids() ); 
@@ -93,7 +93,6 @@ ok( @parents == 2 );
 
 ok( $parents[ 0 ]->GO_id(), "GO:0015034" );
 ok( $parents[ 1 ]->GO_id(), "GO:0018895" );
-
 
 
 @parents = ();
@@ -126,7 +125,6 @@ ok( $parents[ 1 ]->GO_id(), "GO:0018895" );
 ok( scalar(@parents), 0 );
 
 my @anc = sort goid ( $ont->get_ancestor_terms( $term ) );
-
 ok( scalar(@anc), 3 );
 
 ok( $anc[ 0 ]->GO_id(), "GO:0003673" );
@@ -247,8 +245,7 @@ ok( $ont->add_term( Bio::Ontology::GOterm->new(-identifier => "GO:0000000")));
 
 ok( $engine->has_term( "GO:0000300" ) );
 
-
-ok( scalar $ont->get_all_terms(), 44 );
+ok( scalar $ont->get_all_terms(), 46 );
 ok( scalar $ont->get_relationship_types(), 2 );
 
 ok( ! $ont->add_relationship( $rels[ 2 ] ) ); # this edge already exists, cannot add
@@ -257,9 +254,8 @@ $rels[ 2 ]->subject_term()->GO_id( "GO:0005938" );
 ok( $ont->add_relationship( $rels[ 2 ] ) ); # now it's changed, can add
  
 
-
 my @roots = $ont->get_root_terms();
-ok( scalar(@roots), 10 );
+ok( scalar(@roots), 12 );
 
 my @leafs = $ont->get_leaf_terms();
 ok( scalar(@leafs), 19 );
@@ -282,6 +278,26 @@ ok( scalar(@roots), 1 );
 
 @leafs = $ont->get_leaf_terms();
 ok( scalar(@leafs), 4 );
+
+$parser = Bio::OntologyIO->new(
+                      -format    => "go",
+		      -file      => $io->catfile( "t","data",
+						  "mpath.ontology.test" ));
+
+ok($parser);
+$ont = $parser->next_ontology;
+ok($ont);
+$engine = $ont->engine;
+ok($engine);
+$term = $engine->get_terms( "MPATH:30" );
+ok($term->identifier,"MPATH:30");
+ok($term->name,"cystic medial necrosis");
+ok($term->definition,undef);
+ok((sort $term->get_synonyms)[0],"erdheim disease");
+ok($ont->get_parent_terms( $term )->name,"tissue specific degenerative process");
+ok(scalar($ont->get_root_terms()),2);
+@anc = $ont->get_ancestor_terms($term);
+ok(scalar(@anc),4);
 
 #################################################################
 # helper functions
