@@ -326,6 +326,9 @@ sub new_from_registry {
 sub get_Seq_by_id {
     my ($self,$id) = @_;
 
+    # too many uninit variables...
+    local $^W = 0;
+
     my ($fh,$length) = $self->get_stream_by_id($id);
 
     unless (defined($self->format)) {
@@ -438,10 +441,37 @@ sub get_stream_by_id {
 sub get_Seq_by_acc {
     my ($self,$acc) = @_;
 
+    # too many uninit variables...
+    local $^W = 0;
+
     if ($self->primary_namespace eq "ACC") {
        return $self->get_Seq_by_id($acc);
     } else {
       return $self->get_Seq_by_secondary("ACC",$acc);
+    }
+}
+
+=head2 get_Seq_by_version
+
+ Title   : get_Seq_by_version
+ Usage   : $obj->get_Seq_by_version($version)
+ Function: Gets a Bio::SeqI object by accession.version number
+ Returns : Bio::SeqI object
+ Args    : string representing accession.version number
+
+
+=cut
+
+sub get_Seq_by_version {
+    my ($self,$acc) = @_;
+
+    # too many uninit variables...
+    local $^W = 0;
+
+    if ($self->primary_namespace eq "VERSION") {
+       return $self->get_Seq_by_id($acc);
+    } else {
+      return $self->get_Seq_by_secondary("VERSION",$acc);
     }
 }
 
