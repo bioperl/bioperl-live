@@ -1,3 +1,4 @@
+
 # $Id$
 #
 # BioPerl module for Bio::SeqIO
@@ -31,7 +32,7 @@ Bio::SeqIO - Handler for SeqIO Formats
     }
 
 now, to actually get at the sequence object, use the standard Bio::Seq
-methods (look at Bio::Seq documentation if you don't know what they
+methods (look at Bio::Seq documentation if you don\'t know what they
 are)
 
     use Bio::SeqIO;
@@ -368,12 +369,10 @@ sub fh {
   return $s;
 }
 
-
 # _initialize is chained for all SeqIO classes
 
 sub _initialize {
     my($self, @args) = @_;
-        
     # initialize the IO part
     $self->_initialize_io(@args);
 }
