@@ -1,4 +1,4 @@
-#
+# $Id$
 # BioPerl module for Bio::Variation::IO::xml
 #
 # Cared for by Heikki Lehvaslaiho <Heikki@ebi.ac.uk>
@@ -594,5 +594,3 @@ sub write {
 }
 
 1;
-
-

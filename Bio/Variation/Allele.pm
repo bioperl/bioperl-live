@@ -1,4 +1,4 @@
-
+# $Id$
 #
 # BioPerl module for Bio::Variation::Allele
 #
@@ -259,4 +259,3 @@ sub repeat_count {
 }
 
 1;
-

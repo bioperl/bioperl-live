@@ -1,4 +1,4 @@
-
+# $Id$
 #
 # BioPerl module for Bio::Variation::DNAMutation
 #
@@ -387,8 +387,4 @@ sub sysname {
     return $self->{'sysname'};
 }
 
-
-
 1;
-
-

@@ -1,4 +1,4 @@
-#
+# $Id$
 # bioperl module for Bio::Variation::SeqDiff
 #
 # Cared for by Heikki Lehvaslaiho <heikki@ebi.ac.uk>
@@ -983,10 +983,4 @@ sub alignment {
     }
 }
 
-
-
-
 1;
-
-
-

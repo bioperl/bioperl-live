@@ -1,4 +1,4 @@
-
+# $Id$
 #
 # BioPerl module for Bio::Variation::VariantI
 #
@@ -1007,6 +1007,5 @@ sub _enzymes {
 
     return %enzymes;
 }
-
 
 1;

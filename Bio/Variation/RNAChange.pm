@@ -1,4 +1,4 @@
-
+# $Id$
 #
 # BioPerl module for Bio::Variation::RNAChange
 #
@@ -631,8 +631,4 @@ sub _change_codon_pos ($$)  {
     return $cpos;
 }
 
-
-
 1;
-
-

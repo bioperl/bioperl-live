@@ -1,4 +1,4 @@
-#
+# $Id$
 # BioPerl module for Bio::Variation::IO::flat
 #
 # Cared for by Heikki Lehvaslaiho <Heikki@ebi.ac.uk>
@@ -755,6 +755,5 @@ sub write {
     }
     return 1;
 }
-
 
 1;

@@ -1,4 +1,4 @@
-
+# $Id$
 #
 # BioPerl module for Bio::Variation::AAReverseMutate
 #
@@ -301,6 +301,5 @@ sub each_Variant{
    }
    return @points;
 }
-
 
 1;

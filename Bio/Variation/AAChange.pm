@@ -1,4 +1,4 @@
-
+# $Id$
 #
 # BioPerl module for Bio::Variation::AAChange
 #
@@ -366,9 +366,3 @@ sub trivname {
 }
 
 1;
-
-
-
-
-
-
