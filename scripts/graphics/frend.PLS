@@ -355,8 +355,9 @@ sub render {
   # Use the order of the stylesheet to determine features.  Whatever is left
   # over is presented in alphabetic order
   my %types = map {$_=>1} $data->configured_types;
+  my %all_types = map {$_=>1} $data->types;
   
-  my @configured_types   = grep {exists $data->features->{$_}} $data->configured_types;
+  my @configured_types   = grep {exists $all_types{$_}}        $data->configured_types;
   my @unconfigured_types = sort grep {!exists $types{$_}}      $data->types;
 
   # create the segment,the panel and the arrow with tickmarks
