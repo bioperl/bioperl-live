@@ -23,7 +23,7 @@ Bio::DB::Query::GenBank - Build a GenBank Entrez Query
 					    -mindate => '2001',
 					    -maxdate => '2002');
    my $count = $query->count;
-   my @ids   = $query->get_Ids;
+   my @ids   = $query->ids;
 
    # get a genbank database handle
    $gb = new Bio::DB::GenBank;
