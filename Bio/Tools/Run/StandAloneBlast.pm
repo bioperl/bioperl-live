@@ -647,7 +647,10 @@ sub _runblast {
 	 while(<OUT>) { $self->debug($_)}
 	 close(OUT);
         }
-	$blast_obj = Bio::Tools::BPbl2seq->new(-file => $outfile);
+# Added program info so BPbl2seq can compute strand info
+	$blast_obj = Bio::Tools::BPbl2seq->new(-file => $outfile,
+                                               -REPORT_TYPE => $self->p );
+#	$blast_obj = Bio::Tools::BPbl2seq->new(-file => $outfile);
     }
     elsif ($executable =~ /blastpgp/i && defined $self->j() && 
 	   $self->j() > 1)  {
