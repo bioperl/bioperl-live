@@ -1,4 +1,4 @@
-## $Id: bioperl.pod,v 1.18 2002-02-14 21:39:27 bosborne Exp $
+## $Id: bioperl.pod,v 1.19 2002-02-18 17:18:27 bosborne Exp $
 
 ## Should contain general info about the distribution including
 ## links to all the various modules.
@@ -159,6 +159,10 @@ Here are brief descriptions of the scripts in the I<scripts/> directory:
 
 I<scripts/align_on_codons.pl> - aligns nucleotide sequences based on
 codons in a specified reading frame
+
+I<scripts/Bio-DB-GFF/*> - scripts that reformat sequence to GFF and load
+GFF format files into an indexed database - see L<Bio::DB::GFF> for
+more information
 
 I<scripts/bioperl.pl> - a Bioperl shell!
 
