@@ -399,6 +399,8 @@ sub asString {
   return "$label:$start,$stop";
 }
 
+sub name { shift->asString }
+
 =head2 absolute
 
  Title   : absolute

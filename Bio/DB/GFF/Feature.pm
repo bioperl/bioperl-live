@@ -74,7 +74,6 @@ $VERSION = '0.40';
 #' 
 
 *segments = \&sub_SeqFeature;
-*name     = \&group;
 my %CONSTANT_TAGS = (method=>1, source=>1, score=>1, phase=>1, notes=>1, id=>1, group=>1);
 
 =head2 new_from_parent
@@ -795,6 +794,12 @@ sub asString {
 #  return join '/',$id,$type,$self->SUPER::asString;
 }
 
+sub name {
+  my $self =shift;
+  return $self->group || $self->SUPER::name;
+  
+}
+
 sub gff_string {
   my $self = shift;
   my ($start,$stop) = ($self->start,$self->stop);
@@ -822,7 +827,9 @@ sub gff_string {
 
   my $group_field = join ' ; ',@group;
   my $strand = ('-','.','+')[$self->strand+1];
-  return join("\t",$self->ref,$self->source,$self->method,$start||'.',$stop||'.',$self->score||'.',$strand||'.',$self->phase||'.',$group_field);
+  my $ref = $self->ref;
+  my $name = ref($ref) ? $ref->name : $ref;
+  return join("\t",$name,$self->source,$self->method,$start||'.',$stop||'.',$self->score||'.',$strand||'.',$self->phase||'.',$group_field);
 }
 
 =head1 A Note About Similarities
