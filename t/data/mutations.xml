@@ -23,6 +23,7 @@
     </RNA>
     <AA number="1" start="2" end="2" length="1" isMutation="1">
         <label>substitution</label>
+        <label>conservative</label>
         <proof>computed</proof>
         <allele_ori>E</allele_ori>
         <allele_mut>K</allele_mut>
@@ -81,6 +82,7 @@
     </RNA>
     <AA number="1" start="2" end="2" length="1" isMutation="1">
         <label>substitution</label>
+        <label>conservative</label>
         <proof>computed</proof>
         <allele_ori>E</allele_ori>
         <allele_mut>K</allele_mut>
@@ -335,6 +337,7 @@
     </RNA>
     <AA number="1" start="2" end="2" length="1" isMutation="1">
         <label>substitution</label>
+        <label>nonconservative</label>
         <proof>computed</proof>
         <allele_ori>V</allele_ori>
         <allele_mut>F</allele_mut>
@@ -366,6 +369,7 @@
     </RNA>
     <AA number="1" start="34" end="34" length="1" isMutation="1">
         <label>substitution</label>
+        <label>nonconservative</label>
         <proof>computed</proof>
         <allele_ori>D</allele_ori>
         <allele_mut>Y</allele_mut>

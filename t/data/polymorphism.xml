@@ -44,6 +44,7 @@
     </RNA>
     <AA number="1.1" start="2" end="2" length="1" isMutation="0">
         <label>substitution</label>
+        <label>conservative</label>
         <proof>computed</proof>
         <allele_ori>E</allele_ori>
         <allele_mut>K</allele_mut>
@@ -77,6 +78,7 @@
     </RNA>
     <AA number="2" start="11" end="11" length="1" isMutation="0">
         <label>substitution</label>
+        <label>conservative</label>
         <proof>computed</proof>
         <allele_ori>Q</allele_ori>
         <allele_mut>K</allele_mut>

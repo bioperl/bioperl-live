@@ -19,7 +19,7 @@ Feature        /codon_table: 1
 Feature        /codon: gaa>aaa; 1
 Feature        /region: coding
 Feature      AA; 1
-Feature        /label: substitution
+Feature        /label: substitution, conservative
 Feature        /proof: computed
 Feature        /location: 2
 Feature        /change: E>K
@@ -69,7 +69,7 @@ Feature        /codon_table: 1
 Feature        /codon: gaa>aaa; 1
 Feature        /region: coding
 Feature      AA; 1
-Feature        /label: substitution
+Feature        /label: substitution, conservative
 Feature        /proof: computed
 Feature        /location: 2
 Feature        /change: E>K
@@ -294,7 +294,7 @@ Feature        /codon_table: 1
 Feature        /codon: gtc>ttc; 1
 Feature        /region: coding
 Feature      AA; 1
-Feature        /label: substitution
+Feature        /label: substitution, nonconservative
 Feature        /proof: computed
 Feature        /location: 2
 Feature        /change: V>F
@@ -323,7 +323,7 @@ Feature        /codon_table: 1
 Feature        /codon: gac>tac; 1
 Feature        /region: coding
 Feature      AA; 1
-Feature        /label: substitution
+Feature        /label: substitution, nonconservative
 Feature        /proof: computed
 Feature        /location: 34
 Feature        /change: D>Y

@@ -38,7 +38,7 @@ Feature        /codon_table: 1
 Feature        /codon: gaa|taa; 1
 Feature        /region: coding
 Feature      AA; 1.1
-Feature        /label: substitution
+Feature        /label: substitution, conservative
 Feature        /proof: computed
 Feature        /location: 2
 Feature        /change: E|K
@@ -67,7 +67,7 @@ Feature        /codon_table: 1
 Feature        /codon: caa|aaa; 1
 Feature        /region: coding
 Feature      AA; 2
-Feature        /label: substitution
+Feature        /label: substitution, conservative
 Feature        /proof: computed
 Feature        /location: 11
 Feature        /change: Q|K
