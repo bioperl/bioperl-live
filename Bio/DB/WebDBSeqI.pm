@@ -399,36 +399,38 @@ sub get_seq_stream {
     if ( $self->authentication);
   $self->debug("request is ". $request->as_string(). "\n");
 
+  # workaround for MSWin systems
+  $self->retrieval_type('io_string') if $self->retrieval_type =~ /pipeline/ && $^O =~ /^MSWin/;
+
   if ($self->retrieval_type =~ /pipeline/) {
-      # Try to create a stream using POSIX fork-and-pipe facility.
-      # this is a *big* win when fetching thousands of sequences from
-      # a web database because we can return the first entry while 
-      # transmission is still in progress.
-      # Also, no need to keep sequence in memory or in a temporary file.
-      # If this fails (Windows, MacOS 9), we fall back to non-pipelined access.
+    # Try to create a stream using POSIX fork-and-pipe facility.
+    # this is a *big* win when fetching thousands of sequences from
+    # a web database because we can return the first entry while 
+    # transmission is still in progress.
+    # Also, no need to keep sequence in memory or in a temporary file.
+    # If this fails (Windows, MacOS 9), we fall back to non-pipelined access.
 
-      # fork and pipe: _stream_request()=><STREAM>
-      my $result = $^O !~ /^MSWin/ && eval { open(STREAM,"-|") };
+    # fork and pipe: _stream_request()=><STREAM>
+    my $result =  eval { open(STREAM,"-|") };
 
-      if (defined $result) {
-	  $DB::fork_TTY = '/dev/null'; # prevents complaints from debugger
-	  if (!$result) {	# in child process
-	      $self->_stream_request($request); 
-	      kill 9=>$$; # to prevent END{} blocks from executing in forked children
-	      exit 0;
-	  }
-	  else {
-	      return Bio::SeqIO->new('-verbose' => $self->verbose,
-				     '-format'  => $ioformat,
-				     '-fh'      => \*STREAM);
-	  }
+    if (defined $result) {
+      $DB::fork_TTY = '/dev/null'; # prevents complaints from debugger
+      if (!$result) {	# in child process
+	$self->_stream_request($request); 
+	kill 9=>$$; # to prevent END{} blocks from executing in forked children
+	exit 0;
       }
-
-      else { # piped open failed, so fall back to something safe
-	  $self->retrieval_type('io_string');
+      else {
+	return Bio::SeqIO->new('-verbose' => $self->verbose,
+			       '-format'  => $ioformat,
+			       '-fh'      => \*STREAM);
       }
+    }
+    else {
+      $self->retrieval_type('io_string');
+    }
   }
-  
+
   if ($self->retrieval_type =~ /temp/i) {
     my $dir = $self->io()->tempdir( CLEANUP => 1);
     my ( $fh, $tmpfile) = $self->io()->tempfile( DIR => $dir );
