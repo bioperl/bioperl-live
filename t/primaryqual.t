@@ -28,19 +28,14 @@ END {
 # redirect STDERR to STDOUT
 #open (STDERR, ">&STDOUT");
 use Bio::Root::IO;
-print("Checking to see if Bio::SeqIO can be used.\n") if($DEBUG);
 use Bio::SeqIO;
-ok(1);
 
-
-print("Checking to see if PrimaryQual.pm can be used...\n") if($DEBUG);
 use Bio::Seq::PrimaryQual;
 ok(1);
 if( $DEBUG ) {
     print("Checking Bio::Seq::PrimaryQual methods...\n") ; 
     print("Note: These are more for Chad's benefit then for yours because I run these every time I mangle the modules to make sure that things did not break. So there.\n");
     print("Ready? There are 7 tests.\n");
-
     print("1. Checking that new() works...\n");
     print("1a) New with quality values...\n");
 }
