@@ -380,28 +380,50 @@ sub description{
  Function: The human readable identifier for the node 
  Returns : value of human readable id
  Args    : newvalue (optional)
- Note    : id cannot contain the chracters '();:'
 
 "A name can be any string of printable characters except blanks,
 colons, semicolons, parentheses, and square brackets. Because you may
 want to include a blank in a name, it is assumed that an underscore
 character ("_") stands for a blank; any of these in a name will be
-converted to a blank when it is read in."
+converted to a blank when it is read in."  
 
 from L<http://evolution.genetics.washington.edu/phylip/newicktree.html>
+
+Also note that these objects now support spaces, ();: because we can
+automatically quote the strings if they contain these characters.  The
+L<output_id()> method does this for you so use the id() method to get
+the raw string while L<output_id()> to get the pre-escaped string.
 
 =cut
 
 sub id{
     my ($self, $value) = @_;
     if ($value) {
-        $self->warn("Illegal characters ();:  and space in the id [$value], converting to _ ")
-            if $value =~ /\(\);:/ and $self->verbose >= 0;
-        $value =~ s/[\(\);:\s]/_/g;
+        #$self->warn("Illegal characters ();:  and space in the id [$value], converting to _ ")
+	# if $value =~ /\(\);:/ and $self->verbose >= 0;
+        #$value =~ s/[\(\);:\s]/_/g;
         $self->{'_id'} = $value;
     }
     return $self->{'_id'};
 }
+
+=head2 Helper Functions
+
+
+=head2 id_output
+
+ Title   : id_output
+ Usage   : my $id = $node->id_output;
+ Function: Return an id suitable for output in format like newick
+           so that if it contains spaces or ():; characters it is properly 
+           quoted
+ Returns : $id string if $node->id has a value
+ Args    : none
+
+
+=cut
+
+# implemented in NodeI interface 
 
 =head2 internal_id
 
@@ -641,5 +663,6 @@ sub node_cleanup {
     }
     $self->{'_desc'} = {};
 }
+
 
 1;

@@ -226,7 +226,7 @@ sub descendent_count{
 
 sub to_string{
    my ($self) = @_;
-   return join('',defined $self->id ? $self->id : '',
+   return join('',defined $self->id_output ? $self->id_output : '',
 		  defined $self->branch_length ? ':' . $self->branch_length 
 		  : ' ')
 }
@@ -466,6 +466,35 @@ sub get_tag_values{
 
 sub has_tag{
     shift->throw_not_implemented();
+}
+
+ 
+=head2 Helper Functions
+
+
+=head2 id_output
+
+ Title   : id_output
+ Usage   : my $id = $node->id_output;
+ Function: Return an id suitable for output in format like newick
+           so that if it contains spaces or ():; characters it is properly 
+           quoted
+ Returns : $id string if $node->id has a value
+ Args    : none
+
+
+=cut
+
+sub id_output{
+    my $node = shift;
+    my $id = $node->id;
+    return unless( defined $id && length($id ) );
+    # single quotes must become double quotes
+    # $id =~ s/'/''/g;
+    if( $id =~ /[\(\);:,\s]/ ) {
+	$id = '"'.$id.'"';
+    }
+    return $id;
 }
 
 1;
