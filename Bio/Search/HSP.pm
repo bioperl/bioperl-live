@@ -194,19 +194,17 @@ sub new {
     $self->{'_reporttype'} = $reporttype;
     # Determine strand meanings
     my ($queryfactor, $sbjctfactor) = (1,0); # default
+    
     if ($reporttype eq 'BLASTP' || $reporttype eq 'TBLASTN'
 	|| $reporttype eq 'FASTX' || $reporttype eq 'FASTY') {
 	$queryfactor = 0;
-    }
-    if ($reporttype eq 'TBLASTN' || $reporttype eq 'TBLASTX' ||
+    } elsif ($reporttype eq 'TBLASTN' || $reporttype eq 'TBLASTX' ||
 	$reporttype eq 'BLASTN' || $reporttype eq 'TFASTX' ||
 	$reporttype eq 'FASTA' )  {
 	$sbjctfactor = 1;
-    }
-    if( $reporttype eq 'RPSBLAST' ) {
+    } elsif( $reporttype eq 'RPSBLAST' ) {
 	$queryfactor = $sbjctfactor = 0;
 	$qframe = $sframe = 0;
-
     }
 
     # Store the aligned query as sequence feature
@@ -245,7 +243,6 @@ sub new {
 			 '-source'=> $reporttype ) );
     }
     $sframe = 0 unless defined $strand;
-
     # name the sequences
     $self->query->seqname($qname); # query
     $self->subject->seqname($sname); # subject
@@ -480,8 +477,10 @@ sub frame {
 	    $self->warn("Specifying an invalid query frame ($qframe)");
 	    $qframe = undef;
 	} else {
-	    if( ($1 eq '-' && $self->query->strand >= 0) ||
-		($1 eq '+' && $self->query->strand <= 0) ) {
+	    my $dir = $1;
+	    $dir = '+' unless defined $dir;
+	    if( ($dir eq '-' && $self->query->strand >= 0) ||
+		($dir eq '+' && $self->query->strand <= 0) ) {
 		$self->warn("Query frame ($qframe) did not match strand of query (". $self->query->strand() . ")");
 	    }
 	    # Set frame to GFF [0-2] -
