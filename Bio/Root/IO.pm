@@ -337,14 +337,20 @@ sub DESTROY {
 
     $self->close();
 
-    # we are planning to cleanup temp files no matter what     
-    if( exists($self->{'_rooti_tempfiles'}) &&
-	ref($self->{'_rooti_tempfiles'}) =~ /array/i) { 
-	unlink @{$self->{'_rooti_tempfiles'}}; 
+    # we are planning to cleanup temp files no matter what    
+    if( exists($self->{'_rootio_tempfiles'}) &&
+	ref($self->{'_rootio_tempfiles'}) =~ /array/i) { 
+	unlink  (@{$self->{'_rootio_tempfiles'}} );
     }
     # cleanup if we are not using File::Temp
-    if( $self->{'_cleanuptempdir'} ) {
-	foreach ( @{$self->{'_rooti_tempdirs'}} ) {
+    if( $self->{'_cleanuptempdir'} &&
+	exists($self->{'_rootio_tempdirs'}) &&
+	ref($self->{'_rootio_tempdirs'}) =~ /array/i) {	
+
+	print STDERR "going to remove dir ", 
+	@{$self->{'_rootio_tempdirs'}}, "\n";
+
+	foreach ( @{$self->{'_rootio_tempdirs'}} ) {
 	    rmdir($_); 
 	}
     }
@@ -417,7 +423,7 @@ sub tempfile {
 	    $self->throw("Could not open tempfile $file: $!\n");
 	}
     }
-    push @{$self->{'_rooti_tempfiles'}}, $file;
+    push @{$self->{'_rootio_tempfiles'}}, $file;
     return ($tfh,$file);
 }
 
@@ -439,7 +445,6 @@ sub tempfile {
 
 sub tempdir {
     my ( $self, @args ) = @_;
-
     return File::Temp::tempdir(@args) if(exists($INC{"File/Temp.pm"}));
 
     # we have to this ourselves, not good
@@ -452,7 +457,7 @@ sub tempdir {
 				      $ENV{USER} || 'unknown', $$, 
 				      $TEMPCOUNTER++));
     mkdir($tdir, 0755);
-    push @{$self->{'_rooti_tempdirs'}}, $tdir; 
+    push @{$self->{'_rootio_tempdirs'}}, $tdir; 
     return $tdir;
 }
 
