@@ -365,8 +365,8 @@ sub _handle_feature {
 
       my $a = Bio::Annotation::Target->new(
            -target_id => $t_id,
-           -tstart    => $tstart,
-           -tend      => $tend,
+           -start     => $tstart,
+           -end       => $tend,
       );
 
       if ($strand && $strand eq '+') {
@@ -377,7 +377,7 @@ sub _handle_feature {
         $strand = '';
       }
       
-      $a->tstrand($strand) if $strand;
+      $a->strand($strand) if $strand;
       $feat->add_Annotation('Target',$a); 
     }
   }

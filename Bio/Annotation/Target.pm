@@ -18,16 +18,16 @@ Bio::Annotation::Target
 =head1 SYNOPSIS
 
    $target1 = new Bio::Annotation::Target(-target_id  => 'F321966.1',
-                                          -tstart     => 1,
-                                          -tend       => 200,
-                                          -tstrand    => 1,    # or -1
+                                          -start      => 1,
+                                          -end        => 200,
+                                          -strand     => 1,    # or -1
 					 );
 
    #or 
 
    $target2 = new Bio::Annotation::Target();
    $target2->target_id('Q75IM5');
-   $target2->tstart(7);
+   $target2->start(7);
    ... etc ...
 
    # Target is-a Bio::AnnotationI object, can be added to annotation
@@ -62,9 +62,9 @@ use strict;
 
 use Bio::Root::Root;
 use Bio::AnnotationI;
-use Bio::Location::Simple;
+use Bio::Range;
 
-@ISA = qw(Bio::Root::Root Bio::AnnotationI);
+@ISA = qw(Bio::Root::Root Bio::AnnotationI Bio::Range);
 
 
 sub new {
@@ -75,24 +75,15 @@ sub new {
   my ($target_id, $tstart, $tend, $tstrand) =
       $self->_rearrange([qw(
                              TARGET_ID,
-                             TSTART,
-                             TEND,
-                             TSTRAND,
+                             START,
+                             END,
+                             STRAND,
 			    )], @args);
   
   $target_id    && $self->target_id($target_id);
-  $tstart       && $self->tstart($tstart);
-  $tend         && $self->tend($tend);
-  $tstrand      && $self->tstrand($tstrand);
-
-  my $location  = Bio::Location::Simple->new(
-                     -seq_id       => $target_id,
-                     -start    => $tstart,
-                     -end      => $tend,
-                     -is_remote=> 1,
-                  );
-  $location->strand($tstrand) if $tstrand;
-  $self->location($location);
+  $tstart       && $self->start($tstart);
+  $tend         && $self->end($tend);
+  $tstrand      && $self->strand($tstrand);
 
   return $self;
 }
@@ -117,8 +108,8 @@ sub new {
 sub as_text{
    my ($self) = @_;
 
-   return "Target=".$self->target_id." ".$self->tstart." ".
-                    $self->tend." ".$self->strand;
+   return "Target=".$self->target_id." ".$self->start." ".
+                    $self->end." ".$self->strand;
 }
 
 =head2 tagname
@@ -181,122 +172,5 @@ sub target_id {
     return $self->{'target_id'} = shift if defined(@_);
     return $self->{'target_id'};
 }
-
-=head2 tstart
-
-=over
-
-=item Usage
-
-  $obj->tstart()        #get existing value
-  $obj->tstart($newval) #set new value
-
-=item Function
-
-=item Returns
-
-value of tstart (a scalar)
-
-=item Arguments
-
-new value of tstart (to set)
-
-=back
-
-=cut
-
-sub tstart {
-    my $self = shift;
-    return $self->{'tstart'} = shift if defined(@_);
-    return $self->{'tstart'};
-}
-
-=head2 tend
-
-=over
-
-=item Usage
-
-  $obj->tend()        #get existing value
-  $obj->tend($newval) #set new value
-
-=item Function
-
-=item Returns
-
-value of tend (a scalar)
-
-=item Arguments
-
-new value of tend (to set)
-
-=back
-
-=cut
-
-sub tend {
-    my $self = shift;
-    return $self->{'tend'} = shift if defined(@_);
-    return $self->{'tend'};
-}
-
-=head2 tstrand
-
-=over
-
-=item Usage
-
-  $obj->tstrand()        #get existing value
-  $obj->tstrand($newval) #set new value
-
-=item Function
-
-=item Returns
-
-value of tstrand (a scalar)
-
-=item Arguments
-
-new value of tstrand (to set)
-
-=back
-
-=cut
-
-sub tstrand {
-    my $self = shift;
-    return $self->{'tstrand'} = shift if defined(@_);
-    return $self->{'tstrand'};
-}
-
-=head2 location
-
-=over
-
-=item Usage
-
-  $obj->location()        #get existing value
-  $obj->location($newval) #set new value
-
-=item Function
-
-=item Returns
-
-value of location (a scalar)
-
-=item Arguments
-
-new value of location (to set)
-
-=back
-
-=cut
-
-sub location {
-    my $self = shift;
-    return $self->{'location'} = shift if defined(@_);
-    return $self->{'location'};
-}
-
 
 1;
