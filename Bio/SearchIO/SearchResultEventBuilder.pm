@@ -175,7 +175,7 @@ sub end_result {
     my %args = map { my $v = $data->{$_}; s/RESULT//; ($_ => $v); } 
                grep { /^RESULT/ } keys %{$data};
     
-    $args{'-algorithm'} =  $type;
+    $args{'-algorithm'} =  uc( $args{'-algorithm_name'} || $type);
     $args{'-hits'}      =  $self->{'_hits'};
     my $result = $self->factory('result')->create(%args);
     $self->{'_hits'} = [];
@@ -211,7 +211,6 @@ sub start_hsp {
 
 sub end_hsp {
     my ($self,$type,$data) = @_;
-    
     # this code is to deal with the fact that Blast XML data
     # always has start < end and one has to infer strandedness
     # from the frame which is a problem for the Search::HSP object
@@ -251,7 +250,7 @@ sub end_hsp {
     $data->{'HSP-hsp_length'}   ||= length $data->{'HSP-homology_seq'};
     
     my %args = map { my $v = $data->{$_}; s/HSP//; ($_ => $v) } grep { /^HSP/ } keys %{$data};
-    $args{'-algorithm'} = $type;
+    $args{'-algorithm'} =  uc( $args{'-algorithm_name'} || $type);
     # copy this over from result
     $args{'-query_name'} = $data->{'RESULT-query_name'};
     $args{'-hit_name'} = $data->{'HIT-name'};
@@ -293,7 +292,7 @@ sub start_hit{
 sub end_hit{
     my ($self,$type,$data) = @_;   
     my %args = map { my $v = $data->{$_}; s/HIT//; ($_ => $v); } grep { /^HIT/ } keys %{$data};
-    $args{'-algorithm'} = $type;
+    $args{'-algorithm'} =  uc( $args{'-algorithm_name'} || $type);
     $args{'-hsps'}      = $self->{'_hsps'};
     my $hit = $self->factory('hit')->create(%args);
     push @{$self->{'_hits'}}, $hit;
