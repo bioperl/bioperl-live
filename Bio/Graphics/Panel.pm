@@ -1254,6 +1254,10 @@ Currently, the following glyphs are available:
   primers     Two inward pointing arrows connected by a line.
 	      Used for STSs.
 
+  redgreen_box A box that changes from green->yellow->red as the score
+              of the feature increases from 0.0 to 1.0.  Useful for
+              representing microarray results.
+
   rndrect     A round-cornered rectangle.
 
   segments    A set of filled rectangles connected by solid lines.
@@ -1282,6 +1286,8 @@ Currently, the following glyphs are available:
               translation.
 
   triangle    A triangle whose width and orientation can be altered.
+
+  xyplot      Histograms and other graphs plotted against the genome.
 
 If the glyph name is omitted from add_track(), the "generic" glyph
 will be used by default.  To get more information about a glyph, run
@@ -1729,12 +1735,14 @@ L<Bio::Graphics::Glyph::pinsertion>,
 L<Bio::Graphics::Glyph::primers>,
 L<Bio::Graphics::Glyph::rndrect>,
 L<Bio::Graphics::Glyph::segments>,
+L<Bio::Graphics::Glyph::redgreen_box>,
 L<Bio::Graphics::Glyph::ruler_arrow>,
 L<Bio::Graphics::Glyph::toomany>,
 L<Bio::Graphics::Glyph::transcript>,
 L<Bio::Graphics::Glyph::transcript2>,
 L<Bio::Graphics::Glyph::translation>,
 L<Bio::Graphics::Glyph::triangle>,
+L<Bio::Graphics::Glyph::xyplot>,
 L<Bio::SeqI>,
 L<Bio::SeqFeatureI>,
 L<Bio::Das>,
