@@ -4,9 +4,9 @@
 # for producing HTML Blast output from a Blast report input stream.
 #
 # Usage:
-#   STDIN:  stream containing one or more BLAST or PSI-BLAST reports.
-#   STDOUT: none, but generates an output file "searchio.html"
-#           containing HTML-formatted Blast Report(s)
+#   STDIN:  none; supply filename of BLAST report on command-line
+#   STDOUT: none; generates an output file "searchio.html"
+#           containing HTML-formatted Blast Report
 #   STDERR: Any errors that occurred.
 #
 # For more documentation about the writer, including
@@ -33,15 +33,16 @@ use lib '../../';
 use Bio::SearchIO;
 use Bio::SearchIO::Writer::HTMLResultWriter;
 
-print "\nUsing SearchIO->new()\n";
+my $outfile = "searchio.html";
+my $file = shift or die "Usage: $0 <BLAST-report-file>\n       HTML output is saved to $outfile\n";
 
 my $in = Bio::SearchIO->new( -format => 'blast', 
-                             -signif => 0.1, 
+                             -file => $file, # comment out this line to read STDIN
                              -verbose => 0 );
 
 my $writer = new Bio::SearchIO::Writer::HTMLResultWriter();
 my $out = new Bio::SearchIO(-writer => $writer,
-                            -file   => ">searchio.html");
+                            -file   => ">$outfile");
 
 
 while ( my $result = $in->next_result() ) {
