@@ -147,27 +147,31 @@ io  't/polymorphism.dat', 't/polymorphism.out.dat'; #7..11
 # XML IO
 #
 
+# first check whether the necessary XML modules are installed
+eval {
+    require Bio::Variation::IO::xml;
+};
+
+if( $@ ) {
+    print STDERR
+	"\nThe XML-format conversion requires the CPAN modules ",
+	"XML::Node, XML::Writer, and IO::String to be installed ",
+	"on your system, which they probably aren't. Skipping these tests.\n";
+    while($no <= 26) {
+	test($no++, 1, "");
+    }
+    exit(0);
+}
+
 # mutations from one allele to an other
 eval {
 	io  't/mutations.xml', 't/mutations.out.xml'; #12..16
 };
 
-if($@) {
-	warn("Tests 12..16 require XML.pm (external dependency) to be " .
-             "installed on your\nsystem. If it is not installed, this is most".
-             " likely the reason for\nfailure");
-}
-
 #complex sequence difference: two variations, one with multiple alleles
 eval {
 	io  't/polymorphism.xml', 't/polymorphism.out.xml'; #17..21
 };
-
-if($@) {
-	warn("Tests 17..21 require XML.pm (external dependency) to be " .
-             "installed on your\nsystem. If it is not installed, this is most".
-             " likely the reason for\nfailure");
-}
 
 #
 # flat <=> XML
@@ -177,12 +181,4 @@ if($@) {
 eval { 
 	io  't/mutations.dat', 't/mutations.out.xml'; #22..26
 };
-
-if($@) {
-	warn("Tests 22..26 require XML.pm (external dependency) to be " .
-             "installed on your\nsystem. If it is not installed, this is most".
-             " likely the reason for\nfailure");
-}
-
-
 
