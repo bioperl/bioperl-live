@@ -279,11 +279,11 @@ sub tile_hsps {
 
     # Adjust length based on BLAST flavor.
     my $prog = $sbjct->algorithm;
-    if($prog eq 'TBLASTN') {
+    if($prog =~ /^(PSI)?T(BLAST|FAST)[NY]/oi ) {
 	$sbjct->length_aln('sbjct', $sbjct->length_aln('sbjct')/3);
-    } elsif($prog eq 'BLASTX' ) {
+    } elsif($prog =~ /^(BLAST|FAST)(X|Y|XY)/oi ) {
 	$sbjct->length_aln('query', $sbjct->length_aln('query')/3);
-    } elsif($prog eq 'TBLASTX') {
+    } elsif($prog =~ /^T(BLAST|FAST)(X|Y|XY)/oi ) {
 	$sbjct->length_aln('query', $sbjct->length_aln('query')/3);
 	$sbjct->length_aln('sbjct', $sbjct->length_aln('sbjct')/3);
     }
