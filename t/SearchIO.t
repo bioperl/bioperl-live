@@ -20,7 +20,7 @@ BEGIN {
 	use lib 't';
     }
     use vars qw($NTESTS);
-    $NTESTS = 785;
+    $NTESTS = 789;
     $LASTXMLTEST = 54;
     $error = 0;
 
@@ -1081,3 +1081,17 @@ while( my $hit = $r->next_hit ) {
     ok($hsp->hit->end, shift @$d);
     ok($hsp->hit->strand, shift @$d);       
 }
+
+# Test Wes Barris's reported bug when parsing blastcl3 output which
+# has integer overflow
+
+$searchio = new Bio::SearchIO(-file => Bio::Root::IO->catfile
+			      (qw(t data hsinsulin.blastcl3.blastn)),
+			      -format => 'blast');
+$result = $searchio->next_result;
+ok($result->query_name, 'human');
+ok($result->database_letters(), '-24016349'); 
+# this is of course not the right length, but is the what blastcl3 
+# reports, the correct value is
+ok($result->get_statistic('dbletters'),'192913178');
+ok($result->get_statistic('dbentries'),'1867771');
