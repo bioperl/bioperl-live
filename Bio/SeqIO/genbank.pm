@@ -329,10 +329,7 @@ sub write_seq {
     if( !defined $div || ! $div ) { $div = 'UNK'; }
 
     if( !$seq->can('molecule') || ! defined ($mol = $seq->molecule()) ) {
-	$mol = 'DNA';
-    }
-    else {
-	$mol = $seq->molecule;
+	$mol = $seq->alphabet || 'DNA';
     }
     
     my $circular = '';
@@ -350,7 +347,7 @@ sub write_seq {
 	}
 	$temp_line = sprintf ("%-12s%-10s%7s %s%4s%-6s%-10s%-3s%7s%-s", 
 			      'LOCUS', $seq->id(),$len,
-			      ($mol eq 'protein') ? ('aa','', '') : 
+			      (lc($mol) eq 'protein') ? ('aa','', '') : 
 			      ('bp', '',$mol),$circular,
 			      $div,'',$date);
     } 
