@@ -13,7 +13,7 @@ BEGIN {
     }
     use Test;
 
-    plan tests => 47;
+    plan tests => 48;
 }
 
 use Bio::Matrix::PSM::IO;
@@ -58,6 +58,7 @@ for (my $i = 0; $i<@check;$i++) {
 }
 my $avg=$var/@check;
 ok $avg<0.01; #Loss of data under 1 percent
+ok $psm->sequence_match_weight('CAGAAAAATAAAATGGCCACCACCC'),2015;
 
 my $lA=$psm->get_compressed_logs('A');
 @check=Bio::Matrix::PSM::SiteMatrix::_uncompress_string($lA,1000,2);
