@@ -161,6 +161,8 @@ use Bio::Annotation::SimpleValue;
             -annotation the Bio::AnnotationCollectionI implementing object
                         for storing richer annotation (this will default to
                         the $feature->annotation() if it supports it)
+            -tagvalue_factory the object factory to use for creating tag/value
+                        pair representing objects
 
 
 =cut
@@ -170,11 +172,14 @@ sub new {
     
     my $self = $class->SUPER::new(@args);
     
-    my ($feat, $anncoll) =
-	$self->_rearrange([qw(FEATURE ANNOTATION)], @args);
+    my ($feat,$anncoll,$fact) =
+	$self->_rearrange([qw(FEATURE
+			      ANNOTATION
+			      TAGVALUE_FACTORY)], @args);
     
     $self->feature($feat) if $feat;
     $self->annotation($anncoll) if $feat;
+    $self->tagvalue_object_factory($fact) if $fact;
 
     return $self;
 }
@@ -277,10 +282,16 @@ sub get_Annotations{
 
     # if the feature has tag/value pair for this key as the tag
     if($self->feature()->has_tag($key)) {
+	my $fact = $self->tagvalue_object_factory();
 	# add each tag/value pair as a SimpleValue object
 	foreach my $val ($self->feature()->each_tag_value($key)) {
-	    my $ann = Bio::Annotation::SimpleValue->new(-value => $val,
-							-tagname => $key);
+	    my $ann;
+	    if($fact) {
+		$ann = $fact->create_object(-value => $val, -tagname => $key);
+	    } else {
+		$ann = Bio::Annotation::SimpleValue->new(-value => $val,
+							 -tagname => $key);
+	    }
 	    push(@anns, $ann);
 	}
     }
@@ -393,5 +404,36 @@ sub add_Annotation{
     }
 }
 
+=head1 Additional methods
+
+=cut
+
+=head2 tagvalue_object_factory
+
+ Title   : tagvalue_object_factory
+ Usage   : $obj->tagval_object_factory($newval)
+ Function: Get/set the object factory to use for creating objects that
+           represent tag/value pairs (e.g.,
+           Bio::Annotation::SimpleValue).
+
+           The object to be created is expected to follow
+           Bio::Annotation::SimpleValue in terms of supported
+           arguments at creation time, and the methods.
+
+ Example : 
+ Returns : A Bio::Factory::ObjectFactoryI compliant object
+ Args    : new value (a Bio::Factory::ObjectFactoryI compliant object, 
+           optional)
+
+
+=cut
+
+sub tagvalue_object_factory{
+    my ($self,$value) = @_;
+    if( defined $value) {
+	$self->{'tagval_object_factory'} = $value;
+    }
+    return $self->{'tagval_object_factory'};
+}
 
 1;
