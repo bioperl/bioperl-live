@@ -1,17 +1,22 @@
 #!/usr/bin/perl -w
 # simple examples of Bio::Biblio usage
 # Brian Osborne
+# As of Bioperl version 1.4 there are 3 bibliographic repositories,
+# stipulated by the -access argument: soap, eutils, and biofetch.
+# The default is 'soap'. Not all of these repositories support all
+# the Biblio methods nor are the contents of these repositories
+# necessarily the same. Choose wisely!
 
 use strict;
 use Bio::Biblio;
 use Bio::Biblio::IO;
 use Data::Dumper;
 
-# number of articles in Medline with author Osborne...
+# number of articles in 'eutils' with author Osborne...
 my $num = new Bio::Biblio(-access => "eutils")->find("Osborne","authors")->
   get_count;
 
-# number of articles in Medline with author Osborne in year 2000,
+# number of articles in OpenBQS with 'topoisomerase' in the title, year 2000,
 # ("J Biol Chem","journal") is another example query
 $num = new Bio::Biblio->find("topoisomerase","title")->
   find("2000","year")->get_count;
