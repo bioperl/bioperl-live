@@ -185,7 +185,7 @@ sub next_result{
    my ($last,@hitinfo,@hspinfo,%hspinfo,%hitinfo);
    
    my @alignemnt_lines;
-
+   my $verbose = $self->verbose; # cache for speed?
    $self->start_document();
    local ($_);
    while( defined ($_ = $self->_readline )) {
@@ -396,7 +396,7 @@ sub next_result{
                                                                 $prelength,
                                                                 $width)});
                            } else { 
-                               $self->debug( "midline is $_\n") if( CORE::length($_) <= $prelength && $self->verbose > 0);
+                               $self->debug( "midline is $_\n") if( $verbose > 0 && CORE::length($_) <= $prelength );
                                $self->element({'Name' => 'Hsp_midline',
                                                'Data' => substr($_,
                                                                 $prelength)});
@@ -505,7 +505,9 @@ sub next_result{
                $count = 0;
                my $second_tier=0;
                while( defined($_ = $self->_readline) ) {                   
-                   next if( /^Align/o || /^\s+RF\s+[x\s]+$/o);
+                   next if( /^Align/o || ( $count != 1 &&
+					   /^\s+RF\s+[x\s]+$/o ));
+		   $self->debug("$count $_") if $verbose > 0;
                    if( /^Histogram/o || m!^//!o || /^Query sequence/o ) {
                        if( $self->in_element('hsp')) {
                            $self->end_element({'Name' => 'Hsp'});
@@ -579,7 +581,7 @@ sub next_result{
 
                        $lastdomain = $name;               
                    } else { 
-                       if( /^(\s+\*\-\>)(\S+)/o  ) { # start of domain
+		       if( /^(\s+\*\-\>)(\S+)/o  ) { # start of domain
                            $prelength = CORE::length($1);
                            $width = 0;
                            # $width = CORE::length($2);
@@ -596,7 +598,7 @@ sub next_result{
                        } elsif( CORE::length($_) == 0 || 
                                 ($count != 1 && /^\s+$/o) ||
                                 /^\s+\-?\*\s*$/ ) { 
-                           next;
+			   next;
                        } elsif( $count == 0 ) {
                            $prelength -= 3 unless ($second_tier++);
                            unless( defined $prelength) { 
@@ -617,20 +619,19 @@ sub next_result{
                                                'Data' => substr($_,$prelength)});
                            }
                        } elsif( $count == 2 ) {
-                           if( /^\s+(\S+)\s+(\d+)\s+(\S+)\s+(\d+)/o ||
-                               /^\s+(\S+)\s+(\-)\s+(\S*)\s+(\-)/o 
-                               ) {
+			   if( /^\s+(\S+)\s+(\d+)\s+(\S+)\s+(\d+)/o ||
+                               /^\s+(\S+)\s+(\-)\s+(\S*)\s+(\-)/o ) {
                                $self->element({'Name' => 'Hsp_qseq',
                                                'Data'  => $3});
                            } else {
-                               $self->warn("unrecognized line ($count): $_\n");
+                               $self->throw("unrecognized line ($count): $_\n");
                            }
                        }
                        $count = 0 if $count++ >= 2;
-                   }               
+                   }
                }           
-           } else { 
-               $self->debug($_);
+           } else {
+               $self->debug($_) if $verbose > 0;
            }           
        }
        $last = $_;
