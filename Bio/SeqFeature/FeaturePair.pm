@@ -157,55 +157,33 @@ sub feature2 {
     return $self->{'feature2'};
 }
 
-=head2 start
+# Internal overridable getter/setter for the actual stored value of
+# seq_id.  Delegates to the same method in feature1.
+sub _seq_id {
+  my $self = shift;
+  $self->feature1()->_seq_id( @_ );
+} # _seq_id(..)
 
- Title   : start
- Usage   : $start = $featpair->start
-           $featpair->start(20)
- Function: Get/set on the start coordinate of feature1
- Returns : integer
- Args    : [optional] beginning of feature
+# Internal overridable getter/setter for the actual stored value of
+# start.  Delegates to the same method in feature1.
+sub _start {
+  my $self = shift;
+  $self->feature1()->_start( @_ );
+} # _start(..)
 
-=cut
+# Internal overridable getter/setter for the actual stored value of
+# end.  Delegates to the same method in feature1.
+sub _end {
+  my $self = shift;
+  $self->feature1()->_end( @_ );
+} # _end(..)
 
-sub start {
-    my ($self,$value) = @_;    
-    return $self->feature1->start($value);
-}
-
-=head2 end
-
- Title   : end
- Usage   : $end = $featpair->end
-           $featpair->end($end)
- Function: get/set on the end coordinate of feature1
- Returns : integer
- Args    : [optional] ending point of feature
-
-
-=cut
-
-sub end{
-    my ($self,$value) = @_;    
-    return $self->feature1->end($value);    
-}
-
-=head2 strand
-
- Title   : strand
- Usage   : $strand = $feat->strand()
-           $feat->strand($strand)
- Function: get/set on strand information, being 1,-1 or 0
- Returns : -1,1 or 0
- Args    : [optional] strand information to set
-
-
-=cut
-
-sub strand{
-    my ($self,$arg) = @_;
-    return $self->feature1->strand($arg);    
-}
+# Internal overridable getter/setter for the actual stored value of
+# strand.  Delegates to the same method in feature1.
+sub _strand {
+  my $self = shift;
+  $self->feature1()->_strand( @_ );
+} # _strand(..)
 
 =head2 location
 

@@ -32,14 +32,10 @@ Bio::SeqFeature::Computation - Computation SeqFeature
 
 Bio::SeqFeature::Computation extends the Generic seqfeature object with
 a set of computation related fields and a more flexible set of storing
-more types of score and subseqfeatures. It is compatible with the Generic
-SeqFeature object.
+more types of score. It is compatible with the Generic SeqFeature object.
 
 The new way of storing score values is similar to the tag structure in the 
-Generic object. For storing sets of subseqfeatures the array containg the
-subseqfeatures is now a hash which contains arrays of seqfeatures
-Both the score and subSeqfeature methods can be called in exactly the same
-way, the value's will be stored as a 'default' score or subseqfeature.
+Generic object.
 
 =cut
 
@@ -94,7 +90,7 @@ use strict;
 use Bio::Root::Root;
 use Bio::SeqFeature::Generic;
 
-@ISA = qw(Bio::SeqFeature::Generic);
+@ISA = qw( Bio::SeqFeature::Generic );
 						     
 sub new {
     my ( $class, @args) = @_;
@@ -438,131 +434,6 @@ sub sub_SeqFeature_type {
   return $self->{'_gsf_sub_SeqFeature_type'};
 }
 
-=head2 all_sub_SeqFeature_types
-
- Title   : all_Sub_SeqFeature_types
- Usage   : @all_sub_seqfeature_types = $comp->all_Sub_SeqFeature_types();
- Function: Returns an array with all subseqfeature types
- Returns : An array
- Args    : none
-
-=cut
-
-sub all_sub_SeqFeature_types {
-   my ($self) = @_;
-   return keys ( %{$self->{'gsf_sub_hash'}} );
-}
-
-=head2 sub_SeqFeature
-
- Title   : sub_SeqFeature('sub_feature_type')
- Usage   : @feats = $feat->sub_SeqFeature();
-           @feats = $feat->sub_SeqFeature('sub_feature_type');           
- Function: Returns an array of sub Sequence Features of a specific
-           type or, if the type is ommited, all sub Sequence Features
- Returns : An array
- Args    : (optional) a sub_SeqFeature type (ie exon, pattern)
-
-=cut
-
-sub sub_SeqFeature {
-   my ($self, $ssf_type) = @_;
-   my (@return_array) = ();
-   if ($ssf_type eq '') {
-       #return all sub_SeqFeatures
-       foreach (keys ( %{$self->{'gsf_sub_hash'}} )){
-	  push @return_array, @{$self->{'gsf_sub_hash'}->{$_}};	            
-       }
-       return @return_array;
-   } else {
-       if (defined ($self->{'gsf_sub_hash'}->{$ssf_type})) {
-           return @{$self->{'gsf_sub_hash'}->{$ssf_type}};	
-       } else {
-           $self->warn("$ssf_type is not a valid sub SeqFeature type");
-       }
-   }
-}
-
-=head2 add_sub_SeqFeature
-
- Title   : add_sub_SeqFeature
- Usage   : $feat->add_sub_SeqFeature($subfeat);
-           $feat->add_sub_SeqFeature($subfeat,'sub_seqfeature_type')
-           $feat->add_sub_SeqFeature($subfeat,'EXPAND')
-           $feat->add_sub_SeqFeature($subfeat,'EXPAND','sub_seqfeature_type')
- Function: adds a SeqFeature into a specific subSeqFeature array.
-           with no 'EXPAND' qualifer, subfeat will be tested
-           as to whether it lies inside the parent, and throw
-           an exception if not.
-           If EXPAND is used, the parents start/end/strand will
-           be adjusted so that it grows to accommodate the new
-           subFeature,
-	   optionally a sub_seqfeature type can be defined.
- Returns : nothing
- Args    : An object which has the SeqFeatureI interface
-         : (optional) 'EXPAND'
-	 : (optional) 'sub_SeqFeature_type'
-
-=cut
-
-sub add_sub_SeqFeature{
-   my ($self,$feat,$var1, $var2) = @_;
-   $var1 = '' unless( defined $var1);
-   $var2 = '' unless( defined $var2);   
-   my ($expand, $ssf_type) = ('', $var1 . $var2);	
-   $expand = 'EXPAND' if ($ssf_type =~ s/EXPAND//);
-
-   if ( !$feat->isa('Bio::SeqFeatureI') ) {
-       $self->warn("$feat does not implement Bio::SeqFeatureI. Will add it anyway, but beware...");
-   }
-
-   if($expand eq 'EXPAND') {
-       $self->_expand_region($feat);
-   } else {
-       if ( !$self->contains($feat) ) {
-	   $self->throw("$feat is not contained within parent feature, and expansion is not valid");
-       }
-   }
-
-   $ssf_type = 'default' if ($ssf_type eq '');
-  
-   if (!(defined ($self->{'gsf_sub_hash'}->{$ssf_type}))) {     
-      @{$self->{'gsf_sub_hash'}->{$ssf_type}} = ();
-   } 
-   $feat->sub_SeqFeature_type($ssf_type);
-   push @{$self->{'gsf_sub_hash'}->{$ssf_type}}, $feat;
-}
-
-=head2 flush_sub_SeqFeature
-
- Title   : flush_sub_SeqFeature
- Usage   : $sf->flush_sub_SeqFeature
-           $sf->flush_sub_SeqFeature('sub_SeqFeature_type');	
- Function: Removes all sub SeqFeature or all sub SeqFeatures
- 	   of a specified type 
-           (if you want to remove a more specific subset, take
-	    an array of them all, flush them, and add
-            back only the guys you want)
- Example :
- Returns : none
- Args    : none
-
-
-=cut
-
-sub flush_sub_SeqFeature {
-   my ($self, $ssf_type) = @_;
-   if ($ssf_type) {
-      if ((defined ($self->{'gsf_sub_hash'}->{$ssf_type}))) {   
-             delete $self->{'gsf_sub_hash'}->{$ssf_type};
-       } else {
-           $self->warn("$ssf_type is not a valid sub SeqFeature type");
-       }
-   } else {
-      $self->{'_gsf_sub_hash'} = {}; # zap the complete hash implicitly.
-   }
-} 
-
-
-
 1;
+
+__END__
