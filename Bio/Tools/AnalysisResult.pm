@@ -102,9 +102,12 @@ use Bio::SeqAnalysisParserI;
 
 @ISA = qw(Bio::Root::RootI Bio::SeqAnalysisParserI);
 
-# new() is inherited from Bio::Root::RootI
-
-# _initialize is where the heavy stuff will happen when new is called
+sub new {
+    my ($class, @args) = @_;
+    my $self = bless {}, ref($class) || $class;
+    $self->_initialize(@args);
+    return $self;
+}
 
 sub _initialize {
   my($self,@args) = @_;
