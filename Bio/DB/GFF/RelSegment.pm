@@ -1,3 +1,6 @@
+
+#
+
 =head1 NAME
 
 Bio::DB::GFF::RelSegment -- Sequence segment with relative coordinate support
@@ -26,7 +29,7 @@ physical stretch of DNA, naturally.  However, they do not have to be
 on the same strand.  The strandedness of the reference sequence
 determines whether coordinates increase to the right or the left.
 
-Generally, you will not create or manipulate Bio::DB::GFF::RelSeg0ment
+Generally, you will not create or manipulate Bio::DB::GFF::RelSegment
 objects directly, but use those that are returned by the Bio::DB::GFF
 module.
 
@@ -124,7 +127,7 @@ use overload '""' => 'asString',
 =head1 API
 
 The remainder of this document describes the API for
-Bio::DB::GFF::Segment.
+Bio::DB::GFF::RelSegment.
 
 =cut
 
