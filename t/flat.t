@@ -61,7 +61,7 @@ ok($result);
 my $seq = $db->get_Seq_by_id('AAC12660');
 ok($seq);
 ok($seq->length,504);
-
+undef $db;
 &cleanup();
 &maketmpdir();
 $db = Bio::DB::Flat->new(-directory  => $tmpdir,
@@ -69,7 +69,7 @@ $db = Bio::DB::Flat->new(-directory  => $tmpdir,
                          -format => 'embl',
                          -verbose => 1,
                          -write_flag => 1
-                            );
+			 );
 
 $dir= $cd."/t/data/factor7.embl";
 $result = $db->build_index(glob($dir));
@@ -77,7 +77,8 @@ ok($result);
 $seq = $db->get_Seq_by_id('HSCFVII');
 ok($seq);
 ok($seq->length,12850);
-&cleanup();
+undef $db;
+
 #&maketmpdir();
 #my $db = Bio::DB::Flat->new(-directory  => $tmpdir,
 #                            -index => 'flat',
@@ -95,3 +96,7 @@ sub cleanup {
       Bio::Root::IO->rmtree($tmpdir);
     };
 } 
+
+END {
+    &cleanup();
+}
