@@ -248,6 +248,7 @@ sub next_seq{
 	# Get next line and loop again
 	$buffer = $self->_readline;
     }
+    return undef if(! defined($buffer));
     $seq->desc($desc); # don't forget!
     $seq->accession_number(shift(@acc));
     $seq->add_secondary_accession(@acc);
