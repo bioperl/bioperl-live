@@ -350,19 +350,28 @@ sub retrieve_blast {
 	if( $size > 1000 ) {
 	    my ($fh2,$tempfile2) = $self->tempfile();
 	    my $blastobj;
+
+	    # make fh2 unbuffered
+	    my $outfh = select($fh2);
+	    $| = 1;
+	    select($outfh);
+	    
 	    open(TMP, $tempfile) or $self->throw("cannot open $tempfile");
 	    # use second tmpfile to store HTML stripped data
+	    # this must not be buffered due to being opened subsequently
+	    # by the BLAST parser
 	    while(<TMP>) {
 		s/<[^>^<.]+>//g;
-		$fh2->print($_);
+		print $fh2 $_;
 		print $_ if ( $self->verbose > 0 );
 	    }
-	    $fh2->close();
 	    if( $self->readmethod =~ /Blast/ ) {
 		$blastobj = new Bio::Tools::Blast(-file => $tempfile2);
 	    } else { 
 		$blastobj = new Bio::Tools::BPlite(-file => $tempfile2);
 	    }
+	    close($fh2);
+	    close(TMP);
 	    return $blastobj;
 	} elsif( $size < 500 ) { # search had a problem
 	    open(ERR, "<$tempfile") or $self->throw("cannot open file $tempfile");
