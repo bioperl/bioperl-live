@@ -93,7 +93,7 @@ use Carp;
            : below 5 (DEFAULT IS 2). For more about this, see the "HSP Tiling and
            : Ambiguous Alignments" section in L<Bio::Search::Hit::BlastHit>.
 
-See Also   : L<_adjust_contigs>(), L<ambiguous_aln>(), L<overlap>(), L<frac_identical>(), L<frac_conserved>(), L<frac_aligned_query>(), L<frac_aligned_hit>(), L<num_unaligned_query>(), L<num_unaligned_hit>(), L<HSP Tiling and Ambiguous Alignments>
+See Also   : L<_adjust_contigs>(), L<ambiguous_aln>(), L<overlap>(), L<frac_identical>(), L<frac_conserved>(), L<frac_aligned_query>(), L<frac_aligned_hit>(), L<num_unaligned_query>(), L<num_unaligned_hit>(), HSP Tiling and Ambiguous Alignments
 
 =cut
 

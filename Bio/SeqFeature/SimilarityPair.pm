@@ -95,7 +95,7 @@ use Bio::Tools::Blast::Sbjct;
  Returns : Bio::SeqFeature::SimilarityPair
  Args    : -query => The query in a Feature pair 
            -hit   => (formerly '-subject') the subject/hit in a Feature pair
-          
+
 
 =cut
 

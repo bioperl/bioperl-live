@@ -47,7 +47,7 @@ you can do the following things with it:
 
 =head1 DESCRIPTION
 
-=head SEE ALSO
+=head1 SEE ALSO
 
 This interface inherits methods from these other modules:
 

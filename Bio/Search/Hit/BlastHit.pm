@@ -77,10 +77,10 @@ The results of the HSP tiling is reported with the following ambiguity codes:
 
    'q' = Query sequence contains multiple sub-sequences matching
          a single region in the sbjct sequence. 
- 
+
    's' = Subject (BlastHit) sequence contains multiple sub-sequences matching
          a single region in the query sequence. 
- 
+
    'qs' = Both query and sbjct sequences contain more than one
           sub-sequence with similarity to the other sequence.
 
@@ -329,7 +329,9 @@ sub algorithm {
            : $hit->name('M81707');
  Returns   : String consisting of the hit's name or undef if not set.
 
-=cut  #'
+=cut
+
+#'
 
 #----------------
 sub name {
@@ -356,7 +358,9 @@ sub name {
            : description string to be returned.
  Returns   : String consisting of the hit's description or undef if not set.
 
-=cut  #'
+=cut
+
+#'
 
 #----------------
 sub description {
@@ -374,7 +378,7 @@ sub description {
  Returns   : Integer
  Argument  : n/a
  Throws    : n/a
- 
+
 See Also   : L<bits>()
 
 =cut

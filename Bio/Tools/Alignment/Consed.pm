@@ -332,7 +332,7 @@ sub get_quality_scalar {
  Args    : None.
  Notes   : This procedure was removed so Consed.pm won't require
 	FreezeThaw.
-	
+
 
 =cut
 

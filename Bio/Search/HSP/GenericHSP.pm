@@ -19,7 +19,7 @@ Bio::Search::HSP::GenericHSP - DESCRIPTION of Object
     my $hsp = new Bio::Search::HSP::GenericHSP( -algorithm => 'blastp',
 						-evalue    => '1e-30',
 						);
-					       
+
 
     $r_type = $hsp->algorithm
 
@@ -169,7 +169,7 @@ sub new {
     defined $evalue    && $self->evalue($evalue);
     defined $bits      && $self->bits($bits);
     defined $score     && $self->score($score);
-    
+
     my ($queryfactor, $hitfactor) = (1,0); # default
     if ($algo eq 'BLASTP' || $algo eq 'TBLASTN'
 	|| $algo eq 'FASTX' || $algo eq 'FASTY' ||
@@ -224,14 +224,14 @@ sub new {
 		     '-source'=> $algo) );
     }
     $self->frame($qframe,$hframe);
-    
+
     if( ! defined $query_len || ! defined $hit_len ) { 
 	$self->throw("Must defined hit and query length");
     }
-    
+
     $self->hit->seqname($hit_name);
     $self->query->seqname($query_name);
-    
+
     $self->hit->seqlength($hit_len);
     $self->query->seqlength($query_len);
 
@@ -263,12 +263,12 @@ sub new {
 	$gaps = $self->gaps("query") + $self->gaps("hit");
     } 
     $self->gaps('total', $gaps);
-    
+
     $self->percent_identity($identical / $hsp_len ) if( $hsp_len > 0 );
     $self->query_string($query_seq);
     $self->hit_string($hit_seq);
     $self->homology_string($homology_seq);
-	
+
     return $self;
 }
 

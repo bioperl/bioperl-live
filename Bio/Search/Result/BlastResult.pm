@@ -441,7 +441,7 @@ sub is_signif { my $self = shift; return $self->{'_is_significant'}; }
  Argument  : n/a
  Returns   : string or undef if not defined
  Comments  : TODO: Deprecate this and implement get_parameter('matrix').
-             
+
 =cut
 
 #------------

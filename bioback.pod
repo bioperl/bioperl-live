@@ -1,4 +1,4 @@
-## $Id: bioback.pod,v 1.4 2001-05-16 14:57:34 heikki Exp $
+## $Id: bioback.pod,v 1.5 2002-01-09 05:54:24 njoly Exp $
 
 #
 # Documentation about the backend of bioperl
@@ -99,7 +99,7 @@ eg, for Fasta files
   bpindex est /nfs/somewhere/fastafiles/est*.fa
 
 Or, for embl/swissprot files
- 
+
   bpindex -fmt=EMBL swiss /nfs/somewhere/swiss/swissprot.dat
 
 To retrieve sequences from the index go

@@ -37,14 +37,14 @@ Bio::Perl - Functional access to BioPerl for people who don't like objects
    # get the whole sequence as a single string
 
    $sequence_as_a_string = $seq_object->seq();
-    
+
 
    # writing sequences
 
    write_sequence(">$filename",'genbank',$seq_object);
 
    write_sequence(">$filename",'genbank',@seq_object_array);
- 
+
    # making a new sequence from just strings you have
    # from something else
 
@@ -132,7 +132,7 @@ BEGIN {
  Title   : read_sequence
  Usage   : $seq = read_sequence('sequences.fa')
            $seq = read_sequence($filename,'genbank');
-   
+
            # pipes are fine
            $seq = read_sequence("my_fetching_program $id |",'fasta');
 

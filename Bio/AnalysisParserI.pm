@@ -159,7 +159,7 @@ sub next_result {
  Args    : Bio::Factory::ResultFactoryI object (when setting)
  Comments: A AnalysisParserI implementation should provide a default result factory.
            obtainable by the  default_result_factory_class() method.
-           
+
 =cut
 
 sub result_factory {

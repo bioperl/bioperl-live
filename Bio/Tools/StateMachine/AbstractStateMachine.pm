@@ -18,15 +18,15 @@ Here is a portion of an implementation. For the full example, see
 examples/state-machine/state-machine.pl in the Bioperl distribution.
 
     package SimpleStateMachine;
-    	
+
     use Bio::Root::Root;
     use Bio::Tools::StateMachine::AbstractStateMachine qw($INITIAL_STATE 
     							  $FINAL_STATE);
     use vars qw( @ISA );
-       
+
     @ISA = qw( Bio::Root::Root
     	   Bio::Tools::StateMachine::AbstractStateMachine );
-    	
+
     my @state_transitions = (  [ $INITIAL_STATE, 'State1'],
     			       [ 'State1', 'State2' ],
     			       [ 'State2', $FINAL_STATE]
@@ -37,8 +37,8 @@ examples/state-machine/state-machine.pl in the Bioperl distribution.
        $self->_init_state_machine( -transition_table => \@state_transitions );
        return $self;
     }
-    
-    
+
+
 
 =head1 DESCRIPTION
 

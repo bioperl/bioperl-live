@@ -35,7 +35,7 @@ Bio::Root::Exception - Generic exception objects for Bioperl
     otherwise {
         my $err = shift;
     	print STDERR "An unexpected exception occurred: \n$err";
-    
+
 	# By placing an the error object reference within double quotes,
 	# you're invoking its stringify() method.
     }

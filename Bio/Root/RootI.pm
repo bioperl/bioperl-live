@@ -502,7 +502,9 @@ sub _cleanup_methods {
            Carp::confess() will be used.
 
 
-=cut   #'
+=cut
+
+#'
 
 sub throw_not_implemented {
     my $self = shift;
@@ -549,7 +551,9 @@ sub throw_not_implemented {
  Args    : n/a
 
 
-=cut   #'
+=cut
+
+#'
 
 sub warn_not_implemented {
     my $self = shift;

@@ -19,7 +19,7 @@ module defines a pure interface.
 
 Given an object that implements the Bio::SearchIO::SearchWriterI interface,
 you can do the following things with it:
-  
+
     print $writer->to_string( $result_obj, @args );
 
 =head1 DESCRIPTION

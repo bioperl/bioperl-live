@@ -33,7 +33,7 @@ Bio::Tools::pSW - pairwise Smith Waterman object
     my $aln = $factory->pairwise_alignment($seq1,$seq2);
     my $alnout = new Bio::AlignIO(-format => 'msf',
 				  -fh     => \*STDOUT);
-    
+
     $alnout->write_aln($aln);
 
 =head1 INSTALLATION

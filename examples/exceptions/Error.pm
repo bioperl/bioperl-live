@@ -477,7 +477,7 @@ Error - Error/exception handling in an OO-ish way
 	record Error::Simple("A simple error")
 	    and return;
     }
- 
+
     unlink($file) or throw Error::Simple("$file: $!",$!);
 
     try {

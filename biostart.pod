@@ -236,7 +236,7 @@ Please see L<bptutorial.pl>.
 
 Please see L<bptutorial.pl>, L<Bio::DB::GenBank>, L<Bio::DB::GenPept>,
 L<Bio::DB::SwissProt>, L<Bio::DB::GDB>, and L<Bio::DB::Ace>.
-   
+
 
 Feel free to add to this document.
 

@@ -126,7 +126,7 @@ sub new {
   defined $dbname && $self->database_name($dbname);
   defined $dblet  && $self->database_letters($dblet);
   defined $dbent  && $self->database_entries($dbent);
-  
+
   if( defined $params ) {
       if( ref($params) !~ /hash/i ) {
 	  $self->throw("Must specify a hash reference with the the parameter '-parameters");
@@ -146,7 +146,7 @@ sub new {
 
   if( defined $hits  ) { 
       $self->throw("Must define arrayref of Hits when initializing a $class\n") unless ref($hits) =~ /array/i;
-  
+
       foreach my $s ( @$hits ) {
 	  $self->add_hit($s);
       }

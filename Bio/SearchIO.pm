@@ -324,7 +324,7 @@ sub writer {
  Throws  : Bio::Root::Exception if a non-Bio::Factory::HitFactoryI object  
            is passed in.
  Comments: A SearchIO implementation should provide a default hit factory.
-           
+
 =cut
 
 sub hit_factory {
@@ -349,7 +349,7 @@ sub hit_factory {
  Throws  : Bio::Root::Exception if a non-Bio::Factory::ResultFactoryI object
            is passed in.
  Comments: A SearchIO implementation should provide a default result factory.
-           
+
 =cut
 
 sub result_factory {

@@ -271,7 +271,9 @@ sub _cleanup_methods {
            and you don't need the main:: part) and setting it to 
            a true value.
 
-=cut #'
+=cut
+
+#'
 
 sub throw{
    my ($self,@args) = @_;

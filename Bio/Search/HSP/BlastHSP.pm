@@ -603,7 +603,9 @@ sub expect { shift->evalue( @_ ); }
  Returns   : Integer (1..n) corresponding to the order in which the HSP
              appears in the BLAST report.
 
-=cut  #'
+=cut
+
+#'
 
 #----------
 sub rank { shift->{'_rank'} }
