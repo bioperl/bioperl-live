@@ -365,7 +365,7 @@ sub ancestor{
 
  Title   : invalidate_height
  Usage   : private helper method
- Function: Invalidate our cached value of the node'e height in the tree
+ Function: Invalidate our cached value of the node height in the tree
  Returns : nothing
  Args    : none
 
