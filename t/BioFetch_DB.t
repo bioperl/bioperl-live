@@ -23,7 +23,7 @@ BEGIN {
     }
     use Test;
 
-    $NUMTESTS = 26;
+    $NUMTESTS = 27;
     plan tests => $NUMTESTS;
 
     unless( eval "require IO::String; 1;" ) {
@@ -122,7 +122,8 @@ ok $@;
 
 eval {
     ok $seq = $db->get_Seq_by_acc('NM_006732');
-    ok($seq && $seq->length, 3775);
+    ok($seq );
+    ok($seq->length, 3775);
 };
 
 if ($@) {
