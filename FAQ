@@ -148,7 +148,7 @@ Contents
 
    Q1.1: What is Bioperl?
 
-      A: Bioperl is a tookit of perl modules useful in building
+      A: Bioperl is a toolkit of perl modules useful in building
 	 bioinformatics solutions in perl. It is built in an
 	 object-oriented manner so that many modules depend on each other
 	 to achieve a task. The collection of modules in the bioperl-live
@@ -286,7 +286,7 @@ Contents
 	 stand alone scripts which use bioperl components for common tasks.
 	  Some starting points for script: find out what people in your
 	 institution do routinely that a shortcut can be developed for. 
-	 Identify modules in bioperl that need easy intefaces and write
+	 Identify modules in bioperl that need easy interfaces and write
 	 that wrapper - you'll learn how to use the module inside and out.
 	 We always need people to help fix bugs - check the Bugzilla bug
 	 tracking system (http://www.bioperl.org/bugs).
@@ -333,7 +333,7 @@ Contents
 	 There is no simple answer to this question.  Simply put, this is a
 	 toolkit which has grown organically.  The goals and user audience
 	 has evolved.  Some decisions have been made and we have been
-	 forced to live by them rather than destroy backward compatability.
+	 forced to live by them rather than destroy backward compatibility.
 	  In addition there are different philosophies of software
 	 development.  The major developers on the project have tried to
 	 impose a set of standards on the code so that the project can be
@@ -355,7 +355,7 @@ Contents
 	 sore spot for some, and the lack of using AUTOLOAD.  By being
 	 consistent we hope that someone can grok the gist of a module from
 	 the basic documentation, see example code, and get a set of
-	 methods from the API documetation.  We aim to make the core object
+	 methods from the API documentation.  We aim to make the core object
 	 design easy to understand.  This has not been realized by any
 	 stretch of the imagination as the toolkit has well over 1000
 	 modules in bioperl-live and bioperl-run alone.
@@ -842,7 +842,7 @@ Contents
 
       A:  Use the module Bio::Tools::Run::StandAloneBlast.  It will give
 	 you access to many of the search tools in the NCBI blast suite
-	 including blastll, bl2seq, blastpgp.  The basic structure is like
+	 including blastall, bl2seq, blastpgp.  The basic structure is like
 	 this.
 		 
 		 use Bio::Tools::Run::StandAloneBlast;
