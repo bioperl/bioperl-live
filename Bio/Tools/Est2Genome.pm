@@ -168,7 +168,7 @@ sub analysis_method {
 sub parse_next_gene {
    my ($self) = @_;
    my $seensegment = 0;
-   my @features = ();
+   my @features;
    my ($qstrand,$hstrand) = (1,1);
    while( defined($_ = $self->_readline) ) {
        if( /Note Best alignment is between (reversed|forward) est and (reversed|forward) genome, (but|and) splice\s+sites imply\s+(forward gene|REVERSED GENE)/) {
@@ -226,7 +226,7 @@ sub parse_next_gene {
 	   $self->warn( "unknown line $_\n");
        }
    }
-   return wantarray ? @features : \@features if $seensegment;   
+   return wantarray ? @features : \@features;
 }
 
 =head2 next_feature
