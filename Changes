@@ -1,6 +1,22 @@
 $Id$
 Revision history for Bioperl core modules
 
+1.2  Stable major release
+
+    o Bug fixes in Bio::TreeIO::newick fixes bug introduced in 1.0.2
+      Support for New Hampshire Extended (NHX) format parsing.
+
+    o Support for parsing Genomewise, Est2Genome
+
+    o New ontology parsing Bio::Ontology
+
+    o Bug fixes in Bio::SearchIO for HMMer parsing, support for
+      multi-report (mlib) fasta reports.
+
+    o Bio::ClusterIO for parsing Unigene clusters
+
+    o Bio::Phenotype
+
 1.1.1 Developer release
 
     o Deprecated modules are now listed in the DEPRECATED file
