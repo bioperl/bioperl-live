@@ -2,19 +2,11 @@
 # PACKAGE : Bio::Root::Utilities.pm
 # PURPOSE : Provides general-purpose utilities of potential interest to any Perl script.
 # AUTHOR  : Steve A. Chervitz (sac@genome.stanford.edu)
+
+
 # CREATED : Feb 1996
 # REVISION: $Id$
 # STATUS  : Alpha
-#
-# This module manages file compression and uncompression using gzip or
-# the UNIX compress programs (see the compress() and uncompress() methods).
-# Also, it can create filehandles from gzipped files. If you want to use a
-# different compression utility (such as zip, pkzip, stuffit, etc.) you
-# are on your own.
-#
-# If you manage to incorporate an alternate compression utility into this
-# module, please post a note to the bio.perl.org mailing list
-# vsns-bcd-perl@lists.uni-bielefeld.de. Thanks.
 #
 # TODO    : Configure $GNU_PATH during installation.
 #           Improve documentation (POD).
@@ -48,11 +40,9 @@ use vars qw($ID $VERSION $Util $GNU_PATH);
 $ID        = 'Bio::Root::Utilities';
 $VERSION   = 0.042;
 
-# $GNU_PATH points to the directory containing the gzip and gunzip 
-# executables. It may be required for executing gzip/gunzip 
-# in some situations (e.g., when $ENV{PATH} doesn't contain this dir.
-# Customize $GNU_PATH for your site if the compress() or
-# uncompress() functions are generating exceptions.
+# $GNU_PATH may be required for executing gzip/gunzip 
+# in some situations. Customize for your site or leave
+# it as a null string.
 $GNU_PATH  = ''; 
 #$GNU_PATH  = '/tools/gnu/bin/'; 
 
@@ -786,6 +776,7 @@ sub delete {
  Purpose   : Create a FileHandle object from a file or STDIN.
            : Mainly used as a helper method by read() and get_newline().
  Example   : $data = $object->create_filehandle(-FILE =>'usr/people/me/data.txt')
+           :
  Argument  : Named parameters (case-insensitive):
            :  (all optional)
            :    -CLIENT  => object reference for the object submitting
@@ -798,12 +789,6 @@ sub delete {
  Throws    : Exception if cannot open a supplied file or if supplied with a
            : reference that is not a FileHandle ref.
  Comments  : If given a FileHandle reference, this method simply returns it.
-           : This method assumes the user wants to read ascii data. So, if
-           : the file is binary, it will be treated as a compressed (gzipped)
-           : file and access it using gzip -ce. The problem here is that not
-           : all binary files are necessarily compressed. Therefore, 
-           : this method should probably have a -mode parameter to
-           : specify ascii or binary.
 
 See Also :  L<get_newline>(), L<Bio::Root:IOManager::read>(),
 
@@ -817,47 +802,40 @@ sub create_filehandle {
 	$self->_rearrange([qw( CLIENT FILE HANDLE )], @param);
 
     if(not $client) {  $client = $self; }
-    $file ||= $handle;
     $file = $client->file($file);
 
-    my $FH; # = new FileHandle;
+    my $FH = new FileHandle;
 
     my ($handle_ref);
-    
-    if($handle_ref = ref($file)) {
-      if($handle_ref eq 'FileHandle') {
-	$FH = $file;
+
+    if($handle_ref = ref($file) || ref($handle)) {
+	if($handle_ref eq 'FileHandle' or $handle_ref eq 'GLOB') {
+	    $FH = $file || $handle;
+	} else {
+	    $self->throw("Can't read from $file (or $handle): Not a FileHandle or GLOB ref.");
+	}
+	$self->verbose > 0 and printf STDERR "$ID: reading data from FileHandle\n";
 	$client->{'_input_type'} = "FileHandle";
-      } elsif($handle_ref eq 'GLOB') {
-#	$FH = new FileHandle($file);  # Can't do this
-	$FH = $file;
-	$client->{'_input_type'} = "Glob";
-      } else {
-	$self->throw("Can't read from $file: Not a FileHandle or GLOB ref.");
-      }
-      $self->verbose > 0 and printf STDERR "$ID: reading data from FileHandle\n";
 
     } elsif($file) {
-      $client->{'_input_type'} = "FileHandle for $file";
-
-      # Use gzip -cd to access compressed data.
-      if( -B $file ) {
-	$client->{'_input_type'} .= " (compressed)";
-	$file = "${GNU_PATH}gzip -cd $file |"
-      }
-      
-      $FH = new FileHandle;
-      open ($FH, $file) || $self->throw("Can't access data file: $file",
-					"$!");
-      $self->verbose > 0 and printf STDERR "$ID: reading data from file $file\n";
+	# Uncompress file if neccesary.
+	if( -B $file ) {
+	    $client->{'_file_owner'} = -o $file;
+	    $file = $client->uncompress_file(); $client->{'_compressed_file'} = 1; 
+	}
+	    
+	open ($FH, $file) || $self->throw("Can't access data file: $file",
+					  "Cause:$!");
+	$self->verbose > 0 and printf STDERR "$ID: reading data from file $file\n";
+	$client->{'_input_type'} = "File $file";
 
     } else {
-      # Read from STDIN.
-      $FH = \*STDIN;
-      $self->verbose > 0 and printf STDERR "$ID: reading data from STDIN\n";
-      $client->{'_input_type'} = "STDIN";
+	# Read from STDIN.
+	$FH = \*STDIN;
+	$self->verbose > 0 and printf STDERR "$ID: reading data from STDIN\n";
+	$client->{'_input_type'} = "STDIN";
     }
-    
+
     return $FH;
   }
 
@@ -890,24 +868,20 @@ sub get_newline {
 
     if(not $client) {  $client = $self;   }
 
-    if($client->{'_input_type'} eq 'STDIN' ||
-      $client->{'_input_type'} =~ /compressed/ ) {
-      # Can't taste from STDIN since we can't seek 0 on it.
-      # Are other non special Glob refs seek able?
-      # Attempt to guess newline based on platform.
-      # Not robust since we could be reading Unix files on a Mac, e.g.
-      if(defined $ENV{'MACPERL'}) {
-	$NEWLINE = "\015";  # \r
-      } else {
-	$NEWLINE = "\012";  # \n
-      }	
-    } else {
-      $NEWLINE = $self->taste_file($FH);
-    }
+    $NEWLINE = $self->taste_file($FH);
 
     close ($FH) unless $client->{'_input_type'} eq 'STDIN';
     
+    # If the file was compressed and the user is the owner of file,
+    #   then leave the file in its original compressed state.
+    # If the file was compressed and the user was NOT the owner of file,
+    #   then removed the compressed file which is a tmp file.
+
+    $client->{'_compressed_file'} and ($client->{'_file_owner'} ? $client->compress_file() : $client->delete_file());
+
     delete $client->{'_input_type'};
+    delete $client->{'_file_owner'};
+    delete $client->{'_compressed_file'};
 
     return $NEWLINE;
   }
@@ -924,9 +898,8 @@ sub get_newline {
            :   Unix = "\012"  ("\n")
            :   Win32 = "\012\015" ("\r\n")
            :   Mac = "\015"  ("\r")
- Throws    : Exception if no input is read within $TIMEOUT_SECS seconds.
-           : Exception if argument is not FileHandle object reference.
-           : Warning if cannot determine neewline char(s).
+ Throws    : Exception if no input is read within 3 seconds.
+           : Warning if cannot determie neewline char(s).
  Comments  : Based on code submitted by Vicki Brown (vlb@deltagen.com).
 
 See Also : L<get_newline>()
@@ -937,35 +910,27 @@ See Also : L<get_newline>()
 sub taste_file {
 #---------------
   my ($self, $FH) = @_; 
-  my $BUFSIZ = 256;   # Number of bytes read from the file handle.
+  my $BUFSIZ = 256;
   my ($buffer, $octal, $str, $irs, $i);
   my $wait = $TIMEOUT_SECS;
   
-  ref($FH) eq 'FileHandle' or $self->throw("Can't taste file: not a FileHandle ref");
-
   $buffer = '';
   $SIG{ALRM} = sub { die "Timed out!"; };
-  my $result;
   eval {
     alarm( $wait );
-    $result = read($FH, $buffer, $BUFSIZ); # read the $BUFSIZ characters of file
+    read($FH, $buffer, $BUFSIZ); # read the $BUFSIZ characters of file
     alarm(0);
   };
   if($@ =~ /Timed out!/) {
     $self->throw("Timed out while waiting for input.", 
-		 "Timeout period = $wait seconds.\nFor longer time before timing out, edit \$TIMEOUT_SECS in Bio::Root::Global.pm.");	
-
-  } elsif(not $result) {
-    my $err = $@;
-    $self->throw("read taste failed to read from FileHandle.", $err);
+		 "For longer time before timing out, edit \$TIMEOUT_SECS in Bio::Root::Global.pm.");	
 
   } elsif($@ =~ /\S/) {
     my $err = $@;
     $self->throw("Unexpected error during read: $err");
   }
 
-  seek($FH, 0, 0) or $self->throw("seek failed to seek 0 on FileHandle.");
-
+  seek($FH, 0, 0);
   my @chars = split(//, $buffer);
 
   for ($i = 0; $i <$BUFSIZ; $i++) {

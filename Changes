@@ -1,21 +1,5 @@
 Revision history for Bioperl core modules
 
-0.05    <to be filled in by steve>
-        - Bio::Tools::Blast modules have less memory problems
-          and faster parsing
-        - The Bio::SeqIO system has been started, moving the
-          sequence reformatting code out of the sequence object
-        - The Bio::Index:: system has been started, providing
-          generic index capabilities and specifically works for
-          Fasta formatted databases and EMBL .dat formatted 
-	  databases
-        - The Bio::DB:: system started, providing access to 
-          databases, both via flat file + index (see above) and
-          via http to NCBI
-        - The scripts/ directory, where industrial strength scripts
-          are put has been started.
-        - Many changes - a better distribution all round.
-
 0.04.4  Wed Feb 17 02:20:13 1999
 	- Bug fixes in the Bio::Tools::Blast modules and postclient.pl
 	  (see Bio::Tools::Blast::CHANGES).

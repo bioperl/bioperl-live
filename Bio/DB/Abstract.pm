@@ -2,7 +2,7 @@
 
 =head1 NAME
 
-Bio::DB::BioSeqI - Abstract interface for a sequence database
+Bio::DB::Abstract - Abstract definition of a database
 
 =head1 SYNOPSIS
 
@@ -12,16 +12,12 @@ Bio::DB::BioSeqI - Abstract interface for a sequence database
 
   $seq = $db->get_Seq_by_id('ROA1_HUMAN');
 
-  #
-  # $seq is a Bio::Seq object
-  #
-
 =head1 DESCRIPTION
 
-This is a pure interface class - in other words, all this does is define
+This is a purely abstract class - in other words, all this does is define
 methods which other (concrete) classes will actually implement. 
 
-The Bio::DB::BioSeqI class defines what methods a generic database class
+The Bio::DB::Abstract class defines what methods a generic database class
 should have. At the moment it is just the ability to make Bio::Seq objects
 from a name (id) or a accession number.
 
@@ -47,7 +43,7 @@ The rest of the documentation details each of the object methods. Internal metho
 # Let the code begin...
 
 
-package Bio::DB::BioSeqI;
+package Bio::DB::Abstract;
 use vars qw($AUTOLOAD @ISA @EXPORT_OK);
 use strict;
 
@@ -57,7 +53,6 @@ use Bio::Root::Object;
 
 @ISA = qw(Bio::Root::Object Exporter);
 @EXPORT_OK = qw();
-
 # new() is inherited from Bio::Root::Object
 
 # _initialize is where the heavy stuff will happen when new is called

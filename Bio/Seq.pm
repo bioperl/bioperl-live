@@ -978,6 +978,19 @@ grep {$Alphabets_strict{$_."Mg"} ||= [ @{ $Alphabets_strict{$_} },"?" ] } keys %
 
 ### SAC: new() is inherited from Bio::Root::Object.
 
+# sub new {
+#   my($this) = shift;
+#   my($class,$self);
+#   # See the ``Perl Module List''
+#   $class = ref($this) || $this;
+#   $self = {};
+#   bless $self, $class;
+#   $self->_initialize(@_);
+#   return $self;
+# }
+
+#############################
+
 =head2 ## Internal methods ##
 
 =cut
@@ -1098,7 +1111,7 @@ sub _seq {
     if (ref($nseq) eq "ARRAY") {
         $self->{"seq"} = join('', @{$nseq});
     }
-    elsif (ref($nseq) eq '') { # is a scalar
+    elsif (ref($nseq) eq '') { #???***
         $self->{"seq"} = $nseq;
     }
     else {
@@ -1152,9 +1165,6 @@ sub _monomer {
  Usage     : n/a (Internal Function)
  Function  : _file_read is called whenever the constructor is called 
            : with the name of a sequence to be read from disk.
-           :
-           : This function is now DEPRECATED. you should use the SeqIO
-           : system
            :
  Example   : n/a, only called upon by _initialize()
  Returns   : 
@@ -2607,24 +2617,10 @@ sub translate {
 
   #If sequence monomer is Dna, we should first pipe it
   #through Dna_to_Rna() to change any T's to U's
-  if($self->_monomer eq "1") { 
-      $seq = $self->Dna_to_Rna;
-  } 
-
-  #If it is unknown, we should probably guess it is DNA not RNA
-  if( $self->_monomer eq "0" ) {
-      $seq = $self->Dna_to_Rna;
-  }
-
-  # if the seq have T's at this point. Worry...
-
-    if( $seq =~ /(.?.?Tt.?.?)/ ) {
-	$self->warn("sequence [$1] in translation has some T's when we are very RNA based in our translate function. Could well be a problem in your sequence type. Likely to produce the *wrong* result.");
-    }
+  if($self->_monomer eq "1") { $seq = $self->Dna_to_Rna;} 
 
   for($len=length($seq),$seq =~ tr/a-z/A-Z/,$i=0; $i<($len-2) ; $i+=3) {
     $codon = substr($seq,$i,3);
-
 
     # would this be easier with a hash system (?) EB
 

@@ -649,7 +649,6 @@ sub destroy {
 =head2 _drop_child
 
  Usage     : $object->_drop_child(object_ref)
-           : Used internally by destroy().
  Purpose   : To remove a parent-to-child inter-object relationship.
            : The aim here is to break cyclical object refs to permit Perl's
            : GC to reclaim the object's memory. The expectation is that

@@ -163,12 +163,12 @@ sub _initialize {
 
   #I'm pretty sure I am not doing this right... ho hum...
 
-  if( $gap ) {
+  if( $gap =~ /\S/ ) {
       $gap =~ /^\d+$/ || $self->throw("Gap penalty must be a number, not [$gap]");
       $self->gap($gap);
   }
 
-  if( $ext ) {
+  if( $ext =~ /\S/ ) {
       $ext =~ /^\d+$/ || $self->throw("Extension penalty must be a number, not [$ext]");
       $self->gap($gap);
   }

@@ -21,7 +21,7 @@
 
 
 ## We start with some black magic to print on failure.
-BEGIN { $| = 1; print "1..9\n"; 
+BEGIN { $| = 1; print "1..8\n"; 
 	use vars qw($loaded); }
 
 END {print "not ok 1\n" unless $loaded;}
@@ -105,14 +105,6 @@ if( $str ) {
 if($seq = $str->next_seq()) { print "ok 8\n";
  } else { print "not ok 8 , failed to read GCG sequence from stream,\n"; }
 print "Sequence 1 of 1 from GCG stream:\n", $seq->seq, "\n";
-
-## Now we test Bio::SeqIO::GCG output writing
-
-$str = Bio::SeqIO->new(-file=> '>t/gcg.out', '-format' => 'GCG');
-
-$str->write_seq($seq);
-
-print "ok 9\n";
 
 
 #####

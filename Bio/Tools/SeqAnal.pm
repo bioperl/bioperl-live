@@ -379,11 +379,10 @@ sub _set_db_stats {
 #-------------------
     my ($self, %param) = @_;
 
-    $self->{'_db'}        ||= $param{-NAME}    || '';
-    $self->{'_dbRelease'}   = $param{-RELEASE} || '';
-    ($self->{'_dbLetters'}  = $param{-LETTERS} || 0)  =~ s/,//g;
-    ($self->{'_dbSeqs'}     = $param{-SEQS}    || 0) =~ s/,//g;
-    
+    $self->{'_db'}        = $param{-NAME}    || '';
+    $self->{'_dbRelease'} = $param{-RELEASE} || '';
+    ($self->{'_dbLetters'} = $param{-LETTERS} || 0)  =~ s/,//g;
+    ($self->{'_dbSeqs'}    = $param{-SEQS}    || 0) =~ s/,//g;
 }
 
 
@@ -692,7 +691,7 @@ sub _display_stats {
 #--------------------
     my( $self, $OUT ) = @_;
     
-    printf( $OUT "\n%-15s: %s\n", "QUERY NAME", $self->query ||'UNKNOWN' );
+    printf( $OUT "%-15s: %s\n", "QUERY NAME", $self->query ||'UNKNOWN' );
     printf( $OUT "%-15s: %s\n", "QUERY DESC", $self->query_desc || 'UNKNOWN');
     printf( $OUT "%-15s: %s\n", "LENGTH", $self->length || 'UNKNOWN');
     printf( $OUT "%-15s: %s\n", "FILE", $self->file || 'STDIN');

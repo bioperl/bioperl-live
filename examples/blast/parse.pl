@@ -1,14 +1,14 @@
 #!/usr/bin/perl -w
 
 #---------------------------------------------------------------------------
-# PROGRAM : parse_blast.pl
+# PROGRAM : parse.pl
 # PURPOSE : To demonstrate parsing features of the Bio::Tools::Blast.pm module.
 # AUTHOR  : Steve A. Chervitz (sac@genome.stanford.edu)
 # CREATED : 3 Feb 1998
 # REVISION: $Id$
 # WEBSITE : http://bio.perl.org/Projects/Blast/
-# USAGE   : parse_blast.pl -h
-# EXAMPLES: parse_blast.pl -eg
+# USAGE   : parse.pl -h
+# EXAMPLES: parse.pl -eg
 #
 # INSTALLATION: 
 #    Set the require ".../blast_config.pl" to point to the proper location
@@ -17,22 +17,13 @@
 # COMMENTS:
 #
 # Sample BLAST output files can be found in examples/blast/out/ of the distribution.
-# This script can process Blast report files specified on the command line or
-# supplied via a STDIN stream.
+# For processing a stream of Blast reports, see the the parse_stream.pl script.
 #
 # This demo script does not exercise all of the functionality of the Blast object.
 # See parse2.pl and parse_positions.pl script for some other manipulations and 
-# the documentation in the Bio::Tools::Blast.pm, accessible from the above website
-# or by running Blast.pm through pos2html.
-#
-# TODO:
-#  * Create an example that shows how to parse with HTML-formatted
-#    reports. The new Blast.pm module no longer parses such reports
-#    directly.
+# the POD for the Bio::Tools::Blast.pm, accessible from the above website.
 #
 # MODIFIED:
-#  sac, 11 Mar 1999: Merged parse_stream.pl with parse.pl to create parse_blast.pl.
-#                    No longer any parse_stream.pl or parse.pl.
 #  sac,  4 Sep 1998: Added example of using -filt_func option.
 #  sac, 16 Jun 1998: Added installation comment, require statement comments.
 #                    Minor alteration of seq_inds() calls.
@@ -46,11 +37,11 @@ require "blast_config.pl";
 #require "/share/www-data/html/perlOOP/bioperl/bin/blast/blast_config.pl";
 
 # Using vars from blast_config to prevent warning messages under -w.
-use vars qw($ID $VERSION $DESC $MONITOR %blastParam @objects
+use vars qw($ID $VERSION $DESC $MONITOR %blastParam 
 	    $opt_in $opt_table $opt_compress $opt_filt_func);
 
-$ID      = 'parse_blast.pl';
-$VERSION = 0.04;
+$ID      = 'parse.pl';
+$VERSION = 0.02;
 $DESC    = "Demonstrates parsing Blast reports using Bio::Tools::Blast.pm";
 
 @errs = ();
@@ -70,7 +61,6 @@ sub parse_usage {
 #------------
 sub examples {
 #------------
-# THESE NEED TO BE UPDATED TO INCLUDE MORE STREAM PARSING EXAMPLES
 <<"QQ_EG_QQ";
 (Run these in the examples/blast/ directory of the distribution.)
 
@@ -86,21 +76,6 @@ sub examples {
   ./$ID out/blastp.2* -table 1 -best -nostats > parsed.out2
   ./$ID out/tblastn.206.gz -table 2 -signif 0.1 
   ./$ID out/blastp.1.gz   # should issue some warnings.
-
-STREAM PARSING:
-
-  gzip -cd out/blastp.2* | ./$ID -signif 1e-5 -table 2  > blast.table2
-  cat ./out/blastx* | ./$ID -table 1 > blast.table1
-  print_blasts.pl ./out | ./$ID -best -noshare
-    
-  The '-noshare' argument is necessary because the out/ directory
-  contains a mixed bag of Blast reports (version 1, 2, blastp, tblastn,
-  gapped, ungapped, etc.). Most of the time, -noshare is unnecessary
-  since all reports have the same program, version, gapping, etc.
-
-  THe "print_blasts.pl dir" syntax or the parse_multi.pl script are 
-  recommended when working with large numbers of Blast reports (thousands).
-  The Blasts reports located in "dir" can be compressed or not. 
 
 QQ_EG_QQ
 }
@@ -122,11 +97,11 @@ if(@ARGV) {
     # created by create_blast() since we can always access it via
     # the global $blastObj defined in blast_config.pl.
     # However, doing so makes things more obvious.
-    $MONITOR && print STDERR "\nParsing Blast report file(s).\n";
+    $MONITOR && print STDERR "\nReading Blast report from file(s).\n";
     $count = 0;
     while($_ = shift) {
 	# Load the file into the Blast parameters.
-	next unless -f and -s;
+	next unless -s;
 	$blastParam{-file} = $_;
 
 	eval { 
@@ -149,25 +124,13 @@ if(@ARGV) {
 } else {
     # Building object from STDIN. Expecting only one Blast report.
     # To parse a stream of Blast reports, use parse_stream.pl.
-    print STDERR "\nParsing Blast stream from STDIN.\n";
-    if($opt_table) {
-      # Process each Blast as you go.
-      $blastParam{-exec_func} = \&print_table;
-      # Alternatively, try this:
-      #? $blastParam{-exec_func} = \&display_hit_info();
-    } else {
-      # Save all the Blast objects.
-      $blastParam{-save_array} = \@objects;  
-    }
+    print STDERR "\nReading Blast report from STDIN.\n";
+    $blast_obj = &create_blast;
+    $opt_table ? &print_table($blast_obj) : &show_results($blast_obj);
 
-    eval { &parse_stream;  };
+    # Uncomment this line for an different way to display hit data.
+    #$opt_table ? &print_table($blast_obj) : &display_hit_info($blast_obj);
 
-    if($@) {
-      die "\n*** TROUBLE:\n$@\n";
-      
-    } elsif(@objects) {
-      &display;
-    }
 }
 
 if(@errs) {

@@ -105,19 +105,17 @@ sub _initialize {
 
 
   if( $file ) {
-
+      
       $fh = new FileHandle;
       $fh->open($file) || $self->throw("Could not open $file for Fasta stream reading $!");
    }
 
 #  print "Setting filehandle to $fh\n";
-  $self->_filehandle($fh);
-
-# print "Initializing push buffer\n";
-  $self->_pushbuffer('');
+   $self->_filehandle($fh);
+      
 
 # set stuff in self from @args
-  return $make; # success - we hope!
+ return $make; # success - we hope!
 }
 
 =head2 next_seq
@@ -141,10 +139,15 @@ sub next_seq{
        return undef; # no throws - end of file
    }
 
-   $line = $self->_popbuffer(); # may be '>' character or undef.
-   $line .= <$fh>;
+   $line = <$fh>;
 
-   if( $line !~ /^>\s*(\S+)\s*(.*?)\s*$/ ) {
+   # there's a problem with the logic here.  You're checking for '>', but what
+   # if this is the *second* read on $fh?  Last time you read from $fh, you
+   # kept reading until you found the next '>' - you've already read that '>'
+   # so you can't expect to find it here again.  I've thrown in the ? after
+   # > in the regex below so that multireads will work, but now we're no longer
+   # being strict about taking Fasta formatted files - no big deal with me. AJM
+   if( $line !~ /^>?\s*(\S+)\s*(.*?)\s*$/ ) {
        $self->throw("Fasta stream read attempted with no '>' as first character[ $line ]");
    }
    $name = $1;
@@ -158,9 +161,8 @@ sub next_seq{
        $fh->eof && last;
        $c = $fh->getc();
        if( $c eq '>' ) {
-	   $self->_pushbuffer($c);
 	   last;
-       } elsif( $c eq $/ ) { # don't slurp past newline (record separator).
+       } elsif( $c eq $/ ) { # don't slurp past newlines.
 	   goto GETC;
        } else {
 	   $seqc .= uc($c) unless $c =~ m/\W/;
@@ -168,7 +170,7 @@ sub next_seq{
    }
 
    $seq = Bio::Seq->new(-seq => $seqc , -id => $name, -desc => $desc);
-
+   
    return $seq;
 
 }
@@ -189,13 +191,11 @@ sub write_seq {
    my $fh = $self->_filehandle();
    my $i;
    my $str = $seq->seq;
-
-#  for ($i = 60; $i < length($str); $i += 60+1) {
-#      # this is not ideal.
-#      substr($str,$i,0) = "\n";
-#  }
-   $str = join("\n", grep { length } split(/(.{60})/, $str)); # how's that? -AJM
-
+   for ($i = 60; $i < length($str); $i += 60+1) {
+       # this is not ideal.
+       substr($str,$i,0) = "\n";
+   }
+   
    print $fh ">", $seq->id(), " ", $seq->desc(), "\n", $str, "\n";
    return 1;
 }
@@ -221,25 +221,6 @@ sub _filehandle{
 
 }
 
-sub _pushbuffer {
-    my ($obj, $value) = @_;
-    if ( defined $value) {
-	if ( exists ($obj->{'_pushbuffer'}) ) {
-	    $obj->{'_pushbuffer'} .= $value;
-	} else {
-	$obj->{'_pushbuffer'} = $value;
-	}
-    }
-    return $obj->{'_pushbuffer'};
-
-}
-
-sub _popbuffer {
-    my ($obj) = @_;
-    return delete ($obj->{'_pushbuffer'}) if exists ($obj->{'_pushbuffer'});
-    return undef;
-}
-
 sub DESTROY {
     my $self = shift;
     my $fh;
@@ -252,6 +233,5 @@ sub DESTROY {
     $self->{'_filehandle'} = '';
 }
     
-
 
 

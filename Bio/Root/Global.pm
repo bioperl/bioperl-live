@@ -96,10 +96,10 @@ $FATAL_ON_WARN = 0;
 $RECORD_ERR    = 0;
 $STRICTNESS    = 0;
 $VERBOSITY     = 0;
-$TIMEOUT_SECS  = 30;  # Number of seconds to wait for input in I/O functions.
+$TIMEOUT_SECS  = 20;  # Number of seconds to wait for input in I/O functions.
 
 $BASE_YEAR = 1900;
-$NEWLINE   = $ENV{'NEWLINE'} || undef;
+$NEWLINE   = undef;
 
 %ROMAN_NUMS  = ('1'=>'I',    '2'=>'II',    '3'=>'III',    '4'=>'IV',    '5'=>'V',
 		'6'=>'VI',   '7'=>'VII',   '8'=>'VIII',   '9'=>'IX',   '10'=>'X',

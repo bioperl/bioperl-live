@@ -47,7 +47,6 @@ open (OUT,">$testout");
 test 1, $blast = Bio::Tools::Blast->new(-file   =>'t/blast.report',
 					-signif => 1e-5,
 					-parse  => 1,
-					-stats  => 1,
 					-check_all_hits => 1,
 					);
 test 2, $blast->display();

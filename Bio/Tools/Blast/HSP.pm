@@ -27,7 +27,7 @@ use Bio::Root::Object ();
 use strict;
 use vars qw($ID $VERSION $GAP_SYMBOL @SCORE_CUTOFFS $Revision);
 $ID       = 'Bio::Tools::Blast::HSP';
-$VERSION  = 0.080;
+$VERSION  = 0.075;
 $Revision = '$Id$';  #'
 
 $GAP_SYMBOL    = '-';          # Need a more general way to handle gap symbols.
@@ -53,6 +53,7 @@ for a description of constructor parameters.
     $hspObj = eval{ new Bio::Tools::Blast::HSP(-DATA    =>\@hspData, 
 					       -PARENT  =>$sbjct_object, 
 					       -NAME    =>$hspCount,
+					       -GAPPED  =>1,
  		                               -PROGRAM =>'TBLASTN',
 					       );
 		};
@@ -137,7 +138,7 @@ Steve A. Chervitz, sac@genome.stanford.edu
 
 =head1 VERSION
 
-Bio::Tools::Blast::HSP.pm, 0.080
+Bio::Tools::Blast::HSP.pm, 0.075
 
 =head1 SEE ALSO
 
@@ -201,6 +202,7 @@ for documentation purposes only.
            :      -DATA    => array ref containing raw data for one HSP.
            :      -PARENT  => Sbjct.pm object ref.
            :      -NAME    => integer (1..n).
+           :      -GAPPED  => boolean (gapped alignments?).
            :      -PROGRAM => string ('TBLASTN', 'BLASTP', etc.).
 
 See Also   : L<_set_data>(), B<Bio::Root::Object::new()>, B<Bio::Tools::Blast::Sbjct::_set_hsps()>
@@ -216,7 +218,7 @@ sub _initialize {
 
     # The gapped and program booleans may be needed after the HSP object
     # is built.
-#    $self->{'_gapped'} = $param{-GAPPED} || 0;
+    $self->{'_gapped'} = $param{-GAPPED} || 0;
     $self->{'_prog'} = $param{-PROGRAM} || 0;  
     $self->_set_data( @{$param{-DATA}} );
 }
@@ -541,12 +543,11 @@ sub _set_seq {
     } 
 
     ## Count number of gaps in each seq. Only need to do this for gapped Blasts.
-#    if($self->{'_gapped'}) {
+    if($self->{'_gapped'}) {
 	my $seqstr = join('', @sequence);
 	$seqstr =~ s/\s//g;
-        my $num_gaps = CORE::length($seqstr) - $self->{$seqType.'Length'};
-	$self->{$seqType.'Gaps'} = $num_gaps if $num_gaps > 0;
-#    }
+	$self->{$seqType.'Gaps'} = CORE::length($seqstr) - $self->{$seqType.'Length'};
+    }
 }
 
 
@@ -888,11 +889,11 @@ sub gaps {
     $seqType  ||= (wantarray ? 'list' : 'total');
 
     if($seqType =~ /list|array/i) {
-	return (($self->{'_queryGaps'} || 0), ($self->{'_sbjctGaps'} || 0));
+	return ($self->{'_queryGaps'}, $self->{'_sbjctGaps'});
     }
 
     if($seqType eq 'total') {
-	return ($self->{'_queryGaps'} + $self->{'_sbjctGaps'}) || 0;
+	return $self->{'_queryGaps'} + $self->{'_sbjctGaps'};
     } else {
 	## Sensitive to member name format.
 	$seqType = "_\L$seqType\E";

@@ -671,8 +671,12 @@ sub fh {
            : read from STDIN.
            :
            : COMPRESSED FILES:
-           :    read() will attempt to use gzip -cd to read the file 
+           :    read() will attempt to uncompress the file 
            : if it appears to be compressed (binary file test).
+           : If the file is compressed and the user is not the owner of 
+           : the file, a temporary file is created which is removed after
+           : it is read. Compressed files are always left in their
+           : original compressed state.
            :
            : If the raw data is to be returned, wantarray is used to
            : determine how the data are to be returned (list or string).
@@ -730,17 +734,18 @@ sub read {
 #	    next if m@^(\s*|$/*)$@; 
 	    
 	    $lines++;
-	    alarm(0);  # Deactivate the alarm as soon as we start reading.
 	    my($result);
 	    if($func_ref) {
 		$result = &$func_ref($_) or last READ_LOOP;
+#		print "$ID read(): RESULT = $result\n"; 
 	    } else {
 		$data .= $_;
 	    }
 	}
+	alarm(0);
     };
     if($@ =~ /Timed out!/) {
-	 $self->throw("Timed out while waiting for input from $self->{'_input_type'}.", "Timeout period = $wait seconds.\nFor a longer time out period, supply a -wait => <seconds> parameter\n".
+	 $self->throw("Timed out while waiting for input from $self->{'_input_type'}.", "For a longer time out period, supply a -wait => <seconds> parameter\n".
 		     "or edit \$TIMEOUT_SECS in Bio::Root::Global.pm.");
     } elsif($@ =~ /\S/) {
          my $err = $@;
@@ -749,6 +754,13 @@ sub read {
 
     close ($FH) unless $self->{'_input_type'} eq 'STDIN';
     
+    # If the file was compressed and the user is the owner of file,
+    #   then leave the file in its original compressed state.
+    # If the file was compressed and the user was NOT the owner of file,
+    #   then removed the compressed file which is a tmp file.
+
+    $self->{'_compressed_file'} and ($self->{'_file_owner'} ? $self->compress_file() : $self->delete_file());
+
     if($data) {
 	$DEBUG && do{ 
 	    print STDERR "$ID: $lines records read.\nReturning $fmt.\n" };
@@ -759,6 +771,8 @@ sub read {
 	$self->throw("No data input from $self->{'_input_type'}");
     }
     delete $self->{'_input_type'};
+    delete $self->{'_file_owner'};
+    delete $self->{'_compressed_file'};
     undef;
 }
 

@@ -114,9 +114,6 @@ next section of the manual.
 
 INSTALLING THE COMPILED EXTENSIONS
 
-This works out-of-the box for all platforms except *BSD and Solaris
-boxes. For notes on this, read on.
-
 Move to the directory Compile/SW. This is where the C code and XS
 extension for the bp_sw module is held and execute these commands:
 
@@ -128,15 +125,6 @@ extension for the bp_sw module is held and execute these commands:
 This should install the compiled extension. The Bio::Tools::pSW module
 will work cleanly now.
 
-INSTALLING for *BSD and Solaris boxes.
-
-You should add the line -fPIC to the CFLAGS line in
-Compile/SW/libs/makefile.  This makes the compile generate position
-independent code, which is required for these architectures. In
-addition, on some solaris boxes, the generated Makefile does not make
-the correct -fPIC/-fpic flags for the c compiler that is used. This
-requires manual editing of the generated makefile to switch case. Try
-it out once, and if you get errors, try editing the -fpic line
 
 INSTALLING BIOPERL IN A PERSONAL OR PRIVATE MODULE AREA
 

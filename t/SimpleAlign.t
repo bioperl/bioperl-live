@@ -18,7 +18,7 @@
 
 
 ## We start with some black magic to print on failure.
-BEGIN { $| = 1; print "1..6\n"; }
+BEGIN { $| = 1; print "1..3\n"; }
 END {print "not ok 1\n" unless $loaded;}
 
 use lib '../';
@@ -49,35 +49,6 @@ open(OUT,">t/out.aln_fasta");
 $aln->write_fasta(\*OUT);
 close(OUT);
 print "ok 3\n";
-
-
-$aln = Bio::SimpleAlign->new();
-open(FH,"t/test.pfam");
-$aln->read_Pfam(\*FH);
-close(FH);
-
-if( $aln ) {
-	print "ok 4\n";
-} else {
-	print "not ok 4\n";
-}	
-
-open(OUT,">t/out.pfam"); 
-$aln->write_Pfam(\*OUT);
-close(OUT);
-print "ok 5\n";
-
-
-$aln = Bio::SimpleAlign->new();
-open(IN,"t/out.pfam");
-$aln->read_Pfam(\*IN);
-close(IN);
-
-if( $aln ) {
-	print "ok 6\n";
-} else {
-	print "not ok 6\n";
-}	
 
 
 
