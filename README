@@ -1,5 +1,5 @@
 This is the README file for the Bioperl central distribution,
-version 0.06.1
+version 0.7.0
 
 # $Id$
 
@@ -59,6 +59,9 @@ o Documentation
   bioperl is, how to use it and who wrote it. (The rest of this
   file will tell you how to install bioperl)
 
+  The bptutorial.pl file is a POD formatted tutorial document 
+  that contains useful information for new and existing Bioperl users.
+
   Use your favorite pod2* translator turn it into the format of
   choice or view it directly via perldoc.
 
@@ -68,7 +71,9 @@ o Documentation
  
   or in this directory go
  
-  pod2text bioperl.pod | more 
+  pod2text bioperl.pod | more
+ 
+  pod2text bptutorial.pl | more 
 
   pod2html, which comes with Perl, can be used to create web-browser
   navigable documentation files.
@@ -157,35 +162,6 @@ extension for the bp_sw module is held and execute these commands:
 
 This should install the compiled extension. The Bio::Tools::pSW module
 will work cleanly now.
-
-INSTALLING TO USE Readseq 
-
-Edit the top of Bio::Parse.pm to show the path to readseq, ie
-edit
-
-
-## Uncomment the $OK stuff (it is mentioned twice to
-## shut strict up. Set $READSEQ_PATH to the full path
-## to the readseq executable.
- 
-## $OK = "Y"; 
-## $OK = "Y"; 
-my $READSEQ_PATH=undef;
-
-to something like
-
-## Uncomment the $OK stuff (it is mentioned twice to
-## shut strict up. Set $READSEQ_PATH to the full path
-## to the readseq executable.
- 
-$OK = "Y"; 
-$OK = "Y"; 
-my $READSEQ_PATH='/usr/local/bin/readseq';
-
-
-The use of readseq like this has been officially 'deprecated', waiting
-for a better system in 0.06 which will be much more transparent as
-to what is going on. 
 
 
 INSTALLING BIOPERL IN A PERSONAL OR PRIVATE MODULE AREA

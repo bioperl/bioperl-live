@@ -20,22 +20,22 @@ psiblast reports
 
 =head1 SYNOPSIS
 
-use Bio::Tools:: BPpsilite;
-open FH, "t/psiblastreport.out";
-$report = Bio::Tools::BPpsilite->new(-fh=>\*FH);
+  use Bio::Tools::BPpsilite;
+  open FH, "t/psiblastreport.out";
+  $report = Bio::Tools::BPpsilite->new(-fh=>\*FH);
 
-# determine number of iterations executed by psiblast
-$total_iterations = $report->number_of_iterations;
-$last_iteration = $report->round($total_iterations);
+  # determine number of iterations executed by psiblast
+  $total_iterations = $report->number_of_iterations;
+  $last_iteration = $report->round($total_iterations);
 
-# Process only hits found in last iteration ...
- $oldhitarray_ref = $last_iteration->oldhits;
- HIT: while($sbjct = $last_iteration->nextSbjct) {
-	$id = $sbjct->name;
-	$is_old =  grep  /\Q$id\E/, @$oldhitarray_ref;
-	if ($is_old ){next HIT;}
-#  do something with new hit...
-}
+  # Process only hits found in last iteration ...
+   $oldhitarray_ref = $last_iteration->oldhits;
+   HIT: while($sbjct = $last_iteration->nextSbjct) {
+  	  $id = $sbjct->name;
+  	  $is_old =  grep  /\Q$id\E/, @$oldhitarray_ref;
+  	  if ($is_old ){next HIT;}
+  #  do something with new hit...
+  }
 
 
 =head1 DESCRIPTION
@@ -117,11 +117,11 @@ or the web:
 
 Email: schattner@alum.mit.edu
 
+=head1 ACKNOWLEDGEMENTS
+
 Based on work of:
 Ian Korf (ikorf@sapiens.wustl.edu, http://sapiens.wustl.edu/~ikorf), 
 Lorenz Pollak (lorenz@ist.org, bioperl port)
-
-=head1 ACKNOWLEDGEMENTS
 
 =head1 COPYRIGHT
 
@@ -308,8 +308,8 @@ sub _parseHeader {
  Args     :  reference to calling object
 
 =cut
-#'
 
+#'
 sub _preprocess {
     my $self = shift;
 #	$self->throw(" PSIBLAST report preprocessing not implemented yet!");

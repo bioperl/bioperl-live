@@ -91,7 +91,7 @@ BEGIN {
     foreach my $func (qw(filename write_flag)) {
         no strict 'refs';
         my $field = "_$func";
-        
+
         *$func = sub {
             my( $self, $value ) = @_;
             
@@ -176,7 +176,7 @@ sub new {
 
  Usage   : $value = $self->dbm_package();
            $self->dbm_package($value);
-           
+
  Function: Gets or sets the name of the Perl dbm module used. 
            If the value is unset, then it returns the value of
            the package variable $USE_DBM_TYPE or if that is
@@ -298,7 +298,6 @@ sub get_stream {
 =head2 open_dbm
 
   Usage   : $index->open_dbm()
-  
   Function: Opens the dbm file associated with the index
             object.  Write access is only given if explicitly
             asked for by calling new(-write => 1) or having set
@@ -442,7 +441,7 @@ sub _type_and_version {
 }
 
 
-=head2 
+=head2 _check_file_sizes
 
   Title   : _check_file_sizes
   Usage   : $index->_check_file_sizes()
@@ -712,7 +711,7 @@ sub unpack_record {
 
 sub DESTROY {
     my $self = shift;
-    
+
     untie %{$self->db};
 }
 

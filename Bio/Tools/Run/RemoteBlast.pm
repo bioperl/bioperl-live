@@ -32,6 +32,8 @@ DESCRIPTION section for details.
 
 =head1 DESCRIPTION
 
+Class for remote execution of the NCBI Blast via HTTP.
+
 =head1 FEEDBACK
 
 =head2 Mailing Lists

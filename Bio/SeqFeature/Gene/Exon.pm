@@ -168,7 +168,7 @@ sub primary_tag {
  Usage   : my $location = $exon->location()
  Function: Returns a location object suitable for identifying the location 
 	   of the exon on the sequence or parent feature.
-    
+
            This method is overridden here to restrict allowed location types
            to non-compound locations.
 

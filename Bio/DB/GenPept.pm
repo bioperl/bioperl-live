@@ -25,7 +25,7 @@ Bio::DB::GenPept - Database object interface to GenPept
     # or ...
 
     $seq = $gb->get_Seq_by_acc('DEECTH'); # Accession Number
-    
+
     my $seqio = $gb->get_Stream_by_id(['195055', 'DEECTH']);
     while( my $seq = $seqio->next_seq ) {
 	print "seq is is ", $seq->display_id, "\n";
@@ -141,7 +141,7 @@ sub default_format {
 
 # from Bio::DB::WebDBSeqI from Bio::DB::RandomAccessI
 
-=head2 Routines Bio::DB::WebDBSeqI from Bio::DB::RandomAccessI
+=head1 Routines from Bio::DB::WebDBSeqI and Bio::DB::RandomAccessI
 
 =head2 get_Seq_by_id
 
@@ -160,7 +160,7 @@ sub default_format {
   Returns : Bio::Seq object
   Args    : accession number to retrive by
 
-=head2 Routines implemented by Bio::DB::NCBIHelper
+=head1 Routines implemented by Bio::DB::NCBIHelper
 
 =head2 get_request
 
@@ -191,7 +191,7 @@ sub default_format {
   Args    : $ref : a reference to an array of unique identifiers for
                    the desired sequence entries
 
-=head2 get_Stream_by_acc
+=head2 get_Stream_by_acc (2)
 
   Title   : get_Stream_by_acc
   Usage   : $seq = $db->get_Stream_by_acc($acc);

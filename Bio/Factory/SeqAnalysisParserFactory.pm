@@ -13,7 +13,8 @@
 
 =head1 NAME
 
-Bio::Factory::SeqAnalysisParserFactory - class capable of creating SeqAnalysisParserI compliant parsers
+Bio::Factory::SeqAnalysisParserFactory - class capable of
+              creating SeqAnalysisParserI compliant parsers
 
 =head1 SYNOPSIS
 
@@ -70,7 +71,7 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 
 =head1 AUTHOR - Hilmar Lapp, Jason Stajich
 
-Email Hilmar Lapp <hlapp@gmx.net>, Jason Stajich <jason@chg.mc.duke.edu>
+Email Hilmar Lapp E<lt>hlapp@gmx.netE<gt>, Jason Stajich E<lt>jason@chg.mc.duke.eduE<gt>
 
 =head1 APPENDIX
 
@@ -126,7 +127,7 @@ sub new {
  Args    : B<input>  - object/file where analysis results are coming from,
 	   B<params> - parameter to use when parsing/running analysis
 	   B<method> - method of analysis
-    
+
 =cut
 
 sub get_parser {

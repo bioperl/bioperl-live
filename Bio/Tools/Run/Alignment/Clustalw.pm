@@ -11,28 +11,32 @@
 
 =head1 NAME
 
-Bio::Tools::Run::Alignment::Clustalw - Object for the calculation of a multiple sequence alignment
-from a set of unaligned sequences or alignments using the Clustalw program
+Bio::Tools::Run::Alignment::Clustalw - Object for the calculation of a
+multiple sequence alignment from a set of unaligned sequences or
+alignments using the Clustalw program
 
 =head1 SYNOPSIS
 
-#  Build a clustalw alignment factory
-	@params = ('ktuple' => 2, 'matrix' => 'BLOSUM');
-	$factory = Bio::Tools::Run::Alignment::Clustalw->new(@params);
+  #  Build a clustalw alignment factory
+  @params = ('ktuple' => 2, 'matrix' => 'BLOSUM');
+  $factory = Bio::Tools::Run::Alignment::Clustalw->new(@params);
 
-#  Pass the factory a list of sequences to be aligned.	
-	$inputfilename = 't/cysprot.fa';
-	$aln = $factory->align($inputfilename); # $aln is a SimpleAlign object.
-or
-	$seq_array_ref = \@seq_array;  # where @seq_array is an array of Bio::Seq objects
-	$aln = $factory->align($seq_array_ref);
+  #  Pass the factory a list of sequences to be aligned.	
+  $inputfilename = 't/cysprot.fa';
+  $aln = $factory->align($inputfilename); # $aln is a SimpleAlign object.
+  # or
+  $seq_array_ref = \@seq_array;
+  # where @seq_array is an array of Bio::Seq objects
+  $aln = $factory->align($seq_array_ref);
 
-#  Or one can pass the factory a pair of (sub)alignments to be aligned against each other, e.g.:	
-	$aln = $factory->profile_align($aln1,$aln2); # where $aln1 and $aln2 are Bio::SimpleAlign objects.
+  # Or one can pass the factory a pair of (sub)alignments
+  #to be aligned against each other, e.g.:
+  $aln = $factory->profile_align($aln1,$aln2);
+  # where $aln1 and $aln2 are Bio::SimpleAlign objects.
 
-#  Or one can pass the factory an alignment and one or more unaligned
-#  sequences to be added to the alignment. For example: 	
-	$aln = $factory->profile_align($aln1,$seq); # $seq is a Bio::Seq object.
+  # Or one can pass the factory an alignment and one or more unaligned
+  # sequences to be added to the alignment. For example: 	
+  $aln = $factory->profile_align($aln1,$seq); # $seq is a Bio::Seq object.
 
 There are various additional options and input formats available.  See
 the DESCRIPTION section that follows for additional details.
@@ -106,7 +110,7 @@ alignment to an initial alignment.
 Input to align() may consist of a set of unaligned sequences in the
 form of the name of file containing the sequences. For example,
 $inputfilename = 't/cysprot.fa'; $aln =
-$factory->align($inputfilename);
+$factory-E<gt>align($inputfilename);
 
 Alternately one can create an array of Bio::Seq objects somehow
 
@@ -170,42 +174,42 @@ me know.
 These can be specified as paramters when instantiating a new TCoffee
 object, or through get/set methods of the same name (lowercase).
 
-=head2 PARAMETER FOR ALIGNMENT COMPUTATION 
+=head1 PARAMETER FOR ALIGNMENT COMPUTATION
 
 =head2 KTUPLE
 
  Title       : KTUPLE
  Description : (optional) set the word size to be used in the alignment
-               This is the size of exactly matching fragment that is used. 
-               INCREASE for speed (max= 2 for proteins; 4 for DNA), 
-               DECREASE for sensitivity.  
-               For longer sequences (e.g. >1000 residues) you may 
+               This is the size of exactly matching fragment that is used.
+               INCREASE for speed (max= 2 for proteins; 4 for DNA),
+               DECREASE for sensitivity.
+               For longer sequences (e.g. >1000 residues) you may
                need to increase the default
 
 =head2 TOPDIAGS
 
  Title       : TOPDIAGS
  Description : (optional) number of best diagonals to use
-               The number of k-tuple matches on each diagonal 
-               (in an imaginary dot-matrix plot) is calculated.  
-               Only the best ones (with most matches) are used in 
-               the alignment.  This parameter specifies how many.  
+               The number of k-tuple matches on each diagonal
+               (in an imaginary dot-matrix plot) is calculated.
+               Only the best ones (with most matches) are used in
+               the alignment.  This parameter specifies how many.
                Decrease for speed; increase for sensitivity.
 
 =head2 WINDOW
 
  Title       : WINDOW
- Description : (optional) window size 
+ Description : (optional) window size
                This is the number of diagonals around each of the 'best'
-               diagonals that will be used.  Decrease for speed; 
+               diagonals that will be used.  Decrease for speed;
                increase for sensitivity.
 
 =head2 PAIRGAP
 
  Title       : PAIRGAP
  Description : (optional) gap penalty for pairwise alignments
-               This is a penalty for each gap in the fast alignments. 
-               It has little affect on the speed or sensitivity except 
+               This is a penalty for each gap in the fast alignments.
+               It has little affect on the speed or sensitivity except
                for extreme values.
 
 =head2 FIXEDGAP
@@ -220,8 +224,8 @@ object, or through get/set methods of the same name (lowercase).
 
 =head2 MATRIX
 
- Title       : MATRIX 
- Default     : PAM100 for DNA - PAM250 for protein alignment 
+ Title       : MATRIX
+ Default     : PAM100 for DNA - PAM250 for protein alignment
  Description : (optional) substitution matrix used in the multiple
                alignments. Depends on the version of clustalw as to
                what default matrix will be used
@@ -301,13 +305,13 @@ The rest of the documentation details each of the object
 methods. Internal methods are usually preceded with a _
 
 =cut
-#'
 
+#'
 
 package Bio::Tools::Run::Alignment::Clustalw;
 
 use vars qw($AUTOLOAD @ISA $DEBUG $PROGRAM $PROGRAMDIR
-	    $TMPDIR $TMPOUTFILE @CLUSTALW_SWITCHES @CLUSTALW_PARAMS 
+	    $TMPDIR $TMPOUTFILE @CLUSTALW_SWITCHES @CLUSTALW_PARAMS
 	    @OTHER_SWITCHES %OK_FIELD);
 use strict;
 use Bio::Seq;
@@ -322,17 +326,17 @@ use Bio::Root::IO;
 BEGIN {
 
 # You will need to enable Clustalw to find the clustalw program. This
-# can be done in (at least) three ways: 
+# can be done in (at least) three ways:
 
 # 1. Modify your $PATH variable to include your clustalw directory as
-# in (for Linux): 
-# export PATH=$PATH:/home/peter/clustalw1.8 
+# in (for Linux):
+# export PATH=$PATH:/home/peter/clustalw1.8
 #
-# 2. define an environmental variable CLUSTALDIR: 
-# export CLUSTALDIR=/home/peter/clustalw1.8 
+# 2. define an environmental variable CLUSTALDIR:
+# export CLUSTALDIR=/home/peter/clustalw1.8
 #
 # 3. include a definition of an environmental variable CLUSTALDIR in
-# every script that will use Clustal.pm.  
+# every script that will use Clustal.pm.
 # $ENV{CLUSTALDIR} = '/home/peter/clustalw1.8/';
 
     $PROGRAMDIR = $ENV{CLUSTALDIR} || '';
@@ -350,10 +354,8 @@ BEGIN {
 
     @OTHER_SWITCHES = qw(QUIET);
     # Authorize attribute fields
-    foreach my $attr ( @CLUSTALW_PARAMS, @CLUSTALW_SWITCHES, 
+    foreach my $attr ( @CLUSTALW_PARAMS, @CLUSTALW_SWITCHES,
 		       @OTHER_SWITCHES ) { $OK_FIELD{$attr}++; }
-
-
 }
 
 sub new {
@@ -364,14 +366,14 @@ sub new {
     unless (&exists_clustal()) {
 	warn "Clustalw program not found as $PROGRAM or not executable. \n  Clustalw can be obtained from eg- http://corba.ebi.ac.uk/Biocatalog/Alignment_Search_software.html/ \n";
     }
-    
+
     my ($attr, $value);
     (undef,$TMPDIR) = $self->tempdir(CLEANUP=>1);
     (undef,$TMPOUTFILE) = $self->tempfile(-dir => $TMPDIR);
     while (@args)  {
 	$attr =   shift @args;
 	$value =  shift @args;
-	next if( $attr =~ /^-/ ); # don't want named parameters 
+	next if( $attr =~ /^-/ ); # don't want named parameters
 	$self->$attr($value);	
     }
     return $self;
@@ -416,7 +418,7 @@ or
 	$aln = $factory->align($seq_array_ref);
  Function: Perform a multiple sequence alignment
  Example :
- Returns : Reference to a SimpleAlign object containing the 
+ Returns : Reference to a SimpleAlign object containing the
            sequence alignment.
  Args    : Name of a file containing a set of unaligned fasta sequences
            or else an array of references to Bio::Seq objects.
@@ -479,7 +481,7 @@ sub profile_align {
     my $param_string = $self->_setparams();
 
 # run clustalw
-    my $aln = $self->_run('profile-aln', $infilename1, 
+    my $aln = $self->_run('profile-aln', $infilename1,
 			  $infilename2, $param_string);
 
 }
@@ -491,13 +493,14 @@ sub profile_align {
  Usage   :  Internal function, not to be called directly	
  Function:   makes actual system call to clustalw program
  Example :
- Returns : nothing; clustalw output is written to a 
+ Returns : nothing; clustalw output is written to a
            temporary file $TMPOUTFILE
  Args    : Name of a file containing a set of unaligned fasta sequences
            and hash of parameters to be passed to clustalw
 
 
 =cut
+
 sub _run {
     my ($self,$command,$infile1,$infile2,$param_string) = @_;
     my $instring;
@@ -527,9 +530,9 @@ sub _run {
     # Clean up the temporary files created along the way...
     # Replace file suffix with dnd to find name of dendrogram file(s) to delete
     foreach my $f ( $infile1, $infile2 ) {
-	$f =~ s/\.[^\.]*$// ;   
+	$f =~ s/\.[^\.]*$// ;
 	unlink $f .'.dnd' if( $f ne '' );
-    } 
+    }
     return $aln;
 }
 
@@ -566,12 +569,12 @@ sub _setinput {
     if (ref($input) eq "ARRAY") {
         #  Open temporary file for both reading & writing of BioSeq array
 	($tfh,$infilename) = $self->tempfile(-dir=>$TMPDIR);
-	$temp =  Bio::SeqIO->new('-fh'=>$tfh, 
+	$temp =  Bio::SeqIO->new('-fh'=>$tfh,
 				 '-format' =>'Fasta');
 
 	# Need at least 2 seqs for alignment
-	unless (scalar(@$input) > 1) {return 0;} 
-        
+	unless (scalar(@$input) > 1) {return 0;}
+
 	foreach $seq (@$input) {
 	    unless (ref($seq) eq "Bio::Seq")
 	    {return 0;}
@@ -609,7 +612,7 @@ sub _setinput {
  Usage   :  Internal function, not to be called directly	
  Function:   Create parameter inputs for clustalw program
  Example :
- Returns : parameter string to be passed to clustalw 
+ Returns : parameter string to be passed to clustalw
            during align or profile_align
  Args    : name of calling object
 

@@ -20,8 +20,6 @@ Bio::SeqIO::game::seqHandler - GAME helper via PerlSAX helper.
 
 GAME helper for parsing new Sequence objects from GAME XML. Do not use directly
 
-=head1 DESCRIPTION
-
 =head1 FEEDBACK
 
 =head2 Mailing Lists

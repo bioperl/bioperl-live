@@ -28,6 +28,9 @@ Bio::DB::GDB - Database object interface to GDB HTTP query
 
 =head1 DESCRIPTION
 
+This class allows connections to the Genome Database (GDB) and queries
+to retrieve any database objects. See http://www.gdb.org/ or any
+mirror for details.
 
 =head1 FEEDBACK
 
@@ -127,6 +130,7 @@ sub ua {
  Args    : 'marker' or 'gene' mode for retrieval
 
 =cut
+
 sub get_params {
     my ($self, $mode) = @_;
     return %{$PARAMSTRING{$mode}};

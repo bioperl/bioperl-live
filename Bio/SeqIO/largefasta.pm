@@ -24,12 +24,12 @@ This object can transform Bio::Seq objects to and from fasta flat
 file databases.
 
 This module handles very large sequence files by using the
-L<Bio::Seq:::LargePrimarySeq> module to store all the sequence data in
+L<Bio::Seq::LargePrimarySeq> module to store all the sequence data in
 a file.  This can be a problem if you have limited disk space on your
 computer because this will effectively cause 2 copies of the sequence
 file to reside on disk for the life of the
 L<Bio::Seq::LargePrimarySeq> object.  The default location for this is
-specified by the L<File::Spec>->tmpdir routine which is usually /tmp
+specified by the L<File::Spec>-E<gt>tmpdir routine which is usually /tmp
 on UNIX.  If a sequence file is larger than the swap space (capacity
 of the /tmp dir) this could cause problems for the machine.  It is
 possible to set the directory where the temporary file is located by

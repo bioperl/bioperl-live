@@ -19,7 +19,7 @@ Bio::SeqAnalysisParserI - Sequence analysis output parser interface
 
     # get a SeqAnalysisParserI somehow, e.g. by
     my $parser = Bio::Factory::SeqAnalysisParserFactory->get_parser(
-                            -input => 'inputfile', -method => 'genscan');
+                            '-input' => 'inputfile', '-method' => 'genscan');
     while( my $feature = $parser->next_feature() ) {
 	print "Feature from ", $feature->start, " to ", $feature->end, "\n";
     }
@@ -67,11 +67,12 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 
 =head1 AUTHOR - Hilmar Lapp, Jason Stajich
 
-Email Hilmar Lapp <hlapp@gmx.net>, Jason Stajich <jason@chg.mc.duke.edu>
+Email Hilmar Lapp E<lt>hlapp@gmx.netE<gt>, Jason Stajich E<lt>jason@chg.mc.duke.eduE<gt>
 
 =head1 APPENDIX
 
-The rest of the documentation details each of the object methods. Internal methods are usually preceded with a _
+The rest of the documentation details each of the object methods.
+Internal methods are usually preceded with a _
 
 =cut
 
@@ -89,6 +90,7 @@ use Carp;
            recognition of at least the following named parameters:
            -file     input file (alternative to -fh)
            -fh       input stream (alternative to -file)
+
 =cut
 
 sub new {

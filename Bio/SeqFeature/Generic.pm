@@ -88,7 +88,7 @@ or the web:
 
 =head1 AUTHOR - Ewan Birney
 
-Ewan Birney <birney@sanger.ac.uk>
+Ewan Birney E<lt>birney@sanger.ac.ukE<gt>
 
 =head1 DEVELOPERS
 
@@ -353,8 +353,8 @@ sub sub_SeqFeature {
 
 
 =cut
-#'
 
+#'
 sub add_sub_SeqFeature{
    my ($self,$feat,$expand) = @_;
 

@@ -20,22 +20,22 @@ alignment using the BLAST algorithm.
 
 =head1 SYNOPSIS
 
-use Bio::Tools::BPbl2seq;
-my $report = Bio::Tools::BPbl2seq->new(-file => 't/bl2seq.out');
- $report->query;
- $report->score;
- $report->bits;
- $report->percent;
- $report->P;
- $report->match;
- $report->positive;
- $report->length;
- $report->querySeq;
- $report->sbjctSeq;
- $report->homologySeq;
- $report->subject->start;
- $report->subject->end;
- $report->subject->seqname;
+  use Bio::Tools::BPbl2seq;
+  my $report = Bio::Tools::BPbl2seq->new(-file => 't/bl2seq.out');
+  $report->query;
+  $report->score;
+  $report->bits;
+  $report->percent;
+  $report->P;
+  $report->match;
+  $report->positive;
+  $report->length;
+  $report->querySeq;
+  $report->sbjctSeq;
+  $report->homologySeq;
+  $report->subject->start;
+  $report->subject->end;
+  $report->subject->seqname;
 
 =head1 DESCRIPTION
 
@@ -86,11 +86,11 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 
 Email: schattner@alum.mit.edu
 
+=head1 ACKNOWLEDGEMENTS
+
 Based on work of:
 Ian Korf (ikorf@sapiens.wustl.edu, http://sapiens.wustl.edu/~ikorf), 
 Lorenz Pollak (lorenz@ist.org, bioperl port)
-
-=head1 ACKNOWLEDGEMENTS
 
 =head1 COPYRIGHT
 
@@ -128,6 +128,7 @@ use Bio::SeqFeature::Similarity;
  Args    : -file     input file (alternative to -fh)
            -fh       input stream (alternative to -file)
            -queryname    name of query sequence
+
 =cut
 
 sub new {

@@ -28,7 +28,7 @@ Bio::PrimarySeq - Bioperl lightweight Sequence Object
 			    -accession_number => 'X78121',
 			    -moltype => 'dna'
 			    );
-  
+
   # read from file
   $inputstream = Bio::SeqIO->new(-file => "myseq.fa",-format => 'Fasta');
   $seqobj = $inputstream->next_seq();
@@ -44,7 +44,7 @@ Bio::PrimarySeq - Bioperl lightweight Sequence Object
   $string  = $seqobj->seq();
   $string2 = $seqobj->subseq(1,40);
 
-  
+
 
 =head1 DESCRIPTION
 
@@ -103,7 +103,7 @@ A number of methods which were present in the old 0.04/0.05 series
 have been deprecated.  Most of these methods work as before, but
 provide a warning that someone has called a deprecated method.
 
-=over 
+=over 4
 
 =item getseq - use seq/subseq instead
 
@@ -188,10 +188,10 @@ BEGIN {
 =cut
 
 
-sub new {    
+sub new {
     my ($class, @args) = @_;
     my $self = $class->SUPER::new(@args);
-    
+
     my($seq,$id,$acc,$pid,$desc,$moltype,$given_id) =
 	$self->_rearrange([qw(SEQ
 			      DISPLAY_ID
@@ -202,11 +202,11 @@ sub new {
 			      ID
 			      )],
 			  @args);
-    
-    
+
+
     if( defined $id && defined $given_id ) {
 	if( $id ne $given_id ) {
-	    $self->throw("Provided both id and display_id constructor functions. [$id] [$given_id]");	    
+	    $self->throw("Provided both id and display_id constructor functions. [$id] [$given_id]");	
 	}
     }
     if( defined $given_id ) { $id = $given_id; }
@@ -220,7 +220,7 @@ sub new {
     $acc     && $self->accession_number($acc);
     $pid     && $self->primary_id($pid);
     $desc    && $self->desc($desc);
-    
+
     return $self;
 }
 
@@ -341,15 +341,15 @@ sub length {
  Title   : display_id
  Usage   : $id_string = $obj->display_id();
  Function: returns the display id, aka the common name of the Sequence object.
-           
+
          The semantics of this is that it is the most likely string to be
          used as an identifier of the sequence, and likely to have "human" readability.
          The id is equivalent to the ID field of the GenBank/EMBL databanks and
          the id field of the Swissprot/sptrembl database. In fasta format, the >(\S+)
-         is presumed to be the id, though some people overload the id to embed other 
+         is presumed to be the id, though some people overload the id to embed other
          information. Bioperl does not use any embedded information in the ID field,
          and people are encouraged to use other mechanisms (accession field for example,
-         or extending the sequence object) to solve this. 
+         or extending the sequence object) to solve this.
 
  Returns : A string
  Args    : None
@@ -379,7 +379,7 @@ sub display_id {
            to have the same accession number in a particular implementation.
 
            For sequences with no accession number, this method should return
-           "unknown".  
+           "unknown".
  Returns : A string
  Args    : A string (optional) for setting
 
@@ -387,7 +387,7 @@ sub display_id {
 
 sub accession_number {
     my( $obj, $acc ) = @_;
-    
+
     if (defined $acc) {
         $obj->{'accession_number'} = $acc;
     } else {
@@ -431,12 +431,12 @@ sub primary_id {
 
  Title   : moltype
  Usage   : if( $obj->moltype eq 'dna' ) { /Do Something/ }
- Function: Returns the type of sequence being one of 
+ Function: Returns the type of sequence being one of
            'dna', 'rna' or 'protein'. This is case sensitive.
 
            This is not called <type> because this would cause
            upgrade problems from the 0.5 and earlier Seq objects.
-           
+
  Returns : a string either 'dna','rna','protein'. NB - the object must
            make a call of the type - if there is no type specified it
            has to guess.
@@ -454,7 +454,7 @@ sub moltype {
 	}
 	$obj->{'moltype'} = $value;
     }
-    return $obj->{'moltype'};    
+    return $obj->{'moltype'};
 }
 
 =head2 desc
@@ -462,7 +462,7 @@ sub moltype {
  Title   : desc
  Usage   : $obj->desc($newval)
  Function: Get/set description of the sequence.
- Example : 
+ Example :
  Returns : value of desc
  Args    : newvalue (optional)
 
@@ -484,7 +484,7 @@ sub desc {
  Usage   :
  Function:
  Example :
- Returns : 
+ Returns :
  Args    :
 
 
@@ -503,7 +503,7 @@ sub can_call_new {
  Usage   : $id = $seq->id()
  Function: This is mapped on display_id
  Example :
- Returns : 
+ Returns :
  Args    :
 
 
@@ -530,7 +530,7 @@ implemented on Bio::PrimarySeqI
  Usage   : $rev = $seq->revcom()
  Function: Produces a new Bio::SeqI implementing object which
            is the reversed complement of the sequence. For protein
-           sequences this throws an exception of 
+           sequences this throws an exception of
            "Sequence is a protein. Cannot revcom"
 
            The id is the same id as the orginal sequence, and the
@@ -539,7 +539,7 @@ implemented on Bio::PrimarySeqI
            define its own extensions
 
            To do an inplace edit of an object you can go:
-   
+
            $seqobj = $seqobj->revcom();
 
            This of course, causes Perl to handle the garbage
@@ -556,7 +556,7 @@ implemented on Bio::PrimarySeqI
  Title   : trunc
  Usage   : $subseq = $myseq->trunc(10,100);
  Function: Provides a truncation of a sequence,
-           
+
  Example :
  Returns : a fresh Bio::SeqI implementing object
  Args    :
@@ -576,7 +576,7 @@ These are internal methods to PrimarySeq
  Usage   :
  Function:
  Example :
- Returns : 
+ Returns :
  Args    :
 
 
@@ -600,7 +600,7 @@ sub _guess_type {
    $atgc = $total - CORE::length $str2;
    $str = $str2;
    $str2 =~ s/[Uu]//g;
-   
+
    $u = CORE::length($str) - CORE::length($str2);
 
 
@@ -611,7 +611,7 @@ sub _guess_type {
    } else {
        $type = 'protein';
    }
-   
+
    $self->moltype($type);
 
 }

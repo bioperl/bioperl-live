@@ -31,7 +31,7 @@ Bio::Index::Swissprot - Interface for indexing (multiple) Swissprot
     use Bio::Index::Swissprot;
     use Bio::SeqIO;
 
-    my $out = Bio::SeqIO->new( '-format' => 'gcg', -fh => \*STDOUT );
+    my $out = Bio::SeqIO->new( '-format' => 'gcg', '-fh' => \*STDOUT );
     my $Index_File_Name = shift;
     my $inx = Bio::Index::Swissprot->new('-filename' => $Index_File_Name);
 

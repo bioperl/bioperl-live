@@ -1,7 +1,5 @@
 # $Id$
 
-=pod
-
 =head1  BioPerl Tutorial
 
   Cared for by Peter Schattner <schattner@alum.mit.edu>
@@ -27,7 +25,7 @@
     I.2.2 For complete installation
   I.3 Installation procedures
   I.4 Additional comments for non-unix users
-  	
+
   II. Brief overview to bioperl's objects
   II.1 Sequence objects: (Seq, PrimarySeq, LocatableSeq, LiveSeq, LargeSeq, SeqI)
   II.2 Alignment objects (SimpleAlign, UnivAln)	
@@ -1926,7 +1924,7 @@ I<Methods taken from package Bio::PrimarySeqI>
  desc display_id getseq id length moltype out_fasta primary_id revcom
  seq seq_len setseq str subseq translate translate_old trunc type
 
-I<Methods taken from package Bio::Seq
+I<Methods taken from package Bio::Seq>
 
  accession add_SeqFeature add_date add_secondary_accession annotation
  division each_date each_secondary_accession feature_count keywords

@@ -16,12 +16,12 @@ Bio::Search::Processor::ProcessorI - Abstract Interface for Processor Objects
 
 =head1 SYNOPSIS
 
-use Bio::Search::Processor
+  use Bio::Search::Processor
 
-my $processor = new Bio::Search::Processor -file      => 'mysearchrun',
-                                           -algorithm => 'Blast';
+  my $processor = new Bio::Search::Processor -file      => 'mysearchrun',
+                                             -algorithm => 'Blast';
 
-while ($result = $processor->next_result()) {
+  while ($result = $processor->next_result()) {
 
     $id = $result->get_query_id();
     $lib = $result->get_library_name();
@@ -32,7 +32,7 @@ while ($result = $processor->next_result()) {
         $matchdesc = $hit->get_desc();
         # etc, etc, do stuff.
     }
-}
+  }
 
 =head1 DESCRIPTION
 

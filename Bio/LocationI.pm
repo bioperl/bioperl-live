@@ -306,7 +306,7 @@ sub seq_id {
             method as a class method with an appropriate argument. Note that
             in this case only subsequently created Location objects will be
             affected.
-            
+
   Returns : A Bio::Location::CoordinatePolicyI implementing object.
   Args    : On set, a Bio::Location::CoordinatePolicyI implementing object.
 

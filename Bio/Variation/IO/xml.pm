@@ -24,7 +24,7 @@ This object can transform Bio::Variation::SeqDiff objects to and from XML
 file databases.
 
 The XML format, although consistent, is still evolving. The current
-DTD for it is at L<http://www.ebi.ac.uk/mutations/DTD/seqDiff.dtd>.
+DTD for it is at L<http:E<sol>E<sol>www.ebi.ac.ukE<sol>mutationsE<sol>DTDE<sol>seqDiff.dtd>.
 
 =head1 REQUIREMENTS
 

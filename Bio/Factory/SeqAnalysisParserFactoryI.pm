@@ -62,11 +62,12 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 
 =head1 AUTHOR - Hilmar Lapp, Jason Stajich
 
-Email Hilmar Lapp <hlapp@gmx.net>, Jason Stajich <jason@chg.mc.duke.edu>
+Email Hilmar Lapp E<lt>hlapp@gmx.netE<gt>, Jason Stajich E<lt>jason@chg.mc.duke.eduE<gt>
 
 =head1 APPENDIX
 
-The rest of the documentation details each of the object methods. Internal methods are usually preceded with a _
+The rest of the documentation details each of the object
+methods. Internal methods are usually preceded with a _
 
 =cut
 
@@ -101,7 +102,7 @@ use vars qw(@ISA );
  Args    : B<input>  - object/file where analysis results are coming from,
 	   B<params> - parameter to use when parsing/running analysis
 	   B<method> - method of analysis
-    
+
 =cut
 
 sub get_parser {

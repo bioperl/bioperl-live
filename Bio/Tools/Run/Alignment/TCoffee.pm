@@ -18,28 +18,30 @@ alignments using the TCoffee program
 
 =head1 SYNOPSIS
 
-# Build a tcoffee alignment factory
-    @params = ('ktuple' => 2, 'matrix' => 'BLOSUM');
-    $factory = new Bio::Tools::Run::Alignment::TCoffee (@params);
+  # Build a tcoffee alignment factory
+  @params = ('ktuple' => 2, 'matrix' => 'BLOSUM');
+  $factory = new Bio::Tools::Run::Alignment::TCoffee (@params);
 
-# Pass the factory a list of sequences to be aligned.
-    $inputfilename = 't/cysprot.fa';
-# $aln is a SimpleAlign object.
-    $aln = $factory->align($inputfilename); 
+  # Pass the factory a list of sequences to be aligned.
+  $inputfilename = 't/cysprot.fa';
+  # $aln is a SimpleAlign object.
+  $aln = $factory->align($inputfilename);
 
-# or where @seq_array is an array of Bio::Seq objects
-    $seq_array_ref = \@seq_array;  
-    $aln = $factory->align($seq_array_ref);
+  # or where @seq_array is an array of Bio::Seq objects
+  $seq_array_ref = \@seq_array;
+  $aln = $factory->align($seq_array_ref);
 
-# Or one can pass the factory a pair of (sub)alignments to be aligned against each other, e.g.:
+  # Or one can pass the factory a pair of (sub)alignments
+  #to be aligned against each other, e.g.:
 
-# where $aln1 and $aln2 are Bio::SimpleAlign objects.
-    $aln = $factory->profile_align($aln1,$aln2); 
+  # where $aln1 and $aln2 are Bio::SimpleAlign objects.
+  $aln = $factory->profile_align($aln1,$aln2);
 
-# Or one can pass the factory an alignment and one or more unaligned sequences to be added to the alignment. For example:
+  # Or one can pass the factory an alignment and one or more
+  # unaligned sequences to be added to the alignment. For example:
 
-# $seq is a Bio::Seq object.
-    $aln = $factory->profile_align($aln1,$seq); 
+  # $seq is a Bio::Seq object.
+  $aln = $factory->profile_align($aln1,$seq);
 
 There are various additional options and input formats available.  See
 the DESCRIPTION section that follows for additional details.
@@ -47,7 +49,7 @@ the DESCRIPTION section that follows for additional details.
 =head1 DESCRIPTION
 
 Note: this DESCRIPTION only documents the (Bio)perl interface to
-TCoffee.  
+TCoffee.
 
 There are a number of possible parameters one can pass in TCoffee.
 One should really read the online manual for the best explaination of
@@ -104,12 +106,12 @@ object, or through get/set methods of the same name (lowercase).
  Title       : DP_MODE
  Args        : [string] gotoh_pair_wise, myers_miller_pair_wise,
                fasta_pair_wise cfasta_pair_wise
- Default     : cfast_fair_wise 
- Description : Indicates the type of dynamic programming used by 
+ Default     : cfast_fair_wise
+ Description : Indicates the type of dynamic programming used by
                the program
 
-    gotoh_pair_wise : implementation of the gotoh algorithm 
-    (quadratic in memory and time)                
+    gotoh_pair_wise : implementation of the gotoh algorithm
+    (quadratic in memory and time)
 
     myers_miller_pair_wise : implementation of the Myers and Miller
     dynamic programming algorithm ( quadratic in time and linear in
@@ -130,9 +132,9 @@ object, or through get/set methods of the same name (lowercase).
 
 =head2 KTUPLE
 
- Title       : KTUPLE 
+ Title       : KTUPLE
  Args        : numeric value
- Default     : 1 or 2 (1 for protein, 2 for DNA ) 
+ Default     : 1 or 2 (1 for protein, 2 for DNA )
 
  Description : Indicates the ktuple size for cfasta_pair_wise dp_mode
                and fasta_pair_wise. It is set to 1 for proteins, and 2
@@ -141,7 +143,7 @@ object, or through get/set methods of the same name (lowercase).
                some residues are grouped under one letter, based on
                physicochemical properties:
                rk, de, qh, vilm, fy (the other residues are
-               not degenerated). 
+               not degenerated).
 
 =head2 NDIAGS
 
@@ -149,7 +151,7 @@ object, or through get/set methods of the same name (lowercase).
  Args        : numeric value
  Default     : 0
  Description : Indicates the number of diagonals used by the
-               fasta_pair_wise algorithm. When set to 0, 
+               fasta_pair_wise algorithm. When set to 0,
                n_diag=Log (length of the smallest sequence)
 
 =head2 DIAG_MODE
@@ -160,21 +162,21 @@ object, or through get/set methods of the same name (lowercase).
 
 
  Description : Indicates the manner in which diagonals are scored
-              during the fasta hashing.  
+              during the fasta hashing.
 
               0 indicates that the score of a diagonal is equal to the
-              sum of the scores of the exact matches it contains.  
-              
-            
+              sum of the scores of the exact matches it contains.
+
+
               1 indicates that this score is set equal to the score of
               the best uninterrupted segment
 
-              1 can be useful when dealing with fragments of sequences. 
+              1 can be useful when dealing with fragments of sequences.
 
 =head2 SIM_MATRIX
 
  Title       : SIM_MATRIX
- Args        : string 
+ Args        : string
  Default     : vasiliky
  Description : Indicates the manner in which the amino acid is being
                degenerated when hashing. All the substitution matrix
@@ -188,7 +190,7 @@ object, or through get/set methods of the same name (lowercase).
 =head2 MATRIX
 
  Title       : MATRIX
- Args        : 
+ Args        :
  Default     :
  Description : This flag is provided for compatibility with
                ClustalW. Setting matrix = 'blosum' is equivalent to
@@ -213,7 +215,7 @@ object, or through get/set methods of the same name (lowercase).
  Title       : GAPEXT
  Args        : numeric
  Default     : 0
- Description : Indicates the penalty applied for extending a gap. 
+ Description : Indicates the penalty applied for extending a gap.
 
 
 =head2 COSMETIC_PENALTY
@@ -236,7 +238,7 @@ object, or through get/set methods of the same name (lowercase).
  Title       : TG_MODE
  Args        : 0,1,2
  Default     : 1
- Description : (Terminal Gaps) 
+ Description : (Terminal Gaps)
                0: indicates that terminal gaps must be panelized with
                   a gapopen and a gapext penalty.
                1: indicates that terminal gaps must be penalized only
@@ -246,9 +248,9 @@ object, or through get/set methods of the same name (lowercase).
 =head2 WEIGHT
 
  Title       : WEIGHT
- Args        : sim or sim_<matrix_name or matrix_file> or integer value 
+ Args        : sim or sim_<matrix_name or matrix_file> or integer value
  Default     : sim
- 
+
 
  Description : Weight defines the way alignments are weighted when
                turned into a library.
@@ -281,7 +283,7 @@ object, or through get/set methods of the same name (lowercase).
                (for instance if they come from a structure
                super-imposition program). Value is an integer:
 
-                       -weight=1000 
+                       -weight=1000
 
   Note       : Weight only affects methods that return an alignment to
                T-Coffee, such as ClustalW. On the contrary, the
@@ -298,12 +300,12 @@ object, or through get/set methods of the same name (lowercase).
  Description : You may not wish to align all the sequences brought in
                by the -in flag. Supplying the seq_to_align flag allows
                for this, the file is simply a list of names in Fasta
-               format.  
+               format.
 
-               However, note that library extension will be carried out 
+               However, note that library extension will be carried out
                on all the sequences.
 
-=head2 PARAMETERS FOR TREE COMPUTATION AND OUTPUT
+=head1 PARAMETERS FOR TREE COMPUTATION AND OUTPUT
 
 =head2 NEWTREE
 
@@ -317,7 +319,7 @@ object, or through get/set methods of the same name (lowercase).
 =head2 USETREE
 
  Title       : USETREE
- Args        : treefile 
+ Args        : treefile
  Default     : no file specified
  Description : This flag indicates that rather than computing a new
                dendrogram, t_coffee can use a pre-computed one. The
@@ -332,21 +334,21 @@ object, or through get/set methods of the same name (lowercase).
  Title       : TREE_MODE
  Args        : slow, fast, very_fast
  Default     : very_fast
- Description : This flag indicates the method used for computing the 
-               dendrogram. 
-               slow : the chosen dp_mode using the extended library, 
+ Description : This flag indicates the method used for computing the
+               dendrogram.
+               slow : the chosen dp_mode using the extended library,
                fast : The fasta dp_mode using the extended library.
-               very_fast: The fasta dp_mode using pam250mt. 
+               very_fast: The fasta dp_mode using pam250mt.
 
 =head2 QUICKTREE
 
  Title       : QUICKTREE
- Args        : 
- Default     : 
- Description : This flag is kept for compatibility with ClustalW. 
+ Args        :
+ Default     :
+ Description : This flag is kept for compatibility with ClustalW.
                It indicates that:  -tree_mode=very_fast
 
-=head2 PARAMETERS FOR ALIGNMENT OUTPUT
+=head1 PARAMETERS FOR ALIGNMENT OUTPUT
 
 =head2 OUTFILE
 
@@ -361,23 +363,23 @@ object, or through get/set methods of the same name (lowercase).
  Args        : format1, format2
  Default     : clustalw
  Description : Indicated format for outputting outputfile
-               Supported formats are: 
-               
-               clustalw_aln, clustalw: ClustalW format. 
-               gcg, msf_aln : Msf alignment. 
-               pir_aln : pir alignment. 
-               fasta_aln : fasta alignment. 
-               phylip : Phylip format. 
-               pir_seq : pir sequences (no gap). 
-               fasta_seq : fasta sequences (no gap). 
-    As well as: 
-                score_html : causes the output to be a reliability 
-                             plot in HTML 
-                score_pdf : idem in PDF. 
-                score_ps : idem in postscript. 
+               Supported formats are:
 
-    More than one format can be indicated: 
-                -output=clustalw,gcg, score_html 
+               clustalw_aln, clustalw: ClustalW format.
+               gcg, msf_aln : Msf alignment.
+               pir_aln : pir alignment.
+               fasta_aln : fasta alignment.
+               phylip : Phylip format.
+               pir_seq : pir sequences (no gap).
+               fasta_seq : fasta sequences (no gap).
+    As well as:
+                score_html : causes the output to be a reliability
+                             plot in HTML
+                score_pdf : idem in PDF.
+                score_ps : idem in postscript.
+
+    More than one format can be indicated:
+                -output=clustalw,gcg, score_html
 
 =head2 CASE
 
@@ -397,7 +399,7 @@ object, or through get/set methods of the same name (lowercase).
 =head2 OUT_LIB
 
  Title       : OUT_LIB
- Args        : name of library, default, no 
+ Args        : name of library, default, no
  Default     : default
  Description : Sets the name of the library output. Default implies
                <run_name>.tc_lib
@@ -418,13 +420,13 @@ object, or through get/set methods of the same name (lowercase).
  Description : Causes the output alignment to contain residue numbers
                at the end of each line:
 
-=head2 PARAMETERS FOR GENERIC OUTPUT
+=head1 PARAMETERS FOR GENERIC OUTPUT
 
 =head2 RUN_NAME
 
  Title       : RUN_NAME
  Args        : your run name
- Default     : 
+ Default     :
  Description : This flag causes the prefix <your sequences> to be
                replaced by <your run name> when renaming the default
                files.
@@ -432,7 +434,7 @@ object, or through get/set methods of the same name (lowercase).
 =head2 ALIGN
 
  Title       : ALIGN
- Args        : 
+ Args        :
  Default     :
  Description : Indicates that the program must produce the
                alignment. This flag is here for compatibility with
@@ -441,15 +443,15 @@ object, or through get/set methods of the same name (lowercase).
 =head2 QUIET
 
  Title       : QUIET
- Args        : stderr, stdout, or filename, or nothing 
+ Args        : stderr, stdout, or filename, or nothing
  Default     : stderr
- Description : Redirects the standard output to either a file. 
-              -quiet on its own redirect the output to /dev/null. 
+ Description : Redirects the standard output to either a file.
+              -quiet on its own redirect the output to /dev/null.
 
 =head2 CONVERT
 
  Title       : CONVERT
- Args        : 
+ Args        :
  Default     :
  Description : Indicates that the program must not compute the
                alignment but simply convert all the sequences,
@@ -505,7 +507,7 @@ use Bio::Root::IO;
 @ISA = qw(Bio::Root::RootI Bio::Root::IO);
 
 
-BEGIN { 
+BEGIN {
 # You will need to enable TCoffee to find the tcoffee program. This can be done
 # in (at least) three ways:
 #  1. Modify your $PATH variable to include your tcoffee directory as in (for Linux):
@@ -518,34 +520,34 @@ BEGIN {
 
     $PROGRAMDIR = $ENV{TCOFFEEDIR} || '';
     $PROGRAM = Bio::Root::IO->catfile($PROGRAMDIR,'t_coffee');
-    
+
     @TCOFFEE_PARAMS = qw(IN TYPE PARAMETERS DO_NORMALISE EXTEND
-			 DP_MODE KTUPLE NDIAGS DIAG_MODE SIM_MATRIX 
+			 DP_MODE KTUPLE NDIAGS DIAG_MODE SIM_MATRIX
 			 MATRIX GAPOPEN GAPEXT COSMETIC_PENALTY TG_MODE
-			 WEIGHT SEQ_TO_ALIGN NEWTREE USETREE TREE_MODE 
+			 WEIGHT SEQ_TO_ALIGN NEWTREE USETREE TREE_MODE
 			 OUTFILE OUTPUT CASE CPU OUT_LIB OUTORDER SEQNOS
 			 RUN_NAME CONVERT);
-    
+
     @TCOFFEE_SWITCHES = qw(QUICKTREE);
-    
+
     @OTHER_SWITCHES = qw(QUIET ALIGN KEEPDND);
-    
+
 # Authorize attribute fields
-    foreach my $attr ( @TCOFFEE_PARAMS, @TCOFFEE_SWITCHES, @OTHER_SWITCHES ) { 
+    foreach my $attr ( @TCOFFEE_PARAMS, @TCOFFEE_SWITCHES, @OTHER_SWITCHES ) {
 	$OK_FIELD{$attr}++; }
 }
 
 sub new {
     my ($class,@args) = @_;
     my $self = $class->SUPER::new(@args);
-    # to facilitate cleanup tempfiles being called
+    # to facilitiate tempfile cleanup
     $self->_initialize_io();
     my ($attr, $value);
     (undef,$TMPOUTFILE) = $self->tempfile();
     while (@args)  {
 	$attr =   shift @args;
 	$value =  shift @args;
-	next if( $attr =~ /^-/); # don't want named parameters 
+	next if( $attr =~ /^-/); # don't want named parameters
 	$self->$attr($value);	
     }
     return $self;
@@ -590,7 +592,7 @@ or
 	$aln = $factory->align($seq_array_ref);
  Function: Perform a multiple sequence alignment
  Example :
- Returns : Reference to a SimpleAlign object containing the 
+ Returns : Reference to a SimpleAlign object containing the
            sequence alignment.
  Args    : Name of a file containing a set of unaligned fasta sequences
            or else an array of references to Bio::Seq objects.
@@ -610,7 +612,7 @@ sub align {
     if (!$infilename) {$self->throw("Bad input data or less than 2 sequences in $input !");}
 
 # Create parameter string to pass to tcoffee program
-    $self->{'_in'} = [];    
+    $self->{'_in'} = [];
 
     my $param_string = $self->_setparams();
 
@@ -648,11 +650,11 @@ sub profile_align {
     if (!$infilename1 || !$infilename2) {$self->throw("Bad input data: $input1 or $input2 !");}
 
     # Create parameter string to pass to tcoffee program
-    $self->{'_in'} = [];    
+    $self->{'_in'} = [];
     my $param_string = $self->_setparams();
 
 # run tcoffee
-    my $aln = $self->_run('profile-aln', $infilename1, 
+    my $aln = $self->_run('profile-aln', $infilename1,
 			  $infilename2, $param_string);
 
 }
@@ -664,7 +666,7 @@ sub profile_align {
  Usage   :  Internal function, not to be called directly	
  Function:  makes actual system call to tcoffee program
  Example :
- Returns : nothing; tcoffee output is written to a 
+ Returns : nothing; tcoffee output is written to a
            temporary file $TMPOUTFILE
  Args    : Name of a file containing a set of unaligned fasta sequences
            and hash of parameters to be passed to tcoffee
@@ -688,12 +690,12 @@ sub _run {
     my $param_string = shift;
     my $instring = "-in=".join(",", @{$self->{'_in'}});
     my $commandstring = $PROGRAM." $instring".
-	" -output=gcg". " $param_string";    
+	" -output=gcg". " $param_string";
     # next line is for debugging purposes
     if( $self->verbose > 0 ) {
 	print "tcoffee command = $commandstring \n";
     }
-    
+
     my $status = system($commandstring);
     $self->throw( "TCoffee call crashed: $? \n") if( -z $TMPOUTFILE );
 
@@ -704,18 +706,18 @@ sub _run {
 
     my $in  = Bio::AlignIO->new(-file => $outfile, '-format' => 'MSF');
     my $aln = $in->next_aln();
-   
+
     # Replace file suffix with dnd to find name of dendrogram file(s) to delete
     if( ! $self->keepdnd ) {
 	foreach my $f ( $infilename, $infile1, $infile2 ) {
 	    next if( !defined $f || $f eq '');
-	    $f =~ s/\.[^\.]*$// ;   
+	    $f =~ s/\.[^\.]*$// ;
 	    # because TCoffee writes these files to the CWD
 	    if( $Bio::Root::IO::PATHSEP ) {
 		my @line = split(/$Bio::Root::IO::PATHSEP/, $f);
-		$f = pop @line;	    
+		$f = pop @line;	
 	    } else { 		
-		(undef, undef, $f) = File::Spec->splitpath($f);    
+		(undef, undef, $f) = File::Spec->splitpath($f);
 	    }
 	    unlink $f .'.dnd' if( $f ne '' );
 	}
@@ -738,9 +740,9 @@ sub _run {
 
 sub _setinput {
     my ($self,$input, $suffix) = @_;
-    my ($infilename, $seq, $temp, $tfh);    
+    my ($infilename, $seq, $temp, $tfh);
 # suffix used to distinguish alignment files
-#  If $input is not a reference it better be the name of a 
+#  If $input is not a reference it better be the name of a
 # file with the sequence/ alignment data...
     if (! ref $input) {
 	# check that file exists or throw
@@ -752,7 +754,7 @@ sub _setinput {
     elsif (ref($input) =~ /ARRAY/i ) {
         #  Open temporary file for both reading & writing of BioSeq array
 	($tfh,$infilename) = $self->tempfile();
-	$temp =  Bio::SeqIO->new('-fh' => $tfh, 
+	$temp =  Bio::SeqIO->new('-fh' => $tfh,
 				'-format' => 'Fasta');
 	unless (scalar(@$input) > 1) {return 0;} # Need at least 2 seqs for alignment
 	foreach $seq (@$input) {
@@ -764,15 +766,15 @@ sub _setinput {
 #  $input may be a SimpleAlign object.
     elsif ( $input->isa("Bio::SimpleAlign") ) {
 	#  Open temporary file for both reading & writing of SimpleAlign object
-	($tfh, $infilename) = $self->tempfile() if ($suffix ==1 
+	($tfh, $infilename) = $self->tempfile() if ($suffix ==1
 						    || $suffix == 2 );
-	$temp =  Bio::AlignIO->new(-fh=>$tfh, 
+	$temp =  Bio::AlignIO->new(-fh=>$tfh,
 				   '-format' => 'Fasta');
 	$temp->write_aln($input);
 	return $infilename;
     }
 
-#  or $input may be a single BioSeq object (to be added to 
+#  or $input may be a single BioSeq object (to be added to
 # a previous alignment)
     elsif ( $input->isa("Bio::PrimarySeqI") && $suffix==2) {
         #  Open temporary file for both reading & writing of BioSeq object
@@ -791,7 +793,7 @@ sub _setinput {
  Usage   :  Internal function, not to be called directly	
  Function:  Create parameter inputs for tcoffee program
  Example :
- Returns : parameter string to be passed to tcoffee 
+ Returns : parameter string to be passed to tcoffee
            during align or profile_align
  Args    : name of calling object
 
@@ -810,7 +812,7 @@ sub _setparams {
 	    $self->{'_in'} = [ "X".lc($value) ];
 	} else {
 	    $attr_key = ' -'.$attr_key;
-	    $param_string .= $attr_key .'='.$value; 
+	    $param_string .= $attr_key .'='.$value;
 	}
    }
     for  $attr ( @TCOFFEE_SWITCHES) {

@@ -25,13 +25,13 @@ Bio::Root::RootI
 
 This object stores a sequence as a series of files in a temporary
 directory. The aim is to allow someone the ability to store very large
-sequences (eg, > 100MBases) in a file system without running out of memory
+sequences (eg, E<gt> 100MBases) in a file system without running out of memory
 (eg, on a 64 MB real memory machine!). 
 
 Of course, to actually make use of this functionality, the programs
-which use this object B<must> not call $primary_seq->seq otherwise the
+which use this object B<must> not call $primary_seq-E<gt>seq otherwise the
 entire sequence will come out into memory and probably paste your
-machine. However, calls $primary_seq->subseq(10,100) will cause only
+machine. However, calls $primary_seq-E<gt>subseq(10,100) will cause only
 90 characters to be brought into real memory.
 
 =head1 FEEDBACK

@@ -80,14 +80,14 @@ including Fasta, EMBL. GenBank, Swissprot (swiss), PIR and GCG.
   $seqout= Bio::SeqIO->new( '-format' => 'Fasta', -file => '>output.fa');
 
 This is the main loop which will loop progressively through sequences
-in a file. Each call to seqio->next_seq() provides a new sequence
+in a file. Each call to seqio-E<gt>next_seq() provides a new sequence
 object from the file, reading successively.
 
   while((my $seqobj = $seqio->next_seq())) {
 
 This print line access fields in the sequence object directly. The
-seqobj->display_id is the way to access the display_id attribute
-of the sequence object. The seqobj->seq method gets the actual
+seqobj-E<gt>display_id is the way to access the display_id attribute
+of the sequence object. The seqobj-E<gt>seq method gets the actual
 sequence out as string. Then you can do manipulation of this if
 you want to (there are however easy ways of doing truncation,
 reverse-complement and translation).
@@ -101,7 +101,7 @@ possibilities
 
         if( $seqobj->moltype eq 'dna') {
 
-The seqobj->revcom method provides the reverse complement of the seqobj
+The seqobj-E<gt>revcom method provides the reverse complement of the seqobj
 object as another sequence object. The $rev variable therefore is another
 sequence object. For example, one could repeat the above print line
 for this sequence object (putting rev in place of seqobj). In this case
@@ -182,7 +182,7 @@ Bio::SeqFeature objects:
    $feat->strand         # 1 means forward, -1 reverse, 0 not relevant
 
    # attributes which return strings
-  
+
    $feat->primary_tag    # the main 'name' of the sequence feature,
                          # eg, 'exon'
    $feat->source_tag     # where the feature comes from, eg, 'EMBL_GenBank',

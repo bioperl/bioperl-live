@@ -16,15 +16,15 @@ IUPAC - Generates unique Seq objects from an ambiguous Seq object
 
 =head1 SYNOPSIS
 
-use Bio::Seq;
-use Bio::Tools::IUPAC;
+ use Bio::Seq;
+ use Bio::Tools::IUPAC;
 
-my $ambiseq = new Bio::Seq (-seq => 'ARTCGUTGR', -type => 'Dna');
-my $stream  = new Bio::Tools::IUPAC(-seq => $ambiseq);
+ my $ambiseq = new Bio::Seq (-seq => 'ARTCGUTGR', -type => 'Dna');
+ my $stream  = new Bio::Tools::IUPAC(-seq => $ambiseq);
 
-while ($uniqueseq = $stream->next_seq()) {
-    # process the unique Seq object.
-}
+ while ($uniqueseq = $stream->next_seq()) {
+     # process the unique Seq object.
+ }
 
 =head1 DESCRIPTION
 

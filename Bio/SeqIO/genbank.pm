@@ -35,18 +35,18 @@ to document fully.
 
 =head2 Optional functions
 
-=over
+=over 3
 
 =item _show_dna()
 
 (output only) shows the dna or not
 
-=item _post_sort
-    
+=item _post_sort()
+
 (output only) provides a sorting func which is applied to the FTHelpers
 before printing
 
-=item _id_generation_func
+=item _id_generation_func()
 
 This is function which is called as 
 
@@ -55,7 +55,6 @@ This is function which is called as
 To generate the ID line. If it is not there, it generates a sensible ID
 line using a number of tools.
 
- 
 =back
 
 =head1 FEEDBACK

@@ -53,7 +53,7 @@ Bio::DB::EMBL - Database object interface to EMBL retrieval
 
 Allows the dynamic retrieval of sequence objects L<Bio::Seq> from the
 EMBL database using the emblfetch script at EBI:
-L<http://www.ebi.ac.uk/cgi-bin/emblfetch>.
+L<http:E<sol>E<sol>www.ebi.ac.ukE<sol>cgi-binE<sol>emblfetch>.
 
 In order to make changes transparent we have host type (currently only
 ebi) and location (defaults to ebi) separated out.  This allows later

@@ -656,7 +656,7 @@ sub no_residues {
  Argument  : 
 
 =cut
-    
+
 sub no_sequences {
     my $self = shift;
 

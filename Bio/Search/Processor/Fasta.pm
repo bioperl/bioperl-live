@@ -16,10 +16,10 @@ Bio::Search::Processor::Fasta - Processor of Fasta-generated data streams
 
 =head1 SYNOPSIS
 
-use Bio::Search::Processor
+  use Bio::Search::Processor
 
-my $processor = new Bio::Search::Processor -file      => 'mysearchrun',
-                                           -algorithm => 'Fasta';
+  my $processor = new Bio::Search::Processor -file      => 'mysearchrun',
+                                             -algorithm => 'Fasta';
 
 =head1 DESCRIPTION
 

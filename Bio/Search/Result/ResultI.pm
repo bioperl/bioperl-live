@@ -12,7 +12,7 @@
 
 =head1 NAME
 
-    Bio::Search::Result::ResultI.pm - Abstract interface to Result objects
+Bio::Search::Result::ResultI.pm - Abstract interface to Result objects
 
 =head1 SYNOPSIS
 

@@ -28,13 +28,8 @@ Give standard usage here
     # has start,end points
     $locseq->start();
     $locseq->end();
-    
-    # inherits off RangeI, so range operations possible
-    $locseq->overlaps($seqfeature);
 
-    # new identifier name combines id, start and end 
-    # should be unique within an alignment
-    $locseq->name()
+    # inheriets off RangeI, so range operations possible
 
 =head1 FEEDBACK
 
@@ -55,7 +50,7 @@ SimpleAlign object requires this functionality, and in the rewrite
 of the Sequence object we had to decide what to do with this.
 
 It is, to be honest, not well integrated with the rest of bioperl, for
-example, the ->trunc function does not return a LocatableSeq object,
+example, the trunc() function does not return a LocatableSeq object,
 as some might have thought. There are all sorts of nasty gotcha's about
 interactions between coordinate systems when these sort of objects are
 used. 

@@ -23,14 +23,14 @@ Bio::AlignIO - Handler for AlignIO Formats
 =head1 SYNOPSIS
 
     use Bio::AlignIO;
-    
+
     $inputfilename = "testaln.fasta";
     $in  = Bio::AlignIO->new(-file => $inputfilename , '-format' => 'fasta');
     $out = Bio::AlignIO->new(-file => ">out.aln.pfam" , '-format' => 'pfam');
     # note: we quote -format to keep older perl's from complaining.
 
     while ( my $aln = $in->next_aln() ) {
-	$out->write_aln($aln);
+        $out->write_aln($aln);
     }
 
 or
@@ -70,7 +70,7 @@ also
    $stream->type() # returns 'INPUT' or 'OUTPUT'
 
 As an added bonus, you can recover a filehandle that is tied to the
-AlignIO object, allowing you to use the standard <> and print operations
+AlignIO object, allowing you to use the standard E<lt>E<gt> and print operations
 to read and write sequence objects:
 
     use Bio::AlignIO;
@@ -115,7 +115,7 @@ the name "read_aln()" might be more appropriate.
 
 =head1 CONSTRUCTORS
 
-=head2 Bio::AlignIO->new()
+=head2 Bio::AlignIO-E<gt>new()
 
    $seqIO = Bio::AlignIO->new(-file => 'filename',   -format=>$format);
    $seqIO = Bio::AlignIO->new(-fh   => \*FILEHANDLE, -format=>$format);
@@ -149,7 +149,7 @@ example, to read from STDIN:
 Note that you must pass filehandles as references to globs.
 
 If neither a filehandle nor a filename is specified, then the module
-will read from the @ARGV array or STDIN, using the familiar <>
+will read from the @ARGV array or STDIN, using the familiar E<lt>E<gt>
 semantics.
 
 =item -format
@@ -179,7 +179,7 @@ all supported.
 
 =back
 
-=head2 Bio::AlignIO->newFh()
+=head2 Bio::AlignIO-E<gt>newFh()
 
    $fh = Bio::AlignIO->newFh(-fh   => \*FILEHANDLE, -format=>$format);
    $fh = Bio::AlignIO->newFh(-format => $format);
@@ -187,7 +187,7 @@ all supported.
 
 This constructor behaves like new(), but returns a tied filehandle
 rather than a Bio::AlignIO object.  You can read sequences from this
-object using the familiar <> operator, and write to it using print().
+object using the familiar E<lt>E<gt> operator, and write to it using print().
 The usual array and $_ semantics work.  For example, you can read all
 sequence objects into an array like this:
 
@@ -200,11 +200,11 @@ are not supported.
 
 See below for more detailed summaries.  The main methods are:
 
-=head2 $alignment = $AlignIO->next_aln()
+=head2 $alignment = $AlignIO-E<gt>next_aln()
 
 Fetch an alignment from a formatted file.
 
-=head2 $AlignIO->write_aln($aln)
+=head2 $AlignIO-E<gt>write_aln($aln)
 
 Write the specified alignment to a file..
 
@@ -369,7 +369,7 @@ sub _initialize {
  Args    :
 
 =cut
-  
+
 sub _load_format_module {
   my ($format) = @_;
   my ($module,$load,$m);

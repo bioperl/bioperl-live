@@ -68,7 +68,7 @@ also
    $stream->type() # returns 'INPUT' or 'OUTPUT'
 
 As an added bonus, you can recover a filehandle that is tied to the
-SeqIO object, allowing you to use the standard <> and print operations
+SeqIO object, allowing you to use the standard E<lt>E<gt> and print operations
 to read and write sequence objects:
 
     use Bio::SeqIO;
@@ -101,7 +101,7 @@ This makes the simplest ever reformatter
 
 =head1 CONSTRUCTORS
 
-=head2 Bio::SeqIO->new()
+=head2 Bio::SeqIO-E<gt>new()
 
    $seqIO = Bio::SeqIO->new(-file => 'filename',   -format=>$format);
    $seqIO = Bio::SeqIO->new(-fh   => \*FILEHANDLE, -format=>$format);
@@ -135,7 +135,7 @@ example, to read from STDIN:
 Note that you must pass filehandles as references to globs.
 
 If neither a filehandle nor a filename is specified, then the module
-will read from the @ARGV array or STDIN, using the familiar <>
+will read from the @ARGV array or STDIN, using the familiar E<lt>E<gt>
 semantics.
 
 A string filehandle is handy if you want to modify the output in the
@@ -183,7 +183,7 @@ all supported.
 
 =back
 
-=head2 Bio::SeqIO->newFh()
+=head2 Bio::SeqIO-E<gt>newFh()
 
    $fh = Bio::SeqIO->newFh(-fh   => \*FILEHANDLE, -format=>$format);
    $fh = Bio::SeqIO->newFh(-format => $format);
@@ -191,9 +191,9 @@ all supported.
 
 This constructor behaves like new(), but returns a tied filehandle
 rather than a Bio::SeqIO object.  You can read sequences from this
-object using the familiar <> operator, and write to it using print().
-The usual array and $_ semantics work.  For example, you can read all
-sequence objects into an array like this:
+object using the familiar E<lt>E<gt> operator, and write to it using
+print().  The usual array and $_ semantics work.  For example, you can
+read all sequence objects into an array like this:
 
   @sequences = <$fh>;
 
@@ -204,11 +204,11 @@ are not supported.
 
 See below for more detailed summaries.  The main methods are:
 
-=head2 $sequence = $seqIO->next_seq()
+=head2 $sequence = $seqIO-E<gt>next_seq()
 
 Fetch the next sequence from the stream.
 
-=head2 $seqIO->write_seq($sequence [,$another_sequence,...])
+=head2 $seqIO-E<gt>write_seq($sequence [,$another_sequence,...])
 
 Write the specified sequence(s) to the stream.
 
@@ -380,6 +380,7 @@ sub _initialize {
            Bio::RootI POD page).
  Returns : a Bio::Seq sequence object
  Args    :
+
 =cut
 
 sub next_seq {

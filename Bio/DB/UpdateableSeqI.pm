@@ -42,7 +42,7 @@ based database, AceDB, etc.
 
 =head1 AUTHOR
 
-Jason Stajich <jason@chg.mc.duke.edu>.
+Jason Stajich E<lt>jason@chg.mc.duke.eduE<gt>
 
 =head2 Reporting Bugs
 

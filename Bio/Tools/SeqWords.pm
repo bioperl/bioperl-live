@@ -41,8 +41,9 @@ Creating the SeqWords object, eg:
 	my $seq_word = Bio::Tools::SeqWords->new(-seq => $seqobj);
 
 or:
-	my $seqobj = Bio::PrimarySeq->new(-seq=>'[cut and paste a sequence
-here]', -moltype = 'dna', -id = 'test');
+
+	my $seqobj = Bio::PrimarySeq->new(-seq=>'[cut and paste a sequence here]', 
+                                          -moltype = 'dna', -id = 'test');
 	my $seq_word  =  Bio::Tools::SeqWords->new(-seq => $seqobj);
 
 obtain a hash of word counts, eg:
@@ -58,6 +59,7 @@ display hash table, eg:
 	}
 
 or	
+
 	my $hash_ref = Bio::SeqWords->count_words($seqobj,$word_length);
 
 
@@ -78,9 +80,6 @@ are quite a few of these shortened alphabets, this module does not
 specify any particular alphabet.
 
 See Synopsis above for object creation code.
-
-
-=head1 DEVELOPERS' NOTES
 
 =head1 FEEDBACK
 

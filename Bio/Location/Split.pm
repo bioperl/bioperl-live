@@ -235,7 +235,7 @@ sub is_single_sequence {
     return 1;
 }
 
-=head2 LocationI methods
+=head1 LocationI methods
 
 =head2 start
 
@@ -431,7 +431,7 @@ sub end_pos_type {
             method as a class method with an appropriate argument. Note that
             in this case only subsequently created Location objects will be
             affected.
-            
+
   Returns : A Bio::Location::CoordinatePolicyI implementing object.
   Args    : On set, a Bio::Location::CoordinatePolicyI implementing object.
 

@@ -48,8 +48,8 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 
 =head1 AUTHORS
 
-Aaron Mackey <amackey@virginia.edu>
-Lincoln Stein <lstein@cshl.org>
+Aaron Mackey E<lt>amackey@virginia.eduE<gt>
+Lincoln Stein E<lt>lstein@cshl.orgE<gt>
 
 =head1 APPENDIX
 

@@ -118,7 +118,7 @@ sub _generic_seqfeature {
 						     -splittype => $combotype);
 	# we need to make sub features
 	my $loc = $fth->loc;
-	$loc =~ s/^$combotype\((\S+)\)/$1/;	
+	$loc =~ s/^$combotype\((\S+)\)/$1/;
 	foreach my $next_loc ( split(/\s*,\s*/, $loc) ) {
 	    my $remote=0;
 	    my $seqid = $annseq->id;
@@ -147,7 +147,6 @@ sub _generic_seqfeature {
 	# see bug #930
         # we'll skip this SeqFeature if we can't parse the location 
 	$sf->location($splitlocation) if( defined $sf);
-
     }     
     # Parse simple locations and fuzzy locations
     else {

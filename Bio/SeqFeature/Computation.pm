@@ -67,8 +67,8 @@ or the web:
 
 =head1 AUTHOR - Ewan Birney, Mark Fiers
 
-Ewan Birney <birney@sanger.ac.uk>
-Mark Fiers <m.w.e.j.fiers@plant.wag-ur.nl>
+Ewan Birney E<lt>birney@sanger.ac.ukE<gt>
+Mark Fiers E<lt>m.w.e.j.fiers@plant.wag-ur.nlE<gt>
 
 =head1 DEVELOPERS
 

@@ -38,6 +38,7 @@ Creating the OddCodes object, eg:
 	my $oddcode_obj = Bio::Tools::Oddcodes->new(-seq => $seqobj);
 
 or:
+
 	my $seqobj = Bio::PrimarySeq->new
               (-seq=>'[cut and paste a sequence here]', 
                -moltype = 'protein', 
@@ -72,8 +73,6 @@ produced by the full 20-letter alphabet (eg. 400 dimers, 8000 trimers
 etc.)
 
 See Synopsis above for object creation code.
-
-=head1 DEVELOPERS' NOTES
 
 =head1 FEEDBACK
 

@@ -37,7 +37,7 @@ Bio::Variation::RNAChange - Sequence change class for RNA level
 
    print "The codon change is ", $rnachange->codon_ori, 
        ">", $rnachange->codon_mut, "\n"; 
-   
+
    # add it to a SeqDiff container object
    $seqdiff->add_Variant($rnachange);
 

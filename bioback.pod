@@ -1,4 +1,4 @@
-## $Id: bioback.pod,v 1.3 1999-04-12 18:09:59 birney Exp $
+## $Id: bioback.pod,v 1.4 2001-05-16 14:57:34 heikki Exp $
 
 #
 # Documentation about the backend of bioperl
@@ -29,7 +29,7 @@ DBI this should be quite simple.
 
 Two scripts are provided to get you started with the bioperl backend:
 
-=over
+=over 2
 
 =item bpfetch 
 
@@ -44,7 +44,7 @@ by bpfetch
 
 The core of the backend system is found in following modules
 
-=over
+=over 2
 
 =item Bio::DB::*
 
@@ -128,8 +128,5 @@ bpfetch has other options to connect to genbank across the network.
    etc
 
    You are ready to use bpfetch
-
-
-   
 
 
