@@ -209,7 +209,7 @@ sub omatic {
 	return wantarray 
 		? defined $self->{$tag}
 			? @{$self->{$tag}}
-			: []
+			: ()
 		: defined $self->{$tag}
 			? join " ",@{$self->{$tag}}
 			: undef;
