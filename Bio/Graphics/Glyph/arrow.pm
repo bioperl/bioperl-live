@@ -75,11 +75,13 @@ sub draw_parallel {
 
   my $trunc_left  = $x1 < $self->panel->left;
   my $trunc_right = $x2 > $self->panel->right;
-
   $x1 = $self->panel->left  if $trunc_left;
   $x2 = $self->panel->right if $trunc_right;
 
-  $trunc_left = 0  if $self->no_trunc;
+#  warn $self->feature,": x1=$x1, x2=$x2, start=$self->{start},end=$self->{end}, strand=$self->{strand}";
+#  warn join ' ',%$self;
+
+  $trunc_left  = 0 if $self->no_trunc;
   $trunc_right = 0 if $self->no_trunc;
 
   my ($sw,$ne,$base_w,$base_e) = $self->arrowheads;
@@ -97,15 +99,20 @@ sub draw_parallel {
     my $font_color = $self->fontcolor;
     my $height     = $self->height;
 
-    my $relative = $self->option('relative_coords');
+    my $relative               = $self->option('relative_coords');
+    my $reversed = exists $self->{flip} || ($relative && $self->feature->strand < 0);
     my $relative_coords_offset = $self->option('relative_coords_offset');
-    $relative_coords_offset = 1 unless ($relative_coords_offset);
+    $relative_coords_offset    = 1 unless defined $relative_coords_offset;
 
     my $start    = $relative ? $relative_coords_offset : $self->feature->start-1;
     my $stop     = $start + $self->feature->length - 1;
 
-    my $offset   = $relative ? ($self->feature->start - $relative_coords_offset) : 0;
-    my $reversed = exists $self->{flip} || ($relative && $self->feature->strand < 0);
+    # WARNING: THIS IS NOT WELL THOUGHT OUT, REVERSED SEGMENTS MAY NOT INTERACT
+    # WITH RELATIVE COORDINATES OFFSET CORRECTLY
+    my $offset   = $relative ? 
+                   $reversed ? ($self->feature->end   - $relative_coords_offset) 
+                             : ($self->feature->start - $relative_coords_offset) 
+	          : 0;
 
     my $unit_label   = $self->option('units') || '';
     my $unit_divider = $self->option('unit_divider') || 1;

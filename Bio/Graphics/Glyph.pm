@@ -73,19 +73,6 @@ sub new {
   }
 
   $self->{point} = $arg{-point} ? $self->height : undef;
-  #Handle glyphs that don't actually fill their space, but merely mark a point.
-  #They need to have their collision bounds altered.  We will (for now)
-  #hard code them to be in the center of their feature.
-# note: this didn't actually seem to work properly, all features were aligned on
-# their right edges.  It works to do it in individual point-like glyphs such as triangle.
-#  if($self->option('point')){
-#    my ($left,$right) = $factory->map_pt($self->start,$self->stop);
-#    my $center = int(($left+$right)/2 + 0.5);
-
-#    $self->{width} = $self->height;
-#    $self->{left}  = $center - ($self->{width});
-#    $self->{right} = $center + ($self->{width});
-#  }
 
   return $self;
 }
@@ -104,24 +91,30 @@ sub scale   { shift->factory->scale }
 sub start   {
   my $self = shift;
   return $self->{start} if exists $self->{start};
-  $self->{start} = $self->{flip} ? $self->panel->end + 1 - $self->{feature}->end : $self->{feature}->start;
-
-  # handle the case of features whose endpoints are undef
-  # (this happens with wormbase clones where one or more clone end is not defined)
-  # in this case, we set the start to one minus the beginning of the panel
-  $self->{start} = $self->panel->offset - 1 unless defined $self->{start};
+  if ($self->{flip}) {
+    $self->{start} = defined $self->{feature}->end
+                     ? $self->panel->end + 1 - $self->{feature}->end 
+                     : 0;
+  } else {
+    $self->{start} = defined $self->{feature}->start
+                     ? $self->{feature}->start
+		     : $self->panel->offset - 1
+  }
 
   return $self->{start};
 }
 sub stop    {
   my $self = shift;
   return $self->{stop} if exists $self->{stop};
-  $self->{stop} = $self->{flip} ?  $self->panel->end + 1 - $self->{feature}->start : $self->{feature}->end;
-
-  # handle the case of features whose endpoints are undef
-  # (this happens with wormbase clones where one or more clone end is not defined)
-  # in this case, we set the start to one plus the end of the panel
-  $self->{stop} = $self->panel->offset + $self->panel->length + 1 unless defined $self->{stop};
+  if ($self->{flip}) {
+    $self->{stop} = defined $self->{feature}->start 
+      ? $self->panel->end + 1 - $self->{feature}->start 
+      : $self->panel->offset - 1;
+  } else {
+    $self->{stop} = defined $self->{feature}->end
+      ?  $self->{feature}->end
+      : $self->panel->offset+$self->panel->length+1;
+  }
 
   return $self->{stop}
 }
