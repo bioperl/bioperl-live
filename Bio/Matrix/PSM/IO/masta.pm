@@ -56,10 +56,6 @@ Email skirov@utk.edu
 
 =head1 APPENDIX
 
-=head1 TO DO
-
-Add SEQ to the write formats...
-
 =cut
 
 
@@ -116,9 +112,28 @@ sub write_psm {
     $self->{mtype}=uc($type) if ($type);
     my $idline=">". $matrix->id . "\n";
     $self->_print($idline);
+    unless ($self->{mtype} eq 'SEQ') {
     while (my %h=$matrix->next_pos) {
 	my $row=$self->{mtype} eq 'PWM' ? join("\t",$h{lA},$h{lC},$h{lG},$h{lT},"\n"):join("\t",$h{pA},$h{pC},$h{pG},$h{pT},"\n");
 	$self->_print ($row);
+    }
+    }
+    else {
+	my @seq;
+	while (my %h=$matrix->next_pos) {
+		my ($a,$c,$g,$t)=_freq_to_count(\%h);
+		$self->throw("Could not convert from frequency to count\n") if (($a+$c+$g+$t) !=10);
+		for my $i (0..$a-1) {$seq[$i].='A';}
+		my $m=$a+$c;
+		for my $i ($a..$m-1) {$seq[$i].='C';}
+		my $n=$a+$c+$g;
+		for my $i ($m..$n-1) {$seq[$i].='G';}
+		for my $i ($n..9) {$seq[$i].='T';}
+	}	
+	foreach my $s (@seq) {
+		$s.="\n";
+		$self->_print ($s);
+	}
     }
 }
 
@@ -244,6 +259,11 @@ return \@a,\@c,\@g,\@t;
 sub _count_positions {
 	my $seq=shift;
 	my %pos;
+	my $l=length($seq->[0])-1;
+	$pos{A}->[$l]=0; #INIT
+	$pos{C}->[$l]=0; 
+	$pos{G}->[$l]=0; 
+	$pos{T}->[$l]=0; 
 	foreach my $sequence (@{$seq}) {
 		my @let=split(//,$sequence);
 		for my $i (0..$#let) {
@@ -252,3 +272,15 @@ sub _count_positions {
 	}
 	return $pos{A},$pos{C},$pos{G},$pos{T};
 }
+
+
+sub _freq_to_count {
+	my $h=shift;
+	my $a=int(10*$h->{pA}+0.5);
+	my $c=int(10*$h->{pC}+0.5);
+	my $g=int(10*$h->{pG}+0.5);
+	my $t=int(10*$h->{pT}+0.5);
+	return ($a,$c,$g,$t);
+}
+
+1;
