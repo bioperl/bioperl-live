@@ -71,10 +71,11 @@ use strict;
 # Object preamble - inherits from Bio::Root::Object
 
 use Bio::SeqIO;
+use Bio::Root::Object;
 use XML::DOM;
 use XML::Handler::BuildDOM;
 
-@ISA = qw(Bio::SeqIO);
+@ISA = qw(Bio::SeqIO Bio::Root::Object);
 # new() is inherited from Bio::Root::Object
 
 # _initialize is where the heavy stuff will happen when new is called
@@ -87,9 +88,16 @@ sub _initialize {
     while (my $next_line = $self->_readline) {
       $xmlfile= $xmlfile.$next_line;
     }
-    my $parser = new XML::DOM::Parser();
-    my $doc = $parser->parse($xmlfile);
-    $seq = $doc->getElementsByTagName("seq");
+    my $doc;
+    $doc = eval {
+      my $parser = new XML::DOM::Parser();
+      $doc = $parser->parse($xmlfile);
+      $seq = $doc->getElementsByTagName("seq");
+    };
+    if ($@) {
+      $self->throw("There was an error parsing the xml document $args[1].  It may not be well-formed");
+      exit(0);
+    }
   }
 }
 my $seqnum = 0;
